@@ -1,6 +1,7 @@
 //wrapper
 // Set *ignore_bluespace_interference* to TRUE if you don't want your teleportation to be affected by BoH, SoH and other bluespace stuff
-/proc/do_teleport(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE)
+// Set *block_bluespace_interference* to TRUE if BSIG fields should fully block the teleport instead of shunting it.
+/proc/do_teleport(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE, block_bluespace_interference = FALSE)
 	var/datum/teleport/instant/science/D = new
 	if(D.start(arglist(args)))
 		return TRUE
@@ -43,13 +44,14 @@
 	var/force_teleport = 1 //if false, teleport will use Move() proc (dense objects will prevent teleportation)
 	var/ignore_area_flag = FALSE
 	var/ignore_bluespace_interference = FALSE
+	var/block_bluespace_interference = FALSE
 
-/datum/teleport/proc/start(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE)
+/datum/teleport/proc/start(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE, block_bluespace_interference = FALSE)
 	if(!initTeleport(arglist(args)))
 		return FALSE
 	return TRUE
 
-/datum/teleport/proc/initTeleport(ateleatom, adestination, aprecision, afteleport, aeffectin, aeffectout, asoundin, asoundout, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE)
+/datum/teleport/proc/initTeleport(ateleatom, adestination, aprecision, afteleport, aeffectin, aeffectout, asoundin, asoundout, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE, block_bluespace_interference = FALSE)
 	if(!setTeleatom(ateleatom))
 		return FALSE
 	if(!setDestination(adestination))
@@ -61,6 +63,7 @@
 	setSounds(asoundin, asoundout)
 	ignore_area_flag = bypass_area_flag
 	src.ignore_bluespace_interference = ignore_bluespace_interference
+	src.block_bluespace_interference = block_bluespace_interference
 	return TRUE
 
 //must succeed
@@ -109,6 +112,35 @@
 /datum/teleport/proc/teleportChecks()
 	return TRUE
 
+// Resolves signal-based teleport interception. Handlers may block the teleport or rewrite TELEPORT_SIGNAL_DESTINATION.
+/proc/resolve_teleport_interception(atom/movable/teleatom, turf/source_turf, turf/destination_turf, ignore_bluespace_interference = FALSE, block_bluespace_interference = FALSE)
+	if(!source_turf || !destination_turf)
+		return null
+
+	var/list/teleport_data = list(
+		TELEPORT_SIGNAL_DESTINATION = destination_turf,
+		TELEPORT_SIGNAL_TELEATOM = teleatom,
+		TELEPORT_SIGNAL_IGNORE_BLUESPACE = ignore_bluespace_interference,
+		TELEPORT_SIGNAL_BLOCK_BSIG = block_bluespace_interference,
+	)
+
+	teleport_data[TELEPORT_SIGNAL_SOURCE_CHECK] = TRUE
+	if(SEND_SIGNAL(source_turf, COMSIG_ATOM_INTERCEPT_TELEPORTING, source_turf, teleport_data) & COMPONENT_BLOCK_TELEPORT)
+		return null
+
+	teleport_data[TELEPORT_SIGNAL_SOURCE_CHECK] = FALSE
+	for(var/i in 1 to 3)
+		var/turf/current_destination = teleport_data[TELEPORT_SIGNAL_DESTINATION]
+		if(!current_destination)
+			return null
+		if(SEND_SIGNAL(current_destination, COMSIG_ATOM_INTERCEPT_TELEPORTING, source_turf, teleport_data) & COMPONENT_BLOCK_TELEPORT)
+			return null
+		var/turf/new_destination = teleport_data[TELEPORT_SIGNAL_DESTINATION]
+		if(!new_destination || new_destination == current_destination)
+			return new_destination
+
+	return null
+
 /datum/teleport/proc/playSpecials(atom/location, datum/effect_system/effect, sound)
 	if(location)
 		if(effect)
@@ -148,23 +180,9 @@
 		to_chat(teleport_blocker, span_warning("Блюспейс-помехи предотвращают телепортацию!"))
 		return FALSE
 
-	if(!ignore_bluespace_interference)
-		var/obj/machinery/power/bluespace_interference_generator/stationary/origin_interference = get_bluespace_interference_generator(curturf)
-		if(origin_interference)
-			if(isliving(teleatom))
-				var/mob/living/L = teleatom
-				to_chat(L, span_warning("Блюспейс-помехи предотвращают телепортацию!"))
-			return FALSE
-
-		var/obj/machinery/power/bluespace_interference_generator/stationary/destination_interference = get_bluespace_interference_generator(destturf)
-		if(destination_interference)
-			var/turf/interference_edge = destination_interference.get_edge_turf(curturf, destturf)
-			if(!interference_edge)
-				return FALSE
-			destturf = interference_edge
-			if(isliving(teleatom))
-				var/mob/living/L = teleatom
-				to_chat(L, span_warning("Блюспейс-помехи выбрасывают телепорт на край поля!"))
+	destturf = resolve_teleport_interception(teleatom, curturf, destturf, ignore_bluespace_interference, block_bluespace_interference)
+	if(!destturf)
+		return FALSE
 
 	if(!is_teleport_allowed(destturf.z) && !ignore_area_flag)
 		return FALSE
@@ -179,8 +197,6 @@
 			return FALSE
 
 	if(SEND_SIGNAL(teleatom, COMSIG_MOVABLE_TELEPORTING, curturf, destturf) & COMPONENT_BLOCK_TELEPORT)
-		return FALSE
-	if(SEND_SIGNAL(destturf, COMSIG_ATOM_INTERCEPT_TELEPORTING, curturf) & COMPONENT_BLOCK_TELEPORT)
 		return FALSE
 
 	playSpecials(curturf, effectin, soundin)
@@ -204,7 +220,7 @@
 		return doTeleport()
 	return FALSE
 
-/datum/teleport/instant/start(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null)
+/datum/teleport/instant/start(ateleatom, adestination, aprecision = 0, afteleport = 1, aeffectin = null, aeffectout = null, asoundin = null, asoundout = null, bypass_area_flag = FALSE, ignore_bluespace_interference = FALSE, block_bluespace_interference = FALSE)
 	if(..())
 		if(teleport())
 			return TRUE

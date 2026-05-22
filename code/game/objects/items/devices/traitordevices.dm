@@ -345,23 +345,16 @@ effective or pretty fucking useless.
 		get_fragged(user, destination)
 
 /obj/item/teleporter/proc/bluespace_interference_blocked(mob/living/user, turf/source_turf)
-	if(!get_bluespace_interference_generator(source_turf))
+	if(resolve_teleport_interception(user, source_turf, source_turf, block_bluespace_interference = TRUE))
 		return FALSE
-	to_chat(user, span_warning("[src] fails to activate due to the local bluespace interference."))
 	return TRUE
 
 /obj/item/teleporter/proc/get_bluespace_interference_destination(mob/living/user, turf/source_turf, turf/destination)
-	var/obj/machinery/power/bluespace_interference_generator/stationary/interference = get_bluespace_interference_generator(destination)
-	if(!interference)
-		return destination
-
-	var/turf/edge_turf = interference.get_edge_turf(source_turf, destination)
-	if(!edge_turf)
-		to_chat(user, span_warning("[src] fails to find a stable point outside the bluespace interference."))
+	var/turf/resolved_destination = resolve_teleport_interception(user, source_turf, destination)
+	if(!resolved_destination)
 		return null
 
-	to_chat(user, span_warning("[src] shunts you to the edge of a bluespace interference field."))
-	return edge_turf
+	return resolved_destination
 
 /obj/item/teleporter/proc/tile_check(turf/check_turf)
 	return isfloorturf(check_turf) || isspaceturf(check_turf) || isopenspaceturf(check_turf)

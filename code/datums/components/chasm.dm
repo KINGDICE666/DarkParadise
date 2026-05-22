@@ -69,8 +69,11 @@
 
 	drop_stuff(movable)
 
-/datum/component/chasm/proc/block_teleport()
+/datum/component/chasm/proc/block_teleport(datum/source, turf/origin, list/teleport_data)
 	SIGNAL_HANDLER
+
+	if(teleport_data?[TELEPORT_SIGNAL_SOURCE_CHECK])
+		return NONE
 
 	return COMPONENT_BLOCK_TELEPORT
 
@@ -313,4 +316,3 @@
 	REMOVE_TRAIT(escapee, TRAIT_MOVE_FLYING, CHASM_TRAIT)
 	escapee.Sleeping(20 SECONDS)
 	UnregisterSignal(escapee, COMSIG_LIVING_REVIVE)
-

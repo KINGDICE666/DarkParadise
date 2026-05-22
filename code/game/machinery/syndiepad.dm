@@ -199,26 +199,7 @@
 		to_chat(user, span_warning("Linked pad is not responding to ping."))
 		return
 
-	if(bluespace_interference_blocked(user))
-		return
-
 	return doteleport(usr)
-
-/obj/machinery/syndiepad/proc/bluespace_interference_blocked(mob/user)
-	if(!linked_pad || QDELETED(linked_pad))
-		return FALSE
-
-	if(get_bluespace_interference_generator(get_turf(src)))
-		if(user)
-			to_chat(user, span_warning("[src] не может установить редспейс-связь через локальные блюспейс-помехи."))
-		return TRUE
-
-	if(get_bluespace_interference_generator(get_turf(linked_pad)))
-		if(user)
-			to_chat(user, span_warning("[src] не может установить редспейс-связь через блюспейс-помехи вокруг целевой платформы."))
-		return TRUE
-
-	return FALSE
 
 /obj/machinery/syndiepad/proc/sparks()
 	do_sparks(5, TRUE, get_turf(src))
@@ -243,9 +224,6 @@
 				to_chat(user, span_warning("Linked pad is not responding to ping. Teleport aborted."))
 				teleporting = 0
 				return
-			if(bluespace_interference_blocked(user))
-				teleporting = 0
-				return
 			teleporting = 0
 			last_teleport = world.time
 			// use a lot of power
@@ -256,8 +234,6 @@
 			playsound(get_turf(src), 'sound/weapons/emitter2.ogg', 25, TRUE)
 			flick("[initial(linked_pad.icon_state)]-beam", linked_pad)
 			playsound(get_turf(linked_pad), 'sound/weapons/emitter2.ogg', 25, TRUE)
-			var/tele_success = FALSE
-
 			for(var/atom/movable/ROI in get_turf(src))
 				// if is living, check if allowed, don't let through if not
 				if(isliving(ROI) && allow_humans == FALSE)
@@ -291,7 +267,5 @@
 								continue
 						else if(!isobserver(ROI))
 							continue
-				tele_success = do_teleport(ROI, get_turf(linked_pad), bypass_area_flag = force_ignore_teleport_blocking)
-				if(!tele_success)
-					to_chat(user, span_warning("Object '[ROI]'' was not teleported for unknown reason!"))
+				do_teleport(ROI, get_turf(linked_pad), bypass_area_flag = force_ignore_teleport_blocking, ignore_bluespace_interference = TRUE)
 			return

@@ -39,6 +39,7 @@
 	var/list/field_visuals = list()
 	var/turf/cached_center_turf
 	var/cached_field_radius_squared = 0
+	var/list/intercept_connections
 	var/next_toggle_time = 0
 
 /obj/machinery/power/bluespace_interference_generator/stationary/Initialize(mapload)
@@ -71,18 +72,21 @@
 	var/total_range_rating = 0
 	power_usage = 0
 	var/list/parts = component_parts
+	var/part_rating
 
-	for(var/obj/item/stock_parts/capacitor/capacitor in parts)
-		capacitor_count++
-		var/rating = capacitor.rating
-		power_usage += max(0, BSIG_S_CAPACITOR_BASE_LOAD - (BSIG_S_CAPACITOR_RATING_LOAD_REDUCTION * rating))
-		total_range_rating += rating
-		range_part_count++
-
-	for(var/obj/item/stock_parts/manipulator/manipulator in parts)
-		var/rating = manipulator.rating
-		total_range_rating += rating
-		range_part_count++
+	for(var/obj/item/part as anything in parts)
+		if(istype(part, /obj/item/stock_parts/capacitor))
+			var/obj/item/stock_parts/capacitor/capacitor = part
+			capacitor_count++
+			part_rating = capacitor.rating
+			power_usage += max(0, BSIG_S_CAPACITOR_BASE_LOAD - (BSIG_S_CAPACITOR_RATING_LOAD_REDUCTION * part_rating))
+			total_range_rating += part_rating
+			range_part_count++
+		else if(istype(part, /obj/item/stock_parts/manipulator))
+			var/obj/item/stock_parts/manipulator/manipulator = part
+			part_rating = manipulator.rating
+			total_range_rating += part_rating
+			range_part_count++
 
 	if(capacitor_count < BSIG_S_REQUIRED_CAPACITORS)
 		power_usage += (BSIG_S_REQUIRED_CAPACITORS - capacitor_count) * BSIG_S_CAPACITOR_BASE_LOAD
@@ -95,6 +99,7 @@
 
 	update_cached_field_data()
 	if(field_active)
+		update_field_interception()
 		refresh_field_visuals()
 
 /obj/machinery/power/bluespace_interference_generator/stationary/process(seconds_per_tick)
@@ -168,13 +173,13 @@
 		return
 	field_active = new_field_active
 	if(field_active)
-		GLOB.active_bluespace_interference_generators |= src
 		update_cached_field_data()
+		update_field_interception()
 		refresh_field_visuals()
 		set_light(2, 0.6, BSIG_S_FIELD_COLOR, l_on = TRUE)
 	else
-		GLOB.active_bluespace_interference_generators -= src
 		cached_center_turf = null
+		clear_field_interception()
 		clear_field_visuals()
 		set_light(0, 0)
 	update_icon(UPDATE_ICON_STATE)
@@ -182,6 +187,56 @@
 /obj/machinery/power/bluespace_interference_generator/stationary/proc/update_cached_field_data()
 	cached_center_turf = get_turf(src)
 	cached_field_radius_squared = field_range * (field_range + 0.5)
+
+/obj/machinery/power/bluespace_interference_generator/stationary/proc/update_field_interception()
+	if(!field_active)
+		clear_field_interception()
+		return
+	if(!intercept_connections)
+		intercept_connections = list(COMSIG_ATOM_INTERCEPT_TELEPORTING = PROC_REF(intercept_teleport))
+	AddComponent(/datum/component/connect_range, src, intercept_connections, field_range, FALSE)
+
+/obj/machinery/power/bluespace_interference_generator/stationary/proc/clear_field_interception()
+	qdel(GetComponent(/datum/component/connect_range))
+
+/obj/machinery/power/bluespace_interference_generator/stationary/proc/intercept_teleport(datum/source, turf/origin, list/teleport_data)
+	SIGNAL_HANDLER
+
+	if(!field_active || teleport_data?[TELEPORT_SIGNAL_IGNORE_BLUESPACE])
+		return NONE
+
+	if(!isturf(source))
+		return NONE
+
+	var/turf/intercepted_turf = source
+	if(!blocks_turf(intercepted_turf))
+		return NONE
+	if(!teleport_data?[TELEPORT_SIGNAL_SOURCE_CHECK] && teleport_data?[TELEPORT_SIGNAL_DESTINATION] != intercepted_turf)
+		return NONE
+
+	var/atom/movable/teleatom = teleport_data?[TELEPORT_SIGNAL_TELEATOM]
+	if(teleport_data?[TELEPORT_SIGNAL_SOURCE_CHECK] || teleport_data?[TELEPORT_SIGNAL_BLOCK_BSIG])
+		notify_interference_block(teleatom)
+		return COMPONENT_BLOCK_TELEPORT
+
+	var/turf/interference_edge = get_edge_turf(origin, intercepted_turf)
+	if(!interference_edge)
+		notify_interference_block(teleatom)
+		return COMPONENT_BLOCK_TELEPORT
+
+	teleport_data[TELEPORT_SIGNAL_DESTINATION] = interference_edge
+	notify_interference_shunt(teleatom)
+	return NONE
+
+/obj/machinery/power/bluespace_interference_generator/stationary/proc/notify_interference_block(atom/movable/teleatom)
+	if(isliving(teleatom))
+		var/mob/living/living_teleatom = teleatom
+		to_chat(living_teleatom, span_warning("Блюспейс-помехи предотвращают телепортацию!"))
+
+/obj/machinery/power/bluespace_interference_generator/stationary/proc/notify_interference_shunt(atom/movable/teleatom)
+	if(isliving(teleatom))
+		var/mob/living/living_teleatom = teleatom
+		to_chat(living_teleatom, span_warning("Блюспейс-помехи выбрасывают телепорт на край поля!"))
 
 /obj/machinery/power/bluespace_interference_generator/stationary/proc/clear_field_visuals()
 	var/datum/atom_hud/data/diagnostic/basic_diag_hud = GLOB.huds[DATA_HUD_DIAGNOSTIC]
@@ -333,21 +388,6 @@
 	. = ..()
 	set_cable_powered(FALSE)
 	set_field_active(FALSE)
-
-/proc/get_bluespace_interference_generator(turf/target_turf)
-	if(!target_turf || !length(GLOB.active_bluespace_interference_generators))
-		return null
-
-	var/list/generators = GLOB.active_bluespace_interference_generators
-	var/gen_len = length(generators)
-	for(var/i = gen_len, i >= 1, i--)
-		var/obj/machinery/power/bluespace_interference_generator/stationary/generator = generators[i]
-		if(QDELETED(generator) || !generator.field_active)
-			continue
-		if(generator.blocks_turf(target_turf))
-			return generator
-
-	return null
 
 #undef BSIG_S_MIN_RANGE
 #undef BSIG_S_MAX_RANGE

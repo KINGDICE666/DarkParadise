@@ -464,12 +464,6 @@
 	if(HAS_TRAIT(owner, TRAIT_NO_TELEPORT))
 		return FALSE
 
-	if(get_bluespace_interference_generator(get_turf(owner)))
-		return FALSE
-
-	if(destination && get_bluespace_interference_generator(destination))
-		return FALSE
-
 	return TRUE
 
 /obj/item/clothing/suit/armor/reactive/teleport/Initialize(mapload)
@@ -505,7 +499,8 @@
 			return
 		if(!can_reactive_teleport(H, picked))
 			return 0
-		H.forceMove(picked)
+		if(!do_teleport(H, picked, block_bluespace_interference = TRUE))
+			return 0
 		return 1
 	return 0
 
