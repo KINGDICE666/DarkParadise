@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Голосовой чат</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="socketio.js"></script>
+    <script src="voicechat.js" defer></script>
+    <link rel="prefetch" as="image" href="stopclown.png">
+    <link rel="prefetch" as="image" href="fastclown.gif">
+</head>
+<body>
+    <main class="voice-panel">
+        <section class="status-row" aria-label="Статус подключения">
+            <div id="status" class="tooltip" data-tip="Статус подключения к клиенту и серверу">
+                Подключение...
+            </div>
+            <button id="mic" class="button button-wide tooltip" data-tip="Повторно запросить доступ к микрофону">
+                Запросить микрофон
+            </button>
+        </section>
+
+        <section class="monitor-row" aria-label="Индикаторы голосового чата">
+            <img class="indicator-image tooltip" data-tip="Статус голосовой комнаты" id="room_status" src="stopclown.png" alt="Статус комнаты">
+            <img class="indicator-image tooltip" data-tip="Индикатор передачи речи" id="voice_activity_status" src="megaphone.png" alt="Индикатор речи">
+            <input class="tooltip slider slider-vertical" data-tip="Общая громкость" type="range" min="0.01" max="1" value="0.6" step="0.01" id="volume_slider" aria-label="Общая громкость">
+        </section>
+
+        <div id="buttons" class="button-row">
+            <button id="mute_toggle" class="button tooltip" data-tip="Включить или выключить передачу микрофона" aria-pressed="false">
+                Микрофон
+            </button>
+            <button id="deafen_toggle" class="button tooltip" data-tip="Включить или выключить входящий голос" aria-pressed="false">
+                Звук
+            </button>
+            <button id="settings_button" class="button tooltip" data-tip="Открыть или закрыть настройки" aria-pressed="false">
+                Настройки
+            </button>
+        </div>
+
+        <section id="settings" aria-label="Настройки голоса">
+            <label class="field tooltip" data-tip="Усиление микрофона">
+                <span>Усиление</span>
+                <input class="slider" id="input_slider" type="range" min="1" value="50" max="100" aria-label="Усиление микрофона">
+            </label>
+
+            <label class="field tooltip" data-tip="Порог срабатывания передачи речи">
+                <span>Чувствительность</span>
+                <input class="slider" id="sensitivity_slider" type="range" min="0.001" value="0.04" max="0.2" step="0.001" aria-label="Чувствительность">
+            </label>
+
+            <label class="field tooltip" data-tip="Устройство ввода">
+                <span>Ввод</span>
+                <select id="audioInput"></select>
+            </label>
+
+            <label class="field tooltip" data-tip="Устройство вывода">
+                <span>Вывод</span>
+                <select id="audioOutput"></select>
+            </label>
+
+            <div class="mic_test_container">
+                <button class="button tooltip" data-tip="Проверить микрофон с задержкой" aria-pressed="false">
+                    Проверить
+                </button>
+                <div id="mic_test_visual_indicator" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <div id="tooltip_box">
+            Наведите курсор на элемент
+        </div>
+    </main>
+</body>
+</html>

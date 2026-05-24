@@ -4,6 +4,7 @@
 // Category
 #define VERB_CATEGORY_OOC "OOC"
 #define VERB_CATEGORY_IC "IC"
+#define VERB_CATEGORY_PROXCHAT "ProxChat"
 #define VERB_CATEGORY_OBJECT "Объекты" // TODO: REMOVE
 #define VERB_CATEGORY_AICOMMANDS "ИИ команды"
 #define VERB_CATEGORY_SPECIALVERBS "Спецкоманды"
