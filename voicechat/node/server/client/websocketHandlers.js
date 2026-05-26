@@ -1,12 +1,15 @@
 const { sessionIdToUserCode, userCodeToSocketId, socketIdToUserCode } = require('../state');
 const { sendJSON } = require('../byond/ByondCommunication');
 
+const MIC_CONFIRM_RETRY_DELAYS_MS = [0, 500, 1500, 3000];
+
 function clearSocketUser(socket) {
     const userCode = socketIdToUserCode.get(socket.id);
     if (!userCode) {
         return null;
     }
 
+    clearMicConfirmTimers(socket);
     userCodeToSocketId.delete(userCode);
     socketIdToUserCode.delete(socket.id);
     socket.userCode = null;
@@ -22,9 +25,40 @@ function getTargetSocket(io, userCode) {
     return io.sockets.sockets.get(targetSocketId);
 }
 
+function clearMicConfirmTimers(socket) {
+    if (!socket.micConfirmTimers) {
+        return;
+    }
+
+    socket.micConfirmTimers.forEach((timer) => clearTimeout(timer));
+    socket.micConfirmTimers = null;
+}
+
+function confirmMicAccess(socket, byondPort) {
+    const userCode = socketIdToUserCode.get(socket.id);
+    if (!userCode || socket.micConfirmed) {
+        return;
+    }
+
+    socket.micConfirmed = true;
+    clearMicConfirmTimers(socket);
+    socket.micConfirmTimers = MIC_CONFIRM_RETRY_DELAYS_MS.map((delayMs, index) => setTimeout(() => {
+        const currentUserCode = socketIdToUserCode.get(socket.id);
+        if (!currentUserCode) {
+            return;
+        }
+
+        sendJSON({ confirmed: currentUserCode }, byondPort);
+        const suffix = index === 0 ? '' : ` retry ${index}`;
+        console.log(`Sent microphone confirmation for userCode ${currentUserCode}.${suffix}`);
+    }, delayMs));
+}
+
 function createConnectionHandler(byondPort, io) {
     return function handleConnection(socket) {
         console.log('A user connected:', socket.id);
+        socket.micAccessGranted = false;
+        socket.micConfirmed = false;
 
         const authTimer = setTimeout(() => {
             if (socketIdToUserCode.get(socket.id)) {
@@ -56,16 +90,16 @@ function createConnectionHandler(byondPort, io) {
                 console.log(`Associated userCode ${userCode} with socket ${socket.id}`);
             }
 
+            if (socket.micAccessGranted) {
+                confirmMicAccess(socket, byondPort);
+            }
+
             socket.emit('update', { type: 'status', data: 'Подключено' });
         });
 
         socket.on('mic_access_granted', () => {
-            const userCode = socketIdToUserCode.get(socket.id);
-            if (!userCode) {
-                return;
-            }
-
-            sendJSON({ confirmed: userCode }, byondPort);
+            socket.micAccessGranted = true;
+            confirmMicAccess(socket, byondPort);
         });
 
         socket.on('disconnect_page', () => {
