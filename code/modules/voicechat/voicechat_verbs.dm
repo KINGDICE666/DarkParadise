@@ -6,7 +6,6 @@
 		to_chat(src, span_ooc("Голосовой чат не запущен или временно недоступен."))
 		return
 
-	SSvoicechat.show_help(src)
 	SSvoicechat.join_voicechat(client)
 
 /mob/verb/join_voicechat_external()

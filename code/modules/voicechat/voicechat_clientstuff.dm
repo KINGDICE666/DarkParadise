@@ -24,33 +24,88 @@
 		else
 			address = world.internet_address || world.address || client.address || "127.0.0.1"
 
-	var/web_link = "https://[address]:[node_port]?sessionId=[session_id]"
-	if(!show_link_only)
-		client << link(web_link)
-	else
-		client << browse({"
-		<html>
-			<head>
-				<meta charset='UTF-8'>
-				<style>
-					body { background: #11151c; color: #e9eef5; font-family: Arial, sans-serif; margin: 16px; }
-					code { display: block; background: #202938; border: 1px solid #334155; padding: 8px; word-break: break-all; }
-					img { display: block; margin-top: 12px; background: #fff; padding: 8px; }
-				</style>
-			</head>
-			<body>
-				<h3>Голосовой чат</h3>
-				<p>Скопируйте ссылку в браузер или отсканируйте QR-код.</p>
-				<code>[web_link]</code>
-				<img src='https://api.qrserver.com/v1/create-qr-code/?data=[url_encode(web_link)]&size=150x150' alt='QR'>
-			</body>
-		</html>"}, "window=voicechat_help;size=420x520")
+	var/web_link = "https://[address]:[node_port]?sessionId=[session_id]&popup=1"
+	show_launcher(client, web_link, !show_link_only)
 
 	send_json(list(
 		"cmd" = VOICECHAT_CMD_REGISTER,
 		"userCode" = user_code,
 		"sessionId" = session_id,
 	))
+
+/datum/controller/subsystem/voicechat/proc/show_launcher(client/client, web_link, auto_open = TRUE)
+	if(!client)
+		return
+
+	var/encoded_link = html_encode(web_link)
+	var/auto_open_value = auto_open ? "true" : "false"
+	client << browse({"
+		<html>
+			<head>
+				<meta charset='UTF-8'>
+				<style>
+					* { box-sizing: border-box; }
+					body { background: #101318; color: #edf2f7; font-family: Arial, sans-serif; margin: 0; }
+					.panel { display: flex; flex-direction: column; gap: 12px; min-height: 100vh; padding: 16px; }
+					h3 { font-size: 18px; margin: 0; }
+					p { color: #aeb8c4; line-height: 1.4; margin: 0; }
+					.actions { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+					.button { align-items: center; background: #26313d; border: 1px solid #435061; border-radius: 6px; color: #f4f8fb; cursor: pointer; display: flex; font-weight: 700; justify-content: center; min-height: 38px; padding: 8px 10px; text-align: center; text-decoration: none; }
+					.button.primary { background: #22573e; border-color: #54c58a; }
+					.button:hover { filter: brightness(1.08); }
+					code { background: #1a2028; border: 1px solid #343f4d; border-radius: 6px; display: block; font-size: 12px; padding: 8px; word-break: break-all; }
+					.note { border-left: 3px solid #73b7ff; color: #c7d3df; min-height: 40px; padding-left: 10px; }
+					.qr-wrap { align-items: center; display: flex; gap: 12px; }
+					img { background: #ffffff; border-radius: 6px; height: 92px; padding: 6px; width: 92px; }
+				</style>
+			</head>
+			<body>
+				<div class='panel'>
+					<h3>&#1043;&#1086;&#1083;&#1086;&#1089;&#1086;&#1074;&#1086;&#1081; &#1095;&#1072;&#1090;</h3>
+					<p>&#1055;&#1072;&#1085;&#1077;&#1083;&#1100; &#1075;&#1086;&#1083;&#1086;&#1089;&#1072; &#1086;&#1090;&#1082;&#1088;&#1086;&#1077;&#1090;&#1089;&#1103; &#1086;&#1090;&#1076;&#1077;&#1083;&#1100;&#1085;&#1099;&#1084; &#1082;&#1086;&#1084;&#1087;&#1072;&#1082;&#1090;&#1085;&#1099;&#1084; &#1086;&#1082;&#1085;&#1086;&#1084; &#1073;&#1088;&#1072;&#1091;&#1079;&#1077;&#1088;&#1072;.</p>
+					<div class='actions'>
+						<button class='button primary' id='open'>&#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100;</button>
+						<button class='button' id='copy'>&#1050;&#1086;&#1087;&#1080;&#1088;&#1086;&#1074;&#1072;&#1090;&#1100;</button>
+					</div>
+					<div class='note' id='note'>&#1056;&#1072;&#1079;&#1088;&#1077;&#1096;&#1080;&#1090;&#1077; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087; &#1082; &#1084;&#1080;&#1082;&#1088;&#1086;&#1092;&#1086;&#1085;&#1091; &#1074; &#1073;&#1088;&#1072;&#1091;&#1079;&#1077;&#1088;&#1077;.</div>
+					<code>[encoded_link]</code>
+					<div class='qr-wrap'>
+						<img src='https://api.qrserver.com/v1/create-qr-code/?data=[url_encode(web_link)]&size=150x150' alt='QR'>
+						<p>QR &#1084;&#1086;&#1078;&#1085;&#1086; &#1086;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100; &#1089; &#1076;&#1088;&#1091;&#1075;&#1086;&#1075;&#1086; &#1091;&#1089;&#1090;&#1088;&#1086;&#1081;&#1089;&#1090;&#1074;&#1072; &#1074; &#1101;&#1090;&#1086;&#1081; &#1089;&#1077;&#1090;&#1080;.</p>
+					</div>
+				</div>
+				<script>
+					const voiceUrl = [json_encode(web_link)];
+					const autoOpen = [auto_open_value];
+					const features = 'popup=yes,width=[VOICECHAT_WEB_POPUP_WIDTH],height=[VOICECHAT_WEB_POPUP_HEIGHT],left=80,top=80,resizable=yes,scrollbars=no,toolbar=no,menubar=no,status=no';
+					const note = document.getElementById('note');
+					function setNote(text) {
+						note.innerHTML = text;
+					}
+					function openVoicePanel() {
+						const popup = window.open(voiceUrl, 'ss13_voicechat', features);
+						if(popup) {
+							popup.focus();
+							setNote('&#1055;&#1072;&#1085;&#1077;&#1083;&#1100; &#1086;&#1090;&#1082;&#1088;&#1099;&#1090;&#1072;.');
+							return;
+						}
+						setNote('&#1041;&#1088;&#1072;&#1091;&#1079;&#1077;&#1088; &#1079;&#1072;&#1073;&#1083;&#1086;&#1082;&#1080;&#1088;&#1086;&#1074;&#1072;&#1083; popup. &#1053;&#1072;&#1078;&#1084;&#1080;&#1090;&#1077; &quot;&#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100;&quot; &#1077;&#1097;&#1077; &#1088;&#1072;&#1079;.');
+					}
+					document.getElementById('open').addEventListener('click', openVoicePanel);
+					document.getElementById('copy').addEventListener('click', async () => {
+						try {
+							await navigator.clipboard.writeText(voiceUrl);
+							setNote('&#1057;&#1089;&#1099;&#1083;&#1082;&#1072; &#1089;&#1082;&#1086;&#1087;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1072;.');
+						} catch(error) {
+							setNote('&#1057;&#1082;&#1086;&#1087;&#1080;&#1088;&#1091;&#1081;&#1090;&#1077; &#1089;&#1089;&#1099;&#1083;&#1082;&#1091; &#1080;&#1079; &#1087;&#1086;&#1083;&#1103; &#1085;&#1080;&#1078;&#1077;.');
+						}
+					});
+					if(autoOpen) {
+						setTimeout(openVoicePanel, 100);
+					}
+				</script>
+			</body>
+		</html>"}, "window=voicechat_launcher;size=[VOICECHAT_LAUNCHER_WIDTH]x[VOICECHAT_LAUNCHER_HEIGHT];can_close=1;can_minimize=1;can_maximize=0;can_resize=0;titlebar=1")
 
 // Disconnects a client from voice chat.
 /datum/controller/subsystem/voicechat/proc/leave_voicechat(client/client)

@@ -33,9 +33,14 @@ let sinkId = null; // Output device ID
 // Extract sessionId from URL
 const urlParams = new URLSearchParams(window.location.search);
 const sessionId = urlParams.get('sessionId');
+const isPopupMode = urlParams.get('popup') === '1';
 
 // Extract ip from url
 const address = window.location.host;
+
+if (isPopupMode && window.outerWidth > 0) {
+    window.resizeTo(360, 640);
+}
 
 // Utility Functions
 function setButtonToggled(buttonId, isToggled) {

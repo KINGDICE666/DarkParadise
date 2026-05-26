@@ -1,15 +1,18 @@
 :root {
-    --bg: #11151c;
-    --panel: #171d27;
-    --panel-soft: #202938;
-    --line: #334155;
-    --text: #e9eef5;
-    --muted: #9aa8ba;
-    --button: #253244;
-    --button-hover: #2f3f56;
-    --active: #54c58a;
+    --bg: #0d1117;
+    --panel: #141a22;
+    --panel-soft: #1c2531;
+    --line: #314052;
+    --line-strong: #52657a;
+    --text: #edf4fb;
+    --muted: #aab7c5;
+    --button: #233044;
+    --button-hover: #2d3d55;
+    --active: #58cf91;
+    --active-soft: #183d2c;
     --warn: #f07167;
-    --focus: #73b7ff;
+    --focus: #7bbcff;
+    --meter: #8ad7ff;
     --radius: 6px;
 }
 
@@ -19,8 +22,9 @@
 
 html,
 body {
-    min-width: 320px;
+    min-width: 340px;
     margin: 0;
+    overflow-x: hidden;
     background: var(--bg);
     color: var(--text);
     font-family: Arial, Helvetica, sans-serif;
@@ -28,17 +32,19 @@ body {
 }
 
 body {
-    width: 320px;
+    width: 340px;
 }
 
 .voice-panel {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: 320px;
+    width: 340px;
     min-height: 100vh;
     padding: 10px;
-    background: var(--bg);
+    background:
+        linear-gradient(180deg, rgba(123, 188, 255, 0.08), transparent 160px),
+        var(--bg);
 }
 
 .status-row,
@@ -53,8 +59,8 @@ body {
 }
 
 #status {
-    min-height: 40px;
-    padding: 10px;
+    min-height: 38px;
+    padding: 9px 10px;
     border: 1px solid var(--line);
     border-left: 4px solid var(--focus);
     border-radius: var(--radius);
@@ -82,6 +88,7 @@ body {
     font: inherit;
     font-weight: 700;
     cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
 }
 
 .button-wide {
@@ -89,7 +96,12 @@ body {
 }
 
 .button:hover {
+    border-color: var(--line-strong);
     background: var(--button-hover);
+}
+
+.button:active {
+    transform: translateY(1px);
 }
 
 .button:focus-visible,
@@ -101,8 +113,8 @@ input:focus-visible {
 
 .button.toggled {
     border-color: var(--active);
-    background: #1c4634;
-    color: #dff8ea;
+    background: var(--active-soft);
+    color: #e8fff2;
 }
 
 .monitor-row {
@@ -110,7 +122,7 @@ input:focus-visible {
 }
 
 .indicator-image {
-    width: 132px;
+    width: 146px;
     height: 132px;
     object-fit: contain;
     border: 1px solid var(--line);
@@ -122,7 +134,7 @@ input:focus-visible {
 
 .indicator-image.active {
     border-color: var(--active);
-    box-shadow: inset 0 0 0 2px rgba(84, 197, 138, 0.35);
+    box-shadow: inset 0 0 0 2px rgba(88, 207, 145, 0.35);
 }
 
 .slider {
@@ -131,7 +143,7 @@ input:focus-visible {
 }
 
 .slider-vertical {
-    width: 20px;
+    width: 18px;
     height: 132px;
     writing-mode: vertical-lr;
     direction: rtl;
@@ -152,7 +164,7 @@ input:focus-visible {
 
 .field {
     display: grid;
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     align-items: center;
     gap: 8px;
     min-height: 30px;
@@ -174,7 +186,7 @@ select {
 
 .mic_test_container {
     display: grid;
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     align-items: center;
     gap: 8px;
 }
@@ -189,11 +201,24 @@ select {
 }
 
 #tooltip_box {
-    min-height: 34px;
+    min-height: 40px;
     padding: 8px;
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--panel);
     color: var(--muted);
     line-height: 18px;
+}
+
+@media (max-width: 360px) {
+    html,
+    body,
+    .voice-panel {
+        width: 100%;
+        min-width: 320px;
+    }
+
+    .indicator-image {
+        width: 137px;
+    }
 }
