@@ -5,4 +5,4 @@ enable_voicechat
 port_voicechat 3000
 
 ##public domain or IP used in browser links. leave commented to autodetect.
-#domain_voicechat voice.example.com
+domain_voicechat 127.0.0.1
