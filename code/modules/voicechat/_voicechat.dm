@@ -9,6 +9,11 @@ SUBSYSTEM_DEF(voicechat)
 	var/node_shutdown_requested = FALSE
 	var/node_process_id
 
+	// Per-launch shared secret for the BYOND→Node HTTP bridge.
+	var/auth_token
+	// Pre-built URL such as "http://127.0.0.1:3001/byond/cmd".
+	var/bridge_url
+
 	// User codes associated with fully confirmed browser sessions.
 	var/list/voice_clients
 	var/list/user_code_client_uid
@@ -19,33 +24,30 @@ SUBSYSTEM_DEF(voicechat)
 	var/list/user_code_room
 	var/list/user_code_mob
 	var/list/user_code_speaking_icons
+	// Tracks whether the speaking overlay is currently applied (prevents add_overlay stacking).
+	var/list/user_code_overlay_active
 	var/list/round_start_rooms
 
 	var/const/node_script_path = "voicechat/node/server/main.js"
-	var/const/node_executable_win = "C:\\Program Files\\nodejs\\node.exe"
-	var/socket_library_path
-	var/const/socket_library_path_unix = "voicechat/pipes/unix/byondsocket"
-	var/const/socket_library_path_win = "voicechat/pipes/windows/byondsocket/Release/byondsocket"
+	var/const/node_log_dir = "data/logs"
 
 /datum/controller/subsystem/voicechat/Initialize()
 	reset_state()
-
-	if(world.system_type == MS_WINDOWS)
-		socket_library_path = socket_library_path_win
-	else
-		socket_library_path = socket_library_path_unix
 
 	if(!CONFIG_GET(flag/enable_voicechat))
 		can_fire = FALSE
 		return SS_INIT_NO_NEED
 
-	if(!test_library())
+	auth_token = md5("[world.realtime][rand()][world.time][world.port]")
+	var/node_port = CONFIG_GET(number/port_voicechat)
+	if(!node_port)
+		log_world("Voice chat: missing or invalid port_voicechat config; subsystem disabled.")
 		return SS_INIT_FAILURE
+	bridge_url = "http://127.0.0.1:[node_port + 1]/byond/cmd"
 
 	can_fire = TRUE
 	add_rooms(round_start_rooms)
 	start_node()
-	is_enabled = TRUE
 	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/voicechat/proc/reset_state()
@@ -61,6 +63,7 @@ SUBSYSTEM_DEF(voicechat)
 	user_code_room = list()
 	user_code_mob = list()
 	user_code_speaking_icons = list()
+	user_code_overlay_active = list()
 	round_start_rooms = list(VOICECHAT_ROOM_LIVING, VOICECHAT_ROOM_GHOST)
 
 /datum/controller/subsystem/voicechat/proc/is_available()
@@ -75,26 +78,34 @@ SUBSYSTEM_DEF(voicechat)
 /datum/controller/subsystem/voicechat/proc/start_node()
 	var/byond_port = world.port
 	var/node_port = CONFIG_GET(number/port_voicechat)
-	if(!node_port)
-		CRASH("bad port option specified in config {node_port: [node_port || "null"]}")
 
-	var/command = "node [node_script_path] --node-port=[node_port] --byond-port=[byond_port] &"
+	// Ensure the log directory exists so the redirect doesn't silently fail.
+	// mkdir is idempotent on both platforms — errors are intentionally ignored.
 	if(world.system_type == MS_WINDOWS)
-		command = "powershell.exe -Command \"Start-Process -FilePath '[node_executable_win]' -ArgumentList '[node_script_path]','--node-port=[node_port]','--byond-port=[byond_port]' -WorkingDirectory '.' -WindowStyle Hidden -RedirectStandardOutput 'data/logs/voicechat_node.out.log' -RedirectStandardError 'data/logs/voicechat_node.err.log'\""
+		shell("cmd /c if not exist \"[node_log_dir]\" mkdir \"[node_log_dir]\"")
+	else
+		shell("mkdir -p [node_log_dir]")
+
+	var/node_args = "[node_script_path] --node-port=[node_port] --byond-port=[byond_port] --auth-token=[auth_token]"
+	var/command = "node [node_args] >> [node_log_dir]/voicechat_node.out.log 2>> [node_log_dir]/voicechat_node.err.log &"
+	if(world.system_type == MS_WINDOWS)
+		// Resolve node.exe through PATH so non-default install locations work.
+		command = "powershell.exe -NoProfile -Command \"Start-Process -FilePath 'node.exe' -ArgumentList '[node_script_path]','--node-port=[node_port]','--byond-port=[byond_port]','--auth-token=[auth_token]' -WindowStyle Hidden -RedirectStandardOutput '[node_log_dir]/voicechat_node.out.log' -RedirectStandardError '[node_log_dir]/voicechat_node.err.log'\""
 
 	var/exit_code = shell(command)
 	if(exit_code != 0)
-		CRASH("launching node failed {exit_code: [exit_code || "null"], cmd: [command || "null"]}")
+		log_world("Voice chat: launching Node failed (exit_code=[exit_code || "null"]).")
+		return
 
 	// Node reports its PID asynchronously through world/Topic, but the verb should be usable as soon as launch succeeds.
 	is_enabled = TRUE
+	log_world("Voice chat: Node process launch requested (port=[node_port], bridge=[node_port + 1]).")
 
 /datum/controller/subsystem/voicechat/Shutdown()
 	if(should_shutdown())
 		stop_node()
 	is_enabled = FALSE
-	initialized = FALSE
-	. = ..()
+	return ..()
 
 /datum/controller/subsystem/voicechat/proc/stop_node()
 	if(!should_shutdown())
@@ -112,10 +123,10 @@ SUBSYSTEM_DEF(voicechat)
 		node_process_id = null
 		return
 
-	message_admins("node failed to shutdown, trying forcefully...")
+	message_admins("Voice chat: Node failed to shut down gracefully, trying forcefully...")
 
 	if(!node_process_id)
-		message_admins("cant find pid to shutdown node. hard restart required to fix voicechat")
+		message_admins("Voice chat: no Node PID known; a hard restart is required to recover.")
 		return
 
 	var/command = "kill [node_process_id]"
@@ -124,18 +135,20 @@ SUBSYSTEM_DEF(voicechat)
 
 	var/exit_code = shell(command)
 	if(exit_code != 0)
-		message_admins("killing node failed {exit_code: [exit_code || "null"], cmd: [command || "null"]}")
+		message_admins("Voice chat: killing Node failed (exit_code=[exit_code || "null"]).")
 	else
-		message_admins("node shutdown")
+		message_admins("Voice chat: Node forcefully stopped.")
 
 /datum/controller/subsystem/voicechat/fire()
 	send_locations()
 
 /datum/controller/subsystem/voicechat/proc/on_node_start(pid)
 	if(!pid || !isnum(pid))
-		CRASH("invalid pid {pid: [pid || "null"]}")
+		log_world("Voice chat: received invalid pid from Node: [pid || "null"]")
+		return
 
 	node_process_id = pid
+	log_world("Voice chat: Node confirmed start (pid=[pid]).")
 
 /datum/controller/subsystem/voicechat/proc/add_rooms(rooms, zlevel_mode = FALSE)
 	if(!islist(rooms))
@@ -188,11 +201,14 @@ SUBSYSTEM_DEF(voicechat)
 		return
 
 	voice_clients |= user_code
-	log_world("Voice chat confirmed for userCode: [user_code]")
+	log_world("Voice chat: confirmed userCode [user_code].")
 	post_confirm(user_code)
 
 // Sends active clients' positions to Node.
 /datum/controller/subsystem/voicechat/proc/send_locations()
+	if(!length(voice_clients))
+		return
+
 	var/list/params = list("cmd" = VOICECHAT_CMD_LOCATION)
 	var/locations_sent = 0
 
@@ -238,13 +254,11 @@ SUBSYSTEM_DEF(voicechat)
 	var/client_uid = user_code_client_uid[user_code]
 	var/image/speaker_overlay = user_code_speaking_icons[user_code]
 	var/mob/old_mob = user_code_mob[user_code]
-	if(speaker_overlay && old_mob)
+	if(speaker_overlay && old_mob && user_code_overlay_active[user_code])
 		old_mob.cut_overlay(speaker_overlay)
-	else if(speaker_overlay)
-		var/client/client = get_client_by_user_code(user_code)
-		client?.mob?.cut_overlay(speaker_overlay)
 
 	user_code_speaking_icons.Remove(user_code)
+	user_code_overlay_active.Remove(user_code)
 	user_code_mob.Remove(user_code)
 
 	if(client_uid)

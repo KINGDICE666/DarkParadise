@@ -116,27 +116,40 @@
 
 	var/client/client = get_client_by_user_code(user_code)
 	if(!client || !client.mob)
-		disconnect(user_code)
+		disconnect(user_code, from_byond = TRUE)
 		return
 
 	var/mob/mob = client.mob
 	if(!user_code_speaking_icons[user_code])
-		var/image/speaker_overlay = image('icons/mob/effects/talk.dmi', icon_state = "voice")
+		// Match Paradise's speech_bubble pattern from /mob/living/speech_bubble (living_say.dm).
+		// FLY_LAYER (5) is BYOND's built-in above-mob layer; ABOVE_GAME_PLANE keeps it visible above world contents.
+		// APPEARANCE_UI_IGNORE_ALPHA keeps our own alpha and color regardless of what the mob looks like.
+		var/image/speaker_overlay = image('icons/mob/effects/talk.dmi', icon_state = "voice", layer = FLY_LAYER)
+		SET_PLANE_EXPLICIT(speaker_overlay, ABOVE_GAME_PLANE, mob)
+		speaker_overlay.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
 		speaker_overlay.alpha = VOICECHAT_SPEAKING_ICON_ALPHA
 		user_code_speaking_icons[user_code] = speaker_overlay
 
 	var/image/speaker_overlay = user_code_speaking_icons[user_code]
 	var/mob/old_mob = user_code_mob[user_code]
 	if(mob != old_mob)
-		if(old_mob)
+		if(old_mob && user_code_overlay_active[user_code])
 			old_mob.cut_overlay(speaker_overlay)
+		user_code_overlay_active[user_code] = FALSE
 		user_code_mob[user_code] = mob
 		room_update(mob)
 
-	if(is_active && (isobserver(mob) || !mob.stat))
+	var/should_show = is_active && (isobserver(mob) || !mob.stat)
+	var/currently_shown = user_code_overlay_active[user_code]
+	#ifdef VOICECHAT_DEBUG_OVERLAY
+	log_world("Voicechat toggle_active: user=[user_code] active=[is_active] mob=[mob] stat=[mob.stat] should_show=[should_show] currently=[currently_shown ? "yes" : "no"]")
+	#endif
+	if(should_show && !currently_shown)
 		mob.add_overlay(speaker_overlay)
-	else
+		user_code_overlay_active[user_code] = TRUE
+	else if(!should_show && currently_shown)
 		mob.cut_overlay(speaker_overlay)
+		user_code_overlay_active[user_code] = FALSE
 
 // Mutes or deafens a user's microphone.
 /datum/controller/subsystem/voicechat/proc/mute_mic(client/client, deafen = FALSE)
