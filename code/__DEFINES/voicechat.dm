@@ -12,7 +12,6 @@
 #define VOICECHAT_CMD_MUTE_MIC "mute_mic"
 #define VOICECHAT_CMD_DEAFEN "deafen"
 
-#define VOICECHAT_TOPIC_ADDRESS "127.0.0.1"
 #define VOICECHAT_TOPIC_NODE_STARTED "node_started"
 #define VOICECHAT_TOPIC_PONG "pong"
 #define VOICECHAT_TOPIC_CONFIRMED "confirmed"

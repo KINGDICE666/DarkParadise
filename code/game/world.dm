@@ -90,7 +90,7 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 
 /world/Topic(T, addr, master, key)
 	TGS_TOPIC
-	if(addr == VOICECHAT_TOPIC_ADDRESS && SSvoicechat && SSvoicechat.can_handle_topic(T))
+	if(SSvoicechat && SSvoicechat.can_handle_topic(T))
 		return SSvoicechat.handle_topic(T, addr)
 
 	log_misc("WORLD/TOPIC: \"[T]\", from:[addr], master:[master], key:[key == CONFIG_GET(string/comms_password) ? "*secret*" : key]")

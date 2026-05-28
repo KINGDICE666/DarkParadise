@@ -19,9 +19,6 @@
 	rustg_http_request_async(RUSTG_HTTP_METHOD_POST, bridge_url, json, json_encode(headers), null)
 
 /datum/controller/subsystem/voicechat/proc/handle_topic(topic, address)
-	if(address != VOICECHAT_TOPIC_ADDRESS)
-		return
-
 	var/list/data = safe_json_decode(topic)
 	if(!islist(data))
 		log_world("Voice chat: received malformed JSON from Node: [topic]")
