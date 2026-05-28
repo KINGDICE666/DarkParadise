@@ -58,10 +58,40 @@ function sendByondTopic(host, port, data, timeout = 5000) {
     });
 }
 
+// DreamDaemon's topic accept loop on Windows silently drops rapid sequential
+// TCP connects from the same source IP — observed empirically that the second+
+// connect within ~1s often never reaches /world/Topic, and close-spaced bursts
+// can trip the per-IP spam lockout (1 minute). We serialize all outbound topic
+// sends and space them at least MIN_SEND_INTERVAL_MS apart so each one lands
+// reliably.
+const MIN_SEND_INTERVAL_MS = 1100;
+
+let queueChain = Promise.resolve();
+let lastSendAt = 0;
+
+function enqueueSend(host, port, data) {
+    const task = queueChain.then(async () => {
+        const wait = Math.max(0, MIN_SEND_INTERVAL_MS - (Date.now() - lastSendAt));
+        if (wait > 0) {
+            await new Promise((resolve) => setTimeout(resolve, wait));
+        }
+
+        try {
+            await sendByondTopic(host, port, data);
+        } finally {
+            lastSendAt = Date.now();
+        }
+    });
+
+    // Swallow errors in the chain so one failure doesn't poison the queue.
+    queueChain = task.catch(() => undefined);
+    return task;
+}
+
 async function sendJSON(data, byondPort) {
     const out = JSON.stringify(data);
     try {
-        await sendByondTopic('127.0.0.1', byondPort, out);
+        await enqueueSend('127.0.0.1', byondPort, out);
     } catch (err) {
         console.error('Failed to send command:', err.message);
     }

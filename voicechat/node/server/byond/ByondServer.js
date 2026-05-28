@@ -5,8 +5,13 @@ const path = require('path');
 const { sendJSON } = require('./ByondCommunication');
 const { handleRequest } = require('./ByondHandlers');
 
+// Windows: net.createServer().listen() accepts the named-pipe path verbatim
+// (`\\.\pipe\<name>`). We MUST NOT run it through path.resolve() — that would
+// rewrite it to a normal filesystem path under cwd ("C:\.pipe\byond_node"),
+// and the DLL on the BYOND side would never find the pipe to connect to.
+// Linux: the unix socket lives in the project root, so we do resolve there.
 const pipeName = process.platform === 'win32' ? '\\\\.\\pipe\\byond_node' : 'byond_node.sock';
-const pipePath = path.resolve(process.cwd(), pipeName);
+const pipePath = process.platform === 'win32' ? pipeName : path.resolve(process.cwd(), pipeName);
 
 function cleanUpExistingSocket(socketPath) {
     if (process.platform === 'win32') {

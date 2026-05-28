@@ -11,7 +11,7 @@ ADMIN_VERB(voicechat_status, R_ADMIN, "Voicechat Status", "Inspect SSvoicechat s
 	lines += "Enabled: [SSvoicechat.is_enabled ? "yes" : "no"]"
 	lines += "Available: [SSvoicechat.is_available() ? "yes" : "no"]"
 	lines += "Node PID: [SSvoicechat.node_process_id || "unknown"]"
-	lines += "Bridge URL: [SSvoicechat.bridge_url || "n/a"]"
+	lines += "Library path: [SSvoicechat.lib_path || "n/a"]"
 	lines += "Shutdown requested: [SSvoicechat.node_shutdown_requested ? "yes" : "no"]"
 	lines += "Node shutting down: [SSvoicechat.is_node_shutting_down ? "yes" : "no"]"
 	lines += "Confirmed clients: [length(SSvoicechat.voice_clients)]"
@@ -63,12 +63,15 @@ ADMIN_VERB(voicechat_restart_node, R_ADMIN, "Voicechat Restart Node", "Stop and 
 		message_admins("Voice chat: cannot restart — disabled in config.")
 		return
 
-	auth_token = md5("[world.realtime][rand()][world.time][world.port]")
 	var/node_port = CONFIG_GET(number/port_voicechat)
 	if(!node_port)
 		message_admins("Voice chat: cannot restart — missing port config.")
 		return
-	bridge_url = "http://127.0.0.1:[node_port + 1]/byond/cmd"
+
+	lib_path = (world.system_type == MS_WINDOWS) ? lib_path_win : lib_path_unix
+	if(!test_library())
+		message_admins("Voice chat: cannot restart — native library at '[lib_path]' failed to load.")
+		return
 
 	add_rooms(round_start_rooms)
 	start_node()

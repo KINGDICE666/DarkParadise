@@ -4155,6 +4155,7 @@
 #include "code\modules\vending\syndi_snack.dm"
 #include "code\modules\vending\youtool.dm"
 #include "code\modules\voicechat\_voicechat.dm"
+#include "code\modules\voicechat\voicechat_admin.dm"
 #include "code\modules\voicechat\voicechat_clientstuff.dm"
 #include "code\modules\voicechat\voicechat_routes.dm"
 #include "code\modules\voicechat\voicechat_verbs.dm"

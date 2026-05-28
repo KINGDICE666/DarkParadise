@@ -9,10 +9,9 @@ SUBSYSTEM_DEF(voicechat)
 	var/node_shutdown_requested = FALSE
 	var/node_process_id
 
-	// Per-launch shared secret for the BYOND→Node HTTP bridge.
-	var/auth_token
-	// Pre-built URL such as "http://127.0.0.1:3001/byond/cmd".
-	var/bridge_url
+	// Path to the native byondsocket library (no extension — DM appends .dll/.so).
+	// Set in Initialize() based on world.system_type.
+	var/lib_path
 
 	// User codes associated with fully confirmed browser sessions.
 	var/list/voice_clients
@@ -29,7 +28,11 @@ SUBSYSTEM_DEF(voicechat)
 	var/list/round_start_rooms
 
 	var/const/node_script_path = "voicechat/node/server/main.js"
+	var/const/node_root_path = "voicechat/node"
+	var/const/node_modules_path = "voicechat/node/node_modules"
 	var/const/node_log_dir = "data/logs"
+	var/const/lib_path_unix = "voicechat/pipes/unix/byondsocket"
+	var/const/lib_path_win = "voicechat/pipes/windows/byondsocket/Release/byondsocket"
 
 /datum/controller/subsystem/voicechat/Initialize()
 	reset_state()
@@ -38,17 +41,44 @@ SUBSYSTEM_DEF(voicechat)
 		can_fire = FALSE
 		return SS_INIT_NO_NEED
 
-	auth_token = md5("[world.realtime][rand()][world.time][world.port]")
 	var/node_port = CONFIG_GET(number/port_voicechat)
 	if(!node_port)
 		log_world("Voice chat: missing or invalid port_voicechat config; subsystem disabled.")
 		return SS_INIT_FAILURE
-	bridge_url = "http://127.0.0.1:[node_port + 1]/byond/cmd"
+
+	lib_path = (world.system_type == MS_WINDOWS) ? lib_path_win : lib_path_unix
+	if(!test_library())
+		log_world("Voice chat: native library at '[lib_path]' failed to load. Build voicechat/pipes/{windows,unix}/byondsocket and retry.")
+		return SS_INIT_FAILURE
+
+	// Whitelist 127.0.0.1 for the topic spam-prevention handler. Node still
+	// reaches BYOND via TCP world.Topic (only BYOND -> Node moved to the named
+	// pipe), so localhost can still pile up topics. The bridge is localhost-only
+	// by design, so this is safe.
+	var/list/whitelist = CONFIG_GET(str_list/topic_filtering_whitelist)
+	// .Add() mutates the underlying list (which CONFIG_GET returns by reference);
+	// `whitelist += ...` would just reassign the local var, leaving config untouched.
+	if(islist(whitelist) && !("127.0.0.1" in whitelist))
+		whitelist.Add("127.0.0.1")
 
 	can_fire = TRUE
 	add_rooms(round_start_rooms)
 	start_node()
 	return SS_INIT_SUCCESS
+
+/// Calls the library's Echo(text) function and returns TRUE iff it round-trips.
+/// Failure means the DLL/SO is missing, wrong arch, or BYOND version too old.
+/datum/controller/subsystem/voicechat/proc/test_library()
+	if(!lib_path)
+		return FALSE
+	var/const/probe = "voicechat-library-probe"
+	var/result
+	try
+		result = call_ext(lib_path, "byond:Echo")(probe)
+	catch(var/exception/e)
+		log_world("Voice chat: call_ext to '[lib_path]' Echo threw: [e.name]")
+		return FALSE
+	return result == probe
 
 /datum/controller/subsystem/voicechat/proc/reset_state()
 	is_enabled = FALSE
@@ -73,7 +103,14 @@ SUBSYSTEM_DEF(voicechat)
 	return is_enabled || node_process_id || node_shutdown_requested || is_node_shutting_down
 
 /datum/controller/subsystem/voicechat/proc/can_handle_topic(topic)
-	return (is_enabled || node_shutdown_requested || node_process_id) && istext(topic) && copytext(topic, 1, 2) == "{"
+	// A JSON-shaped topic is unambiguously ours — no other world topic source
+	// produces `{` as the first character. Earlier we also gated on `is_enabled`,
+	// but that caused topics to fall through to spam_prevention during the brief
+	// window before start_node finishes (or after a transient reset), triggering
+	// a cascading 1-minute lockout for localhost. JSON-shape gating is enough.
+	if(!istext(topic) || !length(topic))
+		return FALSE
+	return copytext(topic, 1, 2) == "{"
 
 /datum/controller/subsystem/voicechat/proc/start_node()
 	var/byond_port = world.port
@@ -86,11 +123,27 @@ SUBSYSTEM_DEF(voicechat)
 	else
 		shell("mkdir -p [node_log_dir]")
 
-	var/node_args = "[node_script_path] --node-port=[node_port] --byond-port=[byond_port] --auth-token=[auth_token]"
+	// Auto-install Node dependencies if node_modules is missing (e.g. fresh clone,
+	// branch switch with git clean, etc.). Without this, Node crashes with
+	// "Cannot find module 'minimist'" and the voice chat site is unreachable.
+	if(!fexists("[node_modules_path]/.package-lock.json"))
+		log_world("Voice chat: node_modules missing, running npm install (this may take a while)...")
+		var/npm_command
+		if(world.system_type == MS_WINDOWS)
+			npm_command = "powershell.exe -NoProfile -Command \"cd '[node_root_path]'; npm install\" >> [node_log_dir]/voicechat_node.out.log 2>> [node_log_dir]/voicechat_node.err.log"
+		else
+			npm_command = "cd [node_root_path] && npm install >> ../../[node_log_dir]/voicechat_node.out.log 2>> ../../[node_log_dir]/voicechat_node.err.log"
+		var/npm_exit = shell(npm_command)
+		if(npm_exit != 0)
+			log_world("Voice chat: npm install failed (exit_code=[npm_exit || "null"]). Voice chat will not work until dependencies are installed manually.")
+			return
+		log_world("Voice chat: npm install completed.")
+
+	var/node_args = "[node_script_path] --node-port=[node_port] --byond-port=[byond_port]"
 	var/command = "node [node_args] >> [node_log_dir]/voicechat_node.out.log 2>> [node_log_dir]/voicechat_node.err.log &"
 	if(world.system_type == MS_WINDOWS)
 		// Resolve node.exe through PATH so non-default install locations work.
-		command = "powershell.exe -NoProfile -Command \"Start-Process -FilePath 'node.exe' -ArgumentList '[node_script_path]','--node-port=[node_port]','--byond-port=[byond_port]','--auth-token=[auth_token]' -WindowStyle Hidden -RedirectStandardOutput '[node_log_dir]/voicechat_node.out.log' -RedirectStandardError '[node_log_dir]/voicechat_node.err.log'\""
+		command = "powershell.exe -NoProfile -Command \"Start-Process -FilePath 'node.exe' -ArgumentList '[node_script_path]','--node-port=[node_port]','--byond-port=[byond_port]' -WindowStyle Hidden -RedirectStandardOutput '[node_log_dir]/voicechat_node.out.log' -RedirectStandardError '[node_log_dir]/voicechat_node.err.log'\""
 
 	var/exit_code = shell(command)
 	if(exit_code != 0)
@@ -99,7 +152,7 @@ SUBSYSTEM_DEF(voicechat)
 
 	// Node reports its PID asynchronously through world/Topic, but the verb should be usable as soon as launch succeeds.
 	is_enabled = TRUE
-	log_world("Voice chat: Node process launch requested (port=[node_port], bridge=[node_port + 1]).")
+	log_world("Voice chat: Node process launch requested (port=[node_port], pipe=byond_node).")
 
 /datum/controller/subsystem/voicechat/Shutdown()
 	if(should_shutdown())

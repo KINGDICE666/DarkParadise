@@ -2,7 +2,7 @@
 // #define LOG_TRAFFIC
 
 /datum/controller/subsystem/voicechat/proc/send_json(list/data)
-	if(!bridge_url || !auth_token)
+	if(!lib_path)
 		return
 
 	var/json = json_encode(data)
@@ -10,13 +10,13 @@
 	message_admins("BYOND→NODE: [json]")
 	#endif
 
-	var/list/headers = list(
-		"Content-Type" = "application/json",
-		"X-Byond-Auth" = auth_token,
-	)
-	// Fire-and-forget — the bridge POST is local and idempotent, and we don't want
-	// to block the voicechat SS tick on a network response.
-	rustg_http_request_async(RUSTG_HTTP_METHOD_POST, bridge_url, json, json_encode(headers), null)
+	// Push the JSON down the named pipe via the byondsocket native library.
+	// The DLL opens the pipe, WriteFile's the bytes, and closes — no TCP
+	// involved, no rate-limit, no HTTP overhead per location tick.
+	try
+		call_ext(lib_path, "byond:SendJSON")(json)
+	catch(var/exception/e)
+		log_world("Voice chat: send_json call_ext threw: [e.name]. Topic dropped: [json]")
 
 /datum/controller/subsystem/voicechat/proc/handle_topic(topic, address)
 	var/list/data = safe_json_decode(topic)

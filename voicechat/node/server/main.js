@@ -2,27 +2,22 @@ const { execSync } = require('child_process');
 const minimist = require('minimist');
 
 const { startWebSocketServer, disconnectAllClients } = require('./client/websocketServer.js');
+const { startByondServer } = require('./byond/ByondServer.js');
 const { sendJSON } = require('./byond/ByondCommunication.js');
 
 const argv = minimist(process.argv.slice(2));
 const byondPort = Number(argv['byond-port']);
 const nodePort = Number(argv['node-port']);
 const byondPid = argv['byond-pid'] ? Number(argv['byond-pid']) : null;
-const authToken = typeof argv['auth-token'] === 'string' ? argv['auth-token'] : null;
 
 if (!Number.isInteger(byondPort) || !Number.isInteger(nodePort)) {
     console.error('Missing or invalid --byond-port / --node-port arguments.');
     process.exit(1);
 }
 
-if (!authToken) {
-    console.error('Missing --auth-token argument.');
-    process.exit(1);
-}
-
 let io = null;
 let webSocketServer = null;
-let bridgeServer = null;
+let byondServer = null;
 let shuttingDown = false;
 
 function closeServer(server, callback) {
@@ -50,7 +45,7 @@ function shutdown() {
 
     io.close(() => {
         closeServer(webSocketServer, () => {
-            closeServer(bridgeServer, () => {
+            closeServer(byondServer, () => {
                 console.log('Voice chat server shut down.');
                 setTimeout(() => process.exit(0), 2000);
             });
@@ -95,7 +90,8 @@ if (byondPid) {
     monitorParentProcess();
 }
 
-({ io, server: webSocketServer, bridgeServer } = startWebSocketServer(byondPort, nodePort, authToken, shutdown));
+({ io, server: webSocketServer } = startWebSocketServer(byondPort, nodePort));
+byondServer = startByondServer(byondPort, io, shutdown);
 
 setTimeout(() => {
     sendJSON({ node_started: process.pid }, byondPort);

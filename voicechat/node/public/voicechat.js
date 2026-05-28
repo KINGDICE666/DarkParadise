@@ -260,10 +260,13 @@ function handleVoiceActivityChange(active) {
 }
 
 // Mute/Deafen Controls
+// We swap senders' tracks (not track.enabled) because track.enabled=false
+// silences the source, including for VAD's MediaStreamSource — that creates
+// a deadlock (no voice activity ever detected). replaceTrack leaves the local
+// track running for VAD; only the outbound WebRTC sender sees null when we
+// shouldn't transmit. This matches the upstream SS1984 / SurfShack design.
 function updateAudioSenders() {
-    if (!localStream) {
-        return;
-    }
+    if (!localStream) return;
     const shouldSend = !isManuallyMuted && !isDeafened && isVoiceActive;
     const track = shouldSend ? localStream.getAudioTracks()[0] : null;
     audioSenders.forEach(sender => {
