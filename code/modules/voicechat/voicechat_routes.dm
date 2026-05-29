@@ -19,6 +19,11 @@
 		log_world("Voice chat: send_json call_ext threw: [e.name]. Topic dropped: [json]")
 
 /datum/controller/subsystem/voicechat/proc/handle_topic(topic, address)
+	// Node's raw topic packets carry the leading "?" query marker (BYOND only
+	// strips it for URL-style Export, not raw socket topics), so trim it before
+	// JSON decoding or safe_json_decode chokes on the `?{...}` string.
+	if(copytext(topic, 1, 2) == "?")
+		topic = copytext(topic, 2)
 	var/list/data = safe_json_decode(topic)
 	if(!islist(data))
 		log_world("Voice chat: received malformed JSON from Node: [topic]")
@@ -47,7 +52,9 @@
 		return
 
 	if(data[VOICECHAT_TOPIC_VOICE_ACTIVITY])
-		log_world("Voice chat: voice_activity userCode=[data[VOICECHAT_TOPIC_VOICE_ACTIVITY]] active=[data["active"]]")
+		// No log here: while speaking the browser re-sends active:true every ~500ms
+		// as a keep-alive, so logging each one would flood game.log. toggle_active
+		// logs transitions under VOICECHAT_DEBUG_OVERLAY when needed.
 		toggle_active(data[VOICECHAT_TOPIC_VOICE_ACTIVITY], data["active"])
 		return
 

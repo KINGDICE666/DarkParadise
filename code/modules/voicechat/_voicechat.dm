@@ -25,6 +25,10 @@ SUBSYSTEM_DEF(voicechat)
 	var/list/user_code_speaking_icons
 	// Tracks whether the speaking overlay is currently applied (prevents add_overlay stacking).
 	var/list/user_code_overlay_active
+	// world.time of the last voice_activity:true per user. fire() clears overlays
+	// that haven't been refreshed within VOICECHAT_SPEAKING_TIMEOUT, so a dropped
+	// "stopped speaking" topic can't leave a bubble stuck on forever.
+	var/list/user_code_last_active
 	var/list/round_start_rooms
 
 	var/const/node_script_path = "voicechat/node/server/main.js"
@@ -94,6 +98,7 @@ SUBSYSTEM_DEF(voicechat)
 	user_code_mob = list()
 	user_code_speaking_icons = list()
 	user_code_overlay_active = list()
+	user_code_last_active = list()
 	round_start_rooms = list(VOICECHAT_ROOM_LIVING, VOICECHAT_ROOM_GHOST)
 
 /datum/controller/subsystem/voicechat/proc/is_available()
@@ -110,10 +115,23 @@ SUBSYSTEM_DEF(voicechat)
 	// a cascading 1-minute lockout for localhost. JSON-shape gating is enough.
 	if(!istext(topic) || !length(topic))
 		return FALSE
-	return copytext(topic, 1, 2) == "{"
+	// Raw topic packets from Node keep the leading "?" query marker that BYOND
+	// strips only for URL-style world.Export. So the string actually arrives as
+	// `?{...}`. Skip a leading "?" before checking for the JSON `{`.
+	var/start = (copytext(topic, 1, 2) == "?") ? 2 : 1
+	return copytext(topic, start, start + 1) == "{"
 
 /datum/controller/subsystem/voicechat/proc/start_node()
 	var/byond_port = world.port
+	// Node talks back to BYOND through world.Topic over TCP, which only exists
+	// if the world is hosted on a real network port. When the .dmb is launched
+	// in Dream Seeker (solo mode) world.port is 0, so Node would try to connect
+	// to 127.0.0.1:0 and every reply (confirm, voice_activity, disconnect) fails
+	// with EADDRNOTAVAIL — voice "half works" (browser sees the mic, but nothing
+	// reaches the game). Refuse to start and tell the host how to fix it.
+	if(!byond_port)
+		log_world("Voice chat: world.port is 0 — the server must be hosted on a network port for the Node->BYOND bridge to work. Launch via DreamDaemon, e.g. 'dreamdaemon paradise.dmb 1984 -trusted', instead of running the .dmb directly in Dream Seeker. Voice chat disabled.")
+		return
 	var/node_port = CONFIG_GET(number/port_voicechat)
 
 	// Ensure the log directory exists so the redirect doesn't silently fail.
@@ -194,6 +212,28 @@ SUBSYSTEM_DEF(voicechat)
 
 /datum/controller/subsystem/voicechat/fire()
 	send_locations()
+	expire_stale_overlays()
+
+// Clears speaking overlays whose voice_activity:true heartbeat stopped arriving.
+// The Node->BYOND transport (one TCP world.Topic per message over loopback) can
+// silently drop packets; without this, a lost "stopped speaking" message would
+// leave a bubble stuck above a player's head until they disconnect.
+/datum/controller/subsystem/voicechat/proc/expire_stale_overlays()
+	if(!length(user_code_overlay_active))
+		return
+
+	for(var/user_code in user_code_overlay_active)
+		if(!user_code_overlay_active[user_code])
+			continue
+		var/last = user_code_last_active[user_code]
+		if(last && (world.time - last) <= VOICECHAT_SPEAKING_TIMEOUT)
+			continue
+		var/mob/mob = user_code_mob[user_code]
+		var/image/speaker_overlay = user_code_speaking_icons[user_code]
+		if(mob && speaker_overlay)
+			mob.cut_overlay(speaker_overlay)
+		user_code_overlay_active[user_code] = FALSE
+		log_world("[VADIAG] EXPIRED user=[user_code] last=[last] t=[world.time] (no heartbeat within timeout)")
 
 /datum/controller/subsystem/voicechat/proc/on_node_start(pid)
 	if(!pid || !isnum(pid))
@@ -312,6 +352,7 @@ SUBSYSTEM_DEF(voicechat)
 
 	user_code_speaking_icons.Remove(user_code)
 	user_code_overlay_active.Remove(user_code)
+	user_code_last_active.Remove(user_code)
 	user_code_mob.Remove(user_code)
 
 	if(client_uid)

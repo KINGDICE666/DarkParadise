@@ -4,6 +4,12 @@ const ICE_SERVERS = [
 ];
 const DEFAULT_VOLUME_THRESHOLD = 0.01;
 const VAD_DEBOUNCE_TIME = 200; // ms
+// While speaking, re-announce voice_activity:true on this cadence. The
+// Node->BYOND bridge sends one TCP world.Topic per message over loopback and can
+// silently drop packets, so a single lost "started speaking" message would mean
+// no bubble. Re-sending lets a drop self-heal within one beat, and BYOND expires
+// the overlay on its own once these stop (see VOICECHAT_SPEAKING_TIMEOUT).
+const VOICE_ACTIVITY_HEARTBEAT_MS = 500; // ms
 const GAIN_SCALE_FACTOR = 50; // Slider 0-100 maps to gain 0-2
 
 // Global State
@@ -15,11 +21,13 @@ let audioSenders = new Map();
 let distances = new Map();
 let mutedUsers = new Map();
 let gainNode = null;
+let gainAudioContext = null;
 let vadAudioContext = null;
 let vadAnalyser = null;
 let vadSource = null;
 let isVoiceActive = false;
 let lastActiveTime = 0;
+let voiceActivityHeartbeat = null;
 let isDeafened = false;
 let isManuallyMuted = false;
 let isMicTesting = false;
@@ -142,6 +150,13 @@ function setupGainNode(stream) {
     }
 
     const ctx = new AudioContext();
+    gainAudioContext = ctx;
+    // Chrome creates AudioContexts in "suspended" state unless the page has a
+    // user gesture. A suspended context freezes the whole graph: no gain
+    // processing (outgoing audio is silent) and the VAD analyser reads zeros
+    // (no speech ever detected, no overlay). Try to resume immediately; if it
+    // can't yet, resumeAllAudioContexts() retries on the first interaction.
+    ctx.resume().catch(() => {});
     const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]));
     const dst = ctx.createMediaStreamDestination();
     gainNode = ctx.createGain();
@@ -197,6 +212,9 @@ function setupVoiceActivityDetection() {
     }
 
     vadAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // See setupGainNode: a suspended context makes the analyser read silence,
+    // so voice activity is never detected and the speaking overlay never shows.
+    vadAudioContext.resume().catch(() => {});
     vadSource = vadAudioContext.createMediaStreamSource(localStream);
     vadAnalyser = vadAudioContext.createAnalyser();
     vadAnalyser.fftSize = 2048;
@@ -253,10 +271,33 @@ function setupVoiceActivityDetection() {
 function handleVoiceActivityChange(active) {
     const voiceStatus = document.getElementById('voice_activity_status');
     voiceStatus.classList.toggle('active', active);
+    emitVoiceActivity(active);
+    updateAudioSenders();
+}
+
+// Sends a voice_activity edge and manages the keep-alive heartbeat. While
+// active, a timer re-emits active:true so a dropped Node->BYOND topic recovers
+// on the next beat; on stop, the timer is cleared and the single active:false
+// edge is sent (BYOND also auto-expires the overlay if that edge is lost).
+function emitVoiceActivity(active) {
     if (socket) {
         socket.emit('voice_activity', { active });
     }
-    updateAudioSenders();
+
+    if (active) {
+        if (!voiceActivityHeartbeat) {
+            voiceActivityHeartbeat = setInterval(() => {
+                if (socket && isVoiceActive) {
+                    // hb:true marks a keep-alive (vs a real start/stop edge) so the
+                    // server logs can tell them apart. BYOND ignores the flag.
+                    socket.emit('voice_activity', { active: true, hb: true });
+                }
+            }, VOICE_ACTIVITY_HEARTBEAT_MS);
+        }
+    } else if (voiceActivityHeartbeat) {
+        clearInterval(voiceActivityHeartbeat);
+        voiceActivityHeartbeat = null;
+    }
 }
 
 // Mute/Deafen Controls
@@ -555,8 +596,27 @@ function cleanupConnections() {
     }
 }
 
+// Resumes every AudioContext that browsers may have parked in "suspended"
+// state. resume() only succeeds inside (or shortly after) a user gesture, so
+// this is wired to the first click/key/touch on the page as a fallback for the
+// immediate resume() attempts made when each context is created.
+function resumeAllAudioContexts() {
+    [gainAudioContext, vadAudioContext, testAudioContext].forEach((ctx) => {
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+        }
+    });
+}
+
 // UI Event Listeners
 function setupUIListeners() {
+    // Unlock audio on the first user interaction (covers the case where the
+    // page was opened from the BYOND link with no prior gesture, leaving the
+    // AudioContexts suspended — which would silence both VAD and outgoing audio).
+    ['pointerdown', 'keydown', 'touchstart'].forEach((evt) => {
+        document.addEventListener(evt, resumeAllAudioContexts);
+    });
+
     // Tooltip handling
     const triggers = document.querySelectorAll('.tooltip');
     const tooltip = document.getElementById('tooltip_box');
@@ -586,8 +646,10 @@ function setupUIListeners() {
     document.getElementById('volume_slider').addEventListener('input', updateVolumes);
 
 
-    // Cleanup on unload
-    window.addEventListener('unload', () => {
+    // Cleanup when the page is being hidden/closed. 'unload' is deprecated and
+    // unreliable (Chrome no longer fires it in many cases, breaking cleanup);
+    // 'pagehide' fires reliably on tab close, navigation, and mobile backgrounding.
+    window.addEventListener('pagehide', () => {
         if (vadAudioContext) vadAudioContext.close();
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());

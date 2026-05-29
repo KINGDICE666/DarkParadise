@@ -58,13 +58,14 @@ function sendByondTopic(host, port, data, timeout = 5000) {
     });
 }
 
-// DreamDaemon's topic accept loop on Windows silently drops rapid sequential
-// TCP connects from the same source IP — observed empirically that the second+
-// connect within ~1s often never reaches /world/Topic, and close-spaced bursts
-// can trip the per-IP spam lockout (1 minute). We serialize all outbound topic
-// sends and space them at least MIN_SEND_INTERVAL_MS apart so each one lands
-// reliably.
-const MIN_SEND_INTERVAL_MS = 1100;
+// We still serialize outbound topics (one TCP connect at a time) to avoid
+// hammering DreamDaemon with concurrent loopback connects, but the long 1100ms
+// spacing is no longer needed: voicechat topics are handled in /world/Topic
+// *before* the per-IP spam lockout (and 127.0.0.1 is whitelisted anyway). While
+// a user speaks the browser re-sends voice_activity:true every ~500ms as a
+// keep-alive, which (together with ~0.3s location updates) is a gentle rate. A
+// short gap keeps bursts tame while making the speaking overlay feel near-instant.
+const MIN_SEND_INTERVAL_MS = 50;
 
 let queueChain = Promise.resolve();
 let lastSendAt = 0;

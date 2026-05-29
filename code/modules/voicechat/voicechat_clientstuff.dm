@@ -119,6 +119,11 @@
 		disconnect(user_code, from_byond = TRUE)
 		return
 
+	// Refresh the heartbeat timestamp while speaking so expire_stale_overlays()
+	// keeps the bubble alive; zero it on stop so a later stray heartbeat (or a
+	// lost stop) can't resurrect or pin the overlay.
+	user_code_last_active[user_code] = is_active ? world.time : 0
+
 	var/mob/mob = client.mob
 	if(!user_code_speaking_icons[user_code])
 		// Match Paradise's speech_bubble pattern from /mob/living/speech_bubble (living_say.dm).
@@ -147,9 +152,11 @@
 	if(should_show && !currently_shown)
 		mob.add_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = TRUE
+		log_world("[VADIAG] toggle ON user=[user_code] mob=[mob] t=[world.time]")
 	else if(!should_show && currently_shown)
 		mob.cut_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = FALSE
+		log_world("[VADIAG] toggle OFF user=[user_code] mob=[mob] t=[world.time]")
 
 // Mutes or deafens a user's microphone.
 /datum/controller/subsystem/voicechat/proc/mute_mic(client/client, deafen = FALSE)
