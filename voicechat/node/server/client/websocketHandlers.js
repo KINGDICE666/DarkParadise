@@ -137,12 +137,6 @@ function createConnectionHandler(byondPort, io) {
                 return;
             }
 
-            // [VADIAG] Temporary diagnostic: log only real start/stop edges (not
-            // hb:true keep-alives) so out.log shows what the browser VAD detected.
-            if (!data.hb) {
-                console.log(`[VADIAG] ${new Date().toISOString()} userCode=${userCode} active=${data.active} EDGE`);
-            }
-
             sendJSON({ voice_activity: userCode, active: data.active }, byondPort);
         });
     };

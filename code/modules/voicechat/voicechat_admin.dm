@@ -58,6 +58,8 @@ ADMIN_VERB(voicechat_restart_node, R_ADMIN, "Voicechat Restart Node", "Stop and 
 	addtimer(CALLBACK(SSvoicechat, TYPE_PROC_REF(/datum/controller/subsystem/voicechat, restart_after_shutdown)), 3 SECONDS)
 
 /datum/controller/subsystem/voicechat/proc/restart_after_shutdown()
+	// Pull any visible bubbles before reset_state() throws away the lists tracking them.
+	clear_all_speaking_overlays()
 	reset_state()
 	if(!CONFIG_GET(flag/enable_voicechat))
 		message_admins("Voice chat: cannot restart — disabled in config.")
@@ -76,3 +78,59 @@ ADMIN_VERB(voicechat_restart_node, R_ADMIN, "Voicechat Restart Node", "Stop and 
 	add_rooms(round_start_rooms)
 	start_node()
 	message_admins("Voice chat: relaunch attempted. See world.log for status.")
+
+// ---------------------------------------------------------------------------
+// Host-only controls. These live in their own verb-panel tab (VOICECHAT_HOST_CATEGORY)
+// and are visible only to the server host (ADMIN_VERB_VISIBLITY_FLAG_HOST + R_HOST).
+// ---------------------------------------------------------------------------
+
+/// Full restart of the voice chat stack (Node process + subsystem state). Use
+/// this when voice chat has broken and needs to be kicked back into life.
+ADMIN_VERB_VISIBILITY(voicechat_host_reload, ADMIN_VERB_VISIBLITY_FLAG_HOST)
+ADMIN_VERB(voicechat_host_reload, R_HOST, "Reload systems", "Полный перезапуск голосового чата (Node + состояние), если он сломался.", VOICECHAT_HOST_CATEGORY)
+	if(!SSvoicechat)
+		to_chat(user, span_warning("SSvoicechat is null."))
+		return
+
+	log_admin("[key_name(user)] reloaded the voice chat systems.")
+	message_admins("[key_name_admin(user)] перезапустил голосовой чат (Reload systems).")
+
+	if(SSvoicechat.should_shutdown())
+		SSvoicechat.stop_node()
+		to_chat(user, span_notice("Голосовой чат останавливается. Перезапуск через 3 секунды..."))
+	else
+		to_chat(user, span_notice("Голосовой чат не был запущен. Запускаю..."))
+
+	addtimer(CALLBACK(SSvoicechat, TYPE_PROC_REF(/datum/controller/subsystem/voicechat, restart_after_shutdown)), 3 SECONDS)
+
+/// Turns voice chat on or off for the whole server.
+ADMIN_VERB_VISIBILITY(voicechat_host_toggle, ADMIN_VERB_VISIBLITY_FLAG_HOST)
+ADMIN_VERB(voicechat_host_toggle, R_HOST, "Toggle Voicechat", "Включить или выключить голосовой чат на сервере.", VOICECHAT_HOST_CATEGORY)
+	if(!SSvoicechat)
+		to_chat(user, span_warning("SSvoicechat is null."))
+		return
+
+	SSvoicechat.admin_toggle_enabled(user)
+
+/// Flips voice chat between running and stopped. Returns nothing; reports state to the caller.
+/datum/controller/subsystem/voicechat/proc/admin_toggle_enabled(client/user)
+	if(is_available())
+		// Currently running -> shut it down.
+		log_admin("[key_name(user)] disabled voice chat server-wide.")
+		message_admins("[key_name_admin(user)] выключил голосовой чат на сервере.")
+		clear_all_speaking_overlays()
+		for(var/user_code in voice_clients.Copy())
+			disconnect(user_code, from_byond = TRUE)
+		stop_node()
+		to_chat(user, span_notice("Голосовой чат выключен."))
+		return
+
+	// Currently stopped -> bring it back up.
+	if(!CONFIG_GET(flag/enable_voicechat))
+		to_chat(user, span_warning("Голосовой чат отключён в конфиге сервера — включить отсюда нельзя."))
+		return
+
+	log_admin("[key_name(user)] enabled voice chat server-wide.")
+	message_admins("[key_name_admin(user)] включил голосовой чат на сервере.")
+	restart_after_shutdown()
+	to_chat(user, span_notice("Голосовой чат запускается..."))

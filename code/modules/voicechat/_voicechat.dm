@@ -233,7 +233,19 @@ SUBSYSTEM_DEF(voicechat)
 		if(mob && speaker_overlay)
 			mob.cut_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = FALSE
-		log_world("VADIAG EXPIRED user=[user_code] last=[last] t=[world.time] (no heartbeat within timeout)")
+
+// Cuts every currently-shown speaking overlay. Call before reset_state() on a
+// restart/disable, otherwise the overlay images are orphaned (the tracking lists
+// are replaced) and stay stuck above players until they move or relog.
+/datum/controller/subsystem/voicechat/proc/clear_all_speaking_overlays()
+	for(var/user_code in user_code_overlay_active)
+		if(!user_code_overlay_active[user_code])
+			continue
+		var/mob/mob = user_code_mob[user_code]
+		var/image/speaker_overlay = user_code_speaking_icons[user_code]
+		if(mob && speaker_overlay)
+			mob.cut_overlay(speaker_overlay)
+		user_code_overlay_active[user_code] = FALSE
 
 /datum/controller/subsystem/voicechat/proc/on_node_start(pid)
 	if(!pid || !isnum(pid))

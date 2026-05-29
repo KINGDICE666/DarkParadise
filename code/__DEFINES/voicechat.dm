@@ -10,6 +10,10 @@
 // this window once the heartbeats stop arriving.
 #define VOICECHAT_SPEAKING_TIMEOUT 15
 
+// Verb-panel tab for the host-only voice chat controls (Reload / Toggle).
+// Shown only to the server host via ADMIN_VERB_VISIBLITY_FLAG_HOST.
+#define VOICECHAT_HOST_CATEGORY "ProxChat-Хост"
+
 #define VOICECHAT_ROOM_LIVING "living"
 #define VOICECHAT_ROOM_GHOST "ghost"
 

@@ -4,6 +4,12 @@ const ICE_SERVERS = [
 ];
 const DEFAULT_VOLUME_THRESHOLD = 0.01;
 const VAD_DEBOUNCE_TIME = 200; // ms
+// How often the voice-activity loop samples the mic. We use setInterval rather
+// than requestAnimationFrame because rAF is paused while the page is not
+// visible/focused (e.g. you switch to Discord), which would freeze voice
+// detection. Timers keep firing, and a page holding an active mic + WebRTC
+// connection is exempt from background timer throttling, so VAD keeps working.
+const VAD_POLL_INTERVAL_MS = 50; // ms (~20 Hz, plenty for speech detection)
 // While speaking, re-announce voice_activity:true on this cadence. The
 // Node->BYOND bridge sends one TCP world.Topic per message over loopback and can
 // silently drop packets, so a single lost "started speaking" message would mean
@@ -28,6 +34,7 @@ let vadSource = null;
 let isVoiceActive = false;
 let lastActiveTime = 0;
 let voiceActivityHeartbeat = null;
+let vadInterval = null;
 let isDeafened = false;
 let isManuallyMuted = false;
 let isMicTesting = false;
@@ -207,6 +214,10 @@ function updateVolumes() {
 
 // Voice Activity Detection (VAD)
 function setupVoiceActivityDetection() {
+    if (vadInterval) {
+        clearInterval(vadInterval);
+        vadInterval = null;
+    }
     if (vadAudioContext) {
         vadAudioContext.close();
     }
@@ -261,11 +272,9 @@ function setupVoiceActivityDetection() {
                 handleVoiceActivityChange(false);
             }
         }
-
-        requestAnimationFrame(monitorAudio);
     }
 
-    monitorAudio();
+    vadInterval = setInterval(monitorAudio, VAD_POLL_INTERVAL_MS);
 }
 
 function handleVoiceActivityChange(active) {
@@ -288,9 +297,7 @@ function emitVoiceActivity(active) {
         if (!voiceActivityHeartbeat) {
             voiceActivityHeartbeat = setInterval(() => {
                 if (socket && isVoiceActive) {
-                    // hb:true marks a keep-alive (vs a real start/stop edge) so the
-                    // server logs can tell them apart. BYOND ignores the flag.
-                    socket.emit('voice_activity', { active: true, hb: true });
+                    socket.emit('voice_activity', { active: true });
                 }
             }, VOICE_ACTIVITY_HEARTBEAT_MS);
         }
@@ -617,6 +624,17 @@ function setupUIListeners() {
         document.addEventListener(evt, resumeAllAudioContexts);
     });
 
+    // Also re-resume when the window regains focus or becomes visible again.
+    // Some browsers suspend the AudioContext while another app is in front
+    // (e.g. Discord over the game); this brings voice detection straight back
+    // when the user returns, without needing an extra click.
+    window.addEventListener('focus', resumeAllAudioContexts);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            resumeAllAudioContexts();
+        }
+    });
+
     // Tooltip handling
     const triggers = document.querySelectorAll('.tooltip');
     const tooltip = document.getElementById('tooltip_box');
@@ -650,6 +668,14 @@ function setupUIListeners() {
     // unreliable (Chrome no longer fires it in many cases, breaking cleanup);
     // 'pagehide' fires reliably on tab close, navigation, and mobile backgrounding.
     window.addEventListener('pagehide', () => {
+        if (vadInterval) {
+            clearInterval(vadInterval);
+            vadInterval = null;
+        }
+        if (voiceActivityHeartbeat) {
+            clearInterval(voiceActivityHeartbeat);
+            voiceActivityHeartbeat = null;
+        }
         if (vadAudioContext) vadAudioContext.close();
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
