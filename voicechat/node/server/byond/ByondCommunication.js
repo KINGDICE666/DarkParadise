@@ -39,21 +39,35 @@ function sendByondTopic(host, port, data, timeout = 5000) {
         }
 
         const client = new net.Socket();
-        client.setTimeout(timeout, () => {
+        let settled = false;
+        const done = (err) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
             client.destroy();
-            reject(new Error('Connection timeout'));
-        });
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        };
 
-        client.on('error', (err) => {
-            client.destroy();
-            reject(err);
-        });
+        client.setTimeout(timeout, () => done(new Error('Connection timeout')));
+        client.on('error', (err) => done(err));
+
+        // BYOND's topic protocol is request -> response -> close: DreamDaemon
+        // reads the topic, runs world/Topic, then writes a reply packet back and
+        // closes the socket. The previous code called client.end() the instant the
+        // write flushed, without waiting for that reply — under rapid-fire topics
+        // (voice_activity edges + location ticks) that race made DreamDaemon drop
+        // almost everything (observed: ~40 sent, 1 processed). Waiting for BYOND's
+        // reply ('data') or its close lets the server finish processing first.
+        client.on('data', () => done());
+        client.on('close', () => done());
 
         client.connect(port, host, () => {
-            client.write(packet, () => {
-                client.end();
-                resolve();
-            });
+            client.write(packet);
         });
     });
 }

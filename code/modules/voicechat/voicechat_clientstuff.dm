@@ -152,11 +152,11 @@
 	if(should_show && !currently_shown)
 		mob.add_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = TRUE
-		log_world("[VADIAG] toggle ON user=[user_code] mob=[mob] t=[world.time]")
+		log_world("VADIAG toggle ON user=[user_code] mob=[mob] t=[world.time]")
 	else if(!should_show && currently_shown)
 		mob.cut_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = FALSE
-		log_world("[VADIAG] toggle OFF user=[user_code] mob=[mob] t=[world.time]")
+		log_world("VADIAG toggle OFF user=[user_code] mob=[mob] t=[world.time]")
 
 // Mutes or deafens a user's microphone.
 /datum/controller/subsystem/voicechat/proc/mute_mic(client/client, deafen = FALSE)

@@ -233,7 +233,7 @@ SUBSYSTEM_DEF(voicechat)
 		if(mob && speaker_overlay)
 			mob.cut_overlay(speaker_overlay)
 		user_code_overlay_active[user_code] = FALSE
-		log_world("[VADIAG] EXPIRED user=[user_code] last=[last] t=[world.time] (no heartbeat within timeout)")
+		log_world("VADIAG EXPIRED user=[user_code] last=[last] t=[world.time] (no heartbeat within timeout)")
 
 /datum/controller/subsystem/voicechat/proc/on_node_start(pid)
 	if(!pid || !isnum(pid))
