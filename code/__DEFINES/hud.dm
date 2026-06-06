@@ -113,6 +113,9 @@
 #define THOUGHTS_HUD 32
 //species hud
 #define DATA_HUD_KIDAN_PHEROMONES 33
+#define ANTAG_HUD_HERETIC 34
+
+#define HERETIC_HUD "heretic"
 
 // Notification action types
 #define NOTIFY_JUMP "jump"

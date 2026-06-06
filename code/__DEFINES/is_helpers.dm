@@ -82,6 +82,15 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 
 #define is_binglelord(A) (istype(A, /mob/living/simple_animal/hostile/bingle/lord))
 
+/// Checks if the given mob is either a heretic, heretic monster or a lunatic.
+#define IS_LUNATIC(mob) (mob.mind?.has_antag_datum(/datum/antagonist/lunatic))
+#define IS_HERETIC_OR_MONSTER(mob) (isheretic(mob) || HAS_TRAIT(mob, TRAIT_HERETIC_SUMMON) || IS_LUNATIC(mob))
+#define isspacecola(reagent) (istype((reagent), /datum/reagent/consumable/drink/cold/space_cola))
+#define isacid(reagent) (istype((reagent), /datum/reagent/acid))
+#define isprojectilespell(thing) (istype((thing), /obj/effect/proc_holder/spell/fireball))
+#define isplatingturf(A) (istype((A), /turf/simulated/floor/plating))
+#define IS_IN_MANSUS(mob) (istype(get_area(mob), /area/centcom/heretic_sacrifice))
+
 // Objects
 #define isobj(A) (istype(A, /obj)) //override the byond proc because it returns true on children of /atom/movable that aren't objs
 

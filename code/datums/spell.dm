@@ -57,7 +57,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	if(our_client && ranged_mousepointer && our_client.mouse_pointer_icon == initial(our_client.mouse_pointer_icon))
 		our_client.mouse_pointer_icon = ranged_mousepointer
 
-/obj/effect/proc_holder/proc/remove_mousepointer(client/our_client)
+/obj/effect/proc_holder/proc/remove_mousepointer(client/our_client, refund_cooldown = FALSE)
 	if(our_client && ranged_mousepointer && our_client.mouse_pointer_icon == ranged_mousepointer)
 		our_client.mouse_pointer_icon = initial(our_client.mouse_pointer_icon)
 
@@ -145,6 +145,17 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	var/centcom_cancast = TRUE
 	/// Whether or not the spell functions in a holy place
 	var/holy_area_cancast = TRUE
+	/// Compatibility field used by newer/tg-derived spells to opt out of legacy requirements.
+	var/spell_requirements = null
+	/// Antimagic flags checked by newer/tg-derived spell implementations.
+	var/antimagic_flags = NONE
+	/// Generic maximum cast range used by pointed/tg-derived spells.
+	var/cast_range = 7
+	var/active_msg
+	var/deactive_msg
+	var/projectile_type
+	var/projectile_amount = 1
+	var/current_amount = 0
 
 	/// Action with a button linked to this spell.
 	var/datum/action/spell_action/action = null

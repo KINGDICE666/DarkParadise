@@ -9,6 +9,7 @@
 #define CULT_TRAIT "cult"
 #define CLOCK_TRAIT "clockwork_cult"
 #define DEVIL_TRAIT "devil"
+#define HERETIC_TRAIT "heretic"
 #define INNATE_TRAIT "innate"
 #define EAR_DAMAGE "ear_damage"
 #define EYE_DAMAGE "eye_damage"
@@ -32,6 +33,9 @@
 #define REVENANT_TRAIT "revenant"
 /// (B)admins only.
 #define ADMIN_TRAIT "admin"
+
+/// Traits given by the heretic arena spell.
+#define HERETIC_ARENA_TRAIT "heretic_arena"
 
 #define CMAGGED "clown_emag"
 

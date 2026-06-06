@@ -57,3 +57,13 @@
 	var/mob/living/mob_check = get_mob_in_atom_without_warning(mover)
 	return ("syndicate" in mob_check.faction) || istype(mob_check.get_id_card(), /obj/item/card/id/syndicate)
 
+/obj/effect/forcefield/cosmic_field
+	name = "cosmic field"
+	desc = "A shimmering, unreal force field."
+	icon_state = "shield-red"
+	color = COLOR_BLACK
+	lifetime = 10 SECONDS
+	anchored = TRUE
+
+/obj/effect/forcefield/cosmic_field/fast
+	lifetime = 3 SECONDS

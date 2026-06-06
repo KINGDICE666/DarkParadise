@@ -183,6 +183,21 @@
 #define TRAIT_CANT_LUNGE "cant_lunge"
 /// Trait for Mindshield HUD in sec HUDs
 #define TRAIT_MINDSHIELD_HUD "mindshield_hud"
+#define TRAIT_DEATH_HUD "deathhud"
+#define TRAIT_HYPOTHERMIC "body_hypothermic"
+#define TRAIT_UNKNOWN "unknown"
+#define TRAIT_ON_HIT_EFFECT "trait_on_hit_effect"
+#define TRAIT_NOCRITDAMAGE "no_crit"
+#define TRAIT_MOPABLE "mopable"
+#define TRAIT_SOFTSPOKEN "softspoken"
+#define TRAIT_HAUNTED "haunted"
+#define TRAIT_NO_STRIP "no_strip"
+#define TRAIT_EXAMINE_SKIP "examine_skip"
+#define TRAIT_NO_WORN_ICON "no_worn_icon"
+#define TRAIT_SUBTREE_REQUIRED_OPERATIONAL_DATUM "element-required"
+#define TRAIT_KEEP_TOGETHER "keep-together"
+#define TRAIT_BOMBIMMUNE "bomb_immunity"
+#define TRAIT_STUNIMMUNE "stun_immunity"
 
 /**
  * Traits for ventcrawling.
@@ -245,6 +260,23 @@
 #define TRAIT_COMBAT_EXOFRAME_EMP_SHIELD "combat_exoframe_emp_shield"
 /// Item still allows you to examine items while blind and actively held.
 #define TRAIT_BLIND_TOOL "blind_tool"
+
+/// Currently protected by a blade barrier.
+#define TRAIT_BEING_BLADE_SHIELDED "being_blade_shielded"
+/// Allows heretics to cast their advanced spells.
+#define TRAIT_ALLOW_HERETIC_CASTING "allow_heretic_casting"
+/// Allows the examiner to see eldritch painting information.
+#define TRAIT_ELDRITCH_PAINTING_EXAMINE "eldritch_painting_examine"
+/// Marks a mob as a participant in an eldritch arena.
+#define TRAIT_ELDRITCH_ARENA_PARTICIPANT "eldritch_arena_participant"
+/// Marks a mob as being gripped by flesh desire.
+#define TRAIT_FLESH_DESIRE "flesh_desire"
+/// Trait given to heretic summons, making them immune to heretic spells.
+#define TRAIT_HERETIC_SUMMON "heretic_summon"
+/// Immunity to madness effects.
+#define TRAIT_MADNESS_IMMUNE "supermatter_madness_immune"
+/// Marks targets touched by Mansus.
+#define TRAIT_MANSUS_TOUCHED "mansus_touched"
 
 #define TRAIT_SHRAPNEL "shrapnel"
 /// Trait for items that can be attached to tripwire. Dont forget about on_tripwire_trigger(obj/item/tripwire/base, mob/user) proc for each item
@@ -562,6 +594,12 @@
 #define TRAIT_ELEVATING_OBJECT "elevating_object"
 /// From [/datum/element/elevation_core] for purpose of checking if the turf has the trait from an instance of the element
 #define TRAIT_ELEVATED_TURF "elevated_turf"
+
+/// Trait from [/datum/element/rust]. Used to mark atoms with a rust overlay and heretic rust behavior.
+#define TRAIT_RUSTY "rust_trait"
+
+#define TRAIT_LIVING_HEART "living_heart"
+#define TRAIT_RELAYING_ATTACKER "relaying_attacker"
 
 /// Climbable trait, given and taken by the climbable element when added or removed. Exists to be easily checked via HAS_TRAIT().
 #define TRAIT_CLIMBABLE "trait_climbable"

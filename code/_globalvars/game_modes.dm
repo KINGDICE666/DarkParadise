@@ -10,6 +10,7 @@ GLOBAL_LIST_EMPTY(clockwork_fabricators) // clockwork mode, Fabricator list used
 GLOBAL_LIST_EMPTY(clockwork_altars) // clockwork mode, List of altars used for teleportation spell
 
 GLOBAL_DATUM(start_state, /datum/station_state) // Used in round-end report. Dont ask why it inits as null
+GLOBAL_DATUM_INIT(reality_smash_track, /datum/reality_smash_tracker, new)
 
 GLOBAL_VAR(custom_event_msg)
 GLOBAL_VAR(custom_event_admin_msg)

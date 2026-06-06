@@ -22,6 +22,8 @@
 	var/def_zone = ""
 	/// Mob who shot projectile.
 	var/mob/firer = null
+	/// Factions ignored by tg-derived projectile implementations.
+	var/list/ignored_factions
 	/// The gun or object projectile came from.
 	var/atom/firer_source_atom = null
 	var/obj/item/ammo_casing/ammo_casing = null

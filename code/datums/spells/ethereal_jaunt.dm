@@ -96,6 +96,7 @@
 	icon_state = "nothing"
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	invisibility = 60
+	var/phased_mob_icon_state
 	var/reappearing = FALSE
 	var/movedelay = 0
 	var/movespeed = 2
@@ -145,4 +146,3 @@
 	if(isspaceturf(target_turf) || target_turf.density)
 		return FALSE
 	return TRUE
-
