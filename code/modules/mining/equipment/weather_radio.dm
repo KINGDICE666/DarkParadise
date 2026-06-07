@@ -24,13 +24,13 @@
 	light_system = MOVABLE_LIGHT
 
 /obj/item/radio/weather_monitor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "метеорологическое радио",
 		GENITIVE = "метеорологического радио",
 		DATIVE = "метеорологическому радио",
 		ACCUSATIVE = "метеорологическое радио",
 		INSTRUMENTAL = "метеорологическим радио",
-		PREPOSITIONAL = "метеорологическом радио",
+		PREPOSITIONAL = "метеорологическом радио"
 	)
 
 /obj/item/radio/weather_monitor/Initialize(mapload)

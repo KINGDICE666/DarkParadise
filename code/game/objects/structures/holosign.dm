@@ -6,17 +6,17 @@
 	icon = 'icons/effects/effects.dmi'
 	anchored = TRUE
 	max_integrity = 1
-	armor = list(MELEE = 0, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, FIRE = 20, ACID = 20)
+	armor = list(MELEE = 0, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, RAD = 0, FIRE = 20, ACID = 20)
 	var/obj/item/projector
 
 /obj/structure/holosign/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голографическая табличка",
 		GENITIVE = "голографической таблички",
 		DATIVE = "голографической табличке",
 		ACCUSATIVE = "голографическую табличку",
 		INSTRUMENTAL = "голографической табличкой",
-		PREPOSITIONAL = "голографической табличке",
+		PREPOSITIONAL = "голографической табличке"
 	)
 
 /obj/structure/holosign/Initialize(mapload, source_projector)
@@ -65,13 +65,13 @@
 	icon_state = "holosign"
 
 /obj/structure/holosign/wetsign/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "знак мокрого пола",
 		GENITIVE = "знака мокрого пола",
 		DATIVE = "знаку мокрого пола",
 		ACCUSATIVE = "знак мокрого пола",
 		INSTRUMENTAL = "знаком мокрого пола",
-		PREPOSITIONAL = "знаке мокрого пола",
+		PREPOSITIONAL = "знаке мокрого пола"
 	)
 
 /obj/structure/holosign/wetsign/proc/wet_timer_start(obj/item/holosign_creator/HS_C)
@@ -81,8 +81,10 @@
 	playsound(HS_C.loc, 'sound/machines/chime.ogg', 20, TRUE)
 	qdel(src)
 
+
 /obj/structure/holosign/wetsign/mine
 	desc = "Слова пролетают мимо, как будто они что-то точно значат."
+
 
 /obj/structure/holosign/wetsign/mine/Initialize(mapload, source_projector)
 	. = ..()
@@ -91,17 +93,20 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/holosign/wetsign/mine/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(isliving(arrived))
 		INVOKE_ASYNC(src, PROC_REF(triggermine), arrived)
 
+
 /obj/structure/holosign/wetsign/mine/proc/triggermine(mob/living/victim)
-	empulse(src, 1, 1, TRUE, "[victim] активировал[GEND_A_O_I(victim)] [declent_ru(ACCUSATIVE)]")
+	empulse(src, 1, 1, TRUE, "[victim] активировал[genderize_ru(victim.gender, "", "а", "о", "и")] [declent_ru(ACCUSATIVE)]")
 	if(ishuman(victim))
 		victim.apply_damage(100, STAMINA)
 	qdel(src)
+
 
 /obj/structure/holosign/barrier
 	name = "holo barrier"
@@ -113,14 +118,15 @@
 	var/allow_walk = TRUE //can we pass through it on walk intent
 
 /obj/structure/holosign/barrier/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голографический барьер",
 		GENITIVE = "голографического барьера",
 		DATIVE = "голографическому барьеру",
 		ACCUSATIVE = "голографический барьер",
 		INSTRUMENTAL = "голографическим барьером",
-		PREPOSITIONAL = "голографическом барьере",
+		PREPOSITIONAL = "голографическом барьере"
 	)
+
 
 /obj/structure/holosign/barrier/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
@@ -135,49 +141,40 @@
 		if(allow_walk && (silicon_mover.m_intent == MOVE_INTENT_WALK || silicon_mover.pulledby?.m_intent == MOVE_INTENT_WALK))
 			return TRUE
 
+
 /obj/structure/holosign/barrier/engineering
-	name = "engineering holobarrier"
-	desc = "A short engineering holographic barrier used for designating hazardous zones, slightly blocks radiation. Can only be passed by walking."
 	icon_state = "holosign_engi"
-	rad_insulation = RAD_LIGHT_INSULATION
 
 /obj/structure/holosign/barrier/atmos
-	name = "holofirelock"
+	name = "holo firelock"
 	desc = "Голографический барьер, похожий на пожарный шлюз. Он не препятствует прохождению твёрдых предметов, но не позволяет газу проникать внутрь."
 	icon_state = "holo_firelock"
 	density = FALSE
 	layer = ABOVE_MOB_LAYER
 	layer = ABOVE_MOB_LAYER
 	alpha = 150
-	rad_insulation = RAD_LIGHT_INSULATION
-	resistance_flags = FIRE_PROOF | FREEZE_PROOF
 
 /obj/structure/holosign/barrier/atmos/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голографический пожарный шлюз",
 		GENITIVE = "голографического пожарного шлюза",
 		DATIVE = "голографическому пожарному шлюзу",
 		ACCUSATIVE = "голографический пожарный шлюз",
 		INSTRUMENTAL = "голографическим пожарным шлюзом",
-		PREPOSITIONAL = "голографическом пожарном шлюзе",
+		PREPOSITIONAL = "голографическом пожарном шлюзе"
 	)
 
 /obj/structure/holosign/barrier/atmos/Initialize(mapload)
 	. = ..()
-	recalculate_atmos_connectivity()
+	air_update_turf(TRUE)
 
-// Airtight.
-/obj/structure/holosign/barrier/atmos/CanAtmosPass(direction)
+/obj/structure/holosign/barrier/atmos/CanAtmosPass(turf/T, vertical)
 	return FALSE
-
-// Heatproof.
-/obj/structure/holosign/barrier/atmos/get_superconductivity(direction)
-	return 0
 
 /obj/structure/holosign/barrier/atmos/Destroy()
 	var/turf/T = get_turf(src)
 	. = ..()
-	T.recalculate_atmos_connectivity()
+	T.air_update_turf(TRUE)
 
 /obj/structure/holosign/barrier/cyborg
 	name = "Energy Field"
@@ -186,13 +183,13 @@
 	allow_walk = FALSE
 
 /obj/structure/holosign/barrier/cyborg/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "энергетический барьер",
 		GENITIVE = "энергетического барьера",
 		DATIVE = "энергетическому барьеру",
 		ACCUSATIVE = "энергетический барьер",
 		INSTRUMENTAL = "энергетическим барьером",
-		PREPOSITIONAL = "энергетическом барьере",
+		PREPOSITIONAL = "энергетическом барьере"
 	)
 
 /obj/structure/holosign/barrier/cyborg/bullet_act(obj/projectile/P)
@@ -209,29 +206,32 @@
 	COOLDOWN_DECLARE(shock_cooldown)
 
 /obj/structure/holosign/barrier/cyborg/hacked/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "заряженный энергетический барьер",
 		GENITIVE = "заряженного энергетического барьера",
 		DATIVE = "заряженному энергетическому барьеру",
 		ACCUSATIVE = "заряженный энергетический барьер",
 		INSTRUMENTAL = "заряженным энергетическим барьером",
-		PREPOSITIONAL = "заряженном энергетическом барьере",
+		PREPOSITIONAL = "заряженном энергетическом барьере"
 	)
+
 
 /obj/structure/holosign/barrier/cyborg/hacked/bullet_act(obj/projectile/P)
 	take_damage(P.damage, BRUTE, MELEE, 1)	//Yeah no this doesn't get projectile resistance.
+
 
 /obj/structure/holosign/barrier/cyborg/hacked/attack_hand(mob/living/user)
 	. = ..()
 	if(. || !COOLDOWN_FINISHED(src, shock_cooldown) || !isliving(user))
 		return
-	user.electrocute_act(15, src, flags = SHOCK_NOGLOVES)
+	user.electrocute_act(15, "энергетического барьера", flags = SHOCK_NOGLOVES)
 	COOLDOWN_START(src, shock_cooldown, 0.5 SECONDS)
+
 
 /obj/structure/holosign/barrier/cyborg/hacked/Bumped(mob/living/moving_living)
 	. = ..()
 	if(!COOLDOWN_FINISHED(src, shock_cooldown) || !isliving(moving_living))
 		return .
-	moving_living.electrocute_act(15, src, flags = SHOCK_NOGLOVES)
+	moving_living.electrocute_act(15, "энергетического барьера", flags = SHOCK_NOGLOVES)
 	COOLDOWN_START(src, shock_cooldown, 0.5 SECONDS)
 

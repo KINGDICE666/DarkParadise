@@ -35,6 +35,8 @@
 	icon_dead = "german_shep2_dead"
 	tts_seed = "pantheon"
 
+
+
 /mob/living/simple_animal/pet/dog/security/Initialize(mapload)
 	. = ..()
 	regenerate_icons()
@@ -64,6 +66,7 @@
 	..(gibbed)
 	regenerate_icons()
 
+
 /mob/living/simple_animal/pet/dog/security/place_on_head(obj/item/item_to_add, mob/user)
 
 	if(istype(item_to_add, /obj/item/grenade/plastic/c4)) // last thing he ever wears, I guess
@@ -72,16 +75,16 @@
 
 	if(inventory_head)
 		if(user)
-			to_chat(user, span_warning("You can't put more than one hat on [src]!"))
+			to_chat(user, "<span class='warning'>You can't put more than one hat on [src]!</span>")
 		return
 	if(!item_to_add)
-		user.visible_message(span_notice("[user] pets [src]."), span_notice("You rest your hand on [src]'s head for a moment."))
+		user.visible_message("<span class='notice'>[user] pets [src].</span>", "<span class='notice'>You rest your hand on [src]'s head for a moment.</span>")
 		if(flags & HOLOGRAM)
 			return
 		return
 
 	if(user && !user.drop_item_ground(item_to_add))
-		to_chat(user, span_warning("\The [item_to_add] is stuck to your hand, you cannot put it on [src]'s head!"))
+		to_chat(user, "<span class='warning'>\The [item_to_add] is stuck to your hand, you cannot put it on [src]'s head!</span>")
 		return 0
 
 	var/valid = FALSE
@@ -92,19 +95,17 @@
 
 	if(valid)
 		if(health <= 0)
-			to_chat(user, span_notice("There is merely a dull, lifeless look in [real_name]'s eyes as you put the [item_to_add] on [p_them()]."))
+			to_chat(user, "<span class='notice'>There is merely a dull, lifeless look in [real_name]'s eyes as you put the [item_to_add] on [p_them()].</span>")
 		else if(user)
-			user.visible_message(
-				span_notice("[user] puts [item_to_add] on [real_name]'s head. [src] looks at [user] and barks once."),
-				span_notice("You put [item_to_add] on [real_name]'s head. [src] gives you a peculiar look, then wags [p_their()] tail once and barks."),
-				span_italics("You hear a friendly-sounding bark.")
-			)
+			user.visible_message("<span class='notice'>[user] puts [item_to_add] on [real_name]'s head. [src] looks at [user] and barks once.</span>",
+				"<span class='notice'>You put [item_to_add] on [real_name]'s head. [src] gives you a peculiar look, then wags [p_their()] tail once and barks.</span>",
+				"<span class='italics'>You hear a friendly-sounding bark.</span>")
 		item_to_add.forceMove(src)
 		inventory_head = item_to_add
 		update_dog_fluff()
 		regenerate_icons()
 	else
-		to_chat(user, span_warning("You set [item_to_add] on [src]'s head, but it falls off!"))
+		to_chat(user, "<span class='warning'>You set [item_to_add] on [src]'s head, but it falls off!</span>")
 		item_to_add.forceMove(drop_location())
 		if(prob(25))
 			step_rand(item_to_add)
@@ -125,11 +126,11 @@
 	emote_see = list("трясёт головой", "пытается поймать свой хвост", "дрожит")
 	desc = initial(desc)
 
-	if(inventory_head?.muhtar_fashion)
+	if(inventory_head && inventory_head.muhtar_fashion)
 		var/datum/muhtar_fashion/DF = new inventory_head.muhtar_fashion(src)
 		DF.apply(src)
 
-	if(inventory_mask?.muhtar_fashion)
+	if(inventory_mask && inventory_mask.muhtar_fashion)
 		var/datum/muhtar_fashion/DF = new inventory_mask.muhtar_fashion(src)
 		DF.apply(src)
 
@@ -146,15 +147,16 @@
 		if(!DF.obj_color)
 			DF.obj_color = inventory_head.color
 
+
 		if(icon_state == icon_resting)
 			head_icon = DF.get_overlay()
-			head_icon.pixel_z = -2
+			head_icon.pixel_y = -2
 		else
 			head_icon = DF.get_overlay()
 
 		if(health <= 0)
 			head_icon = DF.get_overlay(dir = EAST)
-			head_icon.pixel_z = -8
+			head_icon.pixel_y = -8
 			head_icon.transform = turn(head_icon.transform, 180)
 
 		add_overlay(head_icon)
@@ -172,13 +174,13 @@
 
 		if(icon_state == icon_resting)
 			mask_icon = DF.get_overlay()
-			mask_icon.pixel_z = -2
+			mask_icon.pixel_y = -2
 		else
 			mask_icon = DF.get_overlay()
 
 		if(health <= 0)
 			mask_icon = DF.get_overlay(dir = EAST)
-			mask_icon.pixel_z = -11
+			mask_icon.pixel_y = -11
 			mask_icon.transform = turn(mask_icon.transform, 180)
 
 		add_overlay(mask_icon)

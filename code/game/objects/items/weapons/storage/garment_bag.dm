@@ -41,13 +41,13 @@
 	)
 
 /obj/item/storage/garmentbag/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сумка для одежды",
 		GENITIVE = "сумки для одежды",
 		DATIVE = "сумке для одежды",
 		ACCUSATIVE = "сумку для одежды",
 		INSTRUMENTAL = "сумкой для одежды",
-		PREPOSITIONAL = "сумке для одежды",
+		PREPOSITIONAL = "сумке для одежды"
 	)
 
 /obj/item/storage/garmentbag/captains/populate_contents()
@@ -70,7 +70,7 @@
 	new /obj/item/clothing/under/captainparade/alt(src)
 	new /obj/item/clothing/under/captainparade/dress(src)
 	new /obj/item/clothing/under/captainparade/office(src)
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/clothing/shoes/laceup(src)
 	new /obj/item/clothing/shoes/laceup/cap(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/captain(src)
@@ -91,9 +91,9 @@
 	new /obj/item/clothing/under/rank/head_of_personnel_alt(src)
 	new /obj/item/clothing/under/rank/head_of_personnel_f(src)
 	new /obj/item/clothing/shoes/leather(src)	//added here deleted on maps
-	new /obj/item/clothing/shoes/color/brown(src)
-	new /obj/item/clothing/shoes/color/black(src)
-	new /obj/item/clothing/shoes/color/white(src)
+	new /obj/item/clothing/shoes/brown(src)
+	new /obj/item/clothing/shoes/black(src)
+	new /obj/item/clothing/shoes/white(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/hop(src)
 
 /obj/item/storage/garmentbag/hos/populate_contents()
@@ -167,13 +167,13 @@
 	new /obj/item/clothing/under/det/alt_a(src)
 	new /obj/item/clothing/under/det/alt_a/skirt(src)
 	new /obj/item/clothing/under/det/alt_b(src)
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/clothing/accessory/black(src)
 	new /obj/item/clothing/suit/suspenders(src)
 	new /obj/item/clothing/suit/wcoat(src)
 	new /obj/item/clothing/accessory/blue(src)
 	new /obj/item/clothing/accessory/red(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/clothing/under/det/noir(src)
 	new /obj/item/clothing/under/det/noir/skirt(src)
 
@@ -195,7 +195,7 @@
 	new /obj/item/clothing/suit/storage/labcoat(src)
 	new /obj/item/clothing/under/rank/research_director(src)
 	new /obj/item/clothing/gloves/color/latex(src)
-	new /obj/item/clothing/shoes/color/white(src)
+	new /obj/item/clothing/shoes/white(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/medical/science/rd(src)
 
 /obj/item/storage/garmentbag/CMO/populate_contents()
@@ -207,8 +207,8 @@
 	new /obj/item/clothing/suit/storage/labcoat/cmo(src)
 	new /obj/item/clothing/under/rank/chief_medical_officer(src)
 	new /obj/item/clothing/gloves/color/latex/nitrile(src)
-	new /obj/item/clothing/shoes/color/white(src)
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/white(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/medical/cmo(src)
 	new /obj/item/clothing/under/rank/chief_medical_officer/skirt(src)
 
@@ -222,7 +222,7 @@
 	new /obj/item/clothing/suit/storage/hazardvest(src)
 	new /obj/item/clothing/under/rank/chief_engineer(src)
 	new /obj/item/clothing/under/rank/chief_engineer/skirt(src)
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/engineering/ce(src)
 
 /obj/item/storage/garmentbag/chaplain/populate_contents()
@@ -240,7 +240,7 @@
 	new /obj/item/clothing/suit/armor/riot/knight/templar(src)
 	new /obj/item/clothing/under/wedding/bride_white(src)
 	new /obj/item/clothing/under/rank/chaplain(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/clothing/under/rank/chaplain/skirt(src)
 	new /obj/item/clothing/suit/hooded/hijab(src)
 
@@ -253,7 +253,7 @@
 	new /obj/item/clothing/under/rank/cargo/skirt(src)
 	new /obj/item/clothing/under/rank/cargo/official(src)
 	new /obj/item/clothing/gloves/fingerless(src)
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/cargo/qm(src)
 	new /obj/item/clothing/under/rank/cargo/alt(src)
 	new /obj/item/clothing/head/cowboyhat/tan(src)
@@ -268,28 +268,4 @@
 	new /obj/item/clothing/gloves/color/latex/nitrile(src)
 	new /obj/item/clothing/head/beret/mining_medic(src)
 	new /obj/item/clothing/head/surgery/brown(src)
-	new /obj/item/clothing/shoes/color/white(src)
-
-/obj/item/storage/garmentbag/brigdoc/populate_contents()
-	new /obj/item/clothing/head/beret/brigphys(src)
-	new /obj/item/clothing/head/soft/brigphys(src)
-	new /obj/item/clothing/under/rank/security/brigphys(src)
-	new /obj/item/clothing/under/rank/security/brigphys/skirt(src)
-	new /obj/item/clothing/under/rank/security/brigmedical(src)
-	new /obj/item/clothing/under/rank/security/brigmedical/skirt(src)
-	new /obj/item/clothing/suit/storage/brigdoc(src)
-	new /obj/item/clothing/suit/storage/fr_jacket(src)
-	new /obj/item/clothing/suit/storage/suragi_jacket/medsec(src)
-	new /obj/item/clothing/gloves/color/latex/nitrile(src)
-	new /obj/item/clothing/shoes/color/white(src)
-	new /obj/item/clothing/shoes/sandal/white(src)
-
-/obj/item/storage/garmentbag/paramedic/populate_contents()
-	new /obj/item/clothing/head/soft/paramedic(src)
-	new /obj/item/clothing/under/rank/medical/paramedic(src)
-	new /obj/item/clothing/under/rank/medical/paramedic/skirt(src)
-	new /obj/item/clothing/suit/storage/paramedic(src)
-	new	/obj/item/clothing/suit/storage/paramedic_jacket(src)
-	new /obj/item/clothing/gloves/color/latex/nitrile(src)
-	new /obj/item/clothing/shoes/color/black(src)
-	new /obj/item/clothing/mask/surgical(src)
+	new /obj/item/clothing/shoes/white(src)

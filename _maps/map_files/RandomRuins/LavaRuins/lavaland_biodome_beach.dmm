@@ -56,11 +56,6 @@
 /obj/effect/overlay/coconut,
 /turf/simulated/floor/beach/sand,
 /area/ruin/powered/beach)
-"be" = (
-/obj/effect/turf_decal/sand/plating,
-/obj/machinery/vending/snack,
-/turf/simulated/floor/plasteel,
-/area/ruin/powered/beach)
 "bi" = (
 /obj/structure/closet/athletic_mixed,
 /obj/effect/turf_decal/sand,
@@ -80,6 +75,10 @@
 /obj/effect/turf_decal/sand,
 /turf/simulated/floor/pod,
 /area/ruin/powered/beach)
+"bl" = (
+/obj/effect/turf_decal/sand,
+/turf/simulated/floor/pod/light,
+/area/ruin/powered/beach)
 "bm" = (
 /obj/machinery/light{
 	dir = 8
@@ -93,6 +92,13 @@
 	},
 /obj/effect/turf_decal/sand,
 /turf/simulated/floor/beach/sand,
+/area/ruin/powered/beach)
+"bo" = (
+/obj/machinery/shower{
+	dir = 4
+	},
+/obj/effect/turf_decal/sand,
+/turf/simulated/floor/pod/light,
 /area/ruin/powered/beach)
 "bp" = (
 /obj/machinery/light/small{
@@ -289,9 +295,6 @@
 /obj/effect/turf_decal/sand,
 /turf/simulated/floor/plating,
 /area/ruin/powered/beach)
-"if" = (
-/turf/simulated/floor/pod/light,
-/area/ruin/powered/beach)
 "iD" = (
 /obj/effect/turf_decal/sand/plating,
 /obj/effect/turf_decal/caution,
@@ -336,16 +339,6 @@
 /obj/effect/spawner/window,
 /turf/simulated/floor/plating,
 /area/ruin/powered/beach)
-"mx" = (
-/obj/effect/turf_decal/sand/plating,
-/obj/machinery/vending/cola,
-/turf/simulated/floor/plasteel,
-/area/ruin/powered/beach)
-"ne" = (
-/obj/effect/turf_decal/sand/plating,
-/obj/machinery/vending/crittercare,
-/turf/simulated/floor/plasteel,
-/area/ruin/powered/beach)
 "nR" = (
 /obj/structure/reagent_dispensers/fueltank,
 /turf/simulated/floor/plating,
@@ -365,12 +358,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/ruin/powered/beach)
-"px" = (
-/obj/machinery/shower{
-	dir = 8
-	},
-/turf/simulated/floor/pod/light/lavaland_air,
-/area/ruin/powered/beach)
 "pI" = (
 /obj/machinery/door/airlock/hatch{
 	name = "Lava Beach Club"
@@ -388,6 +375,12 @@
 /obj/structure/table,
 /obj/machinery/kitchen_machine/microwave,
 /turf/simulated/floor/wood,
+/area/ruin/powered/beach)
+"qT" = (
+/obj/machinery/shower{
+	dir = 8
+	},
+/turf/simulated/floor/pod/light,
 /area/ruin/powered/beach)
 "ry" = (
 /obj/item/storage/toolbox/mechanical,
@@ -429,8 +422,13 @@
 /obj/item/clothing/glasses/sunglasses/big,
 /turf/simulated/floor/wood,
 /area/ruin/powered/beach)
+"tG" = (
+/obj/effect/turf_decal/sand/plating,
+/obj/machinery/vending/crittercare/free,
+/turf/simulated/floor/plasteel,
+/area/ruin/powered/beach)
 "uA" = (
-/obj/item/beacon,
+/obj/item/radio/beacon,
 /turf/simulated/floor/beach/sand,
 /area/ruin/powered/beach)
 "uP" = (
@@ -500,13 +498,6 @@
 /obj/machinery/reagentgrinder,
 /turf/simulated/floor/wood,
 /area/ruin/powered/beach)
-"zI" = (
-/obj/machinery/shower{
-	dir = 4
-	},
-/obj/effect/turf_decal/sand,
-/turf/simulated/floor/pod/light/lavaland_air,
-/area/ruin/powered/beach)
 "zM" = (
 /obj/structure/table,
 /obj/item/storage/box/donkpockets{
@@ -551,9 +542,8 @@
 /obj/machinery/vending/cigarette/beach,
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/beach)
-"GK" = (
-/obj/effect/turf_decal/sand,
-/turf/simulated/floor/pod/light/lavaland_air,
+"Gc" = (
+/turf/simulated/floor/pod/light,
 /area/ruin/powered/beach)
 "HC" = (
 /obj/structure/rack,
@@ -569,6 +559,11 @@
 /obj/effect/mob_spawn/human/bartender/alive,
 /turf/simulated/floor/plating,
 /area/ruin/powered/beach)
+"KX" = (
+/obj/effect/turf_decal/sand/plating,
+/obj/machinery/vending/cola/free,
+/turf/simulated/floor/plasteel,
+/area/ruin/powered/beach)
 "Lm" = (
 /obj/item/flashlight/lantern,
 /obj/machinery/light/small{
@@ -580,7 +575,7 @@
 /turf/simulated/wall/mineral/sandstone,
 /area/ruin/powered/beach)
 "Ns" = (
-/obj/machinery/jukebox/disco/indestructible,
+/obj/machinery/disco/immobile,
 /turf/simulated/floor/light/colour_cycle,
 /area/ruin/powered/beach)
 "NQ" = (
@@ -596,9 +591,6 @@
 "Qv" = (
 /obj/machinery/vending/boozeomat,
 /turf/simulated/floor/wood,
-/area/ruin/powered/beach)
-"QB" = (
-/turf/simulated/floor/pod/light/lavaland_air,
 /area/ruin/powered/beach)
 "QS" = (
 /obj/machinery/light{
@@ -682,6 +674,11 @@
 	opacity = 1
 	},
 /turf/simulated/floor/plating,
+/area/ruin/powered/beach)
+"YN" = (
+/obj/effect/turf_decal/sand/plating,
+/obj/machinery/vending/snack/free,
+/turf/simulated/floor/plasteel,
 /area/ruin/powered/beach)
 "ZW" = (
 /obj/machinery/processor,
@@ -792,9 +789,9 @@ bW
 bW
 zw
 Xp
-QB
-zI
-QB
+Gc
+bo
+Gc
 bp
 cR
 bW
@@ -822,9 +819,9 @@ bE
 bW
 HC
 VO
-GK
-GK
-QB
+bl
+bl
+Gc
 VO
 lM
 bW
@@ -1325,9 +1322,9 @@ DN
 Ml
 vu
 Ek
-mx
-be
-ne
+KX
+YN
+tG
 gg
 gg
 gg
@@ -1337,7 +1334,7 @@ bE
 bE
 bA
 bG
-if
+Gc
 bE
 bR
 bT
@@ -1572,9 +1569,9 @@ bE
 bW
 bi
 VO
-QB
-GK
-GK
+Gc
+bl
+bl
 bq
 lM
 bW
@@ -1602,9 +1599,9 @@ bW
 bW
 bj
 bk
-QB
-px
-GK
+Gc
+qT
+bl
 qa
 cR
 bW

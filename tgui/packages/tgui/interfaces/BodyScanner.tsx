@@ -143,9 +143,6 @@ type ExternalOrgan = {
   totalLoss: number;
   bruteLoss: number;
   fireLoss: number;
-  bleed: number;
-  bleed_supp: string;
-  bleed_type: string;
   shrapnel: Shrapnel[];
 } & Organ;
 
@@ -394,14 +391,6 @@ const BodyScannerMainOrgansExternal = (props: Organs<ExternalOrgan>) => {
                       <Stack.Item>
                         <Icon name="fire" mr={0.5} />
                         {round(o.fireLoss, 0)}
-                      </Stack.Item>
-                    </Tooltip>
-                  )}
-                  {!!o.bleed && (
-                    <Tooltip content="Кровотечение">
-                      <Stack.Item>
-                        <Icon name="tint" mr={0.5} />
-                        {o.bleed_type} {o.bleed} {o.bleed_supp}
                       </Stack.Item>
                     </Tooltip>
                   )}

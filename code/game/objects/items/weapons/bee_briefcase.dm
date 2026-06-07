@@ -3,13 +3,12 @@
 	name = "briefcase"
 	desc = "This briefcase has easy-release clasps and smells vaguely of honey and blood..."
 	gender = MALE
-	icon = 'icons/obj/storage/boxes.dmi'
+	description_antag = "A briefcase filled with deadly bees, you should inject this with a syringe of your own blood before opening it."
+	icon = 'icons/obj/storage.dmi'
 	icon_state = "briefcase"
-	righthand_file = 'icons/mob/inhands/storage_righthand.dmi'
-	lefthand_file = 'icons/mob/inhands/storage_lefthand.dmi'
 	item_state = "briefcase"
 	flags = CONDUCT
-	hitsound = SFX_SWING_HIT
+	hitsound = "swing_hit"
 	force = 10
 	throw_range = 4
 	w_class = WEIGHT_CLASS_BULKY
@@ -20,13 +19,13 @@
 	var/next_sound = 0
 
 /obj/item/bee_briefcase/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "портфель",
 		GENITIVE = "портфеля",
 		DATIVE = "портфелю",
 		ACCUSATIVE = "портфель",
 		INSTRUMENTAL = "портфелем",
-		PREPOSITIONAL = "портфеле",
+		PREPOSITIONAL = "портфеле"
 	)
 
 /obj/item/bee_briefcase/Destroy()
@@ -41,8 +40,9 @@
 		else
 			. += span_warning("The bees are gone... Colony collapse disorder?")
 
+
 /obj/item/bee_briefcase/attackby(obj/item/I, mob/user, params)
-	if(issyringe(I))
+	if(istype(I, /obj/item/reagent_containers/syringe))
 		add_fingerprint(user)
 		var/obj/item/reagent_containers/syringe/syringe = I
 		if(!bees_left)
@@ -78,6 +78,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/item/bee_briefcase/attack_self(mob/user as mob)
 	if(!bees_left)

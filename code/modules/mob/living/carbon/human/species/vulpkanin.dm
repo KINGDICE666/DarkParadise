@@ -22,7 +22,7 @@
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	bodyflags = HAS_TAIL | TAIL_WAGGING | TAIL_OVERLAPPED | HAS_HEAD_ACCESSORY | HAS_MARKINGS | HAS_SKIN_COLOR
 	taste_sensitivity = TASTE_SENSITIVITY_SHARP
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 
 	blood_species = "Vulpkanin"
 	flesh_color = "#966464"
@@ -81,9 +81,9 @@
 	)
 
 	autohiss_basic_map = list(
-		"r" = list("r", "rr", "rrr"),
-		"р" = list("р", "рр", "ррр"),
-	)
+			"r" = list("r", "rr", "rrr"),
+			"р" = list("р", "рр", "ррр")
+		)
 	autohiss_exempt = list("Канилунц")
 
 /datum/species/vulpkanin/handle_death(gibbed, mob/living/carbon/human/H)
@@ -102,6 +102,3 @@
 	remove_verb(H, /mob/living/carbon/human/proc/emote_swag)
 	remove_verb(H, /mob/living/carbon/human/proc/emote_howl)
 	remove_verb(H, /mob/living/carbon/human/proc/emote_growl)
-
-/datum/species/vulpkanin/compressor_grind(location)
-	new /obj/item/reagent_containers/food/snacks/vulpix(location)

@@ -21,13 +21,14 @@
 /// Has a smooth burnt sprite, used to decide whether to apply an offset to the burnt overlay or not. For /turf/open only.
 #define SMOOTH_BURNT_TURF (1<<8)
 
-#define SMOOTH_FALSE (1 << 9) //not smooth
+#define SMOOTH_FALSE	(1 << 9) //not smooth
 
-#define SMOOTH_TRUE (1 << 10) //smooths with exact specified types or just itself
+#define SMOOTH_TRUE		(1 << 10) //smooths with exact specified types or just itself
 
-#define SMOOTH_MORE (1 << 11) //smooths with all subtypes of specified types or just itself (this value can replace SMOOTH_TRUE)
+#define SMOOTH_MORE		(1 << 11) //smooths with all subtypes of specified types or just itself (this value can replace SMOOTH_TRUE)
 
-#define SMOOTH_DIAGONAL (1 << 12) //if atom should smooth diagonally, this should be present in 'smooth' var
+#define SMOOTH_DIAGONAL	(1 << 12) //if atom should smooth diagonally, this should be present in 'smooth' var
+
 
 /// Components of a smoothing junction
 /// Redefinitions of the diagonal directions so they can be stored in one var without conflicts
@@ -148,6 +149,7 @@
 #define SMOOTH_GROUP_HIERO_FLOOR S_OBJ(19)
 #define SMOOTH_GROUP_HIERO_VORTEX S_OBJ(20)
 
+
 #define SMOOTH_GROUP_PAPERFRAME S_OBJ(21) ///obj/structure/window/paperframe, /obj/structure/mineral_door/paperframe
 
 #define SMOOTH_GROUP_WINDOW_FULLTILE S_OBJ(22) ///turf/closed/indestructible/fakeglass, /obj/structure/window/fulltile, /obj/structure/window/reinforced/fulltile, /obj/structure/window/reinforced/tinted/fulltile, /obj/structure/window/plasma/fulltile, /obj/structure/window/reinforced/plasma/fulltile
@@ -202,7 +204,6 @@
 #define SMOOTH_GROUP_RIPPLE S_OBJ(83)
 #define SMOOTH_GROUP_CULT_WALLS S_OBJ(84)
 #define SMOOTH_GROUP_TRANSPARENT_FLOOR S_OBJ(85)
-#define SMOOTH_GROUP_BINGLE_PIT S_OBJ(86)
 
 /// Performs the work to set smoothing_groups and canSmoothWith.
 /// An inlined function used in both turf/Initialize and atom/Initialize.

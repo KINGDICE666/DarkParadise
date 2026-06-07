@@ -6,6 +6,7 @@
 	/// The default key(s) assigned to the keybind.
 	var/list/keys
 
+
 /**
  * Returns whether the keybinding can be pressed by the client's current mob.
  *
@@ -15,6 +16,7 @@
 /datum/keybinding/proc/can_use(client/user)
 	return TRUE
 
+
 /**
  * Called when the client presses the keybind.
  *
@@ -23,6 +25,7 @@
  */
 /datum/keybinding/proc/down(client/user)
 	return FALSE
+
 
 /**
  * Called when the client releases the keybind.

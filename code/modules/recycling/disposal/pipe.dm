@@ -12,7 +12,7 @@
 	level = 1	// underfloor only
 	damage_deflection = 10
 	set_dir_on_move = FALSE
-	armor = list(MELEE = 25, BULLET = 10, LASER = 10, ENERGY = 100, BOMB = 0, BIO = 100, FIRE = 90, ACID = 30)
+	armor = list(MELEE = 25, BULLET = 10, LASER = 10, ENERGY = 100, BOMB = 0, BIO = 100, RAD = 100, FIRE = 90, ACID = 30)
 	/// Hardness points, used in explosion interactions
 	var/hardness = 15
 	/// Bitflags of pipe directions added on init, see \code\_DEFINES\pipe_construction.dm
@@ -22,6 +22,7 @@
 	/// If set, the pipe is flippable and becomes this type when flipped
 	var/flip_type
 	COOLDOWN_DECLARE(eject_effects_cd)
+
 
 /obj/structure/disposalpipe/Initialize(mapload, obj/structure/disposalconstruct/made_from)
 	. = ..()
@@ -42,11 +43,13 @@
 		if(initialize_dirs & DISP_DIR_FLIP)
 			dpdir |= REVERSE_DIR(dir)
 
-	AddElement(/datum/element/undertile)
+	update()
+
 
 /obj/structure/disposalpipe/Destroy()
 	spew_forth()
 	return ..()
+
 
 /**
  * Expells the pipe's contents.
@@ -61,15 +64,18 @@
 		holder.active = FALSE
 		expel(holder, our_turf)
 
+
 // returns the direction of the next pipe object, given the entrance dir
 // by default, returns the bitmask of remaining directions
 /obj/structure/disposalpipe/proc/nextdir(obj/structure/disposalholder/holder)
 	return dpdir & (~REVERSE_DIR(holder.dir))
 
+
 // transfer the holder through this pipe segment
 // overridden for special behaviour
 /obj/structure/disposalpipe/proc/transfer(obj/structure/disposalholder/holder)
 	return transfer_to_dir(holder, nextdir(holder))
+
 
 /obj/structure/disposalpipe/proc/transfer_to_dir(obj/structure/disposalholder/holder, nextdir)
 	holder.setDir(nextdir)
@@ -88,6 +94,7 @@
 	holder.forceMove(pipe)
 	return pipe
 
+
 // expel the held objects into a turf
 // called when there is a break in the pipe
 /obj/structure/disposalpipe/proc/expel(obj/structure/disposalholder/holder, turf/expel_to, direction)
@@ -99,7 +106,7 @@
 
 	if(isfloorturf(expel_to))
 		floorturf = expel_to
-		if(floorturf.underfloor_accessibility != UNDERFLOOR_INTERACTABLE)	// pop the tile if present
+		if(floorturf.intact)	// pop the tile if present
 			floorturf.remove_tile(null, TRUE, TRUE)
 
 	if(direction) // direction is specified
@@ -120,11 +127,42 @@
 	holder.vent_gas(expel_to)
 	qdel(holder)
 
-/obj/structure/disposalpipe/singularity_pull(atom/singularity, current_size)
+
+/obj/structure/disposalpipe/singularity_pull(S, current_size)
 	..()
-	if(current_size < STAGE_FIVE)
+	if(current_size >= STAGE_FIVE)
+		deconstruct()
+
+
+// update the icon_state to reflect hidden status
+/obj/structure/disposalpipe/proc/update()
+	var/turf/our_turf = get_turf(src)
+	if(!our_turf)
 		return
-	deconstruct()
+	if(our_turf.transparent_floor)
+		SET_PLANE_IMPLICIT(src, FLOOR_PLANE)
+	else
+		SET_PLANE_IMPLICIT(src, GAME_PLANE)
+	hide(our_turf.intact)	// space never hides pipes
+
+
+// hide called by levelupdate if turf intact status changes
+// change visibility status and force update of icon
+/obj/structure/disposalpipe/hide(intact)
+	invisibility = intact ? INVISIBILITY_MAXIMUM : 0	// hide if floor is intact
+	update_icon(UPDATE_ICON_STATE)
+
+
+// update actual icon_state depending on visibility
+// if invisible, append "f" to icon_state to show faded version
+// this will be revealed if a T-scanner is used
+// if visible, use regular icon_state
+/obj/structure/disposalpipe/update_icon_state()
+	if(invisibility)
+		icon_state = "[base_icon_state]f"
+	else
+		icon_state = base_icon_state
+
 
 // pipe affected by explosion
 /obj/structure/disposalpipe/ex_act(severity, target)
@@ -136,6 +174,7 @@
 		if(EXPLODE_LIGHT)
 			adjust_hardness(-(rand(0, 15)))
 
+
 /obj/structure/disposalpipe/proc/adjust_hardness(value)
 	hardness = clamp(round(hardness + value), 0, initial(hardness))
 	switch(hardness)
@@ -144,22 +183,24 @@
 		if(3)
 			deconstruct()
 
+
 //attack by item
 //weldingtool: unfasten and convert to obj/disposalconstruct
 
 /obj/structure/disposalpipe/attackby(obj/item/I, mob/user, params)
 	var/turf/our_turf = loc
-	if(isturf(our_turf) && HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	if(isturf(our_turf) && (our_turf.intact || (our_turf.transparent_floor == TURF_TRANSPARENT)))
 		to_chat(user, span_warning("You cannot interact with something that's under the floor!"))
 		return ATTACK_CHAIN_BLOCKED_ALL	// prevent interaction with T-scanner revealed pipes and pipes under glass
 	return ..()
+
 
 /obj/structure/disposalpipe/welder_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return .
 	var/turf/our_turf = loc
-	if(isturf(our_turf) && HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	if(isturf(our_turf) && (our_turf.intact || (our_turf.transparent_floor == TURF_TRANSPARENT)))
 		to_chat(user, span_warning("You can't interact with something that's under the floor!"))
 		return .
 	WELDER_ATTEMPT_SLICING_MESSAGE
@@ -167,6 +208,7 @@
 		return .
 	WELDER_SLICING_SUCCESS_MESSAGE
 	deconstruct()
+
 
 /obj/structure/disposalpipe/deconstruct(disassembled = TRUE)
 	if(disassembled)
@@ -182,11 +224,13 @@
 	spew_forth()
 	return ..()
 
+
 // a straight or bent segment
 /obj/structure/disposalpipe/segment
 	icon_state = "pipe-s"
 	base_icon_state = "pipe-s"
 	initialize_dirs = DISP_DIR_FLIP
+
 
 //a three-way junction with dir being the dominant direction
 /obj/structure/disposalpipe/junction
@@ -195,6 +239,7 @@
 	base_icon_state = "pipe-j1"
 	initialize_dirs = DISP_DIR_RIGHT|DISP_DIR_FLIP
 	flip_type = /obj/structure/disposalpipe/junction/reversed
+
 
 // next direction to move
 // if coming in from secondary dirs, then next is primary dir
@@ -219,11 +264,13 @@
 		else // or the other one
 			return mask & (~secdir)
 
+
 /obj/structure/disposalpipe/junction/reversed
 	icon_state = "pipe-j2"
 	base_icon_state = "pipe-j2"
 	initialize_dirs = DISP_DIR_LEFT|DISP_DIR_FLIP
 	flip_type = /obj/structure/disposalpipe/junction
+
 
 /obj/structure/disposalpipe/junction/yjunction
 	name = "disposal Y-junction pipe"
@@ -232,6 +279,7 @@
 	initialize_dirs = DISP_DIR_LEFT|DISP_DIR_RIGHT
 	flip_type = null
 
+
 //a trunk joining to a disposal bin or outlet on the same turf
 /obj/structure/disposalpipe/trunk
 	name = "disposal trunk"
@@ -239,18 +287,22 @@
 	base_icon_state = "pipe-t"
 	var/obj/linked	// the linked obj/machinery/disposal or obj/disposaloutlet
 
+
 /obj/structure/disposalpipe/trunk/Initialize(mapload)
 	. = ..()
 	getlinked()
+
 
 /obj/structure/disposalpipe/trunk/Destroy()
 	null_linked_refs()
 	linked = null
 	return ..()
 
+
 /obj/structure/disposalpipe/trunk/proc/set_linked(obj/to_link)
 	null_linked_refs()
 	linked = to_link
+
 
 /obj/structure/disposalpipe/trunk/proc/getlinked()
 	null_linked_refs()
@@ -266,15 +318,17 @@
 	if(outlet)
 		set_linked(outlet)
 
+
 /obj/structure/disposalpipe/trunk/proc/null_linked_refs() //disposals is well-coded
 	if(!linked)
 		return
-	if(isdisposalunit(linked))
+	if(istype(linked, /obj/machinery/disposal))
 		var/obj/machinery/disposal/disposal = linked
 		disposal.trunk = null
 	else if(istype(linked, /obj/structure/disposaloutlet))
 		var/obj/structure/disposaloutlet/outlet = linked
 		outlet.trunk = null
+
 
 // Override attackby so we disallow trunkremoval when somethings ontop
 /obj/structure/disposalpipe/trunk/attackby(obj/item/I, mob/user, params)
@@ -289,6 +343,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 // would transfer to next pipe segment, but we are in a trunk
 // if not entering from disposal bin,
@@ -312,10 +367,12 @@
 	// Returning null without expelling holder makes the holder expell itself
 	return null
 
+
 /obj/structure/disposalpipe/trunk/nextdir(obj/structure/disposalholder/holder)
 	if(holder.dir == DOWN)
 		return dir
 	return NONE
+
 
 /obj/structure/disposalpipe/rotator
 	name = "disposal rotator pipe"
@@ -326,14 +383,17 @@
 	/// In what direction the atom travels.
 	var/direction_angle = -90
 
+
 /obj/structure/disposalpipe/rotator/nextdir(obj/structure/disposalholder/holder)
 	return turn(holder.dir, direction_angle)
+
 
 /obj/structure/disposalpipe/rotator/reversed
 	icon_state = "pipe-r2"
 	base_icon_state = "pipe-r2"
 	flip_type = /obj/structure/disposalpipe/rotator
 	direction_angle = 90
+
 
 // a broken pipe
 /obj/structure/disposalpipe/broken
@@ -342,6 +402,7 @@
 	icon_state = "pipe-b"
 	base_icon_state = "pipe-b"
 	initialize_dirs = DISP_DIR_NONE	// broken pipes always have dpdir = NONE so they're not found as 'real' pipes
+
 
 /obj/structure/disposalpipe/broken/welder_act(mob/user, obj/item/I)
 	. = TRUE

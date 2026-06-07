@@ -85,7 +85,7 @@
 /datum/config_entry/flag/log_runtime
 
 /// disable writing world.log to log panel / root logger of DreamDaemon
-/datum/config_entry/flag/enable_root_log
+/datum/config_entry/flag/disable_root_log
 
 /// logs all links clicked in-game. Could be used for debugging and tracking down exploits
 /datum/config_entry/flag/log_hrefs
@@ -128,10 +128,6 @@
 
 /// dead people can't vote (tbi)
 /datum/config_entry/flag/vote_no_dead
-
-/// offstation role people can't vote (tbi)
-/datum/config_entry/flag/vote_no_offstation_role
-	default = TRUE
 
 /// vote does not default to nochange/norestart (tbi)
 /datum/config_entry/flag/default_no_vote
@@ -284,7 +280,7 @@
 		SPECIES_DRASK,
 		SPECIES_GREY,
 		SPECIES_KIDAN,
-		SPECIES_MACHINEPERSON,
+		SPECIES_MACNINEPERSON,
 		SPECIES_NUCLEATION,
 		SPECIES_PLASMAMAN,
 		SPECIES_SLIMEPERSON,
@@ -434,17 +430,20 @@
 /datum/config_entry/number/expected_round_length
 	default = 2 HOURS
 
+
 /datum/config_entry/number/antag_paradise_double_antag_chance
+	default = 10
 	max_val = 100
 	min_val = 0
+
 
 /datum/config_entry/str_list/antag_paradise_random_antags_whitelist
 	lowercase = TRUE
 	default = list(
 		ROLE_TRAITOR,
 		ROLE_VAMPIRE,
-		ROLE_CHANGELING,
 	)
+
 
 /datum/config_entry/keyed_list/antag_paradise_single_antags_weights
 	key_mode = KEY_MODE_TEXT
@@ -453,8 +452,9 @@
 		ROLE_TRAITOR = 60,
 		ROLE_THIEF = 0,
 		ROLE_VAMPIRE = 20,
-		ROLE_CHANGELING = 20,
+		ROLE_CHANGELING = 0,
 	)
+
 
 /datum/config_entry/keyed_list/antag_paradise_double_antags_weights
 	key_mode = KEY_MODE_TEXT
@@ -466,6 +466,7 @@
 		ROLE_CHANGELING = 20,
 	)
 
+
 /datum/config_entry/keyed_list/antag_paradise_tripple_antags_weights
 	key_mode = KEY_MODE_TEXT
 	value_mode = VALUE_MODE_NUM
@@ -475,6 +476,7 @@
 		ROLE_VAMPIRE = 20,
 		ROLE_CHANGELING = 20,
 	)
+
 
 /datum/config_entry/keyed_list/antag_paradise_special_antags_weights
 	key_mode = KEY_MODE_TEXT
@@ -487,7 +489,9 @@
 		"thief" = 10,
 		"nothing" = 20,
 		"devil" = 10,
+		"heretic" = 0,
 	)
+
 
 /datum/config_entry/keyed_list/antag_paradise_mode_subtypes
 	key_mode = KEY_MODE_TEXT
@@ -499,6 +503,7 @@
 		ANTAG_RANDOM = 10,
 	)
 
+
 /datum/config_entry/keyed_list/antag_paradise_subtype_weights
 	key_mode = KEY_MODE_TEXT
 	value_mode = VALUE_MODE_NUM
@@ -507,6 +512,7 @@
 		ANTAG_DOUBLE = 4,
 		ANTAG_TRIPPLE = 2,
 	)
+
 
 //Made that way because compatibility reasons.
 /datum/config_entry/keyed_list/event_delay_lower
@@ -775,6 +781,7 @@
 /datum/config_entry/number/jobs_high_pop_mode_amount
 	default = 80
 
+
 /datum/config_entry/number/hard_deletes_overrun_threshold
 	integer = FALSE
 	min_val = 0
@@ -788,28 +795,35 @@
 	integer = FALSE
 	min_val = 0
 
+
 /datum/config_entry/number/error_limit // How many occurrences before the next will silence them
 	default = 50
+
 
 /datum/config_entry/number/error_silence_time // How long a unique error will be silenced for
 	default = 6000
 	integer = FALSE
 
+
 /datum/config_entry/number/error_msg_delay // How long to wait between messaging admins about occurrences of a unique error
 	default = 50
 	integer = FALSE
+
 
 /datum/config_entry/number/second_topic_limit
 	default = 10
 	min_val = 0
 
+
 /datum/config_entry/number/minute_topic_limit
 	default = 150
 	min_val = 0
 
+
 /datum/config_entry/number/second_click_limit
 	default = 15
 	min_val = 0
+
 
 /datum/config_entry/number/minute_click_limit
 	default = 400
@@ -819,6 +833,7 @@
 	default = TRUE
 
 /datum/config_entry/flag/save_spritesheets
+
 
 /datum/config_entry/string/invoke_youtubedl
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
@@ -852,23 +867,3 @@
 
 /datum/config_entry/string/internal_ip
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
-
-/datum/config_entry/keyed_list/positive_station_traits
-	default = list("0" = 8, "1" = 4, "2" = 2, "3" = 1)
-	key_mode = KEY_MODE_TEXT
-	value_mode = VALUE_MODE_NUM
-
-/datum/config_entry/keyed_list/negative_station_traits
-	default = list("0" = 8, "1" = 4, "2" = 2, "3" = 1)
-	key_mode = KEY_MODE_TEXT
-	value_mode = VALUE_MODE_NUM
-
-/datum/config_entry/keyed_list/neutral_station_traits
-	default = list("0" = 10, "1" = 10, "2" = 3, "2.5" = 1)
-	key_mode = KEY_MODE_TEXT
-	value_mode = VALUE_MODE_NUM
-
-/datum/config_entry/flag/smart_cache_assets
-	default = TRUE
-
-/datum/config_entry/flag/generate_assets_in_init

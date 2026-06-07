@@ -51,7 +51,9 @@
 	new /obj/item/tank/internals/oxygen(src)
 	new /obj/item/clothing/mask/gas(src)
 
-// MARK: Fire Closet
+/*
+ * Fire Closet
+ */
 /obj/structure/closet/firecloset
 	name = "fire-safety closet"
 	desc = "It's a storage unit for fire-fighting supplies."
@@ -63,7 +65,6 @@
 	new /obj/item/clothing/mask/gas(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/clothing/head/hardhat/red(src)
-	new /obj/item/crowbar/red(src)
 
 /obj/structure/closet/firecloset/full/populate_contents()
 	new /obj/item/extinguisher(src)
@@ -72,7 +73,6 @@
 	new /obj/item/flashlight(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/clothing/head/hardhat/red(src)
-	new /obj/item/crowbar/red(src)
 
 
 /*
@@ -115,6 +115,7 @@
 	if(prob(40))
 		new /obj/item/clothing/head/hardhat(src)
 
+
 /*
  * Radiation Closet
  */
@@ -125,7 +126,6 @@
 	custom_door_overlay = "radsuit"
 
 /obj/structure/closet/radiation/populate_contents()
-	new /obj/item/geiger_counter(src)
 	new /obj/item/clothing/suit/radiation(src)
 	new /obj/item/clothing/head/radiation(src)
 
@@ -140,8 +140,9 @@
 /obj/structure/closet/bombcloset/populate_contents()
 	new /obj/item/clothing/suit/bomb_suit( src )
 	new /obj/item/clothing/under/color/black( src )
-	new /obj/item/clothing/shoes/color/black( src )
+	new /obj/item/clothing/shoes/black( src )
 	new /obj/item/clothing/head/bomb_hood( src )
+
 
 /obj/structure/closet/bombclosetsecurity
 	name = "EOD closet"
@@ -151,7 +152,7 @@
 /obj/structure/closet/bombclosetsecurity/populate_contents()
 	new /obj/item/clothing/suit/bomb_suit/security( src )
 	new /obj/item/clothing/under/rank/security( src )
-	new /obj/item/clothing/shoes/color/brown( src )
+	new /obj/item/clothing/shoes/brown( src )
 	new /obj/item/clothing/head/bomb_hood/security( src )
 
 /*
@@ -162,7 +163,6 @@
 	desc = "It's a storage unit for fire-fighting supplies."
 	icon_state = "hydrant"
 	anchored = TRUE
-	anchorable = FALSE
 	density = FALSE
 	wall_mounted = TRUE
 
@@ -182,7 +182,6 @@
 	desc = "It's wall-mounted storage unit for first aid supplies."
 	icon_state = "medical_wall"
 	anchored = TRUE
-	anchorable = FALSE
 	density = FALSE
 	wall_mounted = TRUE
 

@@ -1,3 +1,31 @@
+/// All active /datum/atom_hud/alternate_appearance/basic/has_antagonist instances
+GLOBAL_LIST_EMPTY_TYPED(has_antagonist_huds, /datum/atom_hud/alternate_appearance/basic/has_antagonist)
+
+/// An alternate appearance that will only show if you have the antag datum
+/datum/atom_hud/alternate_appearance/basic/has_antagonist
+	var/antag_datum_type
+	/// Optionally, a weakref to antag team
+	var/datum/weakref/team_ref
+
+/datum/atom_hud/alternate_appearance/basic/has_antagonist/New(key, image/I, antag_datum_type, datum/weakref/team)
+	if(antag_datum_type)
+		src.antag_datum_type = antag_datum_type
+	src.team_ref = team
+	GLOB.has_antagonist_huds += src
+	return ..(key, I, NONE)
+
+/datum/atom_hud/alternate_appearance/basic/has_antagonist/Destroy()
+	GLOB.has_antagonist_huds -= src
+	return ..()
+
+/datum/atom_hud/alternate_appearance/basic/has_antagonist/mobShouldSee(mob/M)
+	if(add_ghost_version && isobserver(M))
+		return FALSE // use the ghost version instead
+	var/datum/team/antag_team = team_ref?.resolve()
+	if(!isnull(antag_team))
+		return !!(M.mind in antag_team.members)
+	return !!M.mind?.has_antag_datum(antag_datum_type)
+
 /datum/atom_hud/antag
 	hud_icons = list(SPECIALROLE_HUD)
 	var/self_visible = TRUE
@@ -11,9 +39,9 @@
 		CRASH("join_hud(): [M] ([M.type]) is not a mob!")
 	if(M.mind.antag_hud && !slave) //note: please let this runtime if a mob has no mind, as mindless mobs shouldn't be getting antagged
 		M.mind.antag_hud.leave_hud(M)
-	add_atom_to_hud(M)
+	add_to_hud(M)
 	if(self_visible)
-		show_to(M)
+		add_hud_to(M)
 	M.mind.antag_hud = src
 
 /datum/atom_hud/antag/proc/leave_hud(mob/M)
@@ -21,10 +49,11 @@
 		return
 	if(!istype(M))
 		CRASH("leave_hud(): [M] ([M.type]) is not a mob!")
-	remove_atom_from_hud(M)
-	hide_from(M)
+	remove_from_hud(M)
+	remove_hud_from(M)
 	if(M.mind)
 		M.mind.antag_hud = null
+
 
 //GAME_MODE PROCS
 //called to set a mob's antag icon state
@@ -46,12 +75,14 @@
 		newhud.join_hud(current)
 
 /datum/mind/proc/leave_all_huds()
-	for(var/hud_key, hud_type in GLOB.huds)
-		var/datum/atom_hud/antag/antag_hud = hud_type
-		if(!istype(antag_hud))
-			continue
-		if(current in antag_hud.hud_users_all_z_levels)
-			antag_hud.leave_hud(current)
+	for(var/datum/atom_hud/antag/hud in GLOB.huds)
+		if(current in hud.hudusers)
+			hud.leave_hud(current)
+
+	for(var/datum/atom_hud/data/hud in GLOB.huds)
+		if(current in hud.hudusers)
+			hud.remove_hud_from(current)
+
 
 ///Master Servent Datum Sytems,Based on TG Gang system//
 
@@ -62,7 +93,7 @@
 	var/datum/atom_hud/antag/thrallhud
 	var/icontype
 
-/datum/mindslaves/New(loc, mastername)
+/datum/mindslaves/New(loc,mastername)
 	name = mastername
 	thrallhud = new()
 

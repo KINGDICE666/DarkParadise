@@ -4,12 +4,14 @@
 	/// Link to the spawned item
 	var/obj/item/melee/touch_attack/attached_hand = null
 	/// Special message shown on item gain
-	var/on_gain_message = span_notice_alt("You channel the power of the spell to your hand.")
+	var/on_gain_message = span_notice("You channel the power of the spell to your hand.")
 	/// Special message shown on item withdrowal
-	var/on_withdraw_message = span_notice_alt("You draw the power out of your hand.")
+	var/on_withdraw_message = span_notice("You draw the power out of your hand.")
+
 
 /obj/effect/proc_holder/spell/touch/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/touch/Click()
 	if(HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
@@ -20,9 +22,25 @@
 		return FALSE
 	charge_hand(usr)
 
+
+/obj/effect/proc_holder/spell/touch/cast(list/targets, mob/user)
+	var/recooldown = FALSE
+	for(var/atom/target in targets)
+		if(!HASBIT(SEND_SIGNAL(target, COMSIG_TOUCH_HANDLESS_CAST, src), COMPONENT_CAST_HANDLESS))
+			continue
+
+		recooldown = TRUE
+
+	if(recooldown)
+		cooldown_handler.start_recharge()
+		return
+
+	. = ..()
+
+
 /obj/effect/proc_holder/spell/touch/proc/charge_hand(mob/living/carbon/user)
 
-	var/obj/item/melee/touch_attack/new_hand = new hand_path(null, src, user)
+	var/obj/item/melee/touch_attack/new_hand = new hand_path(src, user)
 
 	if(user.put_in_hands(new_hand, qdel_on_fail = TRUE))
 		RegisterSignal(user, COMSIG_MOB_KEY_DROP_ITEM_DOWN, PROC_REF(discharge_hand))
@@ -36,6 +54,7 @@
 			new_hand.on_withdraw_message = on_withdraw_message
 	else
 		to_chat(user, span_warning("Your hands are full!"))
+
 
 /obj/effect/proc_holder/spell/touch/proc/discharge_hand(atom/target, any_hand = FALSE)
 	SIGNAL_HANDLER
@@ -51,6 +70,7 @@
 	QDEL_NULL(attached_hand)
 	return COMPONENT_CANCEL_DROP
 
+
 /obj/effect/proc_holder/spell/touch/disintegrate
 	name = "Disintegrate"
 	desc = "This spell charges your hand with vile energy that can be used to violently explode victims."
@@ -60,6 +80,7 @@
 	cooldown_min = 20 SECONDS //100 deciseconds reduction per rank
 
 	action_icon_state = "gib"
+
 
 /obj/effect/proc_holder/spell/touch/flesh_to_stone
 	name = "Flesh to Stone"

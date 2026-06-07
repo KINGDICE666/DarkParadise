@@ -2,13 +2,15 @@
 	name = "Debug outfit"
 
 	uniform = /obj/item/clothing/under/patriotsuit
-	back = /obj/item/mod/control/pre_equipped/debug
+	suit = /obj/item/clothing/suit/space/deathsquad/officer
+	head = /obj/item/clothing/head/helmet/space/deathsquad/beret
+	back = /obj/item/storage/backpack/ert/security
 	backpack_contents = list(
 		/obj/item/melee/energy/axe = 1,
 		/obj/item/storage/part_replacer/bluespace/tier4 = 1,
 		/obj/item/gun/magic/wand/resurrection/debug = 1,
 		/obj/item/gun/magic/wand/death/debug = 1,
-		/obj/item/debug/human_spawner = 1,
+		/obj/item/debug/human_spawner = 1
 	)
 	belt = /obj/item/storage/belt/military/abductor/full
 	l_ear = /obj/item/radio/headset/centcom/debug
@@ -28,8 +30,9 @@
 	cybernetic_implants = list(
 		/obj/item/organ/internal/cyberimp/arm/surgery/advanced,
 		/obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/hardened,
-		/obj/item/organ/internal/cyberimp/arm/janitorial/advanced,
+		/obj/item/organ/internal/cyberimp/arm/janitorial/advanced
 	)
+
 
 /datum/outfit/admin/debug/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	. = ..()
@@ -44,7 +47,7 @@
 	ks2type = /obj/item/encryptionkey/all
 
 /obj/item/radio/headset/centcom/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "тактическая гарнитура AVD-CNED",
 		GENITIVE = "тактической гарнитуры AVD-CNED",
 		DATIVE = "тактической гарнитуре AVD-CNED",
@@ -55,15 +58,11 @@
 
 /obj/item/encryptionkey/all
 	name = "AVD-CNED Encryption Key"
-	icon = 'icons/obj/radio.dmi'
-	icon_state = "rainbow"
-	greyscale_config = null
-	greyscale_colors = null
 	channels = list(ERT_FREQ_NAME = 1, DTH_FREQ_NAME = 1, SCI_FREQ_NAME = 1, COMM_FREQ_NAME = 1, MED_FREQ_NAME = 1, ENG_FREQ_NAME = 1, SEC_FREQ_NAME = 1, SUP_FREQ_NAME = 1, SRV_FREQ_NAME = 1, PRS_FREQ_NAME = 1, PROC_FREQ_NAME = 1) // just in case
 	syndie = TRUE
 
 /obj/item/encryptionkey/all/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ключ шифрования AVD-CNED",
 		GENITIVE = "ключа шифрования AVD-CNED",
 		DATIVE = "ключу шифрования AVD-CNED",
@@ -77,13 +76,14 @@
 	for(var/channel in SSradio.radiochannels)
 		channels[channel] = TRUE // yeah, all channels, sure, probably fine
 
+
 /obj/item/clothing/mask/gas/welding/advanced
 	name = "AVD-CNED welding mask"
-	desc = "Повреждение сетчатки — это не шутка."
+	desc = "Повреждение сетчатки – это не шутка."
 	tint = FLASH_PROTECTION_NONE
 
 /obj/item/clothing/mask/gas/welding/advanced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сварочная маска AVD-CNED",
 		GENITIVE = "сварочной маски AVD-CNED",
 		DATIVE = "сварочной маске AVD-CNED",
@@ -120,7 +120,7 @@
 	var/xray = FALSE
 
 /obj/item/clothing/glasses/hud/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "очки AVD-CNED",
 		GENITIVE = "очков AVD-CNED",
 		DATIVE = "очкам AVD-CNED",
@@ -161,6 +161,7 @@
 /obj/item/clothing/glasses/hud/debug/visor_toggling(mob/living/carbon/human/user)
 	return
 
+
 /obj/item/clothing/glasses/hud/debug/proc/remove_xray(mob/user)
 	see_in_dark = initial(see_in_dark)
 	lighting_alpha = initial(lighting_alpha)
@@ -170,9 +171,6 @@
 	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
 	ADD_TRAIT(user, TRAIT_XRAY, "debug_glasses[UID()]")
-
-/obj/item/debug
-	abstract_type = /obj/item/debug
 
 /obj/item/debug/human_spawner
 	name = "human spawner"
@@ -184,7 +182,7 @@
 	var/valid_species = list()
 
 /obj/item/debug/human_spawner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "создатель гуманоидов",
 		GENITIVE = "создателя гуманоидов",
 		DATIVE = "создателю гуманоидов",
@@ -193,8 +191,8 @@
 		PREPOSITIONAL = "создателе гуманоидов",
 	)
 
-/obj/item/debug/human_spawner/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	. = ..()
+/obj/item/debug/human_spawner/afterattack(atom/target, mob/user, proximity)
+	..()
 	if(isturf(target))
 		var/mob/living/carbon/human/H = new /mob/living/carbon/human(target)
 		if(selected_species)
@@ -212,7 +210,7 @@
 	locked = FALSE
 
 /obj/item/rcd/combat/admin/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "AVD-CNED УБС",
 		GENITIVE = "AVD-CNED УБС",
 		DATIVE = "AVD-CNED УБС",
@@ -232,7 +230,7 @@
 	scan_cd = 0
 
 /obj/item/bodyanalyzer/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "портативный анализатор тела AVD-CNED",
 		GENITIVE = "портативного анализатора тела AVD-CNED",
 		DATIVE = "портативному анализатору тела AVD-CNED",
@@ -247,7 +245,7 @@
 	toolspeed = 0.01
 
 /obj/item/scalpel/laser/manager/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "лазерный скальпель AVD-CNED",
 		GENITIVE = "лазерного скальпеля AVD-CNED",
 		DATIVE = "лазерному скальпелю AVD-CNED",
@@ -265,7 +263,6 @@
 
 /obj/item/organ/internal/cyberimp/arm/surgery/advanced
 	name = "AVD-CNED surgical toolset implant"
-	greyscale_colors = "#848fe6#8f0b0b#8f0b0b#8f0b0b"
 	contents = newlist(
 		/obj/item/scalpel/laser/manager/debug,
 		/obj/item/hemostat/alien, // its needed specifically for some surgeries
@@ -277,7 +274,7 @@
 	)
 
 /obj/item/organ/internal/cyberimp/arm/surgery/advanced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "хирургический имплант AVD-CNED",
 		GENITIVE = "хирургического импланта AVD-CNED",
 		DATIVE = "хирургическому импланту AVD-CNED",
@@ -301,7 +298,7 @@
 	)
 
 /obj/item/organ/internal/cyberimp/arm/janitorial/advanced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "имплант уборщика AVD-CNED",
 		GENITIVE = "импланта уборщика AVD-CNED",
 		DATIVE = "импланту уборщика AVD-CNED",
@@ -318,7 +315,7 @@
 	refill_rate = 50
 
 /obj/item/mop/advanced/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "швабра AVD-CNED",
 		GENITIVE = "швабры AVD-CNED",
 		DATIVE = "швабре AVD-CNED",
@@ -333,7 +330,7 @@
 	cleanspeed = 1
 
 /obj/item/soap/syndie/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "супер-мыло",
 		GENITIVE = "супер-мыла",
 		DATIVE = "супер-мылу",
@@ -348,7 +345,7 @@
 	uses = 20000
 
 /obj/item/lightreplacer/bluespace/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "заменитель ламп AVD-CNED",
 		GENITIVE = "заменителя ламп AVD-CNED",
 		DATIVE = "заменителю ламп AVD-CNED",
@@ -367,7 +364,7 @@
 	delay = 0.1 SECONDS // it costs 1000 reagents to fire this cleaner... for 12 seconds.
 
 /obj/item/reagent_containers/spray/cleaner/advanced/debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "усовершенствованный космический очиститель AVD-CNED",
 		GENITIVE = "усовершенствованного космического очистителя AVD-CNED",
 		DATIVE = "усовершенствованному космическому очистителю AVD-CNED",
@@ -389,7 +386,7 @@
 	name = "debug tools"
 
 /obj/item/storage/box/debug/debugtools/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инструменты отладки",
 		GENITIVE = "инструментов отладки",
 		DATIVE = "инструментам отладки",
@@ -407,14 +404,14 @@
 	new /obj/item/storage/box/beakers/bluespace(src)
 	new /obj/item/storage/box/debug/material(src)
 	new /obj/item/storage/box/debug/misc_debug(src)
-	new /obj/item/storage/box/survival/centcomofficer(src)
+	new /obj/item/storage/box/centcomofficer(src)
 	new /obj/item/radio/uplink/admin(src)
 
 /obj/item/storage/box/debug/material
 	name = "box of materials"
 
 /obj/item/storage/box/debug/material/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "коробка с материалами",
 		GENITIVE = "коробки с материалами",
 		DATIVE = "коробке с материалами",
@@ -422,6 +419,7 @@
 		INSTRUMENTAL = "коробкой с материалами",
 		PREPOSITIONAL = "коробке с материалами",
 	)
+
 
 /obj/item/storage/box/debug/material/populate_contents()
 	new /obj/item/stack/sheet/metal/fifty(src)
@@ -453,7 +451,7 @@
 	name = "misc admin items"
 
 /obj/item/storage/box/debug/misc_debug/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "прочие предметы администратора",
 		GENITIVE = "прочих административных предметов администратора",
 		DATIVE = "прочим предметам администратора",

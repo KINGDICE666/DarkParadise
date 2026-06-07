@@ -13,8 +13,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	antag_hud_type = ANTAG_HUD_CHANGELING
 	wiki_page_name = "Changeling"
 	russian_wiki_name = "Генокрад"
-	clown_gain_text = "Мы преодолели свою клоунскую природу, что позволяет нам использовать оружие, не причиняя нам вреда."
-	clown_removal_text = "С потерей нашей памяти генокрада, к нам возвращается клоунская неуклюжесть."
+	clown_gain_text = "You have evolved beyond your clownish nature, allowing you to wield weapons without harming yourself."
+	clown_removal_text = "As your changeling nature fades, you return to your own clumsy, clownish self."
 	antag_menu_name = "Генокрад"
 	/// List of [/datum/dna] which have been absorbed through the DNA sting or absorb power.
 	var/list/absorbed_dna
@@ -35,16 +35,18 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	/// The current amount of chemicals the changeling has stored.
 	var/chem_charges = 20
 	/// The amount of chemicals that recharges per `Life()` call.
-	var/chem_recharge_rate = CLING_CHEM_RECHARGE_RATE
+	var/chem_recharge_rate = 1
 	/// Amount of chemical recharge slowdown, calculated as `chem_recharge_rate - chem_recharge_slowdown`
 	var/chem_recharge_slowdown = 0
 	/// The total amount of chemicals able to be stored.
-	var/chem_storage = 100
+	var/chem_storage = 75
 	/// The range of changeling stings.
 	var/sting_range = 2
 	/// The changeling's identifier when speaking in the hivemind, i.e. "Mr. Delta 123".
 	var/changelingID = "Changeling"
-	/// This variable is applied to default [CLING_FAKEDEATH_TIME]
+	/// The current amount of genetic damage incurred from power use.
+	var/genetic_damage = 0
+	/// This variable is applied to default [LING_FAKEDEATH_TIME]
 	var/fakedeath_delay = 0 SECONDS
 	/// If the changeling is in the process of absorbing someone.
 	var/is_absorbing = FALSE
@@ -58,6 +60,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	var/datum/dna/chosen_dna
 	/// The current sting power the changeling has active.
 	var/datum/action/changeling/sting/chosen_sting
+	/// If the changeling is in the process of regenerating from their fake death.
+	var/regenerating = FALSE
 	/// A name that will display in place of the changeling's real name when speaking.
 	var/mimicking = ""
 	/// TTS seed used in mimic voice ability.
@@ -67,12 +71,14 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	/// Check for event headslugs not to do start things in the time of popping after first pop
 	var/oncepoped = FALSE
 
+
 /datum/antagonist/changeling/New()
 	..()
 	if(!length(innate_powers))
 		innate_powers = get_powers_of_type(CHANGELING_INNATE_POWER)
 	if(!length(purchaseable_powers))
 		purchaseable_powers = get_powers_of_type(CHANGELING_PURCHASABLE_POWER)
+
 
 /datum/antagonist/changeling/on_gain()
 	SSticker.mode.changelings |= owner
@@ -93,6 +99,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	..()
 
+
 /datum/antagonist/changeling/Destroy()
 	SSticker.mode.changelings -= owner
 	chosen_sting = null
@@ -100,17 +107,20 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	STOP_PROCESSING(SSobj, src)
 	return ..()
 
+
 /datum/antagonist/changeling/greet()
 	..()
 	SEND_SOUND(owner.current, sound('sound/ambience/antag/ling_aler.ogg'))
 	//to_chat(owner.current, span_changeling("Remember: you get all of the absorbed DNA points from other changelings if you absorb them."))
 
+
 /datum/antagonist/changeling/farewell()
 	if(issilicon(owner.current))
-		to_chat(owner.current, span_userdanger("Вы были киборгизированы!"))
-		to_chat(owner.current, span_danger("Вы должны подчиняться законам синтетиков и служить вашему ИИ мастеру! Ваши цели будут считать вас мёртвым."))
+		to_chat(owner.current, span_userdanger("You have been robotized!"))
+		to_chat(owner.current, span_danger("You must obey your silicon laws and master AI above all else. Your objectives will consider you to be dead."))
 	else
-		to_chat(owner.current, span_danger("Вы потеряли ваши способности! Теперь вы не генокрад и застряли в своём текущем теле!"))
+		to_chat(owner.current, span_fontsize3("<span style='color: red;'><b>You lose your powers! You are no longer a changeling and are stuck in your current form!</b></span>"))
+
 
 /datum/antagonist/changeling/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
@@ -127,7 +137,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 			power.Grant(user)
 
 	// Else, this is their first time gaining the datum, or they're transfering from a headslug into a monkey.
-	if(!length(acquired_powers) && ishuman(user))
+	if(!acquired_powers.len && ishuman(user))
 		for(var/power_type in innate_powers)
 			give_power(new power_type, user)
 
@@ -189,6 +199,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	if(former_ling_brain && former_ling_brain.decoy_brain != initial(former_ling_brain.decoy_brain))
 		former_ling_brain.decoy_brain = FALSE
 
+
 /**
  * OBJECTIVES - Always absorb 5 genomes, plus random traitor objectives.
  * If they have two objectives as well as absorb, they must survive rather than escape.
@@ -228,6 +239,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		else
 			add_objective(/datum/objective/escape/escape_with_identity) // If our kill target has no genes, 30% time pick someone else to steal the identity of
 
+
 /datum/antagonist/changeling/process()
 	if(!owner || !owner.current)
 		return PROCESS_KILL
@@ -239,9 +251,11 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	if(h_owner.stat == DEAD)
 		chem_charges = clamp(0, chem_charges + chem_recharge_rate - chem_recharge_slowdown, chem_storage * 0.5)
+		genetic_damage = directional_bounded_sum(genetic_damage, -1, LING_DEAD_GENETIC_DAMAGE_HEAL_CAP, 0)
 
-	else // Not dead? no chem caps.
+	else // Not dead? no chem/genetic_damage caps.
 		chem_charges = clamp(0, chem_charges + chem_recharge_rate - chem_recharge_slowdown, chem_storage)
+		genetic_damage = max(0, genetic_damage - 1)
 
 /**
  * Signal proc for [COMSIG_MOB_MIDDLECLICKON](not yet) and [COMSIG_MOB_ALTCLICKON].
@@ -264,23 +278,25 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	return COMSIG_MOB_CANCEL_CLICKON
 
+
 /**
  * Respec the changeling's powers after first checking if they're able to respec.
  */
 /datum/antagonist/changeling/proc/try_respec()
 	var/mob/living/carbon/human/user = owner.current
 	if(!istype(user) || is_monkeybasic(user))
-		user.balloon_alert(user, "неподходящая форма")
+		to_chat(user, span_danger("We can't readapt our evolutions in this form!"))
 		return FALSE
 	if(can_respec)
-		to_chat(user, span_changeling("Мы отринули наше развитие и теперь готовы к новой реадаптации."))
+		to_chat(user, span_changeling("We have removed our evolutions from this form, and are now ready to readapt."))
 		remove_changeling_mutations(user)
 		respec()
 		can_respec = FALSE
 		return TRUE
 	else
-		user.balloon_alert(user, "нужно поглотить жертву")
+		to_chat(user, span_danger("You lack the power to readapt your evolutions!"))
 		return FALSE
+
 
 /**
  * Resets a changeling to the point they were when they first became a changeling, i.e no genetic points to spend, no non-innate powers, etc.
@@ -295,8 +311,10 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	chem_recharge_rate = initial(chem_recharge_rate)
 	chem_charges = min(chem_charges, chem_storage)
 	chem_recharge_slowdown = initial(chem_recharge_slowdown)
+	genetic_damage = initial(genetic_damage)
 	mimicking = ""
 	tts_mimicking = ""
+
 
 /**
  * Removes a changeling's abilities.
@@ -314,6 +332,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	if(owner?.current)
 		owner.current.update_action_buttons(TRUE)
 
+
 /**
  * Gets a list of changeling action typepaths based on the passed in `power_type`.
  *
@@ -329,6 +348,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		powers += power_path
 	return powers
 
+
 /**
  * Gives the changeling the passed in `power`. Subtracts the cost of the power from our genetic points.
  *
@@ -343,6 +363,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	acquired_powers += power
 	power.on_purchase(changeling || owner.current, src)
 
+
 /**
  * Store the languages from the `new_languages` list into the `absorbed_languages` list. Teaches the changeling the new languages.
  *
@@ -356,6 +377,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		owner.current.add_language(language.name)
 		absorbed_languages += language.UID()
 
+
 /**
  * Teach the changeling every language in the `absorbed_language` list. Already known languages will be ignored.
  */
@@ -363,6 +385,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	for(var/lang_UID in absorbed_languages)
 		var/datum/language/language = locateUID(lang_UID)
 		owner.current.add_language(language.name)
+
 
 /**
  * Removes all the languages the mob `user` has absorbed throughout their life as a changeling and should no longer have.
@@ -391,6 +414,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 			continue
 		user.remove_language(language.name)
 
+
 /**
  * Absorb the the target's DNA and their languages.
  *
@@ -402,6 +426,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	store_dna(user.dna.Clone())
 	add_new_languages(user.languages)
 	absorbed_count++
+
 
 /**
  * Store the target DNA. If the DNA belongs to one of the changeling's "escape with identity" objectives, make the DNA protected.
@@ -417,6 +442,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	absorbed_dna |= new_dna
 	trim_dna()
+
 
 /**
  * Prompt the changeling with a list of names associated with their stored DNA. Return a [/datum/dna] based on the name chosen.
@@ -439,6 +465,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	return names[chosen_name]
 
+
 /**
  * Gets a [/datum/dna] that matches the passed in `tDNA`. Also used as a check to see if the changeling has this DNA already stored.
  *
@@ -449,6 +476,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	for(var/datum/dna/DNA in (absorbed_dna + protected_dna))
 		if(tDNA.unique_enzymes == DNA.unique_enzymes && tDNA.uni_identity == DNA.uni_identity && tDNA.species.type == DNA.species.type)
 			return DNA
+
 
 /**
  * Determines if the changeling's current DNA is stale.
@@ -466,13 +494,15 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	return FALSE
 
+
 /**
  * Clears the most "stale" DNA from the `absorbed_dna` list.
  */
 /datum/antagonist/changeling/proc/trim_dna()
-	list_clear_nulls(absorbed_dna)
+	listclearnulls(absorbed_dna)
 	if(length(absorbed_dna) > dna_max)
 		absorbed_dna.Cut(1, 2)
+
 
 /**
  * Returns TRUE if the changeling can absorb the target mob's DNA.
@@ -483,27 +513,32 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 /datum/antagonist/changeling/proc/can_absorb_dna(mob/living/carbon/target)
 	var/mob/living/carbon/user = owner.current
 	if(using_stale_dna())	//If our current DNA is the stalest, we gotta ditch it.
-		user.balloon_alert(user, "сначала нужно трансформироваться")
+		to_chat(user, span_warning("The DNA we are wearing is stale. Transform and try again."))
 		return FALSE
 
 	if(!target || !target.dna)
-		user.balloon_alert(user, "жертва без ДНК")
+		to_chat(user, span_warning("This creature does not have any DNA."))
 		return FALSE
 
 	var/mob/living/carbon/human/human_target = target
 	if(!istype(human_target) || is_monkeybasic(human_target))
-		user.balloon_alert(user, "жертва не подойдёт")
+		to_chat(user, span_warning("[human_target] is not compatible with our biology."))
 		return FALSE
 
-	if(HAS_TRAIT(human_target, TRAIT_HUSK) || HAS_TRAIT(human_target, TRAIT_NO_DNA) || HAS_TRAIT(human_target, TRAIT_SKELETON) || HAS_TRAIT(human_target, TRAIT_NO_CLONE))
-		user.balloon_alert(user, "жертва без ДНК")
+	if(HAS_TRAIT(human_target, TRAIT_HUSK) || HAS_TRAIT(human_target, TRAIT_SKELETON) || HAS_TRAIT(human_target, TRAIT_NO_CLONE))
+		to_chat(user, span_warning("DNA of [target] is ruined beyond usability!"))
+		return FALSE
+
+	if(HAS_TRAIT(human_target, TRAIT_NO_DNA))
+		to_chat(user, span_warning("This creature does not have DNA!"))
 		return FALSE
 
 	if(get_dna(target.dna))
-		user.balloon_alert(user, "уже есть это ДНК")
+		to_chat(user, span_warning("We already have this DNA in storage!"))
 		return FALSE
 
 	return TRUE
+
 
 /**
  * Takes path or action datum and checks if it presents on changeling powers.
@@ -521,6 +556,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	return FALSE
 
+
 /datum/antagonist/changeling/proc/on_death(mob/living/user, gibbed)
 	SIGNAL_HANDLER
 	if(QDELETED(user) || gibbed)  // they were probably incinerated or gibbed, no coming back from that.
@@ -533,19 +569,26 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	addtimer(CALLBACK(src, PROC_REF(calculate_stasis_delay), user), 0)	// We need this timer to register missing head
 
 	if(!h_user.get_organ_slot("brain"))
-		to_chat(user, span_changeling("Мозги не обязательный орган для нас, мы способны к его регенерации!"))
+		to_chat(user, span_changeling("The brain is a useless organ to us, we are able to regenerate!"))
 	else
-		to_chat(user, span_changeling("Хотя наш сосуд мёртв, для нас это ещё не конец. Мы можем регенерировать!"))
+		to_chat(user, span_changeling("While our current form may be lifeless, this is not the end for us as we can still regenerate!"))
+
 
 /**
  * Additional stasis delay from different sources.
  */
 /datum/antagonist/changeling/proc/calculate_stasis_delay(mob/living/user)
+
 	if(QDELETED(src) || QDELETED(user) || !istype(user))
 		return
 
-	// 2 SECONDS for each fire stack.
+	// 1 SECOND for each point of genetic damage.
+	fakedeath_delay = genetic_damage * 1 SECONDS
+
+	// 20 SECONDS delay if cling was on fire while dying and 2 SECONDS for each fire stack.
+	// 60 SECONDS of delay overall.
 	if(user.on_fire)
+		fakedeath_delay += 20 SECONDS
 		fakedeath_delay += round(user.fire_stacks) * 2 SECONDS
 
 	if(!ishuman(user))
@@ -564,6 +607,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	fakedeath_delay += missing_limbs * 12 SECONDS
 
+
 /**
  * Removes all mutated items on owner: armblade, tentacle, chitin suit etc.
  * Global proc since we might need to delete mutated parts on any user.
@@ -578,6 +622,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		if(mutation)
 			user.temporarily_remove_item_from_inventory(mutation, force = TRUE)
 			qdel(mutation)
+
 
 /**
  * Takes any datum `source` and checks it for changeling datum.

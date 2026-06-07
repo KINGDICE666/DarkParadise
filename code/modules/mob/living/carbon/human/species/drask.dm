@@ -57,11 +57,11 @@
 	heat_level_3 = 400 //Default 460
 	heatmod = 3
 
-	flesh_color = BLOOD_COLOR_DRASK
-	reagent_tag = ORGANIC
-	base_color = BLOOD_COLOR_DRASK
+	flesh_color = "#a3d4eb"
+	reagent_tag = PROCESS_ORG
+	base_color = "#a3d4eb"
 	blood_species = "Drask"
-	blood_color = BLOOD_COLOR_DRASK
+	blood_color = "#a3d4eb"
 	butt_sprite = "drask"
 
 	has_organ = list(
@@ -87,15 +87,15 @@
 	)
 
 	autohiss_basic_map = list(
-		"o" = list ("oo", "ooo"),
-		"u" = list ("uu", "uuu"),
-		"о" = list ("оо", "ооо"),
-		"у" = list ("уу", "ууу"),
-	)
+			"o" = list ("oo", "ooo"),
+			"u" = list ("uu", "uuu"),
+			"о" = list ("оо", "ооо"),
+			"у" = list ("уу", "ууу")
+		)
 	autohiss_extra_map = list(
-		"m" = list ("mm", "mmm"),
-		"м" = list ("мм", "ммм"),
-	)
+			"m" = list ("mm", "mmm"),
+			"м" = list ("мм", "ммм")
+		)
 	autohiss_exempt = list("Орлуум")
 
 /datum/species/drask/get_species_runechat_color(mob/living/carbon/human/H)
@@ -113,8 +113,10 @@
 
 	add_verb(human, /mob/living/carbon/human/proc/emote_hum)
 
+
 /datum/species/drask/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, STRENGTH_LEVEL_IDEAL, STRENGTH_LEVEL_SUPERHUMAN)
+
 
 /datum/species/drask/on_species_loss(mob/living/carbon/human/human)
 	. = ..()
@@ -208,6 +210,3 @@
 	. += DRASK_PITCH_SHIFT
 
 #undef DRASK_PITCH_SHIFT
-
-/datum/species/drask/compressor_grind(location)
-	new /obj/item/soap(location)

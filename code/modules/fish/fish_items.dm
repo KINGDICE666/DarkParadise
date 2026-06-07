@@ -22,7 +22,7 @@
 	throw_speed = 3
 
 /obj/item/fish_net/suicide_act(mob/user)			//"A tiny net is a death sentence: it's a net and it's tiny!" https://www.youtube.com/watch?v=FCI9Y4VGCVw
-	to_chat(viewers(user), span_warning("[user] places the [src.name] on top of [user.p_their()] head, [user.p_their()] fingers tangled in the netting! It looks like [user.p_theyre()] trying to commit suicide."))
+	to_chat(viewers(user), "<span class='warning'>[user] places the [src.name] on top of [user.p_their()] head, [user.p_their()] fingers tangled in the netting! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	return OXYLOSS
 
 /obj/item/fishfood
@@ -45,7 +45,7 @@
 	attack_verb = list("отдраил", "шлифанул", "поцарапал")
 
 /obj/item/tank_brush/suicide_act(mob/user)
-	to_chat(viewers(user), span_warning("[user] is vigorously scrubbing [user.p_them()]self raw with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
+	to_chat(viewers(user), "<span class='warning'>[user] is vigorously scrubbing [user.p_them()]self raw with the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	return BRUTELOSS|FIRELOSS
 
 /obj/item/storage/bag/fish
@@ -78,8 +78,8 @@
 	list_reagents = list("protein" = 1)
 	bitesize = 1
 
-/obj/item/reagent_containers/food/snacks/shrimp/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/shrimp/New()
+	..()
 	desc = pick("Anyway, like I was sayin', shrimp is the fruit of the sea.", "You can barbecue it, boil it, broil it, bake it, saute it.")
 
 /obj/item/reagent_containers/food/snacks/feederfish
@@ -123,6 +123,7 @@
 	hitsound = 'sound/weapons/bite.ogg'
 	force = 3
 
+
 /obj/item/fish/shark/wirecutter_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume))
@@ -135,6 +136,7 @@
 	shark.add_fingerprint(user)
 	teeth.add_fingerprint(user)
 	qdel(src)
+
 
 /obj/item/fish/toothless_shark
 	name = "toothless shark"
@@ -150,18 +152,19 @@
 	throwforce = 5.0
 	materials = list()
 
-/obj/item/shard/shark_teeth/Initialize(mapload)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-5, 5)
-	pixel_y = base_pixel_y + rand(-5, 5)
+/obj/item/shard/shark_teeth/New()
+	..()
+	src.pixel_x = rand(-5,5)
+	src.pixel_y = rand(-5,5)
 
 /obj/item/fish/catfish
 	name = "catfish"
 	desc = "Apparently, catfish don't purr like you might have expected them to. Such a confusing name!"
 	icon_state = "catfish"
 
+
 /obj/item/fish/catfish/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		to_chat(user, "You carefully clean and gut [src].")
 		var/obj/item/reagent_containers/food/snacks/catfishmeat/meat = new(drop_location(), 2)
 		meat.add_fingerprint(user)
@@ -169,6 +172,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/fish/goldfish
 	name = "goldfish"
@@ -180,8 +184,9 @@
 	desc = "The second-favorite food of Space Bears, right behind crew members."
 	icon_state = "salmon"
 
+
 /obj/item/fish/salmon/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		to_chat(user, "You carefully clean and gut [src].")
 		var/obj/item/reagent_containers/food/snacks/salmonmeat/meat = new(drop_location(), 2)
 		meat.add_fingerprint(user)
@@ -190,6 +195,7 @@
 
 	return ..()
 
+
 /obj/item/fish/babycarp
 	name = "baby space carp"
 	desc = "Substantially smaller than the space carp lurking outside the hull, but still unsettling."
@@ -197,8 +203,9 @@
 	hitsound = 'sound/weapons/bite.ogg'
 	force = 3
 
+
 /obj/item/fish/babycarp/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		to_chat(user, "You carefully clean and gut [src].")
 		var/obj/item/reagent_containers/food/snacks/carpmeat/meat = new(drop_location())	//just one fillet; this is a baby, afterall.
 		meat.add_fingerprint(user)
@@ -206,6 +213,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/grown/bananapeel/clownfish
 	name = "clown fish"

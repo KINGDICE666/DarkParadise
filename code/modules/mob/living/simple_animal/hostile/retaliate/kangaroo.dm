@@ -22,7 +22,7 @@
 	var/attack_cycles_max = 3
 	footstep_type = FOOTSTEP_MOB_SHOE
 
-/mob/living/simple_animal/hostile/retaliate/kangaroo/Initialize(mapload)
+/mob/living/simple_animal/hostile/retaliate/kangaroo/New()
 	. = ..()
 	// Leap spell, player-only usage
 	var/obj/effect/proc_holder/spell/leap/leap = new()
@@ -54,7 +54,7 @@
 
 	var/rookick_dir = get_dir(src, L)
 	var/turf/general_direction = get_edge_target_turf(L, rookick_dir)
-	L.visible_message(span_danger("[L] сильно пинает!"), span_userdanger("Пинок [name] посылает вас в полёт!"))
+	L.visible_message("<span class='danger'>[L] сильно пинает!</span>", "<span class='userdanger'>Пинок [name] посылает вас в полёт!</span>")
 	L.throw_at(general_direction, 10, 2)
 
 	attacktext = initial(attacktext)

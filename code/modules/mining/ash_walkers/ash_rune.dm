@@ -11,13 +11,13 @@
 	var/activated = FALSE
 
 /obj/effect/decal/ash_rune_centre/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пепельный сигил",
 		GENITIVE = "пепельного сигила",
 		DATIVE = "пепельному сигилу",
 		ACCUSATIVE = "пепельный сигил",
 		INSTRUMENTAL = "пепельным сигилом",
-		PREPOSITIONAL = "пепельном сигиле",
+		PREPOSITIONAL = "пепельном сигиле"
 	)
 
 /obj/effect/decal/ash_rune_centre/Initialize(mapload)
@@ -30,7 +30,7 @@
 		return ..()
 	if(transforming)
 		return ..()
-	visible_message(span_notice("[user] прикаса[PLUR_ET_YUT(user)]ся рукой к руне."))
+	visible_message(span_notice("[user] прикаса[pluralize_ru(user.gender)]ся рукой к руне."))
 	transforming = TRUE
 	var/obj/effect/rune_animation_landmark/our_landmark = locate() in orange(3, src)
 	if(!our_landmark)
@@ -49,18 +49,19 @@
 	activated = TRUE
 	name = "ash rune"
 	desc = "Полностью функционирующая руна, готовая для ритуальных действий."
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "пепельная руна",
 		GENITIVE = "пепельной руны",
 		DATIVE = "пепельной руне",
 		ACCUSATIVE = "пепельную руну",
 		INSTRUMENTAL = "пепельной руной",
-		PREPOSITIONAL = "пепельной руне",
+		PREPOSITIONAL = "пепельной руне"
 	)
 	AddComponent( \
 		/datum/component/ritual_object, \
 		/datum/ritual/ashwalker, \
 	)
+
 
 // Our little cheat in order to make first rune activation unforgetable
 /obj/effect/rune_fluff_marks
@@ -73,13 +74,13 @@
 	layer = TURF_DECAL_LAYER
 
 /obj/effect/rune_fluff_marks/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пепельная руна",
 		GENITIVE = "пепельной руны",
 		DATIVE = "пепельной руне",
 		ACCUSATIVE = "пепельную руну",
 		INSTRUMENTAL = "пепельной руной",
-		PREPOSITIONAL = "пепельной руне",
+		PREPOSITIONAL = "пепельной руне"
 	)
 
 /obj/effect/rune_fluff_marks/Initialize(mapload)
@@ -102,13 +103,13 @@
 	layer = TURF_DECAL_LAYER
 
 /obj/effect/rune_animation_landmark/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пепельная руна",
 		GENITIVE = "пепельной руны",
 		DATIVE = "пепельной руне",
 		ACCUSATIVE = "пепельную руну",
 		INSTRUMENTAL = "пепельной руной",
-		PREPOSITIONAL = "пепельной руне",
+		PREPOSITIONAL = "пепельной руне"
 	)
 
 /obj/effect/rune_animation_landmark/Initialize(mapload)

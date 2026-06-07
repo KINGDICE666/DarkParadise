@@ -14,7 +14,6 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	icon_state = "seed"				// Unknown plant seed - these shouldn't exist in-game.
 	w_class = WEIGHT_CLASS_TINY
 	resistance_flags = FLAMMABLE
-	abstract_type = /obj/item/seeds
 	var/plantname = "Plants"		// Name of plant when planted.
 	var/product						// A type path. The thing that is created when the plant is harvested.
 	var/species = ""				// Used to update icons. Should match the name in the sprites unless all icon_* are overriden.
@@ -45,15 +44,10 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	var/weed_chance = 5 //Percentage chance per tray update to grow weeds
 	var/nogenes = FALSE
 
-/obj/item/seeds/get_short_name()
-	if(!plantname)
-		return declent_ru(NOMINATIVE)
-	return plantname
-
-/obj/item/seeds/Initialize(mapload, nogenes = FALSE)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-8, 8)
-	pixel_y = base_pixel_y + rand(-8, 8)
+/obj/item/seeds/New(loc, nogenes = FALSE)
+	..()
+	pixel_x = rand(-8, 8)
+	pixel_y = rand(-8, 8)
 
 	if(!icon_grow)
 		icon_grow = "[species]-grow"
@@ -63,10 +57,12 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 
 	if(!icon_harvest && !get_gene(/datum/plant_gene/trait/plant_type/fungal_metabolism) && yield != -1)
 		icon_harvest = "[species]-harvest"
-
 	src.nogenes = nogenes
 	GLOB.plant_seeds += src
 
+
+/obj/item/seeds/Initialize(mapload)
+	. = ..()
 	if(!nogenes) // not used on Copy()
 		genes += new /datum/plant_gene/core/lifespan(lifespan)
 		genes += new /datum/plant_gene/core/endurance(endurance)
@@ -78,21 +74,13 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 		if(potency != -1)
 			genes += new /datum/plant_gene/core/potency(potency)
 
-		for(var/plant_gene in genes)
-			if(ispath(plant_gene))
-				genes -= plant_gene
-				genes += new plant_gene
+		for(var/p in genes)
+			if(ispath(p))
+				genes -= p
+				genes += new p
 
 		for(var/reag_id in reagents_add)
 			genes += new /datum/plant_gene/reagent(reag_id, reagents_add[reag_id])
-
-	var/static/list/hovering_item_typechecks = list(
-		/obj/item/plant_analyzer = list(
-			SCREENTIP_CONTEXT_LMB = "Сканировать параметры семян",
-		),
-	)
-
-	AddElement(/datum/element/contextual_screentip_item_typechecks, hovering_item_typechecks)
 
 /obj/item/seeds/Destroy()
 	QDEL_LIST(genes)
@@ -138,11 +126,14 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	if(prob(traitmut))
 		add_random_traits(1, 1)
 
+
+
 /obj/item/seeds/bullet_act(obj/projectile/Proj) //Works with the Somatoray to modify plant variables.
 	if(istype(Proj, /obj/projectile/energy/florabeta))
 		on_floragun_beta_act()
 	else
 		return ..()
+
 
 // Harvest procs
 /obj/item/seeds/proc/getYield()
@@ -156,6 +147,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 			return_yield *= (parent.yieldmod)
 
 	return return_yield
+
 
 /obj/item/seeds/proc/harvest(mob/user = usr)
 	var/obj/machinery/hydroponics/parent = loc //for ease of access
@@ -176,6 +168,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 
 	return result
 
+
 /obj/item/seeds/proc/prepare_result(obj/item/T)
 	if(!T.reagents)
 		CRASH("[T] has no reagents.")
@@ -193,6 +186,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 				data = grown_edible.tastes.Copy()
 
 		T.reagents.add_reagent(rid, amount, data)
+
 
 /// Setters procs ///
 /obj/item/seeds/proc/adjust_yield(adjustamt)
@@ -293,6 +287,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	if(C)
 		C.value = weed_chance
 
+
 /obj/item/seeds/proc/get_analyzer_text()  //in case seeds have something special to tell to the analyzer
 	var/text = ""
 	if(!get_gene(/datum/plant_gene/trait/plant_type/weed_hardy) && !get_gene(/datum/plant_gene/trait/plant_type/fungal_metabolism) && !get_gene(/datum/plant_gene/trait/plant_type/alien_properties))
@@ -302,7 +297,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	if(get_gene(/datum/plant_gene/trait/plant_type/fungal_metabolism))
 		text += "- Plant type: Mushroom. Can grow in dry soil.\n"
 	if(get_gene(/datum/plant_gene/trait/plant_type/alien_properties))
-		text += "- Plant type: [span_warning("UNKNOWN")] \n"
+		text += "- Plant type: <span class='warning'>UNKNOWN</span> \n"
 	if(potency != -1)
 		text += "- Potency: [potency]\n"
 	if(yield != -1)
@@ -348,6 +343,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 
 	return ..()
 
+
 /obj/item/seeds/proc/variant_prompt(mob/user, obj/item/container = null)
 	var/prev = variant
 	var/V = tgui_input_text(user, "Choose variant name:", "Plant Variant Naming", variant, encode = FALSE)
@@ -361,7 +357,7 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	if(variant == "")
 		variant = null
 	if(prev != variant)
-		to_chat(user, span_notice("You [variant ? "change" : "remove"] the [plantname]'s variant designation."))
+		to_chat(user, "<span class='notice'>You [variant ? "change" : "remove"] the [plantname]'s variant designation.</span>")
 	apply_variant_name()
 
 /obj/item/seeds/proc/apply_variant_name()
@@ -372,6 +368,10 @@ GLOBAL_LIST_EMPTY(plant_seeds)
 	name = N + V
 	if(GetComponent(/datum/component/label))
 		GetComponent(/datum/component/label).apply_label() // Don't delete labels
+
+
+
+
 
 // Checks plants for broken tray icons. Use Advanced Proc Call to activate.
 // Maybe some day it would be used as unit test.

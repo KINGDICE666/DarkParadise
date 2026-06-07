@@ -1,6 +1,6 @@
 /obj/structure/flora/ash
 	gender = PLURAL
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER //sporangiums up don't shoot
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER //sporangiums up don't shoot
 	icon = 'icons/obj/lavaland/ash_flora.dmi'
 	icon_state = "l_mushroom1"
 	base_icon_state = "l_mushroom"
@@ -24,13 +24,13 @@
 	var/regrowth_time_high = 16 MINUTES
 
 /obj/structure/flora/ash/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "крупные грибы",
 		GENITIVE = "крупных грибов",
 		DATIVE = "крупным грибам",
 		ACCUSATIVE = "крупные грибы",
 		INSTRUMENTAL = "крупными грибами",
-		PREPOSITIONAL = "крупных грибах",
+		PREPOSITIONAL = "крупных грибах"
 	)
 
 /obj/structure/flora/ash/Initialize(mapload)
@@ -70,15 +70,16 @@
 	desc = initial(desc)
 	harvested = FALSE
 
+
 /obj/structure/flora/ash/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(I.sharp && !harvested && needs_sharp_harvest)
+	if(is_sharp(I) && !harvested && needs_sharp_harvest)
 		add_fingerprint(user)
 		user.visible_message(
-			span_notice("[user] начина[PLUR_ET_YUT(user)] собирать [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
-			span_notice("Вы начинаете собирать [declent_ru(ACCUSATIVE)]."),
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] собирать [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
+			span_notice("Вы начинаете собирать [src.declent_ru(ACCUSATIVE)]."),
 		)
 		if(!do_after(user, harvest_time * I.toolspeed, src, category = DA_CAT_TOOL) || harvested)
 			return ATTACK_CHAIN_PROCEED
@@ -87,11 +88,12 @@
 
 	return ..()
 
+
 /obj/structure/flora/ash/attack_hand(mob/user)
 	if(!harvested && !needs_sharp_harvest)
 		user.visible_message(
-			span_notice("[user] начина[PLUR_ET_YUT(user)] собирать [declent_ru(ACCUSATIVE)]."),
-			span_notice("Вы начинаете собирать [declent_ru(ACCUSATIVE)]."),
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] собирать [declent_ru(ACCUSATIVE)]."),
+			span_notice("Вы начинаете собирать [src.declent_ru(ACCUSATIVE)]."),
 		)
 		if(do_after(user, harvest_time, src))
 			add_fingerprint(user)
@@ -120,13 +122,13 @@
 	regrowth_time_high = 6000
 
 /obj/structure/flora/ash/leaf_shroom/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "лиственные грибы",
 		GENITIVE = "лиственных грибов",
 		DATIVE = "лиственным грибам",
 		ACCUSATIVE = "лиственные грибы",
 		INSTRUMENTAL = "лиственными грибами",
-		PREPOSITIONAL = "лиственных грибах",
+		PREPOSITIONAL = "лиственных грибах"
 	)
 
 /obj/structure/flora/ash/cap_shroom
@@ -146,13 +148,13 @@
 	regrowth_time_high = 5400
 
 /obj/structure/flora/ash/cap_shroom/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "высокие грибы",
 		GENITIVE = "высоких грибов",
 		DATIVE = "высоким грибам",
 		ACCUSATIVE = "высокие грибы",
 		INSTRUMENTAL = "высокими грибами",
-		PREPOSITIONAL = "высоких грибах",
+		PREPOSITIONAL = "высоких грибах"
 	)
 
 /obj/structure/flora/ash/stem_shroom
@@ -175,13 +177,13 @@
 	regrowth_time_high = 6000
 
 /obj/structure/flora/ash/stem_shroom/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "скопление грибов",
 		GENITIVE = "скопления грибов",
 		DATIVE = "скоплению грибов",
 		ACCUSATIVE = "скопление грибов",
 		INSTRUMENTAL = "скоплением грибов",
-		PREPOSITIONAL = "скоплении грибов",
+		PREPOSITIONAL = "скоплении грибов"
 	)
 
 /obj/structure/flora/ash/cacti
@@ -201,13 +203,13 @@
 	regrowth_time_high = 7200
 
 /obj/structure/flora/ash/cacti/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "фруктовый кактус",
 		GENITIVE = "фруктового кактуса",
 		DATIVE = "фруктовому кактусу",
 		ACCUSATIVE = "фруктовый кактус",
 		INSTRUMENTAL = "фруктовым кактусом",
-		PREPOSITIONAL = "фруктовом кактусе",
+		PREPOSITIONAL = "фруктовом кактусе"
 	)
 
 /obj/structure/flora/ash/cacti/Initialize(mapload)
@@ -235,13 +237,13 @@
 	regrowth_time_high = 4000
 
 /obj/structure/flora/ash/fireblossom/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "огнецвет",
 		GENITIVE = "огнецвета",
 		DATIVE = "огнецвету",
 		ACCUSATIVE = "огнецвет",
 		INSTRUMENTAL = "огнецветом",
-		PREPOSITIONAL = "огнецвете",
+		PREPOSITIONAL = "огнецвете"
 	)
 
 /obj/structure/flora/ash/coaltree
@@ -262,13 +264,13 @@
 	regrowth_time_high = 6000
 
 /obj/structure/flora/ash/coaltree/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "угледрево",
 		GENITIVE = "угледрева",
 		DATIVE = "угледреву",
 		ACCUSATIVE = "угледрево",
 		INSTRUMENTAL = "угледревом",
-		PREPOSITIONAL = "угледреве",
+		PREPOSITIONAL = "угледреве"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora
@@ -281,13 +283,13 @@
 	wine_power = 0.2
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грибная стружка",
 		GENITIVE = "грибной стружки",
 		DATIVE = "грибной стружке",
 		ACCUSATIVE = "грибную стружку",
 		INSTRUMENTAL = "грибной стружкой",
-		PREPOSITIONAL = "грибной стружке",
+		PREPOSITIONAL = "грибной стружке"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/Initialize(mapload)
@@ -305,13 +307,13 @@
 	wine_power = 0.4
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/mushroom_leaf/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грибной лист",
 		GENITIVE = "грибного листа",
 		DATIVE = "грибному листу",
 		ACCUSATIVE = "грибной лист",
 		INSTRUMENTAL = "грибным листом",
-		PREPOSITIONAL = "грибном листе",
+		PREPOSITIONAL = "грибном листе"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/mushroom_cap
@@ -322,13 +324,13 @@
 	wine_power = 0.7
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/mushroom_cap/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грибная шляпка",
 		GENITIVE = "грибной шляпки",
 		DATIVE = "грибной шляпке",
 		ACCUSATIVE = "грибную шляпку",
 		INSTRUMENTAL = "грибной шляпкой",
-		PREPOSITIONAL = "грибной шляпке",
+		PREPOSITIONAL = "грибной шляпке"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/mushroom_stem
@@ -339,13 +341,13 @@
 	wine_power = 0.6
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/mushroom_stem/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грибная ножка",
 		GENITIVE = "грибной ножки",
 		DATIVE = "грибной ножке",
 		ACCUSATIVE = "грибную ножку",
 		INSTRUMENTAL = "грибной ножкой",
-		PREPOSITIONAL = "грибной ножке",
+		PREPOSITIONAL = "грибной ножке"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/cactus_fruit
@@ -356,13 +358,13 @@
 	wine_power = 0.5
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/cactus_fruit/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "плод кактуса",
 		GENITIVE = "плода кактуса",
 		DATIVE = "плоду кактуса",
 		ACCUSATIVE = "плод кактуса",
 		INSTRUMENTAL = "плодом кактуса",
-		PREPOSITIONAL = "плоде кактуса",
+		PREPOSITIONAL = "плоде кактуса"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/fireblossom
@@ -374,13 +376,13 @@
 	wine_power = 0.4
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/fireblossom/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "цветок огнецвета",
 		GENITIVE = "цветка огнецвета",
 		DATIVE = "цветку огнецвета",
 		ACCUSATIVE = "цветок огнецвета",
 		INSTRUMENTAL = "цветком огнецвета",
-		PREPOSITIONAL = "цветке огнецвета",
+		PREPOSITIONAL = "цветке огнецвета"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/coaltree_log
@@ -396,17 +398,17 @@
 	w_class = WEIGHT_CLASS_NORMAL
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/coaltree_log/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бревно угледрева",
 		GENITIVE = "бревна угледрева",
 		DATIVE = "бревну угледрева",
 		ACCUSATIVE = "бревно угледрева",
 		INSTRUMENTAL = "бревном угледрева",
-		PREPOSITIONAL = "бревне угледрева",
+		PREPOSITIONAL = "бревне угледрева"
 	)
 
 /obj/item/reagent_containers/food/snacks/grown/ash_flora/coaltree_log/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		if(!isturf(loc))
 			add_fingerprint(user)
 			to_chat(user, span_warning("Вы не можете рубить [declent_ru(ACCUSATIVE)] [ismob(loc) ? "в инвентаре" : "в [loc.declent_ru(PREPOSITIONAL)]"]."))
@@ -472,6 +474,7 @@
 	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list("nutriment" = 0.06, "vitfro" = 0.04, "nicotine" = 0.04)
 
+
 /obj/item/seeds/lavaland/inocybe
 	name = "pack of inocybe mycelium"
 	desc = "This mycelium grows into an inocybe mushroom, a species of Lavaland origin with hallucinatory and toxic effects."
@@ -517,13 +520,13 @@
 	reagents_add = list("nutriment" = 0.04, "coaltree_extract" = 0.1)
 
 /obj/item/seeds/lavaland/coaltree/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пачка семян угледрева",
 		GENITIVE = "пачки семян угледрева",
 		DATIVE = "пачке семян угледрева",
 		ACCUSATIVE = "пачку семян угледрева",
 		INSTRUMENTAL = "пачкой семян угледрева",
-		PREPOSITIONAL = "пачке семян угледрева",
+		PREPOSITIONAL = "пачке семян угледрева"
 	)
 
 //CRAFTING
@@ -544,13 +547,13 @@
 	w_class = WEIGHT_CLASS_SMALL
 
 /obj/item/reagent_containers/food/drinks/mushroom_bowl/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грибная чаша",
 		GENITIVE = "грибной чаши",
 		DATIVE = "грибной чаше",
 		ACCUSATIVE = "грибную чашу",
 		INSTRUMENTAL = "грибной чашей",
-		PREPOSITIONAL = "грибной чаше",
+		PREPOSITIONAL = "грибной чаше"
 	)
 
 /obj/item/reagent_containers/food/drinks/mushroom_bowl/attackby(obj/item/I, mob/user, params)

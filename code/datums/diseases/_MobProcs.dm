@@ -83,7 +83,7 @@
 	if(!zone)
 		zone_text = pick(40; BODY_ZONE_HEAD, 40; BODY_ZONE_CHEST, 10; BODY_ZONE_L_ARM, 10; BODY_ZONE_L_LEG)
 	else
-		if(isexternalorgan(zone))
+		if(istype(zone, /obj/item/organ/external))
 			var/obj/item/organ/external/E = zone
 			zone_text = E.limb_zone
 		else
@@ -135,6 +135,7 @@
 	if(istype(Clothing) && prob(100 * (1 - Clothing.permeability_coefficient)))
 		return TRUE
 	return FALSE
+
 
 /mob/proc/check_smart_brain()
 	return FALSE

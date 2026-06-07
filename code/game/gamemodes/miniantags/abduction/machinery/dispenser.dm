@@ -78,9 +78,10 @@
 
 /obj/machinery/abductor/gland_dispenser/attack_hand(mob/user)
 	if(!isabductor(user))
-		to_chat(user, span_warning("You don't understand any of the alien writing!"))
+		to_chat(user, "<span class='warning'>You don't understand any of the alien writing!</span>")
 		return
 	ui_interact(user)
+
 
 /obj/machinery/abductor/gland_dispenser/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -96,6 +97,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/abductor/gland_dispenser/proc/Dispense(count)
 	if(amounts[count]>0)

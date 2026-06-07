@@ -4,10 +4,8 @@
 	icon = 'icons/obj/statue.dmi'
 	icon_state = "human_male"
 	anchored = TRUE
-	anchorable = FALSE
 	max_integrity = 100 //destroying the statue kills the mob within
 	no_overlays = TRUE
-	ignore_shoves = TRUE
 	var/intialTox = 0	//these are here to keep the mob from taking damage from things that logically wouldn't affect a rock
 	var/intialFire = 0	//it's a little sloppy I know but it was this or the GODMODE flag. Lesser of two evils.
 	var/intialBrute = 0
@@ -76,7 +74,7 @@
 
 	..()
 
-/obj/structure/closet/statue/open(mob/living/user, force = FALSE)
+/obj/structure/closet/statue/open(force = FALSE)
 	return
 
 /obj/structure/closet/statue/close()
@@ -84,6 +82,9 @@
 
 /obj/structure/closet/statue/toggle()
 	return
+
+/obj/structure/closet/statue/shove_impact(mob/living/target, mob/living/attacker)
+	return FALSE
 
 /obj/structure/closet/statue/obj_destruction(damage_flag)
 	for(var/mob/M in src)
@@ -93,7 +94,7 @@
 /obj/structure/closet/statue/welder_act()
 	return
 
-/obj/structure/closet/statue/mouse_drop_receive(atom/dropping, mob/user, params)
+/obj/structure/closet/statue/MouseDrop_T(atom/dropping, mob/user, params)
 	return
 
 /obj/structure/closet/statue/relaymove()
@@ -112,4 +113,4 @@
 	if(user)
 		user.dust()
 	dump_contents()
-	visible_message(span_warning("[src] shatters!"))
+	visible_message("<span class='warning'>[src] shatters!</span>")

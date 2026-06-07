@@ -11,7 +11,6 @@
 	consume_sound = 'sound/items/drink.ogg'
 	trash = /obj/item/trash/snack_bowl
 	bitesize = 5
-	abstract_type = /obj/item/reagent_containers/food/snacks/soup
 
 /obj/item/reagent_containers/food/snacks/soup/meatballsoup
 	name = "meatball soup"
@@ -94,25 +93,6 @@
 		reagents.add_reagent("vitamin", 1)
 	. = ..()
 
-/obj/item/reagent_containers/food/snacks/soup/sawdustsoup
-	name = "sawdust soup"
-	desc = "ЧТООО как этот суп попал в мои опилки!?"
-	icon_state = "sawdustsoup"
-	filling_color = "#D3C28D"
-	list_reagents = list("nutriment" = 15)
-	tastes = list("wood" = 1)
-	foodtype = GROSS
-
-/obj/item/reagent_containers/food/snacks/soup/sawdustsoup/get_ru_names()
-	return alist(
-		NOMINATIVE = "суп из опилок",
-		GENITIVE = "супа из опилок",
-		DATIVE = "супу из опилок",
-		ACCUSATIVE = "суп из опилок",
-		INSTRUMENTAL = "супом из опилок",
-		PREPOSITIONAL = "супе из опилок",
-	)
-
 /obj/item/reagent_containers/food/snacks/soup/tomatosoup
 	name = "tomato soup"
 	desc = "Drinking this feels like being a vampire! A tomato vampire..."
@@ -148,8 +128,8 @@
 	tastes = list("beet" = 1)
 	foodtype = VEGETABLES
 
-/obj/item/reagent_containers/food/snacks/soup/beetsoup/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/soup/beetsoup/New()
+	..()
 	name = pick("borsch","bortsch","borstch","borsh","borshch","borscht")
 
 /obj/item/reagent_containers/food/snacks/soup/rassolnik

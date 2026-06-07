@@ -1,66 +1,41 @@
 /obj
-	abstract_type = /obj
-	animate_movement = SLIDE_STEPS
 	var/obj_flags = NONE
-	/// Used by R&D to determine what research bonuses it grants.
-	var/origin_tech = null
+	var/origin_tech = null	//Used by R&D to determine what research bonuses it grants.
 	var/crit_fail = FALSE
-	/// Can this object cut?
-	var/sharp = FALSE
-	/// If we have a user using us, this will become `TRUE`. We will check if the user has stopped using us, and thus stop updating and LAGGING EVERYTHING!
-	var/in_use = FALSE
-	/// What type of damage does this object deal?
-	var/damtype = BRUTE
-	/// How much damage this object does in melee.
+	animate_movement = SLIDE_STEPS
+	var/sharp = FALSE		// whether this object cuts
+	var/in_use = FALSE // If we have a user using us, this will be set on. We will check if the user has stopped using us, and thus stop updating and LAGGING EVERYTHING!
+	var/damtype = "brute"
 	var/force = 0
 	// You can define armor as a list in datum definition (e.g. `armor = list("fire" = 80, "brute" = 10)`),
 	// which would be converted to armor datum during initialization.
 	// Setting `armor` to a list on an *existing* object would inevitably runtime. Use `getArmor()` instead.
 	var/datum/armor/armor
-	/// Health of the object. If unspecified, defaults to `max_integrity`.
-	var/obj_integrity
-	/// Maximum health of the object, and default value of `obj_integrity`.
+	var/obj_integrity	//defaults to max_integrity
 	var/max_integrity = 500
-	/// Health threshold below which the object will break. Defaults to 0 for no special broken behavior.
-	var/integrity_failure = 0
-	/// Damage under this value will be completely ignored.
+	var/integrity_failure = 0 //0 if we have no special broken behavior
+	///Damage under this value will be completely ignored
 	var/damage_deflection = 0
-	/// If provided, a custom overlay representing being the object being on fire.
+
+	/// Update_fire_overlay will check if a different icon state should be used
 	var/custom_fire_overlay
-	/// How much acid is on this object?
-	var/acid_level = 0
-	/// Is this object currently being zapped by lightning?
+
+	var/acid_level = 0 //how much acid is on that obj
+
 	var/being_shocked = FALSE
-	/// Should this object speed process? Greatly increases the frequency of process events (5 times more frequent).
 	var/speed_process = FALSE
-	/// Are we visible on the station blueprints at roundstart?
-	var/on_blueprints = FALSE
-	/// Does this object require you to hold it to commit suicide with it?
-	var/suicidal_hands = FALSE
-	/// Typepath of a datum/multitool_menu subtype or null.
-	var/multitool_menu_type = null
+
+	var/on_blueprints = FALSE //Are we visible on the station blueprints at roundstart?
+	var/suicidal_hands = FALSE // Does it requires you to hold it to commit suicide with it?
+
+	var/multitool_menu_type = null // Typepath of a datum/multitool_menu subtype or null.
 	var/datum/multitool_menu/multitool_menu
 
 	/// Amount of multiplicative slowdown applied if pulled/pushed. >1 makes you slower, <1 makes you faster.
 	var/pull_push_slowdown = 0
 
-	/// List of accesses needed to use this object: The user must possess all accesses in this list in order to use the object.
-	/// Example: If req_access = list(ACCESS_ENGINE, ACCESS_CE)- then the user must have both ACCESS_ENGINE and ACCESS_CE in order to use the object.
 	var/list/req_access
 	var/check_one_access = TRUE
-
-	/// Icon to use as a 32x32 preview in crafting menus and such
-	var/icon_preview
-	var/icon_state_preview
-
-	/// Is this object emagged?
-	var/emagged = FALSE
-
-/obj/vv_edit_var(var_name, var_value)
-	if(var_name == NAMEOF(src, obj_flags))
-		if((obj_flags & DANGEROUS_POSSESSION) && !(var_value & DANGEROUS_POSSESSION))
-			return FALSE
-	return ..()
 
 /obj/Initialize(mapload)
 	. = ..()
@@ -80,16 +55,6 @@
 		T.add_blueprints_preround(src)
 
 	add_debris_element()
-
-/obj/Destroy(force)
-	if(!ismachinery(src))
-		if(!speed_process)
-			STOP_PROCESSING(SSobj, src) // TODO: Have a processing bitflag to reduce on unnecessary loops through the processing lists
-		else
-			STOP_PROCESSING(SSfastprocess, src)
-	SStgui.close_uis(src)
-	QDEL_NULL(multitool_menu)
-	return ..()
 
 /obj/Topic(href, href_list, nowindow = FALSE, datum/ui_state/state = GLOB.default_state)
 	// Calling Topic without a corresponding window open causes runtime errors
@@ -113,6 +78,16 @@
 	// Nada
 	return
 
+/obj/Destroy(force)
+	if(!ismachinery(src))
+		if(!speed_process)
+			STOP_PROCESSING(SSobj, src) // TODO: Have a processing bitflag to reduce on unnecessary loops through the processing lists
+		else
+			STOP_PROCESSING(SSfastprocess, src)
+	SStgui.close_uis(src)
+	QDEL_NULL(multitool_menu)
+	return ..()
+
 //user: The mob that is suiciding
 //damagetype: The type of damage the item will inflict on the user
 //BRUTELOSS = 1
@@ -124,24 +99,35 @@
 
 //Output a creative message and then return the damagetype done
 /obj/proc/suicide_act(mob/user)
-	return NONE
+	return FALSE
 
-/obj/proc/handle_internal_lifeform(mob/lifeform_inside_me, breath_request, datum/gas_mixture/environment)
+/obj/assume_air(datum/gas_mixture/giver)
+	if(loc)
+		return loc.assume_air(giver)
+	else
+		return null
+
+/obj/remove_air(amount)
+	if(loc)
+		return loc.remove_air(amount)
+	else
+		return null
+
+/obj/return_air()
+	if(loc)
+		return loc.return_air()
+	else
+		return null
+
+/obj/proc/handle_internal_lifeform(mob/lifeform_inside_me, breath_request)
 	//Return: (NONSTANDARD)
 	//		null if object handles breathing logic for lifeform
 	//		datum/air_group to tell lifeform to process using that breath return
 	//DEFAULT: Take air from turf to give to have mob process
 	if(breath_request > 0)
-		var/datum/gas_mixture/air = return_obj_air()
-
-		if(isnull(air))
-			air = environment
-
-		if(isnull(air))
-			return
-
-		var/breath_percentage = BREATH_VOLUME / air.return_volume()
-		return air.remove(air.total_moles() * breath_percentage)
+		var/datum/gas_mixture/environment = return_air()
+		var/breath_percentage = BREATH_VOLUME / environment.return_volume()
+		return remove_air(environment.total_moles() * breath_percentage)
 	else
 		return null
 
@@ -153,7 +139,7 @@
 			if(M.client && M.machine == src)
 				is_in_use = TRUE
 				src.attack_hand(M)
-		if(isAI(usr) || isrobot(usr))
+		if(istype(usr, /mob/living/silicon/ai) || istype(usr, /mob/living/silicon/robot))
 			if(!(usr in nearby))
 				if(usr.client && usr.machine==src) // && M.machine == src is omitted because if we triggered this by using the dialog, it doesn't matter if our machine changed in between triggering it and this - the dialog is probably still supposed to refresh.
 					is_in_use = TRUE
@@ -182,6 +168,7 @@
 
 		if(!ai_in_use && !is_in_use)
 			in_use = FALSE
+
 
 /**
  * Hidden uplink interaction proc. Gathers a list of items purchasable from the paren't uplink and displays it. It also adds a lock button.
@@ -213,9 +200,10 @@
 	if(istype(M) && M.client && M.machine == src)
 		src.attack_self(M)
 
-/obj/proc/hear_talk(mob/speaker, list/message_pieces)
-	SHOULD_CALL_PARENT(TRUE)
-	SEND_SIGNAL(src, COMSIG_MOVABLE_HEAR, speaker, message_pieces)
+/obj/proc/hide(h)
+	return
+
+/obj/proc/hear_talk(mob/M, list/message_pieces)
 	return
 
 /obj/proc/hear_message(mob/M, text)
@@ -224,7 +212,7 @@
 /obj/proc/default_welder_repair(mob/user, obj/item/I) //Returns TRUE if the object was successfully repaired. Fully repairs an object (setting BROKEN to FALSE), default repair time = 40
 	add_fingerprint(user)
 	if(obj_integrity >= max_integrity)
-		to_chat(user, span_notice("[src] does not need repairs."))
+		to_chat(user, "<span class='notice'>[src] does not need repairs.</span>")
 		return
 	if(I.tool_behaviour != TOOL_WELDER)
 		return
@@ -241,16 +229,16 @@
 /obj/proc/default_unfasten_wrench(mob/user, obj/item/I, time = 20)
 	add_fingerprint(user)
 	if(!anchored && !isfloorturf(loc))
-		user.visible_message(span_warning("A floor must be present to secure [src]!"))
+		user.visible_message("<span class='warning'>A floor must be present to secure [src]!</span>")
 		return FALSE
 	if(I.tool_behaviour != TOOL_WRENCH)
 		return FALSE
 	if(!I.tool_use_check(user, 0))
 		return FALSE
 	if(!(obj_flags & NODECONSTRUCT))
-		to_chat(user, span_notice("Now [anchored ? "un" : ""]securing [name]."))
+		to_chat(user, "<span class='notice'>Now [anchored ? "un" : ""]securing [name].</span>")
 		if(I.use_tool(src, user, time, volume = I.tool_volume))
-			to_chat(user, span_notice("You've [anchored ? "un" : ""]secured [name]."))
+			to_chat(user, "<span class='notice'>You've [anchored ? "un" : ""]secured [name].</span>")
 			set_anchored(!anchored)
 		return TRUE
 	return FALSE
@@ -260,12 +248,13 @@
 	extinguish()
 	acid_level = 0
 
-/obj/singularity_pull(atom/singularity, current_size)
+/obj/singularity_pull(S, current_size)
 	..()
-	if(move_resist == INFINITY)
-		return
 	if(!anchored || current_size >= STAGE_FIVE)
-		step_towards(src, singularity)
+		step_towards(src, S)
+
+/obj/proc/container_resist(mob/living)
+	return
 
 /obj/proc/on_mob_move(mob/user, dir)
 	return
@@ -283,6 +272,15 @@
 	speed_process = FALSE
 	START_PROCESSING(SSobj, src)
 	STOP_PROCESSING(SSfastprocess, src)
+
+/obj/vv_get_dropdown()
+	. = ..()
+	.["Delete all of type"] = "byond://?_src_=vars;delall=[UID()]"
+	if(!speed_process)
+		.["Make speed process"] = "byond://?_src_=vars;makespeedy=[UID()]"
+	else
+		.["Make normal process"] = "byond://?_src_=vars;makenormalspeed=[UID()]"
+	.["Modify armor values"] = "byond://?_src_=vars;modifyarmor=[UID()]"
 
 /obj/proc/check_uplink_validity()
 	return TRUE
@@ -306,6 +304,7 @@
 	if(!sharp && new_sharp_val)
 		AddComponent(/datum/component/surgery_initiator)
 
+
 /obj/proc/force_eject_occupant(mob/target)
 	// This proc handles safely removing occupant mobs from the object if they must be teleported out (due to being SSD/AFK, by admin teleport, etc) or transformed.
 	// In the event that the object doesn't have an overriden version of this proc to do it, log a runtime so one can be added.
@@ -326,56 +325,43 @@
 
 	return locate(/obj) in A
 
-#define MOB_DAMAGE_FROM_OBJECTS_MODIFIER 0.75
 
-/obj/hit_by_thrown_mob(mob/living/throwned_mob, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
-	damage *= MOB_DAMAGE_FROM_OBJECTS_MODIFIER
+#define CARBON_DAMAGE_FROM_OBJECTS_MODIFIER 0.75
+
+/obj/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
+	damage *= CARBON_DAMAGE_FROM_OBJECTS_MODIFIER
 	playsound(src, 'sound/weapons/punch1.ogg', 35, TRUE)
 	if(mob_hurt) //Density check probably not needed, one should only bump into something if it is dense, and blob tiles are not dense, because of course they are not.
 		return
-	throwned_mob.visible_message(
-		span_danger("[DECLENT_RU_CAP(throwned_mob, NOMINATIVE)] с размаху вреза[PLUR_ET_UT(throwned_mob)]ся в [declent_ru(ACCUSATIVE)]!"),
+	C.visible_message(
+		span_danger("[capitalize(C.declent_ru(NOMINATIVE))] с размаху вреза[pluralize_ru(C.gender,"ет","ют")]ся в [declent_ru(ACCUSATIVE)]!"),
 		span_userdanger("Вы с размаху врезаетесь в [declent_ru(ACCUSATIVE)]!")
 	)
-	throwned_mob.take_organ_damage(damage)
+	C.take_organ_damage(damage)
 	if(!self_hurt)
 		take_damage(damage, BRUTE)
-	throwned_mob.Knockdown(3 SECONDS)
+	C.Weaken(3 SECONDS)
 
-#undef MOB_DAMAGE_FROM_OBJECTS_MODIFIER
 
-/obj/proc/return_obj_air()
-	RETURN_TYPE(/datum/gas_mixture)
-	if(isobj(loc))
-		var/obj/object = loc
-		return object.return_obj_air()
-	else
-		return null
+/// Attempt to freeze this obj if possible. returns TRUE if it succeeded, FALSE otherwise.
+/obj/proc/freeze_add()
+	if(HAS_TRAIT(src, TRAIT_FROZEN))
+		return FALSE
 
-/// Use this proc if you need to get special shorter variations of item's name.
-/// ImageButton element in TGUI, for example
-/obj/proc/get_short_name()
-	return declent_ru(NOMINATIVE)
+	if(resistance_flags & FREEZE_PROOF)
+		return FALSE
 
-/**
- * Returns a list of obj's that should be displayed in the uplink purchase log.
- * Override for specific types.
- */
-/obj/proc/get_uplink_log_items()
-	RETURN_TYPE(/list)
-	SHOULD_CALL_PARENT(FALSE)
-	return list(src)
+	AddElement(/datum/element/frozen)
+	return TRUE
 
-/// Adds icons of contents (with get_uplink_log_items()) into uplink
-/obj/proc/log_contents_to_uplink(obj/item/uplink/target_uplink)
-	if(!target_uplink || QDELETED(target_uplink))
-		return
 
-	var/new_purchase_logs = ""
-	var/list/items_to_log = get_uplink_log_items()
-	if(!length(items_to_log))
-		return
+/obj/proc/is_cleanable() //Called when you want to clean something, and usualy delete it after
+	return HAS_TRAIT(src, TRAIT_MOPABLE)
 
-	for(var/atom/atom_to_display in items_to_log)
-		new_purchase_logs += span_fontsize4(icon2base64html(atom_to_display))
-	target_uplink.purchase_log += new_purchase_logs
+
+/// Unfreezes this obj if its frozen
+/obj/proc/unfreeze()
+	SEND_SIGNAL(src, COMSIG_OBJ_UNFREEZE)
+
+
+#undef CARBON_DAMAGE_FROM_OBJECTS_MODIFIER

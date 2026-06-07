@@ -39,10 +39,12 @@
 	icon_state = "gold_horn"
 	item_state = "gold_horn"
 
+
 /obj/item/bikehorn/golden/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
 	if(ATTACK_CHAIN_SUCCESS_CHECK(.))
 		flip_mobs()
+
 
 /obj/item/bikehorn/golden/attack_self(mob/user)
 	flip_mobs()
@@ -53,7 +55,7 @@
 	for(M in ohearers(7, T))
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
-			if(HAS_TRAIT(H, TRAIT_DEAF))
+			if(!H.can_hear())
 				continue
 		M.emote("flip")
 
@@ -75,7 +77,7 @@
 
 /obj/item/clown_recorder/attack_self(mob/user)
 	if(cooldown > world.time)
-		to_chat(user, span_notice("The tape is still winding back."))
+		to_chat(user, "<span class='notice'>The tape is still winding back.</span>")
 		return
 	playsound(src, pick('sound/voice/sitcom_laugh1.ogg', 'sound/voice/sitcom_laugh2.ogg', 'sound/voice/sitcom_laugh3.ogg', 'sound/voice/sitcom_laugh4.ogg', 'sound/voice/sitcom_laugh5.ogg'), 50, FALSE)
 
@@ -86,7 +88,7 @@
 
 /obj/item/clown_recorder/cmag_act(mob/user)
 	if(!HAS_TRAIT(src, TRAIT_CMAGGED))
-		to_chat(user, span_notice("Winding back speed has been improved by the bananium ooze!"))
+		to_chat(user, "<span class='notice'>Winding back speed has been improved by the bananium ooze!</span>")
 		ADD_TRAIT(src, TRAIT_CMAGGED, CMAGGED)
 
 #undef LAUGH_COOLDOWN

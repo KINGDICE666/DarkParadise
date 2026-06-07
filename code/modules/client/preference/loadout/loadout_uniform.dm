@@ -49,14 +49,6 @@
 	index_name = "Solar Federation uniform"
 	path = /obj/item/clothing/under/solgov/civ
 
-/datum/gear/uniform/suit/federal/forest
-	index_name = "Solar Federation forest uniform"
-	path = /obj/item/clothing/under/solgov/forest/civ
-
-/datum/gear/uniform/suit/federal/urban
-	index_name = "Solar Federation urban uniform"
-	path = /obj/item/clothing/under/solgov/urban/civ
-
 /datum/gear/uniform/suit/kilt
 	index_name = "a kilt"
 	path = /obj/item/clothing/under/kilt
@@ -102,9 +94,11 @@
 	index_name = "dyeable skirt, color"
 	path = /obj/item/clothing/under/colour/skirt
 
+
 /datum/gear/uniform/skirt/dyeable/New()
 	..()
 	gear_tweaks += new /datum/gear_tweak/color(parent = src)
+
 
 /datum/gear/uniform/skirt/plaid
 	index_name = "plaid skirt, select"
@@ -135,17 +129,17 @@
 /datum/gear/uniform/skirt/job/ce
 	index_name = "skirt, ce"
 	path = /obj/item/clothing/under/rank/chief_engineer/skirt
-	allowed_roles = list(JOB_TITLE_CHIEF_ENGINEER)
+	allowed_roles = list(JOB_TITLE_CHIEF)
 
 /datum/gear/uniform/skirt/job/atmos
 	index_name = "skirt, atmos"
 	path = /obj/item/clothing/under/rank/atmospheric_technician/skirt
-	allowed_roles = list(JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_ATMOSTECH)
+	allowed_roles = list(JOB_TITLE_CHIEF, JOB_TITLE_ATMOSTECH)
 
 /datum/gear/uniform/skirt/job/eng
 	index_name = "skirt, engineer"
 	path = /obj/item/clothing/under/rank/engineer/skirt
-	allowed_roles = list(JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_ENGINEER)
+	allowed_roles = list(JOB_TITLE_CHIEF, JOB_TITLE_ENGINEER)
 
 /datum/gear/uniform/skirt/job/roboticist
 	index_name = "skirt, roboticist"
@@ -175,7 +169,7 @@
 /datum/gear/uniform/skirt/job/med
 	index_name = "skirt, medical"
 	path = /obj/item/clothing/under/rank/medical/skirt
-	allowed_roles = list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_MINING_MEDIC, JOB_TITLE_MEDICAL_INTERN, JOB_TITLE_PSYCHIATRIST, JOB_TITLE_PARAMEDIC, JOB_TITLE_CORONER)
+	allowed_roles = list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_MINING_MEDIC, JOB_TITLE_INTERN, JOB_TITLE_PSYCHIATRIST, JOB_TITLE_PARAMEDIC, JOB_TITLE_CORONER)
 
 /datum/gear/uniform/skirt/job/phys
 	index_name = "skirt, physician"
@@ -195,7 +189,7 @@
 /datum/gear/uniform/skirt/job/sci
 	index_name = "skirt, scientist"
 	path = /obj/item/clothing/under/rank/scientist/skirt
-	allowed_roles = list(JOB_TITLE_RD, JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENCE_STUDENT)
+	allowed_roles = list(JOB_TITLE_RD, JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENTIST_STUDENT)
 
 /datum/gear/uniform/skirt/job/cargo
 	index_name = "skirt, cargo"
@@ -258,8 +252,8 @@
 	allowed_roles = list(JOB_TITLE_CCOFFICER)
 
 /datum/gear/uniform/skirt/job/internalaffairs
-	index_name = "skirt, lawyer"
-	path = /obj/item/clothing/under/rank/lawyer/skirt
+	index_name = "skirt, internalaffairs"
+	path = /obj/item/clothing/under/rank/internalaffairs/skirt
 	allowed_roles = list(JOB_TITLE_LAWYER)
 
 /datum/gear/uniform/medical
@@ -269,7 +263,7 @@
 	index_name = "medical scrubs, select"
 	display_name = "Медицинская одежда"
 	path = /obj/item/clothing/under/rank/medical/purple
-	allowed_roles = list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_MINING_MEDIC, JOB_TITLE_MEDICAL_INTERN)
+	allowed_roles = list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_MINING_MEDIC, JOB_TITLE_INTERN)
 
 /datum/gear/uniform/medical/scrubs/New()
 	..()
@@ -371,10 +365,6 @@
 		/obj/item/clothing/under/pants/track,
 		/obj/item/clothing/under/pants/khaki,
 		/obj/item/clothing/under/pants/camo,
-		/obj/item/clothing/under/pants/combat,
-		/obj/item/clothing/under/pants/sandpants,
-		/obj/item/clothing/under/pants/galifepants,
-
 	)
 	gear_tweaks += new /datum/gear_tweak/path(pants, src, TRUE)
 
@@ -409,3 +399,11 @@
 /datum/gear/uniform/dress50s
 	index_name = "old Soviet dress"
 	path = /obj/item/clothing/under/dress50s
+
+/datum/gear/uniform/galifepants
+	index_name = "check breeches"
+	path = /obj/item/clothing/under/pants/galifepants
+
+/datum/gear/uniform/sandpants
+	index_name = "long sand pants"
+	path = /obj/item/clothing/under/pants/sandpants

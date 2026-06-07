@@ -28,7 +28,7 @@
 	var/wizards_alive = 0
 	if(CONFIG_GET(number/traitor_scaling))
 		players_per_mage = CONFIG_GET(number/traitor_scaling)
-	var/wizard_cap = ceil((num_players_started() / players_per_mage))
+	var/wizard_cap = CEILING((num_players_started() / players_per_mage), 1)
 	max_mages = wizard_cap
 	add_game_logs("Number of wizards chosen: [wizard_cap]")
 
@@ -77,7 +77,7 @@
 			time_checked = world.time
 			make_more_mages()
 	else
-		if(length(wizards) >= wizard_cap)
+		if(wizards.len >= wizard_cap)
 			finished = 1
 			return 1
 		else
@@ -105,7 +105,7 @@
 			var/mob/living/carbon/brain/B = L
 			if(isitem(B.loc))
 				qdel(B.loc)
-			if(B?.container)
+			if(B && B.container)
 				qdel(B.container)
 		if(L)
 			qdel(L)
@@ -123,7 +123,7 @@
 	var/mob/dead/observer/harry = null
 	message_admins("SWF is still pissed, sending another wizard - [max_mages - mages_made] left.")
 
-	if(!length(candidates))
+	if(!candidates.len)
 		message_admins("This is awkward, sleeping until another mage check..")
 		making_mage = FALSE
 		sleep(300)
@@ -138,8 +138,8 @@
 			log_game("Spawned [new_character] (ckey: [new_character.key]) as Wizard as Raging Mage.")
 			return TRUE
 		else
-			. = FALSE
-			CRASH("The candidates list for ragin' mages contained non-observer entries!")
+			log_runtime(EXCEPTION("The candidates list for ragin' mages contained non-observer entries!"), src)
+			return FALSE
 
 // ripped from -tg-'s wizcode, because whee lets make a very general proc for a very specific gamemode
 // This probably wouldn't do half bad as a proc in __HELPERS
@@ -149,7 +149,7 @@
 		return // Let's not steal someone's soul here
 	var/mob/living/carbon/human/new_character = new(pick(GLOB.latejoin))
 	G.client.prefs.copy_to(new_character)
-	new_character.possess_by_player(G.key)
+	new_character.key = G.key
 	return new_character
 
 /datum/game_mode/wizard/raginmages/declare_completion()

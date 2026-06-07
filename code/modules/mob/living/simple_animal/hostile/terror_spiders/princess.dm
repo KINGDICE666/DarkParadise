@@ -24,7 +24,7 @@
 	deathmessage = "Издаёт пронзительный визг и медленно опадает на землю."
 	death_sound = 'sound/creatures/terrorspiders/princess_death.ogg'
 	spider_tier = TS_TIER_3
-	spider_intro_text = "Будучи Принцессой Ужаса, ваша задача — откладывать яйца и охранять их. Хоть вы и умеете плеваться кислотой, а также обладаете визгом, помогающим в бою, вам не стоит сражаться намеренно, ведь для этого есть другие пауки."
+	spider_intro_text = "Будучи Принцессой Ужаса, ваша задача - откладывать яйца и охранять их. Хоть вы и умеете плеваться кислотой, а также обладаете визгом, помогающим в бою, вам не стоит сражаться намеренно, ведь для этого есть другие пауки."
 	datum_type = /datum/antagonist/terror_spider/main_spider/princess
 	projectiletype = /obj/projectile/terrorspider/princess
 	ranged_cooldown_time = 30
@@ -35,7 +35,7 @@
 	tts_seed = "Lissandra"
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/princess/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Принцесса Ужаса",
 		GENITIVE = "Принцессы Ужаса",
 		DATIVE = "Принцессе Ужаса",
@@ -44,6 +44,7 @@
 		PREPOSITIONAL = "Принцессе Ужаса",
 	)
 
+
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/princess/grant_queen_subtype_abilities()
 	// Queens start in movement mode, where they can ventcrawl but not lay eggs. Then they move to NestMode() where they can wallsmash and egglay, but not ventcrawl.
 	// Princesses are simpler, and can always lay eggs, always vent crawl, but never smash walls. Unlike queens, they don't have a "nesting" transformation.
@@ -51,6 +52,7 @@
 	queeneggs_action.Grant(src)
 	queensense_action = new()
 	queensense_action.Grant(src)
+
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/princess/ListAvailableEggTypes()
 	var/list/valid_types = list(TS_DESC_KNIGHT, TS_DESC_LURKER, TS_DESC_HEALER, TS_DESC_REAPER, TS_DESC_REAPER, TS_DESC_BUILDER)
@@ -124,8 +126,16 @@
 		DoLayTerrorEggs(pick(spider_types_standard), 1)
 		// Yes, this means NPC princesses won't create T2 spiders.
 
+
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/princess/ai_nest_is_full()
 	var/list/spider_array = CountSpidersDetailed(TRUE)
 	if(spider_array["all"] >= spider_max_children)
 		return TRUE
 	return FALSE
+
+/obj/projectile/terrorspider/princess
+	name = "princess venom"
+	icon_state = "toxin4"
+	damage = 25
+	stamina = 25
+	damage_type = BURN

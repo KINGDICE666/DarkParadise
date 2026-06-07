@@ -1,15 +1,15 @@
-#define GROUP_EMERGENCY "Чрезвычайные ситуации"
-#define GROUP_SECURITY "Безопасность"
-#define GROUP_ENGINEER "Инженерия"
-#define GROUP_MEDICAL "Медицина"
-#define GROUP_SCIENCE "Наука"
-#define GROUP_ORGANIC "Продовольствие и животноводство"
-#define GROUP_MATERIALS "Материалы"
-#define GROUP_VEND "Торговля"
+#define GROUP_EMERGENCY "Emergency"
+#define GROUP_SECURITY "Security"
+#define GROUP_ENGINEER "Engineering"
+#define GROUP_MEDICAL "Medical"
+#define GROUP_SCIENCE "Science"
+#define GROUP_ORGANIC "Food and Livestock"
+#define GROUP_MATERIALS "Raw Materials"
+#define GROUP_VEND "Vending"
 
-#define PERCENTAGE_PAYMENTS_STATION 0.25 //25 percent on the account of the station
-#define	PERCENTAGE_PAYMENTS_CARGO 0.6 //60 percent on the cargo account
-#define PERCENTAGE_PAYMENTS_PERSONAL 0.15 //15 percent on the account of the beggars
+#define PERCENTAGE_PAYMENTS_STATION		0.25	//25 percent on the account of the station
+#define	PERCENTAGE_PAYMENTS_CARGO		0.6	//60 percent on the cargo account
+#define PERCENTAGE_PAYMENTS_PERSONAL	0.15	//15 percent on the account of the beggars
 
 #define POINT_TO_CREDITS 10
 #define COMMERCIAL_MODIFIER 3
@@ -57,71 +57,72 @@
 	group_name = "centcomm"
 
 /datum/quest_customer/centcomm/xenoarcheology
-	departament_name = "Центр ксеноархеологии"
+	departament_name = "Xenoarcheology dept."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_MATERIALS = 0.05)
 
+
 /datum/quest_customer/centcomm/xenobiology
-	departament_name = "Центр ксенобиологии"
+	departament_name = "Xenobiology dept."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_ORGANIC = 0.05)
 
 /datum/quest_customer/centcomm/alloy_and_composite
-	departament_name = "Центр сплавов и композитов"
+	departament_name = "Alloy and Composite div."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_MATERIALS = 0.10)
 
 /datum/quest_customer/centcomm/valuetech
-	departament_name = "Центр информационных технологий"
+	departament_name = "ValueTech sec."
 	cargo_sale = list(GROUP_SCIENCE = 0.10)
 
 /datum/quest_customer/centcomm/anomaly_research
-	departament_name = "Центр исследования аномалий"
+	departament_name = "Anomaly Research fac."
 	cargo_sale = list(GROUP_SCIENCE = 0.10)
 
 /datum/quest_customer/centcomm/cryogenic_physics
-	departament_name = "Центр криогенной физики"
+	departament_name = "Cryogenic physics dept."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_ENGINEER = 0.05, GROUP_MEDICAL = 0.05)
 
 /datum/quest_customer/centcomm/applied_physics
-	departament_name = "Центр прикладной физики"
+	departament_name = "Applied Physics fac."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_ENGINEER = 0.05, GROUP_SECURITY = 0.05)
 
 /datum/quest_customer/centcomm/biological_warfare
-	departament_name = "Подразделение биологического вооружения"
+	departament_name = "Biological Warfare div."
 	cargo_sale = list(GROUP_SECURITY = 0.05, GROUP_MEDICAL = 0.05)
 
 /datum/quest_customer/centcomm/gene_mutation
-	departament_name = "Подразделение генной инженерии"
+	departament_name = "Gene Mutation unit"
 	cargo_sale = list(GROUP_MEDICAL = 0.10)
 
 /datum/quest_customer/centcomm/xenoanatomy
-	departament_name = "Подразделение ксеноанатомии"
+	departament_name = "Xenoanatomy dept."
 	cargo_sale = list(GROUP_MEDICAL = 0.10)
 
 /datum/quest_customer/centcomm/exp_pharmacology
-	departament_name = "Центр экспериментальной фармакологии"
+	departament_name = "Exp. Pharmacology sec."
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_MEDICAL = 0.05)
 
 /datum/quest_customer/centcomm/chimera
-	departament_name = "Подразделение \"Химера-731\""
+	departament_name = "\"Chimera-731\" unit"
 	cargo_sale = list(GROUP_MEDICAL = 0.05, GROUP_ORGANIC = 0.05)
 
 /datum/quest_customer/centcomm/organic_farm
-	departament_name = "Органическая ферма НТ"
+	departament_name = "NT Null-G Organic Farm"
 	cargo_sale = list(GROUP_ENGINEER = 0.05, GROUP_ORGANIC = 0.10)
 
 /datum/quest_customer/centcomm/fleet_vessel
-	departament_name = "Космодром флота НТ"
+	departament_name = "NT Fleet Vessel Spaceyard"
 	cargo_sale = list(GROUP_SECURITY = 0.10, GROUP_MATERIALS = 0.05)
 
 /datum/quest_customer/centcomm/advanced_expeditionary
-	departament_name = "Передовой экспедиционный корпус НТ"
+	departament_name = "NT Advanced Expeditionary Corps"
 	cargo_sale = list(GROUP_SECURITY = 0.05, GROUP_MATERIALS = 0.05, GROUP_ENGINEER = 0.05)
 
 /datum/quest_customer/centcomm/space_mining
-	departament_name = "Космическое шахтёрское предприятие НТ"
+	departament_name = "NT Open Space Mining Facility"
 	cargo_sale = list(GROUP_SCIENCE = 0.05, GROUP_MATERIALS = 0.05, GROUP_ENGINEER = 0.05)
 
 /datum/quest_customer/centcomm/pioneer_outpost
-	departament_name = "Пионерский аванпост НТ"
+	departament_name = "NT Pioneer Outpost"
 	cargo_sale = list(GROUP_MEDICAL = 0.05, GROUP_ENGINEER = 0.05, GROUP_SECURITY = 0.05)
 
 /datum/quest_customer/plasma
@@ -136,35 +137,35 @@
 	SScargo_quests.plasma_quests += quest
 
 /datum/quest_customer/plasma/enrichment
-	departament_name = "Комплекс по обогащению плазмы"
+	departament_name = "Plasma Enrichment fac."
 	cargo_sale = list(GROUP_EMERGENCY = 0.03)
 
 /datum/quest_customer/plasma/refinery
-	departament_name = "Комплекс по переработке плазмы"
+	departament_name = "Plasma Refinery cx."
 	cargo_sale = list(GROUP_EMERGENCY = 0.03)
 
 /datum/quest_customer/plasma/applications
-	departament_name = "Отделение реализации плазмы"
+	departament_name = "Plasma Applications dept."
 	cargo_sale = list(GROUP_EMERGENCY = 0.03)
 
 /datum/quest_customer/plasma/study
-	departament_name = "Центр изучения плазмы"
+	departament_name = "Plasmatic biology study dept."
 	cargo_sale = list(GROUP_EMERGENCY = 0.03)
 
 /datum/quest_customer/centcomm/wares_shipping
-	departament_name = "Подразделение логистики"
+	departament_name = "Wares Shipping dept."
 	cargo_sale = list(GROUP_VEND = 0.05, GROUP_ORGANIC = 0.05)
 
 /datum/quest_customer/centcomm/commercial
-	departament_name = "Отдел торговли"
+	departament_name = "Commercial dept."
 	cargo_sale = list(GROUP_VEND = 0.05, GROUP_ORGANIC = 0.05)
 
 /datum/quest_customer/centcomm/business_stategy
-	departament_name = "Отдел делового планирования"
+	departament_name = "Business Stategy dept."
 	cargo_sale = list(GROUP_EMERGENCY = 0.05, GROUP_VEND = 0.05)
 
 /datum/quest_customer/centcomm/headquarters
-	departament_name = "Главный штаб"
+	departament_name = "Headquarters"
 	cargo_sale = list(GROUP_EMERGENCY = 0.05, GROUP_VEND = 0.05)
 
 /datum/quest_customer/corp
@@ -183,17 +184,19 @@
 
 	//If not, it pays to the account of the department
 	if(!SScapitalism.smart_bounty_payment(nishebrod_jobs, personals_reward))
-		SScapitalism.smart_department_payment(linked_departaments, personals_reward)
+		SScapitalism.smart_departament_payment(linked_departaments, personals_reward)
 
 	SScapitalism.total_station_bounty += round(reward * PERCENTAGE_PAYMENTS_STATION)
 	var/datum/money_account/station_money_account = SScapitalism.base_account
-	station_money_account.credit(round(reward * PERCENTAGE_PAYMENTS_STATION), "Завершённый запрос на поставку", "Терминал Бизель №[rand(111,333)]", "Счёт объекта")
+	station_money_account.credit(round(reward * PERCENTAGE_PAYMENTS_STATION), "Completed Order!", "Biesel TCD Terminal #[rand(111,333)]", "Station Account")
+
 
 	SScapitalism.total_cargo_bounty += round(reward * PERCENTAGE_PAYMENTS_CARGO)
-	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
-	cargo_money_account.credit(round(reward * PERCENTAGE_PAYMENTS_CARGO), "Завершённый запрос на поставку", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
+	var/datum/money_account/cargo_money_account = GLOB.department_accounts["Cargo"]
+	cargo_money_account.credit(round(reward * PERCENTAGE_PAYMENTS_CARGO), "Completed Order!", "Biesel TCD Terminal #[rand(111,333)]", "Cargo Account")
 
 	return TRUE
+
 
 /datum/quest_customer/corp/chang
 	departament_name = "Mr. Chang"
@@ -236,6 +239,7 @@
 
 /datum/quest_customer/corp/haakon
 	departament_name = "Haakon Group"
+
 
 #undef GROUP_EMERGENCY
 #undef GROUP_SECURITY

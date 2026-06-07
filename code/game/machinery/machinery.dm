@@ -95,8 +95,8 @@
 	pass_flags_self = PASSMACHINE|LETPASSCLICKS
 	pull_push_slowdown = 1.3
 	interaction_flags_click = NEED_HANDS | ALLOW_RESTING
-	interaction_flags_atom = INTERACT_ATOM_ATTACK_HAND | INTERACT_ATOM_UI_INTERACT
 	var/stat = 0
+	var/emagged = 0
 	var/use_power = IDLE_POWER_USE
 		//0 = dont run the auto
 		//1 = run auto, use idle
@@ -105,6 +105,9 @@
 	var/active_power_usage = 0
 	var/power_channel = EQUIP //EQUIP,ENVIRON or LIGHT
 	var/list/component_parts = null //list of all the parts used to build it, if made from certain kinds of frames.
+	var/uid
+	var/manual = 0
+	var/global/gl_uid = 1
 	var/custom_aghost_alerts=0
 	var/panel_open = 0
 	var/area/myArea
@@ -123,9 +126,10 @@
 	/// What subsystem this machine will use, which is generally SSmachines or SSfastprocess. By default all machinery use SSmachines. This fires a machine's process() roughly every 2 seconds.
 	var/subsystem_type = /datum/controller/subsystem/machines
 
+
 /obj/machinery/Initialize(mapload)
 	if(!armor)
-		armor = list(melee = 25, bullet = 10, laser = 10, energy = 0, bomb = 0, bio = 0, fire = 50, acid = 70)
+		armor = list(melee = 25, bullet = 10, laser = 10, energy = 0, bomb = 0, bio = 0, rad = 0, fire = 50, acid = 70)
 	. = ..()
 	SSmachines.register_machine(src)
 
@@ -138,6 +142,7 @@
 		begin_processing()
 
 	power_change()
+
 
 /obj/machinery/Destroy()
 	if(myArea)
@@ -164,16 +169,20 @@
 /obj/machinery/proc/flicker()
 	return FALSE
 
+
 /obj/machinery/proc/onAreaExited()
 	SIGNAL_HANDLER
 	if(myArea == get_area(src))
 		return
 	LAZYREMOVE(myArea.machinery_cache, src)
+	//message_admins("[src] exited [myArea]") Uncomment for debugging
 	myArea = get_area(src)
 	if(!myArea)
 		return
 	LAZYADD(myArea.machinery_cache, src)
+	//message_admins("[src] entered [myArea]")
 	power_change()
+
 
 /// Helper proc for telling a machine to start processing with the subsystem type that is located in its `subsystem_type` var.
 /obj/machinery/proc/begin_processing()
@@ -183,6 +192,7 @@
 	var/datum/controller/subsystem/processing/subsystem = locate(subsystem_type) in Master.subsystems
 	START_PROCESSING(subsystem, src)
 
+
 /// Helper proc for telling a machine to stop processing with the subsystem type that is located in its `subsystem_type` var.
 /obj/machinery/proc/end_processing()
 	if(speed_process)
@@ -190,6 +200,7 @@
 		return
 	var/datum/controller/subsystem/processing/subsystem = locate(subsystem_type) in Master.subsystems
 	STOP_PROCESSING(subsystem, src)
+
 
 // gotta go fast
 /obj/machinery/makeSpeedProcess()
@@ -200,6 +211,7 @@
 	STOP_PROCESSING(subsystem, src)
 	START_PROCESSING(SSfastprocess, src)
 
+
 // gotta go slow
 /obj/machinery/makeNormalProcess()
 	if(!speed_process)
@@ -208,6 +220,7 @@
 	var/datum/controller/subsystem/processing/subsystem = locate(subsystem_type) in Master.subsystems
 	STOP_PROCESSING(SSfastprocess, src)
 	START_PROCESSING(subsystem, src)
+
 
 /obj/machinery/has_prints()
 	return TRUE
@@ -221,9 +234,7 @@
 /obj/machinery/process() // If you dont use process or power why are you here
 	return PROCESS_KILL
 
-/obj/machinery/proc/process_atmos(seconds) //If you dont use process why are you here
-	// Any proc that wants MILLA to be synchronous should not sleep.
-	SHOULD_NOT_SLEEP(TRUE)
+/obj/machinery/proc/process_atmos() //If you dont use process why are you here
 	return PROCESS_KILL
 
 /obj/machinery/emp_act(severity)
@@ -294,7 +305,7 @@
 		return attack_hand(user)
 
 /obj/machinery/attack_hand(mob/user)
-	if(isobserver(user))
+	if(istype(user, /mob/dead/observer))
 		return FALSE
 
 	if(user.incapacitated())
@@ -334,10 +345,14 @@
 /obj/machinery/proc/RefreshParts() //Placeholder proc for machines that are built using frames.
 	return
 
+/obj/machinery/proc/assign_uid()
+	uid = gl_uid
+	gl_uid++
+
 /obj/machinery/deconstruct(disassembled = TRUE)
 	if(!(obj_flags & NODECONSTRUCT))
 		on_deconstruction()
-		if(component_parts && length(component_parts))
+		if(component_parts && component_parts.len)
 			spawn_frame(disassembled)
 			for(var/obj/item/I in component_parts)
 				I.forceMove(loc)
@@ -358,6 +373,7 @@
 	if(!(obj_flags & NODECONSTRUCT))
 		stat |= BROKEN
 
+
 /obj/machinery/proc/default_deconstruction_crowbar(user, obj/item/I, ignore_panel = 0)
 	add_fingerprint(user)
 	if(I.tool_behaviour != TOOL_CROWBAR)
@@ -370,6 +386,7 @@
 		I.play_tool_sound(user, I.tool_volume)
 		return TRUE
 	return FALSE
+
 
 /obj/machinery/proc/default_deconstruction_screwdriver(mob/user, icon_state_open, icon_state_closed, obj/item/I)
 	add_fingerprint(user)
@@ -394,6 +411,7 @@
 		return TRUE
 	return FALSE
 
+
 /obj/machinery/proc/default_change_direction_wrench(mob/user, obj/item/I)
 	add_fingerprint(user)
 	if(I.tool_behaviour != TOOL_WRENCH)
@@ -407,10 +425,12 @@
 		return TRUE
 	return FALSE
 
+
 /obj/machinery/default_unfasten_wrench(mob/user, obj/item/I, time)
 	. = ..()
 	if(.)
 		power_change()
+
 
 /obj/machinery/attackby(obj/item/I, mob/user, params)
 	if(has_prints() && !(istype(I, /obj/item/detective_scanner)))
@@ -449,6 +469,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/machinery/proc/exchange_parts(mob/user, obj/item/storage/part_replacer/W)
 	var/shouldplaysound = 0
@@ -496,7 +517,7 @@
 /obj/machinery/proc/display_parts(mob/user)
 	. = list(span_notice("Following parts detected in the machine:"))
 	for(var/obj/item/C in component_parts)
-		. += span_notice("[icon2html(C, user)] [C.name]")
+		. += span_notice("[bicon(C)] [C.name]")
 	. = jointext(., "\n")
 
 /obj/machinery/examine(mob/user)
@@ -517,12 +538,6 @@
 
 	if((user.research_scanner || user.check_smart_brain()) && component_parts)
 		. += display_parts(user)
-
-/obj/machinery/examine_descriptor(mob/user)
-	return "машинерия"
-
-/obj/machinery/examine_descriptor_gender()
-	return "female"
 
 /obj/machinery/proc/on_assess_perp(mob/living/carbon/human/perp)
 	return 0
@@ -632,48 +647,11 @@
 	for(var/mob/living/silicon/ai/AI in GLOB.player_list)
 		to_chat(AI, alertstr)
 
+
 /obj/machinery/extinguish_light(force = FALSE)
 	if(light_on)
 		set_light_on(FALSE)
 
 
-/**
- * Makes sure the user is allowed to interact with the machine when they use a shortcut, like Control or Alt-clicking.
- *
- * Arguments:
- * * user - the mob who is trying to interact with the machine.
- */
-/obj/machinery/proc/can_use_shortcut(mob/living/user)
-	if(user.incapacitated())
-		to_chat(user, span_warning("You can't do that right now!"))
-		return FALSE
-
-	if(ishuman(user) && in_range(src, user))
-		return TRUE
-
-	if(issilicon(user))
-		return TRUE
-
-	return FALSE
-
-///Called when we want to change the value of the `panel_open` variable. Boolean.
-/obj/machinery/proc/set_panel_open(new_value)
-	SHOULD_NOT_OVERRIDE(TRUE)
-
-	if(panel_open == new_value)
-		return
-	var/old_value = panel_open
-	panel_open = new_value
-	on_set_panel_open(old_value)
-
-///Called when the value of `panel_open` changes, so we can react to it.
-/obj/machinery/proc/on_set_panel_open(old_value)
-	PROTECTED_PROC(TRUE)
-
-	return
-
-/// Toggles the panel_open var. Defined for convienience
-/obj/machinery/proc/toggle_panel_open()
-	SHOULD_NOT_OVERRIDE(TRUE)
-
-	set_panel_open(!panel_open)
+/obj/machinery/rust_heretic_act()
+	take_damage(500, BRUTE, MELEE, 1)

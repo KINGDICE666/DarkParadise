@@ -13,7 +13,6 @@ export type Message = {
   node?: HTMLElement;
   pruned: boolean;
   avoidHighlighting?: boolean;
-  stored?: boolean;
 } & Payload;
 
 export type Payload = {

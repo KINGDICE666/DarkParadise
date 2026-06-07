@@ -19,16 +19,19 @@
 	/// When using it to create a new area, this will be its type.
 	var/new_area_type = /area
 
+
 /obj/item/areaeditor/attack_self(mob/user)
 	interact_prints(user)
+
 
 /obj/item/areaeditor/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
 	close_window(user, "blueprints")
 
+
 /obj/item/areaeditor/proc/interact_prints(mob/user)
 	add_fingerprint(user)
-	. = "<body><html><head><title>[src]</title></head> \
+	. = "<BODY><HTML><head><title>[src]</title></head> \
 				<h2>[isnull(station_name_overrride) ? "\"[station_name()]\"" : station_name_overrride ? "\"[station_name_overrride]\"" : null] [src.name]</h2> \
 				<small>[fluffnotice]</small><hr>"
 	switch(get_area_type())
@@ -40,6 +43,7 @@
 			. += "<p>This place is not noted on the [src.name].</p>"
 	if(allow_non_space_use)
 		. += "<p><a href='byond://?src=[UID()];create_area=1'>Create or modify an existing area</a></p>"
+
 
 /obj/item/areaeditor/Topic(href, href_list)
 	if(..())
@@ -58,8 +62,10 @@
 		interact_prints(usr)
 		return TRUE
 
+
 /obj/item/areaeditor/proc/create_area_wrapper(mob/user, new_area_type)
 	return create_area(user, new_area_type)
+
 
 /obj/item/areaeditor/proc/get_area_type(area/check_area)
 	if(!check_area)
@@ -78,6 +84,7 @@
 		return AREA_SPECIAL
 	return AREA_STATION
 
+
 /obj/item/areaeditor/proc/edit_area(mob/user)
 	var/area/user_area = get_area(user)
 	var/prevname = "[sanitize(user_area.name)]"
@@ -90,6 +97,7 @@
 	interact_prints(user)
 	return user_area
 
+
 /obj/item/areaeditor/proc/rename_area(passed, new_name)
 	var/area/our_area = get_area(passed)
 	var/prevname = "[sanitize(our_area.name)]"
@@ -99,6 +107,7 @@
 	if(our_area.firedoors)
 		for(var/obj/machinery/door/firedoor/firedoor as anything in our_area.firedoors)
 			firedoor.CalculateAffectingAreas()
+
 
 /obj/item/areaeditor/proc/set_area_machinery_title(area/check_area, title, oldtitle)
 	if(!oldtitle) // or replacetext goes to infinite loop
@@ -118,6 +127,7 @@
 	for(var/obj/machinery/machine as anything in typecache_filter_list(check_area.machinery_cache, to_rename))
 		machine.name = replacetext(machine.name, oldtitle, title)
 
+
 // Station Blueprints
 /obj/item/areaeditor/blueprints
 	name = "station blueprints"
@@ -125,15 +135,16 @@
 	fluffnotice = "Property of Nanotrasen. For heads of staff only. Store in high-secure storage."
 	resistance_flags = INDESTRUCTIBLE|LAVA_PROOF|FIRE_PROOF|ACID_PROOF
 	allow_non_space_use = TRUE
-	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_ALLOW_USER_LOCATION | INTERACT_ATOM_IGNORE_MOBILITY
 	var/list/showing = list()
 	var/client/viewing
 	/// Viewing the wire legend
 	var/legend = FALSE
 
+
 /obj/item/areaeditor/blueprints/Destroy()
 	clear_viewer()
 	return ..()
+
 
 /obj/item/areaeditor/blueprints/interact_prints(mob/user)
 	. = ..()
@@ -160,6 +171,7 @@
 	popup.set_content(.)
 	popup.open()
 	onclose(user, "blueprints")
+
 
 /obj/item/areaeditor/blueprints/Topic(href, href_list)
 	if(..())
@@ -190,6 +202,7 @@
 
 	interact_prints(usr)
 
+
 /obj/item/areaeditor/blueprints/proc/get_images(turf/central_turf, viewsize)
 	. = list()
 	var/list/dimensions = getviewsize(viewsize)
@@ -198,6 +211,7 @@
 	for(var/turf/nearby_turf as anything in RECT_TURFS(horizontal_radius, vertical_radius, central_turf))
 		if(nearby_turf.blueprint_data)
 			. += nearby_turf.blueprint_data
+
 
 /obj/item/areaeditor/blueprints/proc/set_viewer(mob/user, message = "")
 	if(user?.client)
@@ -209,6 +223,7 @@
 		if(message)
 			to_chat(user, message)
 
+
 /obj/item/areaeditor/blueprints/proc/clear_viewer(mob/user, message = "")
 	if(viewing)
 		viewing.images -= showing
@@ -217,10 +232,12 @@
 	if(message)
 		to_chat(user, message)
 
+
 /obj/item/areaeditor/blueprints/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
 	clear_viewer()
 	legend = FALSE
+
 
 /obj/item/areaeditor/blueprints/proc/view_wire_devices(mob/user)
 	var/message = "<br>You examine the wire legend.<br>"
@@ -228,6 +245,7 @@
 		message += "<br><a href='byond://?src=[UID()];view_wireset=[wireset]'>[GLOB.wire_name_directory[wireset]]</a>"
 	message += "</p>"
 	return message
+
 
 /obj/item/areaeditor/blueprints/proc/view_wire_set(mob/user, wireset)
 	//for some reason you can't use wireset directly as a derefencer so this is the next best :/
@@ -242,11 +260,13 @@
 			return message
 	return ""
 
+
 //Blueprint Subtypes
 
 /obj/item/areaeditor/blueprints/ce/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/high_value_item)
+
 
 /obj/item/areaeditor/blueprints/cyborg
 	name = "station schematics"
@@ -254,16 +274,19 @@
 	fluffnotice = "Intellectual Property of Nanotrasen. For use in engineering cyborgs only. Wipe from memory upon departure from the station."
 	allow_non_space_use = FALSE
 
+
 /obj/item/areaeditor/blueprints/slime
 	name = "cerulean prints"
 	desc = "A one use set of blueprints made of jelly like organic material. Extends the reach of the management console."
 	color = "#2956B2"
 	allow_non_space_use = FALSE
 
+
 /obj/item/areaeditor/blueprints/slime/create_area_wrapper(mob/user, new_area_type)
 	. = ..()
 	if(.)
 		qdel(src)
+
 
 /obj/item/areaeditor/blueprints/slime/edit_area(mob/user)
 	var/area/edited_area = ..()
@@ -275,6 +298,7 @@
 	edited_area.xenobiology_compatible = TRUE
 	qdel(src)
 
+
 //One-use area creation permits.
 /obj/item/areaeditor/permit
 	name = "construction permit"
@@ -284,10 +308,12 @@
 						By submitting this form, you accept any fines, fees, or personal injury/death that may occur during construction."
 	w_class = WEIGHT_CLASS_TINY
 
+
 /obj/item/areaeditor/permit/create_area_wrapper(mob/user, new_area_type)
 	. = ..()
 	if(.)
 		qdel(src)
+
 
 /obj/item/areaeditor/permit/interact_prints(mob/user)
 	. = ..()
@@ -299,6 +325,7 @@
 	popup.open()
 	onclose(user, "blueprints")
 
+
 //One-use syndicate permits. Sprites by ElGood
 /obj/item/areaeditor/permit/syndicate
 	name = "syndicate construction permit"
@@ -309,10 +336,12 @@
 	station_name_overrride = "RaMSS Taipan"
 	new_area_type = /area/syndicate/unpowered/syndicate_space_base
 
+
 // Basic area creation blueprints.
 /obj/item/areaeditor/create_area_only
 	name = "construction blueprints"
 	desc = "Used to define new areas in space."
+
 
 /obj/item/areaeditor/create_area_only/interact_prints(mob/user)
 	. = ..()
@@ -324,26 +353,31 @@
 	popup.open()
 	onclose(user, "blueprints")
 
+
 //Free golem blueprints
 /obj/item/areaeditor/create_area_only/golem
 	name = "Golem Land Claim"
 	station_name_overrride = ""
 	fluffnotice = "Praise the Liberator!"
 
+
 //Blueprint for Theta station
 /obj/item/areaeditor/create_area_only/theta
 	station_name_overrride = "Theta Station"
 	fluffnotice = "Метеорито-стойкая станция, даем гарантию на 200 лет!"
+
 
 //Blueprint for Gorky17 station
 /obj/item/areaeditor/create_area_only/gorky17
 	station_name_overrride = "Gorky17 Station"
 	fluffnotice = "Секретные чертежи передого фронтира Горький17"
 
+
 //Blueprint for USSP station
 /obj/item/areaeditor/create_area_only/ussp
 	station_name_overrride = "USSP Station"
-	fluffnotice = "В случае поломки — смотри сюда"
+	fluffnotice = "В случае поломки - смотри сюда"
+
 
 #undef AREA_ERRNONE
 #undef AREA_STATION

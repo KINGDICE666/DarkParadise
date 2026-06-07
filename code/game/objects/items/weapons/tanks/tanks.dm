@@ -1,7 +1,6 @@
 /obj/item/tank
 	name = "tank"
 	icon = 'icons/obj/tank.dmi'
-	gender = MALE
 	flags = CONDUCT
 	slot_flags = ITEM_SLOT_BACK
 	hitsound = 'sound/weapons/smash.ogg'
@@ -10,7 +9,7 @@
 	throwforce = 10
 	throw_speed = 1
 	throw_range = 4
-	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 10, bio = 0, fire = 80, acid = 30)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 10, bio = 0, rad = 0, fire = 80, acid = 30)
 	actions_types = list(/datum/action/item_action/set_internals)
 	var/datum/gas_mixture/air_contents = null
 	var/distribute_pressure = ONE_ATMOSPHERE
@@ -18,16 +17,18 @@
 	var/volume = 70
 	var/fillable = TRUE
 
+
 /obj/item/tank/Initialize(mapload)
 	. = ..()
 
 	air_contents = new /datum/gas_mixture()
 	air_contents.volume = volume //liters
-	air_contents.set_temperature(T20C)
+	air_contents.temperature = T20C
 
 	populate_gas()
 
 	START_PROCESSING(SSobj, src)
+
 
 /obj/item/tank/Destroy()
 	QDEL_NULL(air_contents)
@@ -42,11 +43,14 @@
 /obj/item/tank/ui_action_click(mob/user, datum/action/action, leftclick)
 	toggle_internals(user)
 
+
 /obj/item/tank/proc/toggle_internals(mob/living/carbon/user, silent = FALSE)
 	if(!iscarbon(user))
 		return
 
 	if(user.internal == src)
+		if(!silent)
+			to_chat(user, span_notice("You close [src] valve."))
 		user.internal = null
 		user.update_action_buttons_icon()
 		return
@@ -72,11 +76,18 @@
 
 		if(!internals_allowed)
 			if(!silent)
-				balloon_alert(user, "не к чему полключать!")
+				to_chat(user, span_warning("You are not wearing a suitable mask or helmet."))
 			return
+
+	if(!silent)
+		if(user.internal)
+			to_chat(user, span_notice("You switch your internals to [src]."))
+		else
+			to_chat(user, span_notice("You open [src] valve."))
 
 	user.internal = src
 	user.update_action_buttons_icon()
+
 
 /obj/item/tank/examine(mob/user, show_contents_info = TRUE)
 	. = ..()
@@ -90,27 +101,27 @@
 
 	if(!in_range(src, user))
 		if(icon == src)
-			. += span_boldnotice("Для получения дополнительной информации нужно подойти ближе.")
+			. += "<span class='notice'>It's \a [bicon(icon)][src]! If you want any more information you'll need to get closer.</span>"
 		return
 
-	var/celsius_temperature = air_contents.temperature() - T0C
+	var/celsius_temperature = air_contents.temperature - T0C
 	var/descriptive
 
 	if(celsius_temperature < 20)
-		descriptive = "холодн[GEND_YI_AYA_OE_YE(src)]"
+		descriptive = "cold"
 	else if(celsius_temperature < 40)
-		descriptive = "комнатной температуры"
+		descriptive = "room temperature"
 	else if(celsius_temperature < 80)
-		descriptive = "слегка тёпл[GEND_IM_EI_IM_IMI(src)]"
+		descriptive = "lukewarm"
 	else if(celsius_temperature < 100)
-		descriptive = "тёпл[GEND_YI_AYA_OE_YE(src)]"
+		descriptive = "warm"
 	else if(celsius_temperature < 300)
-		descriptive = "горяч[GEND_II_AYA_II_IE(src)]"
+		descriptive = "hot"
 	else
-		descriptive = "обжигающе горяч[GEND_II_AYA_II_IE(src)]"
+		descriptive = "furiously hot"
 
-	. += span_notice("На ощупь <b>[descriptive]</b>.")
-	. += span_notice("Манометр показывает <b>[round(air_contents.return_pressure())]</b> кПа.")
+	. += "<span class='notice'>\The [bicon(icon)][src] feels [descriptive]</span>"
+	. += "<span class='notice'>The pressure gauge displays [round(air_contents.return_pressure())] kPa</span>"
 
 /obj/item/tank/blob_act(obj/structure/blob/B)
 	if(B && B.loc == loc && !QDELETED(src))
@@ -119,7 +130,7 @@
 			qdel(src)
 
 		if(air_contents)
-			location.blind_release_air(air_contents)
+			location.assume_air(air_contents)
 
 		qdel(src)
 
@@ -127,9 +138,11 @@
 	if(!disassembled)
 		var/turf/T = get_turf(src)
 		if(T)
-			T.blind_release_air(air_contents)
+			T.assume_air(air_contents)
+			air_update_turf()
 		playsound(src.loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 	qdel(src)
+
 
 /obj/item/tank/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -141,6 +154,8 @@
 
 	if(istype(I, /obj/item/assembly_holder) && bomb_assemble(I, user))
 		. |= ATTACK_CHAIN_SUCCESS
+
+
 
 /obj/item/tank/attack_self(mob/user as mob)
 	if(!(air_contents))
@@ -199,12 +214,20 @@
 	if(.)
 		add_fingerprint(usr)
 
-/obj/item/tank/return_obj_air()
-	RETURN_TYPE(/datum/gas_mixture)
+/obj/item/tank/remove_air(amount)
+	return air_contents.remove(amount)
+
+/obj/item/tank/return_air()
 	return air_contents
 
 /obj/item/tank/return_analyzable_air()
 	return air_contents
+
+/obj/item/tank/assume_air(datum/gas_mixture/giver)
+	air_contents.merge(giver)
+
+	check_status()
+	return 1
 
 /obj/item/tank/proc/remove_air_volume(volume_to_return)
 	if(!air_contents)
@@ -213,14 +236,15 @@
 	var/tank_pressure = air_contents.return_pressure()
 	var/actual_distribute_pressure = clamp(tank_pressure, 0, distribute_pressure)
 
-	var/moles_needed = actual_distribute_pressure * volume_to_return / (R_IDEAL_GAS_EQUATION * air_contents.temperature())
+	var/moles_needed = actual_distribute_pressure * volume_to_return / (R_IDEAL_GAS_EQUATION * air_contents.temperature)
 
-	return air_contents.remove(moles_needed)
+	return remove_air(moles_needed)
 
 /obj/item/tank/process()
 	//Allow for reactions
 	air_contents.react()
 	check_status()
+
 
 /obj/item/tank/proc/check_status()
 	//Handle exploding, leaking, and rupturing of the tank
@@ -241,6 +265,7 @@
 		var/range = (pressure-TANK_FRAGMENT_PRESSURE)/TANK_FRAGMENT_SCALE
 		var/turf/epicenter = get_turf(loc)
 
+
 		explosion(epicenter, devastation_range = round(range*0.25), heavy_impact_range = round(range*0.5), light_impact_range = round(range), flash_range = round(range*1.5), cause = src)
 		if(istype(loc,/obj/item/transfer_valve))
 			qdel(loc)
@@ -252,7 +277,7 @@
 			var/turf/simulated/T = get_turf(src)
 			if(!T)
 				return
-			T.blind_release_air(air_contents)
+			T.assume_air(air_contents)
 			playsound(loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 			qdel(src)
 		else
@@ -264,7 +289,7 @@
 			if(!T)
 				return
 			var/datum/gas_mixture/leaked_gas = air_contents.remove_ratio(0.25)
-			T.blind_release_air(leaked_gas)
+			T.assume_air(leaked_gas)
 		else
 			integrity--
 

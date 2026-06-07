@@ -88,6 +88,7 @@
 	secondary_theme = "blackdia"
 	no_sec_colour = TRUE
 
+
 /datum/sprite_accessory/hair/skrell/skr_diagoldtentacle_m
 	name = "Gold headress Skrell Male Tentacles"
 	icon_state = "male"

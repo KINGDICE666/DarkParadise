@@ -7,7 +7,7 @@
 	icobase = 'icons/mob/human_races/r_skeleton.dmi'
 	deform = 'icons/mob/human_races/r_skeleton.dmi'
 
-	blood_color = BLOOD_COLOR_SKELETON
+	blood_color = "#FFFFFF"
 	flesh_color = "#E6E6C6"
 
 	inherent_traits = list(
@@ -19,14 +19,13 @@
 		TRAIT_PIERCEIMMUNE,
 		TRAIT_EMBEDIMMUNE,
 		TRAIT_NO_HUNGER,
-		TRAIT_RESIST_HEAT,
 	)
 	dies_at_threshold = TRUE
 	skinned_type = /obj/item/stack/sheet/bone
 
 	taste_sensitivity = TASTE_SENSITIVITY_NO_TASTE //skeletons can't taste anything
 
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 
 	warning_low_pressure = -INFINITY
 	hazard_low_pressure = -INFINITY
@@ -56,16 +55,20 @@
 	disliked_food = NONE
 	liked_food = DAIRY
 
+
 /datum/species/skeleton/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	add_verb(H, /mob/living/carbon/human/proc/emote_rattle)
 
+
 /datum/species/skeleton/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, default, max_level, FALSE)
+
 
 /datum/species/skeleton/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
 	remove_verb(H, /mob/living/carbon/human/proc/emote_rattle)
+
 
 /datum/species/skeleton/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	// Crazylemon is still silly
@@ -83,9 +86,7 @@
 
 	return ..()
 
+
 /datum/species/skeleton/get_vision_organ(mob/living/carbon/human/user)
 	return NO_VISION_ORGAN
-
-/datum/species/skeleton/compressor_grind(location)
-	new /obj/item/stack/sheet/bone(location)
 

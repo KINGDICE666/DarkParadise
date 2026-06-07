@@ -1,13 +1,13 @@
 /datum/loot_tier
 	var/name
-	var/alist/ru_names
+	var/list/ru_names
 	var/open_time = 5 SECONDS
 	var/list/loot_list
 	var/loot_count
 	var/modules_spawn_chance = 0
 
 /datum/loot_tier/proc/on_start_open(mob/user, obj/structure/crate, list/current_loot = loot_list)
-	if(!isatom(crate))
+	if(!istype(crate))
 		return
 
 	for(var/i in 1 to loot_count)
@@ -24,13 +24,13 @@
 
 /datum/loot_tier/first
 	name = "снаряжение зеленого кода"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "снаряжение зеленого кода",
 		GENITIVE = "снаряжения зеленого кода",
 		DATIVE = "снаряжению зеленого кода",
 		ACCUSATIVE = "снаряжение зеленого кода",
 		INSTRUMENTAL = "снаряжением зеленого кода",
-		PREPOSITIONAL = "снаряжении зеленого кода",
+		PREPOSITIONAL = "снаряжении зеленого кода"
 	)
 	modules_spawn_chance = 1
 	loot_count = 3
@@ -86,17 +86,18 @@
 		/obj/item/clothing/suit/armor/vest/warden/alt,
 		/obj/item/clothing/suit/armor/vest/det_suit,
 		/obj/item/clothing/suit/storage/lawyer/blackjacket/armored,
-	)
+
+		)
 
 /datum/loot_tier/second
 	name = "снаряжение синего кода"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "снаряжение синего кода",
 		GENITIVE = "снаряжения синего кода",
 		DATIVE = "снаряжению синего кода",
 		ACCUSATIVE = "снаряжение синего кода",
 		INSTRUMENTAL = "снаряжением синего кода",
-		PREPOSITIONAL = "снаряжении синего кода",
+		PREPOSITIONAL = "снаряжении синего кода"
 	)
 	modules_spawn_chance = 20
 	open_time = 7 SECONDS
@@ -106,7 +107,7 @@
 		/obj/item/gun/energy/gun/hos,
 		/obj/item/gun/energy/mindflayer,
 		/obj/item/gun/energy/gun,
-		/obj/item/gun/energy/tesla_cannon,
+		/obj/item/gun/energy/shock_revolver,
 		/obj/item/gun/energy/laser/scatter,
 		/obj/item/gun/energy/laser,
 		/obj/item/gun/energy/emittercannon,
@@ -117,10 +118,10 @@
 		/obj/item/gun/energy/lasercannon,
 		/obj/item/gun/energy/xray,
 		list(
-			/obj/item/gun/energy/specter,
-			/obj/item/weapon_cell/specter,
-			/obj/item/weapon_cell/specter,
-			/obj/item/weapon_cell/specter,
+			/obj/item/gun/projectile/automatic/pistol/specter,
+			/obj/item/ammo_box/magazine/specter,
+			/obj/item/ammo_box/magazine/specter,
+			/obj/item/ammo_box/magazine/specter,
 		),
 		list(
 			/obj/item/gun/projectile/revolver/ga12,
@@ -129,9 +130,15 @@
 			/obj/item/ammo_box/speedloader/shotgun,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/ppsh,
+			/obj/item/gun/projectile/automatic/rusted/ppsh,
 			/obj/item/ammo_box/magazine/ppsh,
 			/obj/item/ammo_box/magazine/ppsh,
+		),
+		list(
+			/obj/item/gun/projectile/automatic/pistol/sp8/sp8t,
+			/obj/item/ammo_box/magazine/sp8,
+			/obj/item/ammo_box/magazine/sp8,
+			/obj/item/ammo_box/magazine/sp8,
 		),
 		list(
 			/obj/item/gun/projectile/shotgun/lethal,
@@ -140,24 +147,16 @@
 			/obj/item/ammo_box/speedloader/shotgun,
 		),
 		list(
-			/obj/item/gun/projectile/revolver/taurus,
-			/obj/item/ammo_box/speedloader/rubber45colt/empty,
-			/obj/item/ammo_box/speedloader/rubber45colt/empty,
-			/obj/item/ammo_box/speedloader/rubber45colt/empty,
-			/obj/item/ammo_box/c45colt,
-			/obj/item/ammo_box/c45colt,
-		),
-		list(
 			/obj/item/gun/projectile/automatic/pistol,
 			/obj/item/ammo_box/magazine/m10mm,
 			/obj/item/ammo_box/magazine/m10mm,
 			/obj/item/ammo_box/magazine/m10mm,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/ik60,
-			/obj/item/ammo_box/magazine/ik60mag,
-			/obj/item/ammo_box/magazine/ik60mag,
-			/obj/item/ammo_box/magazine/ik60mag,
+			/obj/item/gun/projectile/automatic/lasercarbine,
+			/obj/item/ammo_box/magazine/laser,
+			/obj/item/ammo_box/magazine/laser,
+			/obj/item/ammo_box/magazine/laser,
 		),
 		list(
 			/obj/item/gun/projectile/revolver/doublebarrel,
@@ -165,7 +164,13 @@
 			/obj/item/ammo_box/speedloader/shotgun,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/c20r/toy/riot,
+			/obj/item/gun/projectile/automatic/pistol/sp8/sp8ar,
+			/obj/item/ammo_box/magazine/sp8,
+			/obj/item/ammo_box/magazine/sp8,
+			/obj/item/ammo_box/magazine/sp8,
+		),
+		list(
+			/obj/item/gun/projectile/automatic/c20r/toy/riot,
 			/obj/item/ammo_box/magazine/toy/smgm45/riot,
 			/obj/item/ammo_box/magazine/toy/smgm45/riot,
 			/obj/item/ammo_box/magazine/toy/smgm45/riot,
@@ -190,28 +195,22 @@
 		),
 		list(
 			/obj/item/gun/projectile/shotgun/riot,
-			/obj/item/gun/projectile/shotgun/winchester,
 			/obj/item/ammo_box/shotgun,
 			/obj/item/ammo_box/shotgun/buck,
 			/obj/item/ammo_box/speedloader/shotgun,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/saber,
+			/obj/item/gun/projectile/automatic/proto,
 			/obj/item/ammo_box/magazine/smgm9mm,
 			/obj/item/ammo_box/magazine/smgm9mm,
 			/obj/item/ammo_box/magazine/smgm9mm,
-		),
-		list(
-			/obj/item/gun/projectile/automatic/smg/sparkle_a12,
-			/obj/item/ammo_box/magazine/sparkle_a12,
-			/obj/item/ammo_box/magazine/sparkle_a12,
-			/obj/item/ammo_box/magazine/sparkle_a12,
 		),
 		/obj/item/gun/syringe/rapidsyringe/experimental/preloaded,
 		/obj/item/storage/belt/security/judobelt,
 		/obj/item/twohanded/spear/bonespear/chitinspear,
 		/obj/item/twohanded/bamboospear,
 		/obj/item/fauna_bomb/preloaded/t3,
+		/obj/item/kitchen/knife/butcher/sharped,
 		/obj/item/melee/baton/security/loaded,
 		/obj/item/melee/energy/blade,
 		/obj/item/twohanded/sechammer,
@@ -240,13 +239,13 @@
 
 /datum/loot_tier/third
 	name = "снаряжение красного кода"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "снаряжение красного кода",
 		GENITIVE = "снаряжения красного кода",
 		DATIVE = "снаряжению красного кода",
 		ACCUSATIVE = "снаряжение красного кода",
 		INSTRUMENTAL = "снаряжением красного кода",
-		PREPOSITIONAL = "снаряжении красного кода",
+		PREPOSITIONAL = "снаряжении красного кода"
 	)
 	modules_spawn_chance = 30
 	open_time = 15 SECONDS
@@ -259,19 +258,19 @@
 		/obj/item/gun/energy/laser/captain,
 		/obj/item/gun/energy/sniperrifle/pod_pilot,
 		list(
-			/obj/item/gun/projectile/automatic/smg/c20r,
+			/obj/item/gun/projectile/automatic/c20r,
 			/obj/item/ammo_box/magazine/smgm45,
 			/obj/item/ammo_box/magazine/smgm45,
 			/obj/item/ammo_box/magazine/smgm45,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/wt550,
+			/obj/item/gun/projectile/automatic/wt550,
 			/obj/item/ammo_box/magazine/wt550m9,
 			/obj/item/ammo_box/magazine/wt550m9,
 			/obj/item/ammo_box/magazine/wt550m9,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/sfg,
+			/obj/item/gun/projectile/automatic/sfg,
 			/obj/item/ammo_box/magazine/sfg9mm,
 			/obj/item/ammo_box/magazine/sfg9mm,
 			/obj/item/ammo_box/magazine/sfg9mm,
@@ -305,16 +304,22 @@
 			/obj/item/ammo_box/speedloader/shotgun,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/aks74u,
-			/obj/item/ammo_box/magazine/aks74u,
-			/obj/item/ammo_box/magazine/aks74u,
-			/obj/item/ammo_box/magazine/aks74u,
+			/obj/item/gun/projectile/automatic/rusted/aksu,
+			/obj/item/ammo_box/magazine/aksu,
+			/obj/item/ammo_box/magazine/aksu,
+			/obj/item/ammo_box/magazine/aksu,
 		),
 		list(
 			/obj/item/gun/projectile/automatic/shotgun/bulldog,
 			/obj/item/ammo_box/magazine/m12g/XtrLrg/slug,
 			/obj/item/ammo_box/magazine/m12g/XtrLrg/slug,
 			/obj/item/ammo_box/magazine/m12g,
+		),
+		list(
+			/obj/item/gun/projectile/automatic/pistol/deagle/gold,
+			/obj/item/ammo_box/magazine/m50,
+			/obj/item/ammo_box/magazine/m50,
+			/obj/item/ammo_box/magazine/m50,
 		),
 		list(
 			/obj/item/gun/projectile/bombarda,
@@ -353,7 +358,7 @@
 			/obj/item/ammo_box/speedloader/a357,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/pistol/aps,
+			/obj/item/gun/projectile/automatic/pistol/APS,
 			/obj/item/ammo_box/magazine/pistolm9mm,
 			/obj/item/ammo_box/magazine/pistolm9mm,
 			/obj/item/ammo_box/magazine/pistolm9mm,
@@ -380,12 +385,17 @@
 			/obj/item/ammo_casing/a40mm/secgl/gas,
 		),
 		list(
-			/obj/item/gun/projectile/automatic/smg/sp91rc,
+			/obj/item/gun/projectile/automatic/pistol/deagle/camo,
+			/obj/item/ammo_box/magazine/m50,
+			/obj/item/ammo_box/magazine/m50,
+			/obj/item/ammo_box/magazine/m50,
+		),
+		list(
+			/obj/item/gun/projectile/automatic/sp91rc,
 			/obj/item/ammo_box/magazine/sp91rc,
 			/obj/item/ammo_box/magazine/sp91rc,
 			/obj/item/ammo_box/magazine/sp91rc,
 		),
-		/obj/item/storage/box/syndie_kit/rsh12_revolver,
 		/obj/item/shield/energy,
 		/obj/item/twohanded/spear/grey_tide,
 		/obj/item/kitchen/knife/ghostface_knife/devil,
@@ -406,7 +416,6 @@
 		/obj/item/melee/energy/sword/pirate,
 		/obj/item/melee/energy/sword/saber,
 		/obj/item/weldingtool/sword,
-		/obj/item/twohanded/spear/secspear,
 		/obj/item/dnainjector/hulkmut,
 		/obj/item/dnainjector/farvisionmut,
 		/obj/item/relict_production/strange_teleporter,
@@ -449,13 +458,13 @@
 
 /datum/loot_tier/fourth
 	name = "снаряжение кода ГАММА"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "снаряжение кода ГАММА",
 		GENITIVE = "снаряжения кода ГАММА",
 		DATIVE = "снаряжению кода ГАММА",
 		ACCUSATIVE = "снаряжение кода ГАММА",
 		INSTRUMENTAL = "снаряжением кода ГАММА",
-		PREPOSITIONAL = "снаряжении кода ГАММА",
+		PREPOSITIONAL = "снаряжении кода ГАММА"
 	)
 	modules_spawn_chance = 40
 	open_time = 20 SECONDS
@@ -466,7 +475,7 @@
 		/obj/item/gun/energy/telegun,
 		/obj/item/gun/energy/kinetic_accelerator/crossbow,
 		list(
-			/obj/item/gun/projectile/automatic/arg,
+			/obj/item/gun/projectile/automatic/ar,
 			/obj/item/ammo_box/magazine/m556,
 			/obj/item/ammo_box/magazine/m556,
 			/obj/item/ammo_box/magazine/m556,
@@ -516,9 +525,9 @@
 		),
 		list(
 			/obj/item/gun/projectile/automatic/l6_saw,
-			/obj/item/ammo_box/magazine/l6saw,
-			/obj/item/ammo_box/magazine/l6saw,
-			/obj/item/ammo_box/magazine/l6saw,
+			/obj/item/ammo_box/magazine/a762x51,
+			/obj/item/ammo_box/magazine/a762x51,
+			/obj/item/ammo_box/magazine/a762x51,
 		),
 		list(
 			/obj/item/gun/projectile/automatic/m52,
@@ -570,20 +579,19 @@
 		/obj/item/clothing/suit/space/hardsuit/syndi/elite/med,
 		/obj/item/clothing/suit/space/hardsuit/syndi/elite/comms,
 		/obj/item/implanter/adrenalin,
-		/obj/item/implanter/heal,
 		/obj/item/implanter/explosive_macro,
 		/obj/item/gun/magic/hook,
 	)
 
 /datum/loot_tier/fifth
 	name = "снаряжение кода ЭПСИЛОН"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "снаряжение кода ЭПСИЛОН",
 		GENITIVE = "снаряжения кода ЭПСИЛОН",
 		DATIVE = "снаряжению кода ЭПСИЛОН",
 		ACCUSATIVE = "снаряжение кода ЭПСИЛОН",
 		INSTRUMENTAL = "снаряжением кода ЭПСИЛОН",
-		PREPOSITIONAL = "снаряжении кода ЭПСИЛОН",
+		PREPOSITIONAL = "снаряжении кода ЭПСИЛОН"
 	)
 	modules_spawn_chance = 70
 	open_time = 30 SECONDS
@@ -637,13 +645,13 @@
 
 /datum/loot_tier/ammo
 	name = "патроны"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "патроны",
 		GENITIVE = "патронов",
 		DATIVE = "патронам",
 		ACCUSATIVE = "патроны",
 		INSTRUMENTAL = "патронами",
-		PREPOSITIONAL = "патронах",
+		PREPOSITIONAL = "патронах"
 	)
 	loot_count = 6
 	loot_list = list(
@@ -652,7 +660,7 @@
 			/obj/item/ammo_box/rubber9mm,
 		),
 		CALIBER_45NR = list(
-			/obj/item/ammo_box/dot45NR,
+			/obj/item/ammo_box/c9mmte,
 		),
 		CALIBER_DOT_357 = list(
 			/obj/item/ammo_box/a357,
@@ -661,7 +669,7 @@
 			/obj/item/ammo_box/fortynr,
 		),
 		CALIBER_7_DOT_62X54MM = list(
-			/obj/item/ammo_box/a762x54,
+			/obj/item/ammo_box/a762,
 		),
 		CALIBER_7_DOT_62X51MM = list(
 			/obj/item/ammo_box/a762x51,
@@ -675,8 +683,8 @@
 			/obj/item/ammo_box/a762x25,
 		),
 		CALIBER_7_DOT_62X38MM = list(
-			/obj/item/ammo_box/n762x38,
-			/obj/item/ammo_box/n762x38,
+			/obj/item/ammo_box/n762,
+			/obj/item/ammo_box/nagant,
 		),
 		CALIBER_DOT_338 = list(
 			/obj/item/ammo_box/a338,
@@ -691,7 +699,7 @@
 			/obj/item/ammo_box/m50,
 		),
 		CALIBER_10MM = list(
-			/obj/item/ammo_box/m10mm,
+			/obj/item/ammo_box/c10mm,
 			/obj/item/ammo_box/m10mm,
 			/obj/item/ammo_box/m10mm/ap,
 			/obj/item/ammo_box/m10mm/hp,
@@ -713,7 +721,7 @@
 			/obj/item/ammo_casing/caseless/rocket,
 			/obj/item/ammo_casing/caseless/rocket/hedp,
 		),
-		CALIBER_12G = list(
+		CALIBER_12X70 = list(
 			/obj/item/ammo_box/shotgun,
 			/obj/item/ammo_box/shotgun/buck,
 			/obj/item/ammo_box/shotgun/buck/assassination,
@@ -731,20 +739,15 @@
 			/obj/item/ammo_box/shotgun/improvised,
 		),
 		CALIBER_SPECTER = list(
-			/obj/item/weapon_cell/specter,
+			/obj/item/ammo_box/specter/laser,
+			/obj/item/ammo_box/specter/disabler,
 		),
 		CALIBER_5_DOT_56X45MM = list(
 			/obj/item/ammo_box/a556,
 		),
-		CALIBER_DOT_45_COLT = list(
-			/obj/item/ammo_box/c45colt,
-			/obj/item/ammo_box/rubber45colt,
-			/obj/item/ammo_box/expansive45colt,
-			/obj/item/ammo_box/ap45colt,
-		),
 		CALIBER_5_DOT_45X39MM = list(
-			/obj/item/ammo_box/a545x39/fusty,
-			/obj/item/ammo_box/a545x39,
+			/obj/item/ammo_box/ak814/fusty,
+			/obj/item/ammo_box/ak814,
 		),
 		CALIBER_ROCKET = list(
 			/obj/item/ammo_casing/rocket,
@@ -778,7 +781,7 @@
 			/obj/item/mortar_shell/frag,
 			/obj/item/mortar_shell/incendiary,
 			/obj/item/mortar_shell/flare,
-		),
+		)
 	)
 
 /datum/loot_tier/ammo/on_start_open(mob/user, obj/structure/crate, list/current_loot = loot_list)
@@ -794,13 +797,13 @@
 
 /datum/loot_tier/medical
 	name = "медикаменты"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "медикаменты",
 		GENITIVE = "медикаментов",
 		DATIVE = "медикаментам",
 		ACCUSATIVE = "медикаменты",
 		INSTRUMENTAL = "медикаментами",
-		PREPOSITIONAL = "медикаментах",
+		PREPOSITIONAL = "медикаментах"
 	)
 	loot_count = 8
 	loot_list = list(

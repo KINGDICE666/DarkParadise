@@ -11,6 +11,7 @@
 	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 	var/wipespeed = 3 SECONDS
 
+
 /obj/item/reagent_containers/glass/rag/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!target.reagents || !reagents.total_volume || user.zone_selected != BODY_ZONE_PRECISE_MOUTH)
 		return ..()
@@ -42,16 +43,13 @@
 	reagents.reaction(target, REAGENT_TOUCH)
 	reagents.clear_reagents()
 
-/obj/item/reagent_containers/glass/rag/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
-		return
 
-	if(ismob(target) && user.zone_selected != BODY_ZONE_PRECISE_MOUTH)
-		return
-
-	if(istype(target) && (src in user) && reagents.total_volume)
-		user.visible_message("[user] starts to wipe down [target] with [src]!")
-		if(do_after(user, wipespeed, target))
-			user.visible_message("[user] finishes wiping off the [target]!")
-			target.clean_blood()
+/obj/item/reagent_containers/glass/rag/afterattack(atom/A, mob/user, proximity, params)
+	if(!proximity) return
+	if(ismob(A) && user.zone_selected != "mouth") return
+	if(istype(A) && (src in user) && reagents.total_volume)
+		user.visible_message("[user] starts to wipe down [A] with [src]!")
+		if(do_after(user, wipespeed, A))
+			user.visible_message("[user] finishes wiping off the [A]!")
+			A.clean_blood()
 	return

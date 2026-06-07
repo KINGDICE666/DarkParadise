@@ -114,7 +114,9 @@
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor,
 /area/awaymission/undersea)
 "aC" = (
-/obj/structure/mineral_door/wood,
+/obj/structure/mineral_door/wood{
+	tag = "icon-wood"
+	},
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor,
 /area/awaymission/undersea)
 "aD" = (
@@ -143,13 +145,15 @@
 /area/awaymission/undersea)
 "aI" = (
 /obj/structure/chair/wood/wings{
-	dir = 4
+	dir = 4;
+	tag = "icon-wooden_chair_wings (EAST)"
 	},
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor,
 /area/awaymission/undersea)
 "aJ" = (
 /obj/structure/chair/wood/wings{
-	dir = 8
+	dir = 8;
+	tag = "icon-wooden_chair_wings (WEST)"
 	},
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor,
 /area/awaymission/undersea)
@@ -225,7 +229,9 @@
 /turf/simulated/floor/indestructible/beach/water/deep/sand_floor,
 /area/awaymission/undersea)
 "aY" = (
-/obj/structure/mineral_door/wood,
+/obj/structure/mineral_door/wood{
+	tag = "icon-wood"
+	},
 /turf/simulated/floor/indestructible/beach/water/deep/sand_floor,
 /area/awaymission/undersea)
 "aZ" = (
@@ -246,7 +252,8 @@
 /obj/structure/flora/ausbushes/leafybush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 9;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -257,7 +264,8 @@
 "be" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 5;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHEAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -268,7 +276,8 @@
 "bg" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 8;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (WEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -276,7 +285,8 @@
 /obj/structure/flora/ausbushes/leafybush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -292,21 +302,24 @@
 "bk" = (
 /obj/effect/decal/snow/sand/surround{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_surround (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "bl" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "bm" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 9;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -319,7 +332,8 @@
 "bo" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 10;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHWEST)"
 	},
 /turf/simulated/floor/indestructible/grass,
 /area/awaymission/beach)
@@ -332,21 +346,24 @@
 "bq" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 6;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHEAST)"
 	},
 /turf/simulated/floor/indestructible/grass,
 /area/awaymission/beach)
 "br" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 6;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHEAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "bs" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 10;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -358,14 +375,16 @@
 /obj/structure/flora/ausbushes/leafybush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 9;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand/dense,
 /area/awaymission/beach)
 "bv" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 5;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHEAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand/dense,
 /area/awaymission/beach)
@@ -377,14 +396,16 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 9;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "by" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -396,7 +417,8 @@
 /obj/structure/flora/ausbushes/genericbush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -404,7 +426,8 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -412,7 +435,8 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -437,14 +461,16 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 8;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (WEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "bI" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand/dense,
 /area/awaymission/beach)
@@ -452,7 +478,8 @@
 /obj/effect/overlay/palmtree_l,
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -469,7 +496,8 @@
 /obj/structure/flora/ausbushes/sunnybush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -573,7 +601,8 @@
 /obj/effect/overlay/coconut,
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -639,7 +668,8 @@
 /obj/structure/flora/ausbushes/reedbush,
 /obj/effect/decal/snow/sand/edge{
 	dir = 5;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTHEAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -679,7 +709,8 @@
 "cB" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /obj/effect/overlay/palmtree_r,
 /turf/simulated/floor/indestructible/beach/sand,
@@ -692,14 +723,16 @@
 /obj/structure/flora/ausbushes/ppflowers,
 /obj/effect/decal/snow/sand/edge{
 	dir = 8;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (WEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "cJ" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /obj/structure/closet/athletic_mixed,
 /turf/simulated/floor/indestructible/beach/sand,
@@ -707,19 +740,23 @@
 "cK" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 8;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (WEST)"
 	},
 /obj/effect/overlay/palmtree_l,
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "cL" = (
-/obj/structure/mineral_door/wood,
+/obj/structure/mineral_door/wood{
+	tag = "icon-wood"
+	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "cN" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (EAST)"
 	},
 /obj/item/clothing/shoes/sandal,
 /obj/item/clothing/shoes/sandal,
@@ -854,7 +891,8 @@
 "do" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /obj/structure/flora/ausbushes/sunnybush,
 /turf/simulated/floor/indestructible/beach/sand,
@@ -896,12 +934,15 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 10;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHWEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
 "dA" = (
-/obj/structure/mineral_door/wood,
+/obj/structure/mineral_door/wood{
+	tag = "icon-wood"
+	},
 /turf/simulated/floor/indestructible{
 	icon_state = "wood"
 	},
@@ -942,7 +983,8 @@
 "dH" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 1;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (NORTH)"
 	},
 /obj/structure/chair/stool/bar,
 /turf/simulated/floor/indestructible/beach/sand,
@@ -991,7 +1033,8 @@
 /obj/effect/overlay/palmtree_r,
 /obj/effect/decal/snow/sand/edge{
 	dir = 6;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (SOUTHEAST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -1024,7 +1067,8 @@
 /obj/effect/overlay/palmtree_l,
 /obj/effect/decal/snow/sand/edge{
 	dir = 8;
-	name = "rough sand"
+	name = "rough sand";
+	tag = "icon-gravsnow_corner (WEST)"
 	},
 /turf/simulated/floor/indestructible/beach/sand,
 /area/awaymission/beach)
@@ -42003,7 +42047,7 @@ av
 av
 av
 ad
-aL
+aK
 ah
 ah
 ah
@@ -42260,7 +42304,7 @@ av
 av
 av
 ad
-aK
+aL
 ah
 ah
 ah

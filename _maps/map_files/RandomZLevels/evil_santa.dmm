@@ -6,8 +6,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "ac" = (
@@ -19,7 +20,8 @@
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "ad" = (
@@ -40,6 +42,16 @@
 /obj/item/reagent_containers/food/snacks/beans,
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
+"am" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "For authorized personnel only. Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Lift door"
+	},
+/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_m)
 "au" = (
 /obj/structure/table/reinforced,
 /obj/item/storage/firstaid/aquatic_kit/full,
@@ -48,7 +60,7 @@
 /obj/item/fish_eggs/salmon,
 /obj/item/fish_eggs/shrimp,
 /obj/item/fish_eggs/shrimp,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -80,7 +92,9 @@
 "aD" = (
 /obj/machinery/vending/cigarette,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "aE" = (
@@ -98,7 +112,9 @@
 /obj/structure/table/wood/fancy/royalblack,
 /obj/machinery/chem_dispenser/soda,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "aS" = (
@@ -126,19 +142,16 @@
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "ba" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
-"be" = (
-/obj/structure/closet/crate/large,
-/turf/simulated/floor/wood/oak,
-/area/vision_change_area/awaymission/evil_santa/end/hall)
 "bf" = (
 /obj/effect/decal/snow/clean/edge{
 	dir = 4
 	},
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
@@ -269,7 +282,8 @@
 "cF" = (
 /mob/living/simple_animal/hostile/winter/snowman,
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge,
 /turf/simulated/floor/plating/ice,
@@ -332,7 +346,8 @@
 /area/vision_change_area/awaymission/evil_santa/spawn_ne)
 "dp" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/wood,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
@@ -416,7 +431,8 @@
 "dU" = (
 /obj/effect/decal/snow/clean/edge,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken"
+	icon_state = "wood-broken";
+	tag = "icon-wood-broken"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "dV" = (
@@ -447,15 +463,6 @@
 	},
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_w)
-"ed" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "For authorized personnel only. Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Lift door"
-	},
-/area/vision_change_area/awaymission/evil_santa/end/lounge)
 "el" = (
 /obj/structure/firepit{
 	active = 1
@@ -481,7 +488,8 @@
 /area/vision_change_area/awaymission/evil_santa/mine)
 "ez" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
@@ -509,6 +517,19 @@
 	icon_state = "wood-broken3"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_e)
+"eI" = (
+/obj/structure/table/wood,
+/obj/item/reagent_containers/food/drinks/coffee,
+/obj/item/storage/box/matches,
+/turf/simulated/floor/carpet,
+/area/vision_change_area/awaymission/evil_santa/hut_n)
+"eK" = (
+/mob/living/simple_animal/pet/penguin/emperor{
+	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0);
+	faction = list("hostile","syndicate","winter")
+	},
+/turf/simulated/floor/plating/ice/smooth,
+/area/vision_change_area/awaymission/evil_santa_storm)
 "eP" = (
 /obj/item/reagent_containers/food/snacks/gingercookie/cane,
 /turf/simulated/floor/wood/oak,
@@ -530,7 +551,8 @@
 	opacity = 1
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "eV" = (
@@ -552,7 +574,8 @@
 /obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 /obj/item/reagent_containers/food/snacks/meat,
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "fc" = (
@@ -573,7 +596,9 @@
 /obj/item/decorations/sticky_decorations/flammable/tinsel/red{
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "fj" = (
 /obj/structure/sign/barsign{
@@ -581,7 +606,9 @@
 	},
 /obj/machinery/vending/boozeomat,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "fr" = (
@@ -633,7 +660,8 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "fD" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "fH" = (
@@ -686,8 +714,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "ge" = (
@@ -695,19 +724,36 @@
 /obj/structure/decorative_structures/garland,
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
+"gg" = (
+/turf/simulated/floor/wood{
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
+	},
+/area/vision_change_area/awaymission/evil_santa/hut_w)
+"gj" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Security room"
+	},
+/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
 "gk" = (
 /obj/structure/window/full/reinforced/ice,
 /turf/simulated/floor/wood/cold,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "gl" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "gm" = (
 /obj/structure/closet/secure_closet/freezer/meat,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/light,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -723,12 +769,6 @@
 /obj/item/stack/ore/glass/basalt,
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
-"gq" = (
-/obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/cups/coffee_cup/small/coffee,
-/obj/item/storage/box/matches,
-/turf/simulated/floor/carpet,
-/area/vision_change_area/awaymission/evil_santa/hut_n)
 "gu" = (
 /obj/item/ammo_box/shotgun/buck,
 /obj/item/storage/firstaid/fire,
@@ -802,20 +842,11 @@
 /obj/structure/closet/secure_closet/freezer/kitchen{
 	req_access = list()
 	},
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
-"gO" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "For authorized personnel only. Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Lift door"
-	},
-/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_r)
 "gT" = (
 /obj/structure/decorative_structures/garland{
 	dir = 1
@@ -842,7 +873,8 @@
 /area/vision_change_area/awaymission/evil_santa/spawn_s)
 "hi" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge{
 	dir = 8
@@ -920,14 +952,6 @@
 	slowdown = 0
 	},
 /area/vision_change_area/awaymission/evil_santa/spawn_ne)
-"hJ" = (
-/obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/cups/coffee_cup/small/coffee,
-/obj/item/storage/box/matches,
-/turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
-	},
-/area/vision_change_area/awaymission/evil_santa/hut_e)
 "hK" = (
 /obj/item/clothing/head/bearpelt/fluff,
 /turf/simulated/floor/plating/asteroid/snow/atmosphere{
@@ -955,7 +979,9 @@
 /area/vision_change_area/awaymission/evil_santa/spawn_s)
 "hT" = (
 /obj/structure/flora/grass/green,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "hW" = (
 /obj/effect/bump_teleporter{
@@ -1083,7 +1109,9 @@
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "iT" = (
-/obj/structure/chair/sofa/corner,
+/obj/structure/chair/sofa/corner{
+	dir = 4
+	},
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "iY" = (
@@ -1091,8 +1119,9 @@
 	calibrated = 0;
 	calibrating_on_activating = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "iZ" = (
@@ -1119,12 +1148,13 @@
 	dir = 6
 	},
 /obj/structure/flora/grass/both,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "ji" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/structure/decorative_structures/garland{
 	dir = 1
 	},
@@ -1152,17 +1182,19 @@
 /turf/simulated/floor/wood,
 /area/vision_change_area/awaymission/evil_santa/hut_w)
 "jo" = (
-/obj/item/gun/projectile/automatic/smg/saber,
+/obj/item/gun/projectile/automatic/proto,
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_m)
 "jq" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken5"
+	icon_state = "wood-broken5";
+	tag = "icon-wood-broken5"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "js" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken5"
+	icon_state = "wood-broken5";
+	tag = "icon-wood-broken5"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_w)
 "jt" = (
@@ -1193,7 +1225,7 @@
 	pixel_y = 3
 	},
 /obj/item/clothing/mask/cigarette/cigar,
-/obj/item/lighter/zippo/purple,
+/obj/item/lighter/zippo/fluff/purple,
 /obj/item/clothing/mask/cigarette/cigar{
 	pixel_x = -5;
 	pixel_y = 5
@@ -1214,7 +1246,8 @@
 	icon_state = "small"
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "jI" = (
@@ -1224,7 +1257,9 @@
 	name = "Mining lantern";
 	on = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "jK" = (
 /turf/simulated/wall/indestructible/rock,
@@ -1237,16 +1272,11 @@
 /area/vision_change_area/awaymission/evil_santa_storm)
 "jO" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/wood,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
-"jU" = (
-/mob/living/simple_animal/pet/penguin/eldrich{
-	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	},
-/turf/simulated/floor/plating/ice/smooth,
-/area/vision_change_area/awaymission/evil_santa_storm)
 "jW" = (
 /obj/item/reagent_containers/food/snacks/candy/mre,
 /turf/simulated/floor/plating/asteroid/snow/atmosphere{
@@ -1254,7 +1284,7 @@
 	},
 /area/vision_change_area/awaymission/evil_santa/spawn_s)
 "jY" = (
-/obj/item/gun/projectile/automatic/smg/wt550,
+/obj/item/gun/projectile/automatic/wt550,
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_r)
 "jZ" = (
@@ -1292,13 +1322,6 @@
 	icon_state = "white"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
-"ku" = (
-/obj/structure/closet/crate/large/evil{
-	desc = "A hefty wooden crate.";
-	name = "large crate"
-	},
-/turf/simulated/floor/wood/oak,
-/area/vision_change_area/awaymission/evil_santa/end/hall)
 "kw" = (
 /obj/effect/baseturf_helper/asteroid/snow,
 /turf/simulated/floor/carpet/red,
@@ -1385,7 +1408,7 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "lf" = (
 /obj/structure/closet/secure_closet/freezer/meat,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -1403,7 +1426,8 @@
 	dir = 8
 	},
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
@@ -1423,14 +1447,17 @@
 /area/vision_change_area/awaymission/evil_santa/forest_labyrinth)
 "lC" = (
 /obj/structure/flora/grass/brown,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "lG" = (
 /obj/machinery/icemachine{
 	pixel_x = -4
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "lP" = (
@@ -1485,8 +1512,10 @@
 /turf/simulated/floor/wood,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "mh" = (
-/obj/item/gift,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/obj/item/a_gift,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "mj" = (
 /turf/simulated/floor/wood/oak,
@@ -1656,15 +1685,6 @@
 /obj/structure/closet/cabinet,
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
-"nC" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "For authorized personnel only. Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Lift door"
-	},
-/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_m)
 "nD" = (
 /obj/structure/chair/stool/bar/dark,
 /turf/simulated/floor/wood/fancy,
@@ -1701,10 +1721,6 @@
 /obj/structure/dresser,
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
-"nV" = (
-/obj/machinery/vending/clothesmate,
-/turf/simulated/floor/wood/fancy,
-/area/vision_change_area/awaymission/evil_santa/end/lounge)
 "nW" = (
 /obj/item/stack/ore/glass/basalt,
 /obj/effect/decal/cleanable/dust,
@@ -1737,6 +1753,16 @@
 	},
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
+"of" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "For authorized personnel only. Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Lift door"
+	},
+/area/vision_change_area/awaymission/evil_santa/end/lounge)
 "oi" = (
 /mob/living/simple_animal/hostile/zombie{
 	faction = list("hostile","syndicate","winter");
@@ -1758,7 +1784,7 @@
 /area/vision_change_area/awaymission/evil_santa/mine)
 "ok" = (
 /obj/structure/table/wood/fancy/green,
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/item/reagent_containers/food/snacks/gingercookie/home,
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/santa)
@@ -1771,7 +1797,7 @@
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/end/hall)
 "om" = (
-/obj/item/gun/projectile/automatic/smg/sfg{
+/obj/item/gun/projectile/automatic/sfg{
 	name = "Engraved SFG-5"
 	},
 /obj/item/ammo_box/magazine/sfg9mm,
@@ -1804,7 +1830,7 @@
 	},
 /area/vision_change_area/awaymission/evil_santa/forest_labyrinth)
 "oq" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/structure/decorative_structures/garland,
 /turf/simulated/floor/plating/asteroid/snow/atmosphere{
 	slowdown = 0
@@ -1855,7 +1881,7 @@
 	dir = 1
 	},
 /obj/structure/wooden_sign{
-	desc = "Ответь себе и входи: Вёл ли ты себя хорошо весь этот год? Если нет — уходи, Санта не любит плохишей!";
+	desc = "Ответь себе и входи: Вёл ли ты себя хорошо весь этот год? Если нет - уходи, Санта не любит плохишей!";
 	name = "Warning sign"
 	},
 /turf/simulated/floor/wood/oak,
@@ -1896,7 +1922,8 @@
 "pg" = (
 /obj/machinery/kitchen_machine/oven,
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "ph" = (
@@ -1915,7 +1942,9 @@
 "po" = (
 /obj/structure/flora/tree/pine/xmas,
 /obj/effect/mapping_helpers/light,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "pv" = (
 /obj/machinery/light{
@@ -1947,7 +1976,9 @@
 	on = 1
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "pM" = (
@@ -1976,8 +2007,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "pT" = (
@@ -2162,8 +2194,9 @@
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_w)
 "rC" = (
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "rD" = (
@@ -2186,7 +2219,7 @@
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "rK" = (
-/obj/structure/chair/sofa/left,
+/obj/structure/chair/sofa/right,
 /turf/simulated/floor/carpet,
 /area/vision_change_area/awaymission/evil_santa/hut_n)
 "rM" = (
@@ -2215,7 +2248,8 @@
 	pixel_y = 11
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "sa" = (
@@ -2275,6 +2309,16 @@
 	slowdown = 0
 	},
 /area/vision_change_area/awaymission/evil_santa/spawn_ne)
+"sw" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "For authorized personnel only. Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Lift door"
+	},
+/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_r)
 "sy" = (
 /obj/structure/chair/comfy/brown{
 	dir = 1
@@ -2355,7 +2399,8 @@
 	pixel_y = 8
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "tk" = (
@@ -2459,7 +2504,8 @@
 /obj/item/kitchen/rollingpin,
 /obj/item/reagent_containers/glass/beaker/large,
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "ut" = (
@@ -2565,7 +2611,8 @@
 /area/vision_change_area/awaymission/evil_santa/spawn_s)
 "vk" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge{
 	dir = 4
@@ -2703,7 +2750,9 @@
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "wC" = (
@@ -2856,6 +2905,13 @@
 /obj/item/reagent_containers/food/drinks/mug/comms,
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/end/hall)
+"xK" = (
+/obj/structure/largecrate/evil{
+	desc = "A hefty wooden crate.";
+	name = "large crate"
+	},
+/turf/simulated/floor/wood/oak,
+/area/vision_change_area/awaymission/evil_santa/end/hall)
 "xN" = (
 /turf/simulated/wall/shuttle,
 /area/vision_change_area/awaymission/evil_santa/end/hall)
@@ -2864,7 +2920,7 @@
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "xQ" = (
-/obj/item/gun/projectile/automatic/pistol/aps,
+/obj/item/gun/projectile/automatic/pistol/APS,
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
 "xS" = (
@@ -2880,8 +2936,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "xW" = (
@@ -2912,6 +2969,16 @@
 	},
 /turf/simulated/floor/carpet/green,
 /area/vision_change_area/awaymission/evil_santa/end/santa)
+"yp" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Security room"
+	},
+/area/vision_change_area/awaymission/evil_santa/end/hall)
 "ys" = (
 /obj/item/stack/sheet/animalhide/monkey,
 /obj/machinery/conveyor{
@@ -3012,9 +3079,7 @@
 /area/vision_change_area/awaymission/evil_santa/end/hall)
 "zs" = (
 /obj/machinery/gibber,
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
-	},
+/obj/effect/decal/warning_stripes/southwest,
 /turf/simulated/floor/plasteel,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "zw" = (
@@ -3059,8 +3124,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "zG" = (
@@ -3080,7 +3146,9 @@
 /obj/item/reagent_containers/food/drinks/cans/non_alcoholic_beer,
 /obj/item/reagent_containers/food/drinks/cans/non_alcoholic_beer,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "zL" = (
@@ -3095,7 +3163,7 @@
 /area/vision_change_area/awaymission/evil_santa/mine)
 "Ac" = (
 /obj/structure/kitchenspike,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /turf/simulated/floor/plasteel,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Ad" = (
@@ -3107,7 +3175,8 @@
 "Ae" = (
 /obj/machinery/vending/dinnerware,
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Aj" = (
@@ -3147,13 +3216,6 @@
 /obj/item/reagent_containers/food/snacks/gingercookie/mitten,
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_r)
-"AO" = (
-/mob/living/simple_animal/pet/penguin/emperor{
-	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0);
-	faction = list("hostile","syndicate","winter")
-	},
-/turf/simulated/floor/plating/ice/smooth,
-/area/vision_change_area/awaymission/evil_santa_storm)
 "AS" = (
 /obj/machinery/recycler/deathtrap,
 /obj/machinery/conveyor{
@@ -3166,8 +3228,9 @@
 /obj/machinery/gateway{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "AV" = (
@@ -3298,7 +3361,9 @@
 /obj/structure/table/wood/fancy/royalblack,
 /obj/machinery/chem_dispenser/beer,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Cf" = (
@@ -3335,7 +3400,7 @@
 /turf/simulated/floor/carpet/green,
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "Cy" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/structure/decorative_structures/garland{
 	dir = 8
 	},
@@ -3374,8 +3439,9 @@
 /obj/machinery/gateway{
 	density = 0
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "CN" = (
@@ -3443,7 +3509,9 @@
 /area/vision_change_area/awaymission/evil_santa/mine)
 "Dy" = (
 /obj/structure/flora/grass/both,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "DD" = (
 /obj/effect/bump_teleporter{
@@ -3567,8 +3635,9 @@
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "EZ" = (
 /obj/structure/mineral_door/ginger,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Fc" = (
@@ -3597,7 +3666,8 @@
 	dir = 4
 	},
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/plating/ice,
 /area/vision_change_area/awaymission/evil_santa/mine)
@@ -3670,7 +3740,8 @@
 /area/vision_change_area/awaymission/evil_santa/spawn_ne)
 "FX" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge{
 	dir = 4
@@ -3851,6 +3922,10 @@
 "Hc" = (
 /turf/simulated/floor/vault,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
+"Hd" = (
+/obj/machinery/vending/clothing,
+/turf/simulated/floor/wood/fancy,
+/area/vision_change_area/awaymission/evil_santa/end/lounge)
 "He" = (
 /obj/item/twohanded/spear,
 /obj/effect/spawner/lootdrop/spentcasing/pistol,
@@ -3947,8 +4022,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "HY" = (
@@ -3978,7 +4054,7 @@
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Io" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/machinery/conveyor{
 	dir = 1;
 	id = "santa"
@@ -4049,7 +4125,9 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "IS" = (
 /mob/living/simple_animal/hostile/winter/santa/stage_1,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "IU" = (
 /obj/item/melee/candy_sword,
@@ -4071,7 +4149,8 @@
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "Jh" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/item/clothing/suit/space/santa,
 /turf/simulated/floor/wood,
@@ -4088,8 +4167,8 @@
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_m)
 "Jq" = (
 /obj/structure/closet/crate/miningcar,
-/obj/item/gift,
-/obj/item/gift,
+/obj/item/a_gift,
+/obj/item/a_gift,
 /obj/item/stack/medical/ointment/aloe,
 /obj/item/stack/medical/ointment/aloe,
 /obj/item/grenade/frag,
@@ -4303,8 +4382,9 @@
 	name = "Mining lantern";
 	on = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Lm" = (
@@ -4321,15 +4401,6 @@
 /obj/machinery/hydroponics/constructable,
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
-"LB" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Security room"
-	},
-/area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
 "LC" = (
 /obj/item/clothing/suit/snowman,
 /obj/structure/window/basic{
@@ -4378,10 +4449,10 @@
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "LS" = (
-/obj/item/gift{
+/obj/item/a_gift{
 	pixel_x = -10
 	},
-/obj/item/gift{
+/obj/item/a_gift{
 	pixel_x = 10
 	},
 /turf/simulated/floor/carpet,
@@ -4458,6 +4529,12 @@
 	},
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/end/hall)
+"MD" = (
+/mob/living/simple_animal/pet/penguin/baby{
+	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
+	},
+/turf/simulated/floor/plating/ice/smooth,
+/area/vision_change_area/awaymission/evil_santa_storm)
 "ME" = (
 /obj/structure/firepit{
 	active = 1
@@ -4487,7 +4564,9 @@
 /obj/item/decorations/sticky_decorations/flammable/tinsel/green{
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "MR" = (
 /obj/structure/decorative_structures/garland{
@@ -4502,7 +4581,7 @@
 	},
 /area/vision_change_area/awaymission/evil_santa/forest_labyrinth)
 "MT" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/machinery/conveyor{
 	id = "santa"
 	},
@@ -4518,11 +4597,25 @@
 /obj/effect/decal/snow/clean/edge,
 /turf/simulated/floor/plating/ice,
 /area/vision_change_area/awaymission/evil_santa/mine)
+"Nf" = (
+/turf/simulated/floor/wood{
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
+	},
+/area/vision_change_area/awaymission/evil_santa/hut_e)
+"Nh" = (
+/obj/structure/table/wood,
+/obj/item/reagent_containers/food/drinks/coffee,
+/obj/item/storage/box/matches,
+/turf/simulated/floor/wood{
+	icon_state = "wood-broken3"
+	},
+/area/vision_change_area/awaymission/evil_santa/hut_e)
 "Ni" = (
 /turf/simulated/floor/chasm/straight_down/lava_land_surface/normal_air,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "Nl" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/structure/decorative_structures/garland{
 	dir = 8
 	},
@@ -4537,15 +4630,6 @@
 	},
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
-"No" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "For authorized personnel only. Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Lift door"
-	},
-/area/vision_change_area/awaymission/evil_santa/mine)
 "Nu" = (
 /obj/item/toy/xmas_cracker,
 /obj/machinery/conveyor{
@@ -4563,9 +4647,7 @@
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Nz" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "NB" = (
@@ -4585,7 +4667,8 @@
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
 "NH" = (
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "NK" = (
@@ -4626,9 +4709,7 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "NZ" = (
 /obj/machinery/chem_master/condimaster,
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /turf/simulated/floor/plasteel,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Oa" = (
@@ -4638,8 +4719,9 @@
 /obj/structure/decorative_structures/garland{
 	dir = 1
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Ob" = (
@@ -4684,7 +4766,7 @@
 /area/vision_change_area/awaymission/evil_santa/mine)
 "Oq" = (
 /obj/structure/table/wood/fancy/green,
-/obj/item/gift,
+/obj/item/a_gift,
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "Os" = (
@@ -4814,7 +4896,9 @@
 /obj/structure/table/wood/fancy/royalblack,
 /obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Px" = (
@@ -4865,7 +4949,8 @@
 	dir = 8
 	},
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/plating/ice,
 /area/vision_change_area/awaymission/evil_santa/mine)
@@ -4885,12 +4970,15 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Qb" = (
 /turf/simulated/floor/plasteel{
-	icon_state = "dark"
+	dir = 5;
+	icon_state = "dark";
+	tag = "icon-vault (NORTHEAST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Qc" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge{
 	dir = 4
@@ -4912,14 +5000,16 @@
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
 "Ql" = (
 /obj/structure/flora/tree/pine/xmas,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "Qq" = (
 /obj/machinery/light,
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Qs" = (
-/obj/item/gift{
+/obj/item/a_gift{
 	pixel_x = -10
 	},
 /turf/simulated/floor/carpet,
@@ -4980,7 +5070,8 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "QW" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken"
+	icon_state = "wood-broken";
+	tag = "icon-wood-broken"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_w)
 "QX" = (
@@ -5041,6 +5132,10 @@
 /obj/item/clothing/head/helmet/space/santahat,
 /turf/simulated/floor/wood,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
+"Rv" = (
+/obj/structure/largecrate,
+/turf/simulated/floor/wood/oak,
+/area/vision_change_area/awaymission/evil_santa/end/hall)
 "Rw" = (
 /obj/effect/decal/snow/clean/edge,
 /turf/simulated/floor/carpet/green,
@@ -5103,8 +5198,8 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "RV" = (
 /obj/structure/closet/crate/miningcar,
-/obj/item/gift,
-/obj/item/gift,
+/obj/item/a_gift,
+/obj/item/a_gift,
 /obj/item/stack/medical/bruise_pack/comfrey,
 /obj/item/stack/medical/bruise_pack/comfrey,
 /turf/simulated/floor/wood/oak,
@@ -5120,16 +5215,11 @@
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "RZ" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/carpet/green,
 /area/vision_change_area/awaymission/evil_santa/end/santa)
-"Sb" = (
-/mob/living/simple_animal/pet/penguin/baby{
-	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	},
-/turf/simulated/floor/plating/ice/smooth,
-/area/vision_change_area/awaymission/evil_santa_storm)
 "Sd" = (
 /obj/structure/decorative_structures/garland{
 	dir = 8
@@ -5168,6 +5258,12 @@
 /obj/structure/girder,
 /turf/simulated/floor/wood/cold,
 /area/vision_change_area/awaymission/evil_santa/hut_e)
+"Sx" = (
+/mob/living/simple_animal/pet/penguin/eldrich{
+	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
+	},
+/turf/simulated/floor/plating/ice/smooth,
+/area/vision_change_area/awaymission/evil_santa_storm)
 "Sy" = (
 /obj/item/stack/ore/gold,
 /turf/simulated/floor/plating/asteroid,
@@ -5217,15 +5313,6 @@
 	},
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_r)
-"SZ" = (
-/turf/simulated/wall/indestructible{
-	color = "#91857C";
-	desc = "Looks locked and bolted.";
-	icon = 'icons/obj/doors/mineral_doors.dmi';
-	icon_state = "gingerbread";
-	name = "Security room"
-	},
-/area/vision_change_area/awaymission/evil_santa/end/hall)
 "Tb" = (
 /obj/effect/decal/cleanable/confetti,
 /turf/simulated/floor/wood/fancy,
@@ -5276,11 +5363,13 @@
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Ts" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_e)
 "Tu" = (
@@ -5327,9 +5416,7 @@
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "TG" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "TI" = (
@@ -5346,7 +5433,8 @@
 	pixel_y = -32
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken"
+	icon_state = "wood-broken";
+	tag = "icon-wood-broken"
 	},
 /area/vision_change_area/awaymission/evil_santa/hut_w)
 "TQ" = (
@@ -5424,7 +5512,8 @@
 	dir = 4
 	},
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /turf/simulated/floor/plating/ice,
 /area/vision_change_area/awaymission/evil_santa/mine)
@@ -5481,7 +5570,8 @@
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "UW" = (
 /obj/effect/decal/snow/clean/edge{
-	dir = 1
+	dir = 1;
+	tag = "icon-snow_corner (NORTH)"
 	},
 /obj/effect/decal/snow/clean/edge,
 /turf/simulated/floor/plating/ice,
@@ -5514,12 +5604,12 @@
 /turf/simulated/floor/wood/fancy/light,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Vm" = (
-/obj/machinery/jukebox/disco/indestructible,
+/obj/machinery/disco/immobile,
 /turf/simulated/floor/light/colour_cycle/dancefloor_b,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Vn" = (
 /obj/structure/closet/crate/freezer,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -5571,7 +5661,7 @@
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_m)
 "VH" = (
 /obj/item/paper{
-	info = "Кто теперь займет место Санты и раздаст подарки всме достойным? \n И помни главное — открывать подарки раньше времени не стоит!";
+	info = "Кто теперь займет место Санты и раздаст подарки всме достойным? \n И помни главное - открывать подарки раньше времени не стоит!";
 	name = "Записка"
 	},
 /turf/simulated/floor/wood,
@@ -5631,7 +5721,7 @@
 /turf/simulated/floor/wood/fancy,
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "Wl" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/item/clothing/head/snowman,
 /obj/structure/decorative_structures/garland{
 	dir = 4
@@ -5650,7 +5740,7 @@
 /turf/simulated/floor/carpet/red,
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Wq" = (
-/obj/item/gift,
+/obj/item/a_gift,
 /obj/structure/decorative_structures/garland{
 	dir = 1
 	},
@@ -5705,7 +5795,8 @@
 	pixel_y = 9
 	},
 /turf/simulated/floor/plasteel{
-	icon_state = "redfull"
+	icon_state = "redfull";
+	tag = "icon-redfull (NORTHWEST)"
 	},
 /area/vision_change_area/awaymission/evil_santa/end/lounge)
 "WO" = (
@@ -5721,9 +5812,7 @@
 	},
 /area/vision_change_area/awaymission/evil_santa/spawn_nw)
 "WT" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
 "WV" = (
@@ -5749,8 +5838,9 @@
 /obj/machinery/gateway{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "Xj" = (
@@ -5822,6 +5912,12 @@
 	},
 /turf/simulated/floor/wood/oak,
 /area/vision_change_area/awaymission/evil_santa/mine/labyrinth_l)
+"XQ" = (
+/turf/simulated/floor/wood{
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
+	},
+/area/vision_change_area/awaymission/evil_santa/hut_w)
 "XR" = (
 /obj/effect/spawner/lootdrop/spentcasing/rifle,
 /turf/simulated/floor/carpet,
@@ -5833,8 +5929,8 @@
 "XV" = (
 /obj/structure/spider/stickyweb,
 /obj/item/paper/crumpled{
-	desc = "Полезть прятаться в шахте — самая тупая идея за последние пару дней. Ладно, надо затесаться среди этих макак, отпинаю одну и заберу ее форму, авось прокатит. Вот только где скинуть ствол...";
-	name = "Бумажка"
+	desc = "Полезть прятаться в шахте - самая тупая идея за последние пару дней. Ладно, надо затесаться среди этих макак, отпинаю одну и заберу ее форму, авось прокатит. Вот только где скинуть ствол...";
+	layer = 2.9
 	},
 /turf/simulated/floor/plating/asteroid,
 /area/vision_change_area/awaymission/evil_santa/mine)
@@ -5896,8 +5992,9 @@
 	name = "Santa's Little Helper remains"
 	},
 /obj/structure/flora/grass/brown,
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature{
-	slowdown = 0
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	slowdown = 0;
+	temperature = 293.15
 	},
 /area/vision_change_area/awaymission/evil_santa/end/exit)
 "YP" = (
@@ -5949,7 +6046,9 @@
 	},
 /area/vision_change_area/awaymission/evil_santa/forest_labyrinth)
 "Ze" = (
-/turf/simulated/floor/plating/asteroid/snow/atmosphere/temperature,
+/turf/simulated/floor/plating/asteroid/snow/atmosphere{
+	temperature = 293.15
+	},
 /area/vision_change_area/awaymission/evil_santa/end/santa)
 "Zh" = (
 /obj/effect/bump_teleporter{
@@ -6023,6 +6122,16 @@
 "ZR" = (
 /turf/simulated/wall/mineral/wood,
 /area/vision_change_area/awaymission/evil_santa/hut_w)
+"ZS" = (
+/turf/simulated/wall/indestructible{
+	color = "#91857C";
+	desc = "For authorized personnel only. Looks locked and bolted.";
+	description_info = null;
+	icon = 'icons/obj/doors/mineral_doors.dmi';
+	icon_state = "gingerbread";
+	name = "Lift door"
+	},
+/area/vision_change_area/awaymission/evil_santa/mine)
 "ZV" = (
 /obj/item/reagent_containers/food/snacks/gingercookie/tree,
 /turf/simulated/floor/wood/oak,
@@ -11408,9 +11517,9 @@ NN
 NN
 NN
 NN
-jU
+Sx
 Ys
-AO
+eK
 NN
 NN
 NN
@@ -11665,9 +11774,9 @@ NN
 NN
 NN
 Ys
-Sb
+MD
 vp
-Sb
+MD
 Ys
 NN
 NN
@@ -11925,7 +12034,7 @@ Ys
 Ys
 Ys
 Ys
-AO
+eK
 NN
 NN
 NN
@@ -12180,7 +12289,7 @@ NN
 NN
 Ys
 Ys
-Sb
+MD
 Ys
 Ys
 NN
@@ -12438,7 +12547,7 @@ NN
 Sp
 Ys
 Ys
-AO
+eK
 NN
 NN
 NN
@@ -13676,7 +13785,7 @@ xr
 zD
 iv
 Ww
-eD
+XQ
 Ww
 Ww
 Ww
@@ -14192,7 +14301,7 @@ Oc
 TO
 ZR
 Ww
-KP
+gg
 bN
 xv
 ny
@@ -20015,7 +20124,7 @@ Pc
 Pc
 ch
 Qg
-LB
+gj
 Pc
 nX
 NN
@@ -24089,8 +24198,8 @@ mj
 mj
 mj
 mj
-be
-ku
+Rv
+xK
 xN
 Gn
 Gn
@@ -27431,7 +27540,7 @@ mj
 mj
 mj
 mj
-SZ
+yp
 mj
 Vt
 ds
@@ -28973,7 +29082,7 @@ mj
 mj
 mj
 mj
-SZ
+yp
 mj
 xJ
 Ew
@@ -30310,7 +30419,7 @@ Sp
 Sp
 TR
 rK
-gq
+eI
 wZ
 Lm
 MJ
@@ -30552,7 +30661,7 @@ zj
 zj
 zj
 Jj
-nC
+am
 zj
 nX
 NN
@@ -33376,7 +33485,7 @@ YU
 YU
 YU
 YU
-gO
+sw
 YU
 YU
 YU
@@ -39626,7 +39735,7 @@ Sp
 Sp
 Sp
 EY
-sI
+Nf
 Jd
 Fg
 EY
@@ -41683,7 +41792,7 @@ Sp
 Sp
 EY
 kB
-hJ
+Nh
 ah
 od
 aJ
@@ -57888,7 +57997,7 @@ Zx
 vv
 vv
 Bv
-No
+ZS
 WT
 Zx
 Zx
@@ -58012,7 +58121,7 @@ ZB
 ZB
 ZB
 jl
-nV
+Hd
 BA
 BA
 fM
@@ -58145,7 +58254,7 @@ Zx
 vv
 vv
 Bv
-No
+ZS
 WT
 dW
 Zx
@@ -64705,8 +64814,8 @@ ZB
 ZB
 jl
 jl
-ed
-ed
+of
+of
 jl
 jl
 ZB

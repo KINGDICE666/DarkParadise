@@ -59,11 +59,13 @@
 
 	var/paint = result::color
 
+
 	if(!isnull(paint) && paint != COLOR_WHITE)
 		var/icon/result_icon = icon(result::icon, result::icon_state, SOUTH, 1)
 		result_icon.Scale(32, 32)
 		result_icon.Blend(paint, ICON_MULTIPLY)
 		src.result_image = "[icon2base64(result_icon)]"
+
 
 /// Returns TRUE if the recipe can be built, otherwise returns FALSE. This proc is only meant as a series of tests to check if construction is possible; the actual creation of the resulting atom should be handled in do_build()
 /datum/stack_recipe/proc/try_build(mob/user, obj/item/stack/material, multiplier)
@@ -110,7 +112,7 @@
 		if(!is_station_level(usr.z))
 			to_chat(usr, span_warning("The beacon cannot guide from this place! It must be on station!"))
 			return FALSE
-		if(isspacearea(A))
+		if(istype(A, /area/space))
 			to_chat(usr, span_warning("The beacon must be inside the station itself to properly work."))
 			return FALSE
 		if(!A.type == /area) //The only one that is made by blueprints
@@ -120,7 +122,7 @@
 			to_chat(usr, span_warning("This area already has beacon!"))
 			return FALSE
 	if(result_type == /obj/structure/clockwork/functional/cogscarab_fabricator)
-		if(length(GLOB.clockwork_fabricators) >= MAX_COG_FABRICATORS)
+		if(GLOB.clockwork_fabricators.len >= MAX_COG_FABRICATORS)
 			to_chat(usr, span_warning("You can't build more than [MAX_COG_FABRICATORS] fabricators!"))
 			return FALSE
 		if(usr.type == /mob/living/silicon/robot/cogscarab)
@@ -199,7 +201,7 @@
 	if(istype(result, /obj/structure/windoor_assembly))
 		var/obj/structure/windoor_assembly/W = result
 		W.ini_dir = W.dir
-	else if(is_window(result))
+	else if(istype(result, /obj/structure/window))
 		var/obj/structure/window/W = result
 		W.ini_dir = W.dir
 		W.set_anchored(FALSE)
@@ -216,4 +218,5 @@
 /datum/stack_recipe_list/New(title, recipes)
 	src.title = title
 	src.recipes = recipes
+
 

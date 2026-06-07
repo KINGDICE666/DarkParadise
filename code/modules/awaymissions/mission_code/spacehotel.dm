@@ -24,6 +24,11 @@
 	name = "Undersea"
 	icon_state = "undersea"
 
+// "Directional" map template loader for N or S hotel room
+/obj/effect/landmark/map_loader/hotel_room
+	icon = 'icons/misc/Testing/turf_analysis.dmi'
+	icon_state = "arrow"
+
 /obj/item/paper/crumpled/hotel_scrap_1
 	info = "I can't believe this shitty hotel assigned me a purple-themed room. <i>Why does the shower dump grape drink everywhere??</i>"
 
@@ -60,72 +65,37 @@
 	name = "space hotel pamphlet"
 	info = "<h3>Welcome to Deep Space Hotel 419!</h3>Thank you for choosing our hotel. Simply hand your credit or debit card to the concierge and get your room key! To check out, hand your credit card back.<small><h4>Conditions:</h4><ul><li>The hotel is not responsible for any losses due to time or space anomalies.<li>The hotel is not responsible for events that occur outside of the hotel station, including, but not limited to, events that occur inside of dimensional pockets.<li>The hotel is not responsible for overcharging your account.<li>The hotel is not responsible for missing persons.<li>The hotel is not responsible for mind-altering effects due to drugs, magic, demons, or space worms.</ul></small>"
 
-/obj/effect/landmark/map_loader/hotel_room
-	icon = 'icons/misc/Testing/turf_analysis.dmi'
-	icon_state = "arrow"
-
-	var/static/list/south_room_templates
-	var/static/list/north_room_templates
-	var/static/templates_loaded = FALSE
-	var/static/obj/effect/landmark/map_loader/hotel_room/loader_landmark
-	var/static/list/pending_landmarks = list()
-
 /obj/effect/landmark/map_loader/hotel_room/Initialize(mapload)
 	. = ..()
-	if(!loader_landmark)
-		loader_landmark = src
-	INVOKE_ASYNC(src, PROC_REF(load_room_async))
-
-/obj/effect/landmark/map_loader/hotel_room/proc/load_room_async()
-	if(QDELETED(src))
-		return
-
-	if(!templates_loaded)
-		if(src == loader_landmark)
-			load_templates()
-			for(var/obj/effect/landmark/map_loader/hotel_room/room in pending_landmarks)
-				if(!QDELETED(room))
-					INVOKE_ASYNC(room, PROC_REF(load_room_async))
-			pending_landmarks.Cut()
-			loader_landmark = null
-			qdel(src)
-			return
-		else
-			pending_landmarks |= src
-			return
-
-	var/list/room_list = (dir == NORTH) ? north_room_templates : south_room_templates
-	var/datum/map_template/map_template = safepick(room_list)
-	if(map_template)
-		room_list -= map_template
-		load(map_template)
-
-	qdel(src)
-
-/obj/effect/landmark/map_loader/hotel_room/proc/load_templates()
-	if(templates_loaded)
-		return
-
-	south_room_templates = list()
-	north_room_templates = list()
-
-	var/path = "_maps/map_files/templates/spacehotel/"
-	for(var/map in flist(path))
-		if(cmptext(copytext(map, length(map) - 3), ".dmm"))
-			var/datum/map_template/map_template = new(path = "[path][map]", rename = "[map]")
-			var/prefix = copytext(map, 1, 3)
-			switch(prefix)
-				if("n_")
-					north_room_templates += map_template
-				if("s_")
-					south_room_templates += map_template
+	// load and randomly assign rooms
+	var/global/list/south_room_templates = list()
+	var/global/list/north_room_templates = list()
+	var/static/path = "_maps/map_files/templates/spacehotel/"
+	var/global/loaded = 0
+	if(!loaded)
+		loaded = 1
+		for(var/map in flist(path))
+			if(cmptext(copytext(map, length(map) - 3), ".dmm"))
+				var/datum/map_template/T = new(path = "[path][map]", rename = "[map]")
+				if(copytext(map, 1, 3) == "n_")
+					north_room_templates += T
+				else if(copytext(map, 1, 3) == "s_")
+					south_room_templates += T
 				else
+					// omnidirectional rooms are randomly assigned
 					if(prob(50))
-						north_room_templates += map_template
+						north_room_templates += T
 					else
-						south_room_templates += map_template
+						south_room_templates += T
 
-	templates_loaded = TRUE
+	var/datum/map_template/M = safepick(dir == NORTH ? north_room_templates : south_room_templates)
+	if(M)
+		template = M
+		if(dir == NORTH)
+			north_room_templates -= M
+		else
+			south_room_templates -= M
+		load(M)
 
 // The door to a hotel room, but also metadata for the room itself
 /obj/machinery/door/unpowered/hotel_door
@@ -142,9 +112,8 @@
 	var/datum/money_account/account			// Account we're pulling from
 	var/roomtimer							// timer PS handle for updating room
 
-/obj/machinery/door/unpowered/hotel_door/Initialize(mapload)
-	. = ..()
-	
+/obj/machinery/door/unpowered/hotel_door/New()
+	..()
 	if(id)
 		name = "Room [id]"
 
@@ -163,7 +132,7 @@
 
 /obj/machinery/door/unpowered/hotel_door/examine(mob/user)
 	. = ..()
-	. += span_notice("This room is currently [occupant ? "" : "un"]occupied.")
+	. += "<span class='notice'>This room is currently [occupant ? "" : "un"]occupied.</span>"
 
 /obj/machinery/door/unpowered/hotel_door/allowed(mob/living/carbon/user)
 	for(var/obj/item/card/hotel_card/C in user.get_all_slots())
@@ -199,8 +168,8 @@
 	color = "#0CF"
 	var/id
 
-/obj/item/card/hotel_card/Initialize(mapload, ID)
-	. = ..()
+/obj/item/card/hotel_card/New(loc, ID)
+	..()
 	if(ID)
 		id = ID
 	if(id)
@@ -224,6 +193,8 @@
 	var/list/vacant_rooms[0]		// list of vacant room doors
 	var/list/guests[0]				// assoc list of [guest mob]=room id
 
+	var/obj/item/radio/radio	// for shouting at deadbeats
+
 /obj/effect/hotel_controller/Initialize(mapload)
 	. = ..()
 
@@ -232,6 +203,9 @@
 
 	controller = src
 
+	radio = new()
+	radio.broadcasting = 0
+	radio.listening = 0
 	var/area/myArea = get_area(src)
 	// get room doors
 	for(var/obj/machinery/door/unpowered/hotel_door/D in myArea?.machinery_cache)
@@ -245,6 +219,8 @@
 	room_doors.Cut()
 	vacant_rooms.Cut()
 	guests.Cut()
+
+	QDEL_NULL(radio)
 
 	return ..()
 
@@ -267,7 +243,7 @@
 	vacant_rooms -= D
 	guests[occupant] = roomid
 
-	var/obj/item/card/hotel_card/C = new(null, roomid)
+	var/obj/item/card/hotel_card/C = new(ID = roomid)
 	D.card = C
 	return C
 
@@ -303,7 +279,8 @@
 		return 0
 
 	var/mob/deadbeat = D.occupant
-	radio_announce("[deadbeat], your card has been rejected. You have 30 seconds to check out.", name, PUB_FREQ, D)
+
+	radio.autosay("[deadbeat], your card has been rejected. You have 30 seconds to check out.", name)
 	spawn(300)
 		if(D.occupant == deadbeat)
 			// they still haven't checked out...

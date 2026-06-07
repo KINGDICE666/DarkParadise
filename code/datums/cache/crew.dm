@@ -28,7 +28,7 @@ GLOBAL_DATUM_INIT(crew_repository, /datum/repository/crew, new())
 		bold_jobs = list()
 		bold_jobs += GLOB.command_positions
 		bold_jobs += get_all_centcom_jobs()
-		bold_jobs += list(JOB_TITLE_REPRESENTATIVE, JOB_TITLE_BLUESHIELD, JOB_TITLE_MAGISTRATE)
+		bold_jobs += list(JOB_TITLE_REPRESENTATIVE, JOB_TITLE_BLUESHIELD, JOB_TITLE_JUDGE)
 
 	// It's needed for correct finding security crew in CrewMonitor.js
 	if(!security_jobs_list)
@@ -49,7 +49,7 @@ GLOBAL_DATUM_INIT(crew_repository, /datum/repository/crew, new())
 			continue
 		if((pos.z != T.z) && !(is_station_level(pos.z) && is_station_level(T.z)) && !(HAS_TRAIT(H, TRAIT_MULTIZ_SUIT_SENSORS))) // same z_level or both on STATION_LEVEL or has special trait
 			continue
-		var/list/crewmemberData = list("dead"=0, "oxy"=-1, "tox"=-1, "fire"=-1, "brute"=-1, "area"="", "x"=-1, "y"=-1, "ref" = H.UID())
+		var/list/crewmemberData = list("dead"=0, "oxy"=-1, "tox"=-1, "fire"=-1, "brute"=-1, "area"="", "x"=-1, "y"=-1, "ref" = "\ref[H]")
 
 		crewmemberData["sensor_type"] = C.sensor_mode
 		crewmemberData["name"] = H.get_authentification_name(if_no_id=UNKNOWN_STATUS_RUS)

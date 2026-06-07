@@ -52,6 +52,7 @@
 
 		addtimer(CALLBACK(src, PROC_REF(generate_fire), T, F, new_spread_amt, F.flameshape, null, FALSE, fuel_pressure), 0)
 
+
 /datum/flameshape/default/irregular
 	name = "Irregular"
 	id = FLAMESHAPE_IRREGULAR
@@ -244,6 +245,7 @@
 
 	if(F.to_call)
 		F.to_call.Invoke()
+
 
 GLOBAL_LIST_INIT(flameshapes, list(
 	FLAMESHAPE_DEFAULT = new /datum/flameshape/default(),

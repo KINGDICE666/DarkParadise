@@ -6,9 +6,7 @@
 
 /area/ruin/powered/clownplanet
 	icon_state = "dk_yellow"
-	ambientsounds = list(
-		'sound/music/clown.ogg',
-	)
+	ambientsounds = list('sound/music/clown.ogg')
 
 /area/ruin/powered/animal_hospital
 	icon_state = "dk_yellow"
@@ -53,7 +51,7 @@
 /area/ruin/unpowered/syndicate_lava_base
 	name = "Secret Base"
 	icon_state = "dk_yellow"
-	ambience_index = AMBIENCE_DANGER
+	ambientsounds = HIGHSEC_SOUNDS
 	report_alerts = FALSE
 	hide_attacklogs = TRUE
 
@@ -99,12 +97,10 @@
 	power_equip = FALSE
 	power_light = FALSE
 	poweralm = FALSE
-	ambient_buzz = 'sound/ambience/lavaland/magma.ogg'
 
 //ash walker nest
 /area/ruin/unpowered/ash_walkers
 	icon_state = "red"
-	ambient_buzz = 'sound/ambience/lavaland/magma.ogg'
 
 // This area exists so that lavaland ruins dont overwrite the baseturfs on regular space ruins
 /area/ruin/unpowered/misc_lavaruin

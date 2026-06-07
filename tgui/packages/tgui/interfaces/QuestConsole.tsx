@@ -14,7 +14,7 @@ import {
 } from '../components';
 import { classes } from 'common/react';
 import { Window } from '../layouts';
-import { decodeHtmlEntities, declension_ru } from 'common/string';
+import { decodeHtmlEntities } from 'common/string';
 
 const getRewardColor = (reward: number, isCorp: boolean) => {
   if (isCorp) {
@@ -73,7 +73,7 @@ type Quest = {
 export const QuestConsole = (_properties) => {
   const [tabName, setTab] = useState('centcomm');
   return (
-    <Window width={1000} height={820} theme="cargo">
+    <Window width={1000} height={820}>
       <Window.Content scrollable>
         <Stack fill vertical>
           <Tabs fluid>
@@ -83,7 +83,7 @@ export const QuestConsole = (_properties) => {
               selected={tabName === 'centcomm'}
               onClick={() => setTab('centcomm')}
             >
-              Структуры НТ
+              NT Requests
             </Tabs.Tab>
             <Tabs.Tab
               key="Commercial"
@@ -91,7 +91,7 @@ export const QuestConsole = (_properties) => {
               selected={tabName === 'corporation'}
               onClick={() => setTab('corporation')}
             >
-              Частные заказчики
+              Commercial
             </Tabs.Tab>
             <Tabs.Tab
               key="Plasma Supply"
@@ -99,7 +99,7 @@ export const QuestConsole = (_properties) => {
               selected={tabName === 'plasma'}
               onClick={() => setTab('plasma')}
             >
-              Поставка плазмы
+              Plasma Supply
             </Tabs.Tab>
             <Tabs.Tab
               key="Management"
@@ -107,7 +107,7 @@ export const QuestConsole = (_properties) => {
               selected={tabName === 'management'}
               onClick={() => setTab('management')}
             >
-              Менеджмент
+              Management
             </Tabs.Tab>
           </Tabs>
           {tabName === 'management' ? (
@@ -136,36 +136,36 @@ const StatusPane = (_properties) => {
   // Shuttle status text
   let statusText: string;
   if (moving) {
-    statusText = `В пути к объекту (прилетит через: ${timeleft} минут${declension_ru(timeleft, 'у', 'ы', '')})`;
+    statusText = `Shuttle is en route (ETA: ${timeleft} minute${timeleft !== 1 ? 's' : ''})`;
   } else if (at_station) {
-    statusText = 'Пристыкован к объекту';
+    statusText = 'Docked at the station';
   } else {
-    statusText = 'Не на объекте';
+    statusText = 'Docked off-station';
   }
 
   return (
     <Box>
-      <Section title="Статус">
+      <Section title="Status">
         <LabeledList>
-          <LabeledList.Item label="Очки снабжения">{points}</LabeledList.Item>
-          <LabeledList.Item label="Статус шаттла">
+          <LabeledList.Item label="Points Available">{points}</LabeledList.Item>
+          <LabeledList.Item label="Shuttle Status">
             {statusText}
           </LabeledList.Item>
-          <LabeledList.Item label="Бюджет снабжения">
-            {cargo_money} кредит{declension_ru(cargo_money, '', 'а', 'ов')}
+          <LabeledList.Item label="Current Cargo Budget">
+            {cargo_money} credits
           </LabeledList.Item>
         </LabeledList>
       </Section>
-      <Section title="Отправленные технологии">
+      <Section title="Sent Technologies">
         {techs.map((tech, index) => (
           <Box key={index}>
             {' '}
             {tech.tech_name}: {tech.tech_level || '0'}
           </Box>
         ))}
-        {!techs.length ? <Box>Технологии ещё не были отправлены</Box> : <Box />}
+        {!techs.length ? <Box>No tecnologies sent yet</Box> : <Box />}
       </Section>
-      <Section title="Купить технологии высокого уровня">
+      <Section title="Buy High-Tech Technologies">
         {purchased_techs ? (
           <LabeledList>
             {purchased_techs.map((tech, index) => (
@@ -183,14 +183,14 @@ const StatusPane = (_properties) => {
                       })
                     }
                   >
-                    Купить
+                    Buy
                   </Button>
                 </Stack.Item>
               </Stack>
             ))}
           </LabeledList>
         ) : (
-          <Box>Девять технологий седьмого уровня еще не были отправлены</Box>
+          <Box>Nine seventh-level technologies have not been sent yet</Box>
         )}
       </Section>
     </Box>
@@ -247,7 +247,7 @@ const QuestItem = (properties: QuestItemProps) => {
   const rewardColor = getRewardColor(quest.reward, isCorp);
   return (
     <Section
-      title={`Запрос от "${quest.target_departament}"`}
+      title={`Order from ${quest.target_departament}`}
       className={`QuestConsoleSection QuestConsoleSection--${rewardColor} ${cardWithShownMenu === quest.ref && 'QuestConsoleSection--dimmed'} ${quest.active && 'QuestConsoleSection--active'}`}
       height="100%"
       stretchContents
@@ -283,13 +283,12 @@ const QuestItem = (properties: QuestItemProps) => {
             <Table.Row>
               <Table.Cell>
                 <Box fontSize={1.15}>
-                  <b>Награда:</b> +{quest.reward}{' '}
-                  {isCorp ? 'credits' : 'points'}
+                  <b>PROFIT:</b> +{quest.reward} {isCorp ? 'credits' : 'points'}
                 </Box>
               </Table.Cell>
               <Table.Cell>
                 <Box>
-                  <b>Осталось времени:</b> {quest.timer}
+                  <b>Time left:</b> {quest.timer}
                 </Box>
               </Table.Cell>
             </Table.Row>
@@ -313,7 +312,7 @@ const QuestItem = (properties: QuestItemProps) => {
               style={{ zIndex: '2', transform: 'translate(-50%, -50%)' }}
             >
               <Box bold fontSize={1.3} mb={2}>
-                Выберите опцию:
+                Choose an option:
               </Box>
               <Button
                 icon="check"
@@ -323,7 +322,7 @@ const QuestItem = (properties: QuestItemProps) => {
                 px={2}
                 onClick={() => act('activate', { uid: quest.ref })}
               >
-                Принять
+                Take
               </Button>
               <Button
                 ml={2}
@@ -334,7 +333,7 @@ const QuestItem = (properties: QuestItemProps) => {
                 px={2}
                 onClick={() => act('denied', { uid: quest.ref })}
               >
-                Заменить
+                Reroll
               </Button>
             </Box>
           ) : (
@@ -346,7 +345,7 @@ const QuestItem = (properties: QuestItemProps) => {
               style={{ zIndex: '2', transform: 'translate(-50%, -50%)' }}
             >
               <Box bold fontSize={1.2}>
-                Запрос уже в работе
+                The order is already being processed
               </Box>
               <Button
                 icon="print"
@@ -356,7 +355,7 @@ const QuestItem = (properties: QuestItemProps) => {
                 px={2}
                 onClick={() => act('print_order', { uid: quest.ref })}
               >
-                Печать
+                Print
               </Button>
               <Button
                 ml={2}
@@ -367,7 +366,7 @@ const QuestItem = (properties: QuestItemProps) => {
                 px={2}
                 onClick={() => act('add_time', { uid: quest.ref })}
               >
-                Отложить
+                Delay
               </Button>
             </Box>
           )}

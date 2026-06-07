@@ -13,13 +13,13 @@
 	health = 80
 
 /mob/living/simple_animal/pig/Sanya/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Саня",
 		GENITIVE = "Сани",
 		DATIVE = "Сане",
 		ACCUSATIVE = "Саню",
 		INSTRUMENTAL = "Саней",
-		PREPOSITIONAL = "Сане",
+		PREPOSITIONAL = "Сане"
 	)
 
 /mob/living/simple_animal/cow/Betsy
@@ -30,13 +30,13 @@
 	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/cow/Betsy/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Бетси",
 		GENITIVE = "Бетси",
 		DATIVE = "Бетси",
 		ACCUSATIVE = "Бетси",
 		INSTRUMENTAL = "Бетси",
-		PREPOSITIONAL = "Бетси",
+		PREPOSITIONAL = "Бетси"
 	)
 
 /mob/living/simple_animal/chicken/Wife
@@ -48,13 +48,13 @@
 	health = 20
 
 /mob/living/simple_animal/chicken/Wife/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Галя",
 		GENITIVE = "Гали",
 		DATIVE = "Гале",
 		ACCUSATIVE = "Галю",
 		INSTRUMENTAL = "Галей",
-		PREPOSITIONAL = "Гале",
+		PREPOSITIONAL = "Гале"
 	)
 
 /mob/living/simple_animal/cock/Commandor
@@ -66,13 +66,13 @@
 	health = 40
 
 /mob/living/simple_animal/cock/Commandor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Коммандор Клакки",
 		GENITIVE = "Коммандора Клакки",
 		DATIVE = "Коммандору Клакки",
 		ACCUSATIVE = "Коммандора Клакки",
 		INSTRUMENTAL = "Коммандором Клакки",
-		PREPOSITIONAL = "Коммандоре Клакки",
+		PREPOSITIONAL = "Коммандоре Клакки"
 	)
 
 /mob/living/simple_animal/goose/Scientist
@@ -90,13 +90,13 @@
 	resting = TRUE
 
 /mob/living/simple_animal/goose/Scientist/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Гусар",
 		GENITIVE = "Гусара",
 		DATIVE = "Гусару",
 		ACCUSATIVE = "Гусара",
 		INSTRUMENTAL = "Гусаром",
-		PREPOSITIONAL = "Гусаре",
+		PREPOSITIONAL = "Гусаре"
 	)
 
 /mob/living/simple_animal/pet/cat/fat/Iriska
@@ -106,13 +106,13 @@
 	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/pet/cat/fat/Iriska/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Ириска",
 		GENITIVE = "Ириски",
 		DATIVE = "Ириске",
 		ACCUSATIVE = "Ириску",
 		INSTRUMENTAL = "Ириской",
-		PREPOSITIONAL = "Ириске",
+		PREPOSITIONAL = "Ириске"
 	)
 
 /mob/living/simple_animal/pet/cat/white/Penny
@@ -126,13 +126,13 @@
 	tts_seed = "Widowmaker"
 
 /mob/living/simple_animal/pet/cat/white/Penny/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Копейка",
 		GENITIVE = "Копейки",
 		DATIVE = "Копейке",
 		ACCUSATIVE = "Копейку",
 		INSTRUMENTAL = "Копейкой",
-		PREPOSITIONAL = "Копейке",
+		PREPOSITIONAL = "Копейке"
 	)
 
 /mob/living/simple_animal/pet/cat/birman/Crusher
@@ -143,18 +143,18 @@
 	resting = TRUE
 
 /mob/living/simple_animal/pet/cat/birman/Crusher/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Бедокур",
 		GENITIVE = "Бедокура",
 		DATIVE = "Бедокуру",
 		ACCUSATIVE = "Бедокура",
 		INSTRUMENTAL = "Бедокуром",
-		PREPOSITIONAL = "Бедокуре",
+		PREPOSITIONAL = "Бедокуре"
 	)
 
 /mob/living/simple_animal/mouse/wooly/rep
 	name = "Господин Мышкин"
-	desc = "Господин Мышкин — самый влиятельный грызун-дипломат в обозримой вселенной и сооснователь корпорации \"Нанотрейзен\" в одном лице. В текущее время находится в командировке в секторе Эпсилон Лукусты."
+	desc = "Господин Мышкин - самый влиятельный грызун-дипломат в обозримой вселенной и сооснователь корпорации Нанотрейзен в одном лице. В текущее время находится в командировке в Секторе Эпсилон Лукусты"
 	icon_state = "mouse_rep"
 	icon_living = "mouse_rep"
 	icon_dead = "mouse_rep_dead"
@@ -167,13 +167,13 @@
 	resting = TRUE
 
 /mob/living/simple_animal/mouse/wooly/rep/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Господин Мышкин",
 		GENITIVE = "Господина Мышкина",
 		DATIVE = "Господину Мышкину",
 		ACCUSATIVE = "Господина Мышкина",
-		INSTRUMENTAL = "Господином Мышкиным",
-		PREPOSITIONAL = "Господине Мышкине",
+		INSTRUMENTAL = "Господином Мышкином",
+		PREPOSITIONAL = "Господине Мышкине"
 	)
 
 /mob/living/simple_animal/mouse/wooly/rep/update_icons()
@@ -225,13 +225,13 @@
 	holder_type = /obj/item/holder/library_owl
 
 /mob/living/simple_animal/pet/library_owl/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сыч Слава",
 		GENITIVE = "сыча Славы",
 		DATIVE = "сычу Славе",
 		ACCUSATIVE = "сыча Славу",
 		INSTRUMENTAL = "сычом Славой",
-		PREPOSITIONAL = "сыче Славе",
+		PREPOSITIONAL = "сыче Славе"
 	)
 
 /mob/living/simple_animal/pet/library_owl/can_use_machinery(obj/machinery/mas)
@@ -269,13 +269,13 @@
 	resting = TRUE
 
 /mob/living/simple_animal/mouse/rat/white/Brain/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Брейн",
 		GENITIVE = "Брейна",
 		DATIVE = "Брейну",
 		ACCUSATIVE = "Брейна",
 		INSTRUMENTAL = "Брейном",
-		PREPOSITIONAL = "Брейне",
+		PREPOSITIONAL = "Брейне"
 	)
 
 /obj/effect/decal/remains/mouse/Pinkie
@@ -285,13 +285,13 @@
 	anchored = TRUE
 
 /obj/effect/decal/remains/mouse/Pinkie/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Пинки",
 		GENITIVE = "Пинки",
 		DATIVE = "Пинки",
 		ACCUSATIVE = "Пинки",
 		INSTRUMENTAL = "Пинки",
-		PREPOSITIONAL = "Пинки",
+		PREPOSITIONAL = "Пинки"
 	)
 
 /mob/living/simple_animal/mouse/rat/Ratatui
@@ -305,13 +305,13 @@
 	health = 20
 
 /mob/living/simple_animal/mouse/rat/Ratatui/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Рататуй",
 		GENITIVE = "Рататуя",
 		DATIVE = "Рататую",
 		ACCUSATIVE = "Рататуя",
 		INSTRUMENTAL = "Рататуем",
-		PREPOSITIONAL = "Рататуе",
+		PREPOSITIONAL = "Рататуе"
 	)
 
 /mob/living/simple_animal/mouse/rat/irish/Remi
@@ -326,13 +326,13 @@
 	transform = matrix(1.250, 0, 0, 0, 1, 0)	//толстячок на +2 пикселя
 
 /mob/living/simple_animal/mouse/rat/irish/Remi/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Реми",
 		GENITIVE = "Реми",
 		DATIVE = "Реми",
 		ACCUSATIVE = "Реми",
 		INSTRUMENTAL = "Реми",
-		PREPOSITIONAL = "Реми",
+		PREPOSITIONAL = "Реми"
 	)
 
 /mob/living/simple_animal/pet/dog/fox/fennec/Fenya
@@ -343,13 +343,13 @@
 	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/pet/dog/fox/fennec/Fenya/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Феня",
 		GENITIVE = "Фени",
 		DATIVE = "Фене",
 		ACCUSATIVE = "Феню",
 		INSTRUMENTAL = "Феней",
-		PREPOSITIONAL = "Фене",
+		PREPOSITIONAL = "Фене"
 	)
 
 /mob/living/simple_animal/pet/dog/brittany/Psycho
@@ -361,13 +361,13 @@
 	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/pet/dog/brittany/Psycho/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Перрито",
 		GENITIVE = "Перрито",
 		DATIVE = "Перрито",
 		ACCUSATIVE = "Перрито",
 		INSTRUMENTAL = "Перрито",
-		PREPOSITIONAL = "Перрито",
+		PREPOSITIONAL = "Перрито"
 	)
 
 /mob/living/simple_animal/pet/dog/pug/Frank
@@ -379,11 +379,11 @@
 	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/pet/dog/pug/Frank/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Фрэнк",
 		GENITIVE = "Френка",
 		DATIVE = "Фрэнку",
 		ACCUSATIVE = "Фрэнка",
 		INSTRUMENTAL = "Фрэнком",
-		PREPOSITIONAL = "Френке",
+		PREPOSITIONAL = "Френке"
 	)

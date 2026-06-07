@@ -22,7 +22,6 @@
 	slot_flags = ITEM_SLOT_BELT
 	attack_verb = list("хлестнул", "стегнул", "проучил", "выпорол")
 	usesound = 'sound/items/deconstruct.ogg'
-	toolbox_radial_menu_compatibility = TRUE
 
 	var/static/list/wire_colors = list(
 		CABLE_HEX_COLOR_BLUE = "blue",
@@ -35,6 +34,7 @@
 		CABLE_HEX_COLOR_YELLOW = "yellow"
 	)
 
+
 /obj/item/stack/cable_coil/Initialize(mapload, new_amount, merge = TRUE, cable_color = null)
 	. = ..()
 	if(cable_color)
@@ -44,10 +44,12 @@
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 	update_weight()
 
+
 /obj/item/stack/cable_coil/split()
 	var/obj/item/stack/cable_coil/C = ..()
 	C.color = color
 	return C
+
 
 /obj/item/stack/cable_coil/update_name(updates = ALL)
 	. = ..()
@@ -55,6 +57,7 @@
 		name = "cable coil"
 	else
 		name = "cable piece"
+
 
 /obj/item/stack/cable_coil/update_icon_state()
 	if(!color)
@@ -74,6 +77,7 @@
 	else
 		w_class = WEIGHT_CLASS_SMALL
 
+
 /obj/item/stack/cable_coil/examine(mob/user)
 	. = ..()
 	if(is_cyborg || !in_range(user, src))
@@ -85,40 +89,33 @@
 	else
 		. += span_notice("A coil of power cable. There are [get_amount()] lengths of cable in the coil.")
 
+
 /obj/item/stack/cable_coil/suicide_act(mob/user)
 	if(locate(/obj/structure/chair/stool) in user.loc)
-		user.visible_message(span_suicide("[user] is making a noose with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
+		user.visible_message("<span class='suicide'>[user] is making a noose with the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	else
-		user.visible_message(span_suicide("[user] is strangling [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
+		user.visible_message("<span class='suicide'>[user] is strangling [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	return OXYLOSS
 
-
-#define CABLE_CRAFT_RESTRAINS "cable restraints (15)"
-#define CABLE_CRAFT_TOURNIQUET "самодельный жгут (20)"
-#define CABLE_CRAFT_MULTIZ_CABLE_HUB "multi z cable hub (10)"
 
 ///////////////////////////////////
 // General procedures
 ///////////////////////////////////
 /obj/item/stack/cable_coil/attack_self(mob/user)
 	var/image/restraints_icon = image(icon = 'icons/obj/items.dmi', icon_state = "cuff_white")
-	var/image/tourniquet_icon = image(icon = 'icons/obj/medicine/packs.dmi', icon_state = "makeshift_tourniquet")
 	var/image/multiz_icon = image(icon = 'icons/obj/engines_and_power/power.dmi', icon_state = "cable_bridge")
 	var/choices = list(
-		CABLE_CRAFT_RESTRAINS = restraints_icon,
-		CABLE_CRAFT_TOURNIQUET = tourniquet_icon,
-		CABLE_CRAFT_MULTIZ_CABLE_HUB = multiz_icon,
+		"cable restraints (15)" = restraints_icon,
+		"multi z cable hub (10)" = multiz_icon,
 	)
 	var/choice = show_radial_menu(user, src, choices, custom_check = CALLBACK(src, PROC_REF(check_menu), user))
 	if(!check_menu(user))
 		return
-
 	var/turf/T = get_turf(src)
 	switch(choice)
-		if(CABLE_CRAFT_RESTRAINS)
+		if("cable restraints (15)")
 			if(get_amount() < 15)
 				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
-
 			if(use(15))
 				var/obj/item/restraints/handcuffs/cable/cablecuff = new(T)
 				var/text_color
@@ -141,29 +138,17 @@
 						text_color = "white"
 
 				cablecuff.icon_state = "cuff_[text_color]"
-
-		if(CABLE_CRAFT_TOURNIQUET)
-			if(get_amount() < 20)
-				balloon_alert(user, "недостаточно проводов!")
-
-			if(use(20))
-				var/obj/item/tourniquet/makeshift/tourniquet = new(T)
-				user.put_in_any_hand_if_possible(tourniquet)
-
-		if(CABLE_CRAFT_MULTIZ_CABLE_HUB)
-			if(T.underfloor_accessibility != UNDERFLOOR_INTERACTABLE)
+		if("multi z cable hub (10)")
+			if(T.intact || (T.transparent_floor == TURF_TRANSPARENT))
 				to_chat(user, span_warning("You need to remove floor plating."))
 				return
-
 			if(get_amount() < 10)
 				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
 				return
-
 			if(do_after(user, 2 SECONDS, user))
 				if(!use(10))
 					to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
 					return
-
 				playsound(T, usesound, 50, TRUE)
 				to_chat(user, span_notice("You place hub cable onto the floor."))
 				var/obj/structure/cable/multiz/multicable = new(T)
@@ -176,18 +161,10 @@
 		return FALSE
 	return TRUE
 
-#undef CABLE_CRAFT_RESTRAINS
-#undef CABLE_CRAFT_TOURNIQUET
-#undef CABLE_CRAFT_MULTIZ_CABLE_HUB
-
 //you can use wires to heal robotics
 /obj/item/stack/cable_coil/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!ishuman(target))
 		return ..()
-
-	if(HAS_TRAIT(target, TRAIT_REPAIRING_LIMB))
-		balloon_alert(user, "уже ремонтируется!")
-		return ATTACK_CHAIN_PROCEED
 
 	var/obj/item/organ/external/target_organ = target.get_organ(check_zone(user.zone_selected))
 	if(!target_organ || !target_organ.is_robotic() || user.a_intent != INTENT_HELP || target_organ.open == ORGAN_SYNTHETIC_OPEN)
@@ -203,9 +180,7 @@
 		to_chat(user, span_notice("Nothing to fix!"))
 		return .
 
-	ADD_TRAIT(target, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
-	if(target == user && !do_after(user, target.robotic_limb_repair_time, target, NONE))
-		REMOVE_TRAIT(target, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
+	if(target == user && !do_after(user, 1 SECONDS, target, NONE))
 		return .
 
 	. |= ATTACK_CHAIN_SUCCESS
@@ -242,16 +217,17 @@
 		target.updatehealth("cable repair")
 	if(update_damage_icon)
 		target.UpdateDamageIcon()
-	REMOVE_TRAIT(target, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
+
 
 /obj/item/stack/cable_coil/attackby(obj/item/I, mob/user, params)
-	if(iscrayon(I))
+	if(istype(I, /obj/item/toy/crayon))
 		add_fingerprint(user)
 		var/obj/item/toy/crayon/crayon = I
 		cable_color(crayon.colourName)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 ///////////////////////////////////////////////
 // Cable laying procedures
@@ -269,15 +245,15 @@
 		return
 
 	if(!isturf(T) || !T.can_lay_cable())
-		to_chat(user, span_warning("You can only lay cables on catwalks and plating!"))
+		to_chat(user, "<span class='warning'>You can only lay cables on catwalks and plating!</span>")
 		return
 
 	if(get_amount() < 1) // Out of cable
-		to_chat(user, span_warning("There is no cable left!"))
+		to_chat(user, "<span class='warning'>There is no cable left!</span>")
 		return
 
 	if(get_dist(T,user.loc) > 1) // Too far
-		to_chat(user, span_warning("You can't lay cable at a place that far away!"))
+		to_chat(user, "<span class='warning'>You can't lay cable at a place that far away!</span>")
 		return
 
 	var/dirn
@@ -291,7 +267,7 @@
 
 	for(var/obj/structure/cable/LC in T)
 		if(LC.d2 == dirn && LC.d1 == 0)
-			to_chat(user, span_warning("There's already a cable at that position!"))
+			to_chat(user, "<span class='warning'>There's already a cable at that position!</span>")
 			return
 
 	var/obj/structure/cable/C = get_new_cable(T)
@@ -333,12 +309,13 @@
 
 	var/turf/T = get_turf(C)
 
-	if(!isturf(T) || HAS_TRAIT(C, TRAIT_UNDERFLOOR))		// sanity checks, also stop use interacting with T-scanner revealed cable
+	if(!isturf(T) || T.intact || (T.transparent_floor == TURF_TRANSPARENT))		// sanity checks, also stop use interacting with T-scanner revealed cable
 		return
 
 	if(get_dist(C, user) > 1)		// make sure it's close enough
-		to_chat(user, span_warning("You can't lay cable at a place that far away!"))
+		to_chat(user, "<span class='warning'>You can't lay cable at a place that far away!</span>")
 		return
+
 
 	if(U == T) //if clicked on the turf we're standing on, try to put a cable in the direction we're facing
 		place_turf(T,user)
@@ -349,8 +326,8 @@
 
 	// one end of the clicked cable is pointing towards us
 	if(C.d1 == dirn || C.d2 == dirn)
-		if(U.underfloor_accessibility != UNDERFLOOR_INTERACTABLE)						// can't place a cable if the floor is complete
-			to_chat(user, span_warning("You can't lay cable there unless the floor tiles are removed!"))
+		if(U.intact || (U.transparent_floor == TURF_TRANSPARENT))						// can't place a cable if the floor is complete
+			to_chat(user, "<span class='warning'>You can't lay cable there unless the floor tiles are removed!</span>")
 			return
 		// cable is pointing at us, we're standing on an open tile
 		// so create a stub pointing at the clicked cable on our tile
@@ -359,7 +336,7 @@
 
 		for(var/obj/structure/cable/LC in U)		// check to make sure there's not a cable there already
 			if(LC.d1 == fdirn || LC.d2 == fdirn)
-				to_chat(user, span_warning("There's already a cable at that position!"))
+				to_chat(user, "<span class='warning'>There's already a cable at that position!</span>")
 				return
 
 		var/obj/structure/cable/NC = get_new_cable (U)
@@ -392,16 +369,19 @@
 		var/nd1 = C.d2	// these will be the new directions
 		var/nd2 = dirn
 
+
 		if(nd1 > nd2)		// swap directions to match icons/states
 			nd1 = dirn
 			nd2 = C.d2
+
 
 		for(var/obj/structure/cable/LC in T)		// check to make sure there's no matching cable
 			if(LC == C)			// skip the cable we're interacting with
 				continue
 			if((LC.d1 == nd1 && LC.d2 == nd2) || (LC.d1 == nd2 && LC.d2 == nd1))	// make sure no cable matches either direction
-				to_chat(user, span_warning("There's already a cable at that position!"))
+				to_chat(user, "<span class='warning'>There's already a cable at that position!</span>")
 				return
+
 
 		C.cable_color(color)
 
@@ -410,6 +390,7 @@
 
 		C.add_fingerprint()
 		C.update_icon(UPDATE_ICON_STATE)
+
 
 		C.mergeConnectedNetworks(C.d1) //merge the powernets...
 		C.mergeConnectedNetworks(C.d2) //...in the two new cable directions

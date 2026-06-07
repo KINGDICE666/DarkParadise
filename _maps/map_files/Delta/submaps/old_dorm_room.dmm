@@ -1,12 +1,17 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
 "ao" = (
-/obj/machinery/firealarm/directional/west,
+/obj/machinery/firealarm{
+	dir = 8;
+	pixel_x = -26
+	},
 /obj/structure/table/wood,
 /obj/item/folder/red,
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
 "bs" = (
-/obj/machinery/newscaster/directional/west,
+/obj/machinery/newscaster{
+	pixel_x = -30
+	},
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
 "bO" = (
@@ -51,7 +56,10 @@
 	pixel_y = 24;
 	specialfunctions = 4
 	},
-/obj/machinery/alarm/directional/west,
+/obj/machinery/alarm{
+	dir = 4;
+	pixel_x = -22
+	},
 /obj/structure/dresser,
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
@@ -61,7 +69,9 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
 "fv" = (
-/obj/machinery/light_switch/directional/east,
+/obj/machinery/light_switch{
+	pixel_x = 24
+	},
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
 "gb" = (
@@ -189,7 +199,10 @@
 	icon_state = "0-4"
 	},
 /obj/structure/table/wood,
-/obj/machinery/power/apc/directional/west,
+/obj/machinery/power/apc{
+	dir = 8;
+	pixel_x = -26
+	},
 /obj/item/flashlight/lamp,
 /turf/simulated/floor/wood/fancy/birch,
 /area/crew_quarters/sleep)
@@ -392,6 +405,7 @@
 /area/template_noop)
 "XU" = (
 /obj/structure/cable{
+	d2 = 8;
 	icon_state = "0-8"
 	},
 /obj/effect/decal/cleanable/dirt,

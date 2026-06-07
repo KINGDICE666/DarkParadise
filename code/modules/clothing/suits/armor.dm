@@ -1,17 +1,5 @@
 /obj/item/clothing/suit/armor
-	abstract_type = /obj/item/clothing/suit/armor
-	allowed = list(
-		/obj/item/twohanded/spear/secspear,
-		/obj/item/gun/energy,
-		/obj/item/reagent_containers/spray/pepper,
-		/obj/item/gun/projectile,
-		/obj/item/ammo_box,
-		/obj/item/ammo_casing,
-		/obj/item/melee/baton,
-		/obj/item/restraints/handcuffs,
-		/obj/item/flashlight/seclite,
-		/obj/item/kitchen/knife/combat,
-	)
+	allowed = list(/obj/item/gun/energy,/obj/item/reagent_containers/spray/pepper,/obj/item/gun/projectile,/obj/item/ammo_box,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/restraints/handcuffs,/obj/item/flashlight/seclite,/obj/item/kitchen/knife/combat)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	cold_protection = UPPER_TORSO|LOWER_TORSO
 	min_cold_protection_temperature = ARMOR_MIN_TEMP_PROTECT
@@ -21,7 +9,7 @@
 	put_on_delay = 40
 	max_integrity = 250
 	resistance_flags = NONE
-	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 20, BOMB = 25, BIO = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 20, BOMB = 25, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
@@ -29,8 +17,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 	w_class = WEIGHT_CLASS_NORMAL
 	undyeable = TRUE
 
@@ -64,20 +52,15 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
 	)
 	var/obj/item/clothing/accessory/holobadge/attached_badge
 
-/obj/item/clothing/suit/armor/vest/security/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/item_skins)
 
-/obj/item/clothing/suit/armor/vest/security/update_overlays()
-	. = ..()
-	if(!attached_badge)
-		return
-	. += mutable_appearance(icon, "badge")
+/obj/item/clothing/suit/armor/vest/security/update_icon_state()
+	icon_state = "armor[attached_badge ? "sec" : ""]"
 	update_equipped_item(update_speedmods = FALSE)
+
 
 /obj/item/clothing/suit/armor/vest/security/update_desc(updates = ALL)
 	. = ..()
@@ -85,6 +68,7 @@
 		desc = "An armored vest that protects against some damage. This one has [attached_badge] attached to it."
 	else
 		desc = initial(desc)
+
 
 /obj/item/clothing/suit/armor/vest/security/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/clothing/accessory/holobadge))
@@ -98,10 +82,11 @@
 		attached_badge = I
 		var/datum/action/item_action/remove_badge/holoaction = new(src)
 		holoaction.Grant(user)
-		update_appearance(UPDATE_ICON_STATE|UPDATE_OVERLAYS|UPDATE_DESC)
+		update_appearance(UPDATE_ICON_STATE|UPDATE_DESC)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/clothing/suit/armor/vest/security/attack_self(mob/user)
 	if(attached_badge)
@@ -110,12 +95,13 @@
 		for(var/datum/action/item_action/remove_badge/action in actions)
 			LAZYREMOVE(actions, action)
 			action.Remove(user)
-		to_chat(user, span_notice("Вы снимаете [attached_badge.declent_ru(ACCUSATIVE)] с [declent_ru(GENITIVE)]."))
 		attached_badge = null
 		update_appearance(UPDATE_ICON_STATE|UPDATE_DESC)
 		update_equipped_item()
+		to_chat(user, span_notice("Вы снимаете [attached_badge.declent_ru(ACCUSATIVE)] с [declent_ru(GENITIVE)]."))
 		return
 	..()
+
 
 /obj/item/clothing/suit/armor/vest/blueshield
 	name = "blueshield security armor"
@@ -136,15 +122,12 @@
 	icon_state = "secjacket_open"
 	item_state = "secjacket"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
-	armor = list(melee = 25, bullet = 15, laser = 25, energy = 10, bomb = 25, bio = 0, fire = 50, acid = 50)
+	armor = list(melee = 25, bullet = 15, laser = 25, energy = 10, bomb = 25, bio = 0, rad = 0, fire = 50, acid = 50)
 	cold_protection = UPPER_TORSO|LOWER_TORSO|ARMS
 	heat_protection = UPPER_TORSO|LOWER_TORSO|ARMS
 	ignore_suitadjust = FALSE
+	actions_types = list(/datum/action/item_action/openclose)
 	adjust_flavour = "unzip"
-
-/obj/item/clothing/suit/armor/secjacket/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Открыть/Закрыть [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/suit/armor/hos
 	name = "armored coat"
@@ -152,7 +135,7 @@
 	icon_state = "hos"
 	item_state = "hos"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS|LEGS
-	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 25, BOMB = 25, BIO = 0, FIRE = 70, ACID = 90)
+	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 25, BOMB = 25, BIO = 0, RAD = 0, FIRE = 70, ACID = 90)
 	flags_inv = HIDEJUMPSUIT
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
@@ -165,11 +148,8 @@
 	item_state = "hostrench_open"
 	flags_inv_transparent = HIDEJUMPSUIT
 	ignore_suitadjust = FALSE
+	actions_types = list(/datum/action/item_action/openclose)
 	adjust_flavour = "unbutton"
-
-/obj/item/clothing/suit/armor/hos/alt/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Открыть/Закрыть [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/suit/armor/hos/jensen
 	name = "armored trenchcoat"
@@ -195,21 +175,17 @@
 	desc = "A navy-blue armored jacket with blue shoulder designations and '/Warden/' stitched into one of the chest pockets."
 	icon_state = "warden_jacket_alt"
 
-/obj/item/clothing/suit/storage/sec_rps
+/obj/item/clothing/suit/armor/vest/sec_rps
 	name = "security belt-shoulder system"
 	desc = "A belt-shoulder system for officers that are more inclined towards style than safety."
 	icon_state = "sec_rps"
-	armor=  list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 5, BIO = 0, FIRE = 0, ACID = 0)
-	undyeable = TRUE
-	allowed = list(/obj/item/gun/energy,/obj/item/reagent_containers/spray/pepper,/obj/item/gun/projectile,/obj/item/ammo_box,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/restraints/handcuffs,/obj/item/flashlight/seclite,/obj/item/kitchen/knife/combat)
-	pockets_count = 4
-	pockets_max_combined_w_class = 8
+	armor=  list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 5, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
 
 /obj/item/clothing/suit/armor/vest/capcarapace
 	name = "captain's carapace"
 	desc = "An armored vest reinforced with ceramic plates and pauldrons to provide additional protection whilst still offering maximum mobility and flexibility. Issued only to the station's finest, although it does chafe your nipples."
 	icon_state = "capcarapace"
-	armor = list(MELEE = 50, BULLET = 40, LASER = 50, ENERGY = 20, BOMB = 25, BIO = 0, FIRE = 100, ACID = 90)
+	armor = list(MELEE = 50, BULLET = 40, LASER = 50, ENERGY = 20, BOMB = 25, BIO = 0, RAD = 0, FIRE = 100, ACID = 90)
 	dog_fashion = null
 	resistance_flags = FIRE_PROOF
 
@@ -227,7 +203,7 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
-	armor = list(MELEE = 50, BULLET = 10, LASER = 10, ENERGY = 20, BOMB = 0, BIO = 0, FIRE = 80, ACID = 80)
+	armor = list(MELEE = 50, BULLET = 10, LASER = 10, ENERGY = 20, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 80)
 	flags_inv = HIDEJUMPSUIT
 	flags_inv_transparent = HIDEJUMPSUIT
 	strip_delay = 80
@@ -244,8 +220,8 @@
 		SPECIES_ASHWALKER_BASIC = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
-		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/suit.dmi',
-	)
+		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/riot/knight
 	name = "plate armour"
@@ -256,32 +232,32 @@
 	hide_tail_by_species = list(SPECIES_VULPKANIN)
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/riot/knight/yellow
 	icon_state = "knight_yellow"
 	item_state = "knight_yellow"
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/riot/knight/blue
 	icon_state = "knight_blue"
 	item_state = "knight_blue"
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/riot/knight/red
 	icon_state = "knight_red"
 	item_state = "knight_red"
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/riot/knight/templar
 	name = "crusader armour"
@@ -289,11 +265,11 @@
 	icon_state = "knight_templar"
 	item_state = "knight_templar"
 	allowed = list(/obj/item/nullrod/claymore, /obj/item/storage/belt/claymore)
-	armor = list(melee = 25, bullet = 5, laser = 5, energy = 5, bomb = 0, bio = 0, fire = 80, acid = 80)
+	armor = list(melee = 25, bullet = 5, laser = 5, energy = 5, bomb = 0, bio = 0, rad = 0, fire = 80, acid = 80)
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/vest/durathread
 	name = "durathread vest"
@@ -302,7 +278,7 @@
 	item_state = "durathread"
 	max_integrity = 200
 	resistance_flags = FLAMMABLE
-	armor = list(MELEE = 20, BULLET = 10, LASER = 30, ENERGY = 15, BOMB = 15, BIO = 0, FIRE = 40, ACID = 50)
+	armor = list(MELEE = 20, BULLET = 10, LASER = 30, ENERGY = 15, BOMB = 15, BIO = 0, RAD = 0, FIRE = 40, ACID = 50)
 
 /obj/item/clothing/suit/armor/bulletproof
 	name = "Bulletproof Vest"
@@ -311,7 +287,7 @@
 	item_state = "armor"
 	blood_overlay_type = "armor"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
-	armor = list(MELEE = 15, BULLET = 45, LASER = 10, ENERGY = 20, BOMB = 40, BIO = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 15, BULLET = 60, LASER = 10, ENERGY = 20, BOMB = 40, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
 	strip_delay = 70
 	put_on_delay = 50
 	sprite_sheets = list(
@@ -325,27 +301,27 @@
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_ASHWALKER_BASIC = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
-		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
-	)
+		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/laserproof
 	name = "Ablative Armor Vest"
-	desc = "Экспериментальный высокотехнологичный бронежилет, изготовленный из светоотражающего материала, предназначен для отражения энергетических лучей. Устаревшая амуниция, была снята с вооружения \"Нанотрейзен\"."
+	desc = "Экспериментальный высокотехнологичный бронежилет, изготовленный из светоотражающего материала, предназначен для отражения энергетических лучей. Устаревшая амуниция, была снята с вооружения Нанотрейзен."
 	icon_state = "armor_reflec"
 	item_state = "armor_reflec"
 	blood_overlay_type = "armor"
-	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 50, BOMB = 0, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 50, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	var/hit_reflect_chance = 50
 
 /obj/item/clothing/suit/armor/laserproof/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "абляционный бронежилет",
 		GENITIVE = "абляционного бронежилета",
 		DATIVE = "абляционному бронежилету",
 		ACCUSATIVE = "абляционный бронежилет",
 		INSTRUMENTAL = "абляционным бронежилетом",
-		PREPOSITIONAL = "абляционном бронежилете",
+		PREPOSITIONAL = "абляционном бронежилете"
 	)
 
 /obj/item/clothing/suit/armor/reflector
@@ -355,7 +331,7 @@
 	item_state = "reflector"
 	blood_overlay_type = "armor"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
-	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 60, BOMB = 0, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 60, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/suit.dmi',
@@ -370,18 +346,18 @@
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
-	)
+		)
 	var/static/list/reflect_zones = list(BODY_ZONE_CHEST, BODY_ZONE_PRECISE_GROIN, BODY_ZONE_L_ARM, BODY_ZONE_R_ARM)
 	var/hit_reflect_chance = 50
 
 /obj/item/clothing/suit/armor/reflector/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "рефлекторное пальто",
 		GENITIVE = "рефлекторное пальто",
 		DATIVE = "рефлекторному пальто",
 		ACCUSATIVE = "рефлекторное пальто",
 		INSTRUMENTAL = "рефлекторным пальто",
-		PREPOSITIONAL = "рефлекторном пальто",
+		PREPOSITIONAL = "рефлекторном пальто"
 	)
 
 /obj/item/clothing/suit/armor/reflector/IsReflect(def_zone)
@@ -417,24 +393,27 @@
 	icon_state = "reactiveoff"
 	item_state = "reactiveoff"
 	blood_overlay_type = "armor"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	actions_types = list(/datum/action/item_action/toggle)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	hit_reaction_chance = 50
+
 
 /obj/item/clothing/suit/armor/reactive/update_icon_state()
 	icon_state =  "reactive[active ? "" : "off"]"
 	item_state =  "reactive[active ? "" : "off"]"
 
+
 /obj/item/clothing/suit/armor/reactive/attack_self(mob/user)
 	if(emp_d)
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] отключён из-за электромагнитного импульса!"))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] отключён из-за электромагнитного импульса!"))
 		return
 	active = !active
 	update_icon(UPDATE_ICON_STATE)
 	add_fingerprint(user)
-	to_chat(user, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] теперь [active ? "активен" : "неактивен"]."))
+	to_chat(user, span_notice("[capitalize(declent_ru(NOMINATIVE))] теперь [active ? "активен" : "неактивен"]."))
 	update_equipped_item()
+
 
 /obj/item/clothing/suit/armor/reactive/emp_act(severity)
 	active = FALSE
@@ -443,9 +422,10 @@
 	addtimer(CALLBACK(src, PROC_REF(reboot)), 100 / severity)
 	if(ishuman(loc))
 		var/mob/living/carbon/human/user = loc
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает глючить!"))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает глючить!"))
 		update_equipped_item()
 	..()
+
 
 /obj/item/clothing/suit/armor/reactive/proc/reboot()
 	emp_d = FALSE
@@ -454,17 +434,12 @@
 		update_equipped_item()
 		to_chat(user, span_notice("Похоже, [declent_ru(NOMINATIVE)] снова функционирует нормально."))
 
+
 //When the wearer gets hit, this armor will teleport the user a short distance away (to safety or to more danger, no one knows. That's the fun of it!)
 /obj/item/clothing/suit/armor/reactive/teleport
 	name = "reactive teleport armor"
 	desc = "Someone seperated our Research Director from his own head!"
 	var/tele_range = 2
-
-/obj/item/clothing/suit/armor/reactive/teleport/proc/can_reactive_teleport(mob/living/carbon/human/owner)
-	if(HAS_TRAIT(owner, TRAIT_NO_TELEPORT))
-		return FALSE
-
-	return TRUE
 
 /obj/item/clothing/suit/armor/reactive/teleport/Initialize(mapload)
 	. = ..()
@@ -475,8 +450,6 @@
 		return 0
 	if(prob(hit_reaction_chance))
 		var/mob/living/carbon/human/H = owner
-		if(!can_reactive_teleport(H))
-			return 0
 		owner.visible_message(
 			span_danger("Реактивная телепортная система отражает [attack_text] [H.declent_ru(GENITIVE)]!"),
 			projectile_message = (attack_type == PROJECTILE_ATTACK)
@@ -492,16 +465,12 @@
 			if(T.y>world.maxy-tele_range || T.y<tele_range)
 				continue
 			turfs += T
-		if(!length(turfs))
+		if(!turfs.len)
 			turfs += pick(/turf in orange(tele_range, H))
 		var/turf/picked = pick(turfs)
 		if(!isturf(picked))
 			return
-		// always_precise: реактивная броня телепортирует точно в радиусе tele_range и не даёт
-		// абузить разброс точности через Мешок Хватания (SoH). Запрет телепорта носителя
-		// (ITB / BSIG-P) уже отсекается через can_reactive_teleport выше.
-		if(!do_teleport(H, picked, always_precise = TRUE))
-			return 0
+		H.forceMove(picked)
 		return 1
 	return 0
 
@@ -513,7 +482,7 @@
 		return 0
 	if(prob(hit_reaction_chance))
 		owner.visible_message(
-			span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] блокирует [attack_text], выпуская струи пламени!"),
+			span_danger("[capitalize(declent_ru(NOMINATIVE))] блокирует [attack_text], выпуская струи пламени!"),
 			projectile_message = (attack_type == PROJECTILE_ATTACK)
 		)
 		for(var/mob/living/carbon/C in range(6, owner))
@@ -552,7 +521,7 @@
 		return 0
 	if(prob(hit_reaction_chance))
 		owner.visible_message(
-			span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] блокирует [attack_text], испуская разряды молний!"),
+			span_danger("[capitalize(declent_ru(NOMINATIVE))] блокирует [attack_text], испуская разряды молний!"),
 			projectile_message = (attack_type == PROJECTILE_ATTACK)
 		)
 		for(var/mob/living/M in view(6, owner))
@@ -564,6 +533,7 @@
 		return 1
 
 //All of the armor below is mostly unused
+
 
 /obj/item/clothing/suit/armor/centcomm
 	name = "Cent. Com. armor"
@@ -578,14 +548,14 @@
 	cold_protection = UPPER_TORSO | LOWER_TORSO | LEGS | FEET | ARMS | HANDS
 	min_cold_protection_temperature = SPACE_SUIT_MIN_TEMP_PROTECT
 	sprite_sheets = null
-	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, RAD = 100, FIRE = 90, ACID = 90)
 
 /obj/item/clothing/suit/armor/heavy
 	name = "heavy armor"
 	desc = "A heavily armored suit that protects against moderate damage."
 	icon_state = "heavy"
 	item_state = "swat_suit"
-	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, RAD = 100, FIRE = 90, ACID = 90)
 	w_class = WEIGHT_CLASS_BULKY
 	gas_transfer_coefficient = 0.90
 	clothing_flags = THICKMATERIAL
@@ -595,11 +565,11 @@
 	hide_tail_by_species = list(SPECIES_VOX)
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
 	)
 
 /obj/item/clothing/suit/armor/tdome
-	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, RAD = 100, FIRE = 90, ACID = 90)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
 	clothing_flags = THICKMATERIAL
@@ -614,7 +584,7 @@
 	item_state = "tdred"
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
 	)
 
 /obj/item/clothing/suit/armor/tdome/green
@@ -624,7 +594,7 @@
 	item_state = "tdgreen"
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
 	)
 
 //Non-hardsuit ERT armor.
@@ -632,7 +602,7 @@
 	name = "emergency response team armor"
 	desc = "A set of armor worn by members of the Nanotrasen Emergency Response Team."
 	icon_state = "ertarmor_cmd"
-	armor = list(melee = 30, bullet = 30, laser = 30, energy = 30, bomb = 20, bio = 0, fire = 50, acid = 50)
+	armor = list(melee = 30, bullet = 30, laser = 30, energy = 30, bomb = 20, bio = 0, rad = 0, fire = 50, acid = 50)
 
 //Commander
 /obj/item/clothing/suit/armor/vest/ert/command
@@ -645,6 +615,7 @@
 	desc = "A set of armor worn by security members of the Nanotrasen Emergency Response Team. Has red highlights."
 	icon_state = "ertarmor_sec"
 
+
 /obj/item/clothing/suit/armor/vest/ert/security/paranormal
 	name = "emergency response team paranormal armor"
 	desc = "A set of armor worn by paranormal members of the Nanotrasen Emergency Response Team. Has crusader sigils."
@@ -654,8 +625,8 @@
 	allowed = list(/obj/item/nullrod/claymore, /obj/item/storage/belt/claymore, /obj/item/gun/energy,/obj/item/reagent_containers/spray/pepper,/obj/item/gun/projectile,/obj/item/ammo_box,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/restraints/handcuffs,/obj/item/flashlight/seclite,/obj/item/kitchen/knife/combat)
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 //Engineer
 /obj/item/clothing/suit/armor/vest/ert/engineer
@@ -684,7 +655,7 @@
 	min_cold_protection_temperature = ARMOR_MIN_TEMP_PROTECT
 	heat_protection = UPPER_TORSO|LOWER_TORSO
 	max_heat_protection_temperature = ARMOR_MAX_TEMP_PROTECT
-	armor = list(melee = 25, bullet = 15, laser = 25, energy = 10, bomb = 25, bio = 0, fire = 40, acid = 40)
+	armor = list(melee = 25, bullet = 15, laser = 25, energy = 10, bomb = 25, bio = 0, rad = 0, fire = 40, acid = 40)
 
 //LAVALAND!
 
@@ -693,8 +664,8 @@
 	icon_state = "dragon"
 	item_state = "dragon"
 	desc = "Доспехи, созданные из останков пепельного дракона."
-	allowed = ALLOWED_MINING_SUIT_ITEMS
-	armor = list(MELEE = 70, BULLET = 30, LASER = 50, ENERGY = 40, BOMB = 70, BIO = 60, FIRE = 100, ACID = 100)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator, /obj/item/pickaxe, /obj/item/twohanded/spear, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
+	armor = list(MELEE = 70, BULLET = 30, LASER = 50, ENERGY = 40, BOMB = 70, BIO = 60, RAD = 50, FIRE = 100, ACID = 100)
 	hoodtype = /obj/item/clothing/head/hooded/drake
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
@@ -706,18 +677,18 @@
 		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
 		SPECIES_ASHWALKER_BASIC = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
-		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
-	)
+		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi'
+		)
 	hide_tail_by_species = list(SPECIES_VULPKANIN)
 
 /obj/item/clothing/suit/hooded/drake/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "доспех из дрейка",
 		GENITIVE = "доспеха из дрейка",
 		DATIVE = "доспеху из дрейка",
 		ACCUSATIVE = "доспех из дрейка",
 		INSTRUMENTAL = "доспехом из дрейка",
-		PREPOSITIONAL = "доспехе из дрейка",
+		PREPOSITIONAL = "доспехе из дрейка"
 	)
 
 /obj/item/clothing/head/hooded/drake
@@ -725,20 +696,20 @@
 	icon_state = "dragon"
 	item_state = "dragon"
 	desc = "Череп дрейка."
-	armor = list(MELEE = 70, BULLET = 30, LASER = 50, ENERGY = 40, BOMB = 70, BIO = 60, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 70, BULLET = 30, LASER = 50, ENERGY = 40, BOMB = 70, BIO = 60, RAD = 50, FIRE = 100, ACID = 100)
 	heat_protection = HEAD
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	resistance_flags = FIRE_PROOF|ACID_PROOF
 	flags_cover = HEADCOVERSEYES
 
 /obj/item/clothing/head/hooded/drake/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шлем из дрейка",
 		GENITIVE = "шлема из дрейка",
 		DATIVE = "шлему из дрейка",
 		ACCUSATIVE = "шлем из дрейка",
 		INSTRUMENTAL = "шлемом из дрейка",
-		PREPOSITIONAL = "шлеме из дрейка",
+		PREPOSITIONAL = "шлеме из дрейка"
 	)
 
 /obj/item/clothing/suit/hooded/goliath
@@ -746,19 +717,19 @@
 	icon_state = "goliath_cloak"
 	item_state = "goliath_cloak"
 	desc = "Прочный и практичный плащ, созданный из различных материалов, добытых из монстров. Он пользуется большим спросом у тех, кто ведёт жизнь отшельника или изгнанника."
-	allowed = ALLOWED_MINING_SUIT_ITEMS
-	armor = list(MELEE = 40, BULLET = 15, LASER = 30, ENERGY = 15, BOMB = 35, BIO = 0, FIRE = 80, ACID = 60) //a fair alternative to bone armor, requiring alternative materials and gaining a suit slot
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/pickaxe, /obj/item/twohanded/spear, /obj/item/organ/internal/regenerative_core/legion, /obj/item/kitchen/knife/combat/survival, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
+	armor = list(MELEE = 40, BULLET = 15, LASER = 30, ENERGY = 15, BOMB = 35, BIO = 0, RAD = 0, FIRE = 80, ACID = 60) //a fair alternative to bone armor, requiring alternative materials and gaining a suit slot
 	hoodtype = /obj/item/clothing/head/hooded/goliath
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 /obj/item/clothing/suit/hooded/goliath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "накидка из голиафа",
 		GENITIVE = "накидки из голиафа",
 		DATIVE = "накидке из голиафа",
 		ACCUSATIVE = "накидку из голиафа",
 		INSTRUMENTAL = "накидкой из голиафа",
-		PREPOSITIONAL = "накидке из голиафа",
+		PREPOSITIONAL = "накидке из голиафа"
 	)
 
 /obj/item/clothing/head/hooded/goliath
@@ -766,21 +737,21 @@
 	icon_state = "golhood"
 	item_state = "golhood"
 	desc = "Защитный и скрывающий капюшон."
-	armor = list(MELEE = 40, BULLET = 15, LASER = 30, ENERGY = 15, BOMB = 35, BIO = 0, FIRE = 80, ACID = 60)
+	armor = list(MELEE = 40, BULLET = 15, LASER = 30, ENERGY = 15, BOMB = 35, BIO = 0, RAD = 0, FIRE = 80, ACID = 60)
 	flags_cover = HEADCOVERSEYES
 
 /obj/item/clothing/head/hooded/goliath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капюшон накидки из голиафа",
 		GENITIVE = "капюшона накидки из голиафа",
 		DATIVE = "капюшону накидки из голиафа",
 		ACCUSATIVE = "капюшон накидки из голиафа",
 		INSTRUMENTAL = "капюшоном накидки из голиафа",
-		PREPOSITIONAL = "капюшоне накидки из голиафа",
+		PREPOSITIONAL = "капюшоне накидки из голиафа"
 	)
 
 /obj/item/clothing/suit/hooded/goliath/wizard
-	armor = list(MELEE = 60, BULLET = 10, LASER = 25, ENERGY = 10, BOMB = 25, BIO = 0, FIRE = 80, ACID = 60)
+	armor = list(MELEE = 60, BULLET = 10, LASER = 25, ENERGY = 10, BOMB = 25, BIO = 0, RAD = 0, FIRE = 80, ACID = 60)
 	hoodtype = /obj/item/clothing/head/hooded/goliath/wizard
 	magical = TRUE
 
@@ -789,17 +760,18 @@
 	icon_state = "shamskull"
 	item_state = "shamskull"
 	desc = "К передней части переделанного шлема прикрутили череп какого-то дохлого зверя."
-	armor = list(MELEE = 60, BULLET = 10, LASER = 25, ENERGY = 10, BOMB = 25, BIO = 0, FIRE = 80, ACID = 60)
+	armor = list(MELEE = 60, BULLET = 10, LASER = 25, ENERGY = 10, BOMB = 25, BIO = 0, RAD = 0, FIRE = 80, ACID = 60)
 	magical = TRUE
 
+
 /obj/item/clothing/head/hooded/goliath/wizard/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "череп шамана",
 		GENITIVE = "черепа шамана",
 		DATIVE = "черепу шамана",
 		ACCUSATIVE = "череп шамана",
 		INSTRUMENTAL = "черепом шамана",
-		PREPOSITIONAL = "черепе шамана",
+		PREPOSITIONAL = "черепе шамана"
 	)
 
 //mob_size using for crusher mark
@@ -819,8 +791,8 @@
 	icon_state = "bonearmor"
 	item_state = "bonearmor"
 	blood_overlay_type = "armor"
-	armor = list(MELEE = 45, BULLET = 30, LASER = 30, ENERGY = 20, BOMB = 40, BIO = 0, FIRE = 50, ACID = 50)
-	allowed = ALLOWED_MINING_SUIT_ITEMS
+	armor = list(MELEE = 45, BULLET = 30, LASER = 30, ENERGY = 20, BOMB = 40, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/pickaxe, /obj/item/twohanded/spear, /obj/item/organ/internal/regenerative_core/legion, /obj/item/kitchen/knife/combat/survival, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS
 	sprite_sheets = list(
 		SPECIES_PLASMAMAN = 'icons/mob/clothing/species/plasmaman/suit.dmi',
@@ -828,18 +800,18 @@
 		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
 		SPECIES_ASHWALKER_BASIC = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
-		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
-	)
+		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi'
+		)
 	hide_tail_by_species = list(SPECIES_VULPKANIN)
 
 /obj/item/clothing/suit/armor/bone/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "костяная броня",
 		GENITIVE = "костяной брони",
 		DATIVE = "костяной броне",
 		ACCUSATIVE = "костяную броню",
 		INSTRUMENTAL = "костяной броней",
-		PREPOSITIONAL = "костяной броне",
+		PREPOSITIONAL = "костяной броне"
 	)
 
 /obj/item/clothing/suit/armor/makeshift_armor
@@ -848,7 +820,7 @@
 	icon_state = "makeshift_armor"
 	item_state = "makeshift_armor"
 	resistance_flags = FIRE_PROOF
-	armor = list(MELEE = 8, BULLET = 5, LASER = 5, ENERGY = 30, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 8, BULLET = 5, LASER = 5, ENERGY = 30, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
 
 //Dredd
 
@@ -859,7 +831,7 @@
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/suit.dmi',
-	)
+		)
 
 /obj/item/clothing/suit/armor/cartilage //parent type, used in order not to copy-paste same lines in 3 same armors
 	name = "cartilage armor"
@@ -868,8 +840,8 @@
 	icon_state = "cartilage_set"
 	item_state = "cartilage_set"
 	blood_overlay_type = "armor"
-	allowed = ALLOWED_MINING_SUIT_ITEMS
-	armor = list(MELEE = 50, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, BIO = 0, FIRE = 60, ACID = 60)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/pickaxe, /obj/item/twohanded/spear, /obj/item/organ/internal/regenerative_core/legion, /obj/item/kitchen/knife/combat/survival, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
+	armor = list(MELEE = 50, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, BIO = 0, RAD = 0, FIRE = 60, ACID = 60)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	sprite_sheets = list(
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/suit.dmi',
@@ -882,18 +854,19 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/suit/armor/cartilage/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "броня из хрящевых пластин",
 		GENITIVE = "брони из хрящевых пластин",
 		DATIVE = "броне из хрящевых пластин",
 		ACCUSATIVE = "броню из хрящевых пластин",
 		INSTRUMENTAL = "броней из хрящевых пластин",
-		PREPOSITIONAL = "броне из хрящевых пластин",
+		PREPOSITIONAL = "броне из хрящевых пластин"
 	)
+
 
 /obj/item/clothing/suit/armor/cartilage/cartilage_pads
 	name = "cartilage shoulder pads"
@@ -904,13 +877,13 @@
 	body_parts_covered = UPPER_TORSO|ARMS
 
 /obj/item/clothing/suit/armor/cartilage/cartilage_pads/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "наплечники из хрящевых пластин",
 		GENITIVE = "наплечников из хрящевых пластин",
 		DATIVE = "наплечникам из хрящевых пластин",
 		ACCUSATIVE = "наплечники из хрящевых пластин",
 		INSTRUMENTAL = "наплечниками из хрящевых пластин",
-		PREPOSITIONAL = "наплечниках из хрящевых пластин",
+		PREPOSITIONAL = "наплечниках из хрящевых пластин"
 	)
 
 /obj/item/clothing/suit/armor/cartilage/cartilage_pads/attackby(obj/item/I, mob/user, params)
@@ -936,13 +909,13 @@
 	body_parts_covered = LOWER_TORSO|LEGS
 
 /obj/item/clothing/suit/armor/cartilage/cartilage_greaves/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "поножи из хрящевых пластин",
 		GENITIVE = "поножей из хрящевых пластин",
 		DATIVE = "поножам из хрящевых пластин",
 		ACCUSATIVE = "поножи из хрящевых пластин",
 		INSTRUMENTAL = "поножами из хрящевых пластин",
-		PREPOSITIONAL = "поножах из хрящевых пластин",
+		PREPOSITIONAL = "поножах из хрящевых пластин"
 	)
 
 /obj/item/clothing/suit/armor/cartilage/cartilage_greaves/attackby(obj/item/I, mob/user, params)

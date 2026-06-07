@@ -86,7 +86,7 @@
 	requires_power = FALSE
 	has_gravity = FALSE
 	outdoors = TRUE
-	ambientsounds = list('sound/ambience/spooky/apathy.ogg')
+	ambientsounds = list('sound/ambience/apathy.ogg')
 	sound_environment = SOUND_AREA_SPACE
 
 /area/ruin/space/USSP_gorky17/solars
@@ -95,7 +95,7 @@
 	outdoors = TRUE
 	static_lighting = FALSE
 	base_lighting_alpha = 255
-	ambience_index = AMBIENCE_ENGI
+	ambientsounds = ENGINEERING_SOUNDS
 	sound_environment = SOUND_AREA_SPACE
 	has_gravity = FALSE
 
@@ -107,22 +107,20 @@
 
 /area/ruin/space/USSP_gorky17/collapsed
 	fire = TRUE
-	ambientsounds = list(
-		'sound/ambience/spooky/howled_4.ogg',
-		'sound/ambience/spooky/psy_amb.ogg',
-		'sound/ambience/spooky/rnd_ugrnd_amb_4.ogg',
-		'sound/ambience/spooky/rnd_ugrnd_amb_5.ogg',
-		'sound/ambience/spooky/ugrnd_ambient_banging_1.ogg',
-		'sound/ambience/spooky/ugrnd_ambient_banging_2.ogg',
-		'sound/ambience/spooky/ugrnd_drip_3.ogg',
-		'sound/ambience/spooky/ugrnd_drip_4.ogg',
-		'sound/ambience/spooky/ugrnd_drip_5.ogg',
-		'sound/ambience/spooky/ugrnd_drip_6.ogg',
-		'sound/ambience/spooky/ugrnd_drip_7.ogg',
-		'sound/ambience/spooky/ugrnd_lab_3.ogg',
-		'sound/ambience/spooky/ugrnd_whispers_1.ogg',
-		'sound/ambience/spooky/ugrnd_whispers_4.ogg',
-	)
+	ambientsounds = list('sound/ambience/spooky/howled_4.ogg',\
+						'sound/ambience/spooky/psy_amb.ogg',\
+						'sound/ambience/spooky/rnd_ugrnd_amb_4.ogg',\
+						'sound/ambience/spooky/rnd_ugrnd_amb_5.ogg',\
+						'sound/ambience/spooky/ugrnd_ambient_banging_1.ogg',\
+						'sound/ambience/spooky/ugrnd_ambient_banging_2.ogg',\
+						'sound/ambience/spooky/ugrnd_drip_3.ogg',\
+						'sound/ambience/spooky/ugrnd_drip_4.ogg',\
+						'sound/ambience/spooky/ugrnd_drip_5.ogg',\
+						'sound/ambience/spooky/ugrnd_drip_6.ogg',\
+						'sound/ambience/spooky/ugrnd_drip_7.ogg',\
+						'sound/ambience/spooky/ugrnd_lab_3.ogg',\
+						'sound/ambience/spooky/ugrnd_whispers_1.ogg',\
+						'sound/ambience/spooky/ugrnd_whispers_4.ogg')
 
 /area/ruin/space/USSP_gorky17/collapsed/solmaintnorth
 	name = "Gorky17 North sol maintenance"
@@ -207,7 +205,7 @@
 	has_gravity = FALSE
 	fire = FALSE
 	outdoors = TRUE
-	ambientsounds = list('sound/ambience/spooky/apathy.ogg')
+	ambientsounds = list('sound/ambience/apathy.ogg')
 	sound_environment = SOUND_AREA_SPACE
 
 /area/ruin/space/USSP_gorky17/collapsed/solars
@@ -215,7 +213,7 @@
 	requires_power = FALSE
 	fire = FALSE
 	outdoors = TRUE
-	ambience_index = AMBIENCE_ENGI
+	ambientsounds = ENGINEERING_SOUNDS
 	sound_environment = SOUND_AREA_SPACE
 	has_gravity = FALSE
 	static_lighting = FALSE
@@ -227,15 +225,15 @@
 	icon_state = "floorsafe-open"
 	lootdoubles = FALSE
 	loot = list(
-		/obj/structure/safe/floor/random_documents,
-		/obj/structure/safe/floor/random_researchnotes_MatBioProg,
-	)
+				/obj/structure/safe/floor/random_documents,
+				/obj/structure/safe/floor/random_researchnotes_MatBioProg
+				)
 
 /obj/item/paper/researchnotes/mat_bio_prog
 
 /obj/item/paper/researchnotes/mat_bio_prog/Initialize(mapload)
 	. = ..()
-	var/list/possible_techs = list(RESEARCH_TREE_MATERIALS, RESEARCH_TREE_BIOTECH, RESEARCH_TREE_PROGRAMMING)
+	var/list/possible_techs = list("materials", "biotech", "programming")
 	var/mytech = pick(possible_techs)
 	var/mylevel = rand(6, 8)
 	origin_tech = "[mytech]=[mylevel]"
@@ -268,6 +266,7 @@
 	var/cardrank
 	var/possiblerank = list("Советский турист", "Товарищ") // addition before name
 
+
 /obj/machinery/computer/id_upgrader/ussp/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -295,6 +294,7 @@
 
 	return ..()
 
+
 /obj/machinery/computer/id_upgrader/ussp/proc/giverank(obj/item/card/id/D)
 	if(!cardholdername||!cardrank)
 		return
@@ -302,11 +302,11 @@
 		D.rank = ranktogive
 		D.assignment = ranktogive
 		D.registered_name = "[cardrank] [cardholdername]"
-		D.update_label()
+		D.UpdateName()
 
 /obj/machinery/computer/id_upgrader/ussp/verb/set_name()
 	set name = "Ввести название"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 	if(!ishuman(usr) || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
@@ -347,11 +347,11 @@
 	\n<strong>Я СЕРЬЁЗНО! НЕ-ТРО-ГАЙ! ИЛИ СДОХНЕШЬ, КАК ТЕ ТРОЕ БЕДОЛАГ!</strong><br />\
 	\nВ общем, рассказываю: была очередная вылазка в эти сраные врата (как же я заманался с ними, одного раза хватило, чтобы все любопытство отбить),\
 	сержант грезил, что вот после этой вылазки к нам отправят подкрепление и провиант.\
-	Ага, хер там плавал — из команды в 10 человек вернулось трое, все перебитые и еле живые. На себе тащили по трупу.\
-	Как оклемались в сан. части — парни рассказали, что по ту сторону сраные нацисты сидят и проводят какие то ритуалы крови (либо их накрыло после стимуляторов так, \
-	либо эта нездоровая хрень реальна — надеюсь первое). \
+	Ага, хер там плавал - из команды в 10 человек вернулось трое, все перебитые и еле живые. На себе тащили по трупу.\
+	Как оклемались в сан. части - парни рассказали, что по ту сторону сраные нацисты сидят и проводят какие то ритуалы крови (либо их накрыло после стимуляторов так, \
+	либо эта нездоровая хрень реальна - надеюсь первое). \
 	Покромсали наших эти культисты, будь они прокляты своими же богами, нехило, как ты понял. \
-	Единственное, что они прихватили оттуда — какой то проклятый меч, да талисман. От 'талисмана', бумажки пропитанной кровью, как я понял, и померли те 3 срочника, \
+	Единственное, что они прихватили оттуда - какой то проклятый меч, да талисман. От 'талисмана', бумажки пропитанной кровью, как я понял, и померли те 3 срочника, \
 	тела которых притащили с вылазки... \
 	Ну да ладно, вскрытие покажет от чего те померли.<br />\
 	\nЯ тебя предупредил, не лезь в этот ящик...</p>"
@@ -360,15 +360,15 @@
 	name = "Результаты вскрытия"
 	info = "<p>Мужики, с такой дрянью я сталкивался лишь в старинных записях... \
 	Простое, но действенное боевое отравляющие вещество, надеюсь вы его заперли куда подальше в герметичный контейнер. В повседневных условиях этой дряни хватило бы самую малость: \
-	намазать дверную ручку или капнуть на белье — и все, цель будет устранена. А судя по тем дозам, которые я обнаружил на коже и в крови — эта бумага насквозь пропитана, не понимаю, \
-	как с нее капли то не стекают. В общем, отчет и материалы я отправил куда следует — будем ждать более подробный анализ этой дряни, а пока я бы рекомендовал всем провериться и \
+	намазать дверную ручку или капнуть на белье - и все, цель будет устранена. А судя по тем дозам, которые я обнаружил на коже и в крови - эта бумага насквозь пропитана, не понимаю, \
+	как с нее капли то не стекают. В общем, отчет и материалы я отправил куда следует - будем ждать более подробный анализ этой дряни, а пока я бы рекомендовал всем провериться и \
 	пройти процедуры обеззараживания.</p>"
 
 /obj/item/paper/gorky17/network
 	name = "Название сети для камер"
 	info = "<p>Ну это не серьезно, мужики. Каждая смена, как поломается камера, придумывает свое название для сетки камер наблюдения, 'Горько17, Григорий17, Горыныч, Кам17, Камеры'...\
 	Мужики, вам так сложно запомнить или на листок записать? Ладно, сделаю это за вас... Надеюсь как подтирку не используете его... Название сети <strong>USSP_gorky17</strong> \
-	Если запомнить не в силах — то хоть лист не про... фукайте.</p>"
+	Если запомнить не в силах - то хоть лист не про... фукайте.</p>"
 
 /obj/item/paper/gorky17/modkit
 	name = "Преобразователь рига"
@@ -392,9 +392,11 @@
 	Ставка Главного Командования поручает Вам собрать боевую группу и уничтожить позицию врага, сохранив возможность последующего использования на благо СССП.\
 	<br> Время отведенное на выполнение задачи <b>72 часа</b> с момента получения директивы. <br><br><i>	Оперативный штаб специальных операций</i>"
 
+
 /obj/item/paper/gorky17/orders/Initialize(mapload)
 	. = ..()
 	stamp(/obj/item/stamp/ussp)
+
 
 /obj/item/paper/gorky17/report
 	name = "Доклад Центральному Комитету СССП"
@@ -480,7 +482,7 @@
 	r_pocket = /obj/item/flashlight/seclite
 
 	backpack_contents = list(
-		/obj/item/storage/box/survival/soviet = 1,
+		/obj/item/storage/box/soviet = 1
 	)
 
 /obj/effect/mob_spawn/human/corpse/usspconscript
@@ -522,8 +524,12 @@
 	lose_target()
 	qdel(src)
 
+/mob/living/simple_animal/hostile/carp/lostsoul/add_carp_overlay()
+	return
+
 /mob/living/simple_animal/hostile/carp/lostsoul/carp_randomify()
 	return
+
 
 //self destruct
 
@@ -560,7 +566,7 @@
 		if(isliving(A))
 			var/mob/living/mob = A
 			mob.gib()
-		if(iscloset(A))
+		if(istype(A, /obj/structure/closet))
 			for(var/obj/item/I in A.contents)
 				qdel(I)
 			qdel(A)

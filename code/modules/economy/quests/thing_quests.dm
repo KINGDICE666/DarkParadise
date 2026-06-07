@@ -1,6 +1,6 @@
 
 /datum/cargo_quest/thing
-	quest_type_name = "шаблонный предмет"
+	quest_type_name = "generic thing"
 	var/list/easy_items
 	var/list/normal_items
 	var/list/hard_items
@@ -29,19 +29,17 @@
 
 /datum/cargo_quest/thing/add_goal(difficultly)
 	var/list/difficult_list = generate_goal_list(difficultly)
-	var/obj/item_path = pick(difficult_list)
-	var/atom/dummy = new item_path(locate(1, 1, 1))
-	var/object_name = dummy.declent_ru(NOMINATIVE)
-	qdel(dummy)
+	var/obj/generated_item = pick(difficult_list)
 
-	q_storage.reward += difficult_list[item_path]
+	q_storage.reward += difficult_list[generated_item]
 	if(unique_things)
-		difficult_list.Remove(item_path)
+		difficult_list.Remove(generated_item)
 
-	req_items += item_path
+	req_items += generated_item
 	current_list = req_items.Copy()
 
-	desc += "[capitalize(object_name)]<br>"
+	desc += "[capitalize(format_text(initial(generated_item.name)))] <br>"
+
 
 /datum/cargo_quest/thing/update_interface_icon()
 	if(item_for_show)
@@ -68,7 +66,7 @@
 	current_list = req_items.Copy()
 
 /datum/cargo_quest/thing/xenobio
-	quest_type_name = "Экстракты слаймов"
+	quest_type_name = "Xenobiological extract"
 	bounty_jobs = list(
 		JOB_TITLE_CMO,
 		JOB_TITLE_DOCTOR,
@@ -79,44 +77,42 @@
 		JOB_TITLE_VIROLOGIST,
 		JOB_TITLE_PARAMEDIC,
 		JOB_TITLE_CORONER,
-		JOB_TITLE_MEDICAL_INTERN,
+		JOB_TITLE_INTERN
 	)
 	linked_departament = "Science"
 
 	easy_items = list(
-		/obj/item/slime_extract/grey = 30,
+		/obj/item/slime_extract/grey = 45,
 		/obj/item/slime_extract/orange = 90,
 		/obj/item/slime_extract/purple = 90,
 		/obj/item/slime_extract/blue = 90,
 		/obj/item/slime_extract/metal = 90,
+		/obj/item/slime_extract/yellow = 115,
+		/obj/item/slime_extract/darkblue = 115,
+		/obj/item/slime_extract/darkpurple = 115,
+		/obj/item/slime_extract/silver = 115,
 	)
 	normal_items = list(
-		/obj/item/slime_extract/yellow = 125,
-		/obj/item/slime_extract/darkblue = 125,
-		/obj/item/slime_extract/darkpurple = 125,
-		/obj/item/slime_extract/silver = 125,
-		/obj/item/slime_extract/bluespace = 180,
-		/obj/item/slime_extract/sepia = 180,
-		/obj/item/slime_extract/cerulean = 180,
-		/obj/item/slime_extract/pyrite = 190,
+		/obj/item/slime_extract/bluespace = 170,
+		/obj/item/slime_extract/sepia = 170,
+		/obj/item/slime_extract/cerulean = 170,
+		/obj/item/slime_extract/pyrite = 170,
+		/obj/item/slime_extract/green = 215,
+		/obj/item/slime_extract/red = 215,
+		/obj/item/slime_extract/pink = 215,
+		/obj/item/slime_extract/gold = 215
 	)
 	hard_items = list(
-		/obj/item/slime_extract/green = 225,
-		/obj/item/slime_extract/red = 225,
-		/obj/item/slime_extract/pink = 225,
-		/obj/item/slime_extract/gold = 225,
-	)
-	very_hard_items = list(
 		/obj/item/slime_extract/adamantine = 270,
 		/obj/item/slime_extract/oil = 270,
 		/obj/item/slime_extract/black = 270,
-		/obj/item/slime_extract/lightpink = 300,
-		/obj/item/slime_extract/rainbow = 500,
+		/obj/item/slime_extract/lightpink = 270,
+		/obj/item/slime_extract/rainbow = 300
 	)
-	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD|QUEST_DIFFICULTY_VERY_HARD)
+	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD)
 
 /datum/cargo_quest/thing/organs
-	quest_type_name = "Органы"
+	quest_type_name = "Organ"
 	bounty_jobs = list(
 		JOB_TITLE_CMO,
 		JOB_TITLE_DOCTOR,
@@ -127,31 +123,17 @@
 		JOB_TITLE_VIROLOGIST,
 		JOB_TITLE_PARAMEDIC,
 		JOB_TITLE_CORONER,
-		JOB_TITLE_MEDICAL_INTERN,
+		JOB_TITLE_INTERN
 	)
 	linked_departament = "Medical"
 
-	easy_items = list(
-		/obj/item/organ/internal/kidneys = 20,
-		/obj/item/organ/internal/eyes = 30,
-		/obj/item/organ/internal/lungs = 50,
-		/obj/item/organ/internal/liver = 50,
-	)
 	normal_items = list(
-		/obj/item/organ/internal/kidneys/unathi = 150,
-		/obj/item/organ/internal/kidneys/tajaran = 150,
-		/obj/item/organ/internal/kidneys/skrell = 150,
-		/obj/item/organ/internal/liver/vulpkanin = 150,
-		/obj/item/organ/internal/liver/tajaran = 150,
 		/obj/item/organ/internal/eyes/tajaran = 175,
 		/obj/item/organ/internal/eyes/vulpkanin = 175,
 		/obj/item/organ/internal/headpocket = 175,
 		/obj/item/organ/internal/eyes/unathi = 175,
 		/obj/item/organ/internal/eyes/nian = 175,
-		/obj/item/organ/internal/liver/skrell = 175,
-		/obj/item/organ/internal/lungs/skrell = 175,
-		/obj/item/organ/internal/lungs/tajaran = 175,
-		/obj/item/organ/internal/lungs/vulpkanin = 175,
+		/obj/item/organ/internal/liver/skrell = 175
 	)
 	hard_items = list(
 		/obj/item/organ/internal/kidneys/grey = 350,
@@ -161,13 +143,13 @@
 		/obj/item/organ/internal/heart/slime = 350,
 		/obj/item/organ/internal/lungs/unathi/ash_walker = 350,
 		/obj/item/organ/internal/eyes/unathi/ash_walker = 350,
-
+		/obj/item/organ/internal/eyes/unathi/ash_walker_shaman = 350,
+		/obj/item/organ/internal/lantern = 400,
+		/obj/item/organ/internal/wryn/glands = 700,
+		/obj/item/organ/internal/heart/plasmaman = 750
 	)
 	very_hard_items = list(
-		/obj/item/organ/internal/lantern = 500,
-		/obj/item/organ/internal/wryn/glands = 700,
-		/obj/item/organ/internal/heart/plasmaman = 750,
-		/obj/item/organ/internal/eyes/unathi/ash_walker_shaman = 500,
+		/obj/item/organ/internal/heart/cursed = 550,
 		/obj/item/organ/internal/xenos/plasmavessel/hunter = 550,
 		/obj/item/organ/internal/xenos/plasmavessel/drone = 550,
 		/obj/item/organ/internal/xenos/neurotoxin/sentinel = 650,
@@ -175,124 +157,111 @@
 		/obj/item/organ/internal/xenos/acidgland/sentinel = 750,
 		/obj/item/organ/internal/xenos/acidgland/praetorian = 750,
 		/obj/item/organ/internal/xenos/resinspinner = 750,
-		/obj/item/organ/internal/xenos/neurotoxin = 850,
+		/obj/item/organ/internal/xenos/neurotoxin = 850
 	)
-	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD|QUEST_DIFFICULTY_VERY_HARD)
+	difficultly_flags = (QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD|QUEST_DIFFICULTY_VERY_HARD)
 
 /datum/cargo_quest/thing/foods
-	quest_type_name = "Продукты питания"
+	quest_type_name = "Food"
 	bounty_jobs = list(JOB_TITLE_CHEF)
 	linked_departament = "Support"
 
 	easy_items = list(
 		/obj/item/reagent_containers/food/snacks/friedegg = 10,
-		/obj/item/reagent_containers/food/snacks/tofuburger = 20,
+		/obj/item/reagent_containers/food/snacks/tofuburger = 10,
+		/obj/item/reagent_containers/food/snacks/boiledpelmeni = 20,
 		/obj/item/reagent_containers/food/snacks/omelette = 20,
-		/obj/item/reagent_containers/food/snacks/tofukabob = 20,
-		/obj/item/reagent_containers/food/snacks/icecreamsandwich = 20,
-		/obj/item/reagent_containers/food/snacks/sliceable/bread = 20,
-		/obj/item/reagent_containers/food/snacks/boiledpelmeni = 30,
 		/obj/item/reagent_containers/food/snacks/cheeseburger = 30,
-		/obj/item/reagent_containers/food/snacks/benedict = 40,
-		/obj/item/reagent_containers/food/snacks/monkeyburger = 40,
-		/obj/item/reagent_containers/food/snacks/hotdog = 40,
-		/obj/item/reagent_containers/food/snacks/toastedsandwich = 40,
-		/obj/item/reagent_containers/food/snacks/twobread = 40,
-		/obj/item/reagent_containers/food/snacks/sausage = 40,
-		/obj/item/reagent_containers/food/snacks/soup/tomatosoup = 40,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/margherita = 40,
-		/obj/item/reagent_containers/food/snacks/pancake = 50,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/macpizza = 50,
-		/obj/item/reagent_containers/food/snacks/pastatomato = 60,
+		/obj/item/reagent_containers/food/snacks/benedict = 30,
+		/obj/item/reagent_containers/food/snacks/monkeyburger = 30,
+		/obj/item/reagent_containers/food/snacks/hotdog = 30,
+		/obj/item/reagent_containers/food/snacks/sausage = 20,
+		/obj/item/reagent_containers/food/snacks/pastatomato = 20,
+		/obj/item/reagent_containers/food/snacks/soup/tomatosoup = 20,
 		/obj/item/reagent_containers/food/snacks/meatballspaghetti = 30,
-		/obj/item/reagent_containers/food/snacks/smokedsausage = 60,
-		/obj/item/reagent_containers/food/snacks/lasagna = 80,
+		/obj/item/reagent_containers/food/snacks/smokedsausage = 30,
+		/obj/item/reagent_containers/food/snacks/lasagna = 40,
+		/obj/item/reagent_containers/food/snacks/candy/jellybean/purple = 50,
 		/obj/item/reagent_containers/food/snacks/muffin = 60,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza = 60,
-		/obj/item/reagent_containers/food/snacks/sliceable/plaincake = 80,
-		/obj/item/reagent_containers/food/snacks/sliceable/cheesecake = 100,
-		/obj/item/reagent_containers/food/snacks/sliceable/bread/tofu = 100,
-		/obj/item/reagent_containers/food/snacks/sliceable/bread/meat = 100,
 	)
 	normal_items = list(
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/hawaiianpizza = 120,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/mushroompizza = 120,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/vegetablepizza = 120,
-		/obj/item/reagent_containers/food/snacks/yakiimo = 150,
-		/obj/item/reagent_containers/food/snacks/soup/beetsoup = 150,
-		/obj/item/reagent_containers/food/snacks/fishburger = 160,
-		/obj/item/reagent_containers/food/snacks/monkeysdelight = 160,
-		/obj/item/reagent_containers/food/snacks/candy/jellybean/purple = 200,
-		/obj/item/reagent_containers/food/snacks/pancake/choc_chip_pancake = 160,
-		/obj/item/reagent_containers/food/snacks/superbiteburger = 160,
-		/obj/item/reagent_containers/food/snacks/sushi_TobikoEgg = 160,
-		/obj/item/reagent_containers/food/snacks/sushi_Unagi = 160,
-		/obj/item/reagent_containers/food/snacks/sliceable/salami = 160,
-		/obj/item/reagent_containers/food/snacks/amanitajelly = 170,
-		/obj/item/reagent_containers/food/snacks/candy/jawbreaker = 170,
-		/obj/item/reagent_containers/food/snacks/plov = 170,
-		/obj/item/reagent_containers/food/snacks/donut/chaos = 180,
-		/obj/item/reagent_containers/food/snacks/sliceable/noel = 180,
-		/obj/item/reagent_containers/food/snacks/donut/jelly/slimejelly = 190,
-		/obj/item/reagent_containers/food/snacks/aesirsalad = 190,
-		/obj/item/reagent_containers/food/snacks/candy/sucker = 160,
-		/obj/item/reagent_containers/food/snacks/appletart = 190,
-		/obj/item/reagent_containers/food/snacks/chawanmushi = 190,
+		/obj/item/reagent_containers/food/snacks/yakiimo = 50,
+		/obj/item/reagent_containers/food/snacks/soup/beetsoup = 50,
+		/obj/item/reagent_containers/food/snacks/fishburger = 60,
+		/obj/item/reagent_containers/food/snacks/monkeysdelight = 60,
+		/obj/item/reagent_containers/food/snacks/pancake/choc_chip_pancake = 60,
+		/obj/item/reagent_containers/food/snacks/superbiteburger = 60,
+		/obj/item/reagent_containers/food/snacks/sushi_TobikoEgg = 60,
+		/obj/item/reagent_containers/food/snacks/sushi_Unagi = 60,
+		/obj/item/reagent_containers/food/snacks/sliceable/salami = 60,
+		/obj/item/reagent_containers/food/snacks/amanitajelly = 70,
+		/obj/item/reagent_containers/food/snacks/candy/jawbreaker = 70,
+		/obj/item/reagent_containers/food/snacks/plov = 70,
+		/obj/item/reagent_containers/food/snacks/donut/chaos = 80,
+		/obj/item/reagent_containers/food/snacks/sliceable/noel = 80,
+		/obj/item/reagent_containers/food/snacks/donut/jelly/slimejelly = 90,
+		/obj/item/reagent_containers/food/snacks/aesirsalad = 90,
+		/obj/item/reagent_containers/food/snacks/candy/sucker = 60,
+		/obj/item/reagent_containers/food/snacks/appletart = 90,
+		/obj/item/reagent_containers/food/snacks/chawanmushi = 90,
 	)
 	hard_items = list(
-		/obj/item/reagent_containers/food/snacks/sashimi = 220,
-		/obj/item/reagent_containers/food/snacks/sliceable/pizza/diablo = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/vulpkanin = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/human = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/slime = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/skrell = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/tajaran = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/unathi = 200,
-		/obj/item/reagent_containers/food/snacks/meatsteak/vox = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/wryn = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/kidan = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/diona = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/nian = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/drask = 220,
-		/obj/item/reagent_containers/food/snacks/meatsteak/grey = 220,
-		/obj/item/reagent_containers/food/snacks/vulpix/chilli = 220,
-		/obj/item/reagent_containers/food/snacks/soup/stew = 230,
-		/obj/item/reagent_containers/food/snacks/vulpix/cheese = 230,
-		/obj/item/reagent_containers/food/snacks/vulpix = 230,
-		/obj/item/reagent_containers/food/snacks/weirdoliviersalad = 230,
-		/obj/item/reagent_containers/food/snacks/doner_mushroom = 230,
-		/obj/item/reagent_containers/food/snacks/doner_vegan = 230,
-		/obj/item/reagent_containers/food/snacks/tajaroni = 220,
-		/obj/item/reagent_containers/food/snacks/boiledslimecore = 220,
-		/obj/item/reagent_containers/food/snacks/sliceable/lizard = 220,
-		/obj/item/reagent_containers/food/snacks/shawarma = 250,
-		/obj/item/reagent_containers/food/snacks/dionaroast = 250,
-		/obj/item/reagent_containers/food/snacks/fruitcup = 280,
-		/obj/item/reagent_containers/food/snacks/candy/cotton/bad_rainbow = 300,
-		/obj/item/reagent_containers/food/snacks/candy/cotton/rainbow = 350,
-		/obj/item/reagent_containers/food/snacks/fried_vox = 320,
-		/obj/item/reagent_containers/food/snacks/sliceable/bread/xeno = 300,
-		/obj/item/reagent_containers/food/snacks/rofflewaffles = 350,
+		/obj/item/reagent_containers/food/snacks/sashimi = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/vulpkanin = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/human = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/slime = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/skrell = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/tajaran = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/unathi = 100,
+		/obj/item/reagent_containers/food/snacks/meatsteak/vox = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/wryn = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/kidan = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/diona = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/nian = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/drask = 120,
+		/obj/item/reagent_containers/food/snacks/meatsteak/grey = 120,
+		/obj/item/reagent_containers/food/snacks/vulpix/chilli = 120,
+		/obj/item/reagent_containers/food/snacks/soup/stew = 130,
+		/obj/item/reagent_containers/food/snacks/vulpix/cheese = 130,
+		/obj/item/reagent_containers/food/snacks/vulpix = 130,
+		/obj/item/reagent_containers/food/snacks/weirdoliviersalad = 130,
+		/obj/item/reagent_containers/food/snacks/doner_mushroom = 130,
+		/obj/item/reagent_containers/food/snacks/doner_vegan = 130,
+		/obj/item/reagent_containers/food/snacks/tajaroni = 120,
+		/obj/item/reagent_containers/food/snacks/boiledslimecore = 120,
+		/obj/item/reagent_containers/food/snacks/sliceable/lizard = 120,
+		/obj/item/reagent_containers/food/snacks/shawarma = 150,
+		/obj/item/reagent_containers/food/snacks/dionaroast = 180,
+		/obj/item/reagent_containers/food/snacks/fruitcup = 120,
+		/obj/item/reagent_containers/food/snacks/candy/cotton/bad_rainbow = 200,
+		/obj/item/reagent_containers/food/snacks/candy/cotton/rainbow = 150,
+		/obj/item/reagent_containers/food/snacks/fried_vox = 120,
+		/obj/item/reagent_containers/food/snacks/sliceable/bread/xeno = 200,
+		/obj/item/reagent_containers/food/snacks/rofflewaffles = 150,
 	)
 	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD)
 
-
 /datum/cargo_quest/thing/miner
-	quest_type_name = "Добыча с Лазиса"
+	quest_type_name = "Shaft Miner Loot"
 	bounty_jobs = list(JOB_TITLE_MINER)
 
 	easy_items = list(
-		/obj/item/gem/topaz = 80,
-		/obj/item/gem/emerald = 80,
-		/obj/item/gem/sapphire = 80,
-		/obj/item/gem/ruby = 80,
+		/obj/item/crusher_trophy/legion_skull = 60,
+		/obj/item/crusher_trophy/watcher_wing = 50,
+		/obj/item/gem/topaz = 60,
+		/obj/item/gem/emerald = 60,
+		/obj/item/gem/sapphire = 60,
+		/obj/item/gem/ruby = 60,
+		/obj/item/crusher_trophy/goliath_tentacle = 95,
 	)
 	normal_items = list(
 		/obj/item/gem/rupee = 130,
 		/obj/item/gem/fdiamond = 220,
-		/obj/item/gem/magma = 260,
+		/obj/item/crusher_trophy/blaster_tubes/magma_wing = 110,
+		/obj/item/crusher_trophy/watcher_wing/ice_wing = 110,
 	)
 	hard_items = list(
+		/obj/item/gem/magma = 260,
 		/obj/item/gem/phoron = 350,
 		/obj/item/gem/purple = 400,
 		/obj/item/gem/amber = 400,
@@ -301,14 +270,13 @@
 	very_hard_items = list(
 		/obj/item/gem/data = 450,
 		/obj/item/gem/void = 500,
+		/obj/effect/mob_spawn/human/ash_walker = 550,
 		/obj/item/gem/bloodstone = 650,
-		/obj/effect/mob_spawn/human/ash_walker = 1000,
 	)
 	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD|QUEST_DIFFICULTY_VERY_HARD)
 
-
 /datum/cargo_quest/thing/minerals
-	quest_type_name = "Минералы"
+	quest_type_name = "Minerals"
 	bounty_jobs = list(JOB_TITLE_MINER)
 
 	var/list/required_minerals = list()
@@ -316,69 +284,44 @@
 	var/static/list/unique_minerals = list(/obj/item/stack/sheet/bluespace_crystal, /obj/item/stack/sheet/mineral/bananium, /obj/item/stack/sheet/mineral/tranquillite)
 	req_items = list(/obj/item/stack/sheet)
 	easy_items = list(
-		/obj/item/stack/sheet/glass = list("reward" = 15, "amount" = 50),
-		/obj/item/stack/sheet/wood = list("reward" = 15, "amount" = 50),
 		/obj/item/stack/sheet/metal = list("reward" = 20, "amount" = 50),
-		/obj/item/stack/sheet/cardboard = list("reward" = 20, "amount" = 20),
-		/obj/item/stack/sheet/mineral/silver = list("reward" = 30, "amount" = 5),
-		/obj/item/stack/sheet/mineral/titanium = list("reward" = 30, "amount" = 5),
-		/obj/item/stack/sheet/mineral/plasma = list("reward" = 40, "amount" = 15),
-		/obj/item/stack/sheet/mineral/uranium = list("reward" = 45, "amount" = 5),
-		/obj/item/stack/sheet/mineral/gold = list("reward" = 50, "amount" = 5),
+		/obj/item/stack/sheet/mineral/gold = list("reward" = 70, "amount" = 20),
+		/obj/item/stack/sheet/mineral/titanium = list("reward" = 60, "amount" = 30),
+		/obj/item/stack/sheet/mineral/uranium = list("reward" = 65, "amount" = 15),
+		/obj/item/stack/sheet/glass = list("reward" = 15, "amount" = 50),
 	)
 	normal_items = list(
-		/obj/item/stack/sheet/plastic = list("reward" = 100, "amount" = 50),
-		/obj/item/stack/sheet/mineral/diamond = list("reward" = 100, "amount" = 5),
-		/obj/item/stack/sheet/leather = list("reward" = 60, "amount" = 10),
-		/obj/item/stack/sheet/mineral/gold = list("reward" = 70, "amount" = 15),
-		/obj/item/stack/sheet/mineral/titanium = list("reward" = 60, "amount" = 15),
-		/obj/item/stack/sheet/mineral/uranium = list("reward" = 65, "amount" = 15),
+		/obj/item/stack/sheet/mineral/diamond = list("reward" = 100, "amount" = 10),
 		/obj/item/stack/sheet/plasteel = list("reward" = 90, "amount" = 30),
-		/obj/item/stack/sheet/mineral/plasma = list("reward" = 120, "amount" = 30),
-		/obj/item/stack/sheet/mineral/silver = list("reward" = 90, "amount" = 15),
-		/obj/item/stack/sheet/plasteel = list("reward" = 90, "amount" = 15),
-		/obj/item/stack/sheet/sinew = list("reward" = 100, "amount" = 5),
-		/obj/item/stack/sheet/bone = list("reward" = 100, "amount" = 5),
+		/obj/item/stack/sheet/mineral/plasma = list("reward" = 120, "amount" = 40),
+		/obj/item/stack/sheet/mineral/silver = list("reward" = 90, "amount" = 25)
 	)
 	hard_items = list(
-		/obj/item/stack/sheet/plasmaglass = list("reward" = 200, "amount" = 50),
-		/obj/item/stack/sheet/mineral/diamond = list("reward" = 200, "amount" = 10),
-		/obj/item/stack/sheet/mineral/gold = list("reward" = 200, "amount" = 30),
-		/obj/item/stack/sheet/mineral/titanium = list("reward" = 150, "amount" = 30),
-		/obj/item/stack/sheet/mineral/uranium = list("reward" = 150, "amount" = 30),
-		/obj/item/stack/sheet/mineral/silver = list("reward" = 150, "amount" = 30),
-		/obj/item/stack/sheet/durathread = list("reward" = 150, "amount" = 10),
-		/obj/item/stack/sheet/cartilage_plate = list("reward" = 190, "amount" = 5),
-	)
-	very_hard_items = list(
-		/obj/item/stack/sheet/bluespace_crystal = list("reward" = 220, "amount" = 5),
+		/obj/item/stack/sheet/bluespace_crystal = list("reward" = 220, "amount" = 7),
 		/obj/item/stack/sheet/mineral/bananium = list("reward" = 340, "amount" = 4),
 		/obj/item/stack/sheet/mineral/tranquillite = list("reward" = 440, "amount" = 4),
-		/obj/item/stack/sheet/mineral/adamantine = list("reward" = 600, "amount" = 5),
+		/obj/item/stack/sheet/mineral/adamantine = list("reward" = 600, "amount" = 5)
 	)
+	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD)
 
-	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD|QUEST_DIFFICULTY_VERY_HARD)
 
 /datum/cargo_quest/thing/minerals/add_goal(difficultly)
 	var/list/difficult_list = generate_goal_list(difficultly)
-	var/obj/item/item_path = pick(difficult_list)
-	cargo_quest_reward = difficult_list[item_path]["reward"]
+	var/obj/item/generated_mineral = pick(difficult_list)
+	cargo_quest_reward = difficult_list[generated_mineral]["reward"]
 	q_storage.reward += cargo_quest_reward
-	if(!required_minerals[item_path])
-		required_minerals += item_path
-	required_minerals[item_path] += difficult_list[item_path]["amount"]
+	if(!required_minerals[generated_mineral])
+		required_minerals += generated_mineral
+	required_minerals[generated_mineral] += difficult_list[generated_mineral]["amount"]
 	desc = list()
 	for(var/mineral in required_minerals)
-		var/atom/dummy = new mineral(locate(1, 1, 1))
-		var/object_name = dummy.declent_ru(NOMINATIVE)
-		qdel(dummy)
-
-		desc += "[capitalize(object_name)]<br>Объём: [required_minerals[mineral]]<br>"
-	if(item_path in unique_minerals)
-		difficult_list.Remove(item_path)
+		var/obj/desc_mineral = mineral
+		desc += "[capitalize(format_text(initial(desc_mineral.name)))],<br>  amount: [required_minerals[mineral]]<br>"
+	if(generated_mineral in unique_minerals)
+		difficult_list.Remove(generated_mineral)
 	current_list = required_minerals.Copy()
 	if(unique_things)
-		difficult_list.Remove(item_path)
+		difficult_list.Remove(generated_mineral)
 
 /datum/cargo_quest/thing/minerals/check_required_item(atom/movable/check_item)
 	if(!length(required_minerals))
@@ -408,7 +351,7 @@
 /datum/cargo_quest/thing/minerals/length_quest()
 	var/stack_length
 	for(var/mineral in required_minerals)
-		stack_length += ceil(required_minerals[mineral]/50)
+		stack_length += CEILING(required_minerals[mineral]/50, 1)
 	return stack_length
 
 /datum/cargo_quest/thing/minerals/plasma
@@ -419,7 +362,7 @@
 	difficultly_flags = (QUEST_DIFFICULTY_NORMAL)
 
 /datum/cargo_quest/thing/seeds
-	quest_type_name = "Семена"
+	quest_type_name = "Seeds"
 	bounty_jobs = list(JOB_TITLE_BOTANIST)
 	linked_departament = "Support"
 
@@ -488,17 +431,18 @@
 		/obj/item/seeds/lavaland/porcini = 100,
 	)
 
+
 	very_hard_items = list(
 		/obj/item/seeds/kudzu = 460,
 		/obj/item/seeds/cherry/bomb = 640,
 		/obj/item/seeds/apple/poisoned = 640,
 		/obj/item/seeds/wheat/meat = 640,
-		/obj/item/seeds/gatfruit = 760,
+		/obj/item/seeds/gatfruit = 760
 	)
 	difficultly_flags = (QUEST_DIFFICULTY_EASY|QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_VERY_HARD)
 
 /datum/cargo_quest/thing/botanygenes
-	quest_type_name = "Дискеты с генами растений"
+	quest_type_name = "Botany Genes on Disks"
 	item_for_show = /obj/item/disk/plantgene
 	req_items = list(/obj/item/disk/plantgene)
 	bounty_jobs = list(JOB_TITLE_BOTANIST)
@@ -568,7 +512,7 @@
 	current_list = required_genes.Copy()
 
 /datum/cargo_quest/thing/genes
-	quest_type_name = "Дискеты с генами гуманоидов"
+	quest_type_name = "DNA Genes"
 	item_for_show = /obj/item/dnainjector
 	req_items = list(/obj/item/dnainjector)
 	bounty_jobs = list(JOB_TITLE_GENETICIST)
@@ -576,47 +520,47 @@
 
 	var/list/required_blocks = list()
 	normal_items = list(
-		"LISP" = 200,
-		"MUTE" = 200,
-		"RAD" = 200,
-		"OBESITY" = 200,
-		"SWEDE" = 200,
-		"SCRAMBLE" = 200,
-		"WEAK" = 200,
-		"HORNS" = 200,
-		"COMIC" = 200,
-		"PARAPLEGIA" = 200,
+		"LISP" = 150,
+		"MUTE" = 150,
+		"RAD" = 150,
+		"OBESITY" = 150,
+		"SWEDE" = 150,
+		"SCRAMBLE" = 150,
+		"WEAK" = 150,
+		"HORNS" = 150,
+		"COMIC" = 150,
+		"PARAPLEGIA" = 150,
 	)
 
 	hard_items = list(
-		"SOBER" = 250,
-		"PSYRESIST" = 250,
-		"SHADOW" = 250,
-		"CHAMELEON" = 250,
-		"CRYO" = 250,
-		"EAT" = 250,
-		"JUMP" = 250,
-		"IMMOLATE" = 250,
-		"EMPATH" = 250,
-		"STRONG" = 250,
-		"BLINDNESS" = 250,
-		"POLYMORPH" = 250,
-		"COLOURBLIND" = 250,
-		"DEAF" = 250,
-		"CLUMSY" = 250,
-		"COUGH" = 250,
-		"GLASSES" = 250,
-		"EPILEPSY" = 250,
-		"WINGDINGS" = 250,
+		"SOBER" = 200,
+		"PSYRESIST" = 200,
+		"SHADOW" = 200,
+		"CHAMELEON" = 200,
+		"CRYO" = 200,
+		"EAT" = 200,
+		"JUMP" = 200,
+		"IMMOLATE" = 200,
+		"EMPATH" = 200,
+		"STRONG" = 200,
+		"BLINDNESS" = 200,
+		"POLYMORPH" = 200,
+		"COLOURBLIND" = 200,
+		"DEAF" = 200,
+		"CLUMSY" = 200,
+		"COUGH" = 200,
+		"GLASSES" = 200,
+		"EPILEPSY" = 200,
+		"WINGDINGS" = 200,
 		"BREATHLESS" = 250,
-		"COLD" = 250,
-		"HALLUCINATION" = 250,
-		"FARVISION" = 250,
+		"COLD" = 200,
+		"HALLUCINATION" = 200,
+		"FARVISION" = 200,
 	)
 	very_hard_items = list(
-		"NOPRINTS" = 300,
-		"SHOCKIMMUNITY" = 300,
-		"SMALLSIZE" = 300,
+		"NOPRINTS" = 250,
+		"SHOCKIMMUNITY" = 200,
+		"SMALLSIZE" = 250,
 		"HULK" = 300,
 		"TELE" = 300,
 		"FIRE" = 350,
@@ -672,9 +616,10 @@
 	. = TRUE
 	current_list = required_blocks.Copy()
 
+
 #define REQUIRED_BLOOD_AMOUNT 10
 /datum/cargo_quest/thing/virus
-	quest_type_name = "Вирусные симптомы в пробирках (минимум 10 ед.)"
+	quest_type_name = "Viruses symptoms in vials (10u minimum)"
 	item_for_show = /obj/item/reagent_containers/glass/beaker/vial
 	req_items = list(/obj/item/reagent_containers/glass/beaker/vial)
 	bounty_jobs = list(JOB_TITLE_VIROLOGIST)
@@ -744,7 +689,7 @@
 	required_symptoms[generated_symptom] = REQUIRED_BLOOD_AMOUNT
 	current_list = required_symptoms.Copy()
 
-	desc += "[capitalize(format_text(initial(generated_symptom.name)))], [REQUIRED_BLOOD_AMOUNT] ед.<br>"
+	desc += "[capitalize(format_text(initial(generated_symptom.name)))], [REQUIRED_BLOOD_AMOUNT]u<br>"
 
 /datum/cargo_quest/thing/virus/check_required_item(atom/movable/check_item)
 
@@ -780,7 +725,7 @@
 #undef REQUIRED_BLOOD_AMOUNT
 
 /datum/cargo_quest/thing/capsule
-	quest_type_name = "Существо в капсуле Лазаря"
+	quest_type_name = "Mob in lazarus capsule"
 	item_for_show = /obj/item/mobcapsule
 	req_items = list(/obj/item/mobcapsule)
 
@@ -798,7 +743,7 @@
 		/mob/living/simple_animal/hostile/asteroid/goliath/beast/ancient = 450,
 		/mob/living/simple_animal/hostile/asteroid/basilisk/watcher/icewing = 330,
 		/mob/living/simple_animal/hostile/asteroid/basilisk/watcher/magmawing = 350,
-		/mob/living/simple_animal/hostile/asteroid/marrowweaver/frost = 350,
+		/mob/living/simple_animal/hostile/asteroid/marrowweaver/frost = 350
 	)
 	difficultly_flags = (QUEST_DIFFICULTY_NORMAL|QUEST_DIFFICULTY_HARD)
 
@@ -807,20 +752,16 @@
 
 /datum/cargo_quest/thing/capsule/add_goal(difficultly)
 	var/list/difficult_list = generate_goal_list(difficultly)
-	var/mob/item_path = pick(difficult_list)
-	var/atom/dummy = new item_path(locate(1, 1, 1))
-	var/object_name = dummy.declent_ru(NOMINATIVE)
-	qdel(dummy)
-
-	cargo_quest_reward = difficult_list[item_path]
+	var/mob/generated_mob = pick(difficult_list)
+	cargo_quest_reward = difficult_list[generated_mob]
 	q_storage.reward += cargo_quest_reward
 	if(unique_things)
-		difficult_list.Remove(item_path)
+		difficult_list.Remove(generated_mob)
 
-	required_mobs += item_path
+	required_mobs += generated_mob
 	current_list = required_mobs.Copy()
 
-	desc += "[capitalize(object_name)]<br>"
+	desc += "[capitalize(format_text(initial(generated_mob.name)))]<br>"
 
 /datum/cargo_quest/thing/capsule/check_required_item(atom/movable/check_item)
 
@@ -838,6 +779,7 @@
 			LAZYADD(capsules, capsule)
 			return TRUE
 	return FALSE
+
 
 /datum/cargo_quest/thing/capsule/after_check()
 	. = TRUE

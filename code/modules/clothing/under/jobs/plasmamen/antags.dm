@@ -6,11 +6,11 @@
 	item_color = "wizard_envirosuit"
 
 /obj/item/clothing/under/plasmaman/wizard/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "магический защитный костюм плазмолюда",
 		GENITIVE = "магического защитного костюма плазмолюда",
 		DATIVE = "магическому защитному костюму плазмолюда",
 		ACCUSATIVE = "магический защитный костюм плазмолюда",
 		INSTRUMENTAL = "магическим защитным костюмом плазмолюда",
-		PREPOSITIONAL = "магическом защитном костюме плазмолюда",
+		PREPOSITIONAL = "магическом защитном костюме плазмолюда"
 	)

@@ -1431,7 +1431,7 @@
 /obj/structure/stone_tile/cracked{
 	dir = 4
 	},
-/obj/item/stack/rods/fireproof/twentyfive,
+/obj/item/stack/fireproof_rods/twentyfive,
 /turf/simulated/floor/indestructible/boss,
 /area/ruin/unpowered/ash_walkers)
 

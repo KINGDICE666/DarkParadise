@@ -8,9 +8,10 @@
 
 /datum/ai_behavior/basic_melee_attack/perform(delta_time, datum/ai_controller/controller, target_key, targetting_datum_key, hiding_location_key)
 	. = ..()
-	var/mob/living/basic/basic_mob = controller.pawn
+	var/mob/living/simple_animal/basic_mob = controller.pawn
 	var/atom/target = controller.blackboard[target_key]
-	var/datum/targetting_datum/targetting_datum = controller.blackboard[targetting_datum_key]
+	var/type = controller.blackboard[targetting_datum_key]
+	var/datum/targetting_datum/targetting_datum = new type()
 
 	if(!targetting_datum.can_attack(basic_mob, target))
 		finish_action(controller, FALSE, target_key)
@@ -21,9 +22,12 @@
 	controller.blackboard[hiding_location_key] = hiding_target
 
 	if(hiding_target) //Slap it!
-		basic_mob.melee_attack(hiding_target)
+		basic_mob.target = hiding_target
 	else
-		basic_mob.melee_attack(target)
+		basic_mob.target = target
+
+	basic_mob.AttackingTarget()
+
 
 /datum/ai_behavior/basic_melee_attack/finish_action(datum/ai_controller/controller, succeeded, target_key, targetting_datum_key, hiding_location_key)
 	. = ..()
@@ -39,11 +43,13 @@
 	. = ..()
 	controller.current_movement_target =  controller.blackboard[hiding_location_key] || controller.blackboard[target_key] //Hiding location is priority
 
+
 /datum/ai_behavior/basic_ranged_attack/perform(delta_time, datum/ai_controller/controller, target_key, targetting_datum_key, hiding_location_key)
 	. = ..()
-	var/mob/living/basic/basic_mob = controller.pawn
+	var/mob/living/simple_animal/basic_mob = controller.pawn
 	var/atom/target = controller.blackboard[target_key]
 	var/datum/targetting_datum/targetting_datum = controller.blackboard[targetting_datum_key]
+
 
 	if(!targetting_datum.can_attack(basic_mob, target))
 		finish_action(controller, FALSE, target_key)

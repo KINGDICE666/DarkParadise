@@ -34,20 +34,21 @@
 /obj/machinery/computer/camera_advanced/shuttle_docker/proc/CalculateAvailable_z_lvls() //Вынесла в отдельный прок, для удобства работы с VV
 	jumpto_ports = list()
 	var/list/levels = GLOB.space_manager.z_list.Copy()
+	var/iterator = 1
 	for(var/level in levels)
-		var/num_level = text2num(level)
-		if(access_station && is_station_level(num_level))
-			jumpto_ports += list("nav_z[level]" = 1)
+		if(access_station && is_station_level(level))
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
 		else if(access_admin_zone && is_admin_level(level))
-			jumpto_ports += list("nav_z[level]" = 1)
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
 		else if(access_mining && is_mining_level(level))
-			jumpto_ports += list("nav_z[level]" = 1)
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
 		else if(access_taipan && is_taipan(level))
-			jumpto_ports += list("nav_z[level]" = 1)
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
 		else if(access_away && is_away_level(level))
-			jumpto_ports += list("nav_z[level]" = 1)
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
 		else if(access_derelict && is_explorable_space(level))
-			jumpto_ports += list("nav_z[level]" = 1)
+			jumpto_ports += list("nav_z[num2text(iterator)]" = 1)
+		iterator++
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/Destroy()
 	. = ..()
@@ -55,12 +56,12 @@
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/attack_hand(mob/user)
 	if(!shuttle_port && !SSshuttle.getShuttle(shuttleId))
-		to_chat(user,span_warning("Warning: Shuttle connection severed!"))
+		to_chat(user,"<span class='warning'>Warning: Shuttle connection severed!</span>")
 		return
 	return ..()
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/GrantActions(mob/living/user)
-	if(length(jumpto_ports))
+	if(jumpto_ports.len)
 		jump_action = new /datum/action/innate/camera_jump/shuttle_docker
 	..()
 	/*	//technically working but some icons are buggy as shit and either don't rotate or rotate wrong :
@@ -81,9 +82,9 @@
 		shuttle_port = null
 		return
 
-	var/turf/shuttle_eye_pos = get_turf(locate(/obj/effect/landmark/observer_start))
+	var/turf/shuttle_eye_pos = get_turf(locate("landmark*Observer-Start"))
 
-	if(length(jumpto_ports))
+	if(jumpto_ports.len)
 		for(var/obj/docking_port/stationary/S in SSshuttle.stationary)
 			if(!S)
 				continue
@@ -142,23 +143,23 @@
 	var/mob/camera/aiEye/remote/shuttle_docker/the_eye = eyeobj
 	var/landing_clear = checkLandingSpot()
 	if(designate_time && (landing_clear != SHUTTLE_DOCKER_BLOCKED))
-		to_chat(current_user, span_warning("Targeting transit location, please wait [DisplayTimeText(designate_time)]..."))
+		to_chat(current_user, "<span class='warning'>Targeting transit location, please wait [DisplayTimeText(designate_time)]...</span>")
 		designating_target_loc = the_eye.loc
 		var/wait_completed = do_after(current_user, designate_time, designating_target_loc, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM, extra_checks = CALLBACK(src, TYPE_PROC_REF(/obj/machinery/computer/camera_advanced/shuttle_docker, canDesignateTarget)))
 		designating_target_loc = null
 		if(!current_user)
 			return
 		if(!wait_completed)
-			to_chat(current_user, span_warning("Operation aborted."))
+			to_chat(current_user, "<span class='warning'>Operation aborted.</span>")
 			return
 		landing_clear = checkLandingSpot()
 
 	if(landing_clear != SHUTTLE_DOCKER_LANDING_CLEAR)
 		switch(landing_clear)
 			if(SHUTTLE_DOCKER_BLOCKED)
-				to_chat(current_user, span_warning("Invalid transit location"))
+				to_chat(current_user, "<span class='warning'>Invalid transit location</span>")
 			if(SHUTTLE_DOCKER_BLOCKED_BY_HIDDEN_PORT)
-				to_chat(current_user, span_warning("Unknown object detected in landing zone. Please designate another location."))
+				to_chat(current_user, "<span class='warning'>Unknown object detected in landing zone. Please designate another location.</span>")
 		return
 
 	if(!my_port)
@@ -195,7 +196,7 @@
 
 	if(current_user.client)
 		current_user.client.images += the_eye.placed_images
-		to_chat(current_user, span_notice("Transit location designated"))
+		to_chat(current_user, "<span class='notice'>Transit location designated</span>")
 	return
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/proc/canDesignateTarget()
@@ -207,7 +208,7 @@
 	var/mob/camera/aiEye/remote/shuttle_docker/the_eye = eyeobj
 	var/list/image_cache = the_eye.placement_images
 	the_eye.setDir(turn(the_eye.dir, -90))
-	for(var/i in 1 to length(image_cache))
+	for(var/i in 1 to image_cache.len)
 		var/image/pic = image_cache[i]
 		var/list/coords = image_cache[pic]
 		var/Tmp = coords[1]
@@ -229,7 +230,7 @@
 	var/list/bounds = shuttle_port.return_coords(the_eye.x - x_offset, the_eye.y - y_offset, the_eye.dir)
 	var/list/overlappers = SSshuttle.get_dock_overlap(bounds[1], bounds[2], bounds[3], bounds[4], the_eye.z)
 	var/list/image_cache = the_eye.placement_images
-	for(var/i in 1 to length(image_cache))
+	for(var/i in 1 to image_cache.len)
 		var/image/I = image_cache[i]
 		var/list/coords = image_cache[I]
 		var/turf/T = locate(eyeturf.x + coords[1], eyeturf.y + coords[2], eyeturf.z)
@@ -269,7 +270,7 @@
 		return SHUTTLE_DOCKER_BLOCKED
 
 	// Checking for overlapping dock boundaries
-	for(var/i in 1 to length(overlappers))
+	for(var/i in 1 to overlappers.len)
 		var/obj/docking_port/port = overlappers[i]
 		if(port == my_port || locate(port) in jumpto_ports)
 			continue
@@ -284,7 +285,7 @@
 				return SHUTTLE_DOCKER_BLOCKED
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/proc/update_hidden_docking_ports(list/remove_images, list/add_images)
-	if(!see_hidden && current_user?.client)
+	if(!see_hidden && current_user && current_user.client)
 		current_user.client.images -= remove_images
 		current_user.client.images += add_images
 
@@ -306,7 +307,7 @@
 	return ..()
 
 /mob/camera/aiEye/remote/shuttle_docker/setLoc(turf/destination, force_update = FALSE)
-	if(isspacearea(get_area(destination)) || istype(get_area(destination), /area/shuttle) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
+	if(istype(get_area(destination), /area/space) || istype(get_area(destination), /area/shuttle) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
 		..()
 		var/obj/machinery/computer/camera_advanced/shuttle_docker/console = origin
 		console.checkLandingSpot()
@@ -322,7 +323,7 @@
 
 /datum/action/innate/shuttledocker_rotate
 	name = "Повернуть"
-	button_icon = 'icons/mob/actions/actions_mecha.dmi'
+	icon_icon = 'icons/mob/actions/actions_mecha.dmi'
 	button_icon_state = "mech_cycle_equip_off"
 
 /datum/action/innate/shuttledocker_rotate/Activate()
@@ -335,7 +336,7 @@
 
 /datum/action/innate/shuttledocker_place
 	name = "Выбрать место"
-	button_icon = 'icons/mob/actions/actions_mecha.dmi'
+	icon_icon = 'icons/mob/actions/actions_mecha.dmi'
 	button_icon_state = "mech_zoom_off"
 
 /datum/action/innate/shuttledocker_place/Activate()

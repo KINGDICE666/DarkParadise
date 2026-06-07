@@ -17,9 +17,3 @@
 #define GIBTONITE_STABLE 2
 /// Gibtonite will now explode
 #define GIBTONITE_DETONATE 3
-
-/// For obj explosion block calculation
-#define EXPLOSION_BLOCK_PROC -1
-
-/// Explosive wall groups
-#define EXPLOSIVE_WALL_GROUP_SYNDICATE_BASE "syndicate_base"

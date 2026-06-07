@@ -27,9 +27,10 @@
 	var/ailock = FALSE	//Silicons cannot use this
 
 	var/syndicate = FALSE
-	var/faction = "" // Turret controls can only access turrets that are in the same faction
 
 	req_access = list(ACCESS_AI_UPLOAD)
+	var/faction = "default"
+
 
 /obj/machinery/turretid/stun
 	enabled = TRUE
@@ -85,8 +86,10 @@
 	update_turret_light()
 	return INITIALIZE_HINT_LATELOAD
 
+
 /obj/machinery/turretid/LateInitialize()
 	updateTurrets()
+
 
 /obj/machinery/turretid/proc/isLocked(mob/user)
 	if(isrobot(user) && !iscogscarab(user) || isAI(user))
@@ -107,6 +110,7 @@
 
 	return FALSE
 
+
 /obj/machinery/turretid/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || (stat & BROKEN))
 		return ..()
@@ -124,6 +128,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/machinery/turretid/emag_act(mob/user)
 	if(!emagged)
@@ -170,6 +175,7 @@
 	)
 	return data
 
+
 /obj/machinery/turretid/ui_act(action, params)
 	if(..())
 		return
@@ -189,6 +195,7 @@
 	update_icon(UPDATE_ICON_STATE)
 	update_turret_light()
 	updateTurrets()
+
 
 /obj/machinery/turretid/proc/updateTurretId(action, force = FALSE)
 	if(action == "power")
@@ -223,6 +230,7 @@
 
 	return TRUE
 
+
 /obj/machinery/turretid/proc/updateTurrets()
 	var/datum/turret_checks/TC = new
 	TC.enabled = enabled
@@ -241,12 +249,14 @@
 			if(faction == aTurret.faction)
 				aTurret.setState(TC)
 
+
 /obj/machinery/turretid/power_change(forced = FALSE)
 	if(!..())
 		return
 	updateTurrets()
 	update_icon(UPDATE_ICON_STATE)
 	update_turret_light()
+
 
 /obj/machinery/turretid/proc/update_turret_light()
 	if(stat & NOPOWER)
@@ -262,6 +272,7 @@
 
 	set_light(1.5, 1,"#003300", l_on = TRUE)
 
+
 /obj/machinery/turretid/update_icon_state()
 	if(stat & NOPOWER)
 		icon_state = "control_off"
@@ -274,6 +285,7 @@
 		return
 
 	icon_state = "control_standby"
+
 
 /obj/machinery/turretid/emp_act(severity)
 	if(enabled)

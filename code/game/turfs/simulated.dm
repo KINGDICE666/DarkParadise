@@ -1,15 +1,13 @@
 /turf/simulated
 	name = "station"
 	flags = NO_SCREENTIPS
-	rad_insulation = RAD_MEDIUM_INSULATION
-	oxygen = MOLES_O2STANDARD
-	nitrogen = MOLES_N2STANDARD
-	abstract_type = /turf/simulated
-
 	var/wet = 0
 	var/image/wet_overlay = null
 	var/mutable_appearance/melting_olay
+
 	var/thermite = 0
+	oxygen = MOLES_O2STANDARD
+	nitrogen = MOLES_N2STANDARD
 	var/to_be_destroyed = 0 //Used for fire, if a melting temperature was reached, it will be destroyed
 	var/max_fire_temperature_sustained = 0 //The max temperature of the fire which it was subjected to
 
@@ -17,41 +15,21 @@
 	var/datum/excited_group/excited_group
 	var/excited = 0
 	var/recently_active = 0
+	var/datum/gas_mixture/air
 	var/archived_cycle = 0
 	var/current_cycle = 0
 	var/icy = 0
 	var/icyoverlay
-	/// The active hotspot on this turf. The fact this is done through a literal object is painful
 	var/obj/effect/hotspot/active_hotspot
+	var/planetary_atmos = FALSE //air will revert to its initial mix over time
 
-	/// The temp we were when we got archived
-	var/temperature_archived
+	var/temperature_archived //USED ONLY FOR SOLIDS
 
-	/// Current gas overlays.
-	var/list/atmos_overlay_types = null
-	/// If a fire is ongoing, how much fuel did we burn last tick?
-	/// Value is not updated while below PLASMA_MINIMUM_BURN_TEMPERATURE.
-	var/fuel_burnt = 0
-	/// When do we last remember having wind?
-	var/wind_tick = null
-	/// Wind's X component
-	var/wind_x = null
-	/// Wind's Y component
-	var/wind_y = null
-	/// Wind effect
-	var/obj/effect/wind/wind_effect = null
+	var/atmos_overlay_type = null //current active overlay
 
 /turf/simulated/Initialize(mapload)
 	. = ..()
 	add_debris_element()
-	if(!is_station_level(z))
-		return
-	GLOB.station_turfs += src
-
-/turf/simulated/Destroy(force)
-	if(is_station_level(z))
-		GLOB.station_turfs -= src
-	return ..()
 
 /turf/simulated/add_debris_element()
 	AddElement(/datum/element/debris, null, -40, 8, 0.7)
@@ -68,27 +46,13 @@
 	if(volume >= 3)
 		MakeSlippery(TURF_WET_WATER, 80 SECONDS)
 
-	quench(1000, 2, min_temperature =  temperature)
-
-/// Quenches any fire on the turf, and if it does, cools down the turf's air by the given parameters.
-/turf/simulated/proc/quench(delta, divisor, min_temperature = TCMB)
-	var/found = FALSE
-	for(var/obj/effect/hotspot/hotspot in src)
+	var/hotspot = (locate(/obj/effect/hotspot) in src)
+	if(hotspot)
+		var/datum/gas_mixture/lowertemp = remove_air(air.total_moles())
+		lowertemp.temperature = max(min(lowertemp.temperature-2000,lowertemp.temperature / 2), TCMB)
+		lowertemp.react()
+		assume_air(lowertemp)
 		qdel(hotspot)
-		found = TRUE
-
-	if(!found)
-		return
-
-	var/datum/milla_safe/turf_cool/milla = new()
-	milla.invoke_async(src, delta, divisor, min_temperature)
-
-/datum/milla_safe/turf_cool
-
-/datum/milla_safe/turf_cool/on_run(turf/location, delta, divisor, min_temperature = TCMB)
-	var/datum/gas_mixture/air = get_turf_air(location)
-	air.set_temperature(max(min(air.temperature() - delta * divisor, air.temperature() / divisor), min_temperature))
-	air.react()
 
 /turf/simulated/proc/MakeSlippery(wet_setting = TURF_WET_WATER, min_wet_time = 0, wet_time_to_add = 0, max_wet_time = MAXIMUM_WET_TIME, permanent = FALSE, should_display_overlay = TRUE)
 	AddComponent(/datum/component/wet_floor, wet_setting, min_wet_time, wet_time_to_add, max_wet_time, permanent, should_display_overlay)
@@ -108,9 +72,10 @@
 	if(istype(arrived, /mob/living/simple_animal/hostile/shitcur_goblin))
 		playsound(src, SFX_CLOWN_STEP, CHANNEL_BUZZ)
 
+
 /turf/simulated/copyTurf(turf/simulated/copy_to_turf, copy_air = FALSE)
 	. = ..()
-	ASSERT(issimulatedturf(copy_to_turf))
+	ASSERT(istype(copy_to_turf, /turf/simulated))
 	var/datum/component/wet_floor/slip = GetComponent(/datum/component/wet_floor)
 	if(slip)
 		var/datum/component/wet_floor/new_wet_floor_component = copy_to_turf.AddComponent(/datum/component/wet_floor)
@@ -118,59 +83,57 @@
 
 /turf/simulated/ChangeTurf(path, defer_change = FALSE, keep_icon = TRUE, after_flags = NONE, copy_existing_baseturf = TRUE)
 	. = ..()
-	QUEUE_SMOOTH_NEIGHBORS(src)
+	queue_smooth_neighbors(src)
 
 /turf/simulated/AfterChange(flags, oldType)
 	..()
 	RemoveLattice()
 	if(!(flags & CHANGETURF_IGNORE_AIR))
-		var/datum/milla_safe/turf_assimilate_air/milla = new()
-		milla.invoke_async(src)
+		assimilate_air()
 
-/datum/milla_safe/turf_assimilate_air
-
-/datum/milla_safe/turf_assimilate_air/on_run(turf/self)
-	if(self.blocks_air || isnull(self))
+//////Assimilate Air//////
+/turf/simulated/proc/assimilate_air()
+	if(blocks_air || !air) // Fuck off
 		return
+	var/aoxy = 0
+	var/anitro = 0
+	var/aco = 0
+	var/atox = 0
+	var/asleep = 0
+	var/ab = 0
+	var/atemp = TCMB
 
-	var/datum/gas_mixture/merged = new()
 	var/turf_count = 0
 
-	for(var/turf/T in self.GetAtmosAdjacentTurfs())
-		if(isspaceturf(T))
-			turf_count += 1
+	for(var/turf/T in atmos_adjacent_turfs)
+		if(isspaceturf(T))//Counted as no air
+			turf_count++//Considered a valid turf for air calcs
 			continue
+		else if(isfloorturf(T))
+			var/datum/gas_mixture/turf_air = T.return_air()
+			aoxy += turf_air.oxygen
+			anitro += turf_air.nitrogen
+			aco += turf_air.carbon_dioxide
+			atox += turf_air.toxins
+			asleep += turf_air.sleeping_agent
+			ab += turf_air.agent_b
+			atemp += turf_air.temperature
+			turf_count++
 
-		if(T.blocks_air)
-			continue
+	var/datum/gas_mixture/new_air = new
 
-		merged.merge(get_turf_air(T))
-		turf_count++
+	new_air.oxygen = (aoxy / max(turf_count, 1)) //Averages contents of the turfs, ignoring walls and the like
+	new_air.nitrogen = (anitro / max(turf_count, 1))
+	new_air.carbon_dioxide = (aco / max(turf_count, 1))
+	new_air.toxins = (atox / max(turf_count, 1))
+	new_air.sleeping_agent = (asleep / max(turf_count, 1))
+	new_air.agent_b = (ab / max(turf_count, 1))
+	new_air.temperature = (atemp / max(turf_count, 1))
 
-	if(turf_count > 0)
-		// Average the contents of the turfs.
-		merged.set_oxygen(merged.oxygen() / turf_count)
-		merged.set_nitrogen(merged.nitrogen() / turf_count)
-		merged.set_carbon_dioxide(merged.carbon_dioxide() / turf_count)
-		merged.set_toxins(merged.toxins() / turf_count)
-		merged.set_sleeping_agent(merged.sleeping_agent() / turf_count)
-		merged.set_agent_b(merged.agent_b() / turf_count)
-		merged.set_hydrogen(merged.hydrogen() / turf_count)
-		merged.set_water_vapor(merged.water_vapor() / turf_count)
-		merged.set_hypernoblium(merged.hypernoblium() / turf_count)
-		merged.set_nitrium(merged.nitrium() / turf_count)
-		merged.set_tritium(merged.tritium() / turf_count)
-		merged.set_bz(merged.bz() / turf_count)
-		merged.set_pluoxium(merged.pluoxium() / turf_count)
-		merged.set_miasma(merged.miasma() / turf_count)
-		merged.set_freon(merged.freon() / turf_count)
-		merged.set_healium(merged.healium() / turf_count)
-		merged.set_proto_nitrate(merged.proto_nitrate() / turf_count)
-		merged.set_zauker(merged.zauker() / turf_count)
-		merged.set_halon(merged.halon() / turf_count)
-		merged.set_helium(merged.helium() / turf_count)
-		merged.set_antinoblium(merged.antinoblium() / turf_count)
-	get_turf_air(self).copy_from(merged)
+	air = new_air
+
+	if(SSair)
+		SSair.add_to_active(src)
 
 /turf/simulated/proc/is_shielded()
 	return
@@ -231,7 +194,7 @@
 
 	if(!(lube_flags & SLIDE_ICE))
 		// Ice slides are intended to be combo'd so don't give the feedback
-		to_chat(slipper, span_notice("Вы поскользнул[GEND_SYA_AS_OS_IS(slipper)][slippable ? " на [slippable.declent_ru(PREPOSITIONAL)]" : ""]!"))
+		to_chat(slipper, span_notice("[pluralize_ru(slipper.gender,"Ты","Вы")] поскользнул[genderize_ru(slipper.gender,"ся","ась","ся","ись")][slippable ? " на [slippable.declent_ru(PREPOSITIONAL)]" : ""]!"))
 		playsound(slipper.loc, 'sound/misc/slip.ogg', 50, TRUE, -3)
 
 	SEND_SIGNAL(slipper, COMSIG_ON_CARBON_SLIP)
@@ -244,7 +207,6 @@
 		slipper.Immobilize(1 SECONDS)
 	else
 		slipper.stop_pulling()
-		slipper.stop_hand_bleedsuppress()
 		slipper.Knockdown(weaken_amount)
 
 	if(buckled_obj)

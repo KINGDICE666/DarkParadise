@@ -1,14 +1,16 @@
 /datum/action/changeling/sting
-	name = "Маленький хоботок"
-	desc = "Уколоть"
+	name = "Tiny Prick"
+	desc = "Stabby stabby"
 	req_human = TRUE
 	var/sting_icon = null
 	/// A middle click override used to intercept changeling stings performed on a target.
 	var/datum/middleClickOverride/callback_invoker/click_override
 
+
 /datum/action/changeling/sting/New(Target)
 	. = ..()
 	click_override = new(CALLBACK(src, PROC_REF(try_to_sting)))
+
 
 /datum/action/changeling/sting/Destroy(force)
 	if(cling.owner.current && cling.owner.current.middleClickOverride == click_override) // this is a very scuffed way of doing this honestly
@@ -18,12 +20,10 @@
 		cling.chosen_sting = null
 	return ..()
 
-/datum/action/changeling/sting/Trigger(mob/clicker, trigger_flags)
-	if(!..())
-		return
 
+/datum/action/changeling/sting/Trigger(left_click = TRUE)
 	if(!ischangeling(owner) || !ishuman(owner))
-		owner.balloon_alert(owner, "неподходящая форма")
+		to_chat(owner, span_warning("We cannot do that in this form!"))
 		return
 
 	if(!cling.chosen_sting)
@@ -31,45 +31,48 @@
 	else
 		unset_sting()
 
+
 /datum/action/changeling/sting/proc/set_sting()
 	var/mob/living/user = owner
-	to_chat(user, span_notice("Мы готовы уколоть жертву, используйте <b>Alt+Click</b> или среднию кнопку мыши на жертве для укола."))
+	to_chat(user, span_notice("We prepare our sting, use <b>Alt+Click</b> or middle mouse button on a target to sting them."))
 	user.middleClickOverride = click_override
 	cling.chosen_sting = src
 	user.hud_used.lingstingdisplay.icon_state = sting_icon
 	user.hud_used.lingstingdisplay.invisibility = 0
 
+
 /datum/action/changeling/sting/proc/unset_sting()
 	var/mob/living/user = owner
-	to_chat(user, span_warning("Мы спрятали наш хоботок, теперь мы не можем им уколоть."))
+	to_chat(user, span_warning("We retract our sting, we can't sting anyone for now."))
 	user.middleClickOverride = null
 	cling.chosen_sting = null
 	user.hud_used.lingstingdisplay.icon_state = null
 	user.hud_used.lingstingdisplay.invisibility = INVISIBILITY_ABSTRACT
+
 
 /datum/action/changeling/sting/can_sting(mob/user, mob/target)
 	if(!..() || !iscarbon(target) || !isturf(user.loc))
 		return FALSE
 
 	if(user == target)
-		user.balloon_alert(user, "нельзя уколоть себя")
+		to_chat(user, span_warning("Using sting on ourselves would be pretty stupid..."))
 		return FALSE
 
 	if(!cling.chosen_sting)
-		user.balloon_alert(user, "хоботок не готов")
+		to_chat(user, span_warning("We haven't prepared our sting yet!"))
 		return FALSE
 
 	var/target_distance = get_dist(user, target)
 	if(target_distance > cling.sting_range) // Too far, don't bother pathfinding
-		user.balloon_alert(user, "жертва слишком далеко!")
+		to_chat(user, span_warning("Our target is too far for our sting!"))
 		return FALSE
 
 	if(target_distance && !length(get_path_to(user, target, max_distance = cling.sting_range, simulated_only = FALSE, skip_first = FALSE))) // If they're not on the same turf, check if it can even reach them.
-		user.balloon_alert(user, "что-то мешает хоботку!")
+		to_chat(user, span_warning("Our sting is blocked from reaching our target!"))
 		return FALSE
 
 	if(ismachineperson(target))
-		user.balloon_alert(user, "невозможно уколоть")
+		to_chat(user, span_warning("This won't work on synthetics."))
 		return FALSE
 
 	if(ischangeling(target))
@@ -79,31 +82,35 @@
 
 	return TRUE
 
+
 /datum/action/changeling/sting/sting_feedback(mob/user, mob/target)
 	if(!target)
 		return FALSE
 
-	user.balloon_alert(user, "скрытно укололи [target.name]")
+	to_chat(user, span_notice("We stealthily sting [target.name]."))
 	if(ischangeling(target))
-		target.balloon_alert(target, "вас легонько укололи")
+		to_chat(target, span_warning("You feel a tiny prick."))
 		add_attack_logs(user, target, "Unsuccessful sting (changeling)")
 	return TRUE
+
 
 /**
  * Extract DNA Sting
  */
-
 /datum/action/changeling/sting/extract_dna
-	name = "Хоботок извлечения"
-	desc = "Мы скрытно уколем  жертву и украдём её ДНК."
-	helptext = "Украдёт ДНК жертвы, позволяя трансформироваться в неё."
+	name = "Extract DNA Sting"
+	desc = "We stealthily sting a target and extract their DNA. Costs 25 chemicals."
+	helptext = "Will give you the DNA of your target, allowing you to transform into them."
 	button_icon_state = "sting_extract"
 	sting_icon = "sting_extract"
 	power_type = CHANGELING_INNATE_POWER
+	chemical_cost = 25
+
 
 /datum/action/changeling/sting/extract_dna/can_sting(mob/user, mob/target)
 	if(..())
 		return cling.can_absorb_dna(target)
+
 
 /datum/action/changeling/sting/extract_dna/sting_action(mob/user, mob/living/carbon/human/target)
 	add_attack_logs(user, target, "Extraction sting (changeling)")
@@ -112,79 +119,87 @@
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
 
+
 /**
  * Transformation Sting
  */
-
 /datum/action/changeling/sting/transformation
-	name = "Хоботок трансформации"
-	desc = "Мы скрытно уколем  гуманоида и введём ретровирус, который заставит жертву трансформироваться. Требует 50 химикатов."
-	helptext = "Жертва трансформируется подобно нам. Последствия будут очевидны для жертвы."
+	name = "Transformation Sting"
+	desc = "We silently sting a human, injecting a retrovirus that forces them to transform. Costs 50 chemicals."
+	helptext = "The victim will transform much like a changeling would. The effects will be obvious to the victim, and the process will damage our genomes."
 	button_icon_state = "sting_transform"
 	sting_icon = "sting_transform"
 	power_type = CHANGELING_PURCHASABLE_POWER
-	dna_cost = 2
 	chemical_cost = 50
+	dna_cost = 3
+	genetic_damage = 100
 	/// Currently selected DNA
 	var/datum/dna/selected_dna = null
 	/// Typecache of the blacklisted species
 	var/static/list/blacklisted_species = list(
-		SPECIES_MACHINEPERSON = TRUE,
+		SPECIES_MACNINEPERSON = TRUE,
 		SPECIES_PLASMAMAN = TRUE,
 		SPECIES_VOX = TRUE,
 	)
+
 
 /datum/action/changeling/sting/transformation/Destroy(force)
 	selected_dna = null
 	return ..()
 
-/datum/action/changeling/sting/transformation/Trigger(mob/clicker, trigger_flags)
+
+/datum/action/changeling/sting/transformation/Trigger(left_click = TRUE)
 	if(!ishuman(owner))
-		owner.balloon_alert(owner, "неподходящая форма")
+		to_chat(owner, span_warning("We cannot do that in this form!"))
 		return
 
 	if(cling?.chosen_sting)
 		unset_sting()
 		return
 
-	selected_dna = cling.select_dna("Выбрать ДНК для жертвы: ", "ДНК для жертвы")
+	selected_dna = cling.select_dna("Select the target DNA: ", "Target DNA")
+
 	if(!selected_dna)
 		return
 
 	if(blacklisted_species[selected_dna.species.name] || selected_dna.species.is_monkeybasic)
-		owner.balloon_alert(owner, "неподходящая ДНК")
+		to_chat(cling?.owner?.current, span_warning("The selected DNA is incompatible with our sting."))
 		return
 
 	..()
+
 
 /datum/action/changeling/sting/transformation/can_sting(mob/user, mob/target)
 	if(!..())
 		return FALSE
 
 	if(!ishuman(target) || HAS_TRAIT(target, TRAIT_HUSK))
-		user.balloon_alert(user, "неподходящая жертва")
+		to_chat(user, span_warning("Our sting appears ineffective against its DNA."))
 		return FALSE
 
 	if(HAS_TRAIT(target, TRAIT_NO_DNA))
-		user.balloon_alert(user, "жертва без ДНК")
+		to_chat(user, span_warning("This won't work on a creature without DNA."))
 		return FALSE
 
 	return TRUE
 
+
 /datum/action/changeling/sting/transformation/sting_action(mob/user, mob/target)
 	add_attack_logs(user, target, "Transformation sting (changeling) (new identity is [selected_dna.real_name])")
+	if(is_monkeybasic(target))
+		to_chat(user, span_notice("Our genes cry out as we sting [target.name]!"))
+
 	if(iscarbon(target) && (target.status_flags & CANWEAKEN))
-		var/mob/living/carbon/carbon = target
-		carbon.do_jitter_animation(500)
+		var/mob/living/carbon/C = target
+		C.do_jitter_animation(500)
 
-	target.visible_message(
-		span_danger("[target] начинает биться в конвульсиях!"),
-		span_userdanger("Вы чувствуете укол и начинаете биться в конвульсиях!"),
-	)
+	target.visible_message(span_danger("[target] begins to violenty convulse!"), \
+							span_userdanger("You feel a tiny prick and a begin to uncontrollably convulse!"))
 
-	addtimer(CALLBACK(src, PROC_REF(victim_transformation), target, selected_dna), 10 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(victim_transformation), target, selected_dna), 1 SECONDS)
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
+
 
 /datum/action/changeling/sting/transformation/proc/victim_transformation(mob/target, datum/dna/DNA)
 	if(QDELETED(target) || QDELETED(DNA))
@@ -192,19 +207,20 @@
 
 	transform_dna(target, DNA)
 
+
 /**
  * Mute Sting
  */
-
 /datum/action/changeling/sting/mute
-	name = "Хоботок безмолвия"
-	desc = "Мы скрытно уколем  жертву и она полностью лишится возможности говорить на короткое время. Требует 20 химикатов."
-	helptext = "Не даёт понять жертве о том, что она не может говорить, пока она не попытается сделать это."
-	dna_cost = 1
-	chemical_cost = 20
+	name = "Mute Sting"
+	desc = "We silently sting a human, completely silencing them for a short time. Costs 20 chemicals."
+	helptext = "Does not provide a warning to the victim that they have been stung, until they try to speak and cannot."
 	button_icon_state = "sting_mute"
 	sting_icon = "sting_mute"
 	power_type = CHANGELING_PURCHASABLE_POWER
+	dna_cost = 2
+	chemical_cost = 20
+
 
 /datum/action/changeling/sting/mute/sting_action(mob/user, mob/living/carbon/target)
 	add_attack_logs(user, target, "Mute sting (changeling)")
@@ -212,49 +228,51 @@
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
 
+
 /**
  * Blind Sting
  */
-
 /datum/action/changeling/sting/blind
-	name = "Хоботок слепоты"
-	desc = "Мы скрытно уколем  жертву и она временно ослепнет. Требует 20 химикатов."
-	helptext = "На 60 секунд полностью ослепит жертву и на 120 секунд оставит размытое зрение."
-	dna_cost = 1
-	chemical_cost = 20
+	name = "Blind Sting"
+	desc = "We temporarily blind our victim. Costs 25 chemicals."
+	helptext = "This sting completely blinds a target for a short time, and leaves them with blurred vision for a long time."
 	button_icon_state = "sting_blind"
 	sting_icon = "sting_blind"
 	power_type = CHANGELING_PURCHASABLE_POWER
+	dna_cost = 1
+	chemical_cost = 25
+
 
 /datum/action/changeling/sting/blind/sting_action(mob/living/user, mob/living/target)
 	add_attack_logs(user, target, "Blind sting (changeling)")
-	to_chat(target, span_danger("Ваши глаза ужасно щиплет!"))
+	to_chat(target, "<span class='danger'>Your eyes burn horrifically!</span>")
 	if(!HAS_TRAIT_NOT_FROM(target, TRAIT_NEARSIGHTED, CHANGELING_TRAIT))
 		ADD_TRAIT(target, TRAIT_NEARSIGHTED, CHANGELING_TRAIT)
 		if(!HAS_TRAIT_NOT_FROM(target, TRAIT_NEARSIGHTED, CHANGELING_TRAIT))
 			target.update_nearsighted_effects()
-	target.EyeBlind(60 SECONDS)
-	target.EyeBlurry(120 SECONDS)
+	target.EyeBlind(40 SECONDS)
+	target.EyeBlurry(80 SECONDS)
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
+
 
 /**
  * Hallucination Sting
  */
-
 /datum/action/changeling/sting/LSD
-	name = "Хоботок галлюцинаций"
-	desc = "Мы скрытно уколем  жертву и посеем ужас в ней. Требует 20 химикатов."
-	helptext = "Через 10 секунд у жертвы начнутся галлюцинации на 300 секунд."
-	dna_cost = 1
-	chemical_cost = 20
+	name = "Hallucination Sting"
+	desc = "We cause mass terror to our victim. Costs 10 chemicals."
+	helptext = "We evolve the ability to sting a target with a powerful hallucinogenic chemical. The target does not notice they have been stung, and the effect occurs after 30 to 60 seconds."
 	button_icon_state = "sting_lsd"
 	sting_icon = "sting_lsd"
 	power_type = CHANGELING_PURCHASABLE_POWER
+	dna_cost = 1
+	chemical_cost = 10
+
 
 /datum/action/changeling/sting/LSD/sting_action(mob/user, mob/living/carbon/target)
 	add_attack_logs(user, target, "LSD sting (changeling)")
-	addtimer(CALLBACK(src, PROC_REF(start_hallucinations), target, 300 SECONDS), 10 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(start_hallucinations), target, 400 SECONDS), rand(30 SECONDS, 60 SECONDS))
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
 
@@ -262,24 +280,26 @@
 	if(!QDELETED(target))
 		target.Hallucinate(amount)
 
+
 /**
  * Cryogenic Sting
  */
-
 /datum/action/changeling/sting/cryo //Enable when mob cooling is fixed so that frostoil actually makes you cold, instead of mostly just hungry.
-	name = "Криогенный хоботок"
-	desc = "Мы скрытно уколем  жертву химическим коктейлем, который будет замораживать её изнутри. Требует 20 химикатов."
-	helptext = "Укол незаметный, но жертва начнёт быстро замерзать, что будет заметно."
-	dna_cost = 1
-	chemical_cost = 20
+	name = "Cryogenic Sting"
+	desc = "We silently sting our victim with a cocktail of chemicals that freezes them from the inside. Costs 15 chemicals."
+	helptext = "Does not provide a warning to the victim, though they will likely realize they are suddenly freezing."
 	button_icon_state = "sting_cryo"
 	sting_icon = "sting_cryo"
 	power_type = CHANGELING_PURCHASABLE_POWER
+	dna_cost = 2
+	chemical_cost = 15
+
 
 /datum/action/changeling/sting/cryo/sting_action(mob/user, mob/target)
 	add_attack_logs(user, target, "Cryo sting (changeling)")
 	if(target.reagents)
 		target.reagents.add_reagent("frostoil", 30)
-		target.adjust_bodytemperature(-(100 * TEMPERATURE_DAMAGE_COEFFICIENT))
+		target.reagents.add_reagent("ice", 30)
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
+

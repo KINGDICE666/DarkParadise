@@ -32,14 +32,6 @@ GLOBAL_LIST_EMPTY(sortedAreas)
 /// An association from typepath to area instance. Only includes areas with `unique` set.
 GLOBAL_LIST_EMPTY_TYPED(areas_by_type, /area)
 
-/// list of all landmarks created
-GLOBAL_LIST_EMPTY(landmarks_list)
-/// list of all job spawn points created
-GLOBAL_LIST_EMPTY(start_landmarks_list)
-/// List of generic landmarks placed around the map where there are likely to be players and are identifiable at a glance -
-/// Such as public hallways, department rooms, head of staff offices, and non-generic maintenance locations
-GLOBAL_LIST_EMPTY(generic_event_spawns)
-
 GLOBAL_LIST_EMPTY(wizardstart)
 GLOBAL_LIST_EMPTY(newplayer_start)
 GLOBAL_LIST_EMPTY(start_override)
@@ -48,8 +40,8 @@ GLOBAL_LIST_EMPTY(latejoin_prisoner)
 GLOBAL_LIST_EMPTY(latejoin_gateway)
 GLOBAL_LIST_EMPTY(latejoin_cryo)
 GLOBAL_LIST_EMPTY(latejoin_cyborg)
-GLOBAL_LIST_EMPTY(prisonwarp) //prisoners go to these
-GLOBAL_LIST_EMPTY(syndieprisonwarp) //contractor targets go to these
+GLOBAL_LIST_EMPTY(prisonwarp)	//prisoners go to these
+GLOBAL_LIST_EMPTY(syndieprisonwarp)	//contractor targets go to these
 GLOBAL_LIST_EMPTY(xeno_spawn)//Aliens spawn at these.
 GLOBAL_LIST_EMPTY(ertdirector)
 GLOBAL_LIST_EMPTY(emergencyresponseteamspawn)
@@ -60,8 +52,8 @@ GLOBAL_LIST_EMPTY(team_bravo)
 GLOBAL_LIST_EMPTY(tdomeobserve)
 GLOBAL_LIST_EMPTY(tdomeadmin)
 GLOBAL_LIST_EMPTY(aroomwarp)
-GLOBAL_LIST_EMPTY(prisonsecuritywarp) //prison security goes to these
-GLOBAL_LIST_EMPTY(prisonwarped) //list of players already warped
+GLOBAL_LIST_EMPTY(prisonsecuritywarp)	//prison security goes to these
+GLOBAL_LIST_EMPTY(prisonwarped)	//list of players already warped
 GLOBAL_LIST_EMPTY(blobstart)
 GLOBAL_LIST_EMPTY(ninjastart)
 GLOBAL_LIST_EMPTY(ninja_teleport)
@@ -71,14 +63,10 @@ GLOBAL_LIST_EMPTY(nukespawn)
 GLOBAL_LIST_EMPTY(captain_body_spawns)
 GLOBAL_LIST_EMPTY(armory_body_spawns)
 GLOBAL_LIST_EMPTY(airdrops_points)
-GLOBAL_LIST_INIT(battle_teams_spawns, list(
-	JOB_TITLE_TEAM1 = list(),
-	JOB_TITLE_TEAM2 = list(),
-	JOB_TITLE_TEAM3 = list()
-))
+GLOBAL_LIST_EMPTY(battle_teams_spawns)
 
 //away missions
-GLOBAL_LIST_EMPTY(awaydestinations) //a list of landmarks that the warpgate can take you to
+GLOBAL_LIST_EMPTY(awaydestinations)	//a list of landmarks that the warpgate can take you to
 
 //List of preloaded templates
 GLOBAL_LIST_EMPTY(map_templates)

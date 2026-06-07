@@ -72,16 +72,12 @@
 		playsound(src, "acid_hit", 25, TRUE)
 		playsound(xeno, "alien_help", 25, TRUE)
 		xeno.apply_damage(10, BURN)
-		xeno.visible_message(
-			span_danger("[xeno] tried to knock the steaming hot [src] over, but burned itself and pulled away!"),
-			span_alertalien("\The [src] is burning hot! Wait a few seconds.")
-		)
+		xeno.visible_message(span_danger("[xeno] tried to knock the steaming hot [src] over, but burned itself and pulled away!"),
+		span_alertalien("\The [src] is burning hot! Wait a few seconds."))
 		return
 
-	xeno.visible_message(
-		span_danger("[xeno] lashes at \the [src] and knocks it over!"),
-		span_danger("You knock \the [src] over!")
-	)
+	xeno.visible_message(span_danger("[xeno] lashes at \the [src] and knocks it over!"),
+	span_danger("You knock \the [src] over!"))
 	playsound(loc, 'sound/effects/metalhit.ogg', 25)
 	var/obj/item/mortar_kit/MK = new /obj/item/mortar_kit(loc)
 	MK.name = name
@@ -142,10 +138,8 @@
 	if(!can_fire_at(user, test_targ_x = temp_targ_x, test_targ_y = temp_targ_y, test_targ_z = temp_targ_z))
 		return
 
-	user.visible_message(
-		span_notice("[user] starts adjusting [src]'s firing angle and distance."),
-		span_notice("You start adjusting [src]'s firing angle and distance to match the new coordinates.")
-	)
+	user.visible_message(span_notice("[user] starts adjusting [src]'s firing angle and distance."),
+	span_notice("You start adjusting [src]'s firing angle and distance to match the new coordinates."))
 	busy = TRUE
 	var/soundfile = 'sound/machines/scanning.ogg'
 	playsound(loc, soundfile, 25, TRUE)
@@ -156,10 +150,8 @@
 	if(!success)
 		return
 
-	user.visible_message(
-		span_notice("[user] finishes adjusting [src]'s firing angle and distance."),
-		span_notice("You finish adjusting [src]'s firing angle and distance to match the new coordinates.")
-	)
+	user.visible_message(span_notice("[user] finishes adjusting [src]'s firing angle and distance."),
+	span_notice("You finish adjusting [src]'s firing angle and distance to match the new coordinates."))
 	targ_x = temp_targ_x
 	targ_y = temp_targ_y
 	targ_z = temp_targ_z
@@ -181,10 +173,8 @@
 	if(!can_fire_at(user, test_dial_x = temp_dial_x, test_dial_y = temp_dial_y))
 		return
 
-	user.visible_message(
-		span_notice("[user] starts dialing [src]'s firing angle and distance."),
-		span_notice("You start dialing [src]'s firing angle and distance to match the new coordinates.")
-	)
+	user.visible_message(span_notice("[user] starts dialing [src]'s firing angle and distance."),
+	span_notice("You start dialing [src]'s firing angle and distance to match the new coordinates."))
 	busy = TRUE
 
 	var/soundfile = 'sound/machines/scanning.ogg'
@@ -196,17 +186,15 @@
 	busy = FALSE
 	if(!success)
 		return
-	user.visible_message(
-		span_notice("[user] finishes dialing [src]'s firing angle and distance."),
-		span_notice("You finish dialing [src]'s firing angle and distance to match the new coordinates.")
-	)
+	user.visible_message(span_notice("[user] finishes dialing [src]'s firing angle and distance."),
+	span_notice("You finish dialing [src]'s firing angle and distance to match the new coordinates."))
 	dial_x = temp_dial_x
 	dial_y = temp_dial_y
 
 	SStgui.update_uis(src)
 
 /obj/structure/mortar/attackby(obj/item/item, mob/user)
-	if(!ismortarcasing(item))
+	if(!istype(item, /obj/item/mortar_shell))
 		return ATTACK_CHAIN_PROCEED
 	var/obj/item/mortar_shell/mortar_shell = item
 
@@ -239,10 +227,8 @@
 	if(deviation_turf)
 		target_turf = deviation_turf
 
-	user.visible_message(
-		span_notice("[user] starts loading \a [mortar_shell.name] into [src]."),
-		span_notice("You start loading \a [mortar_shell.name] into [src].")
-	)
+	user.visible_message(span_notice("[user] starts loading \a [mortar_shell.name] into [src]."),
+	span_notice("You start loading \a [mortar_shell.name] into [src]."))
 	playsound(loc, 'sound/weapons/gun_mortar_reload.ogg', 50, TRUE)
 	busy = TRUE
 	var/success = do_after(user, 1.5 SECONDS)
@@ -251,11 +237,9 @@
 	if(!success)
 		return ATTACK_CHAIN_PROCEED
 
-	user.visible_message(
-		span_notice("[user] loads \a [mortar_shell.name] into [src]."),
-		span_notice("You load \a [mortar_shell.name] into [src].")
-	)
-	visible_message("[get_examine_icon(viewers(src))] [span_danger("The [name] fires!")]")
+	user.visible_message(span_notice("[user] loads \a [mortar_shell.name] into [src]."),
+	span_notice("You load \a [mortar_shell.name] into [src]."))
+	visible_message("[icon2html(src, viewers(src))] [span_danger("The [name] fires!")]")
 	user.drop_transfer_item_to_loc(mortar_shell, src, TRUE, TRUE)
 	playsound(loc, 'sound/weapons/gun_mortar_fire.ogg', 50, TRUE)
 	busy = FALSE
@@ -284,18 +268,14 @@
 		return
 
 	playsound(loc, 'sound/items/Ratchet.ogg', 25, TRUE)
-	user.visible_message(
-		span_notice("[user] starts undeploying [src]."),
-		span_notice("You start undeploying [src].")
-	)
+	user.visible_message(span_notice("[user] starts undeploying [src]."),
+		span_notice("You start undeploying [src]."))
 
 	if(!do_after(user, 4 SECONDS))
 		return
 
-	user.visible_message(
-		span_notice("[user] undeploys [src]."),
-		span_notice("You undeploy [src].")
-	)
+	user.visible_message(span_notice("[user] undeploys [src]."),
+		span_notice("You undeploy [src]."))
 	playsound(loc, 'sound/items/Deconstruct.ogg', 25, TRUE)
 	var/obj/item/mortar_kit/mortar = new /obj/item/mortar_kit(loc, skin)
 	mortar.name = src.name
@@ -342,6 +322,7 @@
 	sleep(2.5 SECONDS) // Sleep a bit to give a message
 	new /obj/effect/overlay/temp/blinking_laser(target)
 	sleep(2 SECONDS) // Wait out the rest of the landing time
+
 
 /obj/structure/mortar/proc/can_fire_at(mob/user, test_targ_x = targ_x, test_targ_y = targ_y, test_targ_z = targ_z, test_dial_x, test_dial_y)
 	var/dialing = test_dial_x || test_dial_y
@@ -487,24 +468,21 @@
 	if(above_turf && !isopenspaceturf(above_turf))
 		to_chat(user, span_warning("You probably shouldn't deploy [src] indoors."))
 		return
-	user.visible_message(
-		span_notice("[user] starts deploying [src]."),
-		span_notice("You start deploying [src].")
-	)
+	user.visible_message(span_notice("[user] starts deploying [src]."),
+	span_notice("You start deploying [src]."))
 	playsound(deploy_turf, 'sound/items/Deconstruct.ogg', 25, TRUE)
 
 	if(!do_after(user, 4 SECONDS))
 		return
 
 	var/obj/structure/mortar/mortar = new /obj/structure/mortar(deploy_turf, skin)
-	user.visible_message(
-		span_notice("[user] deploys [src]."),
-		span_notice("You deploy [src].")
-	)
+	user.visible_message(span_notice("[user] deploys [src]."),
+	span_notice("You deploy [src]."))
 	playsound(deploy_turf, 'sound/weapons/gun_mortar_unpack.ogg', 25, TRUE)
 	mortar.name = src.name
 	mortar.setDir(user.dir)
 	qdel(src)
+
 
 //used to show where dropship ordnance will impact.
 /obj/effect/overlay/temp/blinking_laser

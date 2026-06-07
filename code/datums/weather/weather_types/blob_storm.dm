@@ -4,9 +4,9 @@
 	desc = "Плотное облако из мельчайших спор блоба, проникающих через любую одежду."
 
 	telegraph_duration = 2 SECONDS
-	telegraph_message = span_danger_alt("Вы замечаете мелкие частицы в воздухе")
+	telegraph_message = span_danger("Вы замечаете мелкие частицы в воздухе")
 
-	weather_message = span_userdanger_alt("<i>Вы ощущаете поток неизвестных мелких частиц, которые проникают сквозь любую одежду. Спасти вас может только чудо.</i>")
+	weather_message = span_userdanger("<i>Вы ощущаете поток неизвестных мелких частиц, которые проникают сквозь любую одежду. Спасти вас может только чудо.</i>")
 	weather_overlay = "blob_storm"
 	weather_duration_lower = 30 SECONDS
 	weather_duration_upper = 1 MINUTES
@@ -16,22 +16,23 @@
 	weather_sound = 'sound/magic/mutate.ogg'
 
 	end_duration = 10 SECONDS
-	end_message = span_notice_alt("Поток частиц осел.")
+	end_message = span_notice("Поток частиц осел.")
 
 	area_type = /area
 	protected_areas = list(/area/space, /area/crew_quarters/sleep)
 
 	immunity_type = TRAIT_BLOBSTORM_IMMUNE
 
+
 /datum/weather/blob_storm/telegraph()
-	var/list/blobs = SSticker?.mode?.blobs[BLOB_GROUP_INFECTED] + SSticker?.mode?.blobs[BLOB_GROUP_OFFSPRINGS]
+	var/list/blobs = SSticker?.mode?.blobs["infected"] + SSticker?.mode?.blobs["offsprings"]
 	var/color
 	var/mass = 0
 	for(var/datum/mind/blob in blobs)
 		var/mob/camera/blob/overmind = blob.current
 		if(QDELETED(overmind) || !istype(overmind) || overmind.stat == DEAD)
 			continue
-		if(length(overmind.blobs_legit) > mass)
+		if(overmind.blobs_legit.len > mass)
 			mass = overmind.blobs_legit.len
 			color = overmind.blobstrain.color
 
@@ -40,11 +41,11 @@
 
 	..()
 	status_alarm(TRUE)
-	GLOB.major_announcement.announce(
-		message = "Биологической угроза 5-го уровня достигла критической массы на борту [station_name()]. Выброс спор и массовое заражение неизбежно.",
-		new_title = ANNOUNCE_BIOHAZARD_RU,
-		new_sound = SSstation.announcer.get_rand_report_sound()
+	GLOB.major_announcement.announce("Биологической угроза 5-го уровня достигла критической массы на борту [station_name()]. Выброс спор и массовое заражение неизбежно.",
+									ANNOUNCE_BIOHAZARD_RU,
+									'sound/AI/commandreport.ogg'
 	)
+
 
 /datum/weather/blob_storm/can_weather_act(mob/living/mob_to_check)
 	if(prob(50))
@@ -60,6 +61,7 @@
 		return FALSE
 	return ..()
 
+
 /datum/weather/blob_storm/weather_act(mob/living/target)
 	var/datum_type = target.mind.get_blob_infected_type()
 	var/datum/antagonist/blob_infected/blob_datum = new datum_type()
@@ -67,6 +69,7 @@
 	blob_datum.time_to_burst_hight = TIME_TO_BURST_MOUSE_HIGHT
 	blob_datum.time_to_burst_low = TIME_TO_BURST_MOUSE_LOW
 	target.mind.add_antag_datum(blob_datum)
+
 
 /datum/weather/blob_storm/end()
 	if(..())
@@ -89,7 +92,7 @@
 	stage = MAIN_STAGE
 	if(SSsecurity_level.get_current_level_as_number() == SEC_LEVEL_DELTA)
 		for(var/obj/machinery/nuclearbomb/bomb in SSmachines.get_by_type(/obj/machinery/nuclearbomb))
-			if(bomb?.timing && is_station_level(bomb.z))
+			if(bomb && bomb.timing && is_station_level(bomb.z))
 				INVOKE_ASYNC(bomb, TYPE_PROC_REF(/obj/machinery/nuclearbomb/,explode))
 	update_areas()
 	for(var/M in GLOB.player_list)

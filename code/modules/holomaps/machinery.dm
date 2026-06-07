@@ -24,27 +24,21 @@
 	var/image/small_station_map
 	/// The little "map" floor painting.
 	var/image/floor_markings
-	/// Auto update holomap with timeout
-	var/auto_update = FALSE
-	/// Auto update timeout (in deciseconds)
-	var/auto_update_timeout = 1 SECONDS
-	/// Auto update timer id
-	var/auto_update_timer_id = null
 
-	/// zLevel which the map is a map for. Change this to have mapload holomaps look at other zlevels.
+	// zLevel which the map is a map for. Change this to have mapload holomaps look at other zlevels.
 	var/current_z_level
 
 	/// The various images and icons for the map are stored in here, as well as the actual big map itself.
 	var/datum/station_holomap/holomap_datum
 
 /obj/machinery/station_map/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голокарта станции",
 		GENITIVE = "голокарты станции",
 		DATIVE = "голокарте станции",
 		ACCUSATIVE = "голокарту станции",
 		INSTRUMENTAL = "голокартой станции",
-		PREPOSITIONAL = "голокарте станции",
+		PREPOSITIONAL = "голокарте станции"
 	)
 
 /obj/machinery/station_map/Initialize(mapload)
@@ -53,8 +47,8 @@
 	SSholomaps.station_holomaps += src
 	floor_markings = image('icons/obj/stationmap.dmi', "decal_station_map")
 	floor_markings.dir = src.dir
-	floor_markings.pixel_w = -src.pixel_x
-	floor_markings.pixel_z = -src.pixel_y
+	floor_markings.pixel_x = -src.pixel_x
+	floor_markings.pixel_y = -src.pixel_y
 	add_overlay(floor_markings)
 	..()
 	component_parts = list()
@@ -86,6 +80,7 @@
 
 	holomap_datum.initialize_holomap(current_turf, current_z_level, reinit_base_map = TRUE, extra_overlays = handle_overlays())
 
+
 	update_icon()
 
 /obj/machinery/station_map/attack_hand(mob/user)
@@ -109,7 +104,7 @@
 		if(!holomap_datum)
 			// Something is very wrong if we have to un-fuck ourselves here.
 			stack_trace("Holomap at [COORD(src)] couldn't setup holomap_datum.")
-			to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] сбоит и выдает сообщение: \"ОШИБКА: NTOS не отвечает.\""))
+			to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] сбоит и выдает сообщение: \"ОШИБКА: NTOS не отвечает.\""))
 			return
 
 	holomap_datum.update_map(handle_overlays())
@@ -123,9 +118,6 @@
 		RegisterSignal(moving_mob, COMSIG_AI_EYE_MOVED, PROC_REF(check_position))
 	else
 		RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(check_position))
-
-	if(auto_update)
-		auto_update_timer_id = addtimer(CALLBACK(src, PROC_REF(redraw_map), user), auto_update_timeout, TIMER_LOOP | TIMER_STOPPABLE)
 
 	playsound(src, 'sound/effects/holomap_open.ogg', 125)
 	animate(holomap_datum.base_map, alpha = 255, time = 5, easing = LINEAR_EASING)
@@ -148,12 +140,6 @@
 
 	return TRUE
 
-/obj/machinery/station_map/proc/redraw_map(mob/user)
-	if(!user || !user.client || !user.client.images)
-		close_map()
-		return
-	holomap_datum.update_map(handle_overlays())
-
 /obj/machinery/station_map/attack_ai(mob/living/silicon/robot/user)
 	attack_hand(user)
 
@@ -167,32 +153,24 @@
 /obj/machinery/station_map/proc/check_position(mob/moved_mob)
 	SIGNAL_HANDLER
 
-	if(!moved_mob || !IsReachableBy(moved_mob))
+	if(!moved_mob || (moved_mob.loc != loc) || (dir != moved_mob.dir))
 		close_map()
 
 /obj/machinery/station_map/proc/close_map()
 	if(!watching_mob)
 		return
 
-	if(moving_mob)
-		UnregisterSignal(moving_mob, COMSIG_AI_EYE_MOVED)
-
+	UnregisterSignal(moving_mob, COMSIG_AI_EYE_MOVED)
 	UnregisterSignal(watching_mob, COMSIG_MOVABLE_MOVED)
 	playsound(src, 'sound/effects/holomap_close.ogg', 125)
 	icon_state = initial(icon_state)
-
-	if(auto_update_timer_id)
-		deltimer(auto_update_timer_id)
-		auto_update_timer_id = null
-
 	if(watching_mob?.client)
 		animate(holomap_datum.base_map, alpha = 0, time = 5, easing = LINEAR_EASING)
-		spawn(5)
-			if(watching_mob?.client)
-				watching_mob.client.screen -= watching_mob.hud_used.holomap
-				watching_mob.client.images -= holomap_datum.base_map
-				watching_mob.hud_used.holomap.used_station_map = null
-				watching_mob.hud_used.holomap.used_base_map = null
+		spawn(5) //we give it time to fade out
+			watching_mob.client?.screen -= watching_mob.hud_used.holomap
+			watching_mob.client?.images -= holomap_datum.base_map
+			watching_mob.hud_used.holomap.used_station_map = null
+			watching_mob.hud_used.holomap.used_base_map = null
 			watching_mob = null
 			set_light(HOLOMAP_LOW_LIGHT)
 
@@ -234,8 +212,8 @@
 	// Put the little "map" overlay down where it looks nice
 	if(floor_markings)
 		floor_markings.dir = src.dir
-		floor_markings.pixel_w = -src.pixel_x
-		floor_markings.pixel_z = -src.pixel_y
+		floor_markings.pixel_x = -src.pixel_x
+		floor_markings.pixel_y = -src.pixel_y
 		add_overlay(floor_markings)
 
 /obj/machinery/station_map/screwdriver_act(mob/living/user, obj/item/tool)
@@ -254,13 +232,13 @@
 	if(!panel_open)
 		to_chat(user, span_warning("Для изменения настроек [declent_ru(GENITIVE)] необходимо открыть панель!"))
 		return FALSE
-	if(!length(SSholomaps.valid_map_indexes) > 1)
+	if(!SSholomaps.valid_map_indexes.len > 1)
 		to_chat(user, span_warning("Нет других доступных карт для [declent_ru(GENITIVE)]!"))
 		return FALSE
 
 	tool.play_tool_sound(user, 50)
 	var/current_index = SSholomaps.valid_map_indexes.Find(current_z_level)
-	if(current_index >= length(SSholomaps.valid_map_indexes))
+	if(current_index >= SSholomaps.valid_map_indexes.len)
 		current_z_level = SSholomaps.valid_map_indexes[1]
 	else
 		current_z_level = SSholomaps.valid_map_indexes[current_index + 1]
@@ -320,7 +298,7 @@
 	icon_state = "station_map_engi"
 
 /obj/machinery/station_map/engineering/Initialize(mapload)
-	. = ..()
+	..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/machine/station_map/engineering(null)
 	component_parts += new /obj/item/stock_parts/scanning_module(null)
@@ -346,8 +324,8 @@
 	for(var/obj/machinery/firealarm/alarm as anything in GLOB.station_fire_alarms["[current_z_level]"])
 		if(alarm?.z == current_z_level && alarm?.myArea?.fire)
 			var/image/alarm_icon = image('icons/misc/8x8.dmi', icon_state = "fire_marker")
-			alarm_icon.pixel_w = alarm.x + HOLOMAP_CENTER_X - 1
-			alarm_icon.pixel_z = alarm.y + HOLOMAP_CENTER_Y
+			alarm_icon.pixel_x = alarm.x + HOLOMAP_CENTER_X - 1
+			alarm_icon.pixel_y = alarm.y + HOLOMAP_CENTER_Y
 			fire_alarms += alarm_icon
 
 	if(length(fire_alarms))
@@ -359,59 +337,13 @@
 		var/area/alarms = get_area(air_alarm)
 		if(air_alarm?.z == current_z_level && alarms?.atmosalm) //Altered it to fire_alam since we don't have an area variable on air_alarms
 			var/image/alarm_icon = image('icons/misc/8x8.dmi', "atmos_marker")
-			alarm_icon.pixel_w = air_alarm.x + HOLOMAP_CENTER_X - 1
-			alarm_icon.pixel_z = air_alarm.y + HOLOMAP_CENTER_Y
+			alarm_icon.pixel_x = air_alarm.x + HOLOMAP_CENTER_X - 1
+			alarm_icon.pixel_y = air_alarm.y + HOLOMAP_CENTER_Y
 			air_alarms += alarm_icon
 
 	if(length(air_alarms))
 		extra_overlays["Air Alarms"] = list("icon" = image('icons/misc/8x8.dmi', "atmos_marker"), "markers" = air_alarms)
 	*/
-
-	return extra_overlays
-
-
-/obj/machinery/station_map/security
-	name = "security station map"
-	icon_state = "station_map_sec"
-	auto_update = TRUE
-
-/obj/machinery/station_map/security/Initialize(mapload)
-	. = ..()
-	component_parts = list()
-	component_parts += new /obj/item/circuitboard/machine/station_map/security(null)
-	component_parts += new /obj/item/stock_parts/scanning_module(null)
-	component_parts += new /obj/item/stock_parts/scanning_module(null)
-	component_parts += new /obj/item/stock_parts/scanning_module(null)
-	component_parts += new /obj/item/stock_parts/micro_laser(null)
-	component_parts += new /obj/item/stock_parts/micro_laser(null)
-	component_parts += new /obj/item/stock_parts/micro_laser(null)
-	component_parts += new /obj/item/stock_parts/micro_laser(null)
-	component_parts += new /obj/item/stack/ore/bluespace_crystal/artificial(null)
-
-/obj/machinery/station_map/security/attack_hand(mob/user)
-	. = ..()
-	if(.)
-		holomap_datum.update_map(handle_overlays())
-
-/obj/machinery/station_map/security/handle_overlays()
-	var/list/extra_overlays = ..()
-	if(holomap_datum.bogus)
-		return extra_overlays
-
-	var/list/mindshields = list()
-	for(var/mob/living/carbon/human/check as anything in GLOB.human_list)
-		if(!ismindshielded(check))
-			continue
-		var/turf/check_turf = get_turf(check)
-		if(isnull(check_turf) || check_turf.z != current_z_level)
-			continue
-		var/image/check_icon = image('icons/misc/8x8.dmi', icon_state = "security")
-		check_icon.pixel_w = check_turf.x + HOLOMAP_CENTER_X - 1
-		check_icon.pixel_z = check_turf.y + HOLOMAP_CENTER_Y
-		mindshields += check_icon
-
-	if(length(mindshields))
-		extra_overlays["Mindshields"] = list("icon" = image('icons/misc/8x8.dmi', icon_state = "security"), "markers" = mindshields)
 
 	return extra_overlays
 
@@ -424,16 +356,7 @@
 /obj/item/circuitboard/machine/station_map/engineering
 	name = "Engineering Station Map"
 	desc = "A virtual map of the surrounding station. Also shows any active fire and atmos alarms."
-	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
 	build_path = /obj/machinery/station_map/engineering/directional/north
-	origin_tech = "programming=4;engineering=4"
-	req_components = list(/obj/item/stock_parts/scanning_module = 3, /obj/item/stock_parts/micro_laser = 4, /obj/item/stack/ore/bluespace_crystal = 1)
-
-/obj/item/circuitboard/machine/station_map/security
-	name = "Security Station Map"
-	desc = "Виртуальная карта станции. Показывает сотрудников с имплантом защиты разума."
-	greyscale_colors = CIRCUIT_COLOR_SECURITY
-	build_path = /obj/machinery/station_map/security/directional/north
 	origin_tech = "programming=4;engineering=4"
 	req_components = list(/obj/item/stock_parts/scanning_module = 3, /obj/item/stock_parts/micro_laser = 4, /obj/item/stack/ore/bluespace_crystal = 1)
 
@@ -467,22 +390,6 @@
 	pixel_x = -32
 
 /obj/machinery/station_map/engineering/directional/east
-	dir = EAST
-	pixel_x = 32
-
-/obj/machinery/station_map/security/directional/north
-	dir = NORTH
-	pixel_y = 32
-
-/obj/machinery/station_map/security/directional/south
-	dir = SOUTH
-	pixel_y = -32
-
-/obj/machinery/station_map/security/directional/west
-	dir = WEST
-	pixel_x = -32
-
-/obj/machinery/station_map/security/directional/east
 	dir = EAST
 	pixel_x = 32
 

@@ -1,24 +1,17 @@
-/**
- * # area
- *
- * A grouping of tiles into a logical space, mostly used by map editors
- */
 /area
-	abstract_type = /area
-	level = null
-	name = "Space"
-	icon = 'icons/area/areas.dmi'
-	icon_state = "unknown"
-	layer = AREA_LAYER
-	plane = AREA_PLANE //Keeping this on the default plane, GAME_PLANE, will make area overlays fail to render on FLOOR_PLANE.
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	invisibility = INVISIBILITY_LIGHTING
-
 	var/fire = null
 	var/area_emergency_mode = FALSE // When true, fire alarms cannot unset emergency lighting. Not to be confused with emergency_mode var on light objects.
 	var/atmosalm = ATMOS_ALARM_NONE
 	var/poweralm = TRUE
 	var/report_alerts = TRUE // Should atmos alerts notify the AI/computers
+	level = null
+	name = "Space"
+	icon = 'icons/turf/areas.dmi'
+	icon_state = "unknown"
+	layer = AREA_LAYER
+	plane = AREA_PLANE //Keeping this on the default plane, GAME_PLANE, will make area overlays fail to render on FLOOR_PLANE.
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	invisibility = INVISIBILITY_LIGHTING
 
 	/// List of all turfs currently inside this area as nested lists indexed by zlevel.
 	/// Acts as a filtered bersion of area.contents For faster lookup
@@ -69,6 +62,8 @@
 	var/global/global_uid = 0
 	var/uid
 
+	var/list/ambientsounds = GENERIC_SOUNDS
+
 	var/list/firedoors
 	var/list/cameras
 	var/list/firealarms
@@ -91,23 +86,13 @@
 	var/moving = FALSE
 	/// "Haunted" areas such as the morgue and chapel are easier to boo. Because flavor.
 	var/is_haunted = FALSE
-
 	///Used to decide what kind of reverb the area makes sound have
 	var/sound_environment = SOUND_ENVIRONMENT_NONE
 
-	var/ambience_index = AMBIENCE_GENERIC
-	///A list of sounds to pick from every so often to play to clients.
-	var/list/ambientsounds
-	///Does this area immediately play an ambience track upon enter?
-	var/forced_ambience = FALSE
-	///The background droning loop that plays 24/7
-	var/ambient_buzz = 'sound/ambience/general/shipambience.ogg'
-	///The volume of the ambient buzz
-	var/ambient_buzz_vol = 35
 	///Used to decide what the minimum time between ambience is
-	var/min_ambience_cooldown = 4 SECONDS
+	var/min_ambience_cooldown = 30 SECONDS
 	///Used to decide what the maximum time between ambience is
-	var/max_ambience_cooldown = 10 SECONDS
+	var/max_ambience_cooldown = 90 SECONDS
 
 	///This datum, if set, allows terrain generation behavior to be ran on Initialize() // This is unfinished, used in Lavaland
 	var/datum/map_generator/cave_generator/map_generator
@@ -119,10 +104,12 @@
 	/// Whether the turfs in the area should be drawn onto the "base" holomap.
 	var/holomap_should_draw = TRUE
 
-	/// The air alarms present in this area.
-	var/list/air_alarms = list()
-	var/list/air_vents = list()
-	var/list/air_scrubs = list()
+	//all air alarms in area are connected via magic
+	var/obj/machinery/alarm/master_air_alarm
+	var/list/air_vent_names = list()
+	var/list/air_scrub_names = list()
+	var/list/air_vent_info = list()
+	var/list/air_scrub_info = list()
 
 	/// Turrets use this list to see if individual power/lethal settings are allowed
 	var/list/obj/machinery/turretid/turret_controls = list()
@@ -148,12 +135,9 @@
 	if(area_flags & UNIQUE_AREA)
 		GLOB.areas_by_type[type] = src
 	GLOB.areas += src
-	return ..()
+	..()
 
 /area/Initialize(mapload)
-	if(!ambientsounds)
-		ambientsounds = GLOB.ambience_assoc[ambience_index]
-
 	if(is_station_level(z))
 		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
 
@@ -255,6 +239,7 @@
 		else if(!firedoor.density)
 			INVOKE_ASYNC(firedoor, TYPE_PROC_REF(/obj/machinery/door/firedoor, close))
 
+
 /area/proc/air_doors_open()
 	if(!air_doors_activated)
 		return
@@ -337,6 +322,7 @@
 	if(new_length >= zlevel_to_clean)
 		turfs_to_uncontain_by_zlevel[zlevel_to_clean] = list()
 
+
 /// Ensures that the contained_turfs list properly represents the turfs actually inside us
 /area/proc/cannonize_contained_turfs()
 	for(var/area_zlevel in 1 to length(turfs_to_uncontain_by_zlevel))
@@ -382,9 +368,9 @@
 						C.network |= "Power Alarms"
 
 			if(state)
-				GLOB.alarm_manager.cancel_alarm("Power", src, source)
+				SSalarm.cancelAlarm("Power", src, source)
 			else
-				GLOB.alarm_manager.trigger_alarm("Power", src, cameras, source)
+				SSalarm.triggerAlarm("Power", src, cameras, source)
 
 /**
  * Generate an atmospheric alert for this area
@@ -400,7 +386,8 @@
 				if(!QDELETED(C) && is_station_level(C.z))
 					C.network |= "Atmosphere Alarms"
 
-			GLOB.alarm_manager.trigger_alarm("Atmosphere", src, cameras, source)
+
+			SSalarm.triggerAlarm("Atmosphere", src, cameras, source)
 
 		else if(atmosalm == ATMOS_ALARM_DANGER)
 			for(var/thing in cameras)
@@ -408,7 +395,7 @@
 				if(!QDELETED(C) && is_station_level(C.z))
 					C.network -= "Atmosphere Alarms"
 
-			GLOB.alarm_manager.cancel_alarm("Atmosphere", src, source)
+			SSalarm.cancelAlarm("Atmosphere", src, source)
 
 		atmosalm = danger_level
 		return TRUE
@@ -466,7 +453,7 @@
 		if(!QDELETED(C) && is_station_level(C.z))
 			C.network |= "Fire Alarms"
 
-	GLOB.alarm_manager.trigger_alarm("Fire", src, cameras, source)
+	SSalarm.triggerAlarm("Fire", src, cameras, source)
 
 	START_PROCESSING(SSobj, src)
 
@@ -488,7 +475,7 @@
 		if(!QDELETED(C) && is_station_level(C.z))
 			C.network -= "Fire Alarms"
 
-	GLOB.alarm_manager.cancel_alarm("Fire", src, source)
+	SSalarm.cancelAlarm("Fire", src, source)
 
 	STOP_PROCESSING(SSobj, src)
 
@@ -527,9 +514,9 @@
 	for(var/obj/machinery/door/DOOR in machinery_cache)
 		close_and_lock_door(DOOR)
 
-	if(GLOB.alarm_manager.trigger_alarm("Burglar", src, cameras, trigger))
+	if(SSalarm.triggerAlarm("Burglar", src, cameras, trigger))
 		//Cancel silicon alert after 1 minute
-		addtimer(CALLBACK(GLOB.alarm_manager, TYPE_PROC_REF(/datum/alarm_manager, cancel_alarm), "Burglar", src, trigger), 1 MINUTES)
+		addtimer(CALLBACK(SSalarm, TYPE_PROC_REF(/datum/controller/subsystem/alarm, cancelAlarm), "Burglar", src, trigger), 600)
 
 /**
  * Trigger the fire alarm visual affects in an area
@@ -561,6 +548,7 @@
 		light.fire_mode = FALSE
 		light.update()
 
+
 /area/update_icon_state()
 	var/weather_icon = FALSE
 	for(var/datum/weather/weather as anything in SSweather.processing)
@@ -569,6 +557,7 @@
 			weather_icon = TRUE
 	if(!weather_icon)
 		icon_state = null
+
 
 /area/space/update_icon_state()
 	icon_state = null
@@ -600,6 +589,7 @@
 		machine.power_change()										// reverify power status (to update icons etc.)
 	update_icon(UPDATE_ICON_STATE)
 	SEND_SIGNAL(src, COMSIG_AREA_POWER_CHANGE)
+
 
 /area/proc/usage(chan)
 	var/used = 0
@@ -653,36 +643,20 @@
 		if(ENVIRON)
 			used_environ += amount
 
-/**
- * Call back when an atom enters an area
- *
- * Sends signals COMSIG_AREA_ENTERED and COMSIG_ENTER_AREA (to a list of atoms)
- *
- * If the area has ambience, then it plays some ambience music to the ambience channel
- */
+
 /area/Entered(atom/movable/arrived, area/old_area)
-	set waitfor = FALSE
+
 	SEND_SIGNAL(src, COMSIG_AREA_ENTERED, arrived, old_area)
 	SEND_SIGNAL(arrived, COMSIG_ATOM_ENTERED_AREA, src, old_area)
 
 	if(ismob(arrived))
 		var/mob/arrived_mob = arrived
-		arrived_mob.update_ambience_area(src)
 		if(!arrived_mob.lastarea || old_area != src)
 			arrived_mob.lastarea = src
 
-	if(!LAZYACCESS(arrived.important_recursive_contents, RECURSIVE_CONTENTS_AREA_SENSITIVE))
-		return
-	for(var/atom/movable/recipient as anything in arrived.important_recursive_contents[RECURSIVE_CONTENTS_AREA_SENSITIVE])
-		SEND_SIGNAL(recipient, COMSIG_ENTER_AREA, src)
-
-/area/Exited(atom/movable/gone, direction)
-	SEND_SIGNAL(src, COMSIG_AREA_EXITED, gone, direction)
-	SEND_SIGNAL(gone, COMSIG_MOVABLE_EXITED_AREA, src, direction)
-	if(!LAZYACCESS(gone.important_recursive_contents, RECURSIVE_CONTENTS_AREA_SENSITIVE))
-		return
-	for(var/atom/movable/recipient as anything in gone.important_recursive_contents[RECURSIVE_CONTENTS_AREA_SENSITIVE])
-		SEND_SIGNAL(recipient, COMSIG_EXIT_AREA, src)
+/area/Exited(atom/movable/departed, area/new_area)
+	SEND_SIGNAL(src, COMSIG_AREA_EXITED, departed, new_area)
+	SEND_SIGNAL(departed, COMSIG_ATOM_EXITED_AREA, src, new_area)
 
 /area/proc/gravitychange()
 	for(var/mob/living/carbon/human/user in src)
@@ -699,8 +673,10 @@
 	for(var/obj/machinery/door/window/temp_windoor in machinery_cache)
 		INVOKE_ASYNC(temp_windoor, TYPE_PROC_REF(/obj/machinery/door, open))
 
+
 /area/AllowDrop()
 	CRASH("Bad op: area/AllowDrop() called")
+
 
 /area/drop_location()
 	CRASH("Bad op: area/drop_location() called")

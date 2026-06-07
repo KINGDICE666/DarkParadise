@@ -58,16 +58,15 @@ GLOBAL_LIST_EMPTY(message_servers)
 	var/active = 1
 	var/decryptkey = "password"
 
-/obj/machinery/message_server/Initialize(mapload)
-	. = ..()
+/obj/machinery/message_server/New()
 	GLOB.message_servers += src
 	decryptkey = GenerateKey()
 	send_pda_message("System Administrator", "system", "This is an automated message. The messaging system is functioning correctly.")
+	..()
+	return
 
 /obj/machinery/message_server/Destroy()
 	GLOB.message_servers -= src
-	QDEL_LIST(pda_msgs)
-	QDEL_LIST(rc_msgs)
 	return ..()
 
 /obj/machinery/message_server/process()
@@ -79,6 +78,7 @@ GLOBAL_LIST_EMPTY(message_servers)
 		return
 	if(prob(3))
 		playsound(loc, SFX_COMPUTER_AMBIENCE, 50, TRUE)
+
 
 /obj/machinery/message_server/proc/send_pda_message(recipient = "", sender = "", message = "")
 	pda_msgs += new/datum/data_pda_msg(recipient,sender,message)
@@ -115,13 +115,15 @@ GLOBAL_LIST_EMPTY(message_servers)
 				RC.write_to_message_log(rendered_message)
 
 /obj/machinery/message_server/attack_hand(user)
-//	to_chat(user, span_notice("There seem to be some parts missing from this server. They should arrive on the station in a few days, give or take a few CentComm delays."))
+//	to_chat(user, "<span class='notice'>There seem to be some parts missing from this server. They should arrive on the station in a few days, give or take a few CentComm delays.</span>")
 	if(..())
 		return TRUE
 	add_fingerprint(user)
 	to_chat(user, "You toggle PDA message passing from [active ? "On" : "Off"] to [active ? "Off" : "On"]")
 	active = !active
 	update_icon(UPDATE_ICON_STATE)
+
+
 
 /obj/machinery/message_server/update_icon_state()
 	if((stat & (BROKEN|NOPOWER)))

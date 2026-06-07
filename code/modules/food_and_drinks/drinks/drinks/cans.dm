@@ -10,12 +10,6 @@
 	foodtype = SUGAR
 	gender = FEMALE
 
-/obj/item/reagent_containers/food/drinks/cans/get_short_name() // Override if `list_reagents` has more than 1 element.
-	if(!length(reagents.reagent_list))
-		return declent_ru(NOMINATIVE)
-	var/datum/reagent/reagent = reagents.reagent_list[1]
-	return reagent.name
-
 /obj/item/reagent_containers/food/drinks/cans/empty()
 	if(!canopened)
 		balloon_alert(usr, "сначала откройте!")
@@ -69,7 +63,7 @@
 		addtimer(CALLBACK(src, PROC_REF(reset_shakable)), 1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 		to_chat(H, span_notice("Вы начинаете встряхивать [declent_ru(ACCUSATIVE)]."))
 		if(do_after(H, 1 SECONDS, H))
-			visible_message(span_warning("[user] встряхнул[GEND_A_O_I(user)] [declent_ru(ACCUSATIVE)]!"))
+			visible_message(span_warning("[user] встряхнул[genderize_ru(user.gender, "", "а", "о", "и")] [declent_ru(ACCUSATIVE)]!"))
 			if(times_shaken == 0)
 				times_shaken++
 				addtimer(CALLBACK(src, PROC_REF(reset_shaken)), 1 MINUTES, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_NO_HASH_WAIT)
@@ -82,23 +76,25 @@
 	else
 		balloon_alert(H, "нужно держать в руке!")
 
+
 /obj/item/reagent_containers/food/drinks/cans/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!canopened)
 		balloon_alert(user, "сначала откройте!")
 		return ATTACK_CHAIN_PROCEED
 	if(target == user && !reagents.total_volume && user.a_intent == INTENT_HARM && user.zone_selected == BODY_ZONE_HEAD)
 		user.visible_message(
-			span_warning("[user] смина[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] своим лбом!"),
+			span_warning("[user] смина[pluralize_ru(user.gender, "ет", "ют")] [declent_ru(ACCUSATIVE)] своим лбом!"),
 			span_warning("Вы сминаете [declent_ru(ACCUSATIVE)] своим лбом!"),
 		)
 		crush(user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
 /obj/item/reagent_containers/food/drinks/cans/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/storage/bag/trash/cyborg))
 		user.visible_message(
-			span_notice("[user] засовыва[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] в свой уплотнитель мусора."),
+			span_notice("[user] засовыва[pluralize_ru(user.gender, "ет", "ют")] [declent_ru(ACCUSATIVE)] в свой уплотнитель мусора."),
 			span_notice("Вы засовываете [declent_ru(ACCUSATIVE)] в свой уплотнитель мусора."),
 		)
 		var/obj/can = crush(user)
@@ -106,8 +102,9 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
-/obj/item/reagent_containers/food/drinks/cans/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+
+/obj/item/reagent_containers/food/drinks/cans/afterattack(obj/target, mob/user, proximity, params)
+	if(!proximity)
 		return
 	if(istype(target, /obj/structure/reagent_dispensers) && !canopened)
 		balloon_alert(user, "сначала откройте!")
@@ -116,7 +113,7 @@
 		balloon_alert(user, "сначала откройте!")
 		return
 	else
-		return ..()
+		return ..(target, user, proximity)
 
 /obj/item/reagent_containers/food/drinks/cans/throw_impact(atom/A, datum/thrownthing/throwingdatum)
 	. = ..()
@@ -133,12 +130,12 @@
 	if(!burstopen && user)
 		to_chat(user, span_notice("Вы открываете [declent_ru(ACCUSATIVE)] с громким хлопком!"))
 	else
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] оглушительно открывается!"))
+		visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] оглушительно открывается!"))
 
 	if(times_shaken < 5)
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] громко шипит!"))
+		visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] громко шипит!"))
 	else
-		visible_message(span_boldwarning("[DECLENT_RU_CAP(src, NOMINATIVE)] оглушительно лопается, разливая своё содержимое!"))
+		visible_message(span_boldwarning("[capitalize(declent_ru(NOMINATIVE))] оглушительно лопается, разливая своё содержимое!"))
 		if(reagents.total_volume)
 			var/datum/effect_system/fluid_spread/foam/sodafizz = new
 			sodafizz.set_up(amount = 1, location = get_turf(src), carry = reagents)
@@ -187,13 +184,13 @@
 	list_reagents = list("cola" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/cola/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка колы",
 		GENITIVE = "банки колы",
 		DATIVE = "банке колы",
 		ACCUSATIVE = "банку колы",
 		INSTRUMENTAL = "банкой колы",
-		PREPOSITIONAL = "банке колы",
+		PREPOSITIONAL = "банке колы"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/energy
@@ -204,13 +201,13 @@
 	list_reagents = list("energetik" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка энергетика \"Сердечный Приступ\"",
 		GENITIVE = "банки энергетика \"Сердечный Приступ\"",
 		DATIVE = "банке энергетика \"Сердечный Приступ\"",
 		ACCUSATIVE = "банку энергетика \"Сердечный Приступ\"",
 		INSTRUMENTAL = "банкой энергетика \"Сердечный Приступ\"",
-		PREPOSITIONAL = "банке энергетика \"Сердечный Приступ\"",
+		PREPOSITIONAL = "банке энергетика \"Сердечный Приступ\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/trop
@@ -221,13 +218,13 @@
 	list_reagents = list("trop_eng" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/trop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка энергетика \"Тропический Спазм\"",
 		GENITIVE = "банки энергетика \"Тропический Спазм\"",
 		DATIVE = "банке энергетика \"Тропический Спазм\"",
 		ACCUSATIVE = "банку энергетика \"Тропический Спазм\"",
 		INSTRUMENTAL = "банкой энергетика \"Тропический Спазм\"",
-		PREPOSITIONAL = "банке энергетика \"Тропический Спазм\"",
+		PREPOSITIONAL = "банке энергетика \"Тропический Спазм\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/milk
@@ -238,13 +235,13 @@
 	list_reagents = list("milk_eng" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/milk/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка энергетика \"Молочный Удар\"",
 		GENITIVE = "банки энергетика \"Молочный Удар\"",
 		DATIVE = "банке энергетика \"Молочный Удар\"",
 		ACCUSATIVE = "банку энергетика \"Молочный Удар\"",
 		INSTRUMENTAL = "банкой энергетика \"Молочный Удар\"",
-		PREPOSITIONAL = "банке энергетика \"Молочный Удар\"",
+		PREPOSITIONAL = "банке энергетика \"Молочный Удар\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/grey
@@ -255,33 +252,30 @@
 	list_reagents = list("grey_eng" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/energy/grey/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка энергетика \"Грей Энерджи\"",
 		GENITIVE = "банки энергетика \"Грей Энерджи\"",
 		DATIVE = "банке энергетика \"Грей Энерджи\"",
 		ACCUSATIVE = "банку энергетика \"Грей Энерджи\"",
 		INSTRUMENTAL = "банкой энергетика \"Грей Энерджи\"",
-		PREPOSITIONAL = "банке энергетика \"Грей Энерджи\"",
+		PREPOSITIONAL = "банке энергетика \"Грей Энерджи\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/beer
 	name = "space beer"
-	desc = "Вода, солод и хмель — а больше и не требуется."
+	desc = "Вода, солод и хмель - а больше и не требуется."
 	icon_state = "beer"
 	is_glass = 1
 	list_reagents = list("beer" = 30)
 
-/obj/item/reagent_containers/food/drinks/cans/beer/almost_empty
-	list_reagents = list("beer" = 1)
-
 /obj/item/reagent_containers/food/drinks/cans/beer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка пива",
 		GENITIVE = "бутылки пива",
 		DATIVE = "бутылке пива",
 		ACCUSATIVE = "бутылку пива",
 		INSTRUMENTAL = "бутылкой пива",
-		PREPOSITIONAL = "бутылке пива",
+		PREPOSITIONAL = "бутылке пива"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/non_alcoholic_beer
@@ -291,13 +285,13 @@
 	list_reagents = list("noalco_beer" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/non_alcoholic_beer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка безалкогольного пива",
 		GENITIVE = "бутылки безалкогольного пива",
 		DATIVE = "бутылке безалкогольного пива",
 		ACCUSATIVE = "бутылку безалкогольного пива",
 		INSTRUMENTAL = "бутылкой безалкогольного пива",
-		PREPOSITIONAL = "бутылке безалкогольного пива",
+		PREPOSITIONAL = "бутылке безалкогольного пива"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/adminbooze
@@ -308,13 +302,13 @@
 	list_reagents = list("adminordrazine" = 5, "capsaicin" = 5, "methamphetamine"= 20, "thirteenloko" = 20)
 
 /obj/item/reagent_containers/food/drinks/cans/adminbooze/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка настойки \"Админово Пойло\"",
 		GENITIVE = "бутылки настойки \"Админово Пойло\"",
 		DATIVE = "бутылке настойки \"Админово Пойло\"",
 		ACCUSATIVE = "бутылку настойки \"Админово Пойло\"",
 		INSTRUMENTAL = "бутылкой настойки \"Админово Пойло\"",
-		PREPOSITIONAL = "бутылке настойки \"Админово Пойло\"",
+		PREPOSITIONAL = "бутылке настойки \"Админово Пойло\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/madminmalt
@@ -325,13 +319,13 @@
 	list_reagents = list("hell_water" = 20, "neurotoxin" = 15, "thirteenloko" = 15)
 
 /obj/item/reagent_containers/food/drinks/cans/madminmalt/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка настойки \"Ярость Админа\"",
 		GENITIVE = "бутылки настойки \"Ярость Админа\"",
 		DATIVE = "бутылке настойки \"Ярость Админа\"",
 		ACCUSATIVE = "бутылку настойки \"Ярость Админа\"",
 		INSTRUMENTAL = "бутылкой настойки \"Ярость Админа\"",
-		PREPOSITIONAL = "бутылке настойки \"Ярость Админа\"",
+		PREPOSITIONAL = "бутылке настойки \"Ярость Админа\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/badminbrew
@@ -342,13 +336,13 @@
 	list_reagents = list("mutagen" = 25, "charcoal" = 10, "thirteenloko" = 15)
 
 /obj/item/reagent_containers/food/drinks/cans/badminbrew/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка настойки \"Плохой Админ\"",
 		GENITIVE = "бутылки настойки \"Плохой Админ\"",
 		DATIVE = "бутылке настойки \"Плохой Админ\"",
 		ACCUSATIVE = "бутылку настойки \"Плохой Админ\"",
 		INSTRUMENTAL = "бутылкой настойки \"Плохой Админ\"",
-		PREPOSITIONAL = "бутылке настойки \"Плохой Админ\"",
+		PREPOSITIONAL = "бутылке настойки \"Плохой Админ\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/ale
@@ -360,13 +354,13 @@
 	list_reagents = list("ale" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/ale/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бутылка эля \"Хвостатые Истории\"",
 		GENITIVE = "бутылки эля \"Хвостатые Истории\"",
 		DATIVE = "бутылке эля \"Хвостатые Истории\"",
 		ACCUSATIVE = "бутылку эля \"Хвостатые Истории\"",
 		INSTRUMENTAL = "бутылкой эля \"Хвостатые Истории\"",
-		PREPOSITIONAL = "бутылке эля \"Хвостатые Истории\"",
+		PREPOSITIONAL = "бутылке эля \"Хвостатые Истории\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/space_mountain_wind
@@ -376,13 +370,13 @@
 	list_reagents = list("spacemountainwind" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/space_mountain_wind/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка газировки \"Космический Маунтин Винд\"",
 		GENITIVE = "банки газировки \"Космический Маунтин Винд\"",
 		DATIVE = "банке газировки \"Космический Маунтин Винд\"",
 		ACCUSATIVE = "банку газировки \"Космический Маунтин Винд\"",
 		INSTRUMENTAL = "банкой газировки \"Космический Маунтин Винд\"",
-		PREPOSITIONAL = "банке газировки \"Космический Маунтин Винд\"",
+		PREPOSITIONAL = "банке газировки \"Космический Маунтин Винд\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/thirteenloko
@@ -392,13 +386,13 @@
 	list_reagents = list("thirteenloko" = 25, "psilocybin" = 5)
 
 /obj/item/reagent_containers/food/drinks/cans/thirteenloko/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка алкогольной газировки \"Тринадцатый Локо\"",
 		GENITIVE = "банки алкогольной газировки \"Тринадцатый Локо\"",
 		DATIVE = "банке алкогольной газировки \"Тринадцатый Локо\"",
 		ACCUSATIVE = "банку алкогольной газировки \"Тринадцатый Локо\"",
 		INSTRUMENTAL = "банкой алкогольной газировки \"Тринадцатый Локо\"",
-		PREPOSITIONAL = "банке алкогольной газировки \"Тринадцатый Локо\"",
+		PREPOSITIONAL = "банке алкогольной газировки \"Тринадцатый Локо\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/dr_gibb
@@ -408,13 +402,13 @@
 	list_reagents = list("dr_gibb" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/dr_gibb/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка газировки \"Доктор Гибб\"",
 		GENITIVE = "банки газировки \"Доктор Гибб\"",
 		DATIVE = "банке газировки \"Доктор Гибб\"",
 		ACCUSATIVE = "банку газировки \"Доктор Гибб\"",
 		INSTRUMENTAL = "банкой газировки \"Доктор Гибб\"",
-		PREPOSITIONAL = "банке газировки \"Доктор Гибб\"",
+		PREPOSITIONAL = "банке газировки \"Доктор Гибб\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/starkist
@@ -424,13 +418,13 @@
 	list_reagents = list("brownstar" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/starkist/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка газировки \"Стар-Кист\"",
 		GENITIVE = "банки газировки \"Стар-Кист\"",
 		DATIVE = "банке газировки \"Стар-Кист\"",
 		ACCUSATIVE = "банку газировки \"Стар-Кист\"",
 		INSTRUMENTAL = "банкой газировки \"Стар-Кист\"",
-		PREPOSITIONAL = "банке газировки \"Стар-Кист\"",
+		PREPOSITIONAL = "банке газировки \"Стар-Кист\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/space_up
@@ -440,13 +434,13 @@
 	list_reagents = list("space_up" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/space_up/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка газировки \"Спейс-Ап\"",
 		GENITIVE = "банки газировки \"Спейс-Ап\"",
 		DATIVE = "банке газировки \"Спейс-Ап\"",
 		ACCUSATIVE = "банку газировки \"Спейс-Ап\"",
 		INSTRUMENTAL = "банкой газировки \"Спейс-Ап\"",
-		PREPOSITIONAL = "банке газировки \"Спейс-Ап\"",
+		PREPOSITIONAL = "банке газировки \"Спейс-Ап\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/lemon_lime
@@ -456,13 +450,13 @@
 	list_reagents = list("lemon_lime" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/lemon_lime/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка газировки \"Лимон-Лайм\"",
 		GENITIVE = "банки газировки \"Лимон-Лайм\"",
 		DATIVE = "банке газировки \"Лимон-Лайм\"",
 		ACCUSATIVE = "банку газировки \"Лимон-Лайм\"",
 		INSTRUMENTAL = "банкой газировки \"Лимон-Лайм\"",
-		PREPOSITIONAL = "банке газировки \"Лимон-Лайм\"",
+		PREPOSITIONAL = "банке газировки \"Лимон-Лайм\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/iced_tea
@@ -472,13 +466,13 @@
 	list_reagents = list("icetea" = 30)
 
 /obj/item/reagent_containers/food/drinks/cans/iced_tea/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка чая со льдом \"Вриск Секретный\"",
 		GENITIVE = "банки чая со льдом \"Вриск Секретный\"",
 		DATIVE = "банке чая со льдом \"Вриск Секретный\"",
 		ACCUSATIVE = "банку чая со льдом \"Вриск Секретный\"",
 		INSTRUMENTAL = "банкой чая со льдом \"Вриск Секретный\"",
-		PREPOSITIONAL = "банке чая со льдом \"Вриск Секретный\"",
+		PREPOSITIONAL = "банке чая со льдом \"Вриск Секретный\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/grape_juice
@@ -487,13 +481,13 @@
 	icon_state = "purple_can"
 	list_reagents = list("grapejuice" = 30)
 /obj/item/reagent_containers/food/drinks/cans/grape_juice/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка виноградного сока \"Освежающе-Фиолетовый\"",
 		GENITIVE = "банки виноградного сока \"Освежающе-Фиолетовый\"",
 		DATIVE = "банке виноградного сока \"Освежающе-Фиолетовый\"",
 		ACCUSATIVE = "банку виноградного сока \"Освежающе-Фиолетовый\"",
 		INSTRUMENTAL = "банкой виноградного сока \"Освежающе-Фиолетовый\"",
-		PREPOSITIONAL = "банке виноградного сока \"Освежающе-Фиолетовый\"",
+		PREPOSITIONAL = "банке виноградного сока \"Освежающе-Фиолетовый\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/tonic
@@ -503,13 +497,13 @@
 	list_reagents = list("tonic" = 50)
 
 /obj/item/reagent_containers/food/drinks/cans/tonic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка тоника \"Т-Борг\"",
 		GENITIVE = "банки тоника \"Т-Борг\"",
 		DATIVE = "банке тоника \"Т-Борг\"",
 		ACCUSATIVE = "банку тоника \"Т-Борг\"",
 		INSTRUMENTAL = "банкой тоника \"Т-Борг\"",
-		PREPOSITIONAL = "банке тоника \"Т-Борг\"",
+		PREPOSITIONAL = "банке тоника \"Т-Борг\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/sodawater
@@ -519,13 +513,13 @@
 	list_reagents = list("sodawater" = 50)
 
 /obj/item/reagent_containers/food/drinks/cans/sodawater/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка содовой",
 		GENITIVE = "банки содовой",
 		DATIVE = "банке содовой",
 		ACCUSATIVE = "банку содовой",
 		INSTRUMENTAL = "банкой содовой",
-		PREPOSITIONAL = "банке содовой",
+		PREPOSITIONAL = "банке содовой"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/synthanol
@@ -535,13 +529,13 @@
 	list_reagents = list("synthanol" = 50)
 
 /obj/item/reagent_containers/food/drinks/cans/synthanol/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банка синтанола \"Биб Классический\"",
 		GENITIVE = "банки синтанола \"Биб Классический\"",
 		DATIVE = "банке синтанола \"Биб Классический\"",
 		ACCUSATIVE = "банку синтанола \"Биб Классический\"",
 		INSTRUMENTAL = "банкой синтанола \"Биб Классический\"",
-		PREPOSITIONAL = "банке синтанола \"Биб Классический\"",
+		PREPOSITIONAL = "банке синтанола \"Биб Классический\""
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/bottler
@@ -550,22 +544,24 @@
 	icon_state = "glass_bottle"
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ёмкость для стандартного напитка",
 		GENITIVE = "ёмкости для стандартного напитка",
 		DATIVE = "ёмкости для стандартного напитка",
 		ACCUSATIVE = "ёмкость для стандартного напитка",
 		INSTRUMENTAL = "ёмкостью для стандартного напитка",
-		PREPOSITIONAL = "ёмкости для стандартного напитка",
+		PREPOSITIONAL = "ёмкости для стандартного напитка"
 	)
+
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/on_reagent_change()
 	update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/reagent_containers/food/drinks/cans/bottler/update_overlays()
 	. = ..()
 	if(reagents.total_volume)
-		var/mutable_appearance/filling = mutable_appearance('icons/obj/reagentfillings.dmi', "[icon_state]10")
+		var/image/filling = image('icons/obj/reagentfillings.dmi', src, "[icon_state]10")
 
 		switch(round(reagents.total_volume))
 			if(0 to 9)
@@ -581,8 +577,9 @@
 			if(50 to INFINITY)
 				filling.icon_state = "[icon_state]50"
 
-		filling.color = get_color_matrix_from_reagents(reagents.reagent_list)
+		filling.icon += mix_color_from_reagents(reagents.reagent_list)
 		. += filling
+
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/glass_bottle
 	name = "glass bottle"
@@ -590,13 +587,13 @@
 	is_glass = 1
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/glass_bottle/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "стеклянная бутылка",
 		GENITIVE = "стеклянной бутылки",
 		DATIVE = "стеклянной бутылке",
 		ACCUSATIVE = "стеклянную бутылку",
 		INSTRUMENTAL = "стеклянной бутылкой",
-		PREPOSITIONAL = "стеклянной бутылке",
+		PREPOSITIONAL = "стеклянной бутылке"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/plastic_bottle
@@ -606,13 +603,13 @@
 	is_plastic = 1
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/plastic_bottle/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пластиковая бутылка",
 		GENITIVE = "пластиковой бутылки",
 		DATIVE = "пластиковой бутылке",
 		ACCUSATIVE = "пластиковую бутылку",
 		INSTRUMENTAL = "пластиковой бутылкой",
-		PREPOSITIONAL = "пластиковой бутылке",
+		PREPOSITIONAL = "пластиковой бутылке"
 	)
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/metal_can
@@ -621,11 +618,11 @@
 	icon_state = "metal_can"
 
 /obj/item/reagent_containers/food/drinks/cans/bottler/metal_can/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "металлическая банка",
 		GENITIVE = "металлической банки",
 		DATIVE = "металлической банке",
 		ACCUSATIVE = "металлическую банку",
 		INSTRUMENTAL = "металлической банкой",
-		PREPOSITIONAL = "металлической банке",
+		PREPOSITIONAL = "металлической банке"
 	)

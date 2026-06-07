@@ -3,12 +3,11 @@
 	icon_state = "girder"
 	anchored = TRUE
 	density = TRUE
-	cares_about_temperature = TRUE
-	max_integrity = 200
-	rad_insulation = RAD_VERY_LIGHT_INSULATION
+	layer = BELOW_OBJ_LAYER
 	var/state = GIRDER_NORMAL
 	/// Percentage chance that a projectile passes through the girder.
 	var/girderpasschance = 20
+	max_integrity = 200
 	/// If the girder can be moved around by crowbarring it.
 	var/can_displace = TRUE
 	/// Used to determine amount returned in deconstruction.
@@ -22,31 +21,27 @@
 	. = ..()
 	switch(state)
 		if(GIRDER_REINF)
-			. += span_notice("The support struts are <b>screwed</b> in place.")
+			. += "<span class='notice'>The support struts are <b>screwed</b> in place.</span>"
 		if(GIRDER_REINF_STRUTS)
-			. += span_notice("The support struts are <i>unscrewed</i> and the inner <b>grille</b> is intact.")
+			. += "<span class='notice'>The support struts are <i>unscrewed</i> and the inner <b>grille</b> is intact.</span>"
 		if(GIRDER_NORMAL)
 			if(can_displace)
-				. += span_notice("The bolts are <b>lodged</b> in place.")
+				. += "<span class='notice'>The bolts are <b>lodged</b> in place.</span>"
 		if(GIRDER_DISPLACED)
-			. += span_notice("The bolts are <i>loosened</i>, but the <b>screws</b> are holding [src] together.")
+			. += "<span class='notice'>The bolts are <i>loosened</i>, but the <b>screws</b> are holding [src] together.</span>"
 		if(GIRDER_DISASSEMBLED)
-			. += span_notice("[src] is disassembled! You probably shouldn't be able to see this examine message.")
+			. += "<span class='notice'>[src] is disassembled! You probably shouldn't be able to see this examine message.</span>"
 
 /obj/structure/girder/proc/refundMetal(metalAmount) //refunds metal used in construction when deconstructed
 	for(var/i=0;i < metalAmount;i++)
 		new metal_type(get_turf(src))
 
-/// Melting Temperatures for various specific objects
-#define GIRDER_MELTING_TEMP 5000
-
-/obj/structure/girder/temperature_expose(exposed_temperature, exposed_volume)
+/obj/structure/girder/temperature_expose(datum/gas_mixture/air, exposed_temperature)
 	..()
 	var/temp_check = exposed_temperature
 	if(temp_check >= GIRDER_MELTING_TEMP)
 		take_damage(10)
 
-#undef GIRDER_MELTING_TEMP
 
 /obj/structure/girder/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -163,6 +158,36 @@
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
+	if(istype(I, /obj/item/stack/ore/glass/basalt))
+		var/obj/item/stack/ore/glass/basalt/glass = stack
+		if(state == GIRDER_DISPLACED)
+			if(glass.get_amount() < 2)
+				to_chat(user, span_warning("You need at least two piles of [glass] to create a false wall!"))
+				return .
+			to_chat(user, span_notice("You start building a false wall..."))
+			if(!do_after(user, 2 SECONDS * glass.toolspeed, src, category = DA_CAT_TOOL) || state != GIRDER_DISPLACED || QDELETED(glass) || !glass.use(2))
+				return .
+			to_chat(user, span_notice("You created a false wall. Push on it to open or close the passage."))
+			var/obj/structure/falsewall/mineral_ancient/falsewall = new(loc)
+			transfer_fingerprints_to(falsewall)
+			falsewall.add_fingerprint(user)
+			qdel(src)
+			return ATTACK_CHAIN_BLOCKED_ALL
+
+		if(glass.get_amount() < 2)
+			to_chat(user, span_warning("You need at least two piles of [glass] to finalize the wall!"))
+			return .
+		to_chat(user, span_notice("You start adding [glass]..."))
+		if(!do_after(user, 4 SECONDS * glass.toolspeed, src, category = DA_CAT_TOOL) || state == GIRDER_DISPLACED || !isfloorturf(loc) || QDELETED(glass) || !glass.use(2))
+			return .
+		to_chat(user, span_notice("You have finalized basalt wall."))
+		var/turf/floor = loc
+		floor.ChangeTurf(/turf/simulated/mineral/ancient)
+		transfer_fingerprints_to(floor)
+		floor.add_fingerprint(user)
+		qdel(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
 	var/obj/item/stack/sheet/sheet = stack
 	if(!istype(sheet, /obj/item/stack/sheet) || !sheet.wall_allowed)
 		to_chat(user, span_warning("This material is not suitable for a wall."))
@@ -246,11 +271,11 @@
 				return ATTACK_CHAIN_BLOCKED_ALL
 
 			if(GIRDER_REINF)
-				if(plasteel.get_amount() < 1)
-					to_chat(user, span_warning("You need at least one sheet of plasteel to finalize the reinforced wall!"))
+				if(plasteel.get_amount() < 2)
+					to_chat(user, span_warning("You need at least two sheets of plasteel to finalize the reinforced wall!"))
 					return .
 				to_chat(user, span_notice("You start finalizing the reinforced wall..."))
-				if(!do_after(user, 2 SECONDS * plasteel.toolspeed, src, category = DA_CAT_TOOL) || state != GIRDER_REINF || !isfloorturf(loc) || QDELETED(plasteel) || !plasteel.use(1))
+				if(!do_after(user, 2 SECONDS * plasteel.toolspeed, src, category = DA_CAT_TOOL) || state != GIRDER_REINF || !isfloorturf(loc) || QDELETED(plasteel) || !plasteel.use(2))
 					return .
 				to_chat(user, span_notice("You have finalized the reinforced wall."))
 				var/turf/floor = loc
@@ -261,11 +286,11 @@
 				return ATTACK_CHAIN_BLOCKED_ALL
 
 			else
-				if(plasteel.get_amount() < 1)
-					to_chat(user, span_warning("You need at least one sheet of plasteel to reinforce the girder!"))
+				if(plasteel.get_amount() < 2)
+					to_chat(user, span_warning("You need at least two sheets of plasteel to reinforce the girder!"))
 					return .
 				to_chat(user, span_notice("You start reinforcing the girder..."))
-				if(!do_after(user, 6 SECONDS * plasteel.toolspeed, src, category = DA_CAT_TOOL) || state == GIRDER_DISPLACED || state == GIRDER_REINF || QDELETED(plasteel) || !plasteel.use(1))
+				if(!do_after(user, 6 SECONDS * plasteel.toolspeed, src, category = DA_CAT_TOOL) || state == GIRDER_DISPLACED || state == GIRDER_REINF || QDELETED(plasteel) || !plasteel.use(2))
 					return .
 				to_chat(user, span_notice("You reinforce the girder."))
 				var/obj/structure/girder/reinforced/girder = new(loc)
@@ -308,16 +333,17 @@
 	qdel(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
+
 /obj/structure/girder/crowbar_act(mob/user, obj/item/I)
 	if(!can_displace || state != GIRDER_NORMAL)
 		return
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
-	to_chat(user, span_notice("You start dislodging the girder..."))
+	to_chat(user, "<span class='notice'>You start dislodging the girder...</span>")
 	if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != GIRDER_NORMAL)
 		return
-	to_chat(user, span_notice("You dislodge the girder."))
+	to_chat(user, "<span class='notice'>You dislodge the girder.</span>")
 	var/obj/structure/girder/displaced/D = new (loc)
 	transfer_fingerprints_to(D)
 	qdel(src)
@@ -339,16 +365,16 @@
 			M.add_fingerprint(user)
 			qdel(src)
 		if(GIRDER_REINF)
-			to_chat(user, span_notice("You start unsecuring support struts..."))
+			to_chat(user, "<span class='notice'>You start unsecuring support struts...</span>")
 			if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != GIRDER_REINF)
 				return
-			to_chat(user, span_notice("You unsecure the support struts."))
+			to_chat(user, "<span class='notice'>You unsecure the support struts.</span>")
 			state = GIRDER_REINF_STRUTS
 		if(GIRDER_REINF_STRUTS)
-			to_chat(user, span_notice("You start securing support struts..."))
+			to_chat(user, "<span class='notice'>You start securing support struts...</span>")
 			if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != GIRDER_REINF_STRUTS)
 				return
-			to_chat(user, span_notice("You secure the support struts."))
+			to_chat(user, "<span class='notice'>You secure the support struts.</span>")
 			state = GIRDER_REINF
 
 /obj/structure/girder/wirecutter_act(mob/user, obj/item/I)
@@ -357,10 +383,10 @@
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
-	to_chat(user, span_notice("You start removing the inner grille..."))
+	to_chat(user, "<span class='notice'>You start removing the inner grille...</span>")
 	if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != GIRDER_REINF_STRUTS)
 		return
-	to_chat(user, span_notice("You remove the inner grille."))
+	to_chat(user, "<span class='notice'>You remove the inner grille.</span>")
 	new /obj/item/stack/sheet/plasteel(get_turf(src))
 	var/obj/structure/girder/G = new (loc)
 	transfer_fingerprints_to(G)
@@ -382,12 +408,12 @@
 		qdel(src)
 	else
 		if(!isfloorturf(loc))
-			to_chat(user, span_warning("A floor must be present to secure the girder!"))
+			to_chat(user, "<span class='warning'>A floor must be present to secure the girder!</span>")
 			return
-		to_chat(user, span_notice("You start securing the girder..."))
+		to_chat(user, "<span class='notice'>You start securing the girder...</span>")
 		if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != GIRDER_DISPLACED)
 			return
-		to_chat(user, span_notice("You secure the girder."))
+		to_chat(user, "<span class='notice'>You secure the girder.</span>")
 		var/obj/structure/girder/G = new(loc)
 		transfer_fingerprints_to(G)
 		qdel(src)
@@ -402,6 +428,7 @@
 		refundMetal(metalUsed)
 		qdel(src)
 
+
 /obj/structure/girder/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(checkpass(mover))
@@ -409,12 +436,14 @@
 	if(checkpass(mover, PASSGRILLE) || isprojectile(mover))
 		return prob(girderpasschance)
 
+
 /obj/structure/girder/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	if(!density)
 		return TRUE
 	if(pass_info.pass_flags == PASSEVERYTHING || (pass_info.pass_flags & PASSGRILLE))
 		return TRUE
 	return FALSE
+
 
 /obj/structure/girder/deconstruct(disassembled = TRUE)
 	if(!(obj_flags & NODECONSTRUCT))
@@ -472,6 +501,7 @@
 	. = ..()
 	icon_state = SSticker.cultdat?.cult_girder_icon_state
 
+
 /obj/structure/girder/cult/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -512,6 +542,7 @@
 
 	return ..()
 
+
 /obj/structure/girder/cult_fake/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -551,6 +582,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/structure/girder/cult/narsie_act()
 	return

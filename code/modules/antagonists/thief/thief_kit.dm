@@ -14,11 +14,9 @@
 /obj/item/thief_kit
 	name = "набор гильдии воров"
 	desc = "Ничем не примечательная увесистая коробка. Тяжелая. Набор вора-шредингера. Неизвестно что внутри, пока не заглянешь и не определишься."
-	icon = 'icons/obj/storage/boxes.dmi'
-	righthand_file = 'icons/mob/inhands/storage_righthand.dmi'
-	lefthand_file = 'icons/mob/inhands/storage_lefthand.dmi'
+	icon = 'icons/obj/storage.dmi'
 	icon_state = "box_thief"
-	item_state = "theif"
+	item_state = "syringe_kit"
 	w_class = WEIGHT_CLASS_TINY
 	var/possible_uses = 2
 	var/uses = 0
@@ -164,6 +162,7 @@
 		SStgui.close_uis(src)
 		interact(usr)
 
+
 /obj/item/thief_kit/proc/randomKit(kit_type)
 	var/list/possible_kits = list()
 	for(var/datum/thief_kit/kit in all_kits)
@@ -183,6 +182,7 @@
 			return kit
 	return FALSE
 
+
 //=============== KITS ================
 /datum/thief_kit
 	var/name = "Безымянный кит (перешлите это разработчику)"
@@ -195,7 +195,7 @@
 	desc = "Позволяет найти все интересные для гильдии объекты."
 	item_list = list(
 		/obj/item/pinpointer/thief,
-	)
+		)
 
 /datum/thief_kit/falsification
 	name = "Набор Фальсификаций"
@@ -206,14 +206,14 @@
 		/obj/item/stamp/chameleon,
 		/obj/item/pen/fakesign,
 		/obj/item/chameleon,
-	)
+		)
 
 /datum/thief_kit/chamelleon
 	name = "Набор Хамелеона"
 	desc = "Набор одежды-хамелеона для скрытных внедрений. Нескользящие ботинки в комплект не включены."
 	item_list = list(
 		/obj/item/storage/box/syndie_kit/chameleon,
-	)
+		)
 
 /datum/thief_kit/agent
 	name = "Набор Агента"
@@ -222,6 +222,7 @@
 		/obj/item/card/id/syndicate,
 		/obj/item/storage/toolbox/syndicate,
 		/obj/item/storage/fancy/cigarettes/cigpack_syndicate,
+
 		//syndi trash
 		/obj/item/toy/syndicateballoon,
 		/obj/item/soap/syndie,
@@ -230,7 +231,7 @@
 		/obj/item/clothing/mask/gas/syndicate,
 		/obj/item/tank/internals/emergency_oxygen/engi/syndi,
 		/obj/item/flashlight/flare/glowstick/red,
-	)
+		)
 
 /datum/thief_kit/haker
 	name = "Набор Хакера"
@@ -239,7 +240,7 @@
 		/obj/item/encryptionkey/binary,
 		/obj/item/multitool/ai_detect,
 		/obj/item/storage/belt/military/traitor/hacker,	//default red instruments
-	)
+		)
 
 /datum/thief_kit/radio
 	name = "Набор Связиста"
@@ -247,15 +248,15 @@
 	item_list = list(
 		/obj/item/encryptionkey/syndicate,
 		/obj/item/jammer,
-	)
+		)
 
 /datum/thief_kit/vision
 	name = "Набор Слежки"
 	desc = "Контроль камер и базы данных служб безопасности"
 	item_list = list(
 		/obj/item/clothing/glasses/hud/security/chameleon,
-		/obj/item/camera_bug/syndicate,
-	)
+		/obj/item/camera_bug
+		)
 
 /datum/thief_kit/gas
 	name = "Набор Газовика"
@@ -263,7 +264,7 @@
 	item_list = list(
 		/obj/item/clothing/mask/gas/explorer,
 		/obj/item/storage/belt/grenade/nonlethal,
-	)
+		)
 
 /datum/thief_kit/safe_breaker
 	name = "Набор Медвежатника"
@@ -274,7 +275,7 @@
 		/obj/item/clothing/mask/gas/clown_hat,
 		/obj/item/thermal_drill/diamond_drill/syndicate,
 		/obj/item/storage/box/syndie_kit/c4,
-	)
+		)
 
 /datum/thief_kit/safe_breaker_quiet
 	name = "Набор Педанта"
@@ -285,7 +286,7 @@
 		/obj/item/clothing/accessory/stethoscope,
 		/obj/item/book/manual/engineering_hacking,
 		/obj/item/storage/box/syndie_kit/t4,
-	)
+		)
 
 /datum/thief_kit/sleepy
 	name = "Набор Сонника"
@@ -299,7 +300,7 @@
 		/obj/item/reagent_containers/syringe/capulettium_plus,
 		/obj/item/reagent_containers/glass/bottle/ether,
 		/obj/item/reagent_containers/glass/bottle/ether,
-	)
+		)
 
 /datum/thief_kit/mutant
 	name = "Набор Мутанта"
@@ -311,7 +312,7 @@
 		/obj/item/dnainjector/antiremoteview,
 		/obj/item/dnainjector/midgit,
 		/obj/item/dnainjector/antimidgit,
-	)
+		)
 
 /datum/thief_kit/thermal
 	name = "Термальные Очки"
@@ -319,26 +320,27 @@
 	item_list = list(
 		/obj/item/clothing/glasses/thermal/sunglasses,
 		/obj/item/storage/box/candythief,
-	)
+		)
 
 /datum/thief_kit/mr_chang
 	name = "Набор Мистера Ченга"
 	desc = "Этот набор был любезно предоставлен нам корпорацией мистера Ченга. Он содержит обширный набор средств для наиболее эффективного продвижения продукции в условиях свободного рынка."
 	item_list = list(
-		/obj/item/storage/box/syndie_kit/mr_chang_technique,
-	)
+		/obj/item/storage/box/syndie_kit/mr_chang_technique
+		)
 
 /datum/thief_kit/spai_kit
 	name = "Набор ПИИ"
-	desc = "Украденная технология персонального ИИ \"Синдиката\", которая была перепрошита под нужды гильдии воров."
+	desc = "Украденная технология персонального ИИ синдиката, которая была перепрошита под нужды гильдии воров."
 	item_list = list(
-		/obj/item/storage/box/syndie_kit/pai,
-	)
+		/obj/item/storage/box/syndie_kit/pai
+		)
+
 /datum/thief_kit/donksoft_kit
 	name = "Набор Donksoft SMG"
 	desc = "В набор включен пистолет-пулемёт, стреляющий пенными дротиками, которые при попадании снижают выносливость противника. Благодаря мягкому материалу пуль, удары безопасны для здоровья и не оставляют синяков."
 	item_list = list(
-		/obj/item/gun/projectile/automatic/smg/c20r/toy/riot,
+		/obj/item/gun/projectile/automatic/c20r/toy/riot,
 		/obj/item/ammo_box/magazine/toy/smgm45/riot,
 		/obj/item/ammo_box/foambox/riot,
-	)
+		)

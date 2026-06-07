@@ -26,6 +26,7 @@
 	density = FALSE // ghost
 	invisibility = 60 // no seriously ghost
 
+
 	response_help = "passes through" // by the way ghost
 	response_disarm = "shoves"
 	response_harm = "hits"
@@ -56,6 +57,7 @@
 /mob/living/simple_animal/hostile/ghost/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/simple_flying)
+
 
 /mob/living/simple_animal/hostile/ghost/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	return TRUE
@@ -99,13 +101,13 @@
 	loot = list(/obj/effect/decal/remains/human)
 
 /mob/living/simple_animal/hostile/skeleton/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "оживший скелет",
 		GENITIVE = "ожившего скелета",
 		DATIVE = "ожившему скелету",
 		ACCUSATIVE = "ожившего скелета",
 		INSTRUMENTAL = "ожившим скелетом",
-		PREPOSITIONAL = "ожившем скелете",
+		PREPOSITIONAL = "ожившем скелете"
 	)
 
 /mob/living/simple_animal/hostile/skeleton/ComponentInitialize()
@@ -128,12 +130,10 @@
 	melee_damage_upper = 20
 	faction = list("undead", "winter")
 	deathmessage = "collapses into a pile of bones, its gear falling to the floor!"
-	loot = list(
-		/obj/effect/decal/remains/human,
-		/obj/item/twohanded/spear,
-		/obj/item/clothing/shoes/winterboots,
-		/obj/item/clothing/suit/hooded/wintercoat,
-	)
+	loot = list(/obj/effect/decal/remains/human,
+				/obj/item/twohanded/spear,
+				/obj/item/clothing/shoes/winterboots,
+				/obj/item/clothing/suit/hooded/wintercoat)
 
 /mob/living/simple_animal/hostile/zombie
 	name = "zombie"
@@ -257,5 +257,5 @@
 		/obj/effect/decal/cleanable/blood/gibs,
 		/obj/effect/particle_effect/fluid/smoke/vomiting,
 		/obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping,
-		/obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping,
+		/obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping
 	)

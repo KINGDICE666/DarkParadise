@@ -58,9 +58,8 @@ Difficulty: Medium
 	butcher_results = list(/obj/item/stack/ore/diamond = 5, /obj/item/stack/sheet/sinew = 5, /obj/item/stack/sheet/animalhide/ashdrake = 10, /obj/item/stack/sheet/bone = 30)
 	var/swooping = NONE
 	var/player_cooldown = 0
-	achievement_type = /datum/award/achievement/boss/drake_kill
-	crusher_achievement_type = /datum/award/achievement/boss/drake_crusher
-	score_achievement_type = /datum/award/score/drake_score
+	medal_type = BOSS_MEDAL_DRAKE
+	score_type = DRAKE_SCORE
 	deathmessage = "распадается в кучу костей, его плоть осыпается."
 	death_sound = 'sound/misc/demon_dies.ogg'
 	footstep_type = FOOTSTEP_MOB_HEAVY
@@ -69,49 +68,50 @@ Difficulty: Medium
 		/datum/action/innate/megafauna_attack/fire_cone,
 		/datum/action/innate/megafauna_attack/fire_cone_meteors,
 		/datum/action/innate/megafauna_attack/mass_fire,
-		/datum/action/innate/megafauna_attack/lava_swoop,
+		/datum/action/innate/megafauna_attack/lava_swoop
 	)
 
 /mob/living/simple_animal/hostile/megafauna/dragon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пепельный дрейк",
 		GENITIVE = "пепельного дрейка",
 		DATIVE = "пепельному дрейку",
 		ACCUSATIVE = "пепельного дрейка",
 		INSTRUMENTAL = "пепельным дрейком",
-		PREPOSITIONAL = "пепельном дрейке",
+		PREPOSITIONAL = "пепельном дрейке"
 	)
 
 /mob/living/simple_animal/hostile/megafauna/dragon/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/simple_flying)
 
+
 /datum/action/innate/megafauna_attack/fire_cone
 	name = "Огненный конус"
-	button_icon = 'icons/obj/wizard.dmi'
+	icon_icon = 'icons/obj/wizard.dmi'
 	button_icon_state = "fireball"
-	chosen_message = span_colossus_alt("Вы стреляете огнём в цель.")
+	chosen_message = span_colossus("Вы стреляете огнём в цель.")
 	chosen_attack_num = 1
 
 /datum/action/innate/megafauna_attack/fire_cone_meteors
 	name = "Огненный конус с метеорами"
-	button_icon = 'icons/mob/actions/actions.dmi'
+	icon_icon = 'icons/mob/actions/actions.dmi'
 	button_icon_state = "sniper_zoom"
-	chosen_message = span_colossus_alt("Вы стреляете огнём в цель и обрушиваете огонь вокруг себя.")
+	chosen_message = span_colossus("Вы стреляете огнём в цель и обрушиваете огонь вокруг себя.")
 	chosen_attack_num = 2
 
 /datum/action/innate/megafauna_attack/mass_fire
 	name = "Массовая огненная атака"
-	button_icon = 'icons/effects/fire.dmi'
+	icon_icon = 'icons/effects/fire.dmi'
 	button_icon_state = "1"
-	chosen_message = span_colossus_alt("Вы обрушиваете массовый огонь на цель.")
+	chosen_message = span_colossus("Вы обрушиваете массовый огонь на цель.")
 	chosen_attack_num = 3
 
 /datum/action/innate/megafauna_attack/lava_swoop
 	name = "Пикирующий удар"
-	button_icon = 'icons/effects/effects.dmi'
+	icon_icon = 'icons/effects/effects.dmi'
 	button_icon_state = "lavastaff_warn"
-	chosen_message = span_colossus_alt("Вы пикируете и обрушиваете лаву на цель.")
+	chosen_message = span_colossus("Вы пикируете и обрушиваете лаву на цель.")
 	chosen_attack_num = 4
 
 /mob/living/simple_animal/hostile/megafauna/dragon/OpenFire()
@@ -202,7 +202,7 @@ Difficulty: Medium
 /mob/living/simple_animal/hostile/megafauna/dragon/proc/lava_arena()
 	if(!target)
 		return
-	target.visible_message(span_boldwarning("[DECLENT_RU_CAP(src, NOMINATIVE)] заключает вас в арену огня!"))
+	target.visible_message(span_boldwarning("[capitalize(declent_ru(NOMINATIVE))] заключает вас в арену огня!"))
 	var/amount = 3
 	var/turf/center = get_turf(target)
 	var/list/walled = RANGE_TURFS(enraged ? 4 : 3, center) - RANGE_TURFS(enraged ? 3 : 2, center)
@@ -247,7 +247,7 @@ Difficulty: Medium
 /mob/living/simple_animal/hostile/megafauna/dragon/proc/arena_escape_enrage() // you ran somehow / teleported away from my arena attack now i'm mad fucker
 	SLEEP_CHECK_DEATH(src, 0)
 	SetRecoveryTime(80)
-	visible_message(span_boldwarning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает ярко светиться, пока его раны закрываются!"))
+	visible_message(span_boldwarning("[capitalize(declent_ru(NOMINATIVE))] начинает ярко светиться, пока его раны закрываются!"))
 	adjustBruteLoss(-250) // yeah you're gonna pay for that, don't run nerd
 	add_atom_colour(rgb(255, 255, 0), TEMPORARY_COLOUR_PRIORITY)
 	move_to_delay = move_to_delay / 2
@@ -291,27 +291,24 @@ Difficulty: Medium
 //fire line keeps going even if dragon is deleted
 /proc/dragon_fire_line(source, list/turfs)
 	var/list/hit_list = list()
-	for(var/turf/turf as anything in turfs)
-		if(turf.density)
+	for(var/turf/T in turfs)
+		if(T.density)
 			break
-
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 1000
-		hotspot.recolor()
-		turf.hotspot_expose(700, 50)
-		for(var/mob/living/mob in turf.contents)
-			if((mob in hit_list) || mob == source)
+		new /obj/effect/hotspot(T)
+		T.hotspot_expose(700,50,1)
+		for(var/mob/living/L in T.contents)
+			if((L in hit_list) || L == source)
 				continue
-			hit_list += mob
-			mob.adjustFireLoss(20)
-			to_chat(mob, span_userdanger("Вас поражает огненное дыхание [source]!"))
+			hit_list += L
+			L.adjustFireLoss(20)
+			to_chat(L, span_userdanger("Вас поражает огненное дыхание [source]!"))
 
 		// deals damage to mechs
-		for(var/obj/mecha/mecha in turf.contents)
-			if(mecha in hit_list)
+		for(var/obj/mecha/M in T.contents)
+			if(M in hit_list)
 				continue
-			hit_list += mecha
-			mecha.take_damage(45, BRUTE, MELEE, 1)
+			hit_list += M
+			M.take_damage(45, BRUTE, MELEE, 1)
 		sleep(1.5)
 
 /mob/living/simple_animal/hostile/megafauna/dragon/proc/swoop_attack(lava_arena = FALSE, atom/movable/manual_target, swoop_cooldown = 30)
@@ -325,7 +322,7 @@ Difficulty: Medium
 	swooping |= SWOOP_DAMAGEABLE
 	ADD_TRAIT(src, TRAIT_UNDENSE, DRAGON_SWOOP_TRAIT)
 	icon_state = "shadow"
-	visible_message(span_boldwarning("[DECLENT_RU_CAP(src, NOMINATIVE)] взмывает высоко вверх!"))
+	visible_message(span_boldwarning("[capitalize(declent_ru(NOMINATIVE))] взмывает высоко вверх!"))
 
 	var/negative
 	var/initial_x = x
@@ -365,6 +362,7 @@ Difficulty: Medium
 	if(lava_arena)
 		lava_success = lava_arena()
 
+
 	//ensure swoop direction continuity.
 	if(negative)
 		if(ISINRANGE(x, initial_x + 1, initial_x + DRAKE_SWOOP_DIRECTION_CHANGE_RANGE))
@@ -382,7 +380,7 @@ Difficulty: Medium
 	playsound(loc, 'sound/effects/meteorimpact.ogg', 200, TRUE)
 	for(var/mob/living/L in orange(1, src))
 		if(L.stat)
-			visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] обрушивается на [L.declent_ru(NOMINATIVE)], раздавливая [GEND_HIS_HER(L)]!"))
+			visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] обрушивается на [L.declent_ru(NOMINATIVE)], раздавливая [genderize_ru(L.gender,"его","её","его","их")]!"))
 			L.gib()
 		else
 			L.adjustBruteLoss(75)
@@ -392,7 +390,7 @@ Difficulty: Medium
 					throw_dir = pick(GLOB.alldirs)
 				var/throwtarget = get_edge_target_turf(src, throw_dir)
 				L.throw_at(throwtarget, 3)
-				visible_message(span_warning("[DECLENT_RU_CAP(L, NOMINATIVE)] отбрасывается в сторону от [declent_ru(ACCUSATIVE)]!"))
+				visible_message(span_warning("[capitalize(L.declent_ru(NOMINATIVE))] отбрасывается в сторону от [declent_ru(ACCUSATIVE)]!"))
 	for(var/obj/mecha/M in orange(1, src))
 		M.take_damage(75, BRUTE, MELEE, 1)
 
@@ -495,16 +493,16 @@ Difficulty: Medium
 	color = COLOR_DARK_ORANGE
 
 /obj/effect/temp_visual/drakewall/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "огненный барьер",
 		GENITIVE = "огненного барьера",
 		DATIVE = "огненному барьеру",
 		ACCUSATIVE = "огненный барьер",
 		INSTRUMENTAL = "огненным барьером",
-		PREPOSITIONAL = "огненном барьере",
+		PREPOSITIONAL = "огненном барьере"
 	)
 
-/obj/effect/temp_visual/drakewall/CanAtmosPass(direction)
+/obj/effect/temp_visual/drakewall/CanAtmosPass(turf/T, vertical)
 	return !density
 
 /obj/effect/temp_visual/lava_safe
@@ -525,13 +523,13 @@ Difficulty: Medium
 	color = "#FF0000"
 
 /obj/effect/temp_visual/dragon_swoop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "неизбежная смерть",
 		GENITIVE = "неизбежной смерти",
 		DATIVE = "неизбежной смерти",
 		ACCUSATIVE = "неизбежную смерть",
 		INSTRUMENTAL = "неизбежной смертью",
-		PREPOSITIONAL = "неизбежной смерти",
+		PREPOSITIONAL = "неизбежной смерти"
 	)
 
 /obj/effect/temp_visual/dragon_flight
@@ -579,13 +577,13 @@ Difficulty: Medium
 	pixel_z = 270
 
 /obj/effect/temp_visual/fireball/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "огненный шар",
 		GENITIVE = "огненного шара",
 		DATIVE = "огненному шару",
 		ACCUSATIVE = "огненный шар",
 		INSTRUMENTAL = "огненным шаром",
-		PREPOSITIONAL = "огненном шаре",
+		PREPOSITIONAL = "огненном шаре"
 	)
 
 /obj/effect/temp_visual/fireball/Initialize(mapload)
@@ -615,10 +613,8 @@ Difficulty: Medium
 		var/turf/simulated/mineral/M = T
 		M.attempt_drill()
 	playsound(T, SFX_EXPLOSION, 80, TRUE)
-	var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(T)
-	hotspot.temperature = 1000
-	hotspot.recolor()
-	T.hotspot_expose(700, 50)
+	new /obj/effect/hotspot(T)
+	T.hotspot_expose(700, 50, 1)
 	for(var/mob/living/L in T.contents)
 		if(istype(L, /mob/living/simple_animal/hostile/megafauna/dragon))
 			continue
@@ -645,13 +641,13 @@ Difficulty: Medium
 	attack_action_types = list()
 
 /mob/living/simple_animal/hostile/megafauna/dragon/lesser/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "младший пепельный дрейк",
 		GENITIVE = "младшего пепельного дрейка",
 		DATIVE = "младшему пепельному дрейку",
 		ACCUSATIVE = "младший пепельный дрейк",
 		INSTRUMENTAL = "младшим пепельным дрейком",
-		PREPOSITIONAL = "младшем пепельном дрейке",
+		PREPOSITIONAL = "младшем пепельном дрейке"
 	)
 
 /mob/living/simple_animal/hostile/megafauna/dragon/lesser/AltClickOn(atom/movable/A)
@@ -660,7 +656,7 @@ Difficulty: Medium
 	if(!istype(A))
 		return
 	if(player_cooldown >= world.time)
-		to_chat(src, span_warning("Вам нужно подождать [(player_cooldown - world.time) / 10] секунд[DECL_SEC_MIN((player_cooldown - world.time) / 10)] перед следующим пикированием!"))
+		to_chat(src, span_warning("Вам нужно подождать [(player_cooldown - world.time) / 10] секунд[declension_ru((player_cooldown - world.time) / 10,"у","ы","")] перед следующим пикированием!"))
 		return
 	swoop_attack(FALSE, A)
 	lava_pools(10, 2) // less pools but longer delay before spawns
@@ -694,13 +690,13 @@ Difficulty: Medium
 	attack_action_types = list()
 
 /mob/living/simple_animal/hostile/megafauna/dragon/space_dragon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "космический дракон",
 		GENITIVE = "космического дракона",
 		DATIVE = "космическому дракону",
 		ACCUSATIVE = "космический дракон",
 		INSTRUMENTAL = "космическим драконом",
-		PREPOSITIONAL = "космическом драконе",
+		PREPOSITIONAL = "космическом драконе"
 	)
 
 /mob/living/simple_animal/hostile/megafauna/dragon/space_dragon/grant_achievement(medaltype, scoretype)
@@ -736,12 +732,14 @@ Difficulty: Medium
 	action_icon_state = "tailsweep"
 	action_background_icon_state = "bg_alien"
 
+
 /obj/effect/proc_holder/spell/aoe/repulse/spacedragon/cast(list/targets, mob/user = usr)
 	if(iscarbon(user))
 		var/mob/living/carbon/C = user
 		playsound(C.loc, 'sound/effects/hit_punch.ogg', 80, TRUE, 1)
 		C.spin(6, 1)
 	..(targets, user, 3 SECONDS)
+
 
 /mob/living/simple_animal/hostile/megafauna/dragon/space_dragon/AltClickOn(atom/movable/A)
 	return

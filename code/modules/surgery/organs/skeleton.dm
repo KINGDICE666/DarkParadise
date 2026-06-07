@@ -3,6 +3,7 @@
 	desc = "skeleton parent object."
 	icon = 'icons/mob/human_races/r_skeleton.dmi'
 
+
 /obj/item/skeleton/head
 	name = "skull"
 	desc = "a skeleton skull, would make a nice paperweight."

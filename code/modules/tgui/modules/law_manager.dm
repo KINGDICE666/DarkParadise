@@ -28,13 +28,13 @@
 			if(laws.selectable)
 				player_laws += laws
 
-/datum/ui_module/law_manager/ui_act(action, list/params, datum/tgui/ui)
+/datum/ui_module/law_manager/ui_act(action, list/params)
 	if(..())
 		return
 
-	if(ui.user != owner && !check_rights(R_ADMIN))
-		message_admins("Warning: possible href exploit by [key_name_admin(ui.user)] - failed permissions check in law manager!")
-		log_debug("Warning: possible href exploit by [key_name(ui.user)] - failed permissions check in law manager!")
+	if(usr != owner && !check_rights(R_ADMIN))
+		message_admins("Warning: possible href exploit by [ADMIN_LOOKUPFLW(usr)] - failed permissions check in law manager!")
+		log_debug("Warning: possible href exploit by [key_name_log(usr)] - failed permissions check in law manager!")
 		return
 
 	. = TRUE
@@ -48,149 +48,124 @@
 				owner.lawchannel = params["law_channel"]
 
 		if("state_law")
-			var/datum/ai_law/AL = locateUID(params["ref"])
+			var/datum/ai_law/AL = locate(params["ref"]) in owner.laws.all_laws()
 			if(AL)
 				var/state_law = text2num(params["state_law"])
 				owner.laws.set_state_law(AL, state_law)
 
 		if("add_zeroth_law")
-			if(zeroth_law && is_admin(ui.user) && !owner.laws.zeroth_law)
+			if(zeroth_law && is_admin(usr) && !owner.laws.zeroth_law)
 				owner.set_zeroth_law(zeroth_law)
-				notify_owner_shell()
 				SSticker?.score?.save_silicon_laws(owner, usr, "admin used law manager, new zero law was added '[zeroth_law]'")
-				SSticker?.score?.save_silicon_laws(owner, ui.user, "admin used law manager, new zero law was added '[zeroth_law]'")
 
 		if("add_devil_law")
-			if(devil_law && is_malf(ui.user))
+			if(devil_law && is_malf(usr))
 				owner.add_devil_law(devil_law)
-				notify_owner_shell()
 				SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, new devil law was added '[devil_law]'")
-				SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, new devil law was added '[devil_law]'")
 
 		if("add_ion_law")
-			if(ion_law && is_malf(ui.user))
+			if(ion_law && is_malf(usr))
 				owner.add_ion_law(ion_law)
-				notify_owner_shell()
 				SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, new ion law was added '[ion_law]'")
-				SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, new ion law was added '[ion_law]'")
 
 		if("add_inherent_law")
-			if(inherent_law && is_malf(ui.user))
+			if(inherent_law && is_malf(usr))
 				owner.add_inherent_law(inherent_law)
-				notify_owner_shell()
 				SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, new inherent law was added '[inherent_law]'")
-				SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, new inherent law was added '[inherent_law]'")
 
 		if("add_supplied_law")
-			if(supplied_law && supplied_law_position >= 1 && MIN_SUPPLIED_LAW_NUMBER <= MAX_SUPPLIED_LAW_NUMBER && is_malf(ui.user))
+			if(supplied_law && supplied_law_position >= 1 && MIN_SUPPLIED_LAW_NUMBER <= MAX_SUPPLIED_LAW_NUMBER && is_malf(usr))
 				owner.add_supplied_law(supplied_law_position, supplied_law)
-				notify_owner_shell()
 				SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, new supplied law was added '[supplied_law]'")
-				SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, new supplied law was added '[supplied_law]'")
 
 		if("change_zeroth_law")
-			var/new_law = tgui_input_text(ui.user, "Enter new law Zero. Leaving the field blank will cancel the edit.", "Edit Law", zeroth_law, encode = FALSE)
+			var/new_law = tgui_input_text(usr, "Enter new law Zero. Leaving the field blank will cancel the edit.", "Edit Law", zeroth_law, encode = FALSE)
 			if(new_law && new_law != zeroth_law && (!..()))
 				zeroth_law = new_law
-				notify_owner_shell()
 
 		if("change_ion_law")
-			var/new_law = tgui_input_text(ui.user, "Enter new ion law. Leaving the field blank will cancel the edit.", "Edit Law", ion_law, encode = FALSE)
+			var/new_law = tgui_input_text(usr, "Enter new ion law. Leaving the field blank will cancel the edit.", "Edit Law", ion_law, encode = FALSE)
 			if(new_law && new_law != ion_law && (!..()))
 				ion_law = new_law
-				notify_owner_shell()
 
 		if("change_devil_law")
-			var/new_law = tgui_input_text(ui.user, "Enter new devil law. Leaving the field blank will cancel the edit.", "Edit Law", devil_law, encode = FALSE)
+			var/new_law = tgui_input_text(usr, "Enter new devil law. Leaving the field blank will cancel the edit.", "Edit Law", devil_law, encode = FALSE)
 			if(new_law && new_law != devil_law && (!..()))
 				devil_law = new_law
-				notify_owner_shell()
 
 		if("change_inherent_law")
-			var/new_law = tgui_input_text(ui.user, "Enter new inherent law. Leaving the field blank will cancel the edit.", "Edit Law", inherent_law, encode = FALSE)
+			var/new_law = tgui_input_text(usr, "Enter new inherent law. Leaving the field blank will cancel the edit.", "Edit Law", inherent_law, encode = FALSE)
 			if(new_law && new_law != inherent_law && (!..()))
 				inherent_law = new_law
-				notify_owner_shell()
 
 		if("change_supplied_law")
-			var/new_law = tgui_input_text(ui.user, "Enter new supplied law. Leaving the field blank will cancel the edit.", "Edit Law", supplied_law, encode = FALSE)
+			var/new_law = tgui_input_text(usr, "Enter new supplied law. Leaving the field blank will cancel the edit.", "Edit Law", supplied_law, encode = FALSE)
 			if(new_law && new_law != supplied_law && (!..()))
 				supplied_law = new_law
-				notify_owner_shell()
 
 		if("change_supplied_law_position")
-			var/new_position = tgui_input_number(ui.user, "Enter new supplied law position between 1 and [MAX_SUPPLIED_LAW_NUMBER], inclusive. Inherent laws at the same index as a supplied law will not be stated.", "Law Position", supplied_law_position, MAX_SUPPLIED_LAW_NUMBER, 1)
+			var/new_position = tgui_input_number(usr, "Enter new supplied law position between 1 and [MAX_SUPPLIED_LAW_NUMBER], inclusive. Inherent laws at the same index as a supplied law will not be stated.", "Law Position", supplied_law_position, MAX_SUPPLIED_LAW_NUMBER, 1)
 			if(isnum(new_position) && (!..()))
 				supplied_law_position = new_position
-				notify_owner_shell()
 
 		if("edit_law")
-			if(is_malf(ui.user))
-				var/datum/ai_law/AL = locateUID(params["edit_law"])
+			if(is_malf(usr))
+				var/datum/ai_law/AL = locate(params["edit_law"]) in owner.laws.all_laws()
 				// Dont allow non-admins to edit their own malf laws
 				if(istype(AL, /datum/ai_law/zero) && (!check_rights(R_ADMIN)))
-					to_chat(ui.user, span_warning("Вы не можете изменить этот закон."))
+					to_chat(usr, span_warning("Вы не можете изменить этот закон."))
 					return
 				if(AL)
-					var/new_law = tgui_input_text(ui.user, "Введите новый закон. Оставьте поле пустым для отмены.", "Редактирование закона", AL.law, encode = FALSE)
-					if(new_law && new_law != AL.law && is_malf(ui.user) && (!..()))
+					var/new_law = tgui_input_text(usr, "Введите новый закон. Оставьте поле пустым для отмены.", "Редактирование закона", AL.law, encode = FALSE)
+					if(new_law && new_law != AL.law && is_malf(usr) && (!..()))
 						log_and_message_admins("has changed a law of [owner] from '[AL.law]' to '[new_law]'")
 						var/old_law = AL.law
 						AL.law = new_law
-						notify_owner_shell()
 						SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, law '[old_law]' was changed to '[new_law]'")
-						SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, law '[old_law]' was changed to '[new_law]'")
 
 		if("delete_law")
-			if(is_malf(ui.user))
-				var/datum/ai_law/AL = locateUID(params["delete_law"])
+			if(is_malf(usr))
+				var/datum/ai_law/AL = locate(params["delete_law"]) in owner.laws.all_laws()
 				// Dont allow non-admins to delete their own malf laws
 				if(istype(AL, /datum/ai_law/zero) && (!check_rights(R_ADMIN)))
-					to_chat(ui.user, span_warning("Вы не можете удалить этот закон."))
+					to_chat(usr, span_warning("Вы не можете удалить этот закон."))
 					return
-				if(AL && is_malf(ui.user))
+				if(AL && is_malf(usr))
 					var/old_law = AL.law
 					owner.delete_law(AL)
-					notify_owner_shell()
 					SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, law '[old_law]' was deleted")
-					SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, law '[old_law]' was deleted")
 
 		if("state_laws")
 			owner.statelaws(owner.laws)
 
 		if("state_law_set")
-			var/datum/ai_laws/ALs = locateUID(params["state_law_set"])
+			var/datum/ai_laws/ALs = locate(params["state_law_set"]) in (is_admin(usr) ? admin_laws : player_laws)
 			if(ALs)
 				owner.statelaws(ALs)
 
 		if("transfer_laws")
-			if(is_malf(ui.user))
-				var/datum/ai_laws/ALs = locateUID(params["transfer_laws"])
+			if(is_malf(usr))
+				var/datum/ai_laws/ALs = locate(params["transfer_laws"]) in (is_admin(usr) ? admin_laws : player_laws)
 				if(ALs)
 					log_and_message_admins("has transfered the [ALs.name] laws to [owner].")
 					ALs.sync(owner, FALSE, TRUE)
 					current_view = 0
-					if(isAI(owner))
-						var/mob/living/silicon/ai/AI = owner
-						AI.notify_shell()
 					SSticker?.score?.save_silicon_laws(owner, usr, "admin/malf used law manager, '[ALs.name]' laws set was loaded", log_all_laws = TRUE)
-					SSticker?.score?.save_silicon_laws(owner, ui.user, "admin/malf used law manager, '[ALs.name]' laws set was loaded", log_all_laws = TRUE)
 
 		if("notify_laws")
 			to_chat(owner, span_danger("УВЕДОМЛЕНИЕ О ЗАКОНЕ"))
 			owner.laws.show_laws(owner)
 			if(isAI(owner))
 				var/mob/living/silicon/ai/AI = owner
-				AI.notify_shell()
 				for(var/mob/living/silicon/robot/R in AI.connected_robots)
 					to_chat(R, span_danger("УВЕДОМЛЕНИЕ О ЗАКОНЕ"))
 					R.laws.show_laws(R)
-			if(ui.user != owner)
-				to_chat(ui.user, span_notice("Законы отображены."))
+			if(usr != owner)
+				to_chat(usr, span_notice("Законы отображены."))
 
 /datum/ui_module/law_manager/ui_state(mob/user)
 	if(check_rights(R_ADMIN, FALSE))
-		return ADMIN_STATE(R_ADMIN)
+		return GLOB.admin_state
 	if(issilicon(user))
 		return GLOB.conscious_state
 	return GLOB.default_state
@@ -237,7 +212,7 @@
 /datum/ui_module/law_manager/proc/package_laws(list/data, field, list/datum/ai_law/laws)
 	var/list/packaged_laws = list()
 	for(var/datum/ai_law/AL in laws)
-		packaged_laws[++packaged_laws.len] = list("law" = AL.law, "index" = AL.get_index(), "state" = owner.laws.get_state_law(AL), "ref" = AL.UID())
+		packaged_laws[++packaged_laws.len] = list("law" = AL.law, "index" = AL.get_index(), "state" = owner.laws.get_state_law(AL), "ref" = "\ref[AL]")
 	data[field] = packaged_laws
 	data["has_[field]"] = packaged_laws.len
 
@@ -250,7 +225,7 @@
 		package_laws(packaged_laws, "ion_laws", ALs.ion_laws)
 		package_laws(packaged_laws, "inherent_laws", ALs.inherent_laws)
 		package_laws(packaged_laws, "supplied_laws", ALs.supplied_laws)
-		law_sets[++law_sets.len] = list("name" = ALs.name, "header" = ALs.law_header, "ref" = ALs.UID(),"laws" = packaged_laws)
+		law_sets[++law_sets.len] = list("name" = ALs.name, "header" = ALs.law_header, "ref" = "\ref[ALs]","laws" = packaged_laws)
 
 	return law_sets
 
@@ -276,11 +251,3 @@
 	for(var/mob/living/silicon/robot/R in AI.connected_robots)
 		R.sync()
 	log_and_message_admins("has syncronized [AI]'s laws with its borgs.")
-
-/datum/ui_module/law_manager/proc/notify_owner_shell()
-	if(!owner)
-		return
-	if(!isAI(owner))
-		return
-	var/mob/living/silicon/ai/AI = owner
-	AI.notify_shell()

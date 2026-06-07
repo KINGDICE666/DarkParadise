@@ -7,22 +7,27 @@
 	action_icon = 'icons/mob/alien.dmi'
 	var/evolution_path = /mob/living/carbon/alien/larva
 
+
 /obj/effect/proc_holder/spell/alien_spell/evolve/larva
 	desc = "Evolve into a fully grown Alien."
 	action_icon_state = "alienh_running"
+
 
 /obj/effect/proc_holder/spell/alien_spell/evolve/praetorian
 	desc = "Become a Praetorian, Royal Guard to the Queen."
 	action_icon_state = "aliens_running"
 	evolution_path = /mob/living/carbon/alien/humanoid/praetorian
 
+
 /obj/effect/proc_holder/spell/alien_spell/evolve/queen
 	desc = "Evolve into an Alien Queen."
 	action_icon_state = "alienq_running"
 	evolution_path = /mob/living/carbon/alien/humanoid/queen/large
 
+
 /obj/effect/proc_holder/spell/alien_spell/evolve/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/alien_spell/evolve/can_cast(mob/living/carbon/alien/user, charge_check, show_message)
 	if(!..())
@@ -45,6 +50,7 @@
 
 	return TRUE
 
+
 /obj/effect/proc_holder/spell/alien_spell/evolve/cast(list/targets, mob/living/carbon/alien/user)
 	to_chat(user, span_noticealien("You begin to evolve!"))
 	user.visible_message(span_alertalien("[user] begins to twist and contort!"))
@@ -65,15 +71,17 @@
 
 			var/turf/simulated/floor/turf = get_turf(new_xeno)
 			if(istype(turf))
-				playsound(turf, 'sound/effects/clang.ogg', 50, TRUE)
+				playsound(turf, "sound/effects/clang.ogg", 50, TRUE)
 				turf.break_tile_to_plating()
 				pipe?.deconstruct()
 		else
 			new_xeno.move_into_vent(pipe, message = FALSE)
 
+
 	playsound_xenobuild(user.loc)
 	SSblackbox.record_feedback("tally", "alien_growth", 1, "[new_xeno]")
 	qdel(user)
+
 
 /obj/effect/proc_holder/spell/alien_spell/evolve/larva/cast(list/targets, mob/living/carbon/alien/larva/user)
 	to_chat(user, span_boldnotice("You are growing into a beautiful alien! It is time to choose a caste."))
@@ -96,6 +104,7 @@
 			evolution_path = /mob/living/carbon/alien/humanoid/drone
 	..()
 
+
 /obj/effect/proc_holder/spell/alien_spell/evolve/praetorian/cast(list/targets, mob/living/carbon/user)
 	var/mob/living/carbon/alien/spell_owner = user
 	if(!istype(spell_owner))
@@ -110,6 +119,7 @@
 		..()
 	else
 		to_chat(user, span_warning("We have too many praetorians."))
+
 
 /obj/effect/proc_holder/spell/alien_spell/evolve/queen/can_cast(mob/living/carbon/alien/user, charge_check, show_message)
 	if(!..())
@@ -130,5 +140,6 @@
 /obj/effect/proc_holder/spell/alien_spell/evolve/queen/cast(list/targets, mob/living/carbon/alien/user)
 	..()
 	user.queen_count++
+
 
 #undef LIVING_PLAYERS_COUNT_FOR_1_PRAETORIAN

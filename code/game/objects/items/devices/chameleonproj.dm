@@ -16,13 +16,13 @@
 	var/saved_appearance = null
 
 /obj/item/chameleon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "\"Хамелеон\"-проектор",
 		GENITIVE = "\"Хамелеон\"-проектора",
 		DATIVE = "\"Хамелеон\"-проектору",
 		ACCUSATIVE = "\"Хамелеон\"-проектор",
 		INSTRUMENTAL = "\"Хамелеон\"-проектором",
-		PREPOSITIONAL = "\"Хамелеон\"-проекторе",
+		PREPOSITIONAL = "\"Хамелеон\"-проекторе"
 	)
 
 /obj/item/chameleon/Initialize(mapload)
@@ -41,30 +41,24 @@
 /obj/item/chameleon/attack_self(mob/user)
 	toggle(user)
 
-/obj/item/chameleon/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+/obj/item/chameleon/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity)
 		return
-
 	if(!check_sprite(target))
 		return
-
 	if(target.alpha < 255)
 		return
-
 	if(target.invisibility)
 		return
-
-	if(active_dummy)
-		return
-
-	if(isitem(target) && !istype(target, /obj/item/disk/nuclear))
-		playsound(get_turf(src), 'sound/weapons/flash.ogg', 100, TRUE, -6)
-		to_chat(user, span_notice("Scanned [target]."))
-		var/obj/temp = new()
-		temp.appearance = target.appearance
-		temp.layer = initial(target.layer)
-		SET_PLANE_EXPLICIT(temp, initial(plane), src)
-		saved_appearance = temp.appearance
+	if(!active_dummy)
+		if(isitem(target) && !istype(target, /obj/item/disk/nuclear))
+			playsound(get_turf(src), 'sound/weapons/flash.ogg', 100, TRUE, -6)
+			to_chat(user, span_notice("Scanned [target]."))
+			var/obj/temp = new /obj()
+			temp.appearance = target.appearance
+			temp.layer = initial(target.layer)
+			SET_PLANE_EXPLICIT(temp, initial(plane), src)
+			saved_appearance = temp.appearance
 
 /obj/item/chameleon/proc/check_sprite(atom/target)
 	if(icon_exists(target.icon, target.icon_state))
@@ -109,46 +103,33 @@
 
 /obj/effect/dummy/chameleon/proc/activate(mob/M, saved_appearance, obj/item/chameleon/C)
 	appearance = saved_appearance
-	if(isvehicle(M.buckled))
+	if(istype(M.buckled, /obj/vehicle))
 		var/obj/vehicle/V = M.buckled
 		V.unbuckle_mob(M, TRUE)
 	M.forceMove(src)
 	master = C
 	master.active_dummy = src
 
-/obj/effect/dummy/chameleon/proc/notify_disrupt(mob/attacker, mob/defender, obj/item)
-	to_chat(defender, span_danger("Your chameleon projector deactivates."))
-	add_attack_logs(attacker, defender, "disrupt [master] by [item ? item : "attack"]")
 
-/obj/effect/dummy/chameleon/attackby(obj/item/item, mob/user, params)
-	for(var/mob/mob in src)
-		notify_disrupt(mob, user, item)
-
+/obj/effect/dummy/chameleon/attackby(obj/item/I, mob/user, params)
+	for(var/mob/snake in src)
+		to_chat(snake, span_danger("Your chameleon projector deactivates."))
 	master.disrupt()
 	return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/effect/dummy/chameleon/attack_hand(mob/user)
-	for(var/mob/mob in src)
-		notify_disrupt(mob, user)
 
+/obj/effect/dummy/chameleon/attack_hand()
+	for(var/mob/M in src)
+		to_chat(M, span_danger("Your chameleon projector deactivates."))
 	master.disrupt()
 
-/obj/effect/dummy/chameleon/attack_animal(mob/user)
-	for(var/mob/mob in src)
-		notify_disrupt(mob, user)
-
+/obj/effect/dummy/chameleon/attack_animal()
 	master.disrupt()
 
-/obj/effect/dummy/chameleon/attack_slime(mob/user)
-	for(var/mob/mob in src)
-		notify_disrupt(mob, user)
-
+/obj/effect/dummy/chameleon/attack_slime()
 	master.disrupt()
 
-/obj/effect/dummy/chameleon/attack_alien(mob/user)
-	for(var/mob/mob in src)
-		notify_disrupt(mob, user)
-
+/obj/effect/dummy/chameleon/attack_alien()
 	master.disrupt()
 
 /obj/effect/dummy/chameleon/ex_act(severity, target) //no longer bomb-proof
@@ -412,7 +393,7 @@
 	disrupt(user)
 
 /obj/item/borg_chameleon/attack_self(mob/living/silicon/robot/syndicate/saboteur/user)
-	if(user?.cell && user.cell.charge >  activationCost)
+	if(user && user.cell && user.cell.charge >  activationCost)
 		if(isturf(user.loc))
 			toggle(user)
 		else
@@ -445,7 +426,23 @@
 			else
 				choice = last_disguise
 		to_chat(user, span_notice("You activate [src]."))
-		apply_wibbly_filters(user)
+		var/start = user.filters.len
+		var/X
+		var/Y
+		var/rsq
+		var/i
+		var/f
+		for(i in 1 to 7)
+			do
+				X = 60 * rand() - 30
+				Y = 60 * rand() - 30
+				rsq = X * X + Y * Y
+			while(rsq < 100 || rsq > 900)
+			user.filters += filter(type = "wave", x = X, y = Y, size = rand() * 2.5 + 0.5, offset = rand())
+		for(i in 1 to 7)
+			f = user.filters[start+i]
+			animate(f, offset = f:offset, time = 0, loop = 3, flags = ANIMATION_PARALLEL)
+			animate(offset = f:offset - 1, time = rand() * 20 + 10)
 		if(do_after(user, 5 SECONDS, user) && user.cell.use(activationCost))
 			playsound(src, 'sound/effects/bamf.ogg', 100, TRUE, -6)
 			to_chat(user, span_notice("You are now disguised as a Nanotrasen cyborg."))
@@ -453,7 +450,10 @@
 		else
 			to_chat(user, span_warning("The chameleon field fizzles."))
 			do_sparks(3, FALSE, user)
-		remove_wibbly_filters(user)
+			for(i in 1 to min(7, user.filters.len)) // removing filters that are animating does nothing, we gotta stop the animations first
+				f = user.filters[start + i]
+				animate(f)
+		user.filters = null
 
 /obj/item/borg_chameleon/process()
 	if(S)

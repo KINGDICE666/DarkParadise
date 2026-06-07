@@ -12,8 +12,8 @@
 
 /obj/effect/anomaly/atmospheric/collapse()
 	for(var/turf/simulated/turf in view(collapse_range * 2, src))
-		var/datum/milla_safe/anomaly_set_temp/milla = new()
-		milla.invoke_async(turf)
+		if(turf.air)
+			turf.air.temperature = rand(0, 50)
 
 	for(var/turf/simulated/floor/turf in view(collapse_range, src))
 		var/near_ice = 0 // Generation will be more beautiful.
@@ -34,23 +34,13 @@
 
 	var/turf/simulated/turf = get_turf(src)
 	if(istype(turf))
-		var/datum/gas_mixture/old_air = turf.get_readonly_air()
-		var/datum/gas_mixture/air = new()
-		air.set_temperature(1000)
-		air.set_toxins(old_air.toxins() + collapse_gas_amount * 5/7)
-		air.set_oxygen(old_air.oxygen() + collapse_gas_amount * 2/7)
-		turf.blind_release_air(air)
+		turf.atmos_spawn_air(LINDA_SPAWN_OXYGEN, collapse_gas_amount * 2/7)
+		turf.atmos_spawn_air(LINDA_SPAWN_HEAT | LINDA_SPAWN_TOXINS, collapse_gas_amount * 5/7)
 
 	for(var/i = 1 to rand(collapse_slimes_low, collapse_slimes_high))
 		INVOKE_ASYNC(src, PROC_REF(make_slime))
 
 	. = ..()
-
-/datum/milla_safe/anomaly_set_temp
-
-/datum/milla_safe/anomaly_set_temp/on_run(turf/turf)
-	var/datum/gas_mixture/env = get_turf_air(turf)
-	env.set_temperature(rand(0, 50))
 
 /obj/effect/anomaly/atmospheric/mob_touch_effect(mob/living/mob)
 	. = ..()
@@ -64,7 +54,7 @@
 
 /obj/effect/anomaly/atmospheric/item_touch_effect(obj/item/item)
 	. = ..()
-	item.fire_act(rand(0, 1000), rand(20, 200))
+	item.fire_act(null, rand(0, 1000), rand(20, 200))
 
 /obj/effect/anomaly/atmospheric/proc/make_slime()
 	var/turf/simulated/turf = get_turf(src)
@@ -74,15 +64,11 @@
 	slime.set_nutrition(slime.get_max_nutrition())
 
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Хотите сыграть за слайма из атмосферной аномалии?", ROLE_SENTIENT, FALSE, 100, source = slime, role_cleanname = "pyroclastic anomaly slime")
-
-	if(QDELETED(slime))
-		return
-
 	if(!LAZYLEN(candidates))
 		return
 
 	var/mob/dead/observer/chosen = pick(candidates)
-	slime.possess_by_player(chosen.key)
+	slime.key = chosen.key
 	slime.mind.special_role = SPECIAL_ROLE_PYROCLASTIC_SLIME
 	add_game_logs("was made into a slime by pyroclastic anomaly at [AREACOORD(turf)].", slime)
 
@@ -101,13 +87,13 @@
 	collapse_gas_amount = 150
 
 /obj/effect/anomaly/atmospheric/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "малая атмосферная аномалия", \
 		GENITIVE = "малой атмосферной аномалии", \
 		DATIVE = "малой атмосферной аномалии", \
 		ACCUSATIVE = "малую ​​атмосферную аномалию", \
 		INSTRUMENTAL = "малой ​атмосферной аномалией", \
-		PREPOSITIONAL = "малой ​​атмосферной аномалии",
+		PREPOSITIONAL = "малой ​​атмосферной аномалии"
 	)
 
 /obj/effect/anomaly/atmospheric/tier2
@@ -127,13 +113,13 @@
 	collapse_slimes_high = 2
 
 /obj/effect/anomaly/atmospheric/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "атмосферная аномалия", \
 		GENITIVE = "атмосферной аномалии", \
 		DATIVE = "атмосферной аномалии", \
 		ACCUSATIVE = "​​атмосферную аномалию", \
 		INSTRUMENTAL = "​атмосферной аномалией", \
-		PREPOSITIONAL = "​​атмосферной аномалии",
+		PREPOSITIONAL = "​​атмосферной аномалии"
 	)
 
 /obj/effect/anomaly/atmospheric/tier3
@@ -152,16 +138,16 @@
 	collapse_slimes_high = 3
 
 /obj/effect/anomaly/atmospheric/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "большая атмосферная аномалия", \
 		GENITIVE = "большой атмосферной аномалии", \
 		DATIVE = "большой атмосферной аномалии", \
 		ACCUSATIVE = "большую ​​атмосферную аномалию", \
 		INSTRUMENTAL = "большой ​атмосферной аномалией", \
-		PREPOSITIONAL = "большой ​​атмосферной аномалии",
+		PREPOSITIONAL = "большой ​​атмосферной аномалии"
 	)
 
-/obj/effect/anomaly/atmospheric/tier3/Initialize(mapload, spawn_strength, spawn_stability)
+/obj/effect/anomaly/atmospheric/tier3/New()
 	. = ..()
 
 	for(var/mob/mob as anything in GLOB.player_list)
@@ -176,9 +162,10 @@
 
 /obj/effect/anomaly/atmospheric/tier3/collapse()
 	for(var/obj/item/paper in range(30)) // Just for fan.
-		paper.fire_act(1000, 1000)
+		paper.fire_act(null, 1000, 1000)
 
 	. = ..()
+
 
 //		TIER 4 ANOMALY | ADMIN SPAWN ONLY!
 
@@ -201,13 +188,13 @@
 	collapse_slimes_high = 6
 
 /obj/effect/anomaly/atmospheric/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "колосальная атмосферная аномалия", \
 		GENITIVE = "колоссальной атмосферной аномалии", \
 		DATIVE = "колоссальной атмосферной аномалии", \
 		ACCUSATIVE = "колосальную ​​атмосферную аномалию", \
 		INSTRUMENTAL = "колоссальной ​атмосферной аномалией", \
-		PREPOSITIONAL = "колоссальной ​атмосферной аномалии",
+		PREPOSITIONAL = "колоссальной ​атмосферной аномалии"
 	)
 
 /obj/effect/anomaly/atmospheric/tier4/do_move(dir)
@@ -219,7 +206,7 @@
 		to_chat(mob, span_danger("Вы были испепелены [declent_ru(INSTRUMENTAL)]!"))
 		mob.dust()
 
-/obj/effect/anomaly/atmospheric/tier4/Initialize(mapload, spawn_strength, spawn_stability)
+/obj/effect/anomaly/atmospheric/tier4/New()
 	. = ..()
 
 	for(var/mob/mob as anything in GLOB.player_list)

@@ -2,7 +2,7 @@
 
 /obj/machinery/computer/library
 	name = "visitor computer"
-	desc = "Старый библиотечный компьютер с ограниченным функционалом — специально для посетителей книжного храма."
+	desc = "Старый библиотечный компьютер с ограниченным функционалом – специально для посетителей книжного храма."
 	icon = 'icons/obj/library.dmi'
 	icon_state = "oldcomp"
 	icon_screen = "library"
@@ -14,13 +14,13 @@
 	var/datum/library_query/query = new()
 
 /obj/machinery/computer/library/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "гостевой компьютер",
 		GENITIVE = "гостевого компьютера",
 		DATIVE = "гостевому компьютеру",
 		ACCUSATIVE = "гостевой компьютер",
 		INSTRUMENTAL = "гостевым компьютером",
-		PREPOSITIONAL = "гостевом компьютере",
+		PREPOSITIONAL = "гостевом компьютере"
 	)
 
 /obj/machinery/computer/library/attack_animal(mob/living/simple_animal/M)

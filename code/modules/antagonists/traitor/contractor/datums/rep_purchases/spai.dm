@@ -9,7 +9,7 @@
 	stock = 1
 	item_type = /obj/item/storage/box/contractor/spai_kit
 	refundable = TRUE
-	refund_path = /obj/item/paicard_upgrade/contractor/unused
+	refund_path = /obj/item/paicard_upgrade/unused
 
 /obj/item/storage/box/contractor/spai_kit
 	name = "Boxed Contractor SPAI"
@@ -17,17 +17,17 @@
 	max_w_class = WEIGHT_CLASS_NORMAL
 
 /obj/item/storage/box/contractor/spai_kit/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "набор СПИИ Контрактника",
 		GENITIVE = "набора СПИИ Контрактника",
 		DATIVE = "набору СПИИ Контрактника",
 		ACCUSATIVE = "набор СПИИ Контрактника",
 		INSTRUMENTAL = "набором СПИИ Контрактника",
-		PREPOSITIONAL = "наборе СПИИ Контрактника",
+		PREPOSITIONAL = "наборе СПИИ Контрактника"
 	)
 
 /obj/item/storage/box/contractor/spai_kit/populate_contents()
 	new /obj/item/paicard(src)
-	new /obj/item/paicard_upgrade/contractor/unused(src)
+	new /obj/item/paicard_upgrade/unused(src)
 	new /obj/item/screwdriver(src)
 	new /obj/item/paper/pai_upgrade(src)

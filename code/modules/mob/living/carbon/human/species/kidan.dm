@@ -9,6 +9,7 @@
 	language = LANGUAGE_KIDAN
 	unarmed_type = /datum/unarmed_attack/claws
 
+
 	inherent_traits = list(
 		TRAIT_HAS_REGENERATION,
 	)
@@ -18,8 +19,8 @@
 	eyes = "kidan_eyes_s"
 	flesh_color = "#ba7814"
 	blood_species = "Kidan"
-	blood_color = BLOOD_COLOR_KIDAN
-	reagent_tag = ORGANIC
+	blood_color = "#FB9800"
+	reagent_tag = PROCESS_ORG
 	//Default styles for created mobs.
 	default_headacc = "Normal Antennae"
 	butt_sprite = "kidan"
@@ -100,15 +101,15 @@
 	)
 
 	autohiss_basic_map = list(
-		"z" = list("zz", "zzz", "zzzz"),
-		"v" = list("vv", "vvv", "vvvv"),
-		"з" = list("зз", "ззз", "зззз"),
-		"в" = list("вв", "ввв", "вввв"),
-	)
+			"z" = list("zz", "zzz", "zzzz"),
+			"v" = list("vv", "vvv", "vvvv"),
+			"з" = list("зз", "ззз", "зззз"),
+			"в" = list("вв", "ввв", "вввв")
+		)
 	autohiss_extra_map = list(
-		"s" = list("z", "zs", "zzz", "zzsz"),
-		"с" = list("з", "зс", "ззз", "ззсз"),
-	)
+			"s" = list("z", "zs", "zzz", "zzsz"),
+			"с" = list("з", "зс", "ззз", "ззсз")
+		)
 	autohiss_exempt = list("Хитин")
 
 /datum/species/kidan/get_species_runechat_color(mob/living/carbon/human/H)
@@ -139,13 +140,14 @@
 	))
 	// HUD for detecting pheromones
 	var/datum/atom_hud/kidan_hud = GLOB.huds[DATA_HUD_KIDAN_PHEROMONES]
-	kidan_hud.show_to(H)
+	kidan_hud.add_hud_to(H)
 
 	// Action for creating pheromones
 	var/datum/action/innate/produce_pheromones/produce_pheromones = locate() in H.actions
 	if(!produce_pheromones)
 		produce_pheromones = new
 		produce_pheromones.Grant(H)
+
 
 /datum/species/kidan/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
@@ -170,11 +172,12 @@
 
 	// Removing the HUD for detecting pheromones
 	var/datum/atom_hud/kidan_hud = GLOB.huds[DATA_HUD_KIDAN_PHEROMONES]
-	kidan_hud.hide_from(H)
+	kidan_hud.remove_hud_from(H)
 
 	// Removing the action for creating pheromones
 	var/datum/action/innate/produce_pheromones/produce_pheromones = locate() in H.actions
 	produce_pheromones?.Remove(H)
+
 
 /// Pheromones spawnable by kida, only perceivable by other kida
 /obj/effect/kidan_pheromones
@@ -198,8 +201,8 @@
 
 	// Add itself to the kidan hud
 	prepare_huds()
-	var/datum/atom_hud/kidan_pheromones/kidan_hud = GLOB.huds[DATA_HUD_KIDAN_PHEROMONES]
-	kidan_hud.add_atom_to_hud(src)
+	for(var/datum/atom_hud/kidan_pheromones/kidan_hud in GLOB.huds)
+		kidan_hud.add_to_hud(src)
 	var/image/holder = hud_list[KIDAN_PHEROMONES_HUD]
 	holder.icon = icon
 	holder.icon_state = icon_state
@@ -225,7 +228,7 @@
 /datum/action/innate/produce_pheromones
 	name = "Создать феромоны"
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
-	button_icon = 'icons/effects/effects.dmi'
+	icon_icon = 'icons/effects/effects.dmi'
 	button_icon_state = "kidan_pheromones_static"
 
 	/// How long our message can be (characters)

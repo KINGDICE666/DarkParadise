@@ -33,11 +33,11 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "dw" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "eH" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/item/stack/sheet/cloth,
 /obj/item/stack/rods,
 /turf/simulated/floor/wood/fancy/birch,
@@ -128,12 +128,16 @@
 /area/ruin/unpowered)
 "lt" = (
 /obj/item/flag/cult,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "ly" = (
-/obj/effect/mapping_helpers/turfs/damage,
-/turf/simulated/floor/wood/fancy/birch/airless,
+/obj/effect/landmark/tiles/damageturf,
+/turf/simulated/floor/wood/fancy/birch{
+	oxygen = 0;
+	nitrogen = 0;
+	temperature = 2.7
+	},
 /area/ruin/unpowered/no_grav)
 "lA" = (
 /turf/simulated/wall/mineral/wood/nonmetal,
@@ -151,7 +155,7 @@
 /area/ruin/unpowered)
 "ne" = (
 /obj/structure/table_frame/wood,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/item/stack/sheet/wood,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
@@ -169,7 +173,7 @@
 /obj/item/stack/sheet/wood{
 	amount = 2
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "nG" = (
@@ -184,18 +188,18 @@
 /area/ruin/unpowered)
 "nO" = (
 /mob/living/simple_animal/hostile/carp/mcarp,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "oi" = (
 /obj/structure/table_frame/wood,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/item/stack/tile/carpet/red,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "oY" = (
 /obj/item/chair/wood,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "pq" = (
@@ -220,15 +224,19 @@
 	pixel_y = 16
 	},
 /obj/structure/table/wood/fancy/red,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "rb" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/wood/fancy/birch/airless,
+/turf/simulated/floor/wood/fancy/birch{
+	oxygen = 0;
+	nitrogen = 0;
+	temperature = 2.7
+	},
 /area/ruin/unpowered/no_grav)
 "rA" = (
 /obj/item/reagent_containers/food/drinks/bottle/unholywater,
@@ -250,7 +258,10 @@
 /obj/structure/cable{
 	icon_state = "0-2"
 	},
-/obj/machinery/power/apc/noalarm/directional/north,
+/obj/machinery/power/apc/noalarm{
+	pixel_y = 26;
+	dir = 1
+	},
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "sT" = (
@@ -304,7 +315,7 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "yv" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/cable{
 	icon_state = "1-4"
 	},
@@ -432,7 +443,7 @@
 /area/ruin/unpowered)
 "DN" = (
 /obj/item/fluff/rsik_katana,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/effect/decal/remains/human,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
@@ -454,7 +465,7 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "Eg" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
@@ -473,12 +484,16 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "EX" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/effect/decal/remains/human,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/wood/fancy/birch/airless,
+/turf/simulated/floor/wood/fancy/birch{
+	oxygen = 0;
+	nitrogen = 0;
+	temperature = 2.7
+	},
 /area/ruin/unpowered/no_grav)
 "FE" = (
 /obj/item/fish_eggs/clownfish{
@@ -492,7 +507,7 @@
 /area/ruin/unpowered)
 "Ga" = (
 /obj/effect/decal/cleanable/blood/gibs/old,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "Ge" = (
@@ -512,7 +527,7 @@
 	},
 /area/ruin/unpowered)
 "GI" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/sign/poster/ripped{
 	pixel_x = -32
 	},
@@ -585,7 +600,7 @@
 /area/ruin/unpowered)
 "It" = (
 /obj/effect/decal/cleanable/blood/gibs/old,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /mob/living/simple_animal/pet/dog/corgi/narsie{
 	name = "Nars-Corgi";
 	melee_damage_lower = 9;
@@ -705,13 +720,13 @@
 "OV" = (
 /obj/item/chair/wood,
 /mob/living/simple_animal/hostile/carp/mcarp,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "Py" = (
 /obj/structure/table/wood/fancy/red,
 /obj/item/toy/carpplushie/ice,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "PM" = (
@@ -730,7 +745,7 @@
 /area/ruin/unpowered)
 "Qy" = (
 /obj/structure/decorative_structures/corpse,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "QD" = (
@@ -743,7 +758,7 @@
 /area/ruin/unpowered)
 "QI" = (
 /obj/effect/decal/cleanable/blood,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "QO" = (
@@ -775,7 +790,7 @@
 /turf/template_noop,
 /area/template_noop)
 "Sb" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating/airless,
 /area/ruin/unpowered/no_grav)
 "Sf" = (
@@ -830,7 +845,7 @@
 /turf/simulated/floor/grass,
 /area/ruin/unpowered)
 "VP" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/cable{
 	icon_state = "2-8"
 	},
@@ -857,7 +872,7 @@
 /turf/simulated/floor/grass,
 /area/ruin/unpowered)
 "Yx" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/effect/decal/cleanable/blood/old,
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
@@ -868,7 +883,7 @@
 /turf/simulated/floor/wood/fancy/birch,
 /area/ruin/unpowered)
 "ZY" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},

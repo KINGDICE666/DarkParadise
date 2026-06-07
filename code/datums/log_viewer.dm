@@ -9,12 +9,12 @@ if(!result || result.ckey != __ckey){\
 
 /datum/log_viewer
 	var/time_from = 0
-	var/time_to = 4 HOURS // 4 Hours should be enough. INFINITY would screw the UI up
-	var/list/selected_mobs = list() // The mobs in question.
-	var/list/selected_ckeys = list() // The ckeys selected to search for. Will show all mobs the ckey is attached to
+	var/time_to = 4 HOURS					// 4 Hours should be enough. INFINITY would screw the UI up
+	var/list/selected_mobs = list()			// The mobs in question.
+	var/list/selected_ckeys = list()		// The ckeys selected to search for. Will show all mobs the ckey is attached to
 	var/list/mob/selected_ckeys_mobs = list()
-	var/list/selected_log_types = ALL_LOGS // The log types being searched for
-	var/list/log_records = list() // Found and sorted records
+	var/list/selected_log_types = ALL_LOGS	// The log types being searched for
+	var/list/log_records = list()			// Found and sorted records
 
 /datum/log_viewer/proc/clear_all()
 	selected_mobs.Cut()
@@ -51,11 +51,11 @@ if(!result || result.ckey != __ckey){\
 				log_records.Add(logs.Copy(start_index, end_index + 1))
 
 	if(length(invalid_mobs))
-		to_chat(user, span_warning("The search criteria contained invalid mobs. They have been removed from the criteria."))
+		to_chat(user, "<span class='warning'>The search criteria contained invalid mobs. They have been removed from the criteria.</span>")
 		for(var/i in invalid_mobs)
 			selected_mobs -= i // Cleanup
 
-	sortTim(log_records, GLOBAL_PROC_REF(compare_log_record))
+	log_records = sortTim(log_records, cmp = /proc/compare_log_record)
 
 /** Binary search like implementation to find the earliest log
  * Returns the index of the earliest log using the time_from value for the given list of logs.
@@ -127,9 +127,9 @@ if(!result || result.ckey != __ckey){\
 	show_ui(user)
 
 /datum/log_viewer/proc/show_ui(mob/user)
-	var/all_log_types = ALL_LOGS
-	var/trStyleTop = "border-top:2px solid; border-bottom:2px solid; padding-top: 5px; padding-bottom: 5px;"
-	var/trStyle = "border-top:1px solid; border-bottom:1px solid; padding-top: 5px; padding-bottom: 5px;"
+	var/all_log_types	= ALL_LOGS
+	var/trStyleTop		= "border-top:2px solid; border-bottom:2px solid; padding-top: 5px; padding-bottom: 5px;"
+	var/trStyle			= "border-top:1px solid; border-bottom:1px solid; padding-top: 5px; padding-bottom: 5px;"
 	var/list/dat = list()
 	dat += "<head><meta http-equiv='X-UA-Compatible' content='IE=edge'><style>.adminticket{border:2px solid} td{border:1px solid grey;} th{border:1px solid grey;} span{float:left;width:150px;}</style></head>"
 	dat += "<div style='min-height:100px'>"
@@ -143,7 +143,7 @@ if(!result || result.ckey != __ckey){\
 		if(QDELETED(M))
 			selected_mobs -= i
 			continue
-		dat += "<a href='byond://?src=[UID()];remove_mob=[M.UID()]'>[get_display_name(M)]</a>"
+		dat += "<a href='byond://?src=[UID()];remove_mob=\ref[M]'>[get_display_name(M)]</a>"
 	dat += "<a href='byond://?src=[UID()];add_mob=1'>Add Mob</a>"
 	dat += "<a href='byond://?src=[UID()];clear_mobs=1'>Clear All Mobs</a>"
 	dat += "<br>"
@@ -174,10 +174,10 @@ if(!result || result.ckey != __ckey){\
 	dat += "</div>"
 
 	// Search results
-	var/tdStyleTime = "width:80px; text-align:center;"
-	var/tdStyleType = "width:80px; text-align:center;"
-	var/tdStyleWho = "width:400px; text-align:center;"
-	var/tdStyleWhere = "width:150px; text-align:center;"
+	var/tdStyleTime		= "width:80px; text-align:center;"
+	var/tdStyleType		= "width:80px; text-align:center;"
+	var/tdStyleWho		= "width:400px; text-align:center;"
+	var/tdStyleWhere	= "width:150px; text-align:center;"
 	dat += "<div style='overflow-y: auto; max-height:calc(100vh - 150px);'>"
 	dat += "<table style='width:100%; border: 1px solid;'>"
 	dat += "<tr style='[trStyleTop]'><th style='[tdStyleTime]'>When</th><th style='[tdStyleType]'>Type</th><th style='[tdStyleWho]'>Who</th><th>What</th><th>Target</th><th style='[tdStyleWhere]'>Where</th></tr>"
@@ -202,7 +202,7 @@ if(!result || result.ckey != __ckey){\
 			return
 		var/res = timeStampToNum(input)
 		if(res < 0)
-			to_chat(usr, span_warning("'[input]' is an invalid input value."))
+			to_chat(usr, "<span class='warning'>'[input]' is an invalid input value.</span>")
 			return
 		time_from = res
 		show_ui(usr)
@@ -213,7 +213,7 @@ if(!result || result.ckey != __ckey){\
 			return
 		var/res = timeStampToNum(input)
 		if(res < 0)
-			to_chat(usr, span_warning("'[input]' is an invalid input value."))
+			to_chat(usr, "<span class='warning'>'[input]' is an invalid input value.</span>")
 			return
 		time_to = res
 
@@ -232,7 +232,7 @@ if(!result || result.ckey != __ckey){\
 				log_records.Cut()
 			else
 				if(records_len > RECORD_HARD_LIMIT)
-					to_chat(usr, span_warning("Record limit reached. Limiting to [RECORD_HARD_LIMIT]."))
+					to_chat(usr, "<span class='warning'>Record limit reached. Limiting to [RECORD_HARD_LIMIT].</span>")
 					log_records.Cut(RECORD_HARD_LIMIT)
 		show_ui(usr)
 		return
@@ -260,7 +260,7 @@ if(!result || result.ckey != __ckey){\
 		add_ckey(usr, ckey_choice)
 		return
 	if(href_list["remove_mob"])
-		var/mob/M = locateUID(href_list["remove_mob"])
+		var/mob/M = locate(href_list["remove_mob"])
 		if(M)
 			selected_mobs -= M
 		show_ui(usr)

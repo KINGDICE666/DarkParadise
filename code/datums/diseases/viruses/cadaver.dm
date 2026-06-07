@@ -7,11 +7,12 @@
 	cure_prob = 6
 	stage_prob = 0.8
 	spread_flags = BLOOD
-	severity = DISEASE_SEVERITY_HARMFUL
+	severity = DANGEROUS
 	discovery_threshold = 0.3 // 2 stage is visible
 
+
 /datum/disease/virus/cadaver/stage_act()
-	if(!..())
+	if(isheretic(affected_mob) || !..())
 		return FALSE
 
 	var/mob/living/carbon/human/H = affected_mob

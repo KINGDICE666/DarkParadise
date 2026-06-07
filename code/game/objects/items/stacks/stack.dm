@@ -41,6 +41,7 @@
 	var/protolathe_name
 
 /obj/item/stack/Initialize(mapload, new_amount, merge = TRUE)
+
 	if(new_amount != null)
 		amount = new_amount
 
@@ -70,15 +71,6 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
-/obj/item/stack/vv_edit_var(var_name, var_value)
-	if(var_name == NAMEOF(src, amount))
-		add(clamp(var_value, 1 - amount, max_amount - amount)) //there must always be one.
-		return TRUE
-	else if(var_name == NAMEOF(src, max_amount))
-		max_amount = max(var_value, 1)
-		add((max_amount < amount) ? (max_amount - amount) : 0) //update icon, weight, ect
-		return TRUE
-	return ..()
 
 /obj/item/stack/hitby(atom/movable/hitting, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
 	if(can_merge(hitting, inhand = TRUE))
@@ -99,7 +91,7 @@
 		return
 
 	. += "There are [amount] [singular_name? singular_name : name]\s in the stack."
-	. += span_notice("Используйте <b>ALT+ЛКМ</b>, чтобы взять произвольное количество.")
+	. += span_notice("Alt-click to take a custom amount.")
 
 /obj/item/stack/proc/add(newamount)
 	if(is_cyborg)
@@ -114,6 +106,7 @@
 
 	var/obj/item/storage/container = loc
 	addtimer(CALLBACK(container, TYPE_PROC_REF(/obj/item/storage, drop_overweight)), 0)
+
 
 /obj/item/storage/proc/drop_overweight()
 	if(QDELETED(src))
@@ -359,13 +352,13 @@
 /obj/item/stack/proc/change_stack(mob/user, amount)
 	var/obj/item/stack/material = new type(user, amount, FALSE)
 	. = material
-	use(amount)
 	material.copy_evidences(src)
 	if(!user.put_in_hands(material, merge_stacks = FALSE))
 		material.forceMove(user.drop_location())
 	add_fingerprint(user)
 	material.add_fingerprint(user)
 	do_pickup_animation(user)
+	use(amount)
 	SStgui.update_uis(src)
 
 /**

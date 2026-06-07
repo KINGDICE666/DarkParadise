@@ -102,25 +102,6 @@
 		ui = new(user, src, "Wires", "[proper_name] wires")
 		ui.open()
 
-/**
- * Used for wire name appearances. Replaces the color name on the left with the one on the right.
- * The color on the left is the one used as the actual color of the wire, but it doesn't look good when written.
- * So, we need to replace the name to something that looks better.
- */
-#define LIST_COLOR_RENAME list( \
-	"rebeccapurple" = "dark purple", \
-	"darkslategrey" = "dark grey", \
-	"darkolivegreen" = "dark green", \
-	"darkslateblue" = "dark blue", \
-	"darkkhaki" = "khaki", \
-	"darkseagreen" = "light green", \
-	"midnightblue" = "blue", \
-	"lightgrey" = "light grey", \
-	"darkgrey" = "dark grey", \
-	"steelblue" = "blue", \
-	"goldenrod" = "gold" \
-)
-
 /datum/wires/ui_data(mob/user)
 	var/list/data = list()
 	var/list/replace_colors
@@ -172,8 +153,6 @@
 	data["status"] = status
 	return data
 
-#undef LIST_COLOR_RENAME
-
 /datum/wires/ui_act(action, list/params)
 	if(..())
 		return
@@ -186,12 +165,9 @@
 
 	if(ismecha(user.loc))
 		var/obj/mecha/mecha = user.loc
-		for(var/key, item in mecha.selected_equipment_in_hands)
-			if(!istype(item, /obj/item/mecha_parts/mecha_equipment/eng_toolset))
-				continue
-			var/obj/item/mecha_parts/mecha_equipment/eng_toolset/toolset = item
+		if(istype(mecha.selected, /obj/item/mecha_parts/mecha_equipment/eng_toolset))
+			var/obj/item/mecha_parts/mecha_equipment/eng_toolset/toolset = mecha.selected
 			I = toolset.selected_item
-			return
 
 	else
 		I = user.get_active_hand()
@@ -205,7 +181,7 @@
 			if(!I)
 				return
 			if(I.tool_behaviour != TOOL_WIRECUTTER && !user.can_admin_interact())
-				to_chat(user, span_error("You need wirecutters!"))
+				to_chat(user, "<span class='error'>You need wirecutters!</span>")
 				return
 
 			if(istype(I))
@@ -218,7 +194,7 @@
 			if(!I)
 				return
 			if(I.tool_behaviour != TOOL_MULTITOOL && !user.can_admin_interact())
-				to_chat(user, span_error("You need a multitool!"))
+				to_chat(user, "<span class='error'>You need a multitool!</span>")
 				return
 
 			playsound(holder, 'sound/weapons/empty.ogg', 20, TRUE)
@@ -239,14 +215,14 @@
 					return TRUE
 
 			if(!issignaler(I))
-				to_chat(user, span_error("You need a remote signaller!"))
+				to_chat(user, "<span class='error'>You need a remote signaller!</span>")
 				return
 
 			if(user.drop_from_active_hand())
 				attach_assembly(color, I)
 				return TRUE
 			else
-				to_chat(user, span_warning("[user.get_active_hand()] is stuck to your hand!"))
+				to_chat(user, "<span class='warning'>[user.get_active_hand()] is stuck to your hand!</span>")
 
 /**
  * Proc called to determine if the user can see wire define information, such as "Contraband", "Door Bolts", etc.
@@ -260,7 +236,7 @@
 	if(user.can_admin_interact())
 		return TRUE
 
-	if(ismultitool(user.get_active_hand()))
+	if(istype(user.get_active_hand(), /obj/item/multitool))
 		var/obj/item/multitool/M = user.get_active_hand()
 		if(M.shows_wire_information)
 			return TRUE
@@ -510,16 +486,3 @@
 /datum/wires/proc/is_attached(color)
 	if(assemblies[color])
 		return TRUE
-
-/// Use this proc if you want wires to be pulsed on EMP
-/datum/wires/proc/emp_pulse()
-	var/list/possible_wires = shuffle(wires)
-	var/remaining_pulses = 3
-
-	for(var/wire in possible_wires)
-		if(!prob(33))
-			continue
-		pulse(wire)
-		remaining_pulses--
-		if(!remaining_pulses)
-			break

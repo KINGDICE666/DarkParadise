@@ -2,8 +2,8 @@
 	Rapid Pipe Dispenser
 */
 
-#define RPD_COOLDOWN_TIME 4 //How long should we have to wait between dispensing pipes?
-#define RPD_WALLBUILD_TIME 40 //How long should drilling into a wall take?
+#define RPD_COOLDOWN_TIME		4 //How long should we have to wait between dispensing pipes?
+#define RPD_WALLBUILD_TIME		40 //How long should drilling into a wall take?
 #define RPD_MENU_ROTATE "Rotate pipes" //Stuff for radial menu
 #define RPD_MENU_FLIP "Flip pipes" //Stuff for radial menu
 #define RPD_MENU_DELETE "Delete pipes" //Stuff for radial menu
@@ -22,10 +22,9 @@
 	throw_speed = 3
 	throw_range = 5
 	materials = list(MAT_METAL = 75000, MAT_GLASS = 37500)
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 50)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 50)
 	resistance_flags = FIRE_PROOF
 	origin_tech = "engineering=4;materials=2"
-	toolbox_radial_menu_compatibility = TRUE
 	var/datum/effect_system/spark_spread/spark_system
 	var/lastused
 	var/iconrotation = 0 //Used to orient icons and pipes
@@ -54,6 +53,7 @@
 		list("category" = "Scrubber", "pipemode" = RPD_SCRUBBERS_PIPING),
 		list("category" = "Devices", "pipemode" = RPD_DEVICES),
 		list("category" = "Heat exchange", "pipemode" = RPD_HEAT_PIPING))
+
 
 /obj/item/rpd/Initialize(mapload)
 	. = ..()
@@ -96,7 +96,8 @@
 
 /obj/item/rpd/proc/create_atmos_pipe(mob/user, turf/T) //Make an atmos pipe, meter, or gas sensor
 	if(!can_dispense_pipe(whatpipe, RPD_ATMOS_MODE))
-		CRASH("Failed to spawn [get_pipe_name(whatpipe, PIPETYPE_ATMOS)] - possible tampering detected")
+		log_runtime(EXCEPTION("Failed to spawn [get_pipe_name(whatpipe, PIPETYPE_ATMOS)] - possible tampering detected")) //Damn dirty apes -- I mean hackers
+		return
 	var/obj/item/pipe/P
 	if(whatpipe == PIPE_GAS_SENSOR)
 		P = new /obj/item/pipe_gsensor(T)
@@ -112,27 +113,21 @@
 			P.dir = turn(iconrotation, -45)
 		else if(!iconrotation) //If user selected a rotation
 			P.dir = user.dir
-	to_chat(user, span_notice("[src] rapidly dispenses [P]!"))
-	var/obj/item/inactive_hand_item = user.get_inactive_hand()
+	to_chat(user, "<span class='notice'>[src] rapidly dispenses [P]!</span>")
+	activate_rpd(TRUE)
 	if(auto_wrench)
 		P.wrench_act(user, integrated_wrench)
-	else if(iswrench(inactive_hand_item) && (P.IsReachableBy(user, inactive_hand_item.reach)))
-		P.wrench_act(user, inactive_hand_item)
-	activate_rpd(TRUE)
 
 /obj/item/rpd/proc/create_disposals_pipe(mob/user, turf/T) //Make a disposals pipe / construct
 	if(!can_dispense_pipe(whatdpipe, RPD_DISPOSALS_MODE))
-		CRASH("Failed to spawn [get_pipe_name(whatdpipe, PIPETYPE_DISPOSAL)] - possible tampering detected")
+		log_runtime(EXCEPTION("Failed to spawn [get_pipe_name(whatdpipe, PIPETYPE_DISPOSAL)] - possible tampering detected"))
+		return
 	var/rotate_dir = iconrotation ? iconrotation : user.dir
 	var/obj/structure/disposalconstruct/construct = new(T, whatdpipe, rotate_dir)
 	to_chat(user, span_notice("[src] rapidly dispenses the [construct.pipename]!"))
-	var/obj/item/inactive_hand_item = user.get_inactive_hand()
+	activate_rpd(TRUE)
 	if(auto_wrench)
 		construct.wrench_act(user, integrated_wrench)
-	else if(iswrench(inactive_hand_item) && (construct.IsReachableBy(user, inactive_hand_item.reach)))
-		construct.wrench_act(user, inactive_hand_item)
-	activate_rpd(TRUE)
-
 
 /obj/item/rpd/proc/rotate_all_pipes(mob/user, turf/T) //Rotate all pipes on a turf
 	for(var/obj/item/pipe/P in T)
@@ -165,10 +160,10 @@
 		to_chat(user, "<span class='notice'>[src] sucks up the loose pipes on [T].")
 		activate_rpd()
 	else
-		to_chat(user, span_notice("There were no loose pipes on [T]."))
+		to_chat(user, "<span class='notice'>There were no loose pipes on [T].</span>")
 
 /obj/item/rpd/proc/delete_single_pipe(mob/user, obj/P) //Delete a single pipe
-	to_chat(user, span_notice("[src] sucks up [P]."))
+	to_chat(user, "<span class='notice'>[src] sucks up [P].</span>")
 	QDEL_NULL(P)
 	activate_rpd()
 
@@ -186,6 +181,11 @@
 	if(!ui)
 		ui = new(user, src, "RPD", name)
 		ui.open()
+
+/obj/item/rpd/ui_assets(mob/user)
+	return list(
+		get_asset_datum(/datum/asset/spritesheet/rpd)
+	)
 
 /obj/item/rpd/click_alt(mob/living/user)
 	radial_menu(user)
@@ -241,7 +241,7 @@
 
 /obj/item/rpd/proc/radial_menu(mob/user)
 	if(!check_menu(user))
-		to_chat(user, span_notice("You can't do that right now!"))
+		to_chat(user, "<span class='notice'>You can't do that right now!</span>")
 		return
 	var/list/choices = list(
 		RPD_MENU_ROTATE = image(icon = 'icons/obj/interface.dmi', icon_state = "rpd_rotate"),
@@ -265,78 +265,47 @@
 				mode = RPD_DELETE_MODE
 			if(RPD_MENU_WRENCH)
 				auto_wrench = !auto_wrench
-				to_chat(user, span_notice("You [auto_wrench ? "enable" : "disable"] auto-wrenching new-placed pipes."))
+				to_chat(user, "<span class='notice'>You [auto_wrench ? "enable" : "disable"] auto-wrenching new-placed pipes.</span>")
 				return
 			else
 				return //Either nothing was selected, or an invalid mode was selected
-		to_chat(user, span_notice("You set [src]'s mode."))
+		to_chat(user, "<span class='notice'>You set [src]'s mode.</span>")
 
-/obj/item/rpd/ranged_interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)
-	if(!check_ranged(interacting_with, user))
-		return ITEM_INTERACT_BLOCKING
-
-	rpd_interaction(interacting_with, user, mode, is_ranged = TRUE)
-	return ITEM_INTERACT_SUCCESS
-
-/obj/item/rpd/ranged_interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
-	if(!check_ranged(interacting_with, user))
-		return ITEM_INTERACT_BLOCKING
-
-	rpd_interaction(interacting_with, user, mode = RPD_DELETE_MODE, is_ranged = TRUE)
-	return ITEM_INTERACT_SUCCESS
-
-/obj/item/rpd/proc/check_ranged(atom/interacting_with, mob/living/user)
-	if(!ranged)
-		return FALSE
-
-	if(!(interacting_with in view(user)))
-		return FALSE
-	return TRUE
-
-/obj/item/rpd/interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)
-	. = ..()
-	if(. & ITEM_INTERACT_ANY_BLOCKER)
-		return .
-	rpd_interaction(interacting_with, user, mode)
-
-/obj/item/rpd/interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
-	rpd_interaction(interacting_with, user, mode = RPD_DELETE_MODE)
-	return ITEM_INTERACT_SUCCESS
-
-/obj/item/rpd/proc/rpd_interaction(atom/target, mob/user, mode, is_ranged = FALSE)
+/obj/item/rpd/afterattack(atom/target, mob/user, proximity, params)
+	..()
 	if(loc != user)
+		return
+	if(!proximity && !ranged)
 		return
 	if(world.time < lastused + spawndelay)
 		return
+	if(ranged && !(target in view(user)))
+		return
 
-	var/turf/location = get_turf(target)
-	if(target != location)
+	var/turf/T = get_turf(target)
+	if(target != T)
 		// We only check the rpd_act of the target if it isn't the turf, because otherwise
 		// (A) blocked turfs can be acted on, and (B) unblocked turfs get acted on twice.
-		if(target.rpd_act(user, src))
+		if(target.rpd_act(user, src) == TRUE)
 			// If the object we are clicking on has a valid RPD interaction for just that specific object, do that and nothing else.
 			// Example: clicking on a pipe with a RPD in rotate mode should rotate that pipe and ignore everything else on the tile.
-			if(is_ranged)
-				draw_beam(target, user)
+			if(ranged)
+				user.Beam(T, icon_state="rped_upgrade", icon='icons/effects/effects.dmi', time=5)
 			return
 
 	// If we get this far, we have to check every object in the tile, to make sure that none of them block RPD usage on this tile.
 	// This is done by calling rpd_blocksusage on every /obj in the tile. If any block usage, fail at this point.
 
-	for(var/obj/object in location)
-		if(object.rpd_blocksusage())
-			to_chat(user, span_warning("[object] blocks the [src]!"))
+	for(var/obj/O in T)
+		if(O.rpd_blocksusage() == TRUE)
+			to_chat(user, "<span class='warning'>[O] blocks the [src]!</span>")
 			return
 
 	// If we get here, then we're effectively acting on the turf, probably placing a pipe.
-	if(is_ranged) //woosh beam if bluespaced at a distance
-		if(get_dist(src, location) <= (user.client.maxview() + 2))\
-			draw_beam(target, user)
-
-	location.rpd_act(user, src, mode)
-
-/obj/item/rpd/proc/draw_beam(atom/target, mob/user)
-	user.Beam(target, icon = 'icons/effects/effects.dmi', icon_state = "rped_upgrade", time = 0.5 SECONDS)
+	if(ranged) //woosh beam if bluespaced at a distance
+		if(get_dist(src, T) <= (user.client.maxview() + 2))\
+			user.Beam(T,icon_state="rped_upgrade", icon='icons/effects/effects.dmi', time=5)
+	T.rpd_act(user, src)
 
 #undef RPD_COOLDOWN_TIME
 #undef RPD_WALLBUILD_TIME

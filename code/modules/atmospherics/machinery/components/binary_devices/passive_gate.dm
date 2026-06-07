@@ -11,6 +11,19 @@
 
 	var/target_pressure = ONE_ATMOSPHERE
 
+	var/id = null
+
+/obj/machinery/atmospherics/binary/passive_gate/atmos_init()
+	..()
+	if(frequency)
+		set_frequency(frequency)
+
+/obj/machinery/atmospherics/binary/passive_gate/Destroy()
+	if(SSradio)
+		SSradio.remove_object(src, frequency)
+	radio_connection = null
+	return ..()
+
 /obj/machinery/atmospherics/binary/passive_gate/update_icon_state()
 	..()
 	icon_state = "[on ? "on" : "off"]"
@@ -24,9 +37,10 @@
 		add_underlay(T, node1, turn(dir, 180))
 		add_underlay(T, node2, dir)
 
-/obj/machinery/atmospherics/binary/passive_gate/process_atmos(seconds)
+/obj/machinery/atmospherics/binary/passive_gate/process_atmos()
+	..()
 	if(!on)
-		return FALSE
+		return 0
 
 	var/output_starting_pressure = air2.return_pressure()
 	var/input_starting_pressure = air1.return_pressure()
@@ -34,55 +48,75 @@
 	if(output_starting_pressure >= min(target_pressure,input_starting_pressure-10))
 		//No need to pump gas if target is already reached or input pressure is too low
 		//Need at least 10 KPa difference to overcome friction in the mechanism
-		return TRUE
+		return 1
 
 	//Calculate necessary moles to transfer using PV = nRT
-	if((air1.total_moles() > 0) && (air1.temperature() > 0))
+	if((air1.total_moles() > 0) && (air1.temperature>0))
 		var/pressure_delta = min(target_pressure - output_starting_pressure, (input_starting_pressure - output_starting_pressure)/2)
 		//Can not have a pressure delta that would cause output_pressure > input_pressure
 
-		var/transfer_moles = pressure_delta * air2.volume / (air1.temperature() * R_IDEAL_GAS_EQUATION)
+		var/transfer_moles = pressure_delta*air2.volume/(air1.temperature * R_IDEAL_GAS_EQUATION)
 
 		//Actually transfer the gas
 		var/datum/gas_mixture/removed = air1.remove(transfer_moles)
 		air2.merge(removed)
 
-		parent1.update = TRUE
+		parent1.update = 1
 
-		parent2.update = TRUE
-	return TRUE
+		parent2.update = 1
+	return 1
 
-/obj/machinery/atmospherics/binary/passive_gate/get_data()
-	var/list/data = list(
-		"name" = name,
-		"machine_type" = "AGP",
-		"uid" = UID(),
+/obj/machinery/atmospherics/binary/passive_gate/proc/broadcast_status()
+	if(!radio_connection)
+		return 0
+
+	var/datum/signal/signal = new
+	signal.transmission_method = 1 //radio signal
+	signal.source = src
+
+	signal.data = list(
+		"tag" = id,
+		"device" = "AGP",
 		"power" = on,
-		"target_output" = target_pressure
+		"target_output" = target_pressure,
+		"sigtype" = "status"
 	)
 
-	return data
+	radio_connection.post_signal(src, signal, filter = RADIO_ATMOSIA)
 
-/obj/machinery/atmospherics/binary/passive_gate/update_params(list/params)
+	return 1
+
+/obj/machinery/atmospherics/binary/passive_gate/receive_signal(datum/signal/signal)
+	if(!signal.data["tag"] || (signal.data["tag"] != id) || (signal.data["sigtype"]!="command"))
+		return 0
+
 	var/old_on = on //for logging
 
-	if("power" in params)
-		on = params["power"]
+	if("power" in signal.data)
+		on = text2num(signal.data["power"])
 
-	if("power_toggle" in params)
+	if("power_toggle" in signal.data)
 		on = !on
 
-	if("set_output_pressure" in params)
-		target_pressure = clamp(
-			params["set_output_pressure"],
+	if("set_output_pressure" in signal.data)
+		target_pressure = between(
 			0,
-			ONE_ATMOSPHERE * 50
+			text2num(signal.data["set_output_pressure"]),
+			ONE_ATMOSPHERE*50
 		)
 
 	if(on != old_on)
 		investigate_log("was turned [on ? "on" : "off"] by a remote signal", INVESTIGATE_ATMOS)
 
-	update_appearance(UPDATE_ICON)
+	if("status" in signal.data)
+		spawn(2)
+			broadcast_status()
+		return //do not update_icon
+
+	spawn(2)
+		broadcast_status()
+	update_icon()
+	return
 
 /obj/machinery/atmospherics/binary/passive_gate/attack_hand(mob/user)
 	if(..())
@@ -137,6 +171,7 @@
 			. = TRUE
 	if(.)
 		investigate_log("was set to [target_pressure] kPa by [key_name_log(usr)]", INVESTIGATE_ATMOS)
+
 
 /obj/machinery/atmospherics/binary/passive_gate/wrench_act(mob/living/user, obj/item/I)
 	if(on)

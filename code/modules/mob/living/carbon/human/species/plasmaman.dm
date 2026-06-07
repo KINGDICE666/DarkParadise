@@ -17,7 +17,7 @@
 	)
 	forced_heartattack = TRUE // Plasmamen have no blood, but they should still get heart-attacks
 	skinned_type = /obj/item/stack/sheet/mineral/plasma // We're low on plasma, R&D! *eyes plasmaman co-worker intently*
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 
 	cold_level_1 = 240
 	cold_level_2 = 180
@@ -52,9 +52,8 @@
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/plasmaman
 
-	speciesbox = /obj/item/storage/box/survival/species/plasmaman
-	flesh_color = BLOOD_COLOR_PLASMAMAN
-	//blood_color = BLOOD_COLOR_PLASMAMAN
+	speciesbox = /obj/item/storage/box/survival_plasmaman
+	flesh_color = "#8b3fba"
 
 	toxic_food = NONE
 	disliked_food = NONE
@@ -68,14 +67,15 @@
 	)
 
 	autohiss_basic_map = list(
-		"s" = list("ss", "sss", "ssss"),
-		"с" = list("сс", "ссс", "сссс"),
-	)
+			"s" = list("ss", "sss", "ssss"),
+			"с" = list("сс", "ссс", "сссс")
+		)
 
 /datum/species/plasmaman/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	add_verb(H, /mob/living/carbon/human/proc/emote_rattle)
 	RegisterSignal(H, COMSIG_CARBON_RECEIVE_FRACTURE, PROC_REF(on_fracture))
+
 
 /datum/species/plasmaman/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
@@ -113,7 +113,7 @@
 		if(JOB_TITLE_BARTENDER)
 			O = new /datum/outfit/plasmaman/bar
 
-		if(JOB_TITLE_LAWYER, JOB_TITLE_MAGISTRATE)
+		if(JOB_TITLE_LAWYER, JOB_TITLE_JUDGE)
 			O = new /datum/outfit/plasmaman/nt
 
 		if(JOB_TITLE_REPRESENTATIVE)
@@ -128,7 +128,7 @@
 		if(JOB_TITLE_CCSPECOPS, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD)
 			O = new /datum/outfit/plasmaman/specops_officer
 
-		if(JOB_TITLE_SYNDICATE_OFFICER)
+		if(JOB_TITLE_SYNDICATE)
 			O = new /datum/outfit/plasmaman/syndicate_officer
 
 		if(JOB_TITLE_PILOT)
@@ -155,7 +155,7 @@
 		if(JOB_TITLE_MINING_MEDIC)
 			O = new /datum/outfit/plasmaman/mining_medic
 
-		if(JOB_TITLE_DOCTOR, JOB_TITLE_MEDICAL_INTERN)
+		if(JOB_TITLE_DOCTOR, JOB_TITLE_INTERN)
 			O = new /datum/outfit/plasmaman/medical
 
 		if(JOB_TITLE_BRIGDOC)
@@ -182,7 +182,7 @@
 		if(JOB_TITLE_VIROLOGIST)
 			O = new /datum/outfit/plasmaman/viro
 
-		if(JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENCE_STUDENT)
+		if(JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENTIST_STUDENT)
 			O = new /datum/outfit/plasmaman/science
 
 		if("Xenobiologist")
@@ -194,10 +194,10 @@
 		if(JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE)
 			O = new /datum/outfit/plasmaman/engineering
 
-		if(JOB_TITLE_SPACEPOD_TECHNICIAN)
+		if(JOB_TITLE_MECHANIC)
 			O = new /datum/outfit/plasmaman/engineering/mecha
 
-		if(JOB_TITLE_CHIEF_ENGINEER)
+		if(JOB_TITLE_CHIEF)
 			O = new /datum/outfit/plasmaman/ce
 
 		if(JOB_TITLE_ATMOSTECH)
@@ -224,26 +224,20 @@
 	return FALSE
 
 /datum/species/plasmaman/handle_life(mob/living/carbon/human/H)
+	var/datum/gas_mixture/environment = H.loc.return_air()
 	var/atmos_sealed = FALSE
 	if(isclothing(H.wear_suit) && isclothing(H.head))
 		var/obj/item/clothing/suit = H.wear_suit
 		var/obj/item/clothing/helmet = H.head
-		if(suit.clothing_flags & helmet.clothing_flags & STOPSPRESSUREDAMAGE)
+		if(suit.clothing_flags & helmet.clothing_flags & STOPSPRESSUREDMAGE)
 			atmos_sealed = TRUE
-	if(!atmos_sealed && (!istype(H.w_uniform, /obj/item/clothing/under/plasmaman) || !istype(H.head, /obj/item/clothing/head/helmet/space/plasmaman) && !HAS_TRAIT(H, TRAIT_NOSELFIGNITION_HEAD_ONLY)))
-		var/datum/gas_mixture/environment = null
-		if(isobj(H.loc))
-			var/obj/O = H.loc
-			environment = O.return_obj_air()
-		if(isnull(environment))
-			var/turf/T = get_turf(H)
-			environment = T.get_readonly_air()
+	if(!atmos_sealed && (!istype(H.w_uniform, /obj/item/clothing/under/plasmaman) || !istype(H.head, /obj/item/clothing/head/helmet/space/plasmaman)))
 		if(environment)
 			if(environment.total_moles())
-				if(environment.oxygen() && environment.oxygen() >= OXYCONCEN_PLASMEN_IGNITION) //Same threshhold that extinguishes fire
+				if(environment.oxygen && environment.oxygen >= OXYCONCEN_PLASMEN_IGNITION) //Same threshhold that extinguishes fire
 					H.adjust_fire_stacks(0.5)
 					if(!H.on_fire && H.fire_stacks > 0)
-						H.visible_message(span_danger("Тело [H] вступает в реакцию с атмосферой и загорается!"),span_userdanger("Ваше тело вступает в реакцию с атмосферой и загорается!"))
+						H.visible_message("<span class='danger'>Тело [H] вступает в реакцию с атмосферой и загорается!</span>","<span class='userdanger'>Ваше тело вступает в реакцию с атмосферой и загорается!</span>")
 					H.IgniteMob()
 	else
 		if(H.fire_stacks)
@@ -253,11 +247,11 @@
 	H.update_fire()
 	..()
 	if(H.reagents.get_reagent_amount("pure_plasma") < 5) //increasing chock_reduction by 20
-		H.reagents.add_reagent("pure_plasma", 1)
+		H.reagents.add_reagent("pure_plasma", 5)
 
-/datum/species/plasmaman/proc/on_fracture(mob/living/carbon/human/user, datum/fracture_type/fracture)
+/datum/species/plasmaman/proc/on_fracture(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
-	user.reagents.add_reagent(/datum/reagent/plasma_dust, fracture.plasma_dust)
+	H.reagents.add_reagent("plasma_dust", 15)
 
 /datum/species/plasmaman/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	switch(R.id)
@@ -278,6 +272,3 @@
 			H.reagents.remove_reagent(R.id, REAGENTS_METABOLISM)
 			return FALSE
 	return ..()
-
-/datum/species/plasmaman/compressor_grind(location)
-	explosion(location, 0, 1, 2, flame_range = 4)

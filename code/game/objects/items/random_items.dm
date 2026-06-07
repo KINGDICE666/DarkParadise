@@ -4,12 +4,12 @@
 /obj/item/toy/random
 	name = "Random Toy"
 
-/obj/item/toy/random/Initialize(mapload)
-	. = ..()
+/obj/item/toy/random/New()
+	..()
 	var/list/types = list(/obj/item/gun/projectile/shotgun/toy/crossbow, /obj/item/toy/balloon,/obj/item/toy/spinningtoy,/obj/item/reagent_containers/spray/waterflower) + subtypesof(/obj/item/toy/prize)
 	var/T = pick(types)
 	new T(loc)
-	return INITIALIZE_HINT_QDEL
+	qdel(src)
 
 // -------------------------------------
 //	Random cleanables, clearly this makes sense
@@ -23,13 +23,14 @@
 	var/list/list = subtypesof(/obj/effect/decal/cleanable) - list(/obj/effect/decal/cleanable/random,/obj/effect/decal/cleanable/cobweb,/obj/effect/decal/cleanable/cobweb2)
 	var/T = pick(list)
 	new T(loc)
-	return INITIALIZE_HINT_QDEL
+	qdel(src)
+
 
 /obj/item/stack/sheet/animalhide/random
 	name = "random animal hide"
 
-/obj/item/stack/sheet/animalhide/random/Initialize(mapload)
-	. = ..()
+/obj/item/stack/sheet/animalhide/random/New()
+	..()
 	var/htype = pick(/obj/item/stack/sheet/animalhide/cat, \
 					/obj/item/stack/sheet/animalhide/corgi, \
 					/obj/item/stack/sheet/animalhide/human, \
@@ -41,7 +42,7 @@
 					/obj/item/stack/sheet/animalhide/farwa \
 					)
 	new htype(loc, amount)
-	return INITIALIZE_HINT_QDEL
+	qdel(src)
 
 // -------------------------------------
 //    Not yet identified chemical.
@@ -50,9 +51,9 @@
 
 /obj/item/reagent_containers/glass/bottle/random_reagent
 	name = "unlabelled bottle"
+	//	identify_probability = 0
 
 /obj/item/reagent_containers/glass/bottle/random_reagent/Initialize(mapload)
-	. = ..()
 	var/list/possible_chems = GLOB.chemical_reagents_list.Copy()
 	possible_chems -= GLOB.blocked_chems.Copy()
 	var/datum/reagent/R = pick(possible_chems)
@@ -62,13 +63,14 @@
 		reagents.add_reagent(R, rand(2, 3)*10)
 	pixel_x = rand(-10, 10)
 	pixel_y = rand(-10, 10)
+	. = ..()
 
 //Cuts out the food and drink reagents
 /obj/item/reagent_containers/glass/bottle/random_chem
 	name = "unlabelled chemical bottle"
+	//	identify_probability = 0
 
 /obj/item/reagent_containers/glass/bottle/random_chem/Initialize(mapload)
-	. = ..()
 	var/R = get_random_reagent_id()
 	if(GLOB.rare_chemicals.Find(R))
 		reagents.add_reagent(R, 10)
@@ -77,24 +79,25 @@
 	name = "unlabelled bottle"
 	pixel_x = rand(-10, 10)
 	pixel_y = rand(-10, 10)
+	. = ..()
 
 /obj/item/reagent_containers/glass/bottle/random_base_chem
 	name = "unlabelled chemical bottle"
+	//	identify_probability = 0
 
 /obj/item/reagent_containers/glass/bottle/random_base_chem/Initialize(mapload)
-	. = ..()
 	var/datum/reagent/R = pick(GLOB.base_chemicals)
 	reagents.add_reagent(R, rand(2, 6)*5)
 	name = "unlabelled bottle"
 	pixel_x = rand(-10, 10)
 	pixel_y = rand(-10, 10)
+	. = ..()
 
 /obj/item/reagent_containers/food/drinks/bottle/random_drink
 	name = "unlabelled drink"
 	var/list/special_drinks = list(/datum/reagent/pancuronium, /datum/reagent/lsd,/datum/reagent/medicine/omnizine, /datum/reagent/blood)
 
 /obj/item/reagent_containers/food/drinks/bottle/random_drink/Initialize(mapload)
-	. = ..()
 	var/datum/reagent/reagent
 	if(prob(50 * length(special_drinks) / (length(special_drinks) + length(GLOB.drinks))))
 		reagent = pick(special_drinks)
@@ -108,12 +111,12 @@
 	icon_state = pick("alco-white","alco-green","alco-blue","alco-clear","alco-red")
 	pixel_x = rand(-5, 5)
 	pixel_y = rand(-5, 5)
+	. = ..()
 
 /obj/item/reagent_containers/food/drinks/bottle/random_reagent // Same as the chembottle code except the container
 	name = "unlabelled drink?"
 
 /obj/item/reagent_containers/food/drinks/bottle/random_reagent/Initialize(mapload)
-	. = ..()
 	var/R = get_random_reagent_id()
 	if(GLOB.rare_chemicals.Find(R))
 		reagents.add_reagent(R, 10)
@@ -123,6 +126,8 @@
 	icon_state = pick("alco-white","alco-green","alco-blue","alco-clear","alco-red")
 	pixel_x = rand(-5, 5)
 	pixel_y = rand(-5, 5)
+	. = ..()
+	qdel(src)
 
 /obj/item/storage/pill_bottle/random_meds
 	name = "unlabelled pillbottle"
@@ -130,8 +135,8 @@
 	allow_wrap = FALSE
 	var/labelled = FALSE
 
-/obj/item/storage/pill_bottle/random_meds/Initialize(mapload)
-	. = ..()
+/obj/item/storage/pill_bottle/random_meds/New()
+	..()
 	pixel_x = rand(-10, 10)
 	pixel_y = rand(-10, 10)
 
@@ -157,6 +162,7 @@
 /obj/item/storage/pill_bottle/random_meds/labelled
 	name = "variety pillbottle"
 	labelled = TRUE
+
 
 // -------------------------------------
 //    Containers full of unknown crap
@@ -211,11 +217,12 @@
 //       If you didn't run, pray.
 // -------------------------------------
 
-/obj/structure/closet/crate/large/evil
+/obj/structure/largecrate/evil
 	name = "Mysterious Crate"
 	desc = "What could it be?"
 
-/obj/structure/closet/crate/large/evil/crowbar_act(mob/living/user, obj/item/I)
+
+/obj/structure/largecrate/evil/crowbar_act(mob/living/user, obj/item/I)
 	var/cached_name = name
 	var/atom/cached_loc = loc
 	. = ..()
@@ -237,21 +244,13 @@
 	while(prob(15))
 		new menace(get_step_rand(cached_loc))
 
-#define TANGERINES_COUNT 10
 
-/obj/structure/closet/crate/large/tangerines/crowbar_act(mob/living/user, obj/item/I)
-	var/turf/cached_loc = get_turf(loc)
-	. = ..()
-	for(var/i in 1 to TANGERINES_COUNT)
-		new /obj/item/reagent_containers/food/snacks/grown/citrus/tangerine(cached_loc)
-
-#undef TANGERINES_COUNT
-
-/obj/structure/closet/crate/large/schrodinger
+/obj/structure/largecrate/schrodinger
 	name = "Schrodinger's Crate"
 	desc = "What happens if you open it?"
 
-/obj/structure/closet/crate/large/schrodinger/crowbar_act(mob/living/user, obj/item/I)
+
+/obj/structure/largecrate/schrodinger/crowbar_act(mob/living/user, obj/item/I)
 	var/atom/cached_loc = loc
 	. = ..()
 	sleep(0.2 SECONDS)
@@ -263,30 +262,21 @@
 	else
 		kitty.desc = "It was alive the whole time!"
 
+
 // --------------------------------------
 //   Collen's box of wonder and mystery
 // --------------------------------------
 /obj/item/storage/box/grenades
 	name = "tactical grenades"
 	desc = "A box with 6 tactical grenades."
-	icon_state = "box_flashbang"
+	icon_state = "flashbang"
+	var/list/grenadelist = list(/obj/item/grenade/chem_grenade/metalfoam, /obj/item/grenade/chem_grenade/incendiary,
+	/obj/item/grenade/chem_grenade/antiweed, /obj/item/grenade/chem_grenade/cleaner, /obj/item/grenade/chem_grenade/teargas,
+	/obj/item/grenade/chem_grenade/holywater, /obj/item/grenade/chem_grenade/meat,
+	/obj/item/grenade/chem_grenade/dirt, /obj/item/grenade/chem_grenade/lube, /obj/item/grenade/smokebomb,
+	/obj/item/grenade/chem_grenade/drugs, /obj/item/grenade/chem_grenade/ethanol) // holy list batman
 
 /obj/item/storage/box/grenades/populate_contents()
-	var/static/list/grenade_list = list(
-		/obj/item/grenade/chem_grenade/metalfoam,
-		/obj/item/grenade/chem_grenade/incendiary,
-		/obj/item/grenade/chem_grenade/antiweed,
-		/obj/item/grenade/chem_grenade/cleaner,
-		/obj/item/grenade/chem_grenade/teargas,
-		/obj/item/grenade/chem_grenade/holywater,
-		/obj/item/grenade/chem_grenade/meat,
-		/obj/item/grenade/chem_grenade/dirt,
-		/obj/item/grenade/chem_grenade/lube,
-		/obj/item/grenade/smokebomb,
-		/obj/item/grenade/chem_grenade/drugs,
-		/obj/item/grenade/chem_grenade/ethanol,
-	)
-
 	for(var/i in 1 to 6)
-		var/grenade = pick(grenade_list)
-		new grenade(src)
+		var/nade = pick(grenadelist)
+		new nade(src)

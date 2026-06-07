@@ -1,5 +1,3 @@
-#define SCRUBBER_IDLE_POWER_USAGE 10
-
 /obj/machinery/atmospherics/unary/vent_scrubber
 	icon = 'icons/obj/pipes_and_stuff/atmospherics/atmos/vent_scrubber.dmi'
 	icon_state = "map_scrubber"
@@ -9,80 +7,58 @@
 	layer = GAS_PIPE_VISIBLE_LAYER + GAS_SCRUBBER_OFFSET
 	layer_offset = GAS_SCRUBBER_OFFSET
 
-	idle_power_usage = SCRUBBER_IDLE_POWER_USAGE
+	idle_power_usage = 10
 	active_power_usage = 60
 
 	can_unwrench = TRUE
 
 	vent_movement = VENTCRAWL_ALLOWED|VENTCRAWL_CAN_SEE|VENTCRAWL_ENTRANCE_ALLOWED
 
-	var/area/current_area
+	var/area/initial_loc
+
+	frequency = ATMOS_VENTSCRUB
 
 	var/list/turf/simulated/adjacent_turfs = list()
 
-	var/scrubbing = TRUE //FALSE = siphoning, TRUE = scrubbing
-	var/scrub = SCRUB_CO2
+	var/scrubbing = 1 //0 = siphoning, 1 = scrubbing
+	var/scrub_O2 = 0
+	var/scrub_N2 = 0
+	var/scrub_CO2 = 1
+	var/scrub_Toxins = 0
+	var/scrub_N2O = 0
 
 	var/volume_rate = 200
-	var/widenet = FALSE //is this scrubber acting on the 3x3 area around it.
+	var/widenet = 0 //is this scrubber acting on the 3x3 area around it.
+
+	var/area_uid
+	var/radio_filter_out
+	var/radio_filter_in
 
 	connect_types = list(1,3) //connects to regular and scrubber pipes
 
-	var/static/alist/gas_power_costs = alist(
-		SCRUB_O2 = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_N2 = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_CO2 = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_PL = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_N2O = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_H2 = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_H2O = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_TRITIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_BZ = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_PLUOXIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_MIASMA = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_FREON = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_NITRIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_HEALIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_PROTO_NITRATE = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_ZAUKER = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_HALON = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_HELIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_ANTINOBLIUM = SCRUBBER_IDLE_POWER_USAGE,
-		SCRUB_HYPERNOBLIUM = SCRUBBER_IDLE_POWER_USAGE
-	)
+	multitool_menu_type = /datum/multitool_menu/idtag/freq/vent_scrubber
 
 /obj/machinery/atmospherics/unary/vent_scrubber/on
 	on = TRUE
-	scrub = parent_type::scrub|SCRUB_N2O|SCRUB_PL
+	scrub_N2O = TRUE
+	scrub_Toxins = TRUE
 
-/obj/machinery/atmospherics/unary/vent_scrubber/on_tox
-	on = TRUE
-	scrub = parent_type::scrub|SCRUB_N2O
-
-/obj/machinery/atmospherics/unary/vent_scrubber/Initialize(mapload)
-	. = ..()
-	icon = null
-	asign_new_area(get_area(src))
-
-/obj/machinery/atmospherics/unary/vent_scrubber/atmos_init()
+/obj/machinery/atmospherics/unary/vent_scrubber/New()
 	..()
-	check_turfs()
-
-/obj/machinery/atmospherics/unary/vent_scrubber/proc/asign_new_area(area/area)
-	var/area/cached_current_area = current_area
-	if(cached_current_area)
-		cached_current_area.air_scrubs -= src
-		current_area = null
-
-	if(!area)
-		return
-
-	area.air_scrubs |= src
-	current_area = area
-	update_appearance(UPDATE_NAME)
+	icon = null
+	initial_loc = get_area(loc)
+	area_uid = initial_loc.uid
+	if(!id_tag)
+		assign_uid()
+		id_tag = num2text(uid)
 
 /obj/machinery/atmospherics/unary/vent_scrubber/Destroy()
-	asign_new_area(null)
+	if(initial_loc && frequency == ATMOS_VENTSCRUB)
+		initial_loc.air_scrub_info -= id_tag
+		initial_loc.air_scrub_names -= id_tag
+	if(SSradio)
+		SSradio.remove_object(src, frequency)
+	radio_connection = null
 	return ..()
 
 /obj/machinery/atmospherics/unary/vent_scrubber/examine(mob/user)
@@ -101,19 +77,21 @@
 	var/amount = idle_power_usage
 
 	if(scrubbing)
-		for(var/scrub, usage in gas_power_costs)
-			amount += usage
+		if(scrub_CO2)
+			amount += idle_power_usage
+		if(scrub_Toxins)
+			amount += idle_power_usage
+		if(scrub_N2)
+			amount += idle_power_usage
+		if(scrub_N2O)
+			amount += idle_power_usage
 	else
 		amount = active_power_usage
 
 	if(widenet)
-		amount += amount * (length(adjacent_turfs) * (length(adjacent_turfs) / 2))
+		amount += amount*(adjacent_turfs.len*(adjacent_turfs.len/2))
 	use_power(amount, power_channel)
 	return 1
-
-/obj/machinery/atmospherics/unary/vent_scrubber/update_name(updates)
-	. = ..()
-	name = "[current_area.name] Air Scrubber #[current_area.air_scrubs.Find(src)]"
 
 /obj/machinery/atmospherics/unary/vent_scrubber/update_overlays()
 	. = ..()
@@ -138,6 +116,7 @@
 	. += SSair.icon_manager.get_atmos_icon("device", state = scrubber_icon)
 	update_pipe_image()
 
+
 /obj/machinery/atmospherics/unary/vent_scrubber/update_underlays()
 	if(..())
 		underlays.Cut()
@@ -152,52 +131,62 @@
 			else
 				add_underlay(T, direction = dir)
 
+/obj/machinery/atmospherics/unary/vent_scrubber/set_frequency(new_frequency)
+	SSradio.remove_object(src, frequency)
+	frequency = new_frequency
+	if(frequency)
+		radio_connection = SSradio.add_object(src, frequency, radio_filter_in)
+	if(frequency != ATMOS_VENTSCRUB)
+		initial_loc.air_scrub_info -= id_tag
+		initial_loc.air_scrub_names -= id_tag
+		name = "air Scrubber"
+	else
+		broadcast_status()
 
-/obj/machinery/atmospherics/unary/vent_scrubber/get_data()
-	var/list/data = list(
-		"name" = name,
-		"machine_type" = "AScr",
-		"uid" = UID(),
+/obj/machinery/atmospherics/unary/vent_scrubber/proc/broadcast_status()
+	if(!radio_connection)
+		return 0
+
+	var/datum/signal/signal = new
+	signal.transmission_method = 1 //radio signal
+	signal.source = src
+	signal.data = list(
+		"area" = area_uid,
+		"tag" = id_tag,
+		"device" = "AScr",
+		"timestamp" = world.time,
 		"power" = on,
 		"scrubbing" = scrubbing,
 		"widenet" = widenet,
-		"filter" = scrub,
+		"filter_o2" = scrub_O2,
+		"filter_n2" = scrub_N2,
+		"filter_co2" = scrub_CO2,
+		"filter_toxins" = scrub_Toxins,
+		"filter_n2o" = scrub_N2O,
+		"sigtype" = "status"
 	)
+	if(frequency == ATMOS_VENTSCRUB)
+		if(!initial_loc.air_scrub_names[id_tag])
+			var/new_name = "[initial_loc.name] Air Scrubber #[initial_loc.air_scrub_names.len+1]"
+			initial_loc.air_scrub_names[id_tag] = new_name
+			src.name = new_name
+		initial_loc.air_scrub_info[id_tag] = signal.data
+	radio_connection.post_signal(src, signal, radio_filter_out)
 
-	return data
+	return 1
 
-/obj/machinery/atmospherics/unary/vent_scrubber/update_params(list/params)
-	if(stat & (NOPOWER|BROKEN))
-		return
+/obj/machinery/atmospherics/unary/vent_scrubber/atmos_init()
+	..()
+	radio_filter_in = frequency==initial(frequency)?(RADIO_FROM_AIRALARM):null
+	radio_filter_out = frequency==initial(frequency)?(RADIO_TO_AIRALARM):null
+	if(frequency)
+		set_frequency(frequency)
+		src.broadcast_status()
+	check_turfs()
 
-	if("power" in params)
-		on = params["power"]
+/obj/machinery/atmospherics/unary/vent_scrubber/process_atmos()
+	..()
 
-	if("power_toggle" in params)
-		on = !on
-
-	if("widenet" in params)
-		widenet = params["widenet"]
-
-	if("toggle_widenet" in params)
-		widenet = !widenet
-
-	if("scrubbing" in params)
-		scrubbing = params["scrubbing"]
-
-	if("toggle_scrubbing" in params)
-		scrubbing = !scrubbing
-
-	if("scrub" in params)
-		var/scrub_flag = params["scrub"]
-		if(scrub_flag & scrub)
-			scrub &= ~scrub_flag
-		else
-			scrub |= scrub_flag
-
-	update_appearance(UPDATE_ICON)
-
-/obj/machinery/atmospherics/unary/vent_scrubber/process_atmos(seconds)
 	if(widenet)
 		check_turfs()
 
@@ -205,132 +194,162 @@
 		return
 
 	if(!node)
-		on = FALSE
+		on = 0
 
 	if(welded)
-		return FALSE
-
+		return 0
+	//broadcast_status()
 	if(!on)
-		return FALSE
+		return 0
 
 	scrub(loc)
 	if(widenet)
-		for(var/turf/simulated/tile as anything in adjacent_turfs)
+		for(var/turf/simulated/tile in adjacent_turfs)
 			scrub(tile)
 
 //we populate a list of turfs with nonatmos-blocked cardinal turfs AND
 //	diagonal turfs that can share atmos with *both* of the cardinal turfs
 /obj/machinery/atmospherics/unary/vent_scrubber/proc/check_turfs()
 	adjacent_turfs.Cut()
-	var/turf/turf = loc
-	if(istype(turf))
-		adjacent_turfs = turf.GetAtmosAdjacentTurfs(TRUE)
+	var/turf/T = loc
+	if(istype(T))
+		adjacent_turfs = T.GetAtmosAdjacentTurfs(TRUE)
 
 /obj/machinery/atmospherics/unary/vent_scrubber/proc/scrub(turf/simulated/tile)
 	if(!tile || !istype(tile))
-		return FALSE
+		return 0
 
-	if(scrubbing && !should_scrub(tile.get_readonly_air()))
-		return FALSE
+	var/datum/gas_mixture/environment = tile.return_air()
 
-	var/datum/milla_safe/vent_scrubber_process/milla = new()
-	milla.invoke_async(src, tile)
-
-/obj/machinery/atmospherics/unary/vent_scrubber/proc/should_scrub(datum/gas_mixture/environment)
-	if(!scrubbing)
-		return FALSE
-
-	var/list/mixture = environment.get_interesting()
-	var/list/gas_meta = GLOB.gas_meta
-
-	for(var/gas_key, value in mixture)
-		var/list/gas_meta_list = gas_meta[gas_key]
-		if(gas_meta_list[META_GAS_SCRUB_FLAG] & scrub)
-			if(value > MINIMUM_MOLE_COUNT)
-				return TRUE
-
-	return FALSE
-
-#define SCRUB_GAS_SIMPLE(bit, gas_name) \
-	if(scrub & bit) { \
-		filtered_out.set_##gas_name(removed.gas_name()); \
-		removed.set_##gas_name(0); \
-	}
-
-/datum/milla_safe/vent_scrubber_process
-
-/datum/milla_safe/vent_scrubber_process/on_run(obj/machinery/atmospherics/unary/vent_scrubber/scrubber, turf/simulated/tile)
-	if(!tile || !istype(tile))
-		return FALSE
-
-	var/datum/gas_mixture/environment = get_turf_air(tile)
-
-	if(scrubber.scrubbing)
-		if(scrubber.should_scrub(environment))
-			var/transfer_moles = min(1, scrubber.volume_rate / environment.volume) * environment.total_moles()
+	if(scrubbing)
+		if((scrub_O2 && environment.oxygen>0.001) || (scrub_N2 && environment.nitrogen>0.001) || (scrub_CO2 && environment.carbon_dioxide>0.001) || (scrub_Toxins && environment.toxins>0.001) || (environment.sleeping_agent) || (environment.agent_b))
+			var/transfer_moles = min(1, volume_rate/environment.volume)*environment.total_moles()
 
 			//Take a gas sample
-			var/datum/gas_mixture/removed = environment.remove(transfer_moles)
+			var/datum/gas_mixture/removed = loc.remove_air(transfer_moles)
 			if(isnull(removed)) //in space
 				return
 
-			var/scrub = scrubber.scrub
-
 			//Filter it
 			var/datum/gas_mixture/filtered_out = new
-			filtered_out.set_temperature(removed.temperature())
+			filtered_out.temperature = removed.temperature
+			if(scrub_O2)
+				filtered_out.oxygen = removed.oxygen
+				removed.oxygen = 0
+			if(scrub_N2)
+				filtered_out.nitrogen = removed.nitrogen
+				removed.nitrogen = 0
+			if(scrub_Toxins)
+				filtered_out.toxins = removed.toxins
+				removed.toxins = 0
+			if(scrub_CO2)
+				filtered_out.carbon_dioxide = removed.carbon_dioxide
+				removed.carbon_dioxide = 0
 
-			SCRUB_GAS_SIMPLE(SCRUB_O2, oxygen)
-			SCRUB_GAS_SIMPLE(SCRUB_N2, nitrogen)
-			SCRUB_GAS_SIMPLE(SCRUB_CO2, carbon_dioxide)
-			SCRUB_GAS_SIMPLE(SCRUB_PL, toxins)
-			SCRUB_GAS_SIMPLE(SCRUB_N2O, sleeping_agent)
-			SCRUB_GAS_SIMPLE(SCRUB_H2, hydrogen)
-			SCRUB_GAS_SIMPLE(SCRUB_H2O, water_vapor)
+			if(removed.agent_b)
+				filtered_out.agent_b = removed.agent_b
+				removed.agent_b = 0
 
-			SCRUB_GAS_SIMPLE(SCRUB_TRITIUM, tritium)
-			SCRUB_GAS_SIMPLE(SCRUB_BZ, bz)
-			SCRUB_GAS_SIMPLE(SCRUB_PLUOXIUM, pluoxium)
-			SCRUB_GAS_SIMPLE(SCRUB_MIASMA, miasma)
-			SCRUB_GAS_SIMPLE(SCRUB_FREON, freon)
-			SCRUB_GAS_SIMPLE(SCRUB_NITRIUM, nitrium)
-			SCRUB_GAS_SIMPLE(SCRUB_HEALIUM, healium)
-			SCRUB_GAS_SIMPLE(SCRUB_PROTO_NITRATE, proto_nitrate)
-			SCRUB_GAS_SIMPLE(SCRUB_ZAUKER, zauker)
-			SCRUB_GAS_SIMPLE(SCRUB_HALON, halon)
-			SCRUB_GAS_SIMPLE(SCRUB_HELIUM, helium)
-			SCRUB_GAS_SIMPLE(SCRUB_ANTINOBLIUM, antinoblium)
-			SCRUB_GAS_SIMPLE(SCRUB_HYPERNOBLIUM, hypernoblium)
-
-			if(removed.agent_b() > 0)
-				filtered_out.set_agent_b(removed.agent_b())
-				removed.set_agent_b(0)
+			if(scrub_N2O)
+				filtered_out.sleeping_agent = removed.sleeping_agent
+				removed.sleeping_agent = 0
 
 			//Remix the resulting gases
-			scrubber.air_contents.merge(filtered_out)
+			air_contents.merge(filtered_out)
 
-			environment.merge(removed)
+			tile.assume_air(removed)
+			tile.air_update_turf()
 
 	else //Just siphoning all air
-		if(scrubber.air_contents.return_pressure() >= (50 * ONE_ATMOSPHERE))
+		if(air_contents.return_pressure()>=50*ONE_ATMOSPHERE)
 			return
 
-		var/transfer_moles = environment.total_moles() * (scrubber.volume_rate / environment.volume)
+		var/transfer_moles = environment.total_moles()*(volume_rate/environment.volume)
 
-		var/datum/gas_mixture/removed = environment.remove(transfer_moles)
+		var/datum/gas_mixture/removed = tile.remove_air(transfer_moles)
 
-		scrubber.air_contents.merge(removed)
+		air_contents.merge(removed)
+		tile.air_update_turf()
 
-	if(!QDELETED(scrubber.parent))
-		scrubber.parent.update = TRUE
+	parent?.update = 1
 
-	return TRUE
-//#undef SCRUB_GAS_SIMPLE
+	return 1
+
+/obj/machinery/atmospherics/unary/vent_scrubber/hide(i) //to make the little pipe section invisible, the icon changes.
+	update_icon()
+
+/obj/machinery/atmospherics/unary/vent_scrubber/receive_signal(datum/signal/signal)
+	if(stat & (NOPOWER|BROKEN))
+		return
+	if(!signal.data["tag"] || (signal.data["tag"] != id_tag) || (signal.data["sigtype"]!="command"))
+		return 0
+
+	if(signal.data["power"] != null)
+		on = text2num(signal.data["power"])
+	if(signal.data["power_toggle"] != null)
+		on = !on
+
+	if("widenet" in signal.data)
+		widenet = text2num(signal.data["widenet"])
+	if("toggle_widenet" in signal.data)
+		widenet = !widenet
+
+	if(signal.data["scrubbing"] != null)
+		scrubbing = text2num(signal.data["scrubbing"])
+	if(signal.data["toggle_scrubbing"])
+		scrubbing = !scrubbing
+
+	if(signal.data["o2_scrub"] != null)
+		scrub_O2 = text2num(signal.data["o2_scrub"])
+	if(signal.data["toggle_o2_scrub"])
+		scrub_O2 = !scrub_O2
+
+	if(signal.data["n2_scrub"] != null)
+		scrub_N2 = text2num(signal.data["n2_scrub"])
+	if(signal.data["toggle_n2_scrub"])
+		scrub_N2 = !scrub_N2
+
+	if(signal.data["co2_scrub"] != null)
+		scrub_CO2 = text2num(signal.data["co2_scrub"])
+	if(signal.data["toggle_co2_scrub"])
+		scrub_CO2 = !scrub_CO2
+
+	if(signal.data["tox_scrub"] != null)
+		scrub_Toxins = text2num(signal.data["tox_scrub"])
+	if(signal.data["toggle_tox_scrub"])
+		scrub_Toxins = !scrub_Toxins
+
+	if(signal.data["n2o_scrub"] != null)
+		scrub_N2O = text2num(signal.data["n2o_scrub"])
+	if(signal.data["toggle_n2o_scrub"])
+		scrub_N2O = !scrub_N2O
+
+	if(signal.data["init"] != null)
+		name = signal.data["init"]
+		return
+
+	if(signal.data["status"] != null)
+		spawn(2)
+			broadcast_status()
+		return //do not update_icon
+
+	spawn(2)
+		broadcast_status()
+	update_icon()
+	return
 
 /obj/machinery/atmospherics/unary/vent_scrubber/power_change(forced = FALSE)
 	if(!..())
 		return
 	update_icon()
+
+/obj/machinery/atmospherics/unary/vent_scrubber/proc/set_tag(new_tag)
+	if(frequency == ATMOS_VENTSCRUB)
+		initial_loc.air_scrub_info -= id_tag
+		initial_loc.air_scrub_names -= id_tag
+	id_tag = new_tag
+	broadcast_status()
+
 
 /obj/machinery/atmospherics/unary/vent_scrubber/attack_alien(mob/user)
 	if(!welded || !do_after(user, 2 SECONDS, src))
@@ -342,6 +361,12 @@
 	)
 	set_welded(FALSE)
 	playsound(loc, 'sound/weapons/bladeslice.ogg', 100, TRUE)
+
+
+/obj/machinery/atmospherics/unary/vent_scrubber/multitool_act(mob/user, obj/item/I)
+	. = TRUE
+	multitool_menu_interact(user, I)
+
 
 /obj/machinery/atmospherics/unary/vent_scrubber/welder_act(mob/user, obj/item/I)
 	. = TRUE
@@ -362,4 +387,3 @@
 			span_notice("You unweld [src]!"),
 		)
 
-#undef SCRUBBER_IDLE_POWER_USAGE

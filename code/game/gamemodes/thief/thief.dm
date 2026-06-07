@@ -2,7 +2,7 @@
 	name = "thief"
 	config_tag = "thief"
 	restricted_jobs = list(JOB_TITLE_AI, JOB_TITLE_CYBORG)
-	protected_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCSUPREME, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
+	protected_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_JUDGE, JOB_TITLE_BRIGDOC, JOB_TITLE_LAWYER, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCSUPREME, JOB_TITLE_SYNDICATE, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF)
 	required_enemies = 1
 	recommended_enemies = 3
 	/// List of minds of soon to be thieves
@@ -30,7 +30,7 @@
 			if(!length(possible_thieves))
 				break
 			var/datum/mind/thief = pick(possible_thieves)
-			list_clear_duplicates(thief, possible_thieves)
+			listclearduplicates(thief, possible_thieves)
 			pre_thieves += thief
 			thief.special_role = SPECIAL_ROLE_THIEF
 			thief.restricted_roles = restricted_jobs
@@ -39,10 +39,12 @@
 	else
 		return FALSE
 
+
 /datum/game_mode/thief/post_setup()
 	for(var/datum/mind/thief in pre_thieves)
 		thief.add_antag_datum(/datum/antagonist/thief)
 	..()
+
 
 /datum/game_mode/proc/auto_declare_completion_thief()
 	if(!length(thieves))

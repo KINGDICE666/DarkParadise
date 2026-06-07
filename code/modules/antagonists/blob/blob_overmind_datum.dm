@@ -18,35 +18,39 @@
 	var/datum/blobstrain/strain
 
 /datum/antagonist/blob_overmind/can_be_owned(datum/mind/new_owner)
-	return ..() && isovermind(new_owner?.current)
+	. = ..() && isovermind(new_owner?.current)
 
 /datum/antagonist/blob_overmind/on_gain()
 	var/mob/camera/blob/camera = owner.current
 	strain = camera.blobstrain
-	return ..()
+	. = ..()
+
 
 /datum/antagonist/blob_overmind/add_owner_to_gamemode()
 	var/datum/game_mode/mode = SSticker.mode
-	if(add_to_mode && mode && !(owner in mode.blobs[BLOB_GROUP_INFECTED]))
+	if(add_to_mode && mode && !(owner in mode.blobs["infected"]))
 		if(!is_tranformed)
 			mode.blob_win_count += BLOB_TARGET_POINT_PER_CORE
 		if(is_offspring)
-			mode.blobs[BLOB_GROUP_OFFSPRINGS] |= owner
-		else mode.blobs[BLOB_GROUP_INFECTED] |= owner
+			mode.blobs["offsprings"] |= owner
+		else mode.blobs["infected"] |= owner
 		mode.update_blob_objective()
+
 
 /datum/antagonist/blob_overmind/remove_owner_from_gamemode()
 	var/datum/game_mode/mode = SSticker.mode
-	if(add_to_mode && mode && (owner in mode.blobs[BLOB_GROUP_INFECTED]))
+	if(add_to_mode && mode && (owner in mode.blobs["infected"]))
 		mode.blob_win_count -= BLOB_TARGET_POINT_PER_CORE
 		if(is_offspring)
-			mode.blobs[BLOB_GROUP_OFFSPRINGS]  -= owner
-		else mode.blobs[BLOB_GROUP_INFECTED] -= owner
+			mode.blobs["offsprings"]  -= owner
+		else mode.blobs["infected"] -= owner
 		mode.update_blob_objective()
+
 
 /datum/antagonist/blob_overmind/give_objectives()
 	if(SSticker)
 		add_objective(SSticker.mode.get_blob_objective())
+
 
 /datum/antagonist/blob_overmind/roundend_report_header()
 	return

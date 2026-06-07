@@ -9,7 +9,7 @@
  */
 SUBSYSTEM_DEF(area_contents)
 	name = "Area Contents"
-	ss_flags = SS_NO_INIT
+	flags = SS_NO_INIT
 	runlevels = RUNLEVEL_LOBBY|RUNLEVELS_DEFAULT
 	var/list/currentrun
 	var/list/area/marked_for_clearing = list()
@@ -24,6 +24,7 @@ SUBSYSTEM_DEF(area_contents)
 				if(length(to_clear.turfs_by_zlevel) >= area_zlevel) //this should always be true, but stat_entry is no place for runtimes. fire() can handle that
 					total_clearing_from += length(to_clear.turfs_by_zlevel[area_zlevel])
 	return "A:[length(currentrun)] MR:[length(marked_for_clearing)] TC:[total_to_clear] CF:[total_clearing_from]"
+
 
 /datum/controller/subsystem/area_contents/fire(resumed)
 	if(!resumed)

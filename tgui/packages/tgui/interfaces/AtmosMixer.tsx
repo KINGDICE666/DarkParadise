@@ -49,9 +49,8 @@ export const AtmosMixer = (props: unknown) => {
                 step={10}
                 minValue={0}
                 maxValue={max_pressure}
-                tickWhileDragging
                 value={pressure}
-                onChange={(value) =>
+                onDrag={(value) =>
                   act('custom_pressure', {
                     pressure: value,
                   })

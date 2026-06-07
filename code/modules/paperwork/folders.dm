@@ -10,9 +10,6 @@
 	lefthand_file = 'icons/mob/inhands/folder_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/folder_righthand.dmi'
 
-/obj/item/folder/IsContainedAtomAccessible(atom/contained, atom/movable/user)
-	return TRUE
-
 /obj/item/folder/emp_act(severity)
 	..()
 	for(var/i in contents)
@@ -35,10 +32,12 @@
 	desc = "A white folder."
 	icon_state = "folder_white"
 
+
 /obj/item/folder/update_overlays()
 	. = ..()
-	if(length(contents))
+	if(contents.len)
 		. += "folder_paper"
+
 
 /obj/item/folder/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
@@ -66,17 +65,18 @@
 
 	return ..()
 
+
 /obj/item/folder/attack_self(mob/user as mob)
 	var/dat = ""
 
 	for(var/obj/item/paper/P in src)
-		dat += "<a href='byond://?src=[UID()];remove=[P.UID()]'>Remove</a> - <a href='byond://?src=[UID()];read=[P.UID()]'>[P.name]</a><br>"
+		dat += "<a href='byond://?src=[UID()];remove=\ref[P]'>Remove</a> - <a href='byond://?src=[UID()];read=\ref[P]'>[P.name]</a><br>"
 	for(var/obj/item/photo/Ph in src)
-		dat += "<a href='byond://?src=[UID()];remove=[Ph.UID()]'>Remove</a> - <a href='byond://?src=[UID()];look=[Ph.UID()]'>[Ph.name]</a><br>"
+		dat += "<a href='byond://?src=[UID()];remove=\ref[Ph]'>Remove</a> - <a href='byond://?src=[UID()];look=\ref[Ph]'>[Ph.name]</a><br>"
 	for(var/obj/item/paper_bundle/Pa in src)
-		dat += "<a href='byond://?src=[UID()];remove=[Pa.UID()]'>Remove</a> - <a href='byond://?src=[UID()];look=[Pa.UID()]'>[Pa.name]</a><br>"
+		dat += "<a href='byond://?src=[UID()];remove=\ref[Pa]'>Remove</a> - <a href='byond://?src=[UID()];look=\ref[Pa]'>[Pa.name]</a><br>"
 	for(var/obj/item/documents/doc in src)
-		dat += "<a href='byond://?src=[UID()];remove=[doc.UID()]'>Remove</a> - <a href='byond://?src=[UID()];look=[doc.UID()]'>[doc.name]</a><br>"
+		dat += "<a href='byond://?src=[UID()];remove=\ref[doc]'>Remove</a> - <a href='byond://?src=[UID()];look=\ref[doc]'>[doc.name]</a><br>"
 	var/datum/browser/popup = new(user, "folder", name)
 	popup.set_content(dat)
 	popup.open(TRUE)
@@ -92,21 +92,21 @@
 	if(src.loc == usr)
 
 		if(href_list["remove"])
-			var/obj/item/P = locateUID(href_list["remove"])
+			var/obj/item/P = locate(href_list["remove"])
 			if(P && (P.loc == src) && istype(P))
 				P.forceMove_turf()
 				usr.put_in_hands(P, ignore_anim = FALSE)
 
 		else if(href_list["read"])
-			var/obj/item/paper/P = locateUID(href_list["read"])
+			var/obj/item/paper/P = locate(href_list["read"])
 			if(P && (P.loc == src) && istype(P))
 				P.show_content(usr)
 		else if(href_list["look"])
-			var/obj/item/photo/P = locateUID(href_list["look"])
+			var/obj/item/photo/P = locate(href_list["look"])
 			if(P && (P.loc == src) && istype(P))
 				P.show(usr)
 		else if(href_list["browse"])
-			var/obj/item/paper_bundle/P = locateUID(href_list["browse"])
+			var/obj/item/paper_bundle/P = locate(href_list["browse"])
 			if(P && (P.loc == src) && istype(P))
 				P.attack_self(usr)
 				onclose(usr, "[P.name]")
@@ -115,12 +115,13 @@
 		attack_self(usr)
 		update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/folder/documents
 	name = "folder- 'TOP SECRET'"
 	desc = "A folder stamped \"Top Secret - Property of Nanotrasen Corporation. Unauthorized distribution is punishable by death.\""
 
-/obj/item/folder/documents/Initialize(mapload)
-	. = ..()
+/obj/item/folder/documents/New()
+	..()
 	new /obj/item/documents/nanotrasen(src)
 	update_icon(UPDATE_OVERLAYS)
 
@@ -131,28 +132,28 @@
 /obj/item/folder/syndicate/red
 	icon_state = "folder_sred"
 
-/obj/item/folder/syndicate/red/Initialize(mapload)
-	. = ..()
+/obj/item/folder/syndicate/red/New()
+	..()
 	new /obj/item/documents/syndicate/red(src)
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/item/folder/syndicate/blue
 	icon_state = "folder_sblue"
 
-/obj/item/folder/syndicate/blue/Initialize(mapload)
-	. = ..()
+/obj/item/folder/syndicate/blue/New()
+	..()
 	new /obj/item/documents/syndicate/blue(src)
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/item/folder/syndicate/yellow
 	icon_state = "folder_syellow"
 
-/obj/item/folder/syndicate/yellow/full/Initialize(mapload)
-	. = ..()
+/obj/item/folder/syndicate/yellow/full/New()
+	..()
 	new /obj/item/documents/syndicate/yellow(src)
 	update_icon(UPDATE_OVERLAYS)
 
-/obj/item/folder/syndicate/mining/Initialize(mapload)
+/obj/item/folder/syndicate/mining/New()
 	. = ..()
 	new /obj/item/documents/syndicate/mining(src)
 	update_icon(UPDATE_OVERLAYS)

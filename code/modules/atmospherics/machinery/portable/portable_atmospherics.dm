@@ -2,49 +2,46 @@
 	name = "atmoalter"
 	use_power = NO_POWER_USE
 	max_integrity = 250
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 100, BOMB = 0, BIO = 100, FIRE = 60, ACID = 30)
-	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | ALLOW_SILICON_REACH | NEED_DEXTERITY
-	var/datum/gas_mixture/air_contents
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 100, BOMB = 0, BIO = 100, RAD = 100, FIRE = 60, ACID = 30)
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | ALLOW_SILICON_REACH
+	var/datum/gas_mixture/air_contents = new
 
 	var/obj/machinery/atmospherics/unary/portables_connector/connected_port
 	var/obj/item/tank/holding
 	var/volume = 0
-	var/maximum_pressure = 90 * ONE_ATMOSPHERE
+	var/maximum_pressure = 90*ONE_ATMOSPHERE
 
-/obj/machinery/portable_atmospherics/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/climbable, climb_time = 3 SECONDS, climb_stun = 3 SECONDS)
-	AddElement(/datum/element/elevation, pixel_shift = 16)
 
 /obj/machinery/portable_atmospherics/Initialize(mapload)
 	. = ..()
 	SSair.atmos_machinery += src
-	init_internal_atmos()
+
+	air_contents.volume = volume
+	air_contents.temperature = T20C
 
 	if(mapload)
 		return INITIALIZE_HINT_LATELOAD
 
 	check_for_port()
 
+
 // Late init this otherwise it shares with the port and it tries to div temperature by 0
 /obj/machinery/portable_atmospherics/LateInitialize()
 	check_for_port()
 
-/obj/machinery/portable_atmospherics/proc/init_internal_atmos()
-	air_contents = new
-	air_contents.volume = volume
-	air_contents.set_temperature(T20C)
 
 /obj/machinery/portable_atmospherics/proc/check_for_port()
 	var/obj/machinery/atmospherics/unary/portables_connector/port = locate() in loc
 	if(port)
 		connect(port)
 
+
 /obj/machinery/portable_atmospherics/process_atmos()
 	if(!connected_port) //only react when pipe_network will ont it do it for you
 		//Allow for reactions
 		air_contents.react()
 		return
+	update_icon()
 
 /obj/machinery/portable_atmospherics/Destroy()
 	SSair.atmos_machinery -= src
@@ -122,6 +119,7 @@
 	update_icon()
 	return TRUE
 
+
 /obj/machinery/portable_atmospherics/attackby(obj/item/item, mob/user, params)
 	if((stat & BROKEN) || user.a_intent == INTENT_HARM)
 		return ..()
@@ -143,6 +141,7 @@
 
 	return ..()
 
+
 /obj/machinery/portable_atmospherics/wrench_act(mob/user, obj/item/item)
 	. = TRUE
 	if(!item.use_tool(src, user, 0, volume = item.tool_volume))
@@ -163,6 +162,7 @@
 				return
 		else
 			to_chat(user, span_notice("Nothing happens."))
+
 
 /obj/machinery/portable_atmospherics/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
 	if(item.get_final_force(user) < 10 && !(stat & BROKEN))

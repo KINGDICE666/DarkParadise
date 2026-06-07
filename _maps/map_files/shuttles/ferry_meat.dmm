@@ -13,6 +13,12 @@
 /obj/structure/window/full/shuttle,
 /turf/simulated/floor/plating,
 /area/shuttle/transport)
+"f" = (
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 5;
+	icon_state = "white_walls_corners"
+	},
+/area/shuttle/transport)
 "g" = (
 /obj/structure/shuttle/engine/propulsion{
 	dir = 8;
@@ -22,7 +28,8 @@
 /area/shuttle/transport)
 "h" = (
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
@@ -59,7 +66,8 @@
 /area/shuttle/transport)
 "l" = (
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /obj/machinery/gibber,
 /turf/simulated/floor/plasteel{
@@ -80,7 +88,8 @@
 /area/shuttle/transport)
 "o" = (
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /obj/structure/chair/comfy/shuttle,
 /turf/simulated/floor/plasteel{
@@ -163,6 +172,12 @@
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
+	},
+/area/shuttle/transport)
+"y" = (
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 6;
+	icon_state = "white_walls_corners"
 	},
 /area/shuttle/transport)
 "G" = (
@@ -253,9 +268,9 @@ w
 c
 "}
 (12,1,1) = {"
-G
-c
+f
+e
 r
-c
-G
+e
+y
 "}

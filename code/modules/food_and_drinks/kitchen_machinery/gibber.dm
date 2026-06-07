@@ -2,7 +2,7 @@
 
 /obj/machinery/gibber
 	name = "Gibber"
-	desc = "Промышленная мясорубка для утилизации органических отходов. Эффективно перерабатывает биомассу гуманоидного типа в мясосодержащий продукт."
+	desc = "The name isn't descriptive enough?"
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "grinder"
 	density = TRUE
@@ -14,7 +14,7 @@
 
 	var/gib_throw_dir = WEST // Direction to spit meat and gibs in. Defaults to west.
 
-	var/gibtime = 4 SECONDS // Time from starting until meat appears
+	var/gibtime = 40 // Time from starting until meat appears
 	var/animation_delay = GIBBER_ANIMATION_DELAY
 
 	// For hiding gibs, making an even more devious trap (invisible autogibbers)
@@ -24,22 +24,14 @@
 	idle_power_usage = 2
 	active_power_usage = 500
 
-/obj/machinery/gibber/get_ru_names()
-	return alist(
-		NOMINATIVE = "мясорубка",
-		GENITIVE = "мясорубки",
-		DATIVE = "мясорубке",
-		ACCUSATIVE = "мясорубку",
-		INSTRUMENTAL = "мясорубкой",
-		PREPOSITIONAL = "мясорубке"
-	)
 
 /obj/machinery/gibber/Initialize(mapload)
 	. = ..()
 	update_icon(UPDATE_OVERLAYS)
 
+
 /obj/machinery/gibber/Destroy()
-	if(length(contents))
+	if(contents.len)
 		for(var/atom/movable/A in contents)
 			A.forceMove(get_turf(src))
 	if(occupant)
@@ -48,6 +40,7 @@
 
 /obj/machinery/gibber/RefreshParts() //If you want to make the machine upgradable, this is where you would change any vars basd on its stock parts.
 	return
+
 
 /obj/machinery/gibber/update_overlays()
 	. = ..()
@@ -67,11 +60,11 @@
 	else
 		. += "gridle"
 
+
 /obj/machinery/gibber/suicide_act(mob/living/user)
 	if(occupant || locked)
 		return FALSE
-
-	user.visible_message(span_danger("[user] залеза[PLUR_ET_YUT(user)] в [declent_ru(ACCUSATIVE)] и включает её!"))
+	user.visible_message("<span class='danger'>[user] climbs into [src] and turns it on!</b></span>")
 	user.Stun(20 SECONDS)
 	user.forceMove(src)
 	occupant = user
@@ -79,6 +72,7 @@
 	feedinTopanim()
 	addtimer(CALLBACK(src, PROC_REF(startgibbing), user), 33)
 	return OBLITERATION
+
 
 /obj/machinery/gibber/relaymove(mob/user)
 	if(locked)
@@ -91,15 +85,16 @@
 		return
 
 	if(operating)
-		balloon_alert(user, "машина работает!")
+		to_chat(user, "<span class='danger'>The gibber is locked and running, wait for it to finish.</span>")
 		return
 
 	if(locked)
-		balloon_alert(user, "в процессе загрузки!")
+		to_chat(user, "<span class='warning'>Wait for [occupant.name] to finish being loaded!</span>")
 		return
 
 	add_fingerprint(user)
 	startgibbing(user)
+
 
 /obj/machinery/gibber/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
@@ -108,14 +103,19 @@
 	add_fingerprint(grabber)
 	move_into_gibber(grabber, grabbed_thing)
 
+
+
 /obj/machinery/gibber/screwdriver_act(mob/living/user, obj/item/I)
 	return default_deconstruction_screwdriver(user, "grinder_open", "grinder", I)
+
 
 /obj/machinery/gibber/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I)
 
+
 /obj/machinery/gibber/crowbar_act(mob/living/user, obj/item/I)
 	return default_deconstruction_crowbar(user, I)
+
 
 /obj/machinery/gibber/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -126,7 +126,8 @@
 
 	return ..()
 
-/obj/machinery/gibber/mouse_drop_receive(mob/target, mob/user, params)
+
+/obj/machinery/gibber/MouseDrop_T(mob/target, mob/user, params)
 	if(!ishuman(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
@@ -137,31 +138,31 @@
 
 	if(targetl.buckled)
 		return
-
+	. = TRUE
 	add_fingerprint(user)
 	move_into_gibber(user,target)
 
 /obj/machinery/gibber/proc/move_into_gibber(mob/user, mob/living/victim)
 	if(occupant)
-		balloon_alert(user, "переполнено!")
+		to_chat(user, "<span class='danger'>The [src] is full, empty it first!</span>")
 		return
 
 	if(operating)
-		balloon_alert(user, "машина работает!")
+		to_chat(user, "<span class='danger'>The [src] is locked and running, wait for it to finish.</span>")
 		return
 
 	if(!ishuman(victim))
-		balloon_alert(user, "не является гуманоидом!")
+		to_chat(user, "<span class='danger'>This is not suitable for the [src]!</span>")
 		return
 
 	if(victim.abiotic(1))
-		balloon_alert(user, "руки субъекта заняты!")
+		to_chat(user, "<span class='danger'>Subject may not have abiotic items on.</span>")
 		return
 
-	user.visible_message(span_danger("[user.declent_ru(NOMINATIVE)] начина[PLUR_ET_YUT(user)] засовывать [victim.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]!"))
+	user.visible_message("<span class='danger'>[user] starts to put [victim] into the [src]!</span>")
 	add_fingerprint(user)
 	if(do_after(user, 3 SECONDS, victim) && user.Adjacent(src) && victim.Adjacent(user) && !occupant)
-		user.visible_message(span_danger("[user.declent_ru(NOMINATIVE)] запихива[PLUR_ET_YUT(user)] [victim.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]!"))
+		user.visible_message("<span class='danger'>[user] stuffs [victim] into the [src]!</span>")
 
 		victim.forceMove(src)
 		occupant = victim
@@ -170,7 +171,7 @@
 		feedinTopanim()
 
 /obj/machinery/gibber/verb/eject()
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set name = "Опустошить мясорубку"
 	set src in oview(1)
 
@@ -194,6 +195,7 @@
 	occupant = null
 
 	update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/gibber/proc/feedinTopanim()
 	if(!occupant)
@@ -253,16 +255,16 @@
 		return
 
 	if(!occupant)
-		balloon_alert(user, "пусто!")
+		visible_message("<span class='danger'>You hear a loud metallic grinding sound.</span>")
 		return
 
 	use_power(1000)
-	playsound(loc, 'sound/machines/juicer.ogg', 50, TRUE)
-	visible_message(span_danger("Вы слышите громкий скрежет вперемешку с хлюпаньем."))
+	visible_message("<span class='danger'>You hear a loud squelchy grinding sound.</span>")
 
 	operating = TRUE
 	update_icon(UPDATE_OVERLAYS)
-	Shake(pixelshiftx = 1, pixelshifty = 0, duration = gibtime)
+	var/offset = prob(50) ? -2 : 2
+	animate(src, pixel_x = pixel_x + offset, time = 0.2, loop = gibtime * 5) //start shaking
 
 	while(occupant.meatleft > 0)
 		new occupant.dna.species.meat_type(src, occupant)
@@ -314,7 +316,10 @@
 		operating = FALSE
 		update_icon(UPDATE_OVERLAYS)
 
+
+
 /* AUTOGIBBER */
+
 
 //gibs anything that stands on it's input
 
@@ -339,7 +344,7 @@
 	RefreshParts()
 
 /obj/machinery/gibber/autogibber/process()
-	if(!lturf || occupant || locked || dirty || operating || length(victim_targets))
+	if(!lturf || occupant || locked || dirty || operating || victim_targets.len)
 		return
 
 	if(acceptdir != lastacceptdir)
@@ -352,8 +357,8 @@
 	for(var/mob/living/carbon/human/H in lturf)
 		victim_targets += H
 
-	if(length(victim_targets))
-		atom_say("Обнаружена еда!", FALSE)
+	if(victim_targets.len)
+		visible_message({"<span class='danger'>\The [src] states, "Food detected!"</span>"})
 		sleep(consumption_delay)
 		for(var/mob/living/carbon/H in victim_targets)
 			if(H.loc == lturf) //still standing there
@@ -369,7 +374,7 @@
 /obj/machinery/gibber/autogibber/proc/force_move_into_gibber(mob/living/carbon/human/victim)
 	if(!istype(victim))
 		return FALSE
-	visible_message(span_danger("[victim.declent_ru(NOMINATIVE)] засасыва[PLUR_ET_YUT(victim)]ся в [declent_ru(ACCUSATIVE)]!"))
+	visible_message("<span class='danger'>\The [victim.name] gets sucked into \the [src]!</span>")
 
 	victim.forceMove(src)
 	occupant = victim
@@ -377,6 +382,7 @@
 	update_icon(UPDATE_OVERLAYS)
 	feedinTopanim()
 	return TRUE
+
 
 /obj/machinery/gibber/autogibber/proc/ejectclothes(mob/living/carbon/human/H)
 	if(!istype(H))
@@ -391,7 +397,7 @@
 			var/obj/item/implant/I = O
 			if(I.implanted)
 				continue
-		if(is_organ(O))
+		if(istype(O,/obj/item/organ))
 			continue
 		if(HAS_TRAIT(O, TRAIT_NODROP) || stealthmode)
 			qdel(O) //they are already dead by now
@@ -406,7 +412,7 @@
 		C.throw_at(get_edge_target_turf(src, gib_throw_dir), rand(1, 5), 15)
 		sleep(1)
 
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] выплевывает вещи [H.declent_ru(GENITIVE)]!"))
+	visible_message("<span class='warning'>\The [src] spits out \the [H.name]'s possessions!")
 
 /obj/machinery/gibber/autogibber/proc/cleanbay()
 	var/spats = 0 //keeps track of how many items get spit out. Don't show a message if none are found.
@@ -419,6 +425,6 @@
 			spats++
 			sleep(1)
 	if(spats)
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] выплевывает ещё больше вещей!"))
+		visible_message("<span class='warning'>\The [src] spits out more possessions!</span>")
 
 #undef GIBBER_ANIMATION_DELAY

@@ -16,11 +16,13 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 	var/style
 
 /datum/announcer
-	/// The default configuration for new announcements.
+	// The default configuration for new announcements.
 	var/datum/announcement_configuration/config
 	/// The name used to sign off on announcements.
 	var/author
 	var/language = LANGUAGE_GALACTIC_COMMON
+	var/beannounced = TRUE
+
 
 /datum/announcer/New(config_type = null)
 	config = config_type ? new config_type : new
@@ -36,10 +38,9 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 		new_subtitle = null
 	)
 
-	if(!new_sound)
-		new_sound = SSstation.announcer.get_rand_alert_sound()
-
 	if(!message)
+		return
+	if(!beannounced)
 		return
 
 	var/title = html_encode(new_title || config.default_title)
@@ -65,12 +66,6 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 
 	announce_message(formatted_message, garbled_formatted_message, receivers, garbled_receivers, message_sound)
 
-	var/datum/feed_message/feed_message = new
-	feed_message.author = author ? author : "Новости станции"
-	feed_message.title = subtitle ? "[title]: [subtitle]" : "[title]"
-	feed_message.body = message
-	GLOB.news_network.get_channel_by_name(NEWS_CHANNEL_STATION_LOG)?.add_message(feed_message)
-
 	announce_sound(message_sound, combined_receivers[1] + combined_receivers[2])
 	if(message_sound2)
 		announce_sound(message_sound2, combined_receivers[1] + combined_receivers[2])
@@ -93,7 +88,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 		for(var/obj/item/radio/radio as anything in GLOB.global_radios)
 			receivers |= radio.send_announcement()
 		for(var/mob/mob in receivers)
-			if(!istype(mob) || !mob.client || mob.stat || HAS_TRAIT(mob, TRAIT_DEAF))
+			if(!istype(mob) || !mob.client || mob.stat || !mob.can_hear())
 				receivers -= mob
 				continue
 			if(!mob.say_understands(null, message_language))
@@ -107,7 +102,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 
 /datum/announcer/proc/announce_message(message, garbled_message, receivers, garbled_receivers, message_sound)
 	var/tts_seed = "Glados"
-	if(length(GLOB.ai_list))
+	if(GLOB.ai_list.len)
 		var/mob/living/silicon/ai/AI = pick(GLOB.ai_list)
 		tts_seed = AI.tts_seed
 	var/message_tts = message
@@ -148,12 +143,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 			var/volume = mob.client.prefs.get_channel_volume(CHANNEL_TTS_RADIO)
 			if(volume > 0)
 				continue
-		var/volume_mod = 100 * mob?.client?.prefs?.get_channel_volume(CHANNEL_ANNOUNCER)
-		SEND_SOUND(mob, sound(
-				message_sound,
-				channel = CHANNEL_ANNOUNCER,
-				volume = volume_mod,
-			))
+		SEND_SOUND(mob, message_sound)
 
 /datum/announcer/proc/announce_log(message, message_title)
 	add_game_logs("has made \a [config.log_name]: [message_title] – [message] – [author]", usr)
@@ -185,7 +175,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 /datum/announcement_configuration/requests_console
 	style = "minor"
 	add_log = TRUE
-	sound = sound('sound/misc/announce_dig.ogg', volume = 90)
+	sound = sound('sound/misc/notice2.ogg')
 
 /datum/announcement_configuration/comms_console
 	default_title = ANNOUNCE_PRIORITY_RU
@@ -204,20 +194,3 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 /datum/announcer/Destroy()
 	QDEL_NULL(config)
 	return ..()
-
-/// Proc that just dispatches the announcement to our applicable audience. Only the announcement is a mandatory arg.
-/// `should_play_sound` can also be a callback, if you want to only play the sound to specific players.
-/proc/dispatch_announcement_to_players(announcement, list/players = GLOB.player_list, sound_override = null, should_play_sound = TRUE)
-	var/sound_to_play = !isnull(sound_override) ? sound_override : 'sound/misc/notice2.ogg'
-
-	var/datum/callback/should_play_sound_callback = astype(should_play_sound)
-
-	for(var/mob/target in players)
-		if(isnewplayer(target) || HAS_TRAIT(target, TRAIT_DEAF))
-			continue
-
-		to_chat(target, announcement)
-		if(!should_play_sound || (should_play_sound_callback && !should_play_sound_callback.Invoke(target)))
-			continue
-		//if(target.client?.prefs.read_preference(/datum/preference/toggle/sound_announcements))
-		SEND_SOUND(target, sound(sound_to_play))

@@ -11,10 +11,15 @@
 	layer = WIRE_TERMINAL_LAYER //a bit above wires
 	var/obj/machinery/power/master = null
 
+
 /obj/machinery/power/terminal/Initialize(mapload)
 	. = ..()
-
-	AddElement(/datum/element/undertile)
+	var/turf/T = get_turf(src)
+	if(T.transparent_floor)
+		layer = ABOVE_TRANSPARENT_TURF_LAYER
+		return
+	if(level == 1)
+		hide(T.intact)
 
 /obj/machinery/power/terminal/Destroy()
 	if(master)
@@ -23,10 +28,21 @@
 	return ..()
 
 /obj/machinery/power/terminal/update_icon_state()
-	return
+	var/turf/T = get_turf(src)
+	layer = T.transparent_floor ? ABOVE_TRANSPARENT_TURF_LAYER : WIRE_TERMINAL_LAYER
+
+/obj/machinery/power/terminal/hide(i)
+	if(i)
+		invisibility = INVISIBILITY_MAXIMUM
+		icon_state = "term-f"
+	else
+		invisibility = 0
+		icon_state = "term"
+
 
 /obj/machinery/power/proc/can_terminal_dismantle(mob/living/user)
 	return FALSE
+
 
 /obj/machinery/power/apc/can_terminal_dismantle(mob/living/user)
 	if(opened == 0)	// APC_CLOSED
@@ -34,16 +50,19 @@
 		return FALSE
 	return TRUE
 
+
 /obj/machinery/power/smes/can_terminal_dismantle(mob/living/user)
 	if(!panel_open)
 		to_chat(user, span_warning("You should open the maintenance panel to attach the cables."))
 		return FALSE
 	return TRUE
 
+
 /obj/machinery/power/terminal/proc/dismantle(mob/living/user, obj/item/I)
 	if(!isturf(loc))
 		return FALSE
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	var/turf/our_turf = loc
+	if(our_turf.intact)
 		to_chat(user, span_warning("You must first expose the power terminal!"))
 		return FALSE
 	if(master && !master.can_terminal_dismantle(user))
@@ -53,7 +72,7 @@
 		span_notice("You start to dismantle the power terminal[master ? " from [master]" : ""]..."),
 	)
 	playsound(loc, 'sound/items/deconstruct.ogg', 50, TRUE)
-	if(!do_after(user, 5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL) || HAS_TRAIT(src, TRAIT_UNDERFLOOR) || (master && !master.can_terminal_dismantle(user)))
+	if(!do_after(user, 5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL) || our_turf.intact || (master && !master.can_terminal_dismantle(user)))
 		return FALSE
 	if(prob(50) && electrocute_mob(user, powernet, src, 1, TRUE))
 		do_sparks(5, TRUE, master)
@@ -67,6 +86,7 @@
 		span_notice("You start to dismantle the power terminal[master ? " from [master]" : ""]."),
 	)
 	qdel(src)
+
 
 /obj/machinery/power/terminal/wirecutter_act(mob/living/user, obj/item/I)
 	. = TRUE

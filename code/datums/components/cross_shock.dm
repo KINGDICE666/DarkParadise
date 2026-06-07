@@ -9,6 +9,7 @@
 	)
 	COOLDOWN_DECLARE(last_shock)
 
+
 /datum/component/cross_shock/Initialize(shock_damage, energy_cost, delay_between_shocks, requires_cable = TRUE)
 	if(!isatom(parent) || isarea(parent))
 		return COMPONENT_INCOMPATIBLE
@@ -25,6 +26,7 @@
 	src.delay_between_shocks = delay_between_shocks
 	src.requires_cable = requires_cable
 
+
 /datum/component/cross_shock/UnregisterFromParent()
 	if(ismovable(parent))
 		qdel(GetComponent(/datum/component/connect_loc_behalf))
@@ -32,11 +34,13 @@
 	else
 		UnregisterSignal(parent, COMSIG_ATOM_ENTERED)
 
+
 /datum/component/cross_shock/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(isliving(arrived) && can_shock())
 		do_shock(arrived)
+
 
 /datum/component/cross_shock/proc/on_entering(datum/source, atom/destination, atom/oldloc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -44,6 +48,7 @@
 	if(isturf(destination) && can_shock())
 		for(var/mob/living/mob in (destination.contents - parent))
 			do_shock(mob)
+
 
 /datum/component/cross_shock/proc/can_shock()
 	if(!COOLDOWN_FINISHED(src, last_shock))
@@ -57,23 +62,25 @@
 		if(mob_parent.stat == DEAD || mob_parent.incapacitated())
 			return FALSE
 	if(requires_cable)
-		if(our_turf.underfloor_accessibility != UNDERFLOOR_INTERACTABLE || HAS_TRAIT(our_turf, TRAIT_TURF_COVERED))
+		if((our_turf.transparent_floor == TURF_TRANSPARENT) || our_turf.intact || HAS_TRAIT(our_turf, TRAIT_TURF_COVERED))
 			return FALSE
 		var/obj/structure/cable/our_cable =	locate(/obj/structure/cable) in our_turf
 		if(!our_cable || !our_cable.powernet || !our_cable.powernet.avail)
 			return FALSE
 	return TRUE
 
+
 /datum/component/cross_shock/proc/do_shock(mob/living/victim)
 	var/atom/atom_parent = parent
 	if(requires_cable)
 		var/obj/structure/cable/our_cable =	locate() in atom_parent.loc
-		victim.electrocute_act(shock_damage, atom_parent)
+		victim.electrocute_act(shock_damage, atom_parent.name)
 		our_cable.add_load(energy_cost)
 	else
-		victim.electrocute_act(shock_damage, atom_parent)
+		victim.electrocute_act(shock_damage, atom_parent.name)
 	playsound(victim, 'sound/effects/eleczap.ogg', 30, TRUE)
 	COOLDOWN_START(src, last_shock, delay_between_shocks)
+
 
 /datum/component/cross_shock/proc/on_organ_removal(datum/source, obj/item/organ/internal/organ)
 	SIGNAL_HANDLER

@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(augury)
 	name = "Augury"
-	ss_flags = SS_NO_INIT|SS_HIBERNATE
+	flags = SS_NO_INIT
 	runlevels = RUNLEVEL_GAME | RUNLEVEL_POSTGAME
 
 	var/list/watchers = list()
@@ -8,16 +8,8 @@ SUBSYSTEM_DEF(augury)
 
 	var/list/observers_given_action = list()
 
-/datum/controller/subsystem/augury/PreInit()
-	. = ..()
-	hibernate_checks = list(
-		NAMEOF(src, watchers),
-		NAMEOF(src, doombringers),
-		NAMEOF(src, observers_given_action),
-	)
-
 /datum/controller/subsystem/augury/stat_entry(msg)
-	msg = "W:[length(watchers)]|D:[length(doombringers)]"
+	msg = "W:[watchers.len]|D:[length(doombringers)]"
 	return ..()
 
 /datum/controller/subsystem/augury/proc/register_doom(atom/A, severity)
@@ -43,7 +35,7 @@ SUBSYSTEM_DEF(augury)
 			biggest_doom = d
 			biggest_threat = threat
 
-	if(length(doombringers))
+	if(doombringers.len)
 		for(var/i in GLOB.player_list)
 			if(isobserver(i) && (!(observers_given_action[i])))
 				var/datum/action/innate/augury/A = new
@@ -67,7 +59,7 @@ SUBSYSTEM_DEF(augury)
 
 /datum/action/innate/augury
 	name = "Авто-отслеживание обломок"
-	button_icon = 'icons/obj/meteor.dmi'
+	icon_icon = 'icons/obj/meteor.dmi'
 	button_icon_state = "flaming"
 
 /datum/action/innate/augury/Destroy()

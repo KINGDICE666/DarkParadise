@@ -17,13 +17,13 @@
 	var/smoke_amount = 3
 
 /obj/item/grenade/plastic/miningcharge/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "промышленный шахтёрский заряд",
 		GENITIVE = "промышленного шахтёрского заряда",
 		DATIVE = "промышленному шахтёрскому заряду",
 		ACCUSATIVE = "промышленный шахтёрский заряд",
 		INSTRUMENTAL = "промышленным шахтёрским зарядом",
-		PREPOSITIONAL = "промышленном шахтёрском заряде",
+		PREPOSITIONAL = "промышленном шахтёрском заряде"
 	)
 
 /obj/item/grenade/plastic/miningcharge/examine(mob/user)
@@ -41,18 +41,21 @@
 	if(nadeassembly)
 		nadeassembly.attack_self(user)
 
-/obj/item/grenade/plastic/miningcharge/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(ismineralturf(target) || hacked)
+/obj/item/grenade/plastic/miningcharge/afterattack(atom/movable/AM, mob/user, flag, params)
+	if(ismineralturf(AM) || hacked)
+		if(isancientturf(AM) && !hacked)
+			visible_message(span_notice("Эта порода, кажется, устойчива ко всем инструментам, кроме кирок!"))
+			return
 		if(timer_off) //override original proc for plastic explosions
-			if(!proximity_flag)
+			if(!flag)
 				return
-			if(iscarbon(target))
+			if(iscarbon(AM))
 				return
 			balloon_alert(user, "установка взрывчатки...")
-			if(do_after(user, 2.5 SECONDS * toolspeed, target, category = DA_CAT_TOOL))
+			if(do_after(user, 2.5 SECONDS * toolspeed, AM, category = DA_CAT_TOOL))
 				if(!user.drop_item_ground(src))
 					return
-				src.target = target
+				src.target = AM
 				loc = null
 				if(hacked)
 					message_admins("[ADMIN_LOOKUPFLW(user)] planted [src] on [target.name] at [ADMIN_COORDJMP(target)]")
@@ -61,6 +64,7 @@
 				target.add_overlay(image_overlay)
 			return
 		..()
+
 
 /obj/item/grenade/plastic/miningcharge/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/detonator))
@@ -78,6 +82,7 @@
 
 	return ..()
 
+
 /obj/item/grenade/plastic/miningcharge/proc/detonate()
 	addtimer(CALLBACK(src, PROC_REF(prime)), 3 SECONDS)
 
@@ -90,7 +95,7 @@
 	smoke.set_up(amount = smoke_amount, location = location)
 	smoke.start()
 	//location.attempt_drill(null,TRUE,3) //orange says it doesnt include the actual middle
-	for(var/turf/simulated/mineral/rock in circle_range_turfs(location, boom_sizes[3]))
+	for(var/turf/simulated/mineral/rock in circlerangeturfs(location, boom_sizes[3]))
 		var/distance = get_dist_euclidean(location, rock)
 		if(distance <= boom_sizes[1])
 			rock.attempt_drill(null,TRUE,3)
@@ -99,7 +104,7 @@
 		else if(distance <= boom_sizes[3])
 			rock.attempt_drill(null,TRUE,1)
 
-	for(var/mob/living/carbon/C in circle_range(location, boom_sizes[3]))
+	for(var/mob/living/carbon/C in circlerange(location,boom_sizes[3]))
 		if(ishuman(C)) //working on everyone
 			var/distance = get_dist_euclidean(location, C)
 			C.flash_eyes()
@@ -115,7 +120,7 @@
 	var/turf/location
 	if(target)
 		if(!QDELETED(target))
-			if(isturf(target))
+			if(istype(target, /turf/))
 				location = get_turf(target)
 			else
 				location = get_atom_on_turf(target)
@@ -125,13 +130,14 @@
 	if(location)
 		explosion(location, devastation_range = boom_sizes[1], heavy_impact_range = boom_sizes[2], light_impact_range = boom_sizes[3], cause = src)
 		location.ex_act(EXPLODE_HEAVY, target)
-	if(ismob(target))
+	if(istype(target, /mob))
 		var/mob/M = target
 		M.gib()
 	qdel(src)
 
 /obj/item/grenade/plastic/update_icon_state()
 	return //Remove plastic icon_state change logic override
+
 
 /obj/item/grenade/plastic/miningcharge/proc/override_safety()
 	hacked = TRUE
@@ -153,13 +159,13 @@
 	boom_sizes = list(1,2,3)
 
 /obj/item/grenade/plastic/miningcharge/lesser/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шахтёрский заряд",
 		GENITIVE = "шахтёрского заряда",
 		DATIVE = "шахтёрскому заряду",
 		ACCUSATIVE = "шахтёрский заряд",
 		INSTRUMENTAL = "шахтёрским зарядом",
-		PREPOSITIONAL = "шахтёрском заряде",
+		PREPOSITIONAL = "шахтёрском заряде"
 	)
 
 /obj/item/grenade/plastic/miningcharge/mega
@@ -171,13 +177,13 @@
 	boom_sizes = list(4,6,8) //did you see the price? It has to be better..
 
 /obj/item/grenade/plastic/miningcharge/mega/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "экспериментальный шахтёрский заряд",
 		GENITIVE = "экспериментального шахтёрского заряда",
 		DATIVE = "экспериментальному шахтёрскому заряду",
 		ACCUSATIVE = "экспериментальный шахтёрский заряд",
 		INSTRUMENTAL = "экспериментальным шахтёрским зарядом",
-		PREPOSITIONAL = "экспериментальном шахтёрском заряде",
+		PREPOSITIONAL = "экспериментальном шахтёрском заряде"
 	)
 
 /obj/item/storage/backpack/duffel/miningcharges/populate_contents()
@@ -190,17 +196,14 @@
 	new /obj/item/detonator(src)
 	new /obj/item/t_scanner/adv_mining_scanner/lesser(src)
 	new /obj/item/storage/bag/ore/bigger(src)
-	new /obj/item/mining_satchel_upgrade(src)
+
 
 //MINING CHARGE HACKER
 /obj/item/t_scanner/adv_mining_scanner/syndicate
 	var/charges = 6
+	description_antag = "Это устройство имеет дополнительный порт, который позволяет обойти меры безопасности шахтёрских зарядов."
 
-/obj/item/t_scanner/adv_mining_scanner/syndicate/examine_more(mob/user)
-	. = ..()
-	. += span_warning("Имеет дополнительный порт, который позволяет обойти меры безопасности шахтёрских зарядов.")
-
-/obj/item/t_scanner/adv_mining_scanner/syndicate/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/t_scanner/adv_mining_scanner/syndicate/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	if(istype(target,/obj/item/grenade/plastic/miningcharge))
 		var/obj/item/grenade/plastic/miningcharge/charge = target
 		if(charge.hacked)
@@ -228,21 +231,22 @@
 	var/list/bombs = list()
 
 /obj/item/detonator/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "детонатор шахтёрских зарядов",
 		GENITIVE = "детонатора шахтёрских зарядов",
 		DATIVE = "детонатору шахтёрских зарядов",
 		ACCUSATIVE = "детонатор шахтёрских зарядов",
 		INSTRUMENTAL = "детонатором шахтёрских зарядов",
-		PREPOSITIONAL = "детонаторе шахтёрских зарядов",
+		PREPOSITIONAL = "детонаторе шахтёрских зарядов"
 	)
 
 /obj/item/detonator/examine(mob/user)
 	. = ..()
-	if(length(bombs))
+	if(bombs.len)
 		. += span_notice("Список синхронизированных зарядов:")
 		for(var/obj/item/grenade/plastic/miningcharge/charge in bombs)
-			. += span_notice("[icon2html(charge, user)] [DECLENT_RU_CAP(charge, NOMINATIVE)]. Текущий статус: [charge.installed ? "готов к подрыву" : "готов к установке"].")
+			. += span_notice("[bicon(charge)] [capitalize(charge.declent_ru(NOMINATIVE))]. Текущий статус: [charge.installed ? "готов к подрыву" : "готов к установке"].")
+
 
 /obj/item/detonator/update_icon_state()
 	if(length(bombs))
@@ -250,9 +254,10 @@
 	else
 		icon_state = initial(icon_state)
 
+
 /obj/item/detonator/attack_self(mob/user)
 	playsound(src, 'sound/items/detonator.ogg', 40)
-	if(length(bombs))
+	if(bombs.len)
 		balloon_alert(user, "активация взрывчатки...")
 		for(var/obj/item/grenade/plastic/miningcharge/charge in bombs)
 			if(QDELETED(charge))

@@ -6,13 +6,13 @@
 	item_color = "cargo_envirosuit"
 
 /obj/item/clothing/under/plasmaman/cargo/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм грузчика",
 		GENITIVE = "защитного костюма грузчика",
 		DATIVE = "защитному костюму грузчика",
 		ACCUSATIVE = "защитный костюм грузчика",
 		INSTRUMENTAL = "защитным костюмом грузчика",
-		PREPOSITIONAL = "защитном костюме грузчика",
+		PREPOSITIONAL = "защитном костюме грузчика"
 	)
 
 /obj/item/clothing/under/plasmaman/mining
@@ -23,13 +23,13 @@
 	item_color = "explorer_envirosuit"
 
 /obj/item/clothing/under/plasmaman/mining/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм шахтёра",
 		GENITIVE = "защитного костюма шахтёра",
 		DATIVE = "защитному костюму шахтёра",
 		ACCUSATIVE = "защитный костюм шахтёра",
 		INSTRUMENTAL = "защитным костюмом шахтёра",
-		PREPOSITIONAL = "защитном костюме шахтёра",
+		PREPOSITIONAL = "защитном костюме шахтёра"
 	)
 
 /obj/item/clothing/under/plasmaman/qm
@@ -40,13 +40,13 @@
 	item_color = "qm_envirosuit"
 
 /obj/item/clothing/under/plasmaman/qm/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм Квартирмейстера",
 		GENITIVE = "защитного костюма Квартирмейстера",
 		DATIVE = "защитному костюму Квартирмейстера",
 		ACCUSATIVE = "защитный костюм Квартирмейстера",
 		INSTRUMENTAL = "защитным костюмом Квартирмейстера",
-		PREPOSITIONAL = "защитном костюме Квартирмейстера",
+		PREPOSITIONAL = "защитном костюме Квартирмейстера"
 	)
 
 /obj/item/clothing/under/plasmaman/chef
@@ -57,30 +57,30 @@
 	item_color = "chef_envirosuit"
 
 /obj/item/clothing/under/plasmaman/chef/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм повара",
 		GENITIVE = "защитного костюма повара",
 		DATIVE = "защитному костюму повара",
 		ACCUSATIVE = "защитный костюм повара",
 		INSTRUMENTAL = "защитным костюмом повара",
-		PREPOSITIONAL = "защитном костюме повара",
+		PREPOSITIONAL = "защитном костюме повара"
 	)
 
 /obj/item/clothing/under/plasmaman/nt
 	name = "Nanotrasen Representative plasma envirosuit"
-	desc = "Защитный костюм плазмолюда, разработанный специально для представителя \"Нанотрейзен\"."
+	desc = "Защитный костюм плазмолюда, разработанный специально для представителя Нанотрейзен."
 	icon_state = "ntrep_envirosuit"
 	item_state = "ntrep_envirosuit"
 	item_color = "ntrep_envirosuit"
 
 /obj/item/clothing/under/plasmaman/nt/get_ru_names()
-	return alist(
-		NOMINATIVE = "защитный костюм представителя \"Нанотрейзен\"",
-		GENITIVE = "защитного костюма представителя \"Нанотрейзен\"",
-		DATIVE = "защитному костюму представителя \"Нанотрейзен\"",
-		ACCUSATIVE = "защитный костюм представителя \"Нанотрейзен\"",
-		INSTRUMENTAL = "защитным костюмом представителя \"Нанотрейзен\"",
-		PREPOSITIONAL = "защитном костюме представителя \"Нанотрейзен\"",
+	return list(
+		NOMINATIVE = "защитный костюм представителя Нанотрейзен",
+		GENITIVE = "защитного костюма представителя Нанотрейзен",
+		DATIVE = "защитному костюму представителя Нанотрейзен",
+		ACCUSATIVE = "защитный костюм представителя Нанотрейзен",
+		INSTRUMENTAL = "защитным костюмом представителя Нанотрейзен",
+		PREPOSITIONAL = "защитном костюме представителя Нанотрейзен"
 	)
 
 /obj/item/clothing/under/plasmaman/enviroslacks
@@ -89,16 +89,16 @@
 	icon_state = "enviroslacks"
 	item_state = "enviroslacks"
 	item_color = "enviroslacks"
-	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 95, ACID = 95)
+	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 0, FIRE = 95, ACID = 95)
 
 /obj/item/clothing/under/plasmaman/enviroslacks/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный официальный костюм плазмолюда",
 		GENITIVE = "защитного официального костюма плазмолюда",
 		DATIVE = "защитному официальному костюму плазмолюда",
 		ACCUSATIVE = "защитный официальный костюм плазмолюда",
 		INSTRUMENTAL = "защитным официальным костюмом плазмолюда",
-		PREPOSITIONAL = "защитном официальном костюме плазмолюда",
+		PREPOSITIONAL = "защитном официальном костюме плазмолюда"
 	)
 
 /obj/item/clothing/under/plasmaman/chaplain
@@ -109,13 +109,13 @@
 	item_color = "chap_envirosuit"
 
 /obj/item/clothing/under/plasmaman/chaplain/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм священника",
 		GENITIVE = "защитного костюма священника",
 		DATIVE = "защитному костюму священника",
 		ACCUSATIVE = "защитный костюм священника",
 		INSTRUMENTAL = "защитным костюмом священника",
-		PREPOSITIONAL = "защитном костюме священника",
+		PREPOSITIONAL = "защитном костюме священника"
 	)
 
 /obj/item/clothing/under/plasmaman/librarian
@@ -126,13 +126,13 @@
 	item_color = "prototype_envirosuit"
 
 /obj/item/clothing/under/plasmaman/librarian/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм библиотекаря",
 		GENITIVE = "защитного костюма библиотекаря",
 		DATIVE = "защитному костюму библиотекаря",
 		ACCUSATIVE = "защитный костюм библиотекаря",
 		INSTRUMENTAL = "защитным костюмом библиотекаря",
-		PREPOSITIONAL = "защитном костюме библиотекаря",
+		PREPOSITIONAL = "защитном костюме библиотекаря"
 	)
 
 /obj/item/clothing/under/plasmaman/janitor
@@ -143,13 +143,13 @@
 	item_color = "janitor_envirosuit"
 
 /obj/item/clothing/under/plasmaman/janitor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм уборщика",
 		GENITIVE = "защитного костюма уборщика",
 		DATIVE = "защитному костюму уборщика",
 		ACCUSATIVE = "защитный костюм уборщика",
 		INSTRUMENTAL = "защитным костюмом уборщика",
-		PREPOSITIONAL = "защитном костюме уборщика",
+		PREPOSITIONAL = "защитном костюме уборщика"
 	)
 
 /obj/item/clothing/under/plasmaman/botany
@@ -160,14 +160,15 @@
 	item_color = "botany_envirosuit"
 
 /obj/item/clothing/under/plasmaman/botany/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм ботаника",
 		GENITIVE = "защитного костюма ботаника",
 		DATIVE = "защитному костюму ботаника",
 		ACCUSATIVE = "защитный костюм ботаника",
 		INSTRUMENTAL = "защитным костюмом ботаника",
-		PREPOSITIONAL = "защитном костюме ботаника",
+		PREPOSITIONAL = "защитном костюме ботаника"
 	)
+
 
 /obj/item/clothing/under/plasmaman/mime
 	name = "mime envirosuit"
@@ -177,13 +178,13 @@
 	item_color = "mime_envirosuit"
 
 /obj/item/clothing/under/plasmaman/mime/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм мима",
 		GENITIVE = "защитного костюма мима",
 		DATIVE = "защитному костюму мима",
 		ACCUSATIVE = "защитный костюм мима",
 		INSTRUMENTAL = "защитным костюмом мима",
-		PREPOSITIONAL = "защитном костюме мима",
+		PREPOSITIONAL = "защитном костюме мима"
 	)
 
 /obj/item/clothing/under/plasmaman/clown
@@ -194,13 +195,13 @@
 	item_color = "clown_envirosuit"
 
 /obj/item/clothing/under/plasmaman/clown/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм клоуна",
 		GENITIVE = "защитного костюма клоуна",
 		DATIVE = "защитному костюму клоуна",
 		ACCUSATIVE = "защитный костюм клоуна",
 		INSTRUMENTAL = "защитным костюмом клоуна",
-		PREPOSITIONAL = "защитном костюме клоуна",
+		PREPOSITIONAL = "защитном костюме клоуна"
 	)
 
 /obj/item/clothing/under/plasmaman/clown/Extinguish(mob/living/carbon/human/H)
@@ -214,7 +215,7 @@
 			next_extinguish = world.time + extinguish_cooldown
 			extinguishes_left--
 			H.visible_message(
-				span_warning("Защитный костюм [H] обливает [GEND_HIS_HER(H)] космической смазкой!"),
+				span_warning("Защитный костюм [H] обливает [genderize_ru(H.gender, "его", "её", "его", "их")] космической смазкой!"),
 				span_warning("Ваш костюм обливает вас космической смазкой!")
 			)
 			H.ExtinguishMob()
@@ -231,13 +232,13 @@
 	item_color = "hop_envirosuit"
 
 /obj/item/clothing/under/plasmaman/hop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм главы персонала",
 		GENITIVE = "защитного костюма главы персонала",
 		DATIVE = "защитному костюму главы персонала",
 		ACCUSATIVE = "защитный костюм главы персонала",
 		INSTRUMENTAL = "защитным костюмом главы персонала",
-		PREPOSITIONAL = "защитном костюме главы персонала",
+		PREPOSITIONAL = "защитном костюме главы персонала"
 	)
 
 /obj/item/clothing/under/plasmaman/captain
@@ -246,16 +247,16 @@
 	icon_state = "cap_envirosuit"
 	item_state = "cap_envirosuit"
 	item_color = "cap_envirosuit"
-	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 95, ACID = 95)
+	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 0, FIRE = 95, ACID = 95)
 
 /obj/item/clothing/under/plasmaman/captain/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм капитана",
 		GENITIVE = "защитного костюма капитана",
 		DATIVE = "защитному костюму капитана",
 		ACCUSATIVE = "защитный костюм капитана",
 		INSTRUMENTAL = "защитным костюмом капитана",
-		PREPOSITIONAL = "защитном костюме капитана",
+		PREPOSITIONAL = "защитном костюме капитана"
 	)
 
 /obj/item/clothing/under/plasmaman/blueshield
@@ -264,14 +265,14 @@
 	icon_state = "bs_envirosuit"
 	item_state = "bs_envirosuit"
 	item_color = "bs_envirosuit"
-	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 95, ACID = 95)
+	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 0, FIRE = 95, ACID = 95)
 
 /obj/item/clothing/under/plasmaman/blueshield/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм офицера \"Синий Щит\"",
 		GENITIVE = "защитного костюма офицера \"Синий Щит\"",
 		DATIVE = "защитному костюму офицера \"Синий Щит\"",
 		ACCUSATIVE = "защитный костюм офицера \"Синий Щит\"",
 		INSTRUMENTAL = "защитным костюмом офицера \"Синий Щит\"",
-		PREPOSITIONAL = "защитном костюме офицера \"Синий Щит\"",
+		PREPOSITIONAL = "защитном костюме офицера \"Синий Щит\""
 	)

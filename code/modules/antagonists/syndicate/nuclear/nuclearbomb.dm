@@ -41,9 +41,11 @@ GLOBAL_VAR(bomb_set)
 	var/sheets_to_fix = 5
 	var/cinematic_type = STATION_NUKE
 
+
 /obj/machinery/nuclearbomb/syndicate
 	is_syndicate = TRUE
 	cinematic_type = SYNDICATE_NUKE
+
 
 /obj/machinery/nuclearbomb/Initialize(mapload)
 	. = ..()
@@ -52,9 +54,10 @@ GLOBAL_VAR(bomb_set)
 	GLOB.poi_list |= src
 	core = new /obj/item/nuke_core/plutonium(src)
 	STOP_PROCESSING(SSobj, core)
-	ADD_TRAIT(core, TRAIT_BLOCK_RADIATION, UNIQUE_TRAIT_SOURCE(src)) //Let us not irradiate the vault by default.
+	ADD_TRAIT(core, TRAIT_BLOCK_RADIATION, ref(src)) //Let us not irradiate the vault by default.
 	AddElement(/datum/element/high_value_item)
 	update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/nuclearbomb/Destroy()
 	SStgui.close_uis(wires)
@@ -62,6 +65,7 @@ GLOBAL_VAR(bomb_set)
 	QDEL_NULL(core)
 	GLOB.poi_list.Remove(src)
 	return ..()
+
 
 /obj/machinery/nuclearbomb/examine(mob/user)
 	. = ..()
@@ -89,6 +93,7 @@ GLOBAL_VAR(bomb_set)
 		if(NUKE_CORE_FULLY_EXPOSED)
 			. += span_notice("The inner core plate can be fixed by <b>[sheets_to_fix] titanium sheets</b>, [core ? "or the plutonium core can be <i>removed</i>" : "though the plutonium core is <i>missing</i>"].")
 
+
 /obj/machinery/nuclearbomb/update_icon_state()
 	icon_state = initial(icon_state)
 	if(lighthack)
@@ -105,6 +110,7 @@ GLOBAL_VAR(bomb_set)
 	if(!safety)
 		icon_state = "nuclearbomb1"
 
+
 /obj/machinery/nuclearbomb/update_overlays()
 	. = ..()
 	underlays.Cut()
@@ -115,6 +121,7 @@ GLOBAL_VAR(bomb_set)
 	if(!lighthack)
 		underlays += emissive_appearance(icon, "nuclearbomb_lightmask", src)
 
+
 /obj/machinery/nuclearbomb/process()
 	if(timing)
 		GLOB.bomb_set = TRUE // So long as there is one nuke timing, it means one nuke is armed.
@@ -122,6 +129,7 @@ GLOBAL_VAR(bomb_set)
 		if(timeleft <= 0)
 			INVOKE_ASYNC(src, PROC_REF(explode))
 	return
+
 
 /obj/machinery/nuclearbomb/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -154,7 +162,7 @@ GLOBAL_VAR(bomb_set)
 		removal_stage = NUKE_CORE_PANEL_UNWELDED
 		if(core)
 			STOP_PROCESSING(SSobj, core)
-			ADD_TRAIT(core, TRAIT_BLOCK_RADIATION, UNIQUE_TRAIT_SOURCE(src))
+			ADD_TRAIT(core, TRAIT_BLOCK_RADIATION, ref(src))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(istype(I, /obj/item/stack/sheet/metal) && removal_stage == NUKE_CORE_PANEL_EXPOSED)
@@ -192,6 +200,7 @@ GLOBAL_VAR(bomb_set)
 
 	return ..()
 
+
 /obj/machinery/nuclearbomb/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
@@ -219,7 +228,7 @@ GLOBAL_VAR(bomb_set)
 		new /obj/item/stack/sheet/mineral/titanium(loc, 5)
 		if(core)
 			START_PROCESSING(SSobj, core)
-			REMOVE_TRAIT(core, TRAIT_BLOCK_RADIATION, UNIQUE_TRAIT_SOURCE(src))
+			REMOVE_TRAIT(core, TRAIT_BLOCK_RADIATION, ref(src))
 	if(removal_stage == NUKE_UNWRENCHED)
 		user.visible_message("[user] begins lifting [src] off of the anchors.", "You begin lifting the device off the anchors...")
 		if(!I.use_tool(src, user, 80, volume = I.tool_volume) || removal_stage != NUKE_UNWRENCHED)
@@ -495,6 +504,7 @@ GLOBAL_VAR(bomb_set)
 				GLOB.bomb_set = FALSE
 				SSshuttle?.remove_hostile_environment(src)
 
+
 /obj/machinery/nuclearbomb/blob_act(obj/structure/blob/B)
 	if(exploded)
 		return
@@ -526,7 +536,7 @@ GLOBAL_VAR(bomb_set)
 	safety = TRUE
 	update_icon()
 	playsound(src,'sound/machines/alarm.ogg', 100, FALSE, 5)
-	if(SSticker?.mode)
+	if(SSticker && SSticker.mode)
 		SSticker.mode.explosion_in_progress = 1
 	sleep(100)
 
@@ -535,7 +545,7 @@ GLOBAL_VAR(bomb_set)
 	var/off_station = 0
 	var/turf/bomb_location = get_turf(src)
 	if(bomb_location && is_station_level(bomb_location.z))
-		if(isspacearea(get_area(bomb_location)))
+		if(istype(get_area(bomb_location), /area/space))
 			off_station = 1
 	else
 		off_station = 2
@@ -567,6 +577,7 @@ GLOBAL_VAR(bomb_set)
 	lighthack = !lighthack
 	update_icon()
 
+
 /obj/machinery/nuclearbomb/proc/reset_safety_callback()
 	safety = !safety
 	update_icon()
@@ -577,92 +588,70 @@ GLOBAL_VAR(bomb_set)
 	else
 		visible_message(span_notice("The [src] emits a quiet whirling noise!"))
 
-#define NUCLEAR_DISK_SECURE_THRESHOLD 250 SECONDS
-#define NUCLEAR_DISK_WEIGHT_INCREMENT 10
-
 //==========DAT FUKKEN DISK===============
 /obj/item/disk/nuclear
 	name = "nuclear authentication disk"
 	desc = "Better keep this safe."
 	icon_state = "nucleardisk"
 	max_integrity = 250
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-	var/fake = FALSE
-	var/unrestricted = FALSE
 
 /obj/item/disk/nuclear/unrestricted
 	desc = "Seems to have been stripped of its safeties, you better not lose it."
-	unrestricted = TRUE
+
+/obj/item/disk/nuclear/New()
+	..()
+	START_PROCESSING(SSobj, src)
+	GLOB.poi_list |= src
 
 /obj/item/disk/nuclear/Initialize(mapload)
 	. = ..()
-	START_PROCESSING(SSobj, src)
 	AddElement(/datum/element/high_value_item)
-	AddElement(/datum/element/bed_tuckable, mapload, 6, -4, 90)
 
-	if(!fake && !unrestricted)
-		AddComponent(/datum/component/stationloving)
-		AddComponent(/datum/component/keep_me_secure, CALLBACK(src, PROC_REF(secured_process)), CALLBACK(src, PROC_REF(unsecured_process)), 10)
-		GLOB.poi_list |= src
+/obj/item/disk/nuclear/process()
+	if(!check_disk_loc())
+		var/holder = get(src, /mob)
+		var/turf/diskturf = get_turf(src)
+		if(holder)
+			add_game_logs("lost [src] in [COORD(diskturf)]!", holder)
+			to_chat(holder, span_danger("You can't help but feel that you just lost something back there..."))
+		add_game_logs("[fingerprintslast] who touched the lost [src] in [COORD(diskturf)].")
+		qdel(src)
+
+//station disk is allowed on z1, escape shuttle/pods, CC, and syndicate shuttles/base, reset otherwise
+/obj/item/disk/nuclear/proc/check_disk_loc()
+	var/turf/T = get_turf(src)
+	var/area/A = get_area(src)
+	if(is_station_level(T.z))
+		return TRUE
+	if(A.nad_allowed)
+		return TRUE
+	return FALSE
+
+/obj/item/disk/nuclear/unrestricted/check_disk_loc()
+	return TRUE
+
+/obj/item/disk/nuclear/Destroy(force)
+	var/turf/diskturf = get_turf(src)
+
+	if(force)
+		message_admins("[src] has been !!force deleted!! in [ADMIN_COORDJMP(diskturf)].")
+		add_game_logs("[src] has been !!force deleted!! in [COORD(diskturf)].")
+		GLOB.poi_list.Remove(src)
+		STOP_PROCESSING(SSobj, src)
+		return ..()
+
+	if(GLOB.blobstart.len > 0)
+		GLOB.poi_list.Remove(src)
+		var/obj/item/disk/nuclear/NEWDISK = new(pick(GLOB.blobstart))
+		transfer_fingerprints_to(NEWDISK)
+		message_admins("[src] has been destroyed at [ADMIN_COORDJMP(diskturf)]. Moving it to [ADMIN_COORDJMP(NEWDISK)].")
+		add_game_logs("[src] has been destroyed in [COORD(diskturf)]. Moving it to [COORD(NEWDISK)].")
+		return QDEL_HINT_HARDDEL_NOW
 	else
-		// Ensure fake disks still have examine text, but dont actually do anything
-		AddComponent(/datum/component/keep_me_secure)
-
-/obj/item/disk/nuclear/Destroy()
-	GLOB.poi_list -= src
-	return ..()
-
-/obj/item/disk/nuclear/proc/secured_process(last_move)
-	var/turf/new_turf = get_turf(src)
-	var/datum/event_meta/loneop = GLOB.lone_operative_meta
-	if(istype(loneop) && prob(loneop.weight))
-		loneop.weight = max(loneop.weight - NUCLEAR_DISK_WEIGHT_INCREMENT, 0)
-		if(loneop.weight % (5 * NUCLEAR_DISK_WEIGHT_INCREMENT) == 0 && num_station_players() > 1)
-			message_admins("[src] is secured (currently in [ADMIN_VERBOSEJMP(new_turf)]). The weight of Lone Operative is now [loneop.weight].")
-		log_game("[src] being secured has reduced the weight of the Lone Operative event to [loneop.weight].")
-
-/obj/item/disk/nuclear/proc/unsecured_process(last_move)
-	var/turf/new_turf = get_turf(src)
-	/// How comfy is our disk?
-	var/disk_comfort_level = 0
-
-	//Go through and check for items that make disk comfy
-	for(var/obj/comfort_item in loc)
-		if(istype(comfort_item, /obj/item/bedsheet) || istype(comfort_item, /obj/structure/bed))
-			disk_comfort_level++
-
-	if(last_move < world.time - NUCLEAR_DISK_SECURE_THRESHOLD && prob((world.time - NUCLEAR_DISK_SECURE_THRESHOLD - last_move) * 0.0001))
-		var/datum/event_meta/loneop = GLOB.lone_operative_meta
-		if(!istype(loneop))
-			return
-		loneop.weight += NUCLEAR_DISK_WEIGHT_INCREMENT
-		if(loneop.weight % (5 * NUCLEAR_DISK_WEIGHT_INCREMENT) == 0 && num_station_players() > 1)
-			if(disk_comfort_level >= 2)
-				visible_message(span_notice("[src] sleeps soundly. Sleep tight, disky."))
-			message_admins("[src] is unsecured in [ADMIN_VERBOSEJMP(new_turf)]. The weight of Lone Operative is now [loneop.weight].")
-		log_game("[src] was left unsecured in [loc_name(new_turf)]. Weight of the Lone Operative event increased to [loneop.weight].")
-
-/obj/item/disk/nuclear/examine(mob/user)
-	. = ..()
-	if(!fake)
-		return
-
-	if(isobserver(user) || HAS_MIND_TRAIT(user, TRAIT_DISK_VERIFIER))
-		. += span_warning("The serial numbers on [src] are incorrect.")
-
-/obj/item/disk/nuclear/suicide_act(mob/living/user)
-	user.visible_message(span_suicide("[user] is going delta! It looks like [user.p_theyre()] trying to commit suicide!"))
-	playsound(src, 'sound/announcer/alarm/nuke_alarm.ogg', 50, -1, TRUE)
-	for(var/i in 1 to 100)
-		addtimer(CALLBACK(user, TYPE_PROC_REF(/atom, add_atom_colour), (i % 2)? COLOR_VIBRANT_LIME : COLOR_RED, ADMIN_COLOUR_PRIORITY), i)
-	addtimer(CALLBACK(src, PROC_REF(manual_suicide), user), 101)
-
-/obj/item/disk/nuclear/proc/manual_suicide(mob/living/user)
-	user.remove_atom_colour(ADMIN_COLOUR_PRIORITY)
-	user.visible_message(span_suicide("[user] is destroyed by the nuclear blast!"))
-	user.adjustOxyLoss(200)
-	user.death(FALSE)
+		error("[src] was supposed to be destroyed, but we were unable to locate a blobstart landmark to spawn a new one.")
+	return QDEL_HINT_LETMELIVE // Cancel destruction unless forced.
 
 #undef NUKE_INTACT
 #undef NUKE_COVER_OFF
@@ -674,5 +663,3 @@ GLOBAL_VAR(bomb_set)
 #undef NUKE_CORE_PANEL_EXPOSED
 #undef NUKE_CORE_PANEL_UNWELDED
 #undef NUKE_CORE_FULLY_EXPOSED
-#undef NUCLEAR_DISK_SECURE_THRESHOLD
-#undef NUCLEAR_DISK_WEIGHT_INCREMENT

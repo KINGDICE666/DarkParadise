@@ -54,13 +54,13 @@
 	var/static/list/bottle_styles
 
 /obj/machinery/chem_master/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ХимМастер 3000",
 		GENITIVE = "ХимМастера 3000",
 		DATIVE = "ХимМастеру 3000",
 		ACCUSATIVE = "ХимМастер 3000",
 		INSTRUMENTAL = "ХимМастером 3000",
-		PREPOSITIONAL = "ХимМастере 3000",
+		PREPOSITIONAL = "ХимМастере 3000"
 	)
 
 /obj/machinery/chem_master/Initialize(mapload)
@@ -136,6 +136,7 @@
 		return
 	update_icon()
 
+
 /obj/machinery/chem_master/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -143,7 +144,7 @@
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(isglassreagentcontainer(I) || istype(I, /obj/item/reagent_containers/food/drinks/drinkingglass))
+	if(istype(I, /obj/item/reagent_containers/glass) || istype(I, /obj/item/reagent_containers/food/drinks/drinkingglass))
 		add_fingerprint(user)
 		if(panel_open)
 			balloon_alert(user, "техпанель открыта!")
@@ -178,6 +179,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/chem_master/crowbar_act(mob/user, obj/item/I)
 	if(!panel_open)
@@ -236,7 +238,7 @@
 			var/datum/reagent/R = reagent_list[idx]
 
 			printing = TRUE
-			visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] дребезжит, после чего из окна печати выпадает лист бумаги."))
+			visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] дребезжит, после чего из окна печати выпадает лист бумаги."))
 			playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, TRUE)
 
 			var/obj/item/paper/P = new /obj/item/paper(loc)
@@ -249,7 +251,7 @@
 			else
 				P.info += "<b>Описание:</b> [R.description]"
 			P.info += "<br><br><b>Заметки:</b><br>"
-			P.name = "Химический анализ — [R.name]"
+			P.name = "Химический анализ - [R.name]"
 			spawn(50)
 				printing = FALSE
 
@@ -374,8 +376,8 @@
 
 /obj/machinery/chem_master/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet_batched/chem_master),
-		get_asset_datum(/datum/asset/spritesheet_batched/chem_master/large)
+		get_asset_datum(/datum/asset/spritesheet/chem_master),
+		get_asset_datum(/datum/asset/spritesheet/chem_master/large)
 	)
 
 /obj/machinery/chem_master/ui_data(mob/user)
@@ -540,13 +542,13 @@
 	condi = TRUE
 
 /obj/machinery/chem_master/condimaster/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "КондиМастер 3000",
 		GENITIVE = "КондиМастера 3000",
 		DATIVE = "КондиМастеру 3000",
 		ACCUSATIVE = "КондиМастер 3000",
 		INSTRUMENTAL = "КондиМастером 3000",
-		PREPOSITIONAL = "КондиМастере 3000",
+		PREPOSITIONAL = "КондиМастере 3000"
 	)
 
 /obj/machinery/chem_master/condimaster/Initialize(mapload)
@@ -585,6 +587,7 @@
 	sprites = list()
 	for(var/i in 1 to sprites_amount)
 		sprites += "[sprite_mask][i]"
+
 
 /datum/chemical_production_mode/proc/get_placeholder_name(datum/reagents/reagents)
 	return get_base_placeholder_name(reagents, clamp(reagents.total_volume / set_items_amount, 0, max_units_per_item))

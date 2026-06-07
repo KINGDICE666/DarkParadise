@@ -10,6 +10,7 @@
  * ~ Zuhayr
  */
 
+
 //Main cryopod console.
 
 /obj/machinery/computer/cryopod
@@ -151,7 +152,7 @@
 
 /obj/machinery/computer/cryopod/emag_act(mob/user)
 	user.changeNext_move(CLICK_CD_MELEE)
-	if(!length(objective_items))
+	if(!objective_items.len)
 		visible_message(span_warning("The console buzzes in an annoyed manner."))
 		playsound(src, 'sound/machines/buzz-sigh.ogg', 30, TRUE)
 		return
@@ -167,7 +168,6 @@
 
 /obj/item/circuitboard/robotstoragecontrol
 	board_name = "Robotic Storage Console"
-	greyscale_colors = CIRCUIT_COLOR_SCIENCE
 	build_path = "/obj/machinery/computer/cryopod/robot"
 	origin_tech = "programming=1"
 
@@ -180,16 +180,20 @@
 	anchored = TRUE
 	var/orient_right = FALSE // Flips the sprite.
 
+
 /obj/structure/cryofeed/right
 	orient_right = TRUE
 	icon_state = "cryo_rear-r"
+
 
 /obj/structure/cryofeed/Initialize(mapload)
 	. = ..()
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/structure/cryofeed/update_icon_state()
 	icon_state = "cryo_rear[orient_right ? "-r" : ""]"
+
 
 // Cryopods themselves.
 /obj/machinery/cryopod
@@ -213,6 +217,7 @@
 	var/time_till_despawn = 9000 // This is reduced by 90% if a player manually enters cryo
 	var/willing_time_divisor = 10
 	var/time_entered = 0          // Used to keep track of the safe period.
+	var/obj/item/radio/intercom/announce
 	var/syndicate = FALSE // Silent
 
 	var/obj/machinery/computer/cryopod/control_computer
@@ -244,10 +249,7 @@
 		/obj/item/door_remote,
 		/obj/item/stamp,
 		/obj/item/sensor_device/advanced,
-		/obj/item/qm_quest_tablet,
-		/obj/item/mod/control,
-		/obj/item/autopsy_scanner,
-		/obj/item/storage/belt/rapier,
+		/obj/item/qm_quest_tablet
 	)
 	// These items will NOT be preserved
 	var/static/list/do_not_preserve_items = list (
@@ -255,14 +257,15 @@
 	)
 
 /obj/machinery/cryopod/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "криогенный морозильник",
 		GENITIVE = "криогенного морозильника",
 		DATIVE = "криогенному морозильнику",
 		ACCUSATIVE = "криогенный морозильник",
 		INSTRUMENTAL = "криогенным морозильником",
-		PREPOSITIONAL = "криогенном морозильнике",
+		PREPOSITIONAL = "криогенном морозильнике"
 	)
+
 
 //////
 //Syndie cryopod.
@@ -274,14 +277,19 @@
 	dir = WEST
 	syndicate = TRUE
 
+
 /obj/machinery/cryopod/Initialize(mapload)
 	. = ..()
+	announce = new /obj/item/radio/intercom(src)
+	announce.follow_target = src
 	icon_state = base_icon_state
 	set_light(1, 1, COLOR_GREEN)
 	find_control_computer()
 
+
 /obj/machinery/cryopod/update_icon_state()
 	icon_state = occupant ? occupied_icon_state : base_icon_state
+
 
 /obj/machinery/cryopod/proc/find_control_computer(urgent=0)
 	var/area/A = get_area(src)
@@ -318,7 +326,7 @@
 	if(occupant)
 		// Eject dead people
 		if(occupant.stat == DEAD)
-			discard_occupant()
+			go_out()
 			return
 
 		// Allow a gap between entering the pod and actually despawning.
@@ -364,12 +372,13 @@
 
 	for(var/obj/machinery/computer/cloning/cloner in SSmachines.get_by_type(/obj/machinery/computer/cloning))
 		for(var/datum/dna2/record/R in cloner.records)
-			if(occupant.mind == R.mind.resolve())
+			if(occupant.mind == locate(R.mind))
 				cloner.records.Remove(R)
 
 	//Delete all items not on the preservation list.
 	var/list/items = contents
 	items -= occupant // Don't delete the occupant
+	items -= announce // or the autosay radio.
 
 	for(var/obj/item/I in items)
 		if(is_pda(I))
@@ -377,15 +386,11 @@
 			QDEL_NULL(P.id)
 			qdel(P)
 			continue
-		if(ismodstorage(I))
-			var/obj/item/storage/backpack/modstorage/our_storage = I
-			our_storage.forceMove(our_storage.source)
-			continue
 
 		var/preserve = should_preserve_item(I)
 		if(preserve == CRYO_DESTROY)
 			qdel(I)
-		else if(control_computer?.allow_items)
+		else if(control_computer && control_computer.allow_items)
 			control_computer.freeze_item(I, preserve)
 		else
 			I.forceMove(loc)
@@ -411,6 +416,21 @@
 			O.on_target_cryo()
 		occupant.mind.remove_all_antag_datums()
 
+		for(var/datum/objective/heretic_sacrifice/objective in GLOB.all_objectives)
+			var/datum/antagonist/heretic/heretic = objective.owner.has_antag_datum(/datum/antagonist/heretic)
+			if(!(occupant.real_name in heretic.all_sac_targets))
+				continue
+
+			var/list/targets = list()
+			for(var/mob/living/carbon/human/human in GLOB.human_list)
+				if(!human.client || !is_station_level(human.z))
+					continue
+
+				targets |= human
+
+			heretic.add_sacrifice_target(pick(targets))
+			heretic.remove_sacrifice_target(occupant)
+
 	if(occupant.mind && occupant.mind.assigned_role)
 		// Handle job slot/tater cleanup.
 		var/job = occupant.mind.assigned_role
@@ -420,7 +440,7 @@
 
 		SSjobs.FreeRole(job)
 
-		if(length(occupant.mind.objectives))
+		if(occupant.mind.objectives.len)
 			occupant.mind.objectives.Cut()
 			occupant.mind.special_role = null
 
@@ -439,6 +459,7 @@
 		if(G.fields["name"] == occupant.real_name)
 			announce_rank = G.fields["rank"]
 			qdel(G)
+
 
 	// Make an announcement and log the person entering storage + their rank
 	var/list/crew_member = list()
@@ -465,10 +486,10 @@
 				announcer.say(";[issilicon(occupant) ? "Юнит" : "Сотрудник"] [occupant.real_name] [on_store_message]")
 		else
 			if(announce_rank)
-				radio_announce("[issilicon(occupant) ? "Юнит" : "Сотрудник"] [occupant.real_name] ([announce_rank]) [on_store_message]", "[on_store_name]", PUB_FREQ, follow_target_override = src)
+				announce.autosay("[issilicon(occupant) ? "Юнит" : "Сотрудник"] [occupant.real_name] ([announce_rank]) [on_store_message]", "[on_store_name]")
 			else
-				radio_announce("[issilicon(occupant) ? "Юнит" : "Сотрудник"] [occupant.real_name] [on_store_message]", "[on_store_name]", PUB_FREQ, follow_target_override = src)
-		visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] с характерным жужжанием и шипением перемещает [occupant.real_name] в хранилище."))
+				announce.autosay("[issilicon(occupant) ? "Юнит" : "Сотрудник"] [occupant.real_name] [on_store_message]", "[on_store_name]")
+		visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] с характерным жужжанием и шипением перемещает [occupant.real_name] в хранилище."))
 
 	SEND_SIGNAL(SSshuttle, COMSIG_CRYOPOD_DESPAWN, src, occupant)
 
@@ -483,10 +504,6 @@
 	update_icon(UPDATE_ICON_STATE)
 	name = initial(name)
 
-/obj/machinery/cryopod/proc/discard_occupant()
-	playsound(src, 'sound/machines/buzz-sigh.ogg', HALFWAY_SOUND_VOLUME, use_reverb = TRUE)
-	go_out()
-	balloon_alert_to_viewers("субъект отклонен")
 
 /obj/machinery/cryopod/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
@@ -532,7 +549,9 @@
 	add_fingerprint(grabber)
 	take_occupant(target, willing)
 
-/obj/machinery/cryopod/mouse_drop_receive(atom/movable/O, mob/user, params)
+
+/obj/machinery/cryopod/MouseDrop_T(atom/movable/O, mob/user, params)
+
 	if(O.loc == user) //no you can't pull things out of your ass
 		return
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //are you cuffed, dying, lying, stunned or other
@@ -547,11 +566,11 @@
 		return
 	if(user.loc==null) // just in case someone manages to get a closet into the blue light dimension, as unlikely as that seems
 		return
-	if(!isturf(user.loc) || !isturf(O.loc)) // are you in a container/closet/pod/etc?
+	if(!istype(user.loc, /turf) || !istype(O.loc, /turf)) // are you in a container/closet/pod/etc?
 		return
 	if(occupant)
 		to_chat(user, span_boldnotice("The cryo pod is already occupied!"))
-		return
+		return TRUE
 
 	var/mob/living/L = O
 	if(!istype(L) || L.buckled)
@@ -559,17 +578,19 @@
 
 	if(L.stat == DEAD)
 		to_chat(user, span_notice("Dead people can not be put into cryo."))
-		return
+		return TRUE
 
 	if(!L.mind)
 		to_chat(user, span_notice("Catatonic people are not allowed into cryo."))
-		return
+		return TRUE
 
 	if(L.has_buckled_mobs()) //mob attached to us
 		to_chat(user, span_warning("[L] will not fit into [src] because [L.p_they()] [L.p_have()] a slime latched onto [L.p_their()] head."))
-		return
+		return TRUE
 
 	INVOKE_ASYNC(src, TYPE_PROC_REF(/obj/machinery/cryopod, put_in), user, L)
+	return TRUE
+
 
 /obj/machinery/cryopod/proc/put_in(mob/user, mob/living/L) // need this proc to use INVOKE_ASYNC in other proc. You're not recommended to use that one
 	var/willing = null //We don't want to allow people to be forced into despawning.
@@ -601,6 +622,7 @@
 		else
 			to_chat(user, span_notice("You stop [L == user ? "climbing into the cryo pod." : "putting [L] into the cryo pod."]"))
 
+
 /obj/machinery/cryopod/proc/take_occupant(mob/living/carbon/E, willing_factor = 1)
 	if(occupant)
 		return
@@ -624,9 +646,10 @@
 	message_admins("[key_name_admin(E)] entered a stasis pod. [ADMIN_JMP(src)]")
 	add_fingerprint(E)
 
+
 /obj/machinery/cryopod/verb/eject()
 	set name = "Вылезти"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
@@ -640,6 +663,8 @@
 	var/list/items = contents
 	if(occupant)
 		items -= occupant
+	if(announce)
+		items -= announce
 
 	for(var/obj/item/I in items)
 		I.forceMove(get_turf(src))
@@ -649,7 +674,7 @@
 
 /obj/machinery/cryopod/verb/move_inside()
 	set name = "Залезть внутрь"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || !check_occupant_allowed(usr))
@@ -689,6 +714,7 @@
 		add_fingerprint(usr)
 		name = "[name] ([usr.name])"
 
+
 /obj/machinery/cryopod/proc/go_out()
 	if(!occupant)
 		return
@@ -697,6 +723,8 @@
 	occupant = null
 	update_icon(UPDATE_ICON_STATE)
 	name = initial(name)
+
+
 
 //Attacks/effects.
 /obj/machinery/cryopod/blob_act()
@@ -725,12 +753,10 @@
 	on_enter_occupant_message = "The storage unit broadcasts a sleep signal to you. Your systems start to shut down, and you enter low-power mode."
 	allow_occupant_types = list(/mob/living/silicon/robot)
 
+
 /obj/machinery/cryopod/robot/despawn_occupant()
 	var/mob/living/silicon/robot/R = occupant
 	if(!istype(R))
-		return ..()
-	if(R.shell)
-		discard_occupant()
 		return ..()
 
 	R.contents -= R.mmi
@@ -744,6 +770,7 @@
 		qdel(R.module)
 
 	return ..()
+
 
 /proc/cryo_ssd(mob/living/carbon/person_to_cryo)
 	if(istype(person_to_cryo.loc, /obj/machinery/cryopod))
@@ -759,7 +786,7 @@
 		else if(!P.occupant && istype(get_area(P), /area/crew_quarters/sleep))
 			free_cryopods += P
 	var/obj/machinery/cryopod/target_cryopod = null
-	if(length(free_cryopods))
+	if(free_cryopods.len)
 		if(person_to_cryo.find_taipan_hud_number_by_job()) //Если вернёт хоть что то значит тайпановец. Иначе вернёт null
 			target_cryopod = safepick(free_syndie_cryopods)
 		else

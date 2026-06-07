@@ -1,21 +1,15 @@
-/// Pure Black and white colorblindness. Every species except Vulpkanins and Tajarans will have this.
-#define GREYSCALE_COLOR_REPLACE list( \
-	"red" = "grey", \
-	"blue" = "grey", \
-	"green" = "grey", \
-	"orange" = "light grey", \
-	"yellow" = "light grey", \
-	"brown" = "grey", \
-	"gold" = "light grey", \
-	"cyan" = "silver", \
-	"magenta" = "grey", \
-	"purple" = "grey", \
-	"pink" = "light grey" \
-)
 
 /obj/item/organ/internal/eyes
 	name = "eyeballs"
-	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали человеку."
+	desc = "Парный орган, отвечающий за зрение - восприятие света и его трансформацию в видимое изображение. Эти принадлежали человеку."
+	ru_names = list(
+		NOMINATIVE = "глаза человека",
+		GENITIVE = "глаз человека",
+		DATIVE = "глазам человека",
+		ACCUSATIVE = "глаза человека",
+		INSTRUMENTAL = "глазами человека",
+		PREPOSITIONAL = "глазах человека"
+	)
 	gender = PLURAL
 	icon_state = "eyes"
 	parent_organ_zone = BODY_ZONE_HEAD
@@ -27,7 +21,6 @@
 	/// Gets set by eye-dependent disabilities such as colourblindness so the eyes can transfer the disability during transplantation.
 	var/list/dependent_disabilities
 	var/weld_proof = null //If set, the eyes will not take damage during welding. eg. IPC optical sensors do not take damage when they weld things while all other eyes will.
-	min_broken_damage = EYE_BROKEN_THRESHOLD // for a smoother transition from blur to blindness
 
 	var/vision_flags = 0
 	var/see_in_dark = 2
@@ -35,16 +28,6 @@
 	var/lighting_alpha = LIGHTING_PLANE_ALPHA_VISIBLE
 	/// Modifies examine time for living mobs. Uses in /mob/living/run_examinate(atom/target)
 	var/examine_mod = 1
-
-/obj/item/organ/internal/eyes/get_ru_names()
-	return alist(
-		NOMINATIVE = "глаза человека",
-		GENITIVE = "глаз человека",
-		DATIVE = "глазам человека",
-		ACCUSATIVE = "глаза человека",
-		INSTRUMENTAL = "глазами человека",
-		PREPOSITIONAL = "глазах человека",
-	)
 
 /obj/item/organ/internal/eyes/proc/update_colour()
 	dna.write_eyes_attributes(src)
@@ -68,6 +51,7 @@
 	if(is_robotic() || (see_in_dark > EYE_SHINE_THRESHOLD))
 		return TRUE
 
+
 /obj/item/organ/internal/eyes/insert(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(ishuman(target) && eye_colour)
@@ -81,12 +65,14 @@
 		//If we're here, that means the mob acquired the colourblindness gene while they didn't have eyes. Better handle it.
 		target.update_client_colour()
 
+
 /obj/item/organ/internal/eyes/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	//If special is set, that means these eyes are getting deleted (i.e. during set_species())
 	if(special == ORGAN_MANIPULATION_DEFAULT && HAS_TRAIT(target, TRAIT_COLORBLIND))
 		LAZYOR(dependent_disabilities, TRAIT_COLORBLIND)
 		target.force_gene_block(GLOB.colourblindblock, FALSE)
 	return ..()
+
 
 /obj/item/organ/internal/eyes/surgeryize()
 	if(!owner)
@@ -116,21 +102,19 @@
 /obj/item/organ/internal/eyes/cybernetic
 	name = "cybernetic eyes"
 	desc = "Электронное устройство, имитирующее работу органических глаз. Функционально не имеет никаких отличий от органического аналога, кроме производственных затрат."
-	icon_state = "eyes-c"
-	origin_tech = "biotech=4"
-	status = ORGAN_ROBOT
-	pickup_sound = 'sound/items/handling/pickup/component_pickup.ogg'
-	drop_sound = 'sound/items/handling/drop/component_drop.ogg'
-
-/obj/item/organ/internal/eyes/cybernetic/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "кибернетические глаза",
 		GENITIVE = "кибернетических глаз",
 		DATIVE = "кибернетическим глазам",
 		ACCUSATIVE = "кибернетические глаза",
 		INSTRUMENTAL = "кибернетическими глазами",
-		PREPOSITIONAL = "кибернетических глазах",
+		PREPOSITIONAL = "кибернетических глазах"
 	)
+	icon_state = "eyes-c"
+	origin_tech = "biotech=4"
+	status = ORGAN_ROBOT
+	pickup_sound = 'sound/items/handling/pickup/component_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/component_drop.ogg'
 
 /obj/item/organ/internal/eyes/on_life()
 	var/update_flags = STATUS_UPDATE_NONE
@@ -143,5 +127,3 @@
 				E.heal_internal_damage(G.heal_rate)
 				owner.AdjustEyeBlurry(-2 SECONDS)
 	return ..() | update_flags
-
-#undef GREYSCALE_COLOR_REPLACE

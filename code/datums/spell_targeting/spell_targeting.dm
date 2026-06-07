@@ -27,6 +27,7 @@
 	/// If the spell should do an obstacle check from the user to the target. Windows, for example, will block the spell if this is true.
 	var/use_obstacle_check = FALSE
 
+
 /**
  * Called when choosing the targets for the parent spell
  *
@@ -40,6 +41,7 @@
 	RETURN_TYPE(/list)
 	return
 
+
 /**
  * Will attempt to auto target the spell. Only works with 1 target currently
  */
@@ -52,10 +54,11 @@
 			target = A
 
 	if(target)
-		to_chat(user, span_warning("Only one target found. Casting [spell] on [target]!"))
+		to_chat(user, "<span class='warning'>Only one target found. Casting [spell] on [target]!</span>")
 		spell.try_perform(list(target), user)
 		return TRUE
 	return FALSE
+
 
 /**
  * Called when the parent spell intercepts the click
@@ -69,7 +72,7 @@
 /datum/spell_targeting/proc/InterceptClickOn(mob/user, params, atom/A, obj/effect/proc_holder/spell/spell)
 	var/list/targets = choose_targets(user, spell, params, A)
 	spell.try_perform(targets, user)
-	return TRUE
+
 
 /**
  * Checks whether or not the given target is valid. Calls spell.valid_target as well
@@ -80,14 +83,9 @@
  * * spell - The spell being cast
  * * check_if_in_range - If a view/range check has to be done to see if the target is valid
  */
-/datum/spell_targeting/proc/valid_target(atom/target, mob/user, obj/effect/proc_holder/spell/spell, check_if_in_range = TRUE)
+/datum/spell_targeting/proc/valid_target(target, user, obj/effect/proc_holder/spell/spell, check_if_in_range = TRUE)
 	SHOULD_CALL_PARENT(TRUE)
-	if(!istype(target, allowed_type) || (!include_user && target == user) || !spell.valid_target(target, user))
-		return FALSE
-	if(use_obstacle_check && !is_path_exist(user, target, PASSTABLE|PASSFENCE))
-		return FALSE
-	if(!check_if_in_range)
-		return TRUE
-	var/effective_range = (range >= world.view && user?.client?.view) || range
-	return target in view_or_range(effective_range, use_turf_of_user ? get_turf(user) : user, selection_type)
+	return istype(target, allowed_type) && (include_user || target != user) && \
+		spell.valid_target(target, user) && (!check_if_in_range || (target in view_or_range(range, use_turf_of_user ? get_turf(user) : user, selection_type))) \
+		&& (!use_obstacle_check || is_path_exist(user, target, PASSTABLE|PASSFENCE))
 

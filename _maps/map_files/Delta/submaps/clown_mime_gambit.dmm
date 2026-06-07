@@ -9,7 +9,7 @@
 /turf/simulated/wall,
 /area/mimeoffice)
 "d" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/structure/plasticflaps,
 /obj/machinery/navbeacon{
 	codes_txt = "delivery;dir=2";
@@ -52,17 +52,24 @@
 	},
 /area/clownoffice)
 "i" = (
-/obj/machinery/power/apc/directional/east,
+/obj/machinery/power/apc{
+	dir = 4;
+	pixel_x = 26
+	},
 /obj/structure/cable{
 	icon_state = "0-8"
 	},
 /obj/item/flag/mime,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
 "j" = (
-/obj/machinery/power/apc/directional/west,
+/obj/machinery/power/apc{
+	dir = 8;
+	pixel_x = -26
+	},
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
@@ -88,9 +95,13 @@
 /obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/machinery/alarm/directional/east,
+/obj/machinery/alarm{
+	dir = 8;
+	pixel_x = 22
+	},
 /obj/structure/closet/secure_closet/mime,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -109,13 +120,14 @@
 	},
 /area/clownoffice)
 "o" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/machinery/door/window/eastright{
 	name = "Mime Delivery";
 	req_access = list(46);
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -132,6 +144,7 @@
 	pixel_x = 5
 	},
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -159,6 +172,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -213,7 +227,7 @@
 /turf/simulated/floor/plating,
 /area/mimeoffice)
 "B" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/structure/plasticflaps,
 /obj/machinery/navbeacon{
 	codes_txt = "delivery;dir=2";
@@ -261,6 +275,7 @@
 	},
 /obj/item/reagent_containers/spray/waterflower,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -274,6 +289,7 @@
 	c_tag = "Mime Office"
 	},
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -297,6 +313,7 @@
 	},
 /obj/effect/landmark/start/mime,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -314,7 +331,7 @@
 	},
 /area/clownoffice)
 "J" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/machinery/door/window/eastright{
 	name = "Clown Delivery";
 	req_access = list(46)
@@ -330,6 +347,7 @@
 "L" = (
 /obj/structure/statue/tranquillite/mime/unique,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -337,7 +355,10 @@
 /obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/machinery/alarm/directional/west,
+/obj/machinery/alarm{
+	dir = 4;
+	pixel_x = -22
+	},
 /obj/structure/closet/secure_closet/clown,
 /obj/item/clothing/suit/soldiercoat,
 /obj/item/clothing/under/soldieruniform,
@@ -367,13 +388,14 @@
 /obj/machinery/atmospherics/unary/vent_pump/on,
 /obj/effect/landmark/start/mime,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
 "R" = (
 /obj/machinery/vending/autodrobe,
-/obj/machinery/firealarm/directional/north,
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -386,6 +408,7 @@
 	pixel_y = -10
 	},
 /turf/simulated/floor/plasteel{
+	dir = 4;
 	icon_state = "tranquillite"
 	},
 /area/mimeoffice)
@@ -400,7 +423,6 @@
 /area/template_noop)
 "X" = (
 /obj/machinery/vending/autodrobe,
-/obj/machinery/firealarm/directional/north,
 /turf/simulated/floor/plasteel{
 	icon_state = "bar"
 	},

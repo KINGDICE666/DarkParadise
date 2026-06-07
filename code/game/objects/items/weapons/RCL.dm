@@ -13,6 +13,7 @@
 	var/obj/structure/cable/last = null
 	var/obj/item/stack/cable_coil/loaded = null
 
+
 /obj/item/twohanded/rcl/attackby(obj/item/I, mob/user, params)
 	if(iscoil(I))
 		add_fingerprint(user)
@@ -38,13 +39,14 @@
 
 	return ..()
 
+
 /obj/item/twohanded/rcl/screwdriver_act(mob/user, obj/item/I)
 	if(!loaded)
 		return
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
-	to_chat(user, span_notice("You loosen the securing screws on the side, allowing you to lower the guiding edge and retrieve the wires."))
+	to_chat(user, "<span class='notice'>You loosen the securing screws on the side, allowing you to lower the guiding edge and retrieve the wires.</span>")
 	while(loaded.amount > 30) //There are only two kinds of situations: "nodiff" (60,90), or "diff" (31-59, 61-89)
 		var/diff = loaded.amount % 30
 		if(diff)
@@ -62,13 +64,14 @@
 /obj/item/twohanded/rcl/examine(mob/user)
 	. = ..()
 	if(loaded)
-		. += span_notice("It contains [loaded.amount]/[max_amount] cables.")
+		. += "<span class='notice'>It contains [loaded.amount]/[max_amount] cables.</span>"
 
 /obj/item/twohanded/rcl/Destroy()
 	QDEL_NULL(loaded)
 	last = null
 	active = 0
 	return ..()
+
 
 /obj/item/twohanded/rcl/update_icon_state()
 	if(!loaded)
@@ -89,11 +92,12 @@
 			icon_state = "rcl-0"
 			item_state = "rcl-0"
 
+
 /obj/item/twohanded/rcl/proc/is_empty(mob/user, loud = 1)
 	update_icon(UPDATE_ICON_STATE)
 	if(!loaded || !loaded.amount)
 		if(loud)
-			to_chat(user, span_notice("The last of the cables unreel from [src]."))
+			to_chat(user, "<span class='notice'>The last of the cables unreel from [src].</span>")
 		if(loaded)
 			qdel(loaded)
 			loaded = null
@@ -129,7 +133,7 @@
 
 /obj/item/twohanded/rcl/proc/trigger(mob/user)
 	if(is_empty(user, 0))
-		to_chat(user, span_warning("\The [src] is empty!"))
+		to_chat(user, "<span class='warning'>\The [src] is empty!</span>")
 		return
 	if(last)
 		if(get_dist(last, user) == 1) //hacky, but it works
@@ -149,8 +153,8 @@
 	last = loaded.place_turf(get_turf(loc), user, turn(user.dir, 180))
 	is_empty(user) //If we've run out, display message
 
-/obj/item/twohanded/rcl/pre_loaded/Initialize(mapload)
-	. = ..()
+/obj/item/twohanded/rcl/pre_loaded/New() //Comes preloaded with cable, for testing stuff
+	..()
 	loaded = new()
 	loaded.max_amount = max_amount
 	loaded.amount = max_amount

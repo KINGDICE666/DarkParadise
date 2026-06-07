@@ -9,6 +9,7 @@
 	var/lighter // Who lit the thing
 	var/fire_stack_strength = 5
 
+
 /obj/structure/firepit/Initialize(mapload)
 	. = ..()
 	var/static/list/loc_connections = list(
@@ -16,11 +17,13 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/firepit/attack_hand(mob/living/user)
 	if(active)
 		toggleFirepit()
 	else
 		return ..()
+
 
 /obj/structure/firepit/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -28,7 +31,7 @@
 			I.fire_act()
 		return ..()
 
-	if(I.get_temperature())
+	if(I.get_heat())
 		add_fingerprint(user)
 		if(active)
 			to_chat(user, span_warning("The [name] is already lit!"))
@@ -46,11 +49,13 @@
 
 	return ..()
 
+
 /obj/structure/firepit/proc/adjust_light()
 	if(active)
-		set_light(4, l_color = LIGHT_COLOR_GARLAND)
+		set_light(4, ,"#ffb366")
 	else
 		set_light_on(FALSE)
+
 
 /obj/structure/firepit/update_icon_state()
 	if(active)
@@ -58,10 +63,12 @@
 	else
 		icon_state = "firepit"
 
+
 /obj/structure/firepit/proc/toggleFirepit()
 	active = !active
 	update_icon(UPDATE_ICON_STATE)
 	adjust_light()
+
 
 /obj/structure/firepit/extinguish()
 	. = ..()
@@ -71,6 +78,7 @@
 /obj/structure/firepit/fire_act(exposed_temperature, exposed_volume)
 	if(!active)
 		toggleFirepit()
+
 
 /obj/structure/firepit/proc/on_entered(datum/source, mob/living/carbon/human/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -83,9 +91,10 @@
 	if(ishuman(arrived) && arrived.mind)
 		add_attack_logs(src, arrived, "Burned by a firepit (Lit by [lighter ? lighter : "Unknown"])", ATKLOG_ALMOSTALL)
 
+
 /obj/structure/firepit/proc/Burn()
 	var/turf/current_location = get_turf(src)
-	current_location.hotspot_expose(1000,500)
+	current_location.hotspot_expose(1000,500,1)
 	for(var/A in current_location)
 		if(A == src)
 			continue

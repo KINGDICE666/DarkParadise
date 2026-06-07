@@ -35,25 +35,25 @@
 /datum/grace_tier/dormant
 	tier_name = "artistic toolbox"
 	tier_desc = "Покрашенный в ярко-зелёные цвета тулбокс. От одного его вида становится страшно."
-	tier_ru_names = alist(
+	tier_ru_names = list(
 		NOMINATIVE = "артистический ящик для инструментов",
 		GENITIVE = "артистического ящика для инструментов",
 		DATIVE = "артистическому ящику для инструментов",
 		ACCUSATIVE = "артистический ящик для инструментов",
 		INSTRUMENTAL = "артистическим ящиком для инструментов",
-		PREPOSITIONAL = "артистическом ящике для инструментов",
+		PREPOSITIONAL = "артистическом ящике для инструментов"
 	)
 
 /datum/grace_tier/awakened
 	tier_name = "His Grace"
 	tier_desc = "Кровавый артефакт, рождённый скверной магией."
-	tier_ru_names = alist(
+	tier_ru_names = list(
 		NOMINATIVE = "Его Светлость",
 		GENITIVE = "Его Светлости",
 		DATIVE = "Его Светлости",
 		ACCUSATIVE = "Его Светлость",
 		INSTRUMENTAL = "Его Светлостью",
-		PREPOSITIONAL = "Его Светлости",
+		PREPOSITIONAL = "Его Светлости"
 	)
 
 	force_bonus = HIS_GRACE_FORCE_BONUS
@@ -65,13 +65,13 @@
 /datum/grace_tier/ascended
 	tier_name = "mythical toolbox of three powers"
 	tier_desc = "Мифический тулбокс, реликт Эпохи Трёх Сил. Его три застёжки сияют надписями «The Sun», «The Moon», «The Stars», а на гранях — таинственное «The World»."
-	tier_ru_names = alist(
+	tier_ru_names = list(
 		NOMINATIVE = "Мифический тулбокс трёх сил",
 		GENITIVE = "Мифического тулбокса трёх сил",
 		DATIVE = "Мифическому тулбоксу трёх сил",
 		ACCUSATIVE = "Мифический тулбокс трёх сил",
 		INSTRUMENTAL = "Мифическим тулбоксом трёх сил",
-		PREPOSITIONAL = "Мифическом тулбоксе трёх сил",
+		PREPOSITIONAL = "Мифическом тулбоксе трёх сил"
 	)
 
 	force_bonus = HIS_GRACE_FORCE_BONUS

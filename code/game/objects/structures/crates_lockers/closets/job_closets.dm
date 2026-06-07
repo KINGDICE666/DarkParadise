@@ -33,8 +33,8 @@
 	new /obj/item/clothing/suit/wcoat(src)
 	new /obj/item/clothing/head/soft/black(src)
 	new /obj/item/clothing/head/soft/black(src)
-	new /obj/item/clothing/shoes/color/black(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
+	new /obj/item/clothing/shoes/black(src)
 
 /*
  * Chef
@@ -121,8 +121,8 @@
 	new /obj/item/clothing/suit/storage/lawyer/bluejacket(src)
 	new /obj/item/clothing/under/lawyer/purpsuit(src)
 	new /obj/item/clothing/suit/storage/lawyer/purpjacket(src)
-	new /obj/item/clothing/shoes/color/brown(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/brown(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/clothing/glasses/sunglasses/big(src)
 	new /obj/item/clothing/glasses/sunglasses/big(src)
 	new /obj/item/clothing/accessory/head_strip/lawyers_badge(src)
@@ -135,15 +135,26 @@
 	desc = "It's a storage unit for paramedic equipment."
 	icon_state = "paramed"
 
+
 /obj/structure/closet/paramedic/populate_contents()
-	new /obj/item/storage/garmentbag/paramedic(src)
-	new /obj/item/storage/garmentbag/paramedic(src)
+	new /obj/item/clothing/under/rank/medical/paramedic(src)
+	new /obj/item/clothing/under/rank/medical/paramedic(src)
+	new /obj/item/clothing/under/rank/medical/paramedic/skirt(src)
+	new /obj/item/clothing/under/rank/medical/paramedic/skirt(src)
 	new /obj/item/radio/headset/headset_med(src)
 	new /obj/item/radio/headset/headset_med(src)
+	new /obj/item/clothing/gloves/color/latex(src)
+	new /obj/item/clothing/gloves/color/latex(src)
+	new /obj/item/clothing/shoes/black(src)
+	new /obj/item/clothing/shoes/black(src)
+	new /obj/item/clothing/head/soft/paramedic(src)
+	new /obj/item/clothing/head/soft/paramedic(src)
+	new /obj/item/clothing/suit/storage/paramedic(src)
+	new /obj/item/clothing/suit/storage/paramedic(src)
+	new	/obj/item/clothing/suit/storage/paramedic_jacket(src)
+	new	/obj/item/clothing/suit/storage/paramedic_jacket(src)
 	new /obj/item/tank/internals/emergency_oxygen/engi(src)
 	new /obj/item/tank/internals/emergency_oxygen/engi(src)
-	new /obj/item/clothing/glasses/hud/health(src)
-	new /obj/item/clothing/glasses/hud/health(src)
 
 /obj/structure/closet/librarian
 	name = "librarian wardrobe"
@@ -157,12 +168,12 @@
 	new /obj/item/radio/headset/headset_service(src)
 	new /obj/item/storage/bag/books(src)
 	new /obj/item/book/codex_gigas(src)
+	new /obj/item/videocam(src)
+	new /obj/item/videocam(src)
 	new /obj/item/camera(src)
 	new /obj/item/camera_film(src)
 	new /obj/item/camera_film(src)
 	new /obj/item/laser_pointer(src)
-	new /obj/item/tripod/camera(src)
-	new /obj/item/tripod/camera(src)
 
 /obj/structure/closet/burial
 	icon_state = "chaplain"
@@ -170,13 +181,13 @@
 	desc = "В данном ящике хранится траурная одежда."
 
 /obj/structure/closet/burial/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ящик с траурной одеждой",
 		GENITIVE = "ящика с траурной одеждой",
 		DATIVE = "ящику с траурной одеждой",
 		ACCUSATIVE = "ящик с траурной одеждой",
 		INSTRUMENTAL = "ящиком с траурной одеждой",
-		PREPOSITIONAL = "ящике с траурной одеждой",
+		PREPOSITIONAL = "ящике с траурной одеждой"
 	)
 
 /obj/structure/closet/burial/populate_contents()

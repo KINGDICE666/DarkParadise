@@ -3,11 +3,12 @@
 #define UPGRADE_FOCUS 3
 #define UPGRADE_ANTIDROP 4
 
+
 /obj/item/melee/baton/telescopic/contractor
 	name = "contractor baton"
 	desc = "A compact, specialised baton issued to Syndicate contractors. Applies light electrical shocks to targets."
 	icon_state = "contractor_baton"
-	affect_cyborg = TRUE
+	affect_cyborgs = TRUE
 	affect_bots = TRUE
 	cooldown = 2.5 SECONDS
 	clumsy_knockdown_time = 24 SECONDS
@@ -25,14 +26,15 @@
 	var/cuffs_amount = 0
 
 /obj/item/melee/baton/telescopic/contractor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "дубинка контрактника",
 		GENITIVE = "дубинки контрактника",
 		DATIVE = "дубинке контрактника",
 		ACCUSATIVE = "дубинку контрактника",
 		INSTRUMENTAL = "дубинкой контрактника",
-		PREPOSITIONAL = "дубинке контрактника",
+		PREPOSITIONAL = "дубинке контрактника"
 	)
+
 
 /obj/item/melee/baton/telescopic/contractor/examine(mob/user)
 	. = ..()
@@ -41,13 +43,14 @@
 	for(var/obj/item/baton_upgrade/upgrade as anything in upgrades)
 		. += span_notice("В нём установлен <b>[upgrade.declent_ru(NOMINATIVE)]</b>, который [upgrade.upgrade_examine].")
 
+
 /obj/item/melee/baton/telescopic/contractor/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/baton_upgrade))
 		add_fingerprint(user)
 		add_upgrade(I, user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(ishandcuffs(I))
+	if(istype(I, /obj/item/restraints/handcuffs))
 		add_fingerprint(user)
 		if(!has_upgrade(UPGRADE_CUFFS))
 			balloon_alert(user, "модуль стяжек не установлен!")
@@ -67,14 +70,12 @@
 
 	return ..()
 
+
 /obj/item/melee/baton/telescopic/contractor/get_wait_description()
-	return "заряжается!"
+	return span_danger("Дубинка ещё перезаряжается!")
+
 
 /obj/item/melee/baton/telescopic/contractor/additional_effects_non_cyborg(mob/living/carbon/human/target, mob/living/user)
-	. = ..()
-	if(!.)
-		return
-
 	target.AdjustJitter(5 SECONDS, bound_upper = 40 SECONDS)
 	target.AdjustStuttering(10 SECONDS, bound_upper = 40 SECONDS)
 	if(has_upgrade(UPGRADE_MUTE))
@@ -88,6 +89,7 @@
 				target.apply_damage(30, STAMINA)
 				target.AdjustJitter(20 SECONDS, bound_upper = 40 SECONDS)
 				break
+
 
 /obj/item/melee/baton/telescopic/contractor/proc/add_upgrade(obj/item/baton_upgrade/new_upgrade, mob/user)
 	if(!istype(new_upgrade))
@@ -106,6 +108,7 @@
 	else
 		new_upgrade.forceMove(src)
 
+
 /obj/item/melee/baton/telescopic/contractor/proc/has_upgrade(upgrade_type)
 	if(!length(upgrades))
 		return FALSE
@@ -119,14 +122,15 @@
 		if(UPGRADE_ANTIDROP)
 			return locate(/obj/item/baton_upgrade/antidrop, upgrades)
 
+
 /obj/item/melee/baton/telescopic/contractor/proc/CuffAttack(mob/living/carbon/target, mob/living/user)
 	if(target.handcuffed)
 		balloon_alert(user, "цель уже связана!")
 		return
 
 	playsound(loc, 'sound/weapons/cablecuff.ogg', 30, TRUE, -2)
-	target.visible_message(span_danger("[user] начина[PLUR_ET_YUT(user)] связывать [target] [declent_ru(INSTRUMENTAL)]!"),
-							span_userdanger("[user] пыта[PLUR_ET_YUT(user)]ся связать вас!"))
+	target.visible_message(span_danger("[user] начина[pluralize_ru(user.gender, "ет", "ют")] связывать [target] [declent_ru(INSTRUMENTAL)]!"),
+							span_userdanger("[user] пыта[pluralize_ru(user.gender, "ет", "ют")]ся связать вас!"))
 	if(!do_after(user, 1 SECONDS, target, NONE) || target.handcuffed || !cuffs_amount)
 		to_chat(user, span_warning("Вам не удается связать [target]."))
 		return
@@ -135,6 +139,7 @@
 	to_chat(user, span_notice("Вы связываете [target]."))
 	add_attack_logs(user, target, "shackled")
 	cuffs_amount--
+
 
 /obj/item/melee/baton/telescopic/contractor/on_transform(obj/item/source, mob/user, active)
 	. = ..()
@@ -148,11 +153,11 @@
 		to_chat(user, span_notice("Шипы дубинки складываются, позволяя свободно двигать рукой."))
 		REMOVE_TRAIT(src, TRAIT_NODROP, CONTRACTOR_BATON_TRAIT)
 
+
 //upgrades
 /obj/item/baton_upgrade
 	var/upgrade_examine
 	gender = FEMALE
-	icon = 'icons/obj/weapons/baton.dmi'
 
 /obj/item/baton_upgrade/cuff
 	name = "handcuff upgrade"
@@ -161,14 +166,15 @@
 	upgrade_examine = "автоматически связывает цель, если она истощена. Сначала необходимо зарядить стяжками"
 
 /obj/item/baton_upgrade/cuff/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "модуль \"Стяжки\"",
 		GENITIVE = "модуля \"Стяжки\"",
 		DATIVE = "модулю \"Стяжки\"",
 		ACCUSATIVE = "модуль \"Стяжки\"",
 		INSTRUMENTAL = "модулем \"Стяжки\"",
-		PREPOSITIONAL = "модуле \"Стяжки\"",
+		PREPOSITIONAL = "модуле \"Стяжки\""
 	)
+
 
 /obj/item/baton_upgrade/mute
 	name = "mute upgrade"
@@ -177,13 +183,13 @@
 	upgrade_examine = "лишает жертву способности говорить на некоторое время"
 
 /obj/item/baton_upgrade/mute/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "модуль \"Безмолвие\"",
 		GENITIVE = "модуля \"Безмолвие\"",
 		DATIVE = "модулю \"Безмолвие\"",
 		ACCUSATIVE = "модуль \"Безмолвие\"",
 		INSTRUMENTAL = "модулем \"Безмолвие\"",
-		PREPOSITIONAL = "модуле \"Безмолвие\"",
+		PREPOSITIONAL = "модуле \"Безмолвие\""
 	)
 
 /obj/item/baton_upgrade/focus
@@ -193,13 +199,13 @@
 	upgrade_examine = "позволяет нанести дополнительный ущерб цели вашего текущего контракта"
 
 /obj/item/baton_upgrade/focus/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "модуль \"Фокусировка\"",
 		GENITIVE = "модуля \"Фокусировка\"",
 		DATIVE = "модулю \"Фокусировка\"",
 		ACCUSATIVE = "модуль \"Фокусировка\"",
 		INSTRUMENTAL = "модулем \"Фокусировка\"",
-		PREPOSITIONAL = "модуле \"Фокусировка\"",
+		PREPOSITIONAL = "модуле \"Фокусировка\""
 	)
 
 /obj/item/baton_upgrade/antidrop
@@ -209,13 +215,13 @@
 	upgrade_examine = "позволяет держать в руках дубинку, невзирая на происходящее с вами"
 
 /obj/item/baton_upgrade/antidrop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "модуль \"Защита от выпадения\"",
 		GENITIVE = "модуля \"Защита от выпадения\"",
 		DATIVE = "модулю \"Защита от выпадения\"",
 		ACCUSATIVE = "модуль \"Защита от выпадения\"",
 		INSTRUMENTAL = "модулем \"Защита от выпадения\"",
-		PREPOSITIONAL = "модуле \"Защита от выпадения\"",
+		PREPOSITIONAL = "модуле \"Защита от выпадения\""
 	)
 
 #undef UPGRADE_MUTE

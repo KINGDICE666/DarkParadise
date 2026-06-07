@@ -1,14 +1,10 @@
-/// Offsets applied for people riding something
-#define RIDING_SOURCE "riding"
-/// Offsets applied for something being ridden
-#define BEING_RIDDEN_SOURCE "being_ridden"
-
 /**
  * This is the riding component, which is applied to a movable atom by the [ridable element][/datum/element/ridable] when a mob is successfully buckled to said movable.
  *
  * This component lives for as long as at least one mob is buckled to the parent. Once all mobs are unbuckled, the component is deleted, until another mob is buckled in
  * and we make a new riding component, so on and so forth until the sun explodes.
  */
+
 
 /datum/component/riding
 	dupe_mode = COMPONENT_DUPE_UNIQUE_PASSARGS
@@ -51,6 +47,7 @@
 	/// For telling someone they can't drive
 	COOLDOWN_DECLARE(vehicle_move_cooldown)
 
+
 /datum/component/riding/Initialize(mob/living/riding_mob, force = FALSE, buckle_mob_flags= NONE, potion_boost = FALSE)
 	if(!ismovable(parent))
 		return COMPONENT_INCOMPATIBLE
@@ -70,9 +67,9 @@
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(vehicle_moved))
 	RegisterSignal(parent, COMSIG_MOVABLE_BUMP, PROC_REF(vehicle_bump))
 	RegisterSignal(parent, COMSIG_BUCKLED_CAN_Z_MOVE, PROC_REF(riding_can_z_move))
-	RegisterSignals(parent, GLOB.movement_type_addtrait_signals, PROC_REF(on_movement_type_trait_gain))
-	RegisterSignals(parent, GLOB.movement_type_removetrait_signals, PROC_REF(on_movement_type_trait_loss))
-	RegisterSignal(parent, COMSIG_SUPERMATTER_CONSUMED, PROC_REF(on_entered_supermatter))
+	RegisterSignal(parent, GLOB.movement_type_addtrait_signals, PROC_REF(on_movement_type_trait_gain))
+	RegisterSignal(parent, GLOB.movement_type_removetrait_signals, PROC_REF(on_movement_type_trait_loss))
+	//RegisterSignal(parent, COMSIG_SUPERMATTER_CONSUMED, PROC_REF(on_entered_supermatter))
 	if(!can_force_unbuckle)
 		RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, PROC_REF(force_unbuckle))
 
@@ -101,8 +98,8 @@
 	UnregisterSignal(rider, COMSIG_LIVING_TRY_PULL)
 	for(var/trait in GLOB.movement_type_trait_to_flag)
 		if(HAS_TRAIT(parent, trait))
-			REMOVE_TRAIT(rider, trait, UNIQUE_TRAIT_SOURCE(src))
-	rider.remove_traits(rider_traits, UNIQUE_TRAIT_SOURCE(src))
+			REMOVE_TRAIT(rider, trait, ref(src))
+	rider.remove_traits(rider_traits, ref(src))
 	if(!movable_parent.has_buckled_mobs())
 		qdel(src)
 
@@ -120,8 +117,8 @@
 
 	for(var/trait in GLOB.movement_type_trait_to_flag)
 		if(HAS_TRAIT(parent, trait))
-			ADD_TRAIT(rider, trait, UNIQUE_TRAIT_SOURCE(src))
-	rider.add_traits(rider_traits, UNIQUE_TRAIT_SOURCE(src))
+			ADD_TRAIT(rider, trait, ref(src))
+	rider.add_traits(rider_traits, ref(src))
 	post_vehicle_mob_buckle(movable_parent, rider)
 
 /// This proc is called when the rider attempts to grab the thing they're riding, preventing them from doing so.
@@ -194,8 +191,10 @@
 			for(var/offsetdir in offsets)
 				if(offsetdir == AM_dir)
 					var/list/diroffsets = offsets[offsetdir]
-					buckled_mob.add_offsets(RIDING_SOURCE, x_add = diroffsets[1], z_add = diroffsets[2])
-					if(length(diroffsets) == 3)
+					buckled_mob.pixel_x = diroffsets[1]
+					if(diroffsets.len >= 2)
+						buckled_mob.pixel_y = diroffsets[2]
+					if(diroffsets.len == 3)
 						buckled_mob.layer = diroffsets[3]
 					break dir_loop
 	var/static/list/default_vehicle_pixel_offsets = list(TEXT_NORTH = list(0, 0), TEXT_SOUTH = list(0, 0), TEXT_EAST = list(0, 0), TEXT_WEST = list(0, 0))
@@ -208,13 +207,8 @@
 		else
 			px = directional_vehicle_offsets[AM_dir][1]
 			py = directional_vehicle_offsets[AM_dir][2]
-
-	if(isliving(AM))
-		var/mob/living/living_seat = AM
-		living_seat.add_offsets(BEING_RIDDEN_SOURCE, x_add = px, y_add = py)
-	else
-		AM.pixel_x = px
-		AM.pixel_y = py
+	AM.pixel_x = px
+	AM.pixel_y = py
 
 /datum/component/riding/proc/set_vehicle_dir_offsets(dir, x, y)
 	directional_vehicle_offsets["[dir]"] = list(x, y)
@@ -258,7 +252,8 @@
 /datum/component/riding/proc/restore_position(mob/living/buckled_mob)
 	if(isnull(buckled_mob))
 		return
-	buckled_mob.remove_offsets(RIDING_SOURCE)
+	buckled_mob.pixel_x = buckled_mob.base_pixel_x
+	buckled_mob.pixel_y = buckled_mob.base_pixel_y
 	var/atom/source = parent
 	SET_PLANE_EXPLICIT(buckled_mob, initial(buckled_mob.plane), source)
 	/*
@@ -317,14 +312,14 @@
 	SIGNAL_HANDLER
 	var/atom/movable/movable_parent = parent
 	for(var/mob/rider in movable_parent.buckled_mobs)
-		ADD_TRAIT(rider, trait, UNIQUE_TRAIT_SOURCE(src))
+		ADD_TRAIT(rider, trait, ref(src))
 
 /// Called when our vehicle loses a movement trait, so we can remove it from the riders
 /datum/component/riding/proc/on_movement_type_trait_loss(atom/movable/source, trait)
 	SIGNAL_HANDLER
 	var/atom/movable/movable_parent = parent
 	for(var/mob/rider in movable_parent.buckled_mobs)
-		REMOVE_TRAIT(rider, trait, UNIQUE_TRAIT_SOURCE(src))
+		REMOVE_TRAIT(rider, trait, ref(src))
 
 /datum/component/riding/proc/force_unbuckle(atom/movable/source, mob/living/living_hitter)
 	SIGNAL_HANDLER
@@ -334,10 +329,9 @@
 	return COMPONENT_CANCEL_ATTACK_CHAIN
 
 /// When we touch a crystal, kill everything inside us. Not implemented yet
+/*
 /datum/component/riding/proc/on_entered_supermatter(atom/movable/ridden, atom/movable/supermatter)
 	SIGNAL_HANDLER
 	for(var/mob/passenger as anything in ridden.buckled_mobs)
 		passenger.Bump(supermatter)
-
-#undef RIDING_SOURCE
-#undef BEING_RIDDEN_SOURCE
+*/

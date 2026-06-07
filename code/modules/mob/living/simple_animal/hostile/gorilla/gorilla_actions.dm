@@ -9,10 +9,12 @@
 /// Bananas required for gorilla to eat, in order to make everyone understand them.
 #define BANANAS_TO_ENLIGHTEN 50
 
+
 /mob/living/simple_animal/hostile/gorilla/get_status_tab_items()
 	var/list/status_tab_data = ..()
 	. = status_tab_data
 	status_tab_data[++status_tab_data.len] = list("Бананов съедено:", "[bananas_eaten]/[BANANAS_TO_ENLIGHTEN]")
+
 
 /mob/living/simple_animal/hostile/gorilla/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || !istype(I, /obj/item/reagent_containers/food/snacks/grown/banana))
@@ -29,16 +31,16 @@
 
 	if(client)
 		if(is_on_cooldown())
-			to_chat(user, span_warning("[user == src ? "Вы не можете" : "[capitalize(name)] не мо[PLUR_JET_GUT(src)]"] настолько быстро поедать бананы!"))
+			to_chat(user, span_warning("[user == src ? "Вы не можете" : "[capitalize(name)] не мож[pluralize_ru(gender, "ет", "гут")]"] настолько быстро поедать бананы!"))
 			return ..()
 		start_action_cooldown()
 		eat_banana(I)
-		to_chat(user, span_notice("Вы замечаете искру разума в глазах [name], но [GEND_HE_SHE(src)] не мо[PLUR_JET_GUT(src)] устоять перед искушением!"))
-		to_chat(src, span_notice("[user] покормил[GEND_A_O_I(user)] Вас, возможно стоит [GEND_HIS_HER(user)] отблагодарить..."))
+		to_chat(user, span_notice("Вы замечаете искру разума в глазах [name], но [genderize_ru(gender, "он", "она", "оно", "они")] не мо[pluralize_ru(gender, "жет", "гут")] устоять перед искушением!"))
+		to_chat(src, span_notice("[user] покорм[genderize_ru(user.gender, "ил", "ила", "ило", "или")] Вас, возможно стоит [genderize_ru(user.gender, "его", "её", "его", "их")] отблагодарить..."))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	if(is_on_cooldown())
-		to_chat(user, span_warning("[capitalize(name)] сейчас занят[GEND_A_O_Y(src)]."))
+		to_chat(user, span_warning("[capitalize(name)] сейчас занят[genderize_ru(gender, "", "а", "о", "ы")]."))
 		return ..()
 
 	start_action_cooldown()
@@ -61,6 +63,7 @@
 	oogaooga(50)
 	custom_emote(EMOTE_VISIBLE, "раздражённо смотр%(ит,ят)% на банан.", intentional = TRUE)
 	return ..()
+
 
 /mob/living/simple_animal/hostile/gorilla/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = FALSE, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
 	if(client || !can_befriend || !ishuman(speaker) || speaker == src || incapacitated() || is_on_cooldown())
@@ -151,7 +154,7 @@
 	else if(find_phrase(full_message, list("жди", "ожидай", "ждать")))
 		if(!is_waiting)
 			is_waiting = TRUE
-			GLOB.move_manager.stop_looping(src)
+			SSmove_manager.stop_looping(src)
 			oogaooga(100)
 			if(is_bipedal)
 				if(LAZYLEN(crates_in_hand))
@@ -208,6 +211,7 @@
 
 	return ..()
 
+
 /**
  * Parses message for specific phrases contained in a list.
  *
@@ -221,6 +225,7 @@
 			return TRUE
 	return FALSE
 
+
 /**
  * Checks if gorillas is currently buckeld to something.
  *
@@ -231,6 +236,7 @@
 	. = !isnull(buckled)
 	if(. && unbuckle)
 		buckled.unbuckle_mob(src)
+
 
 /**
  * Signal handler used to give gorilla various actions by pointing. Works only if gorilla is befrinded.
@@ -247,7 +253,7 @@
 		return
 
 	if(is_on_cooldown())
-		to_chat(master, span_warning("[capitalize(name)] сейчас занят[GEND_A_O_Y(src)]."))
+		to_chat(master, span_warning("[capitalize(name)] сейчас занят[genderize_ru(gender, "", "а", "о", "ы")]."))
 		return
 
 	if(incapacitated())
@@ -267,7 +273,7 @@
 		return
 
 	var/obj/structure/bigDelivery/delivery = pointed_at
-	var/pointed_at_crate = iscloset(pointed_at) || (istype(delivery) && is_crate(delivery.wrapped))
+	var/pointed_at_crate = istype(pointed_at, /obj/structure/closet) || (istype(delivery) && istype(delivery.wrapped, /obj/structure/closet/crate))
 
 	if(pointed_at_crate && LAZYLEN(crates_in_hand) >= crate_limit)
 		oogaooga(100, 100)
@@ -305,6 +311,7 @@
 	RegisterSignal(new_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(move_postprocess))
 	RegisterSignal(new_loop, COMSIG_QDELETING, PROC_REF(move_end))
 
+
 /mob/living/simple_animal/hostile/gorilla/proc/move_postprocess(datum/source)
 	SIGNAL_HANDLER
 
@@ -315,7 +322,7 @@
 	if(target_turf != loc)
 		return
 
-	if(iscloset(point_target) || istype(point_target, /obj/structure/bigDelivery) || istype(point_target, /obj/item/reagent_containers/food/snacks/grown/banana))
+	if(istype(point_target, /obj/structure/closet) || istype(point_target, /obj/structure/bigDelivery) || istype(point_target, /obj/item/reagent_containers/food/snacks/grown/banana))
 		delayed_manipulation(point_target, 0.3 SECONDS)
 	else
 		delayed_move_drop(point_target, 0.3 SECONDS)
@@ -323,10 +330,12 @@
 	point_target = null
 	target_turf = null
 
+
 /mob/living/simple_animal/hostile/gorilla/proc/move_end(datum/source)
 	SIGNAL_HANDLER
 
 	follow_master()
+
 
 /**
  * Result of pointing at banana or crate/closet.
@@ -340,7 +349,7 @@
 		SLEEP_CHECK_DEATH(src, delay)
 	start_action_cooldown()
 	if(!QDELETED(pointed_at) && can_pass_adjacent(pointed_at, types_to_exclude = list(/mob, /obj/structure/closet, /obj/structure/bigDelivery, /obj/structure/table)))
-		if(iscloset(pointed_at) || istype(pointed_at, /obj/structure/bigDelivery))
+		if(istype(pointed_at, /obj/structure/closet) || istype(pointed_at, /obj/structure/bigDelivery))
 			manipulate_crate(pointed_at)
 		else
 			eat_banana(pointed_at, from_master_hand = (pointed_at.loc == master))
@@ -349,6 +358,7 @@
 		oogaooga(50)
 		custom_emote(EMOTE_VISIBLE, "чеш%(ет,ут)% затылок[pointed_at ? ", смотря на [pointed_at]" : ""].", intentional = TRUE)
 	follow_master()
+
 
 /**
  * Result of pointing at anything except crates or bananas.
@@ -373,6 +383,7 @@
 		oogaooga(50)
 		custom_emote(EMOTE_VISIBLE, "чеш%(ет,ут)% затылок, смотря на [master].", intentional = TRUE)
 	follow_master()
+
 
 /**
  * Banana consuming overmind.
@@ -446,6 +457,7 @@
 			follow_master()
 			befriend_timer = addtimer(CALLBACK(src, PROC_REF(reset_behavior)), BANANAS_TO_BEFRIEND * TIME_PER_BANANA, TIMER_STOPPABLE|TIMER_DELETE_ME)
 
+
 /**
  * Simple follow its master if gorilla is not waiting.
  */
@@ -453,6 +465,7 @@
 	if(master && !is_waiting)
 		check_buckled_gorilla()
 		Goto(master, move_to_delay, 2)
+
 
 /**
  * Changes current gorilla master.
@@ -465,11 +478,12 @@
 		LAZYCLEARLIST(friend2bananas)
 		initial_faction = faction.Copy()
 		faction = list("neutral", "monkey", "jungle")
-		faction += PERSONAL_FACTION(user)
+		faction += "\ref[user]"
 		master = user
 		toggle_ai(AI_OFF)
 		RegisterSignal(user, COMSIG_MOB_POINTED, PROC_REF(check_pointed))
 		RegisterSignal(user, COMSIG_MOB_DEATH, PROC_REF(on_death))
+
 
 /**
  * Resetting gorilla after master's death.
@@ -477,6 +491,7 @@
 /mob/living/simple_animal/hostile/gorilla/proc/on_death(mob/living/carbon/human/user, gibbed)
 	SIGNAL_HANDLER
 	INVOKE_ASYNC(src, PROC_REF(reset_behavior), FALSE)
+
 
 /**
  * Reset variables for gorilla after end of friendship or after excitement is finished.
@@ -487,7 +502,7 @@
  */
 /mob/living/simple_animal/hostile/gorilla/proc/reset_behavior(play_emote = TRUE, end_of_excitement = FALSE)
 	check_buckled_gorilla()
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	toggle_ai(AI_ON)
 	if(play_emote)
 		oogaooga(100, 200)
@@ -517,11 +532,13 @@
 		deltimer(befriend_timer)
 		befriend_timer = null
 
+
 /**
  * Is gorilla enlightened enough by bananas?
  */
 /mob/living/simple_animal/hostile/gorilla/proc/check_enlighten()
 	return bananas_eaten >= BANANAS_TO_ENLIGHTEN
+
 
 /**
  * Starts general actions cooldown for gorilla.
@@ -529,11 +546,13 @@
 /mob/living/simple_animal/hostile/gorilla/proc/start_action_cooldown()
 	COOLDOWN_START(src, gorilla_actions_cooldown, GORILLA_ACTIONS_COOLDOWN)
 
+
 /**
  * Checks general actions cooldown for gorilla. Returns `TRUE` if still in progress.
  */
 /mob/living/simple_animal/hostile/gorilla/proc/is_on_cooldown()
 	return !COOLDOWN_FINISHED(src, gorilla_actions_cooldown)
+
 
 #undef GORILLA_ACTIONS_COOLDOWN
 #undef GORILLA_EXCITEMENT_TIME

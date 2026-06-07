@@ -30,13 +30,13 @@
 	)
 
 /mob/living/simple_animal/pet/gondola/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "гандола",
 		GENITIVE = "гандолы",
 		DATIVE = "гандоле",
 		ACCUSATIVE = "гандолу",
 		INSTRUMENTAL = "гандолой",
-		PREPOSITIONAL = "гандоле",
+		PREPOSITIONAL = "гандоле"
 	)
 
 /mob/living/simple_animal/pet/gondola/Initialize(mapload)
@@ -56,16 +56,17 @@
 	//Offset the face to match the Gondola's height.
 	switch(height)
 		if("gondola_body_medium")
-			eyes_overlay.pixel_z = -4
-			moustache_overlay.pixel_z = -4
+			eyes_overlay.pixel_y = -4
+			moustache_overlay.pixel_y = -4
 		if("gondola_body_short")
-			eyes_overlay.pixel_z = -8
-			moustache_overlay.pixel_z = -8
+			eyes_overlay.pixel_y = -8
+			moustache_overlay.pixel_y = -8
 
 	cut_overlays(TRUE)
 	add_overlay(body_overlay)
 	add_overlay(eyes_overlay)
 	add_overlay(moustache_overlay)
+
 
 #undef GONDOLA_HEIGHT
 #undef GONDOLA_COLOR

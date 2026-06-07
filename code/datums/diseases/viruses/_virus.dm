@@ -9,7 +9,6 @@
 	var/infectivity = 65
 	///affects how well the virus will pass through the protection. The more the better. In range (0-2]
 	var/permeability_mod = 1
-	var/no_vaccine = FALSE //is pandemic can make vaccine for virus
 
 /datum/disease/virus/New()
 	..()
@@ -43,9 +42,10 @@
 /datum/disease/virus/try_increase_stage()
 	if(prob(affected_mob.reagents?.has_reagent("spaceacillin") ? stage_prob/2 : stage_prob))
 		stage = min(stage + 1,max_stages)
-		if(!discovered && stage >= ceil(max_stages * discovery_threshold)) // Once we reach a late enough stage, medical HUDs can pick us up even if we regress
+		if(!discovered && stage >= CEILING(max_stages * discovery_threshold, 1)) // Once we reach a late enough stage, medical HUDs can pick us up even if we regress
 			discovered = TRUE
 			affected_mob.med_hud_set_status()
+
 
 /datum/disease/virus/proc/can_spread()
 	if(istype(affected_mob.loc, /obj/structure/closet/body_bag/biohazard))
@@ -53,6 +53,7 @@
 	if(prob(infectivity) && (affected_mob.stat != DEAD || prob(spread_from_dead_prob)))
 		return TRUE
 	return FALSE
+
 
 /datum/disease/virus/proc/spread(force_spread = 0)
 	if(!affected_mob)
@@ -69,24 +70,23 @@
 	if(spread_flags & AIRBORNE)
 		spread_range++
 
-	var/turf/target = get_turf(affected_mob)
-	if(istype(target))
-		for(var/mob/living/victim in view(spread_range, target))
-			var/turf/current = get_turf(victim)
-			if(current)
+	var/turf/T = get_turf(affected_mob)
+	if(istype(T))
+		for(var/mob/living/C in view(spread_range, T))
+			var/turf/V = get_turf(C)
+			if(V)
 				while(TRUE)
-					if(current == target)
+					if(V == T)
 						var/a_type = (spread_range == 1) ? CONTACT : CONTACT|AIRBORNE
 						//if we wear bio suit, for example, we won't be able to contract anyone
 						if(affected_mob.CheckVirusProtection(src, a_type))
 							return
-						Contract(victim, act_type = a_type, need_protection_check = TRUE)
+						Contract(C, act_type = a_type, need_protection_check = TRUE)
 						break
-					var/direction = get_dir(current, target)
-					var/turf/next = get_step(current, direction)
-					if(!current.CanAtmosPass(direction) || !next.CanAtmosPass(turn(direction, 180)))
+					var/turf/Temp = get_step_towards(V, T)
+					if(!V.CanAtmosPass(Temp, vertical = FALSE))
 						break
-					current = next
+					V = Temp
 
 /datum/disease/virus/proc/spread_text()
 	var/list/spread = list()

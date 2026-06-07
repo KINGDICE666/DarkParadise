@@ -1,7 +1,7 @@
 //Bot Construction
 
 //Cleanbot assembly
-/obj/item/bot_assembly/bucket_sensor
+/obj/item/bucket_sensor
 	name = "Proxy bucket"
 	desc = "Это ведро, к которому прикреплён сенсор."
 	icon = 'icons/obj/aibots.dmi'
@@ -9,18 +9,13 @@
 	force = 3
 	throwforce = 5
 	throw_range = 5
-	req_access = list(ACCESS_JANITOR, ACCESS_ROBOTICS)
 	var/created_name = "Чистобот"
 	var/robot_arm = /obj/item/robot_parts/l_arm
 
-/obj/item/bot_assembly/bucket_sensor/attackby(obj/item/I, mob/user, params)
+
+/obj/item/bucket_sensor/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -51,26 +46,27 @@
 	new_bot.add_fingerprint(user)
 	new_bot.name = created_name
 	new_bot.robot_arm = I.type
-	new_bot.bot_core.req_access = req_access
 	qdel(src)
 	qdel(I)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
+
+
 //Edbot Assembly
 
-/obj/item/bot_assembly/ed209_assembly
+/obj/item/ed209_assembly
 	name = "ED-209 assembly"
 	desc = "Заготовка для чего-то серьёзного."
 	icon = 'icons/obj/aibots.dmi'
 	icon_state = "ed209_frame"
 	item_state = "ed209_frame"
-	req_access = list(ACCESS_SECURITY)
 	var/build_step = 0
 	var/created_name = "ED-209 Security Robot" //To preserve the name if it's a unique securitron I guess
 	var/lasercolor = ""
 	var/new_name = ""
 
-/obj/item/bot_assembly/ed209_assembly/update_name(updates = ALL)
+
+/obj/item/ed209_assembly/update_name(updates = ALL)
 	. = ..()
 	switch(build_step)
 		if(1,2)
@@ -90,7 +86,8 @@
 		if(9)
 			name = "armed [name]"
 
-/obj/item/bot_assembly/ed209_assembly/update_icon_state()
+
+/obj/item/ed209_assembly/update_icon_state()
 	switch(build_step)
 		if(1)
 			item_state = "ed209_leg"
@@ -111,14 +108,11 @@
 			item_state = "[lasercolor]ed209_taser"
 			icon_state = "[lasercolor]ed209_taser"
 
-/obj/item/bot_assembly/ed209_assembly/attackby(obj/item/I, mob/user, params)
+
+
+/obj/item/ed209_assembly/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -270,14 +264,14 @@
 			transfer_fingerprints_to(new_bot)
 			I.transfer_fingerprints_to(new_bot)
 			new_bot.add_fingerprint(user)
-			new_bot.bot_core.req_access = req_access
 			qdel(I)
 			qdel(src)
 			return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
 
-/obj/item/bot_assembly/ed209_assembly/welder_act(mob/living/user, obj/item/I)
+
+/obj/item/ed209_assembly/welder_act(mob/living/user, obj/item/I)
 	if(build_step != 3)
 		return FALSE
 	. = TRUE
@@ -290,7 +284,8 @@
 	balloon_alert(user, "деталь установлена")
 	update_appearance(UPDATE_NAME|UPDATE_ICON_STATE)
 
-/obj/item/bot_assembly/ed209_assembly/screwdriver_act(mob/living/user, obj/item/I)
+
+/obj/item/ed209_assembly/screwdriver_act(mob/living/user, obj/item/I)
 	if(build_step != 8)
 		return FALSE
 	. = TRUE
@@ -301,8 +296,9 @@
 	update_appearance(UPDATE_NAME)
 	balloon_alert(user, "вы установили оружие")
 
+
 //Floorbot assemblies
-/obj/item/bot_assembly/toolbox_tiles
+/obj/item/toolbox_tiles
 	desc = "Это ящик для инструментов, из которого торчат плитки пола."
 	name = "tiles and toolbox"
 	icon = 'icons/obj/aibots.dmi'
@@ -310,15 +306,15 @@
 	force = 3
 	throwforce = 10
 	throw_range = 5
-	req_access = list(ACCESS_CONSTRUCTION, ACCESS_ROBOTICS)
 	var/created_name = "Floorbot"
 	var/toolbox = /obj/item/storage/toolbox/mechanical
 	var/toolbox_color = "" //Blank for blue, r for red, y for yellow, etc.
 
-/obj/item/bot_assembly/toolbox_tiles/sensor
+/obj/item/toolbox_tiles/sensor
 	desc = "Это ящик для инструментов, из которого торчат плитки пола. К нему прикреплён датчик движения."
 	name = "tiles, toolbox and sensor arrangement"
 	icon_state = "toolbox_tiles_sensor"
+
 
 /obj/item/storage/toolbox/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || !istype(I, /obj/item/stack/tile/plasteel))
@@ -343,7 +339,7 @@
 
 	hide_from_all_viewers()
 
-	var/obj/item/bot_assembly/toolbox_tiles/assembly = new(drop_location())
+	var/obj/item/toolbox_tiles/assembly = new(drop_location())
 	assembly.toolbox = type
 	switch(assembly.toolbox)
 		if(/obj/item/storage/toolbox/mechanical/old)
@@ -370,17 +366,14 @@
 	balloon_alert(user, "ящик укреплён")
 	qdel(src)
 
-/obj/item/bot_assembly/toolbox_tiles/update_icon_state()
+
+/obj/item/toolbox_tiles/update_icon_state()
 	icon_state = "[toolbox_color]toolbox_tiles"
 
-/obj/item/bot_assembly/toolbox_tiles/attackby(obj/item/I, mob/user, params)
+
+/obj/item/toolbox_tiles/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -397,7 +390,7 @@
 
 	if(!user.drop_transfer_item_to_loc(I, src))
 		return ..()
-	var/obj/item/bot_assembly/toolbox_tiles/sensor/assembly = new(drop_location())
+	var/obj/item/toolbox_tiles/sensor/assembly = new(drop_location())
 	assembly.created_name = created_name
 	assembly.toolbox_color = toolbox_color
 	assembly.update_icon(UPDATE_ICON_STATE)
@@ -413,17 +406,15 @@
 	qdel(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/bot_assembly/toolbox_tiles/sensor/update_icon_state()
+
+
+/obj/item/toolbox_tiles/sensor/update_icon_state()
 	icon_state = "[toolbox_color]toolbox_tiles_sensor"
 
-/obj/item/bot_assembly/toolbox_tiles/sensor/attackby(obj/item/I, mob/user, params)
+
+/obj/item/toolbox_tiles/sensor/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -452,12 +443,12 @@
 	new_bot.add_fingerprint(user)
 	new_bot.name = created_name
 	new_bot.robot_arm = I.type
-	new_bot.bot_core.req_access = req_access
 	balloon_alert(user, "сборка завершена")
 	to_chat(user, span_notice("Вы завершили сборку ремонтного робота."))
 	qdel(I)
 	qdel(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/item/storage/firstaid/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || (!istype(I, /obj/item/robot_parts/l_arm) && !istype(I, /obj/item/robot_parts/r_arm)))
@@ -475,7 +466,7 @@
 
 	hide_from_all_viewers()
 
-	var/obj/item/bot_assembly/firstaid_arm_assembly/assembly = new(drop_location(), med_bot_skin)
+	var/obj/item/firstaid_arm_assembly/assembly = new(drop_location(), med_bot_skin)
 	assembly.req_access = req_access
 	assembly.syndicate_aligned = syndicate_aligned
 	assembly.treatment_oxy = treatment_oxy
@@ -495,7 +486,8 @@
 	qdel(I)
 	qdel(src)
 
-/obj/item/bot_assembly/firstaid_arm_assembly
+
+/obj/item/firstaid_arm_assembly
 	name = "incomplete medibot assembly."
 	desc = "Аптечка первой помощи с прикрепленной роботизированной рукой."
 	icon = 'icons/obj/aibots.dmi'
@@ -512,32 +504,31 @@
 	var/treatment_virus = "spaceacillin"
 	var/robot_arm = /obj/item/robot_parts/l_arm
 
-/obj/item/bot_assembly/firstaid_arm_assembly/Initialize(mapload, new_skin)
+
+/obj/item/firstaid_arm_assembly/Initialize(mapload, new_skin)
 	. = ..()
 	if(new_skin)
 		skin = new_skin
 	update_icon(UPDATE_OVERLAYS)
 
-/obj/item/bot_assembly/firstaid_arm_assembly/update_overlays()
+
+/obj/item/firstaid_arm_assembly/update_overlays()
 	. = ..()
 	if(skin)
 		. += image('icons/obj/aibots.dmi', "kit_skin_[skin]")
 	if(build_step > 0)
 		. += image('icons/obj/aibots.dmi', "na_scanner")
 
-/obj/item/bot_assembly/firstaid_arm_assembly/update_name(updates = ALL)
+
+/obj/item/firstaid_arm_assembly/update_name(updates = ALL)
 	. = ..()
 	if(build_step == 1)
 		name = "First aid/robot arm/health analyzer assembly"
 
-/obj/item/bot_assembly/firstaid_arm_assembly/attackby(obj/item/I, mob/user, params)
+
+/obj/item/firstaid_arm_assembly/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -600,19 +591,20 @@
 
 	return ..()
 
+
 //Secbot Assembly
-/obj/item/bot_assembly/secbot_assembly
+/obj/item/secbot_assembly
 	name = "incomplete securitron assembly"
 	desc = "Замудрённая конструкция, состоящая из датчика движения, шлема и сигнального устройства."
 	icon = 'icons/obj/aibots.dmi'
 	icon_state = "helmet_signaler"
 	item_state = "helmet"
-	req_access = list(ACCESS_SECURITY)
 	var/created_name = "Securitron" //To preserve the name if it's a unique securitron I guess
 	var/build_step = 0
 	var/robot_arm = /obj/item/robot_parts/l_arm
 
-/obj/item/bot_assembly/secbot_assembly/update_name(updates = ALL)
+
+/obj/item/secbot_assembly/update_name(updates = ALL)
 	. = ..()
 	switch(build_step)
 		if(2)
@@ -620,7 +612,8 @@
 		if(3)
 			name = "helmet/signaler/prox sensor/robot arm assembly"
 
-/obj/item/bot_assembly/secbot_assembly/update_overlays()
+
+/obj/item/secbot_assembly/update_overlays()
 	. = ..()
 	switch(build_step)
 		if(1)
@@ -629,6 +622,7 @@
 			. += "hs_eye"
 		if(3)
 			. += "hs_arm"
+
 
 /obj/item/clothing/head/helmet/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || !issignaler(I))
@@ -644,7 +638,7 @@
 
 	. |= ATTACK_CHAIN_BLOCKED_ALL
 
-	var/obj/item/bot_assembly/secbot_assembly/assembly = new(drop_location())
+	var/obj/item/secbot_assembly/assembly = new(drop_location())
 	I.transfer_fingerprints_to(assembly)
 	transfer_fingerprints_to(assembly)
 	assembly.add_fingerprint(user)
@@ -655,14 +649,10 @@
 	qdel(I)
 	qdel(src)
 
-/obj/item/bot_assembly/secbot_assembly/attackby(obj/item/I, mob/user, params)
+
+/obj/item/secbot_assembly/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(is_pen(I))
 		var/new_name = rename_interactive(user, I, prompt = "Введите новое имя для робота")
@@ -720,7 +710,6 @@
 			var/mob/living/simple_animal/bot/secbot/new_bot = new(loc)
 			new_bot.name = created_name
 			new_bot.robot_arm = robot_arm
-			new_bot.bot_core.req_access = req_access
 			transfer_fingerprints_to(new_bot)
 			I.transfer_fingerprints_to(new_bot)
 			new_bot.add_fingerprint(user)
@@ -730,7 +719,8 @@
 
 	return ..()
 
-/obj/item/bot_assembly/secbot_assembly/screwdriver_act(mob/living/user, obj/item/I)
+
+/obj/item/secbot_assembly/screwdriver_act(mob/living/user, obj/item/I)
 	if(build_step != 0 && build_step != 2 && build_step != 3)
 		return FALSE
 	. = TRUE
@@ -765,7 +755,8 @@
 			balloon_alert(user, "деталь отсоединена")
 			update_appearance(UPDATE_NAME|UPDATE_OVERLAYS)
 
-/obj/item/bot_assembly/secbot_assembly/wrench_act(mob/living/user, obj/item/I)
+
+/obj/item/secbot_assembly/wrench_act(mob/living/user, obj/item/I)
 	if(build_step != 3)
 		return FALSE
 	. = TRUE
@@ -773,16 +764,16 @@
 		return .
 	to_chat(user, span_notice("Вы создали дополнительные слоты для вооружения в заготовке охранного робота."))
 	balloon_alert(user, "корпус модифицирован")
-	var/obj/item/bot_assembly/griefsky_assembly/destroyer_of_the_worlds = new(drop_location())
+	var/obj/item/griefsky_assembly/destroyer_of_the_worlds = new(drop_location())
 	transfer_fingerprints_to(destroyer_of_the_worlds)
 	destroyer_of_the_worlds.add_fingerprint(user)
-	destroyer_of_the_worlds.req_access = req_access
 	if(loc == user)
 		user.temporarily_remove_item_from_inventory(src, force = TRUE)
 		user.put_in_hands(destroyer_of_the_worlds)
 	qdel(src)
 
-/obj/item/bot_assembly/secbot_assembly/welder_act(mob/living/user, obj/item/I)
+
+/obj/item/secbot_assembly/welder_act(mob/living/user, obj/item/I)
 	if(build_step != 0 && build_step != 1)
 		return FALSE
 	. = TRUE
@@ -800,30 +791,27 @@
 		balloon_alert(user, "корпус модифицирован")
 	update_appearance(UPDATE_OVERLAYS)
 
+
 //General Griefsky
 
-/obj/item/bot_assembly/griefsky_assembly
+/obj/item/griefsky_assembly
 	name = "General Griefsky assembly"
 	desc = "Причудливая конструкция. Выглядит мощно."
 	icon = 'icons/obj/aibots.dmi'
 	icon_state = "griefsky_assembly"
 	item_state = "griefsky_assembly"
-	req_access = list(ACCESS_SECURITY)
 	var/build_step = 0
 	var/toy_step = 0
 
-/obj/item/bot_assembly/griefsky_assembly/update_name(updates = ALL)
+
+/obj/item/griefsky_assembly/update_name(updates = ALL)
 	. = ..()
 	name = toy_step > 0 ? "Genewul Giftskee assembly" : "General Griefsky assembly"
 
-/obj/item/bot_assembly/griefsky_assembly/attackby(obj/item/I, mob/user, params)
+
+/obj/item/griefsky_assembly/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	add_fingerprint(user)
 	var/energy_sword = istype(I, /obj/item/melee/energy/sword)
@@ -861,7 +849,6 @@
 			transfer_fingerprints_to(destroyer_of_the_worlds)
 			I.transfer_fingerprints_to(destroyer_of_the_worlds)
 			destroyer_of_the_worlds.add_fingerprint(user)
-			destroyer_of_the_worlds.bot_core.req_access = req_access
 			qdel(I)
 			qdel(src)
 			return ATTACK_CHAIN_BLOCKED_ALL
@@ -892,16 +879,12 @@
 		transfer_fingerprints_to(destroyer_of_the_pinatas)
 		I.transfer_fingerprints_to(destroyer_of_the_pinatas)
 		destroyer_of_the_pinatas.add_fingerprint(user)
-		destroyer_of_the_pinatas.bot_core.req_access = req_access
 		qdel(I)
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	if(!user.drop_transfer_item_to_loc(I, src))
 		return ..()
 	toy_step++
-	if(toy_step == 1)
-		req_access = list(ACCESS_MAINT_TUNNELS, ACCESS_THEATRE, ACCESS_ROBOTICS)
-		to_chat(user, span_alert("ВНИМАНИЕ: Доступы были изменены."))
 	I.transfer_fingerprints_to(src)
 	update_appearance(UPDATE_NAME)
 	to_chat(user, span_notice("Вы прикрепили игрушечный лазерный меч к заготовке."))
@@ -909,7 +892,8 @@
 	qdel(I)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/bot_assembly/griefsky_assembly/screwdriver_act(mob/living/user, obj/item/I)
+
+/obj/item/griefsky_assembly/screwdriver_act(mob/living/user, obj/item/I)
 	if(build_step == 0 && toy_step == 0)
 		return FALSE
 	. = TRUE
@@ -947,7 +931,7 @@
 
 	hide_from_all_viewers()
 
-	var/obj/item/bot_assembly/honkbot_arm_assembly/assembly = new(drop_location())
+	var/obj/item/honkbot_arm_assembly/assembly = new(drop_location())
 	assembly.robot_arm = I.type
 	transfer_fingerprints_to(assembly)
 	I.transfer_fingerprints_to(assembly)
@@ -960,7 +944,8 @@
 	qdel(I)
 	qdel(src)
 
-/obj/item/bot_assembly/honkbot_arm_assembly
+
+/obj/item/honkbot_arm_assembly
 	name = "incomplete honkbot assembly"
 	desc = "Клоунская коробка с прикрепленной роботизированной рукой."
 	icon = 'icons/obj/aibots.dmi'
@@ -970,14 +955,10 @@
 	var/created_name = "Honkbot" //To preserve the name if it's a unique medbot I guess
 	var/robot_arm = /obj/item/robot_parts/l_arm
 
-/obj/item/bot_assembly/honkbot_arm_assembly/attackby(obj/item/I, mob/user, params)
+
+/obj/item/honkbot_arm_assembly/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
-
-	if(is_id_card(I))
-		try_set_agent_access(I)
-		ui_interact(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	switch(build_step)
 		if(0)
@@ -1026,7 +1007,6 @@
 			to_chat(user, span_notice("Вы завершили сборку хонкобота."))
 			var/mob/living/simple_animal/bot/honkbot/new_bot = new(loc)
 			new_bot.robot_arm = robot_arm
-			new_bot.bot_core.req_access = req_access
 			transfer_fingerprints_to(new_bot)
 			I.transfer_fingerprints_to(new_bot)
 			new_bot.add_fingerprint(user)
@@ -1036,67 +1016,15 @@
 
 	return ..()
 
-/obj/item/bot_assembly/honkbot_arm_assembly/update_icon_state()
+
+/obj/item/honkbot_arm_assembly/update_icon_state()
 	icon_state = build_step == 1 ? "honkbot_proxy" : "honkbot_arm"
 
-/obj/item/bot_assembly/honkbot_arm_assembly/update_desc(updates = ALL)
+
+/obj/item/honkbot_arm_assembly/update_desc(updates = ALL)
 	. = ..()
 	if(build_step == 2)
 		desc = "Клоунская коробка с прикреплённой роботизированной рукой и велосипедным гудком. Ему не хватает лишь тромбона."
 		return .
 	desc = initial(desc)
 
-/obj/item/bot_assembly
-	req_access = list()
-
-/obj/item/bot_assembly/proc/try_set_agent_access(obj/item/card/id/card)
-	if(!(ACCESS_SYNDICATE in card.access))
-		return
-
-	if(ACCESS_SYNDICATE in req_access)
-		return
-
-	req_access += ACCESS_SYNDICATE
-	to_chat(usr, span_alert("Вы скрытно проводите картой по каркасу. Доступ агента синдиката добавлен."))
-
-/obj/item/bot_assembly/ui_interact(mob/user, datum/tgui/ui)
-	ui = SStgui.try_update_ui(user, src, ui)
-	if(!ui)
-		ui = new(user, src, "Bots", name)
-		ui.open()
-
-/obj/item/bot_assembly/ui_data(mob/user)
-	var/list/data = list()
-	var/list/user_accesses = user.get_access()
-	data["accesses"] = req_access
-	data["regions"] = length(user_accesses) ? get_accesslist_static_data(REGION_GENERAL, REGION_COMMAND, user_accesses) : null
-	return data
-
-/obj/item/bot_assembly/ui_act(action, list/params, datum/tgui/ui)
-	if(..())
-		return
-
-	switch(action)
-		if("clear_all")
-			req_access = list()
-		if("grant_all")
-			req_access = ui.user.get_access()
-		if("set")
-			var/access = text2num(params["access"])
-			if(isnull(access))
-				return
-			if(!(access in req_access))
-				req_access += access
-			else
-				req_access -= access
-		if("grant_region")
-			var/region = text2num(params["region"])
-			if(isnull(region))
-				return
-			req_access |= (get_region_accesses(region) & ui.user.get_access())
-		if("deny_region")
-			var/region = text2num(params["region"])
-			if(isnull(region))
-				return
-			req_access -= (get_region_accesses(region) & ui.user.get_access())
-	update_icon()

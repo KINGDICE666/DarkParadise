@@ -4,16 +4,16 @@
 	desc = "A cloud of intense radiation passes through the area dealing rad damage to those who are unprotected."
 
 	telegraph_duration = 400
-	telegraph_message = span_danger_alt("The air begins to grow warm.")
+	telegraph_message = span_danger("The air begins to grow warm.")
 
-	weather_message = span_userdanger_alt("<i>You feel waves of heat wash over you! Find shelter!</i>")
+	weather_message = span_userdanger("<i>You feel waves of heat wash over you! Find shelter!</i>")
 	weather_overlay = "ash_storm"
 	weather_duration_lower = 600
 	weather_color = "green"
-	weather_sound = 'sound/announcer/bloblarm.ogg'
+	weather_sound = 'sound/misc/bloblarm.ogg'
 
 	end_duration = 100
-	end_message = span_notice_alt("The air seems to be cooling off again.")
+	end_message = span_notice("The air seems to be cooling off again.")
 	var/pre_maint_all_access
 	area_type = /area
 	protected_areas = list(/area/maintenance, /area/turret_protected/ai_upload, /area/turret_protected/ai_upload_foyer,
@@ -22,11 +22,6 @@
 	/area/coldcolony/malta/security/brig, /area/coldcolony/malta/security/securehallway, /area/coldcolony/malta/hallway/cargo_escape/exit)
 
 	immunity_type = TRAIT_RADSTORM_IMMUNE
-
-	/// Chance we get a negative mutation, if we fail we get a positive one
-	var/negative_mutation_chance = 90
-	/// Chance we mutate
-	var/mutate_chance = 40
 
 /datum/weather/rad_storm/endless
 	weather_duration_upper = 10 HOURS
@@ -40,36 +35,31 @@
 
 	SSmapping.make_maint_all_access()
 
+
 /datum/weather/rad_storm/can_weather_act(mob/living/mob_to_check)
 	if(!prob(40))
 		return FALSE
 	return ..()
 
-/datum/weather/rad_storm/weather_act(mob/living/living)
-	if(!prob(mutate_chance))
+
+/datum/weather/rad_storm/weather_act(mob/living/target)
+	if(HAS_TRAIT(target, TRAIT_RADIMMUNE))
 		return
 
-	if(!ishuman(living) || HAS_TRAIT(living, TRAIT_GODMODE))
+	var/resist = target.getarmor(attack_flag = RAD)
+	target.apply_effect(20, IRRADIATE, resist)
+
+	if(!ishuman(target) || !prob(max(0, 100 - resist)))
 		return
 
-	var/mob/living/carbon/human/human = living
-	if(HAS_TRAIT(human, TRAIT_RADIMMUNE) || HAS_TRAIT(human, TRAIT_NO_RADIATION_EFFECTS))
-		return
-
-	if(SSradiation.wearing_rad_protected_clothing(human))
-		return
-
-	randmuti(human)
+	randmuti(target)
 
 	if(prob(50))
-		do_mutate(human)
-
-/datum/weather/rad_storm/proc/do_mutate(mob/living/carbon/human/mutant)
-	if(prob(negative_mutation_chance))
-		randmutb(mutant)
-	else
-		randmutg(mutant)
-	mutant.check_genes(MUTCHK_FORCED)
+		if(prob(90))
+			randmutb(target)
+		else
+			randmutg(target)
+	target.check_genes(MUTCHK_FORCED)
 
 /datum/weather/rad_storm/end()
 	if(..())
@@ -77,15 +67,13 @@
 
 	status_alarm(FALSE)
 	if(pre_maint_all_access)
-		GLOB.minor_announcement.announce(
-			message = "Радиационная угроза миновала. Пожалуйста, вернитесь на свои рабочие места. Доступ к дверям будет немедленно восстановлен.",
-			new_title = ANNOUNCE_ANOMALY_RU
+		GLOB.minor_announcement.announce("Радиационная угроза миновала. Пожалуйста, вернитесь на свои рабочие места. Доступ к дверям будет немедленно восстановлен.",
+										ANNOUNCE_ANOMALY_RU
 		)
 		return
 
-	GLOB.minor_announcement.announce(
-		message = "Радиационная угроза миновала. Пожалуйста, вернитесь на свои рабочие места.",
-		new_title = ANNOUNCE_ANOMALY_RU
+	GLOB.minor_announcement.announce("Радиационная угроза миновала. Пожалуйста, вернитесь на свои рабочие места.",
+									ANNOUNCE_ANOMALY_RU
 	)
 	addtimer(CALLBACK(SSmapping, TYPE_PROC_REF(/datum/controller/subsystem/mapping, revoke_maint_all_access)), 10 SECONDS) // Bit of time to get out / break into somewhere.
 

@@ -2,6 +2,14 @@
 "a" = (
 /turf/template_noop,
 /area/template_noop)
+"d" = (
+/obj/structure/chair/wood,
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
+/area/ruin/unpowered/misc_lavaruin)
 "e" = (
 /turf/simulated/floor/lava/lava_land_surface,
 /area/ruin/unpowered/misc_lavaruin)
@@ -23,21 +31,32 @@
 "k" = (
 /turf/simulated/wall/indestructible,
 /area/ruin/unpowered/misc_lavaruin)
-"o" = (
+"m" = (
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
+/area/ruin/unpowered/misc_lavaruin)
+"p" = (
 /obj/machinery/door/airlock/wood/glass,
-/turf/simulated/floor/wood/lavaland_air,
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
 /area/ruin/unpowered/misc_lavaruin)
 "q" = (
 /obj/machinery/door/airlock/wood/glass,
 /turf/simulated/floor/wood,
 /area/ruin/unpowered/misc_lavaruin)
-"w" = (
-/obj/structure/chair/wood,
-/turf/simulated/floor/wood/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
-"x" = (
-/obj/machinery/vending/snack,
-/turf/simulated/floor/wood,
+"t" = (
+/obj/machinery/vending/cola/free,
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
 /area/ruin/unpowered/misc_lavaruin)
 "y" = (
 /obj/effect/spawner/random_spawners/dirt_50,
@@ -48,7 +67,16 @@
 	slowdown = 10
 	},
 /area/ruin/unpowered/misc_lavaruin)
-"B" = (
+"E" = (
+/obj/machinery/door/airlock/wood/glass,
+/obj/structure/fans/tiny,
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
+/area/ruin/unpowered/misc_lavaruin)
+"I" = (
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/drinks/cans/beer{
 	pixel_x = -9;
@@ -58,20 +86,11 @@
 	pixel_x = 10;
 	pixel_y = -1
 	},
-/turf/simulated/floor/wood/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
-"C" = (
-/turf/simulated/floor/wood/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
-"G" = (
-/obj/machinery/vending/cola,
-/turf/simulated/floor/wood/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
-"H" = (
-/obj/structure/chair/wood{
-	dir = 1
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
 	},
-/turf/simulated/floor/wood/lavaland_air,
 /area/ruin/unpowered/misc_lavaruin)
 "J" = (
 /obj/effect/baseturf_helper/lava_land/surface,
@@ -83,12 +102,6 @@
 /obj/item/reagent_containers/food/snacks/grown/citrus/orange,
 /turf/simulated/floor/wood,
 /area/ruin/unpowered/misc_lavaruin)
-"M" = (
-/obj/structure/table/wood,
-/obj/item/paper/fluff/stations/lavaland/sloth/note,
-/obj/item/flashlight/lamp,
-/turf/simulated/floor/wood/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
 "N" = (
 /obj/structure/bed,
 /obj/item/bedsheet/centcom,
@@ -98,10 +111,29 @@
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
-"S" = (
-/obj/machinery/door/airlock/wood/glass,
-/obj/structure/fans/tiny,
-/turf/simulated/floor/wood/lavaland_air,
+"Q" = (
+/obj/structure/chair/wood{
+	dir = 1
+	},
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
+/area/ruin/unpowered/misc_lavaruin)
+"Y" = (
+/obj/structure/table/wood,
+/obj/item/paper/fluff/stations/lavaland/sloth/note,
+/obj/item/flashlight/lamp,
+/turf/simulated/floor/wood{
+	oxygen = 14;
+	nitrogen = 23;
+	temperature = 300
+	},
+/area/ruin/unpowered/misc_lavaruin)
+"Z" = (
+/obj/machinery/vending/snack/free,
+/turf/simulated/floor/wood,
 /area/ruin/unpowered/misc_lavaruin)
 
 (1,1,1) = {"
@@ -221,9 +253,9 @@ z
 z
 z
 k
-G
-C
-M
+t
+m
+Y
 k
 e
 P
@@ -251,11 +283,11 @@ k
 k
 k
 z
-S
-C
-C
+E
+m
+m
 J
-o
+p
 P
 P
 "}
@@ -283,9 +315,9 @@ z
 k
 z
 k
-w
-B
-H
+d
+I
+Q
 k
 e
 P
@@ -519,7 +551,7 @@ z
 k
 k
 k
-x
+Z
 h
 N
 k

@@ -18,6 +18,7 @@
 /datum/component/ninja_chameleon_helper/RegisterWithParent()
 	RegisterSignal(parent, COMSIG_CARBON_APPLY_OVERLAY, PROC_REF(restart_chameleon))
 
+
 /datum/component/ninja_chameleon_helper/UnregisterFromParent()
 	UnregisterSignal(parent, COMSIG_CARBON_APPLY_OVERLAY)
 

@@ -30,13 +30,13 @@
 	var/datum/action/innate/demon/whisper/whisper_action
 
 /mob/living/simple_animal/demon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "обычный демон",
 		GENITIVE = "обычного демона",
 		DATIVE = "обычному демону",
 		ACCUSATIVE = "обычного демона",
 		INSTRUMENTAL = "обычным демоном",
-		PREPOSITIONAL = "обычном демоне",
+		PREPOSITIONAL = "обычном демоне"
 	)
 
 /mob/living/simple_animal/demon/Initialize(mapload)
@@ -60,15 +60,17 @@
 		whisper_action = null
 	return ..()
 
+
 /datum/action/innate/demon/whisper
 	name = "Демонический шёпот"
 	button_icon_state = "cult_comms"
 	background_icon_state = "bg_demon"
 
+
 /datum/action/innate/demon/whisper/proc/choose_targets(mob/user = usr)//yes i am copying from telepathy..hush...
 	var/list/validtargets = list()
 	for(var/mob/living/target in (view(user.client.view, get_turf(user)) - user))
-		if(target?.mind && target.stat != DEAD)
+		if(target && target.mind && target.stat != DEAD)
 			validtargets += target
 
 	if(!length(validtargets))
@@ -77,6 +79,7 @@
 
 	var/mob/living/target = tgui_input_list(user, "Выберите цель для разговора", "Выбор цели", validtargets)
 	return target
+
 
 /datum/action/innate/demon/whisper/Activate()
 	var/mob/living/choice = choose_targets()
@@ -91,7 +94,8 @@
 	to_chat(usr, span_notice("<b>Вы шепчете [choice]: </b>[msg]"))
 	to_chat(choice, "[span_deadsay("<b>Внезапно странный демонический голос звучит у вас в голове... </b>")][span_danger("<i> [msg]</i>")]")
 	for(var/mob/dead/observer/G in GLOB.player_list)
-		G.show_message("<i>Демоническое сообщение от ([ghost_follow_link(usr, ghost = G)]) <b>[usr]</b> к ([ghost_follow_link(choice, ghost = G)]) <b>[choice]</b>: [msg]</i>")
+		G.show_message("<i>Демоническое сообщение от <b>[usr]</b> ([ghost_follow_link(usr, ghost=G)]) к <b>[choice]</b> ([ghost_follow_link(choice, ghost=G)]): [msg]</i>")
+
 
 /obj/item/organ/internal/heart/demon
 	name = "demon heart"
@@ -100,23 +104,27 @@
 	origin_tech = "combat=5;biotech=7"
 
 /obj/item/organ/internal/heart/demon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "демоническое сердце",
 		GENITIVE = "демонического сердца",
 		DATIVE = "демоническому сердцу",
 		ACCUSATIVE = "демоническое сердце",
 		INSTRUMENTAL = "демоническим сердцем",
-		PREPOSITIONAL = "демоническом сердце",
+		PREPOSITIONAL = "демоническом сердце"
 	)
+
 
 /obj/item/organ/internal/heart/demon/update_icon_state()
 	return //always beating visually
 
+
 /obj/item/organ/internal/heart/demon/prepare_eat()
 	return // Just so people don't accidentally waste it
 
+
 /obj/item/organ/internal/heart/demon/Stop()
 	return // Always beating.
+
 
 /obj/item/organ/internal/heart/demon/attack_self(mob/living/user)
 	user.visible_message(
@@ -124,6 +132,7 @@
 		span_danger("Неестественный голод охватывает вас. Вы поднимаете [declent_ru(ACCUSATIVE)] ко рту и пожираете его!")
 	)
 	playsound(user, 'sound/misc/demon_consume.ogg', 50, TRUE)
+
 
 /mob/living/simple_animal/demon/proc/attempt_objectives()
 	return !isnull(mind)

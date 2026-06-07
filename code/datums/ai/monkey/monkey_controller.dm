@@ -19,7 +19,7 @@ have ways of interacting with a specific mob and control it.
 		BB_MONKEY_CURRENT_ATTACK_TARGET = null,
 		BB_MONKEY_GUN_NEURONS_ACTIVATED = FALSE,
 		BB_MONKEY_GUN_WORKED = TRUE,
-		BB_MONKEY_NEXT_HUNGRY = 0,
+		BB_MONKEY_NEXT_HUNGRY = 0
 	)
 	idle_behavior = /datum/idle_behavior/idle_monkey
 
@@ -38,7 +38,7 @@ have ways of interacting with a specific mob and control it.
 	blackboard[BB_MONKEY_NEXT_HUNGRY] = world.time + rand(0, 300)
 
 	var/mob/living/living_pawn = new_pawn
-	RegisterSignal(new_pawn, COMSIG_ATOM_ATTACKBY, PROC_REF(on_attackby))
+	RegisterSignal(new_pawn, COMSIG_PARENT_ATTACKBY, PROC_REF(on_attackby))
 	RegisterSignal(new_pawn, COMSIG_ATOM_ATTACK_HAND, PROC_REF(on_attack_hand))
 	RegisterSignal(new_pawn, COMSIG_ATOM_ATTACK_PAW, PROC_REF(on_attack_paw))
 	RegisterSignal(new_pawn, COMSIG_ATOM_ATTACK_ANIMAL, PROC_REF(on_attack_animal))
@@ -58,7 +58,7 @@ have ways of interacting with a specific mob and control it.
 	return ..() //Run parent at end
 
 /datum/ai_controller/monkey/UnpossessPawn(destroy)
-	UnregisterSignal(pawn, list(COMSIG_ATOM_ATTACKBY, COMSIG_ATOM_ATTACK_HAND, COMSIG_ATOM_ATTACK_PAW, COMSIG_ATOM_BULLET_ACT, COMSIG_ATOM_HITBY, COMSIG_LIVING_START_PULL,\
+	UnregisterSignal(pawn, list(COMSIG_PARENT_ATTACKBY, COMSIG_ATOM_ATTACK_HAND, COMSIG_ATOM_ATTACK_PAW, COMSIG_ATOM_BULLET_ACT, COMSIG_ATOM_HITBY, COMSIG_LIVING_START_PULL,\
 	COMSIG_LIVING_TRY_SYRINGE, COMSIG_ATOM_HULK_ATTACK, COMSIG_CARBON_CUFF_ATTEMPTED, COMSIG_MOB_MOVESPEED_UPDATED, COMSIG_ATOM_ATTACK_ANIMAL, COMSIG_MOB_ATTACK_ALIEN, COMSIG_MOVABLE_CROSS))
 	return ..() //Run parent at end
 
@@ -120,10 +120,12 @@ have ways of interacting with a specific mob and control it.
 	var/gun_neurons_activated = blackboard[BB_MONKEY_GUN_NEURONS_ACTIVATED]
 	var/top_force = 0
 	var/obj/item/top_force_item
-	for(var/obj/item/item in held_weapons)
+	for(var/obj/item/item as anything in held_weapons)
+		if(!item)
+			continue
 		if(HAS_TRAIT(item, TRAIT_NEEDS_TWO_HANDS) || blackboard[BB_MONKEY_BLACKLISTITEMS][item])
 			continue
-		if(gun_neurons_activated && isgun(item))
+		if(gun_neurons_activated && istype(item, /obj/item/gun))
 			// We have a gun, why bother looking for something inferior
 			// Also yes it is intentional that monkeys dont know how to pick the best gun
 			return item
@@ -131,10 +133,12 @@ have ways of interacting with a specific mob and control it.
 			top_force = item.force
 			top_force_item = item
 
-	for(var/obj/item/item in choices)
+	for(var/obj/item/item as anything in choices)
+		if(!item)
+			continue
 		if(HAS_TRAIT(item, TRAIT_NEEDS_TWO_HANDS) || blackboard[BB_MONKEY_BLACKLISTITEMS][item])
 			continue
-		if(gun_neurons_activated && isgun(item))
+		if(gun_neurons_activated && istype(item, /obj/item/gun))
 			return item
 		if(item.force <= top_force)
 			continue
@@ -194,7 +198,7 @@ have ways of interacting with a specific mob and control it.
 
 /datum/ai_controller/monkey/proc/on_hitby(datum/source, atom/movable/AM, skipcatch = FALSE, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum)
 	SIGNAL_HANDLER
-	if(isitem(AM))
+	if(istype(AM, /obj/item))
 		var/mob/living/living_pawn = pawn
 		var/obj/item/I = AM
 		var/mob/thrown_by = locateUID(I.thrownby)

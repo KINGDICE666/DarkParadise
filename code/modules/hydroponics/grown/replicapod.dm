@@ -25,8 +25,9 @@
 	mind = null
 	return ..()
 
+
 /obj/item/seeds/replicapod/attackby(obj/item/I, mob/user, params)
-	if(issyringe(I))
+	if(istype(I, /obj/item/reagent_containers/syringe))
 		add_fingerprint(user)
 		var/obj/item/reagent_containers/syringe/syringe = I
 		if(contains_sample)
@@ -62,11 +63,13 @@
 
 	return ..()
 
+
 /obj/item/seeds/replicapod/get_analyzer_text()
 	var/text = ..()
 	if(contains_sample)
 		text += "\n It contains a blood sample!"
 	return text
+
 
 /obj/item/seeds/replicapod/harvest(mob/user = usr) //now that one is fun -- Urist
 	var/obj/machinery/hydroponics/parent = loc
@@ -104,9 +107,9 @@
 			podman.real_name = realName
 		mind.transfer_to(podman)
 		if(ckey)
-			podman.possess_by_player(ckey)
+			podman.ckey = ckey
 		else
-			podman.possess_by_player(ckey_holder)
+			podman.ckey = ckey_holder
 		podman.gender = blood_gender
 		podman.faction |= factions
 

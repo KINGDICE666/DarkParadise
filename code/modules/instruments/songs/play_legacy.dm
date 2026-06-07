@@ -46,7 +46,7 @@
  * * acc - either "b", "n", or "#"
  * * oct - 1-8 (or 9 for C)
  */
-/datum/song/proc/playkey_legacy(note, acc as text, oct, atom/player)
+/datum/song/proc/playkey_legacy(note, acc as text, oct, mob/user)
 	// handle accidental -> B<>C of E<>F
 	if(acc == "b" && (note == 3 || note == 6)) // C or F
 		if(note == 3)
@@ -71,7 +71,7 @@
 
 	// now generate name
 	var/filename = "sound/instruments/[cached_legacy_dir]/[ascii2text(note + 64)][acc][oct].[cached_legacy_ext]"
-	var/soundfile = WRAP_FILE(filename)
+	var/soundfile = wrap_file(filename)
 	// make sure the note exists
 	var/cached_fexists = valid_files[filename]
 	if(!isnull(cached_fexists))
@@ -96,5 +96,5 @@
 		if(!HASBIT(mob.client?.prefs?.sound, SOUND_INSTRUMENTS))
 			continue
 
-		mob.playsound_local(source, null, volume * using_instrument.volume_multiplier, sound_to_use = music_played)
+		mob.playsound_local(source, null, volume * using_instrument.volume_multiplier, sound = music_played)
 		// Could do environment and echo later but not for now

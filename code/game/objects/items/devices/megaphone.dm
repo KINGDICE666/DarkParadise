@@ -8,34 +8,35 @@
 	flags = CONDUCT
 
 	var/spamcheck = 0
+	var/emagged = 0
 	var/insults = 0
 	var/span = ""
-	var/list/insultmsg = list("ИДИТЕ НАХУЙ!", "Я АГЕНТ \"Синдиката\"!", "СБ, ЗАСТРЕЛИТЕ МЕНЯ НЕМЕДЛЕННО!", "У МЕНЯ БОМБА!", "КАПИТАН ГАНДОН!", "ЗА Синдикат!")
+	var/list/insultmsg = list("ИДИТЕ НАХУЙ!", "Я АГЕНТ СИНДИКАТА!", "СБ, ЗАСТРЕЛИТЕ МЕНЯ НЕМЕДЛЕННО!", "У МЕНЯ БОМБА!", "КАПИТАН ГАНДОН!", "ЗА СИНДИКАТ!")
 
 /obj/item/megaphone/attack_self(mob/living/user)
 	if(check_mute(user.ckey, MUTE_IC))
-		to_chat(src, span_warning("You cannot speak in IC (muted)."))
+		to_chat(src, "<span class='warning'>You cannot speak in IC (muted).</span>")
 		return
 	if(!ishuman(user))
-		to_chat(user, span_warning("You don't know how to use this!"))
+		to_chat(user, "<span class='warning'>You don't know how to use this!</span>")
 		return
 	if(!user.can_speak())
-		to_chat(user, span_warning("You find yourself unable to speak at all."))
+		to_chat(user, "<span class='warning'>You find yourself unable to speak at all.</span>")
 		return
 	if(ishuman(user))
 		var/mob/living/carbon/human/abductor/H = user
 		if(isabductor(H))
-			to_chat(user, span_warning("Megaphones can't project psionic communication!"))
+			to_chat(user, "<span class='warning'>Megaphones can't project psionic communication!</span>")
 			return
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if(H?.mind && H.mind.miming)
-			to_chat(user, span_warning("Your vow of silence prevents you from speaking."))
+		if(H && H.mind && H.mind.miming)
+			to_chat(user, "<span class='warning'>Your vow of silence prevents you from speaking.</span>")
 			return
 		if(HAS_TRAIT(H, TRAIT_COMIC) || H.get_int_organ(/obj/item/organ/internal/cyberimp/brain/clown_voice))
 			span = "sans"
 	if(spamcheck)
-		to_chat(user, span_warning("\The [src] needs to recharge!"))
+		to_chat(user, "<span class='warning'>\The [src] needs to recharge!</span>")
 		return
 
 	var/message = tgui_input_text(user, "Shout a message:", "Megaphone")
@@ -54,7 +55,7 @@
 				saymsg(user, pick(insultmsg))
 				insults--
 			else
-				to_chat(user, span_warning("*BZZZZzzzzzt*"))
+				to_chat(user, "<span class='warning'>*BZZZZzzzzzt*</span>")
 		else
 			if(span)
 				message = "<span class='[span]'>[message]</span>"
@@ -68,12 +69,12 @@
 	add_say_logs(user, message, language = "Megaphone")
 	var/message_tts = message
 	message = replace_characters(message, list("+"))
-	audible_message(span_gamesay("[span_name("[user.GetVoice()]")] [user.GetAltName()] broadcasts, [span_reallybig("\"[message]\"")]"), hearing_distance = 14)
+	audible_message("<span class='game say'><span class='name'>[user.GetVoice()]</span> [user.GetAltName()] broadcasts, <span class='reallybig'>\"[message]\"</span></span>", hearing_distance = 14)
 	for(var/obj/O in range(14, get_turf(src)))
-		O.hear_talk(user, message_to_multilingual(span_reallybig("[message]")))
+		O.hear_talk(user, message_to_multilingual("<span class='reallybig'>[message]</span>"))
 
-	for(var/mob/M in get_hearers_in_view(7, src))
-		if((M.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT) && !HAS_TRAIT(M, TRAIT_DEAF) && M.stat != UNCONSCIOUS)
+	for(var/mob/M in get_mobs_in_view(7, src))
+		if((M.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT) && M.can_hear() && M.stat != UNCONSCIOUS)
 			M.create_chat_message(user, message, list("yell"))
 		var/effect = SOUND_EFFECT_MEGAPHONE
 		if(isrobot(user))
@@ -84,6 +85,6 @@
 /obj/item/megaphone/emag_act(mob/user)
 	if(!emagged)
 		if(user)
-			to_chat(user, span_warning("You overload \the [src]'s voice synthesizer."))
+			to_chat(user, "<span class='warning'>You overload \the [src]'s voice synthesizer.</span>")
 		emagged = 1
 		insults = rand(1, 3)//to prevent dickflooding

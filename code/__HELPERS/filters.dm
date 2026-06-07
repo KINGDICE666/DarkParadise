@@ -8,7 +8,7 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 			"y" = 0,
 			"icon" = ICON_NOT_SET,
 			"render_source" = "",
-			"flags" = NONE
+			"flags" = 0
 		),
 		"flags" = list(
 			"MASK_INVERSE" = MASK_INVERSE,
@@ -22,28 +22,14 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 			"size" = 1
 		)
 	),
-	"bloom" = list(
-		"defaults" = list(
-			"threshold" = COLOR_BLACK,
-			"size" = 1,
-			"offset" = 0,
-			"alpha" = 255
-		)
-	),
-	// Not fully implemented, but if this isn't uncommented some windows will just error
+	// Not implemented, but if this isn't uncommented some windows will just error
 	// Needs either a proper matrix editor, or just a hook to our existing one
+	// Issue is filterrific assumes variables will have the same value type if they share the same name, which this violates
+	// Gotta refactor this sometime
 	"color" = list(
 		"defaults" = list(
 			"color" = matrix(),
 			"space" = FILTER_COLOR_RGB
-		),
-		"options" = list(
-			"space" = list(
-				"FILTER_COLOR_RGB" = FILTER_COLOR_RGB,
-				"FILTER_COLOR_HSV" = FILTER_COLOR_HSV,
-				"FILTER_COLOR_HSL" = FILTER_COLOR_HSL,
-				"FILTER_COLOR_HCY" = FILTER_COLOR_HCY
-			)
 		)
 	),
 	"displace" = list(
@@ -52,11 +38,7 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 			"y" = 0,
 			"size" = null,
 			"icon" = ICON_NOT_SET,
-			"render_source" = "",
-			"flags" = NONE
-		),
-		"flags" = list(
-			"FILTER_OVERLAY" = FILTER_OVERLAY
+			"render_source" = ""
 		)
 	),
 	"drop_shadow" = list(
@@ -80,24 +62,10 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 			"icon" = ICON_NOT_SET,
 			"render_source" = "",
 			"flags" = FILTER_OVERLAY,
-			"color" = COLOR_WHITE,
+			"color" = "",
 			"transform" = null,
 			"blend_mode" = BLEND_DEFAULT
-		),
-		"flags" = list(
-			"FILTER_OVERLAY" = FILTER_OVERLAY,
-		),
-		"options" = list(
-			"blend_mode" = list(
-				"BLEND_DEFAULT" = BLEND_DEFAULT,
-				"BLEND_OVERLAY" = BLEND_OVERLAY,
-				"BLEND_ADD" = BLEND_ADD,
-				"BLEND_SUBTRACT" = BLEND_SUBTRACT,
-				"BLEND_MULTIPLY" = BLEND_MULTIPLY,
-				"BLEND_INSET_OVERLAY" = BLEND_INSET_OVERLAY
-			)
 		)
-
 	),
 	"motion_blur" = list(
 		"defaults" = list(
@@ -232,17 +200,6 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 	if(!isnull(size))
 		.["size"] = size
 
-/proc/bloom_filter(threshold, size, offset, alpha)
-	. = list("type" = "bloom")
-	if(!isnull(threshold))
-		.["threshold"] = threshold
-	if(!isnull(size))
-		.["size"] = size
-	if(!isnull(offset))
-		.["offset"] = offset
-	if(!isnull(alpha))
-		.["alpha"] = alpha
-
 /proc/layering_filter(icon, render_source, x, y, flags, color, transform, blend_mode)
 	. = list("type" = "layer")
 	if(!isnull(icon))
@@ -356,8 +313,6 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 		animate(offset = random_roll - 1, time = rand() * 20 + 10)
 
 /proc/remove_wibbly_filters(atom/in_atom, remove_duration = 0)
-	if(QDELETED(in_atom))
-		return
 	var/filter
 	for(var/i in 1 to 7)
 		filter = in_atom.get_filter("wibbly-[i]")
@@ -369,29 +324,5 @@ GLOBAL_LIST_INIT(master_filter_info, list(
 		addtimer(CALLBACK(in_atom, TYPE_PROC_REF(/datum, remove_filter), "wibbly-[i]"), remove_duration)
 
 /// Used to create rays on an item. Make sure to "remove_filter("rays")" when done with it
-/atom/proc/ray_filter_helper(_priority = 1, _size = 40, _color = COLOR_WHITE, _factor = 6, _density = 20, _y = 0)
+/atom/proc/ray_filter_helper(_priority = 1, _size = 40, _color = "#FFFFFF", _factor = 6, _density = 20, _y = 0)
 	add_filter(name = "ray", priority = _priority, params = list(type = "rays", size = _size, color = _color , factor = _factor, density = _density, y = _y))
-
-/proc/convert_list_to_filter(list/list_filter)
-	var/list/arguments = list_filter.Copy()
-	arguments -= "priority"
-	return filter(arglist(arguments))
-
-/// Recursively applies a filter to a passed in static appearance, returns the modified appearance
-/proc/filter_appearance_recursive(mutable_appearance/filter, filter_to_apply)
-	var/mutable_appearance/modify = new(filter)
-	var/list/existing_filters = modify.filters.Copy()
-	modify.filters = list(filter_to_apply) + existing_filters
-
-	// Ideally this should be recursive to check for KEEP_APART elements that need this applied to it
-	// and RESET_COLOR flags but this is much simpler, and hopefully we don't have that point of layering here
-	if(modify.appearance_flags & KEEP_TOGETHER)
-		return modify
-
-	for(var/overlay_index in 1 to length(modify.overlays))
-		modify.overlays[overlay_index] = filter_appearance_recursive(modify.overlays[overlay_index], filter_to_apply)
-
-	for(var/underlay_index in 1 to length(modify.underlays))
-		modify.underlays[underlay_index] = filter_appearance_recursive(modify.underlays[underlay_index], filter_to_apply)
-
-	return modify

@@ -117,7 +117,7 @@
 	var/atom/item = new path(src)
 	tgui_data["icon_file"] = item.icon
 	tgui_data["icon_state"] = item.icon_state
-	var/alist/names = item.ru_names || item.get_ru_names_cached()
+	var/list/names = item.ru_names || item.get_ru_names_cached()
 	tgui_data["name"] = names ? names[NOMINATIVE] : item.name
 	return tgui_data
 
@@ -134,6 +134,7 @@
 
 /datum/gear_tweak/rename/get_default()
 	return ""
+
 
 /datum/gear_tweak/rename/get_metadata(user, metadata)
 	var/new_name = tgui_input_text(user, "Переименуйте объект. При пустом поле будет выбрано стандартное название.", "Переименование предмета", metadata, MAX_NAME_LEN)

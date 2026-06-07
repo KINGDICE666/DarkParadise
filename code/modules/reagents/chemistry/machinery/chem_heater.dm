@@ -1,6 +1,14 @@
 /obj/machinery/chem_heater
 	name = "chemical heater"
 	desc = "Простая машина, представляющая собой камеру для нагрева помещённых ёмкостей. Не смотря на своё название, также может охлаждать."
+	ru_names = list(
+		NOMINATIVE = "химический нагреватель",
+		GENITIVE = "химического нагревателя",
+		DATIVE = "химическому нагревателю",
+		ACCUSATIVE = "химический нагреватель",
+		INSTRUMENTAL = "химическим нагревателем",
+		PREPOSITIONAL = "химическом нагревателе"
+	)
 	density = TRUE
 	anchored = TRUE
 	icon = 'icons/obj/chemical.dmi'
@@ -14,16 +22,6 @@
 	var/auto_eject = FALSE
 	/// The higher this number, the faster reagents will heat/cool.
 	var/speed_increase = 0
-
-/obj/machinery/chem_heater/get_ru_names()
-	return alist(
-		NOMINATIVE = "химический нагреватель",
-		GENITIVE = "химического нагревателя",
-		DATIVE = "химическому нагревателю",
-		ACCUSATIVE = "химический нагреватель",
-		INSTRUMENTAL = "химическим нагревателем",
-		PREPOSITIONAL = "химическом нагревателе",
-	)
 
 /obj/machinery/chem_heater/Initialize(mapload)
 	. = ..()
@@ -59,8 +57,11 @@
 				if(auto_eject)
 					eject_beaker()
 
+
 /obj/machinery/chem_heater/update_icon_state()
 	icon_state = "mixer[beaker ? "1" : "0"]b"
+
+
 
 /obj/machinery/chem_heater/proc/eject_beaker(mob/user)
 	if(beaker)
@@ -73,6 +74,7 @@
 		update_icon(UPDATE_ICON_STATE)
 		SStgui.update_uis(src)
 
+
 /obj/machinery/chem_heater/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -81,7 +83,7 @@
 		SStgui.update_uis(src)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(isglassreagentcontainer(I))
+	if(istype(I, /obj/item/reagent_containers/glass))
 		add_fingerprint(user)
 		if(beaker)
 			balloon_alert(user, "слот для ёмкости занят!")
@@ -95,6 +97,8 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
+
 
 /obj/machinery/chem_heater/wrench_act(mob/user, obj/item/I)
 	. = TRUE

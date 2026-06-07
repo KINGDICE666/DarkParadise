@@ -2,19 +2,17 @@
 //------------------------------------SUPPLY POD-------------------------------------//
 /obj/structure/closet/supplypod
 	name = "supply pod" //Names and descriptions are normally created with the setStyle() proc during initialization, but we have these default values here as a failsafe
-	desc = "Капсула снабжения \"Нанотрейзен\"."
-	gender = FEMALE
+	desc = "Капсула снабжения Nanotrasen."
 	icon = 'icons/obj/supplypods.dmi'
 	icon_state = "pod" //This is a common base sprite shared by a number of pods
 	pixel_x = SUPPLYPOD_X_OFFSET //2x2 sprite
 	layer = BELOW_OBJ_LAYER //So that the crate inside doesn't appear underneath
 	can_weld_shut = FALSE
-	armor = list(MELEE = 30, BULLET = 50, LASER = 50, ENERGY = 100, BOMB = 100, BIO = 0, FIRE = 100, ACID = 80)
+	armor = list(MELEE = 30, BULLET = 50, LASER = 50, ENERGY = 100, BOMB = 100, BIO = 0, RAD = 0, FIRE = 100, ACID = 80)
 	anchored = TRUE //So it cant slide around after landing
 	density = FALSE
 	ignore_shoves = TRUE
 	no_throw_opens = TRUE
-	anchorable = FALSE
 	///List of bitflags for supply pods, see: code\__DEFINES\obj_flags.dm
 	var/pod_flags = NONE
 
@@ -58,14 +56,15 @@
 	var/list/reverse_option_list = list(MOB_OPTION=FALSE, UNANCHORED_OPTION=FALSE, ANCHORED_OPTION=FALSE, MECHA_OPTION=FALSE)
 
 /obj/structure/closet/supplypod/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капсула снабжения",
 		GENITIVE = "капсулы снабжения",
 		DATIVE = "капсуле снабжения",
 		ACCUSATIVE = "капсулу снабжения",
 		INSTRUMENTAL = "капсулой снабжения",
-		PREPOSITIONAL = "капсуле снабжения",
+		PREPOSITIONAL = "капсуле снабжения"
 	)
+
 
 /obj/structure/closet/supplypod/bluespacepod
 	style = /datum/pod_style/advanced
@@ -98,7 +97,7 @@
 
 /obj/structure/closet/supplypod/extractionpod
 	name = "Syndicate Extraction Pod"
-	desc = "Специализированная капсула кроваво-красного цвета для эвакуации ценных целей из зон активных задач. <b>Для правильной доставки цель должна быть помещена в капсулу вручную.</b>"
+	desc = "Специализированная капсула кроваво-красного цвета для эвакуации ценных целей из зон активных задач. <b>Для правильной доставки цели необходимо вручную поместить в капсулу.</b>"
 	specialised = TRUE
 	style = /datum/pod_style/contractor
 	bluespace = TRUE
@@ -111,14 +110,15 @@
 	leavingSound = 'sound/effects/podwoosh.ogg'
 	reverse_option_list = list(MOB_OPTION = FALSE, UNANCHORED_OPTION = FALSE, ANCHORED_OPTION = FALSE, MECHA_OPTION = FALSE)
 
+
 /obj/structure/closet/supplypod/extractionpod/get_ru_names()
-	return alist(
-		NOMINATIVE = "капсула эвакуации \"Синдиката\"",
-		GENITIVE = "капсулы эвакуации \"Синдиката\"",
-		DATIVE = "капсуле эвакуации \"Синдиката\"",
-		ACCUSATIVE = "капсулу эвакуации \"Синдиката\"",
-		INSTRUMENTAL = "капсулой эвакуации \"Синдиката\"",
-		PREPOSITIONAL = "капсуле эвакуации \"Синдиката\"",
+	return list(
+		NOMINATIVE = "капсула эвакуации Синдиката",
+		GENITIVE = "капсулы эвакуации Синдиката",
+		DATIVE = "капсуле эвакуации Синдиката",
+		ACCUSATIVE = "капсулу эвакуации Синдиката",
+		INSTRUMENTAL = "капсулой эвакуации Синдиката",
+		PREPOSITIONAL = "капсуле эвакуации Синдиката"
 	)
 
 /obj/structure/closet/supplypod/centcompod
@@ -189,7 +189,9 @@
 		else
 			prisoner.equipOutfit(/datum/outfit/prisoner)
 
+
 	to_chat(target, span_warning("Вы были этапированы на тюремную станцию!"))
+
 
 /obj/structure/closet/supplypod/back_to_station
 	name = "blood-red supply pod"
@@ -202,18 +204,18 @@
 	specialised = TRUE
 
 /obj/structure/closet/supplypod/back_to_station/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кроваво-красная капсула снабжения",
 		GENITIVE = "кроваво-красной капсулы снабжения",
 		DATIVE = "кроваво-красной капсуле снабжения",
 		ACCUSATIVE = "кроваво-красную капсулу снабжения",
 		INSTRUMENTAL = "кроваво-красной капсулой снабжения",
-		PREPOSITIONAL = "кроваво-красной капсуле снабжения",
+		PREPOSITIONAL = "кроваво-красной капсуле снабжения"
 	)
 
 /obj/structure/closet/supplypod/deadmatch_missile
 	name = "cruise missile"
-	desc = "Огромная ракета, вероятно, запущенная из какой-то далёкой ракетной шахты в дальнем космосе."
+	desc = "Огромная ракета, вероятно, запущенная из какой-то далекой ракетной шахты в дальнем космосе"
 	style = /datum/pod_style/missile/syndicate
 	explosionSize = list(0,1,2,2)
 	effectShrapnel = TRUE
@@ -222,13 +224,13 @@
 	effectMissile = TRUE
 
 /obj/structure/closet/supplypod/deadmatch_missile/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "крылатая ракета",
 		GENITIVE = "крылатой ракеты",
 		DATIVE = "крылатой ракете",
 		ACCUSATIVE = "крылатую ракету",
 		INSTRUMENTAL = "крылатой ракете",
-		PREPOSITIONAL = "крылатой ракетой",
+		PREPOSITIONAL = "крылатой ракетой"
 	)
 
 /obj/structure/closet/supplypod/deadmatch_missile/endgame
@@ -283,9 +285,9 @@
 	SIGNAL_HANDLER
 	SEND_SIGNAL(src, COMSIG_SUPPLYPOD_ENTERED, arrived, old_loc, old_locs)
 
-/obj/structure/closet/supplypod/proc/on_exited(datum/source, mob/living/exited, direction)
+/obj/structure/closet/supplypod/proc/on_exited(datum/source, mob/living/exited, atom/new_loc)
 	SIGNAL_HANDLER
-	SEND_SIGNAL(src, COMSIG_SUPPLYPOD_EXITED, exited, direction)
+	SEND_SIGNAL(src, COMSIG_SUPPLYPOD_EXITED, exited, new_loc)
 
 /obj/structure/closet/supplypod/proc/setStyle(datum/pod_style/chosen_style) //Used to give the sprite an icon state, name, and description.
 	style = chosen_style
@@ -320,6 +322,7 @@
 	pixel_x = initial(pixel_x)
 	transform = matrix()
 	update_appearance()
+
 
 /obj/structure/closet/supplypod/update_overlays()
 	. = ..()
@@ -369,11 +372,13 @@
 	if(decal)
 		. += decal
 
-/obj/structure/closet/supplypod/tool_act(mob/living/user, obj/item/tool, list/modifiers)
+
+/obj/structure/closet/supplypod/tool_act(mob/living/user, obj/item/I, tool_type)
 	if(bluespace) //We dont want to worry about interacting with bluespace pods, as they are due to delete themselves soon anyways.
 		return FALSE
 	else
 		..()
+
 
 /obj/structure/closet/supplypod/ex_act() //Explosions dont do SHIT TO US! This is because supplypods create explosions when they land.
 	return FALSE
@@ -387,13 +392,13 @@
 ///Called by the drop pods that return captured crewmembers from the ninja den.
 /obj/structure/closet/supplypod/proc/return_from_capture(mob/living/victim, turf/destination = get_safe_random_station_turf())
 	if(isnull(destination)) //Uuuuh, something went wrong. This is gonna hurt.
-		to_chat(victim, span_holoparasite("Миллион голосов эхом звучит в вашей голове... «Похоже, там, куда вас отправили, не могут справиться с нашей капсулой...\
+		to_chat(victim, span_holoparasite("Миллион голосов эхом звучит в твоей голове... «Похоже, там, куда тебя отправили, не могут справиться с нашей капсулой...\
 		как будто мы хотели, чтобы пассажир выжил. Держись, корпоративная собака»"))
 		explosionSize = list(0, 1, 1, 1)
 		destination = get_random_station_turf()
 
 	do_sparks(8, FALSE, victim)
-	victim.visible_message(span_notice("[victim] исчеза[PLUR_ET_YUT(victim)]..."))
+	victim.visible_message(span_notice("[victim] исчезает..."))
 
 	victim.forceMove(src)
 
@@ -404,10 +409,7 @@
 	bluespace = TRUE //Make it so that the pod doesn't stay in centcom forever
 	pod_flags &= ~FIRST_SOUNDS //Make it so we play sounds now
 	if(!effectQuiet && !ispath(style, /datum/pod_style/seethrough))
-		audible_message(
-			span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] шипит, закрываясь и улетая прочь от станции."),
-			span_notice("Земля вибрирует, и вы слышите звук работающих двигателей.")
-		)
+		audible_message(span_notice("Капсула шипит, закрываясь и улетая прочь от станции."), span_notice("Земля вибрирует, и вы слышите звук работающих двигателей."))
 	stay_after_drop = FALSE
 	holder.pixel_z = initial(holder.pixel_z)
 	holder.alpha = initial(holder.alpha)
@@ -441,7 +443,7 @@
 					if(bodypart.limb_zone != BODY_ZONE_HEAD && bodypart.limb_zone != BODY_ZONE_CHEST \
 						&& bodypart.limb_zone != BODY_ZONE_PRECISE_GROIN && !(bodypart.cannot_amputate))//we dont want to kill him, just teach em a lesson!
 						possible_organs |= bp
-				if(length(possible_organs))
+				if(possible_organs.len)
 					bodypart = pick(possible_organs)
 					bodypart.droplimb()
 
@@ -496,9 +498,9 @@
 		return
 	if(opened) //This is to ensure we don't open something that has already been opened
 		return
-	holder.set_opened()
+	holder.setOpened()
 	var/turf/turf_underneath = get_turf(holder) //Get the turf of whoever's contents we're talking about
-	if(ismob(holder)) //Allows mobs to assume the role of the holder, meaning we look at the mob's contents rather than the supplypod's contents. Typically by this point the supplypod's contents have already been moved over to the mob's contents
+	if(istype(holder, /mob)) //Allows mobs to assume the role of the holder, meaning we look at the mob's contents rather than the supplypod's contents. Typically by this point the supplypod's contents have already been moved over to the mob's contents
 		var/mob/holder_as_mob = holder
 		if(holder_as_mob.key && !forced && !broken) //If we are player controlled, then we shouldn't open unless the opening is manual, or if it is due to being destroyed (represented by the "broken" parameter)
 			return
@@ -537,7 +539,7 @@
 		return
 	take_contents(holder)
 	playsound(holder, close_sound, soundVolume * 0.75, TRUE, -3)
-	holder.set_closed()
+	holder.setClosed()
 	addtimer(CALLBACK(src, PROC_REF(preReturn), holder), delays[POD_LEAVING] * 0.2) //Start to leave a bit after closing for cinematic effect
 
 /obj/structure/closet/supplypod/take_contents(atom/movable/holder)
@@ -606,37 +608,44 @@
 	reverse_dropoff_coords = list(picked_turf.x, picked_turf.y, picked_turf.z)
 	return ..()
 
-/obj/structure/closet/supplypod/mouse_drop_receive(atom/movable/target_movable, mob/living/user, params)
-	if(!(SEND_SIGNAL(src, COMSIG_SUPPLYPOD_CLIMB_CHECK, target_movable, user) & COMPONENT_CLIMB))
+/obj/structure/closet/supplypod/MouseDrop_T(atom/movable/O, mob/living/user, params)
+	if(!(SEND_SIGNAL(src, COMSIG_SUPPLYPOD_CLIMB_CHECK, O, user) & COMPONENT_CLIMB))
 		return ..()
 
-	balloon_alert(user, "заталкивание...")
-	user.visible_message(
-		span_notice("[DECLENT_RU_CAP(user, NOMINATIVE)] начинает запихивать [target_movable.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
-		span_notice("Вы начинаете запихивать [target_movable.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
-	)
+	to_chat(user, span_notice("Вы начинаетезаталкивать"))
+	user.visible_message(span_notice("[capitalize(user.declent_ru(NOMINATIVE))] начинает запихивать [O.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
+						span_notice("Вы начинаете запихивать [O.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."))
 
 	if(!do_after(user, 5 SECONDS, src))
 		return
 
-	target_movable.forceMove(get_turf(src))
+	. = ..()
 
-/obj/structure/closet/supplypod/set_opened() //Proc exists here, as well as in any atom that can assume the role of a "holder" of a supplypod. Check the open_pod() proc for more details
+	if(!.)
+		return
+
+	O.forceMove(get_turf(src))
+
+
+/obj/structure/closet/supplypod/setOpened() //Proc exists here, as well as in any atom that can assume the role of a "holder" of a supplypod. Check the open_pod() proc for more details
 	opened = TRUE
 	set_density(FALSE)
 	update_appearance()
 	after_open(null, FALSE)
 
-/obj/structure/closet/supplypod/extractionpod/set_opened()
+
+/obj/structure/closet/supplypod/extractionpod/setOpened()
 	opened = TRUE
 	set_density(TRUE)
 	update_appearance()
 	after_open(null, FALSE)
 
-/obj/structure/closet/supplypod/open(mob/living/user, force = FALSE)
+
+/obj/structure/closet/supplypod/open(force = FALSE)
 	return
 
-/obj/structure/closet/supplypod/set_closed() //Ditto
+
+/obj/structure/closet/supplypod/setClosed() //Ditto
 	opened = FALSE
 	set_density(TRUE)
 	update_appearance()
@@ -706,7 +715,7 @@
 	icon = 'icons/obj/supplypods_32x32.dmi'
 	icon_state = "smoke"
 	desc = ""
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	alpha = 0
 
@@ -731,20 +740,20 @@
 	name = "debris"
 	desc = "Небольшой кратер из обломков. При ближайшем рассмотрении выясняется, что обломки состоят в основном из фрагментов металла. Вы почти уверены, что они скоро рассеется."
 	icon = 'icons/obj/supplypods.dmi'
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER // We want this to go right below the layer of supplypods and supplypod_rubble's forground.
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER // We want this to go right below the layer of supplypods and supplypod_rubble's forground.
 	icon_state = "rubble_bg"
 	pixel_x = SUPPLYPOD_X_OFFSET
 	var/foreground = "rubble_fg"
 	var/verticle_offset = 0
 
 /obj/effect/supplypod_rubble/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "обломки",
 		GENITIVE = "обломков",
 		DATIVE = "обломкам",
 		ACCUSATIVE = "обломки",
 		INSTRUMENTAL = "обломками",
-		PREPOSITIONAL = "обломках",
+		PREPOSITIONAL = "обломках"
 	)
 
 /obj/effect/supplypod_rubble/proc/getForeground(obj/structure/closet/supplypod/pod)
@@ -776,7 +785,7 @@
 	desc = ""
 	icon = 'icons/obj/supplypods_32x32.dmi'
 	icon_state = "LZ_Slider"
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
 
 /obj/effect/pod_landingzone_effect/Initialize(mapload, obj/structure/closet/supplypod/pod)
 	. = ..()
@@ -791,7 +800,7 @@
 	desc = "Голографическая проекция, обозначающая зону приземления чего-либо. Наверное, лучше стоять в стороне."
 	icon = 'icons/obj/supplypods_32x32.dmi'
 	icon_state = "LZ"
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
 	light_range = 2
 	alpha = 0
 	var/obj/structure/closet/supplypod/pod //The supplyPod that will be landing ontop of this pod_landingzone
@@ -799,13 +808,13 @@
 	var/list/smoke_effects = new /list(13)
 
 /obj/effect/pod_landingzone/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "индикатор зоны приземления",
 		GENITIVE = "индикатора зоны приземления",
 		DATIVE = "индикатору зоны приземления",
 		ACCUSATIVE = "индикатор зоны приземления",
 		INSTRUMENTAL = "индикатором зоны приземления",
-		PREPOSITIONAL = "индикаторе зоны приземления",
+		PREPOSITIONAL = "индикаторе зоны приземления"
 	)
 
 /obj/effect/pod_landingzone/Initialize(mapload, podParam, single_order = null, clientman)

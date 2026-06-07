@@ -1,5 +1,5 @@
 /client/verb/adminhelp()
-	set category = ADMIN_CATEGORY_TICKETS
+	set category = STATPANEL_ADMIN_TICKETS
 	set name = "Запрос помощи"
 
 	//handle muting and automuting
@@ -51,11 +51,11 @@
 			var/active_admins = admincount[1]
 
 			log_admin("[selected_type]: [key_name(src)]: [msg] - heard by [active_admins] non-AFK admins.")
-			GLOB.discord_manager.send2discord_simple_noadmins("**\[Adminhelp]** Ticket [T.ticketNum], [key_name(src)]: [msg]", check_send_always = TRUE)
+			SSdiscord.send2discord_simple_noadmins("**\[Adminhelp]** Ticket [T.ticketNum], [key_name(src)]: [msg]", check_send_always = TRUE)
 
 		if(MENTORHELP)
 			var/list/mentorcount = staff_countup(R_MENTOR)
 			var/active_mentors = mentorcount[1]
 
 			log_admin("[selected_type]: [key_name(src)]: [msg] - heard by [active_mentors] non-AFK mentors.")
-			GLOB.discord_manager.send2discord_simple(DISCORD_WEBHOOK_MENTOR, "Ticket [T.ticketNum], [key_name(src)]: [msg]")
+			SSdiscord.send2discord_simple(DISCORD_WEBHOOK_MENTOR, "Ticket [T.ticketNum], [key_name(src)]: [msg]")

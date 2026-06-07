@@ -26,6 +26,7 @@ Design Guidlines
 other types of metals and chemistry for reagents).
 - Add the AUTOLATHE tag to
 
+
 */
 
 // Datum for object designs, used in construction
@@ -60,35 +61,3 @@ other types of metals and chemistry for reagents).
 	var/maxstack = 1
 	/// How many times faster than normal is this to build on the protolathe.
 	var/lathe_time_factor = 1
-	/// Name of the object that gets created.
-	var/build_object_name
-	/// Description of the object that gets created.
-	var/build_object_desc
-
-/datum/design/New()
-	. = ..()
-
-	if(!build_path)
-		return
-
-	var/design_name = GLOB.design_names_cached[id]
-	var/design_desc = GLOB.design_descs_cached[id]
-
-	if(design_name)
-		build_object_name = design_name
-	if(design_desc)
-		build_object_desc = design_desc
-	if(design_name && design_desc)
-		return
-
-	var/list/category_cached = category
-	if(islist(category_cached))
-		category = string_list(category_cached)
-
-	var/obj/item/design_item = new build_path
-	design_name = DECLENT_RU_CAP(design_item, NOMINATIVE)
-	build_object_name = design_name
-	build_object_desc = design_item.desc
-	qdel(design_item)
-	GLOB.design_names_cached[id] = design_name
-	GLOB.design_descs_cached[id] = build_object_desc

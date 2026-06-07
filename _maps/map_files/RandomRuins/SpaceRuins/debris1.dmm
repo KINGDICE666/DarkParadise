@@ -98,7 +98,8 @@
 /area/space)
 "D" = (
 /obj/structure/cable{
-	icon_state = "4-8"
+	icon_state = "4-8";
+	tag = ""
 	},
 /turf/simulated/floor/plating/burnt,
 /area/space)
@@ -127,7 +128,9 @@
 /turf/space,
 /area/space)
 "O" = (
-/obj/machinery/power/apc/worn_out/directional/south,
+/obj/machinery/power/apc/worn_out{
+	pixel_y = -24
+	},
 /obj/structure/cable,
 /turf/simulated/floor/plating,
 /area/space)

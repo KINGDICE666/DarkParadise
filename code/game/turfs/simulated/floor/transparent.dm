@@ -11,7 +11,6 @@
 	light_range = 2
 	keep_dir = FALSE
 	intact = FALSE
-	underfloor_accessibility = UNDERFLOOR_VISIBLE
 	explosion_vertical_block = 0 // it's not your regular plating floor...
 	transparent_floor = TURF_TRANSPARENT
 	heat_capacity = 800
@@ -98,6 +97,7 @@
 	playsound(src, 'sound/items/deconstruct.ogg', 80, TRUE)
 	ChangeTurf(/turf/simulated/floor/plating)
 
+
 /turf/simulated/floor/glass/extinguish_light(force = FALSE)
 	light_power = 0
 	light_range = 0
@@ -106,6 +106,7 @@
 	desc = "Something shadowy moves to cover the glass. Perhaps shining a light will force it to clear?"
 	START_PROCESSING(SSobj, src)
 
+
 /turf/simulated/floor/glass/process()
 	if(get_lumcount() > 0.2)
 		light_process++
@@ -113,6 +114,7 @@
 			reset_light()
 		return
 	light_process = 0
+
 
 /turf/simulated/floor/glass/proc/reset_light()
 	light_process = 0
@@ -126,7 +128,7 @@
 	STOP_PROCESSING(SSobj, src)
 
 /turf/simulated/floor/glass/proc/update_below_light(new_path)
-	if(datum_flags & DF_ISPROCESSING) // we're extinguished
+	if(isprocessing) // we're extinguished
 		return
 	if(ispath(new_path, /turf/space))
 		light_power = initial(light_power)
@@ -136,7 +138,7 @@
 	update_light()
 
 /turf/simulated/floor/glass/Destroy()
-	if(datum_flags & DF_ISPROCESSING)
+	if(isprocessing)
 		STOP_PROCESSING(SSobj, src)
 	return ..()
 
@@ -154,6 +156,7 @@
 
 /turf/simulated/floor/glass/ChangeTurf(turf/simulated/floor/T, defer_change = FALSE, keep_icon = TRUE, after_flags = NONE, copy_existing_baseturf = TRUE)
 	return ..(T, defer_change, FALSE, after_flags, copy_existing_baseturf)
+
 
 /turf/simulated/floor/glass/reinforced
 	name = "reinforced glass floor"
@@ -197,3 +200,18 @@
 	name = "plastitanium glass floor"
 	icon = 'icons/turf/floors/plastitaniumglass.dmi'
 	base_icon_state = "plastitaniumglass"
+
+/turf/simulated/floor/glass/airless
+	temperature = TCMB
+	oxygen = 0
+	nitrogen = 0
+
+/turf/simulated/floor/glass/reinforced/airless
+	temperature = TCMB
+	oxygen = 0
+	nitrogen = 0
+
+/turf/simulated/floor/glass/plasma/airless
+	temperature = TCMB
+	oxygen = 0
+	nitrogen = 0

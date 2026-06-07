@@ -6,17 +6,9 @@
 	var/listening = FALSE
 	var/recorded = null	//the activation message
 	var/recorded_type = 0 // 0 for say, 1 for emote
-	var/only_noice = FALSE
 
 	bomb_name = "voice-activated bomb"
 
-/obj/item/assembly/voice/Initialize(mapload)
-	. = ..()
-	become_hearing_sensitive(ROUNDSTART_TRAIT)
-
-/obj/item/assembly/voice/Destroy()
-	lose_hearing_sensitivity(ROUNDSTART_TRAIT)
-	. = ..()
 
 /obj/item/assembly/voice/examine(mob/user)
 	. = ..()
@@ -25,21 +17,18 @@
 	else
 		. += span_notice("It is deactivated.")
 
-/obj/item/assembly/voice/hear_talk(mob/living/M, list/message_pieces)
-	if(only_noice)
-		return
 
-	. = ..()
+/obj/item/assembly/voice/hear_talk(mob/living/M, list/message_pieces)
 	hear_input(M, multilingual_to_message(message_pieces), 0)
+
 
 /obj/item/assembly/voice/hear_message(mob/living/M, msg)
 	hear_input(M, msg, 1)
 
+
 /obj/item/assembly/voice/proc/hear_input(mob/living/M, msg, type)
 	if(!isliving(M))
 		return
-
-	var/turf/T = get_turf(src) // Otherwise it won't work in hand
 	if(listening)
 		if(findtext(msg, "</span>"))
 			recorded = strip_html_properly(msg)
@@ -48,13 +37,17 @@
 		recorded = msg
 		recorded_type = type
 		listening = FALSE
-		T.audible_message("[get_examine_icon(hearers(T))] beeps, \"Activation message is [type ? "the sound when one [recorded]" : "'[recorded]'."]\"")
+		var/turf/T = get_turf(src)	//otherwise it won't work in hand
+		T.visible_message("[bicon(src)] beeps, \"Activation message is [type ? "the sound when one [recorded]" : "'[recorded]'."]\"")
 	else if(findtext(msg, recorded) && type == recorded_type)
-		T.visible_message(span_warning("[get_examine_icon(viewers(T))] beeps!"))
+		var/turf/T = get_turf(src)  //otherwise it won't work in hand
+		T.visible_message(span_warning("[bicon(src)] beeps!"))
 		pulse(0, M)
+
 
 /obj/item/assembly/voice/activate()
 	return // previously this toggled listning when not in a holder, that's a little silly.  It was only called in attack_self that way.
+
 
 /obj/item/assembly/voice/attack_self(mob/user)
 	if(!user || !secured)
@@ -62,29 +55,37 @@
 
 	listening = !listening
 	var/turf/T = get_turf(src)
-	T.audible_message("[get_examine_icon(hearers(T))] beeps, \"[listening ? "Now" : "No longer"] recording input.\"")
+	T.visible_message("[bicon(src)] beeps, \"[listening ? "Now" : "No longer"] recording input.\"")
 	return TRUE
+
 
 /obj/item/assembly/voice/toggle_secure()
 	. = ..()
 	listening = FALSE
+
 
 /obj/item/assembly/voice/noise
 	name = "noise sensor"
 	desc = "A simple noise sensor that triggers on vocalizations other than speech."
 	materials = list(MAT_METAL=100, MAT_GLASS=10)
 	bomb_name = "noise-activated bomb"
-	only_noice = TRUE
+
 
 /obj/item/assembly/voice/noise/attack_self(mob/user)
 	return
+
 
 /obj/item/assembly/voice/noise/examine(mob/user)
 	. = ..()
 	. += span_notice("It does not appear to have any controls.")
 
+
+/obj/item/assembly/voice/noise/hear_talk(mob/living/M, list/message_pieces)
+	return
+
+
 /obj/item/assembly/voice/noise/hear_message(mob/living/M, msg)
 	pulse(0, M)
 	var/turf/T = get_turf(src)  //otherwise it won't work in hand
-	T.visible_message(span_warning("[get_examine_icon(viewers(T))] beeps!"))
+	T.visible_message(span_warning("[bicon(src)] beeps!"))
 

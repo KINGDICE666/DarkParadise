@@ -86,6 +86,7 @@
 		C += PC.maxcharge
 	capacity = C / (15000) * 1e6
 
+
 /obj/machinery/power/smes/update_overlays()
 	. = ..()
 	if((stat & BROKEN) || panel_open)
@@ -101,6 +102,7 @@
 	var/clevel = chargedisplay()
 	if(clevel > 0)
 		. += "smes-og[clevel]"
+
 
 /obj/machinery/power/smes/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -121,37 +123,37 @@
 	add_fingerprint(user)
 	if(terminal)	//is there already a terminal ?
 		to_chat(user, span_warning("This SMES already has a power terminal."))
-		return FALSE
+		return
 	var/terminal_dir = get_dir(user, src)
 	if(ISDIAGONALDIR(terminal_dir))	//we don't want diagonal click
 		to_chat(user, span_warning("You should face the SMES from any cardinal direction."))
-		return FALSE
+		return
 	if(panel_check && !panel_open)	//is the panel open ?
 		to_chat(user, span_warning("You should open the maintenance panel first."))
-		return FALSE
+		return
 	var/turf/terminal_turf = get_step(src, REVERSE_DIR(terminal_dir))
-	if(!terminal_turf.can_have_cabling() || terminal_turf.underfloor_accessibility != UNDERFLOOR_INTERACTABLE)	//is the floor plating removed or is it a spaceturf ?
+	if(!terminal_turf.can_have_cabling() || terminal_turf.intact)	//is the floor plating removed or is it a spaceturf ?
 		to_chat(user, span_warning("You should remove or change the floor plating beneath you."))
-		return FALSE
+		return
 	if(user.loc == loc)	// somehow???
 		to_chat(user, span_warning("You must not be on the same tile as the SMES."))
-		return FALSE
+		return
 	if(coil.get_amount() < 10)
 		to_chat(user, span_warning("You need at least ten length of cable to construct a power terminal."))
-		return FALSE
+		return
 	user.visible_message(
 		span_notice("[user] starts to construct the cable terminal for the SMES."),
 		span_notice("You start to construct the cable terminal for the SMES..."),
 	)
 	coil.play_tool_sound(src)
-	if(!do_after(user, 5 SECONDS * coil.toolspeed, src, category = DA_CAT_TOOL) || (panel_check && !panel_open) || !terminal_turf.can_have_cabling() || terminal_turf.underfloor_accessibility != UNDERFLOOR_INTERACTABLE || QDELETED(coil))
-		return FALSE
+	if(!do_after(user, 5 SECONDS * coil.toolspeed, src, category = DA_CAT_TOOL) || (panel_check && !panel_open) || !terminal_turf.can_have_cabling() || terminal_turf.intact || QDELETED(coil))
+		return
 	var/obj/structure/cable/node = terminal_turf.get_cable_node()
 	if(check_electrocute(user, node, node))
-		return FALSE
+		return
 	if(!coil.use(10))
 		to_chat(user, span_warning("At some point during construction you lost some cable. Make sure you have ten lengths before trying again."))
-		return FALSE
+		return
 	user.visible_message(
 		span_notice("[user] has finished the construction of the cable terminal for the SMES."),
 		span_notice("You have finished the construction of the cable terminal for the SMES."),
@@ -159,7 +161,6 @@
 	make_terminal(terminal_dir, terminal_turf)
 	terminal.add_fingerprint(user)
 	terminal.connect_to_network()
-	return TRUE
 
 /obj/machinery/power/smes/proc/check_electrocute(mob/user, power_source, obj/source)
 	if(prob(50) && electrocute_mob(user, power_source, source, 1, TRUE))
@@ -167,10 +168,12 @@
 		return TRUE
 	return FALSE
 
+
 /obj/machinery/power/smes/screwdriver_act(mob/living/user, obj/item/I)
 	. = default_deconstruction_screwdriver(user, "[initial(icon_state)]-o", initial(icon_state), I)
 	if(.)
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/power/smes/wrench_act(mob/living/user, obj/item/I)
 	. = default_change_direction_wrench(user, I)
@@ -190,6 +193,7 @@
 	stat &= ~BROKEN
 	update_icon(UPDATE_OVERLAYS)
 
+
 /obj/machinery/power/smes/wirecutter_act(mob/living/user, obj/item/tool)
 	. = TRUE
 	add_fingerprint(user)
@@ -206,7 +210,8 @@
 	if(QDELETED(terminal))
 		to_chat(user, span_warning("The [name] has no power terminal."))
 		return FALSE
-	if(HAS_TRAIT(terminal, TRAIT_UNDERFLOOR))
+	var/turf/terminal_turf = get_turf(terminal)
+	if(terminal_turf.intact)
 		to_chat(user, span_warning("You should expose the power terminal first."))
 		return FALSE
 	if(panel_check && !panel_open)
@@ -217,7 +222,7 @@
 		span_notice("[user] starts to dismantle the power terminal."),
 		span_notice("You start to dismantle the power terminal..."),
 	)
-	if(!tool.use_tool(src, user, 5 SECONDS, volume = tool.tool_volume) || QDELETED(terminal) || HAS_TRAIT(terminal, TRAIT_UNDERFLOOR) || (panel_check && !panel_open))
+	if(!tool.use_tool(src, user, 5 SECONDS, volume = tool.tool_volume) || QDELETED(terminal) || terminal_turf.intact || (panel_check && !panel_open))
 		return FALSE
 	if(check_electrocute(user, terminal.powernet, terminal)) //animate the electrocution if uncautious and unlucky
 		return FALSE
@@ -227,8 +232,10 @@
 	)
 	return TRUE
 
+
 /obj/machinery/power/smes/crowbar_act(mob/living/user, obj/item/I)
 	return default_deconstruction_crowbar(user, I)
+
 
 /obj/machinery/power/smes/disconnect_terminal()
 	if(terminal)
@@ -237,12 +244,14 @@
 		return TRUE
 	return FALSE
 
+
 /obj/machinery/power/smes/proc/make_terminal(tempDir, tempLoc)
 	// create a terminal object at the same position as original turf loc
 	// wires will attach to this
 	terminal = new /obj/machinery/power/terminal(tempLoc)
 	terminal.dir = tempDir
 	terminal.master = src
+
 
 /obj/machinery/power/smes/Destroy()
 	if(SSticker && SSticker.current_state == GAME_STATE_PLAYING)
@@ -313,6 +322,8 @@
 	if(last_disp != chargedisplay() || last_chrg != inputting || last_onln != outputting)
 		update_icon(UPDATE_OVERLAYS)
 
+
+
 // called after all power processes are finished
 // restores charge level to smes if there was excess this ptick
 /obj/machinery/power/smes/proc/restore()
@@ -372,13 +383,13 @@
 		"inputAttempt" = input_attempt,
 		"inputting" = inputting,
 		"inputLevel" = input_level,
-		"inputLevel_text" = display_power(input_level),
+		"inputLevel_text" = DisplayPower(input_level),
 		"inputLevelMax" = input_level_max,
 		"inputAvailable" = input_available,
 		"outputAttempt" = output_attempt,
 		"outputting" = outputting,
 		"outputLevel" = output_level,
-		"outputLevel_text" = display_power(output_level),
+		"outputLevel_text" = DisplayPower(output_level),
 		"outputLevelMax" = output_level_max,
 		"outputUsed" = round(output_used),
 	)
@@ -437,7 +448,7 @@
 	if(is_station_level(src.z))
 		if(prob(1)) //explosion
 			for(var/mob/M in viewers(src))
-				M.show_message(span_warning("The [src.name] is making strange noises!"), 3, span_warning("You hear sizzling electronics."), 2)
+				M.show_message("<span class='warning'>The [src.name] is making strange noises!</span>", 3, "<span class='warning'>You hear sizzling electronics.</span>", 2)
 			sleep(10*pick(4,5,6,7,10,14))
 			var/datum/effect_system/fluid_spread/smoke/smoke = new
 			smoke.set_up(amount = 3, location = src.loc)
@@ -457,6 +468,7 @@
 			smoke.set_up(amount = 3, location = src.loc)
 			smoke.attach(src)
 			smoke.start()
+
 
 /obj/machinery/power/smes/proc/inputting(do_input)
 	input_attempt = do_input
@@ -480,12 +492,8 @@
 	log_smes()
 	..()
 
-/obj/machinery/power/smes/full
-	charge = 50 * STANDARD_BATTERY_CHARGE
-
 /obj/machinery/power/smes/engineering
-	charge = 50 * STANDARD_BATTERY_CHARGE // Engineering starts with some charge for singulo //sorry little one, singulo as engine is gone
-	output_level = 90 KILO WATTS
+	charge = 2e6 // Engineering starts with some charge for singulo
 
 /obj/machinery/power/smes/magical
 	name = "magical power storage unit"
@@ -503,6 +511,7 @@
 	icon_state = "oldsmes"
 	capacity = 2500000
 
+
 // MARK: Portable smes
 
 /obj/machinery/power/smes/portable
@@ -513,9 +522,11 @@
 	interact_offline = TRUE
 	anchored = FALSE
 
+
 /obj/machinery/power/smes/portable/Initialize(mapload)
 	. = ..()
 	stat = 0
+
 
 /obj/machinery/power/smes/portable/wrench_act(mob/living/user, obj/item/tool)
 	if(!anchored)
@@ -526,6 +537,7 @@
 	qdel(terminal)
 	anchored = FALSE
 	return TRUE
+
 
 /obj/machinery/power/smes/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -539,6 +551,7 @@
 
 	return ..()
 
+
 /obj/machinery/power/smes/portable/screwdriver_act(mob/living/user, obj/item/I)
 	return FALSE
 
@@ -549,6 +562,7 @@
 	. = ..()
 	var/clevel = chargedisplay()
 	icon_state = "minismes_[clevel]"
+
 
 /obj/machinery/power/smes/portable/chargedisplay()
 	if(charge >= PORTABLE_SMES_LEVEL_FULL * capacity)

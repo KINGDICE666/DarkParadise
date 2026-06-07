@@ -1,6 +1,6 @@
 /obj/machinery/syndiepad
 	name = "Syndicate quantum pad"
-	desc = "Синдикатовские квантовые платформы красного пространства. Способны перемещать грузы через галактики и игнорировать локальные блюспейс-помехи."
+	desc = "Syndicate redspace quantumpads! Can transport goods through galaxies and completely ignores bluespace interference!"
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "sqpad"
 	anchored = TRUE
@@ -83,12 +83,14 @@
 		return S
 	return null
 
+
 /obj/machinery/syndiepad/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/machinery/syndiepad/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
@@ -112,6 +114,7 @@
 			console_link = TRUE
 			var/datum/syndie_data_storage/S = LocateDataStorage()
 			S?.sync()
+
 
 /obj/machinery/syndiepad/multitool_act(mob/user, obj/item/I)
 	. = TRUE
@@ -224,6 +227,7 @@
 				to_chat(user, span_warning("Linked pad is not responding to ping. Teleport aborted."))
 				teleporting = 0
 				return
+
 			teleporting = 0
 			last_teleport = world.time
 			// use a lot of power
@@ -233,8 +237,8 @@
 			flick("[initial(icon_state)]-beam", src)
 			playsound(get_turf(src), 'sound/weapons/emitter2.ogg', 25, TRUE)
 			flick("[initial(linked_pad.icon_state)]-beam", linked_pad)
-			var/turf/destination_turf = get_turf(linked_pad)
-			playsound(destination_turf, 'sound/weapons/emitter2.ogg', 25, TRUE)
+			playsound(get_turf(linked_pad), 'sound/weapons/emitter2.ogg', 25, TRUE)
+			var/tele_success = FALSE
 
 			for(var/atom/movable/ROI in get_turf(src))
 				// if is living, check if allowed, don't let through if not
@@ -258,7 +262,7 @@
 						continue
 				// if is anchored, don't let through
 				if(ROI.anchored)
-					if(!ismecha(ROI))
+					if(!istype(ROI, /obj/mecha))
 						if(isliving(ROI))
 							var/mob/living/L = ROI
 							if(L.buckled)
@@ -269,6 +273,9 @@
 								continue
 						else if(!isobserver(ROI))
 							continue
-				if(!do_teleport(ROI, destination_turf, bypass_area_flag = force_ignore_teleport_blocking, always_precise = TRUE) && user)
-					to_chat(user, span_warning("Object '[ROI]' was not teleported!"))
+				tele_success = do_teleport(ROI, get_turf(linked_pad), bypass_area_flag = force_ignore_teleport_blocking)
+				if(!tele_success)
+					to_chat(user, span_warning("Object '[ROI]'' was not teleported for unknown reason!"))
 			return
+
+

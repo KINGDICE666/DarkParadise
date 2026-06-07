@@ -16,8 +16,8 @@ GLOBAL_LIST_INIT(boo_phrases, list(
 /obj/effect/proc_holder/spell/boo
 	name = "Буу!"
 	desc = "К черту живых."
-	selection_deactivated_message = span_shadowling_alt("Ваше присутствие останется незамеченным. Пока что.")
-	selection_activated_message = span_shadowling_alt("Вы готовы протянуть руку сквозь завесу. <b>ЛКМ по цели для воздействия!</b>")
+	selection_deactivated_message	= span_shadowling("Ваше присутствие останется незамеченным. Пока что.")
+	selection_activated_message		= span_shadowling("Вы готовы протянуть руку сквозь завесу. <b>ЛКМ по цели для воздействия!</b>")
 
 	ghost = TRUE
 
@@ -33,11 +33,14 @@ GLOBAL_LIST_INIT(boo_phrases, list(
 	// no need to spam admins regarding boo casts
 	create_attack_logs = FALSE
 
+
+
 /obj/effect/proc_holder/spell/boo/create_new_targeting()
 	var/datum/spell_targeting/click/T = new()
 	T.allowed_type = /atom
 	T.try_auto_target = FALSE
 	return T
+
 
 /obj/effect/proc_holder/spell/boo/cast(list/targets, mob/user = usr)
 	var/atom/target = targets[1]

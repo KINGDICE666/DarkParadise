@@ -8,7 +8,7 @@
 	normal_step_energy_drain = 3
 	max_integrity = 200
 	deflect_chance = 30
-	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 30, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 30, BIO = 0, RAD = 50, FIRE = 100, ACID = 100)
 	infra_luminosity = 3
 	maint_access = TRUE
 	wreckage = /obj/structure/mecha_wreckage/phazon
@@ -28,9 +28,9 @@
 	phasing_action.Remove(user)
 	switch_damtype_action.Remove(user)
 
-/obj/mecha/combat/phazon/Initialize(mapload)
-	. = ..()
+/obj/mecha/combat/phazon/New()
+	..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/rcd
-	ME.attach(src, MECH_HAND_LEFT)
+	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/gravcatapult
-	ME.attach(src, MECH_HAND_RIGHT)
+	ME.attach(src)

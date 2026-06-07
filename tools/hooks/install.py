@@ -44,8 +44,6 @@ def uninstall(target=None, keep=()):
 
     # Remove merge driver configuration
     for entry in repo.config:
-        if entry.level != pygit2.GIT_CONFIG_LEVEL_LOCAL:
-            continue
         match = re.match(r'^merge\.([^.]+)\.driver$', entry.name)
         if match and f"{match.group(1)}.merge" not in keep:
             print('Removing merge driver:', match.group(1))

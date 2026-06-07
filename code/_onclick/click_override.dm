@@ -27,10 +27,10 @@
 
 /obj/item/badminBook/attack_self(mob/living/user as mob)
 	if(user.middleClickOverride)
-		to_chat(user, span_warning("You try to draw power from the [src], but you cannot hold the power at this time!"))
+		to_chat(user, "<span class='warning'>You try to draw power from the [src], but you cannot hold the power at this time!</span>")
 		return
 	user.middleClickOverride = clickBehavior
-	to_chat(user, span_notice("You draw a bit of power from the [src], you can use <b>middle click</b> or <b>alt click</b> to release the power!"))
+	to_chat(user, "<span class='notice'>You draw a bit of power from the [src], you can use <b>middle click</b> or <b>alt click</b> to release the power!</span>")
 
 /datum/middleClickOverride/badminClicker
 	var/summon_path = /obj/item/reagent_containers/food/snacks/cookie
@@ -38,8 +38,8 @@
 /datum/middleClickOverride/badminClicker/onClick(atom/A, mob/living/user)
 	var/atom/movable/newObject = new summon_path
 	newObject.loc = get_turf(A)
-	to_chat(user, span_notice("You release the power you had stored up, summoning \a [newObject.name]!"))
-	usr.loc.visible_message(span_notice("[user] waves [user.p_their()] hand and summons \a [newObject.name]!"))
+	to_chat(user, "<span class='notice'>You release the power you had stored up, summoning \a [newObject.name]!</span>")
+	usr.loc.visible_message("<span class='notice'>[user] waves [user.p_their()] hand and summons \a [newObject.name]!</span>")
 	..()
 
 /datum/middleClickOverride/power_gloves
@@ -53,16 +53,16 @@
 		return
 	var/obj/item/clothing/gloves/color/yellow/power/P = user.gloves
 	if(world.time < P.last_shocked + P.shock_delay)
-		to_chat(user, span_warning("The gloves are still recharging."))
+		to_chat(user, "<span class='warning'>The gloves are still recharging.</span>")
 		return
 	var/turf/T = get_turf(user)
 	var/obj/structure/cable/C = locate() in T
 	if(!P.unlimited_power)
 		if(!C || !istype(C))
-			to_chat(user, span_warning("There is no cable here to power the gloves."))
+			to_chat(user, "<span class='warning'>There is no cable here to power the gloves.</span>")
 			return
 	var/turf/target_turf = get_turf(A)
-	target_turf.hotspot_expose(2000, 1)
+	target_turf.hotspot_expose(2000, 400)
 	playsound(user.loc, 'sound/effects/eleczap.ogg', 40, TRUE)
 
 	var/atom/beam_from = user
@@ -78,7 +78,7 @@
 			else
 				add_attack_logs(user, L, "electrocuted with[P.unlimited_power ? " unlimited" : null] power gloves [!P.unlimited_power ? "dealing [C.powernet?.get_electrocute_damage()] damage." : "dealing 1000 damage!!"]")
 				if(P.unlimited_power)
-					L.electrocute_act(1000, P, flags = SHOCK_NOGLOVES) //Just kill them
+					L.electrocute_act(1000, "перчаток", flags = SHOCK_NOGLOVES) //Just kill them
 				else
 					electrocute_mob(L, C, P)
 			break

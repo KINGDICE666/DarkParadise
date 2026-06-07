@@ -8,6 +8,7 @@
 	lightmask_overlay = "suits_lightmask"
 	broken_overlay = "suits_broken"
 	broken_lightmask_overlay = "suits_broken_lightmask"
+
 	slogan_list = list(
 		"Предвар+ительно прогл+аженный, предвар+ительно пост+иранный, предв+а-*БЗЗЗ*",
 		"Кровь тво+их враг+ов ср+азу же см+оется!",
@@ -15,7 +16,6 @@
 		"В+ыглядите элег+антно! В+ыглядите как иди+от!",
 		"Не подх+одит по разм+еру? А как насч+ёт тог+о, чт+обы сбр+осить п+ару килогр+аммов, ты, ж+ирный лент+яй-*БЗЗЗЗ*"
 	)
-	refill_canister = /obj/item/vending_refill/suitdispenser
 
 	products = list(
 		/obj/item/clothing/under/color/black = 10,
@@ -37,23 +37,18 @@
 		/obj/item/clothing/under/color/darkblue = 10,
 		/obj/item/clothing/under/color/lightred = 10,
 		/obj/item/clothing/under/color/darkred = 10,
-		/obj/item/clothing/under/colour/skirt = 10,
-	)
-	contraband = list(
-		/obj/item/clothing/under/syndicate/tacticool = 5,
-		/obj/item/clothing/under/color/orange = 5,
-		/obj/item/clothing/under/syndicate/tacticool/skirt = 5,
-	)
-	premium = list(
-		/obj/item/clothing/under/rainbow = 1,
-	)
+		/obj/item/clothing/under/colour/skirt = 10
+		)
+	contraband = list(/obj/item/clothing/under/syndicate/tacticool = 5,/obj/item/clothing/under/color/orange = 5, /obj/item/clothing/under/syndicate/tacticool/skirt = 5)
+	premium = list(/obj/item/clothing/under/rainbow = 1)
+	refill_canister = /obj/item/vending_refill/suitdispenser
 
 /obj/machinery/vending/suitdispenser/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "торговый автомат Suitlord 9000",
 		GENITIVE = "торгового автомата Suitlord 9000",
 		DATIVE = "торговому автомату Suitlord 9000",
 		ACCUSATIVE = "торговый автомат Suitlord 9000",
 		INSTRUMENTAL = "торговым автоматом Suitlord 9000",
-		PREPOSITIONAL = "торговом автомате Suitlord 9000",
+		PREPOSITIONAL = "торговом автомате Suitlord 9000"
 	)

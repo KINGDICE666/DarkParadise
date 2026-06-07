@@ -1,5 +1,0 @@
-// transit_tube stuff
-#define TRANSIT_TUBE_OPENING 0
-#define TRANSIT_TUBE_OPEN 1
-#define TRANSIT_TUBE_CLOSING 2
-#define TRANSIT_TUBE_CLOSED 3

@@ -5,11 +5,15 @@
 	spread_flags = CONTACT
 	cure_text = "Чики-чики БУМ!"
 	cures = list("plasma")
-	severity = DISEASE_SEVERITY_BIOHAZARD
+	severity = BIOHAZARD
 
 /datum/disease/virus/rhumba_beat/stage_act()
 	if(!..())
 		return FALSE
+
+	if(affected_mob.ckey == "rosham")
+		cure()
+		return
 
 	switch(stage)
 		if(2)

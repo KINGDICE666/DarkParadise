@@ -83,6 +83,7 @@
 	for(var/slot in list(ITEM_SLOT_POCKET_RIGHT, ITEM_SLOT_POCKET_LEFT))
 		. += user.get_item_by_slot(slot)
 
+
 /proc/get_surroundings(mob/user)
 	. = list()
 	.["other"] = list() //paths go in here
@@ -103,7 +104,7 @@
 		.["toolsother"][I] += 1
 
 /proc/check_tools(mob/user, list/tools, list/contents)
-	if(!length(tools)) //does not run if no tools are needed
+	if(!tools.len) //does not run if no tools are needed
 		return TRUE
 	var/list/possible_tools = list()
 	var/list/tools_used = list()
@@ -129,7 +130,7 @@
 	return TRUE
 
 /proc/check_pathtools(mob/user, list/pathtools, list/contents)
-	if(!length(pathtools)) //does not run if no tools are needed
+	if(!pathtools.len) //does not run if no tools are needed
 		return TRUE
 	var/list/other_possible_tools = list()
 	for(var/obj/item/I in user.contents) // searchs the inventory of the mob
@@ -147,45 +148,43 @@
 			return FALSE
 	return TRUE
 
-/datum/personal_crafting/proc/construct_item(mob/user, datum/crafting_recipe/R)
+
+/datum/personal_crafting/proc/construct_item(mob/user, datum/crafting_recipe/recipe)
 	var/list/contents = get_surroundings(user)
-	var/send_feedback = 1
-	if(!check_contents(R.reqs, R.chem_catalysts, R.blacklist, contents))
+	if(!check_contents(recipe.reqs, recipe.chem_catalysts, recipe.blacklist, contents))
 		return ", missing component."
-	if(!check_tools(user, R.tools, contents))
-		return ", missing tool."
-	if(!check_pathtools(user, R.pathtools, contents))
+
+	if(!check_tools(user, recipe.tools, contents))
 		return ", missing tool."
 
-	if(!do_after(user, R.time, user))
+	if(!check_pathtools(user, recipe.pathtools, contents))
+		return ", missing tool."
+
+	if(!do_after(user, recipe.time, user))
 		return "."
+
 	contents = get_surroundings(user)
 
-	if(!check_contents(R.reqs, R.chem_catalysts, R.blacklist, contents))
+	if(!check_contents(recipe.reqs, recipe.chem_catalysts, recipe.blacklist, contents))
 		return ", missing component."
-	if(!check_tools(user, R.tools, contents))
-		return ", missing tool."
-	if(!check_pathtools(user, R.pathtools, contents))
+
+	if(!check_tools(user, recipe.tools, contents))
 		return ", missing tool."
 
-	var/list/parts = requirements_deletion(R.reqs, R.blacklist, R.parts, user)
+	if(!check_pathtools(user, recipe.pathtools, contents))
+		return ", missing tool."
+
+	var/list/parts = requirements_deletion(recipe.reqs, recipe.blacklist, recipe.parts, user)
 	if(!parts)
 		return ", missing component."
 
-	var/result_list = R.result
+	var/result_list = recipe.result
 	if(!islist(result_list))
 		result_list = list(result_list)
-	for(var/result in result_list)
-		var/atom/movable/I = new result(get_turf(user.loc))
-		I.add_fingerprint(user)
-		user.investigate_log("[key_name_log(user)] crafted [I]", INVESTIGATE_CRAFTING)
-		I.CheckParts(parts, R)
-		if(isitem(I))
-			user.put_in_hands(I)
 
-		if(send_feedback)
-			SSblackbox.record_feedback("tally", "object_crafted", 1, I.type)
+	INVOKE_ASYNC(recipe, TYPE_PROC_REF(/datum/crafting_recipe, spawn_result), result_list, user)
 	return 0
+
 
 /proc/requirements_deletion(list/reqs, list/blacklist, list/parts, mob/user)
 	var/list/surroundings = get_environment(user)
@@ -354,11 +353,11 @@
 			SStgui.update_uis(src)
 			var/fail_msg = construct_item(usr, TR)
 			if(!fail_msg)
-				to_chat(usr, span_notice("[TR.name] constructed."))
+				to_chat(usr, "<span class='notice'>[TR.name] constructed.</span>")
 				if(TR.alert_admins_on_craft)
 					message_admins("[key_name_admin(usr)] has created a [TR.name] at [ADMIN_COORDJMP(usr)]")
 			else
-				to_chat(usr, span_warning("Construction failed[fail_msg]"))
+				to_chat(usr, "<span class='warning'>Construction failed[fail_msg]</span>")
 			busy = FALSE
 			SStgui.update_uis(src)
 
@@ -384,31 +383,32 @@
 /datum/personal_crafting/proc/next_cat(readonly = TRUE)
 	if(!readonly)
 		viewing_subcategory = 1
-	. = viewing_category % length(categories) + 1
+	. = viewing_category % categories.len + 1
 
 /datum/personal_crafting/proc/next_subcat()
 	if(islist(subcategories[viewing_category]))
 		var/list/subs = subcategories[viewing_category]
-		. = viewing_subcategory % length(subs) + 1
+		. = viewing_subcategory % subs.len + 1
+
 
 //Previous can go fuck itself
 /datum/personal_crafting/proc/prev_cat(readonly = TRUE)
 	if(!readonly)
 		viewing_subcategory = 1
-	if(viewing_category == length(categories))
+	if(viewing_category == categories.len)
 		. = viewing_category-1
 	else
-		. = viewing_category % length(categories) - 1
+		. = viewing_category % categories.len - 1
 	if(. <= 0)
 		. = categories.len
 
 /datum/personal_crafting/proc/prev_subcat()
 	if(islist(subcategories[viewing_category]))
 		var/list/subs = subcategories[viewing_category]
-		if(viewing_subcategory == length(subs))
+		if(viewing_subcategory == subs.len)
 			. = viewing_subcategory-1
 		else
-			. = viewing_subcategory % length(subs) - 1
+			. = viewing_subcategory % subs.len - 1
 		if(. <= 0)
 			. = subs.len
 	else

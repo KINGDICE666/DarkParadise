@@ -10,7 +10,6 @@
 	invisibility = INVISIBILITY_LIGHTING
 	simulated = FALSE
 	light_system = NO_LIGHT_SUPPORT
-	resistance_flags = FIRE_PROOF|ACID_PROOF
 
 	var/turf/myturf
 
@@ -108,7 +107,8 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 			00, 00, 00, 01
 		)
 
-	//SSdemo.mark_turf(affected_turf)
+	SSdemo.mark_turf(affected_turf)
+
 
 // Variety of overrides so the overlays don't get affected by weird things.
 
@@ -118,7 +118,7 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 /atom/movable/lighting_object/singularity_act()
 	return
 
-/atom/movable/lighting_object/singularity_pull(atom/singularity, current_size)
+/atom/movable/lighting_object/singularity_pull()
 	return
 
 /atom/movable/lighting_object/blob_act(obj/structure/blob/B)

@@ -39,8 +39,7 @@
 	if(blocks_emissive)
 		add_overlay(get_emissive_block())
 
-/mob/living/carbon/alien/humanoid/empress/Initialize(mapload)
-	. = ..()
+/mob/living/carbon/alien/humanoid/empress/New()
 	//there should only be one queen
 	for(var/mob/living/carbon/alien/humanoid/empress/E in GLOB.alive_mob_list)
 		if(E == src)
@@ -52,6 +51,8 @@
 			break
 
 	real_name = name
+	..()
+
 
 /mob/living/carbon/alien/humanoid/empress/get_caste_organs()
 	. = ..()
@@ -62,6 +63,7 @@
 		/obj/item/organ/internal/xenos/resinspinner,
 		/obj/item/organ/internal/xenos/neurotoxin
 	)
+
 
 /mob/living/carbon/alien/humanoid/empress/is_strong()
 	return TRUE

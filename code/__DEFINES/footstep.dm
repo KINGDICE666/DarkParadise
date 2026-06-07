@@ -26,12 +26,13 @@
 #define FOOTSTEP_MOB_SLIME "footstep_slime"
 #define FOOTSTEP_OBJ_MACHINE "footstep_machine"
 #define FOOTSTEP_OBJ_ROBOT "footstep_robot"
+#define FOOTSTEP_MOB_RUST "footstep_rust"
 
 /*
 id = list(
-	list(sounds),
-	base volume,
-	extra range addition,
+list(sounds),
+base volume,
+extra range addition
 )
 */
 

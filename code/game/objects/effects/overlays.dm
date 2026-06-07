@@ -1,20 +1,21 @@
 /obj/effect/overlay
 	name = "overlay"
+	var/i_attached	//Added for possible image attachments to objects. For hallucinations and the like.
 
 /obj/effect/overlay/singularity_act()
 	return
 
-/obj/effect/overlay/singularity_pull(atom/singularity, current_size)
+/obj/effect/overlay/singularity_pull()
 	return
 
-// Not actually a projectile, just an effect.
-/obj/effect/overlay/beam
+/obj/effect/overlay/beam//Not actually a projectile, just an effect.
 	name = "beam"
 	icon = 'icons/effects/beam.dmi'
 	icon_state = "b_beam"
+	var/tmp/atom/BeamSource
 
-/obj/effect/overlay/beam/Initialize(mapload)
-	. = ..()
+/obj/effect/overlay/beam/New()
+	..()
 	QDEL_IN(src, 10)
 
 /obj/effect/overlay/palmtree_r
@@ -37,7 +38,6 @@
 	icon_state = "coconuts"
 
 /obj/effect/overlay/sparkles
-	gender = PLURAL
 	name = "sparkles"
 	icon_state = "shieldsparkles"
 
@@ -54,15 +54,7 @@
 	layer = 5
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
-/obj/effect/overlay/wall_rot/Initialize(mapload)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-10, 10)
-	pixel_y = base_pixel_y + rand(-10, 10)
-
-/obj/effect/overlay/vis
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	vis_flags = VIS_INHERIT_DIR
-	///When detected to be unused it gets set to world.time, after a while it gets removed
-	var/unused = 0
-	///overlays which go unused for this amount of time get cleaned up
-	var/cache_expiration = 2 MINUTES
+/obj/effect/overlay/wall_rot/New()
+	..()
+	pixel_x += rand(-10, 10)
+	pixel_y += rand(-10, 10)

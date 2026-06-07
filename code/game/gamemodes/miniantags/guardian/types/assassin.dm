@@ -45,6 +45,7 @@
 			BP.fracture()
 	ToggleMode(1)
 
+
 /mob/living/simple_animal/hostile/guardian/assassin/adjustHealth(
 	amount = 0,
 	updating_health = TRUE,
@@ -55,6 +56,7 @@
 	. = ..()
 	if(. && amount > 0 && toggle)
 		ToggleMode(forced = TRUE)
+
 
 /mob/living/simple_animal/hostile/guardian/assassin/ToggleMode(forced = 0)
 	if(toggle)

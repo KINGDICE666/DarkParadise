@@ -3,12 +3,12 @@
 #define CORPSE_METHOD_SPACE "космирование"
 #define CORPSE_METHOD_UTILIZATION "утилизация тела"
 
-#define CREDITS_BY_CREMATION 5000
-#define CARGOPOINTS_BY_CREMATION 30
-#define CREDITS_BY_SPACE 8000
-#define CARGOPOINTS_BY_SPACE 45
-#define CREDITS_BY_UTILIZATION 2000
-#define CARGOPOINTS_BY_UTILIZATION 25
+#define CREDITS_BY_CREMATION 2000
+#define CARGOPOINTS_BY_CREMATION 25
+#define CREDITS_BY_SPACE 3000
+#define CARGOPOINTS_BY_SPACE 35
+#define CREDITS_BY_UTILIZATION 1000
+#define CARGOPOINTS_BY_UTILIZATION 20
 
 ////////////////////////////////////////
 // MARK:	Goal datum
@@ -21,11 +21,13 @@
 	var/list/corpse_data = list()
 	var/obj/effect/mob_spawn/human/spawner
 
+
 /datum/addition_goal/funeral/setup()
 	corpse_count = rand(3, 5)
 	request_number = "[rand(100, 999)]"
 	name = "Запрос похорон №[request_number]"
 	description = "Запрос проведения похорон №[request_number]. На станцию прибудет шаттл с [corpse_count] трупами для проведения похорон."
+
 
 /datum/addition_goal/funeral/spawn_shuttle_contain(list/turf/shuttle_turfs)
 	spawner = new /obj/effect/mob_spawn/human/addition_goal/funeral(shuttle_turfs[1])
@@ -134,7 +136,7 @@
 					report_text += "тело не находится в гробу.<br>"
 					continue
 				var/obj/structure/closet/coffin/coffin = corpse.loc
-				if(isspaceturf(coffin.loc))
+				if(istype(coffin.loc, /turf/space))
 					report_text += "успешно похоронен.<br>"
 					complete_count++
 				else
@@ -153,8 +155,11 @@
 	if(reward_cargopoints > 0)
 		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
 	system.add_reward(reward_credits, reward_cargopoints)
-	var/paper_content = system.create_paper_content("Отчет о проведении погребения №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
+	var/paper_content = system.create_paper_content("Отчет о проведении погребения №[request_number]", report_text, "Официальный документ заверенный печатью Центрального командования Нанотрейзен")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
+
+
+
 
 ////////////////////////////////////////
 // MARK:	Misc

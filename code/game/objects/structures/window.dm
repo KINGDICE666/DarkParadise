@@ -23,7 +23,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 
 /obj/structure/window
 	name = "window"
-	desc = "Иногда окно — это просто окно."
+	desc = "Иногда окно – это просто окно."
 	icon_state = "window"
 	density = TRUE
 	pass_flags_self = PASSGLASS
@@ -36,10 +36,8 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	set_dir_on_move = FALSE
 	max_integrity = 25
 	resistance_flags = ACID_PROOF
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 100)
 	interaction_flags_click = NEED_HANDS | ALLOW_RESTING
-	cares_about_temperature = TRUE
-	rad_insulation = RAD_VERY_LIGHT_INSULATION
 	var/ini_dir = null
 	var/state = WINDOW_OUT_OF_FRAME
 	var/reinf = FALSE
@@ -59,18 +57,16 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	/// If we added a leaning component to ourselves
 	var/added_leaning = FALSE
 
-	/// How well this window resists superconductivity.
-	var/superconductivity = WINDOW_HEAT_TRANSFER_COEFFICIENT
-
 /obj/structure/window/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "окно",
 		GENITIVE = "окна",
 		DATIVE = "окну",
 		ACCUSATIVE = "окно",
 		INSTRUMENTAL = "окном",
-		PREPOSITIONAL = "окне",
+		PREPOSITIONAL = "окне"
 	)
+
 
 /obj/structure/window/Initialize(mapload, direct)
 	. = ..()
@@ -111,7 +107,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	real_explosion_block = explosion_block
 	explosion_block = EXPLOSION_BLOCK_PROC
 
-	recalculate_atmos_connectivity()
+	air_update_turf(TRUE)
 
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_EXIT = PROC_REF(on_exit),
@@ -121,16 +117,18 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 /obj/structure/window/add_debris_element()
 	AddElement(/datum/element/debris, DEBRIS_GLASS, -40, 5)
 
-/obj/structure/window/mouse_drop_receive(atom/dropping, mob/user, params)
+/obj/structure/window/MouseDrop_T(atom/dropping, mob/user, params)
 	. = ..()
+
 	//Adds the component only once. We do it here & not in Initialize() because there are tons of windows & we don't want to add to their init times
 	LoadComponent(/datum/component/leanable, dropping)
 
 /obj/structure/window/Destroy()
 	set_density(FALSE)
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 	update_nearby_icons()
 	return ..()
+
 
 /obj/structure/window/examine(mob/user)
 	. = ..()
@@ -151,6 +149,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	if(!anchored && !fulltile)
 		. += span_notice("<b>Alt+ЛКМ</b> для поворота.")
 
+
 /obj/structure/window/narsie_act()
 	color = NARSIE_WINDOW_COLOUR
 	for(var/obj/item/shard/shard in debris)
@@ -163,18 +162,18 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		new/obj/structure/window/reinforced/clockwork/fulltile(get_turf(src))
 	qdel(src)
 
-/obj/structure/window/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
+/obj/structure/window/rpd_act()
 	return
 
-/obj/structure/window/singularity_pull(atom/singularity, current_size)
+/obj/structure/window/singularity_pull(S, current_size)
 	..()
-	if(anchored && current_size >= STAGE_TWO)
-		set_anchored(FALSE)
 	if(current_size >= STAGE_FIVE)
 		deconstruct(FALSE)
 
+
 /obj/structure/window/setDir(newdir)
 	return ..(fulltile ? FULLTILE_WINDOW_DIR : newdir)
+
 
 /obj/structure/window/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
@@ -194,7 +193,8 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 
 	return TRUE
 
-/obj/structure/window/proc/on_exit(datum/source, atom/movable/leaving, direction)
+
+/obj/structure/window/proc/on_exit(datum/source, atom/movable/leaving, atom/newLoc)
 	SIGNAL_HANDLER
 
 	if(leaving.movement_type & PHASING)
@@ -209,9 +209,10 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	if(fulltile || dir == FULLTILE_WINDOW_DIR)
 		return
 
-	if(density && dir == direction)
+	if(density && dir == get_dir(leaving, newLoc))
 		leaving.Bump(src)
 		return COMPONENT_ATOM_BLOCK_EXIT
+
 
 /obj/structure/window/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	if(!density)
@@ -219,6 +220,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	if(fulltile || (dir == FULLTILE_WINDOW_DIR) || (dir == to_dir))
 		return FALSE
 	return TRUE
+
 
 /obj/structure/window/attack_tk(mob/user)
 	user.changeNext_move(CLICK_CD_MELEE)
@@ -252,6 +254,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		return
 	..()
 
+
 /obj/structure/window/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
 	if(grabber.grab_state < GRAB_AGGRESSIVE || !isliving(grabbed_thing) || !can_be_reached(grabber) || !Adjacent(grabbed_thing))
@@ -262,8 +265,8 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	switch(grabber.grab_state)
 		if(GRAB_AGGRESSIVE)
 			victim.visible_message(
-				span_warning("[grabber] стука[PLUR_ET_YUT(grabber)] [victim] в [declent_ru(ACCUSATIVE)]!"),
-				span_warning("[grabber] стука[PLUR_ET_YUT(grabber)] вас в [declent_ru(ACCUSATIVE)]!")
+				span_warning("[grabber] стука[pluralize_ru(grabber.gender,"ет","ют")] [victim] в [declent_ru(ACCUSATIVE)]!"),
+				span_warning("[grabber] стука[pluralize_ru(grabber.gender,"ет","ют")] вас в [declent_ru(ACCUSATIVE)]!")
 			)
 			if(prob(25))
 				victim.Knockdown(2 SECONDS)
@@ -271,25 +274,27 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 			take_damage(10)
 		if(GRAB_NECK)
 			victim.visible_message(
-				span_warning("[grabber] бь[PLUR_YOT_YUT(grabber)] [victim] о [declent_ru(ACCUSATIVE)]!"),
-				span_warning("[grabber] бь[PLUR_ET_YUT(grabber)] вас о [declent_ru(ACCUSATIVE)]!")
+				span_warning("[grabber] бь[pluralize_ru(grabber.gender,"ёт","ют")] [victim] о [declent_ru(ACCUSATIVE)]!"),
+				span_warning("[grabber] бь[pluralize_ru(grabber.gender,"ет","ют")] вас о [declent_ru(ACCUSATIVE)]!")
 			)
 			victim.Knockdown(4 SECONDS)
 			victim.apply_damage(10)
 			take_damage(25)
 		if(GRAB_KILL)
 			victim.visible_message(
-				span_warning("[grabber] с размаху бь[PLUR_YOT_YUT(grabber)] [victim] к [declent_ru(DATIVE)]!"),
-				span_warning("[grabber] с размаху бь[PLUR_YOT_YUT(grabber)] вас к [declent_ru(DATIVE)]!")
+				span_warning("[grabber] с размаху бь[pluralize_ru(grabber.gender,"ёт","ют")] [victim] к [declent_ru(DATIVE)]!"),
+				span_warning("[grabber] с размаху бь[pluralize_ru(grabber.gender,"ёт","ют")] вас к [declent_ru(DATIVE)]!")
 			)
 			victim.Knockdown(6 SECONDS)
 			victim.apply_damage(20)
 			take_damage(50)
 
+
 /obj/structure/window/attackby(obj/item/I, mob/living/user, params)
 	if(!can_be_reached(user))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/structure/window/crowbar_act(mob/user, obj/item/I)
 	if(!reinf)
@@ -329,7 +334,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 			if(!I.use_tool(src, user, decon_speed, volume = I.tool_volume, extra_checks = CALLBACK(src, PROC_REF(check_state_and_anchored), state, anchored)))
 				return
 			set_anchored(!anchored)
-			recalculate_atmos_connectivity()
+			air_update_turf(TRUE)
 			update_nearby_icons()
 			to_chat(user, span_notice("Вы [anchored ? "закрепляете раму к ": "открепляете раму от"] пола."))
 
@@ -339,7 +344,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		if(!I.use_tool(src, user, decon_speed, volume = I.tool_volume, extra_checks = CALLBACK(src, PROC_REF(check_anchored), anchored)))
 			return
 		set_anchored(!anchored)
-		recalculate_atmos_connectivity()
+		air_update_turf(TRUE)
 		update_nearby_icons()
 		to_chat(user, span_notice("Вы [anchored ? "закрепляете окно на полу":"открепляете окно от пола"]."))
 
@@ -387,10 +392,11 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 /obj/structure/window/proc/check_state_and_anchored(checked_state, checked_anchored)
 	return check_state(checked_state) && check_anchored(checked_anchored)
 
-/obj/structure/window/mech_melee_attack(obj/mecha/mech, obj/item/mecha_parts/mecha_equipment/selected_module = null)
+/obj/structure/window/mech_melee_attack(obj/mecha/M)
 	if(!can_be_reached())
 		return
 	..()
+
 
 /obj/structure/window/proc/can_be_reached(mob/user)
 	if(fulltile || dir == FULLTILE_WINDOW_DIR)
@@ -403,6 +409,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		if(!blocker.CanPass(user, checking_dir))
 			return FALSE
 	return TRUE
+
 
 /obj/structure/window/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1)
 	. = ..()
@@ -440,6 +447,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	else
 		return RCD_ACT_FAILED
 
+
 /obj/structure/window/click_alt(mob/user)
 	if(anchored)
 		to_chat(user, span_warning("[declent_ru(NOMINATIVE)] нельзя повернуть, пока он закреплён!"))
@@ -456,26 +464,22 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	add_fingerprint(user)
 	return CLICK_ACTION_SUCCESS
 
+
 /obj/structure/window/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	var/turf/T = loc
 	. = ..()
 	move_update_air(T)
 
-/obj/structure/window/CanAtmosPass(direction)
+/obj/structure/window/CanAtmosPass(turf/T, vertical)
 	if(!anchored || !density)
 		return TRUE
-	return !(FULLTILE_WINDOW_DIR == dir || (dir & direction))
-
-/obj/structure/window/get_superconductivity(direction)
-	if(dir == FULLTILE_WINDOW_DIR || dir & direction)
-		return superconductivity
-	return ..()
+	return !(FULLTILE_WINDOW_DIR == dir || dir == get_dir(loc, T))
 
 //This proc is used to update the icons of nearby windows.
 /obj/structure/window/proc/update_nearby_icons()
 	update_icon(UPDATE_OVERLAYS)
 	if(smooth)
-		QUEUE_SMOOTH_NEIGHBORS(src)
+		queue_smooth_neighbors(src)
 
 /obj/structure/window/update_overlays()
 	. = ..()
@@ -483,27 +487,29 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		return
 
 	var/ratio = obj_integrity / max_integrity
-	ratio = ceil(ratio * 4) * 25
+	ratio = CEILING(ratio * 4, 1) * 25
 	if(smooth)
-		QUEUE_SMOOTH(src)
+		queue_smooth(src)
 	if(ratio > 75)
 		return
 
 	crack_overlay = mutable_appearance('icons/obj/structures.dmi', "damage[ratio]", -(layer + 0.01), appearance_flags = RESET_COLOR)
 	. += crack_overlay
 
-/obj/structure/window/temperature_expose(exposed_temperature, exposed_volume)
+
+/obj/structure/window/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature > (T0C + heat_resistance))
-		take_damage(round(exposed_temperature / 100), BURN, 0, 0)
+		take_damage(round(exposed_volume / 100), BURN, 0, 0)
 
-/obj/structure/window/hit_by_thrown_mob(mob/living/throwned_mob, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
+
+/obj/structure/window/hit_by_thrown_carbon(mob/living/carbon/human/human, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
 	var/shattered = FALSE
 	if(damage * 2 >= obj_integrity && shardtype && !mob_hurt)
 		shattered = TRUE
 		var/obj/item/item = new shardtype(loc)
 		item.embedded_ignore_throwspeed_threshold = TRUE
-		item.throw_impact(throwned_mob)
+		item.throw_impact(human)
 		item.embedded_ignore_throwspeed_threshold = FALSE
 		damage *= (4/3) //Inverts damage loss from being a structure, since glass breaking on you hurts
 		var/turf/turf = get_turf(src)
@@ -520,7 +526,8 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		self_hurt = TRUE
 	..()
 	if(shattered)
-		throwned_mob.throw_at(throwingdatum.initial_target, throwingdatum.maxrange - 1, throwingdatum.speed - 1) //Annnnnnnd yeet them into space, but slower, now that everything is dealt with
+		human.throw_at(throwingdatum.initial_target, throwingdatum.maxrange - 1, throwingdatum.speed - 1) //Annnnnnnd yeet them into space, but slower, now that everything is dealt with
+
 
 /obj/structure/window/get_explosion_block()
 	return reinf && fulltile ? real_explosion_block : 0
@@ -535,21 +542,28 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	reinf = TRUE
 	cancolor = TRUE
 	heat_resistance = 1600
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	max_integrity = 50
 	explosion_block = 1
 	glass_type = /obj/item/stack/sheet/rglass
-	rad_insulation = RAD_LIGHT_INSULATION
 
 /obj/structure/window/reinforced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "укреплённое окно",
 		GENITIVE = "укреплённого окна",
 		DATIVE = "укреплённому окну",
 		ACCUSATIVE = "укреплённое окно",
 		INSTRUMENTAL = "укреплённым окном",
-		PREPOSITIONAL = "укреплённом окне",
+		PREPOSITIONAL = "укреплённом окне"
 	)
+
+// You can't rust glass! So only reinforced glass can be impacted.
+/obj/structure/window/reinforced/rust_heretic_act()
+	add_atom_colour(COLOR_RUSTED_GLASS, FIXED_COLOUR_PRIORITY)
+	AddElement(/datum/element/rust)
+	getArmor()
+	take_damage(get_integrity() * 0.5)
+	modify_max_integrity(initial(max_integrity) * 0.2)
 
 /obj/structure/window/reinforced/tinted
 	name = "tinted window"
@@ -558,13 +572,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	opacity = TRUE
 
 /obj/structure/window/reinforced/tinted/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "тонированное окно",
 		GENITIVE = "тонированного окна",
 		DATIVE = "тонированному окну",
 		ACCUSATIVE = "тонированное окно",
 		INSTRUMENTAL = "тонированным окном",
-		PREPOSITIONAL = "тонированном окне",
+		PREPOSITIONAL = "тонированном окне"
 	)
 
 /obj/structure/window/reinforced/tinted/frosted
@@ -574,13 +588,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	max_integrity = 30
 
 /obj/structure/window/reinforced/tinted/frosted/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "матовое окно",
 		GENITIVE = "матового окна",
 		DATIVE = "матовому окну",
 		ACCUSATIVE = "матовое окно",
 		INSTRUMENTAL = "матовым окном",
-		PREPOSITIONAL = "матовом окне",
+		PREPOSITIONAL = "матовом окне"
 	)
 
 /obj/structure/window/reinforced/polarized
@@ -591,13 +605,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/ispolzovano
 
 /obj/structure/window/reinforced/polarized/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "электрохромное окно",
 		GENITIVE = "электрохромного окна",
 		DATIVE = "электрохромному окну",
 		ACCUSATIVE = "электрохромное окно",
 		INSTRUMENTAL = "электрохромным окном",
-		PREPOSITIONAL = "электрохромном окне",
+		PREPOSITIONAL = "электрохромном окне"
 	)
 
 /obj/structure/window/reinforced/polarized/proc/toggle()
@@ -611,10 +625,6 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		animate(src, color="#222222", time=5)
 		set_opacity(TRUE)
 
-/obj/machinery/button
-	name = "button"
-	mouse_over_pointer = MOUSE_HAND_POINTER
-
 /obj/machinery/button/windowtint
 	name = "window tint control"
 	icon = 'icons/obj/engines_and_power/power.dmi'
@@ -626,13 +636,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/active = 0
 
 /obj/machinery/button/windowtint/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "контроллер тонировки окон",
 		GENITIVE = "контроллера тонировки окон",
 		DATIVE = "контроллеру тонировки окон",
 		ACCUSATIVE = "контроллер тонировки окон",
 		INSTRUMENTAL = "контроллером тонировки окон",
-		PREPOSITIONAL = "контроллере тонировки окон",
+		PREPOSITIONAL = "контроллере тонировки окон"
 	)
 
 /obj/machinery/button/windowtint/attack_hand(mob/user)
@@ -659,6 +669,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		if(airlock.id == id)
 			INVOKE_ASYNC(src, PROC_REF(async_update), airlock)
 
+
 /obj/machinery/button/windowtint/proc/async_update(obj/machinery/door/airlock/airlock)
 	if(airlock.glass)
 		airlock.airlock_material = null
@@ -671,6 +682,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		airlock.glass = TRUE
 		airlock.update_icon()
 		airlock.set_opacity(FALSE)
+
 
 /obj/machinery/button/windowtint/power_change(forced = FALSE)
 	if(!..())
@@ -690,19 +702,20 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	heat_resistance = 32000
 	max_integrity = 150
 	explosion_block = 1
-	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, FIRE = 99, ACID = 100)
-	superconductivity = ZERO_HEAT_TRANSFER_COEFFICIENT
-	rad_insulation = RAD_MEDIUM_INSULATION
+	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, RAD = 100, FIRE = 99, ACID = 100)
 
 /obj/structure/window/plasmabasic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "плазменное окно",
 		GENITIVE = "плазменного окна",
 		DATIVE = "плазменному окну",
 		ACCUSATIVE = "плазменное окно",
 		INSTRUMENTAL = "плазменным окном",
-		PREPOSITIONAL = "плазменном окне",
+		PREPOSITIONAL = "плазменном окне"
 	)
+
+/obj/structure/window/plasmabasic/BlockSuperconductivity()
+	return 1
 
 /obj/structure/window/plasmareinforced
 	name = "reinforced plasma window"
@@ -714,24 +727,24 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	heat_resistance = 32000
 	max_integrity = 500
 	explosion_block = 2
-	armor = list(MELEE = 85, BULLET = 20, LASER = 0, ENERGY = 0, BOMB = 60, BIO = 100, FIRE = 99, ACID = 100)
+	armor = list(MELEE = 85, BULLET = 20, LASER = 0, ENERGY = 0, BOMB = 60, BIO = 100, RAD = 100, FIRE = 99, ACID = 100)
 	damage_deflection = 21
-	superconductivity = ZERO_HEAT_TRANSFER_COEFFICIENT
-	rad_insulation = RAD_HEAVY_INSULATION
-	cares_about_temperature = FALSE
 
 /obj/structure/window/plasmareinforced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "укреплённое плазменное окно",
 		GENITIVE = "укреплённого плазменного окна",
 		DATIVE = "укреплённому плазменному окну",
 		ACCUSATIVE = "укреплённое плазменное окно",
 		INSTRUMENTAL = "укреплённым плазменным окном",
-		PREPOSITIONAL = "укреплённом плазменном окне",
+		PREPOSITIONAL = "укреплённом плазменном окне"
 	)
 
-/obj/structure/window/plasmareinforced/temperature_expose(exposed_temperature, exposed_volume, base_structure_expose)
+/obj/structure/window/plasmareinforced/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	return
+
+/obj/structure/window/plasmareinforced/BlockSuperconductivity()
+	return 1 //okay this SHOULD MAKE THE TOXINS CHAMBER WORK
 
 /obj/structure/window/abductor
 	name = "alien window"
@@ -741,16 +754,16 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	heat_resistance = 1600
 	max_integrity = 150
 	explosion_block = 1
-	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 
 /obj/structure/window/abductor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инопланетное окно",
 		GENITIVE = "инопланетного окна",
 		DATIVE = "инопланетному окну",
 		ACCUSATIVE = "инопланетное окно",
 		INSTRUMENTAL = "инопланетным окном",
-		PREPOSITIONAL = "инопланетном окне",
+		PREPOSITIONAL = "инопланетном окне"
 	)
 
 /obj/structure/window/abductor/Initialize(mapload, direct)
@@ -765,13 +778,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	flags = PREVENT_CLICK_UNDER | NO_SCREENTIPS
 	obj_flags = BLOCK_Z_IN_DOWN | BLOCK_Z_IN_UP
 
-/obj/structure/window/full/CanAtmosPass(direction)
+/obj/structure/window/full/CanAtmosPass(turf/T, vertical)
 	if(!anchored || !density)
 		return TRUE
 	return FALSE
 
 /obj/structure/window/full/basic
-	desc = "Выглядит тонким и хрупким. Несколько ударов чем угодно — и оно разобьётся."
+	desc = "Выглядит тонким и хрупким. Несколько ударов чем угодно – и оно разобьётся."
 	icon = 'icons/obj/smooth_structures/window.dmi'
 	base_icon_state = "window"
 	max_integrity = 50
@@ -794,18 +807,16 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	canSmoothWith = SMOOTH_GROUP_WINDOW_FULLTILE
 	smoothing_groups = SMOOTH_GROUP_WINDOW_FULLTILE
 	explosion_block = 1
-	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, FIRE = 99, ACID = 100)
-	superconductivity = ZERO_HEAT_TRANSFER_COEFFICIENT
-	rad_insulation = RAD_MEDIUM_INSULATION
+	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, RAD = 100, FIRE = 99, ACID = 100)
 
 /obj/structure/window/full/plasmabasic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "плазменное окно",
 		GENITIVE = "плазменного окна",
 		DATIVE = "плазменному окну",
 		ACCUSATIVE = "плазменное окно",
 		INSTRUMENTAL = "плазменным окном",
-		PREPOSITIONAL = "плазменном окне",
+		PREPOSITIONAL = "плазменном окне"
 	)
 
 /obj/structure/window/full/paperframe
@@ -820,13 +831,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	canSmoothWith = SMOOTH_GROUP_PAPERFRAME
 
 /obj/structure/window/full/paperframe/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "окно с бумажной рамой",
 		GENITIVE = "окна с бумажной рамой",
 		DATIVE = "окну с бумажной рамой",
 		ACCUSATIVE = "окно с бумажной рамой",
 		INSTRUMENTAL = "окном с бумажной рамой",
-		PREPOSITIONAL = "окне с бумажной рамой",
+		PREPOSITIONAL = "окне с бумажной рамой"
 	)
 
 /obj/structure/window/full/plasmareinforced
@@ -843,23 +854,23 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	reinf = TRUE
 	max_integrity = 1000
 	explosion_block = 2
-	armor = list(MELEE = 85, BULLET = 20, LASER = 0, ENERGY = 0, BOMB = 60, BIO = 100, FIRE = 99, ACID = 100)
-	superconductivity = ZERO_HEAT_TRANSFER_COEFFICIENT
-	rad_insulation = RAD_HEAVY_INSULATION
-	cares_about_temperature = FALSE
+	armor = list(MELEE = 85, BULLET = 20, LASER = 0, ENERGY = 0, BOMB = 60, BIO = 100, RAD = 100, FIRE = 99, ACID = 100)
 
 /obj/structure/window/full/plasmareinforced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "укреплённое плазменное окно",
 		GENITIVE = "укреплённого плазменного окна",
 		DATIVE = "укреплённому плазменному окну",
 		ACCUSATIVE = "укреплённое плазменное окно",
 		INSTRUMENTAL = "укреплённым плазменным окном",
-		PREPOSITIONAL = "укреплённом плазменном окне",
+		PREPOSITIONAL = "укреплённом плазменном окне"
 	)
 
-/obj/structure/window/full/plasmareinforced/temperature_expose(exposed_temperature, exposed_volume, base_structure_expose)
+/obj/structure/window/full/plasmareinforced/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	return
+
+/obj/structure/window/full/plasmareinforced/BlockSuperconductivity()
+	return TRUE
 
 /obj/structure/window/full/reinforced
 	name = "reinforced window"
@@ -873,21 +884,21 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	max_integrity = 100
 	reinf = TRUE
 	heat_resistance = 1600
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	explosion_block = 1
 	glass_type = /obj/item/stack/sheet/rglass
 	cancolor = TRUE
-	rad_insulation = RAD_LIGHT_INSULATION
 
 /obj/structure/window/full/reinforced/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "укреплённое окно",
 		GENITIVE = "укреплённого окна",
 		DATIVE = "укреплённому окну",
 		ACCUSATIVE = "укреплённое окно",
 		INSTRUMENTAL = "укреплённым окном",
-		PREPOSITIONAL = "укреплённом окне",
+		PREPOSITIONAL = "укреплённом окне"
 	)
+
 
 /obj/structure/window/full/reinforced/tinted
 	name = "tinted window"
@@ -898,13 +909,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	opacity = TRUE
 
 /obj/structure/window/full/reinforced/tinted/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "тонированное окно",
 		GENITIVE = "тонированного окна",
 		DATIVE = "тонированному окну",
 		ACCUSATIVE = "тонированное окно",
 		INSTRUMENTAL = "тонированным окном",
-		PREPOSITIONAL = "тонированном окне",
+		PREPOSITIONAL = "тонированном окне"
 	)
 
 /obj/structure/window/full/reinforced/polarized
@@ -915,13 +926,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/ispolzovano
 
 /obj/structure/window/full/reinforced/polarized/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "электрохромное окно",
 		GENITIVE = "электрохромного окна",
 		DATIVE = "электрохромному окну",
 		ACCUSATIVE = "электрохромное окно",
 		INSTRUMENTAL = "электрохромным окном",
-		PREPOSITIONAL = "электрохромном окне",
+		PREPOSITIONAL = "электрохромном окне"
 	)
 
 /obj/structure/window/full/reinforced/polarized/proc/toggle()
@@ -946,7 +957,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	name = "alien window"
 	desc = "Окно из инопланетного сплава. Похоже, способно восстанавливать любые повреждения."
 	icon = 'icons/obj/smooth_structures/alien_window.dmi'
-	icon_state = "alien_window-0"
+	icon_state = "al_window"
 	base_icon_state = "alien_window"
 	glass_type = /obj/item/stack/sheet/abductorglass
 	heat_resistance = 1600
@@ -955,16 +966,16 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	canSmoothWith = SMOOTH_GROUP_WINDOW_FULLTILE
 	smoothing_groups = SMOOTH_GROUP_WINDOW_FULLTILE
 	explosion_block = 1
-	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 75, BULLET = 5, LASER = 0, ENERGY = 0, BOMB = 45, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 
 /obj/structure/window/full/abductor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инопланетное окно",
 		GENITIVE = "инопланетного окна",
 		DATIVE = "инопланетному окну",
 		ACCUSATIVE = "инопланетное окно",
 		INSTRUMENTAL = "инопланетным окном",
-		PREPOSITIONAL = "инопланетном окне",
+		PREPOSITIONAL = "инопланетном окне"
 	)
 
 /obj/structure/window/full/abductor/Initialize(mapload, direct)
@@ -981,21 +992,20 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	reinf = TRUE
 	heat_resistance = 1600
 	explosion_block = 3
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	smooth = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_WINDOW_FULLTILE_SHUTTLE //+ SMOOTH_GROUP_SHUTTLE_PARTS
 	canSmoothWith = SMOOTH_GROUP_WINDOW_FULLTILE_SHUTTLE
 	glass_type = /obj/item/stack/sheet/titaniumglass
-	rad_insulation = RAD_MEDIUM_INSULATION
 
 /obj/structure/window/full/shuttle/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "окно шаттла",
 		GENITIVE = "окна шаттла",
 		DATIVE = "окну шаттла",
 		ACCUSATIVE = "окно шаттла",
 		INSTRUMENTAL = "окном шаттла",
-		PREPOSITIONAL = "окне шаттла",
+		PREPOSITIONAL = "окне шаттла"
 	)
 /obj/structure/window/full/shuttle/narsie_act()
 	color = "#3C3434"
@@ -1009,13 +1019,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	base_icon_state = "shuttle_window_gray"
 
 /obj/structure/window/full/shuttle/gray/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "окно шаттла",
 		GENITIVE = "окна шаттла",
 		DATIVE = "окну шаттла",
 		ACCUSATIVE = "окно шаттла",
 		INSTRUMENTAL = "окном шаттла",
-		PREPOSITIONAL = "окне шаттла",
+		PREPOSITIONAL = "окне шаттла"
 	)
 /obj/structure/window/full/shuttle/gray/tinted
 	opacity = TRUE
@@ -1026,16 +1036,17 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	icon = 'icons/obj/smooth_structures/shuttle_window_ninja.dmi'
 	icon_state = "shuttle_window_ninja-0"
 	base_icon_state = "shuttle_window_ninja"
-	armor = list(MELEE = 50, BULLET = 30, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 30, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
+
 
 /obj/structure/window/full/shuttle/ninja/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "высокотехнологичное окно шаттла",
 		GENITIVE = "высокотехнологичного окна шаттла",
 		DATIVE = "высокотехнологичному окну шаттла",
 		ACCUSATIVE = "высокотехнологичное окно шаттла",
 		INSTRUMENTAL = "высокотехнологичным окном шаттла",
-		PREPOSITIONAL = "высокотехнологичном окне шаттла",
+		PREPOSITIONAL = "высокотехнологичном окне шаттла"
 	)
 /obj/structure/window/full/shuttle/ninja/tinted
 	opacity = TRUE
@@ -1052,7 +1063,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	flags = PREVENT_CLICK_UNDER | NO_SCREENTIPS
 	reinf = TRUE
 	heat_resistance = 1600
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	smooth = SMOOTH_BITMASK
 	canSmoothWith = SMOOTH_GROUP_WINDOW_FULLTILE_PLASTITANIUM
 	smoothing_groups = SMOOTH_GROUP_WINDOW_FULLTILE_PLASTITANIUM
@@ -1060,17 +1071,15 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	level = 3
 	glass_type = /obj/item/stack/sheet/plastitaniumglass
 	glass_amount = 2
-	superconductivity = ZERO_HEAT_TRANSFER_COEFFICIENT
-	rad_insulation = RAD_EXTREME_INSULATION
 
 /obj/structure/window/plastitanium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пластитановое окно",
 		GENITIVE = "пластитанового окна",
 		DATIVE = "пластитановому окну",
 		ACCUSATIVE = "пластитановое окно",
 		INSTRUMENTAL = "пластитановым окном",
-		PREPOSITIONAL = "пластитановом окне",
+		PREPOSITIONAL = "пластитановом окне"
 	)
 
 /obj/structure/window/reinforced/clockwork
@@ -1080,7 +1089,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	icon_state = "clockwork_window_single"
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	max_integrity = 80
-	armor = list(MELEE = 60, BULLET = 25, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 60, BULLET = 25, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	explosion_block = 2 //fancy AND hard to destroy. the most useful combination.
 	glass_type = /obj/item/stack/sheet/brass
 	reinf = FALSE
@@ -1088,13 +1097,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/made_glow = FALSE
 
 /obj/structure/window/reinforced/clockwork/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "латунное окно",
 		GENITIVE = "латунного окна",
 		DATIVE = "латунному окну",
 		ACCUSATIVE = "латунное окно",
 		INSTRUMENTAL = "латунным окном",
-		PREPOSITIONAL = "латунном окне",
+		PREPOSITIONAL = "латунном окне"
 	)
 
 /obj/structure/window/reinforced/clockworkfake
@@ -1104,7 +1113,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	icon_state = "clockwork_window_single"
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	max_integrity = 80
-	armor = list(MELEE = 60, BULLET = 25, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 60, BULLET = 25, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	explosion_block = 2 //fancy AND hard to destroy. the most useful combination.
 	glass_type = /obj/item/stack/sheet/brass_fake
 	reinf = FALSE
@@ -1112,13 +1121,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/made_glow = FALSE
 
 /obj/structure/window/reinforced/clockworkfake/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "латунное окно",
 		GENITIVE = "латунного окна",
 		DATIVE = "латунному окну",
 		ACCUSATIVE = "латунное окно",
 		INSTRUMENTAL = "латунным окном",
-		PREPOSITIONAL = "латунном окне",
+		PREPOSITIONAL = "латунном окне"
 	)
 
 /obj/structure/window/reinforced/clockwork/Initialize(mapload, direct)

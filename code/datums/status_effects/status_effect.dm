@@ -8,7 +8,7 @@
 	/// When set initially / in on_creation, this is how long the status effect lasts in deciseconds.
 	/// While processing, this becomes the world.time when the status effect will expire.
 	/// -1 = infinite duration.
-	var/duration = STATUS_EFFECT_PERMANENT
+	var/duration = -1
 	/// When set initially / in on_creation, this is how long between [proc/tick] calls in deciseconds.
 	/// Note that this cannot be faster than the processing subsystem you choose to fire the effect on. (See: [var/processing_speed])
 	/// While processing, this becomes the world.time when the next tick will occur.
@@ -31,8 +31,10 @@
 	/// Used to define if the status effect should be using SSfastprocess or SSprocessing
 	var/processing_speed = STATUS_EFFECT_FAST_PROCESS
 
+
 /datum/status_effect/New(list/arguments)
 	on_creation(arglist(arguments))
+
 
 /// Called from New() with any supplied status effect arguments.
 /// Not guaranteed to exist by the end.
@@ -61,6 +63,7 @@
 				START_PROCESSING(SSprocessing, src)
 	return TRUE
 
+
 /datum/status_effect/Destroy()
 	switch(processing_speed)
 		if(STATUS_EFFECT_FAST_PROCESS)
@@ -77,6 +80,7 @@
 		linked_alert.attached_effect = null
 		linked_alert = null
 	return ..()
+
 
 // Status effect process. Handles adjusting its duration and ticks.
 // If you're adding processed effects, put them in [proc/tick]
@@ -97,15 +101,18 @@
 		on_timeout()
 		qdel(src)
 
+
 /// Called whenever the effect is applied in on_created
 /// Returning FALSE will cause it to delete itself during creation instead.
 /datum/status_effect/proc/on_apply()
 	return TRUE
 
+
 /// Gets and formats examine text associated with our status effect.
 /// Return 'null' to have no examine text appear (default behavior).
 /datum/status_effect/proc/get_examine_text()
 	return
+
 
 /**
  * Called every tick from process().
@@ -120,14 +127,17 @@
 /datum/status_effect/proc/tick(seconds_between_ticks)
 	return
 
+
 /// Called whenever the buff expires or is removed (qdeleted)
 /// Note that at the point this is called, it is out of the owner's status_effects list, but owner is not yet null
 /datum/status_effect/proc/on_remove()
 	return
 
+
 /// Called specifically whenever the status effect expires.
 /datum/status_effect/proc/on_timeout()
 	return
+
 
 /// Called instead of on_remove when a status effect
 /// of status_type STATUS_EFFECT_REPLACE is replaced by itself,
@@ -140,30 +150,35 @@
 	owner = null
 	qdel(src)
 
+
 /// Called before being fully removed (before on_remove)
 /// Returning FALSE will cancel removal
 /datum/status_effect/proc/before_remove()
 	return TRUE
 
+
 /// Called when a status effect of status_type STATUS_EFFECT_REFRESH
 /// has its duration refreshed in apply_status_effect - is passed New() args
 /datum/status_effect/proc/refresh(effect, ...)
 	var/original_duration = initial(duration)
-	if(original_duration == STATUS_EFFECT_PERMANENT)
+	if(original_duration == -1)
 		return
 	duration = world.time + original_duration
+
 
 /// Adds nextmove modifier multiplicatively to the owner while applied
 /datum/status_effect/proc/nextmove_modifier()
 	return 1
 
+
 /// Adds nextmove adjustment additiviely to the owner while applied
 /datum/status_effect/proc/nextmove_adjust()
 	return 0
 
+
 /// Remove [seconds] of duration from the status effect, qdeling / ending if we eclipse the current world time.
 /datum/status_effect/proc/remove_duration(seconds)
-	if(duration == STATUS_EFFECT_PERMANENT) // Infinite duration
+	if(duration == -1) // Infinite duration
 		return FALSE
 
 	duration -= seconds
@@ -173,13 +188,6 @@
 
 	return FALSE
 
-/datum/status_effect/vv_edit_var(var_name, var_value)
-	. = ..()
-	if(!.)
-		return
-	if(var_name == NAMEOF(src, duration))
-		if(var_value == INFINITY)
-			duration = STATUS_EFFECT_PERMANENT
 
 ////////////////
 // ALERT HOOK //
@@ -188,7 +196,6 @@
 /atom/movable/screen/alert/status_effect
 	name = "Проклятие Обыденности"
 	desc = "Вы не чувствуете никаких изменений..."
-	icon_state = "negative"
 	var/datum/status_effect/attached_effect
 
 /atom/movable/screen/alert/status_effect/Destroy()
@@ -196,6 +203,7 @@
 		attached_effect.linked_alert = null
 	attached_effect = null
 	return ..()
+
 
 //////////////////
 // HELPER PROCS //
@@ -213,7 +221,9 @@
 /mob/living/proc/apply_status_effect(datum/status_effect/new_effect, ...)
 	RETURN_TYPE(/datum/status_effect)
 
+	// The arguments we pass to the start effect. The 1st argument is this mob.
 	var/list/arguments = args.Copy()
+	arguments[1] = src
 
 	// If the status effect we're applying doesn't allow multiple effects, we need to handle it
 	if(initial(new_effect.status_type) != STATUS_EFFECT_MULTIPLE)
@@ -236,14 +246,12 @@
 					existing_effect.refresh(arglist(arguments))
 					return
 
-	// For the new effect the 1st argument is this mob
-	arguments[1] = src
-
 	// Create the status effect with our mob + our arguments
 	var/datum/status_effect/new_instance = new new_effect(arguments)
 	if(!QDELETED(new_instance))
 		SEND_SIGNAL(src, COMSIG_LIVING_GAINED_STATUS_EFFECT, new_instance)
 		return new_instance
+
 
 /**
  * Removes all instances of a given status effect from this mob
@@ -263,6 +271,7 @@
 			qdel(existing_effect)
 			. = TRUE
 
+
 /**
  * Checks if this mob has a status effect that shares the passed effect's ID
  *
@@ -276,12 +285,14 @@
 	// for an effect such as blindness
 	return null
 
+
 /mob/living/has_status_effect(datum/status_effect/checked_effect)
 	RETURN_TYPE(/datum/status_effect)
 
 	for(var/datum/status_effect/present_effect as anything in status_effects)
 		if(present_effect.id == initial(checked_effect.id))
 			return present_effect
+
 
 ///Gets every status effect of an ID and returns all of them in a list, rather than the individual 'has_status_effect'
 /mob/living/proc/get_all_status_effect_of_id(datum/status_effect/checked_effect)
@@ -291,6 +302,7 @@
 	for(var/datum/status_effect/present_effect as anything in status_effects)
 		if(present_effect.id == initial(checked_effect.id))
 			. += present_effect
+
 
 //////////////////////
 // STACKING EFFECTS //
@@ -385,10 +397,10 @@
 	status_overlay = mutable_appearance(overlay_file, "[overlay_state][stacks]")
 	status_underlay = mutable_appearance(underlay_file, "[underlay_state][stacks]")
 	var/icon_height = owner.get_cached_height()
-	status_overlay.pixel_w = -owner.pixel_x
-	status_overlay.pixel_z = floor(icon_height * 0.25)
+	status_overlay.pixel_x = -owner.pixel_x
+	status_overlay.pixel_y = FLOOR(icon_height * 0.25, 1)
 	status_overlay.transform = matrix() * (icon_height / ICON_SIZE_Y) //scale the status's overlay size based on the target's icon size
-	status_underlay.pixel_w = -owner.pixel_x
+	status_underlay.pixel_x = -owner.pixel_x
 	status_underlay.transform = matrix() * (icon_height / ICON_SIZE_Y) * 3
 	status_underlay.alpha = 40
 	owner.add_overlay(status_overlay)
@@ -402,10 +414,12 @@
 	QDEL_NULL(status_overlay)
 	return ..()
 
+
 /// Status effect from multiple sources, when all sources are removed, so is the effect
 /datum/status_effect/grouped
 	status_type = STATUS_EFFECT_MULTIPLE //! Adds itself to sources and destroys itself if one exists already, there are never multiple
 	var/list/sources = list()
+
 
 /datum/status_effect/grouped/on_creation(mob/living/new_owner, source)
 	var/datum/status_effect/grouped/existing = new_owner.has_status_effect(type)
@@ -417,9 +431,11 @@
 		sources |= source
 		return ..()
 
+
 /datum/status_effect/grouped/before_remove(source)
 	sources -= source
 	return !length(sources)
+
 
 /**
  * # Transient Status Effect (basetype)
@@ -433,10 +449,12 @@
 	/// How much strength left before expiring? time in deciseconds.
 	var/strength = 0
 
+
 /datum/status_effect/transient/on_creation(mob/living/new_owner, set_duration)
 	if(isnum(set_duration))
 		strength = set_duration
 	. = ..()
+
 
 /datum/status_effect/transient/tick(seconds_between_ticks)
 	if(QDELETED(src) || QDELETED(owner))
@@ -446,6 +464,7 @@
 	if(strength <= 0)
 		qdel(src)
 		return FALSE
+
 
 /**
  * Returns how much strength should be adjusted per tick.

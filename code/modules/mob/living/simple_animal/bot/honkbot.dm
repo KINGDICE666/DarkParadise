@@ -21,15 +21,15 @@
 	var/spam_flag = FALSE
 	var/cooldowntime = 3 SECONDS
 	var/cooldowntimehorn = 1 SECONDS
-	var/mob/living/carbon/target
+	var/mob/living/carbon/honk_target
 	var/oldtarget_name
-	var/target_lastloc = FALSE	//Loc of target when arrested.
+	var/target_lastloc = FALSE	//Loc of honk_target when arrested.
 	var/last_found = FALSE	//There's a delay
 	var/threatlevel = FALSE
 	var/arrest_type = FALSE
 
 /mob/living/simple_animal/bot/honkbot/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "хонкобот",
 		GENITIVE = "хонкобота",
 		DATIVE = "хонкоботу",
@@ -41,11 +41,12 @@
 /obj/machinery/bot_core/honkbot
 	req_access = list(ACCESS_CLOWN, ACCESS_ROBOTICS, ACCESS_MIME)
 
+
 /mob/living/simple_animal/bot/honkbot/Initialize(mapload)
 	. = ..()
 	update_icon()
 	auto_patrol = TRUE
-	var/datum/job/service/clown/J = new /datum/job/service/clown()
+	var/datum/job/clown/J = new /datum/job/clown()
 	access_card.access += J.get_access()
 	prev_access = access_card.access
 
@@ -54,9 +55,11 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /mob/living/simple_animal/bot/honkbot/proc/sensor_blink()
 	icon_state = "honkbot-c"
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 0.5 SECONDS, TIMER_OVERRIDE|TIMER_UNIQUE)
+
 
 //honkbots react with sounds.
 /mob/living/simple_animal/bot/honkbot/proc/react_ping()
@@ -65,23 +68,27 @@
 	sensor_blink()
 	addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), 1.8 SECONDS)	// calibrates before starting the honk
 
+
 /mob/living/simple_animal/bot/honkbot/proc/react_buzz()
 	playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE, -1)
 	sensor_blink()
 
+
 /mob/living/simple_animal/bot/honkbot/bot_reset()
 	..()
-	target = null
+	honk_target = null
 	oldtarget_name = null
 	set_anchored(FALSE)
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	last_found = world.time
 	spam_flag = FALSE
+
 
 /mob/living/simple_animal/bot/honkbot/set_custom_texts()
 	text_hack = "Вы перегрузили звуковую систему [declent_ru(GENITIVE)]."
 	text_dehack = "Вы восстановили звуковую систему [declent_ru(GENITIVE)]."
-	text_dehack_fail = "[DECLENT_RU_CAP(src, NOMINATIVE)] отказывается вам подчиняться!"
+	text_dehack_fail = "[capitalize(declent_ru(NOMINATIVE))] отказывается вам подчиняться!"
+
 
 /mob/living/simple_animal/bot/honkbot/get_controls(mob/user)
 	var/dat
@@ -100,10 +107,12 @@
 
 	return	dat
 
+
 /mob/living/simple_animal/bot/honkbot/proc/retaliate(mob/living/carbon/human/H)
 	threatlevel = 6
-	target = H
+	honk_target = H
 	mode = BOT_HUNT
+
 
 /mob/living/simple_animal/bot/honkbot/attack_hand(mob/living/carbon/human/H)
 	if(H.a_intent == INTENT_HARM)
@@ -111,22 +120,25 @@
 		addtimer(CALLBACK(src, PROC_REF(react_buzz)), 0.5 SECONDS)
 	return ..()
 
+
 /mob/living/simple_animal/bot/honkbot/emag_act(mob/user)
 	..()
 	if(emagged == 2)
 		if(user)
-			to_chat(user, span_warning("Вы замыкаете микросхемы системы целеуказания [declent_ru(GENITIVE)]. [DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
+			to_chat(user, span_warning("Вы замыкаете микросхемы системы целеуказания [declent_ru(GENITIVE)]. [capitalize(declent_ru(NOMINATIVE))] злобно смеётся!"))
 			oldtarget_name = user.name
-		audible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
+		audible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] злобно смеётся!"))
 		playsound(src, 'sound/machines/honkbot_evil_laugh.ogg', 75, TRUE, -1) // evil laughter
 		update_icon()
+
 
 /mob/living/simple_animal/bot/honkbot/bullet_act(obj/projectile/Proj)
 	if((istype(Proj,/obj/projectile/beam)) || (istype(Proj,/obj/projectile/bullet) && (Proj.damage_type == BURN))||(Proj.damage_type == BRUTE) && (!Proj.nodamage && Proj.damage < health && ishuman(Proj.firer)))
 		retaliate(Proj.firer)
 	..()
 
-/mob/living/simple_animal/bot/honkbot/OnUnarmedAttack(atom/A, proximity_flag, list/modifiers)
+
+/mob/living/simple_animal/bot/honkbot/OnUnarmedAttack(atom/A)
 	if(iscarbon(A))
 		var/mob/living/carbon/C = A
 		if(emagged <= 1)
@@ -138,6 +150,7 @@
 	else if(!spam_flag) //honking at the ground
 		bike_horn(A)
 
+
 /mob/living/simple_animal/bot/honkbot/hitby(atom/movable/AM, skipcatch = FALSE, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum)
 	if(isitem(AM))
 		playsound(src, honksound, 50, TRUE, -1)
@@ -146,6 +159,7 @@
 		if(I.throwforce < health && ishuman(thrower))
 			retaliate(thrower)
 	..()
+
 
 /mob/living/simple_animal/bot/honkbot/proc/bike_horn() //use bike_horn
 	if(emagged <= 1)
@@ -162,12 +176,14 @@
 			addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 3 SECONDS, TIMER_OVERRIDE|TIMER_UNIQUE)
 		addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), cooldowntimehorn)
 
+
 /mob/living/simple_animal/bot/honkbot/proc/honk_attack(mob/living/carbon/C) // horn attack
 	if(!spam_flag)
 		playsound(loc, honksound, 50, TRUE, -1)
 		spam_flag = TRUE // prevent spam
 		sensor_blink()
 		addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), cooldowntimehorn)
+
 
 /mob/living/simple_animal/bot/honkbot/proc/stun_attack(mob/living/carbon/C) // airhorn stun
 	if(!spam_flag)
@@ -189,17 +205,18 @@
 				spam_flag = TRUE
 			if(emagged <= 1) //HONK once, then leave
 				threatlevel -= 6
-				target = oldtarget_name
+				honk_target = oldtarget_name
 			else // you really don't want to hit an emagged honkbot
 				threatlevel = 6 // will never let you go
 			addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), cooldowntime)
 			add_attack_logs(src, C, "honked by [src]")
-			C.visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] хонкнул [C]!"),
-							span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] хонкнул вас!"))
+			C.visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] хонкнул [C]!"),
+							span_userdanger("[capitalize(declent_ru(NOMINATIVE))] хонкнул вас!"))
 		else
 			C.Stuttering(40 SECONDS)
 			C.Stun(20 SECONDS)
 			addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), cooldowntime)
+
 
 /mob/living/simple_animal/bot/honkbot/handle_automated_action()
 	if(!..())
@@ -207,33 +224,33 @@
 
 	switch(mode)
 		if(BOT_IDLE)		// idle
-			GLOB.move_manager.stop_looping(src)
+			SSmove_manager.stop_looping(src)
 			look_for_perp()
 			if(!mode && auto_patrol)
 				mode = BOT_START_PATROL
 		if(BOT_HUNT)
 			// if can't reach perp for long enough, go idle
 			if(frustration >= 5) //gives up easier than beepsky
-				GLOB.move_manager.stop_looping(src)
+				SSmove_manager.stop_looping(src)
 				playsound(loc, 'sound/misc/sadtrombone.ogg', 25, TRUE, -1)
 				back_to_idle()
 				return
 
-			if(target)		// make sure target exists
-				if(Adjacent(target) && isturf(target.loc))
+			if(honk_target)		// make sure honk_target exists
+				if(Adjacent(honk_target) && isturf(honk_target.loc))
 					if(threatlevel <= 4)
-						honk_attack(target)
+						honk_attack(honk_target)
 					else
 						if(threatlevel >= 6)
 							set waitfor = 0
-							stun_attack(target)
+							stun_attack(honk_target)
 							set_anchored(FALSE)
-							target_lastloc = target.loc
+							target_lastloc = honk_target.loc
 					return
 				else	// not next to perp
-					var/turf/olddist = get_dist(src, target)
-					GLOB.move_manager.move_to(src, target, 1, BOT_STEP_DELAY)
-					if((get_dist(src, target)) >= (olddist))
+					var/turf/olddist = get_dist(src, honk_target)
+					SSmove_manager.move_to(src, honk_target, 1, BOT_STEP_DELAY)
+					if((get_dist(src, honk_target)) >= (olddist))
 						frustration++
 					else
 						frustration = 0
@@ -248,19 +265,22 @@
 			look_for_perp()
 			bot_patrol()
 
+
 /mob/living/simple_animal/bot/honkbot/proc/back_to_idle()
 	set_anchored(FALSE)
 	mode = BOT_IDLE
-	target = null
+	honk_target = null
 	last_found = world.time
 	frustration = 0
 	INVOKE_ASYNC(src, PROC_REF(handle_automated_action)) //responds quickly
+
 
 /mob/living/simple_animal/bot/honkbot/proc/back_to_hunt()
 	set_anchored(FALSE)
 	frustration = 0
 	mode = BOT_HUNT
 	INVOKE_ASYNC(src, PROC_REF(handle_automated_action)) // responds quickly
+
 
 /mob/living/simple_animal/bot/honkbot/proc/look_for_perp()
 	set_anchored(FALSE)
@@ -277,11 +297,11 @@
 					bike_horn()
 		else if(threatlevel >= 4)
 			if(!spam_flag || emagged > 1)
-				target = C
+				honk_target = C
 				oldtarget_name = C.name
 				bike_horn()
 				speak("Хонк!")
-				visible_message("<b>[DECLENT_RU_CAP(src, NOMINATIVE)]</b> начинает гнаться за [C.name]!")
+				visible_message("<b>[capitalize(declent_ru(NOMINATIVE))]</b> начинает гнаться за [C.name]!")
 				mode = BOT_HUNT
 				INVOKE_ASYNC(src, PROC_REF(handle_automated_action))
 				break
@@ -291,9 +311,10 @@
 		else if(emagged > 1)
 			bike_horn() //just spam the shit outta this
 
+
 /mob/living/simple_animal/bot/honkbot/explode()	//doesn't drop cardboard nor its assembly, since its a very frail material.
-	GLOB.move_manager.stop_looping(src)
-	visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] разлетается на части!"))
+	SSmove_manager.stop_looping(src)
+	visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] разлетается на части!"))
 	var/turf/Tsec = get_turf(src)
 	new /obj/item/bikehorn(Tsec)
 	new /obj/item/assembly/prox_sensor(Tsec)
@@ -305,25 +326,27 @@
 	s.start()
 	..()
 
+
 /mob/living/simple_animal/bot/honkbot/attack_alien(mob/living/carbon/alien/user)
 	..()
-	if(!isalien(target))
-		target = user
+	if(!isalien(honk_target))
+		honk_target = user
 		mode = BOT_HUNT
+
 
 /mob/living/simple_animal/bot/honkbot/proc/on_entered(datum/source, mob/living/carbon/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
-	if(!on || !iscarbon(arrived) || arrived != target || in_range(src, target))
+	if(!on || !iscarbon(arrived) || arrived != honk_target || in_range(src, honk_target))
 		return
 
 	arrived.visible_message(span_warning("[pick( \
-		"[arrived] спотыка[PLUR_ET_YUT(arrived)]ся об [declent_ru(GENITIVE)]!", \
-		"[arrived] опрокидыва[PLUR_ET_YUT(arrived)]ся на [declent_ru(GENITIVE)]!", \
-		"[arrived] отлета[PLUR_ET_YUT(arrived)] с пути [declent_ru(GENITIVE)]!", \
-		"[DECLENT_RU_CAP(src, NOMINATIVE)] сбивает [arrived]!", \
-		"[DECLENT_RU_CAP(src, NOMINATIVE)] влетает в [arrived], заставляя [GEND_HIS_HER(arrived)] упасть!", \
-		"[DECLENT_RU_CAP(src, NOMINATIVE)] опрокидывает [arrived]!")]")
+		"[arrived] спотыка[pluralize_ru(arrived.gender, "ет", "ют")]ся об [declent_ru(GENITIVE)]!", \
+		"[arrived] опрокидыва[pluralize_ru(arrived.gender, "ет", "ют")]ся на [declent_ru(GENITIVE)]!", \
+		"[arrived] отлета[pluralize_ru(arrived.gender, "ет", "ют")] с пути [declent_ru(GENITIVE)]!", \
+		"[capitalize(declent_ru(NOMINATIVE))] сбивает [arrived]!", \
+		"[capitalize(declent_ru(NOMINATIVE))] влетает в [arrived], заставляя [genderize_ru(arrived.gender, "его", "её", "его", "их")] упасть!", \
+		"[capitalize(declent_ru(NOMINATIVE))] опрокидывает [arrived]!")]")
 	)
 	arrived.Weaken(10 SECONDS)
 	if(!client)

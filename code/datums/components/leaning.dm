@@ -34,24 +34,24 @@
 
 /datum/component/leanable/proc/mousedrop_receive(atom/source, atom/movable/dropped, mob/user, params)
 	if(dropped != user) //Have we been dropped on a valid leanable object?
-		return
+		return FALSE
 	var/mob/living/leaner = dropped
 	leaning_mob = leaner
 	if(!iscarbon(dropped) && !isrobot(dropped)) //Are we not a cyborg or carbon?
-		return
+		return FALSE
 	if(!(usr == leaner)) //Are we trying to lean someone else?
-		return
-	if(leaner.incapacitated(IGNORE_RESTRAINTS) || leaner.stat != CONSCIOUS || leaner.buckled || leaner.body_position == LYING_DOWN) //Are we in a valid state?
-		return
+		return FALSE
+	if(leaner.incapacitated(INC_IGNORE_RESTRAINED) || leaner.stat != CONSCIOUS || leaner.buckled || leaner.body_position == LYING_DOWN) //Are we in a valid state?
+		return FALSE
 	if(leaner.leaned_object) //Are we leaning already?
-		return
+		return FALSE
 	if(ISDIAGONALDIR(get_dir(leaner, source)) || ((get_dir(leaner, source)) == SOUTH)) //Not leaning on a corner, idiot, or a south wall because it looks bad
-		return
+		return FALSE
 	if(!is_currently_leanable) //Is the object currently able to be leaned on?
-		return COMPONENT_CANCEL_MOUSEDROPPED_ONTO
+		return FALSE
 
 	leaner.apply_status_effect(STATUS_EFFECT_LEANING, source, leaning_offset)
-	return COMPONENT_CANCEL_MOUSEDROPPED_ONTO
+	return TRUE
 
 /datum/component/leanable/proc/on_density_change()
 	SIGNAL_HANDLER
@@ -67,8 +67,8 @@
  * * leaning_offset - pixel offset to apply on the mob when leaning
  */
 /mob/living/proc/start_leaning(atom/lean_target, leaning_offset)
-	var/new_x = 0
-	var/new_y = 0
+	var/new_x = lean_target.pixel_x + base_pixel_x + body_position_pixel_x_offset
+	var/new_y = lean_target.pixel_y + base_pixel_y + body_position_pixel_y_offset
 	switch(get_dir(src, lean_target))
 		if(NORTH)
 			new_y += leaning_offset
@@ -77,17 +77,17 @@
 		if(EAST)
 			new_x += leaning_offset
 
-	add_offsets(LEANING_TRAIT, x_add = new_x, y_add = new_y)
+	animate(src, 0.2 SECONDS, pixel_x = new_x, pixel_y = new_y)
 
 	if(density == TRUE) //no point in giving the trait if we are already undense
 		ADD_TRAIT(src, TRAIT_UNDENSE, TRAIT_LEANING)
 
 	visible_message(
-		span_notice("[src] прислоня[PLUR_ET_YUT(src)]ся к [lean_target.declent_ru(DATIVE)]."),
+		span_notice("[src] прислоня[pluralize_ru(gender, "ется", "ются")] к [lean_target.declent_ru(DATIVE)]."),
 		span_notice("Вы прислоняетесь к [lean_target.declent_ru(DATIVE)]."),
 	)
 	leaned_object = lean_target
-	RegisterSignals(src, list(
+	RegisterSignal(src, list(
 		COMSIG_MOB_CLIENT_MOVED,
 		COMSIG_LIVING_START_PULL,
 		COMSIG_LIVING_GET_PULLED,
@@ -118,9 +118,9 @@
 		COMSIG_LIVING_RESTING,
 		COMSIG_LIVING_SET_BUCKLED,
 	))
-	remove_offsets(LEANING_TRAIT)
 	UnregisterSignal(leaned_object, list(COMSIG_AIRLOCK_OPEN, COMSIG_VEHICLE_MOVE, COMSIG_MOVABLE_MOVED))
 	leaned_object = null
+	animate(src, 0.2 SECONDS, pixel_x = base_pixel_x + body_position_pixel_x_offset, pixel_y = base_pixel_y + body_position_pixel_y_offset)
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, TRAIT_LEANING)
 	SEND_SIGNAL(src, COMSIG_LIVING_STOPPED_LEANING)
 
@@ -128,7 +128,7 @@
 /mob/living/proc/teleport_away_while_leaning(datum/source)
 	SIGNAL_HANDLER
 	stop_leaning()
-	visible_message(span_notice("[src] с грохотом пада[PLUR_ET_YUT(src)] на пол!"),
+	visible_message(span_notice("[src] с грохотом пада[pluralize_ru(gender, "ет", "ют")] на пол!"),
 			span_warning("Вы с грохотом падаете на пол после того, как объект, к которому вы прислонились, исчез."))
 	Knockdown(3 SECONDS)
 
@@ -136,10 +136,7 @@
 	SIGNAL_HANDLER
 	if(HAS_TRAIT(src, NO_GRAVITY_TRAIT)) //If there's no gravity on the mob, don't fall lmao
 		return
-	var/source_turf = get_turf(source)
-	if(!Adjacent(source_turf, src))
-		return
-	fall_forced(source_turf)
+	fall_forced(get_turf(source))
 
 /mob/living/proc/fall_into_ex_turf(datum/source, atom/moved, direction)
 	SIGNAL_HANDLER
@@ -149,7 +146,7 @@
 /mob/living/proc/fall(location)
 	stop_leaning()
 	Move(location)
-	visible_message(span_notice("[src] с грохотом пада[PLUR_ET_YUT(src)] на пол!"),
+	visible_message(span_notice("[src] с грохотом пада[pluralize_ru(gender, "ет", "ют")] на пол!"),
 			span_warning("Вы с грохотом падаете на пол!"))
 	Knockdown(3 SECONDS) //boowomp
 
@@ -157,6 +154,6 @@
 /mob/living/proc/fall_forced(location)
 	stop_leaning()
 	forceMove(location)
-	visible_message(span_notice("[src] с грохотом пада[PLUR_ET_YUT(src)] на пол!"),
+	visible_message(span_notice("[src] с грохотом пада[pluralize_ru(gender, "ет", "ют")] на пол!"),
 			span_warning("Вы с грохотом падаете на пол из-за открытой двери!"))
 	Knockdown(3 SECONDS) //boowomp

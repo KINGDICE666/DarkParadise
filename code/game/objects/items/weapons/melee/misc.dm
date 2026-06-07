@@ -1,6 +1,5 @@
 /obj/item/melee
 	needs_permit = TRUE
-	abstract_type = /obj/item/melee
 	lefthand_file = 'icons/mob/inhands/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/melee_righthand.dmi'
 
@@ -78,6 +77,7 @@
 	. = ..()
 	AddElement(/datum/element/high_value_item)
 
+
 /obj/item/melee/rapier/syndie
 	name = "plastitanium rapier"
 	desc = "A thin blade made of plastitanium with a diamond tip. It appears to be coated in a persistent layer of an unknown substance."
@@ -88,9 +88,11 @@
 	materials = null
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 
+
 /obj/item/melee/rapier/syndie/ComponentInitialize()
 	. = ..()
 	AddElement(/datum/element/after_attack/attack_effect_sleep, 45, 5 SECONDS)
+
 
 /obj/item/melee/rapier/centcomm
 	name = "centcomm plastitanium rapier"
@@ -109,6 +111,7 @@
 	. = ..()
 	AddElement(/datum/element/after_attack/attack_effect_sleep, 100, 10 SECONDS)
 
+
 /obj/item/melee/rapier/centcomm/attack_self(mob/user)
 	. = ..()
 
@@ -122,6 +125,7 @@
 		ADD_TRAIT(src, TRAIT_NODROP, CENTCOMM_RAPIER_TRAIT)
 		to_chat(usr, span_warning("Вы сжимаете рукоятку [src] со всей силы. Теперь ничто не может выбить у вас оружие из рук!"))
 
+
 /obj/item/melee/mantisblade
 	name = "Gorlex mantis blade"
 	desc = "A blade designed to be hidden just beneath the skin. The brain is directly linked to this bad boy, allowing it to spring into action."
@@ -129,6 +133,7 @@
 	item_state = "syndie_mantis"
 	force = 25
 	throwforce = 20
+	block_chance = 35
 	armour_penetration = 40
 	sharp = TRUE
 	item_flags = NOSHARPENING
@@ -149,8 +154,6 @@
 		swing_sound = SFX_KATANA_SWING \
 	)
 
-	AddElement(/datum/element/lunge_attack, 1.4, 4, 6 SECONDS, TRUE)
-
 /obj/item/melee/mantisblade/equipped(mob/user, slot, initial = FALSE)
 	. = ..()
 
@@ -158,6 +161,7 @@
 		transform = null
 	else
 		transform = matrix(-1, 0, 0, 0, 1, 0)
+
 
 /obj/item/melee/mantisblade/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
@@ -171,6 +175,7 @@
 
 	addtimer(CALLBACK(secondsword, PROC_REF(mantis_attack), target, user, params, def_zone), 0.2 SECONDS)
 
+
 /obj/item/melee/mantisblade/proc/mantis_attack(mob/living/target, mob/living/user, params, def_zone)
 	if(QDELETED(src) || QDELETED(target) || !user.is_in_hands(src) || !user.Adjacent(target))
 		return
@@ -179,16 +184,18 @@
 	attack(target, user, params, def_zone)
 	attack_in_progress = FALSE
 
-/obj/item/melee/mantisblade/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+
+/obj/item/melee/mantisblade/afterattack(atom/target, mob/user, proximity)
 	. = ..()
 
-	if(!proximity_flag)
+	if(!proximity)
 		return
 
 	if(prob(25))
 		do_sparks(rand(1, 6), TRUE, loc)
 
-	if(is_airlock(target))
+	if(istype(target, /obj/machinery/door/airlock))
 		var/obj/machinery/door/airlock/A = target
 
 		if(!A.requiresID() || A.allowed(user))
@@ -218,6 +225,8 @@
 	name = "Shellguard mantis blade"
 	force = 15
 	armour_penetration = 20
+	block_chance = 20
+	block_type = MELEE_ATTACKS
 	icon_state = "mantis"
 	item_state = "mantis"
 
@@ -281,15 +290,15 @@
 		no_multi_hit = TRUE \
 	)
 
-/obj/item/melee/flyswatter/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/melee/flyswatter/afterattack(atom/target, mob/user, proximity_flag, params)
 	. = ..()
 	if(proximity_flag)
 		if(is_type_in_typecache(target, strong_against))
 			new /obj/effect/decal/cleanable/insectguts(target.drop_location())
 			to_chat(user, span_warning("You easily splat the [target]."))
-			if(isliving(target))
+			if(istype(target, /mob/living/))
 				var/mob/living/bug = target
-				bug.death(TRUE)
+				bug.death(1)
 			else
 				qdel(target)
 
@@ -303,12 +312,10 @@
 	item_state = "big_iron"
 	attack_verb = list("опалил", "задоминировал", "заробастил")
 
-/obj/item/melee/bigiron/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/melee/bigiron/afterattack(atom/target, mob/user, proximity, params)
 	. = ..()
-
-	if(!proximity_flag)
+	if(!proximity)
 		return
-
 	if(ishuman(target))
 		if(!ishumanbasic(target))
 			var/mob/living/victim = target

@@ -9,6 +9,7 @@
 	amount = rand(3, 5) * 5
 	explanation_text = "Захватить [amount] ЛКП."
 
+
 /datum/objective/pulse_demon/infest/check_completion()
 	if(..())
 		return TRUE

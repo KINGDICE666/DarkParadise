@@ -5,7 +5,7 @@
 	var/list/text = list(span_fontsize2("<b>Морфами были:</b>"))
 	for(var/datum/mind/morph in morphs)
 		var/traitorwin = TRUE
-		text += "<br>[morph.get_mind_key()] был [morph.name] ("
+		text += "<br>[morph.get_display_key()] был [morph.name] ("
 		if(morph.current)
 			if(morph.current.stat == DEAD)
 				text += "умер"
@@ -44,7 +44,7 @@
 	var/list/text = list(span_fontsize2("<b>Ревенантами были:</b>"))
 	for(var/datum/mind/revenant in revenants)
 		var/traitorwin = TRUE
-		text += "<br>[revenant.get_mind_key()] был [revenant.name] ("
+		text += "<br>[revenant.get_display_key()] был [revenant.name] ("
 		if(revenant.current)
 			if(revenant.current.stat == DEAD)
 				text += "умер"
@@ -83,7 +83,7 @@
 	var/list/text = list(span_fontsize2("<b>Членами Хонксквада были:</b>"))
 	for(var/datum/mind/honker in honksquad)
 		var/traitorwin = TRUE
-		text += "<br>[honker.get_mind_key()] был [honker.name] ("
+		text += "<br>[honker.get_display_key()] был [honker.name] ("
 		if(honker.current)
 			if(honker.current.stat == DEAD)
 				text += "умер"
@@ -124,7 +124,7 @@
 	var/list/text = list(span_fontsize2("<b>Бойцами Отряда Смерти были:</b>"))
 	for(var/datum/mind/commando in deathsquad)
 		var/traitorwin = TRUE
-		text += "<br>[commando.get_mind_key()] был [commando.name] ("
+		text += "<br>[commando.get_display_key()] был [commando.name] ("
 		if(commando.current)
 			if(commando.current.stat == DEAD)
 				text += "умер"
@@ -162,10 +162,10 @@
 	if(!length(sst))
 		return
 
-	var/list/text = list(span_fontsize2("<b>Бойцами Ударного Отряда \"Синдиката\" были:</b>"))
+	var/list/text = list(span_fontsize2("<b>Бойцами Ударного Отряда Синдиката были:</b>"))
 	for(var/datum/mind/commando in sst)
 		var/traitorwin = TRUE
-		text += "<br>[commando.get_mind_key()] был [commando.name] ("
+		text += "<br>[commando.get_display_key()] был [commando.name] ("
 		if(commando.current)
 			if(commando.current.stat == DEAD)
 				text += "умер"
@@ -192,21 +192,61 @@
 				count++
 
 		if(traitorwin)
-			text += "<br><font color='green'><b>Боец Ударного Отряда \"Синдиката\" успешен!</b></font>"
+			text += "<br><font color='green'><b>Боец Ударного Отряда Синдиката успешен!</b></font>"
 			SSblackbox.record_feedback("tally", "sst_success", 1, "SUCCESS")
 		else
-			text += "<br><font color='red'><b>Боец Ударного Отряда \"Синдиката\" провалился!</b></font>"
+			text += "<br><font color='red'><b>Боец Ударного Отряда Синдиката провалился!</b></font>"
 			SSblackbox.record_feedback("tally", "sst_success", 1, "FAIL")
 	return text.Join("")
+
+
+/datum/game_mode/proc/auto_declare_completion_heretic()
+	if(!length(heretics))
+		return
+
+	var/list/text = list(span_fontsize2(span_bold("Еретики:<br>")))
+	for(var/datum/mind/heretic in heretics)
+		var/hereticwin = TRUE
+		text += printplayer(heretic) + "<br>"
+		var/all_objectives = heretic.get_all_objectives()
+
+		if(length(all_objectives))//If the traitor had no objectives, don't need to process this.
+			var/count = 1
+			for(var/datum/objective/objective in all_objectives)
+				if(objective.check_completion())
+					text += "<br><b>Цель #[count]</b>: [objective.explanation_text] [span_greentext("Успех!")]"
+					SSblackbox.record_feedback("nested tally", "heretic_objective", 1, list("[objective.type]", "SUCCESS"))
+				else
+					text += "<br><b>Цель #[count]</b>: [objective.explanation_text] [span_redtext("Провал!")]"
+					SSblackbox.record_feedback("nested tally", "heretic_objective", 1, list("[objective.type]", "FAIL"))
+					hereticwin = FALSE
+
+				count++
+
+		var/special_role_text
+		if(heretic.special_role)
+			special_role_text = lowertext(heretic.special_role)
+		else
+			special_role_text = "antagonist"
+
+		if(hereticwin)
+			text += span_greentext("<br>[special_role_text] выполнил цели!<br>")
+			SSblackbox.record_feedback("tally", "heretic_success", 1, "SUCCESS")
+		else
+			text += span_redtext("<br>[special_role_text] провалился!<br>")
+			SSblackbox.record_feedback("tally", "heretic_success", 1, "FAIL")
+
+	return text.Join("")
+
 
 /datum/game_mode/proc/auto_declare_completion_sit()
 	if(!length(sit))
 		return
 
-	var/list/text = list(span_fontsize2("<b>Агентами Диверсионного Отряда \"Синдиката\" были:</b>"))
+	var/list/text = list(span_fontsize2("<b>Агентами Диверсионного Отряда Синдиката были:</b>"))
 	for(var/datum/mind/commando in sit)
 		var/traitorwin = TRUE
-		text += "<br>[commando.get_mind_key()] был [commando.name] ("
+		text += "<br>[commando.get_display_key()] был [commando.name] ("
 		if(commando.current)
 			if(commando.current.stat == DEAD)
 				text += "умер"
@@ -233,9 +273,9 @@
 				count++
 
 		if(traitorwin)
-			text += "<br><font color='green'><b>Агент Диверсионного Отряда \"Синдиката\" был успешен!</b></font>"
+			text += "<br><font color='green'><b>Агент Диверсионного Отряда Синдиката был успешен!</b></font>"
 			SSblackbox.record_feedback("tally", "sit_success", 1, "SUCCESS")
 		else
-			text += "<br><font color='red'><b>Агент Диверсионного Отряда \"Синдиката\" провалился!</b></font>"
+			text += "<br><font color='red'><b>Агент Диверсионного Отряда Синдиката провалился!</b></font>"
 			SSblackbox.record_feedback("tally", "sit_success", 1, "FAIL")
 	return text.Join("")

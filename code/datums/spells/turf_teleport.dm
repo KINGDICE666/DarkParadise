@@ -2,7 +2,6 @@
 	name = "Turf Teleport"
 	desc = "This spell teleports the target to the turf in range."
 	nonabstract_req = TRUE
-	itb_blocks_spell = TRUE
 
 	var/inner_tele_radius = 1
 	var/outer_tele_radius = 2
@@ -17,8 +16,10 @@
 	var/sound_in = 'sound/weapons/zapbang.ogg'
 	var/sound_out = 'sound/weapons/zapbang.ogg'
 
+
 /obj/effect/proc_holder/spell/turf_teleport/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/turf_teleport/cast(list/targets,mob/living/user = usr)
 	if(sound_in)
@@ -61,7 +62,7 @@
 		if(!picked || !isturf(picked))
 			return
 
-		if(!do_magic_direct_teleport(target, picked, notified_user = target, block_message = "ITB подавляет магическое перемещение [src]."))
-			return
+		target.forceMove(picked)
 		if(sound_out)
 			playsound(get_turf(user), sound_out, 50, TRUE)
+

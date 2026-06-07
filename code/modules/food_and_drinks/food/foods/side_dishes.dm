@@ -12,6 +12,7 @@
 	tastes = list("raw potatoes" = 1)
 	foodtype = VEGETABLES | RAW | GROSS
 
+
 //////////////////////
 //		Fried		//
 //////////////////////
@@ -67,6 +68,7 @@
 	list_reagents = list("plantmatter" = 3, "oculine" = 3, "vitamin" = 2)
 	tastes = list("carrots" = 3, "salt" = 1)
 	foodtype = VEGETABLES | FRIED
+
 
 //////////////////////
 //		Misc		//

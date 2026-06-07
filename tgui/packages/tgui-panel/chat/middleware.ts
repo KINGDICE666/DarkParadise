@@ -5,8 +5,7 @@
  */
 
 import { Store } from 'common/redux';
-import { IFrameIndexedDbBackend, storage } from 'common/storage';
-import type { ByondWindow } from 'common/types';
+import { storage } from 'common/storage';
 import DOMPurify from 'dompurify';
 
 import {
@@ -48,22 +47,14 @@ const saveChatToStorage = async (store: Store) => {
   // Only save messages if chat saving is enabled
   const chatSavingEnabled = await storage.get('chat-saving-enabled');
   if (chatSavingEnabled !== false) {
-    if (!storage.iframe_check()) {
-      storage.processChatMessages(chatRenderer.storeQueue);
-    } else {
-      const fromIndex = Math.max(
-        0,
-        chatRenderer.messages.length - MAX_PERSISTED_MESSAGES
-      );
-
-      const messages = chatRenderer.messages
-        .slice(fromIndex)
-        .map((message) => serializeMessage(message));
-
-      storage.processChatMessages(messages);
-    }
-
-    chatRenderer.storeQueue = [];
+    const fromIndex = Math.max(
+      0,
+      chatRenderer.messages.length - MAX_PERSISTED_MESSAGES
+    );
+    const messages = chatRenderer.messages
+      .slice(fromIndex)
+      .map((message) => serializeMessage(message));
+    await storage.set('chat-messages', messages);
   }
 };
 
@@ -80,8 +71,7 @@ const loadChatFromStorage = async (store) => {
   let messages = [];
 
   if (chatSavingEnabled !== false) {
-    messages = await storage.getChatMessages();
-
+    messages = await storage.get('chat-messages');
     if (messages) {
       for (let message of messages) {
         if (message.html) {

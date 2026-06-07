@@ -83,7 +83,7 @@ Bonus
 	// Remove all the diseases we cured.
 	var/mob/living/M = A.affected_mob
 	if(istype(M))
-		if(length(cured_diseases))
+		if(cured_diseases.len)
 			for(var/res in M.resistances)
 				if(res in cured_diseases)
 					M.resistances -= res

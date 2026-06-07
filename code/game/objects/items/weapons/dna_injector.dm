@@ -33,12 +33,15 @@
 	QDEL_NULL(buf)
 	return ..()
 
+
 /obj/item/dnainjector/update_icon_state()
 	icon_state = "[initial(icon_state)][used ? "0" : ""]"
+
 
 /obj/item/dnainjector/update_desc(updates = ALL)
 	. = ..()
 	desc = used ? "[initial(desc)] This one is used up." : initial(desc)
+
 
 /obj/item/dnainjector/proc/GetRealBlock(selblock)
 	if(selblock == 0)
@@ -74,6 +77,7 @@
 	else
 		return buf.dna.SetUIValue(real_block,val)
 
+
 /obj/item/dnainjector/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(used)
 		to_chat(user, span_warning("This injector is used up!"))
@@ -88,7 +92,7 @@
 		return .
 
 	if(!buf)
-		stack_trace("[src] used by [user] on [target] failed to initialize properly.")
+		log_runtime(EXCEPTION("[src] used by [user] on [target] failed to initialize properly."), src)
 		return .
 
 	var/attack_log = "injected with the Isolated [name]"
@@ -97,12 +101,12 @@
 		if(block)
 			if(GetState() && block == GLOB.monkeyblock)
 				attack_log = "injected with the Isolated [name] (MONKEY)"
-				message_admins("[ADMIN_LOOKUPFLW(user)] injected [key_name_admin(target)] with the Isolated [name] [span_warning("(MONKEY)")]")
+				message_admins("[ADMIN_LOOKUPFLW(user)] injected [key_name_admin(target)] with the Isolated [name] <span class='warning'>(MONKEY)</span>")
 
 		else
 			if(GetState(GLOB.monkeyblock))
 				attack_log = "injected with the Isolated [name] (MONKEY)"
-				message_admins("[ADMIN_LOOKUPFLW(user)] injected [key_name_admin(target)] with the Isolated [name] [span_warning("(MONKEY)")]")
+				message_admins("[ADMIN_LOOKUPFLW(user)] injected [key_name_admin(target)] with the Isolated [name] <span class='warning'>(MONKEY)</span>")
 
 	if(target != user)
 		target.visible_message(
@@ -118,10 +122,13 @@
 	else
 		to_chat(user, span_notice("You inject yourself with [src]."))
 
+	target.apply_effect(rand(20 / (damage_coeff  ** 2), 50 / (damage_coeff  ** 2)), IRRADIATE, 0, 1)
+
 	add_attack_logs(user, target, attack_log, ATKLOG_ALL)
 	used = TRUE
 	update_appearance(UPDATE_ICON_STATE|UPDATE_DESC)
 	INVOKE_ASYNC(src, PROC_REF(async_update), target)	//Some mutations have sleeps in them, like monkey
+
 
 /obj/item/dnainjector/proc/async_update(mob/living/carbon/human/target)
 	var/datum/dna/target_dna = target.dna
@@ -153,6 +160,7 @@
 		target.check_genes(forcedmutation ? MUTCHK_FORCED : NONE)
 
 	target.sync_organ_dna(assimilate = FALSE, old_ue = prev_UE)
+
 
 /obj/item/dnainjector/hulkmut
 	name = "DNA-Injector (Hulk)"
@@ -256,6 +264,7 @@
 /obj/item/dnainjector/telemut/darkbundle
 	name = "DNA-injector"
 	desc = "Good. Let the hate flow through you."
+
 
 /obj/item/dnainjector/antitele
 	name = "DNA-Injector (Anti-Tele.)"
@@ -387,17 +396,6 @@
 
 /obj/item/dnainjector/noprints/Initialize(mapload)
 	block = GLOB.noprintsblock
-	return ..()
-
-/obj/item/dnainjector/mattereater
-	name = "DNA-Injector (Matter Eater)"
-	desc = "You can eat anything."
-	datatype = DNA2_BUF_SE
-	value = 0xFFF
-	forcedmutation = TRUE
-
-/obj/item/dnainjector/mattereater/Initialize(mapload)
-	block = GLOB.eatblock
 	return ..()
 
 /obj/item/dnainjector/antinoprints
@@ -577,6 +575,7 @@
 	block = GLOB.nervousblock
 	return ..()
 
+
 /obj/item/dnainjector/antistutt
 	name = "DNA-Injector (Anti-Stutt.)"
 	desc = "Fixes that speaking impairment."
@@ -675,6 +674,7 @@
 /obj/item/dnainjector/m2h/Initialize(mapload)
 	block = GLOB.monkeyblock
 	return ..()
+
 
 /obj/item/dnainjector/comic
 	name = "DNA-Injector (Comic)"

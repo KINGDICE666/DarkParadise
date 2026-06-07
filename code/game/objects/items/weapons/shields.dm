@@ -1,31 +1,24 @@
 /obj/item/shield
 	name = "shield"
 	block_chance = 50
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, FIRE = 80, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, RAD = 0, FIRE = 80, ACID = 70)
 	obj_integrity = 380
 	max_integrity = 380
-	abstract_type = /obj/item/shield
 
 /obj/item/shield/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
-	var/attack_angle = get_angle(owner, hitby)
-	var/facing_angle = dir2angle(owner.dir)
-	var/incidence = GET_ANGLE_OF_INCIDENCE(facing_angle, attack_angle)
-	if(incidence > 90 && incidence < 270)
-		return FALSE // blocking only in front of us
 	if(attack_type == THROWN_PROJECTILE_ATTACK)
 		final_block_chance += 30
 	. = ..()
-	if(!.)
-		return FALSE
-	var/damage_type = BRUTE
-	if(isprojectile(hitby))
-		var/obj/projectile/projectile = hitby
-		if(projectile.shield_buster)
-			take_damage(180, damage_type, sound_effect = FALSE) //2 shots for tele, 3 for riot
-	if(isobj(hitby))
-		var/obj/hitby_obj = hitby
-		damage_type = hitby_obj.damtype
-	take_damage(damage, damage_type, sound_effect = FALSE)
+	if(.)
+		var/damage_type = BRUTE
+		if(istype(hitby, /obj/projectile))
+			var/obj/projectile/P = hitby
+			if(P.shield_buster)
+				take_damage(180, damage_type, sound_effect = FALSE) //2 shots for tele, 3 for riot
+		if(isobj(hitby))
+			var/obj/hitby_obj = hitby
+			damage_type = hitby_obj.damtype
+		take_damage(damage, damage_type, sound_effect = FALSE)
 
 /obj/item/shield/obj_destruction(damage_flag)
 	playsound(src, 'sound/weapons/smash.ogg', 50)
@@ -48,8 +41,9 @@
 	/// Shield bash cooldown
 	COOLDOWN_DECLARE(cooldown)
 
+
 /obj/item/shield/riot/attackby(obj/item/I, mob/user, params)
-	if(isbaton(I) && COOLDOWN_FINISHED(src, cooldown))
+	if(istype(I, /obj/item/melee/baton) && COOLDOWN_FINISHED(src, cooldown))
 		COOLDOWN_START(src, cooldown, 2.5 SECONDS)
 		user.visible_message(
 			span_warning("[user] bashes [src] with [I]!"),
@@ -59,6 +53,7 @@
 		playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, TRUE)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/item/shield/riot/roman
 	name = "roman shield"
@@ -72,7 +67,7 @@
 /obj/item/shield/riot/roman/fake
 	desc = "Bears an inscription on the inside: <i>\"Romanes venio domus\"</i>. It appears to be a bit flimsy."
 	block_chance = 0
-	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, fire = 0, acid = 0)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0, fire = 0, acid = 0)
 
 /obj/item/shield/riot/buckler
 	name = "wooden buckler"
@@ -98,13 +93,13 @@
 	max_integrity = 380
 
 /obj/item/shield/riot/goliath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "щит из пластин голиафа",
 		GENITIVE = "щита из пластин голиафа",
 		DATIVE = "щиту из пластин голиафа",
 		ACCUSATIVE = "щит из пластин голиафа",
 		INSTRUMENTAL = "щитом из пластин голиафа",
-		PREPOSITIONAL = "щите из пластин голиафа",
+		PREPOSITIONAL = "щите из пластин голиафа"
 	)
 
 /obj/item/shield/energy
@@ -121,11 +116,11 @@
 	var/active = 0
 
 /obj/item/shield/energy/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
-	if(isprojectile(hitby))
+	if(istype(hitby, /obj/projectile))
 		var/obj/projectile/P = hitby
 		if(P.shield_buster && active)
 			toggle(owner, TRUE)
-			to_chat(owner, span_warning("[hitby] overloaded your [src]!"))
+			to_chat(owner, "<span class='warning'>[hitby] overloaded your [src]!</span>")
 	return FALSE
 
 /obj/item/shield/energy/IsReflect()
@@ -136,7 +131,7 @@
 
 /obj/item/shield/energy/proc/toggle(mob/living/carbon/human/user, forced)
 	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50) && !forced)
-		to_chat(user, span_warning("You beat yourself in the head with [src]."))
+		to_chat(user, "<span class='warning'>You beat yourself in the head with [src].</span>")
 		user.take_organ_damage(5)
 	active = !active
 	if(active)
@@ -146,7 +141,7 @@
 		update_icon()
 		w_class = WEIGHT_CLASS_BULKY
 		playsound(user, 'sound/weapons/saberon.ogg', 35, TRUE)
-		to_chat(user, span_notice("[src] is now active."))
+		to_chat(user, "<span class='notice'>[src] is now active.</span>")
 	else
 		force = 3
 		throwforce = 3
@@ -154,7 +149,7 @@
 		update_icon()
 		w_class = WEIGHT_CLASS_TINY
 		playsound(user, 'sound/weapons/saberoff.ogg', 35, TRUE)
-		to_chat(user, span_notice("[src] can now be concealed."))
+		to_chat(user, "<span class='notice'>[src] can now be concealed.</span>")
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		H.update_held_items()
@@ -192,8 +187,10 @@
 		return ..()
 	return FALSE
 
+
 /obj/item/shield/riot/tele/update_icon_state()
 	icon_state = "teleriot[active]"
+
 
 /obj/item/shield/riot/tele/attack_self(mob/living/user)
 	active = !active
@@ -206,14 +203,14 @@
 		throw_speed = 2
 		w_class = WEIGHT_CLASS_BULKY
 		slot_flags = ITEM_SLOT_BACK
-		to_chat(user, span_notice("You extend \the [src]."))
+		to_chat(user, "<span class='notice'>You extend \the [src].</span>")
 	else
 		force = 3
 		throwforce = 3
 		throw_speed = 3
 		w_class = WEIGHT_CLASS_NORMAL
 		slot_flags = NONE
-		to_chat(user, span_notice("[src] can now be concealed."))
+		to_chat(user, "<span class='notice'>[src] can now be concealed.</span>")
 	update_equipped_item()
 	add_fingerprint(user)
 

@@ -3,8 +3,7 @@
 #define ROCKET_TIME 25 MINUTES
 #define AIRDROP_COUNT 5
 #define AIRDROP_GUARD_COUND 7
-#define RESPAWN_DK2_DELAY 10
-#define DK2_REFIL_TIME 15 MINUTES
+#define RESPAWN_DELAY 10
 
 /datum/game_mode/de_kerberos_2
 	name = "de_kerberos_2"
@@ -41,6 +40,7 @@
 	players = temp_players
 	return TRUE
 
+
 /datum/game_mode/de_kerberos_2/post_setup()
 	for(var/datum/team/battle_team/team as anything in list(/datum/team/battle_team/green, /datum/team/battle_team/blue, /datum/team/battle_team/red))\
 		teams[team.team_role] = new team
@@ -53,8 +53,7 @@
 	SSevents.can_fire = FALSE
 	GLOB.off_mob_spawns = TRUE
 	GLOB.captain_auth_access = ACCESS_CAPTAIN_REAL
-	GLOB.respawn_delay = RESPAWN_DK2_DELAY
-	SSshuttle.emergency_refill_time = DK2_REFIL_TIME
+	GLOB.respawn_delay = RESPAWN_DELAY
 	spawn_corpses()
 	addtimer(CALLBACK(src, PROC_REF(set_gamma_code)), GAMMA_TIME)
 	addtimer(CALLBACK(src, PROC_REF(spawn_airdrop)), AIRDROP_TIME)
@@ -92,7 +91,7 @@
 /datum/game_mode/de_kerberos_2/late_join(mob/new_player/player)
 	var/min_count = INFINITY
 	var/datum/team/team = null
-	for(var/possible_team_name in teams)
+	for(var/possible_team_name as anything in teams)
 		var/datum/team/possible_team = teams[possible_team_name]
 		var/team_len = LAZYLEN(possible_team.members)
 		if(team_len >= min_count)
@@ -111,5 +110,4 @@
 #undef ROCKET_TIME
 #undef AIRDROP_COUNT
 #undef AIRDROP_GUARD_COUND
-#undef RESPAWN_DK2_DELAY
-#undef DK2_REFIL_TIME
+#undef RESPAWN_DELAY

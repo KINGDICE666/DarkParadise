@@ -5,8 +5,8 @@
 	clothes_req = FALSE
 	action_icon_state = "infest"
 	action_background_icon_state = "bg_alien"
-	selection_activated_message = span_notice_alt("Вы приготовились заразить жертву. <b>Left-click чтобы применить способность!</b>")
-	selection_deactivated_message = span_notice_alt("Вы прекратили свои попытки заразить жертву.")
+	selection_activated_message = span_notice("Вы приготовились заразить жертву. <b>Left-click чтобы применить способность!</b>")
+	selection_deactivated_message = span_notice("Вы прекратили свои попытки заразить жертву.")
 	need_active_overlay = TRUE
 	human_req = FALSE
 	var/infesting = FALSE
@@ -35,7 +35,7 @@
 		return
 
 	infesting = TRUE
-	to_chat(user, "Вы подползаете к [target] и начинаете искать [GEND_HIS_HER(target)] слуховой проход...")
+	to_chat(user, "Вы подползаете к [target] и начинаете искать [genderize_ru(target.gender,"его","её","его","их" )] слуховой проход...")
 
 	if(!do_after(user, cast_time, target, NONE))
 		to_chat(user, "Как только [target] отходит, вы срываетесь и падаете на пол.")
@@ -68,8 +68,8 @@
 	clothes_req = FALSE
 	action_icon_state = "genetic_cryo"
 	action_background_icon_state = "bg_alien"
-	selection_activated_message = span_notice_alt("Вы приготовились поразить жертву. <b>Left-click чтобы применить способность!</b>")
-	selection_deactivated_message = span_notice_alt("Вы решили дать своей жертве шанс. Пока что.")
+	selection_activated_message = span_notice("Вы приготовились поразить жертву. <b>Left-click чтобы применить способность!</b>")
+	selection_deactivated_message = span_notice("Вы решили дать своей жертве шанс. Пока что.")
 	need_active_overlay = TRUE
 	human_req = FALSE
 
@@ -97,7 +97,7 @@
 		to_chat(user, span_warning("Вы не можете позволить себе сделать это с тем, кто уже заражён.."))
 		return
 
-	to_chat(user, span_warning("Вы пронзили разум [target] пси-потоком, парализуя [GEND_HIS_HER(target)] конечности волной первородного ужаса!"))
+	to_chat(user, span_warning("Вы пронзили разум [target] пси-потоком, парализуя [genderize_ru(target.gender,"его","её","его","их" )] конечности волной первородного ужаса!"))
 	to_chat(target, span_warning("Вы чувствуете, как на вас наваливается жуткое чувство страха, леденящее конечности и заставляющее сердце бешено колотиться."))
 	target.Weaken(weaken_time)
 

@@ -9,6 +9,7 @@ GLOBAL_LIST_EMPTY(clockwork_beacons) // clockwork mode, Beacon list for goal che
 GLOBAL_LIST_EMPTY(clockwork_fabricators) // clockwork mode, Fabricator list used to limit clockers from spam.
 GLOBAL_LIST_EMPTY(clockwork_altars) // clockwork mode, List of altars used for teleportation spell
 
+
 GLOBAL_DATUM(start_state, /datum/station_state) // Used in round-end report. Dont ask why it inits as null
 
 GLOBAL_VAR(custom_event_msg)
@@ -28,5 +29,8 @@ GLOBAL_LIST(antag_paradise_weights)
 GLOBAL_LIST(antag_paradise_special_weights)
 
 GLOBAL_VAR_INIT(gamma_ship_location, 1) // 0 = station , 1 = space
+
+/// We want reality_smash_tracker to exist only once and be accessible from anywhere.
+GLOBAL_DATUM_INIT(reality_smash_track, /datum/reality_smash_tracker, new)
 
 GLOBAL_VAR_INIT(respawn_delay, 20)

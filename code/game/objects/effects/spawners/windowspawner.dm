@@ -12,7 +12,7 @@
 	var/turf/T = get_turf(src)
 	for(var/obj/structure/grille/G in get_turf(src))
 		// Complain noisily
-		stack_trace("Extra grille on turf: ([T.x],[T.y],[T.z])")
+		log_runtime(EXCEPTION("Extra grille on turf: ([T.x],[T.y],[T.z])"), src)
 		qdel(G) //just in case mappers don't know what they are doing
 
 	if(!useFull && window_to_spawn_regular)
@@ -32,12 +32,16 @@
 	if(useGrille)
 		new /obj/structure/grille(get_turf(src))
 
-	recalculate_atmos_connectivity() //atmos can pass otherwise
+	air_update_turf(1) //atmos can pass otherwise
 	// Give some time for nearby window spawners to initialize
-	QDEL_IN(src, 1 SECONDS)
+	spawn(10)
+		qdel(src)
+	// why is this line a no-op
+	// QDEL_IN(src, 10)
 
 /obj/effect/spawner/window/proc/sync_id(obj/structure/window/reinforced/polarized/W)
 	return
+
 
 /obj/effect/spawner/window/reinforced
 	name = "reinforced window spawner"

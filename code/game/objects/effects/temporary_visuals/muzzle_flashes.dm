@@ -11,6 +11,7 @@
 	if(get_dir(src, target) & NORTH)
 		layer = BELOW_MOB_LAYER
 
+
 /obj/effect/temp_visual/target_angled/muzzle_flash/energy
 	icon_state = "firing_effect_energy"
 

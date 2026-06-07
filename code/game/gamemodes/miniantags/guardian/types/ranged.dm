@@ -1,3 +1,9 @@
+/obj/projectile/guardian
+	name = "crystal spray"
+	icon_state = "guardian"
+	damage = 20
+	armour_penetration = 100
+
 /mob/living/simple_animal/hostile/guardian/ranged
 	friendly = "quietly assesses"
 	melee_damage_lower = 10
@@ -88,9 +94,9 @@
 
 /mob/living/simple_animal/hostile/guardian/ranged/verb/Snare()
 	set name = "Установить ловушку"
-	set category = VERB_CATEGORY_GUARDIAN
+	set category = STATPANEL_GUARDIAN
 	set desc = "Установите невидимую ловушку, которая оповестит вас, когда по ней пройдут живые существа. Максимум 5"
-	if(length(snares) <6)
+	if(snares.len <6)
 		var/turf/snare_loc = get_turf(loc)
 		var/obj/item/effect/snare/snare = new(snare_loc, src)
 		snare.name = "[get_area(snare_loc)] trap ([rand(1, 1000)])"
@@ -101,7 +107,7 @@
 
 /mob/living/simple_animal/hostile/guardian/ranged/verb/DisarmSnare()
 	set name = "Удалить ловушку"
-	set category = VERB_CATEGORY_GUARDIAN
+	set category = STATPANEL_GUARDIAN
 	set desc = "Обезвреживание нежелательных ловушек слежения."
 	var/picked_snare = tgui_input_list(src, "Выберите ловушку для обезвреживания", "Уничтожить ловушку", snares)
 	if(picked_snare)
@@ -109,11 +115,13 @@
 		qdel(picked_snare)
 		to_chat(src, span_danger("Ловушка убрана."))
 
+
 /obj/item/effect/snare
 	name = "snare"
 	desc = "You shouldn't be seeing this!"
 	invisibility = 1
 	var/mob/living/simple_animal/hostile/guardian/guardian
+
 
 /obj/item/effect/snare/Initialize(mapload, mob/living/simple_animal/hostile/guardian/guardian)
 	. = ..()
@@ -123,6 +131,7 @@
 			COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 		)
 		AddElement(/datum/element/connect_loc, loc_connections)
+
 
 /obj/item/effect/snare/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -135,9 +144,11 @@
 	if(guardian.summoner)
 		to_chat(guardian.summoner, span_danger("[arrived.name] пересек Вашу ловушку в [snare_area.name]."))
 
+
 /obj/effect/snare/singularity_act()
 	return
 
-/obj/effect/snare/singularity_pull(atom/singularity, current_size)
+
+/obj/effect/snare/singularity_pull()
 	return
 

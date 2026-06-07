@@ -16,7 +16,7 @@
 	var/rod_overlay  = "ash_eater_rod"
 
 /obj/item/reagent_containers/food/snacks/bait/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "червяк",
 		GENITIVE = "червяков",
 		DATIVE = "червяку",
@@ -41,7 +41,7 @@
 	desc = "Маленький червячок со множеством невероятно острых зубов, покрывающих его ротовую полость. Ходят слухи, что эти крохи способны вырастать до размеров целого города. Пепел должен течь рекой."
 
 /obj/item/reagent_containers/food/snacks/bait/ash_eater/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пожиратель пепла",
 		GENITIVE = "пожирателя пепла",
 		DATIVE = "пожирателю пепла",
@@ -59,7 +59,7 @@
 	rod_overlay = "bloody_leach_rod"
 
 /obj/item/reagent_containers/food/snacks/bait/bloody_leach/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кровавая пиявка",
 		GENITIVE = "кровавой пиявки",
 		DATIVE = "кровавой пиявке",
@@ -77,7 +77,7 @@
 	rod_overlay = "goldgrub_larva_rod"
 
 /obj/item/reagent_containers/food/snacks/bait/goldgrub_larva/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "личинка златожора",
 		GENITIVE = "личинки златожора",
 		DATIVE = "личинке златожора",
@@ -88,7 +88,7 @@
 
 /obj/item/reagent_containers/food/snacks/charred_krill
 	name = "charred krill"
-	desc = "Одна из самых редких обитателей Лазис Ардакса, множество лет признанная вымершей. Эта креветка — одно из самых любимых угощений для местной \"подводной\" фауны."
+	desc = "Одна из самых редких обитателей Лазис Ардакса, множество лет признанная вымершей. Эта креветка - одно из самых любимых угощений для местной \"подводной\" фауны."
 	gender = FEMALE
 	icon = 'icons/obj/lavaland/lava_fishing.dmi'
 	icon_state = "charred_krill"
@@ -99,8 +99,8 @@
 	tastes = list("пепла" = 5, "упущенных возможностей" = 1)
 	var/in_lava = FALSE
 
-/obj/item/reagent_containers/food/snacks/charred_krill/get_ru_names()
-	return alist(
+/obj/item/reagent_containers/food/snacks/charred_krill/get_ru_names()\
+	return list(
 		NOMINATIVE = "обугленная креветка",
 		GENITIVE = "обугленной креветки",
 		DATIVE = "обугленной креветке",
@@ -116,7 +116,7 @@
 /obj/item/reagent_containers/food/snacks/charred_krill/can_be_pulled(atom/movable/user, force, show_message)
 	if(in_lava)
 		if(show_message)
-			to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] почти утонула в лаве!"))
+			to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] почти утонула в лаве!"))
 			return
 
 /obj/item/reagent_containers/food/snacks/charred_krill/attack_hand(mob/user, pickupfireoverride)

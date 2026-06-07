@@ -1,3 +1,6 @@
+/// When sending mutiple assets, how many before we give the client a quaint little sending resources message
+#define ASSET_CACHE_TELL_CLIENT_AMOUNT 8
+
 /// Base browse_rsc asset transport
 /datum/asset_transport
 	var/name = "Simple browse_rsc asset transport"
@@ -20,6 +23,7 @@
 		return
 	for(var/client/C in GLOB.clients)
 		addtimer(CALLBACK(src, PROC_REF(send_assets_slow), C, preload), 1 SECONDS)
+
 
 /**
  * Register a browser asset with the asset cache system.
@@ -55,10 +59,6 @@
 	SSassets.cache[asset_name] = ACI
 	return ACI
 
-/// Immediately removes an asset from the asset cache.
-/datum/asset_transport/proc/unregister_asset(asset_name)
-	SSassets.cache[asset_name] = null
-	SSassets.cache.Remove(null)
 
 /// Returns a url for a given asset.
 /// asset_name - Name of the asset.
@@ -82,7 +82,7 @@
 /// asset_list - A list of asset filenames to be sent to the client. Can optionally be assoicated with the asset's asset_cache_item datum.
 /// Returns TRUE if any assets were sent.
 /datum/asset_transport/proc/send_assets(client/client, list/asset_list)
-#if defined(TEST_RUNNER)
+#if defined(UNIT_TESTS)
 	return
 #endif
 
@@ -118,12 +118,14 @@
 		if(!keep_local_name)
 			new_asset_name = "asset.[ACI.hash][ACI.ext]"
 		if(client.sent_assets[new_asset_name] == asset_hash)
+			// Un-comment below to debug asset sending (This will spam logs so do not enable normally)
+			// log_asset("DEBUG: Skipping send of `[asset_name]` (as `[new_asset_name]`) for `[client]` because it already exists in the client's sent_assets list")
 			continue
 		unreceived[asset_name] = ACI
 
-	if(length(unreceived))
-		if(length(unreceived) >= ASSET_CACHE_TELL_CLIENT_AMOUNT)
-			to_chat(client, span_notice("Sending Resources..."))
+	if(unreceived.len)
+		if(unreceived.len >= ASSET_CACHE_TELL_CLIENT_AMOUNT)
+			to_chat(client, "Sending Resources...")
 
 		for(var/asset_name in unreceived)
 			var/new_asset_name = asset_name
@@ -134,7 +136,8 @@
 				|| (ACI.namespace && !ACI.namespace_parent)
 			if(!keep_local_name)
 				new_asset_name = "asset.[ACI.hash][ACI.ext]"
-			log_asset("Sending asset `[asset_name]` to client `[client]` as `[new_asset_name]`")
+			// Un-comment below to debug asset sending (This will spam logs so do not enable normally)
+			// log_asset("Sending asset `[asset_name]` to client `[client]` as `[new_asset_name]`")
 			client << browse_rsc(ACI.resource, new_asset_name)
 
 			client.sent_assets[new_asset_name] = ACI.hash
@@ -143,8 +146,9 @@
 		return TRUE
 	return FALSE
 
+
 /// Precache files without clogging up the browse() queue, used for passively sending files on connection start.
-/datum/asset_transport/proc/send_assets_slow(client/client, list/files, filerate = SLOW_ASSET_SEND_RATE)
+/datum/asset_transport/proc/send_assets_slow(client/client, list/files, filerate = 6)
 	var/startingfilerate = filerate
 	for(var/file in files)
 		if(!client)
@@ -152,10 +156,12 @@
 		if(send_assets(client, file))
 			if(!(--filerate))
 				filerate = startingfilerate
-				client.browse_queue_flush()
+				// client.browse_queue_flush()
 			stoplag(0) //queuing calls like this too quickly can cause issues in some client versions
 
 /// Check the config is valid to load this transport
 /// Returns TRUE or FALSE
 /datum/asset_transport/proc/validate_config(log = TRUE)
 	return TRUE
+
+#undef ASSET_CACHE_TELL_CLIENT_AMOUNT

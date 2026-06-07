@@ -7,7 +7,7 @@
 	cures = list("spaceacillin", "salbutamol")
 	cure_prob = 5
 	required_organs = list(/obj/item/organ/internal/lungs)
-	severity = DISEASE_SEVERITY_HARMFUL
+	severity = DANGEROUS
 	ignore_immunity = TRUE
 
 /datum/disease/virus/tuberculosis/stage_act()

@@ -1,12 +1,10 @@
 SUBSYSTEM_DEF(demo)
 	name = "Demo"
 	wait = 1
-	ss_flags = SS_NO_INIT // SS_TICKER | SS_BACKGROUND
+	flags = SS_TICKER | SS_BACKGROUND
 	///Adding Lobby to the runlevel because we want it to start writing before the game starts since there's a of atoms queued to be written during init
 	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
-	dependencies = list(
-		/datum/controller/subsystem/atoms,
-	)
+	init_order = INIT_ORDER_DEMO
 
 	// loading_points = 12.6 SECONDS // Yogs -- loading times
 
@@ -62,7 +60,7 @@ SUBSYSTEM_DEF(demo)
 			var/client/C = CLIENT_FROM_VAR(T)
 			if(C)
 				target_keys += C.ckey
-		if(!length(target_keys))
+		if(!target_keys.len)
 			return
 		target_text = jointext(target_keys, ",")
 	else
@@ -77,7 +75,7 @@ SUBSYSTEM_DEF(demo)
 
 /datum/controller/subsystem/demo/Initialize()
 	if(!CONFIG_GET(flag/demos_enabled))
-		ss_flags |= SS_NO_FIRE
+		flags |= SS_NO_FIRE
 		can_fire = FALSE
 		marked_dirty.Cut()
 		marked_new.Cut()
@@ -148,7 +146,7 @@ SUBSYSTEM_DEF(demo)
 						continue
 					if(isobj(C) || ismob(C))
 						turf_list += encode_init_obj(C)
-				if(length(turf_list))
+				if(turf_list.len)
 					if(spacing)
 						row_list += spacing
 						spacing = 0
@@ -175,14 +173,14 @@ SUBSYSTEM_DEF(demo)
 	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/demo/fire()
-	if(!length(src.marked_new) && !length(src.marked_dirty) && !length(src.marked_turfs) && !length(src.del_list))
+	if(!src.marked_new.len && !src.marked_dirty.len && !src.marked_turfs.len && !src.del_list.len)
 		return // nothing to do
 
-	last_queued = length(src.marked_new) + length(src.marked_dirty) + length(src.marked_turfs)
+	last_queued = src.marked_new.len + src.marked_dirty.len + src.marked_turfs.len
 	last_completed = 0
 
 	write_time()
-	if(length(src.del_list))
+	if(src.del_list.len)
 		var/s = "del [jointext(src.del_list, ",")]\n" // if I don't do it like this I get "incorrect number of macro arguments" because byond is stupid and sucks
 		WRITE_LOG_NO_FORMAT(GLOB.demo_log, s)
 	src.del_list.Cut()
@@ -191,9 +189,9 @@ SUBSYSTEM_DEF(demo)
 
 	var/list/marked_dirty = src.marked_dirty
 	var/list/dirty_updates = list()
-	while(length(marked_dirty))
+	while(marked_dirty.len)
 		last_completed++
-		var/atom/movable/M = marked_dirty[length(marked_dirty)]
+		var/atom/movable/M = marked_dirty[marked_dirty.len]
 		marked_dirty.len--
 		if(M.gc_destroyed || !M)
 			continue
@@ -218,17 +216,18 @@ SUBSYSTEM_DEF(demo)
 		if(MC_TICK_CHECK)
 			canceled = TRUE
 			break
-	if(length(dirty_updates))
+	if(dirty_updates.len)
 		var/s = "update [jointext(dirty_updates, ",")]\n"
 		WRITE_LOG_NO_FORMAT(GLOB.demo_log, s)
 	if(canceled)
 		return
 
+
 	var/list/marked_new = src.marked_new
 	var/list/new_updates = list()
-	while(length(marked_new))
+	while(marked_new.len)
 		last_completed++
-		var/atom/movable/M = marked_new[length(marked_new)]
+		var/atom/movable/M = marked_new[marked_new.len]
 		marked_new.len--
 		if(M.gc_destroyed || !M)
 			continue
@@ -242,17 +241,18 @@ SUBSYSTEM_DEF(demo)
 		if(MC_TICK_CHECK)
 			canceled = TRUE
 			break
-	if(length(new_updates))
+	if(new_updates.len)
 		var/s = "new [jointext(new_updates, ",")]\n"
 		WRITE_LOG_NO_FORMAT(GLOB.demo_log, s)
 	if(canceled)
 		return
 
+
 	var/list/marked_turfs = src.marked_turfs
 	var/list/turf_updates = list()
-	while(length(marked_turfs))
+	while(marked_turfs.len)
 		last_completed++
-		var/turf/T = marked_turfs[length(marked_turfs)]
+		var/turf/T = marked_turfs[marked_turfs.len]
 		marked_turfs.len--
 		if(T && T.appearance != T.demo_last_appearance)
 			turf_updates += "([T.x],[T.y],[T.z])=[encode_appearance(T.appearance, T.demo_last_appearance)]"
@@ -260,7 +260,7 @@ SUBSYSTEM_DEF(demo)
 			if(MC_TICK_CHECK)
 				canceled = TRUE
 				break
-	if(length(turf_updates))
+	if(turf_updates.len)
 		var/s = "turf [jointext(turf_updates, ",")]\n"
 		WRITE_LOG_NO_FORMAT(GLOB.demo_log, s)
 	if(canceled)
@@ -274,7 +274,7 @@ SUBSYSTEM_DEF(demo)
 	for(var/C in M.contents)
 		if(isobj(C) || ismob(C))
 			encoded_contents += encode_init_obj(C)
-	return "\ref[M]=[encoded_appearance][(length(encoded_contents) ? "([jointext(encoded_contents, ",")])" : "")]"
+	return "\ref[M]=[encoded_appearance][(encoded_contents.len ? "([jointext(encoded_contents, ",")])" : "")]"
 
 // please make sure the order you call this function in is the same as the order you write
 /datum/controller/subsystem/demo/proc/encode_appearance(image/appearance, image/diff_appearance, diff_remove_overlays = FALSE, atom/movable/target)
@@ -287,41 +287,41 @@ SUBSYSTEM_DEF(demo)
 	var/cached_icon = icon_cache[icon_txt] || icon_txt
 	var/list/icon_state_cache
 	if(!isnum(cached_icon))
-		icon_cache[icon_txt] = length(icon_cache) + 1
+		icon_cache[icon_txt] = icon_cache.len + 1
 		icon_state_cache = (icon_state_caches[++icon_state_caches.len] = list())
 	else
 		icon_state_cache = icon_state_caches[cached_icon]
 
 	var/list/cached_icon_state = icon_state_cache[appearance.icon_state] || appearance.icon_state
 	if(!isnum(cached_icon_state))
-		icon_state_cache[appearance.icon_state] = length(icon_state_cache) + 1
+		icon_state_cache[appearance.icon_state] = icon_state_cache.len + 1
 
 	var/cached_name = name_cache[appearance.name] || appearance.name
 	if(!isnum(cached_name))
-		name_cache[appearance.name] = length(name_cache) + 1
+		name_cache[appearance.name] = name_cache.len + 1
 
 	var/color_string = appearance.color || "w"
 	if(islist(color_string))
 		var/list/old_list = appearance.color
 		var/list/inted = list()
 		inted.len = old_list.len
-		for(var/i in 1 to length(old_list))
+		for(var/i in 1 to old_list.len)
 			inted[i] += round(old_list[i] * 255)
 		color_string = jointext(inted, ",")
 	var/overlays_string = "\[]"
 	var/list/appearance_overlays = appearance.overlays
-	if(length(appearance_overlays))
+	if(appearance_overlays.len)
 		var/list/overlays_list = list()
-		for(var/i in 1 to length(appearance_overlays))
+		for(var/i in 1 to appearance_overlays.len)
 			var/image/overlay = appearance_overlays[i]
 			overlays_list += encode_appearance(overlay, appearance, TRUE, target = target)
 		overlays_string = "\[[jointext(overlays_list, ",")]]"
 
 	var/underlays_string = "\[]"
 	var/list/appearance_underlays = appearance.underlays
-	if(length(appearance_underlays))
+	if(appearance_underlays.len)
 		var/list/underlays_list = list()
-		for(var/i in 1 to length(appearance_underlays))
+		for(var/i in 1 to appearance_underlays.len)
 			var/image/underlay = appearance_underlays[i]
 			underlays_list += encode_appearance(underlay, appearance, TRUE, target = target)
 		underlays_string = "\[[jointext(underlays_list, ",")]]"
@@ -355,10 +355,10 @@ SUBSYSTEM_DEF(demo)
 		appearance:invisibility == 0 ? "" : appearance:invisibility, // colon because dreamchecker is dumb
 		appearance.pixel_w == 0 ? "" : appearance.pixel_w,
 		appearance.pixel_z == 0 ? "" : appearance.pixel_z,
-		length(appearance.overlays) ? overlays_string : "",
-		length(appearance.underlays) ? underlays_string : ""
+		appearance.overlays.len ? overlays_string : "",
+		appearance.underlays.len ? underlays_string : ""
 		)
-	while(appearance_list[length(appearance_list)] == "" && length(appearance_list) > 0)
+	while(appearance_list[appearance_list.len] == "" && appearance_list.len > 0)
 		appearance_list.len--
 
 	var/undiffed_string = "{[jointext(appearance_list, ";")]}"
@@ -366,22 +366,22 @@ SUBSYSTEM_DEF(demo)
 	if(diff_appearance)
 		var/overlays_identical = TRUE
 		if(diff_remove_overlays)
-			overlays_identical = (length(appearance.overlays) == 0)
-		else if(length(appearance.overlays) != length(diff_appearance.overlays))
+			overlays_identical = (appearance.overlays.len == 0)
+		else if(appearance.overlays.len != diff_appearance.overlays.len)
 			overlays_identical = FALSE
 		else
-			for(var/i in 1 to length(appearance.overlays))
+			for(var/i in 1 to appearance.overlays.len)
 				if(appearance.overlays[i] != diff_appearance.overlays[i])
 					overlays_identical = FALSE
 					break
 
 		var/underlays_identical = TRUE
 		if(diff_remove_overlays)
-			underlays_identical = (length(appearance.underlays) == 0)
-		else if(length(appearance.underlays) != length(diff_appearance.underlays))
+			underlays_identical = (appearance.underlays.len == 0)
+		else if(appearance.underlays.len != diff_appearance.underlays.len)
 			underlays_identical = FALSE
 		else
-			for(var/i in 1 to length(appearance.underlays))
+			for(var/i in 1 to appearance.underlays.len)
 				if(appearance.underlays[i] != diff_appearance.underlays[i])
 					underlays_identical = FALSE
 					break
@@ -413,7 +413,7 @@ SUBSYSTEM_DEF(demo)
 			overlays_identical ? "" : overlays_string,
 			underlays_identical ? "" :underlays_string
 			)
-		while(diffed_appearance_list[length(diffed_appearance_list)] == "" && length(diffed_appearance_list) > 0)
+		while(diffed_appearance_list[diffed_appearance_list.len] == "" && diffed_appearance_list.len > 0)
 			diffed_appearance_list.len--
 
 		var/diffed_string = "~{[jointext(diffed_appearance_list, ";")]}"
@@ -423,21 +423,19 @@ SUBSYSTEM_DEF(demo)
 
 /datum/controller/subsystem/demo/stat_entry(msg)
 	msg += "Remaining: {"
-	msg += "Trf:[length(marked_turfs)]|"
-	msg += "New:[length(marked_new)]|"
-	msg += "Upd:[length(marked_dirty)]|"
-	msg += "Del:[length(del_list)]"
+	msg += "Trf:[marked_turfs.len]|"
+	msg += "New:[marked_new.len]|"
+	msg += "Upd:[marked_dirty.len]|"
+	msg += "Del:[del_list.len]"
 	msg += "}"
 	return ..(msg)
 
 /datum/controller/subsystem/demo/get_metrics()
 	. = ..()
-	var/list/custom_data = list()
-	custom_data["remaining_turfs"] = length(marked_turfs)
-	custom_data["remaining_new"] = length(marked_new)
-	custom_data["remaining_updated"] = length(marked_dirty)
-	custom_data["remaining_deleted"] = length(del_list)
-	.["custom"] = custom_data
+	.["remaining_turfs"] = marked_turfs.len
+	.["remaining_new"] = marked_new.len
+	.["remaining_updated"] = marked_dirty.len
+	.["remaining_deleted"] = del_list.len
 
 /datum/controller/subsystem/demo/proc/mark_turf(turf/T)
 	if(!can_fire)

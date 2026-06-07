@@ -22,7 +22,7 @@
 	if(!.)
 		return
 	var/area/new_area = get_area(.)
-	if(new_area && new_area.name != allowed_area && !(new_area?.xenobiology_compatible))
+	if(new_area && new_area.name != allowed_area && !(new_area && new_area.xenobiology_compatible))
 		return FALSE
 
 #define MAX_SLIME_IN_CONSOLE 5
@@ -35,6 +35,14 @@
 
 /obj/machinery/computer/camera_advanced/xenobio
 	name = "slime management console"
+	ru_names = list(
+		NOMINATIVE = "консоль управления слаймами",
+		GENITIVE = "консоли управления слаймами",
+		DATIVE = "консоли управления слаймами",
+		ACCUSATIVE = "консоль управления слаймами",
+		INSTRUMENTAL = "консолью управления слаймами",
+		PREPOSITIONAL = "консоли управления слаймами"
+	)
 	desc = "Компьютер, используемый для удаленного взаимодействия со слаймами."
 	networks = list("SS13")
 	circuit = /obj/item/circuitboard/xenobiology
@@ -53,16 +61,6 @@
 	var/monkeys = 0
 	var/obj/item/slimepotion/slime/current_potion
 	var/obj/machinery/monkey_recycler/connected_recycler
-
-/obj/machinery/computer/camera_advanced/xenobio/get_ru_names()
-	return alist(
-		NOMINATIVE = "консоль управления слаймами",
-		GENITIVE = "консоли управления слаймами",
-		DATIVE = "консоли управления слаймами",
-		ACCUSATIVE = "консоль управления слаймами",
-		INSTRUMENTAL = "консолью управления слаймами",
-		PREPOSITIONAL = "консоли управления слаймами",
-	)
 
 /obj/machinery/computer/camera_advanced/xenobio/Initialize(mapload)
 	. = ..()
@@ -141,7 +139,7 @@
 		actions += hotkey_help
 
 	RegisterSignal(user, COMSIG_XENO_SLIME_CLICK_CTRL, PROC_REF(XenoSlimeClickCtrl))
-	RegisterSignal(user, COMSIG_MOB_ALTCLICKON, PROC_REF(XenoAltClickOn))
+	RegisterSignal(user, COMSIG_XENO_SLIME_CLICK_ALT, PROC_REF(XenoSlimeClickAlt))
 	RegisterSignal(user, COMSIG_XENO_SLIME_CLICK_SHIFT, PROC_REF(XenoSlimeClickShift))
 	RegisterSignal(user, COMSIG_XENO_TURF_CLICK_SHIFT, PROC_REF(XenoTurfClickShift))
 	RegisterSignal(user, COMSIG_XENO_TURF_CLICK_CTRL, PROC_REF(XenoTurfClickCtrl))
@@ -152,7 +150,7 @@
 
 /obj/machinery/computer/camera_advanced/xenobio/remove_eye_control(mob/living/user)
 	UnregisterSignal(user, COMSIG_XENO_SLIME_CLICK_CTRL)
-	UnregisterSignal(user, COMSIG_MOB_ALTCLICKON)
+	UnregisterSignal(user, COMSIG_XENO_SLIME_CLICK_ALT)
 	UnregisterSignal(user, COMSIG_XENO_SLIME_CLICK_SHIFT)
 	UnregisterSignal(user, COMSIG_XENO_TURF_CLICK_SHIFT)
 	UnregisterSignal(user, COMSIG_XENO_TURF_CLICK_CTRL)
@@ -173,13 +171,13 @@
 	current_potion = null
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/capture_slime(mob/living/simple_animal/slime/slime)
-	slime.visible_message(span_notice("[slime] vanishes in a flash of light!"))
+	slime.visible_message("<span class='notice'>[slime] vanishes in a flash of light!</span>")
 	slime.forceMove(src)
 	stored_slimes += slime
 	RegisterSignal(slime, COMSIG_QDELETING, PROC_REF(clear_slime))
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/release_slime(mob/living/simple_animal/slime/slime, release_spot)
-	slime.visible_message(span_notice("[slime] warps in!"))
+	slime.visible_message("<span class='notice'>[slime] warps in!</span>")
 	clear_slime(slime)
 	slime.forceMove(release_spot)
 
@@ -191,6 +189,7 @@
 	if(!ishuman(user)) //AIs using it might be weird
 		return
 	return ..()
+
 
 /obj/machinery/computer/camera_advanced/xenobio/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -230,6 +229,7 @@
 
 	return ..()
 
+
 /obj/machinery/computer/camera_advanced/xenobio/multitool_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
@@ -240,7 +240,7 @@
 	if(istype(M.buffer, /obj/machinery/monkey_recycler))
 		connected_recycler = M.buffer
 		connected_recycler.connected += src
-		to_chat(user, span_notice("You link [src] to the recycler stored in the [M]'s buffer."))
+		to_chat(user, "<span class='notice'>You link [src] to the recycler stored in the [M]'s buffer.</span>")
 
 // === SLIME ACTION DATUMS ====
 /datum/action/innate/slime_place
@@ -304,7 +304,7 @@
 			to_chat(owner, "Вы не можете разместить мартышку здесь.")
 			return
 		if(!X.monkeys)
-			to_chat(owner, "[DECLENT_RU_CAP(X, NOMINATIVE)] не содержит мартышек.")
+			to_chat(owner, "[capitalize(X.declent_ru(NOMINATIVE))] не содержит мартышек.")
 			return
 		if(X.monkeys >= 1)
 			var/mob/living/carbon/human/lesser/monkey/food = new /mob/living/carbon/human/lesser/monkey(remote_eye.loc)
@@ -328,12 +328,12 @@
 	var/obj/machinery/monkey_recycler/recycler = X.connected_recycler
 
 	if(!recycler)
-		to_chat(owner, span_notice("Нет подключенного утилизатора мартышек. Используйте мультиметр для привязки."))
+		to_chat(owner, span_notice("Нет подключенного утилизатора мартышек. Используйте мультитул для привязки."))
 		return
 	if(GLOB.cameranet.checkTurfVis(remote_eye.loc))
 		for(var/mob/living/carbon/human/M in remote_eye.loc)
 			if(is_monkeybasic(M) && M.stat)
-				M.visible_message("[DECLENT_RU_CAP(M, NOMINATIVE)] исчезает, [GEND_HE_SHE(M)] отправлен[GEND_A_O_Y(M)] на переработку!")
+				M.visible_message("[capitalize(M)] исчезает, [genderize_ru(M.gender,"он","она","оно","они")] отправлен[genderize_ru(M.gender,"","а","о","ы")] на переработку!")
 				recycler.use_power(500)
 				X.monkeys = round(X.monkeys + recycler.cube_production/recycler.required_grind, 0.1)
 				qdel(M)
@@ -388,10 +388,10 @@
 		return
 	var/obj/machinery/computer/camera_advanced/xenobio/X = owner.machine
 	to_chat(owner, "<b>Горячие клавиши:</b>")
-	to_chat(owner, "Shift+ЛКМ по слайму — подобрать, по полу — выбросить всех.")
-	to_chat(owner, "Ctrl+ЛКМ по слайму — сканировать.")
-	to_chat(owner, "Alt+ЛКМ по слайму — накормить зельем.")
-	to_chat(owner, "Ctrl+ЛКМ по мертвой мартышке — утилизировать, по полу — разместить новую.")
+	to_chat(owner, "Shift+ЛКМ по слайму – подобрать, по полу – выбросить всех.")
+	to_chat(owner, "Ctrl+ЛКМ по слайму – сканировать.")
+	to_chat(owner, "Alt+ЛКМ по слайму – накормить зельем.")
+	to_chat(owner, "Ctrl+ЛКМ по мертвой мартышке – утилизировать, по полу – разместить новую.")
 	to_chat(owner, "В [X.declent_ru(GENITIVE)] сейчас [X.monkeys] мартыш[declension_ru(X.monkeys,"ка","ки","ек")].")
 
 //
@@ -401,6 +401,11 @@
 /mob/living/simple_animal/slime/CtrlClick(mob/user)
 	SEND_SIGNAL(user, COMSIG_XENO_SLIME_CLICK_CTRL, src)
 	..()
+
+//Feeds a potion to slime
+/mob/living/simple_animal/slime/click_alt(mob/user)
+	SEND_SIGNAL(user, COMSIG_XENO_SLIME_CLICK_ALT, src)
+	return CLICK_ACTION_SUCCESS
 
 //Picks up slime
 /mob/living/simple_animal/slime/ShiftClick(mob/user)
@@ -425,8 +430,6 @@
 
 // Scans slime
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickCtrl(mob/living/user, mob/living/simple_animal/slime/S)
-	SIGNAL_HANDLER
-
 	if(!GLOB.cameranet.checkTurfVis(S.loc))
 		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
@@ -436,37 +439,23 @@
 	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
 		slime_scan(S, C)
 
-/// Feeds a potion to slime
-/obj/machinery/computer/camera_advanced/xenobio/proc/XenoAltClickOn(mob/living/user, atom/target)
-	SIGNAL_HANDLER
-
-	if(!isslime(target))
-		return
-
-	var/mob/living/simple_animal/slime/slime = target
-	var/turf/slime_turf = get_turf(slime)
-	if(!slime_turf || !GLOB.cameranet.checkTurfVis(slime_turf))
+//Feeds a potion to slime
+/obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickAlt(mob/living/user, mob/living/simple_animal/slime/S)
+	if(!GLOB.cameranet.checkTurfVis(S.loc))
 		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
-		return COMSIG_MOB_CANCEL_CLICKON
-
-	var/mob/camera/aiEye/remote/xenobio/eye = user.remote_control
-	if(!istype(eye) || eye.origin != src)
-		return COMSIG_MOB_CANCEL_CLICKON
-
-	if(!current_potion)
-		to_chat(user, span_warning("Зелье не загружено."))
-		return COMSIG_MOB_CANCEL_CLICKON
-
-	var/area/mob_area = get_area(slime_turf)
-	if(mob_area && (mob_area.name == eye.allowed_area || mob_area.xenobiology_compatible))
-		current_potion.attack(slime, user)
-
-	return COMSIG_MOB_CANCEL_CLICKON
+		return
+	var/mob/living/C = user
+	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
+	var/obj/machinery/computer/camera_advanced/xenobio/X = E.origin
+	var/area/mobarea = get_area(S.loc)
+	if(!X.current_potion)
+		to_chat(C, span_warning("Зелье не загружено."))
+		return
+	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
+		X.current_potion.attack(S, C)
 
 //Picks up slime
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickShift(mob/living/user, mob/living/simple_animal/slime/S)
-	SIGNAL_HANDLER
-
 	if(!GLOB.cameranet.checkTurfVis(S.loc))
 		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
@@ -487,8 +476,6 @@
 
 //Place slimes
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoTurfClickShift(mob/living/user, turf/T)
-	SIGNAL_HANDLER
-
 	if(!GLOB.cameranet.checkTurfVis(T))
 		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
@@ -505,8 +492,6 @@
 
 //Place monkey
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoTurfClickCtrl(mob/living/user, turf/T)
-	SIGNAL_HANDLER
-
 	if(!GLOB.cameranet.checkTurfVis(T))
 		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
@@ -534,8 +519,6 @@
 
 //Pick up monkey
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoMonkeyClickCtrl(mob/living/user, mob/living/carbon/human/M)
-	SIGNAL_HANDLER
-
 	var/turf/monkey_turf = get_turf(M)
 	if(!istype(monkey_turf))
 		return
@@ -547,13 +530,14 @@
 	var/area/mobarea = get_area(M.loc)
 	var/obj/machinery/monkey_recycler/recycler = X.connected_recycler
 	if(!recycler)
-		to_chat(user, span_notice("Нет подключенного утилизатора мартышек. Используйте мультиметр для связи."))
+		to_chat(user, span_notice("Нет подключенного утилизатора мартышек. Используйте мультитул для связи."))
 		return
 	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
 		if(is_monkeybasic(M) && M.stat)
-			M.visible_message("[DECLENT_RU_CAP(M, NOMINATIVE)] исчезает, [GEND_HE_SHE(M)] отправлен[GEND_A_O_Y(M)] на переработку!")
+			M.visible_message("[capitalize(M)] исчезает, [genderize_ru(M.gender,"он","она","оно","они")] отправлен[genderize_ru(M.gender,"","а","о","ы")] на переработку!")
 			recycler.use_power(500)
 			X.monkeys = round(X.monkeys + recycler.cube_production/recycler.required_grind, 0.1)
 			qdel(M)
+
 
 #undef MAX_SLIME_IN_CONSOLE

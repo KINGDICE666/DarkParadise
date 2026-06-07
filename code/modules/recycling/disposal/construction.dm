@@ -14,6 +14,7 @@
 	/// Disposals name we got on init from the path above
 	var/pipename
 
+
 /obj/structure/disposalconstruct/Initialize(mapload, pipe_define, dir = SOUTH, obj/made_from)
 	. = ..()
 	if(made_from)
@@ -30,10 +31,10 @@
 
 	pipename = initial(pipe_type.name)
 	update_appearance(UPDATE_ICON_STATE)
-	AddElement(/datum/element/undertile)
 
 	if(!is_pipe())
 		set_density(TRUE)
+
 
 /// Proc required to convert RPD / pipe dispencer defines into disposal paths
 /obj/structure/disposalconstruct/proc/define2type(value)
@@ -61,12 +62,14 @@
 		if(PIPE_DISPOSALS_ROTATOR)
 			return /obj/structure/disposalpipe/rotator
 
+
 /obj/structure/disposalconstruct/update_icon_state()
 	if(pipe_type == /obj/machinery/disposal)
 		// Disposal bins receive special icon treating
 		icon_state = "[anchored ? "" : "con"]disposal"
 		return
 	icon_state = "[is_pipe() ? "con" : ""][initial(pipe_type.icon_state)]"
+
 
 /// If src represents a pipe this will return all possible dirs it has.
 /obj/structure/disposalconstruct/proc/get_disposal_dir()
@@ -90,20 +93,31 @@
 			dpdir |= REVERSE_DIR(dir)
 	return dpdir
 
+
+// hide called by levelupdate if turf intact status changes
+// change visibility status and force update of icon
+/obj/structure/disposalconstruct/hide(intact)
+	invisibility = (intact && level == 1) ? INVISIBILITY_MAXIMUM : 0	// hide if floor is intact
+	update_appearance(UPDATE_ICON_STATE)
+
+
 /obj/structure/disposalconstruct/examine(mob/user)
 	. = ..()
 	. += span_notice("<b>Alt-Click</b> to rotate it, <b>Alt-Shift-Click</b> to flip it.")
 
+
 // flip and rotate verbs
 /obj/structure/disposalconstruct/verb/rotate_verb()
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set name = "Повернуть трубу"
 	set src in view(1)
 	rotate(usr)
 
+
 /obj/structure/disposalconstruct/click_alt(mob/user)
 	rotate(user)
 	return CLICK_ACTION_SUCCESS
+
 
 /// Rotates construct 90 degrees counter-clockwise
 /obj/structure/disposalconstruct/proc/rotate(mob/user)
@@ -119,15 +133,18 @@
 	update_appearance(UPDATE_ICON_STATE)
 	return TRUE
 
+
 /obj/structure/disposalconstruct/verb/flip_verb()
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set name = "Перевернуть трубу"
 	set src in view(1)
 	flip(usr)
 
+
 /obj/structure/disposalconstruct/AltShiftClick(mob/user)
 	if(Adjacent(user))
 		flip(user)
+
 
 /// Flips construct 180 degrees, but also inverts it if its a pipe with defined flip_type
 /obj/structure/disposalconstruct/proc/flip(mob/user)
@@ -146,12 +163,13 @@
 	update_appearance(UPDATE_ICON_STATE)
 	return TRUE
 
+
 /obj/structure/disposalconstruct/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
 	var/turf/our_turf = loc
 	if(!isturf(our_turf))
 		return .
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	if(our_turf.intact)
 		to_chat(user, span_warning("You can only [anchored ? "detach" : "attach"] the [pipename] if the floor plating is removed."))
 		return FALSE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
@@ -187,12 +205,13 @@
 		to_chat(user, "You attach the [pipename] to the underfloor.")
 	update_appearance(UPDATE_ICON_STATE)
 
+
 /obj/structure/disposalconstruct/welder_act(mob/living/user, obj/item/I)
 	. = TRUE
 	var/turf/our_turf = loc
 	if(!isturf(our_turf))
 		return .
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	if(our_turf.intact)
 		to_chat(user, span_warning("You can only [anchored ? "detach" : "attach"] the [pipename] if the floor plating is removed."))
 		return .
 	if(!anchored)
@@ -211,17 +230,18 @@
 	transfer_fingerprints_to(disposals)
 	qdel(src)
 
-/obj/structure/disposalconstruct/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
+
+/obj/structure/disposalconstruct/rpd_act(mob/user, obj/item/rpd/our_rpd)
 	. = TRUE
-	switch(mode)
-		if(RPD_ROTATE_MODE)
-			rotate()
-		if(RPD_FLIP_MODE)
-			flip()
-		if(RPD_DELETE_MODE)
-			our_rpd.delete_single_pipe(user, src)
-		else
-			return ..()
+	if(our_rpd.mode == RPD_ROTATE_MODE)
+		rotate()
+	else if(our_rpd.mode == RPD_FLIP_MODE)
+		flip()
+	else if(our_rpd.mode == RPD_DELETE_MODE)
+		our_rpd.delete_single_pipe(user, src)
+	else
+		return ..()
+
 
 /obj/structure/disposalconstruct/set_anchored(anchorvalue)
 	. = ..()
@@ -233,6 +253,7 @@
 	else
 		level = 2
 		layer = initial(layer)
+
 
 /// Checks whether we represent a pipe, depending on path in pipe_type variable
 /obj/structure/disposalconstruct/proc/is_pipe()

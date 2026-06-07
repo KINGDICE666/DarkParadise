@@ -1,6 +1,7 @@
 /obj/structure/tendril
 	name = "tendril"
 	desc = "A tendril."
+	climbable = FALSE
 	anchored = TRUE
 	icon = 'icons/obj/tendril.dmi'
 	icon_state = "tendril"

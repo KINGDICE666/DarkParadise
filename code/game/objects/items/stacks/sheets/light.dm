@@ -12,6 +12,7 @@
 	flags = CONDUCT
 	max_amount = 60
 
+
 /obj/item/stack/light_w/wirecutter_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -23,6 +24,7 @@
 	coil.add_fingerprint(user)
 	var/obj/item/stack/sheet/glass/glass = new(drop_loc)
 	glass.add_fingerprint(user)
+
 
 /obj/item/stack/light_w/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/sheet/metal))

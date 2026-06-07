@@ -17,7 +17,7 @@
 	var/mob/living/swirlie = null	//the mob being given a swirlie
 
 /obj/structure/toilet/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "унитаз",
 		GENITIVE = "унитаза",
 		DATIVE = "унитазу",
@@ -41,15 +41,15 @@
 		user.changeNext_move(CLICK_CD_MELEE)
 		playsound(src.loc, "swing_hit", 25, TRUE)
 		swirlie.visible_message(
-			span_danger("[user] бь[PLUR_ET_YUT(user)] головой [swirlie] об унитаз!"),
-			span_userdanger("[user] бь[PLUR_ET_YUT(user)] вас головой об унитаз!"),
+			span_danger("[user] бь[pluralize_ru(user.gender, "ет", "ют")] головой [swirlie] об унитаз!"),
+			span_userdanger("[user] бь[pluralize_ru(user.gender, "ет", "ют")] вас головой об унитаз!"),
 			span_italics("Вы слышите гулкий звон фарфора.")
 		)
 		swirlie.adjustBruteLoss(5)
 		return
 
-	if(cistern && !open && IsReachableBy(user))
-		if(!length(contents))
+	if(cistern && !open)
+		if(!contents.len)
 			to_chat(user, span_notice("В бачке ничего нет."))
 			return
 		else
@@ -68,6 +68,7 @@
 	open = !open
 	update_icon()
 
+
 /obj/structure/toilet/update_icon_state()
 	icon_state = "toilet[open][cistern]"
 	if(!anchored)
@@ -83,13 +84,14 @@
 			pixel_y = -8
 			layer = FLY_LAYER
 
+
 /obj/structure/toilet/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
 	if(grabber.grab_state < GRAB_AGGRESSIVE || !isliving(grabbed_thing))
 		return
 	var/mob/living/victim = grabbed_thing
 	if(victim.loc != get_turf(src))
-		to_chat(grabber, span_warning("[victim] долж[GEND_EN_NA_NO_NY(victim)] быть на [declent_ru(PREPOSITIONAL)]!"))
+		to_chat(grabber, span_warning("[victim] долж[pluralize_ru(victim.gender, "ен", "ны")] быть на [declent_ru(PREPOSITIONAL)]!"))
 		return
 	add_fingerprint(grabber)
 	if(open && !swirlie)
@@ -97,9 +99,9 @@
 		return
 	do_smash_into_toilet(grabber, victim)
 
+
 /obj/structure/toilet/proc/do_swirlie(mob/living/grabber, mob/living/victim)
 	swirlie = victim
-	var/was_alive = (swirlie.stat != DEAD)
 	var/prev_angle = victim.lying_angle
 	var/oldx = victim.pixel_x
 	var/oldy = victim.pixel_y
@@ -109,8 +111,8 @@
 	// begin up victim
 	victim.set_lying_angle(180)
 	victim.visible_message(
-		span_danger("[grabber] поднима[PLUR_ET_YUT(grabber)] [victim] над унитазом!"),
-		span_userdanger("[grabber] поднима[PLUR_ET_YUT(grabber)] вас над унитазом!"),
+		span_danger("[grabber] поднима[pluralize_ru(grabber.gender, "ет", "ют")] [victim] над унитазом!"),
+		span_userdanger("[grabber] поднима[pluralize_ru(grabber.gender, "ет", "ют")] вас над унитазом!"),
 	)
 	animate(victim, pixel_x = swirlie_x, pixel_y = swirlie_y, time = 0.8 SECONDS)
 	if(!do_after(grabber, 0.8 SECONDS, src, NONE) || grabber.pulling != victim)
@@ -118,8 +120,8 @@
 		return
 	// begin move down into toilet
 	victim.visible_message(
-		span_danger("[grabber] начина[PLUR_ET_YUT(grabber)] окунать голову [victim] в унитаз!"),
-		span_userdanger("[grabber] начина[PLUR_ET_YUT(grabber)] окунать вашу голову в унитаз..."),
+		span_danger("[grabber] начина[pluralize_ru(grabber.gender, "ет", "ют")] окунать голову [victim] в унитаз!"),
+		span_userdanger("[grabber] начина[pluralize_ru(grabber.gender, "ет", "ют")] окунать вашу голову в унитаз..."),
 	)
 	animate(victim, pixel_x = swirlie_x, pixel_y = swirlie_y_down, time = 1.2 SECONDS)
 	if(!do_after(grabber, 1.2 SECONDS, src, NONE) || grabber.pulling != victim)
@@ -127,8 +129,8 @@
 		return
 	// begin flushing water with victim
 	victim.visible_message(
-		span_danger("[grabber] окуна[PLUR_ET_YUT(grabber)] голову [victim] в унитаз!"),
-		span_userdanger("[grabber] окуна[PLUR_ET_YUT(grabber)] вашу голову в унитаз!"),
+		span_danger("[grabber] окуна[pluralize_ru(grabber.gender, "ет", "ют")] голову [victim] в унитаз!"),
+		span_userdanger("[grabber] окуна[pluralize_ru(grabber.gender, "ет", "ют")] вашу голову в унитаз!"),
 		span_italics("Вы слышите звук смыва унитаза."),
 	)
 	playsound(loc, 'sound/items/toilet_flush.ogg', 80, TRUE)
@@ -137,8 +139,6 @@
 		return
 	// success toilet swirlie
 	apply_swirlie_effect(grabber, victim)
-	if(was_alive && swirlie.stat == DEAD && swirlie.client)
-		swirlie.client.give_award(/datum/award/achievement/misc/swirlie, swirlie)
 	cancel_swirlie_act(victim, oldx, oldy, prev_angle)
 
 /obj/structure/toilet/proc/cancel_swirlie_act(mob/living/victim, oldx, oldy, prev_angle)
@@ -154,10 +154,11 @@
 /obj/structure/toilet/proc/do_smash_into_toilet(mob/living/grabber, mob/living/victim)
 	playsound(loc, 'sound/effects/bang.ogg', 25, TRUE)
 	victim.visible_message(
-		span_danger("[grabber] бь[PLUR_ET_YUT(grabber)] [victim] головой об [declent_ru(NOMINATIVE)]!"),
-		span_userdanger("[grabber] бь[PLUR_ET_YUT(grabber)] вас головой об [declent_ru(NOMINATIVE)]!"),
+		span_danger("[grabber] бь[pluralize_ru(grabber.gender, "ет", "ют")] [victim] головой об [declent_ru(NOMINATIVE)]!"),
+		span_userdanger("[grabber] бь[pluralize_ru(grabber.gender, "ет", "ют")] вас головой об [declent_ru(NOMINATIVE)]!"),
 	)
 	victim.adjustBruteLoss(5)
+
 
 /obj/structure/toilet/attackby(obj/item/item, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -170,11 +171,11 @@
 			return ATTACK_CHAIN_PROCEED
 		var/obj/item/reagent_containers/container = item
 		if(!container.is_refillable())
-			to_chat(user, span_warning("[DECLENT_RU_CAP(container, NOMINATIVE)] не предназначен для повторного заполнения."))
+			to_chat(user, span_warning("[capitalize(container.declent_ru(NOMINATIVE))] не предназначен для повторного заполнения."))
 			balloon_alert(user, "не удалось")
 			return ATTACK_CHAIN_PROCEED
 		if(container.reagents.holder_full())
-			to_chat(user, span_warning("[DECLENT_RU_CAP(container, NOMINATIVE)] уже полный..."))
+			to_chat(user, span_warning("[capitalize(container.declent_ru(NOMINATIVE))] уже полный..."))
 			balloon_alert(user, "уже полный")
 			return ATTACK_CHAIN_PROCEED
 		container.reagents.add_reagent("toiletwater", min(container.volume - container.reagents.total_volume, container.amount_per_transfer_from_this))
@@ -188,6 +189,7 @@
 
 	return ..()
 
+
 /obj/structure/toilet/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
@@ -196,11 +198,12 @@
 	playsound(loc, 'sound/effects/stonedoor_openclose.ogg', 50, TRUE)
 	if(I.use_tool(src, user, 30, volume = I.tool_volume))
 		user.visible_message(
-			span_notice("[user] [cistern ? "поставил[GEND_A_O_I(user)] крышку на место" : "снял[PLUR_I(user)] крышку с бачка"]!"),
+			span_notice("[user] [cistern ? "поставил[genderize_ru(user.gender, "", "а", "о", "и")] крышку на место" : "снял[pluralize_ru(user.gender,"","и")] крышку с бачка"]!"),
 			span_notice("Вы [cistern ? "поставили крышку на место" : "сняли крышку с бачка"]!"),
 			span_italics("Вы слышите скрип фарфора."))
 		cistern = !cistern
 		update_icon()
+
 
 /obj/structure/toilet/wrench_act(mob/user, obj/item/item)
 	. = TRUE
@@ -223,25 +226,25 @@
 			stash_goods(item, user)
 		if(DISCONNECT_CHOICE)
 			user.visible_message(
-				span_notice("[user] начина[PLUR_ET_YUT(user)] отсоединять [declent_ru(NOMINATIVE)]."),
+				span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] отсоединять [declent_ru(NOMINATIVE)]."),
 				span_notice("Вы начинаете отсоединять [declent_ru(NOMINATIVE)]..."))
 			if(item.use_tool(src, user, 40, volume = item.tool_volume))
 				if(!loc || !anchored)
 					return
 				user.visible_message(
-					span_notice("[user] отсоединя[PLUR_ET_YUT(user)] [declent_ru(NOMINATIVE)]!"),
+					span_notice("[user] отсоединя[pluralize_ru(user.gender,"ет","ют")] [declent_ru(NOMINATIVE)]!"),
 					span_notice("Вы отсоединили [declent_ru(NOMINATIVE)]!"))
 				balloon_alert(user, "отсоединено")
 				set_anchored(FALSE)
 		if(CONNECT_CHOICE)
 			user.visible_message(
-				span_notice("[user] начина[PLUR_ET_YUT(user)] подключать [declent_ru(NOMINATIVE)]."),
+				span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] подключать [declent_ru(NOMINATIVE)]."),
 				span_notice("Вы начинаете подключать [declent_ru(NOMINATIVE)]..."))
 			if(item.use_tool(src, user, 40, volume = item.tool_volume))
 				if(!loc || anchored)
 					return
 				user.visible_message(
-					span_notice("[user] подключил[PLUR_I(user)] [declent_ru(NOMINATIVE)]!"),
+					span_notice("[user] подключил[pluralize_ru(user.gender,"","и")] [declent_ru(NOMINATIVE)]!"),
 					span_notice("Вы подключили [declent_ru(NOMINATIVE)]!"))
 				balloon_alert(user, "соединено")
 				set_anchored(TRUE)
@@ -276,11 +279,13 @@
 		secret.desc += " It's a secret!"
 		w_items += secret.w_class
 
+
 // This toilet made specially for map editor, collects objects on same turf at map loading as well as closets do.
 // regular toilet can't do this. has the same restrictions for objects like regular toilet has.
 /obj/structure/toilet/cancollectmapitems/Initialize(mapload)
 	..()
 	return INITIALIZE_HINT_LATELOAD
+
 
 /obj/structure/toilet/cancollectmapitems/LateInitialize()
 	for(var/obj/item/I in loc)
@@ -293,6 +298,7 @@
 		if(I.w_class + w_items <= WEIGHT_CLASS_HUGE) // if items summary size <= than 5 , add item in contents
 			w_items += I.w_class
 			I.forceMove(src)
+
 
 /obj/structure/toilet/golden_toilet
 	name = "Золотой унитаз"
@@ -335,6 +341,7 @@
 	)
 	victim.adjustBruteLoss(8)
 
+
 /obj/structure/urinal/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
@@ -358,6 +365,7 @@
 			pixel_x = 0
 			pixel_y = 32
 
+
 #define SHOWER_FREEZING "freezing"
 #define SHOWER_NORMAL "normal"
 #define SHOWER_BOILING "boiling"
@@ -375,11 +383,11 @@
 	var/current_temperature = SHOWER_NORMAL
 	///What sound will be played on loop when the shower is on and pouring water.
 	var/datum/looping_sound/showering/soundloop
-	COOLDOWN_DECLARE(wash_cooldown)
+
 
 /obj/machinery/shower/Initialize(mapload, newdir = SOUTH, building = FALSE)
 	. = ..()
-	soundloop = new(src, FALSE)
+	soundloop = new(list(src), FALSE)
 	if(building)
 		setDir(newdir)
 		pixel_x = 0
@@ -394,6 +402,7 @@
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
+
 
 /obj/machinery/shower/Destroy()
 	QDEL_NULL(soundloop)
@@ -411,6 +420,7 @@
 	layer = FLY_LAYER
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
+
 /obj/machinery/shower/attack_hand(mob/user)
 	on = !on
 	update_icon()
@@ -426,12 +436,14 @@
 		if(istype(source_turf) && !source_turf.density)
 			source_turf.MakeSlippery(TURF_WET_WATER, min_wet_time = 5 SECONDS, wet_time_to_add = 1 SECONDS)
 
+
 /obj/machinery/shower/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/analyzer))
 		add_fingerprint(user)
 		to_chat(user, span_notice("The water temperature seems to be [current_temperature]."))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/machinery/shower/wrench_act(mob/user, obj/item/I)
 	to_chat(user, span_notice("You begin to adjust the temperature valve with [I]."))
@@ -450,6 +462,7 @@
 		add_hiddenprint(user)
 	handle_mist()
 	return TRUE
+
 
 /obj/machinery/shower/welder_act(mob/user, obj/item/I)
 	. = TRUE
@@ -472,10 +485,12 @@
 		transfer_prints_to(shower, TRUE)
 		qdel(src)
 
+
 /obj/machinery/shower/update_overlays()
 	. = ..()
 	if(on)
 		. += image(icon, icon_state = "water", layer = ABOVE_MOB_LAYER, dir = src.dir)
+
 
 /obj/machinery/shower/proc/handle_mist()
 	// If there is no mist, and the shower was turned on (on a non-freezing temp): make mist in 5 seconds
@@ -487,24 +502,25 @@
 	if(mist && (!on || current_temperature == SHOWER_FREEZING))
 		addtimer(CALLBACK(src, PROC_REF(clear_mist)), 25 SECONDS)
 
+
 /obj/machinery/shower/proc/make_mist()
 	var/obj/effect/mist/mist = locate() in loc
 	if(!mist && on && current_temperature != SHOWER_FREEZING)
 		new /obj/effect/mist(loc)
+
 
 /obj/machinery/shower/proc/clear_mist()
 	var/obj/effect/mist/mist = locate() in loc
 	if(mist && (!on || current_temperature == SHOWER_FREEZING))
 		qdel(mist)
 
+
 /obj/machinery/shower/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
-	if(on && COOLDOWN_FINISHED(src, wash_cooldown))
-		wash_atom(arrived)
-		COOLDOWN_START(src, wash_cooldown, 6 SECONDS)
-	else if(on)
-		wash_atom(arrived)
+	if(on)
+		wash(arrived)
+
 
 /obj/machinery/shower/proc/convertHeat()
 	switch(current_temperature)
@@ -515,8 +531,9 @@
 		if(SHOWER_FREEZING)
 			return 230.15
 
+
 //Yes, showers are super powerful as far as washing goes.
-/obj/machinery/shower/proc/wash_atom(atom/target)
+/obj/machinery/shower/proc/wash(atom/target)
 	if(!on)
 		return
 
@@ -527,13 +544,14 @@
 	target.water_act(100, convertHeat(), src)
 
 	if(isliving(target))
-		var/mob/living/living_target = target
-		living_target.ExtinguishMob()
-		living_target.adjust_fire_stacks(-20) //Douse ourselves with water to avoid fire more easily
-		//to_chat(living_target, span_warning("Вы насквозь промокли!"))
+		var/mob/living/l_target = target
+		l_target.ExtinguishMob()
+		l_target.adjust_fire_stacks(-20) //Douse ourselves with water to avoid fire more easily
+		to_chat(l_target, span_warning("Вы насквозь промокли!"))
 
 	target.clean_blood()
-	target.wash_tg(CLEAN_RAD|CLEAN_WASH)
+	SEND_SIGNAL(target, COMSIG_COMPONENT_CLEAN_ACT, 10)
+
 
 /obj/machinery/shower/process()
 	if(on)
@@ -545,12 +563,13 @@
 				if(effect.is_cleanable())
 					qdel(effect)
 		for(var/thing in loc)
-			wash_atom(thing)
+			wash(thing)
 	else
 		on = FALSE
 		soundloop.stop()
 		handle_mist()
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/shower/proc/check_heat(mob/M)
 	if(current_temperature == SHOWER_NORMAL)
@@ -570,6 +589,7 @@
 #undef SHOWER_FREEZING
 #undef SHOWER_NORMAL
 #undef SHOWER_BOILING
+
 
 /obj/item/bikehorn/rubberducky
 	name = "rubber ducky"
@@ -621,7 +641,7 @@
 	var/washing_face = FALSE
 	if(user.zone_selected in list(BODY_ZONE_HEAD, BODY_ZONE_PRECISE_EYES, BODY_ZONE_PRECISE_MOUTH))
 		washing_face = TRUE
-	user.visible_message(span_notice("[user] начина[PLUR_ET_YUT(user)] мыть [washing_face ? "своё лицо" : "свои руки"]..."), \
+	user.visible_message(span_notice("[user] начина[pluralize_ru(user.gender, "ет", "ют")] мыть [washing_face ? "своё лицо" : "свои руки"]..."), \
 						span_notice("Вы начинаете мыть [washing_face ? "своё лицо" : "свои руки"]..."))
 	busy = 1
 
@@ -633,7 +653,7 @@
 
 	busy = 0
 
-	user.visible_message(span_notice("[user] помыл[GEND_A_O_I(user)] [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."), \
+	user.visible_message(span_notice("[user] помыл[genderize_ru(user.gender, "", "а", "о", "и")] [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."), \
 						span_notice("Вы помыли [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."))
 
 	if(SEND_SIGNAL(user, COMSIG_SINK_ACT) & COMSIG_SINK_ACT_SUCCESS) // special sink acts
@@ -648,6 +668,7 @@
 			H.AdjustDrowsy(-rand(4 SECONDS, 6 SECONDS)) //Washing your face wakes you up if you're falling asleep
 	else
 		user.clean_blood()
+
 
 /obj/structure/sink/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -669,6 +690,7 @@
 	busy = FALSE
 	if(wateract)
 		I.water_act(20, COLD_WATER_TEMPERATURE, src)
+
 
 /obj/structure/sink/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -738,10 +760,12 @@
 				pixel_x = (dir == EAST) ? 12 : -12
 				pixel_y = 0
 
+
 /obj/structure/sink/kitchen
 	name = "kitchen sink"
 	icon_state = "sink_alt"
 	can_rotate = 0
+
 
 /obj/structure/sink/puddle	//splishy splashy ^_^
 	name = "puddle"
@@ -752,13 +776,13 @@
 	resistance_flags = UNACIDABLE
 
 /obj/structure/sink/puddle/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пруд",
 		GENITIVE = "пруда",
 		DATIVE = "пруду",
 		ACCUSATIVE = "пруд",
 		INSTRUMENTAL = "прудом",
-		PREPOSITIONAL = "пруде",
+		PREPOSITIONAL = "пруде"
 	)
 
 /obj/structure/sink/puddle/Initialize(mapload)
@@ -769,9 +793,11 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/sink/puddle/attack_hand(mob/user)
 	flick("puddle-splash", src)
 	return ..()
+
 
 /obj/structure/sink/puddle/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -779,7 +805,7 @@
 
 	if(istype(I, /obj/item/shovel))
 		user.visible_message(
-			span_notice("[user] начина[PLUR_ET_YUT(user)] закапывать [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] закапывать [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
 			span_notice("Вы начинаете закапывать [declent_ru(ACCUSATIVE)]..."),
 		)
 		I.play_tool_sound(src, 100)
@@ -788,7 +814,7 @@
 			return ATTACK_CHAIN_PROCEED
 		I.play_tool_sound(src, 100)
 		user.visible_message(
-			span_notice("[user] закопал[GEND_A_O_I(user)] [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
+			span_notice("[user] закопал[genderize_ru(user.gender,"","а","о","и")] [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
 			span_notice("Вы закопали [declent_ru(ACCUSATIVE)]."),
 		)
 		qdel(src)
@@ -798,9 +824,9 @@
 
 /obj/structure/sink/puddle/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
-	wash_atom(arrived)
+	wash(arrived)
 
-/obj/structure/sink/puddle/proc/wash_atom(atom/target)
+/obj/structure/sink/puddle/proc/wash(atom/target)
 	if(isitem(target))
 		var/obj/item/item = target
 		item.extinguish()
@@ -817,6 +843,7 @@
 //		Bathroom Fixture Items	//
 //////////////////////////////////
 
+
 /obj/item/mounted/shower
 	name = "shower fixture"
 	desc = "A self-adhering shower fixture. Simply stick to a wall, no plumber needed!"
@@ -824,15 +851,27 @@
 	icon_state = "shower"
 	item_state = "buildpipe"
 
+/obj/item/mounted/shower/try_build(turf/on_wall, mob/user, proximity_flag)
+	//overriding this because we don't care about other items on the wall, but still need to do adjacent checks
+	if(!on_wall || !user)
+		return
+	if(proximity_flag != 1) //if we aren't next to the wall
+		return
+	if(!(get_dir(on_wall, user) in GLOB.cardinal))
+		to_chat(user, span_warning("You need to be standing next to a wall to place \the [src]."))
+		return
+	return 1
+
 /obj/item/mounted/shower/do_build(turf/on_wall, mob/user)
 	var/obj/machinery/shower/S = new(get_turf(user), get_dir(on_wall, user), TRUE)
 	transfer_fingerprints_to(S)
 	qdel(src)
 
+
 /obj/item/bathroom_parts
 	name = "toilet in a box"
 	desc = "An entire toilet in a box, straight from Space Sweden. It has an unpronounceable name."
-	icon = 'icons/obj/storage/boxes.dmi'
+	icon = 'icons/obj/storage.dmi'
 	icon_state = "largebox"
 	w_class = WEIGHT_CLASS_BULKY
 	var/result = /obj/structure/toilet
@@ -848,8 +887,8 @@
 	result = /obj/structure/sink
 	result_name = "sink"
 
-/obj/item/bathroom_parts/Initialize(mapload)
-	. = ..()
+/obj/item/bathroom_parts/New()
+	..()
 	desc = "An entire [result_name] in a box, straight from Space Sweden. It has an [pick("unpronounceable", "overly accented", "entirely gibberish", "oddly normal-sounding")] name."
 
 /obj/item/bathroom_parts/attack_self(mob/user)

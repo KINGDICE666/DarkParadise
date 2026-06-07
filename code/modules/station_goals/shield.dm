@@ -72,7 +72,6 @@
 
 /obj/item/circuitboard/computer/sat_control
 	board_name = "Контроллер сети спутников"
-	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
 	build_path = /obj/machinery/computer/sat_control
 	origin_tech = "engineering=3"
 
@@ -84,10 +83,10 @@
 	icon_keyboard = "rd_key"
 	var/datum/ui_module/sat_control/sat_control
 
-/obj/machinery/computer/sat_control/Initialize(mapload)
-	. = ..()
+/obj/machinery/computer/sat_control/New()
 	sat_control = new(src)
 	sat_control.object = src
+	..()
 
 /obj/machinery/computer/sat_control/Destroy()
 	QDEL_NULL(sat_control)
@@ -172,15 +171,6 @@
 	/// A list of "proxy" objects used for multi-z coverage.
 	var/list/obj/effect/abstract/meteor_shield_proxy/proxies = list()
 
-/obj/machinery/satellite/meteor_shield/Destroy()
-	QDEL_NULL(proximity_monitor)
-	LAZYCLEARLIST(proxies)
-	if(!(active && emagged))
-		return ..()
-
-	change_meteor_chance(0.5)
-	return ..()
-
 /obj/machinery/satellite/meteor_shield/examine(mob/user)
 	. = ..()
 	if(active)
@@ -202,7 +192,7 @@
 
 /obj/machinery/satellite/meteor_shield/Initialize(mapload)
 	. = ..()
-	proximity_monitor = new(src, kill_range)
+	AddComponent(/datum/component/proximity_monitor, kill_range)
 	setup_proxies()
 
 /obj/machinery/satellite/meteor_shield/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents)
@@ -237,22 +227,19 @@
 /obj/machinery/satellite/meteor_shield/proc/shoot_meteor(atom/movable/possible_danger)
 	if(!active)
 		return
+	if(istype(possible_danger, /obj/effect/meteor))
+		var/obj/effect/meteor/meteor_to_destroy = possible_danger
+		if(!space_los(meteor_to_destroy))
+			return
 
-	if(!istype(possible_danger, /obj/effect/meteor))
-		return
+		if(emagged && !is_fake_meteor(meteor_to_destroy))
+			return
 
-	var/obj/effect/meteor/meteor_to_destroy = possible_danger
-	if(!space_los(meteor_to_destroy))
-		return
+		if(meteor_to_destroy.shield_defense(src))
+			Beam(get_turf(meteor_to_destroy), icon_state = "sat_beam", time = 5, maxdistance = kill_range)
+			new /obj/effect/temp_visual/pka_explosion(get_turf(meteor_to_destroy))
 
-	if(emagged && !is_fake_meteor(meteor_to_destroy))
-		return
-
-	if(meteor_to_destroy.shield_defense(src))
-		Beam(get_turf(meteor_to_destroy), icon_state = "sat_beam", time = 5, maxdistance = kill_range)
-		new /obj/effect/temp_visual/pka_explosion(get_turf(meteor_to_destroy))
-
-	qdel(meteor_to_destroy)
+		qdel(meteor_to_destroy)
 
 /obj/machinery/satellite/meteor_shield/toggle(user)
 	if(..(user))
@@ -271,12 +258,17 @@
 			/datum/event/dust/meaty,
 			/datum/event/dust,
 		))
+	for(var/datum/event_container/container in SSevents.event_containers)
+		for(var/datum/event_meta/M in container.available_events)
+			if(is_type_in_typecache(M.event_type, meteor_event_typecache))
+				M.weight_mod *= mod
 
-	for(var/severity_level, container in SSevents.event_containers)
-		var/datum/event_container/event_container = container
-		for(var/datum/event_meta/event_meta in event_container.available_events)
-			if(is_type_in_typecache(event_meta.event_type, meteor_event_typecache))
-				event_meta.weight_mod *= mod
+/obj/machinery/satellite/meteor_shield/Destroy()
+	. = ..()
+	if(!(active && emagged))
+		return
+
+	change_meteor_chance(0.5)
 
 /obj/machinery/satellite/meteor_shield/emag_act(mob/user)
 	if(emagged)
@@ -293,22 +285,17 @@
 	name = "Proxy Detector For Meteor Shield"
 	/// The meteor shield sat this is proxying - any HasProximity calls will be forwarded to it..
 	var/obj/machinery/satellite/meteor_shield/parent
+	speed_process = TRUE
 
-/obj/effect/abstract/meteor_shield_proxy/Initialize(mapload, obj/machinery/satellite/meteor_shield/shield)
+/obj/effect/abstract/meteor_shield_proxy/Initialize(mapload, obj/machinery/satellite/meteor_shield/parent)
 	. = ..()
-	if(QDELETED(shield))
+	if(QDELETED(parent))
 		return INITIALIZE_HINT_QDEL
-	parent = shield
-	proximity_monitor = new(src, parent.kill_range)
+	src.parent = parent
+	AddComponent(/datum/component/proximity_monitor, parent.kill_range)
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(on_parent_moved))
 	RegisterSignal(parent, COMSIG_MOVABLE_Z_CHANGED, PROC_REF(on_parent_z_changed))
 	RegisterSignal(parent, COMSIG_QDELETING, PROC_REF(on_parent_deleted))
-
-/obj/effect/abstract/meteor_shield_proxy/Destroy(force)
-	QDEL_NULL(proximity_monitor)
-	parent.proxies.RemoveAll(src)
-	parent = null
-	. = ..()
 
 /obj/effect/abstract/meteor_shield_proxy/HasProximity(atom/movable/AM)
 	parent.shoot_meteor(AM)

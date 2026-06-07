@@ -64,10 +64,9 @@
 						to_chat(aiPlayer, span_warning("Законы обновлены"))
 
 	special_directive(intercepttext, interceptname)
-	GLOB.minor_announcement.announce(
-		message = "Отчёт был загружен и распечатан на всех консолях связи.",
-		new_title = ANNOUNCE_SECRETMSG_RU,
-		new_sound = SSstation.announcer.get_rand_report_sound()
+	GLOB.minor_announcement.announce("Отчёт был загружен и распечатан на всех консолях связи.",
+									ANNOUNCE_SECRETMSG_RU,
+									'sound/AI/commandreport.ogg'
 	)
 
 /datum/station_state
@@ -79,51 +78,51 @@
 	var/grille = 0
 	var/mach = 0
 
+
 /datum/station_state/proc/count()
-	for(var/turf/turf as anything in block(1, 1, 1, world.maxx, world.maxy, 1))
+	for(var/turf/T in block(1,1,1, world.maxx,world.maxy,1))
 
-		if(isfloorturf(turf))
-			var/turf/simulated/floor/floor_turf = turf
-			if(!(floor_turf.burnt))
-				floor += 12
+		if(isfloorturf(T))
+			if(!(T:burnt))
+				src.floor += 12
 			else
-				floor++
+				src.floor += 1
 
-		if(iswallturf(turf))
-			var/turf/simulated/wall/wall_turf = turf
-			if(wall_turf.intact)
-				wall += 2
+		if(iswallturf(T))
+			var/turf/simulated/wall/W = T
+			if(W.intact)
+				src.wall += 2
 			else
-				wall++
+				src.wall += 1
 
-		if(isreinforcedwallturf(turf))
-			var/turf/simulated/wall/r_wall/r_wall_turf = turf
-			if(r_wall_turf.intact)
-				r_wall += 2
+		if(isreinforcedwallturf(T))
+			var/turf/simulated/wall/r_wall/R = T
+			if(R.intact)
+				src.r_wall += 2
 			else
-				r_wall++
+				src.r_wall += 1
 
-		for(var/obj/object in turf.contents)
-			if(is_window(object))
-				window++
-			else if(istype(object, /obj/structure/grille))
-				var/obj/structure/grille/grille_object = object
-				if(!grille_object.broken)
-					grille++
-			else if(istype(object, /obj/machinery/door))
-				door++
-			else if(ismachinery(object))
-				mach++
+
+		for(var/obj/O in T.contents)
+			if(istype(O, /obj/structure/window))
+				src.window += 1
+			else if(istype(O, /obj/structure/grille))
+				var/obj/structure/grille/GR = O
+				if(!GR.broken)
+					grille += 1
+			else if(istype(O, /obj/machinery/door))
+				src.door += 1
+			else if(ismachinery(O))
+				src.mach += 1
 
 /datum/station_state/proc/score(datum/station_state/result)
-	if(!result)
-		return 0
+	if(!result)	return 0
 	var/output = 0
-	output += (result.floor / max(floor, 1))
-	output += (result.r_wall/ max(r_wall, 1))
-	output += (result.wall / max(wall, 1))
-	output += (result.window / max(window, 1))
-	output += (result.door / max(door, 1))
-	output += (result.grille / max(grille, 1))
-	output += (result.mach / max(mach, 1))
-	return (output / 7)
+	output += (result.floor / max(floor,1))
+	output += (result.r_wall/ max(r_wall,1))
+	output += (result.wall / max(wall,1))
+	output += (result.window / max(window,1))
+	output += (result.door / max(door,1))
+	output += (result.grille / max(grille,1))
+	output += (result.mach / max(mach,1))
+	return (output/7)

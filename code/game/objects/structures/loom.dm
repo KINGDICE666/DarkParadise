@@ -1,5 +1,6 @@
 #define FABRIC_PER_SHEET 4
 
+
 ///This is a loom. It's usually made out of wood and used to weave fabric like durathread or cotton into their respective cloth types.
 /obj/structure/loom
 	name = "loom"
@@ -8,6 +9,7 @@
 	icon_state = "loom"
 	density = TRUE
 	anchored = TRUE
+
 
 /obj/structure/loom/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -40,6 +42,7 @@
 
 	return ..()
 
+
 /obj/structure/loom/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 0))
@@ -59,5 +62,6 @@
 		mat_drop = 10
 	new /obj/item/stack/sheet/wood(drop_location(), mat_drop)
 	..()
+
 
 #undef FABRIC_PER_SHEET

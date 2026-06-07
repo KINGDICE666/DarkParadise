@@ -14,9 +14,11 @@
 		/obj/item/clothing/suit/storage/browntrenchcoat,
 	)
 
+
 /obj/structure/coatrack/Initialize(mapload)
 	. = ..()
 	icon_state = "coatrack[rand(0, 1)]"
+
 
 /obj/structure/coatrack/attack_hand(mob/living/user)
 	if(coat)
@@ -26,6 +28,7 @@
 		user.put_in_active_hand(coat, ignore_anim = FALSE)
 		coat = null
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/structure/coatrack/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -37,12 +40,16 @@
 
 	return ..()
 
-/obj/structure/coatrack/mouse_drop_receive(obj/item/I, mob/user, params)
-	return move_on_rack(I, user)
+
+/obj/structure/coatrack/MouseDrop_T(obj/item/I, mob/user, params)
+	. = TRUE
+	move_on_rack(I, user)
+
 
 /obj/structure/coatrack/Bumped(atom/movable/moving_atom)
 	. = ..()
 	move_on_rack(moving_atom)
+
 
 /obj/structure/coatrack/proc/move_on_rack(atom/movable/moving_atom, mob/living/user)
 	. = FALSE
@@ -66,6 +73,7 @@
 			visible_message("[coat] lands on [src].")
 			coat.forceMove(src)
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/structure/coatrack/update_overlays()
 	. = ..()
@@ -97,6 +105,7 @@
 	if(!coat_found)
 		. += "coat_lab"
 
+
 /obj/structure/coatrack/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
 	TOOL_ATTEMPT_DISMANTLE_MESSAGE
@@ -104,9 +113,11 @@
 		TOOL_DISMANTLE_SUCCESS_MESSAGE
 		deconstruct(disassembled = TRUE)
 
+
 /obj/structure/coatrack/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	default_unfasten_wrench(user, I, time = 10)
+
 
 /obj/structure/coatrack/deconstruct(disassembled = FALSE)
 	var/mat_drop = 2

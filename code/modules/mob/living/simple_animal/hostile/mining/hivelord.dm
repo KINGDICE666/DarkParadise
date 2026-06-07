@@ -30,20 +30,15 @@
 	var/brood_type = /mob/living/simple_animal/hostile/asteroid/hivelordbrood
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "рой",
 		GENITIVE = "роя",
 		DATIVE = "рою",
 		ACCUSATIVE = "рой",
 		INSTRUMENTAL = "роем",
-		PREPOSITIONAL = "рое",
+		PREPOSITIONAL = "рое"
 	)
 
-/mob/living/simple_animal/hostile/asteroid/hivelord/drop_loot(drop_loc)
-	if(is_station_level(z))
-		return
-
-	return ..()
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/OpenFire(the_target)
 	if(world.time >= ranged_cooldown)
@@ -102,13 +97,13 @@
 	var/life_time = 10 SECONDS
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "фрагмент роя",
 		GENITIVE = "фрагмента роя",
 		DATIVE = "фрагменту роя",
 		ACCUSATIVE = "фрагмент роя",
 		INSTRUMENTAL = "фрагментом роя",
-		PREPOSITIONAL = "фрагменте роя",
+		PREPOSITIONAL = "фрагменте роя"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/Initialize(mapload)
@@ -116,6 +111,7 @@
 	addtimer(CALLBACK(src, PROC_REF(death)), life_time)
 	AddComponent(/datum/component/swarming)
 	AddElement(/datum/element/simple_flying)
+
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood
 	name = "blood brood"
@@ -127,13 +123,13 @@
 	color = BLOOD_COLOR_RED
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кровавый рой",
 		GENITIVE = "кровавого роя",
 		DATIVE = "кровавому рою",
 		ACCUSATIVE = "кровавый рой",
 		INSTRUMENTAL = "кровавым роем",
-		PREPOSITIONAL = "кровавом рое",
+		PREPOSITIONAL = "кровавом рое"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/death(gibbed)
@@ -152,21 +148,21 @@
 		transfer_reagents(target, 1)
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/attack_hand(mob/living/carbon/human/M)
-	if(PERSONAL_FACTION(M) in faction)
+	if("\ref[M]" in faction)
 		reabsorb_host(M)
 	else
 		return ..()
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/attack_alien(mob/living/carbon/alien/humanoid/M)
-	if(PERSONAL_FACTION(M) in faction)
+	if("\ref[M]" in faction)
 		reabsorb_host(M)
 	else
 		return ..()
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/proc/reabsorb_host(mob/living/carbon/C)
 	C.visible_message(
-		span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] поглощается телом [C.declent_ru(GENITIVE)]."), \
-		span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] поглощается вашим телом.")
+		span_notice("[capitalize(declent_ru(NOMINATIVE))] поглощается телом [C.declent_ru(GENITIVE)]."), \
+		span_notice("[capitalize(declent_ru(NOMINATIVE))] поглощается вашим телом.")
 	)
 	transfer_reagents(C)
 	death()
@@ -182,7 +178,7 @@
 	reagents.trans_to(C, volume)
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/blood/proc/link_host(mob/living/carbon/C)
-	faction = list(PERSONAL_FACTION(src), PERSONAL_FACTION(C)) // Hostile to everyone except the host.
+	faction = list("\ref[src]", "\ref[C]") // Hostile to everyone except the host.
 	C.transfer_blood_to(src, 30)
 	color = mix_color_from_reagents(reagents.reagent_list)
 
@@ -212,13 +208,13 @@
 	var/mob/living/carbon/human/stored_mob
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/legion/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "легион",
 		GENITIVE = "легиона",
 		DATIVE = "легиону",
 		ACCUSATIVE = "легион",
 		INSTRUMENTAL = "легионом",
-		PREPOSITIONAL = "легионе",
+		PREPOSITIONAL = "легионе"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/legion/random/Initialize(mapload)
@@ -241,13 +237,13 @@
 	dwarf_mob = TRUE
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/legion/dwarf/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "легион-карлик",
 		GENITIVE = "легиона-карлика",
 		DATIVE = "легиону-карлику",
 		ACCUSATIVE = "легион-карлика",
 		INSTRUMENTAL = "легионом-карликом",
-		PREPOSITIONAL = "легионе-карлике",
+		PREPOSITIONAL = "легионе-карлике"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/legion/tendril
@@ -295,13 +291,13 @@
 	var/can_infest_dead = FALSE
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "легион",
 		GENITIVE = "легиона",
 		DATIVE = "легиону",
 		ACCUSATIVE = "легион",
 		INSTRUMENTAL = "легионом",
-		PREPOSITIONAL = "легионе",
+		PREPOSITIONAL = "легионе"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/Life(seconds, times_fired)
@@ -317,7 +313,7 @@
 		var/mob/living/carbon/human/victim = target
 		if(victim.can_inject(null, FALSE, BODY_ZONE_CHEST, FALSE, TRUE) && !victim.get_int_organ(/obj/item/organ/internal/legion_tumour) && prob(1))
 			new /obj/item/organ/internal/legion_tumour(victim)
-			visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] вгрызается в шею [target], впрыскивая странную черную жидкость!")) //made it on russian to attract more attention from attacklogs
+			visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] вгрызается в шею [target], впрыскивая странную черную жидкость!")) //made it on russian to attract more attention from attacklogs
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/proc/infest(mob/living/carbon/human/H)
 	visible_message(span_warning("[declent_ru(NOMINATIVE)] зарывается в плоть [H]!"))
@@ -326,7 +322,7 @@
 		L = new /mob/living/simple_animal/hostile/asteroid/hivelord/legion/dwarf(H.loc)
 	else
 		L = new(H.loc)
-	visible_message(span_warning("[DECLENT_RU_CAP(L, NOMINATIVE)] с трудом поднимается на ноги!"))
+	visible_message(span_warning("[capitalize(L.declent_ru(NOMINATIVE))] с трудом поднимается на ноги!"))
 	H.death()
 	H.adjustBruteLoss(1000)
 	L.stored_mob = H
@@ -388,16 +384,15 @@
 	nightvision = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 	tts_seed = "Mannoroth"
-	mob_size = MOB_SIZE_LARGE
 
 /mob/living/simple_animal/hostile/big_legion/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "легион",
 		GENITIVE = "легиона",
 		DATIVE = "легиону",
 		ACCUSATIVE = "легион",
 		INSTRUMENTAL = "легионом",
-		PREPOSITIONAL = "легионе",
+		PREPOSITIONAL = "легионе"
 	)
 
 /mob/living/simple_animal/hostile/big_legion/ComponentInitialize()
@@ -421,13 +416,13 @@
 	mob_color = "#454545"
 
 /obj/effect/mob_spawn/human/corpse/charredskeleton/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "обугленные останки",
 		GENITIVE = "обугленных останков",
 		DATIVE = "обугленным останкам",
 		ACCUSATIVE = "обугленные останки",
 		INSTRUMENTAL = "обугленными останками",
-		PREPOSITIONAL = "об обугленных останках",
+		PREPOSITIONAL = "об обугленных останках"
 	)
 
 //Legion infested mobs
@@ -435,6 +430,7 @@
 /obj/effect/mob_spawn/human/corpse/damaged/legioninfested/dwarf/equip(mob/living/carbon/human/H, use_prefs = FALSE, _mob_name = FALSE, _mob_gender = FALSE, _mob_species = FALSE)
 	. = ..()
 	H.force_gene_block(GLOB.smallsizeblock, TRUE)
+
 
 /obj/effect/mob_spawn/human/corpse/damaged/legioninfested/Initialize(mapload)
 	var/type = pickweight(list("Miner" = 66, "Ashwalker" = 10, "Golem" = 10,"Clown" = 10, pick(list("Shadow", "YeOlde","Operative", "Cultist")) = 4))
@@ -483,7 +479,7 @@
 			if(prob(70))
 				backpack_contents += list(/obj/item/stamp/clown = 1, /obj/item/reagent_containers/spray/waterflower = 1, /obj/item/reagent_containers/food/snacks/grown/banana = 1, /obj/item/megaphone = 1)
 			if(prob(30))
-				backpack_contents += list(/obj/item/stack/sheet/mineral/bananium = pickweight(alist(1 = 3, 2 = 2, 3 = 1)))
+				backpack_contents += list(/obj/item/stack/sheet/mineral/bananium = pickweight(list(1 = 3, 2 = 2, 3 = 1)))
 			if(prob(10))
 				l_pocket = pickweight(list(/obj/item/bikehorn/golden = 3, /obj/item/bikehorn/airhorn= 1 ))
 			if(prob(10))
@@ -515,7 +511,7 @@
 		if("Shadow")
 			mob_species = /datum/species/shadow
 			uniform = /obj/item/clothing/under/color/black
-			shoes = /obj/item/clothing/shoes/color/black
+			shoes = /obj/item/clothing/shoes/black
 			suit = /obj/item/clothing/suit/storage/labcoat
 			glasses = /obj/item/clothing/glasses/sunglasses/blindfold/black
 			back = /obj/item/tank/internals/oxygen

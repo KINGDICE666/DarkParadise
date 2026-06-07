@@ -18,7 +18,7 @@
 	turn_degrees = (reverse ? -90 : 90)
 	START_PROCESSING(SSfastprocess, src)
 
-/datum/component/spinny/Destroy(force)
+/datum/component/spinny/Destroy(force, silent)
 	STOP_PROCESSING(SSfastprocess, src)
 	return ..()
 

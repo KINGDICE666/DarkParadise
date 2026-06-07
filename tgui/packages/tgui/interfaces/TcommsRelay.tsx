@@ -45,7 +45,7 @@ export const TcommsRelay = (_props: unknown) => {
                 {network_id ? network_id : 'Не задано'}
               </Button>
             </LabeledList.Item>
-            <LabeledList.Item label="Привязка">
+            <LabeledList.Item label="Привзка">
               {linked ? (
                 <Box color="green">Привязано</Box>
               ) : (

@@ -16,7 +16,7 @@ GLOBAL_LIST_INIT(strippable_parrot_items, create_strippable_list(list(
 		return FALSE
 
 	if(!istype(equipping, /obj/item/radio/headset))
-		to_chat(user, span_warning("[equipping] won't fit!"))
+		to_chat(user, "<span class='warning'>[equipping] won't fit!</span>")
 		return FALSE
 
 	return TRUE
@@ -35,7 +35,7 @@ GLOBAL_LIST_INIT(strippable_parrot_items, create_strippable_list(list(
 	parrot_source.update_available_channels()
 	parrot_source.update_speak()
 
-	to_chat(user, span_notice("You fit [radio] onto [source]."))
+	to_chat(user, "<span class='notice'>You fit [radio] onto [source].</span>")
 
 /datum/strippable_item/parrot_headset/start_unequip(atom/source, mob/user)
 	. = ..()

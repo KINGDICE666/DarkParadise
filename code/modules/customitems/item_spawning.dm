@@ -23,7 +23,7 @@
 			continue
 		if(jobmask != "*")
 			var/list/allowed_jobs = splittext(jobmask,",")
-			for(var/i = 1, i <= length(allowed_jobs), i++)
+			for(var/i = 1, i <= allowed_jobs.len, i++)
 				if(istext(allowed_jobs[i]))
 					allowed_jobs[i] = trim(allowed_jobs[i])
 			var/alt_blocked = 0
@@ -36,11 +36,11 @@
 		var/obj/item/Item = new path()
 		var/description = query.item[4]
 		var/newname = query.item[5]
-		if(is_id_card(Item))
+		if(istype(Item,/obj/item/card/id))
 			var/obj/item/card/id/I = Item
 			for(var/obj/item/card/id/C in M)
 				//default settings
-				I.name = "[M.real_name]’s ID Card ([M.mind.role_alt_title ? M.mind.role_alt_title : M.mind.assigned_role])"
+				I.name = "[M.real_name]'s ID Card ([M.mind.role_alt_title ? M.mind.role_alt_title : M.mind.assigned_role])"
 				I.registered_name = M.real_name
 				I.access = C.access
 				I.assignment = C.assignment
@@ -52,16 +52,16 @@
 				break
 		else if(isstorage(M.back)) // Try to place it in something on the mob's back
 			var/obj/item/storage/S = M.back
-			if(length(S.contents) < S.storage_slots)
+			if(S.contents.len < S.storage_slots)
 				Item.loc = M.back
 				ok = 1
-				to_chat(M, span_notice("Your [Item.name] has been added to your [M.back.name]."))
+				to_chat(M, "<span class='notice'>Your [Item.name] has been added to your [M.back.name].</span>")
 		if(ok == 0)
 			for(var/obj/item/storage/S in M.contents) // Try to place it in any item that can store stuff, on the mob.
-				if(length(S.contents) < S.storage_slots)
+				if(S.contents.len < S.storage_slots)
 					Item.loc = S
 					ok = 1
-					to_chat(M, span_notice("Your [Item.name] has been added to your [S.name]."))
+					to_chat(M, "<span class='notice'>Your [Item.name] has been added to your [S.name].</span>")
 					break
 		if(description)
 			Item.desc = description
@@ -78,7 +78,7 @@
 // This is hacky, but since it's difficult as fuck to make a proper parser in BYOND without killing the server, here it is. - N3X
 /proc/HackProperties(mob/living/carbon/human/M, obj/item/I, script)
 	var/list/statements = splittext(script,";")
-	if(length(statements) == 0)
+	if(statements.len == 0)
 		return
 	for(var/statement in statements)
 		var/list/assignmentChunks = splittext(statement,"=")

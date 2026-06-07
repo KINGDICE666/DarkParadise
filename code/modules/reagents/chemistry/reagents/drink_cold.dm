@@ -125,24 +125,27 @@
 	harmless = FALSE
 	taste_description = "радиоактивной колы"
 
+
 /datum/reagent/consumable/drink/cold/nuka_cola/on_mob_life(mob/living/user)
 	var/update_flags = STATUS_UPDATE_NONE
 	user.Jitter(40 SECONDS)
 	user.Druggy(60 SECONDS)
 	user.AdjustDizzy(10 SECONDS)
 	user.SetDrowsy(0)
-	if(!(user.dna && (user.dna.species.reagent_tag & ORGANIC)))
+	if(!(user.dna && (user.dna.species.reagent_tag & PROCESS_ORG)))
 		user.remove_movespeed_modifier(/datum/movespeed_modifier/reagent/nuka_cola)
 	return ..() | update_flags
 
 /datum/reagent/consumable/drink/cold/nuka_cola/on_mob_add(mob/living/user)
 	. = ..()
-	if(user.dna && (user.dna.species.reagent_tag & ORGANIC))
+	if(user.dna && (user.dna.species.reagent_tag & PROCESS_ORG))
 		user.add_movespeed_modifier(/datum/movespeed_modifier/reagent/nuka_cola)
+
 
 /datum/reagent/consumable/drink/cold/nuka_cola/on_mob_delete(mob/living/user)
 	. = ..()
 	user.remove_movespeed_modifier(/datum/movespeed_modifier/reagent/nuka_cola)
+
 
 /datum/reagent/consumable/drink/cold/spacemountainwind
 	name = "Космический Маунтин Винд"
@@ -242,6 +245,7 @@
 	M.Jitter(10 SECONDS)
 	return ..()
 
+
 /datum/reagent/consumable/drink/cold/zaza
 	name = "Заза"
 	description = "От напитка исходит стойкий запах вишни. Изумительно."
@@ -254,6 +258,7 @@
 	var/alternate_taste_description = "неприятной приторно-сладкой воды"
 	var/healamount = 0.5
 
+
 /datum/reagent/consumable/drink/cold/zaza/on_mob_life(mob/living/user)
 	var/update_flags = STATUS_UPDATE_NONE
 	if(ishuman(user) && prob(40))
@@ -261,11 +266,13 @@
 		update_flags |= user.adjustFireLoss(-healamount, FALSE, affect_robotic = FALSE)
 	return ..() | update_flags
 
+
 /datum/reagent/consumable/drink/cold/zaza/taste_amplification(mob/living/user)
 	. = list()
 	var/taste_desc = ismindshielded(user) ? alternate_taste_description : taste_description
 	var/taste_amount = volume * taste_mult
 	.[taste_desc] = taste_amount
+
 
 /datum/reagent/consumable/drink/cold/zaza/fizzy
 	name = "Шипучая Заза"
@@ -277,4 +284,5 @@
 	taste_description = "восхитительной шипучей вишнёвой газировки"
 	alternate_taste_description = "неприятной приторно-сладкой газированной воды"
 	healamount = 0.25
+
 

@@ -18,13 +18,13 @@
 	var/list/targeted_turfs = list()
 
 /obj/item/storm_staff/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "посох бурь",
 		GENITIVE = "посоха бурь",
 		DATIVE = "посоху бурь",
 		ACCUSATIVE = "посох бурь",
 		INSTRUMENTAL = "посохом бурь",
-		PREPOSITIONAL = "посохе бурь",
+		PREPOSITIONAL = "посохе бурь"
 	)
 
 /obj/item/storm_staff/Destroy()
@@ -57,7 +57,7 @@
 				to_chat(user, span_warning("Буря уже стихает! Использовать посох сейчас было бы расточительством."))
 				return
 			user.visible_message(
-				span_warning("[user] поднима[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] к небу, и оранжевый луч устремляется ввысь!"),
+				span_warning("[user] поднима[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)] к небу, и оранжевый луч устремляется ввысь!"),
 				span_notice("Вы поднимаете [declent_ru(ACCUSATIVE)] к небу, рассеивая бурю!")
 			)
 			playsound(user, 'sound/magic/staff_change.ogg', 200, FALSE)
@@ -68,7 +68,7 @@
 			user.transform *= 1.2
 			animate(user, color = old_color, transform = old_transform, time = 1 SECONDS)
 
-/obj/item/storm_staff/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/storm_staff/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	. = ..()
 	if(!thunder_charges)
 		to_chat(user, span_warning("Посох должен перезарядиться."))
@@ -117,10 +117,52 @@
 		new /obj/effect/temp_visual/electricity(T)
 		for(var/mob/living/hit_mob in T)
 			to_chat(hit_mob, span_userdanger("Вас поразила молния!"))
-			hit_mob.electrocute_act(15 * (isanimal(hit_mob) ? 3 : 1) * (T == target ? 2 : 1) * (boosted ? 2 : 1), src, flags = SHOCK_NOGLOVES)
+			hit_mob.electrocute_act(15 * (isanimal(hit_mob) ? 3 : 1) * (T == target ? 2 : 1) * (boosted ? 2 : 1), "штормового посоха", flags = SHOCK_NOGLOVES)
 
 		for(var/obj/hit_thing in T)
 			hit_thing.take_damage(20, BURN, ENERGY, FALSE)
 	playsound(target, 'sound/magic/lightningbolt.ogg', 100, TRUE)
 	target.visible_message(span_danger("Молния ударяет в [target.declent_ru(ACCUSATIVE)]!"))
 	explosion(target, devastation_range = -1, heavy_impact_range = -1, light_impact_range = (boosted ? 1 : 0), flame_range = (boosted ? 2 : 1), silent = TRUE)
+
+
+/obj/effect/temp_visual/thunderbolt_targeting
+	icon_state = "target_circle"
+	layer = BELOW_MOB_LAYER
+	light_range = 1
+	duration = 2 SECONDS
+
+/obj/effect/temp_visual/thunderbolt
+	icon_state = "thunderbolt"
+	icon = 'icons/effects/32x96.dmi'
+	duration = 0.6 SECONDS
+
+/obj/effect/temp_visual/electricity
+	icon_state = "electricity3"
+	duration = 0.5 SECONDS
+
+/obj/effect/temp_visual/flash
+	icon = 'icons/effects/light_overlays/light_128.dmi'
+	icon_state = "light"
+	pixel_w = -64
+	pixel_z = -64
+	blend_mode = BLEND_OVERLAY
+
+/obj/effect/temp_visual/flash/Initialize(mapload)
+	. = ..()
+	set_light(7, 99, "#C5C5FF")
+
+/obj/effect/temp_visual/thunderbolt/fancy
+
+/obj/effect/temp_visual/thunderbolt/fancy/Initialize(mapload, harmless = FALSE)
+	new /obj/effect/temp_visual/flash(src)
+	// BOOM
+	playsound(src, 'sound/effects/lightning_bolt.ogg', 100, TRUE, 15, 1.2)
+
+	for(var/mob/to_shake in range(5, src))
+		shake_camera(to_shake, 10, 1)
+
+	if(!harmless)
+		explosion(src, devastation_range = -1, heavy_impact_range = -1, light_impact_range = 1, flame_range =  2, silent = TRUE)
+	. = ..()
+	do_sparks(15, TRUE, src)

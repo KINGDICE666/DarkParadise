@@ -1,15 +1,14 @@
-#define PULL_STAMINADAM_WALK 4
-#define PULL_STAMINADAM_RUN 6
-#define PUSH_STAMINADAM_WALK 3
-#define PUSH_STAMINADAM_RUN 4
+#define PULL_STAMINADAM_WALK	4
+#define PULL_STAMINADAM_RUN		6
+#define PUSH_STAMINADAM_WALK	3
+#define PUSH_STAMINADAM_RUN		4
+
 
 /mob/living/carbon/human/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
 	. = ..()
 	if(!forced && (!old_loc || old_loc.no_gravity()) && get_gravity())
 		thunk()
 
-	if(!forced && HAS_TRAIT(src, TRAIT_FRACTURE_FALL) && get_gravity())
-		fracture_fall_check()
 
 /mob/living/carbon/human/get_movespeed_modifiers()
 	var/list/considering = ..()
@@ -22,6 +21,7 @@
 		return .
 	return considering
 
+
 /mob/living/carbon/human/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	if(movement_type & FLYING)
 		return TRUE
@@ -29,15 +29,6 @@
 		return TRUE
 	return ..()
 
-/mob/living/carbon/human/proc/get_strength_level()
-	var/list/strength_list = list()
-	SEND_SIGNAL(src, COMSIG_GET_STRENGTH, strength_list)
-	return !length(strength_list) ? STRENGTH_LEVEL_DEFAULT : strength_list[1]
-
-/mob/living/carbon/human/proc/get_weak_mob_modifiers()
-	var/list/weak_mob_modifier = list()
-	SEND_SIGNAL(src, COMSIG_GET_WEAK_MOB_MODIFIERS, weak_mob_modifier)
-	return !length(weak_mob_modifier) ? 1 : weak_mob_modifier[1]
 
 /mob/living/carbon/human/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
@@ -60,11 +51,10 @@
 
 		// If we sooo weak to pull or push something, except items or tiny mobs, get stamina damage
 		var/weak_mob = FALSE
-		if((pulling || now_pushing) && (HAS_TRAIT(src, TRAIT_WEAK_PULLING) && (!no_gravity()) && (get_strength_level() != STRENGTH_LEVEL_SUPERHUMAN)))
+		if((pulling || now_pushing) && (HAS_TRAIT(src, TRAIT_WEAK_PULLING)))
 			weak_mob = TRUE
 
 		if(weak_mob)
-			var/weak_mob_modifier = get_weak_mob_modifiers()
 			var/stamina_damage = 0
 			var/small_pulled = FALSE
 			// Handle pulling all non /obj/item stuff or tiny mobs
@@ -75,9 +65,9 @@
 
 			if(pulling && !(small_pulled || isitem(pulling)))
 				if(m_intent == MOVE_INTENT_WALK)
-					stamina_damage += (PULL_STAMINADAM_WALK * weak_mob_modifier)
+					stamina_damage += PULL_STAMINADAM_WALK
 				else
-					stamina_damage += (PULL_STAMINADAM_RUN * weak_mob_modifier)
+					stamina_damage += PULL_STAMINADAM_RUN
 
 				if(staminaloss > 69)
 					balloon_alert(src, "слишком тяжело тащить!")
@@ -87,17 +77,16 @@
 			if(now_pushing)
 				if(!(isliving(now_pushing) && a_intent == INTENT_HELP))
 					if(m_intent == MOVE_INTENT_WALK)
-						stamina_damage += (PUSH_STAMINADAM_WALK * weak_mob_modifier)
+						stamina_damage += PUSH_STAMINADAM_WALK
 					else
-						stamina_damage += (PUSH_STAMINADAM_RUN * weak_mob_modifier)
+						stamina_damage += PUSH_STAMINADAM_RUN
 
 			apply_damage(stamina_damage, STAMINA)
 		// if our speed is connected to enviroment temperature
 		var/datum/gas_mixture/environment
 		if(HAS_TRAIT(src,TRAIT_TEMPERATURE_MOVEMENT))
-			var/turf/location = get_turf(src)
-			environment = location.get_readonly_air()
-			if(environment.temperature() < 283.15)
+			environment = loc.return_air()
+			if(environment.temperature < 283.15)
 				remove_movespeed_modifier(/datum/movespeed_modifier/temperature/hot)
 				add_movespeed_modifier(/datum/movespeed_modifier/temperature/cold)
 				return
@@ -144,10 +133,12 @@
 			update_worn_shoes()
 	//End bloody footprints
 
+
 /mob/living/carbon/human/on_fall()
 	. = ..()
 	if(HAS_TRAIT_FROM(src, TRAIT_FLOORED, LACKING_LOCOMOTION_APPENDAGES_TRAIT) && has_pain())
 		INVOKE_ASYNC(src, PROC_REF(emote), "scream")
+
 
 /mob/living/carbon/human/set_usable_legs(new_value, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -164,7 +155,7 @@
 			ADD_TRAIT(src, TRAIT_IMMOBILIZED, LACKING_LOCOMOTION_APPENDAGES_TRAIT)
 
 	update_fractures_slowdown()
-	update_fractures_fall()
+
 
 /mob/living/carbon/human/set_usable_hands(new_value, special = ORGAN_MANIPULATION_DEFAULT, hand_index)
 	. = ..()
@@ -182,6 +173,7 @@
 
 	update_hands_HUD()
 
+
 /mob/living/carbon/human/on_movement_type_flag_enabled(datum/source, flag, old_movement_type)
 	. = ..()
 	if(movement_type & (FLYING|FLOATING) && !(old_movement_type & (FLYING|FLOATING)))
@@ -190,6 +182,7 @@
 		remove_movespeed_modifier(/datum/movespeed_modifier/fractures)
 		remove_movespeed_modifier(/datum/movespeed_modifier/hunger)
 		update_fat_slowdown()
+
 
 /mob/living/carbon/human/on_movement_type_flag_disabled(datum/source, flag, old_movement_type)
 	. = ..()
@@ -211,9 +204,9 @@
 			remove_movespeed_modifier(/datum/movespeed_modifier/limbless)
 
 		update_fractures_slowdown()
-		update_fractures_fall()
 		update_nutrition_slowdown()
 		update_fat_slowdown()
+
 
 /// Proc used to recalculate traits and slowdowns after species change.
 /mob/living/carbon/human/proc/recalculate_limbs_status()
@@ -232,8 +225,8 @@
 
 	update_limbless_slowdown()
 	update_fractures_slowdown()
-	update_fractures_fall()
 	update_hands_HUD()
+
 
 /// Proc used to inflict stamina damage when user is moving from no gravity to positive gravity.
 /mob/living/carbon/human/proc/thunk()
@@ -246,65 +239,9 @@
 	if(m_intent != MOVE_INTENT_RUN)
 		return
 
-	to_chat(src, span_userdanger("Гравитация впечатывает вас в пол!"))
-	Knockdown(1 SECONDS)
+	to_chat(src, span_userdanger("Gravity exhausts you!"))
+	apply_damage(35, STAMINA)
 
-/mob/living/carbon/human/get_fracture_spread_bonus(is_left_hand)
-	var/static/list/possible_left_limb = list(
-		BODY_ZONE_L_ARM,
-		BODY_ZONE_PRECISE_L_HAND,
-	)
-	var/static/list/possible_right_limb = list(
-		BODY_ZONE_R_ARM,
-		BODY_ZONE_PRECISE_R_HAND,
-	)
-	var/list/possible_limbs = is_left_hand ? possible_left_limb : possible_right_limb
-
-	if(HAS_TRAIT(src, TRAIT_IGNORE_FRACTURE))
-		return 0
-
-	var/bonus_spread = 0
-	for(var/zone in possible_limbs)
-		var/obj/item/organ/external/bodypart = bodyparts_by_name[zone]
-		if(isnull(bodypart) || !bodypart.has_fracture() || bodypart.is_splinted())
-			continue
-		bonus_spread = max(bodypart.fracture.bonus_spread, bonus_spread)
-
-	return bonus_spread
-
-/mob/living/carbon/human/proc/fracture_fall_check()
-	var/static/list/possible_limbs = list(
-		BODY_ZONE_L_LEG,
-		BODY_ZONE_R_LEG,
-		BODY_ZONE_PRECISE_L_FOOT,
-		BODY_ZONE_PRECISE_R_FOOT,
-	)
-
-	if(HAS_TRAIT(src, TRAIT_IGNORE_FRACTURE))
-		return
-
-	if(body_position == LYING_DOWN)
-		return
-
-	var/fall_chance = 0
-	var/list/fractured_limbs = list()
-	for(var/zone in possible_limbs)
-		var/obj/item/organ/external/bodypart = bodyparts_by_name[zone]
-		if(isnull(bodypart) || !bodypart.has_fracture() || bodypart.is_splinted())
-			continue
-		fractured_limbs += bodypart
-		fall_chance = max(bodypart.fracture.fall_chance, fall_chance)
-
-	if(!fall_chance || !prob(fall_chance))
-		return
-
-	for(var/zone in fractured_limbs)
-		var/obj/item/organ/external/bodypart = bodyparts_by_name[zone]
-		if(isnull(bodypart) || !bodypart.has_fracture() || bodypart.is_splinted())
-			continue
-		bodypart.external_receive_damage(brute = bodypart.fracture)
-
-	Knockdown(3 SECONDS)
 
 /mob/living/carbon/human/slip(weaken, obj/slipped_on, lube_flags, tilesSlipped)
 	if(HAS_TRAIT(src, TRAIT_NO_SLIP_ALL))

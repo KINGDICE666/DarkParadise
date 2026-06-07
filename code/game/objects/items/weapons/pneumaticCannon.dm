@@ -14,7 +14,7 @@
 	item_state = "bulldog"
 	lefthand_file = 'icons/mob/inhands/guns_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/guns_righthand.dmi'
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 60, ACID = 50)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 60, ACID = 50)
 	var/maxWeightClass = 20 //The max weight of items that can fit into the cannon
 	var/loadedWeightClass = 0 //The weight of items currently in the cannon
 	var/obj/item/tank/internals/tank = null //The gas tank that is drawn from to fire things
@@ -45,9 +45,10 @@
 	else
 		. += span_notice("Use a <b>wrench</b> to change the pressure level. Current output level is <b>[pressure_setting_to_text(pressure_setting)]</b>.")
 		if(tank)
-			. += span_notice("[icon2html(tank, user)] It has [tank] mounted onto it. It could be removed with a <b>screwdriver</b>.")
+			. += span_notice("[bicon(tank)] It has [tank] mounted onto it. It could be removed with a <b>screwdriver</b>.")
 		for(var/obj/item/I in loadedItems)
-			. += span_notice("[icon2html(I, user)] It has \a [I] loaded.")
+			. += span_notice("[bicon(I)] It has \a [I] loaded.")
+
 
 /obj/item/pneumatic_cannon/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -62,6 +63,7 @@
 	tank = null
 	update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/pneumatic_cannon/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
@@ -69,9 +71,11 @@
 	pressure_setting = pressure_setting >= HIGH_PRESSURE ? LOW_PRESSURE : pressure_setting + 1
 	to_chat(user, span_notice("You tweak pressure output to [pressure_setting_to_text(pressure_setting)]."))
 
+
 /obj/item/pneumatic_cannon/return_analyzable_air()
 	if(tank)
 		return tank.return_analyzable_air()
+
 
 /obj/item/pneumatic_cannon/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -116,18 +120,17 @@
 	loadedWeightClass += I.w_class
 	return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/pneumatic_cannon/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/pneumatic_cannon/afterattack(atom/target, mob/living/carbon/human/user, flag, params)
 	. = ..()
-	if(proximity_flag && user.a_intent == INTENT_HARM) // Melee attack
-		return
-
+	if(flag && user.a_intent == INTENT_HARM) // Melee attack
+		return .
 	if(!istype(user))
-		return
-
+		return .
 	if(loc != user)
-		return
-
+		return .
 	Fire(user, target)
+
 
 /obj/item/pneumatic_cannon/proc/Fire(mob/living/carbon/human/user, atom/target)
 	if(!istype(user) && !target)
@@ -181,19 +184,19 @@
 	name = "Pneumatic Cannon"
 	result = /obj/item/pneumatic_cannon/ghetto
 	tools = list(TOOL_WELDER, TOOL_WRENCH)
-	reqs = list(
-		/obj/item/stack/sheet/metal = 4,
-		/obj/item/stack/packageWrap = 8,
-		/obj/item/pipe = 2,
-	)
+	reqs = list(/obj/item/stack/sheet/metal = 4,
+				/obj/item/stack/packageWrap = 8,
+				/obj/item/pipe = 2)
 	time = 300
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
+
 
 /obj/item/pneumatic_cannon/update_overlays()
 	. = ..()
 	if(tank)
 		. += "[tank.icon_state]"
+
 
 #undef LOW_PRESSURE
 #undef MID_PRESSURE

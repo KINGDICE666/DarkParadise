@@ -1,77 +1,103 @@
-#define CLING_HIVEMIND_UPLOAD "Поделиться"
-#define CLING_HIVEMIND_ABSORB "Поглотить"
-
 /// HIVE MIND UPLOAD/DOWNLOAD DNA
 GLOBAL_LIST_EMPTY(hivemind_bank)
 
 /datum/action/changeling/hivemind_pick
-	name = "Сеть улья"
-	desc = "Позволяет обмениваться ДНК на расстоянии."
-	helptext = "Связь с ульем позволяет дистанционно поделиться или поглотить ДНК и говорить с другими генокрадами."
+	name = "Hivemind Access"
+	desc = "Allows us to upload or absorb DNA in the airwaves. Does not count towards absorb objectives. Allows us to speak over the Changeling Hivemind. Costs 10 chemicals."
+	helptext = "Tunes our chemical receptors for hivemind communication, which passively grants us access to the Changeling Hivemind."
 	button_icon_state = "hive_absorb"
 	power_type = CHANGELING_INNATE_POWER
+	chemical_cost = 10
 	/// Connected linglink ability.
 	var/datum/action/changeling/linglink/linglink
+
 
 /datum/action/changeling/hivemind_pick/on_purchase(mob/user, datum/antagonist/changeling/antag)
 	if(!..())
 		return FALSE
 
+	//to_chat(user, span_notice("We feel our consciousness become capable of communion with the hivemind."))
+	//to_chat(user, span_changeling("Use say '[get_language_prefix(LANGUAGE_HIVE_CHANGELING)]' to communicate with the other changelings. You can use linglink to interrogate properly grabbed victims."))
+
 	var/language_key = cling.evented ? get_language_prefix(LANGUAGE_HIVE_EVENTLING) : get_language_prefix(LANGUAGE_HIVE_CHANGELING)
-	desc = "Позволяет обмениваться ДНК на расстоянии. С помощью [language_key]можно говорить с собратьями."
-	to_chat(user, span_changeling("Используйте [language_key]для общения с другими генокрадми."))
+	desc = "Allows us to upload or absorb DNA in the airwaves. Does not count towards absorb objectives. Allows us to speak over the Changeling Hivemind using '[language_key]'. Costs 10 chemicals."
+	to_chat(user, span_changeling("Use say '[language_key]' to communicate with the other changelings."))
+
 	return TRUE
+
 
 /datum/action/changeling/hivemind_pick/Grant(mob/user)
 	if(!..() || QDELETED(user) || !cling)
 		return
+
+	/*if(!linglink)
+		linglink = new
+		linglink.cling = cling
+		linglink.Grant(user)*/
 
 	if(cling.evented)
 		user.add_language(LANGUAGE_HIVE_EVENTLING)
 	else
 		user.add_language(LANGUAGE_HIVE_CHANGELING)
 
+
+
 /datum/action/changeling/hivemind_pick/Remove(mob/user)
 	if(QDELETED(user))
 		return
 
-	to_chat(user, span_changeling("Мы чувствуем пустоту, потеряв связь с ульем."))
+	to_chat(user, span_changeling("We feel a slight emptiness as we shut ourselves off from the hivemind."))
+
+	/*if(linglink)
+		linglink.Remove(user)
+		QDEL_NULL(linglink)*/
 
 	user.remove_language(LANGUAGE_HIVE_CHANGELING)
 	user.remove_language(LANGUAGE_HIVE_EVENTLING)
 
 	..()
 
+
 /datum/action/changeling/hivemind_pick/Destroy(force)
+	/*if(linglink)
+		if(owner)
+			linglink.Remove(owner)
+
+		QDEL_NULL(linglink)*/
+
 	owner?.remove_language(LANGUAGE_HIVE_CHANGELING)
 	owner?.remove_language(LANGUAGE_HIVE_EVENTLING)
+
 	return ..()
 
-/datum/action/changeling/hivemind_pick/sting_action(mob/user)
-	var/channel_pick = tgui_alert(user, "Поделиться или поглотить ДНК?", "Сеть улья", list(CLING_HIVEMIND_UPLOAD, CLING_HIVEMIND_ABSORB))
 
-	if(channel_pick == CLING_HIVEMIND_UPLOAD)
+/datum/action/changeling/hivemind_pick/sting_action(mob/user)
+	var/channel_pick = tgui_alert(user, "Upload or Absorb DNA?", "Channel Select", list("Upload", "Absorb"))
+
+	if(channel_pick == "Upload")
 		dna_upload(user)
 
-	if(channel_pick == CLING_HIVEMIND_ABSORB)
+	if(channel_pick == "Absorb")
 		if(cling.using_stale_dna())//If our current DNA is the stalest, we gotta ditch it.
-			user.balloon_alert(user, "сначала нужно трансформироваться")
+			to_chat(user, span_warning("We have reached our capacity to store genetic information! We must transform before absorbing more."))
 			return FALSE
 		else
 			dna_absorb(user)
 
 	return TRUE
 
+
 /datum/action/changeling/proc/dna_upload(mob/user)
-	var/datum/dna/chosen_dna = cling.select_dna("Каким ДНК мы хотим поделиться?: ", "Поделиться ДНК", TRUE)
+	var/datum/dna/chosen_dna = cling.select_dna("Select a DNA to channel: ", "Channel DNA", TRUE)
 	if(!chosen_dna)
-		user.balloon_alert(user, "уже есть ДНК [chosen_dna.real_name]")
+		to_chat(user, span_notice("The airwaves already have all of our DNA."))
 		return FALSE
 
 	GLOB.hivemind_bank += chosen_dna
-	to_chat(user, span_notice("Мы поделились ДНК [chosen_dna.real_name] в сети улья."))
+	to_chat(user, span_notice("We channel the DNA of [chosen_dna.real_name] to the air."))
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
+
 
 /datum/action/changeling/proc/dna_absorb(mob/user)
 	var/list/names = list()
@@ -80,18 +106,16 @@ GLOBAL_LIST_EMPTY(hivemind_bank)
 			names[DNA.real_name] = DNA
 
 	if(!length(names))
-		user.balloon_alert(user, "нет новых ДНК")
+		to_chat(user, span_notice("There's no new DNA to absorb from the air."))
 		return FALSE
 
-	var/choice = tgui_input_list(user, "Какое ДНК мы хотим поглотить?: ", "Поглощение ДНК", names)
+	var/choice = tgui_input_list(user, "Select a DNA absorb from the air: ", "Absorb DNA", names)
 	if(!choice)
 		return FALSE
 
 	var/datum/dna/chosen_dna = names[choice]
 	cling.store_dna(chosen_dna)
-	user.balloon_alert(user, "мы поглотили ДНК [choice]")
+	to_chat(user, span_notice("We absorb the DNA of [choice] from the air."))
 	SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))
 	return TRUE
 
-#undef CLING_HIVEMIND_UPLOAD
-#undef CLING_HIVEMIND_ABSORB

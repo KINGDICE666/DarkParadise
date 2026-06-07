@@ -32,6 +32,7 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 	/// A list of configuration errors that occurred during load
 	var/static/list/configuration_errors
 
+
 /datum/controller/configuration/proc/admin_reload()
 	if(IsAdminAdvancedProcCall())
 		return
@@ -51,7 +52,7 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 	InitEntries()
 
 	//Note: `$include`s are supported. Feel free to use them.
-	var/list/configs = list("game_options.txt", "dbconfig.txt", "config.txt", "emojis.txt", "resources.txt", "music.txt", "donations.txt", "events.txt", "game_modes.txt", "logs.txt", "maps.txt")
+	var/list/configs = list("game_options.txt", "dbconfig.txt", "config.txt", "emojis.txt", "resources.txt", "music.txt")
 	for(var/I in configs)
 		if(fexists("[directory]/[I]"))
 			for(var/J in configs)
@@ -72,7 +73,7 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 
 /datum/controller/configuration/proc/load_overflow_whitelist()
 	if(fexists("[directory]/ofwhitelist.txt"))
-		var/list/Lines = world.file2list("[directory]/ofwhitelist.txt")
+		var/list/Lines = file2list("[directory]/ofwhitelist.txt")
 		for(var/t in Lines)
 			if(!t)
 				continue
@@ -284,13 +285,13 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 			continue
 		if(M.can_start())
 			runnable_modes[M] = probabilities[M.config_tag]
-//			log_debug(world, "DEBUG: runnable_mode\[[length(runnable_modes)]\] = [M.config_tag]")
+//			log_debug(world, "DEBUG: runnable_mode\[[runnable_modes.len]\] = [M.config_tag]")
 	return runnable_modes
 
 /datum/controller/configuration/proc/load_twitch_censor_list()
 	var/list/twitch_censor_list = list()
 	if(fexists("[directory]/twitch_censor.txt"))
-		var/list/lines = world.file2list("[directory]/twitch_censor.txt")
+		var/list/lines = file2list("[directory]/twitch_censor.txt")
 		for(var/L in lines)
 			L = trim(L)
 			if(!L)
@@ -319,9 +320,11 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 	log_config("[directory]/twitch_censor.txt does not exist, twitch censoring disabled")
 	return FALSE
 
+
 //Message admins when you can.
 /datum/controller/configuration/proc/DelayedMessageAdmins(text)
 	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(message_admins), text), 0)
+
 
 /datum/controller/configuration/proc/LoadModes()
 	gamemode_cache = typecacheof(/datum/game_mode, TRUE)

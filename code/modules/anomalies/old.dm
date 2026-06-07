@@ -100,6 +100,7 @@
 
 	qdel(src)
 
+
 /obj/effect/old_anomaly/attackby(obj/item/item, mob/user, params)
 	if(istype(item, /obj/item/analyzer))
 		to_chat(user, span_notice("Analyzing... [src]'s unstable field is fluctuating along frequency [format_frequency(aSignal.frequency)], code [aSignal.code]."))
@@ -172,9 +173,9 @@
 	var/shockdamage = 20
 	var/explosive = TRUE
 
-/obj/effect/old_anomaly/energetic/Initialize(mapload, new_lifespan, drops_core = TRUE, explosive = TRUE)
+/obj/effect/old_anomaly/energetic/Initialize(mapload, new_lifespan, drops_core = TRUE, _explosive = TRUE)
 	. = ..()
-	src.explosive = explosive
+	explosive = _explosive
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
@@ -204,7 +205,7 @@
 /obj/effect/old_anomaly/energetic/proc/mobShock(mob/living/mob)
 	if(canshock && istype(mob))
 		canshock = FALSE //Just so you don't instakill yourself if you slam into the anomaly five times in a second.
-		mob.electrocute_act(shockdamage, src, flags = SHOCK_NOGLOVES)
+		mob.electrocute_act(shockdamage, "потоковой аномалии", flags = SHOCK_NOGLOVES)
 
 /obj/effect/old_anomaly/energetic/detonate()
 	if(explosive)
@@ -216,7 +217,7 @@
 
 /obj/effect/old_anomaly/bluespace
 	name = "bluespace anomaly"
-	icon = 'icons/obj/weapons/guns/projectiles.dmi'
+	icon = 'icons/obj/weapons/projectiles.dmi'
 	icon_state = "bluespace"
 	density = TRUE
 	var/mass_teleporting = TRUE
@@ -244,9 +245,9 @@
 	var/turf/turf = pick(get_area_turfs(impact_area))
 	if(turf)
 		// Calculate new position (searches through beacons in world)
-		var/obj/item/beacon/chosen
+		var/obj/item/radio/beacon/chosen
 		var/list/possible = list()
-		for(var/obj/item/beacon/W as anything in GLOB.beacons)
+		for(var/obj/item/radio/beacon/W in GLOB.beacons)
 			if(!is_station_level(W.z))
 				continue
 			possible += W
@@ -260,9 +261,8 @@
 			var/turf/turf_to = get_turf(chosen) // the turf of origin we're travelling TO
 
 			playsound(turf_to, 'sound/effects/phasein.ogg', 100, TRUE)
-			GLOB.minor_announcement.announce(
-				message = "Обнаружено перемещение крупной блюспейс-аномалии.",
-				new_title = ANNOUNCE_ANOMALY_RU
+			GLOB.minor_announcement.announce("Обнаружено перемещение крупной блюспейс-аномалии.",
+											ANNOUNCE_ANOMALY_RU
 			)
 
 			var/list/flashers = list()
@@ -273,7 +273,7 @@
 			var/y_distance = turf_to.y - turf_from.y
 			var/x_distance = turf_to.x - turf_from.x
 			for(var/atom/movable/movable_atom in urange(12, turf_from)) // iterate thru list of mobs in the area
-				if(istype(movable_atom, /obj/item/beacon))
+				if(istype(movable_atom, /obj/item/radio/beacon))
 					continue // don't teleport beacons because that's just insanely stupid
 				if(movable_atom.anchored || movable_atom.move_resist == INFINITY)
 					continue
@@ -338,13 +338,9 @@
 	slime.set_nutrition(slime.get_max_nutrition())
 
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Do you want to play as a pyroclastic anomaly slime?", ROLE_SENTIENT, FALSE, 100, source = slime, role_cleanname = "pyroclastic anomaly slime")
-
-	if(QDELETED(slime))
-		return
-
 	if(LAZYLEN(candidates))
 		var/mob/dead/observer/chosen = pick(candidates)
-		slime.possess_by_player(chosen.key)
+		slime.key = chosen.key
 		slime.mind.special_role = SPECIAL_ROLE_PYROCLASTIC_SLIME
 		add_game_logs("was made into a slime by pyroclastic anomaly at [AREACOORD(turf)].", slime)
 

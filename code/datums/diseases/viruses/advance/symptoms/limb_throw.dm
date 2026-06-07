@@ -38,8 +38,8 @@ Limb Rejection
 	need_active_overlay = TRUE
 	invocation = ""
 
-	selection_activated_message	= span_notice_alt("Вы готовитесь бросить конечность!! <b>ЛКМ, чтобы бросить в цель!</b>")
-	selection_deactivated_message = span_notice_alt("Вы решили не бросать конечность... пока что.")
+	selection_activated_message		= span_notice("Вы готовитесь бросить конечность!! <b>ЛКМ, чтобы бросить в цель!</b>")
+	selection_deactivated_message	= span_notice("Вы решили не бросать конечность... пока что.")
 
 	action_icon_state = "limb_throw"
 	action_background_icon_state = "bg_changeling"
@@ -77,7 +77,7 @@ Limb Rejection
 	var/obj/projectile/limb/limb_projectile = new(user.loc, limb)
 	limb_projectile.current = get_turf(user)
 	var/turf/target_turf = get_turf(target)
-	limb_projectile.preparePixelProjectile(target, user)
+	limb_projectile.preparePixelProjectile(target, target_turf, user)
 	limb_projectile.firer = user
 	limb_projectile.fire()
 	playsound(get_turf(usr), 'sound/effects/splat.ogg', 50, TRUE)

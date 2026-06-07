@@ -4,6 +4,7 @@
 /datum/element/light_blocking
 	element_flags = ELEMENT_DETACH_ON_HOST_DESTROY
 
+
 /datum/element/light_blocking/Attach(datum/target)
 	. = ..()
 	if(!ismovable(target))
@@ -15,6 +16,7 @@
 	for(var/turf/turf_loc as anything in movable_target.locs)
 		turf_loc.add_opacity_source(target)
 
+
 /datum/element/light_blocking/Detach(datum/target)
 	. = ..()
 	var/atom/movable/movable_target = target
@@ -23,6 +25,7 @@
 		return
 	for(var/turf/turf_loc as anything in movable_target.locs)
 		turf_loc.remove_opacity_source(target)
+
 
 ///Updates old and new turf loc opacities.
 /datum/element/light_blocking/proc/on_target_move(atom/movable/source, atom/old_loc, dir, forced, list/old_locs)

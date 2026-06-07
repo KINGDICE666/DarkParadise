@@ -43,7 +43,7 @@
 	user = null
 
 /datum/browser/proc/add_head_content(nhead_content)
-	head_content = islist(nhead_content) ? nhead_content : list(nhead_content)
+	head_content =islist(nhead_content) ? nhead_content : list(nhead_content)
 
 /datum/browser/proc/set_window_options(list/nwindow_options)
 	window_options = islist(nwindow_options) ? jointext(nwindow_options, "") : nwindow_options
@@ -51,9 +51,6 @@
 /datum/browser/proc/add_stylesheet(name, file)
 	if(istype(name, /datum/asset/spritesheet))
 		var/datum/asset/spritesheet/sheet = name
-		stylesheets["spritesheet_[sheet.name].css"] = "data/spritesheets/[sheet.name]"
-	else if(istype(name, /datum/asset/spritesheet_batched))
-		var/datum/asset/spritesheet_batched/sheet = name
 		stylesheets["spritesheet_[sheet.name].css"] = "data/spritesheets/[sheet.name]"
 	else
 		var/asset_name = "[name].css"
@@ -87,6 +84,7 @@
 		head_content += "<link rel='stylesheet' type='text/css' href='[common_asset.get_url_mappings()["common.css"]]'>"
 	for(file in stylesheets)
 		head_content += "<link rel='stylesheet' type='text/css' href='[SSassets.transport.get_asset_url(file)]'>"
+
 
 	for(file in scripts)
 		head_content += "<script type='text/javascript' src='[SSassets.transport.get_asset_url(file)]'></script>"
@@ -172,6 +170,7 @@
 	else
 		WARNING("Browser [title] tried to close with a null ID")
 
+
 /datum/browser/modal/alert/New(User,Message,Title,Button1="Ok",Button2,Button3,StealFocus = 1,Timeout=6000)
 	if(!User)
 		return
@@ -220,7 +219,7 @@
 	if(!User)
 		User = usr
 	if(!istype(User))
-		if(isclient(User))
+		if(istype(User, /client))
 			var/client/client = User
 			User = client.mob
 		else
@@ -250,6 +249,7 @@
 	if(!StealFocus)
 		window_options += "focus=false;"
 	timeout = Timeout
+
 
 /datum/browser/modal/close()
 	.=..()
@@ -337,7 +337,7 @@
 
 /proc/presentpicker(mob/User,Message, Title, Button1="Ok", Button2, Button3, StealFocus = 1,Timeout = 6000,list/values, inputtype = "checkbox", width, height, slidecolor)
 	if(!istype(User))
-		if(isclient(User))
+		if(istype(User, /client/))
 			var/client/C = User
 			User = C.mob
 		else
@@ -439,7 +439,7 @@
 
 /proc/presentpreflikepicker(mob/User,Message, Title, Button1="Ok", Button2, Button3, StealFocus = 1,Timeout = 6000,list/settings, width, height, slidecolor)
 	if(!istype(User))
-		if(isclient(User))
+		if(istype(User, /client/))
 			var/client/C = User
 			User = C.mob
 		else
@@ -449,6 +449,7 @@
 	A.wait()
 	if(A.selectedbutton)
 		return list("button" = A.selectedbutton, "settings" = A.settings)
+
 
 // Registers the on-close verb for a browse window (client/verb/.windowclose)
 // this will be called when the close-button of a window is pressed.
@@ -464,14 +465,16 @@
 // to pass a "close=1" parameter to the atom's Topic() proc for special handling.
 // Otherwise, the user mob's machine var will be reset directly.
 //
-/proc/onclose(mob/user, windowid, atom/source = null)
+/proc/onclose(mob/user, windowid, atom/ref=null)
 	if(!user.client)
 		return
 	var/param = "null"
-	if(source)
-		param = "[source.UID()]"
+	if(ref)
+		param = "[ref.UID()]"
 
 	winset(user, windowid, "on-close=\".windowclose [param]\"")
+
+
 
 // the on-close client verb
 // called when a browser popup window is closed after registering with proc/onclose()
@@ -483,7 +486,7 @@
 	set name = ".windowclose" // no autocomplete on cmd line
 
 	if(atomref != "null") // if passed a real atomref
-		var/hsrc = locateUID(atomref) // find the reffed atom
+		var/hsrc = locate(atomref) // find the reffed atom
 		var/href = "close=1"
 		if(hsrc)
 			usr = src.mob

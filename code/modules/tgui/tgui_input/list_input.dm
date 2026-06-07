@@ -101,8 +101,6 @@
 /datum/tgui_list_input/Destroy(force)
 	SStgui.close_uis(src)
 	state = null
-	LAZYCLEARLIST(items)
-	LAZYCLEARLIST(items_map)
 	deltimer(deletion_timer)
 	return ..()
 

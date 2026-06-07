@@ -7,12 +7,10 @@ import { SearchItem } from './types';
 type Props = {
   contents: SearchItem[];
   searchText: string;
-  selectedUids: Set<string>;
-  onToggleSelection: (uid: string) => void;
 };
 
 export const RawContents = (props: Props) => {
-  const { contents, searchText, selectedUids, onToggleSelection } = props;
+  const { contents, searchText } = props;
 
   const filteredContents = contents.filter(
     createSearch(searchText, (item: SearchItem) => item.name)
@@ -22,11 +20,7 @@ export const RawContents = (props: Props) => {
     <Flex wrap>
       {filteredContents.map((item) => (
         <Flex.Item key={item.uid} m={1}>
-          <LootBox
-            item={item}
-            selected={selectedUids.has(item.uid)}
-            onToggleSelection={onToggleSelection}
-          />
+          <LootBox item={item} />
         </Flex.Item>
       ))}
     </Flex>

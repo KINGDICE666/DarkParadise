@@ -22,6 +22,7 @@
 	holder_type = /obj/item/holder/moth
 	tts_seed = "Tychus"
 
+
 /mob/living/simple_animal/moth/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/simple_flying)

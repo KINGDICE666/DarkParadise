@@ -11,7 +11,7 @@
 	var/rep_per_completion = 2
 	/// Completing every contract at a given difficulty will always result in a sum of TC greater or equal than the difficulty's threshold.
 	/// Structure: EXTRACTION_DIFFICULTY_(EASY|MEDIUM|HARD) => number
-	var/difficulty_tc_thresholds = alist(
+	var/difficulty_tc_thresholds = list(
 		EXTRACTION_DIFFICULTY_EASY = 100,
 		EXTRACTION_DIFFICULTY_MEDIUM = 150,
 		EXTRACTION_DIFFICULTY_HARD = 200,
@@ -38,9 +38,6 @@
 		/datum/rep_purchase/item/balloon,
 		/datum/rep_purchase/item/contractor_partner,
 		/datum/rep_purchase/item/contractor_hardsuit,
-		/datum/rep_purchase/item/commando_mech,
-		/datum/rep_purchase/item/scorpion_hook,
-		/datum/rep_purchase/item/activation_upgrade,
 		/datum/rep_purchase/item/spai_kit,
 	)
 	// Variables
@@ -151,13 +148,13 @@
 	reward_tc_available += tc
 	rep += rep_per_completion
 	owner?.initial_account?.credit(creds, pick(list(
-		"ПОЗДРАВЛЯЕМ! Вы стали 10 000-м посетителем сайта SquishySlimes.squish! Прилагаем ваши [creds] кредит[DECL_CREDIT(creds)].",
-		"Поздравляем вас с выигрышем ставки в последнем матче \"Клоун против Мима\"! На ваш счёт было начислено [creds] кредит[DECL_CREDIT(creds)].",
-		"Дорогой бенефициар фонда, сообщаем вам, что оплата по просроченному платежу наконец-то завершена, и на ваш счёт зачислено [creds] кредит[DECL_CREDIT(creds)].",
-		"Привет, брат. Как дела? Ты давно угостил меня пивом, и я хочу отплатить тебе! [creds] кредит[DECL_CREDIT(creds)] твои, наслаждайся!",
-		"Благодарим вас за инвестицию в размере 500 кредитов! В знак признательности мы зачислили на ваш счёт [creds] кредит[DECL_CREDIT(creds)].",
-		"Ваш запрос на возврат 100 таблеток \"Доктор Виталя\" с причиной \"Мне нужно гораздо больше, чем 100 таблеток!\" был принят. Мы зачислили на ваш счёт [creds] кредит[DECL_CREDIT(creds)].",
-		"Ваш запрос на возврат средств за подписку на WetSkrell.nt был получен. Мы зачислили на ваш счёт [creds] кредит[DECL_CREDIT(creds)].",
+		"ПОЗДРАВЛЯЕМ! Вы стали 10 000-м посетителем сайта SquishySlimes.squish! Прилагаем ваши [creds] кредит[declension_ru(creds, "", "а", "ов")].",
+		"Поздравляем вас с выигрышем ставки в последнем матче \"Клоун против Мима\"! На ваш счёт было начислено [creds] кредит[declension_ru(creds, "", "а", "ов")].",
+		"Дорогой бенефициар фонда, сообщаем вам, что оплата по просроченному платежу наконец-то завершена, и на ваш счёт зачислено [creds] кредит[declension_ru(creds, "", "а", "ов")].",
+		"Привет, брат. Как дела? Ты давно угостил меня пивом, и я хочу отплатить тебе! [creds] кредит[declension_ru(creds, "", "а", "ов")] твои, наслаждайся!",
+		"Благодарим вас за инвестицию в размере 500 кредитов! В знак признательности мы зачислили на ваш счёт [creds] кредит[declension_ru(creds, "", "а", "ов")].",
+		"Ваш запрос на возврат 100 таблеток \"Доктор Денчиго\" с причиной \"Мне нужно гораздо больше, чем 100 таблеток!\" был принят. Мы зачислили на ваш счёт [creds] кредит[declension_ru(creds, "", "а", "ов")].",
+		"Ваш запрос на возврат средств за подписку на WetSkrell.nt был получен. Мы зачислили на ваш счёт [creds] кредит[declension_ru(creds, "", "а", "ов")].",
 	)))
 	// Clean up
 	current_contract = null

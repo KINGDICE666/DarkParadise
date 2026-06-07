@@ -1,5 +1,3 @@
-#define SECT_BIBLE_BLESS_BLOCKED -1
-
 /obj/item/storage/bible
 	name = "bible"
 	desc = "Многократно прислоняйте к голове."
@@ -15,7 +13,6 @@
 	pickup_sound =  'sound/items/handling/pickup/book_pickup.ogg'
 	var/mob/affecting = null
 	var/deity_name = "Господь-Бог"
-	var/datum/religion_sect/bound_sect
 	/// Is the sprite of this bible customisable
 	var/customisable = FALSE
 	var/god_punishment = 0 //used for diffrent abuse with bible (healing self is one of them)
@@ -39,68 +36,47 @@
 		"Грин текст" =			list("state" = "bible_greentext",	  	"inhand" = "greentext"),
 )
 
-/obj/item/storage/bible/Destroy(force)
-	bound_sect = null
-	return ..()
-
-/obj/item/storage/bible/examine(mob/user)
-	. = ..()
-	var/datum/religion_sect/current_sect = get_bound_sect()
-	if(current_sect)
-		. += span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] привязана к вере \"[current_sect.name]\" и богу \"[current_sect.deity_name]\".")
-
-/obj/item/storage/bible/proc/bind_to_sect(datum/religion_sect/new_sect, mob/user)
-	if(!new_sect || QDELETED(new_sect))
-		return FALSE
-	bound_sect = new_sect
-	deity_name = new_sect.deity_name
-	var/sect_icon_state = new_sect.bible_icon_state
-	icon_state = icon_exists(icon, sect_icon_state) ? sect_icon_state : initial(icon_state)
-	item_state = "bible"
-	customisable = FALSE
-	new_sect.on_bible_bind(src, user)
-	return TRUE
-
-/obj/item/storage/bible/proc/get_bound_sect()
-	if(QDELETED(bound_sect))
-		bound_sect = null
-	return bound_sect
-
 /obj/item/storage/bible/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Библия",
 		GENITIVE = "Библии",
 		DATIVE = "Библии",
 		ACCUSATIVE = "Библию",
 		INSTRUMENTAL = "Библией",
-		PREPOSITIONAL = "Библии",
+		PREPOSITIONAL = "Библии"
 	)
 
+/obj/item/storage/bible/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/anti_magic, MAGIC_RESISTANCE_HOLY)
+
 /obj/item/storage/bible/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] смотр[PLUR_IT_YAT(user)] в [declent_ru(ACCUSATIVE)] и пыта[PLUR_ET_YUT(user)]ся превзойти собственное понимание Вселенной!"))
+	user.visible_message(span_suicide("[user] смотр[pluralize_ru(user.gender, "ит", "ят")] в [declent_ru(ACCUSATIVE)] и пыта[pluralize_ru(user.gender, "ет", "ют")]ся превзойти собственное понимание Вселенной!"))
 	user.dust()
 	return OBLITERATION
+
 
 /obj/item/storage/bible/fart_act(mob/living/user)
 	if(QDELETED(user) || user.stat == DEAD)
 		return FALSE
-	user.visible_message(span_danger("[user] перд[PLUR_IT_YAT(user)] на [declent_ru(ACCUSATIVE)]!"))
+	user.visible_message(span_danger("[user] перд[pluralize_ru(user.gender, "ит", "ят")] на [declent_ru(ACCUSATIVE)]!"))
 	user.visible_message(span_userdanger("Загадочная сила поражает [user]!"))
 	user.suiciding = TRUE
 	do_sparks(3, TRUE, user)
 	user.gib()
 	return TRUE // Don't run the fart emote
 
+
 /obj/item/storage/bible/booze
 
 /obj/item/storage/bible/booze/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Библия",
 		GENITIVE = "Библии",
 		DATIVE = "Библии",
 		ACCUSATIVE = "Библию",
 		INSTRUMENTAL = "Библией",
-		PREPOSITIONAL = "Библии",
+		PREPOSITIONAL = "Библии"
 	)
 
 /obj/item/storage/bible/booze/populate_contents()
@@ -109,6 +85,7 @@
 	new /obj/item/stack/spacecash(src)
 	new /obj/item/stack/spacecash(src)
 	new /obj/item/stack/spacecash(src)
+
 
 //BS12 EDIT
 // All cult functionality moved to Null Rod
@@ -129,12 +106,17 @@
 		if(update_damage_icon)
 			M.UpdateDamageIcon()
 
+
 /obj/item/storage/bible/proc/god_forgive()
 	god_punishment = max(0, god_punishment - round((world.time - last_used) / (30 SECONDS))) //forgive 1 sin every 30 seconds
 	last_used = world.time
 
-/obj/item/storage/bible/attack(mob/living/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
+
+/obj/item/storage/bible/attack(mob/living/carbon/human/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ATTACK_CHAIN_PROCEED
+
+	if(SEND_SIGNAL(target, COMSIG_BIBLE_SMACKED, user) & COMSIG_END_BIBLE_CHAIN)
+		return ATTACK_CHAIN_SUCCESS
 
 	if(!ishuman(user) || is_monkeybasic(user))
 		to_chat(user, span_warning("Вам не хватит проворности, чтобы это сделать!"))
@@ -142,14 +124,14 @@
 
 	god_forgive()
 
-	if(!is_holy_person(user))
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает шипеть в ваших руках."))
+	if(!user.mind || !user.mind.isholy)
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает шипеть в ваших руках."))
 		add_attack_logs(user, target, "Hit themselves with [src]")
 		user.take_organ_damage(0, 10)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] вылетает из ваших рук и падает на вашу голову."))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] вылетает из ваших рук и падает на вашу голову."))
 		add_attack_logs(user, target, "Hit themselves with [src]")
 		user.take_organ_damage(10)
 		user.Paralyse(40 SECONDS)
@@ -164,50 +146,42 @@
 
 	if(target.stat == DEAD)
 		target.visible_message(
-			span_danger("[user] ударя[PLUR_ET_YUT(user)]  безжизненное тело [target] [declent_ru(INSTRUMENTAL)]."),
+			span_danger("[user] ударя[pluralize_ru(user.gender, "ет", "ют")]  безжизненное тело [target] [declent_ru(INSTRUMENTAL)]."),
 			span_warning("Вы ударяете безжизненное тело [target].")
 		)
 		playsound(loc, SFX_PUNCH, 25, TRUE, -1)
 		return .|ATTACK_CHAIN_SUCCESS
 
-	var/datum/religion_sect/current_sect = get_bound_sect()
-	var/sect_bless_result = current_sect?.on_bible_bless(src, target, user)
-	if(sect_bless_result == SECT_BIBLE_BLESS_BLOCKED)
-		playsound(loc, SFX_PUNCH, 25, TRUE, -1)
-		return .|ATTACK_CHAIN_SUCCESS
-
 	if(!ishuman(target))
 		return .
-	var/mob/living/carbon/human/human_target = target
 
 	. |= ATTACK_CHAIN_SUCCESS
 
 	if(prob(60))
-		if(!sect_bless_result)
-			bless(human_target)
+		bless(target)
 		if(user == target)
 			target.visible_message(
-				span_danger("[user] излечива[PLUR_ET_YUT(user)] себя с силой Бога \"[deity_name]\"!"),
+				span_danger("[user] излечива[pluralize_ru(user.gender, "ет", "ют")] себя с силой Бога \"[deity_name]\"!"),
 				span_danger("Да поможет вам Бог \"[deity_name]\", да побудит он вас к исцелению!"),
 			)
 		else
 			target.visible_message(
-				span_danger("[user] излечива[PLUR_ET_YUT(user)] [target] с силой Бога \"[deity_name]\"!"),
+				span_danger("[user] излечива[pluralize_ru(user.gender, "ет", "ют")] [target] с силой Бога \"[deity_name]\"!"),
 				span_danger("Да поможет вам Бог \"[deity_name]\", да побудит он вас к исцелению!"),
 			)
 		playsound(loc, SFX_PUNCH, 25, TRUE, -1)
 	else
-		if(!istype(human_target.head, /obj/item/clothing/head/helmet))
-			human_target.apply_damage(10, BRAIN)
-			to_chat(human_target, span_warning("Вы ощущаете себя глупее, чем раньше."))
+		if(!istype(target.head, /obj/item/clothing/head/helmet))
+			target.apply_damage(10, BRAIN)
+			to_chat(target, span_warning("Вы ощущаете себя глупее, чем раньше."))
 		if(user == target)
 			target.visible_message(
-				span_danger("[user] огрева[PLUR_ET_YUT(user)] себя [declent_ru(INSTRUMENTAL)] по голове!"),
+				span_danger("[user] огрева[pluralize_ru(user.gender, "ет", "ют")] себя [declent_ru(INSTRUMENTAL)] по голове!"),
 				span_danger("Вы огреваете себя [declent_ru(INSTRUMENTAL)] по голове!"),
 			)
 		else
 			target.visible_message(
-				span_danger("[user] огрева[PLUR_ET_YUT(user)] [target] [declent_ru(INSTRUMENTAL)] по голове!"),
+				span_danger("[user] огрева[pluralize_ru(user.gender, "ет", "ют")] [target] [declent_ru(INSTRUMENTAL)] по голове!"),
 				span_danger("Вы огреваете [target] [declent_ru(INSTRUMENTAL)] по голове!"),
 			)
 		playsound(loc, SFX_PUNCH, 25, TRUE, -1)
@@ -218,27 +192,28 @@
 	if(god_punishment == 5)
 		to_chat(user, span_danger("<h1>Вы злоупотребляете покровительством Бога \"[deity_name]\", остановитесь и подумайте.</h1>"))
 	else if(god_punishment > 5) //lets apply punishment AFTER heal
-		user.electrocute_act(5, src, flags = SHOCK_NOGLOVES)
+		user.electrocute_act(5, "молнии", flags = SHOCK_NOGLOVES)
 		user.apply_damage(65, BURN)
 		user.Knockdown(10 SECONDS)
 		to_chat(user, span_userdanger("Вы злоупотребили волей Бога и были за это наказаны!"))
 
-/obj/item/storage/bible/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+
+/obj/item/storage/bible/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity)
 		return
 
 	if(isfloorturf(target))
 		to_chat(user, span_notice("Вы ударяете пол [declent_ru(INSTRUMENTAL)]."))
-		if(is_holy_person(user))
+		if(user.mind?.isholy)
 			for(var/obj/O in target)
 				O.cult_reveal()
-	if(is_airlock(target))
+	if(istype(target, /obj/machinery/door/airlock))
 		to_chat(user, span_notice("Вы ударяете шлюз [declent_ru(INSTRUMENTAL)]."))
-		if(is_holy_person(user))
+		if(user.mind?.isholy)
 			var/obj/airlock = target
 			airlock.cult_reveal()
 
-	if(is_holy_person(user) && target.reagents)
+	if(user.mind?.isholy && target.reagents)
 		add_holy_water(user, target)
 
 /obj/item/storage/bible/proc/add_holy_water(mob/user, atom/target)
@@ -256,7 +231,7 @@
 
 /obj/item/storage/bible/attack_self(mob/user)
 	. = ..()
-	if(!customisable || !is_holy_person(user))
+	if(!customisable || !user.mind?.isholy)
 		return
 
 	var/list/skins = list()
@@ -282,7 +257,7 @@
 		SSticker.Bible_item_state = item_state
 
 /obj/item/storage/bible/proc/radial_check(mob/user)
-	if(!is_holy_person(user) || !ishuman(user))
+	if(!user?.mind.isholy || !ishuman(user))
 		return FALSE
 	var/mob/living/carbon/human/H = user
 	if(!src || !H.is_type_in_hands(src) || H.incapacitated())

@@ -55,7 +55,7 @@
 	silicon_subsystems = list(
 		/mob/living/silicon/proc/subsystem_open_gps,
 		/mob/living/silicon/robot/proc/self_diagnosis,
-		/mob/living/silicon/proc/subsystem_law_manager,
+		/mob/living/silicon/proc/subsystem_law_manager
 	)
 
 	hat_offset_y = -15
@@ -79,19 +79,15 @@
 	hide.Grant(src)
 
 	if(!isclocker(src))
-		INVOKE_ASYNC(src, PROC_REF(async_add_clocker))
+		SSticker.mode.add_clocker(mind)
 
 	update_icons()
 
-/mob/living/silicon/robot/cogscarab/proc/async_add_clocker()
-	if(QDELETED(src) || !mind)
-		return
-	SSticker.mode.add_clocker(mind)
 
 /mob/living/silicon/robot/drone/Destroy()
 	for(var/datum/action/innate/hide/drone/cogscarab/hide in actions)
 		hide.Remove(src)
-	return ..()
+	. = ..()
 
 /mob/living/silicon/robot/cogscarab/add_strippable_element()
 	return
@@ -123,6 +119,7 @@
 			to_chat(src, span_warning("You feel how your cogs inside slowing down! You need to find beacon to rewind yourself!"))
 			warn_wind_up = WINDUP_STATE_WARNING
 
+
 	if(wind_up_timer <= 0)
 		if(wind_up_timer < 0)
 			wind_up_timer = 0
@@ -134,6 +131,7 @@
 		wind_up_timer -= seconds
 	hud_used?.wind_up_timer?.icon_state = "windup_display-[6-(round(wind_up_timer, wind_up_icon_segment) / wind_up_icon_segment)]"
 	//rounds to 30 and divides by 30. if timer full, 6 - 5, state 1. from 1 to 6.
+
 
 /mob/living/silicon/robot/cogscarab/get_status_tab_items()
 	var/list/status_tab_data = ..()
@@ -157,10 +155,12 @@
 	if(blocks_emissive)
 		add_overlay(get_emissive_block())
 
+
 /mob/living/silicon/robot/cogscarab/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/borg/upgrade))
 		return ATTACK_CHAIN_BLOCKED
 	return ..()
+
 
 /mob/living/silicon/robot/cogscarab/welder_act(mob/user, obj/item/I)
 	if(user.a_intent != INTENT_HELP)
@@ -181,7 +181,7 @@
 	H.attack_hand(grabber)
 
 	to_chat(grabber, span_notice("Вы подняли [src.name]."))
-	to_chat(src, span_notice("[grabber.name] поднял[GEND_A_O_I(grabber)] вас."))
+	to_chat(src, span_notice("[grabber.name] поднял[genderize_ru(grabber.gender,"","а","о","и")] вас."))
 	grabber.status_flags |= PASSEMOTES
 
 	return H
@@ -206,11 +206,13 @@
 /mob/living/silicon/robot/cogscarab/allowed(obj/item/I) //No opening cover
 	return FALSE
 
+
 /mob/living/silicon/robot/cogscarab/updatehealth(reason = "none given", should_log = FALSE)
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return ..()
 	set_health(maxHealth - (getBruteLoss() + getFireLoss() + (suiciding ? getOxyLoss() : 0)))
 	update_stat("updatehealth([reason])", should_log)
+
 
 /mob/living/silicon/robot/cogscarab/update_stat(reason = "none given", should_log = FALSE)
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
@@ -221,6 +223,7 @@
 		log_debug("died of damage, trigger reason: [reason]")
 		return
 	return ..()
+
 
 /mob/living/silicon/robot/cogscarab/death(gibbed)
 	. = ..(gibbed)
@@ -249,6 +252,7 @@
 		to_chat(src, span_warning("You are too small to pull that."))
 	return FALSE
 
+
 /mob/living/silicon/robot/cogscarab/add_robot_verbs()
 	add_verb(src, silicon_subsystems)
 
@@ -272,6 +276,7 @@
 		if("Disable")
 			to_chat(src, "Sensor augmentations disabled.")
 
+
 /mob/living/silicon/robot/cogscarab/get_access()
 	return list() //none cause from gears.
 
@@ -284,7 +289,7 @@
 /mob/living/silicon/robot/cogscarab/verb/light()
 	set name = "Освещение"
 	set desc = "Activate a low power omnidirectional LED. Toggled on or off."
-	set category = VERB_CATEGORY_COGSCARAB
+	set category = STATPANEL_COGSCARAB
 
 	if(lamp_intensity)
 		lamp_intensity = lamp_max // setting this to lamp_max will make control_headlamp shutoff the lamp
@@ -311,9 +316,8 @@
 	var/list/grabbed_items = list()
 	var/grab_limit = 30 // limits of how much you can take
 
-/obj/item/clockwork/brassmaker/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
-		return //Not adjacent.
+/obj/item/clockwork/brassmaker/afterattack(atom/target, mob/living/user, proximity, params)
+	if(!proximity) return //Not adjacent.
 
 	//We only want to deal with using this on turfs. Specific items aren't important.
 	var/turf/T = get_turf(target)
@@ -359,7 +363,7 @@
 	if(isrobot(user))
 		var/mob/living/silicon/robot/robot = user
 		var/obj/item/stack/sheet/brass/cyborg/stack_brass = locate() in robot.module
-		var/brass_melted = floor(metal_amount / metal_need_per_brass)
+		var/brass_melted = FLOOR(metal_amount / metal_need_per_brass, 1)
 		metal_amount -= brass_melted * metal_need_per_brass
 		if(!stack_brass)
 			stack_brass = new /obj/item/stack/sheet/brass/cyborg(robot.module, null, FALSE)

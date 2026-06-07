@@ -1,6 +1,16 @@
 
 /// Nothing will be filtered.
 #define FILTER_NOTHING -1
+/// Plasma, and Oxygen Agent B.
+#define FILTER_TOXINS 0
+/// Oxygen only.
+#define FILTER_OXYGEN 1
+/// Nitrogen only.
+#define FILTER_NITROGEN 2
+/// Carbon dioxide only.
+#define FILTER_CO2 3
+/// Nitrous oxide only.
+#define FILTER_N2O 4
 
 /obj/machinery/atmospherics/trinary/filter
 	name = "gas filter"
@@ -11,7 +21,16 @@
 	/// The amount of pressure the filter wants to operate at.
 	var/target_pressure = ONE_ATMOSPHERE
 	/// The type of gas we want to filter. Valid values that go here are from the `FILTER` defines at the top of the file.
-	var/filter_type = TLV_PL
+	var/filter_type = FILTER_TOXINS
+	/// A list of available filter options. Used with `ui_data`.
+	var/list/filter_list = list(
+		"Nothing" = FILTER_NOTHING,
+		"Plasma" = FILTER_TOXINS,
+		"O2" = FILTER_OXYGEN,
+		"N2" = FILTER_NITROGEN,
+		"CO2" = FILTER_CO2,
+		"N2O" = FILTER_N2O
+	)
 
 /obj/machinery/atmospherics/trinary/filter/CtrlClick(mob/living/user)
 	if(!ishuman(user) && !issilicon(user))
@@ -34,6 +53,7 @@
 /obj/machinery/atmospherics/trinary/filter/ai_click_alt()
 	set_max()
 	return ..()
+
 
 /obj/machinery/atmospherics/trinary/filter/proc/set_max()
 	if(powered())
@@ -87,29 +107,24 @@
 		return
 	update_icon()
 
-#define FILTER_GAS(tag, gas) \
-	if(tag) { \
-		filtered_out.set_##gas(removed.gas()); \
-		removed.set_##gas(0) \
-	}
-
-/obj/machinery/atmospherics/trinary/filter/process_atmos(seconds)
+/obj/machinery/atmospherics/trinary/filter/process_atmos()
+	..()
 	if(!on)
-		return FALSE
+		return 0
 
 	var/output_starting_pressure = air3.return_pressure()
 
 	if(output_starting_pressure >= target_pressure || air2.return_pressure() >= target_pressure)
 		//No need to mix if target is already full!
-		return TRUE
+		return 1
 
 	//Calculate necessary moles to transfer using PV=nRT
 
 	var/pressure_delta = target_pressure - output_starting_pressure
 	var/transfer_moles
 
-	if(air1.temperature() > 0)
-		transfer_moles = pressure_delta * air3.volume / (air1.temperature() * R_IDEAL_GAS_EQUATION)
+	if(air1.temperature > 0)
+		transfer_moles = pressure_delta*air3.volume/(air1.temperature * R_IDEAL_GAS_EQUATION)
 
 	//Actually transfer the gas
 
@@ -119,48 +134,49 @@
 		if(!removed)
 			return
 		var/datum/gas_mixture/filtered_out = new
-		filtered_out.set_temperature(removed.temperature())
+		filtered_out.temperature = removed.temperature
 
 		switch(filter_type)
-			FILTER_GAS(TLV_PL, toxins)
-			FILTER_GAS(TLV_AGENT_B, agent_b)
-			FILTER_GAS(TLV_O2, oxygen)
-			FILTER_GAS(TLV_N2, nitrogen)
-			FILTER_GAS(TLV_CO2, carbon_dioxide)
-			FILTER_GAS(TLV_N2O, sleeping_agent)
-			FILTER_GAS(TLV_H2, hydrogen)
-			FILTER_GAS(TLV_H2O, water_vapor)
-			FILTER_GAS(TLV_TRITIUM, tritium)
-			FILTER_GAS(TLV_BZ, bz)
-			FILTER_GAS(TLV_PLUOXIUM, pluoxium)
-			FILTER_GAS(TLV_MIASMA, miasma)
-			FILTER_GAS(TLV_FREON, freon)
-			FILTER_GAS(TLV_NITRIUM, nitrium)
-			FILTER_GAS(TLV_HEALIUM, healium)
-			FILTER_GAS(TLV_PROTO_NITRATE, proto_nitrate)
-			FILTER_GAS(TLV_ZAUKER, zauker)
-			FILTER_GAS(TLV_HALON, halon)
-			FILTER_GAS(TLV_HELIUM, helium)
-			FILTER_GAS(TLV_ANTINOBLIUM, antinoblium)
-			FILTER_GAS(TLV_HYPERNOBLIUM, hypernoblium)
+			if(FILTER_TOXINS)
+				filtered_out.toxins = removed.toxins
+				removed.toxins = 0
+
+				filtered_out.agent_b = removed.agent_b
+				removed.agent_b = 0
+
+			if(FILTER_OXYGEN)
+				filtered_out.oxygen = removed.oxygen
+				removed.oxygen = 0
+
+			if(FILTER_NITROGEN)
+				filtered_out.nitrogen = removed.nitrogen
+				removed.nitrogen = 0
+
+			if(FILTER_CO2)
+				filtered_out.carbon_dioxide = removed.carbon_dioxide
+				removed.carbon_dioxide = 0
+
+			if(FILTER_N2O)
+				filtered_out.sleeping_agent = removed.sleeping_agent
+				removed.sleeping_agent = 0
 			else
 				filtered_out = null
+
 
 		air2.merge(filtered_out)
 		air3.merge(removed)
 
-	if(!QDELETED(parent1))
-		parent1.update = TRUE
+	parent2.update = 1
 
-	if(!QDELETED(parent2))
-		parent2.update = TRUE
+	parent3.update = 1
 
-	if(!QDELETED(parent3))
-		parent3.update = TRUE
+	parent1.update = 1
 
-	return TRUE
+	return 1
 
-#undef FILTER_GAS
+/obj/machinery/atmospherics/trinary/filter/atmos_init()
+	set_frequency(frequency)
+	..()
 
 /obj/machinery/atmospherics/trinary/filter/attack_ghost(mob/user)
 	ui_interact(user)
@@ -190,6 +206,8 @@
 		"filter_type" = filter_type
 	)
 	data["filter_type_list"] = list()
+	for(var/label in filter_list)
+		data["filter_type_list"] += list(list("label" = label, "gas_type" = filter_list[label]))
 
 	return data
 
@@ -204,7 +222,7 @@
 			return TRUE
 
 		if("set_filter")
-			filter_type = params["filter"]
+			filter_type = text2num(params["filter"])
 			investigate_log("was set to filter [filter_type] by [key_name_log(usr)]", INVESTIGATE_ATMOS)
 			return TRUE
 
@@ -222,6 +240,7 @@
 	if(.)
 		investigate_log("was set to [target_pressure] kPa by [key_name_log(usr)]", INVESTIGATE_ATMOS)
 
+
 /obj/machinery/atmospherics/trinary/filter/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -231,33 +250,10 @@
 	. |= ATTACK_CHAIN_SUCCESS
 	rename_interactive(user, I)
 
-//FROM MAPS
-
-/obj/machinery/atmospherics/trinary/filter/o2
-	filter_type = TLV_O2
-
-/obj/machinery/atmospherics/trinary/filter/n2o
-	filter_type = TLV_N2O
-
-/obj/machinery/atmospherics/trinary/filter/co2
-	filter_type = TLV_CO2
-
-/obj/machinery/atmospherics/trinary/filter/n2
-	filter_type = TLV_N2
-
-/obj/machinery/atmospherics/trinary/filter/flipped/n2o
-	filter_type = TLV_N2O
-
-/obj/machinery/atmospherics/trinary/filter/flipped/co2
-	filter_type = TLV_CO2
-
-/obj/machinery/atmospherics/trinary/filter/flipped/o2
-	filter_type = TLV_O2
-
-/obj/machinery/atmospherics/trinary/filter/flipped/n2
-	filter_type = TLV_N2
-
-/obj/machinery/atmospherics/trinary/filter/flipped/none
-	filter_type = FILTER_NOTHING
 
 #undef FILTER_NOTHING
+#undef FILTER_TOXINS
+#undef FILTER_OXYGEN
+#undef FILTER_NITROGEN
+#undef FILTER_CO2
+#undef FILTER_N2O

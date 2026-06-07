@@ -24,6 +24,9 @@
 	/// Also, note that for anything sharp, SURGERY_INITIATOR_ORGANIC should be set as well.
 	var/valid_starting_types = SURGERY_INITIATOR_ORGANIC
 
+	// Replace any other surgery initiator
+	dupe_type = /datum/component/surgery_initiator
+
 /**
  * Create a new surgery initiating component.
  *
@@ -160,12 +163,12 @@
 		patient.surgeries -= the_surgery
 		if(affected_organ)
 			user.visible_message(
-				span_notice("[user] прерыва[PLUR_ET_YUT(user)] операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [patient], используя [tool.declent_ru(ACCUSATIVE)]."),
+				span_notice("[user] прерыва[pluralize_ru(user.gender, "ет", "ют")] операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [patient], используя [tool.declent_ru(ACCUSATIVE)]."),
 				span_notice("Вы прерываете операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [patient], используя [tool.declent_ru(ACCUSATIVE)].")
 			)
 		else
 			user.visible_message(
-				span_notice("[user] прерыва[PLUR_ET_YUT(user)] операцию на [parse_zone(selected_zone)] [patient], используя [tool.declent_ru(ACCUSATIVE)]."),
+				span_notice("[user] прерыва[pluralize_ru(user.gender, "ет", "ют")] операцию на [parse_zone(selected_zone)] [patient], используя [tool.declent_ru(ACCUSATIVE)]."),
 				span_notice("Вы прерываете операцию на [parse_zone(selected_zone)] [patient], используя [tool.declent_ru(ACCUSATIVE)].")
 			)
 
@@ -313,27 +316,17 @@
 
 	if(affected_organ)
 		user.visible_message(
-			span_notice("[user] готов[PLUR_IT_YAT(user)]ся начать операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
+			span_notice("[user] готов[pluralize_ru(user.gender, "ит", "ят")]ся начать операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
 			span_notice("Вы готовитесь начать операцию на [affected_organ.declent_ru(PREPOSITIONAL)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
 		)
 	else
 		user.visible_message(
-			span_notice("[user] готов[PLUR_IT_YAT(user)]ся начать операцию на [parse_zone(selected_zone)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
+			span_notice("[user] готов[pluralize_ru(user.gender, "ит", "ят")]ся начать операцию на [parse_zone(selected_zone)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
 			span_notice("Вы готовитесь начать операцию на [parse_zone(selected_zone)] [target], удерживая [tool.declent_ru(ACCUSATIVE)] в руке."),
 		)
 
 /datum/component/surgery_initiator/limb
 	can_cancel = FALSE  // don't let a leg cancel a surgery
-
-/datum/component/surgery_initiator/limb/initiate_surgery_moment(datum/source, atom/target, mob/user)
-	var/old_forced = forced_surgery
-	var/old_anywhere = can_start_anywhere
-	if(target == user && ismachineperson(user) && isexternalorgan(parent))
-		forced_surgery = /datum/surgery/attach_robotic_limb/self_attach_ipc
-		can_start_anywhere = TRUE
-	. = ..()
-	forced_surgery = old_forced
-	can_start_anywhere = old_anywhere
 
 /datum/component/surgery_initiator/robo
 	valid_starting_types = SURGERY_INITIATOR_ROBOTIC

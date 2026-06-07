@@ -8,6 +8,7 @@
 
 	var/list/disconnected_observers = list()
 
+
 	for(var/mob/M in GLOB.dead_mob_list)
 		if(!M.last_known_ckey)
 			continue

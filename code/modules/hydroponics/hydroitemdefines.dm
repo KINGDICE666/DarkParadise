@@ -17,7 +17,7 @@
 
 /obj/item/reagent_containers/spray/weedspray // -- Skie
 	name = "weed spray"
-	desc = "Распылитель средства от сорняков — атразина."
+	desc = "Распылитель средства от сорняков - атразина."
 	icon = 'icons/obj/hydroponics/equipment.dmi'
 	icon_state = "weedspray"
 	item_state = "plantbgone"
@@ -26,17 +26,17 @@
 	list_reagents = list("atrazine" = 100)
 
 /obj/item/reagent_containers/spray/weedspray/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "распылитель средства от сорняков",
 		GENITIVE = "распылителя средства от сорняков",
 		DATIVE = "распылителю средства от сорняков",
 		ACCUSATIVE = "распылитель средства от сорняков",
 		INSTRUMENTAL = "распылителем средства от сорняков",
-		PREPOSITIONAL = "распылителе средства от сорняков",
+		PREPOSITIONAL = "распылителе средства от сорняков"
 	)
 
 /obj/item/reagent_containers/spray/weedspray/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] жадно вдыха[PLUR_ET_YUT(user)] содержимое [declent_ru(GENITIVE)]! Кажется, что это попытка самоубийства!"))
+	user.visible_message(span_suicide("[user] жадно вдыха[pluralize_ru(user.gender, "ет", "ют")] содержимое [declent_ru(GENITIVE)]! Кажется, что это попытка самоубийства!"))
 	return TOXLOSS
 
 /obj/item/reagent_containers/spray/pestspray // -- Skie
@@ -50,17 +50,17 @@
 	list_reagents = list("pestkiller" = 100)
 
 /obj/item/reagent_containers/spray/pestspray/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "распылитель пестицидов",
 		GENITIVE = "распылителя пестицидов",
 		DATIVE = "распылителю пестицидов",
 		ACCUSATIVE = "распылитель пестицидов",
 		INSTRUMENTAL = "распылителем пестицидов",
-		PREPOSITIONAL = "распылителе пестицидов",
+		PREPOSITIONAL = "распылителе пестицидов"
 	)
 
 /obj/item/reagent_containers/spray/pestspray/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] жадно вдыха[PLUR_ET_YUT(user)] содержимое [declent_ru(GENITIVE)]! Кажется, что это попытка самоубийства!"))
+	user.visible_message(span_suicide("[user] жадно вдыха[pluralize_ru(user.gender, "ет", "ют")] содержимое [declent_ru(GENITIVE)]! Кажется, что это попытка самоубийства!"))
 	return TOXLOSS
 
 /obj/item/cultivator
@@ -79,6 +79,7 @@
 	attack_verb = list("полоснул", "порезал", "поцарапал")
 	hitsound = 'sound/weapons/bladeslice.ogg'
 
+
 /obj/item/cultivator/rake
 	name = "rake"
 	desc = "Их используют, чтобы удалить сорняки или почесать спину."
@@ -93,13 +94,13 @@
 	resistance_flags = FLAMMABLE
 
 /obj/item/cultivator/rake/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "грабли",
 		GENITIVE = "граблей",
 		DATIVE = "граблям",
 		ACCUSATIVE = "грабли",
 		INSTRUMENTAL = "граблями",
-		PREPOSITIONAL = "граблях",
+		PREPOSITIONAL = "граблях"
 	)
 
 /obj/item/cultivator/wooden
@@ -109,6 +110,7 @@
 	flags = NONE
 	lefthand_file = 'icons/mob/inhands/lavaland/misc_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/lavaland/misc_righthand.dmi'
+
 
 /obj/item/hatchet
 	name = "hatchet"
@@ -140,7 +142,7 @@
 	)
 
 /obj/item/hatchet/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] is chopping at [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
+	user.visible_message("<span class='suicide'>[user] is chopping at [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	playsound(loc, 'sound/weapons/bladeslice.ogg', 50, TRUE, -1)
 	return BRUTELOSS
 
@@ -195,7 +197,7 @@
 	)
 
 /obj/item/scythe/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] is beheading [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
+	user.visible_message("<span class='suicide'>[user] is beheading [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		var/obj/item/organ/external/affecting = H.get_organ(BODY_ZONE_HEAD)
@@ -203,6 +205,7 @@
 			affecting.droplimb(1, DROPLIMB_SHARP)
 			playsound(loc, SFX_DESECRATION, 50, TRUE, -1)
 	return BRUTELOSS
+
 
 /obj/item/scythe/tele
 	icon_state = "tscythe0"
@@ -216,12 +219,12 @@
 	slot_flags = ITEM_SLOT_BELT
 	origin_tech = "materials=3;combat=3"
 	attack_verb = list("ударил", "ткнул")
-	hitsound = SFX_SWING_HIT
+	hitsound = "swing_hit"
 
 /obj/item/scythe/tele/attack_self(mob/user)
 	extend = !extend
 	if(extend)
-		to_chat(user, span_warning("With a flick of your wrist, you extend the scythe. It's reaping time!"))
+		to_chat(user, "<span class='warning'>With a flick of your wrist, you extend the scythe. It's reaping time!</span>")
 		slot_flags = ITEM_SLOT_BACK	//won't fit on belt, but can be worn on belt when extended
 		w_class = WEIGHT_CLASS_BULKY		//won't fit in backpacks while extended
 		force = 15		//slightly better than normal scythe damage
@@ -230,18 +233,19 @@
 		//Extend sound (blade unsheath)
 		playsound(src.loc, 'sound/weapons/blade_unsheath.ogg', 50, TRUE)	//Sound credit to Qat of Freesound.org
 	else
-		to_chat(user, span_notice("You collapse the scythe, folding it away for easy storage."))
+		to_chat(user, "<span class='notice'>You collapse the scythe, folding it away for easy storage.</span>")
 		slot_flags = ITEM_SLOT_BELT	//can be worn on belt again, but no longer makes sense to wear on the back
 		w_class = WEIGHT_CLASS_SMALL
 		force = 3
 		attack_verb = list("ударил", "ткнул")
-		hitsound = SFX_SWING_HIT
+		hitsound = "swing_hit"
 		//Collapse sound (blade sheath)
 		playsound(src.loc, 'sound/weapons/blade_sheath.ogg', 50, TRUE)		//Sound credit to Q.K. of Freesound.org
 	set_sharpness(extend)
 	update_icon(UPDATE_ICON_STATE)
 	update_equipped_item(update_speedmods = FALSE)
 	add_fingerprint(user)
+
 
 /obj/item/scythe/tele/update_icon_state()
 	if(extend)
@@ -251,16 +255,18 @@
 		icon_state = "tscythe0"
 		item_state = null	//no sprite for folded version, like a tele-baton
 
+
 // *************************************
 // Nutrient defines for hydroponics
 // *************************************
+
 
 /obj/item/reagent_containers/glass/bottle/nutrient
 	name = "jug of nutrient"
 	desc = "Пластиковая канистра для различных жидкостей."
 	icon_state = "plastic_jug"
 	item_state = "plastic_jug"
-	possible_transfer_amounts = list(1, 2, 5, 10, 20, 40, 80)
+	possible_transfer_amounts = list(1,2,5,10,20,40,80)
 	volume = 80
 	hitsound = 'sound/weapons/jug_empty_impact.ogg'
 	mob_throw_hit_sound = 'sound/weapons/jug_empty_impact.ogg'
@@ -268,20 +274,20 @@
 	throwforce = 0.2
 
 /obj/item/reagent_containers/glass/bottle/nutrient/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра",
 		GENITIVE = "канистры",
 		DATIVE = "канистре",
 		ACCUSATIVE = "канистру",
 		INSTRUMENTAL = "канистрой",
-		PREPOSITIONAL = "канистре",
+		PREPOSITIONAL = "канистре"
 	)
 
-/obj/item/reagent_containers/glass/bottle/nutrient/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/glass/bottle/nutrient/New()
+	..()
 	add_lid()
-	pixel_x = base_pixel_x + rand(-5, 5)
-	pixel_y = base_pixel_y + rand(-5, 5)
+	pixel_x = rand(-5, 5)
+	pixel_y = rand(-5, 5)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/on_reagent_change()
 	. = ..()
@@ -293,10 +299,11 @@
 		hitsound = 'sound/weapons/jug_empty_impact.ogg'
 		mob_throw_hit_sound = 'sound/weapons/jug_empty_impact.ogg'
 
+
 /obj/item/reagent_containers/glass/bottle/nutrient/update_overlays()
 	. = ..()
 	if(reagents.total_volume)
-		var/mutable_appearance/filling = mutable_appearance('icons/obj/reagentfillings.dmi', "plastic_jug10")
+		var/image/filling = image('icons/obj/reagentfillings.dmi', src, "plastic_jug10")
 
 		var/percent = round((reagents.total_volume / volume) * 100)
 		switch(percent)
@@ -315,11 +322,12 @@
 			if(93 to INFINITY)
 				filling.icon_state = "plastic_jug100"
 
-		filling.color = get_color_matrix_from_reagents(reagents.reagent_list)
+		filling.icon += mix_color_from_reagents(reagents.reagent_list)
 		. += filling
 
 	if(!is_open_container())
 		. += "lid_jug"
+
 
 /obj/item/reagent_containers/glass/bottle/nutrient/ez
 	name = "jug of E-Z-Nutrient"
@@ -328,13 +336,13 @@
 	list_reagents = list("eznutriment" = 80)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/ez/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра (И-ЗИ-Нутриент)",
 		GENITIVE = "канистры (И-ЗИ-Нутриент)",
 		DATIVE = "канистре (И-ЗИ-Нутриент)",
 		ACCUSATIVE = "канистру (И-ЗИ-Нутриент)",
 		INSTRUMENTAL = "канистрой (И-ЗИ-Нутриент)",
-		PREPOSITIONAL = "канистре (И-ЗИ-Нутриент)",
+		PREPOSITIONAL = "канистре (И-ЗИ-Нутриент)"
 	)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/l4z
@@ -344,13 +352,13 @@
 	list_reagents = list("left4zednutriment" = 80)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/l4z/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра (Лефт-Фо-Зед)",
 		GENITIVE = "канистры (Лефт-Фо-Зед)",
 		DATIVE = "канистре (Лефт-Фо-Зед)",
 		ACCUSATIVE = "канистру (Лефт-Фо-Зед)",
 		INSTRUMENTAL = "канистрой (Лефт-Фо-Зед)",
-		PREPOSITIONAL = "канистре (Лефт-Фо-Зед)",
+		PREPOSITIONAL = "канистре (Лефт-Фо-Зед)"
 	)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/rh
@@ -360,13 +368,13 @@
 	list_reagents = list("robustharvestnutriment" = 80)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/rh/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра (Робаст-Харвест)",
 		GENITIVE = "канистры (Робаст-Харвест)",
 		DATIVE = "канистре (Робаст-Харвест)",
 		ACCUSATIVE = "канистру (Робаст-Харвест)",
 		INSTRUMENTAL = "канистрой (Робаст-Харвест)",
-		PREPOSITIONAL = "канистре (Робаст-Харвест)",
+		PREPOSITIONAL = "канистре (Робаст-Харвест)"
 	)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/empty
@@ -374,10 +382,10 @@
 /obj/item/reagent_containers/glass/bottle/nutrient/killer
 	icon_state = "plastic_jug_k"
 
-/obj/item/reagent_containers/glass/bottle/nutrient/killer/Initialize(mapload)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-5, 5)
-	pixel_y = base_pixel_y + rand(-5, 5)
+/obj/item/reagent_containers/glass/bottle/nutrient/killer/New()
+	..()
+	pixel_x = rand(-5, 5)
+	pixel_y = rand(-5, 5)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/killer/weedkiller
 	name = "jug of weed killer"
@@ -386,13 +394,13 @@
 	list_reagents = list("atrazine" = 80)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/killer/weedkiller/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра (Атразин)",
 		GENITIVE = "канистры (Атразин)",
 		DATIVE = "канистре (Атразин)",
 		ACCUSATIVE = "канистру (Атразин)",
 		INSTRUMENTAL = "канистрой (Атразин)",
-		PREPOSITIONAL = "канистре (Атразин)",
+		PREPOSITIONAL = "канистре (Атразин)"
 	)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/killer/pestkiller
@@ -402,13 +410,13 @@
 	list_reagents = list("pestkiller" = 80)
 
 /obj/item/reagent_containers/glass/bottle/nutrient/killer/pestkiller/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "канистра (Пестициды)",
 		GENITIVE = "канистры (Пестициды)",
 		DATIVE = "канистре (Пестициды)",
 		ACCUSATIVE = "канистру (Пестициды)",
 		INSTRUMENTAL = "канистрой (Пестициды)",
-		PREPOSITIONAL = "канистре (Пестициды)",
+		PREPOSITIONAL = "канистре (Пестициды)"
 	)
 
 /obj/item/conductive_organ
@@ -424,7 +432,7 @@
 	origin_tech = "biotech=6"
 
 /obj/item/conductive_organ/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "проводящий орган",
 		GENITIVE = "проводящего органа",
 		DATIVE = "проводящему органу",

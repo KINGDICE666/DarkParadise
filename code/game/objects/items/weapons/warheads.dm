@@ -10,6 +10,7 @@
 /obj/item/warhead/update_icon_state()
 	icon_state = initial(icon_state) + ((locked)? "_locked" : ((first_part || second_part)? "_ass" : ""))
 
+
 /obj/item/warhead/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/glass/beaker))
 		var/obj/item/reagent_containers/glass/beaker/beaker = I
@@ -53,7 +54,7 @@
 		locked = TRUE
 		update_icon(UPDATE_ICON_STATE)
 		return .
-
+	
 	prime()
 
 /obj/item/warhead/proc/prime()
@@ -79,6 +80,7 @@
 	reagents.handle_reactions()
 
 	QDEL_IN(src, 1 SECONDS)
+
 
 /obj/item/warhead/mortar
 	name = "80mm mortar warhead"

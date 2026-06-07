@@ -53,6 +53,7 @@
 	/// for if we're an ammo casing being fired
 	var/mob/living/shooter
 
+
 /datum/component/pellet_cloud/Initialize(projectile_type=/obj/projectile/shrapnel, magnitude=5)
 	if(!isammocasing(parent) && !isgrenade(parent) && !issupplypod(parent) && !ismortarcasing(parent))
 		return COMPONENT_INCOMPATIBLE
@@ -67,6 +68,7 @@
 		num_pellets = magnitude
 	else if(isgrenade(parent) || issupplypod(parent) || ismortarcasing(parent))
 		radius = magnitude
+
 
 /datum/component/pellet_cloud/Destroy(force)
 	purple_hearts = null
@@ -117,7 +119,7 @@
 				spread = round((i / num_pellets - 0.5) * distro)
 
 		RegisterSignal(shell.BB, COMSIG_PROJECTILE_SELF_ON_HIT, PROC_REF(pellet_hit))
-		RegisterSignals(shell.BB, list(COMSIG_PROJECTILE_RANGE_OUT, COMSIG_QDELETING), PROC_REF(pellet_range))
+		RegisterSignal(shell.BB, list(COMSIG_PROJECTILE_RANGE_OUT, COMSIG_QDELETING), PROC_REF(pellet_range))
 		shell.BB.damage = original_damage
 		pellets += shell.BB
 		var/turf/current_loc = get_turf(fired_from)
@@ -150,7 +152,7 @@
 		return
 
 	var/list/all_the_turfs_were_gonna_lacerate = RANGE_TURFS(radius, A) - RANGE_TURFS(radius-1, A)
-	num_pellets = length(all_the_turfs_were_gonna_lacerate) + pellet_delta
+	num_pellets = all_the_turfs_were_gonna_lacerate.len + pellet_delta
 
 	for(var/T in all_the_turfs_were_gonna_lacerate)
 		INVOKE_ASYNC(src, PROC_REF(pew), T)
@@ -169,37 +171,35 @@
 	var/list/martyrs = list()
 
 	var/self_harm_radius_mult = 3
-	var/cached_radius = radius
 
 	if(punishable_triggerer && prob(60))
 		to_chat(punishable_triggerer, span_userdanger("Your plan to whack someone with a grenade on a stick backfires on you, literally!"))
-		self_harm_radius_mult = 1 // we'll still give the guy who got hit some extra shredding, but not 3*cached_radius
-		pellet_delta += cached_radius
-		for(var/i in 1 to cached_radius)
+		self_harm_radius_mult = 1 // we'll still give the guy who got hit some extra shredding, but not 3*radius
+		pellet_delta += radius
+		for(var/i in 1 to radius)
 			pew(punishable_triggerer) // thought you could be tricky and lance someone with no ill effects!!
 
 	for(var/mob/living/body in get_turf(parent))
 		if(body == shooter)
-			pellet_delta += cached_radius * self_harm_radius_mult
-			for(var/i in 1 to cached_radius * self_harm_radius_mult)
+			pellet_delta += radius * self_harm_radius_mult
+			for(var/i in 1 to radius * self_harm_radius_mult)
 				pew(body) // free shrapnel if it goes off in your hand, and it doesn't even count towards the absorbed. fun!
 		else if(!(body in bodies))
 			martyrs += body // promoted from a corpse to a hero
 
 	for(var/M in martyrs)
 		var/mob/living/martyr = M
-		if(cached_radius > 4)
+		if(radius > 4)
 			martyr.visible_message("<b>[span_danger("[martyr] heroically covers \the [parent] with [martyr.p_their()] body, absorbing a load of the shrapnel!")]</b>", span_userdanger("You heroically cover \the [parent] with your body, absorbing a load of the shrapnel!"))
-			magnitude_absorbed += round(cached_radius * 0.5)
-		else if(cached_radius >= 2)
+			magnitude_absorbed += round(radius * 0.5)
+		else if(radius >= 2)
 			martyr.visible_message("<b>[span_danger("[martyr] heroically covers \the [parent] with [martyr.p_their()] body, absorbing some of the shrapnel!")]</b>", span_userdanger("You heroically cover \the [parent] with your body, absorbing some of the shrapnel!"))
 			magnitude_absorbed += 2
 		else
 			martyr.visible_message("<b>[span_danger("[martyr] heroically covers \the [parent] with [martyr.p_their()] body, snuffing out the shrapnel!")]</b>", span_userdanger("You heroically cover \the [parent] with your body, snuffing out the shrapnel!"))
-			magnitude_absorbed = cached_radius
+			magnitude_absorbed = radius
 
-		var/remaining_buffer = cached_radius - magnitude_absorbed - 1
-		var/pellets_absorbed = (POW2(cached_radius)) - POW2(remaining_buffer)
+		var/pellets_absorbed = (radius ** 2) - ((radius - magnitude_absorbed - 1) ** 2)
 		radius -= magnitude_absorbed
 		pellet_delta -= round(pellets_absorbed * 0.5)
 
@@ -255,17 +255,14 @@
 	P.firer_source_atom  = parent
 	P.firer = parent // don't hit ourself that would be really annoying
 	P.suppressed = TRUE// set the projectiles to make no message so we can do our own aggregate message
-	P.preparePixelProjectile(target, parent)
+	P.preparePixelProjectile(target, target, parent)
 	RegisterSignal(P, COMSIG_PROJECTILE_SELF_ON_HIT, PROC_REF(pellet_hit))
-	RegisterSignals(P, list(COMSIG_PROJECTILE_RANGE_OUT, COMSIG_QDELETING), PROC_REF(pellet_range))
+	RegisterSignal(P, list(COMSIG_PROJECTILE_RANGE_OUT, COMSIG_QDELETING), PROC_REF(pellet_range))
 	pellets += P
 	P.fire()
 
 ///All of our pellets are accounted for, time to go target by target and tell them how many things they got hit by.
 /datum/component/pellet_cloud/proc/finalize()
-	for(var/mob/living/martyr as anything in purple_hearts)
-		if(martyr.stat == DEAD && martyr.client)
-			martyr.client.give_award(/datum/award/achievement/misc/lookoutsir, martyr)
 	UnregisterSignal(parent, COMSIG_PREQDELETED)
 	if(queued_delete)
 		qdel(parent)
@@ -324,6 +321,7 @@
 	targets_hit -= target
 	LAZYREMOVE(bodies, target)
 	LAZYREMOVE(purple_hearts, target)
+
 
 #undef CLOUD_POSITION_DAMAGE
 #undef CLOUD_POSITION_W_BONUS

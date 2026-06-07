@@ -421,6 +421,7 @@
 	allow_duplicates = FALSE
 	can_found = TRUE
 
+
 /datum/map_template/ruin/space/spacebotany
 	id = "spacebotany"
 	suffix = "spacebotany.dmm"
@@ -430,6 +431,7 @@
 	allow_duplicates = FALSE
 	cost = 2
 
+
 /datum/map_template/ruin/space/astroak
 	id = "astroak"
 	suffix = "astroak.dmm"
@@ -438,6 +440,7 @@
 	cost = 2
 	allow_duplicates = FALSE
 	can_found = TRUE
+
 
 /datum/map_template/ruin/space/abandoned_storage
 	id = "abandoned_storage"

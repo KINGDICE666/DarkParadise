@@ -17,6 +17,7 @@
 	var/alerts_when_broken = FALSE
 	var/has_alerted = FALSE
 
+
 /obj/machinery/computer/syndicate_depot/Initialize(mapload)
 	. = ..()
 	depotarea = get_area(src)
@@ -103,7 +104,7 @@
 	. = FALSE
 	if(!allowed(usr))
 		to_chat(usr, span_warning("Access denied."))
-		playsound(src, SFX_BUTTON_DENIED, 20)
+		playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
 		return
 	switch(action)
 		if("primary")
@@ -121,6 +122,7 @@
 		raise_alert("[src] destroyed.")
 	return ..()
 
+
 /obj/machinery/computer/syndicate_depot/proc/primary(mob/user)
 	return FALSE
 
@@ -130,6 +132,8 @@
 /obj/machinery/computer/syndicate_depot/proc/raise_alert(reason)
 	if(istype(depotarea))
 		depotarea.increase_alert(reason)
+
+
 
 // Door Control Computer
 
@@ -176,6 +180,7 @@
 		to_chat(user, span_notice("False walls toggled."))
 		playsound(user, sound_yes, 50, FALSE)
 
+
 // Engineering AKA self destruct computer, no useful functions, just a trap for the people who can't resist pushing dangerous-sounding buttons.
 
 /obj/machinery/computer/syndicate_depot/selfdestruct
@@ -204,6 +209,7 @@
 	if(depotarea)
 		depotarea.activate_self_destruct("Fusion reactor containment field disengaged. All hands, evacuate. All hands, evacuate!", TRUE, user)
 		playsound(user, sound_click, 20, TRUE)
+
 
 // Shield computer, used to manipulate base shield, and armory shield
 
@@ -258,6 +264,7 @@
 		depotarea.perimeter_shield_status = TRUE
 	playsound(user, sound_yes, 50, FALSE)
 
+
 /obj/machinery/computer/syndicate_depot/shieldcontrol/secondary(mob/user)
 	if(!istype(depotarea))
 		return
@@ -266,6 +273,7 @@
 	else
 		depotarea.shields_up()
 	playsound(user, sound_yes, 50, FALSE)
+
 
 // Syndicate comms computer, used to activate visitor mode, and message syndicate. Traitor-only use.
 
@@ -353,7 +361,7 @@
 	user.faction += "syndicate"
 	depotarea.alert_log += "[user.name] signed in as a visitor."
 	depotarea.list_add(user, depotarea.peaceful_list)
-	to_chat(user, {"<br>[span_userdanger("Welcome, Agent.")]
+	to_chat(user, {"<br><span class='userdanger'>Welcome, Agent.</span>
 		<span class='warning'>You are now signed-in as a depot visitor.
 		Any other agents with you MUST sign in themselves.
 		You may explore all rooms here, except for bolted ones.
@@ -369,6 +377,7 @@
 	if(!security_lockout && (stat & NOPOWER))
 		security_lockout = TRUE
 		raise_alert("[src] lost power.")
+
 
 // Syndicate teleporter control, used to manage incoming/outgoing teleports
 
@@ -394,7 +403,7 @@
 /obj/machinery/computer/syndicate_depot/teleporter/taipan
 	req_access = list(154)
 	circuit = /obj/item/circuitboard/syndicate_teleporter
-	armor = list(MELEE = 0, BULLET = 100, LASER = 40, ENERGY = 0, BOMB = 20, BIO = 0, FIRE = 40, ACID = 20)
+	armor = list(MELEE = 0, BULLET = 100, LASER = 40, ENERGY = 0, BOMB = 20, BIO = 0, RAD = 0, FIRE = 40, ACID = 20)
 
 /obj/machinery/computer/syndicate_depot/teleporter/Initialize(mapload)
 	..()
@@ -447,7 +456,7 @@
 	last_opener = usr
 	is_cooldown = TRUE
 	blocked = TRUE
-	for(var/obj/item/beacon/R as anything in GLOB.beacons)
+	for(var/obj/item/radio/beacon/R in GLOB.beacons)
 		var/turf/T = get_turf(R)
 		if(!T)
 			continue

@@ -2,9 +2,11 @@ SUBSYSTEM_DEF(time_track)
 	name = "Time Tracking"
 	wait = 10 SECONDS
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
-	ss_flags = SS_NO_INIT
-
+	flags = SS_NO_INIT
+	ss_id = "time_track"
+	cpu_display = SS_CPUDISPLAY_LOW
 	var/time_dilation_current = 0
+
 	var/time_dilation_avg_fast = 0
 	var/time_dilation_avg = 0
 	var/time_dilation_avg_slow = 0
@@ -16,6 +18,7 @@ SUBSYSTEM_DEF(time_track)
 	var/last_tick_tickcount = 0
 
 	//var/update_gliding = FALSE
+
 
 /datum/controller/subsystem/time_track/fire()
 	var/current_realtime = REALTIMEOFDAY
@@ -37,6 +40,7 @@ SUBSYSTEM_DEF(time_track)
 	last_tick_realtime = current_realtime
 	last_tick_byond_time = current_byondtime
 	last_tick_tickcount = current_tickcount
+
 
 /datum/controller/subsystem/time_track/get_metrics()
 	. = ..()

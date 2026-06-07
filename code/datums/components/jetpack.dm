@@ -20,6 +20,7 @@
 	/// The typepath to instansiate our trail as, when we need it
 	var/effect_type
 
+
 /**
  * Arguments:
  * * stabilize - If we should drift when we finish moving, or sit stable in space
@@ -48,6 +49,7 @@
 	src.effect_type = effect_type
 	src.skip_trails = skip_trails
 
+
 /datum/component/jetpack/InheritComponent(datum/component/component, original, stabilize, activation_signal, deactivation_signal, return_flag, datum/callback/check_on_move, datum/effect_system/trail_follow/effect_type, skip_trails)
 	UnregisterSignal(parent, src.activation_signal)
 	if(src.deactivation_signal)
@@ -67,10 +69,12 @@
 	if(trail && trail.effect_type != effect_type)
 		setup_trail(trail.holder)
 
+
 /datum/component/jetpack/Destroy(force)
 	QDEL_NULL(trail)
 	check_on_move = null
 	return ..()
+
 
 /datum/component/jetpack/proc/setup_trail(mob/user)
 	QDEL_NULL(trail)
@@ -79,6 +83,7 @@
 	trail.auto_process = FALSE
 	trail.set_up(user)
 	trail.start()
+
 
 /datum/component/jetpack/proc/activate(datum/source, mob/user)
 	SIGNAL_HANDLER
@@ -94,6 +99,7 @@
 
 	setup_trail(user)
 
+
 /datum/component/jetpack/proc/deactivate(datum/source, mob/user)
 	SIGNAL_HANDLER
 
@@ -104,6 +110,7 @@
 	UnregisterSignal(user, COMSIG_MOVABLE_DRIFT_BLOCK_INPUT)
 
 	QDEL_NULL(trail)
+
 
 /datum/component/jetpack/proc/move_react(mob/user)
 	SIGNAL_HANDLER
@@ -120,11 +127,13 @@
 	if(user.client.intended_direction)//You use jet when press keys. yes.
 		thrust()
 
+
 /datum/component/jetpack/proc/pre_move_react(mob/user)
 	SIGNAL_HANDLER
 	if(!trail)
 		return FALSE
 	trail.oldposition = get_turf(user)
+
 
 /datum/component/jetpack/proc/spacemove_react(mob/user, movement_dir, continuous_move)
 	SIGNAL_HANDLER
@@ -135,6 +144,7 @@
 	if(stabilize && check_on_move.Invoke(FALSE))
 		return COMSIG_MOVABLE_STOP_SPACEMOVE
 
+
 /// Returns true if the thrust went well, false otherwise
 /datum/component/jetpack/proc/thrust()
 	if(!check_on_move.Invoke(TRUE))
@@ -143,10 +153,12 @@
 		trail.generate_effect()
 	return TRUE
 
+
 /// Basically, tell the drift component not to do its starting visuals, because they look dumb for us
 /datum/component/jetpack/proc/block_starting_visuals(datum/source)
 	SIGNAL_HANDLER
 	return DRIFT_VISUAL_FAILED
+
 
 /// If we're on, don't let the drift component block movements at the end since we can speed
 /datum/component/jetpack/proc/ignore_ending_block(datum/source)

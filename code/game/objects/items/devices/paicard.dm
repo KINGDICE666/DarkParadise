@@ -7,13 +7,12 @@
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_BELT
 	origin_tech = "programming=3;powerstorage=2" // Or it will be cloned in the experimentor
-	custom_price = 50
 	var/request_cooldown = 5 // five seconds
 	var/last_request
 	var/obj/item/radio/headset/radio
 	var/looking_for_personality = 0
 	var/mob/living/silicon/pai/pai
-	var/list/faction = list("neutral") // The factions the pAI will inherit from the card
+	faction = list("neutral") // The factions the pAI will inherit from the card
 	resistance_flags = FIRE_PROOF | ACID_PROOF | INDESTRUCTIBLE
 	COOLDOWN_DECLARE(ping_cooldown)
 	/// for Syndicate pAI type
@@ -24,13 +23,13 @@
 	var/current_emotion = 1
 
 /obj/item/paicard/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "интелкарта пИИ",
 		GENITIVE = "интелкарты пИИ",
 		DATIVE = "интелкарте пИИ",
 		ACCUSATIVE = "интелкарту пИИ",
 		INSTRUMENTAL = "интелкартой пИИ",
-		PREPOSITIONAL = "интелкарте пИИ",
+		PREPOSITIONAL = "интелкарте пИИ"
 	)
 
 /obj/item/paicard/syndicate // Only seems that it is syndicard
@@ -39,8 +38,8 @@
 	is_syndicate_type = TRUE
 	upgrade = new()
 
-/obj/item/paicard/Initialize(mapload)
-	. = ..()
+/obj/item/paicard/New()
+	..()
 	add_overlay("pai-off")
 	LAZYADD(GLOB.paiController.paicards, src)
 
@@ -99,13 +98,13 @@
 				<table class="request">
 					<tr>
 						<td class="radio">Transmit:</td>
-						<td><a href='byond://?src=[UID()];wires=4'>[radio.get_broadcasting() ? "<font color=#55FF55>En" : "<font color=#FF5555>Dis" ]abled</font></a>
+						<td><a href='byond://?src=[UID()];wires=4'>[radio.broadcasting ? "<font color=#55FF55>En" : "<font color=#FF5555>Dis" ]abled</font></a>
 
 						</td>
 					</tr>
 					<tr>
 						<td class="radio">Receive:</td>
-						<td><a href='byond://?src=[UID()];wires=2'>[radio.get_listening() ? "<font color=#55FF55>En" : "<font color=#FF5555>Dis" ]abled</font></a>
+						<td><a href='byond://?src=[UID()];wires=2'>[radio.listening ? "<font color=#55FF55>En" : "<font color=#FF5555>Dis" ]abled</font></a>
 
 						</td>
 					</tr>
@@ -249,9 +248,10 @@
 	if(upgrade && istype(upgrade, /obj/item/paicard_upgrade/protolate))
 		welcome_message.Add(span_warning("<b>Будучи СпИИ, вы имеете доступ к особым программам.</b>"))
 	else if(upgrade)
-		welcome_message.Add(span_warning("<b>Будучи СпИИ, вы имеете доступ к особым программам, а так же доступ к зашифрованному каналу связи \"Синдиката\" — :t</b>"))
+		welcome_message.Add(span_warning("<b>Будучи СпИИ, вы имеете доступ к особым программам, а так же доступ к зашифрованному каналу связи Синдиката — :t</b>"))
 
 	to_chat(pai, chat_box_notice(welcome_message.Join("<br>")))
+
 
 /obj/item/paicard/proc/removePersonality()
 	extinguish_light(TRUE)
@@ -294,24 +294,29 @@
 			add_overlay(get_emissive_block())
 		current_emotion = emotion
 
+
 /obj/item/paicard/proc/alertUpdate()
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] выводит сообщение на экран: \"Дополнительные личности доступны для загрузки.\""))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] выводит сообщение на экран: \"Дополнительные личности доступны для загрузки.\""))
 	softping()
+
 
 /obj/item/paicard/proc/softping()
 	if(COOLDOWN_FINISHED(src, ping_cooldown))
 		playsound(get_turf(src), 'sound/items/posiping.ogg', 50, FALSE)
 		COOLDOWN_START(src, ping_cooldown, 20 SECONDS)
 
+
 /obj/item/paicard/emp_act(severity)
 	for(var/mob/M in src)
 		M.emp_act(severity)
 	..()
 
+
 /obj/item/paicard/extinguish_light(force = FALSE)
 	if(pai)
 		pai.extinguish_light()
 		set_light_on(FALSE)
+
 
 /obj/item/paicard/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/pai_cartridge))
@@ -352,7 +357,7 @@
 	if(istype(I, /obj/item/paicard_upgrade))
 		add_fingerprint(user)
 		var/obj/item/paicard_upgrade/new_upgrade = I
-		if(is_syndicate_type || upgrade || (pai?.syndipai))
+		if(is_syndicate_type || upgrade || (pai && pai.syndipai))
 			user.balloon_alert(user, "пИИ уже достаточно крут!")
 			return ATTACK_CHAIN_PROCEED
 
@@ -376,16 +381,17 @@
 		if(!radio)
 			to_chat(user, span_warning("[pai.name] не имеет установленного радио!"))
 			return ATTACK_CHAIN_PROCEED
-		if(radio.keyslot)
+		if(radio.keyslot1)
 			to_chat(user, span_warning("[pai.name] не имеет свободных слотов под ключи шифрования!"))
 			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(I, src))
 			return ..()
-		radio.keyslot = I
-		radio.recalculate_channels()
+		radio.keyslot1 = I
+		radio.recalculateChannels()
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/paicard/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -403,18 +409,19 @@
 
 		to_chat(user, span_notice("Вы вытащили картридж улучшения пИИ."))
 
-	if(radio?.keyslot)
+	if(radio?.keyslot1)
 		for(var/ch_name in radio.channels)
 			SSradio.remove_object(radio, SSradio.radiochannels[ch_name])
 			radio.secure_radio_connections[ch_name] = null
 
 		if(T)
-			user.put_in_hands(radio.keyslot)
-			radio.keyslot = null
+			user.put_in_hands(radio.keyslot1)
+			radio.keyslot1 = null
 
-		radio.recalculate_channels()
+		radio.recalculateChannels()
 		to_chat(user, span_notice("Вы извлекли ключ шифрования из [declent_ru(GENITIVE)]."))
 		I.play_tool_sound(user, I.tool_volume)
+
 
 /obj/item/paicard/attack_ghost(mob/dead/observer/user)
 	if(pai)
@@ -427,11 +434,11 @@
 		return
 	softping()
 
+
 /obj/item/pai_cartridge
 	name = "PAI upgrade"
 	desc = "A data cartridge for portable AI."
 	icon = 'icons/obj/pda.dmi'
-	custom_price = 250
 	w_class = WEIGHT_CLASS_TINY
 	origin_tech = "programming=2;data=2"
 
@@ -446,7 +453,6 @@
 
 /obj/item/pai_cartridge/doorjack
 	name = "PAI doorjack upgrade cartridge"
-	custom_price = 100
 	icon_state = "pai-doorjack"
 	var/factor = -0.5
 
@@ -478,10 +484,8 @@
 /obj/item/paicard_upgrade/unused
 	used = FALSE
 
-/obj/item/paicard_upgrade/contractor/unused
-	used = FALSE
-
 /obj/item/paicard_upgrade/protolate
+
 
 /obj/item/paicard_upgrade/proc/set_syndie_key(obj/item/paicard/paicard)
 	if(!paicard)
@@ -494,12 +498,14 @@
 	if(paicard.radio.keyslot2.syndie)
 		paicard.radio.syndiekey = paicard.radio.keyslot2
 
-	paicard.radio.recalculate_channels(TRUE)
+	paicard.radio.recalculateChannels(TRUE)
 	if(paicard.pai)
 		to_chat(paicard.pai, span_notice("Обнаружены новые частоты радиосообщения, калибровка..."))
 
+
 /obj/item/paicard_upgrade/protolate/set_syndie_key(obj/item/paicard)
 	return
+
 
 /obj/item/paper/pai_upgrade
 	name = "Инструкция по применению"

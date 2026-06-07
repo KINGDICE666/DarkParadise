@@ -24,18 +24,17 @@
 
 //Academy Items
 
-/// The immobile, close pulling singularity seen in the academy away mission
 /obj/singularity/academy
-	move_self = FALSE
+	dissipate = 0
+	move_self = 0
+	grav_pull = 1
 
-/obj/singularity/academy/Initialize(mapload)
-	. = ..()
+/obj/singularity/academy/admin_investigate_setup()
+	return
 
-	var/datum/component/singularity/singularity = singularity_component.resolve()
-	singularity?.grav_pull = 1
-
-/obj/singularity/academy/process(seconds_per_tick)
-	if(SPT_PROB(0.5, seconds_per_tick))
+/obj/singularity/academy/process()
+	eat()
+	if(prob(1))
 		mezzer()
 
 /obj/item/clothing/glasses/meson/truesight
@@ -43,6 +42,7 @@
 	desc = "I can see forever!"
 	icon_state = "monocle"
 	item_state = "headset"
+
 
 // Butler outfit
 /datum/outfit/butler

@@ -13,6 +13,7 @@ Structure: ///////////////////			//////////////////////////
 
 										reagents (datums) Reagents. I.e. Water , antitoxins or mercury.
 
+
 Random important notes:
 
 	An objects on_reagent_change will be called every time the objects reagents change.
@@ -113,6 +114,7 @@ About the Holder:
 				This is the atom the holder is 'in'. Useful if you need to find the location.
 				(i.e. for explosions)
 
+
 About Reagents:
 
 	Reagents are all the things you can mix and fille in bottles etc. This can be anything from
@@ -172,6 +174,9 @@ About Reagents:
 
 			A good website for color calculations: http://www.psyclops.com/tools/rgb/
 
+
+
+
 About Recipes:
 
 	Recipes are simple datums that contain a list of required reagents and a result.
@@ -212,6 +217,7 @@ About Recipes:
 		required_other
 			Basically like a reagent's data variable. You can set extra requirements for a
 			reaction with this.
+
 
 About the Tools:
 

@@ -5,22 +5,20 @@
 
 /obj/item/poster
 	name = "rolled-up poster"
-	desc = "Свёрнутый в трубочку лист плотной бумаги. Оснащён собственной автоматической клеевой системой для удобного крепления на любую вертикальную поверхность."
+	desc = "Постер оснащён собственной автоматической клеевой системой для удобного крепления на любую вертикальную поверхность. Его вульгарные темы сделали его контрабандой на объектах Нанотрейзен."
 	icon = 'icons/obj/contraband.dmi'
 	resistance_flags = FLAMMABLE
-	w_class = WEIGHT_CLASS_SMALL
 	var/poster_type
 	var/obj/structure/sign/poster/poster_structure
-	var/is_unfurled = FALSE
 
 /obj/item/poster/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "свёрнутый постер",
 		GENITIVE = "свёрнутого постера",
 		DATIVE = "свёрнутому постеру",
 		ACCUSATIVE = "свёрнутый постер",
 		INSTRUMENTAL = "свёрнутым постером",
-		PREPOSITIONAL = "свёрнутом постере",
+		PREPOSITIONAL = "свёрнутом постере"
 	)
 
 /obj/item/poster/Initialize(mapload, obj/structure/sign/poster/new_poster_structure)
@@ -29,69 +27,17 @@
 	if(!new_poster_structure && poster_type)
 		poster_structure = new poster_type(src)
 
-	update_appearance(UPDATE_ICON_STATE | UPDATE_DESC)
+	// posters store what name and description they would like their rolled up form to take.
+	if(poster_structure)
+		name = poster_structure.poster_item_name
+		desc = poster_structure.poster_item_desc
+		icon_state = poster_structure.poster_item_icon_state
+
+		name = "[name] - [poster_structure.original_name]"
 
 /obj/item/poster/Destroy()
 	poster_structure = null
 	. = ..()
-
-/obj/item/poster/update_icon_state()
-	if(!poster_structure)
-		return
-	if(is_unfurled)
-		icon_state = poster_structure.icon_state
-		return
-	icon_state = poster_structure.poster_item_icon_state
-
-/obj/item/poster/update_desc()
-	. = ..()
-	if(!poster_structure)
-		return
-	if(is_unfurled)
-		desc = poster_structure.desc
-		return
-	desc = poster_structure.poster_item_desc
-
-/obj/item/poster/update_name(updates = ALL)
-	. = ..()
-	if(!poster_structure)
-		return
-	if(is_unfurled)
-		name = "\"[poster_structure.original_name]\""
-		ru_names = poster_structure.ru_names
-	else
-		name = "rolled-up poster"
-		ru_names = null
-
-/obj/item/poster/proc/roll_up(mob/user)
-	if(!is_unfurled)
-		return
-	is_unfurled = FALSE
-	update_appearance(UPDATE_ICON_STATE | UPDATE_NAME | UPDATE_DESC)
-	playsound(src, 'sound/effects/pageturn3.ogg', 30, TRUE)
-	to_chat(user, span_notice("Вы аккуратно сворачиваете постер."))
-
-/obj/item/poster/attack_self(mob/living/user)
-	. = ..()
-	if(!poster_structure)
-		return
-
-	if(is_unfurled)
-		roll_up(user)
-		return
-
-	is_unfurled = TRUE
-	update_appearance(UPDATE_ICON_STATE | UPDATE_NAME | UPDATE_DESC)
-	playsound(src, 'sound/effects/pageturn1.ogg', 30, TRUE)
-	to_chat(user, span_notice("Вы разворачиваете постер: [poster_structure.original_name]"))
-
-/obj/item/poster/dropped(mob/user, slot, silent = FALSE)
-	. = ..()
-	roll_up(user)
-
-/obj/item/poster/on_enter_storage(obj/item/storage/S)
-	. = ..()
-	roll_up()
 
 // These icon_states may be overriden, but are for mapper's convinence
 /obj/item/poster/random_contraband
@@ -132,13 +78,13 @@
 	var/poster_item_icon_state = "rolled_poster"
 
 /obj/structure/sign/poster/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "постер",
 		GENITIVE = "постера",
 		DATIVE = "постеру",
 		ACCUSATIVE = "постер",
 		INSTRUMENTAL = "постером",
-		PREPOSITIONAL = "постере",
+		PREPOSITIONAL = "постере"
 	)
 
 /obj/structure/sign/poster/Initialize(mapload)
@@ -147,24 +93,8 @@
 		randomise(random_basetype)
 	if(!ruined)
 		original_name = name
-		name = "poster — [original_name]"
-		desc = "Большой лист устойчивой к космическим условиям печатной бумаги.\n[desc]"
-		ru_names = build_poster_ru_names()
-
-/obj/structure/sign/poster/proc/build_poster_ru_names()
-	if(!original_name)
-		return
-	var/alist/base_names = get_ru_names()
-	if(!base_names)
-		return
-	return alist(
-		NOMINATIVE = "[base_names[NOMINATIVE]] \"[original_name]\"",
-		GENITIVE = "[base_names[GENITIVE]] \"[original_name]\"",
-		DATIVE = "[base_names[DATIVE]] \"[original_name]\"",
-		ACCUSATIVE = "[base_names[ACCUSATIVE]] \"[original_name]\"",
-		INSTRUMENTAL = "[base_names[INSTRUMENTAL]] \"[original_name]\"",
-		PREPOSITIONAL = "[base_names[PREPOSITIONAL]] \"[original_name]\"",
-	)
+		name = "Постер – [name]"
+		desc = "Большой лист устойчивой к космическим условиям печатной бумаги. [desc]"
 
 /obj/structure/sign/poster/proc/randomise(base_type)
 	var/list/poster_types = subtypesof(base_type)
@@ -236,7 +166,7 @@
 			balloon_alert(user, "нет места!")
 			return
 
-	balloon_alert(user, "размещение...") //Looks like it's uncluttered enough. Place the poster.
+		balloon_alert(user, "размещение...") //Looks like it's uncluttered enough. Place the poster.
 
 	var/obj/structure/sign/poster/D = P.poster_structure
 
@@ -276,6 +206,7 @@
 	balloon_alert(user, "постер упал!")
 	D.roll_and_drop(temp_loc, user)
 
+
 // MARK: Poster variations
 
 /obj/structure/sign/poster/ripped
@@ -285,13 +216,13 @@
 	desc = "Вы не можете разобрать, что было изображено на постере. Он испорчен."
 
 /obj/structure/sign/poster/ripped/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "порванный постер",
 		GENITIVE = "порванного постера",
 		DATIVE = "порванному постеру",
 		ACCUSATIVE = "порванный постер",
 		INSTRUMENTAL = "порванным постером",
-		PREPOSITIONAL = "порванном постере",
+		PREPOSITIONAL = "порванном постере"
 	)
 
 /obj/structure/sign/poster/random
@@ -303,16 +234,16 @@
 // MARK: Contraband posters
 /obj/structure/sign/poster/contraband
 	poster_item_name = "contraband poster"
-	poster_item_desc = "Этот постер оснащён собственной автоматической клеевой системой для удобного крепления на любую вертикальную поверхность. Его вульгарные темы сделали его контрабандой на объектах \"Нанотрейзен\"."
+	poster_item_desc = "Этот постер оснащён собственной автоматической клеевой системой для удобного крепления на любую вертикальную поверхность. Его вульгарные темы сделали его контрабандой на объектах Нанотрейзен."
 
 /obj/structure/sign/poster/contraband/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "контрабандный постер",
 		GENITIVE = "контрабандного постера",
 		DATIVE = "контрабандному постеру",
 		ACCUSATIVE = "контрабандный постер",
 		INSTRUMENTAL = "контрабандным постером",
-		PREPOSITIONAL = "контрабандном постере",
+		PREPOSITIONAL = "контрабандном постере"
 	)
 
 /obj/structure/sign/poster/contraband/random
@@ -363,17 +294,17 @@
 
 /obj/structure/sign/poster/contraband/missing_gloves
 	name = "Пропавшие перчатки"
-	desc = "Этот постер ссылается на возмущение, вызванное сокращением финансирования \"Нанотрейзен\" на покупку изолированных перчаток."
+	desc = "Этот постер ссылается на возмущение, вызванное сокращением финансирования Нанотрейзен на покупку изолированных перчаток."
 	icon_state = "poster9"
 
 /obj/structure/sign/poster/contraband/hacking_guide
 	name = "Руководство по взлому"
-	desc = "Этот постер подробно описывает внутреннюю работу стандартного шлюза \"Нанотрейзен\". К сожалению, он устарел."
+	desc = "Этот постер подробно описывает внутреннюю работу стандартного шлюза Нанотрейзен. К сожалению, он устарел."
 	icon_state = "poster10"
 
 /obj/structure/sign/poster/contraband/rip_badger
 	name = "Покойся с миром, Барсук"
-	desc = "Этот мятежный постер ссылается на геноцид \"Нанотрейзен\" целой космической станции, полной барсуков."
+	desc = "Этот мятежный постер ссылается на геноцид Нанотрейзен целой космической станции, полной барсуков."
 	icon_state = "poster11"
 
 /obj/structure/sign/poster/contraband/ambrosia_vulgaris
@@ -433,12 +364,12 @@
 
 /obj/structure/sign/poster/contraband/rebels_unite
 	name = "Повстанцы, объединяйтесь"
-	desc = "Постер, призывающий восстать против \"Нанотрейзен\"."
+	desc = "Постер, призывающий восстать против Нанотрейзен."
 	icon_state = "poster23"
 
 /obj/structure/sign/poster/contraband/c20r
 	name = "C-20r"
-	desc = "Постер, рекламирующий пистолет-пулемёт C-20r от концерна \"Скарборо\"."
+	desc = "Постер, рекламирующий пистолет-пулемёт C-20r от \"Скарборо Армс\"."
 	icon_state = "poster24"
 
 /obj/structure/sign/poster/contraband/have_a_puff
@@ -457,8 +388,8 @@
 	icon_state = "poster27"
 
 /obj/structure/sign/poster/contraband/syndicate_pistol
-	name = "Пистолет \"Синдиката\""
-	desc = "Этот постер рекламирует вам ахуенно-шикарные пистолеты \"Синдиката\"."
+	name = "Пистолет Синдиката"
+	desc = "Этот постер рекламирует вам ахуенно-шикарные пистолеты синдиката."
 	icon_state = "poster28"
 
 /obj/structure/sign/poster/contraband/energy_swords
@@ -553,7 +484,7 @@
 
 /obj/structure/sign/poster/contraband/frag12
 	name = "FRAG12"
-	desc = "Общий план конструкции и наполнения особо опасного снаряда FRAG12. Красным шрифтом выделена часть о ущербе что наносит этот патрон."
+	desc = "Общий план конструкции и наполнения особо опасного снаряда FRAG12.  Красным шрифтом выделена часть о ущербе что наносит этот патрон."
 	icon_state = "poster_frag12"
 
 /obj/structure/sign/poster/contraband/incammo
@@ -598,7 +529,7 @@
 
 /obj/structure/sign/poster/contraband/flamethrower
 	name = "Огнемёт"
-	desc = "Теперь ты — поджигатель. Крайне опасное оружие для всех, включая самого поджигателя."
+	desc = "Теперь ты - поджигатель. Крайне опасное оружие для всех, включая самого поджигателя."
 	icon_state = "poster_flamethrower"
 
 /obj/structure/sign/poster/contraband/bigbrother
@@ -616,30 +547,20 @@
 	desc = "Изображение ассистента, который демонстрирует свои достижения в освоении  техники: бомбарды, станпрода, копья."
 	icon_state = "poster_graytide"
 
-/obj/structure/sign/poster/contraband/imposter
-	name = "Я — постер"
-	desc = "Этот постер висит здесь явно не предвещая о добрых вестях. Возможно, среди нас есть предатель?"
-	icon_state = "im_poster"
-
-/obj/structure/sign/poster/contraband/bread
-	name = "Кара небесная"
-	desc = "Хлебом единым жив человек."
-	icon_state = "bread"
-
 //MARK: Official posters
 /obj/structure/sign/poster/official
 	poster_item_name = "motivational poster"
-	poster_item_desc = "Официальный постер от \"Нанотрейзен\", призванный воспитывать покорную и послушную рабочую силу. Оснащён передовой клеевой основой для удобного крепления на любую вертикальную поверхность."
+	poster_item_desc = "Официальный постер от Нанотрейзен, призванный воспитывать покорную и послушную рабочую силу. Оснащён передовой клеевой основой для удобного крепления на любую вертикальную поверхность."
 	poster_item_icon_state = "rolled_poster_legit"
 
 /obj/structure/sign/poster/official/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мотивационный постер",
 		GENITIVE = "мотивационного постера",
 		DATIVE = "мотивационному постеру",
 		ACCUSATIVE = "мотивационный постер",
 		INSTRUMENTAL = "мотивационным постером",
-		PREPOSITIONAL = "мотивационном постере",
+		PREPOSITIONAL = "мотивационном постере"
 	)
 
 /obj/structure/sign/poster/official/random
@@ -654,8 +575,8 @@
 	icon_state = "poster1_legit"
 
 /obj/structure/sign/poster/official/nanotrasen_logo
-	name = "Логотип \"Нанотрейзен\""
-	desc = "Постер с изображением логотипа \"Нанотрейзен\"."
+	name = "Логотип Нанотрейзен"
+	desc = "Постер с изображением логотипа Нанотрейзен."
 	icon_state = "poster2_legit"
 
 /obj/structure/sign/poster/official/cleanliness
@@ -705,12 +626,12 @@
 
 /obj/structure/sign/poster/official/love_ian
 	name = "Любите Иана"
-	desc = "Иан — это любовь, Иан — это жизнь."
+	desc = "Иан - это любовь, Иан - это жизнь."
 	icon_state = "poster12_legit"
 
 /obj/structure/sign/poster/official/space_cops
 	name = "Космические копы."
-	desc = "Постер, рекламирующий телешоу \"Космические копы\"."
+	desc = "Постер, рекламирующий телешоу «Космические копы»."
 	icon_state = "poster13_legit"
 
 /obj/structure/sign/poster/official/ue_no
@@ -770,12 +691,12 @@
 
 /obj/structure/sign/poster/official/cohiba_robusto_ad
 	name = "Реклама Коиба Робусто"
-	desc = "Коиба Робусто — стильные сигары."
+	desc = "Коиба Робусто – стильные сигары."
 	icon_state = "poster25_legit"
 
 /obj/structure/sign/poster/official/anniversary_vintage_reprint
 	name = "Винтажная репродукция к 50-летию"
-	desc = "Репродукция постера 2505 года, посвящённая 50-летию \"НаноПостер\", дочерней компании \"Нанотрейзен\"."
+	desc = "Репродукция постера 2505 года, посвящённая 50-летию \"НаноПостер\", дочерней компании Нанотрейзен."
 	icon_state = "poster26_legit"
 
 /obj/structure/sign/poster/official/fruit_bowl
@@ -785,12 +706,12 @@
 
 /obj/structure/sign/poster/official/pda_ad
 	name = "Реклама КПК"
-	desc = "Постер, рекламирующий последнюю модель КПК от поставщиков \"Нанотрейзен\"."
+	desc = "Постер, рекламирующий последнюю модель КПК от поставщиков Нанотрейзен."
 	icon_state = "poster28_legit"
 
 /obj/structure/sign/poster/official/enlist
 	name = "Вступайте"
-	desc = "Вступайте в резерв ОБР \"Нанотрейзен\" сегодня!"
+	desc = "Вступайте в резерв ОБР Нанотрейзен сегодня!"
 	icon_state = "poster29_legit"
 
 /obj/structure/sign/poster/official/nanomichi_ad
@@ -820,7 +741,7 @@
 
 /obj/structure/sign/poster/official/kill_syndicate
 	name = "Убивайте Синдикат"
-	desc = "Постер, требующий, чтобы весь экипаж был готов сражаться с \"Синдикатом\"."
+	desc = "Постер, требующий, чтобы весь экипаж был готов сражаться с Синдикатом."
 	icon_state = "poster35_legit"
 
 /obj/structure/sign/poster/official/air1
@@ -918,121 +839,6 @@
 	desc = "Изображение каргонца, который  демонстрирует свои достижения в освоении техники: мулботов, консоли заказов, системы доставки."
 	icon_state = "poster_cargo"
 
-/obj/structure/sign/poster/official/cargogorilas
-	name = "Каргорилаз"
-	desc = "На постере изображена обложка рок-группы \"Каргорилаз\". Вероятно, на фоне успеха данной группы, \"Нанотрейзен\" снабдила все свои станции питомцем по имени Марс."
-	icon_state = "poster_cargogorilas"
-
-/obj/structure/sign/poster/official/cargofriends
-	name = "Грузчики"
-	desc = "Постер демонстрирует, что снабжение — это не просто работа, а способ завести новых друзей."
-	icon_state = "poster_cargofriends"
-
-/obj/structure/sign/poster/official/mge
-	name = "Мускулистый Грузчик"
-	desc = "Изображение Грузчика с большими мышцами, который заявляет: \"Больше работай и станешь таким же накачанным!\"."
-	icon_state = "poster_mge"
-
-/obj/structure/sign/poster/official/qm
-	name = "Квартермейстерша" //Мне нравиться как это звучит
-	desc = "Изображение Квартирмейстерши, которая призывает работать в Отделе Снабжения."
-	icon_state = "poster_qm"
-
-/obj/structure/sign/poster/official/minegem
-	name = "НЕСИ"
-	desc = "Изображение драгоценного самоцвета с маленькой подписью, намекающей на то, что его нужно принести в Отдел Снабжения."
-	icon_state = "poster_minegem"
-
-/obj/structure/sign/poster/official/kurit
-	name = "Курение скуривает"
-	desc = "ЗАДУМАЙСЯ."
-	icon_state = "kurit"
-
-/obj/structure/sign/poster/official/breakfast
-	name = "Завтрак"
-	desc = "ММ ЕДА..."
-	icon_state = "breakfast"
-
-/obj/structure/sign/poster/official/krill
-	name = "Криль"
-	desc = "\"Во всём этом мире я один такой. Один на криллион.\""
-	icon_state = "krill"
-
-/obj/structure/sign/poster/official/selected_ambient_works
-	name = "Selected Ambient Works 85–92"
-	desc = "Плакат странно выглядящего водопроводного крана. Или это лошадь?.."
-	icon_state = "selected_ambient_works"
-
-/obj/structure/sign/poster/official/tell_all_the_people
-	name = "Tell All The People"
-	desc = "\"Скажи чтоб не шли за мной.\""
-	icon_state = "tell_all_the_people"
-
-/obj/structure/sign/poster/official/sweet_ginger_green
-	name = "Sweet Ginger Green"
-	desc = "Когда не знаешь что послушать за работой — врубай Зелёненьких!"
-	icon_state = "sweet_ginger_green"
-
-/obj/structure/sign/poster/official/vine_lady
-	name = "Vine Lady"
-	desc = "На плакате изображена деликатная дама с бокалом вина."
-	icon_state = "vine_lady"
-
-/obj/structure/sign/poster/official/a_broken_frame
-	name = "A Broken Frame"
-	desc = "\"Ищем постеры в журналах моды.\""
-	icon_state = "a_broken_frame"
-
-/obj/structure/sign/poster/official/fight_songs
-	name = "Fight Songs"
-	desc = "Критический удар по барабанным перепонкам."
-	icon_state = "fight_songs"
-
-/obj/structure/sign/poster/official/rolling_stones
-	name = "The Rolling Stones"
-	desc = "Куда они катятся?"
-	icon_state = "rolling_stones"
-
-/obj/structure/sign/poster/official/richard_d_james
-	name = "Ричард Д. Джеймс"
-	desc = "Какой красивый молодой мужчина. Интересно, какую музыку он слушает?"
-	icon_state = "richard_d_james"
-
-/obj/structure/sign/poster/official/alberto_balsalm
-	name = "Alberto Balsalm"
-	desc = "Лучший бальзам для волос во всей галактике!"
-	icon_state = "alberto_balsalm"
-
-/obj/structure/sign/poster/official/corploveyou
-	name = "Корпорация любит тебя!"
-	desc = "Постер с очаровательной ассистенткой показывающая сердечко, напоминание о том, что Корпорация любит своих сотрудников!"
-	icon_state = "corploveyou"
-
-/obj/structure/sign/poster/official/explosionsafe
-	name = "Взрывы? - чушь!"
-	desc = "Ассистентке нечего бояться лжи о подрывах станций! Так же как и вам!"
-	icon_state = "explosionsafe"
-
-/obj/structure/sign/poster/official/clearstation
-	name = "Чистая станция"
-	desc = "Чистая станция — здоровый экипаж! Грязь и мусор — долой! Мытые руки и опрятный вид — то, что надо!"
-	icon_state = "clearstation"
-
-/obj/structure/sign/poster/official/safebody
-	name = "Средства защиты"
-	desc = "Ассистентка надела каску, а вы? Защититесь от травмоопасной среды!"
-	icon_state = "safebody"
-
-/obj/structure/sign/poster/official/fitness
-	name = "Оставайся в форме"
-	desc = "Ассистентка упражняется, что делает её работу эффективней!"
-	icon_state = "fitness"
-
-/obj/structure/sign/poster/official/hardwork
-	name = "Тяжелый труд"
-	desc = "Без труда не выловишь карпа из космоса. Ассистентка готова к упорному труду для достижения цели!"
-	icon_state = "hardwork"
-
 // MARK: Secret posters
 
 /obj/structure/sign/poster/secret
@@ -1040,13 +846,13 @@
 	poster_item_desc = "Крайне Секретный постер."
 
 /obj/structure/sign/poster/secret/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "секретный постер",
 		GENITIVE = "секретного постера",
 		DATIVE = "секретному постеру",
 		ACCUSATIVE = "секретный постер",
 		INSTRUMENTAL = "секретным постером",
-		PREPOSITIONAL = "секретном постере",
+		PREPOSITIONAL = "секретном постере"
 	)
 
 /obj/structure/sign/poster/secret/lady
@@ -1055,7 +861,7 @@
 	icon_state = "poster1_secret"
 
 /obj/structure/sign/poster/secret/Viper
-	name = "Разыскивается офицер \"Синдиката\""
+	name = "Разыскивается офицер Синдиката"
 	desc = "На постере изображён: рыжеволосый мужчина в авиаторских очках, чуть за 30, с сигарой во рту, одетый в шубу поверх тактической водолазки."
 	icon_state = "poster2_secret"
 
@@ -1063,10 +869,5 @@
 	name = "Развратная ящерица"
 	desc = "Этот похабный постер изображает ящерицу, которая готовится к брачному периоду."
 	icon_state = "poster3_secret"
-
-/obj/structure/sign/poster/secret/sexiqm
-	name = "Скромная Квартермейстерша"
-	desc = "На постере изображена скромная девушка в платье Квартирмейстера, которая сидит на том самом ящике."
-	icon_state = "poster4_secret"
 
 #undef PLACE_SPEED

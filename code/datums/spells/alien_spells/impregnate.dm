@@ -16,6 +16,7 @@
 	T.allowed_type = /mob/living/carbon/human
 	return T
 
+
 /obj/effect/proc_holder/spell/alien_spell/impregnate/valid_target(target, mob/user)
 	if(user.pulling != target || !ishuman(target))
 		return FALSE
@@ -32,6 +33,7 @@
 		to_chat(user, span_warning("Victim is dead!"))
 		return FALSE
 	return TRUE
+
 
 /obj/effect/proc_holder/spell/alien_spell/impregnate/cast(list/targets, mob/user)
 	var/mob/living/carbon/human = targets[1]

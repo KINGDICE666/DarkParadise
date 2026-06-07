@@ -3,47 +3,45 @@
 	var/recharge_time = 0
 	/// The amount of time that must pass before a spell can be used again.
 	var/recharge_duration = 10 SECONDS // default spell cooldown.
+	/// Used for correct percentage with cooldown owerrides.
+	var/last_recharge_duration
 	/// Does it start off cooldown?
 	var/starts_off_cooldown = TRUE
 	/// Holds a ref to the spell.
 	var/obj/effect/proc_holder/spell/spell_parent
+
 
 /datum/spell_cooldown/Destroy()
 	spell_parent = null
 	STOP_PROCESSING(SSfastprocess, src)
 	return ..()
 
+
 /datum/spell_cooldown/proc/cooldown_init(obj/effect/proc_holder/spell/new_spell)
 	spell_parent = new_spell
 	if(!starts_off_cooldown)
 		start_recharge()
 
+
 /datum/spell_cooldown/proc/should_draw_cooldown()
 	return is_on_cooldown()
+
 
 /datum/spell_cooldown/proc/get_cooldown_alpha()
 	return 220 - 140 * get_availability_percentage()
 
+
 /datum/spell_cooldown/proc/is_on_cooldown()
 	return recharge_time > world.time
+
 
 /datum/spell_cooldown/proc/should_end_cooldown()
 	return !is_on_cooldown()
 
+
 /datum/spell_cooldown/proc/end_recharge()
 	return
 
-/**
- * Use this to change cooldown stats of the spell
- *
- * Arguments:
- * * recharge_reduction - Cooldown duration reduction multiplier in percentages
- */
-/datum/spell_cooldown/proc/change_cooldowns(recharge_reduction, delay_reduction, new_max_charges)
-	if(!recharge_reduction)
-		return
-
-	recharge_duration = round(clamp(recharge_duration - (spell_parent.base_cooldown * recharge_reduction), 0, spell_parent.base_cooldown), 0.5)
 
 /datum/spell_cooldown/process()
 	if(!spell_parent.action)
@@ -55,8 +53,8 @@
 
 	if(should_end_cooldown())
 		end_recharge()
-		spell_parent.action.UpdateButtonIcon()
 		return PROCESS_KILL
+
 
 /*
  * used to track how long is left on the spell cooldown
@@ -68,29 +66,32 @@
 	if(!is_on_cooldown()) // if off cooldown, we don't bother with the maths
 		return TRUE
 
-	return min(1, (recharge_duration - (recharge_time - world.time)) / recharge_duration)
+	return min(1, (last_recharge_duration - (recharge_time - world.time)) / last_recharge_duration)
+
 
 /datum/spell_cooldown/proc/get_recharge_time()
 	return world.time + recharge_duration
 
+
 /datum/spell_cooldown/proc/start_recharge(recharge_duration_override = 0)
 	if(recharge_duration_override)
 		recharge_time = world.time + recharge_duration_override
+		last_recharge_duration = recharge_duration_override
 	else
 		recharge_time = get_recharge_time()
+		last_recharge_duration = recharge_duration
+
 	if(spell_parent.action)
 		spell_parent.action.UpdateButtonIcon()
 		START_PROCESSING(SSfastprocess, src)
 
+
 /datum/spell_cooldown/proc/revert_cast()
 	recharge_time = world.time
+
 
 /datum/spell_cooldown/proc/cooldown_info()
 	var/dat = round(get_availability_percentage(), 0.01) * 100
 	return dat != 100 ? "[dat]%" : null
 
-/datum/spell_cooldown/proc/cooldown_last_duration()
-	var/time = round((recharge_time - world.time)/10, 0.1)
-	if(time > 0)
-		return "[time]"
-	return ""
+

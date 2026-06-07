@@ -34,10 +34,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/template_noop)
-"aA" = (
-/obj/machinery/firealarm/directional/north,
-/turf/simulated/floor/plating,
-/area/template_noop)
 "aM" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/railing,
@@ -91,10 +87,11 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	icon_state = "1-4"
+	icon_state = "1-4";
+	tag = "90Curve"
 	},
 /obj/effect/decal/cleanable/dust,
-/obj/effect/landmark/spawner/ninja_teleport,
+/obj/effect/landmark/ninja_teleport,
 /turf/simulated/floor/engine/cult,
 /area/template_noop)
 "cm" = (
@@ -183,7 +180,7 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "ea" = (
-/obj/effect/mapping_helpers/turfs/burn,
+/obj/effect/landmark/tiles/burnturf,
 /obj/machinery/constructable_frame/machine_frame,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -220,19 +217,17 @@
 /obj/item/pen{
 	pixel_y = 6
 	},
-/obj/structure/sign/poster/official/space_b{
-	pixel_y = 32
-	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkyellow"
 	},
 /area/template_noop)
 "eD" = (
-/obj/item/clipboard,
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/cobweb,
 /obj/effect/spawner/lootdrop/maintenance/double,
 /obj/structure/table/reinforced,
-/obj/effect/decal/cleanable/dirt,
+/obj/item/clipboard,
 /turf/simulated/floor/plasteel{
 	dir = 9;
 	icon_state = "darkyellow"
@@ -348,8 +343,10 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "hU" = (
-/obj/structure/extinguisher_cabinet/directional/north,
-/obj/effect/mapping_helpers/turfs/burn,
+/obj/structure/extinguisher_cabinet{
+	pixel_y = 28
+	},
+/obj/effect/landmark/tiles/burnturf,
 /obj/item/stamp/granted{
 	pixel_x = 3;
 	pixel_y = -4
@@ -364,7 +361,7 @@
 /turf/simulated/floor/plasteel,
 /area/template_noop)
 "ir" = (
-/obj/effect/mapping_helpers/turfs/burn,
+/obj/effect/landmark/tiles/burnturf,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
@@ -465,13 +462,6 @@
 /obj/structure/bookcase/random/fiction,
 /turf/simulated/floor/wood/dark,
 /area/template_noop)
-"kf" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/machinery/firealarm/directional/south,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/template_noop)
 "kl" = (
 /obj/structure/table/wood,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -527,7 +517,7 @@
 /area/template_noop)
 "ln" = (
 /obj/structure/reagent_dispensers/oil,
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -561,10 +551,10 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "mv" = (
+/obj/effect/decal/cleanable/dirt,
 /obj/machinery/computer/podtracker{
 	dir = 4
 	},
-/obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	dir = 10;
 	icon_state = "darkyellow"
@@ -745,8 +735,13 @@
 /area/template_noop)
 "pu" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/power/apc/worn_out/directional/north,
+/obj/machinery/power/apc/worn_out{
+	cell_type = 0;
+	dir = 1;
+	pixel_y = 26
+	},
 /obj/structure/cable{
+	d2 = 2;
 	icon_state = "0-2";
 	pixel_y = 1
 	},
@@ -795,13 +790,8 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "qP" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/sign/poster/official/air1{
-	pixel_y = 32
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/obj/structure/lattice/catwalk,
+/turf/space,
 /area/template_noop)
 "rq" = (
 /obj/effect/decal/cleanable/dirt,
@@ -833,7 +823,9 @@
 	},
 /area/template_noop)
 "rJ" = (
-/obj/machinery/alarm/directional/north,
+/obj/machinery/alarm{
+	pixel_y = 22
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -842,7 +834,11 @@
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
-/obj/machinery/power/apc/worn_out/directional/west,
+/obj/machinery/power/apc/worn_out{
+	cell_type = 0;
+	dir = 8;
+	pixel_x = -26
+	},
 /obj/effect/mob_spawn/ratdead,
 /turf/simulated/floor/plating,
 /area/template_noop)
@@ -897,7 +893,7 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "tw" = (
-/obj/effect/mapping_helpers/turfs/burn,
+/obj/effect/landmark/tiles/burnturf,
 /turf/simulated/floor/plating,
 /area/template_noop)
 "tB" = (
@@ -976,7 +972,8 @@
 /area/template_noop)
 "uv" = (
 /obj/structure/cable{
-	icon_state = "1-4"
+	icon_state = "1-4";
+	tag = "90Curve"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -1005,7 +1002,6 @@
 	pixel_y = 9
 	},
 /obj/effect/spawner/random_spawners/blood_5,
-/obj/machinery/firealarm/directional/south,
 /turf/simulated/floor/wood,
 /area/template_noop)
 "vU" = (
@@ -1031,7 +1027,7 @@
 	},
 /area/template_noop)
 "wd" = (
-/obj/effect/mapping_helpers/turfs/burn,
+/obj/effect/landmark/tiles/burnturf,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "vault"
@@ -1056,8 +1052,8 @@
 /turf/simulated/floor/wood,
 /area/template_noop)
 "wv" = (
-/obj/effect/map_effect/marker_helper/submap_def/delta/old_sm_room/pod_hangar,
 /obj/effect/map_effect/marker/mapmanip/submap/extract/delta/old_sm_room,
+/obj/effect/map_effect/marker_helper/submap_def/delta/old_sm_room/pod_hangar,
 /turf/simulated/wall/r_wall,
 /area/template_noop)
 "wD" = (
@@ -1071,6 +1067,13 @@
 "wH" = (
 /obj/effect/spawner/random_spawners/rat,
 /turf/simulated/floor/plating,
+/area/template_noop)
+"xK" = (
+/obj/structure/lattice/catwalk,
+/obj/structure/marker_beacon{
+	icon_state = "markerburgundy-on"
+	},
+/turf/space,
 /area/template_noop)
 "xP" = (
 /obj/structure/barricade/wooden,
@@ -1095,7 +1098,7 @@
 /area/template_noop)
 "yf" = (
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1124,8 +1127,11 @@
 	},
 /area/template_noop)
 "yW" = (
-/obj/structure/sign/vacuum/external{
-	layer = 4
+/obj/structure/sign/securearea{
+	desc = "A warning sign which reads 'EXTERNAL AIRLOCK'";
+	icon_state = "space";
+	layer = 4;
+	name = "EXTERNAL AIRLOCK"
 	},
 /turf/simulated/wall/r_wall,
 /area/template_noop)
@@ -1193,13 +1199,8 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "Cc" = (
-/obj/effect/decal/cleanable/cobweb,
-/obj/structure/sign/poster/official/space_a{
-	pixel_y = 32
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/obj/structure/sign/poster/official/air1,
+/turf/simulated/wall,
 /area/template_noop)
 "Ce" = (
 /obj/item/ammo_casing/shotgun,
@@ -1238,6 +1239,10 @@
 	icon_state = "vault"
 	},
 /area/template_noop)
+"Ej" = (
+/obj/structure/lattice,
+/turf/space,
+/area/template_noop)
 "Ew" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -1258,7 +1263,9 @@
 /turf/simulated/floor/plating,
 /area/template_noop)
 "EO" = (
-/obj/structure/extinguisher_cabinet/directional/south,
+/obj/structure/extinguisher_cabinet{
+	pixel_y = -28
+	},
 /turf/simulated/floor/plating,
 /area/template_noop)
 "EU" = (
@@ -1288,7 +1295,11 @@
 	icon_state = "0-4"
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/power/apc/worn_out/directional/north,
+/obj/machinery/power/apc/worn_out{
+	cell_type = 0;
+	dir = 1;
+	pixel_y = 26
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1359,6 +1370,9 @@
 /area/template_noop)
 "Hu" = (
 /obj/effect/map_effect/marker_helper/mapmanip/submap/edge{
+	dir = 1
+	},
+/obj/effect/map_effect/marker_helper/mapmanip/submap/edge{
 	dir = 8
 	},
 /turf/simulated/wall/r_wall,
@@ -1380,6 +1394,10 @@
 	icon_state = "dark"
 	},
 /area/template_noop)
+"HX" = (
+/obj/structure/sign/poster/official/space_a,
+/turf/simulated/wall/r_wall,
+/area/template_noop)
 "Ie" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -1397,10 +1415,17 @@
 	name = "Монтировка легендарная";
 	toolspeed = 0.35
 	},
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
-/obj/machinery/alarm/directional/east,
+/obj/machinery/alarm{
+	dir = 8;
+	pixel_x = 22
+	},
 /turf/simulated/floor/plasteel{
 	dir = 6;
 	icon_state = "neutral"
@@ -1412,7 +1437,9 @@
 	dir = 1
 	},
 /obj/effect/decal/cleanable/blood,
-/obj/machinery/alarm/directional/north,
+/obj/machinery/alarm{
+	pixel_y = 22
+	},
 /turf/simulated/floor/plating,
 /area/template_noop)
 "IN" = (
@@ -1423,7 +1450,8 @@
 	},
 /obj/item/ammo_casing/shotgun,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/template_noop)
 "Jh" = (
@@ -1442,6 +1470,10 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/wood/dark,
+/area/template_noop)
+"JE" = (
+/obj/structure/sign/poster/official/space_b,
+/turf/simulated/wall/r_wall,
 /area/template_noop)
 "JS" = (
 /obj/effect/decal/cleanable/dirt,
@@ -1471,7 +1503,7 @@
 /area/template_noop)
 "Ll" = (
 /obj/structure/dispenser/oxygen,
-/obj/effect/turf_decal/delivery/blue,
+/obj/effect/decal/warning_stripes/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1536,7 +1568,7 @@
 /area/template_noop)
 "Ng" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
-/obj/effect/turf_decal/delivery/blue,
+/obj/effect/decal/warning_stripes/blue,
 /obj/machinery/light,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -1589,6 +1621,7 @@
 /obj/structure/curtain/black,
 /obj/effect/spawner/random_spawners/grille_50,
 /obj/structure/cable{
+	d2 = 2;
 	icon_state = "0-2";
 	pixel_y = 1
 	},
@@ -1865,7 +1898,7 @@
 /turf/simulated/floor/wood,
 /area/template_noop)
 "Xt" = (
-/obj/structure/closet/walllocker/emerglocker/directional/east,
+/obj/structure/closet/walllocker/emerglocker/east,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2308,7 +2341,7 @@ tB
 tB
 tB
 kt
-aA
+Qc
 MU
 pp
 OJ
@@ -2965,13 +2998,13 @@ tB
 tB
 tB
 Hu
-bX
-yW
-ks
-ks
-ks
-MX
-bX
+Ej
+Ej
+xK
+qP
+qP
+xK
+Ej
 wv
 tB
 tB
@@ -2996,15 +3029,15 @@ tB
 tB
 tB
 tB
+HX
 bX
-Cc
-pg
-Xm
-pp
-pg
-Xm
-zY
-kt
+yW
+ks
+ks
+ks
+MX
+bX
+bX
 tB
 tB
 tB
@@ -3031,11 +3064,11 @@ tB
 bX
 eD
 mv
-pv
-pv
+Xm
+pp
 pg
-pg
-pv
+Xm
+zY
 kt
 tB
 tB
@@ -3060,7 +3093,7 @@ tB
 tB
 tB
 tB
-bX
+JE
 eq
 oo
 An
@@ -3259,7 +3292,7 @@ iv
 cI
 iR
 ZT
-kf
+pg
 kt
 tB
 tB
@@ -3348,8 +3381,8 @@ tB
 tB
 tB
 tB
-kt
-qP
+Cc
+pg
 Fk
 uo
 tC

@@ -7,7 +7,7 @@
  */
 /obj/machinery/tcomms/relay
 	name = "telecommunications relay"
-	desc = "Реле телекоммуникационной системы — узел маршрутизации сигнала, обеспечивающий связь на объекте посредством подключения к удалённому ядру телекоммуникаций. \
+	desc = "Реле телекоммуникационной системы - узел маршрутизации сигнала, обеспечивающий связь на объекте посредством подключения к удалённому ядру телекоммуникаций. \
 			Представляет собой массивное устройство с металлическим корпусом, оснащённым защитой от электромагнитных помех, \
 			антеннами для передачи сигнала, а также дисплеем, отображающим данные о текущих подключениях и конфигурации системы."
 	gender = NEUTER
@@ -24,13 +24,13 @@
 	var/hidden_link = FALSE
 
 /obj/machinery/tcomms/relay/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "реле телекоммуникаций",
 		GENITIVE = "реле телекоммуникаций",
 		DATIVE = "реле телекоммуникаций",
 		ACCUSATIVE = "реле телекоммуникаций",
 		INSTRUMENTAL = "реле телекоммуникаций",
-		PREPOSITIONAL = "реле телекоммуникаций",
+		PREPOSITIONAL = "реле телекоммуникаций"
 	)
 
 /**
@@ -80,6 +80,7 @@
 	. = ..()
 	if(linked_core)
 		linked_core.refresh_zlevels()
+
 
 /**
  * Power-on checker
@@ -152,7 +153,7 @@
 /obj/machinery/tcomms/relay/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "TcommsRelay", DECLENT_RU_CAP(src, NOMINATIVE))
+		ui = new(user, src, "TcommsRelay", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
 
 /obj/machinery/tcomms/relay/ui_data(mob/user)
@@ -169,11 +170,11 @@
 	// Only send linked tab stuff if we are linked. This saves on sending overhead.
 	if(linked)
 		data["linked_core_id"] = linked_core.network_id
-		data["linked_core_addr"] = linked_core.UID()
+		data["linked_core_addr"] = "\ref[linked_core]"
 	else
 		var/list/cores = list()
 		for(var/obj/machinery/tcomms/core/C in GLOB.tcomms_machines)
-			cores += list(list("addr" = C.UID(), "net_id" = C.network_id, "sector" = C.loc.z))
+			cores += list(list("addr" = "\ref[C]", "net_id" = C.network_id, "sector" = C.loc.z))
 		data["cores"] = cores
 
 	return data
@@ -223,7 +224,7 @@
 		if("link")
 			if(linked)
 				return
-			var/obj/machinery/tcomms/core/C = locateUID(params["addr"])
+			var/obj/machinery/tcomms/core/C = locate(params["addr"])
 			if(istype(C, /obj/machinery/tcomms/core))
 				var/user_pass = tgui_input_text(usr, "Введите пароль для привязки к ядру", "Ввод пароля")
 				// Check the password

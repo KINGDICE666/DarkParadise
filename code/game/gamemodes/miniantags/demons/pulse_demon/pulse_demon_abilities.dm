@@ -21,9 +21,8 @@
 	var/requires_area = FALSE
 	base_cooldown = 20 SECONDS
 
-/obj/effect/proc_holder/spell/pulse_demon/Initialize(mapload)
+/obj/effect/proc_holder/spell/pulse_demon/New()
 	. = ..()
-
 	update_info()
 
 /obj/effect/proc_holder/spell/pulse_demon/proc/update_info()
@@ -33,7 +32,7 @@
 	else
 		name = "[initial(name)][cast_cost == 0 ? "" : " ([format_si_suffix(cast_cost)]W)"]"
 		desc = "[initial(desc)][spell_level == level_max ? "" : " It costs [format_si_suffix(upgrade_cost)]W to upgrade."]"
-	action.name = name
+	action.button.name = name
 	action.desc = desc
 	action.UpdateButtonIcon()
 
@@ -249,7 +248,7 @@
 	create_attack_logs = FALSE
 	var/base_message = "see messages you shouldn't!"
 
-/obj/effect/proc_holder/spell/pulse_demon/toggle/Initialize(mapload, initstate = FALSE)
+/obj/effect/proc_holder/spell/pulse_demon/toggle/New(initstate = FALSE)
 	. = ..()
 	do_toggle(initstate, null)
 

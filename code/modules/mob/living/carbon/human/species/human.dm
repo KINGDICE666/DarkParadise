@@ -20,8 +20,9 @@
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/human
 
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 	//Has standard darksight of 2.
+
 
 /datum/species/human/gain_muscles(mob/living/target, datum/strength_level/default, max_level, can_become_stronger)
 	..(target, target.gender == FEMALE ? default.prev_level : default, max_level, can_become_stronger)

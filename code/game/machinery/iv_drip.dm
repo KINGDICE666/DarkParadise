@@ -6,8 +6,6 @@
 	icon = 'icons/goonstation/objects/iv.dmi'
 	icon_state = "stand"
 	mouse_drag_pointer = MOUSE_ACTIVE_POINTER
-	use_power = NO_POWER_USE
-	interaction_flags_mouse_drop = NEED_HANDS
 	var/obj/item/reagent_containers/iv_bag/bag = null
 
 /obj/machinery/iv_drip/process()
@@ -16,29 +14,28 @@
 		return
 	return PROCESS_KILL
 
+
 /obj/machinery/iv_drip/update_overlays()
 	. = ..()
 	if(bag)
 		. += "hangingbag"
 		if(bag.reagents.total_volume)
-			var/mutable_appearance/filling = mutable_appearance('icons/goonstation/objects/iv.dmi', "hangingbag-fluid")
-			filling.color = get_color_matrix_from_reagents(bag.reagents.reagent_list)
+			var/image/filling = image('icons/goonstation/objects/iv.dmi', src, "hangingbag-fluid")
+			filling.icon += mix_color_from_reagents(bag.reagents.reagent_list)
 			. += filling
 
-/obj/machinery/iv_drip/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(user.incapacitated())
-		return
 
-	if(!ishuman(user) || !ishuman(over_object))
-		to_chat(user, span_warning("You can't do that!"))
-		return
+/obj/machinery/iv_drip/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || !ishuman(usr) || !ishuman(over_object) || !Adjacent(over_object) || !usr.Adjacent(over_object))
+		return FALSE
 
-	add_fingerprint(user)
+	add_fingerprint(usr)
 	if(!bag)
-		to_chat(user, span_warning("There's no IV bag connected to [src]!"))
-		return
-	bag.attack(over_object, user)
+		to_chat(usr, span_warning("There's no IV bag connected to [src]!"))
+		return FALSE
+	bag.attack(over_object, usr)
 	START_PROCESSING(SSmachines, src)
+
 
 /obj/machinery/iv_drip/attack_hand(mob/user)
 	if(bag)
@@ -49,7 +46,8 @@
 		bag = null
 		update_icon(UPDATE_OVERLAYS)
 
-/obj/machinery/iv_drip/attackby(obj/item/I, mob/user, list/modifiers)
+
+/obj/machinery/iv_drip/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
@@ -68,10 +66,11 @@
 
 	if(bag && istype(I, /obj/item/reagent_containers))
 		add_fingerprint(user)
-		I.melee_attack_chain(user, bag, modifiers)
+		I.melee_attack_chain(user, bag, params)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/iv_drip/deconstruct(disassembled = TRUE)
 	if(!(obj_flags & NODECONSTRUCT))

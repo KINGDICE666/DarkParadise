@@ -54,6 +54,7 @@
 	total_size++
 	return TRUE
 
+
 /**
  * Removes a fluid node from this fluid group.
  *
@@ -74,6 +75,7 @@
 	nodes -= node
 	node.group = null
 	return TRUE // Note: does not decrement total size since we don't want the group to expand again when it begins to dissipate or it will never stop.
+
 
 /**
  * A particle effect that belongs to a fluid group.
@@ -105,6 +107,7 @@
  */
 /obj/effect/particle_effect/fluid/proc/spread()
 	CRASH("The base fluid spread proc is not implemented and should not be called. You called it.")
+
 
 /**
  * A factory which produces fluid groups.

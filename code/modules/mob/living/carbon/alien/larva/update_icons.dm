@@ -3,6 +3,7 @@
 	cut_overlays()
 	update_icons()
 
+
 /mob/living/carbon/alien/larva/update_icons()
 	var/state = 0
 	switch(evolution_points)
@@ -25,9 +26,11 @@
 	else
 		icon_state = "larva[state]"
 
+
 /mob/living/carbon/alien/larva/update_transform() //All this is handled in update_icons()
 	. = ..()
 	update_icons()
+
 
 /mob/living/carbon/alien/larva/lying_angle_on_lying_down(new_lying_angle)
 	return // Larvas don't rotate on lying down, they have their own custom icons.

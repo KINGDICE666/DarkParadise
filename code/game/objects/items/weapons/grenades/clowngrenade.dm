@@ -9,13 +9,13 @@
 	var/affected_area = 2
 
 /obj/item/grenade/clown_grenade/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "банановая граната",
 		GENITIVE = "банановой гранаты",
 		DATIVE = "банановой гранате",
 		ACCUSATIVE = "банановую гранату",
 		INSTRUMENTAL = "банановой гранатой",
-		PREPOSITIONAL = "банановой гранате",
+		PREPOSITIONAL = "банановой гранате"
 	)
 
 /obj/item/grenade/clown_grenade/prime()
@@ -37,7 +37,7 @@
 	qdel(src)
 	return
 
-/obj/item/grown/bananapeel/traitorpeel/Initialize(mapload, obj/item/seeds/new_seed)
+/obj/item/grown/bananapeel/traitorpeel/New(newloc, obj/item/seeds/new_seed)
 	. = ..()
 	// The reason this AddComponent is here and not in ComponentInitialize() is because if it's put there, it will be ran before the parent New proc for /grown types.
 	// And then be overriden by the generic component placed onto it by the `/datum/plant_gene/trait/slip`.

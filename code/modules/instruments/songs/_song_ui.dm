@@ -74,7 +74,9 @@
 		if("edit")
 			editing = !editing
 		if("repeat") //Changing this from a toggle to a number of repeats to avoid infinite loops.
-			set_repeats(clamp(round(text2num(params["new"])), 0, max_repeats))
+			if(playing)
+				return //So that people cant keep adding to repeat. If the do it intentionally, it could result in the server crashing.
+			repeat = clamp(round(text2num(params["new"])), 0, max_repeats)
 		if("tempo")
 			tempo = sanitize_tempo(text2num(params["new"]))
 		if("play")
@@ -171,7 +173,7 @@
 			tempo = sanitize_tempo(5) // default 120 BPM
 		if(length(lines_to_add) > MUSIC_MAXLINES)
 			to_chat(user, "Too many lines!")
-			lines_to_add.len = MUSIC_MAXLINES
+			lines_to_add.Cut(MUSIC_MAXLINES + 1)
 		var/linenum = 1
 		for(var/l in lines_to_add)
 			if(length_char(l) > MUSIC_MAXLINECHARS)

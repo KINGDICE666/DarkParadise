@@ -1,6 +1,14 @@
 /obj/machinery/computer/telescience
 	name = "telepad control console"
 	desc = "Используется для телепортации объектов на телепад и обратно."
+	ru_names = list(
+		NOMINATIVE = "консоль управления телепадом",
+		GENITIVE = "консоли управления телепадом",
+		DATIVE = "консоли управления телепадом",
+		ACCUSATIVE = "консоль управления телепадом",
+		INSTRUMENTAL = "консолью управления телепадом",
+		PREPOSITIONAL = "консоли управления телепадом"
+	)
 	icon_keyboard = "telesci_key"
 	icon_screen = "telesci"
 	circuit = /obj/item/circuitboard/telesci_console
@@ -30,16 +38,6 @@
 	var/max_crystals = 4
 	var/obj/item/gps/inserted_gps
 
-/obj/machinery/computer/telescience/get_ru_names()
-	return alist(
-		NOMINATIVE = "консоль управления телепадом",
-		GENITIVE = "консоли управления телепадом",
-		DATIVE = "консоли управления телепадом",
-		ACCUSATIVE = "консоль управления телепадом",
-		INSTRUMENTAL = "консолью управления телепадом",
-		PREPOSITIONAL = "консоли управления телепадом",
-	)
-
 /obj/machinery/computer/telescience/Initialize(mapload)
 	. = ..()
 	recalibrate()
@@ -53,13 +51,14 @@
 
 /obj/machinery/computer/telescience/examine(mob/user)
 	. = ..()
-	. += span_notice("В слотах для кристаллов [crystals ? "[crystals] кристалл[DECL_CREDIT(crystals)]" : "нет кристаллов"] блюспейса.")
+	. += span_notice("В слотах для кристаллов [crystals ? "[crystals] кристалл[declension_ru(crystals,"","а","ов")]" : "нет кристаллов"] блюспейса.")
+
 
 /obj/machinery/computer/telescience/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(isbluespacecrystal(I))
+	if(istype(I, /obj/item/stack/ore/bluespace_crystal))
 		add_fingerprint(user)
 		var/obj/item/stack/ore/bluespace_crystal/crystal = I
 		if(crystals >= max_crystals)
@@ -71,7 +70,7 @@
 		crystals++
 		updateUsrDialog()
 		user.visible_message(
-			span_notice("[user] вставля[PLUR_ET_YUT(user)] [crystal.singular_name] в слот для кристаллов [src]."),
+			span_notice("[user] вставля[pluralize_ru(user.gender,"ет","ют")] [crystal.singular_name] в слот для кристаллов [src]."),
 			span_notice("Вы вставляете [crystal.singular_name] в слот для кристаллов [src].")
 		)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
@@ -86,15 +85,16 @@
 		inserted_gps = I
 		updateUsrDialog()
 		user.visible_message(
-			span_notice("[user] вставляет [I.declent_ru(ACCUSATIVE)] в слот для GPS устройства [declent_ru(GENITIVE)]."),
-			span_notice("Вы вставляете [I.declent_ru(ACCUSATIVE)] в слот для GPS устройства [declent_ru(GENITIVE)].")
+			span_notice("[user] вставляет [I.declent_ru(ACCUSATIVE)] в слот для GPS устройства [src.declent_ru(GENITIVE)]."),
+			span_notice("Вы вставляете [I.declent_ru(ACCUSATIVE)] в слот для GPS устройства [src.declent_ru(GENITIVE)].")
 		)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
 
+
 /obj/machinery/computer/telescience/multitool_act(mob/living/user, obj/item/I)
-	if(!ismultitool(I))
+	if(!istype(I, /obj/item/multitool))
 		return FALSE
 	. = TRUE
 	var/obj/item/multitool/multitool = I
@@ -108,6 +108,7 @@
 	multitool.buffer = null
 	updateUsrDialog()
 	to_chat(user, span_notice("Вы загрузили данные из буфера [multitool.declent_ru(GENITIVE)]."))
+
 
 /obj/machinery/computer/telescience/emag_act(mob/user)
 	if(!emagged)
@@ -139,22 +140,22 @@
 			t += "<a href='byond://?src=[UID()];ejectGPS=1'>Eject GPS</a>"
 			t += "<a href='byond://?src=[UID()];setMemory=1'>Set GPS memory</a>"
 		else
-			t += span_linkoff("Eject GPS")
-			t += span_linkoff("Set GPS memory")
+			t += "<span class='linkOff'>Eject GPS</span>"
+			t += "<span class='linkOff'>Set GPS memory</span>"
 		t += "<div class='statusDisplay'>[temp_msg]</div><br>"
 		t += "<a href='byond://?src=[UID()];setrotation=1'>Set Bearing</a>"
 		t += "<div class='statusDisplay'>[rotation] degrees</div>"
 		t += "<a href='byond://?src=[UID()];setangle=1'>Set Elevation</a>"
 		t += "<div class='statusDisplay'>[angle] degrees</div>"
-		t += span_linkon("Set Power")
+		t += "<span class='linkOn'>Set Power</span>"
 		t += "<div class='statusDisplay'>"
 
-		for(var/i = 1; i <= length(power_options); i++)
+		for(var/i = 1; i <= power_options.len; i++)
 			if(crystals + telepad.efficiency < i)
-				t += span_linkoff("[power_options[i]]")
+				t += "<span class='linkOff'>[power_options[i]]</span>"
 				continue
 			if(power == power_options[i])
-				t += span_linkon("[power_options[i]]")
+				t += "<span class='linkOn'>[power_options[i]]</span>"
 				continue
 			t += "<a href='byond://?src=[UID()];setpower=[i]'>[power_options[i]]</a>"
 		t += "</div>"
@@ -226,6 +227,7 @@
 			teleporting = 1
 			temp_msg = "Зарядка кристаллов блюспейса.<br>Подождите."
 
+
 		spawn(round(proj_data.time) * 10) // in seconds
 			if(!telepad)
 				return
@@ -280,7 +282,7 @@
 					log_msg += "[key_name(T)], "
 				else
 					log_msg += "[ROI.name]"
-					if(iscloset(ROI))
+					if(istype(ROI, /obj/structure/closet))
 						var/obj/structure/closet/C = ROI
 						log_msg += " ("
 						for(var/atom/movable/Q as mob|obj in C)
@@ -321,6 +323,7 @@
 		telefail()
 		temp_msg = "ERROR! Sector must be greater than or equal to 2, and less than or equal to [world.maxz]."
 		return
+
 
 	var/truePower = clamp(power + power_off, 1, 1000)
 	var/trueRotation = rotation + rotation_off

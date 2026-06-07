@@ -146,27 +146,19 @@
 
 /obj/machinery/door/airlock/uranium
 	name = "uranium airlock"
+	desc = "And they said I was crazy."
 	icon = 'icons/obj/doors/airlocks/station/uranium.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_uranium
 	paintable = FALSE
-	/// Cooldown for radiation pulses
-	COOLDOWN_DECLARE(radiation_cooldown)
-	/// Is this airlock actually radioactive?
-	var/actually_radioactive = TRUE
+	var/event_step = 20
 
-/obj/machinery/door/airlock/uranium/process()
-	if(actually_radioactive && COOLDOWN_FINISHED(src, radiation_cooldown))
-		if(prob(50))
-			radiate()
-		COOLDOWN_START(src, radiation_cooldown, 20)
-
-/obj/machinery/door/airlock/uranium/proc/radiate()
-	radiation_pulse(
-		src,
-		max_range = 2,
-		threshold = RAD_LIGHT_INSULATION,
-		chance = URANIUM_IRRADIATION_CHANCE,
-		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
+/obj/machinery/door/airlock/uranium/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/radioactivity, \
+				rad_per_cycle = 15, \
+				rad_cycle_chance = 50, \
+				rad_cycle = 2 SECONDS, \
+				rad_cycle_radius = 3 \
 	)
 
 /obj/machinery/door/airlock/uranium/glass
@@ -180,7 +172,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_plasma
 	paintable = FALSE
 
-/obj/machinery/door/airlock/plasma/temperature_expose(exposed_temperature, exposed_volume)
+/obj/machinery/door/airlock/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature > 300)
 		PlasmaBurn(exposed_temperature)
@@ -200,15 +192,20 @@
 	DA.update_appearance(UPDATE_NAME|UPDATE_ICON)
 	qdel(src)
 
+
 /obj/machinery/door/airlock/plasma/attackby(obj/item/I, mob/user, params)
-	if(I.get_temperature() > 300)
+	if(I.get_heat() > 300)
 		add_fingerprint(user)
 		add_attack_logs(user, src, "ignited using [I]", ATKLOG_FEW)
 		investigate_log("was <font color='red'><b>ignited</b></font> by [key_name_log(user)]", INVESTIGATE_ATMOS)
-		ignite(I.get_temperature())
+		ignite(I.get_heat())
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
+
+/obj/machinery/door/airlock/plasma/BlockSuperconductivity() //we don't stop the heat~
+	return 0
 
 /obj/machinery/door/airlock/plasma/glass
 	opacity = FALSE
@@ -342,6 +339,7 @@
 		return RCD_NO_ACT
 	. = ..()
 
+
 //////////////////////////////////
 /*
 	Hatch Airlocks
@@ -385,6 +383,7 @@
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	is_special = TRUE
 
+
 /obj/machinery/door/airlock/hatch/gamma/attackby(obj/item/I, mob/user, params)
 	if(!issilicon(user) && isElectrified() && shock(user, 75))
 		add_fingerprint(user)
@@ -404,6 +403,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/door/airlock/hatch/gamma/welder_act(mob/user, obj/item/I)
 	if(shock_user(user, 75))
@@ -477,6 +477,7 @@
 
 	return ..()
 
+
 /obj/machinery/door/airlock/highsecurity/red/welder_act(mob/user, obj/item/I)
 	if(shock_user(user, 75))
 		return
@@ -490,6 +491,7 @@
 					span_notice("You [welded ? null : "un"]weld [src]!"),\
 					span_italics("You hear welding."))
 	update_icon()
+
 
 //////////////////////////////////
 /*
@@ -670,7 +672,7 @@
 	desc = "An airlock hastily corrupted by blood magic, it is unusually brittle in this state."
 	normal_integrity = 150
 	damage_deflection = 5
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
 
 //////////////////////////////////
 /*
@@ -732,7 +734,7 @@
 	desc = "An airlock made from pure-hands into some brass moving structure."
 	normal_integrity = 150
 	damage_deflection = 5
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
 
 //////////////////////////////////
 /*
@@ -798,6 +800,7 @@
 	icon = 'icons/obj/doors/airlocks/syndicate/medical.dmi'
 	assemblytype = /obj/structure/door_assembly/syndicate/door_assembly_syndie_med
 	normal_integrity = 400
+
 
 /obj/machinery/door/airlock/syndicate/medical/glass
 	opacity = FALSE
@@ -890,6 +893,7 @@
 	note_overlay_file = 'icons/obj/doors/airlocks/glass_large/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/multi_tile
 	paintable = FALSE
+
 
 /obj/machinery/door/airlock/multi_tile/narsie_act()
 	return

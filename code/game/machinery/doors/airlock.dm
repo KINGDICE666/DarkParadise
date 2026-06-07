@@ -15,26 +15,28 @@
 	shock - has a chance of electrocuting its target.
 */
 
+
 // Wires for the airlock are located in the datum folder, inside the wires datum folder.
-#define AIRLOCK_CLOSED 1
-#define AIRLOCK_CLOSING 2
-#define AIRLOCK_OPEN 3
-#define AIRLOCK_OPENING 4
-#define AIRLOCK_DENY 5
-#define AIRLOCK_EMAG 6
 
-#define AIRLOCK_SECURITY_NONE 0 //Normal airlock //Wires are not secured
-#define AIRLOCK_SECURITY_METAL 1 //Medium security airlock //There is a simple metal over wires (use welder)
-#define AIRLOCK_SECURITY_PLASTEEL_I_S 2 //Sliced inner plating (use crowbar), jumps to 0
-#define AIRLOCK_SECURITY_PLASTEEL_I 3 //Removed outer plating, second layer here (use welder)
-#define AIRLOCK_SECURITY_PLASTEEL_O_S 4 //Sliced outer plating (use crowbar)
-#define AIRLOCK_SECURITY_PLASTEEL_O 5 //There is first layer of plasteel (use welder)
-#define AIRLOCK_SECURITY_PLASTEEL 6 //Max security airlock //Fully secured wires (use wirecutters to remove grille, that is electrified)
+#define AIRLOCK_CLOSED	1
+#define AIRLOCK_CLOSING	2
+#define AIRLOCK_OPEN	3
+#define AIRLOCK_OPENING	4
+#define AIRLOCK_DENY	5
+#define AIRLOCK_EMAG	6
 
-#define AIRLOCK_INTEGRITY_N 300 // Normal airlock integrity
+#define AIRLOCK_SECURITY_NONE			0 //Normal airlock				//Wires are not secured
+#define AIRLOCK_SECURITY_METAL			1 //Medium security airlock		//There is a simple metal over wires (use welder)
+#define AIRLOCK_SECURITY_PLASTEEL_I_S	2								//Sliced inner plating (use crowbar), jumps to 0
+#define AIRLOCK_SECURITY_PLASTEEL_I		3								//Removed outer plating, second layer here (use welder)
+#define AIRLOCK_SECURITY_PLASTEEL_O_S	4								//Sliced outer plating (use crowbar)
+#define AIRLOCK_SECURITY_PLASTEEL_O		5								//There is first layer of plasteel (use welder)
+#define AIRLOCK_SECURITY_PLASTEEL		6 //Max security airlock		//Fully secured wires (use wirecutters to remove grille, that is electrified)
+
+#define AIRLOCK_INTEGRITY_N			 300 // Normal airlock integrity
 #define AIRLOCK_INTEGRITY_MULTIPLIER 1.5 // How much reinforced doors health increases
-#define AIRLOCK_DAMAGE_DEFLECTION_N 21 // Normal airlock damage deflection
-#define AIRLOCK_DAMAGE_DEFLECTION_R 30 // Reinforced airlock damage deflection
+#define AIRLOCK_DAMAGE_DEFLECTION_N  21  // Normal airlock damage deflection
+#define AIRLOCK_DAMAGE_DEFLECTION_R  30  // Reinforced airlock damage deflection
 
 #define UI_GREEN 2
 #define UI_ORANGE 1
@@ -55,11 +57,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	explosion_block = 1
 	assemblytype = /obj/structure/door_assembly
 	siemens_strength = 1
-	hud_possible = list(DIAG_AIRLOCK_HUD)
 	smoothing_groups = SMOOTH_GROUP_AIRLOCK
 	interaction_flags_click = ALLOW_SILICON_REACH
-	cares_about_temperature = TRUE
-	rad_insulation = RAD_MEDIUM_INSULATION
 
 	var/security_level = 0 //How much are wires secured
 	var/aiControlDisabled = AICONTROLDISABLED_OFF
@@ -83,8 +82,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	var/obj/item/access_control/access_electronics
 	var/has_access_electronics = TRUE
 	var/shockCooldown = FALSE //Prevents multiple shocks from happening
-	/// Any papers pinned to the airlock
-	var/obj/item/note
+	var/obj/item/note //Any papers pinned to the airlock
 	var/previous_airlock = /obj/structure/door_assembly //what airlock assembly mineral plating was applied to
 	var/airlock_material //material of inner filling; if its an airlock with glass, this should be set to "glass"
 	var/overlays_file = 'icons/obj/doors/airlocks/station/overlays.dmi'
@@ -110,7 +108,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	var/shockedby = list()
 	///the command the door is currently attempting to complete
 	var/cur_command = null
-	var/heat_resistance = 1500
 
 /obj/machinery/door/airlock/welded
 	welded = TRUE
@@ -166,12 +163,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(damage_deflection == AIRLOCK_DAMAGE_DEFLECTION_N && security_level > AIRLOCK_SECURITY_METAL)
 		damage_deflection = AIRLOCK_DAMAGE_DEFLECTION_R
 
-	prepare_huds()
-	var/datum/atom_hud/data/diagnostic/diag_hud = GLOB.huds[DATA_HUD_DIAGNOSTIC]
-	diag_hud.add_atom_to_hud(src)
-
-	diag_hud_set_electrified()
-
 	update_icon()
 
 // Remove shielding to prevent metal/plasteel duplication
@@ -204,8 +195,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(SSradio)
 		SSradio.remove_object(src, frequency)
 	radio_connection = null
-	var/datum/atom_hud/data/diagnostic/diag_hud = GLOB.huds[DATA_HUD_DIAGNOSTIC]
-	diag_hud.remove_atom_from_hud(src)
 	return ..()
 
 /obj/machinery/door/airlock/handle_atom_del(atom/A)
@@ -213,15 +202,13 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		note = null
 		update_icon()
 
-/obj/machinery/door/airlock/mouse_drop_receive(atom/dropping, mob/user, params)
+/obj/machinery/door/airlock/MouseDrop_T(atom/dropping, mob/user, params)
 	. = ..()
+
 	//Adds the component only once. We do it here & not in Initialize() because there are tons of airlocks & we don't want to add to their init times
 	LoadComponent(/datum/component/leanable, dropping)
 
 /obj/machinery/door/airlock/bumpopen(mob/living/user) //Airlocks now zap you when you 'bump' them open when they're electrified. --NeoFite
-	if(HAS_TRAIT(user, TRAIT_AIRLOCK_HIT)) // Let's don't change way it was working before me.
-		headbutt_airlock(user)
-
 	if(!issilicon(user))
 		if(isElectrified())
 			if(justzap)
@@ -230,9 +217,10 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 				justzap = TRUE
 				addtimer(VARSET_CALLBACK(src, justzap, FALSE), 1 SECONDS)
 				return
-		else if(!operating && user.AmountHallucinate() > 50 SECONDS && prob(10) && user.electrocute_act(50, src, flags = SHOCK_ILLUSION))
+		else if(!operating && user.AmountHallucinate() > 50 SECONDS && prob(10) && user.electrocute_act(50, "шлюза", flags = SHOCK_ILLUSION))
 			return
 	return ..()
+
 
 /obj/machinery/door/airlock/proc/isElectrified()
 	if(electrified_until != 0)
@@ -324,8 +312,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		electrified_until = duration == -1 ? -1 : world.time + duration SECONDS
 		if(duration != -1)
 			electrified_timer = addtimer(CALLBACK(src, PROC_REF(electrify), 0), duration SECONDS, TIMER_UNIQUE | TIMER_STOPPABLE)
-
-	diag_hud_set_electrified()
 	if(feedback && message)
 		to_chat(user, message)
 
@@ -346,6 +332,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 //Checks if the user can get shocked and shocks him if it can. Returns TRUE if it happened
 /obj/machinery/door/airlock/proc/shock_user(mob/user, prob)
 	return (!issilicon(user) && isElectrified() && shock(user, prob))
+
 
 /obj/machinery/door/airlock/update_icon(state = NONE, override = FALSE)
 	if(operating && !override)
@@ -368,6 +355,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 
 /obj/machinery/door/airlock/update_icon_state()
 	return
+
 
 /obj/machinery/door/airlock/proc/set_airlock_overlays(state)
 	var/image/frame_overlay
@@ -557,12 +545,14 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		underlays += sparks_underlay
 		old_sparks_underlay = sparks_underlay
 
+
 /proc/get_airlock_overlay(icon_state, icon_file)
 	var/iconkey = "[icon_state][icon_file]"
 	if(GLOB.airlock_overlays[iconkey])
 		return GLOB.airlock_overlays[iconkey]
 	GLOB.airlock_overlays[iconkey] = image(icon_file, icon_state)
 	return GLOB.airlock_overlays[iconkey]
+
 
 /proc/get_airlock_emissive_underlay(icon_state, icon_file, atom/offset_spokesman)
 	var/turf/our_turf = get_turf(offset_spokesman)
@@ -571,6 +561,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		return GLOB.airlock_emissive_underlays[iconkey]
 	GLOB.airlock_emissive_underlays[iconkey] = emissive_appearance(icon_file, icon_state, offset_spokesman = offset_spokesman)
 	return GLOB.airlock_emissive_underlays[iconkey]
+
 
 /obj/machinery/door/airlock/do_animate(animation)
 	switch(animation)
@@ -584,6 +575,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 				playsound(src, doorDeni, 50, FALSE, 3)
 				sleep(6)
 				update_icon(AIRLOCK_CLOSED)
+
 
 /// Called when a player uses an airlock painter on this airlock
 /obj/machinery/door/airlock/proc/change_paintjob(obj/item/airlock_painter/painter, mob/user)
@@ -616,6 +608,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		overlays_file = initial(airlock.overlays_file)
 		assemblytype = initial(airlock.assemblytype)
 		update_icon()
+
 
 /obj/machinery/door/airlock/examine(mob/user)
 	. = ..()
@@ -666,6 +659,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(!ui)
 		ui = new(user, src, "AiAirlock", name)
 		ui.open()
+
 
 /obj/machinery/door/airlock/ui_data(mob/user)
 	var/list/data = list()
@@ -766,26 +760,28 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		. = list()
 		set_light(l_range = 1, l_power = 1, l_color = "#00FF00", l_on = TRUE)
 		if(unres_sides & NORTH)
-			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_n") //layer=src.layer+1
-			I.pixel_z = 32
+			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_n") //layer=src.layer+1
+			I.pixel_y = 32
 			. += I
 		if(unres_sides & SOUTH)
-			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_s") //layer=src.layer+1
-			I.pixel_z = -32
+			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_s") //layer=src.layer+1
+			I.pixel_y = -32
 			. += I
 		if(unres_sides & EAST)
-			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_e") //layer=src.layer+1
-			I.pixel_w = 32
+			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_e") //layer=src.layer+1
+			I.pixel_x = 32
 			. += I
 		if(unres_sides & WEST)
-			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_w") //layer=src.layer+1
-			I.pixel_w = -32
+			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_w") //layer=src.layer+1
+			I.pixel_x = -32
 			. += I
+
 
 /obj/machinery/door/airlock/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(isElectrified() && density && isitem(mover) && (mover.flags & CONDUCT))
 		do_sparks(5, TRUE, src)
+
 
 /obj/machinery/door/airlock/attack_animal(mob/user)
 	. = ..()
@@ -796,12 +792,14 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(!istype(user, /mob/living/simple_animal/hostile/gorilla) || !density || operating || locked || welded || arePowerSystemsOn())
 		return .
 
+
 	open(TRUE)
 	user.visible_message(
 		span_warning("[user] grabs the door with both hands and opens it with ease!"),
 		span_notice("You easily open depowered door."),
 		span_italics("You hear groaning metal..."),
 	)
+
 
 /obj/machinery/door/airlock/attack_animal(mob/user)
 	. = ..()
@@ -835,11 +833,12 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	else
 		..()
 
+
 //Checks if the user can headbutt the airlock and does it if it can. Returns TRUE if it happened
 /obj/machinery/door/airlock/proc/headbutt_airlock(mob/user)
 	if(ishuman(user) && prob(40) && density)
 		var/mob/living/carbon/human/H = user
-		if((H.getBrainLoss() >= 60 || HAS_TRAIT(user, TRAIT_AIRLOCK_HIT)) && Adjacent(user))
+		if(H.getBrainLoss() >= 60 && Adjacent(user))
 			playsound(loc, 'sound/effects/bang.ogg', 25, TRUE)
 			if(!istype(H.head, /obj/item/clothing/head/helmet))
 				visible_message(span_warning("[user] headbutts the airlock."))
@@ -1004,6 +1003,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		to_chat(user, span_notice("Emergency access has been disabled."))
 	update_icon()
 
+
 /obj/machinery/door/airlock/attackby(obj/item/I, mob/user, params)
 	if(!headbutt_shock_check(user))
 		add_fingerprint(user)
@@ -1083,6 +1083,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 
 	return ..()
 
+
 /obj/machinery/door/airlock/screwdriver_act(mob/user, obj/item/I)
 	if(!headbutt_shock_check(user))
 		return
@@ -1108,10 +1109,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		if(I.use_tool(src, user, 40, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL_I_S)
 				return
-			user.visible_message(
-				span_notice("[user] remove \the [src]'s shielding."),
-				span_notice("You remove \the [src]'s inner shielding.")
-			)
+			user.visible_message(span_notice("[user] remove \the [src]'s shielding."),
+								span_notice("You remove \the [src]'s inner shielding."))
 			security_level = AIRLOCK_SECURITY_NONE
 			modify_max_integrity(normal_integrity)
 			damage_deflection = AIRLOCK_DAMAGE_DEFLECTION_N
@@ -1122,10 +1121,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		if(I.use_tool(src, user, 40, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL_O_S)
 				return
-			user.visible_message(
-				span_notice("[user] remove \the [src]'s shielding."),
-				span_notice("You remove \the [src]'s shielding.")
-			)
+			user.visible_message(span_notice("[user] remove \the [src]'s shielding."),
+								span_notice("You remove \the [src]'s shielding."))
 			security_level = AIRLOCK_SECURITY_PLASTEEL_I
 			spawn_atom_to_turf(/obj/item/stack/sheet/plasteel, user.loc, 1)
 	else
@@ -1151,10 +1148,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		if(I.use_tool(src, user, 10, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL)
 				return
-			user.visible_message(
-				span_notice("[user] cut through \the [src]'s outer grille."),
-				span_notice("You cut through \the [src]'s outer grille.")
-			)
+			user.visible_message(span_notice("[user] cut through \the [src]'s outer grille."),
+								span_notice("You cut through \the [src]'s outer grille."))
 			security_level = AIRLOCK_SECURITY_PLASTEEL_O
 		return
 	interact_with_panel(user)
@@ -1179,10 +1174,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(isAllPowerLoss())
 		to_chat(user, span_notice("You start wrenching bolt reducer."))
 		if(I.use_tool(src, user, 300, volume = I.tool_volume))
-			user.visible_message(
-				span_notice("[user] raise \the [src]'s bolt manually."),
-				span_notice("You raise \the [src]'s bolt manually.")
-			)
+			user.visible_message(span_notice("[user] raise \the [src]'s bolt manually."),
+								span_notice("You raise \the [src]'s bolt manually."))
 			unlock(TRUE)
 		return
 
@@ -1198,32 +1191,26 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 				to_chat(user, span_notice("You begin cutting the panel's shielding..."))
 				if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 					return
-				visible_message(
-					span_notice("[user] cuts through \the [src]'s shielding."),
+				visible_message(span_notice("[user] cuts through \the [src]'s shielding."),
 					span_notice("You cut through \the [src]'s shielding."),
-					span_italics("You hear welding.")
-				)
+					span_italics("You hear welding."))
 				security_level = AIRLOCK_SECURITY_NONE
 				spawn_atom_to_turf(/obj/item/stack/sheet/metal, user.loc, 2)
 			if(AIRLOCK_SECURITY_PLASTEEL_O)
 				to_chat(user, span_notice("You begin cutting the outer layer of shielding..."))
 				if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 					return
-				visible_message(
-					span_notice("[user] cuts through \the [src]'s shielding."),
+				visible_message(span_notice("[user] cuts through \the [src]'s shielding."),
 					span_notice("You cut through \the [src]'s shielding."),
-					span_italics("You hear welding.")
-				)
+					span_italics("You hear welding."))
 				security_level = AIRLOCK_SECURITY_PLASTEEL_O_S
 			if(AIRLOCK_SECURITY_PLASTEEL_I)
 				to_chat(user, span_notice("You begin cutting the inner layer of shielding..."))
 				if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 					return
-				user.visible_message(
-					span_notice("[user] cuts through \the [src]'s shielding."),
+				user.visible_message(span_notice("[user] cuts through \the [src]'s shielding."),
 					span_notice("You cut through \the [src]'s shielding."),
-					span_italics("You hear welding.")
-				)
+					span_italics("You hear welding."))
 				security_level = AIRLOCK_SECURITY_PLASTEEL_I_S
 	else
 		if(user.a_intent != INTENT_HELP)
@@ -1304,7 +1291,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 			to_chat(user, span_warning("Despite your attempts, [src] refuses to open."))
 		return
 
-	if(ispowertool(I))
+	if(istype(I, /obj/item/mecha_parts/mecha_equipment/medical/rescue_jaw))
 		playsound(src, 'sound/machines/airlock_force_open.ogg', 100, TRUE) //scary
 		if(do_after(user, 4 SECONDS, src, max_interact_count = 1, category = DA_CAT_TOOL) && !open(TRUE) && density) // faster because of ITS A MECH
 			to_chat(user, span_warning("Despite your attempts, [src] refuses to open."))
@@ -1322,6 +1309,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(do_after(user, 5 SECONDS, src, max_interact_count = 1, category = DA_CAT_TOOL) && !open(TRUE) && density)
 		to_chat(user, span_warning("Despite your attempts, [src] refuses to open."))
 
+
 /obj/machinery/door/airlock/open(forced = 0)
 	set waitfor = FALSE
 
@@ -1334,7 +1322,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		playsound(loc, 'sound/machines/airlockforced.ogg', 30, TRUE)
 	else
 		playsound(loc, doorOpen, 30, TRUE)
-	if(is_airlock(closeOther) && !closeOther.density)
+	if(istype(closeOther, /obj/machinery/door/airlock) && !closeOther.density)
 		closeOther.close()
 
 	if(autoclose)
@@ -1345,18 +1333,19 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 
 	SEND_SIGNAL(src, COMSIG_AIRLOCK_OPEN, forced)
 	operating = DOOR_OPENING
-	recalculate_atmos_connectivity()
 	update_icon(AIRLOCK_OPENING, TRUE)
 	sleep(1)
 	set_opacity(FALSE)
 	update_freelook_sight()
 	sleep(4)
 	set_density(FALSE)
+	air_update_turf(TRUE)
 	sleep(1)
 	layer = OPEN_DOOR_LAYER
 	update_icon(AIRLOCK_OPEN, TRUE)
 	operating = NONE
 	return TRUE
+
 
 /obj/machinery/door/airlock/close(forced = 0, override = FALSE)
 	set waitfor = FALSE
@@ -1385,15 +1374,13 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(killthis)
 		killthis.ex_act(EXPLODE_HEAVY)//Smashin windows
 
-	SEND_SIGNAL(src, COMSIG_AIRLOCK_CLOSE, forced)
-
 	operating = DOOR_CLOSING
 	update_icon(AIRLOCK_CLOSING, TRUE)
 	layer = CLOSED_DOOR_LAYER
 	if(!override)
 		sleep(1)
 	set_density(TRUE)
-
+	air_update_turf(TRUE)
 	if(!override)
 		sleep(4)
 	if(!safe)
@@ -1404,10 +1391,10 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	sleep(1)
 	update_icon(AIRLOCK_CLOSED, TRUE)
 	operating = NONE
-	recalculate_atmos_connectivity()
 	if(safe)
 		CheckForMobs()
 	return TRUE
+
 
 /obj/machinery/door/airlock/lock(forced = FALSE)
 	if(locked)
@@ -1416,18 +1403,11 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(operating && !forced)
 		return FALSE
 
-	set_bolt(TRUE)
+	locked = TRUE
 	playsound(src, boltDown, 30, FALSE, 3)
 	update_icon()
 	return TRUE
 
-/obj/machinery/door/airlock/proc/set_bolt(should_bolt)
-	if(locked == should_bolt)
-		return
-
-	SEND_SIGNAL(src, COMSIG_AIRLOCK_SET_BOLT, should_bolt)
-	. = locked
-	locked = should_bolt
 
 /obj/machinery/door/airlock/unlock(forced = FALSE)
 	if(!locked)
@@ -1436,14 +1416,16 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(!forced && (operating || !arePowerSystemsOn() || wires.is_cut(WIRE_DOOR_BOLTS)))
 		return FALSE
 
-	set_bolt(FALSE)
+	locked = FALSE
 	playsound(src, boltUp, 30, FALSE, 3)
 	update_icon()
 	return TRUE
 
+
 /obj/machinery/door/airlock/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	//Airlock is passable if it is open (!density), bot has access, and is not bolted shut or powered off)
 	return !density || (check_access_list(pass_info.access) && !locked && arePowerSystemsOn() && !pass_info.no_id)
+
 
 /obj/machinery/door/airlock/emag_act(mob/user)
 	if(!hackable)
@@ -1463,6 +1445,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		emagged = TRUE
 		return TRUE
 
+
 /obj/machinery/door/airlock/cmag_act(mob/user)
 	set waitfor = FALSE
 	if(operating || HAS_TRAIT(src, TRAIT_CMAGGED) || !density || !arePowerSystemsOn() || emagged)
@@ -1477,6 +1460,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	ADD_TRAIT(src, TRAIT_CMAGGED, CMAGGED)
 	return TRUE
 
+
 /obj/machinery/door/airlock/emp_act(severity)
 	. = ..()
 	if(prob(20 / severity))
@@ -1485,6 +1469,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		var/duration = world.time + (30 / severity) SECONDS
 		if(duration > electrified_until)
 			electrify(duration)
+
 
 /obj/machinery/door/airlock/attack_alien(mob/living/carbon/alien/humanoid/user)
 	add_fingerprint(user)
@@ -1520,6 +1505,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		var/returns = is_opening ? open(TRUE) : close(TRUE)
 		if(!returns) //The airlock is still closed, but something prevented it opening. (Another player noticed and bolted/welded the airlock in time!)
 			to_chat(user, span_warning("Despite your efforts, [src] managed to resist your attempts!"))
+
 
 /obj/machinery/door/airlock/power_change(forced = FALSE) //putting this is obj/machinery/door itself makes non-airlock doors turn invisible for some reason
 	..()
@@ -1615,8 +1601,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	access_electronics.selected_accesses = length(req_access) ? req_access : list()
 	access_electronics.one_access = check_one_access
 
-/// Returns a string representing the type of note pinned to this airlock
-/obj/machinery/door/airlock/proc/note_type()
+/obj/machinery/door/airlock/proc/note_type() //Returns a string representing the type of note pinned to this airlock
 	if(!note)
 		return
 	if(istype(note, /obj/item/paper))
@@ -1628,7 +1613,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(istype(note, /obj/item/photo))
 		return "photo"
 
-/// Removes the current note on the door if any. Returns if a note is removed
+//Removes the current note on the door if any. Returns if a note is removed
 /obj/machinery/door/airlock/proc/remove_airlock_note(mob/user, wirecutters_used = TRUE)
 	if(!note)
 		return FALSE
@@ -1649,9 +1634,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	note = null
 	update_icon()
 	return TRUE
-
-/obj/machinery/door/airlock/IsContainedAtomAccessible(atom/contained, atom/movable/user)
-	return ..() || (contained == note)
 
 /obj/machinery/door/airlock/narsie_act(weak = FALSE)
 	var/turf/T = get_turf(src)
@@ -1713,15 +1695,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		aiControlDisabled = AICONTROLDISABLED_OFF
 	else if(aiControlDisabled == AICONTROLDISABLED_BYPASS)
 		aiControlDisabled = AICONTROLDISABLED_PERMA
-
-/obj/machinery/door/airlock/temperature_expose(exposed_temperature, exposed_volume)
-	..()
-
-	if(heat_proof)
-		return
-
-	if(exposed_temperature > (T0C + heat_resistance))
-		take_damage(round(exposed_volume / 100), BURN, 0, 0)
 
 #undef AIRLOCK_CLOSED
 #undef AIRLOCK_CLOSING

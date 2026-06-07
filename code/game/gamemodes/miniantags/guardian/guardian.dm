@@ -1,6 +1,3 @@
-/// List of all guardians currently extant
-GLOBAL_LIST_EMPTY(parasites)
-
 /mob/living/simple_animal/hostile/guardian
 	name = "Guardian Spirit"
 	real_name = "Guardian Spirit"
@@ -47,27 +44,22 @@ GLOBAL_LIST_EMPTY(parasites)
 	var/name_color = "white"//only used with protector shields for the time being
 
 /mob/living/simple_animal/hostile/guardian/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Дух-Хранитель",
 		GENITIVE = "Духа-Хранителя",
 		DATIVE = "Духу-Хранителю",
 		ACCUSATIVE = "Духа-Хранителя",
 		INSTRUMENTAL = "Духом-Хранителем",
-		PREPOSITIONAL = "Духе-Хранителе",
+		PREPOSITIONAL = "Духе-Хранителе"
 	)
 
 /mob/living/simple_animal/hostile/guardian/Initialize(mapload, mob/living/host)
 	. = ..()
-	GLOB.parasites += src
 	AddElement(/datum/element/simple_flying)
 	if(!host)
 		return
 	summoner = host
 	host.grant_guardian_actions(src)
-
-/mob/living/simple_animal/hostile/guardian/Destroy()
-	GLOB.parasites -= src
-	return ..()
 
 /mob/living/simple_animal/hostile/guardian/ComponentInitialize()
 	AddComponent( \
@@ -78,15 +70,17 @@ GLOBAL_LIST_EMPTY(parasites)
 
 /mob/living/simple_animal/hostile/guardian/med_hud_set_health()
 	if(summoner)
-		set_hud_image_state(HEALTH_HUD, "hud[RoundHealth(summoner)]")
+		var/image/holder = hud_list[HEALTH_HUD]
+		holder.icon_state = "hud[RoundHealth(summoner)]"
 
 /mob/living/simple_animal/hostile/guardian/med_hud_set_status()
 	if(summoner)
-		var/pixel_y = get_cached_height() - ICON_SIZE_Y
+		var/image/holder = hud_list[STATUS_HUD]
+		holder.pixel_y = get_cached_height() - ICON_SIZE_Y
 		if(summoner.stat == DEAD)
-			set_hud_image_state(STATUS_HUD, STATUS_HUD_DEAD, y_offset = pixel_y)
+			holder.icon_state = STATUS_HUD_DEAD
 		else
-			set_hud_image_state(STATUS_HUD, STATUS_HUD_HEALTHY, y_offset = pixel_y)
+			holder.icon_state = STATUS_HUD_HEALTHY
 
 /mob/living/simple_animal/hostile/guardian/Life(seconds, times_fired)
 	..()
@@ -109,7 +103,7 @@ GLOBAL_LIST_EMPTY(parasites)
 		if(get_dist(get_turf(summoner),get_turf(src)) <= range)
 			return
 		else
-			to_chat(src, span_holoparasite("Вас откинуло назад, так как превышена дальность связи! Ваша дальность всего [range] метр[DECL_CREDIT(range)] от [summoner.real_name]!"))
+			to_chat(src, span_holoparasite("Вас откинуло назад, так как превышена дальность связи! Ваша дальность всего [range] метр[declension_ru(range,"","а","ов")] от [summoner.real_name]!"))
 			visible_message(span_danger("[src] вернулся к носителю."))
 			if(iseffect(summoner.loc))
 				Recall(TRUE)
@@ -142,6 +136,7 @@ GLOBAL_LIST_EMPTY(parasites)
 	to_chat(summoner, span_danger("Ваш [name] как-то умер!"))
 	summoner.death()
 
+
 /mob/living/simple_animal/hostile/guardian/update_health_hud()
 	if(summoner)
 		var/resulthealth
@@ -170,9 +165,9 @@ GLOBAL_LIST_EMPTY(parasites)
 		return .
 
 	to_chat(summoner, span_danger("Вашего хранителя [name] атакуют! Вы получаете урон!"))
-	summoner.visible_message(span_danger("Кровь хлещет из [summoner] ибо [declent_ru(NOMINATIVE)] получает урон!"))
+	summoner.visible_message(span_danger("Кровь хлещет из [summoner] ибо [src.declent_ru(NOMINATIVE)] получает урон!"))
 	if(summoner.stat == UNCONSCIOUS)
-		to_chat(summoner, span_danger("Ваше тело не выдерживает нагрузки от поддержания [declent_ru(ACCUSATIVE)] в таком состоянии, оно начинает разрушаться!"))
+		to_chat(summoner, span_danger("Ваше тело не выдерживает нагрузки от поддержания [src.declent_ru(ACCUSATIVE)] в таком состоянии, оно начинает разрушаться!"))
 		summoner.adjustCloneLoss(amount / 2)
 
 /mob/living/simple_animal/hostile/guardian/adjustStaminaLoss(
@@ -241,11 +236,13 @@ GLOBAL_LIST_EMPTY(parasites)
 
 	// Show the message to any ghosts/dead players.
 	for(var/mob/M in GLOB.dead_mob_list)
-		if(M?.client && M.stat == DEAD && !isnewplayer(M))
-			to_chat(M, span_alien("([ghost_follow_link(src, ghost = M)]) <i>Сообщение Стража <b>[src]</b>: [input]</i>"))
+		if(M && M.client && M.stat == DEAD && !isnewplayer(M))
+			to_chat(M, span_alien("<i>Сообщение Стража <b>[src]</b> ([ghost_follow_link(src, ghost=M)]): [input]</i>"))
+
 
 /mob/living/simple_animal/hostile/guardian/proc/ToggleMode()
 	to_chat(src, span_danger("У вас нет другого режима!"))
+
 
 /mob/living/simple_animal/hostile/guardian/proc/ToggleLight()
 	set_light_on(!light_on)
@@ -254,11 +251,12 @@ GLOBAL_LIST_EMPTY(parasites)
 	else
 		to_chat(src, span_notice("Вы выключили свет."))
 
+
 ////////Creation
 
 /obj/item/guardiancreator
 	name = "колода карт Таро"
-	desc = "Зачарованная колода карт, по слухам — источник невероятной силы. "
+	desc = "Зачарованная колода карт, по слухам - источник невероятной силы. "
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "deck_syndicate_full"
 	var/used = FALSE
@@ -281,28 +279,29 @@ GLOBAL_LIST_EMPTY(parasites)
 	var/name_list = list("Aries", "Leo", "Sagittarius", "Taurus", "Virgo", "Capricorn", "Gemini", "Libra", "Aquarius", "Cancer", "Scorpio", "Pisces")
 
 /obj/item/guardiancreator/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "колода карт Таро",
 		GENITIVE = "колоды карт Таро",
 		DATIVE = "колоде карт Таро",
 		ACCUSATIVE = "колоду карт Таро",
 		INSTRUMENTAL = "колодой карт Таро",
-		PREPOSITIONAL = "колоде карт Таро",
+		PREPOSITIONAL = "колоде карт Таро"
 	)
 
 /obj/item/guardiancreator/attack_self(mob/living/user)
-	if(has_guardian(user))
-		to_chat(user, "У вас уже есть [mob_name]!")
-		return
+	for(var/mob/living/simple_animal/hostile/guardian/G in GLOB.alive_mob_list)
+		if(G.summoner == user)
+			to_chat(user, "У вас уже есть [mob_name]!")
+			return
 	if(user.mind && (ischangeling(user) || isvampire(user)))
 		to_chat(user, "[ling_failure]")
 		return
-	if(used)
+	if(used == TRUE)
 		to_chat(user, "[used_message]")
 		return
 	used = TRUE // Set this BEFORE the popup to prevent people using the injector more than once, polling ghosts multiple times, and receiving multiple guardians.
 	var/choice = tgui_alert(user, "[confirmation_message]", "Confirm", list("Да", "Нет"))
-	if(choice != "Да")
+	if(choice == "Нет")
 		to_chat(user, span_warning("Вы решили не использовать [name]."))
 		used = FALSE
 		return
@@ -321,18 +320,10 @@ GLOBAL_LIST_EMPTY(parasites)
 			return
 
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть за [mob_name] ([guardian_type]) у [user.real_name]?", ROLE_GUARDIAN, FALSE, 10 SECONDS, source = src, role_cleanname = "[mob_name] ([guardian_type])")
-
-	if(QDELETED(user))
-		return
-
 	var/mob/dead/observer/theghost = null
 
-	if(length(candidates))
+	if(candidates.len)
 		theghost = pick(candidates)
-		if(has_guardian(user))
-			to_chat(user, "У вас уже есть [mob_name]!")
-			used = FALSE
-			return
 		log_game("[user](ckey: [user.key]) has successfully spawned [guardian_type] type guardian(ckey: [theghost.key])")
 		spawn_guardian(user, theghost.key, guardian_type)
 	else
@@ -344,13 +335,6 @@ GLOBAL_LIST_EMPTY(parasites)
 	. = ..()
 	if(used)
 		. += span_notice("[used_message]")
-
-/obj/item/guardiancreator/proc/has_guardian(mob/living/user)
-	for(var/mob/living/simple_animal/hostile/guardian/guardian in GLOB.alive_mob_list)
-		if(guardian.summoner != user)
-			continue
-		return TRUE
-	return FALSE
 
 /obj/item/guardiancreator/proc/spawn_guardian(mob/living/user, key, guardian_type)
 	var/pickedtype = /mob/living/simple_animal/hostile/guardian/punch
@@ -385,11 +369,11 @@ GLOBAL_LIST_EMPTY(parasites)
 
 	var/mob/living/simple_animal/hostile/guardian/G = new pickedtype(user, user)
 	G.summoned = TRUE
-	G.possess_by_player(key)
+	G.key = key
 	SSticker.mode.guardians |= G.mind
 	to_chat(G, "Вы [mob_name], обязанный служить [user.real_name].")
 	to_chat(G, "Вы можете появляться или возвращаться к вашему хозяину с помощью кнопок на панели Стража. Там же вы найдете кнопку связи с хозяином.")
-	to_chat(G, "Хотя вы лично неуязвимы, ваша жизнь зависит от [user.real_name]. Если [GEND_HE_SHE(user)] погибн[PLUR_ET_UT(user)] — умрёте и вы. Кроме того, любой полученный вами урон будет передан [GEND_HIM_HER(user)], так как вы существуете за счёт [GEND_HIS_HER(user)] жизненной силы.")
+	to_chat(G, "Хотя вы лично неуязвимы, ваша жизнь зависит от [user.real_name]. Если [genderize_ru(user.gender,"он","она","оно","они")] погибн[pluralize_ru(user.gender,"ет","ут")] — умрёте и вы. Кроме того, любой полученный вами урон будет передан [genderize_ru(user.gender,"ему","ей","ему","им")], так как вы существуете за счёт [genderize_ru(user.gender,"его","её","его","их")] жизненной силы.")
 	to_chat(G, "[G.playstyle_string]")
 	G.faction = user.faction
 
@@ -435,13 +419,13 @@ GLOBAL_LIST_EMPTY(parasites)
 	name_list = list("Gallium", "Indium", "Thallium", "Bismuth", "Aluminium", "Mercury", "Iron", "Silver", "Zinc", "Titanium", "Chromium", "Nickel", "Platinum", "Tellurium", "Palladium", "Rhodium", "Cobalt", "Osmium", "Tungsten", "Iridium")
 
 /obj/item/guardiancreator/tech/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инъектор голопаразитов",
 		GENITIVE = "инъектора голопаразитов",
 		DATIVE = "инъектору голопаразитов",
 		ACCUSATIVE = "инъектор голопаразитов",
 		INSTRUMENTAL = "инъектором голопаразитов",
-		PREPOSITIONAL = "инъекторе голопаразитов",
+		PREPOSITIONAL = "инъекторе голопаразитов"
 	)
 
 /obj/item/guardiancreator/tech/create_theme(mob/living/simple_animal/hostile/guardian/G, mob/living/user, picked_name, color)
@@ -483,13 +467,13 @@ GLOBAL_LIST_EMPTY(parasites)
 	name_list = list("brood", "hive", "nest")
 
 /obj/item/guardiancreator/biological/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "скопление яиц скарабеев",
 		GENITIVE = "скопления яиц скарабеев",
 		DATIVE = "скоплению яиц скарабеев",
 		ACCUSATIVE = "скопление яиц скарабеев",
 		INSTRUMENTAL = "скоплением яиц скарабеев",
-		PREPOSITIONAL = "скоплении яиц скарабеев",
+		PREPOSITIONAL = "скоплении яиц скарабеев"
 	)
 
 /obj/item/guardiancreator/biological/create_theme(mob/living/simple_animal/hostile/guardian/G, mob/living/user, picked_name, color)
@@ -503,6 +487,7 @@ GLOBAL_LIST_EMPTY(parasites)
 	G.speak_emote = list("щебечет")
 
 /obj/item/guardiancreator/biological/choose
+
 
 /obj/item/paper/guardian
 	name = "Справочник по голопаразитам"
@@ -531,6 +516,7 @@ GLOBAL_LIST_EMPTY(parasites)
 
 /obj/item/paper/guardian/update_icon_state()
 	return
+
 
 /obj/item/storage/box/syndie_kit/guardian
 	name = "Набор инжектора голопаразита"

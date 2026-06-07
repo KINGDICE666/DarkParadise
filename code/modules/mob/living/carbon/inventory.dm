@@ -2,8 +2,6 @@
 	var/obj/item/item_in_hand = get_active_hand()
 
 	if(SEND_SIGNAL(src, COMSIG_MOB_SWAPPING_HANDS, item_in_hand) & COMPONENT_BLOCK_SWAP)
-		if(item_in_hand)
-			SEND_SIGNAL(item_in_hand, COMSIG_ITEM_SWAP_BLOCKED, src)
 		balloon_alert(src, "ваши руки заняты!")
 		return FALSE
 
@@ -12,9 +10,78 @@
 	SEND_SIGNAL(src, COMSIG_MOB_SWAP_HANDS)
 	return TRUE
 
+
 /mob/living/carbon/activate_hand(selhand)
 	if(selhand != hand)
 		swap_hand()
+
+
+///Returns a list of all body_zones covered by clothing
+/mob/living/carbon/proc/get_covered_body_zones()
+	RETURN_TYPE(/list)
+	SHOULD_NOT_OVERRIDE(TRUE)
+
+	var/covered_flags = NONE
+	var/list/all_worn_items = get_equipped_items()
+	for(var/obj/item/worn_item in all_worn_items)
+		covered_flags |= worn_item.body_parts_covered
+
+	return cover_flags2body_zones(covered_flags)
+
+
+//Turns a Body_parts_covered bitfield into a list of organ/limb names.
+//(I challenge you to find a use for this) -I found a use for it!! | So did I!.
+/proc/cover_flags2body_zones(bpc)
+	var/list/covered_parts = list()
+
+	if(!bpc)
+		return 0
+
+	if(bpc == FULL_BODY)
+		covered_parts |= list(BODY_ZONE_L_ARM,BODY_ZONE_R_ARM,BODY_ZONE_HEAD,BODY_ZONE_CHEST,BODY_ZONE_L_LEG,BODY_ZONE_R_LEG)
+
+	else
+		if(bpc & HEAD)
+			covered_parts |= list(BODY_ZONE_HEAD)
+		if(bpc & UPPER_TORSO)
+			covered_parts |= list(BODY_ZONE_CHEST)
+		if(bpc & LOWER_TORSO)
+			covered_parts |= list(BODY_ZONE_CHEST)
+
+		if(bpc & ARMS)
+			covered_parts |= list(BODY_ZONE_L_ARM,BODY_ZONE_R_ARM)
+		else
+			if(bpc & ARM_LEFT)
+				covered_parts |= list(BODY_ZONE_L_ARM)
+			if(bpc & ARM_RIGHT)
+				covered_parts |= list(BODY_ZONE_R_ARM)
+
+		if(bpc & HANDS)
+			covered_parts |= list(BODY_ZONE_L_ARM,BODY_ZONE_R_ARM)
+		else
+			if(bpc & HAND_LEFT)
+				covered_parts |= list(BODY_ZONE_L_ARM)
+			if(bpc & HAND_RIGHT)
+				covered_parts |= list(BODY_ZONE_R_ARM)
+
+		if(bpc & LEGS)
+			covered_parts |= list(BODY_ZONE_L_LEG,BODY_ZONE_R_LEG)
+		else
+			if(bpc & LEG_LEFT)
+				covered_parts |= list(BODY_ZONE_L_LEG)
+			if(bpc & LEG_RIGHT)
+				covered_parts |= list(BODY_ZONE_R_LEG)
+
+		if(bpc & FEET)
+			covered_parts |= list(BODY_ZONE_L_LEG,BODY_ZONE_R_LEG)
+		else
+			if(bpc & FOOT_LEFT)
+				covered_parts |= list(BODY_ZONE_L_LEG)
+			if(bpc & FOOT_RIGHT)
+				covered_parts |= list(BODY_ZONE_R_LEG)
+
+	return covered_parts
+
 
 /mob/living/carbon/resist_restraints()
 	INVOKE_ASYNC(src, PROC_REF(resist_muzzle))
@@ -31,6 +98,9 @@
 
 /// Simple helper used to equip passed item to the predefined slots.
 /mob/living/carbon/proc/apply_restraints(cuffs, slot_flag, qdel_on_fail = FALSE, silent = FALSE)
+	if(SEND_SIGNAL(src, COMSIG_CARBON_CUFF_ATTEMPTED, null) & COMSIG_CARBON_CUFF_PREVENT)
+		return
+
 	if(!isitem(cuffs))
 		CRASH("Wrong object ([cuffs]) passed as argument")
 	switch(slot_flag)
@@ -41,6 +111,7 @@
 		else
 			CRASH("Wrong slot passed as argument")
 
+
 /// Forcefully removes legcuffs and handcuffs.
 /mob/living/carbon/proc/uncuff()
 	if(handcuffed)
@@ -48,6 +119,7 @@
 
 	if(legcuffed)
 		drop_item_ground(legcuffed, TRUE)
+
 
 /// Modifies the handcuffed value if a different value is passed, returning FALSE otherwise.
 /// The variable should only be changed through this proc.
@@ -68,6 +140,7 @@
 	update_hands_HUD()
 	update_worn_handcuffs()
 
+
 /// Modifies the legcuffed value if a different value is passed, returning FALSE otherwise.
 /// The variable should only be changed through this proc.
 /mob/living/carbon/proc/set_legcuffed(new_value)
@@ -75,6 +148,7 @@
 		return FALSE
 	. = legcuffed
 	legcuffed = new_value
+
 
 /// Updates move intent, popup alert and human legcuffed overlay.
 /mob/living/carbon/proc/update_legcuffed_status()
@@ -88,11 +162,11 @@
 
 	update_worn_legcuffs()
 
+
 /// General proc to resist passed item.
 /mob/living/carbon/proc/cuff_resist(obj/item/cuffs, cuff_break = FALSE)
 	. = FALSE
-	var/breakout_time = cuff_break ? 10 SECONDS : cuffs.breakout_time
-	var/breakout_flags = cuffs.breakout_flags
+	var/breakout_time = cuff_break ? 5 SECONDS : cuffs.breakout_time
 	var/breakout_mod = 1
 	var/list/breakouttime_modifiers = list()
 	SEND_SIGNAL(src, COMSIG_GET_BREAKOUTTIME_MODIFIERS, breakouttime_modifiers)
@@ -100,57 +174,20 @@
 		breakout_mod *= mod
 
 	breakout_time *= breakout_mod
-	var/breakout_iter = (10 SECONDS) * breakout_mod
+	var/breakout_iter = (5 SECONDS) * breakout_mod
 
 	var/is_processed = LAZYACCESS(do_afters, src)
 
 	if(cuff_break)
 		if(is_processed)
 			visible_message(
-				span_warning("[name] перестал[GEND_A_O_I(src)] пытаться сломать [cuffs.declent_ru(ACCUSATIVE)]!"),
+				span_warning("[name] перестал[genderize_ru(gender, "", "а", "о", "и")] пытаться сломать [cuffs.declent_ru(ACCUSATIVE)]!"),
 				span_notice("Вы перестали пытаться сломать [cuffs.declent_ru(ACCUSATIVE)]."),
 			)
 		else
 			visible_message(
-				span_warning("[name] пыта[PLUR_ET_YUT(src)]ся сломать [cuffs.declent_ru(ACCUSATIVE)]!"),
-				span_notice("Вы пытаетесь сломать [cuffs.declent_ru(ACCUSATIVE)]. Это займёт примерно 10 секунд."),
-			)
-		if(do_after(src, breakout_time, src, breakout_flags, max_interact_count = 1,
-			cancel_on_max = TRUE, cancel_message = ""))
-			. = clear_cuffs(cuffs, cuff_break)
-		else
-			balloon_alert(src, "не вышло снять [cuffs.declent_ru(ACCUSATIVE)]!!")
-
-	else if(ishandcuffs(cuffs) || isstraightjacket(cuffs))
-		if(is_processed)
-			visible_message(
-				span_warning("[name] перестал[GEND_A_O_I(src)] пытаться снять [cuffs.declent_ru(ACCUSATIVE)]!"),
-				span_notice("Вы перестали пытаться снять [cuffs.declent_ru(ACCUSATIVE)]."),
-			)
-		else
-			balloon_alert(src, "попытка снять [cuffs.declent_ru(ACCUSATIVE)]...")
-
-		while(do_after(src, breakout_iter, src, breakout_flags, max_interact_count = 1,
-			cancel_on_max = TRUE, cancel_message = ""))
-			cuff_breakout_attempts++
-			if(!handcuffed && !wear_suit?.breakout_time) //if someone uncuffs us
-				break
-			if(cuff_breakout_attempts * breakout_iter >= breakout_time)
-				. = clear_cuffs(cuffs, cuff_break)
-				break
-			else if(prob(4))
-				visible_message(span_warning("[name] пыта[PLUR_ET_YUT(src)]ся снять [cuffs.declent_ru(ACCUSATIVE)]!"))
-
-	else
-		if(is_processed)
-			visible_message(
-				span_warning("[name] перестал[GEND_A_O_I(src)] пытаться снять [cuffs.declent_ru(ACCUSATIVE)]!"),
-				span_notice("Вы перестали пытаться снять [cuffs.declent_ru(ACCUSATIVE)]."),
-			)
-		else
-			visible_message(
-				span_warning("[name] пыта[PLUR_ET_YUT(src)]ся снять [cuffs.declent_ru(ACCUSATIVE)]!"),
-				span_notice("Вы пытаетесь снять [cuffs.declent_ru(ACCUSATIVE)]. Это займёт примерно [breakout_time / 10] секунд[DECL_SEC_MIN(breakout_time / 10)]."),
+				span_warning("[name] пыта[pluralize_ru(gender, "ет", "ют")]ся сломать [cuffs.declent_ru(ACCUSATIVE)]!"),
+				span_notice("Вы пытаетесь сломать [cuffs.declent_ru(ACCUSATIVE)]. Это займёт примерно 5 секунд."),
 			)
 		if(do_after(src, breakout_time, src, DA_IGNORE_USER_LOC_CHANGE|DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM, max_interact_count = 1,
 			cancel_on_max = TRUE, cancel_message = ""))
@@ -158,13 +195,51 @@
 		else
 			balloon_alert(src, "не вышло снять [cuffs.declent_ru(ACCUSATIVE)]!!")
 
+	else if(istype(cuffs, /obj/item/restraints/handcuffs))
+		if(is_processed)
+			visible_message(
+				span_warning("[name] перестал[genderize_ru(gender, "", "а", "о", "и")] пытаться снять [cuffs.declent_ru(ACCUSATIVE)]!"),
+				span_notice("Вы перестали пытаться снять [cuffs.declent_ru(ACCUSATIVE)]."),
+			)
+		else
+			balloon_alert(src, "попытка снять [cuffs.declent_ru(ACCUSATIVE)]...")
+
+		while(do_after(src, breakout_iter, src, DA_IGNORE_USER_LOC_CHANGE|DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM, max_interact_count = 1,
+			cancel_on_max = TRUE, cancel_message = ""))
+			cuff_breakout_attempts++
+			if(!handcuffed) //if someone uncuffs us
+				break
+			if(cuff_breakout_attempts * breakout_iter >= breakout_time)
+				. = clear_cuffs(cuffs, cuff_break)
+				break
+			else if(prob(4))
+				visible_message(span_warning("[name] пыта[pluralize_ru(gender, "ет", "ют")]ся снять [cuffs.declent_ru(ACCUSATIVE)]!"))
+
+	else
+		if(is_processed)
+			visible_message(
+				span_warning("[name] перестал[genderize_ru(gender, "", "а", "о", "и")] пытаться снять [cuffs.declent_ru(ACCUSATIVE)]!"),
+				span_notice("Вы перестали пытаться снять [cuffs.declent_ru(ACCUSATIVE)]."),
+			)
+		else
+			visible_message(
+				span_warning("[name] пыта[pluralize_ru(gender, "ет", "ют")]ся снять [cuffs.declent_ru(ACCUSATIVE)]!"),
+				span_notice("Вы пытаетесь снять [cuffs.declent_ru(ACCUSATIVE)]. Это займёт примерно [breakout_time / 10] секунд[declension_ru(breakout_time / 10, "у", "ы", "")]."),
+			)
+		if(do_after(src, breakout_time, src, DA_IGNORE_USER_LOC_CHANGE|DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM, max_interact_count = 1,
+			cancel_on_max = TRUE, cancel_message = ""))
+			. = clear_cuffs(cuffs, cuff_break)
+		else
+			balloon_alert(src, "не вышло снять [cuffs.declent_ru(ACCUSATIVE)]!!")
+
+
 /mob/living/carbon/proc/clear_cuffs(obj/item/I, cuff_break)
 	if(!I.loc)
 		return FALSE
 	if(I != handcuffed && I != legcuffed && I != wear_suit)
 		return FALSE
 	visible_message(
-		span_danger("[name] [cuff_break ? "лома" : "снима"][PLUR_ET_YUT(src)] [I.declent_ru(ACCUSATIVE)]!"),
+		span_danger("[name] [cuff_break ? "лома" : "снима"][pluralize_ru(gender, "ет", "ют")] [I.declent_ru(ACCUSATIVE)]!"),
 		span_notice("Вы [cuff_break ? "лома" : "снима"]ете [I.declent_ru(ACCUSATIVE)]."),
 	)
 	if(cuff_break)
@@ -172,11 +247,14 @@
 		return TRUE
 	return drop_item_ground(I)
 
+
 /mob/living/carbon/is_muzzled()
 	return istype(wear_mask, /obj/item/clothing/mask/muzzle)
 
+
 /mob/living/carbon/is_facehugged()
 	return istype(wear_mask, /obj/item/clothing/mask/facehugger)
+
 
 /mob/living/carbon/resist_muzzle()
 	if(!istype(wear_mask, /obj/item/clothing/mask/muzzle))
@@ -188,15 +266,15 @@
 		return
 
 	visible_message(
-		span_warning("[name] грыз[PLUR_YOT_UT(src)] [I.declent_ru(GENITIVE)], пытаясь освободиться!"),
-		span_notice("Вы пытаетесь избавиться от [I.declent_ru(GENITIVE)]. Это займёт примерно [time / 10] секунд[DECL_SEC_MIN(time / 10)]."),
+		span_warning("[name] грыз[pluralize_ru(gender, "ёт", "ут")] [I.declent_ru(GENITIVE)], пытаясь освободиться!"),
+		span_notice("Вы пытаетесь избавиться от [I.declent_ru(GENITIVE)]. Это займёт примерно [time / 10] секунд[declension_ru(time / 10, "у", "ы", "")]."),
 	)
 
 	if(!do_after(src, time, src, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM) || QDELETED(I) || I != wear_mask)
 		return
 
 	visible_message(
-		span_danger("[name] избавля[PLUR_ET_UT(src)]ся от [I.declent_ru(GENITIVE)]!"),
+		span_danger("[name] избавля[pluralize_ru(gender, "ет", "ут")]ся от [I.declent_ru(GENITIVE)]!"),
 		span_notice("Вы избавляетесь от [I.declent_ru(GENITIVE)]."),
 	)
 	if(I.security_lock)
@@ -238,6 +316,7 @@
 
 	update_equipment_speed_mods()
 
+
 /**
  * All the necessary checks for carbon to put an item in hand
  */
@@ -263,13 +342,11 @@
 	else if(hand_id == ITEM_SLOT_HAND_RIGHT && !has_right_hand())
 		return FALSE
 
-	if((hand_id == ITEM_SLOT_HAND_RIGHT && right_hand_bleed_suppress_lib) || (hand_id == ITEM_SLOT_HAND_LEFT && left_hand_bleed_suppress_lib))
-		return FALSE
-
 	if(!isnull(pull_hand) && pull_hand != PULL_WITHOUT_HANDS && ((hand_id == ITEM_SLOT_HAND_LEFT && pull_hand == PULL_HAND_LEFT) || (hand_id == ITEM_SLOT_HAND_RIGHT && pull_hand == PULL_HAND_RIGHT)))
 		return FALSE
 
 	return hand_id == ITEM_SLOT_HAND_LEFT ? !l_hand : !r_hand
+
 
 /**
  * Put item in our active hand if possible. Failing that it tries our inactive hand. Returns `TRUE` on success.
@@ -343,6 +420,7 @@
 
 	return FALSE
 
+
 /mob/living/carbon/get_item_by_slot(slot_flag)
 	switch(slot_flag)
 		if(ITEM_SLOT_BACK)
@@ -361,6 +439,7 @@
 			return legcuffed
 	return null
 
+
 /mob/living/carbon/get_slot_by_item(item)
 	if(item == back)
 		return ITEM_SLOT_BACK
@@ -378,6 +457,7 @@
 		return ITEM_SLOT_LEGCUFFED
 	return NONE
 
+
 /mob/living/carbon/get_all_slots()
 	return list(l_hand,
 				r_hand,
@@ -386,9 +466,11 @@
 				back,
 				wear_mask)
 
+
 /mob/living/carbon/get_access_locations()
 	. = ..()
 	. |= list(l_hand, r_hand)
+
 
 /mob/living/carbon/get_equipped_slots(include_pockets = FALSE, include_hands = FALSE)
 	. = ..()
@@ -397,20 +479,12 @@
 	if(head)
 		. |= ITEM_SLOT_HEAD
 
-// Returns items which are currently visible on the mob
-/mob/living/carbon/proc/get_visible_items()
-	var/list/obscured = check_obscured_slots()
-	var/list/visible_items = list()
-
-	for(var/obj/item/thing in get_equipped_items(INCLUDE_HELD))
-		if(!(get_slot_by_item(thing) & obscured))
-			visible_items += thing
-
-	return visible_items
 
 /mob/living/carbon/update_equipment_speed_mods()
 	. = ..()
 	update_limbless_slowdown()	// in case we get crutches
+
+
 
 /mob/living/carbon/proc/has_airtight_items()
 	if(get_organ_slot(INTERNAL_ORGAN_BREATHING_TUBE))
@@ -427,6 +501,7 @@
 			return TRUE
 
 	return FALSE
+
 
 /mob/living/carbon/covered_with_thick_material(check_zone, full_body_check = FALSE)
 	if(full_body_check)
@@ -459,4 +534,5 @@
 				return TRUE
 
 	return FALSE
+
 

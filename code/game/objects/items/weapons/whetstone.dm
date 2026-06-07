@@ -20,14 +20,15 @@
 	var/requires_sharpness = TRUE
 
 /obj/item/whetstone/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "точильный камень",
 		GENITIVE = "точильного камня",
 		DATIVE = "точильному камню",
 		ACCUSATIVE = "точильный камень",
 		INSTRUMENTAL = "точильным камнем",
-		PREPOSITIONAL = "точильном камне",
+		PREPOSITIONAL = "точильном камне"
 	)
+
 
 /obj/item/whetstone/attackby(obj/item/I, mob/user, params)
 	. = ATTACK_CHAIN_BLOCKED_ALL
@@ -38,7 +39,7 @@
 		to_chat(user, span_warning("Сомневаюсь, что [I.declent_ru(NOMINATIVE)] станет острее."))
 		return .
 	if(I.force >= max || I.throwforce >= max) //So the whetstone never reduces force or throw_force
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] и так уже предельно остр[GEND_YI_AYA_OE_YE(I)]!"))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] и так уже предельно остр[genderize_ru(I.gender,"ый","ая","ое","ые")]!"))
 		return .
 	if(requires_sharpness && !I.sharp)
 		to_chat(user, span_warning("Можно заточить только режущие предметы, например ножи!"))
@@ -47,33 +48,36 @@
 	//This block is used to check more things if the item has a relevant component.
 	var/signal_out = SEND_SIGNAL(I, COMSIG_ITEM_SHARPEN_ACT, increment, max) //Stores the bitflags returned by SEND_SIGNAL
 	if(signal_out & COMPONENT_BLOCK_SHARPEN_MAXED) //If the item's components enforce more limits on maximum power from sharpening,  we fail
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] и так уже предельно остр[GEND_YI_AYA_OE_YE(I)]!"))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] и так уже предельно остр[genderize_ru(I.gender,"ый","ая","ое","ые")]!"))
 		return .
 	if(signal_out & COMPONENT_BLOCK_SHARPEN_BLOCKED)
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] нельзя заточить!"))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] нельзя заточить!"))
 		return .
 	if((signal_out & COMPONENT_BLOCK_SHARPEN_ALREADY) || (!signal_out && I.force > initial(I.force))) //No sharpening stuff twice
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] уже было заточено ранее. Дальнейшая заточка невозможна!"))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] уже было заточено ранее. Дальнейшая заточка невозможна!"))
 		return .
 	//If component returns nothing and sharpen_act() returns FALSE we are out
 	if(!(signal_out & COMPONENT_BLOCK_SHARPEN_APPLIED) && !I.sharpen_act(src, user))
 		return .
 
 	user.visible_message(
-		span_notice("[user] затачива[PLUR_ET_YUT(user)] [I.declent_ru(ACCUSATIVE)] при помощи [declent_ru(GENITIVE)]!"),
+		span_notice("[user] затачива[pluralize_ru(user.gender,"ет","ют")] [I.declent_ru(ACCUSATIVE)] при помощи [declent_ru(GENITIVE)]!"),
 		span_notice("Вы затачиваете [I.declent_ru(ACCUSATIVE)], делая его гораздо опаснее."),
 	)
 	playsound(src, usesound, 50, TRUE)
 	uses--
 	update_appearance()
 
+
 /obj/item/whetstone/update_name(updates = ALL)
 	. = ..()
 	name = "[!uses ? "worn out " : ""][initial(name)]"
 
+
 /obj/item/whetstone/update_desc(updates = ALL)
 	. = ..()
 	desc = "[initial(desc)][!uses ? " По крайней мере, раньше мог." : ""]"
+
 
 /obj/item/whetstone/attack_self(mob/living/carbon/human/user)
 	. = ..()
@@ -89,12 +93,13 @@
 
 	claws.damage = clamp(claws.damage + claws_increment, 0, max)
 	user.visible_message(
-		span_notice("[user] точ[PLUR_IT_YAT(user)] свои когти о [declent_ru(ACCUSATIVE)]!"),
+		span_notice("[user] точ[pluralize_ru(user.gender,"ит","ят")] свои когти о [declent_ru(ACCUSATIVE)]!"),
 		span_notice("Вы точите свои когти о [declent_ru(ACCUSATIVE)]."),
 	)
 	playsound(src, usesound, 50, TRUE)
 	uses--
 	update_appearance()
+
 
 /obj/item/whetstone/super
 	name = "super whetstone block"
@@ -106,13 +111,13 @@
 	claws_increment = 200
 
 /obj/item/whetstone/super/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "суперточильный блок",
 		GENITIVE = "суперточильного блока",
 		DATIVE = "суперточильному блоку",
 		ACCUSATIVE = "суперточильный блок",
 		INSTRUMENTAL = "суперточильным блоком",
-		PREPOSITIONAL = "суперточильном блоке",
+		PREPOSITIONAL = "суперточильном блоке"
 	)
 
 /obj/item/whetstone/crab_shell
@@ -126,15 +131,17 @@
 	increment = 2
 	uses = 2
 
+
 /obj/item/whetstone/crab_shell/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "панцирь пепельного рака",
 		GENITIVE = "панциря пепельного рака",
 		DATIVE = "панцирю пепельного рака",
 		ACCUSATIVE = "панцирь пепельного рака",
 		INSTRUMENTAL = "панцирем пепельного рака",
-		PREPOSITIONAL = "панцире пепельного рака",
+		PREPOSITIONAL = "панцире пепельного рака"
 	)
+
 
 /obj/item/whetstone/anti
 	desc = "Каменный брусок для затупки инструментов."

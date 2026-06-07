@@ -1,13 +1,10 @@
-#define BM_SWITCHSTATE_NONE 0
-#define BM_SWITCHSTATE_MODE 1
-#define BM_SWITCHSTATE_DIR 2
+#define BM_SWITCHSTATE_NONE	0
+#define BM_SWITCHSTATE_MODE	1
+#define BM_SWITCHSTATE_DIR	2
 
 /datum/click_intercept/buildmode
 	var/build_dir = SOUTH
 	var/datum/buildmode_mode/mode
-
-	// login callback
-	var/li_cb
 
 	// SECTION UI
 
@@ -25,32 +22,18 @@
 
 /datum/click_intercept/buildmode/New()
 	mode = new /datum/buildmode_mode/basic(src)
-	li_cb = CALLBACK(src, PROC_REF(post_login))
 	. = ..()
-	holder.persistent_client.post_login_callbacks += li_cb
 	mode.enter_mode(src)
 
 /datum/click_intercept/buildmode/Destroy()
 	close_switchstates()
 	close_preview()
-	holder?.persistent_client.post_login_callbacks -= li_cb
-	li_cb = null
 	QDEL_NULL(mode)
 	QDEL_LIST(modeswitch_buttons)
 	QDEL_LIST(dirswitch_buttons)
 	modebutton = null
 	dirbutton = null
 	return ..()
-
-/datum/click_intercept/buildmode/proc/post_login()
-	// since these will get wiped upon login
-	holder.screen |= buttons
-	// re-open the according switch mode
-	switch(switch_state)
-		if(BM_SWITCHSTATE_MODE)
-			open_modeswitch()
-		if(BM_SWITCHSTATE_DIR)
-			open_dirswitch()
 
 /datum/click_intercept/buildmode/create_buttons()
 	// keep a reference so we can update it upon mode switch
@@ -69,7 +52,7 @@
 	var/pos_idx = 0
 	for(var/thing in elements)
 		var/x = pos_idx % switch_width
-		var/y = floor(pos_idx / switch_width)
+		var/y = FLOOR(pos_idx / switch_width, 1)
 		var/atom/movable/screen/buildmode/B = new buttontype(src, thing)
 		// extra .5 for a nice offset look
 		B.screen_loc = "NORTH-[(1 + 0.5 + y*1.5)],WEST+[0.5 + x*1.5]"
@@ -148,21 +131,16 @@
 	return TRUE
 
 /datum/click_intercept/buildmode/InterceptClickOn(user, params, atom/object)
-	return mode.handle_click(user, params, object)
-
-/datum/click_intercept/buildmode/quit(force)
-	if(!force)
-		return
-	. = ..()
+	mode.handle_click(user, params, object)
 
 /proc/togglebuildmode(mob/user as mob in  GLOB.player_list)
 	set name = "Toggle Build Mode"
-	set category = ADMIN_CATEGORY_EVENTS
+	set category = STATPANEL_ADMIN_EVENT
 
 	if(user.client)
 		if(istype(user.client.click_intercept, /datum/click_intercept/buildmode))
 			var/datum/click_intercept/buildmode/buildmode = user.client.click_intercept
-			buildmode.quit(TRUE)
+			buildmode.quit()
 			log_admin("[key_name(user)] has left build mode.")
 		else
 			new/datum/click_intercept/buildmode(user.client)

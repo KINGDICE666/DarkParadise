@@ -116,6 +116,7 @@
 		if(density && radio_connection && mecha.occupant && (allowed(mecha.occupant) || check_access_list(mecha.operation_req_access)))
 			send_status(1)
 
+
 /obj/machinery/door/airlock/set_frequency(new_frequency)
 	SSradio.remove_object(src, frequency)
 	if(new_frequency)
@@ -161,10 +162,8 @@
 
 /obj/machinery/airlock_sensor/process()
 	if(on)
-		var/turf/location = get_turf(src)
-
-		var/datum/gas_mixture/air_sample = location.get_readonly_air()
-		var/pressure = round(air_sample.return_pressure(), 0.1)
+		var/datum/gas_mixture/air_sample = return_air()
+		var/pressure = round(air_sample.return_pressure(),0.1)
 
 		if(abs(pressure - previousPressure) > 0.001 || previousPressure == null)
 			var/datum/signal/signal = new
@@ -232,6 +231,7 @@
 	else
 		to_chat(user, "Error, no route to host.")
 
+
 /obj/machinery/access_button/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -243,6 +243,7 @@
 
 	return ..()
 
+
 /obj/machinery/access_button/attack_ghost(mob/user)
 	if(user.can_advanced_admin_interact())
 		return attack_hand(user)
@@ -252,7 +253,7 @@
 
 	if(!allowed(user) && (wires & 1) && !user.can_advanced_admin_interact())
 		to_chat(user, span_warning("Access denied."))
-		playsound(src, SFX_BUTTON_DENIED, 20)
+		playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
 
 	else if(radio_connection)
 		var/datum/signal/signal = new

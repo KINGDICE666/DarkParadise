@@ -4,7 +4,7 @@
 	spread_flags = CONTACT
 	cures = list("diphenhydramine", "sulfur")
 	cure_prob = 15
-	severity = DISEASE_SEVERITY_BIOHAZARD
+	severity = BIOHAZARD
 
 /datum/disease/virus/gbs/stage_act()
 	if(!..())
@@ -47,7 +47,7 @@
 	spread_flags = CONTACT
 	cures = list("diphenhydramine", "sulfur")
 	cure_prob = 15
-	severity = DISEASE_SEVERITY_BIOHAZARD
+	severity = BIOHAZARD
 
 /datum/disease/virus/fake_gbs/stage_act()
 	if(!..())

@@ -1,35 +1,36 @@
 SUBSYSTEM_DEF(radio)
 	name = "Radio"
-	ss_flags = SS_NO_FIRE
+	flags = SS_NO_INIT | SS_NO_FIRE
+	ss_id = "radio"
 
 	var/list/radiochannels = list(
-		PUB_FREQ_NAME = PUB_FREQ,
-		SCI_FREQ_NAME = SCI_FREQ,
-		COMM_FREQ_NAME = COMM_FREQ,
-		PROC_FREQ_NAME = PROC_FREQ,
-		MED_FREQ_NAME = MED_FREQ,
-		ENG_FREQ_NAME = ENG_FREQ,
-		SEC_FREQ_NAME = SEC_FREQ,
-		PRS_FREQ_NAME = PRS_FREQ,
-		ERT_FREQ_NAME = ERT_FREQ,
-		DTH_FREQ_NAME = DTH_FREQ,
-		SYND_FREQ_NAME = SYND_FREQ,
-		SYND_TAIPAN_FREQ_NAME = SYND_TAIPAN_FREQ,
-		SYNDTEAM_FREQ_NAME = SYNDTEAM_FREQ,
-		SOV_FREQ_NAME = SOV_FREQ,
-		SUP_FREQ_NAME = SUP_FREQ,
-		SRV_FREQ_NAME = SRV_FREQ,
-		AI_FREQ_NAME = AI_FREQ,
-		MED_I_FREQ_NAME = MED_I_FREQ,
-		SEC_I_FREQ_NAME = SEC_I_FREQ,
-		SPY_SPIDER_FREQ_NAME = SPY_SPIDER_FREQ,
-		NINJA_FREQ_NAME = NINJA_FREQ,
-		EVENT_ALPHA_FREQ_NAME = EVENT_ALPHA_FREQ,
-		EVENT_BETA_FREQ_NAME = EVENT_BETA_FREQ,
-		EVENT_GAMMA_FREQ_NAME = EVENT_GAMMA_FREQ,
-		T1_FREQ_NAME = T1_FREQ,
-		T2_FREQ_NAME = T2_FREQ,
-		T3_FREQ_NAME = T3_FREQ,
+	"Общий"					= PUB_FREQ,
+	"Наука"					= SCI_FREQ,
+	"Командование"			= COMM_FREQ,
+	"Юриспруденция"			= PROC_FREQ,
+	"Медицина"				= MED_FREQ,
+	"Инженерия"				= ENG_FREQ,
+	"Безопасность"			= SEC_FREQ,
+	"Заключенные"			= PRS_FREQ,
+	"ОБР"					= ERT_FREQ,
+	"ССО"					= DTH_FREQ,
+	"Синдикат"				= SYND_FREQ,
+	"СиндиТайпан"			= SYND_TAIPAN_FREQ,
+	"СиндиДОС"				= SYNDTEAM_FREQ,
+	"СССП"					= SOV_FREQ,
+	"Снабжение"			= SUP_FREQ,
+	"Обслуживание"			= SRV_FREQ,
+	"ИИ"					= AI_FREQ,
+	"Медицина (ИТК)"		= MED_I_FREQ,
+	"Безопасность (ИТК)"	= SEC_I_FREQ,
+	"Жучок"					= SPY_SPIDER_FREQ,
+	"Клан Паука"			= NINJA_FREQ,
+	"Альфа частота"			= EVENT_ALPHA_FREQ,
+	"Бета частота"			= EVENT_BETA_FREQ,
+	"Гамма частота"			= EVENT_GAMMA_FREQ,
+	"Команда 1"				= T1_FREQ,
+	"Команда 2"				= T2_FREQ,
+	"Команда 3"				= T3_FREQ
 	)
 	var/list/CENT_FREQS = list(ERT_FREQ, DTH_FREQ)
 	var/list/ANTAG_FREQS = list(SYND_FREQ, SYNDTEAM_FREQ, SYND_TAIPAN_FREQ)
@@ -37,14 +38,11 @@ SUBSYSTEM_DEF(radio)
 	var/list/syndicate_blacklist = list(SPY_SPIDER_FREQ, EVENT_ALPHA_FREQ, EVENT_BETA_FREQ, EVENT_GAMMA_FREQ)	//list of frequencies syndicate headset can't hear
 	var/list/datum/radio_frequency/frequencies = list()
 
+
 // This is a disgusting hack to stop this tripping CI when this thing needs to FUCKING DIE
-/datum/controller/subsystem/radio/Initialize()
-	for(var/name,new_frequency in radiochannels)
-		var/f_text = num2text(new_frequency)
-		var/datum/radio_frequency/frequency = new
-		frequency.frequency = new_frequency
-		frequencies[f_text] = frequency
-	return SS_INIT_SUCCESS
+///datum/controller/subsystem/radio/Initialize()
+//	return
+
 
 // This is fucking disgusting and needs to die
 /datum/controller/subsystem/radio/proc/frequency_span_class(frequency)
@@ -105,41 +103,31 @@ SUBSYSTEM_DEF(radio)
 	// If its none of the others
 	return "radio"
 
-/datum/controller/subsystem/radio/proc/add_object(obj/device, new_frequency, filter = null)
+
+/datum/controller/subsystem/radio/proc/add_object(obj/device as obj, new_frequency as num, filter = null as text|null)
 	var/f_text = num2text(new_frequency)
 	var/datum/radio_frequency/frequency = frequencies[f_text]
 
 	if(!frequency)
 		frequency = new
-		frequency.custom = TRUE
 		frequency.frequency = new_frequency
 		frequencies[f_text] = frequency
 
 	frequency.add_listener(device, filter)
-	add_radio(device, new_frequency)
 	return frequency
 
 /datum/controller/subsystem/radio/proc/remove_object(obj/device, old_frequency)
 	var/f_text = num2text(old_frequency)
-	return remove_object_str_freq(device, f_text)
+	var/datum/radio_frequency/frequency = frequencies[f_text]
 
-/datum/controller/subsystem/radio/proc/remove_object_str_freq(obj/device, old_frequency)
-	var/datum/radio_frequency/frequency = frequencies[old_frequency]
-	if(!frequency)
-		return 1
+	if(frequency)
+		frequency.remove_listener(device)
 
-	frequency.remove_listener(device)
-	remove_radio(device, old_frequency)
-	if(!frequency.custom || length(frequency.devices) != 0)
-		return 1
+		if(frequency.devices.len == 0)
+			qdel(frequency)
+			frequencies -= f_text
 
-	qdel(frequency)
-	frequencies -= old_frequency
 	return 1
-
-/datum/controller/subsystem/radio/proc/remove_object_all(obj/device)
-	for(var/frequency in frequencies)
-		remove_object_str_freq(device, frequency)
 
 /datum/controller/subsystem/radio/proc/return_frequency(new_frequency as num)
 	var/f_text = num2text(new_frequency)
@@ -151,3 +139,6 @@ SUBSYSTEM_DEF(radio)
 		frequencies[f_text] = frequency
 
 	return frequency
+
+
+// ALL THE SHIT BELOW THIS LINE ISNT PART OF THE SUBSYSTEM AND REALLY NEEDS ITS OWN FILE

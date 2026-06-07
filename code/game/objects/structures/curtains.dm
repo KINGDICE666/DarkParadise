@@ -8,10 +8,12 @@
 	layer = SHOWER_CLOSED_LAYER
 	opacity = TRUE
 
+
 /obj/structure/curtain/open
 	icon_state = "open"
 	layer = SHOWER_OPEN_LAYER
 	opacity = FALSE
+
 
 /obj/structure/curtain/attack_hand(mob/user)
 	playsound(get_turf(loc), SFX_RUSTLE, 15, TRUE, -5)
@@ -28,19 +30,22 @@
 		if(BURN)
 			playsound(loc, 'sound/items/welder.ogg', 80, TRUE)
 
+
 /obj/structure/curtain/proc/toggle()
 	set_opacity(!opacity)
 	layer = opacity ? SHOWER_CLOSED_LAYER : SHOWER_OPEN_LAYER
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/structure/curtain/update_icon_state()
 	icon_state = opacity ? "closed" : "open"
+
 
 /obj/structure/curtain/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(iscrayon(I))
+	if(istype(I, /obj/item/toy/crayon))
 		add_fingerprint(user)
 		var/new_color = tgui_input_color(user, "Choose Color")
 		if(isnull(new_color))
@@ -50,20 +55,23 @@
 
 	return ..()
 
+
 /obj/structure/curtain/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_start_check(src, user, 0))
 		return
 	if(anchored)
-		user.visible_message(span_warning("[user] unscrews [src] from the floor."), span_notice("You start to unscrew [src] from the floor..."), "You hear rustling noises.")
+		user.visible_message("<span class='warning'>[user] unscrews [src] from the floor.</span>", "<span class='notice'>You start to unscrew [src] from the floor...</span>", "You hear rustling noises.")
 		if(I.use_tool(src, user, 50, volume = I.tool_volume) && anchored)
 			set_anchored(FALSE)
-			to_chat(user, span_notice("You unscrew [src] from the floor."))
+			to_chat(user, "<span class='notice'>You unscrew [src] from the floor.</span>")
 	else
-		user.visible_message(span_warning("[user] screws [src] to the floor."), span_notice("You start to screw [src] to the floor..."), "You hear rustling noises.")
+		user.visible_message("<span class='warning'>[user] screws [src] to the floor.</span>", "<span class='notice'>You start to screw [src] to the floor...</span>", "You hear rustling noises.")
 		if(I.use_tool(src, user, 50, volume = I.tool_volume) && !anchored)
 			set_anchored(TRUE)
-			to_chat(user, span_notice("You screw [src] to the floor."))
+			to_chat(user, "<span class='notice'>You screw [src] to the floor.</span>")
+
+
 
 /obj/structure/curtain/wirecutter_act(mob/user, obj/item/I)
 	if(anchored)

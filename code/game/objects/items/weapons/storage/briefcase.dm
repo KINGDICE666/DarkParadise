@@ -1,13 +1,10 @@
 /obj/item/storage/briefcase
 	name = "briefcase"
 	desc = "Он сделан из НАСТОЯЩЕЙ искусственной кожи и всё ещё с ценником. Его владелец, должно быть, настоящий профессионал."
-	icon = 'icons/obj/storage/boxes.dmi'
 	icon_state = "briefcase"
-	righthand_file = 'icons/mob/inhands/storage_righthand.dmi'
-	lefthand_file = 'icons/mob/inhands/storage_lefthand.dmi'
 	item_state = "briefcase"
 	flags = CONDUCT
-	hitsound = SFX_SWING_HIT
+	hitsound = "swing_hit"
 	use_sound = 'sound/effects/briefcase.ogg'
 	force = 8
 	throw_range = 4
@@ -28,8 +25,7 @@
 	new /obj/item/clothing/under/syndicate/sniper(src)
 	new /obj/item/ammo_box/magazine/sniper_rounds/soporific(src)
 	new /obj/item/ammo_box/magazine/sniper_rounds/soporific(src)
-	new /obj/item/gun_module/muzzle/suppressor/heavy(src)
-	new /obj/item/gun_module/rail/scope/x8(src)
+	new /obj/item/gun_module/muzzle/suppressor(src)
 
 /obj/item/storage/briefcase/false_bottomed
 	max_w_class = WEIGHT_CLASS_SMALL
@@ -44,11 +40,12 @@
 		QDEL_NULL(stored_item)
 	return ..()
 
-/obj/item/storage/briefcase/false_bottomed/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/storage/briefcase/false_bottomed/afterattack(atom/A, mob/user, flag, params)
 	..()
-	if(stored_item && isgun(stored_item) && !Adjacent(target))
+	if(stored_item && isgun(stored_item) && !Adjacent(A))
 		var/obj/item/gun/stored_gun = stored_item
-		stored_gun.fast_fire(target, user)
+		stored_gun.afterattack(A, user, flag, params)
+
 
 /obj/item/storage/briefcase/false_bottomed/attackby(obj/item/I, mob/user, params)
 	if(bottom_open)
@@ -57,7 +54,7 @@
 			to_chat(user, span_warning("В потайном дне уже что-то лежит!"))
 			return ATTACK_CHAIN_PROCEED
 		if(I.w_class > WEIGHT_CLASS_NORMAL)
-			to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] слишком большой для потайного дна!"))
+			to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] слишком большой для потайного дна!"))
 			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(I, src))
 			return ..()
@@ -67,6 +64,7 @@
 		to_chat(user, span_notice("Вы помещаете [I.declent_ru(ACCUSATIVE)] в потайное отделение кейса."))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/storage/briefcase/false_bottomed/screwdriver_act(mob/user, obj/item/I)
 	if(!bottom_open && busy_hunting)
@@ -108,13 +106,13 @@
 	var/opened = FALSE
 
 /obj/item/case_with_bipki/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "чемодан с бипками",
 		GENITIVE = "чемодана с бипками",
 		DATIVE = "чемодану с бипками",
 		ACCUSATIVE = "чемодан с бипками",
 		INSTRUMENTAL = "чемоданом с бипками",
-		PREPOSITIONAL = "чемодане с бипками",
+		PREPOSITIONAL = "чемодане с бипками"
 	)
 
 /obj/item/case_with_bipki/attack_self(mob/user)

@@ -61,9 +61,7 @@
 /obj/structure/cable{
 	icon_state = "2-4"
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 6
-	},
+/obj/effect/decal/warning_stripes/southeast,
 /obj/item/stack/cable_coil/cut{
 	amount = 1
 	},
@@ -151,6 +149,13 @@
 /obj/structure/lattice/catwalk,
 /obj/structure/cable{
 	icon_state = "2-4"
+	},
+/turf/template_noop,
+/area/space/nearstation)
+"av" = (
+/obj/structure/lattice/catwalk,
+/obj/structure/cable{
+	icon_state = "1-2"
 	},
 /turf/template_noop,
 /area/space/nearstation)
@@ -300,9 +305,7 @@
 	dir = 4
 	},
 /obj/machinery/portable_atmospherics/canister/air,
-/obj/effect/turf_decal/stripes/line{
-	dir = 9
-	},
+/obj/effect/decal/warning_stripes/northwest,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
@@ -313,10 +316,8 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/decal/warning_stripes/north,
+/obj/effect/landmark/tiles/damageturf,
 /obj/item/stack/cable_coil/cut{
 	amount = 1
 	},
@@ -380,9 +381,7 @@
 /area/ruin/spaceprison)
 "bd" = (
 /obj/machinery/power/smes,
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /obj/structure/cable{
 	icon_state = "0-2"
 	},
@@ -436,7 +435,9 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/structure/extinguisher_cabinet/directional/south,
+/obj/structure/extinguisher_cabinet{
+	pixel_y = -30
+	},
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/plasteel{
 	icon_state = "yellow"
@@ -467,7 +468,7 @@
 /obj/item/stack/sheet/mineral/plasma{
 	amount = 14
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "yellowfull"
 	},
@@ -527,16 +528,14 @@
 	id = "spaceprisonsolar";
 	name = "Space Prison Solar Control"
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 5
-	},
+/obj/effect/decal/warning_stripes/northeast,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "bB" = (
-/obj/machinery/power/apc/worn_out/directional/south,
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
+/obj/machinery/power/apc/worn_out{
+	pixel_y = -24
 	},
+/obj/effect/decal/warning_stripes/southwest,
 /obj/machinery/light/small{
 	dir = 8
 	},
@@ -567,10 +566,8 @@
 	},
 /area/ruin/spaceprison)
 "bF" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/decal/warning_stripes/east,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "bI" = (
@@ -631,9 +628,7 @@
 /area/ruin/spaceprison)
 "bL" = (
 /obj/item/stock_parts/cell,
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -836,7 +831,7 @@
 	id = "Ruin Cell 1";
 	pixel_x = -32
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "cp" = (
@@ -902,7 +897,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "cD" = (
@@ -943,9 +938,7 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -965,9 +958,7 @@
 	},
 /area/ruin/spaceprison)
 "cM" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /obj/machinery/light/small{
 	dir = 8
 	},
@@ -987,7 +978,7 @@
 	},
 /area/ruin/spaceprison)
 "cP" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1036,7 +1027,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1048,7 +1039,9 @@
 	pixel_y = 3
 	},
 /obj/item/storage/firstaid/o2,
-/obj/machinery/defibrillator_mount/loaded/directional/north,
+/obj/machinery/defibrillator_mount/loaded{
+	pixel_y = 24
+	},
 /turf/simulated/floor/plasteel{
 	dir = 9;
 	icon_state = "whiteblue"
@@ -1062,7 +1055,7 @@
 	id = "Ruin Cell 3";
 	pixel_x = -32
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "el" = (
@@ -1076,7 +1069,7 @@
 /obj/structure/cable{
 	icon_state = "1-8"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "darkred"
@@ -1172,9 +1165,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "fV" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1193,7 +1184,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "gi" = (
@@ -1262,9 +1253,7 @@
 /turf/template_noop,
 /area/space/nearstation)
 "hl" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
@@ -1292,11 +1281,11 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "iz" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "iH" = (
@@ -1355,9 +1344,7 @@
 /turf/simulated/floor/plating/airless,
 /area/ruin/spaceprison)
 "jy" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /obj/machinery/door_control{
 	desc = "A remote control-switch for the pod doors.";
 	id = "spaceprisonpod";
@@ -1470,9 +1457,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "lL" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1510,7 +1495,7 @@
 /area/ruin/spaceprison)
 "nS" = (
 /obj/machinery/suit_storage_unit/security,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkred"
 	},
@@ -1722,7 +1707,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "darkred"
@@ -1763,9 +1748,7 @@
 	},
 /area/ruin/spaceprison)
 "uO" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1896,7 +1879,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "xW" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/machinery/light_construct/small{
 	dir = 4
 	},
@@ -1982,7 +1965,7 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "yellow"
 	},
@@ -2016,14 +1999,14 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "An" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "darkred"
 	},
 /area/ruin/spaceprison)
 "Ao" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "vault"
@@ -2069,9 +2052,7 @@
 	},
 /area/ruin/spaceprison)
 "Bd" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2093,9 +2074,7 @@
 	},
 /area/ruin/spaceprison)
 "BG" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /obj/machinery/light/small{
 	dir = 8
 	},
@@ -2113,7 +2092,7 @@
 /area/ruin/spaceprison)
 "BI" = (
 /obj/item/paper/crumpled,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2136,9 +2115,7 @@
 /area/ruin/spaceprison)
 "Cr" = (
 /obj/structure/closet/emcloset,
-/obj/effect/turf_decal/stripes/corner{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/southeastcorner,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2257,7 +2234,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 9;
 	icon_state = "darkred"
@@ -2284,7 +2261,7 @@
 "GZ" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /obj/machinery/light,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 10;
 	icon_state = "darkred"
@@ -2336,9 +2313,7 @@
 	},
 /area/ruin/spaceprison)
 "Ih" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /obj/structure/closet/firecloset,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -2371,9 +2346,7 @@
 	},
 /area/ruin/spaceprison)
 "IM" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "IP" = (
@@ -2391,7 +2364,7 @@
 /obj/item/shard{
 	icon_state = "medium"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2414,7 +2387,7 @@
 /obj/item/stack/cable_coil{
 	amount = 5
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "Ka" = (
@@ -2432,7 +2405,7 @@
 /obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "Ky" = (
@@ -2472,7 +2445,7 @@
 /obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "Me" = (
@@ -2523,9 +2496,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "MG" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /obj/structure/cable{
 	icon_state = "2-8"
 	},
@@ -2658,7 +2629,7 @@
 /obj/item/stack/cable_coil{
 	amount = 5
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "PP" = (
@@ -2792,7 +2763,7 @@
 	name = "Security Ballistic Weapons";
 	req_access = list(1)
 	},
-/obj/item/gun/projectile/automatic/pistol/enforcer{
+/obj/item/gun/projectile/automatic/pistol/enforcer/security{
 	pixel_x = 3;
 	pixel_y = -3
 	},
@@ -2812,9 +2783,7 @@
 	},
 /area/ruin/spaceprison)
 "Td" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/item/stack/ore/bluespace_crystal{
 	amount = 4
 	},
@@ -2850,9 +2819,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "TK" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
@@ -2920,7 +2887,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
 "WF" = (
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /obj/structure/inflatable,
 /turf/simulated/floor/plating,
 /area/ruin/spaceprison)
@@ -3004,7 +2971,7 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -3030,7 +2997,7 @@
 /area/ruin/spaceprison)
 "YV" = (
 /obj/item/paper/crumpled/hotel_scrap_7,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -3047,7 +3014,7 @@
 /area/ruin/spaceprison)
 "Zh" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/mapping_helpers/turfs/damage,
+/obj/effect/landmark/tiles/damageturf,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkred"
@@ -3063,6 +3030,7 @@
 	icon_state = "1-2"
 	},
 /turf/simulated/floor/plasteel{
+	dir = 10;
 	icon_state = "darkredfull"
 	},
 /area/ruin/spaceprison)
@@ -4195,7 +4163,7 @@ aj
 aw
 aj
 aj
-aj
+av
 aA
 aD
 aB

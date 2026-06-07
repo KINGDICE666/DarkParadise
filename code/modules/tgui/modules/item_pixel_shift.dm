@@ -10,11 +10,13 @@
 
 	item_pixel_shift.ui_interact(usr)
 
+
 /datum/ui_module/item_pixel_shift
 	name = "Item Pixel Shift"
 	var/pixels_per_click = 1
 	var/random_drop_on = TRUE
 	var/init_no_random_drop = FALSE
+
 
 /datum/ui_module/item_pixel_shift/New(datum/_host)
 	. = ..()
@@ -23,11 +25,13 @@
 		random_drop_on = FALSE
 		init_no_random_drop = TRUE
 
+
 /datum/ui_module/item_pixel_shift/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "ItemPixelShift", name)
 		ui.open()
+
 
 /datum/ui_module/item_pixel_shift/ui_data(mob/user)
 	var/obj/item/source = host
@@ -39,6 +43,7 @@
 		"random_drop_on" = random_drop_on,
 	)
 	return data
+
 
 /datum/ui_module/item_pixel_shift/ui_act(action, list/params)
 	if(..())

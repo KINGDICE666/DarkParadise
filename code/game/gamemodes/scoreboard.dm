@@ -1,5 +1,6 @@
 GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been generated
 
+
 //Thresholds for Score Ratings
 #define SINGULARITY_DESERVES_BETTER -3500
 #define SINGULARITY_FODDER -3000
@@ -15,6 +16,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 #define AMBASSADORS_OF_DISCOVERY 3000
 #define PRIDE_OF_SCIENCE 4000
 #define NANOTRASEN_FINEST 5000
+
 
 /datum/scoreboard
 	/// Overall combined score for the whole round.
@@ -96,6 +98,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 	/// Associative list that contains information about all laws changes during the round.
 	var/list/laws_change_info
 
+
 /datum/scoreboard/proc/scoreboard()
 	// Print a list of antagonists to the server log.
 	log_antags()
@@ -112,6 +115,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 	check_cleanables()
 
 	generate_scoreboard()
+
 
 /datum/scoreboard/proc/log_antags()
 	var/list/total_antagonists = list()
@@ -138,6 +142,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 
 	// Log antags that went cryo during the round (and their objectives)
 	log_cryo_antags()
+
 
 /datum/scoreboard/proc/log_cryo_antags()
 	if(!cryo_antags_info || !length(cryo_antags_info))
@@ -167,6 +172,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 				log_game(cryo_antags_info[antag][objective])
 			log_game("End objective log for [antag]-[role]")
 
+
 /datum/scoreboard/proc/save_antag_info(datum/mind/antag_mind)
 	if(!antag_mind || !SSticker?.score)
 		return
@@ -187,12 +193,14 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		cryo_antags_info[current_index] += "Objective #[count]: [objective.explanation_text]"
 		count++
 
+
 /datum/scoreboard/proc/log_silicon_laws()
 	if(!laws_change_info || !length(laws_change_info))
 		return
 
 	for(var/i in laws_change_info)
 		WRITE_LOG(GLOB.world_game_log, "LAWS: [i][GLOB.log_end]")
+
 
 /datum/scoreboard/proc/save_silicon_laws(mob/living/silicon/silicon, mob/changer, additional_info = "", log_all_laws = FALSE)
 	if(!CONFIG_GET(flag/log_game) || !istype(silicon) || !silicon.laws)
@@ -221,6 +229,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 	for(var/datum/ai_law/law in current_laws)
 		laws_change_info += "[law.get_index()]. [html_decode(law.law)]"
 
+
 /datum/scoreboard/proc/check_station_player(mob/mob)
 	if(!is_station_level(mob.z) || mob.stat < DEAD)
 		return
@@ -229,6 +238,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		score_dead_crew++
 	else if(ishuman(mob))
 		score_dead_crew++
+
 
 /datum/scoreboard/proc/check_shuttle_player(mob/mob)
 	if(!mob.mind || mob.stat == DEAD || !ishuman(mob))
@@ -242,14 +252,15 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		richest_cash = cash_score
 		richest_name = human.real_name
 		richest_job = human.job
-		richest_key = get_display_key(human?.client)
+		richest_key = human.key
 
 	var/damage_score = human.getBruteLoss() + human.getFireLoss() + human.getToxLoss() + human.getOxyLoss()
 	if(damage_score > damaged_health)
 		damaged_health = damage_score
 		damaged_name = human.real_name
 		damaged_job = human.job
-		damaged_key = get_display_key(human?.client)
+		damaged_key = human.key
+
 
 /datum/scoreboard/proc/check_apc_power()
 	for(var/A in GLOB.apcs)
@@ -259,6 +270,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		var/obj/item/stock_parts/cell/cell = apc.cell
 		if(!cell || cell.charge < 2300)
 			score_power_loss++ //200 charge leeway
+
 
 /datum/scoreboard/proc/check_cleanables()
 	for(var/obj/effect/decal/cleanable/decal in world)
@@ -270,6 +282,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 			score_mess += 1
 		else if(istype(decal, /obj/effect/decal/cleanable/vomit))
 			score_mess += 1
+
 
 /datum/scoreboard/proc/generate_scoreboard()
 	// Point modifiers
@@ -384,10 +397,10 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		if(SERVANTS_OF_SCIENCE to GOOD_BUNCH-1) score_rating =						"Умелые научные ассистенты"
 		if(GOOD_BUNCH to MACHINE_THIRTEEN-1) score_rating =						"Лучшие из довольно компетентных"
 		if(MACHINE_THIRTEEN to PROMOTIONS_FOR_EVERYONE-1) score_rating =			"Образцовый экипаж"
-		if(PROMOTIONS_FOR_EVERYONE to AMBASSADORS_OF_DISCOVERY-1) score_rating =	"Всем — премия!"
+		if(PROMOTIONS_FOR_EVERYONE to AMBASSADORS_OF_DISCOVERY-1) score_rating =	"Всем — премия!"
 		if(AMBASSADORS_OF_DISCOVERY to PRIDE_OF_SCIENCE-1) score_rating =			"Пионеры новых открытий"
 		if(PRIDE_OF_SCIENCE to NANOTRASEN_FINEST-1) score_rating =					"Гордость науки во плоти"
-		if(NANOTRASEN_FINEST to INFINITY) score_rating =							"Лучшие кадры \"Нанотрейзен\""
+		if(NANOTRASEN_FINEST to INFINITY) score_rating =							"Лучшие кадры Нанотрейзен"
 
 	dat += "<b><u>РЕЙТИНГ:</u></b> [score_rating]"
 	GLOB.scoreboard = jointext(dat, "")
@@ -400,6 +413,7 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 				var/datum/browser/popup = new(mob, "roundstats", "Итоги смены №[GLOB.round_id]", 700, 900)
 				popup.set_content(GLOB.scoreboard)
 				popup.open(FALSE)
+
 
 /**
  * A recursive function to properly determine the wealthiest escapee
@@ -420,11 +434,14 @@ GLOBAL_VAR(scoreboard) // Variable to save the scoreboard string once it's been 
 		for(var/obj/item/storage/S in C.contents)
 			. += .(S, level + 1)
 
+
 /datum/game_mode/proc/get_scoreboard_stats()
 	return null
 
+
 /datum/game_mode/proc/set_scoreboard_vars()
 	return null
+
 
 #undef SINGULARITY_DESERVES_BETTER
 #undef SINGULARITY_FODDER

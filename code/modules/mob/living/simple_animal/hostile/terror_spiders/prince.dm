@@ -37,14 +37,14 @@
 	spider_opens_doors = 2
 	web_type = null
 	special_abillity = list(/obj/effect/proc_holder/spell/aoe/terror_slam)
-	spider_intro_text = "Будучи Принцом Ужаса, ваша задача — устроить резню. У вас больше здоровья и урона, чем у любого другого паука, вы можете отрывать конечности, быстро уничтожать мехи, однако, если вы не будете пожирать трупы, сразу потеряете способность регенерировать. Ваша активная способность оглушает противников в радиусе двух плиток, попутно замедляя их."
+	spider_intro_text = "Будучи Принцом Ужаса, ваша задача - устроить резню. У вас больше здоровья и урона, чем у любого другого паука, вы можете отрывать конечности, быстро уничтожать мехи, однако, если вы не будете пожирать трупы, сразу потеряете способность регенерировать. Ваша активная способность оглушает противников в радиусе двух плиток, попутно замедляя их."
 	datum_type = /datum/antagonist/terror_spider/main_spider/prince
 	gender = MALE
 	move_resist = MOVE_FORCE_STRONG // no more pushing a several hundred if not thousand pound spider
 	tts_seed = "Alduin"
 
 /mob/living/simple_animal/hostile/poison/terror_spider/prince/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Принц Ужаса",
 		GENITIVE = "Принца Ужаса",
 		DATIVE = "Принцу Ужаса",
@@ -68,9 +68,10 @@
 			L.Weaken(2 SECONDS)
 			playsound(src, 'sound/creatures/terrorspiders/rip.ogg', 100, TRUE)
 			var/obj/item/organ/external/NB = pick(L.bodyparts)
-			visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] отрывает [NB.declent_ru(ACCUSATIVE)] [L.declent_ru(GENITIVE)] своими острыми, как бритва, челюстями!"))
+			visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] отрывает [NB.declent_ru(ACCUSATIVE)] [L.declent_ru(GENITIVE)] своими острыми, как бритва, челюстями!"))
 			NB.droplimb()  //dismemberment
 			L.apply_damage(35, STAMINA)
 	else
 		. = ..()
+
 

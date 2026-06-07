@@ -36,18 +36,18 @@
 		"warnwhitered", "warnwhiteorange", "warnwhiteblue", "warnwhitewhite", "warnwhitecamo", "blackfull", "brownoldfull", "escapefull",
 		"navyblue", "navybluecorners", "navybluefull", "darkgrey", "darkgreycamo", "darkgreynavyblue", "darkgreynavybluecorner")
 
-/obj/item/floor_painter/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+/obj/item/floor_painter/afterattack(atom/A, mob/user, proximity, params)
+	if(!proximity)
 		return
 
-	var/turf/simulated/floor/plasteel/F = target
+	var/turf/simulated/floor/plasteel/F = A
 
 	if(F.icon_state == floor_state && F.dir == floor_dir)
-		to_chat(user, span_notice("This is already painted [floor_state] [dir2text(floor_dir)]!"))
+		to_chat(user, "<span class='notice'>This is already painted [floor_state] [dir2text(floor_dir)]!</span>")
 		return
 
 	if(!istype(F))
-		to_chat(user, span_warning("\The [src] can only be used on station flooring."))
+		to_chat(user, "<span class='warning'>\The [src] can only be used on station flooring.</span>")
 		return
 
 	playsound(loc, usesound, 30, TRUE)
@@ -81,6 +81,7 @@
 	data["selectedDir"] = floor_dir
 
 	return data
+
 
 /obj/item/floor_painter/ui_static_data(mob/user)
 	var/list/data = list()

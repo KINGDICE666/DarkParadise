@@ -51,12 +51,14 @@
 		return
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/recycler/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/machinery/recycler/crowbar_act(mob/user, obj/item/I)
 	if(default_deconstruction_crowbar(user, I))
@@ -70,6 +72,7 @@
 	if(default_unfasten_wrench(user, I))
 		return TRUE
 
+
 /obj/machinery/recycler/emag_act(mob/user)
 	if(!emagged)
 		emagged = 1
@@ -81,11 +84,13 @@
 			to_chat(user, span_notice("You use the cryptographic sequencer on the [name]."))
 		add_attack_logs(user, src, "emagged")
 
+
 /obj/machinery/recycler/update_icon_state()
 	var/is_powered = !(stat & (BROKEN|NOPOWER))
 	if(emergency_mode)
 		is_powered = FALSE
 	icon_state = icon_name + "[is_powered]" + "[(blood ? "bld" : "")]" // add the blood tag at the end
+
 
 /obj/machinery/recycler/Bumped(atom/movable/moving_atom)
 	. = ..()
@@ -95,10 +100,11 @@
 	if(move_dir == eat_dir)
 		eat(moving_atom)
 
+
 /obj/machinery/recycler/proc/eat(atom/AM0, sound = 1)
 	var/list/to_eat = list(AM0)
 	if(isitem(AM0))
-		to_eat += AM0.get_all_contents()
+		to_eat += AM0.GetAllContents()
 	var/items_recycled = 0
 
 	for(var/i in to_eat)
@@ -134,6 +140,7 @@
 	qdel(I)
 	materials.retrieve_all()
 
+
 /obj/machinery/recycler/proc/emergency_stop(mob/living/L)
 	playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 	emergency_mode = TRUE
@@ -146,44 +153,46 @@
 	emergency_mode = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
-/obj/machinery/recycler/proc/crush_living(mob/living/target)
-	target.forceMove(loc)
+/obj/machinery/recycler/proc/crush_living(mob/living/L)
 
-	if(issilicon(target))
+	L.forceMove(loc)
+
+	if(issilicon(L))
 		playsound(loc, 'sound/items/welder.ogg', 50, TRUE)
 	else
 		playsound(loc, 'sound/effects/splat.ogg', 50, TRUE)
 
 	var/gib = 1
 	// By default, the emagged recycler will gib all non-carbons. (human simple animal mobs don't count)
-	if(iscarbon(target))
+	if(iscarbon(L))
 		gib = 0
-		if(target.stat == CONSCIOUS)
-			target.say("ARRRRRRRRRRRGH!!!")
-		add_mob_blood(target)
+		if(L.stat == CONSCIOUS)
+			L.say("ARRRRRRRRRRRGH!!!")
+		add_mob_blood(L)
 
-	if(!blood && !issilicon(target))
+	if(!blood && !issilicon(L))
 		blood = 1
 		update_icon(UPDATE_ICON_STATE)
 
 	// Remove and recycle the equipped items
 	if(eat_victim_items)
-		for(var/obj/item/item in target.get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
-			if(target.drop_item_ground(item))
-				eat(item, sound = 0)
+		for(var/obj/item/I in L.get_equipped_items(TRUE, TRUE))
+			if(L.drop_item_ground(I))
+				eat(I, sound = 0)
 
 	// Instantly lie down, also go unconscious from the pain, before you die.
-	target.Paralyse(10 SECONDS)
+	L.Paralyse(10 SECONDS)
 
 	// For admin fun, var edit emagged to 2.
 	if(gib || emagged == 2)
-		target.gib()
+		L.gib()
 	else if(emagged == 1)
-		target.adjustBruteLoss(crush_damage)
+		L.adjustBruteLoss(crush_damage)
+
 
 /obj/machinery/recycler/verb/rotate()
 	set name = "Повернуть по часовой"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	var/mob/living/user = usr
@@ -199,7 +208,7 @@
 
 /obj/machinery/recycler/verb/rotateccw()
 	set name = "Повернуть против часовой"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	var/mob/living/user = usr
@@ -213,10 +222,12 @@
 	to_chat(user, span_notice("[src] will now accept items from [dir2text(eat_dir)]."))
 	return 1
 
+
 /obj/machinery/recycler/deathtrap
 	name = "dangerous old crusher"
 	emagged = 1
 	crush_damage = 120
+
 
 /obj/item/paper/recycler
 	name = "paper - 'garbage duty instructions'"

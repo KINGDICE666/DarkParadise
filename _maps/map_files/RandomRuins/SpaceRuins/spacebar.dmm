@@ -143,7 +143,8 @@
 /area/ruin/powered/space_bar)
 "aV" = (
 /obj/structure/chair{
-	dir = 4
+	dir = 4;
+	tag = "icon-chair (EAST)"
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
@@ -200,7 +201,8 @@
 /area/ruin/powered/space_bar)
 "bk" = (
 /obj/structure/chair{
-	dir = 8
+	dir = 8;
+	tag = "icon-chair (WEST)"
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
@@ -247,7 +249,7 @@
 /turf/simulated/floor/carpet/arcade,
 /area/ruin/powered/space_bar)
 "bt" = (
-/obj/item/beacon,
+/obj/item/radio/beacon,
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "dw" = (
@@ -355,13 +357,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
-"ng" = (
-/obj/structure/closet,
-/obj/item/clothing/shoes/color/brown,
-/obj/item/clothing/suit/jacket/miljacket,
-/obj/item/clothing/head/det_hat,
-/turf/simulated/floor/wood,
-/area/ruin/powered/space_bar)
 "nu" = (
 /obj/structure/closet,
 /obj/item/clothing/suit/jacket/leather/overcoat,
@@ -381,7 +376,9 @@
 /turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
 "nL" = (
-/obj/machinery/newscaster/directional/west,
+/obj/machinery/newscaster{
+	pixel_x = -32
+	},
 /obj/structure/closet/crate,
 /obj/effect/spawner/lootdrop/maintenance/double,
 /turf/simulated/floor/carpet/blue,
@@ -411,7 +408,7 @@
 /turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
 "qZ" = (
-/obj/machinery/vending/clothesmate,
+/obj/machinery/vending/clothing,
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "rn" = (
@@ -482,7 +479,9 @@
 /turf/simulated/wall,
 /area/ruin/powered/space_bar)
 "yO" = (
-/obj/structure/extinguisher_cabinet/directional/north,
+/obj/structure/extinguisher_cabinet{
+	pixel_y = 32
+	},
 /turf/simulated/wall,
 /area/ruin/powered/space_bar)
 "zp" = (
@@ -514,7 +513,8 @@
 /area/ruin/powered/space_bar)
 "AN" = (
 /obj/structure/chair{
-	dir = 4
+	dir = 4;
+	tag = "icon-chair (EAST)"
 	},
 /turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
@@ -591,7 +591,9 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "Hm" = (
-/obj/machinery/newscaster/directional/west,
+/obj/machinery/newscaster{
+	pixel_x = -32
+	},
 /obj/machinery/light{
 	dir = 8
 	},
@@ -622,6 +624,13 @@
 "JR" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/storage/fancy/donut_box,
+/turf/simulated/floor/wood,
+/area/ruin/powered/space_bar)
+"JZ" = (
+/obj/structure/closet,
+/obj/item/clothing/shoes/brown,
+/obj/item/clothing/suit/jacket/miljacket,
+/obj/item/clothing/head/det_hat,
 /turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
 "Kc" = (
@@ -760,6 +769,20 @@
 /obj/machinery/prize_counter,
 /turf/simulated/floor/carpet/arcade,
 /area/ruin/powered/space_bar)
+"TB" = (
+/obj/structure/table,
+/obj/item/reagent_containers/food/drinks/cans/beer,
+/obj/item/book/manual/barman_recipes,
+/obj/item/reagent_containers/food/drinks/shaker,
+/obj/machinery/light/small{
+	dir = 8
+	},
+/obj/item/radio/intercom{
+	dir = 8;
+	pixel_y = 24
+	},
+/turf/simulated/floor/wood,
+/area/ruin/powered/space_bar)
 "TN" = (
 /obj/machinery/door/airlock/hatch,
 /turf/simulated/floor/wood,
@@ -844,17 +867,6 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
-/area/ruin/powered/space_bar)
-"Zx" = (
-/obj/structure/table,
-/obj/item/reagent_containers/food/drinks/cans/beer,
-/obj/item/book/manual/barman_recipes,
-/obj/item/reagent_containers/food/drinks/shaker,
-/obj/machinery/light/small{
-	dir = 8
-	},
-/obj/item/radio/intercom/directional/north,
-/turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
 "ZN" = (
 /obj/structure/chair/comfy/shuttle{
@@ -1426,7 +1438,7 @@ am
 am
 EM
 nu
-ng
+JZ
 am
 It
 am
@@ -1757,7 +1769,7 @@ XS
 bp
 PH
 am
-Zx
+TB
 az
 as
 as

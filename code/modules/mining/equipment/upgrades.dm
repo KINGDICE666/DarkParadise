@@ -1,45 +1,25 @@
 //plasma magmite is exclusively used to upgrade mining equipment, by using it on a heated world anvil to make upgradeparts.
 /obj/item/magmite
 	name = "plasma magmite"
-	desc = "Образец плазменного магмита, кристаллизовавшегося в глубинах Лазиса. Похоже, он слабеет по мере удаления от места рождения."
-	gender = MALE
+	desc = "Образец плазменного магмита, кристаллизовавшийся в глубинах планеты. Кажется, он теряет силу по мере удаления от поверхности планеты!"
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "Magmite ore"
 
-/obj/item/magmite/get_ru_names()
-	return alist(
-		NOMINATIVE = "плазменный магмит",
-		GENITIVE = "плазменного магмита",
-		DATIVE = "плазменному магмиту",
-		ACCUSATIVE = "плазменный магмит",
-		INSTRUMENTAL = "плазменным магмитом",
-		PREPOSITIONAL = "плазменном магмите"
-	)
-
 /obj/item/magmite_parts
 	name = "plasma magmite upgrade parts"
-	desc = "Детали, выкованные на легендарной Мировой Кузне. Позволяют улучшить почти любое шахтёрское оборудование."
-	gender = PLURAL
+	desc = "Выкованные на легендарной Мировой Кузне, эти детали можно использовать для улучшения различных видов шахтёрского оборудования."
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "upgrade_parts"
 	var/inert = FALSE
-
-/obj/item/magmite_parts/get_ru_names()
-	return alist(
-		NOMINATIVE = "плазменно-магмитовые детали улучшения",
-		GENITIVE = "плазменно-магмитовых деталей улучшения",
-		DATIVE = "плазменно-магмитовым деталям улучшения",
-		ACCUSATIVE = "плазменно-магмитовые детали улучшения",
-		INSTRUMENTAL = "плазменно-магмитовыми деталями улучшения",
-		PREPOSITIONAL = "плазменно-магмитовых деталях улучшения"
-	)
 
 /obj/item/magmite_parts/Initialize(mapload)
 	. = ..()
 	addtimer(CALLBACK(src, PROC_REF(go_inert)), 50 SECONDS) //you know...
 
+
 /obj/item/magmite_parts/update_icon_state()
 	icon_state = "upgrade_parts[inert ? "_inert" : ""]"
+
 
 /obj/item/magmite_parts/update_name(updates = ALL)
 	. = ..()
@@ -47,16 +27,19 @@
 	if(inert)
 		name = "inert [name]"
 
+
 /obj/item/magmite_parts/update_desc(updates = ALL)
 	. = ..()
 	desc = inert ? "Похоже, он потерял своё магматическое свечение." : initial(desc)
 
+
 /obj/item/magmite_parts/proc/go_inert()
 	if(inert)
 		return
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] теряет свечение!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] теряет свечение!"))
 	inert = TRUE
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
+
 
 /obj/item/magmite_parts/proc/restore()
 	if(!inert)
@@ -65,17 +48,20 @@
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 	addtimer(CALLBACK(src, PROC_REF(go_inert)), 50 SECONDS)
 
-/obj/item/magmite_parts/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/magmite_parts/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	if(!proximity_flag)
 		return
 
 	if(inert)
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] кажется неактивным! Возможно, Мировая Кузня сможет восстановить его!"))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] кажется неактивным! Возможно, Мировая Кузня сможет восстановить его!"))
 		return
 
 	switch(target.type)
 		if(/obj/item/gun/energy/kinetic_accelerator/experimental)
 			var/obj/item/gun/energy/kinetic_accelerator/gun = target
+			if(gun.bayonet)
+				gun.set_bayonet(null)
 			if(gun.gun_light)
 				gun.set_gun_light(null)
 			gun.deattach_modkits()

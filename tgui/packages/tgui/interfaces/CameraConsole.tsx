@@ -24,7 +24,6 @@ type Data = {
   mapRef: string;
   stationLevelNum: number[];
   stationLevelName: string[];
-  is_portable?: boolean;
 };
 
 type Camera = {
@@ -247,10 +246,11 @@ const CameraSelectorMap = (props) => {
 
 const CameraControls = (props: { searchText: string }) => {
   const { act, data } = useBackend<Data>();
-  const { activeCamera, mapRef, is_portable } = data;
+  const { activeCamera, mapRef } = data;
   const { searchText } = props;
 
   const cameras = selectCameras(data.cameras, searchText);
+
   const [prevCamera, nextCamera] = prevNextCamera(cameras, activeCamera);
 
   return (
@@ -266,19 +266,6 @@ const CameraControls = (props: { searchText: string }) => {
               )}
             </Stack.Item>
 
-            {!!is_portable && (
-              <Stack.Item>
-                <Button
-                  icon="expand"
-                  color="transparent"
-                  tooltip="Перейти в продвинутый режим слежения"
-                  onClick={() => act('toggle_advanced')}
-                >
-                  Продвинутый
-                </Button>
-              </Stack.Item>
-            )}
-
             <Stack.Item>
               <Button
                 icon="chevron-left"
@@ -290,6 +277,7 @@ const CameraControls = (props: { searchText: string }) => {
                 }
               />
             </Stack.Item>
+
             <Stack.Item>
               <Button
                 icon="chevron-right"

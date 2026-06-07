@@ -7,7 +7,7 @@
 /datum/component/spooky/proc/spectral_attack(datum/source, mob/living/carbon/C, mob/user)
 	if(ishuman(user)) //this weapon wasn't meant for mortals.
 		var/mob/living/carbon/human/U = user
-		if(!isskeleton(U))
+		if(!istype(U.dna.species, /datum/species/skeleton))
 			U.apply_damage(35, STAMINA)
 			U.Jitter(70 SECONDS)
 			U.SetStuttering(40 SECONDS)
@@ -18,11 +18,11 @@
 
 	if(ishuman(C))
 		var/mob/living/carbon/human/H = C
-		if(isskeleton(H))
+		if(istype(H.dna.species, /datum/species/skeleton))
 			return //undeads are unaffected by the spook-pocalypse.
 		C.Jitter(70 SECONDS)
 		C.SetStuttering(40 SECONDS)
-		if(!isdiona(H) && !ismachineperson(H) && !isslimeperson(H) && !isgolem(H) && !isplasmaman(H))
+		if(!istype(H.dna.species, /datum/species/diona) && !istype(H.dna.species, /datum/species/machine) && !istype(H.dna.species, /datum/species/slime) && !istype(H.dna.species, /datum/species/golem) && !istype(H.dna.species, /datum/species/plasmaman))
 			C.apply_damage(25, STAMINA) //boneless humanoids don't lose the will to live
 		to_chat(C, "<font color='red' size='4'><b>DOOT</b></font>")
 		spectral_change(H)
@@ -32,10 +32,10 @@
 		C.SetStuttering(40 SECONDS)
 
 /datum/component/spooky/proc/spectral_change(mob/living/carbon/human/H, mob/user)
-	if((H.getStaminaLoss() > 95) && (!isdiona(H) && !ismachineperson(H) && !isslimeperson(H) && !isgolem(H) && !isplasmaman(H) && !isskeleton(H)))
+	if((H.getStaminaLoss() > 95) && (!istype(H.dna.species, /datum/species/diona) && !istype(H.dna.species, /datum/species/machine) && !istype(H.dna.species, /datum/species/slime) && !istype(H.dna.species, /datum/species/golem) && !istype(H.dna.species, /datum/species/plasmaman) && !istype(H.dna.species, /datum/species/skeleton)))
 		H.Stun(40 SECONDS)
 		H.set_species(/datum/species/skeleton)
-		H.visible_message(span_warning("[H] has given up on life as a mortal."))
+		H.visible_message("<span class='warning'>[H] has given up on life as a mortal.</span>")
 		var/T = get_turf(H)
 		if(too_spooky)
 			if(prob(30))
@@ -45,9 +45,9 @@
 			else if(prob(30))
 				new/obj/item/instrument/trombone/spectral(T)
 			else
-				to_chat(H, span_boldwarning("The spooky gods forgot to ship your instrument. Better luck next unlife."))
-		to_chat(H, span_boldnotice("You are the spooky skeleton!"))
-		to_chat(H, span_boldnotice("A new life and identity has begun. Help your fellow skeletons into bringing out the spooky-pocalypse. You haven't forgotten your past life, and are still beholden to past loyalties."))
+				to_chat(H, "<span class='boldwarning'>The spooky gods forgot to ship your instrument. Better luck next unlife.</span>")
+		to_chat(H, "<span class='boldnotice'>You are the spooky skeleton!</span>")
+		to_chat(H, "<span class='boldnotice'>A new life and identity has begun. Help your fellow skeletons into bringing out the spooky-pocalypse. You haven't forgotten your past life, and are still beholden to past loyalties.</span>")
 		change_name(H)	//time for a new name!
 
 /datum/component/spooky/proc/change_name(mob/living/carbon/human/H)

@@ -14,7 +14,7 @@
 
 	unarmed_type = /datum/unarmed_attack/claws
 
-	blood_color = BLOOD_COLOR_SHADOW
+	blood_color = "#CCCCCC"
 	flesh_color = "#AAAAAA"
 
 	has_organ = list(
@@ -28,11 +28,10 @@
 		TRAIT_NO_BREATH,
 		TRAIT_RADIMMUNE,
 		TRAIT_VIRUSIMMUNE,
-		TRAIT_LIVERLESS_METABOLISM,
 	)
 	dies_at_threshold = TRUE
 
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 	suicide_messages = list(
 		"пытается откусить себе язык!",
 		"выдавливает большими пальцами себе глазницы!",

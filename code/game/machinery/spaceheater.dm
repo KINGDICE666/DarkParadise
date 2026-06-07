@@ -1,12 +1,11 @@
 /obj/machinery/space_heater
 	density = TRUE
 	icon = 'icons/obj/pipes_and_stuff/atmospherics/atmos.dmi'
-	icon_state = "sheater_off"
+	icon_state = "sheater0"
 	name = "space heater"
 	desc = "Made by Space Amish using traditional space techniques, this heater is guaranteed not to set the station on fire."
 	max_integrity = 250
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 80, ACID = 10)
-	interaction_flags_click = ALLOW_SILICON_REACH
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 100, FIRE = 80, ACID = 10)
 	var/obj/item/stock_parts/cell/cell
 	var/on = 0
 	var/open = 0
@@ -16,38 +15,26 @@
 /obj/machinery/space_heater/get_cell()
 	return cell
 
-/obj/machinery/space_heater/ComponentInitialize()
-	AddElement(/datum/element/climbable)
-	AddElement(/datum/element/elevation, pixel_shift = 20)
-
 /obj/machinery/space_heater/Initialize(mapload)
 	. = ..()
-	if(ispath(cell))
-		cell = new cell(src)
+	cell = new /obj/item/stock_parts/cell(src)
 	update_icon()
-
-	var/static/list/tool_behaviors = list(
-		TOOL_SCREWDRIVER = list(
-			SCREENTIP_CONTEXT_LMB = "Открыть/закрыть люк",
-		),
-
-		TOOL_WRENCH = list(
-			SCREENTIP_CONTEXT_LMB = "Закрепить",
-		),
-	)
-	AddElement(/datum/element/contextual_screentip_tools, tool_behaviors)
+	return
 
 /obj/machinery/space_heater/Destroy()
 	QDEL_NULL(cell)
 	return ..()
 
+
 /obj/machinery/space_heater/update_icon_state()
-	icon_state = "sheater_[on ? "on" : "off"]"
+	icon_state = "sheater[on]"
+
 
 /obj/machinery/space_heater/update_overlays()
 	. = ..()
 	if(open)
-		. += "sheater_open"
+		. += "sheater-open"
+
 
 /obj/machinery/space_heater/examine(mob/user)
 	. = ..()
@@ -64,6 +51,7 @@
 	if(cell)
 		cell.emp_act(severity)
 	..(severity)
+
 
 /obj/machinery/space_heater/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -87,6 +75,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/space_heater/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -136,10 +125,11 @@
 		update_icon()
 	return
 
+
 /obj/machinery/space_heater/Topic(href, href_list)
 	if(..())
 		return 1
-	if((in_range(src, usr) && isturf(src.loc)) || (issilicon(usr)))
+	if((in_range(src, usr) && istype(src.loc, /turf)) || (istype(usr, /mob/living/silicon)))
 		usr.set_machine(src)
 
 		switch(href_list["op"])
@@ -159,6 +149,7 @@
 					cell = null
 					usr.visible_message(span_notice("[usr] removes the power cell from [src]."), span_notice("You remove the power cell from [src]."))
 
+
 			if("cellinstall")
 				if(open && !cell)
 					var/obj/item/stock_parts/cell/C = usr.get_active_hand()
@@ -175,44 +166,30 @@
 		usr.unset_machine()
 	return
 
+
+
 /obj/machinery/space_heater/process()
-	var/datum/milla_safe/space_heater_process/milla = new()
-	milla.invoke_async(src)
+	if(on)
+		if(cell && cell.charge > 0)
+			var/turf/simulated/L = loc
+			if(istype(L))
+				var/datum/gas_mixture/env = L.return_air()
+				if(env.temperature != set_temperature + T0C)
+					var/transfer_moles = 0.25 * env.total_moles()
 
-/datum/milla_safe/space_heater_process
+					var/datum/gas_mixture/removed = env.remove(transfer_moles)
 
-/datum/milla_safe/space_heater_process/on_run(obj/machinery/space_heater/heater)
-	if(!heater.on)
-		return
+					if(removed)
+						var/heat_capacity = removed.heat_capacity()
 
-	if(!heater.cell || heater.cell.charge <= 0)
-		heater.on = FALSE
-		heater.update_icon()
-		return
-
-	var/turf/simulated/L = get_turf(heater)
-
-	if(!istype(L))
-		return
-
-	var/datum/gas_mixture/env = get_turf_air(L)
-
-	if(env.temperature() == heater.set_temperature + T0C)
-		return
-
-	var/transfer_moles = 0.25 * env.total_moles()
-
-	var/datum/gas_mixture/removed = env.remove(transfer_moles)
-
-	if(!removed)
-		return
-
-	var/heat_capacity = removed.heat_capacity()
-
-	if(heat_capacity)
-		if(removed.temperature() < heater.set_temperature + T0C)
-			removed.set_temperature(min(removed.temperature() + heater.heating_power / heat_capacity, 1000))
+						if(heat_capacity) // Added check to avoid divide by zero (oshi-) runtime errors -- TLE
+							if(removed.temperature < set_temperature + T0C)
+								removed.temperature = min(removed.temperature + heating_power/heat_capacity, 1000) // Added min() check to try and avoid wacky superheating issues in low gas scenarios -- TLE
+							else
+								removed.temperature = max(removed.temperature - heating_power/heat_capacity, TCMB)
+							cell.use(heating_power/20000)
+					env.merge(removed)
+					air_update_turf()
 		else
-			removed.set_temperature(max(removed.temperature() - heater.heating_power / heat_capacity, TCMB))
-		heater.cell.use(heater.heating_power / 20000)
-	env.merge(removed)
+			on = 0
+			update_icon()

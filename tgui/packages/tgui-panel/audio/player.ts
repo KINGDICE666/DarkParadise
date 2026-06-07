@@ -17,7 +17,7 @@ type AudioOptions = {
 export class AudioPlayer {
   element: HTMLAudioElement | null;
   options: AudioOptions;
-  volume: number = 0.5;
+  volume: number;
 
   onPlaySubscribers: { (): void }[];
   onStopSubscribers: { (): void }[];

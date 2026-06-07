@@ -24,27 +24,32 @@
 	/// A lazylist of all scramble effects this spell has created.
 	var/list/effects
 
+
 /obj/effect/proc_holder/spell/spacetime_dist/Destroy()
 	QDEL_LIST(effects)
 	return ..()
+
 
 /obj/effect/proc_holder/spell/spacetime_dist/create_new_targeting()
 	var/datum/spell_targeting/spiral/T = new()
 	T.range = scramble_radius + 3 * spell_level
 	return T
 
+
 /obj/effect/proc_holder/spell/spacetime_dist/on_purchase_upgrade()
 	. = ..()
 	targeting = create_new_targeting()
 
+
 /obj/effect/proc_holder/spell/spacetime_dist/cast_check(charge_check = TRUE, start_recharge = TRUE, mob/user = usr)
 	return ..() && ready
+
 
 /obj/effect/proc_holder/spell/spacetime_dist/cast(list/targets, mob/user = usr)
 	. = ..()
 	var/list/turf/to_switcharoo = targets
 	if(!length(to_switcharoo))
-		to_chat(user, span_warning("For whatever reason, the strings nearby aren't keen on being tangled."))
+		to_chat(user, "<span class='warning'>For whatever reason, the strings nearby aren't keen on being tangled.</span>")
 		return
 
 	ready = FALSE
@@ -62,18 +67,22 @@
 		effects += effect_a
 		effects += effect_b
 
+
 /obj/effect/proc_holder/spell/spacetime_dist/after_cast(list/targets, mob/user)
 	. = ..()
 	addtimer(CALLBACK(src, PROC_REF(clean_turfs)), duration)
+
 
 /// Callback which cleans up our effects list after the duration expires.
 /obj/effect/proc_holder/spell/spacetime_dist/proc/clean_turfs()
 	QDEL_LIST(effects)
 	ready = TRUE
 
+
 /obj/effect/cross_action
 	name = "cross me"
 	desc = "for crossing"
+
 
 /obj/effect/cross_action/spacetime_dist
 	name = "spacetime distortion"
@@ -85,6 +94,7 @@
 	var/cant_teleport = FALSE
 	var/walks_left = 50 //prevents the game from hanging in extreme cases
 
+
 /obj/effect/cross_action/spacetime_dist/Initialize(mapload)
 	. = ..()
 	var/static/list/loc_connections = list(
@@ -92,11 +102,14 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/effect/cross_action/singularity_act()
 	return
 
-/obj/effect/cross_action/singularity_pull(atom/singularity, current_size)
+
+/obj/effect/cross_action/singularity_pull()
 	return
+
 
 /obj/effect/cross_action/spacetime_dist/proc/walk_link(atom/movable/AM)
 	if(linked_dist && walks_left > 0)
@@ -104,17 +117,20 @@
 		linked_dist.get_walker(AM)
 		walks_left--
 
+
 /obj/effect/cross_action/spacetime_dist/proc/get_walker(atom/movable/AM)
 	cant_teleport = TRUE
 	flick("purplesparkles", src)
 	AM.forceMove(get_turf(src))
 	cant_teleport = FALSE
 
+
 /obj/effect/cross_action/spacetime_dist/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(!cant_teleport)
 		walk_link(arrived)
+
 
 /obj/effect/cross_action/spacetime_dist/attackby(obj/item/I, mob/user, params)
 	. = ATTACK_CHAIN_BLOCKED_ALL
@@ -123,9 +139,11 @@
 	else
 		walk_link(user)
 
+
 //ATTACK HAND IGNORING PARENT RETURN VALUE
 /obj/effect/cross_action/spacetime_dist/attack_hand(mob/user, list/modifiers)
 	walk_link(user)
+
 
 /obj/effect/cross_action/spacetime_dist/Destroy()
 	cant_teleport = TRUE

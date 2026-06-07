@@ -1,4 +1,4 @@
-//Для тестов. Ибо ждать включения костюма — достало.
+//Для тестов. Ибо ждать включения костюма - достало.
 /obj/item/clothing/suit/space/space_ninja/proc/admin_on()
 	var/mob/living/carbon/human/ninja = loc
 	affecting = ninja
@@ -50,10 +50,10 @@
 	cell.self_recharge = TRUE
 	cell.maxcharge = 50000
 	START_PROCESSING(SSobj, cell)
-	var/datum/action/item_action/advanced/ninja/SpiderOS/SpiderOS = locate() in ninja.actions
-	SpiderOS.action_ready = TRUE
-	SpiderOS.use_action()
-
+	for(var/datum/action/item_action/advanced/ninja/SpiderOS/ninja_action in actions)
+		ninja_action.action_ready = TRUE
+		ninja_action.use_action()
+		break
 /**
  * Toggles the ninja suit on/off
  *
@@ -111,9 +111,8 @@
 		if(NINJA_INIT_MODULES_PHASE)
 			var/datum/action/item_action/action
 			for(action in ninja.actions)
-				var/datum/action/item_action/advanced/ninja/ninja_action = action
-				if(istype(ninja_action) && ninja_action.action_initialisation_text)
-					message = "Модуль: [ninja_action.action_initialisation_text]... ONLINE"
+				if(action.action_initialisation_text)
+					message = "Модуль: [action.action_initialisation_text]... ONLINE"
 					current_initialisation_text = message
 					sleep(10)
 			if(ninja_clonable)
@@ -126,9 +125,10 @@
 			toggle_emp_proof(ninja.bodyparts, TRUE)
 			toggle_emp_proof(ninja.internal_organs, TRUE)
 			start()
-			var/datum/action/item_action/advanced/ninja/SpiderOS/SpiderOS = locate() in ninja.actions
-			SpiderOS.action_ready = TRUE
-			SpiderOS.use_action()
+			for(var/datum/action/item_action/advanced/ninja/SpiderOS/ninja_action in actions)
+				ninja_action.action_ready = TRUE
+				ninja_action.use_action()
+				break
 			s_busy = FALSE
 //	to_chat(ninja, span_notice("[message]"))
 	current_initialisation_text = message
@@ -173,9 +173,8 @@
 				cancel_spirit_form()	//And another one!
 			var/datum/action/item_action/action
 			for(action in ninja.actions)
-				var/datum/action/item_action/advanced/ninja/ninja_action = action
-				if(istype(ninja_action) && ninja_action.action_initialisation_text)
-					message = "Модуль: [ninja_action.action_initialisation_text]... OFFLINE"
+				if(action.action_initialisation_text)
+					message = "Модуль: [action.action_initialisation_text]... OFFLINE"
 					current_initialisation_text = message
 					sleep(10)
 			if(ninja_clonable)
@@ -194,9 +193,10 @@
 		if(NINJA_DEINIT_COMPLETE_PHASE)
 			toggle_emp_proof(ninja.bodyparts, FALSE)
 			toggle_emp_proof(ninja.internal_organs, FALSE)
-			var/datum/action/item_action/advanced/ninja/SpiderOS/SpiderOS = locate() in ninja.actions
-			SpiderOS.action_ready = FALSE
-			SpiderOS.use_action()
+			for(var/datum/action/item_action/advanced/ninja/SpiderOS/ninja_action in actions)
+				ninja_action.action_ready = FALSE
+				ninja_action.use_action()
+				break
 			s_busy = FALSE
 			affecting = null
 

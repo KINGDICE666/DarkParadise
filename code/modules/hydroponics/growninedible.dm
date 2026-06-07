@@ -35,6 +35,7 @@
 	QDEL_NULL(seed)
 	return ..()
 
+
 /obj/item/grown/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -42,6 +43,7 @@
 		return .
 	. |= ATTACK_CHAIN_SUCCESS
 	send_plant_details(user)
+
 
 /obj/item/grown/proc/add_juice()
 	if(reagents)
@@ -53,6 +55,7 @@
 		if(seed)
 			for(var/datum/plant_gene/trait/T in seed.genes)
 				T.on_throw_impact(src, hit_atom)
+
 
 /obj/item/grown/extinguish_light(force = FALSE)
 	if(!force)

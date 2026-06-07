@@ -11,6 +11,7 @@
 
 	if(!loc)
 		return FALSE
+	INVOKE_ASYNC(src, PROC_REF(burst_blob_in_mob))
 
 	if(stat != DEAD)
 		//Chemicals in the body
@@ -20,35 +21,28 @@
 	if(QDELETED(src)) // some chems can gib mobs
 		return
 
-	if(!HAS_TRAIT(src, TRAIT_STASIS))
-		if(stat != DEAD)
-			//Mutations and radiation
-			handle_mutations(seconds)
-			//Heart Attack, if applicable
-			handle_heartattack()
-			//Breathing, if applicable
-			handle_breathing(times_fired)
+	if(stat != DEAD)
+		//Mutations and radiation
+		handle_mutations_and_radiation()
 
-		if(LAZYLEN(diseases))
-			handle_diseases()
+	if(stat != DEAD)
+		//Breathing, if applicable
+		handle_breathing(times_fired)
 
-		if(QDELETED(src)) // diseases can qdel the mob via transformations
-			return
+	if(LAZYLEN(diseases))
+		handle_diseases()
 
-		// Handle temperature/pressure differences between body and environment
-		var/datum/gas_mixture/readonly_environment = null
-		if(isobj(loc))
-			var/obj/object = loc
-			readonly_environment = object.return_obj_air()
+	if(QDELETED(src)) // diseases can qdel the mob via transformations
+		return
 
-		if(isnull(readonly_environment))
-			var/turf/location = get_turf(src)
-			if(!isnull(location))
-				readonly_environment = location.get_readonly_air()
+	//Heart Attack, if applicable
+	if(stat != DEAD)
+		handle_heartattack()
 
-		handle_environment(readonly_environment)
-
-		handle_gravity(seconds, times_fired)
+	//Handle temperature/pressure differences between body and environment
+	var/datum/gas_mixture/environment = loc.return_air()
+	if(environment)
+		handle_environment(environment)
 
 	handle_fire()
 
@@ -86,6 +80,8 @@
 	if(machine)
 		machine.check_eye(src)
 
+	handle_gravity(seconds, times_fired)
+
 	handle_SSD(seconds)
 
 	if(stat != DEAD)
@@ -97,8 +93,8 @@
 /mob/living/proc/handle_heartattack()
 	return
 
-/mob/living/proc/handle_mutations(seconds_per_tick)
-	return
+/mob/living/proc/handle_mutations_and_radiation()
+	radiation = 0 //so radiation don't accumulate in simple animals
 
 /mob/living/proc/handle_chemicals_in_body()
 	return
@@ -170,6 +166,7 @@
 		else
 			clear_alert("succumb")
 
+
 /mob/living/update_stamina_hud(shown_stamina_loss)
 	if(!client || !stamina_bar)
 		return
@@ -198,6 +195,7 @@
 	else
 		stamina_bar.icon_state = "stamina_full"
 
+
 /mob/living/update_nutrition_hud()
 	if(!client || !nutrition_bar)
 		return
@@ -210,6 +208,7 @@
 		nutrition_bar.icon_state = "[dna.species.hunger_type]_" + current_nutrition_level.icon_state
 
 	med_hud_set_status()
+
 
 /mob/living/simple_animal/update_health_hud()
 	if(!client)
@@ -249,10 +248,14 @@
 	else
 		clear_fullscreen("brute")
 
+
 /mob/living/proc/handle_gravity(seconds_per_tick, times_fired)
-	if(gravity_state > STANDARD_GRAVITY)
+	if(abs(gravity_state) > STANDARD_GRAVITY)
 		handle_high_gravity(gravity_state, seconds_per_tick, times_fired)
 
+
+/mob/living/carbon/handle_gravity(seconds_per_tick, times_fired)
+	. = ..()
 	if(gravity_state < HIGH_GRAVITY_SLOWDOWN)
 		remove_movespeed_modifier(/datum/movespeed_modifier/high_gravity)
 
@@ -263,12 +266,14 @@
 	if(!buckled)
 		ADD_TRAIT(src, TRAIT_FLOORED, GRAVITATION_TRAIT)
 
+
 /mob/living/proc/gravity_animate()
 	if(!get_filter("gravity"))
 		add_filter("gravity",1,list("type"="motion_blur", "x"=0, "y"=0))
 
 	animate(get_filter("gravity"), y = 1, time = 10, loop = -1)
 	animate(y = 0, time = 10)
+
 
 /mob/living/proc/handle_high_gravity(gravity, seconds_per_tick, times_fired)
 	if(abs(gravity) < HIGH_GRAVITY_SLOWDOWN)
@@ -301,6 +306,7 @@
 		AdjustStuttering(5 SECONDS, bound_upper = 10 SECONDS)	//It will hamper your voice, being choked and all.
 		if(!breathing_tube)
 			AdjustLoseBreath(3 SECONDS, bound_upper = 6 SECONDS)
+
 
 /// Handles mob SSD status.
 /mob/living/proc/handle_SSD(seconds_per_tick)

@@ -1,3 +1,5 @@
+/obj/projectile/hivebotbullet
+
 /mob/living/simple_animal/hostile/hivebot
 	name = "Hivebot"
 	desc = "A small robot."
@@ -12,7 +14,7 @@
 	attacktext = "рвёт"
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	projectilesound = 'sound/weapons/gunshots/gunshot.ogg'
-	projectiletype = /obj/projectile
+	projectiletype = /obj/projectile/hivebotbullet
 	faction = list("hivebot")
 	check_friendly_fire = 1
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
@@ -78,12 +80,12 @@
 	var/datum/effect_system/fluid_spread/smoke/smoke = new
 	smoke.set_up(amount = 5, location = src.loc)
 	smoke.start()
-	visible_message(span_danger("The [src] warps in!"))
+	visible_message("<span class='danger'>The [src] warps in!</span>")
 	playsound(src.loc, 'sound/effects/empulse.ogg', 25, TRUE)
 
 /mob/living/simple_animal/hostile/hivebot/tele/proc/warpbots()
 	icon_state = "def_radar"
-	visible_message(span_warning("The [src] turns on!"))
+	visible_message("<span class='warning'>The [src] turns on!</span>")
 	while(bot_amt > 0)
 		bot_amt--
 		switch(bot_type)

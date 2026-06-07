@@ -1,6 +1,7 @@
-/// A reasonable number of maximum overlays an object needs.
-/// If you think you need more, rethink it.
+// A reasonable number of maximum overlays an object needs
+// If you think you need more, rethink it
 #define MAX_ATOM_OVERLAYS 100
+
 
 /// Checks if an atom has reached the overlay limit, and make a loud error if it does.
 #define VALIDATE_OVERLAY_LIMIT(changed_on) \
@@ -12,16 +13,6 @@
 		changed_on.add_overlay(mutable_appearance('icons/testing/greyscale_error.dmi')); \
 	} \
 
-/// Performs any operations that ought to run after an appearance change.
-#define POST_OVERLAY_CHANGE(changed_on) \
-	if(alternate_appearances) { \
-		for(var/I in changed_on.alternate_appearances){\
-			var/datum/atom_hud/alternate_appearance/AA = changed_on.alternate_appearances[I];\
-			if(AA.transfer_overlays){\
-				AA.copy_overlays(changed_on, TRUE);\
-			}\
-		} \
-	}
 
 // Float layers for closets
 #define CLOSET_OLAY_LAYER_CONTENTS -5
@@ -29,3 +20,4 @@
 #define CLOSET_OLAY_LAYER_LOCK_FRAME -3
 #define CLOSET_OLAY_LAYER_LOCK_INDICATOR -2
 #define CLOSET_OLAY_LAYER_WELDED -1
+

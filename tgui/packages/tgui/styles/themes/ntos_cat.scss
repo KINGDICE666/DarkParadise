@@ -28,9 +28,10 @@ $scrollbar-color-multiplier: 0.5;
 );
 
 @use '../base.scss' with (
-  $color-bg: orange,
-  $color-bg-grad-spread: 12% //$border-radius: 0,
-);
+    $color-bg: orange,
+    $color-bg-grad-spread: 12%,
+    //$border-radius: 0,
+  );
 
 .theme-ntos_cat {
   // Atomic classes
@@ -74,13 +75,7 @@ $scrollbar-color-multiplier: 0.5;
   }
   .Button {
     color: rgb(255, 132, 153);
-    background-color: rgba(50, 20, 10, 0.85);
-    border: 1px solid rgb(255, 132, 153);
-  }
-
-  .Button:hover {
-    background-color: rgba(255, 132, 153, 0.4);
-    color: white;
+    background-color: rgb(255, 255, 255);
   }
 
   .ProgressBar {

@@ -11,8 +11,8 @@
 	max_heat_protection_temperature = FIRE_SUIT_MAX_TEMP_PROTECT
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	hoodtype = /obj/item/clothing/head/hooded/explorer
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 50, BIO = 100, FIRE = 50, ACID = 50)
-	allowed = ALLOWED_MINING_SUIT_ITEMS
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 50, BIO = 100, RAD = 50, FIRE = 50, ACID = 50)
+	allowed = list(/obj/item/flashlight, /obj/item/tank, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator, /obj/item/pickaxe, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
 	resistance_flags = FIRE_PROOF
 	hide_tail_by_species = list(SPECIES_VOX , SPECIES_VULPKANIN , SPECIES_UNATHI, SPECIES_ASHWALKER_BASIC, SPECIES_ASHWALKER_SHAMAN, SPECIES_DRACONOID, SPECIES_TAJARAN)
 
@@ -29,17 +29,17 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
 	)
 
 /obj/item/clothing/suit/hooded/explorer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "костюм исследователя",
 		GENITIVE = "костюма исследователя",
 		DATIVE = "костюму исследователя",
 		ACCUSATIVE = "костюм исследователя",
 		INSTRUMENTAL = "костюмом исследователя",
-		PREPOSITIONAL = "костюме исследователя",
+		PREPOSITIONAL = "костюме исследователя"
 	)
 
 /obj/item/clothing/head/hooded/explorer
@@ -50,7 +50,7 @@
 	flags_cover = HEADCOVERSEYES
 	min_cold_protection_temperature = FIRE_HELM_MIN_TEMP_PROTECT
 	max_heat_protection_temperature = FIRE_HELM_MAX_TEMP_PROTECT
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 50, BIO = 100, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 50, BIO = 100, RAD = 50, FIRE = 50, ACID = 50)
 	resistance_flags = FIRE_PROOF
 
 	sprite_sheets = list(
@@ -68,17 +68,17 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/head.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/head.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/head.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/head.dmi'
 	)
 
 /obj/item/clothing/head/hooded/explore/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капюшон исследователя",
 		GENITIVE = "капюшона исследователя",
 		DATIVE = "капюшону исследователя",
 		ACCUSATIVE = "капюшон исследователя",
 		INSTRUMENTAL = "капюшоном исследователя",
-		PREPOSITIONAL = "капюшоне исследователя",
+		PREPOSITIONAL = "капюшоне исследователя"
 	)
 
 /obj/item/clothing/suit/space/hostile_environment
@@ -89,8 +89,8 @@
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	resistance_flags = FIRE_PROOF | LAVA_PROOF | ACID_PROOF
 	slowdown = 0
-	armor = list(MELEE = 70, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 100, FIRE = 100, ACID = 100)
-	allowed = ALLOWED_MINING_SUIT_ITEMS
+	armor = list(MELEE = 70, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
+	allowed = list(/obj/item/flashlight, /obj/item/tank, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator, /obj/item/pickaxe, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
 	jetpack = /obj/item/tank/jetpack/suit
 	jetpack_upgradable = TRUE
 
@@ -105,24 +105,25 @@
 	)
 
 /obj/item/clothing/suit/space/hostile_environment/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Э.К.З.О. костюм",
 		GENITIVE = "Э.К.З.О. костюма ",
 		DATIVE = "Э.К.З.О. костюму",
 		ACCUSATIVE = "Э.К.З.О. костюм",
 		INSTRUMENTAL = "Э.К.З.О. костюмом",
-		PREPOSITIONAL = "Э.К.З.О. костюме",
+		PREPOSITIONAL = "Э.К.З.О. костюме"
 	)
 
 /obj/item/clothing/suit/space/hostile_environment/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/spraycan_paintable)
-	AddElement(/datum/element/radiation_protected_clothing)
 	START_PROCESSING(SSobj, src)
+
 
 /obj/item/clothing/suit/space/hostile_environment/Destroy()
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
 
 /obj/item/clothing/suit/space/hostile_environment/process()
 	var/mob/living/carbon/C = loc
@@ -139,7 +140,7 @@
 	icon_state = "hostile_env"
 	item_state = "hostile_env"
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
-	armor = list(MELEE = 70, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 100, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 70, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | LAVA_PROOF | ACID_PROOF
 
 	sprite_sheets = list(
@@ -153,24 +154,25 @@
 	)
 
 /obj/item/clothing/head/helmet/space/hostile_environment/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Э.К.З.О. шлем",
 		GENITIVE = "Э.К.З.О. шлема ",
 		DATIVE = "Э.К.З.О. шлему",
 		ACCUSATIVE = "Э.К.З.О. шлем",
 		INSTRUMENTAL = "Э.К.З.О. шлемом",
-		PREPOSITIONAL = "Э.К.З.О. шлеме",
+		PREPOSITIONAL = "Э.К.З.О. шлеме"
 	)
 
 /obj/item/clothing/head/helmet/space/hostile_environment/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/spraycan_paintable)
-	AddElement(/datum/element/radiation_protected_clothing)
 	update_icon(UPDATE_OVERLAYS)
+
 
 /obj/item/clothing/head/helmet/space/hostile_environment/update_overlays()
 	. = ..()
 	. += mutable_appearance(icon, "hostile_env_glass", appearance_flags = RESET_COLOR)
+
 
 /obj/item/clothing/head/helmet/space/hardsuit/champion
 	name = "champion's helmet"
@@ -178,7 +180,7 @@
 	icon_state = "hardsuit0-berserker"
 	item_color = "berserker"
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
-	armor = list(melee = 65, bullet = 50, laser = 50, energy = 50, bomb = 50, bio = 100, fire = 80, acid = 80)
+	armor = list(melee = 65, bullet = 50, laser = 50, energy = 50, bomb = 50, bio = 100, rad = 100, fire = 80, acid = 80)
 	sprite_sheets = list(
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/helmet.dmi',
 		SPECIES_TAJARAN = 'icons/mob/clothing/species/tajaran/helmet.dmi',
@@ -187,17 +189,17 @@
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/helmet.dmi',
 		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/helmet.dmi',
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/helmet.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/helmet.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/helmet.dmi'
+		)
 
 /obj/item/clothing/head/helmet/space/hardsuit/champion/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "чемпионский шлем",
 		GENITIVE = "чемпионского шлема",
 		DATIVE = "чемпионскому шлему",
 		ACCUSATIVE = "чемпионский шлем",
 		INSTRUMENTAL = "чемпионским шлемом",
-		PREPOSITIONAL = "чемпионском шлеме",
+		PREPOSITIONAL = "чемпионском шлеме"
 	)
 
 /obj/item/clothing/suit/space/hardsuit/champion
@@ -208,8 +210,8 @@
 	slowdown = 0.25 // you are wearing a POWERFUL energy suit, after all
 	clothing_flags = FIXED_SLOWDOWN // no heretic magic
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/champion
-	allowed = ALLOWED_MINING_SUIT_ITEMS
-	armor = list(melee = 65, bullet = 50, laser = 50, energy = 50, bomb = 50, bio = 100, fire = 80, acid = 80)
+	allowed = list(/obj/item/flashlight, /obj/item/tank, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator, /obj/item/pickaxe, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
+	armor = list(melee = 65, bullet = 50, laser = 50, energy = 50, bomb = 50, bio = 100, rad = 100, fire = 80, acid = 80)
 	sprite_sheets = list(
 		SPECIES_TAJARAN = 'icons/mob/clothing/species/tajaran/suit.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/suit.dmi',
@@ -217,17 +219,17 @@
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_DRACONOID = 'icons/mob/clothing/species/unathi/suit.dmi',
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
-	)
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi'
+		)
 
 /obj/item/clothing/suit/space/hardsuit/champion/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "чемпионская броня",
 		GENITIVE = "чемпионской брони",
 		DATIVE = "чемпионской броне",
 		ACCUSATIVE = "чемпионскую броню",
 		INSTRUMENTAL = "чемпионской бронёй",
-		PREPOSITIONAL = "чемпионской броне",
+		PREPOSITIONAL = "чемпионской броне"
 	)
 /obj/item/clothing/head/helmet/space/hardsuit/champion/templar
 	name = "dark templar's helmet"
@@ -236,13 +238,13 @@
 	item_color = "templar"
 
 /obj/item/clothing/head/helmet/space/hardsuit/champion/templar/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шлем Чёрного Храмовника",
 		GENITIVE = "шлема Чёрного Храмовника",
 		DATIVE = "шлему Чёрного Храмовника",
 		ACCUSATIVE = "шлем Чёрного Храмовника",
 		INSTRUMENTAL = "шлемом Чёрного Храмовника",
-		PREPOSITIONAL = "шлеме Чёрного Храмовника",
+		PREPOSITIONAL = "шлеме Чёрного Храмовника"
 	)
 /obj/item/clothing/suit/space/hardsuit/champion/templar
 	name = "dark templar's hardsuit"
@@ -250,16 +252,16 @@
 	icon_state = "darktemplar-follower0"
 	item_color = "darktemplar-follower0"
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/champion/templar
-	species_restricted = list(SPECIES_HUMAN, SPECIES_SLIMEPERSON, SPECIES_SKELETON, SPECIES_NUCLEATION, SPECIES_MACHINEPERSON, SPECIES_PLASMAMAN, SPECIES_DIONA, SPECIES_KIDAN, SPECIES_SHADOW_BASIC) // only humanoids. And we don't have animal sprites.
+	species_restricted = list(SPECIES_HUMAN, SPECIES_SLIMEPERSON, SPECIES_SKELETON, SPECIES_NUCLEATION, SPECIES_MACNINEPERSON, SPECIES_PLASMAMAN, SPECIES_DIONA, SPECIES_KIDAN, SPECIES_SHADOW_BASIC) // only humanoids. And we don't have animal sprites.
 
 /obj/item/clothing/suit/space/hardsuit/champion/templar/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "доспехи Чёрного Храмовника",
 		GENITIVE = "доспехов Чёрного Храмовника",
 		DATIVE = "доспехам Чёрного Храмовника",
 		ACCUSATIVE = "доспехи Чёрного Храмовника",
 		INSTRUMENTAL = "доспехами Чёрного Храмовника",
-		PREPOSITIONAL = "доспехах Чёрного Храмовника",
+		PREPOSITIONAL = "доспехах Чёрного Храмовника"
 	)
 /obj/item/clothing/head/helmet/space/hardsuit/champion/templar/premium
 	name = "high dark templar's helmet"
@@ -268,13 +270,13 @@
 	item_color = "hightemplar"
 
 /obj/item/clothing/head/helmet/space/hardsuit/champion/templar/premium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шлем высшего Чёрного Храмовника",
 		GENITIVE = "шлема высшего Чёрного Храмовника",
 		DATIVE = "шлему высшего Чёрного Храмовника",
 		ACCUSATIVE = "шлем высшего Чёрного Храмовника",
 		INSTRUMENTAL = "шлемом высшего Чёрного Храмовника",
-		PREPOSITIONAL = "шлеме высшего Чёрного Храмовника",
+		PREPOSITIONAL = "шлеме высшего Чёрного Храмовника"
 	)
 /obj/item/clothing/suit/space/hardsuit/champion/templar/premium
 	name = "high dark templar's hardsuit"
@@ -284,13 +286,13 @@
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/champion/templar/premium
 
 /obj/item/clothing/suit/space/hardsuit/champion/templar/premium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "доспехи высшего Чёрного Храмовника",
 		GENITIVE = "доспехов высшего Чёрного Храмовника",
 		DATIVE = "доспехам высшего Чёрного Храмовника",
 		ACCUSATIVE = "доспехи высшего Чёрного Храмовника",
 		INSTRUMENTAL = "доспехами высшего Чёрного Храмовника",
-		PREPOSITIONAL = "доспехах высшего Чёрного Храмовника",
+		PREPOSITIONAL = "доспехах высшего Чёрного Храмовника"
 	)
 /obj/item/clothing/head/helmet/space/hardsuit/champion/inquisitor
 	name = "inquisitor's helmet"
@@ -299,13 +301,13 @@
 	item_color = "inquisitor"
 
 /obj/item/clothing/head/helmet/space/hardsuit/champion/inquisitor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шлем инквизитора",
 		GENITIVE = "шлема инквизитора",
 		DATIVE = "шлему инквизитора",
 		ACCUSATIVE = "шлем инквизитора",
 		INSTRUMENTAL = "шлемом инквизитора",
-		PREPOSITIONAL = "шлеме инквизитора",
+		PREPOSITIONAL = "шлеме инквизитора"
 	)
 
 /obj/item/clothing/suit/space/hardsuit/champion/inquisitor
@@ -315,22 +317,22 @@
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/champion/inquisitor
 
 /obj/item/clothing/suit/space/hardsuit/champion/inquisitor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "скафандр инквизитора",
 		GENITIVE = "скафандра инквизитора",
 		DATIVE = "скафандру инквизитора",
 		ACCUSATIVE = "скафандр инквизитора",
 		INSTRUMENTAL = "скафандром инквизитора",
-		PREPOSITIONAL = "скафандре инквизитора",
+		PREPOSITIONAL = "скафандре инквизитора"
 	)
 
 /obj/item/clothing/suit/hooded/pathfinder
 	name = "pathfinder cloak"
 	desc = "Тяжёлая мантия, сшитая из сухожилий и шкур, предназначенная для защиты носителя от опасной погоды."
-	allowed = ALLOWED_MINING_SUIT_ITEMS
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/pickaxe, /obj/item/twohanded/spear, /obj/item/organ/internal/regenerative_core/legion, /obj/item/kitchen/knife/combat/survival, /obj/item/twohanded/kinetic_crusher, /obj/item/hierophant_club, /obj/item/twohanded/fireaxe/boneaxe)
 	icon_state = "pathcloak"
 	item_state = "pathcloak"
-	armor = list(MELEE = 40, BULLET = 40, LASER = 40, ENERGY = 40, BOMB = 60, BIO = 100, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 40, BULLET = 40, LASER = 40, ENERGY = 40, BOMB = 60, BIO = 100, RAD = 50, FIRE = 50, ACID = 50)
 	resistance_flags = FIRE_PROOF
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	min_cold_protection_temperature = FIRE_SUIT_MIN_TEMP_PROTECT
@@ -353,13 +355,13 @@
 	)
 
 /obj/item/clothing/suit/hooded/pathfinder/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мантия первопроходца",
 		GENITIVE = "мантии первопроходца",
 		DATIVE = "мантии первопроходца",
 		ACCUSATIVE = "мантию первопроходца",
 		INSTRUMENTAL = "мантией первопроходца",
-		PREPOSITIONAL = "мантии первопроходца",
+		PREPOSITIONAL = "мантии первопроходца"
 	)
 /obj/item/clothing/head/hooded/pathfinder
 	name = "pathfinder kasa"
@@ -367,7 +369,7 @@
 	icon_state = "pathhead"
 	item_state = "pathhead"
 	flags_cover = HEADCOVERSEYES
-	armor = list(MELEE = 40, BULLET = 40, LASER = 40, ENERGY = 40, BOMB = 60, BIO = 100, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 40, BULLET = 40, LASER = 40, ENERGY = 40, BOMB = 60, BIO = 100, RAD = 50, FIRE = 50, ACID = 50)
 	resistance_flags = FIRE_PROOF
 	min_cold_protection_temperature = FIRE_HELM_MIN_TEMP_PROTECT
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
@@ -384,13 +386,13 @@
 	)
 
 /obj/item/clothing/head/hooded/pathfinder/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "каса первопроходца",
 		GENITIVE = "касы первопроходца",
 		DATIVE = "касе первопроходца",
 		ACCUSATIVE = "касу первопроходца",
 		INSTRUMENTAL = "касой первопроходца",
-		PREPOSITIONAL = "касе первопроходца",
+		PREPOSITIONAL = "касе первопроходца"
 	)
 /obj/item/clothing/suit/hooded/explorer/mining
 	name = "white explorer suit"
@@ -401,13 +403,13 @@
 	hoodtype = /obj/item/clothing/head/hooded/explorer/mining
 
 /obj/item/clothing/suit/hooded/explorer/mining/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "белый костюм исследователя",
 		GENITIVE = "белого костюма исследователя",
 		DATIVE = "белому костюму исследователя",
 		ACCUSATIVE = "белый костюм исследователя",
 		INSTRUMENTAL = "белым костюмом исследователя",
-		PREPOSITIONAL = "белом костюме исследователя",
+		PREPOSITIONAL = "белом костюме исследователя"
 	)
 /obj/item/clothing/head/hooded/explorer/mining
 	name = "white explorer hood"
@@ -416,11 +418,11 @@
 	item_state = "mining_explorer"
 
 /obj/item/clothing/head/hooded/explorer/mining/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "белый капюшон исследователя",
 		GENITIVE = "белого капюшона исследователя",
 		DATIVE = "белому капюшону исследователя",
 		ACCUSATIVE = "белый капюшон исследователя",
 		INSTRUMENTAL = "белым капюшоном исследователя",
-		PREPOSITIONAL = "белом капюшоне исследователя",
+		PREPOSITIONAL = "белом капюшоне исследователя"
 	)

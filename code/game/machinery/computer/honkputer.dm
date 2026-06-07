@@ -74,7 +74,7 @@
 	user.set_machine(src)
 	var/dat = ""
 
-	if(issilicon(user))
+	if(istype(user, /mob/living/silicon))
 		to_chat(user, "This console is not networked to the rest of the grid.")
 		return
 
@@ -85,6 +85,7 @@
 				dat += "<br> <a href='byond://?src=[UID()];operation=MessageHonkplanet'>Send an emergency message to Honkplanet</a>"
 			else
 				dat += "<br> <a href='byond://?src=[UID()];operation=login'>Log In</a>"
+
 
 	dat += "<br> [(src.state != STATE_DEFAULT) ? "<a href='byond://?src=[UID()];operation=main'>Main Menu</a><br>" : ""]<a href='byond://?src=[user.UID()];mach_close=honkputer'>Close</a>"
 	var/datum/browser/popup = new(user, "honkputer", "HONKputer Interface", 400, 500)

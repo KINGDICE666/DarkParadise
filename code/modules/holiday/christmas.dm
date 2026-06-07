@@ -4,7 +4,7 @@
 		for(var/turf/simulated/floor/T in (xmas.get_all_adjacent_turfs() - get_turf(xmas)))
 			var/direction = get_dir(xmas, T)
 			for(var/i=1,i<=rand(1,5),i++)
-				var/obj/item/gift/gift = new(T)
+				var/obj/item/a_gift/gift = new(T)
 				handle_present_location(gift, direction, 16)
 
 	for(var/mob/living/simple_animal/pet/dog/corgi/Ian/Ian in GLOB.mob_list)
@@ -63,6 +63,7 @@
 		evil_tree.icon_gib = evil_tree.icon_state
 		qdel(xmas)
 
+
 /obj/item/toy/xmas_cracker
 	name = "xmas cracker"
 	icon = 'icons/obj/christmas.dmi'
@@ -70,15 +71,19 @@
 	desc = "Directions for use: Requires two people, one to pull each end."
 	var/cracked = FALSE
 
+
 /obj/item/toy/xmas_cracker/update_icon_state()
 	icon_state = "[initial(icon_state)][cracked ? "1" : ""]"
+
 
 /obj/item/toy/xmas_cracker/other_half
 	icon_state = "cracker2"
 	cracked = TRUE
 
+
 /obj/item/toy/xmas_cracker/other_half/update_icon_state()
 	return
+
 
 /obj/item/toy/xmas_cracker/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(cracked || !ishuman(target) || (target.stat != CONSCIOUS) || target.get_active_hand())
@@ -116,8 +121,9 @@
 	target.put_in_active_hand(other_half, ignore_anim = FALSE)
 	playsound(user, 'sound/effects/snap.ogg', 50, TRUE)
 
+
 /obj/item/clothing/head/festive
 	name = "festive paper hat"
 	icon_state = "xmashat"
 	desc = "A crappy paper hat that you are REQUIRED to wear."
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)

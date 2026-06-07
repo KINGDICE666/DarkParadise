@@ -14,40 +14,19 @@
 /// Don't actually throw at the target, just tip it in place.
 #define VENDOR_TIP_IN_PLACE 2
 
-/// Maximum credits dump threshold
-#define CREDITS_DUMP_THRESHOLD 100
-/// The amount of credits collected by the vending machine when someone buys the product.
-#define VENDING_CREDITS_COLLECTION_AMOUNT 0.2
-
-// Names for default vending categories
-#define CATEGORY_NAME_GENERIC "Товары"
-#define CATEGORY_NAME_PREMIUM "Премиум"
-#define CATEGORY_NAME_CONTRABAND "Контрабанда"
 
 /**
- *  Datum used to hold information about a product in a vending machine.
+ *  Datum used to hold information about a product in a vending machine
  */
 /datum/data/vending_product
 	name = "generic"
-	/// Shorter name of the product (for Grid layout in TGUI)
-	var/short_name = ""
-	/// Description of the vending product
-	var/desc = ""
-	/// Typepath of the product that is created when this record "sells"
+	///Typepath of the product that is created when this record "sells"
 	var/product_path = null
-	/// How many of this product we currently have
+	///How many of this product we currently have
 	var/amount = 0
-	/// How many we can store at maximum
+	///How many we can store at maximum
 	var/max_amount = 0
-	/// The price of the item
-	var/price
-	/**
-	 * The category the product was in, if any.
-	 * Sourced directly from product_categories.
-	 */
-	var/category
-	/// Whether the product can be recolored by the GAGS system
-	var/colorable
+	var/price = 0  // Price to buy one
 
 /obj/machinery/vending
 	name = "Vendomat"
@@ -58,8 +37,7 @@
 	density = TRUE
 	max_integrity = 300
 	integrity_failure = 100
-	armor = list(MELEE = 20, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 70)
-	abstract_type = /obj/machinery/vending
+	armor = list(melee = 20, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0, fire = 50, acid = 70)
 
 	// All the overlay controlling variables
 	/// Overlay of vendor maintenance panel.
@@ -103,68 +81,31 @@
 	/// Item currently being bought
 	var/datum/data/vending_product/currently_vending = null
 
-	/**
-	 * List of products this machine sells
-	 *
-	 * form should be list(/type/path = amount, /type/path2 = amount2)
-	 */
-	var/list/products = list()
-
-	/**
-	 * List of products this machine sells, categorized.
-	 * Can only be used as an alternative to `products`, not alongside it.
-	 * Be aware that categories will be inherited by children object,
-	 * and will override it's `products` list if children's categories aren't set to `null`.
-	 *
-	 * Form should be list(
-	 ** 	"name" = "Category Name",
-	 ** 	"icon" = "UI Icon (Font Awesome)",
-	 ** 	"products" = list(/type/path = amount, ...),
-	 * )
-	 */
-	var/list/product_categories = null
-
-	/**
-	 * List of products this machine sells when you hack it
-	 *
-	 * form should be list(/type/path = amount, /type/path2 = amount2)
-	 */
-	var/list/contraband = list()
-
-	/**
-	 * List of premium products this machine sells
-	 *
-	 * form should be list(/type/path = amount, /type/path2 = amount2)
-	 */
-	var/list/premium = list()
+	// To be filled out at compile time
+	var/list/products	= list()	// For each, use the following pattern:
+	var/list/contraband	= list()	// list(/type/path = amount,/type/path2 = amount2)
+	var/list/premium	= list()	// No specified amount = only one in stock
+	var/list/prices     = list()	// Prices for each item, list(/type/path = price), items not in the list don't have a price.
 
 	// List of vending_product items available.
 	var/list/product_records = list()
 	var/list/hidden_records = list()
-	var/list/premium_records = list()
+	var/list/coin_records = list()
+	var/list/imagelist = list()
 
 	// Stuff relating vocalizations
-	/// List of ads the vendor will say time to time.
+	/// List of slogans the vendor will say, optional
 	var/list/slogan_list = list()
-	///List of ads to display in UI. Built from `slogan_list` upon Iniitialize()
-	var/list/ads_list = list()
-	/**
-	 * "Спас+ибо за пок+упку!" type phrases, which are said when someone buys something.
-	 *
-	 * Place "+" before stressed syllables for better Text-to-speech pronunciation.
-	 */
-	var/vend_reply
+	var/vend_reply				//Thank you for shopping!
 	/// If true, prevent saying sales pitches
 	var/shut_up = FALSE
-	/// can we access the hidden inventory?
+	///can we access the hidden inventory?
 	var/extended_inventory = FALSE
 	var/last_reply = 0
-	/// When did we last pitch?
-	var/last_slogan = 0
-	/// How long until we can pitch again?
-	var/slogan_delay = 4500
+	var/last_slogan = 0			//When did we last pitch?
+	var/slogan_delay = 6000		//How long until we can pitch again?
 
-	/// The type of refill canisters used by this machine.
+	//The type of refill canisters used by this machine.
 	var/obj/item/vending_refill/refill_canister = null
 
 	// Things that can go wrong
@@ -180,12 +121,8 @@
 
 	/// If true, enforce access checks on customers. Disabled by messing with wires.
 	var/scan_id = TRUE
-
-	/// Default price of items if not overridden
-	var/default_price = PAYCHECK_MIN
-	/// Default price of premium items if not overridden
-	var/default_premium_price = PAYCHECK_LOWER
-
+	/// Holder for a coin inserted into the vendor
+	var/obj/item/coin/coin
 	var/datum/wires/vending/wires = null
 
 	/// boolean, whether this vending machine can accept people inserting items into it, used for coffee vendors
@@ -217,10 +154,10 @@
 	var/static/list/all_possible_crits = list()
 	/// Possible crit effects from this vending machine tipping.
 	var/list/possible_crits = list(
+		// /datum/vendor_crit/pop_head, //too much i think
 		/datum/vendor_crit/embed,
 		/datum/vendor_crit/pin,
 		/datum/vendor_crit/shatter,
-		/datum/vendor_crit/pop_head,
 		/datum/vendor_crit/lucky
 	)
 	/// number of shards to apply when a crit embeds
@@ -231,90 +168,40 @@
 	COOLDOWN_DECLARE(last_hit_time)
 	/// If the vendor should tip on anyone who walks by. Mainly used for brand intelligence
 	var/aggressive = FALSE
-	/// How many credits does this vending machine have? 20% of all sales go to this pool, and are given freely when the machine is restocked, or successfully tilted. Lost on deconstruction.
-	var/credits_contained = 0
-	/**
-	  * Is this item on station or not
-	  *
-	  * if it doesn't originate from off-station during mapload, all_products_free gets automatically set to TRUE if it was unset previously.
-	  */
-	var/onstation = TRUE
-	/**
-	 * DO NOT APPLY THIS GLOBALLY. For mapping var edits only.
-	 * A variable to change on a per instance basis that allows the instance to avoid having onstation set for them during mapload.
-	 * Setting this to TRUE means that the vending machine is treated as if it were still onstation if it spawns off-station during mapload.
-	 * Useful to specify an off-station machine that will be affected by machine-brand intelligence for whatever reason.
-	 */
-	var/onstation_override = FALSE
-	/**
-	 * If this is set to TRUE, all products sold by the vending machine are free (cost nothing).
-	 * If unset, this will get automatically set to TRUE during init if the machine originates from off-station during mapload.
-	 * Defaults to null, set it to TRUE or FALSE explicitly on a per-machine basis if you want to force it to be a certain value.
-	 */
-	var/all_products_free
-	/**
-	 * If this is set to TRUE, the free item distribution process will not drop products, but the machine can still tilt.
-	 * Otherwise, free buy works normally.
-	 */
-	var/vandal_secure = FALSE
 
 /obj/machinery/vending/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "торговый автомат",
 		GENITIVE = "торгового автомата",
 		DATIVE = "торговому автомату",
 		ACCUSATIVE = "торговый автомат",
 		INSTRUMENTAL = "торговым автоматом",
-		PREPOSITIONAL = "торговом автомате",
+		PREPOSITIONAL = "торговом автомате"
 	)
 
-/**
- * Initialize the vending machine
- *
- * Builds the vending machine inventory, sets up slogans and other such misc work
- *
- * This also sets the onstation var to:
- * * FALSE — if the machine was maploaded on a zlevel that doesn't pass the is_station_level check
- * * TRUE — all other cases
- */
 /obj/machinery/vending/Initialize(mapload)
 	. = ..()
-
 	var/build_inv = FALSE
 	if(!refill_canister)
 		build_inv = TRUE
 	else
 		component_parts = list()
 		var/obj/item/circuitboard/vendor/V = new
-		V.set_type(initial(name))
+		V.set_type(replacetext(initial(name), "\improper", ""))
 		component_parts += V
 		component_parts += new refill_canister
 		RefreshParts()
 
 	wires = new(src)
-
 	if(build_inv) //non-constructable vending machine
-		build_inventories()
-
+		build_inventory(products, product_records)
+		build_inventory(contraband, hidden_records)
+		build_inventory(premium, coin_records)
 	if(LAZYLEN(slogan_list))
 		// So not all machines speak at the exact same time.
 		// The first time this machine says something will be at slogantime + this random value,
 		// so if slogantime is 10 minutes, it will say it at somewhere between 10 and 20 minutes after the machine is created.
 		last_slogan = world.time + rand(0, slogan_delay)
-
-		// deleting "+" symbols which are used by TTS only.
-		for(var/advertisement in slogan_list)
-			ads_list += replacetext(advertisement, "+", "")
-
-	if(mapload) //check if it was initially created off station during mapload.
-		if(!is_station_level(z))
-			if(!onstation_override)
-				onstation = FALSE
-				if(isnull(all_products_free)) // Only auto-set the free products var if we haven't explicitly assigned a value to it yet.
-					all_products_free = TRUE
-			var/obj/item/circuitboard/vendor/circuit = locate(/obj/item/circuitboard/vendor) in component_parts
-			if(circuit)
-				circuit.all_products_free = all_products_free //sync up the circuit so the pricing schema is carried over if it's reconstructed.
 
 	if(!length(all_possible_crits))
 		for(var/typepath in subtypesof(/datum/vendor_crit))
@@ -330,6 +217,15 @@
 
 	update_icon(UPDATE_OVERLAYS)
 
+/obj/machinery/vending/examine(mob/user)
+	. = ..()
+	if(tilted)
+		. += span_warning("Он лежит на боку и не будет функционировать до тех пор, пока его не поднимут.")
+		if(Adjacent(user))
+			. += span_notice("Используйте <b>Alt+ЛКМ</b>, чтобы поднять автомат.")
+	if(aggressive)
+		. += span_warning("Его индикаторы зловеще мигают...")
+
 /obj/machinery/vending/click_alt(mob/user)
 	if(!tilted)
 		return NONE
@@ -339,30 +235,30 @@
 /obj/machinery/vending/Destroy()
 	SStgui.close_uis(wires)
 	QDEL_NULL(wires)
+	QDEL_NULL(coin)
 	QDEL_NULL(inserted_item)
-	QDEL_NULL(proximity_monitor)
 	return ..()
 
-/// Better would be to make constructable child
-/obj/machinery/vending/RefreshParts()
+/obj/machinery/vending/RefreshParts()         //Better would be to make constructable child
 	if(!component_parts)
 		return
 
-	build_products_from_categories()
-
 	product_records = list()
 	hidden_records = list()
-	premium_records = list()
+	coin_records = list()
+	if(refill_canister)
+		build_inventory(products, product_records, start_empty = TRUE)
+		build_inventory(contraband, hidden_records, start_empty = TRUE)
+		build_inventory(premium, coin_records, start_empty = TRUE)
+	for(var/obj/item/vending_refill/VR in component_parts)
+		restock(VR)
 
-	build_inventories(start_empty = TRUE)
-
-	for(var/obj/item/vending_refill/installed_refill in component_parts)
-		restock(installed_refill)
 
 /obj/machinery/vending/update_icon(updates = ALL)
 	if(skip_non_primary_icon_updates && !(stat & (NOPOWER|BROKEN)))
 		return ..(NONE)
 	return ..()
+
 
 /obj/machinery/vending/update_overlays()
 	. = ..()
@@ -408,22 +304,6 @@
 	if(panel_overlay && panel_open)
 		. += panel_overlay
 
-/obj/machinery/vending/examine(mob/user)
-	. = ..()
-	if(tilted)
-		. += span_warning("Он лежит на боку и не будет функционировать до тех пор, пока его не поднимут.")
-		if(Adjacent(user))
-			. += span_notice("Используйте <b>Alt+ЛКМ</b>, чтобы поднять автомат.")
-	if(aggressive)
-		. += span_warning("Его индикаторы зловеще мигают...")
-	if(credits_contained < PAYCHECK_LOWER && credits_contained > 0)
-		. += span_notice("Судя по объёму отсутствующих товаров, в отсеке для наличных должно быть <b>немного</b> кредитов.")
-	else if(credits_contained >= PAYCHECK_LOWER)
-		. += span_notice("Судя по объёму отсутствующих товаров, в отсеке для наличных должно быть <b>много</b> кредитов.")
-		/**
-		 * Intentionally leaving out a case for zero credits as it should be covered by the vending machine's stock being full,
-		 * or covered by first case if items were returned.
-		 */
 
 /obj/machinery/vending/power_change(forced = FALSE)
 	. = ..()
@@ -434,10 +314,12 @@
 	if(.)
 		update_icon(UPDATE_OVERLAYS)
 
+
 /obj/machinery/vending/extinguish_light(force = FALSE)
 	if(light_on)
 		set_light_on(FALSE)
 		underlays.Cut()
+
 
 /obj/machinery/vending/proc/flick_vendor_overlay(flick_flag = FLICK_NONE)
 	if(flick_sequence & (FLICK_VEND|FLICK_DENY))
@@ -452,16 +334,12 @@
 	var/flick_time = (flick_flag & FLICK_VEND) ? vend_overlay_time : (flick_flag & FLICK_DENY) ? deny_overlay_time : 0
 	addtimer(CALLBACK(src, PROC_REF(flick_reset)), flick_time)
 
+
 /obj/machinery/vending/proc/flick_reset()
 	skip_non_primary_icon_updates = FALSE
 	flick_sequence = FLICK_NONE
 	update_icon(UPDATE_OVERLAYS)
 
-/obj/machinery/vending/proc/create_proximity_monitor()
-	proximity_monitor = new(src)
-
-/obj/machinery/vending/proc/remove_proximity_monitor()
-	QDEL_NULL(proximity_monitor)
 
 /*
  * Reimp, flash the screen on and off repeatedly.
@@ -496,90 +374,32 @@
 	flickering = FALSE
 
 /**
- * Build the inventory of the vending machine from it's product and record lists
+ *  Build src.produdct_records from the products lists
  *
- * This builds up a full set of /datum/data/vending_product from the product list of the vending machine type
- * Arguments:
- * * productlist - the list of products that need to be converted
- * * recordlist - the list containing /datum/data/vending_product datums
- * * categories - account list in the format of product_categories to source category from
- * * startempty - should we set vending_product record amount from the product list (so it's prefilled at roundstart)
- * * premium - Whether the ending products shall have premium or default prices
+ *  src.products, src.contraband, src.premium, and src.prices allow specifying
+ *  products that the vending machine is to carry without manually populating
+ *  src.product_records.
  */
-/obj/machinery/vending/proc/build_inventory(list/productlist, list/recordlist, list/categories, start_empty = FALSE, premium = FALSE)
-	var/list/product_to_category = list()
-	for(var/list/category as anything in categories)
-		var/list/products = category["products"]
-		for(var/product_key in products)
-			product_to_category[product_key] = category
-
+/obj/machinery/vending/proc/build_inventory(list/productlist, list/recordlist, start_empty = FALSE)
 	for(var/typepath in productlist)
 		var/amount = productlist[typepath]
 		if(isnull(amount))
 			amount = 0
 
-		var/obj/item/item = new typepath(src)
-		var/datum/data/vending_product/new_record = new /datum/data/vending_product()
-		new_record.name = DECLENT_RU_CAP(item, NOMINATIVE)
-		new_record.short_name = capitalize(item.get_short_name())
-		new_record.desc = item.desc
-		qdel(item)
-		new_record.product_path = typepath
+		var/obj/item = new typepath(src)
+		var/datum/data/vending_product/R = new /datum/data/vending_product()
+		var/list/names = item?.ru_names || item.get_ru_names()
+		R.name = capitalize(names ? names[1] : item.name)
+		R.product_path = typepath
 		if(!start_empty)
-			new_record.amount = amount
-		new_record.max_amount = amount
-
-		var/custom_price = initial(item.custom_price)
-		if(!premium)
-			new_record.price = custom_price || default_price
-		else
-			var/custom_premium_price = initial(item.custom_premium_price)
-			new_record.price = custom_premium_price || default_premium_price
-
-		new_record.colorable = !!(item.greyscale_config && item.greyscale_colors)
-		new_record.category = product_to_category[typepath]
-		recordlist += new_record
-
-/**
- * Builds all available inventories for the vendor - standard, contraband and premium
- * Arguments:
- * start_empty - bool to pass into build_inventory that determines whether a product entry starts with available stock or not
- */
-/obj/machinery/vending/proc/build_inventories(start_empty)
-	build_inventory(products, product_records, product_categories, start_empty)
-	build_inventory(contraband, hidden_records, create_categories_from(CATEGORY_NAME_CONTRABAND, "mask", contraband), start_empty, premium = TRUE)
-	build_inventory(premium, premium_records, create_categories_from(CATEGORY_NAME_PREMIUM, "star", premium), start_empty, premium = TRUE)
-
-/**
- * Returns a list of data about the category
- * Arguments:
- * name - string for the name of the category
- * icon - string for the fontawesome icon to use in the UI for the category
- * products - list of products available in the category
- */
-/obj/machinery/vending/proc/create_categories_from(name, icon, products)
-	return list(list(
-		"name" = name,
-		"icon" = icon,
-		"products" = products,
-	))
-
-/// Populates list of products with categorized products
-/obj/machinery/vending/proc/build_products_from_categories()
-	if(isnull(product_categories))
-		return
-
-	products = list()
-
-	for(var/list/category in product_categories)
-		var/list/category_products = category["products"]
-		for(var/product_key in category_products)
-			products[product_key] += category_products[product_key]
-
+			R.amount = amount
+		R.max_amount = amount
+		R.price = (typepath in prices) ? prices[typepath] : 0
+		recordlist += R
 /**
  * Refill a vending machine from a refill canister
  *
- * This takes the products from the refill canister and then fills the products, contraband and premium product categories
+ * This takes the products from the refill canister and then fills the products,contraband and premium product categories
  *
  * Arguments:
  * * canister - the vending canister we are refilling from
@@ -591,28 +411,10 @@
 		canister.contraband = contraband.Copy()
 	if(!canister.premium)
 		canister.premium = premium.Copy()
-
 	. = 0
-
-	if(isnull(canister.product_categories) && !isnull(product_categories))
-		canister.product_categories = product_categories.Copy()
-
-	if(!isnull(canister.product_categories))
-		var/list/products_unwrapped = list()
-		for(var/list/category as anything in canister.product_categories)
-			var/list/products = category["products"]
-			for(var/product_key in products)
-				products_unwrapped[product_key] += products[product_key]
-
-		. += refill_inventory(products_unwrapped, product_records)
-	else
-		. += refill_inventory(canister.products, product_records)
-
+	. += refill_inventory(canister.products, product_records)
 	. += refill_inventory(canister.contraband, hidden_records)
-	. += refill_inventory(canister.premium, premium_records)
-
-	return .
-
+	. += refill_inventory(canister.premium, coin_records)
 /**
  * Refill our inventory from the passed in product list into the record list
  *
@@ -622,7 +424,8 @@
  */
 /obj/machinery/vending/proc/refill_inventory(list/productlist, list/recordlist)
 	. = 0
-	for(var/datum/data/vending_product/record as anything in recordlist)
+	for(var/R in recordlist)
+		var/datum/data/vending_product/record = R
 		var/diff = min(record.max_amount - record.amount, productlist[record.product_path])
 		if(diff)
 			productlist[record.product_path] -= diff
@@ -637,83 +440,22 @@
 	if(!component_parts)
 		return
 
-	var/obj/item/vending_refill/installed_refill = locate() in component_parts
-	if(!installed_refill)
+	var/obj/item/vending_refill/R = locate() in component_parts
+	if(!R)
 		CRASH("Constructible vending machine did not have a refill canister")
 
-	unbuild_inventory_into(product_records, installed_refill.products, installed_refill.product_categories)
-
-	installed_refill.contraband = unbuild_inventory(hidden_records)
-	installed_refill.premium = unbuild_inventory(premium_records)
+	R.products = unbuild_inventory(product_records)
+	R.contraband = unbuild_inventory(hidden_records)
+	R.premium = unbuild_inventory(coin_records)
 
 /**
  * Given a record list, go through and and return a list of type -> amount
  */
 /obj/machinery/vending/proc/unbuild_inventory(list/recordlist)
 	. = list()
-	for(var/datum/data/vending_product/record as anything in recordlist)
+	for(var/R in recordlist)
+		var/datum/data/vending_product/record = R
 		.[record.product_path] += record.amount
-
-/**
- * Unbuild product_records into categorized product lists to the machine's refill canister.
- * Does not handle contraband/premium products, only standard stock and any other categories used by the vendor(see: ClothesMate).
- * If a product has no category, puts it into standard stock category.
- * Arguments:
- * product_records - list of products of the vendor
- * products - list of products of the refill canister
- * product_categories - list of product categories of the refill canister
- */
-/obj/machinery/vending/proc/unbuild_inventory_into(list/product_records, list/products, list/product_categories)
-	products?.Cut()
-	product_categories?.Cut()
-
-	var/others_have_category = null
-
-	var/list/categories_to_index = list()
-
-	for(var/datum/data/vending_product/record as anything in product_records)
-		var/list/category = record.category
-		var/has_category = !isnull(category)
-
-		if(!check_category_consistency(record, others_have_category, has_category))
-			continue
-
-		if(has_category)
-			handle_categorized_product(record, product_categories, categories_to_index)
-		else
-			products[record.product_path] = record.amount
-
-/obj/machinery/vending/proc/check_category_consistency(product_record, others_have_category, has_category)
-	var/datum/data/vending_product/record = product_record
-	if(isnull(others_have_category))
-		return TRUE
-
-	if(others_have_category == has_category)
-		return TRUE
-
-	if(has_category)
-		WARNING("[record.product_path] in [type] has a category, but other products don't")
-	else
-		WARNING("[record.product_path] in [type] does not have a category, but other products do")
-
-	return FALSE
-
-/obj/machinery/vending/proc/handle_categorized_product(product_record, list/product_categories, list/categories_to_index)
-	var/datum/data/vending_product/record = product_record
-	var/list/category = record.category
-	var/index = categories_to_index.Find(category)
-
-	if(!index)
-		categories_to_index += list(category)
-		index = categories_to_index.len
-
-		var/list/category_clone = category.Copy()
-		category_clone["products"] = list("[record.product_path]" = record.amount)
-		product_categories += list(category_clone)
-	else
-		var/list/category_in_list = product_categories[index]
-		var/list/products_in_category = category_in_list["products"]
-		products_in_category[record.product_path] += record.amount
 
 /obj/machinery/vending/deconstruct(disassembled = TRUE)
 	eject_item()
@@ -723,12 +465,31 @@
 	else
 		..()
 
+
 /obj/machinery/vending/attackby(obj/item/I, mob/user, params)
 	if(tilted)
 		if(user.a_intent == INTENT_HELP)
 			balloon_alert(user, "автомат опрокинут!")
 			return ATTACK_CHAIN_BLOCKED_ALL
 		return ..()
+
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/coin))
+		add_fingerprint(user)
+		if(!length(premium))
+			balloon_alert(user, "слот отсутствует!")
+			return ATTACK_CHAIN_PROCEED
+		if(coin)
+			balloon_alert(user, "слот занят!")
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		coin = I
+		balloon_alert(user, "монета вставлена")
+		SStgui.update_uis(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
 	if(istype(I, refill_canister))
 		add_fingerprint(user)
@@ -744,7 +505,7 @@
 			balloon_alert(user, "набор пополнения пуст!")
 			return ATTACK_CHAIN_PROCEED
 
-		/// Instantiate canister if needed
+		// instantiate canister if needed
 		var/transferred = restock(canister)
 		if(transferred)
 			balloon_alert(user, "набор пополнения вставлен")
@@ -758,15 +519,16 @@
 		insert_item(user, I)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	. = ..()
 	try_tilt(I, user)
+	return ..()
 
 /obj/machinery/vending/proc/try_tilt(obj/item/I, mob/user)
 	if(tiltable && !tilted && I.force)
 		if(resistance_flags & INDESTRUCTIBLE)
-			return // no goodies, but also no tilts
+			// no goodies, but also no tilts
+			return
 		if(COOLDOWN_FINISHED(src, last_hit_time))
-			visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] странно покачивается..."))
+			visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] странно покачивается..."))
 			to_chat(user, span_userdanger("Кажется, что [declent_ru(NOMINATIVE)] так и норовит упасть!"))
 			COOLDOWN_START(src, last_hit_time, hit_warning_cooldown_length)
 			return
@@ -776,64 +538,82 @@
 				freebie(user, 3)
 			if(6 to 15)
 				freebie(user, 2)
-			if(16 to 50)
+			if(16 to 25)
 				freebie(user, 1)
-			if(50 to 75)
+			if(26 to 75)
 				return
 			if(76 to 90)
 				tilt(user)
 			if(91 to 100)
 				tilt(user, crit = TRUE)
 
-/**
- * Dispenses free items from the standard stock.
- * Arguments:
- * freebies - number of free items to vend
- */
 /obj/machinery/vending/proc/freebie(mob/user, num_freebies)
-	if(vandal_secure)
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] дребезжит, но ничего не выдаёт!"))
-		return
-
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] товар[declension_ru(num_freebies, "", "ы", "ы")] из своего ассортимента[credits_contained > 0 ? " и купюры" : ""]!"))
-
+	visible_message(span_notice("Из [declent_ru(GENITIVE)] начинают выпадать товары!"))
 	for(var/i in 1 to num_freebies)
-		playsound(src, 'sound/machines/machine_vend.ogg', 50, TRUE, extrarange = -3)
-		for(var/datum/data/vending_product/record in shuffle(product_records))
-
-			if(record.amount <= 0)
+		for(var/datum/data/vending_product/R in shuffle(product_records))
+			if(R.amount <= 0)
 				continue
-			var/dump_path = record.product_path
+			var/dump_path = R.product_path
 			if(!dump_path)
 				continue
 			new dump_path(get_turf(src))
-			record.amount--
+			R.amount--
 			break
 
-	deploy_credits()
-
-/obj/machinery/vending/HasProximity(atom/movable/movable)
-	if(!aggressive || tilted || !tiltable)
+/obj/machinery/vending/HasProximity(atom/movable/AM)
+	if(!aggressive  || tilted || !tiltable)
 		return
 
-	if(!isliving(movable) || !prob(25))
-		return
-
-	movable.visible_message(
-		span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] внезапно опрокидывается на [movable.declent_ru(ACCUSATIVE)]!"),
-		span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] обрушивается на вас без предупреждения!")
-	)
-	tilt(movable, prob(5), FALSE)
-	aggressive = FALSE
-	remove_proximity_monitor()
-	// Not making same mistakes as offs did.
-	// Don't make this prob more than 5%
+	if(isliving(AM) && prob(25))
+		AM.visible_message(
+			span_warning("[capitalize(declent_ru(NOMINATIVE))] внезапно опрокидывается на [AM.declent_ru(ACCUSATIVE)]!"),
+			span_userdanger("[capitalize(declent_ru(NOMINATIVE))] обрушивается на вас без предупреждения!")
+		)
+		tilt(AM, prob(5), FALSE)
+		aggressive = FALSE
+		//Not making same mistakes as offs did.
+		// Don't make this brob more than 5%
 
 /obj/machinery/vending/crowbar_act(mob/user, obj/item/I)
-	. = TRUE
 	if(!component_parts)
 		return
+	. = TRUE
+	if(tilted)
+		balloon_alert(user, "автомат опрокинут!")
+		return
 	default_deconstruction_crowbar(user, I)
+
+/obj/machinery/vending/multitool_act(mob/user, obj/item/I)
+	. = TRUE
+	if(tilted)
+		balloon_alert(user, "автомат опрокинут!")
+		return
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+		return
+	wires.Interact(user)
+
+/obj/machinery/vending/screwdriver_act(mob/user, obj/item/I)
+	. = TRUE
+	if(tilted)
+		balloon_alert(user, "автомат опрокинут!")
+		return
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+		return
+	if(!anchored)
+		balloon_alert(user, "автомат не прикручен!")
+		return
+	panel_open = !panel_open
+	panel_open ? SCREWDRIVER_OPEN_PANEL_MESSAGE : SCREWDRIVER_CLOSE_PANEL_MESSAGE
+	update_icon()
+	SStgui.update_uis(src)
+
+/obj/machinery/vending/wirecutter_act(mob/user, obj/item/I)
+	. = TRUE
+	if(tilted)
+		balloon_alert(user, "автомат опрокинут!")
+		return
+	if(I.use_tool(src, user, 0, volume = 0))
+		wires.Interact(user)
 
 /obj/machinery/vending/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -843,33 +623,6 @@
 	if(!I.use_tool(src, user, 0, volume = 0))
 		return
 	default_unfasten_wrench(user, I, time = 60)
-
-/obj/machinery/vending/screwdriver_act(mob/user, obj/item/I)
-	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
-		return
-	if(!anchored)
-		balloon_alert(user, "автомат не прикручен!")
-		return
-
-	panel_open = !panel_open
-	if(panel_open)
-		SCREWDRIVER_OPEN_PANEL_MESSAGE
-	else
-		SCREWDRIVER_CLOSE_PANEL_MESSAGE
-	update_icon()
-	SStgui.update_uis(src)
-
-/obj/machinery/vending/multitool_act(mob/user, obj/item/I)
-	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
-		return
-	wires.Interact(user)
-
-/obj/machinery/vending/wirecutter_act(mob/user, obj/item/I)
-	. = TRUE
-	if(I.use_tool(src, user, 0, volume = 0))
-		wires.Interact(user)
 
 /obj/machinery/vending/ex_act(severity, target)
 	. = ..()
@@ -886,7 +639,7 @@
 	if(prob(tilt_prob))
 		tilt()
 
-/// Override this proc to do per-machine checks on the inserted item, but remember to call the parent to handle these generic checks before your logic!
+//Override this proc to do per-machine checks on the inserted item, but remember to call the parent to handle these generic checks before your logic!
 /obj/machinery/vending/proc/item_slot_check(mob/user, obj/item/I)
 	if(!item_slot)
 		return FALSE
@@ -900,7 +653,7 @@
 	if(!..())
 		return FALSE
 	if(!istype(I, /obj/item/toy))
-		to_chat(user, span_warning("[I] isn't compatible with this machine's slot."))
+		to_chat(user, "<span class='warning'>[I] isn't compatible with this machine's slot.</span>")
 		return FALSE
 	return TRUE
 */
@@ -923,7 +676,7 @@
 	else
 		to_chat(user, display_parts(user))
 	if(moved)
-		balloon_alert(user, "пополнено [moved] товар[DECL_CREDIT(moved)]")
+		to_chat(user, "Вы пополнили [moved] товар[declension_ru(moved, "", "а", "ов")].")
 		W.play_rped_sound()
 	return TRUE
 
@@ -935,7 +688,7 @@
 	if(!item_slot || inserted_item)
 		return
 	if(!user.drop_transfer_item_to_loc(I, src))
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] будто бы приклеен[GEND_A_O_Y(I)] к вашей руке! Вы не можете [GEND_HIS_HER(I)] скинуть!"))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] будто бы приклеен[genderize_ru(I.gender, "", "а", "о", "ы")] к вашей руке! Вы не можете [genderize_ru(I.gender, "его", "её", "его", "их")] скинуть!"))
 		return
 	inserted_item = I
 	balloon_alert(user, "предмет вставлен")
@@ -990,102 +743,119 @@
 /obj/machinery/vending/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "Vending", DECLENT_RU_CAP(src, NOMINATIVE))
+		var/estimated_height = 100 + min(length(product_records) * 34, 500)
+		if(length(prices) > 0)
+			estimated_height += 100 // to account for the "current user" interface
+		ui = new(user, src, "Vending", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
-
-/obj/machinery/vending/ui_static_data(mob/user)
-	var/list/data = list()
-	if(length(ads_list))
-		data["ad"] = ads_list[rand(1, length(ads_list))]
-
-	data["all_products_free"] = all_products_free
-	data["product_records"] = list()
-
-	var/list/categories = list()
-
-	data["product_records"] = collect_records_for_static_data(product_records, categories)
-	data["premium_records"] = collect_records_for_static_data(premium_records, categories, premium = TRUE)
-	data["hidden_records"] = collect_records_for_static_data(hidden_records, categories, hidden = TRUE)
-
-	data["categories"] = categories
-
-	return data
-
-/obj/machinery/vending/proc/collect_records_for_static_data(list/records, list/categories, premium, hidden, index)
-	var/static/list/default_category = list(
-		"name" = CATEGORY_NAME_GENERIC,
-		"icon" = "cart-shopping",
-	)
-
-	var/list/out_records = list()
-
-	for(var/datum/data/vending_product/product_record as anything in records)
-		var/obj/item/item = new product_record.product_path(src)
-		var/list/static_record = list(
-			path = replacetext(replacetext("[product_record.product_path]", "/obj/item/", ""), "/", "-"),
-			name = DECLENT_RU_CAP(item, NOMINATIVE),
-			short_name = capitalize(item.get_short_name()),
-			desc = item.desc,
-			colorable = product_record.colorable,
-			price = product_record.price,
-			ref = product_record.UID()
-		)
-
-		static_record["icon"] = initial(item.icon)
-		static_record["icon_state"] = initial(item.icon_state)
-
-		var/list/category = product_record.category || default_category
-		if(!isnull(category))
-			if(!(category["name"] in categories))
-				categories[category["name"]] = list(
-					"icon" = category["icon"],
-				)
-
-			static_record["category"] = category["name"]
-
-		if(premium)
-			static_record["req_coin"] = TRUE
-
-		out_records += list(static_record)
-
-	return out_records
 
 /obj/machinery/vending/ui_data(mob/user)
 	var/list/data = list()
-	var/datum/money_account/money_account = null
-
+	var/datum/money_account/A = null
+	data["guestNotice"] = "Предъявите ID-карту или используйте наличные.";
+	data["userMoney"] = 0
 	data["user"] = null
+	if(issilicon(user) && !istype(user, /mob/living/silicon/robot/drone) && !istype(user, /mob/living/silicon/pai))
+		A = get_card_account(user)
+		data["user"] = list()
+		data["user"]["name"] = A.owner_name
+		data["userMoney"] = A.money
+		data["user"]["job"] = "Силикон"
 	if(ishuman(user))
-		money_account = get_card_account(user)
+		A = get_card_account(user)
 		var/mob/living/carbon/human/H = user
-		var/obj/item/card/id/id_card = H.get_id_card()
-		var/obj/item/stack/spacecash/cash = H.get_active_hand()
-		if(istype(money_account))
-			data["user"] = list()
-			data["user"]["name"] = money_account.owner_name
-			data["user"]["cash"] = istype(cash) ? cash.amount : money_account.money
-			data["user"]["job"] = (istype(id_card) && id_card.rank) ? id_card.rank : "Должность не определена"
+		var/obj/item/stack/spacecash/S = H.get_active_hand()
+		if(istype(S))
+			data["userMoney"] = S.amount
+			data["guestNotice"] = "Принимаем наличные. У вас есть: [S.amount] кредит[pluralize_ru(S.amount, "", "а", "ов")]."
+		else if(istype(H))
+			var/obj/item/card/id/C = H.get_id_card()
+			if(istype(A))
+				data["user"] = list()
+				data["user"]["name"] = A.owner_name
+				data["userMoney"] = A.money
+				data["user"]["job"] = (istype(C) && C.rank) ? C.rank : "Должность отсутствует"
+			else
+				data["guestNotice"] = "Обнаруженная ID-карта не привязана к счёту.";
 	data["stock"] = list()
-	for(var/datum/data/vending_product/product_record in product_records + premium_records + hidden_records)
-		data["stock"][product_record.name] = product_record.amount
+	for(var/datum/data/vending_product/R in product_records + coin_records + hidden_records)
+		data["stock"][R.name] = R.amount
 	data["extended_inventory"] = extended_inventory
 	data["vend_ready"] = vend_ready
+	data["coin_name"] = coin ? capitalize(coin.declent_ru(NOMINATIVE)) : FALSE
 	data["panel_open"] = panel_open ? TRUE : FALSE
 	data["speaker"] = shut_up ? FALSE : TRUE
 	data["item_slot"] = item_slot // boolean
-	data["inserted_item_name"] = inserted_item ? DECLENT_RU_CAP(inserted_item, NOMINATIVE) : FALSE
-
-	if(prob(10) && length(ads_list))
-		data["ad"] = ads_list[rand(1, length(ads_list))]
-
+	data["inserted_item_name"] = inserted_item ? capitalize(inserted_item.declent_ru(NOMINATIVE)) : FALSE
 	return data
 
-/obj/machinery/vending/ui_act(action, list/params)
+
+/obj/machinery/vending/ui_static_data(mob/user)
+	var/list/data = list()
+	data["chargesMoney"] = length(prices) > 0 ? TRUE : FALSE
+	data["product_records"] = list()
+	var/i = 1
+	for(var/datum/data/vending_product/R in product_records)
+		var/obj/item/item = new R.product_path(src)
+		var/list/names = item.ru_names || item.get_ru_names()
+		var/list/data_pr = list(
+			path = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-"),
+			name = capitalize(names ? names[1] : item.name),
+			price = (R.product_path in prices) ? prices[R.product_path] : 0,
+			icon = item.icon,
+			icon_state = item.icon_state,
+			max_amount = R.max_amount,
+			req_coin = FALSE,
+			is_hidden = FALSE,
+			inum = i
+		)
+		data["product_records"] += list(data_pr)
+		i++
+	data["coin_records"] = list()
+	for(var/datum/data/vending_product/R in coin_records)
+		var/obj/item/item = new R.product_path(src)
+		var/list/names = item?.ru_names || item.get_ru_names()
+		var/list/data_cr = list(
+			path = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-"),
+			name = capitalize(names ? names[1] : item.name),
+			price = (R.product_path in prices) ? prices[R.product_path] : 0,
+			icon = item.icon,
+			icon_state = item.icon_state,
+			max_amount = R.max_amount,
+			req_coin = TRUE,
+			is_hidden = FALSE,
+			inum = i,
+			premium = TRUE
+		)
+		data["coin_records"] += list(data_cr)
+		i++
+	data["hidden_records"] = list()
+	for(var/datum/data/vending_product/R in hidden_records)
+		var/obj/item/item = new R.product_path(src)
+		var/list/names = item?.ru_names || item.get_ru_names()
+		var/list/data_hr = list(
+			path = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-"),
+			name = capitalize(names ? names[1] : item.name),
+			price = (R.product_path in prices) ? prices[R.product_path] : 0,
+			icon = item.icon,
+			icon_state = item.icon_state,
+			max_amount = R.max_amount,
+			req_coin = FALSE,
+			is_hidden = TRUE,
+			inum = i,
+			premium = TRUE
+		)
+		data["hidden_records"] += list(data_hr)
+		i++
+	data["imagelist"] = imagelist
+	return data
+
+/obj/machinery/vending/ui_act(action, params)
 	. = ..()
 	if(.)
 		return
 	if(issilicon(usr) && !isrobot(usr))
-		to_chat(usr, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] отказывается взаимодействовать с вами, поскольку вы не входите в его целевую аудиторию!"))
+		to_chat(usr, span_warning("[capitalize(declent_ru(NOMINATIVE))] отказывается взаимодействовать с вами, поскольку вы не входите в его целевую аудиторию!"))
 		return
 	switch(action)
 		if("toggle_voice")
@@ -1095,177 +865,141 @@
 		if("eject_item")
 			eject_item(usr)
 			. = TRUE
-
-		if("select_colors")
-			. = select_colors(params)
-
+		if("remove_coin")
+			if(!coin)
+				balloon_alert(usr, "в автомате нет монет!")
+				return
+			if(issilicon(usr))
+				balloon_alert(usr, "у вас нет рук!")
+				return
+			balloon_alert(usr, "монета извлечена")
+			coin.forceMove_turf()
+			usr.put_in_hands(coin, ignore_anim = FALSE)
+			coin = null
+			. = TRUE
 		if("vend")
-			. = vend_action(params)
+			if(!vend_ready)
+				balloon_alert(usr, "торговый автомат занят!")
+				return
+			if(panel_open)
+				balloon_alert(usr, "техпанель открыта!")
+				return
+			var/key = text2num(params["inum"])
+			var/list/display_records = product_records + coin_records
+			if(extended_inventory)
+				display_records = product_records + coin_records + hidden_records
+			if(key < 1 || key > length(display_records))
+				to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] получил недопустимое число. Сообщите о баге."))
+				return
+			var/datum/data/vending_product/R = display_records[key]
+			if(!istype(R))
+				to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] содержит неизвестный товар. Сообщите о баге."))
+				return
+			var/list/record_to_check = product_records + coin_records
+			if(extended_inventory)
+				record_to_check = product_records + coin_records + hidden_records
+			if(!R || !istype(R) || !R.product_path)
+				to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] содержит неизвестную позицию с товаром. Сообщите о баге."))
+				return
+			if(R in hidden_records)
+				if(!extended_inventory)
+					// Exploit prevention, stop the user purchasing hidden stuff if they haven't hacked the machine.
+					to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] не может расширить ассортимент в текущем состоянии. Сообщите о баге."))
+					return
+			else if(!(R in record_to_check))
+				// Exploit prevention, stop the user
+				message_admins("Vending machine exploit attempted by [ADMIN_LOOKUPFLW(usr)]!")
+				return
+			if(R.amount <= 0)
+				to_chat(usr, "Товар \"[R.name]\" закончился!")
+				flick_vendor_overlay(FLICK_VEND)
+				return
 
+			vend_ready = FALSE // From this point onwards, vendor is locked to performing this transaction only, until it is resolved.
+
+			if(!(ishuman(usr) || issilicon(usr)) || R.price <= 0)
+				// Either the purchaser is not human nor silicon, or the item is free.
+				// Skip all payment logic.
+				vend(R, usr)
+				add_fingerprint(usr)
+				vend_ready = TRUE
+				. = TRUE
+				return
+
+			if(issilicon(usr))
+				to_chat(usr, span_warning("[capitalize(declent_ru(NOMINATIVE))] отказывается продавать вам товар, поскольку вы не входите в его целевую аудиторию!"))
+				vend_ready = TRUE
+				. = TRUE
+				return
+
+			// --- THE REST OF THIS PROC IS JUST PAYMENT LOGIC ---
+			if(!GLOB.vendor_account || GLOB.vendor_account.suspended)
+				to_chat(usr, "Удалённый сервер торговых автоматов отключён. Не удается обработать операцию.")
+				flick_vendor_overlay(FLICK_DENY)
+				vend_ready = TRUE
+				return
+
+			currently_vending = R
+			var/paid = FALSE
+
+			if(istype(usr.get_active_hand(), /obj/item/stack/spacecash))
+				var/obj/item/stack/spacecash/S = usr.get_active_hand()
+				paid = pay_with_cash(S, usr, currently_vending.price, currently_vending.name)
+			else if(get_card_account(usr))
+				// Because this uses H.get_id_card(), it will attempt to use:
+				// active hand, inactive hand, wear_id, pda, and then w_uniform ID in that order
+				// this is important because it lets people buy stuff with someone else's ID by holding it while using the vendor
+				paid = pay_with_card(usr, currently_vending.price, currently_vending.name)
+			else if(usr.can_advanced_admin_interact())
+				to_chat(usr, span_notice("[capitalize(declent_ru(NOMINATIVE))] выдаёт товар в результате вмешательства администратора."))
+				paid = TRUE
+			else
+				to_chat(usr, span_warning("Сбой платежа: у вас нет ID-карты или другого способа оплаты."))
+				vend_ready = TRUE
+				flick_vendor_overlay(FLICK_DENY)
+				. = TRUE // we set this because they shouldn't even be able to get this far, and we want the UI to update.
+				return
+			if(paid)
+				vend(currently_vending, usr)
+				. = TRUE
+			else
+				to_chat(usr, span_warning("Сбой платежа: не удаётся обработать платеж."))
+				vend_ready = TRUE
 	if(.)
 		add_fingerprint(usr)
 
-/obj/machinery/vending/proc/can_vend(user)
-	. = FALSE
 
-	if(!vend_ready)
-		balloon_alert(usr, "торговый автомат занят!")
-		return
 
-	if(panel_open)
-		balloon_alert(usr, "техпанель открыта!")
-		return
 
-	return TRUE
-
-/obj/machinery/vending/proc/select_colors(list/params)
-	. = TRUE
-	if(!can_vend(usr))
-		return
-	var/datum/data/vending_product/product = locateUID(params["ref"])
-	var/atom/fake_atom = product.product_path
-
-	var/list/allowed_configs = list()
-	var/config = initial(fake_atom.greyscale_config)
-	if(!config)
-		return
-	allowed_configs += "[config]"
-	if(ispath(fake_atom, /obj/item))
-		var/obj/item/item = new fake_atom(null)
-		var/list/worn = item.greyscale_config_worn
-		var/list/species = item.greyscale_config_worn_species
-
-		for(var/new_config in worn)
-			allowed_configs += "[worn[new_config]]"
-
-		for(var/new_config in species)
-			allowed_configs += "[species[new_config]]"
-
-		if(initial(item.greyscale_config_inhand_left))
-			allowed_configs += "[initial(item.greyscale_config_inhand_left)]"
-
-		if(initial(item.greyscale_config_inhand_right))
-			allowed_configs += "[initial(item.greyscale_config_inhand_right)]"
-		qdel(item)
-
-	var/datum/greyscale_modify_menu/menu = new(
-		src, usr, allowed_configs, CALLBACK(src, PROC_REF(vend_greyscale), params),
-		starting_icon_state=initial(fake_atom.icon_state),
-		starting_config=initial(fake_atom.greyscale_config),
-		starting_colors=initial(fake_atom.greyscale_colors)
-	)
-	menu.ui_interact(usr)
-
-/obj/machinery/vending/proc/vend_greyscale(list/params, datum/greyscale_modify_menu/menu)
-	if(usr != menu.user)
-		return
-
-	if(!menu.target.ui_status(usr) == UI_INTERACTIVE)
-		return
-
-	vend_action(params, menu.split_colors)
-
-/obj/machinery/vending/proc/vend_action(list/params, list/greyscale_colors)
-	if(!can_vend(usr))
-		return
-
-	var/list/records_to_check = product_records + premium_records
-	if(extended_inventory)
-		records_to_check = product_records + premium_records + hidden_records
-
-	var/datum/data/vending_product/product_record = locateUID(params["ref"])
-
-	if(!istype(product_record))
-		to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] содержит неизвестный товар. Сообщите о баге."))
-		return
-	if(!product_record || !product_record.product_path)
-		to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] содержит неизвестную позицию с товаром. Сообщите о баге."))
-		return
-	if(product_record in hidden_records)
-		if(!extended_inventory)
-			// Exploit prevention, stop the user purchasing hidden stuff if they haven't hacked the machine.
-			to_chat(usr, span_warning("ОШИБКА: [declent_ru(NOMINATIVE)] не может расширить ассортимент в текущем состоянии. Сообщите о баге."))
-			return
-	else if(!(product_record in records_to_check))
-		// Exploit prevention, stop the user
-		message_admins("Vending machine exploit attempted by [ADMIN_LOOKUPFLW(usr)]!")
-		return
-	if(product_record.amount <= 0)
-		to_chat(usr, "Товар \"[product_record.name]\" закончился!")
-		flick_vendor_overlay(FLICK_VEND)
-		return
-	if(!allowed(usr) && !usr.can_admin_interact() && !emagged && scan_id)
-		balloon_alert(usr, "в доступе отказано!")
-		flick_vendor_overlay(FLICK_DENY)
-		return
-
-	vend_ready = FALSE // From this point onwards, vendor is locked to performing this transaction only, until it is resolved.
-
-	if(!(ishuman(usr) || issilicon(usr)) || product_record.price <= 0 || all_products_free)
-		// Either the purchaser is not human nor silicon, or the item is free.
-		// Skip all payment logic.
-		vend(product_record, usr)
-		add_fingerprint(usr)
-		vend_ready = TRUE
-		. = TRUE
-		return
-
-	if(issilicon(usr))
-		to_chat(usr, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] отказывается продавать вам товар, поскольку вы не входите в его целевую аудиторию!"))
-		vend_ready = TRUE
-		. = TRUE
-		return
-
-	// --- THE REST OF THIS PROC IS JUST PAYMENT LOGIC ---
-	if(!GLOB.vendor_account || GLOB.vendor_account.suspended)
-		to_chat(usr, "Удалённый сервер торговых автоматов отключён. Не удается обработать операцию.")
-		flick_vendor_overlay(FLICK_DENY)
-		vend_ready = TRUE
-		return
-
-	currently_vending = product_record
-	var/paid = FALSE
-
-	if(is_cash(usr.get_active_hand()))
-		var/obj/item/stack/spacecash/cash = usr.get_active_hand()
-		paid = pay_with_cash(cash, usr, currently_vending.price, currently_vending.name)
-	else if(get_card_account(usr))
-		// Because this uses H.get_id_card(), it will attempt to use:
-		// active hand, inactive hand, wear_id, pda, and then w_uniform ID in that order
-		// this is important because it lets people buy stuff with someone else's ID by holding it while using the vendor
-		paid = pay_with_card(usr, currently_vending.price, currently_vending.name)
-	else if(usr.can_advanced_admin_interact())
-		to_chat(usr, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] выдаёт товар в результате вмешательства администратора."))
-		paid = TRUE
-	else
-		to_chat(usr, span_warning("Сбой платежа: у вас нет ID-карты или другого способа оплаты."))
-		vend_ready = TRUE
-		flick_vendor_overlay(FLICK_DENY)
-		. = TRUE // we set this because they shouldn't even be able to get this far, and we want the UI to update.
-		return
-	if(paid)
-		credits_contained += round(currently_vending.price * VENDING_CREDITS_COLLECTION_AMOUNT)
-		vend(currently_vending, usr)
-		. = TRUE
-	else
-		to_chat(usr, span_warning("Сбой платежа: не удаётся обработать платеж."))
-		vend_ready = TRUE
-
-/obj/machinery/vending/proc/vend(datum/data/vending_product/product_record, mob/user, list/greyscale_colors)
+/obj/machinery/vending/proc/vend(datum/data/vending_product/R, mob/user)
 	if(!allowed(user) && !user.can_admin_interact() && !emagged && scan_id)	//For SECURE VENDING MACHINES YEAH
 		to_chat(user, span_warning("В доступе отказано!"))//Unless emagged of course
 		flick_vendor_overlay(FLICK_DENY)
 		vend_ready = TRUE
 		return
 
-	if(!product_record.amount)
-		to_chat(user, span_warning("В [declent_ru(PREPOSITIONAL)] закончился выбранный товар."))
+	if(!R.amount)
+		to_chat(user, span_warning("В [declent_ru(PREPOSITIONAL)] закончился этот товар."))
 		vend_ready = TRUE
 		return
 
 	vend_ready = FALSE //One thing at a time!!
 
-	product_record.amount--
+	if(coin_records.Find(R))
+		if(!coin)
+			to_chat(user, span_notice("Вам нужно вставить монету, чтобы получить этот товар."))
+			vend_ready = TRUE
+			return
+		if(coin.string_attached)
+			if(prob(50))
+				to_chat(user, span_warning("Вы успешно вытаскиваете монету до того, как [declent_ru(NOMINATIVE)] успевает ее проглотить!"))
+			else
+				to_chat(user, span_warning("Вы не смогли вытащить монету достаточно быстро, [declent_ru(NOMINATIVE)] забирает её вместе с ниткой и всем остальным!"))
+				QDEL_NULL(coin)
+		else
+			QDEL_NULL(coin)
+
+	R.amount--
 
 	if(((last_reply + (vend_delay + 200)) <= world.time) && vend_reply)
 		speak(src.vend_reply)
@@ -1274,36 +1008,37 @@
 	use_power(vend_power_usage)	//actuators and stuff
 	flick_vendor_overlay(FLICK_VEND)	//Show the vending animation if needed
 	playsound(get_turf(src), 'sound/machines/machine_vend.ogg', 50, TRUE)
-	addtimer(CALLBACK(src, PROC_REF(delayed_vend), product_record, user, greyscale_colors), vend_delay)
+	addtimer(CALLBACK(src, PROC_REF(delayed_vend), R, user), vend_delay)
 
-/obj/machinery/vending/proc/delayed_vend(datum/data/vending_product/product_record, mob/user, list/greyscale_colors)
-	do_vend(product_record, user, greyscale_colors)
+
+/obj/machinery/vending/proc/delayed_vend(datum/data/vending_product/R, mob/user)
+	do_vend(R, user)
 	vend_ready = TRUE
 	currently_vending = null
+
 
 /**
  * Override this proc to add handling for what to do with the vended product
  * when you have a inserted item and remember to include a parent call for this generic handling
  */
-/obj/machinery/vending/proc/do_vend(datum/data/vending_product/product_record, mob/user, list/greyscale_colors)
+/obj/machinery/vending/proc/do_vend(datum/data/vending_product/R, mob/user)
 	if(!item_slot || !inserted_item)
 		var/put_on_turf = TRUE
-		var/obj/item/vended_item = new product_record.product_path(drop_location())
-		if(greyscale_colors)
-			vended_item.set_greyscale_colors(greyscale_colors)
-		if(IsReachableBy(user) && user.put_in_hands(vended_item, ignore_anim = FALSE))
-			put_on_turf = FALSE
+		var/obj/item/vended = new R.product_path(drop_location())
+		if(istype(vended) && user && iscarbon(user) && user.Adjacent(src))
+			if(user.put_in_hands(vended, ignore_anim = FALSE))
+				put_on_turf = FALSE
 		if(put_on_turf)
-			var/turf/target_turf = get_turf(src)
-			vended_item.forceMove(target_turf)
+			var/turf/T = get_turf(src)
+			vended.forceMove(T)
 		return TRUE
 	return FALSE
 
 /* Example override for do_vend proc:
-/obj/machinery/vending/example/do_vend(datum/data/vending_product/product_record)
+/obj/machinery/vending/example/do_vend(datum/data/vending_product/R)
 	if(..())
 		return
-	var/obj/item/vended = new product_record.product_path()
+	var/obj/item/vended = new R.product_path()
 	if(inserted_item.force == initial(inserted_item.force)
 		inserted_item.force += vended.force
 	inserted_item.damtype = vended.damtype
@@ -1320,8 +1055,8 @@
 	if(src.seconds_electrified > 0)
 		src.seconds_electrified--
 
-	// Pitch to the people! Really sell it!
-	if(((last_slogan + src.slogan_delay) <= world.time) && (LAZYLEN(slogan_list)) && (!shut_up) && prob(10))
+	//Pitch to the people!  Really sell it!
+	if(((last_slogan + src.slogan_delay) <= world.time) && (LAZYLEN(slogan_list)) && (!shut_up) && prob(5))
 		var/slogan = pick(src.slogan_list)
 		speak(slogan)
 		last_slogan = world.time
@@ -1329,13 +1064,15 @@
 	if(shoot_inventory && prob(shoot_chance))
 		throw_item()
 
+
 /obj/machinery/vending/proc/speak(message)
 	if(stat & NOPOWER)
 		return
 	if(!message)
 		return
 
-	atom_say(message, use_tts = FALSE)
+	atom_say(message)
+
 
 /obj/machinery/vending/obj_break(damage_flag)
 	if(stat & BROKEN)
@@ -1344,21 +1081,18 @@
 	stat |= BROKEN
 	update_icon(UPDATE_OVERLAYS)
 
-	if(vandal_secure)
-		return
-
 	var/dump_amount = 0
 	var/found_anything = TRUE
 	while(found_anything)
 		found_anything = FALSE
 		for(var/record in shuffle(product_records))
-			var/datum/data/vending_product/product_record = record
-			if(product_record.amount <= 0) //Try to use a record that actually has something to dump.
+			var/datum/data/vending_product/R = record
+			if(R.amount <= 0) //Try to use a record that actually has something to dump.
 				continue
-			var/dump_path = product_record.product_path
+			var/dump_path = R.product_path
 			if(!dump_path)
 				continue
-			product_record.amount--
+			R.amount--
 			// busting open a vendor will destroy some of the contents
 			if(found_anything && prob(80))
 				continue
@@ -1370,17 +1104,6 @@
 			if(dump_amount >= 16)
 				return
 
-/**
- * Drop credits when the vendor is attacked.
- */
-/obj/machinery/vending/proc/deploy_credits()
-	if(credits_contained <= 0)
-		return ""
-
-	var/credits_to_remove = min(CREDITS_DUMP_THRESHOLD, round(credits_contained))
-	var/obj/item/stack/spacecash/cash = new(loc)
-	cash.amount = credits_to_remove
-	credits_contained = max(0, credits_contained - credits_to_remove)
 
 //Somebody cut an important wire and now we're following a new definition of "pitch."
 /obj/machinery/vending/proc/throw_item()
@@ -1389,22 +1112,23 @@
 	if(!target)
 		return 0
 
-	for(var/datum/data/vending_product/product_record in product_records)
-		if(product_record.amount <= 0) //Try to use a record that actually has something to dump.
+	for(var/datum/data/vending_product/R in product_records)
+		if(R.amount <= 0) //Try to use a record that actually has something to dump.
 			continue
-		if(product_record.price > 0) // Don't try not free item
+		if(R.price > 0) // Don't try not free item
 			continue
-		var/dump_path = product_record.product_path
+		var/dump_path = R.product_path
 		if(!dump_path)
 			continue
 
-		product_record.amount--
+		R.amount--
 		throw_item = new dump_path(loc)
 		break
 	if(!throw_item)
 		return
 	throw_item.throw_at(target, 16, 3)
-	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] метнул [throw_item.declent_ru(ACCUSATIVE)] в [target]!"))
+	visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] метнул [throw_item.declent_ru(ACCUSATIVE)] в [target]!"))
+
 
 /obj/machinery/vending/shove_impact(mob/living/target, mob/living/attacker)
 	if(HAS_TRAIT(target, TRAIT_FLATTENED))
@@ -1413,14 +1137,14 @@
 		add_attack_logs(attacker, target, "shoved into a vending machine ([src])")
 		tilt(target, from_combat = TRUE)
 		target.visible_message(
-			span_danger("[attacker] толка[PLUR_ET_YUT(attacker)] [target] в [declent_ru(ACCUSATIVE)]!"),
-			span_userdanger("[attacker] впечатыва[PLUR_ET_YUT(attacker)] вас в [declent_ru(ACCUSATIVE)]!"),
+			span_danger("[attacker] толка[pluralize_ru(attacker.gender, "ет", "ют")] [target] в [declent_ru(ACCUSATIVE)]!"),
+			span_userdanger("[attacker] впечатыва[pluralize_ru(attacker.gender, "ет", "ют")] вас в [declent_ru(ACCUSATIVE)]!"),
 			span_danger("Вы слышите громкий хруст.")
 		)
 	else
 		attacker.visible_message(
-			span_notice("[attacker] слегка прижима[PLUR_ET_YUT(attacker)] [target] к [declent_ru(DATIVE)]."),
-			span_userdanger("Вы слегка прижимаете [target] к [declent_ru(DATIVE)], вы же не хотите причинить [GEND_HIM_HER(target)] боль!")
+			span_notice("[attacker] слегка прижима[pluralize_ru(attacker.gender, "ет", "ют")] [target] к [declent_ru(DATIVE)]."),
+			span_userdanger("Вы слегка прижимаете [target] к [declent_ru(DATIVE)], вы же не хотите причинить [genderize_ru(target.gender, "ему", "ей", "ему", "им")] боль!")
 			)
 	return TRUE
 
@@ -1431,9 +1155,9 @@
 	if(!length(possible_crits))
 		return
 	for(var/crit_path in shuffle(possible_crits))
-		var/datum/vendor_crit/crit_type = all_possible_crits[crit_path]
-		if(crit_type.is_valid(src, victim))
-			return crit_type
+		var/datum/vendor_crit/C = all_possible_crits[crit_path]
+		if(C.is_valid(src, victim))
+			return C
 
 /obj/machinery/vending/proc/handle_squish_carbon(mob/living/carbon/victim, damage_to_deal, crit, from_combat)
 
@@ -1454,8 +1178,8 @@
 
 	else
 		victim.visible_message(
-			span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] давит [victim]!"),
-			span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] давит вас!"),
+			span_danger("[capitalize(declent_ru(NOMINATIVE))] давит [victim]!"),
+			span_userdanger("[capitalize(declent_ru(NOMINATIVE))] давит вас!"),
 			span_warning("Вы слышите громкий хруст!")
 		)
 		add_attack_logs(null, victim, "crushed by [src]")
@@ -1502,8 +1226,6 @@
 		tilt_over()
 		return
 	for(var/mob/living/victim in get_turf(target_atom))
-		var/was_alive = (victim.stat != DEAD)
-		var/client/victim_client = victim.client
 		// Damage to deal outright
 		var/damage_to_deal = squish_damage
 		if(!from_combat)
@@ -1524,8 +1246,8 @@
 					should_throw_at_target = FALSE
 		else
 			victim.visible_message(
-				span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] давит [victim]!"),
-				span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] давит вас!"),
+				span_danger("[capitalize(declent_ru(NOMINATIVE))] давит [victim]!"),
+				span_userdanger("[capitalize(declent_ru(NOMINATIVE))] давит вас!"),
 				span_warning("Вы слышите громкий хруст!")
 			)
 			victim.apply_damage(damage_to_deal, BRUTE)
@@ -1534,17 +1256,15 @@
 		. = TRUE
 		victim.Weaken(4 SECONDS)
 		victim.Knockdown(8 SECONDS)
-		if(was_alive && victim.stat == DEAD && victim_client)
-			victim_client.give_award(/datum/award/achievement/misc/vendor_squish, victim) // good job losing a fight with an inanimate object idiot
 
-		playsound(victim, 'sound/effects/blobattack.ogg', 40, TRUE)
-		playsound(victim, 'sound/effects/splat.ogg', 50, TRUE)
+		playsound(victim, "sound/effects/blobattack.ogg", 40, TRUE)
+		playsound(victim, "sound/effects/splat.ogg", 50, TRUE)
 
 		tilt_over(should_throw_at_target ? target_atom : null)
 
 /obj/machinery/vending/proc/tilt_over(mob/victim)
-	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] опрокидывается!"))
-	playsound(src, 'sound/effects/bang.ogg', 100, TRUE)
+	visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] опрокидывается!"))
+	playsound(src, "sound/effects/bang.ogg", 100, TRUE)
 	var/picked_rotation = pick(90, 270)
 	tilted_rotation = picked_rotation
 	var/matrix/to_turn = turn(transform, tilted_rotation)
@@ -1552,7 +1272,6 @@
 
 	if(victim && get_turf(victim) != get_turf(src))
 		throw_at(get_turf(victim), 1, 1, spin = FALSE)
-		SStgui.close_uis(wires)
 
 /obj/machinery/vending/proc/untilt(mob/user)
 	if(!tilted)
@@ -1566,7 +1285,7 @@
 		if(!do_after(user, 7 SECONDS, src, max_interact_count = 1, cancel_on_max = TRUE))
 			return
 		user.visible_message(
-			span_notice("[user] поднима[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]."),
+			span_notice("[user] поднима[pluralize_ru(user.gender, "ет", "ют")] [declent_ru(ACCUSATIVE)]."),
 			span_notice("Вы поднимаете [declent_ru(ACCUSATIVE)]."),
 			span_notice("Вы слышите громкий лязг.")
 		)

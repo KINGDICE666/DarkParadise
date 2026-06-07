@@ -40,7 +40,8 @@
 /obj/machinery/computer/camera_advanced/proc/remove_eye_control(mob/living/user)
 	if(!user)
 		return
-	for(var/datum/action/A as anything in actions)
+	for(var/V in actions)
+		var/datum/action/A = V
 		A.Remove(user)
 	actions.Cut()
 	if(user.client)
@@ -85,7 +86,7 @@
 
 	if(!eyeobj.eye_initialized)
 		var/turf/camera_location
-		for(var/obj/machinery/camera/C as anything in GLOB.cameranet.cameras)
+		for(var/obj/machinery/camera/C in GLOB.cameranet.cameras)
 			if(!C.can_use())
 				continue
 			if(length(networks & C.network))
@@ -102,6 +103,7 @@
 	else
 		give_eye_control(user)
 		eyeobj.setLoc(get_turf(eyeobj.loc))
+
 
 /obj/machinery/computer/camera_advanced/proc/give_eye_control(mob/user)
 	GrantActions(user)
@@ -228,8 +230,9 @@
 
 	for(var/obj/machinery/camera/netcam in L)
 		var/list/tempnetwork = netcam.network&origin.networks
-		if(length(tempnetwork))
+		if(tempnetwork.len)
 			T[text("[][]", netcam.c_tag, (netcam.can_use() ? null : " (Deactivated)"))] = netcam
+
 
 	playsound(origin, 'sound/machines/terminal_prompt.ogg', 25, FALSE)
 	var/camera = tgui_input_list(target, "Choose which camera you want to view", "Cameras", T)

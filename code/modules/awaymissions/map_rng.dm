@@ -2,19 +2,24 @@
 	name = "map loader"
 	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "x2"
+	invisibility = INVISIBILITY_ABSTRACT
 	var/template_name = null
 	var/datum/map_template/template = null
 	var/centered = 1
 	var/loaded = 0
 
-/obj/effect/landmark/map_loader/Initialize(mapload, tname)
-	. = ..()
+/obj/effect/landmark/map_loader/New(turf/loc, tname)
+	..()
+
 	if(tname)
 		template_name = tname
 	if(template_name)
 		template = GLOB.map_templates[template_name]
+
+/obj/effect/landmark/map_loader/Initialize(mapload)
+	. = ..()
 	if(template)
-		END_OF_TICK(CALLBACK(src, PROC_REF(load), template))
+		load(template)
 
 /obj/effect/landmark/map_loader/set_tag()
 	return
@@ -40,4 +45,4 @@
 	if(template_list)
 		template_name = safepick(splittext(template_list, ";"))
 		template = GLOB.map_templates[template_name]
-		END_OF_TICK(CALLBACK(src, PROC_REF(load), template))
+		load(template)

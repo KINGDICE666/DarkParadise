@@ -11,13 +11,13 @@
 	w_class = WEIGHT_CLASS_TINY
 
 /obj/item/acid_bladder/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кислотный мешочек",
 		GENITIVE = "кислотного мешочка",
 		DATIVE = "кислотному мешочку",
 		ACCUSATIVE = "кислотный мешочек",
 		INSTRUMENTAL = "кислотным мешочком",
-		PREPOSITIONAL = "кислотном мешочке",
+		PREPOSITIONAL = "кислотном мешочке"
 	)
 
 /obj/item/acid_bladder/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
@@ -26,7 +26,7 @@
 		var/mob/living/living = hit_atom
 		var/datum/reagents/reagents_list = new (50)
 		reagents_list.add_reagent("facid", 40)
-		living.visible_message(span_danger("Кислотный пузырек разрывается при попадании на [living], разбрызгивая кислоту по [GEND_HIS_HER(living)] телу!"))
+		living.visible_message(span_danger("Кислотный пузырек разрывается при попадании на [living], разбрызгивая кислоту по [genderize_ru(living.gender, "его", "её", "его", "их")] телу!"))
 		reagents_list.reaction(living, REAGENT_TOUCH)
 		reagents_list.clear_reagents()
 	else if(iswallturf(hit_atom))
@@ -51,13 +51,13 @@
 	w_class = WEIGHT_CLASS_TINY
 
 /obj/item/circular_saw_blade/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "лезвие дисковой пилы",
 		GENITIVE = "лезвия дисковой пилы",
 		DATIVE = "лезвию дисковой пилы",
 		ACCUSATIVE = "лезвие дисковой пилы",
 		INSTRUMENTAL = "лезвием дисковой пилы",
-		PREPOSITIONAL = "лезвии дисковой пилы",
+		PREPOSITIONAL = "лезвии дисковой пилы"
 	)
 
 //**********Grace of Lazis **********//
@@ -73,13 +73,13 @@
 	var/meat_parts = 40
 
 /obj/structure/grace_of_lazis/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "благодать Лазис Ардакса",
 		GENITIVE = "благодати Лазис Ардакса",
 		DATIVE = "благодати Лазис Ардакса",
 		ACCUSATIVE = "благодать Лазис Ардакса",
 		INSTRUMENTAL = "благодатью Лазис Ардакса",
-		PREPOSITIONAL = "благодати Лазис Ардакса",
+		PREPOSITIONAL = "благодати Лазис Ардакса"
 	)
 
 /obj/structure/grace_of_lazis/attackby(obj/item/I, mob/user, params)
@@ -126,13 +126,13 @@
 	wiki_title = "Еда_пеплоходцев"
 
 /obj/item/book/manual/lavaland_scroll/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "свиток готовки",
 		GENITIVE = "свитка готовки",
 		DATIVE = "свитку готовки",
 		ACCUSATIVE = "свиток готовки",
 		INSTRUMENTAL = "свитком готовки",
-		PREPOSITIONAL = "свитке готовки",
+		PREPOSITIONAL = "свитке готовки"
 	)
 
 /obj/structure/fluff/ash_statue //used to mark point of interest
@@ -146,23 +146,24 @@
 	var/special_name = "точка интереса"
 
 /obj/structure/fluff/ash_statue/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пепельный тотем",
 		GENITIVE = "пепельного тотема",
 		DATIVE = "пепельному тотему",
 		ACCUSATIVE = "пепельный тотем",
 		INSTRUMENTAL = "пепельным тотемом",
-		PREPOSITIONAL = "пепельном тотеме",
+		PREPOSITIONAL = "пепельном тотеме"
 	)
 
 /obj/structure/fluff/ash_statue/Initialize(mapload)
-	name = "тотем — [special_name]"
+	name = "тотем - [special_name]"
 	GLOB.lavaland_points_of_interest += src
 	. = ..()
 
 /obj/structure/fluff/ash_statue/Destroy(force)
 	GLOB.lavaland_points_of_interest -= src
 	. = ..()
+
 
 /obj/structure/ash_totem
 	name = "totem"
@@ -177,13 +178,13 @@
 	var/applied_dye_fluff_name = null
 
 /obj/structure/ash_totem/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "тотем",
 		GENITIVE = "тотема",
 		DATIVE = "тотему",
 		ACCUSATIVE = "тотем",
 		INSTRUMENTAL = "тотемом",
-		PREPOSITIONAL = "тотеме",
+		PREPOSITIONAL = "тотеме"
 	)
 
 /obj/structure/ash_totem/examine(mob/user)
@@ -198,18 +199,19 @@
 	if(applied_dye)
 		. += "[icon_state]_[applied_dye]"
 
+
 /obj/structure/ash_totem/wooden
 	name = "wooden totem"
 	desc = "Массивная статуя, сделанная из цельного куска древесины. Рисунок на статуе отдалённо напоминает человеческое лицо, искаженное в гримасе ужаса."
 
 /obj/structure/ash_totem/wooden/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "деревянный тотем",
 		GENITIVE = "деревянного тотема",
 		DATIVE = "деревянному тотему",
 		ACCUSATIVE = "деревянный тотем",
 		INSTRUMENTAL = "деревянным тотемом",
-		PREPOSITIONAL = "деревянном тотеме",
+		PREPOSITIONAL = "деревянном тотеме"
 	)
 
 /obj/structure/ash_totem/stone
@@ -218,13 +220,13 @@
 	icon_state = "totem_stone"
 
 /obj/structure/ash_totem/stone/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "каменный тотем",
 		GENITIVE = "каменного тотема",
 		DATIVE = "каменному тотему",
 		ACCUSATIVE = "каменный тотем",
 		INSTRUMENTAL = "каменным тотемом",
-		PREPOSITIONAL = "каменном тотеме",
+		PREPOSITIONAL = "каменном тотеме"
 	)
 
 /obj/structure/ash_totem/bone
@@ -233,13 +235,13 @@
 	icon_state = "totem_bone"
 
 /obj/structure/ash_totem/bone/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "костяной тотем",
 		GENITIVE = "костяного тотема",
 		DATIVE = "костяному тотему",
 		ACCUSATIVE = "костяной тотем",
 		INSTRUMENTAL = "костяным тотемом",
-		PREPOSITIONAL = "костяном тотеме",
+		PREPOSITIONAL = "костяном тотеме"
 	)
 
 /obj/structure/chair/stool/wooden
@@ -250,13 +252,13 @@
 	item_chair = /obj/item/chair/stool/wooden
 
 /obj/structure/chair/stool/wooden/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "деревянная табуретка",
 		GENITIVE = "деревянной табуретки",
 		DATIVE = "деревянной табуретке",
 		ACCUSATIVE = "деревянную табуретку",
 		INSTRUMENTAL = "деревянной табуреткой",
-		PREPOSITIONAL = "деревянной табуретке",
+		PREPOSITIONAL = "деревянной табуретке"
 	)
 
 /obj/item/chair/stool/wooden
@@ -272,11 +274,46 @@
 	break_chance = 10
 
 /obj/item/chair/stool/wooden/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "деревянная табуретка",
 		GENITIVE = "деревянной табуретки",
 		DATIVE = "деревянной табуретке",
 		ACCUSATIVE = "деревянную табуретку",
 		INSTRUMENTAL = "деревянной табуреткой",
-		PREPOSITIONAL = "деревянной табуретке",
+		PREPOSITIONAL = "деревянной табуретке"
 	)
+
+/obj/structure/rack/wooden
+	name = "wooden rack"
+	desc = "Небольшой стеллаж, сделанный из дерева. Вы можете хранить на нём вещи!"
+	icon_state = "wooden_rack"
+	wooden_version = TRUE
+	obj_flags = NODECONSTRUCT
+
+/obj/structure/rack/wooden/get_ru_names()
+	return list(
+		NOMINATIVE = "деревянный стеллаж",
+		GENITIVE = "деревянного стеллажа",
+		DATIVE = "деревянному стеллажу",
+		ACCUSATIVE = "деревянный стеллаж",
+		INSTRUMENTAL = "деревянным стеллажом",
+		PREPOSITIONAL = "деревянном стеллаже"
+	)
+
+/obj/structure/rack/wooden/Initialize(mapload)
+	. = ..()
+	update_icon(UPDATE_OVERLAYS)
+
+/obj/structure/rack/wooden/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_WOOD, -40, 5)
+
+/obj/structure/rack/wooden/wrench_act(mob/user, obj/item/I)
+	return
+
+/obj/structure/rack/wooden/MouseDrop_T(obj/item/dropping, mob/user, params)
+	. = ..()
+	update_icon(UPDATE_OVERLAYS)
+
+/obj/structure/rack/wooden/update_overlays()
+	overlays.Cut()
+	overlays += image('icons/obj/objects.dmi', src, "wooden_rack_overlay", ABOVE_OBJ_LAYER)

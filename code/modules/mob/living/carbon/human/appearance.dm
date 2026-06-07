@@ -99,6 +99,7 @@
 			if(!tail_marking.tails_allowed || !(bodypart_tail.body_accessory.name in tail_marking.tails_allowed))
 				return
 
+
 	if(location == "tail")
 		bodypart_tail.m_styles["tail"] = marking_style
 		stop_tail_wagging()
@@ -165,7 +166,7 @@
 	if(!H)
 		return
 	var/list/valid_hairstyles = generate_valid_hairstyles()
-	if(length(valid_hairstyles))
+	if(valid_hairstyles.len)
 		H.h_style = pick(valid_hairstyles)
 	else
 		//this shouldn't happen
@@ -184,7 +185,7 @@
 	if(!H)
 		return
 	var/list/valid_facial_hairstyles = generate_valid_facial_hairstyles()
-	if(length(valid_facial_hairstyles))
+	if(valid_facial_hairstyles.len)
 		H.f_style = pick(valid_facial_hairstyles)
 	else
 		//this shouldn't happen
@@ -196,7 +197,7 @@
 
 	if(location)
 		valid_markings = generate_valid_markings(location)
-		if(length(valid_markings))
+		if(valid_markings.len)
 			m_styles[location] = pick(valid_markings)
 		else
 			//this shouldn't happen
@@ -204,7 +205,7 @@
 	else
 		for(var/m_location in list("head", "body", "tail"))
 			valid_markings = generate_valid_markings(m_location)
-			if(length(valid_markings))
+			if(valid_markings.len)
 				m_styles[m_location] = pick(valid_markings)
 			else
 				//this shouldn't happen
@@ -218,7 +219,7 @@
 	if(!H)
 		return
 	var/list/valid_head_accessories = generate_valid_head_accessories()
-	if(length(valid_head_accessories))
+	if(valid_head_accessories.len)
 		H.ha_style = pick(valid_head_accessories)
 	else
 		//this shouldn't happen
@@ -312,6 +313,7 @@
 		update_markings()
 	return 1
 
+
 /mob/living/carbon/human/proc/change_skin_color(colour = "#000000")
 	if(colour == skin_colour || !(dna.species.bodyflags & HAS_SKIN_COLOR))
 		return
@@ -359,15 +361,15 @@
 /mob/living/carbon/human/proc/generate_valid_species(check_whitelist = TRUE, list/whitelist = list(), list/blacklist = list())
 	var/list/valid_species = new()
 	for(var/current_species_name in GLOB.all_species)
-		if(check_whitelist && !check_rights(R_ADMIN, FALSE, src)) //If we're using the whitelist, make sure to check it!
-			if(length(whitelist) && !(current_species_name in whitelist))
+		if(check_whitelist && !check_rights(R_ADMIN, 0, src)) //If we're using the whitelist, make sure to check it!
+			if(whitelist.len && !(current_species_name in whitelist))
 				continue
-			if(length(blacklist) && (current_species_name in blacklist))
+			if(blacklist.len && (current_species_name in blacklist))
 				continue
 
 		valid_species += current_species_name
 
-	return sortTim(valid_species, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_species, cmp = /proc/cmp_text_asc)
 
 /mob/living/carbon/human/proc/generate_valid_hairstyles()
 	var/list/valid_hairstyles = new()
@@ -395,9 +397,9 @@
 			if(H.dna.species.name in S.species_allowed) //If the user's head is of a species the hairstyle allows, add it to the list.
 				valid_hairstyles += hairstyle
 
-	return sortTim(valid_hairstyles, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_hairstyles, cmp = /proc/cmp_text_asc)
 
-/mob/living/carbon/human/proc/generate_valid_facial_hairstyles(wizard_mirror = FALSE)
+/mob/living/carbon/human/proc/generate_valid_facial_hairstyles()
 	var/list/valid_facial_hairstyles = new()
 	var/obj/item/organ/external/head/H = get_organ(BODY_ZONE_HEAD)
 	if(!H)
@@ -409,9 +411,7 @@
 		if(facialhairstyle == "Shaved") //Just in case.
 			valid_facial_hairstyles += facialhairstyle
 			continue
-		if(gender == S.unsuitable_gender)
-			continue
-		if(S.wizard_only && !wizard_mirror)
+		if(H.gender == S.unsuitable_gender)
 			continue
 		if(H.dna.species.bodyflags & ALL_RPARTS) //If the user is a species who can have a robotic head...
 			var/datum/robolimb/robohead = GLOB.all_robolimbs[H.model]
@@ -426,7 +426,7 @@
 			if(H.dna.species.name in S.species_allowed) //If the user's head is of a species the facial hair style allows, add it to the list.
 				valid_facial_hairstyles += facialhairstyle
 
-	return sortTim(valid_facial_hairstyles, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_facial_hairstyles, cmp = /proc/cmp_text_asc)
 
 /mob/living/carbon/human/proc/generate_valid_head_accessories()
 	var/list/valid_head_accessories = new()
@@ -441,9 +441,9 @@
 			continue
 		valid_head_accessories += head_accessory
 
-	return sortTim(valid_head_accessories, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_head_accessories, cmp = /proc/cmp_text_asc)
 
-/mob/living/carbon/human/proc/generate_valid_markings(location = "body", wizard_mirror = FALSE)
+/mob/living/carbon/human/proc/generate_valid_markings(location = "body")
 	var/list/valid_markings = new()
 	var/obj/item/organ/external/head/H = get_organ(BODY_ZONE_HEAD)
 	var/obj/item/organ/external/tail/bodypart_tail = get_organ(BODY_ZONE_TAIL)
@@ -460,8 +460,6 @@
 		if(S.marking_location != location)	//If the marking isn't for the location we desire, skip.
 			continue
 		if(gender == S.unsuitable_gender)	// If the marking isn't allowed for the user's gender, skip.
-			continue
-		if(S.wizard_only && !wizard_mirror)
 			continue
 		if(!(dna.species.name in S.species_allowed)) //If the user is not of a species the marking style allows, skip it. Otherwise, add it to the list.
 			continue
@@ -490,7 +488,7 @@
 					continue
 		valid_markings += marking
 
-	return sortTim(valid_markings, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_markings, cmp = /proc/cmp_text_asc)
 
 /mob/living/carbon/human/proc/generate_valid_body_accessories()
 	var/list/valid_body_accessories = list()
@@ -503,7 +501,7 @@
 	if(dna.species.optional_body_accessory)
 		valid_body_accessories += "None"
 
-	return sortTim(valid_body_accessories, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_body_accessories, cmp = /proc/cmp_text_asc)
 
 /mob/living/carbon/human/proc/generate_valid_alt_heads()
 	var/list/valid_alt_heads = list()
@@ -518,7 +516,7 @@
 
 		valid_alt_heads += alternate_head
 
-	return sortTim(valid_alt_heads, GLOBAL_PROC_REF(cmp_text_asc))
+	return sortTim(valid_alt_heads, cmp = /proc/cmp_text_asc)
 
 /mob/living/carbon/human/proc/scramble_appearance()
 	scramble(1, src, 100)

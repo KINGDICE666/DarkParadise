@@ -1,8 +1,7 @@
 /atom/movable/screen/ghost
 	icon = 'icons/mob/screen_ghost.dmi'
-	mouse_over_pointer = MOUSE_HAND_POINTER
 
-/atom/movable/screen/ghost/MouseEntered(location, control, params)
+/atom/movable/screen/ghost/MouseEntered()
 	. = ..()
 	flick(icon_state + "_anim", src)
 
@@ -61,7 +60,7 @@
 	M.Turn(-90)
 
 	cut_overlays()
-	var/image/img = image('icons/mob/actions/actions.dmi', src, (hud?.inventory_shown) ? "hide" : "show")
+	var/image/img = image('icons/mob/actions/actions.dmi', src, (hud && hud.inventory_shown) ? "hide" : "show")
 	img.transform = M
 	add_overlay(img)
 
@@ -78,8 +77,8 @@
 	icon_state = "minigames"
 
 /atom/movable/screen/ghost/Click()
-	var/mob/dead/observer/observer = usr
-	observer.open_minigames_menu()
+	var/mob/dead/observer/G = usr
+	G.open_minigames_menu()
 
 /atom/movable/screen/ghost/respawn_pai
 	name = "Настроить ПИИ"
@@ -133,9 +132,14 @@
 
 /datum/hud/ghost/show_hud(version = 0, mob/viewmob)
 	// don't show this HUD if observing; show the HUD of the observee
-	var/mob/dead/observer/observer = mymob
-	if(istype(observer) && observer.orbiting)
+	var/mob/dead/observer/observe = mymob
+	if(istype(observe) && observe.orbiting)
 		plane_masters_update()
 		return FALSE
 
-	. = ..()
+	var/mob/screenmob = viewmob || mymob
+
+	screenmob.client.screen = list()
+	screenmob.client.screen += static_inventory
+
+	..()

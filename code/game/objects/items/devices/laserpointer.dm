@@ -18,6 +18,7 @@
 	var/obj/item/stock_parts/micro_laser/diode //used for upgrading!
 	var/is_pointing = FALSE
 
+
 /obj/item/laser_pointer/red
 	pointer_icon_state = "red_laser"
 /obj/item/laser_pointer/green
@@ -27,8 +28,8 @@
 /obj/item/laser_pointer/purple
 	pointer_icon_state = "purple_laser"
 
-/obj/item/laser_pointer/Initialize(mapload)
-	. = ..()
+/obj/item/laser_pointer/New()
+	..()
 	diode = new(src)
 	if(!pointer_icon_state)
 		pointer_icon_state = pick("red_laser","green_laser","blue_laser","purple_laser")
@@ -37,17 +38,20 @@
 	QDEL_NULL(diode)
 	return ..()
 
-/obj/item/laser_pointer/upgraded/Initialize(mapload)
-	. = ..()
+/obj/item/laser_pointer/upgraded/New()
+	..()
 	diode = new /obj/item/stock_parts/micro_laser/ultra
+
 
 /obj/item/laser_pointer/update_icon_state()
 	icon_state = "pointer[is_pointing ? "_[pointer_icon_state]" : ""]"
 
-/obj/item/laser_pointer/attack(mob/living/target, mob/living/user, list/modifiers, def_zone, skip_attack_anim = FALSE)
+
+/obj/item/laser_pointer/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(laser_act(target, user))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ATTACK_CHAIN_PROCEED
+
 
 /obj/item/laser_pointer/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stock_parts/micro_laser))
@@ -63,6 +67,7 @@
 
 	return ..()
 
+
 /obj/item/laser_pointer/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(diode)
@@ -70,12 +75,12 @@
 		diode.forceMove(get_turf(loc))
 		diode = null
 
-/obj/item/laser_pointer/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(proximity_flag)	//we're placing the object on a table or in backpack
+/obj/item/laser_pointer/afterattack(atom/target, mob/living/user, flag, params)
+	if(flag)	//we're placing the object on a table or in backpack
 		return
-	laser_act(target, user, modifiers)
+	laser_act(target, user, params)
 
-/obj/item/laser_pointer/proc/laser_act(atom/target, mob/living/user, list/modifiers)
+/obj/item/laser_pointer/proc/laser_act(atom/target, mob/living/user, params)
 	if(!(user in (viewers(7,target))))
 		return FALSE
 	if(!diode)
@@ -137,15 +142,16 @@
 	is_pointing = TRUE
 	update_icon(UPDATE_ICON_STATE)
 	addtimer(CALLBACK(src, PROC_REF(stop_pointing)), 1 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
-	var/mutable_appearance/laser = mutable_appearance('icons/obj/weapons/guns/projectiles.dmi', pointer_icon_state, target.layer + 0.01)
+	var/mutable_appearance/laser = mutable_appearance('icons/obj/weapons/projectiles.dmi', pointer_icon_state, target.layer + 0.01)
+	var/list/modifiers = params2list(params)
 	if(modifiers)
 		if(LAZYACCESS(modifiers, ICON_X))
 			laser.pixel_w = (text2num(LAZYACCESS(modifiers, ICON_X)) - 16)
 		if(LAZYACCESS(modifiers, ICON_Y))
 			laser.pixel_z = (text2num(LAZYACCESS(modifiers, ICON_Y)) - 16)
 	else
-		laser.pixel_w = target.pixel_w + rand(-5,5)
-		laser.pixel_z = target.pixel_z + rand(-5,5)
+		laser.pixel_x = target.pixel_x + rand(-5,5)
+		laser.pixel_y = target.pixel_y + rand(-5,5)
 
 	if(outmsg)
 		to_chat(user, outmsg)
@@ -158,14 +164,16 @@
 			recharging = 1
 			START_PROCESSING(SSobj, src)
 		if(energy <= 0)
-			to_chat(user, span_warning("You've overused the battery of [src], now it needs time to recharge!"))
+			to_chat(user, "<span class='warning'>You've overused the battery of [src], now it needs time to recharge!</span>")
 			recharge_locked = 1
 
 	target.flick_overlay_view(laser, 1 SECONDS)
 
+
 /obj/item/laser_pointer/proc/stop_pointing()
 	is_pointing = FALSE
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/laser_pointer/process()
 	if(prob(20 - recharge_locked*5))

@@ -22,13 +22,9 @@ GLOBAL_LIST_EMPTY(dna_vaults)
 /datum/station_goal/dna_vault/New()
 	..()
 	animal_count = rand(15, 20) //might be too few given ~15 roundstart stationside ones
-	var/min_rand_human_count = round(0.75 * SSticker.mode.num_players_started())
-	var/max_rand_human_count = SSticker.mode.num_players_started()
-	human_count = rand(min_rand_human_count, max_rand_human_count) // 75%+ roundstart population.
+	human_count = rand(round(0.75 * SSticker.mode.num_players_started()), SSticker.mode.num_players_started()) // 75%+ roundstart population.
 	var/non_standard_plants = non_standard_plants_count()
-	var/min_rand_plant_count = round(0.5 * non_standard_plants)
-	var/max_rand_plant_count = round(0.7 * non_standard_plants)
-	plant_count = rand(min_rand_plant_count, max_rand_plant_count)
+	plant_count = rand(round(0.5 * non_standard_plants),round(0.7 * non_standard_plants))
 
 /datum/station_goal/dna_vault/proc/non_standard_plants_count()
 	. = 0
@@ -38,16 +34,16 @@ GLOBAL_LIST_EMPTY(dna_vaults)
 			.++
 
 /datum/station_goal/dna_vault/get_report()
-	return {"<b>Создание ДНК—хранилища</b><br>
-	Наши системы долгосрочного предсказывания говорят, что в ближайшем будущем с шансом 99% должен произойти катаклизм масштаба звёздной системы . Поэтому, нам нужно, чтобы вы построили ДНК-хранилище на вашей станции и сохранили образцы, необходимые для восстановления биологического разнообразия в случае катастрофы.
+	return {"<b>DNA Vault construction</b><br>
+	Our long term prediction systems say there's 99% chance of system-wide cataclysm in near future. As such, we need you to construct a DNA Vault aboard your station.
 	<br><br>
-	ДНК хранилище должно иметь образцы:
+	The DNA Vault needs to contain samples of:
 	<ul style='margin-top: 10px; margin-bottom: 10px;'>
-	<li>[animal_count] уникальных животных.</li>
-	<li>[plant_count] уникальных нестандартных растений.</li>
-	<li>[human_count] уникальных разумных гуманоидов.</li>
+	<li>[animal_count] unique animal data.</li>
+	<li>[plant_count] unique non-standard plant data.</li>
+	<li>[human_count] unique sapient humanoid DNA data.</li>
 	</ul>
-	Базовые части хранилища должны быть доступны для заказа в отделе снабжения."}
+	The base vault parts should be available for shipping by your cargo shuttle."}
 
 /datum/station_goal/dna_vault/on_report()
 	var/datum/supply_packs/P = SSshuttle.supply_packs["[/datum/supply_packs/misc/station_goal/dna_vault]"]
@@ -69,6 +65,14 @@ GLOBAL_LIST_EMPTY(dna_vaults)
 /obj/item/dna_probe
 	name = "DNA Sampler"
 	desc = "Может использоваться для взятия химических и генетических образцов практически любого объекта."
+	ru_names = list(
+		NOMINATIVE = "ДНК-семплер",
+		GENITIVE = "ДНК-семплера",
+		DATIVE = "ДНК-семплеру",
+		ACCUSATIVE = "ДНК-семплер",
+		INSTRUMENTAL = "ДНК-семплером",
+		PREPOSITIONAL = "ДНК-семплере"
+	)
 	icon = 'icons/obj/hypo.dmi'
 	item_state = "sampler_hypo"
 	icon_state = "sampler_hypo"
@@ -77,16 +81,6 @@ GLOBAL_LIST_EMPTY(dna_vaults)
 	var/list/plants = list()
 	var/list/dna = list()
 
-/obj/item/dna_probe/get_ru_names()
-	return alist(
-		NOMINATIVE = "ДНК-семплер",
-		GENITIVE = "ДНК-семплера",
-		DATIVE = "ДНК-семплеру",
-		ACCUSATIVE = "ДНК-семплер",
-		INSTRUMENTAL = "ДНК-семплером",
-		PREPOSITIONAL = "ДНК-семплере",
-	)
-
 /obj/item/dna_probe/proc/clear_data()
 	animals = list()
 	plants = list()
@@ -94,9 +88,9 @@ GLOBAL_LIST_EMPTY(dna_vaults)
 
 GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/lesser/monkey,/mob/living/carbon/alien)))
 
-/obj/item/dna_probe/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/dna_probe/afterattack(atom/target, mob/user, proximity, params)
 	..()
-	if(!proximity_flag || !target)
+	if(!proximity || !target)
 		return
 	//tray plants
 	if(istype(target,/obj/machinery/hydroponics))
@@ -137,16 +131,15 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 		dna[H.dna.uni_identity] = 1
 		to_chat(user, span_notice("Данные гуманоида добавлены в локальное хранилище."))
 
+
 /obj/item/circuitboard/machine/dna_vault
 	board_name = "DNA Vault"
-	greyscale_colors = CIRCUIT_COLOR_SCIENCE
 	build_path = /obj/machinery/dna_vault
 	origin_tech = "engineering=2;combat=2;bluespace=2" //No freebies!
 	req_components = list(
-		/obj/item/stock_parts/capacitor/super = 5,
-		/obj/item/stock_parts/manipulator/pico = 5,
-		/obj/item/stack/cable_coil = 2,
-	)
+							/obj/item/stock_parts/capacitor/super = 5,
+							/obj/item/stock_parts/manipulator/pico = 5,
+							/obj/item/stack/cable_coil = 2)
 
 /obj/structure/filler
 	name = "big machinery part"
@@ -166,6 +159,14 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 /obj/machinery/dna_vault
 	name = "DNA Vault"
 	desc = "Разбейте стекло в случае апокалипсиса."
+	ru_names = list(
+		NOMINATIVE = "ДНК хранилище",
+		GENITIVE = "ДНК хранилища",
+		DATIVE = "ДНК хранилищу",
+		ACCUSATIVE = "ДНК хранилище",
+		INSTRUMENTAL = "ДНК хранилищем",
+		PREPOSITIONAL = "ДНК хранилище"
+	)
 	icon = 'icons/obj/machines/dna_vault.dmi'
 	icon_state = "vault"
 	density = TRUE
@@ -187,16 +188,6 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 	var/static/list/power_lottery = list()
 
 	var/list/obj/structure/fillers = list()
-
-/obj/machinery/dna_vault/get_ru_names()
-	return alist(
-		NOMINATIVE = "ДНК хранилище",
-		GENITIVE = "ДНК хранилища",
-		DATIVE = "ДНК хранилищу",
-		ACCUSATIVE = "ДНК хранилище",
-		INSTRUMENTAL = "ДНК хранилищем",
-		PREPOSITIONAL = "ДНК хранилище",
-	)
 
 /obj/machinery/dna_vault/Initialize(mapload)
 	. = ..()
@@ -231,6 +222,7 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 	if(!..())
 		return
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/machinery/dna_vault/Destroy()
 	QDEL_LIST(fillers)
@@ -295,8 +287,9 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 			return TRUE
 
 /obj/machinery/dna_vault/proc/check_goal()
-	if(length(plants) >= plants_max && length(animals) >= animals_max && length(dna) >= dna_max)
+	if(plants.len >= plants_max && animals.len >= animals_max && dna.len >= dna_max)
 		completed = TRUE
+
 
 /obj/machinery/dna_vault/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -319,13 +312,14 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 				uploaded++
 				dna[ui] = 1
 		if(!uploaded)
-			to_chat(user, span_warning("[DECLENT_RU_CAP(probe, NOMINATIVE)] не содержит релевантных данных."))
+			to_chat(user, span_warning("[capitalize(probe.declent_ru(NOMINATIVE))] не содержит релевантных данных."))
 			return ATTACK_CHAIN_PROCEED
 		check_goal()
 		to_chat(user, span_notice("Получены новые данные: <b>[uploaded]</b> [declension_ru(uploaded,"запись","записи","записей")]!"))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/machinery/dna_vault/proc/upgrade(mob/living/carbon/human/H, upgrade_type)
 	if(!istype(H))

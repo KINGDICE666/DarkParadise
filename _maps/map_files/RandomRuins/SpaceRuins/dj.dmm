@@ -52,9 +52,14 @@
 /area/djstation)
 "au" = (
 /obj/structure/cable{
+	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/machinery/power/apc/noalarm/directional/south,
+/obj/machinery/power/apc/noalarm{
+	dir = 0;
+	name = "Worn-out APC";
+	pixel_y = -24
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/djstation)
@@ -63,7 +68,10 @@
 	icon_state = "4-8"
 	},
 /obj/item/storage/box/lights/mixed,
-/obj/structure/sign/electricshock{
+/obj/structure/sign/securearea{
+	desc = "A warning sign which reads 'HIGH VOLTAGE'";
+	icon_state = "shock";
+	name = "HIGH VOLTAGE";
 	pixel_y = -32
 	},
 /turf/simulated/floor/plating,
@@ -127,10 +135,35 @@
 	icon_state = "darkblue"
 	},
 /area/djstation)
+"aH" = (
+/obj/machinery/newscaster{
+	pixel_y = 32
+	},
+/obj/machinery/vending/cigarette/free{
+	slogan_list = list("Just remember! No capitalist.","Best enjoyed with Vodka!.","Smoke!","Nine out of ten USSP scientists agree, smoking reduces stress!","There's no cigarette like a Russian cigarette!","Cigarettes! Now with 100% less capitalism.")
+	},
+/obj/effect/decal/cleanable/dirt,
+/turf/simulated/floor/plasteel{
+	dir = 5;
+	icon_state = "darkblue"
+	},
+/area/djstation)
 "aI" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	dir = 8;
+	icon_state = "darkblue"
+	},
+/area/djstation)
+"aJ" = (
+/turf/simulated/floor/plasteel{
+	dir = 9;
+	icon_state = "darkblue"
+	},
+/area/djstation)
+"aK" = (
+/turf/simulated/floor/plasteel{
+	dir = 5;
 	icon_state = "darkblue"
 	},
 /area/djstation)
@@ -143,6 +176,20 @@
 /obj/machinery/door/airlock/public/glass{
 	name = "Kitchen"
 	},
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/djstation)
+"aP" = (
+/obj/structure/table,
+/obj/item/radio/intercom/pirate,
+/turf/simulated/floor/plasteel{
+	dir = 8;
+	icon_state = "darkblue"
+	},
+/area/djstation)
+"aQ" = (
+/obj/structure/chair/office/light,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -200,7 +247,8 @@
 "bc" = (
 /obj/structure/curtain/open/shower,
 /obj/machinery/shower{
-	dir = 4
+	dir = 4;
+	tag = "icon-shower (EAST)"
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -208,7 +256,10 @@
 	},
 /area/djstation)
 "bd" = (
-/obj/machinery/light_switch/directional/north,
+/obj/machinery/light_switch{
+	pixel_x = 32;
+	pixel_y = 9
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -407,6 +458,7 @@
 "bP" = (
 /obj/machinery/power/solar/fake,
 /obj/structure/cable{
+	d2 = 4;
 	icon_state = "0-4"
 	},
 /turf/simulated/floor/plasteel/airless{
@@ -439,6 +491,7 @@
 "bU" = (
 /obj/machinery/power/terminal,
 /obj/structure/cable{
+	d2 = 4;
 	icon_state = "0-4"
 	},
 /turf/simulated/floor/plating,
@@ -518,6 +571,7 @@
 "lv" = (
 /obj/machinery/power/solar/fake,
 /obj/structure/cable{
+	d2 = 8;
 	icon_state = "0-8"
 	},
 /turf/simulated/floor/plasteel/airless{
@@ -542,14 +596,10 @@
 	},
 /turf/simulated/floor/plating,
 /area/djstation)
-"qn" = (
-/obj/machinery/newscaster/directional/north,
-/obj/machinery/vending/cigarette{
-	slogan_list = list("Just remember! No capitalist.","Best enjoyed with Vodka!.","Smoke!","Nine out of ten USSP scientists agree, smoking reduces stress!","There's no cigarette like a Russian cigarette!","Cigarettes! Now with 100% less capitalism.")
-	},
-/obj/effect/decal/cleanable/dirt,
+"pT" = (
+/obj/structure/table,
+/obj/item/radio/intercom/pirate,
 /turf/simulated/floor/plasteel{
-	dir = 5;
 	icon_state = "darkblue"
 	},
 /area/djstation)
@@ -577,9 +627,19 @@
 /turf/simulated/wall/mineral/titanium/interior,
 /area/djstation)
 "vE" = (
-/obj/machinery/light_switch/directional/north,
+/obj/machinery/light_switch{
+	pixel_y = 24
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "grimy"
+	},
+/area/djstation)
+"wt" = (
+/obj/structure/table,
+/obj/item/radio/intercom/pirate,
+/turf/simulated/floor/plasteel{
+	dir = 4;
+	icon_state = "darkblue"
 	},
 /area/djstation)
 "wS" = (
@@ -677,20 +737,6 @@
 	icon_state = "bar"
 	},
 /area/djstation)
-"Fr" = (
-/obj/structure/chair/office/light,
-/obj/item/radio/intercom/pirate/directional/south,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/djstation)
-"Fu" = (
-/obj/structure/table,
-/turf/simulated/floor/plasteel{
-	dir = 8;
-	icon_state = "darkblue"
-	},
-/area/djstation)
 "FB" = (
 /obj/structure/bed,
 /obj/item/bedsheet/blue,
@@ -731,13 +777,6 @@
 "JC" = (
 /obj/effect/spawner/window/reinforced,
 /turf/simulated/floor/plating,
-/area/djstation)
-"Kx" = (
-/obj/structure/table,
-/turf/simulated/floor/plasteel{
-	dir = 4;
-	icon_state = "darkblue"
-	},
 /area/djstation)
 "Lr" = (
 /obj/structure/table,
@@ -797,13 +836,6 @@
 	icon_state = "bar"
 	},
 /area/djstation)
-"Pb" = (
-/obj/item/radio/intercom/pirate/directional/south,
-/turf/simulated/floor/plasteel{
-	dir = 5;
-	icon_state = "darkblue"
-	},
-/area/djstation)
 "Po" = (
 /obj/structure/lattice,
 /obj/structure/grille,
@@ -820,7 +852,9 @@
 	},
 /area/djstation)
 "Qo" = (
-/obj/machinery/light_switch/directional/north,
+/obj/machinery/light_switch{
+	pixel_y = 24
+	},
 /obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -901,17 +935,12 @@
 	},
 /area/djstation)
 "UQ" = (
-/obj/machinery/light_switch/directional/south,
+/obj/machinery/light_switch{
+	pixel_y = -28
+	},
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
-/area/djstation)
-"Vm" = (
-/obj/item/radio/intercom/pirate/directional/south,
-/turf/simulated/floor/plasteel{
-	dir = 9;
-	icon_state = "darkblue"
-	},
 /area/djstation)
 "Wc" = (
 /obj/docking_port/stationary{
@@ -927,12 +956,6 @@
 "Xf" = (
 /obj/structure/sign/pods,
 /turf/simulated/wall/mineral/titanium/interior,
-/area/djstation)
-"XE" = (
-/obj/structure/table,
-/turf/simulated/floor/plasteel{
-	icon_state = "darkblue"
-	},
 /area/djstation)
 "XG" = (
 /obj/machinery/access_button{
@@ -1469,8 +1492,8 @@ bz
 av
 ao
 Uj
-Vm
-Fu
+aJ
+aP
 Lr
 aX
 bR
@@ -1507,8 +1530,8 @@ ke
 aB
 bR
 rq
-Fr
-XE
+aQ
+pT
 aX
 bR
 Sc
@@ -1543,8 +1566,8 @@ aq
 UQ
 ao
 aE
-Pb
-Kx
+aK
+wt
 xB
 aX
 AH
@@ -1579,7 +1602,7 @@ Rl
 aq
 bJ
 ao
-qn
+aH
 kd
 bR
 FU

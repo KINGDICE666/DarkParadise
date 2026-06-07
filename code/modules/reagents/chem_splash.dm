@@ -4,8 +4,9 @@
 // Threatscale is a multiplier for the 'threat' of the grenade. If you're increasing the affected range drastically, you might want to improve this.
 // Extra heat affects the temperature of the mixture, and may cause it to react in different ways.
 
+
 /proc/chem_splash(turf/epicenter, affected_range = 3, list/datum/reagents/reactants = list(), extra_heat = 0, threatscale = 1, adminlog = 1)
-	if(!isturf(epicenter) || !length(reactants) || threatscale <= 0)
+	if(!isturf(epicenter) || !reactants.len || threatscale <= 0)
 		return
 	var/has_reagents
 	var/total_reagents
@@ -24,7 +25,7 @@
 	for(var/datum/reagents/R in reactants)
 		R.trans_to(splash_holder, R.total_volume, threatscale, 1, 1)
 		total_temp += R.chem_temp
-	splash_holder.set_reagent_temp((total_temp / length(reactants)) + extra_heat) // Average temperature of reagents + extra heat.
+	splash_holder.set_reagent_temp((total_temp / reactants.len) + extra_heat) // Average temperature of reagents + extra heat.
 
 	if(splash_holder.total_volume && affected_range >= 0)	//The possible reactions didnt use up all reagents, so we spread it around.
 		var/datum/effect_system/steam_spread/steam = new /datum/effect_system/steam_spread()
@@ -56,13 +57,13 @@
 					break
 		var/list/reactable = accessible
 		for(var/turf/T in accessible)
-			for(var/atom/A in T.get_all_contents())
+			for(var/atom/A in T.GetAllContents())
 				if(!(A in viewable))
 					continue
 				reactable |= A
 			if(extra_heat >= 300)
 				T.hotspot_expose(extra_heat*2, 5)
-		if(!length(reactable)) //Nothing to react with. Probably means we're in nullspace.
+		if(!reactable.len) //Nothing to react with. Probably means we're in nullspace.
 			return
 		for(var/thing in reactable)
 			var/atom/A = thing
@@ -72,4 +73,5 @@
 
 	qdel(splash_holder)
 	return 1
+
 

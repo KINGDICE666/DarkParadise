@@ -19,13 +19,13 @@
 	var/active_mind_control = FALSE
 
 /obj/item/organ/internal/heart/gland/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мясистая масса",
 		GENITIVE = "мясистой массы",
 		DATIVE = "мясистой массе",
 		ACCUSATIVE = "мясистую массу",
 		INSTRUMENTAL = "мясистой массой",
-		PREPOSITIONAL = "мясистой массе",
+		PREPOSITIONAL = "мясистой массе"
 	)
 
 /obj/item/organ/internal/heart/gland/update_icon_state()
@@ -45,13 +45,14 @@
 /obj/item/organ/internal/heart/gland/proc/update_gland_hud()
 	if(!owner)
 		return
-	var/pixel_y = get_cached_height() - ICON_SIZE_Y
+	var/image/holder = owner.hud_list[GLAND_HUD]
+	holder.pixel_y = get_cached_height() - ICON_SIZE_Y
 	if(active_mind_control)
-		owner.set_hud_image_state(GLAND_HUD, "hudgland_active", y_offset = pixel_y)
+		holder.icon_state = "hudgland_active"
 	else if(mind_control_uses)
-		owner.set_hud_image_state(GLAND_HUD, "hudgland_ready", y_offset = pixel_y)
+		holder.icon_state = "hudgland_ready"
 	else
-		owner.set_hud_image_state(GLAND_HUD, "hudgland_spent", y_offset = pixel_y)
+		holder.icon_state = "hudgland_spent"
 
 /obj/item/organ/internal/heart/gland/proc/mind_control(command, mob/living/user)
 	if(!ownerCheck() || !mind_control_uses || active_mind_control)
@@ -79,7 +80,7 @@
 	if(initial(uses) == 1)
 		uses = initial(uses)
 	var/datum/atom_hud/abductor/hud = GLOB.huds[DATA_HUD_ABDUCTOR]
-	hud.remove_atom_from_hud(owner)
+	hud.remove_from_hud(owner)
 	clear_mind_control()
 	. = ..()
 
@@ -88,7 +89,7 @@
 	if(special != ORGAN_MANIPULATION_ABDUCTOR && uses)
 		Start()
 	var/datum/atom_hud/abductor/hud = GLOB.huds[DATA_HUD_ABDUCTOR]
-	hud.add_atom_to_hud(owner)
+	hud.add_to_hud(owner)
 	update_gland_hud()
 
 /obj/item/organ/internal/heart/gland/on_life()
@@ -193,11 +194,13 @@
 	h_owner.set_species(pick(random_species), keep_missing_bodyparts = TRUE)
 	addtimer(CALLBACK(h_owner, TYPE_PROC_REF(/mob/living/carbon/human, insert_new_gland), old_control_uses), 0)
 
+
 /mob/living/carbon/human/proc/insert_new_gland(mind_controls)
 	if(QDELETED(src))
 		return
 	var/obj/item/organ/internal/heart/gland/pop/replace_gland = new(src)
 	replace_gland.mind_control_uses = mind_controls
+
 
 /obj/item/organ/internal/heart/gland/ventcrawling
 	origin_tech = "materials=4;biotech=5;bluespace=4;abductor=3"
@@ -207,9 +210,11 @@
 	icon_state = "vent"
 	mind_control_uses = 4
 
+
 /obj/item/organ/internal/heart/gland/ventcrawling/activate()
 	to_chat(owner, span_notice("Ваше тело кажется невероятно гибким."))
 	ADD_TRAIT(owner, TRAIT_VENTCRAWLER_ALWAYS, type)
+
 
 /obj/item/organ/internal/heart/gland/viral
 	cooldown_low = 1800
@@ -323,29 +328,26 @@
 	for(var/mob/living/carbon/human/H in oview(3, owner)) // Blood decals for simple animals would be neat. aka Carp with blood on it.
 		H.add_mob_blood(owner)
 
-/obj/item/organ/internal/heart/gland/toxic_gas
+
+/obj/item/organ/internal/heart/gland/plasma
 	cooldown_low = 1200
 	cooldown_high = 1800
 	origin_tech = "materials=4;biotech=4;plasmatech=6;abductor=3"
 	uses = -1
 	mind_control_duration = 800
-	var/gas_flag = LINDA_SPAWN_TOXINS
-	var/gas_amount = 5
 
-/obj/item/organ/internal/heart/gland/toxic_gas/activate()
-	to_chat(owner, span_warning("Вы чувствуете тяжесть в животе."))
-	addtimer(CALLBACK(src, PROC_REF(timered_gas_spawn)), 30 SECONDS)
-
-/obj/item/organ/internal/heart/gland/toxic_gas/proc/timered_gas_spawn()
-	if(!owner)
-		return
-	to_chat(owner, span_userdanger("Вас охватывает мучительная боль в желудке."))
-	owner.visible_message(span_danger("[capitalize(owner.name)] отрыгива[PLUR_ET_YUT(owner)] облако неизвестного газа!"))
-	var/turf/simulated/turf = get_turf(owner)
-	if(istype(turf))
-		turf.atmos_spawn_air(gas_flag, gas_amount, T20C)
-	owner.vomit()
-
-/obj/item/organ/internal/heart/gland/toxic_gas/bz
-	gas_flag = LINDA_SPAWN_BZ
-	gas_amount = 50
+/obj/item/organ/internal/heart/gland/plasma/activate()
+	spawn(0)
+		to_chat(owner, span_warning("Вы чувствуете тяжесть в животе."))
+		sleep(150)
+		if(!owner)
+			return
+		to_chat(owner, span_userdanger("Вас охватывает мучительная боль в желудке."))
+		sleep(50)
+		if(!owner)
+			return
+		owner.visible_message(span_danger("[capitalize(owner)] отрыгива[pluralize_ru(owner.gender,"ет","ют")] облако плазмы!"))
+		var/turf/simulated/T = get_turf(owner)
+		if(istype(T))
+			T.atmos_spawn_air(LINDA_SPAWN_TOXINS|LINDA_SPAWN_20C,50)
+		owner.vomit()

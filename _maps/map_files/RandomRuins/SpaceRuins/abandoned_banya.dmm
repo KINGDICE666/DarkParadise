@@ -1,4 +1,11 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"ar" = (
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/wood{
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
+	},
+/area/ruin/USSP_SpaceBanya)
 "as" = (
 /obj/effect/decal/cleanable/dust,
 /mob/living/simple_animal/moth,
@@ -12,7 +19,8 @@
 /obj/structure/curtain/open/shower,
 /obj/machinery/shower{
 	dir = 4;
-	pixel_y = 4
+	pixel_y = 4;
+	tag = "icon-shower (EAST)"
 	},
 /obj/item/soap/deluxe,
 /obj/item/bikehorn/rubberducky,
@@ -63,6 +71,11 @@
 	},
 /turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
+"cP" = (
+/obj/machinery/vending/cigarette/free,
+/obj/effect/decal/cleanable/blood,
+/turf/simulated/floor/wood,
+/area/ruin/USSP_SpaceBanya)
 "cZ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
@@ -89,7 +102,8 @@
 /area/ruin/USSP_SpaceBanya)
 "dX" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "ef" = (
@@ -106,7 +120,8 @@
 /area/ruin/USSP_SpaceBanya)
 "eu" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken6"
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
 	},
 /area/ruin/USSP_SpaceBanya)
 "ev" = (
@@ -118,15 +133,6 @@
 	},
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
-"ex" = (
-/obj/structure/closet/wardrobe,
-/obj/item/clothing/under/color/lightbrown,
-/obj/item/clothing/gloves/color/light_brown,
-/obj/item/clothing/shoes/color/brown,
-/obj/effect/decal/cleanable/blood,
-/obj/effect/mist,
-/turf/simulated/floor/wood/oak,
-/area/ruin/USSP_SpaceBanya)
 "ey" = (
 /obj/structure/spider/stickyweb,
 /turf/simulated/floor/wood,
@@ -137,8 +143,8 @@
 /area/ruin/USSP_SpaceBanya)
 "eY" = (
 /obj/structure/closet/secure_closet/guncabinet,
-/obj/item/camera_bug/syndicate,
-/obj/item/gun/projectile/automatic/smg/c20r/toy,
+/obj/item/camera_bug,
+/obj/item/gun/projectile/automatic/c20r/toy,
 /obj/effect/decal/cleanable/cobweb2,
 /obj/item/clothing/head/soviethelmet,
 /turf/simulated/floor/wood,
@@ -170,7 +176,7 @@
 /obj/structure/table_frame/wood,
 /obj/item/fan,
 /obj/item/paper/ussp{
-	info = "Прайс Лист с текущимвввви расценками услуг: Парилка и купание — 450 кредитов.  Обед — 150. Баня, сауна, обед и выпивка — 999 кредитов. ";
+	info = "Прайс Лист с текущимвввви расценками услуг: Парилка и купание - 450 кредитов.  Обед - 150. Баня, сауна, обед и выпивка - 999 кредитов. ";
 	name = "Прайс Лист"
 	},
 /turf/simulated/floor/wood,
@@ -257,7 +263,8 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "lE" = (
@@ -270,7 +277,8 @@
 	icon_state = "1-2"
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "mh" = (
@@ -295,10 +303,15 @@
 "nD" = (
 /turf/simulated/mineral/random,
 /area/space)
+"nH" = (
+/obj/structure/extinguisher_cabinet,
+/turf/simulated/wall/mineral/wood,
+/area/ruin/USSP_SpaceBanya)
 "op" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/ruin/USSP_SpaceBanya)
 "ow" = (
@@ -344,11 +357,6 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/vomit,
-/turf/simulated/floor/wood,
-/area/ruin/USSP_SpaceBanya)
-"py" = (
-/obj/machinery/vending/cigarette,
-/obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
 "pL" = (
@@ -444,7 +452,8 @@
 	dir = 4
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "sP" = (
@@ -506,6 +515,17 @@
 "ue" = (
 /obj/effect/decal/cleanable/blood/gibs/xeno/body,
 /turf/simulated/floor/carpet,
+/area/ruin/USSP_SpaceBanya)
+"uN" = (
+/obj/effect/decal/cleanable/cobweb2,
+/obj/structure/closet/wardrobe,
+/obj/item/clothing/under/color/lightbrown,
+/obj/item/clothing/gloves/color/light_brown,
+/obj/item/clothing/shoes/brown,
+/obj/item/clothing/head/fedora/brownfedora,
+/obj/effect/decal/cleanable/dust,
+/obj/item/clothing/suit/fluff/dusty_jacket,
+/turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
 "vo" = (
 /obj/effect/decal/cleanable/dust,
@@ -588,7 +608,8 @@
 /area/ruin/USSP_SpaceBanya)
 "xE" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken5"
+	icon_state = "wood-broken5";
+	tag = "icon-wood-broken5"
 	},
 /area/ruin/USSP_SpaceBanya)
 "xH" = (
@@ -620,6 +641,15 @@
 /obj/structure/railing,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood,
+/turf/simulated/floor/wood/oak,
+/area/ruin/USSP_SpaceBanya)
+"zo" = (
+/obj/structure/closet/wardrobe,
+/obj/item/clothing/under/color/lightbrown,
+/obj/item/clothing/gloves/color/light_brown,
+/obj/item/clothing/shoes/brown,
+/obj/effect/decal/cleanable/blood,
+/obj/effect/mist,
 /turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
 "zB" = (
@@ -655,7 +685,8 @@
 "AJ" = (
 /obj/item/ammo_casing/shotgun/buckshot,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken6"
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
 	},
 /area/ruin/USSP_SpaceBanya)
 "AU" = (
@@ -734,7 +765,8 @@
 "EO" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/ruin/USSP_SpaceBanya)
 "Fa" = (
@@ -756,24 +788,14 @@
 /area/ruin/USSP_SpaceBanya)
 "Gi" = (
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken"
+	icon_state = "wood-broken";
+	tag = "icon-wood-broken"
 	},
 /area/ruin/USSP_SpaceBanya)
 "Gv" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/wood,
-/area/ruin/USSP_SpaceBanya)
-"Gz" = (
-/obj/effect/decal/cleanable/cobweb2,
-/obj/structure/closet/wardrobe,
-/obj/item/clothing/under/color/lightbrown,
-/obj/item/clothing/gloves/color/light_brown,
-/obj/item/clothing/shoes/color/brown,
-/obj/item/clothing/head/fedora/brownfedora,
-/obj/effect/decal/cleanable/dust,
-/obj/item/clothing/suit/fluff/dusty_jacket,
-/turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
 "GI" = (
 /obj/machinery/vending/boozeomat,
@@ -798,7 +820,10 @@
 	pixel_x = 25;
 	pixel_y = -6
 	},
-/obj/machinery/light_switch/directional/south,
+/obj/machinery/light_switch{
+	pixel_x = -4;
+	pixel_y = -24
+	},
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
@@ -825,14 +850,16 @@
 "JI" = (
 /obj/structure/closet/secure_closet/engineering_personal,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "Lc" = (
 /obj/item/trash/popcorn,
 /obj/structure/table_frame/wood,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken3"
+	icon_state = "wood-broken3";
+	tag = "icon-wood-broken3"
 	},
 /area/ruin/USSP_SpaceBanya)
 "Ld" = (
@@ -871,7 +898,8 @@
 /area/ruin/USSP_SpaceBanya)
 "NP" = (
 /obj/item/twohanded/required/kirbyplants{
-	icon_state = "plant-dead"
+	icon_state = "plant-dead";
+	tag = "plant-dead"
 	},
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
@@ -1081,7 +1109,8 @@
 	dir = 5
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken5"
+	icon_state = "wood-broken5";
+	tag = "icon-wood-broken5"
 	},
 /area/ruin/USSP_SpaceBanya)
 "WZ" = (
@@ -1112,7 +1141,6 @@
 	name = "Bar Lanch Room"
 	},
 /obj/structure/barricade/wooden/crude,
-/obj/structure/extinguisher_cabinet/directional/south,
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
 "XY" = (
@@ -1126,7 +1154,8 @@
 /obj/structure/curtain/open/shower,
 /obj/machinery/shower{
 	dir = 4;
-	pixel_y = 4
+	pixel_y = 4;
+	tag = "icon-shower (EAST)"
 	},
 /obj/item/soap,
 /obj/item/clothing/shoes/ducky,
@@ -1135,7 +1164,10 @@
 /turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
 "YY" = (
-/obj/machinery/power/apc/directional/north,
+/obj/machinery/power/apc{
+	name = "north bump";
+	pixel_y = 26
+	},
 /obj/effect/decal/cleanable/cobweb,
 /obj/structure/cable{
 	icon_state = "0-2"
@@ -1168,7 +1200,7 @@
 /turf/simulated/floor/wood/oak,
 /area/ruin/USSP_SpaceBanya)
 "ZL" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /obj/structure/spider/stickyweb,
 /turf/simulated/floor/wood,
 /area/ruin/USSP_SpaceBanya)
@@ -1566,11 +1598,11 @@ Nd
 dr
 Dd
 Dd
-Gz
+uN
 mL
 DE
 wR
-ex
+zo
 Dd
 Dd
 Ep
@@ -1670,7 +1702,7 @@ kJ
 Gi
 Vs
 RV
-py
+cP
 Dd
 FV
 vI
@@ -1819,7 +1851,7 @@ nD
 Dd
 Dd
 Xp
-Dd
+nH
 Dd
 eY
 ng
@@ -1899,7 +1931,7 @@ jv
 vo
 yJ
 xl
-Nr
+ar
 Jl
 Dd
 nD

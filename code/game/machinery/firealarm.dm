@@ -4,9 +4,9 @@ FIRE ALARM
 
 GLOBAL_LIST_EMPTY(firealarms)
 
-#define FIRE_ALARM_FRAME 0
-#define FIRE_ALARM_UNWIRED 1
-#define FIRE_ALARM_READY 2
+#define FIRE_ALARM_FRAME	0
+#define FIRE_ALARM_UNWIRED	1
+#define FIRE_ALARM_READY	2
 
 /obj/machinery/firealarm
 	name = "fire alarm"
@@ -16,13 +16,11 @@ GLOBAL_LIST_EMPTY(firealarms)
 	anchored = TRUE
 	max_integrity = 250
 	integrity_failure = 100
-	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 100, fire = 90, acid = 30)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 100, rad = 100, fire = 90, acid = 30)
 	idle_power_usage = 2
 	active_power_usage = 6
 	power_channel = ENVIRON
 	resistance_flags = FIRE_PROOF
-	cares_about_temperature = TRUE
-	mouse_over_pointer = MOUSE_HAND_POINTER
 
 	var/buildstage = FIRE_ALARM_READY
 	var/wiresexposed = FALSE
@@ -44,7 +42,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		setDir(direction)
 		set_pixel_offsets_from_dir(26, -26, 26, -26)
 
-	if(isarea(get_area(src)))
+	if(istype(get_area(src), /area))
 		LAZYADD(GLOB.station_fire_alarms["[z]"], src)
 
 	myArea = get_area(src)
@@ -53,17 +51,15 @@ GLOBAL_LIST_EMPTY(firealarms)
 	if(is_station_contact(z))
 		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
 
-	AddComponent(/datum/component/usb_port, list(
-		/obj/item/circuit_component/firealarm,
-	))
-
 	update_fire_light()
 	update_icon()
+
 
 /obj/machinery/firealarm/Destroy()
 	LAZYREMOVE(GLOB.station_fire_alarms["[z]"], src)
 	LAZYREMOVE(myArea.firealarms, src)
 	return ..()
+
 
 /obj/machinery/firealarm/no_alarm
 	report_fire_alarms = FALSE
@@ -74,6 +70,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 
 /obj/machinery/firealarm/syndicate/taipan
 	report_fire_alarms = TRUE
+
 
 /obj/machinery/firealarm/update_icon_state()
 	if(wiresexposed)
@@ -96,6 +93,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	else
 		icon_state = "firealarm_on"
 
+
 /obj/machinery/firealarm/update_overlays()
 	. = ..()
 	underlays.Cut()
@@ -111,6 +109,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	if(!wiresexposed)
 		underlays += emissive_appearance(icon, "firealarm_lightmask", src)
 
+
 /obj/machinery/firealarm/emag_act(mob/user)
 	if(!emagged)
 		emagged = TRUE
@@ -118,9 +117,9 @@ GLOBAL_LIST_EMPTY(firealarms)
 			user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag [src], disabling its thermal sensors."))
 		playsound(loc, 'sound/effects/sparks4.ogg', 50, TRUE)
 
-/obj/machinery/firealarm/temperature_expose(exposed_temperature, exposed_volume)
+/obj/machinery/firealarm/temperature_expose(datum/gas_mixture/air, temperature, volume)
 	..()
-	if(!emagged && detecting && exposed_temperature > T0C + 200)
+	if(!emagged && detecting && temperature > T0C + 200)
 		alarm()			// added check of detector status here
 
 /obj/machinery/firealarm/attack_ai(mob/user)
@@ -136,13 +135,14 @@ GLOBAL_LIST_EMPTY(firealarms)
 		alarm(rand(30/severity, 60/severity))
 	..()
 
+
 /obj/machinery/firealarm/attackby(obj/item/I, mob/user, params)
 	if(!wiresexposed || user.a_intent == INTENT_HARM)
 		return ..()
 
 	switch(buildstage)
 		if(FIRE_ALARM_UNWIRED)
-			if(iscoil(I))
+			if(istype(I, /obj/item/stack/cable_coil))
 				add_fingerprint(user)
 				var/obj/item/stack/cable_coil/coil = I
 				if(!coil.use(5))
@@ -166,6 +166,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 				return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/firealarm/crowbar_act(mob/user, obj/item/I)
 	if(buildstage != FIRE_ALARM_UNWIRED)
@@ -224,6 +225,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	buildstage = FIRE_ALARM_UNWIRED
 	update_icon()
 
+
 /obj/machinery/firealarm/wrench_act(mob/user, obj/item/I)
 	if(buildstage != FIRE_ALARM_FRAME)
 		return
@@ -241,10 +243,10 @@ GLOBAL_LIST_EMPTY(firealarms)
 			if(prob(33))
 				alarm()
 
-/obj/machinery/firealarm/singularity_pull(atom/singularity, current_size)
+/obj/machinery/firealarm/singularity_pull(S, current_size)
 	if(current_size >= STAGE_FIVE) // If the singulo is strong enough to pull anchored objects, the fire alarm experiences integrity failure
 		deconstruct()
-	return ..()
+	..()
 
 /obj/machinery/firealarm/obj_break(damage_flag)
 	if(!(stat & BROKEN) && !(obj_flags & NODECONSTRUCT) && buildstage != 0) //can't break the electronics if there isn't any inside.
@@ -261,6 +263,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 				I.update_integrity(I.max_integrity * 0.5)
 		new /obj/item/stack/cable_coil(loc, 3)
 	qdel(src)
+
 
 /obj/machinery/firealarm/proc/update_fire_light()
 	if(stat & NOPOWER)
@@ -288,6 +291,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		update_fire_light()
 		update_icon()
 
+
 /obj/machinery/firealarm/attack_hand(mob/user)
 	if(stat & (NOPOWER|BROKEN) || buildstage != 2)
 		return TRUE
@@ -303,43 +307,44 @@ GLOBAL_LIST_EMPTY(firealarms)
 
 	toggle_alarm(user)
 
+
 /obj/machinery/firealarm/proc/toggle_alarm(mob/user)
 	var/area/A = get_area(src)
-	if(!istype(A))
-		return
+	if(istype(A))
+		add_fingerprint(user)
+		last_time_pulled = world.time
+		if(A.fire)
+			reset()
+		else
+			alarm()
 
-	add_fingerprint(user)
-	last_time_pulled = world.time
-	if(A.fire)
-		reset()
-	else
-		alarm()
 
 /obj/machinery/firealarm/examine(mob/user)
 	. = ..()
 	switch(buildstage)
 		if(FIRE_ALARM_FRAME)
-			. += span_notice("It's missing a <i>circuit board<i> and the <b>bolts</b> are exposed.")
+			. += "<span class='notice'>It's missing a <i>circuit board<i> and the <b>bolts</b> are exposed.</span>"
 		if(FIRE_ALARM_UNWIRED)
-			. += span_notice("The control board needs <i>wiring</i> and can be <b>pried out</b>.")
+			. += "<span class='notice'>The control board needs <i>wiring</i> and can be <b>pried out</b>.</span>"
 		if(FIRE_ALARM_READY)
 			if(wiresexposed)
-				. += span_notice("The fire alarm's <b>wires</b> are exposed by the <i>unscrewed</i> panel.")
-				. += span_notice("The detection circuitry can be turned <b>[detecting ? "off" : "on"]</b> by <i>pulsing</i> the board.")
+				. += "<span class='notice'>The fire alarm's <b>wires</b> are exposed by the <i>unscrewed</i> panel.</span>"
+				. += "<span class='notice'>The detection circuitry can be turned <b>[detecting ? "off" : "on"]</b> by <i>pulsing</i> the board.</span>"
 
 	. += "It shows the alert level as: <b><u>[capitalize(SSsecurity_level.get_current_level_as_text())]</u></b>."
+
 
 /obj/machinery/firealarm/proc/reset()
 	if(!working || !report_fire_alarms)
 		return
-	SEND_SIGNAL(src, COMSIG_FIREALARM_ON_RESET)
 	myArea?.firereset(src)
+
 
 /obj/machinery/firealarm/proc/alarm()
 	if(!working || !report_fire_alarms)
 		return
-	SEND_SIGNAL(src, COMSIG_FIREALARM_ON_TRIGGER)
 	myArea?.firealert(src)
+
 
 /*
 FIRE ALARM CIRCUIT
@@ -355,80 +360,8 @@ Just a object used in constructing fire alarms
 	origin_tech = "engineering=2;programming=1"
 	usesound = 'sound/items/deconstruct.ogg'
 
-/obj/item/circuit_component/firealarm
-	display_name = "Пожарная сигнализация"
-	desc = "Интерфейс управления пожарной сигнализацией."
-
-	var/datum/port/input/alarm_trigger
-	var/datum/port/input/reset_trigger
-
-	/// Returns a boolean value of 0 or 1 if the fire alarm is on or not.
-	var/datum/port/output/is_on
-	/// Returns when the alarm is turned on
-	var/datum/port/output/triggered
-	/// Returns when the alarm is turned off
-	var/datum/port/output/reset
-
-	var/obj/machinery/firealarm/attached_alarm
-
-/obj/item/circuit_component/firealarm/Destroy()
-	if(attached_alarm)
-		unregister_usb_parent(attached_alarm)
-	alarm_trigger = null
-	reset_trigger = null
-	is_on = null
-	triggered = null
-	reset = null
-	. = ..()
-
-/obj/item/circuit_component/firealarm/populate_ports()
-	alarm_trigger = add_input_port("Тревога", PORT_TYPE_SIGNAL)
-	reset_trigger = add_input_port("Отбой", PORT_TYPE_SIGNAL)
-
-	is_on = add_output_port("Статус", PORT_TYPE_NUMBER)
-	triggered = add_output_port("Тревога", PORT_TYPE_SIGNAL)
-	reset = add_output_port("Отбой", PORT_TYPE_SIGNAL)
-
-/obj/item/circuit_component/firealarm/register_usb_parent(atom/movable/parent)
-	. = ..()
-	if(!istype(parent, /obj/machinery/firealarm))
-		return
-
-	attached_alarm = parent
-	RegisterSignal(parent, COMSIG_FIREALARM_ON_TRIGGER, PROC_REF(on_firealarm_triggered))
-	RegisterSignal(parent, COMSIG_FIREALARM_ON_RESET, PROC_REF(on_firealarm_reset))
-
-/obj/item/circuit_component/firealarm/unregister_usb_parent(atom/movable/parent)
-	attached_alarm = null
-	UnregisterSignal(parent, COMSIG_FIREALARM_ON_TRIGGER)
-	UnregisterSignal(parent, COMSIG_FIREALARM_ON_RESET)
-	return ..()
-
-/obj/item/circuit_component/firealarm/proc/on_firealarm_triggered(datum/source)
-	SIGNAL_HANDLER
-	is_on.set_output(TRUE)
-	triggered.set_output(COMPONENT_SIGNAL)
-
-/obj/item/circuit_component/firealarm/proc/on_firealarm_reset(datum/source)
-	SIGNAL_HANDLER
-	is_on.set_output(FALSE)
-	reset.set_output(COMPONENT_SIGNAL)
-
-
-/obj/item/circuit_component/firealarm/input_received(datum/port/input/port)
-	if(COMPONENT_TRIGGERED_BY(alarm_trigger, port))
-		attached_alarm?.alarm()
-
-	if(COMPONENT_TRIGGERED_BY(reset_trigger, port))
-		attached_alarm?.reset()
 
 #undef FIRE_ALARM_FRAME
 #undef FIRE_ALARM_UNWIRED
 #undef FIRE_ALARM_READY
 
-// MARK: Mapping Dir Helpers
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm, 26, 26)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm/no_alarm, 26, 26)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm/triggered_nosignals, 26, 26)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm/syndicate, 26, 26)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm/syndicate/taipan, 26, 26)

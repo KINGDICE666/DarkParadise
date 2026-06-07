@@ -4,6 +4,7 @@
  *		Wooden Frames
  */
 
+
 /*
  * Normal Frames
  */
@@ -12,10 +13,11 @@
 	name = "table frame"
 	desc = "Four metal legs with four framing rods for a table. You could easily pass through this."
 	icon_state = "table_frame"
-	layer = PROJECTILE_HIT_THRESHOLD_LAYER
+	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
 	max_integrity = 100
 	var/framestack = /obj/item/stack/rods
 	var/framestackamount = 2
+
 
 /obj/structure/table_frame/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -78,6 +80,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/structure/table_frame/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -155,6 +158,7 @@
 
 	return ..()
 
+
 /obj/structure/table_frame/brass
 	name = "brass table frame"
 	desc = "Four pieces of brass arranged in a square. It's slightly warm to the touch."
@@ -162,6 +166,7 @@
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	framestack = /obj/item/stack/sheet/brass
 	framestackamount = 1
+
 
 /obj/structure/table_frame/brass/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -182,6 +187,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/structure/table_frame/brass/narsie_act()
 	..()

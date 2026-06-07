@@ -30,10 +30,11 @@
 	var/mob/living/owner
 	gold_core_spawnable = HOSTILE_SPAWN
 
-/mob/living/simple_animal/hostile/scarybat/Initialize(mapload, mob/living/L)
-	. = ..()
+/mob/living/simple_animal/hostile/scarybat/New(loc, mob/living/L as mob)
+	..()
 	if(istype(L))
 		owner = L
+
 
 /mob/living/simple_animal/hostile/scarybat/Initialize(mapload)
 	. = ..()
@@ -61,7 +62,8 @@
 	if(istype(L))
 		if(prob(15))
 			L.Stun(2 SECONDS)
-			L.visible_message(span_danger("\the [src] scares \the [L]!"))
+			L.visible_message("<span class='danger'>\the [src] scares \the [L]!</span>")
+
 
 /mob/living/simple_animal/hostile/scarybat/batswarm
 	name = "bat swarm"

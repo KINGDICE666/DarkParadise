@@ -4,7 +4,8 @@
 /area/template_noop)
 "c" = (
 /obj/structure/shuttle/engine/heater{
-	dir = 1
+	dir = 1;
+	tag = "icon-heater (NORTH)"
 	},
 /obj/structure/window/reinforced,
 /turf/simulated/floor/shuttle/plating,
@@ -124,7 +125,8 @@
 /area/space/nearstation)
 "A" = (
 /obj/structure/shuttle/engine/heater{
-	dir = 4
+	dir = 4;
+	tag = "icon-heater (EAST)"
 	},
 /obj/structure/window/reinforced{
 	dir = 8
@@ -134,11 +136,13 @@
 "B" = (
 /obj/structure/shuttle/engine/propulsion{
 	dir = 4;
-	icon_state = "propulsion_l"
+	icon_state = "propulsion_l";
+	tag = "icon-propulsion_l (WEST)"
 	},
 /obj/structure/shuttle/engine/propulsion{
 	dir = 4;
-	icon_state = "burst_r"
+	icon_state = "burst_r";
+	tag = "icon-burst_r (WEST)"
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/space/nearstation)
@@ -153,7 +157,8 @@
 "E" = (
 /obj/structure/shuttle/engine/propulsion{
 	dir = 4;
-	icon_state = "propulsion_l"
+	icon_state = "propulsion_l";
+	tag = "icon-propulsion_l (WEST)"
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/space/nearstation)
@@ -206,7 +211,8 @@
 /area/space/nearstation)
 "M" = (
 /turf/simulated/wall/shuttle{
-	icon_state = "swall_f5"
+	icon_state = "swall_f5";
+	tag = "icon-swall_f5"
 	},
 /area/space/nearstation)
 "N" = (
@@ -234,13 +240,20 @@
 "R" = (
 /obj/structure/shuttle/engine/propulsion{
 	dir = 4;
-	icon_state = "propulsion_l"
+	icon_state = "propulsion_l";
+	tag = "icon-propulsion_l (WEST)"
 	},
 /obj/structure/shuttle/engine/propulsion{
 	dir = 4;
-	icon_state = "propulsion_l"
+	icon_state = "propulsion_l";
+	tag = "icon-propulsion_l (WEST)"
 	},
 /turf/simulated/floor/shuttle/plating,
+/area/space/nearstation)
+"S" = (
+/turf/simulated/wall/shuttle{
+	dir = 4
+	},
 /area/space/nearstation)
 "U" = (
 /turf/simulated/wall/shuttle{
@@ -249,6 +262,12 @@
 	},
 /area/space/nearstation)
 "V" = (
+/turf/simulated/wall/shuttle{
+	dir = 4;
+	icon_state = "white_walls_directions"
+	},
+/area/space/nearstation)
+"W" = (
 /turf/simulated/wall/shuttle{
 	dir = 4;
 	icon_state = "white_walls_directions"
@@ -600,7 +619,7 @@ m
 a
 a
 a
-v
+S
 m
 m
 J
@@ -841,13 +860,13 @@ a
 a
 a
 a
-V
+W
 A
 A
 A
 A
 A
-V
+W
 a
 a
 a

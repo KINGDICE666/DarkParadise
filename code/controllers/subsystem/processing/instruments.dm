@@ -1,8 +1,10 @@
 PROCESSING_SUBSYSTEM_DEF(instruments)
 	name = "Instruments"
+	init_order = INIT_ORDER_INSTRUMENTS
 	wait = 1
-	ss_flags = SS_KEEP_TIMING|SS_HIBERNATE
-	priority = FIRE_PRIORITY_INSTRUMENTS
+	flags = SS_TICKER|SS_BACKGROUND|SS_KEEP_TIMING
+	offline_implications = "Instruments will no longer play. No immediate action is needed."
+	ss_id = "instruments"
 
 	/// List of all instrument data, associative id = datum
 	var/static/list/datum/instrument/instrument_data = list()
@@ -20,7 +22,6 @@ PROCESSING_SUBSYSTEM_DEF(instruments)
 	var/static/current_instrument_channels = 0
 	/// Single cached list for synthesizer instrument ids, so you don't have to have a new list with every synthesizer.
 	var/static/list/synthesizer_instrument_ids
-	var/static/list/note_sustain_modes = list("Линейно" = SUSTAIN_LINEAR, "Экспоненциально" = SUSTAIN_EXPONENTIAL)
 
 /datum/controller/subsystem/processing/instruments/Initialize()
 	initialize_instrument_data()

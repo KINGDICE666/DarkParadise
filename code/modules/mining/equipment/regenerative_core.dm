@@ -9,14 +9,15 @@
 	origin_tech = "biotech=3"
 
 /obj/item/hivelordstabilizer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "стабилизатор ядра",
 		GENITIVE = "стабилизатора ядра",
 		DATIVE = "стабилизатору ядра",
 		ACCUSATIVE = "стабилизатор ядра",
 		INSTRUMENTAL = "стабилизатором ядра",
-		PREPOSITIONAL = "стабилизаторе ядра",
+		PREPOSITIONAL = "стабилизаторе ядра"
 	)
+
 
 /obj/item/hivelordstabilizer/molten_mass
 	name = "gooey molten mass"
@@ -33,29 +34,25 @@
 	light_system = MOVABLE_LIGHT
 
 /obj/item/hivelordstabilizer/molten_mass/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сплавленный сгусток",
 		GENITIVE = "сплавленного сгустка",
 		DATIVE = "сплавленному сгустку",
 		ACCUSATIVE = "сплавленный сгусток",
 		INSTRUMENTAL = "сплавленным сгустком",
-		PREPOSITIONAL = "сплавленном сгустке",
+		PREPOSITIONAL = "сплавленном сгустке"
 	)
 
-/obj/item/hivelordstabilizer/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/hivelordstabilizer/afterattack(obj/item/organ/internal/M, mob/user, proximity, params)
 	. = ..()
-	if(!proximity_flag)
+	if(!proximity)
 		return
-	var/obj/item/organ/internal/regenerative_core/core = target
-	if(!istype(core))
+	var/obj/item/organ/internal/regenerative_core/C = M
+	if(!istype(C, /obj/item/organ/internal/regenerative_core))
 		to_chat(user, span_warning("Стабилизатор работает только с определёнными типами органов монстров, обычно регенеративной природы."))
-		return
+		return ..()
 
-	if(core.preserved || core.inert)
-		to_chat(user, span_warning("Это ядро уже [core.inert ? "сгнило" : "стабилизировано"]!"))
-		return
-
-	core.preserved()
+	C.preserved()
 	balloon_alert(user, "ядро стабилизировано!") //replace to "organ" when there is more than one kind of regenerative organ
 	qdel(src)
 
@@ -72,18 +69,18 @@
 	var/preserved = 0
 
 /obj/item/organ/internal/regenerative_core/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "регенеративное ядро",
 		GENITIVE = "регенеративного ядра",
 		DATIVE = "регенеративному ядру",
 		ACCUSATIVE = "регенеративное ядро",
 		INSTRUMENTAL = "регенеративным ядром",
-		PREPOSITIONAL = "регенеративном ядре",
+		PREPOSITIONAL = "регенеративном ядре"
 	)
 
 /obj/item/organ/internal/regenerative_core/Initialize(mapload)
 	. = ..()
-	addtimer(CALLBACK(src, PROC_REF(inert_check)), 4 MINUTES)
+	addtimer(CALLBACK(src, PROC_REF(inert_check)), 2400)
 
 /obj/item/organ/internal/regenerative_core/proc/inert_check()
 	if(!preserved)
@@ -105,20 +102,20 @@
 	inert = TRUE
 	name = "decayed regenerative core"
 	desc = "Всё, что осталось от легиона. Оно сгнило и совершенно бесполезно."
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "сгнившее регенеративное ядро",
 		GENITIVE = "сгнившего регенеративного ядра",
 		DATIVE = "сгнившему регенеративному ядру",
 		ACCUSATIVE = "сгнившее регенеративное ядро",
 		INSTRUMENTAL = "сгнившим регенеративным ядром",
-		PREPOSITIONAL = "сгнившем регенеративном ядре",
+		PREPOSITIONAL = "сгнившем регенеративном ядре"
 	)
 	SSblackbox.record_feedback("nested tally", "hivelord_core", 1, list("[type]", "inert"))
 	update_icon()
 
 /obj/item/organ/internal/regenerative_core/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(inert)
-		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] рассыпается при попытке активации."))
+		to_chat(owner, span_notice("[capitalize(declent_ru(NOMINATIVE))] рассыпается при попытке активации."))
 	else
 		owner.revive()
 	after_use()
@@ -140,7 +137,7 @@
 				balloon_alert(user, "не сработает на трупах!")
 				return
 			if(H != user)
-				H.visible_message("[user] заставля[PLUR_ET_YUT(user)] [H.declent_ru(ACCUSATIVE)] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают и укрепляют [GEND_HIS_HER(H)]!")
+				H.visible_message("[user] заставля[pluralize_ru(user.gender,"ет","ют")] [H.declent_ru(ACCUSATIVE)] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают и укрепляют [genderize_ru(H.gender,"его","её","его","их")]!")
 				SSblackbox.record_feedback("nested tally", "hivelord_core", 1, list("[type]", "used", "other"))
 			else
 				to_chat(user, span_notice("Вы начинаете наносить [declent_ru(ACCUSATIVE)] на себя. Мерзкие щупальца скрепляют ваше тело, но как долго это продлится?"))
@@ -149,7 +146,7 @@
 			user.temporarily_remove_item_from_inventory(src)
 			after_use()
 
-/obj/item/organ/internal/regenerative_core/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/organ/internal/regenerative_core/afterattack(atom/target, mob/user, proximity_flag, params)
 	. = ..()
 	if(proximity_flag)
 		applyto(target, user)
@@ -161,11 +158,11 @@
 	. = ..()
 	if(!preserved && !inert)
 		preserved(TRUE)
-		owner.visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] стабилизируется при введении."))
+		owner.visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] стабилизируется при введении."))
 
 /obj/item/organ/internal/regenerative_core/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	if(!inert && !special)
-		owner.visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] быстро разлагается при извлечении."))
+		owner.visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] быстро разлагается при извлечении."))
 		go_inert()
 	return ..()
 
@@ -186,7 +183,7 @@
 			return
 		user.balloon_alert(user, "ядро не восстановилось")
 		return
-	return ..()
+	. = ..()
 
 /obj/item/organ/internal/regenerative_core/cooldown/applyto(atom/target, mob/user)
 	if(!COOLDOWN_FINISHED(src, core_use_cooldown))
@@ -194,7 +191,8 @@
 			return
 		user.balloon_alert(user, "ядро не восстановилось")
 		return
-	return ..()
+	. = ..()
+
 
 #undef INFINITY_CORE_COOLDOWN
 
@@ -206,16 +204,14 @@
 /obj/item/organ/internal/regenerative_core/legion/pre_preserved
 	preserved = TRUE
 
-/obj/item/organ/internal/regenerative_core/legion/inert/Initialize(mapload)
-	. = ..()
-	go_inert()
-
 /obj/item/organ/internal/regenerative_core/legion/Initialize(mapload)
 	. = ..()
 	update_icon()
 
+
 /obj/item/organ/internal/regenerative_core/legion/update_icon_state()
 	icon_state = inert ? "legion_soul_inert" : "legion_soul"
+
 
 /obj/item/organ/internal/regenerative_core/legion/update_overlays()
 	. = ..()
@@ -223,17 +219,19 @@
 		. += "legion_soul_crackle"
 	addtimer(CALLBACK(src, PROC_REF(buttons_update)), 0.1 SECONDS)
 
+
 /obj/item/organ/internal/regenerative_core/legion/proc/buttons_update()
 	for(var/datum/action/action as anything in actions)
 		action.UpdateButtonIcon()
 
+
 /obj/item/organ/internal/regenerative_core/legion/go_inert()
 	..()
-	desc = "[DECLENT_RU_CAP(src, NOMINATIVE)] утратило силу. Оно сгнило и совершенно бесполезно."
+	desc = "[capitalize(declent_ru(NOMINATIVE))] утратило силу. Оно сгнило и совершенно бесполезно."
 
 /obj/item/organ/internal/regenerative_core/legion/preserved(implanted = 0)
 	..()
-	desc = "[DECLENT_RU_CAP(src, NOMINATIVE)] стабилизированно. Теперь его можно безопасно использовать для полного исцеления."
+	desc = "[capitalize(declent_ru(NOMINATIVE))] стабилизированно. Теперь его можно безопасно использовать для полного исцеления."
 
 /************************Legion tumor********************/
 
@@ -261,13 +259,13 @@
 	)
 
 /obj/item/organ/internal/legion_tumour/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "опухоль легиона",
 		GENITIVE = "опухоли легиона",
 		DATIVE = "опухоли легиона",
 		ACCUSATIVE = "опухоль легиона",
 		INSTRUMENTAL = "опухолью легиона",
-		PREPOSITIONAL = "опухоли легиона",
+		PREPOSITIONAL = "опухоли легиона"
 	)
 
 /obj/item/organ/internal/legion_tumour/insert(mob/living/carbon/egg_owner, special)
@@ -283,10 +281,12 @@
 		egg_owner.med_hud_set_status()
 	. = ..()
 
+
 /obj/item/organ/internal/legion_tumour/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(try_apply(target, user))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /// Smear it on someone like a regen core, why not. Make sure they're alive though.
 /obj/item/organ/internal/legion_tumour/proc/try_apply(mob/living/carbon/human/target, mob/user)
@@ -298,8 +298,8 @@
 	. = TRUE
 	if(target != user)
 		target.visible_message(
-			span_warning("[user] заставляет [target] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают [GEND_HIS_HER(user)]!"),
-			span_notice("Вы заставили [target] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают [GEND_HIS_HER(user)]!"),
+			span_warning("[user] заставляет [target] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают [genderize_ru(user.gender,"его","её","его","их")]!"),
+			span_notice("Вы заставили [target] применить [declent_ru(ACCUSATIVE)]... Чёрные щупальца опутывают [genderize_ru(user.gender,"его","её","его","их")]!"),
 		)
 		SSblackbox.record_feedback("nested tally", "hivelord_core", 1, list("[type]", "used", "other"))
 	else
@@ -307,6 +307,7 @@
 		SSblackbox.record_feedback("nested tally", "hivelord_core", 1, list("[type]", "used", "self"))
 	target.apply_status_effect(STATUS_EFFECT_REGENERATIVE_CORE)
 	qdel(src)
+
 
 /obj/item/organ/internal/legion_tumour/on_life()
 	. = ..()
@@ -358,7 +359,7 @@
 /obj/item/organ/internal/legion_tumour/proc/infest()
 	if(QDELETED(src) || QDELETED(owner))
 		return
-	owner.visible_message(span_boldwarning("Чёрные щупальца вырываются из плоти [owner], покрывая [GEND_HIS_HER(owner)] аморфной массой!"))
+	owner.visible_message(span_boldwarning("Чёрные щупальца вырываются из плоти [owner], покрывая [genderize_ru(owner.gender,"его","её","его","их")] аморфной массой!"))
 	var/mob/living/simple_animal/hostile/asteroid/hivelord/legion/L
 
 	if(HAS_TRAIT(owner, TRAIT_DWARF)) //dwarf legions aren't just fluff!

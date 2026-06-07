@@ -9,7 +9,7 @@
 	pass_flags_self = PASSBLOB
 	layer = BELOW_MOB_LAYER
 	can_astar_pass = CANASTARPASS_ALWAYS_PROC
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 70)
 	creates_cover = TRUE
 	obj_flags = BLOCK_Z_OUT_DOWN | BLOCK_Z_IN_UP // stops blob mobs from falling on multiz.
 	max_integrity = BLOB_REGULAR_MAX_HP
@@ -40,27 +40,32 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/blob/Initialize(mapload, owner_overmind)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_CHASM_DESTROYED, INNATE_TRAIT)
+	GLOB.blobs |= src
 	if(owner_overmind && isovermind(owner_overmind))
 		link_to_overmind(owner_overmind)
 	setDir(pick(GLOB.cardinal))
 	if(atmosblock)
-		recalculate_atmos_connectivity()
+		air_update_turf(TRUE)
 	ConsumeTile()
 	update_blob()
+
 
 /obj/structure/blob/proc/link_to_overmind(mob/camera/blob/owner_overmind)
 	overmind = owner_overmind
 	overmind.all_blobs |= src
 	overmind.blobs_legit |= src
 
+
 /obj/structure/blob/Destroy()
 	if(atmosblock)
 		atmosblock = FALSE
-		recalculate_atmos_connectivity()
-	SSticker?.mode?.remove_blob_tile(src)
+		air_update_turf(1)
+	GLOB.blobs -= src
+	SSticker?.mode?.legit_blobs -= src
 	if(overmind)
 		overmind.all_blobs -= src
 		overmind.blobs_legit -= src  //if it was in the legit blobs list, it isn't now
@@ -88,13 +93,14 @@
 						result++
 		. -= result - 1
 
-/obj/structure/blob/CanAtmosPass(direction)
+
+/obj/structure/blob/BlockSuperconductivity()
+	return atmosblock
+
+
+/obj/structure/blob/CanAtmosPass(turf/T, vertical)
 	return !atmosblock
 
-/obj/structure/blob/get_superconductivity(direction)
-	if(atmosblock)
-		return FALSE
-	return ..()
 
 /obj/structure/blob/update_icon() //Updates color based on overmind color if we have an overmind.
 	. = ..()
@@ -105,6 +111,7 @@
 			add_atom_colour(BlendRGB(overmind.blobstrain.color, COLOR_WHITE, 0.5), FIXED_COLOUR_PRIORITY) //lighten it to indicate an off-station blob
 	else
 		remove_atom_colour(FIXED_COLOUR_PRIORITY)
+
 
 /obj/structure/blob/proc/Be_Pulsed()
 	if(COOLDOWN_FINISHED(src, pulse_timestamp))
@@ -117,13 +124,15 @@
 		return TRUE//we did it, we were pulsed!
 	return FALSE //oh no we failed
 
+
 /obj/structure/blob/proc/RegenHealth()
 	repair_damage(health_regen)
 	update_blob()
 
+
 /obj/structure/blob/proc/ConsumeTile()
 	for(var/atom/thing in loc)
-		if(QDELETED(thing) || !thing.can_blob_attack())
+		if(!thing.can_blob_attack())
 			continue
 		if(isliving(thing) && overmind && !HAS_TRAIT(thing, TRAIT_BLOB_ALLY)) // Make sure to inject strain-reagents with automatic attacks when needed.
 			overmind.blobstrain.attack_living(thing)
@@ -131,6 +140,7 @@
 		thing.blob_act(src)
 	if(iswallturf(loc))
 		loc.blob_act(src) //don't ask how a wall got on top of the core, just eat it
+
 
 /obj/structure/blob/proc/blob_attack_animation(atom/A = null, controller) //visually attacks an atom
 	var/obj/effect/temp_visual/blob/O = new /obj/effect/temp_visual/blob(src.loc)
@@ -150,10 +160,11 @@
 		O.do_attack_animation(A) //visually attack the whatever
 	return O //just in case you want to do something to the animation.
 
+
 /obj/structure/blob/proc/expand(turf/T = null, controller = null, expand_reaction = 1)
 	if(!T)
 		var/list/dirs = (is_there_multiz())? GLOB.cardinals_multiz.Copy() : GLOB.cardinal.Copy()
-		for(var/i = 1 to length(dirs))
+		for(var/i = 1 to dirs.len)
 			var/dirn = pick(dirs)
 			dirs.Remove(dirn)
 			T = get_step_multiz(src, dirn)
@@ -202,7 +213,7 @@
 			if(Ablob.area_flags & BLOBS_ALLOWED) //Is this area allowed for winning as blob?
 				if(overmind)
 					overmind.blobs_legit |= B
-				SSticker?.mode?.add_blob_tile(B)
+				SSticker?.mode?.legit_blobs |= B
 			else if(controller)
 				B.balloon_alert(overmind, "вне станции, не считается!")
 				offstation = TRUE
@@ -225,13 +236,16 @@
 		blob_attack_animation(T, controller) //if we can't, animate that we attacked
 	return
 
+
 /obj/structure/blob/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	var/mob/mover_mob = mover
 	return checkpass(mover, PASSBLOB) || (istype(mover_mob) && mover_mob.stat == DEAD)
 
+
 /obj/structure/blob/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	return pass_info.pass_flags == PASSEVERYTHING || (pass_info.pass_flags & PASSBLOB)
+
 
 /obj/structure/blob/emp_act(severity)
 	. = ..()
@@ -244,6 +258,7 @@
 		if(prob(100 - severity * 30))
 			new /obj/effect/temp_visual/emp(get_turf(src))
 
+
 /obj/structure/blob/zap_act(power, zap_flags)
 	if(overmind)
 		if(overmind.blobstrain.tesla_reaction(src, power))
@@ -253,23 +268,28 @@
 	power -= power * 2.5e-3 //You don't get to do it for free
 	return ..() //You don't get to do it for free
 
+
 /obj/structure/blob/blob_act(obj/structure/blob/B)
 	return
+
 
 /obj/structure/blob/extinguish()
 	. = ..()
 	if(overmind)
 		overmind.blobstrain.extinguish_reaction(src)
 
-/obj/structure/blob/hit_by_thrown_mob(mob/living/throwned_mob, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
+
+/obj/structure/blob/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
 	damage *= 0.25 // Lets not have sorium be too much of a blender / rapidly kill itself
 	return ..()
+
 
 /obj/structure/blob/attack_animal(mob/living/simple_animal/M)
 	if(ROLE_BLOB in M.faction) //sorry, but you can't kill the blob as a blobbernaut
 		to_chat(M, span_danger("Вы не можете навредить структурам блоба"))
 		return
 	..()
+
 
 /obj/structure/blob/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = NONE)
 	switch(damage_type)
@@ -280,6 +300,7 @@
 				playsound(src, 'sound/weapons/tap.ogg', 50, TRUE)
 		if(BURN)
 			playsound(src.loc, 'sound/items/welder.ogg', 100, TRUE)
+
 
 /obj/structure/blob/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
 	switch(damage_type)
@@ -297,12 +318,14 @@
 		damage_amount = overmind.blobstrain.damage_reaction(src, damage_amount, damage_type, damage_flag)
 	return damage_amount
 
+
 /obj/structure/blob/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir)
 	if(QDELETED(src))
 		return
 	. = ..()
 	if(. && obj_integrity > 0)
 		update_blob()
+
 
 /obj/structure/blob/has_prints()
 	return FALSE
@@ -325,6 +348,7 @@
 
 	arrived.blob_act(src)
 
+
 /obj/structure/blob/proc/change_to(type, controller, point_return = 0)
 	if(!ispath(type))
 		CRASH("change_to(): invalid type for blob")
@@ -334,6 +358,7 @@
 	B.point_return += point_return
 	qdel(src)
 	return B
+
 
 /obj/structure/blob/attackby(obj/item/I, mob/user, params)
 	if(I.tool_behaviour == TOOL_ANALYZER)
@@ -350,10 +375,11 @@
 	else
 		return ..()
 
+
 /obj/structure/blob/examine(mob/user)
 	. = ..()
 	var/datum/atom_hud/hud_to_check = GLOB.huds[DATA_HUD_MEDICAL_ADVANCED]
-	if(user.research_scanner || hud_to_check.hud_users[user])
+	if(user.research_scanner || hud_to_check.hudusers[user])
 		. += "<b>Ваш HUD отображает обширный отчет...</b><br>"
 		if(overmind)
 			. += overmind.blobstrain.examine(user)
@@ -366,8 +392,11 @@
 			. += overmind.blobstrain.examine(user)
 		. += "Кажется, он состоит из [get_chem_name()]."
 
+
 /obj/structure/blob/proc/scannerreport()
 	return "Обычная плитка. Похоже, кто-то забыл переопределить этот процесс, сообщите администратору и составьте баг-репорт."
+
+
 
 /obj/structure/blob/proc/chemeffectreport(mob/user)
 	RETURN_TYPE(/list)
@@ -385,10 +414,12 @@
 							"<b>Здоровье:</b> [span_notice("[obj_integrity]/[max_integrity]")]",
 							"<b>Эффекты:</b> [span_notice("[scannerreport()]")]")
 
+
 /obj/structure/blob/proc/get_chem_name()
 	if(overmind)
 		return overmind.blobstrain.name
 	return "какая-то органическая материя"
+
 
 /obj/structure/blob/proc/get_chem_desc()
 	if(overmind)

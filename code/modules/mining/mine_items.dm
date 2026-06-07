@@ -7,20 +7,20 @@
 	invisibility = INVISIBILITY_ABSTRACT
 
 /obj/effect/light_emitter/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "световой излучатель",
 		GENITIVE = "светового излучателя",
 		DATIVE = "световому излучателю",
 		ACCUSATIVE = "световой излучатель",
 		INSTRUMENTAL = "световым излучателем",
-		PREPOSITIONAL = "световом излучателе",
+		PREPOSITIONAL = "световом излучателе"
 	)
 
 /obj/effect/light_emitter/Initialize(mapload)
 	. = ..()
 	icon_state = null
 
-/obj/effect/light_emitter/singularity_pull(atom/singularity, current_size)
+/obj/effect/light_emitter/singularity_pull()
 	return
 
 /obj/effect/light_emitter/singularity_act()
@@ -34,13 +34,13 @@
 	icon_state = "mine_ward"
 
 /obj/structure/closet/wardrobe/miner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шахтёрский гардероб",
 		GENITIVE = "шахтёрского гардероба",
 		DATIVE = "шахтёрскому гардеробу",
 		ACCUSATIVE = "шахтёрский гардероб",
 		INSTRUMENTAL = "шахтёрским гардеробом",
-		PREPOSITIONAL = "шахтёрском гардеробе",
+		PREPOSITIONAL = "шахтёрском гардеробе"
 	)
 
 /obj/structure/closet/wardrobe/miner/populate_contents()
@@ -67,15 +67,15 @@
 	req_access = list(ACCESS_MINING)
 
 /obj/structure/closet/secure_closet/miner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "снаряжение шахтёра",
 		GENITIVE = "снаряжения шахтёра",
 		DATIVE = "снаряжению шахтёра",
 		ACCUSATIVE = "снаряжение шахтёра",
 		INSTRUMENTAL = "снаряжением шахтёра",
-		PREPOSITIONAL = "снаряжении шахтёра",
+		PREPOSITIONAL = "снаряжении шахтёра"
 	)
-
+	
 /obj/structure/closet/secure_closet/miner/populate_contents()
 	new /obj/item/stack/sheet/mineral/sandbags(src, 5)
 	new /obj/item/shovel(src)
@@ -96,13 +96,13 @@
 	req_access = list(ACCESS_MEDICAL)
 
 /obj/structure/closet/secure_closet/mining_medic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "снаряжение шахтёрского медика",
 		GENITIVE = "снаряжения шахтёрского медика",
 		DATIVE = "снаряжению шахтёрского медика",
 		ACCUSATIVE = "снаряжение шахтёрского медика",
 		INSTRUMENTAL = "снаряжением шахтёрского медика",
-		PREPOSITIONAL = "снаряжении шахтёрского медика",
+		PREPOSITIONAL = "снаряжении шахтёрского медика"
 	)
 
 /obj/structure/closet/secure_closet/mining_medic/populate_contents()
@@ -132,13 +132,13 @@
 	lockdown_affected = TRUE
 
 /obj/machinery/computer/shuttle/mining/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "консоль управления шахтёрским шаттлом",
 		GENITIVE = "консоли управления шахтёрским шаттлом",
 		DATIVE = "консоли управления шахтёрским шаттлом",
 		ACCUSATIVE = "консоль управления шахтёрским шаттлом",
 		INSTRUMENTAL = "консолью управления шахтёрским шаттлом",
-		PREPOSITIONAL = "консоли управления шахтёрским шаттлом",
+		PREPOSITIONAL = "консоли управления шахтёрским шаттлом"
 	)
 
 /******************************Lantern*******************************/
@@ -157,13 +157,13 @@
 	var/mutable_appearance/lantern_light_overlay
 
 /obj/item/flashlight/lantern/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "лампа",
 		GENITIVE = "лампы",
 		DATIVE = "лампе",
 		ACCUSATIVE = "лампу",
 		INSTRUMENTAL = "лампой",
-		PREPOSITIONAL = "лампе",
+		PREPOSITIONAL = "лампе"
 	)
 
 /obj/item/flashlight/lantern/Initialize(mapload)
@@ -239,11 +239,11 @@
 	icon_state = "miningcar"
 
 /obj/structure/closet/crate/miningcar/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "вагонетка",
 		GENITIVE = "вагонетки",
 		DATIVE = "вагонетке",
 		ACCUSATIVE = "вагонетку",
 		INSTRUMENTAL = "вагонеткой",
-		PREPOSITIONAL = "вагонетке",
+		PREPOSITIONAL = "вагонетке"
 	)

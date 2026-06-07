@@ -1,10 +1,6 @@
 /turf/simulated/floor/vault
 	icon_state = "rockvault"
 
-/turf/simulated/floor/vault/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
 /turf/simulated/wall/vault
 	icon = 'icons/turf/walls.dmi'
 	icon_state = "rockvault"
@@ -22,13 +18,6 @@
 	name = "server base"
 
 /turf/simulated/floor/greengrid
-	icon_state = "gcircuit"
-
-/turf/simulated/floor/bluegrid/telecomms/mainframe
-	name = "Mainframe Floor"
-	icon_state = "dark"
-
-/turf/simulated/floor/bluegrid/telecomms/mainframe/gcircuit
 	icon_state = "gcircuit"
 
 /turf/simulated/floor/greengrid/airless
@@ -69,6 +58,7 @@
 	if(user)
 		to_chat(user, span_notice("Looks like someone has dug here already."))
 
+
 /turf/simulated/floor/beach/sand/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -88,6 +78,7 @@
 		new /obj/item/stack/ore/glass(src, 5)
 		dug = TRUE
 		return .|ATTACK_CHAIN_SUCCESS
+
 
 /turf/simulated/floor/beach/coastline
 	name = "coastline"
@@ -133,7 +124,7 @@
 	var/image/overlay_image = image('icons/misc/beach.dmi', icon_state = "water5", layer = ABOVE_MOB_LAYER)
 	overlay_image.plane = GAME_PLANE
 	add_overlay(overlay_image)
-	RegisterSignal(src, COMSIG_ATOM_INITIALIZED_ON, PROC_REF(initialized_on))
+
 
 /turf/simulated/floor/beach/water/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	. = ..()
@@ -144,17 +135,17 @@
 		creature.ExtinguishMob()
 	linkedcontroller.mobinpool += arrived
 
-/turf/simulated/floor/beach/water/Exited(atom/movable/gone, direction)
+/turf/simulated/floor/beach/water/Exited(atom/movable/departed, atom/newLoc)
 	. = ..()
-	if(!linkedcontroller || !ismob(gone))
+	if(!linkedcontroller || !ismob(departed))
 		return .
-	linkedcontroller.mobinpool -= gone
+	linkedcontroller.mobinpool -= departed
 
-/turf/simulated/floor/beach/water/proc/initialized_on(atom/target)
+/turf/simulated/floor/beach/water/InitializedOn(atom/A)
 	if(!linkedcontroller)
 		return
-	if(istype(target, /obj/effect/decal/cleanable)) // Better a typecheck than looping through thousands of turfs everyday
-		linkedcontroller.decalinpool += target
+	if(istype(A, /obj/effect/decal/cleanable)) // Better a typecheck than looping through thousands of turfs everyday
+		linkedcontroller.decalinpool += A
 
 /turf/simulated/floor/noslip
 	name = "high-traction floor"
@@ -172,8 +163,10 @@
 	return
 
 /turf/simulated/floor/noslip/lavaland
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
+	oxygen = 14
+	nitrogen = 23
+	temperature = 300
+	planetary_atmos = TRUE
 
 /turf/simulated/floor/lubed
 	name = "slippery floor"
@@ -189,10 +182,6 @@
 		to_chat(H, span_warning("You lose your footing trying to pry off the tile!"))
 		H.slip(10 SECONDS, src, TURF_WET_LUBE)
 	return
-
-/turf/simulated/floor/lubed/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
 
 //Clockwork floor: Slowly heals toxin damage on nearby servants.
 /turf/simulated/floor/clockwork
@@ -259,7 +248,3 @@
 		color = COLOR_CULT_RED
 		animate(src, color = previouscolor, time = 8)
 		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
-
-/turf/simulated/floor/clockwork/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND

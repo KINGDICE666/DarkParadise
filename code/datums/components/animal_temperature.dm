@@ -111,5 +111,5 @@
 
 /datum/component/animal_temperature/proc/get_severity(mob/living/simple_animal/animal)
 	var/multiplier = animal.bodytemperature < minbodytemp ? (1 / minbodytemp) : (1 / maxbodytemp)
-	var/severity = ceil(abs(animal.bodytemperature / multiplier))
+	var/severity = CEILING(abs(animal.bodytemperature / multiplier), 1)
 	return min(severity, 3)

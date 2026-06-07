@@ -7,7 +7,8 @@
 	// Bomb in here? (using same search as space transits searching for nuke disk)
 	var/list/bombs = search_contents_for(/obj/item/transfer_valve)
 	if(!isemptylist(bombs)) // You're fucked.
-		return ..(severity)
+		..(severity)
+
 
 /obj/structure/closet/secure_closet/freezer/kitchen
 	name = "kitchen cabinet"
@@ -20,6 +21,7 @@
 	new /obj/item/reagent_containers/food/condiment/rice(src)
 	new /obj/item/reagent_containers/food/condiment/sugar(src)
 
+
 /obj/structure/closet/secure_closet/freezer/kitchen/mining
 	req_access = list()
 
@@ -29,10 +31,11 @@
 	req_access = list()
 
 /obj/structure/closet/secure_closet/freezer/kitchen/maintenance/populate_contents()
-	for(var/i in 1 to 5)
+	for(var/i = 0, i < 5, i++)
 		new /obj/item/reagent_containers/food/condiment/milk(src)
+	for(var/i = 0, i < 5, i++)
 		new /obj/item/reagent_containers/food/condiment/soymilk(src)
-	for(var/i in 1 to 2)
+	for(var/i = 0, i < 2, i++)
 		new /obj/item/storage/fancy/egg_box(src)
 
 /obj/structure/closet/secure_closet/freezer/meat
@@ -78,6 +81,7 @@
 	icon_state = "vault"
 	desc = "It's a card-locked storage unit. This one is lead-lined."
 	req_access = list(ACCESS_HEADS_VAULT)
+
 
 /obj/structure/closet/secure_closet/freezer/vault/populate_contents()
 	for(var/i in 1 to 3)

@@ -1,6 +1,5 @@
 /atom/movable/screen/robot
 	icon = 'icons/mob/screen_robot.dmi'
-	mouse_over_pointer = MOUSE_HAND_POINTER
 
 /atom/movable/screen/robot/module
 	name = "cyborg module"
@@ -40,6 +39,7 @@
 	if(isrobot(usr))
 		var/mob/living/silicon/robot/R = usr
 		R.toggle_module(3)
+
 
 /atom/movable/screen/robot/radio
 	name = "radio"
@@ -91,8 +91,10 @@
 	name = "fast/slow toggle"
 	icon_state = "running"
 
+
 /atom/movable/screen/robot/mov_intent/Click()
 	usr.toggle_move_intent()
+
 
 /atom/movable/screen/robot/mov_intent/update_icon_state()
 	if(hud?.mymob)
@@ -100,16 +102,6 @@
 	else
 		icon_state = initial(icon_state)
 
-/atom/movable/screen/robot/state_laws
-	name = "Менеджер законов"
-	icon_state = "state_laws"
-
-/atom/movable/screen/robot/state_laws/Click()
-	if(!isrobot(usr))
-		return
-
-	var/mob/living/silicon/robot/robot = usr
-	robot.subsystem_law_manager()
 
 /datum/hud/robot/New(mob/user)
 	..()
@@ -196,11 +188,6 @@
 	static_inventory += using
 	mymobR.thruster_button = using
 
-//Law Manager
-	using = new /atom/movable/screen/robot/state_laws(null, src)
-	using.screen_loc = ui_borg_lawmanager
-	static_inventory += using
-
 /datum/hud/proc/toggle_show_robot_modules()
 	if(!isrobot(mymob))
 		return
@@ -251,7 +238,7 @@
 		if(!R.robot_modules_background)
 			return
 
-		var/display_rows = ceil(length(R.module.modules) / 8)
+		var/display_rows = CEILING(R.module.modules.len / 8, 1)
 		R.robot_modules_background.screen_loc = "CENTER-4:16,SOUTH+1:7 to CENTER+3:16,SOUTH+[display_rows]:7"
 		screenmob.client?.screen += R.robot_modules_background
 
@@ -293,6 +280,7 @@
 				screenmob.client?.screen -= A
 		R.shown_robot_modules = 0
 		screenmob.client?.screen -= R.robot_modules_background
+
 
 /datum/hud/robot/persistent_inventory_update(mob/viewer)
 	if(!mymob)

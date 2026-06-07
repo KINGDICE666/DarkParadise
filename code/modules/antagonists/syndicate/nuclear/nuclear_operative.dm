@@ -25,7 +25,7 @@
 	store_nuke_code()
 
 /datum/antagonist/nuclear_operative/proc/store_nuke_code()
-	antag_memory = "<b>Код от боеголовки \"Синдиката\"</b>: [nuclear_team?.nuke_code]"
+	antag_memory = "<b>Код от боеголовки Синдиката</b>: [nuclear_team?.nuke_code]"
 
 /datum/antagonist/nuclear_operative/apply_innate_effects(mob/living/mob_override)
 	. = ..()
@@ -49,6 +49,7 @@
 	else
 		to_chat(owner.current, span_userdanger("Вам промли мозги! Вы больше не Ядерный Оперативник."))
 
+
 /datum/antagonist/nuclear_operative/greet()
 	var/list/messages = list()
 	SEND_SOUND(owner.current, sound('sound/ambience/antag/ops.ogg'))
@@ -64,7 +65,7 @@
 	return messages
 
 /datum/antagonist/nuclear_operative/proc/code_message()
-	return span_notice("Код от боеголовки \"Синдиката\": <b>[nuclear_team.nuke_code]</b>")
+	return span_notice("Код от боеголовки Синдиката: <b>[nuclear_team.nuke_code]</b>")
 
 /datum/antagonist/nuclear_operative/proc/footer_messages()
 	var/list/messages = list()
@@ -80,7 +81,7 @@
 	if(!outfit)
 		return
 
-	for(var/obj/item/item in human.get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
+	for(var/obj/item/item in human.get_equipped_items(TRUE, TRUE))
 		qdel(item)
 
 	human.equipOutfit(outfit)
@@ -96,7 +97,7 @@
 	race_equipment = list(
 		SPECIES_PLASMAMAN = /datum/outfit/admin/syndicate/operative/nuclear/leader/plasmaman,
 		SPECIES_VOX = /datum/outfit/admin/syndicate/operative/nuclear/leader/vox,
-		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/nuclear/leader,
+		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/nuclear/leader
 	)
 
 /datum/antagonist/nuclear_operative/leader/rename()
@@ -115,7 +116,7 @@
 
 /datum/antagonist/nuclear_operative/reinf
 	race_equipment = list(
-		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/nuclear/reinf,
+		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/nuclear/reinf
 	)
 
 /datum/antagonist/nuclear_operative/cyborg
@@ -136,13 +137,13 @@
 	return messages
 
 /datum/antagonist/nuclear_operative/loneop
-	name = "Ядерный Оперативник — Одиночка"
-	antag_menu_name = "Ядерный Оперативник — Одиночка"
-	greet_name = "Ядерный Оперативник — Одиночка"
+	name = "Ядерный Оперативник - Одиночка"
+	antag_menu_name = "Ядерный Оперативник - Одиночка"
+	greet_name = "Ядерный Оперативник - Одиночка"
 	show_in_roundend = TRUE
 	show_in_orbit = TRUE
 	race_equipment = list(
-		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/loneop,
+		SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/loneop
 	)
 
 /datum/antagonist/nuclear_operative/loneop/rename()
@@ -153,6 +154,7 @@
 
 /datum/antagonist/nuclear_operative/loneop/give_objectives()
 	add_objective(/datum/objective/nuclear)
+
 
 /datum/antagonist/nuclear_operative/loneop/additional_messages()
 	var/list/messages = list()

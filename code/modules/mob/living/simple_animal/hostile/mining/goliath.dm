@@ -1,7 +1,7 @@
 //A slow but strong beast that tries to stun using its tentacles
 /mob/living/simple_animal/hostile/asteroid/goliath
 	name = "goliath"
-	desc = "Массивный зверь, использующий длинные щупальца для поимки добычи. Угрожать ему — плохая идея при любых обстоятельствах."
+	desc = "Массивный зверь, использующий длинные щупальца для поимки добычи. Угрожать ему – плохая идея при любых обстоятельствах."
 	icon = 'icons/mob/lavaland/lavaland_monsters.dmi'
 	icon_state = "Goliath"
 	icon_living = "Goliath"
@@ -43,18 +43,18 @@
 	COOLDOWN_DECLARE(post_charge_delay)
 
 /mob/living/simple_animal/hostile/asteroid/goliath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голиаф",
 		GENITIVE = "голиафа",
 		DATIVE = "голиафу",
 		ACCUSATIVE = "голиафа",
 		INSTRUMENTAL = "голиафом",
-		PREPOSITIONAL = "голиафе",
+		PREPOSITIONAL = "голиафе"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/goliath/bullet_act(obj/projectile/P)
 	if(prob(reflect_chance) && !istype(P, /obj/projectile/destabilizer))
-		visible_message(span_danger("[DECLENT_RU_CAP(P, NOMINATIVE)] отскакивает от крепкой шкуры [declent_ru(GENITIVE)]!"), span_userdanger("[DECLENT_RU_CAP(P, NOMINATIVE)] отскакивает от крепой шкуры [declent_ru(GENITIVE)]!"), projectile_message = TRUE)
+		visible_message(span_danger("[capitalize(P.declent_ru(NOMINATIVE))] отскакивает от крепкой шкуры [declent_ru(GENITIVE)]!"), span_userdanger("[capitalize(P.declent_ru(NOMINATIVE))] отскакивает от крепой шкуры [declent_ru(GENITIVE)]!"), projectile_message = TRUE)
 		P.reflect_back(src, list(0, 0, -1, 1, -2, 2, -2, 2, -2, 2, -3, 3, -3, 3))
 
 		return -1 // complete projectile permutation
@@ -78,21 +78,25 @@
 		move_resist = MOVE_FORCE_VERY_STRONG
 		return TRUE
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/death(gibbed)
 	move_force = MOVE_FORCE_DEFAULT
 	move_resist = MOVE_RESIST_DEFAULT
 	pull_force = PULL_FORCE_DEFAULT
 	..(gibbed)
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/handle_automated_action()
 	if(charge_turf || !COOLDOWN_FINISHED(src, post_charge_delay))
 		return FALSE
 	return ..()
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/handle_automated_movement()
 	if(charge_turf || !COOLDOWN_FINISHED(src, post_charge_delay))
 		return FALSE
 	return ..()
+
 
 /mob/living/simple_animal/hostile/asteroid/goliath/AttackingTarget() //override to OpenFire close by
 	if(charge_turf)
@@ -104,6 +108,7 @@
 			if(!client && ranged && ranged_cooldown <= world.time)
 				OpenFire()
 				ranged_cooldown = world.time + ranged_cooldown_time
+
 
 /mob/living/simple_animal/hostile/asteroid/goliath/OpenFire()
 	var/tturf = get_turf(target)
@@ -117,24 +122,27 @@
 		else
 			charge()
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/proc/melee_attack(list/dirs)
 	if(!islist(dirs))
 		dirs = GLOB.alldirs.Copy()
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] выпускает щупальца из-под земли вокруг себя!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] выпускает щупальца из-под земли вокруг себя!"))
 	for(var/d in dirs)
 		var/turf/E = get_step(src, d)
 		new /obj/effect/temp_visual/goliath_tentacle(E, src)
 	pre_attack = FALSE
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/proc/ranged_attack()
 	var/tturf = get_turf(target)
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] опутывает щупальцами [target.declent_ru(ACCUSATIVE)]!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] опутывает щупальцами [target.declent_ru(ACCUSATIVE)]!"))
 	new /obj/effect/temp_visual/goliath_tentacle/original(tturf, src)
 	ranged_cooldown = world.time + ranged_cooldown_time
 	if(stat == DEAD)
 		return
 	icon_state = icon_aggro
 	pre_attack = FALSE
+
 
 #define GOLIATH_CHARGE_SPEED 0.7
 
@@ -148,19 +156,20 @@
 	var/turf/T = get_ranged_target_turf(chargeturf, dir, chargepast)
 	if(!T)
 		return
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	charge_turf = T
 	setDir(dir)
 	var/obj/effect/temp_visual/decoy/D = new /obj/effect/temp_visual/decoy(loc,src)
 	animate(D, alpha = 0, color = "#FF0000", transform = matrix()*2, time = 3)
 	SLEEP_CHECK_DEATH(src, delay)
-	var/datum/move_loop/new_loop = GLOB.move_manager.home_onto(src, charge_turf, delay = GOLIATH_CHARGE_SPEED, timeout = 2 SECONDS, priority = MOVEMENT_ABOVE_SPACE_PRIORITY)
+	var/datum/move_loop/new_loop = SSmove_manager.home_onto(src, charge_turf, delay = GOLIATH_CHARGE_SPEED, timeout = 2 SECONDS, priority = MOVEMENT_ABOVE_SPACE_PRIORITY)
 	if(!new_loop)
 		return
 	RegisterSignal(src, COMSIG_MOVABLE_BUMP, PROC_REF(on_bump), override = TRUE)
 	RegisterSignal(new_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(post_move), override = TRUE)
 
 #undef GOLIATH_CHARGE_SPEED
+
 
 /mob/living/simple_animal/hostile/asteroid/goliath/proc/on_bump(datum/source, atom/bumped_atom)
 	SIGNAL_HANDLER
@@ -170,17 +179,20 @@
 			mineral.mineralAmt++
 	end_charge()
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/proc/post_move(datum/source)
 	SIGNAL_HANDLER
 	if(get_turf(src) == charge_turf)
 		end_charge()
 
+
 /mob/living/simple_animal/hostile/asteroid/goliath/proc/end_charge()
 	UnregisterSignal(src, COMSIG_MOVABLE_BUMP)
 	charge_turf = null
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	INVOKE_ASYNC(src, PROC_REF(CheckAndAttack))
 	COOLDOWN_START(src, post_charge_delay, 2 SECONDS)
+
 
 /mob/living/simple_animal/hostile/asteroid/goliath/adjustHealth(
 	amount = 0,
@@ -218,13 +230,13 @@
 	robust_searching = TRUE
 
 /mob/living/simple_animal/hostile/asteroid/goliath/beast/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голиаф",
 		GENITIVE = "голиафа",
 		DATIVE = "голиафу",
 		ACCUSATIVE = "голиафа",
 		INSTRUMENTAL = "голиафом",
-		PREPOSITIONAL = "голиафе",
+		PREPOSITIONAL = "голиафе"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/goliath/beast/random/Initialize(mapload)
@@ -255,13 +267,13 @@
 	bonus_tame_chance = 5
 
 /mob/living/simple_animal/hostile/asteroid/goliath/beast/ancient/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "древний голиаф",
 		GENITIVE = "древнего голиафа",
 		DATIVE = "древнему голиафу",
 		ACCUSATIVE = "древнего голиафа",
 		INSTRUMENTAL = "древним голиафом",
-		PREPOSITIONAL = "древнем голиафе",
+		PREPOSITIONAL = "древнем голиафе"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/goliath/beast/ancient/Life()
@@ -294,13 +306,13 @@
 	var/mob/living/spawner
 
 /obj/effect/temp_visual/goliath_tentacle/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "щупальце голиафа",
 		GENITIVE = "щупальца голиафа",
 		DATIVE = "щупальцу голиафа",
 		ACCUSATIVE = "щупальце голиафа",
 		INSTRUMENTAL = "щупальцем голиафа",
-		PREPOSITIONAL = "щупальце голиафа",
+		PREPOSITIONAL = "щупальце голиафа"
 	)
 
 /obj/effect/temp_visual/goliath_tentacle/Initialize(mapload, mob/living/new_spawner)
@@ -340,7 +352,7 @@
 	for(var/mob/living/L in loc)
 		if((!QDELETED(spawner) && spawner.faction_check_mob(L)) || L.stat == DEAD)
 			continue
-		visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] захватывает [L.declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] захватывает [L.declent_ru(ACCUSATIVE)]!"))
 		if(!L.IsStunned())
 			L.Stun(10 SECONDS)
 			L.adjustBruteLoss(rand(10, 15))

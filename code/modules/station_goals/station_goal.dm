@@ -19,8 +19,8 @@
 		JOB_TITLE_ENGINEER = 1000,
 		JOB_TITLE_ENGINEER_TRAINEE = 1000,
 		JOB_TITLE_ATMOSTECH = 1000,
-		JOB_TITLE_SPACEPOD_TECHNICIAN = 1000,
-		JOB_TITLE_CHIEF_ENGINEER = 1500
+		JOB_TITLE_MECHANIC = 1000,
+		JOB_TITLE_CHIEF = 1500
 	)
 
 /datum/station_goal/proc/can_gain()
@@ -28,11 +28,10 @@
 
 /datum/station_goal/proc/send_report()
 	on_report()
-	var/directive = "Директива \"Нанотрейзен\" [pick(GLOB.phonetic_alphabet)] \Roman[rand(1,50)]"
-	GLOB.minor_announcement.announce(
-		message = "Поступила приоритетная директива \"Нанотрейзен\". Отправлены подробности проекта \"[html_decode(name)]\".",
-		new_title = ANNOUNCE_PRIORITY_RU,
-		new_sound = SSstation.announcer.get_rand_report_sound(),
+	var/directive = "Nanotrasen Directive [pick(GLOB.phonetic_alphabet)] \Roman[rand(1,50)]"
+	GLOB.minor_announcement.announce("Поступила приоритетная директива Нанотрейзен. Отправлены подробности проекта \"[html_decode(name)]\".",
+									ANNOUNCE_PRIORITY_RU,
+									'sound/AI/commandreport.ogg'
 	)
 	print_command_report("<div style='text-align:center;'><img src = ntlogo.png>" + "<h3>[directive]</h3></div><hr>" + get_report(), "[directive]", FALSE, src)
 
@@ -48,7 +47,7 @@
 
 /datum/station_goal/proc/print_result()
 	if(check_completion())
-		to_chat(world, "<b>Station Goal</b>: [name]:  [span_greenannounce("Completed!")]")
+		to_chat(world, "<b>Station Goal</b>: [name]:  <span class='greenannounce'>Completed!</span>")
 	else
 		to_chat(world, "<b>Station Goal</b>: [name]: [span_boldannounceooc("Failed!")]")
 

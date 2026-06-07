@@ -8,9 +8,7 @@
 	icon = 'icons/obj/doors/mineral_doors.dmi'
 	icon_state = "metal"
 	max_integrity = 200
-	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 100, BOMB = 10, BIO = 100, FIRE = 50, ACID = 50)
-	cares_about_temperature = TRUE
-	rad_insulation = RAD_MEDIUM_INSULATION
+	armor = list(MELEE = 10, BULLET = 0, LASER = 0, ENERGY = 100, BOMB = 10, BIO = 100, RAD = 100, FIRE = 50, ACID = 50)
 	var/initial_state
 	var/state = 0 //closed, 1 == open
 	var/isSwitchingStates = 0
@@ -27,11 +25,11 @@
 /obj/structure/mineral_door/Initialize(mapload)
 	. = ..()
 	initial_state = icon_state
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 
 /obj/structure/mineral_door/Destroy()
 	set_density(FALSE)
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 	return ..()
 
 /obj/structure/mineral_door/add_debris_element()
@@ -60,6 +58,7 @@
 	if(user.can_advanced_admin_interact())
 		SwitchState()
 
+
 /obj/structure/mineral_door/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(checkpass(mover))
@@ -67,7 +66,8 @@
 	if(istype(mover, /obj/effect/beam))
 		return !opacity
 
-/obj/structure/mineral_door/CanAtmosPass(direction)
+
+/obj/structure/mineral_door/CanAtmosPass(turf/T, vertical)
 	return !density
 
 /obj/structure/mineral_door/proc/TryToSwitchState(atom/user)
@@ -104,7 +104,7 @@
 	if(is_opaque)
 		set_opacity(FALSE)
 	state = 1
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 	update_icon(UPDATE_ICON_STATE)
 	isSwitchingStates = 0
 
@@ -127,15 +127,17 @@
 	if(is_opaque)
 		set_opacity(TRUE)
 	state = 0
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 	update_icon(UPDATE_ICON_STATE)
 	isSwitchingStates = 0
+
 
 /obj/structure/mineral_door/update_icon_state()
 	if(state)
 		icon_state = "[initial_state]open"
 	else
 		icon_state = initial_state
+
 
 /obj/structure/mineral_door/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/pickaxe))
@@ -162,6 +164,7 @@
 
 	return ..()
 
+
 /obj/structure/mineral_door/deconstruct(disassembled = TRUE)
 	var/turf/T = get_turf(src)
 	if(sheetType)
@@ -179,13 +182,11 @@
 	icon_state = "silver"
 	sheetType = /obj/item/stack/sheet/mineral/silver
 	max_integrity = 300
-	rad_insulation = RAD_HEAVY_INSULATION
 
 /obj/structure/mineral_door/gold
 	name = "gold door"
 	icon_state = "gold"
 	sheetType = /obj/item/stack/sheet/mineral/gold
-	rad_insulation = RAD_HEAVY_INSULATION
 
 /obj/structure/mineral_door/uranium
 	name = "uranium door"
@@ -203,23 +204,24 @@
 /obj/structure/mineral_door/transparent
 	opacity = FALSE
 	is_opaque = FALSE
-	rad_insulation = RAD_VERY_LIGHT_INSULATION
 
 /obj/structure/mineral_door/transparent/plasma
 	name = "plasma door"
 	icon_state = "plasma"
 	sheetType = /obj/item/stack/sheet/mineral/plasma
 
+
 /obj/structure/mineral_door/transparent/plasma/attackby(obj/item/I, mob/user, params)
-	var/hot_temp = I.get_temperature()
+	var/hot_temp = I.get_heat()
 	if(hot_temp)
 		add_attack_logs(user, src, "Ignited using [I]", ATKLOG_FEW)
-		investigate_log("was [span_warning("ignited")] by [key_name_log(user)]",INVESTIGATE_ATMOS)
+		investigate_log("was <span class='warning'>ignited</span> by [key_name_log(user)]",INVESTIGATE_ATMOS)
 		TemperatureAct(hot_temp)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
-/obj/structure/mineral_door/transparent/plasma/temperature_expose(exposed_temperature, exposed_volume)
+
+/obj/structure/mineral_door/transparent/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature > 300)
 		TemperatureAct(exposed_temperature)
@@ -233,7 +235,6 @@
 	icon_state = "diamond"
 	sheetType = /obj/item/stack/sheet/mineral/diamond
 	max_integrity = 1000
-	rad_insulation = RAD_EXTREME_INSULATION
 
 /obj/structure/mineral_door/wood
 	name = "wood door"
@@ -242,7 +243,6 @@
 	closeSound = 'sound/effects/doorcreaky.ogg'
 	sheetType = /obj/item/stack/sheet/wood
 	resistance_flags = FLAMMABLE
-	rad_insulation = RAD_VERY_LIGHT_INSULATION
 
 /obj/structure/mineral_door/wood/add_debris_element()
 	AddElement(/datum/element/debris, DEBRIS_WOOD, -40, 5)

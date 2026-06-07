@@ -14,7 +14,6 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 ))
 
 /datum/action/changeling
-	abstract_type = /datum/action/changeling
 	name = "Prototype Sting"
 	desc = "" // Fluff
 	background_icon_state = "bg_changeling"
@@ -34,10 +33,18 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 	var/req_human = FALSE
 	/// What `stat` value the changeling needs to have to use this power. Will be CONSCIOUS, UNCONSCIOUS or DEAD.
 	var/req_stat = CONSCIOUS
+	/// Genetic damage caused by using the sting. Nothing to do with cloneloss.
+	var/genetic_damage = 0
+	/// Hard counter for spamming abilities.
+	var/max_genetic_damage = 100
+	// For passive abilities like hivemind that dont need a button
+	//var/needs_button = TRUE
 	/// If this power is active or not. Used for toggleable abilities.
 	var/active = FALSE
 	/// If this power can be used while the changeling has the `TRAIT_FAKE_DEATH` trait.
 	var/bypass_fake_death = FALSE
+
+
 /**
  * Changeling code relies on on_purchase to grant powers.
  * The same goes for Remove(). if you override Remove(), call parent or else your power wont be removed on respec
@@ -52,9 +59,11 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 	Grant(user)
 	return TRUE
 
+
 /datum/action/changeling/Remove(mob/user)
 	user?.update_action_buttons(TRUE)
 	..()
+
 
 /datum/action/changeling/Destroy(force)
 	owner?.update_action_buttons(TRUE)
@@ -62,14 +71,12 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 	cling = null
 	return ..()
 
-/datum/action/changeling/Trigger(mob/clicker, trigger_flags)
-	. = ..()
-	if(!.)
-		return
 
+/datum/action/changeling/Trigger(left_click = TRUE)
 	try_to_sting(owner)
 
-/datum/action/changeling/proc/try_to_sting(mob/living/carbon/human/user, mob/target)
+
+/datum/action/changeling/proc/try_to_sting(mob/user, mob/target)
 	user.changeNext_click(5)
 	if(!can_sting(user, target))
 		return
@@ -78,14 +85,19 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 		sting_feedback(user, target)
 		take_chemical_cost()
 
+
 /datum/action/changeling/proc/sting_action(mob/user)
 	return FALSE
+
 
 /datum/action/changeling/proc/sting_feedback(mob/user, mob/target)
 	return FALSE
 
+
 /datum/action/changeling/proc/take_chemical_cost()
 	cling.chem_charges -= chemical_cost
+	cling.genetic_damage += genetic_damage
+
 
 /**
  * Fairly important to remember to return `TRUE` on success >.<
@@ -94,26 +106,31 @@ GLOBAL_LIST_INIT(changeling_mutations, list(
 	SHOULD_CALL_PARENT(TRUE)
 
 	if(req_human && (!ishuman(user) || is_monkeybasic(user)))
-		user.balloon_alert(user, "неподходящая форма")
+		to_chat(user, span_warning("We cannot do that in this form!"))
 		return FALSE
 
 	if(cling.chem_charges < chemical_cost)
-		user.balloon_alert(user, "нужно [chemical_cost] химикатов")
+		to_chat(user, span_warning("We require at least [chemical_cost] unit\s of chemicals to do that!"))
 		return FALSE
 
 	if(cling.absorbed_count < req_dna)
-		user.balloon_alert(user, "нужно [req_dna] ДНК")
+		to_chat(user, span_warning("We require at least [req_dna] sample\s of compatible DNA."))
 		return FALSE
 
 	if(req_stat < user.stat)
-		user.balloon_alert(user, "мы обездвижены")
+		to_chat(user, span_warning("We are incapacitated."))
+		return FALSE
+
+	if(cling.genetic_damage > max_genetic_damage)
+		to_chat(user, span_warning("Our genomes are still reassembling. We need time to recover first."))
 		return FALSE
 
 	if(HAS_TRAIT(user, TRAIT_FAKEDEATH) && !bypass_fake_death)
-		user.balloon_alert(user, "мы обездвижены")
+		to_chat(user, span_warning("We are incapacitated."))
 		return FALSE
 
 	return TRUE
+
 
 /**
  * Transform the target to the chosen dna. Used in transform.dm and tiny_prick.dm (handy for changes since it's the same thing done twice)

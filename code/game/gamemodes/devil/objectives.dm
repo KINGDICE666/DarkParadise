@@ -61,6 +61,7 @@
 	SIGNAL_HANDLER
 	return COMPONENT_SACRIFICE_VALID
 
+
 /datum/objective/devil/sacrifice/proc/on_devil_sacrifice()
 	SIGNAL_HANDLER
 	completed = TRUE

@@ -1,6 +1,6 @@
-#define DISCONNECTED 0
-#define CLAMPED_OFF 1
-#define OPERATING 2
+#define DISCONNECTED	0
+#define CLAMPED_OFF		1
+#define OPERATING		2
 
 // Powersink - used to drain station power
 
@@ -68,26 +68,24 @@
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
-
-	if(mode != DISCONNECTED)
-		set_mode(DISCONNECTED)
-		visible_message(span_notice("[user] detaches [src] from the cable!"))
-		return
-
-	var/turf/our_turf = loc
-	if(isturf(our_turf) && our_turf.underfloor_accessibility == UNDERFLOOR_INTERACTABLE)
-		attached = locate() in our_turf
-		if(!attached)
-			to_chat(user, "No exposed cable here to attach to.")
-			return
-
-		set_mode(CLAMPED_OFF)
-		visible_message(span_notice("[user] attaches [src] to the cable!"))
-		message_admins("Power sink attached by [key_name_admin(user)] at [ADMIN_COORDJMP(src)]")
-		add_game_logs("attached power sink at [COORD(src)]", user)
-		investigate_log("attached by [key_name_log(user)]", INVESTIGATE_ENGINE)
+	if(mode == DISCONNECTED)
+		var/turf/T = loc
+		if(isturf(T) && !T.intact)
+			attached = locate() in T
+			if(!attached)
+				to_chat(user, "No exposed cable here to attach to.")
+				return
+			else
+				set_mode(CLAMPED_OFF)
+				visible_message("<span class='notice'>[user] attaches [src] to the cable!</span>")
+				message_admins("Power sink attached by [key_name_admin(user)] at [ADMIN_COORDJMP(src)]")
+				add_game_logs("attached power sink at [COORD(src)]", user)
+				investigate_log("attached by [key_name_log(user)]", INVESTIGATE_ENGINE)
+		else
+			to_chat(user, "Device must be placed over an exposed cable to attach to it.")
 	else
-		to_chat(user, "Device must be placed over an exposed cable to attach to it.")
+		set_mode(DISCONNECTED)
+		src.visible_message("<span class='notice'>[user] detaches [src] from the cable!</span>")
 
 /obj/item/powersink/attack_ai()
 	return
@@ -99,8 +97,8 @@
 		if(CLAMPED_OFF)
 			user.visible_message( \
 				"[user] activates \the [src]!", \
-				span_notice("You activate \the [src]."),
-				span_italics("You hear a click."))
+				"<span class='notice'>You activate \the [src].</span>",
+				"<span class='italics'>You hear a click.</span>")
 			message_admins("Power sink activated by [ADMIN_LOOKUPFLW(user)] at [ADMIN_VERBOSEJMP(src)]")
 			add_game_logs("activated power sink at [AREACOORD(src)]", user)
 			investigate_log("activated by [key_name_log(user)]", INVESTIGATE_ENGINE)
@@ -109,8 +107,8 @@
 		if(OPERATING)
 			user.visible_message( \
 				"[user] deactivates \the [src]!", \
-				span_notice("You deactivate \the [src]."),
-				span_italics("You hear a click."))
+				"<span class='notice'>You deactivate \the [src].</span>",
+				"<span class='italics'>You hear a click.</span>")
 			add_game_logs("deactivated power sink at [AREACOORD(src)]", user)
 			set_mode(CLAMPED_OFF)
 
@@ -153,6 +151,9 @@
 		STOP_PROCESSING(SSobj, src)
 		explosion(loc, devastation_range = 4, heavy_impact_range = 8, light_impact_range = 16, flash_range = 32, adminlog = TRUE, cause = "Power sink overload")
 		qdel(src)
+
+/obj/item/powersink/compact
+	w_class = WEIGHT_CLASS_NORMAL
 
 #undef DISCONNECTED
 #undef CLAMPED_OFF

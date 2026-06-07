@@ -1,10 +1,10 @@
 SUBSYSTEM_DEF(dbcore)
 	name = "Database"
-	ss_flags = SS_TICKER
-	init_stage = INITSTAGE_FIRST
-	wait = 1 MINUTES // Not seconds because we're running on SS_TICKER
-	runlevels = RUNLEVEL_LOBBY|RUNLEVELS_DEFAULT
-	priority = FIRE_PRIORITY_DATABASE
+	flags = SS_BACKGROUND
+	wait = 1 MINUTES
+	init_order = INIT_ORDER_DBCORE
+	cpu_display = SS_CPUDISPLAY_LOW
+	ss_id = "database_core"
 
 	/// Is the DB schema valid
 	var/schema_valid = TRUE
@@ -24,8 +24,12 @@ SUBSYSTEM_DEF(dbcore)
 	/// Connection handle. This is an arbitrary handle returned from rust_g.
 	var/connection
 
+	offline_implications = "The server will no longer check for undeleted SQL Queries. No immediate action is needed."
+
+
 /datum/controller/subsystem/dbcore/get_stat_details()
 	return "A: [length(active_queries)]"
+
 
 // This is in Initialize() so that its actually seen in chat
 /datum/controller/subsystem/dbcore/Initialize()
@@ -48,19 +52,11 @@ SUBSYSTEM_DEF(dbcore)
 
 //nu
 /datum/controller/subsystem/dbcore/can_vv_get(var_name)
-	if(var_name == NAMEOF(src, connection))
-		return FALSE
-	if(var_name == NAMEOF(src, active_queries))
-		return FALSE
-
-	return ..()
+	return var_name != NAMEOF(src, connection) && var_name != NAMEOF(src, active_queries) && ..()
 
 /datum/controller/subsystem/dbcore/vv_edit_var(var_name, var_value)
 	if(var_name == NAMEOF(src, connection))
 		return FALSE
-	if(var_name == NAMEOF(src, active_queries))
-		return FALSE
-
 	return ..()
 
 /**
@@ -221,6 +217,7 @@ SUBSYSTEM_DEF(dbcore)
 		return FALSE
 	return json_decode(rustg_sql_connected(connection))["status"] == "online"
 
+
 /**
  * Error Message Helper
  *
@@ -242,6 +239,7 @@ SUBSYSTEM_DEF(dbcore)
  */
 /datum/controller/subsystem/dbcore/proc/ReportError(error)
 	last_error = error
+
 
 /**
  * New Query Invoker
@@ -303,7 +301,7 @@ SUBSYSTEM_DEF(dbcore)
 			if(has_col)
 				query_parts += ", "
 			if(has_question_mark[column])
-				var/name = "p[length(arguments)]"
+				var/name = "p[arguments.len]"
 				query_parts += replacetext(columns[column], "?", ":[name]")
 				arguments[name] = row[column]
 			else
@@ -366,7 +364,7 @@ SUBSYSTEM_DEF(dbcore)
 			query = querys[thing]
 		else
 			query = thing
-		query.sync()
+		UNTIL(!query.in_progress)
 		if(qdel)
 			qdel(query)
 
@@ -431,6 +429,7 @@ SUBSYSTEM_DEF(dbcore)
 	// go away
 	return FALSE
 
+
 /**
  * Activity Update Handler
  *
@@ -453,10 +452,6 @@ SUBSYSTEM_DEF(dbcore)
  * * log_error - Do we want to log errors this creates? Disable this if you are running sensitive queries where you dont want errors logged in plain text (EG: Auth token stuff)
  */
 /datum/db_query/proc/warn_execute(async = TRUE, log_error = TRUE)
-	// Don't try to run queries, if the database is not enabled.
-	if(!CONFIG_GET(flag/sql_enabled))
-		return
-
 	. = Execute(async, log_error)
 	if(!.)
 		SSdbcore.total_errors++
@@ -534,9 +529,10 @@ SUBSYSTEM_DEF(dbcore)
 			last_error = "offline"
 			return FALSE
 
-/// Just tells the admins if a query timed out, and asks if the server hung to help error reporting
+// Just tells the admins if a query timed out, and asks if the server hung to help error reporting
 /datum/db_query/proc/slow_query_check()
 	message_admins("HEY! A database query timed out. Did the server just hang? <a href='byond://?_src_=holder;slowquery=yes'>\[YES\]</a>|<a href='byond://?_src_=holder;slowquery=no'>\[NO\]</a>")
+
 
 /**
  * Proc to get the next row in a DB query
@@ -553,41 +549,38 @@ SUBSYSTEM_DEF(dbcore)
 	else
 		return FALSE
 
-/// Simple helper to get the last error a query had
+// Simple helper to get the last error a query had
 /datum/db_query/proc/ErrorMsg()
 	return last_error
 
-/// Simple proc to null out data to aid GC
+// Simple proc to null out data to aid GC
 /datum/db_query/proc/Close()
 	rows = null
 	item = null
 
-/// Sleeps until execution of the query has finished.
-/datum/db_query/proc/sync()
-	while(in_progress)
-		stoplag()
-
 // Verb that lets admins force reconnect the DB
-ADMIN_VERB(reestablish_db_connection, R_ADMIN, "Reestablish DB Connection", "Force a reconnection to the database.", ADMIN_CATEGORY_DEBUG)
+/client/proc/reestablish_db_connection()
+	set category = "Debug"
+	set name = "Reestablish DB Connection"
 	if(!CONFIG_GET(flag/sql_enabled))
-		to_chat(user, span_warning("The Database is not enabled in the server configuration!"))
+		to_chat(usr, span_warning("The Database is not enabled in the server configuration!"))
 		return
 
 	if(SSdbcore.IsConnected())
-		if(!check_rights_client(R_DEBUG|R_ADMIN, FALSE, user)) //we dont want coders to deal with db
-			to_chat(user, span_warning("The database is already connected! (Only those with +DEBUG can force a reconnection)"))
+		if(!check_rights(R_ADMIN, FALSE) || !check_rights(R_DEBUG, FALSE)) //we dont want coders to deal with db
+			to_chat(usr, span_warning("The database is already connected! (Only those with +DEBUG can force a reconnection)"))
 			return
 
-		var/reconnect = alert(user, "The database is already connected! If you *KNOW* that this is incorrect, you can force a reconnection", "The database is already connected!", "Force Reconnect", "Cancel")
+		var/reconnect = alert("The database is already connected! If you *KNOW* that this is incorrect, you can force a reconnection", "The database is already connected!", "Force Reconnect", "Cancel")
 		if(reconnect != "Force Reconnect")
 			return
 
 		SSdbcore.Disconnect()
-		log_admin("[key_name(user)] has forced the database to disconnect")
-		message_admins("[key_name_admin(user)] has <b>forced</b> the database to disconnect!!!")
+		log_admin("[key_name(usr)] has forced the database to disconnect")
+		message_admins("[key_name_admin(usr)] has <b>forced</b> the database to disconnect!!!")
 
-	log_admin("[key_name(user)] is attempting to re-establish the DB Connection")
-	message_admins("[key_name_admin(user)] is attempting to re-establish the DB Connection")
+	log_admin("[key_name(usr)] is attempting to re-establish the DB Connection")
+	message_admins("[key_name_admin(usr)] is attempting to re-establish the DB Connection")
 	BLACKBOX_LOG_ADMIN_VERB("Force Reconnect DB")
 
 	SSdbcore.failed_connections = 0 // Reset this
@@ -595,4 +588,3 @@ ADMIN_VERB(reestablish_db_connection, R_ADMIN, "Reestablish DB Connection", "For
 		message_admins("Database connection failed: [SSdbcore.ErrorMsg()]")
 	else
 		message_admins("Database connection re-established")
-

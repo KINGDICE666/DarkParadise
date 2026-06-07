@@ -79,8 +79,36 @@
 /turf/template_noop,
 /area/template_noop)
 "bp" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on,
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
+	},
 /turf/simulated/floor/plating,
+/area/ruin/unpowered)
+"br" = (
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12;
+	pixel_y = 2
+	},
+/obj/effect/decal/cleanable/dirt,
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/structure/mirror{
+	pixel_x = -29
+	},
+/obj/effect/spawner/random_spawners/rodent,
+/turf/simulated/floor/plasteel,
+/area/ruin/unpowered)
+"bU" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 7;
+	pixel_y = 4
+	},
+/turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "bW" = (
 /obj/item/chair/wood/wings,
@@ -163,7 +191,7 @@
 /turf/simulated/wall/r_wall/rust,
 /area/ruin/unpowered)
 "dw" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/light/small{
 	dir = 4;
 	on = 1
@@ -182,14 +210,6 @@
 /obj/effect/decal/cleanable/blood/splatter,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
-"dD" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/arrows/black{
-	dir = 4
-	},
-/obj/item/stack/ore/glass/basalt,
-/turf/simulated/floor/plating,
-/area/ruin/unpowered)
 "dW" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel,
@@ -204,14 +224,19 @@
 /area/ruin/unpowered)
 "dX" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on,
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
+	},
 /obj/machinery/light{
 	dir = 4
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "dZ" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /obj/machinery/light/small{
 	dir = 4;
 	on = 1
@@ -270,9 +295,7 @@
 	},
 /area/template_noop)
 "eP" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/southeastcorner,
 /obj/machinery/atmospherics/unary/vent_pump{
 	dir = 1;
 	on = 1
@@ -315,8 +338,12 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "gj" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
@@ -342,7 +369,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "gq" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/structure/closet/crate,
 /obj/item/storage/belt/utility,
 /obj/item/storage/belt/utility,
@@ -374,17 +401,6 @@
 /area/template_noop)
 "gO" = (
 /obj/structure/chair/comfy/black{
-	dir = 4
-	},
-/turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
-"gW" = (
-/obj/item/stack/ore/glass/basalt,
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 7;
-	pixel_y = 4
-	},
-/obj/structure/disposalpipe/segment{
 	dir = 4
 	},
 /turf/simulated/floor/plasteel,
@@ -476,8 +492,12 @@
 /area/ruin/unpowered)
 "iz" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 4
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 4;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
@@ -499,13 +519,6 @@
 	dir = 4
 	},
 /turf/simulated/floor/plating,
-/area/ruin/unpowered)
-"jj" = (
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = -7;
-	pixel_y = 2
-	},
-/turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "js" = (
 /obj/effect/decal/cleanable/dirt,
@@ -545,18 +558,6 @@
 "jV" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
-"kb" = (
-/obj/item/pickaxe,
-/obj/item/stack/ore/glass/basalt{
-	pixel_y = 4
-	},
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 7;
-	pixel_y = 4
-	},
-/obj/item/stack/ore/glass/basalt,
-/turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "kg" = (
 /turf/template_noop,
@@ -654,13 +655,13 @@
 	},
 /area/template_noop)
 "kL" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "kO" = (
 /obj/machinery/shower{
+	tag = "icon-shower (WEST)";
+	pixel_x = 0;
 	pixel_y = 20
 	},
 /obj/structure/curtain/open/shower,
@@ -690,16 +691,8 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "la" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /turf/simulated/wall/r_wall,
-/area/ruin/unpowered)
-"lg" = (
-/obj/item/pickaxe,
-/obj/item/stack/ore/glass/basalt,
-/obj/machinery/light/small,
-/turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "li" = (
 /obj/item/reagent_containers/food/snacks/cheesewedge,
@@ -798,13 +791,11 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "na" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "nf" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/effect/decal/cleanable/blood{
 	layer = 2.5
 	},
@@ -812,7 +803,12 @@
 /area/ruin/unpowered)
 "nm" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on,
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
+	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "nq" = (
@@ -833,12 +829,6 @@
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
-"nN" = (
-/obj/item/stack/ore/glass/basalt,
-/obj/effect/decal/cleanable/dirt,
-/obj/machinery/light/small,
-/turf/simulated/floor/plating,
-/area/ruin/unpowered)
 "nX" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/ants,
@@ -852,11 +842,6 @@
 "nY" = (
 /obj/effect/decal/cleanable/vomit,
 /turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
-"ob" = (
-/obj/item/stack/ore/glass/basalt,
-/obj/item/stack/ore/glass/basalt,
-/turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "ol" = (
 /obj/structure/table/wood/fancy/red,
@@ -930,27 +915,27 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "oY" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/item/flag/ussp,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "pe" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 4
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 4;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "ph" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "pj" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/chair/sofa/right{
+/obj/structure/chair/sofa/left{
 	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -992,7 +977,7 @@
 /turf/simulated/wall/shuttle/onlyselfsmooth,
 /area/template_noop)
 "pY" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /mob/living/simple_animal/hostile/giant_rat{
 	damage_coeff = list("brute" = 0.9, "fire" = 0.9, "tox" = 1, "clone" = 1, "stamina" = 0, "oxy" = 0.8);
 	health = 150;
@@ -1016,29 +1001,6 @@
 /obj/structure/coatrack,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
-"qO" = (
-/obj/structure/chair/wood{
-	dir = 1
-	},
-/obj/item/stack/ore/glass/basalt{
-	pixel_y = 4
-	},
-/turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
-"qY" = (
-/obj/structure/sink{
-	dir = 8;
-	pixel_x = -12;
-	pixel_y = 2
-	},
-/obj/effect/decal/cleanable/dirt,
-/obj/item/stack/ore/glass/basalt,
-/obj/structure/mirror{
-	pixel_x = -29
-	},
-/obj/effect/spawner/random_spawners/rodent,
-/turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
 "rb" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/snacks/soup/beetsoup{
@@ -1055,7 +1017,9 @@
 /obj/structure/cable{
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/directional/north{
+/obj/machinery/power/apc{
+	dir = 1;
+	pixel_y = 32;
 	req_access = list(128,121)
 	},
 /turf/simulated/floor/plating,
@@ -1068,7 +1032,7 @@
 	},
 /area/template_noop)
 "rL" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
@@ -1087,8 +1051,8 @@
 /obj/structure/sign/poster/contraband/random{
 	pixel_y = -30
 	},
-/obj/structure/closet/crate/large,
-/obj/effect/turf_decal/delivery,
+/obj/structure/largecrate,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "sb" = (
@@ -1160,7 +1124,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "sA" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/structure/closet/crate/freezer,
 /obj/item/reagent_containers/food/snacks/pelmeni,
 /obj/item/reagent_containers/food/snacks/pelmeni,
@@ -1210,14 +1174,11 @@
 /area/ruin/unpowered)
 "sZ" = (
 /obj/structure/cable{
+	d2 = 4;
 	icon_state = "0-4"
 	},
 /obj/machinery/power/smes,
 /turf/simulated/floor/plating,
-/area/ruin/unpowered)
-"tI" = (
-/obj/machinery/vending/cigarette,
-/turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "ub" = (
 /obj/item/radio/phone/ussp{
@@ -1289,9 +1250,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "uI" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "uX" = (
@@ -1301,9 +1260,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "va" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 6
-	},
+/obj/effect/decal/warning_stripes/southeast,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "vj" = (
@@ -1315,12 +1272,9 @@
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
-"vk" = (
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = -7;
-	pixel_y = 2
-	},
-/turf/simulated/floor/plating,
+"vv" = (
+/obj/machinery/vending/cigarette/free,
+/turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "vX" = (
 /obj/machinery/door/airlock{
@@ -1357,9 +1311,22 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
+"wL" = (
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/effect/decal/cleanable/dirt,
+/obj/machinery/light/small,
+/turf/simulated/floor/plating,
+/area/ruin/unpowered)
 "wN" = (
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plasteel,
+/area/ruin/unpowered)
+"wT" = (
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = -7;
+	pixel_y = 2
+	},
+/turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "xc" = (
 /obj/effect/decal/cleanable/dirt,
@@ -1373,20 +1340,14 @@
 /area/ruin/unpowered)
 "xf" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /obj/effect/spawner/random_spawners/rodent,
-/turf/simulated/floor/plating,
-/area/ruin/unpowered)
-"xm" = (
-/obj/machinery/atmospherics/pipe/simple/hidden{
-	dir = 9
-	},
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 7;
-	pixel_y = 4
-	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "xw" = (
@@ -1396,7 +1357,7 @@
 /area/ruin/unpowered)
 "xG" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "xJ" = (
@@ -1440,7 +1401,7 @@
 /obj/item/stack/sheet/wood{
 	amount = 5
 	},
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/light/small{
 	dir = 1;
 	on = 1
@@ -1448,10 +1409,8 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "yq" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/north,
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 1
 	},
 /turf/simulated/floor/plating,
@@ -1471,7 +1430,7 @@
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/unpowered/no_grav)
 "yE" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/closet/crate,
 /obj/item/clothing/head/ushanka,
 /obj/item/clothing/head/ushanka,
@@ -1479,6 +1438,16 @@
 /obj/item/clothing/head/ushanka,
 /obj/item/clothing/head/ushanka,
 /turf/simulated/floor/plasteel,
+/area/ruin/unpowered)
+"yO" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 9
+	},
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 7;
+	pixel_y = 4
+	},
+/turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "yT" = (
 /obj/effect/decal/cleanable/dirt,
@@ -1490,7 +1459,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "zk" = (
-/obj/structure/closet/crate/large/evil,
+/obj/structure/largecrate/evil,
 /turf/simulated/floor/plating/airless{
 	icon = 'icons/turf/shuttle/floors.dmi';
 	icon_state = "floor13";
@@ -1531,23 +1500,12 @@
 /area/ruin/unpowered)
 "Av" = (
 /obj/machinery/shower{
-	dir = 1
+	dir = 1;
+	tag = "icon-shower (WEST)"
 	},
 /obj/structure/curtain/open/shower,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
-/area/ruin/unpowered)
-"Ay" = (
-/obj/item/pickaxe,
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 6;
-	pixel_y = -5
-	},
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = -7;
-	pixel_y = 2
-	},
-/turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "AJ" = (
 /obj/structure/barricade/wooden,
@@ -1574,9 +1532,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "AS" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/southeastcorner,
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 1
 	},
@@ -1588,21 +1544,8 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
-"AY" = (
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 6;
-	pixel_y = -5
-	},
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = -7;
-	pixel_y = 2
-	},
-/turf/simulated/floor/indestructible/asteroid,
-/area/ruin/unpowered)
 "AZ" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Bh" = (
@@ -1618,6 +1561,18 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/wall/r_wall/rust,
 /area/ruin/unpowered)
+"Bv" = (
+/obj/item/pickaxe,
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_y = 4
+	},
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 7;
+	pixel_y = 4
+	},
+/obj/item/stack/ore/glass/basalt/ancient,
+/turf/simulated/floor/plating,
+/area/ruin/unpowered)
 "Bw" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -1630,9 +1585,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Bx" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
-	},
+/obj/effect/decal/warning_stripes/southwest,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "By" = (
@@ -1686,6 +1639,16 @@
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
+"Cb" = (
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = -7;
+	pixel_y = 2
+	},
+/obj/structure/statue/cheese/cheesus{
+	anchored = 1
+	},
+/turf/simulated/floor/indestructible/asteroid,
+/area/ruin/unpowered)
 "Cf" = (
 /obj/effect/decal/ants,
 /turf/simulated/floor/plating,
@@ -1699,15 +1662,6 @@
 	name = "Mutant Giant rat"
 	},
 /turf/simulated/floor/plating,
-/area/ruin/unpowered)
-"Cv" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/item/stack/ore/glass/basalt,
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 7;
-	pixel_y = 4
-	},
-/turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Cx" = (
 /obj/machinery/light/small{
@@ -1747,8 +1701,12 @@
 /area/template_noop)
 "CG" = (
 /obj/structure/chair/wood,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
@@ -1922,8 +1880,18 @@
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
+"GV" = (
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 7;
+	pixel_y = 4
+	},
+/obj/structure/disposalpipe/segment{
+	dir = 4
+	},
+/turf/simulated/floor/plasteel,
+/area/ruin/unpowered)
 "Hj" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /turf/simulated/floor/plating/airless{
 	icon = 'icons/turf/shuttle/floors.dmi';
 	icon_state = "floor13";
@@ -1950,23 +1918,26 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "HF" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
-"HO" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
+"HL" = (
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = -7;
+	pixel_y = 2
 	},
+/turf/simulated/floor/indestructible/asteroid,
+/area/ruin/unpowered)
+"HO" = (
+/obj/effect/decal/warning_stripes/northeastcorner,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Im" = (
-/obj/structure/closet/crate/large,
-/obj/effect/turf_decal/arrows/black{
+/obj/structure/largecrate,
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 1
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "It" = (
@@ -1978,18 +1949,20 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Iy" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/west,
 /obj/item/flag/ussp,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "IH" = (
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 4
 	},
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 4
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 4;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
@@ -2021,16 +1994,6 @@
 	},
 /obj/structure/table/wood,
 /turf/simulated/floor/plating,
-/area/ruin/unpowered)
-"IS" = (
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = -7;
-	pixel_y = 2
-	},
-/obj/structure/statue/cheese/cheesus{
-	anchored = 1
-	},
-/turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "IT" = (
 /obj/effect/decal/cleanable/dirt,
@@ -2118,8 +2081,8 @@
 	},
 /area/template_noop)
 "Kg" = (
-/obj/effect/turf_decal/delivery,
-/obj/structure/closet/crate/large,
+/obj/effect/decal/warning_stripes/yellow,
+/obj/structure/largecrate,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Kp" = (
@@ -2131,20 +2094,20 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/item/pickaxe/silver,
 /obj/item/pickaxe/silver{
-	pixel_x = 6
+	pixel_x = 6;
+	pixel_y = 0
 	},
 /obj/item/pickaxe/silver{
-	pixel_x = 12
+	pixel_x = 12;
+	pixel_y = 0
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Kz" = (
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 1
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "KA" = (
@@ -2186,7 +2149,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "KU" = (
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 4
 	},
 /obj/machinery/door/airlock/external{
@@ -2195,6 +2158,18 @@
 /obj/structure/barricade/wooden,
 /obj/structure/fans/tiny,
 /turf/simulated/floor/plating,
+/area/ruin/unpowered)
+"KV" = (
+/obj/item/pickaxe,
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 6;
+	pixel_y = -5
+	},
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = -7;
+	pixel_y = 2
+	},
+/turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "Lh" = (
 /obj/effect/decal/cleanable/dirt,
@@ -2243,7 +2218,7 @@
 /area/ruin/unpowered)
 "Lp" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -2335,6 +2310,15 @@
 	name = "floor"
 	},
 /area/template_noop)
+"Mo" = (
+/obj/structure/chair/wood{
+	dir = 1
+	},
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_y = 4
+	},
+/turf/simulated/floor/plasteel,
+/area/ruin/unpowered)
 "Mq" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/universal{
 	dir = 4
@@ -2352,9 +2336,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "My" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 6
-	},
+/obj/effect/decal/warning_stripes/southeast,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "MB" = (
@@ -2366,6 +2348,14 @@
 	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/unpowered)
+"MJ" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/warning_stripes/arrow{
+	dir = 4
+	},
+/obj/item/stack/ore/glass/basalt/ancient,
+/turf/simulated/floor/plating,
+/area/ruin/unpowered)
 "MY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -2374,7 +2364,8 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Na" = (
-/obj/machinery/alarm/all_access/directional/north{
+/obj/machinery/alarm{
+	pixel_y = 28;
 	req_access = list(128)
 	},
 /obj/structure/closet/crate,
@@ -2389,7 +2380,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "NP" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/closet/crate,
 /obj/effect/spawner/lootdrop/maintenance/tripple,
 /turf/simulated/floor/plasteel,
@@ -2403,6 +2394,17 @@
 	dir = 8
 	},
 /turf/simulated/floor/plating,
+/area/ruin/unpowered)
+"NX" = (
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 6;
+	pixel_y = -5
+	},
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = -7;
+	pixel_y = 2
+	},
+/turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "Ok" = (
 /obj/machinery/disposal,
@@ -2538,9 +2540,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Qf" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /obj/effect/spawner/random_spawners/rodent,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
@@ -2550,8 +2550,12 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Qo" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
@@ -2559,6 +2563,17 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/rack,
 /turf/simulated/floor/plating,
+/area/ruin/unpowered)
+"Qz" = (
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/item/stack/ore/glass/basalt/ancient{
+	pixel_x = 7;
+	pixel_y = 4
+	},
+/obj/structure/disposalpipe/segment{
+	dir = 4
+	},
+/turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "QA" = (
 /obj/structure/chair/comfy/shuttle/dark{
@@ -2590,23 +2605,19 @@
 /turf/simulated/floor/indestructible/asteroid,
 /area/ruin/unpowered)
 "QU" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/structure/closet/crate,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
-"Rk" = (
-/obj/structure/closet/crate/large,
-/turf/simulated/floor/plasteel,
+"QZ" = (
+/obj/item/pickaxe,
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/machinery/light/small,
+/turf/simulated/floor/plating,
 /area/ruin/unpowered)
-"Ro" = (
-/obj/item/stack/ore/glass/basalt{
-	pixel_x = 7;
-	pixel_y = 4
-	},
-/obj/structure/disposalpipe/segment{
-	dir = 4
-	},
+"Rk" = (
+/obj/structure/largecrate,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Rs" = (
@@ -2614,10 +2625,8 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Rw" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/north,
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 1
 	},
 /turf/simulated/floor/plasteel,
@@ -2631,7 +2640,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Sb" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/stack/sheet/wood{
 	amount = 5
 	},
@@ -2664,25 +2673,25 @@
 /area/ruin/unpowered)
 "SA" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/closet/crate/large,
-/obj/effect/turf_decal/delivery,
+/obj/structure/largecrate,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "SG" = (
-/obj/effect/turf_decal/delivery/red/hollow,
-/obj/structure/closet/crate/large,
+/obj/effect/decal/warning_stripes/red/hollow,
+/obj/structure/largecrate,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "SM" = (
 /turf/simulated/floor/plating/airless,
 /area/template_noop)
 "Ta" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /obj/effect/spawner/random_spawners/crate_spawner,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Tb" = (
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	pixel_y = 15
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -2690,7 +2699,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Tg" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /obj/machinery/light/small{
 	flickering = 1;
 	on = 1
@@ -2728,10 +2737,13 @@
 /obj/effect/decal/cleanable/fungus,
 /turf/simulated/wall/r_wall/rust,
 /area/ruin/unpowered)
+"Ts" = (
+/obj/item/stack/ore/glass/basalt/ancient,
+/obj/item/stack/ore/glass/basalt/ancient,
+/turf/simulated/floor/plating,
+/area/ruin/unpowered)
 "Tx" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/structure/disposalpipe/segment,
@@ -2751,7 +2763,7 @@
 	dir = 4;
 	on = 1
 	},
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "TC" = (
@@ -2848,9 +2860,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Ut" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Uy" = (
@@ -2877,9 +2887,7 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "US" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 4
 	},
@@ -2899,7 +2907,7 @@
 /area/ruin/unpowered)
 "Va" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/arrows/black{
+/obj/effect/decal/warning_stripes/arrow{
 	dir = 4
 	},
 /obj/structure/sign/poster/contraband/wanted{
@@ -2914,12 +2922,12 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "VP" = (
-/obj/effect/turf_decal/delivery/red/hollow,
-/obj/structure/closet/crate/large/evil,
+/obj/effect/decal/warning_stripes/red/hollow,
+/obj/structure/largecrate/evil,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "VZ" = (
-/obj/structure/closet/crate/large,
+/obj/structure/largecrate,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "Wa" = (
@@ -2970,9 +2978,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Wk" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 9
 	},
@@ -3015,19 +3021,17 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "WA" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/east,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "WI" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /obj/structure/closet/secure_closet{
 	req_access = list(128)
 	},
-/obj/item/gun/projectile/automatic/pistol/aps{
+/obj/item/gun/projectile/automatic/pistol/APS{
 	desc = "The original russian version of a widely used Syndicate sidearm. Uses 9mm ammo. The engraving N.E.K.T.O.E.N is stamped on the side, perhaps it is the owner of the gun or the name of some corporation."
 	},
 /turf/simulated/floor/plasteel,
@@ -3072,20 +3076,20 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Xj" = (
-/obj/effect/turf_decal/stripes/corner{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/southeastcorner,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Xk" = (
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/unpowered/no_grav)
 "Xn" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 1
+/obj/effect/decal/warning_stripes/south,
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 1;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
@@ -3094,9 +3098,7 @@
 	pixel_x = 32;
 	pixel_y = -32
 	},
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
 	dir = 4
@@ -3106,9 +3108,7 @@
 /area/ruin/unpowered)
 "XG" = (
 /obj/item/flag/ussp,
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "XZ" = (
@@ -3116,11 +3116,11 @@
 /turf/simulated/wall/r_wall,
 /area/ruin/unpowered)
 "Ya" = (
-/obj/effect/turf_decal/delivery/red/hollow,
+/obj/effect/decal/warning_stripes/red/hollow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Yc" = (
-/obj/effect/turf_decal/delivery,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Yk" = (
@@ -3164,8 +3164,8 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Za" = (
-/obj/structure/closet/crate/large,
-/obj/effect/turf_decal/delivery,
+/obj/structure/largecrate,
+/obj/effect/decal/warning_stripes/yellow,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Zg" = (
@@ -3200,9 +3200,7 @@
 /area/ruin/unpowered)
 "ZP" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/stripes/corner{
-	dir = 4
-	},
+/obj/effect/decal/warning_stripes/northeastcorner,
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "ZW" = (
@@ -4432,7 +4430,7 @@ Zx
 Zx
 FU
 Op
-qY
+br
 Op
 AJ
 zd
@@ -4492,14 +4490,14 @@ Zx
 Zx
 FU
 lE
-Cv
-nN
+bU
+wL
 FU
 Xd
 WT
 ZK
 ZK
-ob
+Ts
 FU
 ZK
 oU
@@ -4619,7 +4617,7 @@ Op
 WT
 WT
 Op
-lg
+QZ
 FU
 LG
 oU
@@ -4678,7 +4676,7 @@ Bu
 Cx
 Rk
 IH
-dD
+MJ
 oU
 TU
 oU
@@ -5396,7 +5394,7 @@ oU
 wJ
 ZK
 FU
-kb
+Bv
 fP
 FD
 GH
@@ -5574,7 +5572,7 @@ me
 Sk
 ud
 Op
-tI
+vv
 FU
 Ap
 Lk
@@ -5767,10 +5765,10 @@ Zx
 Zx
 FU
 ZW
-xm
+yO
 oU
 Op
-Ay
+KV
 Zx
 Zx
 Zx
@@ -5828,8 +5826,8 @@ Zx
 Zx
 Rs
 hg
-vk
-IS
+wT
+Cb
 ce
 QO
 Zx
@@ -5889,8 +5887,8 @@ Zx
 Zx
 Zx
 Zx
-AY
-jj
+NX
+HL
 Zx
 Zx
 Zx
@@ -6058,7 +6056,7 @@ oU
 CS
 Jf
 QM
-gW
+Qz
 TU
 Zx
 Zx
@@ -6117,8 +6115,8 @@ yT
 Mu
 DP
 Jw
-qO
-Ro
+Mo
+GV
 FU
 Zx
 Zx

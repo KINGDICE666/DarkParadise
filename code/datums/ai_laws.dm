@@ -16,7 +16,8 @@
 	return 0
 
 /datum/ai_law/sixsixsix/get_index()
-	return 666
+	return	666
+
 
 /datum/ai_laws
 	var/name = "Unknown Laws"
@@ -56,7 +57,7 @@
 	return statements
 
 /datum/ai_laws/proc/sort_laws()
-	if(length(sorted_laws))
+	if(sorted_laws.len)
 		return
 
 	if(zeroth_law)
@@ -71,7 +72,7 @@
 	var/index = 1
 	for(var/datum/ai_law/inherent_law in inherent_laws)
 		inherent_law.index = index++
-		if(length(supplied_laws) < inherent_law.index || !istype(supplied_laws[inherent_law.index], /datum/ai_law))
+		if(supplied_laws.len < inherent_law.index || !istype(supplied_laws[inherent_law.index], /datum/ai_law))
 			sorted_laws += inherent_law
 
 	for(var/datum/ai_law/AL in supplied_laws)
@@ -83,13 +84,13 @@
 	if(!keep_zero)
 		S.sync_zeroth(zeroth_law, zeroth_law_borg)
 
-	if(full_sync || length(ion_laws))
+	if(full_sync || ion_laws.len)
 		S.laws.clear_ion_laws()
-	if(full_sync || length(devil_laws))
+	if(full_sync || devil_laws.len)
 		S.laws.clear_sixsixsix_laws()
-	if(full_sync || length(inherent_laws))
+	if(full_sync || inherent_laws.len)
 		S.laws.clear_inherent_laws()
-	if(full_sync || length(supplied_laws))
+	if(full_sync || supplied_laws.len)
 		S.laws.clear_supplied_laws()
 
 	for(var/datum/ai_law/law in ion_laws)
@@ -101,6 +102,7 @@
 	for(var/datum/ai_law/law in supplied_laws)
 		if(law)
 			S.laws.add_supplied_law(law.index, law.law)
+
 
 /mob/living/silicon/proc/sync_zeroth(datum/ai_law/zeroth_law, datum/ai_law/zeroth_law_borg)
 	if(!is_special_character(src) || !mind.is_original_mob(src))
@@ -116,7 +118,7 @@
 		laws.set_zeroth_law(zeroth_law.law, zeroth_law_borg ? zeroth_law_borg.law : null)
 
 /****************
-* Add Laws *
+*	Add Laws	*
 ****************/
 /datum/ai_laws/proc/set_zeroth_law(law, law_borg = null)
 	if(!law)
@@ -139,7 +141,7 @@
 
 	var/new_law = new/datum/ai_law/sixsixsix(law)
 	devil_laws += new_law
-	if(length(state_devil) < length(devil_laws))
+	if(state_devil.len < devil_laws.len)
 		state_devil += 1
 
 	sorted_laws.Cut()
@@ -154,7 +156,7 @@
 
 	var/new_law = new/datum/ai_law/ion(law)
 	ion_laws += new_law
-	if(length(state_ion) < length(ion_laws))
+	if(state_ion.len < ion_laws.len)
 		state_ion += 1
 
 	sorted_laws.Cut()
@@ -169,7 +171,7 @@
 
 	var/new_law = new/datum/ai_law/inherent(law)
 	inherent_laws += new_law
-	if(length(state_inherent) < length(inherent_laws))
+	if(state_inherent.len < inherent_laws.len)
 		state_inherent += 1
 
 	sorted_laws.Cut()
@@ -178,28 +180,28 @@
 	if(!law)
 		return
 
-	if(length(supplied_laws) >= number)
+	if(supplied_laws.len >= number)
 		var/datum/ai_law/existing_law = supplied_laws[number]
 		if(existing_law && existing_law.law == law)
 			return
 
-	if(length(supplied_laws) >= number && supplied_laws[number])
+	if(supplied_laws.len >= number && supplied_laws[number])
 		delete_law(supplied_laws[number])
 
-	while(length(src.supplied_laws) < number)
+	while(src.supplied_laws.len < number)
 		src.supplied_laws += ""
-		if(length(state_supplied) < length(supplied_laws))
+		if(state_supplied.len < supplied_laws.len)
 			state_supplied += 1
 
 	var/new_law = new/datum/ai_law/supplied(law, number)
 	supplied_laws[number] = new_law
-	if(length(state_supplied) < length(supplied_laws))
+	if(state_supplied.len < supplied_laws.len)
 		state_supplied += 1
 
 	sorted_laws.Cut()
 
 /****************
-* Remove Laws *
+*	Remove Laws	*
 *****************/
 /datum/ai_laws/proc/delete_law(datum/ai_law/law)
 	if(istype(law))
@@ -230,12 +232,12 @@
 	var/index = laws.Find(law)
 	if(index)
 		laws -= law
-		for(index, index < length(state), index++)
+		for(index, index < state.len, index++)
 			state[index] = state[index+1]
 	sorted_laws.Cut()
 
 /****************
-* Clear Laws *
+*	Clear Laws	*
 ****************/
 /datum/ai_laws/proc/clear_zeroth_laws()
 	zeroth_law = null
@@ -279,10 +281,10 @@
 			. += "[law.get_index()]. [law.law]"
 
 /********************
-* Stating Laws *
+*	Stating Laws	*
 ********************/
 /********
-* Get *
+*	Get	*
 ********/
 /datum/ai_laws/proc/get_state_law(datum/ai_law/law)
 	return law.get_state_law(src)
@@ -313,7 +315,7 @@
 	return FALSE
 
 /********
-* Set *
+*	Set	*
 ********/
 /datum/ai_laws/proc/set_state_law(datum/ai_law/law, state)
 	law.set_state_law(src, state)

@@ -15,10 +15,10 @@
 /obj/item/stack/ore/bluespace_crystal/attack_self_tk(mob/user)
 	return
 
-/obj/item/stack/ore/bluespace_crystal/Initialize(mapload, new_amount, merge = TRUE)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-5, 5)
-	pixel_y = base_pixel_y + rand(-5, 5)
+/obj/item/stack/ore/bluespace_crystal/New(loc, new_amount, merge = TRUE)
+	..()
+	pixel_x = rand(-5, 5)
+	pixel_y = rand(-5, 5)
 
 /obj/item/stack/ore/bluespace_crystal/attack_self(mob/user)
 	if(do_after(user, 1 SECONDS, user))
@@ -26,13 +26,13 @@
 		if(use(1))
 			blink_mob(bs_user)
 			bs_user.adjustStaminaLoss(33) // same as taser ; balance ideas - increase staminoloss / time to crush, move staminaLoss before blink or even do_after, replace if(do_after...) and if(use(1))
-			bs_user.visible_message(span_notice("[bs_user] раздавлива[PLUR_ET_YUT(bs_user)] [singular_name]!"))
+			bs_user.visible_message(span_notice("[bs_user] раздавлива[pluralize_ru(bs_user.gender,"ет","ют")] [singular_name]!"))
 	else
 		to_chat(user, span_notice("Вам нужно оставаться неподвижным, чтобы раздавить [singular_name]."))
 
 /obj/item/stack/ore/bluespace_crystal/proc/blink_mob(mob/living/L)
 	if(!is_teleport_allowed(L.z))
-		src.visible_message(span_warning("Осколки [declent_ru(GENITIVE)] начинают быстро вибрировать и исчезают."))
+		src.visible_message(span_warning("Осколки [src.declent_ru(GENITIVE)] начинают быстро вибрировать и исчезают."))
 		qdel(src)
 		return
 	do_teleport(L, get_turf(L), blink_range, asoundin = 'sound/effects/phasein.ogg')

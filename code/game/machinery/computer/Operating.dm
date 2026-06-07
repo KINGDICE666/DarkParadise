@@ -23,13 +23,13 @@
 	var/patientStatusHolder //Hold the last instance of table.patient.status. When table.patient.status no longer matches this variable, the computer should tell the doctor
 
 /obj/machinery/computer/operating/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "операционный компьютер",
 		GENITIVE = "операционного компьютера",
 		DATIVE = "операционному компьютеру",
 		ACCUSATIVE = "операционный компьютер",
 		INSTRUMENTAL = "операционным компьютером",
-		PREPOSITIONAL = "операционном компьютере",
+		PREPOSITIONAL = "операционном компьютере"
 	)
 
 /obj/machinery/computer/operating/Initialize(mapload)
@@ -67,7 +67,7 @@
 /obj/machinery/computer/operating/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "OperatingComputer", DECLENT_RU_CAP(src, NOMINATIVE))
+		ui = new(user, src, "OperatingComputer", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
 
 /obj/machinery/computer/operating/ui_data(mob/user)
@@ -159,13 +159,14 @@
 
 	return data
 
+
 /obj/machinery/computer/operating/ui_act(action, params)
 	if(..())
 		return
 	if(stat & (NOPOWER|BROKEN))
 		return
 
-	if((usr.contents.Find(src) || (in_range(src, usr) && isturf(src.loc))) || (issilicon(usr)))
+	if((usr.contents.Find(src) || (in_range(src, usr) && istype(src.loc, /turf))) || (istype(usr, /mob/living/silicon)))
 		usr.set_machine(src)
 
 	. = TRUE
@@ -216,13 +217,13 @@
 		patientStatus = "без сознания"
 
 	if(isNewPatient)
-		atom_say("Обнаружен новый пациент, загрузка показаний.", use_tts = FALSE)
+		atom_say("Обнаружен новый пациент, загрузка показаний.")
 		var/blood_type_msg
 		if(ishuman(table.patient))
 			blood_type_msg = table.patient.dna.blood_type
 		else
 			blood_type_msg = "\[ОШИБКА: НЕИЗВЕСТНО\]"
-		atom_say("[table.patient], группа крови [blood_type_msg], [patientStatus].", use_tts = FALSE)
+		atom_say("[table.patient], группа крови [blood_type_msg], [patientStatus].")
 		SStgui.update_uis(src)
 		patientStatusHolder = table.patient.stat
 		currentPatient = table.patient
@@ -234,9 +235,9 @@
 		if(oxy && table.patient.getOxyLoss()>oxyAlarm)
 			playsound(src.loc, 'sound/machines/defib_saftyoff.ogg', 50, FALSE)
 		if(healthAnnounce && table.patient.health <= healthAlarm)
-			atom_say("Оценка здоровья пациента: [round(table.patient.health)] %.", use_tts = FALSE)
+			atom_say("Оценка здоровья пациента: [round(table.patient.health)] %.")
 		if(table.patient.stat != patientStatusHolder)
-			atom_say("Состояние пациента: [patientStatus].", use_tts = FALSE)
+			atom_say("Состояние пациента: [patientStatus].")
 			patientStatusHolder = table.patient.stat
 
 /obj/machinery/computer/operating/old_frame

@@ -49,10 +49,14 @@
 	var/cannot_be_seen = 1
 	var/mob/living/creator = null
 
-// No movement while seen code.
-/mob/living/simple_animal/hostile/statue/Initialize(mapload, mob/living/creator)
+/mob/living/simple_animal/hostile/statue/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_GODMODE, INNATE_TRAIT)
+
+// No movement while seen code.
+
+/mob/living/simple_animal/hostile/statue/New(loc, mob/living/creator)
+	..()
 	// Give spells
 	AddSpell(new /obj/effect/proc_holder/spell/aoe/flicker_lights(null))
 	AddSpell(new /obj/effect/proc_holder/spell/aoe/blindness(null))
@@ -71,9 +75,9 @@
 /mob/living/simple_animal/hostile/statue/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	if(can_be_seen(newloc))
 		if(client)
-			to_chat(src, span_warning("You cannot move, there are eyes on you!"))
+			to_chat(src, "<span class='warning'>You cannot move, there are eyes on you!</span>")
 		return 0
-	return ..()
+	. = ..()
 
 /mob/living/simple_animal/hostile/statue/handle_automated_action()
 	if(!..())
@@ -90,7 +94,7 @@
 /mob/living/simple_animal/hostile/statue/AttackingTarget()
 	if(can_be_seen(get_turf(loc)))
 		if(client)
-			to_chat(src, span_warning("You cannot attack, there are eyes on you!"))
+			to_chat(src, "<span class='warning'>You cannot attack, there are eyes on you!</span>")
 		return FALSE
 	else
 		return ..()
@@ -141,6 +145,7 @@
 /mob/living/simple_animal/hostile/statue/gib()
 	dust()
 
+
 // Stop attacking clientless mobs
 
 /mob/living/simple_animal/hostile/statue/CanAttack(atom/the_target)
@@ -168,31 +173,36 @@
 	human_req = FALSE
 	aoe_range = 14
 
+
 /obj/effect/proc_holder/spell/aoe/flicker_lights/create_new_targeting()
 	var/datum/spell_targeting/aoe/turf/T = new()
 	T.range = aoe_range
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/flicker_lights/cast(list/targets, mob/user = usr)
 	for(var/turf/T in targets)
 		for(var/obj/machinery/light/L in T)
 			L.flicker()
 
+
 //Blind AOE
 /obj/effect/proc_holder/spell/aoe/blindness
 	name = "Blindness"
 	desc = "Your prey will be momentarily blind for you to advance on them."
 
-	message = span_notice_alt("You glare your eyes.")
+	message = "<span class='notice'>You glare your eyes.</span>"
 	base_cooldown = 60 SECONDS
 	clothes_req = FALSE
 	human_req = FALSE
 	aoe_range = 10
 
+
 /obj/effect/proc_holder/spell/aoe/blindness/create_new_targeting()
 	var/datum/spell_targeting/aoe/turf/T = new()
 	T.range = aoe_range
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/blindness/cast(list/targets, mob/user = usr)
 	for(var/mob/living/L in GLOB.alive_mob_list)
@@ -202,6 +212,8 @@
 		if(T && (T in targets))
 			L.EyeBlind(8 SECONDS)
 
+
 /mob/living/simple_animal/hostile/statue/sentience_act()
 	faction -= "neutral"
+
 

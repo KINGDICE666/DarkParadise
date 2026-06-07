@@ -19,22 +19,23 @@
 	var/timer_id = null
 	var/reg_name = null
 
-/obj/machinery/computer/aiupload/attackby(obj/item/item, mob/user, params)
+
+
+/obj/machinery/computer/aiupload/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(istype(item, /obj/item/ai_module))
+	if(istype(I, /obj/item/ai_module))
 		add_fingerprint(user)
-		insert_module(user, item)
+		insert_module(user, I)
 		ui_interact(user)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(is_id_card(item))
+	if(istype(I, /obj/item/card/id))
 		add_fingerprint(user)
-		check_id(user, item)
+		check_id(user, I)
 		ui_interact(user)
-		return ATTACK_CHAIN_BLOCKED_ALL
-
+		return
 	return ..()
 
 /obj/machinery/computer/aiupload/attack_hand(mob/user)
@@ -135,10 +136,6 @@
 	installed_module.transmit_instructions(current, user, reg_name)
 	to_chat(current, "These are your laws now:")
 	current.show_laws()
-	if(isAI(current))
-		var/mob/living/silicon/ai/AI = current
-		if(AI.deployed_shell)
-			AI.deployed_shell.show_laws()
 	for(var/mob/living/silicon/robot/R in GLOB.mob_list)
 		if(R.lawupdate && (R.connected_ai == current))
 			to_chat(R, "These are your laws now:")

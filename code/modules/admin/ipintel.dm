@@ -82,6 +82,7 @@
 			query_add_ip_intel.warn_execute()
 			qdel(query_add_ip_intel)
 
+
 /proc/ip_intel_query(ip, retryed=0)
 	. = -1 //default
 	if(!ip)
@@ -128,6 +129,7 @@
 		if(!retryed)
 			sleep(25)
 			return .(ip, 1)
+
 
 /proc/ipintel_handle_error(error, ip, retryed)
 	if(retryed)

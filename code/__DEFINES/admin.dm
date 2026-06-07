@@ -26,9 +26,8 @@
 #define BANTYPE_ADMIN_PERMA 7
 #define BANTYPE_ADMIN_TEMP 8
 
+//Please don't edit these values without speaking to Errorage first	~Carn
 //Admin Permissions
-/// Used for signifying that all admins can use this regardless of actual permissions
-#define R_NONE NONE
 #define R_BUILDMODE (1<<0)
 #define R_ADMIN (1<<1)
 #define R_BAN (1<<2)
@@ -54,38 +53,12 @@
 /// Sum of all permissions to allow easy setting.
 #define R_HOST (~0)
 
-#define R_BUILDMODE_NAME "+BUILDMODE"
-#define R_ADMIN_NAME "+ADMIN"
-#define R_BAN_NAME "+BAN"
-#define R_EVENT_NAME "+EVENT"
-#define R_SERVER_NAME "+SERVER"
-#define R_DEBUG_NAME "+DEBUG"
-#define R_POSSESS_NAME "+POSSESS"
-#define R_PERMISSIONS_NAME "+PERMISSIONS"
-#define R_STEALTH_NAME "+STEALTH"
-#define R_REJUVINATE_NAME "+REJUVINATE"
-#define R_VAREDIT_NAME "+VAREDIT"
-#define R_SOUNDS_NAME "+SOUND"
-#define R_SPAWN_NAME "+SPAWN"
-#define R_MOD_NAME "+MODERATOR"
-#define R_MENTOR_NAME "+MENTOR"
-#define R_PROCCALL_NAME "+PROCCALL"
-#define R_VIEWRUNTIMES_NAME "+VIEWRUNTIMES"
-#define R_SKINS_NAME "+SKINS"
-
-#define DELETED_RANK "Удален"
-
-#define PLAYER_RANK "Игрок"
-
-#define NONE_SELECT "*none*"
-
 #define ADMIN_QUE(user,display) "<a href='byond://?_src_=holder;adminmoreinfo=[user.UID()]'>[display]</a>"
 #define ADMIN_FLW(user,display) "<a href='byond://?_src_=holder;adminplayerobservefollow=[user.UID()]'>[display]</a>"
 #define ADMIN_PP(user,display) "<a href='byond://?_src_=holder;adminplayeropts=[user.UID()]'>[display]</a>"
 #define ADMIN_VV(atom,display) "<a href='byond://?_src_=vars;Vars=[atom.UID()]'>[display]</a>"
 #define ADMIN_SM(user,display) "<a href='byond://?_src_=holder;subtlemessage=[user.UID()]'>[display]</a>"
 #define ADMIN_TP(user,display) "<a href='byond://?_src_=holder;traitor=[user.UID()]'>[display]</a>"
-#define ADMIN_KICK(user) "(<a href='byond://?_src_=holder;boot2=[user.UID()]'>KICK</a>)"
 #define ADMIN_OBS(user, display) "<a href='byond://?_src_=holder;observeinventory=[user.UID()]'>[display]</a>"
 #define ADMIN_ALERT(user, display) "<a href='byond://?_src_=holder;adminalert=[user.UID()]'>[display]</a>"
 #define ADMIN_BSA(user,display) "<a href='byond://?_src_=holder;BlueSpaceArtillery=[user.UID()]'>[display]</a>"
@@ -102,7 +75,7 @@
 #define ADMIN_COORDJMP(src) "[src ? "[COORD(src)] [ADMIN_JMP(src)]" : "nonexistent location"]"
 #define ADMIN_VERBOSEJMP(src) "[src ? "[AREACOORD(src)] [ADMIN_JMP(src)]" : "nonexistent location"]"
 #define ADMIN_SHOWDETAILS(mask, content) "<a href='byond://?_src_=holder;showdetails=[html_encode(content)]'>[mask]</a>"
-#define ADMIN_TAG(datum) "(<a href='byond://?src=[UID_of(src)];tag_datum=[UID_of(datum)]'>TAG</a>)"
+
 
 #define BAN_HOURS * 60
 #define BAN_DAYS BAN_HOURS * 24
@@ -110,11 +83,3 @@
 /// Used in logging uses of admin verbs (and sometimes some non-admin or debug verbs) to the blackbox.
 /// Only pass it a string key, the verb being used.
 #define BLACKBOX_LOG_ADMIN_VERB(the_verb) SSblackbox.record_feedback("tally", "admin_verb", 1, the_verb)
-#define BLACKBOX_LOG_VUAP(the_verb) SSblackbox.record_feedback("tally", "VUAP", 1, the_verb)
-
-/// How many things you can spawn at once with spawn verb/create panel
-#define ADMIN_SPAWN_CAP 100
-
-// LOG BROWSE TYPES
-#define BROWSE_ROOT_ALL_LOGS 1
-#define BROWSE_ROOT_CURRENT_LOGS 2

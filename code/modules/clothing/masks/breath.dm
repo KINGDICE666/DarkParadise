@@ -9,6 +9,7 @@
 	flags_cover = MASKCOVERSMOUTH
 	gas_transfer_coefficient = 0.10
 	permeability_coefficient = 0.50
+	actions_types = list(/datum/action/item_action/adjust)
 	resistance_flags = NONE
 	can_toggle = TRUE
 	sprite_sheets = list(
@@ -28,22 +29,18 @@
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
 
 /obj/item/clothing/mask/breath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "дыхательная маска",
 		GENITIVE = "дыхательной маски",
 		DATIVE = "дыхательной маске",
 		ACCUSATIVE = "дыхательную маску",
 		INSTRUMENTAL = "дыхательной маской",
-		PREPOSITIONAL = "дыхательной маске",
+		PREPOSITIONAL = "дыхательной маске"
 	)
-
-/obj/item/clothing/mask/breath/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Поднять/Опустить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/mask/breath/attack_self(mob/user)
 	adjustmask(user)
@@ -58,18 +55,18 @@
 			Обладает минимальным коэффициентом проницаемости газов и практически не пропускает вредные вещества. \
 			Предназначена для анестезии при проведении хирургических операций путём ввода седативной дыхательной смеси."
 	icon_state = "medical"
-	item_state = "m_mask"
+	item_state = "medical"
 	permeability_coefficient = 0.01
 	put_on_delay = 10
 
 /obj/item/clothing/mask/breath/medical/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "медицинская маска",
 		GENITIVE = "медицинской маски",
 		DATIVE = "медицинской маске",
 		ACCUSATIVE = "медицинскую маску",
 		INSTRUMENTAL = "медицинской маской",
-		PREPOSITIONAL = "медицинской маске",
+		PREPOSITIONAL = "медицинской маске"
 	)
 
 /obj/item/clothing/mask/breath/vox
@@ -82,15 +79,16 @@
 	item_state = "voxmask"
 	permeability_coefficient = 0.01
 	species_restricted = list(SPECIES_VOX, SPECIES_VOX_ARMALIS) //These should fit the "Mega Vox" just fine.
+	actions_types = null
 
 /obj/item/clothing/mask/breath/vox/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "дыхательная маска для воксов",
 		GENITIVE = "дыхательной маски для воксов",
 		DATIVE = "дыхательной маске для воксов",
 		ACCUSATIVE = "дыхательную маску для воксов",
 		INSTRUMENTAL = "дыхательной маской для воксов",
-		PREPOSITIONAL = "дыхательной маске для воксов",
+		PREPOSITIONAL = "дыхательной маске для воксов"
 	)
 
 /obj/item/clothing/mask/breath/vox/attack_self(mob/user)

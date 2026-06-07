@@ -8,13 +8,13 @@
 	var/isactive = FALSE
 
 /obj/item/enginepicker/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Блюспейс устройство доставки двигателя",
 		GENITIVE = "Блюспейс устройства доставки двигателя",
 		DATIVE = "Блюспейс устройству доставки двигателя",
 		ACCUSATIVE = "Блюспейс устройство доставки двигателя",
 		INSTRUMENTAL = "Блюспейс устройством доставки двигателя",
-		PREPOSITIONAL = "Блюспейс устройстве доставки двигателя",
+		PREPOSITIONAL = "Блюспейс устройстве доставки двигателя"
 	)
 
 /obj/item/enginepicker/Destroy()
@@ -41,18 +41,18 @@
 //This proc re-assigns all of engine beacons in the global list to a local list.
 /obj/item/enginepicker/proc/locatebeacons()
 	LAZYCLEARLIST(list_enginebeacons)
-	for(var/obj/item/beacon/engine/B in GLOB.engine_beacon_list)
+	for(var/obj/item/radio/beacon/engine/B in GLOB.engine_beacon_list)
 		if(B && !QDELETED(B))	//This ensures that the input pop-up won't have any qdeleted beacons
 			LAZYADD(list_enginebeacons, B)
 
 //Spawns and logs / announces the appropriate engine based on the choice made
-/obj/item/enginepicker/proc/processchoice(obj/item/beacon/engine/choice, mob/living/carbon/user)
+/obj/item/enginepicker/proc/processchoice(obj/item/radio/beacon/engine/choice, mob/living/carbon/user)
 	var/issuccessful = FALSE	//Check for a successful choice
 	var/engtype					//Engine type
 	var/G						//Generator that will be spawned
 	var/turf/T = get_turf(choice)
 
-	if(length(choice.enginetype) > 1)	//If the beacon has multiple engine types
+	if(choice.enginetype.len > 1)	//If the beacon has multiple engine types
 		var/E = tgui_input_list(user, "Вы выбрали комбинированный маяк, какой вариант вы бы предпочли?", "[declent_ru(NOMINATIVE)]", choice.enginetype)
 		if(E)
 			engtype = E
@@ -68,8 +68,6 @@
 			G = /obj/machinery/the_singularitygen/tesla
 		if(ENGTYPE_SING)
 			G = /obj/machinery/the_singularitygen
-		if(ENGTYPE_TEG)
-			G = /obj/structure/closet/crate/secure/engineering/teg
 
 	if(G)	//This can only be not-null if the switch operation was successful
 		issuccessful = TRUE
@@ -85,19 +83,19 @@
 			var/mob/living/silicon/ai/announcer = pick(ailist)
 			announcer.say(";Произведена доставка двигателя типа: [engtype].")	//Let's announce the terrible choice to everyone
 
-		visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает сильно вибрировать и шипеть, а затем быстро распадается!"))
+		visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] начинает сильно вибрировать и шипеть, а затем быстро распадается!"))
 		qdel(src)	//Self-destructs to prevent crew from spawning multiple engines.
 	else
-		visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] гудит! Маяк не найден или не выбран!"))
+		visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] гудит! Маяк не найден или не выбран!"))
 		isactive = FALSE
 		return
 
 /// Deletes objects and mobs from the beacon's turf.
 /obj/item/enginepicker/proc/clearturf(turf/T)
 	for(var/obj/item/I in T)
-		I.visible_message("[DECLENT_RU_CAP(I, NOMINATIVE)] превращается в пыль!")
+		I.visible_message("[capitalize(I.declent_ru(NOMINATIVE))] превращается в пыль!")
 		qdel(I)
 
 	for(var/mob/living/M in T)
-		M.visible_message("[DECLENT_RU_CAP(M, NOMINATIVE)] уничтожается!")
+		M.visible_message("[capitalize(M.declent_ru(NOMINATIVE))] уничтожается!")
 		M.gib()

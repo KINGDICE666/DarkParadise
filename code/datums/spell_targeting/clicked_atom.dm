@@ -4,7 +4,11 @@
 /datum/spell_targeting/clicked_atom
 	use_intercept_click = TRUE
 
+
 /datum/spell_targeting/clicked_atom/choose_targets(mob/user, obj/effect/proc_holder/spell/spell, params, atom/clicked_atom)
+	if(!spell.valid_target(clicked_atom))
+		return null
+
 	if(clicked_atom)
 		click_params = params
 		return list(clicked_atom)

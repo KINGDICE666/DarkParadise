@@ -14,22 +14,21 @@
 	var/cleanspeed = 50 //slower than mop
 
 /obj/item/soap/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мыло",
 		GENITIVE = "мыла",
 		DATIVE = "мылу",
 		ACCUSATIVE = "мыло",
 		INSTRUMENTAL = "мылом",
-		PREPOSITIONAL = "мыле",
+		PREPOSITIONAL = "мыле"
 	)
 
 /obj/item/soap/ComponentInitialize()
 	AddComponent(/datum/component/slippery, 4 SECONDS, lube_flags = (SLIDE|SLIP_WHEN_LYING))
 
-/obj/item/soap/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+/obj/item/soap/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity)
 		return
-
 	//I couldn't feasibly  fix the overlay bugs caused by cleaning items we are wearing.
 	//So this is a workaround. This also makes more sense from an IC standpoint. ~Carn
 	if(user.client && (target in user.client.screen))
@@ -63,17 +62,19 @@
 			qdel(O)
 	SEND_SIGNAL(T, COMSIG_COMPONENT_CLEAN_ACT, 5)
 
+
 /obj/item/soap/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(ishuman(target) && ishuman(user) && !target.stat && !user.stat && user.zone_selected == BODY_ZONE_PRECISE_MOUTH)
 		user.visible_message(
-			span_warning("[user] мо[PLUR_ET_YUT(user)] рот [target.declent_ru(GENITIVE)] с [declent_ru(INSTRUMENTAL)]!"),
+			span_warning("[user] мо[pluralize_ru(user.gender, "ет", "ют")] рот [target.declent_ru(GENITIVE)] с [declent_ru(INSTRUMENTAL)]!"),
 			span_notice("Вы моете рот [target.declent_ru(GENITIVE)] с [declent_ru(INSTRUMENTAL)]!"),
 		)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
 
+
 /obj/item/soap/nanotrasen
-	desc = "Именное мыло \"Нанотрейзен\". Обладает игривым запахом плазмы."
+	desc = "Именное мыло Нанотрейзен. Обладает игривым запахом плазмы."
 	icon_state = "soapnt"
 	item_state = "soapnt"
 
@@ -221,23 +222,22 @@
 	item_state = "soapgibs"
 
 /obj/item/soap/ducttape/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мыло в изоленте",
 		GENITIVE = "мыла в изоленте",
 		DATIVE = "мылу в изоленте",
 		ACCUSATIVE = "мыло в изоленте",
 		INSTRUMENTAL = "мылом в изоленте",
-		PREPOSITIONAL = "мыле в изоленте",
+		PREPOSITIONAL = "мыле в изоленте"
 	)
 
-/obj/item/soap/ducttape/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
-		return
+/obj/item/soap/ducttape/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity) return
 
 	if(user.client && (target in user.client.screen))
 		user.balloon_alert(user, "снимите это с себя!")
 	else
-		user.visible_message(span_warning("[user] начина[PLUR_ET_YUT(user)] возить [declent_ru(INSTRUMENTAL)] по [target.declent_ru(DATIVE)]."))
+		user.visible_message(span_warning("[user] начина[pluralize_ru(user.gender, "ет", "ют")] возить [src.declent_ru(INSTRUMENTAL)] по [target.declent_ru(DATIVE)]."))
 		if(do_after(user, cleanspeed, target))
 			to_chat(user, span_notice("Вы \"моете\" [target.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]."))
 			if(issimulatedturf(target))

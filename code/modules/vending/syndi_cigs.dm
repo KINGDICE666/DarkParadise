@@ -14,6 +14,8 @@
 		"Л+учшие сигар+еты с 2150-го г+ода.",
 		"Сигар+еты с мн+ожеством нагр+ад."
 	)
+
+
 	icon_state = "cigs_off"
 	panel_overlay = "cigs_panel"
 	screen_overlay = "cigs"
@@ -21,17 +23,14 @@
 	broken_overlay = "cigs_broken"
 	broken_lightmask_overlay = "cigs_broken_lightmask"
 
-	products = list(
-		/obj/item/storage/fancy/cigarettes/syndicate = 10,
-		/obj/item/lighter/random = 5,
-	)
+	products = list(/obj/item/storage/fancy/cigarettes/syndicate = 10,/obj/item/lighter/random = 5)
 
 /obj/machinery/vending/syndicigs/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "торговый автомат Suspicious Cigarette Machine",
 		GENITIVE = "торгового автомата Suspicious Cigarette Machine",
 		DATIVE = "торговому автомату Suspicious Cigarette Machine",
 		ACCUSATIVE = "торговый автомат Suspicious Cigarette Machine",
 		INSTRUMENTAL = "торговым автоматом Suspicious Cigarette Machine",
-		PREPOSITIONAL = "торговом автомате Suspicious Cigarette Machine",
+		PREPOSITIONAL = "торговом автомате Suspicious Cigarette Machine"
 	)

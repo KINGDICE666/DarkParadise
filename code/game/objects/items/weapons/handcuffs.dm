@@ -1,7 +1,6 @@
 /obj/item/restraints/handcuffs
 	name = "handcuffs"
-	desc = "Устройство из металла, представляющее собой пару соединённых цепью браслетов. \
-			Используются для ограничения подвижности гуманоидов посредством сковывания кистей рук."
+	desc = "Use this to keep prisoners in line."
 	gender = PLURAL
 	icon_state = "handcuff"
 	item_state = "handcuff"
@@ -13,66 +12,56 @@
 	throw_range = 5
 	materials = list(MAT_METAL=500)
 	origin_tech = "engineering=3;combat=3"
-	breakout_time = 2 MINUTES
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
-	custom_price = PAYCHECK_MIN * 1.2
+	breakout_time = 150 SECONDS
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
 	var/cuffsound = 'sound/weapons/handcuffs.ogg'
-	/// If TRUE, these cuffs are disposable
-	var/trashtype = null
+	var/trashtype = null //For disposable cuffs
 	var/ignoresClumsy = FALSE
 
-/obj/item/restraints/handcuffs/get_ru_names()
-	return alist(
-		NOMINATIVE = "наручники",
-		GENITIVE = "наручников",
-		DATIVE = "наручникам",
-		ACCUSATIVE = "наручники",
-		INSTRUMENTAL = "наручниками",
-		PREPOSITIONAL = "наручниках"
-	)
 
 /obj/item/restraints/handcuffs/attack(mob/living/carbon/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ATTACK_CHAIN_PROCEED
-	if(!iscarbon(target))
+	if(!iscarbon(target)) // Shouldn't be able to cuff anything but carbons.
 		return .
 
 	if(!user.IsAdvancedToolUser())
 		return .
 
 	if(HAS_TRAIT(src, TRAIT_NODROP) && !isrobot(user))
-		balloon_alert(user, "не выпустить из руки!")
+		to_chat(user, span_warning("[src] is stuck to your hand!"))
 		return .
 
 	if(target.handcuffed)
-		balloon_alert(user, "цель уже скована!")
+		to_chat(user, span_warning("[target] is already handcudffed!"))
 		return .
 
 	if(!target.has_organ_for_slot(ITEM_SLOT_HANDCUFFED))
-		balloon_alert(user, "у цели нет рук!")
+		to_chat(user, span_warning("How do you suggest handcuffing someone with no hands?"))
 		return .
 
 	SEND_SIGNAL(target, COMSIG_CARBON_CUFF_ATTEMPTED, user)
 
 	if(!ignoresClumsy && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
 		playsound(loc, cuffsound, 30, TRUE, -2)
-		to_chat(user, span_warning("Эээ... Так какой стороной это использовать..?"))
+		to_chat(user, span_warning("Uh... how do those things work?!"))
 		apply_cuffs(user, user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	playsound(loc, cuffsound, 30, TRUE, -2)
 
 	if(user == target)
-		target.balloon_alert_to_viewers("начина[PLUR_ET_UT(user)] себя заковывать...", "заковывание себя...")
+		target.visible_message(
+			span_warning("[user] is trying to put [name] on [user.p_themselves()]!"),
+			span_warning("You are trying to put [name] on yourself!"),
+		)
 	else
-		target.balloon_alert_to_viewers("начина[PLUR_ET_UT(user)] заковывать в [declent_ru(ACCUSATIVE)]...", "заковывание в [declent_ru(ACCUSATIVE)]...")
+		target.visible_message(
+			span_danger("[user] is trying to put [name] on [target]!"),
+			span_userdanger("[user] is trying to put [name] on you!"),
+		)
 
-	var/handcuff_time_mod = 1
-
-	if(HAS_TRAIT(user, TRAIT_FAST_CUFFING))
-		handcuff_time_mod = 0.75
-
-	if(!do_after(user, handcuff_time_mod * 5 SECONDS, target))
-		balloon_alert(user, "заковывание прервано!")
+	if(!do_after(user, 5 SECONDS, target))
+		to_chat(user, span_warning("You failed to handcuff [user == target ? "yourself" : target]!"))
 		return .
 
 	if(isrobot(user))
@@ -80,6 +69,7 @@
 	else
 		apply_cuffs(target, user)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /**
  * This handles handcuffing people
@@ -109,9 +99,15 @@
 	target.equip_to_slot(cuffs, ITEM_SLOT_HANDCUFFED)
 
 	if(user == target)
-		target.balloon_alert_to_viewers("заковыва[PLUR_ET_UT(user)] сам себя", "вы себя заковали")
+		target.visible_message(
+			span_warning("[user] handcuffs [user.p_themselves()]!"),
+			span_warning("You handcuff yourself!"),
+		)
 	else
-		target.balloon_alert_to_viewers("заковыва[PLUR_ET_UT(user)] в [declent_ru(ACCUSATIVE)]", "цель закована в [declent_ru(ACCUSATIVE)]")
+		target.visible_message(
+			span_warning("[user] handcuffs [target]!"),
+			span_userdanger("[user] handcuffs you!"),
+		)
 
 	add_attack_logs(user, target, "Handcuffed ([src])")
 	SSblackbox.record_feedback("tally", "handcuffs", 1, type)
@@ -119,48 +115,24 @@
 	if(trashtype && !dispense)
 		qdel(src)
 
+
 /obj/item/restraints/handcuffs/sinew
 	name = "sinew restraints"
-	desc = "Сплетены из плотных сухожилий Наблюдателя. \
-			Используются для ограничения подвижности гуманоидов посредством сковывания кистей рук."
+	desc = "A pair of restraints fashioned from long strands of flesh."
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "sinewcuff"
 	item_state = "sinewcuff"
 	breakout_time = 1 MINUTES
 	cuffsound = 'sound/weapons/cablecuff.ogg'
-	breakout_flags = DA_IGNORE_USER_LOC_CHANGE|DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM
-
-/obj/item/restraints/handcuffs/sinew/get_ru_names()
-	return alist(
-		NOMINATIVE = "стяжки из сухожилий",
-		GENITIVE = "стяжек из сухожилий",
-		DATIVE = "стяжкам из сухожилий",
-		ACCUSATIVE = "стяжки из сухожилий",
-		INSTRUMENTAL = "стяжками из сухожилий",
-		PREPOSITIONAL = "стяжках из сухожилий"
-	)
 
 /obj/item/restraints/handcuffs/cable
 	name = "cable restraints"
-	desc = "Сплетены из электрических проводов. \
-			Используются для ограничения подвижности гуманоидов посредством сковывания кистей рук."
+	desc = "Looks like some cables tied together. Could be used to tie something up."
 	icon_state = "cuff_white"
 	origin_tech = "engineering=2"
 	materials = list(MAT_METAL=150, MAT_GLASS=75)
 	breakout_time = 1 MINUTES
 	cuffsound = 'sound/weapons/cablecuff.ogg'
-	custom_price = PAYCHECK_MIN
-	breakout_flags = DA_IGNORE_USER_LOC_CHANGE|DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM
-
-/obj/item/restraints/handcuffs/cable/get_ru_names()
-	return alist(
-		NOMINATIVE = "стяжки из проводов",
-		GENITIVE = "стяжек из проводов",
-		DATIVE = "стяжкам из проводов",
-		ACCUSATIVE = "стяжки из проводов",
-		INSTRUMENTAL = "стяжками из проводов",
-		PREPOSITIONAL = "стяжках из проводов"
-	)
 
 /obj/item/restraints/handcuffs/cable/red
 	color = COLOR_RED
@@ -186,9 +158,9 @@
 /obj/item/restraints/handcuffs/cable/white
 	color = COLOR_WHITE
 
-/obj/item/restraints/handcuffs/cable/random/Initialize(mapload)
-	. = ..()
+/obj/item/restraints/handcuffs/cable/random/New()
 	color = pick(COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_WHITE, COLOR_PINK, COLOR_YELLOW, COLOR_CYAN)
+	..()
 
 /obj/item/restraints/handcuffs/cable/proc/cable_color(colorC)
 	if(!colorC)
@@ -204,6 +176,16 @@
 	color = pick(COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_PINK, COLOR_YELLOW, COLOR_CYAN)
 	return color
 
+/obj/item/restraints/handcuffs/alien
+	icon_state = "handcuffAlien"
+
+/obj/item/restraints/handcuffs/pinkcuffs
+	name = "fluffy pink handcuffs"
+	desc = "Use this to keep prisoners in line. Or you know, your significant other."
+	icon_state = "pinkcuffs"
+	item_state = "pinkcuff"
+
+
 /obj/item/restraints/handcuffs/cable/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/rods))
 		add_fingerprint(user)
@@ -211,9 +193,9 @@
 		if(!user.can_unEquip(src))
 			return ATTACK_CHAIN_PROCEED
 		if(!rods.use(1))
-			balloon_alert(user, "недостаточно стержней!")
+			to_chat(user, span_warning("You need at least six metal sheets to make good enough weights!"))
 			return ATTACK_CHAIN_PROCEED
-		balloon_alert(user, "стяжки намотаны на стержень")
+		to_chat(user, span_notice("You wrap the cable restraint around the top of the rod."))
 		var/obj/item/wirerod/wirerod = new(drop_location())
 		qdel(src)
 		user.put_in_hands(wirerod, ignore_anim = FALSE)
@@ -223,18 +205,18 @@
 		add_fingerprint(user)
 		var/obj/item/stack/sheet/metal/metal = I
 		if(metal.get_amount() < 6)
-			balloon_alert(user, "недостаточно стали!")
+			to_chat(user, span_warning("You need at least six metal sheets to make good enough weights!"))
 			return ATTACK_CHAIN_PROCEED
-		balloon_alert(user, "создание болы...")
+		to_chat(user, span_notice("You start to apply [I] to [src]..."))
 		if(!do_after(user, 3.5 SECONDS * metal.toolspeed, src, category = DA_CAT_TOOL) || QDELETED(metal) || !metal.use(6))
 			return ATTACK_CHAIN_PROCEED
-		balloon_alert(user, "бола собрана")
+		to_chat(user, span_notice("You make some weights out of [I] and tie them to [src]."))
 		var/obj/item/restraints/legcuffs/bola/bola = new(drop_location())
 		qdel(src)
 		user.put_in_hands(bola, ignore_anim = FALSE)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(iscrayon(I))
+	if(istype(I, /obj/item/toy/crayon))
 		add_fingerprint(user)
 		var/obj/item/toy/crayon/crayon = I
 		cable_color(crayon.colourName)
@@ -242,82 +224,44 @@
 
 	return ..()
 
+
 /obj/item/restraints/handcuffs/cable/zipties
 	name = "zipties"
-	desc = "Устройство из пластика, представляющее собой пару соединённых браслетов. \
-			Используются для ограничения подвижности гуманоидов посредством сковывания кистей рук. \
-			Не предназначены для многократного использования."
+	desc = "Plastic, disposable zipties that can be used to restrain temporarily but are destroyed after use."
 	breakout_time = 90 SECONDS
 	materials = list()
 	trashtype = /obj/item/restraints/handcuffs/cable/zipties/used
 
-/obj/item/restraints/handcuffs/cable/zipties/get_ru_names()
-	return alist(
-		NOMINATIVE = "стяжки",
-		GENITIVE = "стяжек",
-		DATIVE = "стяжкам",
-		ACCUSATIVE = "стяжки",
-		INSTRUMENTAL = "стяжками",
-		PREPOSITIONAL = "стяжках"
-	)
 
 /obj/item/restraints/handcuffs/cable/zipties/used
-	desc = "Сломанные и уже ни на что не годятся."
+	desc = "A pair of broken zipties."
 	icon_state = "cuff_white_used"
+
 
 /obj/item/restraints/handcuffs/cable/zipties/used/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	return ATTACK_CHAIN_PROCEED
 
-/obj/item/restraints/handcuffs/alien
-	icon_state = "handcuffAlien"
-
-/obj/item/restraints/handcuffs/pinkcuffs
-	name = "fluffy pink handcuffs"
-	desc = "Устройство из металла, представляющее собой пару соединённых цепью браслетов. \
-			Используются для ограничения подвижности заключённых посредством сковывания кистей рук. \
-			Для чего данная модель отделана розовым мехом — вопрос."
-	item_state = "pinkcuff"
-	icon_state = "pinkcuffs"
-
-/obj/item/restraints/handcuffs/pinkcuffs/get_ru_names()
-	return alist(
-		NOMINATIVE = "розовые наручники",
-		GENITIVE = "розовых наручников",
-		DATIVE = "розовым наручникам",
-		ACCUSATIVE = "розовые наручники",
-		INSTRUMENTAL = "розовыми наручниками",
-		PREPOSITIONAL = "розовых наручниках"
-	)
 
 /obj/item/restraints/handcuffs/manacles
 	name = "manacles"
-	desc = "Тяжёлые деревянные оковы, предназначенные для ограничения подвижности гуманоидов \
-			посредством сковывания кистей рук."
+	desc = "Wooden handcuffs analogue. Use this to keep prisoners in line."
 	icon = 'icons/obj/ninjaobjects.dmi'
 	lefthand_file = 'icons/mob/inhands/antag/ninja_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/antag/ninja_righthand.dmi'
 	icon_state = "manacle_lock"
 	item_state = "manacle"
+	breakout_time = 2 MINUTES
 	cuffsound = 'sound/items/zippoclose.ogg'
 	onmob_sheets = list(
-		ITEM_SLOT_HANDCUFFED_STRING = 'icons/obj/ninjaobjects.dmi',
+		ITEM_SLOT_HANDCUFFED_STRING = 'icons/obj/ninjaobjects.dmi'
 	)
 	materials = list()
 	trashtype = /obj/item/restraints/handcuffs/manacles/used
 
-/obj/item/restraints/handcuffs/manacles/get_ru_names()
-	return alist(
-		NOMINATIVE = "кандалы",
-		GENITIVE = "кандалов",
-		DATIVE = "кандалам",
-		ACCUSATIVE = "кандалы",
-		INSTRUMENTAL = "кандалами",
-		PREPOSITIONAL = "кандалах"
-	)
-
 /obj/item/restraints/handcuffs/manacles/used
-	desc = "Сломанные и уже ни на что не годятся."
+	desc = "A pair of broken manacles."
 	icon_state = "manacle_unlock"
 
 /obj/item/restraints/handcuffs/manacles/used/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	return ATTACK_CHAIN_PROCEED
+

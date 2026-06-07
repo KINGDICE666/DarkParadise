@@ -1,7 +1,7 @@
 /obj/effect/proc_holder/spell/area_teleport
+	name = "Area teleport"
 	desc = "This spell teleports you to a type of area of your selection."
 	nonabstract_req = TRUE
-	itb_blocks_spell = TRUE
 
 	/// If it lets the usr choose the teleport loc or picks it from the list.
 	var/randomise_selection = FALSE
@@ -14,8 +14,12 @@
 	/// Currently selected area.
 	var/area/selected_area
 
+
 /obj/effect/proc_holder/spell/area_teleport/before_cast(list/targets, mob/user)
-	..()
+	. = ..()
+	if(. & SPELL_CANCEL_CAST)
+		return
+		
 	selected_area = null // Reset it
 	var/A
 
@@ -36,6 +40,8 @@
 
 	selected_area = thearea
 
+
+
 /obj/effect/proc_holder/spell/area_teleport/cast(list/targets, mob/living/user)
 	if(!selected_area)
 		revert_cast(user)
@@ -44,9 +50,6 @@
 	smoke_type = SMOKE_HARMLESS
 	playsound(get_turf(user), sound_in, 50, TRUE)
 	for(var/mob/living/target in targets)
-		if(itb_blocks_teleport(target, target, "ITB подавляет магическое перемещение [src]."))
-			continue
-
 		var/list/area_turfs = list()
 		for(var/turf/area_turf in get_area_turfs(selected_area.type))
 			if(!area_turf.density)
@@ -69,7 +72,7 @@
 		if(target?.has_buckled_mobs())
 			target.unbuckle_all_mobs(force = TRUE)
 
-		var/list/area_turfs_temp = area_turfs.Copy()
+		var/list/area_turfs_temp = area_turfs
 		var/attempt = null
 		var/success = FALSE
 		while(length(area_turfs_temp))
@@ -81,11 +84,11 @@
 				break
 
 		if(!success)
-			if(!do_magic_direct_teleport(target, pick(area_turfs), notified_user = target, block_message = "ITB подавляет магическое перемещение [src]."))
-				continue
+			target.forceMove(pick(area_turfs))
 			playsound(get_turf(user), sound_out, 50, TRUE)
 
 		user.update_action_buttons_icon()  //Update action buttons as some spells might now be castable
+
 
 /obj/effect/proc_holder/spell/area_teleport/invocation(mob/user)
 	if(!invocation_area || !selected_area)
@@ -97,3 +100,4 @@
 
 		if("whisper")
 			user.whisper("[invocation] [uppertext(selected_area.name)]")
+

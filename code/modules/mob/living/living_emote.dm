@@ -9,15 +9,18 @@
 	)
 	message_postfix = " на %t."
 
+
 /datum/emote/living/should_play_sound(mob/user, intentional)
 	if(user.mind?.miming)
 		return FALSE  // shh
 	return ..()
 
+
 /datum/emote/living/blush
 	key = "blush"
 	key_third_person = "blushes"
 	message = "красне%(ет,ют)%."
+
 
 /datum/emote/living/bow
 	key = "bow"
@@ -26,6 +29,7 @@
 	message_postfix = " %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 
+
 /datum/emote/living/burp
 	key = "burp"
 	key_third_person = "burps"
@@ -33,6 +37,7 @@
 	message_mime = "довольно противно открыва%(ет,ют)% рот."
 	emote_type = EMOTE_AUDIBLE
 	muzzled_noises = list("своеобразные")
+
 
 /datum/emote/living/choke
 	key = "choke"
@@ -44,6 +49,7 @@
 	age_based = TRUE
 	cooldown = 5 SECONDS
 
+
 /datum/emote/living/choke/get_sound(mob/living/carbon/human/user)
 	if(ishuman(user) && user.dna?.species)
 		if(user.gender == FEMALE)
@@ -53,15 +59,18 @@
 	if(!.)
 		return ..()
 
+
 /datum/emote/living/collapse
 	key = "collapse"
 	key_third_person = "collapses"
 	message = "пада%(ет,ют)% без сознания!"
 
+
 /datum/emote/living/collapse/run_emote(mob/living/user, params, type_override, intentional)
 	. = ..()
 	if(.)
 		user.Paralyse(4 SECONDS)
+
 
 /datum/emote/living/dance
 	key = "dance"
@@ -70,6 +79,7 @@
 	hands_use_check = TRUE
 	cooldown = 5 SECONDS
 	var/dance_time = 3 SECONDS
+
 
 /datum/emote/living/dance/run_emote(mob/living/user, params, type_override, intentional)
 	. = ..()
@@ -81,27 +91,29 @@
 		user.spin(dance_time, pick(0.1 SECONDS, 0.2 SECONDS))
 		user.do_jitter_animation(rand(8 SECONDS, 16 SECONDS), dance_time / 4)
 
+
 /datum/emote/living/jump
 	key = "jump"
 	key_third_person = "jumps"
 	message = "прыга%(ет,ют)%!"
+
 
 /datum/emote/living/deathgasp
 	key = "deathgasp"
 	key_third_person = "deathgasps"
 	emote_type = EMOTE_AUDIBLE|EMOTE_VISIBLE  // make sure deathgasp gets runechatted regardless
 	age_based = TRUE
-	cooldown = 60 SECONDS
+	cooldown = 10 SECONDS
 	volume = 40
 	unintentional_stat_allowed = DEAD
 	muzzle_ignore = TRUE // makes sure that sound is played upon death
 	bypass_unintentional_cooldown = TRUE  // again, this absolutely MUST play when a user dies, if it can.
-	message = "замира%(ет,ют)% с пустым, безжизненным взглядом..."
-	message_robot = "вздрагива%(ет,ют)% и гас%(нет,нут)%..."
-	message_AI = "мерца%(ет,ют)% и замолка%(ет,ют)%..."
-	message_alien = "изда%(ёт,ют)% хрип и истека%(ет,ют)% зелёной кровью..."
-	message_larva = "шип%(ит,ят)% и обмяка%(ет,ют)%..."
-	message_monkey = "визж%(ит,ят)% и затиха%(ет,ют)%..."
+	message = "цепене%(ет,ют)% и расслабля%(ет,ют)%ся, %(его,её,его,их)% взгляд становится пустым и безжизненным..."
+	message_robot = "на мгновение вздрагива%(ет,ют)% и замира%(ет,ют)%, %(его,её,его,их)% глаза медленно темнеют..."
+	message_AI = "скрип%(ит,ят)% и мерца%(ет,ют)% экраном, пока %(его,её,его,их)% системы медленно отключаются..."
+	message_alien = "изда%(ёт,ют)% тихий гортанный звук, зелёная кровь пузырится из %(его,её,его,их)% пасти..."
+	message_larva = "с тошнотворным шипением выдыха%(ет,ют)% воздух и пада%(ет,ют)% на пол..."
+	message_monkey = "изда%(ёт,ют)% тихий визг, пада%(ет,ют)% и переста%(ёт,ют)% двигаться..."
 	message_simple = "переста%(ёт,ют)% двигаться..."
 
 	mob_type_blacklist_typecache = list(
@@ -109,22 +121,25 @@
 		/mob/living/captive_brain,
 	)
 
+
 /datum/emote/living/deathgasp/select_message_type(mob/user, msg, intentional)
 	if(ishuman(user))
 		. = user.dna?.species?.death_message
 	else if(isalien(user))
 		var/mob/living/carbon/alien/alien = user
 		. = alien.death_message
-	else if(is_simple_animal(user))
+	else if(istype(user, /mob/living/simple_animal))
 		var/mob/living/simple_animal/animal = user
 		. = animal.deathmessage	// TODO: translate all death messages
 	if(!.)
 		return ..()
 
+
 /datum/emote/living/deathgasp/should_play_sound(mob/user, intentional)
 	if(user.is_muzzled() && intentional)
 		return FALSE
 	return ..()
+
 
 /datum/emote/living/deathgasp/get_sound(mob/living/user)
 	if(ishuman(user) && user.dna?.species)
@@ -139,12 +154,13 @@
 		var/mob/living/silicon/silicon = user
 		. = silicon.death_sound
 
-	else if(is_simple_animal(user))
+	else if(istype(user, /mob/living/simple_animal))
 		var/mob/living/simple_animal/animal = user
 		. = animal.death_sound
 
 	if(!.)
 		return ..()
+
 
 /datum/emote/living/deathgasp/play_sound_effect(mob/living/carbon/human/user, intentional, sound_path, sound_volume)
 	if(!ishuman(user))
@@ -152,11 +168,13 @@
 	// special handling here: we don't want monkeys' gasps to sound through walls so you can actually walk past xenobio
 	playsound(user.loc, sound_path, sound_volume, TRUE, -8, frequency = user.get_age_pitch(), ignore_walls = !isnull(user.mind))
 
+
 /datum/emote/living/drool
 	key = "drool"
 	key_third_person = "drools"
 	message = "нес%(ёт,ут)% чепуху."
 	unintentional_stat_allowed = UNCONSCIOUS
+
 
 /datum/emote/living/quiver
 	key = "quiver"
@@ -164,12 +182,14 @@
 	message = "трепещ%(ет,ут)%."
 	unintentional_stat_allowed = UNCONSCIOUS
 
+
 /datum/emote/living/frown
 	key = "frown"
 	key_third_person = "frowns"
 	message = "хмур%(ит,ят)%ся."
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
+
 
 /datum/emote/living/gag
 	key = "gag"
@@ -180,11 +200,13 @@
 	emote_type = EMOTE_AUDIBLE
 	muzzled_noises = list("рвотные", "громкие")
 
+
 /datum/emote/living/glare
 	key = "glare"
 	key_third_person = "glares"
 	message = "свирепо смотр%(ит,ят)%."
 	message_param = EMOTE_PARAM_USE_POSTFIX
+
 
 /datum/emote/living/grin
 	key = "grin"
@@ -193,10 +215,12 @@
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 
+
 /datum/emote/living/grimace
 	key = "grimace"
 	key_third_person = "grimaces"
 	message = "гримаснича%(ет,ют)%."
+
 
 /datum/emote/living/look
 	key = "look"
@@ -204,23 +228,20 @@
 	message = "смотр%(ит,ят)%."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 
+
 /datum/emote/living/bshake
 	key = "bshake"
 	key_third_person = "bshakes"
 	message = "тряс%(ёт,ут)%ся."
 	unintentional_stat_allowed = UNCONSCIOUS
 
-/datum/emote/living/bshake/run_emote(mob/living/user, params, type_override, intentional)
-	. = ..()
-	if(!.)
-		return FALSE
-	user.Jitter(5 SECONDS)
 
 /datum/emote/living/shudder
 	key = "shudder"
 	key_third_person = "shudders"
 	message = "содрога%(ет,ют)%ся."
 	unintentional_stat_allowed = UNCONSCIOUS
+
 
 /datum/emote/living/point
 	key = "point"
@@ -229,10 +250,12 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	hands_use_check = TRUE
 
+
 /datum/emote/living/point/act_on_target(mob/user, target)
 	if(!target)
 		return
 	user.pointed(target)
+
 
 /datum/emote/living/point/run_emote(mob/living/carbon/human/user, params, type_override, intentional)
 	// again, /tg/ has some flavor when pointing (like if you only have one leg) that applies debuffs
@@ -246,10 +269,12 @@
 			message_param = "[span_userdanger("ударя%(ет,ют)%ся головой об пол")], пытаясь указать на %t."
 	return ..()
 
+
 /datum/emote/living/pout
 	key = "pout"
 	key_third_person = "pouts"
 	message = "надува%(ет,ют)% губы."
+
 
 /datum/emote/living/scream
 	key = "scream"
@@ -269,21 +294,25 @@
 	vary = TRUE
 	volume = 80
 
+
 /datum/emote/living/scream/get_sound(mob/living/user)
 	if(isalien(user))
 		return 'sound/voice/hiss5.ogg'
 	return ..()
+
 
 /datum/emote/living/shake
 	key = "shake"
 	key_third_person = "shakes"
 	message = "тряс%(ёт,ут)% головой."
 
+
 /datum/emote/living/shiver
 	key = "shiver"
 	key_third_person = "shivers"
 	message = "дрож%(ит,ат)%."
 	unintentional_stat_allowed = UNCONSCIOUS
+
 
 /datum/emote/living/sigh
 	key = "sigh"
@@ -295,6 +324,7 @@
 	age_based = TRUE
 	volume = 70
 
+
 /datum/emote/living/sigh/get_sound(mob/living/carbon/human/user)
 	if(ishuman(user) && user.dna?.species)
 		if(user.gender == FEMALE)
@@ -304,6 +334,7 @@
 	if(!.)
 		return ..()
 
+
 /datum/emote/living/sigh/happy
 	key = "hsigh"
 	key_third_person = "hsighs"
@@ -311,10 +342,12 @@
 	message_mime = "кажется удовлетворённо вздыха%(ет,ют)%."
 	muzzled_noises = list("довольные", "удовлетворённые")
 
+
 /datum/emote/living/sit
 	key = "sit"
 	key_third_person = "sits"
 	message = "сад%(ит,ят)%ся."
+
 
 /datum/emote/living/smile
 	key = "smile"
@@ -324,6 +357,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	species_type_blacklist_typecache = list(/datum/species/skrell)	// they got their own
 
+
 /datum/emote/living/wsmile
 	key = "wsmile"
 	key_third_person = "wsmiles"
@@ -332,12 +366,14 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	species_type_blacklist_typecache = list(/datum/species/skrell)
 
+
 /datum/emote/living/smug
 	key = "smug"
 	key_third_person = "smugs"
 	message = "самодовольно ухмыля%(ет,ют)%ся."
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
+
 
 /datum/emote/living/sniff
 	key = "sniff"
@@ -350,10 +386,12 @@
 	age_based = TRUE
 	volume = 30
 
+
 /datum/emote/living/sniff/get_sound(mob/living/user)
 	if(user.gender == FEMALE)
 		return 'sound/voice/sniff_female.ogg'
 	return 'sound/voice/sniff_male.ogg'
+
 
 /datum/emote/living/snore
 	key = "snore"
@@ -366,6 +404,7 @@
 	volume = 70
 	age_based = TRUE
 
+
 /datum/emote/living/snore/get_sound(mob/living/carbon/human/user)
 	if(ishuman(user) && user.dna?.species)
 		if(user.gender == FEMALE)
@@ -375,6 +414,7 @@
 	if(!.)
 		return ..()
 
+
 /datum/emote/living/nightmare
 	key = "nightmare"
 	message = "содрога%(ет,ют)%ся во сне."
@@ -383,11 +423,13 @@
 	unintentional_stat_allowed = UNCONSCIOUS
 	max_unintentional_stat_allowed = UNCONSCIOUS
 
+
 /datum/emote/living/nightmare/run_emote(mob/user, params, type_override, intentional)
 	. = ..()
 	if(!.)
 		return FALSE
 	user.dir = pick(GLOB.cardinal)
+
 
 /datum/emote/living/stare
 	key = "stare"
@@ -395,21 +437,25 @@
 	message = "пял%(ит,ят)%ся."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 
+
 /datum/emote/living/strech
 	key = "stretch"
 	key_third_person = "stretches"
 	message = "размина%(ет,ют)% конечности."
 	message_robot = "проверя%(ет,ют)% приводы."
 
+
 /datum/emote/living/sulk
 	key = "sulk"
 	key_third_person = "sulks"
 	message = "ду%(ет,ют)%ся."
 
+
 /datum/emote/living/sway
 	key = "sway"
 	key_third_person = "sways"
 	message = "умопомрачительно круж%(ит,ат)%ся."
+
 
 /datum/emote/living/swear
 	key = "swear"
@@ -427,15 +473,18 @@
 		/mob/living/simple_animal/slime,
 	)
 
+
 /datum/emote/living/tilt
 	key = "tilt"
 	key_third_person = "tilts"
 	message = "наклоня%(ет,ют)% голову на бок."
 
+
 /datum/emote/living/tremble
 	key = "tremble"
 	key_third_person = "trembles"
 	message = "дрож%(ит,ат)% в ужасе!"
+
 
 /datum/emote/living/twitch
 	key = "twitch"
@@ -443,10 +492,12 @@
 	message = "сильно дёрга%(ет,ют)%ся."
 	unintentional_stat_allowed = UNCONSCIOUS
 
+
 /datum/emote/living/twitch_s
 	key = "twitch_s"
 	message = "дёрга%(ет,ют)%ся."
 	unintentional_stat_allowed = UNCONSCIOUS
+
 
 /datum/emote/living/whimper
 	key = "whimper"
@@ -456,19 +507,6 @@
 	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
 	muzzled_noises = list("тихие", "жалкие")
 
-/datum/emote/living/surrender
-	key = "surrender"
-	key_third_person = "surrenders"
-	message = "поднима%(ет,ют)% руки вверх и сда%(ёт,ют)%ся!"
-	emote_type = EMOTE_VISIBLE | EMOTE_AUDIBLE
-
-/datum/emote/living/surrender/run_emote(mob/user, params, type_override, intentional)
-	. = ..()
-	if(isliving(user))
-		var/mob/living/living = user
-		living.apply_status_effect(STATUS_EFFECT_CAPITULATED)
-		living.remove_status_effect(/datum/status_effect/grouped/surrender)
-		SEND_SIGNAL(living, COMSIG_LIVING_GUNPOINT_CANCEL)
 
 /datum/emote/living/custom
 	key = "me"
@@ -483,12 +521,14 @@
 	// It falls on the caller to determine whether or not it should actually be called.
 	unintentional_stat_allowed = DEAD
 
+
 /datum/emote/living/custom/proc/check_invalid(mob/user, input)
 	var/static/regex/stop_bad_mime = regex(@"says|exclaims|yells|asks")
 	if(stop_bad_mime.Find(input, 1, 1))
 		to_chat(user, span_danger("Недопустимая эмоция."))
 		return TRUE
 	return FALSE
+
 
 /datum/emote/living/custom/run_emote(mob/user, params, type_override = null, intentional = FALSE)
 	var/custom_emote
@@ -509,7 +549,7 @@
 				if("Слышимая")
 					custom_emote_type = EMOTE_AUDIBLE
 				else
-					to_chat(user, span_warning("Невозможно использовать эту эмоцию — она должна быть либо слышимой, либо видимой."))
+					to_chat(user, span_warning("Невозможно использовать эту эмоцию - она должна быть либо слышимой, либо видимой."))
 					return
 	else
 		custom_emote = params

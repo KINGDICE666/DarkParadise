@@ -14,13 +14,13 @@
 	var/used = FALSE
 
 /obj/item/dna_upgrader/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "модификатор ДНК",
 		GENITIVE = "модификатора ДНК",
 		DATIVE = "модификатору ДНК",
 		ACCUSATIVE = "модификатор ДНК",
 		INSTRUMENTAL = "модификатором ДНК",
-		PREPOSITIONAL = "модификаторе ДНК",
+		PREPOSITIONAL = "модификаторе ДНК"
 	)
 
 /obj/item/dna_upgrader/update_icon_state()

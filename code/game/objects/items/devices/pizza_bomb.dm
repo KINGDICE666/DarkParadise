@@ -12,9 +12,11 @@
 	var/correct_wire
 	var/armer //Used for admin purposes
 
+
 /obj/item/pizza_bomb/Initialize(mapload)
 	. = ..()
 	correct_wire = pick(wires)
+
 
 /obj/item/pizza_bomb/update_icon_state()
 	if(disarmed)
@@ -25,12 +27,14 @@
 		return
 	icon_state = "pizzabox1"
 
+
 /obj/item/pizza_bomb/update_name(updates)
 	. = ..()
 	if(timer_set && !disarmed)
 		name = "pizza box"
 	else
 		name = "pizza bomb"
+
 
 /obj/item/pizza_bomb/update_desc(updates)
 	. = ..()
@@ -44,6 +48,7 @@
 		desc = "A box suited for pizzas."
 	else
 		desc = "It seems inactive."
+
 
 /obj/item/pizza_bomb/attack_self(mob/user)
 	if(disarmed)
@@ -71,7 +76,7 @@
 		return
 
 	if(!primed)
-		audible_message(span_warning("[get_examine_icon(hearers(user))] *beep* *beep* *beep*"))
+		audible_message(span_warning("[bicon(src)] *beep* *beep* *beep*"))
 		playsound(src, 'sound/machines/triple_beep.ogg', 40, extrarange = SHORT_RANGE_SOUND_EXTRARANGE)
 		to_chat(user, span_danger("That's no pizza! That's a bomb!"))
 		message_admins("[key_name_admin(usr)] has triggered a pizza bomb armed by [armer] at [ADMIN_COORDJMP(loc)].")
@@ -80,14 +85,16 @@
 		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 		addtimer(CALLBACK(src, PROC_REF(go_boom)), timer)
 
+
 /obj/item/pizza_bomb/proc/go_boom()
 	if(disarmed)
-		visible_message(span_danger("[get_examine_icon(viewers(loc))] Sparks briefly jump out of the [correct_wire] wire on  [src], but it's disarmed!"))
+		visible_message(span_danger("[bicon(src)] Sparks briefly jump out of the [correct_wire] wire on  [src], but it's disarmed!"))
 		return
 	atom_say("Наслаждайтесь пиццей!")
 	visible_message(span_userdanger(" [src] violently explodes!"))
 	explosion(loc, devastation_range = 1, heavy_impact_range = 2, light_impact_range = 4, flame_range = 2) //Identical to a minibomb
 	qdel(src)
+
 
 /obj/item/pizza_bomb/wirecutter_act(mob/living/user, obj/item/I)
 	if(!primed && !disarmed)	// its a secret!
@@ -122,11 +129,12 @@
 		to_chat(user, span_userdanger("WRONG WIRE!!!"))
 		go_boom()
 		return .
-	audible_message(span_warning("[get_examine_icon(hearers(loc))] The [name] suddenly stops beeping and seems lifeless."))
+	audible_message(span_warning("[bicon(src)] The [name] suddenly stops beeping and seems lifeless."))
 	to_chat(user, span_notice("You did it!"))
 	disarmed = TRUE
 	primed = FALSE
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
+
 
 /obj/item/pizza_bomb/autoarm
 	timer_set = 1

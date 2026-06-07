@@ -30,8 +30,7 @@
 		return COMPONENT_INCOMPATIBLE
 	RegisterSignal(parent, COMSIG_ATOM_ORBIT_BEGIN, PROC_REF(orbit_begin))
 	RegisterSignal(parent, COMSIG_ATOM_ORBIT_STOP, PROC_REF(orbit_stop))
-	RegisterSignal(parent, COMSIG_VV_TOPIC, PROC_REF(handle_vv_topic))
-	RegisterSignal(parent, COMSIG_ATOM_EXAMINE, PROC_REF(on_examine))
+	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 	deadchat_mode = _deadchat_mode
 	inputs = _inputs
 	input_cooldown = _input_cooldown
@@ -45,7 +44,7 @@
 	for(var/item in inputs)
 		input_names |= item
 	var/atom/atom_parent = parent
-	notify_ghosts("[DECLENT_RU_CAP(atom_parent, NOMINATIVE)] теперь может контролироваться призраками из чата! Возможные команды: [english_list(input_names)]", source = parent, action = NOTIFY_FOLLOW, title="Контроль дедчата!")
+	notify_ghosts("[capitalize(atom_parent.declent_ru(NOMINATIVE))] теперь может контролироваться призраками из чата! Возможные команды: [english_list(input_names)]", source = parent, action = NOTIFY_FOLLOW, title="Контроль дедчата!")
 	if(!ismob(parent) && !(parent in GLOB.poi_list))
 		GLOB.poi_list |= parent
 		generated_point_of_interest = TRUE
@@ -56,9 +55,9 @@
 		// get started with anyone who's already following
 		orbit_begin(A, ghost)
 
-/datum/component/deadchat_control/Destroy(force)
+/datum/component/deadchat_control/Destroy(force, silent)
 	var/atom/atom_parent = parent
-	var/message = span_deadsay(span_bolditalics("[DECLENT_RU_CAP(atom_parent, NOMINATIVE)] теперь не контролируется призраками."))
+	var/message = "<span class='deadsay italics bold'>[capitalize(atom_parent.declent_ru(NOMINATIVE))] теперь не контролируется призраками.</span>"
 	for(var/mob/dead/observer/M in orbiters)
 		to_chat(M, message)
 	on_removal?.Invoke()
@@ -67,7 +66,6 @@
 	ckey_to_cooldown = null
 	if(generated_point_of_interest)
 		GLOB.poi_list -= parent
-	on_removal = null
 	return ..()
 
 /datum/component/deadchat_control/proc/deadchat_react(mob/source, message)
@@ -83,14 +81,14 @@
 			return
 		var/cooldown = ckey_to_cooldown[source.ckey] - world.time
 		if(cooldown > 0)
-			var/ceil_cooldown = ceil(cooldown * 0.1)
-			to_chat(source, span_warning("Управление командами будет доступно через [ceil_cooldown] секунд[DECL_SEC_MIN(ceil_cooldown)]."))
+			var/ceil_cooldown = CEILING(cooldown * 0.1, 1)
+			to_chat(source, span_warning("Управление командами будет доступно через [ceil_cooldown] секунд[declension_ru(ceil_cooldown,"у", "ы", "")]."))
 			return MOB_DEADSAY_SIGNAL_INTERCEPT
 		ckey_to_cooldown[source.ckey] = world.time + input_cooldown
 		addtimer(CALLBACK(src, PROC_REF(end_cooldown), source.ckey), input_cooldown)
 		inputs[message].Invoke()
 		var/input_cooldown_s = input_cooldown * 0.1
-		to_chat(source, span_notice("Команда \"[message]\" принята. Следующий ввод будет доступен через [input_cooldown_s] секунд[DECL_SEC_MIN(input_cooldown_s)]."))
+		to_chat(source, span_notice("Команда \"[message]\" принята. Следующий ввод будет доступен через [input_cooldown_s] секунд[declension_ru(input_cooldown_s,"у", "ы", "")]."))
 		return MOB_DEADSAY_SIGNAL_INTERCEPT
 
 	if(deadchat_mode & DEADCHAT_DEMOCRACY_MODE)
@@ -108,11 +106,11 @@
 		inputs[result].Invoke()
 		if(!(deadchat_mode & MUTE_DEADCHAT_DEMOCRACY_MESSAGES))
 			var/input_cooldown_s = input_cooldown * 0.1
-			var/message = span_deadsay(span_bolditalics("[DECLENT_RU_CAP(atom_parent, NOMINATIVE)] выполнил команду [result]!<br>Новое голосование начато. Оно закончится через [input_cooldown_s] секунд[DECL_SEC_MIN(input_cooldown_s)]."))
+			var/message = "<span class='deadsay italics bold'>[capitalize(atom_parent.declent_ru(NOMINATIVE))] выполнил команду [result]!<br>Новое голосование начато. Оно закончится через [input_cooldown_s] секунд[declension_ru(input_cooldown_s,"у", "ы", "")].</span>"
 			for(var/mob/dead/observer/M in orbiters)
 				to_chat(M, message)
 	else if(!(deadchat_mode & MUTE_DEADCHAT_DEMOCRACY_MESSAGES))
-		var/message = span_deadsay(span_bolditalics("В этом цикле не было голосов."))
+		var/message = "<span class='deadsay italics bold'>В этом цикле не было голосов.</span>"
 		for(var/mob/dead/observer/M in orbiters)
 			to_chat(M, message)
 
@@ -161,11 +159,12 @@
 			to_chat(O, span_notice("Если вы хотите принять участие, включите дедчат и снова прыгните на этот объект."))
 			return
 		else
-			to_chat(O, span_deadsay("[DECLENT_RU_CAP(atom_parent, NOMINATIVE)] контролируется призраками через чат! Осмотрите [atom_parent.declent_ru(ACCUSATIVE)] чтобы увидеть команды управления, которые вы можете использовать пока летаете вокруг н[GEND_HIS_HER(atom_parent)]!"))
+			to_chat(O, span_deadsay("[capitalize(atom_parent.declent_ru(NOMINATIVE))] контролируется призраками через чат! Осмотрите [atom_parent.declent_ru(ACCUSATIVE)] чтобы увидеть команды управления, которые вы можете использовать пока летаете вокруг [genderize_ru(atom_parent.gender, "него", "неё", "него", "них")]!"))
 
 	RegisterSignal(orbiter, COMSIG_MOB_DEADSAY, PROC_REF(deadchat_react))
 	RegisterSignal(orbiter, COMSIG_MOB_AUTOMUTE_CHECK, PROC_REF(waive_automute))
 	orbiters |= orbiter
+
 
 /datum/component/deadchat_control/proc/orbit_stop(atom/source, atom/orbiter)
 	SIGNAL_HANDLER  // COMSIG_ATOM_ORBIT_STOP
@@ -192,50 +191,30 @@
 		return WAIVE_AUTOMUTE_CHECK
 	return NONE
 
-/// Allows for this component to be removed via a dedicated VV dropdown entry.
-/datum/component/deadchat_control/proc/handle_vv_topic(datum/source, mob/user, list/href_list)
-	SIGNAL_HANDLER
-	if(!href_list[VV_HK_DEADCHAT_PLAYS] || !check_rights(R_EVENT))
-		return
-	. = COMPONENT_VV_HANDLED
-	INVOKE_ASYNC(src, PROC_REF(async_handle_vv_topic), user, href_list)
-
-/// Async proc handling the alert input and associated logic for an admin removing this component via the VV dropdown.
-/datum/component/deadchat_control/proc/async_handle_vv_topic(mob/user, list/href_list)
-	if(tgui_alert(user, "Remove deadchat control from [parent]?", "Deadchat Plays [parent]", list("Remove", "Cancel")) == "Remove")
-		// Quick sanity check as this is an async call.
-		if(QDELETED(src))
-			return
-
-		to_chat(user, span_notice("Deadchat can no longer control [parent]."))
-		log_admin("[key_name(user)] has removed deadchat control from [parent]")
-		message_admins(span_notice("[key_name(user)] has removed deadchat control from [parent]"))
-
-		qdel(src)
 
 /// Informs any examiners to the inputs available as part of deadchat control, as well as the current operating mode and cooldowns.
 /datum/component/deadchat_control/proc/on_examine(atom/object, mob/user, list/examine_list)
-	SIGNAL_HANDLER  // COMSIG_ATOM_EXAMINE
+	SIGNAL_HANDLER  // COMSIG_PARENT_EXAMINE
 
 	if(!isobserver(user))
 		return
 
-	examine_list += span_notice("[GEND_HE_SHE_CAP(object)] контролируется призраками через чат по [(deadchat_mode & DEADCHAT_DEMOCRACY_MODE) ? "демократическому" : "анархическому"] набору правил!")
+	examine_list += span_notice("[genderize_ru(object.gender, "Он", "Она", "Оно", "Они")] контролируется призраками через чат по [(deadchat_mode & DEADCHAT_DEMOCRACY_MODE) ? "демократическому" : "анархическому"] набору правил!")
 
 	if(user.client && !(user.client.prefs.toggles & PREFTOGGLE_CHAT_DEAD))
 		examine_list += span_deadsay("Поскольку у вас отключён дедчат, вы не увидите сообщения о голосовании и не сможете участвовать в нем.")
 		return
 
 	if(!(user in orbiters))
-		examine_list += span_deadsay(span_bold("Прыгнете на н[GEND_HIS_HER(object)] и осмотрите снова, чтобы увидеть список доступных команд."))
+		examine_list += "<span class='deadsay bold'>Прыгнете на [genderize_ru(object.gender, "него", "неё", "него", "них")]] и осмотрите снова, чтобы увидеть список доступных команд.</span>"
 		return
 
 	var/input_cooldown_s = input_cooldown * 0.1
 
 	if(deadchat_mode & DEADCHAT_DEMOCRACY_MODE)
-		examine_list += span_notice("Введите команду в чат, чтобы проголосовать за действие. Это происходит один раз в [input_cooldown_s] секунд[DECL_SEC_MIN(input_cooldown_s)].")
+		examine_list += span_notice("Введите команду в чат, чтобы проголосовать за действие. Это происходит один раз в [input_cooldown_s] секунд[declension_ru(input_cooldown_s,"у", "ы", "")].")
 	else if(deadchat_mode & DEADCHAT_ANARCHY_MODE)
-		examine_list += span_notice("Введите команду в чат для выполнения действия. Вы можете делать это один раз в [input_cooldown_s] секунд[DECL_SEC_MIN(input_cooldown_s)].")
+		examine_list += span_notice("Введите команду в чат для выполнения действия. Вы можете делать это один раз в [input_cooldown_s] секунд[declension_ru(input_cooldown_s,"у", "ы", "")].")
 
 	var/extended_examine = "Список команд:"
 
@@ -252,7 +231,7 @@
 	if(!ghost || isliving(ghost))
 		return
 	var/atom/atom_parent = parent
-	to_chat(ghost, "([ghost_follow_link(parent, ghost)]) [span_green("Вы можете снова ввести команду для управления [atom_parent.declent_ru(INSTRUMENTAL)].")]")
+	to_chat(ghost, span_green("Вы можете снова ввести команду для управления [atom_parent.declent_ru(INSTRUMENTAL)] ([ghost_follow_link(parent, ghost)])."))
 
 /// Dummy to call since we can't proc reference builtins
 /datum/component/deadchat_control/proc/_step(ref, dir)
@@ -291,6 +270,7 @@
 	_inputs["вправо"] = CALLBACK(parent, TYPE_PROC_REF(/obj/effect/immovablerod, walk_in_direction), EAST)
 
 	return ..()
+
 
 /**
  * Deadchat Moves Things

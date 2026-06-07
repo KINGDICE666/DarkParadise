@@ -37,6 +37,7 @@
 
 	return FALSE
 
+
 /client/proc/calculate_move_dir()
 	var/movement_dir = NONE
 	for(var/_key in keys_held)

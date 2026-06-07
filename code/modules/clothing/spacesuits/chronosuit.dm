@@ -4,7 +4,7 @@
 	icon_state = "chronohelmet"
 	item_state = "chronohelmet"
 	slowdown = 1
-	armor = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 90, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 90, RAD = 90, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	var/obj/item/clothing/suit/space/chronos/suit = null
 
@@ -13,9 +13,11 @@
 		suit.deactivate()
 	. = ..()
 
+
 /obj/item/clothing/head/helmet/space/chronos/Destroy()
 	suit?.deactivate()
 	return ..()
+
 
 /obj/item/clothing/suit/space/chronos
 	name = "Chronosuit"
@@ -23,7 +25,7 @@
 	icon_state = "chronosuit"
 	item_state = "chronosuit"
 	actions_types = list(/datum/action/item_action/toggle)
-	armor = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 90, FIRE = 100, ACID = 1000)
+	armor = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 90, RAD = 90, FIRE = 100, ACID = 1000)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	var/obj/item/clothing/head/helmet/space/chronos/helmet = null
 	var/obj/effect/chronos_cam/camera = null
@@ -31,6 +33,7 @@
 	var/activated = 0
 	var/cooldowntime = 50 //deciseconds
 	var/teleporting = 0
+
 
 /obj/item/clothing/suit/space/chronos/proc/new_camera(mob/user)
 	if(camera)
@@ -60,7 +63,7 @@
 	switch(severity)
 		if(1)
 			if(user && ishuman(user) && (user.wear_suit == src))
-				to_chat(user, span_userdanger("Elecrtromagnetic pulse detected, shutting down systems to preserve integrity..."))
+				to_chat(user, "<span class='userdanger'>Elecrtromagnetic pulse detected, shutting down systems to preserve integrity...</span>")
 			deactivate()
 
 /obj/item/clothing/suit/space/chronos/proc/chronowalk(mob/living/carbon/human/user)
@@ -85,7 +88,7 @@
 		spawn(7)
 			if(user)
 				if(phaseanim)
-					if(camera?.loc)
+					if(camera && camera.loc)
 						to_turf = camera.loc
 						flick("chronounphase", phaseanim)
 					else
@@ -174,6 +177,7 @@
 		activated = 0
 		activating = 0
 
+
 /obj/effect/chronos_cam
 	name = "Chronosuit View"
 	invisibility = INVISIBILITY_ABSTRACT
@@ -183,7 +187,7 @@
 /obj/effect/chronos_cam/singularity_act()
 	return
 
-/obj/effect/chronos_cam/singularity_pull(atom/singularity, current_size)
+/obj/effect/chronos_cam/singularity_pull()
 	return
 
 /obj/effect/chronos_cam/relaymove(mob/user, direction)

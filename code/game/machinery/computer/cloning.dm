@@ -26,13 +26,13 @@
 	light_color = LIGHT_COLOR_DARK_BLUE
 
 /obj/machinery/computer/cloning/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "консоль капсулы клонирования",
 		GENITIVE = "консоли капсулы клонирования",
 		DATIVE = "консоли капсулы клонирования",
 		ACCUSATIVE = "консоль капсулы клонирования",
 		INSTRUMENTAL = "консолью капсулы клонирования",
-		PREPOSITIONAL = "консоли капсулы клонирования",
+		PREPOSITIONAL = "консоли капсулы клонирования"
 	)
 
 /obj/machinery/computer/cloning/Initialize(mapload)
@@ -47,7 +47,7 @@
 	return ..()
 
 /obj/machinery/computer/cloning/process()
-	if(!scanner || !length(pods) || !autoprocess || stat & NOPOWER)
+	if(!scanner || !pods.len || !autoprocess || stat & NOPOWER)
 		return
 
 	if(scanner.occupant && can_autoprocess())
@@ -65,11 +65,9 @@
 
 /obj/machinery/computer/cloning/proc/updatemodules()
 	src.scanner = findscanner()
-	for(var/obj/machinery/clonepod/pod as anything in pods)
-		if(QDELETED(pod) || pod.connected != src)
-			pods -= pod
+	releasecloner()
 	findcloner()
-	if(!selected_pod && length(pods))
+	if(!selected_pod && pods.len)
 		selected_pod = pods[1]
 
 /obj/machinery/computer/cloning/proc/findscanner()
@@ -94,13 +92,13 @@
 	pods.Cut()
 
 /obj/machinery/computer/cloning/proc/findcloner()
-	var/num = 1 + length(pods)
-	for(var/obj/machinery/clonepod/pod in get_area(src))
-		if(pod.connected || (pod in pods))
-			continue
-		pods += pod
-		pod.connected = src
-		pod.name = "[initial(pod.name)] #[num++]"
+	var/num = 1
+	for(var/obj/machinery/clonepod/P in get_area(src))
+		if(!P.connected)
+			pods += P
+			P.connected = src
+			P.name = "[initial(P.name)] #[num++]"
+
 
 /obj/machinery/computer/cloning/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -120,6 +118,7 @@
 
 	return ..()
 
+
 /obj/machinery/computer/cloning/multitool_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -136,8 +135,10 @@
 	clonepod.name = "[initial(clonepod.name)] #[length(pods)]"
 	balloon_alert(user, "устройства связаны")
 
+
 /obj/machinery/computer/cloning/attack_ai(mob/user)
 	return attack_hand(user)
+
 
 /obj/machinery/computer/cloning/attack_hand(mob/user)
 	if(..())
@@ -156,6 +157,7 @@
 	if(emagged)
 		circuit = /obj/item/circuitboard/broken
 	..()
+
 
 /obj/machinery/computer/cloning/emag_act(mob/user)
 	if(!emagged)
@@ -194,7 +196,7 @@
 	data["scanner"] = sanitize("[src.scanner]")
 
 	var/canpodautoprocess = 0
-	if(length(pods))
+	if(pods.len)
 		data["numberofpods"] = src.pods.len
 
 		var/list/tempods[0]
@@ -208,7 +210,7 @@
 			else if(pod.occupant && !(pod.stat & NOPOWER))
 				status = "cloning"
 			tempods.Add(list(list(
-				"pod" = pod.UID(),
+				"pod" = "\ref[pod]",
 				"name" = sanitize(capitalize(pod.name)),
 				"biomass" = pod.biomass,
 				"status" = status,
@@ -221,7 +223,7 @@
 	data["can_brainscan"] = can_brainscan() // You'll need tier 4s for this
 	data["scan_mode"] = scan_mode
 
-	if(scanner && length(pods) && ((scanner.scan_level > 2) || canpodautoprocess))
+	if(scanner && pods.len && ((scanner.scan_level > 2) || canpodautoprocess))
 		data["autoallowed"] = 1
 	else
 		data["autoallowed"] = 0
@@ -231,11 +233,11 @@
 	data["temp"] = temp
 	data["scantemp"] = scantemp
 	data["disk"] = src.diskette
-	data["selected_pod"] = selected_pod.UID()
+	data["selected_pod"] = "\ref[selected_pod]"
 	var/list/temprecords[0]
 	for(var/datum/dna2/record/R in records)
 		var/tempRealName = R.dna.real_name
-		temprecords.Add(list(list("record" = R.UID(), "realname" = sanitize(tempRealName))))
+		temprecords.Add(list(list("record" = "\ref[R]", "realname" = sanitize(tempRealName))))
 	data["records"] = temprecords
 
 	if(selected_pod && (selected_pod in pods) && selected_pod.biomass >= CLONE_BIOMASS)
@@ -273,7 +275,7 @@
 					menu = MENU_RECORDS
 				else
 					set_temp("Отказано в доступе.", "danger")
-					playsound(src, SFX_BUTTON_DENIED, 20)
+					playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
 			return
 
 	switch(action)
@@ -300,7 +302,7 @@
 			var/ref = params["ref"]
 			if(!length(ref))
 				return
-			active_record = locateUID(ref)
+			active_record = locate(ref)
 			if(istype(active_record))
 				if(isnull(active_record.ckey))
 					qdel(active_record)
@@ -310,7 +312,7 @@
 					if(active_record.implant)
 						H = locate(active_record.implant)
 					var/list/payload = list(
-						activerecord = active_record.UID(),
+						activerecord = "\ref[active_record]",
 						health = (H && istype(H)) ? H.sensehealth() : "",
 						realname = sanitize(active_record.dna.real_name),
 						unidentity = active_record.dna.uni_identity,
@@ -370,14 +372,14 @@
 			var/ref = params["ref"]
 			if(!length(ref))
 				return
-			var/obj/machinery/clonepod/selected = locateUID(ref)
+			var/obj/machinery/clonepod/selected = locate(ref)
 			if(istype(selected) && (selected in pods))
 				selected_pod = selected
 		if("clone")
 			var/ref = params["ref"]
 			if(!length(ref))
 				return
-			var/datum/dna2/record/C = locateUID(ref)
+			var/datum/dna2/record/C = locate(ref)
 			//Look for that player! They better be dead!
 			if(istype(C))
 				ui_modal_clear(src)
@@ -502,10 +504,10 @@
 	if(!imp)
 		imp = new /obj/item/implant/health(subject)
 		imp.implant(subject)
-	R.implant = imp.UID()
+	R.implant = "\ref[imp]"
 
 	if(!isnull(subject.mind)) //Save that mind so traitors can continue traitoring after cloning.
-		R.mind = WEAKREF(subject.mind)
+		R.mind = "\ref[subject.mind]"
 
 	src.records += R
 	set_scan_temp(emagged ? "Жертва успешно отсканирована. [extra_info]" : "Субъект успешно отсканирован. [extra_info]", "good")

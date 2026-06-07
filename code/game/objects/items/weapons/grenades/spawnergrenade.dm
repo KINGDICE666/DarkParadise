@@ -49,13 +49,13 @@
 	origin_tech = "materials=3;magnets=4;syndicate=3"
 
 /obj/item/grenade/spawnergrenade/feral_cats/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "граната с дикими кошками",
 		GENITIVE = "гранаты с дикими кошками",
 		DATIVE = "гранате с дикими кошками",
 		ACCUSATIVE = "гранату с дикими кошками",
 		INSTRUMENTAL = "гранатой с дикими кошками",
-		PREPOSITIONAL = "гранате с дикими кошками",
+		PREPOSITIONAL = "гранате с дикими кошками"
 	)
 
 /obj/item/grenade/spawnergrenade/feral_cats/prime()			//Own proc for this because the regular one would flash people which was dumb.
@@ -70,6 +70,7 @@
 			if(prob(50))
 				for(var/j = 1, j <= rand(1, 3), j++)
 					step(x, pick(NORTH,SOUTH,EAST,WEST))
+
 
 	qdel(src)
 	return

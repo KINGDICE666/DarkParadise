@@ -26,6 +26,7 @@
 	filling_color = "#DB944D"
 	list_reagents = list("cream" = 2, "sugar" = 2)
 
+
 /obj/item/reagent_containers/food/snacks/candy/toffee
 	name = "toffee"
 	desc = "A hard, brittle candy with a distinctive taste."
@@ -47,8 +48,8 @@
 	filling_color = "#7D5F46"
 	list_reagents = list("nutriment" = 3, "sugar" = 5)
 
-/obj/item/reagent_containers/food/snacks/candy/taffy/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/candy/taffy/New()
+	..()
 	icon_state = pick("candy1", "candy2", "candy3", "candy4", "candy5")
 
 /obj/item/reagent_containers/food/snacks/candy/fudge
@@ -130,6 +131,7 @@
 	list_reagents = list("nutriment" = 1, "chocolate" = 1)
 	tastes = list("chocolate" = 1)
 
+
 /obj/item/reagent_containers/food/snacks/candy/candycane
 	name = "candy cane"
 	desc = "A festive mint candy cane."
@@ -174,6 +176,7 @@
 	list_reagents = list("nutriment" = 2, "chocolate" = 4)
 	tastes = list("chocolate" = 1)
 
+
 /obj/item/reagent_containers/food/snacks/candy/coin
 	name = "chocolate coin"
 	desc = "Probably won't work in the vending machines."
@@ -182,6 +185,7 @@
 	bitesize = 3
 	list_reagents = list("nutriment" = 2, "chocolate" = 4)
 	tastes = list("chocolate" = 1)
+
 
 /obj/item/reagent_containers/food/snacks/candy/gum
 	name = "bubblegum"
@@ -204,7 +208,7 @@
 	filling_color = "#60A584"
 	list_reagents = list("sugar" = 2)
 
-/obj/item/reagent_containers/food/snacks/candy/sucker/lollipop/Initialize(mapload)
+/obj/item/reagent_containers/food/snacks/candy/sucker/lollipop/New()
 	. = ..()
 	icon_state = pick("sucker_blue", "sucker_green", "sucker_orange", "sucker_purple", "sucker_red", "sucker_yellow")
 

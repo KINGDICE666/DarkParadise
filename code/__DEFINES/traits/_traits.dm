@@ -77,9 +77,7 @@
 		var/list/_S = sources; \
 		if(_L) { \
 			for(var/_T in _L) { \
-				if(_L[_T]) { \
-					_L[_T] &= _S; \
-				}; \
+				_L[_T] &= _S;\
 				if(!length(_L[_T])) { \
 					_L -= _T; \
 					SEND_SIGNAL(target, SIGNAL_REMOVETRAIT(_T), _T); \
@@ -102,12 +100,10 @@
 		}; \
 		if(_L) { \
 			for(var/_T in _L) { \
-				if(_L[_T]) { \
-					_L[_T] -= _S; \
-				}; \
+				_L[_T] -= _S;\
 				if(!length(_L[_T])) { \
 					_L -= _T; \
-					SEND_SIGNAL(target, SIGNAL_REMOVETRAIT(_T), _T); \
+					SEND_SIGNAL(target, SIGNAL_REMOVETRAIT(_T)); \
 					}; \
 				};\
 			if(!length(_L)) { \
@@ -116,7 +112,7 @@
 		}\
 	} while(0)
 
-#define HAS_TRAIT(target, trait) (target._status_traits?[trait] ? TRUE : FALSE)
+#define HAS_TRAIT(target, trait) (target?._status_traits?[trait] ? TRUE : FALSE)
 
 #define HAS_TRAIT_FROM(target, trait, source) (HAS_TRAIT(target, trait) && (source in target._status_traits[trait]))
 

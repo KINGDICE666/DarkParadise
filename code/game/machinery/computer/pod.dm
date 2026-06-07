@@ -15,9 +15,11 @@
 	var/list/loopings
 	var/static/list/deathsquad_teles
 
+
 /obj/machinery/computer/pod/Initialize(mapload)
 	. = ..()
 	addtimer(CALLBACK(src, PROC_REF(driver_sync)), 0.5 SECONDS)
+
 
 /obj/machinery/computer/pod/proc/driver_sync()
 	initial_set = TRUE
@@ -56,6 +58,7 @@
 				door_only_tags += ident_tag
 				break
 
+
 /obj/machinery/computer/pod/proc/solo_sync(ident_tag)
 	for(var/obj/machinery/mass_driver/driver in SSmachines.get_by_type(/obj/machinery/mass_driver))
 		if(driver.z != src.z)
@@ -81,6 +84,7 @@
 			if((poddoor.id_tag == ident_tag) && !(ident_tag in synced) && !(ident_tag in door_only_tags))
 				door_only_tags += ident_tag
 				break
+
 
 /obj/machinery/computer/pod/proc/launch_sequence(ident_tag)
 	if(stat & (NOPOWER|BROKEN))
@@ -117,9 +121,11 @@
 		if(poddoor.id_tag == ident_tag)
 			INVOKE_ASYNC(poddoor, TYPE_PROC_REF(/obj/machinery/door, close))
 
+
 /obj/machinery/computer/pod/attack_ai(mob/user as mob)
 	src.add_hiddenprint(user)
 	return attack_hand(user)
+
 
 /obj/machinery/computer/pod/attack_hand(mob/user as mob)
 	if(..())
@@ -128,7 +134,7 @@
 	var/dat = {"<tt><b>[name]</b>(<a href='byond://?src=[UID()];rename=1'>rename</a>)"}
 	user.set_machine(src)
 	dat += "<br><a href = 'byond://?src=[UID()];sync=1'>Reset Connections</a><br>"
-	if(length(synced))
+	if(synced.len)
 		dat += "<br><a href = 'byond://?src=[UID()];massfire=1'><b>Fire All Connected Drivers</b></a><br>"
 	if(istype(src,/obj/machinery/computer/pod/deathsquad))
 		dat += "<br><a href = 'byond://?src=[UID()];dstele=1'><b>Set Teleporter Destination Z-Level</b></a><br>"
@@ -187,6 +193,7 @@
 		else
 			times[ident_tag] = maxtimes[ident_tag]
 		updateDialog()
+
 
 /obj/machinery/computer/pod/Topic(href, href_list)
 	if(..())
@@ -261,12 +268,15 @@
 		updateUsrDialog()
 	return
 
+
+
 /obj/machinery/computer/pod/old
 	icon_state = "oldcomp"
 	icon_screen = "library"
 	icon_keyboard = null
 	name = "DoorMex Control Computer"
 	circuit = /obj/item/circuitboard/olddoor
+
 
 /obj/machinery/computer/pod/old/syndicate
 	name = "external airlock controls"
@@ -278,7 +288,7 @@
 /obj/machinery/computer/pod/old/syndicate/attack_hand(mob/user as mob)
 	if(!allowed(user))
 		to_chat(user, span_warning("Access Denied"))
-		playsound(src, SFX_BUTTON_DENIED, 20)
+		playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
 		return
 	else
 		..()
@@ -288,10 +298,12 @@
 	desc = "Таинственный артефакт, в котором сконцентрировано огромное количество магической энергии."
 	circuit = /obj/item/circuitboard/swfdoor
 
+
 /obj/machinery/computer/pod/deathsquad
 	id_tags = list("ASSAULT0","ASSAULT1","ASSAULT2","ASSAULT3")
 	var/teleporter_dest = 0
 	circuit = /obj/item/circuitboard/pod/deathsquad
+
 
 /obj/machinery/computer/pod/deathsquad/launch_sequence(ident_tag)
 	if(stat & (NOPOWER|BROKEN))
@@ -318,9 +330,8 @@
 			var/obj/effect/landmark/target_landmark = pick_n_take(spawn_marauder)
 			var/obj/effect/portal/portal = new(landmark.loc, target_landmark.loc)
 			portal.invisibility = INVISIBILITY_ABSTRACT	//So it is not seen by anyone.
-			portal.failchance = 0 //So it has no fail chance when teleporting.
+			portal.failchance = 0	//So it has no fail chance when teleporting.
 			portal.can_mecha_pass = TRUE
-			spawn_marauder.Remove(portal.target)
 
 	for(var/obj/machinery/door/poddoor/poddoor in GLOB.airlocks)
 		if(poddoor.z != src.z)
@@ -349,6 +360,7 @@
 			tele.working = TRUE
 			tele.update_icon(UPDATE_ICON_STATE)
 
+
 GLOBAL_LIST_EMPTY(deathsquad_teles)
 
 /obj/structure/deathsquad_tele
@@ -361,22 +373,27 @@ GLOBAL_LIST_EMPTY(deathsquad_teles)
 	var/id_tag = ""
 	var/working = FALSE
 
+
 /obj/structure/deathsquad_tele/Initialize(mapload)
 	. = ..()
 	GLOB.deathsquad_teles += src
+
 
 /obj/structure/deathsquad_tele/Destroy()
 	GLOB.deathsquad_teles -= src
 	return ..()
 
+
 /obj/structure/deathsquad_tele/update_icon_state()
 	icon_state = "tele[working]"
+
 
 /obj/structure/deathsquad_tele/Bumped(atom/movable/moving_atom)
 	. = ..()
 	if(!ztarget || !working)
 		return .
 	INVOKE_ASYNC(src, PROC_REF(async_bump_effect), moving_atom)
+
 
 /obj/structure/deathsquad_tele/proc/async_bump_effect(atom/movable/moving_atom)
 	if(QDELETED(moving_atom))

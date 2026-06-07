@@ -43,10 +43,10 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 		// if rustlib for whatever reason fails and returns null
 		// try to load it the old dm way instead
 		if(!map_data)
-			map_data = WRAP_FILE2TEXT(dmm_file)
+			map_data = wrap_file2text(dmm_file)
 
 		if(!LAZYLEN(map_data))
-			CRASH("Map path '[fname]' does not exist!")
+			throw EXCEPTION("Map path '[fname]' does not exist!")
 
 	if(!x_offset)
 		x_offset = 1
@@ -79,14 +79,14 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 					if(!key_len)
 						key_len = LAZYLEN(key)
 					else
-						CRASH("Inconsistent key length in DMM")
+						throw EXCEPTION("Inconsistent key length in DMM")
 				if(!measureOnly)
 					grid_models[key] = dmmRegex.group[2]
 
 			// (1,1,1) = {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 			else if(dmmRegex.group[3]) // Coords
 				if(!key_len)
-					CRASH("Coords before model definition in DMM")
+					throw EXCEPTION("Coords before model definition in DMM")
 
 				var/xcrdStart = text2num(dmmRegex.group[3]) + x_offset - 1
 				// position of the currently processed square
@@ -148,7 +148,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 								if(xcrd >= 1)
 									var/model_key = copytext(line, tpos, tpos + key_len)
 									if(!grid_models[model_key])
-										CRASH("Undefined model key in DMM: [model_key]. Map file: [fname].")
+										throw EXCEPTION("Undefined model key in DMM: [model_key]. Map file: [fname].")
 									parse_grid(grid_models[model_key], xcrd, ycrd, zcrd, LM, new_z)
 									// After this call, it is NOT safe to reference `dmmRegex` without another call to
 									// "Find" - we might've hit a map loader here and changed its state
@@ -178,6 +178,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 				T.AfterChange(CHANGETURF_IGNORE_AIR|CHANGETURF_KEEP_CABLING)
 				CHECK_TICK
 		return bounds
+
 
 /**
  * Fill a given tile with its area/turf/objects/mobs
@@ -258,6 +259,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
 		modelCache[model] = list(members, members_attributes)
 
+
 	////////////////
 	// Instanciation
 	////////////////
@@ -272,7 +274,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 		// We assume `members[index]` is an area path, as above, yes? I will operate
 		// on that assumption.
 		if(!ispath(members[index], /area))
-			CRASH("Oh no, I thought this was an area!")
+			throw EXCEPTION("Oh no, I thought this was an area!")
 
 		GLOB._preloader.setup(members_attributes[index]) // preloader for assigning  set variables on atom creation
 		// If this parsed map doesn't have that area already, we check the global cache
@@ -303,10 +305,11 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 		else
 			T = instance_atom(members[first_turf_index], members_attributes[first_turf_index], xcrd, ycrd, zcrd)
 
+
 	if(T)
 		// if others /turf are presents, simulates the underlays piling effect
 		index = first_turf_index + 1
-		var/mlen = length(members) - 1
+		var/mlen = members.len - 1
 		while(index <= mlen) // Last item is an /area
 			var/underlay
 			if(isturf(T)) // I blame this on the stupid clown who coded the BYOND map editor
@@ -347,6 +350,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
 	return instance
 
+
 // text trimming (both directions) helper proc
 // optionally removes quotes before and after the text (for variable name)
 /datum/dmm_suite/proc/trim_text(what, trim_quotes = FALSE)
@@ -354,6 +358,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 		return trimQuotesRegex.Replace(what, "")
 	else
 		return trimRegex.Replace(what, "")
+
 
 // find the position of the next delimiter, skipping whatever is comprised between opening_escape and closing_escape
 // returns 0 if reached the last delimiter
@@ -368,6 +373,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 		next_opening = findtext(text, opening_escape, position, 0)
 
 	return next_delimiter
+
 
 // build a list from variables in text form (e.g {var1="derp"; var2; var3=7} => list(var1="derp", var2, var3=7))
 // return the filled list
@@ -401,6 +407,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
 	return to_return
 
+
 /**
  * Tries to parse the given value_text. Will fallback on the value_text as a string if it fails
  */
@@ -430,7 +437,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
 	// Check for file
 	else if(copytext(value_text, 1, 2) == "'")
-		. = WRAP_FILE(copytext(value_text, 2, LAZYLEN(value_text)))
+		. = wrap_file(copytext(value_text, 2, LAZYLEN(value_text)))
 
 	// Check for path
 	else if(ispath(text2path(value_text)))
@@ -438,6 +445,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
 	else
 		. = value_text // Assume it is a string without quotes
+
 
 /datum/dmm_suite/Destroy()
 	..()
@@ -454,7 +462,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	var/json_ready = 0
 
 /datum/dmm_suite/preloader/proc/setup(list/the_attributes, path)
-	if(length(the_attributes))
+	if(the_attributes.len)
 		json_ready = 0
 		if("map_json_data" in the_attributes)
 			json_ready = 1
@@ -474,7 +482,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	for(var/attribute in attributes)
 		var/value = attributes[attribute]
 		if(islist(value))
-			value = deep_copy_list(value)
+			value = deepCopyList(value)
 		if(value == null)
 			continue
 		A.vars[attribute] = value

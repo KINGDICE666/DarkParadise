@@ -14,11 +14,10 @@
 			given_action.Grant(src)
 
 /datum/action/innate/admin
-	button_icon = 'icons/mob/actions/actions_admin.dmi'
+	icon_icon = 'icons/mob/actions/actions_admin.dmi'
 	var/rights_required = R_ADMIN
-	allow_observer_click = TRUE
 
-/datum/action/innate/admin/Trigger(mob/clicker, trigger_flags)
+/datum/action/innate/admin/Trigger(left_click = TRUE)
 	if(!..())
 		return FALSE
 	if(!check_rights(rights_required, TRUE, usr))
@@ -29,7 +28,7 @@
 	return
 
 /datum/action/innate/admin/ticket
-	name = ADMINHELP_SYSTEM_NAME
+	name = "Запросы помощи Админа"
 	desc = "Открыто 0 тикетов."
 	button_icon_state = "adminhelp"
 	var/ticket_amt = 0
@@ -48,29 +47,25 @@
 
 /datum/action/innate/admin/ticket/proc/update_tickets(ticketsystem, _ticket_amt)
 	ticket_amt = _ticket_amt
-	desc = "Открыто [ticket_amt] тикет[DECL_CREDIT(ticket_amt)]."
+	desc = "Открыто [ticket_amt] тикет[declension_ru(ticket_amt, "", "а", "ов")]."
 	if(ticket_amt > 0)
 		button_icon_state = initial(button_icon_state)
 	else
 		button_icon_state = "nohelp"
 	UpdateButtonIcon()
 
-/datum/action/innate/admin/ticket/create_button()
-	var/atom/movable/screen/movable/action_button/button = ..()
-	button.maptext = "[ticket_amt]"
-	button.maptext_x = 2
-	return button
-
-
-/datum/action/innate/admin/ticket/update_button_status(atom/movable/screen/movable/action_button/button, force = FALSE)
+/datum/action/innate/admin/ticket/UpdateButtonIcon()
 	. = ..()
 	if(ticket_amt <= 0)
-		button.maptext = ""
 		return
-	button.maptext = MAPTEXT("<b>[ticket_amt]</b>")
+	var/image/maptext_holder = image('icons/effects/effects.dmi', icon_state = "nothing")
+	maptext_holder.plane = FLOAT_PLANE + 1.1
+	maptext_holder.maptext = MAPTEXT("[ticket_amt]")
+	maptext_holder.maptext_x = 2
+	button.add_overlay(maptext_holder)
 
 /datum/action/innate/admin/ticket/mentor
-	name = MENTORHELP_SYSTEM_NAME
+	name = "Mentorhelps"
 	button_icon_state = "mentorhelp"
 	rights_required = R_MENTOR|R_ADMIN
 

@@ -29,6 +29,7 @@
 
 	return return_val
 
+
 /**
  * POTENTIALLY cheaper version of get_path_to
  * This proc generates a path map for the end atom's turf, which allows us to cheaply do pathing operations "at" it
@@ -64,6 +65,7 @@
 
 	return return_val
 
+
 /proc/get_sssp(atom/movable/requester, max_distance = 30, access = list(), simulated_only = TRUE, turf/exclude)
 	var/list/hand_around = list()
 	// We're guarenteed that list will be the first list in pathfinding_finished's argset because of how callback handles the arguments list
@@ -77,11 +79,13 @@
 		return null
 	return return_val
 
+
 /// Uses funny pass by reference bullshit to take the output created by pathfinding, and insert it into a return list
 /// We'll be able to use this return list to tell a sleeping proc to continue execution
 /proc/pathfinding_finished(list/return_list, hand_back)
 	// We use += here to behave nicely with lists
 	return_list += LIST_VALUE_WRAP_LISTS(hand_back)
+
 
 /// The datum used to handle the JPS pathfinding, completely self-contained
 /datum/pathfind
@@ -101,12 +105,14 @@
 	/// Datum that holds the canpass info of this pathing attempt. This is what CanAstarPass sees
 	var/datum/can_pass_info/pass_info
 
+
 /datum/pathfind/Destroy(force)
 	. = ..()
 	SSpathfinder.active_pathing -= src
 	SSpathfinder.currentrun -= src
 	hand_back(null)
 	avoid = null
+
 
 /**
  * "starts" off the pathfinding, by storing the values this datum will need to work later on
@@ -118,12 +124,14 @@
 		return FALSE
 	return TRUE
 
+
 /**
  * search_step() is the workhorse of pathfinding. It'll do the searching logic, and will slowly build up a path
  * returns TRUE if everything is stable, FALSE if the pathfinding logic has failed, and we need to abort
  */
 /datum/pathfind/proc/search_step()
 	return TRUE
+
 
 /**
  * early_exit() is called when something goes wrong in processing, and we need to halt the pathfinding NOW
@@ -132,11 +140,13 @@
 	hand_back(null)
 	qdel(src)
 
+
 /**
  * Cleanup pass for the pathfinder. This tidies up the path, and fufills the pathfind's obligations
  */
 /datum/pathfind/proc/finished()
 	qdel(src)
+
 
 /**
  * Call to return a value to whoever spawned this pathfinding work
@@ -146,6 +156,7 @@
 	for(var/datum/callback/finished as anything in on_finish)
 		finished.Invoke(value)
 	on_finish = null
+
 
 /**
  * Processes a path (list of turfs), removes any diagonal moves that would lead to a weird bump
@@ -174,6 +185,7 @@
 	modified_path += path[length(path)]
 
 	return modified_path
+
 
 /**
  * Processes a path (list of turfs), removes any diagonal moves
@@ -204,6 +216,7 @@
 	modified_path += path[length(path)]
 
 	return modified_path
+
 
 /**
  * For seeing if we can actually move between 2 given turfs while accounting for our access and the requester's pass_flags
@@ -262,6 +275,7 @@
 			return TRUE
 	return FALSE
 
+
 // Could easily be a struct if/when we get that
 /**
  * Holds all information about what an atom can move through
@@ -318,6 +332,7 @@
 	/// Require a movable
 	var/datum/weakref/requester_ref = null
 
+
 /datum/can_pass_info/New(atom/movable/construct_from, list/access, no_id = FALSE, call_depth = 0)
 	// No infiniloops
 	if(call_depth > 10)
@@ -359,8 +374,10 @@
 	if(construct_from.pulling)
 		src.pulling_info = new(construct_from.pulling, access, no_id, call_depth + 1)
 
+
 /// List of vars on /datum/can_pass_info to use when checking two instances for equality
 GLOBAL_LIST_INIT(can_pass_info_vars, GLOBAL_PROC_REF(can_pass_check_vars))
+
 
 /proc/can_pass_check_vars()
 	var/datum/can_pass_info/lamb = new()
@@ -374,6 +391,7 @@ GLOBAL_LIST_INIT(can_pass_info_vars, GLOBAL_PROC_REF(can_pass_check_vars))
 	ASSERT("pulling_info" in lamb.vars)
 	return altar
 
+
 /datum/can_pass_info/proc/compare_against(datum/can_pass_info/check_against)
 	for(var/comparable_var in GLOB.can_pass_info_vars)
 		if(!(vars[comparable_var] ~= check_against.vars[comparable_var]))
@@ -386,6 +404,7 @@ GLOBAL_LIST_INIT(can_pass_info_vars, GLOBAL_PROC_REF(can_pass_check_vars))
 		return FALSE
 
 	return TRUE
+
 
 /**
  * Checks line path from source to target, using dummy with passed flags.

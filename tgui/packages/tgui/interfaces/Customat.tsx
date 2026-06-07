@@ -1,13 +1,5 @@
 import { useBackend } from '../backend';
-import {
-  Box,
-  Button,
-  Section,
-  Stack,
-  Table,
-  DmIcon,
-  Icon,
-} from '../components';
+import { Box, Button, Section, Stack, Table, Image } from '../components';
 import { Window } from '../layouts';
 
 type CustomatRowProps = {
@@ -16,12 +8,10 @@ type CustomatRowProps = {
 
 type Product = {
   name: string;
-  desc: string;
   stock: number;
   Key: string;
   price: number;
   icon: string;
-  icon_state: string;
 };
 
 const CustomatRow = (props: CustomatRowProps) => {
@@ -32,7 +22,7 @@ const CustomatRow = (props: CustomatRowProps) => {
   let buttonText = 'ERROR!';
   let rowIcon = '';
   if (free) {
-    buttonText = 'БЕСПЛАТНО';
+    buttonText = 'FREE';
     rowIcon = 'arrow-circle-down';
   } else {
     buttonText = product.price.toString();
@@ -43,21 +33,20 @@ const CustomatRow = (props: CustomatRowProps) => {
   return (
     <Table.Row>
       <Table.Cell collapsing>
-        <DmIcon
-          verticalAlign="middle"
-          icon={product.icon}
-          icon_state={product.icon_state}
-          fallback={<Icon p={0.66} name={'spinner'} size={2} spin />}
+        <Image
+          src={`data:image/jpeg;base64,${product.icon}`}
+          style={{
+            verticalAlign: 'middle',
+            width: '32px',
+            margin: '0px',
+            marginLeft: '0px',
+          }}
         />
       </Table.Cell>
-      <Table.Cell bold>
-        <Button multiLine color="translucent" tooltip={product.desc}>
-          {product.name}
-        </Button>
-      </Table.Cell>
+      <Table.Cell bold>{product.name}</Table.Cell>
       <Table.Cell collapsing textAlign="center">
         <Box color={(product.stock <= 0 && 'bad') || 'good'}>
-          {product.stock} в наличии
+          {product.stock} in stock
         </Box>
       </Table.Cell>
       <Table.Cell collapsing textAlign="center">
@@ -99,36 +88,35 @@ export const Customat = (props: unknown) => {
   const { guestNotice, userMoney, user, products, panel_open, speaker } = data;
 
   return (
-    <Window width={470} height={600} title="Кастомат">
+    <Window width={470} height={600} title="Customat">
       <Window.Content>
         <Stack fill vertical>
           <Stack.Item>
-            <Section title="Пользователь">
+            <Section title="User">
               {(user && (
                 <Box>
-                  Здраствуйте, <b>{user.name}</b>,{' '}
-                  <b>{user.job || 'Безработный'}</b>
+                  Welcome, <b>{user.name}</b>, <b>{user.job || 'Unemployed'}</b>
                   !
                   <br />
-                  Ваш баланс: <b>{userMoney} кр.</b>
+                  Your balance is <b>{userMoney} credits</b>.
                 </Box>
               )) || <Box color="light-grey">{guestNotice}</Box>}
             </Section>
             {!!panel_open && (
-              <Section title="Тех. обслуживание">
+              <Section title="Maintenance">
                 <Button
                   icon={speaker ? 'check' : 'volume-mute'}
                   selected={speaker}
                   textAlign="left"
                   onClick={() => act('toggle_voice', {})}
                 >
-                  Динамик
+                  Speaker
                 </Button>
               </Section>
             )}
           </Stack.Item>
           <Stack.Item grow>
-            <Section title="Продукция" fill scrollable>
+            <Section title="Products" fill scrollable>
               <Table>
                 {products.map((product) => (
                   <CustomatRow key={product.name} product={product} />

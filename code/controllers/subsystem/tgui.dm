@@ -10,14 +10,18 @@
 SUBSYSTEM_DEF(tgui)
 	name = "TGUI"
 	wait = 9
-	ss_flags = SS_NO_INIT
+	flags = SS_NO_INIT
 	priority = FIRE_PRIORITY_TGUI
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
+	offline_implications = "All TGUIs will no longer process. Shuttle call recommended."
+	ss_id = "tgui"
 
 	/// A list of UIs scheduled to process
 	var/list/current_run = list()
-	/// A list of all open UIs
-	var/list/all_uis = list()
+	/// A list of open UIs
+	var/list/open_uis = list()
+	/// A list of open UIs, grouped by src_object.
+	var/list/open_uis_by_src = list()
 	/// The HTML base used for all UIs.
 	var/basehtml
 
@@ -27,22 +31,24 @@ SUBSYSTEM_DEF(tgui)
 /datum/controller/subsystem/tgui/Shutdown()
 	close_all_uis()
 
+
 /datum/controller/subsystem/tgui/get_stat_details()
-	return "P:[length(all_uis)]"
+	return "P:[length(open_uis)]"
+
 
 /datum/controller/subsystem/tgui/fire(resumed = FALSE)
 	if(!resumed)
-		src.current_run = all_uis.Copy()
+		src.current_run = open_uis.Copy()
 	// Cache for sanic speed (lists are references anyways)
 	var/list/current_run = src.current_run
 	while(length(current_run))
 		var/datum/tgui/ui = current_run[length(current_run)]
 		current_run.len--
 		// TODO: Move user/src_object check to process()
-		if(ui?.user && ui.src_object)
+		if(ui && ui.user && ui.src_object)
 			ui.process()
 		else
-			ui.close(FALSE)
+			open_uis.Remove(ui)
 		if(MC_TICK_CHECK)
 			return
 
@@ -161,11 +167,11 @@ SUBSYSTEM_DEF(tgui)
  * return datum/tgui The found UI.
  */
 /datum/controller/subsystem/tgui/proc/get_open_ui(mob/user, datum/src_object)
+	var/key = "[src_object.UID()]"
 	// No UIs opened for this src_object
-	if(!LAZYLEN(src_object.open_uis))
-		return null
-
-	for(var/datum/tgui/ui in src_object.open_uis)
+	if(isnull(open_uis_by_src[key]) || !islist(open_uis_by_src[key]))
+		return
+	for(var/datum/tgui/ui in open_uis_by_src[key])
 		// Make sure we have the right user
 		if(ui.user == user)
 			return ui
@@ -181,17 +187,16 @@ SUBSYSTEM_DEF(tgui)
  * return int The number of UIs updated.
  */
 /datum/controller/subsystem/tgui/proc/update_uis(datum/src_object)
-	// No UIs opened for this src_object
-	if(!LAZYLEN(src_object.open_uis))
-		return 0
-
 	var/count = 0
-	for(var/datum/tgui/ui in src_object.open_uis)
+	var/key = "[src_object.UID()]"
+	// No UIs opened for this src_object
+	if(isnull(open_uis_by_src[key]) || !islist(open_uis_by_src[key]))
+		return count
+	for(var/datum/tgui/ui in open_uis_by_src[key])
 		// Check if UI is valid.
-		if(ui?.src_object && ui.user && ui.src_object.ui_host(ui.user))
-			INVOKE_ASYNC(ui, TYPE_PROC_REF(/datum/tgui, process), wait * 0.1, TRUE)
+		if(ui && ui.src_object && ui.user && ui.src_object.ui_host(ui.user))
+			ui.process(force = TRUE)
 			count++
-
 	return count
 
 /**
@@ -204,18 +209,17 @@ SUBSYSTEM_DEF(tgui)
  * return int The number of UIs closed.
  */
 /datum/controller/subsystem/tgui/proc/close_uis(datum/src_object)
+	. = 0
+	var/key = "[src_object.UID()]"
 	// No UIs opened for this src_object
-	if(!LAZYLEN(src_object.open_uis))
-		return 0
-
-	var/count = 0
-	for(var/datum/tgui/ui in src_object.open_uis)
+	if(isnull(open_uis_by_src[key]) || !islist(open_uis_by_src[key]))
+		return
+	for(var/datum/tgui/ui in open_uis_by_src[key])
 		// Check if UI is valid.
-		if(ui?.src_object && ui.user && ui.src_object.ui_host(ui.user))
+		if(ui && ui.src_object && ui.user && ui.src_object.ui_host(ui.user))
 			ui.close()
-			count++
-
-	return count
+			.++
+	return
 
 /**
  * public
@@ -226,12 +230,12 @@ SUBSYSTEM_DEF(tgui)
  */
 /datum/controller/subsystem/tgui/proc/close_all_uis()
 	var/count = 0
-	for(var/datum/tgui/ui in all_uis)
-		// Check if UI is valid.
-		if(ui?.src_object && ui.user && ui.src_object.ui_host(ui.user))
-			ui.close()
-			count++
-
+	for(var/key in open_uis_by_src)
+		for(var/datum/tgui/ui in open_uis_by_src[key])
+			// Check if UI is valid.
+			if(ui && ui.src_object && ui.user && ui.src_object.ui_host(ui.user))
+				ui.close()
+				count++
 	return count
 
 /**
@@ -248,7 +252,6 @@ SUBSYSTEM_DEF(tgui)
 	var/count = 0
 	if(length(user?.tgui_open_uis) == 0)
 		return count
-
 	for(var/datum/tgui/ui in user.tgui_open_uis)
 		if(isnull(src_object) || ui.src_object == src_object)
 			ui.process(force = TRUE)
@@ -269,12 +272,10 @@ SUBSYSTEM_DEF(tgui)
 	var/count = 0
 	if(length(user?.tgui_open_uis) == 0)
 		return count
-
 	for(var/datum/tgui/ui in user.tgui_open_uis)
 		if(isnull(src_object) || ui.src_object == src_object)
 			ui.close()
 			count++
-
 	return count
 
 /**
@@ -285,8 +286,13 @@ SUBSYSTEM_DEF(tgui)
  * required ui datum/tgui The UI to be added.
  */
 /datum/controller/subsystem/tgui/proc/on_open(datum/tgui/ui)
-	LAZYOR(ui.src_object.open_uis, ui)
-	all_uis |= ui
+	var/key = "[ui.src_object.UID()]"
+	if(isnull(open_uis_by_src[key]) || !islist(open_uis_by_src[key]))
+		open_uis_by_src[key] = list()
+	ui.user.tgui_open_uis |= ui
+	var/list/uis = open_uis_by_src[key]
+	uis |= ui
+	open_uis |= ui
 
 /**
  * private
@@ -298,16 +304,18 @@ SUBSYSTEM_DEF(tgui)
  * return bool If the UI was removed or not.
  */
 /datum/controller/subsystem/tgui/proc/on_close(datum/tgui/ui)
+	var/key = "[ui.src_object.UID()]"
+	if(isnull(open_uis_by_src[key]) || !islist(open_uis_by_src[key]))
+		return FALSE
 	// Remove it from the list of processing UIs.
-	all_uis -= ui
-	current_run -= ui
+	open_uis.Remove(ui)
 	// If the user exists, remove it from them too.
 	if(ui.user)
-		ui.user.tgui_open_uis -= ui
-
-	if(ui.src_object)
-		LAZYREMOVE(ui.src_object.open_uis, ui)
-
+		ui.user.tgui_open_uis.Remove(ui)
+	var/list/uis = open_uis_by_src[key]
+	uis.Remove(ui)
+	if(length(uis) == 0)
+		open_uis_by_src.Remove(key)
 	return TRUE
 
 /**
@@ -336,32 +344,13 @@ SUBSYSTEM_DEF(tgui)
 	// The old mob had no open UIs.
 	if(length(source?.tgui_open_uis) == 0)
 		return FALSE
-	if(isnull(target.tgui_open_uis) || !islist(target.tgui_open_uis))
+	if(isnull(target.tgui_open_uis) || !istype(target.tgui_open_uis, /list))
 		target.tgui_open_uis = list()
 	// Transfer all the UIs.
 	for(var/datum/tgui/ui in source.tgui_open_uis)
 		// Inform the UIs of their new owner.
 		ui.user = target
-		target.tgui_open_uis += ui
+		target.tgui_open_uis.Add(ui)
 	// Clear the old list.
 	source.tgui_open_uis.Cut()
 	return TRUE
-
-/datum/controller/subsystem/tgui/OnConfigLoad()
-	var/storage_iframe = CONFIG_GET(string/storage_cdn_iframe)
-
-	if(storage_iframe && storage_iframe != /datum/config_entry/string/storage_cdn_iframe::default)
-		basehtml = replacetext(basehtml, "\[tgui:storagecdn\]", storage_iframe)
-		return
-
-	if(CONFIG_GET(string/asset_transport) == ASSET_TRANSPORT_WEBROOT)
-		var/datum/asset_transport/webroot/webroot = SSassets.transport
-
-		var/datum/asset_cache_item/item = webroot.register_asset("iframe.html", file("tgui/public/iframe.html"))
-		basehtml = replacetext(basehtml, "\[tgui:storagecdn\]", webroot.get_asset_url("iframe.html", item))
-		return
-
-	if(!storage_iframe)
-		return
-
-	basehtml = replacetext(basehtml, "\[tgui:storagecdn\]", storage_iframe)

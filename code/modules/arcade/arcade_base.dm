@@ -3,7 +3,7 @@
 	name = "Arcade Game"
 	desc = "One of the most generic arcade games ever."
 	icon = 'icons/obj/machines/arcade.dmi'
-	icon_state = "clawmachine_1_on"
+	icon_state = "clawmachine_on"
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 40
@@ -23,16 +23,16 @@
 /obj/machinery/arcade/examine(mob/user)
 	. = ..()
 	if(freeplay)
-		. += span_notice("Someone enabled freeplay on this machine!")
+		. += "<span class='notice'>Someone enabled freeplay on this machine!</span>"
 	else
 		if(token_price)
-			. += "[src] costs [token_price] credits per play."
+			. += "<span class='notice'>\The [src.name] costs [token_price] credits per play.</span>"
 		if(!tokens)
-			. += "[src] has no available play credits. Better feed the machine!"
+			. += "<span class='notice'>\The [src.name] has no available play credits. Better feed the machine!</span>"
 		else if(tokens == 1)
-			. += "[src] has only 1 play credit left!"
+			. += "<span class='notice'>\The [src.name] has only 1 play credit left!</span>"
 		else
-			. += "[src] has [tokens] play credits!"
+			. += "<span class='notice'>\The [src.name] has [tokens] play credits!</span>"
 
 /obj/machinery/arcade/attack_hand(mob/user)
 	if(..())
@@ -70,13 +70,14 @@
 				return ATTACK_CHAIN_PROCEED_SUCCESS
 			return ATTACK_CHAIN_PROCEED
 
-		if(is_cash(I))
+		if(istype(I, /obj/item/stack/spacecash))
 			if(pay_with_cash(I, user, token_price, name))
 				tokens += 1
 				return ATTACK_CHAIN_PROCEED_SUCCESS
 		return ATTACK_CHAIN_PROCEED
 
 	return ..()
+
 
 /obj/machinery/arcade/screwdriver_act(mob/living/user, obj/item/I)
 	if(!anchored)
@@ -85,11 +86,13 @@
 	update_icon(UPDATE_ICON_STATE)
 	return TRUE
 
+
 /obj/machinery/arcade/crowbar_act(mob/living/user, obj/item/I)
 	if(!component_parts || !panel_open)
 		return FALSE
 	default_deconstruction_crowbar(user, I)
 	return TRUE
+
 
 /obj/machinery/arcade/proc/start_play(mob/user)
 	user.set_machine(src)

@@ -22,14 +22,15 @@
 	/// ID for TGUI data
 	var/id = "standard"
 
-	var/alist/ru_names = alist(
+	var/list/ru_names = list(
 		NOMINATIVE = "капсула снабжения",
 		GENITIVE = "капсулы снабжения",
 		DATIVE = "капсуле снабжения",
 		ACCUSATIVE = "капсулу снабжения",
 		INSTRUMENTAL = "капсулой снабжения",
-		PREPOSITIONAL = "капсуле снабжения",
+		PREPOSITIONAL = "капсуле снабжения"
 	)
+
 
 /datum/pod_style/advanced
 	name = "bluespace supply pod"
@@ -38,13 +39,13 @@
 	decal_icon = "bluespace"
 	glow_color = "blue"
 	id = "bluespace"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "блюспейс капсула снабжения",
 		GENITIVE = "блюспейс капсулы снабжения",
 		DATIVE = "блюспейс капсуле снабжения",
 		ACCUSATIVE = "блюспейс капсулу снабжения",
 		INSTRUMENTAL = "блюспейс капсулой снабжения",
-		PREPOSITIONAL = "блюспейс капсуле снабжения",
+		PREPOSITIONAL = "блюспейс капсуле снабжения"
 	)
 
 /datum/pod_style/centcom
@@ -54,46 +55,46 @@
 	decal_icon = "centcom"
 	glow_color = "blue"
 	id = "centcom"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "капсула снабжения Центрального командования",
 		GENITIVE = "капсулы снабжения Центрального командования",
 		DATIVE = "капсуле снабжения Центрального командования",
 		ACCUSATIVE = "капсулу снабжения Центрального командования",
 		INSTRUMENTAL = "капсулой снабжения Центрального командования",
-		PREPOSITIONAL = "капсуле снабжения Центрального командования",
+		PREPOSITIONAL = "капсуле снабжения Центрального командования"
 	)
 
 /datum/pod_style/contractor
 	name = "contractor supply pod"
 	ui_name = "Контрактника"
-	desc = "Устрашающая капсула снабжения, покрытая золотыми знаками \"Синдиката\". Наверное, лучше держаться подальше."
+	desc = "Устрашающая капсула снабжения, покрытая золотыми знаками Синдиката. Наверное, лучше держаться подальше."
 	icon_state = "darkpod"
 	decal_icon = "contractor"
 	id = "contractor"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "капсула снабжения контрактника",
 		GENITIVE = "капсулы снабжения контрактника",
 		DATIVE = "капсуле снабжения контрактника",
 		ACCUSATIVE = "капсулу снабжения контрактника",
 		INSTRUMENTAL = "капсулой снабжения контрактника",
-		PREPOSITIONAL = "капсуле снабжения контрактника",
+		PREPOSITIONAL = "капсуле снабжения контрактника"
 	)
 
 /datum/pod_style/syndicate
 	name = "blood-red supply pod"
-	ui_name = "\"Синдиката\""
-	desc = "Устрашающая капсула снабжения, покрытая кроваво-красными знаками \"Синдиката\". Наверное, лучше держаться подальше."
+	ui_name = "Синдиката"
+	desc = "Устрашающая капсула снабжения, покрытая кроваво-красными знаками Синдиката. Наверное, лучше держаться подальше."
 	icon_state = "darkpod"
 	decal_icon = "syndicate"
 	glow_color = "red"
 	id = "syndicate"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "кроваво-красная капсула снабжения",
 		GENITIVE = "кроваво-красной капсулы снабжения",
 		DATIVE = "кроваво-красной капсуле снабжения",
 		ACCUSATIVE = "кроваво-красную капсулу снабжения",
 		INSTRUMENTAL = "кроваво-красной капсулой снабжения",
-		PREPOSITIONAL = "кроваво-красной капсуле снабжения",
+		PREPOSITIONAL = "кроваво-красной капсуле снабжения"
 	)
 
 /datum/pod_style/deathsquad
@@ -104,13 +105,13 @@
 	decal_icon = "deathsquad"
 	glow_color = "blue"
 	id = "deathsquad"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "капсула Отряда Смерти",
 		GENITIVE = "капсулы Отряда Смерти",
 		DATIVE = "капсуле Отряда Смерти",
 		ACCUSATIVE = "капсулу Отряда Смерти",
 		INSTRUMENTAL = "капсулой Отряда Смерти",
-		PREPOSITIONAL = "капсуле Отряда Смерти",
+		PREPOSITIONAL = "капсуле Отряда Смерти"
 	)
 
 /datum/pod_style/cultist
@@ -120,13 +121,13 @@
 	decal_icon = "cultist"
 	glow_color = "red"
 	id = "cultist"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "кровавая капсула снабжения",
 		GENITIVE = "кровавой капсулы снабжения",
 		DATIVE = "кровавой капсуле снабжения",
 		ACCUSATIVE = "кровавую капсулу снабжения",
 		INSTRUMENTAL = "кровавой капсулой снабжения",
-		PREPOSITIONAL = "кровавой капсуле снабжения",
+		PREPOSITIONAL = "кровавой капсуле снабжения"
 	)
 
 /datum/pod_style/missile
@@ -140,28 +141,28 @@
 	glow_color = null
 	rubble_type = RUBBLE_THIN
 	id = "missile"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "крылатая ракета",
 		GENITIVE = "крылатой ракеты",
 		DATIVE = "крылатой ракете",
 		ACCUSATIVE = "крылатую ракету",
 		INSTRUMENTAL = "крылатой ракете",
-		PREPOSITIONAL = "крылатой ракетой",
+		PREPOSITIONAL = "крылатой ракетой"
 	)
 
 /datum/pod_style/missile/syndicate
 	name = "Syndicate cruise missile"
-	ui_name = "Ракета \"Синдиката\""
-	desc = "Огромная кроваво-красная ракета, которая, похоже, не взорвалась полностью. Вероятно, она была запущена из какой-то ракетной шахты \"Синдиката\" в дальнем космосе. Судя по всему, сбоку имеется люк для вспомогательной полезной нагрузки, хотя открыть его вручную, скорее всего, невозможно."
+	ui_name = "Ракета Синдиката"
+	desc = "Огромная кроваво-красная ракета, которая, похоже, не взорвалась полностью. Вероятно, она была запущена из какой-то ракетной шахты Синдиката в дальнем космосе. Судя по всему, сбоку имеется люк для вспомогательной полезной нагрузки, хотя открыть его вручную, скорее всего, невозможно."
 	icon_state = "smissile"
 	id = "syndie_missile"
-	ru_names = alist(
-		NOMINATIVE = "крылатая ракета \"Синдиката\"",
-		GENITIVE = "крылатой ракеты \"Синдиката\"",
-		DATIVE = "крылатой ракете \"Синдиката\"",
-		ACCUSATIVE = "крылатую ракету \"Синдиката\"",
-		INSTRUMENTAL = "крылатой ракете \"Синдиката\"",
-		PREPOSITIONAL = "крылатой ракетой \"Синдиката\"",
+	ru_names = list(
+		NOMINATIVE = "крылатая ракета Синдиката",
+		GENITIVE = "крылатой ракеты Синдиката",
+		DATIVE = "крылатой ракете Синдиката",
+		ACCUSATIVE = "крылатую ракету Синдиката",
+		INSTRUMENTAL = "крылатой ракете Синдиката",
+		PREPOSITIONAL = "крылатой ракетой Синдиката"
 	)
 
 /datum/pod_style/box
@@ -174,13 +175,13 @@
 	glow_color = null
 	rubble_type = RUBBLE_WIDE
 	id = "supply_box"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "ящик с припасами Aussec",
 		GENITIVE = "ящика с припасами Aussec",
 		DATIVE = "ящику с припасами Aussec",
 		ACCUSATIVE = "ящик с припасами Aussec",
 		INSTRUMENTAL = "ящиком с припасами Aussec",
-		PREPOSITIONAL = "ящике с припасами Aussec",
+		PREPOSITIONAL = "ящике с припасами Aussec"
 	)
 
 /datum/pod_style/clown
@@ -191,13 +192,13 @@
 	decal_icon = "clown"
 	glow_color = "green"
 	id = "clown"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "ХОНК капсула",
 		GENITIVE = "ХОНК капсулы",
 		DATIVE = "ХОНК капсуле",
 		ACCUSATIVE = "ХОНК капсулу",
 		INSTRUMENTAL = "ХОНК капсулой",
-		PREPOSITIONAL = "ХОНК капсуле",
+		PREPOSITIONAL = "ХОНК капсуле"
 	)
 
 /datum/pod_style/orange
@@ -210,13 +211,13 @@
 	glow_color = null
 	rubble_type = RUBBLE_WIDE
 	id = "orange"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "апельсин",
 		GENITIVE = "апельсина",
 		DATIVE = "апельсину",
 		ACCUSATIVE = "апельсин",
 		INSTRUMENTAL = "апельсином",
-		PREPOSITIONAL = "апельсине",
+		PREPOSITIONAL = "апельсине"
 	)
 
 /datum/pod_style/invisible
@@ -230,13 +231,13 @@
 	glow_color = null
 	rubble_type = RUBBLE_NONE
 	id = "invisible"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "капсула S.T.E.A.L.T.H. MKVII",
 		GENITIVE = "капсулы S.T.E.A.L.T.H. MKVII",
 		DATIVE = "капсуле S.T.E.A.L.T.H. MKVII",
 		ACCUSATIVE = "капсулу S.T.E.A.L.T.H. MKVII",
 		INSTRUMENTAL = "капсулой S.T.E.A.L.T.H. MKVII",
-		PREPOSITIONAL = "капсуле S.T.E.A.L.T.H. MKVII",
+		PREPOSITIONAL = "капсуле S.T.E.A.L.T.H. MKVII"
 	)
 
 /datum/pod_style/gondola
@@ -250,14 +251,15 @@
 	glow_color = null
 	rubble_type = RUBBLE_NONE
 	id = "gondola"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "гандола",
 		GENITIVE = "гандолы",
 		DATIVE = "гандоле",
 		ACCUSATIVE = "гандолу",
 		INSTRUMENTAL = "гандолой",
-		PREPOSITIONAL = "гандоле",
+		PREPOSITIONAL = "гандоле"
 	)
+
 
 /datum/pod_style/seethrough
 	name = null

@@ -37,18 +37,18 @@
 
 /mob/living/simple_animal/pet/gondola/gondolapod/examine(mob/user)
 	. = ..()
-	if(length(contents))
+	if(contents.len)
 		. += span_notice("Похоже, посылка ещё не доставлена.")
 	else
 		. += span_notice("Судя по всему, доставку уже осуществили.")
 
-/mob/living/simple_animal/pet/gondola/gondolapod/set_opened()
+/mob/living/simple_animal/pet/gondola/gondolapod/setOpened()
 	opened = TRUE
 	layer = initial(layer)
 	update_appearance()
-	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom/, set_closed)), 5 SECONDS)
+	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom/, setClosed)), 5 SECONDS)
 
-/mob/living/simple_animal/pet/gondola/gondolapod/set_closed()
+/mob/living/simple_animal/pet/gondola/gondolapod/setClosed()
 	opened = FALSE
 	layer = OBJ_LAYER
 	update_appearance()
@@ -59,7 +59,7 @@
 	desc = "Откройте хранилище и освободите все содержимое, хранящееся внутри."
 	button_icon_state = "arrow"
 
-/datum/action/innate/deliver_gondola_package/Trigger(mob/clicker, trigger_flags)
+/datum/action/innate/deliver_gondola_package/Trigger(left_click)
 	. = ..()
 	if(!.)
 		return
@@ -77,7 +77,7 @@
 	desc = "Посмотрите, сколько предметов вы сейчас держите в капсуле."
 	button_icon_state = "storage"
 
-/datum/action/innate/check_gondola_contents/Trigger(mob/clicker, trigger_flags)
+/datum/action/innate/check_gondola_contents/Trigger(left_click)
 	. = ..()
 	if(!.)
 		return

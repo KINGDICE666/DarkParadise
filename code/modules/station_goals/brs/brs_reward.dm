@@ -14,14 +14,17 @@
 	var/teleport_sound = 'sound/magic/lightning_chargeup.ogg'
 	var/teleport_sound_cooldown = FALSE
 
+
 /obj/structure/toilet/bluespace/update_icon_state()
 	. = ..()
 	icon_state = "bluespace_toilet[open][cistern]"
+
 
 /obj/structure/toilet/bluespace/update_overlays()
 	. = ..()
 	if(open)
 		. += image(icon, "bluespace_toilet_singularity")
+
 
 /obj/structure/toilet/bluespace/attack_hand(mob/living/user)
 	. = ..()
@@ -109,7 +112,7 @@
 
 		//Toys
 		/obj/item/toy/syndicateballoon = 5,
-		/obj/item/gun/projectile/automatic/smg/c20r/toy,
+		/obj/item/gun/projectile/automatic/c20r/toy,
 		/obj/item/gun/projectile/automatic/l6_saw/toy,
 		/obj/item/gun/projectile/automatic/toy/pistol,
 		/obj/item/gun/projectile/automatic/toy/pistol/enforcer/riot,
@@ -217,7 +220,7 @@
 		/obj/item/storage/secure/briefcase/syndie = 30,
 	)
 
-/obj/effect/spawner/lootdrop/bluespace_rift/Initialize(mapload)
+/obj/effect/spawner/lootdrop/bluespace_rift/New()
 	playsound(loc, 'sound/magic/blink.ogg', 50)
 	do_sparks(2, FALSE, loc)
 	if(!locate(/obj/effect/portal) in get_turf(loc))
@@ -236,7 +239,7 @@
 		/obj/item/paper/researchnotes_brs,
 	)
 
-/obj/effect/spawner/lootdrop/bluespace_rift_server/Initialize(mapload)
+/obj/effect/spawner/lootdrop/bluespace_rift_server/New()
 	playsound(loc, 'sound/goonstation/machines/printer_thermal.ogg', 50, TRUE)
 	do_sparks(2, FALSE, loc)
 	return ..()

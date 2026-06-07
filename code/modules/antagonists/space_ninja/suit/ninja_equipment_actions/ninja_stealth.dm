@@ -1,8 +1,10 @@
 /datum/action/item_action/advanced/ninja/ninja_stealth
-	name = "Переключение невидимости"
-	desc = "Переключает режим невидимости. Использование режима нагревает костюм и постепенно увеличивает его энергопотребление."
+	name = "Toggle Stealth"
+	desc = "Toggles stealth mode on and off. Passively encrease suit energy consumption."
 	charge_type = ADV_ACTION_TYPE_TOGGLE_RECHARGE
 	charge_max = 15 SECONDS
+	use_itemicon = FALSE
+	icon_icon = 'icons/mob/actions/actions_ninja.dmi'
 	button_icon_state = "ninja_cloak"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
@@ -22,12 +24,12 @@
 		cancel_stealth()
 	else
 		if(cell.charge <= 0)
-			balloon_alert(ninja, "недостаточно энергии!")
+			to_chat(ninja, span_warning("Вы не можете применить невидимость без энергии!"))
 			return
 		if(!s_busy)
 			s_busy = TRUE
 			if(!do_after(ninja, 2 SECONDS, ninja, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM))
-				balloon_alert(ninja, "невидимость прервана!")
+				to_chat(ninja, span_warning("Вы прервали невидимость!"))
 				s_busy = FALSE
 				return
 			stealth = !stealth
@@ -35,15 +37,16 @@
 			animate(ninja, alpha = NINJA_ALPHA_INVISIBILITY, time = 6)
 			ninja.alpha_set(standartize_alpha(NINJA_ALPHA_INVISIBILITY), ALPHA_SOURCE_NINJA)
 			new /obj/effect/temp_visual/dir_setting/ninja/cloak(get_turf(ninja), ninja.dir)
-			ninja.visible_message(span_warning("[ninja.name] расстворил[GEND_SYA_AS_OS_IS(ninja) ] в воздухе!"), span_notice("Теперь вас практически невозможно увидеть невооружённым глазом. Ровно как и стандартными оптическими приборами. Нагрузка костюма начала увеличиваться..."))
+			ninja.visible_message(span_warning("[ninja.name] расстворил[genderize_ru(ninja.gender, "ся", "ась", "ось", "ись") ] в воздухе!"), span_notice("Теперь вас практически невозможно увидеть невооружённым глазом. Ровно как и стандартными оптическими приборами. Нагрузка костюма начала увеличиваться..."))
 			ninja.AddComponent(/datum/component/ninja_states_breaker, src)
 			if(auto_smoke)
 				if(locate(/datum/action/item_action/advanced/ninja/ninja_smoke_bomb) in actions)
 					prime_smoke(lowcost = TRUE)
-			var/datum/action/item_action/advanced/ninja/ninja_stealth/ninja_stealth = locate() in ninja.actions
-			ninja_stealth.use_action()
-			ninja_stealth.action_ready = TRUE
-			ninja_stealth.toggle_button_on_off()
+			for(var/datum/action/item_action/advanced/ninja/ninja_stealth/ninja_action in actions)
+				ninja_action.use_action()
+				ninja_action.action_ready = TRUE
+				ninja_action.toggle_button_on_off()
+				break
 			s_busy = FALSE
 
 /**
@@ -58,18 +61,18 @@
 	var/mob/living/carbon/human/ninja = affecting
 	if(!ninja)
 		return FALSE
-	if(!stealth)
-		return FALSE
-	stealth = !stealth
-	n_shoes.silence_steps = FALSE
-	var/stealth_alpha
-	stealth_alpha = spirited ? NINJA_ALPHA_SPIRIT_FORM : NINJA_ALPHA_NORMAL
-	animate(ninja, alpha = stealth_alpha, time = 6)
-	ninja.alpha_set(standartize_alpha(stealth_alpha), ALPHA_SOURCE_NINJA)
-	new /obj/effect/temp_visual/dir_setting/ninja(get_turf(ninja), ninja.dir)
-	ninja.visible_message(span_warning("[ninja.name] появил[GEND_SYA_AS_OS_IS(ninja) ] из воздуха!"), span_notice("Теперь вас снова видно невооружённым глазом."))
-	qdel(ninja.GetComponent(/datum/component/ninja_states_breaker))
-	var/datum/action/item_action/advanced/ninja/ninja_stealth/ninja_stealth = locate() in ninja.actions
-	ninja_stealth.action_ready = FALSE
-	ninja_stealth.toggle_button_on_off()
-	return TRUE
+	if(stealth)
+		stealth = !stealth
+		n_shoes.silence_steps = FALSE
+		var/stealth_alpha
+		stealth_alpha = spirited ? NINJA_ALPHA_SPIRIT_FORM : NINJA_ALPHA_NORMAL
+		animate(ninja, alpha = stealth_alpha, time = 6)
+		ninja.alpha_set(standartize_alpha(stealth_alpha), ALPHA_SOURCE_NINJA)
+		new /obj/effect/temp_visual/dir_setting/ninja(get_turf(ninja), ninja.dir)
+		ninja.visible_message(span_warning("[ninja.name] появ[genderize_ru(ninja.gender, "ляется", "илась", "илось", "ились") ] из воздуха!"), span_notice("Теперь вас снова видно невооружённым глазом."))
+		qdel(ninja.GetComponent(/datum/component/ninja_states_breaker))
+		for(var/datum/action/item_action/advanced/ninja/ninja_stealth/ninja_action in actions)
+			ninja_action.action_ready = FALSE
+			ninja_action.toggle_button_on_off()
+		return TRUE
+	return FALSE

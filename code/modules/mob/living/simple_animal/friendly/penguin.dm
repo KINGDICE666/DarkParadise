@@ -20,6 +20,7 @@
 	footstep_type = FOOTSTEP_MOB_BAREFOOT
 	weather_immunities = list(TRAIT_SNOWSTORM_IMMUNE)
 
+
 /mob/living/simple_animal/pet/penguin/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/waddling)

@@ -1,23 +1,22 @@
 /obj/item/organ/internal/ears
 	name = "ears"
 	desc = "Парный орган, отвечающий за аудиальное восприятие окружающей среды и получение информации о положении гуманоида в пространстве. Эти принадлежали человеку."
-	gender = PLURAL
-	icon_state = "ears"
-	parent_organ_zone = BODY_ZONE_HEAD
-	slot = INTERNAL_ORGAN_EARS
-
-/obj/item/organ/internal/ears/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "уши человека",
 		GENITIVE = "ушей человека",
 		DATIVE = "ушам человека",
 		ACCUSATIVE = "уши человека",
 		INSTRUMENTAL = "ушами человека",
-		PREPOSITIONAL = "ушах человека",
+		PREPOSITIONAL = "ушах человека"
 	)
+	gender = PLURAL
+	icon_state = "ears"
+	parent_organ_zone = BODY_ZONE_HEAD
+	slot = INTERNAL_ORGAN_EARS
 
 /obj/item/organ/internal/ears/invincible/internal_receive_damage(amount, silent)
 	return FALSE
+
 
 /obj/item/organ/internal/ears/on_life()
 	if(!iscarbon(owner))
@@ -27,9 +26,8 @@
 	if(!istype(C))
 		return
 
-	// If we have non-damage related deafness like mutations, quirks or clothing (earmuffs), don't bother processing here.
-	// Ear healing from earmuffs or chems happen elsewhere
-	if(HAS_TRAIT_NOT_FROM(owner, TRAIT_DEAF, EAR_DAMAGE))
+	// if we have non-damage related deafness like mutations, quirks or clothing (earmuffs), don't bother processing here. Ear healing from earmuffs or chems happen elsewhere
+	if(HAS_TRAIT_NOT_FROM(C, TRAIT_DEAF, EAR_DAMAGE))
 		return
 
 	if(is_dead())
@@ -44,16 +42,7 @@
 			H.AdjustDeaf(-1 SECONDS)
 			heal_internal_damage(0.1)
 
-/obj/item/organ/internal/ears/insert(mob/living/carbon/organ_owner, special)
-	. = ..()
-	REMOVE_TRAIT(organ_owner, TRAIT_DEAF, NO_EARS)
 
-/obj/item/organ/internal/ears/remove(mob/living/carbon/organ_owner, special)
-	. = ..()
-	// Do not apply with special flag, even if it would ultimately be redundant by new ears being hot-swapped in.
-	// This is so we don't trip signal_addtrait when hot-swapping ears, which could cause inappropriate behavior like nuking sound effects.
-	if(!special)
-		ADD_TRAIT(organ_owner, TRAIT_DEAF, NO_EARS)
 
 /obj/item/organ/internal/ears/has_damage()
 	. = ..()
@@ -69,26 +58,22 @@
 /obj/item/organ/internal/ears/cybernetic
 	name = "cybernetic ears"
 	desc = "Электронное устройство, имитирующее работу органических ушей. Функционально не имеет никаких отличий от органического аналога, кроме производственных затрат."
+	ru_names = list(
+		NOMINATIVE = "кибернетические уши",
+		GENITIVE = "кибернетических ушей",
+		DATIVE = "кибернетическим ушам",
+		ACCUSATIVE = "кибернетические уши",
+		INSTRUMENTAL = "кибернетическими ушами",
+		PREPOSITIONAL = "кибернетических ушах"
+	)
 	icon_state = "eyes-c"
 	origin_tech = "biotech=4"
 	status = ORGAN_ROBOT
 	pickup_sound = 'sound/items/handling/pickup/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/drop/component_drop.ogg'
 
-/obj/item/organ/internal/ears/cybernetic/get_ru_names()
-	return alist(
-		NOMINATIVE = "кибернетические уши",
-		GENITIVE = "кибернетических ушей",
-		DATIVE = "кибернетическим ушам",
-		ACCUSATIVE = "кибернетические уши",
-		INSTRUMENTAL = "кибернетическими ушами",
-		PREPOSITIONAL = "кибернетических ушах",
-	)
-
 /obj/item/organ/internal/ears/cybernetic/emp_act(severity)
 	if(emp_proof)
-		return
-	if(emp_shielded(severity))
 		return
 
 	..()

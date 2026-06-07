@@ -37,7 +37,6 @@
 		dump_in_space(movable)
 
 /turf/space/transit/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
-	. = ..()
 	if(!arrived)
 		return
 	if(!arrived.simulated || istype(arrived, /obj/docking_port))
@@ -73,11 +72,13 @@
 	dumpee.forceMove(T)
 	dumpee.newtonian_move(dumpee.dir)
 
-/turf/space/transit/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
+
+/turf/space/transit/rpd_act()
 	return
 
 /turf/space/transit/rcd_act()
 	return RCD_NO_ACT
+
 
 /turf/space/transit/Initialize(mapload)
 	. = ..()

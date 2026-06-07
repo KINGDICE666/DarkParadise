@@ -25,7 +25,6 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 	icon_state = "dont_use_this_tile"
 	plane = FLOOR_PLANE
 	var/icon_regular_floor = "floor" //used to remember what icon the tile should have by default
-	var/icon_regular_floor_dmi = 'icons/turf/floors.dmi' //used to remember what icon the tile should have by default (fix bug for change dmi)
 	var/floor_regular_dir = SOUTH  //used to remember what dir the tile should have by default
 	var/icon_plating = "plating"
 	thermal_conductivity = 0.040
@@ -49,11 +48,10 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 	. = ..()
 	if(icon_state in GLOB.icons_to_ignore_at_floor_init) //so damaged/burned tiles or plating icons aren't saved as the default
 		icon_regular_floor = "floor"
-		icon_regular_floor_dmi = 'icons/turf/floors.dmi'
 	else
 		icon_regular_floor = icon_state
-		icon_regular_floor_dmi = icon
 		floor_regular_dir = dir
+
 
 /// Returns a list of every turf state considered "broken".
 /// Will be randomly chosen if a turf breaks at runtime.
@@ -86,13 +84,13 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 						break_tile_to_plating()
 					else
 						break_tile()
-					hotspot_expose(1000, 100)
+					hotspot_expose(1000, CELL_VOLUME)
 					if(prob(33))
 						new /obj/item/stack/sheet/metal(src)
 		if(EXPLODE_LIGHT)
 			if(prob(50))
 				break_tile()
-				hotspot_expose(1000, 100)
+				hotspot_expose(1000, CELL_VOLUME)
 
 	return
 
@@ -106,14 +104,17 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 
 // Checks if the turf is safe to be on
 /turf/simulated/floor/is_safe()
-	var/datum/gas_mixture/Z = get_readonly_air()
+	if(!air)
+		return FALSE
+	var/datum/gas_mixture/Z = air
 	var/pressure = Z.return_pressure()
 	// Can most things breathe and tolerate the temperature and pressure?
-	if(Z.oxygen() < 16 || Z.toxins() >= 0.05 || Z.carbon_dioxide() >= 10 || Z.sleeping_agent() >= 1 || (Z.temperature() <= 270) || (Z.temperature() >= 360) || (pressure <= 20) || (pressure >= 550))
+	if(Z.oxygen < 16 || Z.toxins >= 0.05 || Z.carbon_dioxide >= 10 || Z.sleeping_agent >= 1 || (Z.temperature <= 270) || (Z.temperature >= 360) || (pressure <= 20) || (pressure >= 550))
 		return FALSE
 	return TRUE
 
-/turf/simulated/floor/blob_act(obj/structure/blob/blob)
+
+/turf/simulated/floor/blob_act(obj/structure/blob/B)
 	return
 
 /turf/simulated/floor/update_overlays()
@@ -140,12 +141,7 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 	burnt = TRUE
 	update_icon()
 
-/turf/simulated/floor/temperature_expose(exposed_temperature, exposed_volume)
-	if(temperature > FIRE_MINIMUM_TEMPERATURE_TO_EXIST && prob(1))
-		burn_tile()
-
-/// Set `make_floor_tile` to FALSE, if `floor_tile` have another drop logic before calling this proc.
-/turf/simulated/floor/proc/make_plating(make_floor_tile, mob/user)
+/turf/simulated/floor/proc/make_plating(make_floor_tile, mob/user)	// Set `make_floor_tile` to FALSE, if `floor_tile` have another drop logic before calling this proc.
 	if(make_floor_tile && floor_tile && !broken && !burnt)
 		var/obj/item/stack/stack_dropped = new floor_tile(src)
 		if(user)
@@ -160,7 +156,6 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 	if(!ispath(T, /turf/simulated/floor))
 		return ..()
 
-	var/old_dmi = icon_regular_floor_dmi
 	var/old_icon = icon_regular_floor
 	var/old_plating = icon_plating
 	var/old_dir = dir
@@ -168,9 +163,6 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 	var/old_transparent_floor = transparent_floor
 
 	var/turf/simulated/floor/W = ..()
-
-	if(old_dmi != W.icon_regular_floor_dmi) //bugfix for dark tiles
-		keep_icon = FALSE
 
 	var/obj/machinery/atmospherics/R
 	var/obj/machinery/power/terminal/term
@@ -190,6 +182,7 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 		R.update_underlays()
 	W.update_icon()
 	return W
+
 
 /turf/simulated/floor/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -224,6 +217,7 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 		else
 			pipe.setDir(user.dir)
 		return .|ATTACK_CHAIN_BLOCKED_ALL
+
 
 /turf/simulated/floor/crowbar_act(mob/user, obj/item/I)
 	if(!intact)
@@ -262,7 +256,7 @@ GLOBAL_LIST_INIT(icons_to_ignore_at_floor_init, list("damaged1","damaged2","dama
 			to_chat(user, span_danger("You remove the floor tile."))
 	return make_plating(make_tile, user)
 
-/turf/simulated/floor/singularity_pull(atom/singularity, current_size)
+/turf/simulated/floor/singularity_pull(S, current_size)
 	..()
 	if(current_size == STAGE_THREE)
 		if(prob(30))

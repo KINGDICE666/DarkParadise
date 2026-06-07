@@ -8,8 +8,6 @@
 	density = TRUE
 	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 	pass_flags_self = PASSVEHICLE
-	abstract_type = /obj/vehicle
-
 	COOLDOWN_DECLARE(cooldown_vehicle_move)
 	var/list/mob/occupants //mob = bitflags of their control level.
 	///Maximum amount of passengers plus drivers
@@ -56,6 +54,7 @@
 /obj/vehicle/examine(mob/user)
 	. = ..()
 	. += generate_integrity_message()
+
 
 /obj/vehicle/zap_act(power, zap_flags)
 	zap_buckle_check(power)

@@ -17,7 +17,6 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 /datum/zlev_manager/proc/initialize()
 	var/num_official_z_levels = GLOB.map_transition_config.len
 	var/k = 1
-	milla_reset()
 
 	// First take care of "Official" z levels, without visiting levels outside of the list
 	for(var/list/features in GLOB.map_transition_config)
@@ -28,7 +27,6 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 		var/list/traits = features["traits"]
 		traits = traits.Copy() // Clone the list so it can't be changed on accident
 
-		milla_init_z(k)
 		var/datum/space_level/S = new /datum/space_level(k, name, transition_type = linking, traits = traits)
 		z_list["[k]"] = S
 		levels_by_name[name] = S
@@ -38,20 +36,15 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 	// Then, we take care of unmanaged z levels
 	// They get the default linkage of SELFLOOPING
 	for(var/i = k, i <= world.maxz, i++)
-		milla_init_z(k)
 		z_list["[i]"] = new /datum/space_level(i)
 	initialized = 1
 
+
 /datum/zlev_manager/proc/get_zlev(z)
-	if(!("[z]" in z_list))
-		CRASH("Unmanaged z level: '[z]' maxz = [world.maxz], z_list.len = [z_list ? z_list.len : "null"]")
-	else
-		return z_list["[z]"]
+	return z_list["[z]"] == null ? log_runtime(EXCEPTION("Unmanaged z level: '[z]'")) : z_list["[z]"]
 
 /datum/zlev_manager/proc/get_zlev_by_name(A)
-	if(!(A in levels_by_name))
-		CRASH("Non-existent z level: '[A]'")
-	return levels_by_name[A]
+	return levels_by_name[A] == null ? log_runtime(EXCEPTION("Non-existent z level: '[A]'")) : levels_by_name[A]
 
 /*
 * "Dirt" management
@@ -61,10 +54,12 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 * among other things
 */
 
+
 // Returns whether the given z level has a freeze on initialization
 /datum/zlev_manager/proc/is_zlevel_dirty(z)
 	var/datum/space_level/our_z = get_zlev(z)
 	return (our_z.dirt_count > 0)
+
 
 // Increases the dirt count on a z level
 /datum/zlev_manager/proc/add_dirt(z)
@@ -72,6 +67,7 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 	if(our_z.dirt_count == 0)
 		log_debug("Placing an init freeze on z-level '[our_z.zpos]'!")
 	our_z.dirt_count++
+
 
 // Decreases the dirt count on a z level
 /datum/zlev_manager/proc/remove_dirt(z)
@@ -87,11 +83,13 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 	var/datum/space_level/our_z = get_zlev(z)
 	our_z.init_list.Add(thing)
 
+
 /**
 *
 *	SPACE ALLOCATION
 *
 */
+
 
 // For when you need the z-level to be at a certain point
 /datum/zlev_manager/proc/increase_max_zlevel_to(new_maxz)
@@ -112,14 +110,13 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
  * * traits - traits/flags/attributes for z-level. All setting are in '_maps/_MAP_DEFINES.dm'
  */
 /datum/zlev_manager/proc/add_new_zlevel(name, linkage = SELFLOOPING, traits = list(BLOCK_TELEPORT))
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_NEW_Z, args)
 	if(name in levels_by_name)
-		CRASH("Name already in use: [name]")
+		throw EXCEPTION("Name already in use: [name]")
 	world.incrementMaxZ()
 	var/our_z = world.maxz
-	milla_init_z(our_z)
 	var/datum/space_level/S = new /datum/space_level(our_z, name, transition_type = linkage, traits = traits)
 	levels_by_name[name] = S
 	z_list["[our_z]"] = S
 	SSmapping.manage_z_level(S)
-	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_NEW_Z, S)
 	return our_z

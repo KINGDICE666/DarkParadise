@@ -2,9 +2,10 @@ GLOBAL_LIST_EMPTY(explosions)
 
 SUBSYSTEM_DEF(explosions)
 	name = "Explosions"
+	init_order = INIT_ORDER_EXPLOSIONS
 	priority = FIRE_PRIORITY_EXPLOSIONS
 	wait = 1
-	ss_flags = SS_TICKER
+	flags = SS_TICKER
 	runlevels = RUNLEVEL_GAME | RUNLEVEL_POSTGAME
 
 	var/priority_queue/explosion_queue
@@ -19,6 +20,7 @@ SUBSYSTEM_DEF(explosions)
 	var/sound/hull_creaking_sound
 	var/sound/explosion_echo_sound
 
+
 /datum/controller/subsystem/explosions/Initialize()
 	if(CONFIG_GET(flag/reactionary_explosions))
 		reactionary_explosions = TRUE
@@ -30,64 +32,51 @@ SUBSYSTEM_DEF(explosions)
 	explosion_queue = new()
 	return SS_INIT_SUCCESS
 
+
 /datum/controller/subsystem/explosions/fire(resumed = 0)
-	var/priority_queue/explosion_queue = src.explosion_queue
 	while(!explosion_queue.is_empty())
 		var/datum/explosion_data/data = explosion_queue.peek()
-		var/queue/affected_turfs_queue = data.affected_turfs_queue
-		var/cached_multiz_explosion = data.multiz_explosion
-		var/cached_eactionary_explosions = reactionary_explosions
-		var/list/cached_exp_block = data.cached_exp_block
-		var/list/cached_turf_exp_block = data.cached_turf_exp_block
-		var/list/cached_turf_vert_exp_block = data.cached_turf_vert_exp_block
-		var/turf/epicenter = data.epicenter
-		var/x0 = data.x0
-		var/y0 = data.y0
-		var/flame_range = data.flame_range
-		var/devastation_range = data.devastation_range
-		var/light_impact_range = data.light_impact_range
-		var/heavy_impact_range = data.heavy_impact_range
-		var/breach = data.breach
-		while(!affected_turfs_queue.is_empty())
-			var/turf/explode = affected_turfs_queue.dequeue()
+		while(!data.affected_turfs_queue.is_empty())
+			var/turf/explode = data.affected_turfs_queue.dequeue()
 			if(QDELETED(explode))
 				continue
-			var/distance = CHEAP_HYPOTENUSE(explode.x, explode.y, x0, y0)
+			var/distance = CHEAP_HYPOTENUSE(explode.x, explode.y, data.x0, data.y0)
 
-			if(cached_eactionary_explosions)
+			if(reactionary_explosions)
 				var/turf_block
 				var/total_cords = "[explode.x],[explode.y],[explode.z]"
 				var/prev_block
-				if(cached_multiz_explosion)
-					turf_block = cached_turf_vert_exp_block[explode] ? cached_turf_vert_exp_block[explode] : count_turf_vert_block(explode)
-					if(explode != epicenter)
-						var/turf/next_turf = get_step_towards_multiz(explode, epicenter)
+				if(data.multiz_explosion)
+					turf_block = data.cached_turf_vert_exp_block[explode] ? data.cached_turf_vert_exp_block[explode] : count_turf_vert_block(explode)
+					if(explode != data.epicenter)
+						var/turf/next_turf = get_step_towards_multiz(explode, data.epicenter)
 						var/next_cords = "[next_turf.x],[next_turf.y],[next_turf.z]"
 						if(next_turf.z != explode.z)
-							prev_block = cached_exp_block[next_cords] ? cached_exp_block[next_cords] : count_turf_vert_block(next_turf)
+							prev_block = data.cached_exp_block[next_cords] ? data.cached_exp_block[next_cords] : count_turf_vert_block(next_turf)
 						else
-							prev_block = cached_exp_block[next_cords] ? cached_exp_block[next_cords] : count_turf_block(next_turf)
+							prev_block = data.cached_exp_block[next_cords] ? data.cached_exp_block[next_cords] : count_turf_block(next_turf)
 
 				else
-					turf_block = cached_turf_exp_block[explode] ? cached_turf_exp_block[explode] : count_turf_block(explode)
+					turf_block = data.cached_turf_exp_block[explode] ? data.cached_turf_exp_block[explode] : count_turf_block(explode)
 
-					if(explode != epicenter)
-						var/turf/next_turf = get_step_towards(explode, epicenter)
+					if(explode != data.epicenter)
+						var/turf/next_turf = get_step_towards(explode, data.epicenter)
 						var/next_cords = "[next_turf.x],[next_turf.y],[next_turf.z]"
-						prev_block = cached_exp_block[next_cords] ? cached_exp_block[next_cords] : count_turf_block(next_turf)
+						prev_block = data.cached_exp_block[next_cords] ? data.cached_exp_block[next_cords] : count_turf_block(next_turf)
 
-				if(explode == epicenter)
-					cached_exp_block[total_cords] = turf_block
+				if(explode == data.epicenter)
+					data.cached_exp_block[total_cords] = turf_block
 				distance += prev_block
-				cached_exp_block[total_cords] = prev_block + turf_block
+				data.cached_exp_block[total_cords] = prev_block + turf_block
 
-			var/flame_distance = distance < flame_range
+			var/flame_distance = distance < data.flame_range
 
-			if(distance < devastation_range)
+
+			if(distance < data.devastation_range)
 				distance = EXPLODE_DEVASTATE
-			else if(distance < heavy_impact_range)
+			else if(distance < data.heavy_impact_range)
 				distance = EXPLODE_HEAVY
-			else if(distance < light_impact_range)
+			else if(distance < data.light_impact_range)
 				distance = EXPLODE_LIGHT
 			else
 				distance = EXPLODE_NONE
@@ -95,9 +84,7 @@ SUBSYSTEM_DEF(explosions)
 			//------- TURF FIRES -------
 
 			if(flame_distance && prob(40) && !isspaceturf(explode) && !explode.density)
-				var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(explode) //Mostly for ambience!
-				hotspot.temperature = 1000
-				hotspot.recolor()
+				new /obj/effect/hotspot(explode) //Mostly for ambience!
 			if(distance > EXPLODE_NONE)
 				if(issimulatedturf(explode))
 					var/turf/simulated/S = explode
@@ -109,21 +96,21 @@ SUBSYSTEM_DEF(explosions)
 					for(var/atom/AM as anything in S)	//bypass type checking since only atom can be contained by turfs anyway
 						if(!QDELETED(AM) && AM.simulated)
 							if(AM.level >= affecting_level)
-								AM.ex_act(distance, epicenter)
+								AM.ex_act(distance, data.epicenter)
 				else
 					for(var/atom/AM as anything in explode)	//see above
 						if(!QDELETED(AM) && AM.simulated)
-							AM.ex_act(distance, epicenter)
-				if(breach)
-					explode.ex_act(distance, epicenter)
+							AM.ex_act(distance, data.epicenter)
+				if(data.breach)
+					explode.ex_act(distance, data.epicenter)
 				else
-					explode.ex_act(EXPLODE_LIGHT, epicenter)
+					explode.ex_act(EXPLODE_LIGHT, data.epicenter)
 			if(MC_TICK_CHECK)
 				return
 
 		var/took = stop_watch(data.watch)
 		//You need to press the DebugGame verb to see these now....they were getting annoying and we've collected a fair bit of data. Just -test- changes  to explosion code using this please so we can compare
-		debug_world("Explosion([x0],[y0],[data.z0])(d[devastation_range],h[heavy_impact_range],l[light_impact_range]): Took [took] seconds.")
+		log_world("## DEBUG: Explosion([data.x0],[data.y0],[data.z0])(d[data.devastation_range],h[data.heavy_impact_range],l[data.light_impact_range]): Took [took] seconds.")
 		data.log_explosions_machines(took)
 		qdel(explosion_queue.dequeue())
 		if(MC_TICK_CHECK)
@@ -151,7 +138,7 @@ SUBSYSTEM_DEF(explosions)
  * Makes a given turf explode.
  *
  * Arguments:
- * - [epicenter][/turf]: The turf that's exploding.
+ * - [origin][/turf]: The turf that's exploding.
  * - devastation_range: The range at which the effects of the explosion are at their strongest.
  * - heavy_impact_range: The range at which the effects of the explosion are relatively severe.
  * - light_impact_range: The range at which the effects of the explosion are relatively weak.
@@ -247,14 +234,13 @@ SUBSYSTEM_DEF(explosions)
 	watch = start_watch()
 
 /datum/explosion_data/Destroy()
-	QDEL_NULL(affected_turfs_queue)
+	qdel(affected_turfs_queue)
 	LAZYCLEARLIST(cached_exp_block)
 	LAZYNULL(cached_exp_block)
 	LAZYCLEARLIST(cached_turf_exp_block)
 	LAZYNULL(cached_turf_exp_block)
 	LAZYCLEARLIST(cached_turf_vert_exp_block)
 	LAZYNULL(cached_turf_vert_exp_block)
-	epicenter = null
 	. = ..()
 
 /datum/explosion_data/proc/clamp_ranges()
@@ -264,13 +250,14 @@ SUBSYSTEM_DEF(explosions)
 	flash_range = clamp(flash_range, 0, GLOB.max_ex_flash_range)
 	flame_range = clamp(flame_range, 0, GLOB.max_ex_flame_range)
 
+
 /datum/explosion_data/proc/create_effect(smoke)
 	if(devastation_range > 0)
-		new /obj/effect/temp_visual/explosion(epicenter, max_range, LIGHT_COLOR_LAVA, FALSE, TRUE)
+		new /obj/effect/temp_visual/explosion(epicenter, max_range, FALSE, TRUE)
 	else if(heavy_impact_range > 0)
-		new /obj/effect/temp_visual/explosion(epicenter, max_range, LIGHT_COLOR_LAVA, FALSE, FALSE)
+		new /obj/effect/temp_visual/explosion(epicenter, max_range, FALSE, FALSE)
 	else if(light_impact_range > 0)
-		new /obj/effect/temp_visual/explosion(epicenter, max_range, LIGHT_COLOR_LAVA, TRUE, FALSE)
+		new /obj/effect/temp_visual/explosion(epicenter, max_range, TRUE, FALSE)
 
 	if(max_range >= 6 || heavy_impact_range)
 		new /obj/effect/temp_visual/shockwave(epicenter, max_range)
@@ -337,9 +324,6 @@ SUBSYSTEM_DEF(explosions)
 		if(istype(array, /obj/item/clothing/head/helmet/space/hardsuit/rd))
 			var/obj/item/clothing/head/helmet/space/hardsuit/rd/helm_array = array
 			helm_array.sense_explosion(x0, y0, z0, devastation_range, heavy_impact_range, light_impact_range, took, orig_dev_range, orig_heavy_range, orig_light_range)
-		if(istype(array, /obj/item/mod/module/reagent_scanner/advanced))
-			var/obj/item/mod/module/reagent_scanner/advanced/mod_array = array
-			mod_array.sense_explosion(x0, y0, z0, devastation_range, heavy_impact_range, light_impact_range, took, orig_dev_range, orig_heavy_range, orig_light_range)
 
 // Explosion SFX defines...
 /// The probability that a quaking explosion will make the station creak per unit. Maths!
@@ -402,18 +386,18 @@ SUBSYSTEM_DEF(explosions)
 		var/base_shake_amount = sqrt(orig_max_distance / (distance + 1))
 
 		if(distance <= round(max_range + world.view - 2, 1)) // If you are close enough to see the effects of the explosion first-hand (ignoring walls)
-			listener.playsound_local(epicenter, null, 100, TRUE, frequency, sound_to_use = SSexplosions.explosion_sound)
+			listener.playsound_local(epicenter, null, 100, TRUE, frequency, sound = SSexplosions.explosion_sound)
 			if(base_shake_amount > 0)
 				shake_camera(listener, NEAR_SHAKE_DURATION, clamp(base_shake_amount, 0, NEAR_SHAKE_CAP))
 
 		else if(distance <= far_distance) // You can hear a far explosion if you are outside the blast radius. Small explosions shouldn't be heard throughout the station.
 			var/far_volume = clamp(far_distance / 2, FAR_LOWER, FAR_UPPER) // Volume is based on explosion size and distance
 			if(creaking_explosion)
-				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound_to_use = SSexplosions.creaking_explosion_sound, distance_multiplier = 0)
+				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound = SSexplosions.creaking_explosion_sound, distance_multiplier = 0)
 			else if(prob(FAR_SOUND_PROB)) // Sound variety during meteor storm/tesloose/other bad event
-				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound_to_use = SSexplosions.far_explosion_sound, distance_multiplier = 0) // Far sound
+				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound = SSexplosions.far_explosion_sound, distance_multiplier = 0) // Far sound
 			else
-				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound_to_use = SSexplosions.explosion_echo_sound, distance_multiplier = 0) // Echo sound
+				listener.playsound_local(epicenter, null, far_volume, TRUE, frequency, sound = SSexplosions.explosion_echo_sound, distance_multiplier = 0) // Echo sound
 
 			if(base_shake_amount > 0 || devastation_range)
 				base_shake_amount = max(base_shake_amount, devastation_range * 3, 0) // Devastating explosions rock the station and ground
@@ -424,7 +408,7 @@ SUBSYSTEM_DEF(explosions)
 			if(devastation_range)
 				echo_volume = 60
 				shake_camera(listener, 10, clamp(devastation_range * 0.25, 0, FAR_SHAKE_CAP))
-			listener.playsound_local(epicenter, null, echo_volume, TRUE, frequency, sound_to_use = SSexplosions.explosion_echo_sound, distance_multiplier = 0)
+			listener.playsound_local(epicenter, null, echo_volume, TRUE, frequency, sound = SSexplosions.explosion_echo_sound, distance_multiplier = 0)
 
 		if(creaking_explosion) // 5 seconds after the bang, the station begins to creak
 			addtimer(CALLBACK(listener, TYPE_PROC_REF(/mob, playsound_local), epicenter, null, rand(FREQ_LOWER, FREQ_UPPER), TRUE, frequency, null, null, FALSE, SSexplosions.hull_creaking_sound, 0), CREAK_DELAY)

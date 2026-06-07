@@ -25,19 +25,19 @@
 		return AI_CONTROLLER_INCOMPATIBLE
 
 	RegisterSignal(new_pawn, COMSIG_ATOM_ATTACK_HAND, PROC_REF(on_attack_hand))
-	RegisterSignal(new_pawn, COMSIG_ATOM_EXAMINE, PROC_REF(on_examined))
+	RegisterSignal(new_pawn, COMSIG_PARENT_EXAMINE, PROC_REF(on_examined))
 	RegisterSignal(new_pawn, COMSIG_CLICK_ALT, PROC_REF(check_altclicked))
-	RegisterSignals(new_pawn, list(COMSIG_MOB_DEATH, COMSIG_QDELETING), PROC_REF(on_death))
+	RegisterSignal(new_pawn, list(COMSIG_MOB_DEATH, COMSIG_QDELETING), PROC_REF(on_death))
 	RegisterSignal(SSdcs, COMSIG_GLOB_CARBON_THROW_THING, PROC_REF(listened_throw))
 	return ..() //Run parent at end
 
 /datum/ai_controller/dog/UnpossessPawn(destroy)
 	var/obj/item/carried_item = blackboard[BB_SIMPLE_CARRY_ITEM]
 	if(carried_item)
-		pawn.visible_message(span_warning("[DECLENT_RU_CAP(pawn, NOMINATIVE)] выплевывает [carried_item.declent_ru(ACCUSATIVE)]."))
+		pawn.visible_message(span_warning("[capitalize(pawn.declent_ru(NOMINATIVE))] выплевывает [carried_item.declent_ru(ACCUSATIVE)]."))
 		carried_item.forceMove(pawn.drop_location())
 		blackboard[BB_SIMPLE_CARRY_ITEM] = null
-	UnregisterSignal(pawn, list(COMSIG_ATOM_ATTACK_HAND, COMSIG_ATOM_EXAMINE, COMSIG_CLICK_ALT, COMSIG_MOB_DEATH, COMSIG_GLOB_CARBON_THROW_THING, COMSIG_QDELETING))
+	UnregisterSignal(pawn, list(COMSIG_ATOM_ATTACK_HAND, COMSIG_PARENT_EXAMINE, COMSIG_CLICK_ALT, COMSIG_MOB_DEATH, COMSIG_GLOB_CARBON_THROW_THING, COMSIG_QDELETING))
 	return ..() //Run parent at end
 
 /datum/ai_controller/dog/able_to_run()
@@ -98,7 +98,7 @@
 		var/list/friends = blackboard[BB_DOG_FRIENDS]
 		if(blackboard[BB_SIMPLE_CARRY_ITEM] && !current_movement_target && friends[WEAKREF(user)])
 			var/obj/item/carried_item = blackboard[BB_SIMPLE_CARRY_ITEM]
-			pawn.visible_message(span_warning("[DECLENT_RU_CAP(pawn, NOMINATIVE)] бросает [carried_item.declent_ru(ACCUSATIVE)] к ногам [user]!"))
+			pawn.visible_message(span_warning("[capitalize(pawn.declent_ru(NOMINATIVE))] бросает [carried_item.declent_ru(ACCUSATIVE)] к ногам [user]!"))
 			// maybe have a dedicated proc for dropping things
 			carried_item.forceMove(get_turf(user))
 			blackboard[BB_SIMPLE_CARRY_ITEM] = null
@@ -111,8 +111,8 @@
 		return
 	if(in_range(pawn, new_friend))
 		new_friend.visible_message(
-			span_notice("<b>[DECLENT_RU_CAP(pawn, NOMINATIVE)]</b> дружелюбно облизывает [new_friend]!"),
-			span_notice("[DECLENT_RU_CAP(pawn, NOMINATIVE)] дружелюбно облизывает вас!"))
+			span_notice("<b>[capitalize(pawn.declent_ru(NOMINATIVE))]</b> дружелюбно облизывает [new_friend]!"),
+			span_notice("[capitalize(pawn.declent_ru(NOMINATIVE))] дружелюбно облизывает вас!"))
 		friends[friend_ref] = TRUE
 		RegisterSignal(new_friend, COMSIG_MOB_POINTED, PROC_REF(check_point))
 		RegisterSignal(new_friend, COMSIG_MOB_TRY_SPEECH, PROC_REF(check_verbal_command))
@@ -129,11 +129,11 @@
 
 	var/obj/item/carried_item = blackboard[BB_SIMPLE_CARRY_ITEM]
 	if(carried_item)
-		examine_text += span_notice("В [GEND_HIS_HER(pawn)] пасти находится [carried_item.declent_ru(NOMINATIVE)].")
+		examine_text += span_notice("В [genderize_ru(pawn.gender, "его", "её", "его", "их")] пасти находится [carried_item.declent_ru(NOMINATIVE)].")
 	if(blackboard[BB_DOG_FRIENDS][WEAKREF(user)])
 		var/mob/living/living_pawn = pawn
 		if(!IS_DEAD_OR_INCAP(living_pawn))
-			examine_text += span_notice("Кажется, [GEND_HE_SHE(living_pawn)] рад[GEND_A_O_Y(living_pawn)] вас видеть!")
+			examine_text += span_notice("Кажется, [genderize_ru(living_pawn.gender, "он", "она", "оно", "они")] рад[genderize_ru(living_pawn.gender, "", "а", "о", "ы")] вас видеть!")
 
 /// If we died, drop anything we were carrying
 /datum/ai_controller/dog/proc/on_death(mob/living/ol_yeller)
@@ -143,7 +143,7 @@
 	if(!carried_item)
 		return
 
-	ol_yeller.visible_message(span_warning("[DECLENT_RU_CAP(ol_yeller, NOMINATIVE)] отпускает [carried_item.declent_ru(ACCUSATIVE)] из своей пасти..."))
+	ol_yeller.visible_message(span_warning("[capitalize(ol_yeller.declent_ru(NOMINATIVE))] отпускает [carried_item.declent_ru(ACCUSATIVE)] из своей пасти..."))
 	carried_item.forceMove(ol_yeller.drop_location())
 	blackboard[BB_SIMPLE_CARRY_ITEM] = null
 
@@ -218,17 +218,17 @@
 	switch(command)
 		// heel: stop what you're doing, relax and try not to do anything for a little bit
 		if(COMMAND_HEEL)
-			pawn.visible_message(span_notice("[DECLENT_RU_CAP(pawn, NOMINATIVE)] садится на задние лапы, ожидая новой команды от [commander]."))
+			pawn.visible_message(span_notice("[capitalize(pawn.declent_ru(NOMINATIVE))] садится на задние лапы, ожидая новой команды от [commander]."))
 			blackboard[BB_DOG_ORDER_MODE] = DOG_COMMAND_NONE
 			COOLDOWN_START(src, heel_cooldown, AI_DOG_HEEL_DURATION)
 			CancelActions()
 		// fetch: whatever the commander points to, try and bring it back
 		if(COMMAND_FETCH)
-			pawn.visible_message(span_notice("[DECLENT_RU_CAP(pawn, NOMINATIVE)] в предвкушении готовится дернуться с места!"))
+			pawn.visible_message(span_notice("[capitalize(pawn.declent_ru(NOMINATIVE))] в предвкушении готовится дернуться с места!"))
 			blackboard[BB_DOG_ORDER_MODE] = DOG_COMMAND_FETCH
 		// attack: harass whoever the commander points to
 		if(COMMAND_ATTACK)
-			pawn.visible_message(span_warning("[DECLENT_RU_CAP(pawn, NOMINATIVE)] настораживается и начинает агрессивно рычать.")) // imagine getting intimidated by a corgi
+			pawn.visible_message(span_warning("[capitalize(pawn.declent_ru(NOMINATIVE))] настораживается и начинает агрессивно рычать.")) // imagine getting intimidated by a corgi
 			blackboard[BB_DOG_ORDER_MODE] = DOG_COMMAND_ATTACK
 		if(COMMAND_DIE)
 			blackboard[BB_DOG_ORDER_MODE] = DOG_COMMAND_NONE
@@ -259,7 +259,7 @@
 			var/obj/item/pointed_item = pointed_movable
 			if(pointed_item.obj_flags & ABSTRACT)
 				return
-			pawn.visible_message(span_notice("[DECLENT_RU_CAP(pawn, NOMINATIVE)] следует за указаниями [pointing_friend] и радостно гафкает!"))
+			pawn.visible_message(span_notice("[capitalize(pawn.declent_ru(NOMINATIVE))] следует за указаниями [pointing_friend] и радостно гафкает!"))
 			current_movement_target = pointed_movable
 			blackboard[BB_FETCH_TARGET] = pointed_movable
 			blackboard[BB_FETCH_DELIVER_TO] = pointing_friend
@@ -267,7 +267,7 @@
 				queue_behavior(/datum/ai_behavior/resist)//in case they are in bed or something
 			queue_behavior(/datum/ai_behavior/fetch)
 		if(DOG_COMMAND_ATTACK)
-			pawn.visible_message(span_notice("[DECLENT_RU_CAP(pawn, NOMINATIVE)] следует за указаниями [pointing_friend] и агрессивно рычит!"))
+			pawn.visible_message(span_notice("[capitalize(pawn.declent_ru(NOMINATIVE))] следует за указаниями [pointing_friend] и агрессивно рычит!"))
 			current_movement_target = pointed_movable
 			blackboard[BB_DOG_HARASS_TARGET] = WEAKREF(pointed_movable)
 			if(living_pawn.buckled)

@@ -36,8 +36,9 @@
 	w_class = WEIGHT_CLASS_TINY
 	throw_speed = 3
 
+
 /obj/item/grown/corncob/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		to_chat(user, span_notice("You have used [I] to fashion a pipe out of the corn cob."))
 		var/obj/item/clothing/mask/cigarette/pipe/cobpipe/pipe = new(drop_location())
 		transfer_fingerprints_to(pipe)
@@ -48,6 +49,7 @@
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 // Snapcorn
 /obj/item/seeds/corn/snapcorn
@@ -76,7 +78,7 @@
 
 /obj/item/grown/snapcorn/attack_self(mob/user)
 	..()
-	to_chat(user, span_notice("You pick a snap pop from the cob."))
+	to_chat(user, "<span class='notice'>You pick a snap pop from the cob.</span>")
 	var/obj/item/toy/snappop/S = new /obj/item/toy/snappop(user.loc)
 	if(ishuman(user))
 		user.put_in_hands(S)

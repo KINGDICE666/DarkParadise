@@ -56,7 +56,7 @@
 	SIGNAL_HANDLER
 	if(ismovable(created_atom))
 		//Drop it only when it's finished initializing, not before.
-		zfall_if_on_turf(created_atom)
+		addtimer(CALLBACK(src, PROC_REF(zfall_if_on_turf), created_atom), 0 SECONDS)
 
 /turf/space/openspace/proc/zfall_if_on_turf(atom/movable/movable)
 	if(QDELETED(movable) || movable.loc != src)
@@ -100,6 +100,7 @@
 /turf/space/openspace/proc/CanBuildHere()
 	return can_build_on
 
+
 /turf/space/openspace/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -142,8 +143,8 @@
 		ChangeTurf(/turf/simulated/floor/plating)
 		return .|ATTACK_CHAIN_BLOCKED_ALL
 
-	if(istype(I, /obj/item/stack/rods/fireproof))
-		var/obj/item/stack/rods/fireproof/rods = I
+	if(istype(I, /obj/item/stack/fireproof_rods))
+		var/obj/item/stack/fireproof_rods/rods = I
 		if(locate(/obj/structure/lattice/catwalk/fireproof, src))
 			to_chat(user, span_warning("Здесь уже есть мостик!"))
 			return .
@@ -164,6 +165,7 @@
 		to_chat(user, span_notice("Вы установили огнеупорный мостик."))
 		new /obj/structure/lattice/catwalk/fireproof(src)
 		return .|ATTACK_CHAIN_SUCCESS
+
 
 /turf/space/openspace/can_have_cabling()
 	if(locate(/obj/structure/lattice/catwalk, src))

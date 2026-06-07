@@ -3,10 +3,11 @@
 
 SUBSYSTEM_DEF(title)
 	name = "Title Screen"
-	wait = 30 SECONDS
+	wait = 300
+	init_order = INIT_ORDER_TITLE
 	init_stage = INITSTAGE_EARLY
-	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
-
+	runlevels = RUNLEVELS_DEFAULT|RUNLEVEL_LOBBY
+	ss_id = "title_screen"
 	/// Basic html that includes styles. Can be customised by host
 	var/base_html
 	/// Currently set title screen
@@ -21,7 +22,7 @@ SUBSYSTEM_DEF(title)
 	fill_title_images_pool()
 
 	if(!CONFIG_GET(flag/enable_multi_instance))
-		ss_flags |= SS_NO_FIRE
+		flags |= SS_NO_FIRE
 	else
 		update_servers_info()
 
@@ -113,7 +114,7 @@ SUBSYSTEM_DEF(title)
  * Show the title screen to specific client.
  */
 /datum/controller/subsystem/title/proc/show_title_screen_to(client/viewer)
-	if(!viewer || !current_title_screen || SEND_SIGNAL(viewer, COMSIG_TILE_MENU_OPEN) & COMPONENT_BLOCK_OPEN)
+	if(!viewer || !current_title_screen)
 		return
 
 	INVOKE_ASYNC(current_title_screen, TYPE_PROC_REF(/datum/title_screen, show_to), viewer)
@@ -164,8 +165,10 @@ SUBSYSTEM_DEF(title)
 /datum/controller/subsystem/title/proc/update_preview(client/viewer)
 	if(!viewer)
 		return
-
-	viewer << output("", "title_browser:update_preview")
+	if(viewer.byond_version < 516)
+		viewer << output("", "title_browser:update_preview_515")
+	else
+		viewer << output("", "title_browser:update_preview")
 
 /datum/controller/subsystem/title/proc/update_servers_list(client/viewer)
 	if(!viewer)
@@ -196,6 +199,7 @@ SUBSYSTEM_DEF(title)
 /datum/controller/subsystem/title/proc/pick_title_image()
 	return pick(title_images_pool)
 
+
 /************************
  *  Title screen datum  *
  ************************/
@@ -215,7 +219,7 @@ SUBSYSTEM_DEF(title)
 /datum/title_screen/New(title_html, notice, screen_image_file)
 	src.title_html = title_html
 	src.notice = notice
-	var/list/phrases = world.file2list("strings/lobby_phrases.txt")
+	var/list/phrases = file2list("strings/lobby_phrases.txt")
 	if(LAZYLEN(phrases))
 		random_phrase = pick(phrases)
 	set_screen_image(screen_image_file)
@@ -283,25 +287,14 @@ SUBSYSTEM_DEF(title)
 	if(!viewer)
 		return
 
-	var/html_text = title_html
-
-	if(viewer?.window_scaling && viewer?.window_scaling != 1 && !(viewer?.prefs.toggles3 & PREFTOGGLE_3_UI_SCALE))
-		var/zoom =  {"
-			<style>
-				body {
-					zoom: [100 / viewer.window_scaling]%;
-				}
-			</style>
-		"}
-		html_text = replacetextEx(html_text, "<!-- zoom -->", zoom)
-
-	var/list/html = list(html_text)
+	var/list/html = list(title_html)
 	var/mob/new_player/player = user
 	var/screen_image_url = SSassets.transport.get_asset_url(asset_cache_item = screen_image)
 	var/icon_url = SSassets.transport.get_asset_url(asset_name = current_icon)
 
 	//hope that client won`t use custom theme
 	html += {"<body class="[current_theme][viewer?.prefs?.toggles2 & PREFTOGGLE_2_PIXELATED_MENU ? " pixelated" : ""]" style="background-image: [screen_image_url ? "url([screen_image_url])" : "" ];">"}
+
 	html += {"<input type="checkbox" id="hide_menu">"}
 	html += {"<input type="checkbox" checked="checked" id="hide_lobby">"}
 
@@ -438,6 +431,11 @@ SUBSYSTEM_DEF(title)
 
 			function update_preview() {
 				charPreview.src = "previewicon.png";
+			}
+
+			function update_preview_515() {
+				charPreview.src = "";
+				setTimeout(update_preview, 100); // TODO: change after 516
 			}
 
 			function update_servers_list() {

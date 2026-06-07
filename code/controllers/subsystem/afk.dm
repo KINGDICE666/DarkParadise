@@ -1,18 +1,21 @@
-#define AFK_WARNED 1
-#define AFK_CRYOD 2
-#define AFK_ADMINS_WARNED 3
+#define AFK_WARNED			1
+#define AFK_CRYOD			2
+#define AFK_ADMINS_WARNED	3
 
 SUBSYSTEM_DEF(afk)
 	name = "AFK Watcher"
-	wait = 30 SECONDS
-	ss_flags = SS_BACKGROUND
-
+	wait = 300
+	flags = SS_BACKGROUND
+	cpu_display = SS_CPUDISPLAY_LOW
+	offline_implications = "Players will no longer be marked as AFK. No immediate action is needed."
+	ss_id = "afk_watcher"
 	var/list/afk_players = list() // Associative list. ckey as key and AFK state as value
 	var/list/non_cryo_antags
 
+
 /datum/controller/subsystem/afk/Initialize()
 	if(CONFIG_GET(number/warn_afk_minimum) <= 0 || CONFIG_GET(number/auto_cryo_afk) <= 0 || CONFIG_GET(number/auto_despawn_afk) <= 0)
-		ss_flags |= SS_NO_FIRE
+		flags |= SS_NO_FIRE
 	else
 		non_cryo_antags = list(SPECIAL_ROLE_ABDUCTOR_AGENT, SPECIAL_ROLE_ABDUCTOR_SCIENTIST, \
 							SPECIAL_ROLE_SHADOWLING, SPECIAL_ROLE_WIZARD, SPECIAL_ROLE_WIZARD_APPRENTICE, SPECIAL_ROLE_NUKEOPS)
@@ -27,7 +30,7 @@ SUBSYSTEM_DEF(afk)
 
 		var/turf/T
 		// Only players and players with the AFK watch enabled
-		// No dead, unconscious, restrained, people without jobs or people on other Z levels than the station
+		// No dead, unconcious, restrained, people without jobs or people on other Z levels than the station
 		if(!H.client || !(H.client.prefs.toggles2 & PREFTOGGLE_2_AFKWATCH) || !H.mind || \
 			H.stat || HAS_TRAIT(H, TRAIT_RESTRAINED) || !H.job || !is_station_level((T = get_turf(H)).z)) // Assign the turf as last. Small optimization
 			if(afk_players[H.ckey])
@@ -72,18 +75,21 @@ SUBSYSTEM_DEF(afk)
 
 	removeFromWatchList(toRemove)
 
+
 /datum/controller/subsystem/afk/proc/warn(mob/living/carbon/human/H, text)
 	to_chat(H, text)
 	SEND_SOUND(H, sound('sound/effects/adminhelp.ogg'))
 	if(H.client)
 		window_flash(H.client)
 
+
 /datum/controller/subsystem/afk/proc/log_afk_action(mob/living/carbon/human/H, mins_afk, turf/location, action, info)
 	log_admin("[key_name(H)] has been [action] by the AFK Watcher subsystem after being AFK for [mins_afk] minutes.[info ? " Extra info:" + info : ""]")
 
+
 /datum/controller/subsystem/afk/proc/removeFromWatchList(list/toRemove)
 	for(var/C in toRemove)
-		for(var/i in 1 to length(afk_players))
+		for(var/i in 1 to afk_players.len)
 			if(afk_players[i] == C)
 				afk_players.Cut(i, i + 1)
 				break

@@ -7,16 +7,6 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"aJ" = (
-/obj/structure/shuttle/engine/heater{
-	dir = 8;
-	icon_state = "heater3x3_side"
-	},
-/obj/structure/window/reinforced/survival_pod{
-	dir = 4
-	},
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
 "aV" = (
 /obj/structure/table/reinforced,
 /obj/item/book/manual/research_and_development{
@@ -30,13 +20,15 @@
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
 "bq" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
 "bE" = (
-/obj/structure/extinguisher_cabinet/directional/west,
+/obj/structure/extinguisher_cabinet{
+	pixel_x = -28
+	},
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
 	},
@@ -94,14 +86,14 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "dX" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
 "eG" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 1
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 8
 	},
 /turf/simulated/floor/pod,
@@ -110,7 +102,7 @@
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
 "fk" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 8
 	},
 /turf/simulated/floor/pod,
@@ -127,6 +119,11 @@
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
+"fw" = (
+/obj/effect/decal/warning_stripes/green/hollow,
+/obj/machinery/vending/snack/free,
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
 "gr" = (
 /obj/machinery/door/airlock/survival_pod/glass,
 /turf/simulated/floor/pod/dark,
@@ -141,14 +138,8 @@
 /obj/item/stack/nanopaste,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"gR" = (
-/obj/structure/shuttle/engine/huge{
-	dir = 8
-	},
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
 "iq" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "ir" = (
@@ -222,6 +213,12 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"lh" = (
+/obj/structure/shuttle/engine/huge{
+	dir = 8
+	},
+/turf/simulated/floor/pod/dark/outside,
+/area/shuttle/freegolem)
 "ls" = (
 /obj/machinery/light{
 	dir = 8;
@@ -250,7 +247,7 @@
 /obj/structure/window/reinforced/survival_pod{
 	dir = 8
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -285,11 +282,11 @@
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
 	},
-/obj/effect/turf_decal/delivery/white/hollow,
+/obj/effect/turf_decal/bot_white,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "mZ" = (
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 4
 	},
 /obj/structure/window/reinforced/survival_pod{
@@ -321,14 +318,25 @@
 /obj/structure/window/reinforced/survival_pod{
 	dir = 1
 	},
-/obj/effect/turf_decal/delivery/partial,
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /obj/structure/window/reinforced/survival_pod{
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"oD" = (
+/obj/structure/shuttle/engine/heater{
+	dir = 8;
+	icon_state = "heater3x3";
+	tag = "icon-heater (NORTH)"
+	},
+/obj/structure/window/reinforced/survival_pod{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark/outside,
 /area/shuttle/freegolem)
 "oY" = (
 /obj/structure/computerframe,
@@ -382,7 +390,7 @@
 /area/shuttle/freegolem)
 "tF" = (
 /obj/machinery/hydroponics/constructable,
-/obj/effect/turf_decal/delivery/green/hollow,
+/obj/effect/decal/warning_stripes/green/hollow,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "ub" = (
@@ -394,7 +402,7 @@
 /area/shuttle/freegolem)
 "uQ" = (
 /obj/structure/window/reinforced/survival_pod,
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -404,7 +412,7 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "wo" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -412,16 +420,6 @@
 "wG" = (
 /obj/structure/sign/mining/survival,
 /turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
-"xd" = (
-/obj/structure/shuttle/engine/heater{
-	dir = 8;
-	icon_state = "heater3x3_side_inv"
-	},
-/obj/structure/window/reinforced/survival_pod{
-	dir = 4
-	},
-/turf/simulated/floor/pod/dark/lavaland_air,
 /area/shuttle/freegolem)
 "xv" = (
 /obj/structure/window/reinforced/survival_pod{
@@ -447,14 +445,14 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "yh" = (
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 4
 	},
 /obj/machinery/vending/hydroseeds,
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 6
 	},
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -477,7 +475,8 @@
 /area/shuttle/freegolem)
 "zc" = (
 /obj/structure/sign/mining/survival{
-	dir = 1
+	dir = 1;
+	tag = "icon-survival (NORTH)"
 	},
 /turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
@@ -542,8 +541,19 @@
 	dir = 8;
 	pixel_y = -32
 	},
-/obj/effect/turf_decal/delivery/green/hollow,
+/obj/effect/decal/warning_stripes/green/hollow,
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Ct" = (
+/obj/structure/shuttle/engine/heater{
+	dir = 8;
+	icon_state = "heater3x3_side";
+	tag = "icon-heater (NORTH)"
+	},
+/obj/structure/window/reinforced/survival_pod{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark/outside,
 /area/shuttle/freegolem)
 "CQ" = (
 /obj/machinery/vending/wallmed{
@@ -568,7 +578,7 @@
 	density = 0;
 	dir = 9
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -579,10 +589,10 @@
 	name = "shuttle lockdown";
 	pixel_x = -32
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 1
 	},
 /turf/simulated/floor/pod,
@@ -632,22 +642,12 @@
 /obj/machinery/door/airlock/survival_pod,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"Ku" = (
-/obj/structure/shuttle/engine/heater{
-	dir = 8;
-	icon_state = "heater3x3"
-	},
-/obj/structure/window/reinforced/survival_pod{
-	dir = 4
-	},
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
 "KY" = (
 /obj/machinery/light{
 	dir = 8;
 	pixel_y = -32
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod,
@@ -658,15 +658,26 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"LL" = (
+/obj/structure/shuttle/engine/heater{
+	dir = 8;
+	icon_state = "heater3x3_side_inv";
+	tag = "icon-heater (NORTH)"
+	},
+/obj/structure/window/reinforced/survival_pod{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark/outside,
+/area/shuttle/freegolem)
 "LV" = (
 /obj/machinery/vending/hydronutrients,
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 8
 	},
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 6
 	},
-/obj/effect/turf_decal/delivery/green/partial{
+/obj/effect/decal/warning_stripes/green/partial{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -693,10 +704,10 @@
 	name = "shuttle lockdown";
 	pixel_x = -32
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
 "MW" = (
@@ -741,14 +752,20 @@
 /obj/item/clothing/head/welding,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"OM" = (
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
 "Pn" = (
 /obj/structure/table/reinforced,
 /obj/item/clothing/glasses/hud/hydroponic,
 /obj/item/clothing/glasses/hud/hydroponic,
 /obj/item/clothing/glasses/hud/hydroponic,
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Ps" = (
+/obj/machinery/light{
+	dir = 8;
+	pixel_y = -32
+	},
+/obj/effect/decal/warning_stripes/green/hollow,
+/obj/machinery/vending/coffee/free,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "PF" = (
@@ -765,15 +782,6 @@
 /obj/effect/turf_decal/box/white,
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
-"Qg" = (
-/obj/machinery/light{
-	dir = 8;
-	pixel_y = -32
-	},
-/obj/effect/turf_decal/delivery/green/hollow,
-/obj/machinery/vending/coffee,
-/turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
 "Qt" = (
 /obj/structure/window/reinforced/survival_pod{
 	dir = 8
@@ -781,7 +789,7 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "RQ" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 1
 	},
 /turf/simulated/floor/pod,
@@ -802,12 +810,19 @@
 /obj/item/resonator,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"Tq" = (
+/turf/simulated/floor/pod/dark/outside,
+/area/shuttle/freegolem)
 "TQ" = (
-/obj/effect/turf_decal/delivery/partial,
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 8
 	},
 /turf/simulated/floor/pod,
+/area/shuttle/freegolem)
+"Uh" = (
+/obj/structure/lattice/catwalk,
+/turf/simulated/floor/pod/dark/outside,
 /area/shuttle/freegolem)
 "UC" = (
 /obj/structure/computerframe,
@@ -828,23 +843,18 @@
 	},
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
-"VF" = (
-/obj/effect/turf_decal/delivery/green/hollow,
-/obj/machinery/vending/snack,
-/turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
 "Wn" = (
 /obj/structure/window/reinforced/survival_pod{
 	dir = 1
 	},
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "WX" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 8
 	},
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -875,10 +885,6 @@
 /obj/machinery/floodlight,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"YM" = (
-/obj/structure/lattice/catwalk,
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
 "ZP" = (
 /obj/effect/mapping_helpers/no_lava,
 /obj/effect/baseturf_helper/lava_land/surface,
@@ -908,9 +914,9 @@ yB
 "}
 (2,1,1) = {"
 yB
-OM
-gR
-OM
+Tq
+lh
+Tq
 yB
 yB
 yB
@@ -922,9 +928,9 @@ yB
 yB
 yB
 yB
-OM
-gR
-OM
+Tq
+lh
+Tq
 yB
 "}
 (3,1,1) = {"
@@ -950,23 +956,23 @@ cI
 "}
 (4,1,1) = {"
 zc
-aJ
-Ku
-xd
+Ct
+oD
+LL
 wG
 yB
 yB
 cI
-OM
-gR
-OM
+Tq
+lh
+Tq
 cI
 yB
 yB
 zc
-aJ
-Ku
-xd
+Ct
+oD
+LL
 wG
 "}
 (5,1,1) = {"
@@ -992,16 +998,16 @@ cI
 "}
 (6,1,1) = {"
 cI
-Qg
+Ps
 yf
 xv
 cI
 cI
 cI
 cI
-aJ
-Ku
-xd
+Ct
+oD
+LL
 cI
 cI
 cI
@@ -1013,7 +1019,7 @@ cI
 "}
 (7,1,1) = {"
 cI
-VF
+fw
 yf
 uQ
 Cl
@@ -1182,7 +1188,7 @@ fu
 (15,1,1) = {"
 fu
 fu
-YM
+Uh
 mz
 Vi
 jd
@@ -1196,14 +1202,14 @@ ir
 mC
 cp
 mz
-YM
+Uh
 Gs
 fu
 "}
 (16,1,1) = {"
 fu
 fu
-YM
+Uh
 mz
 mC
 nl
@@ -1217,7 +1223,7 @@ ir
 MW
 jd
 mz
-YM
+Uh
 Gs
 fu
 "}

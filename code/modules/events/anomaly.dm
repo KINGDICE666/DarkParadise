@@ -18,6 +18,7 @@
 	var/anomaly_type
 	announceWhen = 1
 
+
 /datum/event/anomaly/setup()
 	target_turf = find_targets(TRUE)
 	if(anomaly_path) // Preloaded by event.
@@ -28,6 +29,7 @@
 	spawn_num = tier > 1 ? 1 : rand(2, 4)
 	random_types = tier > 1 ? FALSE : prob(50)
 	anomaly_path = text2path("/obj/effect/anomaly/[anomaly_type]/tier[tier]")
+
 
 /datum/event/anomaly/proc/find_targets(warn_on_fail = FALSE)
 	for(var/tries in 1 to TURF_FIND_TRIES)
@@ -50,6 +52,7 @@
 	kill()
 	return
 
+
 /datum/event/anomaly/proc/find_turf(impact_area)
 	if(!impact_area)
 		return
@@ -63,6 +66,7 @@
 		target_turf = candidate
 		break
 
+
 /datum/event/anomaly/announce(false_alarm)
 	var/area/target = false_alarm ? findEventArea() : impact_area
 	if(false_alarm && !target)
@@ -73,22 +77,18 @@
 						[spawn_num == 1 ? GLOB.anomalies_sizes_one["[tier]"] : GLOB.anomalies_sizes_many["[tier]"]] \
 						[random_types ? "" : (spawn_num == 1 ? GLOB.anomalies_preffs_one[anomaly_type] : GLOB.anomalies_preffs_many[anomaly_type])] \
 						аномали[spawn_num == 1 ? "я" : "й"]."
-	GLOB.minor_announcement.announce(
-		message = "[prefix_message] Предполагаемая локация: [target.name]",
-		new_title = ANNOUNCE_ANOMALY_RU
+	GLOB.minor_announcement.announce("[prefix_message] Предполагаемая локация: [target.name]",
+									ANNOUNCE_ANOMALY_RU
 	)
+
 
 /datum/event/anomaly/start()
 	for(var/ind = 0; ind < spawn_num; ++ind)
 		if(random_types)
-			var/path_text = "/obj/effect/anomaly/[pick(GLOB.anomaly_types[TIER1])]/tier[tier]"
-			anomaly_path = text2path(path_text)
-			if(!anomaly_path)
-				log_debug("Anomaly event failed to create path from [path_text]")
-				continue
+			anomaly_path = text2path("/obj/effect/anomaly/[pick(GLOB.anomaly_types[TIER1])]/tier[tier]")
 
-		if(anomaly_path)
-			announce_to_ghosts(new anomaly_path(target_turf))
+		announce_to_ghosts(new anomaly_path(target_turf))
+
 
 /datum/event/anomaly/admin_setup()
 	if(!check_rights(R_EVENT))
@@ -105,5 +105,6 @@
 		random_types = TRUE
 
 	anomaly_path = text2path("/obj/effect/anomaly/[anomaly_type]/tier[tier]")
+
 
 #undef TURF_FIND_TRIES

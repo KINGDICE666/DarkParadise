@@ -11,7 +11,7 @@
 
 /datum/wires/vending/interactable(mob/user)
 	var/obj/machinery/vending/V = holder
-	if(!issilicon(user) && V.seconds_electrified && V.shock(user, 100))
+	if(!istype(user, /mob/living/silicon) && V.seconds_electrified && V.shock(user, 100))
 		return FALSE
 	if(V.panel_open)
 		return TRUE
@@ -32,9 +32,9 @@
 			vending.shoot_inventory = !vending.shoot_inventory
 			vending.aggressive = !vending.aggressive
 			if(vending.aggressive)
-				vending.create_proximity_monitor()
+				holder.AddComponent(/datum/component/proximity_monitor)
 			else
-				vending.remove_proximity_monitor()
+				qdel(holder.GetComponent(/datum/component/proximity_monitor))
 
 		if(WIRE_CONTRABAND)
 			vending.extended_inventory = !vending.extended_inventory

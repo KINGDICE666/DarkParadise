@@ -9,8 +9,7 @@
 			input.weak_reference = new /datum/weakref(input)
 		return input.weak_reference
 
-/// Forced creation for admin proccalls.
-/datum/proc/create_weakref()
+/datum/proc/create_weakref() //Forced creation for admin proccalls
 	return WEAKREF(src)
 
 /**
@@ -57,14 +56,14 @@
 	var/reference
 
 /datum/weakref/New(datum/thing)
-	reference = thing.UID()
+	reference = UID_of(thing)
 
 /datum/weakref/Destroy(force)
 	var/datum/target = resolve()
 	qdel(target)
 
 	if(!force)
-		return QDEL_HINT_LETMELIVE // Let BYOND autoGC thiswhen nothing is using it anymore.
+		return QDEL_HINT_LETMELIVE //Let BYOND autoGC thiswhen nothing is using it anymore.
 	target?.weak_reference = null
 	return ..()
 
@@ -76,19 +75,3 @@
 /datum/weakref/proc/resolve()
 	var/datum/datum = locateUID(reference)
 	return (!QDELETED(datum) && datum.weak_reference == src) ? datum : null
-
-/datum/weakref/vv_get_dropdown()
-	. = ..()
-	VV_DROPDOWN_OPTION("", "--- /weakref ---")
-	VV_DROPDOWN_OPTION(VV_HK_WEAKREF_RESOLVE, "Go to reference")
-
-/datum/weakref/vv_do_topic(list/href_list)
-	. = ..()
-
-	if(!.)
-		return
-
-	if(href_list[VV_HK_WEAKREF_RESOLVE])
-		var/datum/datum = resolve()
-		if(datum)
-			usr.client.debug_variables(datum)

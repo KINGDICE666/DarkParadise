@@ -16,15 +16,16 @@
 	var/template_id = "shelter_alpha"
 	var/datum/map_template/shelter/template
 	var/used = FALSE
+	var/emagged = FALSE
 
 /obj/item/survivalcapsule/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капсула блюспейс-убежища",
 		GENITIVE = "капсулы блюспейс-убежища",
 		DATIVE = "капсуле блюспейс-убежища",
 		ACCUSATIVE = "капсулу блюспейс-убежища",
 		INSTRUMENTAL = "капсулой блюспейс-убежища",
-		PREPOSITIONAL = "капсуле блюспейс-убежища",
+		PREPOSITIONAL = "капсуле блюспейс-убежища"
 	)
 
 /obj/item/survivalcapsule/emag_act(mob/user)
@@ -63,7 +64,7 @@
 		to_chat(user, span_notice("Ошибка. Попытка развертывания в секторе станции. Развертывание отменено."))
 		playsound(user, 'sound/machines/buzz-sigh.ogg', 15, TRUE)
 		return
-	loc.visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает вибрировать. Отойдите!"))
+	loc.visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает трястись. Отойдите!"))
 	used = TRUE
 	addtimer(CALLBACK(src, PROC_REF(expand), user), 5 SECONDS)
 	return TRUE
@@ -80,9 +81,9 @@
 	var/status = template.check_deploy(deploy_location)
 	switch(status)
 		if(SHELTER_DEPLOY_BAD_AREA)
-			loc.visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] не функционирует в этой зоне."))
+			loc.visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] не функционирует в этой зоне."))
 		if(SHELTER_DEPLOY_BAD_TURFS, SHELTER_DEPLOY_ANCHORED_OBJECTS)
-			loc.visible_message(span_warning("[DECLENT_RU_CAP(src, DATIVE)] не хватает места для развертывания! Необходимо очистить площадь [template.width]x[template.height]!"))
+			loc.visible_message(span_warning("[capitalize(declent_ru(DATIVE))] не хватает места для развертывания! Необходимо очистить площадь [template.width]x[template.height]!"))
 
 	if(status != SHELTER_DEPLOY_ALLOWED)
 		used = FALSE
@@ -110,7 +111,7 @@
 		var/x_component = abs(did_not_stand_back.x - deploy_location.x)
 		var/y_component = abs(did_not_stand_back.y - deploy_location.y)
 		if(ISDIAGONALDIR(dir_to_center))
-			throw_dist = ceil(MAGNITUDE(base_x_throw_distance, base_y_throw_distance) - MAGNITUDE(x_component, y_component))
+			throw_dist = ceil(sqrt(base_x_throw_distance ** 2 + base_y_throw_distance ** 2) - (sqrt(x_component ** 2 + y_component ** 2)))
 			did_not_stand_back.forceMove(get_ranged_target_turf(deploy_location, dir_to_center, throw_dist))
 		else if(dir_to_center & (NORTH|SOUTH))
 			throw_dist = base_y_throw_distance - y_component + 1
@@ -142,13 +143,13 @@
 	template_id = "shelter_beta"
 
 /obj/item/survivalcapsule/luxury/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капсула роскошного блюспейс-убежища",
 		GENITIVE = "капсулы роскошного блюспейс-убежища",
 		DATIVE = "капсуле роскошного блюспейс-убежища",
 		ACCUSATIVE = "капсулу роскошного блюспейс-убежища",
 		INSTRUMENTAL = "капсулой роскошного блюспейс-убежища",
-		PREPOSITIONAL = "капсуле роскошного блюспейс-убежища",
+		PREPOSITIONAL = "капсуле роскошного блюспейс-убежища"
 	)
 /obj/item/survivalcapsule/luxuryelite
 	name = "luxury elite bar capsule"
@@ -156,13 +157,13 @@
 	template_id = "shelter_charlie"
 
 /obj/item/survivalcapsule/luxuryelite/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капсула элитного бара",
 		GENITIVE = "капсулы элитного бара",
 		DATIVE = "капсуле элитного бара",
 		ACCUSATIVE = "капсулу элитного бара",
 		INSTRUMENTAL = "капсулой элитного бара",
-		PREPOSITIONAL = "капсуле элитного бара",
+		PREPOSITIONAL = "капсуле элитного бара"
 	)
 
 //Pod turfs and objects
@@ -179,7 +180,7 @@
 	flags = PREVENT_CLICK_UNDER
 	reinf = TRUE
 	heat_resistance = 1600
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, FIRE = 80, ACID = 100)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 100, RAD = 100, FIRE = 80, ACID = 100)
 	smooth = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_WINDOW_FULLTILE
 	canSmoothWith = SMOOTH_GROUP_SURVIVAL_TITANIUM_WALLS + SMOOTH_GROUP_AIRLOCK + SMOOTH_GROUP_WINDOW_FULLTILE
@@ -193,8 +194,10 @@
 	icon = 'icons/obj/lavaland/survival_pod.dmi'
 	icon_state = "pwindow"
 
+
 /obj/structure/window/reinforced/survival_pod/unhittable
 	obj_flags = IGNORE_HITS
+
 
 //Floors
 /turf/simulated/floor/pod
@@ -208,19 +211,16 @@
 	icon_regular_floor = "podfloor_light"
 	floor_tile = /obj/item/stack/tile/pod/light
 
-/turf/simulated/floor/pod/light/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
 /turf/simulated/floor/pod/dark
 	icon_state = "podfloor_dark"
 	icon_regular_floor = "podfloor_dark"
 	floor_tile = /obj/item/stack/tile/pod/dark
 
-/turf/simulated/floor/pod/dark/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
+/turf/simulated/floor/pod/dark/outside //used in lavaland ruins
+	oxygen = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface::oxygen //used :: to match outside atmos
+	nitrogen = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface::nitrogen
+	temperature = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface::temperature
+	planetary_atmos = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface::planetary_atmos
 
 //Door
 /obj/machinery/door/airlock/survival_pod
@@ -274,23 +274,21 @@
 	desc = "Настенный диспенсер медицинского оборудования. Этот кажется чуть меньше обычного."
 	req_access = list()
 
-	products = list(
-		/obj/item/stack/medical/splint = 2,
-		/obj/item/reagent_containers/food/pill/patch/silver_sulf = 2,
-		/obj/item/reagent_containers/food/pill/patch/styptic = 2,
-		/obj/item/reagent_containers/hypospray/autoinjector = 1,
-		/obj/item/healthanalyzer = 1,
-	)
+	products = list(/obj/item/stack/medical/splint = 2,
+					/obj/item/reagent_containers/food/pill/patch/silver_sulf = 2,
+					/obj/item/reagent_containers/food/pill/patch/styptic = 2,
+					/obj/item/reagent_containers/hypospray/autoinjector = 1,
+					/obj/item/healthanalyzer = 1)
 	contraband = list()
 
 /obj/machinery/vending/wallmed/survival_pod/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "медицинский модуль аварийного убежища",
 		GENITIVE = "медицинского модуля аварийного убежища",
 		DATIVE = "медицинскому модулю аварийного убежища",
 		ACCUSATIVE = "медицинский модуль аварийного убежища",
 		INSTRUMENTAL = "медицинским модулем аварийного убежища",
-		PREPOSITIONAL = "медицинском модуле аварийного убежища",
+		PREPOSITIONAL = "медицинском модуле аварийного убежища"
 	)
 
 //Computer
@@ -303,10 +301,11 @@
 	pixel_y = -32
 	move_resist = MOVE_FORCE_STRONG
 
+
 /obj/item/gps/computer/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
 	user.visible_message(
-		span_warning("[user] разбира[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]."),
+		span_warning("[user] разбира[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы начинаете разбирать [declent_ru(ACCUSATIVE)]..."),
 		span_italics("Слышны стук и лязг."),
 	)
@@ -316,6 +315,7 @@
 	transfer_prints_to(gps)
 	gps.add_fingerprint(user)
 	qdel(src)
+
 
 /obj/item/gps/computer/ui_state(mob/user)
 	return GLOB.default_state
@@ -388,14 +388,14 @@
 
 /obj/structure/fans/Initialize(mapload, loc)
 	. = ..()
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 
 /obj/structure/fans/Destroy()
 	arbitraryatmosblockingvar = 0
-	recalculate_atmos_connectivity()
+	air_update_turf(1)
 	return ..()
 
-/obj/structure/fans/CanAtmosPass(direction)
+/obj/structure/fans/CanAtmosPass(turf/T, vertical)
 	return !arbitraryatmosblockingvar
 
 /obj/structure/fans/deconstruct()
@@ -404,16 +404,18 @@
 			new buildstacktype(loc, buildstackamount)
 	qdel(src)
 
+
 /obj/structure/fans/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
 	user.visible_message(
-		span_warning("[user] разбира[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]."),
+		span_warning("[user] разбира[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы начинаете разбирать [declent_ru(ACCUSATIVE)]..."),
 		span_italics("Слышны стук и лязг."),
 	)
 	if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume))
 		return .
 	deconstruct()
+
 
 /obj/structure/fans/tiny
 	name = "tiny fan"
@@ -424,19 +426,14 @@
 	buildstackamount = 2
 
 /obj/structure/fans/tiny/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "система контроля среды",
 		GENITIVE = "системы контроля среды",
 		DATIVE = "системе контроля среды",
 		ACCUSATIVE = "систему контроля среды",
 		INSTRUMENTAL = "системой контроля среды",
-		PREPOSITIONAL = "системе контроля среды",
+		PREPOSITIONAL = "системе контроля среды"
 	)
-
-/obj/structure/fans/tiny/get_superconductivity(direction)
-	// Mostly for stuff on Lavaland.
-	return ZERO_HEAT_TRANSFER_COEFFICIENT
-
 /obj/structure/fans/tiny/invisible
 	name = "air flow blocker"
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
@@ -444,18 +441,18 @@
 //Signs
 /obj/structure/sign/mining
 	name = "nanotrasen mining corps sign"
-	desc = "Знак облегчения для уставших шахтеров и предупреждение для потенциальных конкурентов \"Нанотрейзен\"."
+	desc = "Знак облегчения для уставших шахтеров и предупреждение для потенциальных конкурентов Нанотрейзен."
 	icon = 'icons/turf/walls/survival_pod_walls.dmi'
 	icon_state = "ntpod"
 
 /obj/structure/sign/mining/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "знак шахтёрского корпуса НТ",
 		GENITIVE = "знака шахтёрского корпуса НТ",
 		DATIVE = "знаку шахтёрского корпуса НТ",
 		ACCUSATIVE = "знак шахтёрского корпуса НТ",
 		INSTRUMENTAL = "знаком шахтёрского корпуса НТ",
-		PREPOSITIONAL = "знаке шахтёрского корпуса НТ",
+		PREPOSITIONAL = "знаке шахтёрского корпуса НТ"
 	)
 
 /obj/structure/sign/mining/survival
@@ -464,13 +461,13 @@
 	icon_state = "survival"
 
 /obj/structure/sign/mining/survival/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "знак убежища",
 		GENITIVE = "знака убежища",
 		DATIVE = "знаку убежища",
 		ACCUSATIVE = "знак убежища",
 		INSTRUMENTAL = "знаком убежища",
-		PREPOSITIONAL = "знаке убежища",
+		PREPOSITIONAL = "знаке убежища"
 	)
 
 //Fluff
@@ -479,12 +476,12 @@
 	icon = 'icons/obj/lavaland/survival_pod.dmi'
 	name = "tubes"
 	anchored = TRUE
-	layer = BELOW_MOB_LAYER
+	layer = MOB_LAYER - 0.2
 
 /obj/structure/tubes/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
 	user.visible_message(
-		span_warning("[user] разбира[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]."),
+		span_warning("[user] разбира[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы начинаете разбирать [declent_ru(ACCUSATIVE)]..."),
 		span_italics("Слышны стук и лязг."),
 	)
@@ -494,6 +491,7 @@
 	transfer_prints_to(rods)
 	rods.add_fingerprint(user)
 	qdel(src)
+
 
 /obj/item/fakeartefact
 	name = "expensive forgery"
@@ -515,7 +513,7 @@
 						/obj/item/stack/telecrystal/hundred,
 						/obj/item/banhammer)
 
-/obj/item/fakeartefact/Initialize(mapload)
+/obj/item/fakeartefact/New()
 	. = ..()
 	var/obj/item/I = pick(possible)
 	name = initial(I.name)

@@ -3,7 +3,7 @@
 	icon_state = "blank_blob"
 	desc = "Огромная пульсирующая желтая масса."
 	max_integrity = BLOB_CORE_MAX_HP
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 90)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 90)
 	explosion_block = 6
 	explosion_vertical_block = 5
 	point_return = BLOB_REFUND_CORE_COST
@@ -15,13 +15,16 @@
 	pulse_range = BLOB_CORE_PULSE_RANGE
 	expand_range = BLOB_CORE_EXPAND_RANGE
 	ignore_syncmesh_share = TRUE
-	COOLDOWN_DECLARE(overmind_get_delay)
+	COOLDOWN
+	var/overmind_get_delay = 0 // we don't want to constantly try to find an overmind, do it every 5 minutes
 	var/is_offspring = null
 	var/selecting = 0
+
 
 /obj/structure/blob/special/core/ComponentInitialize()
 	. = ..()
 	AddComponent(/datum/component/stationloving, FALSE, TRUE)
+
 
 /obj/structure/blob/special/core/Initialize(mapload, client/new_overmind = null, offspring)
 	GLOB.blob_cores += src
@@ -30,7 +33,8 @@
 	START_PROCESSING(SSobj, src)
 	GLOB.poi_list |= src
 	update_blob() //so it atleast appears
-	create_overmind(new_overmind)
+	if(!overmind)
+		create_overmind(new_overmind)
 	is_offspring = offspring
 	if(overmind)
 		overmind.blobstrain.on_gain()
@@ -50,13 +54,10 @@
 	SSticker?.mode?.blob_died()
 	STOP_PROCESSING(SSobj, src)
 	GLOB.poi_list.Remove(src)
-	var/turf/core_location = get_turf(src)
-	var/list/dirs = GLOB.alldirs
 	for(var/atom/movable/atom as anything in contents)
-		if(QDELETED(atom))
-			continue
-		atom.forceMove(core_location)
-		atom.throw_at(get_edge_target_turf(src, pick(dirs)), 6, 5, src, TRUE, FALSE, null, 3)
+		if(atom && !QDELETED(atom) && istype(atom))
+			atom.forceMove(get_turf(src))
+			atom.throw_at(get_edge_target_turf(src, pick(GLOB.alldirs)), 6, 5, src, TRUE, FALSE, null, 3)
 	return ..()
 
 /obj/structure/blob/special/core/scannerreport()
@@ -81,13 +82,12 @@
 	take_damage(damage, BRUTE, BOMB, 0)
 	return TRUE
 
+
 /obj/structure/blob/special/core/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir, overmind_reagent_trigger = 1)
 	. = ..()
-	if(obj_integrity <= 0)
-		return
-
-	if(overmind) //we should have an overmind, but...
-		overmind.update_health_hud()
+	if(obj_integrity > 0)
+		if(overmind) //we should have an overmind, but...
+			overmind.update_health_hud()
 
 /obj/structure/blob/special/core/RegenHealth()
 	return // Don't regen, we handle it in Life()
@@ -104,44 +104,45 @@
 	reinforce_area(seconds_per_tick)
 	..()
 
+
 /obj/structure/blob/special/core/proc/create_overmind(client/new_overmind, override_delay)
-	if(!COOLDOWN_FINISHED(src, overmind_get_delay) && !override_delay)
+	if(overmind_get_delay > world.time && !override_delay)
 		return
 
-	COOLDOWN_START(src, overmind_get_delay, 5 MINUTES)
+	overmind_get_delay = world.time + 5 MINUTES
 
 	if(overmind && new_overmind)
-		QDEL_NULL(overmind)
-
+		qdel(overmind)
 	if(new_overmind)
-		complete_overmind(new_overmind)
+		get_new_overmind(new_overmind)
 	else
 		INVOKE_ASYNC(src, PROC_REF(get_new_overmind))
 
-/obj/structure/blob/special/core/proc/get_new_overmind()
-	var/mob/candidate = null
+
+/obj/structure/blob/special/core/proc/get_new_overmind(client/new_overmind)
+	var/mob/C = null
 	var/list/candidates = list()
-	// sendit
-	if(is_offspring)
-		candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть за потомка блоба?", ROLE_BLOB, TRUE, source = src)
+	if(!new_overmind)
+		// sendit
+		if(is_offspring)
+			candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть за потомка блоба?", ROLE_BLOB, TRUE, source = src)
+		else
+			candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть за блоба?", ROLE_BLOB, TRUE, source = src)
+
+		if(length(candidates))
+			C = pick(candidates)
 	else
-		candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть за блоба?", ROLE_BLOB, TRUE, source = src)
+		C = new_overmind
 
-	if(length(candidates))
-		candidate = pick(candidates)
+	if(C && !QDELETED(src))
+		var/mob/camera/blob/B = new(loc, src)
+		B.mind_initialize()
+		B.key = C.key
+		link_to_overmind(B)
+		B.is_offspring = is_offspring
+		addtimer(CALLBACK(src, PROC_REF(add_datum_if_not_exist)), TIME_TO_ADD_OM_DATUM)
+		log_game("[B.key] has become Blob [is_offspring ? "offspring" : ""]")
 
-	complete_overmind(candidate?.client)
-
-/obj/structure/blob/special/core/proc/complete_overmind(client/new_overmind)
-	if(!new_overmind || QDELETED(src))
-		return
-	var/mob/camera/blob/blob_overmind = new(loc, src)
-	blob_overmind.mind_initialize()
-	blob_overmind.possess_by_player(new_overmind.key)
-	link_to_overmind(blob_overmind)
-	blob_overmind.is_offspring = is_offspring
-	addtimer(CALLBACK(src, PROC_REF(add_datum_if_not_exist)), TIME_TO_ADD_OM_DATUM)
-	log_game("[blob_overmind.key] has become Blob [is_offspring ? "offspring" : ""]")
 
 /obj/structure/blob/special/core/proc/add_datum_if_not_exist()
 	if(!overmind.mind.has_antag_datum(/datum/antagonist/blob_overmind))

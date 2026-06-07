@@ -14,7 +14,7 @@
 	var/tts_voice
 	var/active
 
-/obj/item/voice_changer/Initialize(mapload)
+/obj/item/voice_changer/New()
 	. = ..()
 
 	if(isitem(loc))
@@ -25,7 +25,7 @@
 /obj/item/voice_changer/Destroy()
 	if(isitem(parent))
 		LAZYREMOVE(parent.actions, actions)
-	parent = null
+
 	return ..()
 
 /obj/item/voice_changer/attack_self(mob/user)
@@ -38,8 +38,10 @@
 		var/datum/action/A = X
 		A.UpdateButtonIcon()
 
+
 /obj/item/voice_changer/update_icon_state()
 	icon_state = "voice_changer_[active ? "on" : "off"]"
+
 
 /obj/item/voice_changer/proc/set_voice(mob/user)
 	var/mimic_voice

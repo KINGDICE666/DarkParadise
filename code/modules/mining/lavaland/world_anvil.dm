@@ -6,6 +6,7 @@
 	density = TRUE
 	anchored = TRUE
 	layer = TABLE_LAYER
+	climbable = TRUE
 	pass_flags = LETPASSTHROW
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	/// What is currently forging in source
@@ -14,19 +15,14 @@
 	var/obj/item/gps/internal
 
 /obj/structure/world_anvil/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Мировая Кузня",
 		GENITIVE = "Мировой Кузни",
 		DATIVE = "Мировой Кузне",
 		ACCUSATIVE = "Мировую Кузню",
 		INSTRUMENTAL = "Мировой Кузней",
-		PREPOSITIONAL = "Мировой Кузне",
+		PREPOSITIONAL = "Мировой Кузне"
 	)
-
-/obj/structure/world_anvil/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/climbable)
-	AddElement(/datum/element/elevation, pixel_shift = 16)
 
 /obj/item/gps/internal/world_anvil
 	icon_state = null
@@ -45,10 +41,12 @@
 /obj/structure/world_anvil/update_icon_state()
 	icon_state = forge_charges > 0 ? "anvil_a" : "anvil"
 
+
 /obj/structure/world_anvil/update_overlays()
 	. = ..()
 	if(forging)
 		. += forging.appearance
+
 
 /obj/structure/world_anvil/proc/update_state()
 	update_icon()
@@ -57,9 +55,11 @@
 	else
 		set_light_on(FALSE)
 
+
 /obj/structure/world_anvil/examine(mob/user)
 	. = ..()
 	. += span_notice("Доступно [forge_charges] ковочн[declension_ru(forge_charges,"ый заряд","ых заряда","ых заряда")].")
+
 
 /obj/structure/world_anvil/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)

@@ -38,7 +38,7 @@
 /datum/reagent/phlogiston/firedust
 	name = "Флогистоновая пыль"
 	id = "phlogiston_dust"
-	description = "А это — твёрдый огонь. Как бы то ни было, это работает."
+	description = "А это - твёрдый огонь. Как бы то ни было, это работает."
 	temp_fire = 1500
 	temp_deviance = 500
 	size_divisor = 80
@@ -198,6 +198,7 @@
 		T.create_reagents(volume)
 	T.reagents.add_reagent("plasma", volume)
 
+
 /datum/reagent/thermite
 	name = "Термит"
 	id = "thermite"
@@ -237,7 +238,7 @@
 /datum/reagent/glycerol
 	name = "Глицерин"
 	id = "glycerol"
-	description = "Глицерин — это простое полиольное соединение. Глицерин обладает сладким вкусом и низкой токсичностью."
+	description = "Глицерин - это простое полиольное соединение. Глицерин обладает сладким вкусом и низкой токсичностью."
 	reagent_state = LIQUID
 	color = "#808080" // rgb: 128, 128, 128
 	taste_description = "сладости"
@@ -454,7 +455,7 @@
 /datum/reagent/firefighting_foam
 	name = "Противопожарная пена"
 	id = "firefighting_foam"
-	description = "Тетрахлорид углерода — это пена, используемая для тушения пожаров."
+	description = "Тетрахлорид углерода - это пена, используемая для тушения пожаров."
 	reagent_state = LIQUID
 	color = "#A0A090"
 	var/cooling_temperature = 3 // more effective than water
@@ -467,7 +468,6 @@
 	if(!istype(T))
 		return
 	new /obj/effect/decal/cleanable/flour/foam(T) //foam mess; clears up quickly.
-	T.quench(1000, cooling_temperature)
 
 /datum/reagent/plasma_dust
 	name = "Плазменная пыль"

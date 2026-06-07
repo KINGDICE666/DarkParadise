@@ -40,13 +40,13 @@
 	var/obj/item/udder/gutlunch/udder = null
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кишкожор",
 		GENITIVE = "кишкожора",
 		DATIVE = "кишкожору",
 		ACCUSATIVE = "кишкожора",
 		INSTRUMENTAL = "кишкожором",
-		PREPOSITIONAL = "кишкожоре",
+		PREPOSITIONAL = "кишкожоре"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/Initialize(mapload)
@@ -67,14 +67,15 @@
 	if(udder.reagents.total_volume == udder.reagents.maximum_volume)
 		add_overlay("gl_full")
 
+
 /mob/living/simple_animal/hostile/asteroid/gutlunch/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(isglassreagentcontainer(I))
+	if(istype(I, /obj/item/reagent_containers/glass))
 		add_fingerprint(user)
 		if(stat != CONSCIOUS)
-			to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] выглядит нездоровым."))
+			to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] выглядит нездоровым."))
 			return ATTACK_CHAIN_PROCEED
 		if(udder.milkAnimal(I, user))
 			regenerate_icons()
@@ -85,7 +86,7 @@
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/ListTargetsLazy(check_z)//override to include wanted_objects as valid targets
 	. = ..()
-	for(var/atom/movable/movable in view(vision_range, loc))
+	for(var/atom/movable/movable as anything in view(vision_range, loc))
 		if(wanted_objects[movable.type])
 			if(isturf(movable.loc))
 				. += movable
@@ -116,7 +117,7 @@
 	if(is_type_in_typecache(target,wanted_objects)) //we eats
 		udder.generateMilk()
 		regenerate_icons()
-		visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] с хлюпаньем поглощает [target.declent_ru(ACCUSATIVE)]."))
+		visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] с хлюпаньем поглощает [target.declent_ru(ACCUSATIVE)]."))
 		qdel(target)
 		return
 	return ..()
@@ -125,13 +126,13 @@
 	name = "nutrient sac"
 
 /obj/item/udder/gutlunch/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "питательный мешок",
 		GENITIVE = "питательного мешка",
 		DATIVE = "питательному мешку",
 		ACCUSATIVE = "питательный мешок",
 		INSTRUMENTAL = "питательным мешком",
-		PREPOSITIONAL = "питательном мешке",
+		PREPOSITIONAL = "питательном мешке"
 	)
 
 /obj/item/udder/gutlunch/Initialize(mapload)
@@ -148,13 +149,13 @@
 	gender = MALE
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/gubbuck/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "жирохрюн",
 		GENITIVE = "жирохрюна",
 		DATIVE = "жирохрюну",
 		ACCUSATIVE = "жирохрюна",
 		INSTRUMENTAL = "жирохрюном",
-		PREPOSITIONAL = "жирохрюне",
+		PREPOSITIONAL = "жирохрюне"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/gubbuck/Initialize(mapload)
@@ -168,13 +169,13 @@
 	gender = FEMALE
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/guthen/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "квохтун",
 		GENITIVE = "квохтуна",
 		DATIVE = "квохтуну",
 		ACCUSATIVE = "квохтуна",
 		INSTRUMENTAL = "квохтуном",
-		PREPOSITIONAL = "квохтуне",
+		PREPOSITIONAL = "квохтуне"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/gutlunch/guthen/Life()
@@ -194,14 +195,14 @@
 	gold_core_spawnable = NO_SPAWN
 	var/growth = 0
 
-/mob/living/simple_animal/hostile/asteroid/gutlunch/grublunch/get_ru_names()
-	return alist(
+/mob/living/simple_animal/hostile/asteroid/gutlunch/grublunch/get_ru_names()	
+	return list(
 		NOMINATIVE = "червожор",
 		GENITIVE = "червожора",
 		DATIVE = "червожору",
 		ACCUSATIVE = "червожора",
 		INSTRUMENTAL = "червожором",
-		PREPOSITIONAL = "червожоре",
+		PREPOSITIONAL = "червожоре"
 	)
 
 //Baby gutlunch
@@ -225,5 +226,5 @@
 	mind?.transfer_to(L)
 	L.faction = faction.Copy()
 	L.setDir(dir)
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] вырастает в [L.declent_ru(ACCUSATIVE)]."))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] вырастает в [L.declent_ru(ACCUSATIVE)]."))
 	qdel(src)

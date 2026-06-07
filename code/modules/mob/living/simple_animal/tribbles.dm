@@ -1,6 +1,5 @@
 GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all tribbles, not just the new one being made.
-#define MAX_TRIBBLES 30
-#define MAX_GESTATION 30
+
 
 /mob/living/simple_animal/tribble
 	name = "tribble"
@@ -24,30 +23,33 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	response_harm   = "whacks"
 	harm_intent_damage = 5
 	var/gestation = 0
+	var/maxtribbles = 50     //change this to change the max limit
 
-/mob/living/simple_animal/tribble/Initialize(mapload)
-	. = ..()
+
+/mob/living/simple_animal/tribble/New()
+	..()
 	var/list/types = list("tribble1","tribble2","tribble3")
-	icon_state = pick(types)
-	icon_living = icon_state
-	icon_dead = "[icon_state]_dead"
-	pixel_x = base_pixel_x + rand(-5, 5)
-	pixel_y = base_pixel_y + rand(-5, 5)
+	src.icon_state = pick(types)
+	src.icon_living = src.icon_state
+	src.icon_dead = "[src.icon_state]_dead"
+	//random pixel offsets so they cover the floor
+	src.pixel_x = rand(-5.0, 5)
+	src.pixel_y = rand(-5.0, 5)
 	GLOB.totaltribbles += 1
 
+
 /mob/living/simple_animal/tribble/attack_hand(mob/user)
-	. = ..()
+	..()
+	if(src.stat != DEAD)
+		new /obj/item/toy/tribble(user.loc)
+		for(var/obj/item/toy/tribble/T in user.loc)
+			T.icon_state = src.icon_state
+			T.item_state = src.icon_state
+			T.gestation = src.gestation
+			T.pickup(user)
+			user.put_in_active_hand(T)
+			qdel(src)
 
-	if(stat == DEAD)
-		return
-
-	var/obj/item/toy/tribble/new_tribble = new /obj/item/toy/tribble(user.loc)
-	new_tribble.icon_state = icon_state
-	new_tribble.item_state = icon_state
-	new_tribble.gestation = gestation
-	new_tribble.pickup(user)
-	user.put_in_active_hand(new_tribble)
-	qdel(src)
 
 /mob/living/simple_animal/tribble/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/scalpel))
@@ -56,49 +58,33 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 		to_chat(user, span_notice("You try to un-neuter the tribble, but it's moving too much and you fail!"))
 	return ..()
 
+
 /mob/living/simple_animal/tribble/proc/procreate()
-	if(GLOB.totaltribbles >= MAX_TRIBBLES)
-		return
+	if(GLOB.totaltribbles <= maxtribbles)
+		for(var/mob/living/simple_animal/tribble/F in src.loc)
+			if(!F || F == src)
+				new /mob/living/simple_animal/tribble(src.loc)
+				gestation = 0
 
-	var/list/possible_turfs = RANGE_TURFS(1, src)
-	shuffle(possible_turfs)
-
-	for(var/turf/possible_loc in possible_turfs)
-		if(locate(type) in possible_loc)
-			continue
-
-		gestation = 0
-		new /mob/living/simple_animal/tribble(possible_loc)
-		return
 
 /mob/living/simple_animal/tribble/Life(seconds, times_fired)
-	. = ..()
-	if(health <= 0) //no mostly dead procreation
-		return
+	..()
+	if(src.health > 0) //no mostly dead procreation
+		if(gestation != null) //neuter check
+			if(gestation < 30)
+				gestation++
+			else if(gestation >= 30)
+				if(prob(80))
+					src.procreate()
 
-	if(gestation < 0)
-		return
-
-	if(gestation < MAX_GESTATION)
-		gestation++
-		return
-
-	if(!SPT_PROB(80, seconds))
-		return
-
-	procreate()
 
 /mob/living/simple_animal/tribble/death(gibbed) // Gotta make sure to remove tribbles from the list on death
 	// Only execute the below if we successfully died
 	. = ..(gibbed)
-
 	if(!.)
 		return FALSE
+	GLOB.totaltribbles -= 1
 
-	GLOB.totaltribbles = max(0, GLOB.totaltribbles - 1)
-
-#undef MAX_TRIBBLES
-#undef MAX_GESTATION
 
 //||Item version of the trible ||
 /obj/item/toy/tribble
@@ -107,13 +93,13 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	icon = 'icons/mob/tribbles.dmi'
 	icon_state = "tribble1"
 	item_state = "tribble1"
-	w_class = WEIGHT_CLASS_TINY
-	item_flags = DROPDEL
+	w_class = 1
 	var/gestation = 0
+	item_flags = DROPDEL
 
 /obj/item/toy/tribble/attack_self(mob/user) //hug that tribble (and play a sound if we add one)
 	..()
-	to_chat(user, span_notice("You nuzzle the tribble and it trills softly."))
+	to_chat(user, "<span class='notice'>You nuzzle the tribble and it trills softly.</span>")
 
 /obj/item/toy/tribble/dropped(mob/user, slot, silent = FALSE) //now you can't item form them to get rid of them all so easily
 	new /mob/living/simple_animal/tribble(user.loc)
@@ -123,23 +109,25 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 		T.icon_dead = "[src.icon_state]_dead"
 		T.gestation = src.gestation
 
-	to_chat(user, span_notice("The tribble gets up and wanders around."))
+	to_chat(user, "<span class='notice'>The tribble gets up and wanders around.</span>")
 	. = ..()
+
 
 /obj/item/toy/tribble/attackby(obj/item/I, mob/user, params) //neutering and un-neutering
 	. = ..()
 
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || gestation < 0)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || isnull(gestation))
 		return .
 
 	if(istype(I, /obj/item/scalpel))
-		gestation = -1
+		gestation = null
 		to_chat(user, span_notice("You neuter the tribble so that it can no longer re-produce."))
 		return .
 
 	if(istype(I, /obj/item/cautery))
 		gestation = 0
 		to_chat(user, span_notice("You fuse some recently cut tubes together, it should be able to reproduce again."))
+
 
 //||Fur and Fur Products ||
 
@@ -150,6 +138,7 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	icon = 'icons/mob/tribbles.dmi'
 	icon_state = "sheet-fur"
 	origin_tech = "materials=2"
+
 
 /obj/item/clothing/ears/earmuffs/tribblemuffs //earmuffs but with tribbles
 	icon = 'icons/mob/tribbles.dmi'

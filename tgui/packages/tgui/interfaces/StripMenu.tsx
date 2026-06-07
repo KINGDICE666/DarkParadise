@@ -416,7 +416,7 @@ type StripMenuItem =
           obscured: ObscuringLevel;
         }
     ) &
-      Partial<Interactable> & { internals_active?: BooleanLike });
+      Partial<Interactable>);
 
 type StripMenuData = {
   items: Record<keyof typeof SLOTS, StripMenuItem>;
@@ -544,11 +544,6 @@ export const StripMenu = (_props: unknown) => {
                     }
                   }
 
-                  const internalsActive =
-                    !!item &&
-                    'internals_active' in item &&
-                    !!item.internals_active;
-
                   return (
                     <Stack.Item
                       key={key}
@@ -579,9 +574,6 @@ export const StripMenu = (_props: unknown) => {
                             height: '100%',
                             padding: 0,
                             backgroundColor: disable_background_hover(item),
-                            boxShadow: internalsActive
-                              ? '0 0 0 2px rgba(70, 200, 70, 0.9)'
-                              : undefined,
                           }}
                         >
                           {slot.image && (

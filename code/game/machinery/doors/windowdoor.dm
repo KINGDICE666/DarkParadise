@@ -14,8 +14,7 @@
 	dir = EAST
 	set_dir_on_move = FALSE
 	max_integrity = 150 //If you change this, consider changing ../door/window/brigdoor/ max_integrity at the bottom of this .dm file
-	armor = list(MELEE = 20, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 10, BIO = 100, FIRE = 70, ACID = 100)
-	cares_about_temperature = TRUE
+	armor = list(MELEE = 20, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 10, BIO = 100, RAD = 100, FIRE = 70, ACID = 100)
 	var/obj/item/access_control/electronics
 	var/base_state = "left"
 	var/reinf = 0
@@ -24,6 +23,7 @@
 	var/rods = 2
 	var/cable = 1
 	var/list/debris = list()
+
 
 /obj/machinery/door/window/Initialize(mapload, set_dir)
 	. = ..()
@@ -46,6 +46,7 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/machinery/door/window/Destroy()
 	set_density(FALSE)
 	QDEL_LIST(debris)
@@ -53,6 +54,7 @@
 		playsound(src, SFX_SHATTER, 70, TRUE)
 	QDEL_NULL(electronics)
 	return ..()
+
 
 /obj/machinery/door/window/examine(mob/user)
 	. = ..()
@@ -99,6 +101,7 @@
 	if(!HAS_TRAIT(M, TRAIT_HANDS_BLOCKED) && M.mob_size > MOB_SIZE_TINY && (!(isrobot(M) && M.stat)))
 		bumpopen(M)
 
+
 /obj/machinery/door/window/bumpopen(mob/user)
 	if(operating || !density)
 		return
@@ -113,6 +116,7 @@
 			cmag_switch(TRUE, user)
 			return
 		INVOKE_ASYNC(src, PROC_REF(do_animate), "deny")
+
 
 /obj/machinery/door/window/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
@@ -132,16 +136,19 @@
 
 	return TRUE
 
-/obj/machinery/door/window/CanAtmosPass(direction)
-	if(direction == dir)
+
+/obj/machinery/door/window/CanAtmosPass(turf/T, vertical)
+	if(get_dir(loc, T) == dir)
 		return !density
 	else
-		return TRUE
+		return 1
+
 
 /obj/machinery/door/window/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	return !density || (dir != to_dir) || (check_access_list(pass_info.access) && hasPower() && !pass_info.no_id)
 
-/obj/machinery/door/window/proc/on_exit(datum/source, atom/movable/leaving, direction)
+
+/obj/machinery/door/window/proc/on_exit(datum/source, atom/movable/leaving, atom/newLoc)
 	SIGNAL_HANDLER
 
 	if(leaving.movement_type & PHASING)
@@ -153,9 +160,10 @@
 	if(leaving.pass_flags == PASSEVERYTHING || (pass_flags_self & leaving.pass_flags) || ((pass_flags_self & LETPASSTHROW) && leaving.throwing))
 		return
 
-	if(density && dir == direction)
+	if(density && dir == get_dir(leaving, newLoc))
 		leaving.Bump(src)
 		return COMPONENT_ATOM_BLOCK_EXIT
+
 
 /obj/machinery/door/window/update_icon_state()
 	switch(operating)
@@ -166,7 +174,7 @@
 		else
 			icon_state = "[base_state][density ? "" : "open"]"
 
-	//SSdemo.mark_dirty(src)
+	SSdemo.mark_dirty(src)
 
 /obj/machinery/door/window/open(forced=0)
 
@@ -178,7 +186,6 @@
 		return FALSE
 	if(!operating) //in case of emag
 		operating = DOOR_OPENING
-	recalculate_atmos_connectivity()
 	INVOKE_ASYNC(src, PROC_REF(do_animate), "opening")
 	set_opacity(FALSE)
 	playsound(loc, 'sound/machines/windowdoor.ogg', 100, TRUE)
@@ -187,11 +194,13 @@
 
 	set_density(FALSE)
 
+	air_update_turf(TRUE)
 	update_freelook_sight()
 
 	if(operating) //emag again
 		operating = NONE
 	return TRUE
+
 
 /obj/machinery/door/window/close(forced = 0)
 	if(operating)
@@ -206,12 +215,13 @@
 
 	set_density(TRUE)
 	update_icon()
-	recalculate_atmos_connectivity()
+	air_update_turf(TRUE)
 	update_freelook_sight()
 	sleep(1 SECONDS)
 
 	operating = NONE
 	return TRUE
+
 
 /obj/machinery/door/window/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
 	switch(damage_type)
@@ -247,10 +257,10 @@
 	C.name = name
 	qdel(src)
 
-/obj/machinery/door/window/temperature_expose(exposed_temperature, exposed_volume)
+/obj/machinery/door/window/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature > T0C + (reinf ? 1600 : 800))
-		take_damage(round(exposed_temperature / 200), BURN, 0, 0)
+		take_damage(round(exposed_volume / 200), BURN, 0, 0)
 
 /obj/machinery/door/window/attack_ai(mob/user)
 	return attack_hand(user)
@@ -290,12 +300,14 @@
 	operating = FALSE
 	return TRUE
 
+
 /obj/machinery/door/window/attackby(obj/item/I, mob/living/user, params)
 	//If it's in the process of opening/closing, ignore the click
 	if(operating)
 		add_fingerprint(user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/machinery/door/window/screwdriver_act(mob/user, obj/item/I)
 	if(obj_flags & NODECONSTRUCT)
@@ -308,6 +320,7 @@
 		return
 	panel_open = !panel_open
 	to_chat(user, span_notice("You [panel_open ? "open":"close"] the maintenance panel of the [src.name]."))
+
 
 /obj/machinery/door/window/crowbar_act(mob/user, obj/item/I)
 	if(operating)
@@ -402,6 +415,7 @@
 	cancolor = FALSE
 	var/made_glow = FALSE
 
+
 /obj/machinery/door/window/clockwork_fake
 	name = "brass windoor"
 	desc = "A completely not magical thin door with translucent brass paneling."
@@ -412,13 +426,16 @@
 	resistance_flags = ACID_PROOF | FIRE_PROOF
 	cancolor = FALSE
 
+
 /obj/machinery/door/window/clockwork/Initialize(mapload, set_dir)
 	. = ..()
 	debris += new/obj/item/stack/sheet/brass(src, 2)
 
+
 /obj/machinery/door/window/clockwork_fake/Initialize(mapload, set_dir)
 	. = ..()
 	debris += new/obj/item/stack/sheet/brass_fake(src, 2)
+
 
 /obj/machinery/door/window/clockwork/setDir(newdir)
 	if(!made_glow)
@@ -426,6 +443,7 @@
 		E.setDir(newdir)
 		made_glow = TRUE
 	return ..()
+
 
 /obj/machinery/door/window/clockwork/emp_act(severity)
 	if(prob(80/severity))
@@ -533,3 +551,11 @@
 	dir = SOUTH
 	icon_state = "rightsecure"
 	base_state = "rightsecure"
+
+
+/obj/machinery/door/window/rust_heretic_act()
+	add_atom_colour(COLOR_RUSTED_GLASS, FIXED_COLOUR_PRIORITY)
+	AddElement(/datum/element/rust)
+	getArmor()
+	take_damage(get_integrity() * 0.5)
+	modify_max_integrity(initial(max_integrity) * 0.2)

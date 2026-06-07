@@ -9,17 +9,15 @@
  */
 SUBSYSTEM_DEF(persistent_data)
 	name = "Persistent Data"
-	dependencies = list(
-		/datum/controller/subsystem/mapping,
-		/datum/controller/subsystem/atoms,
-	)
-	ss_flags = SS_NO_FIRE
-
+	init_order = INIT_ORDER_PERSISTENCE // -95 | Loads after EVERYTHING else
+	flags = SS_NO_FIRE
+	ss_id = "persistent_data"
 	/// List of atoms registered into the subsystem for persistent data storage. Can be anything at all
 	var/list/registered_atoms = list()
 
 	/// Set to true after a the end of the round to prevent griefing being saved
 	var/data_saved = FALSE
+
 
 /datum/controller/subsystem/persistent_data/Initialize()
 	// Load all the data of registered atoms
@@ -30,6 +28,7 @@ SUBSYSTEM_DEF(persistent_data)
 /datum/controller/subsystem/persistent_data/Shutdown()
 	save()
 
+
 /datum/controller/subsystem/persistent_data/proc/save()
 	// Stops data from being saved twice
 	if(data_saved)
@@ -39,6 +38,7 @@ SUBSYSTEM_DEF(persistent_data)
 	// Save all the data of registered atoms
 	for(var/atom/A in registered_atoms)
 		A.persistent_save()
+
 
 /**
  * Proc to register an atom with SSpersistent_data
@@ -54,6 +54,7 @@ SUBSYSTEM_DEF(persistent_data)
 	if(initialized)
 		A.persistent_load()
 
+
 /**
  * Atom Persistent Loader
  *
@@ -61,6 +62,7 @@ SUBSYSTEM_DEF(persistent_data)
  */
 /atom/proc/persistent_load()
 	stack_trace("peristent_load() called on an atom which does not have persistent data storage!")
+
 
 /**
  * Atom Persistent Saver

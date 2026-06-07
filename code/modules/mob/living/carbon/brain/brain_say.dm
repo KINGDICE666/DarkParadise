@@ -13,30 +13,33 @@
 
 	..(message)
 
-/mob/living/carbon/brain/whisper(message)
+
+/mob/living/carbon/brain/whisper(message as text)
 	if(!can_speak(warning = TRUE))
 		return
 
 	..()
 
+
 /mob/living/carbon/brain/can_speak(warning = FALSE)
 	. = ..()
 
-	if(!is_mmi(container))
+	if(!istype(container, /obj/item/mmi))
 		. = FALSE
 	else if(istype(container, /obj/item/mmi/robotic_brain))
 		var/obj/item/mmi/robotic_brain/R = container
-		if(R?.silenced)
+		if(R && R.silenced)
 			if(warning)
 				to_chat(usr, span_warning("You cannot speak, as your internal speaker is turned off."))
 			. = FALSE
+
 
 /mob/living/carbon/brain/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
 	switch(message_mode)
 		if(HEADSET_MODE)
 			var/radio_worked = 0 // If any of the radios our brainmob could use functioned, this is set true so that we don't use any others
 			// I'm doing it this way so that if the mecha radio fails for some reason, a radio MMI still has the built-in fallback
-			if(container && is_mmi(container))
+			if(container && istype(container,/obj/item/mmi))
 				var/obj/item/mmi/c = container
 				if(!radio_worked && c.mecha)
 					var/obj/mecha/metalgear = c.mecha
@@ -52,12 +55,11 @@
 		else
 			return FALSE
 
+
 /mob/living/carbon/brain/say_understands(mob/other, datum/language/speaking = null)	//Goddamn is this hackish, but this say code is so odd
 	if(isAI(other) || istype(other, /mob/living/silicon/decoy) || ispAI(other) || isrobot(other))
-		return is_mmi(container)
-
+		return istype(container, /obj/item/mmi)
 	if(ishuman(other) || isslime(other))
 		return TRUE
-
 	return ..()
 

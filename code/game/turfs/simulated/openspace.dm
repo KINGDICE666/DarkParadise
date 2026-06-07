@@ -14,7 +14,7 @@
 	heat_capacity = 10000
 	transparent_floor = TURF_FULLTRANSPARENT // bruh
 	intact = FALSE //this means wires go on top
-	underfloor_accessibility = UNDERFLOOR_INTERACTABLE //this means wires go o- you can touch wires, yes
+
 
 /turf/simulated/openspace/airless
 	temperature = TCMB
@@ -22,12 +22,16 @@
 	nitrogen = 0
 
 /turf/simulated/openspace/lavaland
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
+	temperature = 300
+	oxygen = 14
+	nitrogen = 23
+	planetary_atmos = TRUE
 
 /turf/simulated/openspace/snow_atmosphere
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_COLD
+	oxygen = 22
+	nitrogen = 82
+	temperature = 180
+	planetary_atmos = TRUE
 
 /turf/simulated/openspace/Initialize(mapload)
 	. = ..()
@@ -122,6 +126,7 @@
 /turf/simulated/openspace/proc/CanBuildHere()
 	return can_build_on
 
+
 /turf/simulated/openspace/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -164,8 +169,8 @@
 		ChangeTurf(/turf/simulated/floor/plating)
 		return .|ATTACK_CHAIN_BLOCKED_ALL
 
-	if(istype(I, /obj/item/stack/rods/fireproof))
-		var/obj/item/stack/rods/fireproof/rods = I
+	if(istype(I, /obj/item/stack/fireproof_rods))
+		var/obj/item/stack/fireproof_rods/rods = I
 		if(locate(/obj/structure/lattice/catwalk/fireproof, src))
 			to_chat(user, span_warning("Здесь уже есть мостик!"))
 			return .
@@ -186,6 +191,7 @@
 		to_chat(user, span_notice("Вы установили огнеупорный мостик."))
 		new /obj/structure/lattice/catwalk/fireproof(src)
 		return .|ATTACK_CHAIN_SUCCESS
+
 
 /turf/simulated/openspace/can_have_cabling()
 	if(locate(/obj/structure/lattice/catwalk, src))

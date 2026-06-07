@@ -7,8 +7,6 @@
 	slot_flags = ITEM_SLOT_ACCESSORY
 	pickup_sound = 'sound/items/handling/pickup/accessory_pickup.ogg'
 	drop_sound = 'sound/items/handling/drop/accessory_drop.ogg'
-	gender = MALE
-	cares_about_temperature = TRUE
 	var/slot = ACCESSORY_SLOT_DECOR
 	/// the suit the tie may be attached to
 	var/obj/item/clothing/under/has_suit
@@ -17,15 +15,18 @@
 	/// Overlay used when the accessory is attached to the clothing.
 	var/mutable_appearance/acc_overlay
 
+
 /obj/item/clothing/accessory/Initialize(mapload)
 	. = ..()
 	if(icon_exists('icons/obj/clothing/ties_overlay.dmi', icon_state))
 		acc_overlay = mutable_appearance('icons/obj/clothing/ties_overlay.dmi', icon_state)
 
+
 /obj/item/clothing/accessory/Destroy()
 	on_removed()
 	acc_overlay = null
 	return ..()
+
 
 /**
  * Accessory being attached to passed suit.
@@ -67,6 +68,7 @@
 	has_suit.armor = has_suit.armor.attachArmor(armor)
 	return has_suit
 
+
 /**
  * Accessory being removed from the suit.
  * But still stays inside it's contents. You need to forceMove it separetly.
@@ -97,6 +99,7 @@
 	. = has_suit
 	has_suit = null
 
+
 /obj/item/clothing/accessory/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	// This code lets you put accessories on other people by attacking their sprite with the accessory
 	if(!ishuman(target) || user == target)
@@ -114,7 +117,6 @@
 
 	var/obj/item/clothing/under/uniform = target.w_uniform
 	if(uniform_check(target, user, uniform))
-		to_chat(user, span_warning("На [uniform.declent_ru(PREPOSITIONAL)] может быть только одна нашивка!"))
 		return .
 
 	user.visible_message(
@@ -133,28 +135,34 @@
 		span_notice("You have finished puting [name] on [target]'s [uniform.name]..."),
 	)
 
+
 /obj/item/clothing/accessory/proc/uniform_check(mob/living/carbon/human/target, mob/living/user, obj/item/clothing/under/uniform)
 	SHOULD_CALL_PARENT(TRUE)
-	if(target && (target.w_uniform != uniform))
+	if(target.w_uniform != uniform)
 		return FALSE
 	return TRUE
+
 
 /obj/item/clothing/accessory/attack_hand(mob/user)
 	if(has_suit)
 		return	//we aren't an object on the ground so don't call parent
 	. = ..()
 
+
 /// If we need to do something special when clothing with accessory is equipped by the user.
 /obj/item/clothing/accessory/proc/attached_equip(mob/user)
 	return
+
 
 /// If we need to do something special when clothing with accessory is removed from the user
 /obj/item/clothing/accessory/proc/attached_unequip(mob/user)
 	return
 
+
 /// Additional info when examine accessory on the suit
-/obj/item/clothing/accessory/proc/attached_examine(mob/user, obj/item/clothing/under/uniform)
-	return span_notice("К н[GEND_HIM_HER(uniform)] прикреплен[GEND_A_O_Y(src)] [get_examine_icon(user)] [declent_ru(NOMINATIVE)].")
+/obj/item/clothing/accessory/proc/attached_examine(mob/user)
+	return span_notice("К нему прикреплен [bicon(src)] [declent_ru(NOMINATIVE)].")
+
 
 /obj/item/clothing/accessory/blue
 	name = "blue tie"
@@ -184,13 +192,14 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/stethoscope
 	name = "stethoscope"
 	desc = "An outdated medical apparatus for listening to the sounds of the human body. It also makes you look like you know what you're doing."
 	icon_state = "stethoscope"
+
 
 /obj/item/clothing/accessory/stethoscope/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!ishuman(target))
@@ -260,75 +269,26 @@
 	else
 		to_chat(user, span_warning("You don't hear anything!"))
 
+
 //Medals
 /obj/item/clothing/accessory/medal
 	name = "bronze medal"
-	desc = "Бронзовая медаль."
-	gender = FEMALE
+	desc = "A bronze medal."
 	icon_state = "bronze"
 	materials = list(MAT_METAL=1000)
 	resistance_flags = FIRE_PROOF
-	actions_types = list(/datum/action/item_action/sving_medal)
-	/// Cooldown for displaying medal
-	COOLDOWN_DECLARE(sving_cooldown)
-
-/obj/item/clothing/accessory/medal/get_ru_names()
-	return alist(
-		NOMINATIVE = "бронзовая медаль",
-		GENITIVE = "бронзовой медали",
-		DATIVE = "бронзовой медали",
-		ACCUSATIVE = "бронзовую медаль",
-		INSTRUMENTAL = "бронзовой медалью",
-		PREPOSITIONAL = "бронзовой медали"
-	)
-
-/obj/item/clothing/accessory/medal/attack_self(mob/user)
-	sving_medal(user)
-
-/obj/item/clothing/accessory/medal/item_action_slot_check(slot, mob/user, datum/action/action)
-	if(slot == ITEM_SLOT_ACCESSORY)
-		return TRUE
-
-/obj/item/clothing/accessory/medal/proc/sving_medal(mob/user)
-	if(!COOLDOWN_FINISHED(src, sving_cooldown))
-		return
-	user.custom_emote(EMOTE_VISIBLE, "щеголя[PLUR_ET_YUT(user)] [declent_ru(INSTRUMENTAL)].")
-	playsound(src, 'sound/items/medal.ogg', 15, TRUE)
-	COOLDOWN_START(src, sving_cooldown, 5 SECONDS)
 
 // GOLD (awarded by centcom)
 /obj/item/clothing/accessory/medal/gold
 	name = "gold medal"
-	desc = "Почётная золотая медаль."
+	desc = "A prestigious golden medal."
 	icon_state = "gold"
 	materials = list(MAT_GOLD=1000)
 
-/obj/item/clothing/accessory/medal/gold/get_ru_names()
-	return alist(
-		NOMINATIVE = "золотая медаль",
-		GENITIVE = "золотой медали",
-		DATIVE = "золотой медали",
-		ACCUSATIVE = "золотую медаль",
-		INSTRUMENTAL = "золотой медалью",
-		PREPOSITIONAL = "золотой медали"
-	)
-
 /obj/item/clothing/accessory/medal/gold/captain
 	name = "medal of captaincy"
-	desc = "Эксклюзивная золотая медаль капитанского звания.\
-Визуальное воплощение санкционированных \"Нанотрейзен\" полномочий и верховной власти Капитана над персоналом вверенного ему объекта."
-	icon_state = "captaincy"
+	desc = "A golden medal awarded exclusively to those promoted to the rank of captain. It signifies the codified responsibilities of a captain to Nanotrasen, and their undisputable authority over their crew."
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-
-/obj/item/clothing/accessory/medal/gold/captain/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль капитанства",
-		GENITIVE = "медали капитанства",
-		DATIVE = "медали капитанства",
-		ACCUSATIVE = "медаль капитанства",
-		INSTRUMENTAL = "медалью капитанства",
-		PREPOSITIONAL = "медали капитанства"
-	)
 
 /obj/item/clothing/accessory/medal/gold/captain/Initialize(mapload)
 	. = ..()
@@ -336,212 +296,73 @@
 
 /obj/item/clothing/accessory/medal/gold/heroism
 	name = "medal of exceptional heroism"
-	desc = "Невероятно редкая золотая медаль от Центрального Командования. Высшая награда, чья редкость говорит сама за себя."
+	desc = "An extremely rare golden medal awarded only by CentComm. To recieve such a medal is the highest honor and as such, very few exist."
 	icon_state = "ion"
-
-/obj/item/clothing/accessory/medal/gold/heroism/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль за исключительный героизм",
-		GENITIVE = "медали за исключительный героизм",
-		DATIVE = "медали за исключительный героизм",
-		ACCUSATIVE = "медаль за исключительный героизм",
-		INSTRUMENTAL = "медалью за исключительный героизм",
-		PREPOSITIONAL = "медали за исключительный героизм"
-	)
-
-/obj/item/clothing/accessory/medal/gold/cargo
-	name = "Медаль снабжения"
-	desc = "Награда, учреждённая Квартирмейстером для отличившихся сотрудников Отдела снабжения. \
-	Вручается за выдающиеся заслуги в области логистики и бесперебойного обеспечения станции всем необходимым для её функционирования."
-	icon_state = "cargomedal"
-
-/obj/item/clothing/accessory/medal/gold/cargo/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль снабжения",
-		GENITIVE = "медали снабжения",
-		DATIVE = "медали снабжения",
-		ACCUSATIVE = "медаль снабжения",
-		INSTRUMENTAL = "медалью снабжения",
-		PREPOSITIONAL = "медали снабжения"
-	)
 
 // SILVER (awarded by Captain)
 
 /obj/item/clothing/accessory/medal/silver
 	name = "silver medal"
-	desc = "Серебряная медаль."
+	desc = "A silver medal."
 	icon_state = "silver"
 	materials = list(MAT_SILVER=1000)
 
-/obj/item/clothing/accessory/medal/silver/get_ru_names()
-	return alist(
-		NOMINATIVE = "серебряная медаль",
-		GENITIVE = "серебряной медали",
-		DATIVE = "серебряной медали",
-		ACCUSATIVE = "серебряную медаль",
-		INSTRUMENTAL = "серебряной медалью",
-		PREPOSITIONAL = "серебряной медали"
-	)
-
 /obj/item/clothing/accessory/medal/silver/valor
 	name = "medal of valor"
-	desc = "Награда, вручаемая Капитаном тем членам экипажа, чьи исключительные заслуги и преданность делу были отмечены высшим руководством объекта."
-	icon_state = "valor"
-
-/obj/item/clothing/accessory/medal/silver/valor/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль за отвагу",
-		GENITIVE = "медали за отвагу",
-		DATIVE = "медали за отвагу",
-		ACCUSATIVE = "медаль за отвагу",
-		INSTRUMENTAL = "медалью за отвагу",
-		PREPOSITIONAL = "медали за отвагу"
-	)
+	desc = "An award issued by Captains to crew members whose exceptional performance and service to the station has been commended by the station's top leadership."
 
 /obj/item/clothing/accessory/medal/silver/leadership
 	name = "medal of command"
-	desc = "Награда, вручаемая Капитаном тем главам отделов, которые отлично справились с управлением своим подразделением. Изготовлена из чистого серебра."
-	icon_state = "leadership"
+	desc = "An award issued by Captains to heads of department who do an excellent job managing their department. Made of pure silver."
 
-/obj/item/clothing/accessory/medal/silver/leadership/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль командования",
-		GENITIVE = "медали командования",
-		DATIVE = "медали командования",
-		ACCUSATIVE = "медаль командования",
-		INSTRUMENTAL = "медалью командования",
-		PREPOSITIONAL = "медали командования"
-	)
 
 // BRONZE (awarded by heads of department, except for the bronze heart)
 
-/obj/item/clothing/accessory/medal/security
-	name = "medal name of \"Robert Aster\""
-	desc = "Почётная награда, учреждённая в память о легендарном офицере безопасности Роберте Астере, известном своей непоколебимой стойкостью и принципиальностью при исполнении служебного долга.\
-	Вручается сотрудникам Службы безопасности, проявившим исключительную доблесть и верность уставу."
-	icon_state = "robust"
 
-/obj/item/clothing/accessory/medal/security/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль имени \"Роберта Астера\"",
-		GENITIVE = "медали имени \"Роберта Астера\"",
-		DATIVE = "медали имени \"Роберта Астера\"",
-		ACCUSATIVE = "медаль имени \"Роберта Астера\"",
-		INSTRUMENTAL = "медалью имени \"Роберта Астера\"",
-		PREPOSITIONAL = "медали имени \"Роберта Астера\""
-	)
+
+/obj/item/clothing/accessory/medal/security
+	name = "robust security medal"
+	desc = "An award issued by the HoS to security staff who excel at upholding the law."
 
 /obj/item/clothing/accessory/medal/science
 	name = "smart science medal"
-	desc = "Награда, вручаемая Директором исследований тем сотрудникам НИО, которые внесли неоценимый вклад в науку."
-	icon_state = "science"
-
-/obj/item/clothing/accessory/medal/science/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль научного прорыва",
-		GENITIVE = "медали научного прорыва",
-		DATIVE = "медали научного прорыва",
-		ACCUSATIVE = "медаль научного прорыва",
-		INSTRUMENTAL = "медалью научного прорыва",
-		PREPOSITIONAL = "медали научного прорыва"
-	)
+	desc = "An award issued by the RD to science staff who advance the frontiers of knowledge."
 
 /obj/item/clothing/accessory/medal/engineering
 	name = "excellent engineering medal"
-	desc = "Награда, вручаемая Главным инженером тем сотрудникам Инженерного отдела, чья преданность делу обеспечивает бесперебойную работу станции."
-	icon_state = "engineering"
-
-/obj/item/clothing/accessory/medal/engineering/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль инженерного мастерства",
-		GENITIVE = "медали инженерного мастерства",
-		DATIVE = "медали инженерного мастерства",
-		ACCUSATIVE = "медаль инженерного мастерства",
-		INSTRUMENTAL = "медалью инженерного мастерства",
-		PREPOSITIONAL = "медали инженерного мастерства"
-	)
+	desc = "An award issued by the CE to engineering staff whose dedication keep the station running at its best."
 
 /obj/item/clothing/accessory/medal/service
 	name = "superior service medal"
-	desc = "Награда, вручаемая Главой персонала тем сотрудникам Отдела обслуживания, которые выполняют свои обязанности выше всяких похвал."
-	icon_state = "service"
-
-/obj/item/clothing/accessory/medal/service/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль безупречного обслуживания",
-		GENITIVE = "медали безупречного обслуживания",
-		DATIVE = "медали безупречного обслуживания",
-		ACCUSATIVE = "медаль безупречного обслуживания",
-		INSTRUMENTAL = "медалью безупречного обслуживания",
-		PREPOSITIONAL = "медали безупречного обслуживания"
-	)
+	desc = "An award issued by the HoP to service staff who go above and beyond."
 
 /obj/item/clothing/accessory/medal/medical
 	name = "magnificient medical medal"
-	desc = "Медаль для героев в белых халатах, превращающих неминуемую гибель в историю с хорошим концом. Вручается тем, чьи дефибрилляторы бьют точнее, а скальпели режут острее, чем самые злые языки на станции."
-	icon_state = "medical"
+	desc = "An award issued by the CMO to medical staff who excel at saving lives."
 
-/obj/item/clothing/accessory/medal/medical/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль медицинской доблести",
-		GENITIVE = "медали медицинской доблести",
-		DATIVE = "медали медицинской доблести",
-		ACCUSATIVE = "медаль медицинской доблести",
-		INSTRUMENTAL = "медалью медицинской доблести",
-		PREPOSITIONAL = "медали медицинской доблести"
-	)
 /obj/item/clothing/accessory/medal/legal
 	name = "meritous legal medal"
-	desc = "Высшая юридическая награда для тех, кто знает устав \"Нанотрейзен\" лучше, чем своё имя. Вручается Магистратом тем, кто способен найти лазейку в любой обвинительной речи и превратить её в оправдательный приговор."
-
-/obj/item/clothing/accessory/medal/legal/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль юридических заслуг",
-		GENITIVE = "медали юридических заслуг",
-		DATIVE = "медали юридических заслуг",
-		ACCUSATIVE = "медаль юридических заслуг",
-		INSTRUMENTAL = "медалью юридических заслуг",
-		PREPOSITIONAL = "медали юридических заслуг"
-	)
+	desc = "An award issued by the Magistrate to legal staff who uphold the rule of law."
 
 /obj/item/clothing/accessory/medal/heart
 	name = "bronze heart medal"
-	desc = "Высшая жертва, застывшая в бронзе. Посмертная награда тем, кто обменял биение собственного сердца на продолжение пульса экипажа объекта."
+	desc = "A rarely-awarded medal for those who sacrifice themselves in the line of duty to save their fellow crew."
 	icon_state = "bronze_heart"
-
-/obj/item/clothing/accessory/medal/heart/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль \"Бронзовое сердце\"",
-		GENITIVE = "медали \"Бронзовое сердце\"",
-		DATIVE = "медали \"Бронзовое сердце\"",
-		ACCUSATIVE = "медаль \"Бронзовое сердце\"",
-		INSTRUMENTAL = "медалью \"Бронзовое сердце\"",
-		PREPOSITIONAL = "медали \"Бронзовое сердце\""
-	)
 
 // Plasma, from NT research departments. For now, used by the HRD-MDE project for the moderate 2 fauna, drake and hierophant.
 /obj/item/clothing/accessory/medal/plasma
 	name = "plasma medal"
-	desc = "Эксцентричная медаль, изготовленная из плазмы."
+	desc = "An eccentric medal made of plasma."
 	icon_state = "plasma"
 	materials = list(MAT_PLASMA = 1000)
 
-/obj/item/clothing/accessory/medal/plasma/get_ru_names()
-	return alist(
-		NOMINATIVE = "плазменная медаль",
-		GENITIVE = "плазменной медали",
-		DATIVE = "плазменной медали",
-		ACCUSATIVE = "плазменную медаль",
-		INSTRUMENTAL = "плазменной медалью",
-		PREPOSITIONAL = "плазменной медали"
-	)
 
-/obj/item/clothing/accessory/medal/plasma/temperature_expose(exposed_temperature, exposed_volume)
+/obj/item/clothing/accessory/medal/plasma/temperature_expose(datum/gas_mixture/air, temperature, volume)
 	..()
-	if(exposed_temperature > T0C + 200)
+	if(temperature > T0C + 200)
 		burn_up()
 
-/obj/item/clothing/accessory/medal/plasma/fire_act(exposed_temperature, exposed_volume)
+/obj/item/clothing/accessory/medal/plasma/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay)
 	. = ..()
 	burn_up()
 
@@ -549,155 +370,52 @@
 	var/turf/simulated/T = get_turf(src)
 	if(istype(T))
 		T.atmos_spawn_air(LINDA_SPAWN_HEAT | LINDA_SPAWN_TOXINS | LINDA_SPAWN_OXYGEN, 10) //Technically twice as much plasma as it should spawn but a little more never hurt anyone.
-	visible_message(span_warning("[src] bursts into flame!"))
+	visible_message("<span class='warning'>[src] bursts into flame!</span>")
 	qdel(src)
 
 // Alloy, for the vetus speculator, or abductors I guess.
 
 /obj/item/clothing/accessory/medal/alloy
-	name = "alloy medal" //медаль из сплава свучит странно, у медали спрайт креста
-	desc = "Таинственный крест, выкованный из сплава, которого не должно существовать по всем законам металлургии. Его поверхность мерцает, словно поглощая и переизлучая свет из иного измерения."
-	gender = MALE
+	name = "alloy medal"
+	desc = "An eccentric medal made of some strange alloy."
 	icon_state = "alloy"
 	materials = list(MAT_METAL = 500, MAT_PLASMA = 500)
-
-/obj/item/clothing/accessory/medal/alloy/get_ru_names()
-	return alist(
-		NOMINATIVE = "крест",
-		GENITIVE = "креста",
-		DATIVE = "кресту",
-		ACCUSATIVE = "крест",
-		INSTRUMENTAL = "крестом",
-		PREPOSITIONAL = "кресте"
-	)
 
 // Mostly mining medals past here
 
 /obj/item/clothing/accessory/medal/gold/bubblegum
 	name = "bubblegum HRD-MDE award"
-	desc = "Награда за выдающийся вклад в проект HRD-MDE, связанный с исследованием Бубльгума и сопряжённого с ним редспейса."
-
-/obj/item/clothing/accessory/medal/gold/bubblegum/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Бубльгум\"",
-		GENITIVE = "медали HRD-MDE \"Бубльгум\"",
-		DATIVE = "медали HRD-MDE \"Бубльгум\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Бубльгум\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Бубльгум\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Бубльгум\""
-	)
+	desc = "An award which represents magnificant contributions to the HRD-MDE project in the form of analysing Bubblegum, and the related blood space."
 
 /obj/item/clothing/accessory/medal/gold/heroism/hardmode_full //Kill every hardmode boss. In a shift. Good luck.
 	name = "medal of incredible dedication"
-	desc = "Легендарная золотая награда, вручаемая только Центральным Командованием тем, кто бросил вызов всем богам Лазиса — и победил. Для Шахтёров, чья смена стала эпосом, а добыча — пантеоном поверженных титанов."
-
-/obj/item/clothing/accessory/medal/gold/heroism/hardmode_full/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль убийцы богов",
-		GENITIVE = "медали убийцы богов",
-		DATIVE = "медали убийцы богов",
-		ACCUSATIVE = "медаль убийцы богов",
-		INSTRUMENTAL = "медалью убийцы богов",
-		PREPOSITIONAL = "медали убийцы богов"
-	)
+	desc = "An extremely rare golden medal awarded only by CentComm. This medal was issued for miners who went above and beyond for the HRD-MDE project. Engraved on it is the phrase <i>'mori quam foedari'...</i>"
 
 /obj/item/clothing/accessory/medal/silver/colossus
 	name = "colossus HRD-MDE award"
-	desc = "Награда за значительный вклад в проект HRD-MDE, связанный с исследованием и анализом Колосса — одного из самых опасных существ Лазиса."
-	icon_state = "alloy"
-
-/obj/item/clothing/accessory/medal/silver/colossus/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Колосс\"",
-		GENITIVE = "медали HRD-MDE \"Колосс\"",
-		DATIVE = "медали HRD-MDE \"Колосс\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Колосс\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Колосс\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Колосс\""
-	)
+	desc = "An award which represents major contributions to the HRD-MDE project in the form of analysing a colossus."
 
 /obj/item/clothing/accessory/medal/silver/legion
 	name = "legion HRD-MDE award"
-	desc = "Награда за анализ одного из самых противоестественных феноменов Лазиса. Вручается за исследование Легиона — коллективного организма, ставящего под сомнение саму концепцию индивидуальности в экосистеме планеты."
+	desc = "An award which represents major contributions to the HRD-MDE project in the form of analysing the Legion."
 
-/obj/item/clothing/accessory/medal/silver/legion/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Легион\"",
-		GENITIVE = "медали HRD-MDE \"Легион\"",
-		DATIVE = "медали HRD-MDE \"Легион\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Легион\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Легион\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Легион\""
-	)
 /obj/item/clothing/accessory/medal/blood_drunk
 	name = "blood drunk HRD-MDE award"
-	desc = "Награда за вклад в проект HRD-MDE по изучению и нейтрализации феномена \"Кровавого шахтёра\" — человека, превратившегося в смертоносную угрозу под влиянием Лазиса."
-
-/obj/item/clothing/accessory/medal/blood_drunk/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Кровавый шахтёр\"",
-		GENITIVE = "медали HRD-MDE \"Кровавый шахтёр\"",
-		DATIVE = "медали HRD-MDE \"Кровавый шахтёр\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Кровавый шахтёр\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Кровавый шахтёр\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Кровавый шахтёр\""
-	)
+	desc = "A award which represents minor contributions to the HRD-MDE project in the form of analysing the blood drunk miner."
 
 /obj/item/clothing/accessory/medal/plasma/hierophant
 	name = "hierophant HRD-MDE award"
-	desc = "Награда для тех, кто осмелился изучать не просто существо, а явление. Иерофант не подчиняется привычным законам — он диктует свои, и эта медаль вручается тем, кто начал понимать его язык."
+	desc = "An award which represents moderate contributions to the HRD-MDE project in the form of analysing the Hierophant."
 
-/obj/item/clothing/accessory/medal/plasma/hierophant/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Иерофант\"",
-		GENITIVE = "медали HRD-MDE \"Иерофант\"",
-		DATIVE = "медали HRD-MDE \"Иерофант\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Иерофант\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Иерофант\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Иерофант\""
-	)
 
 /obj/item/clothing/accessory/medal/plasma/ash_drake
 	name = "ash drake HRD-MDE award"
-	desc = "Награда за значительный вклад в проект HRD-MDE, связанный с исследованием Пепельного дракона — древнего существа, чьё дыхание испепеляет скалы, а чешуя прочнее пластитана."
-
-/obj/item/clothing/accessory/medal/plasma/ash_drake/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Пепельный дракон\"",
-		GENITIVE = "медали HRD-MDE \"Пепельный дракон\"",
-		DATIVE = "медали HRD-MDE \"Пепельный дракон\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Пепельный дракон\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Пепельный дракон\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Пепельный дракон\""
-	)
+	desc = "An award which represents moderate contributions to the HRD-MDE project in the form of analysing an ash drake."
 
 /obj/item/clothing/accessory/medal/alloy/vetus
 	name = "vetus speculator HRD-MDE award"
-	desc = "Награда за выдающийся вклад в проект HRD-MDE, связанный с исследованием Ветус Спекулятора — одного из самых загадочных и технологически сложных существ Лазиса."
+	desc = "An award which represents major contributions to the HRD-MDE project in the form of analysing the Vetus Speculator."
 
-/obj/item/clothing/accessory/medal/alloy/vetus/get_ru_names()
-	return alist(
-		NOMINATIVE = "медаль HRD-MDE \"Ветус Спекулятор\"",
-		GENITIVE = "медали HRD-MDE \"Ветус Спекулятор\"",
-		DATIVE = "медали HRD-MDE \"Ветус Спекулятор\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Ветус Спекулятор\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Ветус Спекулятор\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Ветус Спекулятор\""
-	)
-
-/obj/item/clothing/accessory/medal/gold/nothing_award
-	name = "награда \"Ничего Не Произошло\""
-	desc = "Всегда ставьте на то, что ничего не случится."
-
-/obj/item/clothing/accessory/medal/gold/nothing_award/get_ru_names()
-	return alist(
-		NOMINATIVE = "награда \"Ничего Не Произошло\"",
-		GENITIVE = "медали \"Ничего Не Произошло\"",
-		DATIVE = "медали \"Ничего Не Произошло\"",
-		ACCUSATIVE = "медаль HRD-MDE \"Ничего Не Произошло\"",
-		INSTRUMENTAL = "медалью HRD-MDE \"Ничего Не Произошло\"",
-		PREPOSITIONAL = "медали HRD-MDE \"Ничего Не Произошло\""
-	)
 /*
 	Holobadges are worn on the belt or neck, and can be used to show that the holder is an authorized
 	Security agent - the user details can be imprinted on the badge with a Security-access ID card,
@@ -710,6 +428,8 @@
 	icon_state = "holobadge"
 	slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_ACCESSORY
 	actions_types = list(/datum/action/item_action/accessory/holobadge)
+
+	var/emagged = FALSE //Emagging removes Sec check.
 	var/stored_name = null
 
 /obj/item/clothing/accessory/holobadge/cord
@@ -719,6 +439,7 @@
 	name = "detective holobadge"
 	desc = "This glowing yellow badge marks the holder as THE DETECTIVE."
 	icon_state = "holobadge_dec"
+
 
 /obj/item/clothing/accessory/holobadge/attack_self(mob/user)
 	. = ..()
@@ -734,6 +455,7 @@
 		span_userdanger("You display your Nanotrasen Internal Security Legal Authorization Badge.\nIt reads: [stored_name], NT Security."),
 	)
 
+
 /obj/item/clothing/accessory/holobadge/attack(mob/living/carbon/human/target, mob/living/user, def_zone, skip_attack_anim = FALSE)
 	if(user == target)
 		user.visible_message(
@@ -746,6 +468,7 @@
 			span_userdanger("You invade [target]'s personal space, thrusting [src] to [target.p_their()] face insistently. You are the law!"),
 		)
 	return ATTACK_CHAIN_PROCEED_SUCCESS
+
 
 /obj/item/clothing/accessory/holobadge/attackby(obj/item/I, mob/user, params)
 	var/obj/item/card/id/id = I.GetID()
@@ -761,13 +484,16 @@
 
 	return ..()
 
+
 /obj/item/clothing/accessory/holobadge/update_name(updates = ALL)
 	. = ..()
 	name = "[initial(name)][stored_name ? " ([stored_name])" : ""]"
 
+
 /obj/item/clothing/accessory/holobadge/update_desc(updates = ALL)
 	. = ..()
 	desc = "[stored_name ? "This glowing blue badge marks [stored_name] as THE LAW." : "[initial(desc)]"]"
+
 
 /obj/item/clothing/accessory/holobadge/emag_act(mob/user)
 	if(emagged)
@@ -780,10 +506,12 @@
 		to_chat(user, span_warning("You swipe the card and crack the holobadge security checks."))
 	. = ..()
 
+
 /obj/item/clothing/accessory/holobadge/on_attached(obj/item/clothing/under/new_suit, mob/attacher)
 	. = ..()
 	if(.)
 		has_suit.verbs += /obj/item/clothing/accessory/holobadge/verb/holobadge_verb
+
 
 /obj/item/clothing/accessory/holobadge/on_removed(mob/detacher)
 	. = ..()
@@ -791,10 +519,11 @@
 		var/obj/item/clothing/under/old_suit = .
 		old_suit.verbs -= /obj/item/clothing/accessory/holobadge/verb/holobadge_verb
 
+
 //For the holobadge hotkey
 /obj/item/clothing/accessory/holobadge/verb/holobadge_verb()
 	set name = "Показать значок"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in usr
 	if(!isliving(usr) || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
@@ -818,6 +547,7 @@
 		span_warning("[usr] displays [usr.p_their()] Nanotrasen Internal Security Legal Authorization Badge.\nIt reads: [holobadge_ref.stored_name], NT Security."),
 		span_warning("You display your Nanotrasen Internal Security Legal Authorization Badge.\nIt reads: [holobadge_ref.stored_name], NT Security."),
 	)
+
 
 ///////////
 //SCARVES//
@@ -908,35 +638,35 @@
 	desc = "Украшение в виде черепа, которое предназначено для защиты самого важного в жизни."
 	icon_state = "skull"
 	item_state = "skull"
-	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 5, BOMB = 20, BIO = 20, FIRE = 0, ACID = 25)
+	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 5, BOMB = 20, BIO = 20, RAD = 5, FIRE = 0, ACID = 25)
 	allow_duplicates = FALSE
 
 /obj/item/clothing/accessory/necklace/skullcodpiece/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "костяной гульфик",
 		GENITIVE = "костяного гульфика",
 		DATIVE = "костяному гульфику",
 		ACCUSATIVE = "костяной гульфик",
 		INSTRUMENTAL = "костяным гульфиком",
-		PREPOSITIONAL = "костяном гульфике",
+		PREPOSITIONAL = "костяном гульфике"
 	)
 
 /obj/item/clothing/accessory/necklace/talisman
 	name = "bone talisman"
-	desc = "Талисман охотника — многие верят, что он дарует защиту от старых богов тем, кто его носит."
+	desc = "Талисман охотника – многие верят, что он дарует защиту от старых богов тем, кто его носит."
 	icon_state = "talisman"
 	item_state = "talisman"
-	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 5, BOMB = 20, BIO = 20, FIRE = 0, ACID = 25)
+	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 5, BOMB = 20, BIO = 20, RAD = 5, FIRE = 0, ACID = 25)
 	allow_duplicates = FALSE
 
 /obj/item/clothing/accessory/necklace/talisman/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "костяной талисман",
 		GENITIVE = "костяного талисмана",
 		DATIVE = "костяному талисману",
 		ACCUSATIVE = "костяной талисман",
 		INSTRUMENTAL = "костяным талисманом",
-		PREPOSITIONAL = "костяном талисмане",
+		PREPOSITIONAL = "костяном талисмане"
 	)
 
 /obj/item/clothing/accessory/necklace/locket
@@ -947,9 +677,11 @@
 	/// Item inside locket.
 	var/obj/item/held_item
 
+
 /obj/item/clothing/accessory/necklace/locket/Destroy()
 	QDEL_NULL(held_item)
 	return ..()
+
 
 /obj/item/clothing/accessory/necklace/locket/attack_self(mob/user)
 	. = ..()
@@ -963,8 +695,10 @@
 		held_item.forceMove(drop_location())
 		held_item = null
 
+
 /obj/item/clothing/accessory/necklace/locket/update_icon_state()
 	icon_state = "[replacetext("[icon_state]", "_open", "")][up ? "_open" : ""]"
+
 
 /obj/item/clothing/accessory/necklace/locket/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/paper) || istype(I, /obj/item/photo))
@@ -982,6 +716,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/clothing/accessory/ntrjacket
 	name = "black light jacket"
@@ -1001,8 +736,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 //Cowboy Shirts
 /obj/item/clothing/accessory/cowboyshirt
@@ -1017,8 +752,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/short_sleeved
 	name = "shortsleeved black cowboy shirt"
@@ -1032,8 +767,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/white
 	name = "white cowboy shirt"
@@ -1047,8 +782,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/white/short_sleeved
 	name = "short sleeved white cowboy shirt"
@@ -1062,8 +797,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/pink
 	name = "pink cowboy shirt"
@@ -1077,8 +812,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/pink/short_sleeved
 	name = "short sleeved pink cowboy shirt"
@@ -1092,8 +827,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/navy
 	name = "navy cowboy shirt"
@@ -1107,8 +842,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/navy/short_sleeved
 	name = "short sleeved navy cowboy shirt"
@@ -1122,8 +857,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/red
 	name = "red cowboy shirt"
@@ -1137,8 +872,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/cowboyshirt/red/short_sleeved
 	name = "short sleeved red cowboy shirt"
@@ -1154,14 +889,15 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/suit.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/suit.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/suit.dmi'
+		)
 
 /obj/item/clothing/accessory/corset
 	name = "black corset"
 	desc = "A black corset for those fancy nights out."
 	icon_state = "corset"
 	item_state = "corset"
+
 
 /obj/item/clothing/accessory/corset/red
 	name = "red corset"
@@ -1183,10 +919,12 @@
 	var/tagname = null
 	var/obj/item/card/id/access_id
 
+
 /obj/item/clothing/accessory/petcollar/Destroy()
 	QDEL_NULL(access_id)
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
 
 /obj/item/clothing/accessory/petcollar/proc/remove_id(mob/living/user)
 	if(access_id)
@@ -1197,11 +935,13 @@
 		return
 	to_chat(user, span_notice("There is no ID card in \the [src]."))
 
+
 /obj/item/clothing/accessory/petcollar/attack_self(mob/user)
 	. = ..()
 	if(.)
 		return .
 	remove_id(user)
+
 
 /obj/item/clothing/accessory/petcollar/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
@@ -1212,7 +952,7 @@
 			update_appearance(UPDATE_NAME)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(is_id_card(I))
+	if(istype(I, /obj/item/card/id))
 		add_fingerprint(user)
 		if(access_id)
 			to_chat(user, span_notice("There is already [access_id] clipped onto [src]."))
@@ -1225,26 +965,32 @@
 
 	return ..()
 
+
 /obj/item/clothing/accessory/petcollar/update_name(updates = ALL)
 	. = ..()
 	name = "[initial(name)][tagname ? " - [tagname]" : ""]"
 
+
 /obj/item/clothing/accessory/petcollar/GetAccess()
 	return access_id ? access_id.GetAccess() : ..()
+
 
 /obj/item/clothing/accessory/petcollar/GetID()
 	return access_id ? access_id : ..()
 
+
 /obj/item/clothing/accessory/petcollar/examine(mob/user)
 	. = ..()
 	if(access_id)
-		. += span_notice("There is [icon2html(access_id, user)] \a [access_id] clipped onto it.")
+		. += span_notice("There is [bicon(access_id)] \a [access_id] clipped onto it.")
+
 
 /obj/item/clothing/accessory/petcollar/equipped(mob/living/simple_animal/user, slot, initial = FALSE)
 	. = ..()
 
 	if(istype(user))
 		START_PROCESSING(SSobj, src)
+
 
 /obj/item/clothing/accessory/petcollar/dropped(mob/living/simple_animal/user, slot, silent = FALSE)
 	STOP_PROCESSING(SSobj, src)
@@ -1257,6 +1003,7 @@
 		return
 	var/announce_channel = PUB_FREQ			// Channel toggler for mobs, who dies in specific locations.
 	var/area/t = get_area(M)
+	var/obj/item/radio/headset/all_channels/a = new /obj/item/radio/headset/all_channels(src)
 	if(M.z == level_name_to_num(RAMSS_TAIPAN))
 		announce_channel = SYND_TAIPAN_FREQ		// Taipan channel for Руж.
 	else if(istype(t, /area/centcom))
@@ -1268,11 +1015,14 @@
 	else if(istype(t, /area/ussp_centcom))
 		announce_channel = SOV_FREQ			// MISHA, FU!
 	else if((M.z == level_name_to_num(CENTCOMM) || z == level_name_to_num(ADMIN_ZONE)) && SSticker.current_state != GAME_STATE_FINISHED)
-		radio_announce("[M] подверг[GEND_SYA_AS_OS_IS(M)] вандализму в космосе", "Оповещение о смерти [M]", PUB_FREQ, src)	// For the rest of CC map locations like Abductors UFO, Vox home or TSF home.
+		a.autosay("[M] has been vandalized in Space!", "[M]'s Death Alarm")	// For the rest of CC map locations like Abductors UFO, Vox home or TSF home.
+		qdel(a)
 		STOP_PROCESSING(SSobj, src)
 		return
-	radio_announce("[M] подверг[GEND_SYA_AS_OS_IS(M)] вандализму в [t.name]!", "Оповещение о смерти [M]", announce_channel, src)
+	a.autosay("[M] has been vandalized in [t.name]!", "[M]'s Death Alarm", announce_channel)
+	qdel(a)
 	STOP_PROCESSING(SSobj, src)
+
 
 /proc/accessory_list(obj/item/clothing/under/uniform)
 	if(!istype(uniform) || !LAZYLEN(uniform.accessories))
@@ -1293,6 +1043,185 @@
 
 		return "[output]и [A[index]]"
 
+/obj/item/clothing/accessory/head_strip
+	name = "captain's strip"
+	desc = "Плотно сшитая круглая нашивка из синего бархата с позолотой, по центру красуется логотип корпорации Nanotrasen прошитый золотыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся управление станцией."
+	icon_state = "capstrip"
+	item_state = "capstrip"
+	var/strip_bubble_icon = "CAP"
+	var/cached_bubble_icon = null
+
+
+/obj/item/clothing/accessory/head_strip/attack_self(mob/user)
+	. = ..()
+	if(.)
+		return .
+	fluff_attack_self_action(user)
+
+
+/obj/item/clothing/accessory/head_strip/proc/fluff_attack_self_action(mob/user)
+	user.visible_message(
+		span_notice("[user] shows [user.p_their()] [name]."),
+		span_notice("You show your [name]."),
+	)
+
+
+/obj/item/clothing/accessory/head_strip/uniform_check(mob/living/carbon/human/target, mob/living/user, obj/item/clothing/under/uniform)
+	. = ..()
+	if(. && locate(/obj/item/clothing/accessory/head_strip, uniform.contents))
+		to_chat(user, span_warning("You can have only one strip attached to this uniform!"))
+		return FALSE
+
+
+/obj/item/clothing/accessory/head_strip/on_attached(obj/item/clothing/under/new_suit, mob/attacher)
+	. = ..()
+	if(. && ismob(has_suit.loc))
+		var/mob/wearer = has_suit.loc
+		cached_bubble_icon = wearer.bubble_icon
+		wearer.bubble_icon = strip_bubble_icon
+
+
+/obj/item/clothing/accessory/head_strip/on_removed(mob/detacher)
+	. = ..()
+	if(.)
+		var/obj/item/clothing/under/old_suit = .
+		if(ismob(old_suit.loc))
+			var/mob/wearer = old_suit.loc
+			wearer.bubble_icon = cached_bubble_icon
+
+
+/obj/item/clothing/accessory/head_strip/rd
+	name = "Research Director's strip"
+	desc = "Плотно сшитая круглая нашивка из фиолетового бархата, по центру красуется логотип корпорации Nanotrasen прошитый розоватыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи в области исследований."
+	icon_state = "rdstrip"
+	item_state = "rdstrip"
+	strip_bubble_icon = "RD"
+
+/obj/item/clothing/accessory/head_strip/ce
+	name = "Chief Engineer's strip"
+	desc = "Плотно сшитая круглая нашивка из серо-желтого бархата, по центру красуется логотип корпорации Nanotrasen прошитый голубыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи в области инженерии."
+	icon_state = "cestrip"
+	item_state = "cestrip"
+	strip_bubble_icon = "CE"
+
+/obj/item/clothing/accessory/head_strip/t4ce
+	name = "Grand Chief Engineer's strip"
+	desc = "Плотно сшитая круглая нашивка из серого бархата, по центру красуется логотип корпорации Nanotrasen прошитый желтыми металлическими нитями. Если присмотреться, можно заметить проходящее по нитям электричество и небольшие искорки."
+	icon_state = "t4cestrip"
+	item_state = "t4cestrip"
+	strip_bubble_icon = "T4CE"
+
+/obj/item/clothing/accessory/head_strip/cmo
+	name = "Chief Medical Officer's strip"
+	desc = "Плотно сшитая круглая нашивка из голубого бархата, по центру красуется логотип корпорации Nanotrasen прошитый белыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи в области медицины."
+	icon_state = "cmostrip"
+	item_state = "cmostrip"
+	strip_bubble_icon = "CMO"
+
+/obj/item/clothing/accessory/head_strip/hop
+	name = "Head of Personnel's strip"
+	desc = "Плотно сшитая круглая нашивка из синего бархата с красной окантовкой, по центру красуется логотип корпорации Nanotrasen прошитый белыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся управление персоналом."
+	icon_state = "hopstrip"
+	item_state = "hopstrip"
+	strip_bubble_icon = "HOP"
+
+/obj/item/clothing/accessory/head_strip/hos
+	name = "Head of Security's strip"
+	desc = "Плотно сшитая круглая нашивка из черно-красного бархата, по центру красуется логотип корпорации Nanotrasen прошитый бело-красными металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи при службе на корпорацию. "
+	icon_state = "hosstrip"
+	item_state = "hosstrip"
+	strip_bubble_icon = "HOS"
+
+/obj/item/clothing/accessory/head_strip/qm
+	name = "Quatermaster's strip"
+	desc = "Плотно сшитая круглая нашивка из коричневого бархата, по центру красуется логотип корпорации Nanotrasen прошитый белыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи в области логистики и погрузки."
+	icon_state = "qmstrip"
+	item_state = "qmstrip"
+	strip_bubble_icon = "QM"
+
+/obj/item/clothing/accessory/head_strip/bs
+	name = "Blueshield's strip"
+	desc = "Плотно сшитая круглая нашивка из синего бархата с темно-синей окантовкой, по центру красуется логотип корпорации Nanotrasen прошитый белыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся успехи при службе на корпорацию."
+	icon_state = "bsstrip"
+	item_state = "bsstrip"
+	strip_bubble_icon = "BS"
+
+/obj/item/clothing/accessory/head_strip/ntr
+	name = "Nanotrasen Representative's strip"
+	desc = "Плотно сшитая круглая нашивка из чёрного бархата с золотистой окантовкой, по центру красуется логотип корпорации Nanotrasen прошитый белыми металлическими нитями. Награда выданная Центральным командованием за выдающиеся заслуги при службе на корпорацию."
+	icon_state = "ntrstrip"
+	item_state = "ntrstrip"
+	strip_bubble_icon = "NTR"
+
+/obj/item/clothing/accessory/head_strip/syndicate
+	name = "Syndicate strip"
+	desc = "Круглый металлический значок тёмно-красного цвета с расположенной в центре ярко-зелёной буквой \"S\" с бордовым штырём."
+	icon_state = "syndistrip"
+	item_state = "syndistrip"
+	strip_bubble_icon = "Syndie"
+
+/obj/item/clothing/accessory/head_strip/comrad
+	name = "Comrade patch"
+	desc = "Грубый прямоугольный шеврон цвета хаки с бело-золотыми вставками по бокам и вышитой красными нитями аббревиатурой \"СССП\" в центре: стандартная нашивка, выдаваемая добровольцам."
+	icon_state = "patch_sssp"
+	item_state = "patch_sssp"
+	strip_bubble_icon = "comrad"
+
+/obj/item/clothing/accessory/head_strip/federal
+	name = "Federal strip"
+	desc = "Плотно сшитая круглая нашивка из синего бархата с белой окантовкой и золотыми вставками. По центру красуется логотип ТСФ, прошитый бело-золотыми металлическими нитями: стандартный знак отличия для граждан ТСФ."
+	icon_state = "stripe_federal"
+	item_state = "stripe_federal"
+	strip_bubble_icon = "federal"
+
+/obj/item/clothing/accessory/head_strip/greytide
+	name = "GreyTide strip"
+	desc = "Плотно сшитая круглая нашивка серого цвета с расположенным в центре противогазом."
+	icon_state = "greytstrip"
+	item_state = "greytstrip"
+	strip_bubble_icon = "greyt"
+
+/obj/item/clothing/accessory/head_strip/greytide/get_ru_names()
+	return list(
+		NOMINATIVE = "нашивка \"GreyTide\"",
+		GENITIVE = "нашивки \"GreyTide\"",
+		DATIVE = "нашивке \"GreyTide\"",
+		ACCUSATIVE = "нашивку \"GreyTide\"",
+		INSTRUMENTAL = "нашивкой \"GreyTide\"",
+		PREPOSITIONAL = "нашивке \"GreyTide\""
+	)
+
+/obj/item/clothing/accessory/head_strip/lawyers_badge
+	name = "attorney's badge"
+	desc = "Fills you with the conviction of JUSTICE. Lawyers tend to want to show it to everyone they meet."
+	icon_state = "lawyerbadge"
+	item_state = "lawyerbadge"
+	strip_bubble_icon = "lawyer"
+
+
+/obj/item/clothing/accessory/head_strip/lawyers_badge/fluff_attack_self_action(mob/user)
+	if(prob(1))
+		user.say("The testimony contradicts the evidence!")
+
+
+/obj/item/clothing/accessory/head_strip/cheese_badge
+	name = "great fellow's badge"
+	desc = "Плотно сшитая круглая нашивка из желто-оранжевого бархата, по центру красуется то ли корона, то ли головка сыра. Слегка отдает запахом Монтерей Джека."
+	icon_state = "cheesebadge"
+	item_state = "cheesebadge"
+	strip_bubble_icon = "cheese"
+
+/obj/item/clothing/accessory/head_strip/cheese_badge/fluff_attack_self_action(mob/user)
+	if(prob(1))
+		user.say("CHEE-EE-EE-EE-EE-EESE!")
+
+/obj/item/clothing/accessory/head_strip/clown
+	name = "clown's strip"
+	desc = "Плотно сшитая круглая нашивка с изображением клоуна. Идеально подойдет для совершения военных преступлений, ведь это не военное преступление, если тебе было весело!"
+	icon_state = "clownstrip"
+	item_state = "clownstrip"
+	strip_bubble_icon = "clown"
+
 /obj/item/clothing/accessory/medal/smile
 	name = "smiling pin"
 	desc = "Позолоченный значок с улыбающейся рожецей. Символ невиданной гордости самим собой!"
@@ -1300,12 +1229,14 @@
 	materials = list(MAT_METAL = 300, MAT_GOLD = 200)
 	w_class = WEIGHT_CLASS_TINY
 
+
 /obj/item/clothing/accessory/medal/smile/attack_self(mob/user)
 	. = ..()
 	if(.)
 		return .
 	if(prob(5))
 		user.emote("smile")
+
 
 /obj/item/clothing/accessory/medal/smile/examine(mob/user)
 	. = ..()

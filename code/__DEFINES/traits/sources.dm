@@ -6,6 +6,7 @@
 // Common trait sources
 #define GENERIC_TRAIT "generic"
 #define MAGIC_TRAIT "magic"
+#define HERETIC_TRAIT "heretic"
 #define CULT_TRAIT "cult"
 #define CLOCK_TRAIT "clockwork_cult"
 #define DEVIL_TRAIT "devil"
@@ -18,13 +19,14 @@
 
 /// cannot be removed without admin intervention
 #define ROUNDSTART_TRAIT "roundstart"
-#define JOB_TRAIT "job"
 
 #define CINEMATIC_TRAIT "cinematic"
 
 #define CHASM_TRAIT "chasm_trait"
 
 // unique trait sources
+#define CULT_EYES "cult_eyes"
+#define CLOCK_HANDS "clock_hands"
 #define PULSEDEMON_TRAIT "pulse_demon"
 #define CHANGELING_TRAIT "changeling"
 #define VAMPIRE_TRAIT "vampire"
@@ -40,6 +42,7 @@
 #define CYBORG_ITEM_TRAIT "cyborg-item"
 #define MECHA_EQUIPMENT_TRAIT "mecha-equip"
 #define HIS_GRACE_TRAIT "his-grace"
+#define HAND_REPLACEMENT_TRAIT "magic-hand"
 #define CHAINSAW_TRAIT "chainsaw-wield"
 #define CENTCOMM_RAPIER_TRAIT "centcomm_rapier"
 #define PYRO_CLAWS_TRAIT "pyro-claws"
@@ -50,7 +53,8 @@
 #define AUGMENT_TRAIT "augment"
 #define ANTIDROP_TRAIT "antidrop"
 #define HOLO_CIGAR_TRAIT "holo_cigar"
-#define INUGAMI_TRAIT "inugami_gl"
+/// Traits given by the heretic arena spell
+#define HERETIC_ARENA_TRAIT "heretic_arena"
 
 #define WISHGRANTER_TRAIT "wishgranter"
 #define THUNDERDOME_TRAIT "thunderdome"
@@ -111,9 +115,6 @@
 /// Source trait for /obj/item/mecha_parts/mecha_equipment/cage
 #define MECH_SUPRESSED_TRAIT "mech_supress"
 
-/// Source trait for the Bingle
-#define TRAIT_BINGLE "bingle_trait"
-
 /// Trait associated to resting
 #define RESTING_TRAIT "resting"
 /// Trait associated to a stat value or range of
@@ -168,7 +169,7 @@
 
 #define ADMIN_OFFER_TRAIT "admin_offer"
 
-#define GRAVITATION_TRAIT "gravitation"
+#define GRAVITATION_TRAIT	"gravitation"
 
 #define FAKEFIRE_TRAIT "fakefire"
 
@@ -176,31 +177,4 @@
 
 #define DEVIL_RITUAL_TRAIT "devil_ritual"
 
-/// Trait applied by MODsuits.
-#define MODSUIT_TRAIT "modsuit_trait"
-
 #define TASER_TRAIT "taser"
-
-#define BUTTON_TRAIT "button"
-
-#define STATION_TRAIT "station-trait"
-
-/// Trait given by echolocation component.
-#define ECHOLOCATION_TRAIT "echolocation"
-
-#define NO_EARS "no_ears"
-/// Traits related to guns
-#define GUN_TRAIT "gun"
-
-/// Trait from mob/living/update_offsets()
-#define UPDATE_OFFSET_TRAIT "update_offset"
-
-/// From grabbing someone
-#define GRABBING_TRAIT "grabbing"
-
-/// A trait gained by leaning against a wall
-#define LEANING_TRAIT "leaning"
-
-#define GIVE_TRAIT "give"
-/// Trait from mob/living/update_transform()
-#define UPDATE_TRANSFORM_TRAIT "update_transform"

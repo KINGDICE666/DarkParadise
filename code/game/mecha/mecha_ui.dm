@@ -39,14 +39,6 @@
 		"MECHA_INT_SHORT_CIRCUIT" = MECHA_INT_SHORT_CIRCUIT,
 	)
 
-	data["internal_damage_fixable"] = list(
-		"MECHA_INT_FIRE" = FALSE,
-		"MECHA_INT_TEMP_CONTROL" = FALSE,
-		"MECHA_INT_TANK_BREACH" = FALSE,
-		"MECHA_INT_CONTROL_LOST" = TRUE,
-		"MECHA_INT_SHORT_CIRCUIT" = FALSE,
-	)
-
 	var/list/user_accesses = user.get_access()
 
 	data["regions"] = length(user_accesses) ? get_accesslist_static_data(REGION_GENERAL, REGION_COMMAND, user_accesses) : null
@@ -67,9 +59,9 @@
 	data["internal_damage"] = internal_damage
 
 	data["radio_data"] = list(
-		"microphone" = radio.get_broadcasting(),
-		"speaker" = radio.get_listening(),
-		"frequency" = radio.get_frequency(),
+		"microphone" = radio.broadcasting,
+		"speaker" = radio.listening,
+		"frequency" = radio.frequency,
 		"minFrequency" = radio.freerange ? RADIO_LOW_FREQ : PUBLIC_LOW_FREQ,
 		"maxFrequency" = radio.freerange ? RADIO_HIGH_FREQ : PUBLIC_HIGH_FREQ,
 	)
@@ -82,7 +74,7 @@
 	data["maintance_progress"] = maintenance_progress
 	data["use_internal_tank"] = use_internal_tank
 	data["dna_lock"] = dna_lock
-	data["cabin_temp"] =  round(cabin_air.temperature() - T0C)
+	data["cabin_temp"] =  round(cabin_air.temperature - T0C)
 	data["cabin_pressure"] = round(cabin_air.return_pressure())
 	data["mech_view"] = ui_view.assigned_map
 	data["modules"] = get_module_ui_data()
@@ -123,7 +115,6 @@
 			"energy_per_use" = module.energy_drain,
 			"snowflake" = module.get_snowflake_data(),
 			"ref" = module.UID(),
-			"slot" = module.stored_in,
 		))
 
 	return data
@@ -172,10 +163,10 @@
 			maint_access = !maint_access
 			return
 		if("toggle_microphone")
-			radio.set_broadcasting(!radio.get_broadcasting())
+			radio.broadcasting = !radio.broadcasting
 			return TRUE
 		if("toggle_speaker")
-			radio.set_listening(!radio.get_listening())
+			radio.listening = !radio.listening
 			return TRUE
 		if("set_frequency")
 			var/new_frequency = text2num(params["new_frequency"])
@@ -195,22 +186,19 @@
 		if("dna_lock")
 			var/mob/living/carbon/user = usr
 			if(!istype(user) || !user.dna)
-				to_chat(user, "[get_examine_icon(occupant)][span_notice("You can't create a DNA lock with no DNA!.")]")
+				to_chat(user, "[icon2html(src, occupant)][span_notice("You can't create a DNA lock with no DNA!.")]")
 				return
 			dna_lock = user.dna.unique_enzymes
-			to_chat(user, "[get_examine_icon(occupant)][span_notice("You feel a prick as the needle takes your DNA sample.")]")
+			to_chat(user, "[icon2html(src, occupant)][span_notice("You feel a prick as the needle takes your DNA sample.")]")
 		if("reset_dna")
 			dna_lock = null
 		if("equip_act")
 			var/obj/item/mecha_parts/mecha_equipment/gear = locateUID(params["ref"])
 			return gear?.ui_act(params["gear_action"], params, ui, state)
-		if("repair_int_damage")
-			try_repair_int_damage(usr, params["flag"])
-			return FALSE
 	return TRUE
 
 /obj/mecha/proc/occupant_message(message as text)
 	if(message)
-		if(occupant?.client)
-			to_chat(occupant, "[get_examine_icon(occupant)] [message]")
+		if(occupant && occupant.client)
+			to_chat(occupant, "[bicon(src)] [message]")
 	return

@@ -41,12 +41,10 @@
 	loot_drop = /obj/item/clothing/accessory/necklace/pandora_hope
 	tts_seed = "Zyra"
 
-	attack_action_types = list(
-		/datum/action/innate/elite_attack/chaser_burst,
-		/datum/action/innate/elite_attack/magic_box,
-		/datum/action/innate/elite_attack/pandora_teleport,
-		/datum/action/innate/elite_attack/aoe_squares,
-	)
+	attack_action_types = list(/datum/action/innate/elite_attack/chaser_burst,
+								/datum/action/innate/elite_attack/magic_box,
+								/datum/action/innate/elite_attack/pandora_teleport,
+								/datum/action/innate/elite_attack/aoe_squares)
 
 	var/sing_shot_length = 8
 	var/cooldown_time = 2 SECONDS
@@ -54,37 +52,37 @@
 	var/recalculation_speed = 4 //How many times chasers moves before recalculating
 
 /mob/living/simple_animal/hostile/asteroid/elite/pandora/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пандора",
 		GENITIVE = "пандоры",
 		DATIVE = "пандоре",
 		ACCUSATIVE = "пандору",
 		INSTRUMENTAL = "пандорой",
-		PREPOSITIONAL = "пандоре",
+		PREPOSITIONAL = "пандоре"
 	)
 
 /datum/action/innate/elite_attack/chaser_burst
 	name = "Преследователь"
 	button_icon_state = "singular_shot"
-	chosen_message = span_boldwarning_alt("Вы выпускаете преследующий снаряд за всеми мобами в поле зрения.")
+	chosen_message = span_boldwarning("Вы выпускаете преследующий снаряд за всеми мобами в поле зрения.")
 	chosen_attack_num = CHASER_BURST
 
 /datum/action/innate/elite_attack/magic_box
 	name = "Волшебная клетка"
 	button_icon_state = "magic_box"
-	chosen_message = span_boldwarning_alt("Теперь вы атакуете магическими квадратами.")
+	chosen_message = span_boldwarning("Теперь вы атакуете магическими квадратами.")
 	chosen_attack_num = MAGIC_BOX
 
 /datum/action/innate/elite_attack/pandora_teleport
 	name = "Телепорт"
 	button_icon_state = "pandora_teleport"
-	chosen_message = span_boldwarning_alt("Теперь вы будете телепортироваться к цели.")
+	chosen_message = span_boldwarning("Теперь вы будете телепортироваться к цели.")
 	chosen_attack_num = PANDORA_TELEPORT
 
 /datum/action/innate/elite_attack/aoe_squares
 	name = "Взрыв по площади"
 	button_icon_state = "aoe_squares"
-	chosen_message = span_boldwarning_alt("Ваши атаки будут создавать взрыв по области в месте попадания.")
+	chosen_message = span_boldwarning("Ваши атаки будут создавать взрыв по области в месте попадания.")
 	chosen_attack_num = AOE_SQUARES
 
 /mob/living/simple_animal/hostile/asteroid/elite/pandora/OpenFire()
@@ -182,7 +180,7 @@
 	for(var/t in RANGE_TURFS(1, source))
 		spawn_blast(t)
 	animate(src, alpha = 0, time = 2, easing = EASE_OUT) //fade out
-	visible_message(span_hierophant("[DECLENT_RU_CAP(src, NOMINATIVE)] растворяется в воздухе!"))
+	visible_message(span_hierophant("[capitalize(declent_ru(NOMINATIVE))] растворяется в воздухе!"))
 	ADD_TRAIT(src, TRAIT_UNDENSE, PANDORA_TEPELORT_TRAIT)
 	addtimer(CALLBACK(src, PROC_REF(pandora_teleport_3), T), 2)
 
@@ -190,7 +188,7 @@
 	forceMove(T)
 	animate(src, alpha = 255, time = 2, easing = EASE_IN) //fade IN
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, PANDORA_TEPELORT_TRAIT)
-	visible_message(span_hierophant("[DECLENT_RU_CAP(src, NOMINATIVE)] материализуется!"))
+	visible_message(span_hierophant("[capitalize(declent_ru(NOMINATIVE))] материализуется!"))
 
 /mob/living/simple_animal/hostile/asteroid/elite/pandora/proc/aoe_squares(target)
 	ranged_cooldown = world.time + cooldown_time * 2
@@ -213,6 +211,7 @@
 	monster_damage_boost = FALSE
 	friendly_fire_check = TRUE
 
+
 //Pandora's loot: Hope //Hope I know what to make it do
 /obj/item/clothing/accessory/necklace/pandora_hope
 	name = "Hope"
@@ -225,20 +224,22 @@
 	resistance_flags = FIRE_PROOF
 
 /obj/item/clothing/accessory/necklace/pandora_hope/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "надежда",
 		GENITIVE = "надежды",
 		DATIVE = "надежде",
 		ACCUSATIVE = "надежду",
 		INSTRUMENTAL = "надеждой",
-		PREPOSITIONAL = "надежде",
+		PREPOSITIONAL = "надежде"
 	)
+
 
 /obj/item/clothing/accessory/necklace/pandora_hope/on_attached(obj/item/clothing/under/new_suit, mob/attacher)
 	. = ..()
 	if(. && isliving(has_suit.loc))
 		var/mob/living/wearer = has_suit.loc
 		wearer.apply_status_effect(STATUS_EFFECT_HOPE)
+
 
 /obj/item/clothing/accessory/necklace/pandora_hope/on_removed(mob/detacher)
 	. = ..()
@@ -248,13 +249,16 @@
 			var/mob/living/wearer = old_suit.loc
 			wearer.remove_status_effect(STATUS_EFFECT_HOPE)
 
+
 /obj/item/clothing/accessory/necklace/pandora_hope/attached_equip(mob/living/user)
 	if(isliving(user))
 		user.apply_status_effect(STATUS_EFFECT_HOPE)
 
+
 /obj/item/clothing/accessory/necklace/pandora_hope/attached_unequip(mob/living/user)
 	if(isliving(user))
 		user.remove_status_effect(STATUS_EFFECT_HOPE)
+
 
 #undef CHASER_BURST
 #undef MAGIC_BOX

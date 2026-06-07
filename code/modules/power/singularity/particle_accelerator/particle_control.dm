@@ -5,9 +5,6 @@
 #define POWER_BOX 2
 #define FUEL_CHAMBER 3
 #define END_CAP 4
-/// Number of accelerator parts that must be connected for a valid assembly.
-#define PA_REQUIRED_PARTS 6
-
 /obj/machinery/particle_accelerator/control_box
 	name = "Particle Accelerator Control Console"
 	desc = "This part controls the density of the particles."
@@ -15,16 +12,12 @@
 	reference = "control_box"
 	idle_power_usage = 500
 	active_power_usage = 10000
-	dir = NORTH
-	/// Maximum value the operator can crank `strength` up to.
+	dir = 1
 	var/strength_upper_limit = 2
-	/// When falsy, UI control inputs are ignored (used by hacked wires).
-	var/interface_control = TRUE
-	/// Accelerator parts currently linked to this controller.
+	var/interface_control = 1
 	var/list/obj/structure/particle_accelerator/connected_parts
-	/// TRUE once a full set of connected parts has been verified by `part_scan`.
 	var/assembled = TRUE
-	/// Wire datum controlling power/strength/interface lockouts.
+	var/parts = null
 	var/datum/wires/particle_acc/control_box/wires = null
 	/// Layout of the particle accelerator. Used by the UI
 	var/list/layout = list(
@@ -56,19 +49,19 @@
 		return TRUE
 
 	add_fingerprint(user)
-	if(construction_state >= ACCELERATOR_READY)
+	if(construction_state >= 3)
 		ui_interact(user)
-	else if(construction_state == ACCELERATOR_WIRED)
+	else if(construction_state == 2) // Wires exposed
 		wires.Interact(user)
 
-/obj/machinery/particle_accelerator/control_box/multitool_act(mob/living/user, obj/item/tool)
-	if(construction_state != ACCELERATOR_WIRED)
+/obj/machinery/particle_accelerator/control_box/multitool_act(mob/living/user, obj/item/I)
+	if(construction_state != 2) // Wires exposed
 		return
 	wires.Interact(user)
 	return TRUE
 
 /obj/machinery/particle_accelerator/control_box/update_state()
-	if(construction_state < ACCELERATOR_READY)
+	if(construction_state < 3)
 		use_power = NO_POWER_USE
 		assembled = FALSE
 		active = FALSE
@@ -86,6 +79,7 @@
 	active = FALSE
 	connected_parts = list()
 
+
 /obj/machinery/particle_accelerator/control_box/update_icon_state()
 	if(active)
 		icon_state = "[reference]p[strength]"
@@ -100,19 +94,23 @@
 		return
 
 	switch(construction_state)
-		if(ACCELERATOR_UNWRENCHED, ACCELERATOR_WRENCHED)
+		if(0)
 			icon_state = "[reference]"
-		if(ACCELERATOR_WIRED)
+		if(1)
+			icon_state = "[reference]"
+		if(2)
 			icon_state = "[reference]w"
 		else
 			icon_state = "[reference]c"
+
+
 
 /obj/machinery/particle_accelerator/control_box/proc/strength_change()
 	for(var/obj/structure/particle_accelerator/part in connected_parts)
 		part.strength = strength
 		part.update_icon(UPDATE_ICON_STATE)
 
-/obj/machinery/particle_accelerator/control_box/proc/add_strength()
+/obj/machinery/particle_accelerator/control_box/proc/add_strength(s)
 	if(!assembled)
 		return
 	strength++
@@ -127,7 +125,7 @@
 		investigate_log("increased to <span style='color: red;'>[strength]</span> by [key_name_log(usr)]", INVESTIGATE_ENGINE)
 	strength_change()
 
-/obj/machinery/particle_accelerator/control_box/proc/remove_strength()
+/obj/machinery/particle_accelerator/control_box/proc/remove_strength(s)
 	if(!assembled)
 		return
 
@@ -145,13 +143,13 @@
 /obj/machinery/particle_accelerator/control_box/power_change(forced = FALSE)
 	..()
 	if(stat & NOPOWER)
-		active = FALSE
+		active = 0
 		use_power = NO_POWER_USE
-	else if(!stat && construction_state <= ACCELERATOR_READY)
+	else if(!stat && construction_state <= 3)
 		use_power = IDLE_POWER_USE
 	update_icon(UPDATE_ICON_STATE)
 
-	if(!((stat & NOPOWER) || (!stat && construction_state <= ACCELERATOR_READY))) //Only update the part icons if something's changed (i.e. any of the above condition sets are met).
+	if(!((stat & NOPOWER) || (!stat && construction_state <= 3))) //Only update the part icons if something's changed (i.e. any of the above condition sets are met).
 		return
 
 	for(var/obj/structure/particle_accelerator/part in connected_parts)
@@ -159,11 +157,12 @@
 		part.powered = FALSE
 		part.update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/particle_accelerator/control_box/process()
 	if(!active)
 		return
 	//a part is missing!
-	if(length(connected_parts) < PA_REQUIRED_PARTS)
+	if(length(connected_parts) < 6)
 		investigate_log("lost a connected part; It <span style='color: red;>powered down</span>.", INVESTIGATE_ENGINE)
 		toggle_power()
 		return
@@ -173,51 +172,57 @@
 			continue
 		emitter.emit_particle(strength)
 
+
 /obj/machinery/particle_accelerator/control_box/proc/part_scan()
 	dir_text = null
-	var/turf/scan_turf
+	var/turf/turf
 	for(var/obj/structure/particle_accelerator/fuel_chamber/fuel in orange(1, src))
 		dir = fuel.dir
-		scan_turf = fuel.loc
+		turf = fuel.loc
 
-	if(!scan_turf)
+	if(!turf)
 		return FALSE
 
 	dir_text = dir2text(dir) // Only set dir_text if we found an EM acceleration chamber
 	connected_parts = list()
 	var/tally = 0
-	var/left_dir = turn(dir, -90)
-	var/right_dir = turn(dir, 90)
-	var/opposite_dir = turn(dir, 180)
+	var/ldir = turn(dir, -90)
+	var/rdir = turn(dir, 90)
+	var/odir = turn(dir, 180)
 
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/fuel_chamber, PARTICLE_CENTER, FUEL_CHAMBER))
+	if(check_part(turf, /obj/structure/particle_accelerator/fuel_chamber, PARTICLE_CENTER, FUEL_CHAMBER))
 		tally++
 		layout[PARTICLE_CENTER][FUEL_CHAMBER]["status"] = "good"
 
-	scan_turf = get_step(scan_turf, opposite_dir)
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/end_cap, PARTICLE_CENTER, END_CAP))
+	turf = get_step(turf, odir)
+	if(check_part(turf, /obj/structure/particle_accelerator/end_cap, PARTICLE_CENTER, END_CAP))
 		tally++
 		layout[PARTICLE_CENTER][END_CAP]["status"] = "good"
-	scan_turf = get_step(scan_turf, dir)
-	scan_turf = get_step(scan_turf, dir)
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/power_box, PARTICLE_CENTER, POWER_BOX))
+	turf = get_step(turf, dir)
+	turf = get_step(turf, dir)
+	if(check_part(turf, /obj/structure/particle_accelerator/power_box, PARTICLE_CENTER, POWER_BOX))
 		tally++
 		layout[PARTICLE_CENTER][POWER_BOX]["status"] = "good"
-	scan_turf = get_step(scan_turf, dir)
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/particle_emitter/center, PARTICLE_CENTER, EMITTER))
+	turf = get_step(turf, dir)
+	if(check_part(turf, /obj/structure/particle_accelerator/particle_emitter/center, PARTICLE_CENTER, EMITTER))
 		tally++
 		layout[PARTICLE_CENTER][EMITTER]["status"] = "good"
-	scan_turf = get_step(scan_turf, left_dir)
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/particle_emitter/left, PARTICLE_LEFT, EMITTER))
+	turf = get_step(turf, ldir)
+	if(check_part(turf, /obj/structure/particle_accelerator/particle_emitter/left, PARTICLE_LEFT, EMITTER))
 		tally++
 		layout[PARTICLE_LEFT][EMITTER]["status"] = "good"
-	scan_turf = get_step(scan_turf, right_dir)
-	scan_turf = get_step(scan_turf, right_dir) // its really need, dont delete
-	if(check_part(scan_turf, /obj/structure/particle_accelerator/particle_emitter/right, PARTICLE_RIGHT, EMITTER))
+	turf = get_step(turf, rdir)
+	turf = get_step(turf, rdir)
+	if(check_part(turf, /obj/structure/particle_accelerator/particle_emitter/right, PARTICLE_RIGHT, EMITTER))
 		tally++
 		layout[PARTICLE_RIGHT][EMITTER]["status"] = "good"
-	assembled = (tally >= PA_REQUIRED_PARTS)
-	return assembled
+	if(tally >= 6)
+		assembled = TRUE
+		return TRUE
+	else
+		assembled = FALSE
+		return FALSE
+
 
 /obj/machinery/particle_accelerator/control_box/proc/check_part(turf/checked_turf, type, column, row)
 	if(!(checked_turf) || !(type))
@@ -246,6 +251,7 @@
 	connected_parts |= accelerator
 	return TRUE
 
+
 /obj/machinery/particle_accelerator/control_box/proc/toggle_power()
 	active = !active
 	investigate_log("turned [active?"<span style='color: red;'>ON</span>":"<span style='color: green;'>OFF</span>"] by [usr ? key_name_log(usr) : "outside forces"]", INVESTIGATE_ENGINE)
@@ -266,6 +272,7 @@
 			part.powered = FALSE
 			part.update_icon(UPDATE_ICON_STATE)
 	return TRUE
+
 
 /obj/machinery/particle_accelerator/control_box/ui_state(mob/user)
 	return GLOB.default_state
@@ -309,7 +316,7 @@
 		return
 
 	if(!interface_control)
-		to_chat(usr, span_error("ERROR: Request timed out. Check wire contacts."))
+		to_chat(usr, "<span class='error'>ERROR: Request timed out. Check wire contacts.</span>")
 		return
 
 	switch(action)
@@ -342,4 +349,3 @@
 #undef POWER_BOX
 #undef FUEL_CHAMBER
 #undef END_CAP
-#undef PA_REQUIRED_PARTS

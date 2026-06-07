@@ -14,28 +14,33 @@
 /obj/item/gun/magic/wand/Initialize(mapload)
 	if(prob(75) && variable_charges) //25% chance of listed max charges, 50% chance of 1/2 max charges, 25% chance of 1/3 max charges
 		if(prob(33))
-			max_charges = ceil(max_charges / 3)
+			max_charges = CEILING(max_charges / 3, 1)
 		else
-			max_charges = ceil(max_charges / 2)
+			max_charges = CEILING(max_charges / 2, 1)
 	. = ..()
+
 
 /obj/item/gun/magic/wand/examine(mob/user)
 	. = ..()
-	. += span_notice("Has [charges] charge\s remaining.")
+	. += "<span class='notice'>Has [charges] charge\s remaining.</span>"
+
 
 /obj/item/gun/magic/wand/update_icon_state()
 	icon_state = "[initial(icon_state)][charges ? "" : "-drained"]"
+
 
 /obj/item/gun/magic/wand/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(target == user)
 		return ATTACK_CHAIN_PROCEED
 	return ..()
 
+
 /obj/item/gun/magic/wand/magic_charge_act(mob/user)
 	. = ..()
 	update_appearance(UPDATE_ICON_STATE)
 
-/obj/item/gun/magic/wand/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/gun/magic/wand/afterattack(atom/target, mob/living/user, proximity, params)
 	if(!charges)
 		shoot_with_empty_chamber(user)
 		return
@@ -43,7 +48,7 @@
 		if(no_den_usage)
 			var/area/A = get_area(user)
 			if(istype(A, /area/wizard_station))
-				to_chat(user, span_warning("You know better than to violate the security of The Den, best wait until you leave to use [src]."))
+				to_chat(user, "<span class='warning'>You know better than to violate the security of The Den, best wait until you leave to use [src].</span>")
 				return
 			else
 				no_den_usage = FALSE
@@ -53,7 +58,7 @@
 	update_icon()
 
 /obj/item/gun/magic/wand/proc/zap_self(mob/living/user)
-	user.visible_message(span_danger("[user] zaps [user.p_them()]self with [src]."))
+	user.visible_message("<span class='danger'>[user] zaps [user.p_them()]self with [src].</span>")
 	playsound(user, fire_sound, 50, TRUE)
 	add_attack_logs(null, user, "zapped [user.p_them()]self with a [src]", ATKLOG_ALL)
 
@@ -71,17 +76,10 @@
 	max_charges = 3 //3, 2, 2, 1
 
 /obj/item/gun/magic/wand/death/zap_self(mob/living/user)
-	var/message = span_warning("You irradiate yourself with pure energy! ")
-	message += pick(
-		span_warning("Do not pass go. Do not collect 200 zorkmids."),
-		span_warning("You feel more confident in your spell casting skills."),
-		span_warning("You Die..."),
-		span_warning("Do you want your possessions identified?"),
-	)
+	var/message ="<span class='warning'>You irradiate yourself with pure energy! "
+	message += pick("Do not pass go. Do not collect 200 zorkmids.</span>","You feel more confident in your spell casting skills.</span>","You Die...</span>","Do you want your possessions identified?</span>")
 	to_chat(user, message)
 	user.adjustFireLoss(3000)
-	user.death() // in case of special guests like machinepersons that might survive
-
 	charges--
 	..()
 
@@ -100,7 +98,7 @@
 
 /obj/item/gun/magic/wand/resurrection/zap_self(mob/living/user)
 	user.revive()
-	to_chat(user, span_notice("You feel great!"))
+	to_chat(user, "<span class='notice'>You feel great!</span>")
 	charges--
 	..()
 
@@ -137,8 +135,7 @@
 	fire_sound = 'sound/magic/wand_teleport.ogg'
 
 /obj/item/gun/magic/wand/teleport/zap_self(mob/living/user)
-	if(!do_magic_teleport(user, user, 10, notified_user = user, block_message = "ITB подавляет магическое перемещение [src]."))
-		return
+	do_teleport(user, user, 10)
 	var/datum/effect_system/fluid_spread/smoke/smoke = new
 	smoke.set_up(amount = 10, location = user.loc)
 	smoke.start()
@@ -160,7 +157,7 @@
 	no_den_usage = TRUE
 
 /obj/item/gun/magic/wand/door/zap_self(mob/living/user)
-	to_chat(user, span_notice("You feel vaguely more open with your feelings."))
+	to_chat(user, "<span class='notice'>You feel vaguely more open with your feelings.</span>")
 	charges--
 	..()
 
@@ -198,24 +195,24 @@
 	var/charging = FALSE
 
 /obj/item/gun/magic/wand/slipping/zap_self(mob/living/user)
-	to_chat(user, span_notice("You feel rather silly!"))
+	to_chat(user, "<span class='notice'>You feel rather silly!</span>")
 	charges--
 	..()
 
-/obj/item/gun/magic/wand/slipping/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/gun/magic/wand/slipping/afterattack(atom/target, mob/living/user, proximity, params)
 	. = ..()
 	if(!charges && !charging)
-		to_chat(usr, span_notice("[src] has started to regain its charge."))
+		to_chat(usr, "<span class='notice'>[src] has started to regain its charge.</span>")
 		charging = TRUE
 		addtimer(CALLBACK(src, PROC_REF(recharge)), 30 SECONDS, TIMER_UNIQUE)
 
 /obj/item/gun/magic/wand/slipping/shoot_with_empty_chamber(mob/living/user as mob|obj)
-	to_chat(user, span_warning("[src] is still regaining its charge!"))
+	to_chat(user, "<span class='warning'>[src] is still regaining its charge!</span>")
 	return
 
 /obj/item/gun/magic/wand/slipping/proc/recharge()
 	charges++
 	playsound(src, 'sound/items/bikehorn.ogg', 50, TRUE)
-	to_chat(usr, span_notice("[src] has regained its charge!"))
+	to_chat(usr, "<span class='notice'>[src] has regained its charge!</span>")
 	charging = FALSE
 	update_icon()

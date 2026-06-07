@@ -59,6 +59,7 @@
 	name = "Captain Request"
 	programs = list(new /datum/data/pda/app/request_console/captain)
 
+
 /obj/item/cartridge/request_console/ntrep
 	name = "NTR Request"
 	programs = list(new /datum/data/pda/app/request_console/ntrep)
@@ -88,7 +89,7 @@
 	programs = list(new /datum/data/pda/app/request_console/chaplain)
 
 /obj/item/cartridge/request_console/lawyer
-	name = "Lawyer Request"
+	name = "Internal Affairs Request"
 	programs = list(new /datum/data/pda/app/request_console/lawyer)
 
 /obj/item/cartridge/request_console/botanist

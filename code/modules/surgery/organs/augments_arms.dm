@@ -6,8 +6,7 @@
 	icon_state = "implant-toolkit"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
-	abstract_type = /obj/item/organ/internal/cyberimp/arm
-	/// A ref for the arm we're taking up. Mostly for the unregister signal upon removal
+	///A ref for the arm we're taking up. Mostly for the unregister signal upon removal
 	var/obj/hand
 	/// Used to store a list of all items inside, for multi-item implants.
 	var/list/items_list = list()// I would use contents, but they shuffle on every activation/deactivation leading to interface inconsistencies.
@@ -24,12 +23,6 @@
 	update_transform()
 	slot = parent_organ_zone + "_device"
 	items_list = contents.Copy()
-
-/obj/item/organ/internal/cyberimp/arm/Destroy()
-	QDEL_NULL(active_item)
-	QDEL_LIST(items_list)
-	hand = null
-	return ..()
 
 /obj/item/organ/internal/cyberimp/arm/proc/update_transform()
 	if(parent_organ_zone == BODY_ZONE_R_ARM)
@@ -79,10 +72,8 @@
 /obj/item/organ/internal/cyberimp/arm/emp_act(severity)
 	if(emp_proof)
 		return
-	if(emp_shielded(severity))
-		return
 	if(prob(15/severity) && owner)
-		to_chat(owner, span_warning("[declent_ru(NOMINATIVE)] поражён ЭМИ импульсом!"))
+		to_chat(owner, span_warning("[src.declent_ru(NOMINATIVE)] поражён ЭМИ импульсом!"))
 		// give the owner an idea about why his implant is glitching
 		Retract()
 	..()
@@ -101,25 +92,22 @@
 	var/obj/current_hand = host.hand ? host.get_organ(BODY_ZONE_L_ARM) : host.get_organ(BODY_ZONE_R_ARM)
 	if(hand != current_hand)
 		return //wrong hand
-	// We should not react to the item when it's not in our hand,
-	// it makes no sense and other items with something like TRAIT_NODROP might fuck us very badly
-	if(!active_item || active_item != host.get_active_hand())
-		return
 	if(Retract())
 		return COMPONENT_CANCEL_DROP
+
 
 /obj/item/organ/internal/cyberimp/arm/proc/Retract()
 	if(!active_item || (active_item in src))
 		return FALSE
 
-	owner.visible_message(span_notice("[owner] убира[PLUR_ET_YUT(owner)] [active_item.declent_ru(ACCUSATIVE)] обратно в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
-		span_notice("[DECLENT_RU_CAP(active_item, NOMINATIVE)] втягивается в вашу [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
+	owner.visible_message(span_notice("[owner] убира[pluralize_ru(owner.gender,"ет","ют")] [active_item.declent_ru(ACCUSATIVE)] обратно в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
+		span_notice("[capitalize(active_item.declent_ru(NOMINATIVE))] втягивается в вашу [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
 		span_italics("Слышен короткий механический щелчок."))
 
 	owner.drop_item_ground(active_item, force = TRUE, silent = TRUE)
 	active_item.forceMove(src)
 	active_item = null
-	playsound(get_turf(owner), sound_off, 50, TRUE)
+	playsound(get_turf(owner), src.sound_off, 50, TRUE)
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/arm/proc/Extend(obj/item/augment)
@@ -155,10 +143,10 @@
 	owner.visible_message(span_notice("[owner] extends [active_item] from [owner.p_their()] [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
 		span_notice("You extend [active_item] from your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
 		span_italics("You hear a short mechanical noise."))
-	playsound(get_turf(owner), sound_on, 50, TRUE)
+	playsound(get_turf(owner), src.sound_on, 50, TRUE)
 
 /obj/item/organ/internal/cyberimp/arm/ui_action_click(mob/user, datum/action/action, leftclick)
-	if(crit_fail || (!active_item && !length(contents)))
+	if(crit_fail || (!active_item && !contents.len))
 		to_chat(owner, span_warning("The implant doesn't respond. It seems to be broken..."))
 		return
 
@@ -169,7 +157,7 @@
 
 	if(!active_item || (active_item in src))
 		active_item = null
-		if(length(contents) == 1)
+		if(contents.len == 1)
 			Extend(contents[1])
 		else
 			radial_menu(owner)
@@ -197,11 +185,9 @@
 /obj/item/organ/internal/cyberimp/arm/gun/emp_act(severity)
 	if(emp_proof)
 		return
-	if(emp_shielded(severity))
-		return
 	if(prob(30/severity) && owner && !crit_fail)
 		Retract()
-		owner.visible_message(span_danger("A loud bang comes from [owner]'s [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm!"))
+		owner.visible_message(span_danger("A loud bang comes from [owner]\'s [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm!"))
 		playsound(get_turf(owner), 'sound/weapons/flashbang.ogg', 100, TRUE)
 		to_chat(owner, span_userdanger("You feel an explosion erupt inside your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm as your implant breaks!"))
 		owner.adjust_fire_stacks(20)
@@ -210,6 +196,7 @@
 		crit_fail = 1
 	else // The gun will still discharge anyway.
 		..()
+
 
 /obj/item/organ/internal/cyberimp/arm/gun/laser
 	name = "arm-mounted laser implant"
@@ -230,6 +217,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gun/taser/l
 	parent_organ_zone = BODY_ZONE_L_ARM
+
 
 /obj/item/organ/internal/cyberimp/arm/toolset
 	name = "integrated toolset implant"
@@ -305,8 +293,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/flash/Extend(obj/item/item)
 	. = ..()
-	active_item.set_light_range(7)
-	active_item.set_light_on(TRUE)
+	active_item.set_light(7, l_on = TRUE)
 
 /obj/item/organ/internal/cyberimp/arm/flash/Retract()
 	if(!active_item || (active_item in src))
@@ -326,8 +313,8 @@
 	contents = newlist(/obj/item/melee/energy/blade/hardlight, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/flash/armimplant)
 	origin_tech = "materials=5;combat=7;biotech=5;powerstorage=5;syndicate=6;programming=5"
 
-/obj/item/organ/internal/cyberimp/arm/combat/Initialize(mapload)
-	. = ..()
+/obj/item/organ/internal/cyberimp/arm/combat/New()
+	..()
 	if(locate(/obj/item/flash/armimplant) in items_list)
 		var/obj/item/flash/armimplant/F = locate(/obj/item/flash/armimplant) in items_list
 		F.I = src
@@ -354,6 +341,7 @@
 	icon_state = "syndie_mantis"
 	emp_proof = TRUE
 
+
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
@@ -370,8 +358,6 @@
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/emp_act(severity)
-	if(emp_shielded(severity))
-		return
 	..()
 
 	if(crit_fail || emp_proof)
@@ -384,123 +370,17 @@
 	crit_fail = FALSE
 
 /obj/item/organ/internal/cyberimp/arm/surgery
-	name = "Inugami toolset implant"
-	desc = "Набор хирургических инструментов, спрятанный за потайной панелью на руке пользователя."
-	icon = 'icons/map_icons/items/_item.dmi'
-	post_init_icon_state = "armimp"
-	icon_state = "/obj/item/organ/internal/cyberimp/arm/surgery"
-	item_state = "armimp"
-	greyscale_config = /datum/greyscale_config/armimp
-	greyscale_config_inhand_left = /datum/greyscale_config/armimp_inhand_left
-	greyscale_config_inhand_right = /datum/greyscale_config/armimp_inhand_right
-	greyscale_colors = "#ffffff#269a9d#269a9d#269a9d"
-	contents = newlist(
-		/obj/item/retractor/augment,
-		/obj/item/hemostat/augment,
-		/obj/item/cautery/augment,
-		/obj/item/bonesetter/augment,
-		/obj/item/scalpel/augment,
-		/obj/item/circular_saw/augment,
-		/obj/item/bonegel/augment,
-		/obj/item/FixOVein/augment,
-		/obj/item/surgicaldrill/augment,
-		)
+	name = "surgical toolset implant"
+	desc = "A set of surgical tools hidden behind a concealed panel on the user's arm"
+	icon_state = "surgical_arm_implant"
+	contents = newlist(/obj/item/retractor/augment, /obj/item/hemostat/augment, /obj/item/cautery/augment, /obj/item/bonesetter/augment, /obj/item/scalpel/augment, /obj/item/circular_saw/augment, /obj/item/bonegel/augment, /obj/item/FixOVein/augment, /obj/item/surgicaldrill/augment)
 	origin_tech = "materials=3;engineering=3;biotech=3;programming=2;magnets=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/storage.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "duffel-med")
 
-/obj/item/organ/internal/cyberimp/arm/surgery/get_ru_names()
-	return alist(
-		NOMINATIVE = "имплант хирургических инструментов",
-		GENITIVE = "импланта хирургических инструментов",
-		DATIVE = "импланту хирургических инструментов",
-		ACCUSATIVE = "имплант хирургических инструментов",
-		INSTRUMENTAL = "имплантом хирургических инструментов",
-		PREPOSITIONAL = "импланте хирургических инструментов",
-	)
-
-/obj/item/organ/internal/cyberimp/arm/surgery/adv
-	desc = "Набор лазерных хирургических инструментов, спрятанный за потайной панелью на руке пользователя. Новейшая разработка Inugami!"
-	icon_state = "/obj/item/organ/internal/cyberimp/arm/surgery/adv"
-	greyscale_colors = "#ffffff#89d640#89d640#89d640"
-	contents = newlist(
-		/obj/item/scalpel/laser/laser3,
-		/obj/item/hemostat/laser,
-		/obj/item/retractor/laser,
-		/obj/item/surgicaldrill/laser,
-		/obj/item/circular_saw/laser,
-		/obj/item/bonesetter/laser,
-		/obj/item/bonegel,
-		/obj/item/FixOVein,
-		)
-	origin_tech = "materials=5;biotech=3;magnets=4"
-	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "surgerykit_advanced")
-
-/obj/item/organ/internal/cyberimp/arm/surgery/adv/get_ru_names()
-	return alist(
-		NOMINATIVE = "имплант Inugami",
-		GENITIVE = "импланта Inugami",
-		DATIVE = "импланту Inugami",
-		ACCUSATIVE = "имплант Inugami",
-		INSTRUMENTAL = "имплантом Inugami",
-		PREPOSITIONAL = "импланте Inugami",
-	)
-
-/obj/item/organ/internal/cyberimp/arm/surgery/adv/ert
-	name = "NT-Med toolset implant"
-	desc = "Набор хирургических инструментов для военных нужд, спрятанный за потайной панелью на руке пользователя. Крайне редкая модель, используется военными врачами корпорации Nanotrasen."
-	icon_state = "/obj/item/organ/internal/cyberimp/arm/surgery/adv/ert"
-	greyscale_colors = "#8f8a8a#89d640#89d640#89d640"
-	contents = newlist(
-		/obj/item/bodyanalyzer/advanced,
-		/obj/item/scalpel/laser/manager,
-		/obj/item/surgicaldrill/laser,
-		/obj/item/circular_saw/laser,
-		/obj/item/bonesetter/laser,
-		/obj/item/bonegel,
-		/obj/item/FixOVein,
-		)
-	origin_tech = "materials=8;biotech=4;magnets=5;programming=4"
-	emp_proof = 1
-
-/obj/item/organ/internal/cyberimp/arm/surgery/adv/ert/get_ru_names()
-	return alist(
-		NOMINATIVE = "имплант NT-Med",
-		GENITIVE = "импланта NT-Med",
-		DATIVE = "импланту NT-Med",
-		ACCUSATIVE = "имплант NT-Med",
-		INSTRUMENTAL = "имплантом NT-Med",
-		PREPOSITIONAL = "импланте NT-Med",
-	)
-
-/obj/item/organ/internal/cyberimp/arm/surgery/alien
-	name = "alien surgical toolset implant"
-	desc = "Набор экспериментальных хирургических инструментов, спрятанный за потайной панелью на руке пользователя."
-	icon_state = "/obj/item/organ/internal/cyberimp/arm/surgery/alien"
-	greyscale_colors = "#848fe6#8b045c#5005d4#7e79ad"
-	contents = newlist(
-		/obj/item/scalpel/alien,
-		/obj/item/hemostat/alien,
-		/obj/item/retractor/alien,
-		/obj/item/circular_saw/alien,
-		/obj/item/surgicaldrill/alien,
-		/obj/item/cautery/alien,
-		/obj/item/bonegel/alien,
-		/obj/item/bonesetter/alien,
-		/obj/item/FixOVein/alien,
-		)
-	origin_tech = "materials=4;biotech=3;abductor=2"
-	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "surgerykit_alien")
-
-/obj/item/organ/internal/cyberimp/arm/surgery/alien/get_ru_names()
-	return alist(
-		NOMINATIVE = "инородный имплант",
-		GENITIVE = "инородного импланта",
-		DATIVE = "инородному импланту",
-		ACCUSATIVE = "инородный имплант",
-		INSTRUMENTAL = "инородным имплантом",
-		PREPOSITIONAL = "инородном импланте",
-	)
+/obj/item/organ/internal/cyberimp/arm/surgery/l
+	parent_organ_zone = BODY_ZONE_L_ARM
+	slot = INTERNAL_ORGAN_L_ARM_DEVICE
 
 /obj/item/organ/internal/cyberimp/arm/janitorial
 	name = "janitorial toolset implant"
@@ -541,8 +421,6 @@
 	// also so IPCs don't also catch on fire and fall even more apart upon EMP
 	if(emp_proof)
 		return
-	if(emp_shielded(severity))
-		return
 	damage = 1
 	crit_fail = TRUE
 
@@ -550,6 +428,7 @@
 	if(crit_fail && owner)
 		to_chat(owner, span_notice("Your [src] feels functional again."))
 	crit_fail = FALSE
+
 
 /obj/item/apc_powercord
 	name = "power cable"
@@ -559,7 +438,7 @@
 	item_flags = NOBLUDGEON
 	var/drawing_power = FALSE
 
-/obj/item/apc_powercord/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/apc_powercord/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	if(!isapc(target) || !ishuman(user) || !proximity_flag)
 		return ..()
 	if(drawing_power)

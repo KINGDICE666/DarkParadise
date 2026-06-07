@@ -3,22 +3,20 @@
 	desc = "Used for scanning and alerting when someone enters a certain proximity."
 	icon_state = "prox"
 	materials = list(MAT_METAL = 800, MAT_GLASS = 200)
+
+	secured = FALSE
+
 	bomb_name = "proximity mine"
-	/// Is it currently scanning in proximity
+
 	var/scanning = FALSE
-	/// Is it arming right now
 	var/timing = FALSE
-	/// Time before armed
 	var/time = 10
 
-/obj/item/assembly/prox_sensor/Initialize(mapload)
-	. = ..()
-	proximity_monitor = new(src, works_when_not_on_turf = TRUE)
 
-/obj/item/assembly/prox_sensor/Destroy()
-	STOP_PROCESSING(SSobj, src)
-	QDEL_NULL(proximity_monitor)
-	return ..()
+/obj/item/assembly/prox_sensor/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/proximity_monitor)
+
 
 /obj/item/assembly/prox_sensor/examine(mob/user)
 	. = ..()
@@ -27,6 +25,7 @@
 	else
 		. += span_notice("The proximity sensor is [scanning ? "armed" : "disarmed"].")
 
+
 /obj/item/assembly/prox_sensor/activate()
 	if(!..())
 		return FALSE //Cooldown check
@@ -34,9 +33,6 @@
 	update_icon()
 	return FALSE
 
-/obj/item/assembly/prox_sensor/dropped(mob/user, slot, silent = FALSE)
-	. = ..()
-	sense(user)
 
 /obj/item/assembly/prox_sensor/toggle_secure()
 	secured = !secured
@@ -46,26 +42,31 @@
 		scanning = FALSE
 		timing = FALSE
 		STOP_PROCESSING(SSobj, src)
-	update_appearance()
+	update_icon()
 	return secured
 
-/obj/item/assembly/prox_sensor/HasProximity(atom/movable/movable)
-	if(iseffect(movable))
+
+/obj/item/assembly/prox_sensor/HasProximity(atom/movable/AM)
+	if(!isobj(AM) && !isliving(AM))
 		return
-	sense()
+	if(iseffect(AM))
+		return
+	if(AM.move_speed < 12)
+		sense(AM)
 
-/obj/item/assembly/prox_sensor/proc/sense(atom/movable/movable)
-	if(!secured || !scanning || !COOLDOWN_FINISHED(src, cooldown))
-		return FALSE
 
+/obj/item/assembly/prox_sensor/proc/sense(atom/movable/AM)
 	var/mob/triggered
-	if(ismob(movable))
-		triggered = movable
-
-	COOLDOWN_START(src, cooldown, cooldown_time)
+	if(ismob(AM))
+		triggered = AM
+	if(!secured || !scanning || cooldown > 0)
+		return FALSE
+	cooldown = 2
 	pulse(FALSE, triggered)
-	audible_message("[get_examine_icon(hearers(loc))] *beep* *beep* *beep*")
+	visible_message("[bicon(src)] *beep* *beep* *beep*", "*beep* *beep* *beep*")
 	playsound(src, 'sound/machines/triple_beep.ogg', 40, extrarange = SHORT_RANGE_SOUND_EXTRARANGE)
+	addtimer(CALLBACK(src, PROC_REF(process_cooldown)), 1 SECONDS)
+
 
 /obj/item/assembly/prox_sensor/process()
 	if(timing && (time >= 0))
@@ -75,11 +76,18 @@
 		toggle_scan()
 		time = 10
 
+
+/obj/item/assembly/prox_sensor/dropped(mob/user, slot, silent = FALSE)
+	. = ..()
+	INVOKE_ASYNC(src, PROC_REF(sense), user)
+
+
 /obj/item/assembly/prox_sensor/proc/toggle_scan()
 	if(!secured)
 		return FALSE
 	scanning = !scanning
 	update_icon()
+
 
 /obj/item/assembly/prox_sensor/update_overlays()
 	. = ..()
@@ -91,6 +99,16 @@
 		. += "prox_scanning"
 		attached_overlays += "prox_scanning"
 	holder?.update_icon()
+
+
+/obj/item/assembly/prox_sensor/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
+	. = ..()
+	sense()
+
+
+/obj/item/assembly/prox_sensor/holder_movement(user)
+	sense(user)
+
 
 /obj/item/assembly/prox_sensor/interact(mob/user)//TODO: Change this to the wires thingy
 	if(!secured)
@@ -106,6 +124,7 @@
 	var/datum/browser/popup = new(user, "prox", name, 400, 400, src)
 	popup.set_content(dat)
 	popup.open()
+
 
 /obj/item/assembly/prox_sensor/Topic(href, href_list)
 	..()

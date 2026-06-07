@@ -12,10 +12,10 @@
 		/obj/item/gun/projectile/automatic/sniper_rifle/axmc,\
 		/obj/item/gun/projectile/automatic/m52,\
 		/obj/item/gun/projectile/automatic/lr30,\
-		/obj/item/gun/projectile/automatic/ik60,\
+		/obj/item/gun/projectile/automatic/lasercarbine,\
 		/obj/item/gun/projectile/automatic/cats,\
 		/obj/item/gun/projectile/automatic/ak814,\
-		/obj/item/gun/projectile/automatic/smg/sfg\
+		/obj/item/gun/projectile/automatic/sfg\
 	)
 
 GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
@@ -91,7 +91,7 @@ GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
 	id.update_label()
 	if(!worn || worn == id)
 		return ..()
-	if(is_pda(worn))
+	if(istype(worn,/obj/item/pda))
 		var/obj/item/pda/PDA = worn
 		PDA.id = id
 	else if(istype(worn,/obj/item/storage/wallet))
@@ -139,7 +139,7 @@ GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
 
 /datum/devil_contract/magic/fulfill_contract(mob/living/carbon/human/user)
 	var/list/spell_list = possible_magic.Copy()
-	for(var/i in 1 to MAGIC_SPELLS_COUNT)
+	for(var/i = 1; i <= MAGIC_SPELLS_COUNT; i++)
 		var/spell_type = pick_n_take(spell_list)
 		var/obj/effect/proc_holder/spell/spell = new spell_type(null)
 		spell.clothes_req = FALSE
@@ -180,7 +180,7 @@ GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
 		. |= ATTACK_CHAIN_SUCCESS
 		victim.revive()
 		add_attack_logs(user, victim, "infernally revived via contract")
-		user.visible_message(span_notice("Внезапно вспыхнуло пламя, и [victim.declent_ru(NOMINATIVE)] восстал[GEND_A_O_I(victim)]."))
+		user.visible_message(span_notice("Внезапно вспыхнуло пламя, и [victim.declent_ru(NOMINATIVE)] [genderize_ru(victim.gender, "восстал", "восстала", "восстало", "восстали")]."))
 		victim.fakefire()
 		contract.fulfill_contract(victim)
 		spawn(5)
@@ -263,6 +263,7 @@ GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
 	var/obj/effect/proc_holder/spell/lichdom/spell = new(null)
 	spell.create_lich(user)
 	qdel(spell)
+
 
 /datum/devil_contract/gun
 	name = "контракт оружия"

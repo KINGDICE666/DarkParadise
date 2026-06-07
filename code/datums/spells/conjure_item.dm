@@ -8,8 +8,10 @@
 	base_cooldown = 15 SECONDS
 	cooldown_min = 1 SECONDS
 
+
 /obj/effect/proc_holder/spell/conjure_item/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/conjure_item/cast(list/targets, mob/user = usr)
 	var/mob/living/carbon/target = targets[1]
@@ -23,6 +25,7 @@
 
 /obj/effect/proc_holder/spell/conjure_item/proc/update_item(obj/item/item)
 	return
+
 
 /obj/effect/proc_holder/spell/conjure_item/Destroy()
 	QDEL_NULL(item)

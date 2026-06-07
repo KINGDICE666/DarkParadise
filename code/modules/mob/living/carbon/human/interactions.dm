@@ -2,24 +2,29 @@
 *******Interactions code by HONKERTRON feat TestUnit********
 ***********************************/
 
-/mob/living/carbon/human/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(src != user)
-		return
-	interact(over_object)
+/mob/living/carbon/human/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+	. = ..()
+	if(src == usr)
+		interact(over_object)
+
+
+/mob/proc/make_interaction()
+	return
 
 //Distant interactions
 /mob/living/carbon/human/verb/interact(mob/M as mob)
 	set name = "Взаимодействовать"
-	set category = VERB_CATEGORY_IC
+	set category = STATPANEL_IC
 
 	if(ishuman(M) && usr != M && src != M)
 		partner = M
 		make_interaction(machine)
 
-/mob/living/carbon/human/proc/is_nude()
-	return (!wear_suit && !w_uniform) ? TRUE : FALSE //TODO: Nudity check for underwear
 
-/mob/living/carbon/human/proc/make_interaction()
+/mob/living/carbon/human/proc/is_nude()
+	return (!wear_suit && !w_uniform) ? 1 : 0 //TODO: Nudity check for underwear
+
+/mob/living/carbon/human/make_interaction()
 	set_machine(src)
 
 	var/mob/living/carbon/human/H = usr
@@ -36,6 +41,7 @@
 		hashands = (temp?.is_usable())
 	var/mouthfree = !((H.head && (H.head.flags_cover & HEADCOVERSMOUTH)) || (H.wear_mask && (H.wear_mask.flags_cover & MASKCOVERSMOUTH)))
 	var/mouthfree_p = !((P.head && (P.head.flags_cover & HEADCOVERSMOUTH)) || (P.wear_mask && (P.wear_mask.flags_cover & MASKCOVERSMOUTH)))
+
 
 	var/dat = span_fontsize3("<b><hr>[H.partner]</b><br><hr>")
 

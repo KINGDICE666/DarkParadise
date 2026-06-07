@@ -8,6 +8,7 @@
 	SC = null
 	return ..()
 
+
 /datum/event/spacevine/start()
 	var/player_count = num_station_players()
 	if(player_count >= SPACEVINE_SPAWN_THRESHOLD)
@@ -18,6 +19,7 @@
 	log_and_message_admins("Random event attempted to spawn a spacevine, but there were only [player_count]/[SPACEVINE_SPAWN_THRESHOLD] players.")
 	var/datum/event_container/event_container = SSevents.event_containers[EVENT_LEVEL_MODERATE]
 	event_container.next_event_time = world.time + (60 * 10)
+
 
 /datum/event/spacevine/proc/wrapped_start()
 	var/list/turfs = list() //list of all the empty floor turfs in the hallway areas
@@ -31,15 +33,15 @@
 
 	qdel(SV)
 
-	if(length(turfs)) //Pick a turf to spawn at if we can
+	if(turfs.len) //Pick a turf to spawn at if we can
 		var/turf/T = pick(turfs)
 		SC = new /obj/structure/spacevine_controller/event(T, null, rand(30, 70), rand(5, 2)) // spawn a controller at turf
 
 		// Make the event start fun - give the vine a random hostile mutation
-		if(length(SC.vines))
+		if(SC.vines.len)
 			SV = SC.vines[1]
 			var/list/mutations = SC.mutations_list.Copy()
-			while(length(mutations))
+			while(mutations.len)
 				var/datum/spacevine_mutation/SM = pick_n_take(mutations)
 				if(SM.quality == NEGATIVE && !SM.nofun)
 					SM.add_mutation_to_vinepiece(SV)
@@ -49,9 +51,8 @@
 
 /datum/event/spacevine/announce(false_alarm)
 	if((false_alarm || LAZYLEN(SC?.vines)) && (LAZYLEN(GLOB.player_list) < 20))
-		GLOB.minor_announcement.announce(
-			message = "Биосканеры фиксируют рост космической лозы в [get_area(SC.loc)]. Избавьтесь от неё, прежде чем она нанесёт ущерб станции.",
-			new_title = ANNOUNCE_BIOHAZARD_RU
+		GLOB.minor_announcement.announce("Биосканеры фиксируют рост космической лозы в [get_area(SC.loc)]. Избавьтесь от неё, прежде чем она нанесёт ущерб станции.",
+										ANNOUNCE_BIOHAZARD_RU
 		)
 
 /datum/spacevine_mutation
@@ -69,7 +70,7 @@
 /datum/spacevine_mutation/proc/remove_mutation_from_vinepiece(obj/structure/spacevine/holder)
 	holder.mutations -= src
 	var/datum/spacevine_mutation/oldmutation
-	if(length(holder.mutations))
+	if(holder.mutations.len)
 		oldmutation = pick(holder.mutations)
 		holder.color = oldmutation.hue
 	else
@@ -129,8 +130,10 @@
 
 //All of this shit is useless for vines
 
+
 /turf/simulated/floor/vines/attackby(obj/item/item, mob/user, params)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /turf/simulated/floor/vines/burn_tile()
 	return
@@ -152,7 +155,7 @@
 	if(prob(20))
 		ChangeTurf(baseturf) //nar sie eats this shit
 
-/turf/simulated/floor/vines/singularity_pull(atom/singularity, current_size)
+/turf/simulated/floor/vines/singularity_pull(S, current_size)
 	if(current_size >= STAGE_FIVE)
 		if(prob(50))
 			ChangeTurf(baseturf)
@@ -328,13 +331,13 @@
 	if(prob(severity) && istype(crosser) && !isvineimmune(holder))
 		var/mob/living/M = crosser
 		M.adjustBruteLoss(5)
-		to_chat(M, span_alert("You cut yourself on the thorny vines."))
+		to_chat(M, "<span class='alert'>You cut yourself on the thorny vines.</span>")
 
 /datum/spacevine_mutation/thorns/on_hit(obj/structure/spacevine/holder, mob/living/hitter, obj/item/item, expected_damage)
 	if(prob(severity) && istype(hitter) && !isvineimmune(holder))
 		var/mob/living/M = hitter
 		M.adjustBruteLoss(5)
-		to_chat(M, span_alert("You cut yourself on the thorny vines."))
+		to_chat(M, "<span class='alert'>You cut yourself on the thorny vines.</span>")
 	. =	expected_damage
 
 /datum/spacevine_mutation/woodening
@@ -349,7 +352,7 @@
 	holder.update_integrity(holder.max_integrity)
 
 /datum/spacevine_mutation/woodening/on_hit(obj/structure/spacevine/holder, mob/living/hitter, obj/item/item, expected_damage)
-	if(!item.sharp)
+	if(!is_sharp(item))
 		. = expected_damage * 0.5
 	else
 		. = expected_damage
@@ -368,6 +371,7 @@
 	if(prob(25))
 		holder.entangle(crosser)
 
+
 /datum/spacevine_mutation/virulent_spread
 	name = "virulently spreading"
 	hue = "#FF8080"
@@ -385,7 +389,7 @@
 	severity = 3
 	var/drop_rate = 40
 	var/list/mineral_results = list(
-		/obj/item/stack/sheet/metal = 1,
+	/obj/item/stack/sheet/metal = 1
 	)
 
 /datum/spacevine_mutation/mineral/on_death(obj/structure/spacevine/holder)
@@ -400,30 +404,30 @@
 	hue = "#888800"
 	drop_rate = 20
 	mineral_results = list(
-		/obj/item/stack/sheet/mineral/silver = 4,
-		/obj/item/stack/sheet/mineral/gold = 2,
-		/obj/item/stack/sheet/mineral/diamond = 1,
+	/obj/item/stack/sheet/mineral/silver = 4,
+	/obj/item/stack/sheet/mineral/gold = 2,
+	/obj/item/stack/sheet/mineral/diamond = 1
 	)
 
 /datum/spacevine_mutation/mineral/glass
 	name = "glassy"
 	hue = "#8888FF"
 	mineral_results = list(
-		/obj/item/stack/sheet/glass = 1,
+	/obj/item/stack/sheet/glass = 1
 	)
 
 /datum/spacevine_mutation/mineral/plastic
 	name = "plasticine"
 	hue = "#222288"
 	mineral_results = list(
-		/obj/item/stack/sheet/plastic = 1,
+	/obj/item/stack/sheet/plastic = 1
 	)
 
 /datum/spacevine_mutation/mineral/wood
 	name = "wooden"
 	hue = "#442200"
 	mineral_results = list(
-		/obj/item/stack/sheet/wood = 1,
+	/obj/item/stack/sheet/wood = 1
 	)
 
 // SPACE VINES (Note that this code is very similar to Biomass code)
@@ -437,7 +441,6 @@
 	mouse_opacity = MOUSE_OPACITY_OPAQUE //Clicking anywhere on the turf is good enough
 	pass_flags = PASSTABLE | PASSGRILLE
 	max_integrity = 50
-	cares_about_temperature = TRUE
 	var/energy = 0
 	var/obj/structure/spacevine_controller/master = null
 	var/list/mutations = list()
@@ -451,8 +454,10 @@
 	AddElement(/datum/element/connect_loc, loc_connections)
 	RegisterSignal(src, COMSIG_ATOM_CLEAVE_ATTACK, PROC_REF(on_cleave_attack))
 
+
 /obj/structure/spacevine/proc/on_cleave_attack()
 	return ATOM_ALLOW_CLEAVE_ATTACK // vines don't have density but should still be cleavable
+
 
 /obj/structure/spacevine/Destroy()
 	for(var/datum/spacevine_mutation/SM in mutations)
@@ -460,7 +465,7 @@
 	if(master)
 		master.vines -= src
 		master.growth_queue -= src
-		if(!length(master.vines))
+		if(!master.vines.len)
 			var/obj/item/seeds/kudzu/KZ = new(loc)
 			KZ.mutations |= mutations
 			KZ.set_potency(10 ** sqrt(master.mutativeness))
@@ -474,17 +479,19 @@
 	UnregisterSignal(src, COMSIG_ATOM_CLEAVE_ATTACK)
 	return ..()
 
+
 /obj/structure/spacevine/examine(mob/user)
 	. = ..()
 	var/text = "This one is a"
-	if(length(mutations))
+	if(mutations.len)
 		for(var/A in mutations)
 			var/datum/spacevine_mutation/SM = A
 			text += " [SM.name]"
 	else
 		text += " normal"
 	text += " vine."
-	. += span_notice("[text]")
+	. += "<span class='notice'>[text]</span>"
+
 
 /obj/structure/spacevine/proc/wither()
 	for(var/datum/spacevine_mutation/SM in mutations)
@@ -494,6 +501,7 @@
 		return
 
 	qdel(src)
+
 
 /obj/structure/spacevine/has_prints()
 	return FALSE
@@ -518,6 +526,7 @@
 		if(prob(10))
 			eater.say("Nom")
 		wither()
+
 
 /obj/structure/spacevine/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
 	. = ATTACK_CHAIN_PROCEED_SUCCESS
@@ -549,7 +558,7 @@
 			return ATTACK_CHAIN_BLOCKED_ALL
 		return .
 
-	if(item.sharp || item.damtype == BURN)
+	if(is_sharp(item) || item.damtype == BURN)
 		damage_dealt *= 4
 
 	for(var/datum/spacevine_mutation/mutation as anything in mutations)
@@ -558,6 +567,7 @@
 	take_damage(damage_dealt, item.damtype, MELEE, TRUE, get_dir(user, src), item.armour_penetration)
 	if(QDELETED(src))
 		return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/structure/spacevine/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
 	switch(damage_type)
@@ -572,12 +582,14 @@
 /obj/structure/spacevine/obj_destruction()
 	wither()
 
+
 /obj/structure/spacevine/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(isliving(arrived))
 		for(var/datum/spacevine_mutation/mutation in mutations)
 			mutation.on_cross(src, arrived)
+
 
 /obj/structure/spacevine/attack_hand(mob/user)
 	for(var/datum/spacevine_mutation/SM in mutations)
@@ -604,8 +616,7 @@
 	spreads_per_process = 3
 	vines_per_spread = 3
 
-/obj/structure/spacevine_controller/Initialize(mapload, list/muts, potency, production)
-	. = ..()
+/obj/structure/spacevine_controller/New(loc, list/muts, potency, production)
 	color = "#ffffff"
 	spawn_spacevine_piece(loc, null, muts)
 	START_PROCESSING(SSobj, src)
@@ -613,8 +624,7 @@
 	// 1 mutativeness at 10 potency
 	// 4 mutativeness at 100 potency
 	if(potency)
-		var/potency_log10 = log(10, potency)
-		mutativeness = POW2(potency_log10)
+		mutativeness = log(10, potency) ** 2
 
 	if(production != null)
 		// 1 production is crazy powerful
@@ -626,13 +636,16 @@
 		// ~2.5 vines/spread at 1 production
 		spread_multiplier /= spread_value / 5
 
+	..()
+
+
 /obj/structure/spacevine_controller/ex_act() //only killing all vines will end this suffering
 	return
 
 /obj/structure/spacevine_controller/singularity_act()
 	return
 
-/obj/structure/spacevine_controller/singularity_pull(atom/singularity, current_size)
+/obj/structure/spacevine_controller/singularity_pull()
 	return
 
 /obj/structure/spacevine_controller/Destroy()
@@ -647,7 +660,7 @@
 	growth_queue += SV
 	vines += SV
 	SV.master = src
-	if(muts && length(muts))
+	if(muts && muts.len)
 		for(var/datum/spacevine_mutation/M in muts)
 			M.add_mutation_to_vinepiece(SV)
 		return
@@ -656,7 +669,7 @@
 		SV.color = parent.color
 		if(prob(mutativeness * mutmod))
 			var/list/random_mutations_picked = mutations_list - SV.mutations
-			if(length(random_mutations_picked))
+			if(random_mutations_picked.len)
 				var/datum/spacevine_mutation/randmut = pick(random_mutations_picked)
 				randmut.add_mutation_to_vinepiece(SV)
 
@@ -664,7 +677,7 @@
 		SM.on_birth(SV)
 
 /obj/structure/spacevine_controller/process()
-	if(!vines || !length(vines))
+	if(!vines || !vines.len)
 		qdel(src) //space vines exterminated. Remove the controller
 		return
 	if(!growth_queue)
@@ -673,7 +686,7 @@
 
 	var/length = 0
 
-	length = min( spread_cap , max( 1 , length(vines) / spread_multiplier ) )
+	length = min( spread_cap , max( 1 , vines.len / spread_multiplier ) )
 	var/i = 0
 	var/list/obj/structure/spacevine/queue_end = list()
 
@@ -721,13 +734,14 @@
 			if(has_buckled_mobs())
 				break //only capture one mob at a time
 
+
 /obj/structure/spacevine/proc/entangle(mob/living/V)
 	if(!V || isvineimmune(V))
 		return
 	for(var/datum/spacevine_mutation/SM in mutations)
 		SM.on_buckle(src, V)
 	if((V.stat != DEAD) && (V.buckled != src)) //not dead or captured
-		to_chat(V, span_danger("The vines [pick("wind", "tangle", "tighten")] around you!"))
+		to_chat(V, "<span class='danger'>The vines [pick("wind", "tangle", "tighten")] around you!</span>")
 		buckle_mob(V, 1)
 
 /obj/structure/spacevine/proc/spread()
@@ -737,7 +751,7 @@
 		spread_search |= SM.on_search(src)
 
 	var/remaining_spreads = master.vines_per_spread
-	while(length(dir_list))
+	while(dir_list.len)
 		var/direction = pick_n_take(dir_list)
 		var/turf/stepturf = get_step(src, direction)
 		if(!stepturf)
@@ -762,18 +776,20 @@
 	if(!i && prob(100/severity))
 		wither()
 
-/obj/structure/spacevine/temperature_expose(exposed_temperature, exposed_volume)
+/obj/structure/spacevine/temperature_expose(null, temp, volume)
 	..()
 	var/override = 0
 	for(var/datum/spacevine_mutation/SM in mutations)
-		override += SM.process_temperature(src, exposed_temperature, exposed_volume)
+		override += SM.process_temperature(src, temp, volume)
 	if(!override)
 		wither()
+
 
 /obj/structure/spacevine/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(isvineimmune(mover))
 		return TRUE
+
 
 /proc/isvineimmune(atom/A)
 	. = FALSE

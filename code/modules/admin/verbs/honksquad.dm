@@ -33,8 +33,10 @@ GLOBAL_VAR_INIT(sent_clownsequritysquad, 0)
 			if(tgui_alert(src, "Ошибка, миссия не задана. Вы хотите приостановить процесс?", "Подтверждение", list("Да","Нет")) == "Да")
 				return
 
+
 	var/honksquad_number = HONKSQUAD_POSSIBLE //for selecting a leader
 	var/honk_leader_selected = 0 //when the leader is chosen. The last person spawned.
+
 
 //Generates a list of HONKsquad from active ghosts. Then the user picks which characters to respawn as the commandos.
 	var/list/candidates = pick_candidates_all_types(src, HONKSQUAD_POSSIBLE, "Присоединиться к ХОНКскваду?", , 21, 30 SECONDS, FALSE, 60, TRUE, FALSE,, "ХОНКсквад", input)
@@ -47,19 +49,20 @@ GLOBAL_VAR_INIT(sent_clownsequritysquad, 0)
 
 			var/mob/living/carbon/human/new_honksquad = is_security_clowns ? create_honksquad_security(L, honk_leader_selected) : create_honksquad(L, honk_leader_selected)
 
-			if(length(candidates))
+			if(candidates.len)
 				var/mob/mob = pick(candidates)
-				new_honksquad.possess_by_player(mob.key)
+				new_honksquad.key = mob.key
 				candidates -= new_honksquad.key
 				new_honksquad.internal = new_honksquad.s_store
 				new_honksquad.update_action_buttons_icon()
 
 			//So they don't forget their code or mission.
-			new_honksquad.mind.store_memory("<b>Миссия:</b> [span_warning("[input].")]")
+			new_honksquad.mind.store_memory("<b>Миссия:</b> <span class='warning'>[input].</span>")
 
-			to_chat(new_honksquad, span_notice("Вы [!honk_leader_selected ? "член" : "<b>ЛИДЕР</b>"] ХОНКсквада в подчинении Планеты Клоунов. Вас вызывают в случае крайне низкого уровня ХОНКа на объекте. Вы НЕ имеете права убивать.\nВаша текущая миссия: [span_danger("[input]")]"))
+			to_chat(new_honksquad, span_notice("Вы [!honk_leader_selected ? "член" : "<b>ЛИДЕР</b>"] ХОНКсквада в подчинении Планеты Клоунов. Вас вызывают в случае крайне низкого уровня ХОНКа на объекте. Вы НЕ имеете права убивать.\nВаша текущая миссия: <span class='danger'>[input]</span>"))
 
 			honksquad_number--
+
 
 	log_and_message_admins("used Spawn HONKsquad.")
 	return 1

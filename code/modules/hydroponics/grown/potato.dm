@@ -28,6 +28,7 @@
 	bitesize = 100
 	distill_reagent = "vodka"
 
+
 /obj/item/reagent_containers/food/snacks/grown/potato/wedges
 	name = "potato wedges"
 	desc = "Slices of neatly cut potato."
@@ -35,10 +36,11 @@
 	tastes = list("potato" = 1)
 	distill_reagent = "sbiten"
 
+
 /obj/item/reagent_containers/food/snacks/grown/potato/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.sharp)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !is_sharp(I))
 		return .
 
 	if(!isturf(loc))
@@ -68,6 +70,7 @@
 	transfer_fingerprints_to(wedges)
 	wedges.add_fingerprint(user)
 	qdel(src)
+
 
 // Sweet Potato
 /obj/item/seeds/potato/sweet

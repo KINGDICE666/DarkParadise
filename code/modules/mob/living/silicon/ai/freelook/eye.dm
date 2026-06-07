@@ -81,7 +81,7 @@
 	return ..()
 
 /atom/proc/move_camera_by_click()
-	if(isAI(usr))
+	if(istype(usr, /mob/living/silicon/ai))
 		var/mob/living/silicon/ai/AI = usr
 		if(AI.eyeobj && (AI.client.eye == AI.eyeobj) && (AI.eyeobj.z == z))
 			AI.cameraFollow = null
@@ -125,7 +125,7 @@
 
 // Return to the Core.
 /mob/living/silicon/ai/proc/core()
-	set category = VERB_CATEGORY_AICOMMANDS
+	set category = STATPANEL_AICOMMANDS
 	set name = "К ядру ИИ"
 
 	view_core()
@@ -154,35 +154,33 @@
 	eyeobj.name = "[name] (AI Eye)"
 
 /mob/living/silicon/ai/proc/toggle_acceleration()
-	set category = VERB_CATEGORY_AICOMMANDS
+	set category = STATPANEL_AICOMMANDS
 	set name = "Ускорение камеры"
 
-	if(usr.stat == DEAD)
+	if(usr.stat == 2)
 		return //won't work if dead
 	acceleration = !acceleration
 	to_chat(usr, "Camera acceleration has been toggled [acceleration ? "on" : "off"].")
 
 /mob/living/silicon/ai/move_up()
 	set name = "Подняться"
-	set category = VERB_CATEGORY_IC
+	set category = STATPANEL_IC
 
 	if(eyeobj.zMove(UP, z_move_flags = ZMOVE_FEEDBACK))
 		to_chat(src, span_notice("You move upwards."))
 
 /mob/living/silicon/ai/move_down()
 	set name = "Опуститься"
-	set category = VERB_CATEGORY_IC
+	set category = STATPANEL_IC
 
 	if(eyeobj.zMove(DOWN, z_move_flags = ZMOVE_FEEDBACK))
 		to_chat(src, span_notice("You move down."))
 
+
 /mob/camera/aiEye/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = 0, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
-	if(!relay_speech)
-		return
-
-	if(istype(ai))
-		ai.relay_speech(speaker, message_pieces, verb)
-		return
-
-	ai.hear_say(message_pieces, verb, italics, speaker, speech_sound, sound_vol, sound_frequency)
-
+	if(relay_speech)
+		if(istype(ai))
+			ai.relay_speech(speaker, message_pieces, verb)
+		else
+			var/mob/M = ai
+			M.hear_say(message_pieces, verb, italics, speaker, speech_sound, sound_vol, sound_frequency)

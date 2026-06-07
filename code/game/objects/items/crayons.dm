@@ -1,9 +1,7 @@
 /*
  * Crayons
  */
-#define NORMAL_CRAYONS_USES 30
-#define BETTER_CRAYONS_USES 60 //0 for unlimited uses
-#define SINGLEUSE_CRAYONS_USES 1
+
 /obj/item/toy/crayon
 	name = "crayon"
 	desc = "A colourful crayon. Looks tasty. Mmmm..."
@@ -12,63 +10,11 @@
 	w_class = WEIGHT_CLASS_TINY
 	slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_EARS
 	attack_verb = list("атаковал", "тыкнул")
-	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_IGNORE_MOBILITY
 	var/colour = COLOR_RED
 	var/drawtype = "rune"
-	var/static/list/graffiti = list(
-		"body",
-		"amyjon",
-		"face",
-		"matt",
-		"revolution",
-		"engie",
-		"guy",
-		"end",
-		"dwarf",
-		"uboa",
-		"up",
-		"down",
-		"left",
-		"right",
-		"heart",
-		"borgsrogue",
-		"voxpox",
-		"shitcurity",
-		"catbeast",
-		"hieroglyphs1",
-		"hieroglyphs2",
-		"hieroglyphs3",
-		"security",
-		"syndicate1",
-		"syndicate2",
-		"nanotrasen",
-		"lie",
-		"valid",
-		"arrowleft",
-		"arrowright",
-		"arrowup",
-		"arrowdown",
-		"chicken",
-		"hailcrab",
-		"brokenheart",
-		"peace",
-		"scribble",
-		"scribble2",
-		"scribble3",
-		"skrek",
-		"squish",
-		"tunnelsnake",
-		"yip",
-		"youaredead",
-		"cyka",
-		"antilizard",
-		"Tunnel",
-		"Gib",
-		"space",
-		"prolizard",
-	)
+	var/list/graffiti = list("body","amyjon","face","matt","revolution","engie","guy","end","dwarf","uboa","up","down","left","right","heart","borgsrogue","voxpox","shitcurity","catbeast","hieroglyphs1","hieroglyphs2","hieroglyphs3","security","syndicate1","syndicate2","nanotrasen","lie","valid","arrowleft","arrowright","arrowup","arrowdown","chicken","hailcrab","brokenheart","peace","scribble","scribble2","scribble3","skrek","squish","tunnelsnake","yip","youaredead")
 	var/list/letters = list("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")
-	var/uses = NORMAL_CRAYONS_USES
+	var/uses = 30 //0 for unlimited uses
 	var/instant = 0
 	var/colourName = "red" //for updateIcon purposes
 	var/dat = {"<!DOCTYPE html><meta charset="UTF-8">"}
@@ -130,13 +76,12 @@
 	drawtype = temp
 	update_window(usr)
 
-/obj/item/toy/crayon/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+/obj/item/toy/crayon/afterattack(atom/target, mob/user, proximity, params)
+	if(!..())
 		return
-
-	if(busy)
-		return
-
+		
+	if(!proximity) return
+	if(busy) return
 	if(is_type_in_list(target,validSurfaces))
 		var/temp = "rune"
 		if(letters.Find(drawtype))
@@ -156,6 +101,7 @@
 					qdel(src)
 		busy = FALSE
 
+
 /obj/item/toy/crayon/attack(mob/living/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
 
 	if(target != user)
@@ -169,7 +115,7 @@
 
 	var/huffable = istype(src, /obj/item/toy/crayon/spraycan)
 	playsound(loc, 'sound/items/eatfood.ogg', 50, FALSE)
-	to_chat(user, span_notice("You take a [huffable ? "huff" : "bite"] of the [name]. Delicious!"))
+	to_chat(user, span_notice("YYou take a [huffable ? "huff" : "bite"] of the [name]. Delicious!"))
 	if(!isvampire(user))
 		user.adjust_nutrition(5)
 
@@ -183,6 +129,7 @@
 		. = ATTACK_CHAIN_BLOCKED_ALL
 		to_chat(user, span_warning("There is no more of [huffable ? "paint in " : ""][name] left!"))
 		qdel(src)
+
 
 /obj/item/toy/crayon/red
 	name = "red crayon"
@@ -223,8 +170,7 @@
 	colourName = "purple"
 	dye_color = DYE_PURPLE
 
-/obj/item/toy/crayon/random/Initialize(mapload)
-	. = ..()
+/obj/item/toy/crayon/random/New()
 	icon_state = pick(list("crayonred", "crayonorange", "crayonyellow", "crayongreen", "crayonblue", "crayonpurple"))
 	switch(icon_state)
 		if("crayonred")
@@ -257,6 +203,7 @@
 			colour = COLOR_PURPLE
 			colourName = "purple"
 			dye_color = DYE_PURPLE
+	..()
 
 /obj/item/toy/crayon/black
 	name = "black crayon"
@@ -278,7 +225,7 @@
 	icon_state = "crayonmime"
 	colour = "#FFFFFF"
 	colourName = "mime"
-	uses = BETTER_CRAYONS_USES
+	uses = 0
 	dye_color = DYE_MIME
 
 /obj/item/toy/crayon/mime/attack_self(mob/living/user as mob)
@@ -305,7 +252,7 @@
 	icon_state = "crayonrainbow"
 	colour = "#FFF000"
 	colourName = "rainbow"
-	uses = BETTER_CRAYONS_USES
+	uses = 0
 	dye_color = DYE_RAINBOW
 
 /obj/item/toy/crayon/rainbow/attack_self(mob/living/user as mob)
@@ -326,6 +273,7 @@
 		update_window(usr)
 	else
 		..()
+
 
 //Spraycan stuff
 
@@ -362,30 +310,29 @@
 			colour = new_color
 			update_icon()
 
-/obj/item/toy/crayon/spraycan/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+/obj/item/toy/crayon/spraycan/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity)
 		return
-
 	if(capped)
 		return
-
-	if(iscarbon(target))
-		if(uses-10 > 0)
-			uses = uses - 10
-			var/mob/living/carbon/human/C = target
-			user.visible_message(span_danger(" [user] sprays [src] into the face of [target]!"))
-			if(C.client)
-				C.EyeBlurry(6 SECONDS)
-				C.EyeBlind(2 SECONDS)
-				if(C.check_eye_prot() <= FLASH_PROTECTION_NONE) // no eye protection? ARGH IT BURNS.
-					C.Confused(6 SECONDS)
-					C.Weaken(6 SECONDS)
-			C.lip_style = "spray_face"
-			C.lip_color = colour
-			C.update_body()
-	if(loc == user) //sound play only if it in user hands
-		playsound(user.loc, 'sound/effects/spray.ogg', 5, TRUE, 5)
-	return ..()
+	else
+		if(iscarbon(target))
+			if(uses-10 > 0)
+				uses = uses - 10
+				var/mob/living/carbon/human/C = target
+				user.visible_message(span_danger(" [user] sprays [src] into the face of [target]!"))
+				if(C.client)
+					C.EyeBlurry(6 SECONDS)
+					C.EyeBlind(2 SECONDS)
+					if(C.check_eye_prot() <= FLASH_PROTECTION_NONE) // no eye protection? ARGH IT BURNS.
+						C.Confused(6 SECONDS)
+						C.Weaken(6 SECONDS)
+				C.lip_style = "spray_face"
+				C.lip_color = colour
+				C.update_body()
+		if(loc == user) //sound play only if it in user hands
+			playsound(user.loc, 'sound/effects/spray.ogg', 5, TRUE, 5)
+		..()
 
 /obj/item/toy/crayon/spraycan/update_overlays()
 	. = ..()
@@ -411,7 +358,7 @@
 
 /obj/item/toy/crayon/spraycan/paintkit
 	colour = "#ffffff"
-	uses = SINGLEUSE_CRAYONS_USES
+	uses = 1
 	validSurfaces = null
 
 /obj/item/toy/crayon/spraycan/paintkit/attack_self(mob/living/user as mob)
@@ -430,7 +377,3 @@
 	desc = "Баллончик с корпусом цвета хаки. В комплекте идет одноразовый трафарет для покраски сварочного шлема. К нему прикреплена записка, на которой написано: «Head, eyes, blyad»."
 	icon_state = "spraycan_slavic"
 	weld_icons = list("Slavic" = "welding_slavic")
-
-#undef NORMAL_CRAYONS_USES
-#undef BETTER_CRAYONS_USES
-#undef SINGLEUSE_CRAYONS_USES

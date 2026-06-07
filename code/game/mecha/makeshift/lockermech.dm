@@ -7,7 +7,7 @@
 	max_integrity = 100 //its made of scraps
 	lights_power = 5
 	step_in = 4 //Same speed as a ripley, for now.
-	armor = list(melee = 20, bullet = 10, laser = 10, energy = 0, bomb = 10, bio = 0, fire = 70, acid = 60) //Same armour as a locker
+	armor = list(melee = 20, bullet = 10, laser = 10, energy = 0, bomb = 10, bio = 0, rad = 0, fire = 70, acid = 60) //Same armour as a locker
 	internal_damage_threshold = 30 //Its got shitty durability
 	max_equip = 2 //You only have two arms and the control system is shitty
 	wreckage = null
@@ -18,14 +18,15 @@
 	mech_type = MECH_TYPE_LOCKER
 
 /obj/mecha/makeshift/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Шкафомех",
 		GENITIVE = "Шкафомеха",
 		DATIVE = "Шкафомеху",
 		ACCUSATIVE = "Шкафомеха",
 		INSTRUMENTAL = "Шкафомехом",
-		PREPOSITIONAL = "Шкафомехе",
+		PREPOSITIONAL = "Шкафомехе"
 	)
+
 
 /obj/mecha/makeshift/Destroy()
 	new /obj/structure/closet(loc)
@@ -40,10 +41,10 @@
 	initial_icon = "syndielockermech"
 	lights_power = 5
 	step_in = 4
-	max_integrity = 250 //its made of scraps
-	armor = list(melee = 25, bullet = 20, laser = 25, energy = 15, bomb = 20, bio = 0, fire = 70, acid = 60)
+	max_integrity = 225 //its made of scraps
+	armor = list(melee = 20, bullet = 20, laser = 20, energy = 10, bomb = 15, bio = 0, rad = 0, fire = 70, acid = 60)
 	internal_damage_threshold = 30
-	deflect_chance = 25
+	deflect_chance = 20
 	force = 20
 	mech_enter_time = 20
 	max_equip = 4
@@ -51,24 +52,24 @@
 	ui_theme = "syndicate"
 
 /obj/mecha/combat/lockersyndie/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Синди-Шкафомех",
 		GENITIVE = "Синди-Шкафомеха",
 		DATIVE = "Синди-Шкафомеху",
 		ACCUSATIVE = "Синди-Шкафомеха",
 		INSTRUMENTAL = "Синди-Шкафомехом",
-		PREPOSITIONAL = "Синди-Шкафомехе",
+		PREPOSITIONAL = "Синди-Шкафомехе"
 	)
 
 /obj/mecha/combat/lockersyndie/add_cell()
 	cell = new /obj/item/stock_parts/cell/high/slime(src)
 
-/obj/mecha/combat/lockersyndie/loaded/Initialize(mapload)
-	. = ..()
+/obj/mecha/combat/lockersyndie/loaded/New()
+	..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser/heavy(src)
-	ME.attach(src, MECH_HAND_LEFT)
+	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/drill/diamonddrill(src)
-	ME.attach(src, MECH_HAND_RIGHT)
+	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster(src)
 	ME.attach(src)
 
@@ -95,16 +96,16 @@
 	var/used = FALSE
 
 /obj/item/mecha_drop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инструмент для доставки меха",
 		GENITIVE = "инструмента для доставки меха",
 		DATIVE = "инструменту для доставки меха",
 		ACCUSATIVE = "инструмент для доставки меха",
 		INSTRUMENTAL = "инструментом для доставки меха",
-		PREPOSITIONAL = "инструменте для доставки меха",
+		PREPOSITIONAL = "инструменте для доставки меха"
 	)
 
-/obj/item/mecha_drop/Initialize(mapload)
+/obj/item/mecha_drop/New()
 	. = ..()
 	if(mecha_type)
 		summon_mecha = new mecha_type(src)
@@ -140,3 +141,4 @@
 		qdel(mecha_effect)
 	else
 		balloon_alert(user, "для использования нужно стоять на полу!")
+

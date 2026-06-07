@@ -6,6 +6,7 @@
 	icon_dead = "headslug_deadevent"
 	evented = TRUE
 
+
 /mob/living/simple_animal/hostile/headslug/evented/proc/make_slug_antag(give_default_objectives = TRUE)
 	mind.assigned_role = SPECIAL_ROLE_HEADSLUG
 	mind.special_role = SPECIAL_ROLE_HEADSLUG
@@ -41,4 +42,5 @@
 	absorbed_dna = list()
 
 #undef EVENT_CLING_GPOINTS
+
 

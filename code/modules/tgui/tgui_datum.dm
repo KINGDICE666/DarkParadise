@@ -80,20 +80,18 @@
  * public
  *
  * Open this UI (and initialize it with data).
- *
- * return bool - TRUE if a new pooled window is opened, FALSE in all other situations including if a new pooled window didn't open because one already exists.
  */
 /datum/tgui/proc/open()
 	if(!user.client)
-		return FALSE
+		return null
 	if(window)
-		return FALSE
+		return null
 	process_status()
 	if(status < UI_UPDATE)
-		return FALSE
+		return null
 	window = SStgui.request_pooled_window(user)
 	if(!window)
-		return FALSE
+		return null
 	opened_at = world.time
 	window.acquire_lock(src)
 	if(!window.is_ready())
@@ -110,8 +108,6 @@
 		with_data = TRUE,
 		with_static_data = TRUE))
 	SStgui.on_open(src)
-
-	return TRUE
 
 /datum/tgui/proc/send_assets()
 	var/flushqueue = window.send_asset(get_asset_datum(
@@ -142,7 +138,7 @@
 		// the error message properly.
 		window.release_lock()
 		window.close(can_be_suspended)
-		src_object?.ui_close(user)
+		src_object.ui_close(user)
 		SStgui.on_close(src)
 	state = null
 	qdel(src)
@@ -176,7 +172,7 @@
  */
 /datum/tgui/proc/send_asset(datum/asset/asset)
 	if(!window)
-		CRASH("send_asset() was called either without calling open() first or when open() did not return TRUE.")
+		CRASH("send_asset() can only be called after open().")
 	return window.send_asset(asset)
 
 /**

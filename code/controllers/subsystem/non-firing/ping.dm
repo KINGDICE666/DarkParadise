@@ -6,16 +6,20 @@
 SUBSYSTEM_DEF(ping)
 	name = "Ping"
 	priority = FIRE_PRIORITY_PING
-	init_stage = INITSTAGE_EARLY
 	wait = 4 SECONDS
-	ss_flags = SS_NO_INIT
+	flags = SS_NO_INIT
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
+	init_stage = INITSTAGE_EARLY
+	cpu_display = SS_CPUDISPLAY_LOW
+	ss_id = "ping"
 
 	var/list/currentrun = list()
+
 
 /datum/controller/subsystem/ping/stat_entry(msg)
 	msg = "P:[length(GLOB.clients)]"
 	return ..()
+
 
 /datum/controller/subsystem/ping/fire(resumed = FALSE)
 	// Prepare the new batch of clients
@@ -25,8 +29,8 @@ SUBSYSTEM_DEF(ping)
 	// De-reference the list for sanic speeds
 	var/list/currentrun = src.currentrun
 
-	while(length(currentrun))
-		var/client/client = currentrun[length(currentrun)]
+	while(currentrun.len)
+		var/client/client = currentrun[currentrun.len]
 		currentrun.len--
 
 		if(client?.tgui_panel?.is_ready())

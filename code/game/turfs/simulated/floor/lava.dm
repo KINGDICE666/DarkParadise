@@ -32,13 +32,13 @@
 	var/deep_water = TRUE
 
 /turf/simulated/floor/lava/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "лава",
 		GENITIVE = "лавы",
 		DATIVE = "лаве",
 		ACCUSATIVE = "лаву",
 		INSTRUMENTAL = "лавой",
-		PREPOSITIONAL = "лаве",
+		PREPOSITIONAL = "лаве"
 	)
 
 /turf/simulated/floor/lava/ex_act()
@@ -75,7 +75,7 @@
 /turf/simulated/floor/lava/singularity_act()
 	return
 
-/turf/simulated/floor/lava/singularity_pull(atom/singularity, current_size)
+/turf/simulated/floor/lava/singularity_pull(S, current_size)
 	return
 
 /turf/simulated/floor/lava/make_plating()
@@ -93,6 +93,7 @@
 	if(HAS_TRAIT(src, TRAIT_LAVA_STOPPED) && ..())
 		return TRUE
 	return FALSE
+
 
 ///Generic return value of the can_burn_stuff() proc. Does nothing.
 #define LAVA_BE_IGNORING 0
@@ -118,6 +119,7 @@
 					continue
 		. = TRUE
 
+
 /turf/simulated/floor/lava/proc/can_burn_stuff(atom/movable/burn_target)
 	if(QDELETED(burn_target))
 		return LAVA_BE_IGNORING
@@ -128,8 +130,6 @@
 		if(burn_target.throwing) // to avoid gulag prisoners easily escaping, throwing only works for objects.
 			return LAVA_BE_IGNORING
 		var/obj/burn_obj = burn_target
-		if(HAS_TRAIT(src, TRAIT_ELEVATED_TURF) && !HAS_TRAIT(burn_obj, TRAIT_ELEVATING_OBJECT))
-			return LAVA_BE_PROCESSING
 		if((burn_obj.resistance_flags & immunity_resistance_flags) || (burn_obj.resistance_flags & INDESTRUCTIBLE))
 			return LAVA_BE_PROCESSING
 		return LAVA_BE_BURNING
@@ -138,9 +138,6 @@
 		return LAVA_BE_IGNORING
 
 	if(HAS_TRAIT(burn_target, immunity_trait))
-		return LAVA_BE_PROCESSING
-
-	if(HAS_TRAIT(burn_target, TRAIT_MOB_ELEVATED))
 		return LAVA_BE_PROCESSING
 
 	var/mob/living/burn_living = burn_target
@@ -163,6 +160,7 @@
 #undef LAVA_BE_IGNORING
 #undef LAVA_BE_PROCESSING
 #undef LAVA_BE_BURNING
+
 
 /turf/simulated/floor/lava/proc/do_burn(atom/movable/burn_target)
 	if(QDELETED(burn_target))
@@ -190,10 +188,12 @@
 
 	return FALSE
 
+
 /turf/simulated/floor/lava/can_have_cabling()
 	if(locate(/obj/structure/lattice/catwalk/fireproof, src))
 		return TRUE
 	return FALSE
+
 
 /turf/simulated/floor/lava/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -201,8 +201,8 @@
 	if(ATTACK_CHAIN_CANCEL_CHECK(.))
 		return .
 
-	if(istype(I, /obj/item/stack/rods/fireproof))
-		var/obj/item/stack/rods/fireproof/rods = I
+	if(istype(I, /obj/item/stack/fireproof_rods))
+		var/obj/item/stack/fireproof_rods/rods = I
 		if(locate(/obj/structure/lattice/catwalk/fireproof, src))
 			to_chat(user, span_warning("Здесь уже есть мостик!"))
 			return .
@@ -224,6 +224,7 @@
 		new /obj/structure/lattice/catwalk/fireproof(src)
 		return .|ATTACK_CHAIN_SUCCESS
 
+
 /turf/simulated/floor/lava/screwdriver_act()
 	return
 
@@ -237,11 +238,14 @@
 	return
 
 /turf/simulated/floor/lava/lava_land_surface
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
+	temperature = 300
+	oxygen = 14
+	nitrogen = 23
+	planetary_atmos = TRUE
 	baseturf = /turf/simulated/floor/chasm/straight_down/lava_land_surface
 	/// Check for plasma river, subtype of lava, prevents simple fishing
 	var/can_be_fished_on = TRUE
+
 
 /turf/simulated/floor/lava/lava_land_surface/Initialize(mapload)
 	. = ..()
@@ -252,9 +256,11 @@
 /turf/simulated/floor/lava/lava_land_surface/proc/add_to_lazis_primary()
 	GLOB.lazis_primary_turfs |= src
 
+
 /turf/simulated/floor/lava/lava_land_surface/Destroy()
 	GLOB.lazis_primary_turfs -= src
 	. = ..()
+
 
 /turf/simulated/floor/lava/lava_land_surface/proc/calculate_deep()
 	if(locate(/turf/simulated/floor/plating/asteroid/basalt) in range(3, src))
@@ -270,7 +276,7 @@
 	var/obj/item/reagent_containers/food/snacks/charred_krill/krill = AM //yourself
 	krill.in_lava = TRUE
 	krill.anchored = TRUE	//no closet kidnaping
-	visible_message(span_warning("[DECLENT_RU_CAP(krill, NOMINATIVE)] медленно тон[PLUR_ET_UT(krill)] в лаве!"))
+	visible_message(span_warning("[capitalize(krill.declent_ru(NOMINATIVE))] медленно тон[pluralize_ru(krill.gender, "ет", "ут")] в лаве!"))
 	sleep(5 SECONDS)
 	qdel(krill)
 	if(!can_be_fished_on)
@@ -318,18 +324,20 @@
 	var/human_tox_fire_damage = 15
 
 /turf/simulated/floor/lava/lava_land_surface/plasma/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "жидкая плазма",
 		GENITIVE = "жидкой плазмы",
 		DATIVE = "жидкой плазме",
 		ACCUSATIVE = "жидкую плазму",
 		INSTRUMENTAL = "жидкой плазмой",
-		PREPOSITIONAL = "жидкой плазме",
+		PREPOSITIONAL = "жидкой плазме"
 	)
+
 
 /turf/simulated/floor/lava/lava_land_surface/plasma/examine(mob/user)
 	. = ..()
 	. += span_notice("Можно зачерпнуть <b>жидкую плазму</b> с помощью <b>ёмкости</b>.")
+
 
 /turf/simulated/floor/lava/lava_land_surface/plasma/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -339,9 +347,10 @@
 
 	. |= ATTACK_CHAIN_SUCCESS
 	if(!I.reagents.add_reagent("plasma", 10))
-		to_chat(user, span_warning("[DECLENT_RU_CAP(I, NOMINATIVE)] уже заполнен[GEND_A_O_Y(I)] до краёв."))
+		to_chat(user, span_warning("[capitalize(I.declent_ru(NOMINATIVE))] уже заполнен[genderize_ru(I.gender,"","а","о","ы")] до краёв."))
 		return .
 	to_chat(user, span_notice("Вы черпаете лаву из [declent_ru(GENITIVE)] используя [I.declent_ru(ACCUSATIVE)]."))
+
 
 /turf/simulated/floor/lava/lava_land_surface/plasma/do_burn(atom/movable/burn_target)
 	if(QDELETED(burn_target))
@@ -370,7 +379,7 @@
 		if(ishuman(burn_living) && prob(65))
 			var/mob/living/carbon/human/burn_human = burn_living
 			var/datum/species/burn_species = burn_human.dna.species.name
-			if(burn_species != SPECIES_PLASMAMAN && burn_species != SPECIES_MACHINEPERSON) //ignore plasmamen/robotic species.
+			if(burn_species != SPECIES_PLASMAMAN && burn_species != SPECIES_MACNINEPERSON) //ignore plasmamen/robotic species.
 				burn_damage += human_tox_fire_damage
 				tox_damage += human_tox_fire_damage
 		burn_living.apply_damages(burn = burn_damage, tox = tox_damage, spread_damage = TRUE)	//Cold mutagen is bad for you, more at 11.
@@ -378,16 +387,21 @@
 
 	return FALSE
 
+
 // It's not the liquid itself. It's the atmos over it. Don't wanna spend resources on simulating over snow and lava.
 /turf/simulated/floor/lava/lava_land_surface/plasma/cold
-	atmos_environment = ENVIRONMENT_COLD
+	oxygen = 22
+	nitrogen = 82
+	temperature = 180
 
 /turf/simulated/floor/lava/mapping_lava
 	name = "Adaptive lava / chasm / plasma"
 	icon_state = "mappinglava"
 	baseturf = /turf/simulated/floor/lava/mapping_lava
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
+	temperature = 300
+	oxygen = 14
+	nitrogen = 23
+	planetary_atmos = TRUE
 
 /turf/simulated/floor/lava/mapping_lava/Initialize(mapload)
 	. = ..()

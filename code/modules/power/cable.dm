@@ -63,8 +63,10 @@
 	d1 = text2num(copytext( icon_state, 1, dash ))
 	d2 = text2num(copytext( icon_state, dash+1 ))
 
+	var/turf/T = get_turf(src)			// hide if turf is not intact
 	LAZYADD(GLOB.cable_list, src) //add it to the global cable list
-	AddElement(/datum/element/undertile)
+	if(level == 1)
+		hide(T.intact)
 
 /obj/structure/cable/Destroy()					// called when a cable is deleted
 	if(powernet)
@@ -87,8 +89,24 @@
 // General procedures
 ///////////////////////////////////
 
+//If underfloor, hide the cable
+/obj/structure/cable/hide(i)
+	if(level == 1 && isturf(loc))
+		invisibility = i ? INVISIBILITY_MAXIMUM : 0
+	update_icon(UPDATE_ICON_STATE)
+
+
 /obj/structure/cable/update_icon_state()
-	icon_state = "[d1]-[d2]"
+	if(invisibility)
+		icon_state = "[d1]-[d2]-f"
+	else
+		icon_state = "[d1]-[d2]"
+	var/turf/T = get_turf(src)
+	if(T.transparent_floor)
+		SET_PLANE_IMPLICIT(src, FLOOR_PLANE)
+	else
+		SET_PLANE_IMPLICIT(src, GAME_PLANE)
+
 
 ////////////////////////////////////////////
 // Power related
@@ -138,12 +156,13 @@
 /obj/structure/cable/attack_tk(mob/user)
 	return
 
-/obj/structure/cable/attackby(obj/item/I, mob/user, list/modifiers)
+
+/obj/structure/cable/attackby(obj/item/I, mob/user, params)
 	var/turf/our_turf = get_turf(src)
 	if(!our_turf)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	if((our_turf.transparent_floor == TURF_TRANSPARENT) || our_turf.intact)
 		to_chat(user, span_danger("You cannot interact with something that's under the floor!"))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
@@ -166,7 +185,7 @@
 		rcl.is_empty(user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(iscrayon(I))
+	if(istype(I, /obj/item/toy/crayon))
 		add_fingerprint(user)
 		var/obj/item/toy/crayon/crayon = I
 		cable_color(crayon.colourName)
@@ -178,9 +197,11 @@
 
 	return ..()
 
+
 /obj/structure/cable/multitool_act(mob/user, obj/item/I)
 	. = TRUE
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
+	var/turf/T = get_turf(src)
+	if(T.intact)
 		return
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
@@ -189,7 +210,7 @@
 
 /obj/structure/cable/proc/generate_power_message()
 	if(powernet && (powernet.avail > 0))
-		return chat_box_examine(span_notice("Total power: [display_power(powernet.avail)]\nLoad: [display_power(powernet.load)]\nSurplus: [display_power(surplus())]"))
+		return chat_box_examine(span_notice("Total power: [DisplayPower(powernet.avail)]\nLoad: [DisplayPower(powernet.load)]\nSurplus: [DisplayPower(surplus())]"))
 	else
 		return span_warning("The cable is not powered.")
 
@@ -201,14 +222,14 @@
 /obj/structure/cable/wirecutter_act(mob/user, obj/item/I)
 	. = TRUE
 	var/turf/T = get_turf(src)
-	if(HAS_TRAIT(src, TRAIT_UNDERFLOOR))
-		to_chat(user, span_danger("You can't interact with something that's under the floor!"))
+	if((T.transparent_floor == TURF_TRANSPARENT) || T.intact)
+		to_chat(user, "<span class='danger'>You can't interact with something that's under the floor!</span>")
 		return
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	if(shock(user, 50))
 		return
-	user.visible_message("[user] cuts the cable.", span_notice("You cut the cable."))
+	user.visible_message("[user] cuts the cable.", "<span class='notice'>You cut the cable.</span>")
 	investigate_log("was cut by [key_name_log(usr)] at [COORD(T)]", INVESTIGATE_WIRES)
 	deconstruct()
 
@@ -222,11 +243,10 @@
 	else
 		return FALSE
 
-/obj/structure/cable/singularity_pull(atom/singularity, current_size)
+/obj/structure/cable/singularity_pull(S, current_size)
 	..()
-	if(current_size < STAGE_FIVE)
-		return
-	deconstruct()
+	if(current_size >= STAGE_FIVE)
+		deconstruct()
 
 /obj/structure/cable/proc/cable_color(colorC)
 	if(!colorC)
@@ -419,7 +439,7 @@
 		return
 
 	var/list/powerlist = power_list(T1,src,0,0) //find the other cables that ended in the centre of the turf, with or without a powernet
-	if(length(powerlist)>0)
+	if(powerlist.len>0)
 		var/datum/powernet/PN = new()
 		propagate_network(powerlist[1],PN) //propagates the new powernet beginning at the source cable
 
@@ -438,7 +458,8 @@
 
 	P_list += power_list(loc, src, d1, 0, cable_only = 1)//... and on turf
 
-	if(length(P_list) == 0)//if nothing in both list, then the cable was a lone cable, just delete it and its powernet
+
+	if(P_list.len == 0)//if nothing in both list, then the cable was a lone cable, just delete it and its powernet
 		powernet.remove_cable(src)
 
 		for(var/obj/machinery/power/P in T1)//check if it was powering a machine

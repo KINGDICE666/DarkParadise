@@ -27,6 +27,7 @@
 	/// Type of mob to create
 	var/mob/living/zombie_type = /mob/living/simple_animal/hostile/blob_minion/zombie
 
+
 /mob/living/simple_animal/hostile/blob_minion/spore/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NO_FLOATING_ANIM, INNATE_TRAIT)
@@ -58,7 +59,7 @@
 	stat_attack = initial(stat_attack)
 
 /mob/living/simple_animal/hostile/blob_minion/spore/pull_constraint(atom/movable/pulled_atom, state, supress_message = FALSE) //Prevents spore from pulling things
-	if(isliving(pulled_atom))
+	if(istype(pulled_atom, /mob/living))
 		return TRUE // Get dem
 	if(!supress_message)
 		to_chat(src, span_warning("Вы не можете таскать ничего кроме других существ и их тел."))
@@ -124,6 +125,7 @@
 
 /mob/living/simple_animal/hostile/blob_minion/spore/minion/death_burst()
 	return // This behaviour is superceded by the overmind's intervention
+
 
 /// Weakened spore spawned by distributed neurons, can't zombify people and makes a teeny explosion
 /mob/living/simple_animal/hostile/blob_minion/spore/minion/weak

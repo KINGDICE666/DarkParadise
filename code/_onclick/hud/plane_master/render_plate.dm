@@ -5,13 +5,14 @@
  * if you want to read more read the _render_readme.md
  */
 
+
 /**
  * Render relay object assigned to a plane master to be able to relay it's render onto other planes that are not it's own
  */
 /atom/movable/render_plane_relay
 	screen_loc = "CENTER"
 	layer = -1
-	plane = DEFAULT_PLANE
+	plane = 0
 	appearance_flags = PASS_MOUSE | NO_CLIENT_COLOR | KEEP_TOGETHER
 	/// If we render into a critical plane master, or not
 	var/critical_target = FALSE
@@ -181,6 +182,7 @@
 	offset_change(hud?.current_plane_offset || 0)
 	set_alpha(mymob.lighting_alpha)
 
+
 /atom/movable/screen/plane_master/rendering_plate/lighting/hide_from(mob/oldmob)
 	. = ..()
 	oldmob.clear_fullscreen("lighting_backdrop_lit")
@@ -230,7 +232,12 @@
  * Other vars such as alpha will automatically be applied with the render source
  */
 /atom/movable/screen/plane_master/proc/generate_render_relays()
-	var/relay_loc = home?.relay_loc || "1,1"
+#if MIN_COMPILER_VERSION > 516
+	#warn Fully change default relay_loc to "1,1"
+#endif
+	var/relay_loc = home?.relay_loc
+	if(!relay_loc)
+		log_runtime(EXCEPTION("Someone forgot to set relay_loc for plane_master_group."))
 	// If we're using a submap (say for a popup window) make sure we draw onto it
 	if(home?.map)
 		relay_loc = "[home.map]:[relay_loc]"
@@ -265,7 +272,7 @@
 	if(!length(relays) && !initial(render_target))
 		render_target = OFFSET_RENDER_TARGET(get_plane_master_render_base(name), offset)
 	if(!relay_loc)
-		relay_loc = "1,1"
+		relay_loc = (show_to?.byond_version > 515) ? "1,1" : "CENTER"
 		// If we're using a submap (say for a popup window) make sure we draw onto it
 		if(home?.map)
 			relay_loc = "[home.map]:[relay_loc]"

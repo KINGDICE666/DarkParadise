@@ -26,30 +26,36 @@
 	var/create_with_tank = FALSE
 	var/igniter_type = /obj/item/assembly/igniter
 
+
 /obj/item/flamethrower/Destroy()
 	QDEL_NULL(weldtool)
 	QDEL_NULL(igniter)
 	QDEL_NULL(ptank)
 	return ..()
 
+
 /obj/item/flamethrower/process()
 	if(!lit || !igniter)
 		STOP_PROCESSING(SSobj, src)
 		return null
 	var/turf/location = loc
-	if(ismob(location))
+	if(istype(location, /mob/))
 		var/mob/M = location
 		if(M.l_hand == src || M.r_hand == src)
 			location = M.loc
 	if(isturf(location)) //start a fire if possible
 		igniter.flamethrower_process(location)
 
+
 /obj/item/flamethrower/update_icon(updates = ALL)
 	. = ..()
 	update_equipped_item(update_speedmods = FALSE)
 
+
+
 /obj/item/flamethrower/update_icon_state()
 	item_state = "flamethrower_[lit]"
+
 
 /obj/item/flamethrower/update_overlays()
 	. = ..()
@@ -60,6 +66,7 @@
 	if(lit)
 		. += "+lit"
 
+
 /obj/item/flamethrower/can_enter_storage(obj/item/storage/S, mob/user)
 	if(lit)
 		to_chat(user, span_warning("[S] can't hold [src] while it's lit!"))
@@ -67,11 +74,10 @@
 	else
 		return TRUE
 
-/obj/item/flamethrower/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/flamethrower/afterattack(atom/target, mob/user, flag, params)
 	. = ..()
-	if(proximity_flag)
+	if(flag)
 		return // too close
-
 	if(user && user.get_active_hand() == src) // Make sure our user is still holding us
 		var/turf/target_turf = get_turf(target)
 		if(target_turf)
@@ -79,6 +85,7 @@
 			add_attack_logs(user, target, "Flamethrowered at [target.x],[target.y],[target.z]")
 			flame_turf(turflist)
 			playsound(src, 'sound/weapons/gunshots/1flamethr.ogg', 50, TRUE)
+
 
 /obj/item/flamethrower/attackby(obj/item/I, mob/user, params)
 	if(isigniter(I))
@@ -110,6 +117,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/flamethrower/wrench_act(mob/user, obj/item/I)
 	if(status)
@@ -196,11 +204,11 @@
 	operating = TRUE
 	var/turf/previousturf = get_turf(src)
 	for(var/turf/simulated/T in turflist)
-		if(T.blocks_air)
+		if(!T.air)
 			break
 		if(T == previousturf)
 			continue	//so we don't burn the tile we be standin on
-		if(!ptank || !T.CanAtmosPass(get_dir(T, previousturf)) || !previousturf.CanAtmosPass(get_dir(previousturf, T)))
+		if(!ptank || !T.CanAtmosPass(previousturf, vertical = FALSE))
 			break
 		if(igniter)
 			igniter.ignite_turf(src, T)
@@ -213,16 +221,21 @@
 		if(M.client && M.machine == src)
 			attack_self(M)
 
+
 /obj/item/flamethrower/proc/default_ignite(turf/target, release_amount = 0.05)
 	if(!ptank)
 		return
 	//TODO: DEFERRED Consider checking to make sure tank pressure is high enough before doing this...
 	//Transfer 5% of current tank air contents to turf
 	var/datum/gas_mixture/air_transfer = ptank.air_contents.remove_ratio(release_amount)
-	if(air_transfer.toxins())
-		air_transfer.set_toxins(air_transfer.toxins() * 5)
-	target.blind_release_air(air_transfer)
-	target.hotspot_expose((ptank.air_contents.temperature() * 2) + PLASMA_MINIMUM_BURN_TEMPERATURE, min(CELL_VOLUME, CELL_VOLUME * air_transfer.total_moles()))
+	if(air_transfer.toxins)
+		air_transfer.toxins = air_transfer.toxins * 5
+	target.assume_air(air_transfer)
+	//Burn it based on transfered gas
+	target.hotspot_expose((ptank.air_contents.temperature*2) + 380, 500)
+	//location.hotspot_expose(1000,500,1)
+	SSair.add_to_active(target, 0)
+
 
 /obj/item/flamethrower/Initialize(mapload)
 	. = ..()
@@ -243,6 +256,7 @@
 /obj/item/flamethrower/full/tank
 	create_with_tank = TRUE
 
+
 /obj/item/flamethrower/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	var/obj/projectile/P = hitby
 	if(ptank && damage && attack_type == PROJECTILE_ATTACK && P.damage_type != STAMINA && prob(15))
@@ -252,6 +266,7 @@
 		igniter.ignite_turf(src,target_turf, release_amount = 100)
 		QDEL_NULL(ptank)
 		return 1 //It hit the flamethrower, not them
+
 
 /obj/item/assembly/igniter/proc/flamethrower_process(turf/simulated/location)
 	location.hotspot_expose(700, 2)

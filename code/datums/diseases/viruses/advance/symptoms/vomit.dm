@@ -75,6 +75,7 @@ Bonus
 /datum/symptom/vomit/blood/Vomit(mob/living/carbon/M)
 	M.vomit(0, VOMIT_BLOOD)
 
+
 /*
 //////////////////////////////////////
 

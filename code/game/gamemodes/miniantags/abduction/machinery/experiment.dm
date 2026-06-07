@@ -5,7 +5,6 @@
 	icon_state = "experiment-open"
 	anchored = TRUE
 	density = TRUE
-	interaction_flags_mouse_drop = NEED_DEXTERITY
 	var/points = 0
 	var/credits = 0
 	var/list/history = list()
@@ -18,10 +17,13 @@
 	eject_abductee()
 	return ..()
 
+
 /obj/machinery/abductor/experiment/update_icon_state()
 	icon_state = "experiment[occupant ? "" : "-open"]"
 
-/obj/machinery/abductor/experiment/mouse_drop_receive(mob/living/carbon/human/target, mob/user, params)
+
+
+/obj/machinery/abductor/experiment/MouseDrop_T(mob/living/carbon/human/target, mob/user, params)
 	if(stat)
 		return
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user) || !target.Adjacent(user) || !ishuman(target))
@@ -29,19 +31,20 @@
 	if(isabductor(target))
 		return
 	if(occupant)
-		to_chat(user, span_notice("[src] is already occupied."))
-		return //occupied
+		to_chat(user, "<span class='notice'>[src] is already occupied.</span>")
+		return TRUE //occupied
 	if(target.buckled)
 		return
 	if(target.has_buckled_mobs()) //mob attached to us
-		to_chat(user, span_warning("[target] will not fit into [src] because [target.p_they()] [target.p_have()] a slime latched onto [target.p_their()] head."))
-		return
+		to_chat(user, "<span class='warning'>[target] will not fit into [src] because [target.p_they()] [target.p_have()] a slime latched onto [target.p_their()] head.</span>")
+		return TRUE
 	visible_message("[user] puts [target] into the [src].")
 
 	target.forceMove(src)
 	occupant = target
 	update_icon(UPDATE_ICON_STATE)
 	add_fingerprint(user)
+	return TRUE
 
 /obj/machinery/abductor/experiment/attack_hand(mob/user)
 	if(..())
@@ -76,7 +79,7 @@
 		dat += "<a href='byond://?src=[UID()];experiment=3'>Analyze</a><br>"
 		dat += "</td></tr></table>"
 	else
-		dat += span_linkoff("Experiment ")
+		dat += "<span class='linkOff'>Experiment </span>"
 
 	if(!occupant)
 		dat += "<h3>Machine Unoccupied</h3>"
@@ -85,11 +88,11 @@
 		dat += "[occupant.name] => "
 		switch(occupant.stat)
 			if(0)
-				dat += span_good("Conscious")
+				dat += "<span class='good'>Conscious</span>"
 			if(1)
-				dat += span_average("Unconscious")
+				dat += "<span class='average'>Unconscious</span>"
 			else
-				dat += span_bad("Deceased")
+				dat += "<span class='bad'>Deceased</span>"
 	dat += "<br>"
 	dat += "[flash]"
 	dat += "<br>"
@@ -119,14 +122,14 @@
 	var/mob/living/carbon/human/H = occupant
 	var/point_reward = 0
 	if(H in history)
-		return span_bad("Specimen already in database.")
+		return "<span class='bad'>Specimen already in database.</span>"
 	if(H.stat == DEAD)
-		atom_say("Образец мертв — пожалуйста, предоставьте свежий образец.")
-		return span_bad("Specimen deceased.")
+		atom_say("Образец мертв - пожалуйста, предоставьте свежий образец.")
+		return "<span class='bad'>Specimen deceased.</span>"
 	var/obj/item/organ/internal/heart/gland/GlandTest = locate() in H.internal_organs
 	if(!GlandTest)
 		atom_say("Экспериментальная диссекция не обнаружена!")
-		return span_bad("No glands detected!")
+		return "<span class='bad'>No glands detected!</span>"
 	if(H.mind != null && H.ckey != null)
 		history += H
 		abductee_minds += H.mind
@@ -134,14 +137,14 @@
 		sleep(5)
 		switch(text2num(type))
 			if(1)
-				to_chat(H, span_warning("You feel violated."))
+				to_chat(H, "<span class='warning'>You feel violated.</span>")
 			if(2)
-				to_chat(H, span_warning("You feel yourself being sliced apart and put back together."))
+				to_chat(H, "<span class='warning'>You feel yourself being sliced apart and put back together.</span>")
 			if(3)
-				to_chat(H, span_warning("You feel intensely watched."))
+				to_chat(H, "<span class='warning'>You feel intensely watched.</span>")
 		sleep(5)
-		to_chat(H, span_warning("<b>Your mind snaps!</b>"))
-		to_chat(H, "<big>[span_warning("<b>You can't remember how you got here...</b>")]</big>")
+		to_chat(H, "<span class='warning'><b>Your mind snaps!</b></span>")
+		to_chat(H, "<big><span class='warning'><b>You can't remember how you got here...</b></span></big>")
 		var/objtype = pick(subtypesof(/datum/objective/abductee/))
 		var/datum/objective/abductee/O = new objtype()
 		SSticker.mode.abductees += H.mind
@@ -159,19 +162,20 @@
 			playsound(src.loc, 'sound/machines/ding.ogg', 50, TRUE)
 			points += point_reward
 			credits += point_reward
-			return span_good("Experiment successful! [point_reward] new data-points collected.")
+			return "<span class='good'>Experiment successful! [point_reward] new data-points collected.</span>"
 		else
 			playsound(src.loc, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
-			return span_bad("Experiment failed! No replacement organ detected.")
+			return "<span class='bad'>Experiment failed! No replacement organ detected.</span>"
 	else
-		atom_say("Мозговая деятельность не проявляется — утилизация образца...")
+		atom_say("Мозговая деятельность не проявляется - утилизация образца...")
 		eject_abductee()
 		SendBack(H)
-		return span_bad("Specimen braindead - disposed.")
+		return "<span class='bad'>Specimen braindead - disposed.</span>"
+
 
 /obj/machinery/abductor/experiment/proc/SendBack(mob/living/carbon/human/H)
 	H.Sleeping(16 SECONDS)
-	if(console?.pad && console.pad.teleport_target)
+	if(console && console.pad && console.pad.teleport_target)
 		H.forceMove(console.pad.teleport_target)
 		H.uncuff()
 		return
@@ -179,6 +183,7 @@
 	H.forceMove(pick(GLOB.latejoin))
 	H.uncuff()
 	return
+
 
 /obj/machinery/abductor/experiment/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
@@ -195,6 +200,7 @@
 	occupant = grabbed_thing
 	update_icon(UPDATE_ICON_STATE)
 	add_fingerprint(grabber)
+
 
 /obj/machinery/abductor/experiment/ex_act(severity, target)
 	if(occupant)

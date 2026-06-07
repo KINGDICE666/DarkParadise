@@ -9,7 +9,8 @@
 	. = ..()
 	var/list/potential_targets
 	var/mob/living/living_mob = controller.pawn
-	var/datum/targetting_datum/targetting_datum = controller.blackboard[targetting_datum_key]
+	var/path = controller.blackboard[targetting_datum_key]
+	var/datum/targetting_datum/targetting_datum = new path()
 
 	if(!targetting_datum)
 		CRASH("No target datum was supplied in the blackboard for [controller.pawn]")
@@ -20,7 +21,7 @@
 		if(living_mob.can_see(living_mob, HM, vision_range))
 			potential_targets += HM
 
-	if(!length(potential_targets))
+	if(!potential_targets.len)
 		finish_action(controller, FALSE)
 		return
 
@@ -31,7 +32,7 @@
 			filtered_targets += pot_target
 			continue
 
-	if(!length(filtered_targets))
+	if(!filtered_targets.len)
 		finish_action(controller, FALSE)
 		return
 

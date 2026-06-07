@@ -13,13 +13,13 @@
 	var/clamps_locked = FALSE //if true, and a defib is loaded, it can't be removed without unlocking the clamps
 
 /obj/machinery/defibrillator_mount/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "крепление для дефибриллятора",
 		GENITIVE = "крепления для дефибриллятора",
 		DATIVE = "креплению для дефибриллятора",
 		ACCUSATIVE = "крепление для дефибриллятора",
 		INSTRUMENTAL = "креплением для дефибриллятора",
-		PREPOSITIONAL = "креплении для дефибриллятора",
+		PREPOSITIONAL = "креплении для дефибриллятора"
 	)
 
 /obj/machinery/defibrillator_mount/attack_ai()
@@ -29,10 +29,15 @@
 	if(defib)
 		return defib.get_cell()
 
-/obj/machinery/defibrillator_mount/Initialize(mapload, direction, building = FALSE)
-	. = ..()
+/obj/machinery/defibrillator_mount/New(location, direction, building = 0)
+	..()
+
+	if(location)
+		loc = location
+
 	if(direction)
 		setDir(direction)
+
 	if(building)
 		set_pixel_offsets_from_dir(30, -30, 30, -30)
 
@@ -55,10 +60,11 @@
 			. += span_notice("Вы можете активировать систему блокировки, использовав свою ID-карту.")
 
 /obj/machinery/defibrillator_mount/process()
-	if(defib?.cell && defib.cell.charge < defib.cell.maxcharge && is_operational())
+	if(defib && defib.cell && defib.cell.charge < defib.cell.maxcharge && is_operational())
 		use_power(200)
 		defib.cell.give(180) //90% efficiency, slightly better than the cell charger's 87.5%
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/defibrillator_mount/update_overlays()
 	. = ..()
@@ -67,10 +73,11 @@
 		if(defib.powered)
 			. += "[defib.safety ? "online" : "emagged"]"
 			var/ratio = defib.cell.charge / defib.cell.maxcharge
-			ratio = ceil(ratio * 4) * 25
+			ratio = CEILING(ratio * 4, 1) * 25
 			. += "charge[ratio]"
 		if(clamps_locked)
 			. += "clamps"
+
 
 //defib interaction
 /obj/machinery/defibrillator_mount/attack_hand(mob/living/carbon/human/user = usr)
@@ -86,6 +93,7 @@
 	defib.dispence_paddles(user)
 	add_fingerprint(user)
 
+
 /obj/machinery/defibrillator_mount/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -97,7 +105,7 @@
 			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(I, src))
 			return ..()
-		visible_message(span_notice("[user] прикрепил[GEND_A_O_I(user)] [I.declent_ru(ACCUSATIVE)] к [declent_ru(DATIVE)]!"))
+		visible_message(span_notice("[user] прикрепил[genderize_ru(user.gender, "", "а", "о", "и")] [I.declent_ru(ACCUSATIVE)] к [declent_ru(DATIVE)]!"))
 		balloon_alert(user, "дефибриллятор установлен")
 		playsound(src, 'sound/machines/click.ogg', 50, TRUE)
 		defib = I
@@ -124,6 +132,7 @@
 
 	return ..()
 
+
 /obj/machinery/defibrillator_mount/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(defib)
@@ -134,6 +143,7 @@
 	WRENCH_UNANCHOR_WALL_MESSAGE
 	new /obj/item/mounted/frame/defib_mount(get_turf(user))
 	qdel(src)
+
 
 /obj/machinery/defibrillator_mount/click_alt(mob/living/carbon/human/user)
 	if(!defib)
@@ -149,12 +159,13 @@
 		return CLICK_ACTION_BLOCKING
 	defib.forceMove_turf()
 	user.put_in_hands(defib, ignore_anim = FALSE)
-	visible_message(span_notice("[user] вынима[PLUR_ET_YUT(user)] [defib.declent_ru(ACCUSATIVE)] из [declent_ru(GENITIVE)]."))
+	visible_message(span_notice("[user] вынима[pluralize_ru(user.gender, "ет", "ют")] [defib.declent_ru(ACCUSATIVE)] из [declent_ru(GENITIVE)]."))
 	balloon_alert(user, "дефибриллятор извлечён")
 	playsound(src, 'sound/items/deconstruct.ogg', 50, TRUE)
 	defib = null
 	update_icon(UPDATE_OVERLAYS)
 	return CLICK_ACTION_SUCCESS
+
 
 //wallframe, for attaching the mounts easily
 /obj/item/mounted/frame/defib_mount
@@ -162,24 +173,21 @@
 	desc = "Крепление для дефибриллятора, которое предварительно нужно будет закрепить."
 	icon = 'icons/obj/machines/defib_mount.dmi'
 	icon_state = "defibrillator_mount"
+	sheets_refunded = 0
 	materials = list(MAT_METAL = 300, MAT_GLASS = 100)
 	w_class = WEIGHT_CLASS_BULKY
 
 /obj/item/mounted/frame/defib_mount/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "разобранное крепление для дефибриллятора",
 		GENITIVE = "разобранного крепления для дефибриллятора",
 		DATIVE = "разобранному креплению для дефибриллятора",
 		ACCUSATIVE = "разобранное крепление для дефибриллятора",
 		INSTRUMENTAL = "разобранным креплением для дефибриллятора",
-		PREPOSITIONAL = "разобранном креплении для дефибриллятора",
+		PREPOSITIONAL = "разобранном креплении для дефибриллятора"
 	)
 
 /obj/item/mounted/frame/defib_mount/do_build(turf/on_wall, mob/user)
 	new /obj/machinery/defibrillator_mount(get_turf(src), get_dir(user, on_wall), 1)
 	playsound(src, 'sound/machines/click.ogg', 50, TRUE)
 	qdel(src)
-
-// MARK: Mapping Dir Helpers
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/defibrillator_mount, 32, 32)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/defibrillator_mount/loaded, 32, 32)

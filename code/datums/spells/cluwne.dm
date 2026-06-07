@@ -10,6 +10,7 @@
 
 	action_icon_state = "cluwne"
 
+
 /mob/living/carbon/human/proc/makeCluwne()
 	if(!get_int_organ(/obj/item/organ/internal/brain/cluwne))
 		var/obj/item/organ/internal/brain/cluwne/idiot_brain = new
@@ -79,5 +80,5 @@
 		qdel(G)
 
 	equip_to_slot_or_del(new /obj/item/clothing/under/lawyer/black, ITEM_SLOT_CLOTH_INNER)
-	equip_to_slot_or_del(new /obj/item/clothing/shoes/color/black, ITEM_SLOT_FEET)
+	equip_to_slot_or_del(new /obj/item/clothing/shoes/black, ITEM_SLOT_FEET)
 

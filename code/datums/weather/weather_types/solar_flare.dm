@@ -4,7 +4,7 @@
 
 	telegraph_message = null // handled via event announcement
 
-	weather_message = span_userdanger_alt("<i>Началась солнечная вспышка! Найдите укрытие!</i>")
+	weather_message = "<span class='userdanger'><i>Началась солнечная вспышка! Найдите укрытие!</i></span>"
 	weather_overlay = "light_ash"
 	weather_duration_lower = 5 MINUTES
 	weather_duration_upper = 10 MINUTES
@@ -40,9 +40,8 @@
 /datum/weather/solar_flare/end()
 	if(..())
 		return
-	GLOB.minor_announcement.announce(
-		message = "Солнечная вспышка прошла.",
-		new_title = ANNOUNCE_SOLAR_FLARE_RU
+	GLOB.minor_announcement.announce("Солнечная вспышка прошла.",
+									ANNOUNCE_SOLAR_FLARE_RU
 	)
 	// Ends the temporary 40x increase that happened during the weather event
 	SSsun.solar_gen_rate = initial(SSsun.solar_gen_rate)

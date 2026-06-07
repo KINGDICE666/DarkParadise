@@ -1,6 +1,6 @@
 /mob/living/silicon/Login()
 	SetSleeping(0)
-	if(mind && SSticker?.mode)
+	if(mind && SSticker && SSticker.mode)
 		SSticker.mode.remove_revolutionary(mind, 1)
 		SSticker.mode.remove_cultist(mind, 1)
 		SSticker.mode.remove_wizard(mind)

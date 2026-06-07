@@ -31,7 +31,7 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 	// Find ghosts willing to be DS
 	var/image/source = image('icons/obj/cardboard_cutout.dmi', "cutout_deathsquad")
 	var/list/commando_ghosts = pick_candidates_all_types(src, COMMANDOS_POSSIBLE, "Присоединиться к Отряду Смерти?", , 21, 60 SECONDS, TRUE, GLOB.role_playtime_requirements[ROLE_DEATHSQUAD], TRUE, FALSE, source, "Отряд Смерти", input)
-	if(!length(commando_ghosts))
+	if(!commando_ghosts.len)
 		to_chat(src, span_userdanger("Никто не вызвался присоединиться к Отряду Смерти."))
 		return
 
@@ -47,7 +47,7 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 
 		if(L.name == "Commando")
 
-			if(!length(commando_ghosts))
+			if(!commando_ghosts.len)
 				break
 
 			var/use_ds_borg = FALSE
@@ -81,22 +81,22 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 				if(!(R.mind in SSticker.minds))
 					SSticker.minds += R.mind
 				SSticker.mode.deathsquad |= R.mind
-				R.possess_by_player(ghost_mob.key)
+				R.key = ghost_mob.key
 				if(nuke_code)
-					R.mind.store_memory("<b>Коды от боеголовки:</b> [span_warning("[nuke_code].")]")
-				R.mind.store_memory("<b>Миссия:</b> [span_warning("[input].")]")
-				to_chat(R, span_userdanger("Вы борг отдела Специальных Операций, подчиняющийся Центральному Командованию. \nВаша миссия: [span_danger("[input]")]"))
+					R.mind.store_memory("<b>Коды от боеголовки:</b> <span class='warning'>[nuke_code].</span>")
+				R.mind.store_memory("<b>Миссия:</b> <span class='warning'>[input].</span>")
+				to_chat(R, span_userdanger("Вы борг отдела Специальных Операций, подчиняющийся Центральному Командованию. \nВаша миссия: <span class='danger'>[input]</span>"))
 			else
 				var/mob/living/carbon/human/new_commando = create_death_commando(L, is_leader)
 				new_commando.mind.key = ghost_mob.key
-				new_commando.possess_by_player(ghost_mob.key)
+				new_commando.key = ghost_mob.key
 				new_commando.internal = new_commando.s_store
 				new_commando.update_action_buttons_icon()
 				new_commando.change_voice()
 				if(nuke_code)
-					new_commando.mind.store_memory("<b>Коды от боеголовки:</b> [span_warning("[nuke_code].")]")
-				new_commando.mind.store_memory("<b>Миссия:</b> [span_warning("[input].")]")
-				to_chat(new_commando, span_userdanger("Вы [is_leader ? "<b>КОМАНДИР</b>" : "боец"] отряда Специальных Операций, подчиняющийся Центральному Командованию. \nВаша миссия: [span_danger("[input]")]"))
+					new_commando.mind.store_memory("<b>Коды от боеголовки:</b> <span class='warning'>[nuke_code].</span>")
+				new_commando.mind.store_memory("<b>Миссия:</b> <span class='warning'>[input].</span>")
+				to_chat(new_commando, span_userdanger("Вы [is_leader ? "<b>КОМАНДИР</b>" : "боец"] отряда Специальных Операций, подчиняющийся Центральному Командованию. \nВаша миссия: <span class='danger'>[input]</span>"))
 
 			is_leader = FALSE
 			commando_number--
@@ -158,7 +158,7 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 	var/mob/living/carbon/human/new_commando = new(spawn_location.loc)
 	var/commando_leader_rank = pick("Лейтенант", "Капитан", "Майор")
 	var/commando_rank = pick("Младший Сержант", "Сержант", "Старший Сержант", "Старшина", "Прапорщик", "Старший Прапорщик")
-	var/commando_name = pick(GLOB.last_names_male)
+	var/commando_name = pick(GLOB.last_names)
 
 	var/datum/preferences/A = new()//Randomize appearance for the commando.
 	if(is_leader)
@@ -168,14 +168,14 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 		A.real_name = "[commando_rank] [A.gender==FEMALE ? pick(GLOB.last_names_female) : commando_name]"
 	A.copy_to(new_commando)
 
+
 	new_commando.dna.ready_dna(new_commando)//Creates DNA.
 
 	//Creates mind stuff.
 	new_commando.mind_initialize()
 	new_commando.mind.assigned_role = SPECIAL_ROLE_DEATHSQUAD
 	new_commando.mind.special_role = SPECIAL_ROLE_DEATHSQUAD
-	new_commando.mind.offstation_role = TRUE
-	SSticker.mode.deathsquad |= new_commando.mind
+	SSticker.mode.traitors |= new_commando.mind//Adds them to current traitor list. Which is really the extra antagonist list.
 	if(is_leader)
 		new_commando.equipOutfit(/datum/outfit/admin/death_commando/officer)
 	else

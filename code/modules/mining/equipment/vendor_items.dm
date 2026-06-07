@@ -16,14 +16,11 @@
 
 /obj/item/clothing/mask/facehugger/toy/Initialize(mapload)
 	. = ..()
+	AddComponent(/datum/component/proximity_monitor)
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
-
-/obj/item/clothing/mask/facehugger/toy/Destroy()
-	QDEL_NULL(proximity_monitor)
-	return ..()
 
 /obj/item/clothing/mask/facehugger/toy/Die()
 	return

@@ -12,6 +12,9 @@
 	shuttleId = "addition_goal"
 	possible_destinations = "graveyard_church;addition_goal_dock"
 
+
+
+
 // MARK:	System logic
 
 /// Try send shuttle to station (call shuttle)
@@ -38,6 +41,7 @@
 
 /datum/controller/subsystem/addition_goals/proc/set_funeral_shuttle_locked(locked)
 	funeral_shuttle.locked_move = locked
+
 
 /// Get text where shuttle docked
 /datum/controller/subsystem/addition_goals/proc/get_shuttle_location()
@@ -98,19 +102,19 @@
 	for(var/turf/turf in turfs)
 		//open all containers before delete
 		for(var/atom/movable/content in turf.contents)
-			if(iscloset(content))
+			if(istype(content, /obj/structure/closet))
 				var/obj/structure/closet/closet = content
 				closet.open()
 		//delete all
 		for(var/atom/movable/content in turf.contents)
-			if(is_airlock(content)) //this is airlock
+			if(istype(content, /obj/machinery/door/airlock)) //this is airlock
 				continue
 			if(istype(content, /obj/machinery/light)) //this is shuttle lamps
 				continue
 			if(is_highrisk_item(content))
 				teleportate_item_to_station(content)
 				continue
-			if(isliving(content))
+			if(istype(content, /mob/living/))
 				var/mob/living/living = content
 				if(living.mind) // this is player
 					teleportate_player_to_station(living)
@@ -119,7 +123,7 @@
 			qdel(content)
 
 /datum/controller/subsystem/addition_goals/proc/is_highrisk_item(item)
-	for(var/highrisk_type in GLOB.ungibbable_items_types)
+	for(var/highrisk_type as anything in GLOB.ungibbable_items_types)
 		if(istype(item, highrisk_type))
 			return TRUE
 	return FALSE
@@ -139,6 +143,8 @@
 	var/datum/money_account/account = GLOB.station_account
 	account.credit(round(-1000), "Транспортировка важного предмета на станцию", "Дополнительная цель", account.owner_name)
 
+
+
 /datum/controller/subsystem/addition_goals/proc/teleportate_player_to_station(mob/living/user)
 	var/list/safe_turfs = get_safe_random_station_turf()
 	var/turf/teleport_target = pick(safe_turfs)
@@ -151,6 +157,9 @@
 	if(!account)
 		return
 	account.credit(round(-credits), "Транспортные расходы", "Дополнительная цель", account.owner_name)
+
+
+
 
 /// Only for test
 /datum/controller/subsystem/addition_goals/proc/toggle_shuttle(mob/user)

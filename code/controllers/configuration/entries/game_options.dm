@@ -19,48 +19,59 @@
 	integer = FALSE
 	min_val = 0
 
+
 /datum/config_entry/keyed_list/multiplicative_movespeed
 	key_mode = KEY_MODE_TYPE
 	value_mode = VALUE_MODE_NUM
+
 
 /datum/config_entry/keyed_list/multiplicative_movespeed/ValidateAndSet()
 	. = ..()
 	if(.)
 		update_config_movespeed_type_lookup(update_mobs = TRUE)
 
+
 /datum/config_entry/keyed_list/multiplicative_movespeed/vv_edit_var(var_name, var_value)
 	. = ..()
 	if(. && (var_name == NAMEOF(src, config_entry_value)))
 		update_config_movespeed_type_lookup(update_mobs = TRUE)
 
+
 /datum/config_entry/number/movedelay //Used for modifying movement speed for mobs.
 	abstract_type = /datum/config_entry/number/movedelay
+
 
 /datum/config_entry/number/movedelay/ValidateAndSet()
 	. = ..()
 	if(.)
 		update_mob_config_movespeeds()
 
+
 /datum/config_entry/number/movedelay/vv_edit_var(var_name, var_value)
 	. = ..()
 	if(. && (var_name == NAMEOF(src, config_entry_value)))
 		update_mob_config_movespeeds()
 
+
 /datum/config_entry/number/movedelay/run_delay
 	integer = FALSE
+
 
 /datum/config_entry/number/movedelay/run_delay/ValidateAndSet()
 	. = ..()
 	var/datum/movespeed_modifier/config_walk_run/M = get_cached_movespeed_modifier(/datum/movespeed_modifier/config_walk_run/run)
 	M.sync()
 
+
 /datum/config_entry/number/movedelay/walk_delay
 	integer = FALSE
+
 
 /datum/config_entry/number/movedelay/walk_delay/ValidateAndSet()
 	. = ..()
 	var/datum/movespeed_modifier/config_walk_run/M = get_cached_movespeed_modifier(/datum/movespeed_modifier/config_walk_run/walk)
 	M.sync()
+
 
 /datum/config_entry/flag/allow_ai // allow ai job
 	default = TRUE
@@ -68,8 +79,6 @@
 /datum/config_entry/flag/reactionary_explosions //If we use reactionary explosions, explosions that react to walls and doors
 
 /datum/config_entry/flag/allow_random_events // Enables random events mid-round when set
-
-/datum/config_entry/flag/forbid_station_traits
 
 /datum/config_entry/number/traitor_objectives_amount
 	default = 2
@@ -93,7 +102,3 @@
 /datum/config_entry/number/cubemonkey_cap
 	default = 20
 	min_val = 0
-
-/datum/config_entry/number/overflow_cap
-	default = 20
-	min_val = -1

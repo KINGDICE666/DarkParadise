@@ -4,7 +4,7 @@
 	icon_state = "igniter1"
 	plane = FLOOR_PLANE
 	max_integrity = 300
-	armor = list(melee = 50, bullet = 30, laser = 70, energy = 50, bomb = 20, bio = 0, fire = 100, acid = 70)
+	armor = list(melee = 50, bullet = 30, laser = 70, energy = 50, bomb = 20, bio = 0, rad = 0, fire = 100, acid = 70)
 	resistance_flags = FIRE_PROOF
 	anchored = TRUE
 	idle_power_usage = 2
@@ -14,15 +14,19 @@
 	/// ID to hook buttons into
 	var/id = null
 
+
 /obj/machinery/igniter/on
 	on = TRUE
+
 
 /obj/machinery/igniter/Initialize(mapload)
 	. = ..()
 	update_icon()
 
+
 /obj/machinery/igniter/attack_ai(mob/user as mob)
 	return attack_hand(user)
+
 
 /obj/machinery/igniter/attack_hand(mob/user as mob)
 	if(..())
@@ -38,11 +42,13 @@
 	else
 		set_light_on(FALSE)
 
+
 /obj/machinery/igniter/update_icon_state()
 	if(stat & (NOPOWER|BROKEN))
 		icon_state = "igniter0"
 		return
 	icon_state = "igniter[on]"
+
 
 /obj/machinery/igniter/update_overlays()
 	. = ..()
@@ -50,12 +56,14 @@
 	if(on)
 		underlays += emissive_appearance(icon, "igniter_lightmask", src)
 
+
 /obj/machinery/igniter/process()	//ugh why is this even in process()? // AA 2022-08-02 - I guess it cant go anywhere else?
 	if(on && !(stat & NOPOWER))
 		var/turf/location = get_turf(src)
 		if(isturf(location))
-			location.hotspot_expose(1000, 1)
+			location.hotspot_expose(1000, 500, 1)
 	return TRUE
+
 
 /obj/machinery/igniter/power_change(forced = FALSE)
 	if(!..())
@@ -63,6 +71,7 @@
 	if(stat & NOPOWER)
 		on = FALSE
 	update_icon()
+
 
 // Wall mounted remote-control igniter.
 
@@ -77,6 +86,7 @@
 	var/base_state = "migniter"
 	anchored = TRUE
 
+
 /obj/machinery/sparker/update_icon_state()
 	if(disable)
 		icon_state = "[base_state]-d"
@@ -85,15 +95,18 @@
 	else
 		icon_state = "[base_state]-p"
 
+
 /obj/machinery/sparker/power_change(forced = FALSE)
 	if(!..())
 		return
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/sparker/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/detective_scanner))
 		return ATTACK_CHAIN_PROCEED
 	return ..()
+
 
 /obj/machinery/sparker/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -106,9 +119,11 @@
 	)
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/sparker/attack_ai()
 	if(anchored)
 		return spark()
+
 
 /obj/machinery/sparker/proc/spark()
 	if(!powered())
@@ -124,9 +139,10 @@
 
 	var/turf/location = get_turf(src)
 	if(isturf(location))
-		location.hotspot_expose(1000, 500)
+		location.hotspot_expose(1000, 500, 1)
 
 	return TRUE
+
 
 /obj/machinery/sparker/emp_act(severity)
 	if(stat & (BROKEN|NOPOWER))

@@ -14,12 +14,8 @@
 	screen_overlay = "attachments"
 	broken_overlay = "attachments_broken"
 	deny_overlay = "attachments_deny"
-	req_access = list(ACCESS_SECURITY)
-	refill_canister = /obj/item/vending_refill/gun_mods
-	default_price = PAYCHECK_CREW
-	default_premium_price = PAYCHECK_MAX
-	vandal_secure = TRUE
 
+	req_access = list(ACCESS_SECURITY)
 	products = list(
 		/obj/item/gun_module/muzzle/compensator = 8,
 		/obj/item/gun_module/rail/scope/collimator/pistol = 8,
@@ -30,28 +26,38 @@
 		/obj/item/gun_module/under/hand/simple = 5,
 		/obj/item/gun_module/under/hand/angle = 5,
 		/obj/item/ammo_box/magazine/enforcer/extended = 10,
-		/obj/item/gun_module/rail/hud/medical = 3,
-		/obj/item/gun_module/rail/hud/security = 3,
 	)
 	contraband = list(
 		/obj/item/gun_module/muzzle/suppressor = 3,
-		/obj/item/gun_module/under/bayonet = 3,
-		/obj/item/gun_module/muzzle/suppressor/shotgun = 2,
-		/obj/item/gun_module/rail/scope/x4 = 1,
+		/obj/item/gun_module/rail/scope/x4 = 2,
 	)
+	prices = list(
+		/obj/item/gun_module/muzzle/compensator = 199,
+		/obj/item/gun_module/rail/scope/collimator/pistol = 299,
+		/obj/item/gun_module/rail/scope/collimator = 349,
+		/obj/item/gun_module/under/flashlight/pistol = 99,
+		/obj/item/gun_module/under/flashlight/rifle = 99,
+		/obj/item/gun_module/under/laser/point = 199,
+		/obj/item/gun_module/under/hand/simple = 249,
+		/obj/item/gun_module/under/hand/angle = 299,
+		/obj/item/ammo_box/magazine/enforcer/extended = 149,
+		/obj/item/gun_module/muzzle/suppressor = 399,
+		/obj/item/gun_module/rail/scope/x4 = 2499,
+	)
+	refill_canister = /obj/item/vending_refill/gun_mods
 
 /obj/machinery/vending/gun_mods/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "торговый автомат ModTech",
 		GENITIVE = "торгового автомата ModTech",
 		DATIVE = "торговому автомату ModTech",
 		ACCUSATIVE = "торговый автомат ModTech",
 		INSTRUMENTAL = "торговым автоматом ModTech",
-		PREPOSITIONAL = "торговом автомате ModTech",
+		PREPOSITIONAL = "торговом автомате ModTech"
 	)
 
-// all items free, this vending is for Central command and Syndicate
-/obj/machinery/vending/gun_mods/advanced
+/obj/machinery/vending/gun_mods/free
+	// all items free, this vending for central command and syndicate
 	desc = "Раздатчик с модулями для оружия."
 	req_access = list()
 
@@ -68,12 +74,9 @@
 		/obj/item/gun_module/under/laser/ray = 5,
 		/obj/item/gun_module/under/hand/simple = 5,
 		/obj/item/gun_module/under/hand/angle = 5,
-		/obj/item/gun_module/under/bayonet = 5,
-		/obj/item/gun_module/under/bayonet/long = 3,
 		/obj/item/gun_module/muzzle/suppressor = 5,
-		/obj/item/gun_module/muzzle/suppressor/shotgun = 4,
-		/obj/item/gun_module/muzzle/suppressor/heavy = 2,
 		/obj/item/gun_module/rail/scope/x8 = 5,
 		/obj/item/gun_module/rail/scope/x16 = 3,
 	)
 	contraband = list()
+	prices = list()

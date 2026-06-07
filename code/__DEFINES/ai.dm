@@ -1,8 +1,10 @@
 #define GET_AI_BEHAVIOR(behavior_type) SSai_behaviors.ai_behaviors[behavior_type]
+#define GET_TARGETING_STRATEGY(targeting_type) SSai_behaviors.targeting_strategies[targeting_type]
 #define HAS_AI_CONTROLLER_TYPE(thing, type) istype(thing?.ai_controller, type)
 
 #define AI_STATUS_ON 1
 #define AI_STATUS_OFF 2
+
 
 ///Monkey checks
 #define SHOULD_RESIST(source) (source.on_fire || source.buckled || HAS_TRAIT(source, TRAIT_RESTRAINED) || (source.pulledby && source.pulledby.grab_state > GRAB_PASSIVE))
@@ -20,11 +22,14 @@
 
 ///Does this task require movement from the AI before it can be performed?
 #define AI_BEHAVIOR_REQUIRE_MOVEMENT (1<<0)
+///Does this require the current_movement_target to be adjacent and in reach?
+#define AI_BEHAVIOR_REQUIRE_REACH (1<<1)
 ///Does this task let you perform the action while you move closer? (Things like moving and shooting)
-#define AI_BEHAVIOR_MOVE_AND_PERFORM (1<<1)
-
-///AI flags
-#define STOP_MOVING_WHEN_PULLED (1<<0)
+#define AI_BEHAVIOR_MOVE_AND_PERFORM (1<<2)
+///Does finishing this task not null the current movement target?
+#define AI_BEHAVIOR_KEEP_MOVE_TARGET_ON_FINISH (1<<3)
+///Does this behavior NOT block planning?
+#define AI_BEHAVIOR_CAN_PLAN_DURING_EXECUTION (1<<4)
 
 ///Subtree defines
 
@@ -52,6 +57,7 @@
 #define BB_MONKEY_RECRUIT_COOLDOWN "BB_monkey_recruit_cooldown"
 #define BB_MONKEY_NEXT_HUNGRY "BB_monkey_next_hungry"
 
+
 ///Haunted item controller defines
 
 ///Chance for haunted item to haunt someone
@@ -69,6 +75,8 @@
 #define BB_HAUNT_TARGET "BB_haunt_target"
 ///Amount of successful hits in a row this item has had
 #define BB_HAUNTED_THROW_ATTEMPT_COUNT "BB_haunted_throw_attempt_count"
+///If true, tolerates the equipper holding/equipping the hauntium
+#define BB_LIKES_EQUIPPER "BB_likes_equipper"
 
 ///Cursed item controller defines
 
@@ -104,6 +112,9 @@
 /// Robot customer has said their can't find seat line at least once. Used to rate limit how often they'll complain after the first time.
 #define BB_CUSTOMER_SAID_CANT_FIND_SEAT_LINE "BB_customer_said_cant_find_seat_line"
 
+/// Blackboard key storing how long your targeting strategy has held a particular target
+#define BB_BASIC_MOB_HAS_TARGET_TIME "BB_basic_mob_has_target_time"
+
 ///Hostile AI controller blackboard keys
 #define BB_HOSTILE_ORDER_MODE "BB_HOSTILE_ORDER_MODE"
 #define BB_HOSTILE_FRIEND "BB_HOSTILE_FRIEND"
@@ -125,6 +136,17 @@
 /// Will follow a target.
 #define HOSTILE_COMMAND_FOLLOW 2
 
+///AI flags
+/// Don't move if being pulled
+#define STOP_MOVING_WHEN_PULLED (1<<0)
+/// Continue processing even if dead
+#define CAN_ACT_WHILE_DEAD (1<<1)
+/// Stop processing while in a progress bar
+#define PAUSE_DURING_DO_AFTER (1<<2)
+/// Continue processing while in stasis
+#define CAN_ACT_IN_STASIS (1<<3)
+
+
 ///Dog AI controller blackboard keys
 
 #define BB_SIMPLE_CARRY_ITEM "BB_SIMPLE_CARRY_ITEM"
@@ -137,15 +159,15 @@
 #define BB_DOG_HARASS_TARGET "BB_DOG_HARASS_TARGET"
 
 /// Basically, what is our vision/hearing range for picking up on things to fetch/
-#define AI_DOG_VISION_RANGE 10
+#define AI_DOG_VISION_RANGE	10
 /// What are the odds someone petting us will become our friend?
 #define AI_DOG_PET_FRIEND_PROB 15
 /// After this long without having fetched something, we clear our ignore list
-#define AI_FETCH_IGNORE_DURATION (30 SECONDS)
+#define AI_FETCH_IGNORE_DURATION 30 SECONDS
 /// After being ordered to heel, we spend this long chilling out
-#define AI_DOG_HEEL_DURATION (20 SECONDS)
+#define AI_DOG_HEEL_DURATION 20 SECONDS
 /// After either being given a verbal order or a pointing order, ignore further of each for this duration
-#define AI_DOG_COMMAND_COOLDOWN (2 SECONDS)
+#define AI_DOG_COMMAND_COOLDOWN	2 SECONDS
 
 // dog command modes (what pointing at something/someone does depending on the last order the dog heard)
 /// Don't do anything (will still react to stuff around them though)
@@ -167,6 +189,17 @@
 #define BB_BANE_BATMAN "BB_bane_batman"
 //yep thats it
 
+
+//Return flags for ai_behavior/perform()
+///Update this behavior's cooldown
+#define AI_BEHAVIOR_DELAY (1<<0)
+///Finish the behavior successfully
+#define AI_BEHAVIOR_SUCCEEDED (1<<1)
+///Finish the behavior unsuccessfully
+#define AI_BEHAVIOR_FAILED (1<<2)
+
+#define AI_BEHAVIOR_INSTANT (NONE)
+
 //Hunting defines
 #define SUCCESSFUL_HUNT_COOLDOWN 5 SECONDS
 
@@ -177,7 +210,39 @@
 
 ///Basic Mob Keys
 
-///Targetting subtrees
+///Targeting subtrees
 #define BB_BASIC_MOB_CURRENT_TARGET "BB_basic_current_target"
 #define BB_BASIC_MOB_CURRENT_TARGET_HIDING_LOCATION "BB_basic_current_target_hiding_location"
-#define BB_TARGETTING_DATUM "targetting_datum"
+#define BB_TARGETING_STRATEGY "targeting_strategy"
+///some behaviors that check current_target also set this on deep crit mobs
+#define BB_BASIC_MOB_EXECUTION_TARGET "BB_basic_execution_target"
+///Blackboard key for a whitelist typecache of "things we can target while trying to move"
+#define BB_OBSTACLE_TARGETING_WHITELIST "BB_targeting_whitelist"
+/// Key for the minimum status at which we want to target mobs (does not need to be specified if CONSCIOUS)
+#define BB_TARGET_MINIMUM_STAT "BB_target_minimum_stat"
+/// Flag for whether to target only wounded mobs
+#define BB_TARGET_WOUNDED_ONLY "BB_target_wounded_only"
+/// What typepath the holding object targeting strategy should look for
+#define BB_TARGET_HELD_ITEM "BB_target_held_item"
+/// How likely is this mob to move when idle per tick?
+#define BB_BASIC_MOB_IDLE_WALK_CHANCE "BB_basic_idle_walk_chance"
+
+/// Generic key for a non-specific targeted action
+#define BB_TARGETED_ACTION "BB_TARGETED_action"
+/// Generic key for a non-specific action
+#define BB_GENERIC_ACTION "BB_generic_action"
+
+/// Generic key for a shapeshifting action
+#define BB_SHAPESHIFT_ACTION "BB_shapeshift_action"
+
+///How long have we spent with no target?
+#define BB_TARGETLESS_TIME "BB_targetless_time"
+
+
+///should we skip the faction check for the targeting strategy?
+#define BB_ALWAYS_IGNORE_FACTION "BB_always_ignore_factions"
+///are we in some kind of temporary state of ignoring factions when targeting? can result in volatile results if multiple behaviours touch this
+#define BB_TEMPORARILY_IGNORE_FACTION "BB_temporarily_ignore_factions"
+
+///Only target mobs with these traits
+#define BB_TARGET_ONLY_WITH_TRAITS "BB_target_only_with_traits"

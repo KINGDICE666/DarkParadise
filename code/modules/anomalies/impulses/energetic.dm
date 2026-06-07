@@ -36,6 +36,7 @@
 		anomaly.jump(turf)
 		anomaly.after_move()
 
+
 /datum/anomaly_impulse/move/energ_fastmove/tier1
 	period_low = 5 SECONDS
 	period_high = 20 SECONDS
@@ -108,6 +109,7 @@
 	effect_range_high = 13
 	shock_damage_low = 120
 	shock_damage_high = 150
+
 
 /datum/anomaly_impulse/move/machinery_jump
 	name = "Перемещение по машинерии"

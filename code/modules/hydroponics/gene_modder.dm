@@ -53,13 +53,12 @@
 
 /obj/machinery/plantgenes/RefreshParts() // Comments represent the max you can set per tier, respectively. seeds.dm [219] clamps these for us but we don't want to mislead the viewer.
 	for(var/obj/item/stock_parts/manipulator/M in component_parts)
-		var/rating = M.rating
-		if(rating > 4)
+		if(M.rating > 4)
 			max_potency = 100
-		else if(rating > 3)
+		else if(M.rating > 3)
 			max_potency = 95
 		else
-			max_potency = initial(max_potency) + (POW3(rating)) // 51,58,77,95,100	 Clamps at 100
+			max_potency = initial(max_potency) + (M.rating**3) // 51,58,77,95,100	 Clamps at 100
 
 		max_yield = min(initial(max_yield) + (M.rating*2), 10) // 4,6,8,10	Clamps at 10
 
@@ -73,7 +72,7 @@
 
 	for(var/obj/item/stock_parts/micro_laser/ML in component_parts)
 		var/weed_rate_mod = ML.rating * 2.5
-		min_weed_rate = max(floor(10-weed_rate_mod), 0) // 7,5,2,0	Clamps at 0 and 10	You want this low
+		min_weed_rate = max(FLOOR(10-weed_rate_mod, 1), 0) // 7,5,2,0	Clamps at 0 and 10	You want this low
 		min_weed_chance = max(67-(ML.rating*16), 0)  // 48,35,19,3,0	Clamps at 0 and 67	You want this low
 	for(var/obj/item/circuitboard/plantgenes/vaultcheck in component_parts)
 		if(istype(vaultcheck, /obj/item/circuitboard/plantgenes/vault)) // TRAIT_DUMB BOTANY TUTS
@@ -96,6 +95,7 @@
 		. += "dnamod-dna"
 	if(panel_open)
 		. += "dnamod-open"
+
 
 /obj/machinery/plantgenes/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -120,7 +120,7 @@
 			var/obj/item/reagent_containers/spray/cleaner/cleaner = I
 			if(cleaner.reagents.total_volume >= cleaner.amount_per_transfer_from_this)
 				cleaning = TRUE
-		else if(issoap(I))
+		else if(istype(I, /obj/item/soap))
 			cleaning = TRUE
 		if(!cleaning)
 			return ATTACK_CHAIN_PROCEED
@@ -139,13 +139,16 @@
 
 	return ..()
 
+
 /obj/machinery/plantgenes/screwdriver_act(mob/living/user, obj/item/I)
 	. = default_deconstruction_screwdriver(user, "dnamod", "dnamod", I)
 	if(.)
 		update_icon(UPDATE_OVERLAYS)
 
+
 /obj/machinery/plantgenes/crowbar_act(mob/living/user, obj/item/I)
 	return default_deconstruction_crowbar(user, I)
+
 
 /obj/machinery/plantgenes/proc/add_seed(obj/item/seeds/new_seed, mob/user)
 	add_fingerprint(user)
@@ -159,6 +162,7 @@
 	to_chat(user, span_notice("You add [new_seed] to the machine."))
 	ui_interact(user)
 
+
 /obj/machinery/plantgenes/proc/add_disk(obj/item/disk/plantgene/new_disk, mob/user)
 	add_fingerprint(user)
 	if(disk)
@@ -170,6 +174,7 @@
 	disk = new_disk
 	to_chat(user, span_notice("You add [new_disk] to the machine."))
 	ui_interact(user)
+
 
 /obj/machinery/plantgenes/attack_hand(mob/user)
 	if(..())
@@ -327,6 +332,7 @@
 				repaint_seed()
 				// this doesnt need a modal, its easy enough to just remove the inserted gene
 
+
 /obj/machinery/plantgenes/proc/gene_remove()
 	if(istype(target, /datum/plant_gene/core))
 		return
@@ -422,8 +428,8 @@
 	var/datum/plant_gene/gene
 	var/read_only = 0 //Well, it's still a floppy disk
 
-/obj/item/disk/plantgene/Initialize(mapload)
-	. = ..()
+/obj/item/disk/plantgene/New()
+	..()
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/item/disk/plantgene/Destroy()
@@ -439,14 +445,14 @@
 				cleaning = TRUE
 			else
 				return ATTACK_CHAIN_PROCEED
-		if(issoap(W))
+		if(istype(W, /obj/item/soap))
 			cleaning = TRUE
 
 		if(!cleaning)
 			return ATTACK_CHAIN_PROCEED
-		user.visible_message(span_notice("[user] starts to clean the ooze off the disc."), span_notice("You start to clean the ooze off the disk."))
+		user.visible_message("<span class='notice'>[user] starts to clean the ooze off the disc.</span>", "<span class='notice'>You start to clean the ooze off the disk.</span>")
 		if(do_after(user, 5 SECONDS, src))
-			user.visible_message(span_notice("[user] cleans the ooze off [src]."), span_notice("You clean the ooze off [src]."))
+			user.visible_message("<span class='notice'>[user] cleans the ooze off [src].</span>", "<span class='notice'>You clean the ooze off [src].</span>")
 			REMOVE_TRAIT(src, TRAIT_CMAGGED, CMAGGED)
 			update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_ICON)
 	..()
@@ -492,11 +498,11 @@
 	if(HAS_TRAIT(src, TRAIT_CMAGGED))
 		return
 	read_only = !read_only
-	to_chat(user, span_notice("You flip the write-protect tab to [read_only ? "protected" : "unprotected"]."))
+	to_chat(user, "<span class='notice'>You flip the write-protect tab to [read_only ? "protected" : "unprotected"].</span>")
 
 /obj/item/disk/plantgene/cmag_act(mob/user)
 	if(!HAS_TRAIT(src, TRAIT_CMAGGED))
-		to_chat(user, span_warning("The bananium ooze flips a couple bits on the plant disk's display, making it look just like the..!"))
+		to_chat(user, "<span class='warning'>The bananium ooze flips a couple bits on the plant disk's display, making it look just like the..!</span>")
 		ADD_TRAIT(src, TRAIT_CMAGGED, CMAGGED)
 		update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_ICON)
 		playsound(src, SFX_SPARKS, 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
@@ -507,4 +513,4 @@
 		. += "The write-protect tab is set to [read_only ? "protected" : "unprotected"]."
 		return
 	if((user.mind.assigned_role == "Captain" || user.mind.special_role == SPECIAL_ROLE_NUKEOPS) && (user.Adjacent(src)))
-		. += span_warning("... Wait. This isn't the nuclear authentication disk! It's a clever forgery!")
+		. += "<span class='warning'>... Wait. This isn't the nuclear authentication disk! It's a clever forgery!</span>"

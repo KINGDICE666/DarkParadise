@@ -1,6 +1,7 @@
 //In here: Hatch and Ascendance
 GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-uae", "Noaey'gief", "Mii`mahza", "Amerziox", "Gyrg-mylin", "Kanet'pruunance", "Vigistaezian")) //Unpronouncable 2: electric boogalo)
 
+
 /obj/effect/proc_holder/spell/shadowling_hatch
 	name = "Hatch"
 	desc = "Сбрасывает вашу маскировку."
@@ -9,8 +10,10 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	action_icon_state = "hatch"
 	var/cycles_unused = 0
 
+
 /obj/effect/proc_holder/spell/shadowling_hatch/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/shadowling_hatch/cast(list/targets, mob/living/carbon/human/user = usr)
 	if(user.stat || !ishuman(user) || !user || !is_shadow(user) || isinspace(user))
@@ -30,8 +33,9 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	user.visible_message(span_warning("Вещи [user] неожиданно начали сползать. С них стекает обильное количество фиолетовой жижи, которая формируется вокруг них."), \
 						span_shadowling("Вы сбрасываете одежду, которая может помешать вашему вылуплению и начинаете выделять смолу, которая защитит вас."))
 	user.Stun(35 SECONDS, TRUE)
-	for(var/obj/item/item as anything in user.get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
+	for(var/obj/item/item as anything in user.get_equipped_items(TRUE, TRUE))
 		user.drop_item_ground(item, force = TRUE)
+
 
 	sleep(5 SECONDS)
 	if(QDELETED(user))
@@ -71,6 +75,7 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 
 	playsound(user.loc, 'sound/weapons/slash.ogg', 15, TRUE, SILENCED_SOUND_EXTRARANGE)
 	to_chat(user, span_boldnotice("Вы рвёте и режете."))
+
 
 	sleep(1 SECONDS)
 	if(QDELETED(user))
@@ -133,8 +138,9 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	user.mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_regen_armor(null))
 
 	QDEL_NULL(user.hud_used)
-	user.set_hud_used(new /datum/hud/human(user, ui_style2icon(user.client.prefs.UI_style), user.client.prefs.UI_style_color, user.client.prefs.UI_style_alpha))
+	user.hud_used = new /datum/hud/human(user, ui_style2icon(user.client.prefs.UI_style), user.client.prefs.UI_style_color, user.client.prefs.UI_style_alpha)
 	user.hud_used.show_hud(user.hud_used.hud_version)
+
 
 /obj/effect/proc_holder/spell/shadowling_ascend
 	name = "Ascend"
@@ -143,8 +149,10 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	clothes_req = FALSE
 	action_icon_state = "ascend"
 
+
 /obj/effect/proc_holder/spell/shadowling_ascend/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/shadowling_ascend/cast(list/targets, mob/living/carbon/human/user = usr)
 	if(!shadowling_check(user))
@@ -238,11 +246,13 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	ascendant.mind.RemoveSpell(src)
 	qdel(user)
 
+
+
 /**
  * Testing purpose.
  */
 /mob/living/carbon/human/proc/make_unhatched_shadowling()
-	for(var/obj/item/item as anything in get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
+	for(var/obj/item/item as anything in get_equipped_items(TRUE, TRUE))
 		drop_item_ground(item, force = TRUE)
 
 	var/newNameId = pick(GLOB.possibleShadowlingNames)

@@ -37,6 +37,7 @@
 	var/result = state.can_use_topic(src_object, user, state.ui_source)
 	. = max(., result)
 
+
 /datum/ui_state
 	var/atom/ui_source = null
 
@@ -66,7 +67,7 @@
 	// Close UIs if mindless.
 	if(!client)
 		return UI_CLOSE
-	// Disable UIs if unconscious or blocked.
+	// Disable UIs if unconcious or blocked.
 	else if(stat || HAS_TRAIT(src, TRAIT_UI_BLOCKED))
 		return UI_DISABLED
 	// Update UIs if incapicitated but concious.
@@ -90,6 +91,7 @@
 	. = ..()
 	if(. == UI_DISABLED && !stat && !HAS_TRAIT(src, TRAIT_HANDS_BLOCKED) && isitem(src_object) && (src_object.item_flags & DENY_UI_BLOCKED))
 		return UI_INTERACTIVE
+
 
 /**
  * public
@@ -132,6 +134,7 @@
 		return UI_DISABLED
 	// Otherwise, we got nothing.
 	return UI_CLOSE
+
 
 /mob/living/carbon/human/shared_living_ui_distance(atom/movable/src_object, viewcheck)
 	if(HAS_TRAIT(src, TRAIT_TELEKINESIS) && (get_dist(src, src_object) <= 2))

@@ -60,18 +60,16 @@
 		TRAIT_NO_SCAN,
 		TRAIT_TEMPERATURE_MOVEMENT,
 		TRAIT_STRONG_PULLING,
-		TRAIT_RESIST_COLD,
-		TRAIT_LIVERLESS_METABOLISM,
 	)
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	bodyflags = HAS_SKIN_COLOR | HAS_BODY_ACCESSORY
 
 	dies_at_threshold = TRUE
 
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 	base_color = "#704300"
 	flesh_color = "#704300"
-	blood_color = BLOOD_COLOR_WRYN
+	blood_color = "#FFFF99"
 	blood_species = "Wryn"
 	//Default styles for created mobs.
 	default_hair = "Normal antennae"
@@ -85,6 +83,7 @@
 		JOB_MIN_AGE_COMMAND = 22,
 	)
 
+
 /datum/species/wryn/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	var/datum/action/innate/wryn/wryn_sting/wryn_sting = locate() in H.actions
@@ -92,8 +91,10 @@
 		wryn_sting = new
 		wryn_sting.Grant(H)
 
+
 /datum/species/wryn/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, STRENGTH_LEVEL_WEAK, max_level, can_become_stronger)
+
 
 /datum/species/wryn/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
@@ -113,7 +114,8 @@
 	name = "wryn action"
 	button_icon = 'icons/mob/actions/actions_wryn.dmi'
 	background_icon_state = "bg_wryn"
-	button_icon = 'icons/mob/actions/actions_wryn.dmi'
+	icon_icon = 'icons/mob/actions/actions_wryn.dmi'
+
 
 //Define the Sting Action
 /datum/action/innate/wryn/wryn_sting
@@ -124,7 +126,7 @@
 	var/button_on = FALSE
 
 //What happens when you click the Button?
-/datum/action/innate/wryn/wryn_sting/Trigger(mob/clicker, trigger_flags)
+/datum/action/innate/wryn/wryn_sting/Trigger(left_click = TRUE)
 	if(!..())
 		return
 	var/mob/living/carbon/user = owner
@@ -148,9 +150,11 @@
 	if(button_on)
 		button_icon_state = "sting_on"
 		name = "Жало врина \[ГОТОВО\]"
+		button.name = name
 	else
 		button_icon_state = "sting_off"
 		name = "Жало врина"
+		button.name = name
 	..()
 
 //Select a Target from a List
@@ -215,13 +219,13 @@
 	if(target.handcuffed && node && user.zone_selected == BODY_ZONE_HEAD)
 		switch(alert(user, "Вы хотите вырвать усики этому существу?", "OH SHIT", "Да", "Нет"))
 			if("Да")
-				user.visible_message(span_notice("[user] начина[PLUR_ET_YUT(user)] яростно отрывать усики [target]."))
-				to_chat(target, span_danger("<b>[user] схватил[GEND_A_O_I(user)] ваши усики и яростно тян[PLUR_ET_UT(user)] их!<b>"))
+				user.visible_message(span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] яростно отрывать усики [target]."))
+				to_chat(target, span_danger("<b>[user] схватил[genderize_ru(user.gender,"","а","о","и")] ваши усики и яростно тян[pluralize_ru(user.gender,"ет","ут")] их!<b>"))
 				if(do_after(user, 25 SECONDS, target, NONE))
 					node.remove(target)
 					node.forceMove(get_turf(target))
 					to_chat(user, span_notice("Вы слышите громкий хруст, когда безжалостно отрываете усики [target]."))
-					to_chat(target, span_danger("Вы слышите невыносимый хруст, когда [user] вырыва[PLUR_ET_YUT(user)] усики из вашей головы."))
+					to_chat(target, span_danger("Вы слышите невыносимый хруст, когда [user] вырыва[pluralize_ru(user.gender,"ет","ют")] усики из вашей головы."))
 					to_chat(target, span_danger("<b>Стало так тихо...</b>"))
 
 					add_attack_logs(user, target, "Antennae removed")
@@ -251,6 +255,3 @@
 /mob/living/carbon/human/proc/get_producing()
 	var/obj/item/organ/internal/wryn/glands/glands = get_int_organ(/obj/item/organ/internal/wryn/glands)
 	return glands ? glands.producing : FALSE
-
-/datum/species/wryn/compressor_grind(location)
-	new /obj/item/reagent_containers/honeycomb(location)

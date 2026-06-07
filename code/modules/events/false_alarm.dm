@@ -27,6 +27,7 @@
 	var/datum/event/working_event
 	var/forced_type //Admin abuse
 
+
 /datum/event/falsealarm/admin_setup()
 	if(!check_rights(R_EVENT))
 		return

@@ -3,6 +3,7 @@
 // Requires high amount of power
 // Requires high level stock parts
 
+
 /// Delay between shots in burst mode
 #define BSA_BURST_SHOT_DELAY 0.5
 /// Spread by every axis (x, y) for signal calibration
@@ -41,6 +42,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	var/shots_count
 	var/delay_between_shots = BSA_BURST_SHOT_DELAY
 
+
 /datum/bluespace_cannon_fire_mode/proc/fire(obj/machinery/bsa/full/cannon, mob/user, turf/target, target_signal)
 	var/turf/impact_turf = cannon.spread(target, spread)
 	playsound(src, 'sound/machines/bsa_fire.ogg', 100, TRUE)
@@ -50,7 +52,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /datum/bluespace_cannon_fire_mode/burst/fire(obj/machinery/bsa/full/cannon, mob/user, turf/target, target_signal)
 	playsound(src, 'sound/machines/bsa_fire.ogg', 100, TRUE)
-	for(var/i in 0 to shots_count - 1)
+	for(var/i = 0; i < shots_count; i++)
 		var/turf/impact_turf = cannon.spread(target, spread)
 		var/delay = BSA_IMPACT_DELAY + i * delay_between_shots
 		addtimer(CALLBACK(cannon, TYPE_PROC_REF(/obj/machinery/bsa/full, incoming_shot_aim), impact_turf), (delay - BSA_IMPACT_LASER_NOTIFY_BEFORE) SECONDS)
@@ -62,6 +64,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	message_admins("[key_name_admin(user)] has launched an artillery strike with power=([power[1]],[power[2]],[power[3]]) into [ADMIN_COORDJMP(impact_turf)].")
 	log_admin("[key_name_log(user)] has launched an artillery strike with power=([power[1]],[power[2]],[power[3]]) mode into [COORD(impact_turf)].") // Line below handles logging the explosion to disk
 	explosion(impact_turf, devastation_range = power[1], heavy_impact_range = power[2], light_impact_range = power[3], cause = "Bluespace artillery strike")
+
 
 /datum/bluespace_cannon_fire_mode/power
 	name = "Мощный выстрел"
@@ -94,6 +97,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	power = list(0, 1, 5)
 	shots_count = 5
 
+
 /// BSA Cannon
 /datum/station_goal/bluespace_cannon
 	name = "Блюспейс Артиллерия"
@@ -114,6 +118,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 		Основные части артиллерии должны быть доступны для заказа в отделе снабжения.
 		<br>
 		– Центральное Командование Nanotrasen"}
+
 
 /datum/station_goal/bluespace_cannon/on_report()
 	//Unlock BSA parts
@@ -137,23 +142,23 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 /obj/machinery/bsa/back
 	name = "Bluespace Artillery Generator"
 	desc = "Генерирует импульс для орудия. Требуется соединение с фузором."
-	icon_state = "power_box"
-
-/obj/machinery/bsa/back/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "генератор блюспейс-артиллерии",
 		GENITIVE = "генератора блюспейс-артиллерии",
 		DATIVE = "генератору блюспейс-артиллерии",
 		ACCUSATIVE = "генератор блюспейс-артиллерии",
 		INSTRUMENTAL = "генератором блюспейс-артиллерии",
-		PREPOSITIONAL = "генераторе блюспейс-артиллерии",
+		PREPOSITIONAL = "генераторе блюспейс-артиллерии"
 	)
+	icon_state = "power_box"
+
 
 /obj/machinery/bsa/back/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
+
 /obj/machinery/bsa/back/multitool_act(mob/living/user, obj/item/I)
-	if(!ismultitool(I))
+	if(!istype(I, /obj/item/multitool))
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -162,26 +167,27 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	multitool.buffer = src
 	to_chat(user, span_notice("Вы сохранили информацию о соединении в буфере [multitool.declent_ru(GENITIVE)]."))
 
+
 /obj/machinery/bsa/front
 	name = "Bluespace Artillery Bore"
 	desc = "Не стойте перед орудием во время работы. Требуется соединение с фузором."
-	icon_state = "emitter_center"
-
-/obj/machinery/bsa/front/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "ускоритель блюспейс-артиллерии",
 		GENITIVE = "ускорителя блюспейс-артиллерии",
 		DATIVE = "ускорителю блюспейс-артиллерии",
 		ACCUSATIVE = "ускоритель блюспейс-артиллерии",
 		INSTRUMENTAL = "ускорителем блюспейс-артиллерии",
-		PREPOSITIONAL = "ускорителе блюспейс-артиллерии",
+		PREPOSITIONAL = "ускорителе блюспейс-артиллерии"
 	)
+	icon_state = "emitter_center"
+
 
 /obj/machinery/bsa/front/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
+
 /obj/machinery/bsa/front/multitool_act(mob/living/user, obj/item/I)
-	if(!ismultitool(I))
+	if(!istype(I, /obj/item/multitool))
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -190,28 +196,29 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	multitool.buffer = src
 	to_chat(user, span_notice("Вы сохранили информацию о соединении в буфере [multitool.declent_ru(GENITIVE)]."))
 
+
 /obj/machinery/bsa/middle
 	name = "Bluespace Artillery Fusor"
-	desc = "Содержимое засекречено военно-космическим командованием \"Нанотрейзен\". Требуется соединение с другими компонентами БСА с помощью мультиметра."
-	icon_state = "fuel_chamber"
-	var/obj/machinery/bsa/back/back
-	var/obj/machinery/bsa/front/front
-
-/obj/machinery/bsa/middle/get_ru_names()
-	return alist(
+	desc = "Содержимое засекречено военно-космическим командованием Нанотрейзен. Требуется соединение с другими компонентами БСА с помощью мультитула."
+	ru_names = list(
 		NOMINATIVE = "фузор блюспейс-артиллерии",
 		GENITIVE = "фузора блюспейс-артиллерии",
 		DATIVE = "фузору блюспейс-артиллерии",
 		ACCUSATIVE = "фузор блюспейс-артиллерии",
 		INSTRUMENTAL = "фузором блюспейс-артиллерии",
-		PREPOSITIONAL = "фузоре блюспейс-артиллерии",
+		PREPOSITIONAL = "фузоре блюспейс-артиллерии"
 	)
+	icon_state = "fuel_chamber"
+	var/obj/machinery/bsa/back/back
+	var/obj/machinery/bsa/front/front
+
 
 /obj/machinery/bsa/middle/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
+
 /obj/machinery/bsa/middle/multitool_act(mob/living/user, obj/item/I)
-	if(!ismultitool(I))
+	if(!istype(I, /obj/item/multitool))
 		return FALSE
 	. = TRUE
 	var/obj/item/multitool/multitool = I
@@ -224,11 +231,12 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	if(istype(multitool.buffer, /obj/machinery/bsa/back))
 		back = multitool.buffer
 		multitool.buffer = null
-		to_chat(user, span_notice("Вы соединили [declent_ru(ACCUSATIVE)] с [back.declent_ru(INSTRUMENTAL)]."))
+		to_chat(user, span_notice("Вы соединили [src.declent_ru(ACCUSATIVE)] с [back.declent_ru(INSTRUMENTAL)]."))
 	else if(istype(multitool.buffer, /obj/machinery/bsa/front))
 		front = multitool.buffer
 		multitool.buffer = null
-		to_chat(user, span_notice("Вы соединили [declent_ru(ACCUSATIVE)] с [front.declent_ru(INSTRUMENTAL)]."))
+		to_chat(user, span_notice("Вы соединили [src.declent_ru(ACCUSATIVE)] с [front.declent_ru(INSTRUMENTAL)]."))
+
 
 /obj/machinery/bsa/middle/proc/check_completion()
 	if(!front || !back)
@@ -266,6 +274,14 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 /obj/machinery/bsa/full
 	name = "Bluespace Artillery"
 	desc = "Дальнобойная блюспейс-артиллерия."
+	ru_names = list(
+		NOMINATIVE = "блюспейс-артиллерия",
+		GENITIVE = "блюспейс-артиллерии",
+		DATIVE = "блюспейс-артиллерии",
+		ACCUSATIVE = "блюспейс-артиллерию",
+		INSTRUMENTAL = "блюспейс-артиллерией",
+		PREPOSITIONAL = "блюспейс-артиллерии"
+	)
 	icon = 'icons/obj/lavaland/cannon.dmi'
 	icon_state = "cannon_west"
 
@@ -282,16 +298,6 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	pixel_x = -192
 	bound_width = 352
 	bound_x = -192
-
-/obj/machinery/bsa/full/get_ru_names()
-	return alist(
-		NOMINATIVE = "блюспейс-артиллерия",
-		GENITIVE = "блюспейс-артиллерии",
-		DATIVE = "блюспейс-артиллерии",
-		ACCUSATIVE = "блюспейс-артиллерию",
-		INSTRUMENTAL = "блюспейс-артиллерией",
-		PREPOSITIONAL = "блюспейс-артиллерии",
-	)
 
 /obj/machinery/bsa/full/Destroy()
 	if(controller && controller.cannon == src)
@@ -333,8 +339,8 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 			return locate(world.maxx,y,z)
 	return get_turf(src)
 
-/obj/machinery/bsa/full/Initialize(mapload, direction)
-	. = ..()
+/obj/machinery/bsa/full/New(loc, direction)
+	..()
 
 	if(direction)
 		cannon_direction = direction
@@ -365,24 +371,11 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/machinery/bsa/full/proc/destroy_all_on_fire_beam(mob/user, turf/bullseye)
 	var/turf/point = get_front_turf()
-	var/turf/target = get_target_turf()
-	var/atom/blocker
-	for(var/turf/tile as anything in get_line(get_step(point,dir), target))
-		if(SEND_SIGNAL(tile, COMSIG_ATOM_BSA_BEAM) & COMSIG_ATOM_BLOCKS_BSA_BEAM)
-			blocker = tile
-		else
-			for(var/atom/movable/stuff as anything in tile)
-				if(SEND_SIGNAL(stuff, COMSIG_ATOM_BSA_BEAM) & COMSIG_ATOM_BLOCKS_BSA_BEAM)
-					blocker = stuff
-					break
-		if(blocker)
-			target = tile
-			break
-		else
-			tile.ex_act(EXPLODE_DEVASTATE)
-			for(var/atom/atom in tile)
-				atom.ex_act(EXPLODE_DEVASTATE)
-	point.Beam(target, icon_state = "bsa_beam", time = 50, maxdistance = world.maxx, beam_type = /obj/effect/ebeam/reacting/deadly) //ZZZAP
+	for(var/turf/T as anything in get_line(get_step(point,dir),get_target_turf()))
+		T.ex_act(EXPLODE_DEVASTATE)
+		for(var/atom/A in T)
+			A.ex_act(EXPLODE_DEVASTATE)
+	point.Beam(get_target_turf(), icon_state = "bsa_beam", time = 50, maxdistance = world.maxx, beam_type = /obj/effect/ebeam/reacting/deadly) //ZZZAP
 
 /obj/machinery/bsa/full/proc/incoming_shot_notify(turf/target)
 	playsound(target, 'sound/weapons/gun_mortar_travel.ogg', 75, TRUE)
@@ -429,42 +422,43 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/item/circuitboard/machine/bsa/back
 	board_name = "Bluespace Artillery Generator"
-	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/back
 	origin_tech = "engineering=2;combat=2;bluespace=2" //No freebies!
 	req_components = list(
-		/obj/item/stock_parts/capacitor/quadratic = 5,
-		/obj/item/stack/cable_coil = 2,
-	)
+							/obj/item/stock_parts/capacitor/quadratic = 5,
+							/obj/item/stack/cable_coil = 2)
 
 /obj/item/circuitboard/machine/bsa/middle
 	board_name = "Bluespace Artillery Fusor"
-	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/middle
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 	req_components = list(
-		/obj/item/stack/ore/bluespace_crystal = 20,
-		/obj/item/stack/cable_coil = 2,
-	)
+							/obj/item/stack/ore/bluespace_crystal = 20,
+							/obj/item/stack/cable_coil = 2)
 
 /obj/item/circuitboard/machine/bsa/front
 	board_name = "Bluespace Artillery Bore"
-	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/front
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 	req_components = list(
-		/obj/item/stock_parts/manipulator/femto = 5,
-		/obj/item/stack/cable_coil = 2,
-	)
+							/obj/item/stock_parts/manipulator/femto = 5,
+							/obj/item/stack/cable_coil = 2)
 
 /obj/item/circuitboard/computer/bsa_control
 	board_name = "Bluespace Artillery Controls"
-	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/computer/bsa_control
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 
 /obj/machinery/computer/bsa_control
 	name = "Bluespace Artillery Control"
+	ru_names = list(
+		NOMINATIVE = "консоль управления БСА",
+		GENITIVE = "консоли управления БСА",
+		DATIVE = "консоли управления БСА",
+		ACCUSATIVE = "консоль управления БСА",
+		INSTRUMENTAL = "консолью управления БСА",
+		PREPOSITIONAL = "консоли управления БСА"
+	)
 	var/obj/machinery/bsa/full/cannon
 	var/notice
 	var/target
@@ -492,16 +486,6 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	var/atom/movable/screen/map_view/camera/cam_screen
 	var/last_camera_turf = null
 	var/image/crosshair
-
-/obj/machinery/computer/bsa_control/get_ru_names()
-	return alist(
-		NOMINATIVE = "консоль управления БСА",
-		GENITIVE = "консоли управления БСА",
-		DATIVE = "консоли управления БСА",
-		ACCUSATIVE = "консоль управления БСА",
-		INSTRUMENTAL = "консолью управления БСА",
-		PREPOSITIONAL = "консоли управления БСА",
-	)
 
 /obj/machinery/computer/bsa_control/Initialize(mapload)
 	. = ..()
@@ -666,6 +650,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	update_icon()
 	return TRUE
 
+
 /obj/machinery/computer/bsa_control/ui_close(mob/user)
 	cam_screen?.hide_from(user)
 	user.client.images -= crosshair
@@ -709,7 +694,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return TRUE
 
 /obj/machinery/computer/bsa_control/proc/get_target_name()
-	if(isarea(target))
+	if(istype(target,/area))
 		var/area/A = target
 		return A.name
 	else if(istype(target,/obj/item/gps))
@@ -720,7 +705,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return aim_turf
 
 /obj/machinery/computer/bsa_control/proc/detect_target_turf()
-	if(isarea(target))
+	if(istype(target,/area))
 		var/area/A = target
 		var/turf/center = A.get_center_turf()
 		if(center)
@@ -763,6 +748,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	qdel(centerpiece)
 	return cannon
 
+
 /obj/machinery/computer/bsa_control/proc/coord_aim(mob/user, params)
 	var/axis = params["axis"]
 	var/value = text2num(params["value"])
@@ -792,6 +778,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	var/size_x = bbox[3] - bbox[1] + 1
 	var/size_y = bbox[4] - bbox[2] + 1
 	cam_screen.show_camera(visible_turfs, size_x, size_y)
+
 
 #undef BSA_BURST_SHOT_DELAY
 #undef BSA_CALIBRATION_ACCURACY

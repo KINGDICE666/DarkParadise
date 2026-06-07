@@ -42,6 +42,7 @@
 	if(method == REAGENT_TOUCH)
 		M.adjust_fire_stacks(volume / 15)
 
+
 /datum/reagent/consumable/ethanol/beer
 	name = "Пиво"
 	id = "beer"
@@ -81,7 +82,7 @@
 /datum/reagent/consumable/ethanol/specialwhiskey
 	name = "Виски Особого Смешения"
 	id = "specialwhiskey"
-	description = "Как раз в тот момент, когда вы уже думаете, что обычный станционный виски — это хорошо... Это шелковистое, янтарное великолепие приходит и всё портит."
+	description = "Как раз в тот момент, когда вы уже думаете, что обычный станционный виски - это хорошо... Это шелковистое, янтарное великолепие приходит и всё портит."
 	color = "#664300" // rgb: 102, 67, 0
 	alcohol_perc = 0.5
 	taste_description = "отличного виски"
@@ -142,7 +143,7 @@
 /datum/reagent/consumable/ethanol/rum
 	name = "Ром"
 	id = "rum"
-	description = "Крик подобен грому — дайте людям рому!"
+	description = "Крик подобен грому – дайте людям рому!"
 	color = "#664300" // rgb: 102, 67, 0
 	overdose_threshold = 30
 	alcohol_perc = 0.4
@@ -178,6 +179,11 @@
 	drink_name = "стакан водки"
 	drink_desc = "Стакан с водкой. Только не забывайте закусывать."
 	taste_description = "водки"
+
+/datum/reagent/consumable/ethanol/vodka/on_mob_life(mob/living/M)
+	..()
+	if(prob(50))
+		M.radiation = max(0, M.radiation-1)
 
 /datum/reagent/consumable/ethanol/sake
 	name = "Сакэ"
@@ -279,6 +285,7 @@
 	M.Jitter(10 SECONDS)
 	return ..()
 
+
 /////////////////////////////////////////////////////////////////cocktail entities//////////////////////////////////////////////
 
 /datum/reagent/consumable/ethanol/bilk
@@ -290,7 +297,7 @@
 	alcohol_perc = 0.2
 	drink_icon = "glass_brown"
 	drink_name = "стакан мива"
-	drink_desc = "Молоко с пивом — миво. Или пиво с молоком — пивоко. Как вам будет угодно."
+	drink_desc = "Молоко с пивом - миво. Или пиво с молоком - пивоко. Как вам будет угодно."
 	taste_description = "мива"
 
 /datum/reagent/consumable/ethanol/atomicbomb
@@ -414,19 +421,6 @@
 	drink_desc = "Простая, но изящная смесь водки и апельсинового сока. То, что нужно уставшему инженеру."
 	taste_description = "водки с апельсином"
 
-/datum/reagent/consumable/ethanol/screwdrivercocktail/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	var/obj/item/organ/internal/liver/liver = affected_mob.get_organ_slot(INTERNAL_ORGAN_LIVER)
-	if(HAS_TRAIT(liver, TRAIT_ENGINEER_METABOLISM))
-		ADD_TRAIT(affected_mob, TRAIT_HALT_RADIATION_EFFECTS, UNIQUE_TRAIT_SOURCE(src))
-		if(HAS_TRAIT(affected_mob, TRAIT_IRRADIATED))
-			update_flags |= affected_mob.adjustToxLoss(-2 * REM, updating_health = FALSE)
-	return ..() | update_flags
-
-/datum/reagent/consumable/ethanol/screwdrivercocktail/on_mob_end_metabolize(mob/living/drinker)
-	. = ..()
-	REMOVE_TRAIT(drinker, TRAIT_HALT_RADIATION_EFFECTS, UNIQUE_TRAIT_SOURCE(src))
-
 /datum/reagent/consumable/ethanol/booger
 	name = "Козявка"
 	id = "booger"
@@ -532,13 +526,13 @@
 
 /datum/reagent/consumable/ethanol/irish_cream
 	name = "Ирландские Сливки"
-	description = "Крем с добавлением виски — чего ещё ожидать от ирландцев?"
+	description = "Крем с добавлением виски - чего ещё ожидать от ирландцев?"
 	id = "irishcream"
 	color = "#664300" // rgb: 102, 67, 0
 	alcohol_perc = 0.3
 	drink_icon = "irishcreamglass"
 	drink_name = "стакан Ирландских Сливок"
-	drink_desc = "Крем с добавлением виски — чего ещё ожидать от ирландцев?"
+	drink_desc = "Крем с добавлением виски - чего ещё ожидать от ирландцев?"
 	taste_description = "сливочного алкоголя"
 
 /datum/reagent/consumable/ethanol/manly_dorf
@@ -969,13 +963,13 @@
 	taste_description = "проблем"
 
 /datum/reagent/consumable/ethanol/syndicatebomb
-	name = "Бомба \"Синдиката\""
+	name = "Бомба Синдиката"
 	id = "syndicatebomb"
 	description = "Пить аккуратно."
 	color = "#2E6671" // rgb: 46, 102, 113
 	alcohol_perc = 0.2
 	drink_icon = "syndicatebomb"
-	drink_name = "Бомба \"Синдиката\""
+	drink_name = "Бомба Синдиката"
 	drink_desc = "Бум. Пить осторожно."
 	taste_description = "предложения о работе"
 
@@ -1104,7 +1098,7 @@
 	description = "Производство этого напитка вероятно, нарушает Женевскую конвенцию."
 	color = "#DC0000"
 	can_synth = FALSE
-	taste_description = span_userdanger_alt("ЖИДКОЙ БЛЯДЬ СМЕРТИ СУКА ПИЗДЕЦ НАХУЙ КАКОГО ХУЯ")
+	taste_description = span_userdanger("ЖИДКОЙ БЛЯДЬ СМЕРТИ СУКА ПИЗДЕЦ НАХУЙ КАКОГО ХУЯ")
 
 /datum/reagent/consumable/ethanol/dragons_breath/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
 	if(method == REAGENT_INGEST && prob(20))
@@ -1134,7 +1128,7 @@
 			M.adjust_fire_stacks(20)
 		if(prob(50))
 			to_chat(M, span_userdanger("КАК ЖЖЁТСЯ, КАК ЖЕ ОНО ЖЖЁТСЯ!!!"))
-			M.visible_message( span_danger("[M] сгорел[GEND_A_O_I(M)] заживо!"))
+			M.visible_message( span_danger("[M] сгорел[genderize_ru(M.gender, "", "а", "о", "и")] заживо!"))
 			M.dust()
 			return
 	return ..() | update_flags
@@ -1156,7 +1150,7 @@
 
 /datum/reagent/consumable/ethanol/synthanol/on_mob_life(mob/living/M)
 	metabolization_rate = REAGENTS_METABOLISM
-	if(!(M.dna.species.reagent_tag & SYNTHETIC))
+	if(!(M.dna.species.reagent_tag & PROCESS_SYN))
 		metabolization_rate += 9 * REAGENTS_METABOLISM //gets removed from organics very fast
 		if(prob(25))
 			metabolization_rate += 40 * REAGENTS_METABOLISM
@@ -1164,7 +1158,7 @@
 	return ..()
 
 /datum/reagent/consumable/ethanol/synthanol/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
-	if(M.dna.species.reagent_tag & SYNTHETIC)
+	if(M.dna.species.reagent_tag & PROCESS_SYN)
 		return
 	if(method == REAGENT_INGEST)
 		to_chat(M, pick(span_danger("Это отвратительно!"), span_danger("Фу!")))
@@ -1289,7 +1283,7 @@
 
 	var/minimum_name_percent = 0.35
 	name = ""
-	var/list/names_in_order = sortTim(names, GLOBAL_PROC_REF(cmp_numeric_dsc), associative = TRUE)
+	var/list/names_in_order = sortTim(names, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
 	var/named = FALSE
 	for(var/fruit_name in names)
 		if(names[fruit_name] >= minimum_name_percent)
@@ -1318,7 +1312,7 @@
 			alcohol_description = "водянистого" //How the hell did you get negative boozepwr?
 
 	var/list/fruits = list()
-	if(length(names_in_order) <= 3)
+	if(names_in_order.len <= 3)
 		fruits = names_in_order
 	else
 		for(var/i in 1 to 3)
@@ -1328,10 +1322,10 @@
 	description = "Образец [alcohol_description] вина, приготовленного из [fruit_list]."
 
 	var/flavor = ""
-	if(!length(primary_tastes))
+	if(!primary_tastes.len)
 		primary_tastes = list("[alcohol_description] алкоголя")
 	flavor += russian_list(primary_tastes)
-	if(length(secondary_tastes))
+	if(secondary_tastes.len)
 		flavor += ", с лёгким привкусом "
 		flavor += russian_list(secondary_tastes)
 	taste_description = flavor
@@ -1944,21 +1938,6 @@
 	drink_name = "Глинтвейн"
 	drink_desc = "Просто горячее вино со специями, но такое приятное."
 	taste_description = "горячего пряного вина"
-	var/temperature_effect = 40
-
-/datum/reagent/consumable/ethanol/mulled_wine/on_mob_life(mob/living/M)
-	var/normal_temperature = M?.dna?.species.body_temperature
-
-	if(!normal_temperature)
-		normal_temperature = BODYTEMP_NORMAL
-
-	var/difference = M.bodytemperature - normal_temperature
-
-	if(difference > 0)
-		return ..()
-
-	M.adjust_bodytemperature((min(temperature_effect, -difference)) * TEMPERATURE_DAMAGE_COEFFICIENT)
-	return ..()
 
 /datum/reagent/consumable/ethanol/white_bear
 	name = "Белый Медведь"
@@ -2024,12 +2003,12 @@
 /datum/reagent/consumable/ethanol/sazerac
 	name = "Сазерак"
 	id = "sazerac"
-	description = "Лучшие фармацевты — бармены."
+	description = "Лучшие фармацевты - бармены."
 	color = "#7c6232"
 	alcohol_perc = 0.4
 	drink_icon = "sazerac"
 	drink_name = "Сазерак"
-	drink_desc = "Лучшие фармацевты — бармены."
+	drink_desc = "Лучшие фармацевты - бармены."
 	taste_description = "горького виски"
 
 /datum/reagent/consumable/ethanol/monako

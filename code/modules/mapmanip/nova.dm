@@ -10,6 +10,7 @@
 /obj/effect/map_effect/marker_helper/submap_def/nova/old_warehouse
 	name = "заброшенный склад вместо старых дормиторий"
 
+
 // East Maintenance submap
 
 /obj/effect/map_effect/marker/mapmanip/submap/extract/nova/EastMaintenance
@@ -21,6 +22,7 @@
 
 /obj/effect/map_effect/marker_helper/submap_def/nova/EastMaintenance/offices
 	name = "Восточные техи второго этажа вариант c большим офисом"
+
 
 // Old Banya Maintenance submap
 
@@ -37,6 +39,7 @@
 /obj/effect/map_effect/marker_helper/submap_def/nova/Banya/consarea
 	name = "Старая баня заменена на инженерную стройплощадку с автолатом"
 
+
 // Abandoned Chapel submap
 
 /obj/effect/map_effect/marker/mapmanip/submap/extract/nova/AbondonedChapel
@@ -51,6 +54,7 @@
 
 /obj/effect/map_effect/marker_helper/submap_def/nova/AbondonedChapel/ServerRoom
 	name = "Старая церковь заменена на комнату с серверами"
+
 
 // Abondoned Med submap
 
@@ -69,6 +73,7 @@
 
 /obj/effect/map_effect/marker_helper/submap_def/nova/AbondonedMed/oldrestaurant
 	name = "Старый медотдел заменен на проходную с рестораном"
+
 
 // Abondoned Library submap
 

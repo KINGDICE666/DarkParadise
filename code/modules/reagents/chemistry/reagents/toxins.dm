@@ -142,6 +142,7 @@
 		B.basecolor = color
 		B.update_icon()
 
+
 /datum/reagent/slimetoxin
 	name = "Мутационный токсин"
 	id = "mutationtoxin"
@@ -156,7 +157,7 @@
 		var/mob/living/carbon/human/human = M
 		if(!isshadowperson(human))
 			to_chat(M, span_danger("Ваша плоть быстро мутирует!"))
-			to_chat(M, span_danger("Теперь вы — Тень, мутант из расы обитающих во тьме гуманоидов."))
+			to_chat(M, span_danger("Теперь вы - Тень, мутант из расы обитающих во тьме гуманоидов."))
 			to_chat(M, span_danger("Ваше тело сильно реагирует на свет, однако оно натурально исцеляется при нахождении во тьме."))
 			to_chat(M, span_danger("Тем не менее, вы не изменились психически и сохранили свои прежние обязанности."))
 			human.set_species(/datum/species/shadow)
@@ -175,6 +176,7 @@
 	if(method != REAGENT_TOUCH)
 		var/datum/disease/virus/transformation/slime/D = new
 		D.Contract(M)
+
 
 /datum/reagent/mercury
 	name = "Ртуть"
@@ -226,70 +228,19 @@
 /datum/reagent/radium
 	name = "Радий"
 	id = "radium"
-	description = "Радий — щелочноземельный металл. Он чрезвычайно радиоактивен."
-	color = "#C7C7C7"
+	description = "Радий - щелочноземельный металл. Он чрезвычайно радиоактивен."
+	color = "#C7C7C7" // rgb: 199,199,199
 	penetrates_skin = TRUE
 	taste_description = "голубизны и сожалений"
-	metabolization_rate = 0.125 * REAGENTS_METABOLISM
-	/// How radioactive is this reagent
-	var/rad_power = 2
 
-/datum/reagent/radium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(1 * REM, updating_health = FALSE)
-	return ..() | update_flags
+/datum/reagent/radium/on_mob_life(mob/living/M)
+	if(M.radiation < 80)
+		M.apply_effect(4, IRRADIATE, negate_armor = 1)
+	return ..()
 
-/datum/reagent/radium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
-
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
-
-/datum/reagent/polonium
-	name = "Полоний"
-	id = "polonium"
-	description = "Чрезвычайно радиоактивный материал в жидкой форме. Попадание внутрь приводит к смертельному облучению."
-	reagent_state = LIQUID
-	color = "#CF3600"
-	metabolization_rate = 0.25 * REAGENTS_METABOLISM
-	penetrates_skin = TRUE
-	can_synth = FALSE
-	taste_mult = 0
-	/// How radioactive is this reagent
-	var/rad_power = 3
-
-/datum/reagent/polonium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(1 * REM, updating_health = FALSE)
-	return ..() | update_flags
-
-/datum/reagent/polonium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
-
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
+/datum/reagent/radium/reaction_turf(turf/T, volume)
+	if(volume >= 3 && !isspaceturf(T))
+		new /obj/effect/decal/cleanable/greenglow(T)
 
 /datum/reagent/mutagen
 	name = "Нестабильный мутаген"
@@ -310,14 +261,15 @@
 		randmutb(M)
 		M.check_genes()
 
-/datum/reagent/mutagen/on_mob_life(mob/living/affected_mob)
-	if(!affected_mob.dna)
+/datum/reagent/mutagen/on_mob_life(mob/living/M)
+	if(!M.dna)
 		return //No robots, AIs, aliens, Ians or other mobs should be affected by this.
-	affected_mob.adjustToxLoss(0.5 * REM)
+	M.apply_effect(1, IRRADIATE, negate_armor = 1)
 	if(prob(4))
-		randmutb(affected_mob)
-		affected_mob.check_genes()
+		randmutb(M)
+		M.check_genes()
 	return ..()
+
 
 /datum/reagent/stable_mutagen
 	name = "Стабильный мутаген"
@@ -327,18 +279,21 @@
 	color = "#7DFF00"
 	taste_description = "желе"
 
+
 /datum/reagent/stable_mutagen/on_new(data)
 	..()
 	START_PROCESSING(SSprocessing, src)
+
 
 /datum/reagent/stable_mutagen/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
 	return ..()
 
-/datum/reagent/stable_mutagen/on_mob_life(mob/living/carbon/human/target, seconds_per_tick)
+
+/datum/reagent/stable_mutagen/on_mob_life(mob/living/carbon/human/target)
 	if(isnucleation(target))
 		return ..()
-	target.adjustToxLoss(0.5 * seconds_per_tick * REM)
+	target.apply_effect(1, IRRADIATE, negate_armor = TRUE)
 	if(current_cycle != 10 || !ishuman(target) || !target.dna || !islist(data) || !istype(data["dna"], /datum/dna))
 		return ..()
 	var/datum/dna/reagent_dna = data["dna"]
@@ -346,6 +301,7 @@
 		target.change_dna(reagent_dna, TRUE, TRUE)
 		target.special_post_clone_handling()
 	return ..()
+
 
 /datum/reagent/stable_mutagen/process()
 	. = ..()
@@ -355,39 +311,23 @@
 	if(blood && islist(blood.data))
 		data = blood.data.Copy()
 
+
 /datum/reagent/uranium
-	name = "Уран"
+	name ="Уран"
 	id = "uranium"
-	description = "Нефритово-зеленый металлический химический элемент из ряда актинидов, слабо радиоактивный."
-	color = "#5E9964"
+	description = "Серебристо-белый металл из ряда актинидов, слабо радиоактивный."
+	color = "#B8B8C0" // rgb: 184, 184, 192
 	taste_mult = 0
 	taste_description = "атомной энергии"
-	/// How much tox damage to deal per tick
-	var/tox_damage = 0.5
-	/// How radioactive is this reagent
-	var/rad_power = 1
 
-/datum/reagent/uranium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(tox_damage * REM, updating_health = FALSE)
-	return ..() | update_flags
+/datum/reagent/uranium/on_mob_life(mob/living/M)
+	M.apply_effect(2, IRRADIATE, negate_armor = 1)
+	return ..()
 
-/datum/reagent/uranium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
+/datum/reagent/uranium/reaction_turf(turf/T, volume)
+	if(volume >= 3 && !isspaceturf(T))
+		new /obj/effect/decal/cleanable/greenglow(T)
 
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
 
 /datum/reagent/lexorin
 	name = "Лексорин"
@@ -403,6 +343,7 @@
 	update_flags |= M.adjustToxLoss(1, FALSE)
 	return ..() | update_flags
 
+
 /datum/reagent/acid
 	name = "Серная кислота"
 	id = "sacid"
@@ -410,10 +351,11 @@
 	reagent_state = LIQUID
 	color = "#00FF32"
 	process_flags = ORGANIC | SYNTHETIC
-	taste_description = span_userdanger_alt("РАЗЪЕДАЮЩЕЙ КИСЛОТЫ")
+	taste_description = span_userdanger("РАЗЪЕДАЮЩЕЙ КИСЛОТЫ")
 	//acid is not using permeability_coefficient to calculate protection, but armour["acid"]
 	clothing_penetration = 1
 	var/acidpwr = 10 //the amount of protection removed from the armour
+
 
 /datum/reagent/acid/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
@@ -422,6 +364,7 @@
 		update_flags |= M.adjustFireLoss(1, FALSE)
 
 	return ..() | update_flags
+
 
 /datum/reagent/acid/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume)
 	if(!ishuman(M))
@@ -466,6 +409,7 @@
 			if(H.has_pain())
 				H.emote("scream")
 
+
 /datum/reagent/acid/reaction_obj(obj/O, volume)
 	if(ismob(O.loc)) //handled in human acid_act()
 		return
@@ -473,12 +417,14 @@
 	volume = round(volume, 0.1)
 	O.acid_act(acidpwr, volume)
 
+
 /datum/reagent/acid/reaction_turf(turf/T, volume)
 	if(!istype(T))
 		return
 
 	volume = round(volume, 0.1)
 	T.acid_act(acidpwr, volume)
+
 
 /datum/reagent/acid/facid
 	name = "Фторсерная кислота"
@@ -488,6 +434,7 @@
 	acidpwr = 42
 	//acid is not using permeability_coefficient to calculate protection, but armour["acid"]
 
+
 /datum/reagent/acid/facid/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 
@@ -495,6 +442,7 @@
 		update_flags |= M.adjustToxLoss(0.5, FALSE)
 
 	return ..() | update_flags
+
 
 /datum/reagent/acid/facid/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume)
 	if(!ishuman(M))
@@ -518,20 +466,13 @@
 
 		if(volume > 9 && (H.wear_mask || H.head))
 			if(H.wear_mask && !(H.wear_mask.resistance_flags & ACID_PROOF))
-				to_chat(H, span_danger("Ваш[GEND_A_E_I(H.wear_mask)] [H.wear_mask.declent_ru(NOMINATIVE)] плавится!"))
+				to_chat(H, span_danger("Ваш[genderize_ru(H.wear_mask.gender, "", "а", "е", "и")] [H.wear_mask.declent_ru(NOMINATIVE)] плавится!"))
 				qdel(H.wear_mask)
 				H.update_worn_mask()
 
 			if(H.head && !(H.head.resistance_flags & ACID_PROOF))
-				if(ismodhelmet(H.head) && ismodcontrol(H.back))
-					var/obj/item/mod/control/mod_control = H.back
-					mod_control.seal_part(H.head, FALSE)
-					mod_control.retract(null, H.head)
-					to_chat(H, span_danger("Ваш[GEND_A_E_I(H.head)] [H.head.declent_ru(NOMINATIVE)] начина[PLUR_ET_UT(H.head)] оплавляться, \
-											что активирует процедуру экстренного ремонта МЭК, заставляя его выключиться от перегрузки!"))
-				else
-					to_chat(H, span_danger("Ваш[GEND_A_E_I(H.head)] [H.head.declent_ru(NOMINATIVE)] плав[PLUR_IT_AT(H.head)]ся!"))
-					qdel(H.head)
+				to_chat(H, span_danger("Ваш[genderize_ru(H.head.gender, "", "а", "е", "и")] [H.head.declent_ru(NOMINATIVE)] плавится!"))
+				qdel(H.head)
 				H.update_worn_head()
 
 			return
@@ -546,6 +487,7 @@
 
 	to_chat(H, span_warning("Синеватое кислотное вещество жжёт вашу кожу[volume < 5 ? ", но оно недостаточно концентрированное, чтобы нанести вам вред" : null]!"))
 
+
 /datum/reagent/acetic_acid
 	name = "Уксусная кислота"
 	id = "acetic_acid"
@@ -553,6 +495,7 @@
 	color = "#0080ff"
 	reagent_state = LIQUID
 	taste_description = "уксуса"
+
 
 /datum/reagent/acetic_acid/reaction_mob(mob/M, method = REAGENT_TOUCH, volume)
 	if(!ishuman(M))
@@ -583,6 +526,7 @@
 			H.take_overall_damage(2)
 			H.emote("scream")
 
+
 /datum/reagent/proc/acid_proof_species(mob/living/carbon/human/H)
 	if(!istype(H))
 		return FALSE // skip check
@@ -591,6 +535,7 @@
 		return TRUE // acid proof species
 
 	return FALSE
+
 
 /datum/reagent/carpotoxin
 	name = "Карпотоксин"
@@ -620,6 +565,7 @@
 	data = max(data - 1, 3)
 	return ..() | update_flags
 
+
 /datum/reagent/toxin/spore
 	name = "Споровый токсин"
 	description = "Природный токсин, вырабатываемый спорами блоба, который при попадании в организм подавляет зрение."
@@ -628,12 +574,11 @@
 	toxpwr = 1
 	can_synth = FALSE
 
-/datum/reagent/toxin/spore/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
+/datum/reagent/toxin/spore/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
+	. = ..()
 	affected_mob.damageoverlaytemp = 60
 	affected_mob.update_damage_hud()
-	affected_mob.EyeBlurry(6 SECONDS * REM)
-	return ..() | update_flags
+	affected_mob.EyeBlurry(6 SECONDS * REM * seconds_per_tick)
 
 /datum/reagent/toxin/spore_burning
 	name = "Огненый споровый токсин"
@@ -644,11 +589,11 @@
 	taste_description = "ожогов"
 	can_synth = FALSE
 
-/datum/reagent/toxin/spore_burning/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	affected_mob.adjust_fire_stacks(2 * REM)
+/datum/reagent/toxin/spore_burning/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
+	. = ..()
+	affected_mob.adjust_fire_stacks(2 * REM * seconds_per_tick)
 	affected_mob.IgniteMob()
-	return ..() | update_flags
+
 
 /datum/reagent/beer2	//disguised as normal beer for use by emagged service borgs
 	name = "Пиво"
@@ -660,7 +605,6 @@
 	drink_name = "стакан пива"
 	drink_desc = "Освежающая пинта пива."
 	taste_description = "мочи"
-	can_synth = FALSE
 
 /datum/reagent/beer2/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
@@ -671,6 +615,21 @@
 			M.Sleeping(4 SECONDS)
 			update_flags |= M.adjustToxLoss((current_cycle - 50) / 2, FALSE)
 	return ..() | update_flags
+
+/datum/reagent/polonium
+	name = "Полоний"
+	id = "polonium"
+	description = "Вызывают значительные радиационные повреждения с течением времени."
+	reagent_state = LIQUID
+	color = "#CF3600"
+	metabolization_rate = 0.25 * REAGENTS_METABOLISM
+	penetrates_skin = TRUE
+	can_synth = FALSE
+	taste_mult = 0
+
+/datum/reagent/polonium/on_mob_life(mob/living/M)
+	M.apply_effect(8, IRRADIATE, negate_armor = 1)
+	return ..()
 
 /datum/reagent/histamine
 	name = "Гистамин"
@@ -699,7 +658,7 @@
 		M.emote(pick("blink", "sneeze"))
 		M.AdjustEyeBlurry(6 SECONDS)
 	if(prob(10))
-		M.visible_message(span_danger("[M] расчёсыва[PLUR_ET_YUT(M)] кожу до крови!"))
+		M.visible_message(span_danger("[M] расчёсыва[pluralize_ru(M.gender, "ет", "ют")] кожу до крови!"))
 		update_flags |= M.adjustBruteLoss(1, FALSE)
 		M.emote("grumble")
 	if(prob(5))
@@ -731,7 +690,7 @@
 			M.visible_message(span_danger("У [M] выступила крапивница на коже!"))
 			update_flags |= M.adjustBruteLoss(6, FALSE)
 		else if(effect <= 4)
-			M.visible_message(span_warning("[M] оглушительно кашля[PLUR_ET_YUT(M)], сгинаясь пополам!"))
+			M.visible_message(span_warning("[M] оглушительно кашля[pluralize_ru(M.gender, "ет", "ют")], сгинаясь пополам!"))
 			M.Jitter(20 SECONDS)
 			M.AdjustStuttering(rand(0, 10 SECONDS))
 			M.emote("cough")
@@ -753,7 +712,7 @@
 /datum/reagent/formaldehyde
 	name = "Формальдегид"
 	id = "formaldehyde"
-	description = "Формальдегид — распространенный промышленный химикат, который используется для консервации трупов и медицинских препа. Он очень токсичен и вызывает аллергию."
+	description = "Формальдегид - распространенный промышленный химикат, который используется для консервации трупов и медицинских препа. Он очень токсичен и вызывает аллергию."
 	reagent_state = LIQUID
 	color = "#B44B00"
 	penetrates_skin = TRUE
@@ -770,7 +729,7 @@
 /datum/reagent/acetaldehyde
 	name = "Ацетальдегид"
 	id = "acetaldehyde"
-	description = "Ацетальдегид — распространенный промышленный химикат. Он является сильным раздражителем."
+	description = "Ацетальдегид - распространенный промышленный химикат. Он является сильным раздражителем."
 	reagent_state = LIQUID
 	color = "#B44B00"
 	penetrates_skin = TRUE
@@ -891,7 +850,7 @@
 		to_chat(M, span_notice("Вам щекотно!"))
 		M.emote(pick("laugh", "giggle"))
 	if(prob(15))
-		M.visible_message(span_danger("[M] сильно чеш[PLUR_ET_UT(M)]ся!"))
+		M.visible_message(span_danger("[M] сильно чеш[pluralize_ru(M.gender, "ет", "ут")]ся!"))
 		update_flags |= M.adjustBruteLoss(1, FALSE)
 		M.Stun(rand(0, 2 SECONDS))
 		M.emote("grumble")
@@ -905,14 +864,14 @@
 		update_flags |= M.adjustBruteLoss(5, FALSE)
 		M.Weaken(10 SECONDS)
 		M.AdjustJitter(12 SECONDS)
-		M.visible_message(span_danger("[M] вал[PLUR_IT_YAT(M)]ся на землю, истерично рассчёсывая свою кожу до крови!"))
+		M.visible_message(span_danger("[M] вал[pluralize_ru(M.gender, "ит", "ят")]ся на землю, истерично рассчёсывая свою кожу до крови!"))
 		M.emote("scream")
 	return ..() | update_flags
 
 /datum/reagent/initropidril
 	name = "Инитропидрил"
 	id = "initropidril"
-	description = "Сильнодействующий сердечный яд — может убить за несколько минут."
+	description = "Сильнодействующий сердечный яд - может убить за несколько минут."
 	reagent_state = LIQUID
 	color = "#7F10C0"
 	can_synth = FALSE
@@ -943,7 +902,7 @@
 /datum/reagent/pancuronium
 	name = "Панкуроний"
 	id = "pancuronium"
-	description = "Бромид панкурония — мощный релаксант скелетных мышц."
+	description = "Бромид панкурония - мощный релаксант скелетных мышц."
 	reagent_state = LIQUID
 	color = "#1E4664"
 	metabolization_rate = 0.5 * REAGENTS_METABOLISM
@@ -1237,6 +1196,7 @@
 		var/obj/structure/spacevine/SV = O
 		SV.on_chem_effect(src)
 
+
 /datum/reagent/glyphosate/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
 	if(iscarbon(M))
 		var/mob/living/carbon/C = M
@@ -1245,9 +1205,10 @@
 		if(HAS_TRAIT(C, TRAIT_PLANT_ORIGIN))	//plantmen take extra damage
 			C.adjustToxLoss(3)
 			..()
-	else if(isnymph(M)) //nymphs take EVEN MORE damage
+	else if(istype(M, /mob/living/simple_animal/diona)) //nymphs take EVEN MORE damage
 		M.apply_damage(100)
 		..()
+
 
 /datum/reagent/glyphosate/atrazine
 	name = "Атразин"
@@ -1255,6 +1216,7 @@
 	description = "Гербицидное соединение, используемое для уничтожения нежелательных растений."
 	color = "#773E73" //RGB: 47 24 45
 	lethality = 2 //Atrazine, however, is definitely toxic
+
 
 /datum/reagent/pestkiller // To-Do; make this more realistic.
 	name = "Пестицид"
@@ -1345,7 +1307,7 @@
 /datum/reagent/toxic_slurry/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 	if(prob(10))
-		update_flags |= M.adjustToxLoss(rand(2, 4), FALSE)
+		update_flags |= M.adjustToxLoss(rand(2.4), FALSE)
 	if(prob(7))
 		to_chat(M, span_danger("Вас одолевает ужасная мигрень!"))
 		M.Stun(rand(4 SECONDS, 10 SECONDS))
@@ -1370,19 +1332,19 @@
 		randmutb(M)
 		M.check_genes()
 
-/datum/reagent/glowing_slurry/on_mob_life(mob/living/affected_mob)
-	affected_mob.adjustToxLoss(0.5 * REM)
-	if(!affected_mob.dna)
+/datum/reagent/glowing_slurry/on_mob_life(mob/living/M)
+	M.apply_effect(2, IRRADIATE, 0, negate_armor = 1)
+	if(!M.dna)
 		return
 	var/did_mutation = FALSE
 	if(prob(15))
-		randmutb(affected_mob)
+		randmutb(M)
 		did_mutation = TRUE
 	if(prob(3))
-		randmutg(affected_mob)
+		randmutg(M)
 		did_mutation = TRUE
 	if(did_mutation)
-		affected_mob.check_genes()
+		M.check_genes()
 	return ..()
 
 /datum/reagent/ants
@@ -1391,7 +1353,7 @@
 	description = "Образец потерянной породы космических муравьёв (Formicidae bastardium tyrannus). Они известны тем, что способны поглотить практически всё."
 	color = "#993333"
 	process_flags = ORGANIC | SYNTHETIC
-	taste_description = span_warning_alt("МУРАВЬЁВ")
+	taste_description = span_warning("МУРАВЬЁВ")
 
 /datum/reagent/ants/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
@@ -1416,13 +1378,15 @@
 	process_flags = ORGANIC | SYNTHETIC
 	taste_description = "электричества"
 
+
 /datum/reagent/teslium/on_mob_life(mob/living/affected_mob)
 	shock_timer++
 	if(shock_timer >= rand(5,30)) //Random shocks are wildly unpredictable
 		shock_timer = 0
-		affected_mob.electrocute_act(rand(5, 20), src, flags = SHOCK_NOGLOVES) //SHOCK_NOGLOVES because it's caused from INSIDE of you
+		affected_mob.electrocute_act(rand(5, 20), "теслиума внутри организма", flags = SHOCK_NOGLOVES) //SHOCK_NOGLOVES because it's caused from INSIDE of you
 		playsound(affected_mob, SFX_SPARKS, 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
 	return ..()
+
 
 /datum/reagent/teslium/on_mob_add(mob/living/carbon/human/affected_mob)
 	. = ..()
@@ -1430,11 +1394,13 @@
 		return .
 	affected_mob.physiology.siemens_coeff *= 2
 
+
 /datum/reagent/teslium/on_mob_delete(mob/living/carbon/human/affected_mob)
 	. = ..()
 	if(!ishuman(affected_mob))
 		return .
 	affected_mob.physiology.siemens_coeff *= 0.5
+
 
 /datum/reagent/gluttonytoxin
 	name = "Благословение Чревоугодия"
@@ -1506,7 +1472,7 @@
 	color = "#353434"
 	process_flags = ORGANIC | SYNTHETIC
 	metabolization_rate = 5
-	taste_description = span_warning_alt("МЕТАЛЛИЧЕСКОЙ ПЫЛИ И МАСЛА, БЛЯДЬ!")
+	taste_description = span_warning("МЕТАЛЛИЧЕСКОЙ ПЫЛИ И МАСЛА, БЛЯДЬ!")
 
 /datum/reagent/metalic_dust/on_mob_life(mob/living/M)
 	M.emote("scream")
@@ -1520,3 +1486,77 @@
 			organ.internal_receive_damage(rand(5, 10))
 
 	return ..()
+
+
+/datum/reagent/inverse/helgrasp
+	name = "Helgrasp"
+	description = "Считается, что этот редкий и запрещенный напиток поможет вам приблизиться к скандинавской богине Хель."
+	metabolization_rate = 1*REM //This is fast
+	//Compensates for seconds_per_tick lag by spawning multiple hands at the end
+	var/lag_remainder = 0
+	//Keeps track of the hand timer so we can cleanup on removal
+	var/list/timer_ids
+
+
+//Warns you about the impenting hands
+/datum/reagent/inverse/helgrasp/on_mob_add(mob/living/affected_mob, amount)
+	. = ..()
+	to_chat(affected_mob, span_hierophant("Вы слышите смех, когда перед вами появляются жуткие руки, жаждущие утащить вас в ад!.. Берегитесь!"))
+	playsound(affected_mob.loc, 'sound/effects/ahaha.ogg', 80, TRUE, -1) //Very obvious tell so people can be ready
+
+
+//Sends hands after you for your hubris
+/*
+How it works:
+Standard seconds_per_tick for a reagent is 2s - and volume consumption is equal to the volume * seconds_per_tick.
+In this chem, I want to consume 0.5u for 1 hand created (since 1*REM is 0.5) so on a single tick I create a hand and set up a callback for another one in 1s from now. But since delta time can vary, I want to be able to create more hands for when the delay is longer.
+
+Initally I round seconds_per_tick to the nearest whole number, and take the part that I am rounding down from (i.e. the decimal numbers) and keep track of them. If the decimilised numbers go over 1, then the number is reduced down and an extra hand is created that tick.
+
+Then I attempt to calculate the how many hands to created based off the current seconds_per_tick, since I can't know the delay to the next one it assumes the next will be in 2s.
+I take the 2s interval period and divide it by the number of hands I want to make (i.e. the current seconds_per_tick) and I keep track of how many hands I'm creating (since I always create one on a tick, then I start at 1 hand). For each hand I then use this time value multiplied by the number of hands. Since we're spawning one now, and it checks to see if hands is less than, but not less than or equal to, seconds_per_tick, no hands will be created on the next expected tick.
+Basically, we fill the time between now and 2s from now with hands based off the current lag.
+*/
+/datum/reagent/inverse/helgrasp/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
+	. = ..()
+	spawn_hands(affected_mob)
+	lag_remainder += seconds_per_tick - FLOOR(seconds_per_tick, 1)
+	seconds_per_tick = FLOOR(seconds_per_tick, 1)
+	if(lag_remainder >= 1)
+		seconds_per_tick += 1
+		lag_remainder -= 1
+
+	var/hands = 1
+	if(!seconds_per_tick)
+		return
+
+	var/time = 2 / seconds_per_tick
+	while(hands < seconds_per_tick) //we already made a hand now so start from 1
+		LAZYADD(timer_ids, addtimer(CALLBACK(src, PROC_REF(spawn_hands), affected_mob), (time*hands) SECONDS, TIMER_STOPPABLE)) //keep track of all the timers we set up
+		hands += time
+
+
+/datum/reagent/inverse/helgrasp/proc/spawn_hands(mob/living/carbon/affected_mob)
+	if(!affected_mob && iscarbon(holder.my_atom))//Catch timer
+		affected_mob = holder.my_atom
+
+	fire_curse_hand(affected_mob)
+
+
+//At the end, we clear up any loose hanging timers just in case and spawn any remaining lag_remaining hands all at once.
+/datum/reagent/inverse/helgrasp/on_mob_delete(mob/living/affected_mob)
+	. = ..()
+	var/hands = 0
+	while(lag_remainder > hands)
+		spawn_hands(affected_mob)
+		hands++
+
+	for(var/id in timer_ids) // So that we can be certain that all timers are deleted at the end.
+		deltimer(id)
+
+	timer_ids?.Cut()
+
+
+/datum/reagent/inverse/helgrasp/heretic
+	name = "Прикосновение Мансуса"
+	description = "Чья-та рука у вашего горла..."

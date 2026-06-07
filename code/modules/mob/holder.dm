@@ -9,8 +9,9 @@
 	origin_tech = "biotech=2"
 	holder_flags = HUMAN_HOLDER
 
-/obj/item/holder/Initialize(mapload)
-	. = ..()
+
+/obj/item/holder/New()
+	..()
 	START_PROCESSING(SSobj, src)
 
 /obj/item/holder/Destroy()
@@ -19,7 +20,7 @@
 
 /obj/item/holder/process()
 
-	if(isturf(loc) || !(length(contents)))
+	if(istype(loc,/turf) || !(contents.len))
 
 		for(var/mob/M in contents)
 
@@ -29,10 +30,12 @@
 
 		qdel(src)
 
+
 /obj/item/holder/attackby(obj/item/I, mob/user, params)
 	for(var/mob/living/animal in contents)
 		return animal.attackby(I, user, params)
 	return ..()
+
 
 /obj/item/holder/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(target == user && ishuman(user))	//eating holder
@@ -41,6 +44,7 @@
 				qdel(src)
 				return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/holder/proc/show_message(message, m_type, chat_message_type)
 	for(var/mob/living/M in contents)
@@ -54,7 +58,7 @@
 	for(var/mob/living/M in contents)
 		M.ex_act(intensity)
 
-/obj/item/holder/container_resist_act(mob/living/L)
+/obj/item/holder/container_resist(mob/living/L)
 	var/mob/M = src.loc                      //Get our mob holder (if any).
 
 	if(istype(M))
@@ -67,33 +71,37 @@
 
 	if(istype(M))
 		for(var/atom/A in M.contents)
-			if(isborer(A) || istype(A,/obj/item/holder))
+			if(istype(A,/mob/living/simple_animal/borer) || istype(A,/obj/item/holder))
 				return
 		M.status_flags &= ~PASSEMOTES
 
-/mob/living/simple_animal/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
+/mob/living/simple_animal/MouseDrop(atom/over_object)
 	var/mob/living/carbon/human_to_ask = over_object
 
-	if(!istype(human_to_ask) || !holder_type)
-		return
+	if(!istype(human_to_ask))
+		return ..()
 
-	var/obj/item/holder = holder_type
-	var/holder_flags = holder.holder_flags
+	if(holder_type)
+		var/obj/item/holder = holder_type
+		var/holder_flags = holder.holder_flags
+		if(!(holder_flags & ALIEN_HOLDER && isalien(human_to_ask)) && \
+		!(holder_flags & HUMAN_HOLDER && ishuman(human_to_ask)))
+			return ..()
 
-	if(!(holder_flags & ALIEN_HOLDER && isalien(human_to_ask)) && !(holder_flags & HUMAN_HOLDER && ishuman(human_to_ask)))
-		return
+	if(human_to_ask.incapacitated() || HAS_TRAIT(human_to_ask, TRAIT_HANDS_BLOCKED) || !Adjacent(human_to_ask) || !holder_type)
+		return ..()
 
-	if(user != src)
-		return
-
-	switch(tgui_alert(human_to_ask, "[src] wants you to pick [p_them()] up. Do it?", "Ask pick up.", list("Yes", "No")))
-		if("Yes")
-			if(!human_to_ask.IsReachableBy(src))
-				to_chat(src, span_warning("You need to stay in reaching distance to be picked up."))
-				return
-			pick_up_mob(human_to_ask)
-		if("No")
-			to_chat(src, span_warning("[human_to_ask] decided not to pick you up."))
+	if(usr == src)
+		switch(tgui_alert(human_to_ask, "[src] wants you to pick [p_them()] up. Do it?",,list("Yes","No")))
+			if("Yes")
+				if(Adjacent(human_to_ask))
+					pick_up_mob(human_to_ask)
+				else
+					to_chat(src, "<span class='warning'>You need to stay in reaching distance to be picked up.</span>")
+			if("No")
+				to_chat(src, "<span class='warning'>[human_to_ask] decided not to pick you up.</span>")
+	else
+		return ..()
 
 /mob/living/simple_animal/proc/pick_up_mob(mob/living/carbon/human_to_ask)
 	get_scooped(human_to_ask)
@@ -111,7 +119,7 @@
 		H.desc = desc
 	H.attack_hand(grabber)
 	to_chat(grabber, "<span class='notice'>Вы подняли [src.name].")
-	to_chat(src, span_notice("[grabber.name] поднял[GEND_A_O_I(grabber)] вас."))
+	to_chat(src, "<span class='notice'>[grabber.name] поднял[genderize_ru(grabber.gender,"","а","о","и")] вас.</span>")
 	grabber.status_flags |= PASSEMOTES
 
 	switch(mob_size)
@@ -147,13 +155,13 @@
 /obj/item/holder/cogscarab
 	name = "cogscarab"
 	desc = "A strange, drone-like machine. It constantly emits the hum of gears."
-	icon_state = "cogscarab"
+	icon_state = "drone_holder"
 	origin_tech = "materials=3;magnets=4;powerstorage=9;bluespace=4"
 
 /obj/item/holder/pai
 	name = "pAI"
 	desc = "It's a little robot."
-	icon_state = "pai-repairbot"
+	icon_state = "pai"
 	origin_tech = "materials=3;programming=4;engineering=4"
 
 /obj/item/holder/mouse
@@ -350,7 +358,7 @@
 	name = "pet"
 	desc = "It's a chicken"
 	icon = 'icons/mob/animal.dmi'
-	icon_state = "chicken_red"
+	icon_state = "chicken_brown"
 	slot_flags = null
 
 /obj/item/holder/cock

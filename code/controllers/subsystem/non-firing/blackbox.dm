@@ -2,9 +2,13 @@
 
 SUBSYSTEM_DEF(blackbox)
 	name = "Blackbox"
+	flags = SS_NO_FIRE | SS_NO_INIT
+	// Even though we dont initialize, we need this init_order
 	// On Master.Shutdown(), it shuts down subsystems in the REVERSE order
-	wait = 10 MINUTES
-	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
+	// The database SS has INIT_ORDER_DBCORE=16, and this SS has INIT_ORDER_BLACKBOX=15
+	// So putting this ensures it shuts down in the right order
+	init_order = INIT_ORDER_BLACKBOX
+	ss_id = "blackbox"
 
 	/// List of all recorded feedback
 	var/list/datum/feedback_variable/feedback = list()
@@ -15,33 +19,6 @@ SUBSYSTEM_DEF(blackbox)
 	/// Associative list of any feedback variables that have had their format changed since creation and their current version, remember to update this
 	var/list/versions = list()
 
-/datum/controller/subsystem/blackbox/Initialize()
-	if(!SSdbcore.IsConnected())
-		ss_flags |= SS_NO_FIRE // Disable firing if SQL is disabled
-	record_feedback("amount", "dm_version", DM_VERSION)
-	record_feedback("amount", "dm_build", DM_BUILD)
-	record_feedback("amount", "byond_version", world.byond_version)
-	record_feedback("amount", "byond_build", world.byond_build)
-	record_feedback("text", "random_seed", 1, num2text(Master.random_seed, 32), 1) // a text string because json_encode turns it into lossy scientific notation
-	record_feedback("text", "rust_g_filepath", 1, "[RUST_G]", 1)
-	record_feedback("text", "rustlibs_filepath", 1, "[RUSTLIB]", 1)
-	return SS_INIT_SUCCESS
-
-/datum/controller/subsystem/blackbox/fire(resumed = 0)
-	sql_poll_players()
-
-/datum/controller/subsystem/blackbox/proc/sql_poll_players()
-	var/datum/db_query/statquery = SSdbcore.NewQuery(
-		"INSERT INTO legacy_population (playercount, admincount, time, server_id) VALUES (:playercount, :admincount, NOW(), :server_id)",
-		list(
-			"playercount" = length(GLOB.clients),
-			"admincount" = length(GLOB.admins),
-			"server_id" = CONFIG_GET(string/instance_id)
-		)
-	)
-	statquery.warn_execute()
-	qdel(statquery)
-
 /datum/controller/subsystem/blackbox/Recover()
 	feedback = SSblackbox.feedback
 	sealed = SSblackbox.sealed
@@ -49,7 +26,7 @@ SUBSYSTEM_DEF(blackbox)
 //no touchie
 /datum/controller/subsystem/blackbox/can_vv_get(var_name)
 	if(var_name == NAMEOF(src, feedback))
-		return debug_variable(var_name, deep_copy_list(feedback), 0, src)
+		return debug_variable(var_name, deepCopyList(feedback), 0, src)
 	return ..()
 
 /datum/controller/subsystem/blackbox/vv_edit_var(var_name, var_value)
@@ -70,10 +47,10 @@ SUBSYSTEM_DEF(blackbox)
 /datum/controller/subsystem/blackbox/Shutdown()
 	sealed = FALSE
 	for(var/obj/machinery/message_server/MS in GLOB.message_servers)
-		if(length(MS.pda_msgs))
-			record_feedback("tally", "radio_usage", length(MS.pda_msgs), "PDA")
-		if(length(MS.rc_msgs))
-			record_feedback("tally", "radio_usage", length(MS.rc_msgs), "request console")
+		if(MS.pda_msgs.len)
+			record_feedback("tally", "radio_usage", MS.pda_msgs.len, "PDA")
+		if(MS.rc_msgs.len)
+			record_feedback("tally", "radio_usage", MS.rc_msgs.len, "request console")
 
 	if(length(research_levels))
 		record_feedback("associative", "high_research_level", 1, research_levels)
@@ -126,6 +103,7 @@ SUBSYSTEM_DEF(blackbox)
 	if(!(tech in research_levels) || research_levels[tech] < level)
 		research_levels[tech] = level
 
+
 /**
  * Radio broadcast logging helper
  *
@@ -169,6 +147,7 @@ SUBSYSTEM_DEF(blackbox)
 			record_feedback("tally", "radio_usage", 1, "procedure")
 		else
 			record_feedback("tally", "radio_usage", 1, "other")
+
 
 /**
  * Helper to find and return a feeedback datum
@@ -251,7 +230,7 @@ SUBSYSTEM_DEF(blackbox)
  * * depth - Depth to use
  */
 /datum/controller/subsystem/blackbox/proc/record_feedback_recurse_list(list/L, list/key_list, increment, depth = 1)
-	if(depth == length(key_list))
+	if(depth == key_list.len)
 		if(L.Find(key_list[depth]))
 			L["[key_list[depth]]"] += increment
 		else

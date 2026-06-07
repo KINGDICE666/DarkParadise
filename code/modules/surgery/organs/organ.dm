@@ -5,7 +5,6 @@
 	pickup_sound = 'sound/items/handling/pickup/flesh_pickup.ogg'
 	drop_sound = 'sound/items/handling/drop/flesh_drop.ogg'
 	germ_level = 0
-	abstract_type = /obj/item/organ
 	var/dead_icon
 	/// Current organ holder
 	var/mob/living/carbon/human/owner
@@ -22,8 +21,6 @@
 	var/min_broken_damage = 30
 	/// Minimal threshold for internal bleeding to occure
 	var/min_internal_bleeding_damage = 30
-	/// Minimal threshold for arterial bleeding to occure
-	var/min_arterial_bleeding_damage = 30
 	/// Basically organ max health.
 	var/max_damage
 
@@ -58,6 +55,7 @@
 	/// Will it skip pain messages?
 	var/hidden_pain = FALSE
 
+
 /obj/item/organ/Initialize(mapload)
 	. = ..()
 
@@ -71,6 +69,7 @@
 
 	update_DNA(update_blood = FALSE, randomize = TRUE)
 
+
 /obj/item/organ/Destroy()
 	STOP_PROCESSING(SSobj, src)
 
@@ -83,6 +82,7 @@
 		QDEL_NULL(dna)
 
 	return ..()
+
 
 /obj/item/organ/proc/update_DNA(datum/dna/new_dna, update_blood = TRUE, use_species_type = TRUE, randomize = FALSE)
 	if(dna)
@@ -125,23 +125,17 @@
 	if(update_blood)
 		update_blood()
 
+
 /obj/item/organ/proc/update_blood()
 	if(!dna || (TRAIT_NO_BLOOD in dna.species.inherent_traits))
 		return
 
 	LAZYSET(blood_DNA, dna.unique_enzymes, dna.blood_type)
 
+
 /obj/item/organ/proc/update_health()
 	return
 
-/obj/item/organ/proc/emp_shielded(severity)
-	if(!owner || !HAS_TRAIT(owner, TRAIT_COMBAT_EXOFRAME_EMP_SHIELD))
-		return FALSE
-	var/nutrition_cost = (severity == 1) ? 5 : 2
-	if(owner.nutrition < nutrition_cost)
-		return FALSE
-	owner.adjust_nutrition(-nutrition_cost)
-	return TRUE
 
 /obj/item/organ/proc/necrotize(silent = FALSE)
 	if(status & (ORGAN_ROBOT|ORGAN_DEAD))
@@ -160,8 +154,10 @@
 
 	return TRUE
 
+
 /obj/item/organ/proc/is_dead()
 	return (status & ORGAN_DEAD)
+
 
 /obj/item/organ/proc/unnecrotize()
 	if(!is_dead())
@@ -169,6 +165,7 @@
 
 	status &= ~ORGAN_DEAD
 	return TRUE
+
 
 /obj/item/organ/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/nanopaste))
@@ -188,6 +185,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/item/organ/process()
 
@@ -223,6 +221,7 @@
 			handle_germs()
 		return TRUE
 
+
 /obj/item/organ/proc/is_preserved()
 	var/static/list/preserved_holders = list(
 		/obj/machinery/smartfridge/secure/medbay/organ,
@@ -237,7 +236,7 @@
 		if(is_found_within(typepath))
 			return TRUE
 
-	if(is_mmi(loc))	// So a brain can slowly recover from being left out of an MMI
+	if(istype(loc,/obj/item/mmi))	// So a brain can slowly recover from being left out of an MMI
 		germ_level = max(0, germ_level - 1)
 		return TRUE
 
@@ -261,6 +260,7 @@
 	// You can do your cool location temperature organ preserving effects here!
 	return FALSE
 
+
 /obj/item/organ/examine(mob/user)
 	. = ..()
 	if(is_dead())
@@ -268,6 +268,7 @@
 			. += span_notice("В процессе разложения.")
 		else
 			. += span_notice("Серьёзно повреждено.")
+
 
 /obj/item/organ/proc/handle_germs()
 	if(germ_level > 0 && germ_level < INFECTION_LEVEL_ONE / 2 && prob(30))
@@ -293,10 +294,10 @@
 		if(parent.germ_level < germ_level && ( parent.germ_level < INFECTION_LEVEL_ONE * 2 || prob(30)))
 			parent.germ_level += germs_amount
 
+
 /obj/item/organ/proc/rejuvenate()
 	damage = 0
 	germ_level = 0
-	bleeding_amount = 0
 	surgeryize()
 	if(is_robotic())	//Robotic organs stay robotic.
 		status = ORGAN_ROBOT
@@ -305,17 +306,18 @@
 	if(!owner)
 		START_PROCESSING(SSobj, src)
 
-/obj/item/organ/proc/is_damaged(brute = TRUE, burn = TRUE)
-	if(isexternalorgan(src))
-		var/obj/item/organ/external/bodypart = src
-		return (brute && bodypart.brute_dam) || (burn && bodypart.burn_dam)
+
+/obj/item/organ/proc/is_damaged()
 	return damage > 0
+
 
 /obj/item/organ/proc/is_bruised()
 	return damage >= min_bruised_damage
 
+
 /obj/item/organ/proc/is_traumatized()
 	return (damage >= min_broken_damage || ((status & ORGAN_BROKEN) && !(status & ORGAN_SPLINTED)))
+
 
 //Adds autopsy data for used_weapon.
 /obj/item/organ/proc/add_autopsy_data(used_weapon = UNKNOWN_STATUS_RUS, damage)
@@ -330,6 +332,14 @@
 	weapon_data.hits++
 	weapon_data.damage += damage
 	weapon_data.time_inflicted = world.time
+
+
+/obj/item/organ/proc/set_organ_damage(amount = 0, silent = 0)
+	if(amount >= damage)
+		internal_receive_damage(damage - amount, silent)
+		return
+
+	heal_internal_damage(damage - amount)
 
 /**
  * Adjusts internal organ damage value.
@@ -356,11 +366,12 @@
 	if(owner && parent_organ_zone && amount > 0)
 		var/obj/item/organ/external/parent = owner.get_organ(parent_organ_zone)
 		if(parent && !silent)
-			owner.custom_pain("Что-то внутри [GEND_YOURS(parent)] [parent.declent_ru(GENITIVE)] отдаётся резкой болью.")
+			owner.custom_pain("Что-то внутри ваш[genderize_ru(parent.gender, "его", "ей", "его", "их")] [parent.declent_ru(GENITIVE)] отдаётся резкой болью.")
 
 	//check if we've hit max_damage
 	if(damage >= max_damage)
 		necrotize(silent)
+
 
 /obj/item/organ/proc/heal_internal_damage(amount, robo_repair = FALSE)
 	if(is_robotic() && !robo_repair)
@@ -368,12 +379,15 @@
 
 	damage = max(damage - amount, 0)
 
+
 /obj/item/organ/proc/robotize(make_tough = FALSE) //Being used to make robutt hearts, etc
 	status &= ~ORGAN_BROKEN
 	status |= ORGAN_ROBOT
 
+
 /obj/item/organ/proc/shock_organ(intensity)
 	return
+
 
 /obj/item/organ/proc/remove(mob/living/user, special = ORGAN_MANIPULATION_DEFAULT)
 	if(!istype(owner))
@@ -391,19 +405,24 @@
 	START_PROCESSING(SSobj, src)
 
 	if(owner?.stat != DEAD && vital && !special)
-		add_attack_logs(user, owner, "Removed vital organ ([src])")
+		if(user)
+			add_attack_logs(user, owner, "Removed vital organ ([src])")
+
 		owner.death()
 
 	owner = null
 	return src
 
+
 /obj/item/organ/proc/replaced(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	return
+
 
 // A version of `replaced` that "flattens" the process of insertion, making organs "Plug'n'play"
 // (Particularly the heart, which stops beating when removed)
 /obj/item/organ/proc/safe_replace(mob/living/carbon/human/target)
 	replaced(target)
+
 
 /obj/item/organ/proc/surgeryize()
 	return
@@ -421,18 +440,6 @@
 /obj/item/organ/proc/is_robotic()
 	return (status & ORGAN_ROBOT)
 
-///Organs don't die instantly, and neither should you when you get fucked up
-/obj/item/organ/proc/handle_failing_organs(seconds_per_tick)
-	return
-
-/** organ_failure
- * generic proc for handling dying organs
- *
- * Arguments:
- * seconds_per_tick - seconds since last tick
- */
-/obj/item/organ/proc/organ_failure(seconds_per_tick)
-	return
 
 /obj/item/organ/serialize()
 	var/data = ..()
@@ -446,6 +453,7 @@
 		data["dna"] = dna.serialize()
 
 	return data
+
 
 /obj/item/organ/deserialize(data)
 	if(isnum(data["status"]))

@@ -8,7 +8,7 @@
 	icon_state = "pneumaticRifle"
 	item_state = "pneumaticRifle"
 	fire_sound = 'sound/weapons/pneumatic_rifle.ogg'
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 50)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 50)
 	var/obj/item/tank/internals/tank = null
 	var/list/syringes = list()
 	var/max_syringes = 1
@@ -18,6 +18,7 @@
 	slot_flags = 0 //changed by attaching straps, so you can wear it on your back
 	weapon_weight = WEAPON_HEAVY
 	can_holster = FALSE
+
 
 /obj/item/gun/pneumatic_rifle/Initialize(mapload)
 	. = ..()
@@ -35,9 +36,10 @@
 		if(chambered.BB)
 			. += span_notice("It is loaded.")
 		if(tank)
-			. += span_notice("[icon2html(tank, user)] It has [tank] mounted onto it. It could be removed with a <b>screwdriver</b>.")
+			. += span_notice("[bicon(tank)] It has [tank] mounted onto it. It could be removed with a <b>screwdriver</b>.")
 		if(isBelted)
 			. += span_notice("It has a strap, now you can hold [src] on your back.")
+
 
 /obj/item/gun/pneumatic_rifle/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -52,8 +54,9 @@
 	tank = null
 	update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/gun/pneumatic_rifle/attackby(obj/item/I, mob/user, params)
-	if(iscoil(I))
+	if(istype(I, /obj/item/stack/cable_coil))
 		add_fingerprint(user)
 		if(isBelted)
 			to_chat(user, span_warning("The [name] is already strapped!"))
@@ -83,7 +86,7 @@
 		update_icon(UPDATE_OVERLAYS)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(issyringe(I))
+	if(istype(I, /obj/item/reagent_containers/syringe))
 		add_fingerprint(user)
 		var/in_clip = length(syringes) + (chambered.BB ? 1 : 0)
 		if(in_clip >= max_syringes)
@@ -98,14 +101,15 @@
 
 	return ..()
 
-/obj/item/gun/pneumatic_rifle/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/gun/pneumatic_rifle/afterattack(atom/target, mob/living/carbon/human/user, flag, params)
 	. = ..()
 	if(target == loc)
 		return
 
 /obj/item/gun/pneumatic_rifle/attack_self(mob/living/user)
 	if(!length(syringes) && !chambered.BB)
-		to_chat(user, span_notice("[src] is empty."))
+		to_chat(user, "<span class='notice'>[src] is empty.</span>")
 		return FALSE
 
 	var/obj/item/reagent_containers/syringe/S
@@ -120,10 +124,10 @@
 	user.put_in_hands(S)
 	syringes.Remove(S)
 	process_chamber()
-	to_chat(user, span_notice("You unload [S] from \the [src]!"))
+	to_chat(user, "<span class='notice'>You unload [S] from \the [src]!</span>")
 	return TRUE
 
-/obj/item/gun/pneumatic_rifle/handle_chamber()
+/obj/item/gun/pneumatic_rifle/process_chamber()
 	if(!length(syringes) || chambered.BB)
 		return
 
@@ -138,7 +142,7 @@
 	syringes.Remove(S)
 	qdel(S)
 
-/obj/item/gun/pneumatic_rifle/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/gun/pneumatic_rifle/afterattack(atom/target, mob/living/user, flag, params)
 	if(!tank)
 		to_chat(user, span_warning("[src] can't fire without a source of gas."))
 		return
@@ -156,20 +160,20 @@
 	if(tank)
 		return tank.return_analyzable_air()
 
+
 /datum/crafting_recipe/pneumatic_rifle
 	name = "Pneumatic Rifle"
 	result = /obj/item/gun/pneumatic_rifle
 	tools = list(TOOL_SCREWDRIVER)
-	reqs = list(
-		/obj/item/c_tube = 3,
-		/obj/item/weaponcrafting/receiver = 1,
-		/obj/item/weaponcrafting/stock = 1,
-		/obj/item/stack/tape_roll = 15,
-		/obj/item/stack/sheet/metal = 2,
-	)
+	reqs = list(/obj/item/c_tube = 3,
+				/obj/item/weaponcrafting/receiver = 1,
+				/obj/item/weaponcrafting/stock = 1,
+				/obj/item/stack/tape_roll = 15,
+				/obj/item/stack/sheet/metal = 2)
 	time = 300
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
+
 
 /obj/item/gun/pneumatic_rifle/update_overlays()
 	. = ..()

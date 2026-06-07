@@ -70,16 +70,21 @@
 	else	//wtf make your ladders properly assholes
 		icon_state = "ladder00"
 
-/obj/structure/ladder/singularity_pull(atom/singularity, current_size)
+/obj/structure/ladder/singularity_pull()
 	if(!(resistance_flags & INDESTRUCTIBLE))
 		visible_message(span_danger("[src] is torn to pieces by the gravitational pull!"))
 		qdel(src)
 
 /obj/structure/ladder/proc/travel(going_up, mob/user, is_ghost, obj/structure/ladder/ladder)
 	if(!is_ghost)
+		var/response = SEND_SIGNAL(user, COMSIG_LADDER_TRAVEL, src, ladder, going_up)
+		if(response & LADDER_TRAVEL_BLOCK)
+			return
+
 		ladder.add_fingerprint(user)
 		if(!do_after(user, travel_time, src))
 			return
+
 		show_fluff_message(going_up, user)
 
 	var/turf/target = get_turf(ladder)
@@ -119,9 +124,11 @@
 		return FALSE
 	return TRUE
 
+
 /obj/structure/ladder/attackby(obj/item/I, mob/user, params)
 	use(user)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/structure/ladder/attack_hand(mob/living/user)
 	. = ..()
@@ -165,6 +172,7 @@
 			"[user] climbs down [src].",
 			span_notice("You climb down [src].")
 		)
+
 
 // Indestructible away mission ladders which link based on a mapped ID and height value rather than X/Y/Z.
 /obj/structure/ladder/unbreakable
@@ -215,6 +223,7 @@
 	id = "dive"
 	height = 2
 	layer = MOB_LAYER + 0.2		//0.1 higher than the water overlay, this also means people can "swim" behind/under it
+
 
 /obj/structure/ladder/unbreakable/dive_point/buoy/show_fluff_message(going_up, mob/user)
 	if(going_up)

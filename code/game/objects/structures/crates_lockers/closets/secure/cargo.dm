@@ -6,13 +6,14 @@
 /obj/structure/closet/secure_closet/cargotech/populate_contents()
 	new /obj/item/clothing/under/rank/cargotech(src)
 	new /obj/item/clothing/under/rank/cargotech/skirt(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/radio/headset/headset_cargo(src)
 	new /obj/item/clothing/gloves/fingerless(src)
 	new /obj/item/clothing/head/soft(src)
 	new /obj/item/storage/backpack/cargo(src)
 	new /obj/item/clothing/suit/storage/cargotech(src)
 	new /obj/item/qm_quest_tablet/cargotech(src)
+
 
 /obj/structure/closet/secure_closet/quartermaster
 	name = "quartermaster's locker"
@@ -33,5 +34,3 @@
 	new /obj/item/stamp/denied(src)
 	new /obj/item/storage/garmentbag/quartermaster(src)
 	new /obj/item/gun/energy/gun/mini(src)
-	new /obj/item/clothing/accessory/holster(src)
-	new /obj/item/clothing/accessory/medal/gold/cargo(src)

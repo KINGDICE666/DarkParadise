@@ -5,12 +5,12 @@
 /area/ruin/space/graveyard/church
 	name = "Space Graveyard Church"
 	icon_state = "away1"
-	ambience_index = AMBIENCE_MINING
+	ambientsounds = list('sound/ambience/ambicha4.ogg', 'sound/ambience/ambilava1.ogg', 'sound/ambience/ambilava3.ogg', 'sound/ambience/ambimo2.ogg', 'sound/ambience/ambiruin6.ogg')
 
 /area/ruin/space/graveyard/graves
 	name = "Space Graveyard Graves"
 	icon_state = "away2"
-	ambientsounds = list('sound/ambience/spooky/apathy.ogg')
+	ambientsounds = list('sound/ambience/apathy.ogg')
 
 ///// The Undertaker Shuttle
 
@@ -25,6 +25,7 @@
 	shuttleId = "funeral"
 	possible_destinations = "graveyard_church;graveyard_dock"
 
+
 ///// Graveyard items
 
 /obj/structure/bookcase/ashframe
@@ -32,15 +33,19 @@
 	icon = 'icons/obj/decorations.dmi'
 	icon_state = "case-0"
 
+
 /obj/structure/bookcase/ashframe/generate_allowed_books()
 	allowed_books = typecacheof(list(
 		/obj/item/storage/funeral_urn,
 	))
 
+
 /obj/structure/bookcase/ashframe/update_icon_state()
 	icon_state = "case-[min(length(contents), 5)]"
 
+
 /obj/structure/bookcase/ashframe/random
+
 
 /obj/structure/bookcase/ashframe/random/Initialize(mapload)
 	var/number = rand(1,4)
@@ -48,6 +53,7 @@
 		new /obj/item/storage/funeral_urn/random(src)
 	update_icon(UPDATE_ICON_STATE)
 	return ..()
+
 
 /obj/item/storage/funeral_urn
 	name = "Funeral urn"
@@ -72,11 +78,7 @@
 	throwforce = 2
 	throw_speed = 3
 	throw_range = 4
-	var/examine_more_info = ""
 
-/obj/item/storage/funeral_urn/examine_more(mob/user)
-	. = ..()
-	. += span_notice(examine_more_info)
 
 /obj/item/storage/funeral_urn/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
@@ -84,10 +86,11 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
 
-/obj/item/storage/funeral_urn/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(istype(target,/obj/effect/decal/cleanable/ash))
-		if(length(src.contents) < storage_slots)
-			var/obj/effect/decal/cleanable/ash/ash = target
+
+/obj/item/storage/funeral_urn/afterattack(atom/A, mob/user, proximity, params)
+	if(istype(A,/obj/effect/decal/cleanable/ash))
+		if(src.contents.len < storage_slots)
+			var/obj/effect/decal/cleanable/ash/ash = A
 			new /obj/item/ash_holder(src, ash)
 			qdel(ash)
 		else
@@ -128,7 +131,7 @@
 	var/died = max(cur_year - rand(0,70),born)
 
 	name = "Funeral urn of [nam]"
-	examine_more_info = "Here lies [nam], [born] - [died]."
+	description_info = "Here lies [nam], [born] - [died]."
 
 	new /obj/item/ash_holder(src)
 	if(prob(15))
@@ -167,6 +170,7 @@
 	icon_state = "socle"
 	pass_flags = LETPASSTHROW
 	can_be_flipped = FALSE
+	climbable = FALSE
 	smooth = NONE
 
 /obj/effect/spawner/graveyard_statues
@@ -174,16 +178,16 @@
 	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "x3"
 
-/obj/effect/spawner/graveyard_statues/Initialize(mapload)
-	. = ..()
+/obj/effect/spawner/graveyard_statues/New()
 	var/monument
 	var/offset = 0
-	switch(pick("big", "small"))
+	switch(pick("big","small"))
 		if("big")
 			monument = pick(
 				/obj/structure/statue/unknown,
 				/obj/structure/statue/death,
 			)
+
 		if("small")
 			monument = pick(
 				/obj/structure/statue/noble,
@@ -192,8 +196,11 @@
 			offset = 16
 	var/obj/structure/statue/statue = new monument(get_turf(src))
 	statue.pixel_x = offset
-	return INITIALIZE_HINT_QDEL
+	..()
 
+/obj/effect/spawner/graveyard_statues/Initialize(mapload)
+	. = ..()
+	return INITIALIZE_HINT_QDEL
 
 /obj/item/book/philosophy_of_death
 	name = "Философия смерти"
@@ -217,6 +224,7 @@
 		<br><br>Так сказал Немрис.
 		"}
 
+
 ////// Grave with loot spawner and evil soul
 /obj/structure/pit/closed/graveyard_loot
 	var/ever_opened = FALSE
@@ -226,7 +234,7 @@
 	if(!ever_opened)
 		ever_opened = TRUE
 		if(prob(10))
-			to_chat(usr, span_danger(" HOW DARE YOU DISTURB THE DEAD?! "))
+			to_chat(usr, "<span class='danger'> HOW DARE YOU DISTURB THE DEAD?! </span>")
 			new /obj/effect/particle_effect/fluid/smoke(get_turf(src))
 			new /mob/living/simple_animal/hostile/carp/lostsoul(get_turf(src))
 
@@ -236,10 +244,10 @@
 /obj/structure/closet/coffin/graveyard_loot
 	var/spawn_mob = null
 
-/obj/structure/closet/coffin/graveyard_loot/open(mob/living/user, force = FALSE)
+/obj/structure/closet/coffin/graveyard_loot/open(force = FALSE)
 	..()
 	if(spawn_mob)
-		new spawn_mob(loc)
+		new spawn_mob(src.loc)
 		spawn_mob = null
 		new /obj/effect/particle_effect/fluid/smoke(get_turf(src))
 

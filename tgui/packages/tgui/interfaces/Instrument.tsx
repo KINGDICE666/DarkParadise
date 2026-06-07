@@ -445,8 +445,7 @@ const InstrumentStatus = (properties) => {
             maxValue={maxVolume}
             value={volume}
             stepPixelSize={6}
-            tickWhileDragging
-            onChange={(_e, v) =>
+            onDrag={(_e, v) =>
               act('setvolume', {
                 new: v,
               })

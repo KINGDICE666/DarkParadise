@@ -1,7 +1,7 @@
 /datum/action/innate/robot_sight
 	var/sight_mode = null
 
-	button_icon = 'icons/obj/decals.dmi'
+	icon_icon = 'icons/obj/decals.dmi'
 	button_icon_state = "securearea"
 
 /datum/action/innate/robot_sight/Activate()
@@ -27,33 +27,33 @@
 /datum/action/innate/robot_sight/thermal
 	name = "Термальное зрение"
 	sight_mode = SILICONTHERM
-	button_icon = 'icons/obj/clothing/glasses.dmi'
+	icon_icon = 'icons/obj/clothing/glasses.dmi'
 	button_icon_state = "thermal"
 
 // ayylmao
 /datum/action/innate/robot_sight/thermal/alien
-	button_icon = 'icons/mob/alien.dmi'
+	icon_icon = 'icons/mob/alien.dmi'
 	button_icon_state = "borg-extra-vision"
 
 /datum/action/innate/robot_sight/meson
 	name = "Мезонное зрение"
 	sight_mode = SILICONMESON
-	button_icon = 'icons/obj/clothing/glasses.dmi'
+	icon_icon = 'icons/obj/clothing/glasses.dmi'
 	button_icon_state = "meson"
 
 /datum/action/innate/robot_sight_hydro
 	name = "Гидропоническое зрение"
-	button_icon = 'icons/obj/clothing/glasses.dmi'
+	icon_icon = 'icons/obj/clothing/glasses.dmi'
 	button_icon_state = "hydroponichud"
 
 /datum/action/innate/robot_sight_hydro/Activate()
-	var/datum/atom_hud/data/hydroponic/hydrosensors = GLOB.huds[DATA_HUD_HYDROPONIC]
-	hydrosensors.show_to(owner)
+	for(var/datum/atom_hud/data/hydroponic/hydrosensors in GLOB.huds)
+		hydrosensors.add_hud_to(owner)
 
 	active = TRUE
 
 /datum/action/innate/robot_sight_hydro/Deactivate()
-	var/datum/atom_hud/data/hydroponic/hydrosensors = GLOB.huds[DATA_HUD_HYDROPONIC]
-	hydrosensors.hide_from(owner)
+	for(var/datum/atom_hud/data/hydroponic/hydrosensors in GLOB.huds)
+		hydrosensors.remove_hud_from(owner)
 
 	active = FALSE

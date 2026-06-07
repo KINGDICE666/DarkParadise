@@ -27,6 +27,7 @@
 
 	var/needs_update = LIGHTING_NO_UPDATE    // Whether we are queued for an update.
 
+
 /datum/light_source/New(atom/owner, atom/top)
 	source_atom = owner // Set our new owner.
 	LAZYADD(source_atom.light_sources, src)
@@ -52,18 +53,13 @@
 	remove_lum()
 	if(source_atom)
 		LAZYREMOVE(source_atom.light_sources, src)
-		source_atom = null
 
 	if(top_atom)
 		LAZYREMOVE(top_atom.light_sources, src)
-		top_atom = null
-
-	source_turf = null
-	pixel_turf = null
 
 	if(needs_update)
 		SSlighting.sources_queue -= src
-	LAZYCLEARLIST(effect_str)
+
 	. = ..()
 
 // Yes this doesn't align correctly on anything other than 4 width tabs.
@@ -76,6 +72,7 @@
 	if(needs_update < level) { \
 		needs_update = level; \
 	} \
+
 
 // This proc will cause the light source to update the top atom, and add itself to the update queue.
 /datum/light_source/proc/update(atom/new_top_atom)
@@ -134,7 +131,7 @@
 // Because z diffs are so functionally small, cubes and cube roots are too aggressive
 #define LUM_FALLOFF_MULTIZ(C) (1 - CLAMP01(sqrt((C.x - _turf_x) ** 2 + (C.y - _turf_y) ** 2 + abs(C.z - _turf_z) ** 2 + LIGHTING_HEIGHT) / _range_divisor))
 
-#define APPLY_CORNER(C) \
+#define APPLY_CORNER(C)							\
 	if(C.z == _turf_z) {						\
 		. = LUM_FALLOFF(C);						\
 	}											\
@@ -151,7 +148,7 @@
 		(. * _lum_b) - (OLD * _applied_lum_b)	\
 	);
 
-#define REMOVE_CORNER(C) \
+#define REMOVE_CORNER(C)						\
 	. = -effect_str[C];							\
 	C.update_lumcount							\
 	(											\
@@ -168,10 +165,10 @@
 	for(var/datum/lighting_corner/corner as anything in effect_str)
 		REMOVE_CORNER(corner)
 		LAZYREMOVE(corner.affecting, src)
-		//SSdemo.mark_turf(corner.master_NE)
-		//SSdemo.mark_turf(corner.master_SE)
-		//SSdemo.mark_turf(corner.master_SW)
-		//SSdemo.mark_turf(corner.master_NW)
+		SSdemo.mark_turf(corner.master_NE)
+		SSdemo.mark_turf(corner.master_SE)
+		SSdemo.mark_turf(corner.master_SW)
+		SSdemo.mark_turf(corner.master_NW)
 
 	effect_str = null
 
@@ -209,6 +206,7 @@
 	insert_into[draw_from.lighting_corner_SE] = 0;         \
 	insert_into[draw_from.lighting_corner_SW] = 0;         \
 	insert_into[draw_from.lighting_corner_NW] = 0;
+
 
 /datum/light_source/proc/update_corners()
 	var/update = FALSE
@@ -276,7 +274,7 @@
 	if(source_turf)
 		var/uses_multiz = !!GET_LOWEST_STACK_OFFSET(source_turf.z)
 		if(uses_multiz)
-			for(var/turf/T in view(ceil(light_range), source_turf))
+			for(var/turf/T in view(CEILING(light_range, 1), source_turf))
 				if(IS_OPAQUE_TURF(T))
 					continue
 				INSERT_CORNERS(corners, T)
@@ -305,11 +303,11 @@
 					INSERT_CORNERS(corners, above)
 					above = GET_TURF_ABOVE(above)
 		else // Yes I know this could be acomplished with an if in the for loop, but it's fukin lighting code man
-			for(var/turf/T in view(ceil(light_range), source_turf))
+			for(var/turf/T in view(CEILING(light_range, 1), source_turf))
 				if(IS_OPAQUE_TURF(T))
 					continue
 				INSERT_CORNERS(corners, T)
-				//SSdemo.mark_turf(T)
+				SSdemo.mark_turf(T)
 
 	SETUP_CORNERS_CACHE(src)
 

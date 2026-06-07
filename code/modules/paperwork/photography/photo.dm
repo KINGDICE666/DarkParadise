@@ -18,13 +18,13 @@
 		show(user)
 		. += span_notice("Alt-Click to rename photo.")
 	else
-		. += span_notice("It is too far away.")
+		. += "<span class='notice'>It is too far away.</span>"
 
 /obj/item/photo/attack_self(mob/user)
 	user.examinate(src)
 
 /obj/item/photo/attackby(obj/item/I, mob/user, params)
-	if(is_pen(I) || iscrayon(I))
+	if(is_pen(I) || istype(I, /obj/item/toy/crayon))
 		add_fingerprint(user)
 		if(!user.is_literate())
 			to_chat(user, span_warning("You don't know how to write!"))
@@ -76,7 +76,7 @@
 				qdel(src)
 
 			else
-				to_chat(user, span_warning("You must hold \the [P] steady to burn \the [src]."))
+				to_chat(user, "<span class='warning'>You must hold \the [P] steady to burn \the [src].</span>")
 
 /obj/item/photo/proc/show(mob/user)
 	var/icon/img_shown = new/icon(img)

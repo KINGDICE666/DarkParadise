@@ -35,8 +35,10 @@
 	QDEL_NULL(charging)
 	return ..()
 
+
 /obj/machinery/cell_charger/update_icon_state()
 	icon_state = "ccharger[charging ? 1 : 0][panel_open ? "open" : ""]"
+
 
 /obj/machinery/cell_charger/update_overlays()
 	. = ..()
@@ -46,11 +48,13 @@
 	var/newlevel =	round(charging.percent() * 4 / 100)
 	. += "ccharger-o[newlevel]"
 
+
 /obj/machinery/cell_charger/examine(mob/user)
 	. = ..()
 	. += span_notice("There's [charging ? "a" : "no"] cell in the charger.")
 	if(charging)
 		. += span_notice("Current charge: [round(charging.percent(), 1)]%")
+
 
 /obj/machinery/cell_charger/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -112,6 +116,7 @@
 	else
 		WRENCH_UNANCHOR_MESSAGE
 
+
 /obj/machinery/cell_charger/proc/removecell()
 	charging.update_icon()
 	charging = null
@@ -152,6 +157,7 @@
 
 	..(severity)
 
+
 /obj/machinery/cell_charger/process()
 	if(!charging || !anchored || (stat & (BROKEN|NOPOWER)))
 		return
@@ -164,6 +170,7 @@
 
 	if(check_level())
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/machinery/cell_charger/proc/check_level()
 	var/newlevel =	round(charging.percent() * 4 / 100)

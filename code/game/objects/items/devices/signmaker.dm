@@ -28,6 +28,7 @@
 	sign = null
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/item/signmaker/proc/icon_flick()
 	set waitfor = FALSE
 
@@ -37,11 +38,13 @@
 	pointer_busy = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/item/signmaker/update_icon_state()
 	if(pointer_busy)
 		icon_state = "signmaker_clown_on"
 		return
 	icon_state = "signmaker_clown_[sign ? "on" : "off"]"
+
 
 /obj/item/signmaker/emag_act(mob/user)
 	add_attack_logs(user, src, "emagged")
@@ -52,10 +55,10 @@
 
 /obj/item/signmaker/attack_self(mob/user)
 	clear_holosign()
-	to_chat(user, span_notice("You clear active hologram."))
+	to_chat(user, "<span class='notice'>You clear active hologram.</span>")
 
-/obj/item/signmaker/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	laser_act(target, user, modifiers)
+/obj/item/signmaker/afterattack(atom/target, mob/living/user, proximity, params)
+	laser_act(target, user, params)
 
 /obj/item/signmaker/process()
 	var/recharge_chance = 20 - recharge_locked*5
@@ -149,7 +152,7 @@
 	var/obj/structure/holosign/found_holosoap = locate(holosign_type) in T
 	if(found_holosoap)
 		if(found_holosoap == sign)
-			to_chat(user, span_notice("You use [src] to deactivate [sign]."))
+			to_chat(user, "<span class='notice'>You use [src] to deactivate [sign].</span>")
 			clear_holosign()
 		return
 	if(T.is_blocked_turf(exclude_mobs = TRUE)) //can't put holograms on a tile that has dense stuff
@@ -158,7 +161,7 @@
 	playsound(src, 'sound/machines/click.ogg', 20, TRUE)
 	sign = new holosign_type(get_turf(target), src)
 	update_icon()
-	to_chat(user, span_notice("You create [sign.name] with [src]."))
+	to_chat(user, "<span class='notice'>You create [sign.name] with [src].</span>")
 
 /obj/structure/holosoap
 	name = "holographic soap"
@@ -173,14 +176,15 @@
 	var/obj/item/signmaker/projector = null
 
 /obj/structure/holosoap/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "голографическое мыло",
 		GENITIVE = "голографического мыла",
 		DATIVE = "голографическому мылу",
 		ACCUSATIVE = "голографическое мыло",
 		INSTRUMENTAL = "голографическим мылом",
-		PREPOSITIONAL = "голографическом мыле",
+		PREPOSITIONAL = "голографическом мыле"
 	)
+
 
 /obj/structure/holosoap/Initialize(mapload, new_projector)
 	. = ..()
@@ -190,6 +194,7 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/holosoap/Destroy()
 	projector?.sign = null
 	projector?.update_icon(UPDATE_ICON_STATE)
@@ -198,6 +203,7 @@
 /obj/structure/holosoap/has_prints()
 	return FALSE
 
+
 /obj/structure/holosoap/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
 	switch(damage_type)
 		if(BRUTE)
@@ -205,10 +211,12 @@
 		if(BURN)
 			playsound(loc, 'sound/items/squeaktoy.ogg', 80, TRUE)
 
+
 /obj/structure/holosoap/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	playsound(loc, 'sound/misc/slip.ogg', 80, TRUE)
+
 
 /obj/structure/holosoap/attack_hand(mob/living/user)
 	. = ..()

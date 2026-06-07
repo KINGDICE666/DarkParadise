@@ -34,7 +34,7 @@
 	if(isanimal(parent))
 		var/mob/living/simple_animal/simple_parent = parent
 		simple_parent.stop_automated_movement = FALSE
-	REMOVE_TRAIT(parent, TRAIT_AI_PAUSED, UNIQUE_TRAIT_SOURCE(src))
+	REMOVE_TRAIT(parent, TRAIT_AI_PAUSED, ref(src))
 	return ..()
 
 /datum/component/riding/creature/RegisterWithParent()
@@ -48,8 +48,10 @@
 	if(!istype(living_parent) || !istype(rider))
 		return
 
+
 	add_attack_logs(living_parent, rider, "is now being ridden by [rider].")
 	add_attack_logs(rider, living_parent, "started riding [living_parent].")
+
 
 // this applies to humans and most creatures, but is replaced again for cyborgs
 /datum/component/riding/creature/ride_check(mob/living/rider, consequences = TRUE)
@@ -58,10 +60,10 @@
 	if(living_parent.body_position != STANDING_UP) // if we move while on the ground, the rider falls off
 		. = FALSE
 	// for piggybacks and (redundant?) borg riding, check if the rider is stunned/restrained
-	else if((ride_check_flags & RIDER_NEEDS_ARMS) && (HAS_TRAIT(rider, TRAIT_RESTRAINED) || rider.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB)))
+	else if((ride_check_flags & RIDER_NEEDS_ARMS) && (HAS_TRAIT(rider, TRAIT_RESTRAINED) || rider.incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED)))
 		. = FALSE
 	// for fireman carries, check if the ridden is stunned/restrained
-	else if((ride_check_flags & CARRIER_NEEDS_ARM) && (HAS_TRAIT(living_parent, TRAIT_RESTRAINED) || living_parent.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB)))
+	else if((ride_check_flags & CARRIER_NEEDS_ARM) && (HAS_TRAIT(living_parent, TRAIT_RESTRAINED) || living_parent.incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED)))
 		. = FALSE
 
 	else if((ride_check_flags & JUST_FRIEND_RIDERS) && !(living_parent.faction.Find(rider)))
@@ -82,18 +84,18 @@
 	rider.layer = initial(rider.layer)
 	if(can_be_driven)
 		//let the player take over if they should be controlling movement
-		ADD_TRAIT(ridden, TRAIT_AI_PAUSED, UNIQUE_TRAIT_SOURCE(src))
+		ADD_TRAIT(ridden, TRAIT_AI_PAUSED, ref(src))
 	return ..()
 
 /datum/component/riding/creature/vehicle_mob_unbuckle(mob/living/formerly_ridden, mob/living/former_rider, force = FALSE)
-
+	/*
 	if(istype(formerly_ridden) && istype(former_rider))
-		add_game_logs("is no longer being ridden by [former_rider].", formerly_ridden)
-		add_game_logs("is no longer riding [formerly_ridden].", former_rider)
-
+		formerly_ridden.log_message("is no longer being ridden by [former_rider].", LOG_GAME, color="pink")
+		former_rider.log_message("is no longer riding [formerly_ridden].", LOG_GAME, color="pink")
+		*/
 	//remove_abilities(former_rider)
-	if(!length(formerly_ridden.buckled_mobs))
-		REMOVE_TRAIT(formerly_ridden, TRAIT_AI_PAUSED, UNIQUE_TRAIT_SOURCE(src))
+	if(!formerly_ridden.buckled_mobs.len)
+		REMOVE_TRAIT(formerly_ridden, TRAIT_AI_PAUSED, ref(src))
 	// We gotta reset those layers at some point, don't we?
 	former_rider.layer = MOB_LAYER
 	formerly_ridden.layer = MOB_LAYER
@@ -190,7 +192,7 @@
 
 /*
 /datum/component/riding/creature/post_vehicle_mob_buckle(mob/living/ridden, mob/living/rider)
-	if(!require_minigame || ridden.faction.Find(REF(rider)))
+	if(!require_minigame || ridden.faction.Find(rider.UID()))
 		return
 	ridden.Shake(duration = 2 SECONDS)
 	ridden.balloon_alert(rider, "вас пытаются сбросить!")
@@ -206,14 +208,14 @@
 	if(!istype(living_parent) || !istype(rider))
 		return
 
-
+	/*
 	if(ride_check_flags & RIDER_NEEDS_ARMS) // piggyback
-		add_game_logs("started giving [rider] a piggyback ride.", living_parent)
-		add_game_logs("started piggyback riding [living_parent].", rider)
+		living_parent.log_message("started giving [rider] a piggyback ride.", LOG_GAME, color="pink")
+		rider.log_message("started piggyback riding [living_parent].", LOG_GAME, color="pink")
 	else if(ride_check_flags & CARRIER_NEEDS_ARM) // fireman
-		add_game_logs("started fireman carrying [rider].", living_parent)
-		add_game_logs("was fireman carried by [living_parent].", rider)
-
+		living_parent.log_message("started fireman carrying [rider].", LOG_GAME, color="pink")
+		rider.log_message("was fireman carried by [living_parent].", LOG_GAME, color="pink")
+	*/
 
 /datum/component/riding/creature/human/vehicle_mob_unbuckle(datum/source, mob/living/former_rider, force = FALSE)
 	unequip_buckle_inhands(parent)
@@ -246,7 +248,7 @@
 
 /datum/component/riding/creature/human/handle_vehicle_layer(dir)
 	var/atom/movable/AM = parent
-	if(!AM.buckled_mobs || !length(AM.buckled_mobs))
+	if(!AM.buckled_mobs || !AM.buckled_mobs.len)
 		AM.layer = MOB_LAYER
 		return
 
@@ -278,27 +280,3 @@
 	dismounted_rider.Knockdown(4 SECONDS)
 	dismounted_rider.visible_message(span_warning("[AM] pushes [dismounted_rider] off of [AM.p_them()]!"), \
 						span_warning("[AM] pushes you off of [AM.p_them()]!"))
-
-/datum/component/riding/creature/cyborg
-	can_be_driven = FALSE
-
-/datum/component/riding/creature/cyborg/Initialize(mob/living/riding_mob, force, ride_check_flags, potion_boost)
-	if(!isrobot(parent))
-		return COMPONENT_INCOMPATIBLE
-	return ..()
-
-/datum/component/riding/creature/cyborg/post_vehicle_mob_buckle(atom/movable/ridden, atom/movable/rider)
-	// Cyborgs seats have advanced safety system, so crew wont fall off and hurt themselves
-	ADD_TRAIT(rider, TRAIT_FORCED_STANDING, UNIQUE_TRAIT_SOURCE(src))
-
-/datum/component/riding/creature/cyborg/handle_unbuckle(mob/living/rider)
-	. = ..()
-	REMOVE_TRAIT(rider, TRAIT_FORCED_STANDING, UNIQUE_TRAIT_SOURCE(src))
-	// For some reason, after unbuckling, game is substracting atom's 'pixel_y' var by 9.
-	rider.pixel_y += 9
-
-/datum/component/riding/creature/cyborg/get_offsets(pass_index)
-	var/mob/living/silicon/robot/robot = parent
-	if(!robot.selected_skin)
-		return ..()
-	return robot.selected_skin.get_riding_offsets()

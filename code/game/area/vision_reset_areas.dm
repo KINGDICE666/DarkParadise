@@ -3,6 +3,7 @@
  * Designed to cancel off xray/meson/thermal vision effects.
  * Special for spooky secret areas and gates. :D
  */
+
 /area/vision_change_area
 	area_flags = NONE
 
@@ -17,10 +18,10 @@
 		C.sync_lighting_plane_alpha()
 		C.AddComponent(/datum/component/vision_reset)
 
-/area/vision_change_area/Exited(atom/movable/gone, direction)
+/area/vision_change_area/Exited(atom/movable/departed, area/new_area)
 	. = ..()
-	if(iscarbon(gone))
-		var/mob/living/carbon/carbon = gone
+	if(iscarbon(departed))
+		var/mob/living/carbon/carbon = departed
 		var/datum/component/component = carbon.GetComponent(/datum/component/vision_reset)
 		if(component)
 			qdel(component)

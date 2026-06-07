@@ -16,6 +16,7 @@
 		"Над+еемся, вы предпочит+аете л+учшее!",
 		"Отв+едайте н+аш н+овый шокол+ад!"
 	)
+
 	icon_state = "coffee_off"
 	panel_overlay = "coffee_panel"
 	screen_overlay = "coffee"
@@ -24,37 +25,43 @@
 	broken_lightmask_overlay = "coffee_broken_lightmask"
 	vend_overlay = "coffee_vend"
 	vend_lightmask = "coffee_vend_lightmask"
-	refill_canister = /obj/item/vending_refill/coffee
-	default_price = PAYCHECK_MIN * 0.7
-	default_premium_price = PAYCHECK_LOWER * 0.7
 
 	item_slot = TRUE
-	products = list(
-		/obj/item/reagent_containers/food/drinks/cups/coffee_cup/small/coffee = 25,
+	products = list(/obj/item/reagent_containers/food/drinks/coffee = 25,
 		/obj/item/reagent_containers/food/drinks/tea = 25,
 		/obj/item/reagent_containers/food/drinks/h_chocolate = 25,
 		/obj/item/reagent_containers/food/drinks/chocolate = 10,
 		/obj/item/reagent_containers/food/drinks/chicken_soup = 10,
 		/obj/item/reagent_containers/food/drinks/weightloss = 10,
 		/obj/item/reagent_containers/food/drinks/mug = 15,
-		/obj/item/reagent_containers/food/drinks/mug/novelty = 5,
-	)
-	contraband = list(
-		/obj/item/reagent_containers/food/drinks/ice = 10,
-	)
+		/obj/item/reagent_containers/food/drinks/mug/novelty = 5)
+	contraband = list(/obj/item/reagent_containers/food/drinks/ice = 10)
+	prices = list(/obj/item/reagent_containers/food/drinks/coffee = 19,
+		/obj/item/reagent_containers/food/drinks/tea = 19,
+		/obj/item/reagent_containers/food/drinks/h_chocolate = 19,
+		/obj/item/reagent_containers/food/drinks/chocolate = 19,
+		/obj/item/reagent_containers/food/drinks/chicken_soup = 29,
+		/obj/item/reagent_containers/food/drinks/weightloss = 49,
+		/obj/item/reagent_containers/food/drinks/mug = 49,
+		/obj/item/reagent_containers/food/drinks/mug/novelty = 99,
+		/obj/item/reagent_containers/food/drinks/ice = 39)
+	refill_canister = /obj/item/vending_refill/coffee
 
 /obj/machinery/vending/coffee/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "торговый автомат Solar's Best Hot Drinks",
 		GENITIVE = "торгового автомата Solar's Best Hot Drinks",
 		DATIVE = "торговому автомату Solar's Best Hot Drinks",
 		ACCUSATIVE = "торговый автомат Solar's Best Hot Drinks",
 		INSTRUMENTAL = "торговым автоматом Solar's Best Hot Drinks",
-		PREPOSITIONAL = "торговом автомате Solar's Best Hot Drinks",
+		PREPOSITIONAL = "торговом автомате Solar's Best Hot Drinks"
 	)
 
+/obj/machinery/vending/coffee/free
+	prices = list()
+
 /obj/machinery/vending/coffee/item_slot_check(mob/user, obj/item/I)
-	if(!(isglassreagentcontainer(I) || istype(I, /obj/item/reagent_containers/food/drinks)))
+	if(!(istype(I, /obj/item/reagent_containers/glass) || istype(I, /obj/item/reagent_containers/food/drinks)))
 		return FALSE
 	if(!..())
 		return FALSE
@@ -63,10 +70,10 @@
 		return FALSE
 	return TRUE
 
-/obj/machinery/vending/coffee/do_vend(datum/data/vending_product/product_record, mob/user)
+/obj/machinery/vending/coffee/do_vend(datum/data/vending_product/R, mob/user)
 	if(..())
 		return
-	var/obj/item/reagent_containers/food/drinks/vended = new product_record.product_path()
+	var/obj/item/reagent_containers/food/drinks/vended = new R.product_path()
 
 	if(istype(vended, /obj/item/reagent_containers/food/drinks/mug))
 		var/put_on_turf = TRUE

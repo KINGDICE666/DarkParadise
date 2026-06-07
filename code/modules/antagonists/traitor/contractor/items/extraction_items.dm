@@ -10,13 +10,13 @@
 	icon_state = "flare-contractor-on"
 
 /obj/effect/contractor_flare/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сигнальная ракета контрактника",
 		GENITIVE = "сигнальной ракеты контрактника",
 		DATIVE = "сигнальной ракете контрактника",
 		ACCUSATIVE = "сигнальную ракету контрактника",
 		INSTRUMENTAL = "сигнальной ракетой контрактника",
-		PREPOSITIONAL = "сигнальной ракете контрактника",
+		PREPOSITIONAL = "сигнальной ракете контрактника"
 	)
 
 /obj/effect/contractor_flare/Initialize(mapload)
@@ -28,13 +28,15 @@
 	new /obj/effect/decal/cleanable/ash(loc)
 	return ..()
 
+
 /obj/effect/contractor_flare/attackby(obj/item/clothing/mask/cigarette/cigarette, mob/user, params)
 	. = ..()
 	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !istype(cigarette) || cigarette.lit)
 		return .
 	. |= ATTACK_CHAIN_SUCCESS
-	cigarette.light(span_rose("[user] привычным движением прикурива[PLUR_ET_YUT(user)] заслуженную \
-					[GEND_IM_EI_IM_IMI(user)] [cigarette.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]. В воздухе запахло телекристаллами."))
+	cigarette.light(span_rose("[user] привычным движением прикурива[pluralize_ru(user.gender, "ет", "ют")] заслуженную \
+					[genderize_ru(user.gender, "им", "ей", "им", "ими")] [cigarette.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]. В воздухе запахло телекристаллами."))
+
 
 /**
  * # Prisoner Belongings Closet
@@ -57,6 +59,7 @@
 	if(!GLOB.prisoner_belongings)
 		GLOB.prisoner_belongings = src
 
+
 /obj/structure/closet/secure_closet/contractor/Destroy()
 	if(GLOB.prisoner_belongings == src)
 		GLOB.prisoner_belongings = null
@@ -77,7 +80,7 @@
 	var/obj/item/I = A
 	if(!istype(I))
 		return FALSE
-	if(I.datum_flags & DF_ISPROCESSING)
+	if(I.isprocessing)
 		LAZYSET(suspended_items, I.UID(), list(I, (I in SSfastprocess.processing)))
 		STOP_PROCESSING(SSobj, I)
 	I.loc = src // No forceMove because we don't want to trigger anything here

@@ -68,7 +68,7 @@
 /area/AIsattele)
 "q" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/item/beacon,
+/obj/item/radio/beacon,
 /turf/simulated/floor/plating/airless,
 /area/AIsattele)
 "r" = (

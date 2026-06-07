@@ -1,6 +1,7 @@
 /obj/item/decorations
 	icon = 'icons/obj/decorations.dmi'
 
+
 //duct tape decorations
 /obj/item/decorations/sticky_decorations
 	w_class = WEIGHT_CLASS_TINY
@@ -11,6 +12,7 @@
 
 /obj/item/decorations/sticky_decorations/flammable
 	resistance_flags = FLAMMABLE
+
 
 //Non-holiday decorations
 
@@ -38,6 +40,7 @@
 	name = "paper clock"
 	desc = "A paper clock. Right at least twice a day."
 	icon_state = "paper_clock"
+
 
 /obj/item/decorations/flag/soviet
 	name = "An old Soviet flag"
@@ -156,6 +159,8 @@
 
 //Valentines decorations
 
+
+
 /obj/item/decorations/sticky_decorations/flammable/arrowed_heart
 	name = "paper heart"
 	desc = "A paper heart. It's been shot through and Cupid is to blame!"
@@ -207,7 +212,14 @@
 /obj/item/decorations/sticky_decorations/flammable/easter_egg/orange
 	icon_state = "decoration_easter_egg_orange"
 
-// MARK: Decorative structures
+
+
+
+///////
+//Decorative structures
+///////
+
+
 /obj/structure/decorative_structures
 	icon = 'icons/obj/decorations.dmi'
 	icon_state = ""
@@ -227,36 +239,16 @@
 	. = ..()
 	add_overlay(icon('icons/obj/fireplace.dmi', "fireplace_fire3"))
 	add_overlay(icon('icons/obj/fireplace.dmi', "fireplace_glow"))
-	set_light(6, l_color = LIGHT_COLOR_GARLAND)
+	set_light(6, ,"#ffb366")
 
 /obj/structure/decorative_structures/garland
-	name = "garland"
-	icon_state = "xmaslights"
 	density = FALSE
 	anchored = TRUE
-
-/obj/structure/decorative_structures/garland/get_ru_names()
-	return alist(
-		NOMINATIVE = "новогодняя гирлянда",
-		GENITIVE = "новогодней гирлянды",
-		DATIVE = "новогодней гирлянде",
-		ACCUSATIVE = "новогоднюю гирлянду",
-		INSTRUMENTAL = "новогодней гирляндой",
-		PREPOSITIONAL = "новогодней гирлянде"
-	)
+	icon_state = "xmaslights"
 
 /obj/structure/decorative_structures/garland/Initialize(mapload)
 	. = ..()
-	set_light(2, l_color = "#ffffffbb")
-
-/obj/structure/decorative_structures/garland/north
-	dir = NORTH
-
-/obj/structure/decorative_structures/garland/east
-	dir = EAST
-
-/obj/structure/decorative_structures/garland/west
-	dir = WEST
+	set_light(2, ,"#ffffffbb")
 
 /obj/structure/decorative_structures/metal
 	flags = CONDUCT
@@ -291,9 +283,11 @@
 	desc = "Praise be to lady Tesla!"
 	icon_state = "tesla_monument"
 
+
 /obj/structure/decorative_structures/flammable
 	resistance_flags = FLAMMABLE
 	max_integrity = 50
+
 
 /obj/structure/decorative_structures/flammable/grandfather_clock
 	name = "grandfather clock"
@@ -305,9 +299,12 @@
 	desc = "The tomb of many a miner and possibly a home for much worse things."
 	icon_state = "lava_land_display"
 
+
+
 ///////
 //Decorative corpses
 ///////
+
 
 /obj/structure/decorative_structures/corpse
 	name = "Bloody body"
@@ -338,6 +335,9 @@
 	user.visible_message(span_danger("You punched something viscous! You hear a slimy sound."))
 
 /obj/structure/decorative_structures/corpse/play_attack_sound()
+	return
+
+/obj/structure/decorative_structures/corpse/climb_on()
 	return
 
 /obj/structure/decorative_structures/corpse/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
@@ -401,6 +401,7 @@
 	. = ..()
 	set_light(2, 1, COLOR_RED)
 
+
 /obj/structure/decorative_structures/cult_crystal/attackby(obj/item/I, mob/user, params)
 	. = ..()
 	if(ATTACK_CHAIN_CANCEL_CHECK(.))
@@ -408,6 +409,7 @@
 	. |= ATTACK_CHAIN_SUCCESS
 	electrocute_mob(user, get_area(src), src, 0.5, TRUE)
 	to_chat(user, span_warning("When you touch it, you feel some dark energy."))
+
 
 /obj/structure/decorative_structures/cult_crystal/attack_hand(mob/living/user)
 	electrocute_mob(user, get_area(src), src, 0.5, TRUE)

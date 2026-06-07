@@ -116,6 +116,7 @@
 				E = get_connection(Z_LEVEL_WEST)
 				S.set_transition_west(E.zpos)
 
+
 /datum/space_level/proc/get_turfs()
 	return block(1, 1, zpos, world.maxx, world.maxy, zpos)
 
@@ -149,13 +150,13 @@ GLOBAL_LIST_INIT(maploader_typecache, typecacheof(/obj/effect/landmark/map_loade
 
 /datum/space_level/proc/resume_init()
 	if(dirt_count > 0)
-		CRASH("Init told to resume when z-level still dirty. Z level: '[zpos]'")
+		throw EXCEPTION("Init told to resume when z-level still dirty. Z level: '[zpos]'")
 	log_debug("Releasing freeze on z-level '[zpos]'!")
 	log_debug("Beginning initialization!")
 	var/list/our_atoms = init_list // OURS NOW!!! (Keeping this list to ourselves will prevent hijack)
 	init_list = list()
 	var/watch = start_watch()
-	list_clear_nulls(our_atoms)
+	listclearnulls(our_atoms)
 	var/list/late_maps = typecache_filter_list(our_atoms, GLOB.maploader_typecache)
 	var/list/pipes = typecache_filter_list(our_atoms, GLOB.atmos_machine_typecache)
 	var/list/cables = typecache_filter_list(our_atoms, GLOB.cable_typecache)
@@ -165,11 +166,11 @@ GLOBAL_LIST_INIT(maploader_typecache, typecacheof(/obj/effect/landmark/map_loade
 	SSatoms.InitializeAtoms(our_atoms, FALSE)
 	log_debug("Primary initialization finished in [stop_watch(watch)]s.")
 	our_atoms.Cut()
-	if(length(pipes))
+	if(pipes.len)
 		do_pipes(pipes)
-	if(length(cables))
+	if(cables.len)
 		do_cables(cables)
-	if(length(late_maps))
+	if(late_maps.len)
 		do_late_maps(late_maps)
 
 /datum/space_level/proc/do_pipes(list/pipes)

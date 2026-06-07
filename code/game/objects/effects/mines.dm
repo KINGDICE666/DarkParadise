@@ -4,7 +4,8 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "uglyminearmed"
 	var/triggered = 0
-	var/faction = "syndicate"
+	var/list/faction = list("syndicate")
+
 
 /obj/effect/mine/Initialize(mapload)
 	. = ..()
@@ -13,8 +14,10 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/effect/mine/proc/mineEffect(mob/living/victim)
 	to_chat(victim, span_danger("*click*"))
+
 
 /obj/effect/mine/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -30,10 +33,11 @@
 
 	triggermine(arrived)
 
+
 /obj/effect/mine/proc/triggermine(mob/living/victim)
 	if(triggered)
 		return
-	visible_message(span_danger("[victim] sets off [get_examine_icon(viewers(src))] [src]!"))
+	visible_message(span_danger("[victim] sets off [bicon(src)] [src]!"))
 	do_sparks(3, TRUE, src)
 	mineEffect(victim)
 	triggered = 1
@@ -77,7 +81,7 @@
 	var/radiation_amount
 
 /obj/effect/mine/dnascramble/mineEffect(mob/living/victim)
-	SSradiation.irradiate(victim)
+	victim.apply_effect(radiation_amount, IRRADIATE, 0)
 	if(HAS_TRAIT(victim, TRAIT_NO_DNA))
 		return
 	randmutb(victim)
@@ -117,8 +121,8 @@
 	icon_state = "electricity2"
 	var/duration = 0
 
-/obj/effect/mine/pickup/Initialize(mapload)
-	. = ..()
+/obj/effect/mine/pickup/New()
+	..()
 	animate(src, pixel_y = 4, time = 20, loop = -1)
 
 /obj/effect/mine/pickup/triggermine(mob/living/victim)
@@ -177,11 +181,13 @@
 	to_chat(victim, span_notice("You feel great!"))
 	victim.revive()
 
+
 /obj/effect/mine/pickup/speed
 	name = "Yellow Orb"
 	desc = "You feel faster just looking at it."
 	color = "yellow"
 	duration = 30 SECONDS
+
 
 /obj/effect/mine/pickup/speed/mineEffect(mob/living/carbon/victim)
 	if(!victim.client || !istype(victim))
@@ -191,6 +197,7 @@
 	to_chat(victim, span_notice("You feel fast!"))
 
 	addtimer(CALLBACK(src, PROC_REF(mine_effect_callback), victim), duration, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_NO_HASH_WAIT)
+
 
 /obj/effect/mine/pickup/speed/proc/mine_effect_callback(mob/living/carbon/victim)
 	if(!QDELETED(victim))

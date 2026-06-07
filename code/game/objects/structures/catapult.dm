@@ -7,3 +7,4 @@
 	anchored = TRUE
 	layer = LATTICE_LAYER //under pipes
 	plane = FLOOR_PLANE
+	layer = BELOW_OBJ_LAYER

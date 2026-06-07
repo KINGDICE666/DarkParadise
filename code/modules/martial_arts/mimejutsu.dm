@@ -57,13 +57,13 @@
 	var/used = FALSE
 
 /obj/item/mimejutsu_scroll/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мануал Мимдзютсю",
 		GENITIVE = "мануала Мимдзютсю",
 		DATIVE = "мануалу Мимдзютсю",
 		ACCUSATIVE = "мануал Мимдзютсю",
 		INSTRUMENTAL = "мануалом Мимдзютсю",
-		PREPOSITIONAL = "мануале Мимдзютсю",
+		PREPOSITIONAL = "мануале Мимдзютсю"
 	)
 
 /obj/item/mimejutsu_scroll/attack_self(mob/user)

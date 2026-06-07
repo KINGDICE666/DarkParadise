@@ -3,6 +3,14 @@
 	species_type = /datum/species/wryn
 	name = "antennae"
 	desc = "Орган, отвечающий за телепатическую связь врина с его сородичами."
+	ru_names = list(
+		NOMINATIVE = "антенна",
+		GENITIVE = "антенны",
+		DATIVE = "антенне",
+		ACCUSATIVE = "антенну",
+		INSTRUMENTAL = "антенной",
+		PREPOSITIONAL = "антенне"
+	)
 	icon = 'icons/obj/species_organs/wryn.dmi'
 	icon_state = "antennae"
 	parent_organ_zone = BODY_ZONE_HEAD
@@ -11,22 +19,12 @@
 	/// Stored hair style, defines only on creation and changes original h_style when inserted
 	var/hair_style = "Normal antennae"
 
-/obj/item/organ/internal/wryn/hivenode/get_ru_names()
-	return alist(
-		NOMINATIVE = "антенна",
-		GENITIVE = "антенны",
-		DATIVE = "антенне",
-		ACCUSATIVE = "антенну",
-		INSTRUMENTAL = "антенной",
-		PREPOSITIONAL = "антенне",
-	)
-
-/obj/item/organ/internal/wryn/hivenode/Initialize(mapload)
-	if(iscarbon(loc))
-		var/mob/living/carbon/carbon = loc
+/obj/item/organ/internal/wryn/hivenode/New(mob/living/carbon/carbon)
+	if(istype(carbon))
 		var/obj/item/organ/external/head/head_organ = carbon.get_organ(BODY_ZONE_HEAD)
 		hair_style = head_organ.h_style
-	. = ..()
+
+	return ..(carbon)
 
 /obj/item/organ/internal/wryn/hivenode/insert(mob/living/carbon/human/human, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -49,6 +47,14 @@
 	species_type = /datum/species/wryn
 	name = "wryn wax glands"
 	desc = "Парные железы, выделяющие воск, который может использоваться вринами как строительный материал."
+	ru_names = list(
+		NOMINATIVE = "восковые железы",
+		GENITIVE = "восковых желез",
+		DATIVE = "восковым железам",
+		ACCUSATIVE = "восковые железы",
+		INSTRUMENTAL = "восковыми железами",
+		PREPOSITIONAL = "восковых железах"
+	)
 	gender = PLURAL
 	icon = 'icons/obj/species_organs/wryn.dmi'
 	icon_state = "waxsac"
@@ -59,16 +65,6 @@
 	var/datum/action/innate/wryn/toggle_producing/toggle_producing = new
 	var/wax = 25
 	var/producing = FALSE
-
-/obj/item/organ/internal/wryn/glands/get_ru_names()
-	return alist(
-		NOMINATIVE = "восковые железы",
-		GENITIVE = "восковых желез",
-		DATIVE = "восковым железам",
-		ACCUSATIVE = "восковые железы",
-		INSTRUMENTAL = "восковыми железами",
-		PREPOSITIONAL = "восковых железах",
-	)
 
 /obj/item/organ/internal/wryn/glands/on_life()
 	if(!producing)
@@ -88,6 +84,7 @@
 	build_wax.Remove(M)
 	toggle_producing.Remove(M)
 	. = ..()
+
 
 /datum/action/innate/wryn/build_wax
 	name = "Строительство из воска"
@@ -112,6 +109,7 @@
 	var/datum/wryn_building/structure = GLOB.wryn_structures[choosen_type]
 	structure.wax_build(host, structure.wax_amount, structure.structure)
 
+
 /datum/action/innate/wryn/toggle_producing
 	name = "Переключить секрецию воска"
 	button_icon_state = "glands"
@@ -122,88 +120,78 @@
 
 /obj/item/organ/internal/brain/wryn
 	desc = "Основной орган центральной нервной системы гуманоида. Фактически, именно здесь и находится разум. Этот принадлежал врину."
-	icon = 'icons/obj/species_organs/wryn.dmi'
-	item_state = "wryn_brain"
-	mmi_icon = 'icons/obj/species_organs/wryn.dmi'
-
-/obj/item/organ/internal/brain/wryn/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "мозг врина",
 		GENITIVE = "мозга врина",
 		DATIVE = "мозгу врина",
 		ACCUSATIVE = "мозг врина",
 		INSTRUMENTAL = "мозгом врина",
-		PREPOSITIONAL = "мозге врина",
+		PREPOSITIONAL = "мозге врина"
 	)
+	icon = 'icons/obj/species_organs/wryn.dmi'
+	item_state = "wryn_brain"
+	mmi_icon = 'icons/obj/species_organs/wryn.dmi'
 
 /obj/item/organ/internal/heart/wryn
 	species_type = /datum/species/wryn
 	name = "wryn heart"
 	desc = "Орган, качающий кровь или её заменяющую субстанцию по организму гуманоида. Это принадлежало врину."
-	icon = 'icons/obj/species_organs/wryn.dmi'
-	item_state = "wryn_heart-on"
-	item_base = "wryn_heart"
-
-/obj/item/organ/internal/heart/wryn/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "сердце врина",
 		GENITIVE = "сердца врина",
 		DATIVE = "сердцу врина",
 		ACCUSATIVE = "сердце врина",
 		INSTRUMENTAL = "сердцем врина",
-		PREPOSITIONAL = "сердце врина",
+		PREPOSITIONAL = "сердце врина"
 	)
+	icon = 'icons/obj/species_organs/wryn.dmi'
+	item_state = "wryn_heart-on"
+	item_base = "wryn_heart"
 
 /obj/item/organ/internal/eyes/wryn
 	species_type = /datum/species/wryn
 	name = "wryn eyes"
-	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали врину."
-	icon = 'icons/obj/species_organs/wryn.dmi'
-	item_state = "wryn_eyes"
-	see_in_dark = 3
-
-/obj/item/organ/internal/eyes/wryn/get_ru_names()
-	return alist(
+	desc = "Парный орган, отвечающий за зрение - восприятие света и его трансформацию в видимое изображение. Эти принадлежали врину."
+	ru_names = list(
 		NOMINATIVE = "глаза врина",
 		GENITIVE = "глаз врина",
 		DATIVE = "глазам врина",
 		ACCUSATIVE = "глаза врина",
 		INSTRUMENTAL = "глазами врина",
-		PREPOSITIONAL = "глазах врина",
+		PREPOSITIONAL = "глазах врина"
 	)
+	icon = 'icons/obj/species_organs/wryn.dmi'
+	item_state = "wryn_eyes"
+	see_in_dark = 3
 
 /obj/item/organ/internal/ears/wryn
 	species_type = /datum/species/wryn
 	name = "wryn ears"
 	desc = "Парный орган, отвечающий за аудиальное восприятие окружающей среды и получение информации о положении гуманоида в пространстве. Эти принадлежали врину."
-
-/obj/item/organ/internal/ears/wryn/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "уши врина",
 		GENITIVE = "ушей врина",
 		DATIVE = "ушам врина",
 		ACCUSATIVE = "уши врина",
 		INSTRUMENTAL = "ушами врина",
-		PREPOSITIONAL = "ушах врина",
+		PREPOSITIONAL = "ушах врина"
 	)
 
 /obj/item/organ/external/tail/wryn
 	species_type = /datum/species/wryn
 	name = "wryn tail"
 	desc = "Хвост. Этот принадлежал врину."
-	icon_name = "wryntail_s"
-	max_damage = 35
-	min_broken_damage = 25
-
-/obj/item/organ/external/tail/wryn/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "хвост врина",
 		GENITIVE = "хвоста врина",
 		DATIVE = "хвосту врина",
 		ACCUSATIVE = "хвост врина",
 		INSTRUMENTAL = "хвостом врина",
-		PREPOSITIONAL = "хвосте врина",
+		PREPOSITIONAL = "хвосте врина"
 	)
+	icon_name = "wryntail_s"
+	max_damage = 35
+	min_broken_damage = 25
 
 /obj/item/organ/external/chest/wryn
 	encased = "хитиновую оболочку на груди"

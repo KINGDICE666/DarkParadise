@@ -17,6 +17,7 @@
 		For some reason or another you can move while not touching the ground
 */
 
+
 // STATUS EFFECTS
 // All of these are handed by a status_effect in `debuffs.dm` their durations are measured in deciseconds, so the seconds define is used wherever possible, even with decimal seconds values.
 // Status effects sorted alphabetically:
@@ -100,6 +101,9 @@
 	SHOULD_BE_PURE(TRUE)
 
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
+		return TRUE
+
+	if(HAS_TRAIT(src, TRAIT_STUNIMMUNE))
 		return TRUE
 
 	if(force_apply) // Does not take priority over god mode? I guess
@@ -318,6 +322,7 @@
 		return
 	SET_STATUS_EFFECT_STRENGTH(STATUS_EFFECT_TEMPERATURE, target_temperature)
 
+
 /// HALLUCINATION
 /mob/living/proc/AmountHallucinate()
 	RETURN_STATUS_EFFECT_STRENGTH(STATUS_EFFECT_HALLUCINATION)
@@ -469,8 +474,6 @@
 
 /// SLEEPING
 /mob/living/proc/IsSleeping()
-	if(HAS_TRAIT(src, TRAIT_SLEEPIMMUNE))
-		return
 	return has_status_effect(STATUS_EFFECT_SLEEPING)
 
 /mob/living/proc/AmountSleeping() //How many deciseconds remain in our sleep
@@ -484,8 +487,6 @@
 		return
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return
-	if(HAS_TRAIT(src, TRAIT_SLEEPIMMUNE))
-		return
 	var/datum/status_effect/incapacitating/sleeping/S = IsSleeping()
 	if(S)
 		S.duration = max(world.time + amount, S.duration)
@@ -497,8 +498,6 @@
 	if(SEND_SIGNAL(src, COMSIG_LIVING_STATUS_SLEEP, amount) & COMPONENT_NO_EFFECT)
 		return
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
-		return
-	if(HAS_TRAIT(src, TRAIT_SLEEPIMMUNE))
 		return
 	if(frozen) // If the mob has been admin frozen, sleeping should not be changeable
 		return
@@ -521,7 +520,7 @@
 		return
 	var/datum/status_effect/incapacitating/sleeping/S = IsSleeping()
 	if(S)
-		S.duration = STATUS_EFFECT_PERMANENT
+		S.duration = -1
 	else
 		S = apply_status_effect(STATUS_EFFECT_SLEEPING, -1)
 	return S
@@ -671,6 +670,7 @@
 /mob/living/proc/IsKnockdown() //If we're knocked down
 	return has_status_effect(STATUS_EFFECT_KNOCKDOWN)
 
+
 /mob/living/proc/AmountKnockdown() //How many deciseconds remain in our knockdown
 	var/datum/status_effect/incapacitating/knockdown/K = IsKnockdown()
 	if(K)
@@ -717,6 +717,7 @@
 		K = apply_status_effect(STATUS_EFFECT_KNOCKDOWN, amount)
 	return K
 
+
 /mob/living/proc/unbuckle_if_not_cuffed()
 	if(!buckled)
 		return
@@ -726,6 +727,7 @@
 		return
 
 	buckled.unbuckle_mob(src, force = TRUE)
+
 
 // MARK: IMMOBILIZED
 
@@ -791,6 +793,7 @@
 
 /mob/living/IsWeakened()
 	return has_status_effect(STATUS_EFFECT_WEAKENED)
+
 
 /mob/living/proc/AmountWeakened() //How many deciseconds remain in our Weakened status effect
 	var/datum/status_effect/incapacitating/weakened/P = IsWeakened()
@@ -917,10 +920,12 @@
 	REMOVE_TRAIT(src, TRAIT_IGNORESLOWDOWN, source)
 	update_movespeed()
 
+
 /// Ignores all slowdowns that lack the IGNORE_NOSLOW flag.
 /mob/living/proc/ignore_slowdown(source)
 	ADD_TRAIT(src, TRAIT_IGNORESLOWDOWN, source)
 	update_movespeed()
+
 
 /// Ignores specific slowdowns. Accepts a list of slowdowns.
 /mob/living/proc/add_movespeed_mod_immunities(source, slowdown_type, update = TRUE)
@@ -935,6 +940,7 @@
 		LAZYADDASSOCLIST(movespeed_mod_immunities, slowdown_type, source)
 	if(update)
 		update_movespeed()
+
 
 /// Unignores specific slowdowns. Accepts a list of slowdowns.
 /mob/living/proc/remove_movespeed_mod_immunities(source, slowdown_type, update = TRUE)
@@ -955,11 +961,26 @@
 /mob/living/proc/IsFrozen()
 	return has_status_effect(/datum/status_effect/freon)
 
-/mob/living/proc/cure_radiation()
-	var/radiation = GetComponent(/datum/component/irradiated)
-	if(!radiation)
-		return
-	qdel(GetComponent(/datum/component/irradiated))
+
+/mob/living/proc/AllImmobility(amount)
+	Paralyse(amount)
+	Knockdown(amount)
+	Stun(amount)
+	Immobilize(amount)
+
+
+/mob/living/proc/SetAllImmobility(amount)
+	SetParalysis(amount)
+	SetKnockdown(amount)
+	SetStunned(amount)
+	SetImmobilized(amount)
+
+
+/mob/living/proc/AdjustAllImmobility(amount)
+	AdjustParalysis(amount)
+	AdjustKnockdown(amount)
+	AdjustStunned(amount)
+	AdjustImmobilized(amount)
 
 #undef RETURN_STATUS_EFFECT_STRENGTH
 #undef SET_STATUS_EFFECT_STRENGTH

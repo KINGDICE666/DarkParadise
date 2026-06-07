@@ -13,10 +13,12 @@
 	/// Recursion avoidance
 	var/currently_moving = FALSE
 
+
 /obj/item/target/Destroy()
 	stake = null
 	LAZYNULL(bullet_holes)
 	return ..()
+
 
 /obj/item/target/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	if(currently_moving)
@@ -32,6 +34,7 @@
 	if(!. && loc && stake && stake.loc != loc)
 		stake.forceMove(loc)
 
+
 /obj/item/target/welder_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -39,6 +42,7 @@
 	LAZYNULL(bullet_holes)
 	update_icon(UPDATE_OVERLAYS)
 	to_chat(user, span_notice("You slice off [src]'s uneven chunks of aluminium and scorch marks."))
+
 
 /obj/item/target/attack_hand(mob/user)
 	if(!stake)
@@ -54,6 +58,7 @@
 	stake.pinned_target = null
 	stake = null
 
+
 /obj/item/target/syndicate
 	icon_state = "target_s"
 	desc = "A shooting target that looks like a syndicate scum."
@@ -64,8 +69,10 @@
 	desc = "A shooting target that looks like a xenomorphic alien."
 	hp = 2350 // alium onest too kinda
 
+
 /obj/item/target/update_overlays()
 	return LAZYCOPY(bullet_holes)
+
 
 #define DECALTYPE_SCORCH 1
 #define DECALTYPE_BULLET 2

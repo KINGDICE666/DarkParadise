@@ -31,13 +31,16 @@
 /obj/effect/clockwork/overlay/singularity_act()
 	return
 
-/obj/effect/clockwork/overlay/singularity_pull(atom/singularity, current_size)
+/obj/effect/clockwork/overlay/singularity_pull()
+	return
+
+/obj/effect/clockwork/overlay/singularity_pull(S, current_size)
 	return
 
 /obj/effect/clockwork/overlay/Destroy()
 	if(linked)
 		linked = null
-	return ..()
+	. = ..()
 
 /obj/effect/clockwork/overlay/wall
 	name = "clockwork wall"
@@ -50,14 +53,11 @@
 
 /obj/effect/clockwork/overlay/wall/Initialize(mapload)
 	. = ..()
-	QUEUE_SMOOTH_NEIGHBORS(src)
-	addtimer(CALLBACK(src, PROC_REF(queue_smooth)), 1)
-
-/obj/effect/clockwork/overlay/wall/proc/queue_smooth()
-	QUEUE_SMOOTH(src)
+	queue_smooth_neighbors(src)
+	addtimer(CALLBACK(GLOBAL_PROC, /proc/queue_smooth, src), 1)
 
 /obj/effect/clockwork/overlay/wall/Destroy()
-	QUEUE_SMOOTH_NEIGHBORS(src)
+	queue_smooth_neighbors(src)
 	return ..()
 
 /obj/effect/clockwork/overlay/floor
@@ -89,9 +89,11 @@
 /obj/effect/decal/cleanable/blood/gibs/clock/can_bloodcrawl_in()
 	return FALSE
 
+
 /obj/effect/decal/cleanable/blood/gibs/clock/update_icon(updates = ALL)
 	color = "#FFFFFF"
 	. = ..(NONE)
+
 
 /obj/effect/decal/cleanable/blood/gibs/clock/dry()
 	return
@@ -133,15 +135,11 @@
 /obj/structure/clockwork/wall_gear
 	name = "massive gear"
 	icon_state = "gear"
+	climbable = TRUE
 	max_integrity = 100
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	desc = "A massive brass gear. You could probably secure or unsecure it with a wrench, or just climb over it."
 	var/metal_type = /obj/item/stack/sheet/brass
-
-/obj/structure/clockwork/wall_gear/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/climbable)
-	AddElement(/datum/element/elevation, pixel_shift = 16)
 
 /obj/structure/clockwork/wall_gear/displaced
 	anchored = FALSE
@@ -167,7 +165,7 @@
 /obj/structure/clockwork/wall_gear/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
 	if(anchored)
-		to_chat(user, span_warning("[src] needs to be unsecured to disassemble it!"))
+		to_chat(user, "<span class='warning'>[src] needs to be unsecured to disassemble it!</span>")
 		return
 	if(!I.tool_use_check(user, 0))
 		return
@@ -181,6 +179,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	default_unfasten_wrench(user, I, 10)
+
 
 /obj/structure/clockwork/wall_gear/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/sheet/brass))
@@ -218,6 +217,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
 /obj/structure/clockwork/wall_gear/deconstruct(disassembled = TRUE)
 	if(!(obj_flags & NODECONSTRUCT) && disassembled)
 		new metal_type(loc, 1)
@@ -232,6 +232,7 @@
 	if(prob(25))
 		new /obj/structure/girder/cult(loc)
 		qdel(src)
+
 
 /obj/structure/clockwork/wall_gear/fake/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/sheet/brass_fake))

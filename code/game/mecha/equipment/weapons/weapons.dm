@@ -2,7 +2,6 @@
 	name = "mecha weapon"
 	range = MECHA_RANGED
 	origin_tech = "materials=3;combat=3"
-	abstract_type = /obj/item/mecha_parts/mecha_equipment/weapon
 	var/pb_knockback = 0
 	var/projectile
 	var/fire_sound
@@ -30,10 +29,8 @@
 /obj/item/mecha_parts/mecha_equipment/weapon/get_destroy_sound()
 	return chassis.weapdestrsound
 
-/obj/item/mecha_parts/mecha_equipment/weapon/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/action(target, params)
 	if(!action_checks(target))
-		return FALSE
-	if(chassis.prevents_weapon_fire(src))
 		return FALSE
 	if(!is_faced_target(target))
 		return FALSE
@@ -45,7 +42,7 @@
 	if(targloc == curloc)
 		return FALSE
 
-	for(var/i in 1 to get_shot_amount())
+	for(var/i=1 to get_shot_amount())
 		spawn((i - 1) * projectile_delay)
 			var/obj/projectile/A = new projectile(curloc)
 			A.firer = chassis.occupant
@@ -59,7 +56,7 @@
 					spread = round((rand() - 0.5) * variance)
 				else
 					spread = round((i / projectiles_per_shot - 0.5) * variance)
-			A.preparePixelProjectile(target, chassis.occupant, modifiers, spread)
+			A.preparePixelProjectile(target, targloc, chassis.occupant, params, spread)
 
 			chassis.use_power(energy_drain)
 			projectiles--
@@ -137,7 +134,7 @@
 	icon_state = "mecha_teslacannon"
 	origin_tech = "materials=4;engineering=4;combat=6;magnets=6"
 	energy_drain = 500
-	projectile = /obj/projectile/energy/tesla/cannon
+	projectile = /obj/projectile/energy/shock_revolver
 	fire_sound = 'sound/magic/lightningbolt.ogg'
 	harmful = TRUE
 
@@ -176,9 +173,14 @@
 	icon_state = "mecha_pulse"
 	energy_drain = 120
 	origin_tech = "materials=3;combat=6;powerstorage=4"
-	projectile = /obj/projectile/beam/pulse/hitscan/heavy
+	projectile = /obj/projectile/beam/pulse/heavy
 	fire_sound = 'sound/weapons/gunshots/1pulse.ogg'
 	harmful = TRUE
+
+/obj/projectile/beam/pulse/heavy
+	name = "heavy pulse laser"
+	icon_state = "pulse1_bl"
+
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/taser
 	name = "PBT \"Pacifier\" Mounted Taser"
@@ -203,7 +205,7 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/weapon/honker/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/honker/action(target, params)
 	if(!chassis)
 		return FALSE
 	if(energy_drain && chassis.get_charge() < energy_drain)
@@ -234,7 +236,10 @@
 			if(isobj(H.shoes) && !HAS_TRAIT(H.shoes, TRAIT_NODROP))
 				var/thingy = H.shoes
 				H.drop_item_ground(H.shoes)
-				GLOB.move_manager.move_away(thingy, chassis, 15, 2, timeout = 2 SECONDS)
+				SSmove_manager.move_away(thingy, chassis, 15, 2)
+				spawn(20)
+					if(thingy)
+						SSmove_manager.stop_looping(thingy)
 	for(var/obj/mecha/combat/reticence/R in oview(6, chassis))
 		R.occupant_message("\The [R] has protected you from [chassis]'s HONK at the cost of some power.")
 		R.use_power(R.get_charge() / 4)
@@ -392,7 +397,7 @@
 	var/missile_range = 30
 	harmful = TRUE
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/action(target, params)
 	if(!action_checks(target))
 		return FALSE
 	if(!is_faced_target(target))
@@ -414,13 +419,13 @@
 	projectile = /obj/item/missile/heavy
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/heavy/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "тяжёлая пусковая ракетная установка SRX-13",
 		GENITIVE = "тяжёлой пусковой ракетной установки SRX-13",
 		DATIVE = "тяжёлой пусковой ракетной установке SRX-13",
 		ACCUSATIVE = "тяжёлую пусковую ракетную установку SRX-13",
 		INSTRUMENTAL = "тяжёлой пусковой ракетной установкой SRX-13",
-		PREPOSITIONAL = "тяжёлой пусковой ракетной установке SRX-13",
+		PREPOSITIONAL = "тяжёлой пусковой ракетной установке SRX-13"
 	)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/medium
@@ -429,14 +434,15 @@
 	icon_state = "mecha_missilerack"
 	projectile = /obj/item/missile
 
+
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/medium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пусковая ракетная установка SRM-8",
 		GENITIVE = "пусковой ракетной установки SRM-8",
 		DATIVE = "пусковой ракетной установке SRM-8",
 		ACCUSATIVE = "пусковую ракетную установку SRM-8",
 		INSTRUMENTAL = "пусковой ракетной установкой SRM-8",
-		PREPOSITIONAL = "пусковой ракетной установке SRM-8",
+		PREPOSITIONAL = "пусковой ракетной установке SRM-8"
 	)
 
 /obj/item/missile
@@ -474,7 +480,7 @@
 	var/det_time = 20
 	size = 1
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang/action(target, params)
 	if(!action_checks(target))
 		return FALSE
 	if(!is_faced_target(target))
@@ -527,7 +533,7 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/banana_mortar/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/banana_mortar/action(target, params)
 	if(!action_checks(target))
 		return FALSE
 	if(!is_faced_target(target))
@@ -555,7 +561,7 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/mousetrap_mortar/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/mousetrap_mortar/action(target, params)
 	if(!action_checks(target))
 		return FALSE
 	if(!is_faced_target(target))
@@ -585,7 +591,7 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/bola/action(target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/bola/action(target, params)
 	if(!action_checks(target))
 		return FALSE
 	if(!is_faced_target(target))
@@ -612,7 +618,7 @@
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/plasma/can_attach(obj/mecha/M)
 	if(istype(M, /obj/mecha/working) || istype(M, /obj/mecha/combat/lockersyndie))
-		if(length(M.equipment)<M.max_equip)
+		if(M.equipment.len<M.max_equip)
 			return TRUE
 	return FALSE
 

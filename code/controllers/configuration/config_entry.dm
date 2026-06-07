@@ -13,6 +13,8 @@
 	var/deprecated_by
 	/// The /datum/config_entry type that supercedes this one
 	var/protection = NONE
+	/// Do not instantiate if type matches this
+	var/abstract_type = /datum/config_entry
 	/// Force validate and set on VV. VAS proccall guard will run regardless.
 	var/vv_VAS = TRUE
 	/// Controls if error is thrown when duplicate configuration values for this entry type are encountered
@@ -164,7 +166,7 @@
 		if(isnull(temp))
 			return FALSE
 		new_list += temp
-	if(!length(new_list))
+	if(!new_list.len)
 		return FALSE
 	config_entry_value = new_list
 	return TRUE
@@ -272,6 +274,7 @@
 				return
 
 			return key_path
+
 
 /// Takes a given config value and validates it. If successful, returns the formatted key. If unsuccessful, returns null.
 /datum/config_entry/keyed_list/proc/validate_config_value(value)

@@ -14,13 +14,17 @@
 "ay" = (
 /obj/item/trash/raisins,
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 2
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 2;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "aH" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
@@ -63,10 +67,8 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "bj" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/effect/turf_decal/stripes/line{
-	dir = 9
-	},
+/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/decal/warning_stripes/northwest,
 /obj/structure/closet/crate,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/cleanable/dirt,
@@ -189,7 +191,7 @@
 /turf/simulated/openspace,
 /area/maintenance/abandonedwarehouse)
 "fg" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/effect/decal/cleanable/dirt,
@@ -198,6 +200,8 @@
 "fh" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -210,7 +214,7 @@
 /area/maintenance/livingcomplex)
 "fk" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/landmark/spawner/ninja_teleport,
+/obj/effect/landmark/ninja_teleport,
 /turf/simulated/floor/carpet/arcade,
 /area/maintenance/livingcomplex)
 "fE" = (
@@ -240,7 +244,7 @@
 /turf/simulated/floor/carpet/royalblue,
 /area/maintenance/livingcomplex)
 "gr" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 1
 	},
 /obj/effect/turf_decal/arrows{
@@ -272,6 +276,7 @@
 	dir = 4
 	},
 /obj/structure/sign/poster/contraband/commando{
+	pixel_y = 0;
 	pixel_x = 32
 	},
 /turf/simulated/floor/carpet/royalblack,
@@ -310,10 +315,8 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "hO" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/effect/turf_decal/stripes/line{
-	dir = 6
-	},
+/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/decal/warning_stripes/southeast,
 /obj/structure/closet/crate{
 	icon_state = "crateopen"
 	},
@@ -326,7 +329,7 @@
 /turf/simulated/wall,
 /area/maintenance/fsmaint3)
 "it" = (
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/vending/protein,
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
@@ -341,7 +344,7 @@
 /area/maintenance/abandonedwarehouse)
 "iz" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/structure/sign/poster/official/random{
 	pixel_y = 32
 	},
@@ -390,6 +393,8 @@
 	name = "Cafe"
 	},
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
@@ -412,7 +417,7 @@
 /area/maintenance/fsmaint3)
 "kk" = (
 /obj/effect/decal/cleanable/flour,
-/obj/effect/landmark/spawner/xeno,
+/obj/effect/landmark/event/xeno_spawn,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "kq" = (
@@ -440,6 +445,8 @@
 /area/maintenance/abandonedwarehouse)
 "lB" = (
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
@@ -467,7 +474,7 @@
 	},
 /area/maintenance/livingcomplex)
 "mm" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /obj/effect/turf_decal/arrows,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -483,13 +490,14 @@
 /area/template_noop)
 "mN" = (
 /obj/structure/sign/poster/contraband/commando{
+	pixel_y = 0;
 	pixel_x = -32
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint3)
 "mV" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
@@ -506,7 +514,11 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "nG" = (
-/obj/machinery/power/apc/worn_out/directional/west,
+/obj/machinery/power/apc/worn_out{
+	cell_type = 0;
+	dir = 8;
+	pixel_x = -26
+	},
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
@@ -514,7 +526,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "nL" = (
-/obj/structure/closet/crate/large/cow,
+/obj/structure/largecrate/cow,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -525,7 +537,9 @@
 /turf/simulated/floor/carpet/royalblue,
 /area/maintenance/livingcomplex)
 "ot" = (
-/obj/structure/extinguisher_cabinet/directional/east,
+/obj/structure/extinguisher_cabinet{
+	pixel_x = 26
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -567,7 +581,8 @@
 	pixel_x = -8
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/maintenance/livingcomplex)
 "pm" = (
@@ -592,9 +607,7 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "qh" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/effect/turf_decal/caution/stand_clear,
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint3)
@@ -606,11 +619,12 @@
 	pixel_x = -17
 	},
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken7"
+	icon_state = "wood-broken7";
+	tag = "icon-wood-broken7"
 	},
 /area/maintenance/livingcomplex)
 "qq" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 1
 	},
 /obj/effect/turf_decal/arrows{
@@ -626,6 +640,8 @@
 /area/maintenance/livingcomplex)
 "qA" = (
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/broken{
@@ -717,10 +733,8 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "sD" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
-	},
+/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/decal/warning_stripes/southwest,
 /obj/structure/pianoclassic{
 	anchored = 0
 	},
@@ -759,7 +773,7 @@
 /area/maintenance/livingcomplex)
 "tz" = (
 /obj/machinery/portable_atmospherics/canister/air,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -782,9 +796,7 @@
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 8
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/cable{
@@ -799,12 +811,8 @@
 	dir = 2
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/south,
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "uB" = (
@@ -835,7 +843,10 @@
 /area/maintenance/livingcomplex)
 "vh" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/light_switch/directional/south,
+/obj/machinery/light_switch{
+	dir = 1;
+	pixel_y = -24
+	},
 /obj/machinery/light,
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
@@ -851,7 +862,7 @@
 /turf/simulated/floor/carpet/royalblue,
 /area/maintenance/livingcomplex)
 "vP" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /obj/effect/turf_decal/arrows{
@@ -861,7 +872,7 @@
 /area/maintenance/abandonedwarehouse)
 "wH" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/landmark/spawner/ninja_teleport,
+/obj/effect/landmark/ninja_teleport,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "wK" = (
@@ -875,7 +886,7 @@
 /area/maintenance/livingcomplex)
 "wS" = (
 /obj/machinery/vending/cola,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/structure/sign/poster/contraband/commando{
 	pixel_y = -32
 	},
@@ -884,11 +895,11 @@
 	},
 /area/maintenance/livingcomplex)
 "xc" = (
-/obj/effect/landmark/spawner/xeno,
+/obj/effect/landmark/event/xeno_spawn,
 /turf/simulated/floor/carpet/royalblack,
 /area/maintenance/livingcomplex)
 "xe" = (
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/portable_atmospherics/canister/sleeping_agent,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -903,7 +914,7 @@
 /turf/simulated/floor/carpet/royalblue,
 /area/maintenance/livingcomplex)
 "xw" = (
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/portable_atmospherics/canister/sleeping_agent,
 /obj/structure/sign/poster/official/random{
 	pixel_y = 32
@@ -929,25 +940,31 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/obj/effect/turf_decal/stripes/corner{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/southeastcorner,
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/power/apc/directional/south,
+/obj/machinery/power/apc{
+	pixel_y = -26
+	},
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "yN" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 4
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 4;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "yP" = (
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
@@ -975,10 +992,8 @@
 /turf/simulated/wall,
 /area/maintenance/abandonedwarehouse)
 "zF" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/effect/turf_decal/stripes/line{
-	dir = 5
-	},
+/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/decal/warning_stripes/northeast,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/effect/decal/cleanable/dirt,
@@ -1000,7 +1015,9 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "AQ" = (
-/obj/structure/extinguisher_cabinet/directional/west,
+/obj/structure/extinguisher_cabinet{
+	pixel_x = -26
+	},
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/reagent_dispensers/watertank,
 /turf/simulated/floor/pod,
@@ -1010,7 +1027,9 @@
 	dir = 8;
 	layer = 2.9
 	},
-/obj/item/clothing/gloves/color/latex/nitrile,
+/obj/item/clothing/gloves/color/latex/nitrile{
+	pixel_y = 0
+	},
 /obj/item/clothing/accessory/stethoscope,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
@@ -1045,6 +1064,8 @@
 "BQ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -1066,7 +1087,7 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "CW" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 8
 	},
 /obj/effect/turf_decal/arrows{
@@ -1093,12 +1114,12 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /turf/simulated/floor/pod,
@@ -1126,9 +1147,7 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "EE" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 6
-	},
+/obj/effect/decal/warning_stripes/southeast,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/ants,
 /turf/simulated/floor/plasteel/dark,
@@ -1155,6 +1174,7 @@
 	nightshift_enabled = 1
 	},
 /obj/structure/sign/poster/contraband/commando{
+	pixel_y = 0;
 	pixel_x = 32
 	},
 /turf/simulated/floor/carpet/black,
@@ -1188,9 +1208,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/obj/effect/turf_decal/stripes/corner{
-	dir = 8
-	},
+/obj/effect/decal/warning_stripes/southwestcorner,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -1208,7 +1226,7 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/maintenance/livingcomplex)
 "HC" = (
-/obj/effect/turf_decal/delivery/partial,
+/obj/effect/decal/warning_stripes/yellow/partial,
 /obj/effect/turf_decal/arrows,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -1242,9 +1260,7 @@
 /turf/simulated/floor/carpet/black,
 /area/maintenance/livingcomplex)
 "It" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 9
-	},
+/obj/effect/decal/warning_stripes/northwest,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/ants,
 /turf/simulated/floor/plasteel/dark,
@@ -1260,6 +1276,7 @@
 /obj/machinery/door_control{
 	id = "oldcargo";
 	name = "Abandoned Warehouse Access Control";
+	pixel_y = 0;
 	req_access = list(31);
 	pixel_x = 24
 	},
@@ -1267,12 +1284,8 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/south,
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "Je" = (
@@ -1290,7 +1303,7 @@
 /area/maintenance/livingcomplex)
 "Jt" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -1304,6 +1317,8 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/item/stack/tile/wood/fancy,
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /turf/simulated/floor/plating,
@@ -1341,7 +1356,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "KJ" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 8
 	},
 /obj/effect/turf_decal/arrows{
@@ -1356,6 +1371,8 @@
 	name = "Cafe"
 	},
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
@@ -1383,9 +1400,7 @@
 	icon_state = "1-2"
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/effect/turf_decal/caution/stand_clear,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -1425,7 +1440,10 @@
 	dir = 4
 	},
 /obj/machinery/light_construct,
-/obj/machinery/firealarm/directional/south,
+/obj/machinery/firealarm{
+	dir = 1;
+	pixel_y = -26
+	},
 /turf/simulated/floor/carpet/royalblue,
 /area/maintenance/livingcomplex)
 "Mv" = (
@@ -1459,8 +1477,12 @@
 /area/maintenance/livingcomplex)
 "Nr" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 1
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 1;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
@@ -1572,11 +1594,18 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "RG" = (
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8
+/obj/machinery/atmospherics/unary/vent_scrubber{
+	dir = 8;
+	name = "standard air scrubber";
+	on = 1;
+	scrub_N2O = 1;
+	scrub_Toxins = 1
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/firealarm/directional/south,
+/obj/machinery/firealarm{
+	dir = 1;
+	pixel_y = -26
+	},
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "RY" = (
@@ -1599,7 +1628,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "Sr" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit,
 /turf/simulated/floor/plasteel/dark,
@@ -1610,7 +1639,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "SX" = (
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
@@ -1628,9 +1657,7 @@
 /turf/simulated/wall,
 /area/maintenance/abandonedwarehouse)
 "Tu" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 5
-	},
+/obj/effect/decal/warning_stripes/northeast,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/dark,
 /area/maintenance/abandonedwarehouse)
@@ -1646,6 +1673,8 @@
 "Ue" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -1660,20 +1689,19 @@
 /area/maintenance/livingcomplex)
 "Un" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/turf_decal/stripes/corner{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/northwestcorner,
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint3)
 "Uu" = (
-/obj/effect/turf_decal/delivery/red,
+/obj/effect/decal/warning_stripes/red,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/dark,
 /area/maintenance/abandonedwarehouse)
 "UH" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood{
-	icon_state = "wood-broken6"
+	icon_state = "wood-broken6";
+	tag = "icon-wood-broken6"
 	},
 /area/maintenance/livingcomplex)
 "UO" = (
@@ -1690,12 +1718,12 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "Vr" = (
-/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "VA" = (
-/obj/effect/turf_decal/delivery/partial{
+/obj/effect/decal/warning_stripes/yellow/partial{
 	dir = 4
 	},
 /obj/effect/turf_decal/arrows{
@@ -1715,6 +1743,8 @@
 /area/template_noop)
 "Ws" = (
 /obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
 	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
@@ -1766,9 +1796,7 @@
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
 "Yg" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
-	},
+/obj/effect/decal/warning_stripes/southwest,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/dark,
 /area/maintenance/abandonedwarehouse)

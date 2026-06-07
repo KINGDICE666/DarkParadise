@@ -9,11 +9,13 @@
 
 	light_color = LIGHT_COLOR_PURPLE
 
+
 /obj/machinery/computer/aifixer/screwdriver_act(mob/user, obj/item/I)
 	if(occupant)
 		to_chat(user, span_warning("The screws on [name]'s screen won't budge and it emits a warning beep!."))
 		return TRUE
 	return ..()
+
 
 /obj/machinery/computer/aifixer/attack_ai(mob/user)
 	ui_interact(user)
@@ -33,7 +35,7 @@
 	var/data[0]
 	data["occupant"] = (occupant ? occupant.name : null) // a null occupant isn't passed on if this is below the if.
 	if(occupant)
-		data["reference"] = occupant.UID()
+		data["reference"] = "\ref[occupant]"
 		data["integrity"] = (occupant.health+100)/2
 		data["stat"] = occupant.stat
 		data["active"] = active
@@ -75,6 +77,7 @@
 	update_icon()
 	return TRUE
 
+
 /obj/machinery/computer/aifixer/proc/fix_ai() // Can we fix it? Probrably.
 	while(occupant.health < 100)
 		occupant.heal_damages(brute = 1, burn = 1, tox = 1, oxy = 1)
@@ -83,6 +86,7 @@
 			update_icon()
 		sleep(10)
 	active = FALSE
+
 
 /obj/machinery/computer/aifixer/update_overlays()
 	. = ..()
@@ -99,6 +103,7 @@
 				. += "ai-fixer-404"
 	else
 		. += "ai-fixer-empty"
+
 
 /obj/machinery/computer/aifixer/transfer_ai(interaction, mob/user, mob/living/silicon/ai/AI, obj/item/aicard/card)
 	if(!..())

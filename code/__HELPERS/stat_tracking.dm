@@ -1,4 +1,4 @@
-/// For use with the stopwatch defines
+// For use with the stopwatch defines
 /proc/render_stats(list/stats, user, sort = GLOBAL_PROC_REF(cmp_generic_stat_item_time))
 	sortTim(stats, sort, TRUE)
 
@@ -9,35 +9,9 @@
 		lines += "[entry] => [num2text(data[STAT_ENTRY_TIME], 10)]ms ([data[STAT_ENTRY_COUNT]]) (avg:[num2text(data[STAT_ENTRY_TIME]/(data[STAT_ENTRY_COUNT] || 1), 99)])"
 
 	if(user)
-		var/datum/browser/popup = new(user, "[url_encode("stats:[text_ref(stats)]")]", "Stats")
+		var/datum/browser/popup = new(user, "[url_encode("stats:[ref(stats)]")]", "Stats")
 		popup.set_content("<ol><li>[lines.Join("</li><li>")]</li></ol>")
 		popup.open(FALSE)
 
 	. = lines.Join("\n")
 
-/// For use with the set_cost defines
-/proc/stat_tracking_export_to_json_later(filename, costs, counts)
-	if(IsAdminAdvancedProcCall())
-		return
-
-	var/list/output = list()
-
-	for(var/key in costs)
-		output[key] = list(
-			"cost" = costs[key],
-			"count" = counts[key],
-		)
-
-	rustlib_file_write(json_encode(output), "[GLOB.log_directory]/[filename]")
-
-/proc/stat_tracking_export_to_csv_later(filename, costs, counts)
-	if(IsAdminAdvancedProcCall())
-		return
-
-	var/list/output = list()
-
-	output += "key, cost, count"
-	for(var/key in costs)
-		output += "[replacetext(key, ",", "")], [costs[key]], [counts[key]]"
-
-	rustlib_file_write(output.Join("\n"), "[GLOB.log_directory]/[filename]")

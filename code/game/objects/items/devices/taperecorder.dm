@@ -28,21 +28,24 @@
 	/// Sound or loud mode
 	var/silent_mode = FALSE
 
+
 /obj/item/taperecorder/empty
 	starts_with_tape = FALSE
 
-/obj/item/taperecorder/Initialize(mapload)
-	. = ..()
+
+/obj/item/taperecorder/New()
+	..()
 	if(starts_with_tape)
 		mytape = new /obj/item/tape/random(src)
 		update_icon(UPDATE_ICON_STATE)
-	soundloop = new(src)
-	become_hearing_sensitive()
+	soundloop = new(list(src))
+
 
 /obj/item/taperecorder/Destroy()
 	QDEL_NULL(mytape)
 	QDEL_NULL(soundloop)
 	return ..()
+
 
 /obj/item/taperecorder/examine(mob/user)
 	. = ..()
@@ -60,11 +63,13 @@
 				. += span_notice("[mytape] has [seconds_to_time(mytape.remaining_capacity)] remaining.")
 		. += span_notice("<b>Alt-Click</b> to access the tape.")
 
+
 /obj/item/taperecorder/proc/update_sound()
 	if(!playing && !recording || silent_mode)
 		soundloop.stop()
 	else
 		soundloop.start()
+
 
 /obj/item/taperecorder/update_icon_state()
 	if(!mytape)
@@ -76,9 +81,11 @@
 	else
 		icon_state = "taperecorder_idle"
 
-/obj/item/taperecorder/fire_act(exposed_temperature, exposed_volume)
+
+/obj/item/taperecorder/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	mytape?.ruin() //Fires destroy the tape
 	return ..()
+
 
 /obj/item/taperecorder/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/tape))
@@ -96,6 +103,7 @@
 
 	return ..()
 
+
 /obj/item/taperecorder/attack_hand(mob/user)
 	if(loc == user && mytape)
 		if(!user.is_in_hands(src))
@@ -104,6 +112,7 @@
 		eject(user)
 		return
 	..()
+
 
 /obj/item/taperecorder/attack_self(mob/user)
 	if(!mytape || mytape.ruined)
@@ -176,6 +185,7 @@
 		mytape = null
 		update_icon(UPDATE_ICON_STATE)
 
+
 /obj/item/taperecorder/proc/record()
 	if(!mytape || mytape.ruined)
 		return
@@ -213,6 +223,7 @@
 		recorder_say("Кассета заполнена.")
 		playsound(src, 'sound/items/taperecorder/taperecorder_stop.ogg', 50, FALSE)
 
+
 /obj/item/taperecorder/proc/stop(playback_override = FALSE)
 	if(recording)
 		mytape.timestamp += mytape.used_capacity
@@ -233,6 +244,7 @@
 		playing = FALSE
 	update_icon(UPDATE_ICON_STATE)
 	update_sound()
+
 
 /obj/item/taperecorder/proc/play(mob/user)
 	if(!mytape || mytape.ruined)
@@ -280,30 +292,29 @@
 
 	stop(playback_override = TRUE)
 
+
 /obj/item/taperecorder/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
 	var/msg = multilingual_to_message(message_pieces)
-	if(!mytape || !recording)
-		return
+	if(mytape && recording)
+		var/ending = copytext(msg, length(msg))
+		mytape.timestamp += mytape.used_capacity
+		var/datum/tape_piece/piece = new()
+		piece.time = mytape.used_capacity
+		piece.speaker_name = M.name
+		piece.message = msg
+		piece.message_verb = "says"
+		piece.tts_seed = M.tts_seed
 
-	var/ending = copytext(msg, length(msg))
-	mytape.timestamp += mytape.used_capacity
-	var/datum/tape_piece/piece = new()
-	piece.time = mytape.used_capacity
-	piece.speaker_name = M.name
-	piece.message = msg
-	piece.message_verb = "says"
-	piece.tts_seed = M.tts_seed
+		if(M.AmountStuttering())
+			piece.message_verb = "stammers"
+		else if(M.getBrainLoss() >= 60)
+			piece.message_verb = "gibbers"
+		else if(ending == "?")
+			piece.message_verb = "asks"
+		else if(ending == "!")
+			piece.message_verb = "exclaims"
+		mytape.storedinfo += piece
 
-	if(M.AmountStuttering())
-		piece.message_verb = "stammers"
-	else if(M.getBrainLoss() >= 60)
-		piece.message_verb = "gibbers"
-	else if(ending == "?")
-		piece.message_verb = "asks"
-	else if(ending == "!")
-		piece.message_verb = "exclaims"
-	mytape.storedinfo += piece
 
 /obj/item/taperecorder/hear_message(mob/living/M, msg)
 	if(mytape && recording)
@@ -315,6 +326,7 @@
 		piece.message_verb = null
 		piece.tts_seed = initial(tts_seed)
 		mytape.storedinfo += piece
+
 
 /obj/item/taperecorder/proc/print_transcript(mob/user)
 	if(!mytape)
@@ -356,6 +368,7 @@
 	if(!QDELETED(user) && in_range(user, transcript))
 		user.put_in_hands(transcript, ignore_anim = FALSE)
 
+
 /obj/item/tape
 	name = "tape"
 	desc = "A magnetic tape that can hold up to ten minutes of content."
@@ -374,9 +387,11 @@
 	var/list/timestamp = list()
 	var/ruined = FALSE
 
-/obj/item/tape/random/Initialize(mapload)
-	. = ..()
+
+/obj/item/tape/random/New()
+	..()
 	icon_state = "tape_[pick("white", "blue", "red", "yellow", "purple")]"
+
 
 /obj/item/tape/examine(mob/user)
 	. = ..()
@@ -393,20 +408,24 @@
 			else
 				. += span_notice("It has [seconds_to_time(remaining_capacity)] remaining.")
 
+
 /obj/item/tape/update_overlays()
 	. = ..()
 	if(ruined)
 		. += "ribbonoverlay"
 
-/obj/item/tape/fire_act(exposed_temperature, exposed_volume)
+
+/obj/item/tape/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	..()
 	ruin()
+
 
 /obj/item/tape/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
 		rename_interactive(user, I)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/item/tape/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -418,9 +437,11 @@
 	to_chat(user, span_notice("You wind the tape back in!"))
 	fix()
 
+
 /obj/item/tape/attack_self(mob/user)
 	if(!ruined)
 		ruin(user)
+
 
 /obj/item/tape/proc/ruin(mob/user)
 	if(user)
@@ -433,14 +454,16 @@
 		ruined = TRUE
 		update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/tape/proc/fix()
 	if(ruined)
 		ruined = FALSE
 		update_icon(UPDATE_OVERLAYS)
 
+
 /obj/item/tape/verb/wipe()
 	set name = "Стереть плёнку"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in view(1)
 
 	var/mob/living/carbon/user = usr
@@ -454,6 +477,7 @@
 	storedinfo.Cut()
 	timestamp.Cut()
 
+
 /**
  * Datum used to operate with message pieces.
  */
@@ -464,4 +488,5 @@
 	var/message_verb
 	var/tts_seed
 	var/transcript
+
 

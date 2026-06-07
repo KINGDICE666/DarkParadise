@@ -1,13 +1,13 @@
 /atom/movable/screen/blob
 	icon = 'icons/hud/blob.dmi'
-	mouse_over_pointer = MOUSE_HAND_POINTER
 
-/atom/movable/screen/blob/MouseEntered(location, control, params)
+/atom/movable/screen/blob/MouseEntered(location,control,params)
 	. = ..()
 	openToolTip(usr,src,params,title = name,content = desc, theme = "blob")
 
 /atom/movable/screen/blob/MouseExited()
 	closeToolTip(usr)
+	return ..()
 
 /atom/movable/screen/blob/BlobHelp
 	icon_state = "ui_help"
@@ -35,7 +35,7 @@
 	desc = "Перемещает вашу камеру к вашему ядру."
 
 /atom/movable/screen/blob/JumpToCore/MouseEntered(location,control,params)
-	if(hud?.mymob && isovermind(hud.mymob))
+	if(hud && hud.mymob && isovermind(hud.mymob))
 		name = initial(name)
 		desc = initial(desc)
 	return ..()
@@ -110,6 +110,7 @@
 	name = "Создать фабрику (ERROR)"
 	desc = "Производит фабрику за ERROR ресурсов.<br>Фабрики будут производить споры каждые несколько секунд."
 
+
 /atom/movable/screen/blob/FactoryBlob/Initialize(mapload, datum/hud/hud_owner)
 	. = ..()
 	name = "Создать фабрику ([BLOB_STRUCTURE_FACTORY_COST])"
@@ -120,13 +121,14 @@
 		var/mob/camera/blob/B = usr
 		B.create_special(BLOB_STRUCTURE_FACTORY_COST, /obj/structure/blob/special/factory, BLOB_FACTORY_MIN_DISTANCE, TRUE)
 
+
 /atom/movable/screen/blob/ReadaptStrain
 	icon_state = "ui_chemswap"
 	name = "Реадаптация штамма"
 	desc = "Позволяет вам выбрать новый штамм из случайных вариантов за Error ресурсов."
 
 /atom/movable/screen/blob/ReadaptStrain/MouseEntered(location,control,params)
-	if(hud?.mymob && isovermind(hud.mymob))
+	if(hud && hud.mymob && isovermind(hud.mymob))
 		var/mob/camera/blob/B = hud.mymob
 		var/cost = (B.free_strain_rerolls)? "FREE" : BLOB_POWER_REROLL_COST
 		name = "[initial(name)] ([cost])"

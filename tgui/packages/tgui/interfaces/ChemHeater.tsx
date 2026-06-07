@@ -79,8 +79,7 @@ const ChemHeaterSettings = (_properties) => {
               value={round(targetTemp, 0)}
               minValue={0}
               maxValue={1000}
-              tickWhileDragging
-              onChange={(value) =>
+              onDrag={(value) =>
                 act('adjust_temperature', {
                   target: value,
                 })

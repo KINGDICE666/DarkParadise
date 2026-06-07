@@ -1,6 +1,7 @@
 #define POINT_TIME (2.5 SECONDS)
 #define BUBBLE_TIME (4 SECONDS)
 
+
 /**
  * Point at an atom
  *
@@ -36,6 +37,7 @@
 
 	animate(visual, pixel_x = final_x, pixel_y = final_y, time = 0.5 SECONDS, easing = QUAD_EASING)
 
+
 /**
  * Create a bubble pointing at a particular icon and icon state.
  * pointed_atom - the atom at which being pointed
@@ -56,13 +58,16 @@
 	pointed_atom_appearance.blend_mode = BLEND_INSET_OVERLAY
 	pointed_atom_appearance.plane = FLOAT_PLANE
 	pointed_atom_appearance.layer = FLOAT_LAYER
-	pointed_atom_appearance.pixel_w = 0
-	pointed_atom_appearance.pixel_z = 0
+	pointed_atom_appearance.pixel_x = 0
+	pointed_atom_appearance.pixel_y = 0
 	thought_bubble.overlays += pointed_atom_appearance
-	pointed_atom_appearance.remove_filter(HOVER_OUTLINE_FILTER)
 
-	thought_bubble.pixel_w = 16
-	thought_bubble.pixel_z = 32
+	var/hover_outline_index = pointed_atom.get_filter("hover_outline")
+	if(!isnull(hover_outline_index))
+		pointed_atom_appearance.filters.Cut(hover_outline_index, hover_outline_index + 1)
+
+	thought_bubble.pixel_x = 16
+	thought_bubble.pixel_y = 32
 	thought_bubble.alpha = 200
 
 	if(include_arrow)
@@ -72,7 +77,7 @@
 			thought_bubble.layer + 0.01
 		)
 
-		point_visual.pixel_z = 7
+		point_visual.pixel_y = 7
 		thought_bubble.overlays += point_visual
 
 	// vis_contents is used to preserve mouse opacity
@@ -85,6 +90,7 @@
 	animate(thought_bubble_effect, alpha = 255, time = 0.5 SECONDS, easing = EASE_OUT)
 	animate(alpha = 255, time = BUBBLE_TIME - 1 SECONDS)
 	animate(alpha = 0, time = 0.5 SECONDS, easing = EASE_IN)
+
 
 /atom/movable/proc/clear_point_bubble(obj/effect/thought_bubble)
 	LAZYREMOVE(update_on_z, thought_bubble)
@@ -101,9 +107,11 @@
 	duration = POINT_TIME
 	randomdir = FALSE
 
+
 /obj/effect/temp_visual/point/Initialize(mapload, set_invis = 0)
 	. = ..()
 	invisibility = set_invis
+
 
 /**
  * Point at an atom
@@ -123,7 +131,7 @@
  */
 /mob/verb/pointed(atom/target as mob|obj|turf in view(client.view, src))
 	set name = "Указать на"
-	set category = VERB_CATEGORY_IC
+	set category = STATPANEL_IC
 
 	if(next_move >= world.time || !Master.current_runlevel) //No usage until subsystems initialized properly.
 		return
@@ -134,6 +142,7 @@
 	changeNext_move(CLICK_CD_POINT)
 
 	DEFAULT_QUEUE_OR_CALL_VERB(VERB_CALLBACK(src, PROC_REF(run_pointed), target))
+
 
 /**
  * Possibly delayed verb that finishes the pointing process starting in [/mob/verb/pointed()].
@@ -150,6 +159,7 @@
 	point_at(target)
 
 	return TRUE
+
 
 #undef POINT_TIME
 #undef BUBBLE_TIME

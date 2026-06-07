@@ -19,7 +19,7 @@
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
 
 // Clumsy folks can't take the mask off themselves.
@@ -28,8 +28,8 @@
 		return 0
 	else if(security_lock && locked)
 		if(do_unlock(user))
-			visible_message(span_danger("[user] unlocks [user.p_their()] [src.name]."), \
-								span_userdanger("[user] unlocks [user.p_their()] [src.name]."))
+			visible_message("<span class='danger'>[user] unlocks [user.p_their()] [src.name].</span>", \
+								"<span class='userdanger'>[user] unlocks [user.p_their()] [src.name].</span>")
 	..()
 	return 1
 
@@ -45,16 +45,16 @@
 
 /obj/item/clothing/mask/muzzle/proc/do_unlock(mob/living/carbon/human/user)
 	if(istype(user.get_inactive_hand(), /obj/item/card/emag))
-		to_chat(user, span_warning("The lock vibrates as the card forces its locking system open."))
+		to_chat(user, "<span class='warning'>The lock vibrates as the card forces its locking system open.</span>")
 		do_break()
 		return TRUE
 	else if(ACCESS_BRIG in user.get_access())
-		to_chat(user, span_warning("The muzzle unlocks with a click."))
+		to_chat(user, "<span class='warning'>The muzzle unlocks with a click.</span>")
 		locked = FALSE
 		REMOVE_TRAIT(src, TRAIT_NODROP, MUZZLE_TRAIT)
 		return TRUE
 
-	to_chat(user, span_warning("You must be wearing a security ID card or have one in your inactive hand to remove the muzzle."))
+	to_chat(user, "<span class='warning'>You must be wearing a security ID card or have one in your inactive hand to remove the muzzle.</span>")
 	return FALSE
 
 /obj/item/clothing/mask/muzzle/proc/do_lock(mob/living/carbon/human/user)
@@ -88,8 +88,9 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
+		)
+
 
 /obj/item/clothing/mask/muzzle/tapegag/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
@@ -103,6 +104,7 @@
 	if(user.has_pain())
 		// We have to use timer, since an item is still on user, while this proc is called
 		addtimer(CALLBACK(user, TYPE_PROC_REF(/mob, emote), "scream"), 0)
+
 
 /obj/item/clothing/mask/muzzle/tapegag/thick
 	name = "thick tape gag"
@@ -133,8 +135,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
+		)
 
 /obj/item/clothing/mask/muzzle/safety/shock
 	name = "shock muzzle"
@@ -143,9 +145,6 @@
 	origin_tech = "materials=1;engineering=1"
 	materials = list(MAT_METAL=500, MAT_GLASS=50)
 
-/obj/item/clothing/mask/muzzle/safety/shock/Destroy()
-	. = ..()
-	QDEL_NULL(proximity_monitor)
 
 /obj/item/clothing/mask/muzzle/safety/shock/attackby(obj/item/I, mob/user, params)
 	if(issignaler(I) || istype(I, /obj/item/assembly/voice))
@@ -158,7 +157,7 @@
 		trigger = I
 		trigger.master = src
 		trigger.holder = src
-		proximity_monitor = new(src)
+		AddComponent(/datum/component/proximity_monitor)
 		to_chat(user, span_notice("You have attached [I] to [src]."))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
@@ -169,18 +168,19 @@
 
 	return ..()
 
+
 /obj/item/clothing/mask/muzzle/safety/shock/screwdriver_act(mob/user, obj/item/I)
 	if(!trigger)
 		return
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
-	to_chat(user, span_notice("You remove [trigger] from [src]."))
+	to_chat(user, "<span class='notice'>You remove [trigger] from [src].</span>")
 	trigger.forceMove(get_turf(user))
 	trigger.master = null
 	trigger.holder = null
 	trigger = null
-	QDEL_NULL(proximity_monitor)
+	qdel(GetComponent(/datum/component/proximity_monitor))
 
 /obj/item/clothing/mask/muzzle/safety/shock/proc/can_shock(obj/item/clothing/C)
 	if(istype(C))
@@ -205,14 +205,16 @@
 	if(trigger)
 		trigger.HasProximity(AM)
 
+
 /obj/item/clothing/mask/muzzle/safety/shock/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
 	if(trigger)
 		trigger.hear_talk(M, message_pieces)
 
 /obj/item/clothing/mask/muzzle/safety/shock/hear_message(mob/living/M, msg)
 	if(trigger)
 		trigger.hear_message(M, msg)
+
+
 
 /obj/item/clothing/mask/surgical
 	name = "sterile mask"
@@ -226,7 +228,8 @@
 	gas_transfer_coefficient = 0.90
 	permeability_coefficient = 0.01
 	can_toggle = TRUE
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 25, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 25, RAD = 0, FIRE = 0, ACID = 0)
+	actions_types = list(/datum/action/item_action/adjust)
 
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/mask.dmi',
@@ -243,22 +246,18 @@
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
-	)
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
+		)
 
 /obj/item/clothing/mask/surgical/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "стерильная маска",
 		GENITIVE = "стерильной маски",
 		DATIVE = "стерильной маске",
 		ACCUSATIVE = "стерильную маску",
 		INSTRUMENTAL = "стерильной маской",
-		PREPOSITIONAL = "стерильной маске",
+		PREPOSITIONAL = "стерильной маске"
 	)
-
-/obj/item/clothing/mask/surgical/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Поднять/Опустить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/mask/surgical/attack_self(mob/user)
 	adjustmask(user)
@@ -268,6 +267,7 @@
 	desc = "moustache is totally real."
 	icon_state = "fake-moustache"
 	flags_inv = HIDENAME
+	actions_types = list(/datum/action/item_action/pontificate)
 	dog_fashion = /datum/dog_fashion/head/not_ian
 
 	sprite_sheets = list(
@@ -284,12 +284,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-	)
-
-/obj/item/clothing/mask/fakemoustache/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Изменить")
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
+		)
 
 /obj/item/clothing/mask/fakemoustache/attack_self(mob/user)
 	pontificate(user)
@@ -299,31 +295,32 @@
 		return TRUE
 
 /obj/item/clothing/mask/fakemoustache/proc/pontificate(mob/user)
-	user.visible_message(span_danger("\ [user] twirls [user.p_their()] moustache and laughs [pick("fiendishly","maniacally","diabolically","evilly")]!"))
+	user.visible_message("<span class='danger'>\ [user] twirls [user.p_their()] moustache and laughs [pick("fiendishly","maniacally","diabolically","evilly")]!</span>")
 
 //scarves (fit in in mask slot)
 
 /obj/item/clothing/mask/bluescarf
 	name = "blue neck scarf"
 	desc = "A blue neck scarf."
-	icon_state = "darkbluescarf"
-	item_state = "darkbluescarf"
+	icon_state = "blueneckscarf"
+	item_state = "blueneckscarf"
 	flags_cover = MASKCOVERSMOUTH
 	gas_transfer_coefficient = 0.90
+
 
 /obj/item/clothing/mask/redscarf
 	name = "red scarf"
 	desc = "A red and white checkered neck scarf."
-	icon_state = "redscarf"
-	item_state = "redscarf"
+	icon_state = "redwhite_scarf"
+	item_state = "redwhite_scarf"
 	flags_cover = MASKCOVERSMOUTH
 	gas_transfer_coefficient = 0.90
 
 /obj/item/clothing/mask/greenscarf
 	name = "green scarf"
 	desc = "A green neck scarf."
-	icon_state = "greenscarf"
-	item_state = "greenscarf"
+	icon_state = "green_scarf"
+	item_state = "green_scarf"
 	flags_cover = MASKCOVERSMOUTH
 	gas_transfer_coefficient = 0.90
 
@@ -334,6 +331,7 @@
 	item_state = "pig"
 	flags_inv = HIDENAME|HIDEHAIR
 	flags_cover = MASKCOVERSMOUTH|MASKCOVERSEYES
+
 
 /obj/item/clothing/mask/horsehead
 	name = "horse head mask"
@@ -352,7 +350,7 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
 	)
 
 /obj/item/clothing/mask/horsehead/equipped(mob/user, slot, initial)
@@ -395,7 +393,7 @@
 	icon_state = "rat"
 	item_state = "rat"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/fox
@@ -404,7 +402,7 @@
 	icon_state = "fox"
 	item_state = "fox"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/bee
@@ -413,7 +411,7 @@
 	icon_state = "bee"
 	item_state = "bee"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/bear
@@ -422,7 +420,7 @@
 	icon_state = "bear"
 	item_state = "bear"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/bat
@@ -431,7 +429,7 @@
 	icon_state = "bat"
 	item_state = "bat"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/raven
@@ -440,7 +438,7 @@
 	icon_state = "raven"
 	item_state = "raven"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/jackal
@@ -449,7 +447,7 @@
 	icon_state = "jackal"
 	item_state = "jackal"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/tribal
@@ -458,7 +456,7 @@
 	icon_state = "bumba"
 	item_state = "bumba"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/face/fawkes
@@ -467,7 +465,7 @@
 	icon_state = "fawkes"
 	item_state = "fawkes"
 	sprite_sheets = list(
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
+		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi'
 	)
 
 /obj/item/clothing/mask/gas/clown_hat/pennywise
@@ -477,7 +475,7 @@
 	item_state = "pennywise_mask"
 	sprite_sheets = list(
 		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
 
 /obj/item/clothing/mask/gas/clown_hat/sweettooth
@@ -494,17 +492,17 @@
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/mask.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/mask.dmi',
 		SPECIES_KIDAN = 'icons/mob/clothing/species/kidan/mask.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
 
 /obj/item/clothing/mask/gas/clown_hat/sweettooth/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Маска Сладкоежки",
 		GENITIVE = "Маски Сладкоежки",
 		DATIVE = "Маске Сладкоежки",
 		ACCUSATIVE = "Маску Сладкоежки",
 		INSTRUMENTAL = "Маской Сладкоежки",
-		PREPOSITIONAL = "Маске Сладкоежки",
+		PREPOSITIONAL = "Маске Сладкоежки"
 	)
 
 /obj/item/clothing/mask/gas/clown_hat/rockso
@@ -521,8 +519,9 @@
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/mask.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/mask.dmi',
 		SPECIES_KIDAN = 'icons/mob/clothing/species/kidan/mask.dmi',
-		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
+
 
 // Bandanas
 /obj/item/clothing/mask/bandana
@@ -548,21 +547,21 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
+		)
+	actions_types = list(/datum/action/item_action/adjust)
 	dying_key = DYE_REGISTRY_BANDANA
 
-/obj/item/clothing/mask/bandana/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Поднять/Опустить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/mask/bandana/attack_self(mob/user)
 	adjustmask(user)
+
 
 /obj/item/clothing/mask/bandana/adjustmask(mob/living/user)
 	. = ..()
 	if(.)
 		undyeable = up ? TRUE : initial(undyeable)
+
 
 /obj/item/clothing/mask/bandana/red
 	name = "red bandana"
@@ -627,7 +626,7 @@
 	icon_state = "cursedclown"
 	item_state = "cclown_hat"
 	onmob_sheets = list(
-		ITEM_SLOT_MASK_STRING = 'icons/goonstation/mob/clothing/mask.dmi',
+		ITEM_SLOT_MASK_STRING = 'icons/goonstation/mob/clothing/mask.dmi'
 	)
 	lefthand_file = 'icons/goonstation/mob/inhands/clothing_lefthand.dmi'
 	righthand_file = 'icons/goonstation/mob/inhands/clothing_righthand.dmi'
@@ -642,28 +641,30 @@
 	item_state = "cclown_hat"
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	onmob_sheets = list(
-		ITEM_SLOT_MASK_STRING = 'icons/goonstation/mob/clothing/mask.dmi',
+		ITEM_SLOT_MASK_STRING = 'icons/goonstation/mob/clothing/mask.dmi'
 	)
 	lefthand_file = 'icons/goonstation/mob/inhands/clothing_lefthand.dmi'
 	righthand_file = 'icons/goonstation/mob/inhands/clothing_righthand.dmi'
 	clothing_flags = AIRTIGHT
 	flags_cover = MASKCOVERSMOUTH
 
+
 /obj/item/clothing/mask/cursedclown/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
+
 
 /obj/item/clothing/mask/cursedclown/equipped(mob/user, slot, initial)
 	. = ..()
 
 	var/mob/living/carbon/human/H = user
 	if(istype(H) && slot == ITEM_SLOT_MASK)
-		to_chat(H, span_danger("[src] grips your face!"))
+		to_chat(H, "<span class='danger'>[src] grips your face!</span>")
 		if(H.mind && H.mind.assigned_role != "Cluwne")
 			H.makeCluwne()
 
 /obj/item/clothing/mask/cursedclown/suicide_act(mob/user)
-	user.visible_message(span_danger("[user] gazes into the eyes of [src]. [src] gazes back!"))
+	user.visible_message("<span class='danger'>[user] gazes into the eyes of [src]. [src] gazes back!</span>")
 	spawn(10)
 		if(user)
 			user.gib()
@@ -681,7 +682,6 @@
 
 /obj/item/clothing/mask/gas/voice_modulator/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/tts_modifier, SOUND_EFFECT_MASKFILTER)
 	voice_modulator = new(src)
 
 /obj/item/clothing/mask/gas/voice_modulator/Destroy()
@@ -704,9 +704,10 @@
 	can_toggle = TRUE
 	strip_delay = 20
 	put_on_delay = 20
-	armor = list(MELEE = 5, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 10, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 5, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 10, RAD = 0, FIRE = 0, ACID = 0)
 	gas_transfer_coefficient = 0.90
 	permeability_coefficient = 0.90
+	actions_types = list(/datum/action/item_action/adjust)
 
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/mask.dmi',
@@ -719,94 +720,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
 	)
-
-/obj/item/clothing/mask/secscarf/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Поднять/Опустить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/mask/secscarf/attack_self(mob/user)
 	adjustmask(user)
-
-/obj/item/clothing/head/paper_bag
-	name = "paper bag"
-	desc = "Надетый на голову бумажный пакет. Очень хлипкий!"
-	icon_state = "paper_bag"
-	item_state = "paper_bag"
-	w_class = WEIGHT_CLASS_TINY
-	flags_cover = HEADCOVERSEYES|HEADCOVERSMOUTH
-	flags_inv = HIDEHEADSETS|HIDEGLASSES|HIDENAME|HIDEMASK|HIDENECK|HIDE_ALL_HAIR
-	item_flags = DROPDEL
-	sprite_sheets = list(
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/head.dmi',
-		SPECIES_VOX = 'icons/mob/clothing/species/vox/head.dmi',
-		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/head.dmi',
-		SPECIES_GREY = 'icons/mob/clothing/species/grey/head.dmi',
-	)
-
-/obj/item/clothing/head/paper_bag/get_ru_names()
-	return alist(
-		NOMINATIVE = "бумажный пакет",
-		GENITIVE = "бумажного пакета",
-		DATIVE = "бумажному пакету",
-		ACCUSATIVE = "бумажный пакет",
-		INSTRUMENTAL = "бумажным пакетом",
-		PREPOSITIONAL = "бумажном пакете",
-	)
-
-/obj/item/clothing/head/paper_bag/dropped(mob/user, slot, silent = FALSE)
-	. = ..()
-	if(!user || slot != ITEM_SLOT_HEAD)
-		return .
-	var/turf/turf = get_turf(user)
-	if(!turf)
-		return .
-	playsound(user, 'sound/items/poster_ripped.ogg', 40, TRUE)
-	user.clear_fullscreen("fullyblack")
-	user.update_blind_effects()
-
-/obj/item/clothing/head/paper_bag/equipped(mob/living/living, slot)
-	. = ..()
-	if(!living || slot != ITEM_SLOT_HEAD)
-		return .
-	living.overlay_fullscreen("fullyblack", /atom/movable/screen/fullscreen/fullyblack)
-
-// MARK: Whistle
-/obj/item/clothing/mask/whistle
-	name = "whistle"
-	desc = "Компактное сигнальное устройство, издающее громкий и четкий звук, используемое для подачи сигналов, привлечения внимания и координации действий в различных ситуациях, от спортивных мероприятий до чрезвычайных происшествий."
-	icon_state = "whistle"
-	item_state = "whistle"
-	gender = MALE
-	w_class = WEIGHT_CLASS_TINY
-	actions_types = list(/datum/action/item_action/activate)
-	custom_price = PAYCHECK_MIN
-	/// Sound use for activate whistle
-	var/activate_sound = 'sound/items/whistle.ogg'
-	COOLDOWN_DECLARE(use_cd)
-
-/obj/item/clothing/mask/whistle/get_ru_names()
-	return alist(
-		NOMINATIVE = "свисток",
-		GENITIVE = "свистка",
-		DATIVE = "свистку",
-		ACCUSATIVE = "свисток",
-		INSTRUMENTAL = "свистком",
-		PREPOSITIONAL = "свистке",
-	)
-
-/obj/item/clothing/mask/whistle/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/item_skins)
-
-/obj/item/clothing/mask/whistle/attack_self(mob/user)
-	if(!COOLDOWN_FINISHED(src, use_cd))
-		return FALSE
-	COOLDOWN_START(src, use_cd, 2 SECONDS)
-	user.visible_message(span_warning("[DECLENT_RU_CAP(user, NOMINATIVE)] дует в свисток!"))
-	playsound(user, activate_sound, 70, TRUE)

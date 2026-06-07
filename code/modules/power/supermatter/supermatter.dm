@@ -1,1161 +1,641 @@
-// Zap constants, speeds up targeting
-#define BIKE (COIL + 1)
-#define COIL (ROD + 1)
-#define ROD (LIVING + 1)
-#define LIVING (MACHINERY + 1)
-#define MACHINERY (OBJECT + 1)
-#define OBJECT (LOWEST + 1)
-#define LOWEST (1)
+#define NITROGEN_RETARDATION_FACTOR 0.15 //Higher == N2 slows reaction more
+#define THERMAL_RELEASE_MODIFIER 10000 //Higher == more heat released during reaction
+#define PLASMA_RELEASE_MODIFIER 1500 //Higher == less phor.. plasma released by reaction
+#define OXYGEN_RELEASE_MODIFIER 15000 //Higher == less oxygen released at high temperature/power
+#define REACTION_POWER_MODIFIER 1.1 //Higher == more overall power
+#define SHARD_CUT_COEF 7
 
-GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
+/*
+	How to tweak the SM
+	POWER_FACTOR		directly controls how much power the SM puts out at a given level of excitation (power var). Making this lower means you have to work the SM harder to get the same amount of power.
+	CRITICAL_TEMPERATURE	The temperature at which the SM starts taking damage.
+	CHARGING_FACTOR		Controls how much emitter shots excite the SM.
+	DAMAGE_RATE_LIMIT	Controls the maximum rate at which the SM will take damage due to high temperatures.
+*/
 
-/obj/machinery/power/supermatter_crystal
-	name = "supermatter crystal"
-	desc = "Странно полупрозрачный и переливающийся кристалл."
+//Controls how much power is produced by each collector in range - this is the main parameter for tweaking SM balance, as it basically controls how the power variable relates to the rest of the game.
+#define POWER_FACTOR 1.0
+#define DECAY_FACTOR 700			//Affects how fast the supermatter power decays
+#define CRITICAL_TEMPERATURE 10000	//K
+#define CHARGING_FACTOR 0.05
+#define DAMAGE_RATE_LIMIT 4.5		//damage rate cap at power = 300, scales linearly with power
+
+
+// Base variants are applied to everyone on the same Z level
+// Range variants are applied on per-range basis: numbers here are on point blank, it scales with the map size (assumes square shaped Z levels)
+#define DETONATION_RADS 200
+#define DETONATION_HALLUCINATION 600
+
+
+#define WARNING_DELAY 20			//seconds between warnings.
+/obj/machinery/power/supermatter_shard
+	name = "supermatter shard"
+	desc = "A strangely translucent and iridescent crystal that looks like it used to be part of a larger structure. <span class='danger'>You get headaches just from looking at it.</span>"
 	icon = 'icons/obj/engines_and_power/supermatter.dmi'
+	icon_state = "darkmatter_shard"
 	density = TRUE
-	layer = MOB_LAYER
-	//flags = PREVENT_CONTENTS_EXPLOSION
-	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | FREEZE_PROOF
-	//critical_machine = TRUE
-	base_icon_state = "sm"
-	icon_state = "sm"
-	light_on = FALSE
+	anchored = FALSE
+	light_range = 4
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | FREEZE_PROOF | NO_MALF_EFFECT
 
-	///Tracks the bolt color we are using
-	var/zap_icon = DEFAULT_ZAP_ICON_STATE
 
-	///The portion of the gasmix we're on that we should remove
-	var/absorption_ratio = 0.15
-	/// The gasmix we just recently absorbed. Tile's air multiplied by absorption_ratio
-	var/datum/gas_mixture/absorbed_gasmix
-	/// The current gas behaviors for this particular crystal
-	var/list/current_gas_behavior
-	/// The last air sample's total molar count, will always be above or equal to 0
-	var/combined_gas = 0
+	var/gasefficency = 0.125
 
-	///Refered to as EER on the monitor. This value effects gas output, damage, and power generation.
-	var/internal_energy = 0
-	var/list/internal_energy_factors
+	base_icon_state = "darkmatter_shard"
+	var/zap_sound_extrarange = 5
 
-	///The amount of damage we have currently.
 	var/damage = 0
-	/// The damage we had before this cycle.
-	/// Used to check if we are currently taking damage or healing.
 	var/damage_archived = 0
-	var/list/damage_factors
+	var/safe_alert = "Гиперструктура кристалла возвращается к безопасному эксплуатационному уровню."
+	var/warning_point = 50
+	var/warning_alert = "ОПАСНОСТЬ! Дестабилизация гиперструктуры кристалла!"
+	var/emergency_point = 400
+	var/emergency_alert = "РАСЩЕПЛЕНИЕ КРИСТАЛЛА НЕМИНУЕМО."
+	var/explosion_point = 600
 
-	/// The zap power transmission over internal energy. W/MeV.
-	var/zap_transmission_rate = BASE_POWER_TRANSMISSION_RATE
-	var/list/zap_factors
+	var/emergency_issued = 0
 
-	/// The temperature at which we start taking damage
-	var/temp_limit = T0C + HEAT_PENALTY_THRESHOLD
-	var/list/temp_limit_factors
+	var/explosion_power = 8
 
-	/// Multiplies our waste gas amount and temperature.
-	var/waste_multiplier = 0
-	var/list/waste_multiplier_factors
+	var/lastwarning = 0				// Time in 1/10th of seconds since the last sent warning
+	var/last_zap = 0				// Time in 1/10th of seconds since the last tesla zap
+	var/power = 0
 
-	///The point at which we consider the supermatter to be [SUPERMATTER_STATUS_WARNING]
-	var/warning_point = 5
-	var/warning_channel = ENG_FREQ
-	///The point at which we consider the supermatter to be [SUPERMATTER_STATUS_DANGER]
-	///Spawns anomalies when more damaged than this too.
-	var/danger_point = 60
-	///The point at which we consider the supermatter to be [SUPERMATTER_STATUS_EMERGENCY]
-	var/emergency_point = 75
-	var/emergency_channel = null // Need null to actually broadcast, lol.
-	///The point at which we delam [SUPERMATTER_STATUS_DELAMINATING].
-	var/explosion_point = 100
-	///Are we exploding?
-	var/final_countdown = FALSE
-	///A scaling value that affects the severity of explosions.
-	var/explosion_power = 35
-	///Time in 1/10th of seconds since the last sent warning
-	var/lastwarning = 0
-	/// Integrity percent (rounded like the announcement) at the moment of the last warning.
-	/// Used to detect the real trend across the whole warning interval instead of the
-	/// noisy single-tick [damage_archived] delta, so a stable crystal stops re-announcing.
-	var/integrity_at_last_warning = 100
+	var/oxygen = 0					// Moving this up here for easier debugging.
 
-	/// The list of gases mapped against their current comp.
-	/// We use this to calculate different values the supermatter uses, like power or heat resistance.
-	/// Ranges from 0 to 1
-	var/list/gas_percentage
+	//Temporary values so that we can optimize this
+	//How much the bullets damage should be multiplied by when it is added to the internal variables
+	var/config_bullet_energy = 2
+	//How much hallucination should it produce per unit of power?
+	var/config_hallucination_power = 0.1
 
-	/// Affects the heat our SM makes.
-	var/gas_heat_modifier = 0
-	/// Affects the minimum point at which the SM takes heat damage
-	var/gas_heat_resistance = 0
-	/// How much power decay is negated. Complete power decay negation at 1.
-	var/gas_powerloss_inhibition = 0
-	/// Affects the amount of power the main SM zap makes.
-	var/gas_power_transmission_rate = 0
-	/// Affects the power gain the SM experiances from heat.
-	var/gas_heat_power_generation = 0
+	var/debug = 0
 
-	/// External power that are added over time instead of immediately.
-	var/external_power_trickle = 0
-	/// External power that are added to the sm on next [/obj/machinery/power/supermatter_crystal/process_atmos] call.
-	var/external_power_immediate = 0
+	var/disable_adminwarn = FALSE
 
-	/// External damage that are added to the sm on next [/obj/machinery/power/supermatter_crystal/process_atmos] call.
-	/// SM will not take damage if its health is lower than emergency point.
-	var/external_damage_immediate = 0
+	var/aw_normal = FALSE
+	var/aw_notify = FALSE
+	var/aw_warning = FALSE
+	var/aw_danger = FALSE
+	var/aw_emerg = FALSE
+	var/aw_delam = FALSE
 
-	///The cutoff for a bolt jumping, grows with heat, lowers with higher mol count,
-	var/zap_cutoff = 1.2 MEGA JOULES
-	///How much the bullets damage should be multiplied by when it is added to the internal variables
-	var/bullet_energy = SUPERMATTER_DEFAULT_BULLET_ENERGY
-	///How much hallucination should we produce per unit of power?
-	var/hallucination_power = 0.1
+	var/obj/item/radio/radio
 
-	///Boolean used to log the first activation of the SM.
-	var/activation_logged = FALSE
+	//for logging
+	var/has_been_powered = 0
+	var/has_reached_emergency = 0
 
-	///An effect we show to admins and ghosts the percentage of delam we're at
-	var/obj/effect/countdown/supermatter/countdown
+	var/datum/supermatter_explosive_effects/supermatter_explosive_effects
 
-	///Only main engines can have their sliver stolen, can trigger cascades, and can spawn stationwide anomalies.
-	var/is_main_engine = FALSE
-	///Our soundloop
-	var/datum/looping_sound/supermatter/soundloop
-	///Can it be moved?
-	var/moveable = FALSE
-
-	///cooldown tracker for accent sounds
-	var/last_accent_sound = 0
-	///Var that increases from 0 to 1 when a psychologist is nearby, and decreases in the same way
-	var/psy_coeff = 0
-
-	/// Disables all methods of taking damage.
-	var/disable_damage = FALSE
-	/// Disables the calculation of gas effects and production of waste.
-	/// SM still "breathes" though, still takes gas and spits it out. Nothing is done on them though.
-	/// Cleaner code this way. Get rid of if it's too wasteful.
-	var/disable_gas = FALSE
-	/// Disables power changes.
-	var/disable_power_change = FALSE
-	/// Disables the SM's proccessing totally when set to SM_PROCESS_DISABLED.
-	/// Temporary disables the processing when it's set to SM_PROCESS_TIMESTOP.
-	/// Make sure absorbed_gasmix and gas_percentage isnt null if this is on SM_PROCESS_DISABLED.
-	var/disable_process = SM_PROCESS_ENABLED
-
-	///Stores the time of when the last zap occurred
-	var/last_power_zap = 0
-	///Stores the tick of the machines subsystem of when the last zap energy accumulation occurred. Gives a passage of time in the perspective of SSmachines.
-	var/last_energy_accumulation_perspective_machines = 0
-	///Same as [last_energy_accumulation_perspective_machines], but based around the high energy zaps found in handle_high_power().
-	var/last_high_energy_accumulation_perspective_machines = 0
-	/// Accumulated energy to be transferred from supermatter zaps.
-	var/list/zap_energy_accumulation = list()
-	///Do we show this crystal in the CIMS modular program
-	var/include_in_cims = TRUE
-
-	///Hue shift of the zaps color based on the power of the crystal
-	var/hue_angle_shift = 0
-	///Reference to the warp effect
-	var/obj/effect/warp_effect/supermatter/warp
-	///The power threshold required to transform the powerloss function into a linear function from a cubic function.
-	var/powerloss_linear_threshold = 0
-	///The offset of the linear powerloss function set so the transition is differentiable.
-	var/powerloss_linear_offset = 0
-
-	/// How we are delaminating.
-	var/datum/sm_delam/delamination_strategy
-	/// Whether the sm is forced in a specific delamination_strategy or not. All truthy values means it's forced.
-	/// Only values greater or equal to the current one can change the strat.
-	var/delam_priority = SM_DELAM_PRIO_NONE
-
-	/// Lazy list of the crazy engineers who managed to turn a cascading engine around.
-	var/list/datum/weakref/saviors = null
-
-	/// If a sliver of the supermatter has been removed. Almost certainly by a traitor. Lowers the delamination countdown time.
-	var/supermatter_sliver_removed = FALSE
-
-	/// If the SM is decorated with holiday lights
-	var/holiday_lights = FALSE
-
-	/// Cooldown for sending emergency alerts to the common radio channel
-	COOLDOWN_DECLARE(common_radio_cooldown)
-
-	/// How often do we want to process the crystal?
-	var/ticks_per_run = 5
-	/// How long has it been since we processed the crystal?
-	var/tick_counter = 0
-
-	///A variable to have the warp effect for singulo SM work properly
-	var/pulse_stage = 0
-	var/list/darkness_effects = list()
+/obj/machinery/power/supermatter_shard/crystal
+	name = "supermatter crystal"
+	desc = "A strangely translucent and iridescent crystal."
+	base_icon_state = "darkmatter"
+	icon_state = "darkmatter"
+	anchored = TRUE
+	warning_point = 200
+	emergency_point = 2000
+	explosion_point = 3600
+	gasefficency = 0.25
+	explosion_power = 24
 
 
-/obj/machinery/power/supermatter_crystal/get_ru_names()
-	return alist(
-		NOMINATIVE = "кристалл суперматерии",
-		GENITIVE = "кристалла суперматерии",
-		DATIVE = "кристаллу суперматерии",
-		ACCUSATIVE = "кристалл суперматерии",
-		INSTRUMENTAL = "кристаллом суперматерии",
-		PREPOSITIONAL = "кристалле суперматерии"
-	)
-
-/obj/machinery/power/supermatter_crystal/ComponentInitialize()
+/obj/machinery/power/supermatter_shard/New()
 	. = ..()
-	AddElement(/datum/element/supermatter_crystal, PROC_REF(wrench_act_callback), PROC_REF(consume_callback))
-
-/obj/machinery/power/supermatter_crystal/Initialize(mapload)
-	. = ..()
-	current_gas_behavior = init_sm_gas()
-	gas_percentage = list()
-	absorbed_gasmix = new()
-	set_delam(SM_DELAM_PRIO_NONE, /datum/sm_delam/explosive)
-	//SSair.start_processing_machine(src)
-	SSair.atmos_machinery += src
-	countdown = new(src)
-	countdown.start()
 	GLOB.poi_list |= src
+	//Added to the atmos_machine process as the SM is highly coupled with the atmospherics system.
+	//Having the SM run at a different rate then atmospherics causes odd behavior.
+	SSair.atmos_machinery += src
+	radio = new(src)
+	radio.listening = FALSE
+	radio.follow_target = src
 	investigate_log("has been created.", INVESTIGATE_ENGINE)
-	if(is_main_engine)
-		GLOB.main_supermatter_engine = src
+	supermatter_explosive_effects = new()
+	supermatter_explosive_effects.z = src.z
 
-	AddElement(/datum/element/bsa_blocker)
-	RegisterSignal(src, COMSIG_ATOM_BSA_BEAM, PROC_REF(force_delam))
-	RegisterSignal(src, COMSIG_ATOM_TIMESTOP_FREEZE, PROC_REF(time_frozen))
-	RegisterSignal(src, COMSIG_ATOM_TIMESTOP_UNFREEZE, PROC_REF(time_unfrozen))
-	RegisterSignal(src, COMSIG_ATOM_BULLET_ACT, PROC_REF(eat_bullets))
 
-	soundloop = new(src, TRUE)
+/obj/machinery/power/supermatter_shard/proc/handle_admin_warnings()
+	if(disable_adminwarn)
+		return
 
-	//if(!isnull(check_holidays(FESTIVE_SEASON)))
-	//	holiday_lights()
+	// Generic checks, similar to checks done by supermatter monitor program.
+	aw_normal = status_adminwarn_check(SUPERMATTER_NORMAL, aw_normal, "INFO: Supermatter crystal has been energised.<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_notify = status_adminwarn_check(SUPERMATTER_NOTIFY, aw_notify, "INFO: Supermatter crystal is approaching unsafe operating temperature.<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_warning = status_adminwarn_check(SUPERMATTER_WARNING, aw_warning, "WARN: Supermatter crystal is taking integrity damage!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_danger = status_adminwarn_check(SUPERMATTER_DANGER, aw_danger, "WARN: Supermatter integrity is below 75%!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
+	aw_emerg = status_adminwarn_check(SUPERMATTER_EMERGENCY, aw_emerg, "CRIT: Supermatter integrity is below 50%!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_delam = status_adminwarn_check(SUPERMATTER_DELAMINATING, aw_delam, "CRIT: Supermatter is delaminating!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
 
-	if(!moveable)
-		move_resist = MOVE_FORCE_OVERPOWERING // Avoid being moved by statues or other memes
+/obj/machinery/power/supermatter_shard/proc/status_adminwarn_check(min_status, current_state, message)
+	var/status = get_status()
+	if(status >= min_status)
+		if(!current_state)
+			log_and_message_admins(message)
+			investigate_log(message, INVESTIGATE_ENGINE)
+			// SSdiscord.send2discord_simple_noadmins(message)
+		return TRUE
+	else
+		return FALSE
 
-	// Damn math nerds
-	powerloss_linear_threshold = sqrt(POWERLOSS_LINEAR_RATE / 3 * POWERLOSS_CUBIC_DIVISOR ** 3)
-	powerloss_linear_offset = -1 * powerloss_linear_threshold * POWERLOSS_LINEAR_RATE + (powerloss_linear_threshold / POWERLOSS_CUBIC_DIVISOR) ** 3
 
-/obj/machinery/power/supermatter_crystal/Destroy()
-	if(warp)
-		vis_contents -= warp
-		QDEL_NULL(warp)
+/obj/machinery/power/supermatter_shard/Destroy()
 	investigate_log("has been destroyed.", INVESTIGATE_ENGINE)
-	//SSair.stop_processing_machine(src)
+	if(damage > emergency_point)
+		emergency_lighting(0)
+	QDEL_NULL(radio)
+	GLOB.poi_list.Remove(src)
 	SSair.atmos_machinery -= src
-	absorbed_gasmix = null
-	GLOB.poi_list -= src
-	QDEL_NULL(countdown)
-	if(is_main_engine && GLOB.main_supermatter_engine == src)
-		GLOB.main_supermatter_engine = null
-	QDEL_NULL(soundloop)
-	QDEL_LIST(darkness_effects)
 	return ..()
 
-/obj/machinery/power/supermatter_crystal/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents)
-	. = ..()
-	if(same_z_layer)
+/obj/machinery/power/supermatter_shard/proc/explode()
+	investigate_log("has exploded.", INVESTIGATE_ENGINE)
+	supermatter_explosive_effects.z = src.z
+	supermatter_explosive_effects.handle_special_effects()
+	explosion(get_turf(src), explosion_power, explosion_power * 1.2, explosion_power * 1.5, explosion_power * 2, 1, 1, cause = src)
+	qdel(src)
+	return
+
+/obj/machinery/power/supermatter_shard/process_atmos()
+	var/turf/L = loc
+
+	if(isnull(L))		// We have a null turf...something is wrong, stop processing this entity.
+		return PROCESS_KILL
+
+	if(!istype(L))	//We are in a crate or somewhere that isn't turf, if we return to turf resume processing but for now.
+		return  //Yeah just stop.
+
+	if(damage > warning_point) // while the core is still damaged and it's still worth noting its status
+		if((world.timeofday - lastwarning) / 10 >= WARNING_DELAY)
+			alarm()
+			emergency_lighting(1)
+			var/stability = num2text(round((damage / explosion_point) * 100))
+
+			if(damage > emergency_point)
+				radio.autosay("[emergency_alert] Дестабилизация: [stability]%", name, null)
+				lastwarning = world.timeofday
+				if(!has_reached_emergency)
+					investigate_log("has reached the emergency point for the first time.", INVESTIGATE_ENGINE)
+					message_admins("[src] has reached the emergency point [ADMIN_COORDJMP(src)].")
+					has_reached_emergency = 1
+
+			else if(damage >= damage_archived) // The damage is still going up
+				radio.autosay("[warning_alert] Дестабилизация: [stability]%", name)
+				lastwarning = world.timeofday - 150
+
+			else                                                 // Phew, we're safe
+				radio.autosay("[safe_alert]", name)
+				emergency_lighting(0)
+				lastwarning = world.timeofday
+
+		if(damage > explosion_point)
+			if(get_turf(src))
+				var/turf/position = get_turf(src)
+				for(var/mob/living/mob in GLOB.alive_mob_list)
+					var/turf/mob_pos = get_turf(mob)
+					if(mob_pos && mob_pos.z == position.z)
+						if(ishuman(mob))
+							//Hilariously enough, running into a closet should make you get hit the hardest.
+							var/mob/living/carbon/human/H = mob
+							H.AdjustHallucinate(max(100 SECONDS, min(300 SECONDS, DETONATION_HALLUCINATION * sqrt(1 / (get_dist(mob, src) + 1)))))
+							H.last_hallucinator_log = "Supermatter explosion"
+						var/rads = DETONATION_RADS * sqrt( 1 / (get_dist(mob, src) + 1) )
+						mob.apply_effect(rads, IRRADIATE)
+			explode()
+			emergency_lighting(0)
+			//It's kinda pointless to process atmos on destroyed (qdel'ed) crystal
+			return
+
+	if(damage > warning_point && world.timeofday > last_zap)
+		last_zap = world.timeofday + rand(80,200)
+		supermatter_zap()
+
+	//Ok, get the air from the turf
+	var/datum/gas_mixture/env = L.return_air()
+	//And, get part of that air
+	var/datum/gas_mixture/removed = env.remove(gasefficency * env.total_moles())
+
+	//ensure that damage doesn't increase too quickly due to super high temperatures resulting from no coolant, for example. We dont want the SM exploding before anyone can react.
+	//We want the cap to scale linearly with power (and explosion_point). Let's aim for a cap of 5 at power = 300 (based on testing, equals roughly 5% per SM alert announcement).
+	var/damage_inc_limit = (power/300)*(explosion_point/1000)*DAMAGE_RATE_LIMIT
+
+	if(!env || !removed || !removed.total_moles())
+		damage += max((power - 15*POWER_FACTOR)/10, 0)
+	else
+		damage_archived = damage
+
+	if(!removed)
+		//Placeholder, which representates vacuum
+		removed = new
+
+	damage = max(0, damage + between(-DAMAGE_RATE_LIMIT, (removed.temperature - CRITICAL_TEMPERATURE) / 150, damage_inc_limit))
+
+	//Maxes out at 100% oxygen pressure
+	if(!removed.total_moles())
+		oxygen = 0
+	else
+		//Result of this formula is undefined if we (total moles of removed) -> 0. So, let's roll with zero if no gas was removed.
+		oxygen = clamp((removed.oxygen - (removed.nitrogen * NITROGEN_RETARDATION_FACTOR)) / removed.total_moles(), 0, 1)
+
+	var/temp_factor
+	var/equilibrium_power
+	if(oxygen > 0.8)
+		//If chain reacting at oxygen > 0.8, we want the power at 800 K to stabilize at a power level of 400
+		equilibrium_power = 400
+		icon_state = "[base_icon_state]_glow"
+	else
+		//Otherwise, we want the power at 800 K to stabilize at a power level of 250
+		equilibrium_power = 250
+		icon_state = base_icon_state
+
+	temp_factor = ((equilibrium_power / DECAY_FACTOR) ** 3) / 800
+	power = round(max((removed.temperature * temp_factor) * oxygen + power, 0), 0.01)
+
+	var/device_energy = round(power * REACTION_POWER_MODIFIER, 0.01)
+
+	var/old_heat_capacity = removed.heat_capacity()
+
+	if(device_energy)
+		removed.toxins += max(device_energy / PLASMA_RELEASE_MODIFIER, 0)
+		removed.oxygen += max((device_energy + removed.temperature - T0C) / OXYGEN_RELEASE_MODIFIER, 0)
+
+	var/heat_capacity = removed.heat_capacity()
+
+	var/thermal_power = THERMAL_RELEASE_MODIFIER * device_energy
+	if(debug)
+		visible_message("[src]: Releasing [round(thermal_power)] W.")
+		visible_message("[src]: Releasing additional [round((heat_capacity - old_heat_capacity)*removed.temperature)] W with exhaust gasses.")
+
+	//deltaT = deltaQ / heat_capacity (deltaQ equals thermal_power)
+	//We are assuming here, that volume does not change here
+	removed.temperature += (thermal_power / heat_capacity)
+
+	removed.temperature = max(TCMB, removed.temperature)
+
+	env.merge(removed)
+
+	air_update_turf()
+	transfer_energy()
+
+	for(var/mob/living/carbon/human/l in view(src, min(7, round(sqrt(power/6)))))
+		// No more hallucinate for ded pipol.
+		if(!l.stat)
+			continue
+		// Where we're going, we don't need eyes.
+		var/obj/item/organ/internal/eyes/eyes = l.get_int_organ(/obj/item/organ/internal/eyes)
+		if(!istype(eyes))
+			continue
+		// If they can see it without mesons on or can see objects through mesons. Bad on them.
+		if((l.sight >= SEE_TURFS) && !(l.sight >= (SEE_TURFS|SEE_OBJS)))
+			continue
+		l.Hallucinate(min(200 SECONDS, l.AmountHallucinate() + power * config_hallucination_power * sqrt( 1 / max(1,get_dist(l, src)))))
+		l.last_hallucinator_log = "seeing SM without mesons"
+
+	for(var/mob/living/l in range(src, round((power / 100) ** 0.25)))
+		var/rads = (power / 10) * sqrt( 1 / max(get_dist(l, src),1) )
+		l.apply_effect(rads, IRRADIATE)
+
+	power -= (power/DECAY_FACTOR)**3
+
+	handle_admin_warnings()
+
+	return 1
+
+/obj/machinery/power/supermatter_shard/bullet_act(obj/projectile/Proj)
+	var/turf/L = loc
+	if(!istype(L))		// We don't run process() when we are in space
+		return 0	// This stops people from being able to really power up the supermatter
+				// Then bring it inside to explode instantly upon landing on a valid turf.
+
+
+	if(Proj.flag != BULLET)
+		power += Proj.damage * config_bullet_energy
+		if(!has_been_powered)
+			investigate_log("has been powered for the first time.", INVESTIGATE_ENGINE)
+			message_admins("[src] has been powered for the first time [ADMIN_COORDJMP(src)].")
+			has_been_powered = 1
+	else
+		damage += Proj.damage * config_bullet_energy
+	supermatter_zap()
+	return 0
+
+/obj/machinery/power/supermatter_shard/singularity_act()
+	var/gain = 100
+	var/supermatter_sound = sound('sound/effects/supermatter.ogg')
+	investigate_log("consumed by singularity.", INVESTIGATE_ENGINE)
+	message_admins("[span_danger("Singularity has consumed a supermatter shard and can now become stage six")] [ADMIN_COORDJMP(src)].")
+	visible_message(span_userdanger("[src] is consumed by the singularity!"))
+	for(var/mob/M in GLOB.mob_list)
+		SEND_SOUND(M, supermatter_sound) //everyone goan know bout this
+		to_chat(M, span_boldannounceic("A horrible screeching fills your ears, and a wave of dread washes over you..."))
+	qdel(src)
+	return(gain)
+
+/obj/machinery/power/supermatter_shard/attack_robot(mob/user as mob)
+	if(Adjacent(user))
+		return attack_hand(user)
+
+/obj/machinery/power/supermatter_shard/attack_hand(mob/user as mob)
+	if(isAI(user))
 		return
-	if(warp)
-		SET_PLANE_EXPLICIT(warp, PLANE_TO_TRUE(warp.plane), src)
-
-/obj/machinery/power/supermatter_crystal/examine(mob/user)
-	. = ..()
-	if(isliving(user))
-		if(!HAS_TRAIT(user, TRAIT_MESON_VISION) && (get_dist(user, src) < SM_HALLUCINATION_RANGE(internal_energy)))
-			. += span_danger("От одного взгляда на него начинает болеть голова.")
-		var/mob/living/living_user = user
-		if(HAS_TRAIT(user, TRAIT_TELEKINESIS))
-			to_chat(user, span_warning("Вкус ошеломляющий и неописуемый!"))
-			living_user.electrocute_act(shock_damage = 15, source = src, flags = SHOCK_KNOCKDOWN | SHOCK_NOGLOVES)
-			. += span_notice("Ему бы не помешало немного хлорида натрия...")
-
-	if(holiday_lights)
-		. += span_notice("Излучая одновременно праздничное настроение и самую настоящую радиацию, он украшен ослепительной гирляндой, любовно обёрнутой вокруг основания, что превращает потенциальное орудие конца света в космический символ зимних праздников.")
-
-	. += delamination_strategy.examine(src)
-	return .
-
-/obj/machinery/power/supermatter_crystal/process_atmos()
-	tick_counter += SSair.wait
-	if(tick_counter >= ticks_per_run)
-		var/datum/milla_safe/supermatter_process/milla = new()
-		milla.invoke_async(src)
-		tick_counter -= ticks_per_run
-
-/datum/milla_safe/supermatter_process
-
-/datum/milla_safe/supermatter_process/on_run(obj/machinery/power/supermatter_crystal/supermatter)
-	var/turf/current_turf = get_turf(supermatter)
-	var/datum/gas_mixture/env = get_turf_air(current_turf)
-	supermatter.process_atmos_safely(current_turf, env)
-
-/obj/machinery/power/supermatter_crystal/proc/process_atmos_safely(turf/local_turf, datum/gas_mixture/env)
-	// PART 1: PRELIMINARIES
-	if(disable_process != SM_PROCESS_ENABLED)
+	if(isnucleation(user))
+		nuclear_touch(user)
+		new /obj/effect/temp_visual/heart(loc)
+		var/touch_sm = pick(list("poke", "pet", "hug", "cuddle"))
+		user.visible_message(span_notice("[user] [touch_sm]s the supermatter!"), \
+								span_notice("You [touch_sm] the supermatter!"))
+		playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 		return
 
-	if(!istype(local_turf)) //We are in a crate or somewhere that isn't turf, if we return to turf resume processing but for now.
-		return //Yeah just stop.
+	user.visible_message(
+		span_warning("\The [user] reaches out and touches \the [src], inducing a resonance... [user.p_their(TRUE)] body starts to glow and bursts into flames before flashing into ash."),
+		span_danger("You reach out and touch \the [src]. Everything starts burning and all you can hear is ringing. Your last thought is \"That was not a wise decision.\""),
+		span_warning("You hear an uneartly ringing, then what sounds like a shrilling kettle as you are washed with a wave of heat.")
+	)
 
-	if(isclosedturf(local_turf) || local_turf.density)
-		var/turf/did_it_melt = local_turf.ChangeTurf(local_turf.baseturf)
-		if(!isclosedturf(did_it_melt) || !did_it_melt.density) //In case some joker finds way to place these on indestructible walls
-			visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] проплавляет [local_turf.declent_ru(ACCUSATIVE)]!"))
-		return
+	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
 
-	// PART 2: GAS PROCESSING
-	absorbed_gasmix = env?.remove_ratio(absorption_ratio) || new()
-	absorbed_gasmix.volume = (env?.volume || CELL_VOLUME) * absorption_ratio // To match the pressure.
-	calculate_gases()
-	// Extra effects should always fire after the compositions are all finished
-	// Some extra effects like [/datum/sm_gas/carbon_dioxide/extra_effects]
-	// needs more than one gas and rely on a fully parsed gas_percentage.
-	var/list/gases = absorbed_gasmix.get_interesting()
-	for(var/tlv_id in gases)
-		var/datum/sm_gas/sm_gas = current_gas_behavior[tlv_id]
-		if(!sm_gas)
-			continue
-		sm_gas.extra_effects(src)
+	consume(user)
 
-	// PART 3: POWER PROCESSING
-	internal_energy_factors = calculate_internal_energy()
-	zap_factors = calculate_zap_transmission_rate()
-	var/delta_time = (SSmachines.times_fired - last_energy_accumulation_perspective_machines) * SSmachines.wait / (1 SECONDS)
-	var/accumulated_energy = accumulate_energy(ZAP_ENERGY_ACCUMULATION_NORMAL, energy = internal_energy * zap_transmission_rate * delta_time)
-	if(accumulated_energy && (last_power_zap + (4 - internal_energy * 0.001) SECONDS) < world.time)
-		var/discharged_energy = discharge_energy(ZAP_ENERGY_ACCUMULATION_NORMAL)
-		playsound(src, 'sound/weapons/emitter2.ogg', 70, TRUE)
-		hue_angle_shift = clamp(903 * log(10, (internal_energy + 8000)) - 3590, -50, 240)
-		var/zap_color = color_matrix_rotate_hue(hue_angle_shift)
-		supermatter_zap(
-			zapstart = src,
-			range = 3,
-			zap_str = discharged_energy,
-			zap_flags = ZAP_SUPERMATTER_FLAGS,
-			zap_cutoff = 240 KILO JOULES,
-			power_level = internal_energy,
-			color = zap_color,
-		)
-
-		last_power_zap = world.time
-	last_energy_accumulation_perspective_machines = SSmachines.times_fired
-
-	// PART 4: DAMAGE PROCESSING
-	temp_limit_factors = calculate_temp_limit()
-	damage_archived = damage
-	damage_factors = calculate_damage()
-	if(damage == 0) // Clear any in game forced delams if on full health.
-		set_delam(SM_DELAM_PRIO_IN_GAME, SM_DELAM_STRATEGY_PURGE)
-	else if(!final_countdown)
-		set_delam(SM_DELAM_PRIO_NONE, SM_DELAM_STRATEGY_PURGE) // This one cant clear any forced delams.
-	delamination_strategy.delam_progress(src)
-	if(damage > explosion_point && !final_countdown)
-		count_down()
-
-	// PART 5: WASTE GAS PROCESSING
-	waste_multiplier_factors = calculate_waste_multiplier()
-	var/device_energy = internal_energy * REACTION_POWER_MODIFIER
-
-	/// Do waste on another gasmix so we can keep a copy of the gasmix we use for processing.
-	absorbed_gasmix.set_temperature((absorbed_gasmix.temperature() + device_energy * waste_multiplier / THERMAL_RELEASE_MODIFIER))
-	absorbed_gasmix.set_temperature(clamp(absorbed_gasmix.temperature(), TCMB, 2500 * waste_multiplier))
-	absorbed_gasmix.set_toxins(absorbed_gasmix.toxins() + max(device_energy * waste_multiplier / PLASMA_RELEASE_MODIFIER, 0))
-	absorbed_gasmix.set_oxygen((absorbed_gasmix.oxygen() + max(((device_energy + absorbed_gasmix.temperature() * waste_multiplier) - T0C) / OXYGEN_RELEASE_MODIFIER, 0)))
-	env.merge(absorbed_gasmix)
-	recalculate_atmos_connectivity()
-
-	// PART 6: EXTRA BEHAVIOUR
-	emit_radiation()
-	processing_sound()
-	handle_high_power()
-	psychological_examination()
-
-	// handle the engineers that saved the engine from cascading, if there were any
-	if(get_status() < SUPERMATTER_EMERGENCY && !isnull(saviors))
-		for(var/datum/weakref/savior_ref as anything in saviors)
-			var/mob/living/savior = savior_ref.resolve()
-			if(!istype(savior)) // didn't live to tell the tale, sadly.
-				continue
-			savior.client?.give_award(/datum/award/achievement/jobs/theoretical_limits, savior)
-		LAZYNULL(saviors)
-
-	if(prob(15))
-		supermatter_pull(loc, min(internal_energy / 850, 3))//850, 1700, 2550
-	update_appearance()
-	delamination_strategy.lights(src)
-	delamination_strategy.filters(src)
-	absorption_ratio = clamp(absorption_ratio - 0.05, 0.15, 1)
-	return TRUE
-
-// SupermatterMonitor UI for ghosts only. Inherited attack_ghost will call this.
-/obj/machinery/power/supermatter_crystal/ui_interact(mob/user, datum/tgui/ui)
-	if(!isobserver(user))
-		return FALSE
-	. = ..()
-	ui = SStgui.try_update_ui(user, src, ui)
-	if(!ui)
-		ui = new(user, src, "Supermatter")
-		ui.open()
-
-/obj/machinery/power/supermatter_crystal/ui_static_data(mob/user)
-	var/list/data = list()
-	data["gas_metadata"] = sm_gas_data()
-	return data
-
-/// Returns data that are exclusively about this sm.
-/obj/machinery/power/supermatter_crystal/proc/sm_ui_data()
-	var/list/data = list()
-	data["uid"] = UID()
-	data["area_name"] = get_area_name(src)
-
-	data["integrity"] = get_integrity_percent()
-	data["integrity_factors"] = list()
-	for(var/factor, factor_value in damage_factors)
-		var/amount = round(factor_value, 0.01)
-		if(!amount)
-			continue
-		data["integrity_factors"] += list(list(
-			"name" = factor,
-			"amount" = amount * -1
-		))
-	var/list/internal_energy_si_derived_data = siunit_isolated(internal_energy * 1e6, "eV", 3)
-	data["internal_energy"] = internal_energy
-	data["internal_energy_coefficient"] = internal_energy_si_derived_data[SI_COEFFICIENT]
-	data["internal_energy_unit"] = internal_energy_si_derived_data[SI_UNIT]
-	data["internal_energy_factors"] = list()
-	for(var/factor, factor_value in internal_energy_factors)
-		var/list/internal_energy_factor_si_derived_data = siunit_isolated(factor_value * 1e6, "eV", 3)
-		var/amount = round(factor_value, 0.01)
-		if(!amount)
-			continue
-		data["internal_energy_factors"] += list(list(
-			"name" = factor,
-			"amount" = internal_energy_factor_si_derived_data[SI_COEFFICIENT],
-			"unit" = internal_energy_factor_si_derived_data[SI_UNIT],
-		))
-	data["temp_limit"] = temp_limit
-	data["temp_limit_factors"] = list()
-	for(var/factor, factor_value in temp_limit_factors)
-		var/amount = round(factor_value, 0.01)
-		if(!amount)
-			continue
-		data["temp_limit_factors"] += list(list(
-			"name" = factor,
-			"amount" = amount,
-		))
-	data["waste_multiplier"] = waste_multiplier
-	data["waste_multiplier_factors"] = list()
-	for(var/factor, factor_value in waste_multiplier_factors)
-		var/amount = round(factor_value, 0.01)
-		if(!amount)
-			continue
-		data["waste_multiplier_factors"] += list(list(
-			"name" = factor,
-			"amount" = amount,
-		))
-
-	data["zap_transmission_factors"] = list()
-	for(var/factor, factor_value in zap_factors)
-		var/list/zap_factor_si_derived_data = siunit_isolated(factor_value * internal_energy, "W", 2)
-		if(!zap_factor_si_derived_data[SI_COEFFICIENT])
-			continue
-		data["zap_transmission_factors"] += list(list(
-			"name" = factor,
-			"amount" = zap_factor_si_derived_data[SI_COEFFICIENT],
-			"unit" = zap_factor_si_derived_data[SI_UNIT],
-		))
-
-	///Add high energy bonus to the zap transmission data so we can accurately measure our power generation from zaps.
-	var/high_energy_bonus = 0
-	var/zap_transmission = zap_transmission_rate * internal_energy
-	var/zap_power_multiplier = 1
-	if(internal_energy > POWER_PENALTY_THRESHOLD) //Supermatter zaps multiply power internally under some conditions for some reason, so we'll snowflake this for now.
-		///Power multiplier bonus applied to all zaps. Zap power generation doubles when it reaches 7GeV and 9GeV.
-		zap_power_multiplier *= 2 ** clamp(round((internal_energy - POWER_PENALTY_THRESHOLD) / 2000), 0, 2)
-		///The supermatter releases additional zaps after 5GeV, with more at 7GeV and 9GeV.
-		var/additional_zap_bonus = clamp(internal_energy * 3200, 6.4e6, 3.2e7) * clamp(round(INVERSE_LERP(1000, 3000, internal_energy)), 1, 4)
-		high_energy_bonus = (zap_transmission + additional_zap_bonus) * zap_power_multiplier - zap_transmission
-		var/list/zap_factor_si_derived_data = siunit_isolated(high_energy_bonus, "W", 2)
-		data["zap_transmission_factors"] += list(list(
-			"name" = "Бонус высокой энергии",
-			"amount" = zap_factor_si_derived_data[SI_COEFFICIENT],
-			"unit" = zap_factor_si_derived_data[SI_UNIT],
-		))
-
-	var/list/zap_transmission_si_derived_data = siunit_isolated(zap_transmission + high_energy_bonus, "W", 2)
-	data["zap_transmission"] = zap_transmission + high_energy_bonus
-	data["zap_transmission_coefficient"] = zap_transmission_si_derived_data[SI_COEFFICIENT]
-	data["zap_transmission_unit"] = zap_transmission_si_derived_data[SI_UNIT]
-
-	data["absorbed_ratio"] = absorption_ratio
-	var/list/formatted_gas_percentage = list()
-	var/list/cached_gas_percentage = gas_percentage
-	for(var/datum/gas/gas_path as anything in subtypesof(/datum/gas))
-		var/gas_id = gas_path.id
-		formatted_gas_percentage[gas_id] = cached_gas_percentage[gas_id] || 0
-	data["gas_composition"] = formatted_gas_percentage
-	data["gas_temperature"] = absorbed_gasmix.temperature()
-	data["gas_total_moles"] = absorbed_gasmix.total_moles()
-	return data
-
-/obj/machinery/power/supermatter_crystal/ui_data(mob/user)
-	var/list/data = list()
-	data["sm_data"] = list(sm_ui_data())
-	return data
-
-/// Encodes the current state of the supermatter.
-/obj/machinery/power/supermatter_crystal/proc/get_status()
-	if(!absorbed_gasmix)
-		return SUPERMATTER_ERROR
-	if(final_countdown)
-		return SUPERMATTER_DELAMINATING
-	if(damage >= emergency_point)
-		return SUPERMATTER_EMERGENCY
-	if(damage >= danger_point)
-		return SUPERMATTER_DANGER
-	if(damage >= warning_point)
-		return SUPERMATTER_WARNING
-	if(absorbed_gasmix.temperature() > temp_limit * 0.8)
-		return SUPERMATTER_NOTIFY
-	if(internal_energy)
-		return SUPERMATTER_NORMAL
-	return SUPERMATTER_INACTIVE
-
-/// Returns the integrity percent of the Supermatter. No rounding made yet, round it yourself.
-/obj/machinery/power/supermatter_crystal/proc/get_integrity_percent()
+/obj/machinery/power/supermatter_shard/proc/get_internal_integrity()
 	var/integrity = damage / explosion_point
-	integrity = 100 - integrity * 100
+	integrity = round(100 - integrity * 100)
 	integrity = integrity < 0 ? 0 : integrity
 	return integrity
 
-/obj/machinery/power/supermatter_crystal/update_overlays()
-	. = ..()
-	if(psy_coeff > 0)
-		. += mutable_appearance(icon = icon, icon_state = "[base_icon_state]-psy", layer = FLOAT_LAYER - 1, alpha = psy_coeff * 255)
-	if(delamination_strategy)
-		. += delamination_strategy.overlays(src)
-	if(holiday_lights)
-		if(istype(src, /obj/machinery/power/supermatter_crystal/shard))
-			. += mutable_appearance(icon, "holiday_lights_shard")
-			. += emissive_appearance(icon, "holiday_lights_shard_e", src, alpha = src.alpha)
-		else
-			. += mutable_appearance(icon, "holiday_lights")
-			. += emissive_appearance(icon, "holiday_lights_e", src, alpha = src.alpha)
-	return .
+/obj/machinery/power/supermatter_shard/proc/transfer_energy()
+	for(var/obj/machinery/power/rad_collector/R in GLOB.rad_collectors)
+		if(get_dist(R, src) <= 15) // Better than using orange() every process
+			R.receive_pulse(power/10)
+	return
 
-/obj/machinery/power/supermatter_crystal/update_icon(updates)
-	. = ..()
-	if(gas_heat_power_generation > 0.8)
-		icon_state = "[base_icon_state]-glow"
-	else
-		icon_state = base_icon_state
 
-/obj/machinery/power/supermatter_crystal/proc/time_frozen()
-	SIGNAL_HANDLER
-	if(disable_process != SM_PROCESS_ENABLED)
-		return
-
-	disable_process = SM_PROCESS_TIMESTOP
-
-/obj/machinery/power/supermatter_crystal/proc/time_unfrozen()
-	SIGNAL_HANDLER
-	if(disable_process != SM_PROCESS_TIMESTOP)
-		return
-
-	disable_process = SM_PROCESS_ENABLED
-
-/obj/machinery/power/supermatter_crystal/proc/force_delam()
-	SIGNAL_HANDLER
-	investigate_log("was forcefully delaminated", INVESTIGATE_ENGINE)
-	INVOKE_ASYNC(delamination_strategy, TYPE_PROC_REF(/datum/sm_delam, delaminate), src)
-
-/**
- * Count down, spout some messages, and then execute the delam itself.
- * We guard for last second delam strat changes here, mostly because some have diff messages.
- *
- * By last second changes, we mean that it's possible for say, a tesla delam to
- * just explode normally if at the absolute last second it loses power and switches to default one.
- * Even after countdown is already in progress.
- */
-/obj/machinery/power/supermatter_crystal/proc/count_down()
-	set waitfor = FALSE
-
-	if(final_countdown) // We're already doing it go away
-		stack_trace("[src] told to delaminate again while it's already delaminating.")
-		return
-
-	final_countdown = TRUE
-
-	notify_ghosts(
-		"[DECLENT_RU_CAP(src, NOMINATIVE)] начал процесс расслоения!",
-		source = src,
-		title = "Приближается расплавление",
-	)
-
-	var/list/count_down_messages = delamination_strategy.count_down_messages()
-
-	var/cached_emergency_channel = emergency_channel
-	radio_announce(
-		count_down_messages[1],
-		src,
-		cached_emergency_channel
-	)
-
-	var/delamination_countdown_time = SUPERMATTER_COUNTDOWN_TIME
-	// If a sliver was removed from the supermatter, the countdown time is significantly decreased
-	if(supermatter_sliver_removed == TRUE)
-		delamination_countdown_time = SUPERMATTER_SLIVER_REMOVED_COUNTDOWN_TIME
-		radio_announce(
-			"ВНИМАНИЕ: Расчётное время до полного расслоения кристалла значительно меньше ожидаемого. \
-				Проверьте кристалл на структурные аномалии или следы саботажа!",
-			src,
-			cached_emergency_channel
+/obj/machinery/power/supermatter_shard/attackby(obj/item/I, mob/living/user, params)
+	if(istype(I, /obj/item/scalpel/supermatter))
+		add_fingerprint(user)
+		var/obj/item/scalpel/supermatter/scalpel = I
+		if(!scalpel.uses_left)
+			to_chat(user, span_warning("The [scalpel.name] isn't sharp enough anymore."))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] starts to carefully scrape [src] with [I]."),
+			span_notice("You start to carefully scrape [src]..."),
 		)
-
-	var/cached_explosion_point = explosion_point
-
-	for(var/i in delamination_countdown_time to 0 step -10)
-		var/message
-		var/healed = FALSE
-
-		if(damage < cached_explosion_point) // Cutting it a bit close there engineers
-			message = count_down_messages[2]
-			healed = TRUE
-		else if((i % 50) != 0 && i > 50) // A message once every 5 seconds until the final 5 seconds which count down individualy
-			sleep(1 SECONDS)
-			continue
-		else if(i > 50)
-			message = "[DisplayTimeText(i, TRUE)] [count_down_messages[3]]"
-		else
-			message = "[i * 0.1]..."
-
-		radio_announce(
-			message,
-			src,
-			cached_emergency_channel
+		if(!I.use_tool(src, user, 10 SECONDS, volume = 100) || !scalpel.uses_left)
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] has extracted a sliver from [src], and it begins to react violently."),
+			span_notice("You have extracted a sliver from [src], and it begins to react violently."),
 		)
+		power += 200 //well...
+		var/turf/shard_loc = get_turf(src)
+		var/datum/gas_mixture/shard_env = shard_loc.return_air()
+		var/datum/gas_mixture/new_mixture = new
+		new_mixture.toxins = 10000
+		new_mixture.temperature += power * SHARD_CUT_COEF
+		shard_env.merge(new_mixture)
+		scalpel.uses_left--
+		if(!scalpel.uses_left)
+			to_chat(user, span_boldwarning("A tiny piece of [I] falls off, rendering it useless!"))
+		var/obj/item/nuke_core/supermatter_sliver/sliver = new(drop_location())
+		var/obj/item/retractor/supermatter/tongs = user.get_inactive_hand()
+		if(!istype(tongs) || tongs.sliver)
+			return ATTACK_CHAIN_PROCEED_SUCCESS
+		tongs.sliver = sliver
+		sliver.forceMove(tongs)
+		tongs.update_icon(UPDATE_ICON_STATE)
+		to_chat(user, span_notice("You have picked up [sliver] with [tongs]."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-		if(healed)
-			final_countdown = FALSE
+	if(istype(I, /obj/item/retractor/supermatter))
+		to_chat(user, span_warning("The [I.name] bounces off [src], you need to cut off a sliver first."))
+		return ATTACK_CHAIN_PROCEED
 
-			if(!istype(delamination_strategy, /datum/sm_delam/cascade))
-				return
-			for(var/mob/living/lucky_engi as anything in mobs_in_area_type(list(/area/engineering/supermatter)))
-				if(isnull(lucky_engi.client))
-					continue
-				if(isanimal(lucky_engi))
-					continue
-				LAZYADD(saviors, WEAKREF(lucky_engi))
+	if((I.item_flags & ABSTRACT) || !isliving(user))
+		return ATTACK_CHAIN_PROCEED
 
-			return // delam averted
-		sleep(1 SECONDS)
+	. = ATTACK_CHAIN_BLOCKED_ALL
+	user.drop_item_ground(I, force = TRUE)
+	I.do_pickup_animation(src)
+	consume(I)
+	user.visible_message(
+		span_danger("As [user] touches [src] with [I], silence fills the room..."),
+		"[span_danger("You touch [src] with [I], and everything suddenly goes silent.")]\n[span_notice("The [I.name] flashes into dust as you flinch away from [src].")]",
+		span_italics("Everything suddenly goes silent."),
+	)
+	playsound(loc, 'sound/effects/supermatter.ogg', 50, TRUE)
+	user.apply_effect(150, IRRADIATE)
 
-	delamination_strategy.delaminate(src)
 
-// All the calculate procs should only update variables.
-// Move the actual real-world effects to [/obj/machinery/power/supermatter_crystal/process_atmos].
-
-/**
- * Perform calculation for variables that depend on gases.
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/list/gas_percentage]
- * [/obj/machinery/power/supermatter_crystal/var/gas_power_transmission_rate]
- * [/obj/machinery/power/supermatter_crystal/var/gas_heat_modifier]
- * [/obj/machinery/power/supermatter_crystal/var/gas_heat_resistance]
- * [/obj/machinery/power/supermatter_crystal/var/gas_heat_power_generation]
- * [/obj/machinery/power/supermatter_crystal/var/gas_powerloss_inhibition]
- *
- * Returns: null
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_gases()
-	if(disable_gas)
-		return
-
-	gas_percentage = list()
-	gas_power_transmission_rate = 0
-	gas_heat_modifier = 0
-	gas_heat_resistance = 0
-	gas_heat_power_generation = 0
-	gas_powerloss_inhibition = 0
-
-	var/total_moles = absorbed_gasmix.total_moles()
-	combined_gas = total_moles
-	if(total_moles < MINIMUM_MOLE_COUNT) //it's not worth processing small amounts like these, total_moles can also be 0 in vacuume
-		return
-
-	var/cached_current_gas_behavior = current_gas_behavior
-
-	var/list/gases = absorbed_gasmix.get_interesting()
-	var/cached_gas_percentage = gas_percentage
-	for(var/tlv_id, mole_count in gases)
-		if(mole_count < MINIMUM_MOLE_COUNT) //save processing power from small amounts like these
-			continue
-
-		cached_gas_percentage[tlv_id] = mole_count / total_moles
-		var/datum/sm_gas/sm_gas = cached_current_gas_behavior[tlv_id]
-		if(!sm_gas)
-			continue
-
-		gas_power_transmission_rate += sm_gas.power_transmission * cached_gas_percentage[tlv_id]
-		gas_heat_modifier += sm_gas.heat_modifier * cached_gas_percentage[tlv_id]
-		gas_heat_resistance += sm_gas.heat_resistance * cached_gas_percentage[tlv_id]
-		gas_heat_power_generation += sm_gas.heat_power_generation * cached_gas_percentage[tlv_id]
-		gas_powerloss_inhibition += sm_gas.powerloss_inhibition * cached_gas_percentage[tlv_id]
-
-	gas_heat_power_generation = clamp(gas_heat_power_generation, 0, 1)
-	gas_powerloss_inhibition = clamp(gas_powerloss_inhibition, 0, 1)
-
-/**
- * Perform calculation for power lost and gained this tick.
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/internal_energy]
- * [/obj/machinery/power/supermatter_crystal/var/external_power_trickle]
- * [/obj/machinery/power/supermatter_crystal/var/external_power_immediate]
- *
- * Returns: The factors that have influenced the calculation. list[FACTOR_DEFINE] = number
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_internal_energy()
-	if(disable_power_change)
-		return
-	var/list/additive_power = list()
-
-	/// If we have a small amount of external_power_trickle we just round it up to 40.
-	additive_power[SM_POWER_EXTERNAL_TRICKLE] = external_power_trickle ? max(external_power_trickle / MATTER_POWER_CONVERSION, 40) : 0
-	external_power_trickle -= min(additive_power[SM_POWER_EXTERNAL_TRICKLE], external_power_trickle)
-	additive_power[SM_POWER_EXTERNAL_IMMEDIATE] = external_power_immediate
-	external_power_immediate = 0
-	additive_power[SM_POWER_HEAT] = gas_heat_power_generation * absorbed_gasmix.temperature() * GAS_HEAT_POWER_SCALING_COEFFICIENT
-	additive_power[SM_POWER_HEAT] && log_activation(who = "environmental factors")
-
-	// I'm sorry for this, but we need to calculate power lost immediately after power gain.
-	// Helps us prevent cases when someone dumps superhothotgas into the SM and shoots the power to the moon for one tick.
-	/// Power if we dont have decay. Used for powerloss calc.
-	var/momentary_power = internal_energy
-	for(var/powergain_type, power_value in additive_power)
-		momentary_power += power_value
-	if(momentary_power < powerloss_linear_threshold) // Negative numbers
-		additive_power[SM_POWER_POWERLOSS] = -1 * (momentary_power / POWERLOSS_CUBIC_DIVISOR) ** 3
+/obj/machinery/power/supermatter_shard/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	set_anchored(!anchored)
+	if(anchored)
+		user.visible_message(
+			span_warning("As [user] tightens bolts of [src] with [I], the tool disappears."),
+			span_warning("As you tighten bolts of [src], the tool disappears."),
+			span_italics("You hear a ratchet"),
+		)
 	else
-		additive_power[SM_POWER_POWERLOSS] = -1 * (momentary_power * POWERLOSS_LINEAR_RATE + powerloss_linear_offset)
-	// Positive number
-	additive_power[SM_POWER_POWERLOSS_GAS] = -1 * gas_powerloss_inhibition *  additive_power[SM_POWER_POWERLOSS]
-	additive_power[SM_POWER_POWERLOSS_SOOTHED] = -1 * min(1-gas_powerloss_inhibition , 0.2 * psy_coeff) *  additive_power[SM_POWER_POWERLOSS]
-
-	for(var/powergain_types, power_value in additive_power)
-		internal_energy += power_value
-	internal_energy = max(internal_energy, 0)
-	if(internal_energy && !activation_logged)
-		stack_trace("Supermatter powered for the first time without being logged. Internal energy factors: [json_encode(internal_energy_factors)]")
-		activation_logged = TRUE // so we dont spam the log.
-	else if(!internal_energy)
-		last_power_zap = world.time
-		last_energy_accumulation_perspective_machines = SSmachines.times_fired
-	return additive_power
-
-/** Log when the supermatter is activated for the first time.
- * Everything that can increase [/obj/machinery/power/supermatter_crystal/var/internal_energy]
- * either directly or indirectly MUST call this.
- *
- * Arguments:
- * * who - Either a string or a datum. Whatever gave power to the SM. Mandatory.
- * * how - A datum. How they powered it. Optional.
- */
-/obj/machinery/power/supermatter_crystal/proc/log_activation(who, how)
-	if(activation_logged || disable_power_change)
-		return
-	if(!who)
-		CRASH("Supermatter activated by an unknown source")
-
-	if(istext(who))
-		investigate_log("has been powered for the first time by [who][how ? " with [how]" : ""].", INVESTIGATE_ENGINE)
-		message_admins("[src] [ADMIN_JMP(src)] has been powered for the first time by [who][how ? " with [how]" : ""].")
-	else
-		var/atom/who_atom = who
-		investigate_log("has been powered for the first time by [key_name(who_atom)][how ? " with [how]" : ""].", INVESTIGATE_ENGINE)
-		message_admins("[src] [ADMIN_JMP(src)] has been powered for the first time by [ADMIN_FULLMONTY(who_atom)][how ? " with [how]" : ""].")
-	activation_logged = TRUE
-
-/**
- * Perform calculation for the main zap power transmission rate in W/MeV.
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/zap_transmission_rate]
- *
- * Returns: The factors that have influenced the calculation. list[FACTOR_DEFINE] = number
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_zap_transmission_rate()
-	var/list/additive_transmission_rate = list()
-	additive_transmission_rate[SM_ZAP_BASE] = BASE_POWER_TRANSMISSION_RATE
-	additive_transmission_rate[SM_ZAP_GAS] = BASE_POWER_TRANSMISSION_RATE * gas_power_transmission_rate
-
-	var/zap_transmission_rate = 0
-	for(var/transmission_types, transmission_rate in additive_transmission_rate)
-		zap_transmission_rate += transmission_rate
-	src.zap_transmission_rate = max(zap_transmission_rate, 0)
-	return additive_transmission_rate
-
-/**
- * Perform calculation for the waste multiplier.
- * This number affects the temperature, plasma, and oxygen of the waste gas.
- * Multiplier is applied to energy for plasma and temperature but temperature for oxygen.
- *
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/waste_multiplier]
- *
- * Returns: The factors that have influenced the calculation. list[FACTOR_DEFINE] = number
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_waste_multiplier()
-	src.waste_multiplier = 0
-	if(disable_gas)
-		return
-	/// Tell people the heat output in energy. More informative than telling them the heat multiplier.
-	var/additive_waste_multiplier = list()
-	additive_waste_multiplier[SM_WASTE_BASE] = 1
-	additive_waste_multiplier[SM_WASTE_GAS] = gas_heat_modifier
-	additive_waste_multiplier[SM_WASTE_SOOTHED] = -0.2 * psy_coeff
-	var/waste_multiplier = 0
-	for(var/waste_type, multiplier in additive_waste_multiplier)
-		waste_multiplier += multiplier
-	src.waste_multiplier = clamp(waste_multiplier, 0.5, INFINITY)
-	return additive_waste_multiplier
-
-/**
- * Calculate at which temperature the sm starts taking damage.
- * heat limit is given by: (T0C+40) * (1 + gas heat res + psy_coeff)
- *
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/temp_limit]
- *
- * Returns: The factors that have influenced the calculation. list[FACTOR_DEFINE] = number
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_temp_limit()
-	var/list/additive_temp_limit = list()
-	additive_temp_limit[SM_TEMP_LIMIT_BASE] = T0C + HEAT_PENALTY_THRESHOLD
-	additive_temp_limit[SM_TEMP_LIMIT_GAS] = gas_heat_resistance *  (T0C + HEAT_PENALTY_THRESHOLD)
-	additive_temp_limit[SM_TEMP_LIMIT_SOOTHED] = psy_coeff * 45
-	additive_temp_limit[SM_TEMP_LIMIT_LOW_MOLES] =  clamp(2 - absorbed_gasmix.total_moles() / 100, 0, 1) * (T0C + HEAT_PENALTY_THRESHOLD)
-
-	temp_limit = 0
-	for(var/resistance_type, limit in additive_temp_limit)
-		temp_limit += limit
-	temp_limit = max(temp_limit, TCMB)
-
-	return additive_temp_limit
-
-/**
- * Perform calculation for the damage taken or healed.
- * Description of each factors can be found in the defines.
- *
- * Updates:
- * [/obj/machinery/power/supermatter_crystal/var/damage]
- *
- * Returns: The factors that have influenced the calculation. list[FACTOR_DEFINE] = number
- */
-/obj/machinery/power/supermatter_crystal/proc/calculate_damage()
-	if(disable_damage)
-		return
-
-	var/list/additive_damage = list()
-	var/total_moles = absorbed_gasmix.total_moles()
-	var/cached_internal_energy = internal_energy
-
-	// We dont let external factors deal more damage than the emergency point.
-	// Only cares about the damage before this proc is run. We ignore soon-to-be-applied damage.
-	additive_damage[SM_DAMAGE_EXTERNAL] = external_damage_immediate * clamp((emergency_point - damage) / emergency_point, 0, 1)
-	external_damage_immediate = 0
-
-	additive_damage[SM_DAMAGE_HEAT] = clamp((absorbed_gasmix.temperature() - temp_limit) / 24000, 0, 0.15)
-	additive_damage[SM_DAMAGE_POWER] = clamp((cached_internal_energy - POWER_PENALTY_THRESHOLD) / 40000, 0, 0.1)
-	additive_damage[SM_DAMAGE_MOLES] = clamp((total_moles - MOLE_PENALTY_THRESHOLD) / 3200, 0, 0.1)
-
-	var/is_spaced = FALSE
-	if(isturf(loc))
-		var/turf/local_turf = loc
-		for(var/turf/neighbor in ((local_turf.GetAtmosAdjacentTurfs(alldir = TRUE) || list()) + local_turf))
-			if(!isspaceturf(neighbor))
-				continue
-			additive_damage[SM_DAMAGE_SPACED] = clamp(cached_internal_energy * 0.000125, 0, 1)
-			is_spaced = TRUE
-			break
-
-	if(total_moles > 0 && !is_spaced)
-		additive_damage[SM_DAMAGE_HEAL_HEAT] = clamp((absorbed_gasmix.temperature() - temp_limit) / 6000, -0.1, 0)
-
-	var/total_damage = 0
-	for(var/damage_type, damage_value in additive_damage)
-		total_damage += damage_value
-
-	damage += total_damage
-	damage = max(damage, 0)
-	return additive_damage
-
-/**
- * Sets the delam of our sm.
- *
- * Arguments:
- * * priority: Truthy values means a forced delam. If current forced_delam is higher than priority we dont run.
- * Set to a number higher than [SM_DELAM_PRIO_IN_GAME] to fully force an admin delam.
- * * delam_path: Typepath of a [/datum/sm_delam]. [SM_DELAM_STRATEGY_PURGE] means reset and put prio back to zero.
- *
- * Returns: Not used for anything, just returns true on successful set, manual and automatic. Helps admins check stuffs.
- */
-/obj/machinery/power/supermatter_crystal/proc/set_delam(priority = SM_DELAM_PRIO_NONE, manual_delam_path = SM_DELAM_STRATEGY_PURGE)
-	if(priority < delam_priority)
-		return FALSE
-	var/datum/sm_delam/new_delam = null
-
-	var/cached_delamination_strategy = delamination_strategy
-
-	if(manual_delam_path == SM_DELAM_STRATEGY_PURGE)
-		for(var/delam_path, delam_value in GLOB.sm_delam_list)
-			var/datum/sm_delam/delam = delam_value
-			if(!delam.can_select(src))
-				continue
-			if(delam == cached_delamination_strategy)
-				return FALSE
-			new_delam = delam
-			break
-		delam_priority = SM_DELAM_PRIO_NONE
-	else
-		new_delam = GLOB.sm_delam_list[manual_delam_path]
-		delam_priority = priority
-
-	if(!new_delam)
-		return FALSE
-	delamination_strategy?.on_deselect(src)
-	delamination_strategy = new_delam
-	delamination_strategy.on_select(src)
-	return TRUE
-
-
-/**
- * Accumulates energy for the zap_energy_accumulation key.
- * Args:
- * * key: The zap energy accumulation key to use.
- * * energy: The amount of energy to accumulate.
- * Returns: The accumulated energy for that key.
- */
-/obj/machinery/power/supermatter_crystal/proc/accumulate_energy(key, energy)
-	. = (zap_energy_accumulation[key] ? zap_energy_accumulation[key] : 0) + energy
-	zap_energy_accumulation[key] = .
-
-/**
- * Depletes a portion of the accumulated energy for the given key and returns it. Used for discharging energy from the supermatter.
- * Args:
- * * key: The zap energy accumulation key to use.
- * * portion: The portion of the accumulated energy that gets discharged.
- * Returns: The discharged energy for that key.
- */
-/obj/machinery/power/supermatter_crystal/proc/discharge_energy(key, portion = ZAP_ENERGY_DISCHARGE_PORTION)
-	. = portion * zap_energy_accumulation[key]
-	zap_energy_accumulation[key] -= .
-
-/datum/milla_safe/supermatter_electrolyze
-
-/datum/milla_safe/supermatter_electrolyze/on_run(atom/target, zap_str, power_level)
-	if(!target)
-		return
-	var/turf/current_turf = get_turf(target)
-	if(!current_turf)
-		return
-	var/datum/gas_mixture/env = get_turf_air(current_turf)
-	env.electrolyze(working_power = zap_str / 200, electrolyzer_args = list(ELECTROLYSIS_ARGUMENT_SUPERMATTER_POWER = power_level))
-
-/obj/machinery/proc/supermatter_zap(atom/zapstart = src, range = 5, zap_str = 3.2 MEGA JOULES, zap_flags = ZAP_SUPERMATTER_FLAGS, list/targets_hit = list(), zap_cutoff = 1.2 MEGA JOULES, power_level = 0, zap_icon = DEFAULT_ZAP_ICON_STATE, color = null)
-	if(QDELETED(zapstart))
-		return
-	if(zap_cutoff <= 0)
-		stack_trace("/obj/machinery/supermatter_zap() was called with a non-positive value")
-		return
-	if(zap_str <= 0) // Just in case something scales zap_str and zap_cutoff to 0.
-		return
-	. = zapstart.dir
-	//If the strength of the zap decays past the cutoff, we stop
-	if(zap_str < zap_cutoff)
-		return
-	var/atom/target
-	var/target_type = LOWEST
-	var/list/arc_targets = list()
-	//Making a new copy so additons further down the recursion do not mess with other arcs
-	//Lets put this ourself into the do not hit list, so we don't curve back to hit the same thing twice with one arc
-	for(var/atom/test as anything in oview(zapstart, range))
-		if(!(zap_flags & ZAP_ALLOW_DUPLICATES) && LAZYACCESS(targets_hit, test))
-			continue
-
-		if(istype(test, /obj/vehicle/ridden/bicycle))
-			var/obj/vehicle/ridden/bicycle/bike = test
-			if(!HAS_TRAIT(bike, TRAIT_BEING_SHOCKED) && bike.can_buckle)//God's not on our side cause he hates idiots.
-				if(target_type != BIKE)
-					arc_targets = list()
-				arc_targets += test
-				target_type = BIKE
-
-		if(target_type > COIL)
-			continue
-
-		if(istype(test, /obj/machinery/power/energy_accumulator/tesla_coil))
-			var/obj/machinery/power/energy_accumulator/tesla_coil/coil = test
-			if(!HAS_TRAIT(coil, TRAIT_BEING_SHOCKED) && coil.anchored && !coil.panel_open && prob(70))//Diversity of death
-				if(target_type != COIL)
-					arc_targets = list()
-				arc_targets += test
-				target_type = COIL
-
-		if(target_type > ROD)
-			continue
-
-		if(istype(test, /obj/machinery/power/energy_accumulator/grounding_rod))
-			var/obj/machinery/power/energy_accumulator/grounding_rod/rod = test
-			//We're adding machine damaging effects, rods need to be surefire
-			if(rod.anchored && !rod.panel_open)
-				if(target_type != ROD)
-					arc_targets = list()
-				arc_targets += test
-				target_type = ROD
-
-		if(target_type > LIVING)
-			continue
-
-		if(isliving(test))
-			var/mob/living/alive = test
-			if(!HAS_TRAIT(alive, TRAIT_TESLA_SHOCKIMMUNE) && !HAS_TRAIT(alive, TRAIT_BEING_SHOCKED) && alive.stat != DEAD && prob(20))//let's not hit all the engineers with every beam and/or segment of the arc
-				if(target_type != LIVING)
-					arc_targets = list()
-				arc_targets += test
-				target_type = LIVING
-
-		if(target_type > MACHINERY)
-			continue
-
-		if(ismachinery(test))
-			if(!HAS_TRAIT(test, TRAIT_BEING_SHOCKED) && prob(40))
-				if(target_type != MACHINERY)
-					arc_targets = list()
-				arc_targets += test
-				target_type = MACHINERY
-
-		if(target_type > OBJECT)
-			continue
-
-		if(isobj(test))
-			if(!HAS_TRAIT(test, TRAIT_BEING_SHOCKED))
-				if(target_type != OBJECT)
-					arc_targets = list()
-				arc_targets += test
-				target_type = OBJECT
-
-	if(length(arc_targets)) //Pick from our pool
-		target = pick(arc_targets)
-
-	if(QDELETED(target))//If we didn't found something
-		return
-
-	//Do the animation to zap to it from here
-	if(!(zap_flags & ZAP_ALLOW_DUPLICATES))
-		LAZYSET(targets_hit, target, TRUE)
-	zapstart.Beam(target, icon_state = zap_icon, time = 0.5 SECONDS, beam_color = color)
-	var/zapdir = get_dir(zapstart, target)
-	if(zapdir)
-		. = zapdir
-
-	//Going boom should be rareish
-	if(prob(80))
-		zap_flags &= ~ZAP_MACHINE_EXPLOSIVE
-	if(target_type == COIL || target_type == ROD)
-		var/multi = 1
-		switch(power_level)//Between 7k and 9k it's 2, above that it's 4
-			if(SEVERE_POWER_PENALTY_THRESHOLD to CRITICAL_POWER_PENALTY_THRESHOLD)
-				multi = 2
-			if(CRITICAL_POWER_PENALTY_THRESHOLD to INFINITY)
-				multi = 4
-		if(zap_flags & ZAP_SUPERMATTER_FLAGS)
-			var/remaining_power = target.zap_act(zap_str * multi, zap_flags)
-			zap_str = remaining_power / multi //Coils should take a lot out of the power of the zap
+		user.visible_message(
+			span_warning("As [user] loosens bolts of [src] with [I], the tool disappears."),
+			span_warning("As you loosens bolts of [src], the tool disappears."),
+			span_italics("You hear a ratchet"),
+		)
+	if(isrobot(user))
+		var/mob/living/silicon/robot/robot = user
+		var/datum/robot_component/armor = robot.get_armour()
+		if(armor)
+			audible_message(span_warning("[robot] sounds an alarm! \"CRITICAL ERROR: Armour plate was broken.\""))
+			playsound(loc, 'sound/machines/warning-buzzer.ogg', 75, TRUE)
+			armor.destroy()
 		else
-			zap_str /= 3
-
-	else if(isliving(target))//If we got a fleshbag on our hands
-		var/mob/living/creature = target
-		ADD_TRAIT(creature, TRAIT_BEING_SHOCKED, WAS_SHOCKED)
-		addtimer(TRAIT_CALLBACK_REMOVE(creature, TRAIT_BEING_SHOCKED, WAS_SHOCKED), 1 SECONDS)
-		//3 shots a human with no resistance. 2 to crit, one to death. This is at at least 10000 power.
-		//There's no increase after that because the input power is effectivly capped at 10k
-		//Does 1.5 damage at the least
-		var/shock_damage = ((zap_flags & ZAP_MOB_DAMAGE) ? (power_level / 200) - 10 : rand(5,10))
-		creature.electrocute_act(shock_damage, "Supermatter Discharge Bolt", 1,  ((zap_flags & ZAP_MOB_STUN) ? SHOCK_TESLA : SHOCK_NOSTUN))
-		zap_str /= 1.5 //Meatsacks are conductive, makes working in pairs more destructive
-
+			consume(robot)
 	else
-		zap_str = target.zap_act(zap_str, zap_flags)
+		consume_wrench(I)
 
-	//This gotdamn variable is a boomer and keeps giving me problems
-	var/turf/target_turf = get_turf(target)
-	var/pressure = 1
-	// Calculate pressure and do electrolysis.
-	var/datum/gas_mixture/air_mixture = target_turf?.get_readonly_air()
-	if(air_mixture)
-		pressure = max(1, air_mixture.return_pressure())
-		var/datum/milla_safe/supermatter_electrolyze/milla = new()
-		milla.invoke_async(target, zap_str, power_level)
-		target_turf.recalculate_atmos_connectivity()
-	//We get our range with the strength of the zap and the pressure, the higher the former and the lower the latter the better
-	var/new_range = clamp(zap_str / pressure * 10, 2, 7)
-	var/zap_count = 1
-	if(prob(5))
-		zap_str -= (zap_str/10)
-		zap_count += 1
-	for(var/j in 1 to zap_count)
-		var/child_targets_hit = targets_hit
-		if(zap_count > 1)
-			child_targets_hit = targets_hit.Copy() //Pass by ref begone
-		supermatter_zap(target, new_range, zap_str, zap_flags, child_targets_hit, zap_cutoff, power_level, zap_icon, color)
 
-// For /datum/sm_delam to check if it should be sending an alert on common radio channel
-/obj/machinery/power/supermatter_crystal/proc/should_alert_common()
-	if(!COOLDOWN_FINISHED(src, common_radio_cooldown))
-		return FALSE
+/obj/machinery/power/supermatter_shard/Bumped(atom/movable/moving_atom)
+	. = ..()
+	if(isprojectile(moving_atom))	// we update this in bullet_act()
+		return .
+	if(isnucleation(moving_atom))
+		nuclear_touch(moving_atom)
+		return .
+	if(isliving(moving_atom))
+		moving_atom.visible_message(
+			span_danger("\The [moving_atom] slams into \the [src] inducing a resonance... [moving_atom.p_their(TRUE)] body starts to glow and catch flame before flashing into ash."),\
+			span_userdanger("You slam into \the [src] as your ears are filled with unearthly ringing. Your last thought is \"Oh, fuck.\""),\
+			span_italics("You hear an unearthly noise as a wave of heat washes over you.")
+		)
+	else if(isobj(moving_atom) && !iseffect(moving_atom))
+		moving_atom.visible_message(
+			span_danger("\The [moving_atom] smacks into \the [src] and rapidly flashes to ash."),\
+			span_italics("You hear a loud crack as you are washed with a wave of heat.")
+		)
+	else
+		return
 
-	COOLDOWN_START(src, common_radio_cooldown, SUPERMATTER_COMMON_RADIO_DELAY)
-	return TRUE
+	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
 
-///obj/machinery/power/supermatter_crystal/proc/holiday_lights()
-//	holiday_lights = TRUE
-//	RegisterSignal(src, COMSIG_ATOM_ITEM_INTERACTION, PROC_REF(holiday_item_interaction))
-//	update_appearance()
+	consume(moving_atom)
 
-/// Consume the santa hat and add it as an overlay
-///obj/machinery/power/supermatter_crystal/proc/holiday_item_interaction(source, mob/living/user, obj/item/item, list/modifiers)
-//	SIGNAL_HANDLER
-//	if(istype(item, /obj/item/clothing/head/costume/santa))
-//		QDEL_NULL(item)
-//		RegisterSignal(src, COMSIG_ATOM_EXAMINE, PROC_REF(holiday_hat_examine))
-//		if(istype(src, /obj/machinery/power/supermatter_crystal/shard))
-//			add_overlay(mutable_appearance(icon, "santa_hat_shard"))
-//		else
-//			add_overlay(mutable_appearance(icon, "santa_hat"))
-//		return COMPONENT_CANCEL_ATTACK_CHAIN
-//	return NONE
+/obj/machinery/power/supermatter_shard/intercept_zImpact(list/falling_movables, levels)
+	. = ..()
+	for(var/atom/movable/hit_object as anything in falling_movables)
+		if(hit_object == src)
+			return
+		Bumped(hit_object)
+	. |= FALL_STOP_INTERCEPTING | FALL_INTERCEPTED
 
-/// Adds the hat flavor text when examined
-///obj/machinery/power/supermatter_crystal/proc/holiday_hat_examine(atom/source, mob/user, list/examine_list)
-//	SIGNAL_HANDLER
-//	examine_list += span_info("There's a santa hat placed atop it. How it got there without being dusted is a mystery.")
+/obj/machinery/power/supermatter_shard/onZImpact(turf/impacted_turf, levels, impact_flags)
 
-#undef BIKE
-#undef COIL
-#undef ROD
-#undef LIVING
-#undef MACHINERY
-#undef OBJECT
-#undef LOWEST
+	for(var/mob/living/poor_target in impacted_turf)
+		consume(poor_target)
+		playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
+		poor_target.visible_message(span_danger("\The [src] slams into \the [poor_target] out of nowhere inducing a resonance... [poor_target.p_their()] body starts to glow and burst into flames before flashing into dust!"),
+			span_userdanger("\The [src] slams into you out of nowhere as your ears are filled with unearthly ringing. Your last thought is \"The fuck.\""),
+			span_hear("You hear an unearthly noise as a wave of heat washes over you."))
+	for(var/atom/movable/hit_object as anything in impacted_turf)
+		if(src == hit_object)
+			return
+		if(iseffect(hit_object))
+			continue
+
+		consume(hit_object)
+		playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
+		visible_message(span_danger("\The [src], smacks into the plating out of nowhere, reducing everything below to ash."), null,
+			span_hear("You hear a loud crack as you are washed with a wave of heat."))
+	return ..()
+
+
+/obj/machinery/power/supermatter_shard/proc/consume(atom/movable/AM)
+	if(isliving(AM))
+		var/mob/living/user = AM
+		user.gib()
+		power += 200
+		message_admins("[src] has consumed [key_name_admin(user)] [ADMIN_COORDJMP(src)].")
+		investigate_log("has consumed [key_name_log(user)].", INVESTIGATE_ENGINE)
+	else if(isobj(AM) && !iseffect(AM))
+		investigate_log("has consumed [AM].", INVESTIGATE_ENGINE)
+		qdel(AM)
+
+	power += 200
+	supermatter_zap()
+
+/obj/machinery/power/supermatter_shard/proc/consume_wrench(atom/movable/AM)
+	qdel(AM) //destroys wrench when anchored\unanchored supermatter
+
+	//Some poor sod got eaten, go ahead and irradiate people nearby.
+	for(var/mob/living/L in range(10))
+		var/rads = 500 * sqrt( 1 / (get_dist(L, src) + 1) )
+		L.apply_effect(rads, IRRADIATE)
+		investigate_log("has irradiated [L] after consuming [AM].", INVESTIGATE_ENGINE)
+		if(src in view(L.client.maxview()))
+			L.show_message(span_danger("As \the [src] slowly stops resonating, you find your skin covered in new radiation burns."), 1,\
+				span_danger("The unearthly ringing subsides and you notice you have new radiation burns."), 2)
+		else
+			L.show_message(span_italics("You hear an uneartly ringing and notice your skin is covered in fresh radiation burns."), 2)
+
+/obj/machinery/power/supermatter_shard/proc/get_status()
+	var/turf/T = get_turf(src)
+	if(!T)
+		return SUPERMATTER_ERROR
+	var/datum/gas_mixture/air = T.return_air()
+	if(!air)
+		return SUPERMATTER_ERROR
+
+	if(get_internal_integrity() < 25)
+		return SUPERMATTER_DELAMINATING
+
+	if(get_internal_integrity() < 50)
+		return SUPERMATTER_EMERGENCY
+
+	if(get_internal_integrity() < 75)
+		return SUPERMATTER_DANGER
+
+	if((get_internal_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
+		return SUPERMATTER_WARNING
+
+	if(air.temperature > (CRITICAL_TEMPERATURE * 0.8))
+		return SUPERMATTER_NOTIFY
+
+	if(power > 5)
+		return SUPERMATTER_NORMAL
+	return SUPERMATTER_INACTIVE
+
+/obj/machinery/power/supermatter_shard/proc/alarm()
+	switch(get_status())
+		if(SUPERMATTER_DELAMINATING)
+			playsound(src, 'sound/misc/bloblarm.ogg', 100, FALSE, 40, 30, falloff_distance = 10)
+		if(SUPERMATTER_EMERGENCY)
+			playsound(src, 'sound/machines/engine_alert1.ogg', 100, FALSE, 30, 30, falloff_distance = 10)
+		if(SUPERMATTER_DANGER)
+			playsound(src, 'sound/machines/engine_alert2.ogg', 100, FALSE, 30, 30, falloff_distance = 10)
+		if(SUPERMATTER_WARNING)
+			playsound(src, 'sound/machines/terminal_alert.ogg', 75)
+
+/obj/machinery/power/supermatter_shard/proc/emergency_lighting(active)
+	if(active)
+		post_status(STATUS_DISPLAY_ALERT, "radiation")
+	else
+		post_status(STATUS_DISPLAY_TRANSFER_SHUTTLE_TIME)
+
+/obj/machinery/power/supermatter_shard/proc/supermatter_zap()
+	playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, TRUE, extrarange = zap_sound_extrarange)
+	tesla_zap(source = src, zap_range = 10, power = max(1000, power * damage / explosion_point), cutoff = 1e3, zap_flags = ZAP_GENERATES_POWER | ZAP_OBJ_DAMAGE | ZAP_MOB_DAMAGE)
+
+// SM shard that can't be moved for ruins and gates
+/obj/machinery/power/supermatter_shard/anchored
+	name = "Well anchored supermatter shard"
+	desc = "A strangely translucent and iridescent crystal that looks like it used to be part of a larger structure. Apparently the structure is attached to the surface with industrial equipment, it cannot be unanchored with simple equipment. <span class='danger'>You get headaches just from looking at it.</span>"
+	anchored = TRUE
+
+
+/obj/machinery/power/supermatter_shard/anchored/attackby(obj/item/I, mob/living/user, params)
+	consume_wrench(I)
+	user.apply_effect(150, IRRADIATE)
+	return ATTACK_CHAIN_BLOCKED_ALL
+
+
+/obj/machinery/power/supermatter_shard/anchored/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	user.visible_message(
+		span_warning("As [user] tries to loose bolts of [src] with [I], the tool disappears."),
+		span_warning("As you try to loose bolts of [src], the tool disappears."),
+	)
+	consume_wrench(I)
+	user.apply_effect(150, IRRADIATE)
+
+
+/obj/machinery/power/supermatter_shard/proc/nuclear_touch(mob/living/user)
+	var/datum/species/nucleation/nuclear = user.dna.species
+	if(nuclear.touched_supermatter == FALSE)
+		user.revive()
+		nuclear.touched_supermatter = TRUE
+		to_chat(user, span_userdanger("The wave of warm energy is overwhelming you. You feel calm."))
+
+/obj/effect/warp_effect/supermatter
+	icon = 'icons/effects/light_overlays/light_352.dmi'
+	icon_state = "light"
+	pixel_x = -176
+	pixel_y = -176
+
+#undef NITROGEN_RETARDATION_FACTOR
+#undef THERMAL_RELEASE_MODIFIER
+#undef PLASMA_RELEASE_MODIFIER
+#undef OXYGEN_RELEASE_MODIFIER
+#undef REACTION_POWER_MODIFIER
+#undef SHARD_CUT_COEF
+#undef POWER_FACTOR
+#undef DECAY_FACTOR
+#undef CRITICAL_TEMPERATURE
+#undef CHARGING_FACTOR
+#undef DAMAGE_RATE_LIMIT
+#undef DETONATION_RADS
+#undef DETONATION_HALLUCINATION
+#undef WARNING_DELAY

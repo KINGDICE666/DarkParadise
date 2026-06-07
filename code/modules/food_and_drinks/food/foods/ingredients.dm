@@ -33,6 +33,7 @@
 	tastes = list("soy" = 1)
 	foodtype = VEGETABLES
 
+
 //////////////////////
 //		Cheese		//
 //////////////////////
@@ -66,6 +67,7 @@
 	filling_color = "#00FF33"
 	list_reagents = list("mercury" = 5, "lsd" = 5, "ethanol" = 5, "weird_cheese" = 5)
 	foodtype = DAIRY | TOXIC
+
 
 //////////////////////
 //		Plants		//
@@ -101,6 +103,7 @@
 	tastes = list("cucumber" = 1)
 	foodtype = VEGETABLES
 
+
 /obj/item/reagent_containers/food/snacks/cucumberslice/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/cucumberslice) && I != src)
 		if(!user.is_in_hands(src))
@@ -118,6 +121,7 @@
 
 	return ..()
 
+
 /obj/item/reagent_containers/food/snacks/watermelonslice
 	name = "watermelon slice"
 	desc = "A slice of watery goodness."
@@ -126,20 +130,6 @@
 	tastes = list("watermelon" = 1)
 	foodtype = FRUIT
 
-/obj/item/reagent_containers/food/snacks/watermelonslice/self_control_slice
-	name = "self control"
-	desc = "Показатель невероятного самоконтроля Божественной сущности."
-
-/obj/item/reagent_containers/food/snacks/watermelonslice/self_control_slice/get_ru_names()
-	return alist(
-		NOMINATIVE = "самоконтроль",
-		GENITIVE = "самоконтроля",
-		DATIVE = "самоконтролю",
-		ACCUSATIVE = "самоконтроль",
-		INSTRUMENTAL = "самоконтролем",
-		PREPOSITIONAL = "самоконтроле",
-	)
-
 /obj/item/reagent_containers/food/snacks/pineappleslice
 	name = "pineapple slices"
 	desc = "Rings of pineapple."
@@ -147,6 +137,7 @@
 	filling_color = "#e5b437"
 	tastes = list("pineapple" = 1)
 	foodtype = FRUIT
+
 
 //////////////////////
 //		Dough		//
@@ -160,6 +151,7 @@
 	list_reagents = list("nutriment" = 6)
 	tastes = list("dough" = 1)
 	foodtype = GRAIN
+
 
 /obj/item/reagent_containers/food/snacks/dough/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -193,6 +185,7 @@
 	to_chat(user, span_notice("You have flattened [src]."))
 	qdel(src)
 
+
 // slicable into 3xdoughslices
 /obj/item/reagent_containers/food/snacks/sliceable/flatdough
 	name = "flat dough"
@@ -205,6 +198,7 @@
 	tastes = list("dough" = 1)
 	foodtype = GRAIN
 
+
 /obj/item/reagent_containers/food/snacks/doughslice
 	name = "dough slice"
 	desc = "The building block of an impressive dish."
@@ -213,6 +207,7 @@
 	list_reagents = list("nutriment" = 1)
 	tastes = list("dough" = 1)
 	foodtype = GRAIN
+
 
 /obj/item/reagent_containers/food/snacks/doughslice/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -250,6 +245,7 @@
 	qdel(src)
 	qdel(I)
 
+
 ///cookies by Ume
 
 /obj/item/reagent_containers/food/snacks/cookiedough
@@ -262,12 +258,15 @@
 	foodtype = GRAIN|SUGAR
 	var/flat = FALSE
 
+
 /obj/item/reagent_containers/food/snacks/cookiedough/update_icon_state()
 	icon_state = "cookiedough[flat ? "_flat" : ""]"
+
 
 /obj/item/reagent_containers/food/snacks/cookiedough/update_name(updates = ALL)
 	. = ..()
 	name = flat ? "flat pastry dough" : initial(name)
+
 
 /obj/item/reagent_containers/food/snacks/cookiedough/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -316,6 +315,7 @@
 	to_chat(user, span_notice("You have cut [src] into raw cookies."))
 	qdel(src)
 
+
 /obj/item/reagent_containers/food/snacks/rawcookies
 	name = "raw cookies"
 	desc = "Ready for oven!"
@@ -323,6 +323,7 @@
 	icon_state = "unbaked_cookies"
 	list_reagents = list("nutriment" = 5, "sugar" = 2)
 	foodtype = GRAIN | SUGAR
+
 
 /obj/item/reagent_containers/food/snacks/rawcookies/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -346,6 +347,7 @@
 	qdel(src)
 	qdel(I)
 
+
 /obj/item/reagent_containers/food/snacks/rawcookies/chocochips
 	desc = "Ready for oven! They have little pieces of chocolate all over them"
 	icon_state = "unbaked_cookies_choco"
@@ -365,11 +367,12 @@
 	tastes = list("chocolate" = 1)
 	foodtype = SUGAR
 
+
 /obj/item/reagent_containers/food/snacks/chocolatebar/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
 	// chocolate crumbles/pile
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.sharp)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !is_sharp(I))
 		return .
 
 	if(!isturf(loc))
@@ -396,6 +399,7 @@
 	choc_pile.add_fingerprint(user)
 	to_chat(user, span_notice("You have cut [src] into little crumbles."))
 	qdel(src)
+
 
 /obj/item/reagent_containers/food/snacks/choc_pile //for reagent chocolate being spilled on turfs
 	name = "pile of chocolate"

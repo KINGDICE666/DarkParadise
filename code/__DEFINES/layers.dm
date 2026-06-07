@@ -1,6 +1,7 @@
 //Defines for atom layers and planes
 //KEEP THESE IN A NICE ACSCENDING ORDER, PLEASE
 
+
 //-------------------- PLANES ---------------------
 
 //NEVER HAVE ANYTHING BELOW THIS PLANE ADJUST IF YOU NEED MORE SPACE
@@ -23,11 +24,9 @@
 #define BELOW_GAME_PLANE -8
 #define GAME_PLANE -7
 
-#define ABOVE_GAME_PLANE -2
-
-/// Slightly above the game plane but does not catch mouse clicks. Useful for certain visuals that should be clicked through, like seethrough trees
+#define ABOVE_GAME_PLANE -3
+///Slightly above the game plane but does not catch mouse clicks. Useful for certain visuals that should be clicked through, like seethrough trees
 #define SEETHROUGH_PLANE -2
-
 #define RENDER_PLANE_GAME_WORLD -1
 
 #define DEFAULT_PLANE 0 //Marks out the default plane, even if we don't use it
@@ -101,10 +100,7 @@
 //-------------------- Rendering ---------------------
 #define RENDER_PLANE_GAME 100
 #define RENDER_PLANE_NON_GAME 101
-/// Plane related to the menu when pressing Escape.
-/// Needed so that we can apply a blur effect to EVERYTHING, and guarantee we are above all UI.
-#define ESCAPE_MENU_PLANE 102
-#define RENDER_PLANE_MASTER 103
+#define RENDER_PLANE_MASTER 102
 
 // NOTE! You can only ever have planes greater then -10000, if you add too many with large offsets you will brick multiz
 // Same can be said for large multiz maps. Tread carefully mappers
@@ -114,7 +110,6 @@
 
 ///Plane master controller keys
 #define PLANE_MASTERS_GAME "plane_masters_game"
-#define PLANE_MASTERS_NON_MASTER "plane_masters_non_master"
 
 //Plane master critical flags
 //Describes how different plane masters behave when they are being culled for performance reasons
@@ -156,7 +151,7 @@
 #define GAS_PIPE_HIDDEN_LAYER 1.72
 #define WIRE_LAYER 1.73
 #define WIRE_TERMINAL_LAYER 1.75
-#define ABOVE_PLATING_LAYER 1.76 // generic for /datum/element/undertile
+#define ABOVE_PLATING_LAYER 1.76 // generic for /obj/hide
 #define TRAY_SCAN_LAYER_OFFSET 0.5 // place images above TURF_LAYER
 #define TRANSPARENT_PLATING_LAYER 1.98
 #define TRANSPARENT_GIRDER_LAYER 1.99 // for turf_transparency
@@ -168,6 +163,7 @@
 #define TURF_DECAL_LAYER 2.039 //Makes turf decals appear in DM how they will look inworld.
 #define ABOVE_OPEN_TURF_LAYER 2.04
 #define CLEANABLES_LAYER 2.045
+#define ABOVE_CLEANABLES_LAYER 2.0475
 
 //WALL_PLANE layers
 #define CLOSED_TURF_LAYER 2.05
@@ -189,12 +185,10 @@
 #define SIGIL_LAYER 2.54
 #define HIGH_SIGIL_LAYER 2.56
 #define BELOW_OPEN_DOOR_LAYER 2.6
-///Anything below this layer is to be considered completely (visually) under water by the immerse layer.
-#define WATER_LEVEL_LAYER 2.61
 #define BLASTDOOR_LAYER 2.65
 #define OPEN_DOOR_LAYER 2.7
 #define DOOR_HELPER_LAYER 2.71 //keep this above OPEN_DOOR_LAYER
-#define PROJECTILE_HIT_THRESHOLD_LAYER 2.75 //projectiles won't hit objects at or below this layer if possible
+#define PROJECTILE_HIT_THRESHHOLD_LAYER 2.75 //projectiles won't hit objects at or below this layer if possible
 #define TABLE_LAYER 2.8
 #define BELOW_OBJ_LAYER 2.9
 #define LOW_ITEM_LAYER 2.95
@@ -217,7 +211,6 @@
 #define MOB_BELOW_PIGGYBACK_LAYER 3.94
 //#define MOB_LAYER 4 //For easy recordkeeping; this is a byond define
 #define MOB_ABOVE_PIGGYBACK_LAYER 4.06
-#define HITSCAN_PROJECTILE_LAYER 4.09
 #define ABOVE_MOB_LAYER 4.1
 #define WALL_OBJ_LAYER 4.25
 #define EDGED_TURF_LAYER 4.3
@@ -255,19 +248,10 @@
 #define BLIND_LAYER 30.3
 #define CRIT_LAYER 30.4
 #define CURSE_LAYER 30.5
-#define BLOODY_SCREEN_LAYER 30.6
 
 #define HUD_LAYER 31
-#define BUILDMOD_LAYER 31.1
 #define ABOVE_HUD_LAYER 32
 
 #define SPLASHSCREEN_LAYER 33
 
-///Layer for screentips
-#define SCREENTIP_LAYER 34
 
-//-------------------- Radial ---------------------
-
-#define RADIAL_BACKGROUND_LAYER 0
-///1000 is an unimportant number, it's just to normalize copied layers
-#define RADIAL_CONTENT_LAYER 1000

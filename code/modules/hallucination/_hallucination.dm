@@ -75,8 +75,8 @@
 /obj/effect/client_image_holder/proc/generate_image()
 	var/image/created = image(image_icon, src, image_state, image_layer, dir = src.dir)
 	SET_PLANE_EXPLICIT(created, image_plane, src)
-	created.pixel_w = image_pixel_x
-	created.pixel_z = image_pixel_y
+	created.pixel_x = image_pixel_x
+	created.pixel_y = image_pixel_y
 	if(image_color)
 		created.color = image_color
 	return created
@@ -115,7 +115,7 @@
 		return
 	regenerate_image()
 
-/obj/effect/client_image_holder/singularity_pull(atom/singularity, current_size)
+/obj/effect/client_image_holder/singularity_pull()
 	return
 
 /obj/effect/client_image_holder/singularity_act()

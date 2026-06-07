@@ -19,8 +19,12 @@
 SUBSYSTEM_DEF(timer)
 	name = "Timer"
 	wait = 1 // SS_TICKER subsystem, so wait is in ticks
+	init_order = INIT_ORDER_TIMER
 	priority = FIRE_PRIORITY_TIMER
-	ss_flags = SS_TICKER|SS_NO_INIT
+	flags = SS_TICKER|SS_NO_INIT
+	offline_implications = "The game will no longer process timers. Immediate server restart recommended."
+	cpu_display = SS_CPUDISPLAY_HIGH
+	ss_id = "timer"
 
 	/// Queue used for storing timers that do not fit into the current buckets
 	var/list/datum/timedevent/second_queue = list()
@@ -51,13 +55,16 @@ SUBSYSTEM_DEF(timer)
 	/// How many times bucket was reset
 	var/bucket_reset_count = 0
 
+
 /datum/controller/subsystem/timer/PreInit()
 	bucket_list.len = BUCKET_LEN
 	head_offset = world.time
 	bucket_resolution = world.tick_lag
 
+
 /datum/controller/subsystem/timer/get_stat_details()
 	return "B:[bucket_count] P:[length(second_queue)] H:[length(hashes)] C:[length(clienttime_timers)] S:[length(timer_id_dict)] RST:[bucket_reset_count]"
+
 
 /datum/controller/subsystem/timer/proc/dump_timer_buckets(full = TRUE)
 	var/list/to_log = list("Timer bucket reset. world.time: [world.time], head_offset: [head_offset], practical_offset: [practical_offset]")
@@ -83,11 +90,6 @@ SUBSYSTEM_DEF(timer)
 	// Dump all the logged data to the world log
 	log_world(to_log.Join("\n"))
 
-/datum/controller/subsystem/timer/get_metrics()
-	. = ..()
-	var/list/custom_data = list()
-	custom_data["bucket_count"] = bucket_count
-	.["custom"] = custom_data
 
 /datum/controller/subsystem/timer/fire(resumed = FALSE)
 	// Store local references to datum vars as it is faster to access them
@@ -158,6 +160,7 @@ SUBSYSTEM_DEF(timer)
 		bucket_list = src.bucket_list
 		resumed = FALSE
 
+
 	// Iterate through each bucket starting from the practical offset
 	while(practical_offset <= BUCKET_LEN && head_offset + ((practical_offset - 1) * world.tick_lag) <= world.time)
 		var/datum/timedevent/timer
@@ -221,6 +224,7 @@ SUBSYSTEM_DEF(timer)
 		if(MC_TICK_CHECK)
 			break
 
+
 /**
  * Generates a string with details about the timed event for debugging purposes
  */
@@ -233,6 +237,7 @@ SUBSYSTEM_DEF(timer)
 		. += ", QDELETED"
 	if(!TE.callBack)
 		. += ", NO CALLBACK"
+
 
 /**
  * Destroys the existing buckets and creates new buckets from the existing timed events
@@ -255,7 +260,7 @@ SUBSYSTEM_DEF(timer)
 		while(bucket_node && bucket_node != bucket_head)
 
 	// Empty the list by zeroing and re-assigning the length
-	bucket_list.Cut()
+	bucket_list.len = 0
 	bucket_list.len = BUCKET_LEN
 
 	// Reset values for the subsystem to their initial values
@@ -280,7 +285,7 @@ SUBSYSTEM_DEF(timer)
 		return
 
 	// Sort all timers by time to run
-	sortTim(alltimers, GLOBAL_PROC_REF(cmp_timer))
+	sortTim(alltimers, cmp = /proc/cmp_timer)
 
 	// Get the earliest timer, and if the TTR is earlier than the current world.time,
 	// then set the head offset appropriately to be the earliest time tracked by the
@@ -336,11 +341,12 @@ SUBSYSTEM_DEF(timer)
 	second_queue = alltimers
 	bucket_count = new_bucket_count
 
+
 /datum/controller/subsystem/timer/Recover()
 	// Find the current timer sub-subsystem in global and recover its buckets etc
 	var/datum/controller/subsystem/timer/timerSS = null
 	for(var/global_var in global.vars)
-		if(istype(global.vars[global_var], src.type))
+		if(istype(global.vars[global_var],src.type))
 			timerSS = global.vars[global_var]
 
 	hashes = timerSS.hashes
@@ -351,6 +357,7 @@ SUBSYSTEM_DEF(timer)
 
 	// The buckets are FUBAR
 	reset_buckets()
+
 
 /**
  * # Timed Event
@@ -391,6 +398,7 @@ SUBSYSTEM_DEF(timer)
 	/// Initial bucket position
 	var/bucket_pos = -1
 
+
 /datum/timedevent/New(datum/callback/callBack, wait, flags, datum/controller/subsystem/timer/timer_subsystem, hash, source)
 	var/static/nextid = 1
 	id = TIMER_ID_NULL
@@ -421,20 +429,20 @@ SUBSYSTEM_DEF(timer)
 		CRASH("Invalid timer state: Timer created that would require a backtrack to run (addtimer would never let this happen): [SStimer.get_timer_debug_string(src)]")
 
 	if(callBack.object != GLOBAL_PROC && !QDESTROYING(callBack.object))
-		LAZYADD(callBack.object._active_timers, src)
+		LAZYADD(callBack.object.active_timers, src)
 
 	bucketJoin()
+
 
 /datum/timedevent/Destroy()
 	..()
 	if(flags & TIMER_UNIQUE && hash)
 		timer_subsystem.hashes -= hash
 
-	if(callBack?.object && callBack.object != GLOBAL_PROC && callBack.object._active_timers)
-		callBack.object._active_timers -= src
-		UNSETEMPTY(callBack.object._active_timers)
-	callBack.object = null
-	LAZYCLEARLIST(callBack?.arguments)
+	if(callBack && callBack.object && callBack.object != GLOBAL_PROC && callBack.object.active_timers)
+		callBack.object.active_timers -= src
+		UNSETEMPTY(callBack.object.active_timers)
+
 	callBack = null
 
 	if(flags & TIMER_STOPPABLE)
@@ -457,6 +465,7 @@ SUBSYSTEM_DEF(timer)
 	next = null
 	prev = null
 	return QDEL_HINT_IWILLGC
+
 
 /**
  * Removes this timed event from any relevant buckets, or the secondary queue
@@ -495,6 +504,7 @@ SUBSYSTEM_DEF(timer)
 	prev = next = null
 	bucket_pos = -1
 	bucket_joined = FALSE
+
 
 /**
  * Attempts to add this timed event to a bucket, will enter the secondary queue
@@ -553,7 +563,7 @@ SUBSYSTEM_DEF(timer)
 /datum/timedevent/proc/getTimerInfo()
 	var/static/list/bitfield_flags = list("TIMER_UNIQUE", "TIMER_OVERRIDE", "TIMER_CLIENT_TIME", "TIMER_STOPPABLE", "TIMER_NO_HASH_WAIT", "TIMER_LOOP")
 	if(!name)
-		name = "Timer: [id] (\ref[src]), TTR: [timeToRun], wait:[wait] Flags: [jointext(bitfield_to_list(flags, bitfield_flags), ", ")], \
+		name = "Timer: [id] (\ref[src]), TTR: [timeToRun], wait:[wait] Flags: [jointext(bitfield2list(flags, bitfield_flags), ", ")], \
 			callBack: \ref[callBack], callBack.object: [callBack.object]\ref[callBack.object]([getcallingtype()]), \
 			callBack.delegate:[callBack.delegate]([callBack.arguments ? callBack.arguments.Join(", ") : ""]), source: [source]"
 	return name
@@ -574,35 +584,48 @@ SUBSYSTEM_DEF(timer)
 			CRASH("this timer is attached to no object, the attempted proc to call was [callBack.delegate]")
 		. = "[callBack.object.type]"
 
+
 GLOBAL_LIST_EMPTY(timers_by_type)
 // Allows us to track what types generate the most timers. Just invokes the global addtimer
 /datum/proc/addtimer(datum/callback/callback, wait = 0, flags = 0, datum/controller/subsystem/timer/timer_subsystem)
-	var/list/timers_by_type = GLOB.timers_by_type
-	if(timers_by_type)
-		var/tt = "[type]"
-		if(tt in timers_by_type)
-			timers_by_type[tt]++
-		else
-			timers_by_type[tt] = 1
+	var/tt = "[type]"
+	if(tt in GLOB.timers_by_type)
+		GLOB.timers_by_type[tt]++
+	else
+		GLOB.timers_by_type[tt] = 1
 	return global.addtimer(callback, wait, flags, timer_subsystem)
+
 
 /**
  * Opens a log of timers
  *
  * In-round ability to view what has created a timer, and how many times a timer for that path has been created
  */
-ADMIN_VERB(timer_log, R_DEBUG|R_VIEWRUNTIMES, "View Timer Log", "Shows the log of what types created timers this round.", ADMIN_CATEGORY_DEBUG)
-	var/list/sorted = sortTim(GLOB.timers_by_type, GLOBAL_PROC_REF(cmp_numeric_dsc), associative = TRUE)
+/client/proc/timer_log()
+	set name = "View Timer Log"
+	set category = "Debug"
+	set desc = "Shows the log of what types created timers this round"
+
+	if(!check_rights(R_DEBUG))
+		return
+
+	var/list/sorted = sortTim(GLOB.timers_by_type, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
 	var/list/text = list("<h1>Timer Log</h1>", "<ul>")
 	for(var/key in sorted)
 		text += "<li>[key] - [sorted[key]]</li>"
 
 	text += "</ul>"
-	var/datum/browser/popup = new(user, "timerlog", "Timer Log")
+	var/datum/browser/popup = new(usr, "timerlog", "Timer Log")
 	popup.set_content(text.Join())
 	popup.open(FALSE)
 
-ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currently active timers, grouped by callback.", ADMIN_CATEGORY_DEBUG)
+
+
+/client/proc/debug_timers()
+	set name = "Debug Timers"
+	set category = "Debug"
+	set desc = "Shows currently active timers, grouped by callback"
+
 	var/list/timers = list()
 	for(var/id in SStimer.timer_id_dict)
 		var/datum/timedevent/T = SStimer.timer_id_dict[id]
@@ -612,7 +635,8 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 		else
 			timers[cbtxt] = 1
 
-	var/list/sorted = sortTim(timers, GLOBAL_PROC_REF(cmp_numeric_dsc), associative = TRUE)
+
+	var/list/sorted = sortTim(timers, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
 	var/list/text = list("<h1>All active timers sorted by callback</h1>", "<ul>")
 	for(var/key in sorted)
 		text += "<li>[key] - [sorted[key]]</li>"
@@ -629,14 +653,15 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 			timers2[cbtxt] = 1
 
 	text += "<h1>All buckets, sorted by callback</h1><ul>"
-	var/list/sorted2 = sortTim(timers2, GLOBAL_PROC_REF(cmp_numeric_dsc), associative = TRUE)
+	var/list/sorted2 = sortTim(timers2, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
 	for(var/key in sorted2)
 		text += "<li>[key] - [sorted2[key]]</li>"
 
 	text += "</ul>"
-	var/datum/browser/popup = new(user, "timerdebug", "Timer Debug")
+	var/datum/browser/popup = new(usr, "timerdebug", "Timer Debug")
 	popup.set_content(text.Join())
 	popup.open(FALSE)
+
 
 /**
  * Create a new timer and insert it in the queue.
@@ -661,7 +686,7 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 			be supported and may refuse to run or run with a 0 wait")
 
 	if(flags & TIMER_CLIENT_TIME) // REALTIMEOFDAY has a resolution of 1 decisecond
-		wait = max(ceil(wait), 1) // so if we use tick_lag timers may be inserted in the "past"
+		wait = max(CEILING(wait, 1), 1) // so if we use tick_lag timers may be inserted in the "past"
 	else
 		wait = max(CEILING(wait, world.tick_lag), world.tick_lag)
 
@@ -697,6 +722,7 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 	var/datum/timedevent/timer = new(callback, wait, flags, timer_subsystem, hash)
 	return timer.id
 
+
 /**
  * Delete a timer
  *
@@ -719,6 +745,7 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 		return TRUE
 	return FALSE
 
+
 /**
  * Get the remaining deciseconds on a timer
  *
@@ -739,6 +766,7 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 	if(!timer || timer.spent)
 		return null
 	return timer.timeToRun - (timer.flags & TIMER_CLIENT_TIME ? REALTIMEOFDAY : world.time)
+
 
 /**
  * Update the delay on an existing LOOPING timer
@@ -765,6 +793,7 @@ ADMIN_VERB(debug_timers, R_DEBUG|R_VIEWRUNTIMES, "Debug Timers", "Shows currentl
 	if(!(timer.flags & TIMER_LOOP))
 		CRASH("Tried to update the wait of a non looping timer. This is not supported")
 	timer.wait = new_wait
+
 
 #undef BUCKET_LEN
 #undef BUCKET_POS

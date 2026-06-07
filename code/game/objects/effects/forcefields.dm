@@ -5,14 +5,12 @@
 	density = TRUE
 	var/lifetime = 30 SECONDS
 
-/obj/effect/forcefield/Initialize(mapload)
-	. = ..()
-	if(!lifetime)
-		return
+/obj/effect/forcefield/New()
+	..()
+	if(lifetime)
+		QDEL_IN(src, lifetime)
 
-	QDEL_IN(src, lifetime)
-
-/obj/effect/forcefield/CanAtmosPass(direction)
+/obj/effect/forcefield/CanAtmosPass(turf/T, vertical)
 	return !density
 
 /obj/effect/forcefield/wizard
@@ -22,15 +20,18 @@
 	. = ..()
 	wizard = summoner
 
+
 /obj/effect/forcefield/wizard/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(mover == wizard)
 		return TRUE
 
+
+
 ///////////Mimewalls///////////
 
 /obj/effect/forcefield/mime
-	icon_state = null
+	icon_state = "empty"
 	name = "invisible wall"
 	desc = "You have a bad feeling about this."
 
@@ -49,6 +50,7 @@
 	icon_state = "shield-red"
 	name = "Syndicate energy wall"
 	desc = "A slowly fading energy wall that blocks passage for every possible nanotrasen scum"
+
 
 /obj/effect/forcefield/mecha/syndicate/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()

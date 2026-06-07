@@ -23,13 +23,13 @@
 	var/dirty_items = FALSE // Used to refresh the static/redundant data in case the machine gets VV'd
 
 /obj/machinery/mineral/equipment_vendor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "раздатчик шахтёрского снаряжения",
 		GENITIVE = "раздатчика шахтёрского снаряжения",
 		DATIVE = "раздатчику шахтёрского снаряжения",
 		ACCUSATIVE = "раздатчик шахтёрского снаряжения",
 		INSTRUMENTAL = "раздатчиком шахтёрского снаряжения",
-		PREPOSITIONAL = "раздатчике шахтёрского снаряжения",
+		PREPOSITIONAL = "раздатчике шахтёрского снаряжения"
 	)
 
 /obj/machinery/mineral/equipment_vendor/Initialize(mapload)
@@ -165,6 +165,7 @@
 			return FALSE
 	add_fingerprint()
 
+
 /obj/machinery/mineral/equipment_vendor/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM || !powered())
 		return ..()
@@ -174,10 +175,10 @@
 		redeem_voucher(I, user)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(is_id_card(I))
+	if(istype(I, /obj/item/card/id))
 		add_fingerprint(user)
 		if(inserted_id)
-			to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] уже содержит другую ID-карту."))
+			to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] уже содержит другую ID-карту."))
 			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(I, src))
 			return ..()
@@ -187,8 +188,10 @@
 
 	return ..()
 
+
 /obj/machinery/mineral/equipment_vendor/screwdriver_act(mob/living/user, obj/item/I)
 	return default_deconstruction_screwdriver(user, "mining-open", "mining", I)
+
 
 /obj/machinery/mineral/equipment_vendor/crowbar_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -197,6 +200,7 @@
 		return .
 	remove_id() //Prevents deconstructing the ORM from deleting whatever ID was inside it.
 	default_deconstruction_crowbar(user, I)
+
 
 /**
  * Called when someone slaps the machine with a mining voucher
@@ -225,7 +229,6 @@
 			new /obj/item/extinguisher/mini(drop_location)
 			new /obj/item/resonator(drop_location)
 			new /obj/item/storage/bag/ore/bigger(drop_location)
-			new /obj/item/mining_satchel_upgrade(drop_location)
 		if(VENDOR_MINEBOT_KIT)
 			new /obj/item/storage/backpack/duffel/minebot_kit(drop_location)
 		if(VENDOR_EXTRACTION_KIT)
@@ -234,7 +237,6 @@
 			new /obj/item/gun/energy/plasmacutter(drop_location)
 			new /obj/item/t_scanner/adv_mining_scanner/lesser(drop_location)
 			new /obj/item/storage/bag/ore/bigger(drop_location)
-			new /obj/item/mining_satchel_upgrade(drop_location)
 		if(VENDOR_EXPLOSIVES_KIT)
 			new /obj/item/storage/backpack/duffel/miningcharges(drop_location)
 		if(VENDOR_CRUSHER_KIT)
@@ -247,8 +249,6 @@
 			new /obj/item/borg/upgrade/modkit/cooldown/haste(drop_location)
 			new /obj/item/borg/upgrade/modkit/range(drop_location)
 			new /obj/item/storage/bag/ore/bigger(drop_location)
-			new /obj/item/mining_satchel_upgrade(drop_location)
-			new /obj/item/gun_module/under/bayonet(drop_location)
 
 	qdel(voucher)
 
@@ -261,6 +261,7 @@
 	remove_id()
 	return ..()
 
+
 /**********************Mining Equiment Vendor (Golem)**************************/
 
 /obj/machinery/mineral/equipment_vendor/golem
@@ -268,13 +269,13 @@
 	categories = list("Gear", "Consumables", "Kinetic Accelerator", "Digging Tools", "Minebot", "Miscellaneous", "Extra")
 
 /obj/machinery/mineral/equipment_vendor/golem/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "раздатчик снаряжения големов",
 		GENITIVE = "раздатчика снаряжения големов",
 		DATIVE = "раздатчику снаряжения големов",
 		ACCUSATIVE = "раздатчик снаряжения големов",
 		INSTRUMENTAL = "раздатчиком снаряжения големов",
-		PREPOSITIONAL = "раздатчике снаряжения големов",
+		PREPOSITIONAL = "раздатчике снаряжения големов"
 	)
 
 /obj/machinery/mineral/equipment_vendor/golem/Initialize(mapload)
@@ -299,13 +300,13 @@
 	categories = list("Scum")
 
 /obj/machinery/mineral/equipment_vendor/labor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "раздатчик снаряжения каторги",
 		GENITIVE = "раздатчика снаряжения каторги",
 		DATIVE = "раздатчику снаряжения каторги",
 		ACCUSATIVE = "раздатчик снаряжения каторги",
 		INSTRUMENTAL = "раздатчиком снаряжения каторги",
-		PREPOSITIONAL = "раздатчике снаряжения каторги",
+		PREPOSITIONAL = "раздатчике снаряжения каторги"
 	)
 
 /obj/machinery/mineral/equipment_vendor/labor/Initialize(mapload)
@@ -317,6 +318,7 @@
 	component_parts += new /obj/item/stock_parts/matter_bin(null)
 	component_parts += new /obj/item/stack/sheet/glass(null)
 	RefreshParts()
+
 
 /**********************Mining Equipment Datum**************************/
 
@@ -339,13 +341,13 @@
 	w_class = WEIGHT_CLASS_TINY
 
 /obj/item/mining_voucher/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шахтёрский ваучер",
 		GENITIVE = "шахтёрского ваучера",
 		DATIVE = "шахтёрскому ваучеру",
 		ACCUSATIVE = "шахтёрский ваучер",
 		INSTRUMENTAL = "шахтёрским ваучером",
-		PREPOSITIONAL = "шахтёрском ваучере",
+		PREPOSITIONAL = "шахтёрском ваучере"
 	)
 
 /**********************Mining Point Card**********************/
@@ -357,13 +359,13 @@
 	var/points = 500
 
 /obj/item/card/mining_point_card/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "карта шахтёрских очков",
 		GENITIVE = "карты шахтёрских очков",
 		DATIVE = "карте шахтёрских очков",
 		ACCUSATIVE = "карту шахтёрских очков",
 		INSTRUMENTAL = "картой шахтёрских очков",
-		PREPOSITIONAL = "карте шахтёрских очков",
+		PREPOSITIONAL = "карте шахтёрских очков"
 	)
 
 /obj/item/card/mining_point_card/thousand
@@ -371,6 +373,7 @@
 
 /obj/item/card/mining_point_card/fivethousand
 	points = 5000
+
 
 /obj/item/card/mining_point_card/attackby(obj/item/I, mob/user, params)
 	var/obj/item/card/id/id_card = I.GetID()
@@ -386,6 +389,7 @@
 
 	return ..()
 
+
 /obj/item/card/mining_point_card/examine(mob/user)
 	. = ..()
 	. += span_notice("На карте [points] очк[declension_ru(points,"о","а","ов")].")
@@ -395,16 +399,16 @@
 /obj/item/storage/box/jumpbootimplant
 	name = "box of jumpboot implants"
 	desc = "Коробка с набором имплантов прыжковых ботинок. Для работы потребуется хирургическая установка."
-	icon_state = "box_implants"
+	icon_state = "cyber_implants"
 
 /obj/item/storage/box/jumpbootimplant/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "коробка с имплантами прыжковых ботинок",
 		GENITIVE = "коробки с имплантами прыжковых ботинок",
 		DATIVE = "коробке с имплантами прыжковых ботинок",
 		ACCUSATIVE = "коробку с имплантами прыжковых ботинок",
 		INSTRUMENTAL = "коробкой с имплантами прыжковых ботинок",
-		PREPOSITIONAL = "коробке с имплантами прыжковых ботинок",
+		PREPOSITIONAL = "коробке с имплантами прыжковых ботинок"
 	)
 
 /obj/item/storage/box/jumpbootimplant/populate_contents()
@@ -418,23 +422,23 @@
 	icon_state = "data"
 
 /obj/item/card/mining_access_card/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "карта доступа шахтёра",
 		GENITIVE = "карты доступа шахтёра",
 		DATIVE = "карте доступа шахтёра",
 		ACCUSATIVE = "карту доступа шахтёра",
 		INSTRUMENTAL = "картой доступа шахтёра",
-		PREPOSITIONAL = "карте доступа шахтёра",
+		PREPOSITIONAL = "карте доступа шахтёра"
 	)
 
-/obj/item/card/mining_access_card/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!is_id_card(target))
+/obj/item/card/mining_access_card/afterattack(atom/movable/AM, mob/user, proximity, params)
+	if(!istype(AM, /obj/item/card/id))
 		return
 
-	if(!proximity_flag)
+	if(!proximity)
 		return
 
-	var/obj/item/card/id/I = target
+	var/obj/item/card/id/I = AM
 	I.access |= list(
 		ACCESS_MAILSORTING,
 		ACCESS_CARGO,

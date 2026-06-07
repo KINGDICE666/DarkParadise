@@ -1,14 +1,17 @@
 SUBSYSTEM_DEF(redis)
 	name = "Redis"
+	init_order = INIT_ORDER_REDIS
 	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY // ALL THE THINGS
 	wait = 1
-	ss_flags = SS_TICKER // Every tick
+	flags = SS_TICKER // Every tick
 	/// Are we connected
 	var/connected = FALSE
 	/// Amount of subscribed channels on the redis server
 	var/list/subbed_channels = list()
 	/// Message queue (If messages are sent before the SS has init'd)
 	var/list/datum/redis_message/queue = list()
+	offline_implications = "The server will no longer be able to send or receive redis messages. Shuttle call recommended (Potential server crash inbound)."
+	cpu_display = SS_CPUDISPLAY_LOW
 
 // SS meta procs
 /datum/controller/subsystem/redis/get_stat_details()
@@ -19,7 +22,6 @@ SUBSYSTEM_DEF(redis)
 	connect()
 
 	if(!connected)
-		can_fire = FALSE
 		return SS_INIT_NO_NEED
 	// Loop efficiency doesnt matter here. It runs once and likely wont have any events in
 	for(var/datum/redis_message/RM in queue)
@@ -61,15 +63,17 @@ SUBSYSTEM_DEF(redis)
 	log_startup_progress("Registered [amount_registered] callback[amount_registered == 1 ? "" : "s"].")
 	return SS_INIT_SUCCESS
 
+
 /datum/controller/subsystem/redis/fire()
 	check_messages()
+
 
 // Redis integration stuff
 /datum/controller/subsystem/redis/proc/connect()
 	if(CONFIG_GET(flag/enable_redis))
 		#ifndef UNIT_TESTS // CI uses linux so dont flag up a fail there
 		if(world.system_type == UNIX)
-			WARNING("SSredis has known to be very buggy when running on Linux with random dropouts ocurring due to interrupted syscalls. You have been warned!")
+			stack_trace("SSredis has known to be very buggy when running on Linux with random dropouts ocurring due to interrupted syscalls. You have been warned!")
 		#endif
 
 		var/conn = CONFIG_GET(string/redis_connstring)
@@ -128,6 +132,7 @@ SUBSYSTEM_DEF(redis)
 
 	// If we are alive, publish straight away
 	rustg_redis_publish(channel, message)
+
 
 // Misc protection stuff
 /datum/controller/subsystem/redis/CanProcCall(procname)

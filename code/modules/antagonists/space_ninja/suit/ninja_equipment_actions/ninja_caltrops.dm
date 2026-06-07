@@ -1,13 +1,16 @@
 /datum/action/item_action/advanced/ninja/ninja_caltrops
 
-	name = "Энергетические шипы"
-	desc = "Разбрасывает смертельные шипы позади вас. Отлично замедляет врагов в случае погони. Затраты энергии: 1500"
+	name = "Energy Caltrops"
+	desc = "Scatters deadly caltrops behind the user. Great to slow enemies down. Don't step on them. Even metal legs will be damaged. Energy cost: 1500"
 	check_flags = AB_CHECK_HANDS_BLOCKED|AB_CHECK_LYING|AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
 	charge_max = 1 SECONDS
+	use_itemicon = FALSE
+	icon_icon = 'icons/mob/actions/actions_ninja.dmi'
 	button_icon_state = "caltrop"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
 	action_initialisation_text = "Energy Caltrops Scattering Device"
+
 
 /obj/item/clothing/suit/space/space_ninja/proc/scatter_caltrops()
 	var/mob/living/carbon/human/ninja = affecting
@@ -43,18 +46,19 @@
 		for(var/turf/spawn_turf in possible_turfs)
 			if(!iswallturf(spawn_turf) && !locate(/obj/structure/grille) in spawn_turf)
 				new /obj/structure/energy_caltrops(spawn_turf)
-		var/datum/action/item_action/advanced/ninja/ninja_caltrops/ninja_caltrops = locate() in ninja.actions
-		ninja_caltrops.use_action()
+		for(var/datum/action/item_action/advanced/ninja/ninja_caltrops/ninja_action in actions)
+			ninja_action.use_action()
+			break
 		playsound(ninja, 'sound/effects/glass_step_sm.ogg', 50, TRUE)
 		if(auto_smoke)
-			if(locate(/datum/action/item_action/advanced/ninja/ninja_smoke_bomb) in ninja.actions)
+			if(locate(/datum/action/item_action/advanced/ninja/ninja_smoke_bomb) in actions)
 				prime_smoke(lowcost = TRUE)
+
 
 ///The caltrops object
 /obj/structure/energy_caltrops
 	name = "Caltrops"
-	desc = "Шипы, созданные из концентрированной энергии. Чрезвычайно острые."
-	gender = PLURAL
+	desc = "Made of condensed energy! Don't step on this. Even metal legs will be damaged!"
 	icon = 'icons/obj/ninjaobjects.dmi'
 	icon_state = "caltrops"
 	resistance_flags = INDESTRUCTIBLE
@@ -63,18 +67,10 @@
 	var/destroy_after = 10 SECONDS
 	var/self_destroy = TRUE
 
-/obj/structure/energy_caltrops/get_ru_names()
-	return alist(
-		NOMINATIVE = "энергетические шипы",
-		GENITIVE = "энергетических шипов",
-		DATIVE = "энергетическим шипам",
-		ACCUSATIVE = "энергетические шипы",
-		INSTRUMENTAL = "энергетическими шипами",
-		PREPOSITIONAL = "энергетических шипах",
-	)
 
 /obj/structure/energy_caltrops/noselfdestroy
 	self_destroy = FALSE
+
 
 /obj/structure/energy_caltrops/Initialize(mapload)
 	. = ..()
@@ -84,6 +80,7 @@
 			qdel(other_caltrop)	//Не больше одной кучки калтропов на тайле!
 	if(self_destroy)
 		addtimer(CALLBACK(GLOBAL_PROC, /proc/qdel, src), destroy_after)
+
 
 /obj/structure/energy_caltrops/has_prints()
 	return FALSE

@@ -52,7 +52,7 @@ GLOBAL_LIST_INIT(human_recipes, list( \
 	name = "stok hide"
 	desc = "The by-product of stok farming."
 	singular_name = "stok hide piece"
-	icon_state = "sheet-lizard"
+	icon_state = "sheet-lizzard"
 
 /obj/item/stack/sheet/animalhide/neara
 	name = "neara hide"
@@ -123,13 +123,13 @@ GLOBAL_LIST_INIT(xeno_recipes, list (
 	origin_tech = ""
 
 /obj/item/stack/sheet/hairlesshide/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "очищенная шкура",
 		GENITIVE = "очищенной шкуры",
 		DATIVE = "очищенной шкуре",
 		ACCUSATIVE = "очищенную шкуру",
 		INSTRUMENTAL = "очищенной шкурой",
-		PREPOSITIONAL = "очищенной шкуре",
+		PREPOSITIONAL = "очищенной шкуре"
 	)
 
 /obj/item/stack/sheet/wetleather
@@ -138,18 +138,17 @@ GLOBAL_LIST_INIT(xeno_recipes, list (
 	singular_name = "wet leather piece"
 	icon_state = "sheet-wetleather"
 	origin_tech = ""
-	cares_about_temperature = TRUE
 	var/wetness = 30 //Reduced when exposed to high temperautres
 	var/drying_threshold_temperature = 500 //Kelvin to start drying
 
 /obj/item/stack/sheet/wetleather/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мокрая шкура",
 		GENITIVE = "мокрой шкуры",
 		DATIVE = "мокрой шкуре",
 		ACCUSATIVE = "мокрую шкуру",
 		INSTRUMENTAL = "мокрой шкурой",
-		PREPOSITIONAL = "мокрой шкуре",
+		PREPOSITIONAL = "мокрой шкуре"
 	)
 
 /obj/item/stack/sheet/leather
@@ -160,13 +159,13 @@ GLOBAL_LIST_INIT(xeno_recipes, list (
 	origin_tech = "materials=2"
 
 /obj/item/stack/sheet/leather/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кожа",
 		GENITIVE = "кожи",
 		DATIVE = "коже",
 		ACCUSATIVE = "кожу",
 		INSTRUMENTAL = "кожей",
-		PREPOSITIONAL = "коже",
+		PREPOSITIONAL = "коже"
 	)
 
 GLOBAL_LIST_INIT(leather_recipes, list (
@@ -199,13 +198,13 @@ GLOBAL_LIST_INIT(leather_recipes, list (
 	origin_tech = "biotech=4"
 
 /obj/item/stack/sheet/sinew/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сухожилия наблюдателя",
 		GENITIVE = "сухожилий наблюдателя",
 		DATIVE = "сухожилиям наблюдателя",
 		ACCUSATIVE = "сухожилия наблюдателя",
 		INSTRUMENTAL = "сухожилиями наблюдателя",
-		PREPOSITIONAL = "сухожилиях наблюдателя",
+		PREPOSITIONAL = "сухожилиях наблюдателя"
 	)
 
 GLOBAL_LIST_INIT(sinew_recipes, list ( \
@@ -245,24 +244,22 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	))
 
 /obj/item/stack/sheet/animalhide/goliath_hide/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пластина шкуры голиафа",
 		GENITIVE = "пластины шкуры голиафа",
 		DATIVE = "пластине шкуры голиафа",
 		ACCUSATIVE = "пластину шкуры голиафа",
 		INSTRUMENTAL = "пластиной шкуры голиафа",
-		PREPOSITIONAL = "пластине шкуры голиафа",
+		PREPOSITIONAL = "пластине шкуры голиафа"
 	)
 
-/obj/item/stack/sheet/animalhide/goliath_hide/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/stack/sheet/animalhide/goliath_hide/afterattack(atom/target, mob/user, proximity_flag, params)
 	if(!proximity_flag)
 		return
-
 	var/uplatable_armor = is_type_in_typecache(target, override_unplatable_armor_typecache)
 	if(uplatable_armor)
 		balloon_alert(user, "нельзя улучшить!")
 		return
-
 	var/platable_armor_with_icon = is_type_in_typecache(target, goliath_platable_armor_with_icon_typecache)
 	if(is_type_in_typecache(target, goliath_platable_armor_typecache) || platable_armor_with_icon)
 		var/obj/item/clothing/C = target
@@ -313,10 +310,9 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	item_flags = NOBLUDGEON
 	layer = MOB_LAYER
 
-/obj/item/stack/sheet/armour_plate/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/stack/sheet/armour_plate/afterattack(atom/target, mob/user, proximity_flag, params)
 	if(!proximity_flag)
 		return
-
 	if(istype(target, /obj/mecha/working/ripley))
 		var/obj/mecha/working/ripley/D = target
 		if(D.plates < 3)
@@ -328,7 +324,7 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 			D.update_appearance(UPDATE_DESC|UPDATE_OVERLAYS)
 			use(1)
 		else
-			to_chat(user, span_warning("Вы больше не можете найти куда [name] пристраивается!"))
+			to_chat(user, "<span class='warning'>Вы больше не можете найти куда [name] пристраивается!</span>")
 
 /obj/item/stack/sheet/cartilage_plate
 	name = "thick cartilage plate"
@@ -345,13 +341,13 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	layer = MOB_LAYER
 
 /obj/item/stack/sheet/cartilage_plate/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "толстая хрящевая пластина",
 		GENITIVE = "толстой хрящевой пластины",
 		DATIVE = "толстой хрящевой пластине",
 		ACCUSATIVE = "толстую хрящевую пластину",
 		INSTRUMENTAL = "толстой хрящевой пластиной",
-		PREPOSITIONAL = "толстой хрящевой пластине",
+		PREPOSITIONAL = "толстой хрящевой пластине"
 	)
 
 /obj/item/stack/sheet/animalhide/ashdrake
@@ -364,24 +360,24 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	layer = MOB_LAYER
 
 /obj/item/stack/sheet/animalhide/ashdrake/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкура пепельного дрейка",
 		GENITIVE = "шкуры пепельного дрейка",
 		DATIVE = "шкуре пепельного дрейка",
 		ACCUSATIVE = "шкуру пепельного дрейка",
 		INSTRUMENTAL = "шкурой пепельного дрейка",
-		PREPOSITIONAL = "шкуре пепельного дрейка",
+		PREPOSITIONAL = "шкуре пепельного дрейка"
 	)
 
 //Step one - dehairing.
 
 /obj/item/stack/sheet/animalhide/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		add_fingerprint(user)
 		if(loc == user && !user.can_unEquip(src))
 			return ATTACK_CHAIN_PROCEED
 		user.visible_message(
-			span_notice("[user] начина[PLUR_ET_YUT(user)] очищать бронированные сегменты [declent_ru(GENITIVE)]."),
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] очищать бронированные сегменты [declent_ru(GENITIVE)]."),
 			span_notice("Вы начинаете очищать бронированные сегменты [declent_ru(GENITIVE)]..."),
 			span_italics("Слышен звук трения ножа о плоть."),
 		)
@@ -395,6 +391,7 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 
 	return ..()
 
+
 //Step two - washing (also handled by water reagent code and washing machine code)
 /obj/item/stack/sheet/hairlesshide/water_act(volume, temperature, source, method = REAGENT_TOUCH)
 	. = ..()
@@ -403,19 +400,19 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 		qdel(src)
 
 //Step three - drying
-/obj/item/stack/sheet/wetleather/temperature_expose(exposed_temperature, exposed_volume)
+/obj/item/stack/sheet/wetleather/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature >= drying_threshold_temperature)
 		wetness--
 		if(wetness == 0)
 			//Try locating an exisitng stack on the tile and add to there if possible
-			for(var/obj/item/stack/sheet/leather/HS in loc)
+			for(var/obj/item/stack/sheet/leather/HS in src.loc)
 				if(HS.amount < 50)
 					HS.amount++
-					use(1)
+					src.use(1)
 					wetness = initial(wetness)
 					return
 			//If it gets to here it means it did not find a suitable stack on the tile.
-			new /obj/item/stack/sheet/leather(loc, 1)
+			new /obj/item/stack/sheet/leather(src.loc, 1)
 			wetness = initial(wetness)
-			use(1)
+			src.use(1)

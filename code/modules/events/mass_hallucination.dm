@@ -2,20 +2,19 @@
 	announceWhen = rand(0, 20)
 
 /datum/event/mass_hallucination/start()
-	for(var/mob/living/carbon/human/human as anything in GLOB.human_list)
-		if(human.stat == DEAD)
+	for(var/thing in GLOB.human_list)
+		var/mob/living/carbon/human/H = thing
+		if(H.stat == DEAD)
 			continue
-		var/turf/turf = get_turf(human)
-		if(!is_station_level(turf?.z))
+		var/turf/T = get_turf(H)
+		if(!T || !is_station_level(T.z))
 			continue
 		// Leave radiation-immune species/rad armored players completely unaffected
-		if(HAS_TRAIT(human, TRAIT_RADIMMUNE) || HAS_TRAIT(human, TRAIT_NO_RADIATION_EFFECTS))
+		if(HAS_TRAIT(H, TRAIT_RADIMMUNE) || H.getarmor(attack_flag = RAD) >= 75)
 			continue
-		human.AdjustHallucinate(rand(100 SECONDS, 200 SECONDS))
-		human.last_hallucinator_log = "Mass hallucination event"
+		H.AdjustHallucinate(rand(100 SECONDS, 200 SECONDS))
+		H.last_hallucinator_log = "Mass hallucination event"
 
 /datum/event/mass_hallucination/announce()
 	if(prob(40))
-		GLOB.minor_announcement.announce(
-			message = "Станция [station_name()] проходит через радиационное поле низкой интенсивности. Возможно появление галлюцинаций, но не более."
-		)
+		GLOB.minor_announcement.announce("Станция [station_name()] проходит через радиационное поле низкой интенсивности. Возможно появление галлюцинаций, но не более.")

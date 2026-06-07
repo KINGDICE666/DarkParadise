@@ -1,4 +1,3 @@
-// MARK: Generic
 /obj/item/gun/energy/laser
 	name = "laser gun"
 	desc = "A basic energy-based laser gun that fires concentrated beams of light which pass through glass and thin metal."
@@ -6,21 +5,17 @@
 	item_state = null
 	materials = list(MAT_METAL=2000)
 	origin_tech = "combat=4;magnets=2"
-	ammo_type = list(/obj/item/ammo_casing/energy/laser)
+	ammo_type = list(/obj/item/ammo_casing/energy/lasergun)
 	ammo_x_offset = 1
 	shaded_charge = TRUE
 	accuracy = GUN_ACCURACY_RIFLE_LASER
-	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER | GUN_MODULE_CLASS_ENERGY_WEAPON
+	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
 	attachable_offset = list(
-		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 4, ATTACHMENT_OFFSET_Y = 8),
-		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 9, ATTACHMENT_OFFSET_Y = -5),
+		ATTACHMENT_SLOT_RAIL = list("x" = 4, "y" = 8),
+		ATTACHMENT_SLOT_UNDER = list("x" = 9, "y" = -5)
 	)
 
-/obj/item/gun/energy/laser/sibyl/Initialize(mapload)
-	. = ..()
-	install_sibyl()
 
-// MARK: Practice
 /obj/item/gun/energy/laser/practice
 	name = "practice laser gun"
 	desc = "A modified version of the basic laser gun, this one fires less concentrated energy bolts designed for target practice."
@@ -33,9 +28,8 @@
 	accuracy = GUN_ACCURACY_RIFLE_LASER
 	attachable_allowed = GUN_MODULE_CLASS_NONE
 
-// MARK: Retro
 /obj/item/gun/energy/laser/retro
-	name = "retro laser gun"
+	name ="retro laser gun"
 	icon_state = "retro"
 	item_state = "laser"
 	desc = "An older model of the basic lasergun, no longer used by Nanotrasen's private security or military forces. Nevertheless, it is still quite deadly and easy to maintain, making it a favorite amongst pirates and other outlaws."
@@ -43,7 +37,6 @@
 	accuracy = GUN_ACCURACY_PISTOL
 	attachable_allowed = GUN_MODULE_CLASS_NONE
 
-// MARK: Antique (Captain)
 /obj/item/gun/energy/laser/captain
 	name = "antique laser gun"
 	icon_state = "caplaser"
@@ -54,6 +47,7 @@
 	ammo_x_offset = 3
 	selfcharge = TRUE
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
+	unique_reskin = TRUE
 	var/high_risk = TRUE
 	accuracy = GUN_ACCURACY_RIFLE
 	attachable_allowed = GUN_MODULE_CLASS_NONE
@@ -63,9 +57,10 @@
 	if(high_risk)
 		AddElement(/datum/element/high_value_item)
 
-/obj/item/gun/energy/laser/captain/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/item_skins)
+/obj/item/gun/energy/laser/captain/update_gun_skins()
+	add_skin("The Original", "caplaser")
+	add_skin("Restored", "caplaser_new")
+	add_skin("Alternative", "caplaser_newer")
 
 /obj/item/gun/energy/laser/captain/scattershot
 	name = "scatter shot laser rifle"
@@ -75,10 +70,11 @@
 	origin_tech = "combat=5;materials=4;powerstorage=4"
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/scatter, /obj/item/ammo_casing/energy/laser)
 	shaded_charge = FALSE
+	unique_reskin = FALSE
 	high_risk = FALSE
 	accuracy = GUN_ACCURACY_SHOTGUN
 
-// MARK: Cyborg
+
 /obj/item/gun/energy/laser/cyborg
 	desc = "An energy-based laser gun that draws power from the cyborg's internal energy cell directly. So this is what freedom looks like?"
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/cyborg)
@@ -100,11 +96,12 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/scatter, /obj/item/ammo_casing/energy/laser)
 	accuracy = GUN_ACCURACY_SHOTGUN
 	attachable_offset = list(
-		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 4, ATTACHMENT_OFFSET_Y = 8),
-		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 9, ATTACHMENT_OFFSET_Y = -5),
+		ATTACHMENT_SLOT_RAIL = list("x" = 4, "y" = 8),
+		ATTACHMENT_SLOT_UNDER = list("x" = 9, "y" = -5)
 	)
 
-// MARK: Laser cannon
+///Laser Cannon
+
 /obj/item/gun/energy/lasercannon
 	name = "accelerator laser cannon"
 	desc = "An advanced laser cannon that does more damage the farther away the target is."
@@ -121,9 +118,33 @@
 	accuracy = GUN_ACCURACY_RIFLE_LASER
 	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
 	attachable_offset = list(
-		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 7, ATTACHMENT_OFFSET_Y = 7),
-		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 9, ATTACHMENT_OFFSET_Y = -7),
+		ATTACHMENT_SLOT_RAIL = list("x" = 7, "y" = 7),
+		ATTACHMENT_SLOT_UNDER = list("x" = 9, "y" = -7)
 	)
+
+/obj/item/ammo_casing/energy/laser/accelerator
+	projectile_type = /obj/projectile/beam/laser/accelerator
+	select_name = "accelerator"
+	fire_sound = 'sound/weapons/gunshots/accelerator_cannon.ogg'
+	e_cost = 150
+	delay = 20
+
+/obj/projectile/beam/laser/accelerator
+	name = "accelerator laser"
+	icon_state = "heavylaser"
+	range = 255
+	damage = 8
+	armour_penetration = -50
+	speed = 1
+	tile_dropoff_penetration = -5
+	tile_dropoff_forcedodge = -0.2
+
+/obj/projectile/beam/laser/accelerator/Range()
+	..()
+	damage = min(damage + 4, 80)
+	armour_penetration = min(armour_penetration, 50)
+	forcedodge = min(forcedodge, 20)
+
 
 /obj/item/gun/energy/lasercannon/cyborg
 	attachable_allowed = GUN_MODULE_CLASS_NONE
@@ -135,7 +156,6 @@
 /obj/item/gun/energy/lasercannon/cyborg/emp_act()
 	return
 
-// MARK: X-ray
 /obj/item/gun/energy/xray
 	name = "x-ray laser gun"
 	desc = "A high-power laser gun capable of expelling concentrated xray blasts. These blasts will penetrate solid objects, but will decrease in power the longer they have to travel."
@@ -145,11 +165,10 @@
 	accuracy = GUN_ACCURACY_RIFLE_LASER
 	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
 	attachable_offset = list(
-		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 7, ATTACHMENT_OFFSET_Y = 7),
-		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 10, ATTACHMENT_OFFSET_Y = -7),
+		ATTACHMENT_SLOT_RAIL = list("x" = 7, "y" = 7),
+		ATTACHMENT_SLOT_UNDER = list("x" = 10, "y" = -7)
 	)
 
-// MARK: Immolator
 /obj/item/gun/energy/immolator
 	name = "Immolator laser gun"
 	desc = "A modified laser gun, shooting highly concetrated beams with higher intensity that ignites the target, for the cost of draining more power per shot"
@@ -159,10 +178,10 @@
 	origin_tech = "combat=4;magnets=4;powerstorage=3"
 	shaded_charge = TRUE
 	accuracy = GUN_ACCURACY_RIFLE_LASER
-	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER | GUN_MODULE_CLASS_ENERGY_WEAPON
+	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
 	attachable_offset = list(
-		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 7, ATTACHMENT_OFFSET_Y = 7),
-		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 10, ATTACHMENT_OFFSET_Y = -7),
+		ATTACHMENT_SLOT_RAIL = list("x" = 7, "y" = 7),
+		ATTACHMENT_SLOT_UNDER = list("x" = 10, "y" = -7)
 	)
 
 /obj/item/gun/energy/immolator/multi
@@ -172,11 +191,7 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/immolator/strong, /obj/item/ammo_casing/energy/immolator/scatter)
 	origin_tech = "combat=5;magnets=5;powerstorage=4"
 	accuracy = GUN_ACCURACY_RIFLE_LASER
-	attachable_allowed = GUN_MODULE_CLASS_ENERGY_WEAPON
 
-/obj/item/gun/energy/immolator/multi/sibyl/Initialize(mapload)
-	. = ..()
-	install_sibyl()
 
 /obj/item/gun/energy/immolator/multi/update_overlays()
 	. = ..()
@@ -184,12 +199,15 @@
 	var/append = shot.select_name
 	. += image(icon, icon_state = "multilensimmolator-[append]")
 
+
 /obj/item/gun/energy/immolator/multi/cyborg
 	name = "cyborg immolator cannon"
 	ammo_type = list(/obj/item/ammo_casing/energy/immolator/scatter/cyborg, /obj/item/ammo_casing/energy/immolator/strong/cyborg) // scatter is default, because it is more useful
 	attachable_allowed = GUN_MODULE_CLASS_NONE
 
-// MARK: Laser tag
+
+////////Laser Tag////////////////////
+
 /obj/item/gun/energy/laser/tag
 	icon_state = "bluetag"
 	item_state = "laser"
@@ -210,13 +228,3 @@
 	icon_state = "redtag"
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/redtag)
 
-// MARK: Mounted
-/obj/item/gun/energy/laser/mounted
-	name = "mounted laser"
-	desc = "An arm mounted cannon that fires lethal lasers."
-	icon = 'icons/obj/items_cyborg.dmi'
-	icon_state = "laser"
-	item_state = "armcannonlase"
-	selfcharge = TRUE
-	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
-	attachable_allowed = null

@@ -1,5 +1,5 @@
 import { useBackend } from '../../backend';
-import { Box, Icon, Section, Table, Tooltip } from '../../components';
+import { Box, Section, Table } from '../../components';
 import { decodeHtmlEntities } from 'common/string';
 import { COLORS } from '../../constants';
 
@@ -13,17 +13,16 @@ const HeadRoles = [
   'Research Director',
   'Head of Personnel',
   'Quartermaster',
-  'Magistrate',
 ];
 
 // Head colour check. Abbreviated to save on 80 char
 const HCC = (role: string) => {
-  // Return yellow if they are the head
+  // Return green if they are the head
   if (HeadRoles.indexOf(role) !== -1) {
     return 'green';
   }
 
-  // Return white if its a regular person
+  // Return orange if its a regular person
   return 'orange';
 };
 
@@ -42,56 +41,25 @@ type Person = {
   active: string;
 };
 
-const getStatusIconClass = (status: string | null) => {
-  if (!status) {
-    return 'manifest-indicator-active';
-  }
-  const normalized = status
-    .toLowerCase()
-    .replace(/\*/g, '')
-    .replace(/\s/g, '-')
-    .replace(/:.*?$/, '');
-  return `manifest-indicator-${normalized}`;
-};
-
 const ManifestTable = (group: Person[]) => {
   return (
     group.length > 0 && (
-      <Table p="0">
-        {group.map((person: Person, index) => (
+      <Table>
+        <Table.Row header color="white">
+          <Table.Cell width="50%">Name</Table.Cell>
+          <Table.Cell width="35%">Rank</Table.Cell>
+          <Table.Cell width="15%">Active</Table.Cell>
+        </Table.Row>
+
+        {group.map((person: Person) => (
           <Table.Row
             color={HCC(person.real_rank)}
             key={person.name + person.rank}
             bold={HBC(person.real_rank)}
-            className={index % 2 === 0 ? 'row-even' : 'row-odd'}
           >
-            <Table.Cell
-              width="50%"
-              textAlign="left"
-              pt="5px"
-              pb="5px"
-              pl="10px"
-            >
-              {decodeHtmlEntities(person.name)}
-            </Table.Cell>
-            <Table.Cell width="45%" textAlign="right" pr="2%" pt="5px" pb="5px">
-              {decodeHtmlEntities(person.rank)}
-            </Table.Cell>
-            <Table.Cell
-              width="5%"
-              textAlign="right"
-              pr="5px"
-              pt="5px"
-              pb="5px"
-              pl="10px"
-            >
-              <Tooltip content={person.active}>
-                <Icon
-                  name="circle"
-                  className={getStatusIconClass(person.active)}
-                />
-              </Tooltip>
-            </Table.Cell>
+            <Table.Cell>{decodeHtmlEntities(person.name)}</Table.Cell>
+            <Table.Cell>{decodeHtmlEntities(person.rank)}</Table.Cell>
+            <Table.Cell>{person.active}</Table.Cell>
           </Table.Row>
         ))}
       </Table>
@@ -119,34 +87,6 @@ type ManifestProps = {
   manifest?: Manifest;
 };
 
-type DepartmentSectionProps = {
-  title: string;
-  color: string;
-  deptClass: string;
-  children: React.ReactNode;
-};
-
-const DepartmentSection = ({
-  title,
-  color,
-  deptClass,
-  children,
-}: DepartmentSectionProps) => {
-  return (
-    <Section
-      className={`CrewManifest__dept CrewManifest__dept-${deptClass}`}
-      title={
-        <Box color={color} fontSize={1.4} fontWeight="bold">
-          {title}
-        </Box>
-      }
-      textAlign="center"
-    >
-      {children}
-    </Section>
-  );
-};
-
 export const CrewManifest = (props: ManifestProps) => {
   // HOW TO USE THIS THING
   /*
@@ -162,74 +102,114 @@ export const CrewManifest = (props: ManifestProps) => {
   const { heads, pro, sec, eng, med, sci, ser, sup, misc } = manifest;
 
   return (
-    <Box className="CrewManifest">
-      <DepartmentSection
-        title="Командование"
-        color={deptCols.command}
-        deptClass="command"
+    <Box>
+      <Section
+        title={
+          <Box backgroundColor={deptCols.command} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Command
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(heads)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Юриспруденция"
-        color={deptCols.procedure}
-        deptClass="procedure"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.procedure} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Procedure
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(pro)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Безопасность"
-        color={deptCols.security}
-        deptClass="security"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.security} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Security
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(sec)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Инженерия"
-        color={deptCols.engineering}
-        deptClass="engineering"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.engineering} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Engineering
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(eng)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Медицина"
-        color={deptCols.medical}
-        deptClass="medical"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.medical} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Medical
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(med)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Наука"
-        color={deptCols.science}
-        deptClass="science"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.science} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Science
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(sci)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Обслуживание"
-        color={deptCols.service}
-        deptClass="service"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.service} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Service
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(ser)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection
-        title="Снабжение"
-        color={deptCols.supply}
-        deptClass="supply"
+      <Section
+        title={
+          <Box backgroundColor={deptCols.supply} m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Supply
+            </Box>
+          </Box>
+        }
       >
         {ManifestTable(sup)}
-      </DepartmentSection>
+      </Section>
 
-      <DepartmentSection title="Без отдела" color="white" deptClass="misc">
+      <Section
+        title={
+          <Box m={-1} pt={1} pb={1}>
+            <Box ml={1} textAlign="center" fontSize={1.4}>
+              Misc
+            </Box>
+          </Box>
+        }
+      >
         {ManifestTable(misc)}
-      </DepartmentSection>
+      </Section>
     </Box>
   );
 };

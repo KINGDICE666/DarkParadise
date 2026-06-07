@@ -132,6 +132,7 @@
 	tastes = list("bread" = 10)
 	foodtype = GRAIN
 
+
 /obj/item/reagent_containers/food/snacks/breadslice/stale
 	name = "stale bread"
 	desc = "Похоже, ваши похитители позаботились о вашем питании."
@@ -140,13 +141,13 @@
 	list_reagents = list("nutriment" = 7, "bread" = 5)
 
 /obj/item/reagent_containers/food/snacks/breadslice/stale/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "чёрствый хлеб",
 		GENITIVE = "чёрствого хлеба",
 		DATIVE = "чёрствому хлебу",
 		ACCUSATIVE = "чёрствый хлеб",
 		INSTRUMENTAL = "чёрствым хлебом",
-		PREPOSITIONAL = "чёрством хлебе",
+		PREPOSITIONAL = "чёрством хлебе"
 	)
 
 /obj/item/reagent_containers/food/snacks/breadslice/moldy
@@ -156,13 +157,13 @@
 	list_reagents = list("nutriment" = 2, "bread" = 5, "fungus" = 1)
 
 /obj/item/reagent_containers/food/snacks/breadslice/moldy/get_ru_names()
-	return alist(
+	return list(
 			NOMINATIVE = "заплесневелый хлеб",
 			GENITIVE = "заплесневелого хлеба",
 			DATIVE = "заплесневелому хлебу",
 			ACCUSATIVE = "заплесневелый хлеб",
 			INSTRUMENTAL = "заплесневелым хлебом",
-			PREPOSITIONAL = "заплесневелом хлебе",
+			PREPOSITIONAL = "заплесневелом хлебе"
 		)
 
 /obj/item/reagent_containers/food/snacks/breadslice/burned
@@ -194,6 +195,7 @@
 	list_reagents = list("nutriment" = 4, "vitamin" = 1)
 	tastes = list("bread" = 10, "cheese" = 10)
 	foodtype = GRAIN | DAIRY
+
 
 //////////////////////
 //		Misc		//
@@ -240,13 +242,13 @@
 	slot_flags = ITEM_SLOT_BELT
 
 /obj/item/reagent_containers/food/snacks/baguette/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "багет",
 		GENITIVE = "багета",
 		DATIVE = "багету",
 		ACCUSATIVE = "багет",
 		INSTRUMENTAL = "багетом",
-		PREPOSITIONAL = "багете",
+		PREPOSITIONAL = "багете"
 	)
 
 /obj/item/reagent_containers/food/snacks/baguette/combat
@@ -314,4 +316,5 @@
 	filling_color = "#E6DEB5"
 	list_reagents = list("nutriment" = 8, "vitamin" = 1)
 	foodtype = GRAIN | SUGAR
+
 

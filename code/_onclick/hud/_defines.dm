@@ -13,6 +13,9 @@
 	Therefore, the top right corner (except during admin shenanigans) is at "15,15"
 */
 
+// Middle
+#define around_player "CENTER-1,CENTER-1"
+
 //Middle left indicators
 #define ui_alienplasmadisplay "EAST-1:28,CENTER-2:15"
 
@@ -50,7 +53,7 @@
 #define ui_inv3 "CENTER  :16,SOUTH:5"			//borgs
 #define ui_borg_module "CENTER+1:16,SOUTH:5"
 #define ui_borg_store "CENTER+2:16,SOUTH:5"		//borgs
-#define ui_borg_lawmanager "EAST-4:24,SOUTH:5"  //borgs
+
 
 #define ui_monkey_mask "CENTER-3:14,SOUTH:5"	//monkey
 #define ui_monkey_back "CENTER-2:15,SOUTH:5"	//monkey
@@ -70,7 +73,7 @@
 #define ui_zonesel "EAST-1:28,SOUTH:5"
 #define ui_acti_alt "EAST-1:28,SOUTH:5" //alternative intent switcher for when the interface is hidden (F12)
 
-#define ui_crafting "EAST:-5,SOUTH+2:7"
+#define ui_crafting	"EAST:-5,SOUTH+2:7"
 #define ui_language_menu "EAST:-22,SOUTH+2:7"
 
 #define ui_borg_pull "EAST-2:26,SOUTH+1:7"
@@ -84,6 +87,7 @@
 #define ui_alert3 "EAST-1:28,CENTER+3:23"
 #define ui_alert4 "EAST-1:28,CENTER+2:21"
 #define ui_alert5 "EAST-1:28,CENTER+1:19"
+
 
 //Gun buttons
 #define ui_gun1 "EAST-2:26,SOUTH+2:7"
@@ -133,6 +137,7 @@
 #define ui_oclothing "WEST+1:8,SOUTH+1:7"
 #define ui_gloves "WEST+2:10,SOUTH+1:7"
 
+
 #define ui_glasses "WEST:6,SOUTH+2:9"
 #define ui_mask "WEST+1:8,SOUTH+2:9"
 #define ui_l_ear "WEST+2:10,SOUTH+2:9"
@@ -165,8 +170,6 @@
 #define ui_ai_up "TOP:-6,RIGHT-1"
 #define ui_ai_down "TOP:-6,RIGHT"
 
-#define ui_ai_connect_to_shell "BOTTOM:6,LEFT+3"
-
 // Bots
 #define ui_bot_radio "EAST-1:28,SOUTH:7"
 #define ui_bot_pull "EAST-2:26,SOUTH:7"
@@ -186,9 +189,9 @@
 #define HUD_STYLE_REDUCED 2
 #define HUD_STYLE_NOHUD 3
 
+
 #define HUD_VERSIONS 3	//used in show_hud()
 //1 = standard hud
 //2 = reduced hud (just hands and intent switcher)
 //3 = no hud (for screenshots)
 
-#define ARBITRARY_VIEWRANGE_NOHUD 2

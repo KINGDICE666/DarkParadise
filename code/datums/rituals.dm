@@ -67,6 +67,7 @@
 	params["Удаление предметов:"] = ritual_should_del_things? "Да" : (ritual_should_del_things_on_fail)? "При провале" : "Нет"
 	return params
 
+
 /datum/ritual/proc/get_ui_things()
 	var/list/things = list()
 	for(var/atom/item as anything in required_things)
@@ -195,7 +196,7 @@
 	needed_dye = "Amber Dyes"
 	totem_dye = "amber"
 	required_things = list(
-		/mob/living/simple_animal/hostile/asteroid/goldgrub = 1,
+		/mob/living/simple_animal/hostile/asteroid/goldgrub = 1
 	)
 
 /datum/ritual/ashwalker/summon_ashstorm/check_contents(mob/living/carbon/invoker, list/used_things)
@@ -257,7 +258,7 @@
 	needed_dye = "Cinnabar Dyes"
 	totem_dye = "cinnabar"
 	required_things = list(
-		/mob/living/carbon/human = 1,
+		/mob/living/carbon/human = 1
 	)
 
 /datum/ritual/ashwalker/transformation/do_ritual(mob/living/carbon/invoker, list/invokers, list/used_things)
@@ -282,7 +283,7 @@
 
 	var/list/destinations = list()
 
-	for(var/obj/item/beacon/beacon as anything in GLOB.beacons)
+	for(var/obj/item/radio/beacon/beacon in GLOB.global_radios)
 		LAZYADD(destinations, get_turf(beacon))
 
 	human.forceMove(safepick(destinations))
@@ -457,7 +458,7 @@
 	needed_dye = "Indigo Dyes"
 	totem_dye = "indigo"
 	required_things = list(
-		/obj/item/organ/internal/regenerative_core = 1,
+		/obj/item/organ/internal/regenerative_core = 1
 	)
 
 /datum/ritual/ashwalker/power/del_things(list/used_things)
@@ -707,7 +708,7 @@
 		smoke.set_up(amount = 5, location = get_turf(human.loc))
 		smoke.start()
 
-		for(var/obj/item/obj as anything in human.get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
+		for(var/obj/item/obj as anything in human.get_equipped_items(TRUE, TRUE))
 			human.drop_item_ground(obj)
 
 	return
@@ -744,7 +745,7 @@
 	needed_dye = "Crimson Dyes"
 	totem_dye = "crimson"
 	required_things = list(
-		/obj/item/stack/sheet/animalhide/ashdrake = 1,
+		/obj/item/stack/sheet/animalhide/ashdrake = 1
 	)
 
 /datum/ritual/ashwalker/soul/check_invokers(mob/living/carbon/invoker, list/invokers)
@@ -802,10 +803,8 @@
 
 		human.SetKnockdown(10 SECONDS)
 		var/turf/turf = human.loc
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 1000
-		hotspot.recolor()
-		turf.hotspot_expose(700, 50)
+		new /obj/effect/hotspot(turf)
+		turf.hotspot_expose(700, 50, 1)
 
 	return
 
@@ -816,7 +815,7 @@
 	cooldown_after_cast = 20 SECONDS
 	cast_time = 10 SECONDS
 	required_things = list(
-		/obj/item/stack/ore = 10,
+		/obj/item/stack/ore = 10
 	)
 
 /datum/ritual/ashwalker/transmutation/check_invokers(mob/living/carbon/invoker, list/invokers)
@@ -849,10 +848,8 @@
 
 		human.SetKnockdown(10 SECONDS)
 		var/turf/turf = human.loc
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 1000
-		hotspot.recolor()
-		turf.hotspot_expose(700, 50)
+		new /obj/effect/hotspot(turf)
+		turf.hotspot_expose(700, 50, 1)
 
 	return
 
@@ -864,7 +861,7 @@
 	shaman_only = TRUE
 	cast_time = 10 SECONDS
 	required_things = list(
-		/mob/living/carbon/human = 1,
+		/mob/living/carbon/human = 1
 	)
 
 /datum/ritual/ashwalker/interrogation/check_invokers(mob/living/carbon/invoker, list/invokers)
@@ -963,10 +960,8 @@
 
 		human.SetKnockdown(10 SECONDS)
 		var/turf/turf = human.loc
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 1000
-		hotspot.recolor()
-		turf.hotspot_expose(700, 50)
+		new /obj/effect/hotspot(turf)
+		turf.hotspot_expose(700, 50, 1)
 
 	return
 
@@ -1021,7 +1016,7 @@
 		return RITUAL_FAILED_ON_PROCEED // no mercy guys. But you got friendly creature
 
 	var/mob/mob = pick(candidates)
-	animal.possess_by_player(mob.ckey)
+	animal.key = mob.key
 	animal.universal_speak = 1
 	animal.sentience_act()
 	animal.can_collar = 1
@@ -1029,8 +1024,8 @@
 	animal.del_on_death = FALSE
 	animal.master_commander = invoker
 
-	animal.mind.store_memory("<b>Мой хозяин — [invoker.name], выполню [GEND_HIS_HER(invoker)] цели любой ценой!</b>")
-	to_chat(animal, chat_box_green("Вы — раб пеплоходцев. Всегда подчиняйтесь и помогайте им."))
+	animal.mind.store_memory("<b>Мой хозяин - [invoker.name], выполню [genderize_ru(invoker.gender, "его", "её", "его", "их")] цели любой ценой!</b>")
+	to_chat(animal, chat_box_green("Вы - раб пеплоходцев. Всегда подчиняйтесь и помогайте им."))
 	add_game_logs("стал питомцем игрока [key_name(invoker)]", animal)
 
 	return RITUAL_SUCCESSFUL
@@ -1068,7 +1063,7 @@
 	needed_dye = "Cinnabar Dyes"
 	totem_dye = "cinnabar"
 	required_things = list(
-		/obj/item/gem/magma = 1,
+		/obj/item/gem/magma = 1
 	)
 
 /datum/ritual/ashwalker/coldresist/del_things(list/used_things)
@@ -1114,7 +1109,5 @@
 
 		human.SetKnockdown(10 SECONDS)
 		var/turf/turf = human.loc
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 1000
-		hotspot.recolor()
-		turf.hotspot_expose(700, 50)
+		new /obj/effect/hotspot(turf)
+		turf.hotspot_expose(700, 50, 1)

@@ -41,6 +41,7 @@
 	/// Cooldown in between transforms
 	COOLDOWN_DECLARE(transform_cooldown)
 
+
 /datum/component/transforming/Initialize(
 	start_transformed = FALSE,
 	transform_cooldown_time = 0 SECONDS,
@@ -48,7 +49,7 @@
 	throwforce_on = 0,
 	throw_speed_on = 2,
 	sharp_on = FALSE,
-	hitsound_on,
+	hitsound_on = 'sound/weapons/blade1.ogg',
 	hitsound_off,
 	w_class_on = WEIGHT_CLASS_BULKY,
 	item_state_on,
@@ -83,6 +84,7 @@
 	if(start_transformed)
 		toggle_active(parent)
 
+
 /datum/component/transforming/RegisterWithParent()
 	var/obj/item/item_parent = parent
 
@@ -91,8 +93,10 @@
 	if(item_parent.sharp || sharp_on)
 		RegisterSignal(parent, COMSIG_ITEM_SHARPEN_ACT, PROC_REF(on_sharpen))
 
+
 /datum/component/transforming/UnregisterFromParent()
 	UnregisterSignal(parent, list(COMSIG_ITEM_ATTACK_SELF, COMSIG_ATOM_UPDATE_ICON, COMSIG_ITEM_SHARPEN_ACT))
+
 
 /*
  * Called on [COMSIG_ITEM_ATTACK_SELF].
@@ -118,6 +122,7 @@
 		clumsy_transform_effect(user)
 		return COMPONENT_CANCEL_ATTACK_CHAIN
 
+
 /*
  * Transform the weapon into its alternate form, calling [toggle_active].
  *
@@ -140,6 +145,7 @@
 		source.add_fingerprint(user)
 	return TRUE
 
+
 /*
  * The default feedback message and sound effect for an item transforming.
  *
@@ -150,6 +156,7 @@
 	if(user)
 		source.balloon_alert(user, "[active ? "активно" : "не активно"]")
 	playsound(source, 'sound/weapons/batonextend.ogg', 50, TRUE)
+
 
 /*
  * Toggle active between true and false, and call
@@ -163,6 +170,7 @@
 		set_active(source)
 	else
 		set_inactive(source)
+
 
 /*
  * Set our transformed item into its active state.
@@ -189,6 +197,7 @@
 	source.update_appearance()
 	source.update_equipped_item()
 
+
 /*
  * Set our transformed item into its inactive state.
  * Updates all the values back to the item's initial values.
@@ -213,6 +222,7 @@
 	source.w_class = initial(source.w_class)
 	source.update_appearance()
 	source.update_equipped_item()
+
 
 /*
  * If [clumsy_check_prob] is set to anything but 0, attempt to cause a side effect for clumsy people activating this item.
@@ -251,6 +261,7 @@
 			user.adjustFireLoss(clumsy_damage)
 	return TRUE
 
+
 /**
  * on_update_icon triggers on call to update parent items icon
  *
@@ -270,6 +281,7 @@
 			source.item_state = initial(source.item_state)
 
 	return COMSIG_ATOM_NO_UPDATE_ICON_STATE
+
 
 /*
  * Called on [COMSIG_ITEM_SHARPEN_ACT].

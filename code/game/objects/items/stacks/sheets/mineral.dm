@@ -121,10 +121,10 @@ GLOBAL_LIST_INIT(snow_recipes, list(
 /obj/item/stack/sheet/mineral
 	throw_speed = 3
 
-/obj/item/stack/sheet/mineral/Initialize(mapload, new_amount, merge = TRUE)
-	. = ..()
-	pixel_x = base_pixel_x + rand(0, 4) - 4
-	pixel_y = base_pixel_y + rand(0, 4) - 4
+/obj/item/stack/sheet/mineral/New(loc, new_amount, merge = TRUE)
+	..()
+	pixel_x = rand(0,4)-4
+	pixel_y = rand(0,4)-4
 
 /obj/item/stack/sheet/mineral/sandstone
 	name = "sandstone brick"
@@ -167,6 +167,7 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	icon_state = "sandbag"
 	w_class = WEIGHT_CLASS_TINY
 
+
 /obj/item/emptysandbag/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/ore/glass))
 		add_fingerprint(user)
@@ -183,6 +184,7 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/item/stack/sheet/mineral/diamond
 	name = "diamond"
@@ -248,20 +250,22 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 		log_and_set_aflame(user, I)
 	return TRUE
 
+
 /obj/item/stack/sheet/mineral/plasma/attackby(obj/item/I, mob/user, params)
-	if(I.get_temperature())
+	if(I.get_heat())
 		log_and_set_aflame(user, I)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/stack/sheet/mineral/plasma/proc/log_and_set_aflame(mob/user, obj/item/I)
 	add_attack_logs(user, src, "Ignited [amount] amount, using [I]", ATKLOG_FEW)
 	investigate_log("was <font color='red'><b>ignited</b></font> by [key_name_log(user)] in [amount] amount.", INVESTIGATE_ATMOS)
 	fire_act()
 
-/obj/item/stack/sheet/mineral/plasma/fire_act(exposed_temperature, exposed_volume)
+/obj/item/stack/sheet/mineral/plasma/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	..()
-	atmos_spawn_air(LINDA_SPAWN_HEAT|LINDA_SPAWN_TOXINS, amount * 10)
+	atmos_spawn_air(LINDA_SPAWN_HEAT | LINDA_SPAWN_TOXINS, amount*10)
 	qdel(src)
 
 /obj/item/stack/sheet/mineral/gold
@@ -364,6 +368,7 @@ GLOBAL_LIST_INIT(titanium_recipes, list(
 /obj/item/stack/sheet/mineral/titanium/fifty
 	amount = 50
 
+
 /*
  * Plastitanium
  */
@@ -418,6 +423,12 @@ GLOBAL_LIST_INIT(plastitanium_recipes, list(
 /obj/item/stack/sheet/mineral/plastitanium/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.plastitanium_recipes
+
+/obj/item/stack/sheet/mineral/enruranium
+	name = "enriched uranium"
+	icon_state = "sheet-enruranium"
+	origin_tech = "materials=6"
+	materials = list(MAT_URANIUM=3000)
 
 //Alien Alloy
 /obj/item/stack/sheet/mineral/abductor

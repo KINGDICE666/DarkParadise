@@ -1,4 +1,6 @@
+
 // Terror Spider, Black, Deadly Venom
+
 /datum/reagent/terror_black_toxin
 	name = "Яд Вдовы Ужаса"
 	id = "terror_black_toxin"
@@ -32,3 +34,26 @@
 		M.EyeBlurry(12 SECONDS)
 		M.Paralyse(10 SECONDS)
 	return ..() | update_flags
+
+#define REAGENT_UNITS_5 5
+
+//egg toxin for defiler
+/datum/reagent/terror_eggs
+	name = "Яйца паука ужаса"
+	id = "terror_eggs"
+	description = "Стремительно растущие паучьи яйца."
+	can_synth = FALSE
+	color = "#6b336b"
+	taste_mult = 0
+
+/datum/reagent/terror_eggs/on_mob_life(mob/living/target)
+	if(volume > REAGENT_UNITS_5 && iscarbon(target))
+		if(!target.get_int_organ(/obj/item/organ/internal/body_egg))
+			new/obj/item/organ/internal/body_egg/terror_eggs(target)
+
+		if(!target.get_int_organ(/obj/item/organ/internal/body_egg/terror_eggs/phantom))
+			new /obj/item/organ/internal/body_egg/terror_eggs/phantom(target)
+
+	return ..()
+
+#undef REAGENT_UNITS_5

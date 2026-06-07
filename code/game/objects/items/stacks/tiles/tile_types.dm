@@ -22,18 +22,18 @@
 
 /obj/item/stack/tile/welder_act(mob/user, obj/item/I)
 	if(get_amount() < 4)
-		to_chat(user, span_warning("You need at least four tiles to do this!"))
+		to_chat(user, "<span class='warning'>You need at least four tiles to do this!</span>")
 		return
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
-		to_chat(user, span_warning("You can not reform this!"))
+		to_chat(user, "<span class='warning'>You can not reform this!</span>")
 		return
 	if(mineralType == "metal")
 		var/obj/item/stack/sheet/metal/new_item = new(user.loc)
 		user.visible_message(
 			"[user.name] shaped [src] into metal with the welding tool.", \
-			span_notice("You shaped [src] into metal with the welding tool."), \
-			span_italics("You hear welding.")
+			"<span class='notice'>You shaped [src] into metal with the welding tool.</span>", \
+			"<span class='italics'>You hear welding.</span>"
 		)
 		var/obj/item/stack/rods/R = src
 		src = null
@@ -42,8 +42,11 @@
 		if(!R && replace)
 			user.put_in_hands(new_item)
 
-/obj/item/stack/tile/handle_openspace_click(turf/target, mob/user, list/modifiers)
-	target.attackby(src, user, list2params(modifiers))
+
+/obj/item/stack/tile/handle_openspace_click(turf/target, mob/user, proximity_flag, click_parameters)
+	if(proximity_flag)
+		melee_attack_chain(user, target, click_parameters)
+
 
 // GRASS
 /obj/item/stack/tile/grass
@@ -229,7 +232,7 @@
 	throw_range = 7
 	turf_type = /turf/simulated/floor/plasteel
 	mineralType = "metal"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 70)
 	resistance_flags = FIRE_PROOF
 	energy_type = /datum/robot_energy_storage/metal
 // LIGHT
@@ -310,7 +313,7 @@
 	desc = "Tightly-pressed brass tiles. They emit minute vibration in your hand."
 	icon_state = "tile_goldfancy"
 	turf_type = /turf/simulated/floor/clockwork
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 70)
 	resistance_flags = FIRE_PROOF
 
 /obj/item/stack/tile/harsie
@@ -319,5 +322,5 @@
 	desc = "dark tiles. You dont feel good about this."
 	icon_state = "tile_basalt"
 	turf_type = /turf/simulated/floor/engine/cult
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 70)
 	resistance_flags = FIRE_PROOF

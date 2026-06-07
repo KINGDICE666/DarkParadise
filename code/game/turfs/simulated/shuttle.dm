@@ -32,14 +32,16 @@
 /turf/simulated/wall/shuttle/singularity_act()
 	return
 
-/turf/simulated/wall/shuttle/singularity_pull(atom/singularity, current_size)
+/turf/simulated/wall/shuttle/singularity_pull(S, current_size)
 	return
 
 /turf/simulated/wall/shuttle/burn_down()
 	return
 
+
 /turf/simulated/wall/shuttle/attackby(obj/item/I, mob/user, params)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /turf/simulated/wall/shuttle/attack_hand(mob/user)
 	return
@@ -47,10 +49,11 @@
 /turf/simulated/wall/shuttle/attack_animal(mob/living/simple_animal/M)
 	return
 
-/turf/simulated/wall/shuttle/mech_melee_attack(obj/mecha/mech, obj/item/mecha_parts/mecha_equipment/selected_module = null)
+/turf/simulated/wall/shuttle/mech_melee_attack(obj/mecha/mecha)
+	SEND_SIGNAL(src, COMSIG_ATOM_ATTACK_MECH, mecha, mecha.occupant)
 	return
 
-/turf/simulated/wall/shuttle/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
+/turf/simulated/wall/shuttle/rpd_act()
 	return
 
 /turf/simulated/wall/shuttle/rcd_act()
@@ -102,13 +105,14 @@
 	. = ..()
 	T.transform = transform
 
-/turf/simulated/wall/shuttle/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
-	if(mode == RPD_DELETE_MODE)//No pipes on shuttles
+/turf/simulated/wall/shuttle/rpd_act(mob/user, obj/item/rpd/our_rpd)
+	if(our_rpd.mode == RPD_DELETE_MODE)//No pipes on shuttles
 		our_rpd.delete_all_pipes(user, src)
 
 /turf/simulated/wall/shuttle/narsie_act()
 	if(prob(20))
 		ChangeTurf(/turf/simulated/wall/cult)
+
 
 // sub-type to be used for interior shuttle walls
 // won't get an underlay of the destination turf on shuttle move
@@ -121,14 +125,14 @@
 /turf/simulated/wall/shuttle/nosmooth/interior/Initialize(mapload)
 	. = ..()
 	if(underlay_floor_icon && underlay_floor_icon_state)
-		var/image/floor_underlay = image(icon = underlay_floor_icon, icon_state = underlay_floor_icon_state, dir = underlay_floor_dir)
+		var/image/floor_underlay = image(underlay_floor_icon,,underlay_floor_icon_state,,underlay_floor_dir)
 		underlays.Cut()
 		underlays.Add(floor_underlay)
 
 /turf/simulated/wall/shuttle/nosmooth/interior/copyTurf(turf/T)
 	if(T.type != type)
 		T.ChangeTurf(type)
-		if(length(underlays))
+		if(underlays.len)
 			T.underlays = underlays
 	if(T.icon_state != icon_state)
 		T.icon_state = icon_state
@@ -147,10 +151,12 @@
 	icon = 'icons/turf/shuttle/floors.dmi'
 	icon_state = "floor"
 
+
 /turf/simulated/floor/shuttle/attackby(obj/item/I, mob/user, params)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
-/turf/simulated/floor/shuttle/tool_act(mob/living/user, obj/item/tool, list/modifiers)
+
+/turf/simulated/floor/shuttle/tool_act()
 	return FALSE
 
 /turf/simulated/floor/shuttle/ratvar_act()
@@ -199,13 +205,3 @@
 	name = "skipjack floor"
 	oxygen = 0
 	nitrogen = MOLES_N2STANDARD + MOLES_O2STANDARD
-
-/turf/simulated/floor/shuttle/airless
-	oxygen = 0
-	nitrogen = 0
-	temperature = TCMB
-
-/turf/simulated/floor/shuttle/almost_airless
-	oxygen = 0.01
-	nitrogen = 0.01
-	temperature = TCMB

@@ -78,7 +78,8 @@
 "p" = (
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1
+	pixel_y = 1;
+	d2 = 2
 	},
 /obj/item/mounted/frame/apc_frame,
 /turf/simulated/floor/plating,

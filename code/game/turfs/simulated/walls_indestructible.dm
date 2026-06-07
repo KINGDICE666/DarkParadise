@@ -6,6 +6,7 @@
 	icon_state = "riveted"
 	smooth = NONE
 
+
 /turf/simulated/wall/indestructible/dismantle_wall(devastated = 0, explode = 0)
 	return
 
@@ -24,7 +25,7 @@
 /turf/simulated/wall/indestructible/singularity_act()
 	return
 
-/turf/simulated/wall/indestructible/singularity_pull(atom/singularity, current_size)
+/turf/simulated/wall/indestructible/singularity_pull(S, current_size)
 	return
 
 /turf/simulated/wall/indestructible/narsie_act()
@@ -36,8 +37,10 @@
 /turf/simulated/wall/indestructible/burn_down()
 	return
 
+
 /turf/simulated/wall/indestructible/attackby(obj/item/I, mob/user, params)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /turf/simulated/wall/indestructible/attack_hand(mob/user)
 	return
@@ -45,10 +48,11 @@
 /turf/simulated/wall/indestructible/attack_animal(mob/living/simple_animal/M)
 	return
 
-/turf/simulated/wall/indestructible/mech_melee_attack(obj/mecha/mech, obj/item/mecha_parts/mecha_equipment/selected_module = null)
+/turf/simulated/wall/indestructible/mech_melee_attack(obj/mecha/mecha)
+	SEND_SIGNAL(src, COMSIG_ATOM_ATTACK_MECH, mecha, mecha.occupant)
 	return
 
-/turf/simulated/wall/indestructible/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)
+/turf/simulated/wall/indestructible/rpd_act()
 	return
 
 /turf/simulated/wall/indestructible/acid_act(acidpwr, acid_volume, acid_id)
@@ -81,12 +85,14 @@
 	base_icon_state = "r_wall"
 	smooth = SMOOTH_BITMASK
 
+
 /turf/simulated/wall/indestructible/reinforced/rusted
 	name = "rusted reinforced wall"
 	desc = "A huge chunk of rusted reinforced metal."
 	icon = 'icons/turf/walls/rusty_reinforced_wall.dmi'
 	icon_state = "rusty_reinforced_wall-0"
 	base_icon_state = "rusty_reinforced_wall"
+
 
 /turf/simulated/wall/indestructible/wood
 	name = "wooden wall"
@@ -143,11 +149,13 @@
 	icon_state = "wall"
 	smooth = SMOOTH_BITMASK
 
+
 /turf/simulated/wall/indestructible/abductor
 	name = "alien wall"
 	desc = "A wall with alien alloy plating."
 	icon_state = "alien1"
 	always_lit = TRUE
+
 
 /turf/simulated/wall/indestructible/splashscreen
 	name = "Splash Screen"
@@ -180,12 +188,15 @@
 	canSmoothWith = SMOOTH_GROUP_WALL_GINGERBREAD
 	smoothing_groups = SMOOTH_GROUP_WALL_GINGERBREAD
 
+
 /turf/simulated/wall/indestructible/rock
 	name = "rock"
 	icon_state = "rock"
 
+
 /turf/simulated/wall/indestructible/rock/dark
 	color = "#91857C"
+
 
 /turf/simulated/wall/indestructible/sandstone
 	name = "sandstone wall"
@@ -197,6 +208,7 @@
 	canSmoothWith = SMOOTH_GROUP_SANDSTONE_WALLS
 	smoothing_groups = SMOOTH_GROUP_SANDSTONE_WALLS
 
+
 /turf/simulated/wall/indestructible/iron
 	name = "rough metal wall"
 	desc = "A wall with rough metal plating."
@@ -204,8 +216,7 @@
 	icon_state = "iron"
 	base_icon_state = "iron_wall"
 	smooth = SMOOTH_BITMASK
-	canSmoothWith = SMOOTH_GROUP_IRON_WALLS
-	smoothing_groups = SMOOTH_GROUP_IRON_WALLS
+
 
 /turf/simulated/wall/indestructible/bananium
 	name = "bananium wall"
@@ -217,6 +228,7 @@
 	canSmoothWith = SMOOTH_GROUP_BANANIUM_WALLS
 	smoothing_groups = SMOOTH_GROUP_BANANIUM_WALLS
 
+
 /turf/simulated/wall/indestructible/cult
 	name = "runed metal wall"
 	desc = "A cold metal wall engraved with indecipherable symbols. Studying them causes your head to pound."
@@ -224,6 +236,7 @@
 	icon_state = "cult"
 	canSmoothWith = null
 	smoothing_groups = null
+
 
 /turf/simulated/wall/indestructible/mineral_rock
 	name = "rock"
@@ -240,6 +253,7 @@
 	transform = M
 	. = ..()
 
+
 /turf/simulated/wall/indestructible/invisible
 	name = "Deep space"
 	desc = "Deep space nothing"
@@ -251,20 +265,23 @@
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	always_lit = TRUE
 
-/turf/simulated/wall/indestructible/bingle
-	name = "Bingle Pit wall"
-	desc = "Оно... синее. Это всё, что приходит вам в голову. Вы не уверены, что это вообще можно разрушить."
-	gender = FEMALE
-	icon = 'icons/turf/walls/bingle.dmi'
-	icon_state = "wall-0"
-	smooth = SMOOTH_BITMASK
 
-/turf/simulated/wall/indestructible/bingle/get_ru_names()
-	return alist(
-		NOMINATIVE = "яма Бинглов",
-		GENITIVE = "ямы Бинглов",
-		DATIVE = "яме Бинглов",
-		ACCUSATIVE = "яму Бинглов",
-		INSTRUMENTAL = "ямой Бинглов",
-		PREPOSITIONAL = "яме Бинглов",
+/turf/simulated/wall/indestructible/flesh
+	name = "плоть"
+	desc = "Жуткая груда плоти, вероятно всё ещё являющаяся частью какого-то гигантского живого существа. \
+			Но... раз вы её видите... вы внутри?"
+	gender = FEMALE
+	icon = 'icons/turf/walls/flesh.dmi'
+	icon_state = "flesh_wall-0"
+	base_icon_state = "flesh"
+
+
+/turf/simulated/wall/indestructible/flesh/get_ru_names()
+	return list(
+		NOMINATIVE = "плоть",
+		GENITIVE = "плоти",
+		DATIVE = "плоти",
+		ACCUSATIVE = "плоть",
+		INSTRUMENTAL = "плотью",
+		PREPOSITIONAL = "плоти",
 	)

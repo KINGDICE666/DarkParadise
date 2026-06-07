@@ -16,21 +16,25 @@
 	sound = 'sound/creatures/terrorspiders/stealth.ogg'
 	var/duration = 8 SECONDS
 
+
 /obj/effect/proc_holder/spell/terror_stealth/create_new_targeting()
 	return new /datum/spell_targeting/self
 
+
 /obj/effect/proc_holder/spell/terror_stealth/cast(list/targets, mob/user = usr)
 	user.alpha = 0
-	user.visible_message(span_warning("[DECLENT_RU_CAP(user, NOMINATIVE)] внезапно исчезает!"), span_purple("Вы теперь невидимы!"))
+	user.visible_message(span_warning("[capitalize(user.declent_ru(NOMINATIVE))] внезапно исчезает!"), span_purple("Вы теперь невидимы!"))
 	addtimer(CALLBACK(src, PROC_REF(reveal), user), duration)
+
 
 /obj/effect/proc_holder/spell/terror_stealth/proc/reveal(mob/user)
 	if(QDELETED(user))
 		return
 
 	user.alpha = initial(user.alpha)
-	user.visible_message(span_warning("[DECLENT_RU_CAP(user, NOMINATIVE)] появляется из ниоткуда!"), span_purple("Вы снова видимы!"))
+	user.visible_message(span_warning("[capitalize(user.declent_ru(NOMINATIVE))] появляется из ниоткуда!"), span_purple("Вы снова видимы!"))
 	playsound(user.loc, 'sound/creatures/terrorspiders/stealth_out.ogg', 150, TRUE)
+
 
 //HEALER//
 
@@ -48,21 +52,24 @@
 	var/heal_amount = 20
 	var/apply_heal_buff = FALSE
 
+
 /obj/effect/proc_holder/spell/aoe/terror_healing/create_new_targeting()
 	var/datum/spell_targeting/aoe/T = new()
 	T.range = aoe_range
 	T.allowed_type = /mob/living/simple_animal/hostile/poison/terror_spider
 	return T
 
+
 /obj/effect/proc_holder/spell/aoe/terror_healing/cast(list/targets, mob/user = usr)
 	for(var/mob/living/simple_animal/hostile/poison/terror_spider/spider in targets)
-		visible_message(span_green("[DECLENT_RU_CAP(user, NOMINATIVE)] источает целительные феромоны!"))
+		visible_message(span_green("[capitalize(user.declent_ru(NOMINATIVE))] источает целительные феромоны!"))
 		spider.adjustBruteLoss(-heal_amount)
 		if(apply_heal_buff)
 			spider.apply_status_effect(STATUS_EFFECT_TERROR_REGEN)
 		new /obj/effect/temp_visual/heal(get_turf(spider), "#00ff0d")
 		new /obj/effect/temp_visual/heal(get_turf(spider), "#09ff00")
 		new /obj/effect/temp_visual/heal(get_turf(spider), "#09ff00")
+
 
 //TIER 2 SPIDERS
 
@@ -75,15 +82,38 @@
 	invocation_type = "none"
 	action_icon_state = "fake_death"
 	action_background_icon_state = "bg_terror"
-	selection_activated_message	= span_notice_alt("Вы подготавливаете свой ядовитый плевок! <b>ЛКМ, чтобы плюнуть в цель</b>.")
-	selection_deactivated_message = span_notice_alt("Вы отменяете свой плевок.")
+	selection_activated_message	= span_notice("Вы подготавливаете свой ядовитый плевок! <b>ЛКМ, чтобы плюнуть в цель</b>.")
+	selection_deactivated_message = span_notice("Вы отменяете свой плевок.")
 	sound = 'sound/creatures/terrorspiders/spit2.ogg'
 	need_active_overlay = TRUE
 	base_cooldown = 25 SECONDS
 	fireball_type = /obj/projectile/terrorspider/widow/venom
 
+
 /obj/effect/proc_holder/spell/fireball/venom_spit/update_icon_state()
 	return
+
+
+/obj/projectile/terrorspider/widow/venom
+	name = "venom acid"
+	damage = 5
+
+
+/obj/projectile/terrorspider/widow/venom/on_hit(target)
+	. = ..()
+	var/datum/effect_system/fluid_spread/smoke/chem/smoke = new
+	var/turf/T = get_turf(target)
+	create_reagents(1250)
+	reagents.add_reagent("thc", 250)
+	reagents.add_reagent("psilocybin", 250)
+	reagents.add_reagent("lsd", 250)
+	reagents.add_reagent("space_drugs", 250)
+	reagents.add_reagent("terror_black_toxin", 250)
+	smoke.set_up(range = 2, location = T, carry = reagents, silent = TRUE)
+	smoke.start()
+
+	return ..()
+
 
 //SMOKE SPIT
 /obj/effect/proc_holder/spell/fireball/smoke_spit
@@ -92,15 +122,35 @@
 	invocation_type = "none"
 	action_icon_state = "smoke"
 	action_background_icon_state = "bg_terror"
-	selection_activated_message	= span_notice_alt("Вы подготавливаете дымный плевок! <b>ЛКМ, чтобы плюнуть в цель</b>")
-	selection_deactivated_message = span_notice_alt("Вы отменяете свой плевок.")
+	selection_activated_message	= span_notice("Вы подготавливаете дымный плевок! <b>ЛКМ, чтобы плюнуть в цель</b>")
+	selection_deactivated_message = span_notice("Вы отменяете свой плевок.")
 	sound = 'sound/creatures/terrorspiders/spit2.ogg'
 	need_active_overlay = TRUE
 	base_cooldown = 10 SECONDS
 	fireball_type = /obj/projectile/terrorspider/widow/smoke
 
+
 /obj/effect/proc_holder/spell/fireball/smoke_spit/update_icon_state()
 	return
+
+
+/obj/projectile/terrorspider/widow/smoke
+	name = "smoke acid"
+	damage = 5
+
+
+/obj/projectile/terrorspider/widow/smoke/on_hit(target)
+	. = ..()
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	var/turf/T = get_turf(target)
+	smoke.set_up(amount = 15, location = T)
+	smoke.start()
+	return ..()
+
+
+//DESTROYER//
+
+//EMP
 
 /obj/effect/proc_holder/spell/emplosion/terror_emp
 	name = "Электро-магнитный визг"
@@ -114,10 +164,12 @@
 	emp_heavy = 3
 	emp_light = 2
 
+
 /obj/effect/proc_holder/spell/emplosion/terror_emp/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(!isturf(user.loc))
 		return FALSE
 	return ..()
+
 
 //EXPLOSION
 /obj/effect/proc_holder/spell/explosion/terror_burn
@@ -130,10 +182,12 @@
 	sound = 'sound/creatures/terrorspiders/brown_shriek.ogg'
 	ex_flame = 5
 
+
 /obj/effect/proc_holder/spell/explosion/terror_burn/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(!isturf(user.loc))
 		return FALSE
 	return ..()
+
 
 //GUARD//
 
@@ -150,6 +204,7 @@
 	cast_sound = 'sound/creatures/terrorspiders/mod_defence.ogg'
 	summon_type = list(/obj/effect/forcefield/terror)
 
+
 /obj/effect/forcefield/terror
 	name = "Защитная мембрана"
 	desc = "Толстая защитная мембрана, созданная Защитником Ужаса."
@@ -157,12 +212,14 @@
 	lifetime = 16.5 SECONDS                       //max 2 shields existing at one time
 	light_color = LIGHT_COLOR_PURPLE
 
+
 /obj/effect/forcefield/terror/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(checkpass(mover))
 		return TRUE
 	var/mob/living/mob_check = get_mob_in_atom_without_warning(mover)
 	return ("terrorspiders" in mob_check.faction)
+
 
 //DEFILER//
 
@@ -179,13 +236,16 @@
 	smoke_type = SMOKE_HARMLESS
 	smoke_amt = 15
 
+
 /obj/effect/proc_holder/spell/terror_smoke/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/terror_smoke/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(!isturf(user.loc))
 		return FALSE
 	return ..()
+
 
 //PARALYSING SMOKE
 /obj/effect/proc_holder/spell/terror_parasmoke
@@ -198,13 +258,16 @@
 	human_req = FALSE
 	sound = 'sound/creatures/terrorspiders/attack2.ogg'
 
+
 /obj/effect/proc_holder/spell/terror_parasmoke/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/terror_parasmoke/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(!isturf(user.loc))
 		return FALSE
 	return ..()
+
 
 /obj/effect/proc_holder/spell/terror_parasmoke/cast(list/targets, mob/user = usr)
 	var/datum/effect_system/fluid_spread/smoke/chem/smoke = new
@@ -213,6 +276,7 @@
 	reagents.add_reagent("capulettium_plus", 1000)
 	smoke.set_up(range = 2, location = user, carry = reagents, silent = TRUE)
 	smoke.start()
+
 
 //TERRIFYING SHRIEK
 /obj/effect/proc_holder/spell/aoe/terror_shriek
@@ -225,11 +289,13 @@
 	human_req = FALSE
 	sound = 'sound/creatures/terrorspiders/white_shriek.ogg'
 
+
 /obj/effect/proc_holder/spell/aoe/terror_shriek/create_new_targeting()
 	var/datum/spell_targeting/aoe/T = new()
 	T.range = aoe_range
 	T.allowed_type = /mob/living
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/terror_shriek/cast(list/targets, mob/user = usr)
 	for(var/mob/living/target in targets)
@@ -245,6 +311,7 @@
 			playsound(target, 'sound/machines/warning-buzzer.ogg', 50, TRUE)
 			do_sparks(5, TRUE, target)
 			target.Weaken(12 SECONDS)
+
 
 //TIER 3
 
@@ -262,11 +329,13 @@
 	aoe_range = 6
 	sound = 'sound/creatures/terrorspiders/princess_shriek.ogg'
 
+
 /obj/effect/proc_holder/spell/aoe/terror_shriek_princess/create_new_targeting()
 	var/datum/spell_targeting/aoe/T = new()
 	T.range = aoe_range
 	T.allowed_type = /mob/living
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/terror_shriek_princess/cast(list/targets, mob/user = usr)
 	for(var/mob/living/target in targets)
@@ -297,10 +366,12 @@
 	aoe_range = 2
 	sound = 'sound/creatures/terrorspiders/prince_attack.ogg'
 
+
 /obj/effect/proc_holder/spell/aoe/terror_slam/create_new_targeting()
 	var/datum/spell_targeting/aoe/turf/T = new()
 	T.range = aoe_range
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/terror_slam/cast(list/targets, mob/user = usr)
 	for(var/turf/target_turf in targets)
@@ -312,6 +383,7 @@
 		if(isfloorturf(target_turf))
 			var/turf/simulated/floor/floor_tile = target_turf
 			floor_tile.break_tile()
+
 
 //MOTHER//
 
@@ -328,6 +400,7 @@
 	cast_sound = 'sound/creatures/terrorspiders/jelly.ogg'
 	summon_type = list(/obj/structure/spider/royaljelly)
 
+
 //MASS HEAL
 /obj/effect/proc_holder/spell/aoe/terror_healing/greater
 	name = "Массовое исцеление"
@@ -335,6 +408,7 @@
 	aoe_range = 7
 	heal_amount = 30
 	apply_heal_buff = TRUE
+
 
 //TIER 4
 
@@ -351,10 +425,12 @@
 	human_req = FALSE
 	sound = 'sound/creatures/terrorspiders/queen_shriek.ogg'
 
+
 /obj/effect/proc_holder/spell/aoe/terror_shriek_queen/create_new_targeting()
 	var/datum/spell_targeting/aoe/turf/T = new()
 	T.range = aoe_range
 	return T
+
 
 /obj/effect/proc_holder/spell/aoe/terror_shriek_queen/cast(list/targets, mob/user = usr)
 	for(var/turf/target_turf in targets)

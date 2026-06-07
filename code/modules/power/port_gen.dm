@@ -1,3 +1,4 @@
+#define SHEET_VOLUME 1000 //cm3
 
 #define TEMPERATURE_DIVISOR 40
 #define TEMPERATURE_CHANGE_MAX 20
@@ -20,7 +21,7 @@
 
 /obj/machinery/power/port_gen/Initialize(mapload)
 	. = ..()
-	soundloop = new(src, active)
+	soundloop = new(list(src), active)
 
 /obj/machinery/power/port_gen/Destroy()
 	QDEL_NULL(soundloop)
@@ -68,25 +69,21 @@
 	. = ..()
 	if(!in_range(user, src))
 		if(active)
-			. += span_notice("The generator is on.")
+			. += "<span class='notice'>The generator is on.</span>"
 		else
-			. += span_notice("The generator is off.")
+			. += "<span class='notice'>The generator is off.</span>"
 
 /obj/machinery/power/port_gen/emp_act(severity)
 	var/duration = 6000 //ten minutes
 	switch(severity)
 		if(1)
 			stat &= BROKEN
-			if(prob(75))
-				explode()
+			if(prob(75)) explode()
 		if(2)
-			if(prob(25))
-				stat &= BROKEN
-			if(prob(10))
-				explode()
+			if(prob(25)) stat &= BROKEN
+			if(prob(10)) explode()
 		if(3)
-			if(prob(10))
-				stat &= BROKEN
+			if(prob(10)) stat &= BROKEN
 			duration = 300
 
 	stat |= EMPED
@@ -167,12 +164,12 @@
 
 /obj/machinery/power/port_gen/pacman/examine(mob/user)
 	. = ..()
-	. += span_notice("\The [src] appears to be producing [power_gen*power_output] W.")
-	. += span_notice("There [sheets == 1 ? "is" : "are"] [sheets] sheet\s left in the hopper.")
+	. += "<span class='notice'>\The [src] appears to be producing [power_gen*power_output] W.</span>"
+	. += "<span class='notice'>There [sheets == 1 ? "is" : "are"] [sheets] sheet\s left in the hopper.</span>"
 	if(IsBroken())
-		. += span_warning("\The [src] seems to have broken down.")
+		. += "<span class='warning'>\The [src] seems to have broken down.</span>"
 	if(overheating)
-		. += span_danger("\The [src] is overheating!")
+		. += "<span class='danger'>\The [src] is overheating!</span>"
 
 /obj/machinery/power/port_gen/pacman/HasFuel()
 	var/needed_sheets = power_output / time_per_sheet
@@ -212,11 +209,10 @@
 		Gives traitors more opportunities to sabotage the generator or allows enterprising engineers to build additional
 		cooling in order to get more power out.
 	*/
-	var/turf/location = get_turf(src)
-	var/datum/gas_mixture/environment = location.get_readonly_air()
+	var/datum/gas_mixture/environment = loc.return_air()
 	if(environment)
 		var/ratio = min(environment.return_pressure()/ONE_ATMOSPHERE, 1)
-		var/ambient = environment.temperature() - T20C
+		var/ambient = environment.temperature - T20C
 		lower_limit += ambient*ratio
 		upper_limit += ambient*ratio
 
@@ -242,11 +238,10 @@
 
 /obj/machinery/power/port_gen/pacman/handleInactive()
 	var/cooling_temperature = 20
-	var/turf/location = get_turf(src)
-	var/datum/gas_mixture/environment = location.get_readonly_air()
+	var/datum/gas_mixture/environment = loc.return_air()
 	if(environment)
 		var/ratio = min(environment.return_pressure()/ONE_ATMOSPHERE, 1)
-		var/ambient = environment.temperature() - T20C
+		var/ambient = environment.temperature - T20C
 		cooling_temperature += ambient*ratio
 
 	if(temperature > cooling_temperature)
@@ -285,6 +280,7 @@
 		emagged = 1
 		return 1
 
+
 /obj/machinery/power/port_gen/pacman/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -309,6 +305,7 @@
 
 	return ..()
 
+
 /obj/machinery/power/port_gen/pacman/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(active)
@@ -318,6 +315,7 @@
 		return .
 	panel_open = !panel_open
 	to_chat(user, span_notice("You have [panel_open ? "opened" : "closed"] the access panel."))
+
 
 /obj/machinery/power/port_gen/pacman/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -334,6 +332,7 @@
 		to_chat(user, span_notice("You have unsecured [src] from the floor."))
 		disconnect_from_network()
 
+
 /obj/machinery/power/port_gen/pacman/crowbar_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(active)
@@ -343,6 +342,7 @@
 		to_chat(user, span_warning("You cannot disassemble [src] while the access panel is closed."))
 		return .
 	return default_deconstruction_crowbar(user, I)
+
 
 /obj/machinery/power/port_gen/pacman/attack_hand(mob/user)
 	..()
@@ -365,9 +365,9 @@
 	var/list/data = list()
 
 	data["active"] = active
-	if(isAI(user))
+	if(istype(user, /mob/living/silicon/ai))
 		data["is_ai"] = TRUE
-	else if(isrobot(user) && !Adjacent(user))
+	else if(istype(user, /mob/living/silicon/robot) && !Adjacent(user))
 		data["is_ai"] = TRUE
 	else
 		data["is_ai"] = FALSE
@@ -431,13 +431,21 @@
 	component_parts += new board_path(null)
 	RefreshParts()
 
+/obj/machinery/power/port_gen/pacman/super/UseFuel()
+	//produces a tiny amount of radiation when in use
+	if(prob(2*power_output))
+		for(var/mob/living/L in range(src, 5))
+			L.apply_effect(1, IRRADIATE) //should amount to ~5 rads per minute at max safe power
+	..()
+
 /obj/machinery/power/port_gen/pacman/super/explode()
-	radiation_pulse(
-		source = src,
-		max_range = 10,
-		threshold = 0.1,
-		chance = 80,
-	)
+	//a nice burst of radiation
+	var/rads = 50 + (sheets + sheet_left)*1.5
+	for(var/mob/living/L in range(src, 10))
+		//should really fall with the square of the distance, but that makes the rads value drop too fast
+		//I dunno, maybe physics works different when you live in 2D -- SM radiation also works like this, apparently
+		L.apply_effect(max(20, round(rads/get_dist(L,src))), IRRADIATE)
+
 	explosion(loc, devastation_range = 3, heavy_impact_range = 3, light_impact_range = 5, flash_range = 3, cause = src)
 	qdel(src)
 
@@ -475,5 +483,6 @@
 	explosion(loc, devastation_range = 3, heavy_impact_range = 6, light_impact_range = 12, flash_range = 16, adminlog = TRUE, cause = src)
 	qdel(src)
 
+#undef SHEET_VOLUME
 #undef TEMPERATURE_DIVISOR
 #undef TEMPERATURE_CHANGE_MAX

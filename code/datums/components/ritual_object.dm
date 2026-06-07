@@ -92,6 +92,7 @@
 	ui_interact(human)
 	return
 
+
 /datum/component/ritual_object/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -107,10 +108,10 @@
 		if(ritual.description)
 			data["description"] = ritual.description
 		var/list/params = ritual.get_ui_params()
-		if(length(params))
+		if(params?.len)
 			data["params"] = params
 		var/list/things = ritual.get_ui_things()
-		if(length(things))
+		if(things?.len)
 			data["things"] = things
 		data["ritual_available"] = COOLDOWN_FINISHED(ritual, ritual_cooldown)
 		data["time_left"] = round(COOLDOWN_TIMELEFT(ritual, ritual_cooldown) / (1 SECONDS))

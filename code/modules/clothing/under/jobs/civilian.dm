@@ -1,3 +1,5 @@
+//Alphabetical order of support jobs.
+
 /obj/item/clothing/under/rank/bartender
 	desc = "It looks like it could use some more flair."
 	name = "bartender's uniform"
@@ -121,9 +123,12 @@
 
 /obj/item/clothing/under/rank/clown/nodrop
 
+
 /obj/item/clothing/under/rank/clown/nodrop/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
+
+
 
 /obj/item/clothing/under/rank/head_of_personnel
 	desc = "It's a jumpsuit worn by someone who works in the position of \"Head of Personnel\"."
@@ -174,18 +179,18 @@
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/uniform.dmi',
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/uniform.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/uniform.dmi',
-		SPECIES_GREY = 'icons/mob/clothing/species/grey/uniform.dmi',
-	)
+		SPECIES_GREY = 'icons/mob/clothing/species/grey/uniform.dmi'
+		)
 
-/obj/item/clothing/under/rank/lawyer
-	desc = "The plain, professional attire of a Lawyer. The collar is <i>immaculately</i> starched."
-	name = "lawyer uniform"
+/obj/item/clothing/under/rank/internalaffairs
+	desc = "The plain, professional attire of an Internal Affairs Agent. The collar is <i>immaculately</i> starched."
+	name = "Internal Affairs uniform"
 	icon_state = "internalaffairs"
 	item_state = "internalaffairs"
 	item_color = "internalaffairs"
 
-/obj/item/clothing/under/rank/lawyer/skirt
-	name = "lawyer uniform with skirt"
+/obj/item/clothing/under/rank/internalaffairs/skirt
+	name = "Internal Affairs uniform with skirt"
 	icon_state = "internalaffairsf"
 	item_state = "internalaffairsf"
 	item_color = "internalaffairsf"
@@ -209,32 +214,29 @@
 	name = "janitor's jumpsuit"
 	icon_state = "janitor"
 	item_color = "janitor"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 10, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 10, RAD = 0, FIRE = 0, ACID = 0)
+
 
 /obj/item/clothing/under/lawyer
-	name = "Lawyer suit"
 	desc = "Slick threads."
+	name = "Lawyer suit"
 
 /obj/item/clothing/under/lawyer/black
-	name = "black lawyer suit"
 	icon_state = "lawyer_black"
 	item_state = "lawyer_black"
 	item_color = "lawyer_black"
 
 /obj/item/clothing/under/lawyer/female
-	name = "female lawyer suit"
 	icon_state = "black_suit_fem"
 	item_state = "black_suit_fem"
 	item_color = "black_suit_fem"
 
 /obj/item/clothing/under/lawyer/red
-	name = "red lawyer suit"
 	icon_state = "lawyer_red"
 	item_state = "lawyer_red"
 	item_color = "lawyer_red"
 
 /obj/item/clothing/under/lawyer/blue
-	name = "blue lawyer suit"
 	icon_state = "lawyer_blue"
 	item_state = "lawyer_blue"
 	item_color = "lawyer_blue"
@@ -260,6 +262,7 @@
 	item_color = "oldman"
 	dying_key = DYE_REGISTRY_UNDER
 
+
 /obj/item/clothing/under/librarian
 	name = "sensible suit"
 	desc = "It's very... sensible."
@@ -277,47 +280,28 @@
 
 /obj/item/clothing/under/mime/nodrop
 
+
 /obj/item/clothing/under/mime/nodrop/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
 
+
 /obj/item/clothing/under/rank/miner
+	desc = "It's a snappy jumpsuit with a sturdy set of overalls. It is very dirty."
 	name = "shaft miner's jumpsuit"
-	desc = "Стильный комбинезон с прочными подкладками. Покрыты тонким слоем грязи и пепла, \
-			который, видимо, уже никогда не смоется."
 	icon_state = "miner"
 	item_state = "miner"
 	item_color = "miner"
 
-/obj/item/clothing/under/rank/miner/get_ru_names()
-	return alist(
-		NOMINATIVE = "шахтёрский комбинезон",
-		GENITIVE = "шахтёрского комбинезона",
-		DATIVE = "шахтёрскому комбинезону",
-		ACCUSATIVE = "шахтёрский комбинезон",
-		INSTRUMENTAL = "шахтёрским комбинезоном",
-		PREPOSITIONAL = "шахтёрском комбинезоне"
-	)
-
 /obj/item/clothing/under/rank/miner/alt
+	desc = "Cozy, old-style work sweater."
 	name = "shaft miner's sweater"
-	desc = "Уютный рабочий свитер в старомодном стиле."
 	icon_state = "miner_alt"
 	item_state = "miner_alt"
 	item_color = "miner_alt"
 
-/obj/item/clothing/under/rank/miner/alt/get_ru_names()
-	return alist(
-		NOMINATIVE = "шахтёрский свитер",
-		GENITIVE = "шахтёрского свитера",
-		DATIVE = "шахтёрскому свитеру",
-		ACCUSATIVE = "шахтёрский свитер",
-		INSTRUMENTAL = "шахтёрским свитером",
-		PREPOSITIONAL = "шахтёрском свитере"
-	)
-
 /obj/item/clothing/under/rank/miner/lavaland
-	desc = "Зелёная униформа, созданная для работы в опасных условиях."
+	desc = "A green uniform for operating in hazardous environments."
 	icon_state = "explorer"
 	item_state = "explorer"
 	item_color = "explorer"

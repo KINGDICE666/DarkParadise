@@ -96,7 +96,9 @@
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
 	},
-/obj/item/radio/intercom/directional/south,
+/obj/item/radio/intercom{
+	pixel_y = -26
+	},
 /turf/simulated/floor/shuttle,
 /area/shuttle/transport)
 "s" = (

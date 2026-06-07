@@ -14,13 +14,13 @@
 	var/scan_data
 
 /obj/item/anomaly_analyzer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сканер аномалий", \
 		GENITIVE = "сканера аномалий", \
 		DATIVE = "сканеру аномалий", \
 		ACCUSATIVE = "сканер аномалий", \
 		INSTRUMENTAL = "сканером аномалий", \
-		PREPOSITIONAL = "сканере аномалий",
+		PREPOSITIONAL = "сканере аномалий"
 	)
 
 /obj/effect/anomaly/proc/get_data()
@@ -63,7 +63,7 @@
 /obj/item/anomaly_analyzer/attack_self(mob/user)
 	show(user)
 
-/obj/item/anomaly_analyzer/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/anomaly_analyzer/afterattack(atom/target, mob/user, proximity, params, status)
 	if(target == user || !isanomaly(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 

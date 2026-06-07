@@ -39,7 +39,8 @@
 /datum/ui_module/sat_control/ui_data(mob/user)
 	var/turf/obj_turf = get_turf(object)
 	if(!obj_turf)
-		CRASH("No turf found underneath [object].")
+		log_runtime(EXCEPTION("No turf found underneath [object]."), src)
+		return
 	var/list/z_list = list()
 	for(var/z in SSmapping.get_connected_levels(obj_turf))
 		z_list += z
@@ -68,6 +69,7 @@
 	data["offsetX"] = offset_x
 	data["offsetY"] = offset_y
 	data["tabIndex"] = tab_index
+
 
 	var/datum/station_goal/station_shield/goal = locate() in SSticker.mode?.station_goals
 	if(goal)

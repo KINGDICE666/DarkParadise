@@ -2,6 +2,7 @@
 	var/mutable_appearance/tape_overlay
 	var/hide_tape = FALSE
 
+
 /datum/component/ducttape/Initialize(x_offset = 0, y_offset = 0, hide_tape = FALSE)
 	if(!isitem(parent)) //Something went wrong
 		return COMPONENT_INCOMPATIBLE
@@ -11,15 +12,16 @@
 		tape_overlay.pixel_w = x_offset - 2
 		tape_overlay.pixel_z = y_offset - 2
 		RegisterSignal(parent, COMSIG_ATOM_UPDATE_OVERLAYS, PROC_REF(add_tape_overlay))
-		RegisterSignal(parent, COMSIG_ATOM_EXAMINE, PROC_REF(add_tape_text))
+		RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(add_tape_text))
 	var/obj/item/parent_item = parent
 	parent_item.set_anchored(TRUE)
 	parent_item.update_icon() //Do this first so the action button properly shows the icon
 	if(!hide_tape) //the tape can no longer be removed if TRUE
 		var/datum/action/item_action/remove_tape/remove_action = new(parent_item)
-		parent_item.add_item_action(remove_action)
-		remove_action.UpdateButtonIcon()
+		if(ismob(parent_item.loc))
+			remove_action.Grant(parent_item.loc)
 	parent_item.add_tape()
+
 
 /datum/component/ducttape/Destroy()
 	tape_overlay = null
@@ -34,22 +36,27 @@
 	parent_item.remove_tape()
 	return ..()
 
+
 /datum/component/ducttape/RegisterWithParent()
 	RegisterSignal(parent, COMSIG_ITEM_AFTERATTACK, PROC_REF(afterattack))
 	RegisterSignal(parent, COMSIG_ITEM_PICKUP, PROC_REF(pick_up))
 
+
 /datum/component/ducttape/UnregisterFromParent()
 	UnregisterSignal(parent, list(COMSIG_ITEM_AFTERATTACK, COMSIG_ITEM_PICKUP))
 	if(!hide_tape)
-		UnregisterSignal(parent, list(COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ATOM_EXAMINE))
+		UnregisterSignal(parent, list(COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_PARENT_EXAMINE))
+
 
 /datum/component/ducttape/proc/add_tape_text(datum/source, mob/user, list/examine_list)
 	SIGNAL_HANDLER
 	examine_list += span_notice("There's some sticky tape attached to [source].")
 
+
 /datum/component/ducttape/proc/add_tape_overlay(datum/source, list/overlays)
 	SIGNAL_HANDLER
 	overlays += tape_overlay
+
 
 /datum/component/ducttape/proc/afterattack(obj/item/I, atom/target, mob/user, proximity, params)
 	SIGNAL_HANDLER
@@ -83,8 +90,10 @@
 	I.pixel_x = x_offset
 	I.pixel_y = y_offset
 
+
 /datum/component/ducttape/proc/pick_up(obj/item/I, mob/user)
 	SIGNAL_HANDLER
 
 	I.pixel_x = initial(I.pixel_x)
 	I.pixel_y = initial(I.pixel_y)
+

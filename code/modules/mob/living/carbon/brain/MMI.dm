@@ -27,14 +27,8 @@
 	/// Time at which the ghost belonging to the mind in the mmi can be pinged again to be borged
 	var/next_possible_ghost_ping
 
-/obj/item/mmi/Destroy()
-	QDEL_NULL(brainmob)
-	robot = null
-	mecha = null
-	QDEL_NULL(radio)
-	QDEL_NULL(radio_action)
-	QDEL_NULL(held_brain)
-	. = ..()
+	var/list/skin_permissions = list()
+
 
 /obj/item/mmi/update_icon_state()
 	if(held_brain)
@@ -43,6 +37,7 @@
 	else
 		icon = initial(icon)
 		icon_state = initial(icon_state)
+
 
 /obj/item/mmi/update_name(updates = ALL)
 	. = ..()
@@ -54,8 +49,9 @@
 	else
 		name = initial(name)
 
+
 /obj/item/mmi/attackby(obj/item/I, mob/user, params)
-	if(is_internal_organ_brain(I)) //Time to stick a brain in it --NEO
+	if(istype(I, /obj/item/organ/internal/brain)) //Time to stick a brain in it --NEO
 		add_fingerprint(user)
 		var/obj/item/organ/internal/brain/brain = I
 		if(brainmob)
@@ -76,8 +72,8 @@
 
 		if(held_brain)
 			to_chat(user, span_userdanger("Somehow, this MMI still has a brain in it. Report this to the bug tracker."))
-			. = ATTACK_CHAIN_PROCEED
-			CRASH("[user] tried to stick a [brain.name] into [src] in [get_area(src)], but the held brain variable wasn't cleared")
+			log_runtime(EXCEPTION("[user] tried to stick a [brain.name] into [src] in [get_area(src)], but the held brain variable wasn't cleared"), src)
+			return ATTACK_CHAIN_PROCEED
 
 		if(brain.brainmob.mind && !brain.brainmob.mind.hasSoul)
 			to_chat(user, span_warning("Нельзя поместить в НКИ мозг существа, потерявшего душу."))
@@ -136,32 +132,35 @@
 
 	return ..()
 
+
 /obj/item/mmi/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
 	if(!radio)
-		to_chat(user, span_warning("There is no radio in [src]!"))
+		to_chat(user, "<span class='warning'>There is no radio in [src]!</span>")
 		return
 	user.visible_message(
-		span_warning("[user] begins to uninstall the radio from [src]..."), \
-		span_notice("You start to uninstall the radio from [src]...")
+		"<span class='warning'>[user] begins to uninstall the radio from [src]...</span>", \
+		"<span class='notice'>You start to uninstall the radio from [src]...</span>"
 	)
 	if(!I.use_tool(src, user, 40, volume = I.tool_volume) || !radio)
 		return
 	uninstall_radio()
 	new /obj/item/mmi_radio_upgrade(get_turf(src))
 	user.visible_message(
-		span_warning("[user] uninstalls the radio from [src]."), \
-		span_notice("You uninstall the radio from [src].")
+		"<span class='warning'>[user] uninstalls the radio from [src].</span>", \
+		"<span class='notice'>You uninstall the radio from [src].</span>"
 	)
+
 
 /obj/item/mmi/attack_self(mob/user)
 	if(!brainmob)
-		to_chat(user, span_warning("You upend the MMI, but there's nothing in it."))
+		to_chat(user, "<span class='warning'>You upend the MMI, but there's nothing in it.</span>")
 	else
-		to_chat(user, span_notice("You unlock and upend the MMI, spilling the brain onto the floor."))
+		to_chat(user, "<span class='notice'>You unlock and upend the MMI, spilling the brain onto the floor.</span>")
 		dropbrain(get_turf(user))
+
 
 /obj/item/mmi/proc/transfer_identity(mob/living/carbon/human/H)//Same deal as the regular brain proc. Used for human-->robot people.
 	brainmob = new(src)
@@ -178,19 +177,20 @@
 			brain_path = /obj/item/organ/internal/brain
 		held_brain = new brain_path(src) // Slime people will keep their slimy brains this way
 	held_brain.dna = brainmob.dna.Clone()
-	held_brain.name = "[brainmob.name]’s [initial(held_brain.name)]"
+	held_brain.name = "\the [brainmob.name]'s [initial(held_brain.name)]"
 	brainmob.update_sight()
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
+
 
 //I made this proc as a way to have a brainmob be transferred to any created brain, and to solve the
 //problem i was having with alien/nonalien brain drops.
 /obj/item/mmi/proc/dropbrain(turf/dropspot)
 	if(isnull(held_brain))
-		stack_trace("[src] at [loc] attempted to drop brain without a contained brain in [get_area(src)].")
-		to_chat(brainmob, span_userdanger("Your MMI did not contain a brain! We'll make a new one for you, but you'd best report this to the bugtracker!"))
+		log_runtime(EXCEPTION("[src] at [loc] attempted to drop brain without a contained brain in [get_area(src)]."), src)
+		to_chat(brainmob, "<span class='userdanger'>Your MMI did not contain a brain! We'll make a new one for you, but you'd best report this to the bugtracker!</span>")
 		held_brain = new(dropspot) // Let's not ruin someone's round because of something dumb -- Crazylemon
 		held_brain.dna = brainmob.dna.Clone()
-		held_brain.name = "[brainmob.name]’s [initial(held_brain.name)]"
+		held_brain.name = "\the [brainmob.name]'s [initial(held_brain.name)]"
 
 	brainmob.container = null//Reset brainmob mmi var.
 	brainmob.forceMove(held_brain) //Throw mob into brain.
@@ -204,14 +204,15 @@
 	held_brain = null
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 
+
 /obj/item/mmi/examine(mob/user)
 	. = ..()
 	if(radio)
-		. += span_notice("A radio is installed on [src].")
+		. += "<span class='notice'>A radio is installed on [src].</span>"
 
 /obj/item/mmi/proc/install_radio()
 	radio = new(src)
-	radio.set_broadcasting(TRUE)
+	radio.broadcasting = TRUE
 	radio_action = new(radio, src)
 	if(brainmob && brainmob.loc == src)
 		radio_action.Grant(brainmob)
@@ -258,10 +259,10 @@
 	if(radio && isbrain(arrived))
 		radio_action.Grant(arrived)
 
-/obj/item/mmi/Exited(atom/movable/gone, direction)
+/obj/item/mmi/Exited(atom/movable/departed, atom/newLoc)
 	. = ..()
-	if(radio && isbrain(gone))
-		radio_action.Remove(gone)
+	if(radio && isbrain(departed))
+		radio_action.Remove(departed)
 
 /obj/item/mmi/syndie
 	name = "Syndicate Man-Machine Interface"
@@ -272,13 +273,13 @@
 	var/datum/action/innate/overdrive/overdrive = new
 
 /obj/item/mmi/syndie/get_ru_names()
-	return alist(
-		NOMINATIVE = "НКИ \"Синдиката\"",
-		GENITIVE = "НКИ \"Синдиката\"",
-		DATIVE = "НКИ \"Синдиката\"",
-		ACCUSATIVE = "НКИ \"Синдиката\"",
-		INSTRUMENTAL = "НКИ \"Синдиката\"",
-		PREPOSITIONAL = "НКИ \"Синдиката\"",
+	return list(
+		NOMINATIVE = "НКИ Синдиката",
+		GENITIVE = "НКИ Синдиката",
+		DATIVE = "НКИ Синдиката",
+		ACCUSATIVE = "НКИ Синдиката",
+		INSTRUMENTAL = "НКИ Синдиката",
+		PREPOSITIONAL = "НКИ Синдиката"
 	)
 
 /obj/item/mmi/syndie/apply_effects(mob/living/silicon/robot/borg)
@@ -286,7 +287,7 @@
 		overdrive.Grant(borg)
 
 /obj/item/mmi/syndie/greet(mob/living/silicon/robot/borg)
-	to_chat(borg, span_warning("Вы стали роботом, но ваша личность осталась нетронутой. Вы помните, кто вы и какие у вас цели. Вы не обязаны подчиняться законам или следовать указаниям ИИ."))
+	to_chat(borg, "Вы помните вашу прошлую жизнь. Вы не обязаны подчиняться законам или ИИ.")
 	borg.playsound_local(null, 'sound/ambience/antag/emaggedborg.ogg', 100, FALSE)
 	return TRUE
 
@@ -307,10 +308,11 @@
 	forceMove(holder)
 	holder.stored_mmi = src
 	holder.update_from_mmi()
-	if(brainmob?.mind)
+	if(brainmob && brainmob.mind)
 		brainmob.mind.transfer_to(target)
 	holder.insert(target, ORGAN_MANIPULATION_NOEFFECT)
 	return TRUE
+
 
 // As a synthetic, the only limit on visibility is view range
 /obj/item/mmi/contents_ui_distance(src_object, mob/living/user)

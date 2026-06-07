@@ -12,6 +12,7 @@
 	var/allowed_type = /obj/effect/decal/cleanable
 	var/phased = FALSE
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/create_new_targeting()
 	var/datum/spell_targeting/targeted/T = new()
 	T.selection_type = SPELL_SELECTION_RANGE
@@ -21,8 +22,10 @@
 	T.use_turf_of_user = TRUE
 	return T
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/valid_target(obj/effect/decal/cleanable/target, user)
 	return target.can_bloodcrawl_in()
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/can_cast(mob/living/user, charge_check, show_message)
 	. = ..()
@@ -31,17 +34,17 @@
 	if(!isliving(user))
 		return FALSE
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/cast(list/targets, mob/living/user)
 	var/atom/target = targets[1]
 	if(phased)
 		if(phasein(target, user))
 			phased = FALSE
 	else
-		if(itb_blocks_teleport(user, user, "ITB подавляет магическое перемещение [src]."))
-			return
 		if(phaseout(target, user))
 			phased = TRUE
 	cooldown_handler.start_recharge()
+
 
 /obj/item/bloodcrawl
 	name = "blood crawl"
@@ -50,18 +53,19 @@
 	item_flags = ABSTRACT
 
 /obj/item/bloodcrawl/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кровавый путь",
 		GENITIVE = "кровавого пути",
 		DATIVE = "кровавому пути",
 		ACCUSATIVE = "кровавый путь",
 		INSTRUMENTAL = "кровавым путём",
-		PREPOSITIONAL = "кровавом пути",
+		PREPOSITIONAL = "кровавом пути"
 	)
 
 /obj/item/bloodcrawl/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, ABSTRACT_ITEM_TRAIT)
+
 
 /obj/effect/dummy/slaughter //Can't use the wizard one, blocked by jaunt/slow
 	name = "odd blood"
@@ -70,26 +74,30 @@
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 
 /obj/effect/dummy/slaughter/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "странная кровь",
 		GENITIVE = "странной крови",
 		DATIVE = "странной крови",
 		ACCUSATIVE = "странную кровь",
 		INSTRUMENTAL = "странной кровью",
-		PREPOSITIONAL = "странной крови",
+		PREPOSITIONAL = "странной крови"
 	)
 
 /obj/effect/dummy/slaughter/relaymove(mob/user, direction)
 	forceMove(get_step(src, direction))
 
+
 /obj/effect/dummy/slaughter/ex_act()
 	return
+
 
 /obj/effect/dummy/slaughter/bullet_act()
 	return
 
+
 /obj/effect/dummy/slaughter/singularity_act()
 	return
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/block_hands(mob/living/carbon/user)
 	if(user.l_hand || user.r_hand)
@@ -105,20 +113,24 @@
 	user.regenerate_icons()
 	return TRUE
 
+
 /obj/effect/temp_visual/dir_setting/bloodcrawl
 	icon = 'icons/mob/mob.dmi'
 	icon_state = "blank" // Flicks are used instead
 	duration = 0.6 SECONDS
 
+
 /obj/effect/temp_visual/dir_setting/bloodcrawl/Initialize(mapload, set_dir, animation_state)
 	. = ..()
 	flick(animation_state, src) // Setting the icon_state to the animation has timing issues and can cause frame skips
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/proc/sink_animation(atom/enter_point, mob/living/user)
 	var/turf/mob_loc = get_turf(user)
-	visible_message(span_danger("[user] погружа[PLUR_ET_YUT(user)]ся в [enter_point.declent_ru(ACCUSATIVE)]."))
+	visible_message(span_danger("[user] погружа[pluralize_ru(user.gender, "ется", "ются")] в [enter_point.declent_ru(ACCUSATIVE)]."))
 	playsound(mob_loc, 'sound/misc/enter_blood.ogg', 100, TRUE, -1)
 	new /obj/effect/temp_visual/dir_setting/bloodcrawl(mob_loc, user.dir, "jaunt")
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/handle_consumption(mob/living/user, mob/living/victim, atom/enter_point, obj/effect/dummy/slaughter/holder)
 	if(!HAS_TRAIT(user, TRAIT_BLOODCRAWL_EAT))
@@ -128,13 +140,13 @@
 		return
 
 	if(victim.stat == CONSCIOUS)
-		enter_point.visible_message(span_warning("[victim] вырыва[PLUR_ET_YUT(victim)]ся из [enter_point.declent_ru(GENITIVE)] в последний момент!"))
+		enter_point.visible_message(span_warning("[victim] вырыва[pluralize_ru(victim.gender, "ется", "ются")] из [enter_point.declent_ru(GENITIVE)] в последний момент!"))
 		user.stop_pulling()
 		return
 
 	victim.emote("scream")
 	victim.forceMove(holder)
-	enter_point.visible_message(span_warning("<b>[user] затягива[PLUR_ET_YUT(user)] [victim] в [enter_point.declent_ru(ACCUSATIVE)]!</b>"))
+	enter_point.visible_message(span_warning("<b>[user] затягива[pluralize_ru(user.gender, "ет", "ют")] [victim] в [enter_point.declent_ru(ACCUSATIVE)]!</b>"))
 	if(user.type == /mob/living/simple_animal/demon/slaughter/laughter)
 		to_chat(user, "<b>Вы хватаете [victim.declent_ru(ACCUSATIVE)] и начинаете безжалостную щекотку! Вы не можете двигаться, пока делаете это.</b>")
 		enter_point.visible_message(span_clown("<b>Из крови доносятся крики и дикий хохот...</b>"))
@@ -164,7 +176,7 @@
 		user.heal_damages(brute = 1000, burn = 1000, tox = 1000, oxy = 1000)
 	else
 		if(user.type == /mob/living/simple_animal/demon/slaughter/laughter)
-			to_chat(user, span_clown("Вы заставляете [victim.declent_ru(ACCUSATIVE)] смеяться до слёз, но [GEND_HIS_HER(victim)] страдания лишь слегка подпитывают вашу радость!"))
+			to_chat(user, span_clown("Вы заставляете [victim.declent_ru(ACCUSATIVE)] смеяться до слёз, но [genderize_ru(victim.gender,"его","её","его","их")] страдания лишь слегка подпитывают вашу радость!"))
 		else
 			to_chat(user, span_warning("Вы пожираете [victim.declent_ru(ACCUSATIVE)], но эта скудная добыча едва утоляет ваш голод!"))
 		user.heal_damages(brute = 25, burn = 25)
@@ -190,8 +202,10 @@
 		victim.ghostize()
 		qdel(victim)
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/proc/post_phase_in(mob/living/user, obj/effect/dummy/slaughter/holder)
 	REMOVE_TRAIT(user, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(src))
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/phaseout(obj/effect/decal/cleanable/enter_point, mob/living/carbon/user)
 
@@ -202,26 +216,26 @@
 	INVOKE_ASYNC(src, PROC_REF(async_phase), enter_point, user)
 	return TRUE
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/proc/async_phase(obj/effect/decal/cleanable/enter_point, mob/living/user)
 	var/turf/mobloc = get_turf(user)
 	sink_animation(enter_point, user)
 	var/obj/effect/dummy/slaughter/holder = new /obj/effect/dummy/slaughter(mobloc)
 	var/victim = user.pulling
-	if(!do_magic_direct_teleport(user, holder, notified_user = user, block_message = "ITB подавляет магическое перемещение [src]."))
-		QDEL_NULL(holder)
-		REMOVE_TRAIT(user, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(src))
-		return
+	user.forceMove(holder)
 	user.ExtinguishMob()
 	handle_consumption(user, victim, enter_point, holder)
 	post_phase_in(user, holder)
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/rise_animation(turf/tele_loc, mob/living/user, atom/exit_point)
 	new /obj/effect/temp_visual/dir_setting/bloodcrawl(tele_loc, user.dir, "jauntup")
 	if(prob(25) && isdemon(user))
 		var/list/voice = list('sound/hallucinations/behind_you1.ogg', 'sound/hallucinations/im_here1.ogg', 'sound/hallucinations/turn_around1.ogg', 'sound/hallucinations/i_see_you1.ogg')
 		playsound(tele_loc, pick(voice), 50, TRUE, -1)
-	exit_point.visible_message(span_warning("<b>[DECLENT_RU_CAP(user, NOMINATIVE)] возникает из [exit_point.declent_ru(GENITIVE)]!</b>"))
+	exit_point.visible_message(span_warning("<b>[capitalize(user.declent_ru(NOMINATIVE))] возникает из [exit_point.declent_ru(GENITIVE)]!</b>"))
 	playsound(get_turf(tele_loc), 'sound/misc/exit_blood.ogg', 100, TRUE, -1)
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/unblock_hands(mob/living/carbon/user)
 	if(!istype(user))
@@ -229,8 +243,10 @@
 	for(var/obj/item/bloodcrawl/item in user)
 		qdel(item)
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/proc/rise_message(atom/exit_point)
-	exit_point.visible_message(span_warning("[DECLENT_RU_CAP(exit_point, NOMINATIVE)] начинает пузыриться..."))
+	exit_point.visible_message(span_warning("[capitalize(exit_point.declent_ru(NOMINATIVE))] начинает пузыриться..."))
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/post_phase_out(atom/exit_point, mob/living/user)
 	if(isslaughterdemon(user))
@@ -238,6 +254,7 @@
 		addtimer(CALLBACK(user, TYPE_PROC_REF(/mob, remove_movespeed_modifier), /datum/movespeed_modifier/slaughter_boost), 6 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE)
 	user.color = exit_point.color
 	addtimer(VARSET_CALLBACK(user, color, null), 6 SECONDS)
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/proc/phasein(atom/enter_point, mob/living/user)
 	if(HAS_TRAIT_NOT_FROM(user, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(src)))
@@ -255,8 +272,7 @@
 		return FALSE
 	var/turf/tele_loc = isturf(enter_point) ? enter_point : enter_point.loc
 	var/holder = user.loc
-	if(!do_magic_direct_teleport(user, tele_loc, notified_user = user, block_message = "ITB подавляет магическое перемещение [src]."))
-		return FALSE
+	user.forceMove(tele_loc)
 	user.client.set_eye(user)
 
 	rise_animation(tele_loc, user, enter_point)
@@ -268,6 +284,7 @@
 	post_phase_out(enter_point, user)
 	return TRUE
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl
 	name = "Теневой путь"
 	desc = "Воспользуйтесь тьмой, чтобы раствориться в реальности."
@@ -275,21 +292,27 @@
 	action_icon_state = "shadow_crawl"
 	allowed_type = /turf
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/valid_target(turf/target, user)
 	return target.get_lumcount() < 0.2
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/rise_message(atom/exit_point)
 	return
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/rise_animation(turf/tele_loc, mob/living/user, atom/exit_point)
 	new /obj/effect/temp_visual/dir_setting/bloodcrawl(get_turf(user), user.dir, "shadowwalk_appear")
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/handle_consumption(mob/living/L, mob/living/victim, atom/enter_point, obj/effect/dummy/slaughter/holder)
 	return
 
+
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/sink_animation(atom/enter_point, mob/living/user)
 	enter_point.visible_message(span_danger("[user] погружается во тьму..."))
 	new /obj/effect/temp_visual/dir_setting/bloodcrawl(get_turf(user), user.dir, "shadowwalk_disappear")
+
 
 /obj/effect/proc_holder/spell/bloodcrawl/shadow_crawl/post_phase_in(mob/living/user, obj/effect/dummy/slaughter/holder)
 	..()
@@ -297,3 +320,4 @@
 		return
 	var/mob/living/simple_animal/demon/shadow/demon = user
 	demon.RegisterSignal(holder, COMSIG_MOVABLE_MOVED, TYPE_PROC_REF(/mob/living/simple_animal/demon/shadow, check_darkness))
+

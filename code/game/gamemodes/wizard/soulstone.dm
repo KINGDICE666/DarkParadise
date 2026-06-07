@@ -66,6 +66,7 @@
 		A.death()
 	return ..()
 
+
 /obj/item/soulstone/update_name(updates = ALL)
 	. = ..()
 	var/mob/living/simple_animal/shade/shade = locate() in src
@@ -73,6 +74,7 @@
 		name = "soulstone: [shade.name]"
 	else
 		name = initial(name)
+
 
 /obj/item/soulstone/update_icon_state()
 	if(purified)
@@ -85,6 +87,7 @@
 	var/mob/living/simple_animal/shade/shade = locate() in src
 	if(shade)
 		icon_state = icon_state_full
+
 
 //////////////////////////////Capturing////////////////////////////////////////////////////////
 /obj/item/soulstone/attack(mob/living/carbon/human/M, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
@@ -135,7 +138,7 @@
 		SEND_SOUND(player_client, sound('sound/misc/notice2.ogg'))
 		window_flash(player_client)
 
-		var/atom/movable/screen/alert/notify_soulstone/A = player_mob.throw_alert("[UID()]_soulstone_thingy", /atom/movable/screen/alert/notify_soulstone)
+		var/atom/movable/screen/alert/notify_soulstone/A = player_mob.throw_alert("\ref[src]_soulstone_thingy", /atom/movable/screen/alert/notify_soulstone)
 		if(player_client.prefs && player_client.prefs.UI_style)
 			A.icon = ui_style2icon(player_client.prefs.UI_style)
 
@@ -153,27 +156,17 @@
 		plane = old_plane
 
 		// Give the victim 10 seconds to respond
-		addtimer(CALLBACK(src, PROC_REF(finish_optional_capture), user, M), 10 SECONDS)
-		return .
+		sleep(10 SECONDS)
 
-	do_capture(user, M)
+		if(!opt_in)
+			to_chat(user, span_warning("The soul resists your attempts at capturing it!"))
+			return .
 
-/obj/item/soulstone/proc/finish_optional_capture(mob/living/user, mob/living/carbon/human/M)
-	if(QDELETED(src) || QDELETED(user) || QDELETED(M))
-		return
+		opt_in = FALSE
 
-	if(!opt_in)
-		to_chat(user, span_warning("The soul resists your attempts at capturing it!"))
-		return
+		if(spent)//checking one more time against shenanigans
+			return .
 
-	opt_in = FALSE
-
-	if(spent)
-		return
-
-	do_capture(user, M)
-
-/obj/item/soulstone/proc/do_capture(mob/living/user, mob/living/carbon/human/M)
 	if(is_sacrifice_target(M.mind))
 		if(iscultist(user))
 			SSticker.mode.cult_objs.succesful_sacrifice()
@@ -182,6 +175,7 @@
 
 	add_attack_logs(user, M, "Stolestone'd with [name]")
 	transfer_soul("VICTIM", M, user)
+
 
 /obj/item/soulstone/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -243,6 +237,7 @@
 
 	return ..()
 
+
 /obj/item/soulstone/attack_self(mob/living/user)
 	if(!in_range(src, user))
 		return
@@ -285,6 +280,7 @@
 		. += span_cultitalic("A <b>Wraith</b>, which does high damage and can jaunt through walls, though it is quite fragile.")
 		. += span_cultitalic("A <b>Juggernaut</b>, which is very hard to kill and can produce temporary walls, but is slow.")
 
+
 /obj/structure/constructshell/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -301,18 +297,22 @@
 
 	return ..()
 
+
 /obj/structure/constructshell/holy
 	name = "empty holy shell"
 	icon_state = "construct-holy"
 	desc = "A holy machine used by those who are pure in soul and mind. It is inactive."
 	var/defiled = FALSE
 
+
 /obj/structure/constructshell/holy/update_icon_state()
 	icon_state = defiled ? "construct-cult" : initial(icon_state)
+
 
 /obj/structure/constructshell/holy/update_name(updates = ALL)
 	. = ..()
 	name = defiled ? "empty shell" : initial(name)
+
 
 /obj/structure/constructshell/holy/update_desc(updates = ALL)
 	. = ..()
@@ -320,6 +320,7 @@
 		desc = initial(desc)
 		return
 	desc = "A wicked machine used by those skilled in magical arts. It is inactive."
+
 
 /obj/structure/constructshell/holy/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -362,6 +363,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 ////////////////////////////Proc for moving soul in and out off stone//////////////////////////////////////
 /obj/item/soulstone/proc/transfer_soul(choice, target, mob/living/user)
@@ -441,7 +443,7 @@
 				else
 					construct_choice = show_radial_menu(user, shell, construct_icons, custom_check = CALLBACK(src, PROC_REF(radial_check), user), require_near = TRUE)
 					picked_class = construct_types[construct_choice]
-				if((picked_class && !QDELETED(shell) && !QDELETED(src)) && shell.IsReachableBy(user, reach) && !user.incapacitated() && radial_check(user))
+				if((picked_class && !QDELETED(shell) && !QDELETED(src)) && user.Adjacent(shell) && !user.incapacitated() && radial_check(user))
 					var/mob/living/simple_animal/hostile/construct/C = new picked_class(shell.loc)
 					C.init_construct(shade, src, shell)
 					to_chat(C, C.playstyle_string)
@@ -465,6 +467,7 @@
 		set_light_range_power_color(3, 5, LIGHT_COLOR_DARK_BLUE)
 		name = "Holy [name]"
 		real_name = "Holy [real_name]"
+
 
 	else if(iscultist(src)) // Re-grant cult actions, lost in the transfer
 		var/datum/action/innate/cult/comm/CC = new
@@ -490,8 +493,8 @@
 		smoke.set_up(amount = 5, location = target.loc)
 		smoke.start()
 
-	C.faction |= PERSONAL_FACTION(user)
-	C.possess_by_player(target.key)
+	C.faction |= "\ref[user]"
+	C.key = target.key
 	if(user && iscultist(user) || cult_override)
 		SSticker.mode.add_cultist(C.mind)
 		SSticker.mode.update_cult_icons_added(C.mind)
@@ -507,13 +510,13 @@
 
 	S.name = "Shade of [M.real_name]"
 	S.real_name = "Shade of [M.real_name]"
-	S.possess_by_player(M.key)
+	S.key = M.key
 	S.cancel_camera()
 
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 	log_game("[S.key] has become [S.name] with [purified ? "holy" : "corrupted"] essence.")
 	if(user)
-		S.faction |= PERSONAL_FACTION(user)//Add the master as a faction, allowing inter-mob cooperation
+		S.faction |= "\ref[user]" //Add the master as a faction, allowing inter-mob cooperation
 
 		if(S.mind)
 			if(iswizard(user))
@@ -565,15 +568,13 @@
 			consenting_candidates = SSghost_spawns.poll_candidates("Would you like to play as a Shade?", ROLE_SENTIENT, FALSE, poll_time = 10 SECONDS, source = /mob/living/simple_animal/shade)
 		if(length(consenting_candidates))
 			chosen_ghost = pick(consenting_candidates)
-
-	if(QDELETED(M) || QDELETED(src))
+	if(!M)
 		return FALSE
-
 	if(!chosen_ghost)
 		to_chat(user, span_danger("There were no spirits willing to become a shade."))
 		return FALSE
 	if(length(contents)) //If they used the soulstone on someone else in the meantime
 		return FALSE
-	M.possess_by_player(chosen_ghost.ckey)
+	M.ckey = chosen_ghost.ckey
 	init_shade(M, user)
 	return TRUE

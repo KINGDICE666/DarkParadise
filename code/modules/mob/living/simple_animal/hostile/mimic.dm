@@ -66,6 +66,7 @@
 	else
 		icon_state = initial(icon_state)
 
+
 /mob/living/simple_animal/hostile/mimic/crate/FindTarget()
 	. = ..()
 	if(.)
@@ -78,7 +79,7 @@
 		if(prob(15) && iscarbon(target))
 			var/mob/living/carbon/C = target
 			C.Weaken(4 SECONDS)
-			C.visible_message(span_danger("\The [src] knocks down \the [C]!"), span_userdanger("\The [src] knocks you down!"))
+			C.visible_message("<span class='danger'>\The [src] knocks down \the [C]!</span>", "<span class='userdanger'>\The [src] knocks you down!</span>")
 
 /mob/living/simple_animal/hostile/mimic/crate/proc/trigger()
 	if(!attempt_open)
@@ -146,7 +147,7 @@ GLOBAL_LIST_INIT(protected_objects, list(/obj/structure/table, /obj/structure/ca
 	if(owner != creator)
 		lose_target()
 		creator = owner
-		faction |= PERSONAL_FACTION(owner)
+		faction |= "\ref[owner]"
 
 /mob/living/simple_animal/hostile/mimic/copy/proc/CheckObject(obj/O)
 	if((isitem(O) || isstructure(O)) && !is_type_in_list(O, GLOB.protected_objects))
@@ -182,7 +183,7 @@ GLOBAL_LIST_INIT(protected_objects, list(/obj/structure/table, /obj/structure/ca
 		maxHealth = health
 		if(user)
 			creator = user
-			faction += PERSONAL_FACTION(creator) // very unique
+			faction += "\ref[creator]" // very unique
 		if(destroy_original)
 			qdel(O)
 		return 1
@@ -196,7 +197,7 @@ GLOBAL_LIST_INIT(protected_objects, list(/obj/structure/table, /obj/structure/ca
 	if(knockdown_people && . && prob(15) && iscarbon(target))
 		var/mob/living/carbon/C = target
 		C.Weaken(4 SECONDS)
-		C.visible_message(span_danger("\The [src] knocks down \the [C]!"), span_userdanger("\The [src] knocks you down!"))
+		C.visible_message("<span class='danger'>\The [src] knocks down \the [C]!</span>", "<span class='userdanger'>\The [src] knocks you down!</span>")
 
 /mob/living/simple_animal/hostile/mimic/copy/Aggro()
 	..()
@@ -246,7 +247,7 @@ GLOBAL_LIST_INIT(protected_objects, list(/obj/structure/table, /obj/structure/ca
 			Pewgun = G
 			var/obj/item/ammo_box/magazine/M = Pewgun.mag_type
 			casingtype = initial(M.ammo_type)
-		if(isenergygun(G))
+		if(istype(G, /obj/item/gun/energy))
 			Zapgun = G
 			var/selectfiresetting = Zapgun.select
 			var/obj/item/ammo_casing/energy/E = Zapgun.ammo_type[selectfiresetting]
@@ -273,17 +274,17 @@ GLOBAL_LIST_INIT(protected_objects, list(/obj/structure/table, /obj/structure/ca
 				Pewgun.chambered.update_icon()
 				..()
 			else
-				visible_message(span_danger("The <b>[src]</b> clears a jam!"))
+				visible_message("<span class='danger'>The <b>[src]</b> clears a jam!</span>")
 			Pewgun.chambered.loc = loc //rip revolver immersions, blame shotgun snowflake procs
 			Pewgun.chambered = null
-			if(Pewgun.magazine && length(Pewgun.magazine.stored_ammo))
+			if(Pewgun.magazine && Pewgun.magazine.stored_ammo.len)
 				Pewgun.chambered = Pewgun.magazine.get_round(0)
 				Pewgun.chambered.loc = Pewgun
 			Pewgun.update_icon()
-		else if(Pewgun.magazine && length(Pewgun.magazine.stored_ammo)) //only true for pumpguns i think
+		else if(Pewgun.magazine && Pewgun.magazine.stored_ammo.len) //only true for pumpguns i think
 			Pewgun.chambered = Pewgun.magazine.get_round(0)
 			Pewgun.chambered.loc = Pewgun
-			visible_message(span_danger("The <b>[src]</b> cocks itself!"))
+			visible_message("<span class='danger'>The <b>[src]</b> cocks itself!</span>")
 	else
 		ranged = 0 //BANZAIIII
 		retreat_distance = 0

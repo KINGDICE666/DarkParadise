@@ -8,6 +8,8 @@
 	spawn_positions = 0
 	outfit = /datum/outfit/job/team/team1
 	insurance_type = INSURANCE_TYPE_NONE
+	min_start_money = 0
+	max_start_money = 10
 	announce_job = FALSE
 	hidden_from_job_prefs = TRUE
 	admin_only = TRUE
@@ -25,11 +27,12 @@
 	implants = list(/obj/item/implant/mindshield/ert, /obj/item/implant/death_alarm)
 
 /datum/outfit/job/team/team1
-	name = JOB_TITLE_RU_TEAM1
+	name = "Команда 1"
 	jobtype = /datum/job/civilian/team1
 
+
 	uniform = /obj/item/clothing/under/color/green
-	shoes = /obj/item/clothing/shoes/color/green
+	shoes = /obj/item/clothing/shoes/green
 	l_ear = /obj/item/radio/headset/green
 
 /datum/job/civilian/team2
@@ -42,6 +45,8 @@
 	spawn_positions = 0
 	outfit = /datum/outfit/job/team/team2
 	insurance_type = INSURANCE_TYPE_NONE
+	min_start_money = 0
+	max_start_money = 10
 	announce_job = FALSE
 	hidden_from_job_prefs = TRUE
 	admin_only = TRUE
@@ -50,11 +55,11 @@
 	return get_all_accesses()
 
 /datum/outfit/job/team/team2
-	name = JOB_TITLE_RU_TEAM2
+	name = "Команда 2"
 	jobtype = /datum/job/civilian/team2
 
 	uniform = /obj/item/clothing/under/color/blue
-	shoes = /obj/item/clothing/shoes/color/blue
+	shoes = /obj/item/clothing/shoes/blue
 	l_ear = /obj/item/radio/headset/blue
 
 /datum/job/civilian/team3
@@ -67,6 +72,8 @@
 	spawn_positions = 0
 	outfit = /datum/outfit/job/team/team3
 	insurance_type = INSURANCE_TYPE_NONE
+	min_start_money = 0
+	max_start_money = 10
 	announce_job = FALSE
 	hidden_from_job_prefs = TRUE
 	admin_only = TRUE
@@ -75,9 +82,9 @@
 	return get_all_accesses()
 
 /datum/outfit/job/team/team3
-	name = JOB_TITLE_RU_TEAM3
+	name = "Команда 3"
 	jobtype = /datum/job/civilian/team3
 
 	uniform = /obj/item/clothing/under/color/red
-	shoes = /obj/item/clothing/shoes/color/red
+	shoes = /obj/item/clothing/shoes/red
 	l_ear = /obj/item/radio/headset/red

@@ -20,6 +20,7 @@
 	back = /obj/item/storage/backpack
 	id = /obj/item/card/id
 
+
 /obj/effect/mob_spawn/human/corpse/syndicatecommando
 	name = "Syndicate Commando"
 	mob_name = "Syndicate Commando"
@@ -33,13 +34,15 @@
 	name = "Syndicate Commando Corpse"
 	toggle_helmet = TRUE
 	uniform = /obj/item/clothing/under/syndicate
+	suit = /obj/item/clothing/suit/space/hardsuit/syndi
 	shoes = /obj/item/clothing/shoes/combat
 	gloves = /obj/item/clothing/gloves/combat
 	l_ear = /obj/item/radio/headset
 	mask = /obj/item/clothing/mask/gas/syndicate
-	back = /obj/item/mod/control/pre_equipped/traitor
+	back = /obj/item/tank/jetpack/oxygen
 	r_pocket = /obj/item/tank/internals/emergency_oxygen
 	id = /obj/item/card/id
+
 
 /obj/effect/mob_spawn/human/clown/corpse
 	instant = TRUE
@@ -61,6 +64,7 @@
 	glasses = /obj/item/clothing/glasses/eyepatch
 	head = /obj/item/clothing/head/bandana
 
+
 /obj/effect/mob_spawn/human/corpse/pirate/ranged
 	name = "Pirate Gunner"
 	mob_name = "Pirate Gunner"
@@ -70,6 +74,7 @@
 	name = "Pirate Gunner Corpse"
 	suit = /obj/item/clothing/suit/pirate_black
 	head = /obj/item/clothing/head/pirate
+
 
 /obj/effect/mob_spawn/human/corpse/russian
 	name = "Russian"
@@ -107,6 +112,7 @@
 	shoes = /obj/item/clothing/shoes/sandal
 	head = /obj/item/clothing/head/wizard
 
+
 /obj/effect/mob_spawn/human/corpse/captain
 	name = "Captain Corpse"
 	outfit = /datum/outfit/captaincorpse
@@ -115,7 +121,7 @@
 	name = "Captain Corpse"
 	uniform = /obj/item/clothing/under/rank/captain
 	suit = /obj/item/clothing/suit/armor/vest/capcarapace
-	shoes = /obj/item/clothing/shoes/color/brown
+	shoes = /obj/item/clothing/shoes/brown
 	head = /obj/item/clothing/head/caphat
 	l_ear = /obj/item/radio/headset/heads/captain/alt
 	glasses = /obj/item/clothing/glasses/hud/blueshield/cap
@@ -144,4 +150,4 @@
 	l_hand = /obj/item/storage/lockbox/sibyl_system_mod
 
 	implants = list(/obj/item/implant/mindshield)
-	box = /obj/item/storage/box/survival/survival_security/warden
+	box = /obj/item/storage/box/survival_security/warden

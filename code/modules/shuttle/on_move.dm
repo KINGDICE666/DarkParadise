@@ -7,7 +7,7 @@
 		shuttleRotate(rotation)
 
 	forceMove(T1)
-	//SSdemo.mark_dirty(src)
+	SSdemo.mark_dirty(src)
 
 	return TRUE
 
@@ -61,7 +61,7 @@
 // After docking //
 /atom/proc/postDock(obj/docking_port/S1)
 	if(smooth)
-		QUEUE_SMOOTH(src)
+		queue_smooth(src)
 
 /mob/postDock()
 	update_parallax_contents()

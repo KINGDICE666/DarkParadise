@@ -21,7 +21,7 @@
 	var/mask_color = null
 	var/blood = TRUE
 	var/list/target_types = list()
-	var/obj/effect/decal/cleanable/target
+	var/obj/effect/decal/cleanable/clean_target
 	var/max_targets = 50 //Maximum number of targets a cleanbot can ignore.
 	var/oldloc = null
 	var/closest_dist
@@ -31,7 +31,7 @@
 	var/next_dest_loc
 
 /mob/living/simple_animal/bot/cleanbot/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "чистобот",
 		GENITIVE = "чистобота",
 		DATIVE = "чистоботу",
@@ -45,13 +45,15 @@
 
 	get_targets()
 
-	var/datum/job/service/janitor/J = new/datum/job/service/janitor
+	var/datum/job/janitor/J = new/datum/job/janitor
 	access_card.access += J.get_access()
 	prev_access = access_card.access
 	update_icon(UPDATE_OVERLAYS)
 
+
 /mob/living/simple_animal/bot/cleanbot/update_icon_state()
 	return
+
 
 /mob/living/simple_animal/bot/cleanbot/update_overlays()
 	. = ..()
@@ -68,16 +70,19 @@
 	if(mask_color)
 		. += mutable_appearance(icon, "cleanbot_mask", appearance_flags = RESET_COLOR, color = mask_color)
 
+
 /mob/living/simple_animal/bot/cleanbot/bot_reset()
 	..()
 	ignore_list.Cut() //Allows the bot to clean targets it previously ignored due to being unreachable.
-	target = null
+	clean_target = null
 	oldloc = null
+
 
 /mob/living/simple_animal/bot/cleanbot/set_custom_texts()
 	text_hack = "Вы взломали протоколы уборки [declent_ru(GENITIVE)]."
 	text_dehack = "Вы восстановили протоколы уборки [declent_ru(GENITIVE)]."
-	text_dehack_fail = "[DECLENT_RU_CAP(src, NOMINATIVE)] не отвечает на ваши команды!"
+	text_dehack_fail = "[capitalize(declent_ru(NOMINATIVE))] не отвечает на ваши команды!"
+
 
 /mob/living/simple_animal/bot/cleanbot/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -88,7 +93,7 @@
 		var/obj/item/toy/crayon/spraycan/can = I
 		if(can.capped)
 			balloon_alert(user, "баллончик закрыт!")
-			return ATTACK_CHAIN_PROCEED_NO_AFTERATTACK
+			return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
 		playsound(loc, 'sound/effects/spray.ogg', 20, TRUE)
 		balloon_alert(user, "краска нанесена")
 		mask_color = can.colour
@@ -97,10 +102,12 @@
 
 	return ..()
 
+
 /mob/living/simple_animal/bot/cleanbot/emag_act(mob/user)
 	..()
 	if(emagged == 2 && user)
-		to_chat(user, span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] странно жужжит!"))
+		to_chat(user, span_danger("[capitalize(declent_ru(NOMINATIVE))] странно жужжит!"))
+
 
 /mob/living/simple_animal/bot/cleanbot/process_scan(obj/effect/decal/cleanable/D)
 	for(var/T in target_types)
@@ -108,6 +115,7 @@
 			if(locate(src.type) in D.loc)
 				return FALSE
 			return D
+
 
 /mob/living/simple_animal/bot/cleanbot/handle_automated_action()
 	if(!..())
@@ -123,7 +131,7 @@
 				T.MakeSlippery(TURF_WET_WATER, 80 SECONDS)
 
 			if(prob(5)) //Spawns foam!
-				visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] издаёт громкие булькающие звуки, прежде чем выпустить шлейф пены!"))
+				visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] издаёт громкие булькающие звуки, прежде чем выпустить шлейф пены!"))
 				var/datum/effect_system/fluid_spread/foam/s = new()
 				s.set_up(range = 3, location = loc)
 				s.start()
@@ -131,46 +139,47 @@
 	else if(prob(5))
 		custom_emote(EMOTE_VISIBLE, "бипает и бупает!")
 
-	if(!target) //Search for cleanables it can see.
-		target = scan(/obj/effect/decal/cleanable)
+	if(!clean_target) //Search for cleanables it can see.
+		clean_target = scan(/obj/effect/decal/cleanable)
 
 	var/mob/living/simple_animal/bot/cleanbot/otherbot
-	if(target)
-		otherbot = locate(src.type) in target.loc
+	if(clean_target)
+		otherbot = locate(src.type) in clean_target.loc
 
 	if(otherbot && (src != otherbot) && otherbot.mode == BOT_CLEANING)
-		target = null
+		clean_target = null
 		path = list()
 
-	if(!target && auto_patrol) //Search for cleanables it can see.
+	if(!clean_target && auto_patrol) //Search for cleanables it can see.
 		if(mode == BOT_IDLE || mode == BOT_START_PATROL)
 			start_patrol()
 
 		if(mode == BOT_PATROL)
 			bot_patrol()
 
-	if(target && loc == get_turf(target))
-		start_clean(target)
+	if(clean_target && loc == get_turf(clean_target))
+		start_clean(clean_target)
 		path = list()
-		target = null
+		clean_target = null
 
-	if(target)
+	if(clean_target)
 		if(!path || !length(path)) //No path, need a new one
-			//Try to produce a path to the target, and ignore airlocks to which it has access.
-			path = get_path_to(src, target, max_distance = 30, access = access_card.GetAccess())
-			if(!bot_move(target))
-				add_to_ignore(target)
-				target = null
+			//Try to produce a path to the clean_target, and ignore airlocks to which it has access.
+			path = get_path_to(src, clean_target, max_distance = 30, access = access_card.GetAccess())
+			if(!bot_move(clean_target))
+				add_to_ignore(clean_target)
+				clean_target = null
 				path = list()
 				return
 			mode = BOT_MOVING
 
-		else if(!bot_move(target))
-			target = null
+		else if(!bot_move(clean_target))
+			clean_target = null
 			mode = BOT_IDLE
 			return
 
 	oldloc = loc
+
 
 /mob/living/simple_animal/bot/cleanbot/proc/get_targets()
 	target_types = new/list()
@@ -199,25 +208,28 @@
 		target_types += /obj/effect/decal/cleanable/dirt
 		target_types += /obj/effect/decal/cleanable/trail_holder
 
-/mob/living/simple_animal/bot/cleanbot/proc/start_clean(obj/effect/decal/cleanable/target)
+
+/mob/living/simple_animal/bot/cleanbot/proc/start_clean(obj/effect/decal/cleanable/clean_target)
 	set_anchored(TRUE)
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает очищать [target]."))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] начинает очищать [clean_target]."))
 	mode = BOT_CLEANING
 	update_icon()
-	addtimer(CALLBACK(src, PROC_REF(do_clean), target), 5 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(do_clean), clean_target), 5 SECONDS)
 
-/mob/living/simple_animal/bot/cleanbot/proc/do_clean(obj/effect/decal/cleanable/target)
+
+/mob/living/simple_animal/bot/cleanbot/proc/do_clean(obj/effect/decal/cleanable/clean_target)
 	if(QDELETED(src))
 		return
 	if(mode == BOT_CLEANING)
-		QDEL_NULL(target)
+		QDEL_NULL(clean_target)
 		set_anchored(FALSE)
 	mode = BOT_IDLE
 	update_icon()
 
+
 /mob/living/simple_animal/bot/cleanbot/explode()
 	on = FALSE
-	visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] разлетается на части!"))
+	visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] разлетается на части!"))
 	var/turf/Tsec = get_turf(src)
 	new /obj/item/reagent_containers/glass/bucket(Tsec)
 	new /obj/item/assembly/prox_sensor(Tsec)
@@ -226,14 +238,17 @@
 	do_sparks(3, TRUE, src)
 	return ..()
 
+
 /mob/living/simple_animal/bot/cleanbot/show_controls(mob/M)
 	ui_interact(M)
+
 
 /mob/living/simple_animal/bot/cleanbot/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "BotClean", name)
 		ui.open()
+
 
 /mob/living/simple_animal/bot/cleanbot/ui_data(mob/user)
 	var/list/data = list(
@@ -249,6 +264,7 @@
 		"cleanblood" = blood
 	)
 	return data
+
 
 /mob/living/simple_animal/bot/cleanbot/ui_act(action, params)
 	if(..())
@@ -277,11 +293,13 @@
 		if("ejectpai")
 			ejectpai()
 
-/mob/living/simple_animal/bot/cleanbot/OnUnarmedAttack(atom/A, proximity_flag, list/modifiers)
+
+/mob/living/simple_animal/bot/cleanbot/OnUnarmedAttack(atom/A)
 	if(istype(A,/obj/effect/decal/cleanable))
 		start_clean(A)
 	else
 		..()
+
 
 /obj/machinery/bot_core/cleanbot
 	req_access = list(ACCESS_JANITOR, ACCESS_ROBOTICS)

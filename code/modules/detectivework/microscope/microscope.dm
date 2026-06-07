@@ -21,6 +21,7 @@
 	component_parts += new /obj/item/stock_parts/micro_laser(null)
 	component_parts += new /obj/item/stack/sheet/glass(null)
 
+
 /obj/machinery/microscope/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -39,20 +40,21 @@
 
 	return ..()
 
+
 /obj/machinery/microscope/attack_hand(mob/user)
 
 	if(!sample)
-		to_chat(user, span_warning("В микроскопе нет образца для анализа."))
+		to_chat(user, "<span class='warning'>В микроскопе нет образца для анализа.</span>")
 		return
 
 	add_fingerprint(user)
-	to_chat(user, span_notice("Микроскоп жужжит, пока вы анализируете \the [sample]."))
+	to_chat(user, "<span class='notice'>Микроскоп жужжит, пока вы анализируете \the [sample].</span>")
 
 	if(!do_after(user, 2.5 SECONDS, src) || !sample)
-		to_chat(user, span_notice("Вы перестаёте анализировать \the [sample]."))
+		to_chat(user, "<span class='notice'>Вы перестаёте анализировать \the [sample].</span>")
 		return
 
-	to_chat(user, span_notice("Печать отчета..."))
+	to_chat(user, "<span class='notice'>Печать отчета...</span>")
 	var/obj/item/paper/report = new(get_turf(src))
 	report.stamp(/obj/item/stamp)
 	report_num++
@@ -75,17 +77,17 @@
 		if(fibers.evidence)
 			report.info = "Молекулярный анализ на предоставленном образце определил наличие уникальных волоконных струн.<br><br>"
 			for(var/fiber in fibers.evidence)
-				report.info += "[span_notice("Наиболее вероятное совпадение: [fiber]")]<br><br>"
+				report.info += "<span class='notice'>Наиболее вероятное совпадение: [fiber]</span><br><br>"
 		else
 			report.info += "Волокна не найдены."
 	else if(istype(sample, /obj/item/sample/print))
 		report.name = ("Отчет по анализу отпечатков пальцев №[report_num]: [sample.name]")
 		report.info = "<b>Отчет об анализе отпечатков пальцев №[report_num]</b>: [sample.name]<br>"
 		var/obj/item/sample/print/card = sample
-		if(card.evidence && length(card.evidence))
+		if(card.evidence && card.evidence.len)
 			report.info += "<br>Поверхностный анализ определил следующие уникальные строки отпечатков пальцев:<br><br>"
 			for(var/prints in card.evidence)
-				report.info += span_notice("Строка отпечатков пальцев: ")
+				report.info += "<span class='notice'>Строка отпечатков пальцев: </span>"
 				if(!is_complete_print(prints))
 					report.info += "НЕПОЛНЫЙ ОТПЕЧАТОК"
 				else
@@ -104,9 +106,9 @@
 	if(!istype(remover) || remover.incapacitated() || HAS_TRAIT(remover, TRAIT_HANDS_BLOCKED) || !Adjacent(remover))
 		return
 	if(!sample)
-		to_chat(remover, span_warning("Внутри микроскопа нет образца!"))
+		to_chat(remover, "<span class='warning'>Внутри микроскопа нет образца!</span>")
 		return
-	to_chat(remover, span_notice("Вы вытащили \the [sample] из микроскопа."))
+	to_chat(remover, "<span class='notice'>Вы вытащили \the [sample] из микроскопа.</span>")
 	sample.forceMove_turf()
 	remover.put_in_hands(sample, ignore_anim = FALSE)
 	sample = null
@@ -119,15 +121,16 @@
 	remove_sample(user)
 	return CLICK_ACTION_SUCCESS
 
-/obj/machinery/microscope/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(user != over_object)
-		return
-	remove_sample(user)
+/obj/machinery/microscope/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+	if(usr == over_object)
+		remove_sample(usr)
+		return FALSE
+	return ..()
 
 /obj/machinery/microscope/update_icon_state()
 	icon_state = "microscope"
 	if(sample)
-		icon_state += "_slide"
+		icon_state += "slide"
 
 /obj/machinery/microscope/screwdriver_act(mob/user, obj/item/I)
 	if(sample)

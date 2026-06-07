@@ -18,7 +18,7 @@
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother
 	name = "goliath broodmother"
-	desc = "Пример полового диморфизма — эта самка голиафа сильно отличается от самцов своего вида. Однако она столь же опасна, если не опаснее."
+	desc = "Пример полового диморфизма - эта самка голиафа сильно отличается от самцов своего вида. Однако она столь же опасна, если не опаснее."
 	gender = FEMALE
 	icon_state = "broodmother"
 	icon_living = "broodmother"
@@ -39,48 +39,47 @@
 	loot_drop = /obj/item/crusher_trophy/broodmother_tongue
 	tts_seed = "Azalina"
 
-	attack_action_types = list(
-		/datum/action/innate/elite_attack/tentacle_patch,
-		/datum/action/innate/elite_attack/spawn_children,
-		/datum/action/innate/elite_attack/rage,
-		/datum/action/innate/elite_attack/call_children,
-	)
+	attack_action_types = list(/datum/action/innate/elite_attack/tentacle_patch,
+								/datum/action/innate/elite_attack/spawn_children,
+								/datum/action/innate/elite_attack/rage,
+								/datum/action/innate/elite_attack/call_children)
 
 	var/rand_tent = 0
 	var/list/mob/living/simple_animal/hostile/asteroid/elite/broodmother_child/children_list = list()
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "матка голиафов",
 		GENITIVE = "матки голиафов",
 		DATIVE = "матке голиафов",
 		ACCUSATIVE = "матку голиафов",
 		INSTRUMENTAL = "маткой голиафов",
-		PREPOSITIONAL = "матке голиафов",
+		PREPOSITIONAL = "матке голиафов"
 	)
+	
 
 /datum/action/innate/elite_attack/tentacle_patch
 	name = "Поле из щупалец"
 	button_icon_state = "tentacle_patch"
-	chosen_message = span_boldwarning_alt("Теперь вы атакуете щупальцами!")
+	chosen_message = span_boldwarning("Теперь вы атакуете щупальцами!")
 	chosen_attack_num = TENTACLE_PATCH
 
 /datum/action/innate/elite_attack/spawn_children
 	name = "Выпуск выводка"
 	button_icon_state = "spawn_children"
-	chosen_message = span_boldwarning_alt("Вы создаёте двух детёнышей для помощи в бою. Максимум – .")
+	chosen_message = span_boldwarning("Вы создаёте двух детёнышей для помощи в бою. Максимум - 8.")
 	chosen_attack_num = SPAWN_CHILDREN
 
 /datum/action/innate/elite_attack/rage
 	name = "Бешенство"
 	button_icon_state = "rage"
-	chosen_message = span_boldwarning_alt("Вы временно увеличиваете скорость передвижения.")
+	chosen_message = span_boldwarning("Вы временно увеличиваете скорость передвижения.")
 	chosen_attack_num = RAGE
 
 /datum/action/innate/elite_attack/call_children
 	name = "Зов"
 	button_icon_state = "call_children"
-	chosen_message = span_boldwarning_alt("Вы призываете своих детёнышей к себе.")
+	chosen_message = span_boldwarning("Вы призываете своих детёнышей к себе.")
 	chosen_attack_num = CALL_CHILDREN
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother/Destroy()
@@ -134,7 +133,7 @@
 	var/tturf = get_turf(target)
 	if(!isturf(tturf))
 		return
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] зарывает свои щупальца под [target]!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] зарывает свои щупальца под [target]!"))
 	new /obj/effect/temp_visual/goliath_tentacle/broodmother/patch(tturf, src)
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother/proc/spawn_children(target)
@@ -156,7 +155,7 @@
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother/proc/rage()
 	ranged_cooldown = world.time + 10 SECONDS * revive_multiplier()
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает набирать скорость!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает набирать скорость!"))
 	color = "#FF0000"
 	set_varspeed(0)
 	move_to_delay = 3
@@ -182,7 +181,7 @@
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother/AltShiftClickOn(atom/A)
 	if(isliving(A))
 		var/mob/living/mob = A
-		var/mobref = PERSONAL_FACTION(mob)
+		var/mobref = "\ref[mob]"
 		if(mob == reviver)
 			return
 		if(mobref in faction)
@@ -201,6 +200,8 @@
 					child.faction += mobref
 					child.friends += mob
 			to_chat(src, span_notice("Вы добавили [mob.declent_ru(ACCUSATIVE)] в список друзей."))
+
+
 
 //The goliath's children.  Pretty weak, simple mobs which are able to put a single tentacle under their target when at range.
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother_child
@@ -227,13 +228,13 @@
 	var/mob/living/simple_animal/hostile/asteroid/elite/broodmother/mother = null
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother_child/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "детёныш голиафа",
 		GENITIVE = "детёныша голиафа",
 		DATIVE = "детёнышу голиафа",
 		ACCUSATIVE = "детёныша голиафа",
 		INSTRUMENTAL = "детёнышем голиафа",
-		PREPOSITIONAL = "детёныше голиафа",
+		PREPOSITIONAL = "детёныше голиафа"
 	)
 
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother_child/Destroy()
@@ -242,15 +243,17 @@
 	mother = null
 	return ..()
 
+
 /mob/living/simple_animal/hostile/asteroid/elite/broodmother_child/death(gibbed)
 	. = ..()
 	if(!QDELETED(mother))
 		mother.children_list -= src
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] взрывается!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] взрывается!"))
 	explosion(src, flame_range = 3, adminlog = FALSE)
 	new /obj/item/stack/sheet/animalhide/goliath_hide(loc)
 	new /obj/effect/gibspawner/human(get_turf(src))
 	qdel(src)
+
 
 /obj/effect/temp_visual/goliath_tentacle/broodmother
 	var/damage = 25
@@ -268,7 +271,7 @@
 	for(var/mob/living/L in loc)
 		if((!QDELETED(spawner) && spawner.faction_check_mob(L)) || L.stat == DEAD)
 			continue
-		visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] опутывает щупальцами [L.declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] опутывает щупальцами [L.declent_ru(ACCUSATIVE)]!"))
 		L.Stun(stun_duration)
 		L.adjustBruteLoss(damage)
 		latched = TRUE
@@ -306,13 +309,13 @@
 	var/use_time
 
 /obj/item/crusher_trophy/broodmother_tongue/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "материнский язык",
 		GENITIVE = "материнского языка",
 		DATIVE = "материнскому языку",
 		ACCUSATIVE = "материнский язык",
 		INSTRUMENTAL = "материнским языком",
-		PREPOSITIONAL = "материнском языке",
+		PREPOSITIONAL = "материнском языке"
 	)
 
 /obj/item/crusher_trophy/broodmother_tongue/effect_desc()
@@ -337,6 +340,7 @@
 	addtimer(TRAIT_CALLBACK_REMOVE(living_user, TRAIT_LAVA_IMMUNE, BROODMOTHER_TONGUE_TRAIT), 20 SECONDS)
 	to_chat(user, span_notice("Вы сжимаете <b>[declent_ru(ACCUSATIVE)]</b> в руке, разбрызгивая на себя полупрозрачную жидкость."))
 	use_time = world.time + 60 SECONDS
+
 
 #undef TENTACLE_PATCH
 #undef SPAWN_CHILDREN

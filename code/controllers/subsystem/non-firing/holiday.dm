@@ -1,10 +1,8 @@
 SUBSYSTEM_DEF(holiday)
 	name = "Holiday"
-	dependents = list(
-		/datum/controller/subsystem/mapping,
-	)
-	ss_flags = SS_NO_FIRE
-
+	init_order = INIT_ORDER_HOLIDAY // 4
+	flags = SS_NO_FIRE
+	ss_id = "holiday"
 	var/list/holidays
 
 /datum/controller/subsystem/holiday/Initialize()
@@ -23,6 +21,7 @@ SUBSYSTEM_DEF(holiday)
 				holidays = list()
 			holidays[holiday.name] = holiday
 	return SS_INIT_SUCCESS
+
 
 /datum/controller/subsystem/holiday/OnMasterLoad()
 	if(holidays)

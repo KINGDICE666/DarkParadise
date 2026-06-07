@@ -17,9 +17,11 @@
 	force = 16
 	scribe_multiplier = 0.1
 
+
 /obj/item/melee/cultblade/dagger/Initialize(mapload)
 	. = ..()
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/melee/cultblade/dagger/ComponentInitialize()
 	. = ..()
@@ -31,6 +33,7 @@
 		swing_sound = SFX_KNIFE_SWING \
 	)
 
+
 /obj/item/melee/cultblade/dagger/update_icon_state()
 	if(SSticker?.cultdat)
 		icon_state = SSticker.cultdat.dagger_icon
@@ -39,12 +42,14 @@
 		icon_state = initial(icon_state)
 		item_state = initial(item_state)
 
+
 /obj/item/melee/cultblade/dagger/examine(mob/user)
 	. = ..()
 	if(iscultist(user) || user.stat == DEAD)
-		. += span_cult("A dagger gifted by [SSticker.cultdat.entity_title3]. Allows the scribing of runes and access to the knowledge archives of the cult of [SSticker.cultdat.entity_name].")
-		. += span_cultitalic("Striking another cultist with it will purge holy water from them.")
-		. += span_cultitalic("Striking a noncultist will tear their flesh.")
+		. += "<span class='cult'>A dagger gifted by [SSticker.cultdat.entity_title3]. Allows the scribing of runes and access to the knowledge archives of the cult of [SSticker.cultdat.entity_name].</span>"
+		. += "<span class='cultitalic'>Striking another cultist with it will purge holy water from them.</span>"
+		. += "<span class='cultitalic'>Striking a noncultist will tear their flesh.</span>"
+
 
 /obj/item/melee/cultblade/dagger/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(iscultist(target))
@@ -61,9 +66,10 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
 /obj/item/melee/cultblade/dagger/attack_self(mob/user)
 	if(!iscultist(user))
-		to_chat(user, span_warning("[src] is covered in unintelligible shapes and markings."))
+		to_chat(user, "<span class='warning'>[src] is covered in unintelligible shapes and markings.</span>")
 		return
 	scribe_rune(user)
 
@@ -71,28 +77,28 @@
 	var/datum/game_mode/gamemode = SSticker.mode
 
 	if(gamemode.cult_objs.cult_status < NARSIE_NEEDS_SUMMONING)
-		to_chat(user, span_cultitalic("<b>[SSticker.cultdat.entity_name]</b> is not ready to be summoned yet!"))
+		to_chat(user, "<span class='cultitalic'><b>[SSticker.cultdat.entity_name]</b> is not ready to be summoned yet!</span>")
 		return FALSE
 	if(gamemode.cult_objs.cult_status == NARSIE_HAS_RISEN)
-		to_chat(user, span_cultlarge("\"I am already here. There is no need to try to summon me now.\""))
+		to_chat(user, "<span class='cultlarge'>\"I am already here. There is no need to try to summon me now.\"</span>")
 		return FALSE
 	if(!(gamemode.cult_ascendant))
-		to_chat(user, span_cultlarge("Not enough unfaithful know what awaits them! The cult must ascend first!"))
+		to_chat(user, "<span class='cultlarge'>Not enough unfaithful know what awaits them! The cult must ascend first!</span>")
 		return FALSE
 
 	var/list/summon_areas = gamemode.cult_objs.obj_summon.summon_spots
 	if(!(A in summon_areas))
-		to_chat(user, span_cultlarge("[SSticker.cultdat.entity_name] can only be summoned where the veil is weak - in [english_list(summon_areas)]!"))
+		to_chat(user, "<span class='cultlarge'>[SSticker.cultdat.entity_name] can only be summoned where the veil is weak - in [english_list(summon_areas)]!</span>")
 		return FALSE
 	var/confirm_final = tgui_alert(user, "This is the FINAL step to summon your deities power, it is a long, painful ritual and the crew will be alerted to your presence AND your location!",
 	"Are you prepared for the final battle?", list("My life for [SSticker.cultdat.entity_name]!", "No"))
 	if(user)
 		if(confirm_final != "My life for [SSticker.cultdat.entity_name]!")
-			to_chat(user, span_cultitalic("<b>You decide to prepare further before scribing the rune.</b>"))
+			to_chat(user, "<span class='cultitalic'><b>You decide to prepare further before scribing the rune.</b></span>")
 			return FALSE
 		else
 			if(locate(/obj/effect/rune) in range(1, user))
-				to_chat(user, span_cultlarge("You need a space cleared of runes before you can summon [SSticker.cultdat.entity_title1]!"))
+				to_chat(user, "<span class='cultlarge'>You need a space cleared of runes before you can summon [SSticker.cultdat.entity_title1]!</span>")
 				return FALSE
 			else
 				return TRUE
@@ -104,12 +110,13 @@
 	if(isspaceturf(T))
 		return FALSE
 	if((locate(/obj/effect/rune) in T) || (locate(/obj/effect/rune/narsie) in range(1, T)))
-		to_chat(user, span_warning("There's already a rune here!"))
+		to_chat(user, "<span class='warning'>There's already a rune here!</span>")
 		return FALSE
 	if(drawing_rune)
-		to_chat(user, span_warning("You can't draw multiple runes at the same time!"))
+		to_chat(user, "<span class='warning'>You can't draw multiple runes at the same time!</span>")
 		return FALSE
 	return TRUE
+
 
 /obj/item/melee/cultblade/dagger/proc/scribe_rune(mob/living/user)
 	var/list/shields = list()
@@ -149,8 +156,8 @@
 	var/turf/runeturf = get_turf(user)
 	var/datum/game_mode/gamemode = SSticker.mode
 	if(ispath(rune, /obj/effect/rune/summon))
-		if(!is_station_level(runeturf.z) || isspacearea(A))
-			to_chat(user, span_cultitalic("The veil is not weak enough here to summon a cultist, you must be on station!"))
+		if(!is_station_level(runeturf.z) || istype(A, /area/space))
+			to_chat(user, "<span class='cultitalic'>The veil is not weak enough here to summon a cultist, you must be on station!</span>")
 			return
 
 	if(ispath(rune, /obj/effect/rune/teleport) && !is_station_level(runeturf.z))
@@ -163,15 +170,14 @@
 			return // don't do shit
 		var/list/summon_areas = gamemode.cult_objs.obj_summon.summon_spots
 		if(!(A in summon_areas))  // Check again to make sure they didn't move
-			to_chat(user, span_cultlarge("The ritual can only begin where the veil is weak - in [english_list(summon_areas)]!"))
+			to_chat(user, "<span class='cultlarge'>The ritual can only begin where the veil is weak - in [english_list(summon_areas)]!</span>")
 			return
 		for(var/datum/mind/M in gamemode.cult)
 			if(M.current)
 				SEND_SOUND(M.current, sound('sound/ambience/antag/bloodcult_scribe.ogg'))
-		GLOB.major_announcement.announce(
-			message = "Образы внепространственного бога из неизвестного измерения собираются воедино в [A.map_name]. Сорвите ритуал любой ценой, пока станция не была уничтожена! Действие космического закона и стандартных рабочих процедур приостановлено. Весь экипаж должен уничтожать культистов на месте.",
-			new_title = ANNOUNCE_CCPARANORMAL_RU,
-			new_sound = 'sound/AI/cult_summon.ogg'
+		GLOB.major_announcement.announce("Образы внепространственного бога из неизвестного измерения собираются воедино в [A.map_name]. Сорвите ритуал любой ценой, пока станция не была уничтожена! Действие космического закона и стандартных рабочих процедур приостановлено. Весь экипаж должен уничтожать культистов на месте.",
+										ANNOUNCE_CCPARANORMAL_RU,
+										'sound/AI/cult_summon.ogg'
 		)
 		log_admin("[key_name_log(user)] started to draw narsie rune!")
 		add_game_logs("started to draw narsie rune at [AREACOORD(user)]", user)
@@ -187,13 +193,11 @@
 	H.cult_self_harm(initial(rune.scribe_damage))
 	var/others_message
 	if(!narsie_rune)
-		others_message = span_warning("[user] cuts [user.p_their()] body and begins writing in [user.p_their()] own blood!")
+		others_message = "<span class='warning'>[user] cuts [user.p_their()] body and begins writing in [user.p_their()] own blood!</span>"
 	else
-		others_message = span_biggerdanger("[user] cuts [user.p_their()] body and begins writing something particularly ominous in [user.p_their()] own blood!")
-	user.visible_message(
-		others_message,
-		span_cultitalic("You slice open your body and begin drawing a sigil of [SSticker.cultdat.entity_title3].")
-	)
+		others_message = "<span class='biggerdanger'>[user] cuts [user.p_their()] body and begins writing something particularly ominous in [user.p_their()] own blood!</span>"
+	user.visible_message(others_message,
+		"<span class='cultitalic'>You slice open your body and begin drawing a sigil of [SSticker.cultdat.entity_title3].</span>")
 
 	var/scribe_successful = do_after(user, initial(rune.scribe_delay) * scribe_multiplier, runeturf)
 	for(var/V in shields) // Only used for the 'Tear Veil' rune
@@ -206,8 +210,8 @@
 		return
 
 	user.visible_message(
-		span_warning("[user] creates a strange circle in [user.p_their()] own blood."),
-		span_cultitalic("You finish drawing the arcane markings of [SSticker.cultdat.entity_title3].")
+		"<span class='warning'>[user] creates a strange circle in [user.p_their()] own blood.</span>",
+		"<span class='cultitalic'>You finish drawing the arcane markings of [SSticker.cultdat.entity_title3].</span>"
 	)
 
 	var/obj/effect/rune/R = new rune(runeturf, keyword)
@@ -221,4 +225,4 @@
 	R.add_hiddenprint(H)
 	R.color = H.dna.species.blood_color
 	R.rune_blood_color = H.dna.species.blood_color
-	to_chat(user, span_cult("The [lowertext(initial(rune.cultist_name))] rune [initial(rune.cultist_desc)]"))
+	to_chat(user, "<span class='cult'>The [lowertext(initial(rune.cultist_name))] rune [initial(rune.cultist_desc)]</span>")

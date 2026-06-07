@@ -1,6 +1,14 @@
 /obj/machinery/reagentgrinder
 	name = "All-In-One Grinder"
 	desc = "Измельчает, дробит, разжижает и извлекает вещества из предметов, помещённых внутрь. Ради всего святого, не суйте туда свои пальцы."
+	ru_names = list(
+		NOMINATIVE = "универсальный блендер",
+		GENITIVE = "универсального блендера",
+		DATIVE = "универсальному блендеру",
+		ACCUSATIVE = "универсальный блендер",
+		INSTRUMENTAL = "универсальным блендером",
+		PREPOSITIONAL = "универсальном блендере"
+	)
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "juicer1"
 	anchored = TRUE
@@ -8,7 +16,7 @@
 	active_power_usage = 100
 	pass_flags = PASSTABLE
 	resistance_flags = ACID_PROOF
-	var/operating = FALSE
+	var/operating = 0
 	var/obj/item/reagent_containers/beaker = new /obj/item/reagent_containers/glass/beaker/large
 	var/limit = null
 	var/efficiency = null
@@ -50,6 +58,7 @@
 			/obj/item/reagent_containers/food/snacks/grown/tea/astra = list("teapowder" = 0, "salglu_solution" = 0),
 			/obj/item/reagent_containers/food/snacks/grown/tea = list("teapowder" = 0),
 			/obj/item/reagent_containers/food/snacks/grown/moonlight = list("moonlin" = 0),
+
 
 			//All types that you can put into the grinder to transfer the reagents to the beaker. !Put all recipes above this.!
 			/obj/item/slime_extract = list(),
@@ -93,16 +102,6 @@
 	)
 
 	var/list/holdingitems = list()
-
-/obj/machinery/reagentgrinder/get_ru_names()
-	return alist(
-		NOMINATIVE = "универсальный блендер",
-		GENITIVE = "универсального блендера",
-		DATIVE = "универсальному блендеру",
-		ACCUSATIVE = "универсальный блендер",
-		INSTRUMENTAL = "универсальным блендером",
-		PREPOSITIONAL = "универсальном блендере",
-	)
 
 /obj/machinery/reagentgrinder/examine(mob/user)
 	. = ..()
@@ -169,8 +168,10 @@
 		beaker = null
 		update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/reagentgrinder/update_icon_state()
 	icon_state = "juicer[beaker ? "1" : "0"]"
+
 
 /obj/machinery/reagentgrinder/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
@@ -196,6 +197,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	default_unfasten_wrench(user, I)
+
 
 /obj/machinery/reagentgrinder/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -251,7 +253,7 @@
 			balloon_alert(user, "нечего загружать!")
 			return ATTACK_CHAIN_PROCEED
 		user.visible_message(
-			span_notice("[user] загрузил[GEND_A_O_I(user)] содержимое [bag.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."),
+			span_notice("[user] загрузил[pluralize_ru(user.gender, "", "а", "о", "и")] содержимое [bag.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."),
 			span_notice("Вы загрузили содержимое [bag.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."))
 		balloon_alert(user, "содержимое загружено")
 		updateUsrDialog()
@@ -266,11 +268,13 @@
 
 	holdingitems += I
 	user.visible_message(
-		span_notice("[user] загрузил[GEND_A_O_I(user)] [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
+		span_notice("[user] загрузил[pluralize_ru(user.gender, "", "а", "о", "и")] [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы загрузили [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."))
 	balloon_alert(user, "загружено в камеру")
 	updateUsrDialog()
 	return ATTACK_CHAIN_BLOCKED_ALL
+
+
 
 /obj/machinery/reagentgrinder/attack_ai(mob/user)
 	return FALSE
@@ -307,6 +311,7 @@
 						if(!anything)
 								beaker_contents += "Ничего<br>"
 
+
 				dat += {"
 		<b>Содержимое камеры:</b><br>
 		[processing_chamber]<br>
@@ -315,7 +320,7 @@
 				if(is_beaker_ready && !is_chamber_empty && !(stat & (NOPOWER|BROKEN)))
 						dat += "<a href='byond://?src=[src.UID()];action=grind'>Измельчить</a><br>"
 						dat += "<a href='byond://?src=[src.UID()];action=juice'>Выжать</a><br><br>"
-				if(holdingitems && length(holdingitems) > 0)
+				if(holdingitems && holdingitems.len > 0)
 						dat += "<a href='byond://?src=[src.UID()];action=eject'>Вынуть содержимое камеры</a><br>"
 				if(beaker)
 						dat += "<a href='byond://?src=[src.UID()];action=detach'>Извлечь ёмкость</a><br>"
@@ -359,7 +364,7 @@
 /obj/machinery/reagentgrinder/proc/eject()
 		if(usr.stat != 0)
 				return
-		if(holdingitems && length(holdingitems) == 0)
+		if(holdingitems && holdingitems.len == 0)
 				return
 
 		for(var/obj/item/O in holdingitems)
@@ -415,13 +420,14 @@
 				return
 		if(!beaker || (beaker && beaker.reagents.total_volume >= beaker.reagents.maximum_volume))
 				return
-		playsound(loc, 'sound/machines/juicer.ogg', 20, TRUE)
-		Shake(pixelshiftx = 1, pixelshifty = 0, duration = 4.2 SECONDS)
-		operating = TRUE
+		playsound(src.loc, 'sound/machines/juicer.ogg', 20, TRUE)
+		var/offset = prob(50) ? -2 : 2
+		animate(src, pixel_x = pixel_x + offset, time = 0.2, loop = 250) //start shaking
+		operating = 1
 		updateUsrDialog()
 		spawn(50)
 				pixel_x = initial(pixel_x) //return to its spot after shaking
-				operating = FALSE
+				operating = 0
 				updateUsrDialog()
 
 		//Snacks
@@ -452,13 +458,14 @@
 				return
 		if(!beaker || (beaker && beaker.reagents.total_volume >= beaker.reagents.maximum_volume))
 				return
-		playsound(loc, 'sound/machines/blender.ogg', 50, TRUE)
-		Shake(pixelshiftx = 1, pixelshifty = 0, duration = 4.2 SECONDS)
-		operating = TRUE
+		playsound(src.loc, 'sound/machines/blender.ogg', 50, TRUE)
+		var/offset = prob(50) ? -2 : 2
+		animate(src, pixel_x = pixel_x + offset, time = 0.2, loop = 250) //start shaking
+		operating = 1
 		updateUsrDialog()
 		spawn(60)
 				pixel_x = initial(pixel_x) //return to its spot after shaking
-				operating = FALSE
+				operating = 0
 				updateUsrDialog()
 
 		//Snacks and Plants
@@ -490,13 +497,14 @@
 												beaker.reagents.add_reagent(r_id, min(round(O.reagents.get_reagent_amount("plantmatter")*abs(amount)*efficiency), space))
 												O.reagents.remove_reagent("plantmatter", min(O.reagents.get_reagent_amount("plantmatter"), space))
 
+
 						else
 								O.reagents.trans_id_to(beaker, r_id, min(amount, space))
 
 						if(beaker.reagents.total_volume >= beaker.reagents.maximum_volume)
 								break
 
-				if(length(O.reagents.reagent_list) == 0)
+				if(O.reagents.reagent_list.len == 0)
 						remove_object(O)
 
 		//Sheets

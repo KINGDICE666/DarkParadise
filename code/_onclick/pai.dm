@@ -42,7 +42,7 @@
 		CtrlClickOn(A)
 		return
 
-	if(incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB))
+	if(incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED))
 		return
 
 	if(next_move >= world.time)
@@ -62,6 +62,7 @@
 			addtimer(CALLBACK(src, PROC_REF(reset_cooldown)), ai_capability_cooldown)
 			return
 	return ..()
+
 
 /mob/living/silicon/pai/CtrlClickOn(atom/A)
 	if(!ai_capability)
@@ -102,6 +103,7 @@
 			addtimer(CALLBACK(src, PROC_REF(reset_cooldown)), ai_capability_cooldown)
 		return
 	return ..()
+
 
 /atom/proc/PAIShiftClick(mob/user)
 	if(user.client && user.client.eye == user)
@@ -151,6 +153,7 @@
 /obj/machinery/power/apc/PAICtrlClick(mob/living/silicon/pai/user) // turns off/on APCs. Forwards to AI code.
 	AICtrlClick(user)
 	return TRUE
+
 
 // AI SLIPPER
 

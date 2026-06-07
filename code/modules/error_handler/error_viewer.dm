@@ -24,6 +24,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 /datum/error_viewer
 	var/name = ""
 
+
 /datum/error_viewer/proc/browse_to(mob/user, html)
 	var/datum/browser/browser = new(user, "error_viewer", "Runtime Viewer", 600, 400)
 	browser.set_content(html)
@@ -46,6 +47,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	"})
 	browser.open()
 
+
 /datum/error_viewer/proc/build_header(datum/error_viewer/back_to, linear)
 	// Common starter HTML for show_to
 	. = ""
@@ -53,9 +55,11 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 		. += back_to.make_link("<b>&lt;&lt;&lt;</b>", null, linear)
 	. += "[make_link("Refresh")]<br><br>"
 
+
 /datum/error_viewer/proc/show_to(user, datum/error_viewer/back_to, linear)
 	// Specific to each child type
 	return
+
 
 /datum/error_viewer/proc/make_link(linktext, datum/error_viewer/back_to, linear)
 	var/back_to_param = ""
@@ -67,10 +71,12 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 		back_to_param += ";viewruntime_linear=1"
 	return "<a href='byond://?_src_=holder;viewruntime=[src.UID()][back_to_param]'>[linktext]</a>"
 
+
 /datum/error_viewer/error_cache
 	var/list/errors = list()
 	var/list/error_sources = list()
 	var/list/errors_silenced = list()
+
 
 /datum/error_viewer/error_cache/show_to(user, datum/error_viewer/back_to, linear)
 	var/html = build_header()
@@ -86,6 +92,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 		for(var/datum/error_viewer/error_entry/error_entry in errors)
 			html += "[error_entry.make_link(null, src, 1)]<br>"
 	browse_to(user, html)
+
 
 /datum/error_viewer/error_cache/proc/log_error(exception/e, list/desclines, skip_count, datum/e_src)
 	if(!istype(e))
@@ -117,15 +124,18 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 			err_msg_delay = initial(CE.default)
 		error_source.next_message_at = world.time + err_msg_delay
 
+
 /datum/error_viewer/error_source
 	var/list/errors = list()
 	var/next_message_at = 0
+
 
 /datum/error_viewer/error_source/New(exception/e)
 	if(!istype(e))
 		name = "\[[time_stamp()]] Uncaught exceptions"
 		return
 	name = "<b>\[[time_stamp()]]</b> Runtime in <b>[e.file]</b>, line <b>[e.line]</b>: <b>[html_encode(e.name)]</b>"
+
 
 /datum/error_viewer/error_source/show_to(user, datum/error_viewer/back_to, linear)
 	if(!istype(back_to))
@@ -134,6 +144,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	for(var/datum/error_viewer/error_entry/error_entry in errors)
 		html += "[error_entry.make_link(null, src)]<br>"
 	browse_to(user, html)
+
 
 /datum/error_viewer/error_entry
 	var/datum/error_viewer/error_source/error_source
@@ -145,6 +156,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	var/usr_UID
 	var/turf/usr_loc
 	var/is_skip_count
+
 
 /datum/error_viewer/error_entry/New(exception/e, list/desclines, skip_count, datum/e_src)
 	if(!istype(e))
@@ -172,6 +184,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 		usr_UID = usr.UID()
 		usr_loc = get_turf(usr)
 
+
 /datum/error_viewer/error_entry/show_to(user, datum/error_viewer/back_to, linear)
 	if(!istype(back_to))
 		back_to = error_source
@@ -197,6 +210,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 			html += " <a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[usr_loc.x];Y=[usr_loc.y];Z=[usr_loc.z]'>JMP</a>"
 
 	browse_to(user, html)
+
 
 /datum/error_viewer/error_entry/make_link(linktext, datum/error_viewer/back_to, linear)
 	return is_skip_count ? name : ..()

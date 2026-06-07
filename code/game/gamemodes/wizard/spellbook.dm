@@ -1,7 +1,3 @@
-///////// MARK 1: ENTRY //////////
-
-// MARK: BLOCK 1.1: SPELLBOOK BASE & PROCS
-
 /datum/spellbook_entry
 	var/name = "Entry Name"
 	var/is_ragin_restricted = FALSE // FALSE if this is buyable on ragin mages, TRUE if it's not.
@@ -29,7 +25,7 @@
 	for(var/obj/effect/proc_holder/spell/aspell as anything in user.mind.spell_list)
 		if(initial(newspell.name) == initial(aspell.name)) // Not using directly in case it was learned from one spellbook then upgraded in another
 			if(aspell.spell_level >= aspell.level_max)
-				to_chat(user, span_warning("This spell cannot be improved further."))
+				to_chat(user, "<span class='warning'>This spell cannot be improved further.</span>")
 				return FALSE
 			else
 				aspell.name = initial(aspell.name)
@@ -37,25 +33,25 @@
 				aspell.cooldown_handler.recharge_duration = round(aspell.base_cooldown - aspell.spell_level * (aspell.base_cooldown - aspell.cooldown_min) / aspell.level_max)
 				switch(aspell.spell_level)
 					if(1)
-						to_chat(user, span_notice("You have improved [aspell.name] into Efficient [aspell.name]."))
+						to_chat(user, "<span class='notice'>You have improved [aspell.name] into Efficient [aspell.name].</span>")
 						aspell.name = "Efficient [aspell.name]"
 					if(2)
-						to_chat(user, span_notice("You have further improved [aspell.name] into Quickened [aspell.name]."))
+						to_chat(user, "<span class='notice'>You have further improved [aspell.name] into Quickened [aspell.name].</span>")
 						aspell.name = "Quickened [aspell.name]"
 					if(3)
-						to_chat(user, span_notice("You have further improved [aspell.name] into Free [aspell.name]."))
+						to_chat(user, "<span class='notice'>You have further improved [aspell.name] into Free [aspell.name].</span>")
 						aspell.name = "Free [aspell.name]"
 					if(4)
-						to_chat(user, span_notice("You have further improved [aspell.name] into Instant [aspell.name]."))
+						to_chat(user, "<span class='notice'>You have further improved [aspell.name] into Instant [aspell.name].</span>")
 						aspell.name = "Instant [aspell.name]"
 				if(aspell.spell_level >= aspell.level_max)
-					to_chat(user, span_notice("This spell cannot be strengthened any further."))
+					to_chat(user, "<span class='notice'>This spell cannot be strengthened any further.</span>")
 				aspell.on_purchase_upgrade()
 				return TRUE
 	//No same spell found - just learn it
 	SSblackbox.record_feedback("tally", "wizard_spell_learned", 1, name)
 	user.mind.AddSpell(newspell)
-	to_chat(user, span_notice("You have learned [newspell.name]."))
+	to_chat(user, "<span class='notice'>You have learned [newspell.name].</span>")
 	return TRUE
 
 /datum/spellbook_entry/proc/CanRefund(mob/living/carbon/human/user, obj/item/spellbook/book)
@@ -68,10 +64,10 @@
 			return TRUE
 	return FALSE
 
-/datum/spellbook_entry/proc/Refund(mob/living/carbon/human/user, obj/item/spellbook/book)//return point value or -1 for failure
+/datum/spellbook_entry/proc/Refund(mob/living/carbon/human/user, obj/item/spellbook/book) //return point value or -1 for failure
 	var/area/wizard_station/A = locate()
 	if(!(user in A.contents))
-		to_chat(user, span_warning("You can only refund spells at the wizard lair."))
+		to_chat(user, "<span class='warning'>You can only refund spells at the wizard lair.</span>")
 		return -1
 	if(!S) //This happens when the spell's source is from another spellbook, from loadouts, or adminery, this create a new template temporary spell
 		S = new spell_type()
@@ -96,10 +92,9 @@
 	dat += "[S.clothes_req?"Needs wizard garb":"Can be cast without wizard garb"]<br>"
 	return dat
 
+//Main category - Spells
+//Offensive
 
-// MARK: BLOCK 1.2: SPELLS
-
-// --- Offensive ---
 /datum/spellbook_entry/blind
 	name = "Blind"
 	spell_type = /obj/effect/proc_holder/spell/trigger/blind
@@ -186,7 +181,7 @@
 	category = "Offensive"
 	cost = 1
 
-// --- Defensive ---
+//Defensive
 /datum/spellbook_entry/disabletech
 	name = "Disable Tech"
 	spell_type = /obj/effect/proc_holder/spell/emplosion/disable_tech
@@ -245,16 +240,16 @@
 	category = "Defensive"
 
 /datum/spellbook_entry/sacred_flame/LearnSpell(mob/living/carbon/human/user, obj/item/spellbook/book, obj/effect/proc_holder/spell/newspell)
-	to_chat(user, span_notice("You feel fireproof."))
+	to_chat(user, "<span class='notice'>You feel fireproof.</span>")
 	ADD_TRAIT(user, TRAIT_RESIST_HEAT, MAGIC_TRAIT)
 	return ..()
 
 /datum/spellbook_entry/sacred_flame/Refund(mob/living/carbon/human/user, obj/item/spellbook/book)
-	to_chat(user, span_warning("You no longer feel fireproof."))
+	to_chat(user, "<span class='warning'>You no longer feel fireproof.</span>")
 	REMOVE_TRAIT(user, TRAIT_RESIST_HEAT, MAGIC_TRAIT)
 	return ..()
 
-// --- Mobility ---
+//Mobility
 /datum/spellbook_entry/knock
 	name = "Knock"
 	spell_type = /obj/effect/proc_holder/spell/aoe/knock
@@ -293,13 +288,15 @@
 	spell_type = /obj/effect/proc_holder/spell/area_teleport/teleport
 	category = "Mobility"
 
+
 /datum/spellbook_entry/nullspace_box
 	name = "Призыв блюспейс коробки"
 	spell_type = /obj/effect/proc_holder/spell/nullspace_box
 	cost = 1
 	category = "Mobility"
 
-// --- Assistance ---
+//Assistance
+
 /datum/spellbook_entry/shapeshift
 	name = "Shapechange"
 	spell_type = /obj/effect/proc_holder/spell/shapeshift
@@ -328,9 +325,7 @@
 	category = "Assistance"
 	cost = 1
 
-
-// MARK: BLOCK 1.3: RITUALS & EVENTS
-
+//Rituals
 /datum/spellbook_entry/summon
 	name = "Summon Stuff"
 	category = "Rituals"
@@ -362,7 +357,7 @@
 /datum/spellbook_entry/summon/ghosts/Buy(mob/living/carbon/human/user, obj/item/spellbook/book)
 	new /datum/event/wizard/ghost()
 	active = TRUE
-	to_chat(user, span_notice("You have cast summon ghosts!"))
+	to_chat(user, "<span class='notice'>You have cast summon ghosts!</span>")
 	playsound(get_turf(user), 'sound/effects/ghost2.ogg', 50, TRUE)
 	return TRUE
 
@@ -376,7 +371,7 @@
 	rightandwrong(SUMMON_GUNS, user, 10)
 	active = TRUE
 	playsound(get_turf(user), 'sound/magic/castsummon.ogg', 50, TRUE)
-	to_chat(user, span_notice("You have cast summon guns!"))
+	to_chat(user, "<span class='notice'>You have cast summon guns!</span>")
 	return TRUE
 
 /datum/spellbook_entry/summon/magic
@@ -389,12 +384,10 @@
 	rightandwrong(SUMMON_MAGIC, user, 10)
 	active = TRUE
 	playsound(get_turf(user), 'sound/magic/castsummon.ogg', 50, TRUE)
-	to_chat(user, span_notice("You have cast summon magic!"))
+	to_chat(user, "<span class='notice'>You have cast summon magic!</span>")
 	return TRUE
 
-
-// MARK: BLOCK 1.4: MAGICAL ITEMS
-
+//Main category - Magical Items
 /datum/spellbook_entry/item
 	name = "Buy Item"
 	refundable = 0
@@ -417,7 +410,7 @@
 	dat += "<i>[desc]</i><br>"
 	return dat
 
-// --- Artefacts ---
+//Artefacts
 /datum/spellbook_entry/item/necrostone
 	name = "A Necromantic Stone"
 	desc = "A Necromantic stone is able to resurrect three dead individuals as skeletal thralls for you to command."
@@ -432,10 +425,12 @@
 
 /datum/spellbook_entry/item/scryingorb/Buy(mob/living/carbon/human/user, obj/item/spellbook/book)
 	if(..())
-		if(!HAS_TRAIT_FROM(user, TRAIT_XRAY, MAGIC_TRAIT))
-			ADD_TRAIT(user, TRAIT_XRAY_VISION, MAGIC_TRAIT)
-			ADD_TRAIT(user, TRAIT_NIGHT_VISION, MAGIC_TRAIT)
+		if(!HAS_TRAIT_FROM(user, TRAIT_XRAY, SCRYING_ORB_TRAIT))
+			ADD_TRAIT(user, TRAIT_XRAY, SCRYING_ORB_TRAIT)
+			user.see_in_dark = 8
+			user.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 			user.update_sight()
+			user.update_misc_effects()
 			to_chat(user, span_notice("The walls suddenly disappear."))
 	return TRUE
 
@@ -457,7 +452,8 @@
 	item_path = /obj/item/storage/belt/wands/full
 	category = "Artefacts"
 
-// --- Spell books ---
+//Spell books
+
 /datum/spellbook_entry/item/kit_spell_book
 	name = "Kit random spell book"
 	desc = " Kit random spell book! Gives you 4 books at once for the price of 4 books? Or more expensive!"
@@ -546,7 +542,7 @@
 	category = "Spell books"
 	cost = 1
 
-// --- Weapons and Armors ---
+//Weapons and Armors
 /datum/spellbook_entry/item/battlemage
 	name = "Battlemage Armour"
 	desc = "An ensorceled suit of armour, protected by a powerful shield. The shield can completely negate sixteen attacks before being permanently depleted. Despite appearance it is NOT spaceproof."
@@ -579,7 +575,7 @@
 	item_path = /obj/item/gun/magic/staff/spellblade
 	category = "Weapons and Armors"
 
-// --- Staves ---
+//Staves
 /datum/spellbook_entry/item/staffdoor
 	name = "Staff of Door Creation"
 	desc = "A particular staff that can mold solid metal into ornate wooden doors. Useful for getting around in the absence of other transportation. Does not work on glass."
@@ -620,7 +616,7 @@
 	item_path = /obj/item/gun/magic/staff/chaos
 	category = "Staves"
 
-// --- Summons ---
+//Summons
 /datum/spellbook_entry/item/oozebottle
 	name = "Bottle of Ooze"
 	desc = "A bottle of magically infused ooze, which will awake an all-consuming Morph, capable of cunningly disguising itself as any object it comes in contact with and even casting some very basic spells. Be careful though, as Morph diet includes Wizards."
@@ -687,9 +683,7 @@
 	category = "Summons"
 	limit = 1
 
-
-// MARK: BLOCK 1.5: LOADOUTS
-
+//Spell loadouts datum, list of loadouts is in wizloadouts.dm
 /datum/spellbook_entry/loadout
 	name = "Standard Loadout"
 	cost = 10
@@ -699,7 +693,6 @@
 	var/list/items_path = list()
 	var/list/spells_path = list()
 	var/destroy_spellbook = FALSE //Destroy the spellbook when bought, for loadouts containing non-standard items/spells, otherwise wiz can refund spells
-
 
 /datum/spellbook_entry/loadout/GetInfo()
 	var/dat = ""
@@ -716,13 +709,13 @@
 		var/response = tgui_alert(user, "The [src] loadout cannot be refunded once bought. Are you sure this is what you want?", "No refunds!", list("No", "Yes"))
 		if(response != "Yes")
 			return FALSE
-		to_chat(user, span_notice("[book] crumbles to ashes as you acquire its knowledge."))
+		to_chat(user, "<span class='notice'>[book] crumbles to ashes as you acquire its knowledge.</span>")
 		qdel(book)
-	else if(length(items_path))
+	else if(items_path.len)
 		var/response = tgui_alert(user, "The [src] loadout contains items that will not be refundable if bought. Are you sure this is what you want?", "No refunds!", list("No", "Yes"))
 		if(response != "Yes")
 			return FALSE
-	if(length(items_path))
+	if(items_path.len)
 		var/obj/item/storage/box/wizard/B = new(src)
 		for(var/path in items_path)
 			new path(B)
@@ -731,11 +724,6 @@
 		var/obj/effect/proc_holder/spell/S = new path()
 		LearnSpell(user, book, S)
 	return TRUE
-
-
-///////// MARK 2: PHYSICAL SPELLBOOK ITEM //////////
-
-// MARK: BLOCK 2.1: BASE ITEM & INITIALIZATION
 
 /obj/item/spellbook
 	name = "spell book"
@@ -764,16 +752,16 @@
 	var/static/list/loadout_categories = list("Standard", "Unique")
 
 /obj/item/spellbook/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "книга заклинаний",
 		GENITIVE = "книги заклинаний",
 		DATIVE = "книге заклинаний",
 		ACCUSATIVE = "книгу заклинаний",
 		INSTRUMENTAL = "книгой заклинаний",
-		PREPOSITIONAL = "книге заклинаний",
+		PREPOSITIONAL = "книге заклинаний"
 	)
 
-/obj/item/spellbook/proc/create_spellbook()
+/obj/item/spellbook/proc/initialize()
 	var/entry_types = subtypesof(/datum/spellbook_entry) - /datum/spellbook_entry/item - /datum/spellbook_entry/summon - /datum/spellbook_entry/loadout
 	for(var/T in entry_types)
 		var/datum/spellbook_entry/E = new T
@@ -786,9 +774,10 @@
 	main_tab = main_categories[1]
 	tab = categories[1]
 
-/obj/item/spellbook/Initialize(mapload)
-	. = ..()
-	create_spellbook()
+/obj/item/spellbook/New()
+	..()
+	initialize()
+
 
 /obj/item/spellbook/magic_charge_act(mob/user)
 	. = RECHARGE_SUCCESSFUL|RECHARGE_BURNOUT
@@ -800,8 +789,6 @@
 				"CUTE!", \
 				"YOU DIDN'T THINK IT'D BE THAT EASY, DID YOU?")))
 
-
-// MARK: BLOCK 2.2: ITEM/SPELL REFUND
 
 /obj/item/spellbook/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM || skip_refunds)
@@ -866,123 +853,161 @@
 
 	return ..()
 
+
+/obj/item/spellbook/proc/GetCategoryHeader(category)
+	var/dat = ""
+	switch(category)
+		if("Offensive")
+			dat += "Spells geared towards debilitating and destroying.<br><br>"
+			dat += "For spells: the number after the spell name is the cooldown time.<br>"
+			dat += "You can reduce this number by spending more points on the spell.<br>"
+		if("Defensive")
+			dat += "Spells geared towards improving your survivabilty or reducing foes ability to attack.<br><br>"
+			dat += "For spells: the number after the spell name is the cooldown time.<br>"
+			dat += "You can reduce this number by spending more points on the spell.<br>"
+		if("Mobility")
+			dat += "Spells geared towards improving your ability to move. It is a good idea to take at least one.<br><br>"
+			dat += "For spells: the number after the spell name is the cooldown time.<br>"
+			dat += "You can reduce this number by spending more points on the spell.<br>"
+		if("Assistance")
+			dat += "Spells geared towards improving your other items and abilities.<br><br>"
+			dat += "For spells: the number after the spell name is the cooldown time.<br>"
+			dat += "You can reduce this number by spending more points on the spell.<br>"
+		if("Rituals")
+			dat += "These powerful spells are capable of changing the very fabric of reality. Not always in your favour.<br>"
+		if("Weapons and Armors")
+			dat += "Various weapons and armors to crush your enemies and protect you from harm.<br><br>"
+			dat += "Items are not bound to you and can be stolen. Additionaly they cannot typically be returned once purchased.<br>"
+		if("Staves")
+			dat += "Various staves granting you their power, which they slowly recharge over time.<br><br>"
+			dat += "Items are not bound to you and can be stolen. Additionaly they cannot typically be returned once purchased.<br>"
+		if("Artefacts")
+			dat += "Various magical artefacts to aid you.<br><br>"
+			dat += "Items are not bound to you and can be stolen. Additionaly they cannot typically be returned once purchased.<br>"
+		if("Spell books")
+			dat += "Spell books to train your companions.<br><br>"
+			dat += "Various sets of spell books that will help you and your partner in creating chaos.<br>"
+		if("Summons")
+			dat += "Magical items geared towards bringing in outside forces to aid you.<br><br>"
+			dat += "Items are not bound to you and can be stolen. Additionaly they cannot typically be returned once purchased.<br>"
+		if("Standard")
+			dat += "These battle-tested spell sets are easy to use and provide good balance between offense and defense.<br><br>"
+			dat += "They all cost, and are worth, 10 spell points. You are able to refund any of the spells included as long as you stay in the wizard den.<br>"
+		if("Unique")
+			dat += "These esoteric loadouts usually contain spells or items that cannot be bought elsewhere in this spellbook.<br><br>"
+			dat += "Recommended for experienced wizards looking for something new. No refunds once purchased!<br>"
+	return dat
+
 /obj/item/spellbook/attack_self(mob/user as mob)
 	if(!owner)
-		to_chat(user, span_notice("You bind the spellbook to yourself."))
+		to_chat(user, "<span class='notice'>You bind the spellbook to yourself.</span>")
 		owner = user
 		return
 	if(user != owner)
-		to_chat(user, span_warning("The [name] does not recognize you as it's owner and refuses to open!"))
+		to_chat(user, "<span class='warning'>The [name] does not recognize you as it's owner and refuses to open!</span>")
 		return
+	user.set_machine(src)
+	var/dat = ""
 
-	ui_interact(user)
+	dat += "<ul id=\"maintabs\">"
+	var/list/cat_dat = list()
+	for(var/main_category in main_categories)
+		cat_dat[main_category] = "<hr>"
+		dat += "<li><a [main_tab==main_category?"class=selected":""] href='byond://?src=[UID()];mainpage=[main_category]'>[main_category]</a></li>"
+	dat += "</ul>"
+	dat += "<ul id=\"tabs\">"
+	switch(main_tab)
+		if("Spells")
+			for(var/category in categories)
+				if(category in spell_categories)
+					cat_dat[category] = "<hr>"
+					dat += "<li><a [tab==category?"class=selected":""] href='byond://?src=[UID()];page=[category]'>[category]</a></li>"
+		if("Magical Items")
+			for(var/category in categories)
+				if(category in item_categories)
+					cat_dat[category] = "<hr>"
+					dat += "<li><a [tab==category?"class=selected":""] href='byond://?src=[UID()];page=[category]'>[category]</a></li>"
+		if("Loadouts")
+			for(var/category in categories)
+				if(category in loadout_categories)
+					cat_dat[category] = "<hr>"
+					dat += "<li><a [tab==category?"class=selected":""] href='byond://?src=[UID()];page=[category]'>[category]</a></li>"
+	dat += "<li><a><b>Points remaining : [uses]</b></a></li>"
+	dat += "</ul>"
 
-
-// MARK: BLOCK 2.3: TGUI
-
-/obj/item/spellbook/ui_interact(mob/user, datum/tgui/ui)
-	ui = SStgui.try_update_ui(user, src, ui)
-	if(!ui)
-		ui = new(user, src, "Spellbook", name)
-		ui.open()
-
-/obj/item/spellbook/ui_data(mob/user)
-	var/list/data = list()
-
-	data["points"] = uses
-
-	data["main_categories"] = main_categories
-	data["spell_categories"] = spell_categories
-	data["item_categories"] = item_categories
-	data["loadout_categories"] = loadout_categories
-
-	var/list/all_entries = list()
-	for(var/i in 1 to length(entries))
-		var/datum/spellbook_entry/entry = entries[i]
-		var/list/entry_data = list()
-
-		entry_data["name"] = entry.name
-		entry_data["category"] = entry.category
-		entry_data["cost"] = entry.cost
-		entry_data["buy_word"] = entry.buy_word
-		entry_data["refundable"] = entry.refundable
-		entry_data["index"] = i
-
-		entry_data["can_buy"] = entry.CanBuy(user, src)
-		entry_data["can_refund"] = entry.CanRefund(user, src)
-
-		if(entry.spell_type)
-			if(!entry.S)
-				entry.S = new entry.spell_type()
-			entry_data["desc"] = entry.S.desc + entry.desc
-			entry_data["cooldown"] = entry.S.base_cooldown / 10
-			entry_data["clothes_req"] = entry.S.clothes_req
+	var/datum/spellbook_entry/E
+	for(var/i=1,i<=entries.len,i++)
+		var/spell_info = ""
+		E = entries[i]
+		spell_info += E.GetInfo()
+		if(E.CanBuy(user,src))
+			spell_info+= "<a href='byond://?src=[UID()];buy=[i]'>[E.buy_word]</a><br>"
 		else
-			entry_data["desc"] = entry.desc
-			entry_data["cooldown"] = null
-			entry_data["clothes_req"] = null
+			spell_info+= "<span>Can't [E.buy_word]</span><br>"
+		if(E.CanRefund(user,src))
+			spell_info+= "<a href='byond://?src=[UID()];refund=[i]'>Refund</a><br>"
+		spell_info += "<hr>"
+		if(cat_dat[E.category])
+			cat_dat[E.category] += spell_info
 
-		if(istype(entry, /datum/spellbook_entry/item))
-			var/datum/spellbook_entry/item/item_entry = entry
-			entry_data["item_path"] = "[item_entry.item_path]"
+	for(var/category in categories)
+		dat += "<div class=\"[tab==category?"tabContent":"tabContent hide"]\" id=\"[category]\">"
+		dat += GetCategoryHeader(category)
+		dat += cat_dat[category]
+		dat += "</div>"
 
-		all_entries += list(entry_data)
+	var/datum/browser/popup = new(user, "spellbook", "Spellbook", 800, 600)
+	popup.set_content(dat)
+	popup.add_stylesheet("spellbook", 'html/css/spellbook.css')
+	popup.open(TRUE)
+	onclose(user, "spellbook")
+	return
 
-	data["entries"] = all_entries
-	return data
-
-#define SPELLBOOK_ACTION_BUY "buy"
-#define SPELLBOOK_ACTION_REFUND "refund"
-
-/obj/item/spellbook/ui_act(action, list/params)
+/obj/item/spellbook/Topic(href, href_list)
 	if(..())
-		return
+		return 1
+	var/mob/living/carbon/human/H = usr
 
-	var/mob/living/carbon/human/user = usr
-	if(!ishuman(user) || !owner || user != owner)
-		return
+	if(!ishuman(H))
+		return 1
 
-	if(user.mind && user.mind.special_role == SPECIAL_ROLE_WIZARD_APPRENTICE)
-		to_chat(user, span_warning("If you got caught sneaking a peak from your teacher's spellbook, you'd likely be expelled from the Wizard Academy. Better not."))
-		return
+	if(H.mind.special_role == SPECIAL_ROLE_WIZARD_APPRENTICE)
+		temp = "If you got caught sneaking a peak from your teacher's spellbook, you'd likely be expelled from the Wizard Academy. Better not."
+		return 1
 
-	switch(action)
-		if(SPELLBOOK_ACTION_BUY)
-			var/idx = params["index"]
-			if(!idx || idx > length(entries))
-				return
-			var/datum/spellbook_entry/entry = entries[idx]
-			if(!entry || !entry.CanBuy(user, src))
-				return
-			if(!entry.Buy(user, src))
-				return
-			if(entry.limit)
-				entry.limit--
-			uses -= entry.cost
-			. = TRUE
+	var/datum/spellbook_entry/E = null
+	if(loc == H || (in_range(src, H) && istype(loc, /turf)))
+		H.set_machine(src)
+		if(href_list["buy"])
+			E = entries[text2num(href_list["buy"])]
+			if(E && E.CanBuy(H,src))
+				if(E.Buy(H,src))
+					if(E.limit)
+						E.limit--
+					uses -= E.cost
+		else if(href_list["refund"])
+			E = entries[text2num(href_list["refund"])]
+			if(E && E.refundable)
+				var/result = E.Refund(H,src)
+				if(result > 0)
+					if(!isnull(E.limit))
+						E.limit += result
+					uses += result
+		else if(href_list["mainpage"])
+			main_tab = sanitize(href_list["mainpage"])
+			tab = sanitize(href_list["page"])
+			if(main_tab == "Spells")
+				tab = spell_categories[1]
+			else if(main_tab == "Magical Items")
+				tab = item_categories[1]
+			else if(main_tab == "Loadouts")
+				tab = loadout_categories[1]
+		else if(href_list["page"])
+			tab = sanitize(href_list["page"])
+	attack_self(H)
+	return 1
 
-		if(SPELLBOOK_ACTION_REFUND)
-			var/idx = params["index"]
-			if(!idx || idx > length(entries))
-				return
-			var/datum/spellbook_entry/entry = entries[idx]
-			if(!entry || !entry.refundable)
-				return
-			var/result = entry.Refund(user, src)
-			if(result <= 0)
-				return
-			if(!isnull(entry.limit))
-				entry.limit += result
-			uses += result
-			. = TRUE
-
-#undef SPELLBOOK_ACTION_BUY
-#undef SPELLBOOK_ACTION_REFUND
-
-// MARK 3: SINGLE USE SPELLBOOKS
-
-// MARK: BLOCK 3.1: BASE CLASS & CORE LOGIC
-
+//Single Use Spellbooks
 /obj/item/spellbook/oneuse
 	var/spell = /obj/effect/proc_holder/spell/projectile/magic_missile //just a placeholder to avoid runtimes if someone spawned the generic
 	var/spellname = "sandbox"
@@ -994,13 +1019,13 @@
 	desc = "Эту шаблонную книгу заклинаний не должно было видеть ни одно живое существо..."
 
 /obj/item/spellbook/oneuse/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "гримуар [spellname_ru]",
 		GENITIVE = "гримуара [spellname_ru]",
 		DATIVE = "гримуару [spellname_ru]",
 		ACCUSATIVE = "гримуар [spellname_ru]",
 		INSTRUMENTAL = "гримуаром [spellname_ru]",
-		PREPOSITIONAL = "гримуаре [spellname_ru]",
+		PREPOSITIONAL = "гримуаре [spellname_ru]"
 	)
 
 /obj/item/spellbook/oneuse/magic_charge_act(mob/user)
@@ -1013,14 +1038,18 @@
 	. |= RECHARGE_SUCCESSFUL
 
 	if(prob(80))
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] загорается!"))
+		visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] загорается!"))
 		user.temporarily_remove_item_from_inventory(src)
 		qdel(src)
 		. |= RECHARGE_BURNOUT
 
-/obj/item/spellbook/oneuse/Initialize(mapload)
-	. = ..()
+
+/obj/item/spellbook/oneuse/New()
+	..()
 	name += spellname
+
+/obj/item/spellbook/oneuse/initialize(mapload) //No need to init
+	return
 
 /obj/item/spellbook/oneuse/attack_self(mob/user)
 	var/obj/effect/proc_holder/spell/S = new spell
@@ -1041,14 +1070,11 @@
 		onlearned(user)
 
 /obj/item/spellbook/oneuse/proc/recoil(mob/user)
-	user.visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] загорается чёрным светом!"))
+	user.visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] загорается чёрным светом!"))
 
 /obj/item/spellbook/oneuse/proc/onlearned(mob/user)
 	used = 1
-	user.visible_message(span_caution("[DECLENT_RU_CAP(src, NOMINATIVE)] на мгновение загорается чёрным светом!"))
-
-
-// MARK: BLOCK 3.2: SPECIFIC ONEUSE BOOKS
+	user.visible_message(span_caution("[capitalize(declent_ru(NOMINATIVE))] на мгновение загорается чёрным светом!"))
 
 /obj/item/spellbook/oneuse/fireball
 	spell = /obj/effect/proc_holder/spell/fireball
@@ -1098,7 +1124,7 @@
 	icon_state = "bookmindswap"
 	item_state = "bookmindswap"
 	desc = "Обложка этой книги выглядит нетронутой, хотя её страницы выглядят изношенными и истрёпанными."
-	var/mob/stored_swap = null  //Used in used book recoils to store an identity for mindswaps
+	var/mob/stored_swap = null //Used in used book recoils to store an identity for mindswaps
 
 /obj/item/spellbook/oneuse/mindswap/get_ru_names_cached()
 	return get_ru_names()
@@ -1169,7 +1195,7 @@
 /obj/item/spellbook/oneuse/knock
 	spell = /obj/effect/proc_holder/spell/aoe/knock
 	spellname = "knock"
-	spellname_ru = "Открывания"
+	spellname = "Открывания"
 	icon_state = "bookknock"
 	item_state = "bookknock"
 	desc = "Эту книгу тяжело держать закрытой."
@@ -1192,9 +1218,9 @@
 		to_chat(user, span_userdanger("ЛОШ'АДЬ ПРОБУДИЛАСЬ!"))
 		var/obj/item/clothing/mask/horsehead/magichead = new /obj/item/clothing/mask/horsehead
 		ADD_TRAIT(magichead, TRAIT_NODROP, CURSED_ITEM_TRAIT(magichead.type))
-		magichead.item_flags |= DROPDEL //curses!
-		magichead.flags_inv &= ~HIDENAME  //so you can still see their face
-		magichead.voicechange = TRUE  //NEEEEIIGHH
+		magichead.item_flags |= DROPDEL	//curses!
+		magichead.flags_inv &= ~HIDENAME	//so you can still see their face
+		magichead.voicechange = TRUE	//NEEEEIIGHH
 		if(!user.drop_item_ground(user.wear_mask))
 			qdel(user.wear_mask)
 		user.equip_to_slot_or_del(magichead, ITEM_SLOT_MASK)
@@ -1212,7 +1238,7 @@
 
 /obj/item/spellbook/oneuse/charge/recoil(mob/user)
 	..()
-	to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает нагреваться!"))
+	to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает нагреваться!"))
 	empulse(src, 1, 1)
 
 /obj/item/spellbook/oneuse/summonitem
@@ -1225,7 +1251,7 @@
 
 /obj/item/spellbook/oneuse/summonitem/recoil(mob/user)
 	..()
-	to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] внезапно исчезает!"))
+	to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] внезапно исчезает!"))
 	qdel(src)
 
 /obj/item/spellbook/oneuse/fake_gib
@@ -1247,7 +1273,7 @@
 /obj/item/spellbook/oneuse/goliath_dash
 	spell = /obj/effect/proc_holder/spell/goliath_dash
 	spellname = "goliath dash"
-	spellname_ru = "Рывка Голиафа"
+	spellname = "Рывка Голиафа"
 	icon_state = "bookgoliathdash"
 	item_state = "bookgoliathdash"
 	desc = "Эта книга достаточно горяча, а щупальца, что лезут из неё, извиваются и держат ваши руки."
@@ -1260,19 +1286,12 @@
 	item_state = "bookwatcherlook"
 	desc = "Глаз на обложке следит за вашим взглядом..."
 
-
-// MARK: BLOCK 3.3: RANDOM BOOK
-
 /obj/item/spellbook/oneuse/random
 	icon_state = "random_book"
 
-/obj/item/spellbook/oneuse/random/create_spellbook()
+/obj/item/spellbook/oneuse/random/Initialize(mapload)
 	. = ..()
-	var/static/list/banned_spells = typesof(
-		/obj/item/spellbook/oneuse/mime,
-		/obj/item/spellbook/oneuse/emp/used,
-		/obj/item/spellbook/oneuse/fake_gib,
-	)
+	var/static/banned_spells = list(/obj/item/spellbook/oneuse/mime, /obj/item/spellbook/oneuse/mime/fingergun, /obj/item/spellbook/oneuse/mime/fingergun/fake, /obj/item/spellbook/oneuse/mime/greaterwall, /obj/item/spellbook/oneuse/fake_gib, /obj/item/spellbook/oneuse/emp/used)
 	var/real_type = pick(subtypesof(/obj/item/spellbook/oneuse) - banned_spells)
 	new real_type(loc)
 	qdel(src)

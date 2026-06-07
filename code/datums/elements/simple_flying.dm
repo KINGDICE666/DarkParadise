@@ -6,6 +6,7 @@
  */
 /datum/element/simple_flying
 
+
 /datum/element/simple_flying/Attach(datum/target)
 	. = ..()
 	if(!isliving(target))
@@ -14,9 +15,11 @@
 	on_stat_change(valid_target, new_stat = valid_target.stat) //immediately try adding flight if they're conscious
 	RegisterSignal(target, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
 
+
 /datum/element/simple_flying/Detach(datum/target)
 	. = ..()
 	UnregisterSignal(target, COMSIG_MOB_STATCHANGE)
+
 
 ///signal called by the stat of the target changing
 /datum/element/simple_flying/proc/on_stat_change(mob/living/target, new_stat)

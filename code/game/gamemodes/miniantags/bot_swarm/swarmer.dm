@@ -45,11 +45,9 @@
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
-	user.visible_message(
-		span_warning("[usr.name] deactivates [src]."),
+	user.visible_message(span_warning("[usr.name] deactivates [src]."),
 		span_notice("After some fiddling, you find a way to disable [src]'s power source."),
-		span_italics("You hear clicking.")
-	)
+		span_italics("You hear clicking."))
 	new /obj/item/deactivated_swarmer(get_turf(src))
 	qdel(src)
 
@@ -127,11 +125,11 @@
 	to_chat(src, "2. Ensure that the station is fit for invasion at a later date, do not perform actions that would render it dangerous or inhospitable.")
 	to_chat(src, "3. Biological and sentient resources will be harvested at a later date, do not harm them.")
 
-/mob/living/simple_animal/hostile/swarmer/Initialize(mapload)
-	. = ..()
+/mob/living/simple_animal/hostile/swarmer/New()
+	..()
 	add_language(LANGUAGE_HIVE_SWARMER, 1)
-	var/datum/atom_hud/data/diagnostic/diag_hud = GLOB.huds[DATA_HUD_DIAGNOSTIC]
-	diag_hud.add_atom_to_hud(src)
+	for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.huds)
+		diag_hud.add_to_hud(src)
 	updatename()
 	ADD_TRAIT(src, TRAIT_WET_IMMUNITY, INNATE_TRAIT)
 
@@ -141,12 +139,12 @@
 
 /mob/living/simple_animal/hostile/swarmer/med_hud_set_health()
 	var/image/holder = hud_list[DIAG_HUD]
-	holder.pixel_z = get_cached_height() - ICON_SIZE_Y
+	holder.pixel_y = get_cached_height() - ICON_SIZE_Y
 	holder.icon_state = "huddiag[RoundDiagBar(health / maxHealth)]"
 
 /mob/living/simple_animal/hostile/swarmer/med_hud_set_status()
 	var/image/holder = hud_list[DIAG_STAT_HUD]
-	holder.pixel_z = get_cached_height() - ICON_SIZE_Y
+	holder.pixel_y = get_cached_height() - ICON_SIZE_Y
 	holder.icon_state = "hudstat"
 
 /mob/living/simple_animal/hostile/swarmer/get_status_tab_items()
@@ -154,10 +152,12 @@
 	. = status_tab_data
 	status_tab_data[++status_tab_data.len] = list("Resources:",resources)
 
+
 /mob/living/simple_animal/hostile/swarmer/move_into_vent(obj/machinery/atmospherics/ventcrawl_target, message = TRUE)
 	. = ..()
 	if(. && light_on)
 		ToggleLight()
+
 
 /mob/living/simple_animal/hostile/swarmer/emp_act()
 	if(health > 1)
@@ -165,10 +165,12 @@
 	else
 		death()
 
+
 /mob/living/simple_animal/hostile/swarmer/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(istype(mover, /obj/projectile/beam/disabler) || isswarmer(mover))//Allows for swarmers to fight as a group without wasting their shots hitting each other
 		return TRUE
+
 
 ////CTRL CLICK FOR SWARMERS AND SWARMER_ACT()'S////
 /mob/living/simple_animal/hostile/swarmer/AttackingTarget()
@@ -225,7 +227,7 @@
 	return 0
 
 /obj/item/IntegrateAmount() //returns the amount of resources gained when eating this item
-	if(materials && (materials[MAT_METAL] || materials[MAT_GLASS]))
+	if(materials[MAT_METAL] || materials[MAT_GLASS])
 		return 1
 	return ..()
 
@@ -279,7 +281,7 @@
 	var/isonshuttle = istype(get_area(src), /area/shuttle)
 	for(var/turf/T in range(1, src))
 		var/area/A = get_area(T)
-		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || isspacearea(A))) || (isonshuttle && !istype(A, /area/shuttle)))
+		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || istype(A, /area/space))) || (isonshuttle && !istype(A, /area/shuttle)))
 			to_chat(S, span_warning("Destroying this object has the potential to cause a hull breach. Aborting."))
 			S.GiveTarget(null)
 			return FALSE
@@ -394,7 +396,7 @@
 	var/isonshuttle = istype(loc, /area/shuttle)
 	for(var/turf/T in range(1, src))
 		var/area/A = get_area(T)
-		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || isspacearea(A))) || (isonshuttle && !istype(A, /area/shuttle)))
+		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || istype(A, /area/space))) || (isonshuttle && !istype(A, /area/shuttle)))
 			to_chat(S, span_warning("Destroying this object has the potential to cause a hull breach. Aborting."))
 			S.GiveTarget(null)
 			return TRUE
@@ -404,11 +406,22 @@
 			return TRUE
 	return ..()
 
+/turf/simulated/mineral/ancient/swarmer_act(mob/living/simple_animal/hostile/swarmer/S)
+	var/isonshuttle = istype(loc, /area/shuttle)
+	for(var/turf/T in range(1, src))
+		var/area/A = get_area(T)
+		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || istype(A, /area/space))) || (isonshuttle && !istype(A, /area/shuttle)))
+			to_chat(S, span_warning("Destroying this object has the potential to cause a hull breach. Aborting."))
+			S.GiveTarget(null)
+			return TRUE
+	return ..()
+
+
 /obj/structure/window/swarmer_act(mob/living/simple_animal/hostile/swarmer/S)
 	var/isonshuttle = istype(get_area(src), /area/shuttle)
 	for(var/turf/T in range(1, src))
 		var/area/A = get_area(T)
-		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || isspacearea(A))) || (isonshuttle && !istype(A, /area/shuttle)))
+		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || istype(A, /area/space))) || (isonshuttle && !istype(A, /area/shuttle)))
 			to_chat(S, span_warning("Destroying this object has the potential to cause a hull breach. Aborting."))
 			S.GiveTarget(null)
 			return TRUE
@@ -422,7 +435,7 @@
 	var/isonshuttle = istype(get_area(src), /area/shuttle)
 	for(var/turf/T in range(1, src))
 		var/area/A = get_area(T)
-		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || isspacearea(A))) || (isonshuttle && !istype(A, /area/shuttle)))
+		if(isspaceturf(T) || (!isonshuttle && (istype(A, /area/shuttle) || istype(A, /area/space))) || (isonshuttle && !istype(A, /area/shuttle)))
 			to_chat(S, span_warning("Destroying this object has the potential to cause a hull breach. Aborting."))
 			S.GiveTarget(null)
 			return TRUE
@@ -551,10 +564,10 @@
 
 	do_sparks(4, FALSE, target)
 	playsound(src,'sound/effects/sparks4.ogg', 50, TRUE)
-	do_teleport(target, F, 0, always_precise = TRUE)
+	do_teleport(target, F, 0)
 	investigate_log("[key_name_log(src)] teleported [key_name_log(target)] to [COORD(F)]", INVESTIGATE_TELEPORTATION)
 
-/mob/living/simple_animal/hostile/swarmer/electrocute_act(shock_damage, atom/source, siemens_coeff = 1, flags = NONE, jitter_time = 10 SECONDS, stutter_time = 6 SECONDS, stun_duration = 4 SECONDS)
+/mob/living/simple_animal/hostile/swarmer/electrocute_act(shock_damage, source, siemens_coeff = 1, flags = NONE, jitter_time = 10 SECONDS, stutter_time = 6 SECONDS, stun_duration = 4 SECONDS)
 	if(!(flags & SHOCK_TESLA))
 		return FALSE
 	return ..()
@@ -584,9 +597,9 @@
 				new C.circuit(Tsec)
 		qdel(target)
 
+
 /obj/effect/temp_visual/swarmer //temporary swarmer visual feedback objects
 	icon = 'icons/mob/swarmer.dmi'
-	icon_state = null
 	layer = BELOW_MOB_LAYER
 
 /obj/effect/temp_visual/swarmer/disintegration
@@ -645,6 +658,7 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/structure/swarmer/trap/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
@@ -652,23 +666,25 @@
 		return
 
 	playsound(loc, 'sound/effects/snap.ogg', 50, TRUE, -1)
-	arrived.electrocute_act(100, src, flags = SHOCK_NOGLOVES | SHOCK_ILLUSION) // Remove the Swarmer mode pls
+	arrived.electrocute_act(100, "электрической ловушки", flags = SHOCK_NOGLOVES | SHOCK_ILLUSION) // Remove the Swarmer mode pls
 	if(isrobot(arrived) || ismachineperson(arrived))
 		arrived.Weaken(10 SECONDS)
 	qdel(src)
 
+
 /mob/living/simple_animal/hostile/swarmer/proc/CreateTrap()
 	set name = "Создать ловушку"
-	set category = VERB_CATEGORY_SWARMER
+	set category = STATPANEL_SWARMER
 	set desc = "Creates a simple trap that will non-lethally electrocute anything that steps on it. Costs 5 resources."
 	if(locate(/obj/structure/swarmer/trap) in loc)
 		to_chat(src, span_warning("There is already a trap here. Aborting."))
 		return
 	Fabricate(/obj/structure/swarmer/trap, 5)
 
+
 /mob/living/simple_animal/hostile/swarmer/proc/CreateBarricade()
 	set name = "Создать баррикаду"
-	set category = VERB_CATEGORY_SWARMER
+	set category = STATPANEL_SWARMER
 	set desc = "Creates a barricade that will stop anything but swarmers and disabler beams from passing through."
 	if(locate(/obj/structure/swarmer/blockade) in loc)
 		to_chat(src, span_warning("There is already a blockade here. Aborting."))
@@ -679,6 +695,7 @@
 	if(do_after(src, 1 SECONDS, src, NONE))
 		Fabricate(/obj/structure/swarmer/blockade, 5)
 
+
 /obj/structure/swarmer/blockade
 	name = "swarmer blockade"
 	desc = "A quickly assembled energy blockade. Will not retain its form if damaged enough, but disabler beams and swarmers pass right through."
@@ -686,14 +703,16 @@
 	light_range = MINIMUM_USEFUL_LIGHT_RANGE
 	max_integrity = 50
 
+
 /obj/structure/swarmer/blockade/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(istype(mover, /obj/projectile/beam/disabler) || isswarmer(mover))
 		return TRUE
 
+
 /mob/living/simple_animal/hostile/swarmer/proc/CreateSwarmer()
 	set name = "Репликация"
-	set category = VERB_CATEGORY_SWARMER
+	set category = STATPANEL_SWARMER
 	set desc = "Creates a shell for a new swarmer. Swarmers will self activate."
 	to_chat(src, span_notice("We are attempting to replicate ourselves. We will need to stand still until the process is complete."))
 	if(resources < 100)
@@ -707,12 +726,14 @@
 		if(createtype && Fabricate(createtype, 100))
 			playsound(loc,'sound/items/poster_being_created.ogg',50, TRUE, -1)
 
+
 /mob/living/simple_animal/hostile/swarmer/proc/SwarmerTypeToCreate()
 	return /obj/effect/mob_spawn/swarmer
 
+
 /mob/living/simple_animal/hostile/swarmer/proc/RepairSelf()
 	set name = "Саморемонт"
-	set category = VERB_CATEGORY_SWARMER
+	set category = STATPANEL_SWARMER
 	set desc = "Attempts to repair damage to our body. You will have to remain motionless until repairs are complete."
 	if(!isturf(loc))
 		return

@@ -37,7 +37,7 @@
 	var/mob/living/carbon/human/H = usr
 	if(!( ishuman(H)))
 		return 1
-	if((usr == src.loc || (in_range(src, usr) && isturf(src.loc))))
+	if((usr == src.loc || (in_range(src, usr) && istype(src.loc, /turf))))
 		usr.set_machine(src)
 		if(href_list["spell_teleport"])
 			if(src.uses >= 1)
@@ -46,8 +46,6 @@
 	return
 
 /obj/item/teleportation_scroll/proc/teleportscroll(mob/user)
-	if(itb_blocks_teleport(user, user, "ITB подавляет магическое перемещение свитка."))
-		return
 
 	var/A
 
@@ -60,13 +58,17 @@
 
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
-	if(!((user == loc || (in_range(src, user) && isturf(src.loc)))))
+	if(!((user == loc || (in_range(src, user) && istype(src.loc, /turf)))))
 		return
 
 	if(thearea.tele_proof && !istype(thearea, /area/wizard_station))
-		to_chat(user, span_warning("A mysterious force disrupts your arcane spell matrix, and you remain where you are."))
+		to_chat(user, "<span class='warning'>A mysterious force disrupts your arcane spell matrix, and you remain where you are.</span>")
 		return
 
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	smoke.set_up(amount = 5, location = user.loc)
+	smoke.attach(user)
+	smoke.start()
 	var/list/L = list()
 	for(var/turf/T in get_area_turfs(thearea.type))
 		if(!T.density)
@@ -78,36 +80,30 @@
 			if(clear)
 				L+=T
 
-	if(!length(L))
-		to_chat(user, span_warning("The spell matrix was unable to locate a suitable teleport destination for an unknown reason. Sorry."))
+	if(!L.len)
+		to_chat(user, "<span class='warning'>The spell matrix was unable to locate a suitable teleport destination for an unknown reason. Sorry.</span>")
 		return
 
-	if(user?.buckled)
+	if(user && user.buckled)
 		user.buckled.unbuckle_mob(user, force = TRUE)
 
 	if(user && user.has_buckled_mobs())
 		user.unbuckle_all_mobs(force = TRUE)
 
-	var/turf/origin = get_turf(user)
-	var/list/tempL = L.Copy()
+	var/list/tempL = L
 	var/attempt = null
 	var/success = FALSE
-	while(length(tempL))
+	while(tempL.len)
 		attempt = pick(tempL)
-		do_magic_direct_teleport(user, attempt, notified_user = user, block_message = "ITB подавляет магическое перемещение свитка.")
+		user.forceMove(attempt)
 		if(get_turf(user) == attempt)
 			success = TRUE
 			break
 		tempL.Remove(attempt)
 
-	if(!success && !do_magic_direct_teleport(user, pick(L), notified_user = user, block_message = "ITB подавляет магическое перемещение свитка."))
-		return
+	if(!success)
+		user.forceMove(pick(L))
 
-	var/datum/effect_system/fluid_spread/smoke/origin_smoke = new
-	origin_smoke.set_up(amount = 5, location = origin)
-	origin_smoke.start()
-	var/datum/effect_system/fluid_spread/smoke/destination_smoke = new
-	destination_smoke.set_up(amount = 5, location = user.loc)
-	destination_smoke.start()
+	smoke.start()
 	src.uses -= 1
 	user.update_action_buttons_icon()  //Update action buttons as some spells might now be castable

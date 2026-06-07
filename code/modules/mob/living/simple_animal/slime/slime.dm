@@ -38,7 +38,7 @@
 
 	// canstun and canknockdown don't affect slimes because they ignore stun and knockdown variables
 	// for the sake of cleanliness, though, here they are.
-	status_flags = CANPARALYSE | CANPUSH | CANUNCONSCIOUS
+	status_flags = CANPARALYSE | CANPUSH
 
 	footstep_type = FOOTSTEP_MOB_SLIME
 
@@ -86,6 +86,7 @@
 	var/effectmod //What core modification is being used.
 	var/applied = 0 //How many extracts of the modtype have been applied.
 
+
 /mob/living/simple_animal/slime/Initialize(mapload, new_colour = "grey", age_state_new = new /datum/slime_age/baby, new_set_nutrition = 700)
 	if(!(locate(/datum/action/innate/slime/feed) in actions))
 		var/datum/action/innate/slime/feed/F = new
@@ -108,7 +109,8 @@
 	add_language(LANGUAGE_SLIME)
 
 /mob/living/simple_animal/slime/Destroy()
-	for(var/datum/action/AC as anything in actions)
+	for(var/A in actions)
+		var/datum/action/AC = A
 		AC.Remove(src)
 	Target = null
 	Leader = null
@@ -158,9 +160,11 @@
 	else
 		icon_state = icon_dead
 
+
 /mob/living/simple_animal/slime/updatehealth(reason = "none given", should_log = FALSE)
 	. = ..()
 	update_movespeed_damage_modifiers()
+
 
 /mob/living/simple_animal/slime/update_movespeed_damage_modifiers()
 	var/mod = 0
@@ -171,6 +175,7 @@
 		if(health <= 0)
 			mod += 2
 	add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/slime_health_mod, multiplicative_slowdown = mod)
+
 
 /mob/living/simple_animal/slime/adjust_bodytemperature(amount, min_temp = 0, max_temp = INFINITY)
 	. = ..()
@@ -183,6 +188,7 @@
 		add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/slime_temp_mod, multiplicative_slowdown = mod)
 	else
 		remove_movespeed_modifier(/datum/movespeed_modifier/slime_temp_mod)
+
 
 /mob/living/simple_animal/slime/update_health_hud()
 	if(hud_used)
@@ -218,8 +224,9 @@
 			else
 				clear_fullscreen("brute")
 
+
 /mob/living/simple_animal/slime/ObjBump(obj/object)
-	if(client || Atkcool || powerlevel <= 0 || age_state.age == SLIME_BABY || nutrition > get_hunger_nutrition() || (is_window(object) && !istype(object, /obj/structure/grille)))
+	if(client || Atkcool || powerlevel <= 0 || age_state.age == SLIME_BABY || nutrition > get_hunger_nutrition() || (istype(object, /obj/structure/window) && !istype(object, /obj/structure/grille)))
 		return
 
 	var/probab = 10
@@ -244,6 +251,7 @@
 	Atkcool = TRUE
 	addtimer(VARSET_CALLBACK(src, Atkcool, FALSE), 4.5 SECONDS)
 
+
 /mob/living/simple_animal/slime/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	return TRUE
 
@@ -261,6 +269,7 @@
 		status_tab_data[++status_tab_data.len] = list("Power Level:", "You are knocked out by high levels of BZ!")
 	else
 		status_tab_data[++status_tab_data.len] = list("Power Level:", "[powerlevel]")
+
 
 /mob/living/simple_animal/slime/adjustFireLoss(
 	amount = 0,
@@ -292,19 +301,20 @@
 	..()
 	powerlevel = 0 // oh no, the power!
 
-/mob/living/simple_animal/slime/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(!isliving(over_object) || over_object == src || user != src)
-		return
-	if(!CanFeedon(over_object))
-		return
+/mob/living/simple_animal/slime/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+	if(isliving(over_object) && over_object != src && usr == src && CanFeedon(over_object))
+		Feedon(over_object)
+		return FALSE
+	return ..()
 
-	Feedon(over_object)
 
 /mob/living/simple_animal/slime/do_unEquip(obj/item/I, force = FALSE, atom/newloc, no_move = FALSE, invdrop = TRUE, silent = FALSE)
 	return
 
+
 /mob/living/simple_animal/slime/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
 	return FALSE
+
 
 /mob/living/simple_animal/slime/attack_ui(slot)
 	return
@@ -315,8 +325,8 @@
 			return
 		if(buckled)
 			Feedstop(silent = TRUE)
-			visible_message(span_danger("[M] pulls [src] off!"), \
-				span_danger("You pull [src] off!"))
+			visible_message("<span class='danger'>[M] pulls [src] off!</span>", \
+				"<span class='danger'>You pull [src] off!</span>")
 			return
 		attacked += 5 - age_state.attacked
 		if(nutrition >= 100) //steal some nutrition. negval handled in life()
@@ -324,6 +334,7 @@
 			M.add_nutrition(50 + M.age_state.nutrition_steal)
 		if(health > 0)
 			M.adjustBruteLoss(-10 + (-M.age_state.damage * 2))
+
 
 /mob/living/simple_animal/slime/attack_animal(mob/living/simple_animal/M)
 	. = ..()
@@ -339,31 +350,31 @@
 		M.do_attack_animation(src, ATTACK_EFFECT_DISARM)
 		if(buckled == M)
 			if(prob(60))
-				M.visible_message(span_warning("[M] attempts to wrestle \the [name] off!"), \
-					span_danger("You attempt to wrestle \the [name] off!"))
+				M.visible_message("<span class='warning'>[M] attempts to wrestle \the [name] off!</span>", \
+					"<span class='danger'>You attempt to wrestle \the [name] off!</span>")
 				playsound(loc, 'sound/weapons/punchmiss.ogg', 25, TRUE, -1)
 
 			else
-				M.visible_message(span_warning("[M] manages to wrestle \the [name] off!"), \
-					span_notice("You manage to wrestle \the [name] off!"))
+				M.visible_message("<span class='warning'>[M] manages to wrestle \the [name] off!</span>", \
+					"<span class='notice'>You manage to wrestle \the [name] off!</span>")
 				playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 
 				discipline_slime(M)
 
 		else
 			if(prob(30))
-				buckled.visible_message(span_warning("[M] attempts to wrestle \the [name] off of [buckled]!"), \
-					span_warning("[M] attempts to wrestle \the [name] off of you!"))
+				buckled.visible_message("<span class='warning'>[M] attempts to wrestle \the [name] off of [buckled]!</span>", \
+					"<span class='warning'>[M] attempts to wrestle \the [name] off of you!</span>")
 				playsound(loc, 'sound/weapons/punchmiss.ogg', 25, TRUE, -1)
 
 			else
-				buckled.visible_message(span_warning("[M] manages to wrestle \the [name] off of [buckled]!"), \
-					span_notice("[M] manage to wrestle \the [name] off of you!"))
+				buckled.visible_message("<span class='warning'>[M] manages to wrestle \the [name] off of [buckled]!</span>", \
+					"<span class='notice'>[M] manage to wrestle \the [name] off of you!</span>")
 				playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 
 				discipline_slime(M)
 	else
-		if(stat == DEAD && length(surgeries))
+		if(stat == DEAD && surgeries.len)
 			if(M.a_intent == INTENT_HELP || M.a_intent == INTENT_DISARM)
 				for(var/datum/surgery/S in surgeries)
 					if(S.next_step(M, src))
@@ -375,6 +386,7 @@
 	if(..()) //if harm or disarm intent.
 		attacked += 10 - age_state.attacked
 		discipline_slime(M)
+
 
 /mob/living/simple_animal/slime/attackby(obj/item/I, mob/living/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -424,6 +436,7 @@
 	if(!ATTACK_CHAIN_CANCEL_CHECK(.))
 		discipline_on_attack(I.force, user)
 
+
 /mob/living/simple_animal/slime/proc/discipline_on_attack(force = 0, mob/user)
 	attacked += 10 - age_state.attacked
 	if(Discipline && prob(50)) // wow, buddy, why am I getting attacked??
@@ -435,6 +448,7 @@
 		force_effect = round(force / 2)
 	if(prob(10 + force_effect))
 		discipline_slime(user)
+
 
 /mob/living/simple_animal/slime/proc/clear_friend(mob/living/friend)
 	UnregisterSignal(friend, COMSIG_QDELETING)
@@ -451,12 +465,12 @@
 
 /mob/living/simple_animal/slime/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>This is [get_examine_icon(user)] \a <em>[src]</em>!"
+	. += "<span class='notice'>This is [bicon(src)] \a <em>[src]</em>!"
 	if(stat == DEAD)
-		. += span_deadsay("It is limp and unresponsive.")
+		. += "<span class='deadsay'>It is limp and unresponsive.</span>"
 	else
 		if(stat == UNCONSCIOUS) // Slime stasis
-			. += span_deadsay("It appears to be alive but unresponsive.")
+			. += "<span class='deadsay'>It appears to be alive but unresponsive.</span>"
 		if(getBruteLoss())
 			. += "<span class='warning'>"
 			if(getBruteLoss() < 40)
@@ -473,10 +487,10 @@
 				. += "It is glowing gently with moderate levels of electrical activity."
 
 			if(6 to 9)
-				. += span_warning("It is glowing brightly with high levels of electrical activity.")
+				. += "<span class='warning'>It is glowing brightly with high levels of electrical activity.</span>"
 
 			if(10)
-				. += span_warning("<b>It is radiating with massive levels of electrical activity!</b>")
+				. += "<span class='warning'><b>It is radiating with massive levels of electrical activity!</b></span>"
 
 	. += "</span>"
 
@@ -509,6 +523,7 @@
 /mob/living/simple_animal/slime/pet
 	docile = TRUE
 
+
 /mob/living/simple_animal/slime/get_mob_buckling_height(mob/seat)
 	if(..())
 		return 3
@@ -538,12 +553,14 @@
 /mob/living/simple_animal/slime/elder/Initialize(mapload, new_colour, age_state_new, new_set_nutrition)
 	. = ..(mapload, pick(slime_colours), age_state_new = new /datum/slime_age/elder, new_set_nutrition = 2000)
 
+
 /mob/living/simple_animal/slime/can_ventcrawl(obj/machinery/atmospherics/ventcrawl_target, provide_feedback = TRUE, entering = FALSE)
 	if(buckled)
 		if(provide_feedback)
 			to_chat(src, span_warning("Вы не можете залезть в вентиляцию пока кормитесь!"))
 		return FALSE
 	return ..()
+
 
 /mob/living/simple_animal/slime/invalid
 	var/dead_for_sure = FALSE
@@ -567,6 +584,7 @@
 	parent_spell = null
 	return ..()
 
+
 /mob/living/simple_animal/slime/invalid/death(gibbed)
 	if(dead_for_sure)
 		return
@@ -583,4 +601,5 @@
 	our_slime.Stun(5 SECONDS)
 	our_slime.AdjustConfused(5 SECONDS)
 	our_slime.Jitter(6 SECONDS)
+
 

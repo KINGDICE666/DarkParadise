@@ -13,7 +13,6 @@
 	name = "elite"
 	desc = "Элитный монстр, найденный в одном из странных опухолей на Лазисе."
 	icon = 'icons/mob/lavaland/lavaland_elites.dmi'
-	abstract_type = /mob/living/simple_animal/hostile/asteroid/elite
 	faction = list("boss")
 	robust_searching = TRUE
 	ranged_ignores_vision = TRUE
@@ -41,13 +40,13 @@
 	var/enemies_count_scale = 1.3 // 30% stronger per enemy
 
 /mob/living/simple_animal/hostile/asteroid/elite/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "элита",
 		GENITIVE = "элиты",
 		DATIVE = "элите",
 		ACCUSATIVE = "элиту",
 		INSTRUMENTAL = "элитой",
-		PREPOSITIONAL = "элите",
+		PREPOSITIONAL = "элите"
 	)
 
 //Gives player-controlled variants the ability to swap attacks
@@ -65,7 +64,7 @@
 		. += "Однако, этот кажется менее диким."
 
 /mob/living/simple_animal/hostile/asteroid/elite/AttackingTarget()
-	if(ishostile(target))
+	if(istype(target, /mob/living/simple_animal/hostile))
 		var/mob/living/simple_animal/hostile/M = target
 		if(faction_check_mob(M))
 			return FALSE
@@ -96,6 +95,7 @@
 		else if(L.health < -400)
 			L.gib()
 
+
 /mob/living/simple_animal/hostile/asteroid/elite/proc/revive_multiplier() //If on lavaland, return 1, or 1x cooldown. 10 if revived by a non antag, 2 if by an antag. 1 otherwise
 	if(is_mining_level(z))
 		return 1
@@ -104,6 +104,7 @@
 	if(del_on_death)
 		return REVIVE_COOLDOWN_MULT_ANTAG
 	return 1
+
 
 /mob/living/simple_animal/hostile/asteroid/elite/adjustHealth(
 	amount = 0,
@@ -115,6 +116,7 @@
 	. = ..()
 	if(. && del_on_death)
 		setMaxHealth(max(maxHealth - (amount * antag_revived_heal_mod), 0))
+
 
 /mob/living/simple_animal/hostile/asteroid/elite/ex_act(severity, origin) //No surrounding the tumor with gibtonite and one shotting them.
 	switch(severity)
@@ -142,7 +144,7 @@
 	. = ..()
 	if(isliving(A))
 		var/mob/living/mob = A
-		var/mobref = PERSONAL_FACTION(mob)
+		var/mobref = "\ref[mob]"
 		if(mob == reviver)
 			return
 		if(mobref in faction)
@@ -154,24 +156,24 @@
 			friends += mob
 			to_chat(src, span_notice("Вы добавили [mob.declent_ru(ACCUSATIVE)] в список друзей."))
 
+
 /*Basic setup for elite attacks, based on Whoneedspace's megafauna attack setup.
 While using this makes the system rely on OnFire, it still gives options for timers not tied to OnFire, and it makes using attacks consistent accross the board for player-controlled elites.*/
 
 /datum/action/innate/elite_attack
 	name = "Элитная атака"
-	button_icon = 'icons/mob/actions/actions_elites.dmi'
+	icon_icon = 'icons/mob/actions/actions_elites.dmi'
 	button_icon_state = ""
-	overlay_icon_state = "bg_default_border"
 	///The displayed message into chat when this attack is selected
 	var/chosen_message
 	///The internal attack ID for the elite's OpenFire() proc to use
 	var/chosen_attack_num = 0
 
-/datum/action/innate/elite_attack/create_button()
-	var/atom/movable/screen/movable/action_button/button = ..()
+/datum/action/innate/elite_attack/New(Target)
+	. = ..()
 	button.maptext = ""
-	button.maptext_x = 6
-	button.maptext_y = 2
+	button.maptext_x = 8
+	button.maptext_y = 0
 	button.maptext_width = 24
 	button.maptext_height = 12
 	return button
@@ -181,21 +183,17 @@ While using this makes the system rely on OnFire, it still gives options for tim
 		STOP_PROCESSING(SSfastprocess, src)
 		qdel(src)
 		return
+	UpdateButton()
 
-	build_all_button_icons(UPDATE_BUTTON_STATUS)
-
-/datum/action/innate/elite_attack/update_button_status(atom/movable/screen/movable/action_button/button, force = FALSE)
-	. = ..()
-	var/mob/living/simple_animal/hostile/asteroid/elite/elite_owner = owner
-	if(!istype(owner))
-		button.maptext = ""
+/datum/action/innate/elite_attack/proc/UpdateButton(status_only = FALSE)
+	if(status_only)
 		return
-
+	var/mob/living/simple_animal/hostile/asteroid/elite/elite_owner = owner
 	var/timeleft = max(elite_owner.ranged_cooldown - world.time, 0)
 	if(timeleft == 0)
 		button.maptext = ""
 	else
-		button.maptext = MAPTEXT("<b>[round(timeleft/10, 0.1)]</b>")
+		button.maptext = MAPTEXT("[round(timeleft/10, 0.1)]")
 
 /datum/action/innate/elite_attack/Grant(mob/living/L)
 	if(istype(L, /mob/living/simple_animal/hostile/asteroid/elite))
@@ -237,13 +235,13 @@ While using this makes the system rely on OnFire, it still gives options for tim
 	var/list/invaders = list()
 
 /obj/structure/elite_tumor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пульсирующая опухоль",
 		GENITIVE = "пульсирующей опухоли",
 		DATIVE = "пульсирующей опухоли",
 		ACCUSATIVE = "пульсирующую опухоль",
 		INSTRUMENTAL = "пульсирующей опухолью",
-		PREPOSITIONAL = "пульсирующей опухоли",
+		PREPOSITIONAL = "пульсирующей опухоли"
 	)
 
 /obj/structure/elite_tumor/attack_hand(mob/user, list/modifiers)
@@ -254,10 +252,10 @@ While using this makes the system rely on OnFire, it still gives options for tim
 		if(TUMOR_PASSIVE)
 			// Prevents the user from being forcemoved back and forth between two elite arenas.
 			if(HAS_TRAIT(src, TRAIT_ELITE_CHALLENGER))
-				user.visible_message(span_warning("[user] протягива[PLUR_ET_YUT(user)] руку к [declent_ru(DATIVE)], но ничего не происходит."), span_warning("Вы протягиваете руку к [declent_ru(DATIVE)]... но ничего не происходит."))
+				user.visible_message(span_warning("[user] протягива[pluralize_ru(user.gender,"ет","ют")] руку к [declent_ru(DATIVE)], но ничего не происходит."), span_warning("Вы протягиваете руку к [declent_ru(DATIVE)]... но ничего не происходит."))
 				return
 			activity = TUMOR_ACTIVE
-			user.visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] пульсирует, когда рука [user] входит в её радиус! О-ох..."), span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] пульсирует, когда ваша рука входит в её радиус! Ваши инстинкты говорят вам отступить!"))
+			user.visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] пульсирует, когда рука [user] входит в её радиус! О-ох..."), span_userdanger("[capitalize(declent_ru(NOMINATIVE))] пульсирует, когда ваша рука входит в её радиус! Ваши инстинкты говорят вам отступить!"))
 			activators = list()
 			for(var/mob/living/carbon/human/fighter in range(12, src.loc))
 				if(fighter.stat != DEAD)
@@ -269,11 +267,11 @@ While using this makes the system rely on OnFire, it still gives options for tim
 			INVOKE_ASYNC(src, PROC_REF(arena_checks))
 		if(TUMOR_INACTIVE)
 			if(HAS_TRAIT(src, TRAIT_ELITE_CHALLENGER))
-				user.visible_message(span_warning("[user] протягива[PLUR_ET_YUT(user)] руку к [declent_ru(DATIVE)], но ничего не происходит."), span_warning("Вы протягиваете руку к [declent_ru(DATIVE)]... но ничего не происходит."))
+				user.visible_message(span_warning("[user] протягива[pluralize_ru(user.gender,"ет","ют")] руку к [declent_ru(DATIVE)], но ничего не происходит."), span_warning("Вы протягиваете руку к [declent_ru(DATIVE)]... но ничего не происходит."))
 				return
 			activity = TUMOR_ACTIVE
 			var/mob/dead/observer/elitemind = null
-			visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает пульсировать! Ваши инстинкты говорят вам отступить!"))
+			visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] начинает пульсировать! Ваши инстинкты говорят вам отступить!"))
 			activators = list()
 			for(var/mob/living/carbon/human/fighter in range(12, src.loc))
 				if(fighter.stat != DEAD)
@@ -302,38 +300,34 @@ While using this makes the system rely on OnFire, it still gives options for tim
 						clear_activator(activator)
 
 /obj/structure/elite_tumor/proc/spawn_elite(mob/dead/observer/elitemind)
-	if(QDELETED(src) || QDELETED(loc))
-		return
-
 	var/selectedspawn = pick(potentialspawns)
 	mychild = new selectedspawn(loc)
 	mychild.scale_stats(activators)
-	visible_message(span_userdanger("[DECLENT_RU_CAP(mychild, NOMINATIVE)] появляется из [declent_ru(GENITIVE)]!"))
+	visible_message(span_userdanger("[capitalize(mychild.declent_ru(NOMINATIVE))] появляется из [declent_ru(GENITIVE)]!"))
 	playsound(loc,'sound/effects/phasein.ogg', 200, FALSE, 50, TRUE, TRUE)
 	if(boosted)
-		mychild.possess_by_player(elitemind.key)
+		mychild.key = elitemind.key
 		mychild.sentience_act()
-		notify_ghosts("[DECLENT_RU_CAP(mychild, NOMINATIVE)] пробуждается в [get_area(src)]!", enter_link="<a href=byond://?src=[UID()];follow=1>(Click to help)</a>", source = mychild, action = NOTIFY_FOLLOW)
+		notify_ghosts("[capitalize(mychild.declent_ru(NOMINATIVE))] пробуждается в [get_area(src)]!", enter_link="<a href=byond://?src=[UID()];follow=1>(Click to help)</a>", source = mychild, action = NOTIFY_FOLLOW)
 		log_game("[mychild.key] has become [mychild] from lavaland elite tumor.")
 	update_icon(UPDATE_ICON_STATE)
 	INVOKE_ASYNC(src, PROC_REF(arena_checks))
 
 /obj/structure/elite_tumor/proc/return_elite()
 	mychild.forceMove(loc)
-	visible_message(span_userdanger("[DECLENT_RU_CAP(mychild, NOMINATIVE)] появляется из [declent_ru(GENITIVE)]!"))
+	visible_message(span_userdanger("[capitalize(mychild.declent_ru(NOMINATIVE))] появляется из [declent_ru(GENITIVE)]!"))
 	playsound(loc,'sound/effects/phasein.ogg', 200, FALSE, 50, TRUE, TRUE)
 	mychild.revive()
 	if(boosted)
 		mychild.setMaxHealth(mychild.maxHealth * 2.5)
 		mychild.setHealth(mychild.maxHealth)
 		mychild.grab_ghost()
-		notify_ghosts("[DECLENT_RU_CAP(mychild, NOMINATIVE)] вызван в [get_area(src)]!", enter_link="<a href=byond://?src=[UID()];follow=1>(Click to help)</a>", source = mychild, action = NOTIFY_FOLLOW)
+		notify_ghosts("[capitalize(mychild.declent_ru(NOMINATIVE))] вызван в [get_area(src)]!", enter_link="<a href=byond://?src=[UID()];follow=1>(Click to help)</a>", source = mychild, action = NOTIFY_FOLLOW)
 	INVOKE_ASYNC(src, PROC_REF(arena_checks))
 
 /obj/structure/elite_tumor/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
-	potentialspawns = string_list(potentialspawns)
 
 /obj/structure/elite_tumor/Destroy()
 	STOP_PROCESSING(SSobj, src)
@@ -368,6 +362,7 @@ While using this makes the system rely on OnFire, it still gives options for tim
 			var/obj/effect/temp_visual/heal/H = new(get_turf(mychild))
 			H.color = "#FF0000"
 
+
 /obj/structure/elite_tumor/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -379,7 +374,7 @@ While using this makes the system rely on OnFire, it still gives options for tim
 			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(I, src))
 			return ..()
-		visible_message(span_warning("Когда [user] помеща[PLUR_ET_YUT(user)] ядро в [declent_ru(ACCUSATIVE)], оно начинает пульсировать."))
+		visible_message(span_warning("Когда [user] помеща[pluralize_ru(user.gender,"ет","ют")] ядро в [declent_ru(ACCUSATIVE)], оно начинает пульсировать."))
 		update_icon(UPDATE_ICON_STATE)
 		set_light(6, l_on = TRUE)
 		qdel(I)
@@ -388,11 +383,13 @@ While using this makes the system rely on OnFire, it still gives options for tim
 
 	return ..()
 
+
 /obj/structure/elite_tumor/update_icon_state()
 	if(mychild)
 		icon_state = "tumor_popped"
 		return
 	icon_state = boosted ? "advanced_tumor" : "tumor"
+
 
 /obj/structure/elite_tumor/examine(mob/user)
 	. = ..()
@@ -456,7 +453,7 @@ While using this makes the system rely on OnFire, it still gives options for tim
 
 /obj/structure/elite_tumor/proc/onEliteLoss()
 	playsound(loc,'sound/effects/tendril_destroyed.ogg', 200, FALSE, 50, TRUE, TRUE)
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает яростно биться в конвульсиях, затем начинает растворяться."))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] начинает яростно биться в конвульсиях, затем начинает растворяться."))
 	visible_message(span_warning("Что-то выталкивается, когда [declent_ru(NOMINATIVE)] закрывается."))
 	var/lootloc = loc
 	if(boosted)
@@ -493,7 +490,7 @@ While using this makes the system rely on OnFire, it still gives options for tim
 
 /obj/item/tumor_shard
 	name = "tumor shard"
-	desc = "Странный острый кристаллический осколок из необычной опухоли Лазиса. Если пронзить им труп элиты Лазиса, это воскресит существо — при условии, что его душа ещё не ушла. Воскрешённые элиты имеют только половину здоровья, и абсолютно лояльны к своему воскресителю."
+	desc = "Странный острый кристаллический осколок из необычной опухоли Лазиса. Если пронзить им труп элиты Лазиса, это воскресит существо - при условии, что его душа ещё не ушла. Воскрешённые элиты имеют только половину здоровья, и абсолютно лояльны к своему воскресителю."
 	icon = 'icons/obj/lavaland/artefacts.dmi'
 	icon_state = "crevice_shard"
 	throwforce = 5
@@ -502,31 +499,31 @@ While using this makes the system rely on OnFire, it still gives options for tim
 	throw_range = 5
 
 /obj/item/tumor_shard/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "осколок опухоли",
 		GENITIVE = "осколка опухоли",
 		DATIVE = "осколку опухоли",
 		ACCUSATIVE = "осколок опухоли",
 		INSTRUMENTAL = "осколком опухоли",
-		PREPOSITIONAL = "осколке опухоли",
+		PREPOSITIONAL = "осколке опухоли"
 	)
 
-/obj/item/tumor_shard/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/tumor_shard/afterattack(atom/target, mob/user, proximity_flag, params)
 	. = ..()
 	if(istype(target, /mob/living/simple_animal/hostile/asteroid/elite) && proximity_flag)
 		var/mob/living/simple_animal/hostile/asteroid/elite/E = target
 		if(E.stat != DEAD || E.sentience_type != SENTIENCE_BOSS || !E.key)
 			user.visible_message(span_warning("Похоже, [E.declent_ru(ACCUSATIVE)] сейчас невозможно воскресить. Попробуйте позже."))
 			return
-		E.faction = list(PERSONAL_FACTION(user))
+		E.faction = list("\ref[user]")
 		E.friends += user
 		E.reviver = user
 		E.revive()
-		user.visible_message(span_notice("[user] пронза[PLUR_ET_YUT(user)] [E.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)], воскрешая его."))
+		user.visible_message(span_notice("[user] пронза[pluralize_ru(user.gender,"ет","ют")] [E.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)], воскрешая его."))
 		SEND_SOUND(E, sound('sound/magic/cult_spell.ogg'))
-		to_chat(user, span_notice("Вы воспользовались осколком опухоли и подчинили себе её бывшего защитника.\nОн не может причинить вам вреда и во всем будет повиноваться вам."))
-		to_chat(E, span_userdanger("Вы были возрождены [user], и вы обязаны [user].  Помогай [user.p_them()] в достижении [user.p_their()] целей, несмотря на риск."))
-		to_chat(E, span_bigbold("Помните, что вы разделяете интересы [user].  От вас ожидается не мешать союзникам хозяина, пока вам не прикажут!"))
+		to_chat(user, "<span class='notice'>Вы воспользовались осколком опухоли и подчинили себе её бывшего защитника.\nОн не может причинить вам вреда и во всем будет повиноваться вам.</span>")
+		to_chat(E, "<span class='userdanger'>Вы были возрождены [user], и вы обязаны [user].  Помогай [user.p_them()] в достижении [user.p_their()] целей, несмотря на риск.</span>")
+		to_chat(E, "<span class='big bold'>Помните, что вы разделяете интересы [user].  От вас ожидается не мешать союзникам хозяина, пока вам не прикажут!</span>")
 		E.mind.store_memory("Я теперь разделяю интересы [user].  От меня ожидается не мешать союзникам хозяина, пока вам не прикажут!")
 		if(user.mind.special_role)
 			E.setMaxHealth(initial(E.maxHealth) * REVIVE_HEALTH_MULT_ANTAG)
@@ -539,7 +536,7 @@ While using this makes the system rely on OnFire, it still gives options for tim
 		E.sentience_type = SENTIENCE_ORGANIC
 		qdel(src)
 	else
-		to_chat(user, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] работает только с трупами разумных элит Лазиса."))
+		to_chat(user, span_notice("[capitalize(declent_ru(NOMINATIVE))] работает только с трупами разумных элит Лазиса."))
 
 /obj/effect/temp_visual/elite_tumor_wall
 	name = "magic wall"
@@ -556,23 +553,24 @@ While using this makes the system rely on OnFire, it still gives options for tim
 	smoothing_groups = SMOOTH_GROUP_HIERO_VORTEX
 
 /obj/effect/temp_visual/elite_tumor_wall/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "магическая стена",
 		GENITIVE = "магической стены",
 		DATIVE = "магической стене",
 		ACCUSATIVE = "магическую стену",
 		INSTRUMENTAL = "магической стеной",
-		PREPOSITIONAL = "магической стене",
+		PREPOSITIONAL = "магической стене"
 	)
 
 /obj/effect/temp_visual/elite_tumor_wall/Initialize(mapload, new_caster)
 	. = ..()
-	QUEUE_SMOOTH_NEIGHBORS(src)
-	QUEUE_SMOOTH(src)
+	queue_smooth_neighbors(src)
+	queue_smooth(src)
 
 /obj/effect/temp_visual/elite_tumor_wall/Destroy()
-	QUEUE_SMOOTH_NEIGHBORS(src)
+	queue_smooth_neighbors(src)
 	return ..()
+
 
 /obj/effect/temp_visual/elite_tumor_wall/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()

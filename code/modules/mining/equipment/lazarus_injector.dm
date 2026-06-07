@@ -14,19 +14,20 @@
 	var/revive_type = SENTIENCE_ORGANIC //So you can't revive boss monsters or robots with it
 
 /obj/item/lazarus_injector/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "инъектор Лазаря",
 		GENITIVE = "инъектора Лазаря",
 		DATIVE = "инъектору Лазаря",
 		ACCUSATIVE = "инъектор Лазаря",
 		INSTRUMENTAL = "инъектором Лазаря",
-		PREPOSITIONAL = "инъекторе Лазаря",
+		PREPOSITIONAL = "инъекторе Лазаря"
 	)
 
 /obj/item/lazarus_injector/update_icon_state()
 	icon_state = "lazarus_[loaded ? "hypo" : "empty"]"
 
-/obj/item/lazarus_injector/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/lazarus_injector/afterattack(atom/target, mob/user, proximity_flag, params)
 	if(!loaded)
 		return
 	if(isliving(target) && proximity_flag)
@@ -39,10 +40,10 @@
 				M.faction = list("neutral")
 				M.revive()
 				M.can_collar = 1
-				if(ishostile(target))
+				if(istype(target, /mob/living/simple_animal/hostile))
 					var/mob/living/simple_animal/hostile/H = M
 					if(malfunctioning)
-						H.faction |= list("lazarus", PERSONAL_FACTION(user))
+						H.faction |= list("lazarus", "\ref[user]")
 						H.robust_searching = 1
 						H.friends += user
 						H.attack_same = 1
@@ -50,7 +51,7 @@
 					else
 						H.attack_same = 0
 				loaded = FALSE
-				user.visible_message(span_notice("[user] ввод[PLUR_IT_YAT(user)] в [M.declent_ru(ACCUSATIVE)] инъектор Лазаря, оживляя его."))
+				user.visible_message(span_notice("[user] ввод[pluralize_ru(user.gender,"ит","яд")] в [M.declent_ru(ACCUSATIVE)] инъектор Лазаря, оживляя его."))
 				playsound(src,'sound/effects/refill.ogg',50, TRUE)
 				update_icon(UPDATE_ICON_STATE)
 				return
@@ -75,7 +76,7 @@
 /obj/item/lazarus_injector/examine(mob/user)
 	. = ..()
 	if(!loaded)
-		. += span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] пуст.")
+		. += span_notice("[capitalize(declent_ru(NOMINATIVE))] пуст.")
 	if(malfunctioning)
 		. += span_notice("Дисплей [declent_ru(GENITIVE)] мерцает.")
 
@@ -92,13 +93,13 @@
 	var/capture_type = SENTIENCE_ORGANIC //So you can't capture boss monsters or robots with it
 
 /obj/item/mobcapsule/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "капсула Лазаря",
 		GENITIVE = "капсулы Лазаря",
 		DATIVE = "капсуле Лазаря",
 		ACCUSATIVE = "капсулу Лазаря",
 		INSTRUMENTAL = "капсулой Лазаря",
-		PREPOSITIONAL = "капсуле Лазаря",
+		PREPOSITIONAL = "капсуле Лазаря"
 	)
 
 /obj/item/mobcapsule/Destroy()
@@ -107,10 +108,12 @@
 		QDEL_NULL(captured)
 	return ..()
 
+
 /obj/item/mobcapsule/attack(mob/living/simple_animal/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(istype(target) && target.sentience_type == capture_type && capture(target, user))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/item/mobcapsule/proc/capture(mob/living/simple_animal/S, mob/living/M)
 	if(captured)
@@ -118,7 +121,7 @@
 	else
 		if("neutral" in S.faction)
 			S.forceMove(src)
-			S.name = "[M.name]’s [initial(S.name)]"
+			S.name = "[M.name]'s [initial(S.name)]"
 			S.cancel_camera()
 			name = "Lazarus Capsule: [initial(S.name)]"
 			to_chat(M, span_notice("Вы поместили [S.name] в капсулу Лазаря!"))
@@ -136,8 +139,10 @@
 		captured.forceMove(get_turf(src))
 		captured = null
 
+
 /obj/item/mobcapsule/update_icon_state()
 	icon_state = "mobcap[colorindex]"
+
 
 /obj/item/mobcapsule/attack_self(mob/user)
 	colorindex += 1

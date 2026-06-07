@@ -7,9 +7,12 @@ GLOBAL_VAR_INIT(mob_suspension, TRUE)
 SUBSYSTEM_DEF(mobs)
 	name = "Mobs"
 	priority = FIRE_PRIORITY_MOBS
-	ss_flags = SS_KEEP_TIMING | SS_NO_INIT
+	flags = SS_KEEP_TIMING
 	runlevels = RUNLEVEL_GAME | RUNLEVEL_POSTGAME
-	wait = 2 SECONDS
+	init_order = INIT_ORDER_MOBS
+	offline_implications = "Mobs will no longer process. Immediate server restart recommended."
+	cpu_display = SS_CPUDISPLAY_HIGH
+	ss_id = "mobs"
 
 	var/list/currentrun = list()
 	var/static/list/clients_by_zlevel[][]
@@ -18,14 +21,10 @@ SUBSYSTEM_DEF(mobs)
 	/// The amount of Xenobiology mobs (and their offspring) that exist in the world. Used for mob capping. Excludes Slimes
 	var/xenobiology_mobs = 0
 
-/datum/controller/subsystem/mobs/get_metrics()
-	. = ..()
-	var/list/custom_data = list()
-	custom_data["processing"] = length(GLOB.mob_living_list)
-	.["custom"] = custom_data
 
 /datum/controller/subsystem/mobs/get_stat_details()
 	return "P:[length(GLOB.mob_living_list)]"
+
 
 /datum/controller/subsystem/mobs/Initialize()
 	clients_by_zlevel = new /list(world.maxz, 0)
@@ -52,8 +51,8 @@ SUBSYSTEM_DEF(mobs)
 	var/times_fired = src.times_fired
 	var/suspension = GLOB.mob_suspension
 
-	while(length(currentrun))
-		var/mob/living/L = currentrun[length(currentrun)]
+	while(currentrun.len)
+		var/mob/living/L = currentrun[currentrun.len]
 		currentrun.len--
 
 		if(L)

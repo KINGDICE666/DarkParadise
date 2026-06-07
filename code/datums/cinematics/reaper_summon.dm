@@ -11,6 +11,7 @@
 	stoplag(7 SECONDS)
 	special_callback?.Invoke()
 
+
 /datum/cinematic/cult_fail_reaper/play_cinematic()
 	screen.icon_state = "station_intact"
 	stoplag(2 SECONDS)

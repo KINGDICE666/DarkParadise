@@ -1,6 +1,5 @@
 /atom/movable/screen/ai
 	icon = 'icons/mob/screen_ai.dmi'
-	mouse_over_pointer = MOUSE_HAND_POINTER
 
 /atom/movable/screen/ai/aicore
 	name = "Ядро ИИ"
@@ -96,7 +95,7 @@
 		AI.subsystem_law_manager()
 
 /atom/movable/screen/ai/pda_msg_send
-	name = "КПК — Отправить сообщение"
+	name = "КПК - Отправить сообщение"
 	icon_state = "pda_send"
 
 /atom/movable/screen/ai/pda_msg_send/Click()
@@ -105,7 +104,7 @@
 		AI.aiPDA.cmd_send_pdamesg()
 
 /atom/movable/screen/ai/pda_msg_show
-	name = "КПК — Показать историю"
+	name = "КПК - Показать историю"
 	icon_state = "pda_receive"
 
 /atom/movable/screen/ai/pda_msg_show/Click()
@@ -161,15 +160,6 @@
 		var/mob/living/silicon/ai/AI = usr
 		AI.move_down()
 
-/atom/movable/screen/ai/connect_to_shell
-	name = "Подключиться к оболочке"
-	icon_state = "AIshell"
-
-/atom/movable/screen/ai/connect_to_shell/Click()
-	if(!isAI(usr))
-		return
-	var/mob/living/silicon/ai/AI = usr
-	AI.deploy_to_shell()
 
 /datum/hud/ai/New(mob/owner)
 	..()
@@ -269,9 +259,4 @@
 //Move Down
 	using = new /atom/movable/screen/ai/move_down(null, src)
 	using.screen_loc = ui_ai_down
-	static_inventory += using
-
-//Connect to shell
-	using = new /atom/movable/screen/ai/connect_to_shell(null, src)
-	using.screen_loc = ui_ai_connect_to_shell
 	static_inventory += using

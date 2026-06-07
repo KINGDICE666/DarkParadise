@@ -14,7 +14,6 @@
 	max_integrity = 300
 	integrity_failure = 100
 	atom_say_verb = "пищит"
-	interaction_flags_mouse_drop = NEED_DEXTERITY | ALLOW_RESTING
 
 	COOLDOWN_DECLARE(copying_cooldown)
 
@@ -59,18 +58,18 @@
 	var/info_box = "Если у вас есть пожелания или\
 					идеи для улучшения стандартных\
 					форм, обратитесь в Отдел\
-					стандартизации \"Нанотрейзен\"."
+					стандартизации Нанотрейзен."
 	var/info_box_color = "blue"
 	var/ui_theme = "nanotrasen"// Если темы нету, будет взята стандартная НТ тема для интерфейса
 
 /obj/machinery/photocopier/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ксерокс",
 		GENITIVE = "ксерокса",
 		DATIVE = "ксероксу",
 		ACCUSATIVE = "ксерокс",
 		INSTRUMENTAL = "ксероксом",
-		PREPOSITIONAL = "ксероксе",
+		PREPOSITIONAL = "ксероксе"
 	)
 
 /obj/machinery/photocopier/syndie
@@ -86,17 +85,14 @@
 	ui_theme = "syndicate"
 
 /obj/machinery/photocopier/syndie/get_ru_names()
-	return alist(
-		NOMINATIVE = "ксерокс \"Синдиката\"",
-		GENITIVE = "ксерокса \"Синдиката\"",
-		DATIVE = "ксероксу \"Синдиката\"",
-		ACCUSATIVE = "ксерокс \"Синдиката\"",
-		INSTRUMENTAL = "ксероксом \"Синдиката\"",
-		PREPOSITIONAL = "ксероксе \"Синдиката\"",
+	return list(
+		NOMINATIVE = "ксерокс Синдиката",
+		GENITIVE = "ксерокса Синдиката",
+		DATIVE = "ксероксу Синдиката",
+		ACCUSATIVE = "ксерокс Синдиката",
+		INSTRUMENTAL = "ксероксом Синдиката",
+		PREPOSITIONAL = "ксероксе Синдиката"
 	)
-
-/obj/machinery/photocopier/ComponentInitialize()
-	AddElement(/datum/element/elevation, pixel_shift = 8) //enough to look like your bums are on the machine.
 
 /obj/machinery/photocopier/Initialize(mapload)
 	. = ..()
@@ -163,6 +159,7 @@
 	c.updateinfolinks()
 	c.update_icon()
 	return c
+
 
 /**
  * Public proc for copying photo objs
@@ -240,7 +237,7 @@
 				copymob.emote("scream")
 		else
 			copymob.apply_damage(30, BURN)
-		to_chat(copymob, span_notice("Что-то жаренным запахло..."))
+		to_chat(copymob, span_notice("<span class='notice'>Что-то жаренным запахло...</span>"))
 	if(ishuman(copymob)) //Suit checks are in check_mob
 		var/mob/living/carbon/human/H = copymob
 		temp_img = icon('icons/obj/butts.dmi', H.dna.species.butt_sprite)
@@ -252,7 +249,7 @@
 		temp_img = icon('icons/obj/butts.dmi', "xeno")
 	else
 		return
-	var/obj/item/photo/p = new /obj/item/photo(loc)
+	var/obj/item/photo/p = new /obj/item/photo (loc)
 	if(scanning)
 		p.forceMove(src)
 	else if(folder)
@@ -381,15 +378,12 @@
 	if(!cancopy(scancopy))
 		return
 	copying = TRUE
-
-	var/count_of_copies = 0
-
+	playsound(loc, pick(print_sounds), 50, TRUE)
 	if(istype(C, /obj/item/paper))
 		for(var/i in copies to 1 step -1)
 			if(!papercopy(C))
 				break
 			toner -= 1
-			count_of_copies++
 			use_power(active_power_usage)
 			addtimer(CALLBACK(src, PROC_REF(finish_copying)), PHOTOCOPIER_DELAY)
 	else if(istype(C, /obj/item/photo))
@@ -397,7 +391,6 @@
 			if(!photocopy(C))
 				break
 			toner -= 5
-			count_of_copies++
 			use_power(active_power_usage)
 			addtimer(CALLBACK(src, PROC_REF(finish_copying)), PHOTOCOPIER_DELAY)
 	else if(istype(C, /obj/item/paper_bundle))
@@ -405,35 +398,27 @@
 		for(var/i in copies to 1 step -1)
 			if(!bundlecopy(C, use_toner = TRUE))
 				break
-			count_of_copies++
 			use_power(active_power_usage)
 			addtimer(CALLBACK(src, PROC_REF(finish_copying)), PHOTOCOPIER_DELAY * (B.amount + 1))
 	else if(check_mob()) //Once we've scanned the copy_mob's ass we do not need to again
 		for(var/i in copies to 1 step -1)
 			if(!copyass())
-				balloon_alert(usr, "нельзя отсканировать!")
 				break
 			toner -= 5
-			count_of_copies++
-		finish_copying()
+			finish_copying()
 	else if(istype(C, /obj/item/craft_blueprints))
 		var/obj/item/craft_blueprints/original = C
 		for(var/i in copies to 1 step -1)
 			if(!blueprintcopy(original))
 				break
 			toner -= original.required_toner
-			count_of_copies++
 			use_power(active_power_usage)
 			addtimer(CALLBACK(src, PROC_REF(finish_copying)), PHOTOCOPIER_DELAY)
 	else
 		balloon_alert(usr, "нельзя отсканировать!")
-		to_chat(usr, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] не способен отсканировать [copyitem.declent_ru(ACCUSATIVE)], [copyitem.declent_ru(NOMINATIVE)] будет извлечен[GEND_A_O_Y(copyitem)]."))
+		to_chat(usr, span_warning("[capitalize(declent_ru(NOMINATIVE))] не способен отсканировать [copyitem.declent_ru(ACCUSATIVE)], [copyitem.declent_ru(NOMINATIVE)] будет извлеч[genderize_ru(copyitem.gender, "ён", "ена", "ено", "ены")]."))
 		copyitem.forceMove(loc) // fuckery detected! get off my photocopier... shitbird!
 		finish_copying()
-	if(count_of_copies) // if there is at least one copy
-		playsound(loc, pick(print_sounds), 50, TRUE)
-		return
-	balloon_alert(usr, "нельзя отсканировать!")
 
 /obj/machinery/photocopier/proc/finish_copying()
 	copying = FALSE
@@ -443,7 +428,7 @@
 		return
 	if(length(saved_documents) >= max_saved_documents)
 		balloon_alert(usr, "нет памяти!")
-		to_chat(usr, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] не способен отсканировать [copyitem.declent_ru(ACCUSATIVE)] в связи с тем, что лимит сохранённых файлов был достигнут. Для продолжения операции освободите память устройства."))
+		to_chat(usr, span_warning("[capitalize(declent_ru(NOMINATIVE))] не способен отсканировать [copyitem.declent_ru(ACCUSATIVE)] в связи с тем, что лимит сохранённых файлов был достигнут. Для продолжения операции освободите память устройства."))
 		return
 	copying = TRUE
 	var/obj/item/O
@@ -477,6 +462,7 @@
 	var/document = locateUID(uid)
 	if(LAZYIN(saved_documents, document))
 		copy(document, scancopy = TRUE)
+
 
 /obj/machinery/photocopier/ui_state(mob/user)
 	return GLOB.default_state
@@ -637,11 +623,13 @@
 	use_power(active_power_usage)
 	addtimer(CALLBACK(src, PROC_REF(do_print_form_paper), form), PHOTOCOPIER_DELAY)
 
+
 /obj/machinery/photocopier/proc/do_print_form_paper(obj/item/paper/form/form)
 	var/obj/item/paper/paper = new form(loc)
 	paper.pixel_x = rand(-10, 10)
 	paper.pixel_y = rand(-10, 10)
 	finish_copying()
+
 
 /obj/machinery/photocopier/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -674,12 +662,13 @@
 
 	return ..()
 
+
 /obj/machinery/photocopier/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
 	if(grabber.grab_state < GRAB_AGGRESSIVE || !isliving(grabbed_thing) || grabbed_thing == copymob)
 		return .
 	add_fingerprint(grabber)
-	visible_message(span_warning("[grabber] затаскива[PLUR_ET_YUT(grabber)] [grabbed_thing.declent_ru(ACCUSATIVE)] на [declent_ru(ACCUSATIVE)]!"))
+	visible_message(span_warning("[grabber] затаскива[pluralize_ru(grabber.gender, "ет", "ют")] [grabbed_thing.declent_ru(ACCUSATIVE)] на [declent_ru(ACCUSATIVE)]!"))
 	var/turf/source_turf = get_turf(src)
 	grabbed_thing.forceMove(source_turf)
 	copymob = grabbed_thing
@@ -697,27 +686,28 @@
 			new /obj/effect/decal/cleanable/blood/oil(get_turf(src))
 			toner = 0
 
-/obj/machinery/photocopier/mouse_drop_receive(mob/target, mob/living/user, params)
+/obj/machinery/photocopier/MouseDrop_T(mob/target, mob/living/user)
 	if(!istype(target) || target.buckled || get_dist(user, src) > 1 || get_dist(user, target) > 1 || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || isAI(user))
 		return
 	if(check_mob()) //is target mob or another mob on this photocopier already?
 		return
 	add_fingerprint(user)
 	if(target == user)
-		visible_message(span_warning("[user] запрыгива[PLUR_ET_YUT(user)] на [declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_warning("[user] запрыгива[pluralize_ru(user.gender, "ет", "ют")] на [declent_ru(ACCUSATIVE)]!"))
 	else if(target != user)
 		if(target.anchored || !ishuman(user))
 			return
-		visible_message(span_warning("[user] затаскива[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)] на [declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_warning("[user] затаскива[pluralize_ru(user.gender, "ет", "ют")] [target.declent_ru(ACCUSATIVE)] на [declent_ru(ACCUSATIVE)]!"))
 	target.forceMove(get_turf(src))
 	copymob = target
 	if(copyitem)
 		copyitem.forceMove(get_turf(src))
-		visible_message(span_notice("[DECLENT_RU_CAP(copymob, NOMINATIVE)] сталкива[PLUR_ET_YUT(user)] [copyitem.declent_ru(ACCUSATIVE)] со своего пути!"))
+		visible_message(span_notice("[capitalize(copymob.declent_ru(NOMINATIVE))] сталкива[pluralize_ru(user.gender, "ет", "ют")] [copyitem.declent_ru(ACCUSATIVE)] со своего пути!"))
 		copyitem = null
 	playsound(loc, 'sound/machines/ping.ogg', 50, FALSE)
 	atom_say("Внимание: На стеклянной плаформе обнаружены ягодицы!", FALSE)
 	SStgui.update_uis(src)
+	return TRUE
 
 /obj/machinery/photocopier/Destroy()
 	QDEL_LIST(saved_documents)
@@ -747,19 +737,17 @@
 /obj/item/toner
 	name = "toner cartridge"
 	desc = "Стандартный картридж с чернилами для ксероксов на 30 использований. Пользуется высоким спросом у бюрократов."
-	icon = 'icons/obj/device.dmi'
-	icon_state = "tonercartridge"
-	var/toner_amount = 30
-
-/obj/item/toner/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "тонер-картридж",
 		GENITIVE = "тонер-картриджа",
 		DATIVE = "тонер-картриджу",
 		ACCUSATIVE = "тонер-картридж",
 		INSTRUMENTAL = "тонер-картриджом",
-		PREPOSITIONAL = "тонер-картридже",
+		PREPOSITIONAL = "тонер-картридже"
 	)
+	icon = 'icons/obj/device.dmi'
+	icon_state = "tonercartridge"
+	var/toner_amount = 30
 
 #undef PHOTOCOPIER_DELAY
 #undef MAX_COPIES_PRINTABLE

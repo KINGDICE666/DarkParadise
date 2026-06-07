@@ -26,8 +26,9 @@
 	tastes = list("pumpkin" = 1)
 	wine_power = 0.2
 
+
 /obj/item/reagent_containers/food/snacks/grown/pumpkin/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		to_chat(user, span_notice("You have carved a face into [src]."))
 		var/obj/item/clothing/head/hardhat/pumpkinhead/pumpkinhead = new(drop_location())
 		transfer_fingerprints_to(pumpkinhead)
@@ -38,6 +39,7 @@
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 // Blumpkin
 /obj/item/seeds/pumpkin/blumpkin

@@ -46,9 +46,13 @@ GLOBAL_LIST_INIT(role_playtime_requirements, list(
 ))
 
 // Admin Verbs
-/// Allows admins to determine who the newer players are.
-ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "Return a playtime report.", ADMIN_CATEGORY_MAIN)
-	var/list/msg = list()
+
+/client/proc/cmd_mentor_check_player_exp()	//Allows admins to determine who the newer players are.
+	set category = STATPANEL_ADMIN_ADMIN
+	set name = "Check Player Playtime"
+	if(!check_rights(R_ADMIN|R_MOD|R_MENTOR))
+		return
+	var/msg = ""
 	var/datum/job/theirjob
 	var/jtext
 	msg += "<table border='1'><tr><th>Player</th><th>Job</th><th>Crew</th>"
@@ -56,10 +60,8 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		msg += "<th>[thisdept]</th>"
 	msg += "</tr>"
 	for(var/client/C in GLOB.clients)
-		if(C?.holder?.fakekey && !check_rights(R_ADMIN, FALSE))
-			continue // Skip those in stealth mode if an admin isnt viewing the panel
 		msg += "<tr>"
-		if(check_rights(R_ADMIN, FALSE))
+		if(check_rights(R_ADMIN, 0))
 			msg += "<td>[key_name_admin(C.mob)]</td>"
 		else
 			msg += "<td>[key_name_mentor(C.mob)]</td>"
@@ -76,9 +78,10 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		msg += "</tr>"
 
 	msg += "</table>"
-	var/datum/browser/popup = new(user, "player_playtime_check", "Playtime Report", 1000, 300)
-	popup.set_content(msg.Join(""))
+	var/datum/browser/popup = new(src, "player_playtime_check", "Playtime Report", 1000, 300)
+	popup.set_content(msg)
 	popup.open(FALSE)
+
 
 /datum/admins/proc/cmd_mentor_show_exp_panel(client/C)
 	if(!C)
@@ -92,6 +95,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 	popup.set_content(body)
 	popup.open(FALSE)
 
+
 // Procs
 
 /proc/role_available_in_playtime(client/C, role)
@@ -102,7 +106,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		return 0
 	if(!CONFIG_GET(flag/use_exp_restrictions))
 		return 0
-	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, FALSE, C.mob))
+	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, 0, C.mob))
 		return 0
 	var/list/play_records = params2list(C.prefs.exp)
 	var/isexempt = text2num(play_records[EXP_TYPE_EXEMPT])
@@ -117,6 +121,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		return req_mins
 	return max(0, req_mins - my_exp)
 
+
 /datum/job/proc/available_in_playtime(client/C)
 	if(!C)
 		return 0
@@ -124,7 +129,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		return 0
 	if(!CONFIG_GET(flag/use_exp_restrictions))
 		return 0
-	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, FALSE, C.mob))
+	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, 0, C.mob))
 		return 0
 	var/list/play_records = params2list(C.prefs.exp)
 	var/isexempt = text2num(play_records[EXP_TYPE_EXEMPT])
@@ -153,7 +158,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 	if(!CONFIG_GET(flag/use_exp_tracking))
 		return "Tracking is disabled in the server configuration file."
 	var/list/play_records = params2list(prefs.exp)
-	if(!length(play_records))
+	if(!play_records.len)
 		return "[key] has no records."
 	var/return_text = "<ul>"
 	var/list/exp_data = list()
@@ -168,7 +173,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 				return_text += "<li>Exempt (all jobs auto-unlocked)</li>"
 			else if(exp_data[EXP_TYPE_LIVING] > 0)
 				return_text += "<li>[dep]: [get_exp_format(exp_data[dep])]</li>"
-	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, FALSE, mob))
+	if(CONFIG_GET(flag/use_exp_restrictions_admin_bypass) && check_rights(R_ADMIN, 0, mob))
 		return_text += "<li>Admin</li>"
 	return_text += "</ul>"
 	if(CONFIG_GET(flag/use_exp_restrictions))
@@ -181,11 +186,11 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 				else
 					var/xp_req = job.get_exp_req_amount()
 					jobs_locked += "[job.title] ([get_exp_format(text2num(play_records[job.get_exp_req_type()]))] / [get_exp_format(xp_req)] as [job.get_exp_req_type()])"
-		if(length(jobs_unlocked))
+		if(jobs_unlocked.len)
 			return_text += "<br><br>Jobs Unlocked:<ul><li>"
 			return_text += jobs_unlocked.Join("</li><li>")
 			return_text += "</li></ul>"
-		if(length(jobs_locked))
+		if(jobs_locked.len)
 			return_text += "<br><br>Jobs Not Unlocked:<ul><li>"
 			return_text += jobs_locked.Join("</li><li>")
 			return_text += "</li></ul>"
@@ -208,6 +213,7 @@ ADMIN_VERB(check_player_exp, R_ADMIN|R_MOD|R_MENTOR, "Check Player Playtime", "R
 		else
 			result_text.Add("<td>-</td>")
 	return result_text.Join("")
+
 
 /proc/get_exp_format(expnum)
 	if(expnum > 60)

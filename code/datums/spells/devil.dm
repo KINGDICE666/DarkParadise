@@ -14,22 +14,11 @@
 	name = "Призвать великие вилы"
 	item_type = /obj/item/twohanded/pitchfork/demonic/greater
 
+
 /obj/effect/proc_holder/spell/conjure_item/pitchfork/ascended
 	name = "Призвать вилы Архидьявола"
 	item_type = /obj/item/twohanded/pitchfork/demonic/ascended
 
-/obj/effect/proc_holder/spell/conjure_item/pitchfork/krampus
-	name = "Призвать вилы Крампуса"
-	item_type = /obj/item/twohanded/pitchfork/demonic/greater/krampus
-
-/obj/effect/proc_holder/spell/conjure_item/krampus_bag
-	name = "Призвать мешок Крампуса"
-	item_type = /obj/item/krampus_bag
-	action_icon_state = "krampus_bag"
-	action_icon = 'icons/obj/items.dmi'
-	action_background_icon_state = "bg_demon"
-	base_cooldown = 10 SECONDS
-	human_req = FALSE
 
 /obj/effect/proc_holder/spell/conjure_item/violin
 	name = "Призвать золотую скрипку"
@@ -44,6 +33,7 @@
 	action_icon_state = "golden_violin"
 	action_background_icon_state = "bg_demon"
 
+
 /obj/effect/proc_holder/spell/summon_contract
 	name = "Призвать адский контракт"
 	desc = "Зачем составлять контракт вручную, если можно сделать это с помощью магии?"
@@ -51,8 +41,8 @@
 	invocation_type = "whisper"
 	invocation = "Iustus signum in linea punctata."
 
-	selection_activated_message = span_notice_alt("Вы приготавливаете подробный контракт. ЛКМ по цели, чтобы призвать контракт ей в руку.")
-	selection_deactivated_message = span_notice_alt("Вы сохраняете контракт до лучших времен.")
+	selection_activated_message = span_notice("Вы приготавливаете подробный контракт. ЛКМ по цели, чтобы призвать контракт ей в руку.")
+	selection_deactivated_message = span_notice("Вы сохраняете контракт до лучших времен.")
 
 	clothes_req = FALSE
 	human_req = FALSE
@@ -64,6 +54,7 @@
 	action_background_icon_state = "bg_demon"
 	need_active_overlay = TRUE
 
+
 /obj/effect/proc_holder/spell/summon_contract/create_new_targeting()
 	var/datum/spell_targeting/click/T = new()
 	T.try_auto_target = FALSE
@@ -72,14 +63,16 @@
 	T.allowed_type = /mob/living/carbon
 	return T
 
+
 /obj/effect/proc_holder/spell/summon_contract/valid_target(mob/living/carbon/target, mob/user)
 	return target.mind && target.mind.hasSoul && (target.mind.soulOwner == target.mind) && !HAS_TRAIT(target.mind, TRAIT_BAD_SOUL)
+
 
 /obj/effect/proc_holder/spell/summon_contract/cast(list/targets, mob/user = usr)
 	for(var/target in targets)
 		var/mob/living/carbon/C = target
 		if(!C.mind || !user.mind)
-			to_chat(user, span_notice("[DECLENT_RU_CAP(C, NOMINATIVE)] не выглядит разумным и не сможет подписать контракт."))
+			to_chat(user, span_notice("[capitalize(C.declent_ru(NOMINATIVE))] не выглядит разумным и не сможет подписать контракт."))
 			continue
 
 		if(C.stat == DEAD)
@@ -97,6 +90,7 @@
 			var/obj/item/paper/contract/infernal/contract = new(C.loc, C.mind, user.mind, GLOB.devil_contracts[contract_type_name])
 			C.put_in_hands(contract)
 
+
 /obj/effect/proc_holder/spell/take_soul
 	name = "Забрать душу"
 	desc = "Это заклинание забирает душу у выбраной цели."
@@ -104,8 +98,8 @@
 	invocation_type = "shout"
 	invocation = "Ille porcus est meus!"
 
-	selection_activated_message = span_notice_alt("Вы готовы забрать душу. Просто клините на свою жертву.")
-	selection_deactivated_message = span_notice_alt("Вы передумали забирать чью-то душу.")
+	selection_activated_message = span_notice("Вы готовы забрать душу. Просто клините на свою жертву.")
+	selection_deactivated_message = span_notice("Вы передумали забирать чью-то душу.")
 
 	clothes_req = FALSE
 	human_req = FALSE
@@ -124,6 +118,7 @@
 	T.click_radius = -1
 	T.allowed_type = /mob/living/carbon
 	return T
+
 
 /obj/effect/proc_holder/spell/take_soul/valid_target(mob/living/carbon/target, mob/user)
 	return target.mind && target.mind.hasSoul && (target.mind.soulOwner == target.mind)
@@ -177,6 +172,7 @@
 
 	base_cooldown = 15 SECONDS
 
+
 	invocation = "Quaeso, quemdam inter vos quaero!"
 
 	fireball_type = /obj/projectile/magic/fireball/infernal
@@ -197,6 +193,7 @@
 	action_background_icon_state = "bg_demon"
 
 	phase_allowed = TRUE
+
 	clothes_req = FALSE
 	human_req = FALSE
 
@@ -231,15 +228,9 @@
 			return ..()
 
 	else
-		if(itb_blocks_teleport(user, user, "ITB подавляет магическое перемещение [src]."))
-			return
 		user.fakefire()
 		to_chat(user, span_warning("Адское пламя выплёскивает вас обратно в реальность."))
 		if(do_after(user, 10 SECONDS, user, NONE))
-			if(itb_blocks_teleport(user, user, "ITB подавляет магическое перемещение [src]."))
-				user.ExtinguishMob()
-				user.fakefireextinguish()
-				return
 			ADD_TRAIT(user, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(src))
 			user.infernalphaseout(src)
 		else
@@ -253,22 +244,19 @@
 /mob/living/proc/infernalphaseout(obj/effect/proc_holder/spell/infernal_jaunt/spell)
 	dust_animation()
 
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] исчезает в огненной вспышке!"))
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] исчезает в огненной вспышке!"))
 	playsound(get_turf(src), 'sound/misc/enter_blood.ogg', 100, TRUE, -1)
 
 	var/obj/effect/dummy/slaughter/s_holder = new(loc)
 
 	ExtinguishMob()
-	if(!do_magic_direct_teleport(src, s_holder, notified_user = src, block_message = "ITB подавляет магическое перемещение [spell]."))
-		QDEL_NULL(s_holder)
-		REMOVE_TRAIT(src, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(spell))
-		fakefireextinguish()
-		return FALSE
+	forceMove(s_holder)
 
 	holder = s_holder
 
 	REMOVE_TRAIT(src, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(spell))
 	fakefireextinguish()
+
 
 /mob/living/proc/infernalphasein(obj/effect/proc_holder/spell/infernal_jaunt/spell)
 	if(HAS_TRAIT(src, TRAIT_NO_TRANSFORM))
@@ -276,14 +264,13 @@
 		return FALSE
 
 	fakefire()
-	if(!do_magic_direct_teleport(src, get_turf(src), notified_user = src, block_message = "ITB подавляет магическое перемещение [spell]."))
-		fakefireextinguish()
-		return FALSE
+	forceMove(get_turf(src))
 
-	visible_message(span_warning("<b>[DECLENT_RU_CAP(src, NOMINATIVE)] появляется в огненной вспышке!</b>"))
+	visible_message(span_warning("<b>[capitalize(declent_ru(NOMINATIVE))] появляется в огненной вспышке!</b>"))
 	playsound(get_turf(src), 'sound/misc/exit_blood.ogg', 100, TRUE, -1)
 
 	addtimer(CALLBACK(src, PROC_REF(fakefireextinguish), TRUE), 1.5 SECONDS)
+
 
 /obj/effect/proc_holder/spell/sintouch
 	name = "Прикосновение греха"
@@ -303,10 +290,12 @@
 
 	var/max_targets = 3
 
+
 /obj/effect/proc_holder/spell/sintouch/ascended
 	name = "Великое прикосновение греха"
 	base_cooldown = 10 SECONDS
 	max_targets = 10
+
 
 /obj/effect/proc_holder/spell/sintouch/create_new_targeting()
 	var/datum/spell_targeting/targeted/targeting = new()
@@ -320,6 +309,7 @@
 	targeting.max_targets = 3
 
 	return targeting
+
 
 /obj/effect/proc_holder/spell/sintouch/cast(list/targets, mob/living/user = usr)
 	for(var/mob/living/carbon/human/human in targets)
@@ -355,13 +345,14 @@
 /obj/effect/proc_holder/spell/summon_dancefloor/create_new_targeting()
 	return new /datum/spell_targeting/self
 
+
 /obj/effect/proc_holder/spell/summon_dancefloor/cast(list/targets, mob/user = usr)
 	LAZYINITLIST(dancefloor_turfs)
 	LAZYINITLIST(dancefloor_turfs_types)
 
 	if(dancefloor_exists)
 		dancefloor_exists = FALSE
-		for(var/i in 1 to length(dancefloor_turfs))
+		for(var/i in 1 to dancefloor_turfs.len)
 			var/turf/T = dancefloor_turfs[i]
 			T.ChangeTurf(dancefloor_turfs_types[i])
 	else
@@ -427,10 +418,8 @@
 		if(!prob(fire_prob))
 			continue
 
-		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(turf)
-		hotspot.temperature = 3000
-		hotspot.recolor()
-		turf.hotspot_expose(2000, 50)
+		new /obj/effect/hotspot(turf)
+		turf.hotspot_expose(2000, 50, 1)
 
 	playsound(get_turf(user), 'sound/magic/blind.ogg', 50, TRUE)
 
@@ -440,6 +429,7 @@
 
 	action_icon = 'icons/mob/actions/actions_cult.dmi'
 	action_icon_state = "horror"
+
 
 	base_cooldown = 300 SECONDS
 	var/cast_time = 5 SECONDS
@@ -475,7 +465,7 @@
 	human.Knockdown(1 SECONDS)
 
 	if(!do_after(user, cast_time, user, NONE))
-		cooldown_handler.start_recharge(fail_cooldown)
+		cooldown_handler.recharge_time = world.time + fail_cooldown
 		return
 
 	make_shadow(human, devil)
@@ -485,7 +475,7 @@
 
 /obj/effect/proc_holder/spell/dark_conversion/proc/make_shadow(mob/living/carbon/human/human, datum/antagonist/devil/devil)
 	human.set_species(/datum/species/shadow)
-	var/text = "Вы — создание тьмы. Старайтесь сохранить свою истинную форму и выполнить свои цели."
+	var/text = "Вы – создание тьмы. Старайтесь сохранить свою истинную форму и выполнить свои цели."
 	human.store_memory(text, TRUE)
 	to_chat(human, chat_box_red(text))
 
@@ -552,6 +542,8 @@
 
 	return
 
+
+
 /obj/effect/proc_holder/spell/devil_panel
 	name = "Информация о дьяволе"
 	desc = "Позволяет вам узнать о своих слабостях, а так же о вашем прогрессе в повышении ранга."
@@ -590,3 +582,4 @@
 			continue
 		to_chat(player_mob, message)
 		INVOKE_ASYNC(GLOBAL_PROC, /proc/tts_cast, user, player_mob, message, user.tts_seed, TRUE)
+

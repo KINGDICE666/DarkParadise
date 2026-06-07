@@ -24,7 +24,7 @@
 
 /obj/machinery/ticket_machine/Destroy()
 	for(var/obj/item/ticket_machine_ticket/ticket in tickets)
-		ticket.visible_message(span_notice("\the [ticket] disperses!"))
+		ticket.visible_message("<span class='notice'>\the [ticket] disperses!</span>")
 		qdel(ticket)
 	tickets.Cut()
 	return ..()
@@ -34,12 +34,12 @@
 		return
 	add_attack_logs(user, src, "emagged")
 	if(user)
-		to_chat(user, span_warning("You overload [src]'s bureaucratic logic circuitry to its MAXIMUM setting."))
+		to_chat(user, "<span class='warning'>You overload [src]'s bureaucratic logic circuitry to its MAXIMUM setting.</span>")
 	ticket_number = rand(0, max_number)
 	current_number = ticket_number
 	emagged = TRUE
 	for(var/obj/item/ticket_machine_ticket/ticket in tickets)
-		ticket.visible_message(span_notice("\the [ticket] disperses!"))
+		ticket.visible_message("<span class='notice'>\the [ticket] disperses!</span>")
 		qdel(ticket)
 	tickets.Cut()
 	update_icon(UPDATE_ICON_STATE)
@@ -55,7 +55,7 @@
 		return
 	if(current_number && !(emagged) && tickets[current_number])
 		var/obj/item/ticket_machine_ticket/ticket = tickets[current_number]
-		ticket.audible_message(span_notice("\the [tickets[current_number]] disperses!"))
+		ticket.audible_message("<span class='notice'>\the [tickets[current_number]] disperses!</span>")
 		qdel(ticket)
 	if(current_number < ticket_number)
 		current_number ++ //Increment the one we're serving.
@@ -63,7 +63,7 @@
 		atom_say("Очередь билета номер #[current_number]!")
 		if(!(emagged) && tickets[current_number])
 			var/obj/item/ticket_machine_ticket/ticket = tickets[current_number]
-			ticket.audible_message(span_notice("\the [tickets[current_number]] vibrates!"))
+			ticket.audible_message("<span class='notice'>\the [tickets[current_number]] vibrates!</span>")
 		update_icon(UPDATE_ICON_STATE) //Update our icon here rather than when they take a ticket to show the current ticket number being served
 		handle_maptext()
 
@@ -78,6 +78,7 @@
 	ticket_device.ids = get_ids()
 	device = ticket_device
 
+
 /obj/machinery/ticket_machine/update_icon_state()
 	switch(ticket_number) //Gives you an idea of how many tickets are left
 		if(0 to 49)
@@ -86,6 +87,7 @@
 			icon_state = "ticketmachine_50"
 		if(100)
 			icon_state = "ticketmachine_0"
+
 
 /obj/machinery/ticket_machine/proc/handle_maptext()
 	if(!dispense_enabled)
@@ -100,6 +102,7 @@
 		if(100)
 			maptext_x = 8
 	maptext = "<font face='Small Fonts'>[ticket_number]</font>"
+
 
 /obj/machinery/ticket_machine/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -142,23 +145,24 @@
 
 	return ..()
 
+
 /obj/machinery/ticket_machine/attack_hand(mob/living/carbon/user)
 	. = ..()
 	if(!ready)
-		to_chat(user,span_warning("You press the button, but nothing happens..."))
+		to_chat(user,"<span class='warning'>You press the button, but nothing happens...</span>")
 		return
 	if(!dispense_enabled)
-		to_chat(user, span_warning("[src] is disabled."))
+		to_chat(user, "<span class='warning'>[src] is disabled.</span>")
 		return
 	if(ticket_number >= max_number)
-		to_chat(user,span_warning("Ticket supply depleted, please refill this unit with a hand labeller refill cartridge!"))
+		to_chat(user,"<span class='warning'>Ticket supply depleted, please refill this unit with a hand labeller refill cartridge!</span>")
 		return
 	if((user.UID() in ticket_holders) && !(emagged))
-		to_chat(user, span_warning("You already have a ticket!"))
+		to_chat(user, "<span class='warning'>You already have a ticket!</span>")
 		return
 	playsound(src, 'sound/machines/terminal_insert_disc.ogg', 100, FALSE)
 	ticket_number ++
-	to_chat(user, span_notice("You take a ticket from [src], looks like you're ticket number #[ticket_number]..."))
+	to_chat(user, "<span class='notice'>You take a ticket from [src], looks like you're ticket number #[ticket_number]...</span>")
 	var/obj/item/ticket_machine_ticket/theirticket = new /obj/item/ticket_machine_ticket(get_turf(src))
 	theirticket.name = "Ticket #[ticket_number]"
 	theirticket.maptext = "<font color='#000000' face='Small Fonts'>[ticket_number]</font>"
@@ -204,9 +208,10 @@
 	. = ..()
 	maptext = saved_maptext //For some reason, storage code removes all maptext off objs, this stops its number from being wiped off when taken out of storage.
 
+
 /obj/item/ticket_machine_ticket/attackby(obj/item/I, mob/living/user, params) //Stolen from papercode
 	. = ..()
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.get_temperature() || !Adjacent(user))
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.get_heat() || !Adjacent(user))
 		return .
 
 	. |= ATTACK_CHAIN_BLOCKED_ALL
@@ -227,6 +232,7 @@
 		span_danger("You light [src] on fire!"),
 	)
 	fire_act()
+
 
 /obj/item/paper/extinguish()
 	..()

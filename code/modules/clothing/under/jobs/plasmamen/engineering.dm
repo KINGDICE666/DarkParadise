@@ -6,13 +6,13 @@
 	item_color = "engineer_envirosuit"
 
 /obj/item/clothing/under/plasmaman/engineering/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм инженера",
 		GENITIVE = "защитного костюма инженера",
 		DATIVE = "защитному костюму инженера",
 		ACCUSATIVE = "защитный костюм инженера",
 		INSTRUMENTAL = "защитным костюмом инженера",
-		PREPOSITIONAL = "защитном костюме инженера",
+		PREPOSITIONAL = "защитном костюме инженера"
 	)
 
 /obj/item/clothing/under/plasmaman/engineering/ce
@@ -23,14 +23,14 @@
 	item_color = "ce_envirosuit"
 
 /obj/item/clothing/under/plasmaman/engineering/ce/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм старшего инженера",
 		GENITIVE = "защитного костюма старшего инженера",
 		DATIVE = "защитному костюму старшего инженера",
 		ACCUSATIVE = "защитный костюм старшего инженера",
 		INSTRUMENTAL = "защитным костюмом старшего инженера",
-		PREPOSITIONAL = "защитном костюме старшего инженера",
-	)
+		PREPOSITIONAL = "защитном костюме старшего инженера"
+	) 
 
 /obj/item/clothing/under/plasmaman/atmospherics
 	name = "atmospherics plasma envirosuit"
@@ -40,13 +40,13 @@
 	item_color = "atmos_envirosuit"
 
 /obj/item/clothing/under/plasmaman/atmospherics/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм атмосферного техника",
 		GENITIVE = "защитного костюма атмосферного техника",
 		DATIVE = "защитному костюму атмосферного техника",
 		ACCUSATIVE = "защитный костюм атмосферного техника",
 		INSTRUMENTAL = "защитным костюмом атмосферного техника",
-		PREPOSITIONAL = "защитном костюме атмосферного техника",
+		PREPOSITIONAL = "защитном костюме атмосферного техника"
 	)
 
 /obj/item/clothing/under/plasmaman/mechanic
@@ -57,11 +57,11 @@
 	item_color = "mechanic_envirosuit"
 
 /obj/item/clothing/under/plasmaman/mechanic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм механика",
 		GENITIVE = "защитного костюма механика",
 		DATIVE = "защитному костюму механика",
 		ACCUSATIVE = "защитный костюм механика",
 		INSTRUMENTAL = "защитным костюмом механика",
-		PREPOSITIONAL = "защитном костюме механика",
+		PREPOSITIONAL = "защитном костюме механика"
 	)

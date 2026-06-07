@@ -16,6 +16,7 @@
 //The user can change properties of the supplypod using the UI, and change the way that items are taken from the bay (One at a time, ordered, random, etc)
 //Many of the effects of the supplypod set here are put into action in supplypod.dm
 
+
 //Variables declared to change how items in the launch bay are picked and launched. (Almost) all of these are changed in the ui_act proc
 //Some effect groups are choices, while other are booleans. This is because some effects can stack, while others dont (ex: you can stack explosion and quiet, but you cant stack ordered launch and random launch)
 /datum/centcom_podlauncher
@@ -66,8 +67,6 @@
 	var/renderLighting = FALSE
 	var/static/list/pod_style_info
 	var/static/list/pod_style_lookup
-	/// If it is smite, write reason for target.
-	var/reason
 
 /datum/centcom_podlauncher/New(user) //user can either be a client or a mob
 	if(user) //Prevents runtimes on datums being made without clients
@@ -81,7 +80,7 @@
 		pod_style_lookup[style::id] = style
 
 /datum/centcom_podlauncher/proc/setup(user) //H can either be a client or a mob
-	if(isclient(user))
+	if(istype(user,/client))
 		var/client/user_client = user
 		holder = user_client //if its a client, assign it to holder
 	else
@@ -120,11 +119,11 @@
 /datum/centcom_podlauncher/ui_state(mob/user)
 	if(SSticker.current_state >= GAME_STATE_FINISHED)
 		return GLOB.always_state //Allow the UI to be given to players by admins after roundend
-	return ADMIN_STATE(R_ADMIN)
+	return GLOB.admin_state
 
 /datum/centcom_podlauncher/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet_batched/supplypods),
+		get_asset_datum(/datum/asset/spritesheet/supplypods),
 	)
 
 /datum/centcom_podlauncher/ui_interact(mob/user, datum/tgui/ui)
@@ -418,6 +417,7 @@
 			if(isnull(target) || QDELETED(target))
 				return
 
+
 			specificTarget = target
 
 			. = TRUE
@@ -589,7 +589,7 @@
 
 	if(launcherActivated)
 		//Clicking on UI elements shouldn't launch a pod
-		if(is_screen_atom(target))
+		if(istype(target,/atom/movable/screen))
 			return FALSE
 
 		. = TRUE
@@ -618,10 +618,6 @@
 				bouttaDie.Add(target_mob)
 			if(holder.holder)
 				supplypod_punish_log(bouttaDie)
-
-			if(reason && ismob(specificTarget))
-				to_chat(specificTarget, span_warning("Это кара за [reason]!"))
-
 			if(!effectBurst) //If we're not using burst mode, just launch normally.
 				launch(target)
 			else
@@ -637,7 +633,7 @@
 					sleep(rand()*2) //looks cooler than them all appearing at once. Gives the impression of burst fire.
 	else if(picking_dropoff_turf)
 		//Clicking on UI elements shouldn't pick a dropoff turf
-		if(is_screen_atom(target))
+		if(istype(target,/atom/movable/screen))
 			return FALSE
 
 		. = TRUE
@@ -791,8 +787,8 @@
 	bayNumber = dataToLoad["bayNumber"]
 	customDropoff = dataToLoad["customDropoff"]
 	var/list/cords = dataToLoad["reverse_dropoff_coords"]
-	if(length(cords))
-		var/turf/dropoff = locate(cords[1], cords[2], cords[3])
+	if(cords?.len)
+		var/turf/dropoff =locate(cords[1], cords[2], cords[3])
 		setDropoff(dropoff)
 	renderLighting = dataToLoad["renderLighting"]
 	launchClone = dataToLoad["launchClone"] //Do we launch the actual items in the bay or just launch clones of them?

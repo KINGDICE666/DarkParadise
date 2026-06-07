@@ -1,28 +1,30 @@
-/**
-Adjacency proc for determining touch range
+/*
+	Adjacency proc for determining touch range
 
-This is mostly to determine if a user can enter a square for the purposes of touching something.
-Examples include reaching a square diagonally or reaching something on the other side of a glass window.
+	This is mostly to determine if a user can enter a square for the purposes of touching something.
+	Examples include reaching a square diagonally or reaching something on the other side of a glass window.
 
-This is calculated by looking for border items, or in the case of clicking diagonally from yourself, dense items.
-This proc will NOT notice if you are trying to attack a window on the other side of a dense object in its turf.  There is a window helper for that.
+	This is calculated by looking for border items, or in the case of clicking diagonally from yourself, dense items.
+	This proc will NOT notice if you are trying to attack a window on the other side of a dense object in its turf.  There is a window helper for that.
 
-Note that in all cases the neighbor is handled simply; this is usually the user's mob, in which case it is up to you
-to check that the mob is not inside of something
+	Note that in all cases the neighbor is handled simply; this is usually the user's mob, in which case it is up to you
+	to check that the mob is not inside of something
 */
 /atom/proc/Adjacent(atom/neighbor, atom/target, atom/movable/mover) // basic inheritance, unused
 	return
 
-/// Not a sane use of the function and (for now) indicative of an error elsewhere
+
+// Not a sane use of the function and (for now) indicative of an error elsewhere
 /area/Adjacent(atom/neighbor, atom/target, atom/movable/mover)
 	CRASH("Call to /area/Adjacent(), unimplemented proc")
 
-/**
-Adjacency (to turf):
-* If you are in the same turf, always true
-* If you are vertically/horizontally adjacent, ensure there are no border objects
-* If you are diagonally adjacent, ensure you can pass through at least one of the mutually adjacent square.
-	* Passing through in this case ignores anything with the LETPASSTHROW flag, such as tables, racks, and morgue trays.
+
+/*
+	Adjacency (to turf):
+	* If you are in the same turf, always true
+	* If you are vertically/horizontally adjacent, ensure there are no border objects
+	* If you are diagonally adjacent, ensure you can pass through at least one of the mutually adjacent square.
+		* Passing through in this case ignores anything with the LETPASSTHROW flag, such as tables, racks, and morgue trays.
 */
 /turf/Adjacent(atom/neighbor, atom/target, atom/movable/mover)
 	var/turf/T0 = get_turf(neighbor)
@@ -39,9 +41,9 @@ Adjacency (to turf):
 		return T0.ClickCross(get_dir(T0, src), TRUE, target, mover) && ClickCross(get_dir(src, T0), TRUE, target, mover)
 
 	// Diagonal case
-	var/in_dir = get_dir(T0, src) // eg. NORTHWEST (1+8) = 9 (00001001)
-	var/d1 = in_dir & 3 // eg. NORTH (1+8) & 3 (0000 0011) = 1 (0000 0001)
-	var/d2 = in_dir & 12 // eg. WEST (1+8) & 12 (0000 1100) = 8 (0000 1000)
+	var/in_dir = get_dir(T0, src)	// eg. NORTHWEST	(1+8) = 9 (00001001)
+	var/d1 = in_dir & 3				// eg. NORTH		(1+8) & 3 (0000 0011) = 1 (0000 0001)
+	var/d2 = in_dir & 12			// eg. WEST			(1+8) & 12 (0000 1100) = 8 (0000 1000)
 
 	for(var/d in list(d1,d2))
 		if(!T0.ClickCross(d, TRUE, target, mover))
@@ -60,7 +62,8 @@ Adjacency (to turf):
 
 	return FALSE
 
-/**
+
+/*
 	Adjacency (to anything else):
 	* Must be on a turf
 */
@@ -69,30 +72,17 @@ Adjacency (to turf):
 		return TRUE
 	if(neighbor?.loc == src)
 		return TRUE
-
-	var/turf/corner_turf = loc
-	if(!istype(corner_turf))
+	var/turf/T = loc
+	if(!istype(T))
 		return FALSE
-
-	if(!is_multi_tile_object(src))
-		return corner_turf.Adjacent(neighbor, target = neighbor, mover = src)
-
-	// Check for all turfs we are currently occupying, checking bound_width / bound_height variables
-	var/horizontal_turf_amount = bound_width / ICON_SIZE_X
-	var/vertical_turf_amount = bound_height / ICON_SIZE_Y
-	// We round to the nearest integer
-	horizontal_turf_amount = max(1, floor(horizontal_turf_amount) + (fract(horizontal_turf_amount) >= 0.5))
-	vertical_turf_amount = max(1, floor(vertical_turf_amount) + (fract(vertical_turf_amount) >= 0.5))
-	for(var/turf/our_turf as anything in CORNER_BLOCK(corner_turf, horizontal_turf_amount, vertical_turf_amount))
-		if(our_turf.Adjacent(neighbor, target = neighbor, mover = src))
-			return TRUE
+	if(T.Adjacent(neighbor,target = neighbor, mover = src))
+		return TRUE
 	return FALSE
 
-/// This is necessary for storage items not on your person.
+
+// This is necessary for storage items not on your person.
 /obj/item/Adjacent(atom/neighbor, atom/target, atom/movable/mover, recurse = 1)
 	if(neighbor == loc)
-		return TRUE
-	if(neighbor?.loc == src)
 		return TRUE
 	if(isitem(loc))
 		if(recurse > 0)
@@ -100,7 +90,8 @@ Adjacency (to turf):
 		return FALSE
 	return ..()
 
-/**
+
+/*
 	This checks if you there is uninterrupted airspace between that turf and this one.
 	This is defined as any dense ON_BORDER object, or any dense object without LETPASSTHROW or LETPASSCLICKS.
 	The border_only flag allows you to not objects (for source and destination squares)
@@ -122,3 +113,4 @@ Adjacency (to turf):
 			return FALSE
 
 	return TRUE
+

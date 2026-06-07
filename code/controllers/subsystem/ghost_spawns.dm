@@ -1,8 +1,11 @@
 SUBSYSTEM_DEF(ghost_spawns)
 	name = "Ghost Spawns"
-	ss_flags = SS_BACKGROUND | SS_NO_INIT
+	flags = SS_BACKGROUND | SS_NO_INIT
 	wait = 1 SECONDS
 	runlevels = RUNLEVEL_GAME
+	offline_implications = "Ghosts will no longer be able to respawn as event mobs (Blob, etc..). Shuttle call recommended."
+	cpu_display = SS_CPUDISPLAY_LOW
+	ss_id = "ghost_spawns"
 
 	/// List of polls currently ongoing, to be checked on next fire()
 	var/list/datum/candidate_poll/currently_polling
@@ -12,6 +15,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 	var/total_polls = 0
 	/// The poll that's closest to finishing
 	var/datum/candidate_poll/next_poll_to_finish
+
 
 /datum/controller/subsystem/ghost_spawns/fire()
 	if(!polls_active)
@@ -42,11 +46,7 @@ SUBSYSTEM_DEF(ghost_spawns)
  * * role_cleanname - The name override to display to clients
  */
 /datum/controller/subsystem/ghost_spawns/proc/poll_candidates(question = "Вы хотите сыграть за особую роль?", role, antag_age_check = FALSE, poll_time = 30 SECONDS, ignore_respawnability = FALSE, min_hours = 0, flash_window = TRUE, check_antaghud = TRUE, source, role_cleanname, reason)
-	var/mob/mob_source = source
-	if(role == ROLE_SENTIENT && istype(mob_source))
-		log_debug("Polling candidates for sentient mob `[mob_source.type]` for [poll_time / 10] seconds")
-	else
-		log_debug("Polling candidates [role ? "for [role_cleanname || role]" : "\"[question]\""] for [poll_time / 10] seconds")
+	log_debug("Polling candidates [role ? "for [role_cleanname || role]" : "\"[question]\""] for [poll_time / 10] seconds")
 
 	// Start firing
 	polls_active = TRUE
@@ -84,14 +84,11 @@ SUBSYSTEM_DEF(ghost_spawns)
 		if(!A)
 			continue
 
-		P.alert_buttons += A
-
 		A.icon = ui_style2icon(M.client?.prefs.UI_style)
 		A.name = "Поиск кандидатов"
-		A.desc = "[question]\n\n(истекает через [poll_time / 10] секунд[DECL_SEC_MIN(poll_time / 10)])"
+		A.desc = "[question]\n\n(истекает через [poll_time / 10] секунд[declension_ru(poll_time / 10, "у", "ы", "")])"
 		A.show_time_left = TRUE
 		A.poll = alert_poll
-		A.update_candidates_number_overlay()
 
 		// Sign up inheritance and stacking
 		var/inherited_sign_up = FALSE
@@ -135,7 +132,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 		// Chat message
 		var/act_jump = ""
 		if(isatom(source))
-			act_jump = "<a href='byond://?src=[M.UID()];jump=[UID_of(source)]'>\[Телепорт]</a>"
+			act_jump = "<a href='byond://?src=[M.UID()];jump=\ref[source]'>\[Телепорт]</a>"
 		var/act_signup = "<a href='byond://?src=[A.UID()];signup=1'>\[Стать кандидатом]</a>"
 		to_chat(M, span_boldnotice(span_big("В настоящее время идёт поиск кандидатов для [role ? "игры за [role_cleanname || role]" : "\"[question]\""]. [act_jump] [act_signup] [reason?"<i>\nПричина: [reason]</i>":""]")))
 
@@ -146,6 +143,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 	// Sleep until the time is up
 	UNTIL(P.finished)
 	return P.signed_up
+
 
 /**
  * Returns whether an observer is eligible to be an event mob
@@ -179,6 +177,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 
 	return TRUE
 
+
 /**
  * Called by the subsystem when a poll's timer runs out
  *
@@ -206,6 +205,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 			if(!next_poll_to_finish || P2.time_left() < next_poll_to_finish.time_left())
 				next_poll_to_finish = P2
 
+
 /datum/controller/subsystem/ghost_spawns/get_stat_details()
 	var/list/msg = list()
 	msg += "Active: [length(currently_polling)] | Total: [total_polls]"
@@ -213,16 +213,17 @@ SUBSYSTEM_DEF(ghost_spawns)
 		msg += " | Next: [DisplayTimeText(next_poll_to_finish.time_left())] ([length(next_poll_to_finish.signed_up)] candidates)"
 	return msg.Join("")
 
+
 // The datum that describes one instance of candidate polling
 /datum/candidate_poll
 	var/role // The role the poll is for
 	var/question // The question asked to observers
 	var/duration // The duration of the poll
 	var/list/mob/dead/observer/signed_up // The players who signed up to this poll
-	var/list/atom/movable/screen/alert/notify_action/alert_buttons = list() // the linked alert buttons
 	var/time_started // The world.time at which the poll was created
 	var/finished = FALSE // Whether the polling is finished
 	var/hash // Used to categorize in the alerts system
+
 
 /datum/candidate_poll/New(polled_role, polled_question, poll_duration)
 	role = polled_role
@@ -232,10 +233,6 @@ SUBSYSTEM_DEF(ghost_spawns)
 	time_started = world.time
 	hash = copytext(md5("[question]_[role ? role : "0"]"), 1, 7)
 	return ..()
-
-/datum/candidate_poll/proc/update_buttons_overlays()
-	for(var/atom/movable/screen/alert/notify_action/linked_button as anything in alert_buttons)
-		linked_button.update_candidates_number_overlay()
 
 /**
  * Attempts to sign a (controlled) mob up
@@ -270,9 +267,8 @@ SUBSYSTEM_DEF(ghost_spawns)
 			if(src != P && hash == P.hash && !(M in P.signed_up))
 				P.sign_up(M, TRUE)
 
-	update_buttons_overlays()
-
 	return TRUE
+
 
 /**
  * Attempts to remove a signed-up mob from a poll.
@@ -303,20 +299,19 @@ SUBSYSTEM_DEF(ghost_spawns)
 			var/datum/candidate_poll/P = existing_poll
 			if(src != P && hash == P.hash && (M in P.signed_up))
 				P.remove_candidate(M, TRUE)
-
-	update_buttons_overlays()
-
 	return TRUE
+
 
 /**
  * Deletes any candidates who may have disconnected from the list
  */
 /datum/candidate_poll/proc/trim_candidates()
-	list_clear_nulls(signed_up)
+	listclearnulls(signed_up)
 	for(var/mob in signed_up)
 		var/mob/M = mob
 		if(!M.key || !M.client)
 			signed_up -= M
+
 
 /**
  * Returns the time left for a poll

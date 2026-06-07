@@ -14,7 +14,7 @@
 
 /mob/living/simple_animal/hostile/guardian/punch/verb/Battlecry()
 	set name = "Боевой клич"
-	set category = VERB_CATEGORY_GUARDIAN
+	set category = STATPANEL_GUARDIAN
 	set desc = "Выбери крик при ударе"
 	var/input = tgui_input_text(src, "Какой боевой клич вы бы хотели? Максимальная длина 8 символов.", "Изменить Боевой клич", battlecry, 8)
 	if(input)
@@ -36,7 +36,7 @@
 	. = ..()
 	for(var/mob/living/carbon/human/L in view(2, src))
 		if(L.stat != DEAD && L != summoner)
-			L.Slowed(4 SECONDS, 2)
+			L.Slowed(4 SECONDS)
 
 /mob/living/simple_animal/hostile/guardian/punch/sealpunch
 	name = "Seal Sprit"

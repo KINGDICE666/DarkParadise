@@ -1,6 +1,6 @@
 /mob/living/simple_animal/hostile/retaliate/syndirat
 	name = "Синди-мышь"
-	desc = "Мышь на службе \"Синдиката\"?"
+	desc = "Мышь на службе синдиката?"
 	icon = 'icons/mob/syndirat.dmi'
 	icon_state = "syndirat"
 	icon_living = "syndirat"
@@ -21,19 +21,18 @@
 	can_collar = 1
 	pass_flags = PASSTABLE | PASSGRILLE | PASSMOB
 	nightvision = 6
-	speak = list("Слава \"Синдикату\"!", "Смерть \"Нанотрейзен\"!", "У вас есть сыр?")
+	speak = list("Слава Синдикату!", "Смерть Нанотрейзен!", "У вас есть сыр?")
 	speak_emote = list("пищит", "попискивает")
 	emote_hear = list("пищит", "попискивает")
 	emote_see = list("бегает кругами", "дрожит", "быстро осматривается")
-	projectilesound = 'sound/weapons/plasma_cutter.ogg'
 
 	mob_size = MOB_SIZE_TINY // If theyre not at least small it doesnt seem like the treadmill works or makes sound
 	pass_flags = PASSTABLE
-	pass_door_while_hidden = TRUE
 	stop_automated_movement = 1
 	AI_delay_max = 0 SECONDS
 
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
+
 
 	ranged =  1
 	projectiletype = /obj/projectile/beam/disabler
@@ -65,20 +64,18 @@
 
 /mob/living/simple_animal/hostile/retaliate/syndirat/handle_automated_action()
 	if(prob(chew_probability) && isturf(loc))
-		var/turf/simulated/floor/our_floor = get_turf(src)
-		if(!istype(our_floor))
-			return
-		var/obj/structure/cable/thing_to_eat = locate() in our_floor
-		if(!(thing_to_eat && !HAS_TRAIT(thing_to_eat, TRAIT_UNDERFLOOR) && prob(15)))
-			return
-		if(thing_to_eat.avail())
-			visible_message(span_warning("[src] chews through [thing_to_eat]. It's toast!"))
-			playsound(src, 'sound/effects/sparks2.ogg', 100, TRUE)
-			toast() // mmmm toasty.
-		else
-			visible_message(span_warning("[src] chews through [thing_to_eat]."))
-		investigate_log("was chewed through by a mouse at [COORD(our_floor)]", INVESTIGATE_WIRES)
-		thing_to_eat.deconstruct()
+		var/turf/simulated/floor/F = get_turf(src)
+		if(istype(F) && !F.intact)
+			var/obj/structure/cable/C = locate() in F
+			if(C && prob(15))
+				if(C.avail())
+					visible_message("<span class='warning'>[src] chews through [C]. It's toast!</span>")
+					playsound(src, 'sound/effects/sparks2.ogg', 100, TRUE)
+					toast() // mmmm toasty.
+				else
+					visible_message("<span class='warning'>[src] chews through [C].</span>")
+				investigate_log("was chewed through by a mouse at [COORD(F)]", INVESTIGATE_WIRES)
+				C.deconstruct()
 
 /mob/living/simple_animal/hostile/retaliate/syndirat/proc/toast()
 	add_atom_colour("#3A3A3A", FIXED_COLOUR_PRIORITY)
@@ -100,9 +97,10 @@
 	else if(prob(0.5))
 		set_resting(TRUE, instant = TRUE)
 
+
 /mob/living/simple_animal/hostile/retaliate/syndirat/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(!stat && ishuman(arrived))
-		to_chat(arrived, span_notice("[get_examine_icon(arrived)] Squeek!"))
+		to_chat(arrived, span_notice("[bicon(src)] Squeek!"))
 

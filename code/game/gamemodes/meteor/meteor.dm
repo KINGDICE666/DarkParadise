@@ -5,27 +5,30 @@
 	var/wave = 1
 	required_players = 35
 
+
 /datum/game_mode/meteor/announce()
 	to_chat(world, "<b>The current game mode is - Meteor!</b>")
 	to_chat(world, "<b>The space station has been stuck in a major meteor shower. You must escape from the station or at least live.</b>")
 
+
 /datum/game_mode/meteor/post_setup()
 	spawn(rand(waittime_l, waittime_h))
-		GLOB.major_announcement.announce(
-			message = "Станция находится на пути надвигающегося потока метеоров. Укрепите обшивку и подготовьте группы по устранению повреждений.",
-			new_title = ANNOUNCE_METEOR_RU,
-			new_sound = 'sound/effects/siren.ogg'
+		GLOB.major_announcement.announce("Станция находится на пути надвигающегося потока метеоров. Укрепите обшивку и подготовьте группы по устранению повреждений.",
+										ANNOUNCE_METEOR_RU,
+										'sound/effects/siren.ogg'
 		)
 	spawn(initialmeteordelay)
 		sendmeteors()
 	..()
+
+
 
 /datum/game_mode/meteor/proc/sendmeteors()
 	var/waveduration = world.time + rand(0,1000) + text2num("[wave]000") / 2
 	var/waitduration = rand(3000,6000)
 	while(waveduration - world.time > 0)
 		sleep(max(65 - text2num("[wave]0") / 2, 40))
-		INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(spawn_meteors), 6, GLOB.meteors_normal)
+		INVOKE_ASYNC(GLOBAL_PROC, /proc/spawn_meteors, 6, GLOB.meteors_normal)
 	wave++
 	sleep(waitduration)
 	sendmeteors()
@@ -50,9 +53,9 @@
 			survivors++
 
 	if(survivors)
-		to_chat(world, "[span_boldnotice("The following survived the meteor storm")]:[text]")
+		to_chat(world, "<span class='boldnotice'>The following survived the meteor storm</span>:[text]")
 	else
-		to_chat(world, span_boldnotice("Nobody survived the meteor storm!"))
+		to_chat(world, "<span class='boldnotice'>Nobody survived the meteor storm!</span>")
 
 	SSticker.mode_result = "meteor end - evacuation"
 

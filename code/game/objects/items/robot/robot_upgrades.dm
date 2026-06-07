@@ -13,6 +13,7 @@
 	var/instant_use = FALSE
 	var/multiple_use = FALSE
 
+
 /obj/item/borg/upgrade/proc/action(mob/living/silicon/robot/robot, mob/user)
 	if(robot.stat == DEAD)
 		if(user)
@@ -29,10 +30,12 @@
 		return FALSE
 	return TRUE
 
+
 /obj/item/borg/upgrade/proc/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!(src in robot.upgrades))
 		return FALSE
 	return TRUE
+
 
 /obj/item/borg/upgrade/reset
 	name = "cyborg module reset board"
@@ -40,6 +43,7 @@
 	icon_state = "cyborg_upgrade1"
 	require_module = TRUE
 	instant_use = TRUE
+
 
 /obj/item/borg/upgrade/reset/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -53,12 +57,14 @@
 	robot.reset_module()
 	return TRUE
 
+
 /obj/item/borg/upgrade/rename
 	name = "cyborg reclassification board"
 	desc = "Used to rename a cyborg."
 	icon_state = "cyborg_upgrade1"
 	var/heldname = "Default Name"
 	instant_use = TRUE
+
 
 /obj/item/borg/upgrade/rename/attack_self(mob/user)
 	var/new_heldname = tgui_input_text(user, "Enter new robot name", "Cyborg Reclassification", heldname, MAX_NAME_LEN)
@@ -87,6 +93,7 @@
 			robot.rename_character(robot.name, heldname)
 	return TRUE
 
+
 /mob/living/silicon/robot/proc/shouldRename(newname)
 	if(src.stat == CONSCIOUS)
 		var/choice = tgui_alert(src, "Активирован протокол переименования. Предложенное имя: [newname]. Продолжить операцию?", "Внимание!", list("Да", "Нет"))
@@ -100,31 +107,31 @@
 					return FALSE
 	return TRUE
 
+
 /obj/item/borg/upgrade/restart
 	name = "cyborg emergency reboot module"
 	desc = "Used to force a reboot of a disabled-but-repaired cyborg, bringing it back online."
 	icon_state = "cyborg_upgrade1"
 	instant_use = TRUE
 
+
 /obj/item/borg/upgrade/restart/action(mob/living/silicon/robot/robot, mob/user)
 	if(robot.health < 0)
 		if(user)
 			to_chat(user, "[span_danger("UPGRADE ERROR: ")]" + "[span_notice("you have to repair the cyborg before using this module!")]")
 		return FALSE
-	if(robot.shell)
-		to_chat(user, "[span_danger("UPGRADE ERROR: ")]" + "[span_notice("cant apply on a AI shell!")]")
-		return FALSE
 
 	if(!robot.key)
 		for(var/mob/dead/observer/ghost in GLOB.player_list)
 			if(ghost.mind && ghost.mind.current == robot)
-				robot.possess_by_player(ghost.key)
+				robot.key = ghost.key
 
 	robot.set_stat(CONSCIOUS)
 	robot.remove_from_dead_mob_list() //please never forget this ever kthx
 	robot.add_to_alive_mob_list()
 	robot.notify_ai(ROBOT_NOTIFY_AI_CONNECTED)
 	return TRUE
+
 
 /obj/item/borg/upgrade/vtec
 	name = "robotic VTEC Module"
@@ -133,6 +140,7 @@
 	require_module = TRUE
 	origin_tech = "engineering=4;materials=5;programming=4"
 
+
 /obj/item/borg/upgrade/vtec/action(mob/living/silicon/robot/robot)
 	if(!..())
 		return FALSE
@@ -140,12 +148,14 @@
 	robot.add_movespeed_modifier(/datum/movespeed_modifier/robot_vtec_upgrade)	// Gotta go fast.
 	return TRUE
 
+
 /obj/item/borg/upgrade/vtec/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
 
 	robot.remove_movespeed_modifier(/datum/movespeed_modifier/robot_vtec_upgrade)
 	return TRUE
+
 
 /obj/item/borg/upgrade/magboots
 	name = "cyborg floor magnet module"
@@ -178,6 +188,7 @@
 	require_module = TRUE
 	module_type = /obj/item/robot_module/security
 
+
 /obj/item/borg/upgrade/disablercooler/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -191,6 +202,7 @@
 	disabler.charge_delay = max(2 , disabler.charge_delay - 4)
 	return TRUE
 
+
 /obj/item/borg/upgrade/disablercooler/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -202,11 +214,13 @@
 	disabler.charge_delay = initial(disabler.charge_delay)
 	return TRUE
 
+
 /obj/item/borg/upgrade/thrusters
 	name = "ion thruster upgrade"
 	desc = "A energy-operated thruster system for cyborgs."
 	icon_state = "cyborg_upgrade3"
 	origin_tech = "engineering=4;powerstorage=4"
+
 
 /obj/item/borg/upgrade/thrusters/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -214,6 +228,7 @@
 
 	robot.ionpulse = TRUE
 	return TRUE
+
 
 /obj/item/borg/upgrade/thrusters/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -225,6 +240,7 @@
 	robot.ionpulse = FALSE
 	return TRUE
 
+
 /obj/item/borg/upgrade/ddrill
 	name = "mining cyborg diamond drill"
 	desc = "A diamond drill replacement for the mining module's standard drill."
@@ -232,6 +248,7 @@
 	origin_tech = "engineering=4;materials=5"
 	require_module = TRUE
 	module_type = /obj/item/robot_module/miner
+
 
 /obj/item/borg/upgrade/ddrill/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -246,6 +263,7 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/ddrill/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -258,6 +276,7 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/soh
 	name = "mining cyborg satchel of holding"
 	desc = "A satchel of holding replacement for mining cyborg's ore satchel module."
@@ -266,23 +285,18 @@
 	require_module = TRUE
 	module_type = /obj/item/robot_module/miner
 
+
 /obj/item/borg/upgrade/soh/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
 
-	var/is_orebag_upgraded
-
 	for(var/obj/item/storage/bag/ore/cyborg/orebag in robot.module.modules)
-		is_orebag_upgraded |= orebag.aoe
 		qdel(orebag)
 
-	var/obj/item/storage/bag/ore/holding/cyborg/ore_soh = new /obj/item/storage/bag/ore/holding/cyborg(robot.module)
-	if(is_orebag_upgraded)
-		ore_soh.aoe = TRUE
-
-	robot.module.modules += ore_soh
+	robot.module.modules += new /obj/item/storage/bag/ore/holding/cyborg(robot.module)
 	robot.module.rebuild()
 	return TRUE
+
 
 /obj/item/borg/upgrade/soh/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -295,10 +309,12 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/gps
 	name = "cyborg gps upgrade"
 	desc = "Upgraded GPS for cyborgs."
 	icon_state = "cyborg_upgrade3"
+
 
 /obj/item/borg/upgrade/gps/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -306,11 +322,13 @@
 	robot.gps.upgraded = TRUE
 	return TRUE
 
+
 /obj/item/borg/upgrade/gps/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
 	robot.gps.upgraded = FALSE
 	return TRUE
+
 
 /obj/item/borg/upgrade/abductor_engi
 	name = "engineering cyborg abductor upgrade"
@@ -319,6 +337,7 @@
 	origin_tech = "engineering=6;materials=6;abductor=3"
 	require_module = TRUE
 	module_type = /obj/item/robot_module/engineering
+
 
 /obj/item/borg/upgrade/abductor_engi/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -346,6 +365,7 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/abductor_engi/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -372,6 +392,7 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/abductor_medi
 	name = "medical cyborg abductor upgrade"
 	desc = "An experimental upgrade that replaces a medical cyborgs tools with the abductor version."
@@ -379,6 +400,7 @@
 	origin_tech = "biotech=6;materials=6;abductor=2"
 	require_module = TRUE
 	module_type = /obj/item/robot_module/medical
+
 
 /obj/item/borg/upgrade/abductor_medi/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -412,6 +434,7 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/abductor_medi/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -444,12 +467,14 @@
 	robot.module.rebuild()
 	return TRUE
 
+
 /obj/item/borg/upgrade/syndicate
 	name = "safety override module"
 	desc = "Unlocks the hidden, deadlier functions of a cyborg."
 	icon_state = "cyborg_upgrade3"
 	origin_tech = "combat=6;materials=6"
 	require_module = TRUE
+
 
 /obj/item/borg/upgrade/syndicate/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -459,6 +484,7 @@
 	robot.weapons_unlock = TRUE
 	return TRUE
 
+
 /obj/item/borg/upgrade/syndicate/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -466,6 +492,7 @@
 	to_chat(robot, span_notice("Notice: Safety Overide Protocols have been restored."))
 	robot.weapons_unlock = FALSE
 	return TRUE
+
 
 /obj/item/borg/upgrade/lavaproof
 	name = "mining cyborg lavaproof chassis"
@@ -475,6 +502,7 @@
 	require_module = TRUE
 	module_type = /obj/item/robot_module/miner
 
+
 /obj/item/borg/upgrade/lavaproof/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -482,12 +510,14 @@
 	ADD_TRAIT(robot, TRAIT_LAVA_IMMUNE, ROBOT_TRAIT)
 	return TRUE
 
+
 /obj/item/borg/upgrade/lavaproof/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
 
 	REMOVE_TRAIT(robot, TRAIT_LAVA_IMMUNE, ROBOT_TRAIT)
 	return TRUE
+
 
 /obj/item/borg/upgrade/selfrepair
 	name = "self-repair module"
@@ -502,6 +532,7 @@
 	var/mob/living/silicon/robot/cyborg
 	var/datum/action/toggle_action
 
+
 /obj/item/borg/upgrade/selfrepair/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -511,6 +542,7 @@
 	toggle_action = new /datum/action/item_action/toggle(src)
 	toggle_action.Grant(robot)
 	return TRUE
+
 
 /obj/item/borg/upgrade/selfrepair/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -524,9 +556,11 @@
 		qdel(src)
 	return TRUE
 
+
 /obj/item/borg/upgrade/selfrepair/Destroy()
 	on = FALSE
 	return ..()
+
 
 /obj/item/borg/upgrade/selfrepair/ui_action_click(mob/user, datum/action/action, leftclick)
 	on = !on
@@ -538,6 +572,7 @@
 		deactivate_sr()
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/item/borg/upgrade/selfrepair/update_icon_state()
 	if(cyborg)
 		icon_state = "selfrepair_[on ? "on" : "off"]"
@@ -546,15 +581,18 @@
 	else
 		icon_state = "cyborg_upgrade5"
 
+
 /obj/item/borg/upgrade/selfrepair/proc/activate_sr()
 	START_PROCESSING(SSobj, src)
 	on = TRUE
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/item/borg/upgrade/selfrepair/proc/deactivate_sr()
 	STOP_PROCESSING(SSobj, src)
 	on = FALSE
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/borg/upgrade/selfrepair/process()
 	if(!repair_tick)
@@ -596,12 +634,14 @@
 	else
 		deactivate_sr()
 
+
 /obj/item/borg/upgrade/storageincreaser
 	name = "storage increaser"
 	desc = "Improves cyborg storage with bluespace technology to store more medicines."
 	icon_state = "cyborg_upgrade2"
 	origin_tech = "bluespace=4;materials=5;engineering=3"
 	require_module = TRUE
+
 
 /obj/item/borg/upgrade/storageincreaser/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -614,18 +654,12 @@
 		robot.module.emag = satchel
 		robot.module.emag.update_icon(UPDATE_ICON_STATE)
 
-	if(istype(robot.module, /obj/item/robot_module/janitor))
-		for(var/obj/item/storage/bag/trash/cyborg/bag in robot.module.modules)
-			qdel(bag)
-
-		robot.module.modules += new /obj/item/storage/bag/trash/bluespace/cyborg(robot.module)
-		robot.module.rebuild()
-
 	for(var/datum/robot_energy_storage/energy_storage in robot.module.storages)
 		energy_storage.max_energy *= 3
 		energy_storage.recharge_rate *= 2
 		energy_storage.energy = energy_storage.max_energy
 	return TRUE
+
 
 /obj/item/borg/upgrade/storageincreaser/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -638,18 +672,12 @@
 		robot.module.emag = satchel
 		robot.module.emag.update_icon(UPDATE_ICON_STATE)
 
-	if(istype(robot.module, /obj/item/robot_module/janitor))
-		for(var/obj/item/storage/bag/trash/bluespace/cyborg/bag in robot.module.modules)
-			qdel(bag)
-
-		robot.module.modules += new /obj/item/storage/bag/trash/cyborg(robot.module)
-		robot.module.rebuild()
-
 	for(var/datum/robot_energy_storage/energy_storage in robot.module.storages)
 		energy_storage.max_energy = initial(energy_storage.max_energy)
 		energy_storage.recharge_rate = initial(energy_storage.recharge_rate)
 		energy_storage.energy = initial(energy_storage.max_energy)
 	return TRUE
+
 
 /obj/item/borg/upgrade/hypospray
 	name = "cyborg hypospray upgrade"
@@ -657,6 +685,7 @@
 	icon_state = "cyborg_upgrade2"
 	origin_tech = "biotech=6;materials=5"
 	require_module = TRUE
+
 
 /obj/item/borg/upgrade/hypospray/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -681,6 +710,7 @@
 	to_chat(user, "[span_danger("UPGRADE ERROR: ")]" + "[span_notice("there's no hypospray in this unit!")]")
 	return FALSE
 
+
 /obj/item/borg/upgrade/hypospray/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -704,12 +734,14 @@
 
 	return FALSE
 
+
 /obj/item/borg/upgrade/hypospray_pierce
 	name = "cyborg hypospray advanced injector"
 	desc = "Upgrades cyborg hypospray with advanced injector allowing it to pierce thick tissue and materials."
 	icon_state = "cyborg_upgrade2"
 	origin_tech = "materials=4;biotech=5;engineering=5"
 	require_module = TRUE
+
 
 /obj/item/borg/upgrade/hypospray_pierce/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -728,6 +760,7 @@
 
 	return TRUE
 
+
 /obj/item/borg/upgrade/hypospray_pierce/deactivate(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
 		return FALSE
@@ -742,11 +775,13 @@
 
 	return TRUE
 
+
 /obj/item/borg/upgrade/syndie_rcd
 	name = "Syndicate cyborg RCD upgrade"
 	desc = "An experimental upgrade that replaces cyborgs RCDs with the syndicate version."
 	icon_state = "syndicate_cyborg_upgrade"
 	origin_tech = "engineering=6;materials=6;syndicate=5"
+
 
 /obj/item/borg/upgrade/syndie_rcd/action(mob/living/silicon/robot/robot, mob/user)
 	if(!..())
@@ -809,157 +844,3 @@
 	robot.module.modules += new /obj/item/reagent_containers/glass/bucket(robot.module)
 	robot.module.rebuild()
 	return TRUE
-
-/obj/item/borg/upgrade/mounted_seat
-	name = "robotic mounted seat module"
-	desc = "Модуль для киборгов в виде сидения. Позволяет окружающим садиться на робота и использовать его в качестве эффективного средства передвижения."
-	icon_state = "seat_module"
-	require_module = TRUE
-	origin_tech = "engineering=3;materials=3;"
-	var/datum/action/innate/toggle_seat/toggle_action = new
-	var/datum/action/innate/launch_riders/launch_action = new
-
-/obj/item/borg/upgrade/mounted_seat/get_ru_names()
-	return alist(
-		NOMINATIVE = "модуль встроенного сидения",
-		GENITIVE = "модуля встроенного сидения",
-		DATIVE = "модулю встроенного сидения",
-		ACCUSATIVE = "модуль встроенного сидения",
-		INSTRUMENTAL = "модулем встроенного сидения",
-		PREPOSITIONAL = "модуле встроенного сидения",
-	)
-
-/obj/item/borg/upgrade/mounted_seat/emag_act(mob/user)
-	if(!emagged)
-		emagged = TRUE
-		balloon_alert(user, "регуляторы мощности взломаны!")
-	else
-		balloon_alert(user, "нет эффекта!")
-
-/obj/item/borg/upgrade/mounted_seat/action(mob/living/silicon/robot/robot)
-	if(!..())
-		return FALSE
-
-	robot.AddElement(/datum/element/ridable, /datum/component/riding/creature/cyborg)
-	toggle_action.Grant(robot, src)
-	if(emagged)
-		launch_action.Grant(robot, src)
-	return TRUE
-
-/obj/item/borg/upgrade/mounted_seat/deactivate(mob/living/silicon/robot/robot, mob/user)
-	if(!..())
-		return FALSE
-
-	robot.RemoveElement(/datum/element/ridable, /datum/component/riding/creature/cyborg)
-	toggle_action.Remove(robot, src)
-	launch_action.Remove(robot, src) //REMOVE IT!!!
-	return TRUE
-
-/datum/action/innate/toggle_seat
-	name = "Выдвинуть/задвинуть cидение"
-	desc = "Переключите режим своего встроенного сидения."
-	button_icon_state = "seat_on"
-
-/datum/action/innate/toggle_seat/Activate()
-	if(!isrobot(usr))
-		return
-
-	var/mob/living/silicon/robot/robot = usr
-	robot.toggle_seat()
-	switch(robot.can_buckle)
-		if(TRUE)
-			button_icon_state = "seat_on"
-			UpdateButtonIcon()
-		if(FALSE)
-			button_icon_state = "seat_off"
-			UpdateButtonIcon()
-
-/datum/action/innate/launch_riders
-	name = "Выкинуть всех пассажиров"
-	desc = "Скидывает пассажиров, сидящих на вашем сидении."
-	button_icon_state = "launch_riders"
-
-/datum/action/innate/launch_riders/Activate()
-	if(!isrobot(usr))
-		return
-
-	var/mob/living/silicon/robot/robot = usr
-	robot.eject_riders_harmfull()
-
-/obj/item/borg/upgrade/mounted_seat/pre_emaged
-	name = "VERY STRANGE robotic mounted seat module"
-	emagged = TRUE
-
-/obj/item/borg/upgrade/ai
-	name = "B.O.R.I.S. module"
-	desc = "Модуль Блюспейс Ориентированной Роботической Искусственной Сети. При установке в киборга, позволяет ИИ управлять им напрямую."
-	icon_state = "r_boris"
-
-/obj/item/borg/upgrade/ai/get_ru_names()
-	return alist(
-		NOMINATIVE = "модуль Б.О.Р.И.С.",
-		GENITIVE = "модуля Б.О.Р.И.С.",
-		DATIVE = "модулю Б.О.Р.И.С.",
-		ACCUSATIVE = "модуль Б.О.Р.И.С.",
-		INSTRUMENTAL = "модулем Б.О.Р.И.С.",
-		PREPOSITIONAL = "модуле Б.О.Р.И.С.",
-	)
-
-/obj/item/borg/upgrade/ai/action(mob/living/silicon/robot/robot, mob/living/user = usr)
-	. = ..()
-	if(!.)
-		return .
-	if(robot.key)
-		to_chat(user, span_warning("Зафиксированы активные вычислительные процессы. Подключение невозможно."))
-		return FALSE
-	robot.make_shell(src)
-
-/obj/item/borg/upgrade/ai/deactivate(mob/living/silicon/robot/robot, mob/living/user = usr)
-	if(!..())
-		return FALSE
-
-	robot.undeploy()
-	robot.revert_shell()
-	return TRUE
-
-/obj/item/borg/upgrade/borg_mining_sat_upgr
-	name = "mining cyborg satchel upgrade"
-	desc = "Магнитное улучшение сумки для руды, позволяющее собирать руду в области 3 на 3."
-	icon_state = "cyborg_upgrade3"
-	origin_tech = "magnets=3,materials=3;engineering=2"
-	require_module = TRUE
-	module_type = /obj/item/robot_module/miner
-
-/obj/item/borg/upgrade/borg_mining_sat_upgr/get_ru_names()
-	return alist(
-		NOMINATIVE = "модуль рудного магнита",
-		GENITIVE = "модуля рудного магнита",
-		DATIVE = "модулю рудного магнита",
-		ACCUSATIVE = "модуль рудного магнита",
-		INSTRUMENTAL = "модулем рудного магнита",
-		PREPOSITIONAL = "модуле рудного магнита",
-	)
-
-/obj/item/borg/upgrade/borg_mining_sat_upgr/action(mob/living/silicon/robot/robot, mob/user)
-	if(!..())
-		return FALSE
-
-	var/changed = FALSE
-
-	for(var/obj/item/storage/bag/ore/mining_satchel in robot.module.modules)
-		mining_satchel.aoe = TRUE
-		changed = TRUE
-
-	return changed
-
-/obj/item/borg/upgrade/borg_mining_sat_upgr/deactivate(mob/living/silicon/robot/robot, mob/user)
-	if(!..())
-		return FALSE
-
-	var/changed = FALSE
-
-	for(var/obj/item/storage/bag/ore/mining_satchel in robot.module.modules)
-		mining_satchel.aoe = FALSE
-		changed = TRUE
-
-	return changed

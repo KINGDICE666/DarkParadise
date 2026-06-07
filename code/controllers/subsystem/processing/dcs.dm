@@ -1,11 +1,14 @@
 PROCESSING_SUBSYSTEM_DEF(dcs)
 	name = "Datum Component System"
-	ss_flags = SS_NO_INIT|SS_HIBERNATE
+	flags = SS_NO_INIT
+	ss_id = "datum_component_system"
 
 	var/list/elements_by_type = list()
+	// Update this if you add in components which actually use this as a processor
+	offline_implications = "This SS doesnt actually process anything yet. No immediate action is needed."
 
 /datum/controller/subsystem/processing/dcs/Recover()
-	_listen_lookup = SSdcs._listen_lookup
+	comp_lookup = SSdcs.comp_lookup
 
 /datum/controller/subsystem/processing/dcs/proc/GetElement(list/arguments, init_element = TRUE)
 	var/datum/element/eletype = arguments[1]
@@ -22,12 +25,12 @@ PROCESSING_SUBSYSTEM_DEF(dcs)
 		return .
 	. = elements_by_type[element_id] = new eletype
 
-/**
- * Generates an id for bespoke elements when given the argument list.
- * Generating the id here is a bit complex because we need to support named arguments.
- * Named arguments can appear in any order and we need them to appear after ordered arguments.
- * We assume that no one will pass in a named argument with a value of null.
- */
+/****
+	* Generates an id for bespoke elements when given the argument list
+	* Generating the id here is a bit complex because we need to support named arguments
+	* Named arguments can appear in any order and we need them to appear after ordered arguments
+	* We assume that no one will pass in a named argument with a value of null
+	**/
 /datum/controller/subsystem/processing/dcs/proc/GetIdFromArguments(list/arguments)
 	var/datum/element/eletype = arguments[1]
 	var/list/fullid = list(eletype)
@@ -41,7 +44,7 @@ PROCESSING_SUBSYSTEM_DEF(dcs)
 				fullid += key
 			else
 				if(!istext(value) && !isnum(value))
-					value = UID_of(value)
+					value = isdatum(value)? UID_of(value) : "\ref[value]"
 
 				if(!named_arguments)
 					named_arguments = list()
@@ -51,11 +54,12 @@ PROCESSING_SUBSYSTEM_DEF(dcs)
 
 		if(isnum(key))
 			fullid += key
-		else
+		else if(isdatum(key))
 			fullid += UID_of(key)
+		else
+			fullid += "\ref[key]"
 
 	if(named_arguments)
-		sortTim(named_arguments, GLOBAL_PROC_REF(cmp_text_asc))
+		named_arguments = sortTim(named_arguments, GLOBAL_PROC_REF(cmp_text_asc))
 		fullid += named_arguments
-
 	return list2params(fullid)

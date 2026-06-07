@@ -6,24 +6,28 @@
 	devour_time = 2 SECONDS
 	icon_state = "alienh_s"
 	caste_movement_delay = -1
-	role_text = "Вы — Охотник. Ваша основная задача — добыча носителей для заражения их грудоломами."
+	role_text = "Вы - Охотник. Ваша основная задача - добыча носителей для заражения их грудоломами."
 	var/invisibility_cost = 5
 
-/mob/living/carbon/alien/humanoid/hunter/Initialize(mapload)
-	. = ..()
+
+/mob/living/carbon/alien/humanoid/hunter/New()
 	if(name == "alien hunter")
 		name = text("alien hunter ([rand(1, 1000)])")
 	real_name = name
+	..()
+
 
 /mob/living/carbon/alien/humanoid/hunter/get_caste_organs()
 	. = ..()
 	. += /obj/item/organ/internal/xenos/plasmavessel/hunter
+
 
 /mob/living/carbon/alien/humanoid/hunter/handle_environment()
 	if(m_intent == MOVE_INTENT_RUN || resting)
 		..()
 	else
 		adjust_alien_plasma(-invisibility_cost)
+
 
 //Hunter verbs
 
@@ -34,12 +38,14 @@
 	if(message)
 		to_chat(src, span_noticealien("You will now [leap_on_click ? "leap at":"slash at"] enemies!"))
 
+
 /mob/living/carbon/alien/humanoid/hunter/ClickOn(atom/A, params)
 	face_atom(A)
 	if(leap_on_click)
 		leap_at(A)
 	else
 		..()
+
 
 #define MAX_ALIEN_LEAP_DIST 7
 #define LEAP_SPEED_DEFAULT 1.5
@@ -55,7 +61,8 @@
 
 	leaping = TRUE
 	//Because the leaping sprite is bigger than the normal one
-	add_offsets(LEAPING_TRAIT, x_add = -8, animate = FALSE)
+	body_position_pixel_x_offset = -32
+	body_position_pixel_y_offset = -32
 	update_icons()
 	ADD_TRAIT(src, TRAIT_MOVE_FLOATING, LEAPING_TRAIT) //Throwing itself doesn't protect mobs against lava (because gulag).
 	var/updated_speed = (no_gravity() || target.no_gravity()) ? LEAP_SPEED_NO_GRAVITY : LEAP_SPEED_DEFAULT
@@ -65,11 +72,14 @@
 #undef LEAP_SPEED_DEFAULT
 #undef LEAP_SPEED_NO_GRAVITY
 
+
 /mob/living/carbon/alien/humanoid/hunter/proc/leap_end()
 	leaping = FALSE
-	remove_offsets(LEAPING_TRAIT, animate = FALSE)
+	body_position_pixel_x_offset = 0
+	body_position_pixel_y_offset = 0
 	update_icons()
 	REMOVE_TRAIT(src, TRAIT_MOVE_FLOATING, LEAPING_TRAIT)
+
 
 /mob/living/carbon/alien/humanoid/hunter/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	if(!leaping)
@@ -90,9 +100,9 @@
 		if(!blocked)
 			L.visible_message(span_danger("[src] pounces on [L]!"), span_userdanger("[src] pounces on you!"))
 			if(human_target)
-				L.apply_effect(10 SECONDS, KNOCKDOWN, L.run_armor_check(null, MELEE))
+				L.apply_effect(10 SECONDS, WEAKEN, L.run_armor_check(null, MELEE))
 			else
-				L.Knockdown(10 SECONDS)
+				L.Weaken(10 SECONDS)
 			sleep(0.2 SECONDS)//Runtime prevention (infinite bump() calls on hulks)
 			step_towards(src, L)
 		else

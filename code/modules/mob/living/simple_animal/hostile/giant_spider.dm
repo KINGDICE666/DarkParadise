@@ -123,9 +123,11 @@
 	Goto(where, move_to_delay)
 	addtimer(CALLBACK(src, PROC_REF(start_automated_movement)), 5 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE)
 
+
 /mob/living/simple_animal/hostile/poison/giant_spider/proc/start_automated_movement()
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	stop_automated_movement = FALSE
+
 
 /mob/living/simple_animal/hostile/poison/giant_spider/nurse/proc/GiveUp(C)
 	spawn(100)
@@ -180,14 +182,14 @@
 
 /mob/living/simple_animal/hostile/poison/giant_spider/verb/Web()
 	set name = "Lay Web"
-	set category = VERB_CATEGORY_SPIDER
+	set category = STATPANEL_SPIDER
 	set desc = "Spread a sticky web to slow down prey."
 
 	var/T = src.loc
 
 	if(busy != SPINNING_WEB)
 		busy = SPINNING_WEB
-		src.visible_message(span_notice("\the [src] begins to secrete a sticky substance."))
+		src.visible_message("<span class='notice'>\the [src] begins to secrete a sticky substance.</span>")
 		stop_automated_movement = 1
 		spawn(40)
 			if(busy == SPINNING_WEB && src.loc == T)
@@ -195,9 +197,10 @@
 			busy = 0
 			stop_automated_movement = 0
 
+
 /mob/living/simple_animal/hostile/poison/giant_spider/nurse/verb/Wrap()
 	set name = "Wrap"
-	set category = VERB_CATEGORY_SPIDER
+	set category = STATPANEL_SPIDER
 	set desc = "Wrap up prey to feast upon and objects for safe keeping."
 
 	if(!cocoon_target)
@@ -226,12 +229,12 @@
 
 	if(cocoon_target && busy != SPINNING_COCOON)
 		busy = SPINNING_COCOON
-		src.visible_message(span_notice("\the [src] begins to secrete a sticky substance around \the [cocoon_target]."))
+		src.visible_message("<span class='notice'>\the [src] begins to secrete a sticky substance around \the [cocoon_target].</span>")
 		stop_automated_movement = 1
-		GLOB.move_manager.stop_looping(src)
+		SSmove_manager.stop_looping(src)
 		spawn(50)
 			if(busy == SPINNING_COCOON)
-				if(cocoon_target && isturf(cocoon_target.loc) && get_dist(src,cocoon_target) <= 1)
+				if(cocoon_target && istype(cocoon_target.loc, /turf) && get_dist(src,cocoon_target) <= 1)
 					var/obj/structure/spider/cocoon/C = new(cocoon_target.loc)
 					var/large_cocoon = 0
 					C.pixel_x = cocoon_target.pixel_x
@@ -256,7 +259,7 @@
 						C.pixel_x = L.pixel_x
 						C.pixel_y = L.pixel_y
 						fed++
-						visible_message(span_danger("\the [src] sticks a proboscis into \the [L] and sucks a viscous substance out."))
+						visible_message("<span class='danger'>\the [src] sticks a proboscis into \the [L] and sucks a viscous substance out.</span>")
 
 						break
 					if(large_cocoon)
@@ -267,17 +270,17 @@
 
 /mob/living/simple_animal/hostile/poison/giant_spider/nurse/verb/LayEggs()
 	set name = "Lay Eggs"
-	set category = VERB_CATEGORY_SPIDER
+	set category = STATPANEL_SPIDER
 	set desc = "Lay a clutch of eggs, but you must wrap a creature for feeding first."
 
 	var/obj/structure/spider/eggcluster/E = locate() in get_turf(src)
 	if(E)
-		to_chat(src, span_notice("There is already a cluster of eggs here!"))
+		to_chat(src, "<span class='notice'>There is already a cluster of eggs here!</span>")
 	else if(!fed)
-		to_chat(src, span_warning("You are too hungry to do this!"))
+		to_chat(src, "<span class='warning'>You are too hungry to do this!</span>")
 	else if(busy != LAYING_EGGS)
 		busy = LAYING_EGGS
-		src.visible_message(span_notice("\the [src] begins to lay a cluster of eggs."))
+		src.visible_message("<span class='notice'>\the [src] begins to lay a cluster of eggs.</span>")
 		stop_automated_movement = 1
 		spawn(50)
 			if(busy == LAYING_EGGS)

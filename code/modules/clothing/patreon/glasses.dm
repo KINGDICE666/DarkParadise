@@ -14,8 +14,9 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
+
 
 //Green Kamina shades
 /obj/item/clothing/glasses/fluff/kamina/green

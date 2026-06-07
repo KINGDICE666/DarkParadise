@@ -22,8 +22,7 @@
 	var/temperature_resistance = T0C+75
 
 //This is fine right now, if we're adding organ specific damage this needs to be updated
-/mob/living/carbon/alien/larva/Initialize(mapload)
-	. = ..()
+/mob/living/carbon/alien/larva/New()
 	if(name == "alien larva")
 		name = "alien larva ([rand(1, 1000)])"
 	real_name = name
@@ -32,7 +31,9 @@
 	add_language(LANGUAGE_HIVE_XENOS)
 	hide_action = new
 	hide_action.Grant(src)
+	..()
 	AddSpell(new /obj/effect/proc_holder/spell/alien_spell/evolve/larva)
+
 
 /mob/living/carbon/alien/larva/Destroy()
 	if(hide_action)
@@ -40,9 +41,11 @@
 		hide_action = null
 	return ..()
 
+
 /mob/living/carbon/alien/larva/get_caste_organs()
 	. = ..()
 	. += /obj/item/organ/internal/xenos/plasmavessel/larva
+
 
 /mob/living/carbon/alien/larva/ex_act(severity, target)
 	. = ..()
@@ -66,6 +69,7 @@
 
 	take_overall_damage(b_loss, f_loss)
 
+
 //can't equip anything
 /mob/living/carbon/alien/larva/attack_ui(slot_id)
 	return
@@ -73,11 +77,14 @@
 // new damage icon system
 // now constructs damage icon for each organ from mask * damage field
 
+
 /mob/living/carbon/alien/larva/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
 	return FALSE
 
+
 /mob/living/carbon/alien/larva/can_unarmed_attack() //We bite stuff, and our head is always free.
 	return TRUE
+
 
 /mob/living/carbon/alien/larva/update_layer()
 	..()

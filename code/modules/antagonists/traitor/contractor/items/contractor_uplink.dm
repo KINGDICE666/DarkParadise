@@ -5,7 +5,7 @@
  */
 /obj/item/contractor_uplink
 	name = "contractor uplink"
-	desc = "Устройство, выданное \"Синдикатом\", для работы с контрактами в полевых условиях."
+	desc = "Устройство, выданное Синдикатом, для работы с контрактами в полевых условиях."
 	gender = MALE
 	icon = 'icons/obj/device.dmi'
 	icon_state = "contractor_uplink"
@@ -16,13 +16,13 @@
 	var/datum/contractor_hub/hub = null
 
 /obj/item/contractor_uplink/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "аплинк контрактника",
 		GENITIVE = "аплинка контрактника",
 		DATIVE = "аплинку контрактнику",
 		ACCUSATIVE = "аплинк контрактника",
 		INSTRUMENTAL = "аплинком контрактником",
-		PREPOSITIONAL = "аплинке контрактнике",
+		PREPOSITIONAL = "аплинке контрактнике"
 	)
 
 /obj/item/contractor_uplink/Destroy()
@@ -51,6 +51,6 @@
 	if(!istype(M))
 		return
 
-	to_chat(M, span_notice("[get_examine_icon(M)] Входящая зашифрованная передача от ваших кураторов. Сообщение следующее:<br/>") + span_boldnotice("[text]"))
+	to_chat(M, span_notice("[bicon(src)] Входящая зашифрованная передача от ваших кураторов. Сообщение следующее:<br/>") + span_boldnotice("[text]"))
 	if(sndfile)
 		M.playsound_local(get_turf(M), sndfile, 30, FALSE)

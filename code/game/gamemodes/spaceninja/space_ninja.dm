@@ -9,7 +9,7 @@
 	var/datum/mind/pre_ninja
 
 /datum/game_mode/space_ninja/announce()
-	to_chat(world, "<b>>Текущий игровой режим — Космический Ниндзя!</b>")
+	to_chat(world, "<b>>Текущий игровой режим — Космический Ниндзя!</b>")
 	to_chat(world, "<b>На станцию проник опасный наёмник из клана Паука. Более известный как Космический Ниндзя. Какие бы он не преследовал цели, станция в опасности!</b>")
 
 /datum/game_mode/space_ninja/can_start()
@@ -34,11 +34,13 @@
 	..()
 	return TRUE
 
+
 /datum/game_mode/space_ninja/post_setup()
 	var/datum/antagonist/ninja/ninja_datum = new
 	ninja_datum.change_species(pre_ninja.current)
 	pre_ninja?.add_antag_datum(ninja_datum)
 	..()
+
 
 // Checks if the game should end due to all Ninjas being dead, or MMI'd/Borged
 /datum/game_mode/space_ninja/check_finished()
@@ -47,9 +49,9 @@
 	for(var/datum/mind/ninja in space_ninjas)
 		if(!iscarbon(ninja.current))
 			continue
-		if(ninja.current.stat == DEAD)
+		if(ninja.current.stat==DEAD)
 			continue
-		if(is_mmi(ninja.current)) // ninja is in an MMI, don't count them as alive
+		if(istype(ninja.current, /obj/item/mmi)) // ninja is in an MMI, don't count them as alive
 			continue
 		ninjas_alive++
 
@@ -59,12 +61,14 @@
 		finished = TRUE
 		return TRUE
 
+
 /datum/game_mode/space_ninja/declare_completion(ragin = FALSE)
 	if(finished && !ragin)
 		SSticker.mode_result = "ninja loss - ninja killed"
-		to_chat(world, span_warning(span_bold(span_fontsize3(" Ниндзя был[(length(space_ninjas)>1)?"и":""] убит[(length(space_ninjas)>1)?"ы":""] экипажем! Клан Паука ещё не скоро отмоется от этого позора!"))))
+		to_chat(world, span_warning(span_bold(span_fontsize3(" Ниндзя был[(space_ninjas.len>1)?"и":""] убит[(space_ninjas.len>1)?"ы":""] экипажем! Клан Паука ещё не скоро отмоется от этого позора!"))))
 	..()
 	return TRUE
+
 
 /datum/game_mode/proc/auto_declare_completion_ninja()
 	if(!length(space_ninjas))
@@ -74,7 +78,7 @@
 
 	for(var/datum/mind/ninja in space_ninjas)
 
-		text += "<br><b>[ninja.get_mind_key()]</b> был <b>[ninja.name]</b> ("
+		text += "<br><b>[ninja.get_display_key()]</b> был <b>[ninja.name]</b> ("
 		if(ninja.current)
 			if(ninja.current.stat == DEAD)
 				text += "Умер"
@@ -86,6 +90,7 @@
 			text += "Тело уничтожено"
 		text += ")"
 		text += "<br>"
+
 
 		var/datum/antagonist/ninja/ninja_datum = ninja.has_antag_datum(/datum/antagonist/ninja)
 		if(ninja_datum)

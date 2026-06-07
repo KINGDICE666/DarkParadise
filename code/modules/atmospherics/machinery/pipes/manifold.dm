@@ -14,8 +14,9 @@
 
 	level = 1
 
-/obj/machinery/atmospherics/pipe/manifold/Initialize(mapload)
-	. = ..()
+/obj/machinery/atmospherics/pipe/manifold/New()
+
+	..()
 
 	alpha = 255
 	icon = null
@@ -52,11 +53,23 @@
 					connected_to = c
 					node3 = target
 				break
-
+	var/turf/T = src.loc			// hide if turf is not intact
+	if(!T.transparent_floor)
+		hide(T.intact)
 	update_icon()
+
+/obj/machinery/atmospherics/pipe/manifold/hide(i)
+	if(level == 1 && issimulatedturf(loc))
+		invisibility = i ? INVISIBILITY_MAXIMUM : 0
 
 /obj/machinery/atmospherics/pipe/manifold/pipeline_expansion()
 	return list(node1, node2, node3)
+
+/obj/machinery/atmospherics/pipe/manifold/process_atmos()
+	if(!parent)
+		..()
+	else
+		. = PROCESS_KILL
 
 /obj/machinery/atmospherics/pipe/manifold/Destroy()
 	. = ..()
@@ -101,6 +114,7 @@
 	if(node3)
 		node3.update_underlays()
 
+
 /obj/machinery/atmospherics/pipe/manifold/update_overlays()
 	. = ..()
 
@@ -112,6 +126,7 @@
 	. += SSair.icon_manager.get_atmos_icon("manifold", color = pipe_color, state = "core" + icon_connect_type)
 	. += SSair.icon_manager.get_atmos_icon("manifold", state = "clamps" + icon_connect_type)
 	update_underlays()
+
 
 /obj/machinery/atmospherics/pipe/manifold/update_underlays()
 	if(!..())
@@ -136,6 +151,7 @@
 
 	for(var/check_dir in directions)
 		add_underlay(source_turf, direction = check_dir, icon_connect_type = src.icon_connect_type)
+
 
 // A check to make sure both nodes exist - self-delete if they aren't present
 /obj/machinery/atmospherics/pipe/manifold/check_nodes_exist()
@@ -181,12 +197,6 @@
 
 /obj/machinery/atmospherics/pipe/manifold/visible/purple
 	color = PIPE_COLOR_PURPLE
-
-/obj/machinery/atmospherics/pipe/manifold/visible/red
-	color = PIPE_COLOR_RED
-
-/obj/machinery/atmospherics/pipe/manifold/visible/blue
-	color = PIPE_COLOR_BLUE
 
 /obj/machinery/atmospherics/pipe/manifold/hidden
 	icon_state = "map"

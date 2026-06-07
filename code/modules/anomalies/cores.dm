@@ -17,17 +17,17 @@
 	COOLDOWN_DECLARE(anomaly_toch_cooldown)
 
 /obj/item/assembly/signaler/core/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро аномалии", \
 		GENITIVE = "ядра аномалии", \
 		DATIVE = "ядру аномалии", \
 		ACCUSATIVE = "ядро аномалии", \
 		INSTRUMENTAL = "ядром аномалии", \
-		PREPOSITIONAL = "ядре аномалии",
+		PREPOSITIONAL = "ядре аномалии"
 	)
 
 /obj/item/assembly/signaler/core/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] засовыва[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] себе в рот. Похоже [GEND_HE_SHE(user)] пыта[PLUR_ET_YUT(user)]ся убить себя!"))
+	user.visible_message(span_suicide("[user] засовыва[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)] себе в рот. Похоже [genderize_ru(user.gender, "он", "она", "оно", "они")] пыта[pluralize_ru(user.gender,"ет","ют")]ся убить себя!"))
 	return OXYLOSS | BRUTELOSS
 
 /obj/item/assembly/signaler/core/examine(mob/user)
@@ -35,7 +35,7 @@
 	. += span_notice("Текущий заряд: [charge].")
 	. += span_notice("Текущая сила: [get_strength()].")
 
-/obj/item/assembly/signaler/core/Initialize(mapload, charge)
+/obj/item/assembly/signaler/core/New(spawnloc, charge)
 	. = ..()
 	if(!charge)
 		charge = iscoreempty(src) ? 0 : rand(51, 60)
@@ -72,14 +72,15 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пустое ядро малой аномалии", \
 		GENITIVE = "пустого ядра малой аномалии", \
 		DATIVE = "пустому ядру малой аномалии", \
 		ACCUSATIVE = "пустое ядро малой аномалии", \
 		INSTRUMENTAL = "пустым ядром малой аномалии", \
-		PREPOSITIONAL = "пустом ядре малой аномалии",
+		PREPOSITIONAL = "пустом ядре малой аномалии"
 	)
+
 
 /obj/item/assembly/signaler/core/atmospheric/tier1
 	name = "ядро малой атмосферной аномалии"
@@ -90,13 +91,13 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/atmospheric/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро малой атмосферной аномалии", \
 		GENITIVE = "ядра малой атмосферной аномалии", \
 		DATIVE = "ядру малой атмосферной аномалии", \
 		ACCUSATIVE = "ядро малой атмосферной аномалии", \
 		INSTRUMENTAL = "ядром малой атмосферной аномалии", \
-		PREPOSITIONAL = "ядре малой атмосферной аномалии",
+		PREPOSITIONAL = "ядре малой атмосферной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/gravitational/tier1
@@ -108,13 +109,13 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/gravitational/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро малой гравитационной аномалии", \
 		GENITIVE = "ядра малой гравитационной аномалии", \
 		DATIVE = "ядру малой гравитационной аномалии", \
 		ACCUSATIVE = "ядро малой гравитационной аномалии", \
 		INSTRUMENTAL = "ядром малой гравитационной аномалии", \
-		PREPOSITIONAL = "ядре малой гравитационной аномалии",
+		PREPOSITIONAL = "ядре малой гравитационной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/energetic/tier1
@@ -126,13 +127,13 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/energetic/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро малой ​​энергетической аномалии", \
 		GENITIVE = "ядра малой ​​энергетической аномалии", \
 		DATIVE = "ядру малой ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро малой ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром малой ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре малой ​​энергетической аномалии",
+		PREPOSITIONAL = "ядре малой ​​энергетической аномалии"
 	)
 
 /obj/item/assembly/signaler/core/bluespace/tier1
@@ -144,13 +145,13 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/bluespace/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро малой ​​блюспейс аномалии", \
 		GENITIVE = "ядра малой ​​блюспейс аномалии", \
 		DATIVE = "ядру малой ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро малой ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром малой ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре малой ​​блюспейс аномалии",
+		PREPOSITIONAL = "ядре малой ​​блюспейс аномалии"
 	)
 
 /obj/item/assembly/signaler/core/vortex/tier1
@@ -162,14 +163,15 @@
 	tier = 1
 
 /obj/item/assembly/signaler/core/vortex/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро малой вихревой аномалии", \
 		GENITIVE = "ядра малой вихревой аномалии", \
 		DATIVE = "ядру малой вихревой аномалии", \
 		ACCUSATIVE = "ядро малой вихревой аномалии", \
 		INSTRUMENTAL = "ядром малой вихревой аномалии", \
-		PREPOSITIONAL = "ядре малой вихревой аномалии",
+		PREPOSITIONAL = "ядре малой вихревой аномалии"
 	)
+
 
 // ============================ Tier 2 ===================================
 /obj/item/assembly/signaler/core/tier2
@@ -182,13 +184,13 @@
 	tier = 2
 
 /obj/item/assembly/signaler/core/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пустое ядро аномалии", \
 		GENITIVE = "пустого ядра аномалии", \
 		DATIVE = "пустому ядру аномалии", \
 		ACCUSATIVE = "пустое ядро аномалии", \
 		INSTRUMENTAL = "пустым ядром аномалии", \
-		PREPOSITIONAL = "пустом ядре аномалии",
+		PREPOSITIONAL = "пустом ядре аномалии"
 	)
 
 /obj/item/assembly/signaler/core/atmospheric/tier2
@@ -208,13 +210,13 @@
 	tier = 2
 
 /obj/item/assembly/signaler/core/gravitational/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро гравитационной аномалии", \
 		GENITIVE = "ядра гравитационной аномалии", \
 		DATIVE = "ядру гравитационной аномалии", \
 		ACCUSATIVE = "ядро гравитационной аномалии", \
 		INSTRUMENTAL = "ядром гравитационной аномалии", \
-		PREPOSITIONAL = "ядре гравитационной аномалии",
+		PREPOSITIONAL = "ядре гравитационной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/energetic/tier2
@@ -226,13 +228,13 @@
 	tier = 2
 
 /obj/item/assembly/signaler/core/energetic/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро ​​энергетической аномалии", \
 		GENITIVE = "ядра ​​энергетической аномалии", \
 		DATIVE = "ядру ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре ​​энергетической аномалии",
+		PREPOSITIONAL = "ядре ​​энергетической аномалии"
 	)
 
 /obj/item/assembly/signaler/core/bluespace/tier2
@@ -243,13 +245,13 @@
 	tier = 2
 
 /obj/item/assembly/signaler/core/bluespace/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро ​​блюспейс аномалии", \
 		GENITIVE = "ядра ​​блюспейс аномалии", \
 		DATIVE = "ядру ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре ​​блюспейс аномалии",
+		PREPOSITIONAL = "ядре ​​блюспейс аномалии"
 	)
 
 /obj/item/assembly/signaler/core/vortex/tier2
@@ -261,14 +263,15 @@
 	tier = 2
 
 /obj/item/assembly/signaler/core/vortex/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро ​​вихревой аномалии", \
 		GENITIVE = "ядра ​​вихревой аномалии", \
 		DATIVE = "ядру ​​вихревой аномалии", \
 		ACCUSATIVE = "ядро ​​вихревой аномалии", \
 		INSTRUMENTAL = "ядром ​​вихревой аномалии", \
-		PREPOSITIONAL = "ядре ​​вихревой аномалии",
+		PREPOSITIONAL = "ядре ​​вихревой аномалии"
 	)
+
 
 // ============================ Tier 3 ===================================
 /obj/item/assembly/signaler/core/tier3
@@ -281,13 +284,13 @@
 	tier = 3
 
 /obj/item/assembly/signaler/core/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пустое ядро большой аномалии", \
 		GENITIVE = "пустого ядра большой аномалии", \
 		DATIVE = "пустому ядру большой аномалии", \
 		ACCUSATIVE = "пустое ядро большой аномалии", \
 		INSTRUMENTAL = "пустым ядром большой аномалии", \
-		PREPOSITIONAL = "пустом ядре большой аномалии",
+		PREPOSITIONAL = "пустом ядре большой аномалии"
 	)
 
 /obj/item/assembly/signaler/core/atmospheric/tier3
@@ -299,13 +302,13 @@
 	tier = 3
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро большой атмосферной аномалии", \
 		GENITIVE = "ядра большой атмосферной аномалии", \
 		DATIVE = "ядру большой атмосферной аномалии", \
 		ACCUSATIVE = "ядро большой атмосферной аномалии", \
 		INSTRUMENTAL = "ядром большой атмосферной аномалии", \
-		PREPOSITIONAL = "ядре большой атмосферной аномалии",
+		PREPOSITIONAL = "ядре большой атмосферной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/suicide_act(mob/living/user)
@@ -337,7 +340,7 @@
 		return
 
 	if(H.bodytemperature < T0C - 50)
-		visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] реагирует на контакт с холодным объектом, испуская языки пламени!")
+		visible_message("[capitalize(declent_ru(NOMINATIVE))] реагирует на контакт с холодным объектом, испуская языки пламени!")
 		H.adjust_fire_stacks(round(get_strength() / 30 + 0.5))
 		H.IgniteMob()
 		return
@@ -345,10 +348,11 @@
 	if(H.bodytemperature <= T0C + 100)
 		return
 
-	visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] реагирует на контакт с горячим объектом, значительно охлаждая окружающую среду!")
+	visible_message("[capitalize(declent_ru(NOMINATIVE))] реагирует на контакт с горячим объектом, значительно охлаждая окружающую среду!")
 	H.apply_status_effect(/datum/status_effect/freon)
 	H.ExtinguishMob()
 	H.adjust_bodytemperature(-get_strength())
+
 
 /obj/item/assembly/signaler/core/gravitational/tier3
 	name = "ядро большой гравитационной аномалии"
@@ -360,18 +364,18 @@
 	tier = 3
 
 /obj/item/assembly/signaler/core/gravitational/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро большой гравитационной аномалии", \
 		GENITIVE = "ядра большой гравитационной аномалии", \
 		DATIVE = "ядру большой гравитационной аномалии", \
 		ACCUSATIVE = "ядро большой гравитационной аномалии", \
 		INSTRUMENTAL = "ядром большой гравитационной аномалии", \
-		PREPOSITIONAL = "ядре большой гравитационной аномалии",
+		PREPOSITIONAL = "ядре большой гравитационной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/gravitational/tier3/suicide_act(mob/user)
 	..()
-	user.visible_message(span_suicide("[user] взрыва[PLUR_ET_YUT(user)]ся из-за возникшего гравитационного колодца!"), \
+	user.visible_message(span_suicide("[user] взрыва[pluralize_ru(user.gender,"ет","ют")]ся из-за возникшего гравитационного колодца!"), \
 						span_suicide("Вы взрываетесь из-за возникшего гравитационного колодца!"),
 						span_suicide("Вы слышите громкий хлопок!"))
 	user.gib()
@@ -388,9 +392,6 @@
 		addtimer(CALLBACK(src, PROC_REF(update_gravity), TRUE), 5 SECONDS)
 
 	var/atom/new_owner = get_external_loc()
-	if(!new_owner)
-		return
-
 	if(old_owner == new_owner && old_owner.get_gravity() == -1)
 		return
 
@@ -416,13 +417,13 @@
 	tier = 3
 
 /obj/item/assembly/signaler/core/energetic/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро большой ​​энергетической аномалии", \
 		GENITIVE = "ядра большой ​​энергетической аномалии", \
 		DATIVE = "ядру большой ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро большой ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром большой ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре большой ​​энергетической аномалии",
+		PREPOSITIONAL = "ядре большой ​​энергетической аномалии"
 	)
 
 /obj/item/assembly/signaler/core/energetic/tier3/Bump(atom/bumped_atom)
@@ -431,16 +432,16 @@
 
 /obj/item/assembly/signaler/core/energetic/tier3/suicide_act(mob/living/user)
 	..()
-	user.electrocute_act(600, src)
+	user.electrocute_act(600, "[declent_ru(GENITIVE)]")
 	return FIRELOSS
 
 /obj/item/assembly/signaler/core/energetic/tier3/proc/try_shock(atom/target)
 	if(!iscarbon(target))
 		return FALSE
 
-	visible_message(span_warning("[declent_ru(NOMINATIVE)] внезапно испустил[GEND_A_O_I(src)] электрический разряд!"))
+	visible_message(span_warning("[declent_ru(NOMINATIVE)] внезапно испустил[genderize_ru(gender, "", "а", "о", "и")] электрический разряд!"))
 	var/mob/living/carbon/human/H = target
-	if(H.electrocute_act(charge, src))
+	if(H.electrocute_act(charge, "[declent_ru(GENITIVE)]"))
 		do_sparks(max(1, charge / 20), FALSE, src)
 		return TRUE
 
@@ -454,20 +455,20 @@
 
 /obj/item/assembly/signaler/core/bluespace/tier3
 	name = "ядро большой ​​блюспейс аномалии"
-	desc = "Стабилизированное ядро ​большой ​блюспейс аномалии. Пространство вокруг него постоянно искривляется."
+	desc = "Стабилизированное ядро ​большой ​блюспейс аномалии. Пространство вокруг него постоянно искревляется."
 	icon_state = "core_bluespace_t3"
 	anomaly_type = /obj/effect/anomaly/bluespace/tier3
 	origin_tech = "bluespace=8"
 	tier = 3
 
 /obj/item/assembly/signaler/core/bluespace/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро большой ​​блюспейс аномалии", \
 		GENITIVE = "ядра большой ​​блюспейс аномалии", \
 		DATIVE = "ядру большой ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро большой ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром большой ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре большой ​​блюспейс аномалии",
+		PREPOSITIONAL = "ядре большой ​​блюспейс аномалии"
 	)
 
 /obj/item/assembly/signaler/core/bluespace/tier3/suicide_act(mob/user)
@@ -498,6 +499,7 @@
 	else
 		return FALSE
 
+
 /obj/item/assembly/signaler/core/vortex/tier3
 	name = "ядро большой вихревой аномалии"
 	desc = "Стабилизированное ядро большой ​​вихревой аномалии. Предметы вокруг ядра опасно подрагивают."
@@ -507,14 +509,15 @@
 	tier = 3
 
 /obj/item/assembly/signaler/core/vortex/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро большой вихревой аномалии",
 		GENITIVE = "ядра большой вихревой аномалии",
 		DATIVE = "ядру большой вихревой аномалии",
 		ACCUSATIVE = "ядро большой вихревой аномалии",
 		INSTRUMENTAL = "ядром большой вихревой аномалии",
-		PREPOSITIONAL = "ядре большой вихревой аномалии",
+		PREPOSITIONAL = "ядре большой вихревой аномалии"
 	)
+
 
 // ============================ Tier4 (admin spawn only) ===================================
 /obj/item/assembly/signaler/core/tier3/tier4
@@ -526,13 +529,13 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пустое ядро колоссальной аномалии", \
 		GENITIVE = "пустого ядра колоссальной аномалии", \
 		DATIVE = "пустому ядру колоссальной аномалии", \
 		ACCUSATIVE = "пустое ядро колоссальной аномалии", \
 		INSTRUMENTAL = "пустым ядром колоссальной аномалии", \
-		PREPOSITIONAL = "пустом ядре колоссальной аномалии",
+		PREPOSITIONAL = "пустом ядре колоссальной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/tier4
@@ -543,13 +546,13 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро колоссальной атмосферной аномалии", \
 		GENITIVE = "ядра колоссальной атмосферной аномалии", \
 		DATIVE = "ядру колоссальной атмосферной аномалии", \
 		ACCUSATIVE = "ядро колоссальной атмосферной аномалии", \
 		INSTRUMENTAL = "ядром колоссальной атмосферной аномалии", \
-		PREPOSITIONAL = "ядре колоссальной атмосферной аномалии",
+		PREPOSITIONAL = "ядре колоссальной атмосферной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/gravitational/tier3/tier4
@@ -560,13 +563,13 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/gravitational/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро колоссальной гравитационной аномалии", \
 		GENITIVE = "ядра колоссальной гравитационной аномалии", \
 		DATIVE = "ядру колоссальной гравитационной аномалии", \
 		ACCUSATIVE = "ядро колоссальной гравитационной аномалии", \
 		INSTRUMENTAL = "ядром колоссальной гравитационной аномалии", \
-		PREPOSITIONAL = "ядре колоссальной гравитационной аномалии",
+		PREPOSITIONAL = "ядре колоссальной гравитационной аномалии"
 	)
 
 /obj/item/assembly/signaler/core/energetic/tier3/tier4
@@ -577,13 +580,13 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/energetic/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро колоссальной ​​энергетической аномалии", \
 		GENITIVE = "ядра колоссальной ​​энергетической аномалии", \
 		DATIVE = "ядру колоссальной ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро колоссальной ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром колоссальной ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре колоссальной ​​энергетической аномалии",
+		PREPOSITIONAL = "ядре колоссальной ​​энергетической аномалии"
 	)
 
 /obj/item/assembly/signaler/core/bluespace/tier3/tier4
@@ -594,13 +597,13 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/bluespace/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро колоссальной ​​блюспейс аномалии", \
 		GENITIVE = "ядра колоссальной ​​блюспейс аномалии", \
 		DATIVE = "ядру колоссальной ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро колоссальной ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром колоссальной ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре колоссальной ​​блюспейс аномалии",
+		PREPOSITIONAL = "ядре колоссальной ​​блюспейс аномалии"
 	)
 
 /obj/item/assembly/signaler/core/vortex/tier3/tier4
@@ -611,11 +614,11 @@
 	tier = 4
 
 /obj/item/assembly/signaler/core/vortex/tier3/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ядро колоссальной вихревой аномалии", \
 		GENITIVE = "ядра колоссальной вихревой аномалии", \
 		DATIVE = "ядру колоссальной вихревой аномалии", \
 		ACCUSATIVE = "ядро колоссальной вихревой аномалии", \
 		INSTRUMENTAL = "ядром колоссальной вихревой аномалии", \
-		PREPOSITIONAL = "ядре колоссальной вихревой аномалии",
+		PREPOSITIONAL = "ядре колоссальной вихревой аномалии"
 	)

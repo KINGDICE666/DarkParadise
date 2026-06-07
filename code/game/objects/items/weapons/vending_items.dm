@@ -1,61 +1,41 @@
 /obj/item/vending_refill
 	name = "resupply canister"
-	desc = "Контейнер, предназначенный для пополнения ассортимента торгового автомата."
-	gender = MALE
+	var/machine_name = "Generic"
+
 	icon = 'icons/obj/vending_restock.dmi'
 	icon_state = "refill_snack"
 	item_state = "restock_unit"
+	desc = "A vending machine restock cart."
 	usesound = 'sound/items/deconstruct.ogg'
 	flags = CONDUCT
 	force = 7
 	throwforce = 10
 	throw_speed = 1
 	w_class = WEIGHT_CLASS_BULKY
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 70, ACID = 30)
-	var/machine_name = "Шаблонное название"
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 70, ACID = 30)
 
 	// Built automatically from the corresponding vending machine.
 	// If null, considered to be full. Otherwise, is list(/typepath = amount).
 	var/list/products
-	var/list/product_categories
 	var/list/contraband
 	var/list/premium
-
-/obj/item/vending_refill/get_ru_names()
-	return alist(
-		NOMINATIVE = "набор пополнения",
-		GENITIVE = "набора пополнения",
-		DATIVE = "набору пополнения",
-		ACCUSATIVE = "набор пополнения",
-		INSTRUMENTAL = "набором пополнения",
-		PREPOSITIONAL = "наборе пополнения",
-	)
 
 /obj/item/vending_refill/Initialize(mapload)
 	. = ..()
 	name = "[machine_name] restocking unit"
-	var/refill_desc = "пополнения \"[machine_name]\""
-	ru_names = alist(
-		NOMINATIVE = "набор [refill_desc]",
-		GENITIVE = "набора [refill_desc]",
-		DATIVE = "набору [refill_desc]",
-		ACCUSATIVE = "набор [refill_desc]",
-		INSTRUMENTAL = "набором [refill_desc]",
-		PREPOSITIONAL = "наборе [refill_desc]",
-	)
 
 /obj/item/vending_refill/examine(mob/user)
 	. = ..()
 	var/num = get_part_rating()
 	if(num == INFINITY)
-		. += span_notice("Полностью заполнен товарами.")
+		. += "<span class='notice'>It's sealed tight, completely full of supplies.</span>"
 	else if(num == 0)
-		. += span_notice("Пустой.")
+		. += "<span class='notice'>It's empty!</span>"
 	else
-		. += span_notice("Может пополнить <b>[num]</b> товар[DECL_CREDIT(num)].")
+		. += "<span class='notice'>It can restock [num] item\s.</span>"
 
 /obj/item/vending_refill/get_part_rating()
-	if(!products || !product_categories || !contraband || !premium)
+	if(!products || !contraband || !premium)
 		return INFINITY
 	. = 0
 	for(var/key in products)
@@ -64,12 +44,6 @@
 		. += contraband[key]
 	for(var/key in premium)
 		. += premium[key]
-	for(var/list/category as anything in product_categories)
-		var/list/products = category["products"]
-		for(var/product_key in products)
-			. += products[product_key]
-
-	return .
 
 //NOTE I decided to go for about 1/3 of a machine's capacity
 
@@ -224,8 +198,6 @@
 /obj/item/vending_refill/protein
 	machine_name = "Автомат спортивного питания"
 
-/obj/item/vending_refill/ammo
-	machine_name = "Liberty"
 
 /obj/item/vending_refill/custom
 	machine_name = "Customat"
@@ -241,10 +213,13 @@
 	sum_of_weigths = 100
 	. = ..()
 
+
+
 /obj/item/vending_refill/custom/proc/add_account(datum/money_account/new_account, weight)
 	linked_accounts += new_account
 	accounts_weights += weight
 	sum_of_weigths += weight
+
 
 /obj/item/vending_refill/custom/proc/clear_accounts(mob/user)
 	linked_accounts = list()
@@ -252,9 +227,10 @@
 	sum_of_weigths = 0
 	balloon_alert(user, "счета отвязаны")
 
+
 /obj/item/vending_refill/custom/proc/try_add_account(mob/user)
 	. = FALSE
-	if(length(linked_accounts) >= 150) // better to do it
+	if(linked_accounts.len >= 150) // better to do it
 		balloon_alert(user, "лимит привязки достигнут")
 		return
 
@@ -283,6 +259,7 @@
 	balloon_alert(user, "новый счет добавлен")
 	return TRUE
 
+
 /obj/item/vending_refill/custom/proc/try_add_station_account(mob/user)
 	. = FALSE
 	var/weight = tgui_input_number(user, "Пожалуйста, введите вес для счета станции от 1 до 1000000.", "Выбор веса", 100, 1000000, 1, ui_state = GLOB.hands_state, ui_source = src)
@@ -299,6 +276,7 @@
 	balloon_alert(user, "счет станции привязан")
 	return TRUE
 
+
 /obj/item/vending_refill/custom/attack_self(mob/user) // It works this way not because I'm lazy, but for better immersion.
 	var/operation = tgui_input_number(user, "Введите 0 чтобы сбросить список сохраненных счетов, 1 чтобы добавить новый счет в список получателей, 2 чтобы добавить счет станции.", "Настройка счетов", 0, 2, 0, ui_state = GLOB.hands_state, ui_source = src)
 
@@ -306,6 +284,7 @@
 		balloon_alert(user, "значение не введено")
 		playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 		return
+
 
 	var/correct = TRUE
 	switch(operation)
@@ -327,13 +306,14 @@
 	else
 		playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 
+
 /obj/item/vending_refill/custom/examine(mob/user)
 	. = ..()
 	if(in_range(user, src))
-		if(!length(linked_accounts))
+		if(!linked_accounts.len)
 			. += span_notice("К этой канистре не привязанно ни одного счета.")
 		else
 			. += span_notice("К этой канистре привязанны следующее счета:")
-			for(var/i = 1; i <= length(linked_accounts); ++i)
+			for(var/i = 1; i <= linked_accounts.len; ++i)
 				. += span_notice("Владелец: " + linked_accounts[i].owner_name + ", вес: [accounts_weights[i]], доля: [round(accounts_weights[i]/sum_of_weigths, 0.01)].")
 

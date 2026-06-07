@@ -15,7 +15,7 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/action(atom/target)
 	if(!action_checks(target))
 		return FALSE
 	if(!chassis)
@@ -81,13 +81,15 @@
 			start_cooldown()
 		return TRUE
 
+
+
 //This is pretty much just for the death-ripley
 /obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/kill
 	name = "KILL CLAMP"
 	desc = "They won't know what clamped them!"
 	energy_drain = 0
 
-/obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/kill/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/kill/action(atom/target)
 	if(!action_checks(target))
 		return FALSE
 	if(!chassis)
@@ -100,11 +102,12 @@
 	if(M.stat == DEAD)
 		return FALSE
 	if(chassis.occupant.a_intent == INTENT_HARM)
-		target.visible_message(
-			span_danger("[chassis] destroys [target] in an unholy fury."),
-			span_userdanger("[chassis] destroys [target] in an unholy fury.")
-		)
+		target.visible_message(span_danger("[chassis] destroys [target] in an unholy fury."),
+							span_userdanger("[chassis] destroys [target] in an unholy fury."))
 		M.gib()
+	/*if(chassis.occupant.a_intent == INTENT_DISARM)
+		target.visible_message(span_danger("[chassis] rips [target]'s arms off."),
+							span_userdanger("[chassis] rips [target]'s arms off."))*/
 	else
 		step_away(M,chassis)
 		target.visible_message("[chassis] tosses [target] like a piece of paper.")
@@ -143,23 +146,23 @@
 	var/obj/item/rcd/mecha_ref/rcd_holder
 	usesound = 'sound/items/deconstruct.ogg'
 
-/obj/item/mecha_parts/mecha_equipment/rcd/Initialize(mapload)
-	. = ..()
+/obj/item/mecha_parts/mecha_equipment/rcd/New()
 	GLOB.rcd_list += src
-	rcd_holder = new(src)
-	rcd_holder.holder_ref = WEAKREF(src)
+	rcd_holder = new(rcd_holder)
 	rcd_holder.power_use_multiplier = energy_drain
 	rcd_holder.canRwall = TRUE
+	..()
 
 /obj/item/mecha_parts/mecha_equipment/rcd/Destroy()
 	GLOB.rcd_list -= src
-	QDEL_NULL(rcd_holder)
+	rcd_holder.chassis = null
+	qdel(rcd_holder)
 	return ..()
 
 /obj/item/mecha_parts/mecha_equipment/rcd/attach_act(obj/mecha/M)
 	rcd_holder.chassis = M
 
-/obj/item/mecha_parts/mecha_equipment/rcd/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/rcd/action(atom/target)
 	if(!action_checks(target) || get_dist(chassis, target)>3)
 		return FALSE
 	var/area/check_area = get_area(target)
@@ -257,10 +260,10 @@
 			return TRUE
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/mimercd/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/mimercd/action(atom/target)
 	if(istype(target, /turf/space/transit))//>implying these are ever made -Sieve
 		return
-	if(!isturf(target))
+	if(!istype(target, /turf))
 		target = get_turf(target)
 	if(!action_checks(target) || get_dist(chassis, target)>3)
 		return
@@ -277,20 +280,11 @@
 	var/obj/item/mecha_parts/mecha_equipment/targeted_module
 	range = MECHA_MELEE | MECHA_RANGED
 
-/obj/item/mecha_parts/mecha_equipment/multimodule/Initialize(mapload)
-	. = ..()
+/obj/item/mecha_parts/mecha_equipment/multimodule/New()
+	..()
 	for(var/module in modules)
 		var/obj/item/mecha_parts/mecha_equipment/new_module = new module(src)
 		modules[module] = new_module
-
-/obj/item/mecha_parts/mecha_equipment/multimodule/Destroy()
-	for(var/key, value in modules)
-		if(!value)
-			return
-		qdel(value)
-		modules -= key
-	targeted_module = null
-	. = ..()
 
 /obj/item/mecha_parts/mecha_equipment/multimodule/is_ranged()//add a distance restricted equipment. Why not?
 	return targeted_module?.is_ranged()
@@ -306,6 +300,7 @@
 			return FALSE
 	return TRUE
 
+
 /obj/item/mecha_parts/mecha_equipment/multimodule/attach_act(obj/mecha/M)
 	for(var/thing in modules)
 		var/obj/item/mecha_parts/mecha_equipment/module = modules[thing]
@@ -319,8 +314,8 @@
 		module.chassis = null
 		module.set_ready_state(TRUE)
 
-/obj/item/mecha_parts/mecha_equipment/multimodule/action(atom/target, list/modifiers)
-	targeted_module.action(target, modifiers)
+/obj/item/mecha_parts/mecha_equipment/multimodule/action(atom/target)
+	targeted_module.action(target)
 
 /obj/item/mecha_parts/mecha_equipment/multimodule/self_occupant_attack()
 	radial_menu(chassis.occupant)
@@ -368,6 +363,7 @@
 
 	return targeted_module.handle_ui_act(action, params)
 
+
 /obj/item/mecha_parts/mecha_equipment/multimodule/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/storage/bible))
 		var/obj/item/mecha_parts/mecha_equipment/extinguisher/extinguisher = locate() in src
@@ -377,32 +373,28 @@
 			return ATTACK_CHAIN_PROCEED
 	return ..()
 
+
 /obj/item/mecha_parts/mecha_equipment/multimodule/atmos_module
 	name = "ATMOS module"
 	desc = "Equipment for engineering exosuits. Lays cable along the exosuit's path."
 	icon_state = "mecha_atmos"
-	modules = list(
-		/obj/item/mecha_parts/mecha_equipment/cable_layer,
-		/obj/item/mecha_parts/mecha_equipment/extinguisher,
-		/obj/item/mecha_parts/mecha_equipment/holowall,
-	)
+	modules = list(/obj/item/mecha_parts/mecha_equipment/cable_layer,
+					/obj/item/mecha_parts/mecha_equipment/extinguisher,
+					/obj/item/mecha_parts/mecha_equipment/holowall)
 
 /obj/item/mecha_parts/mecha_equipment/cable_layer
 	name = "cable layer"
 	desc = "Equipment for engineering exosuits. Lays cable along the exosuit's path."
 	icon_state = "mecha_wire"
+	var/datum/event/event
+	var/turf/old_turf
 	var/obj/structure/cable/last_piece
 	var/obj/item/stack/cable_coil/cable
 	var/max_cable = 1000
 
-/obj/item/mecha_parts/mecha_equipment/cable_layer/Initialize(mapload)
+/obj/item/mecha_parts/mecha_equipment/cable_layer/New()
 	cable = new(src, 0)
-	. = ..()
-
-/obj/item/mecha_parts/mecha_equipment/cable_layer/Destroy()
-	QDEL_NULL(cable)
-	last_piece = null
-	. = ..()
+	..()
 
 /obj/item/mecha_parts/mecha_equipment/cable_layer/can_attach(obj/mecha/M)
 	if(..())
@@ -416,10 +408,10 @@
 /obj/item/mecha_parts/mecha_equipment/cable_layer/detach_act()
 	UnregisterSignal(chassis, COMSIG_MOVABLE_MOVED)
 
-/obj/item/mecha_parts/mecha_equipment/cable_layer/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/cable_layer/action(atom/target)
 	if(!action_checks(target))
 		return FALSE
-	if(iscoil(target))
+	if(istype(target, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/target_coil = target
 		var/cur_amount = cable? cable.amount : 0
 		var/to_load = max(max_cable - cur_amount,0)
@@ -439,6 +431,7 @@
 	else
 		occupant_message(span_warning("Unable to load from [target] - no cable found."))
 	return FALSE
+
 
 /obj/item/mecha_parts/mecha_equipment/cable_layer/handle_ui_act(action, list/params)
 	switch(action)
@@ -530,12 +523,12 @@
 	equip_cooldown = 1.5 SECONDS
 	range = MECHA_MELEE | MECHA_RANGED
 
-/obj/item/mecha_parts/mecha_equipment/extinguisher/Initialize(mapload)
+/obj/item/mecha_parts/mecha_equipment/extinguisher/New()
 	create_reagents(1000)
 	reagents.add_reagent("water", 1000)
-	. = ..()
+	..()
 
-/obj/item/mecha_parts/mecha_equipment/extinguisher/action(atom/target, list/modifiers) //copypasted from extinguisher. TODO: Rewrite from scratch.
+/obj/item/mecha_parts/mecha_equipment/extinguisher/action(atom/target) //copypasted from extinguisher. TODO: Rewrite from scratch.
 	if(!action_checks(target) || get_dist(chassis, target)>3)
 		return FALSE
 
@@ -552,51 +545,35 @@
 			var/turf/T1 = get_step(T,turn(direction, 90))
 			var/turf/T2 = get_step(T,turn(direction, -90))
 
-			var/list/the_targets = list(T, T1, T2)
+			var/list/the_targets = list(T,T1,T2)
 			start_cooldown()
-			water_effect(the_targets)
+			spawn(0)
+				for(var/a = 0 to 5)
+					var/obj/effect/particle_effect/water/W = new (get_turf(chassis))
+					if(!W)
+						return
+					var/turf/my_target = pick(the_targets)
+					var/datum/reagents/R = new/datum/reagents(5)
+					W.reagents = R
+					R.my_atom = W
+					reagents.trans_to(W,1)
+					for(var/b=0, b<4, b++)
+						if(!W)
+							return
+						step_towards(W,my_target)
+						if(!W)
+							return
+						var/turf/W_turf = get_turf(W)
+						W.reagents.reaction(W_turf)
+						for(var/atom/atm in W_turf)
+							W.reagents.reaction(atm)
+							if(isliving(atm)) //For extinguishing mobs on fire
+								var/mob/living/M = atm
+								M.ExtinguishMob()
 
-/obj/item/mecha_parts/mecha_equipment/extinguisher/proc/water_effect(list/the_targets)
-	set waitfor = FALSE
-
-	for(var/i in 0 to 5)
-		var/obj/effect/particle_effect/water/water_effect = new (get_turf(chassis))
-
-		if(!water_effect)
-			return
-
-		var/turf/my_target = pick(the_targets)
-		var/datum/reagents/reagents = new (5)
-		water_effect.reagents = reagents
-		reagents.my_atom = water_effect
-		reagents.trans_to(water_effect, 1)
-
-		for(var/j in 0 to 3)
-			if(QDELETED(water_effect) || !water_effect.reagents)
-				return
-
-			step_towards(water_effect, my_target)
-
-			if(QDELETED(water_effect) || !water_effect.reagents)
-				return
-
-			var/turf/water_turf = get_turf(water_effect)
-			if(!water_turf)
-				continue
-
-			water_effect.reagents.reaction(water_turf)
-			for(var/atom/atom in water_turf)
-				if(QDELETED(water_effect) || !water_effect.reagents)
-					return
-				water_effect.reagents.reaction(atom)
-				if(isliving(atom)) //For extinguishing mobs on fire
-					var/mob/living/living_mob = atom
-					living_mob.ExtinguishMob()
-
-			if(water_effect.loc == my_target)
-				break
-
-			sleep(2)
+						if(W.loc == my_target)
+							break
+						sleep(2)
 
 /obj/item/mecha_parts/mecha_equipment/extinguisher/on_reagent_change()
 	return
@@ -626,11 +603,7 @@
 	var/creation_time = 0 //time to create a holosbarriers in deciseconds.
 	var/holocreator_busy = FALSE //to prevent placing multiple holo barriers at once
 
-/obj/item/mecha_parts/mecha_equipment/holowall/Destroy()
-	QDEL_LIST(barriers)
-	. = ..()
-
-/obj/item/mecha_parts/mecha_equipment/holowall/action(atom/target, list/modifiers) //copypasted from extinguisher. TODO: Rewrite from scratch.
+/obj/item/mecha_parts/mecha_equipment/holowall/action(atom/target) //copypasted from extinguisher. TODO: Rewrite from scratch.
 	if(!action_checks(target) || get_dist(chassis, target) > 5)
 		return FALSE
 
@@ -709,9 +682,10 @@
 		/obj/item/crowbar/cyborg, /obj/item/wirecutters/cyborg, /obj/item/multitool/cyborg)
 	var/obj/item/selected_item
 	var/emag_item = /obj/item/kitchen/knife/combat/cyborg/mecha
+	var/emagged = FALSE
 
-/obj/item/mecha_parts/mecha_equipment/eng_toolset/Initialize(mapload)
-	. = ..()
+/obj/item/mecha_parts/mecha_equipment/eng_toolset/New()
+	..()
 	for(var/obj/item/item as anything in items_list)
 		ADD_TRAIT(item, TRAIT_NODROP, type)
 		item.resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
@@ -748,10 +722,10 @@
 
 	return FALSE
 
-/obj/item/mecha_parts/mecha_equipment/eng_toolset/action(atom/target, list/modifiers)
+/obj/item/mecha_parts/mecha_equipment/eng_toolset/action(atom/target)
 	if(!action_checks(target))
 		return FALSE
-	selected_item.melee_attack_chain(chassis.occupant, target, modifiers)
+	selected_item.melee_attack_chain(chassis.occupant, target)
 	if(isliving(target))
 		chassis.do_attack_animation(target)
 		start_cooldown()

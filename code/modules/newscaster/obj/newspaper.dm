@@ -9,7 +9,7 @@
  */
 /obj/item/newspaper
 	name = "newspaper"
-	desc = "Выпуск газеты \"Грифон\", распространяемой на объектах \"Нанотрейзен\"."
+	desc = "Выпуск газеты \"Грифон\", распространяемой на объектах Нанотрейзен."
 	gender = FEMALE
 	icon = 'icons/obj/bureaucracy.dmi'
 	icon_state = "newspaper"
@@ -41,9 +41,9 @@
 		"Клуб \"Синдикатская Тень\": Только для избранных. Лучшие вечеринки, эксклюзивные напитки и никаких вопросов.",
 		"Магазин \"КиберЛом\": Продажа и покупка б/у кибернетических имплантов. Дешевле, чем у конкурентов, и с гарантией!",
 		"Галактический такси-сервис \"Метеор\": Быстро, надёжно, без лишних вопросов. Довезём вас куда угодно!",
-		"Продам гараж — анонимный рекламодатель.",
+		"Продам гараж – анонимный рекламодатель.",
 		"Хотите улучшить свои навыки? Запишитесь на курсы по вольной борьбе! Скидка 20% для сотрудников службы безопасности.",
-		"Пиво и раки от мистера Ченга — большие раки по 5 кредитов, маленькие по 3!",
+		"Пиво и раки от мистера Ченга – большие раки по 5 кредитов, маленькие по 3!",
 		"Waffle Corporation: Вафли, которые заряжают энергией на весь день! Теперь с добавлением блюспейс-кристаллов!",
 		"Одинокий вульпканин в 300 метрах от Вас! Установите наше приложение себе на КПК и напишите ему!",
 		"Скучаете на смене? Закажите пиццу с плазмой от \"Пицца-Экспресс\"! Доставка в любую точку станции за 15 минут!",
@@ -53,14 +53,15 @@
 	)
 
 /obj/item/newspaper/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "газета",
 		GENITIVE = "газеты",
 		DATIVE = "газете",
 		ACCUSATIVE = "газету",
 		INSTRUMENTAL = "газетой",
-		PREPOSITIONAL = "газете",
+		PREPOSITIONAL = "газете"
 	)
+
 
 /obj/item/newspaper/Initialize(mapload)
 	. = ..()
@@ -92,7 +93,7 @@
 		. += span_notice("Вы должны развернуть её, если хотите прочитать.")
 	else
 		if(user.is_literate())
-			if(in_range(user, src) || isobserver(user))
+			if(in_range(user, src) || istype(user, /mob/dead/observer))
 				attack_self(user)
 			else
 				. += span_notice("Вам нужно подойти поближе, если вы хотите это прочитать.")
@@ -163,10 +164,10 @@
 			return ATTACK_CHAIN_PROCEED
 		scribble += list(list(
 			id = current_page,
-			text = strip_html_full(new_scribble)
+			text = new_scribble
 		))
 		user.visible_message(
-			span_notice("[user] дела[PLUR_ET_YUT(user)] пометку в газете."),
+			span_notice("[user] дела[pluralize_ru(user.gender, "ет", "ют")] пометку в газете."),
 			span_notice("Вы делаете пометку на [current_page] странице [declent_ru(GENITIVE)]."),
 		)
 		attack_self(user)
@@ -178,16 +179,16 @@
 	rolled = !rolled
 	icon_state = "newspaper[rolled ? "_rolled" : ""]"
 	update_icon()
-	user.visible_message(span_notice("[user] [rolled ? "с" : "раз"]ворачива[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]."),\
+	user.visible_message(span_notice("[user] [rolled ? "с" : "раз"]ворачива[pluralize_ru(user.gender, "ет", "ют")] [declent_ru(ACCUSATIVE)]."),\
 							span_notice("Вы [rolled ? "с" : "раз"]ворачиваете [declent_ru(ACCUSATIVE)]."))
 	name = "[rolled ? "rolled" : ""] [initial(name)]"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "[rolled ? "свёрнутая " : ""]газета",
 		GENITIVE = "[rolled ? "свёрнутой " : ""]газеты",
 		DATIVE = "[rolled ? "свёрнутой " : ""]газете",
 		ACCUSATIVE = "[rolled ? "свёрнутую" : ""]газету",
 		INSTRUMENTAL = "[rolled ? "свёрнутой " : ""]газетой",
-		PREPOSITIONAL = "[rolled ? "свёрнутой " : ""]газете",
+		PREPOSITIONAL = "[rolled ? "свёрнутой " : ""]газете"
 	)
 	return CLICK_ACTION_SUCCESS
 

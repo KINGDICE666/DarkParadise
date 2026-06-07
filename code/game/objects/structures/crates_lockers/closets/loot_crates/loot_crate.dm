@@ -1,6 +1,5 @@
 /obj/structure/closet/loot_crate
 	icon = 'icons/obj/supplypods.dmi'
-	icon_state = null
 	locked = TRUE
 	pixel_x = -16
 	ignore_shoves = TRUE
@@ -22,11 +21,11 @@
 		explosion(get_turf(src), devastation_range = 0, heavy_impact_range = 0, light_impact_range = 2, flame_range = 3)
 		qdel(src)
 		return
-	return ..()
+	. = ..()
 
 /obj/structure/closet/loot_crate/Destroy(force)
 	tier = null
-	return ..()
+	. = ..()
 
 /obj/structure/closet/loot_crate/update_overlays()
 	. = list()
@@ -61,6 +60,7 @@
 
 /obj/structure/closet/loot_crate/toggle(mob/user)
 	return
+
 
 /obj/structure/closet/loot_crate/green
 	icon_state = "box_green"

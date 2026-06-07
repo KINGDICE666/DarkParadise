@@ -7,11 +7,11 @@
 /obj/item/his_grace
 	name = "artistic toolbox"
 	desc = "Покрашенный в ярко-зелёные цвета тулбокс. От одного его вида становится страшно."
-	icon = 'icons/obj/storage/boxes.dmi'
-	icon_state = "toolbox_green"
-	righthand_file = 'icons/mob/inhands/storage_righthand.dmi'
-	lefthand_file = 'icons/mob/inhands/storage_lefthand.dmi'
+	icon = 'icons/goonstation/objects/objects.dmi'
+	icon_state = "green"
 	item_state = "toolbox_green"
+	lefthand_file = 'icons/goonstation/mob/inhands/items_lefthand.dmi'
+	righthand_file = 'icons/goonstation/mob/inhands/items_righthand.dmi'
 	w_class = WEIGHT_CLASS_GIGANTIC
 	force = 12
 	attack_verb = list("заробастил", "сокрушил")
@@ -31,13 +31,13 @@
 	var/datum/grace_tier/tier
 
 /obj/item/his_grace/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "артистический ящик для инструментов",
 		GENITIVE = "артистического ящика для инструментов",
 		DATIVE = "артистическому ящику для инструментов",
 		ACCUSATIVE = "артистический ящик для инструментов",
 		INSTRUMENTAL = "артистическим ящиком для инструментов",
-		PREPOSITIONAL = "артистическом ящике для инструментов",
+		PREPOSITIONAL = "артистическом ящике для инструментов"
 	)
 
 /obj/item/his_grace/ui_action_click(mob/user, datum/action/action, leftclick)
@@ -70,7 +70,7 @@
 	return ..()
 
 /obj/item/his_grace/update_icon_state()
-	icon_state = ascended ? "toolbox_gold" : (awakened ? (rogue ? "toolbox_green_frenzy" : "toolbox_green_hunger") : "toolbox_green")
+	icon_state = ascended ? "gold" : (awakened ? (rogue ? "green4" : "green3") : "green")
 	item_state = ascended ? "toolbox_gold" : "toolbox_green"
 	return ..()
 
@@ -155,18 +155,18 @@
 	if(awakened)
 		return
 	user.forceMove(get_turf(src))
-	user.visible_message(span_warning("[user] выкарабкива[PLUR_ET_YUT(user)]ся из [declent_ru(GENITIVE)]!"), span_notice("Вы выбираетесь из [declent_ru(GENITIVE)]!"))
+	user.visible_message(span_warning("[user] выкарабкива[pluralize_ru(user.gender,"ет","ют")]ся из [declent_ru(GENITIVE)]!"), span_notice("Вы выбираетесь из [declent_ru(GENITIVE)]!"))
 
 /obj/item/his_grace/process(seconds_per_tick)
 	if(!bloodthirst)
 		drowse()
 		return
 	if(bloodthirst < HIS_GRACE_CONSUME_OWNER && !ascended)
-		adjust_bloodthirst((1 + floor(count_player_victims() * 0.3)) * seconds_per_tick) //Maybe adjust this?
+		adjust_bloodthirst((1 + FLOOR(count_player_victims() * 0.3, 1)) * seconds_per_tick) //Maybe adjust this?
 	else
 		adjust_bloodthirst(1 * seconds_per_tick) //don't cool off rapidly once we're at the point where His Grace consumes all.
 	var/mob/living/master = get_atom_on_turf(src, /mob/living)
-	if(!isnull(master) && isliving(master) && master.is_in_hands(src)) //required type check
+	if(!isnull(master) && istype(master, /mob/living) && master.is_in_hands(src)) //required type check
 		switch(bloodthirst)
 			if(HIS_GRACE_CONSUME_OWNER to HIS_GRACE_FALL_ASLEEP)
 				consume_owner(master)
@@ -195,7 +195,7 @@
 		source = src,
 		action = NOTIFY_FOLLOW,
 		title = "Славься Его Светлость!",
-		alert_overlay = image('icons/goonstation/objects/objects.dmi', "green4", pixel_w = pixel_x_offset, pixel_z = pixel_y_offset),
+		alert_overlay = image('icons/goonstation/objects/objects.dmi', "green4", pixel_x = pixel_x_offset, pixel_y = pixel_y_offset),
 		ghost_sound = 'sound/effects/pope_entry.ogg'
 	)
 	playsound(user, 'sound/effects/his_grace/his_grace_awaken.ogg', 100)
@@ -238,7 +238,7 @@
 
 	var/datum/mind/mind = meal.mind
 	if(!mind || mind.madeby_sentience_potion)
-		meal.visible_message(span_his_grace("[DECLENT_RU_CAP(src, NOMINATIVE)] не получа[PLUR_ET_YUT(src)] насыщения от подобной пищи. [DECLENT_RU_CAP(src, NOMINATIVE)] недоволен!"))
+		meal.visible_message(span_his_grace("[capitalize(declent_ru(NOMINATIVE))] не получа[pluralize_ru(gender, "ет", "ют")] насыщения от подобной пищи. [capitalize(declent_ru(NOMINATIVE))] недоволен!"))
 		meal.forceMove(src)
 		return
 
@@ -349,11 +349,11 @@
 	playsound(src, 'sound/effects/his_grace/his_grace_ascend.ogg', 100)
 	if(!istype(master))
 		return
-	master.client?.give_award(/datum/award/achievement/misc/ascension, master)
 	if(master.is_in_hands(src))
 		master.update_held_items()
 	master.visible_message(span_his_grace("[span_big("Боги заинтересовались тобой.")]"))
 	SEND_SIGNAL(master, COMSIG_MOB_HALO_GAINED)
+
 
 //for thunderdome
 /obj/item/his_grace/no_sound
@@ -370,6 +370,7 @@
 	move_gracefully()
 	init_new_tier(HIS_GRACE_AWAKENED)
 	user.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["his_grace"], GLOB.halo_callbacks["his_grace"])
+
 
 /proc/is_grace_ascended(mob/living/carbon/human/user)
 	if(!istype(user))

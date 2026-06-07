@@ -22,9 +22,10 @@
 SUBSYSTEM_DEF(verb_manager)
 	name = "Verb Queue Manager"
 	wait = 1
-	ss_flags = SS_TICKER|SS_NO_INIT
+	flags = SS_TICKER|SS_NO_INIT
 	priority = FIRE_PRIORITY_DELAYED_VERBS
 	runlevels = RUNLEVEL_LOBBY|RUNLEVELS_DEFAULT
+	ss_id = "verb_manager"
 
 	///list of callbacks to procs called from verbs or verblike procs that were executed when the server was overloaded and had to delay to the next tick.
 	///this list is ran through every tick, and the subsystem does not yield until this queue is finished.
@@ -116,7 +117,7 @@ SUBSYSTEM_DEF(verb_manager)
 		return TRUE
 
 	if((usr.client?.holder && !can_queue_admin_verbs) \
-	|| (!initialized && !(ss_flags & SS_NO_INIT)) \
+	|| (!initialized && !(flags & SS_NO_INIT)) \
 	|| FOR_ADMINS_IF_VERBS_FUCKED_immediately_execute_all_verbs \
 	|| !(runlevels & Master.current_runlevel))
 		return FALSE
@@ -163,7 +164,13 @@ SUBSYSTEM_DEF(verb_manager)
 /datum/controller/subsystem/verb_manager/Recover()
 	verb_queue = SSverb_manager.verb_queue
 
-ADMIN_VERB(force_verb_bypass, R_DEBUG, "Enable Forced Verb Execution", "Enable Forced Verb Execution.", ADMIN_CATEGORY_DEBUG)
-	if(tgui_alert(user, "This will make all verbs bypass the queueing system, creating more lag. Are you absolutely sure?", "Verb Manager", list("Yes", "No")) == "Yes")
+/client/proc/force_verb_bypass()
+	set category = "Debug"
+	set name = "Enable Forced Verb Execution"
+
+	if(!check_rights(R_DEBUG))
+		return
+
+	if(alert(src,"This will make all verbs bypass the queueing system, creating more lag. Are you absolutely sure?","Verb Manager","Yes","No") == "Yes")
 		SSverb_manager.FOR_ADMINS_IF_VERBS_FUCKED_immediately_execute_all_verbs = TRUE
-		message_admins("Admin [key_name_admin(user)] has forced verbs to bypass the verb queue subsystem.")
+		message_admins("Admin [key_name_admin(usr)] has forced verbs to bypass the verb queue subsystem.")

@@ -24,7 +24,6 @@
 
 	dead_icon = "boris_blank"
 
-
 /obj/item/mmi/robotic_brain/syndicate
 	name = "suspicious robotic brain"
 	syndicate = 1
@@ -46,14 +45,15 @@
 
 /obj/item/mmi/robotic_brain/Destroy()
 	imprinted_master = null
-	LAZYCLEARLIST(ghost_volunteers)
-	. = ..()
+	return ..()
+
 
 /obj/item/mmi/robotic_brain/update_icon_state()
 	if(brainmob?.key)
 		icon_state = occupied_icon
 		return
 	icon_state = searching ? searching_icon : blank_icon
+
 
 /obj/item/mmi/robotic_brain/update_name(updates = ALL)
 	. = ..()
@@ -62,17 +62,18 @@
 	else
 		name = initial(name)
 
+
 /obj/item/mmi/robotic_brain/attack_self(mob/user)
 	if(isgolem(user))
-		to_chat(user, span_warning("Your golem fingers are too large to press the switch on [src]."))
+		to_chat(user, "<span class='warning'>Your golem fingers are too large to press the switch on [src].</span>")
 		return
 	if(requires_master && !imprinted_master)
-		to_chat(user, span_notice("You press your thumb on [src] and imprint your user information."))
+		to_chat(user, "<span class='notice'>You press your thumb on [src] and imprint your user information.</span>")
 		imprinted_master = user
 		return
 	if(brainmob && !brainmob.key && !searching)
 		//Start the process of searching for a new user.
-		to_chat(user, span_notice("You carefully locate the manual activation switch and start [src]'s boot process."))
+		to_chat(user, "<span class='notice'>You carefully locate the manual activation switch and start [src]'s boot process.</span>")
 		searching = TRUE
 		update_icon(UPDATE_ICON_STATE)
 		ghost_volunteers.Cut()
@@ -80,9 +81,10 @@
 		addtimer(CALLBACK(src, PROC_REF(check_volunteers)), 60 SECONDS)
 	else
 		silenced = !silenced
-		to_chat(user, span_notice("You toggle the speaker [silenced ? "off" : "on"]."))
-		if(brainmob?.key)
-			to_chat(brainmob, span_warning("Your internal speaker has been toggled [silenced ? "off" : "on"]."))
+		to_chat(user, "<span class='notice'>You toggle the speaker [silenced ? "off" : "on"].</span>")
+		if(brainmob && brainmob.key)
+			to_chat(brainmob, "<span class='warning'>Your internal speaker has been toggled [silenced ? "off" : "on"].</span>")
+
 
 /obj/item/mmi/robotic_brain/proc/check_volunteers()
 	if(length(ghost_volunteers))
@@ -93,10 +95,11 @@
 			transfer_personality(observer)
 	reset_search()
 
+
 /obj/item/mmi/robotic_brain/proc/request_player()
 	for(var/mob/dead/observer/O in GLOB.player_list)
 		if(check_observer(O))
-			to_chat(O, span_boldnotice("[src] has been activated. (<a href='byond://?src=[O.UID()];jump=[src.UID()]'>Teleport</a> | <a href='byond://?src=[UID()];signup=[O.UID()]'>Sign Up</a>)"))
+			to_chat(O, "<span class='boldnotice'>\A [src] has been activated. (<a href='byond://?src=[O.UID()];jump=\ref[src]'>Teleport</a> | <a href='byond://?src=[UID()];signup=\ref[O]'>Sign Up</a>)</span>")
 
 /obj/item/mmi/robotic_brain/proc/check_observer(mob/dead/observer/O)
 	if(cannotPossess(O))
@@ -123,7 +126,7 @@
 
 // This should not ever happen, but let's be safe
 /obj/item/mmi/robotic_brain/dropbrain(turf/dropspot)
-	CRASH("[src] at [loc] attempted to drop brain without a contained brain.")
+	log_runtime(EXCEPTION("[src] at [loc] attempted to drop brain without a contained brain."), src)
 
 /obj/item/mmi/robotic_brain/transfer_identity(mob/living/carbon/H)
 	brainmob.dna = H.dna.Clone()
@@ -138,39 +141,43 @@
 		brainmob.mind.assigned_role = "Positronic Brain"
 	if(H.mind)
 		H.mind.transfer_to(brainmob)
-	to_chat(brainmob, span_notice("You feel slightly disoriented. That's normal when you're just a [ejected_flavor_text]."))
+	to_chat(brainmob, "<span class='notice'>You feel slightly disoriented. That's normal when you're just a [ejected_flavor_text].</span>")
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 	if(radio_action)
 		radio_action.UpdateButtonIcon()
+
 
 /obj/item/mmi/robotic_brain/attempt_become_organ(obj/item/organ/external/parent, mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(. && imprinted_master)
 		to_chat(target, span_biggerdanger("You are permanently imprinted to [imprinted_master], obey [imprinted_master]'s every order and assist [imprinted_master.p_them()] in completing [imprinted_master.p_their()] goals at any cost."))
 
+
 /obj/item/mmi/robotic_brain/proc/transfer_personality(mob/candidate)
 	searching = FALSE
 	brainmob.revive() /// in case of death
-	brainmob.possess_by_player(candidate.key)
+	brainmob.key = candidate.key
 	to_chat(brainmob, "<b>You are a [src], brought into existence on [station_name()].</b>")
 	to_chat(brainmob, "<b>As a non-sentient synthetic intelligence, you answer to [imprinted_master], unless otherwise placed inside of a lawed synthetic structure or mech.</b>")
 	to_chat(brainmob, "<b>Remember, the purpose of your existence is to serve [imprinted_master]'s every word, unless lawed  or placed into a mech in the future.</b>")
 	brainmob.mind.assigned_role = "Positronic Brain"
-	visible_message(span_notice("[src] chimes quietly."))
+	visible_message("<span class='notice'>[src] chimes quietly.</span>")
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 	if(radio_action)
 		radio_action.UpdateButtonIcon()
 
+
 /obj/item/mmi/robotic_brain/proc/reset_search() //We give the players sixty seconds to decide, then reset the timer.
-	if(brainmob?.key)
+	if(brainmob && brainmob.key)
 		return
 	searching = FALSE
 	update_icon(UPDATE_ICON_STATE)
-	visible_message(span_notice("[src] buzzes quietly as the light fades out. Perhaps you could try again?"))
+	visible_message("<span class='notice'>[src] buzzes quietly as the light fades out. Perhaps you could try again?</span>")
+
 
 /obj/item/mmi/robotic_brain/Topic(href, href_list)
 	if("signup" in href_list)
-		var/mob/dead/observer/O = locateUID(href_list["signup"])
+		var/mob/dead/observer/O = locate(href_list["signup"])
 		if(!O)
 			return
 		volunteer(O)
@@ -180,20 +187,20 @@
 		to_chat(O, "Not looking for a ghost, yet.")
 		return
 	if(!istype(O))
-		to_chat(O, span_warning("Error."))
+		to_chat(O, "<span class='warning'>Error.</span>")
 		return
 	if(O in ghost_volunteers)
-		to_chat(O, span_notice("Removed from registration list."))
+		to_chat(O, "<span class='notice'>Removed from registration list.</span>")
 		ghost_volunteers.Remove(O)
 		return
 	if(!check_observer(O))
-		to_chat(O, span_warning("You cannot be \a [src]."))
+		to_chat(O, "<span class='warning'>You cannot be \a [src].</span>")
 		return
 	if(cannotPossess(O))
-		to_chat(O, span_warning("Upon using the antagHUD you forfeited the ability to join the round."))
+		to_chat(O, "<span class='warning'>Upon using the antagHUD you forfeited the ability to join the round.</span>")
 		return
 	if(jobban_isbanned(O, JOB_TITLE_CYBORG) || jobban_isbanned(O,"nonhumandept"))
-		to_chat(O, span_warning("You are job banned from this role."))
+		to_chat(O, "<span class='warning'>You are job banned from this role.</span>")
 		return
 	var/deathtime = world.time - O.timeofdeath
 	if(ROBOTIC_BRAIN_COOLDOWN && deathtime < ROBOTIC_BRAIN_COOLDOWN && O.started_as_observer == 0)
@@ -207,28 +214,29 @@
 			pluralcheck = " [deathtimeminutes] minutes and"
 		var/deathtimeseconds = round((deathtime - deathtimeminutes * 600) / 10,1)
 		to_chat(usr, "You have been dead for[pluralcheck] [deathtimeseconds] seconds.")
-		to_chat(usr, span_warning("You must wait [ROBOTIC_BRAIN_COOLDOWN / 600] minutes to respawn as [src]!"))
+		to_chat(usr, "<span class='warning'>You must wait [ROBOTIC_BRAIN_COOLDOWN / 600] minutes to respawn as [src]!</span>")
 		return
-	to_chat(O, span_notice("You've been added to the list of ghosts that may become this [src].  Click again to unvolunteer."))
+	to_chat(O, "<span class='notice'>You've been added to the list of ghosts that may become this [src].  Click again to unvolunteer.</span>")
 	ghost_volunteers.Add(O)
 
+
 /obj/item/mmi/robotic_brain/examine(mob/user)
-	. += span_notice("Its speaker is turned [silenced ? "off" : "on"].")
+	. += "<span class='notice'>Its speaker is turned [silenced ? "off" : "on"].</span>"
 	. = ..()
 
 	var/list/msg = list("<span class='notice'>")
 
-	if(brainmob?.key)
+	if(brainmob && brainmob.key)
 		switch(brainmob.stat)
 			if(CONSCIOUS)
 				if(!brainmob.client)
 					msg += "It appears to be in stand-by mode.\n" //afk
 			if(UNCONSCIOUS)
-				msg += "[span_warning("It doesn't seem to be responsive.")]\n"
+				msg += "<span class='warning'>It doesn't seem to be responsive.</span>\n"
 			if(DEAD)
-				msg += "[span_deadsay("It appears to be completely inactive.")]\n"
+				msg += "<span class='deadsay'>It appears to be completely inactive.</span>\n"
 	else
-		msg += "[span_deadsay("It appears to be completely inactive.")]\n"
+		msg += "<span class='deadsay'>It appears to be completely inactive.</span>\n"
 	msg += "</span>"
 	. += msg.Join("")
 
@@ -244,8 +252,7 @@
 			brainmob.emp_damage += rand(0, 10)
 	..()
 
-/obj/item/mmi/robotic_brain/Initialize(mapload)
-	. = ..()
+/obj/item/mmi/robotic_brain/New()
 	brainmob = new(src)
 	brainmob.name = "[pick(list("PBU", "HIU", "SINA", "ARMA", "OSI"))]-[rand(100, 999)]"
 	brainmob.real_name = brainmob.name
@@ -258,17 +265,18 @@
 	brainmob.dna.ResetSE()
 	brainmob.dna.ResetUI()
 	brainmob.remove_from_dead_mob_list()
+	..()
 
 /obj/item/mmi/robotic_brain/attack_ghost(mob/dead/observer/O)
 	if(searching)
 		volunteer(O)
 		return
-	if(brainmob?.key)
+	if(brainmob && brainmob.key)
 		return // No point pinging a posibrain with a player already inside
 	if(check_observer(O) && (world.time >= next_ping_at))
 		next_ping_at = world.time + (20 SECONDS)
 		playsound(get_turf(src), 'sound/items/posiping.ogg', 80, FALSE)
-		visible_message(span_notice("[src] pings softly."))
+		visible_message("<span class='notice'>[src] pings softly.</span>")
 
 /obj/item/mmi/robotic_brain/positronic
 	name = "positronic brain"

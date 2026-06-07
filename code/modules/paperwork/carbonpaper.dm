@@ -3,6 +3,7 @@
 	var/copied = 0
 	var/iscopy = 0
 
+
 /obj/item/paper/carbon/update_icon_state()
 	if(iscopy)
 		if(info)
@@ -20,9 +21,10 @@
 			return
 		icon_state = "paper_stack"
 
+
 /obj/item/paper/carbon/verb/removecopy()
 	set name = "Удалить копию"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in usr
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
@@ -39,7 +41,7 @@
 		copy.name = "Copy - " + c.name
 		copy.fields = c.fields
 		copy.updateinfolinks()
-		to_chat(usr, span_notice("You tear off the carbon-copy!"))
+		to_chat(usr, "<span class='notice'>You tear off the carbon-copy!</span>")
 		c.copied = 1
 		copy.iscopy = 1
 		copy.update_icon()

@@ -17,6 +17,7 @@
 	var/change_delay = 100
 	var/duty_mode = FALSE
 	var/during_paid = FALSE
+	var/emagged = FALSE
 
 /obj/item/eftpos/sec
 	name = "Security EFTPOS"
@@ -38,10 +39,12 @@
 /obj/item/paper/check/update_icon_state()
 	return
 
+
 /obj/item/paper/check/click_alt(mob/living/carbon/human/user)
 	if(ishuman(user) && user.is_in_hands(src))
 		to_chat(user, span_warning("Paper is too small! You fail to fold [src] into the shape of a plane!"))
 		return CLICK_ACTION_BLOCKING
+
 
 /obj/item/eftpos/Initialize(mapload)
 	machine_name = "[station_name()]"
@@ -94,6 +97,7 @@
 /obj/item/eftpos/attack_self(mob/user)
 	ui_interact(user)
 
+
 /obj/item/eftpos/attackby(obj/item/I, mob/user, params)
 	var/obj/item/card/id/id_card = I.GetID()
 	if(id_card)
@@ -103,6 +107,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/item/card/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ATTACK_CHAIN_PROCEED
@@ -116,9 +121,10 @@
 	var/obj/item/eftpos/device = target.is_type_in_hands(/obj/item/eftpos)
 	device?.scan_card(id_card, user)
 
+
 /obj/item/eftpos/emag_act(mob/user)
 	emagged = TRUE
-	visible_message(span_warning("[user] swipes a card through [src] and sparks fly out of it!"))
+	visible_message("<span class='warning'>[user] swipes a card through [src] and sparks fly out of it!</span>")
 	do_sparks(1, TRUE, src)
 	get_sfx(SFX_SPARKS)
 	access_code = rand(1111,9999)
@@ -166,7 +172,7 @@
 	switch(action)
 		if("change_code")
 			if(world.timeofday < last_change + change_delay)
-				to_chat(user, "[get_examine_icon(usr)][span_notice(" Wait before next access code change.")]")
+				to_chat(user, "[bicon(src)]<span class='notice'> Wait before next access code change.</span>")
 				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 				return
 			last_change = world.timeofday
@@ -175,7 +181,7 @@
 				if(!Adjacent(user))
 					return
 				if(attempt_code != access_code)
-					to_chat(user, "[get_examine_icon(usr)][span_notice(" Incorrect code entered.")]")
+					to_chat(user, "[bicon(src)]<span class='notice'> Incorrect code entered.</span>")
 					playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, FALSE)
 					return
 			var/trycode = tgui_input_number(user, "Enter a new access code for this device:", "Enter new EFTPOS code", max_value = 999999, min_value = 1000)
@@ -186,7 +192,7 @@
 		if("link_account")
 			if(duty_mode)
 				//prevents editing of this field on the service device
-				to_chat(user, "[get_examine_icon(usr)][span_notice(" Feature not available on this device.")]")
+				to_chat(user, "[bicon(src)]<span class='notice'> Feature not available on this device.</span>")
 				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 				return
 			if(!linked_db)
@@ -201,11 +207,11 @@
 				linked_account = attempt_account_access(attempt_account_num, attempt_pin, 2)
 				playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 30, FALSE)
 			else
-				to_chat(user, "[get_examine_icon(usr)][span_warning(" Server Error #523 Accounts Database Is Unreachable. Please retry and if the issue persists contact Nanotrasen IT support.")]")
+				to_chat(user, "[bicon(src)]<span class='warning'> Server Error #523 Accounts Database Is Unreachable. Please retry and if the issue persists contact Nanotrasen IT support.</span>")
 				playsound(src, 'sound/machines/terminal_alert.ogg', 30, FALSE)
 		if("trans_purpose")
 			if(duty_mode)
-				to_chat(user, "[get_examine_icon(usr)][span_notice(" Feature not available on this device.")]")
+				to_chat(user, "[bicon(src)]<span class='notice'> Feature not available on this device.</span>")
 				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 				return
 			var/purpose = tgui_input_text(user, "Enter reason for EFTPOS transaction", "Transaction purpose", transaction_purpose, encode = FALSE)
@@ -232,7 +238,7 @@
 				if(!Adjacent(user))
 					return
 				if(attempt_code != access_code)
-					to_chat(user, "[get_examine_icon(usr)][span_notice(" That is not a valid code!")]")
+					to_chat(user, "[bicon(src)]<span class='notice'> That is not a valid code!</span>")
 					playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, FALSE)
 					return
 				transaction_locked = 0
@@ -250,7 +256,7 @@
 				transaction_locked = 1
 				playsound(src, 'sound/machines/terminal_prompt.ogg', 30, FALSE)
 			else
-				to_chat(user, "[get_examine_icon(usr)][span_warning(" Client Error #401 No Account Linked To Device.")]")
+				to_chat(user, "[bicon(src)]<span class='warning'> Client Error #401 No Account Linked To Device.</span>")
 				playsound(src, 'sound/machines/terminal_alert.ogg', 30, FALSE)
 		if("scan_card")
 			var/obj/item/active_hand = user.get_active_hand()
@@ -263,17 +269,17 @@
 			var/list/access = user.get_access()
 			if((ACCESS_CENT_COMMANDER in access)  || (ACCESS_CAPTAIN in access) || (ACCESS_HOP in access))
 				access_code = 0
-				to_chat(user, "[get_examine_icon(usr)][span_notice(" Access code reset to 0.")]")
+				to_chat(user, "[bicon(src)]<span class='notice'> Access code reset to 0.</span>")
 				playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 30, FALSE)
 			else
-				to_chat(user, "[get_examine_icon(usr)][span_warning(" Not allowed ID access.")]")
+				to_chat(user, "[bicon(src)]<span class='warning'> Not allowed ID access.</span>")
 				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 
 /obj/item/eftpos/proc/scan_card(obj/item/card/id/id_card, mob/user)
-	visible_message(span_notice("[user] swipes a card through [src]."))
+	visible_message("<span class='notice'>[user] swipes a card through [src].</span>")
 
 	if(emagged)
-		to_chat(user, "[get_examine_icon(usr)][span_warning("  Client Error #423 Device Locked. Contact Nanotrasen IT support.")]")
+		to_chat(user, "[bicon(src)]<span class='warning'>  Client Error #423 Device Locked. Contact Nanotrasen IT support.</span>")
 		playsound(src, 'sound/machines/terminal_alert.ogg', 50, TRUE)
 		return
 
@@ -282,7 +288,7 @@
 	if(linked_db)
 		if(during_paid)
 			//This check is necessary to prevent multiple payment transactions when clicking
-			to_chat(user, "[get_examine_icon(usr)][span_notice(" End the current operation first.")]")
+			to_chat(user, "[bicon(src)]<span class='notice'> End the current operation first.</span>")
 			playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 30, TRUE)
 			return
 
@@ -303,12 +309,12 @@
 				return during_paid = FALSE
 			card_account = attempt_account_access(id_card.associated_account_number, attempt_pin, 2)
 		if(!card_account || card_account.suspended)
-			to_chat(user, "[get_examine_icon(usr)][span_warning(" Server Error #403 Unable To Access Account. Check security settings and try again.")]")
+			to_chat(user, "[bicon(src)]<span class='warning'> Server Error #403 Unable To Access Account. Check security settings and try again.</span>")
 			playsound(src, 'sound/machines/terminal_alert.ogg', 50, FALSE)
 			return during_paid = FALSE
 
 		if(transaction_amount > card_account.money)
-			to_chat(user, "[get_examine_icon(usr)][span_warning(" Client Error #402 Payment Was Declined. You don't have that much money.")]")
+			to_chat(user, "[bicon(src)]<span class='warning'> Client Error #402 Payment Was Declined. You don't have that much money.</span>")
 			playsound(src, 'sound/machines/terminal_alert.ogg', 50, FALSE)
 			return during_paid = FALSE
 
@@ -316,8 +322,8 @@
 		if(transSuccess == TRUE)
 			transaction_paid = 1
 			during_paid = FALSE
-			visible_message("[get_examine_icon(viewers(loc))] The [src] chimes.")
+			visible_message("[bicon(src)] The [src] chimes.")
 			playsound(src, 'sound/machines/chime.ogg', 50, FALSE)
 	else
-		to_chat(user, "[get_examine_icon(usr)][span_warning(" Server Error #523 Accounts Database Is Unreachable. Please retry and if the issue persists contact Nanotrasen IT support.")]")
+		to_chat(user, "[bicon(src)]<span class='warning'> Server Error #523 Accounts Database Is Unreachable. Please retry and if the issue persists contact Nanotrasen IT support.</span>")
 		playsound(src, 'sound/machines/terminal_alert.ogg', 50, FALSE)

@@ -1,8 +1,16 @@
-#define EXERCISES_PER_TRY 6
-#define PUNCHINGBAG_HITS_PER_TRY 10
+#define EXERCISES_PER_TRY			6
+#define PUNCHINGBAG_HITS_PER_TRY	10
 
 /obj/structure/punching_bag
 	name = "punching bag"
+	ru_names = list(
+		NOMINATIVE = "боксёрская груша",
+		GENITIVE = "боксёрской груши",
+		DATIVE = "боксёрской груше",
+		ACCUSATIVE = "боксёрскую грушу",
+		INSTRUMENTAL = "боксёрской грушей",
+		PREPOSITIONAL = "боксёрской груше",
+	)
 	desc = "Боксёрская груша. Есть мнение, что её использование становится более эффективным, если представлять на её месте своего начальника."
 	gender = FEMALE
 	icon = 'icons/goonstation/objects/fitness.dmi'
@@ -13,16 +21,6 @@
 	'sound/weapons/punch1.ogg', 'sound/weapons/punch2.ogg', 'sound/weapons/punch3.ogg', 'sound/weapons/punch4.ogg')
 	var/material_drop = /obj/item/stack/sheet/cloth
 	var/material_drop_amount = 10
-
-/obj/structure/punching_bag/get_ru_names()
-	return alist(
-		NOMINATIVE = "боксёрская груша",
-		GENITIVE = "боксёрской груши",
-		DATIVE = "боксёрской груше",
-		ACCUSATIVE = "боксёрскую грушу",
-		INSTRUMENTAL = "боксёрской грушей",
-		PREPOSITIONAL = "боксёрской груше",
-	)
 
 /obj/structure/punching_bag/attack_hand(mob/living/user, obj/item/item)
 	. = FALSE
@@ -64,16 +62,7 @@
 
 /obj/structure/weightmachine
 	name = "weight machine"
-	desc = "Даже при взгляде на этот тренажёр вы ощущаете усталость."
-	gender = MALE
-	density = TRUE
-	anchored = TRUE
-	var/icon_state_inuse
-	var/material_drop = /obj/item/stack/sheet/metal
-	var/material_drop_amount = 5
-
-/obj/structure/weightmachine/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "силовой тренажёр",
 		GENITIVE = "силового тренажёра",
 		DATIVE = "силовому тренажёру",
@@ -81,22 +70,13 @@
 		INSTRUMENTAL = "силовым тренажёром",
 		PREPOSITIONAL = "силовом тренажёре",
 	)
-
-/obj/structure/weightmachine/Initialize(mapload)
-	. = ..()
-
-	var/static/list/tool_behaviors
-	if(!tool_behaviors)
-		tool_behaviors = string_assoc_nested_list(list(
-			TOOL_WELDER = list(
-				SCREENTIP_CONTEXT_LMB = "Разобрать",
-			),
-
-			TOOL_WRENCH = list(
-				SCREENTIP_CONTEXT_LMB = "Закрепить",
-			),
-		))
-	AddElement(/datum/element/contextual_screentip_tools, tool_behaviors)
+	desc = "Даже при взгляде на этот тренажёр вы ощущаете усталость."
+	gender = MALE
+	density = TRUE
+	anchored = TRUE
+	var/icon_state_inuse
+	var/material_drop = /obj/item/stack/sheet/metal
+	var/material_drop_amount = 5
 
 /obj/structure/weightmachine/proc/AnimateMachine(mob/living/user)
 	return
@@ -126,12 +106,12 @@
 	user.setDir(SOUTH)
 	user.forceMove(src.loc)
 	var/bragmessage = pick(
-		"раздвига[PLUR_ET_YUT(user)] границы своих возможностей",
-		"превосход[PLUR_IT_YAT(user)] самого себя",
-		"гор[PLUR_IT_YAT(user)] решимостью",
-		"броса[PLUR_ET_YUT(user)] вызов своим возможностям",
-		"станов[PLUR_IT_YAT(user)]ся сильнее",
-		"облива[PLUR_ET_YUT(user)]ся потом",
+		"раздвига[pluralize_ru(user.gender, "ет", "ют")] границы своих возможностей",
+		"превосход[pluralize_ru(user.gender, "ит", "ят")] самого себя",
+		"гор[pluralize_ru(user.gender, "ит", "ят")] решимостью",
+		"броса[pluralize_ru(user.gender, "ет", "ют")] вызов своим возможностям",
+		"станов[pluralize_ru(user.gender, "ит", "ят")]ся сильнее",
+		"облива[pluralize_ru(user.gender, "ет", "ют")]ся потом",
 	)
 	user.visible_message(span_bold("[user] [bragmessage]!"))
 	AnimateMachine(user)
@@ -173,19 +153,17 @@
 
 /obj/structure/weightmachine/stacklifter
 	name = "chest press"
-	icon = 'icons/goonstation/objects/fitness.dmi'
-	icon_state = "fitnesslifter"
-	icon_state_inuse = "fitnesslifter2"
-
-/obj/structure/weightmachine/stacklifter/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "грузоблочный тренажёр",
 		GENITIVE = "грузоблочного тренажёра",
 		DATIVE = "грузоблочному тренажёру",
 		ACCUSATIVE = "грузоблочный тренажёр",
 		INSTRUMENTAL = "грузоблочным тренажёром",
-		PREPOSITIONAL = "грузоблочном тренажёре",
+		PREPOSITIONAL = "грузоблочном тренажёре"
 	)
+	icon = 'icons/goonstation/objects/fitness.dmi'
+	icon_state = "fitnesslifter"
+	icon_state_inuse = "fitnesslifter2"
 
 /obj/structure/weightmachine/stacklifter/AnimateMachine(mob/living/carbon/human/user)
 	var/lifts = 0
@@ -206,19 +184,17 @@
 
 /obj/structure/weightmachine/weightlifter
 	name = "bench press"
-	icon = 'icons/goonstation/objects/fitness.dmi'
-	icon_state = "fitnessweight"
-	icon_state_inuse = "fitnessweight-c"
-
-/obj/structure/weightmachine/weightlifter/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "скамья для жима",
 		GENITIVE = "скамьи для жима",
 		DATIVE = "скамье для жима",
 		ACCUSATIVE = "скамью для жима",
 		INSTRUMENTAL = "скамьёй для жима",
-		PREPOSITIONAL = "скамье для жима",
+		PREPOSITIONAL = "скамье для жима"
 	)
+	icon = 'icons/goonstation/objects/fitness.dmi'
+	icon_state = "fitnessweight"
+	icon_state_inuse = "fitnessweight-c"
 
 /obj/structure/weightmachine/weightlifter/AnimateMachine(mob/living/carbon/human/user)
 	var/mutable_appearance/swole_overlay = mutable_appearance(icon, "fitnessweight-w", WALL_OBJ_LAYER)
@@ -246,14 +222,7 @@
 
 /obj/structure/weightmachine/horizontalbar
 	name = "турник"
-	desc = "Простенький турник. На большинстве планет с развитой разумной жизнью его аналоги используются в качестве вешалки."
-	icon = 'icons/goonstation/objects/fitness.dmi'
-	icon_state = "horizontalbar"
-	icon_state_inuse = "horizontalbar"
-	var/rod_y = 28
-
-/obj/structure/weightmachine/horizontalbar/get_ru_names()
-	return alist(
+	ru_names = list(
 		NOMINATIVE = "турник",
 		GENITIVE = "турника",
 		DATIVE = "турнику",
@@ -261,10 +230,15 @@
 		INSTRUMENTAL = "турником",
 		PREPOSITIONAL = "турнике",
 	)
+	desc = "Простенький турник. На большинстве планет с развитой разумной жизнью его аналоги используются в качестве вешалки."
+	icon = 'icons/goonstation/objects/fitness.dmi'
+	icon_state = "horizontalbar"
+	icon_state_inuse = "horizontalbar"
+	var/rod_y = 28
 
 /obj/structure/weightmachine/horizontalbar/AnimateMachine(mob/living/carbon/human/user)
 	var/mutable_appearance/swole_overlay = mutable_appearance(icon, "rod", WALL_OBJ_LAYER)
-	swole_overlay.pixel_z = rod_y
+	swole_overlay.pixel_y = rod_y
 	add_overlay(swole_overlay)
 	var/reps = 0
 	user.pixel_y = 10
@@ -297,10 +271,8 @@
 	name = "Турник"
 	result = /obj/structure/weightmachine/horizontalbar
 	tools = list(TOOL_WELDER)
-	reqs = list(
-		/obj/item/stack/rods = 5,
-		/obj/item/stack/cable_coil = 5,
-	)
+	reqs = list(/obj/item/stack/rods = 5,
+				/obj/item/stack/cable_coil = 5)
 	time = 6 SECONDS
 	category = CAT_MISC
 
@@ -308,10 +280,8 @@
 	name = "Турник (Высокий)"
 	result = /obj/structure/weightmachine/horizontalbar/high
 	tools = list(TOOL_WELDER)
-	reqs = list(
-		/obj/item/stack/rods = 7,
-		/obj/item/stack/cable_coil = 5,
-	)
+	reqs = list(/obj/item/stack/rods = 7,
+				/obj/item/stack/cable_coil = 5)
 	time = 6 SECONDS
 	category = CAT_MISC
 

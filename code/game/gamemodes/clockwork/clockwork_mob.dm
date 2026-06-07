@@ -61,10 +61,12 @@
 	else
 		..()
 
+
 /mob/living/simple_animal/hostile/clockwork/marauder/CanAttack(atom/the_target)
 	if(isclocker(the_target))
 		return FALSE
 	return ..()
+
 
 /mob/living/simple_animal/hostile/clockwork/marauder/bullet_act(obj/projectile/P)
 	if(deflect_projectile(P))
@@ -114,8 +116,9 @@
 					a_intent = INTENT_HELP
 				else if(a_intent == INTENT_HARM)
 					a_intent = INTENT_DISARM
-		if(hud_used?.action_intent)
+		if(hud_used && hud_used.action_intent)
 			hud_used.action_intent.icon_state = "[a_intent]"
+
 
 /*MOUSE*/
 /mob/living/simple_animal/mouse/clockwork
@@ -143,19 +146,18 @@
 /mob/living/simple_animal/mouse/clockwork/handle_automated_action()
 	if(!isturf(loc))
 		return
-	var/turf/simulated/floor/our_floor = get_turf(src)
-	if(!istype(our_floor))
+	var/turf/simulated/floor/F = get_turf(src)
+	if(!istype(F) || F?.intact)
 		return
-	var/obj/structure/cable/thing_to_eat = locate() in our_floor
-	if(!(thing_to_eat && !HAS_TRAIT(thing_to_eat, TRAIT_UNDERFLOOR) && prob(30)))
-		return
-	if(thing_to_eat.avail())
-		visible_message(span_warning("[src] chews through [thing_to_eat]. [src] sparks for a moment!"))
-		playsound(src, 'sound/effects/sparks2.ogg', 100, TRUE)
-	else
-		visible_message(span_warning("[src] chews through [thing_to_eat]."))
-		investigate_log("was chewed through by a clock mouse in [COORD(our_floor)] - [ADMIN_JMP(our_floor)])", INVESTIGATE_WIRES)
-		thing_to_eat.deconstruct()
+	var/obj/structure/cable/C = locate() in F
+	if(C && prob(30))
+		if(C.avail())
+			visible_message(span_warning("[src] chews through [C]. [src] sparks for a moment!"))
+			playsound(src, 'sound/effects/sparks2.ogg', 100, TRUE)
+		else
+			visible_message(span_warning("[src] chews through [C]."))
+		investigate_log("was chewed through by a clock mouse in [get_area(F)]([F.x], [F.y], [F.z] - [ADMIN_JMP(F)])","wires")
+		C.deconstruct()
 
 /mob/living/simple_animal/mouse/clockwork/splat(obj/item/item = null, mob/living/user = null)
 	return

@@ -9,27 +9,21 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	var/active = FALSE
 
+
 /obj/machinery/gateway/Initialize(mapload)
 	. = ..()
 	update_icon(UPDATE_ICON_STATE)
 	update_density_from_dir()
 
+
 /obj/machinery/gateway/proc/update_density_from_dir()
 	if(dir == SOUTH)
 		set_density(FALSE)
 
-/// Rejects gate entry for anyone with an active teleport blocker (ITB collar, BSIG-P) or standing
-/// in a stationary BSIG field. Returns TRUE if entry was rejected.
-/obj/machinery/gateway/proc/reject_teleport_blocked(atom/movable/moving_atom)
-	if(!is_teleport_blocked(moving_atom))
-		return FALSE
-	var/mob/living/notified = isliving(moving_atom) ? moving_atom : get_teleport_blocking_living(moving_atom)
-	if(notified)
-		to_chat(notified, span_warning("Блюспейс-помехи не дают [src] перебросить вас!"))
-	return TRUE
 
 /obj/machinery/gateway/update_icon_state()
 	icon_state = active ? "on" : "off"
+
 
 //this is da important part wot makes things go
 /obj/machinery/gateway/centerstation
@@ -41,6 +35,7 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	var/wait = 0				//this just grabs world.time at world start
 	var/obj/machinery/gateway/centeraway/awaygate = null
 
+
 /obj/machinery/gateway/centerstation/Initialize(mapload)
 	. = ..()
 	if(!GLOB.the_gateway)
@@ -50,19 +45,24 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	wait = world.time + CONFIG_GET(number/gateway_delay)
 	return INITIALIZE_HINT_LATELOAD
 
+
 /obj/machinery/gateway/centerstation/Destroy()
 	if(GLOB.the_gateway == src)
 		GLOB.the_gateway = null
 	return ..()
 
+
 /obj/machinery/gateway/centerstation/LateInitialize()
 	awaygate = locate(/obj/machinery/gateway/centeraway) in SSmachines.get_by_type(/obj/machinery/gateway)
+
 
 /obj/machinery/gateway/centerstation/update_density_from_dir()
 	return
 
+
 /obj/machinery/gateway/centerstation/update_icon_state()
 	icon_state = active ? "oncenter" : "offcenter"
+
 
 /obj/machinery/gateway/centerstation/process()
 	if(stat & (NOPOWER))
@@ -74,6 +74,7 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 		if(GLOB.full_lockdown)
 			toggleoff()
 		use_power(5000)
+
 
 /obj/machinery/gateway/centerstation/proc/detect()
 	linked = list()	//clear the list
@@ -94,6 +95,7 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	if(length(linked) == 8)
 		ready = TRUE
 
+
 /obj/machinery/gateway/centerstation/proc/toggleon(mob/user)
 	if(!ready)
 		return
@@ -107,10 +109,10 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	if(!awaygate)
 		awaygate = locate(/obj/machinery/gateway/centeraway) in SSmachines.get_by_type(/obj/machinery/gateway)
 		if(!awaygate)
-			to_chat(user, span_notice("Error: No destination found."))
+			to_chat(user, "<span class='notice'>Error: No destination found.</span>")
 			return
 	if(world.time < wait)
-		to_chat(user, span_notice("Error: Warpspace triangulation in progress. Estimated time to completion: [round(((wait - world.time) / 10) / 60)] minutes."))
+		to_chat(user, "<span class='notice'>Error: Warpspace triangulation in progress. Estimated time to completion: [round(((wait - world.time) / 10) / 60)] minutes.</span>")
 		return
 
 	for(var/obj/machinery/gateway/G in linked)
@@ -119,12 +121,14 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	active = TRUE
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/gateway/centerstation/proc/toggleoff()
 	for(var/obj/machinery/gateway/G in linked)
 		G.active = FALSE
 		G.update_icon(UPDATE_ICON_STATE)
 	active = FALSE
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/machinery/gateway/centerstation/attack_hand(mob/user)
 	add_fingerprint(user)
@@ -136,12 +140,11 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 		return
 	toggleoff()
 
+
 //okay, here's the good teleporting stuff
 /obj/machinery/gateway/centerstation/Bumped(atom/movable/moving_atom)
 	. = ..()
 	if(!ready || !active || !awaygate)
-		return
-	if(reject_teleport_blocked(moving_atom))
 		return
 	if(awaygate.calibrated)
 		moving_atom.forceMove(get_step(awaygate.loc, SOUTH))
@@ -154,12 +157,15 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 		moving_atom.dir = SOUTH
 		use_power(5000)
 
+
 /obj/machinery/gateway/centerstation/multitool_act(mob/living/user, obj/item/I)
 	. = TRUE
 	add_fingerprint(user)
 	to_chat(user, span_warning("The gate is already calibrated, there is no work for you to do here."))
 
+
 /////////////////////////////////////Away////////////////////////
+
 
 /obj/machinery/gateway/centeraway
 	icon_state = "offcenter"
@@ -170,16 +176,20 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	var/ready = FALSE
 	var/obj/machinery/gateway/centeraway/stationgate = null
 
+
 /obj/machinery/gateway/centeraway/Initialize(mapload)
 	. = ..()
 	update_icon()
 	stationgate = locate(/obj/machinery/gateway/centerstation) in SSmachines.get_by_type(/obj/machinery/gateway)
 
+
 /obj/machinery/gateway/centeraway/update_density_from_dir()
 	return
 
+
 /obj/machinery/gateway/centeraway/update_icon_state()
 	icon_state = active ? "oncenter" : "offcenter"
+
 
 /obj/machinery/gateway/centeraway/proc/detect()
 	linked = list()	//clear the list
@@ -200,6 +210,7 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	if(length(linked) == 8)
 		ready = TRUE
 
+
 /obj/machinery/gateway/centeraway/proc/toggleon(mob/user)
 	if(!ready)
 		return
@@ -208,7 +219,7 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	if(!stationgate)
 		stationgate = locate(/obj/machinery/gateway/centerstation) in SSmachines.get_by_type(/obj/machinery/gateway)
 		if(!stationgate)
-			to_chat(user, span_notice("Error: No destination found."))
+			to_chat(user, "<span class='notice'>Error: No destination found.</span>")
 			return
 	if(!calibrated && calibrating_on_activating)
 		calibrated = TRUE
@@ -219,12 +230,14 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 	active = TRUE
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/gateway/centeraway/proc/toggleoff()
 	for(var/obj/machinery/gateway/G in linked)
 		G.active = FALSE
 		G.update_icon(UPDATE_ICON_STATE)
 	active = FALSE
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/machinery/gateway/centeraway/attack_hand(mob/user)
 	add_fingerprint(user)
@@ -236,11 +249,10 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 		return
 	toggleoff()
 
+
 /obj/machinery/gateway/centeraway/Bumped(atom/movable/moving_atom)
 	. = ..()
 	if(!ready || !active || QDELETED(stationgate))
-		return
-	if(reject_teleport_blocked(moving_atom))
 		return
 	if(isliving(moving_atom))
 		if(exilecheck(moving_atom))
@@ -263,12 +275,14 @@ GLOBAL_DATUM_INIT(the_gateway, /obj/machinery/gateway/centerstation, null)
 		if(M.client)
 			M.client.move_delay = max(world.time + 5, M.client.move_delay)
 
+
 /obj/machinery/gateway/centeraway/proc/exilecheck(mob/living/carbon/user)
 	for(var/obj/item/implant/exile/imp in user)//Checking that there is an exile implant in the contents
 		if(imp.imp_in == user)//Checking that it's actually implanted vs just in their pocket
-			to_chat(user, span_notice("The station gate has detected your exile implant and is blocking your entry."))
+			to_chat(user, "<span class='notice'>The station gate has detected your exile implant and is blocking your entry.</span>")
 			return TRUE
 	return FALSE
+
 
 /obj/machinery/gateway/centeraway/multitool_act(mob/living/user, obj/item/I)
 	. = TRUE

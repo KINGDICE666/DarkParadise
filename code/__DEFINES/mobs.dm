@@ -1,11 +1,13 @@
+///////////////////ORGAN DEFINES///////////////////
+
 // Organ defines.
-#define ORGAN_BROKEN (1<<0)
-#define ORGAN_ROBOT (1<<1)
-#define ORGAN_SPLINTED (1<<2)
-#define ORGAN_DEAD (1<<3)
-#define ORGAN_MUTATED (1<<4)
-#define ORGAN_INT_BLEED (1<<5)
-#define ORGAN_DISFIGURED (1<<6)
+#define ORGAN_BROKEN		(1<<0)
+#define ORGAN_ROBOT			(1<<1)
+#define ORGAN_SPLINTED		(1<<2)
+#define ORGAN_DEAD			(1<<3)
+#define ORGAN_MUTATED		(1<<4)
+#define ORGAN_INT_BLEED		(1<<5)
+#define ORGAN_DISFIGURED	(1<<6)
 
 #define PROCESS_ACCURACY 10
 
@@ -15,27 +17,35 @@
 
 #define TOXIN_TO_INTERNAL_DAMAGE_MULTIPLIER 2 // coefficient wich defines ratio of toxin into internal organs damage transfer
 
+
 #define LEFT 1
 #define RIGHT 2
 
 #define SPLINT_LIFE 2000 //number of steps splints stay on
 
+
 //Pulse levels, very simplified
-#define PULSE_NONE 0 //so !M.pulse checks would be possible
-#define PULSE_SLOW 1 //<60 bpm
-#define PULSE_NORM 2 //60-90 bpm
-#define PULSE_FAST 3 //90-120 bpm
-#define PULSE_2FAST 4 //>120 bpm
-#define PULSE_THREADY 5 //occurs during hypovolemic shock
+#define PULSE_NONE		0	//so !M.pulse checks would be possible
+#define PULSE_SLOW		1	//<60 bpm
+#define PULSE_NORM		2	//60-90 bpm
+#define PULSE_FAST		3	//90-120 bpm
+#define PULSE_2FAST		4	//>120 bpm
+#define PULSE_THREADY	5	//occurs during hypovolemic shock
 //feel free to add shit to lists below
 
+
 //proc/get_pulse methods
-#define GETPULSE_HAND 0 //less accurate (hand)
-#define GETPULSE_TOOL 1 //more accurate (med scanner, sleeper, etc)
+#define GETPULSE_HAND	0	//less accurate (hand)
+#define GETPULSE_TOOL	1	//more accurate (med scanner, sleeper, etc)
+
+//Reagent Metabolization flags, defines the type of reagents that affect this mob
+#define PROCESS_ORG 1		//Only processes reagents with "ORGANIC" or "ORGANIC | SYNTHETIC"
+#define PROCESS_SYN 2		//Only processes reagents with "SYNTHETIC" or "ORGANIC | SYNTHETIC"
+#define PROCESS_DUO 4		//Only processes reagents with "ORGANIC | SYNTHETIC"
 
 #define HUMAN_STRIP_DELAY 40 //takes 40ds = 4s to strip someone.
 #define ALIEN_SELECT_AFK_BUFFER 1 // How many minutes that a person can be AFK before not being allowed to be an alien.
-#define SHOES_SLOWDOWN 0 // How much shoes slow you down by default. Negative values speed you up
+#define SHOES_SLOWDOWN 0			// How much shoes slow you down by default. Negative values speed you up
 
 #define DISGUST_LEVEL_MAXEDOUT 150 STATUS_EFFECT_CONSTANT
 #define DISGUST_LEVEL_DISGUSTED 75 STATUS_EFFECT_CONSTANT
@@ -55,10 +65,10 @@
 #define REM REAGENTS_EFFECT_MULTIPLIER //! Shorthand for the above define for ease of use in equations and the like
 
 // Factor of how fast mob nutrition decreases
-#define HUNGER_FACTOR 0.1
+#define	HUNGER_FACTOR 0.1
 
 // Factor of how fast vampire nutrition decreases
-#define HUNGER_FACTOR_VAMPIRE 0.1
+#define	HUNGER_FACTOR_VAMPIRE 0.1
 
 // Taste sensitivity - lower is more sensitive
 // Represents the minimum portion of total taste the mob can sense
@@ -67,16 +77,16 @@
 #define TASTE_SENSITIVITY_DULL 25
 #define TASTE_SENSITIVITY_NO_TASTE 101
 
-// Reagent type flags, defines the types of mobs this reagent will affect and the types of reagents this mob will metabolize
-#define ORGANIC (1<<0)
-#define SYNTHETIC (1<<1)
+// Reagent type flags, defines the types of mobs this reagent will affect
+#define ORGANIC 1
+#define SYNTHETIC 2
 
 // Reagent tag flags, define reagent behaviour (now use only for anti-stun reagents)
 #define REAGENT_TAG_ANTI_STUN (1<<0)
 
 // Appearance change flags
 #define APPEARANCE_UPDATE_DNA (1<<0)
-#define APPEARANCE_RACE (1<<1|APPEARANCE_UPDATE_DNA)
+#define APPEARANCE_RACE	(1<<1|APPEARANCE_UPDATE_DNA)
 #define APPEARANCE_GENDER (1<<2|APPEARANCE_UPDATE_DNA)
 #define APPEARANCE_SKIN (1<<3)
 #define APPEARANCE_HAIR (1<<4)
@@ -102,23 +112,23 @@
 #define SLIME_EVOLUTION_THRESHOLD_EVOLVE 50
 #define SLIME_EVOLUTION_THRESHOLD_EVOLVE_SLIMEMAN 100
 
-#define SLIME_BABY "baby"
-#define SLIME_ADULT "adult"
-#define SLIME_OLD "old"
-#define SLIME_ELDER "elder"
-#define SLIME_SLIMEMAN "slimeman"
+#define SLIME_BABY		"baby"
+#define SLIME_ADULT	"adult"
+#define SLIME_OLD		"old"
+#define SLIME_ELDER	"elder"
+#define SLIME_SLIMEMAN	"slimeman"
 
 //Slime extract crossing. Controls how many extracts is required to feed to a slime to core-cross.
 #define SLIME_EXTRACT_CROSSING_REQUIRED 10
 
 //Slime commands defines
-#define SLIME_FRIENDSHIP_FOLLOW 3 //Min friendship to order it to follow
-#define SLIME_FRIENDSHIP_STOPEAT 5 //Min friendship to order it to stop eating someone
-#define SLIME_FRIENDSHIP_STOPEAT_NOANGRY 7 //Min friendship to order it to stop eating someone without it losing friendship
-#define SLIME_FRIENDSHIP_STOPCHASE 4 //Min friendship to order it to stop chasing someone (their target)
-#define SLIME_FRIENDSHIP_STOPCHASE_NOANGRY 6 //Min friendship to order it to stop chasing someone (their target) without it losing friendship
-#define SLIME_FRIENDSHIP_STAY 3 //Min friendship to order it to stay
-#define SLIME_FRIENDSHIP_ATTACK 8 //Min friendship to order it to attack
+#define SLIME_FRIENDSHIP_FOLLOW			3 //Min friendship to order it to follow
+#define SLIME_FRIENDSHIP_STOPEAT			5 //Min friendship to order it to stop eating someone
+#define SLIME_FRIENDSHIP_STOPEAT_NOANGRY	7 //Min friendship to order it to stop eating someone without it losing friendship
+#define SLIME_FRIENDSHIP_STOPCHASE			4 //Min friendship to order it to stop chasing someone (their target)
+#define SLIME_FRIENDSHIP_STOPCHASE_NOANGRY	6 //Min friendship to order it to stop chasing someone (their target) without it losing friendship
+#define SLIME_FRIENDSHIP_STAY				3 //Min friendship to order it to stay
+#define SLIME_FRIENDSHIP_ATTACK				8 //Min friendship to order it to attack
 
 //Spiders ai states
 #define SPINNING_WEB 1
@@ -137,14 +147,14 @@
 #define MAX_SIMPLEMOB_WAKEUP_RANGE 5
 
 // Intents
-#define INTENT_HELP "help"
-#define INTENT_DISARM "disarm"
-#define INTENT_GRAB "grab"
-#define INTENT_HARM "harm"
+#define INTENT_HELP		"help"
+#define INTENT_DISARM	"disarm"
+#define INTENT_GRAB		"grab"
+#define INTENT_HARM		"harm"
 
 // Movement Intents
 #define MOVE_INTENT_WALK "walk"
-#define MOVE_INTENT_RUN "run"
+#define MOVE_INTENT_RUN  "run"
 
 // AI wire/radio settings
 #define AI_CHECK_WIRELESS 1
@@ -154,27 +164,16 @@
 #define ROBOT_NOTIFY_AI_CONNECTED 1 //New Cyborg
 #define ROBOT_NOTIFY_AI_MODULE 2 //New Module
 #define ROBOT_NOTIFY_AI_NAME 3 //New Name
-#define AI_NOTIFICATION_AI_SHELL 4 //New AI shell
-
-//'evacuate_ai()' proc danger levels
-#define DANGER_LVL_NONE "danger_level_none" //0% kill chance
-#define DANGER_LVL_MAY_DIE "danger_level_may_die" //50% kill chance
-#define DANGER_LVL_INSTA_DEATH "danger_level_insta_death" //100% kill chance
-
-//'robot.attack_ai()' proc tgui_input desicsions
-#define AISHELL_CONNECT_POSITIVE "Подключиться"
-#define AISHELL_CONNECT_NEGATIVE "Отмена"
-
 //determines if a mob can smash through it
 #define ENVIRONMENT_SMASH_NONE 0
 #define ENVIRONMENT_SMASH_STRUCTURES 1 //crates, lockers, ect
-#define ENVIRONMENT_SMASH_WALLS 2 //walls
-#define ENVIRONMENT_SMASH_RWALLS 4 //rwalls
+#define ENVIRONMENT_SMASH_WALLS 2   //walls
+#define ENVIRONMENT_SMASH_RWALLS 4  //rwalls
 
-#define POCKET_STRIP_DELAY 4 SECONDS //time taken to search somebody's pockets
+#define POCKET_STRIP_DELAY			4 SECONDS	//time taken to search somebody's pockets
 
-#define DEFAULT_ITEM_STRIP_DELAY 4 SECONDS  //time taken to strip somebody
-#define DEFAULT_ITEM_PUTON_DELAY 2 SECONDS  //time taken to reverse-strip somebody
+#define DEFAULT_ITEM_STRIP_DELAY		4 SECONDS  //time taken to strip somebody
+#define DEFAULT_ITEM_PUTON_DELAY		2 SECONDS  //time taken to reverse-strip somebody
 
 #define IGNORE_ACCESS -1
 
@@ -186,9 +185,9 @@
 ///Max amount of living Xenobio mobs allowed at any given time (excluding slimes).
 #define MAX_GOLD_CORE_MOBS 45
 
-#define TINT_IMPAIR 2 //Threshold of tint level to apply weld mask overlay
-#define TINT_BLIND 3 //Threshold of tint level to obscure vision fully
-#define EYE_SHINE_THRESHOLD 6 //dark_view threshold past which a humanoid's eyes will 'shine' in the dark.
+#define TINT_IMPAIR 2			//Threshold of tint level to apply weld mask overlay
+#define TINT_BLIND 3			//Threshold of tint level to obscure vision fully
+#define EYE_SHINE_THRESHOLD 6	//dark_view threshold past which a humanoid's eyes will 'shine' in the dark.
 
 #define STATUS_UPDATE_HEALTH (1<<0)
 #define STATUS_UPDATE_STAT (1<<1)
@@ -204,6 +203,20 @@
 #define INCORPOREAL_NORMAL 1
 #define INCORPOREAL_NINJA 2
 #define INCORPOREAL_REVENANT 3
+
+#define TRAUMA_RESILIENCE_BASIC 1 //Curable with chems
+#define TRAUMA_RESILIENCE_SURGERY 2 //Curable with brain surgery
+#define TRAUMA_RESILIENCE_LOBOTOMY 3 //Curable with lobotomy
+#define TRAUMA_RESILIENCE_WOUND 4 //Curable by healing the head wound
+#define TRAUMA_RESILIENCE_MAGIC 5 //Curable only with magic
+#define TRAUMA_RESILIENCE_ABSOLUTE 6 //This is here to stay
+//Limit of traumas for each resilience tier
+#define TRAUMA_LIMIT_BASIC 3
+#define TRAUMA_LIMIT_SURGERY 2
+#define TRAUMA_LIMIT_WOUND 2
+#define TRAUMA_LIMIT_LOBOTOMY 3
+#define TRAUMA_LIMIT_MAGIC 3
+#define TRAUMA_LIMIT_ABSOLUTE INFINITY
 
 //Human sub-species names
 #define SPECIES_ABDUCTOR "Abductor"
@@ -234,7 +247,7 @@
 #define SPECIES_GREY "Grey"
 #define SPECIES_HUMAN "Human"
 #define SPECIES_KIDAN "Kidan"
-#define SPECIES_MACHINEPERSON "Machine"
+#define SPECIES_MACNINEPERSON "Machine"
 #define SPECIES_MONKEY "Monkey"
 #define SPECIES_FARWA "Farwa"
 #define SPECIES_WOLPIN "Wolpin"
@@ -266,61 +279,6 @@
 // not race
 #define SPECIES_OTHER "Other"
 
-GLOBAL_LIST_INIT(ru_species, list(
-	SPECIES_ABDUCTOR = "абдуктор",
-	SPECIES_DIONA = "диона",
-	SPECIES_DRASK = "драск",
-	SPECIES_GOLEM_BASIC = "голем",
-	SPECIES_GOLEM_RANDOM = "случайный голем",
-	SPECIES_GOLEM_ADAMANTINE = "адамантиновый голем",
-	SPECIES_GOLEM_PLASMA = "плазменный голем",
-	SPECIES_GOLEM_DIAMOND = "алмазный голем",
-	SPECIES_GOLEM_GOLD = "золотой голем",
-	SPECIES_GOLEM_SILVER = "серебряный голем",
-	SPECIES_GOLEM_PLASTEEL = "пласталевый голем",
-	SPECIES_GOLEM_TITANIUM = "титановый голем",
-	SPECIES_GOLEM_PLASTITANIUM = "пластитановый голем",
-	SPECIES_GOLEM_ALLOY = "голем из инопланетных сплавов",
-	SPECIES_GOLEM_WOOD = "деревянный голем",
-	SPECIES_GOLEM_URANIUM = "урановый голем",
-	SPECIES_GOLEM_PLASTIC = "пластиковый голем",
-	SPECIES_GOLEM_SAND = "песчаный голем",
-	SPECIES_GOLEM_GLASS = "стеклянный голем",
-	SPECIES_GOLEM_BLUESPACE = "блюспейс-голем",
-	SPECIES_GOLEM_BANANIUM = "бананиевый голем",
-	SPECIES_GOLEM_TRANQUILLITITE = "транквилитовый голем",
-	SPECIES_GOLEM_CLOCKWORK = "латунный голем",
-	SPECIES_GREY = "серый",
-	SPECIES_HUMAN = "человек",
-	SPECIES_KIDAN = "кидан",
-	SPECIES_MACHINEPERSON = "КПБ",
-	SPECIES_MONKEY = "шимпанзе",
-	SPECIES_FARWA = "фарва",
-	SPECIES_WOLPIN = "вульпин",
-	SPECIES_NEARA = "неара",
-	SPECIES_STOK = "сток",
-	SPECIES_MOTH = "ниан",
-	SPECIES_NUCLEATION = "нуклеация",
-	SPECIES_PLASMAMAN = "плазмолюд",
-	SPECIES_SHADOW_BASIC = "тень",
-	SPECIES_SHADOWLING = "тенеморф",
-	SPECIES_LESSER_SHADOWLING = "низший тенеморф",
-	SPECIES_SKELETON = "скелет",
-	SPECIES_SKRELL = "скрелл",
-	SPECIES_SLIMEPERSON = "слаймолюд",
-	SPECIES_TAJARAN = "таяран",
-	SPECIES_UNATHI = "унати",
-	SPECIES_ASHWALKER_BASIC = "пеплоходец",
-	SPECIES_ASHWALKER_SHAMAN = "шаман пеплоходец",
-	SPECIES_DRACONOID = "драконид",
-	SPECIES_VOX = "вокс",
-	SPECIES_VOX_ARMALIS = "вокс армалис",
-	SPECIES_VULPKANIN = "вульпканин",
-	SPECIES_WRYN = "врин"
-))
-
-#define GET_RU_SPECIES_NAME(species) (GLOB.ru_species[species] || (species))
-
 #define SLEEP_CHECK_DEATH(A, X) \
 	sleep(X); \
 	if(QDELETED(A)) return; \
@@ -341,10 +299,10 @@ GLOBAL_LIST_INIT(ru_species, list(
 	};
 
 // Hearing protection
-#define HEARING_PROTECTION_NONE 0
-#define HEARING_PROTECTION_MINOR 1
-#define HEARING_PROTECTION_MAJOR 2
-#define HEARING_PROTECTION_TOTAL 3
+#define HEARING_PROTECTION_NONE	0
+#define HEARING_PROTECTION_MINOR	1
+#define HEARING_PROTECTION_MAJOR	2
+#define HEARING_PROTECTION_TOTAL	3
 
 // Eye protection
 #define FLASH_PROTECTION_VERYVUNERABLE -4
@@ -369,8 +327,10 @@ GLOBAL_LIST_INIT(ru_species, list(
 
 #define IS_HORIZONTAL(x) (x.body_position == LYING_DOWN)
 
-/// How much a mob's sprite should be moved when they're lying down
-#define PIXEL_Y_OFFSET_LYING -8
+///How much a mob's sprite should be moved when they're lying down
+#define PIXEL_Y_OFFSET_LYING -6
+///How much a mob's sprite should be moved when they're lying up (on the ceiling)
+#define PIXEL_Y_OFFSET_LYING_REVERSED 6
 
 // Slip flags, also known as lube flags
 /// The mob will not slip if they're walking intent
@@ -411,6 +371,7 @@ GLOBAL_LIST_INIT(ru_species, list(
 /// Time it takes for a simple mob to be eaten.
 #define DEVOUR_TIME_ANIMAL (3 SECONDS)
 
+
 // Flags used by the flags parameter of electrocute act.
 /// Makes it so that the shock doesn't take gloves into account.
 #define SHOCK_NOGLOVES (1<<0)
@@ -428,8 +389,6 @@ GLOBAL_LIST_INIT(ru_species, list(
 #define SHOCK_DELAY_STUN (1<<6)
 /// Makes the weaken into a knockdown
 #define SHOCK_KNOCKDOWN (1<<7)
-/// No skeleton animation if a human was shocked
-#define SHOCK_NO_HUMAN_ANIM (1<<8)
 
 // tesla_zap
 #define ZAP_MACHINE_EXPLOSIVE (1<<0)
@@ -438,50 +397,36 @@ GLOBAL_LIST_INIT(ru_species, list(
 #define ZAP_MOB_DAMAGE (1<<3)
 #define ZAP_MOB_STUN (1<<4)
 #define ZAP_GENERATES_POWER (1<<5)
-/// Zaps with this flag will generate less power through tesla coils
-#define ZAP_LOW_POWER_GEN (1<<6)
 
 #define ZAP_DEFAULT_FLAGS ZAP_MOB_STUN | ZAP_MOB_DAMAGE | ZAP_OBJ_DAMAGE
-#define ZAP_TESLA_FLAGS ZAP_DEFAULT_FLAGS | ZAP_MACHINE_EXPLOSIVE | ZAP_GENERATES_POWER
+#define ZAP_TESLA_FLAGS ZAP_DEFAULT_FLAGS | ZAP_MACHINE_EXPLOSIVE
 #define ZAP_FUSION_FLAGS ZAP_OBJ_DAMAGE | ZAP_MOB_DAMAGE | ZAP_MOB_STUN
 #define ZAP_SUPERMATTER_FLAGS ZAP_GENERATES_POWER
 
 /// Vomit defines
-#define VOMIT_NUTRITION_LOSS 10
-#define VOMIT_STUN_TIME (8 SECONDS)
-#define VOMIT_DISTANCE 1
-#define VOMIT_SAFE_NUTRITION 90
+#define VOMIT_NUTRITION_LOSS	10
+#define VOMIT_STUN_TIME			(8 SECONDS)
+#define VOMIT_DISTANCE			1
+#define VOMIT_SAFE_NUTRITION	90
 /// Vomit modes
-#define VOMIT_BLOOD (1<<0)
+#define VOMIT_BLOOD	(1<<0)
 
 /// When reached - we'll apply status effect which will force carbon to vomit
-#define TOX_VOMIT_THRESHOLD_REACHED(mob, toxloss) (mob.getToxLoss() >= toxloss)
-#define TOX_VOMIT_REQUIRED_TOXLOSS 45
+#define TOX_VOMIT_THRESHOLD_REACHED(mob, toxloss)	(mob.getToxLoss() >= toxloss)
+#define TOX_VOMIT_REQUIRED_TOXLOSS	45
 
 /// For babylon fever disease.
 #define DISEASE_MOB_LANGUAGE_PROCESSED (1<<0)
 
 /// Eyes examine time mod
-#define EXAMINE_INSTANT 0 // 0 seconds
+#define EXAMINE_INSTANT	0 // 0 seconds
 
-// recent examine defines
-/// How long it takes for an examined atom to be removed from recent_examines. Should be the max of the below time windows
-#define RECENT_EXAMINE_MAX_WINDOW (2 SECONDS)
-/// If you examine the same atom twice in this timeframe, we call examine_more() instead of examine()
-#define EXAMINE_MORE_WINDOW (1 SECONDS)
-/// If you yawn while someone nearby has examined you within this time frame, it will force them to yawn as well. Tradecraft!
-#define YAWN_PROPAGATION_EXAMINE_WINDOW (2 SECONDS)
-
-/// How far away you can be to make eye contact with someone while examining
-#define EYE_CONTACT_RANGE 5
-
-// Incapacitated status effect flags
-/// If the incapacitated status effect will ignore a mob in restraints (handcuffs)
-#define IGNORE_RESTRAINTS (1<<0)
-/// If the incapacitated status effect will ignore a mob in stasis (stasis beds)
-#define IGNORE_STASIS (1<<1)
-/// If the incapacitated status effect will ignore a mob being agressively grabbed
-#define IGNORE_GRAB (1<<2)
+// Incapacitated ignore flags for [/proc/incapacitated()].
+// They also used at interaction_flags_c var.
+/// If the incapacitated will ignore a mob in restraints
+#define INC_IGNORE_RESTRAINED (1<<0)
+/// If the incapacitated will ignore a mob being agressively grabbed
+#define INC_IGNORE_GRABBED (1<<1)
 
 /// If reading is required to perform action (can't read a book if you are illiterate)
 #define NEED_LITERACY (1<<0)
@@ -508,10 +453,6 @@ GLOBAL_LIST_INIT(ru_species, list(
 /// Allows pAIs to perform an action
 #define ALLOW_PAI (1<<11)
 
-//Lying angles, which way your head points
-#define LYING_ANGLE_EAST 90
-#define LYING_ANGLE_WEST 270
-
 ///Squash flags. For squashable element
 
 ///Whether or not the squashing requires the squashed mob to be lying down
@@ -526,86 +467,3 @@ GLOBAL_LIST_INIT(ru_species, list(
 #define SCREWYHUD_CRIT 1
 #define SCREWYHUD_DEAD 2
 #define SCREWYHUD_HEALTHY 3
-
-// Carbon Overlays Indexes
-#define TOTAL_LAYERS 47
-#define MUTANTRACE_LAYER 45
-#define WING_UNDERLIMBS_LAYER 44
-#define TAIL_UNDERLIMBS_LAYER 43 //Tail split-rendering.
-#define LIMBS_LAYER 42
-#define INTORGAN_LAYER 41
-#define MARKINGS_LAYER 40
-#define UNDERWEAR_LAYER 39
-#define MUTATIONS_LAYER 38
-#define H_DAMAGE_LAYER 37
-#define UNIFORM_LAYER 36
-#define SHOES_LAYER 35
-#define OVER_SHOES_LAYER 34
-#define ID_LAYER 33
-#define GLOVES_LAYER 32
-#define EARS_LAYER 31
-#define SUIT_LAYER 30
-#define BELT_LAYER 29 //Possible make this an overlay of somethign required to wear a belt?
-#define NECK_LAYER 28
-#define BACK_LAYER 27
-#define HEAD_ACCESSORY_LAYER 26
-#define FHAIR_LAYER 25
-#define GLASSES_LAYER 24
-#define HAIR_LAYER 23 //TODO: make part of head layer?
-#define HEAD_ACC_OVER_LAYER 22 //Select-layer rendering.
-#define FHAIR_OVER_LAYER 21 //Select-layer rendering.
-#define GLASSES_OVER_LAYER 20 //Select-layer rendering.
-#define WING_LAYER 19
-#define TAIL_LAYER 18 //bs12 specific. this hack is probably gonna come back to haunt me
-#define FACEMASK_LAYER 17
-#define OVER_MASK_LAYER 16 //Select-layer rendering.
-#define HEAD_LAYER 15
-#define SUIT_STORE_LAYER 14
-#define OVER_HEAD_LAYER 13
-#define MUTANT_EARS_LAYER 12
-#define COLLAR_LAYER 11
-#define HANDCUFF_LAYER 10
-#define LEGCUFF_LAYER 9
-#define HANDS_LAYER 8
-#define TARGETED_LAYER 7 //BS12: Layer for the target overlay from weapon targeting system
-#define HALO_LAYER 6 //blood cult ascended halo, because there's currently no better solution for adding/removing
-#define FIRE_LAYER 5 //If you're on fire
-#define MISC_LAYER 4
-#define SLEEP_LAYER 3
-#define FROZEN_LAYER 2
-#define SSD_LAYER 1
-
-/// Get the client from the var
-#define CLIENT_FROM_VAR(I) (ismob(I) ? I:client : (isclient(I) ? I : (istype(I, /datum/mind) ? I:current?:client : null)))
-
-/// The default mob sprite size (used for shrinking or enlarging the mob sprite to regular size)
-#define RESIZE_DEFAULT_SIZE 1
-
-#define DOING_INTERACTION(user, interaction_key) (LAZYACCESS(user.do_afters, interaction_key))
-#define DOING_INTERACTION_LIMIT(user, interaction_key, max_interaction_count) ((LAZYACCESS(user.do_afters, interaction_key) || 0) >= max_interaction_count)
-#define DOING_INTERACTION_WITH_TARGET(user, target) (LAZYACCESS(user.do_afters, target))
-#define DOING_INTERACTION_WITH_TARGET_LIMIT(user, target, max_interaction_count) ((LAZYACCESS(user.do_afters, target) || 0) >= max_interaction_count)
-
-//Mob AI Status
-#define POWER_RESTORATION_OFF 0
-#define POWER_RESTORATION_START 1
-#define POWER_RESTORATION_SEARCH_APC 2
-#define POWER_RESTORATION_APC_FOUND 3
-
-#define PERSONAL_FACTION(src) "faction_[UID_of(src)]"
-
-#define CARBON_MAX_RADIATION 200
-#define NUCLEATION_MAX_RADIATION 800
-
-// Flags for the mob_flags var on /mob
-/// May override the names used in screentips of OTHER OBJECTS hovered over.
-#define MOB_HAS_SCREENTIPS_NAME_OVERRIDE (1 << 0)
-
-// Megafauna
-#define MINER_DASH_RANGE 4
-
-// Used in living mob offset list for determining pixel offsets
-#define PIXEL_W_OFFSET "w"
-#define PIXEL_X_OFFSET "x"
-#define PIXEL_Y_OFFSET "y"
-#define PIXEL_Z_OFFSET "z"

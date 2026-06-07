@@ -12,7 +12,6 @@
 	var/list/valid_tail_marking_styles = list()
 	var/list/valid_body_accessories = list()
 	var/list/valid_alt_head_styles = list()
-	var/wizard_mirror = FALSE
 
 	var/check_whitelist
 	var/list/whitelist
@@ -199,6 +198,7 @@
 					head_organ = owner.get_organ(BODY_ZONE_HEAD) //Update the head with the new information.
 					cut_and_generate_data()
 
+
 /datum/ui_module/appearance_changer/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -323,10 +323,10 @@
 
 /datum/ui_module/appearance_changer/proc/can_change_head_accessory()
 	if(!head_organ)
-		stack_trace("[owner] Missing head!")
+		log_runtime(EXCEPTION("Missing head!"), owner)
 		return FALSE
 	if(!head_organ.dna)
-		stack_trace("[owner] Missing head DNA!")
+		log_runtime(EXCEPTION("Missing head DNA!"), owner)
 		return FALSE
 	return owner && (flags & APPEARANCE_HEAD_ACCESSORY) && (head_organ.dna.species.bodyflags & HAS_HEAD_ACCESSORY)
 
@@ -359,11 +359,11 @@
 	var/obj/item/organ/external/tail/bodypart_tail = owner.get_organ(BODY_ZONE_TAIL)
 	var/obj/item/organ/external/wing/bodypart_wing = owner.get_organ(BODY_ZONE_WING)
 	if(bodypart_tail)
-		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && bodypart_tail && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, FALSE, owner)
+		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && bodypart_tail && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, 0, owner)
 	if(bodypart_wing)
-		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && bodypart_wing && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, FALSE, owner)
+		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && bodypart_wing && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, 0, owner)
 	else
-		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, FALSE, owner)
+		return owner && (flags & APPEARANCE_BODY_ACCESSORY) && HAS_BODY_ACCESSORY && check_rights(R_ADMIN, 0, owner)
 
 /datum/ui_module/appearance_changer/proc/can_change_alt_head()
 	if(!head_organ)
@@ -393,13 +393,13 @@
 		valid_species = owner.generate_valid_species(check_whitelist, whitelist, blacklist)
 	if(!length(valid_hairstyles) || !length(valid_facial_hairstyles))
 		valid_hairstyles = owner.generate_valid_hairstyles()
-		valid_facial_hairstyles = owner.generate_valid_facial_hairstyles(wizard_mirror)
+		valid_facial_hairstyles = owner.generate_valid_facial_hairstyles()
 	if(!length(valid_head_accessories))
 		valid_head_accessories = owner.generate_valid_head_accessories()
 	if(!length(valid_head_marking_styles))
 		valid_head_marking_styles = owner.generate_valid_markings("head")
 	if(!length(valid_body_marking_styles))
-		valid_body_marking_styles = owner.generate_valid_markings("body", wizard_mirror)
+		valid_body_marking_styles = owner.generate_valid_markings("body")
 	if(!length(valid_tail_marking_styles))
 		valid_tail_marking_styles = owner.generate_valid_markings("tail")
 	if(!length(valid_body_accessories))

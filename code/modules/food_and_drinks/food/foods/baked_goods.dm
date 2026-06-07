@@ -26,6 +26,7 @@
 	tastes = list("cake" = 5, "sweetness" = 2, "carrot" = 1)
 	foodtype = SUGAR | GRAIN | VEGETABLES
 
+
 /obj/item/reagent_containers/food/snacks/sliceable/braincake
 	name = "brain cake"
 	desc = "A squishy cake-thing."
@@ -336,9 +337,6 @@
 	tastes = list("cookie" = 1, "crunchy chocolate" = 1)
 	foodtype = SUGAR | GRAIN
 
-/obj/item/reagent_containers/food/snacks/cookie/empty
-	list_reagents = list()
-
 /obj/item/reagent_containers/food/snacks/fortunecookie
 	name = "fortune cookie"
 	desc = "A true prophecy in each cookie!"
@@ -402,7 +400,7 @@
 /obj/item/reagent_containers/food/snacks/pie/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	..()
 	new/obj/effect/decal/cleanable/pie_smudge(loc)
-	visible_message(span_warning("[src] splats."),span_warning("You hear a splat."))
+	visible_message("<span class='warning'>[src] splats.</span>","<span class='warning'>You hear a splat.</span>")
 	qdel(src)
 
 /obj/item/reagent_containers/food/snacks/meatpie
@@ -543,6 +541,7 @@
 	tastes = list("pie" = 1, "meat" = 1, "acid" = 1)
 	foodtype = GRAIN | MEAT
 
+
 /obj/item/reagent_containers/food/snacks/applepie
 	name = "apple pie"
 	desc = "A pie containing sweet sweet love... or apple."
@@ -553,6 +552,7 @@
 	list_reagents = list("nutriment" = 10, "vitamin" = 2)
 	tastes = list("pie" = 1, "apple" = 1)
 	foodtype = GRAIN | FRUIT | SUGAR
+
 
 /obj/item/reagent_containers/food/snacks/cherrypie
 	name = "cherry pie"
@@ -606,7 +606,6 @@
 	foodtype = JUNKFOOD
 
 /obj/item/reagent_containers/food/snacks/donut/Initialize(mapload)
-	. = ..()
 	if(randomized_sprinkles && prob(30))
 		switch(rand(1,4))
 			if(1)
@@ -633,6 +632,7 @@
 				reagents.add_reagent("sprinkles", 2)
 				donut_sprite_type = "frosted"
 				filling_color = "#FF69B4"
+	. = ..()
 
 /obj/item/reagent_containers/food/snacks/donut/update_icon_state()
 	return
@@ -646,7 +646,6 @@
 	randomized_sprinkles = 0
 
 /obj/item/reagent_containers/food/snacks/donut/sprinkles/Initialize(mapload)
-	. = ..()
 	switch(rand(1,4))
 		if(1)
 			name = "chocolate donut"
@@ -668,6 +667,7 @@
 			donut_sprite_type = "berry"
 		if(4)
 			reagents.add_reagent("sprinkles", 2)
+	. = ..()
 
 /obj/item/reagent_containers/food/snacks/donut/chaos
 	name = "chaos donut"
@@ -678,7 +678,6 @@
 	randomized_sprinkles = 0
 
 /obj/item/reagent_containers/food/snacks/donut/chaos/Initialize(mapload)
-	. = ..()
 	extra_reagent = pick("nutriment", "capsaicin", "frostoil", "krokodil", "plasma", "cocoa", "slimejelly", "banana", "berryjuice", "omnizine")
 	reagents.add_reagent("[extra_reagent]", 3)
 	if(prob(30))
@@ -707,6 +706,7 @@
 				reagents.add_reagent("sprinkles", 2)
 				donut_sprite_type = "frosted"
 				filling_color = "#FF69B4"
+	. = ..()
 
 /obj/item/reagent_containers/food/snacks/donut/jelly
 	name = "jelly donut"
@@ -718,7 +718,6 @@
 	tastes = list("jelly" = 1, "donut" = 10)
 
 /obj/item/reagent_containers/food/snacks/donut/jelly/Initialize(mapload)
-	. = ..()
 	if(extra_reagent)
 		reagents.add_reagent("[extra_reagent]", 3)
 	if(prob(30))
@@ -747,6 +746,7 @@
 				reagents.add_reagent("sprinkles", 2)
 				donut_sprite_type = "frostedjelly"
 				filling_color = "#FF69B4"
+	. = ..()
 
 /obj/item/reagent_containers/food/snacks/donut/jelly/slimejelly
 	name = "slimejelly donut"
@@ -806,6 +806,7 @@
 	tastes = list("pie" = 1, "blackberries" = 1)
 	foodtype = GRAIN | SUGAR | FRUIT
 
+
 /obj/item/reagent_containers/food/snacks/poppypretzel
 	name = "poppy pretzel"
 	desc = "A large soft pretzel full of POP! It's all twisted up!"
@@ -843,6 +844,7 @@
 	tastes = list("pie" = 1, "apple" = 1, "expensive metal" = 1)
 	foodtype = GRAIN | SUGAR | FRUIT
 
+
 /obj/item/reagent_containers/food/snacks/cracker
 	name = "cracker"
 	desc = "It's a salted cracker."
@@ -874,13 +876,13 @@
 	foodtype = GRAIN
 
 /obj/item/reagent_containers/food/snacks/croissant/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "круассан",
 		GENITIVE = "круассана",
 		DATIVE = "круассану",
 		ACCUSATIVE = "круассан",
 		INSTRUMENTAL = "круассаном",
-		PREPOSITIONAL = "круассане",
+		PREPOSITIONAL = "круассане"
 	)
 
 /obj/item/reagent_containers/food/snacks/croissant/throwing

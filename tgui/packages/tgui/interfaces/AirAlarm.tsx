@@ -13,9 +13,6 @@ import {
 import { useState } from 'react';
 import { Window } from '../layouts';
 import { InterfaceLockNoticeBox } from './common/InterfaceLockNoticeBox';
-import { AtmosMachine, AtmosMachineView } from './common/AtmosMachine';
-import { GASES } from '../constants';
-import { Danger2Colour } from './common/AtmosScan';
 
 type AirAlarmData = {
   air: Air;
@@ -25,8 +22,8 @@ type AirAlarmData = {
   alarmActivated: boolean;
   rcon: number;
   target_temp: number;
-  vents: AtmosMachine[];
-  scrubbers: AtmosMachine[];
+  vents: Vent[];
+  scrubbers: Scrubber[];
   modes: Mode[];
   presets: Preset[];
   emagged: boolean;
@@ -48,10 +45,8 @@ type Danger = {
   pressure: number;
   oxygen: number;
   nitrogen: number;
-  carbon_dioxide: number;
-  nitrous_oxide: number;
-  hydrogen: number;
-  water_vapor: number;
+  co2: number;
+  n2o: number;
   plasma: number;
   other: number;
   temperature: number;
@@ -60,13 +55,33 @@ type Danger = {
 type AirContent = {
   oxygen: number;
   nitrogen: number;
-  carbon_dioxide: number;
-  nitrous_oxide: number;
-  hydrogen: number;
-  water_vapor: number;
+  co2: number;
+  n2o: number;
   plasma: number;
   other: number;
 };
+
+interface AtmosMachine {
+  name: string;
+  power: boolean;
+  id_tag: string;
+  direction: string;
+}
+
+type Vent = {
+  checks: number;
+  external: number;
+} & AtmosMachine;
+
+type Scrubber = {
+  scrubbing: boolean;
+  widenet: boolean;
+  filter_n2o: boolean;
+  filter_co2: boolean;
+  filter_toxins: boolean;
+  filter_o2: boolean;
+  filter_n2: boolean;
+} & AtmosMachine;
 
 type Mode = {
   id: number;
@@ -113,6 +128,16 @@ export const AirAlarm = (props: unknown) => {
   );
 };
 
+const Danger2Colour = (danger: number) => {
+  if (danger === 0) {
+    return 'green';
+  }
+  if (danger === 1) {
+    return 'orange';
+  }
+  return 'red';
+};
+
 const AirStatus = (_props: unknown) => {
   const { act, data } = useBackend<AirAlarmData>();
   const { air, mode, atmos_alarm, locked, alarmActivated, rcon, target_temp } =
@@ -130,8 +155,6 @@ const AirStatus = (_props: unknown) => {
   } else {
     areaStatus = 'DANGER: Internals Required';
   }
-
-  let permanentGases = ['oxygen', 'nitrogen', 'carbon_dioxide', 'plasma'];
 
   return (
     <Section title="Air Status">
@@ -156,23 +179,52 @@ const AirStatus = (_props: unknown) => {
               )}
             </Box>
           </LabeledList.Item>
-          {GASES.map((gas, id) => {
-            if (
-              gas.tlv in permanentGases ||
-              air.contents[gas.tlv] ||
-              0 >= 0.1
-            ) {
-              return (
-                <LabeledList.Item key={id} label={gas.label}>
-                  <ProgressBar
-                    value={(air.contents[gas.tlv] || 0) / 100}
-                    fractionDigits={1}
-                    color={Danger2Colour(air.danger[gas.tlv] || 0)}
-                  />
-                </LabeledList.Item>
-              );
-            } else return '';
-          })}
+          <LabeledList.Item label="Oxygen">
+            <ProgressBar
+              value={air.contents.oxygen / 100}
+              fractionDigits={1}
+              color={Danger2Colour(air.danger.oxygen)}
+            />
+          </LabeledList.Item>
+          <LabeledList.Item label="Nitrogen">
+            <ProgressBar
+              value={air.contents.nitrogen / 100}
+              fractionDigits={1}
+              color={Danger2Colour(air.danger.nitrogen)}
+            />
+          </LabeledList.Item>
+          <LabeledList.Item label="Carbon Dioxide">
+            <ProgressBar
+              value={air.contents.co2 / 100}
+              fractionDigits={1}
+              color={Danger2Colour(air.danger.co2)}
+            />
+          </LabeledList.Item>
+          <LabeledList.Item label="Toxins">
+            <ProgressBar
+              value={air.contents.plasma / 100}
+              fractionDigits={1}
+              color={Danger2Colour(air.danger.plasma)}
+            />
+          </LabeledList.Item>
+          {air.contents.n2o > 0.1 && (
+            <LabeledList.Item label="Nitrous Oxide">
+              <ProgressBar
+                value={air.contents.n2o / 100}
+                fractionDigits={1}
+                color={Danger2Colour(air.danger.n2o)}
+              />
+            </LabeledList.Item>
+          )}
+          {air.contents.other > 0.1 && (
+            <LabeledList.Item label="Other">
+              <ProgressBar
+                value={air.contents.other / 100}
+                fractionDigits={1}
+                color={Danger2Colour(air.danger.other)}
+              />
+            </LabeledList.Item>
+          )}
           <LabeledList.Item label="Temperature">
             <Box color={Danger2Colour(air.danger.temperature)}>
               <AnimatedNumber value={air.temperature} /> K /{' '}
@@ -291,15 +343,197 @@ const AirAlarmUnlockedContent = (props: TabIndexProps) => {
 };
 
 const AirAlarmVentsView = (props: unknown) => {
-  const { data } = useBackend<AirAlarmData>();
+  const { act, data } = useBackend<AirAlarmData>();
   const { vents } = data;
-  return vents.map((v) => <AtmosMachineView key={v.uid} {...v} />);
+  return vents.map((v) => (
+    <Section title={v.name} key={v.name}>
+      <LabeledList>
+        <LabeledList.Item label="Status">
+          <Button
+            selected={v.power}
+            icon="power-off"
+            onClick={() =>
+              act('command', {
+                cmd: 'power',
+                val: v.power ? 0 : 1,
+                id_tag: v.id_tag,
+              })
+            }
+          >
+            {v.power ? 'On' : 'Off'}
+          </Button>
+          <Button
+            icon={v.direction === 'release' ? 'sign-out-alt' : 'sign-in-alt'}
+            onClick={() =>
+              act('command', {
+                cmd: 'direction',
+                val: v.direction === 'release' ? 0 : 1,
+                id_tag: v.id_tag,
+              })
+            }
+          >
+            {v.direction === 'release' ? 'Blowing' : 'Siphoning'}
+          </Button>
+        </LabeledList.Item>
+        <LabeledList.Item label="Pressure Checks">
+          <Button
+            selected={v.checks === 1}
+            onClick={() =>
+              act('command', { cmd: 'checks', val: 1, id_tag: v.id_tag })
+            }
+          >
+            External
+          </Button>
+          <Button
+            selected={v.checks === 2}
+            onClick={() =>
+              act('command', { cmd: 'checks', val: 2, id_tag: v.id_tag })
+            }
+          >
+            Internal
+          </Button>
+        </LabeledList.Item>
+        <LabeledList.Item label="External Pressure Target">
+          <AnimatedNumber value={v.external} /> kPa&nbsp;
+          <Button
+            icon="cog"
+            onClick={() =>
+              act('command', { cmd: 'set_external_pressure', id_tag: v.id_tag })
+            }
+          >
+            Set
+          </Button>
+          <Button
+            icon="redo-alt"
+            onClick={() =>
+              act('command', {
+                cmd: 'set_external_pressure',
+                val: 101.325,
+                id_tag: v.id_tag,
+              })
+            }
+          >
+            Reset
+          </Button>
+        </LabeledList.Item>
+      </LabeledList>
+    </Section>
+  ));
 };
 
 const AirAlarmScrubbersView = (props: unknown) => {
-  const { data } = useBackend<AirAlarmData>();
+  const { act, data } = useBackend<AirAlarmData>();
   const { scrubbers } = data;
-  return scrubbers.map((s) => <AtmosMachineView key={s.uid} {...s} />);
+  return scrubbers.map((s) => (
+    <Section title={s.name} key={s.name}>
+      <LabeledList>
+        <LabeledList.Item label="Status">
+          <Button
+            selected={s.power}
+            icon="power-off"
+            onClick={() =>
+              act('command', {
+                cmd: 'power',
+                val: s.power ? 0 : 1,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            {s.power ? 'On' : 'Off'}
+          </Button>
+          <Button
+            icon={s.scrubbing ? 'filter' : 'sign-in-alt'}
+            onClick={() =>
+              act('command', {
+                cmd: 'scrubbing',
+                val: !s.scrubbing ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            {s.scrubbing ? 'Scrubbing' : 'Siphoning'}
+          </Button>
+        </LabeledList.Item>
+        <LabeledList.Item label="Range">
+          <Button
+            selected={s.widenet}
+            icon="expand-arrows-alt"
+            onClick={() =>
+              act('command', {
+                cmd: 'widenet',
+                val: !s.widenet ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            {s.widenet ? 'Extended' : 'Normal'}
+          </Button>
+        </LabeledList.Item>
+        <LabeledList.Item label="Filtering">
+          <Button
+            selected={s.filter_co2}
+            onClick={() =>
+              act('command', {
+                cmd: 'co2_scrub',
+                val: !s.filter_co2 ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            Carbon Dioxide
+          </Button>
+          <Button
+            selected={s.filter_toxins}
+            onClick={() =>
+              act('command', {
+                cmd: 'tox_scrub',
+                val: !s.filter_toxins ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            Plasma
+          </Button>
+          <Button
+            selected={s.filter_n2o}
+            onClick={() =>
+              act('command', {
+                cmd: 'n2o_scrub',
+                val: !s.filter_n2o ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            Nitrous Oxide
+          </Button>
+          <Button
+            selected={s.filter_o2}
+            onClick={() =>
+              act('command', {
+                cmd: 'o2_scrub',
+                val: !s.filter_o2 ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            Oxygen
+          </Button>
+          <Button
+            selected={s.filter_n2}
+            onClick={() =>
+              act('command', {
+                cmd: 'n2_scrub',
+                val: !s.filter_n2 ? 1 : 0,
+                id_tag: s.id_tag,
+              })
+            }
+          >
+            Nitrogen
+          </Button>
+        </LabeledList.Item>
+      </LabeledList>
+    </Section>
+  ));
 };
 
 const AirAlarmModesView = (props: unknown) => {
@@ -314,10 +548,9 @@ const AirAlarmModesView = (props: unknown) => {
             borderSpacing: '0 1px',
           }}
         >
-          {Object.keys(modes).map((key) => {
-            let m = modes[key];
-            if (!m.emagonly || !!emagged) {
-              return (
+          {modes.map(
+            (m) =>
+              (!m.emagonly || (m.emagonly && !!emagged)) && (
                 <Table.Row key={m.name}>
                   <Table.Cell textAlign="right" width={1}>
                     <Button
@@ -330,9 +563,8 @@ const AirAlarmModesView = (props: unknown) => {
                   </Table.Cell>
                   <Table.Cell>{m.desc}</Table.Cell>
                 </Table.Row>
-              );
-            }
-          })}
+              )
+          )}
         </Table>
       </Section>
       <Section title="System Presets">
@@ -400,7 +632,8 @@ const AirAlarmThresholdsView = (props: unknown) => {
               <Table.Cell key={s.val}>
                 <Button
                   onClick={() =>
-                    act('set_threshold', {
+                    act('command', {
+                      cmd: 'set_threshold',
                       env: s.env,
                       var: s.val,
                     })

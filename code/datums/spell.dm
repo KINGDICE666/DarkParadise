@@ -1,42 +1,47 @@
 /obj/effect/proc_holder
 	var/active = FALSE //Used by toggle based abilities.
-	var/ranged_mousepointer
+	var/ranged_mousepointer = 'icons/effects/mouse_pointers/cult_target.dmi'
 	var/mob/ranged_ability_user
+
 
 /obj/effect/proc_holder/singularity_act()
 	return
 
-/obj/effect/proc_holder/singularity_pull(atom/singularity, current_size)
+
+/obj/effect/proc_holder/singularity_pull()
 	return
+
 
 GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
+
 /obj/effect/proc_holder/proc/InterceptClickOn(mob/user, params, atom/target)
-	if(user.ranged_ability != src)
-		to_chat(user, span_warning("<b>[user.ranged_ability.name]</b> has been disabled."))
-		user.ranged_ability.remove_ranged_ability(user)
-		return TRUE //TRUE for failed, FALSE for passed.
-	user.face_atom(target)
-	return FALSE
+	if(user.ranged_ability == src)
+		user.face_atom(target)
+		return FALSE
+
+	to_chat(user, span_warning("<b>[user.ranged_ability.name]</b> has been disabled."))
+	user.ranged_ability.remove_ranged_ability(user)
+	return TRUE //TRUE for failed, FALSE for passed.
+
 
 /datum/click_intercept/proc_holder
 	var/obj/effect/proc_holder/spell
+
 
 /datum/click_intercept/proc_holder/New(client/C, obj/effect/proc_holder/spell_to_cast)
 	. = ..()
 	spell = spell_to_cast
 
+
 /datum/click_intercept/proc_holder/InterceptClickOn(user, params, atom/object)
 	spell.InterceptClickOn(user, params, object)
 
-/datum/click_intercept/proc_holder/quit(force)
+
+/datum/click_intercept/proc_holder/quit()
 	spell.remove_ranged_ability(spell.ranged_ability_user)
 	return ..()
 
-/datum/click_intercept/proc_holder/Destroy()
-	holder.mouse_override_icon = null
-	holder.mouse_pointer_icon = initial(holder.mouse_pointer_icon)
-	. = ..()
 
 /obj/effect/proc_holder/proc/add_ranged_ability(mob/user, msg)
 	if(!user || !user.client)
@@ -53,13 +58,16 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 		to_chat(user, msg)
 	update_icon()
 
+
 /obj/effect/proc_holder/proc/add_mousepointer(client/our_client)
 	if(our_client && ranged_mousepointer && our_client.mouse_pointer_icon == initial(our_client.mouse_pointer_icon))
 		our_client.mouse_pointer_icon = ranged_mousepointer
 
+
 /obj/effect/proc_holder/proc/remove_mousepointer(client/our_client)
 	if(our_client && ranged_mousepointer && our_client.mouse_pointer_icon == ranged_mousepointer)
 		our_client.mouse_pointer_icon = initial(our_client.mouse_pointer_icon)
+
 
 /obj/effect/proc_holder/proc/remove_ranged_ability(mob/user, msg)
 	if(!user || (user.ranged_ability && user.ranged_ability != src)) //To avoid removing the wrong ability
@@ -75,8 +83,8 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 			to_chat(user, msg)
 	update_icon()
 
+
 /obj/effect/proc_holder/spell
-	abstract_type = /obj/effect/proc_holder/spell
 	name = "Spell"
 	desc = "A wizard spell"
 	/// What panel the proc holder needs to go on.
@@ -91,7 +99,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	/// Whether an ability should start cooldown after cast or not.
 	var/should_recharge_after_cast = TRUE
 	/// Messace user get when clicks on rechargins spell button.
-	var/still_recharging_msg = span_notice_alt("The spell is still recharging.")
+	var/still_recharging_msg = span_notice("The spell is still recharging.")
 
 	/// Spell can only be cast with special wizard garb, equipped in appropriete slots.
 	var/clothes_req = TRUE
@@ -133,8 +141,6 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	var/sparks_spread = FALSE
 	/// Amount of sparks if "sparks_spread" is set to `TRUE`.
 	var/sparks_amt = 0
-	/// Whether an active ITB should prevent this spell from moving the caster through magical displacement.
-	var/itb_blocks_spell = FALSE
 
 	///Determines if the spell has smoke, and if so what effect the smoke has. See spell defines.
 	var/smoke_type = SMOKE_NONE
@@ -166,9 +172,9 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	var/gain_desc = null
 
 	/// The message displayed when a click based spell gets activated
-	var/selection_activated_message = span_notice_alt("Click on a target to cast the spell.")
+	var/selection_activated_message	= span_notice("Кликните на цель, чтобы скастовать заклинание.")
 	/// The message displayed when a click based spell gets deactivated
-	var/selection_deactivated_message = span_notice_alt("You choose to not cast this spell.")
+	var/selection_deactivated_message = span_notice("Вы решили не кастовать заклинание.")
 
 	/// does this spell generate attack logs?
 	var/create_attack_logs = TRUE
@@ -187,6 +193,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	var/static/list/spell_handlers = list()
 	/// Handles a given spells cooldowns. Tracks the time until its off cooldown.
 	var/datum/spell_cooldown/cooldown_handler
+	/// Flag for certain states that the spell requires the user be in to cast. TG
+	var/spell_requirements = SPELL_REQUIRES_WIZARD_GARB
+	/// This determines what type of antimagic is needed to block the spell.
+	/// (MAGIC_RESISTANCE, MAGIC_RESISTANCE_MIND, MAGIC_RESISTANCE_HOLY)
+	/// If SPELL_REQUIRES_NO_ANTIMAGIC is set in Spell requirements,
+	/// The spell cannot be cast if the caster has any of the antimagic flags set.
+	var/antimagic_flags = MAGIC_RESISTANCE
 
 /**
  * Checks if the user can cast the spell
@@ -200,6 +213,8 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	if(!can_cast(user, charge_check, TRUE))
 		return FALSE
 
+	user.changeNext_click(CLICK_CD_CLICK_ABILITY)
+
 	if(ishuman(user))
 		var/mob/living/carbon/human/caster = user
 		if(caster.remoteview_target)
@@ -212,6 +227,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 	return TRUE
 
+
 /**
  * Allows for spell specific target validation. Will be used by the spell_targeting datums
  *
@@ -221,6 +237,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
  */
 /obj/effect/proc_holder/spell/proc/valid_target(target, user)
 	return TRUE
+
 
 /**
  * Will spend the cost of using this spell once. Will update the action button's icon if there is any
@@ -235,6 +252,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 	if(action)
 		action.UpdateButtonIcon()
+
 
 /obj/effect/proc_holder/spell/proc/invocation(mob/user = usr) //spelling the spell out and setting it on recharge/reducing charges amount
 	switch(invocation_type)
@@ -254,11 +272,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 		if("emote")
 			user.visible_message(invocation, invocation_emote_self) //same style as in mob/living/emote.dm
 
+
 /obj/effect/proc_holder/spell/proc/playMagSound()
 	playsound(get_turf(usr), sound, 50, TRUE)
 
-/obj/effect/proc_holder/spell/Initialize(mapload)
-	. = ..()
+
+/obj/effect/proc_holder/spell/New()
+	..()
 	action = new(src)
 	still_recharging_msg = span_notice("[name] is still recharging.")
 	if(!gain_desc)
@@ -279,6 +299,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	cooldown_handler.cooldown_init(src)
 	after_spell_init()
 
+
 /obj/effect/proc_holder/spell/Destroy()
 	QDEL_NULL(action)
 	QDEL_NULL(cooldown_handler)
@@ -286,18 +307,6 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	targeting = null
 	return ..()
 
-/obj/effect/proc_holder/spell/update_icon_state()
-	if(!action)
-		return
-	action.targeting_process = active
-	action.UpdateButtonIcon(ALL)
-
-/obj/effect/proc_holder/spell/remove_ranged_ability(mob/user, msg)
-	. = ..()
-	if(!action)
-		return
-	action.targeting_process = FALSE
-	action.UpdateButtonIcon(ALL)
 
 /**
  * Creates and returns the targeting datum for this spell type. Override this!
@@ -305,7 +314,8 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
  */
 /obj/effect/proc_holder/spell/proc/create_new_targeting()
 	RETURN_TYPE(/datum/spell_targeting)
-	return
+	return new /datum/spell_targeting/self
+
 
 /**
  * Creates and returns the handler datum for this spell type.
@@ -315,6 +325,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/proc/create_new_handler()
 	RETURN_TYPE(/datum/spell_handler)
 	return NONE
+
 
 /**
  * Creates and returns the spells cooldown handler, defaults to the standard recharge handler.
@@ -327,11 +338,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	s_cooldown.starts_off_cooldown = starts_charged
 	return s_cooldown
 
+
 /**
  * This proc will trigger when all necessary initialization is done. Usefull for staff like changing spell name.
  */
 /obj/effect/proc_holder/spell/proc/after_spell_init()
 	return
+
 
 /**
  * This will apply on every tick of cooldown process.
@@ -339,22 +352,29 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/proc/on_cooldown_tick()
 	return
 
+
 /obj/effect/proc_holder/spell/Click()
 	if(cast_check(TRUE, FALSE, usr))
 		choose_targets(usr)
 	return TRUE
 
+
 /obj/effect/proc_holder/spell/InterceptClickOn(mob/user, params, atom/A)
+	if(!user)
+		qdel(src)
+
 	. = ..()
 	if(.)
 		return
 	targeting.InterceptClickOn(user, params, A, src)
+
 
 /**
  * Lets the spell have a special effect applied to it when upgraded. By default, does nothing.
  */
 /obj/effect/proc_holder/spell/proc/on_purchase_upgrade()
 	return
+
 
 /**
  * Will try to choose targets using the targeting variable and perform the spell if it can
@@ -375,8 +395,9 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 		add_ranged_ability(user, selection_activated_message)
 	else
-		var/list/targets = targeting.choose_targets(user, src)
+		var/list/targets = get_things_to_cast_on(user)
 		try_perform(targets, user)
+
 
 /**
  * Will try and perform the spell using the given targets and user. Will spend one charge of the spell
@@ -399,11 +420,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 	perform(targets, should_recharge_after_cast, user)
 
+
 /**
  * Called in `try_perform` before removing the click interceptor. Useful to override if you have a spell that requires more than 1 click
  */
 /obj/effect/proc_holder/spell/proc/should_remove_click_intercept(mob/user)
 	return TRUE
+
 
 /**
  * Handles all the code for performing a spell once the targets are known
@@ -416,10 +439,12 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/proc/perform(list/targets, recharge = TRUE, mob/user = usr) //if recharge is started is important for the trigger spells
 	SHOULD_NOT_OVERRIDE(TRUE)
 
-	before_cast(targets, user)
+	if(HASBIT(before_cast(targets, user), SPELL_CANCEL_CAST))
+		return FALSE
+
 	invocation(user)
 
-	if(user?.ckey)
+	if(user && user.ckey)
 		if(create_custom_logs)
 			write_custom_logs(targets, user)
 		if(create_attack_logs)
@@ -432,15 +457,15 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 		playMagSound()
 
 	if(prob(critfailchance))
-		critfail(targets)
+		critfail(targets, user)
 	else
-		cast(targets, user = user)
+		cast(targets, user)
+
 	after_cast(targets, user)
 
 	if(action)
 		action.UpdateButtonIcon()
 
-	user.changeNext_click(CLICK_CD_CLICK_ABILITY)
 
 /**
  * Will write additional logs if create_custom_logs is TRUE and the caster has a ckey. Override this
@@ -452,24 +477,31 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/proc/write_custom_logs(list/targets, mob/user)
 	return
 
+
 /obj/effect/proc_holder/spell/proc/before_cast(list/targets, mob/user)
 	SHOULD_CALL_PARENT(TRUE)
-	if(overlay)
-		for(var/atom/target in targets)
-			var/location
-			if(isliving(target))
-				location = target.loc
-			else if(isturf(target))
-				location = target
-			var/obj/effect/overlay/spell = new /obj/effect/overlay(location)
-			spell.icon = overlay_icon
-			spell.icon_state = overlay_icon_state
-			spell.set_anchored(TRUE)
-			spell.set_density(FALSE)
-			spawn(overlay_lifespan)
-				qdel(spell)
+	if(!overlay)
+		custom_handler?.before_cast(targets, user, src)
+		return SEND_SIGNAL(action.owner, COMSIG_MOB_BEFORE_SPELL_CAST, src, targets)
+
+	for(var/atom/target in targets)
+		var/location
+		if(isliving(target))
+			location = target.loc
+		else if(isturf(target))
+			location = target
+
+		var/obj/effect/overlay/spell = new /obj/effect/overlay(location)
+		spell.icon = overlay_icon
+		spell.icon_state = overlay_icon_state
+		spell.set_anchored(TRUE)
+		spell.set_density(FALSE)
+		spawn(overlay_lifespan)
+			qdel(spell)
 
 	custom_handler?.before_cast(targets, user, src)
+	return SEND_SIGNAL(action.owner, COMSIG_MOB_BEFORE_SPELL_CAST, src, targets)
+
 
 /obj/effect/proc_holder/spell/proc/after_cast(list/targets, mob/user)
 	SHOULD_CALL_PARENT(TRUE)
@@ -502,6 +534,7 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 	custom_handler?.after_cast(targets, user, src)
 
+
 /**
  * The proc where the actual spell gets cast.
  *
@@ -509,11 +542,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
  * * targets - The targets being targeted by the spell
  * * user - The caster of the spell
  */
-/obj/effect/proc_holder/spell/proc/cast(list/targets, mob/user = usr)
+/obj/effect/proc_holder/spell/proc/cast(list/targets)
 	return
+
 
 /obj/effect/proc_holder/spell/proc/critfail(list/targets)
 	return
+
 
 /**
  * Resets recharge or readds a charge.
@@ -525,12 +560,14 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	if(action)
 		action.UpdateButtonIcon()
 
+
 /obj/effect/proc_holder/spell/proc/updateButtonIcon(change_name = FALSE)
 	if(action)
 		if(change_name)
 			action.name = name
 			action.desc = desc
 		action.UpdateButtonIcon()
+
 
 /**
  * Handles the adjustment of the var when the spell is used. Has some hardcoded types.
@@ -554,11 +591,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 		else
 			target.vars[type] += amount //I bear no responsibility for the runtimes that'll happen if you try to adjust non-numeric or even non-existant vars
 
+
 /obj/effect/proc_holder/spell/aoe
 	create_attack_logs = FALSE
 	create_custom_logs = TRUE
 	/// How far does it effect
 	var/aoe_range = 7
+
 
 /**
  * Normally, AoE spells will generate an attack log for every turf they loop over, while searching for targets.
@@ -567,19 +606,36 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/aoe/write_custom_logs(list/targets, mob/user)
 	add_attack_logs(user, null, "Cast the AoE spell [name]", ATKLOG_ALL)
 
-/obj/effect/proc_holder/spell/proc/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
+
+/obj/effect/proc_holder/spell/aoe/create_new_targeting()
+	var/datum/spell_targeting/aoe/spell_targeting = new()
+	spell_targeting.range = aoe_range
+	return spell_targeting
+
+
+/obj/effect/proc_holder/spell/proc/get_things_to_cast_on(mob/user)
+	return targeting.choose_targets(user, src)
+
+
+/obj/effect/proc_holder/spell/aoe/get_things_to_cast_on(atom/center, radius_override)
+	return targeting.choose_targets(action.owner, src, null, center, radius_override)
+
+
+/obj/effect/proc_holder/spell/proc/can_cast(mob/user = usr, charge_check = TRUE, feedback = FALSE)
 	if((!user.mind || !LAZYIN(user.mind.spell_list, src)) && !LAZYIN(user.mob_spell_list, src))
-		if(show_message)
+		if(feedback)
 			to_chat(user, span_warning("You shouldn't have this spell! Something's wrong."))
+		return FALSE
+
+	if(HASBIT(spell_requirements, SPELL_REQUIRES_NO_ANTIMAGIC) && !user.can_cast_magic(antimagic_flags))
+		if(!feedback)
+			return FALSE
+
+		to_chat(user, span_warning("Что-то мешает вам использовать [declent_ru(ACCUSATIVE)]!"))
 		return FALSE
 
 	if(HAS_TRAIT(user, TRAIT_NO_SPELLS))
 		return FALSE
-
-	if(itb_blocks_spell)
-		var/mob/notified_user = show_message ? user : null
-		if(itb_blocks_teleport(user, notified_user, "ITB подавляет магическое перемещение [src]."))
-			return FALSE
 
 	if(!centcom_cancast) //Certain spells are not allowed on the centcom zlevel
 		var/turf/user_turf = get_turf(user)
@@ -591,13 +647,13 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 
 	if(charge_check)
 		if(cooldown_handler.is_on_cooldown())
-			if(show_message)
+			if(feedback)
 				to_chat(user, still_recharging_msg)
 			return FALSE
 
 	if(!ghost)
 		if(stat_allowed < user.stat)
-			if(show_message)
+			if(feedback)
 				if(user.stat == UNCONSCIOUS)
 					to_chat(user, span_notice("You can't use <b>[name]</b> while unconscious."))
 				if(user.stat == DEAD)
@@ -605,12 +661,12 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 			return FALSE
 
 		if(!phase_allowed && istype(user.loc, /obj/effect/dummy) || istype(user.loc, /obj/effect/immovablerod/wizard))
-			if(show_message)
+			if(feedback)
 				to_chat(user, span_notice("[name] cannot be cast unless you are completely manifested in the material plane!"))
 			return FALSE
 
 		if(ishuman(user) && (invocation_type == "whisper" || invocation_type == "shout") && user.is_muzzled())
-			if(show_message)
+			if(feedback)
 				to_chat(user, "Mmmf mrrfff!")
 			return FALSE
 
@@ -625,30 +681,31 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 			var/obj/item/clothing/hat = h_user.head
 			var/obj/item/clothing/shoes = h_user.shoes
 			if(!robe || !hat || !shoes)
-				if(show_message)
+				if(feedback)
 					to_chat(h_user, span_notice("Your outfit isn't complete, you should put on your robe and wizard hat, as well as sandals"))
 				return FALSE
 
 			if(!robe.magical || !hat.magical || !shoes.magical)
-				if(show_message)
+				if(feedback)
 					to_chat(h_user, span_notice("Your outfit isn't magical enough, you should put on your robe and wizard hat, as well as your sandals."))
 				return FALSE
 
 	else
 		if(clothes_req || human_req)
-			if(show_message)
+			if(feedback)
 				to_chat(user, span_notice("This spell can only be cast by humans!"))
 			return FALSE
 
 		if(nonabstract_req && (isbrain(user) || ispAI(user)))
-			if(show_message)
+			if(feedback)
 				to_chat(user, span_notice("This spell can only be cast by physical beings!"))
 			return FALSE
 
-	if(custom_handler && !custom_handler.can_cast(user, charge_check, show_message, src))
+	if(custom_handler && !custom_handler.can_cast(user, charge_check, feedback, src))
 		return FALSE
 
 	return TRUE
+
 
 /obj/effect/proc_holder/spell/summonmob
 	name = "Summon Servant"
@@ -661,8 +718,10 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 	action_icon_state = "summons"
 	var/mob/living/target_mob
 
+
 /obj/effect/proc_holder/spell/summonmob/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/summonmob/cast(list/targets, mob/user = usr)
 	if(!target_mob)
@@ -678,6 +737,239 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell))
 /obj/effect/proc_holder/spell/proc/on_spell_gain(mob/user = usr)
 	return
 
-/// Called when a spell is removed
-/obj/effect/proc_holder/spell/proc/on_spell_removed(mob/user = usr)
+/obj/effect/proc_holder/spell/proc/on_spell_loss(mob/user = usr)
 	return
+
+/obj/effect/proc_holder/spell/proc/can_add(mob/granted)
+	return TRUE
+
+/**
+ * ## Pointed spells
+ *
+ * These spells override the caster's click,
+ * allowing them to cast the spell on whatever is clicked on.
+ *
+ * To add effects on cast, override "cast(atom/cast_on)".
+ * The cast_on atom is the person who was clicked on.
+ */
+/obj/effect/proc_holder/spell/pointed
+	//click_to_activate = TRUE
+
+	/// Message showing to the spell owner upon activating pointed spell.
+	var/active_msg
+	/// Message showing to the spell owner upon deactivating pointed spell.
+	var/deactive_msg
+	/// The casting range of our spell
+	var/cast_range = 7
+	/// If aim asisst is used. Disable to disable
+	var/aim_assist = TRUE
+
+
+/obj/effect/proc_holder/spell/pointed/New(Target)
+	. = ..()
+	if(!active_msg)
+		active_msg = "You prepare to use [src] on a target..."
+
+	if(!deactive_msg)
+		deactive_msg = "You dispel [src]."
+
+
+/obj/effect/proc_holder/spell/pointed/create_new_targeting()
+	var/datum/spell_targeting/clicked_atom/spell_targeting = new()
+	spell_targeting.range = cast_range
+	return spell_targeting
+
+
+/obj/effect/proc_holder/spell/pointed/add_mousepointer(client/on_who)
+	. = ..()
+	on_activation(on_who.eye)
+
+
+// Note: Destroy() calls Remove(), Remove() calls remove_mousepointer() if our spell is active.
+/obj/effect/proc_holder/spell/pointed/remove_mousepointer(client/on_who, refund_cooldown = TRUE)
+	. = ..()
+	if(!on_who)
+		return
+
+	on_deactivation(on_who.eye, refund_cooldown = refund_cooldown)
+
+
+/obj/effect/proc_holder/spell/pointed/before_cast(list/targets)
+	. = ..()
+	if(. & SPELL_CANCEL_CAST)
+		on_deactivation(action.owner, refund_cooldown = FALSE)
+
+
+/// Called when the spell is activated / the click ability is set to our spell
+/obj/effect/proc_holder/spell/pointed/proc/on_activation(mob/on_who)
+	SHOULD_CALL_PARENT(TRUE)
+
+	to_chat(on_who, span_notice("[active_msg] <B>Left-click to cast the spell on a target!</B>"))
+	action?.UpdateButtonIcon()
+
+	return TRUE
+
+
+/// Called when the spell is deactivated / the click ability is unset from our spell
+/obj/effect/proc_holder/spell/pointed/proc/on_deactivation(mob/on_who, refund_cooldown = TRUE)
+	SHOULD_CALL_PARENT(TRUE)
+
+	if(refund_cooldown)
+		// Only send the "deactivation" message if they're willingly disabling the ability
+		to_chat(on_who, span_notice("[deactive_msg]"))
+
+	action?.UpdateButtonIcon()
+	return TRUE
+
+
+/obj/effect/proc_holder/spell/pointed/InterceptClickOn(mob/living/clicker, params, atom/target)
+	var/atom/aim_assist_target
+	if(aim_assist)
+		aim_assist_target = aim_assist(clicker, target)
+	return ..(clicker, params, aim_assist_target || target)
+
+
+/obj/effect/proc_holder/spell/pointed/proc/aim_assist(mob/living/clicker, atom/target)
+	if(!isturf(target))
+		return
+
+	// Find any human, or if that fails, any living target
+	return locate(/mob/living/carbon/human) in target || locate(/mob/living) in target
+
+/*
+/obj/effect/proc_holder/spell/pointed/is_valid_target(atom/cast_on)
+	if(cast_on == action.owner)
+		to_chat(action.owner, span_warning("You cannot cast [src] on yourself!"))
+		return FALSE
+
+	return TRUE
+*/
+
+/obj/effect/proc_holder/spell/pointed/before_cast(list/targets)
+	. = ..()
+	if(. & SPELL_CANCEL_CAST)
+		return
+
+	var/atom/cast_on = targets[1]
+	if(!action.owner || get_dist(get_turf(action.owner), get_turf(cast_on)) <= cast_range)
+		return
+
+	cast_on.balloon_alert(action.owner, "слишком далеко!")
+	return . | SPELL_CANCEL_CAST
+
+
+/**
+ * ### Pointed projectile spells
+ *
+ * Pointed spells that, instead of casting a spell directly on the target that's clicked,
+ * will instead fire a projectile pointed at the target's direction.
+ */
+/obj/effect/proc_holder/spell/pointed/projectile
+	should_recharge_after_cast = FALSE
+	//should_recharge_after_cast = FALSE
+	/// What projectile we create when we shoot our spell.
+	var/obj/projectile/projectile_type = /obj/projectile/magic/teleport
+	/// How many projectiles we can fire per cast. Not all at once, per click, kinda like charges
+	var/projectile_amount = 1
+	/// How many projectiles we have yet to fire, based on projectile_amount
+	var/current_amount = 0
+	/// How many projectiles we fire every fire_projectile() call.
+	/// Unwise to change without overriding or extending ready_projectile.
+	var/projectiles_per_fire = 1
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/should_remove_click_intercept(mob/user)
+	return !current_amount
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/valid_target(atom/cast_on)
+	return TRUE
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/on_activation(mob/on_who)
+	. = ..()
+	if(!.)
+		return
+
+	current_amount = projectile_amount
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/on_deactivation(mob/on_who, refund_cooldown = TRUE)
+	. = ..()
+	if(projectile_amount < 1 || projectile_amount == current_amount)
+		return
+
+	cooldown_handler.start_recharge(base_cooldown * ((projectile_amount - current_amount) / projectile_amount))
+	current_amount = 0
+
+
+// cast_on is a turf, or atom target, that we clicked on to fire at.
+/obj/effect/proc_holder/spell/pointed/projectile/cast(list/targets)
+	. = ..()
+	if(!isturf(action.owner.loc))
+		return FALSE
+
+	var/atom/cast_on = targets[1]
+	var/turf/caster_turf = get_turf(action.owner)
+	// Get the tile infront of the caster, based on their direction
+	var/turf/caster_front_turf = get_step(action.owner, action.owner.dir)
+
+	fire_projectile(cast_on)
+	action.owner.newtonian_move(get_angle(caster_front_turf, caster_turf))
+	if(current_amount <= 0)
+		remove_mousepointer(action.owner.client, refund_cooldown = FALSE)
+
+	return TRUE
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/after_cast(atom/cast_on)
+	. = ..()
+	if(current_amount != 0)
+		return
+
+	cooldown_handler.start_recharge()
+	remove_mousepointer(action.owner.client)
+	// We still have projectiles to cast!
+	// Reset our cooldown and let them fire away
+	//reset_spell_cooldown()
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/proc/fire_projectile(atom/target)
+	current_amount--
+	for(var/i in 1 to projectiles_per_fire)
+		var/obj/projectile/to_fire = new projectile_type()
+		ready_projectile(to_fire, target, action.owner, i)
+		//SEND_SIGNAL(action.owner, COMSIG_MOB_SPELL_PROJECTILE, src, target, to_fire)
+		to_fire.fire()
+
+	return TRUE
+
+
+/obj/effect/proc_holder/spell/pointed/projectile/proc/ready_projectile(obj/projectile/to_fire, atom/target, mob/user, iteration)
+	var/turf/turf = get_turf(user)
+	to_fire.firer = action.owner
+	var/turf/target_turf = get_turf(target)
+	to_fire.preparePixelProjectile(target, target_turf, user, targeting.click_params)
+	to_fire.fire()
+	user.newtonian_move(get_dir(target_turf, turf))
+	//RegisterSignal(to_fire, COMSIG_PROJECTILE_SELF_ON_HIT, PROC_REF(on_cast_hit))
+
+	if(!istype(to_fire, /obj/projectile/magic))
+		return
+
+	/*
+	var/obj/projectile/magic/magic_to_fire = to_fire
+	magic_to_fire.antimagic_flags = antimagic_flags
+	*/
+
+/*
+/// Signal proc for whenever the projectile we fire hits someone.
+/// Pretty much relays to the spell when the projectile actually hits something.
+/obj/effect/proc_holder/spell/pointed/projectile/proc/on_cast_hit(datum/source, mob/firer, atom/target, angle, hit_limb)
+	SIGNAL_HANDLER
+
+	SEND_SIGNAL(src, COMSIG_SPELL_PROJECTILE_HIT, source, firer, target, angle, hit_limb)
+*/
+
+/obj/effect/proc_holder/spell/proc/update_status_on_signal()
+	return action.update_status_on_signal()

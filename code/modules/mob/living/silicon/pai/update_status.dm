@@ -13,6 +13,7 @@
 
 	return ..()
 
+
 /mob/living/silicon/pai/on_knockedout_trait_loss(datum/source)
 	. = ..()
 	set_stat(CONSCIOUS)

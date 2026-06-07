@@ -27,13 +27,13 @@
 	footstep_type = FOOTSTEP_MOB_SHOE
 
 /mob/living/simple_animal/hostile/retaliate/clown/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "клоун",
 		GENITIVE = "клоуна",
 		DATIVE = "клоуну",
 		ACCUSATIVE = "клоуна",
 		INSTRUMENTAL = "клоуном",
-		PREPOSITIONAL = "клоуне",
+		PREPOSITIONAL = "клоуне"
 	)
 
 /mob/living/simple_animal/hostile/retaliate/clown/ComponentInitialize()
@@ -68,13 +68,13 @@
 	holder_type = /obj/item/holder/clowngoblin
 
 /mob/living/simple_animal/hostile/retaliate/clown/goblin/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "клоун-гоблин",
 		GENITIVE = "клоуна-гоблина",
 		DATIVE = "клоуну-гоблину",
 		ACCUSATIVE = "клоуна-гоблина",
 		INSTRUMENTAL = "клоуном-гоблином",
-		PREPOSITIONAL = "клоуне-гоблине",
+		PREPOSITIONAL = "клоуне-гоблине"
 	)
 
 /mob/living/simple_animal/hostile/retaliate/clown/goblin/cluwne
@@ -97,13 +97,13 @@
 	loot = list(/obj/item/clothing/mask/false_cluwne_mask, /obj/item/clothing/shoes/clown_shoes/false_cluwne_shoes) // We'd rather not give them ACTUAL cluwne stuff you know?
 
 /mob/living/simple_animal/hostile/retaliate/clown/goblin/cluwne/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "неуклюжий гоблин",
 		GENITIVE = "неуклюжего гоблина",
 		DATIVE = "неуклюжему гоблину",
 		ACCUSATIVE = "неуклюжего гоблина",
 		INSTRUMENTAL = "неуклюжим гоблином",
-		PREPOSITIONAL = "неуклюжем гоблине",
+		PREPOSITIONAL = "неуклюжем гоблине"
 	)
 
 /mob/living/simple_animal/hostile/retaliate/clown/goblin/cluwne/ComponentInitialize()

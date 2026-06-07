@@ -7,30 +7,36 @@
 	custom_snack.add_ingredient(snack, user)
 	qdel(src)
 
+
 /obj/item/reagent_containers/food/snacks/breadslice/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/sandwich))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/reagent_containers/food/snacks/bun/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/burger))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
 /obj/item/reagent_containers/food/snacks/sliceable/flatdough/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/pizza))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/reagent_containers/food/snacks/boiledspaghetti/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/pasta))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
 /obj/item/trash/plate/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/fullycustom))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/trash/bowl
 	name = "bowl"
@@ -38,10 +44,12 @@
 	icon = 'icons/obj/food/custom.dmi'
 	icon_state = "soup"
 
+
 /obj/item/trash/bowl/attackby(obj/item/I, mob/user, params)
 	if(make_custom_food(I, user, /obj/item/reagent_containers/food/snacks/customizable/soup))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/reagent_containers/food/snacks/customizable
 	name = "sandwich"
@@ -61,6 +69,7 @@
 	var/list/ingredients = list()
 	list_reagents = list("nutriment" = 8)
 
+
 /obj/item/reagent_containers/food/snacks/customizable/Initialize(mapload)
 	. = ..()
 	if(top)
@@ -70,6 +79,7 @@
 		layer = ABOVE_ALL_MOB_LAYER	// all should see our monstrosity
 
 /obj/item/reagent_containers/food/snacks/customizable/sandwich
+	icon_state = "breadslice"
 	basename = "sandwich"
 	snack_overlays = TRUE
 
@@ -216,7 +226,7 @@
 /obj/item/reagent_containers/food/snacks/customizable/candy/bar
 	name = "flavored chocolate bar"
 	desc = "Made in a factory downtown."
-	icon_state = "barcustom_filling"
+	icon_state = "barcustom"
 	baseicon = "barcustom"
 	basename = "flavored chocolate bar"
 
@@ -262,22 +272,25 @@
 /obj/item/reagent_containers/food/snacks/customizable/burger
 	name = "burger bun"
 	desc = "A bun for a burger. Delicious."
-	icon_state = "burgercustom"
+	icon_state = "burger"
 	baseicon = "burgercustom"
 	basename = "burger"
 	top = TRUE
 	snack_overlays = TRUE
 	tastes = list("bun" = 4)
 
+
 /obj/item/reagent_containers/food/snacks/customizable/Destroy()
 	QDEL_LIST(ingredients)
 	return ..()
+
 
 /obj/item/reagent_containers/food/snacks/customizable/examine(mob/user)
 	. = ..()
 	if(LAZYLEN(ingredients))
 		var/whatsinside = pick(ingredients)
 		. += span_notice("You think you can see [whatsinside] in there.")
+
 
 /obj/item/reagent_containers/food/snacks/customizable/attackby(obj/item/I, mob/user, params)
 	if(!istype(I, /obj/item/reagent_containers/food/snacks))
@@ -291,6 +304,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /**
  * Tries to add one ingredient and it's ingredients, if any and applicable, to this snack
@@ -334,6 +348,7 @@
 	add_ingredients(added_ingredients)
 	name = newname()
 
+
 /obj/item/reagent_containers/food/snacks/customizable/proc/add_ingredients(list/new_ingredients)
 	cut_overlay(top_image) // Remove the top image so we can change it again
 
@@ -349,20 +364,21 @@
 			else
 				ingredient_image.color = pick("#FF0000", "#0000FF", "#008000", "#FFFF00")
 			if(snack_overlays)
-				ingredient_image.pixel_w = rand(2) - 1
-				ingredient_image.pixel_z = ingredient_num * 2 + 1
+				ingredient_image.pixel_x = rand(2) - 1
+				ingredient_image.pixel_y = ingredient_num * 2 + 1
 		else
 			ingredient_image = new(food.icon, food.icon_state)
-			ingredient_image.pixel_w = rand(2) - 1
-			ingredient_image.pixel_z = rand(2) - 1
+			ingredient_image.pixel_x = rand(2) - 1
+			ingredient_image.pixel_y = rand(2) - 1
 			add_overlay(food.overlays)
 
 		add_overlay(ingredient_image)
 
 	if(top_image)
-		top_image.pixel_w = rand(2) - 1
-		top_image.pixel_z = ingredient_num * 2 + 1
+		top_image.pixel_x = rand(2) - 1
+		top_image.pixel_y = ingredient_num * 2 + 1
 		add_overlay(top_image)
+
 
 /obj/item/reagent_containers/food/snacks/customizable/proc/newname()
 	var/unsorteditems[0]
@@ -380,6 +396,7 @@
 	for(var/obj/item/ing in ingredients)
 		if(istype(ing, /obj/item/shard))
 			continue
+
 
 		if(istype(ing, /obj/item/reagent_containers/food/snacks/customizable))				// split the ingredients into ones with basenames (sandwich, burger, etc) and ones without, keeping track of how many of each there are
 			var/obj/item/reagent_containers/food/snacks/customizable/gettype = ing
@@ -406,14 +423,14 @@
 
 	for(var/ings in sorteditems)			   //add the non-basename items to the name, sorting out the , and the and
 		c++
-		if(c == length(sorteditems) - 1)
+		if(c == sorteditems.len - 1)
 			seperator = " and "
-		else if(c == length(sorteditems))
+		else if(c == sorteditems.len)
 			seperator = " "
 		else
 			seperator = ", "
 
-		if(sorteditems[ings] > length(levels))
+		if(sorteditems[ings] > levels.len)
 			sorteditems[ings] = levels.len
 
 		if(sorteditems[ings] <= 1)
@@ -422,10 +439,10 @@
 			sendback +="[levels[sorteditems[ings]]] [ings][seperator]"
 
 	for(var/ingtype in sortedtypes)   // now add the types basenames, keeping the src one seperate so it can go on the end
-		if(sortedtypes[ingtype] > length(levels))
+		if(sortedtypes[ingtype] > levels.len)
 			sortedtypes[ingtype] = levels.len
 		if(ingtype == basename)
-			if(sortedtypes[ingtype] < length(levels))
+			if(sortedtypes[ingtype] < levels.len)
 				sortedtypes[ingtype]++
 			endpart = "[levels[sortedtypes[ingtype]]] decker [basename]"
 			continue
@@ -442,6 +459,7 @@
 	if(length(sendback) > 80)
 		sendback = "[pick(list("absurd","colossal","enormous","ridiculous","massive","oversized","cardiac-arresting","pipe-clogging","edible but sickening","sickening","gargantuan","mega","belly-burster","chest-burster"))] [basename]"
 	return sendback
+
 
 /obj/item/reagent_containers/food/snacks/customizable/proc/sortlist(list/unsorted, highest)
 	var/sorted[0]

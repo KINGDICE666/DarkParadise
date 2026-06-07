@@ -6,8 +6,6 @@
 	maxHealth = 100
 	base_icon = "griefsky"
 	window_name = "Автоматическая Охранная Единица v3.0"
-	bot_type = GRIEF_BOT
-	model = "Griefsky"
 
 	var/spin_icon = "griefsky-c"  // griefsky and griefsky junior have dif icons
 	var/weapon = /obj/item/melee/energy/sword
@@ -22,7 +20,7 @@
 	var/syndie = FALSE	// taipan griefsky
 
 /mob/living/simple_animal/bot/secbot/griefsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Генерал Грифски",
 		GENITIVE = "Генерала Грифски",
 		DATIVE = "Генералу Грифски",
@@ -48,7 +46,7 @@
 	locked = FALSE
 
 /mob/living/simple_animal/bot/secbot/griefsky/toy/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Гиневал Гифтски",
 		GENITIVE = "Гиневала Гифтски",
 		DATIVE = "Гиневалу Гифтски",
@@ -59,6 +57,7 @@
 
 /obj/machinery/bot_core/toy
 	req_access = list(ACCESS_MAINT_TUNNELS, ACCESS_THEATRE, ACCESS_ROBOTICS)
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/syndicate
 	name = "General Syndie"
@@ -78,7 +77,7 @@
 	syndie = TRUE
 
 /mob/living/simple_animal/bot/secbot/griefsky/syndicate/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Генерал Синди",
 		GENITIVE = "Генерала Синди",
 		DATIVE = "Генералу Синди",
@@ -90,43 +89,50 @@
 /obj/machinery/bot_core/syndicate
 	req_access = list(ACCESS_SYNDICATE)
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/Initialize(mapload)
 	. = ..()
 	icon_state = "[base_icon][on]"
-	var/datum/job/security/detective/J = new/datum/job/security/detective
+	var/datum/job/detective/J = new/datum/job/detective
 	access_card.access += J.get_access()
 	prev_access = access_card.access
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/Destroy()
 	QDEL_NULL(weapon)
 	return ..()
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/back_to_idle()
 	..()
 	playsound(loc, 'sound/weapons/saberoff.ogg', 50, TRUE, -1)
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/emag_act(mob/user)
 	..()
 	light_color = LIGHT_COLOR_INTENSE_RED //if you see a red one. RUN!!
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/secbot_crossed(mob/living/carbon/arrived)
-	if(!iscarbon(arrived) || arrived != target || in_range(src, arrived))
+	if(!iscarbon(arrived) || arrived != arrest_target || in_range(src, arrived))
 		return FALSE
 
-	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] размахивает своими мечами и отталкивает [arrived]!"))
+	visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] размахивает своими мечами и отталкивает [arrived]!"))
 	arrived.Weaken(4 SECONDS)
 
-/mob/living/simple_animal/bot/secbot/griefsky/OnUnarmedAttack(atom/atom, proximity_flag, list/modifiers) //like secbots its only possible with admin intervention
+
+/mob/living/simple_animal/bot/secbot/griefsky/OnUnarmedAttack(atom/atom) //like secbots its only possible with admin intervention
 	if(!iscarbon(atom))
 		return
 
 	var/mob/living/carbon/carbon = atom
 	sword_attack(carbon)
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/bullet_act(obj/projectile/P) //so uncivilized
 	retaliate(P.firer)
 	if((icon_state == spin_icon) && (prob(block_chance_ranged))) //only when the eswords are on
-		visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] отражает [P] своим мечом!", projectile_message = TRUE)
+		visible_message("[capitalize(declent_ru(NOMINATIVE))] отражает [P] своим мечом!", projectile_message = TRUE)
 		playsound(loc, 'sound/weapons/blade1.ogg', 50, TRUE, 0)
 	else
 		..()
@@ -139,6 +145,7 @@
 	do_attack_animation(C)
 	playsound(loc, 'sound/weapons/blade1.ogg', 50, TRUE, -1)
 	addtimer(CALLBACK(src, PROC_REF(do_sword_attack), C), 0.2 SECONDS)
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/proc/do_sword_attack(mob/living/carbon/C)
 	icon_state = spin_icon
@@ -153,12 +160,13 @@
 		var/area/location = get_area(src)
 		if(!spam_flag)
 			if(syndie)
-				speak("Контакт! [C] [threat] уровня угрозы, место — [location]! Сейчас нашинкую этого [("syndicate" in C.faction) ? "ублюдка!" : "прихвостня НТ!"]", radio_channel)
+				speak("Контакт! [C] [threat] уровня угрозы, место - [location]! Сейчас нашинкую этого [("syndicate" in C.faction) ? "ублюдка!" : "прихвостня НТ!"]", radio_channel)
 			else
-				speak("Контакт! [C] [threat] уровня угрозы, место — [location]! Сейчас нашинкую этого ублюдка!", radio_channel)
+				speak("Контакт! [C] [threat] уровня угрозы, место - [location]! Сейчас нашинкую этого ублюдка!", radio_channel)
 			spam_flag = TRUE
 			addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), 10 SECONDS)	//to avoid spamming comms of sec for each hit
-			visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] замахивается своими мечами и рубит [C]!")
+			visible_message("[capitalize(declent_ru(NOMINATIVE))] замахивается своими мечами и рубит [C]!")
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/handle_automated_action()
 	if(!on)
@@ -170,7 +178,7 @@
 	switch(mode)
 		if(BOT_IDLE)		// idle
 			icon_state = "[base_icon][on]"
-			GLOB.move_manager.stop_looping(src)
+			SSmove_manager.stop_looping(src)
 			set_path(null)
 			look_for_perp()	// see if any criminals are in range
 			if(!mode && auto_patrol)	// still idle, and set to patrol
@@ -179,22 +187,22 @@
 			icon_state = spin_icon
 			playsound(loc,'sound/effects/spinsabre.ogg',50, TRUE,-1)
 			if(frustration >= frustration_number) // general beepsky doesn't give up so easily, jedi scum
-				GLOB.move_manager.stop_looping(src)
+				SSmove_manager.stop_looping(src)
 				set_path(null)
 				back_to_idle()
 				return
-			if(target)		// make sure target exists
-				if(target.stat == !DEAD)
-					if(Adjacent(target) && isturf(target.loc))	// if right next to perp
-						target_lastloc = target.loc
-						sword_attack(target)
+			if(arrest_target)		// make sure arrest_target exists
+				if(arrest_target.stat == !DEAD)
+					if(Adjacent(arrest_target) && isturf(arrest_target.loc))	// if right next to perp
+						target_lastloc = arrest_target.loc
+						sword_attack(arrest_target)
 						set_anchored(TRUE)
 						frustration++
 						return
 					else	// not next to perp
-						var/turf/olddist = get_dist(src, target)
-						GLOB.move_manager.move_to(src, target, 1, 3)	//he's a fast fucker
-						if((get_dist(src, target)) >= (olddist))
+						var/turf/olddist = get_dist(src, arrest_target)
+						SSmove_manager.move_to(src, arrest_target, 1, 3)	//he's a fast fucker
+						if((get_dist(src, arrest_target)) >= (olddist))
 							frustration++
 						else
 							frustration = 0
@@ -212,6 +220,7 @@
 			icon_state = "[base_icon][on]"
 			look_for_perp()
 			bot_patrol()
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/look_for_perp()
 	set_anchored(FALSE)
@@ -237,18 +246,19 @@
 			continue
 
 		else if(threatlevel >= 4)
-			target = C
+			arrest_target = C
 			oldtarget_name = C.name
 			speak("Ты больно смелый, как я погляжу, да?!")
 			playsound(src,'sound/weapons/saberon.ogg',50,TRUE,-1)
-			visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] включает свои лазерные мечи!")
+			visible_message("[capitalize(declent_ru(NOMINATIVE))] включает свои лазерные мечи!")
 			icon_state = "[base_icon]-c"
-			visible_message("<b>[DECLENT_RU_CAP(src, NOMINATIVE)]</b> указывает на [C.name]!")
+			visible_message("<b>[capitalize(declent_ru(NOMINATIVE))]</b> указывает на [C.name]!")
 			mode = BOT_HUNT
 			INVOKE_ASYNC(src, PROC_REF(handle_automated_action))
 			break
 		else
 			continue
+
 
 /**
  * Taipan bullshit.
@@ -258,12 +268,13 @@
 		return TRUE
 	return FALSE
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/explode()
-	GLOB.move_manager.stop_looping(src)
-	visible_message(span_boldannounceic("[DECLENT_RU_CAP(src, NOMINATIVE)] разлетается на части!"))
+	SSmove_manager.stop_looping(src)
+	visible_message(span_boldannounceic("[capitalize(declent_ru(NOMINATIVE))] разлетается на части!"))
 	var/turf/Tsec = get_turf(src)
 	new /obj/item/assembly/prox_sensor(Tsec)
-	var/obj/item/bot_assembly/secbot_assembly/Sa = new /obj/item/bot_assembly/secbot_assembly(Tsec)
+	var/obj/item/secbot_assembly/Sa = new /obj/item/secbot_assembly(Tsec)
 	Sa.build_step = 1
 	Sa.add_overlay("hs_hole")
 	Sa.created_name = name
@@ -281,16 +292,18 @@
 	new /obj/effect/decal/cleanable/blood/oil(loc)
 	qdel(src)
 
+
 /**
  * This section is blocking attack.
  */
 /mob/living/simple_animal/bot/secbot/griefsky/bullet_act(obj/projectile/P) //so uncivilized
 	retaliate(P.firer)
 	if((icon_state == spin_icon) && (prob(block_chance_ranged))) //only when the eswords are on
-		visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] отражает [P] своим мечом!", projectile_message = TRUE)
+		visible_message("[capitalize(declent_ru(NOMINATIVE))] отражает [P] своим мечом!", projectile_message = TRUE)
 		playsound(loc, 'sound/weapons/blade1.ogg', 50, TRUE, 0)
 	else
 		..()
+
 
 /**
  * Allows special actions to take place after being attacked.
@@ -299,9 +312,10 @@
 	if(icon_state != spin_icon)
 		return
 	if(prob(block_chance_melee))
-		visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] отражает атаку [user] своим мечом!")
+		visible_message("[capitalize(declent_ru(NOMINATIVE))] отражает атаку [user] своим мечом!")
 		playsound(loc, 'sound/weapons/blade1.ogg', 50, TRUE, -1)
 		return TRUE
+
 
 /mob/living/simple_animal/bot/secbot/griefsky/attack_hand(mob/living/carbon/human/H)
 	if((H.a_intent == INTENT_HARM) || (H.a_intent == INTENT_DISARM))
@@ -310,10 +324,11 @@
 			return
 	return ..()
 
+
 /mob/living/simple_animal/bot/secbot/griefsky/attackby(obj/item/I, mob/user, params) //cant touch or attack him while spinning
 	if(icon_state == spin_icon && prob(block_chance_melee))	// FFS! have no time to rework this now
 		user.do_attack_animation(src)
-		visible_message("[DECLENT_RU_CAP(src, NOMINATIVE)] блокирует атаку [user] своими мечами!")
+		visible_message("[capitalize(declent_ru(NOMINATIVE))] блокирует атаку [user] своими мечами!")
 		playsound(loc, 'sound/weapons/blade1.ogg', 50, TRUE, -1)
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()

@@ -1,7 +1,9 @@
 // Special AI/pAI PDAs that cannot explode.
 /obj/item/pda/silicon
+	icon_state = "NONE"
 	detonate = 0
 	ttone = "data"
+
 
 /obj/item/pda/silicon/proc/set_name_and_job(newname as text, newjob as text, newrank as null|text)
 	owner = newname
@@ -14,8 +16,9 @@
 	custom_name = newname
 	update_appearance(UPDATE_NAME)
 
+
 /obj/item/pda/silicon/verb/cmd_send_pdamesg()
-	set category = VERB_CATEGORY_AIIM
+	set category = STATPANEL_AIIM
 	set name = "Сообщение на КПК"
 	set src in usr
 
@@ -33,7 +36,7 @@
 		messenger.create_message(selected, usr)
 
 /obj/item/pda/silicon/verb/cmd_show_message_log()
-	set category = VERB_CATEGORY_AIIM
+	set category = STATPANEL_AIIM
 	set name = "Журнал сообщений"
 	set src in usr
 
@@ -52,7 +55,7 @@
 	popup.open(FALSE)
 
 /obj/item/pda/silicon/verb/cmd_toggle_pda_receiver()
-	set category = VERB_CATEGORY_AIIM
+	set category = STATPANEL_AIIM
 	set name = "Приём сообщений"
 	set src in usr
 
@@ -62,8 +65,9 @@
 	M.toff = !M.toff
 	to_chat(usr, span_notice("PDA sender/receiver toggled [(M.toff ? "Off" : "On")]!"))
 
+
 /obj/item/pda/silicon/verb/cmd_toggle_pda_silent()
-	set category = VERB_CATEGORY_AIIM
+	set category = STATPANEL_AIIM
 	set name = "Беззвучный режим"
 	set src in usr
 

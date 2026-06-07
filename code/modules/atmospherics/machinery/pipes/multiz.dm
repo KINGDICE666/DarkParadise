@@ -24,13 +24,21 @@
 	add_overlay(multiz_overlay_node)
 */
 
-/obj/machinery/atmospherics/pipe/multiz/Initialize(mapload)
-	. = ..()
-	
+/obj/machinery/atmospherics/pipe/multiz/New()
+	..()
 	initialize_directions = dir
+
+/obj/machinery/atmospherics/pipe/multiz/hide(i)
+	return
 
 /obj/machinery/atmospherics/pipe/multiz/pipeline_expansion()
 	return list(node, above, below)
+
+/obj/machinery/atmospherics/pipe/multiz/process_atmos()
+	if(!parent)
+		..()
+	else
+		. = PROCESS_KILL
 
 /obj/machinery/atmospherics/pipe/multiz/Destroy()
 	. = ..()
@@ -46,6 +54,7 @@
 		below.disconnect(src)
 		below.defer_build_network()
 		below = null
+
 
 /obj/machinery/atmospherics/pipe/multiz/disconnect(obj/machinery/atmospherics/reference)
 	if(reference == node)

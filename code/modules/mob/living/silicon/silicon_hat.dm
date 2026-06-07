@@ -96,6 +96,7 @@
 			remove_from_head(usr)
 			return
 
+
 /mob/living/silicon/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/clothing/head) && user.a_intent == INTENT_HELP)
 		add_fingerprint(user)
@@ -104,15 +105,17 @@
 		return ATTACK_CHAIN_PROCEED
 	return ..()
 
+
 /mob/living/silicon/proc/get_hat_overlay()
 	if(hat_icon_file && hat_icon_state)
 		var/image/borgI = image(hat_icon_file, hat_icon_state)
 		borgI.alpha = hat_alpha
 		borgI.color = hat_color
-		borgI.pixel_z = hat_offset_y
+		borgI.pixel_y = hat_offset_y
 		if(!isCentered)
 			borgI.transform = matrix(1.125, 0, 0.5, 0, 1, 0)
 		return borgI
+
 
 /mob/living/silicon/proc/place_on_head(obj/item/item_to_add, mob/user)
 	if(!item_to_add)
@@ -160,23 +163,25 @@
 	regenerate_icons()
 	return TRUE
 
+
 /mob/living/silicon/proc/remove_from_head(mob/user)
 	if(inventory_head)
 		if(HAS_TRAIT(inventory_head, TRAIT_NODROP))
-			to_chat(user, span_warning("[inventory_head.name] застрял на голове [src]! Его невозможно снять!"))
+			to_chat(user, "<span class='warning'>[inventory_head.name] застрял на голове [src]! Его невозможно снять!</span>")
 			return TRUE
 
-		to_chat(user, span_warning("Вы сняли [inventory_head.name] с головы [src]."))
+		to_chat(user, "<span class='warning'>Вы сняли [inventory_head.name] с головы [src].</span>")
 		user.put_in_hands(inventory_head)
 
 		null_hat()
 
 		regenerate_icons()
 	else
-		to_chat(user, span_warning("На голове [src] нет головного убора!"))
+		to_chat(user, "<span class='warning'>На голове [src] нет головного убора!</span>")
 		return FALSE
 
 	return TRUE
+
 
 /mob/living/silicon/proc/drop_hat(drop_on_turf = FALSE)
 	if(inventory_head)
@@ -186,6 +191,7 @@
 			drop_item_ground(inventory_head)
 		null_hat()
 		regenerate_icons()
+
 
 /mob/living/silicon/proc/null_hat()
 	inventory_head = null

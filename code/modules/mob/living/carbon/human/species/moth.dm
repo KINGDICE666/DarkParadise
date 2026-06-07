@@ -1,7 +1,6 @@
 #define COCOON_WEAVE_DELAY 5 SECONDS
 #define COCOON_EMERGE_DELAY 15 SECONDS
 #define COCOON_HARM_AMOUNT 50
-#define COCON_HEAL_AMOUNT 20
 #define COCOON_NUTRITION_AMOUNT -200
 #define FLYSWATTER_DAMAGE_MULTIPLIER 10
 #define MOTH_PITCH_SHIFT 0.15 // a bit higher emotes
@@ -18,10 +17,10 @@
 	)
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT
 	bodyflags = HAS_HEAD_ACCESSORY | HAS_HEAD_MARKINGS | HAS_BODY_MARKINGS | HAS_WING | HAS_SKIN_COLOR
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 	tox_mod = 1.5
 	blood_species = "Nian"
-	blood_color = BLOOD_COLOR_MOTH
+	blood_color = "#b9ae9c"
 	unarmed_type = /datum/unarmed_attack/claws
 	scream_verb = "жужж%(ит,ат)%"
 	female_giggle_sound = list('sound/voice/mothchitter.ogg')
@@ -75,7 +74,7 @@
 		"откусывает свои усики!",
 		"вспарывает себе живот!",
 		"отрывает себе крылья!",
-		"заддерживает своё дыхание!",
+		"заддерживает своё дыхание!"
 	)
 	toxic_food = MEAT | JUNKFOOD
 	disliked_food = FRIED | RAW | EGG
@@ -88,6 +87,7 @@
 		JOB_MIN_AGE_HIGH_ED = 15,
 		JOB_MIN_AGE_COMMAND = 15,
 	)
+
 
 /datum/species/moth/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
@@ -105,8 +105,11 @@
 	RegisterSignal(H, COMSIG_HUMAN_CHANGE_HEAD_ACCESSORY, PROC_REF(on_change_head_accessory))
 	RegisterSignal(H, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS, PROC_REF(damage_weakness))
 
+
+
 /datum/species/monkey/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, STRENGTH_LEVEL_WEAK, STRENGTH_LEVEL_STRONG, can_become_stronger)
+
 
 /datum/species/moth/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
@@ -134,11 +137,13 @@
 /datum/species/moth/get_species_runechat_color(mob/living/carbon/human/H)
 	return H.m_colours["body"]
 
+
 /datum/species/moth/proc/damage_weakness(datum/source, list/damage_mods, damage_amount, damagetype, def_zone, sharp, obj/item/used_weapon)
 	SIGNAL_HANDLER
 
 	if(istype(used_weapon, /obj/item/melee/flyswatter))
 		damage_mods += FLYSWATTER_DAMAGE_MULTIPLIER // Yes, a 10x damage modifier
+
 
 /datum/species/moth/spec_Process_Spacemove(mob/living/carbon/human/user, movement_dir, continuous_move = FALSE)
 	. = FALSE
@@ -149,16 +154,16 @@
 		return .
 	if(user.has_status_effect(STATUS_EFFECT_BURNT_WINGS) || !user.get_organ(BODY_ZONE_WING))
 		return .
-	if(isobj(user.loc))
-		// Can't fly if you're in a box/mech/whatever.
-		return FALSE
-	var/datum/gas_mixture/current = user_turf.get_readonly_air()
-	if(current && (current.return_pressure() >= ONE_ATMOSPHERE * 0.85)) //as long as there's reasonable pressure and no gravity, flight is possible
+	//as long as there's reasonable pressure and no gravity, flight is possible
+	var/datum/gas_mixture/current = user_turf.return_air()
+	if(current && (current.return_pressure() >= ONE_ATMOSPHERE * 0.85))
 		return TRUE
+
 
 /datum/species/moth/spec_thunk(mob/living/carbon/human/H)
 	if(!H.has_status_effect(STATUS_EFFECT_BURNT_WINGS))
 		return TRUE
+
 
 /datum/species/moth/proc/check_burn_wings(mob/living/carbon/human/H) //do not go into the extremely hot light. you will not survive
 	SIGNAL_HANDLER
@@ -184,7 +189,7 @@
 	name = "Кокон"
 	desc = "Восстанавливает крылья и усики, а также лечит повреждения. Если кокон будет разрушен извне, вы получите серьёзные травмы!"
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED|AB_CHECK_TURF
-	button_icon = 'icons/effects/effects.dmi'
+	icon_icon = 'icons/effects/effects.dmi'
 	button_icon_state = "cocoon1"
 
 /datum/action/innate/cocoon/Activate()
@@ -232,7 +237,7 @@
 		for(var/mob/living/carbon/human/H in contents)
 			H.forceMove(loc)
 			REMOVE_TRAIT(H, TRAIT_KNOCKEDOUT, COCOONED_TRAIT)
-			H.take_overall_damage(COCOON_HARM_AMOUNT, COCOON_HARM_AMOUNT)
+			H.heal_overall_damage(COCOON_HARM_AMOUNT, COCOON_HARM_AMOUNT)
 			H.AdjustWeakened(10 SECONDS)
 		return ..()
 
@@ -242,7 +247,6 @@
 		H.adjust_nutrition(COCOON_NUTRITION_AMOUNT)
 		H.remove_status_effect(STATUS_EFFECT_BURNT_WINGS)
 		REMOVE_TRAIT(H, TRAIT_KNOCKEDOUT, COCOONED_TRAIT)
-		H.heal_overall_damage(COCON_HEAL_AMOUNT, COCON_HEAL_AMOUNT)
 	return ..()
 
 /datum/status_effect/burnt_wings
@@ -267,7 +271,6 @@
 #undef COCOON_WEAVE_DELAY
 #undef COCOON_EMERGE_DELAY
 #undef COCOON_HARM_AMOUNT
-#undef COCON_HEAL_AMOUNT
 #undef COCOON_NUTRITION_AMOUNT
 #undef FLYSWATTER_DAMAGE_MULTIPLIER
 #undef MOTH_PITCH_SHIFT

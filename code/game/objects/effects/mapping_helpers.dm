@@ -1,11 +1,10 @@
-/// Set the baseturfs of every turf in the /area/ it is placed.
-/obj/effect/baseturf_helper
+/obj/effect/baseturf_helper //Set the baseturfs of every turf in the /area/ it is placed.
 	name = "baseturf editor"
 	icon = 'icons/effects/mapping_helpers.dmi'
 	icon_state = "standart"
-	layer = POINT_LAYER
-
 	var/baseturf
+
+	layer = POINT_LAYER
 
 /obj/effect/baseturf_helper/Initialize(mapload)
 	. = ..()
@@ -48,6 +47,10 @@
 	name = "asteroid snow baseturf editor"
 	baseturf = /turf/simulated/floor/plating/asteroid/snow
 
+/obj/effect/baseturf_helper/asteroid/ancient_sand
+	name = "ancient asteroid sand baseturf editor"
+	baseturf = /turf/simulated/floor/plating/asteroid/ancient
+
 /obj/effect/baseturf_helper/beach/sand
 	name = "beach sand baseturf editor"
 	baseturf = /turf/simulated/floor/beach/sand
@@ -78,33 +81,6 @@
 	. = ..()
 	return late ? INITIALIZE_HINT_LATELOAD : INITIALIZE_HINT_QDEL
 
-//mapping helper to set the base_lighting_alpha and base_lighting_color of an area
-/obj/effect/area_lighting_helper
-	name = "area lighting helper"
-	icon = 'icons/effects/mapping_helpers.dmi'
-	icon_state = ""
-	plane = POINT_PLANE
-	///What do we want to set lighting level to
-	var/set_alpha = 200
-	///What do we want to set the color to
-	var/set_color = COLOR_WHITE
-
-/obj/effect/area_lighting_helper/Initialize(mapload)
-	. = ..()
-	return INITIALIZE_HINT_LATELOAD
-
-/obj/effect/area_lighting_helper/LateInitialize()
-	var/area/our_area = get_area(src)
-	our_area?.set_base_lighting(set_color, set_alpha)
-	qdel(src)
-
-/obj/effect/area_lighting_helper/max_alpha
-	set_alpha = 255
-
-/obj/effect/area_lighting_helper/max_alpha_blue
-	set_color = COLOR_BLUE_LIGHT
-	set_alpha = 255
-
 /obj/effect/mapping_helpers/airlock
 	layer = DOOR_HELPER_LAYER
 
@@ -126,22 +102,22 @@
 /obj/effect/mapping_helpers/no_lava
 	icon_state = "no_lava"
 
-/obj/effect/mapping_helpers/no_lava/Initialize(mapload)
-	. = ..()
+/obj/effect/mapping_helpers/no_lava/New()
 	var/turf/T = get_turf(src)
 	T.turf_flags |= NO_LAVA_GEN
+	. = ..()
 
 /obj/effect/mapping_helpers/light
 	icon_state = "sunlight_helper"
 	light_color = null
 	light_range = 10
 
-/obj/effect/mapping_helpers/light/Initialize(mapload)
-	. = ..()
+/obj/effect/mapping_helpers/light/New()
 	var/turf/T = get_turf(src)
 	T.light_color = light_color
 	T.light_power = light_power
 	T.light_range = light_range
+	. = ..()
 
 /obj/effect/mapping_helpers/table_flip //used to flip tables. That's all.
 	name = "Table flip"
@@ -172,29 +148,3 @@
 	var/msg = "HEY, LISTEN!!! Merge Conflict Marker detected at [AREACOORD(src)]! Please manually address all potential merge conflicts!!!"
 	warning(msg)
 	to_chat(world, span_boldannounceooc("[msg]"))
-
-// MARK: DAMAGE TURFS
-/obj/effect/mapping_helpers/turfs
-
-/obj/effect/mapping_helpers/turfs/Initialize(mapload)
-	. = ..()
-	var/turf/selected_turf = get_turf(src)
-	if(!istype(selected_turf))
-		return
-	payload(selected_turf)
-
-/obj/effect/mapping_helpers/turfs/proc/payload(turf/simulated/selected_turf)
-	SHOULD_CALL_PARENT(FALSE)
-	CRASH("root turf mapping_helper payload called")
-
-/obj/effect/mapping_helpers/turfs/damage
-	icon_state = "damaged"
-
-/obj/effect/mapping_helpers/turfs/damage/payload(turf/simulated/selected_turf)
-	selected_turf.break_tile()
-
-/obj/effect/mapping_helpers/turfs/burn
-	icon_state = "burned"
-
-/obj/effect/mapping_helpers/turfs/burn/payload(turf/simulated/selected_turf)
-	selected_turf.burn_tile()

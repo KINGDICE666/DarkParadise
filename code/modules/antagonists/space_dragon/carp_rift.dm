@@ -17,7 +17,7 @@
 /obj/structure/carp_rift
 	name = "carp rift"
 	desc = "Разлом, позвляющий космическим карпам перемещаться на огромные расстояния."
-	armor = list(MELEE = 30, BULLET = 40, LASER = 20, ENERGY = 100, BOMB = 50, BIO = 100, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 40, LASER = 20, ENERGY = 100, BOMB = 50, BIO = 100, RAD = 0, FIRE = 100, ACID = 100)
 	icon = 'icons/obj/carp_rift.dmi'
 	icon_state = "carp_rift_carpspawn"
 	light_color = LIGHT_COLOR_PURPLE
@@ -41,6 +41,7 @@
 	/// A list of all the ckeys which have used this carp rift to spawn in as carps.
 	var/list/ckey_list = list()
 
+
 /obj/structure/carp_rift/Initialize(mapload)
 	. = ..()
 
@@ -54,6 +55,7 @@
 
 	START_PROCESSING(SSobj, src)
 
+
 /**
  * Carp rifts always take heavy explosion damage. Discourages the use of maxcaps
  * and favours more weaker explosives to destroy the portal
@@ -61,6 +63,7 @@
  */
 /obj/structure/carp_rift/ex_act(severity, target)
 	return ..(min(EXPLODE_HEAVY, severity))
+
 
 /obj/structure/carp_rift/examine(mob/user)
 	. = ..()
@@ -72,8 +75,10 @@
 	if(isobserver(user))
 		. += span_notice("В этом разломе находится [carp_stored] карпов для вселения призраков.")
 
+
 /obj/structure/carp_rift/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
 	playsound(src, 'sound/magic/lightningshock.ogg', 50, TRUE)
+
 
 /obj/structure/carp_rift/Destroy()
 	STOP_PROCESSING(SSobj, src)
@@ -84,11 +89,13 @@
 	dragon = null
 	return ..()
 
+
 /obj/structure/carp_rift/update_icon_state()
 	if(charge_state == CHARGE_COMPLETED)
 		icon_state = "carp_rift_charged"
 		return
 	icon_state = (carp_stored > 0) ? "carp_rift_carpspawn" : "carp_rift"
+
 
 /obj/structure/carp_rift/process(seconds_per_tick)
 	// If we're fully charged, just start mass spawning carp.
@@ -98,7 +105,7 @@
 			newcarp.faction = dragon.owner.current.faction.Copy()
 		if(SPT_PROB(1.5, seconds_per_tick))
 			var/rand_dir = pick(GLOB.cardinal)
-			GLOB.move_manager.move_to(src, get_step(src, rand_dir), 1)
+			SSmove_manager.move_to(src, get_step(src, rand_dir), 1)
 		return
 
 	// Increase time trackers and check for any updated states.
@@ -106,11 +113,13 @@
 	last_carp_inc += seconds_per_tick
 	update_check()
 
+
 /obj/structure/carp_rift/attack_ghost(mob/user)
 	. = ..()
 	if(.)
 		return
 	summon_carp(user)
+
 
 /**
  * Does a series of checks based on the portal's status.
@@ -139,17 +148,16 @@
 	if(time_charged >= max_charge)
 		charge_state = CHARGE_COMPLETED
 		var/area/A = get_area(src)
-		GLOB.major_announcement.announce(
-			message = "Пространственный объект достиг максимального энергетического заряда в зоне [initial(A.name)]. Пожалуйста, ожидайте.",
-			new_title = ANNOUNCE_WILDNATURE_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound(),
+		GLOB.major_announcement.announce("Пространственный объект достиг максимального энергетического заряда в зоне [initial(A.name)]. Пожалуйста, ожидайте.",
+										ANNOUNCE_WILDNATURE_RU,
+										'sound/AI/commandreport.ogg'
 		)
 		max_integrity = INFINITY
 		update_integrity(INFINITY)
 		update_icon(UPDATE_ICON_STATE)
 		light_color = LIGHT_COLOR_DIM_YELLOW
 		update_light()
-		armor = armor.setRating(melee_value = 100, bullet_value = 100, laser_value = 100, energy_value = 100, bomb_value = 100, bio_value = 100, fire_value = 100, acid_value = 100)
+		armor = armor.setRating(melee_value = 100, bullet_value = 100, laser_value = 100, energy_value = 100, bomb_value = 100, bio_value = 100, rad_value = 100, fire_value = 100, acid_value = 100)
 		resistance_flags = INDESTRUCTIBLE
 		dragon.rifts_charged += 1
 		if(dragon.rifts_charged != 3 && !dragon.objective_complete)
@@ -167,11 +175,11 @@
 		charge_state = CHARGE_FINALWARNING
 		var/area/A = get_area(src)
 
-		GLOB.major_announcement.announce(
-			message = "Разлом создает неестественно большой поток энергии в зоне [initial(A.name)]. Остановите его любой ценой!",
-			new_title = ANNOUNCE_WILDNATURE_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound(),
+		GLOB.major_announcement.announce("Разлом создает неестественно большой поток энергии в зоне [initial(A.name)]. Остановите его любой ценой!",
+										ANNOUNCE_WILDNATURE_RU,
+										'sound/AI/commandreport.ogg'
 		)
+
 
 /**
  * Used to create carp controlled by ghosts when the option is available.
@@ -205,7 +213,7 @@
 
 	if(!is_listed)
 		ckey_list += user.ckey
-	newcarp.possess_by_player(user.key)
+	newcarp.key = user.key
 	newcarp.name = "carp ([rand(1, 1000)])"
 	var/datum/antagonist/space_carp/carp_antag = new(src)
 	newcarp.mind.add_antag_datum(carp_antag)
@@ -217,6 +225,7 @@
 		light_color = LIGHT_COLOR_BLUE
 		update_light()
 	return TRUE
+
 
 #undef CHARGE_ONGOING
 #undef CHARGE_FINALWARNING

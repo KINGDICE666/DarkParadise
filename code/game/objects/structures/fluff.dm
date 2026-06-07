@@ -8,6 +8,7 @@
 	anchored = TRUE
 	var/deconstructible = TRUE
 
+
 /obj/structure/fluff/wrench_act(mob/living/user, obj/item/I)
 	if(!deconstructible)
 		return FALSE
@@ -25,6 +26,7 @@
 		span_notice("You break down [src] into scrap metal."),
 	)
 	qdel(src)
+
 
 /obj/structure/fluff/empty_terrarium //Empty terrariums are created when a preserved terrarium in a lavaland seed vault is activated.
 	name = "empty terrarium"
@@ -65,13 +67,13 @@
 	layer = EDGED_TURF_LAYER
 
 /obj/structure/fluff/drake_statue/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "статуя дрейка",
 		GENITIVE = "статуи дрейка",
 		DATIVE = "статуе дрейка",
 		ACCUSATIVE = "статую дрейка",
 		INSTRUMENTAL = "статуей дрейка",
-		PREPOSITIONAL = "статуе дрейка",
+		PREPOSITIONAL = "статуе дрейка"
 	)
 
 /obj/structure/fluff/drake_statue/falling //A variety of statue in disrepair; parts are broken off and a gemstone is missing
@@ -81,7 +83,6 @@
 /obj/structure/fluff/divine
 	name = "Miracle"
 	icon = 'icons/obj/hand_of_god_structures.dmi'
-	icon_state = null
 	density = TRUE
 
 /obj/structure/fluff/divine/nexus
@@ -107,11 +108,11 @@
 	icon_state = "grave_empty"
 
 /obj/structure/fluff/grave/empty/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "пустая могила",
 		GENITIVE = "пустой могилы",
 		DATIVE = "пустой могиле",
 		ACCUSATIVE = "пустую могилу",
 		INSTRUMENTAL = "пустой могилой",
-		PREPOSITIONAL = "пустой могиле",
+		PREPOSITIONAL = "пустой могиле"
 	)

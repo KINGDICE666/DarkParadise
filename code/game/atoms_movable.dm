@@ -1,5 +1,4 @@
 /atom/movable
-	abstract_type = /atom/movable
 	layer = OBJ_LAYER
 	appearance_flags = TILE_BOUND|PIXEL_SCALE|LONG_GLIDE
 	glide_size = DEFAULT_GLIDE_SIZE // Default, adjusted when mobs move based on their movement delays
@@ -78,6 +77,10 @@
 	/// without snowflake code all of the place.
 	var/set_dir_on_move = TRUE
 
+	///contains every client mob corresponding to every client eye in this container. lazily updated by SSparallax and is sparse:
+	///only the last container of a client eye has this list assuming no movement since SSparallax's last fire
+	var/list/client_mobs_in_contents
+
 	/// Either FALSE, [EMISSIVE_BLOCK_GENERIC], or [EMISSIVE_BLOCK_UNIQUE]
 	var/blocks_emissive = FALSE
 	///Internal holder for emissive blocker object, do not use directly use blocks_emissive
@@ -94,31 +97,14 @@
 	///is the mob currently ascending or descending through z levels?
 	var/currently_z_moving
 
-	/// The degree of thermal insulation that mobs in list/contents have from the external environment, between 0 and 1
-	var/contents_thermal_insulation = 0
-	/// The degree of pressure protection that mobs in list/contents have from the external environment, between 0 and 1
-	var/contents_pressure_protection = 0
+	/// Whether a user will face atoms on entering them with a mouse. Despite being a mob variable, it is here for performance
+	var/face_mouse = FALSE
+
 	var/pressure_resistance = 10
-	var/last_high_pressure_movement_time = 0
+	var/last_high_pressure_movement_air_cycle = 0
 
 	var/atom/orbiting = null
 	var/cached_transform = null
-
-	/**
-	 * an associative lazylist of relevant nested contents by "channel", the list is of the form: list(channel = list(important nested contents of that type))
-	 * each channel has a specific purpose and is meant to replace potentially expensive nested contents iteration
-	 * do NOT add channels to this for little reason as it can add considerable memory usage.
-	 */
-	var/list/important_recursive_contents
-
-	///contains every client mob corresponding to every client eye in this container. lazily updated by SSparallax and is sparse:
-	///only the last container of a client eye has this list assuming no movement since SSparallax's last fire
-	var/list/client_mobs_in_contents
-
-	/// String representing the spatial grid groups we want to be held in.
-	/// acts as a key to the list of spatial grid contents types we exist in via SSspatial_grid.spatial_grid_categories.
-	/// We do it like this to prevent people trying to mutate them and to save memory on holding the lists ourselves
-	var/spatial_grid_key
 
 	/// Last location of the atom for demo recording purposes
 	var/atom/demo_last_loc
@@ -129,6 +115,7 @@
 		GLOB.space_manager.postpone_init(T.z, src)
 		return
 	. = ..()
+
 
 /atom/movable/Initialize(mapload, ...)
 	. = ..()
@@ -156,7 +143,7 @@
 				managed_overlays = flat
 
 		if(EMISSIVE_BLOCK_UNIQUE)
-			render_target = UID()
+			render_target = ref(src)
 			em_block = new(null, src)
 			overlays += em_block
 			if(managed_overlays)
@@ -175,6 +162,7 @@
 			AddComponent(/datum/component/overlay_lighting)
 		if(MOVABLE_LIGHT_DIRECTIONAL)
 			AddComponent(/datum/component/overlay_lighting, is_directional = TRUE)
+
 
 /atom/movable/Destroy(force)
 	unbuckle_all_mobs(force = TRUE)
@@ -196,14 +184,9 @@
 			qdel(move_packet)
 		move_packet = null
 
-	if(spatial_grid_key)
-		SSspatial_grid.force_remove_from_grid(src)
-
 	LAZYNULL(client_mobs_in_contents)
 
 	. = ..()
-
-	LAZYNULL(important_recursive_contents)//has to be before moveToNullspace() so that we can exit our spatial_grid cell if we're in it
 
 	if(loc)
 		loc.handle_atom_del(src)
@@ -211,15 +194,17 @@
 		qdel(AM)
 	move_to_null_space()
 
+
 /atom/movable/get_emissive_block()
 	switch(blocks_emissive)
 		if(EMISSIVE_BLOCK_GENERIC)
 			return fast_emissive_blocker(src)
 		if(EMISSIVE_BLOCK_UNIQUE)
 			if(!em_block && !QDELETED(src))
-				render_target = UID()
+				render_target = ref(src)
 				em_block = new(null, src)
 			return em_block
+
 
 /atom/movable/vv_edit_var(var_name, var_value)
 	var/static/list/banned_edits = list(NAMEOF_STATIC(src, step_x) = TRUE, NAMEOF_STATIC(src, step_y) = TRUE, NAMEOF_STATIC(src, step_size) = TRUE, NAMEOF_STATIC(src, bounds) = TRUE)
@@ -234,21 +219,21 @@
 
 	switch(var_name)
 		if(NAMEOF(src, x))
-			var/turf/current_turf = locate(var_value, y, z)
-			if(current_turf)
-				admin_teleport(current_turf)
+			var/turf/T = locate(var_value, y, z)
+			if(T)
+				admin_teleport(T)
 				return TRUE
 			return FALSE
 		if(NAMEOF(src, y))
-			var/turf/current_turf = locate(x, var_value, z)
-			if(current_turf)
-				admin_teleport(current_turf)
+			var/turf/T = locate(x, var_value, z)
+			if(T)
+				admin_teleport(T)
 				return TRUE
 			return FALSE
 		if(NAMEOF(src, z))
-			var/turf/current_turf = locate(x, y, var_value)
-			if(current_turf)
-				admin_teleport(current_turf)
+			var/turf/T = locate(x, y, var_value)
+			if(T)
+				admin_teleport(T)
 				return TRUE
 			return FALSE
 		if(NAMEOF(src, loc))
@@ -258,9 +243,6 @@
 			return FALSE
 		if(NAMEOF(src, anchored))
 			set_anchored(var_value)
-			. = TRUE
-		if(NAMEOF(src, pulledby))
-			set_pulledby(var_value)
 			. = TRUE
 		if(NAMEOF(src, glide_size))
 			set_glide_size(var_value)
@@ -285,6 +267,7 @@
 		log_admin("[key_name(usr)] teleported [key_name(src)] to [AREACOORD(location)]")
 		forceMove(new_location)
 
+
 //Returns an atom's power cell, if it has one. Overload for individual items.
 /atom/movable/proc/get_cell()
 	return
@@ -293,6 +276,7 @@
 /atom/movable/proc/on_teleported()
 	SEND_SIGNAL(src, COMSIG_ATOM_TELEPORT_ACT)
 	return
+
 
 /atom/movable/proc/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
 	if(QDELETED(pulled_atom))
@@ -326,11 +310,12 @@
 		add_attack_logs(src, pulled_mob, "passively grabbed", ATKLOG_ALMOSTALL)
 		if(!supress_message)
 			pulled_mob.visible_message(
-				span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] схватил[GEND_A_O_I(src)] [pulled_mob.declent_ru(ACCUSATIVE)]!"),
-				span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] схватил[GEND_A_O_I(src)] Вас!"),
+				span_warning("[capitalize(declent_ru(NOMINATIVE))] схватил[genderize_ru(gender,"","а","о","и")] [pulled_mob.declent_ru(ACCUSATIVE)]!"),
+				span_warning("[capitalize(declent_ru(NOMINATIVE))] схватил[genderize_ru(gender,"","а","о","и")] Вас!"),
 			)
 		pulled_mob.LAssailant = iscarbon(src) ? src : null
 	return TRUE
+
 
 /atom/movable/proc/stop_pulling()
 	if(!pulling)
@@ -342,12 +327,14 @@
 	SEND_SIGNAL(old_pulling, COMSIG_ATOM_NO_LONGER_PULLED, src)
 	SEND_SIGNAL(src, COMSIG_ATOM_NO_LONGER_PULLING, old_pulling)
 
+
 ///Reports the event of the change in value of the pulledby variable.
 /atom/movable/proc/set_pulledby(new_pulledby)
 	if(new_pulledby == pulledby)
 		return FALSE //null signals there was a change, be sure to return FALSE if none happened here.
 	. = pulledby
 	pulledby = new_pulledby
+
 
 /// Moves pulled thing to pull_loc with all the necessary checks.
 /atom/movable/proc/Move_Pulled(atom/pull_loc)
@@ -374,6 +361,7 @@
 		mob.changeNext_move(CLICK_CD_PULLING)
 	return pulling.Move(pull_turf, move_dir, glide_size)
 
+
 /**
  * Checks if the pulling and pulledby should be stopped because they're out of reach.
  * If z_allowed is TRUE, the z level of the pulling will be ignored.This is to allow things to be dragged up and down stairs.
@@ -392,6 +380,7 @@
 	if(!only_pulling && pulledby && moving_diagonally != FIRST_DIAG_STEP && (!in_range(src, pulledby) || (z != pulledby.z && !z_allowed))) //separated from our puller and not in the middle of a diagonal move.
 		pulledby.stop_pulling()
 
+
 /atom/movable/proc/can_be_pulled(atom/movable/puller, grab_state, force, supress_message)
 	if(src == puller || !isturf(loc))
 		return FALSE
@@ -399,15 +388,16 @@
 		return FALSE
 	if(anchored)
 		if(!supress_message && ismob(puller))
-			to_chat(puller, span_warning("Похоже, [declent_ru(NOMINATIVE)] прикреплен[GEND_A_O_Y(src)] к полу!"))
+			to_chat(puller, span_warning("Похоже, [declent_ru(NOMINATIVE)] прикрепл[genderize_ru(src.gender,"ён","ена","ено","ены")] к полу!"))
 		return FALSE
 	if(throwing || move_resist == INFINITY)
 		return FALSE
 	if(force < (move_resist * MOVE_FORCE_PULL_RATIO))
 		if(!supress_message && ismob(puller))
-			to_chat(puller, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] слишком тяжел[GEND_YI_AYA_OE_YE(src)]!"))
+			to_chat(puller, span_warning("[capitalize(declent_ru(NOMINATIVE))] слишком тяжел[genderize_ru(src.gender,"ый","ая","ое","ые")]!"))
 		return FALSE
 	return TRUE
+
 
 /**
  * Updates the grab state of the movable
@@ -434,18 +424,21 @@
 			if(. >= GRAB_KILL) // Grab got downgraded from kill grab.
 				REMOVE_TRAIT(pulling, TRAIT_FLOORED, CHOKEHOLD_TRAIT)
 		if(GRAB_KILL)
-			if(. <= GRAB_KILL) // Grab got ugraded from neck grab.
+			if(. <= GRAB_KILL)	// Grab got ugraded from neck grab.
 				ADD_TRAIT(pulling, TRAIT_FLOORED, CHOKEHOLD_TRAIT)
+
 
 /// Use this to override topmost bump thing in [/turf/proc/Enter()].
 /// Should return an atom to bump.
 /atom/movable/proc/tompost_bump_override(atom/movable/mover, border_dir)
 	return
 
+
 // Used in shuttle movement and AI eye stuff.
 // Primarily used to notify objects being moved by a shuttle/bluespace fuckup.
 /atom/movable/proc/setLoc(turf/destination, force_update = FALSE)
 	loc = destination
+
 
 /atom/movable/proc/set_glide_size(target = DEFAULT_GLIDE_SIZE)
 	if(HAS_TRAIT(src, TRAIT_NO_GLIDE))
@@ -471,6 +464,7 @@
 			mob_pulling.buckled.set_glide_size(target)
 			mob_pulling.buckled.pulling_glidesize_update = FALSE
 
+
 /**
  * meant for movement with zero side effects. only use for objects that are supposed to move "invisibly" (like camera mobs or ghosts)
  * if you want something to move onto a tile with a beartrap or recycler or tripmine or mouse without that object knowing about it at all, use this
@@ -482,6 +476,7 @@
 	var/direction = get_dir(old_loc, new_loc)
 	loc = new_loc
 	Moved(old_loc, direction, TRUE, momentum_change = FALSE)
+
 
 ////////////////////////////////////////
 // Here's where we rewrite how byond handles movement except slightly different
@@ -498,7 +493,7 @@
 	if(!direct)
 		direct = get_dir(src, newloc)
 
-	if(set_dir_on_move && dir != direct && update_dir && !HAS_TRAIT(src, TRAIT_FACING_TO_MOUSE)) //for facing direction on harm - face_mouse
+	if(set_dir_on_move && dir != direct && update_dir && !face_mouse) //for facing direction on harm - face_mouse
 		setDir(direct)
 
 	var/is_multi_tile = is_multi_tile_object(src)
@@ -507,10 +502,10 @@
 	if(is_multi_tile && isturf(loc))
 		old_locs = locs // locs is a special list, this is effectively the same as .Copy() but with less steps
 		for(var/atom/exiting_loc as anything in old_locs)
-			if(!exiting_loc.Exit(src, direct))
+			if(!exiting_loc.Exit(src, newloc))
 				return .
 	else
-		if(!loc.Exit(src, direct))
+		if(!loc.Exit(src, newloc))
 			return .
 
 	var/list/new_locs
@@ -520,7 +515,7 @@
 		var/dz = newloc.z
 		new_locs = block(
 			dx, dy, dz,
-			dx + (ceil(bound_width / ICON_SIZE_X) - 1), dy + (ceil(bound_height / ICON_SIZE_X) - 1), dz
+			dx + (CEILING(bound_width / ICON_SIZE_X, 1) - 1), dy + (CEILING(bound_height / ICON_SIZE_X, 1) - 1), dz
 		) // If this is a multi-tile object then we need to predict the new locs and check if they allow our entrance.
 		for(var/atom/entering_loc as anything in new_locs)
 			if(!entering_loc.Enter(src))
@@ -545,11 +540,11 @@
 
 	if(old_locs) // This condition will only be true if it is a multi-tile object.
 		for(var/atom/exited_loc as anything in (old_locs - new_locs))
-			exited_loc.Exited(src, direct)
+			exited_loc.Exited(src, newloc)
 	else // Else there's just one loc to be exited.
-		oldloc.Exited(src, direct)
+		oldloc.Exited(src, newloc)
 	if(oldarea != newarea)
-		oldarea.Exited(src, direct)
+		oldarea.Exited(src, newarea)
 
 	if(new_locs) // Same here, only if multi-tile.
 		for(var/atom/entered_loc as anything in (new_locs - old_locs))
@@ -561,6 +556,7 @@
 
 	RESOLVE_ACTIVE_MOVEMENT
 
+
 /atom/movable/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	var/atom/movable/pullee = pulling
 	var/turf/current_turf = loc
@@ -571,8 +567,6 @@
 		return FALSE
 
 	var/atom/oldloc = loc
-
-	var/face_mouse = HAS_TRAIT(src, TRAIT_FACING_TO_MOUSE)
 
 	//Early override for some cases like diagonal movement
 	if(glide_size_override && glide_size != glide_size_override)
@@ -703,11 +697,13 @@
 		else
 			set_currently_z_moving(FALSE, TRUE)
 
+
 /// Called when src is being moved to a target turf because another movable (puller) is moving around.
 /atom/movable/proc/move_from_pull(atom/movable/puller, turf/target_turf, glide_size_override)
 	moving_from_pull = puller
 	Move(target_turf, get_dir(src, target_turf))
 	moving_from_pull = null
+
 
 /**
  * Called after a successful Move(). By this point, we've already moved.
@@ -746,22 +742,9 @@
 	for(var/datum/light_source/light as anything in light_sources) // Cycle through the light sources on this atom and tell them to update.
 		light.source_atom.update_light()
 
-	if(HAS_SPATIAL_GRID_CONTENTS(src))
-		if(old_turf && new_turf && (old_turf.z != new_turf.z \
-			|| GET_SPATIAL_INDEX(old_turf.x) != GET_SPATIAL_INDEX(new_turf.x) \
-			|| GET_SPATIAL_INDEX(old_turf.y) != GET_SPATIAL_INDEX(new_turf.y)))
-
-			SSspatial_grid.exit_cell(src, old_turf)
-			SSspatial_grid.enter_cell(src, new_turf)
-
-		else if(old_turf && !new_turf)
-			SSspatial_grid.exit_cell(src, old_turf)
-
-		else if(new_turf && !old_turf)
-			SSspatial_grid.enter_cell(src, new_turf)
-
-	//SSdemo.mark_dirty(src)
+	SSdemo.mark_dirty(src)
 	return TRUE
+
 
 /**
  * Make sure you know what you're doing if you call this.
@@ -773,10 +756,12 @@
 	SEND_SIGNAL(crossed_atom, COMSIG_MOVABLE_CROSS_OVER, src, border_dir)
 	return CanPass(crossed_atom, border_dir)
 
+
 /// Default byond proc that is deprecated for us in lieu of signals, do not call
 /atom/movable/Crossed()
 	SHOULD_NOT_OVERRIDE(TRUE)
 	CRASH("atom/movable/Crossed() was called!")
+
 
 /**
  * `Uncross()` is a default BYOND proc that is called when something is *going*
@@ -798,6 +783,7 @@
 	SHOULD_NOT_OVERRIDE(TRUE)
 	CRASH("Uncross() should not be being called, please read the doc-comment for it if you wonder why.")
 
+
 /**
  * default byond proc that is normally called on everything inside the previous turf
  * a movable was in after moving to its current turf
@@ -807,6 +793,7 @@
 /atom/movable/Uncrossed()
 	SHOULD_NOT_OVERRIDE(TRUE)
 	CRASH("/atom/movable/Uncrossed() was called!")
+
 
 /atom/movable/Bump(atom/bumped_atom)
 	if(!bumped_atom)
@@ -820,6 +807,7 @@
 			return .
 	bumped_atom.Bumped(src)
 
+
 /// Sets the currently_z_moving variable to a new value. Used to allow some zMovement sources to have precedence over others.
 /atom/movable/proc/set_currently_z_moving(new_z_moving_value, forced = FALSE)
 	if(forced)
@@ -829,8 +817,10 @@
 	currently_z_moving = max(currently_z_moving, new_z_moving_value)
 	return (currently_z_moving > old_z_moving_value)
 
+
 /atom/movable/proc/move_to_null_space()
 	return doMove(null)
+
 
 /atom/movable/proc/forceMove(atom/destination)
 	. = FALSE
@@ -838,6 +828,7 @@
 		. = doMove(destination)
 	else
 		CRASH("No valid destination passed into forceMove")
+
 
 /atom/movable/proc/doMove(atom/destination)
 	. = FALSE
@@ -856,7 +847,6 @@
 		var/same_loc = oldloc == destination
 		var/area/old_area = get_area(oldloc)
 		var/area/destarea = get_area(destination)
-		var/movement_dir = get_dir(src, destination)
 
 		moving_diagonally = NONE
 
@@ -875,14 +865,14 @@
 				var/dz = destination.z
 				var/list/new_locs = block(
 					dx, dy, dz,
-					dx + (ceil(bound_width / ICON_SIZE_X) - 1), dy + (ceil(bound_height / ICON_SIZE_Y) - 1), dz
+					dx + (CEILING(bound_width / ICON_SIZE_X, 1) - 1), dy + (CEILING(bound_height / ICON_SIZE_Y, 1) - 1), dz
 				)
 
 				if(old_area && old_area != destarea)
-					old_area.Exited(src, movement_dir)
+					old_area.Exited(src, destarea)
 
 				for(var/atom/left_loc as anything in (locs - new_locs))
-					left_loc.Exited(src, movement_dir)
+					left_loc.Exited(src, destination)
 
 				for(var/atom/entering_loc as anything in (new_locs - locs))
 					entering_loc.Entered(src, oldloc)
@@ -893,7 +883,7 @@
 				if(oldloc)
 					oldloc.Exited(src, destination)
 					if(old_area && old_area != destarea)
-						old_area.Exited(src, movement_dir)
+						old_area.Exited(src, destarea)
 
 				destination.Entered(src, oldloc)
 				if(destarea && old_area != destarea)
@@ -910,145 +900,15 @@
 			var/area/old_area = get_area(oldloc)
 			if(is_multi_tile && isturf(oldloc))
 				for(var/atom/old_loc as anything in locs)
-					old_loc.Exited(src, NONE)
+					old_loc.Exited(src, null)
 			else
-				oldloc.Exited(src, NONE)
+				oldloc.Exited(src, null)
 
 			if(old_area)
-				old_area.Exited(src, NONE)
+				old_area.Exited(src, null)
 
 	RESOLVE_ACTIVE_MOVEMENT
 
-/atom/movable/Exited(atom/movable/gone, direction)
-	. = ..()
-
-	if(!LAZYLEN(gone.important_recursive_contents))
-		return
-
-	var/list/nested_locs = get_nested_locs(src) + src
-	for(var/channel in gone.important_recursive_contents)
-		for(var/atom/movable/location as anything in nested_locs)
-			LAZYINITLIST(location.important_recursive_contents)
-			var/list/recursive_contents = location.important_recursive_contents // blue hedgehog velocity
-			LAZYINITLIST(recursive_contents[channel])
-			recursive_contents[channel] -= gone.important_recursive_contents[channel]
-			switch(channel)
-				if(RECURSIVE_CONTENTS_CLIENT_MOBS, RECURSIVE_CONTENTS_HEARING_SENSITIVE)
-					if(!length(recursive_contents[channel]))
-						// This relies on a nice property of the linked recursive and gridmap types
-						// They're defined in relation to each other, so they have the same value
-						SSspatial_grid.remove_grid_awareness(location, channel)
-			ASSOC_UNSETEMPTY(recursive_contents, channel)
-			UNSETEMPTY(location.important_recursive_contents)
-
-/atom/movable/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
-	. = ..()
-
-	if(!LAZYLEN(arrived.important_recursive_contents))
-		return
-	var/list/nested_locs = get_nested_locs(src) + src
-	for(var/channel in arrived.important_recursive_contents)
-		for(var/atom/movable/location as anything in nested_locs)
-			LAZYINITLIST(location.important_recursive_contents)
-			var/list/recursive_contents = location.important_recursive_contents // blue hedgehog velocity
-			LAZYINITLIST(recursive_contents[channel])
-			switch(channel)
-				if(RECURSIVE_CONTENTS_CLIENT_MOBS, RECURSIVE_CONTENTS_HEARING_SENSITIVE)
-					if(!length(recursive_contents[channel]))
-						SSspatial_grid.add_grid_awareness(location, channel)
-			recursive_contents[channel] |= arrived.important_recursive_contents[channel]
-
-///allows this movable to hear and adds itself to the important_recursive_contents list of itself and every movable loc its in
-/atom/movable/proc/become_hearing_sensitive(trait_source = GENERIC_TRAIT)
-	var/already_hearing_sensitive = HAS_TRAIT(src, TRAIT_HEARING_SENSITIVE)
-	ADD_TRAIT(src, TRAIT_HEARING_SENSITIVE, trait_source)
-	if(already_hearing_sensitive) // If we were already hearing sensitive, we don't wanna be in important_recursive_contents twice, else we'll have potential issues like one radio sending the same message multiple times
-		return
-
-	for(var/atom/movable/location as anything in get_nested_locs(src) + src)
-		LAZYINITLIST(location.important_recursive_contents)
-		var/list/recursive_contents = location.important_recursive_contents // blue hedgehog velocity
-		if(!length(recursive_contents[RECURSIVE_CONTENTS_HEARING_SENSITIVE]))
-			SSspatial_grid.add_grid_awareness(location, SPATIAL_GRID_CONTENTS_TYPE_HEARING)
-		recursive_contents[RECURSIVE_CONTENTS_HEARING_SENSITIVE] += list(src)
-
-	var/turf/our_turf = get_turf(src)
-	SSspatial_grid.add_grid_membership(src, our_turf, SPATIAL_GRID_CONTENTS_TYPE_HEARING)
-
-/**
- * removes the hearing sensitivity channel from the important_recursive_contents list of this and all nested locs containing us if there are no more sources of the trait left
- * since RECURSIVE_CONTENTS_HEARING_SENSITIVE is also a spatial grid content type, removes us from the spatial grid if the trait is removed
- *
- * * trait_source - trait source define or ALL, if ALL, force removes hearing sensitivity. if a trait source define, removes hearing sensitivity only if the trait is removed
- */
-/atom/movable/proc/lose_hearing_sensitivity(trait_source = GENERIC_TRAIT)
-	if(!HAS_TRAIT(src, TRAIT_HEARING_SENSITIVE))
-		return
-	REMOVE_TRAIT(src, TRAIT_HEARING_SENSITIVE, trait_source)
-	if(HAS_TRAIT(src, TRAIT_HEARING_SENSITIVE))
-		return
-
-	var/turf/our_turf = get_turf(src)
-	/// We get our awareness updated by the important recursive contents stuff, here we remove our membership
-	SSspatial_grid.remove_grid_membership(src, our_turf, SPATIAL_GRID_CONTENTS_TYPE_HEARING)
-
-	for(var/atom/movable/location as anything in get_nested_locs(src) + src)
-		LAZYINITLIST(location.important_recursive_contents)
-		var/list/recursive_contents = location.important_recursive_contents // blue hedgehog velocity
-		LAZYINITLIST(recursive_contents[RECURSIVE_CONTENTS_HEARING_SENSITIVE])
-		recursive_contents[RECURSIVE_CONTENTS_HEARING_SENSITIVE] -= src
-		if(!length(recursive_contents[RECURSIVE_CONTENTS_HEARING_SENSITIVE]))
-			SSspatial_grid.remove_grid_awareness(location, SPATIAL_GRID_CONTENTS_TYPE_HEARING)
-		ASSOC_UNSETEMPTY(recursive_contents, RECURSIVE_CONTENTS_HEARING_SENSITIVE)
-		UNSETEMPTY(location.important_recursive_contents)
-
-///allows this movable to know when it has "entered" another area no matter how many movable atoms its stuffed into, uses important_recursive_contents
-/atom/movable/proc/become_area_sensitive(trait_source = GENERIC_TRAIT)
-	if(!HAS_TRAIT(src, TRAIT_AREA_SENSITIVE))
-		for(var/atom/movable/location as anything in get_nested_locs(src) + src)
-			LAZYADDASSOCLIST(location.important_recursive_contents, RECURSIVE_CONTENTS_AREA_SENSITIVE, src)
-	ADD_TRAIT(src, TRAIT_AREA_SENSITIVE, trait_source)
-
-///removes the area sensitive channel from the important_recursive_contents list of this and all nested locs containing us if there are no more source of the trait left
-/atom/movable/proc/lose_area_sensitivity(trait_source = GENERIC_TRAIT)
-	if(!HAS_TRAIT(src, TRAIT_AREA_SENSITIVE))
-		return
-	REMOVE_TRAIT(src, TRAIT_AREA_SENSITIVE, trait_source)
-	if(HAS_TRAIT(src, TRAIT_AREA_SENSITIVE))
-		return
-
-	for(var/atom/movable/location as anything in get_nested_locs(src) + src)
-		LAZYREMOVEASSOC(location.important_recursive_contents, RECURSIVE_CONTENTS_AREA_SENSITIVE, src)
-
-///propogates ourselves through our nested contents, similar to other important_recursive_contents procs
-///main difference is that client contents need to possibly duplicate recursive contents for the clients mob AND its eye
-/mob/proc/enable_client_mobs_in_contents()
-	for(var/atom/movable/movable_loc as anything in get_nested_locs(src) + src)
-		LAZYINITLIST(movable_loc.important_recursive_contents)
-		var/list/recursive_contents = movable_loc.important_recursive_contents // blue hedgehog velocity
-		if(!length(recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS]))
-			SSspatial_grid.add_grid_awareness(movable_loc, SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)
-		LAZYINITLIST(recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS])
-		recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS] |= src
-
-	var/turf/our_turf = get_turf(src)
-	/// We got our awareness updated by the important recursive contents stuff, now we add our membership
-	SSspatial_grid.add_grid_membership(src, our_turf, SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)
-
-///Clears the clients channel of this mob
-/mob/proc/clear_important_client_contents()
-	var/turf/our_turf = get_turf(src)
-	SSspatial_grid.remove_grid_membership(src, our_turf, SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)
-
-	for(var/atom/movable/movable_loc as anything in get_nested_locs(src) + src)
-		LAZYINITLIST(movable_loc.important_recursive_contents)
-		var/list/recursive_contents = movable_loc.important_recursive_contents // blue hedgehog velocity
-		LAZYINITLIST(recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS])
-		recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS] -= src
-		if(!length(recursive_contents[RECURSIVE_CONTENTS_CLIENT_MOBS]))
-			SSspatial_grid.remove_grid_awareness(movable_loc, SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)
-		ASSOC_UNSETEMPTY(recursive_contents, RECURSIVE_CONTENTS_CLIENT_MOBS)
-		UNSETEMPTY(movable_loc.important_recursive_contents)
 
 /atom/movable/proc/onZImpact(turf/impacted_turf, levels, impact_flags = TRUE)
 	SHOULD_CALL_PARENT(TRUE)
@@ -1114,6 +974,7 @@
 		return zMove(direction, null, z_move_flags)
 	return step(src, direction)
 
+
 /// Returns a list of movables that should also be affected when src moves through zlevels, and src.
 /atom/movable/proc/get_z_move_affected(z_move_flags)
 	. = list(src)
@@ -1133,6 +994,7 @@
 		//then uses recursion to run the same function again
 		if(pulling.pulling)
 			. |= pulling.pulling.get_z_move_affected(z_move_flags)
+
 
 /**
  * Checks if the destination turf is elegible for z movement from the start turf to a given direction and returns it if so.
@@ -1159,12 +1021,16 @@
 			if(z_move_flags & ZMOVE_FEEDBACK)
 				to_chat(rider || src, span_warning("В этом направлении некуда идти!"))
 			return FALSE
+
+	if(SEND_SIGNAL(src, COMSIG_CAN_Z_MOVE, start, destination) & COMPONENT_CANT_Z_MOVE)
+		return FALSE
+
 	if(z_move_flags & ZMOVE_FALL_CHECKS && (throwing || (movement_type & (FLYING|FLOATING)) || no_gravity(start)))
 		return FALSE
 	if(z_move_flags & ZMOVE_CAN_FLY_CHECKS && !(movement_type & (FLYING|FLOATING)) && !no_gravity(start))
 		if(z_move_flags & ZMOVE_FEEDBACK)
 			if(rider)
-				to_chat(rider, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] не способен к полёту."))
+				to_chat(rider, span_notice("[capitalize(declent_ru(NOMINATIVE))] не способен к полёту."))
 			else
 				to_chat(src, span_notice("Вы не Супермен."))
 		return FALSE
@@ -1212,6 +1078,8 @@
 	for(var/atom/movable/content as anything in src) // Notify contents of Z-transition.
 		content.on_changed_z_level(old_turf, new_turf, same_z_layer)
 
+
+
 /**
  * Called whenever an object moves and by mobs when they attempt to move themselves through space
  * And when an object or action applies a force on src, see [newtonian_move][/atom/movable/proc/newtonian_move]
@@ -1245,6 +1113,7 @@
 
 	return FALSE
 
+
 /// Only moves the object if it's under no gravity
 /// Accepts the direction to move, if the push should be instant, and an optional parameter to fine tune the start delay
 /atom/movable/proc/newtonian_move(direction, instant = FALSE, start_delay = 0)
@@ -1258,6 +1127,7 @@
 
 	return TRUE
 
+
 //called when src is thrown into hit_atom
 /atom/movable/proc/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	set waitfor = FALSE
@@ -1265,16 +1135,19 @@
 	if(!QDELETED(hit_atom))
 		return hit_atom.hitby(src, throwingdatum = throwingdatum)
 
+
 /// called after an items throw is ended.
 /atom/movable/proc/end_throw()
 	return
+
 
 /atom/movable/hitby(atom/movable/AM, skipcatch, hitpush = TRUE, blocked, datum/thrownthing/throwingdatum)
 	if(!anchored && hitpush && (!throwingdatum || (throwingdatum.force >= (move_resist * MOVE_FORCE_PUSH_RATIO))))
 		step(src, AM.dir)
 	..()
 
-/atom/movable/proc/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, diagonals_first = FALSE, datum/callback/callback, force = INFINITY, dodgeable = TRUE, block_movement = TRUE)
+
+/atom/movable/proc/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, diagonals_first = FALSE, datum/callback/callback, force = INFINITY, dodgeable = TRUE)
 	if(throwing || !target || HAS_TRAIT(src, TRAIT_NODROP) || speed <= 0)
 		return FALSE
 
@@ -1303,7 +1176,7 @@
 			if(speed <= 0)
 				return //no throw speed, the user was moving too fast.
 
-	var/datum/thrownthing/thrown_thing = new(src, target, get_dir(src, target), range, speed, thrower, diagonals_first, force, callback, istype(thrower) ? thrower.zone_selected : FALSE, dodgeable, block_movement)
+	var/datum/thrownthing/thrown_thing = new(src, target, get_dir(src, target), range, speed, thrower, diagonals_first, force, callback, istype(thrower) ? thrower.zone_selected : FALSE, dodgeable)
 
 	var/dist_x = abs(target.x - src.x)
 	var/dist_y = abs(target.y - src.y)
@@ -1344,7 +1217,7 @@
 		if(get_dist(T, src) >= range_low && get_dist(T, src) <= range_high)
 			targets.Add(T)
 
-	if(length(targets) == 0)
+	if(targets.len == 0)
 		return FALSE
 
 	var/turf/target = pick(targets)
@@ -1356,18 +1229,22 @@
 	anchored = TRUE
 	simulated = FALSE
 
+
 /atom/movable/overlay/Initialize(mapload, ...)
 	. = ..()
 	verbs.Cut()
 
-/atom/movable/overlay/attackby(obj/item/I, mob/user, list/modifiers)
+
+/atom/movable/overlay/attackby(obj/item/I, mob/user, params)
 	if(master)
-		I.melee_attack_chain(user, master, modifiers)
+		I.melee_attack_chain(user, master, params)
 	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /atom/movable/overlay/attack_hand(mob/user)
 	if(master)
 		return master.attack_hand(user)
+
 
 /atom/movable/proc/handle_buckled_mob_movement(newloc, direct, glide_size_override)
 	for(var/mob/living/buckled_mob as anything in buckled_mobs)
@@ -1377,26 +1254,29 @@
 			return FALSE
 	return TRUE
 
+
 /atom/movable/proc/force_pushed(atom/movable/pusher, force = MOVE_FORCE_DEFAULT, direction)
 	return FALSE
 
 /atom/movable/proc/force_push(atom/movable/AM, force = move_force, direction, silent = FALSE)
 	. = AM.force_pushed(src, force, direction)
 	if(!silent && .)
-		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] сильно толка[PLUR_ET_YUT(src)] [AM.declent_ru(ACCUSATIVE)]!"), span_warning("Вы сильно толкаете [AM.declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] сильно толка[pluralize_ru(gender,"ет","ют")] [AM.declent_ru(ACCUSATIVE)]!"), span_warning("Вы сильно толкаете [AM.declent_ru(ACCUSATIVE)]!"))
 
 /atom/movable/proc/move_crush(atom/movable/AM, force = move_force, direction, silent = FALSE)
 	. = AM.move_crushed(src, force, direction)
 	if(!silent && .)
-		visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] сокруша[PLUR_ET_YUT(src)] [AM.declent_ru(ACCUSATIVE)]!"), span_danger("Вы сокрушили [AM.declent_ru(ACCUSATIVE)]!"))
+		visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] сокруша[pluralize_ru(gender,"ет","ют")] [AM.declent_ru(ACCUSATIVE)]!"), span_danger("Вы сокрушили [AM.declent_ru(ACCUSATIVE)]!"))
 
 /atom/movable/proc/move_crushed(atom/movable/pusher, force = MOVE_FORCE_DEFAULT, direction)
 	return FALSE
+
 
 /atom/movable/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
 	if(mover in buckled_mobs)
 		return TRUE
+
 
 /atom/movable/proc/get_spacemove_backup(moving_direction, continuous_move)
 	for(var/checked_range in orange(1, get_turf(src)))
@@ -1413,6 +1293,7 @@
 				continue
 			return checked_atom
 
+
 /atom/movable/proc/transfer_prints_to(atom/movable/target = null, overwrite = FALSE)
 	if(!target)
 		return
@@ -1423,6 +1304,7 @@
 		target.fingerprints += fingerprints
 		target.fingerprintshidden += fingerprintshidden
 	target.fingerprintslast = fingerprintslast
+
 
 /atom/movable/proc/do_attack_animation(atom/attacked_atom, visual_effect_icon, obj/item/used_item, no_effect)
 	if(!no_effect && (visual_effect_icon || used_item))
@@ -1454,6 +1336,7 @@
 	animate(src, pixel_x = pixel_x + pixel_x_diff, pixel_y = pixel_y + pixel_y_diff, transform = rotated_transform, time = 0.1 SECONDS, easing = (BACK_EASING|EASE_IN), flags = ANIMATION_PARALLEL)
 	animate(pixel_x = pixel_x - pixel_x_diff, pixel_y = pixel_y - pixel_y_diff, transform = initial_transform, time = 0.2 SECONDS, easing = SINE_EASING, flags = ANIMATION_PARALLEL)
 
+
 /atom/movable/proc/do_item_attack_animation(atom/attacked_atom, visual_effect_icon, obj/item/used_item)
 	var/image/attack_image
 	// we will register on turf to avoid image changes with attacked_atom transforms
@@ -1473,18 +1356,18 @@
 		// Set the direction of the icon animation.
 		var/direction = get_dir(src, attacked_atom)
 		if(direction & NORTH)
-			attack_image.pixel_z = -12
+			attack_image.pixel_y = -12
 		else if(direction & SOUTH)
-			attack_image.pixel_z = 12
+			attack_image.pixel_y = 12
 
 		if(direction & EAST)
-			attack_image.pixel_w = -14
+			attack_image.pixel_x = -14
 		else if(direction & WEST)
-			attack_image.pixel_w = 14
+			attack_image.pixel_x = 14
 
 		if(!direction) // Attacked self?!
-			attack_image.pixel_z = 12
-			attack_image.pixel_w = 5 * (prob(50) ? 1 : -1)
+			attack_image.pixel_y = 12
+			attack_image.pixel_x = 5 * (prob(50) ? 1 : -1)
 
 	if(!attack_image)
 		return
@@ -1504,17 +1387,21 @@
 	animate(time = 0.1 SECONDS)
 	animate(alpha = 0, time = 0.3 SECONDS, easing = (CIRCULAR_EASING|EASE_OUT))
 
+
 /atom/movable/proc/portal_destroyed(obj/effect/portal/P)
 	return
 
+
 /atom/movable/proc/decompile_act(obj/item/matter_decompiler/C, mob/user) // For drones to decompile mobs and objs. See drone for an example.
 	return FALSE
+
 
 /// Returns true or false to allow src to move through the blocker, mover has final say
 /atom/movable/proc/CanPassThrough(atom/blocker, movement_dir, blocker_opinion)
 	SHOULD_CALL_PARENT(TRUE)
 	SHOULD_BE_PURE(TRUE)
 	return blocker_opinion
+
 
 ///Sets the anchored var and returns if it was sucessfully changed or not.
 /atom/movable/proc/set_anchored(anchorvalue)
@@ -1527,6 +1414,7 @@
 		pulledby.stop_pulling()
 	SEND_SIGNAL(src, COMSIG_MOVABLE_SET_ANCHORED, anchorvalue)
 
+
 /atom/movable/set_opacity(new_opacity)
 	. = ..()
 	if(isnull(.) || !isturf(loc))
@@ -1536,23 +1424,25 @@
 	else
 		RemoveElement(/datum/element/light_blocking)
 
+
+
 /// Source is devoured by living mob.
 /atom/movable/proc/devoured(mob/living/carbon/gourmet)
 	if(!can_devour(gourmet))
 		return FALSE
 
-	var/mob/living/victim = src // its just living mobs now, subject to change later
+	var/mob/living/victim = src	// its just living mobs now, subject to change later
 
 	var/target = isturf(loc) ? src : gourmet
 
 	gourmet.setDir(get_dir(gourmet, src))
-	gourmet.visible_message(span_danger("[DECLENT_RU_CAP(gourmet, NOMINATIVE)] пыта[PLUR_ET_YUT(gourmet)]ся поглотить [declent_ru(ACCUSATIVE)]!"))
+	gourmet.visible_message(span_danger("[capitalize(gourmet.declent_ru(NOMINATIVE))] пыта[pluralize_ru(gourmet.gender,"ет","ют")]ся поглотить [capitalize(declent_ru(ACCUSATIVE))]!"))
 
-	if(!do_after(gourmet, get_devour_time(gourmet), target, NONE, extra_checks = CALLBACK(src, PROC_REF(can_devour), gourmet), max_interact_count = 1, cancel_on_max = TRUE, cancel_message = span_notice("Вы прекращаете поглощать [declent_ru(ACCUSATIVE)]!")))
-		gourmet.visible_message(span_notice("[DECLENT_RU_CAP(gourmet, NOMINATIVE)] прекраща[PLUR_ET_YUT(gourmet)] поглощать [declent_ru(ACCUSATIVE)]!"))
+	if(!do_after(gourmet, get_devour_time(gourmet), target, NONE, extra_checks = CALLBACK(src, PROC_REF(can_devour), gourmet), max_interact_count = 1, cancel_on_max = TRUE, cancel_message = span_notice("Вы прекращаете поглощать [capitalize(declent_ru(ACCUSATIVE))]!")))
+		gourmet.visible_message(span_notice("[capitalize(gourmet.declent_ru(NOMINATIVE))] прекраща[pluralize_ru(gourmet.gender,"ет","ют")] поглощать [capitalize(declent_ru(ACCUSATIVE))]!"))
 		return FALSE
 
-	gourmet.visible_message(span_danger("[DECLENT_RU_CAP(gourmet, NOMINATIVE)] поглоща[PLUR_ET_YUT(gourmet)] [declent_ru(ACCUSATIVE)]!"))
+	gourmet.visible_message(span_danger("[capitalize(gourmet.declent_ru(NOMINATIVE))] поглоща[pluralize_ru(gourmet.gender,"ет","ют")] [capitalize(declent_ru(ACCUSATIVE))]!"))
 
 	if(victim.mind)
 		add_attack_logs(gourmet, src, "Devoured")
@@ -1572,6 +1462,7 @@
 	LAZYADD(gourmet.stomach_contents, victim)
 	return TRUE
 
+
 /// Does all the checking for the [/proc/devoured()] to see if a mob can eat another with the grab.
 /atom/movable/proc/can_devour(mob/living/carbon/gourmet)
 	if(isalienadult(gourmet))
@@ -1580,6 +1471,7 @@
 	if(ishuman(gourmet)) //species eating of other mobs
 		return is_type_in_list(src, gourmet.dna.species.allowed_consumed_mobs)
 	return FALSE
+
 
 /// Returns the time devourer has to wait before they eat a prey.
 /atom/movable/proc/get_devour_time(mob/living/carbon/gourmet)
@@ -1594,6 +1486,7 @@
 /atom/movable/proc/shove_impact(mob/living/target, mob/living/attacker)
 	return FALSE
 
+
 /**
 * A wrapper for setDir that should only be able to fail by living mobs.
 *
@@ -1601,6 +1494,7 @@
 */
 /atom/movable/proc/keybind_face_direction(direction)
 	setDir(direction)
+
 
 /**
  * Adds the deadchat_plays component to this atom with simple movement commands.
@@ -1612,6 +1506,20 @@
  */
 /atom/movable/proc/deadchat_plays(mode = DEADCHAT_ANARCHY_MODE, cooldown = 12 SECONDS)
 	return AddComponent(/datum/component/deadchat_control/cardinal_movement, mode, list(), cooldown)
+
+/// Easy way to remove the component when the fun has been played out
+/atom/movable/proc/stop_deadchat_plays()
+	var/datum/component/deadchat_control/comp = GetComponent(/datum/component/deadchat_control)
+	if(!QDELETED(comp))
+		qdel(comp)
+
+/atom/movable/vv_get_dropdown()
+	. = ..()
+	if(!GetComponent(/datum/component/deadchat_control))
+		.["Give deadchat control"] = "byond://?_src_=vars;grantdeadchatcontrol=[UID()]"
+	else
+		.["Remove deadchat control"] = "byond://?_src_=vars;removedeadchatcontrol=[UID()]"
+
 
 /atom/movable/proc/fall_up_in_space()
 	visible_message(span_boldwarning("[declent_ru(NOMINATIVE)] улетает вверх под воздействием отрицательной гравитации!"),
@@ -1654,10 +1562,3 @@
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, FULTON_TRAIT)
 	forceMove(holder_obj.loc)
 	qdel(holder_obj)
-
-/atom/movable/proc/compressor_grind()
-	ex_act(EXPLODE_DEVASTATE)
-
-/// Called when a mob resists while inside a container that is itself inside something.
-/atom/movable/proc/relay_container_resist_act(mob/living/user, obj/container)
-	return

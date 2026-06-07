@@ -15,9 +15,12 @@
 	var/list/possible_shapes = list(/mob/living/simple_animal/mouse,
 		/mob/living/simple_animal/pet/dog/corgi,
 		/mob/living/simple_animal/hostile/construct/armoured)
+	var/old_shouldwakeup
+
 
 /obj/effect/proc_holder/spell/shapeshift/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/shapeshift/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(user.IsWeakened() || user.IsStunned())
@@ -28,21 +31,30 @@
 
 	return ..()
 
+
 /obj/effect/proc_holder/spell/shapeshift/cast(list/targets, mob/user = usr)
-	for(var/mob/living/M in targets)
+	for(var/mob/living/mob in targets)
 		if(!shapeshift_type)
 			var/list/animal_list = list()
 			for(var/path in possible_shapes)
 				var/mob/living/simple_animal/A = path
 				animal_list[initial(A.name)] = path
-			shapeshift_type = tgui_input_list(M, "Choose Your Animal Form!", "It's Morphing Time!", animal_list)
+
+			shapeshift_type = tgui_input_list(mob, "Выберите форму!", "Трансформация!", animal_list)
 			if(!shapeshift_type) //If you aren't gonna decide I am!
 				shapeshift_type = pick(animal_list)
+
 			shapeshift_type = animal_list[shapeshift_type]
-		if(M in current_shapes)
-			Restore(M)
+
+		if(mob in current_shapes)
+			Restore(mob)
 		else
-			Shapeshift(M)
+			Shapeshift(mob)
+
+
+/obj/effect/proc_holder/spell/shapeshift/proc/create_shapeshift_mob(atom/loc)
+	return new shapeshift_type(loc)
+
 
 /obj/effect/proc_holder/spell/shapeshift/proc/Shapeshift(mob/living/caster)
 	for(var/mob/living/mob in caster)
@@ -50,9 +62,10 @@
 			to_chat(caster, span_warning("You're already shapeshifted!"))
 			return
 
-	var/mob/living/shape = new shapeshift_type(get_turf(caster))
+	var/mob/living/shape = create_shapeshift_mob(get_turf(caster))
 	caster.forceMove(shape)
 	ADD_TRAIT(caster, TRAIT_GODMODE, UNIQUE_TRAIT_SOURCE(src))
+	RegisterSignal(shape, COMSIG_MOB_DEATH, PROC_REF(on_death))
 
 	current_shapes |= shape
 	current_casters |= caster
@@ -60,15 +73,32 @@
 	human_req = FALSE
 
 	caster.mind.transfer_to(shape)
+	if(!isanimal(caster))
+		return
+
+	var/mob/living/simple_animal/animal = caster
+	animal.toggle_ai(AI_OFF)
+	old_shouldwakeup = animal.shouldwakeup
+	animal.shouldwakeup = FALSE
+
+
+/obj/effect/proc_holder/spell/shapeshift/proc/on_death(mob/living/source)
+	SIGNAL_HANDLER
+	Restore(source)
+
 
 /obj/effect/proc_holder/spell/shapeshift/proc/Restore(mob/living/shape)
 	var/mob/living/caster
-	for(var/mob/living/M in shape)
-		if(M in current_casters)
-			caster = M
-			break
+	for(var/mob/living/mob in shape)
+		if(!(mob in current_casters))
+			continue
+
+		caster = mob
+		break
+
 	if(!caster)
 		return
+
 	caster.forceMove(get_turf(shape))
 	REMOVE_TRAIT(caster, TRAIT_GODMODE, UNIQUE_TRAIT_SOURCE(src))
 
@@ -79,6 +109,12 @@
 
 	shape.mind.transfer_to(caster)
 	qdel(shape) //Gib it maybe ?
+	if(!isanimal(caster))
+		return
+
+	var/mob/living/simple_animal/animal = caster
+	animal.shouldwakeup = old_shouldwakeup
+
 
 /obj/effect/proc_holder/spell/shapeshift/dragon
 	name = "Dragon Form"
@@ -90,15 +126,15 @@
 	current_casters = list()
 	possible_shapes = list(/mob/living/simple_animal/hostile/megafauna/dragon/lesser)
 
+
 /obj/effect/proc_holder/spell/shapeshift/dragon/Shapeshift(mob/living/caster)
-	caster.visible_message(
-		span_danger("[caster] screams in agony as bones and claws erupt out of their flesh!"),
-		span_danger("You begin channeling the transformation.")
-	)
+	caster.visible_message(span_danger("[caster] screams in agony as bones and claws erupt out of their flesh!"),
+		span_danger("You begin channeling the transformation."))
 	if(!do_after(caster, 5 SECONDS, caster, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM))
 		to_chat(caster, span_warning("You lose concentration of the spell!"))
 		return
 	return ..()
+
 
 /obj/effect/proc_holder/spell/shapeshift/bats
 	name = "Bat Form"
@@ -113,6 +149,7 @@
 	current_casters = list()
 	possible_shapes = list(/mob/living/simple_animal/hostile/scarybat/batswarm)
 
+
 /obj/effect/proc_holder/spell/shapeshift/hellhound
 	name = "Lesser Hellhound Form"
 	desc = "Take on the shape of a Hellhound."
@@ -126,6 +163,7 @@
 	current_shapes = list(/mob/living/simple_animal/hostile/hellhound)
 	current_casters = list()
 	possible_shapes = list(/mob/living/simple_animal/hostile/hellhound)
+
 
 /obj/effect/proc_holder/spell/shapeshift/hellhound/greater
 	name = "Greater Hellhound Form"

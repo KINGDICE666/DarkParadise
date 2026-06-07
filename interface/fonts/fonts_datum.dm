@@ -63,7 +63,7 @@
 			continue
 
 		idx = (character - start) * 3
-		if(idx <= 0 || idx >= length(metrics))
+		if(idx <= 0 || idx >= metrics.len)
 			idx = (default_character - start) * 3
 
 		if(!. && !(flags & INCLUDE_AC))

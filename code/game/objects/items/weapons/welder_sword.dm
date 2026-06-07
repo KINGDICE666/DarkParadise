@@ -20,14 +20,15 @@
 	var/combinable = TRUE
 
 /obj/item/weldingtool/sword/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сварочный меч",
 		GENITIVE = "сварочного меча",
 		DATIVE = "сварочному мечу",
 		ACCUSATIVE = "сварочный меч",
 		INSTRUMENTAL = "сварочным мечом",
-		PREPOSITIONAL = "сварочном мече",
+		PREPOSITIONAL = "сварочном мече"
 	)
+
 
 /obj/item/weldingtool/sword/toggle_welder(turn_off)
 	. = ..()
@@ -46,7 +47,7 @@
 /obj/item/weldingtool/sword/tool_use_check(mob/living/user, amount, silent)
 	return FALSE
 
-/obj/item/weldingtool/sword/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/weldingtool/sword/afterattack(atom/target, mob/user, proximity, params, status)
 	. = ..()
 	if(ATTACK_CHAIN_SUCCESS_CHECK(status))
 		remove_fuel(1)
@@ -96,13 +97,13 @@
 	combinable = FALSE
 
 /obj/item/weldingtool/sword/double/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "двойной сварочный меч",
 		GENITIVE = "двойного сварочного меча",
 		DATIVE = "двойному сварочному мечу",
 		ACCUSATIVE = "двойной сварочный меч",
 		INSTRUMENTAL = "двойным сварочным мечом",
-		PREPOSITIONAL = "двойном сварочном мече",
+		PREPOSITIONAL = "двойном сварочном мече"
 	)
 
 /obj/item/weldingtool/sword/double/ComponentInitialize()
@@ -116,19 +117,24 @@
 		unwield_callback = CALLBACK(src, PROC_REF(unwield)), \
 	)
 
+
 /obj/item/weldingtool/sword/double/proc/wield(obj/item/source, mob/living/carbon/user)
 	toggle_welder()
 
+
 /obj/item/weldingtool/sword/double/proc/unwield(obj/item/source, mob/living/carbon/user)
 	toggle_welder()
+
 
 /obj/item/weldingtool/sword/double/remove_fuel(amount)
 	reagents.remove_reagent("fuel", amount * requires_fuel)
 	if(!(reagents.get_reagent_amount("fuel")) && tool_enabled)
 		attack_self(usr)
 
+
 /obj/item/weldingtool/sword/double/try_toggle_welder(mob/user, manual_toggle = TRUE)
 	return ..(user, manual_toggle = FALSE)
+
 
 /obj/item/weldingtool/sword/double/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
@@ -137,6 +143,7 @@
 
 	if(prob(50))
 		INVOKE_ASYNC(src, GLOBAL_PROC_REF(jedi_spin), user)
+
 
 /obj/item/weldingtool/sword/double/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(tool_enabled)

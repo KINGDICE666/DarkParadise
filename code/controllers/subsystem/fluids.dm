@@ -20,9 +20,10 @@
 SUBSYSTEM_DEF(fluids)
 	name = "Fluid"
 	wait = 0 // Will be autoset to whatever makes the most sense given the spread and effect waits.
-	ss_flags = SS_KEEP_TIMING
+	flags = SS_KEEP_TIMING
 	runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME
 	priority = FIRE_PRIORITY_FLUIDS
+	init_order = INIT_ORDER_FLUIDS
 
 	// Fluid spread processing:
 	/// The amount of time (in deciseconds) before a fluid node is created and when it spreads.
@@ -76,6 +77,7 @@ SUBSYSTEM_DEF(fluids)
 		// Makes effect bubbling possible with identical spread and effect waits.
 		wait = Gcd(wait, max_wait)
 
+
 /**
  * Initializes the carousel used to process fluid spreading.
  *
@@ -112,6 +114,7 @@ SUBSYSTEM_DEF(fluids)
 	currently_processing = list()
 	effect_bucket_index = 1
 
+
 /datum/controller/subsystem/fluids/fire(resumed)
 	var/seconds_per_tick
 	var/cached_bucket_index
@@ -128,8 +131,8 @@ SUBSYSTEM_DEF(fluids)
 
 	seconds_per_tick = spread_wait / (1 SECONDS)
 	currentrun = currently_spreading
-	while(length(currentrun))
-		var/obj/effect/particle_effect/fluid/to_spread = currentrun[length(currentrun)]
+	while(currentrun.len)
+		var/obj/effect/particle_effect/fluid/to_spread = currentrun[currentrun.len]
 		currentrun.len--
 
 		if(!QDELETED(to_spread))
@@ -148,8 +151,8 @@ SUBSYSTEM_DEF(fluids)
 	seconds_per_tick = effect_wait / (1 SECONDS)
 	cached_bucket_index = effect_bucket_index
 	currentrun = currently_processing
-	while(length(currentrun))
-		var/obj/effect/particle_effect/fluid/to_process = currentrun[length(currentrun)]
+	while(currentrun.len)
+		var/obj/effect/particle_effect/fluid/to_process = currentrun[currentrun.len]
 		currentrun.len--
 
 		if(QDELETED(to_process) || to_process.process(seconds_per_tick) == PROCESS_KILL)
@@ -231,6 +234,7 @@ SUBSYSTEM_DEF(fluids)
 
 #undef SS_PROCESSES_SPREADING
 #undef SS_PROCESSES_EFFECTS
+
 
 // Subtypes:
 

@@ -1,24 +1,22 @@
 SUBSYSTEM_DEF(atoms)
 	name = "Atoms"
-	dependencies = list(
-	//	/datum/controller/subsystem/processing/reagents,
-		/datum/controller/subsystem/fluids,
-		/datum/controller/subsystem/mapping,
-		/datum/controller/subsystem/jobs,
-	)
-	ss_flags = SS_NO_FIRE
+	init_order = INIT_ORDER_ATOMS
+	flags = SS_NO_FIRE
+	ss_id = "atoms"
 
 	var/old_initialized
+
 	var/list/late_loaders
+
 	var/list/BadInitializeCalls = list()
-	var/init_start_time
+
 
 /datum/controller/subsystem/atoms/Initialize()
-	init_start_time = world.time
 	setupgenetics()
 	initialized = INITIALIZATION_INNEW_MAPLOAD
 	InitializeAtoms()
 	return SS_INIT_SUCCESS
+
 
 /datum/controller/subsystem/atoms/proc/InitializeAtoms(list/atoms, noisy = TRUE)
 	if(initialized == INITIALIZATION_INSSATOMS)
@@ -37,8 +35,8 @@ SUBSYSTEM_DEF(atoms)
 	var/count
 	var/list/mapload_arg = list(TRUE)
 	if(atoms)
-		count = length(atoms)
-		for(var/I in 1 to length(atoms))
+		count = atoms.len
+		for(var/I in 1 to atoms.len)
 			var/atom/A = atoms[I]
 			if(!(A.flags & INITIALIZED))
 				InitAtom(A, mapload_arg)
@@ -59,13 +57,13 @@ SUBSYSTEM_DEF(atoms)
 
 	initialized = INITIALIZATION_INNEW_REGULAR
 
-	if(length(late_loaders))
+	if(late_loaders.len)
 		watch = start_watch()
 		if(noisy)
 			log_startup_progress("Late-initializing atoms...")
 		else
 			log_debug("Late-initializing atoms...")
-		for(var/I in 1 to length(late_loaders))
+		for(var/I in 1 to late_loaders.len)
 			var/atom/A = late_loaders[I]
 			if(QDELETED(A))	// hate this, but qdel check is a must
 				continue
@@ -82,9 +80,7 @@ SUBSYSTEM_DEF(atoms)
 /datum/controller/subsystem/atoms/proc/InitAtom(atom/A, list/arguments)
 	var/the_type = A.type
 	if(QDELING(A))
-		// Check init_start_time to not worry about atoms created before the atoms SS that are cleaned up before this
-		if(A.gc_destroyed > init_start_time)
-			BadInitializeCalls[the_type] |= BAD_INIT_QDEL_BEFORE
+		BadInitializeCalls[the_type] |= BAD_INIT_QDEL_BEFORE
 		return TRUE
 
 	var/start_tick = world.time
@@ -100,7 +96,7 @@ SUBSYSTEM_DEF(atoms)
 		if(INITIALIZE_HINT_NORMAL)
 			EMPTY_BLOCK_GUARD // Pass
 		if(INITIALIZE_HINT_LATELOAD)
-			if(arguments[1]) // mapload
+			if(arguments[1])	//mapload
 				late_loaders += A
 			else
 				A.LateInitialize()
@@ -110,7 +106,7 @@ SUBSYSTEM_DEF(atoms)
 		else
 			BadInitializeCalls[the_type] |= BAD_INIT_NO_HINT
 
-	if(!A) //possible harddel
+	if(!A)	//possible harddel
 		qdeleted = TRUE
 	else if(!(A.flags & INITIALIZED))
 		BadInitializeCalls[the_type] |= BAD_INIT_DIDNT_INIT
@@ -121,12 +117,15 @@ SUBSYSTEM_DEF(atoms)
 			/// Sends a signal that the new atom `src`, has been created at `loc`
 			SEND_SIGNAL(location, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, A, arguments[1])
 
+
 	return qdeleted || QDELING(A)
+
 
 /datum/controller/subsystem/atoms/proc/map_loader_begin()
 	old_initialized = initialized
 	initialized = INITIALIZATION_INSSATOMS
 	SSicon_smooth.add_halt_source(src)
+
 
 /datum/controller/subsystem/atoms/proc/map_loader_stop()
 	initialized = old_initialized
@@ -138,3 +137,27 @@ SUBSYSTEM_DEF(atoms)
 		InitializeAtoms()
 	old_initialized = SSatoms.old_initialized
 	BadInitializeCalls = SSatoms.BadInitializeCalls
+
+
+/client/proc/debug_atom_init()
+	set name = "Atom Init Log"
+	set category = "Debug"
+	set desc = "Shows what failed to init this round"
+
+	if(!check_rights(R_DEBUG|R_VIEWRUNTIMES))
+		return
+
+	var/list/html_data = list()
+	html_data += "<h1>Bad Initialize() Calls</h1><table border='1'><tr><th scope='col'>Type</th><th scope='col'>Qdeleted before init</th><th scope='col'>Did not init</th><th scope='col'>Slept during init</th><th scope='col'>No init hint</th></tr>"
+
+	for(var/typepath in SSatoms.BadInitializeCalls)
+		var/val = SSatoms.BadInitializeCalls[typepath]
+
+		html_data += "<tr><td>[typepath]</td><td>[val & BAD_INIT_QDEL_BEFORE ? "X" : "&nbsp;"]</td><td>[val & BAD_INIT_DIDNT_INIT ? "X" : "&nbsp;"]</td><td>[val & BAD_INIT_SLEPT ? "X" : "&nbsp;"]</td><td>[val & BAD_INIT_NO_HINT ? "X" : "&nbsp;"]</td></tr>"
+
+	html_data += "</table>"
+
+	var/datum/browser/popup = new(usr, "initdebug", "Init Debug")
+	popup.set_content(html_data.Join())
+	popup.open(FALSE)
+

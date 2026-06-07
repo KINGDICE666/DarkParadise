@@ -1,25 +1,16 @@
-/// Returns TRUE if this mob has sufficient access to use this object
-/obj/proc/allowed(mob/accessor)
-	var/result_bitflags = SEND_SIGNAL(src, COMSIG_OBJ_ALLOWED, accessor)
-
-	if(result_bitflags & COMPONENT_OBJ_ALLOW)
-		return TRUE
-
-	if(result_bitflags & COMPONENT_OBJ_DISALLOW) // override all other checks
-		return FALSE
-
+//returns 1 if this mob has sufficient access to use this object
+/obj/proc/allowed(mob/M)
 	//check if we don't require any access at all
 	if(check_access())
-		return TRUE
+		return 1
 
-	if(!accessor) // likely a TK user, and we checked for free access above.
-		return FALSE
+	if(!M)
+		return 0
 
-	var/acc = accessor.get_access() // see mob.dm
+	var/acc = M.get_access() //see mob.dm
 
-	if(acc == IGNORE_ACCESS || accessor.can_admin_interact())
-		return TRUE // mob ignores access
-
+	if(acc == IGNORE_ACCESS || M.can_admin_interact())
+		return 1 //Mob ignores access
 	else
 		return check_access_list(acc)
 
@@ -40,7 +31,7 @@
 /obj/proc/check_access_list(list/L)
 	if(!L)
 		return FALSE
-	if(!islist(L))
+	if(!istype(L, /list))
 		return FALSE
 	return has_access(req_access, check_one_access, L)
 
@@ -58,10 +49,6 @@
 	return TRUE
 
 /proc/get_centcom_access(job)
-	// ERT-related jobs (without ERT Leader)
-	if(job in list(JOB_TITLE_ERT_MEMBER, JOB_TITLE_ERT_OFFICER, JOB_TITLE_ERT_ENGINEER, JOB_TITLE_ERT_MEDIC, JOB_TITLE_ERT_INQUISITOR, JOB_TITLE_ERT_JANITOR))
-		return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_SECURITY, ACCESS_CENT_STORAGE, ACCESS_CENT_SPECOPS) + get_all_accesses()
-
 	switch(job)
 		if("VIP Guest")
 			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING)
@@ -69,7 +56,9 @@
 			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_STORAGE)
 		if("Thunderdome Overseer")
 			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_THUNDER)
-		if(JOB_TITLE_ERT_LEADER)
+		if("Emergency Response Team Member")
+			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_SECURITY, ACCESS_CENT_STORAGE, ACCESS_CENT_SPECOPS) + get_all_accesses()
+		if("Emergency Response Team Leader")
 			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_SECURITY, ACCESS_CENT_STORAGE, ACCESS_CENT_SPECOPS, ACCESS_CENT_SPECOPS_COMMANDER) + get_all_accesses()
 		if("Medical Officer")
 			return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_STORAGE) + get_all_accesses()
@@ -102,17 +91,17 @@
 
 /proc/get_syndicate_access(job)
 	switch(job)
-		if(JOB_TITLE_SYNDICATE_OPERATIVE)
+		if(SYNDICATE_OPERATIVE)
 			return list(ACCESS_SYNDICATE, ACCESS_SYNDICATE_CONTAINER)
-		if(JOB_TITLE_SYNDICATE_OPERATIVE_LEADER)
+		if(SYNDICATE_OPERATIVE_LEADER)
 			return list(ACCESS_SYNDICATE, ACCESS_SYNDICATE_CONTAINER, ACCESS_SYNDICATE_LEADER)
-		if(JOB_TITLE_SYNDICATE_AGENT)
+		if(SYNDICATE_AGENT)
 			return list(ACCESS_SYNDICATE, ACCESS_MAINT_TUNNELS)
-		if(JOB_TITLE_VOX_RAIDER)
+		if(VOX_RAIDER)
 			return list(ACCESS_VOX)
-		if(JOB_TITLE_VOX_TRADER)
+		if(VOX_TRADER)
 			return list(ACCESS_VOX)
-		if(JOB_TITLE_SYNDICATE_COMMANDO)
+		if(SYNDICATE_COMMANDO)
 			return list(ACCESS_SYNDICATE,
 						ACCESS_SYNDICATE_LEADER,
 						ACCESS_SYNDICATE_COMMS_OFFICER,
@@ -123,7 +112,7 @@
 						ACCESS_SYNDICATE_MEDICAL,
 						ACCESS_SYNDICATE_BOTANY,
 						ACCESS_SYNDICATE_ENGINE)
-		if(JOB_TITLE_SYNDICATE_OFFICER)
+		if(JOB_TITLE_SYNDICATE)
 			return list(ACCESS_SYNDICATE,
 						ACCESS_SYNDICATE_LEADER,
 						ACCESS_SYNDICATE_COMMAND,
@@ -145,7 +134,7 @@
 				ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MINERAL_STOREROOM, ACCESS_MORGUE, ACCESS_NETWORK, ACCESS_NTREP, ACCESS_PARAMEDIC,  ACCESS_ALL_PERSONAL_LOCKERS,
 				ACCESS_ENGINE_EQUIP, ACCESS_PSYCHIATRIST, ACCESS_QM, ACCESS_RD, ACCESS_RC_ANNOUNCE, ACCESS_ROBOTICS, ACCESS_TOX, ACCESS_RESEARCH, ACCESS_SECURITY, ACCESS_PILOT,
 				ACCESS_SURGERY, ACCESS_TECH_STORAGE, ACCESS_TELEPORTER, ACCESS_THEATRE, ACCESS_TCOMSAT, ACCESS_TOX_STORAGE, ACCESS_VIROLOGY, ACCESS_WEAPONS, ACCESS_XENOBIOLOGY,
-				ACCESS_XENOARCH, ACCESS_INVESTOR)
+				ACCESS_XENOARCH)
 
 /proc/get_all_centcom_access()
 	return list(ACCESS_CENT_GENERAL, ACCESS_CENT_LIVING, ACCESS_CENT_MEDICAL, ACCESS_CENT_SECURITY, ACCESS_CENT_STORAGE, ACCESS_CENT_SHUTTLES, ACCESS_CENT_TELECOMMS, ACCESS_CENT_TELEPORTER, ACCESS_CENT_SPECOPS, ACCESS_CENT_SPECOPS_COMMANDER, ACCESS_CENT_BLACKOPS, ACCESS_CENT_THUNDER, ACCESS_CENT_BRIDGE, ACCESS_CENT_COMMANDER)
@@ -177,7 +166,7 @@
 		if(REGION_ALL)
 			return get_all_accesses()
 		if(REGION_GENERAL) //station general
-			return list(ACCESS_KITCHEN, ACCESS_BAR, ACCESS_HYDROPONICS, ACCESS_JANITOR, ACCESS_CHAPEL_OFFICE, ACCESS_CREMATORIUM, ACCESS_LIBRARY, ACCESS_THEATRE, ACCESS_LAWYER, ACCESS_MAGISTRATE, ACCESS_CLOWN, ACCESS_MIME, ACCESS_INVESTOR)
+			return list(ACCESS_KITCHEN, ACCESS_BAR, ACCESS_HYDROPONICS, ACCESS_JANITOR, ACCESS_CHAPEL_OFFICE, ACCESS_CREMATORIUM, ACCESS_LIBRARY, ACCESS_THEATRE, ACCESS_LAWYER, ACCESS_MAGISTRATE, ACCESS_CLOWN, ACCESS_MIME)
 		if(REGION_SECURITY) //security
 			return list(ACCESS_SEC_DOORS, ACCESS_WEAPONS, ACCESS_SECURITY, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_FORENSICS_LOCKERS, ACCESS_COURT, ACCESS_PILOT, ACCESS_HOS)
 		if(REGION_MEDBAY) //medbay
@@ -370,8 +359,6 @@
 			return "AI Satellite"
 		if(ACCESS_WEAPONS)
 			return "Weapon Permit"
-		if(ACCESS_INVESTOR)
-			return "Investor"
 
 /proc/get_centcom_access_desc(A)
 	switch(A)
@@ -455,29 +442,7 @@
 	return all_jobs
 
 /proc/get_all_centcom_jobs()
-	return list(
-		"VIP Guest","Custodian",
-		"Thunderdome Overseer",
-		JOB_TITLE_ERT_MEMBER,
-		JOB_TITLE_ERT_LEADER,
-		JOB_TITLE_ERT_OFFICER,
-		JOB_TITLE_ERT_ENGINEER,
-		JOB_TITLE_ERT_MEDIC,
-		JOB_TITLE_ERT_INQUISITOR,
-		JOB_TITLE_ERT_JANITOR,
-		"Intel Officer",
-		"Medical Officer",
-		"Death Commando",
-		"Research Officer",
-		"Deathsquad Officer",
-		JOB_TITLE_CCSPECOPS,
-		"Nanotrasen Navy Representative",
-		JOB_TITLE_CCOFFICER,
-		JOB_TITLE_CCFIELD,
-		"Nanotrasen Diplomat",
-		"Nanotrasen Navy Captain",
-		JOB_TITLE_CCSUPREME,
-)
+	return list("VIP Guest","Custodian","Thunderdome Overseer","Emergency Response Team Member","Emergency Response Team Leader","Intel Officer","Medical Officer","Death Commando","Research Officer","Deathsquad Officer", JOB_TITLE_CCSPECOPS,"Nanotrasen Navy Representative", JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD,"Nanotrasen Diplomat","Nanotrasen Navy Captain", JOB_TITLE_CCSUPREME)
 
 /proc/get_all_solgov_jobs()
 	return list("Solar Federation Specops Lieutenant","Solar Federation Marine","Solar Federation Specops Marine","Solar Federation Representative","Sol Trader", JOB_TITLE_CCSOLGOV)

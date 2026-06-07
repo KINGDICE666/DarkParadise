@@ -8,17 +8,19 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_transform/create_new_targeting()
 	return new /datum/spell_targeting/self
 
+
 /obj/effect/proc_holder/spell/hulk_transform/cast(list/targets, mob/user = usr)
 	if(HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
-		to_chat(user, span_warning("Not enough angry power."))
+		to_chat(user, "<span class='warning'>Not enough angry power.")
 		return
 	if(istype(user,/mob/living/simple_animal/hulk))
-		to_chat(user, span_warning("You are already hulk."))
+		to_chat(user, "<span class='warning'>You are already hulk.")
 		return
-	to_chat(user, span_boldnotice("You can feel real POWER."))
+	to_chat(user, "<span class='bold notice'>You can feel real POWER.</span>")
 	if(istype(user.loc, /obj/machinery/dna_scannernew))
 		var/obj/machinery/dna_scannernew/DSN = loc
 		DSN.occupant = null
@@ -41,6 +43,7 @@
 	user.mind.transfer_to(Monster)
 	Monster.say(pick("RAAAAAAAARGH!", "HNNNNNNNNNGGGGGGH!", "GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", "AAAAAAARRRGH!" ))
 
+
 //HUMAN HULK
 
 //Dash
@@ -53,38 +56,39 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_dash/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/hulk_dash/cast(list/targets, mob/living/user)
 	var/turf/T = get_turf(get_step(user,user.dir))
 	for(var/mob/living/M in T.contents)
-		to_chat(user, span_warning("Something right in front of you!"))
+		to_chat(user, "<span class='warning'>Something right in front of you!</span>")
 		return
 	T = get_turf(get_step(T,user.dir))
 	for(var/mob/living/M in T.contents)
-		to_chat(user, span_warning("Something right in front of you!"))
+		to_chat(user, "<span class='warning'>Something right in front of you!</span>")
 		return
 
 	var/failure = 0
 	if(ismob(user.loc) || user.incapacitated() || user.buckled)
-		to_chat(user, span_warning("You can't dash right now!"))
+		to_chat(user, "<span class='warning'>You can't dash right now!</span>")
 		return
 
-	if(isturf(user.loc) && !(isspaceturf(user.loc)))
+	if(istype(user.loc,/turf) && !(isspaceturf(user.loc)))
 		for(var/mob/M in range(user, 1))
 			if(M.pulling == user)
 				M.stop_pulling()
 
-		user.visible_message(span_warning("<b>[user.name]</b> dashes forward!"))
+
+		user.visible_message("<span class='warning'><b>[user.name]</b> dashes forward!</span>")
 		playsound(user, 'sound/weapons/thudswoosh.ogg', CHANNEL_BUZZ)
 		if(failure)
 			user.Weaken(4 SECONDS)
-			user.visible_message(
-				span_warning("[user] attempts to dash away but was interrupted!"),
-				span_warning("You attempt to dash but suddenly interrupted!"),
-				span_notice("You hear the flexing of powerful muscles and suddenly a crash as a body hits the floor.")
-			)
+			user.visible_message("<span class='warning'> \the [user] attempts to dash away but was interrupted!</span>",
+								"<span class='warning'>You attempt to dash but suddenly interrupted!</span>",
+								"<span class='notice'>You hear the flexing of powerful muscles and suddenly a crash as a body hits the floor.</span>")
 			return 0
 
 		user.say(pick("RAAAAAAAARGH!", "HNNNNNNNNNGGGGGGH!", "GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", "AAAAAAARRRGH!" ))
@@ -103,14 +107,14 @@
 					hit = 1
 				else if(isfloorturf(T))
 					for(var/obj/structure/S in T.contents)
-						if(is_window(S))
+						if(istype(S,/obj/structure/window))
 							hit = 1
 						if(istype(S,/obj/structure/grille))
 							hit = 1
 			else if(i > 6)
 				if(isfloorturf(T))
 					for(var/obj/structure/S in T.contents)
-						if(is_window(S))
+						if(istype(S,/obj/structure/window))
 							S.ex_act(EXPLODE_HEAVY)
 						if(istype(S,/obj/structure/grille))
 							qdel(S)
@@ -186,15 +190,15 @@
 		user.remove_traits(list(TRAIT_IMMOBILIZED, TRAIT_UNDENSE), UNIQUE_TRAIT_SOURCE(src))
 		user.layer = prevLayer
 	else
-		to_chat(user, span_warning("You need a ground to do this!"))
+		to_chat(user, "<span class='warning'>You need a ground to do this!</span>")
 		return
 
 	if(isobj(user.loc))
 		var/obj/container = user.loc
-		to_chat(user, span_warning("You dash and slam your head against the inside of [container]! Ouch!"))
+		to_chat(user, "<span class='warning'>You dash and slam your head against the inside of [container]! Ouch!</span>")
 		user.Paralyse(6 SECONDS)
 		user.Weaken(10 SECONDS)
-		container.visible_message(span_warning("<b>[user.loc]</b> emits a loud thump and rattles a bit."))
+		container.visible_message("<span class='warning'><b>[user.loc]</b> emits a loud thump and rattles a bit.</span>")
 		playsound(user, 'sound/effects/bang.ogg', CHANNEL_BUZZ)
 		var/wiggle = 6
 		while(wiggle > 0)
@@ -217,8 +221,10 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_jump/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/hulk_jump/cast(list/targets, mob/living/user)
 	var/failure = 0
@@ -226,28 +232,26 @@
 		return
 
 	if(ismob(user.loc) || user.incapacitated() || user.buckled)
-		to_chat(user, span_warning("You can't jump right now!"))
+		to_chat(user, "<span class='warning'>You can't jump right now!</span>")
 		return
 	var/turf/turf_to_check = get_turf(user)
 	if(user.can_z_move(DOWN, turf_to_check))
 		to_chat(user, span_warning("You need a ground to jump from!"))
 		return
 
-	if(isturf(user.loc) && !(isspaceturf(user.loc)))
+	if(istype(user.loc,/turf) && !(isspaceturf(user.loc)))
 
 		for(var/mob/M in range(user, 1))
 			if(M.pulling == user)
 				M.stop_pulling()
 
-		user.visible_message(span_warning("<b>[user.name]</b> takes a huge leap!"))
+		user.visible_message("<span class='warning'><b>[user.name]</b> takes a huge leap!</span>")
 		playsound(user, 'sound/weapons/thudswoosh.ogg', CHANNEL_BUZZ)
 		if(failure)
 			user.Weaken(10 SECONDS)
-			user.visible_message(
-				span_warning("=[user] attempts to leap away but is slammed back down to the ground!"),
-				span_warning("=You attempt to leap away but are suddenly slammed back down to the ground!"),
-				span_notice("=You hear the flexing of powerful muscles and suddenly a crash as a body hits the floor.")
-			)
+			user.visible_message("<span class='warning'> \the [user] attempts to leap away but is slammed back down to the ground!</span>",
+								"<span class='warning'>You attempt to leap away but are suddenly slammed back down to the ground!</span>",
+								"<span class='notice'>You hear the flexing of powerful muscles and suddenly a crash as a body hits the floor.</span>")
 			return 0
 
 		user.say(pick("RAAAAAAAARGH!", "HNNNNNNNNNGGGGGGH!", "GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", "AAAAAAARRRGH!" ))
@@ -280,10 +284,10 @@
 					var/obj/item/organ/external/BP = H.bodyparts_by_name[bodypart_name]
 					H.apply_damage(20,BRUTE,BP)
 					BP.fracture()
-					H.Knockdown(10 SECONDS)
+					H.Weaken(10 SECONDS)
 				else
 					playsound(M, 'sound/weapons/tablehit1.ogg', CHANNEL_BUZZ)
-					M.Knockdown(4 SECONDS)
+					M.Weaken(4 SECONDS)
 					M.take_overall_damage(35, used_weapon = "Hulk Foot")
 		var/snd = 1
 		for(var/direction in GLOB.alldirs)
@@ -301,15 +305,15 @@
 		user.remove_traits(list(TRAIT_IMMOBILIZED, TRAIT_UNDENSE), UNIQUE_TRAIT_SOURCE(src))
 		user.layer = prevLayer
 	else
-		to_chat(user, span_warning("You need a ground to do this!"))
+		to_chat(user, "<span class='warning'>You need a ground to do this!</span>")
 		return
 
 	if(isobj(user.loc))
 		var/obj/container = user.loc
-		to_chat(user, span_warning("You leap and slam your head against the inside of [container]! Ouch!"))
+		to_chat(user, "<span class='warning'>You leap and slam your head against the inside of [container]! Ouch!</span>")
 		user.Paralyse(6 SECONDS)
 		user.Weaken(10 SECONDS)
-		container.visible_message(span_warning("<b>[user.loc]</b> emits a loud thump and rattles a bit."))
+		container.visible_message("<span class='warning'><b>[user.loc]</b> emits a loud thump and rattles a bit.</span>")
 		playsound(user, 'sound/effects/bang.ogg', CHANNEL_BUZZ)
 		var/wiggle = 6
 		while(wiggle > 0)
@@ -336,12 +340,14 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_honk/create_new_targeting()
 	return new /datum/spell_targeting/self
 
+
 /obj/effect/proc_holder/spell/hulk_honk/cast(list/targets, mob/user)
 	if(user.incapacitated())
-		to_chat(user, span_red("You can't right now!"))
+		to_chat(user, "<span class='red'>You can't right now!</span>")
 		return
 	playsound(user, 'sound/items/airhorn.ogg', CHANNEL_BUZZ)
 	for(var/mob/living/carbon/M in ohearers(2))
@@ -364,6 +370,7 @@
 			var /turf/simulated/victim_loc = M.loc
 			victim_loc.MakeSlippery(TURF_WET_LUBE, 5 SECONDS)
 
+
 //Hulk Joke
 /obj/effect/proc_holder/spell/hulk_joke
 	name = "Joke"
@@ -374,12 +381,14 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_joke/create_new_targeting()
 	return new /datum/spell_targeting/self
 
+
 /obj/effect/proc_holder/spell/hulk_joke/cast(list/targets,mob/user)
 	if(user.incapacitated())
-		to_chat(user, span_warning("You can't right now!"))
+		to_chat(user, "<span class='warning'>You can't right now!</span>")
 		return
 
 	var/mob/living/simple_animal/hulk/clown_hulk = user
@@ -391,6 +400,7 @@
 	smoke.set_up(amount = 10, location = user.loc)
 	smoke.start()
 	playsound(user,pick('sound/spookoween/scary_clown_appear.ogg','sound/spookoween/scary_horn.ogg','sound/spookoween/scary_horn2.ogg','sound/spookoween/scary_horn3.ogg'),CHANNEL_BUZZ, 100)
+
 
 //Zilla
 
@@ -404,8 +414,10 @@
 	clothes_req = FALSE
 	human_req = FALSE
 
+
 /obj/effect/proc_holder/spell/hulk_mill/create_new_targeting()
 	return new /datum/spell_targeting/self
+
 
 /obj/effect/proc_holder/spell/hulk_mill/cast(list/targets, mob/user = usr)
 	if(user.incapacitated())
@@ -432,8 +444,24 @@
 				M.apply_damage(2, used_weapon = "Tail")
 			playsound(M, 'sound/weapons/tablehit1.ogg', CHANNEL_BUZZ)
 			if(prob(3))
-				M.Knockdown(4 SECONDS)
+				M.Weaken(4 SECONDS)
 		sleep(1)
+
+
+//Harchok
+/obj/projectile/energy/hulkspit
+	name = "spit"
+	icon_state = "neurotoxin"
+	damage = 15
+	damage_type = TOX
+
+/obj/projectile/energy/hulkspit/on_hit(atom/target, def_zone = BODY_ZONE_CHEST, blocked = 0)
+	if(iscarbon(target))
+		var/mob/living/carbon/M = target
+		M.Weaken(4 SECONDS)
+		M.adjust_fire_stacks(20)
+		M.IgniteMob()
+
 
 /obj/effect/proc_holder/spell/fireball/hulk_spit
 	name = "Fire Spit"
@@ -441,19 +469,22 @@
 	invocation_type = "none"
 	action_icon_state = "harchok_hulk"
 	action_background_icon_state = "bg_hulk"
-	selection_activated_message	= span_notice_alt("Your prepare to spit fire! <b>Left-click to spit at a target!</b>")
-	selection_deactivated_message = span_notice_alt("You swallow your spit...for now.")
+	selection_activated_message	= "<span class='notice'>Your prepare to spit fire! <b>Left-click to spit at a target!</b></span>"
+	selection_deactivated_message = "<span class='notice'>You swallow your spit...for now.</span>"
 	fireball_type = /obj/projectile/energy/hulkspit
 	base_cooldown = 25 SECONDS
 	need_active_overlay = TRUE
+
 
 /obj/effect/proc_holder/spell/fireball/hulk_spit/can_cast(mob/living/user = usr, charge_check = TRUE, show_message = FALSE)
 	if(user.incapacitated())
 		return FALSE
 	return ..()
 
+
 /obj/effect/proc_holder/spell/fireball/hulk_spit/update_icon_state()
 	return
+
 
 //Laser
 
@@ -461,8 +492,8 @@
 	name = "LazorZ"
 	desc = "Вы стреляете из глаз слабеньким лазером. Может помочь, если хитрые СБшники прячутся за стеклами."
 	action_icon_state = "lazer_hulk"
-	selection_activated_message	= span_notice_alt("You strained your eyes preparing the LAZOR! <b>Left-click to fire at a target!</b>")
-	selection_deactivated_message = span_notice_alt("You relax your eyes...for now.")
+	selection_activated_message	= "<span class='notice'>You strained your eyes preparing the LAZOR! <b>Left-click to fire at a target!</b></span>"
+	selection_deactivated_message = "<span class='notice'>You relax your eyes...for now.</span>"
 	fireball_type = /obj/projectile/beam
 	base_cooldown = 7 SECONDS
 	sound = 'sound/weapons/laser.ogg'

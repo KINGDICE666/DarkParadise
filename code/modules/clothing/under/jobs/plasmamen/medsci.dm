@@ -6,13 +6,13 @@
 	item_color = "doctor_envirosuit"
 
 /obj/item/clothing/under/plasmaman/medical/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм врача",
 		GENITIVE = "защитного костюма врача",
 		DATIVE = "защитному костюму врача",
 		ACCUSATIVE = "защитный костюм врача",
 		INSTRUMENTAL = "защитным костюмом врача",
-		PREPOSITIONAL = "защитном костюме врача",
+		PREPOSITIONAL = "защитном костюме врача"
 	)
 
 /obj/item/clothing/under/plasmaman/cmo
@@ -23,13 +23,13 @@
 	item_color = "cmo_envirosuit"
 
 /obj/item/clothing/under/plasmaman/cmo/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм главного врача",
 		GENITIVE = "защитного костюма главного врача",
 		DATIVE = "защитному костюму главного врача",
 		ACCUSATIVE = "защитный костюм главного врача",
 		INSTRUMENTAL = "защитным костюмом главного врача",
-		PREPOSITIONAL = "защитном костюме главного врача",
+		PREPOSITIONAL = "защитном костюме главного врача"
 	)
 
 /obj/item/clothing/under/plasmaman/science
@@ -40,13 +40,13 @@
 	item_color = "scientist_envirosuit"
 
 /obj/item/clothing/under/plasmaman/science/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм учёного",
 		GENITIVE = "защитного костюма учёного",
 		DATIVE = "защитному костюму учёного",
 		ACCUSATIVE = "защитный костюм учёного",
 		INSTRUMENTAL = "защитным костюмом учёного",
-		PREPOSITIONAL = "защитном костюме учёного",
+		PREPOSITIONAL = "защитном костюме учёного"
 	)
 
 /obj/item/clothing/under/plasmaman/rd
@@ -57,13 +57,13 @@
 	item_color = "rd_envirosuit"
 
 /obj/item/clothing/under/plasmaman/rd/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм научного руководителя",
 		GENITIVE = "защитного костюма научного руководителя",
 		DATIVE = "защитному костюму научного руководителя",
 		ACCUSATIVE = "защитный костюм научного руководителя",
 		INSTRUMENTAL = "защитным костюмом научного руководителя",
-		PREPOSITIONAL = "защитном костюме научного руководителя",
+		PREPOSITIONAL = "защитном костюме научного руководителя"
 	)
 
 /obj/item/clothing/under/plasmaman/robotics
@@ -74,13 +74,13 @@
 	item_color = "roboticist_envirosuit"
 
 /obj/item/clothing/under/plasmaman/robotics/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм робототехника",
 		GENITIVE = "защитного костюма робототехника",
 		DATIVE = "защитному костюму робототехника",
 		ACCUSATIVE = "защитный костюм робототехника",
 		INSTRUMENTAL = "защитным костюмом робототехника",
-		PREPOSITIONAL = "защитном костюме робототехника",
+		PREPOSITIONAL = "защитном костюме робототехника"
 	)
 
 /obj/item/clothing/under/plasmaman/viro
@@ -91,14 +91,15 @@
 	item_color = "virologist_envirosuit"
 
 /obj/item/clothing/under/plasmaman/viro/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм вирусолога",
 		GENITIVE = "защитного костюма вирусолога",
 		DATIVE = "защитному костюму вирусолога",
 		ACCUSATIVE = "защитный костюм вирусолога",
 		INSTRUMENTAL = "защитным костюмом вирусолога",
-		PREPOSITIONAL = "защитном костюме вирусолога",
+		PREPOSITIONAL = "защитном костюме вирусолога"
 	)
+	
 
 /obj/item/clothing/under/plasmaman/genetics
 	name = "genetics plasma envirosuit"
@@ -108,13 +109,13 @@
 	item_color = "geneticist_envirosuit"
 
 /obj/item/clothing/under/plasmaman/genetics/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм генетика",
 		GENITIVE = "защитного костюма генетика",
 		DATIVE = "защитному костюму генетика",
 		ACCUSATIVE = "защитный костюм генетика",
 		INSTRUMENTAL = "защитным костюмом генетика",
-		PREPOSITIONAL = "защитном костюме генетика",
+		PREPOSITIONAL = "защитном костюме генетика"
 	)
 
 /obj/item/clothing/under/plasmaman/chemist
@@ -125,13 +126,13 @@
 	item_color = "chemist_envirosuit"
 
 /obj/item/clothing/under/plasmaman/chemist/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм химика",
 		GENITIVE = "защитного костюма химика",
 		DATIVE = "защитному костюму химика",
 		ACCUSATIVE = "защитный костюм химика",
 		INSTRUMENTAL = "защитным костюмом химика",
-		PREPOSITIONAL = "защитном костюме химика",
+		PREPOSITIONAL = "защитном костюме химика"
 	)
 
 /obj/item/clothing/under/plasmaman/brigphysician
@@ -142,13 +143,13 @@
 	item_color = "brigphysician_envirosuit"
 
 /obj/item/clothing/under/plasmaman/brigphysician/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм бригмедика",
 		GENITIVE = "защитного костюма бригмедика",
 		DATIVE = "защитному костюму бригмедика",
 		ACCUSATIVE = "защитный костюм бригмедика",
 		INSTRUMENTAL = "защитным костюмом бригмедика",
-		PREPOSITIONAL = "защитном костюме бригмедика",
+		PREPOSITIONAL = "защитном костюме бригмедика"
 	)
 
 /obj/item/clothing/under/plasmaman/coroner
@@ -159,13 +160,13 @@
 	item_color = "coroner_envirosuit"
 
 /obj/item/clothing/under/plasmaman/coroner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм патологоанатома",
 		GENITIVE = "защитного костюма патологоанатома",
 		DATIVE = "защитному костюму патологоанатома",
 		ACCUSATIVE = "защитный костюм патологоанатома",
 		INSTRUMENTAL = "защитным костюмом патологоанатома",
-		PREPOSITIONAL = "защитном костюме патологоанатома",
+		PREPOSITIONAL = "защитном костюме патологоанатома"
 	)
 
 /obj/item/clothing/under/plasmaman/paramedic
@@ -176,13 +177,13 @@
 	item_color = "paramedic_envirosuit"
 
 /obj/item/clothing/under/plasmaman/paramedic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм парамедика",
 		GENITIVE = "защитного костюма парамедика",
 		DATIVE = "защитному костюму парамедика",
 		ACCUSATIVE = "защитный костюм парамедика",
 		INSTRUMENTAL = "защитным костюмом парамедика",
-		PREPOSITIONAL = "защитном костюме парамедика",
+		PREPOSITIONAL = "защитном костюме парамедика"
 	)
 
 /obj/item/clothing/under/plasmaman/mining_medic
@@ -193,12 +194,12 @@
 	item_color = "mining_medic_envirosuit"
 
 /obj/item/clothing/under/plasmaman/mining_medic/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "защитный костюм шахтёрского врача",
 		GENITIVE = "защитного костюма шахтёрского врача",
 		DATIVE = "защитному костюму шахтёрского врача",
 		ACCUSATIVE = "защитный костюм шахтёрского врача",
 		INSTRUMENTAL = "защитным костюмом шахтёрского врача",
-		PREPOSITIONAL = "защитном костюме шахтёрского врача",
+		PREPOSITIONAL = "защитном костюме шахтёрского врача"
 	)
 

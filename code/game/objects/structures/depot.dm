@@ -1,6 +1,7 @@
+
 /obj/structure/fusionreactor
 	name = "syndicate fusion reactor"
-	desc = "Significantly less cool than a supermatter crystal, but just as likely to fuck up."
+	desc = ""
 	icon = 'icons/obj/device.dmi'
 	icon_state = "powersink1"
 	anchored = TRUE
@@ -44,12 +45,8 @@
 	if(prob(50))
 		empulse(src, 4, 10, TRUE, "[user] screwed with [name]")
 	else
-		radiation_pulse(
-			source = src,
-			max_range = 10,
-			threshold = 0.3,
-			chance = 40
-		)
+		for(var/mob/living/M in range(10, loc))
+			M.apply_effect(rand(5, 25), IRRADIATE)
 
 /obj/structure/fusionreactor/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -70,6 +67,7 @@
 		O.max_cycles = 6
 	if(!skip_qdel)
 		qdel(src)
+
 
 /obj/effect/overload
 	icon = 'icons/obj/engines_and_power/tesla/energy_ball.dmi'

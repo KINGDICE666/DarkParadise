@@ -12,13 +12,13 @@
 	var/obj/item/assembly/signaler/core/core = null
 
 /obj/item/assembly/anomaly_beacon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "аномальный маячок",
 		GENITIVE = "аномального маячка",
 		DATIVE = "аномальному маячку",
 		ACCUSATIVE = "аномальный маячок",
 		INSTRUMENTAL = "аномальным маячком",
-		PREPOSITIONAL = "аномальном маячке",
+		PREPOSITIONAL = "аномальном маячке"
 	)
 
 /obj/item/assembly/anomaly_beacon/activate()
@@ -68,11 +68,9 @@
 	name = "Anomaly beacon"
 	result = /obj/item/assembly/anomaly_beacon
 	tools = list(TOOL_SCREWDRIVER)
-	reqs = list(
-		/obj/item/relict_production/rapid_dupe = 1,
-		/obj/item/beacon = 1,
-		/obj/item/stack/cable_coil = 5,
-	)
+	reqs = list(/obj/item/relict_production/rapid_dupe = 1,
+				/obj/item/radio/beacon = 1,
+				/obj/item/stack/cable_coil = 5)
 	time = 10 SECONDS
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON

@@ -1,15 +1,3 @@
-/mob/living/proc/get_bodypart(zone)
-	return
-
-/mob/living/carbon/human/get_bodypart(zone)
-	RETURN_TYPE(/obj/item/organ/external)
-
-	if(!zone)
-		zone = BODY_ZONE_CHEST
-	for(var/obj/item/organ/external/bodypart as anything in bodyparts)
-		if(bodypart.limb_zone == zone)
-			return bodypart
-
 /mob/proc/get_int_organ(typepath) //int stands for internal
 	return
 
@@ -31,6 +19,7 @@
 /mob/living/carbon/get_int_organ(typepath)
 	return (locate(typepath) in internal_organs)
 
+
 /mob/living/carbon/get_organs_zone(zone, subzones = FALSE)
 	var/list/returnorg = list()
 	if(subzones)
@@ -46,14 +35,18 @@
 			returnorg += organ
 	return returnorg
 
+
 /mob/living/carbon/get_organ_slot(slot)
 	return internal_organs_slot[slot]
+
 
 /mob/proc/has_active_hand()
 	return hand ? has_left_hand() : has_right_hand()
 
+
 /mob/proc/has_inactive_hand()
 	return hand ? has_right_hand() : has_left_hand()
+
 
 /mob/proc/has_left_hand()
 	return TRUE
@@ -72,26 +65,6 @@
 
 /mob/living/carbon/human/has_both_hands()
 	if(has_left_hand() && has_right_hand())
-		return TRUE
-	return FALSE
-
-/mob/proc/has_left_foot()
-	return TRUE
-
-/mob/living/carbon/human/has_left_foot()
-	return get_organ(BODY_ZONE_PRECISE_L_FOOT)
-
-/mob/proc/has_right_foot()
-	return TRUE
-
-/mob/living/carbon/human/has_right_foot()
-	return get_organ(BODY_ZONE_PRECISE_R_FOOT)
-
-/mob/proc/has_both_feet()
-	return TRUE
-
-/mob/living/carbon/human/has_both_feet()
-	if(has_left_foot() && has_right_foot())
 		return TRUE
 	return FALSE
 

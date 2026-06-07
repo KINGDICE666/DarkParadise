@@ -20,20 +20,20 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 	desc = "Устройства освещения пути. Используются шахтёрами для разметки маршрутов и обозначения опасностей."
 	icon = 'icons/obj/lighting.dmi'
 	icon_state = "marker"
-	armor = list(MELEE = 50, BULLET = 75, LASER = 75, ENERGY = 75, BOMB = 25, BIO = 100, FIRE = 25, ACID = 0)
+	armor = list(MELEE = 50, BULLET = 75, LASER = 75, ENERGY = 75, BOMB = 25, BIO = 100, RAD = 100, FIRE = 25, ACID = 0)
 	max_integrity = 50
 	merge_type = /obj/item/stack/marker_beacon
 	max_amount = 100
 	var/picked_color = "random"
 
 /obj/item/stack/marker_beacon/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "маркерный маячок",
 		GENITIVE = "маркерного маячка",
 		DATIVE = "маркерному маячку",
 		ACCUSATIVE = "маркерный маячок",
 		INSTRUMENTAL = "маркерным маячком",
-		PREPOSITIONAL = "маркерном маячке",
+		PREPOSITIONAL = "маркерном маячке"
 	)
 
 /obj/item/stack/marker_beacon/ten //miners start with 10 of these
@@ -59,7 +59,7 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 		to_chat(user, span_warning("Здесь недостаточно места для установки [declent_ru(GENITIVE)]."))
 		return
 	if(locate(/obj/structure/marker_beacon) in user.loc)
-		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] уже установлен здесь."))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] уже установлен здесь."))
 		return
 	if(use(1))
 		to_chat(user, span_notice("Вы активируете и закрепляете [declent_ru(ACCUSATIVE)] на месте."))
@@ -83,7 +83,7 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 	icon = 'icons/obj/lighting.dmi'
 	icon_state = "marker"
 	layer = BELOW_OPEN_DOOR_LAYER
-	armor = list(MELEE = 50, BULLET = 75, LASER = 75, ENERGY = 75, BOMB = 25, BIO = 100, FIRE = 25, ACID = 0)
+	armor = list(MELEE = 50, BULLET = 75, LASER = 75, ENERGY = 75, BOMB = 25, BIO = 100, RAD = 100, FIRE = 25, ACID = 0)
 	max_integrity = 50
 	anchored = TRUE
 	light_range = 2
@@ -108,14 +108,17 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 	. = ..()
 	. += span_notice("Alt-ЛКМ для выбора цвета. Текущий цвет: [picked_color].")
 
+
 /obj/structure/marker_beacon/update_icon_state()
 	while(!picked_color || !GLOB.marker_beacon_colors[picked_color])
 		picked_color = pick(GLOB.marker_beacon_colors)
 	icon_state = "[initial(icon_state)][lowertext(picked_color)]-on"
 
+
 /obj/structure/marker_beacon/proc/update_state()
 	update_icon(UPDATE_ICON_STATE)
 	set_light(light_range, light_power, GLOB.marker_beacon_colors[picked_color])
+
 
 /obj/structure/marker_beacon/attack_hand(mob/living/user)
 	. = ..()
@@ -133,6 +136,7 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 		user.put_in_hands(M, ignore_anim = FALSE)
 		playsound(src, 'sound/items/deconstruct.ogg', 50, TRUE)
 		qdel(src)
+
 
 /obj/structure/marker_beacon/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -153,6 +157,7 @@ GLOBAL_LIST_INIT(marker_beacon_colors, list(
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/structure/marker_beacon/click_alt(mob/living/user)
 	var/input_color = tgui_input_list(user, "Выберите цвет", "Цвет маячка", GLOB.marker_beacon_colors)

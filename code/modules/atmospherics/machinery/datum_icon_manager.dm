@@ -29,8 +29,10 @@
 	var/list/device_icons
 	var/list/underlays
 
+
 /datum/pipe_icon_manager/New()
 	check_icons()
+
 
 /datum/pipe_icon_manager/proc/get_atmos_icon(device, dir, color, state)
 	check_icons()
@@ -50,6 +52,7 @@
 		if("underlay")
 			return underlays[state + dir + color]
 
+
 /datum/pipe_icon_manager/proc/check_icons()
 	if(!pipe_icons)
 		gen_pipe_icons()
@@ -59,6 +62,7 @@
 		gen_device_icons()
 	if(!underlays)
 		gen_underlay_icons()
+
 
 /datum/pipe_icon_manager/proc/gen_pipe_icons()
 	if(!pipe_icons)
@@ -91,6 +95,7 @@
 			continue
 		pipe_icons["hejunction" + state] = image('icons/obj/pipes_and_stuff/atmospherics/atmos/junction.dmi', icon_state = state)
 
+
 /datum/pipe_icon_manager/proc/gen_manifold_icons()
 	if(!manifold_icons)
 		manifold_icons = list()
@@ -111,6 +116,7 @@
 				img.color = GLOB.pipe_colors[pipe_color]
 				manifold_icons[state + GLOB.pipe_colors[pipe_color]] = img
 
+
 /datum/pipe_icon_manager/proc/gen_device_icons()
 	if(!device_icons)
 		device_icons = list()
@@ -126,6 +132,7 @@
 		if(!state || findtext(state, "map"))
 			continue
 		device_icons["scrubber" + state] = image('icons/obj/pipes_and_stuff/atmospherics/atmos/vent_scrubber.dmi', icon_state = state)
+
 
 /datum/pipe_icon_manager/proc/gen_underlay_icons()
 	if(!underlays)

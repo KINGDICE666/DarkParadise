@@ -19,8 +19,6 @@
 	new /obj/item/reagent_containers/food/drinks/mug/cap(src)
 	new /obj/item/tank/internals/emergency_oxygen/double(src)
 	new /obj/item/storage/garmentbag/captains(src)
-	new /obj/item/clothing/accessory/holster(src)
-
 /obj/structure/closet/secure_closet/hop
 	name = "head of personnel's locker"
 	req_access = list(ACCESS_HOP)
@@ -39,7 +37,6 @@
 	new /obj/item/reagent_containers/food/drinks/mug/hop(src)
 	new /obj/item/clothing/accessory/medal/service(src)
 	new /obj/item/storage/garmentbag/hop(src)
-	new /obj/item/clothing/accessory/holster(src)
 
 /obj/structure/closet/secure_closet/hos
 	name = "head of security's locker"
@@ -122,13 +119,13 @@
 	icon_state = "guncabinet"
 
 /obj/structure/closet/secure_closet/security_grenade_launcher/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкаф гранатомета GL-06",
 		GENITIVE = "шкафа гранатомета GL-06",
 		DATIVE = "шкафу гранатомета GL-06",
 		ACCUSATIVE = "шкаф гранатомета GL-06",
 		INSTRUMENTAL = "шкафом гранатомета GL-06",
-		PREPOSITIONAL = "шкафе гранатомета GL-06",
+		PREPOSITIONAL = "шкафе гранатомета GL-06"
 	)
 
 /obj/structure/closet/secure_closet/security_grenade_launcher/populate_contents()
@@ -140,6 +137,7 @@
 	new /obj/item/ammo_box/secgl/gas(src)
 	new /obj/item/ammo_box/secgl/barricade(src)
 	new /obj/item/ammo_box/secgl/paint(src)
+
 
 /obj/structure/closet/secure_closet/security
 	name = "security officer's locker"
@@ -168,19 +166,21 @@
 	req_access = list(ACCESS_ARMORY)
 
 /obj/structure/closet/secure_closet/guncabinet/wt550/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкаф пистолет пулемётов WT-550",
 		GENITIVE = "шкафа пистолет пулемётов WT-550",
 		DATIVE = "шкафу пистолет пулемётов WT-550",
 		ACCUSATIVE = "шкаф пистолет пулемётов WT-550",
 		INSTRUMENTAL = "шкафом пистолет пулемётов WT-550",
-		PREPOSITIONAL = "шкафе пистолет пулемётов WT-550",
+		PREPOSITIONAL = "шкафе пистолет пулемётов WT-550"
 	)
 
 /obj/structure/closet/secure_closet/guncabinet/wt550/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/smg/wt550(src)
+	new /obj/item/gun/projectile/automatic/wt550(src)
+	new /obj/item/gun/projectile/automatic/wt550(src)
+	new /obj/item/gun/projectile/automatic/wt550(src)
+	new /obj/item/gun/projectile/automatic/wt550(src)
+	new /obj/item/gun/projectile/automatic/wt550(src)
 
 /obj/structure/closet/secure_closet/guncabinet/sp91
 	name = "security SP-91-RC gun cabinet"
@@ -188,103 +188,21 @@
 	req_access = list(ACCESS_ARMORY)
 
 /obj/structure/closet/secure_closet/guncabinet/sp91/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкаф пистолет пулемётов SP-91-RC",
 		GENITIVE = "шкафа пистолет пулемётов SP-91-RC",
 		DATIVE = "шкафу пистолет пулемётов SP-91-RC",
 		ACCUSATIVE = "шкаф пистолет пулемётов SP-91-RC",
 		INSTRUMENTAL = "шкафом пистолет пулемётов SP-91-RC",
-		PREPOSITIONAL = "шкафе пистолет пулемётов SP-91-RC",
+		PREPOSITIONAL = "шкафе пистолет пулемётов SP-91-RC"
 	)
 
 /obj/structure/closet/secure_closet/guncabinet/sp91/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/smg/sp91rc(src)
-
-/obj/structure/closet/secure_closet/guncabinet/sparkle_a12
-	name = "security Sparkle-A12 gun cabinet"
-	desc = "Защищённый шкаф для хранения пистолетов пулемётов А9 \"Искра\". Шкаф прикручен к полу."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/sparkle_a12/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф пистолет пулемёта А9 \"Искра\"",
-		GENITIVE = "шкафа пистолет пулемёта А9 \"Искра\"",
-		DATIVE = "шкафу пистолет пулемёта А9 \"Искра\"",
-		ACCUSATIVE = "шкаф пистолет пулемёта А9 \"Искра\"",
-		INSTRUMENTAL = "шкафом пистолет пулемёта А9 \"Искра\"",
-		PREPOSITIONAL = "шкафе пистолет пулемёта А9 \"Искра\""
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/sparkle_a12/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/smg/sparkle_a12(src)
-
-/obj/structure/closet/secure_closet/guncabinet/sfg
-	name = "security SFG-5 SMG gun cabinet"
-	desc = "Защищённый шкаф для хранения пистолетов-пулемётов SFG-5. Внутри хранится дизайн диск для печати магазинов."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/sfg/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф пистолет-пулемёта SFG-5",
-		GENITIVE = "шкафа пистолет-пулемёта SFG-5",
-		DATIVE = "шкафу пистолет-пулемёта SFG-5",
-		ACCUSATIVE = "шкаф пистолет-пулемёта SFG-5",
-		INSTRUMENTAL = "шкафом пистолет-пулемёта SFG-5",
-		PREPOSITIONAL = "шкафе пистолет-пулемёта SFG-5"
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/sfg/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/smg/sfg(src)
-	new /obj/item/disk/design_disk/security/sfg5_mag(src)
-
-/obj/structure/closet/secure_closet/guncabinet/saber
-	name = "Nanotrasen Saber SMG gun cabinet"
-	desc = "Защищённый шкаф для хранения пистолетов-пулемётов Saber. Внутри хранится дизайн диск для печати магазинов."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/saber/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф пистолет-пулемёта Saber",
-		GENITIVE = "шкафа пистолет-пулемёта Saber",
-		DATIVE = "шкафу пистолет-пулемёта Saber",
-		ACCUSATIVE = "шкаф пистолет-пулемёта Saber",
-		INSTRUMENTAL = "шкафом пистолет-пулемёта Saber",
-		PREPOSITIONAL = "шкафе пистолет-пулемёта Saber"
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/saber/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/smg/saber/rubber(src)
-	new /obj/item/disk/design_disk/security/saber_mag(src)
-
-/obj/structure/closet/secure_closet/guncabinet/ak814
-	name = "Soviet AK-814 gun cabinet"
-	desc = "Защищённый шкаф для хранения штурмовых винтовок АК-814. В отсеке для хранения дискет заметна большая вмятина."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/ak814/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф штурмовой винтовки АК-814",
-		GENITIVE = "шкафа штурмовой винтовки АК-814",
-		DATIVE = "шкафу штурмовой винтовки АК-814",
-		ACCUSATIVE = "шкаф штурмовой винтовки АК-814",
-		INSTRUMENTAL = "шкафом штурмовой винтовки АК-814",
-		PREPOSITIONAL = "шкафе штурмовой винтовки АК-814"
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/ak814/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/ak814/weakened(src)
-	new /obj/item/disk/design_disk/security/ak814_mag(src)
-	new /obj/item/disk/design_disk/security/aksu_ammo(src)
+	new /obj/item/gun/projectile/automatic/sp91rc(src)
+	new /obj/item/gun/projectile/automatic/sp91rc(src)
+	new /obj/item/gun/projectile/automatic/sp91rc(src)
+	new /obj/item/gun/projectile/automatic/sp91rc(src)
+	new /obj/item/gun/projectile/automatic/sp91rc(src)
 
 /obj/structure/closet/secure_closet/guncabinet/lasergun
 	name = "security laser gun cabinet"
@@ -292,19 +210,21 @@
 	req_access = list(ACCESS_ARMORY)
 
 /obj/structure/closet/secure_closet/guncabinet/lasergun/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкаф лазерных винтовок",
 		GENITIVE = "шкафа лазерных винтовок",
 		DATIVE = "шкафу лазерных винтовок",
 		ACCUSATIVE = "шкаф лазерных винтовок",
 		INSTRUMENTAL = "шкафом лазерных винтовок",
-		PREPOSITIONAL = "шкафе лазерных винтовок",
+		PREPOSITIONAL = "шкафе лазерных винтовок"
 	)
 
 /obj/structure/closet/secure_closet/guncabinet/lasergun/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/energy/laser(src)
+	new /obj/item/gun/energy/laser(src)
+	new /obj/item/gun/energy/laser(src)
+	new /obj/item/gun/energy/laser(src)
+	new /obj/item/gun/energy/laser(src)
+	new /obj/item/gun/energy/laser(src)
 
 /obj/structure/closet/secure_closet/guncabinet/lr30
 	name = "security LR-30 gun cabinet"
@@ -312,189 +232,21 @@
 	req_access = list(ACCESS_ARMORY)
 
 /obj/structure/closet/secure_closet/guncabinet/lr30/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шкаф лазерных винтовок LR-30",
 		GENITIVE = "шкафа лазерных винтовок LR-30",
 		DATIVE = "шкафу лазерных винтовок LR-30",
 		ACCUSATIVE = "шкаф лазерных винтовок LR-30",
 		INSTRUMENTAL = "шкафом лазерных винтовок LR-30",
-		PREPOSITIONAL = "шкафе лазерных винтовок LR-30",
+		PREPOSITIONAL = "шкафе лазерных винтовок LR-30"
 	)
 
 /obj/structure/closet/secure_closet/guncabinet/lr30/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/lr30(src)
-
-/obj/structure/closet/secure_closet/guncabinet/lasercarbine
-	name = "security IK-60 gun cabinet"
-	desc = "Защищённый шкаф для хранения лазерных карабинов IK-60. Внутри хранится диск для печати магазинов и боеприпасов."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/lasercarbine/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф лазерных карабинов IK-60",
-		GENITIVE = "шкафа лазерных карабинов IK-60",
-		DATIVE = "шкафу лазерных карабинов IK-60",
-		ACCUSATIVE = "шкаф лазерных карабинов IK-60",
-		INSTRUMENTAL = "шкафом лазерных карабинов IK-60",
-		PREPOSITIONAL = "шкафе лазерных карабинов IK-60",
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/lasercarbine/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/projectile/automatic/ik60(src)
-	new /obj/item/disk/design_disk/security/laser_carbine_mag(src)
-
-/obj/structure/closet/secure_closet/guncabinet/plasma_pistols
-	name = "plasma pistol gun cabinet"
-	desc = "Защищённый шкаф для хранения плазменных пистолетов модели \"Щитобой\" Шкаф прикручен к полу."
-
-/obj/structure/closet/secure_closet/guncabinet/plasma_pistols/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф плазменных пистолетов",
-		GENITIVE = "шкафа плазменных пистолетов",
-		DATIVE = "шкафу плазменных пистолетов",
-		ACCUSATIVE = "шкаф плазменных пистолетов",
-		INSTRUMENTAL = "шкафом плазменных пистолетов",
-		PREPOSITIONAL = "шкафе плазменных пистолетов",
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/plasma_pistols/populate_contents()
-	var/gun_count = HAS_TRAIT(SSstation, STATION_TRAIT_LOOTED_ARMORY) ? rand(1, 3) : 5
-	for(var/i in 1 to gun_count)
-		new /obj/item/gun/energy/plasma_pistol(src)
-
-/obj/item/disk/design_disk/security
-	name = "security design disk"
-	desc = "Дискета, на которой находится шаблон печати оружейной технологии, недоступной для получения обычными способами."
-	icon_state = "holodisk"
-	var/design_type
-
-/obj/item/disk/design_disk/security/Initialize(mapload)
-	. = ..()
-	if(isnull(design_type))
-		return INITIALIZE_HINT_QDEL
-
-	blueprint = new design_type()
-
-/obj/item/disk/design_disk/security/sfg5_mag
-	name = "SFG-5 SMG magazine design"
-	desc = "Дискета, на которой находится шаблон печати магазинов для ПП SFG-5."
-	design_type = /datum/design/sfg9mm
-
-/obj/item/disk/design_disk/security/sfg5_mag/get_ru_names()
-	return alist(
-		NOMINATIVE = "дискета шаблона печати магазина для SFG-5",
-		GENITIVE = "дискеты шаблона печати магазина для SFG-5",
-		DATIVE = "дискете шаблона печати магазина для SFG-5",
-		ACCUSATIVE = "дискету шаблона печати магазина для SFG-5",
-		INSTRUMENTAL = "дискетой шаблона печати магазина для SFG-5",
-		PREPOSITIONAL = "дискете шаблона печати магазина для SFG-5"
-	)
-
-/obj/item/disk/design_disk/security/saber_mag
-	name = "Saber SMG magazine design"
-	desc = "Дискета, на которой находится шаблон печати магазинов для ПП Saber"
-	design_type = /datum/design/smgm9mm
-
-/obj/item/disk/design_disk/security/saber_mag/get_ru_names()
-	return alist(
-		NOMINATIVE = "дискета шаблона печати магазина для Saber",
-		GENITIVE = "дискеты шаблона печати магазина для Saber",
-		DATIVE = "дискете шаблона печати магазина для Saber",
-		ACCUSATIVE = "дискету шаблона печати магазина для Saber",
-		INSTRUMENTAL = "дискетой шаблона печати магазина для Saber",
-		PREPOSITIONAL = "дискете шаблона печати магазина для Saber"
-	)
-
-/obj/item/disk/design_disk/security/ak814_mag
-	name = "AK-814 magazine design"
-	desc = "Дискета, на которой находится шаблон печати магазинов для штурмовой винтовки АК-814"
-	design_type = /datum/design/ak814_mag
-
-/obj/item/disk/design_disk/security/ak814_mag/get_ru_names()
-	return alist(
-		NOMINATIVE = "дискета шаблона печати магазина для АК-814",
-		GENITIVE = "дискеты шаблона печати магазина для АК-814",
-		DATIVE = "дискете шаблона печати магазина для АК-814",
-		ACCUSATIVE = "дискету шаблона печати магазина для АК-814",
-		INSTRUMENTAL = "дискетой шаблона печати магазина для АК-814",
-		PREPOSITIONAL = "дискете шаблона печати магазина для АК-814"
-	)
-
-/obj/item/disk/design_disk/security/aksu_ammo
-	name = "AK-814 ammo box design"
-	desc = "Дискета, на которой находится шаблон печати патронов для штурмовой винтовки АК-814. Судя по всему, диск повреждён."
-	design_type = /datum/design/aksu_ammo_box
-
-/obj/item/disk/design_disk/security/aksu_ammo/get_ru_names()
-	return alist(
-		NOMINATIVE = "дискета шаблона печати патронов для АК-814",
-		GENITIVE = "дискеты шаблона печати патронов для АК-814",
-		DATIVE = "дискете шаблона печати патронов для АК-814",
-		ACCUSATIVE = "дискету шаблона печати патронов для АК-814",
-		INSTRUMENTAL = "дискетой шаблона печати патронов для АК-814",
-		PREPOSITIONAL = "дискете шаблона печати патронов для АК-814"
-	)
-
-/obj/item/disk/design_disk/security/laser_carbine_mag
-	name = "IK-60 magazine design"
-	desc = "Дискета, на которой находится шаблон печати магазинов для лазерного карабина IK-60."
-	design_type = /datum/design/laser_carbine_mag
-
-/obj/item/disk/design_disk/security/laser_carbine_mag/get_ru_names()
-	return alist(
-		NOMINATIVE = "дискета шаблона печати магазина для IK-60",
-		GENITIVE = "дискеты шаблона печати магазина для IK-60",
-		DATIVE = "дискете шаблона печати магазина для IK-60",
-		ACCUSATIVE = "дискету шаблона печати магазина для IK-60",
-		INSTRUMENTAL = "дискетой шаблона печати магазина для IK-60",
-		PREPOSITIONAL = "дискете шаблона печати магазина для IK-60"
-	)
-
-
-/obj/structure/closet/secure_closet/guncabinet/riot_shotgun
-	name = "security riot shotgun cabinet"
-	desc = "Защищённый шкаф для хранения помповых дробовиков."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/riot_shotgun/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф помповых дробовиков",
-		GENITIVE = "шкафа помповых дробовиков",
-		DATIVE = "шкафу помповых дробовиков",
-		ACCUSATIVE = "шкаф помповых дробовиков",
-		INSTRUMENTAL = "шкафом помповых дробовиков",
-		PREPOSITIONAL = "шкафе помповых дробовиков",
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/riot_shotgun/populate_contents()
-	new /obj/item/gun/projectile/shotgun/riot(src)
-	new /obj/item/gun/projectile/shotgun/riot(src)
-	new /obj/item/gun/projectile/shotgun/riot(src)
-
-/obj/structure/closet/secure_closet/guncabinet/winchester
-	name = "security lever action shotgun cabinet"
-	desc = "Защищённый шкаф для хранения рычажных дробовиков."
-	req_access = list(ACCESS_ARMORY)
-
-/obj/structure/closet/secure_closet/guncabinet/winchester/get_ru_names()
-	return alist(
-		NOMINATIVE = "шкаф рычажных дробовиков",
-		GENITIVE = "шкафа рычажных дробовиков",
-		DATIVE = "шкафу рычажных дробовиков",
-		ACCUSATIVE = "шкаф рычажных дробовиков",
-		INSTRUMENTAL = "шкафом рычажных дробовиков",
-		PREPOSITIONAL = "шкафе рычажных дробовиков",
-	)
-
-/obj/structure/closet/secure_closet/guncabinet/winchester/populate_contents()
-	new /obj/item/gun/projectile/shotgun/winchester(src)
-	new /obj/item/gun/projectile/shotgun/winchester(src)
-	new /obj/item/gun/projectile/shotgun/winchester(src)
-
+	new /obj/item/gun/projectile/automatic/lr30(src)
+	new /obj/item/gun/projectile/automatic/lr30(src)
+	new /obj/item/gun/projectile/automatic/lr30(src)
+	new /obj/item/gun/projectile/automatic/lr30(src)
+	new /obj/item/gun/projectile/automatic/lr30(src)
 
 /obj/structure/closet/secure_closet/brigdoc
 	name = "brig physician's locker"
@@ -502,25 +254,23 @@
 	icon_state = "brigmed"
 
 /obj/structure/closet/secure_closet/brigdoc/populate_contents()
-	new /obj/item/storage/backpack/duffel/medical(src)
 	if(prob(50))
 		new /obj/item/storage/backpack/medic(src)
 	else
 		new /obj/item/storage/backpack/satchel_med(src)
 	new /obj/item/reagent_containers/spray/pepper(src)
 	new /obj/item/flash(src)
-	new /obj/item/storage/belt/medical(src)
-	new /obj/item/storage/belt/medical/surgery/loaded(src)
-	new /obj/item/handheld_defibrillator/(src)
-	new /obj/item/handheld_defibrillator/(src)
-	new /obj/item/reagent_containers/hypospray/safety(src)
-	new /obj/item/reagent_containers/hypospray/safety(src)
+	new /obj/item/storage/firstaid/regular(src)
+	new /obj/item/storage/firstaid/fire(src)
+	new /obj/item/storage/firstaid/adv(src)
+	new /obj/item/storage/firstaid/o2(src)
+	new /obj/item/storage/firstaid/toxin(src)
+	new /obj/item/clothing/suit/storage/brigdoc(src)
+	new /obj/item/clothing/under/rank/security/brigphys(src)
+	new /obj/item/clothing/shoes/white(src)
 	new /obj/item/sensor_device/advanced/security(src)
 	new /obj/item/radio/headset/headset_brigphys(src)
-	new /obj/item/storage/garmentbag/brigdoc(src)
-	new /obj/item/storage/box/autoinjectors(src)
-	new /obj/item/storage/firstaid/premium(src)
-	new /obj/item/implantcase(src)
+	new /obj/item/clothing/shoes/sandal/white(src)
 
 /obj/structure/closet/secure_closet/blueshield
 	name = "blueshield's locker"
@@ -557,11 +307,13 @@
 	new /obj/item/taperecorder(src)
 	new /obj/item/storage/garmentbag/ntrep(src)
 
+
 /obj/structure/closet/secure_closet/security/cargo
 
 /obj/structure/closet/secure_closet/security/cargo/populate_contents()
 	new /obj/item/clothing/accessory/armband/cargo(src)
 	new /obj/item/encryptionkey/headset_cargo(src)
+
 
 /obj/structure/closet/secure_closet/security/engine
 
@@ -569,11 +321,13 @@
 	new /obj/item/clothing/accessory/armband/engine(src)
 	new /obj/item/encryptionkey/headset_eng(src)
 
+
 /obj/structure/closet/secure_closet/security/science
 
 /obj/structure/closet/secure_closet/security/science/populate_contents()
 	new /obj/item/clothing/accessory/armband/science(src)
 	new /obj/item/encryptionkey/headset_sci(src)
+
 
 /obj/structure/closet/secure_closet/security/med
 
@@ -581,10 +335,13 @@
 	new /obj/item/clothing/accessory/armband/medgreen(src)
 	new /obj/item/encryptionkey/headset_med(src)
 
+
 /obj/structure/closet/secure_closet/cabinet/detective
 	name = "detective's cabinet"
 	icon_state = "cabinetdetective"
+	overlay_locker = "cd_locker"
 	req_access = list(ACCESS_FORENSICS_LOCKERS)
+
 
 /obj/structure/closet/secure_closet/cabinet/detective/populate_contents()
 	new /obj/item/storage/backpack/satchel_detective(src)
@@ -597,6 +354,7 @@
 	new /obj/item/storage/belt/security/detective(src)
 	new /obj/item/clothing/accessory/holobadge/detective(src)
 	new /obj/item/storage/garmentbag/detective(src)
+	new /obj/item/storage/box/revolver_kit(src)
 
 /obj/structure/closet/secure_closet/injection
 	name = "lethal injections locker"
@@ -605,6 +363,7 @@
 /obj/structure/closet/secure_closet/injection/populate_contents()
 	new /obj/item/reagent_containers/syringe/lethal(src)
 	new /obj/item/reagent_containers/syringe/lethal(src)
+
 
 /obj/structure/closet/secure_closet/brig
 	name = "brig locker"
@@ -631,7 +390,7 @@
 	req_access = list(ACCESS_COURT)
 
 /obj/structure/closet/secure_closet/courtroom/populate_contents()
-	new /obj/item/clothing/shoes/color/brown(src)
+	new /obj/item/clothing/shoes/brown(src)
 	new /obj/item/paper/Court (src)
 	new /obj/item/paper/Court (src)
 	new /obj/item/paper/Court (src)
@@ -639,6 +398,15 @@
 	new /obj/item/clothing/suit/judgerobe (src)
 	new /obj/item/clothing/head/powdered_wig (src)
 	new /obj/item/storage/briefcase(src)
+
+
+/obj/structure/closet/secure_closet/wall //TODO: Add here sprites. (They do not exist)
+	name = "wall locker"
+	req_access = list(ACCESS_SECURITY)
+	icon_state = "wall-locker"
+
+	//too small to put a man in
+	large = FALSE
 
 /obj/structure/closet/secure_closet/magistrate
 	name = "Magistrate's locker"

@@ -1,11 +1,8 @@
 /obj/item/storage/conveyor //Stores conveyor belts, click floor to make belt, use a conveyor switch on this to link all belts to that lever.
 	name = "conveyor belt placer"
 	desc = "This device facilitates the rapid deployment of conveyor belts."
-	icon = 'icons/obj/storage/boxes.dmi'
 	icon_state = "belt_placer"
-	righthand_file = 'icons/mob/inhands/storage_righthand.dmi'
-	lefthand_file = 'icons/mob/inhands/storage_lefthand.dmi'
-	item_state = "conv"
+	item_state = "belt_placer"
 	w_class = WEIGHT_CLASS_BULKY //Because belts are large things, you know?
 	can_hold = list(/obj/item/conveyor_construct)
 	flags = CONDUCT
@@ -17,15 +14,17 @@
 	use_to_pickup = TRUE
 	origin_tech = "engineering=1"
 
+
 /obj/item/storage/conveyor/bluespace
 	name = "bluespace conveyor belt placer"
 	desc = "This device facilitates the rapid deployment of conveyor belts. It utilises bluespace in order to hold many more belts than its regular counterpart."
 	icon_state = "bluespace_belt_placer"
-	item_state = "bs_conv"
+	item_state = "bluespace_belt_placer"
 	w_class = WEIGHT_CLASS_NORMAL
 	storage_slots = 50
 	max_combined_w_class = 200 //50 belts
 	origin_tech = "engineering=2;bluespace=1"
+
 
 /obj/item/storage/conveyor/attackby(obj/item/I, mob/user, params) //So we can link belts en masse
 	if(istype(I, /obj/item/conveyor_switch_construct))
@@ -41,13 +40,13 @@
 
 	return ..()
 
-/obj/item/storage/conveyor/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
-		return
 
+/obj/item/storage/conveyor/afterattack(atom/target, mob/user, proximity, params)
+	if(!proximity)
+		return
 	var/obj/item/conveyor_construct/conveyor = locate() in contents
 	if(!conveyor)
 		to_chat(user, span_warning("There are no belts in [src]."))
 		return
-	conveyor.afterattack(target, user, proximity_flag, modifiers, status)
+	conveyor.afterattack(target, user, proximity, params)
 

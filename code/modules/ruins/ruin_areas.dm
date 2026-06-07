@@ -5,7 +5,7 @@
 	icon_state = "away"
 	has_gravity = STANDARD_GRAVITY
 	area_flags = UNIQUE_AREA
-	ambience_index = AMBIENCE_RUINS
+	ambientsounds = RUINS_SOUNDS
 	sound_environment = SOUND_ENVIRONMENT_STONEROOM
 	holomap_should_draw = FALSE
 

@@ -2,6 +2,7 @@
 	name = "UO71"
 	tele_proof = TRUE
 
+
 /area/awaymission/UO71/plaza
 	name = "UO71 Plaza"
 	icon_state = "awaycontent1"
@@ -100,6 +101,7 @@
 	-Research Director Simons<br>
 	"}
 
+
 /obj/item/paper/terrorspiders3
 	name = "paper - 'Final Report'"
 	info = {"FROM: Field Agent 0738<br>
@@ -180,12 +182,12 @@
 /obj/item/gun/energy/laser/awaymission_aeg/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents = FALSE)
 	if(is_away_level(new_turf?.z))
 		if(ismob(loc))
-			to_chat(loc, span_notice("Your [src] activates, starting to draw power from a nearby wireless power source."))
+			to_chat(loc, "<span class='notice'>Your [src] activates, starting to draw power from a nearby wireless power source.</span>")
 		selfcharge = TRUE
 	else
 		if(selfcharge)
 			if(ismob(loc))
-				to_chat(loc, span_danger("Your [src] deactivates, as it is out of range from its power source."))
+				to_chat(loc, "<span class='danger'>Your [src] deactivates, as it is out of range from its power source.</span>")
 			cell.charge = 0
 			selfcharge = FALSE
 			update_icon()
@@ -202,6 +204,7 @@
 	var/list/access_to_give = list(ACCESS_AWAY01)
 	var/beenused = FALSE
 	var/door_to_open = "UO71_Start"
+
 
 /obj/machinery/computer/id_upgrader/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -230,6 +233,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /// Unlocks some blast doors on the gate level
 /obj/machinery/computer/id_upgrader/proc/unlock_doors()

@@ -39,9 +39,9 @@ Uncontrollable Aggression
 
 	if(A.stage >= 5 && prob(50))
 		if(aggressor.incapacitated() || HAS_TRAIT(aggressor, TRAIT_HANDS_BLOCKED))
-			aggressor.visible_message(span_danger("[aggressor] дёрга[PLUR_ET_YUT(aggressor)]ся и корчится!"))
+			aggressor.visible_message(span_danger("[aggressor] дёрга[pluralize_ru(aggressor.gender,"ется","ются")] и корчится!"))
 			return
-		aggressor.visible_message(span_danger("[aggressor] яростно бь[PLUR_YOT_YUT(aggressor)]ся вокруг!"))
+		aggressor.visible_message(span_danger("[aggressor] яростно бь[pluralize_ru(aggressor.gender,"ётся","ются")] вокруг!"))
 
 		var/obj/item/attacking_item = aggressor.get_item_by_slot(ITEM_SLOT_HAND_RIGHT)
 		if(!attacking_item)
@@ -67,7 +67,7 @@ Uncontrollable Aggression
 /datum/symptom/aggression/proc/GunAttack(mob/living/carbon/human/aggressor, obj/item/gun/attacking_item)
 	var/mob/living/victim = GetLivingTarget(7, aggressor)
 	if(istype(victim))
-		attacking_item.fast_fire(victim, aggressor)
+		attacking_item.process_fire(victim, aggressor)
 
 /datum/symptom/aggression/proc/WeaponAttack(mob/living/carbon/human/aggressor, obj/item/attacking_item)
 	var/mob/living/victim = GetLivingTarget(1, aggressor)
@@ -137,6 +137,7 @@ Uncontrollable Actions
 				possesed.swap_hand()
 			possesed.throw_item(locate(/turf) in shuffle(view(3, possesed)))
 
+
 	return
 
 /datum/symptom/obsession/proc/TakeItem(mob/living/carbon/human/H)
@@ -151,5 +152,5 @@ Uncontrollable Actions
 	var/list/targets = range(7, aggressor)
 	var/turf/target = locate(/turf) in shuffle(targets)
 	if(istype(target))
-		attacking_item.fast_fire(target, aggressor)
+		attacking_item.process_fire(target, aggressor)
 

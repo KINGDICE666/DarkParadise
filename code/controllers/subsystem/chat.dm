@@ -5,10 +5,11 @@
 
 SUBSYSTEM_DEF(chat)
 	name = "Chat"
-	ss_flags = SS_TICKER|SS_NO_INIT
+	flags = SS_TICKER|SS_NO_INIT
 	wait = 1
 	priority = FIRE_PRIORITY_CHAT
-	init_stage = INITSTAGE_LAST
+	init_order = INIT_ORDER_CHAT
+	offline_implications = "Chat will no longer function correctly. Immediate server restart recommended."
 
 	/// Associates a ckey with a list of messages to send to them.
 	var/list/list/datum/chat_payload/client_to_payloads = list()
@@ -66,14 +67,14 @@ SUBSYSTEM_DEF(chat)
 			return
 
 /datum/controller/subsystem/chat/proc/queue(queue_target, list/message_data, confidential = FALSE)
-	//if(!confidential)
-	//	SSdemo.write_chat(queue_target, message_data)
+	if(!confidential)
+		SSdemo.write_chat(queue_target, message_data)
 	var/list/targets = islist(queue_target) ? queue_target : list(queue_target)
 	for(var/target in targets)
 		var/client/client = CLIENT_FROM_VAR(target)
 		if(isnull(client))
 			continue
-		LAZYADDASSOCLIST(client_to_payloads, client.ckey, generate_payload(client, message_data))
+		LAZYADDASSOC(client_to_payloads, client.ckey, generate_payload(client, message_data))
 
 /datum/controller/subsystem/chat/proc/send_immediate(send_target, list/message_data)
 	var/list/targets = islist(send_target) ? send_target : list(send_target)

@@ -128,6 +128,7 @@
 #define rustg_dbp_generate(seed, accuracy, stamp_size, world_size, lower_range, upper_range) \
 	RUSTG_CALL(RUST_G, "dbp_generate")(seed, accuracy, stamp_size, world_size, lower_range, upper_range)
 
+
 // DMI Operations //
 
 #define rustg_dmi_strip_metadata(fname) RUSTG_CALL(RUST_G, "dmi_strip_metadata")(fname)
@@ -295,13 +296,13 @@
  * Generates a 2D poisson disk distribution ('blue noise'), which is relatively uniform.
  *
  * params:
- * `seed`: str
- * `width`: int, width of the noisemap (see world.maxx)
- * `length`: int, height of the noisemap (see world.maxy)
- * `radius`: int, distance between points on the noisemap
+ *	`seed`: str
+ *	`width`: int, width of the noisemap (see world.maxx)
+ *	`length`: int, height of the noisemap (see world.maxy)
+ *	`radius`: int, distance between points on the noisemap
  *
  * returns:
- * a width*length length string of 1s and 0s representing a 2D poisson sample collapsed into a 1D string
+ *	a width*length length string of 1s and 0s representing a 2D poisson sample collapsed into a 1D string
  */
 #define rustg_noise_poisson_map(seed, width, length, radius) RUSTG_CALL(RUST_G, "noise_poisson_map")(seed, width, length, radius)
 
@@ -310,13 +311,13 @@
 /**
  * Register a list of nodes into a rust library. This list of nodes must have been serialized in a json.
  * Node {// Index of this node in the list of nodes
- *   unique_id: usize,
- *   // Position of the node in byond
- *   x: usize,
- *   y: usize,
- *   z: usize,
- *   // Indexes of nodes connected to this one
- *   connected_nodes_id: Vec<usize>}
+ * 	  unique_id: usize,
+ * 	  // Position of the node in byond
+ * 	  x: usize,
+ * 	  y: usize,
+ * 	  z: usize,
+ * 	  // Indexes of nodes connected to this one
+ * 	  connected_nodes_id: Vec<usize>}
  * It is important that the node with the unique_id 0 is the first in the json, unique_id 1 right after that, etc.
  * It is also important that all unique ids follow. {0, 1, 2, 4} is not a correct list and the registering will fail
  * Nodes should not link across z levels.
@@ -481,4 +482,5 @@
  */
 #define rustg_worley_generate(region_size, threshold, node_per_region_chance, size, node_min, node_max) \
 	RUSTG_CALL(RUST_G, "worley_generate")(region_size, threshold, node_per_region_chance, size, node_min, node_max)
+
 

@@ -15,24 +15,28 @@
 /obj/vehicle/ridden/janicart/Initialize(mapload)
 	. = ..()
 	update_appearance()
-	GLOB.janitorial_equipment += src
 	AddElement(/datum/element/ridable, /datum/component/riding/vehicle/janicart)
+
 
 /obj/vehicle/ridden/janicart/Destroy()
 	if(trash_bag)
 		QDEL_NULL(trash_bag)
 	if(installed_upgrade)
 		QDEL_NULL(installed_upgrade)
-	GLOB.janitorial_equipment -= src
 	return ..()
 
 /obj/vehicle/ridden/janicart/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
 	. = ..()
-	if(. && installed_upgrade && isturf(loc))
-		loc.clean_blood()
-		for(var/obj/effect/check in loc)
-			if(check.is_cleanable())
-				qdel(check)
+	if(!. || !installed_upgrade || !isturf(loc))
+		return
+
+	loc.clean_blood()
+	for(var/obj/check in loc)
+		if(!check.is_cleanable())
+			continue
+
+		qdel(check)
+
 
 /obj/vehicle/ridden/janicart/examine(mob/user)
 	. = ..()
@@ -80,6 +84,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	else
 		return ..()
+
 
 /obj/vehicle/ridden/janicart/update_overlays()
 	. = ..()

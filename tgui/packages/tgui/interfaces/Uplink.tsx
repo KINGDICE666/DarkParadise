@@ -39,8 +39,6 @@ const PickTab = (index: number, props: PickTabProps) => {
       return <CartPage {...props} />;
     case 2:
       return <ExploitableInfoPage />;
-    case 3:
-      return <ObjectivesPage />;
     default:
       return 'SOMETHING WENT VERY WRONG PLEASE AHELP';
   }
@@ -54,7 +52,6 @@ type UplinkData = {
   cart_price: number;
   lucky_numbers: LuckyNumber[];
   exploitable: ExploitableRecord[];
-  objectives_items?: ObjectiveItem[];
 };
 
 type Contractor = {
@@ -104,14 +101,6 @@ type ExploitableRecord = {
   exploit_record: string;
 };
 
-type ObjectiveItem = {
-  objective_uid: string;
-  objective_name: string;
-  description: string;
-  item_name: string;
-  area_name: string;
-};
-
 export const Uplink = (_props: unknown) => {
   const { act, data } = useBackend<UplinkData>();
   const { cart } = data;
@@ -159,17 +148,6 @@ export const Uplink = (_props: unknown) => {
                 icon="user"
               >
                 Информация
-              </Tabs.Tab>
-              <Tabs.Tab
-                key="Objectives"
-                selected={tabIndex === 3}
-                onClick={() => {
-                  setTabIndex(3);
-                  setSearchText('');
-                }}
-                icon="bullseye"
-              >
-                Снаряжение для целей
               </Tabs.Tab>
               {!!data.contractor && (
                 <Tabs.Tab
@@ -675,8 +653,8 @@ modalRegisterBodyOverride('become_contractor', (modal) => {
     >
       <Box mx="0.8rem" mb="1rem">
         <b>
-          Ваши достижения в службе \&quot;Синдикату\&quot; были отмечены, агент!
-          Мы рады предложить вам уникальную возможность стать контрактником.
+          Ваши достижения в службе Синдикату были отмечены, агент! Мы рады
+          предложить вам уникальную возможность стать контрактником.
         </b>
         <br />
         <br />
@@ -722,7 +700,7 @@ modalRegisterBodyOverride('become_contractor', (modal) => {
             <Countdown
               key="countdown"
               timeLeft={time_left}
-              format={(_, f) => ' (' + f + ')'}
+              format={(v, f) => ' (' + f + ')'}
             />,
           ]
         ) : !isAffordable ? (
@@ -740,60 +718,3 @@ modalRegisterBodyOverride('become_contractor', (modal) => {
     </Section>
   );
 });
-
-const ObjectivesPage = () => {
-  const { act, data } = useBackend<UplinkData>();
-  const { objectives_items = [] } = data;
-
-  if (!objectives_items.length) {
-    return (
-      <Section fill title="Снаряжение для целей">
-        <Box italic>Нет целей, требующих специального снаряжения</Box>
-      </Section>
-    );
-  }
-
-  return (
-    <Section fill scrollable title="Снаряжение для целей">
-      {objectives_items.map((objective, index) => (
-        <Section
-          key={index}
-          m={0.2}
-          backgroundColor={'rgba(255, 0, 0, 0.1)'}
-          title={
-            <>
-              <Icon name="bullseye" />
-              {` Цель: ${objective.objective_name || 'Не указано'}`}
-            </>
-          }
-        >
-          <LabeledList>
-            <LabeledList.Item label="Описание цели">
-              {objective.description || 'Нет описания'}
-            </LabeledList.Item>
-            <LabeledList.Item label="Предмет для задания">
-              <b>{objective.item_name || 'Не указан'}</b>
-            </LabeledList.Item>
-            <LabeledList.Item label="Место запроса капсулы">
-              <Icon name="map-marker-alt" />{' '}
-              {objective.area_name || 'Не указано'}
-            </LabeledList.Item>
-          </LabeledList>
-          <Box mt={2}>
-            <Button
-              icon="box-open"
-              color="green"
-              onClick={() =>
-                act('spawn_objective_item', {
-                  obj_uid: objective.objective_uid,
-                })
-              }
-            >
-              Запросить предмет
-            </Button>
-          </Box>
-        </Section>
-      ))}
-    </Section>
-  );
-};

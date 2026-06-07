@@ -1,34 +1,45 @@
-/datum/job/head_of_staff/chief_engineer
-	title = JOB_TITLE_CHIEF_ENGINEER
+/datum/job/chief_engineer
+	title = JOB_TITLE_CHIEF
 	flag = JOB_FLAG_CHIEF
 	department_flag = JOBCAT_ENGSEC
-	department = STATION_DEPARTMENT_ENGINEERING
+	total_positions = 1
+	spawn_positions = 1
 	is_engineering = 1
+	supervisors = "the captain"
+	department_head = list(JOB_TITLE_CAPTAIN)
 	selection_color = "#ffba4c"
+	req_admin_notify = 1
 	access = list(
 		ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS,
 		ACCESS_TELEPORTER, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_ATMOSPHERICS, ACCESS_EMERGENCY_STORAGE, ACCESS_EVA,
 		ACCESS_HEADS, ACCESS_CONSTRUCTION, ACCESS_SEC_DOORS,
-		ACCESS_CE, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_MINISAT, ACCESS_MINERAL_STOREROOM
+		ACCESS_CE, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_MINISAT, ACCESS_MECHANIC, ACCESS_MINERAL_STOREROOM
 	)
 	minimal_access = list(
 		ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS,
 		ACCESS_TELEPORTER, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_ATMOSPHERICS, ACCESS_EMERGENCY_STORAGE, ACCESS_EVA,
 		ACCESS_HEADS, ACCESS_CONSTRUCTION, ACCESS_SEC_DOORS,
-		ACCESS_CE, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_MINISAT, ACCESS_MINERAL_STOREROOM
+		ACCESS_CE, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_MINISAT, ACCESS_MECHANIC, ACCESS_MINERAL_STOREROOM
 	)
+	minimal_player_age = 21
+	exp_requirements = 3000
 	exp_type = EXP_TYPE_ENGINEERING
+	disabilities_allowed = 0
 	outfit = /datum/outfit/job/chief_engineer
-	liver_traits = list(TRAIT_ENGINEER_METABOLISM)
+	insurance_type = INSURANCE_TYPE_DELUXE
+
+	salary = 300
+	min_start_money = 400
+	max_start_money = 700
 
 /datum/outfit/job/chief_engineer
-	name = JOB_TITLE_RU_CHIEF_ENGINEER
-	jobtype = /datum/job/head_of_staff/chief_engineer
+	name = "Chief Engineer"
+	jobtype = /datum/job/chief_engineer
 
 	uniform = /obj/item/clothing/under/rank/chief_engineer
 	belt = /obj/item/storage/belt/utility/chief/full
-	gloves = /obj/item/clothing/gloves/color/yellow
-	shoes = /obj/item/clothing/shoes/color/brown
+	gloves = /obj/item/clothing/gloves/color/black/ce
+	shoes = /obj/item/clothing/shoes/brown
 	head = /obj/item/clothing/head/hardhat/white
 	l_ear = /obj/item/radio/headset/heads/ce
 	id = /obj/item/card/id/ce
@@ -36,51 +47,44 @@
 	r_pocket = /obj/item/t_scanner
 	pda = /obj/item/pda/heads/ce
 	backpack_contents = list(
-		/obj/item/melee/baton/telescopic = 1,
+		/obj/item/melee/baton/telescopic = 1
 	)
 
 	backpack = /obj/item/storage/backpack/industrial
 	satchel = /obj/item/storage/backpack/satchel_eng
 	dufflebag = /obj/item/storage/backpack/duffel/engineering
-	box = /obj/item/storage/box/survival/engineer
-	implant_variant = /obj/item/organ/internal/cyberimp/eyes/meson
+	box = /obj/item/storage/box/engineer
 
-/datum/job/engineering
-	abstract_type = /datum/job/engineering
-	department = STATION_DEPARTMENT_ENGINEERING
+
+/datum/job/engineer
+	title = JOB_TITLE_ENGINEER
+	flag = JOB_FLAG_ENGINEER
 	department_flag = JOBCAT_ENGSEC
+	total_positions = 5
+	spawn_positions = 5
 	is_engineering = 1
-	supervisors = "Главным инженером"
-	department_head = list(JOB_TITLE_CHIEF_ENGINEER)
+	supervisors = "the chief engineer"
+	department_head = list(JOB_TITLE_CHIEF)
 	selection_color = "#ffeaca"
+	access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_ATMOSPHERICS, ACCESS_MINERAL_STOREROOM)
+	minimal_access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_MINERAL_STOREROOM)
+	alt_titles = list("Maintenance Technician","Engine Technician","Electrician")
 	minimal_player_age = 7
 	exp_requirements = 600
 	exp_type = EXP_TYPE_ENGINEERING
-	paycheck = PAYCHECK_CREW
-	liver_traits = list(TRAIT_ENGINEER_METABOLISM)
-
-/datum/job/engineering/engineer
-	title = JOB_TITLE_ENGINEER
-	flag = JOB_FLAG_ENGINEER
-	total_positions = 5
-	spawn_positions = 5
-	access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_ATMOSPHERICS, ACCESS_MINERAL_STOREROOM)
-	minimal_access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_MINERAL_STOREROOM)
-	alt_titles = list(
-		ALT_JOB_TITLE_RU_CONSTRUCTION_WORKER,
-		ALT_JOB_TITLE_RU_POWER_ENGINEER,
-		ALT_JOB_TITLE_RU_ELECTRICIAN,
-	)
 	outfit = /datum/outfit/job/engineer
 
+	salary = 160
+	min_start_money = 200
+	max_start_money = 500
+
 /datum/outfit/job/engineer
-	name = JOB_TITLE_RU_ENGINEER
-	jobtype = /datum/job/engineering/engineer
+	name = "Station Engineer"
+	jobtype = /datum/job/engineer
 
 	uniform = /obj/item/clothing/under/rank/engineer
 	suit = /obj/item/clothing/suit/storage/hazardvest
 	belt = /obj/item/storage/belt/utility/full/multitool
-	gloves = /obj/item/clothing/gloves/color/yellow
 	shoes = /obj/item/clothing/shoes/workboots
 	head = /obj/item/clothing/head/hardhat/orange
 	l_ear = /obj/item/radio/headset/headset_eng
@@ -91,56 +95,29 @@
 	backpack = /obj/item/storage/backpack/industrial
 	satchel = /obj/item/storage/backpack/satchel_eng
 	dufflebag = /obj/item/storage/backpack/duffel/engineering
-	box = /obj/item/storage/box/survival/engineer
-	implant_variant = /obj/item/organ/internal/cyberimp/eyes/meson
+	box = /obj/item/storage/box/engineer
 
-/datum/job/engineering/atmos
-	title = JOB_TITLE_ATMOSTECH
-	flag = JOB_FLAG_ATMOSTECH
-	total_positions = 3
-	spawn_positions = 2
-	access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_ATMOSPHERICS, ACCESS_MINERAL_STOREROOM, ACCESS_EMERGENCY_STORAGE)
-	minimal_access = list(ACCESS_EVA, ACCESS_ATMOSPHERICS, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_EMERGENCY_STORAGE, ACCESS_CONSTRUCTION, ACCESS_MINERAL_STOREROOM, ACCESS_TECH_STORAGE)
-	alt_titles = list(
-		ALT_JOB_TITLE_RU_LIFE_SUPPORT_SPECIALIST,
-	)
-	outfit = /datum/outfit/job/atmos
 
-/datum/outfit/job/atmos
-	name = JOB_TITLE_RU_ATMOSTECH
-	jobtype = /datum/job/engineering/atmos
-
-	uniform = /obj/item/clothing/under/rank/atmospheric_technician
-	belt = /obj/item/storage/belt/utility/atmostech
-	gloves = /obj/item/clothing/gloves/color/yellow
-	shoes = /obj/item/clothing/shoes/workboots
-	l_ear = /obj/item/radio/headset/headset_eng
-	id = /obj/item/card/id/engineering
-	pda = /obj/item/pda/atmos
-
-	backpack = /obj/item/storage/backpack/industrial
-	satchel = /obj/item/storage/backpack/satchel_eng
-	dufflebag = /obj/item/storage/backpack/duffel/atmos
-	box = /obj/item/storage/box/survival/engineer
-
-/datum/job/engineering/engineer/trainee
+/datum/job/engineer/trainee
 	title = JOB_TITLE_ENGINEER_TRAINEE
 	flag = JOB_FLAG_ENGINEER_TRAINEE
 	spawn_positions = 3
-	alt_titles = list(
-		ALT_JOB_TITLE_RU_ENGINEER_ASSISTANT,
-	)
+	department_head = list(JOB_TITLE_CHIEF, JOB_TITLE_ENGINEER)
+	alt_titles = list("Engineer Assistant", "Technical Assistant", "Engineer Student", "Technical Student", "Technical Trainee")
 	exp_requirements = 180
 	exp_type = EXP_TYPE_CREW
 	exp_max	= 600
 	exp_type_max = EXP_TYPE_ENGINEERING
 	is_novice = TRUE
 	outfit = /datum/outfit/job/engineer/trainee
-	paycheck = PAYCHECK_LOWER
+
+	salary = 130
+	min_start_money = 150
+	max_start_money = 300
 
 /datum/outfit/job/engineer/trainee
-	name = JOB_TITLE_RU_ENGINEER_TRAINEE
-	jobtype = /datum/job/engineering/engineer/trainee
+	name = "Trainee Engineer"
+	jobtype = /datum/job/engineer/trainee
 
 	uniform = /obj/item/clothing/under/rank/engineer/trainee
 	id = /obj/item/card/id/engineering/trainee
@@ -152,7 +129,97 @@
 		uniform = /obj/item/clothing/under/rank/engineer/trainee/skirt
 	if(H.mind && H.mind.role_alt_title)
 		switch(H.mind.role_alt_title)
-			if(ALT_JOB_TITLE_RU_ENGINEER_ASSISTANT)
+			if("Engineer Assistant")
 				uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant
 				if(H.gender == FEMALE)
 					uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant/skirt
+			if("Technical Assistant")
+				uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant
+				if(H.gender == FEMALE)
+					uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant/skirt
+				head = /obj/item/clothing/head/soft/orange
+			if("Technical Student", "Technical Trainee")
+				head = /obj/item/clothing/head/soft/orange
+			if("Engineer Student")
+				head = /obj/item/clothing/head/beret/eng
+
+
+/datum/job/atmos
+	title = JOB_TITLE_ATMOSTECH
+	flag = JOB_FLAG_ATMOSTECH
+	department_flag = JOBCAT_ENGSEC
+	total_positions = 3
+	spawn_positions = 2
+	is_engineering = 1
+	supervisors = "the chief engineer"
+	department_head = list(JOB_TITLE_CHIEF)
+	selection_color = "#ffeaca"
+	access = list(ACCESS_EVA, ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_CONSTRUCTION, ACCESS_ATMOSPHERICS, ACCESS_MINERAL_STOREROOM, ACCESS_EMERGENCY_STORAGE)
+	minimal_access = list(ACCESS_EVA, ACCESS_ATMOSPHERICS, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_EMERGENCY_STORAGE, ACCESS_CONSTRUCTION, ACCESS_MINERAL_STOREROOM, ACCESS_TECH_STORAGE)
+	alt_titles = list("Atmospheric Technician")
+	minimal_player_age = 7
+	exp_requirements = 900
+	exp_type = EXP_TYPE_ENGINEERING
+	outfit = /datum/outfit/job/atmos
+
+	salary = 170
+	min_start_money = 200
+	max_start_money = 500
+
+/datum/outfit/job/atmos
+	name = "Life Support Specialist"
+	jobtype = /datum/job/atmos
+
+	uniform = /obj/item/clothing/under/rank/atmospheric_technician
+	belt = /obj/item/storage/belt/utility/atmostech
+	shoes = /obj/item/clothing/shoes/workboots
+	l_ear = /obj/item/radio/headset/headset_eng
+	id = /obj/item/card/id/engineering
+	pda = /obj/item/pda/atmos
+
+	backpack = /obj/item/storage/backpack/industrial
+	satchel = /obj/item/storage/backpack/satchel_eng
+	dufflebag = /obj/item/storage/backpack/duffel/atmos
+	box = /obj/item/storage/box/engineer
+
+
+/datum/job/mechanic
+	title = JOB_TITLE_MECHANIC
+	flag = JOB_FLAG_MECHANIC
+	department_flag = JOBCAT_KARMA
+	total_positions = 1
+	spawn_positions = 1
+	is_engineering = 1
+	supervisors = "the chief engineer"
+	department_head = list(JOB_TITLE_CHIEF)
+	selection_color = "#ffeaca"
+	access = list(ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS, ACCESS_MECHANIC, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_MINERAL_STOREROOM, ACCESS_EMERGENCY_STORAGE)
+	minimal_access = list(ACCESS_MAINT_TUNNELS, ACCESS_EMERGENCY_STORAGE, ACCESS_MECHANIC, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_MINERAL_STOREROOM)
+	exp_requirements = 900
+	exp_type = EXP_TYPE_ENGINEERING
+	outfit = /datum/outfit/job/mechanic
+
+	salary = 150
+	min_start_money = 200
+	max_start_money = 400
+
+/datum/outfit/job/mechanic
+	name = "Mechanic"
+	jobtype = /datum/job/mechanic
+
+	uniform = /obj/item/clothing/under/rank/mechanic
+	belt = /obj/item/storage/belt/utility/full
+	shoes = /obj/item/clothing/shoes/workboots
+	head = /obj/item/clothing/head/hardhat
+	l_ear = /obj/item/radio/headset/headset_eng
+	id = /obj/item/card/id/engineering
+	r_pocket = /obj/item/t_scanner
+	pda = /obj/item/pda/engineering
+	backpack_contents = list(
+		/obj/item/pod_paint_bucket = 1
+	)
+
+	backpack = /obj/item/storage/backpack/industrial
+	satchel = /obj/item/storage/backpack/satchel_eng
+	dufflebag = /obj/item/storage/backpack/duffel/engineering
+	box = /obj/item/storage/box/engineer

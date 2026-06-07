@@ -2,6 +2,7 @@
 #define ARMGUARD_BLADE_EXISTS_FLAG (1<<1)
 #define ARMGUARD_SILENCE_FLAG (1<<2)
 
+
 /obj/item/clothing/accessory/armguard
 	name = "armguard"
 	desc = "Красивые наручи, только для красоты."
@@ -9,13 +10,13 @@
 	slot = ACCESSORY_SLOT_ARMBAND
 
 /obj/item/clothing/accessory/armguard/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "наручи",
 		GENITIVE = "наручей",
 		DATIVE = "наручам",
 		ACCUSATIVE = "наручи",
 		INSTRUMENTAL = "наручами",
-		PREPOSITIONAL = "наручах",
+		PREPOSITIONAL = "наручах"
 	)
 
 /obj/item/clothing/accessory/armguard/syndicate
@@ -89,8 +90,9 @@
 	user.balloon_alert(user, "клинок появился")
 	var/obj/item/weapon = new weapon_type(user, src)
 	user.put_in_hands(weapon)
-	playsound(user, 'sound/items/unsheath.ogg', 50, TRUE)
+	playsound(user, "sound/items/unsheath.ogg", 50, TRUE)
 	blade_action.set_reload_mode()
+
 
 /obj/item/clothing/accessory/armguard/syndicate/proc/start_create_new_blade(mob/user)
 	if(istype(user))
@@ -114,6 +116,7 @@
 	if(item_in_hands)
 		return
 	INVOKE_ASYNC(src, PROC_REF(appear_blade), user)
+
 
 ///Hidden blade
 
@@ -140,13 +143,13 @@
 	var/silence = FALSE
 
 /obj/item/kitchen/knife/hidden_blade/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "скрытый клинок",
 		GENITIVE = "скрытого клинка",
 		DATIVE = "скрытому клинку",
 		ACCUSATIVE = "скрытый клинок",
 		INSTRUMENTAL = "скрытым клинком",
-		PREPOSITIONAL = "скрытом клинке",
+		PREPOSITIONAL = "скрытом клинке"
 	)
 
 /obj/item/kitchen/knife/hidden_blade/Initialize(mapload, obj/item/clothing/accessory/armguard/syndicate/parent_armguard)
@@ -166,7 +169,7 @@
 	var/cached_force = force
 	var/cached_armour_penetration = armour_penetration
 	var/cached_sound = hitsound
-	if(user != target && user.dir == target.dir && COOLDOWN_FINISHED(src, backstab_cooldown) && !target.incapacitated(IGNORE_RESTRAINTS))
+	if(user != target && user.dir == target.dir && COOLDOWN_FINISHED(src, backstab_cooldown) && !target.incapacitated(INC_IGNORE_RESTRAINED))
 		force = backstab_damage
 		armour_penetration = backstab_armour_penetration
 		hitsound = null
@@ -214,7 +217,7 @@
 	var/reload_icon = "armguard_reload"
 	name = "Скрытый клинок"
 
-/datum/action/armguard_hidden_blade/Trigger(mob/clicker, trigger_flags)
+/datum/action/armguard_hidden_blade/Trigger(left_click)
 	if(!..())
 		return FALSE
 	var/mob/user = usr
@@ -225,9 +228,11 @@
 	button_icon_state = activate_icon
 	UpdateButtonIcon()
 
+
 /datum/action/armguard_hidden_blade/proc/set_reload_mode()
 	button_icon_state = reload_icon
 	UpdateButtonIcon()
+
 
 #undef ARMGUARD_BLADE_READY_FLAG
 #undef ARMGUARD_BLADE_EXISTS_FLAG

@@ -75,6 +75,7 @@
 	projectiletype = /obj/projectile/neurotox
 	projectilesound = 'sound/weapons/pierce.ogg'
 
+
 /mob/living/simple_animal/hostile/alien/queen
 	name = "alien queen"
 	icon_state = "alienq_running"
@@ -116,7 +117,7 @@
 		return
 	if(locate(/obj/structure/alien/weeds/node) in get_turf(src))
 		return
-	visible_message(span_alertalien("[src] has planted some alien weeds!"))
+	visible_message("<span class='alertalien'>[src] has planted some alien weeds!</span>")
 	new /obj/structure/alien/weeds/node(loc)
 
 /mob/living/simple_animal/hostile/alien/proc/LayEggs()
@@ -124,7 +125,7 @@
 		return
 	if(locate(/obj/structure/alien/egg) in get_turf(src))
 		return
-	visible_message(span_alertalien("[src] has laid an egg!"))
+	visible_message("<span class='alertalien'>[src] has laid an egg!</span>")
 	new /obj/structure/alien/egg(loc)
 
 /mob/living/simple_animal/hostile/alien/queen/large
@@ -139,8 +140,22 @@
 	mob_size = MOB_SIZE_LARGE
 	gold_core_spawnable = NO_SPAWN
 
+/obj/projectile/neurotox
+	name = "neurotoxin"
+	damage = 30
+	icon_state = "toxin"
+
 /mob/living/simple_animal/hostile/alien/maid
 	name = "lusty xenomorph maid"
+	// Finally, they translated something that is really needed!
+	ru_names = list(
+		NOMINATIVE = "похотливая ксеногорничная",
+		GENITIVE = "похотливой ксеногорничной",
+		DATIVE = "похотливой ксеногорничной",
+		ACCUSATIVE = "похотливую ксеногорничную",
+		INSTRUMENTAL = "похотливой ксеногорничной",
+		PREPOSITIONAL = "похотливой ксеногорничной"
+	)
 	melee_damage_lower = 0
 	melee_damage_upper = 0
 	a_intent = INTENT_HELP
@@ -152,12 +167,15 @@
 	icon_dead = "maid_dead"
 
 /mob/living/simple_animal/hostile/alien/maid/AttackingTarget()
-	if(ismovable(target))
-		if(istype(target, /obj/effect/decal/cleanable))
-			visible_message(span_notice("\The [src] cleans up \the [target]."))
-			qdel(target)
-			return TRUE
-		var/atom/movable/M = target
-		M.clean_blood()
-		visible_message(span_notice("\The [src] polishes \the [target]."))
+	if(HAS_TRAIT(target, TRAIT_MOPABLE))
+		visible_message(span_notice("[declent_ru(NOMINATIVE)] аккуратно оттирает [target.declent_ru(ACCUSATIVE)]."))
+		qdel(target)
 		return TRUE
+
+	if(!ismovable(target))
+		return FALSE
+
+	var/atom/movable/M = target
+	M.clean_blood()
+	visible_message(span_notice("[declent_ru(NOMINATIVE)] аккуратно оттирает грязь с [target.declent_ru(GENITIVE)]."))
+	return TRUE

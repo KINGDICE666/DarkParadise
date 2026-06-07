@@ -10,21 +10,17 @@
 	..()
 	holder = atom
 	if(!holder) //don't want this without a holder
-		qdel(src)
-		return
-	set_desc(length(steps))
+		spawn
+			qdel(src)
+	set_desc(steps.len)
 	return
-
-/datum/construction/Destroy(force)
-	holder = null
-	. = ..()
 
 /datum/construction/proc/next_step(mob/user as mob)
 	steps.len--
-	if(!length(steps))
+	if(!steps.len)
 		spawn_result(user)
 	else
-		set_desc(length(steps))
+		set_desc(steps.len)
 	return
 
 /datum/construction/proc/action(atom/used_atom,mob/user as mob)
@@ -39,16 +35,17 @@
 	return 0
 
 /datum/construction/proc/is_right_key(atom/used_atom) // returns current step num if used_atom is of the right type.
-	var/list/L = steps[length(steps)]
+	var/list/L = steps[steps.len]
 	if(do_tool_or_atom_check(used_atom, L["key"]))
 		return steps.len
 	return 0
 
+
 /datum/construction/proc/custom_action(step, used_atom, user)
-	if(iscoil(used_atom))
+	if(istype(used_atom, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/C = used_atom
 		if(C.get_amount() < 4)
-			to_chat(user, (span_warning("There's not enough cable to finish the task.")))
+			to_chat(user, ("<span class='warning'>There's not enough cable to finish the task.</span>"))
 			return 0
 		else
 			C.use(4)
@@ -56,7 +53,7 @@
 	else if(isstack(used_atom))
 		var/obj/item/stack/S = used_atom
 		if(S.get_amount() < 5)
-			to_chat(user, (span_warning("There's not enough material in this stack.")))
+			to_chat(user, ("<span class='warning'>There's not enough material in this stack.</span>"))
 			return 0
 		else
 			S.use(5)
@@ -68,15 +65,16 @@
 	return 1
 
 /datum/construction/proc/check_all_steps(atom/used_atom,mob/user as mob) //check all steps, remove matching one.
-	for(var/i in 1 to length(steps))
+	for(var/i=1;i<=steps.len;i++)
 		var/list/L = steps[i]
 		if(do_tool_or_atom_check(used_atom, L["key"]) && custom_action(i, used_atom, user))
 			steps[i]=null;//stupid byond list from list removal...
-			list_clear_nulls(steps)
-			if(!length(steps))
+			listclearnulls(steps)
+			if(!steps.len)
 				spawn_result(user)
 			return 1
 	return 0
+
 
 /datum/construction/proc/spawn_result(mob/user as mob)
 	if(result)
@@ -101,10 +99,10 @@
 /datum/construction/proc/try_consume(mob/user as mob, atom/used_atom, amount)
 	if(amount > 0)
 		// CABLES
-		if(iscoil(used_atom))
+		if(istype(used_atom,/obj/item/stack/cable_coil))
 			var/obj/item/stack/cable_coil/coil=used_atom
 			if(!coil.use(amount))
-				to_chat(user, span_warning("You don't have enough cable! You need at least [amount] coils."))
+				to_chat(user, "<span class='warning'>You don't have enough cable! You need at least [amount] coils.</span>")
 				return 0
 		// TOOLS
 		if(isitem(used_atom))
@@ -116,7 +114,7 @@
 		if(isstack(used_atom))
 			var/obj/item/stack/stack=used_atom
 			if(stack.get_amount() < amount)
-				to_chat(user, span_warning("You don't have enough [stack]! You need at least [amount]."))
+				to_chat(user, "<span class='warning'>You don't have enough [stack]! You need at least [amount].</span>")
 				return 0
 			stack.use(amount)
 	return 1
@@ -231,7 +229,7 @@
 		var/spawntype=state["spawn"]
 		var/atom/A = new spawntype(holder.loc)
 		if("amount" in state)
-			if(iscoil(A))
+			if(istype(A,/obj/item/stack/cable_coil))
 				var/obj/item/stack/cable_coil/C=A
 				C.amount=state["amount"]
 			if(isstack(A))

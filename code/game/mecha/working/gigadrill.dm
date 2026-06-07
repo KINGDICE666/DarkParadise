@@ -10,9 +10,9 @@
 	max_temperature = 20000
 	max_integrity = 400
 	lights_power = 3
-	lights_color = LIGHT_COLOR_GARLAND
+	lights_color = "#ffb366"
 	deflect_chance = 15
-	armor = list(MELEE = 40, BULLET = 20, LASER = 15, ENERGY = 20, BOMB = 40, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 40, BULLET = 20, LASER = 15, ENERGY = 20, BOMB = 40, BIO = 0, RAD = 10, FIRE = 100, ACID = 100)
 	max_equip = 2
 	deflect_chance = 15
 	mech_enter_time = 60
@@ -27,16 +27,16 @@
 
 /obj/mecha/working/gigadrill/Initialize(mapload)
 	. = ..()
-	soundloop = new(src, FALSE)
+	soundloop = new(list(src), FALSE)
 	pixel_x = -16
 	pixel_y = -16
 	var/obj/item/mecha_parts/mecha_equipment/drill/giga/drill = new
-	drill.attach(src, MECH_HAND_LEFT)
+	drill.attach(src)
 	LAZYADD(cargo, new /obj/structure/ore_box(src))
 
 	var/obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/clamp = new
 	clamp.integrated = TRUE
-	clamp.attach(src, MECH_HAND_RIGHT)
+	clamp.attach(src)
 
 /obj/mecha/working/gigadrill/add_cell()
 	cell = new /obj/item/stock_parts/cell/bluespace(src)

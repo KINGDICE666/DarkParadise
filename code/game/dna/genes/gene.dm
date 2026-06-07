@@ -29,6 +29,7 @@
 	/// Which traits gene gives
 	var/list/traits_to_add
 
+
 /datum/dna/gene/Destroy(force)
 	if(force)
 		return ..()
@@ -41,13 +42,16 @@
 /datum/dna/gene/proc/is_active(mob/living/mutant)
 	return LAZYIN(mutant.active_genes, type)
 
+
 /// Return `TRUE` if we can activate.
 /datum/dna/gene/proc/can_activate(mob/living/mutant, flags)
 	return FALSE
 
+
 /// Return `TRUE` if we can deactivate.
 /datum/dna/gene/proc/can_deactivate(mob/living/mutant, flags)
 	return TRUE
+
 
 /// Called when the gene activates.  Do your magic here.
 /datum/dna/gene/proc/activate(mob/living/mutant, flags)
@@ -57,6 +61,7 @@
 	if(length(traits_to_add))
 		mutant.add_traits(traits_to_add, DNA_TRAIT)
 	mutant.update_mutations()
+
 
 /**
 * Called when the gene deactivates.  Undo your magic here.
@@ -69,6 +74,7 @@
 	if(length(traits_to_add))
 		mutant.remove_traits(traits_to_add, DNA_TRAIT)
 	mutant.update_mutations()
+
 
 // This section inspired by goone's bioEffects.
 
@@ -99,6 +105,7 @@
 /datum/dna/gene/proc/OnDrawUnderlays(mob/M, g)
 	return
 
+
 /////////////////////
 // BASIC GENES
 //
@@ -109,6 +116,7 @@
 //  2. If the probability roll succeeds
 //  3. Activation is forced (done in domutcheck)
 /////////////////////
+
 
 /datum/dna/gene/basic
 	name = "BASIC GENE"
@@ -122,11 +130,13 @@
 	/// Possible deactivation messages
 	var/list/deactivation_messages
 
+
 /datum/dna/gene/basic/can_activate(mob/living/mutant, flags)
 	if(flags & MUTCHK_FORCED)
 		return TRUE
 	// Probability check
 	return prob(activation_prob)
+
 
 /datum/dna/gene/basic/activate(mob/living/mutant, flags)
 	. = ..()
@@ -134,11 +144,13 @@
 		var/msg = pick(activation_messages)
 		to_chat(mutant, span_notice("[msg]"))
 
+
 /datum/dna/gene/basic/deactivate(mob/living/mutant, flags)
 	. = ..()
 	if(length(deactivation_messages))
 		var/msg = pick(deactivation_messages)
 		to_chat(mutant, span_warning("[msg]"))
+
 
 // placeholders for empty FAKE genes
 // you can remake these into your own powers
@@ -147,9 +159,11 @@
 	name = "Ordinary Gene"
 	desc = "Just another link in the DNA strand."
 
+
 /datum/dna/gene/basic/fake/fake1/New()
 	..()
 	block = GLOB.fakeblock1
+
 
 /datum/dna/gene/basic/fake/fake2/New()
 	..()

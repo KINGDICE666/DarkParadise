@@ -45,6 +45,7 @@
 	tastes = list("tea leaves" = 1, "pure energy" = 1)
 	filling_color = "#4582B4"
 
+
 // Coffee
 /obj/item/seeds/coffee
 	name = "pack of coffee arabica seeds"
@@ -73,10 +74,6 @@
 	tastes = list("coffee beans" = 1)
 	bitesize_mod = 2
 	distill_reagent = "kahlua"
-
-/obj/item/reagent_containers/food/snacks/grown/coffee/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/coffeemaker_item_loader)
 
 // Coffee Robusta
 /obj/item/seeds/coffee/robusta

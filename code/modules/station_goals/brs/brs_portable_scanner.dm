@@ -12,7 +12,6 @@
 	desc = "Плата портативного сканера блюспейс разлома."
 	build_path = /obj/machinery/brs_portable_scanner
 	icon_state = "scannerplat"
-	greyscale_config = null
 	board_type = "machine"
 	origin_tech = "engineering=4;bluespace=3"
 	req_components = list(
@@ -20,7 +19,7 @@
 		/obj/item/stock_parts/capacitor/super = 2,
 		/obj/item/stock_parts/micro_laser/ultra = 1,
 		/obj/item/stock_parts/scanning_module/phasic = 5,
-		/obj/item/stack/ore/bluespace_crystal = 1,
+		/obj/item/stack/ore/bluespace_crystal = 1
 	)
 
 /obj/machinery/brs_portable_scanner
@@ -122,6 +121,7 @@
 		obj_break()
 		explosion(loc, light_impact_range = failure_force, flash_range = (2 * failure_force), flame_range =  (2 * failure_force), cause = "[src] was working too long within critical range of a rift.")
 
+
 /obj/machinery/brs_portable_scanner/update_icon_state()
 	var/prefix = initial(icon_state)
 	if(stat & BROKEN)
@@ -142,10 +142,12 @@
 	if(scanning_status == SCAN_CRITICAL)
 		icon_state = "[prefix]-act-critical"
 
+
 /obj/machinery/brs_portable_scanner/update_overlays()
 	. = ..()
 	if(panel_open)
 		. += image(icon, "[initial(icon_state)]-panel")
+
 
 /obj/machinery/brs_portable_scanner/proc/brs_light_update()
 	if(scanning_status == SCAN_NORMAL)
@@ -155,6 +157,7 @@
 		set_light(l_range = 1, l_power = 1, l_color = COLOR_RED_LIGHT, l_on = TRUE)
 		return
 	set_light_on(FALSE)
+
 
 /obj/machinery/brs_portable_scanner/power_change(forced = FALSE)
 	..()
@@ -233,6 +236,7 @@
 
 	// Update density
 	set_density(anchored)
+
 
 /obj/machinery/brs_portable_scanner/welder_act(mob/user, obj/item/I)
 	. = TRUE

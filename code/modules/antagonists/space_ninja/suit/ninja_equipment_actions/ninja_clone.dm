@@ -1,8 +1,10 @@
 /datum/action/item_action/advanced/ninja/ninja_clones
-	name = "Энергетические клоны"
-	desc = "Создаёт двух ваших клонов, незамедлительно вступающих в бой с противником. Также меняет вас и одного из клонов местами. Затраты энергии: 4000"
+	name = "Energy Clones"
+	desc = "Creates two clones of the user to confuse enemies in the fight. Also changes your and the clones possition after that. Energy cost: 4000"
 	check_flags = AB_CHECK_CONSCIOUS
 	charge_max = 8 SECONDS
+	use_itemicon = FALSE
+	icon_icon = 'icons/mob/actions/actions_ninja.dmi'
 	button_icon_state = "ninja_clones"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
@@ -14,13 +16,15 @@
 		return
 	if(!ninjacost(4000))
 		playsound(ninja, 'sound/effects/clone_jutsu.ogg', 50, TRUE)
-		var/datum/action/item_action/advanced/ninja/ninja_clones/ninja_clones = locate() in ninja.actions
-		ninja_clones.use_action()
+		for(var/datum/action/item_action/advanced/ninja/ninja_clones/ninja_action in actions)
+			ninja_action.use_action()
+			break
 		addtimer(CALLBACK(src, PROC_REF(spawn_ninja_clones), ninja), 15)
+
 
 /obj/item/clothing/suit/space/space_ninja/proc/spawn_ninja_clones(mob/living/carbon/human/ninja)
 	if(auto_smoke)
-		if(locate(/datum/action/item_action/advanced/ninja/ninja_smoke_bomb) in ninja.actions)
+		if(locate(/datum/action/item_action/advanced/ninja/ninja_smoke_bomb) in actions)
 			prime_smoke(lowcost = TRUE)
 	do_sparks(3, FALSE, ninja)
 	add_attack_logs(ninja, null, "Activated Energy Clones")
@@ -36,4 +40,4 @@
 			if(ismindshielded(in_turf_mob))
 				ninja_clone.GiveTarget(in_turf_mob)
 				break
-	do_teleport(ninja, get_turf(ninja), 2, asoundin = 'sound/effects/phasein.ogg', blocked_when_interfered = TRUE)
+	do_teleport(ninja, get_turf(ninja), 2, asoundin = 'sound/effects/phasein.ogg')

@@ -11,6 +11,7 @@
 	blobbernaut_message = "blasts"
 	message = "Блоб бьет тебя"
 
+
 /datum/blobstrain/debris_devourer/attack_living(mob/living/L, list/nearby_blobs)
 	send_message(L)
 	for(var/obj/structure/blob/blob in nearby_blobs)

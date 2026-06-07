@@ -1,13 +1,20 @@
 GLOBAL_LIST_INIT(map_transition_config, MAP_TRANSITION_CONFIG)
 
-#ifdef TEST_RUNNER
+#ifdef UNIT_TESTS
 GLOBAL_DATUM(test_runner, /datum/test_runner)
 #endif
+
+/proc/enable_debugging(mode, port)
+	CRASH("auxtools not loaded")
 
 /world/New()
 #ifdef USE_BYOND_TRACY
 	#warn USE_BYOND_TRACY is enabled
 	prof_init()
+#endif
+
+#ifndef OPENDREAM
+	dmjit_hook_main_init()
 #endif
 	// IMPORTANT
 	// If you do any SQL operations inside this proc, they must ***NOT*** be ran async. Otherwise players can join mid query
@@ -41,13 +48,14 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 
 	TgsNew(new /datum/tgs_event_handler/impl, TGS_SECURITY_TRUSTED) // creates a new TGS object
 	log_world("World loaded at [time_stamp()]")
-	log_world("[length(GLOB.vars) - length(GLOB.gvars_datum_in_built_vars)] global variables")
+	log_world("[GLOB.vars.len - GLOB.gvars_datum_in_built_vars.len] global variables")
 	GLOB.revision_info.log_info()
 	load_admins(run_async=FALSE) // This better happen early on.
 
-	#ifdef TEST_RUNNER
-	log_world("Test runner enabled.")
+	#ifdef UNIT_TESTS
+	log_world("Unit Tests Are Enabled!")
 	#endif
+
 
 	if(byond_version < MIN_COMPILER_VERSION || byond_build < MIN_COMPILER_BUILD)
 		log_world("Your server's byond version does not meet the recommended requirements for this code. Please update BYOND")
@@ -68,7 +76,8 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 
 	Master.Initialize(10, FALSE, TRUE)
 
-	#ifdef TEST_RUNNER
+
+	#ifdef UNIT_TESTS
 	GLOB.test_runner = new
 	GLOB.test_runner.Start()
 	#endif
@@ -87,6 +96,7 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 GLOBAL_LIST_EMPTY(world_topic_spam_prevention_handlers)
 /// List of all world topic handler datums. Populated inside makeDatumRefLists()
 GLOBAL_LIST_EMPTY(world_topic_handlers)
+
 
 /world/Topic(T, addr, master, key)
 	TGS_TOPIC
@@ -142,11 +152,10 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 			return ..(1)
 
 	// If we got here, we are in a "normal" reboot
-	GLOB.overlay_manager.dump_stats()
 	Master.Shutdown() // Shutdown subsystems
 
 	// If we were running unit tests, finish that run
-	#ifdef TEST_RUNNER
+	#ifdef UNIT_TESTS
 	GLOB.test_runner.Finalize()
 	return
 	#endif
@@ -178,8 +187,8 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 		..(0)
 
 /world/proc/load_mode()
-	var/list/Lines = world.file2list("data/mode.txt")
-	if(length(Lines))
+	var/list/Lines = file2list("data/mode.txt")
+	if(Lines.len)
 		if(Lines[1])
 			GLOB.master_mode = Lines[1]
 			add_game_logs("Saved mode is '[GLOB.master_mode]'")
@@ -200,8 +209,8 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 
 	if(totalPlayersReady <= CONFIG_GET(number/auto_extended_players_num))
 		GLOB.master_mode = "extended"
-		to_chat(world, span_boldnotice("Due to the lowpop the mode has been changed."))
-	to_chat(world, span_boldnotice("The mode is now: [GLOB.master_mode]"))
+		to_chat(world, "<span class='boldnotice'>Due to the lowpop the mode has been changed.</span>")
+	to_chat(world, "<span class='boldnotice'>The mode is now: [GLOB.master_mode]</span>")
 
 /world/proc/load_motd()
 	GLOB.join_motd = file2text("config/motd.txt")
@@ -274,7 +283,6 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	GLOB.http_log = "[GLOB.log_directory]/http.log"
 	GLOB.sql_log = "[GLOB.log_directory]/sql.log"
 	GLOB.mapmanip_log = "[GLOB.log_directory]/mapmanip.log"
-	GLOB.signal_log = "[GLOB.log_directory]/signal.log"
 
 	start_log(GLOB.world_game_log)
 	start_log(GLOB.world_href_log)
@@ -284,7 +292,6 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	start_log(GLOB.http_log)
 	start_log(GLOB.sql_log)
 	start_log(GLOB.mapmanip_log)
-	start_log(GLOB.signal_log)
 
 	#ifdef REFERENCE_TRACKING
 	GLOB.gc_log = "[GLOB.log_directory]/gc_debug.log"
@@ -310,6 +317,7 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	var/latest_changelog = file("html/changelogs/archive/" + time2text(world.timeofday, "YYYY-MM") + ".yml")
 	GLOB.changelog_hash = fexists(latest_changelog) ? md5(latest_changelog) : 0 //for telling if the changelog has changed recently
 
+
 /world/Del()
 	rustg_close_async_http_client() // Close the HTTP client. If you dont do this, youll get phantom threads which can crash DD from memory access violations
 	var/debug_server = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
@@ -319,6 +327,7 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 		rustg_redis_disconnect() // Disconnects the redis connection. See above.
 	prof_stop()
 	..()
+
 
 /**
  * Handles incresing the world's maxx var and intializing the new turfs and assigning them to the global area.
@@ -360,4 +369,3 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	maxz++
 	SSmobs.MaxZChanged()
 	SSidlenpcpool.MaxZChanged()
-

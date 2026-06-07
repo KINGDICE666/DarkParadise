@@ -6,6 +6,7 @@
 	/// The visual icons granted by wearing these glasses.
 	var/HUDType = null
 
+
 /obj/item/clothing/glasses/hud/equipped(mob/living/carbon/human/user, slot, initial)
 	. = ..()
 	if(!istype(user) || !HUDType || !(slot & (ITEM_SLOT_EYES|ITEM_SLOT_HEAD)))
@@ -14,11 +15,12 @@
 	if(islist(HUDType))
 		for(var/new_hud in HUDType)
 			var/datum/atom_hud/hud = GLOB.huds[new_hud]
-			hud.show_to(user)
+			hud.add_hud_to(user)
 		return .
 
 	var/datum/atom_hud/hud = GLOB.huds[HUDType]
-	hud.show_to(user)
+	hud.add_hud_to(user)
+
 
 /obj/item/clothing/glasses/hud/dropped(mob/living/carbon/human/user, slot, silent = FALSE)
 	. = ..()
@@ -28,11 +30,12 @@
 	if(islist(HUDType))
 		for(var/new_hud in HUDType)
 			var/datum/atom_hud/hud = GLOB.huds[new_hud]
-			hud.hide_from(user)
+			hud.remove_hud_from(user)
 		return .
 
 	var/datum/atom_hud/hud = GLOB.huds[HUDType]
-	hud.hide_from(user)
+	hud.remove_hud_from(user)
+
 
 /obj/item/clothing/glasses/hud/emp_act(severity)
 	if(!emagged)
@@ -52,9 +55,10 @@
 		var/datum/atom_hud/H = GLOB.huds[initial(HUDType)]
 		if(istype(user) && src == user.glasses)
 			if(HUDType)
-				H.show_to(user)
+				H.add_hud_to(user)
+
 			else
-				H.hide_from(user)
+				H.remove_hud_from(user)
 
 // Allows you to toggle HUDType on glasses.
 /obj/item/clothing/glasses/hud/proc/multiHUD_toggling(mob/living/carbon/human/user)
@@ -64,9 +68,13 @@
 	var/datum/atom_hud/oldHUD = GLOB.huds[HUDType]
 	var/hudMode = null
 
-	// DATA_HUD_MEDICAL_ADVANCED ->  DATA_HUD_SECURITY_ADVANCED
-	switch(HUDType)
+	// DATA_HUD_MEDICAL_ADVANCED ->  DATA_HUD_SECURITY_BASIC -> DATA_HUD_SECURITY_ADVANCED
+	switch(HUDType) 
 		if(DATA_HUD_MEDICAL_ADVANCED)
+			HUDType = DATA_HUD_SECURITY_BASIC
+			examine_extensions = EXAMINE_HUD_SKILLS
+			hudMode = "навыков"
+		if(DATA_HUD_SECURITY_BASIC)
 			HUDType = DATA_HUD_SECURITY_ADVANCED
 			examine_extensions = EXAMINE_HUD_SECURITY_READ | EXAMINE_HUD_SECURITY_WRITE
 			hudMode = "охраны"
@@ -76,9 +84,9 @@
 			hudMode = "здоровья"
 
 	if(user.glasses == src)
-		oldHUD.hide_from(user)
+		oldHUD.remove_hud_from(user)
 		var/datum/atom_hud/newHUD = GLOB.huds[HUDType]
-		newHUD.show_to(user)
+		newHUD.add_hud_to(user)
 
 	balloon_alert(user, "режим ИЛС [hudMode]")
 	playsound(user, 'sound/items/buttonclick.ogg', 50, TRUE)
@@ -102,8 +110,8 @@ MEDICAL
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/health/night
 	name = "Night Vision Medical HUD"
@@ -152,8 +160,8 @@ MEDICAL
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/health/tajblind/sunglasses
 	see_in_dark = 1
@@ -170,32 +178,21 @@ MEDICAL
 	item_state = "medicalvisor"
 
 /obj/item/clothing/glasses/hud/health/visor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "медицинский оптический визор",
 		GENITIVE = "медицинского оптического визора",
 		DATIVE = "медицинскому оптическому визору",
 		ACCUSATIVE = "медицинский оптический визор",
 		INSTRUMENTAL = "медицинским оптическим визором",
-		PREPOSITIONAL = "медицинском оптическом визоре",
+		PREPOSITIONAL = "медицинском оптическом визоре"
 	)
 
 /obj/item/clothing/glasses/hud/health/meson
 	name = "Medical-Meson HUD"
-	desc = "Специальные очки, используемые для визуального обнаружения брешей и полостей в окружающем пространстве \
-			и анализа состояния здоровья окружающих существ."
+	desc = "A medical heads-up display that comes with an optical meson scanner."
 	icon_state = "mesonhealth"
 	vision_flags = SEE_TURFS
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
-
-/obj/item/clothing/glasses/hud/health/meson/get_ru_names()
-	return alist(
-		NOMINATIVE = "медицинские мезонные ИЛС-очки",
-		GENITIVE = "медицинских мезонных ИЛС-очков",
-		DATIVE = "медицинским мезонным ИЛС-очкам",
-		ACCUSATIVE = "медицинские мезонные ИЛС-очки",
-		INSTRUMENTAL = "медицинскими мезонными ИЛС-очками",
-		PREPOSITIONAL = "медицинских мезонных ИЛС-очках"
-	)
 
 /obj/item/clothing/glasses/hud/health/monocle
 	name = "Medical HUD Monocle"
@@ -205,7 +202,7 @@ MEDICAL
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /*
@@ -227,8 +224,8 @@ DIAGNOSTIC
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/diagnostic/patch
 	name = "Diagnostic HUD Eyepatch"
@@ -284,13 +281,13 @@ DIAGNOSTIC
 	item_state = "diagvisor"
 
 /obj/item/clothing/glasses/hud/diagnostic/visor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "диагностический оптический визор",
 		GENITIVE = "диагностического оптического визора",
 		DATIVE = "диагностическому оптическому визору",
 		ACCUSATIVE = "диагностический оптический визор",
 		INSTRUMENTAL = "диагностическим оптическим визором",
-		PREPOSITIONAL = "диагностическом оптическом визоре",
+		PREPOSITIONAL = "диагностическом оптическом визоре"
 	)
 
 /obj/item/clothing/glasses/hud/diagnostic/monocle
@@ -301,7 +298,7 @@ DIAGNOSTIC
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /*
@@ -325,8 +322,8 @@ SECURITY
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/security/patch
 	name = "Security HUD Eyepatch"
@@ -367,7 +364,7 @@ SECURITY
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /obj/item/clothing/glasses/hud/security/sunglasses/heart
@@ -387,7 +384,8 @@ SECURITY
 	over_hat = TRUE
 	can_toggle = TRUE
 	visor_vars_to_toggle = VISOR_FLASHPROTECT | VISOR_TINT | VISOR_DARKNESSVIEW | VISOR_FULL_HUD
-	visor_flags_cover = GLASSESCOVERSEYES
+	actions_types = list(/datum/action/item_action/toggle)
+
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
@@ -396,12 +394,8 @@ SECURITY
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
-
-/obj/item/clothing/glasses/hud/security/sunglasses/tacticool/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Переключить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/glasses/hud/security/sunglasses/tacticool/attack_self(mob/user)
 	weldingvisortoggle(user)
@@ -440,8 +434,8 @@ SECURITY
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/security/sunglasses/tajblind/attack_self(mob/user)
 	toggle_veil(user)
@@ -456,13 +450,13 @@ SECURITY
 	item_state = "securityvisor"
 
 /obj/item/clothing/glasses/hud/security/sunglasses/visor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "охранный оптический визор",
 		GENITIVE = "охранного оптического визора",
 		DATIVE = "охранному оптическому визору",
 		ACCUSATIVE = "охранный оптический визор",
 		INSTRUMENTAL = "охранным оптическим визором",
-		PREPOSITIONAL = "охранном оптическом визоре",
+		PREPOSITIONAL = "охранном оптическом визоре"
 	)
 
 /obj/item/clothing/glasses/hud/security/monocle
@@ -473,7 +467,7 @@ SECURITY
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /*
@@ -494,8 +488,8 @@ HYDROPONIC
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		)
 
 /obj/item/clothing/glasses/hud/hydroponic/patch
 	name = "Hydroponic HUD Eyepatch"
@@ -551,13 +545,13 @@ HYDROPONIC
 	item_state = "hydroponicvisor"
 
 /obj/item/clothing/glasses/hud/hydroponic/visor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ботанический оптический визор",
 		GENITIVE = "ботанического оптического визора",
 		DATIVE = "ботаническому оптическому визору",
 		ACCUSATIVE = "ботанический оптический визор",
 		INSTRUMENTAL = "ботаническим оптическим визором",
-		PREPOSITIONAL = "ботаническом оптическом визоре",
+		PREPOSITIONAL = "ботаническом оптическом визоре"
 	)
 
 /obj/item/clothing/glasses/hud/hydroponic/monocle
@@ -568,7 +562,7 @@ HYDROPONIC
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /*
@@ -590,7 +584,7 @@ SKILLS
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /obj/item/clothing/glasses/hud/skills/patch
@@ -621,7 +615,7 @@ SKILLS
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /obj/item/clothing/glasses/hud/skills/tajblind
@@ -650,30 +644,16 @@ SKILLS
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 	HUDType = DATA_HUD_MEDICAL_ADVANCED
-	sprite_sheets = list(
-		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_GREY  = 'icons/mob/clothing/species/grey/eyes.dmi',
-		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
-	)
 
 /obj/item/clothing/glasses/hud/blueshield/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "много-режимные HUD-очки",
 		GENITIVE = "много-режимных HUD-очков",
 		DATIVE = "много-режимным HUD-очкам",
 		ACCUSATIVE = "много-режимные HUD-очки",
 		INSTRUMENTAL = "много-режимными HUD-очками",
-		PREPOSITIONAL = "много-режимных HUD-очках",
+		PREPOSITIONAL = "много-режимных HUD-очках"
 	)
-
-/obj/item/clothing/glasses/hud/blueshield/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/right_click_mapper/attack_self, "Переключить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/glasses/hud/blueshield/cap
 	name = "Gold multi-mod HUD glasses"
@@ -688,17 +668,17 @@ SKILLS
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)
 
 /obj/item/clothing/glasses/hud/blueshield/cap/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "золотые много-режимные ИЛС-очки",
 		GENITIVE = "золотых много-режимных ИЛС-очков",
 		DATIVE = "золотым много-режимным ИЛС-очкам",
 		ACCUSATIVE = "золотые много-режимные ИЛС-очки",
 		INSTRUMENTAL = "золотыми много-режимными ИЛС-очками",
-		PREPOSITIONAL = "золотых много-режимных ИЛС-очках",
+		PREPOSITIONAL = "золотых много-режимных ИЛС-очках"
 	)
 
 /obj/item/clothing/glasses/hud/blueshield/attack_self(mob/user)
@@ -709,16 +689,15 @@ SKILLS
 	desc = "Технологичный визор для глаз. Корпус выполнен из прочного титана, а на лицевой части устройства расположены датчики, камеры и сенсоры, способные получать, обрабатывать и передавать на сетчатку носителя данные об окружающем пространстве."
 	icon_state = "skillvisor"
 	item_state = "skillvisor"
-	flash_protect = FLASH_PROTECTION_FLASH
 
 /obj/item/clothing/glasses/hud/skills/visor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "оптический визор навыков",
 		GENITIVE = "оптического визора навыков",
 		DATIVE = "оптическому визору навыков",
 		ACCUSATIVE = "оптический визор навыков",
 		INSTRUMENTAL = "оптическим визором навыков",
-		PREPOSITIONAL = "оптическом визоре навыков",
+		PREPOSITIONAL = "оптическом визоре навыков"
 	)
 
 /obj/item/clothing/glasses/hud/skills/monocle
@@ -729,5 +708,5 @@ SKILLS
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
 	)

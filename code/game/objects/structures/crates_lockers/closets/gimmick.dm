@@ -4,6 +4,7 @@
 	icon_state = "cabinet"
 	overlay_sparking = "c_sparking"
 	overlay_locked = "c_locked"
+	overlay_locker = "c_locker"
 	overlay_unlocked = "c_unlocked"
 	max_integrity = 70
 	resistance_flags = FLAMMABLE
@@ -40,6 +41,7 @@
 	new /obj/item/clothing/under/soviet(src)
 	new /obj/item/clothing/under/soviet(src)
 
+
 /obj/structure/closet/gimmick/tacticool
 	name = "tacticool gear closet"
 	desc = "It's a storage unit for Tacticool gear."
@@ -59,6 +61,7 @@
 	new /obj/item/clothing/suit/space/hardsuit/deathsquad(src)
 	new /obj/item/clothing/under/syndicate/tacticool(src)
 	new /obj/item/clothing/under/syndicate/tacticool(src)
+
 
 /obj/structure/closet/thunderdome
 	name = "Thunderdome closet"

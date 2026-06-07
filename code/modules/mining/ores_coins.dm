@@ -15,6 +15,17 @@
 	var/refined_type = null //What this ore defaults to being refined into
 	var/list/stack_overlays
 
+/obj/item/stack/ore/get_ru_names()
+	return list(
+		NOMINATIVE = "камень",
+		GENITIVE = "камня",
+		DATIVE = "камню",
+		ACCUSATIVE = "камень",
+		INSTRUMENTAL = "камнем",
+		PREPOSITIONAL = "камне"
+	)
+
+
 /obj/item/stack/ore/update_overlays()
 	. = ..()
 
@@ -38,17 +49,19 @@
 	else
 		for(var/i in 1 to difference)
 			var/mutable_appearance/newore = mutable_appearance(icon, icon_state)
-			newore.pixel_w = rand(-8,8)
-			newore.pixel_z = rand(-8,8)
+			newore.pixel_x = rand(-8,8)
+			newore.pixel_y = rand(-8,8)
 			stack_overlays += newore
 
 	if(length(stack_overlays))
 		. += stack_overlays
 
-/obj/item/stack/ore/Initialize(mapload, new_amount, merge = TRUE)
+
+/obj/item/stack/ore/Initialize(mapload, new_amount , merge = TRUE)
 	. = ..()
-	pixel_x = base_pixel_x + rand(0, 16) - 8
-	pixel_y = base_pixel_y + rand(0, 8) - 8
+	pixel_x = rand(0, 16) - 8
+	pixel_y = rand(0, 8) - 8
+
 
 /obj/item/stack/ore/welder_act(mob/user, obj/item/I)
 	. = TRUE
@@ -61,7 +74,26 @@
 	balloon_alert(usr, "переплавлено!")
 	qdel(src)
 
-/obj/item/stack/ore/fire_act(exposed_temperature, exposed_volume)
+
+/obj/item/stack/ore/on_movable_entered_occupied_turf(atom/movable/arrived)
+	if(!istype(loc, /turf/simulated/floor/plating/asteroid) || (!ishuman(arrived) && !isrobot(arrived)))
+		return ..()
+
+	var/mob/arrived_mob = arrived
+	for(var/obj/item/storage/bag/ore/bag in arrived_mob.get_equipped_items(INCLUDE_POCKETS | INCLUDE_HELD))
+		for(var/obj/item/item as anything in loc)
+			if(!bag.can_be_inserted(item, stop_messages = TRUE))
+				continue
+
+			item.do_pickup_animation(arrived_mob)
+			bag.handle_item_insertion(item, prevent_warning = TRUE)
+
+		// Then, if the user is dragging an ore box, empty the satchel into the box.
+		if(istype(arrived_mob.pulling, /obj/structure/ore_box))
+			arrived_mob.pulling.attackby(bag, arrived)
+
+
+/obj/item/stack/ore/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	. = ..()
 	if(isnull(refined_type))
 		return
@@ -83,13 +115,13 @@
 	materials = list(MAT_URANIUM=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/uranium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "урановая руда",
 		GENITIVE = "урановой руды",
 		DATIVE = "урановой руде",
 		ACCUSATIVE = "урановую руду",
 		INSTRUMENTAL = "урановой рудой",
-		PREPOSITIONAL = "урановой руде",
+		PREPOSITIONAL = "урановой руде"
 	)
 
 /obj/item/stack/ore/iron
@@ -101,13 +133,13 @@
 	materials = list(MAT_METAL=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/iron/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "железная руда",
 		GENITIVE = "железной руды",
 		DATIVE = "железной руде",
 		ACCUSATIVE = "железную руду",
 		INSTRUMENTAL = "железной рудой",
-		PREPOSITIONAL = "железной руде",
+		PREPOSITIONAL = "железной руде"
 	)
 
 /obj/item/stack/ore/glass
@@ -119,13 +151,13 @@
 	materials = list(MAT_GLASS=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/glass/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "песок",
 		GENITIVE = "песка",
 		DATIVE = "песку",
 		ACCUSATIVE = "песок",
 		INSTRUMENTAL = "песком",
-		PREPOSITIONAL = "песке",
+		PREPOSITIONAL = "песке"
 	)
 
 GLOBAL_LIST_INIT(sand_recipes, list(\
@@ -171,13 +203,28 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	desc = "Можно нанести на балку, чтобы создать ложную каменную стену"
 
 /obj/item/stack/ore/glass/basalt/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "вулканический пепел",
 		GENITIVE = "вулканического пепла",
 		DATIVE = "вулканическому пеплу",
 		ACCUSATIVE = "вулканический пепел",
 		INSTRUMENTAL = "вулканическим пеплом",
-		PREPOSITIONAL = "вулканическом пепле",
+		PREPOSITIONAL = "вулканическом пепле"
+	)
+
+/obj/item/stack/ore/glass/basalt/ancient
+	name = "ancient sand"
+	item_state = "volcanic_sand"
+	singular_name = "ancient sand pile"
+
+/obj/item/stack/ore/glass/basalt/ancient/get_ru_names()
+	return list(
+		NOMINATIVE = "древний песок",
+		GENITIVE = "древнего песка",
+		DATIVE = "древнему песку",
+		ACCUSATIVE = "древний песок",
+		INSTRUMENTAL = "древним песком",
+		PREPOSITIONAL = "древнем песке"
 	)
 
 /obj/item/stack/ore/plasma
@@ -190,13 +237,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_PLASMA=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/plasma/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "плазменная руда",
 		GENITIVE = "плазменной руды",
 		DATIVE = "плазменной руде",
 		ACCUSATIVE = "плазменную руду",
 		INSTRUMENTAL = "плазменной рудой",
-		PREPOSITIONAL = "плазменной руде",
+		PREPOSITIONAL = "плазменной руде"
 	)
 
 /obj/item/stack/ore/silver
@@ -209,13 +256,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_SILVER=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/silver/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "серебряная руда",
 		GENITIVE = "серебряной руды",
 		DATIVE = "серебряной руде",
 		ACCUSATIVE = "серебряную руду",
 		INSTRUMENTAL = "серебряной рудой",
-		PREPOSITIONAL = "серебряной руде",
+		PREPOSITIONAL = "серебряной руде"
 	)
 
 /obj/item/stack/ore/gold
@@ -228,13 +275,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_GOLD=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/gold/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "золотая руда",
 		GENITIVE = "золотой руды",
 		DATIVE = "золотой руде",
 		ACCUSATIVE = "золотую руду",
 		INSTRUMENTAL = "золотой рудой",
-		PREPOSITIONAL = "золотой руде",
+		PREPOSITIONAL = "золотой руде"
 	)
 
 /obj/item/stack/ore/diamond
@@ -247,13 +294,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_DIAMOND=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/diamond/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "алмазная руда",
 		GENITIVE = "алмазной руды",
 		DATIVE = "алмазной руде",
 		ACCUSATIVE = "алмазную руду",
 		INSTRUMENTAL = "алмазной рудой",
-		PREPOSITIONAL = "алмазной руде",
+		PREPOSITIONAL = "алмазной руде"
 	)
 
 /obj/item/stack/ore/bananium
@@ -266,13 +313,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_BANANIUM=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/bananium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "бананиумная руда",
 		GENITIVE = "бананиумной руды",
 		DATIVE = "бананиумной руде",
 		ACCUSATIVE = "бананиумную руду",
 		INSTRUMENTAL = "бананиумной рудой",
-		PREPOSITIONAL = "бананиумной руде",
+		PREPOSITIONAL = "бананиумной руде"
 	)
 
 /obj/item/stack/ore/tranquillite
@@ -285,13 +332,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	materials = list(MAT_TRANQUILLITE=MINERAL_MATERIAL_AMOUNT)
 
 /obj/item/stack/ore/tranquillite/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "транквиллитовая руда",
 		GENITIVE = "транквиллитовой руды",
 		DATIVE = "транквиллитовой руде",
 		ACCUSATIVE = "транквиллитовую руду",
 		INSTRUMENTAL = "транквиллитовой рудой",
-		PREPOSITIONAL = "транквиллитовой руде",
+		PREPOSITIONAL = "транквиллитовой руде"
 	)
 
 /obj/item/stack/ore/titanium
@@ -303,13 +350,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	refined_type = /obj/item/stack/sheet/mineral/titanium
 
 /obj/item/stack/ore/titanium/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "титановая руда",
 		GENITIVE = "титановой руды",
 		DATIVE = "титановой руде",
 		ACCUSATIVE = "титановую руду",
 		INSTRUMENTAL = "титановой рудой",
-		PREPOSITIONAL = "титановой руде",
+		PREPOSITIONAL = "титановой руде"
 	)
 
 /obj/item/stack/ore/slag
@@ -319,13 +366,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	singular_name = "slag chunk"
 
 /obj/item/stack/ore/slag/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "шлак",
 		GENITIVE = "шлака",
 		DATIVE = "шлаку",
 		ACCUSATIVE = "шлак",
 		INSTRUMENTAL = "шлаком",
-		PREPOSITIONAL = "шлаке",
+		PREPOSITIONAL = "шлаке"
 	)
 
 /obj/item/twohanded/required/gibtonite
@@ -342,19 +389,16 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	var/attacher = UNKNOWN_STATUS_RUS
 	var/datum/wires/explosive/gibtonite/wires
 
-/obj/item/twohanded/required/gibtonite/Initialize(mapload)
-	. = ..()
-	ADD_TRAIT(src, TRAIT_CAN_ATTACH_TO_TRIPWIRE, INNATE_TRAIT)
-
 /obj/item/twohanded/required/gibtonite/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "гибтонит",
 		GENITIVE = "гибтонита",
 		DATIVE = "гибтониту",
 		ACCUSATIVE = "гибтонит",
 		INSTRUMENTAL = "гибтонитом",
-		PREPOSITIONAL = "гибтоните",
+		PREPOSITIONAL = "гибтоните"
 	)
+
 
 /obj/item/twohanded/required/gibtonite/Destroy()
 	if(wires)
@@ -362,10 +406,12 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 		QDEL_NULL(wires)
 	return ..()
 
+
 /obj/item/twohanded/required/gibtonite/can_be_pulled(atom/movable/puller, grab_state, force, supress_message)
 	if(!supress_message && ismob(puller))
 		balloon_alert(puller, "слишком тяжело!")
 	return FALSE // must be carried in two hands or be picked up with ripley
+
 
 /obj/item/twohanded/required/gibtonite/update_icon_state()
 	switch(quality)
@@ -376,10 +422,12 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 		if(GIBTONITE_QUALITY_HIGH)
 			icon_state = "Gibtonite ore 3"
 
+
 /obj/item/twohanded/required/gibtonite/update_overlays()
 	. = ..()
 	if(wires)
 		. += "Gibtonite_igniter"
+
 
 /obj/item/twohanded/required/gibtonite/attackby(obj/item/I, mob/user, params)
 	if(isigniter(I))
@@ -426,6 +474,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 
 	return ..()
 
+
 /obj/item/twohanded/required/gibtonite/wirecutter_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!wires || primed)
@@ -433,6 +482,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	if(!I.use_tool(src, user, volume = I.tool_volume))
 		return .
 	wires.Interact(user)
+
 
 /obj/item/twohanded/required/gibtonite/multitool_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -452,6 +502,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	if(!I.use_tool(src, user, volume = I.tool_volume))
 		return .
 	wires.Interact(user)
+
 
 /obj/item/twohanded/required/gibtonite/attack_ghost(mob/user)
 	if(wires)
@@ -492,7 +543,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 		else if(triggered_by == 2)
 			add_game_logs("A signal has primed a [name] for detonation at [AREACOORD(bombturf)]). Igniter attacher: [key_name(attacher)].")
 		else
-			user.visible_message(span_warning("[user] strikes \the [src], causing a chain reaction!"), span_danger("You strike \the [src], causing a chain reaction."))
+			user.visible_message("<span class='warning'>[user] strikes \the [src], causing a chain reaction!</span>", "<span class='danger'>You strike \the [src], causing a chain reaction.</span>")
 			add_game_logs("has primed a [name] for detonation at [AREACOORD(bombturf)])", user)
 		spawn(det_time)
 		if(primed)
@@ -506,17 +557,12 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 			if(!QDELETED(src))
 				qdel(src)
 
-/obj/item/twohanded/required/gibtonite/on_tripwire_trigger(obj/item/tripwire/base, mob/user)
-	var/turf/turf = get_turf(base)
-	forceMove(turf)
-	GibtoniteReaction(null, 1)
-	base.attached_item = null
-	base.UnregisterSignal(base, COMSIG_TRIPWIRE_TRIGGERED)
 
 /obj/item/stack/ore/ex_act(severity, target)
 	if(!severity || severity <= EXPLODE_HEAVY)
 		return
 	qdel(src)
+
 
 /*****************************Coin********************************/
 
@@ -538,26 +584,24 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	var/credits = 10
 
 /obj/item/coin/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "монета",
 		GENITIVE = "монеты",
 		DATIVE = "монете",
 		ACCUSATIVE = "монету",
 		INSTRUMENTAL = "монетой",
-		PREPOSITIONAL = "монете",
+		PREPOSITIONAL = "монете"
 	)
 
-/obj/item/coin/Initialize(mapload)
-	. = ..()
-	pixel_x = base_pixel_x + rand(-8, 8)
-	pixel_y = base_pixel_y + rand(-8, 8)
+/obj/item/coin/New()
+	..()
+	pixel_x = rand(0,16)-8
+	pixel_y = rand(0,8)-8
 
-	icon_state = "coin_[cmineral]_[sideslist[1]]"
+	var/state_begin = cmineral ? "coin_[cmineral]" : "coin"
+	icon_state = "[state_begin]_[sideslist[1]]"
 	if(cmineral && name_by_cmineral)
 		name = "[cmineral] coin"
-
-/obj/item/coin/get_item_credit_value()
-	return credits
 
 /obj/item/coin/gold
 	cmineral = "gold"
@@ -594,10 +638,6 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	icon_state = "coin_uranium_heads"
 	materials = list(MAT_URANIUM = 400)
 	credits = 160
-
-/obj/item/coin/uranium/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/radioactive, chance = URANIUM_IRRADIATION_CHANCE)
 
 /obj/item/coin/clown
 	cmineral = "bananium"
@@ -636,13 +676,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	credits = 600
 
 /obj/item/coin/twoheaded/thief/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "монета Гильдии Воров",
 		GENITIVE = "монеты Гильдии Воров",
 		DATIVE = "монете Гильдии Воров",
 		ACCUSATIVE = "монету Гильдии Воров",
 		INSTRUMENTAL = "монетой Гильдии Воров",
-		PREPOSITIONAL = "монете Гильдии Воров",
+		PREPOSITIONAL = "монете Гильдии Воров"
 	)
 
 /obj/item/coin/antagtoken
@@ -655,13 +695,13 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	name_by_cmineral = FALSE
 
 /obj/item/coin/antagtoken/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "антаг токен",
 		GENITIVE = "антаг токена",
 		DATIVE = "антаг токену",
 		ACCUSATIVE = "антаг токен",
 		INSTRUMENTAL = "антаг токеном",
-		PREPOSITIONAL = "антаг токене",
+		PREPOSITIONAL = "антаг токене"
 	)
 
 /obj/item/coin/antagtoken/syndicate
@@ -669,66 +709,21 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	credits = 160
 
 /obj/item/coin/antagtoken/syndicate/get_ru_names()
-	return alist(
-		NOMINATIVE = "монета \"Синдиката\"",
-		GENITIVE = "монеты \"Синдиката\"",
-		DATIVE = "монете \"Синдиката\"",
-		ACCUSATIVE = "монету \"Синдиката\"",
-		INSTRUMENTAL = "монетой \"Синдиката\"",
-		PREPOSITIONAL = "монете \"Синдиката\"",
+	return list(
+		NOMINATIVE = "монета Синдиката",
+		GENITIVE = "монеты Синдиката",
+		DATIVE = "монете Синдиката",
+		ACCUSATIVE = "монету Синдиката",
+		INSTRUMENTAL = "монетой Синдиката",
+		PREPOSITIONAL = "монете Синдиката"
 	)
 
-/obj/item/coin/magic
-	name = "magical coin"
-	cmineral = "gold"
-	icon_state = "coin_gold_heads"
-	name_by_cmineral = FALSE
-	materials = list(MAT_GOLD = 9999)
-	credits = 9999
-	COOLDOWN_DECLARE(COIN_SUMMON_COOLDOWN)
-
-/obj/item/coin/magic/get_ru_names()
-	return alist(
-		NOMINATIVE = "волшебная монета",
-		GENITIVE = "волшебной монеты",
-		DATIVE = "волшебной монете",
-		ACCUSATIVE = "волшебную монету",
-		INSTRUMENTAL = "волшебной монетой",
-		PREPOSITIONAL = "волшебной монете"
-	)
-
-/obj/item/coin/magic/examine(mob/user)
-	. = ..()
-	if(COOLDOWN_FINISHED(src, COIN_SUMMON_COOLDOWN))
-		. += span_notice("[capitalize(declent_ru(NOMINATIVE))] ярко блестит!")
-
-/obj/item/coin/magic/attack_self(mob/user)
-	. = ..()
-	if(!COOLDOWN_FINISHED(src, COIN_SUMMON_COOLDOWN))
-		return
-	to_chat(user, span_warning("Вы подкидываете [declent_ru(ACCUSATIVE)] в руке, и та начинает нагреваться"))
-	COOLDOWN_START(src, COIN_SUMMON_COOLDOWN, 10 SECONDS)
-	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Вы хотите поиграть играть за слугу [user.real_name]?", ROLE_WIZARD, role_cleanname = "слугу", poll_time = 10 SECONDS, source = image('icons/mob/simple_human.dmi', "butler"))
-	if(!LAZYLEN(candidates))
-		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] остывает у вас в руке. Возможно, стоит попробовать позже."))
-		return
-
-	var/mob/living/carbon/human/servant = new(user.loc)
-	servant.equipOutfit(/datum/outfit/butler)
-	servant.forceMove(user)
-	var/mob/dead/observer/chosen = pick(candidates)
-	message_admins("[ADMIN_LOOKUPFLW(chosen)] was spawned as Dice Servant")
-	servant.possess_by_player(chosen.key)
-	var/datum/antagonist/servant/serv = new /datum/antagonist/servant(user)
-	servant.mind.add_antag_datum(serv)
-	to_chat(servant, span_notice("Вы слуга [user.real_name]. Вы должны сделать всё, что в ваших силах, чтобы выполнить [GEND_HIS_HER(user)] приказы."))
-	to_chat(user, span_warning("Нечто принимает вашу плату в обмен на вечную службу."))
-	qdel(src)
 
 /obj/item/coin/update_overlays()
 	. = ..()
 	if(string_attached)
 		. += "coin_string_overlay"
+
 
 /obj/item/coin/attackby(obj/item/I, mob/user, params)
 	if(iscoil(I))
@@ -747,6 +742,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 
 	return  ..()
 
+
 /obj/item/coin/wirecutter_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!string_attached)
@@ -759,6 +755,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	var/obj/item/stack/cable_coil/coil = new(drop_location(), 1)
 	transfer_fingerprints_to(coil)
 	coil.add_fingerprint(user)
+
 
 /obj/item/coin/welder_act(mob/user, obj/item/I)
 	. = TRUE
@@ -775,25 +772,40 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 		new typekey(get_turf(loc))
 		qdel(src)
 
+
+/obj/item/coin/proc/on_result_act(coinflip)
+	return
+	
+
 /obj/item/coin/attack_self(mob/user)
-	if(cooldown < world.time - 15)
-		var/coinflip = pick(sideslist)
-		cooldown = world.time
-		flick("coin_[cmineral]_flip", src)
-		icon_state = "coin_[cmineral]_[coinflip]"
-		playsound(user.loc, 'sound/items/coinflip.ogg', 50, TRUE)
-		if(do_after(user, 1.5 SECONDS, src))
-			var/ru_coinflip = list(
-				"heads" = "Орёл",
-				"tails" = "Решка",
-				"valid" = "Ребро",
-				"salad" = "ERROR"
-			)
-			user.visible_message(
-				span_notice("[user] подбрасыва[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)]. Выпало: [ru_coinflip[coinflip]]."),
-				span_notice("Вы подбросили [declent_ru(ACCUSATIVE)]. Выпало: [ru_coinflip[coinflip]]."),
-				span_notice("Слышен звон монеты.")
-			)
+	if(cooldown >= world.time - 15)
+		return
+
+	var/coinflip = pick(sideslist)
+	cooldown = world.time
+	var/state_begin = cmineral ? "coin_[cmineral]" : "coin"
+	flick("[state_begin]_flip", src)
+	icon_state = "[state_begin]_[coinflip]"
+	playsound(user.loc, 'sound/items/coinflip.ogg', 50, TRUE)
+	if(!do_after(user, 1.5 SECONDS, src))
+		return
+
+	var/ru_coinflip = list(
+		"heads" = "Орёл",
+		"tails" = "Решка",
+		"valid" = "Ребро",
+		"salad" = "ERROR",
+		"blade" = "клинок",
+		"heretic" = "еретик",
+	)
+	var/ru_result = (coinflip in ru_coinflip) ? ru_coinflip[coinflip] : coinflip
+	user.visible_message(
+		span_notice("[user] подбрасыва[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)]. Выпало: [ru_result]."),
+		span_notice("Вы подбросили [declent_ru(ACCUSATIVE)]. Выпало: [ru_result]."),
+		span_notice("Слышен звон монеты.")
+	)
+	on_result_act(coinflip)
+
 
 /obj/item/coin/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	if(istype(throwingdatum?.thrower?.mind?.martial_art, /datum/martial_art/mr_chang))

@@ -37,18 +37,19 @@
 		COMSIG_ATOM_ENTERED = PROC_REF(play_squeak_crossed),
 	)
 
+
 /datum/component/squeak/Initialize(custom_sounds, volume_override, chance_override, step_delay_override, use_delay_override, squeak_on_move, extrarange, falloff_exponent, falloff_distance, dead_check = FALSE)
 	if(!isatom(parent) || isarea(parent))
 		return COMPONENT_INCOMPATIBLE
-	RegisterSignals(parent, list(COMSIG_ATOM_ENTERED, COMSIG_ATOM_BLOB_ACT, COMSIG_ATOM_HULK_ATTACK, COMSIG_ATOM_ATTACKBY), PROC_REF(play_squeak))
+	RegisterSignal(parent, list(COMSIG_ATOM_ENTERED, COMSIG_ATOM_BLOB_ACT, COMSIG_ATOM_HULK_ATTACK, COMSIG_PARENT_ATTACKBY), PROC_REF(play_squeak))
 	if(ismovable(parent))
-		RegisterSignals(parent, list(COMSIG_MOVABLE_BUMP, COMSIG_MOVABLE_IMPACT), PROC_REF(play_squeak))
+		RegisterSignal(parent, list(COMSIG_MOVABLE_BUMP, COMSIG_MOVABLE_IMPACT), PROC_REF(play_squeak))
 		AddComponent(/datum/component/connect_loc_behalf, parent, item_connections)
 		RegisterSignal(parent, COMSIG_MOVABLE_DISPOSING, PROC_REF(disposing_react))
 		if(squeak_on_move)
 			RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(play_squeak))
 		if(isitem(parent))
-			RegisterSignals(parent, list(COMSIG_ITEM_ATTACK, COMSIG_ITEM_ATTACK_OBJ, COMSIG_ITEM_HIT_REACT), PROC_REF(play_squeak))
+			RegisterSignal(parent, list(COMSIG_ITEM_ATTACK, COMSIG_ITEM_ATTACK_OBJ, COMSIG_ITEM_HIT_REACT), PROC_REF(play_squeak))
 			RegisterSignal(parent, COMSIG_ITEM_ATTACK_SELF, PROC_REF(use_squeak))
 			RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(on_equip))
 			RegisterSignal(parent, COMSIG_ITEM_DROPPED, PROC_REF(on_drop))
@@ -72,9 +73,11 @@
 	if(isnum(falloff_distance))
 		sound_falloff_distance = falloff_distance
 
+
 /datum/component/squeak/UnregisterFromParent()
 	if(ismovable(parent))
 		qdel(GetComponent(/datum/component/connect_loc_behalf))
+
 
 /datum/component/squeak/proc/play_squeak()
 	SIGNAL_HANDLER
@@ -90,6 +93,7 @@
 		else
 			playsound(parent, pickweight(override_squeak_sounds), volume, TRUE, sound_extra_range, sound_falloff_exponent, falloff_distance = sound_falloff_distance)
 
+
 /datum/component/squeak/proc/step_squeak(obj/item/clothing/shoes/source)
 	SIGNAL_HANDLER
 
@@ -102,6 +106,7 @@
 		steps = 0
 	else
 		steps++
+
 
 /datum/component/squeak/proc/play_squeak_crossed(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -121,6 +126,7 @@
 	if(isturf(current_parent?.loc))
 		play_squeak()
 
+
 /datum/component/squeak/proc/use_squeak()
 	SIGNAL_HANDLER
 
@@ -129,6 +135,7 @@
 
 	COOLDOWN_START(src, last_use, use_delay)
 	play_squeak()
+
 
 /datum/component/squeak/proc/on_equip(datum/source, mob/equipper, slot)
 	SIGNAL_HANDLER
@@ -140,6 +147,7 @@
 	//so putting an object in hands and then equipping the item on a clothing slot (without dropping it first)
 	//will always runtime without override = TRUE
 
+
 /datum/component/squeak/proc/on_drop(datum/source, mob/user)
 	SIGNAL_HANDLER
 
@@ -147,11 +155,13 @@
 	UnregisterSignal(user, COMSIG_QDELETING)
 	holder = null
 
+
 ///just gets rid of the reference to holder in the case that theyre qdeleted
 /datum/component/squeak/proc/holder_deleted(datum/source, datum/possible_holder)
 	SIGNAL_HANDLER
 	if(possible_holder == holder)
 		holder = null
+
 
 // Disposal pipes related shit
 /datum/component/squeak/proc/disposing_react(datum/source, obj/structure/disposalholder/disposal_holder, obj/machinery/disposal/disposal_source)
@@ -159,6 +169,7 @@
 
 	//We don't need to worry about unregistering this signal as it will happen for us automaticaly when the holder is qdeleted
 	RegisterSignal(disposal_holder, COMSIG_ATOM_DIR_CHANGE, PROC_REF(holder_dir_change))
+
 
 /datum/component/squeak/proc/holder_dir_change(datum/source, old_dir, new_dir)
 	SIGNAL_HANDLER

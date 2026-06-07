@@ -7,7 +7,7 @@
 	attack_verb = list("огрел", "ударил", "с силой ударил")
 	force = 12
 	throwforce = 10
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 40)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 40)
 	resistance_flags = FIRE_PROOF
 	origin_tech = "combat=5;powerstorage=3;syndicate=1"
 	var/click_delay = 1.5
@@ -33,11 +33,12 @@
 	. = ..()
 	if(in_range(user, src))
 		if(tank)
-			. += span_notice("[icon2html(tank, user)] It has [tank] mounted onto it.")
+			. += span_notice("[bicon(tank)] It has [tank] mounted onto it.")
 		if(cell)
-			. += span_notice("[icon2html(cell, user)]The fist is charged for [cell.charge] W")
+			. += span_notice("[bicon(cell)]The fist is charged for [cell.charge] W")
 	else
 		. += span_notice("You'll need to get closer to see any more.")
+
 
 /obj/item/melee/powerfist/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/tank/internals))
@@ -68,6 +69,7 @@
 
 	return ..()
 
+
 /obj/item/melee/powerfist/attack_self(mob/user)
 	. = ..()
 	if(.)
@@ -79,6 +81,7 @@
 	cell.forceMove(drop_location())
 	user.put_in_hands(cell, ignore_anim = FALSE)
 	cell = null
+
 
 /obj/item/melee/powerfist/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -93,6 +96,7 @@
 			fisto_setting = 1
 	to_chat(user, span_notice("You tweak [src]'s piston valve to [fisto_setting]."))
 
+
 /obj/item/melee/powerfist/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(!tank)
@@ -105,8 +109,9 @@
 	user.put_in_hands(tank, ignore_anim = FALSE)
 	tank = null
 
-/obj/item/melee/powerfist/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+
+/obj/item/melee/powerfist/afterattack(atom/target, mob/living/user, proximity, params)
+	if(!proximity)
 		return
 	if(QDELETED(target))
 		return
@@ -115,7 +120,7 @@
 	if(!tank)
 		to_chat(user, span_warning("[src] can't operate without a source of gas!"))
 		return
-	if(tank && !tank.air_contents.boolean_remove(((gasperfist * fisto_setting) * tank.air_contents.return_volume()) / (R_IDEAL_GAS_EQUATION * tank.air_contents.temperature())))
+	if(tank && !tank.air_contents.remove(gasperfist * fisto_setting))
 		to_chat(user, span_warning("[src]'s piston-ram lets out a weak hiss, it needs more gas!"))
 		playsound(loc, 'sound/effects/refill.ogg', 50, TRUE)
 		return
@@ -136,7 +141,7 @@
 			mobtarget.emp_act(1)
 			spark_system.start()
 			if(cell.charge >= 15000)
-				mobtarget.electrocute_act(cell.charge / 1250, src)
+				mobtarget.electrocute_act(cell.charge/1250, "силового кулака")
 			cell.use(cell.maxcharge)
 			to_chat(user, "[src] sparkles violently")
 	else

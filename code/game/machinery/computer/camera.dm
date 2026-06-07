@@ -91,13 +91,18 @@
 /obj/machinery/computer/security/ui_data()
 	var/list/data = list()
 
-	var/list/cameras
-	if(is_away_level(z))
-		cameras = GLOB.cameranet.get_available_cameras_data(network, list(z))
-	else
-		cameras = GLOB.cameranet.get_available_cameras_data(network)
-
-	data["cameras"] = cameras
+	var/list/cameras = get_available_cameras()
+	data["cameras"] = list()
+	for(var/i in cameras)
+		var/obj/machinery/camera/camera = cameras[i]
+		data["cameras"] += list(list(
+			name = camera.c_tag,
+			x = camera.x,
+			y = camera.y,
+			z = camera.z,
+			ref = camera.UID(),
+			status = camera.status
+		))
 
 	data["activeCamera"] = null
 	if(active_camera)
@@ -134,14 +139,16 @@
 			to_chat(usr, span_warning("ОШИБКА. Камера не найдена."))
 			return
 
-		var/old_camera = active_camera
 		active_camera?.computers_watched_by -= src
 		active_camera = selected_camera
 		active_camera.computers_watched_by += src
 		playsound(src, SFX_TERMINAL_TYPE, 25, FALSE)
 
-		SEND_SIGNAL(src, COMSIG_MONITOR_CAMERA_SWITCHED, old_camera)
+		if(isnull(active_camera))
+			return TRUE
+
 		update_active_camera_screen()
+
 		return TRUE
 
 /obj/machinery/computer/security/proc/update_active_camera_screen()
@@ -177,6 +184,7 @@
 
 	cam_screen.show_camera(visible_turfs, size_x, size_y)
 
+
 /obj/machinery/computer/security/ui_close(mob/user)
 	. = ..()
 	var/user_ref = user.UID()
@@ -192,6 +200,26 @@
 		last_camera_turf = null
 		playsound(src, 'sound/machines/terminal_off.ogg', 25, FALSE)
 
+// Returns the list of cameras accessible from this computer
+/obj/machinery/computer/security/proc/get_available_cameras()
+	var/list/L = list()
+	for(var/obj/machinery/camera/C in GLOB.cameranet.cameras)
+		if((is_away_level(z) || is_away_level(C.z)) && (C.z != z))//if on away mission, can only receive feed from same z_level cameras
+			continue
+		L.Add(C)
+	var/list/D = list()
+	for(var/obj/machinery/camera/C in L)
+		if(!C.network)
+			stack_trace("Camera in a cameranet has no camera network")
+			continue
+		if(!(islist(C.network)))
+			stack_trace("Camera in a cameranet has a non-list camera network")
+			continue
+		var/list/tempnetwork = C.network & network
+		if(tempnetwork.len)
+			D["[C.c_tag]"] = C
+	return D
+
 /obj/machinery/computer/security/attack_hand(mob/user)
 	if(stat || ..())
 		user.unset_machine()
@@ -206,6 +234,7 @@
 		return
 
 	ui_interact(user)
+
 
 /atom/movable/screen/map_view/camera
 	/// All the plane masters that need to be applied.
@@ -245,6 +274,7 @@
 	density = FALSE
 	circuit = /obj/item/circuitboard/camera/telescreen
 
+
 /obj/machinery/computer/security/telescreen/multitool_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
@@ -264,6 +294,7 @@
 		if("West")
 			pixel_x = -32
 
+
 /obj/machinery/computer/security/telescreen/entertainment
 	name = "entertainment monitor"
 	desc = "Чёрт возьми, лучше бы они показывали Paradise TV."
@@ -274,23 +305,16 @@
 	network = list("news")
 	layer = 4 //becouse of plasma glass with layer = 3
 	circuit = /obj/item/circuitboard/camera/telescreen/entertainment
-	interaction_flags_atom = INTERACT_ATOM_UI_INTERACT | INTERACT_ATOM_NO_FINGERPRINT_INTERACT | INTERACT_ATOM_NO_FINGERPRINT_ATTACK_HAND | INTERACT_MACHINE_REQUIRES_SIGHT
-	/// Icon utilised when `GLOB.active_entertainment_cameras` list have anything inside.
+	/// Icon utilised when `GLOB.active_video_cameras` list have anything inside.
 	var/icon_screen_on = "entertainment"
 
 /obj/machinery/computer/security/telescreen/entertainment/Initialize(mapload)
 	. = ..()
 	RegisterSignal(src, COMSIG_MOB_ATTACKED_RANGED, PROC_REF(on_ranged_attack))
-	RegisterSignal(src, COMSIG_MONITOR_CAMERA_SWITCHED, PROC_REF(on_camera_switch))
-	RegisterSignals(GLOB.cameranet, list(COMSIG_CAMERANET_CAMERA_ADDED, COMSIG_CAMERANET_CAMERA_REMOVED), PROC_REF(on_cameranet_camera_update))
 
 /obj/machinery/computer/security/telescreen/entertainment/Destroy()
 	. = ..()
 	UnregisterSignal(src, COMSIG_MOB_ATTACKED_RANGED)
-	UnregisterSignal(src, COMSIG_MONITOR_CAMERA_SWITCHED)
-	UnregisterSignal(GLOB.cameranet, list(COMSIG_CAMERANET_CAMERA_ADDED, COMSIG_CAMERANET_CAMERA_REMOVED))
-	if(active_camera)
-		UnregisterSignal(active_camera, COMSIG_MOVABLE_HEAR)
 
 /obj/machinery/computer/security/telescreen/entertainment/proc/on_ranged_attack(datum/source, mob/user, params)
 	SIGNAL_HANDLER
@@ -301,37 +325,8 @@
 
 	INVOKE_ASYNC(src, TYPE_PROC_REF(/datum, ui_interact), user)
 
-/// Signal proc called on camera switch. Used for registering signals to broadcast speech as well
-/obj/machinery/computer/security/telescreen/entertainment/proc/on_camera_switch(datum/source, obj/machinery/camera/old_camera)
-	SIGNAL_HANDLER
-
-	if(old_camera)
-		if(old_camera == active_camera)
-			return
-		UnregisterSignal(old_camera, COMSIG_MOVABLE_HEAR)
-
-	// Override is true to not over complicate things, since the camera switches on open, while closing sets active_camera to null.
-	// Modifying ui_close() to also unregister this signal seems not worth the effort.
-	RegisterSignal(active_camera, COMSIG_MOVABLE_HEAR, PROC_REF(on_camera_hear), override = TRUE)
-
-/// Signal proc called on chosen camera hear. Broadcasts heard speech to src
-/obj/machinery/computer/security/telescreen/entertainment/proc/on_camera_hear(datum/source, mob/speaker, list/message_pieces)
-	SIGNAL_HANDLER
-
-	if(!length(concurrent_users) || !active_camera) // Active camera is null if the ui got closed, most likely.
-		UnregisterSignal(source, COMSIG_MOVABLE_HEAR)
-		return
-
-	var/msg = "[speaker.name] говор[PLUR_IT_YAT(speaker)]: \"[multilingual_to_message(message_pieces)]\""
-	atom_say(msg)
-
-/// Signal proc called of cameranet camera updates
-/obj/machinery/computer/security/telescreen/entertainment/proc/on_cameranet_camera_update(datum/source, obj/machinery/camera/cam)
-	SIGNAL_HANDLER
-	update_icon(UPDATE_OVERLAYS)
-
 /obj/machinery/computer/security/telescreen/entertainment/update_overlays()
-	icon_screen = length(GLOB.active_entertainment_cameras) ? icon_screen_on : initial(icon_screen)
+	icon_screen = length(GLOB.active_video_cameras) ? icon_screen_on : initial(icon_screen)
 	return ..()
 
 /obj/machinery/computer/security/telescreen/entertainment/ui_state(mob/user)

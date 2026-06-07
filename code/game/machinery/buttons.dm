@@ -11,7 +11,7 @@
 	var/id_tag = "default"
 	var/active = FALSE
 	anchored = TRUE
-	armor = list(melee = 50, bullet = 50, laser = 50, energy = 50, bomb = 10, bio = 100, fire = 90, acid = 70)
+	armor = list(melee = 50, bullet = 50, laser = 50, energy = 50, bomb = 10, bio = 100, rad = 100, fire = 90, acid = 70)
 	idle_power_usage = 2
 	active_power_usage = 4
 	resistance_flags = LAVA_PROOF | FIRE_PROOF
@@ -47,8 +47,10 @@
 	radio_connection = null
 	return ..()
 
+
 /obj/machinery/driver_button/update_icon_state()
 	icon_state = active ? "launcheract" : "launcherbtt"
+
 
 /obj/machinery/driver_button/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -61,6 +63,7 @@
 	. = TRUE
 	multitool_menu_interact(user, I)
 
+
 /obj/machinery/driver_button/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.use_tool(src, user, 3 SECONDS, volume = I.tool_volume))
@@ -69,10 +72,12 @@
 	new /obj/item/mounted/frame/driver_button(loc)
 	qdel(src)
 
+
 /obj/machinery/driver_button/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/detective_scanner))
 		return ATTACK_CHAIN_PROCEED
 	return ..()
+
 
 /obj/machinery/driver_button/attack_hand(mob/user as mob)
 
@@ -189,6 +194,7 @@
 
 	active = FALSE
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/machinery/ignition_switch/update_icon_state()
 	icon_state = active ? "launcheract" : "launcherbtt"

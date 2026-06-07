@@ -36,8 +36,6 @@ type Props = Required<{
     className: BoxProps['className'];
     /** Makes the input field uneditable & non draggable to prevent user changes */
     disabled: BooleanLike;
-    /** onChange also fires about every 500ms when you drag the input up and down. */
-    tickWhileDragging: boolean;
     /** Fill all available horizontal space. */
     fluid: BooleanLike;
     /** Input font size */
@@ -50,6 +48,8 @@ type Props = Required<{
     lineHeight: CSSProperties['lineHeight'];
     /** An event which fires when you release the input or successfully enter a number. */
     onChange: (value: number) => void;
+    /** An event which fires about every 500ms when you drag the input up and down, on release and on manual editing. */
+    onDrag: (value: number) => void;
     /** Screen distance mouse needs to travel to adjust value by one `step`. */
     stepPixelSize: number;
     /** Unit to display to the right of value. */
@@ -78,7 +78,7 @@ export class NumberInput extends Component<Props, State> {
   // After this time has elapsed we are in drag mode so no editing when dragging ends
   dragTimeout: NodeJS.Timeout;
 
-  // Call onChange if tickWhileDragging at this interval
+  // Call onDrag at this interval
   dragInterval: NodeJS.Timeout;
 
   // default values for the number input state
@@ -102,7 +102,7 @@ export class NumberInput extends Component<Props, State> {
     });
   }
 
-  handleDragStart: React.MouseEventHandler<HTMLDivElement> = (event) => {
+  handleDragStart: MouseEventHandler<HTMLDivElement> = (event) => {
     const { value, disabled } = this.props;
     const { editing } = this.state;
     if (disabled || editing) {
@@ -112,9 +112,9 @@ export class NumberInput extends Component<Props, State> {
 
     const parsedValue = Number.parseFloat(value.toString());
     this.setState({
-      currentValue: parsedValue,
       dragging: false,
       origin: event.screenY,
+      currentValue: parsedValue,
       previousValue: parsedValue,
     });
 
@@ -125,12 +125,12 @@ export class NumberInput extends Component<Props, State> {
     }, 250);
     this.dragInterval = setInterval(() => {
       const { dragging, currentValue, previousValue } = this.state;
-      const { onChange, tickWhileDragging } = this.props;
-      if (dragging && tickWhileDragging && currentValue !== previousValue) {
+      const { onDrag } = this.props;
+      if (dragging && currentValue !== previousValue) {
         this.setState({
           previousValue: currentValue,
         });
-        onChange?.(currentValue);
+        onDrag?.(currentValue);
       }
     }, 400);
 
@@ -177,7 +177,7 @@ export class NumberInput extends Component<Props, State> {
 
   handleDragEnd = (_event: MouseEvent) => {
     const { dragging, currentValue } = this.state;
-    const { onChange, disabled } = this.props;
+    const { onDrag, onChange, disabled } = this.props;
     if (disabled) {
       return;
     }
@@ -193,6 +193,7 @@ export class NumberInput extends Component<Props, State> {
     });
     if (dragging) {
       onChange?.(currentValue);
+      onDrag?.(currentValue);
     } else if (this.inputRef) {
       const input = this.inputRef.current;
       if (input) {
@@ -210,7 +211,7 @@ export class NumberInput extends Component<Props, State> {
 
   handleBlur: FocusEventHandler<HTMLInputElement> = (event) => {
     const { editing, previousValue } = this.state;
-    const { minValue, maxValue, onChange, disabled } = this.props;
+    const { minValue, maxValue, onChange, onDrag, disabled } = this.props;
     if (disabled || !editing) {
       return;
     }
@@ -234,11 +235,12 @@ export class NumberInput extends Component<Props, State> {
     });
     if (previousValue !== targetValue) {
       onChange?.(targetValue);
+      onDrag?.(targetValue);
     }
   };
 
   handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
-    const { minValue, maxValue, onChange, disabled } = this.props;
+    const { minValue, maxValue, onChange, onDrag, disabled } = this.props;
     if (disabled) {
       return;
     }
@@ -264,6 +266,7 @@ export class NumberInput extends Component<Props, State> {
       });
       if (previousValue !== targetValue) {
         onChange?.(targetValue);
+        onDrag?.(targetValue);
       }
     } else if (isEscape(event.key)) {
       this.setState({

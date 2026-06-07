@@ -12,7 +12,7 @@
 			handle_nutrition()
 			if(QDELETED(src)) // Stop if the slime split during handle_nutrition()
 				return
-			reagents.remove_all(0.5 * REAGENTS_METABOLISM * length(reagents.reagent_list)) //Slimes are such snowflakes
+			reagents.remove_all(0.5 * REAGENTS_METABOLISM * reagents.reagent_list.len) //Slimes are such snowflakes
 			handle_targets()
 			if(!ckey)
 				handle_mood()
@@ -22,6 +22,7 @@
 	. = ..()
 	if(!destination && !QDELETED(src))
 		stack_trace("Slime moved to null space")
+
 
 /mob/living/simple_animal/slime/proc/AIprocess()  // the master AI process
 
@@ -103,11 +104,12 @@
 
 	AIproc = 0
 
-/mob/living/simple_animal/slime/handle_environment(datum/gas_mixture/readonly_environment)
-	if(!readonly_environment)
+
+/mob/living/simple_animal/slime/handle_environment(datum/gas_mixture/environment)
+	if(!environment)
 		return
 
-	var/loc_temp = get_temperature(readonly_environment)
+	var/loc_temp = get_temperature(environment)
 
 	adjust_bodytemperature(adjust_body_temperature(bodytemperature, loc_temp, 1))
 
@@ -125,6 +127,7 @@
 
 	else
 		Tempstun = 0
+
 
 /mob/living/simple_animal/slime/proc/adjust_body_temperature(current, loc_temp, boost)
 	var/temperature = current
@@ -217,6 +220,7 @@
 	//Heal yourself.
 	heal_damage_type(3 + round(nutrition_rand / 4))
 
+
 /mob/living/simple_animal/slime/proc/handle_nutrition()
 
 	if(docile) //God as my witness, I will never go hungry again
@@ -306,7 +310,7 @@
 			hungry = 1
 
 		if(hungry == 2 && !client) // if a slime is starving, it starts losing its friends
-			if(length(Friends) && prob(1))
+			if(Friends.len && prob(1))
 				var/mob/nofriend = pick(Friends)
 				--Friends[nofriend]
 
@@ -340,7 +344,7 @@
 
 					targets += L // Possible target found!
 
-				if(length(targets))
+				if(targets.len)
 					if(attacked || rabid || hungry == 2)
 						Target = targets[1] // I am attacked and am fighting back or so hungry I don't even care
 					else
@@ -414,7 +418,7 @@
 /mob/living/simple_animal/slime/proc/handle_speech()
 	//Speech understanding starts here
 	var/to_say
-	if(length(speech_buffer))
+	if(speech_buffer.len)
 		var/who = speech_buffer[1] // Who said it?
 		var/phrase = speech_buffer[2] // What did they say?
 		if((findtext(phrase, num2text(number)) || findtext(phrase, "slimes"))) // Talking to us

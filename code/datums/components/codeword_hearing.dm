@@ -40,13 +40,14 @@
 
 /datum/component/codeword_hearing/Destroy(force)
 	replace_regex = null
+
 	return ..()
 
 /datum/component/codeword_hearing/proc/handle_hearing(mob/source, message)
 	SIGNAL_HANDLER
 
 	// don't skip codewords when source speaks
-	if(HAS_TRAIT(source, TRAIT_DEAF))
+	if(!source.can_hear())
 		return
 
 	*message = replace_regex.Replace(*message, "<span class='[span_class]'>$1</span>")

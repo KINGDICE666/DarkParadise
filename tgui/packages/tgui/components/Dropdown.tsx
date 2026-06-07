@@ -5,14 +5,10 @@ import { unit } from 'common/ui';
 import { Button } from './Button';
 import { Icon } from './Icon';
 import { Popper } from './Popper';
-import { createSearch } from 'common/string';
-import { Input } from './Input';
-
 export type DropdownEntry = {
   displayText: ReactNode;
   value: string | number;
 };
-
 type DropdownOption = string | DropdownEntry;
 type Props = {
   /** Called when a value is picked from the list, `value` is the value that was picked */
@@ -49,12 +45,8 @@ type Props = {
   onClick: (event) => void;
   /** Dropdown renders over instead of below */
   over: boolean;
-  /** Fill all available horizontal space  */
-  fluid: boolean;
   /** Text to show when nothing has been selected. */
   placeholder: string;
-  /** Use search in dropdown. */
-  search: boolean;
 }> &
   BoxProps;
 enum DIRECTION {
@@ -84,30 +76,16 @@ export const Dropdown = (props: Props) => {
     onSelected,
     options = [],
     over,
-    placeholder = 'Выбрать...',
+    placeholder = 'Select...',
     selected,
-    fluid,
     width = '15rem',
-    search,
     ...rest
   } = props;
   const [open, setOpen] = useState(false);
-  const [searchText, setSearchText] = useState('');
   const adjustedOpen = over ? !open : open;
   const innerRef = useRef<HTMLDivElement>(null);
-
-  const stringSearch = createSearch<DropdownOption>(searchText, (option) => {
-    if (typeof option === 'string') {
-      return option as string;
-    }
-    return option.displayText as string;
-  });
-  const filteredOptions = options.filter(stringSearch);
-
   const selectedIndex =
-    filteredOptions.findIndex(
-      (option) => getOptionValue(option) === selected
-    ) || 0;
+    options.findIndex((option) => getOptionValue(option) === selected) || 0;
 
   const scrollToElement = (position: number) => {
     let scrollPos = position;
@@ -115,9 +93,7 @@ export const Dropdown = (props: Props) => {
       scrollPos = position < 2 ? 0 : position - 2;
     } else {
       scrollPos =
-        position > filteredOptions.length - 3
-          ? filteredOptions.length - 1
-          : position - 2;
+        position > options.length - 3 ? options.length - 1 : position - 2;
     }
 
     const dropdownMenu = innerRef.current;
@@ -130,11 +106,11 @@ export const Dropdown = (props: Props) => {
 
   /** Update the selected value when clicking the left/right buttons */
   const updateSelected = (direction: DIRECTION) => {
-    if (filteredOptions.length < 1 || disabled) {
+    if (options.length < 1 || disabled) {
       return;
     }
     const startIndex = 0;
-    const endIndex = filteredOptions.length - 1;
+    const endIndex = options.length - 1;
     let newIndex: number;
     if (selectedIndex < 0) {
       newIndex = direction === 'next' ? endIndex : startIndex; // No selection yet
@@ -147,7 +123,7 @@ export const Dropdown = (props: Props) => {
     if (open && autoScroll) {
       scrollToElement(newIndex);
     }
-    onSelected?.(getOptionValue(filteredOptions[newIndex]));
+    onSelected?.(getOptionValue(options[newIndex]));
   };
   /** Allows the menu to be scrollable on open */
   useEffect(() => {
@@ -167,56 +143,42 @@ export const Dropdown = (props: Props) => {
       onClickOutside={() => setOpen(false)}
       placement={over ? 'top-start' : 'bottom-start'}
       content={
-        <>
-          <div
-            className="Layout Dropdown__menu"
-            style={{ minWidth: menuWidth }}
-            ref={innerRef}
-          >
-            {filteredOptions.length === 0 && (
-              <div className="Dropdown__menuentry">No options</div>
-            )}
-            {filteredOptions.map((option, index) => {
-              const value = getOptionValue(option);
-              return (
-                <div
-                  className={classes([
-                    'Dropdown__menuentry',
-                    selected === value && 'selected',
-                  ])}
-                  key={index}
-                  onClick={() => {
+        <div
+          className="Layout Dropdown__menu"
+          style={{ minWidth: menuWidth }}
+          ref={innerRef}
+        >
+          {options.length === 0 && (
+            <div className="Dropdown__menuentry">No options</div>
+          )}
+          {options.map((option, index) => {
+            const value = getOptionValue(option);
+            return (
+              <div
+                className={classes([
+                  'Dropdown__menuentry',
+                  selected === value && 'selected',
+                ])}
+                key={index}
+                onClick={() => {
+                  setOpen(false);
+                  onSelected?.(value);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
                     setOpen(false);
                     onSelected?.(value);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      setOpen(false);
-                      onSelected?.(value);
-                    }
-                  }}
-                >
-                  {typeof option === 'string' ? option : option.displayText}
-                </div>
-              );
-            })}
-          </div>
-          {search && (
-            <Input
-              expensive
-              mt={0.2}
-              value={searchText}
-              width="100%"
-              onChange={(value) => setSearchText(value)}
-            />
-          )}
-        </>
+                  }
+                }}
+              >
+                {typeof option === 'string' ? option : option.displayText}
+              </div>
+            );
+          })}
+        </div>
       }
     >
-      <div
-        className={classes(['Dropdown', fluid && 'Dropdown--fluid'])}
-        style={{ width: unit(width) }}
-      >
+      <div className="Dropdown" style={{ width: unit(width) }}>
         <div
           className={classes([
             'Dropdown__control',

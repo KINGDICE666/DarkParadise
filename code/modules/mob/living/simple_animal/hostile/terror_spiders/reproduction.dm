@@ -19,7 +19,7 @@
 	var/mob/asigned_ghost
 
 /obj/structure/spider/spiderling/terror_spiderling/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "паучок",
 		GENITIVE = "паучка",
 		DATIVE = "паучку",
@@ -100,7 +100,7 @@
 		S.enemies = enemies
 
 		if(!spider_awaymission && asigned_ghost)
-			S.possess_by_player(asigned_ghost.key)
+			S.key = asigned_ghost.key
 			S.add_datum_if_not_exist()
 			asigned_ghost = null
 		else if(!spider_awaymission)
@@ -131,7 +131,7 @@
 				if(temp_vent.welded) // no point considering a vent we can't even use
 					continue
 				vents.Add(temp_vent)
-			if(!length(vents))
+			if(!vents.len)
 				entry_vent = null
 				return
 			var/obj/machinery/atmospherics/unary/vent_pump/exit_vent = pick(vents)
@@ -174,7 +174,7 @@
 							new_area.Entered(src)
 		else
 			frustration++
-			GLOB.move_manager.move_to(src, entry_vent, 1, rand(2, 4))
+			SSmove_manager.move_to(src, entry_vent, 1, rand(2, 4))
 			if(frustration > 2)
 				entry_vent = null
 	else if(prob(33))
@@ -189,8 +189,10 @@
 		for(var/obj/machinery/atmospherics/unary/vent_pump/v in view(7,src))
 			if(!v.welded)
 				entry_vent = v
-				GLOB.move_manager.move_to(src, entry_vent, 1, rand(2, 4))
+				SSmove_manager.move_to(src, entry_vent, 1, rand(2, 4))
 				break
+
+
 
 // --------------------------------------------------------------------------------
 // ----------------- TERROR SPIDERS: EGGS (USED BY NURSE AND QUEEN TYPES) ---------
@@ -273,13 +275,13 @@
 		if(/mob/living/simple_animal/hostile/poison/terror_spider/queen/princess)
 			name = "princess of terror eggs"
 			ru_prefix = "принцессы ужаса"
-	ru_names = alist(
+	ru_names = list(
 		NOMINATIVE = "яйца [ru_prefix]",
 		GENITIVE = "яиц [ru_prefix]",
 		DATIVE = "яйцам [ru_prefix]",
 		ACCUSATIVE = "яйца [ru_prefix]",
 		INSTRUMENTAL = "яйцами [ru_prefix]",
-		PREPOSITIONAL = "яйцах [ru_prefix]",
+		PREPOSITIONAL = "яйцах [ru_prefix]"
 	)
 
 /obj/structure/spider/eggcluster/terror_eggcluster/Destroy()
@@ -306,7 +308,7 @@
 	if(GLOB.global_degenerate && !spider_mymother.spider_awaymission && !QDELETED(src))
 		qdel(src)
 		return
-	if(grown_tick_count - amount_grown <= TERROR_VOTE_TICKS && !length(asigned_ghosts) \
+	if(grown_tick_count - amount_grown <= TERROR_VOTE_TICKS && !asigned_ghosts?.len \
 		&& !ghost_poll && !spider_mymother.spider_awaymission)
 		find_spider_owner()
 	if(amount_grown >= grown_tick_count && spider_mymother.spider_awaymission)  //x2 time for egg process, spiderlings grows instantly
@@ -322,7 +324,7 @@
 		S.spider_myqueen = spider_myqueen
 		S.spider_mymother = spider_mymother
 		S.enemies = enemies
-		if(length(asigned_ghosts))
+		if(asigned_ghosts.len)
 			S.asigned_ghost = pick_n_take(asigned_ghosts)
 		if(spider_growinstantly)
 			S.amount_grown = 250
@@ -332,14 +334,14 @@
 	name = "empress egg cluster"
 	spiderling_type = /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/weak
 	max_integrity = 1000
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 100, BIO = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 100, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
 	explosion_block = 100
 	grown_tick_count = 250
 	explosion_vertical_block = 100
 	var/save_burst = FALSE
 
 /obj/structure/spider/eggcluster/terror_eggcluster/empress/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "яйца Императрицы Ужаса",
 		GENITIVE = "яиц Императрицы Ужаса",
 		DATIVE = "яйцам Императрицы Ужаса",
@@ -373,7 +375,7 @@
 	icon_state = "spiderjelly"
 
 /obj/structure/spider/royaljelly/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "королевское желе",
 		GENITIVE = "королевского желе",
 		DATIVE = "королевскому желе",

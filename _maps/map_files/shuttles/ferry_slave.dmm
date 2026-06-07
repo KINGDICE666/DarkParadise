@@ -1,7 +1,8 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
 "a" = (
 /obj/structure/shuttle/engine/propulsion{
-	dir = 8
+	dir = 8;
+	tag = "icon-propulsion (EAST)"
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
@@ -29,6 +30,11 @@
 	},
 /turf/simulated/floor/shuttle/syndicate,
 /area/shuttle/transport)
+"j" = (
+/turf/simulated/wall/shuttle{
+	tag = "icon-swall2"
+	},
+/area/shuttle/transport)
 "l" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
@@ -47,7 +53,8 @@
 /area/shuttle/transport)
 "n" = (
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /obj/machinery/vending/autodrobe,
 /turf/simulated/floor/shuttle/syndicate,
@@ -104,7 +111,8 @@
 	name = "point of sale"
 	},
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /turf/simulated/floor/shuttle/syndicate,
 /area/shuttle/transport)
@@ -219,7 +227,7 @@ U
 U
 K
 L
-U
+j
 U
 "}
 (9,1,1) = {"

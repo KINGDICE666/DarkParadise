@@ -1,3 +1,7 @@
+#define EMPTY 0
+#define WIRED 1
+#define READY 2
+
 /obj/item/grenade/chem_grenade
 	name = "grenade casing"
 	desc = "A do it yourself grenade casing!"
@@ -5,8 +9,8 @@
 	var/payload_name = null // used for spawned grenades
 	force = 2
 	var/prime_sound = 'sound/items/screwdriver2.ogg'
-	var/stage = GRENADE_EMPTY
-	var/list/obj/item/beakers = list()
+	var/stage = EMPTY
+	var/list/beakers = list()
 	var/list/allowed_containers = list(/obj/item/reagent_containers/glass/beaker, /obj/item/reagent_containers/glass/bottle)
 	var/affected_area = 3
 	var/obj/item/assembly_holder/nadeassembly = null
@@ -17,6 +21,7 @@
 	var/no_splash = FALSE //If the grenade deletes even if it has no reagents to splash with. Used for slime core reactions.
 	var/contained = "" // For logging
 	var/cores = "" // Also for logging
+
 
 /obj/item/grenade/chem_grenade/Initialize(mapload)
 	. = ..()
@@ -29,14 +34,18 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/item/grenade/chem_grenade/Destroy()
 	QDEL_NULL(nadeassembly)
-	QDEL_LIST(beakers)
+	if(!no_splash)
+		QDEL_LIST(beakers)
 	return ..()
 
+
 /obj/item/grenade/chem_grenade/examine(mob/user)
-	display_timer = (stage == GRENADE_READY && !nadeassembly)	//show/hide the timer based on assembly state
+	display_timer = (stage == READY && !nadeassembly)	//show/hide the timer based on assembly state
 	. = ..()
+
 
 /obj/item/grenade/chem_grenade/proc/get_trigger()
 	if(!nadeassembly) return null
@@ -45,9 +54,6 @@
 		return O
 	return null
 
-/obj/item/grenade/chem_grenade/proc/stage_change(new_stage)
-	stage = new_stage
-	update_appearance()
 
 /obj/item/grenade/chem_grenade/update_icon_state()
 	if(nadeassembly)
@@ -58,12 +64,13 @@
 	icon = initial(icon)
 
 	switch(stage)
-		if(GRENADE_EMPTY)
+		if(EMPTY)
 			icon_state = "[initial(icon_state)]_unlocked"
-		if(GRENADE_WIRED)
+		if(WIRED)
 			icon_state = "[initial(icon_state)]_ass"
-		if(GRENADE_READY)
+		if(READY)
 			icon_state = "[initial(icon_state)][active ? "_active" : null]"
+
 
 /obj/item/grenade/chem_grenade/update_overlays()
 	. = ..()
@@ -78,11 +85,12 @@
 		for(var/O in nadeassembly.a_right.attached_overlays)
 			underlays += "[O]_r"
 
+
 /obj/item/grenade/chem_grenade/update_name(updates)
 	. = ..()
 
 	if(nadeassembly)
-		if(stage != GRENADE_READY)
+		if(stage != READY)
 			name = "bomb casing[label]"
 
 		else
@@ -95,15 +103,16 @@
 		return .
 
 	switch(stage)
-		if(GRENADE_EMPTY)
+		if(EMPTY)
 			name = "grenade casing[label]"
-		if(GRENADE_WIRED)
+		if(WIRED)
 			name = "grenade casing[label]"
-		if(GRENADE_READY)
+		if(READY)
 			name = payload_name + "grenade" + label
 
+
 /obj/item/grenade/chem_grenade/attack_self(mob/user)
-	if(active || stage != GRENADE_READY)
+	if(active || stage != READY)
 		return
 
 	if(nadeassembly)
@@ -125,6 +134,7 @@
 
 		addtimer(CALLBACK(src, PROC_REF(prime), user), det_time)
 
+
 /obj/item/grenade/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	var/obj/projectile/P = hitby
 	if(damage && attack_type == PROJECTILE_ATTACK && P.damage_type != STAMINA && prob(15))
@@ -132,6 +142,7 @@
 		add_attack_logs(P.firer, owner, "A projectile ([hitby]) detonated a grenade held", ATKLOG_FEW)
 		prime()
 		return 1 //It hit the grenade, not them
+
 
 /obj/item/grenade/chem_grenade/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/hand_labeler))
@@ -152,7 +163,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS|ATTACK_CHAIN_NO_AFTERATTACK
 
 	switch(stage)
-		if(GRENADE_WIRED)
+		if(WIRED)
 			if(!is_type_in_list(I, allowed_containers))
 				return ..()
 			add_fingerprint(user)
@@ -168,7 +179,7 @@
 			to_chat(user, span_notice("You add [I] to the assembly."))
 			return ATTACK_CHAIN_BLOCKED_ALL
 
-		if(GRENADE_EMPTY)
+		if(EMPTY)
 			if(istype(I, /obj/item/assembly_holder))
 				add_fingerprint(user)
 				var/obj/item/assembly_holder/new_assembly = I
@@ -181,9 +192,11 @@
 				if(!user.drop_transfer_item_to_loc(I, src))
 					return ..()
 				nadeassembly = new_assembly
+				if(nadeassembly.has_prox_sensors())
+					AddComponent(/datum/component/proximity_monitor)
 				nadeassembly.master = src
 				assemblyattacher = user.ckey
-				stage = GRENADE_WIRED
+				stage = WIRED
 				to_chat(user, span_notice("You have added [nadeassembly] to [src]."))
 				update_appearance(UPDATE_ICON|UPDATE_NAME)
 				return ATTACK_CHAIN_BLOCKED_ALL
@@ -194,31 +207,33 @@
 				if(!coil.use(1))
 					to_chat(user, span_warning("You need more cable length."))
 					return ATTACK_CHAIN_PROCEED
-				stage = GRENADE_WIRED
+				stage = WIRED
 				update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 				to_chat(user, span_notice("You rig [src]."))
 				return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
 
+
 /obj/item/grenade/chem_grenade/wirecutter_act(mob/living/user, obj/item/I)
-	if(stage != GRENADE_READY)
+	if(stage != READY)
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
 		return .
 	to_chat(user, span_notice("You unlock the assembly."))
-	stage = GRENADE_WIRED
+	stage = WIRED
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 
+
 /obj/item/grenade/chem_grenade/wrench_act(mob/living/user, obj/item/I)
-	if(stage != GRENADE_WIRED)
+	if(stage != WIRED)
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
 		return .
 	to_chat(user, span_notice("You open the grenade and remove the contents."))
-	stage = GRENADE_EMPTY
+	stage = EMPTY
 	payload_name = null
 	label = null
 	var/atom/drop_loc = drop_location()
@@ -226,6 +241,7 @@
 		nadeassembly.forceMove(drop_loc)
 		nadeassembly.master = null
 		nadeassembly = null
+		qdel(GetComponent(/datum/component/proximity_monitor))
 	else
 		new /obj/item/stack/cable_coil(drop_loc, 1)
 	if(length(beakers))
@@ -234,30 +250,31 @@
 		beakers = list()
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 
+
 /obj/item/grenade/chem_grenade/screwdriver_act(mob/living/user, obj/item/I)
-	if(stage != GRENADE_WIRED && stage != GRENADE_READY && stage != GRENADE_EMPTY)
+	if(stage != WIRED && stage != READY && stage != EMPTY)
 		return FALSE
 
 	. = TRUE
 
 	switch(stage)
-		if(GRENADE_EMPTY)
+		if(EMPTY)
 			to_chat(user, span_notice("You need to add an activation mechanism."))
 
-		if(GRENADE_READY)
+		if(READY)
 			if(nadeassembly)
 				to_chat(user, span_notice("You cannot modify timer when [nadeassembly] is attached."))
 				return .
 			det_time = det_time == 5 SECONDS ? 3 SECONDS : 5 SECONDS
 			to_chat(user, span_notice("You modify the time delay. It's set for [det_time / 10] second\s."))
 
-		if(GRENADE_WIRED)
+		if(WIRED)
 			if(!length(beakers))
 				to_chat(user, span_notice("You need to add at least one beaker before locking the assembly."))
 				return .
 			to_chat(user, span_notice("You lock the assembly."))
 			playsound(loc, prime_sound, 25, TRUE, -3)
-			stage = GRENADE_READY
+			stage = READY
 			update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 			contained = ""
 			cores = "" // clear them out so no recursive logging by accidentally
@@ -277,6 +294,7 @@
 			add_attack_logs(user, src, "has completed with [contained]", ATKLOG_MOST)
 			log_game("[key_name(usr)] has completed [name] at [bombturf.x], [bombturf.y], [bombturf.z]. [contained]")
 
+
 //assembly stuff
 /obj/item/grenade/chem_grenade/receive_signal(datum/signal/signal)
 	prime(signal?.user)
@@ -295,18 +313,19 @@
 	if(nadeassembly)
 		nadeassembly.process_movement()
 
+
 /obj/item/grenade/chem_grenade/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	if(nadeassembly)
 		nadeassembly.assembly_crossed(arrived, old_loc)
 
+
 /obj/item/grenade/chem_grenade/on_found(mob/finder)
 	if(nadeassembly)
 		nadeassembly.on_found(finder)
 
 /obj/item/grenade/chem_grenade/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
 	if(nadeassembly)
 		nadeassembly.hear_talk(M, message_pieces)
 
@@ -325,9 +344,10 @@
 	if(nadeassembly)
 		nadeassembly.process_movement()
 
+
 /obj/item/grenade/chem_grenade/prime(mob/user)
 	. = ..()
-	if(stage != GRENADE_READY)
+	if(stage != READY)
 		return
 
 	var/turf/source_turf = get_turf(src)
@@ -346,7 +366,7 @@
 			for(var/obj/item/reagent_containers/container as anything in beakers)
 				container.forceMove(source_turf)
 			beakers = list()
-		stage = GRENADE_EMPTY
+		stage = EMPTY
 		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 		return
 
@@ -359,22 +379,23 @@
 	qdel(src)
 
 /obj/item/grenade/chem_grenade/proc/CreateDefaultTrigger(typekey)
-	if(!ispath(typekey, /obj/item/assembly))
-		return
+	if(ispath(typekey,/obj/item/assembly))
+		nadeassembly = new(src)
+		if(nadeassembly.has_prox_sensors())
+			AddComponent(/datum/component/proximity_monitor)
+		nadeassembly.a_left = new /obj/item/assembly/igniter(nadeassembly)
+		nadeassembly.a_left.holder = nadeassembly
+		nadeassembly.a_left.secured = 1
+		nadeassembly.a_right = new typekey(nadeassembly)
+		if(!nadeassembly.a_right.secured)
+			nadeassembly.a_right.toggle_secure() // necessary because fuxing prock_sensors
+		nadeassembly.a_right.holder = nadeassembly
+		nadeassembly.secured = 1
+		nadeassembly.master = src
+		nadeassembly.update_icon()
+		stage = READY
+		update_appearance(UPDATE_ICON|UPDATE_NAME)
 
-	nadeassembly = new(src)
-	nadeassembly.a_left = new /obj/item/assembly/igniter(nadeassembly)
-	nadeassembly.a_left.holder = nadeassembly
-	nadeassembly.a_left.secured = 1
-	nadeassembly.a_right = new typekey(nadeassembly)
-	if(!nadeassembly.a_right.secured)
-		nadeassembly.a_right.toggle_secure() // necessary because fuxing prock_sensors
-	nadeassembly.a_right.holder = nadeassembly
-	nadeassembly.secured = 1
-	nadeassembly.master = src
-	nadeassembly.update_icon()
-	stage = GRENADE_READY
-	update_appearance(UPDATE_ICON|UPDATE_NAME)
 
 //Large chem grenades accept slime cores and use the appropriately.
 /obj/item/grenade/chem_grenade/large
@@ -394,7 +415,7 @@
 	threatscale = 1.1	// 10% more effective.
 
 /obj/item/grenade/chem_grenade/large/prime(mob/user)
-	if(stage != GRENADE_READY)
+	if(stage != READY)
 		return
 
 	for(var/obj/item/slime_extract/S in beakers)
@@ -414,6 +435,7 @@
 					S.forceMove(get_turf(src))
 					no_splash = TRUE
 	..(user)
+
 
 /obj/item/grenade/chem_grenade/cryo // Intended for rare cryogenic mixes. Cools the area moderately upon detonation.
 	name = "cryo grenade"
@@ -450,7 +472,7 @@
 	to_chat(user, span_notice("You set the time release to [unit_spread] units per detonation."))
 
 /obj/item/grenade/chem_grenade/adv_release/prime(mob/user)
-	if(stage != GRENADE_READY)
+	if(stage != READY)
 		return
 
 	var/total_volume = 0
@@ -481,7 +503,7 @@
 /obj/item/grenade/chem_grenade/metalfoam
 	payload_name = "metal foam"
 	desc = "Used for emergency sealing of air breaches."
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/metalfoam/Initialize(mapload)
 	. = ..()
@@ -496,11 +518,12 @@
 	beakers += B1
 	beakers += B2
 
+
 /obj/item/grenade/chem_grenade/firefighting
 	payload_name = "fire fighting grenade"
 	desc = "Can help to put out dangerous fires from a distance."
 	icon_state = "firefighting"
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/firefighting/Initialize(mapload)
 	. = ..()
@@ -517,7 +540,7 @@
 /obj/item/grenade/chem_grenade/incendiary
 	payload_name = "incendiary"
 	desc = "Used for clearing rooms of living things."
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/incendiary/Initialize(mapload)
 	. = ..()
@@ -529,14 +552,16 @@
 	B2.reagents.add_reagent("plasma", 25)
 	B2.reagents.add_reagent("sacid", 25)
 
+
 	beakers += B1
 	beakers += B2
+
 
 /obj/item/grenade/chem_grenade/antiweed
 	payload_name = "weed killer"
 	desc = "Used for purging large areas of invasive plant species. Contents under pressure. Do not directly inhale contents."
 	icon_state = "antiweed"
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/antiweed/Initialize(mapload)
 	. = ..()
@@ -553,11 +578,12 @@
 	beakers += B1
 	beakers += B2
 
+
 /obj/item/grenade/chem_grenade/cleaner
 	payload_name = "cleaner"
 	desc = "BLAM!-brand foaming space cleaner. In a special applicator for rapid cleaning of wide areas."
 	icon_state = "cleaner"
-	stage = GRENADE_READY
+	stage = READY
 	/// The chemical used to clean things
 	var/cleaning_chem = "cleaner"
 
@@ -576,35 +602,24 @@
 
 /obj/item/grenade/chem_grenade/cleaner/everything
 	payload_name = "melter"
-	desc = "Внутри этой гранаты находятся наниты \"Синдиката\" с чёрного рынка, которые поглощают всё, с чем сталкиваются. Органы, одежда, пульты, люди. Ничто не в безопасности.<br>Теперь с новым пенящимся аппликатором!"
+	desc = "Внутри этой гранаты находятся наниты Синдиката с чёрного рынка, которые поглощают всё, с чем сталкиваются. Органы, одежда, пульты, люди. Ничто не в безопасности.<br>Теперь с новым пенящимся аппликатором!"
 	cleaning_chem = "admincleaner_all"
 
 /obj/item/grenade/chem_grenade/cleaner/object
 	payload_name = "object dissolving"
-	desc = "Внутри этой гранаты находятся наниты \"Синдиката\" с чёрного рынка, которые, как ни странно, поглощают только предметы, оставляя живых существ и более крупные машины в покое.<br>Теперь с новым пенообразующим аппликатором!"
+	desc = "Внутри этой гранаты находятся наниты Синдиката с чёрного рынка, которые, как ни странно, поглощают только предметы, оставляя живых существ и более крупные машины в покое.<br>Теперь с новым пенообразующим аппликатором!"
 	cleaning_chem = "admincleaner_item"
 
 /obj/item/grenade/chem_grenade/cleaner/organic
 	payload_name = "organic dissolving"
-	desc = "Внутри этой гранаты находятся наниты \"Синдиката\" с чёрного рынка, которые жаждут живых существ и их органов, кремниевых или органических, мёртвых или живых.<br>Теперь с новым пенящимся аппликатором!"
+	desc = "Внутри этой гранаты находятся наниты Синдиката с чёрного рынка, которые жаждут живых существ и их органов, кремниевых или органических, мёртвых или живых.<br>Теперь с новым пенящимся аппликатором!"
 	cleaning_chem = "admincleaner_mob"
 
 /obj/item/grenade/chem_grenade/teargas
 	payload_name = "teargas"
-	desc = "Взрывчатое устройство, предназначенное для ручного подрыва. \
-			При детонации испускает облако слезоточивого газа."
+	desc = "Used for nonlethal riot control. Contents under pressure. Do not directly inhale contents."
 	icon_state = "teargas"
-	stage = GRENADE_READY
-
-/obj/item/grenade/chem_grenade/teargas/get_ru_names()
-	return alist(
-		NOMINATIVE = "газовая граната (Капсаицин)",
-		GENITIVE = "газовой гранаты (Капсаицин)",
-		DATIVE = "газовой гранате (Капсаицин)",
-		ACCUSATIVE = "газовую гранату (Капсаицин)",
-		INSTRUMENTAL = "газовой гранатой (Капсаицин)",
-		PREPOSITIONAL = "газовой гранате (Капсаицин)"
-	)
+	stage = READY
 
 /obj/item/grenade/chem_grenade/teargas/Initialize(mapload)
 	. = ..()
@@ -624,7 +639,7 @@
 /obj/item/grenade/chem_grenade/facid
 	payload_name = "acid smoke"
 	desc = "Use to chew up opponents from the inside out."
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/facid/Initialize(mapload)
 	. = ..()
@@ -644,7 +659,7 @@
 /obj/item/grenade/chem_grenade/saringas
 	payload_name = "sarin gas"
 	desc = "Contains sarin gas; extremely deadly and fast acting; use with extreme caution."
-	stage = GRENADE_READY
+	stage = READY
 
 /obj/item/grenade/chem_grenade/saringas/Initialize(mapload)
 	. = ..()
@@ -660,3 +675,7 @@
 
 	beakers += B1
 	beakers += B2
+
+#undef EMPTY
+#undef WIRED
+#undef READY

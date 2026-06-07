@@ -16,7 +16,6 @@ import {
   LabeledList,
 } from '../components';
 import { Window } from '../layouts';
-import { JOBS_RU } from '../constants';
 
 type Data = {
   user_tier: number;
@@ -222,9 +221,7 @@ const LoadoutGears = (props) => {
                 tooltip={
                   <Section m={-1} title="Разрешённые должности">
                     {gear.allowed_roles.map((role) => (
-                      <Box key={role}>
-                        {JOBS_RU[role] ? JOBS_RU[role] : role}
-                      </Box>
+                      <Box key={role}>{role}</Box>
                     ))}
                   </Section>
                 }

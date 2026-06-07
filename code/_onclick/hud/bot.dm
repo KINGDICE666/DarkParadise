@@ -11,6 +11,7 @@
 		var/mob/living/simple_animal/bot/B = usr
 		B.Radio.interact(usr)
 
+
 /datum/hud/bot/New(mob/owner)
 	..()
 	var/atom/movable/screen/using

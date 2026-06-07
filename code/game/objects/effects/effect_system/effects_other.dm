@@ -15,20 +15,24 @@
 	var/fade = TRUE
 	var/nograv_required = FALSE
 
+
 /datum/effect_system/trail_follow/set_up(atom/atom)
 	attach(atom)
 	oldposition = get_turf(atom)
+
 
 /datum/effect_system/trail_follow/Destroy()
 	oldposition = null
 	stop()
 	return ..()
 
+
 /datum/effect_system/trail_follow/proc/stop()
 	oldposition = null
 	STOP_PROCESSING(SSfastprocess, src)
 	active = FALSE
 	return TRUE
+
 
 /datum/effect_system/trail_follow/start()
 	oldposition = get_turf(holder)
@@ -39,8 +43,10 @@
 	active = TRUE
 	return TRUE
 
+
 /datum/effect_system/trail_follow/process()
 	generate_effect()
+
 
 /datum/effect_system/trail_follow/generate_effect()
 	if(!check_conditions())
@@ -55,30 +61,37 @@
 			QDEL_IN(new_effect, qdel_in_time)
 	oldposition = get_turf(holder)
 
+
 /datum/effect_system/trail_follow/proc/set_dir(obj/effect/particle_effect/ion_trails/trails)
 	trails.setDir(holder.dir)
+
 
 /datum/effect_system/trail_follow/proc/check_conditions()
 	if(!get_turf(holder))
 		return FALSE
 	return TRUE
 
+
 /datum/effect_system/trail_follow/ion
 	effect_type = /obj/effect/particle_effect/ion_trails
 	nograv_required = TRUE
 	qdel_in_time = 2 SECONDS
 
+
 /datum/effect_system/trail_follow/ion/grav_allowed
 	nograv_required = FALSE
+
 
 /datum/effect_system/trail_follow/spacepod
 	effect_type = /obj/effect/particle_effect/ion_trails
 	nograv_required = TRUE
 	qdel_in_time = 2 SECONDS
 
+
 /datum/effect_system/trail_follow/spacepod/set_dir(obj/effect/particle_effect/ion_trails/trails1, obj/effect/particle_effect/ion_trails/trails2)
 	trails1.setDir(holder.dir)
 	trails2.setDir(holder.dir)
+
 
 /datum/effect_system/trail_follow/spacepod/generate_effect()
 	if(!check_conditions())
@@ -114,12 +127,15 @@
 			QDEL_IN(effect2, qdel_in_time)
 	oldposition = get_turf(holder)
 
+
 /obj/effect/particle_effect/ion_trails
 	name = "ion trails"
 	icon_state = "ion_trails"
 
+
 /obj/effect/particle_effect/ion_trails/flight
 	icon_state = "ion_trails_flight"
+
 
 //Reagent-based explosion effect
 /datum/effect_system/reagents_explosion
@@ -137,15 +153,16 @@
 	flashing = flash
 	flashing_factor = flash_fact
 
+
 /datum/effect_system/reagents_explosion/start()
 	if(amount <= 2)
 		do_sparks(2, TRUE, location)
 
 		for(var/mob/M in viewers(5, location))
-			to_chat(M, span_warning("The solution violently explodes."))
+			to_chat(M, "<span class='warning'>The solution violently explodes.</span>")
 		for(var/mob/living/L in viewers(1, location))
 			if(prob(50 * amount))
-				to_chat(L, span_warning("The explosion pushes you."))
+				to_chat(L, "<span class='warning'>The explosion pushes you.</span>")
 				goonchem_vortex_weak(location, 0, amount)
 		return
 	else
@@ -168,7 +185,7 @@
 			flash += (round(amount/4) * flashing_factor)
 
 		for(var/mob/M in viewers(8, location))
-			to_chat(M, span_warning("The solution violently explodes."))
+			to_chat(M, "<span class='warning'>The solution violently explodes.</span>")
 
 		explosion(location, devastation_range = devastation, heavy_impact_range = heavy, light_impact_range = light, flash_range = flash, cause = "Reagent Explosion")
 

@@ -1,7 +1,8 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
 "a" = (
 /obj/structure/shuttle/engine/propulsion{
-	dir = 8
+	dir = 8;
+	tag = "icon-propulsion (EAST)"
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
@@ -15,15 +16,14 @@
 	name = "bedsheet"
 	},
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
 "g" = (
 /obj/structure/chair/comfy/shuttle,
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
 	icon_state = "floor"
@@ -42,11 +42,10 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
 "k" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/machinery/light/spot{
-	dir = 1
+	dir = 1;
+	tag = "icon-tube1 (NORTH)"
 	},
 /obj/structure/table/reinforced,
 /obj/machinery/recharger,
@@ -67,6 +66,11 @@
 	},
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
+"o" = (
+/turf/simulated/wall/shuttle{
+	tag = "icon-swall2"
+	},
+/area/shuttle/transport)
 "q" = (
 /obj/item/paper_bin,
 /obj/item/pen,
@@ -74,9 +78,7 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
 "t" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/machinery/vending/security,
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
@@ -91,9 +93,7 @@
 /turf/simulated/floor/carpet/red,
 /area/shuttle/transport)
 "w" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/structure/chair/comfy/shuttle,
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
@@ -101,9 +101,7 @@
 	},
 /area/shuttle/transport)
 "x" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/machinery/light/spot,
 /obj/structure/table/reinforced,
 /obj/machinery/recharger,
@@ -113,12 +111,11 @@
 	},
 /area/shuttle/transport)
 "y" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/structure/table/reinforced,
 /obj/machinery/light/spot{
-	dir = 8
+	dir = 8;
+	tag = "icon-tube1 (WEST)"
 	},
 /obj/machinery/recharger,
 /turf/simulated/floor/noslip{
@@ -131,12 +128,11 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
 "B" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/structure/table/reinforced,
 /obj/machinery/light/spot{
-	dir = 8
+	dir = 8;
+	tag = "icon-tube1 (WEST)"
 	},
 /obj/structure/reagent_dispensers/peppertank{
 	pixel_y = 28
@@ -169,12 +165,8 @@
 	id_tag = "s_docking_airlock";
 	req_access = list(104,106,63,19)
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/south,
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/carpet/red,
 /area/shuttle/transport)
 "L" = (
@@ -206,8 +198,8 @@
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
 	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
+/obj/effect/decal/warning_stripes/north{
+	layer = 2.1
 	},
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
@@ -218,9 +210,7 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/shuttle/transport)
 "U" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 2
-	},
+/obj/effect/decal/warning_stripes/south,
 /obj/machinery/computer/shuttle/ferry/request,
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
@@ -228,9 +218,7 @@
 	},
 /area/shuttle/transport)
 "Y" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
+/obj/effect/decal/warning_stripes/north,
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
 	},
@@ -279,7 +267,7 @@ h
 h
 l
 u
-h
+o
 h
 "}
 (7,1,1) = {"

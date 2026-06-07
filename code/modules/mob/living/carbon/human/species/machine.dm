@@ -1,5 +1,5 @@
 /datum/species/machine
-	name = SPECIES_MACHINEPERSON
+	name = SPECIES_MACNINEPERSON
 	name_plural = "Machines"
 
 	blurb = "Positronic intelligence really took off in the 26th century, and it is not uncommon to see independant, free-willed \
@@ -44,7 +44,7 @@
 	dies_at_threshold = TRUE
 	can_revive_by_healing = 1
 	has_gender = FALSE
-	reagent_tag = SYNTHETIC
+	reagent_tag = PROCESS_SYN
 	male_scream_sound = list('sound/goonstation/voice/robot_scream.ogg')
 	female_scream_sound = list('sound/goonstation/voice/robot_scream.ogg')
 	male_cough_sounds = list('sound/effects/mob_effects/m_machine_cougha.ogg','sound/effects/mob_effects/m_machine_coughb.ogg', 'sound/effects/mob_effects/m_machine_coughc.ogg')
@@ -86,7 +86,7 @@
 		"is frying their own circuits!",
 		"is blocking their ventilation port!")
 
-	speciesbox = /obj/item/storage/box/survival/species/machine
+	speciesbox = /obj/item/storage/box/survival_machine
 
 	liked_food = NONE
 	disliked_food = NONE
@@ -99,6 +99,7 @@
 		JOB_MIN_AGE_COMMAND = 15,
 	)
 
+
 /datum/species/machine/on_species_gain(mob/living/carbon/human/human)
 	. = ..()
 	var/datum/action/innate/change_monitor/monitor = locate() in human.actions
@@ -108,7 +109,7 @@
 		monitor.Grant(human)
 
 	var/datum/atom_hud/data/human/medical/advanced/medhud = GLOB.huds[DATA_HUD_MEDICAL_ADVANCED]
-	medhud.remove_atom_from_hud(human)
+	medhud.remove_from_hud(human)
 
 	add_verb(human, list(
 		/mob/living/carbon/human/proc/emote_ping,
@@ -118,8 +119,10 @@
 		/mob/living/carbon/human/proc/emote_yes,
 		/mob/living/carbon/human/proc/emote_no))
 
+
 /datum/species/machine/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, default, max_level, FALSE)
+
 
 /datum/species/machine/on_species_loss(mob/living/carbon/human/human)
 	. = ..()
@@ -127,7 +130,7 @@
 	monitor?.Remove(human)
 
 	var/datum/atom_hud/data/human/medical/advanced/medhud = GLOB.huds[DATA_HUD_MEDICAL_ADVANCED]
-	medhud.add_atom_to_hud(human)
+	medhud.add_to_hud(human)
 
 	remove_verb(human, list(
 		/mob/living/carbon/human/proc/emote_ping,
@@ -168,7 +171,7 @@
 		return
 	if(!robohead.is_monitor) //If they've got a prosthetic head and it isn't a monitor, they've no screen to adjust. Instead, let them change the colour of their optics!
 		var/optic_colour = tgui_input_color(H, "Выберите цвет оптики", H.m_colours["head"])
-		if(H.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB))
+		if(H.incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED))
 			to_chat(H, span_warning("Ваша попытка сменить отображаемый цвет была прервана."))
 			return
 		if(!isnull(optic_colour))
@@ -186,9 +189,9 @@
 
 		for(var/line in lines)									// Looks for lines set up as screen:ckey:screen_name
 			var/list/Entry = splittext(line, ":")				// split lines
-			for(var/i = 1 to length(Entry))
+			for(var/i = 1 to Entry.len)
 				Entry[i] = trim(Entry[i])						// Cleans up lines
-				if(length(Entry) != 3 || Entry[1] != "screen")		// Ignore entries that aren't for screens
+				if(Entry.len != 3 || Entry[1] != "screen")		// Ignore entries that aren't for screens
 					continue
 				if(Entry[2] == H.ckey)							// They're in the list? Custom sprite time, var and icon change required
 					hair += Entry[3]							// Adds custom screen to list
@@ -198,7 +201,7 @@
 			return
 		var/new_color = tgui_input_color(usr, "Выберите цвет", "Цвет монитора", head_organ.hair_colour)
 
-		if(H.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB))
+		if(H.incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED))
 			to_chat(H, span_warning("Ваша попытка сменить изображения на дисплее была прервана."))
 			return
 
@@ -207,16 +210,6 @@
 		if(new_color)
 			H.change_hair_color(new_color)
 
+
 /datum/species/machine/get_emote_pitch(mob/living/carbon/human/H, tolerance)
 	return 1 + (0.01*rand(-tolerance,tolerance))
-
-/datum/species/machine/job_pre_equip(mob/living/carbon/human/human)
-	if(human.client.prefs.exoframe_type)
-		var/exoframe_path = GLOB.exoframe_types[human.client.prefs.exoframe_type]
-		var/obj/item/organ/internal/cyberimp/chest/exoframe/exoframe = new exoframe_path
-		exoframe.insert(human)
-
-	return ..()
-
-/datum/species/machine/compressor_grind(location)
-	new /obj/item/stack/sheet/mineral/titanium(location)

@@ -1,5 +1,6 @@
 //I'm pretty sure that this is a recursive [s]descent[/s] ascent parser.
 
+
 //Spec
 
 //////////
@@ -81,8 +82,8 @@
 
 /datum/sdql_parser/proc/parse_error(error_message)
 	error = 1
-	to_chat(usr, span_warning("SDQL2 Parsing Error: [error_message]"), confidential = TRUE)
-	return length(query) + 1
+	to_chat(usr, span_warning("SDQL2 Parsing Error: [error_message]"), confidential=TRUE)
+	return query.len + 1
 
 /datum/sdql_parser/proc/parse()
 	tree = list()
@@ -94,14 +95,14 @@
 		return tree
 
 /datum/sdql_parser/proc/token(i)
-	if(i <= length(query))
+	if(i <= query.len)
 		return query[i]
 
 	else
 		return null
 
 /datum/sdql_parser/proc/tokens(i, num)
-	if(i + num <= length(query))
+	if(i + num <= query.len)
 		return query.Copy(i, i + num)
 
 	else
@@ -162,6 +163,7 @@
 			node["explain"] = list()
 			query(i + 1, node["explain"])
 
+
 // select_query: 'SELECT' object_selectors
 /datum/sdql_parser/proc/select_query(i, list/node)
 	var/list/select = list()
@@ -169,6 +171,7 @@
 
 	node["select"] = select
 	return i
+
 
 //delete_query: 'DELETE' object_selectors
 /datum/sdql_parser/proc/delete_query(i, list/node)
@@ -178,6 +181,7 @@
 	node["delete"] = select
 
 	return i
+
 
 //update_query: 'UPDATE' object_selectors 'SET' assignments
 /datum/sdql_parser/proc/update_query(i, list/node)
@@ -195,6 +199,7 @@
 	node["set"] = set_assignments
 
 	return i
+
 
 //call_query: 'CALL' call_function ['ON' object_selectors]
 /datum/sdql_parser/proc/call_query(i, list/node)
@@ -267,6 +272,7 @@
 
 	return i
 
+
 //select_item: '*' | select_function | object_type
 /datum/sdql_parser/proc/select_item(i, list/node)
 	if(token(i) == "*")
@@ -318,6 +324,7 @@
 
 	return i
 
+
 //bool_expression: expression [bool_operator bool_expression]
 /datum/sdql_parser/proc/bool_expression(i, list/node)
 
@@ -331,6 +338,7 @@
 		i = bool_expression(i, node)
 
 	return i
+
 
 //assignment: <variable name> '=' expression
 /datum/sdql_parser/proc/assignment(i, list/node, list/assignment_list = list())
@@ -349,6 +357,7 @@
 		parse_error("Assignment expected, but no = found")
 
 	return i
+
 
 //variable: <variable name> | variable '.' variable | variable '[' <list index> ']' | '{' <ref as hex number> '}' | '(' expression ')' | call_function
 /datum/sdql_parser/proc/variable(i, list/node)
@@ -397,6 +406,7 @@
 
 	return i
 
+
 //object_type: <type path>
 /datum/sdql_parser/proc/object_type(i, list/node)
 
@@ -411,6 +421,7 @@
 
 	return i + 1
 
+
 //comparator: '=' | '==' | '!=' | '<>' | '<' | '<=' | '>' | '>='
 /datum/sdql_parser/proc/comparator(i, list/node)
 
@@ -422,6 +433,7 @@
 
 	return i + 1
 
+
 //bool_operator: 'AND' | '&&' | 'OR' | '||'
 /datum/sdql_parser/proc/bool_operator(i, list/node)
 
@@ -432,6 +444,7 @@
 		parse_error("Unknown comparator [token(i)]")
 
 	return i + 1
+
 
 //string: ''' <some text> ''' | '"' <some text > '"'
 /datum/sdql_parser/proc/string(i, list/node)
@@ -471,7 +484,7 @@
 				if(tok == ":")
 					temp_expression_list = list()
 					i = expression(i + 1, temp_expression_list)
-					expression_list[expression_list[length(expression_list)]] = temp_expression_list
+					expression_list[expression_list[expression_list.len]] = temp_expression_list
 					temp_expression_list = null
 					tok = token(i)
 					if(tok != ",")
@@ -480,6 +493,7 @@
 
 						parse_error("Expected ',' or ']' after array assoc value, but found '[token(i)]'")
 						return i
+
 
 				i++
 				continue
@@ -542,6 +556,7 @@
 		parse_error("Expected a function but found nothing")
 	return i + 1
 
+
 //expression: ( unary_expression | value ) [binary_operator expression]
 /datum/sdql_parser/proc/expression(i, list/node)
 
@@ -563,7 +578,9 @@
 
 		node[++node.len] = rhs
 
+
 	return i
+
 
 //unary_expression: unary_operator ( unary_expression | value )
 /datum/sdql_parser/proc/unary_expression(i, list/node)
@@ -582,10 +599,12 @@
 
 		node[++node.len] = unary_exp
 
+
 	else
 		parse_error("Expected unary operator but found '[token(i)]'")
 
 	return i
+
 
 //binary_operator: comparator | '+' | '-' | '/' | '*' | '&' | '|' | '^' | '%'
 /datum/sdql_parser/proc/binary_operator(i, list/node)
@@ -597,6 +616,7 @@
 		parse_error("Unknown binary operator [token(i)]")
 
 	return i + 1
+
 
 //value: variable | string | number | 'null' | object_type | array | selectors_array
 /datum/sdql_parser/proc/value(i, list/node)

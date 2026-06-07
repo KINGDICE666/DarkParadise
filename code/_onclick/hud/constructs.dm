@@ -7,6 +7,7 @@
 	mymob.healths.screen_loc = ui_construct_health
 	infodisplay += mymob.healths
 
+
 /datum/hud/construct/builder/New(mob/owner)
 	..()
 	mymob.healths = new /atom/movable/screen(null, src)
@@ -15,6 +16,7 @@
 	mymob.healths.name = "health"
 	mymob.healths.screen_loc = ui_construct_health
 	infodisplay += mymob.healths
+
 
 /datum/hud/construct/wraith/New(mob/owner)
 	..()
@@ -25,6 +27,7 @@
 	mymob.healths.screen_loc = ui_construct_health
 	infodisplay += mymob.healths
 
+
 /datum/hud/construct/harvester/New(mob/owner)
 	..()
 	mymob.healths = new /atom/movable/screen(null, src)
@@ -33,6 +36,7 @@
 	mymob.healths.name = "health"
 	mymob.healths.screen_loc = ui_construct_health
 	infodisplay += mymob.healths
+
 
 /datum/hud/construct/New(mob/owner)
 	..()

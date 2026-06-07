@@ -12,30 +12,29 @@
 
 /priority_queue/proc/enqueue(value, priority)
 	heap += list(new /priority_node(value, priority))
-	bubble_up(length(heap))
+	bubble_up(heap.len)
 
 /priority_queue/proc/dequeue()
-	if(length(heap) == 0)
+	if(heap.len == 0)
 		return null
 
 	var/priority_node/top = heap[1]
-	var/bottom = heap[length(heap)]
+	var/bottom = heap[heap.len]
 	var/item = top.item
-	top.item = null
 	heap -= bottom
-	if(!length(heap))
+	if(!heap.len)
 		return item
 	heap[1] = bottom
 	bubble_down(1)
 	return item
 
 /priority_queue/proc/peek()
-	if(length(heap) == 0)
+	if(heap.len == 0)
 		return null
 	return heap[1].item
 
 /priority_queue/proc/is_empty()
-	return length(heap) == 0
+	return heap.len == 0
 
 /priority_queue/proc/bubble_up(index)
 	while(index > 1)
@@ -47,11 +46,12 @@
 		swap(index, parent)
 		index = parent
 
+
 /priority_queue/proc/bubble_down(index)
-	while(index * 2 <= length(heap))
+	while(index * 2 <= heap.len)
 		var/child = index * 2
 
-		if(child + 1 <= length(heap) && heap[child + 1].priority < heap[child].priority)
+		if(child + 1 <= heap.len && heap[child + 1].priority < heap[child].priority)
 			child++
 
 		if(heap[index].priority < heap[child].priority)
@@ -60,10 +60,12 @@
 		swap(index, child)
 		index = child
 
+
 /priority_queue/proc/swap(a, b)
 	var/list/temp = heap[a]
 	heap[a] = heap[b]
 	heap[b] = temp
+
 
 /priority_queue/Destroy(force)
 	..()

@@ -20,9 +20,7 @@
 	var/opened = TRUE // FALSE if it needed to be opened first
 
 /obj/item/reagent_containers/food/snacks/add_initial_reagents()
-	if(tastes)
-		tastes = string_assoc_list(tastes)
-	if(tastes && length(tastes))
+	if(tastes && tastes.len)
 		if(list_reagents)
 			for(var/rid in list_reagents)
 				var/amount = list_reagents[rid]
@@ -46,7 +44,7 @@
 	if(reagents && !reagents.total_volume)
 		if(M == user)
 			to_chat(user, span_notice("Вы доели [declent_ru(ACCUSATIVE)]."))
-		user.visible_message(span_notice("[M] доел[GEND_A_O_I(M)] [declent_ru(ACCUSATIVE)]."))
+		user.visible_message(span_notice("[M] доел[genderize_ru(M.gender, "", "а", "о", "и")] [declent_ru(ACCUSATIVE)]."))
 		user.drop_item_ground(src)	//so icons update :[
 		Post_Consume(M)
 		var/obj/item/trash_item = generate_trash(user)
@@ -60,11 +58,12 @@
 /obj/item/reagent_containers/food/snacks/attack_self(mob/user)
 	if(!opened)
 		opened = TRUE
-		to_chat(user, span_notice("You open the [src]."))
+		to_chat(user, "<span class='notice'>You open the [src].</span>")
 		update_icon(UPDATE_ICON_STATE)
 		return ..()
 	else
 		return
+
 
 /obj/item/reagent_containers/food/snacks/attack(mob/living/carbon/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!iscarbon(target) || (user.a_intent == INTENT_HARM && force))
@@ -95,7 +94,8 @@
 	bitecount++
 	On_Consume(target, user)
 
-/obj/item/reagent_containers/food/snacks/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/reagent_containers/food/snacks/afterattack(obj/target, mob/user, proximity, params)
 	return
 
 /obj/item/reagent_containers/food/snacks/examine(mob/user)
@@ -103,11 +103,12 @@
 	if(in_range(user, src))
 		if(bitecount > 0)
 			if(bitecount==1)
-				. += span_notice("[src] was bitten by someone!")
+				. += "<span class='notice'>[src] was bitten by someone!</span>"
 			else if(bitecount<=3)
-				. += span_notice("[src] was bitten [bitecount] times!")
+				. += "<span class='notice'>[src] was bitten [bitecount] times!</span>"
 			else
-				. += span_notice("[src] was bitten multiple times!")
+				. += "<span class='notice'>[src] was bitten multiple times!</span>"
+
 
 /obj/item/reagent_containers/food/snacks/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
@@ -144,6 +145,7 @@
 
 	return ..()
 
+
 /obj/item/reagent_containers/food/snacks/proc/generate_trash(atom/location)
 	if(trash)
 		if(ispath(trash, /obj/item))
@@ -169,23 +171,23 @@
 		if(isdog(M))
 			var/mob/living/simple_animal/pet/dog/D = M
 			if(world.time < (D.last_eaten + 300))
-				to_chat(D, span_notice("You are too full to try eating [src] right now."))
+				to_chat(D, "<span class='notice'>You are too full to try eating [src] right now.</span>")
 			else if(bitecount >= 4)
-				D.visible_message("[D] [pick("burps from enjoyment", "yaps for more", "woofs twice", "looks at the area where [src] was")].",span_notice("You swallow up the last part of [src]."))
+				D.visible_message("[D] [pick("burps from enjoyment", "yaps for more", "woofs twice", "looks at the area where [src] was")].","<span class='notice'>You swallow up the last part of [src].</span>")
 				playsound(loc,'sound/items/eatfood.ogg', rand(10,50), TRUE)
 				D.adjustHealth(-10)
 				D.last_eaten = world.time
 				D.taste(reagents)
 				qdel(src)
 			else
-				D.visible_message("[D] takes a bite of [src].",span_notice("You take a bite of [src]."))
+				D.visible_message("[D] takes a bite of [src].","<span class='notice'>You take a bite of [src].</span>")
 				playsound(loc,'sound/items/eatfood.ogg', rand(10,50), TRUE)
 				bitecount++
 				D.last_eaten = world.time
 				D.taste(reagents)
 		else if(ismouse(M))
 			var/mob/living/simple_animal/mouse/N = M
-			to_chat(N, span_notice("You nibble away at [src]."))
+			to_chat(N, text("<span class='notice'>You nibble away at [src].</span>"))
 			if(prob(50))
 				N.visible_message("[N] nibbles away at [src].", "")
 			N.adjustHealth(-2)
@@ -215,10 +217,11 @@
 	add_fingerprint(user)
 	return CLICK_ACTION_SUCCESS
 
+
 /obj/item/reagent_containers/food/snacks/sliceable/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.sharp || (slices_num <= 0 || !slices_num) || !slice_path)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !is_sharp(I) || (slices_num <= 0 || !slices_num) || !slice_path)
 		return .
 
 	if(!isturf(loc))
@@ -258,9 +261,20 @@
 		reagents.trans_to(slice, reagents_per_slice)
 	qdel(src)
 
+
 ////////////////////////////////////////////////////////////////////////////////
 /// FOOD END
 ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
 
 //////////////////////////////////////////////////
 ////////////////////////////////////////////Snacks
@@ -296,8 +310,8 @@
 	filling_color = "#211F02"
 	list_reagents = list("????" = 30)
 
-/obj/item/reagent_containers/food/snacks/badrecipe/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/badrecipe/New()
+	..()
 	// it's burned! it should start off being classed as any cooktype that burns
 	cooktype["grilled"] = 1
 	cooktype["deep fried"] = 1

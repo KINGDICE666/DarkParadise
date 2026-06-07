@@ -1,3 +1,10 @@
+/client/verb/setup_character()
+	set name = "Игровые настройки"
+	set category = STATPANEL_SPECIALVERBS
+	set desc = "Открывает меню \"Настройка персонажа\". Изменения персонажа вступят в силу с началом следующего раунда, остальные изменения – незамедлительно."
+	prefs.current_tab = 1
+	prefs.ShowChoices(usr)
+
 // Preference toggles
 /datum/preference_toggle
 	/// Name of the preference toggle. Don't set this if you don't want it to appear in game
@@ -45,7 +52,7 @@
 	our_prefs.save_preferences(user)
 
 /datum/preference_toggle/toggle_ghost_ears
-	name = "Слышимость речи — Призрак"
+	name = "Слышимость речи – Призрак"
 	description = "Переключает слышимость речи существ во всём мире или только в пределах видимости."
 	preftoggle_bitflag = PREFTOGGLE_CHAT_GHOSTEARS
 	preftoggle_toggle = PREFTOGGLE_TOGGLE1
@@ -55,7 +62,7 @@
 	blackbox_message = "Toggle GhostEars"
 
 /datum/preference_toggle/toggle_ghost_sight
-	name = "Видимость эмоций — Призрак"
+	name = "Видимость эмоций – Призрак"
 	description = "Переключает видимость эмоций существ во всём мире или только в пределах видимости."
 	preftoggle_bitflag = PREFTOGGLE_CHAT_GHOSTSIGHT
 	preftoggle_toggle = PREFTOGGLE_TOGGLE1
@@ -65,23 +72,13 @@
 	blackbox_message = "Toggle GhostSight"
 
 /datum/preference_toggle/toggle_ghost_radio
-	name = "Слышимость радио — Призрак"
+	name = "Слышимость речи – Призрак"
 	description = "Переключает слышимость радиосообщений во всём мире или только в пределах видимости."
 	preftoggle_bitflag = PREFTOGGLE_CHAT_GHOSTRADIO
 	preftoggle_toggle = PREFTOGGLE_TOGGLE1
-	preftoggle_category = PREFTOGGLE_CATEGORY_GHOST
 	enable_message = "Будучи призраком, теперь вы будете слышать радиосообщения только в пределах видимости."
 	disable_message = "Будучи призраком, теперь вы будете слышать радиосообщения во всём мире."
 	blackbox_message = "Toggle GhostRadio"
-
-/datum/preference_toggle/toggle_ghost_radio/set_toggles(client/user)
-	. = ..()
-	var/mob/client_mob = user.mob
-	if(user.prefs.toggles & PREFTOGGLE_CHAT_GHOSTRADIO || !isobserver(client_mob))
-		GLOB.permanent_radio_listeners -= client_mob
-		return
-
-	GLOB.permanent_radio_listeners |= client_mob
 
 /datum/preference_toggle/toggle_admin_radio
 	name = "Админ-радио"
@@ -93,7 +90,6 @@
 	enable_message = "Теперь вы не будете слышать все радиосообщения."
 	disable_message = "Теперь вы будете слышать все радиосообщения."
 	blackbox_message = "Toggle RadioChatter"
-
 
 /datum/preference_toggle/toggle_ai_voice_annoucements
 	name = "Слышимость аудио-оповещений ИИ"
@@ -180,6 +176,7 @@
 	. = ..()
 	if(user.prefs.sound & ~SOUND_LOBBY)
 		usr.stop_sound_channel(CHANNEL_ADMIN)
+
 
 /datum/preference_toggle/toggle_end_of_round_sound
 	name = "Отключение звука в конце раунда"
@@ -279,12 +276,11 @@
 
 /datum/preference_toggle/toggle_disco/set_toggles(client/user)
 	. = ..()
-	var/mob/client_mob = user.mob
-	if(!isnull(client_mob))
-		SEND_SIGNAL(client_mob, COMSIG_MOB_JUKEBOX_PREFERENCE_APPLIED)
+	if(user.prefs.sound & ~SOUND_DISCO)
+		usr.stop_sound_channel(CHANNEL_JUKEBOX)
 
 /datum/preference_toggle/toggle_ghost_pda
-	name = "Сообщения на КПК — Призрак"
+	name = "Сообщения на КПК – Призрак"
 	description = "Переключает видимость КПК-сообщений."
 	preftoggle_bitflag = PREFTOGGLE_CHAT_GHOSTPDA
 	preftoggle_toggle = PREFTOGGLE_TOGGLE1
@@ -295,7 +291,7 @@
 
 /client/verb/silence_current_midi()
 	set name = "Заглушить MIDI"
-	set category = VERB_CATEGORY_SPECIALVERBS
+	set category = STATPANEL_SPECIALVERBS
 	set desc = "Заглушает текущие MIDI-файлы, проигрываемые администрацией."
 	usr.stop_sound_channel(CHANNEL_ADMIN)
 	to_chat(src, "Текущие проигрываемые админ-MIDI были заглушены.")
@@ -310,18 +306,8 @@
 	disable_message = "Теперь вы не будете видеть Runechat облака с сообщениями."
 	blackbox_message = "Toggle Runechat"
 
-/datum/preference_toggle/toggle_runechat_looc
-	name = "Runechat-LOOC"
-	description = "Переключает видимость Runechat облаков с LOOC-сообщениями."
-	preftoggle_bitflag = PREFTOGGLE_3_RUNECHAT_LOOC
-	preftoggle_toggle = PREFTOGGLE_TOGGLE3
-	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
-	enable_message = "Теперь вы будете видеть Runechat облака с LOOC-сообщениями."
-	disable_message = "Теперь вы не будете видеть Runechat облака с LOOC-сообщениями."
-	blackbox_message = "Toggle Runechat LOOC"
-
 /datum/preference_toggle/toggle_ghost_death_notifs
-	name = "Уведомление о смерти — Призрак"
+	name = "Уведомление о смерти – Призрак"
 	description = "Включает уведомления о смерти игроков."
 	preftoggle_bitflag = PREFTOGGLE_2_DEATHMESSAGE
 	preftoggle_toggle = PREFTOGGLE_TOGGLE2
@@ -329,6 +315,18 @@
 	enable_message = "Теперь вы будете видеть уведомления в призрак-чате, если игрок в мире погибнет."
 	disable_message = "Теперь вы не будете видеть уведомления в призрак-чате, если игрок в мире погибнет."
 	blackbox_message = "Toggle Death Notifications"
+
+/*
+/datum/preference_toggle/toggle_reverb
+	name = "Ревербация звуков"
+	description = "Включает ревербацию определённых звуков."
+	preftoggle_bitflag = PREFTOGGLE_2_REVERB_DISABLE
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь некоторые звуки игры будут ревербироваться."
+	disable_message = "Теперь никакие звуки игры не будут ревербироваться."
+	blackbox_message = "Toggle reverb"
+*/
 
 /datum/preference_toggle/toggle_simple_stat_panel
 	name = "Обводка предметов"
@@ -421,15 +419,6 @@
 	disable_message = "Теперь вы не будете видеть информацию о подсистемах в панели действий."
 	blackbox_message = "MC tabs toggled"
 
-/datum/preference_toggle/toggle_mctabs/set_toggles(client/user)
-	. = ..()
-
-	if(!(user.prefs.toggles2 & preftoggle_bitflag))
-		return
-
-	user.stat_panel.send_message("add_mc_tab", user.holder.href_token)
-	SSstatpanels.set_MC_tab(user)
-
 /datum/preference_toggle/toggle_split_admins_tabs
 	name = "Разделение админ-вкладок"
 	description = "Включает разделение админ-действий на подкатегории."
@@ -478,7 +467,7 @@
 	var/new_ooccolor = tgui_input_color(usr, "Выберите цвет ваших сообщений в OOC-чате.", "Цвет OOC-сообщений", user.prefs.ooccolor)
 	if(!isnull(new_ooccolor))
 		user.prefs.ooccolor = new_ooccolor
-		to_chat(usr, "Выбранный цвет OOC-сообщений — [new_ooccolor].")
+		to_chat(usr, "Выбранный цвет OOC-сообщений – [new_ooccolor].")
 	else
 		user.prefs.ooccolor = initial(user.prefs.ooccolor)
 		to_chat(usr, "Цвет OOC-сообщений был сброшен.")
@@ -523,15 +512,6 @@
 	preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
 	enable_message = "Теперь вы будете видеть анимации атаки."
 	disable_message = "Теперь вы не будете видеть анимации атаки."
-
-/datum/preference_toggle/toggle_auto_aim_medicine
-	name = "Автонаведение медицины"
-	description = "Переключает автонаведение медицины."
-	preftoggle_bitflag = PREFTOGGLE_2_AUTO_AIM_MEDICINE
-	preftoggle_toggle = PREFTOGGLE_TOGGLE2
-	preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
-	enable_message = "Теперь медицина будет применяться к максимально пострадавшей части тела."
-	disable_message = "Теперь медицина будет применена туда куда вы нацелены."
 
 /datum/preference_toggle/toggleprayers
 	name = "Молитвы"
@@ -581,7 +561,7 @@
 	if(!my_hud)
 		return
 
-	for(var/group_key in my_hud.master_groups)
+	for(var/group_key as anything in my_hud.master_groups)
 		var/datum/plane_master_group/group = my_hud.master_groups[group_key]
 		group.build_planes_offset(my_hud, my_hud.current_plane_offset)
 
@@ -632,14 +612,24 @@
 	blackbox_message = "Toggle TGUI strip menu size"
 
 /datum/preference_toggle/toggle_item_description_tips
-	name = "Описания предметов при наведении"
-	description = "Включает отображение описаний предметов при наведении курсора."
-	preftoggle_bitflag = PREFTOGGLE_2_HIDE_ITEM_TOOLTIPS
+	name = "Описания при наведении"
+	description = "Включает отображение описаний при наведении курсора."
+	preftoggle_bitflag = PREFTOGGLE_2_DESC_TIPS
 	preftoggle_toggle = PREFTOGGLE_TOGGLE2
 	preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
-	enable_message = "Теперь вы будете видеть описание предметов при наведении курсора."
-	disable_message = "Теперь вы не будете видеть описание предметов при наведении курсора."
+	enable_message = "Теперь вы будете видеть описание при наведении курсора."
+	disable_message = "Теперь вы не будете видеть описание при наведении курсора."
 	blackbox_message = "Toggle item description tips on hover"
+
+/datum/preference_toggle/toggle_facing_to_mouse
+	name = "Следовать за курсором мыши"
+	description = "Когда включено – при выбранном намерении ВРЕД ваш персонаж будет поворачиваться в сторону курсора."
+	preftoggle_bitflag = PREFTOGGLE_3_FACING_TO_MOUSE
+	preftoggle_toggle = PREFTOGGLE_TOGGLE3
+	preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
+	enable_message = "Теперь ваш персонаж будет поворачиваться в сторону курсора мыши при выбранном намерении ВРЕД."
+	disable_message = "Теперь ваш персонаж не будет поворачиваться в сторону курсора мыши при выбранном намерении ВРЕД."
+	blackbox_message = "Переключение следования за курсором мыши."
 
 /datum/preference_toggle/toggle_take_out_of_the_round_without_obj
 	name = "Вывод из игры без цели"
@@ -681,15 +671,16 @@
 	disable_message = "Теперь содержимое UI не маштабируется."
 	blackbox_message = "Переключение маштабирования UI"
 
+
 /datum/preference_toggle/ui_scale/set_toggles(client/user)
 	. = ..()
 	if(!istype(user))
 		return
 	ASYNC
 		user.acquire_dpi()
-		INVOKE_ASYNC(user, TYPE_VERB_REF(/client, refresh_tgui))
-		user.tgui_say?.load()
-		user.fix_title_screen()
+	INVOKE_ASYNC(user, TYPE_VERB_REF(/client, refresh_tgui))
+	user.tgui_say?.load()
+
 
 /datum/preference_toggle/pain_blurb
 	name = "Переключить вывод боли на экран"
@@ -700,33 +691,3 @@
 	enable_message = "Теперь сообщения о боли будут выводиться на основной экран."
 	disable_message = "Теперь сообщения о боли будут писаться в чат."
 	blackbox_message = "Toggle painblurb"
-
-/datum/preference_toggle/storage/set_toggles(client/user)
-	. = ..()
-	if(!istype(user) || !user.mob || !user.mob.s_active)
-		return
-
-	var/obj/item/storage/storage = user.mob.s_active
-
-	storage.hide_from(user.mob)
-	storage.show_to(user.mob)
-
-/datum/preference_toggle/storage/storage_neutral
-	name = "Переключить тематическое/нейтральное хранилище"
-	description = "Переключает хранилище между зависимым от темы инвентаря и нейтральным."
-	preftoggle_bitflag = PREFTOGGLE_3_STORAGE_NEUTRAL
-	preftoggle_toggle = PREFTOGGLE_TOGGLE3
-	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
-	enable_message = "Теперь хранилища будут иметь нейтральную тему."
-	disable_message = "Теперь тема хранилища будет зависеть от инвентаря."
-	blackbox_message = "Toggle storage neutal"
-
-/datum/preference_toggle/storage/storage_colorfy
-	name = "Переключить покраску хранилища"
-	description = "Переключает зависимость цвета хранилища от цвета инвентаря."
-	preftoggle_bitflag = PREFTOGGLE_3_STORAGE_COLORFY
-	preftoggle_toggle = PREFTOGGLE_TOGGLE3
-	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
-	enable_message = "Теперь цвет интерфейса хранилища зависит от цвета инвентаря."
-	disable_message = "Теперь цвет интерфейса хранилища не зависит от цвета инвентаря."
-	blackbox_message = "Toggle storage colorfy"

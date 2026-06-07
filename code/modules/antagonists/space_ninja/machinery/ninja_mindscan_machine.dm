@@ -3,7 +3,7 @@
  * Поиск + похищение и в конце концов изучение разума жертвы
  * Изначально ниндзя не знает кто жертва, но знает примерные отделы где она работает
  * Он должен похищать людей на свой шаттл и привозить к устройству
- * Устройство их сканирует и если человек тот — цель выполнена
+ * Устройство их сканирует и если человек тот - цель выполнена
  * Если не тот. Цель не выполнена и мы вписываем человека в список просканированных
  * В конечном итоге либо ниндзя найдет цель, либо цель станет выполнена после сканирования n-ого кол-ва жертв
  *
@@ -54,7 +54,7 @@
 	ui_interact(user)
 
 /// Сюда вписать код ответственный за пихание оккупанта
-/obj/machinery/ninja_mindscan_machine/mouse_drop_receive(atom/movable/dropped, mob/user, params)
+/obj/machinery/ninja_mindscan_machine/MouseDrop_T(atom/movable/dropped, mob/user, params)
 // Только ниндзя умеет работать с этой машиной, но я всё равно оставлю проверки ниже во избежание других проблем.
 	if(!isninja(user))
 		to_chat(user, span_boldwarning("ERROR!!! UNAUTORISED USER!!!"))
@@ -83,7 +83,7 @@
 		return
 	if(user.loc==null) // just in case someone manages to get a closet into the blue light dimension, as unlikely as that seems
 		return
-	if(!isturf(user.loc) || !isturf(dropped.loc)) // are you in a container/closet/pod/etc?
+	if(!istype(user.loc, /turf) || !istype(dropped.loc, /turf)) // are you in a container/closet/pod/etc?
 		return
 	if(occupant)
 		to_chat(user, span_boldnotice("The [src] is already occupied!"))
@@ -106,6 +106,7 @@
 	if(!Adjacent(dropped_mob) && !Adjacent(user))
 		to_chat(user, span_boldnotice("You're not close enough to [src]."))
 		return
+	. = TRUE
 	if(dropped_mob != user)
 		visible_message("[user] starts putting [dropped_mob] into the [src].")
 	if(do_after(user, 2 SECONDS, dropped_mob))
@@ -117,6 +118,7 @@
 		take_occupant(dropped_mob)
 	else
 		to_chat(user, span_notice("You stop putting [dropped_mob] into the [src]."))
+
 
 /obj/machinery/ninja_mindscan_machine/proc/scan_occupant()
 	if(!occupant)
@@ -138,9 +140,9 @@
 	sleep(50)
 	atom_say("[rand(51, 99)]%")
 	sleep(30)
-	atom_say("Сканирование разума — Задача завершена!")
+	atom_say("Сканирование разума - Задача завершена!")
 	objective.scanned_occupants.Add("[occupant.mind]")
-	if(objective.target == occupant.mind || length(objective.scanned_occupants) >= objective.scans_to_win)
+	if(objective.target == occupant.mind || objective.scanned_occupants.len >= objective.scans_to_win)
 		objective.completed = TRUE
 		atom_say("Пациенту известна ценная информация! Данные переданы клану! Отличная работа, [ninja]!")
 	else
@@ -180,9 +182,7 @@
 /obj/machinery/ninja_mindscan_machine/proc/teleport_out()
 	if(!occupant)
 		return
-	var/turf/destination = pick(GLOB.ninja_teleport)
-	if(!do_teleport(occupant, destination, blocked_when_interfered = TRUE))
-		return
+	occupant.forceMove(pick(GLOB.ninja_teleport))
 	var/teleport_loc = occupant.loc
 	var/effect_dir = occupant.dir
 	occupant = null
@@ -217,7 +217,7 @@
 	data["occupant_name"] = occupant ? occupant.real_name : "none"
 	data["occupant_health"] = occupant ? occupant.health : "none"
 
-	for(var/temp_occupant in objective.scanned_occupants)
+	for(var/temp_occupant as anything in objective.scanned_occupants)
 		scanned_occupants_info += list(list("scanned_occupant" = temp_occupant))
 
 	data["scanned_occupants"] = scanned_occupants_info
@@ -238,3 +238,4 @@
 			go_out()
 		if("teleport_out")
 			teleport_out()
+

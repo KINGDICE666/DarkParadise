@@ -9,7 +9,7 @@ import {
   TextArea,
 } from '../components';
 import { Window } from '../layouts';
-import { declension_ru, decodeHtmlEntities } from 'common/string';
+import { decodeHtmlEntities } from 'common/string';
 
 const TabList = {
   0: () => <SendERT />,
@@ -166,7 +166,7 @@ const SendERT = (props: unknown) => {
             {data.com ? 'Да' : 'Нет'}
           </Button>
         </LabeledList.Item>
-        <LabeledList.Item label="Штурмовик">
+        <LabeledList.Item label="Боец">
           {slotOptions.map((a, i) => (
             <Button
               key={'sec' + a}
@@ -211,7 +211,7 @@ const SendERT = (props: unknown) => {
             </Button>
           ))}
         </LabeledList.Item>
-        <LabeledList.Item label="Экзорцист">
+        <LabeledList.Item label="Паранормал">
           {slotOptions.map((a, i) => (
             <Button
               key={'par' + a}
@@ -226,7 +226,7 @@ const SendERT = (props: unknown) => {
             </Button>
           ))}
         </LabeledList.Item>
-        <LabeledList.Item label="Клининг-специалист">
+        <LabeledList.Item label="Уборщик">
           {slotOptions.map((a, i) => (
             <Button
               key={'jan' + a}
@@ -241,7 +241,7 @@ const SendERT = (props: unknown) => {
             </Button>
           ))}
         </LabeledList.Item>
-        <LabeledList.Item label="Робот">
+        <LabeledList.Item label="Борг">
           {slotOptions.map((a, i) => (
             <Button
               key={'cyb' + a}
@@ -272,8 +272,7 @@ const SendERT = (props: unknown) => {
         </LabeledList.Item>
         <LabeledList.Item label="Текущие слоты">
           <Box color={data.total > data.spawnpoints ? 'red' : 'green'}>
-            Выбрано {data.total} слот{declension_ru(data.total, '', 'а', 'ов')}
-            на {data.spawnpoints} точек спавна
+            {data.total} выбрано, против {data.spawnpoints} точек спавна
           </Box>
         </LabeledList.Item>
         <LabeledList.Item label="Отправить">

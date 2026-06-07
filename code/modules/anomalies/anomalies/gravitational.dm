@@ -71,13 +71,13 @@
 	grav_change_time_high = 5 SECONDS
 
 /obj/effect/anomaly/gravitational/tier1/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "малая гравитационная аномалия", \
 		GENITIVE = "малой гравитационной аномалии", \
 		DATIVE = "малой гравитационной аномалии", \
 		ACCUSATIVE = "малую гравитационную аномалию", \
 		INSTRUMENTAL = "малой гравитационной аномалией", \
-		PREPOSITIONAL = "малой гравитационной аномалии",
+		PREPOSITIONAL = "малой гравитационной аномалии"
 	)
 
 /obj/effect/anomaly/gravitational/tier2
@@ -96,13 +96,13 @@
 	grav_change_time_high = 60 SECONDS
 
 /obj/effect/anomaly/gravitational/tier2/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "гравитационная аномалия", \
 		GENITIVE = "гравитационной аномалии", \
 		DATIVE = "гравитационной аномалии", \
 		ACCUSATIVE = "гравитационную аномалию", \
 		INSTRUMENTAL = "гравитационной аномалией", \
-		PREPOSITIONAL = "гравитационной аномалии",
+		PREPOSITIONAL = "гравитационной аномалии"
 	)
 
 /obj/effect/anomaly/gravitational/tier3
@@ -121,16 +121,16 @@
 	has_warp = TRUE
 
 /obj/effect/anomaly/gravitational/tier3/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "большая гравитационная аномалия", \
 		GENITIVE = "большой гравитационной аномалии", \
 		DATIVE = "большой гравитационной аномалии", \
 		ACCUSATIVE = "большую гравитационную аномалию", \
 		INSTRUMENTAL = "большой гравитационной аномалией", \
-		PREPOSITIONAL = "большой гравитационной аномалии",
+		PREPOSITIONAL = "большой гравитационной аномалии"
 	)
 
-/obj/effect/anomaly/gravitational/tier3/Initialize(mapload, spawn_strength, spawn_stability)
+/obj/effect/anomaly/gravitational/tier3/New()
 	. = ..()
 
 	for(var/mob/mob as anything in GLOB.player_list)
@@ -149,6 +149,7 @@
 		random_gravity_change(mob)
 
 	. = ..()
+
 
 //			 TIER 4 ADMIN SPAWN ONLY
 
@@ -169,16 +170,16 @@
 	has_warp = TRUE
 
 /obj/effect/anomaly/gravitational/tier4/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "колоссальная гравитационная аномалия", \
 		GENITIVE = "колоссальной гравитационной аномалии", \
 		DATIVE = "колоссальной гравитационной аномалии", \
 		ACCUSATIVE = "колоссальную гравитационную аномалию", \
 		INSTRUMENTAL = "колоссальной гравитационной аномалией", \
-		PREPOSITIONAL = "колоссальной гравитационной аномалии",
+		PREPOSITIONAL = "колоссальной гравитационной аномалии"
 	)
 
-/obj/effect/anomaly/gravitational/tier4/Initialize(mapload, spawn_strength, spawn_stability)
+/obj/effect/anomaly/gravitational/tier4/New()
 	. = ..()
 
 	for(var/mob/mob as anything in GLOB.player_list)

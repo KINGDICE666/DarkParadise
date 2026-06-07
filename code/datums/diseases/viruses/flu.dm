@@ -9,7 +9,7 @@
 	cures = list("spaceacillin")
 	cure_prob = 30
 	permeability_mod = 0.75
-	severity = DISEASE_SEVERITY_MEDIUM
+	severity = MEDIUM
 
 /datum/disease/virus/flu/stage_act()
 	if(!..())

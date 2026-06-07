@@ -6,6 +6,7 @@
 #define MAX_MAGNETIC_FIELD 4
 #define MAX_PATH_LENGTH 50
 
+
 // Magnetic attractor, creates variable magnetic fields and attraction.
 // Can also be used to emit electron/proton beams to create a center of magnetism on another tile
 
@@ -14,7 +15,7 @@
 
 /obj/machinery/magnetic_module
 	icon = 'icons/obj/objects.dmi'
-	icon_state = "floor_magnet"
+	icon_state = "floor_magnet-f"
 	name = "Electromagnetic Generator"
 	desc = "A device that uses station power to create points of magnetic energy."
 	level = 1		// underfloor
@@ -40,11 +41,13 @@
 	/// absolute value of center_x,y cannot exceed this integer
 	var/max_dist = 20
 
+
 /obj/machinery/magnetic_module/Initialize(mapload)
 	. = ..()
 	var/turf/T = loc
+	if(!T.transparent_floor)
+		hide(T.intact)
 	center = T
-	AddElement(/datum/element/undertile)
 
 	SSradio.add_object(src, freq, RADIO_MAGNETS)
 
@@ -54,8 +57,16 @@
 	SSradio.remove_object(src, freq)  // i have zero idea what the hell is going on
 	return ..()
 
+// update the invisibility and icon
+/obj/machinery/magnetic_module/hide(intact)
+	invisibility = intact ? INVISIBILITY_MAXIMUM : 0
+	update_icon(UPDATE_ICON_STATE)
+
 /obj/machinery/magnetic_module/update_icon_state()
-	icon_state = "floor_magnet[on ? "" : "0"]"
+	// if invisible, set icon to faded version
+	// in case of being revealed by T-scanner
+	icon_state = "floor_magnet[on ? "" : "0"][invisibility ? "-f" : ""]"
+
 
 /obj/machinery/magnetic_module/receive_signal(datum/signal/signal)
 	var/command = signal.data["command"]
@@ -63,6 +74,7 @@
 	var/signal_code = signal.data["code"]
 	if(command && (signal_code == code))
 		Cmd(command, modifier)
+
 
 /obj/machinery/magnetic_module/proc/Cmd(command, modifier)
 	if(command)
@@ -119,6 +131,7 @@
 				if(on)
 					INVOKE_ASYNC(src, PROC_REF(magnetic_process))
 
+
 /obj/machinery/magnetic_module/process()
 	if(stat & NOPOWER)
 		on = FALSE
@@ -147,6 +160,7 @@
 		use_power = NO_POWER_USE
 		update_icon(UPDATE_ICON_STATE)
 
+
 // proc that actually does the pulling
 /obj/machinery/magnetic_module/proc/magnetic_process()
 	if(magpulling)
@@ -169,6 +183,7 @@
 		sleep(1.3 SECONDS - electricity_level)
 
 	magpulling = FALSE
+
 
 /obj/machinery/magnetic_controller
 	name = "Magnetic Control Console"
@@ -199,6 +214,7 @@
 	/// TRUE if looping
 	var/looping = FALSE
 
+
 /obj/machinery/magnetic_controller/Initialize(mapload)
 	. = ..()
 
@@ -210,6 +226,7 @@
 	if(autolink)
 		return INITIALIZE_HINT_LATELOAD
 
+
 /obj/machinery/magnetic_controller/LateInitialize()
 	..()
 	if(autolink)
@@ -217,10 +234,12 @@
 		// so linkage gets delayed until that one finished.
 		link_magnets()
 
+
 /obj/machinery/magnetic_controller/Destroy()
 	SSradio.remove_object(src, frequency)
 	radio_connection = null
 	return ..()
+
 
 /obj/machinery/magnetic_controller/proc/link_magnets()
 	magnets = list()
@@ -229,16 +248,20 @@
 			magnets += module
 			RegisterSignal(module, COMSIG_QDELETING, PROC_REF(on_magnet_del), TRUE)
 
+
 /obj/machinery/magnetic_controller/proc/on_magnet_del(magnet)
 	SIGNAL_HANDLER
 	magnets -= magnet
+
 
 /obj/machinery/magnetic_controller/process()
 	if(length(magnets) == 0 && autolink)
 		link_magnets()
 
+
 /obj/machinery/magnetic_controller/attack_ai(mob/user as mob)
 	return attack_hand(user)
+
 
 /obj/machinery/magnetic_controller/attack_hand(mob/user as mob)
 	if(stat & (BROKEN|NOPOWER))
@@ -265,10 +288,12 @@
 	dat += "Path: {<a href='byond://?src=[UID()];operation=setpath'>[path]</a>}<br>"
 	dat += "Moving: <a href='byond://?src=[UID()];operation=togglemoving'>[moving ? "Enabled":"Disabled"]</a>"
 
+
 	var/datum/browser/popup = new(user, "magnet", "Magnetic Control Console", 400, 500)
 	popup.set_content(dat)
 	popup.open(TRUE)
 	onclose(user, "magnet")
+
 
 /obj/machinery/magnetic_controller/Topic(href, href_list)
 	if(stat & (BROKEN|NOPOWER))
@@ -300,6 +325,7 @@
 			if("plusmag")
 				signal.data["command"] = "add-mag"
 
+
 		// Broadcast the signal
 
 		radio_connection.post_signal(src, signal, filter = RADIO_MAGNETS)
@@ -329,6 +355,7 @@
 					INVOKE_ASYNC(src, PROC_REF(MagnetMove))
 
 	updateUsrDialog()
+
 
 /obj/machinery/magnetic_controller/proc/MagnetMove()
 	if(looping)
@@ -374,6 +401,7 @@
 
 	looping = FALSE
 
+
 /obj/machinery/magnetic_controller/proc/filter_path()
 	// Generates the rpath variable using the path string, think of this as "string2list"
 	// Doesn't use params2list() because of the akward way it stacks entities
@@ -388,6 +416,7 @@
 			rpath += copytext(path, i, i+1) // else, add to list
 
 		// there doesn't HAVE to be separators but it makes paths syntatically visible
+
 
 #undef MIN_CONTROLLER_SPEED
 #undef MAX_CONTROLLER_SPEED

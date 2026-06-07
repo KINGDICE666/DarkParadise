@@ -1,12 +1,11 @@
-#define NINJA_NIGHTVISION "nightvision"
-#define NINJA_THERMALS "thermals"
-#define NINJA_FLASHPROTECTION "flashprotection"
+#define NINJA_NIGHTVISION		"nightvision"
+#define NINJA_THERMALS			"thermals"
+#define NINJA_FLASHPROTECTION	"flashprotection"
 
 /datum/action/item_action/ninja_glasses_toggle
 	name = "Toggle Visor Mode"
-	desc = "Переключает режим визора. Доступные режимы: Термальный, Защита от ослепления, Ночное видение."
+	desc = "Toggles Visor mode to the next one. Available modes: Thermals, Blind protection, Night vision"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
-	background_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
 
 /obj/item/clothing/glasses/ninja/proc/toggle_modes(mob/user, mode)
@@ -19,7 +18,7 @@
 			vision_flags &= ~SEE_MOBS
 			icon_state = "[initial(icon_state)]"
 			item_state = "[initial(item_state)]"
-			balloon_alert(user, "режим — Ночное видение")
+			to_chat(user, span_notice("Night Vision mode Active"))
 		if(NINJA_THERMALS)
 			see_in_dark = 2
 			lighting_alpha = 220
@@ -27,7 +26,7 @@
 			vision_flags |= SEE_MOBS
 			icon_state = "[initial(icon_state)]_red"
 			item_state = "[initial(item_state)]_red"
-			balloon_alert(user, "режим — Термальное видение")
+			to_chat(user, span_notice("Thermal Vision mode Active"))
 		if(NINJA_FLASHPROTECTION)
 			see_in_dark = 2
 			lighting_alpha = null
@@ -35,7 +34,7 @@
 			vision_flags &= ~SEE_MOBS
 			icon_state = "[initial(icon_state)]_blue"
 			item_state = "[initial(item_state)]_blue"
-			balloon_alert(user, "режим — Защита от ослепления")
+			to_chat(user, span_notice("Blindness Protection mode Active"))
 
 	if(n_mask && istype(user.wear_mask, /obj/item/clothing/mask/gas/space_ninja))
 		n_mask.icon_state = "ninja_mask_[n_mask.visuals_type]_[current_mode]"

@@ -21,11 +21,17 @@
 	/// Current owner of the item
 	var/mob/living/carbon/owner
 
-/obj/item/melee/touch_attack/Initialize(mapload, spell, owner)
-	. = ..()
+
+/obj/item/melee/touch_attack/New(spell, owner)
 	attached_spell = spell
 	src.owner = owner
+	..()
+
+
+/obj/item/melee/touch_attack/Initialize(mapload)
+	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, ABSTRACT_ITEM_TRAIT)
+
 
 /obj/item/melee/touch_attack/Destroy()
 	if(owner)
@@ -39,24 +45,47 @@
 
 	return ..()
 
+
 /obj/item/melee/touch_attack/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!iscarbon(user)) //Look ma, no hands
-		return ATTACK_CHAIN_PROCEED_NO_AFTERATTACK
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		to_chat(user, span_warning("You can't reach out!"))
-		return ATTACK_CHAIN_PROCEED_NO_AFTERATTACK
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
 	return ..()
 
-/obj/item/melee/touch_attack/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/melee/touch_attack/afterattack(atom/target, mob/user, proximity, params)
 	if(HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(catchphrase)
 		user.say(catchphrase)
+
 	if(on_use_sound)
 		playsound(get_turf(user), on_use_sound, 50, TRUE)
+
 	if(attached_spell)
 		attached_spell.perform(list())
 	qdel(src)
+
+
+/**
+ * When the hand component of a touch spell is qdel'd, (the hand is dropped or otherwise lost),
+ * the cooldown on the spell that made it is automatically refunded.
+ *
+ * However, if you want to consume the hand and not give a cooldown,
+ * such as adding a unique behavior to the hand specifically, this function will do that.
+ */
+/obj/item/melee/touch_attack/proc/remove_hand_with_no_refund(mob/holder)
+	var/obj/effect/proc_holder/spell/touch/hand_spell = attached_spell
+	if(!QDELETED(hand_spell))
+		hand_spell.discharge_hand(holder)
+		return
+
+	// We have no spell associated for some reason, just delete us as normal.
+	holder.drop_item_ground(src, force = TRUE)
+	qdel(src)
+
 
 /obj/item/melee/touch_attack/disintegrate
 	name = "disintegrating touch"
@@ -66,13 +95,15 @@
 	icon_state = "disintegrate"
 	item_state = "disintegrate"
 
-/obj/item/melee/touch_attack/disintegrate/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //exploding after touching yourself would be bad
+
+/obj/item/melee/touch_attack/disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity, params)
+	if(!proximity || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //exploding after touching yourself would be bad
 		return
 	var/mob/M = target
 	do_sparks(4, FALSE, M.loc) //no idea what the 0 is
 	M.gib()
 	return ..()
+
 
 /obj/item/melee/touch_attack/fleshtostone
 	name = "petrifying touch"
@@ -82,16 +113,18 @@
 	icon_state = "fleshtostone"
 	item_state = "fleshtostone"
 
-/obj/item/melee/touch_attack/fleshtostone/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag || target == user || !isliving(target) || !iscarbon(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //getting hard after touching yourself would also be bad
+
+/obj/item/melee/touch_attack/fleshtostone/afterattack(atom/target, mob/living/carbon/user, proximity, params)
+	if(!proximity || target == user || !isliving(target) || !iscarbon(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //getting hard after touching yourself would also be bad
 		return
 	if(user.incapacitated())
-		to_chat(user, span_warning("You can't reach out!"))
+		to_chat(user, "<span class='warning'>You can't reach out!</span>")
 		return
 	var/mob/living/L = target
 	L.Stun(4 SECONDS)
 	new /obj/structure/closet/statue(L.loc, L)
 	..()
+
 
 /obj/item/melee/touch_attack/fake_disintegrate
 	name = "toy plastic hand"
@@ -102,12 +135,14 @@
 	item_state = "disintegrate"
 	needs_permit = FALSE
 
-/obj/item/melee/touch_attack/fake_disintegrate/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //not exploding after touching yourself would be bad
+
+/obj/item/melee/touch_attack/fake_disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity, params)
+	if(!proximity || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //not exploding after touching yourself would be bad
 		return
 	do_sparks(4, FALSE, target.loc)
 	playsound(target.loc, 'sound/goonstation/effects/gib.ogg', 50, TRUE)
 	return ..()
+
 
 /obj/item/melee/touch_attack/cluwne
 	name = "cluwne touch"
@@ -117,12 +152,13 @@
 	icon_state = "cluwnecurse"
 	item_state = "cluwnecurse"
 
-/obj/item/melee/touch_attack/cluwne/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag || target == user || !ishuman(target) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //clowning around after touching yourself would unsurprisingly, be bad
+
+/obj/item/melee/touch_attack/cluwne/afterattack(atom/target, mob/living/carbon/user, proximity, params)
+	if(!proximity || target == user || !ishuman(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //clowning around after touching yourself would unsurprisingly, be bad
 		return
 
 	if(iswizard(target))
-		to_chat(user, span_warning("The spell has no effect on [target]."))
+		to_chat(user, "<span class='warning'>The spell has no effect on [target].</span>")
 		return
 
 	var/datum/effect_system/fluid_spread/smoke/s = new

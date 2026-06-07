@@ -3,10 +3,12 @@
  * Chameleon ability, that allows you to change your appearance to the appearance of a crewmember
  */
 /datum/action/item_action/advanced/ninja/ninja_chameleon
-	name = "Хамелеон"
-	desc = "Переключает режим камуфляжа. Пассивно увеличивает потребление энергии костюма."
+	name = "Chameleon Disguise"
+	desc = "Toggles Chameleon mode on and off. Passively encrease suit energy consumption."
 	check_flags = AB_CHECK_HANDS_BLOCKED|AB_CHECK_IMMOBILE|AB_CHECK_LYING|AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
 	charge_type = ADV_ACTION_TYPE_TOGGLE
+	use_itemicon = FALSE
+	icon_icon = 'icons/mob/actions/actions_ninja.dmi'
 	button_icon_state = "chameleon"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
@@ -17,15 +19,15 @@
 	if(chameleon_scanner)
 		qdel(chameleon_scanner)
 		chameleon_scanner = null
-		return
-
-	chameleon_scanner = new
-	chameleon_scanner.my_suit = src
-	var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_chameleon = locate() in ninja.actions
-	chameleon_scanner.my_action = ninja_chameleon
-	if(disguise_active)
-		chameleon_scanner.icon_state = "[initial(chameleon_scanner.icon_state)]_act"
-	ninja.put_in_hands(chameleon_scanner)
+	else
+		chameleon_scanner = new
+		chameleon_scanner.my_suit = src
+		for(var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_action in actions)
+			chameleon_scanner.my_action = ninja_action
+			break
+		if(disguise_active)
+			chameleon_scanner.icon_state = "[initial(chameleon_scanner.icon_state)]_act"
+		ninja.put_in_hands(chameleon_scanner)
 
 /*
  * The scanner object and all the logic behind it below
@@ -33,7 +35,7 @@
 
 /obj/item/ninja_chameleon_scanner
 	name = "chameleon scanner"
-	desc = "Спрятанный в костюме Ниндзя девайс. Сканирует внешний вид и голос гуманоида, что позволяет пользователю выдавать себя за него."
+	desc = "A device sneakily hidden inside Spider Clan ninja suits. Scans a person's visual appearance and voice, which makes it possible for the ninja, to impersonate them"
 	icon = 'icons/obj/ninjaobjects.dmi'
 	icon_state = "chameleon_device"
 	item_state = ""
@@ -43,22 +45,26 @@
 	var/datum/action/item_action/advanced/ninja/ninja_chameleon/my_action = null
 
 /obj/item/ninja_chameleon_scanner/Destroy()
+	. = ..()
 	my_suit.chameleon_scanner = null
 	my_suit = null
 	my_action = null
-	return ..()
+
 
 /obj/item/ninja_chameleon_scanner/equip_to_best_slot(mob/user, force = FALSE, drop_on_fail = FALSE, qdel_on_fail = FALSE)
 	qdel(src)
 
+
 /obj/item/ninja_chameleon_scanner/run_drop_held_item(mob/user)
 	qdel(src)
+
 
 /obj/item/ninja_chameleon_scanner/attack_self(mob/user)
 	if(!my_suit.s_busy)	//Боремся со спамом кнопок
 		ninja_chameleon(user, user)
 
-/obj/item/ninja_chameleon_scanner/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+
+/obj/item/ninja_chameleon_scanner/afterattack(atom/target, mob/living/user, proximity, params)
 	var/mob/target_mob = get_mob_in_atom_without_warning(target)
 	if(!my_suit.s_busy)	//Боремся со спамом кнопок
 		ninja_chameleon(target_mob, user)
@@ -84,7 +90,7 @@
 	if(!s_busy)
 		s_busy = TRUE
 		if(!do_after(ninja, 2 SECONDS, ninja, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM))
-			balloon_alert(ninja, "сканирование прервано!")
+			to_chat(ninja, span_warning("Сканирование прервано!"))
 			s_busy = FALSE
 			return
 		s_busy = FALSE
@@ -99,16 +105,16 @@
 
 /obj/item/clothing/suit/space/space_ninja/proc/pick_form(mob/living/carbon/human/ninja)
 	if(!disguise && !disguise_active)
-		balloon_alert(ninja, "буфер памяти пуст!")
+		to_chat(ninja, span_warning("Вы ещё никого не сканировали! Используйте эту способность, чтобы просканировать чужую внешность!"))
 		return
 
 	if(!disguise_active)
 		to_chat(ninja, span_notice("Вы начали маскироваться под [disguise.name]."))
-		var/obj/effect/temp_visual/holo_scan/my_scan_effect = new(get_turf(src), color_choice)
+		var/obj/effect/temp_visual/holo_scan/my_scan_effect = new(get_turf(src), color_choice, "alpha", TRUE)
 		if(!s_busy)
 			s_busy = TRUE
 			if(!do_after(ninja, 2 SECONDS, ninja, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM))
-				balloon_alert(ninja, "маскирование прервано!")
+				to_chat(ninja, span_warning("Вы прервали маскировку!"))
 				s_busy = FALSE
 				do_sparks(3, FALSE, ninja)
 				qdel(my_scan_effect)
@@ -155,9 +161,9 @@
 		if(chameleon_scanner)
 			chameleon_scanner.icon_state = "[initial(chameleon_scanner.icon_state)]_act"
 		//Action icon
-		var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_chameleon = locate() in ninja.actions
-		ninja_chameleon.action_ready = TRUE
-		ninja_chameleon.use_action()
+		for(var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_action in actions)
+			ninja_action.action_ready = TRUE
+			ninja_action.use_action()
 		ninja.cut_overlays()
 	else
 		ninja.cut_overlay(disguise.overlays)
@@ -169,6 +175,7 @@
 	ninja.add_overlay(disguise.overlays)
 	//Disguise flag
 	disguise_active = TRUE
+
 
 /*
 * Proc восстанавливающий внешность ниндзя и отрубающий хамелион.
@@ -204,9 +211,9 @@
 	if(chameleon_scanner)
 		chameleon_scanner.icon_state = "[initial(chameleon_scanner.icon_state)]"
 	//Action icon
-	var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_chameleon = locate() in ninja.actions
-	ninja_chameleon.action_ready = FALSE
-	ninja_chameleon.use_action()
+	for(var/datum/action/item_action/advanced/ninja/ninja_chameleon/ninja_action in actions)
+		ninja_action.action_ready = FALSE
+		ninja_action.use_action()
 	//Components
 	qdel(ninja.GetComponent(/datum/component/examine_override))
 	qdel(ninja.GetComponent(/datum/component/ninja_states_breaker))

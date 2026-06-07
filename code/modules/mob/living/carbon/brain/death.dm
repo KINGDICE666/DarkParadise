@@ -3,9 +3,9 @@
 	. = ..()
 	if(!.)
 		return FALSE
-	if(!gibbed && container && is_mmi(container))//If not gibbed but in a container.
+	if(!gibbed && container && istype(container, /obj/item/mmi))//If not gibbed but in a container.
 		var/obj/item/mmi/mmi = container
-		visible_message(span_danger("[src]'s MMI flatlines!"), span_warning("You hear something flatline."))
+		visible_message("<span class='danger'>[src]'s MMI flatlines!</span>", "<span class='warning'>You hear something flatline.</span>")
 		mmi.icon_state = mmi.dead_icon
 
 /mob/living/carbon/brain/gib()
@@ -18,9 +18,9 @@
 
 	gibs(loc, dna)
 
-	if(container && is_mmi(container))
+	if(container && istype(container, /obj/item/mmi))
 		qdel(container)//Gets rid of the MMI if there is one
 	if(loc)
-		if(is_internal_organ_brain(loc))
+		if(istype(loc,/obj/item/organ/internal/brain))
 			qdel(loc)//Gets rid of the brain item
 	QDEL_IN(src, 0)

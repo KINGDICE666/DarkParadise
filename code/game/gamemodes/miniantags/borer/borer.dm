@@ -13,7 +13,7 @@
 		if(client.handle_spam_prevention(message,MUTE_IC))
 			return
 
-	if(isborer(loc))
+	if(istype(loc,/mob/living/simple_animal/borer))
 		message = trim(sanitize(copytext_char(message, 1, MAX_MESSAGE_LEN)))
 		if(!message)
 			return
@@ -34,8 +34,8 @@
 	var/mob/living/simple_animal/borer/B = loc
 
 	if(!istype(B))
-		. = FALSE
-		CRASH("Trapped mind found without a borer!")
+		log_runtime(EXCEPTION("Trapped mind found without a borer!"), src)
+		return FALSE
 
 	return B.host.say_understands(other, speaking)
 
@@ -141,24 +141,25 @@
 	var/obj/effect/proc_holder/spell/borer_dominate/dominate_spell = new
 
 /mob/living/simple_animal/borer/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мозговой червь",
 		GENITIVE = "мозгового червя",
 		DATIVE = "мозговому червю",
 		ACCUSATIVE = "мозгового червя",
 		INSTRUMENTAL = "мозговым червём",
-		PREPOSITIONAL = "мозговом черве",
+		PREPOSITIONAL = "мозговом черве"
 	)
 
-/mob/living/simple_animal/borer/Initialize(mapload, gen = 1)
+
+/mob/living/simple_animal/borer/New(atom/newloc, gen=1)
 	antag_datum.borer_rank = new BORER_RANK_YOUNG(src)
-	. = ..()
+	..(newloc)
 	remove_from_all_data_huds()
 	generation = gen
 	add_language(LANGUAGE_HIVE_BORER)
 	notify_ghosts("Мозговой червь появился в [get_area(src)]!", enter_link = "<a href=byond://?src=[UID()];ghostjoin=1>(Click to enter)</a>", source = src, action = NOTIFY_ATTACK)
 	real_name = "Мозговой червь [rand(1000,9999)]"
-	truename = "[borer_names[min(generation, length(borer_names))]] [rand(1000,9999)]"
+	truename = "[borer_names[min(generation, borer_names.len)]] [rand(1000,9999)]"
 	GrantBorerActions()
 
 /mob/living/simple_animal/borer/death(gibbed)
@@ -211,6 +212,7 @@
 	status_tab_data[++status_tab_data.len] = list("Rank", antag_datum.borer_rank?.rankname)
 	status_tab_data[++status_tab_data.len] = list("Evolution points", antag_datum.evo_points)
 
+
 /mob/living/simple_animal/borer/say(message, verb = "говор%(ит,ят)%", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
 	var/list/message_pieces = parse_languages(message)
 
@@ -220,6 +222,7 @@
 			return
 
 	return ..()
+
 
 /mob/living/simple_animal/borer/proc/Communicate(sended_message)
 	if(!host)
@@ -241,21 +244,21 @@
 		return
 
 	if(src && !QDELETED(src) && !QDELETED(host))
-		var/say_string = (docile) ? "оскорбляет" :"заявляет"
+		var/say_string = (docile) ? "slurs" :"states"
 		if(host)
 			to_chat(host, span_changeling("<i>[truename] [say_string]:</i> [sended_message]"))
 			add_say_logs(src, sended_message, host, "BORER")
 
 			for(var/M in GLOB.dead_mob_list)
 				if(isobserver(M))
-					to_chat(M, span_changeling("([ghost_follow_link(src, ghost = M)]) <i>Кортикальная связь <b>[truename]</b>: [sended_message]</i>"))
+					to_chat(M, span_changeling("<i>Кортикальная связь <b>[truename]</b> ([ghost_follow_link(src, ghost=M)]): [sended_message]</i>"))
 
 		to_chat(src, span_changeling("<i>[truename] [say_string]:</i> [sended_message]"))
 		talk_to_borer_action.Grant(host)
 
 /mob/living/simple_animal/borer/verb/toggle_silence_inside_host()
 	set name = "Говорить носителю"
-	set category = VERB_CATEGORY_BORER
+	set category = STATPANEL_BORER
 	set desc = "Toggle whether you will be able to say audible messages while inside your host."
 
 	if(talk_inside_host)
@@ -285,7 +288,7 @@
 
 	for(var/M in GLOB.dead_mob_list)
 		if(isobserver(M))
-			to_chat(M, span_changeling("([ghost_follow_link(src, ghost = M)]) <i>Кортикальная связь <b>[src]</b>: [input]</i>"))
+			to_chat(M, span_changeling("<i>Кортикальная связь <b>[src]</b> ([ghost_follow_link(src, ghost=M)]): [input]</i>"))
 
 	to_chat(src, span_changeling("<i>[src] says:</i> [input]"))
 
@@ -310,7 +313,7 @@
 
 	for(var/M in GLOB.dead_mob_list)
 		if(isobserver(M))
-			to_chat(M, span_changeling("([ghost_follow_link(src, ghost = M)]) <i>Кортикальная связь <b>[B]</b>: [input]</i>"))
+			to_chat(M, span_changeling("<i>Кортикальная связь <b>[B]</b> ([ghost_follow_link(src, ghost=M)]): [input]</i>"))
 
 	to_chat(src, span_changeling("<i>[B.truename] says:</i> [input]"))
 
@@ -367,7 +370,7 @@
 	else
 		return ..()
 
-/mob/living/simple_animal/borer/OnUnarmedAttack(mob/living/carbon/human/human, proximity_flag, list/modifiers)
+/mob/living/simple_animal/borer/OnUnarmedAttack(mob/living/carbon/human/human)
 	if(!istype(human))
 		return
 
@@ -415,8 +418,8 @@
 			attack_ghost(ghost)
 
 	if(href_list["borer_use_chem"])
-		locateUID(href_list["src"])
-		if(!isborer(src))
+		locate(href_list["src"])
+		if(!istype(src, /mob/living/simple_animal/borer))
 			return
 
 		var/datum/reagent/reagent = href_list["borer_use_chem"]
@@ -627,7 +630,7 @@
 		qdel(host_brain)
 		host_brain = new(src)
 
-		host_brain.possess_by_player(host.ckey)
+		host_brain.ckey = host.ckey
 
 		host_brain.name = host.name
 
@@ -643,7 +646,7 @@
 		src.computer_id = null
 		src.lastKnownIP = null
 
-		host.possess_by_player(ckey)
+		host.ckey = src.ckey
 
 		if(!host.computer_id)
 			host.computer_id = s2h_id
@@ -660,7 +663,7 @@
 		host.med_hud_set_status()
 
 		if(src && !src.key)
-			src.possess_by_player("@[borer_key]")
+			src.key = "@[borer_key]"
 
 		return
 
@@ -673,22 +676,23 @@
 		borer.detach()
 		return
 
-	CRASH("Missing borer or missing host brain upon borer release.")
+	log_runtime(EXCEPTION("Missing borer or missing host brain upon borer release."), src)
+	return
 
 //Check for brain worms in head.
 /mob/proc/has_brain_worms()
-	return
+	return FALSE
 
 /mob/living/carbon/has_brain_worms()
 	if(borer)
 		return borer
 
-	return
+	return FALSE
 
 /mob/living/carbon/proc/BorerControlling()
 	var/mob/living/simple_animal/borer/borer = has_brain_worms()
 
-	if(borer?.controlling)
+	if(borer && borer.controlling)
 		return TRUE
 
 	return FALSE
@@ -768,6 +772,7 @@
 
 	return
 
+
 /mob/living/simple_animal/borer/proc/transfer_personality(client/candidate)
 	if(QDELETED(candidate) || QDELETED(candidate.mob))
 		return
@@ -775,7 +780,7 @@
 	var/datum/mind/mind = create_borer_mind(candidate.ckey)
 	mind.transfer_to(src)
 	candidate.mob = src
-	possess_by_player(candidate.ckey)
+	ckey = candidate.ckey
 	mind.add_antag_datum(antag_datum)
 
 	GrantBorerSpells()
@@ -835,8 +840,8 @@
 
 /mob/living/carbon/human/proc/get_real_mind()
 	var/mob/living/simple_animal/borer/borer = has_brain_worms()
-	return (borer?.controlling) ? borer.host_brain.mind : mind
+	return (borer && borer.controlling) ? borer.host_brain.mind : mind
 
 /mob/living/carbon/human/proc/get_real_ckey()
 	var/mob/living/simple_animal/borer/borer = has_brain_worms()
-	return (borer?.controlling) ? borer.host_brain.ckey : ckey
+	return (borer && borer.controlling) ? borer.host_brain.ckey : ckey

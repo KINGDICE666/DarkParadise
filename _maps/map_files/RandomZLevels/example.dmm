@@ -20,7 +20,8 @@
 	},
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1
+	pixel_y = 1;
+	d2 = 2
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
@@ -30,15 +31,20 @@
 	},
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1
+	pixel_y = 1;
+	d2 = 2
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
 "ag" = (
-/obj/machinery/power/apc/noalarm/directional/north,
+/obj/machinery/power/apc/noalarm{
+	dir = 1;
+	pixel_y = 24
+	},
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1
+	pixel_y = 1;
+	d2 = 2
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
@@ -62,25 +68,30 @@
 /area/awaymission/example)
 "ak" = (
 /obj/structure/cable{
-	icon_state = "1-2"
+	icon_state = "1-2";
+	tag = ""
 	},
 /obj/structure/cable{
-	icon_state = "2-4"
+	icon_state = "2-4";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
 "al" = (
 /obj/structure/cable{
-	icon_state = "1-8"
+	icon_state = "1-8";
+	tag = ""
 	},
 /obj/structure/cable{
-	icon_state = "4-8"
+	icon_state = "4-8";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
 "am" = (
 /obj/structure/cable{
-	icon_state = "1-8"
+	icon_state = "1-8";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
@@ -93,7 +104,8 @@
 "ao" = (
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1
+	pixel_y = 1;
+	d2 = 2
 	},
 /obj/machinery/gateway/centeraway,
 /turf/simulated/floor/plasteel,
@@ -106,7 +118,8 @@
 /area/awaymission/example)
 "aq" = (
 /obj/structure/cable{
-	icon_state = "1-2"
+	icon_state = "1-2";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
@@ -124,7 +137,8 @@
 "at" = (
 /obj/machinery/gateway,
 /obj/structure/cable{
-	icon_state = "1-4"
+	icon_state = "1-4";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
@@ -133,12 +147,14 @@
 	dir = 6
 	},
 /obj/structure/cable{
-	icon_state = "4-8"
+	icon_state = "4-8";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
 "av" = (
 /obj/structure/cable{
+	d2 = 8;
 	icon_state = "0-8"
 	},
 /turf/simulated/floor/plating,
@@ -148,26 +164,30 @@
 /area/awaymission/example)
 "ax" = (
 /obj/structure/cable{
-	icon_state = "0-4"
+	icon_state = "0-4";
+	d2 = 4
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/example)
 "ay" = (
 /obj/machinery/light/small,
 /obj/structure/cable{
-	icon_state = "4-8"
+	icon_state = "4-8";
+	tag = ""
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/example)
 "az" = (
 /obj/structure/cable{
-	icon_state = "4-8"
+	icon_state = "4-8";
+	tag = ""
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/example)
 "aA" = (
 /obj/structure/cable{
-	icon_state = "1-8"
+	icon_state = "1-8";
+	tag = ""
 	},
 /obj/effect/decal/cleanable/blood/oil,
 /turf/simulated/floor/plasteel,
@@ -253,6 +273,7 @@
 /area/awaymission/example)
 "aQ" = (
 /turf/simulated/floor/plasteel{
+	tag = "icon-yellowfull (WEST)";
 	icon_state = "yellowfull";
 	dir = 8
 	},
@@ -310,9 +331,12 @@
 	dir = 8
 	},
 /obj/structure/grille,
-/obj/machinery/door/poddoor/shutters/preopen{
+/obj/machinery/door/poddoor/shutters{
+	density = 0;
+	icon_state = "open";
 	id_tag = "example";
-	name = "Privacy Shutters"
+	name = "Privacy Shutters";
+	opacity = 0
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/example)
@@ -325,9 +349,12 @@
 	dir = 4
 	},
 /obj/structure/grille,
-/obj/machinery/door/poddoor/shutters/preopen{
+/obj/machinery/door/poddoor/shutters{
+	density = 0;
+	icon_state = "open";
 	id_tag = "example";
-	name = "Privacy Shutters"
+	name = "Privacy Shutters";
+	opacity = 0
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/example)
@@ -436,6 +463,7 @@
 /area/awaymission/example)
 "bo" = (
 /turf/simulated/floor/plasteel{
+	tag = "icon-stage_stairs (WEST)";
 	icon_state = "stage_stairs";
 	dir = 8
 	},
@@ -603,6 +631,7 @@
 /area/awaymission/example)
 "bJ" = (
 /obj/structure/chair/wood{
+	tag = "icon-wooden_chair (EAST)";
 	dir = 4
 	},
 /turf/simulated/floor/plasteel{
@@ -611,6 +640,7 @@
 /area/awaymission/example)
 "bK" = (
 /obj/structure/chair/wood{
+	tag = "icon-wooden_chair (WEST)";
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -635,6 +665,7 @@
 /area/awaymission/example)
 "bN" = (
 /obj/structure/chair/wood{
+	tag = "icon-wooden_chair (NORTH)";
 	dir = 1
 	},
 /turf/simulated/floor/plasteel{
@@ -805,6 +836,7 @@
 "cq" = (
 /obj/effect/landmark/awaystart,
 /obj/machinery/light_construct/small{
+	tag = "icon-bulb-construct-stage1 (WEST)";
 	dir = 8
 	},
 /turf/simulated/floor/plasteel,

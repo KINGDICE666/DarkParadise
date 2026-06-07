@@ -6,12 +6,14 @@
 	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 	var/does_emissive = FALSE
 	var/random_number = FALSE
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+
 
 /obj/structure/sign/Initialize(mapload)
 	. = ..()
 	if(does_emissive || random_number)
 		update_icon(UPDATE_OVERLAYS)
+
 
 /obj/structure/sign/update_overlays()
 	. = ..()
@@ -32,6 +34,7 @@
 		if(BURN)
 			playsound(loc, 'sound/items/welder.ogg', 80, TRUE)
 
+
 /obj/structure/sign/screwdriver_act(mob/user, obj/item/I)
 	if(istype(src, /obj/structure/sign/double))
 		return
@@ -48,6 +51,7 @@
 	S.sign_state = icon_state
 	qdel(src)
 
+
 /obj/item/sign
 	name = "sign"
 	desc = ""
@@ -56,14 +60,15 @@
 	var/sign_state = ""
 
 /obj/item/sign/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "табличка",
 		GENITIVE = "таблички",
 		DATIVE = "табличке",
 		ACCUSATIVE = "табличку",
 		INSTRUMENTAL = "табличкой",
-		PREPOSITIONAL = "табличке",
+		PREPOSITIONAL = "табличке"
 	)
+
 
 /obj/item/sign/screwdriver_act(mob/living/user, obj/item/I)
 	if(!isturf(loc))
@@ -94,19 +99,20 @@
 	qdel(src)
 	return TRUE
 
+
 /obj/structure/sign/double/map
 	name = "station map"
 	desc = "Фотография станции в рамке."
 	max_integrity = 500
 
 /obj/structure/sign/double/map/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "карта станции",
 		GENITIVE = "карты станции",
 		DATIVE = "карте станции",
 		ACCUSATIVE = "карту станции",
 		INSTRUMENTAL = "картой станции",
-		PREPOSITIONAL = "карте станции",
+		PREPOSITIONAL = "карте станции"
 	)
 
 /obj/structure/sign/double/map/left
@@ -198,20 +204,19 @@
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "xeno_warning"
 
-/obj/structure/sign/medbay
-	name = "МЕДБЭЙ"
+/obj/structure/sign/redcross
+	name = "медбэй"
 	desc = "Межгалактический символ медицинских учреждений. Здесь, вероятно, вам окажут помощь."
-	icon_state = "lifestar"
-
-/obj/structure/sign/medbay/redcross
 	icon_state = "redcross"
 
-/obj/structure/sign/medbay/greencross
+/obj/structure/sign/greencross
+	name = "медбэй"
+	desc = "Межгалактический символ медицинских учреждений. Здесь, вероятно, вам окажут помощь."
 	icon_state = "greencross"
 
 /obj/structure/sign/goldenplaque
 	name = "награда \"Самый робастный мужчина\""
-	desc = "Робаст — это не действие или образ жизни, а состояние ума. Лишь те, чья воля крепка настолько, чтобы в час кризиса спасти друга от врага познали истинную суть робаста. Оставайтесь сильными, друзья."
+	desc = "Робаст – это не действие или образ жизни, а состояние ума. Лишь те, чья воля крепка настолько, чтобы в час кризиса спасти друга от врага познали истинную суть робаста. Оставайтесь сильными, друзья."
 	icon_state = "goldenplaque"
 
 /obj/structure/sign/kiddieplaque
@@ -221,7 +226,7 @@
 
 /obj/structure/sign/atmosplaque
 	name = "мемориальная доска отдела \"ZAS\""
-	desc = "Эта табличка установлена в память погибших атмосферников. Здесь увековечены те, кто пал жертвой неукротимой стихии — сгоревшие заживо, отравленные газами и раздавленные разгерметизацией. \"Они знали, на что шли\""
+	desc = "Эта табличка установлена в память погибших атмосферников. Здесь увековечены те, кто пал жертвой неукротимой стихии – сгоревшие заживо, отравленные газами и раздавленные разгерметизацией. \"Они знали, на что шли\""
 	icon_state = "atmosplaque"
 
 /obj/structure/sign/beautyplaque
@@ -303,9 +308,6 @@
 	desc = "Знак, обозначающий область, где исследуются ксенобиологические существа."
 	icon_state = "xenobio"
 
-/obj/structure/sign/xenobio/slime
-	icon_state = "xenobio2"
-
 /obj/structure/sign/evac
 	name = "ЭВАКУАЦИЯ"
 	desc = "Знак, обозначающий область, где проводятся процедуры эвакуации."
@@ -315,11 +317,6 @@
 	name = "ДЕСАНТНЫЕ КАПСУЛЫ"
 	desc = "Знак, обозначающий область, где проводятся процедуры загрузки десантных капсул."
 	icon_state = "drop"
-
-/obj/structure/sign/doors
-	name = "ШЛЮЗЫ"
-	desc = "Знак, обозначающий область, где возможно внезапное закрытие шлюзов."
-	icon_state = "doors"
 
 /obj/structure/sign/custodian
 	name = "УБОРЩИК"
@@ -360,6 +357,14 @@
 	name = "ТУАЛЕТ"
 	desc = "Тот самый знак, который все ищут в критический момент."
 	icon_state = "restroom"
+
+/obj/structure/sign/medbay
+	name = "МЕДБЭЙ"
+	desc = "Межгалактический символ медицинских учреждений. Здесь, вероятно, вам окажут помощь."
+	icon_state = "bluecross"
+
+/obj/structure/sign/medbay/alt
+	icon_state = "bluecross2"
 
 /obj/structure/sign/directions/floor
 	name = "Этаж"
@@ -411,14 +416,3 @@
 	name = "портрет Кейва Джонсона"
 	desc = "Когда вселенная швыряет в вас камни из плазмы — вы не \"изучаете их свойства\"! Вы берете эти камни, перемалываете в токсичную пыль и запускаете ей в лицо всем скептикам! Руководство ноет о \"технике безопасности\"? ПЛЕВАТЬ НА НИХ! Найдите ассистентов, которые не побоятся взорвать эту смесь в своих руках, во благо науки!"
 	icon_state = "cave"
-
-
-/obj/structure/sign/magboots
-	name = "МАГНИТНЫЕ БОТИНКИ"
-	desc = "Предупреждающий знак с надписью \"МАГНИТНЫЕ БОТИНКИ\""
-	icon_state = "magboots"
-
-/obj/structure/sign/turbine
-	name = "ТУРБИНА"
-	desc = "Предупреждающий знак с надписью \"ТУРБИНА\""
-	icon_state = "turbine"

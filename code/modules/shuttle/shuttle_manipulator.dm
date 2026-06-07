@@ -31,8 +31,8 @@
 
 /obj/machinery/shuttle_manipulator/update_overlays()
 	. = ..()
-	. += image(icon, icon_state = "hologram_on", pixel_z = 22)
-	. += image(icon, icon_state = "hologram_whiteship", pixel_z = 27)
+	. += image(icon, icon_state = "hologram_on", pixel_y = 22)
+	. += image(icon, icon_state = "hologram_whiteship", pixel_y = 27)
 
 /obj/machinery/shuttle_manipulator/attack_ghost(user as mob)
 	attack_hand(user)
@@ -64,6 +64,7 @@
 	add_fingerprint(user)
 	ui_interact(user)
 
+
 /obj/machinery/shuttle_manipulator/vv_edit_var(var_name, var_value)
 	// Extremely important that this doesn't get varedited by mistake, otherwise horrible,
 	// horrible things can happen to the server.
@@ -72,8 +73,9 @@
 		return FALSE
 	return ..()
 
+
 /obj/machinery/shuttle_manipulator/ui_state(mob/user)
-	return ADMIN_STATE(R_ADMIN)
+	return GLOB.admin_state
 
 /obj/machinery/shuttle_manipulator/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -145,7 +147,7 @@
 	if(..())
 		return
 	if(shuttle_and_preview_cooldown > world.time)
-		to_chat(usr, span_warning("Please wait until the desired shuttle has finished being loaded."))
+		to_chat(usr, "<span class='warning'>Please wait until the desired shuttle has finished being loaded.</span>")
 		return
 	. = TRUE
 
@@ -204,6 +206,7 @@
 					message_admins("[key_name_admin(usr)] loaded [mdp] with the shuttle manipulator.")
 					log_admin("[key_name(usr)] loaded [mdp] with the shuttle manipulator.</span>")
 
+
 /obj/machinery/shuttle_manipulator/proc/action_load(datum/map_template/shuttle/loading_template)
 	// Check for an existing preview
 	if(preview_shuttle && (loading_template != preview_template))
@@ -228,7 +231,9 @@
 		D = preview_shuttle.findRoundstartDock()
 
 	if(!D)
-		CRASH("No dock found for preview shuttle ([preview_template.name]), aborting.")
+		var/m = "No dock found for preview shuttle, aborting."
+		WARNING(m)
+		throw EXCEPTION(m)
 
 	var/result = preview_shuttle.canDock(D)
 	if(result == SHUTTLE_LOCKED)
@@ -238,7 +243,11 @@
 	// but we can ignore the someone else docked error because we'll
 	// be moving into their place shortly
 	if((result != SHUTTLE_CAN_DOCK) && (result != SHUTTLE_SOMEONE_ELSE_DOCKED))
-		CRASH("Template shuttle [preview_shuttle] cannot dock at [D] ([result]).")
+
+		var/m = "Unsuccessful dock of [preview_shuttle] ([result])."
+		message_admins("[m]")
+		WARNING(m)
+		return
 
 	existing_shuttle.jumpToNullSpace()
 
@@ -263,7 +272,7 @@
 
 /obj/machinery/shuttle_manipulator/proc/load_template(datum/map_template/shuttle/S)
 	// load shuttle template, centred at shuttle import landmark,
-	var/turf/landmark_turf = get_turf(locate(/obj/effect/landmark/shuttle_import)) // e.g. /obj/effect/landmark/shuttle_import
+	var/turf/landmark_turf = get_turf(locate("landmark*Shuttle Import")) // e.g. /obj/effect/landmark/shuttle_import
 	S.load(landmark_turf, centered = TRUE)
 
 	var/affected = S.get_affected_turfs(landmark_turf, centered=TRUE)

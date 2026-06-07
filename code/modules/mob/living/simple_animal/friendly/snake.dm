@@ -37,13 +37,14 @@
 	holder_type = /obj/item/holder/snake
 	can_collar = TRUE
 
+
 /mob/living/simple_animal/hostile/retaliate/poison/snake/ListTargets(atom/the_target)
 	. = oview(vision_range, targets_from) //get list of things in vision range
 	var/list/living_mobs = list()
 	var/list/mice = list()
 	for(var/HM in .)
 		//Yum a tasty mouse
-		if(ismouse(HM))
+		if(istype(HM, /mob/living/simple_animal/mouse))
 			mice += HM
 		if(isliving(HM))
 			living_mobs += HM
@@ -55,7 +56,7 @@
 	return mice
 
 /mob/living/simple_animal/hostile/retaliate/poison/snake/AttackingTarget()
-	if(ismouse(target))
+	if(istype(target, /mob/living/simple_animal/mouse))
 		visible_message(span_notice("[name] consumes [target] in a single gulp!"), span_notice("You consume [target] in a single gulp!"))
 		QDEL_NULL(target)
 		adjustHealth(-2)
@@ -65,7 +66,7 @@
 //Уникальный питомец Офицера Телекомов. Спрайты от Элл Гуда
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge
 	name = "Руж"
-	desc = "Уникальная трёхголовая змея Офицера Телекоммуникаций \"Синдиката\". Выращена в лаборатории. У каждой головы свой характер!"
+	desc = "Уникальная трёхголовая змея Офицера Телекоммуникаций синдиката. Выращена в лаборатории. У каждой головы свой характер!"
 	icon = 'icons/mob/pets.dmi'
 	blood_volume = BLOOD_VOLUME_NORMAL
 	gender = FEMALE
@@ -92,10 +93,11 @@
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge/verb/chasetail()
 	set name = "Гоняться за хвостом"
 	set desc = "d'awwww."
-	set category = VERB_CATEGORY_ANIMAL
+	set category = STATPANEL_ANIMAL
 
 	visible_message("[src] [pick("dances around", "chases [p_their()] tail")].", "[pick("You dance around", "You chase your tail")].")
 	spin(20, 1)
+
 
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge/attack_hand(mob/living/carbon/human/M)
 	. = ..()
@@ -105,15 +107,18 @@
 		if(INTENT_HARM)
 			shh(-1, M)
 
+
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge/post_lying_on_rest()
 	. = ..()
 	if(inventory_head)
 		regenerate_icons()
 
+
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge/post_get_up()
 	. = ..()
 	if(inventory_head)
 		regenerate_icons()
+
 
 /mob/living/simple_animal/hostile/retaliate/poison/snake/rouge/proc/shh(change, mob/M)
 	if(!M || stat)
@@ -182,11 +187,9 @@
 		if(health <= 0)
 			to_chat(user, span_notice("Безжизненный взгляд в глазах [real_name] никак не меняется, когда вы надеваете [item_to_add] на неё."))
 		else if(user)
-			user.visible_message(
-				span_notice("[user] надевает [item_to_add] на центральную голову [real_name]. [src] смотрит на [user] и довольно шипит."),
+			user.visible_message(span_notice("[user] надевает [item_to_add] на центральную голову [real_name]. [src] смотрит на [user] и довольно шипит."),
 				span_notice("Вы надеваете [item_to_add] на голову [real_name]. [src] озадачено смотрит на вас, пока другие головы смотрят на центральную с завистью."),
-				span_italics("Вы слышите дружелюбное шипение.")
-			)
+				span_italics("Вы слышите дружелюбное шипение."))
 		item_to_add.forceMove(src)
 		inventory_head = item_to_add
 		update_snek_fluff()
@@ -234,8 +237,8 @@
 		if(stat || resting) //без сознания или отдыхает
 			head_icon = SF.get_overlay()
 			if(stat)
-				head_icon.pixel_z = -2
-				head_icon.pixel_w = -2
+				head_icon.pixel_y = -2
+				head_icon.pixel_x = -2
 		else
 			head_icon = SF.get_overlay()
 
@@ -253,13 +256,14 @@
 	melee_damage_upper = 3
 	faction = list("neutral")
 	unique_pet = TRUE
+	
 
 /mob/living/simple_animal/hostile/retaliate/poison/snake/riraha/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "доктор Рираха",
 		GENITIVE = "доктора Рираха",
 		DATIVE = "доктору Рираху",
 		ACCUSATIVE = "доктора Рираха",
 		INSTRUMENTAL = "доктором Рирахой",
-		PREPOSITIONAL = "докторе Рирахе",
+		PREPOSITIONAL = "докторе Рирахе"
 		)

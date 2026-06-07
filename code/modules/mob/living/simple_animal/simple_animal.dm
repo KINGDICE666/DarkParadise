@@ -9,8 +9,8 @@
 	status_flags = CANPUSH
 
 	hud_type = /datum/hud/simple_animal
-	abstract_type = /mob/living/simple_animal
-	interaction_flags_mouse_drop = NEED_HANDS
+
+	var/mob/living/target
 	var/icon_living = ""
 	var/icon_dead = ""
 	var/icon_resting = ""
@@ -49,6 +49,7 @@
 	var/harm_intent_damage = 3
 	/// Minimum force required to deal any damage.
 	var/force_threshold = 0
+
 
 	/// If the mob can catch fire
 	var/can_be_on_fire = FALSE
@@ -193,19 +194,6 @@
 	if(pcollar)
 		pcollar = new(src)
 		regenerate_icons()
-	if(LAZYLEN(speak))
-		speak = string_list(speak)
-	if(LAZYLEN(speak_emote))
-		speak_emote = string_list(speak_emote)
-	if(LAZYLEN(emote_hear))
-		emote_hear = string_list(emote_hear)
-	if(LAZYLEN(emote_see))
-		emote_see = string_list(emote_see)
-	if(LAZYLEN(loot))
-		loot = string_list(loot)
-	damage_coeff = string_assoc_list(damage_coeff)
-	if(LAZYLEN(atmos_requirements))
-		atmos_requirements = string_assoc_list(atmos_requirements)
 	if(footstep_type)
 		AddElement(/datum/element/footstep, footstep_type)
 	add_strippable_element()
@@ -229,6 +217,7 @@
 /mob/living/simple_animal/ComponentInitialize()
 	AddComponent(/datum/component/animal_temperature)
 
+
 ///Extra effects to add when the mob is tamed, such as adding a riding or whatever.
 /mob/living/simple_animal/proc/tamed(whomst)
 	return
@@ -241,25 +230,29 @@
 /mob/living/simple_animal/examine(mob/user)
 	. = ..()
 	if(stat == DEAD)
-		. += span_deadsay("При ближайшем рассмотрении, [GEND_HE_SHE(user)] выгляд[PLUR_IT_YAT(user)] мёртв[GEND_YM_OI_YM_YMI(user)].")
+		. += span_deadsay("При ближайшем рассмотрении, [genderize_ru(user.gender,"он","она","оно","они")] выгляд[pluralize_ru(user.gender,"ит","ят")] мёртв[genderize_ru(user.gender,"ым","ой","ым","ыми")].")
 		return
 	if(IsSleeping())
-		. += span_notice("При ближайшем рассмотрении, [GEND_HE_SHE(user)] выгляд[PLUR_IT_YAT(user)] спящ[GEND_IM_EI_IM_IMI(user)].")
+		. += span_notice("При ближайшем рассмотрении, [genderize_ru(user.gender,"он","она","оно","они")] выгляд[pluralize_ru(user.gender,"ит","ят")] спящ[genderize_ru(user.gender,"им","ей","им","ими")].")
+
 
 /mob/living/simple_animal/updatehealth(reason = "none given", should_log = FALSE)
 	. = ..()
 	set_health(clamp(health, 0, maxHealth))
 	med_hud_set_health()
 
+
 /mob/living/simple_animal/on_lying_down(new_lying_angle)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_IMMOBILIZED, RESTING_TRAIT)
 	update_icons()
 
+
 /mob/living/simple_animal/on_standing_up()
 	. = ..()
 	REMOVE_TRAIT(src, TRAIT_IMMOBILIZED, RESTING_TRAIT)
 	update_icons()
+
 
 /mob/living/simple_animal/update_icons()
 	if(stat == DEAD)
@@ -275,6 +268,7 @@
 		if(collar_type)
 			collar_type = initial(collar_type)
 	regenerate_icons()
+
 
 /mob/living/simple_animal/update_stat(reason = "none given", should_log = FALSE)
 	if(HAS_TRAIT(src, TRAIT_GODMODE))
@@ -298,6 +292,7 @@
 	set waitfor = FALSE
 	return
 
+
 /mob/living/simple_animal/proc/handle_automated_movement()
 	set waitfor = FALSE
 	if(stop_automated_movement || !wander)
@@ -318,45 +313,44 @@
 		turns_since_move = 0
 	return TRUE
 
+
 /mob/living/simple_animal/proc/handle_automated_speech(override)
 	set waitfor = FALSE
 	if(speak_chance)
 		if(prob(speak_chance) || override)
-			if(speak && length(speak))
-				if((emote_hear && length(emote_hear)) || (emote_see && length(emote_see)))
+			if(speak && speak.len)
+				if((emote_hear && emote_hear.len) || (emote_see && emote_see.len))
 					var/length = speak.len
-					if(emote_hear && length(emote_hear))
+					if(emote_hear && emote_hear.len)
 						length += emote_hear.len
-					if(emote_see && length(emote_see))
+					if(emote_see && emote_see.len)
 						length += emote_see.len
 					var/randomValue = rand(1,length)
-					if(randomValue <= length(speak))
+					if(randomValue <= speak.len)
 						say(pick(speak))
 					else
 						randomValue -= speak.len
-						if(emote_see && randomValue <= length(emote_see))
+						if(emote_see && randomValue <= emote_see.len)
 							custom_emote(EMOTE_VISIBLE, pick(emote_see))
 						else
 							custom_emote(EMOTE_AUDIBLE, pick(emote_hear))
 				else
 					say(pick(speak))
 			else
-				if(!(emote_hear && length(emote_hear)) && (emote_see && length(emote_see)))
+				if(!(emote_hear && emote_hear.len) && (emote_see && emote_see.len))
 					custom_emote(EMOTE_VISIBLE, pick(emote_see))
-				if((emote_hear && length(emote_hear)) && !(emote_see && length(emote_see)))
+				if((emote_hear && emote_hear.len) && !(emote_see && emote_see.len))
 					custom_emote(EMOTE_AUDIBLE, pick(emote_hear))
-				if((emote_hear && length(emote_hear)) && (emote_see && length(emote_see)))
-					var/length = length(emote_hear) + emote_see.len
+				if((emote_hear && emote_hear.len) && (emote_see && emote_see.len))
+					var/length = emote_hear.len + emote_see.len
 					var/pick = rand(1,length)
-					if(pick <= length(emote_see))
+					if(pick <= emote_see.len)
 						custom_emote(EMOTE_VISIBLE, pick(emote_see))
 					else
 						custom_emote(EMOTE_AUDIBLE, pick(emote_hear))
 
-/mob/living/simple_animal/handle_environment(datum/gas_mixture/readonly_environment)
-	if(!readonly_environment)
-		return
 
+/mob/living/simple_animal/handle_environment(datum/gas_mixture/environment)
 	if(leash)
 		var/dist = get_dist(src, leash)
 		if(dist > leash_radius)
@@ -366,10 +360,10 @@
 	var/atmos_suitable = TRUE
 
 	if(!HAS_TRAIT(src, TRAIT_NO_BREATH))
-		var/tox = readonly_environment.toxins()
-		var/oxy = readonly_environment.oxygen()
-		var/n2 = readonly_environment.nitrogen()
-		var/co2 = readonly_environment.carbon_dioxide()
+		var/tox = environment.toxins
+		var/oxy = environment.oxygen
+		var/n2 = environment.nitrogen
+		var/co2 = environment.carbon_dioxide
 
 		if(atmos_requirements["min_oxy"] && oxy < atmos_requirements["min_oxy"])
 			atmos_suitable = FALSE
@@ -404,7 +398,7 @@
 		if(!atmos_suitable)
 			adjustHealth(unsuitable_atmos_damage)
 
-	SEND_SIGNAL(src, COMSIG_ANIMAL_HANDLE_ENVIRONMENT, readonly_environment)
+	SEND_SIGNAL(src, COMSIG_ANIMAL_HANDLE_ENVIRONMENT, environment)
 
 /mob/living/simple_animal/gib()
 	if(icon_gib)
@@ -419,19 +413,24 @@
 		pcollar = null
 	..()
 
+
 /mob/living/simple_animal/say_quote(message)
-	if(length(speak_emote))
+	if(speak_emote?.len)
 		return get_verb(speak_emote)
 	return ..()
+
 
 /mob/living/simple_animal/proc/set_varspeed(var_value)
 	speed = var_value
 	update_simplemob_varspeed()
 
+
 /mob/living/simple_animal/proc/update_simplemob_varspeed()
 	if(speed == 0)
 		remove_movespeed_modifier(/datum/movespeed_modifier/simplemob_varspeed)
 	add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/simplemob_varspeed, multiplicative_slowdown = speed)
+
+
 
 /mob/living/simple_animal/get_status_tab_items()
 	var/list/status_tab_data = ..()
@@ -439,11 +438,10 @@
 	status_tab_data[++status_tab_data.len] = list("Здоровье:", "[round((health / maxHealth) * 100)]%")
 
 /mob/living/simple_animal/proc/drop_loot()
-	if(!length(loot))
-		return
-	for(var/item in loot)
-		new item(drop_location())
-	loot = null
+	if(loot.len)
+		for(var/i in loot)
+			new i(loc)
+
 
 /mob/living/simple_animal/death(gibbed)
 	// Only execute the below if we successfully died
@@ -458,9 +456,9 @@
 		if(death_sound)
 			playsound(get_turf(src),death_sound, 200, TRUE)
 		if(deathmessage)
-			visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] [genderize_decode(src, deathmessage)]"))
+			visible_message(span_danger("[capitalize(src.declent_ru(NOMINATIVE))] [genderize_decode(src, deathmessage)]"))
 		else if(!del_on_death)
-			visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] перестаёт двигаться..."))
+			visible_message(span_danger("[capitalize(src.declent_ru(NOMINATIVE))] перестаёт двигаться..."))
 	if(del_on_death)
 		//Prevent infinite loops if the mob Destroy() is overridden in such
 		//a manner as to cause a call to death() again
@@ -474,10 +472,8 @@
 			transform = transform.Turn(180)
 		ADD_TRAIT(src, TRAIT_UNDENSE, SIMPLE_MOB_DEATH_TRAIT)
 
+
 /mob/living/simple_animal/proc/CanAttack(atom/the_target)
-	if(!isatom(the_target))
-		stack_trace("Invalid target in CanAttack(): [the_target]")
-		return FALSE
 	if(see_invisible < the_target.invisibility)
 		return FALSE
 	if(ismob(the_target))
@@ -518,6 +514,7 @@
 		return
 	return ..()
 
+
 /mob/living/simple_animal/update_fire()
 	if(!can_be_on_fire)
 		return
@@ -526,12 +523,14 @@
 	if(on_fire)
 		add_overlay(simple_mob_fire_olay)
 
+
 /mob/living/simple_animal/revive()
 	..()
 	health = maxHealth
 	icon = initial(icon)
 	update_icons()
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, SIMPLE_MOB_DEATH_TRAIT)
+
 
 /mob/living/simple_animal/proc/check_if_child(mob/possible_child)
 	for(var/childpath in childtype)
@@ -588,6 +587,7 @@
 				return FALSE
 			return TRUE
 
+
 /mob/living/simple_animal/equip_to_slot(obj/item/item, slot, initial)
 	if(!istype(item))
 		return FALSE
@@ -607,6 +607,7 @@
 		if(ITEM_SLOT_NECK)
 			add_collar(item)
 
+
 /mob/living/simple_animal/do_unEquip(obj/item/item, force = FALSE, atom/newloc, no_move = FALSE, invdrop = TRUE, silent = FALSE)
 	. = ..()
 	if(!. || !item)
@@ -617,10 +618,12 @@
 		if(!QDELETED(src))
 			regenerate_icons()
 
+
 /mob/living/simple_animal/get_access()
 	. = ..()
 	if(pcollar)
 		. |= pcollar.GetAccess()
+
 
 /mob/living/simple_animal/proc/sentience_act() //Called when a simple animal gains sentience via gold slime potion
 	toggle_ai(AI_OFF)
@@ -653,6 +656,7 @@
 	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
 	sync_lighting_plane_alpha()
 
+
 /mob/living/simple_animal/proc/toggle_ai(togglestatus)
 	if(AIStatus == togglestatus)
 		return
@@ -684,11 +688,13 @@
 	if(pulledby || shouldwakeup)
 		toggle_ai(AI_ON)
 
+
 /mob/living/simple_animal/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents = TRUE)
 	..()
 	if(old_turf && AIStatus == AI_Z_OFF)
 		SSidlenpcpool.idle_mobs_by_zlevel[old_turf.z] -= src
 		toggle_ai(initial(AIStatus))
+
 
 /mob/living/simple_animal/proc/add_collar(obj/item/clothing/accessory/petcollar/P, mob/user)
 	if(!istype(P) || QDELETED(P) || pcollar)
@@ -699,8 +705,8 @@
 	regenerate_icons()
 	if(user)
 		visible_message(
-			span_warning(span_notice("Вы надеваете [P.declent_ru(ACCUSATIVE)] на шею [declent_ru(GENITIVE)].")),
-			span_warning(span_notice("[user.declent_ru(NOMINATIVE)] надева[PLUR_ET_YUT(user)] [P.declent_ru(ACCUSATIVE)] вам на шею [declent_ru(GENITIVE)]."))
+			span_warning(span_notice("Вы надеваете [P.declent_ru(ACCUSATIVE)] на шею [src.declent_ru(GENITIVE)].")),
+			span_warning(span_notice("[user.declent_ru(NOMINATIVE)] надева[pluralize_ru(user.gender,"ет","ют")] [P.declent_ru(ACCUSATIVE)] вам на шею [src.declent_ru(GENITIVE)]."))
 		)
 	if(P.tagname && !unique_pet)
 		name = P.tagname
@@ -722,6 +728,7 @@
 
 	return old_collar
 
+
 /mob/living/simple_animal/regenerate_icons()
 	cut_overlays()
 	if(pcollar && collar_type)
@@ -735,31 +742,34 @@
 
 /mob/living/simple_animal/Login()
 	..()
-	GLOB.move_manager.stop_looping(src) // if mob is moving under ai control, then stop AI movement
+	SSmove_manager.stop_looping(src) // if mob is moving under ai control, then stop AI movement
 	toggle_ai(AI_OFF)
 
 /mob/living/simple_animal/Logout()
 	. = ..()
 	toggle_ai(AI_ON)
 
+
 /mob/living/simple_animal/say(message, verb = "говор%(ит,ят)%", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
 	. = ..()
 	if(. && length(talk_sound))
 		playsound(src, pick(talk_sound), 75, TRUE)
 
+
 /mob/living/simple_animal/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
 	if(item.force && (item.get_final_force(user) < force_threshold || item.damtype == STAMINA))
 		visible_message(
-			span_warning("[user.declent_ru(NOMINATIVE)] пытается ударить [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)], но удар безвредно отскакивает!"),
+			span_warning("[user.declent_ru(NOMINATIVE)] пытается ударить [src.declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)], но удар безвредно отскакивает!"),
 			span_warning("[user.declent_ru(NOMINATIVE)] пытается ударить вас [item.declent_ru(INSTRUMENTAL)], но удар безвредно отскакивает!"),
 			ignored_mobs = user,
 		)
-		to_chat(user, span_danger("Это оружие неэффективно — оно не наносит урона!"))
+		to_chat(user, span_danger("Это оружие неэффективно - оно не наносит урона!"))
 		return ATTACK_CHAIN_BLOCKED
 
 	. = ..()
 	if(ATTACK_CHAIN_SUCCESS_CHECK(.) && item.force && length(damaged_sound))
 		playsound(loc, pick(damaged_sound), 40, TRUE)
+
 
 /mob/living/simple_animal/attack_hand(mob/living/carbon/human/M)
 	. = ..()
@@ -799,12 +809,14 @@
 /mob/living/simple_animal/proc/pull_constraint(atom/movable/pulled_atom, state, supress_message = FALSE)
 	return TRUE
 
+
 /mob/living/simple_animal/update_movespeed()
 	. = ..()
 	if(cached_multiplicative_slowdown > END_GLIDE_SPEED)
 		ADD_TRAIT(src, TRAIT_NO_GLIDE, SPEED_TRAIT)
 	else
 		REMOVE_TRAIT(src, TRAIT_NO_GLIDE, SPEED_TRAIT)
+
 
 /mob/living/simple_animal/proc/step_with_glide(atom/newloc, direction, speed_override)
 	if(client)
@@ -844,14 +856,14 @@
 	leash_radius = radius
 
 /mob/living/simple_animal/deadchat_plays(mode = DEADCHAT_ANARCHY_MODE, cooldown = 12 SECONDS)
-	. = AddComponent(/datum/component/deadchat_control/cardinal_movement, mode, list(), cooldown, CALLBACK(src, PROC_REF(stop_deadchat_plays)))
+	. = AddComponent(/datum/component/deadchat_control/cardinal_movement, mode, list(), cooldown, CALLBACK(src, PROC_REF(end_dchat_plays)))
 
 	if(. == COMPONENT_INCOMPATIBLE)
 		return
 
 	stop_automated_movement = TRUE
 
-/mob/living/simple_animal/proc/stop_deadchat_plays()
+/mob/living/simple_animal/proc/end_dchat_plays()
 	stop_automated_movement = FALSE
 
 /mob/living/simple_animal/can_use_machinery(obj/machinery/mach)

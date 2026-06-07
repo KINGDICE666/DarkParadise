@@ -37,17 +37,17 @@
 
 	// Add more info if we are authed
 	if(key_valid)
-		if(SSticker?.mode)
+		if(SSticker && SSticker.mode)
 			status_info["real_mode"] = SSticker.mode.name
 			status_info["security_level"] = capitalize(SSsecurity_level.get_current_level_as_text())
 
-		if(SSshuttle?.emergency)
+		if(SSshuttle && SSshuttle.emergency)
 			// Shuttle status, see /__DEFINES/stat.dm
 			status_info["shuttle_mode"] = SSshuttle.emergency.mode
 			// Shuttle timer, in seconds
 			status_info["shuttle_timer"] = SSshuttle.emergency.timeLeft()
 
-		for(var/i in 1 to length(admins))
+		for(var/i in 1 to admins.len)
 			var/list/A = admins[i]
 			status_info["admin[i - 1]"] = A[1]
 			status_info["adminrank[i - 1]"] = A[2]

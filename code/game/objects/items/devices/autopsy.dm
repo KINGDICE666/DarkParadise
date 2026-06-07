@@ -18,13 +18,13 @@
 	STATIC_COOLDOWN_DECLARE(print_cooldown)
 
 /obj/item/autopsy_scanner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сканер аутопсии",
 		GENITIVE = "сканера аутопсии",
 		DATIVE = "сканеру аутопсии",
 		ACCUSATIVE = "сканер аутопсии",
 		INSTRUMENTAL = "сканером аутопсии",
-		PREPOSITIONAL = "сканере аутопсии",
+		PREPOSITIONAL = "сканере аутопсии"
 	)
 
 /obj/item/autopsy_scanner/Destroy()
@@ -105,8 +105,8 @@
 
 	COOLDOWN_START(src, print_cooldown, PRINT_TIMER)
 	var/obj/item/paper/paper = new(user.loc)
-	paper.name = "Отчёт патологоанатома — [dead_name]"
-	paper.info = "<b><center>[station_name()] — Отчёт патологоанатома</b></center><br><br><b>Имя погибшего:</b> [dead_name]</br><br><b>Должность погибшего:</b> [dead_rank]<br><br><b>Время смерти:</b> [dead_tod]<br><br><b>Причина смерти:</b> [dead_cause]<br><br><b>Химические следы:</b> [dead_chems]<br><br><b>Дополнительные детали:</b> [dead_notes]<br><br><b>Подпись патологоанатома:</b> <span class=\"paper_field\">"
+	paper.name = "Отчёт патологоанатома – [dead_name]"
+	paper.info = "<b><center>[station_name()] – Отчёт патологоанатома</b></center><br><br><b>Имя погибшего:</b> [dead_name]</br><br><b>Должность погибшего:</b> [dead_rank]<br><br><b>Время смерти:</b> [dead_tod]<br><br><b>Причина смерти:</b> [dead_cause]<br><br><b>Химические следы:</b> [dead_chems]<br><br><b>Дополнительные детали:</b> [dead_notes]<br><br><b>Подпись патологоанатома:</b> <span class=\"paper_field\">"
 	playsound(loc, 'sound/goonstation/machines/printer_thermal.ogg', 50, TRUE)
 	user.put_in_hands(paper, ignore_anim = FALSE)
 
@@ -183,13 +183,13 @@
 			scan_data += chemID
 			scan_data += "<br>"
 
-	user.visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] дребезжит, после чего из окна печати выпадает лист бумаги."))
+	user.visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] дребезжит, после чего из окна печати выпадает лист бумаги."))
 	playsound(loc, 'sound/goonstation/machines/printer_thermal.ogg', 50, TRUE)
 	flick("autopsy_scanner_anim", src)
 	sleep(PRINT_TIMER)
 
 	var/obj/item/paper/paper = new(drop_location())
-	paper.name = "Отчёт об аутопсии — [target_name]"
+	paper.name = "Отчёт об аутопсии - [target_name]"
 	paper.info = "<tt>[scan_data]</tt>"
 	paper.update_icon()
 	user.put_in_hands(paper, ignore_anim = FALSE)

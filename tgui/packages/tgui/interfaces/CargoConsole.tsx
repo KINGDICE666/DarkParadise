@@ -14,14 +14,14 @@ import {
   Stack,
 } from '../components';
 import { Window } from '../layouts';
-import { createSearch, declension_ru } from 'common/string';
+import { createSearch } from 'common/string';
 
 export const CargoConsole = (_props: unknown) => {
   const [contentsModal, setContentsModal] = useState<string[]>(null);
   const [contentsModalTitle, setContentsModalTitle] = useState<string>(null);
 
   return (
-    <Window width={1000} height={800} theme="cargo">
+    <Window width={900} height={800}>
       <Window.Content>
         <Stack fill vertical>
           <ContentsModal
@@ -66,7 +66,7 @@ const ContentsModal = (properties: ContentsModalProps) => {
         mx="auto"
       >
         <Box width="100%" bold>
-          <h1>Содержимое {contentsModalTitle}:</h1>
+          <h1>{contentsModalTitle} contents:</h1>
         </Box>
         <Box>
           {contentsModal.map((i) => (
@@ -108,37 +108,39 @@ const StatusPane = (_properties) => {
   let statusText: string;
   let shuttleButtonText: string;
   if (!moving && !at_station) {
-    statusText = 'Не на объекте';
-    shuttleButtonText = 'Вызвать шаттл';
+    statusText = 'Docked off-station';
+    shuttleButtonText = 'Call Shuttle';
   } else if (!moving && at_station) {
-    statusText = 'Пристыкован к объекту';
-    shuttleButtonText = 'Вернуть шаттл';
+    statusText = 'Docked at the station';
+    shuttleButtonText = 'Return Shuttle';
   } else if (moving) {
-    shuttleButtonText = 'В пути';
-    statusText =
-      'В пути к объекту (прилетит через ' +
-      timeleft +
-      ' минут' +
-      declension_ru(timeleft, 'у', 'ы', '') +
-      ')';
+    // Yes I am this fussy that it goes plural
+    shuttleButtonText = 'In Transit...';
+    if (timeleft !== 1) {
+      statusText = 'Shuttle is en route (ETA: ' + timeleft + ' minutes)';
+    } else {
+      statusText = 'Shuttle is en route (ETA: ' + timeleft + ' minute)';
+    }
   }
 
   return (
     <Stack.Item>
-      <Section title="Статус">
+      <Section title="Status">
         <LabeledList>
-          <LabeledList.Item label="Очки снабжения">{points}</LabeledList.Item>
-          <LabeledList.Item label="Кредиты">{credits}</LabeledList.Item>
-          <LabeledList.Item label="Статус шаттла">
+          <LabeledList.Item label="Points Available">{points}</LabeledList.Item>
+          <LabeledList.Item label="Credits Available">
+            {credits}
+          </LabeledList.Item>
+          <LabeledList.Item label="Shuttle Status">
             {statusText}
           </LabeledList.Item>
           {!is_public && (
-            <LabeledList.Item label="Управление">
+            <LabeledList.Item label="Controls">
               <Button disabled={moving} onClick={() => act('moveShuttle')}>
                 {shuttleButtonText}
               </Button>
               <Button onClick={() => act('showMessages')}>
-                Посмотреть сообщения ЦК
+                View Central Command Messages
               </Button>
             </LabeledList.Item>
           )}
@@ -157,10 +159,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
   const { act, data } = useBackend<CataloguePaneData>();
   const { categories, supply_packs } = data;
 
-  const [category, setCategory] = useSharedState(
-    'category',
-    'Чрезвычайные ситуации'
-  );
+  const [category, setCategory] = useSharedState('category', 'Emergency');
 
   const [searchText, setSearchText] = useSharedState('search_text', '');
 
@@ -171,29 +170,26 @@ const CataloguePane = (properties: CataloguePaneProps) => {
     (crate) => crate.name
   );
 
-  const targetCategory = !searchText
-    ? filter(categories, (c) => c.name === category)[0]?.category || category
-    : null;
-
   const cratesToShow = flow([
     (supply_packs) =>
-      filter<SupplyPack>(supply_packs, (pack) => {
-        if (searchText) {
-          return true;
-        }
-        return pack.cat === targetCategory;
-      }),
+      filter<SupplyPack>(
+        supply_packs,
+        (pack) =>
+          pack.cat ===
+          (filter(categories, (c) => c.name === category)[0].category ||
+            searchText)
+      ),
     (supply_packs) =>
       searchText ? filter<SupplyPack>(supply_packs, packSearch) : supply_packs,
     (supply_packs) =>
       sortBy<SupplyPack>(supply_packs, (pack) => pack.name.toLowerCase()),
   ])(supply_packs);
 
-  let titleText = 'Перечень грузов для заказа';
+  let titleText = 'Crate Catalogue';
   if (searchText) {
-    titleText = 'Результаты поиска "' + searchText + '":';
+    titleText = "Results for '" + searchText + "':";
   } else if (category) {
-    titleText = 'Просмотр категории "' + category + '"';
+    titleText = 'Browsing ' + category;
   }
   return (
     <Stack.Item>
@@ -210,7 +206,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
       >
         <Input
           fluid
-          placeholder="Поиск"
+          placeholder="Search for..."
           expensive
           onChange={setSearchText}
           mb={1}
@@ -220,26 +216,10 @@ const CataloguePane = (properties: CataloguePaneProps) => {
             {cratesToShow.map((c) => (
               <Table.Row key={c.name}>
                 <Table.Cell bold>
-                  <Box
-                    color={
-                      !c.is_enough_techs
-                        ? 'red'
-                        : c.has_sale
-                          ? 'good'
-                          : 'default'
-                    }
-                  >
-                    {c.name} (
-                    {c.cost
-                      ? c.cost + ' очк' + declension_ru(c.cost, 'о', 'а', 'ов')
-                      : ''}
+                  <Box color={c.has_sale ? 'good' : 'default'}>
+                    {c.name} ({c.cost ? c.cost + ' Points' : ''}
                     {c.creditsCost && c.cost ? ' ' : ''}
-                    {c.creditsCost
-                      ? c.creditsCost +
-                        ' Кредит' +
-                        declension_ru(c.creditsCost, '', 'а', 'ов')
-                      : ''}
-                    )
+                    {c.creditsCost ? c.creditsCost + ' Credits' : ''})
                   </Box>
                 </Table.Cell>
                 <Table.Cell textAlign="right" pr={1}>
@@ -252,7 +232,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       })
                     }
                   >
-                    Заказать 1
+                    Order 1
                   </Button>
                   <Button
                     icon="cart-plus"
@@ -263,7 +243,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       })
                     }
                   >
-                    Заказать несколько
+                    Order Multiple
                   </Button>
                   <Button
                     icon="search"
@@ -272,7 +252,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       setContentsModalTitle(c.name);
                     }}
                   >
-                    Содержимое
+                    View Contents
                   </Button>
                 </Table.Cell>
               </Table.Row>
@@ -289,16 +269,16 @@ const DetailsPane = (_properties) => {
   const { requests, canapprove, orders } = data;
   return (
     <Section fill scrollable title="Details">
-      <Box bold>Запросы</Box>
+      <Box bold>Requests</Box>
       <Table m="0.5rem">
         {requests.map((r) => (
           <Table.Row key={r.ordernum}>
             <Table.Cell>
               <Box>
-                - №{r.ordernum}: {r.supply_type} для <b>{r.orderedby}</b>
+                - #{r.ordernum}: {r.supply_type} for <b>{r.orderedby}</b>
               </Box>
-              <Box italic>Причина: {r.comment}</Box>
-              <Box italic>Требуемые тех. уровни: {r.pack_techs}</Box>
+              <Box italic>Reason: {r.comment}</Box>
+              <Box italic>Required Techs: {r.pack_techs}</Box>
             </Table.Cell>
             <Stack.Item textAlign="right">
               <Button
@@ -310,7 +290,7 @@ const DetailsPane = (_properties) => {
                   })
                 }
               >
-                Одобрить
+                Approve
               </Button>
               <Button
                 color="red"
@@ -320,21 +300,21 @@ const DetailsPane = (_properties) => {
                   })
                 }
               >
-                Отказать
+                Deny
               </Button>
             </Stack.Item>
           </Table.Row>
         ))}
       </Table>
-      <Box bold>Утверждённые заказы</Box>
+      <Box bold>Confirmed Orders</Box>
       <Table m="0.5rem">
         {orders.map((r) => (
           <Table.Row key={r.ordernum}>
             <Table.Cell>
               <Box>
-                - №{r.ordernum}: {r.supply_type} для <b>{r.orderedby}</b>
+                - #{r.ordernum}: {r.supply_type} for <b>{r.orderedby}</b>
               </Box>
-              <Box italic>Причина: {r.comment}</Box>
+              <Box italic>Reason: {r.comment}</Box>
             </Table.Cell>
           </Table.Row>
         ))}

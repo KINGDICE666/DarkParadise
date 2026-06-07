@@ -45,7 +45,7 @@ GLOBAL_PROTECT(log_end)
 
 	for(var/client/C in GLOB.admins)
 		if(check_rights(R_DEBUG|R_VIEWRUNTIMES, FALSE, C.mob) && (C.prefs.toggles & PREFTOGGLE_CHAT_DEBUGLOGS))
-			to_chat(C, span_debug("DEBUG: [text]"), MESSAGE_TYPE_DEBUG, confidential = TRUE)
+			to_chat(C, "<span class='debug'>DEBUG: [text]</span>", MESSAGE_TYPE_DEBUG, confidential = TRUE)
 
 /proc/log_game(text)
 	if(CONFIG_GET(flag/log_game))
@@ -123,9 +123,6 @@ GLOBAL_PROTECT(log_end)
 /proc/log_qdel(text)
 	WRITE_LOG(GLOB.world_qdel_log, "QDEL: [text][GLOB.log_end]")
 
-/proc/log_signal(text)
-	WRITE_LOG(GLOB.signal_log, "SIGNAL: [text][GLOB.log_end]")
-
 /proc/log_mentorsay(text, mob/speaker)
 	if(CONFIG_GET(flag/log_adminchat))
 		WRITE_LOG(GLOB.world_game_log, "MENTORSAY: [speaker.simple_info_line()]: [html_decode(text)][GLOB.log_end]")
@@ -167,14 +164,9 @@ GLOBAL_PROTECT(log_end)
 			count++
 		WRITE_LOG(GLOB.world_game_log, "GAME: End objective log for [html_decode(Mind.key)]/[html_decode(Mind.name)][GLOB.log_end]")
 
-/proc/log_world(text, root_log = FALSE)
-	#if defined(UNIT_TESTS) || defined(MAP_TESTS) || defined(TESTING)
-	SEND_TEXT(world.log, text)
-	#else
-	if(config && CONFIG_GET(flag/enable_root_log) || root_log)
+/proc/log_world(text)
+	if(config && !CONFIG_GET(flag/disable_root_log))
 		SEND_TEXT(world.log, text)
-	#endif
-
 	if(config && CONFIG_GET(flag/log_world_output))
 		WRITE_LOG(GLOB.world_game_log, "WORLD: [html_decode(text)][GLOB.log_end]")
 
@@ -216,6 +208,7 @@ GLOBAL_PROTECT(log_end)
 			to_chat(C, "GC DEBUG: [text]")
 #endif
 
+
 /proc/log_sql(text)
 	WRITE_LOG(GLOB.sql_log, "[text][GLOB.log_end]")
 	SEND_TEXT(world.log, text) // Redirect it to DD too
@@ -224,7 +217,7 @@ GLOBAL_PROTECT(log_end)
  * Standardized method for tracking startup times.
  */
 /proc/log_startup_progress_global(prefix, message)
-	to_chat(world, span_danger("<small>\[[prefix]\]</small> [message]"))
+	to_chat(world, span_danger("<small>\[[prefix]]</small> [message]"))
 	log_world("\[[prefix]] [message]")
 
 // A logging proc that only outputs after setup is done, to
@@ -243,10 +236,11 @@ GLOBAL_PROTECT(log_end)
 /proc/datum_info_line(datum/d)
 	if(!istype(d))
 		return
-	if(!ismob(d))
+	if(!istype(d, /mob))
 		return "[d] ([d.type])"
 	var/mob/m = d
 	return "[m] ([m.ckey]) ([m.type])"
+
 
 /proc/atom_loc_line(atom/A)
 	if(!istype(A))
@@ -261,26 +255,33 @@ GLOBAL_PROTECT(log_end)
 	else if(A.loc)
 		return "(UNKNOWN (?, ?, ?))"
 
+
 /mob/proc/simple_info_line()
 	return "[key_name(src)] ([x],[y],[z])"
 
 /client/proc/simple_info_line()
 	return "[key_name(src)] ([mob.x],[mob.y],[mob.z])"
 
-/**
- * Creates attack (old and new) logs for the user and defense logs for the target.
- * Will message admins depending on the custom_level, user and target.
+/*
+ * This are the MAIN procs to use for logging stuff.
+ * They intended that way the write down log into game.log
+ * AND create_log record_log for Log Viewer
+ * also messages admins with specific level(or custom level)
  *
- * custom_level will determine the log level set. Unless the target is SSD and there is a user doing it
- * If custom_level is not set then the log level will be determined using the user and the target.
- *
- * * Arguments:
- * * user - The thing doing it. Can be null
- * * target - The target of the attack
- * * what_done - What has happened
- * * custom_level - The log level override
+ * Also recommend to check Investigation logging (__DEFINES/logs.dm) (modules/admin/admin_investigate.dm)
+ * It's a misc logs that haven't got own place in game.log
+ * most common INVESTIGATE_BOMB and INVESTIGATE_ENGINE
  */
+
+// Proc for attack log creation
+// * atom/user is the actor OR the list of actors
+// * target is the target of action
+// * what_done is the full description of the action
+// * custom_level is whether or not to message admins
 /proc/add_attack_logs(atom/user, target, what_done, custom_level)
+	if(!istype(user))
+		return
+
 	if(islist(target)) // Multi-victim adding
 		var/list/targets = target
 		for(var/t in targets)
@@ -290,7 +291,7 @@ GLOBAL_PROTECT(log_end)
 
 	var/user_str
 	if((user?.loc) && (ismecha(user?.loc) || isspacepod(user?.loc)))
-		var/obj/vehicle = user?.loc
+		var/obj/vehicle = user.loc
 		user_str = key_name_log(user) + COORD(vehicle)
 
 	else
@@ -334,7 +335,7 @@ GLOBAL_PROTECT(log_end)
 				loglevel = ATKLOG_ALMOSTALL
 		else
 			var/area/A = get_area(MT)
-			if(A?.hide_attacklogs)
+			if(A && A.hide_attacklogs)
 				loglevel = ATKLOG_ALMOSTALL
 	else
 		loglevel = ATKLOG_ALL // Hitting an object. Not a mob
@@ -359,7 +360,8 @@ GLOBAL_PROTECT(log_end)
 	else if(ismob(user))
 		actor = user
 	else
-		CRASH("Got non-mob variable [user] with arguments [what_said] [language] [target]")
+		log_runtime(EXCEPTION("Got non-mob variable [user] with arguments [what_said] [language] [target]"))
+		return
 	actor.create_log(SAY_LOG, "[language ? "([language]) " : ""][what_said]", target)
 	log_say("[language ? "([language]) " : ""][what_said][target ? " to [target]" : null]", actor)
 
@@ -430,7 +432,7 @@ GLOBAL_PROTECT(log_end)
 		return "(UNKNOWN (?, ?, ?))"
 
 #if defined(REFERENCE_TRACKING) // Doing it locally
-#define log_reftracker(msg) log_gc("## REF SEARCH [msg]")
+#define log_reftracker(msg) log_world("## REF SEARCH [msg]")
 
 #else //Not tracking at all
 #define log_reftracker(msg)

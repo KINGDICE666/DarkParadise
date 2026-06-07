@@ -6,33 +6,33 @@
 	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "pipe_painter"
 	usesound = 'sound/effects/spray2.ogg'
-	toolbox_radial_menu_compatibility = TRUE
 	var/list/modes
 	var/mode
 
-/obj/item/pipe_painter/Initialize(mapload)
-	. = ..()
+/obj/item/pipe_painter/New()
+	..()
 	modes = new()
 	for(var/C in GLOB.pipe_colors)
 		modes += "[C]"
 	mode = pick(modes)
 
-/obj/item/pipe_painter/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!istype(target, /obj/machinery/atmospherics/pipe) || istype(target, /obj/machinery/atmospherics/pipe/simple/heat_exchanging) || istype(target, /obj/machinery/atmospherics/pipe/simple/insulated) || !in_range(user, target))
+/obj/item/pipe_painter/afterattack(atom/A, mob/user, proximity, params)
+	if(!istype(A,/obj/machinery/atmospherics/pipe) || istype(A,/obj/machinery/atmospherics/pipe/simple/heat_exchanging) || istype(A,/obj/machinery/atmospherics/pipe/simple/insulated) || !in_range(user, A))
 		return
-
-	var/obj/machinery/atmospherics/pipe/P = target
+	var/obj/machinery/atmospherics/pipe/P = A
 
 	if(P.pipe_color == "[GLOB.pipe_colors[mode]]")
-		to_chat(user, span_notice("This pipe is aready painted [mode]!"))
+		to_chat(user, "<span class='notice'>This pipe is aready painted [mode]!</span>")
 		return
 
-	if(HAS_TRAIT(P, TRAIT_UNDERFLOOR))
-		to_chat(user, span_warning("You must remove the plating first."))
+	var/turf/T = P.loc
+	if(P.level < 2 && T.level==1 && isturf(T) && T.intact)
+		to_chat(user, "<span class='warning'>You must remove the plating first.</span>")
 		return
 
 	playsound(loc, usesound, 30, TRUE)
 	P.change_color(GLOB.pipe_colors[mode])
+
 
 /obj/item/pipe_painter/attack_self(mob/user as mob)
 	var/new_paint_setting = tgui_input_list(user, "Which color do you want to use?", "Pick color", modes)
@@ -42,4 +42,4 @@
 
 /obj/item/pipe_painter/examine(mob/user)
 	. = ..()
-	. += span_notice("It is in [mode] mode.")
+	. += "<span class='notice'>It is in [mode] mode.</span>"

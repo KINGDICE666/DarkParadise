@@ -12,7 +12,6 @@
 // -----------------------------
 /obj/item/storage/secure
 	name = "secstorage"
-	icon = 'icons/obj/storage/boxes.dmi'
 	var/icon_locking = "secureb"
 	var/icon_sparking = "securespark"
 	var/icon_opened = "secure0"
@@ -22,12 +21,15 @@
 	var/l_set = FALSE
 	var/l_setshort = FALSE
 	var/l_hacking = FALSE
+	var/emagged = FALSE
 	var/open = FALSE
+
 
 /obj/item/storage/secure/examine(mob/user)
 	. = ..()
 	if(in_range(user, src))
-		. += span_notice("The service panel is [open ? "open" : "closed"].")
+		. += "<span class='notice'>The service panel is [open ? "open" : "closed"].</span>"
+
 
 /obj/item/storage/secure/update_overlays()
 	. = ..()
@@ -36,9 +38,11 @@
 	else if(!locked)
 		. += icon_opened
 
+
 /obj/item/storage/secure/populate_contents()
 	new /obj/item/paper(src)
 	new /obj/item/pen(src)
+
 
 /obj/item/storage/secure/screwdriver_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -46,6 +50,7 @@
 		return .
 	open = !open
 	to_chat(user, span_notice("You [open ? "open" : "close"] the service panel."))
+
 
 /obj/item/storage/secure/multitool_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -68,6 +73,7 @@
 	l_setshort = TRUE
 	addtimer(VARSET_CALLBACK(src, l_setshort, FALSE), 8 SECONDS)
 
+
 /obj/item/storage/secure/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)	// to allow storing special items
 		if(locked)
@@ -87,6 +93,7 @@
 		return ATTACK_CHAIN_PROCEED
 
 	return ..()
+
 
 /obj/item/storage/secure/emag_act(mob/user, obj/weapon)
 	if(emagged)
@@ -108,14 +115,16 @@
 	else if(user)
 		to_chat(user, "You short out the lock on [src].")
 
+
 /obj/item/storage/secure/click_alt(mob/living/user)
 	if(!try_to_open(user))
 		return CLICK_ACTION_BLOCKING
 	return ..()
 
-/obj/item/storage/secure/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(!try_to_open(user))
-		return
+/obj/item/storage/secure/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+	if(!try_to_open(usr))
+		return FALSE
+	return ..()
 
 /obj/item/storage/secure/proc/try_to_open(mob/living/user)
 	if(!istype(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
@@ -149,12 +158,13 @@
 	data["current_code"] = (code) ? (isnum(text2num(code))) ? code : "ERROR" : FALSE
 	return data
 
+
 /obj/item/storage/secure/ui_act(action, params)
 	if(..())
 		return
 
 	if(!usr.IsAdvancedToolUser() && !isobserver(usr))
-		to_chat(usr, span_warning("You are not able to operate [src]."))
+		to_chat(usr, "<span class='warning'>You are not able to operate [src].</span>")
 		return
 
 	. = TRUE
@@ -188,14 +198,11 @@
 	if(!locked)
 		return ..()
 	if(!stop_messages)
-		to_chat(usr, span_notice("[src] is locked!"))
+		to_chat(usr, "<span class='notice'>[src] is locked!</span>")
 	return FALSE
 
 /obj/item/storage/secure/hear_talk(mob/living/M, list/message_pieces)
-	if(locked)
-		return
-
-	..()
+	return
 
 /obj/item/storage/secure/hear_message(mob/living/M, msg)
 	return
@@ -209,7 +216,7 @@
 	icon_state = "secure"
 	item_state = "sec-case"
 	flags = CONDUCT
-	hitsound = SFX_SWING_HIT
+	hitsound = "swing_hit"
 	use_sound = 'sound/effects/briefcase.ogg'
 	force = 8
 	throw_range = 4
@@ -220,7 +227,7 @@
 
 /obj/item/storage/secure/briefcase/attack_hand(mob/user)
 	if((loc == user) && locked)
-		to_chat(usr, span_warning("[src] is locked and cannot be opened!"))
+		to_chat(usr, "<span class='warning'>[src] is locked and cannot be opened!</span>")
 	else if((loc == user) && !locked)
 		playsound(loc, 'sound/effects/briefcase.ogg', 50, TRUE, -5)
 		user.s_active?.close(user) //Close and re-open
@@ -238,6 +245,7 @@
 
 /obj/item/storage/secure/briefcase/captian/populate_contents()
 	new /obj/item/card/id/captains_spare(src)
+
 
 //Syndie variant of Secure Briefcase. Contains space cash, slightly more robust.
 /obj/item/storage/secure/briefcase/syndie
@@ -265,9 +273,3 @@
 
 /obj/item/storage/secure/safe/attack_hand(mob/user)
 	return attack_self(user)
-
-/obj/item/storage/secure/safe/CMO/populate_contents()
-	new /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis(src)
-	new /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis(src)
-	new /obj/item/reagent_containers/glass/bottle/reagent/synaptizine(src)
-	new /obj/item/reagent_containers/glass/bottle/reagent/omnizine(src)

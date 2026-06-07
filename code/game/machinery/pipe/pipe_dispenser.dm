@@ -1,9 +1,8 @@
 /obj/machinery/pipedispenser
-	name = "pipe dispenser"
+	name = "Pipe Dispenser"
 	icon_state = "pipe_d"
 	density = TRUE
 	anchored = TRUE
-	interaction_flags_mouse_drop = NEED_DEXTERITY
 	var/wait = 0
 
 /obj/machinery/pipedispenser/attack_hand(mob/user)
@@ -71,6 +70,7 @@
 	popup.open(0)
 	onclose(user, "pipedispenser")
 
+
 /obj/machinery/pipedispenser/Topic(href, href_list)
 	if(..() || !anchored)
 		return
@@ -84,7 +84,7 @@
 	if(href_list["make"])
 		var/p_type = text2num(href_list["make"])
 		var/p_dir = text2num(href_list["dir"])
-		var/obj/item/pipe/P = new (loc, p_type, p_dir)
+		var/obj/item/pipe/P = new (loc, pipe_type=p_type, dir=p_dir)
 		P.update()
 		P.add_fingerprint(usr)
 	if(href_list["makemeter"])
@@ -92,6 +92,7 @@
 	if(href_list["makegsensor"])
 		new /obj/item/pipe_gsensor(loc)
 	return TRUE
+
 
 /obj/machinery/pipedispenser/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -115,6 +116,7 @@
 			span_italics("You hear ratchet."),
 		)
 
+
 /obj/machinery/pipedispenser/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -129,11 +131,12 @@
 
 	return ..()
 
+
 /obj/machinery/pipedispenser/disposal
 	name = "Disposal Pipe Dispenser"
 
 //Allow you to drag-drop disposal pipes into it
-/obj/machinery/pipedispenser/disposal/mouse_drop_receive(obj/structure/disposalconstruct/pipe, mob/user, params)
+/obj/machinery/pipedispenser/disposal/MouseDrop_T(obj/structure/disposalconstruct/pipe, mob/user, params)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
@@ -144,6 +147,7 @@
 		return
 
 	qdel(pipe)
+	return TRUE
 
 /obj/machinery/pipedispenser/disposal/attack_hand(mob/user)
 	if(..())
@@ -172,6 +176,7 @@
 	var/datum/browser/popup = new(user, "pipedispenser", name, 400, 400)
 	popup.set_content(dat)
 	popup.open()
+
 
 /obj/machinery/pipedispenser/disposal/Topic(href, href_list)
 	if(!..())

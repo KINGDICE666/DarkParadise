@@ -1,47 +1,43 @@
-//Damage things //TODO: merge these down to reduce on defines
+//Damage things	//TODO: merge these down to reduce on defines
 //Way to waste perfectly good damagetype names (BRUTE) on this... If you were really worried about case sensitivity, you could have just used lowertext(damagetype) in the proc...
-#define BRUTE "brute"
-#define BURN "fire"
-#define TOX "tox"
-#define OXY "oxy"
-#define CLONE "clone"
-#define STAMINA "stamina"
-#define BRAIN "brain"
+#define BRUTE		"brute"
+#define BURN		"fire"
+#define TOX			"tox"
+#define OXY			"oxy"
+#define CLONE		"clone"
+#define STAMINA	"stamina"
+#define BRAIN		"brain"
 
 //damage flags
-#define MELEE "melee"
-#define BULLET "bullet"
-#define LASER "laser"
-#define ENERGY "energy"
-#define BOMB "bomb"
-#define BIO "bio"
-#define FIRE "fire"
-#define ACID "acid"
-#define MAGIC "magic"
+#define MELEE		"melee"
+#define BULLET		"bullet"
+#define LASER		"laser"
+#define ENERGY		"energy"
+#define BOMB		"bomb"
+#define BIO		"bio"
+#define RAD		"rad"
+#define FIRE		"fire"
+#define ACID		"acid"
+#define MAGIC		"magic"
 
-/// Armor values that are used for damage
-#define ARMOR_LIST_DAMAGE list(BOMB, BULLET, ENERGY, LASER, MELEE)
+/// All armors
+#define ARMOR_LIST_ALL(...) list(ACID, BIO, BOMB, BULLET, ENERGY, FIRE, LASER, MAGIC, MELEE, RAD)
 
-/// Armor values that are used for durability
-#define ARMOR_LIST_DURABILITY list(ACID, BIO, FIRE, MAGIC)
-
-/// All armors, preferable in the order as seen above
-#define ARMOR_LIST_ALL(...) list(ACID, BIO, BOMB, BULLET, ENERGY, FIRE, LASER, MAGIC, MELEE)
-
-#define STUN "stun"
-#define WEAKEN "weaken"
-#define STAMCRIT "stamcrit"
-#define KNOCKDOWN "knockdown"
-#define PARALYZE "paralize"
-#define SLEEP "sleep"
-#define IMMOBILIZE "immobilize"
-#define STUTTER "stutter"
-#define SLUR "slur"
-#define EYE_BLUR "eye_blur"
-#define DROWSY "drowsy"
-#define JITTER "jitter"
-#define CONFUSED "confused"
-#define EFFECT_UNCONSCIOUS "unconscious"
+#define STUN		"stun"
+#define WEAKEN		"weaken"
+#define STAMCRIT	"stamcrit"
+#define KNOCKDOWN	"knockdown"
+#define PARALYZE	"paralize"
+#define SLEEP		"sleep"
+#define IMMOBILIZE	"immobilize"
+#define IRRADIATE	"irradiate"
+#define STUTTER		"stutter"
+#define SLUR		"slur"
+#define EYE_BLUR	"eye_blur"
+#define DROWSY		"drowsy"
+#define JITTER		"jitter"
+#define SLEEPING 	"sleeping"
+#define CONFUSED	"confused"
 
 //I hate adding defines like this but I'd much rather deal with bitflags than lists and string searches
 #define BRUTELOSS (1<<0)
@@ -57,7 +53,7 @@
 #define CANSTAMCRIT (1<<2)
 #define CANKNOCKDOWN (1<<3)
 #define CANPARALYSE (1<<4)
-#define CANPUSH (1<<5)
+#define CANPUSH	 (1<<5)
 #define PASSEMOTES (1<<6)      //Mob has a cortical borer or holders inside of it that need to see emotes.
 #define IGNORESLOWDOWN (1<<7)
 #define IGNORE_SPEED_CHANGES (1<<8)
@@ -65,6 +61,7 @@
 /// NOTE, does not mean immune to sleep. Unconscious and sleep are two different things.
 /// NOTE, does not relate to the unconscious stat either. Only the status effect.
 #define CANUNCONSCIOUS (1<<9)
+
 
 //Health Defines
 #define HEALTH_THRESHOLD_CRIT 0
@@ -94,27 +91,27 @@
 
 //Attack types for checking shields/hit reactions
 
-#define ITEM_ATTACK (1 << 0)
-#define UNARMED_ATTACK (1 << 1)
-#define PROJECTILE_ATTACK (1 << 2)
-#define THROWN_PROJECTILE_ATTACK (1 << 3)
-#define LEAP_ATTACK (1 << 4)
-#define MELEE_ATTACKS (ITEM_ATTACK | THROWN_PROJECTILE_ATTACK | UNARMED_ATTACK | LEAP_ATTACK)
+#define ITEM_ATTACK						(1 << 0)
+#define UNARMED_ATTACK					(1 << 1)
+#define PROJECTILE_ATTACK				(1 << 2)
+#define THROWN_PROJECTILE_ATTACK		(1 << 3)
+#define LEAP_ATTACK						(1 << 4)
+#define MELEE_ATTACKS					(ITEM_ATTACK | THROWN_PROJECTILE_ATTACK | UNARMED_ATTACK | LEAP_ATTACK)
 
 //attack visual effects
-#define ATTACK_EFFECT_PUNCH "punch"
-#define ATTACK_EFFECT_KICK "kick"
-#define ATTACK_EFFECT_SMASH "smash"
-#define ATTACK_EFFECT_CLAW "claw"
-#define ATTACK_EFFECT_SLASH "slash"
-#define ATTACK_EFFECT_DISARM "disarm"
-#define ATTACK_EFFECT_BITE "bite"
-#define ATTACK_EFFECT_MECHFIRE "mech_fire"
-#define ATTACK_EFFECT_MECHTOXIN "mech_toxin"
-#define ATTACK_EFFECT_BOOP "boop" //Honk
+#define ATTACK_EFFECT_PUNCH		"punch"
+#define ATTACK_EFFECT_KICK		"kick"
+#define ATTACK_EFFECT_SMASH		"smash"
+#define ATTACK_EFFECT_CLAW		"claw"
+#define ATTACK_EFFECT_SLASH	"slash"
+#define ATTACK_EFFECT_DISARM	"disarm"
+#define ATTACK_EFFECT_BITE		"bite"
+#define ATTACK_EFFECT_MECHFIRE	"mech_fire"
+#define ATTACK_EFFECT_MECHTOXIN	"mech_toxin"
+#define ATTACK_EFFECT_BOOP		"boop" //Honk
 //NOTE: INTENT_HOTKEY_* defines are not actual intents!
 //they are here to support hotkeys
-#define INTENT_HOTKEY_LEFT "left"
+#define INTENT_HOTKEY_LEFT  "left"
 #define INTENT_HOTKEY_RIGHT "right"
 
 //His Grace.
@@ -133,46 +130,39 @@
 #define HIS_GRACE_ASCENDING_REQ 20 //How many to consume before ascending
 
 //His Grace tiers
-#define HIS_GRACE_DORMANT /datum/grace_tier/dormant
-#define HIS_GRACE_AWAKENED /datum/grace_tier/awakened
-#define HIS_GRACE_ASCENDED /datum/grace_tier/ascended
+#define HIS_GRACE_DORMANT    /datum/grace_tier/dormant
+#define HIS_GRACE_AWAKENED   /datum/grace_tier/awakened
+#define HIS_GRACE_ASCENDED   /datum/grace_tier/ascended
 
 //Embedded objects
-#define EMBEDDED_PAIN_CHANCE 15 //Chance for embedded objects to cause pain (damage user)
-#define EMBEDDED_ITEM_FALLOUT 5 //Chance for embedded object to fall out (causing pain but removing the object)
-#define EMBED_CHANCE 45 //Chance for an object to embed into somebody when thrown (if it's sharp)
-#define EMBEDDED_PAIN_MULTIPLIER 2 //Coefficient of multiplication for the damage the item does while embedded (this*item.w_class)
-#define EMBEDDED_FALL_PAIN_MULTIPLIER 5 //Coefficient of multiplication for the damage the item does when it falls out (this*item.w_class)
-#define EMBEDDED_IMPACT_PAIN_MULTIPLIER 4 //Coefficient of multiplication for the damage the item does when it first embeds (this*item.w_class)
-#define EMBED_THROWSPEED_THRESHOLD 4 //The minimum value of an item's throw_speed for it to embed (Unless it has embedded_ignore_throwspeed_threshold set to 1)
-#define EMBEDDED_UNSAFE_REMOVAL_PAIN_MULTIPLIER 8 //Coefficient of multiplication for the damage the item does when removed without a surgery (this*item.w_class)
-#define EMBEDDED_UNSAFE_REMOVAL_TIME 30 //A Time in ticks, total removal time = (this*item.w_class)
+#define EMBEDDED_PAIN_CHANCE					15	//Chance for embedded objects to cause pain (damage user)
+#define EMBEDDED_ITEM_FALLOUT					5	//Chance for embedded object to fall out (causing pain but removing the object)
+#define EMBED_CHANCE							45	//Chance for an object to embed into somebody when thrown (if it's sharp)
+#define EMBEDDED_PAIN_MULTIPLIER				2	//Coefficient of multiplication for the damage the item does while embedded (this*item.w_class)
+#define EMBEDDED_FALL_PAIN_MULTIPLIER			5	//Coefficient of multiplication for the damage the item does when it falls out (this*item.w_class)
+#define EMBEDDED_IMPACT_PAIN_MULTIPLIER			4	//Coefficient of multiplication for the damage the item does when it first embeds (this*item.w_class)
+#define EMBED_THROWSPEED_THRESHOLD				4	//The minimum value of an item's throw_speed for it to embed (Unless it has embedded_ignore_throwspeed_threshold set to 1)
+#define EMBEDDED_UNSAFE_REMOVAL_PAIN_MULTIPLIER 8	//Coefficient of multiplication for the damage the item does when removed without a surgery (this*item.w_class)
+#define EMBEDDED_UNSAFE_REMOVAL_TIME			30	//A Time in ticks, total removal time = (this*item.w_class)
 
 // Body Part Zones
-#define BODY_ZONE_HEAD "head"
-#define BODY_ZONE_CHEST "chest"
-#define BODY_ZONE_L_ARM "l_arm"
-#define BODY_ZONE_R_ARM "r_arm"
-#define BODY_ZONE_L_LEG "l_leg"
-#define BODY_ZONE_R_LEG "r_leg"
-#define BODY_ZONE_TAIL "tail"
-#define BODY_ZONE_WING "wing"
+#define BODY_ZONE_HEAD		"head"
+#define BODY_ZONE_CHEST		"chest"
+#define BODY_ZONE_L_ARM		"l_arm"
+#define BODY_ZONE_R_ARM		"r_arm"
+#define BODY_ZONE_L_LEG		"l_leg"
+#define BODY_ZONE_R_LEG		"r_leg"
+#define BODY_ZONE_TAIL		"tail"
+#define BODY_ZONE_WING		"wing"
 
-#define BODY_ZONE_PRECISE_EYES "eyes"
-#define BODY_ZONE_PRECISE_MOUTH "mouth"
-#define BODY_ZONE_PRECISE_GROIN "groin"
-#define BODY_ZONE_PRECISE_L_HAND "l_hand"
-#define BODY_ZONE_PRECISE_R_HAND "r_hand"
-#define BODY_ZONE_PRECISE_L_FOOT "l_foot"
-#define BODY_ZONE_PRECISE_R_FOOT "r_foot"
+#define BODY_ZONE_PRECISE_EYES		"eyes"
+#define BODY_ZONE_PRECISE_MOUTH		"mouth"
+#define BODY_ZONE_PRECISE_GROIN		"groin"
+#define BODY_ZONE_PRECISE_L_HAND	"l_hand"
+#define BODY_ZONE_PRECISE_R_HAND	"r_hand"
+#define BODY_ZONE_PRECISE_L_FOOT	"l_foot"
+#define BODY_ZONE_PRECISE_R_FOOT	"r_foot"
 
-GLOBAL_LIST_INIT(body_zones, list(
-	BODY_ZONE_HEAD, BODY_ZONE_CHEST, BODY_ZONE_PRECISE_GROIN,
-	BODY_ZONE_L_ARM, BODY_ZONE_R_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG,
-	BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND,
-	BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT,
-	BODY_ZONE_TAIL,
-))
 
 //We will round to this value in damage calculations.
 #define DAMAGE_PRECISION 0.1
@@ -180,8 +170,8 @@ GLOBAL_LIST_INIT(body_zones, list(
 #define BLEEDING_PRECISION 0.005
 
 //Gun Stuff
-#define SAWN_INTACT 0
-#define SAWN_OFF 1
+#define SAWN_INTACT  0
+#define SAWN_OFF     1
 
 #define WEAPON_DUAL_WIELD 0
 #define WEAPON_LIGHT 1
@@ -208,16 +198,18 @@ GLOBAL_LIST_INIT(body_zones, list(
 */
 #define STATUS_EFFECT_CONSTANT * 20
 
+
 /// Projectile reflectability defines
 #define REFLECTABILITY_NEVER 0
 #define REFLECTABILITY_PHYSICAL 1
 #define REFLECTABILITY_ENERGY 2
 
+
 //Autofire component
 /// Compatible firemode is in the gun. Wait until it's held in the user hands.
 #define AUTOFIRE_STAT_IDLE (1<<0)
 /// Gun is active and in the user hands. Wait until user does a valid click.
-#define AUTOFIRE_STAT_ALERT (1<<1)
+#define AUTOFIRE_STAT_ALERT	(1<<1)
 /// Gun is shooting.
 #define AUTOFIRE_STAT_FIRING (1<<2)
 
@@ -236,17 +228,15 @@ GLOBAL_LIST_INIT(body_zones, list(
 #define COMBO_STEPS "steps"
 #define COMBO_PROC "proc"
 
-// Core bitflags
-/// Intentionally not started with (1<<0) or 1, since 1 is equal to TRUE
-#define ATTACK_CHAIN_PROCEED (1<<2)
-/// And we want to check validity of the core bitflags, returned by the attack chain procs
-#define ATTACK_CHAIN_BLOCKED (1<<3)
-// Optional bitflags
+
+// core bitflags
+#define ATTACK_CHAIN_PROCEED (1<<2)	// intentionally not started with (1<<0) or 1, since 1 is equal to TRUE
+#define ATTACK_CHAIN_BLOCKED (1<<3)	// and we want to check validity of the core bitflags, returned by the attack chain procs
+// optional bitflags
 #define ATTACK_CHAIN_SUCCESS (1<<0)
 #define ATTACK_CHAIN_NO_AFTERATTACK (1<<1)
 // bitflag combinations
 #define ATTACK_CHAIN_PROCEED_SUCCESS (ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_SUCCESS)
-#define ATTACK_CHAIN_PROCEED_NO_AFTERATTACK (ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK)
 #define ATTACK_CHAIN_BLOCKED_ALL (ATTACK_CHAIN_BLOCKED|ATTACK_CHAIN_NO_AFTERATTACK)
 #define ATTACK_CHAIN_CORE_RETURN_BITFLAGS (ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_BLOCKED)
 /// Helper to check whether attack chain result was blocked
@@ -267,31 +257,3 @@ GLOBAL_LIST_INIT(body_zones, list(
 #define CLICK_CD_RAPID (0.2 SECONDS)
 #define CLICK_CD_LOOK_UP_DOWN (0.5 SECONDS)
 #define CLICK_CD_THROW (0.8 SECONDS)
-
-#define CLICK_CD_BREAKOUT (10 SECONDS)
-
-//the define for visible message range in combat
-#define SAMETILE_MESSAGE_RANGE 1
-#define COMBAT_MESSAGE_RANGE 3
-#define DEFAULT_MESSAGE_RANGE 7
-
-//Gun trigger guards
-#define TRIGGER_GUARD_ALLOW_ALL -1
-#define TRIGGER_GUARD_NONE 0
-#define TRIGGER_GUARD_NORMAL 1
-
-/// The amount of energy needed to increase the burn force by 1 damage during electrocution.
-#define JOULES_PER_DAMAGE (25 KILO JOULES)
-/// Calculates the amount of burn force when applying this much energy to a mob via electrocution from an energy source.
-#define ELECTROCUTE_DAMAGE(energy) (energy >= 1 KILO JOULES ? clamp(20 + round(energy / JOULES_PER_DAMAGE), 20, 195) + rand(-5,5) : 0)
-
-/// Alternate attack defines. Return these at the end of procs like afterattack_secondary.
-/// Calls the normal attack proc. For example, if returned in afterattack_secondary, will call afterattack.
-/// Will continue the chain depending on the return value of the non-alternate proc, like with normal attacks.
-#define SECONDARY_ATTACK_CALL_NORMAL 1
-
-/// Cancels the attack chain entirely.
-#define SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN 2
-
-/// Proceed with the attack chain, but don't call the normal methods.
-#define SECONDARY_ATTACK_CONTINUE_CHAIN 3

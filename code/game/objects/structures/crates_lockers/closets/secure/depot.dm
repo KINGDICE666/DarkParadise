@@ -1,7 +1,8 @@
+
 /obj/structure/closet/secure_closet/syndicate/depot
 	name = "depot supply closet"
-	desc = "A red and black lootbox full of things the Head of Security is going to flip their shit over."
-	locked = FALSE
+	desc = ""
+	locked = 0
 	anchored = TRUE
 	req_access = list()
 	max_integrity = 250
@@ -13,14 +14,14 @@
 	. = ..()
 	loot_pickup()
 
-/obj/structure/closet/secure_closet/syndicate/depot/open(mob/living/user, force = FALSE)
+/obj/structure/closet/secure_closet/syndicate/depot/open(force = FALSE)
 	. = ..()
 	if(opened)
 		loot_pickup()
 
 /obj/structure/closet/secure_closet/syndicate/depot/dump_contents()
 	loot_pickup()
-	return ..()
+	. = ..()
 
 /obj/structure/closet/secure_closet/syndicate/depot/proc/loot_pickup()
 	if(!ignore_use)
@@ -32,9 +33,10 @@
 
 /obj/structure/closet/secure_closet/syndicate/depot/attack_animal(mob/M)
 	if(isanimal(M) && ("syndicate" in M.faction))
-		to_chat(M, span_warning("The [src] resists your attack!"))
+		to_chat(M, "<span class='warning'>The [src] resists your attack!</span>")
 		return
 	return ..()
+
 
 /obj/structure/closet/secure_closet/syndicate/depot/attackby(obj/item/I, mob/user, params)
 	if(opened)
@@ -42,10 +44,11 @@
 
 	if(istype(I, /obj/item/rcs))
 		add_fingerprint(user)
-		to_chat(user, span_warning("Блюспейс-помехи мешают [I] захватить [src] в цель!"))
+		to_chat(user, span_warning("Bluespace interference prevents [I] from locking onto [src]!"))
 		return ATTACK_CHAIN_PROCEED
 
 	return ..()
+
 
 /obj/structure/closet/secure_closet/syndicate/depot/emp_act(severity)
 	return

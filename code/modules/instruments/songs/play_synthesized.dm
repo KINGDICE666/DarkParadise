@@ -42,7 +42,7 @@
  * Plays a specific numerical key from our instrument to anyone who can hear us.
  * Does a hearing check if enough time has passed.
  */
-/datum/song/proc/playkey_synth(key, atom/player)
+/datum/song/proc/playkey_synth(key, mob/user)
 	if(can_noteshift)
 		key = clamp(key + note_shift, key_min, key_max)
 	if((world.time - MUSICIAN_HEARCHECK_MINDELAY) > last_hearcheck)
@@ -74,8 +74,8 @@
 	for(var/i in hearing_mobs)
 		terminate_sound_mob(i)
 	if(clear_channels && channels_playing)
-		channels_playing.Cut()
-		channels_idle.Cut()
+		channels_playing.len = 0
+		channels_idle.len = 0
 		SSinstruments.current_instrument_channels -= using_sound_channels
 		using_sound_channels = 0
 		SSsounds.free_datum_channels(src)

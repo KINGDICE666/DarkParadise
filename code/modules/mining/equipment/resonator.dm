@@ -1,4 +1,4 @@
-#define RESONATOR_MODE_AUTO 1
+#define RESONATOR_MODE_AUTO   1
 #define RESONATOR_MODE_MANUAL 2
 #define RESONATOR_MODE_MATRIX 3
 
@@ -23,13 +23,13 @@
 	var/adding_failure = 50
 
 /obj/item/resonator/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "резонатор",
 		GENITIVE = "резонатора",
 		DATIVE = "резонатору",
 		ACCUSATIVE = "резонатор",
 		INSTRUMENTAL = "резонатором",
-		PREPOSITIONAL = "резонаторе",
+		PREPOSITIONAL = "резонаторе"
 	)
 
 /obj/item/resonator/attack_self(mob/user)
@@ -50,6 +50,7 @@
 	if(LAZYLEN(fields) < fieldlimit)
 		new /obj/effect/temp_visual/resonance(target_turf, user, src, mode, adding_failure)
 
+
 /obj/item/resonator/pre_attackby(atom/target, mob/user, params)
 	. = ..()
 	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !check_allowed_items(target, TRUE))
@@ -57,6 +58,7 @@
 	. |= ATTACK_CHAIN_BLOCKED
 	user.changeNext_move(attack_speed)
 	create_resonance(target, user)
+
 
 //resonance field, crushes rock, damages mobs
 /obj/effect/temp_visual/resonance
@@ -81,14 +83,15 @@
 	var/adding_failure
 
 /obj/effect/temp_visual/resonance/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "резонансное поле",
 		GENITIVE = "резонансного поля",
 		DATIVE = "резонансному полю",
 		ACCUSATIVE = "резонансное поле",
 		INSTRUMENTAL = "резонансным полем",
-		PREPOSITIONAL = "резонансном поле",
+		PREPOSITIONAL = "резонансном поле"
 	)
+	
 
 /obj/effect/temp_visual/resonance/Initialize(mapload, set_creator, set_resonator, mode, set_failure = 40)
 	if(mode == RESONATOR_MODE_AUTO)
@@ -136,14 +139,17 @@
 	var/turf/src_turf = get_turf(src)
 	new /obj/effect/temp_visual/resonance_crush(src_turf)
 	if(ismineralturf(src_turf))
-		var/turf/simulated/mineral/mineral = src_turf
-		mineral.attempt_drill(creator)
+		if(isancientturf(src_turf))
+			visible_message(span_notice("Эта порода устойчива ко всем инструментам, кроме кирок!"))
+		else
+			var/turf/simulated/mineral/M = src_turf
+			M.attempt_drill(creator)
 	check_pressure(src_turf)
 	playsound(src_turf,'sound/weapons/resonator_blast.ogg',50, TRUE)
 	for(var/mob/living/L in src_turf)
 		if(creator)
 			add_attack_logs(creator, L, "Resonance field'ed")
-		to_chat(L, span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] разрывается с вами внутри!"))
+		to_chat(L, span_userdanger("[capitalize(declent_ru(NOMINATIVE))] разрывается с вами внутри!"))
 		L.apply_damage(resonance_damage, BRUTE)
 	for(var/obj/effect/temp_visual/resonance/field in orange(1, src))
 		if(field.rupturing)
@@ -177,13 +183,13 @@
 	origin_tech = "materials=4;powerstorage=3;engineering=3;magnets=3"
 
 /obj/item/resonator/upgraded/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "улучшенный резонатор",
 		GENITIVE = "улучшенного резонатора",
 		DATIVE = "улучшенному резонатору",
 		ACCUSATIVE = "улучшенный резонатор",
 		INSTRUMENTAL = "улучшенным резонатором",
-		PREPOSITIONAL = "улучшенном резонаторе",
+		PREPOSITIONAL = "улучшенном резонаторе"
 	)
 
 /obj/item/resonator/upgraded/attack_self(mob/user)

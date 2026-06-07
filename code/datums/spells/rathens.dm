@@ -7,10 +7,12 @@
 	invocation_type = "shout"
 	action_icon_state = "lungpunch"
 
+
 /obj/effect/proc_holder/spell/rathens/create_new_targeting()
 	var/datum/spell_targeting/targeted/T = new()
 	T.max_targets = INFINITY
 	return T
+
 
 /obj/effect/proc_holder/spell/rathens/cast(list/targets, mob/user = usr)
 	for(var/mob/living/carbon/human/H in targets)
@@ -38,9 +40,9 @@
 			for(var/obj/item/organ/external/E as anything in H.bodyparts)
 				if(istype(E, /obj/item/organ/external/head))
 					continue
-				if(ischest(E))
+				if(istype(E, /obj/item/organ/external/chest))
 					continue
-				if(isgroin(E))
+				if(istype(E, /obj/item/organ/external/groin))
 					continue
 				if(prob(7))
 					to_chat(H, span_userdanger("Your [E] was severed by the explosion!"))

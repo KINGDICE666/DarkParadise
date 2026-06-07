@@ -149,29 +149,6 @@ GLOBAL_LIST_INIT(strippable_human_items, create_strippable_list(list(
 		? STRIPPABLE_OBSCURING_NONE \
 		: STRIPPABLE_OBSCURING_HIDDEN
 
-/datum/strippable_item/mob_item_slot/pda/start_unequip(atom/source, mob/user)
-	var/obj/item/item = get_item(source)
-	if(isnull(item))
-		return FALSE
-
-	if(!in_thief_mode(user))
-		source.visible_message(
-			span_warning("[user] пыта[PLUR_ET_YUT(user)]ся снять КПК с [source.declent_ru(GENITIVE)]."),
-			span_userdanger("[user] пыта[PLUR_ET_YUT(user)]ся снять с вас [item.declent_ru(ACCUSATIVE)]!"),
-			span_hear("Вы слышите звуки шуршания.")
-		)
-
-	to_chat(user, span_danger("Вы пытаетесь снять КПК с [source.declent_ru(GENITIVE)]..."))
-	add_attack_logs(user, source, "Attempting stripping of [item]")
-	item.add_fingerprint(user)
-
-	if(ishuman(source))
-		var/mob/living/carbon/human/victim_human = source
-		if(!victim_human.has_vision())
-			to_chat(source, span_userdanger("Вы чувствуете, как кто-то пытается что-то с вас снять!"))
-
-	return start_unequip_mob(get_item(source), source, user)
-
 /datum/strippable_item/mob_item_slot/belt
 	key = STRIPPABLE_ITEM_BELT
 	item_slot = ITEM_SLOT_BELT
@@ -192,14 +169,6 @@ GLOBAL_LIST_INIT(strippable_human_items, create_strippable_list(list(
 	return isnull(get_item(source)) \
 		? STRIPPABLE_OBSCURING_NONE \
 		: STRIPPABLE_OBSCURING_HIDDEN
-
-/datum/strippable_item/mob_item_slot/pocket/get_alternate_actions(atom/source, mob/user)
-	return get_strippable_alternate_action_internals(get_item(source), source)
-
-/datum/strippable_item/mob_item_slot/pocket/alternate_action(atom/source, mob/user, action_key)
-	if(!..())
-		return
-	strippable_alternate_action_internals(get_item(source), source, user)
 
 /datum/strippable_item/mob_item_slot/pocket/get_equip_delay(obj/item/equipping)
 	return POCKET_EQUIP_DELAY // Equipping is 4 times as fast as stripping
@@ -286,6 +255,7 @@ GLOBAL_LIST_INIT(strippable_human_items, create_strippable_list(list(
 		span_danger("[user] [isnull(carbon_source.internal) ? "closes": "opens"] the valve on [source]'s [item.name]."),
 		span_userdanger("[user] [isnull(carbon_source.internal) ? "closes": "opens"] the valve on your [item.name]."),
 	)
+
 
 #undef INTERNALS_TOGGLE_DELAY
 #undef POCKET_EQUIP_DELAY

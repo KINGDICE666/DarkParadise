@@ -23,17 +23,17 @@
 
 /obj/item/toy/syndicateballoon/contractor
 	name = "contractor balloon"
-	desc = "Черно-золотой шар, который носят только легендарные агенты \"Синдиката\"."
+	desc = "Черно-золотой шар, который носят только легендарные агенты Синдиката."
 	gender = MALE
 	icon_state = "contractorballoon"
 	item_state = "contractorballoon"
 
 /obj/item/toy/syndicateballoon/contractor/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "воздушный шарик контрактника",
 		GENITIVE = "воздушного шарика контрактника",
 		DATIVE = "воздушному шарику контрактника",
 		ACCUSATIVE = "воздушный шарик контрактника",
 		INSTRUMENTAL = "воздушным шариком контрактника",
-		PREPOSITIONAL = "воздушном шарике контрактника",
+		PREPOSITIONAL = "воздушном шарике контрактника"
 	)

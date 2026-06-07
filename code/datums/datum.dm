@@ -1,13 +1,3 @@
-/**
- * The absolute base class for everything
- *
- * A datum instantiated has no physical world presence, use an atom if you want something
- * that actually lives in the world
- *
- * Be very mindful about adding variables to this class, they are inherited by every single
- * thing in the entire game, and so you can easily cause memory usage to rise a lot with careless
- * use of variables at this level
- */
 /datum
 	/**
 	  * Tick count time when this object was destroyed.
@@ -15,14 +5,9 @@
 	  * If this is non zero then the object has been garbage collected and is awaiting either
 	  * a hard del by the GC subsystme, or to be autocollected (if it has no references)
 	  */
-	var/gc_destroyed
-
-	/// Open uis owned by this datum
-	/// Lazy, since this case is semi rare
-	var/list/open_uis
-
+	var/gc_destroyed //Time when this object was destroyed.
 	/// Active timers with this datum as the target
-	var/list/_active_timers
+	var/list/active_timers  //for SStimer
 	/// Status traits attached to this datum
 	var/list/_status_traits
 	/**
@@ -30,42 +15,28 @@
 	  *
 	  * Lazy associated list in the structure of `type -> component/list of components`
 	  */
-	var/list/_datum_components
+	var/list/datum_components
 	/**
 	  * Any datum registered to receive signals from this datum is in this list
 	  *
 	  * Lazy associated list in the structure of `signal -> registree/list of registrees`
 	  */
-	var/list/_listen_lookup
+	var/list/comp_lookup
 	/// Lazy associated list in the structure of `target -> list(signal -> proctype)` that are run when the datum receives that signal
-	var/list/list/_signal_procs
+	var/list/list/signal_procs
 
 	var/tmp/unique_datum_id = null
-
 	/// Datum level flags
 	var/datum_flags = NONE
 
 	/// A weak reference to another datum
 	var/datum/weakref/weak_reference
 
+	/// Used by SSprocessing
+	var/isprocessing = FALSE
+
 	/// List for handling persistent filters.
 	var/list/filter_data
-
-	/*
-	* Lazy associative list of currently active cooldowns.
-	*
-	* cooldowns [ COOLDOWN_INDEX ] = add_timer()
-	* add_timer() returns the truthy value of -1 when not stoppable, and else a truthy numeric index
-	*/
-	var/list/cooldowns
-
-	/// Protects datum from editing. Flags are assigned in datumvars procs via [GENERAL_PROTECT_DATUM].
-	var/datum_protecting_flags = NONE
-
-	/// An accursed beast of a list that contains our filters. Why? Because var/list/filters on atoms/images isn't actually a list
-	/// but a snowflaked skinwalker pretending to be one, which doesn't support half the list procs/operations and the other half behaves weirdly
-	/// so we cut down on filter creation and appearance update costs by editing *this* list, and then assigning ours to itCollapse commentComment on lines R60 to R62Ghommie commented on Sep 21, 2025 Ghommieon Sep 21, 2025MemberMore actionsThat's nigh accursed. But I shouldn't expect less from images and mutable appearances having the "same" variables as atoms when datums strangely don't.ReactWrite a replyResolve comment
-	var/list/filter_cache
 
 #ifdef TESTING
 	var/running_find_references
@@ -77,10 +48,6 @@
 	var/list/found_refs
 	#endif
 #endif
-
-	/// If we have called dump_harddel_info already. Used to avoid duped calls (since we call it immediately in some cases on failure to process)
-	/// Create and destroy is weird and I wanna cover my bases
-	var/harddel_deets_dumped = FALSE
 
 #ifdef REFERENCE_TRACKING
 	var/running_find_references
@@ -95,18 +62,6 @@
 	var/list/found_refs
 	#endif
 #endif
-
-	/**
-	 * Parent types.
-	 *
-	 * Abstract-ness is a meta-property of a class that is used to indicate
-	 * that the class is intended to be used as a base class for others, and
-	 * should not (or cannot) be instantiated.
-	 * We have no such language concept in DM, and so we provide a datum member
-	 * that can be used to hint at abstractness for circumstances where we would
-	 * like that to be the case, such as base behavior providers.
-	 */
-	var/abstract_type = /datum
 
 /**
  * Default implementation of clean-up code.
@@ -133,16 +88,16 @@
 	if(unique_datum_id)
 		RUSTLIB_CALL(untick_by_uuid, unique_datum_id)
 
-	if(_active_timers)
-		var/list/timers = _active_timers
-		_active_timers = null
+	if(active_timers)
+		var/list/timers = active_timers
+		active_timers = null
 		for(var/datum/timedevent/timer as anything in timers)
 			if(timer.spent && !(timer.flags & TIMER_DELETE_ME))
 				continue
 			qdel(timer)
 
 	//BEGIN: ECS SHIT
-	var/list/components = _datum_components
+	var/list/components = datum_components
 	if(components)
 		for(var/component_key in components)
 			var/component_or_list = components[component_key]
@@ -162,7 +117,7 @@
 ///Only override this if you know what you're doing. You do not know what you're doing
 ///This is a threat
 /datum/proc/_clear_signal_refs()
-	var/list/lookup = _listen_lookup
+	var/list/lookup = comp_lookup
 	if(lookup)
 		for(var/sig in lookup)
 			var/list/comps = lookup[sig]
@@ -172,10 +127,10 @@
 			else
 				var/datum/component/comp = comps
 				comp.UnregisterSignal(src, sig)
-		_listen_lookup = lookup = null
+		comp_lookup = lookup = null
 
-	for(var/target in _signal_procs)
-		UnregisterSignal(target, _signal_procs[target])
+	for(var/target in signal_procs)
+		UnregisterSignal(target, signal_procs[target])
 
 /// Return text from this proc to provide extra context to hard deletes that happen to it
 /// Optional, you should use this for cases where replication is difficult and extra context is required
@@ -183,48 +138,5 @@
 /datum/proc/dump_harddel_info()
 	return
 
-///images are pretty generic, this should help a bit with tracking harddels related to them
-/image/dump_harddel_info()
-	if(harddel_deets_dumped)
-		return
-	harddel_deets_dumped = TRUE
-	return "Image icon: [icon] - icon_state: [icon_state] [loc ? "loc: [loc] ([loc.x],[loc.y],[loc.z])" : ""]"
-
 /datum/nothing
 	// Placeholder object, used for ispath checks. Has to be defined to prevent errors, but shouldn't ever be created.
-
-/// Calls qdel on itself, because signals dont allow callbacks
-/datum/proc/selfdelete()
-	SIGNAL_HANDLER
-	qdel(src)
-
-/**
- * Callback called by a timer to end an associative-list-indexed cooldown.
- *
- * Arguments:
- * * source - datum storing the cooldown
- * * index - string index storing the cooldown on the cooldowns associative list
- *
- * This sends a signal reporting the cooldown end.
- */
-/proc/end_cooldown(datum/source, index)
-	if(QDELETED(source))
-		return
-	SEND_SIGNAL(source, COMSIG_CD_STOP(index))
-	TIMER_COOLDOWN_END(source, index)
-
-
-/**
- * Proc used by stoppable timers to end a cooldown before the time has ran out.
- *
- * Arguments:
- * * source - datum storing the cooldown
- * * index - string index storing the cooldown on the cooldowns associative list
- *
- * This sends a signal reporting the cooldown end, passing the time left as an argument.
- */
-/proc/reset_cooldown(datum/source, index)
-	if(QDELETED(source))
-		return
-	SEND_SIGNAL(source, COMSIG_CD_RESET(index), S_TIMER_COOLDOWN_TIMELEFT(source, index))
-	TIMER_COOLDOWN_END(source, index)

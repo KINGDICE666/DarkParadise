@@ -46,6 +46,7 @@
 		if(ITEM_SLOT_POCKET_RIGHT)
 			r_pocket = item_path
 
+
 /proc/collect_vv(obj/item/item)
 	//Temporary/Internal stuff, do not copy these.
 	var/static/list/ignored_vars = list(
@@ -78,6 +79,7 @@
 				continue
 			vedits[varname] = item.vars[varname]
 		return vedits
+
 
 /mob/living/carbon/human/proc/copy_outfit()
 	var/datum/outfit/varedit/O = new
@@ -126,7 +128,7 @@
 	var/obj/item/id_slot = get_item_by_slot(ITEM_SLOT_ID)
 	if(istype(id_slot, /obj/item/storage/wallet))
 		for(var/obj/item/item in id_slot)
-			if(is_id_card(item))
+			if(istype(item, /obj/item/card/id))
 				continue
 			if(O.backpack_contents[item.type])
 				O.backpack_contents[item.type] += 1
@@ -221,7 +223,7 @@
 		for(var/edit in vedits)
 			if(istext(vedits[edit]) || isnum(vedits[edit]) || isnull(vedits[edit]))
 				stripped_edits[edit] = vedits[edit]
-		if(length(stripped_edits))
+		if(stripped_edits.len)
 			stripped_vv[slot] = stripped_edits
 	.["vv_values"] = stripped_vv
 

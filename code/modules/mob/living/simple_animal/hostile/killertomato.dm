@@ -24,13 +24,13 @@
 	AI_delay_max = 0 SECONDS
 
 /mob/living/simple_animal/hostile/killertomato/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Помидор-убийца",
 		GENITIVE = "Помидора-убийцу",
 		DATIVE = "Помидору-Убийце",
 		ACCUSATIVE = "Помидора-Убийцу",
 		INSTRUMENTAL = "Помидором-убийцей",
-		PREPOSITIONAL = "Помидоре-убийце",
+		PREPOSITIONAL = "Помидоре-убийце"
 	)
 
 /mob/living/simple_animal/hostile/killertomato/ComponentInitialize()

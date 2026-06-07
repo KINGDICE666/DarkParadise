@@ -57,7 +57,8 @@
 /area/ruin/unpowered)
 "vK" = (
 /obj/structure/shuttle/engine/heater{
-	dir = 1
+	dir = 1;
+	tag = "icon-heater (NORTH)"
 	},
 /obj/structure/window/plasmareinforced,
 /turf/simulated/floor/plating,
@@ -294,7 +295,8 @@
 /area/ruin/unpowered)
 "UX" = (
 /obj/structure/shuttle/engine/propulsion{
-	dir = 1
+	dir = 1;
+	tag = "icon-propulsion (NORTH)"
 	},
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)

@@ -5,10 +5,9 @@
 	desc = "It's an immobile card-locked storage unit."
 	icon_state = "secure"
 	locked = TRUE
-	secure = TRUE
 	can_be_emaged = TRUE
 	max_integrity = 250
-	armor = list(MELEE = 30, BULLET = 50, LASER = 50, ENERGY = 100, BOMB = 0, BIO = 0, FIRE = 80, ACID = 80)
+	armor = list(MELEE = 30, BULLET = 50, LASER = 50, ENERGY = 100, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 80)
 	damage_deflection = 20
 
 /obj/structure/closet/secure_closet/can_open()
@@ -20,6 +19,7 @@
 	. = ..()
 	if(. && broken)
 		update_icon()
+
 
 /obj/structure/closet/secure_closet/emp_act(severity)
 	for(var/obj/object in src)
@@ -41,6 +41,7 @@
 			return
 		open()
 
+
 /obj/structure/closet/secure_closet/emag_act(mob/user)
 	if(!broken)
 		add_attack_logs(user, src, "emagged")
@@ -52,9 +53,47 @@
 		if(user)
 			to_chat(user, span_notice("You break the lock on [src]."))
 
+
+/obj/structure/closet/secure_closet/proc/togglelock(mob/living/user)
+	if(!istype(user))
+		return
+	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+		to_chat(user, span_warning("You can't do that right now!"))
+		return
+	if(opened)
+		to_chat(user, span_notice("Close the locker first."))
+		return
+	if(broken)
+		to_chat(user, span_warning("The locker appears to be broken."))
+		return
+	if(user.loc == src)
+		to_chat(user, span_notice("You can't reach the lock from inside."))
+		return
+	if(allowed(user))
+		locked = !locked
+		playsound(loc, pick(togglelock_sound), 15, TRUE, -3)
+		visible_message(span_notice("The locker has been [locked ? null : "un"]locked by [user]."))
+		update_icon()
+	else
+		to_chat(user, span_notice("Access Denied"))
+	add_fingerprint(user)
+
+
+/obj/structure/closet/secure_closet/closed_item_click(mob/user)
+	togglelock(user)
+
+
 /obj/structure/closet/secure_closet/click_alt(mob/user)
 	togglelock(user)
 	return CLICK_ACTION_SUCCESS
+
+
+/obj/structure/closet/secure_closet/attack_hand(mob/user)
+	if(locked)
+		togglelock(user)
+	else
+		add_fingerprint(user)
+		toggle(user)
 
 /obj/structure/closet/secure_closet/update_overlays()
 	. = ..()
@@ -73,12 +112,69 @@
 	else
 		. += mutable_appearance(icon, overlay_unlocked, CLOSET_OLAY_LAYER_LOCK_INDICATOR)
 
+
 /obj/structure/closet/secure_closet/update_desc(updates = ALL)
 	. = ..()
 	if(broken)
 		desc = "It appears to be broken."
 	else
 		desc = initial(desc)
+
+
+/obj/structure/closet/secure_closet/container_resist(mob/living/user)
+	if(opened)
+		if(user.loc == src)
+			user.forceMove(get_turf(src)) // Let's just be safe here
+		return //Door's open... wait, why are you in it's contents then?
+
+	if(!locked && !welded)
+		return //It's a secure closet, but isn't locked. Easily escapable from, no need to 'resist'
+
+	if(user.incapacitated(INC_IGNORE_RESTRAINED))
+		return
+
+	//okay, so the closet is either welded or locked... resist!!!
+	visible_message(
+		span_danger("[src] begins to shake violently!"),
+		span_warning("You lean on the back of [src] and start pushing the door open. (this will take about [CLOSET_BREAKOUT_TIME / 10] minutes.)")
+	)
+	INVOKE_ASYNC(src, PROC_REF(resist_async), user)
+
+
+/obj/structure/closet/secure_closet/proc/resist_async(mob/living/user)
+	if(!do_after(user, CLOSET_BREAKOUT_TIME, src))
+		return
+
+	//closet/user destroyed OR user dead/unconcious OR user no longer in closet OR closet opened
+	if(!src || !user || user.incapacitated(INC_IGNORE_RESTRAINED) || user.loc != src || opened)
+		return
+
+	//Perform the same set of checks as above for weld and lock status to determine if there is even still a point in 'resisting'...
+	if(!locked && !welded)
+		return
+
+	//Well then break it!
+	playsound(loc, SFX_SPARKS, 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+	flick_overlay_view(mutable_appearance(icon, overlay_sparking), sparking_duration)
+	broken = TRUE
+	locked = FALSE
+	welded = FALSE
+	update_appearance(UPDATE_ICON|UPDATE_DESC)
+	visible_message(
+		span_danger("[user] successfully broke out of [src]!"),
+		span_warning("You successfully break out!"),
+	)
+
+	if(istype(loc, /obj/structure/bigDelivery)) //Do this to prevent contents from being opened into nullspace (read: bluespace)
+		var/obj/structure/bigDelivery/BD = loc
+		BD.attack_hand(user)
+
+	if(isobj(loc))
+		var/obj/loc_as_obj = loc
+		loc_as_obj.container_resist(user)
+
+	open()
+
 
 /obj/structure/closet/secure_closet/screwdriver_act(mob/living/user, obj/item/I)
 	. = ..()

@@ -44,11 +44,13 @@
 			data[thing] = vars[thing]
 	return data
 
+
 /atom/deserialize(list/data)
 	for(var/thing in vars_to_save())
 		if(thing in data)
 			vars[thing] = data[thing]
 	..()
+
 
 /*
 Whoops, forgot to put documentation here.
@@ -69,12 +71,12 @@ in their list
 
 /proc/list_to_object(list/data, loc)
 	if(!islist(data))
-		CRASH("You didn't give me a list, bucko")
+		throw EXCEPTION("You didn't give me a list, bucko")
 	if(!("type" in data))
-		CRASH("No 'type' field in the data")
+		throw EXCEPTION("No 'type' field in the data")
 	var/path = text2path(data["type"])
 	if(!path)
-		CRASH("Path not found: [path]")
+		throw EXCEPTION("Path not found: [path]")
 
 	var/atom/movable/thing = new path(loc)
 	thing.deserialize(data)

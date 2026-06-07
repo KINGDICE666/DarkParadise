@@ -24,6 +24,7 @@
 			break
 		. += image(src.icon, icon_state = "[src.icon_state][I]")
 
+
 /obj/structure/noticeboard/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/paper))	//attaching papers!!
 		if(!user.drop_transfer_item_to_loc(I, src))
@@ -35,6 +36,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/structure/noticeboard/attack_hand(mob/user)
 	add_fingerprint(user)

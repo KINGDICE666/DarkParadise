@@ -1,36 +1,25 @@
 /obj/item/melee/energy
-	abstract_type = /obj/item/melee/energy
+	var/active = 0
+	var/force_on = 30 //force when active
+	var/throwforce_on = 20
+	var/faction_bonus_force = 0 //Bonus force dealt against certain factions
+	var/list/nemesis_factions //Any mob with a faction that exists in this list will take bonus damage/effects
 	stealthy_audio = TRUE //Most of these are antag weps so we dont want them to be /too/ overt.
 	w_class = WEIGHT_CLASS_SMALL
+	var/w_class_on = WEIGHT_CLASS_BULKY
+	var/icon_state_on
+	var/list/attack_verb_on = list("атаковал", "полоснул", "уколол", "поранил", "порезал")
 	hitsound = 'sound/weapons/blade1.ogg' // Probably more appropriate than the previous hitsound. -- Dave
 	usesound = 'sound/weapons/blade1.ogg'
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 30)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 30)
 	resistance_flags = FIRE_PROOF
 	item_flags = NOSHARPENING
 	light_power = 2
 	light_range = 2
 	light_system = MOVABLE_LIGHT
 	light_on = FALSE
-	heat = T3500K
-	var/active = 0
-	var/force_on = 30 //force when active
-	var/throwforce_on = 20
-	var/faction_bonus_force = 0 //Bonus force dealt against certain factions
-	var/list/nemesis_factions //Any mob with a faction that exists in this list will take bonus damage/effects
-	var/w_class_on = WEIGHT_CLASS_BULKY
-	var/icon_state_on
-	var/list/attack_verb_on = list("атаковал", "полоснул", "уколол", "поранил", "порезал")
-	var/static/alist/colormap = alist(
-		"red" = COLOR_SOFT_RED,
-		"blue" = LIGHT_COLOR_BLUE,
-		"green" = LIGHT_COLOR_GREEN,
-		"purple" = LIGHT_COLOR_PURPLE,
-		"yellow" = LIGHT_COLOR_BRIGHT_YELLOW,
-		"pink" = LIGHT_COLOR_PURPLE,
-		"orange" = LIGHT_COLOR_ORANGE,
-		"darkblue" = LIGHT_COLOR_BLUE,
-		"rainbow" = LIGHT_COLOR_DEFAULT,
-	)
+	var/colormap = list(red=COLOR_SOFT_RED, blue=LIGHT_COLOR_BLUE, green=LIGHT_COLOR_GREEN, purple=LIGHT_COLOR_PURPLE, yellow=LIGHT_COLOR_BRIGHT_YELLOW, pink =LIGHT_COLOR_PURPLE, orange =LIGHT_COLOR_ORANGE, darkblue=LIGHT_COLOR_BLUE, rainbow=LIGHT_COLOR_DEFAULT)
+
 
 /obj/item/melee/energy/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	var/nemesis_faction = FALSE
@@ -45,10 +34,12 @@
 	if(nemesis_faction)
 		force -= faction_bonus_force
 
+
 /obj/item/melee/energy/suicide_act(mob/user)
-	user.visible_message(pick(span_suicide("[user] is slitting [user.p_their()] stomach open with the [name]! It looks like [user.p_theyre()] trying to commit seppuku."), \
-						span_suicide("[user] is falling on the [name]! It looks like [user.p_theyre()] trying to commit suicide.")))
+	user.visible_message(pick("<span class='suicide'>[user] is slitting [user.p_their()] stomach open with the [name]! It looks like [user.p_theyre()] trying to commit seppuku.</span>", \
+						"<span class='suicide'>[user] is falling on the [name]! It looks like [user.p_theyre()] trying to commit suicide.</span>"))
 	return BRUTELOSS|FIRELOSS
+
 
 /obj/item/melee/energy/update_icon_state()
 	if(!active)
@@ -65,9 +56,10 @@
 		set_light_color(colormap[item_color])
 	update_equipped_item(update_speedmods = FALSE)
 
+
 /obj/item/melee/energy/attack_self(mob/living/carbon/user)
 	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
-		to_chat(user, span_warning("You accidentally cut yourself with [src], like a doofus!"))
+		to_chat(user, "<span class='warning'>You accidentally cut yourself with [src], like a doofus!</span>")
 		user.take_organ_damage(5,5)
 	active = !active
 	if(active)
@@ -77,22 +69,22 @@
 		throw_speed = 4
 		w_class = w_class_on
 		playsound(user, 'sound/weapons/saberon.ogg', 35, TRUE) //changed it from 50% volume to 35% because deafness
-		to_chat(user, span_notice("[src] is now active."))
+		to_chat(user, "<span class='notice'>[src] is now active.</span>")
 	else
 		force = initial(force)
 		throwforce = initial(throwforce)
 		hitsound = initial(hitsound)
 		throw_speed = initial(throw_speed)
-		if(length(attack_verb_on))
+		if(attack_verb_on.len)
 			attack_verb = list()
 		w_class = initial(w_class)
 		playsound(user, 'sound/weapons/saberoff.ogg', 35, TRUE)  //changed it from 50% volume to 35% because deafness
-		to_chat(user, span_notice("[src] can now be concealed."))
+		to_chat(user, "<span class='notice'>[src] can now be concealed.</span>")
 	add_fingerprint(user)
 	update_icon(UPDATE_ICON_STATE)
 
-/obj/item/melee/energy/get_temperature()
-	return active * heat
+/obj/item/melee/energy/get_heat()
+	return active * 3500
 
 /obj/item/melee/energy/axe
 	name = "energy axe"
@@ -123,7 +115,7 @@
 	)
 
 /obj/item/melee/energy/axe/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] swings the [name] towards [user.p_their()] head! It looks like [user.p_theyre()] trying to commit suicide."))
+	user.visible_message("<span class='suicide'>[user] swings the [name] towards [user.p_their()] head! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	return BRUTELOSS|FIRELOSS
 
 /obj/item/melee/energy/sword
@@ -134,7 +126,7 @@
 	throwforce = 5
 	throw_speed = 3
 	throw_range = 5
-	hitsound = SFX_SWING_HIT
+	hitsound = "swing_hit"
 	embed_chance = 75
 	embedded_impact_pain_multiplier = 10
 	armour_penetration = 35
@@ -151,8 +143,8 @@
 		swing_sound = SFX_ENERGY_SWORD_SWING \
 	)
 
-/obj/item/melee/energy/sword/Initialize(mapload)
-	. = ..()
+/obj/item/melee/energy/sword/New()
+	..()
 	if(item_color == null)
 		item_color = pick("red", "blue", "green", "purple", "yellow", "pink", "darkblue", "orange")
 
@@ -164,6 +156,7 @@
 /obj/item/melee/energy/sword/cyborg
 	var/hitcost = 50
 
+
 /obj/item/melee/energy/sword/cyborg/attack(mob/living/target, mob/living/silicon/robot/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!user.cell)
 		return ATTACK_CHAIN_PROCEED
@@ -172,6 +165,7 @@
 		to_chat(user, span_warning("It's out of charge!"))
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/item/melee/energy/sword/cyborg/saw //Used by medical Syndicate cyborgs
 	name = "energy saw"
@@ -186,8 +180,8 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	tool_behaviour = TOOL_SAW
 
-/obj/item/melee/energy/sword/cyborg/saw/Initialize(mapload)
-	. = ..()
+/obj/item/melee/energy/sword/cyborg/saw/New()
+	..()
 	item_color = null
 
 /obj/item/melee/energy/sword/cyborg/saw/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
@@ -219,6 +213,7 @@
 /obj/item/melee/energy/sword/saber/yellow
 	item_color = "yellow"
 
+
 /obj/item/melee/energy/sword/saber/attackby(obj/item/I, mob/living/user, params)
 	if(istype(I, /obj/item/melee/energy/sword/saber))
 		add_fingerprint(user)
@@ -243,6 +238,7 @@
 
 	return ..()
 
+
 /obj/item/melee/energy/sword/saber/multitool_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(hacked)
@@ -254,6 +250,7 @@
 	item_color = "rainbow"
 	to_chat(user, span_warning("RNBW_ENGAGE"))
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/melee/energy/sword/saber/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(!active)
@@ -271,6 +268,7 @@
 		add_attack_logs(P.firer, src, "hit by [P.type] but got parried by [src]")
 		return -1
 	return TRUE
+
 
 /obj/item/melee/energy/sword/pirate
 	name = "energy cutlass"
@@ -358,7 +356,7 @@
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		if(HAS_TRAIT(H, TRAIT_CLUMSY) && prob(50))
-			to_chat(H, span_warning("You accidentally cut yourself with [src], like a doofus!"))
+			to_chat(H, "<span class='warning'>You accidentally cut yourself with [src], like a doofus!</span>")
 			H.take_organ_damage(10,10)
 	active = !active
 	if(active)
@@ -366,21 +364,21 @@
 		throwforce = throwforce_on
 		hitsound = 'sound/weapons/bladeslice.ogg'
 		throw_speed = 4
-		if(length(attack_verb_on))
+		if(attack_verb_on.len)
 			attack_verb = attack_verb_on
 		w_class = w_class_on
 		playsound(user, 'sound/magic/fellowship_armory.ogg', 35, TRUE, frequency = 90000 - (active * 30000))
-		to_chat(user, span_notice("You open [src]. It will now cleave enemies in a wide arc and deal additional damage to fauna."))
+		to_chat(user, "<span class='notice'>You open [src]. It will now cleave enemies in a wide arc and deal additional damage to fauna.</span>")
 	else
 		force = initial(force)
 		throwforce = initial(throwforce)
 		hitsound = initial(hitsound)
 		throw_speed = initial(throw_speed)
-		if(length(attack_verb_on))
+		if(attack_verb_on.len)
 			attack_verb = list()
 		w_class = initial(w_class)
 		playsound(user, 'sound/magic/fellowship_armory.ogg', 35, TRUE)  //changed it from 50% volume to 35% because deafness
-		to_chat(user, span_notice("You close [src]. It will now attack rapidly and cause fauna to bleed."))
+		to_chat(user, "<span class='notice'>You close [src]. It will now attack rapidly and cause fauna to bleed.</span>")
 	update_icon(UPDATE_ICON_STATE)
 	add_fingerprint(user)
 
@@ -391,12 +389,13 @@
 	Transforming it immediately after an attack causes the next attack to come out faster.</span>"
 
 /obj/item/melee/energy/cleaving_saw/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] is [active ? "closing [src] on [user.p_their()] neck" : "opening [src] into [user.p_their()] chest"]! It looks like [user.p_theyre()] trying to commit suicide!"))
+	user.visible_message("<span class='suicide'>[user] is [active ? "closing [src] on [user.p_their()] neck" : "opening [src] into [user.p_their()] chest"]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	transform_cooldown = 0
 	transform_weapon(user, TRUE)
 	return BRUTELOSS
 
-/obj/item/melee/energy/cleaving_saw/attack(mob/living/target, mob/living/user, list/modifiers, def_zone, skip_attack_anim = FALSE)
+
+/obj/item/melee/energy/cleaving_saw/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	var/turf/user_turf = get_turf(user)
 	var/turf/target_turf = get_turf(target)
 	if(!active || swiping || user_turf == target_turf)
@@ -415,7 +414,7 @@
 		var/turf/check_turf = get_step(user_turf, turn(dir_to_target, i))
 		for(var/mob/living/mob in check_turf)
 			if(user.Adjacent(mob) && mob.body_position == STANDING_UP)
-				melee_attack_chain(user, mob, modifiers)
+				melee_attack_chain(user, mob, params)
 	swiping = FALSE
 	return ATTACK_CHAIN_BLOCKED_ALL
 

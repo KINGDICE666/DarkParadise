@@ -24,6 +24,7 @@
 		/obj/item/implant
 	)
 
+
 /datum/spell_targeting/matter_eater/choose_targets(mob/user, obj/effect/proc_holder/spell/spell, params, atom/clicked_atom)
 	var/list/possible_targets = list()
 

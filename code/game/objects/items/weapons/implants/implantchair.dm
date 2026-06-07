@@ -5,7 +5,6 @@
 	icon_state = "implantchair"
 	density = TRUE
 	anchored = TRUE
-	interaction_flags_mouse_drop = NEED_DEXTERITY
 	var/max_implants = 5
 	var/injection_cooldown = 30 SECONDS
 	var/replenish_cooldown = 10 MINUTES
@@ -13,14 +12,17 @@
 	var/list/implants_list
 	var/mob/living/carbon/human/occupant
 
+
 /obj/machinery/implantchair/Initialize(mapload)
 	. = ..()
 	add_implants()
+
 
 /obj/machinery/implantchair/Destroy()
 	if(occupant)
 		go_out()
 	return ..()
+
 
 /obj/machinery/implantchair/proc/add_implants()
 	LAZYINITLIST(implants_list)
@@ -30,8 +32,10 @@
 			var/obj/item/implant/mindshield/bio_chip = new(src)
 			LAZYADD(implants_list, bio_chip)
 
+
 /obj/machinery/implantchair/update_icon_state()
 	icon_state = "implantchair[occupant ? "_on" : ""]"
+
 
 /obj/machinery/implantchair/attack_hand(mob/user)
 	add_fingerprint(user)
@@ -66,11 +70,13 @@
 	popup.open(TRUE)
 	onclose(user, "implant")
 
+
 /obj/machinery/implantchair/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	. = TRUE
 	if(grabber.grab_state < GRAB_AGGRESSIVE)
 		return .
 	put_mob(grabbed_thing, grabber)
+
 
 /obj/machinery/implantchair/Topic(href, href_list)
 	if(..())
@@ -90,6 +96,7 @@
 
 	updateUsrDialog()
 
+
 /obj/machinery/implantchair/proc/on_cooldown_finish(replenish = FALSE)
 	playsound(loc, 'sound/machines/ping.ogg', 50, TRUE)
 	visible_message(span_notice("[src] is ready to implant."))
@@ -97,6 +104,7 @@
 		add_implants()
 	cooldown_timer = null
 	updateUsrDialog()
+
 
 /obj/machinery/implantchair/proc/implant(mob/living/carbon/human/target)
 	if(!ishuman(target))
@@ -111,8 +119,10 @@
 			return TRUE
 	return FALSE
 
-/obj/machinery/implantchair/mouse_drop_receive(mob/living/carbon/human/dropping, mob/living/user, params)
+
+/obj/machinery/implantchair/MouseDrop_T(mob/living/carbon/human/dropping, mob/living/user, params)
 	return put_mob(dropping, user)
+
 
 /obj/machinery/implantchair/proc/put_mob(mob/living/carbon/human/target, mob/living/user)
 	if(!put_mob_check(target, user))
@@ -124,6 +134,7 @@
 	update_icon(UPDATE_ICON_STATE)
 	updateUsrDialog()
 	return TRUE
+
 
 /obj/machinery/implantchair/proc/put_mob_check(mob/living/carbon/human/target, mob/living/user)
 	if(stat & (NOPOWER|BROKEN))
@@ -151,6 +162,7 @@
 		return FALSE
 	return TRUE
 
+
 /obj/machinery/implantchair/proc/go_out(mob/living/carbon/human/user)
 	if(!occupant)
 		return FALSE
@@ -164,15 +176,17 @@
 	update_icon(UPDATE_ICON_STATE)
 	return TRUE
 
+
 /obj/machinery/implantchair/verb/get_out()
 	set name = "Извлечь сидящего"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 	go_out(usr)
 
+
 /obj/machinery/implantchair/verb/move_inside()
 	set name = "Залезть внутрь"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 	put_mob(usr, usr)
 

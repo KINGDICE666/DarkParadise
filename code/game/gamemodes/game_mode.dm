@@ -1,9 +1,3 @@
-/// Amount of time after the rounds starts, that the player disconnect report is issued.
-#define ROUNDSTART_LOGOUT_REPORT_TIME (10 MINUTES)
-
-/// The number of station goals generated each round.
-#define STATION_GOAL_BUDGET 1
-
 /*
  * GAMEMODES (by Rastaf0)
  *
@@ -58,6 +52,7 @@
 	var/list/datum/mind/headslugs = list()
 	var/list/datum/mind/deathsquad = list()
 	var/list/datum/mind/honksquad = list()
+	var/list/datum/mind/heretics = list()
 	var/list/datum/mind/sst = list()
 	var/list/datum/mind/sit = list()
 	var/list/datum/mind/victims = list()	//Свободные жертвы PREVENT/ASSASINATE целей для PROTECT (или не повтора целей)
@@ -158,15 +153,16 @@
 
 	/// List of of blobs, their offsprings and blobburnouts spawned by them
 	var/list/blobs = list(
-		BLOB_GROUP_INFECTED = list(),
-		BLOB_GROUP_OFFSPRINGS = list(),
-		BLOB_GROUP_MINIONS = list()
+		"infected" = list(),
+		"offsprings" = list(),
+		"minions" = list()
 	)
 	/// Count of blob tiles to blob win
 	var/blob_win_count = BLOB_BASE_TARGET_POINT
 	/// Number of resource produced by the core
 	var/blob_point_rate = 3
-
+	/// Number of bursted blob infected
+	var/bursted_blobs_count = 0
 	/// Total blob submode stage
 	var/blob_stage = BLOB_STAGE_NONE
 	/// The need to delay the end of the game when the blob wins
@@ -227,11 +223,13 @@
 
 	return FALSE
 
+
 /**
  * Attempts to select players for special roles the mode might have.
  */
 /datum/game_mode/proc/pre_setup()
 	return TRUE
+
 
 /**
  * Everyone should now be on the station and have their normal gear. This is the place to give the special roles extra things.
@@ -245,10 +243,10 @@
 
 	SScargo_quests.roll_start_quests()
 	generate_station_goals()
-	generate_traits_list()
 	GLOB.start_state = new /datum/station_state()
 	GLOB.start_state.count()
 	return TRUE
+
 
 /datum/game_mode/proc/set_mode_in_db()	// I wonder what this could do guessing by the name
 	if(SSticker?.mode && SSdbcore.IsConnected())
@@ -260,11 +258,13 @@
 		query_round_game_mode.warn_execute()
 		qdel(query_round_game_mode)
 
+
 /**
  * Called by the gameticker.
  */
 /datum/game_mode/process(wait)
 	return PROCESS_KILL
+
 
 /**
  * Called by the gameticker.
@@ -319,6 +319,7 @@
 						messenger.notify("<b>Message from [command_name()] (Payroll), </b>\"[msg]\" (<i>Unable to Reply</i>)", 0)
 					break
 
+
 /**
  * Check to be called by ticker
  */
@@ -328,11 +329,13 @@
 
 	return FALSE
 
+
 /**
  * This is called when the round has ended but not the game, if any cleanup would be necessary in that case.
  */
 /datum/game_mode/proc/cleanup()
 	return
+
 
 /datum/game_mode/proc/declare_completion()
 	var/clients = 0
@@ -411,7 +414,7 @@
 	if(escaped_on_pod_5)
 		SSblackbox.record_feedback("nested tally", "round_end_stats", escaped_on_pod_5, list("escapees", "on_pod_5"))
 
-	GLOB.discord_manager.send2discord_simple(DISCORD_WEBHOOK_PRIMARY, "A round of [name] has ended - [surviving_total] survivors, [ghosts] ghosts. Round ID - [GLOB.round_id]. Duration - [ROUND_TIME_TEXT()]")
+	SSdiscord.send2discord_simple(DISCORD_WEBHOOK_PRIMARY, "A round of [name] has ended - [surviving_total] survivors, [ghosts] ghosts. Round ID - [GLOB.round_id]. Duration - [ROUND_TIME_TEXT()]")
 
 	if(!SSredis.connected)
 		return FALSE
@@ -436,6 +439,7 @@
 	SSredis.publish("byond.system", json_encode(presence_data_2))
 
 	return FALSE
+
 
 /**
  * Returns a list of player minds who had the antagonist role set to yes, regardless of recomended_enemies.
@@ -527,6 +531,7 @@
 			continue
 		. += AI.mind
 
+
 /// All the checks required to find baseline human being
 /proc/is_player_station_relevant(mob/living/carbon/human/player)
 	if(QDELING(player))
@@ -554,8 +559,10 @@
 		return FALSE
 	return TRUE	// congratulations, you are normal!
 
+
 /datum/game_mode/proc/latespawn(mob/player)
 	return
+
 
 /datum/game_mode/proc/num_players()
 	. = 0
@@ -563,17 +570,20 @@
 		if(player.client && player.ready)
 			.++
 
+
 /proc/num_station_players()
 	. = 0
 	for(var/mob/living/carbon/human/player in GLOB.player_list)
 		if(is_player_station_relevant(player))
 			.++
 
+
 /datum/game_mode/proc/num_players_started()
 	. = 0
 	for(var/mob/living/carbon/human/player in GLOB.player_list)
 		if(player.client)
 			.++
+
 
 /**
  * Keeps track of all living heads.
@@ -586,6 +596,7 @@
 		var/list/real_command_positions = GLOB.command_positions.Copy() - JOB_TITLE_REPRESENTATIVE
 		if(player.stat != DEAD && player.mind && (player.mind.assigned_role in real_command_positions))
 			. |= player.mind
+
 
 /**
  * Keeps track of all heads.
@@ -601,6 +612,7 @@
 		if(player.mind && (player.mind.assigned_role in real_command_positions))
 			. |= player.mind
 
+
 /**
  * Keeps track of all living security members.
  */
@@ -611,6 +623,7 @@
 
 		if(player.stat != DEAD && player.mind && (player.mind.assigned_role in GLOB.security_positions))
 			. |= player.mind
+
 
 /**
  * Keeps track of all  security members.
@@ -625,17 +638,20 @@
 		if(player.mind && (player.mind.assigned_role in GLOB.security_positions))
 			. |= player.mind
 
+
 /datum/game_mode/proc/check_antagonists_topic(href, href_list[])
 	return FALSE
 
+
 /datum/game_mode/New()
 	newscaster_announcements = pick(GLOB.newscaster_standard_feeds)
+
 
 /**
  * Reports player logouts.
  */
 /proc/display_roundstart_logout_report()
-	var/msg = "[span_notice("Roundstart logout report")]\n\n"
+	var/msg = "<span class='notice'>Roundstart logout report</span>\n\n"
 	for(var/mob/living/mob_living in GLOB.mob_list)
 
 		if(mob_living.ckey)
@@ -646,6 +662,7 @@
 					break
 			if(!found)
 				msg += "<b>[mob_living.name]</b> ([mob_living.ckey]), the [mob_living.job] (<font color='#ffcc00'><b>Disconnected</b></font>)\n"
+
 
 		if(mob_living.ckey && mob_living.client)
 			if(mob_living.client.inactivity >= (ROUNDSTART_LOGOUT_REPORT_TIME / 2))	//Connected, but inactive (alt+tabbed or something)
@@ -696,6 +713,7 @@
 		if(check_rights(R_ADMIN, FALSE, mob))
 			to_chat(mob, msg)
 
+
 /**
  * Announces objectives/generic antag text.
  */
@@ -708,6 +726,7 @@
 		Think through your actions and make the roleplay immersive! <b>Please remember all \
 		rules aside from those without explicit exceptions apply to antagonists.</b>")
 
+
 /proc/show_objectives(datum/mind/player)
 	if(!player?.current)
 		return
@@ -718,8 +737,10 @@
 		to_chat(player.current, "<b>Objective #[obj_count]</b>: [objective.explanation_text]")
 		obj_count++
 
+
 /proc/get_nuke_code()
 	return GLOB.nuke_codes[/obj/machinery/nuclearbomb]
+
 
 /proc/get_nuke_status()
 	var/nuke_status = NUKE_MISSING
@@ -730,12 +751,9 @@
 				nuke_status = NUKE_STATUS_INTACT
 	return nuke_status
 
+
 /datum/game_mode/proc/replace_jobbanned_player(mob/living/player, role_type)
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Do you want to play as a [role_type]?", role_type, FALSE, 10 SECONDS)
-
-	if(QDELETED(player))
-		return
-
 	var/mob/dead/observer/theghost = null
 	if(length(candidates))
 		theghost = pick(candidates)
@@ -743,7 +761,7 @@
 		message_admins("[key_name_admin(theghost)] has taken control of ([key_name_admin(player)]) to replace a jobbanned player.")
 		log_game("[theghost.key] has taken control of ([player.key]) to replace a jobbanned for [role_type] player.")
 		player.ghostize()
-		player.possess_by_player(theghost.key)
+		player.key = theghost.key
 	else
 		log_game("[player] ([player.key] has been converted into [role_type] with an active antagonist jobban for said role since no ghost has volunteered to take player's place.")
 		message_admins("[player] ([player.key] has been converted into [role_type] with an active antagonist jobban for said role since no ghost has volunteered to take [player.p_their()] place.")
@@ -754,28 +772,29 @@
 	if(player.assigned_role)
 		jobtext = " the <b>[player.assigned_role]</b>"
 
-	var/text = "<b>[player.get_mind_key()]</b> was <b>[player.name]</b>[jobtext] and"
+	var/text = "<b>[player.get_display_key()]</b> was <b>[player.name]</b>[jobtext] and"
 	if(player.current)
 		if(player.current.stat == DEAD)
-			text += " [span_redtext("died")]"
+			text += " <span class='redtext'>died</span>"
 		else
-			text += " [span_greentext("survived")]"
+			text += " <span class='greentext'>survived</span>"
 
 		if(flee_check)
 			var/turf/player_turf = get_turf(player.current)
 			if(!player_turf || !is_station_level(player_turf.z))
-				text += " while [span_redtext("fleeing the station")]"
+				text += " while <span class='redtext'>fleeing the station</span>"
 
 		if(player.current.real_name != player.name)
 			text += " as <b>[player.current.real_name]</b>"
 
 	else
-		text += " [span_redtext("had [player.p_their()] body destroyed")]"
+		text += " <span class='redtext'>had [player.p_their()] body destroyed</span>"
 
 	return text
 
+
 /proc/printeventplayer(datum/mind/player)
-	var/text = "<b>[player.get_mind_key()]</b> was <b>[player.name]</b>"
+	var/text = "<b>[player.get_display_key()]</b> was <b>[player.name]</b>"
 	if(player.special_role != SPECIAL_ROLE_EVENTMISC)
 		text += " the [player.special_role]"
 
@@ -792,6 +811,7 @@
 
 	return text
 
+
 /proc/printobjectives(datum/mind/player)
 	var/list/objective_parts = list()
 
@@ -805,6 +825,7 @@
 
 	return objective_parts.Join("<br>")
 
+
 /datum/game_mode/proc/generate_station_goals()
 	var/list/possible = list()
 
@@ -816,9 +837,7 @@
 		if(!goal.can_gain())
 			continue
 
-		#ifndef UNIT_TESTS
 		possible += goal
-		#endif
 
 	var/goal_weights = 0
 	while(length(possible) && goal_weights < STATION_GOAL_BUDGET)
@@ -828,6 +847,7 @@
 
 	if(length(station_goals))
 		send_station_goals_message()
+
 
 /datum/game_mode/proc/send_station_goals_message()
 
@@ -844,6 +864,7 @@
 
 	log_game("Station goals at round start were: [english_list(goals)].")
 
+
 /datum/game_mode/proc/declare_station_goal_completion()
 	for(var/datum/station_goal/goal in station_goals)
 		if(!goal)
@@ -851,10 +872,12 @@
 
 		goal.print_result()
 
+
 /datum/game_mode/proc/update_eventmisc_icons_added(datum/mind/mob_mind)
 	var/datum/atom_hud/antag/antaghud = GLOB.huds[ANTAG_HUD_EVENTMISC]
 	antaghud.join_hud(mob_mind.current)
 	set_antag_hud(mob_mind.current, "hudevent")
+
 
 /datum/game_mode/proc/update_eventmisc_icons_removed(datum/mind/mob_mind)
 	var/datum/atom_hud/antag/antaghud = GLOB.huds[ANTAG_HUD_EVENTMISC]
@@ -885,39 +908,37 @@
 	. += auto_declare_completion_goon_enthralled()
 	. += auto_declare_completion_devil()
 	. += auto_declare_completion_sintouched()
-	list_clear_nulls(.)
+	. += auto_declare_completion_heretic()
+	listclearnulls(.)
 
-/datum/game_mode/proc/apocalypse_cinema(obj/god/god, inevitable = FALSE)
-	if(istype(god, /obj/god/narsie))
+/datum/game_mode/proc/apocalypse_cinema(obj/singularity/god/god, inevitable = FALSE)
+	if(istype(god, /obj/singularity/god/narsie))
 		return SSticker.cultdat.apocalypse_cinema
 
-	if(istype(god, /obj/god/ratvar))
+	if(istype(god, /obj/singularity/god/ratvar))
 		return /datum/cinematic/cult_arm_ratvar
 
 	return FALSE
 
-/datum/game_mode/proc/apocalypse(god_name)
-	GLOB.major_announcement.announce(
-		message = "Обнаружена вторжение внепространственного бога по имени [god_name]. Помощь и инструкции по противодействию будут направлены в ближайшее время. Всему лояльному экипажу — не допустить распространения угрозы.",
-		new_title = ANNOUNCE_CCPARANORMAL_RU,
-		new_sound = SSstation.announcer.get_rand_report_sound()
+/datum/game_mode/proc/apocalypse()
+	SSsecurity_level.set_level(SEC_LEVEL_DELTA)
+	GLOB.major_announcement.announce("Обнаружена угроза класса \"Разрушитель миров\". Моделирование пути противостояния угрозе начато, ожидайте.",
+									ANNOUNCE_CCPARANORMAL_RU,
+									'sound/AI/commandreport.ogg'
 	)
 	sleep(50 SECONDS)
-	SSsecurity_level.set_level(SEC_LEVEL_DELTA)
-	GLOB.major_announcement.announce(
-		message = "Помощь в пути. Всему лояльному экипажу следует закрепиться на текущих позициях и ожидать прибытия подкрепления.",
-		new_title = ANNOUNCE_CCPARANORMAL_RU,
-		new_sound = SSstation.announcer.get_rand_report_sound()
+	GLOB.major_announcement.announce("Моделирование завершено. Всему живому персоналу: не допустите усиления угрозы любой ценой. Меры будут приняты в ближайшее время.",
+									ANNOUNCE_CCPARANORMAL_RU,
+									'sound/AI/commandreport.ogg'
 	)
 	sleep(30 SECONDS)
 
-	var/obj/god/god = locate(/obj/god) in GLOB.poi_list
+	var/obj/singularity/god/god = locate(/obj/singularity/god) in GLOB.poi_list
 
 	if(!god)
-		GLOB.minor_announcement.announce(
-			message = "Сенсоры более не фиксируют признаков угрозы. Санкционирована экстренная эвакуация.",
-			new_title = ANNOUNCE_CCPARANORMAL_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound()
+		GLOB.minor_announcement.announce("Угроза пропала с наших сенсоров. Санкционирована экстренная эвакуация.",
+										ANNOUNCE_CCPARANORMAL_RU,
+										'sound/AI/commandreport.ogg'
 		)
 		SSshuttle.emergency.request(null, 0.3)
 		SSshuttle.emergency.canRecall = FALSE
@@ -964,20 +985,3 @@
 
 /datum/game_mode/proc/late_join(mob/new_player/player)
 	return FALSE
-
-/datum/game_mode/proc/generate_traits_list()
-	var/message_text = "<div style='text-align:center;'><img src = ntlogo.png>"
-
-	var/list/trait_list_strings = list()
-	for(var/datum/station_trait/station_trait as anything in SSstation.station_traits)
-		if(!station_trait.show_in_report)
-			continue
-		trait_list_strings += "[station_trait.get_report()]<br>"
-	if(trait_list_strings.len > 0)
-		message_text += "<hr><b>Выявленные особенности текущей смены:</b><br>" + trait_list_strings.Join()
-	else
-		message_text += "<hr><b>Аномальных особенностей текущей смены не обнаружено.</b><br>"
-	print_command_report(message_text, "Информация о состоянии станции", FALSE)
-
-#undef ROUNDSTART_LOGOUT_REPORT_TIME
-#undef STATION_GOAL_BUDGET

@@ -7,10 +7,11 @@
 		return ..()
 
 	put_in_active_hand(AM)
-	visible_message(span_warning("[src] лов[PLUR_IT_YAT(src)] [AM.declent_ru(ACCUSATIVE)]."))
+	visible_message(span_warning("[src] лов[pluralize_ru(gender, "ит", "ят")] [AM.declent_ru(ACCUSATIVE)]."))
 	throw_mode_off()
 	SEND_SIGNAL(src, COMSIG_CARBON_THROWN_ITEM_CAUGHT, AM)
 	return TRUE
+
 
 /**
  * Individual check for items to skip catching.
@@ -31,10 +32,12 @@
 		return .
 	. = FALSE
 
+
 /mob/living/carbon/water_act(volume, temperature, source, method = REAGENT_TOUCH)
 	. = ..()
 	if(volume > 10) // Anything over 10 volume will make the mob wetter.
 		wetlevel = min(wetlevel + 1,5)
+
 
 /mob/living/carbon/attackby(obj/item/I, mob/user, params)
 	if(!length(surgeries) || user.a_intent != INTENT_HELP)
@@ -45,6 +48,7 @@
 			return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /mob/living/carbon/attack_hand(mob/living/carbon/human/user)
 	if(!iscarbon(user))
@@ -61,7 +65,7 @@
 		if(V.spread_flags & CONTACT)
 			V.Contract(src, act_type = CONTACT, need_protection_check = TRUE, zone = user.zone_selected)
 
-	if(body_position == LYING_DOWN && length(surgeries))
+	if(body_position == LYING_DOWN && surgeries.len)
 		if(user.a_intent == INTENT_HELP)
 			for(var/datum/surgery/S in surgeries)
 				if(S.next_step(user, src))
@@ -76,15 +80,17 @@
 				M.powerlevel -= 3
 				if(M.powerlevel < 0)
 					M.powerlevel = 0
-				visible_message(span_danger("[M.name] шокиру[PLUR_ET_YUT(M)] [src]!"), \
-				span_userdanger("[M.name] шокиру[PLUR_ET_YUT(M)] вас!"))
+
+				visible_message(span_danger("[M.name] шокиру[pluralize_ru(M.gender, "ет", "ют")] [src]!"), \
+				span_userdanger("[M.name] шокиру[pluralize_ru(M.gender, "ет", "ют")] вас!"))
+
 				do_sparks(5, TRUE, src)
 				var/power = (M.powerlevel + rand(0,3)) STATUS_EFFECT_CONSTANT
-				Knockdown(power)
+				Stun(power)
 				Stuttering(power)
 				if(prob(stunprob) && M.powerlevel >= 8)
 					adjustFireLoss(M.powerlevel * rand(6, 6 + M.age_state.damage))
-		return TRUE
+		return 1
 
 /mob/living/carbon/is_mouth_covered(head_only = FALSE, mask_only = FALSE)
 	if((!mask_only && head && (head.flags_cover & HEADCOVERSMOUTH)) || (!head_only && wear_mask && (wear_mask.flags_cover & MASKCOVERSMOUTH)))
@@ -99,14 +105,3 @@
 	if(!affecting) //bruh where's your chest
 		return FALSE
 	apply_damage(damage, BRUTE, affecting)
-
-/mob/living/carbon/bullet_act(obj/projectile/proj, def_zone)
-	//Armor
-	var/armor = run_armor_check(def_zone, proj.flag, armour_penetration = proj.armour_penetration)
-	if(!proj.nodamage && !QDELETED(src))
-		apply_damage(proj.damage, proj.damage_type, def_zone, armor)
-		if(proj.damage_type == BRUTE && (!armor || prob(30) || proj.damage - armor >= 25))
-			spray_blood(get_dir(proj.starting, src), min(rand(1, max(1, floor((proj.damage - armor) / 10))), 5))
-		if(proj.dismemberment)
-			check_projectile_dismemberment(proj, def_zone)
-	return proj.on_hit(src, armor, def_zone)

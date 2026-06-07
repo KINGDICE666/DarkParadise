@@ -115,6 +115,7 @@
 	var/obj/machinery/abductor/console/console = target
 	console.FlipVest()
 
+
 /datum/action/innate/vest_disguise_swap
 	name = "Switch Vest Disguise"
 	button_icon_state = "vest_disguise"

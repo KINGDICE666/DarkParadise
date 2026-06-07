@@ -32,6 +32,7 @@
 	ADD_TRAIT(src, TRAIT_NEGATES_GRAVITY, INNATE_TRAIT)
 	update_health_hud()
 
+
 /mob/living/simple_animal/hostile/blob_minion/blobbernaut/experience_pressure_difference(pressure_difference, direction)
 	if(!HAS_TRAIT(src, TRAIT_NEGATES_GRAVITY))
 		return ..()
@@ -89,7 +90,7 @@
 
 /// Called by the blob creation power to give us a mind and a basic task orientation
 /mob/living/simple_animal/hostile/blob_minion/blobbernaut/minion/proc/assign_key(ckey, datum/blobstrain/blobstrain)
-	possess_by_player(ckey)
+	key = ckey
 	flick("blobbernaut_produce", src)
 	SEND_SOUND(src, sound('sound/effects/blobattack.ogg'))
 	SEND_SOUND(src, sound('sound/effects/attackblob.ogg'))

@@ -1,4 +1,4 @@
-#define HI_MINPLAYERS_TRIGGER 30
+#define HI_MINPLAYERS_TRIGGER 59
 #define GAMEMODE_IS_SHADOWLING (SSticker && istype(SSticker.mode, /datum/game_mode/shadowling))
 #define GAMEMODE_IS_CULTS (SSticker && (istype(SSticker.mode, /datum/game_mode/cult) || istype(SSticker.mode, /datum/game_mode/clockwork)))
 
@@ -13,10 +13,9 @@
 
 /datum/event/headslug_infestation/announce(false_alarm)
 	if(successSpawn || false_alarm)
-		GLOB.major_announcement.announce(
-			message = "Обнаружены неопознанные формы жизни на борту [station_name()]. Обезопасьте все наружные входы и выходы, включая вентиляцию и вытяжки.",
-			new_title = ANNOUNCE_UNID_LIFEFORMS_RU,
-			new_sound = ANNOUNCER_ALIENS,
+		GLOB.major_announcement.announce("Обнаружены неопознанные формы жизни на борту [station_name()]. Обезопасьте все наружные входы и выходы, включая вентиляцию и вытяжки.",
+										ANNOUNCE_UNID_LIFEFORMS_RU,
+										'sound/AI/aliens.ogg'
 		)
 	else
 		log_and_message_admins("Warning: Could not spawn any mobs for event Headslug Infestation")
@@ -32,6 +31,7 @@
 		EC.next_event_time = world.time + (60 * 10)
 		return
 
+
 	var/list/candidates = SSghost_spawns.poll_candidates("Вы хотите сыграть за Хедслага?", ROLE_CHANGELING, TRUE, source = /mob/living/simple_animal/hostile/headslug/evented)
 	while(spawncount && length(vents) && length(candidates))
 		var/obj/vent = pick_n_take(vents)
@@ -39,7 +39,7 @@
 		if(C)
 			GLOB.respawnable_list -= C
 			var/mob/living/simple_animal/hostile/headslug/evented/new_slug = new(vent.loc)
-			new_slug.possess_by_player(C.key)
+			new_slug.key = C.key
 			new_slug.make_slug_antag() //give objective and plays coolsound
 			new_slug.move_into_vent(vent, FALSE)
 			spawncount--
@@ -47,8 +47,9 @@
 			log_game("[new_slug.key] has become Changeling Headslug.")
 
 /datum/event/headslug_infestation/proc/eventcheck()
-	if((num_station_players() <= HI_MINPLAYERS_TRIGGER) || GAMEMODE_IS_CULTS || GAMEMODE_IS_NUCLEAR || GAMEMODE_IS_SHADOWLING)
+	if((num_station_players() <= HI_MINPLAYERS_TRIGGER) ||GAMEMODE_IS_CULTS || GAMEMODE_IS_NUCLEAR || GAMEMODE_IS_SHADOWLING)
 		return TRUE
+
 
 #undef GAMEMODE_IS_CULTS
 #undef GAMEMODE_IS_SHADOWLING

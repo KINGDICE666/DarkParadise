@@ -5,8 +5,10 @@
 		return
 	interact(user)
 
+
 /obj/machinery/computer/library/public/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I)
+
 
 /obj/machinery/computer/library/public/interact(mob/user)
 	if(interact_check(user))
@@ -49,7 +51,7 @@
 						<td>[CB.title]</td>
 						<td>[CB.category]</td>
 						<td>[CB.id]</td>
-						<td><a href="byond://?src=[UID()];flag=[CB.id]">\[Flag[CB.flagged ? "ged" : ""]\]</a></td>
+						<td><A href="byond://?src=[UID()];flag=[CB.id]">\[Flag[CB.flagged ? "ged" : ""]\]</a></td>
 					</tr>"}
 
 				dat += "</table><br />[pagelist]"
@@ -79,7 +81,7 @@
 		else
 			query.title = null
 	if(href_list["setcategory"])
-		var/newcategory = tgui_input_list(usr, "Choose a category to search for:", "Select category", (list("Any") + GLOB.library_section_names))
+		var/newcategory = tgui_input_list(usr, "Choose a category to search for:", (list("Any") + GLOB.library_section_names))
 		if(newcategory == "Any")
 			query.category = null
 		else if(newcategory)
@@ -99,7 +101,7 @@
 
 	if(href_list["search"])
 		num_results = src.get_num_results()
-		num_pages = ceil(num_results/LIBRARY_BOOKS_PER_PAGE)
+		num_pages = CEILING(num_results/LIBRARY_BOOKS_PER_PAGE, 1)
 		page_num = 1
 
 		screenstate = 1

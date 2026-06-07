@@ -11,6 +11,7 @@
 /obj/item/forensics/swab/proc/is_used()
 	return used
 
+
 /obj/item/forensics/swab/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!ishuman(target))
 		return ..()
@@ -78,33 +79,35 @@
 		swab.gsr = target_gsr
 		swab.set_used(sample_type, target)
 
-/obj/item/forensics/swab/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag || istype(proximity_flag, /obj/machinery/dnaforensics))
+
+/obj/item/forensics/swab/afterattack(atom/A, mob/user, proximity, params)
+
+	if(!proximity || istype(A, /obj/machinery/dnaforensics))
 		return
 
-	if(isliving(target))
+	if(isliving(A))
 		return
 
 	if(is_used())
-		to_chat(user, span_warning("This swab has already been used."))
+		to_chat(user, "<span class='warning'>This swab has already been used.</span>")
 		return
 
 	add_fingerprint(user)
 	inuse = 1
-	to_chat(user, span_notice("You begin collecting evidence."))
+	to_chat(user, "<span class='notice'>You begin collecting evidence.</span>")
 	if(do_after(user, 2 SECONDS, src))
 		var/list/choices = list()
-		if(target.blood_DNA)
+		if(A.blood_DNA)
 			choices |= "Blood"
-		if(isclothing(target))
+		if(isclothing(A))
 			choices |= "Gunshot Residue"
 
 		var/choice
-		if(!length(choices))
-			to_chat(user, span_warning("There is no evidence on \the [target]."))
+		if(!choices.len)
+			to_chat(user, "<span class='warning'>There is no evidence on \the [A].</span>")
 			inuse = 0
 			return
-		else if(length(choices) == 1)
+		else if(choices.len == 1)
 			choice = choices[1]
 		else
 			choice = tgui_input_list(usr, "What kind of evidence are you looking for?", "Evidence Collection", choices)
@@ -117,32 +120,32 @@
 		var/target_dna
 		var/target_gsr
 		if(choice == "Blood")
-			if(!target.blood_DNA || !length(target.blood_DNA))
+			if(!A.blood_DNA || !A.blood_DNA.len)
 				inuse = 0
 				return
-			target_dna = target.blood_DNA.Copy()
+			target_dna = A.blood_DNA.Copy()
 			sample_type = "blood"
 
 		else if(choice == "Gunshot Residue")
-			var/obj/item/clothing/B = target
+			var/obj/item/clothing/B = A
 			if(!istype(B) || !B.gunshot_residue)
-				to_chat(user, span_warning("There is no residue on \the [target]."))
+				to_chat(user, "<span class='warning'>There is no residue on \the [A].</span>")
 				inuse = 0
 				return
 			target_gsr = B.gunshot_residue
 			sample_type = "residue"
 
 		if(sample_type)
-			user.visible_message("\The [user] swabs \the [target] for a sample.", "You swab \the [target] for a sample.")
+			user.visible_message("\The [user] swabs \the [A] for a sample.", "You swab \the [A] for a sample.")
 			if(!dispenser)
 				dna = target_dna
 				gsr = target_gsr
-				set_used(sample_type, target)
+				set_used(sample_type, A)
 			else
 				var/obj/item/forensics/swab/S = new(get_turf(user))
 				S.dna = target_dna
 				S.gsr = target_gsr
-				S.set_used(sample_type, target)
+				S.set_used(sample_type, A)
 	inuse = 0
 
 /obj/item/forensics/swab/proc/set_used(sample_str, atom/source)

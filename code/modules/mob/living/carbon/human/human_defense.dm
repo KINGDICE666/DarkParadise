@@ -8,6 +8,7 @@ emp_act
 
 */
 
+
 /mob/living/carbon/human/bullet_act(obj/projectile/P, def_zone)
 	if(!dna.species.bullet_act(P, src))
 		add_attack_logs(P.firer, src, "hit by [P.type] but got deflected by species '[dna.species]'")
@@ -24,8 +25,8 @@ emp_act
 				reflected = is_type_in_list(P, safe_list) //And it's safe
 
 		if(reflected)
-			visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] отражает [P.declent_ru(ACCUSATIVE)]!"), \
-							span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] отражает [P.declent_ru(ACCUSATIVE)]!"),\
+			visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] отражает [P.declent_ru(ACCUSATIVE)]!"), \
+							span_userdanger("[capitalize(declent_ru(NOMINATIVE))] отражает [P.declent_ru(ACCUSATIVE)]!"),\
 							projectile_message = TRUE)
 			add_attack_logs(P.firer, src, "hit by [P.type] but got reflected")
 			P.reflect_back(src)
@@ -36,7 +37,8 @@ emp_act
 		P.on_hit(src, 100, def_zone)
 		return 2
 
-	if(mind?.martial_art?.can_reflect) //Some martial arts users can even reflect projectiles!
+
+	if(mind?.martial_art?.reflection_chance) //Some martial arts users can even reflect projectiles!
 		if(body_position != LYING_DOWN && !HAS_TRAIT(src, TRAIT_HULK) && prob(mind.martial_art.reflection_chance)) //But only if they're not lying down, and hulks can't do it
 			var/checks_passed = TRUE
 			if(istype(mind.martial_art, /datum/martial_art/ninja_martial_art))
@@ -44,14 +46,14 @@ emp_act
 				if(!creeping_widow.check_katana(mind.current))
 					checks_passed = FALSE
 			if(checks_passed)
-				visible_message(span_danger("[src] отража[PLUR_ET_YUT(src)] [P.declent_ru(ACCUSATIVE)]!"), \
-								span_userdanger("[src] отража[PLUR_ET_YUT(src)] [P.declent_ru(ACCUSATIVE)]!"))
+				visible_message(span_danger("[src] отража[pluralize_ru(src.gender, "ет", "ют")] [P.declent_ru(ACCUSATIVE)]!"), \
+								span_userdanger("[src] отража[pluralize_ru(src.gender, "ет", "ют")] [P.declent_ru(ACCUSATIVE)]!"))
 				add_attack_logs(P.firer, src, "hit by [P.type] but got reflected by martial arts '[mind.martial_art]'")
 				P.reflect_back(src)
 				return -1
 			return FALSE
 
-	if(mind?.martial_art?.can_deflect) //Some martial arts users can deflect projectiles!
+	if(mind?.martial_art?.deflection_chance) //Some martial arts users can deflect projectiles!
 		if(body_position != LYING_DOWN && !HAS_TRAIT(src, TRAIT_HULK) && mind.martial_art.try_deflect(src)) //But only if they're not lying down, and hulks can't do it
 			add_attack_logs(P.firer, src, "hit by [P.type] but got deflected by martial arts '[mind.martial_art]'")
 			if(HAS_TRAIT(src, TRAIT_PACIFISM) || !P.is_reflectable(REFLECTABILITY_PHYSICAL)) //if it cannot be reflected, it hits the floor. This is the exception to the rule
@@ -60,7 +62,7 @@ emp_act
 				var/turf/T = get_turf(src)
 				P.firer = src
 				T.bullet_act(P)
-				visible_message(span_danger("[src] отбива[PLUR_ET_YUT(src)] [P.declent_ru(ACCUSATIVE)] в сторону!"), \
+				visible_message(span_danger("[src] отбива[pluralize_ru(src.gender, "ет", "ют")] [P.declent_ru(ACCUSATIVE)] в сторону!"), \
 								span_userdanger("Вы отбиваете [P.declent_ru(ACCUSATIVE)] в сторону!"))
 				playsound(src, pick('sound/weapons/bulletflyby.ogg', 'sound/weapons/bulletflyby2.ogg', 'sound/weapons/bulletflyby3.ogg'), 75, TRUE)
 			if(mind.martial_art.reroute_deflection)
@@ -72,8 +74,6 @@ emp_act
 
 	var/obj/item/organ/external/organ = get_organ(check_zone(def_zone))
 	if(isnull(organ))
-		if(def_zone == BODY_ZONE_CHEST)
-			return -1
 		return bullet_act(P, BODY_ZONE_CHEST) //act on chest instead
 
 	organ.add_autopsy_data(P.name, P.damage) // Add the bullet's name to the autopsy data
@@ -99,17 +99,11 @@ emp_act
 	if(!S.brute_dam)
 		balloon_alert(user, "нечего ремонтировать!")
 		return
-	if(HAS_TRAIT(H, TRAIT_REPAIRING_LIMB))
-		balloon_alert(user, "уже ремонтируется!")
-		return
-	ADD_TRAIT(H, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
 
 	var/surgery_time = 0
 	if(user == src)
-		surgery_time = H.robotic_limb_repair_time
-
+		surgery_time = 10
 	if(!item.use_tool(src, user, surgery_time, amount = 1, volume = item.tool_volume))
-		REMOVE_TRAIT(H, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
 		return
 	var/rembrute = HEALPERWELD
 	var/nrembrute = 0
@@ -140,18 +134,17 @@ emp_act
 		if(E.brute_dam != brute_was)
 			should_update_health = TRUE
 		rembrute = nrembrute
-		user.visible_message(span_alert("[user] ремонтиру[PLUR_ET_YUT(src)] вмятины на [E.declent_ru(INSTRUMENTAL)] [src], используя [item.declent_ru(ACCUSATIVE)]."))
+		user.visible_message(span_alert("[user] ремонтиру[pluralize_ru(src.gender, "ет", "ют")] вмятины на [E.declent_ru(INSTRUMENTAL)] [src], используя [item.declent_ru(ACCUSATIVE)]."))
 	if(should_update_health)
 		H.updatehealth("welder repair")
 	if(update_damage_icon)
 		H.UpdateDamageIcon()
 	if(bleed_rate && ismachineperson(src))
 		bleed_rate = 0
-		user.visible_message(span_alert("[user] устраня[PLUR_ET_YUT(src)] протечки в корпусе [src], используя [item.declent_ru(ACCUSATIVE)]."))
+		user.visible_message(span_alert("[user] устраня[pluralize_ru(src.gender, "ет", "ют")] протечки в корпусе [src], используя [item.declent_ru(ACCUSATIVE)]."))
 	if(IgniteMob())
 		add_attack_logs(user, src, "set on fire with [item]")
 
-	REMOVE_TRAIT(H, TRAIT_REPAIRING_LIMB, UNIQUE_TRAIT_SOURCE(src))
 
 /mob/living/carbon/human/check_projectile_dismemberment(obj/projectile/P, def_zone)
 	var/obj/item/organ/external/affecting = get_organ(check_zone(def_zone))
@@ -166,6 +159,7 @@ emp_act
 		if(P.dismember_head && istype(affecting, /obj/item/organ/external/head))
 			damtype = DROPLIMB_SHARP
 		affecting.droplimb(FALSE, damtype)
+
 
 /mob/living/carbon/human/getarmor(def_zone, attack_flag)
 	var/armorval = 0
@@ -186,6 +180,7 @@ emp_act
 
 	return (armorval/max(organnum, 1))
 
+
 /// This proc returns the armour value for a particular external organ.
 /mob/living/carbon/human/proc/getarmor_organ(obj/item/organ/external/def_zone, attack_flag)
 	if(!attack_flag || !def_zone)
@@ -193,18 +188,11 @@ emp_act
 	var/protection = 100
 	var/list/clothing_items = list(head, wear_mask, wear_suit, w_uniform, back, gloves, shoes, belt, s_store, glasses, l_ear, r_ear, wear_id, neck) //Everything but pockets. Pockets are l_store and r_store. (if pockets were allowed, putting something armored, gloves or hats for example, would double up on the armor)
 	for(var/obj/item/clothing/cloth in clothing_items)
-		if((cloth.body_parts_covered & def_zone.limb_body_flag) && cloth.armor)
+		if(cloth.body_parts_covered & def_zone.limb_body_flag)
 			protection *= (100 - min(cloth.armor.getRating(attack_flag), 100)) * 0.01
 	protection *= (100 - min(physiology.armor.getRating(attack_flag), 100)) * 0.01
 	return 100 - protection
 
-///Get all the clothing on a specific body part
-/mob/living/carbon/human/proc/get_clothing_on_part(obj/item/organ/external/def_zone)
-	var/list/covering_part = list()
-	for(var/obj/item/clothing/equipped in get_equipped_items())
-		if(equipped.body_parts_covered & def_zone.limb_body_flag)
-			covering_part += equipped
-	return covering_part
 
 /// This proc returns the permeability protection for a particular external organ.
 /mob/living/carbon/human/proc/get_permeability_protection_organ(obj/item/organ/external/def_zone)
@@ -216,6 +204,7 @@ emp_act
 		if(cloth.body_parts_covered & def_zone.limb_body_flag)
 			permeability_protection *= cloth.permeability_coefficient
 	return permeability_protection
+
 
 //this proc returns the Siemens coefficient of electrical resistivity for a particular external organ.
 /mob/living/carbon/human/proc/get_siemens_coefficient_organ(obj/item/organ/external/def_zone)
@@ -231,6 +220,7 @@ emp_act
 
 	return siemens_coefficient
 
+
 /mob/living/carbon/human/proc/check_reflect(def_zone) //Reflection checks for anything in your l_hand, r_hand, head, shoes, gloves or wear_suit based on the reflection chance var of the object
 	var/list/reflectable_slots = list(wear_suit, head, shoes, gloves, l_hand, r_hand)
 	for(var/obj/item/slot in reflectable_slots)
@@ -239,6 +229,7 @@ emp_act
 			return reflectability
 
 	return 0
+
 
 //End Here
 
@@ -265,12 +256,16 @@ emp_act
 		var/final_block_chance = w_uniform.block_chance - (clamp((armour_penetration-w_uniform.armour_penetration)/2,0,100)) + block_chance_modifier
 		if(w_uniform.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
 			return TRUE
+	if(belt)
+		var/final_block_chance = belt.block_chance - (clamp((armour_penetration-belt.armour_penetration)/2,0,100)) + block_chance_modifier
+		if(belt.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
+			return TRUE
 	if(SEND_SIGNAL(src, COMSIG_HUMAN_CHECK_SHIELDS, AM, attack_text, 0, damage, attack_type) & SHIELD_BLOCK)
 		return TRUE
 	return FALSE
 
 /mob/living/carbon/human/proc/check_martial_art_defense(mob/living/carbon/human/defender, mob/living/carbon/human/attacker, obj/item/item, visible_message, self_message)
-	if(mind?.martial_art)
+	if(mind && mind.martial_art)
 		return mind.martial_art.attack_reaction(defender, attacker, item, visible_message, self_message)
 
 /mob/living/carbon/human/acid_act(acidpwr, acid_volume, bodyzone_hit) //todo: update this to utilize check_obscured_slots() //and make sure it's check_obscured_slots(TRUE) to stop aciding through visors etc
@@ -293,7 +288,7 @@ emp_act
 				update_worn_mask()
 				update_worn_head()
 			else
-				to_chat(src, span_notice("[DECLENT_RU_CAP(head_clothes, NOMINATIVE)] защища[PLUR_ET_YUT(head_clothes)] вашу голову и лицо от кислоты!"))
+				to_chat(src, span_notice("[capitalize(head_clothes.declent_ru(NOMINATIVE))] защища[pluralize_ru(head_clothes.gender, "ет", "ют")] вашу голову и лицо от кислоты!"))
 		else
 			. = get_organ(BODY_ZONE_HEAD)
 			if(.)
@@ -316,7 +311,7 @@ emp_act
 				update_worn_undersuit()
 				update_worn_oversuit()
 			else
-				to_chat(src, span_notice("[DECLENT_RU_CAP(chest_clothes, NOMINATIVE)] защища[PLUR_ET_YUT(chest_clothes)] ваше туловище от кислоты!"))
+				to_chat(src, span_notice("[capitalize(chest_clothes.declent_ru(NOMINATIVE))] защища[pluralize_ru(chest_clothes.gender, "ет", "ют")] ваше туловище от кислоты!"))
 		else
 			. = get_organ(BODY_ZONE_CHEST)
 			if(.)
@@ -331,6 +326,7 @@ emp_act
 				inventory_items_to_kill += l_store
 			if(s_store)
 				inventory_items_to_kill += s_store
+
 
 	//ARMS & HANDS//
 	if(!bodyzone_hit || bodyzone_hit == BODY_ZONE_L_ARM || bodyzone_hit == BODY_ZONE_R_ARM)
@@ -349,7 +345,7 @@ emp_act
 				update_worn_undersuit()
 				update_worn_oversuit()
 			else
-				to_chat(src, span_notice("[DECLENT_RU_CAP(arm_clothes, NOMINATIVE)] защища[PLUR_ET_YUT(arm_clothes)] ваши руки от кислоты!"))
+				to_chat(src, span_notice("[capitalize(arm_clothes.declent_ru(NOMINATIVE))] защища[pluralize_ru(arm_clothes.gender, "ет", "ют")] ваши руки от кислоты!"))
 		else
 			. = get_organ(BODY_ZONE_R_ARM)
 			if(.)
@@ -357,6 +353,7 @@ emp_act
 			. = get_organ(BODY_ZONE_L_ARM)
 			if(.)
 				damaged += .
+
 
 	//LEGS & FEET//
 	if(!bodyzone_hit || bodyzone_hit == BODY_ZONE_L_LEG || bodyzone_hit == BODY_ZONE_R_LEG || bodyzone_hit == "feet")
@@ -374,7 +371,7 @@ emp_act
 				update_worn_undersuit()
 				update_worn_oversuit()
 			else
-				to_chat(src, span_notice("[DECLENT_RU_CAP(leg_clothes, NOMINATIVE)] защища[PLUR_ET_YUT(leg_clothes)] ваши руки от кислоты!"))
+				to_chat(src, span_notice("[capitalize(leg_clothes.declent_ru(NOMINATIVE))] защища[pluralize_ru(leg_clothes.gender, "ет", "ют")] ваши руки от кислоты!"))
 		else
 			. = get_organ(BODY_ZONE_R_LEG)
 			if(.)
@@ -443,10 +440,12 @@ emp_act
 		affecting.sabotaged = 1
 	return 1
 
+
 /mob/living/carbon/human/grippedby(mob/living/grabber, grab_state_override)
 	. = ..()
 	if(.)
 		w_uniform?.add_fingerprint(grabber)
+
 
 /mob/living/carbon/human/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
 	if(QDELETED(src) || QDELETED(item) || QDELETED(user))	// tripple insurance, jesus fucking christ
@@ -460,7 +459,7 @@ emp_act
 		if(get_dist(user, source_turf) <= 1) //people with TK won't get smeared with blood
 			user.add_mob_blood(src)
 		user.visible_message(
-			span_danger("[user] отрубил[GEND_A_O_I(user)] кусок мяса от [declent_ru(GENITIVE)]!"),
+			span_danger("[user] отрубил[genderize_ru(user.gender, "", "а", "о", "и")] кусок мяса от [declent_ru(GENITIVE)]!"),
 			span_warning("Вы отрубили кусок мяса от [declent_ru(GENITIVE)]!"),
 		)
 		meatleft--
@@ -488,7 +487,7 @@ emp_act
 	if(user != src && check_shields(item, item.force, "[item.declent_ru(ACCUSATIVE)]", ITEM_ATTACK, item.armour_penetration))
 		return ATTACK_CHAIN_BLOCKED
 
-	if(check_martial_art_defense(src, user, item, span_warning("[src] блокиру[PLUR_ET_YUT(src)] [item.declent_ru(ACCUSATIVE)]!")))
+	if(check_martial_art_defense(src, user, item, span_warning("[src] блокиру[pluralize_ru(src.gender, "ет", "ют")] [item.declent_ru(ACCUSATIVE)]!")))
 		return ATTACK_CHAIN_BLOCKED
 
 	if(istype(item, /obj/item/card/emag) && emag_act(user, affecting))
@@ -506,7 +505,7 @@ emp_act
 	if(armor >= 100)
 		return .
 
-	var/weapon_sharp = item.sharp
+	var/weapon_sharp = is_sharp(item)
 	if(weapon_sharp && prob(getarmor(user.zone_selected, MELEE)))
 		weapon_sharp = FALSE
 
@@ -537,7 +536,7 @@ emp_act
 			if(apply_damage_result && stat == CONSCIOUS && armor < 50)
 				if(prob(item.force))
 					visible_message(
-						span_combatdanger("[src] был[GEND_A_O_I(src)] сбит[GEND_A_O_Y(src)] с ног ударом по голове!"),
+						span_combatdanger("[src] [genderize_ru(src.gender, "был сбит", "была сбита", "было сбито", "были сбиты")] с ног ударом по голове!"),
 						span_combatuserdanger("Вы сбили [src] с ног ударом по голове!"),
 					)
 					apply_effect(4 SECONDS, KNOCKDOWN, armor)
@@ -559,7 +558,7 @@ emp_act
 		if(BODY_ZONE_CHEST)//Easier to score a stun but lasts less time
 			if(apply_damage_result && stat == CONSCIOUS && prob(item.force + 10))
 				visible_message(
-					span_combatdanger("[src] был[GEND_A_O_I(src)] сбит[GEND_A_O_Y(src)] с ног ударом в грудь!"),
+					span_combatdanger("[src] [genderize_ru(src.gender, "был сбит", "была сбита", "было сбито", "были сбиты")] с ног ударом в грудь!"),
 					span_combatuserdanger("Вы сбили [src] с ног ударом в грудь!"),
 				)
 				apply_effect(2 SECONDS, KNOCKDOWN, armor)
@@ -577,6 +576,7 @@ emp_act
 
 	. |= dna.species.spec_proceed_attack_results(item, src, user, affecting)
 
+
 /mob/living/carbon/human/send_item_attack_message(obj/item/item, mob/living/user, def_zone)
 	if(item.item_flags & SKIP_ATTACK_MESSAGE)
 		return
@@ -587,8 +587,8 @@ emp_act
 
 	if(!item.force)
 		visible_message(
-			span_warning("[user] аккуратно тыкнул[GEND_A_O_I(user)] [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]."),
-			span_warning("[user] аккуратно тыкнул[GEND_A_O_I(user)] вас [item.declent_ru(INSTRUMENTAL)] [message_hit_area]."),
+			span_warning("[user] аккуратно тыкнул[genderize_ru(user.gender, "", "а", "о", "и")] [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]."),
+			span_warning("[user] аккуратно тыкнул[genderize_ru(user.gender, "", "а", "о", "и")] вас [item.declent_ru(INSTRUMENTAL)] [message_hit_area]."),
 			ignored_mobs = user,
 		)
 		to_chat(user, span_warning("Вы аккуратно тыкнули [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]."))
@@ -599,11 +599,12 @@ emp_act
 		message_verb = "[pick(item.attack_verb)]"
 
 	visible_message(
-		span_danger("[user] [message_verb][GEND_A_O_I(user)] [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]!"),
-		span_userdanger("[user] [message_verb][GEND_A_O_I(user)] вас [item.declent_ru(INSTRUMENTAL)] [message_hit_area]!"),
+		span_danger("[user] [message_verb][genderize_ru(user.gender, "", "а", "о", "и")] [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]!"),
+		span_userdanger("[user] [message_verb][genderize_ru(user.gender, "", "а", "о", "и")] вас [item.declent_ru(INSTRUMENTAL)] [message_hit_area]!"),
 		ignored_mobs = user,
 	)
 	to_chat(user, span_danger("Вы [message_verb]и [declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)] [message_hit_area]!"))
+
 
 /**
  * This proc handles being hit by a thrown atom.
@@ -643,6 +644,7 @@ emp_act
 
 	return ..(AM, skipcatch, hitpush, blocked, throwingdatum)
 
+
 /mob/living/carbon/human/proc/bloody_hands(mob/living/source, amount = 2)
 	if(gloves)
 		gloves.add_mob_blood(source)
@@ -668,14 +670,6 @@ emp_act
 		var/mob/living/carbon/human/H = user
 		dna.species.spec_attack_hand(H, src)
 
-/mob/living/carbon/human/click_alt(mob/user)
-	if(user != src)
-		return NONE
-
-	dna.species.try_self_supress_bleeding(user)
-	return CLICK_ACTION_SUCCESS
-
-
 /mob/living/carbon/human/attack_larva(mob/living/carbon/alien/larva/L)
 	if(..()) //successful larva bite.
 		if(stat != DEAD)
@@ -684,9 +678,10 @@ emp_act
 			var/armor_block = run_armor_check(affecting, MELEE)
 			apply_damage(L.attack_damage, BRUTE, affecting, armor_block)
 
+
 /mob/living/carbon/human/attack_alien(mob/living/carbon/alien/humanoid/M)
 	if(check_shields(M, 0, M.name))
-		visible_message(span_danger("[M] попытал[GEND_SYA_AS_OS_IS(M)] коснуться [src]!"))
+		visible_message(span_danger("[M] попытал[genderize_ru(M.gender, "ся", "ась", "ось", "ись")] коснуться [src]!"))
 		return 0
 
 	if(..())
@@ -696,14 +691,14 @@ emp_act
 			var/damage = prob(90) ? M.attack_damage : 0
 			if(!damage)
 				playsound(loc, 'sound/weapons/slashmiss.ogg', 50, TRUE, -1)
-				visible_message(span_danger("[M] бросил[GEND_SYA_AS_OS_IS(M)] на [src]!"))
+				visible_message(span_danger("[M] бросил[genderize_ru(M.gender, "ся", "ась", "ось", "ись")] на [src]!"))
 				return 0
 			var/obj/item/organ/external/affecting = get_organ(ran_zone(M.zone_selected))
 			var/armor_block = run_armor_check(affecting, MELEE, armour_penetration = M.armour_penetration)
 
 			playsound(loc, 'sound/weapons/slice.ogg', 25, TRUE, -1)
-			visible_message(span_danger("[M] ударил[GEND_A_O_I(M)] [src]!"), \
-				span_userdanger("[M] ударил[GEND_A_O_I(M)] [src]!"))
+			visible_message(span_danger("[M] ударил[genderize_ru(M.gender, "", "а", "о", "и")] [src]!"), \
+				span_userdanger("[M] ударил[genderize_ru(M.gender, "", "а", "о", "и")] [src]!"))
 
 			apply_damage(damage, BRUTE, affecting, armor_block, TRUE)
 			add_attack_logs(M, src, "Alien attacked")
@@ -720,7 +715,7 @@ emp_act
 			var/obj/item/item = get_active_hand()
 			if(item && drop_item_ground(item))
 				playsound(loc, 'sound/weapons/slash.ogg', 25, TRUE, -1)
-				visible_message(span_danger("[M] обезоружил[GEND_A_O_I(M)] [src]!"), span_danger("[M] обезоружил[GEND_A_O_I(M)] вас!"), span_hear("Вы слышите агрессивное шарканье!"))
+				visible_message(span_danger("[M] обезоружил[genderize_ru(M.gender, "", "а", "о", "и")] [src]!"), span_danger("[M] обезоружил[genderize_ru(M.gender, "", "а", "о", "и")] вас!"), span_hear("Вы слышите агрессивное шарканье!"))
 				to_chat(M, span_danger("Вы обезоружили [src]!"))
 			else
 				var/obj/item/organ/external/affecting = get_organ(ran_zone(M.zone_selected))
@@ -729,9 +724,9 @@ emp_act
 				if(prob(40))
 					apply_effect(2 SECONDS, WEAKEN, run_armor_check(affecting, MELEE))
 					add_attack_logs(M, src, "Alien tackled")
-					visible_message(span_danger("[M] сбил[GEND_A_O_I(M)] с ног [src]!"))
+					visible_message(span_danger("[M] сбил[genderize_ru(M.gender, "", "а", "о", "и")] с ног [src]!"))
 				else
-					visible_message(span_danger("[M] попытал[GEND_SYA_AS_OS_IS(M)] сбить с ног [src]!"))
+					visible_message(span_danger("[M] попытал[genderize_ru(M.gender, "ся", "ась", "ось", "ись")] сбить с ног [src]!"))
 					add_attack_logs(M, src, "Alien tried to tackle")
 
 /mob/living/carbon/human/attack_animal(mob/living/simple_animal/M)
@@ -805,39 +800,40 @@ emp_act
 						armor_block = 0
 					objective.take_damage(damage * armor_block, BRUTE)
 
-/mob/living/carbon/human/mech_melee_attack(obj/mecha/mech, obj/item/mecha_parts/mecha_equipment/selected_module = null)
-	if(mech.occupant.a_intent == INTENT_HARM)
-		if(HAS_TRAIT(mech.occupant, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
-			to_chat(mech.occupant, span_warning("Вы не хотите причинять кому-либо вред!"))
+/mob/living/carbon/human/mech_melee_attack(obj/mecha/M)
+	if(M.occupant.a_intent == INTENT_HARM)
+		if(HAS_TRAIT(M.occupant, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
+			to_chat(M.occupant, span_warning("Вы не хотите причинять кому-либо вред!"))
 			return
-		mech.do_attack_animation(src, used_item = selected_module)
-		if(mech.damtype == BRUTE)
-			step_away(src, mech, 15)
+		M.do_attack_animation(src)
+		if(M.damtype == "brute")
+			step_away(src,M,15)
 		var/obj/item/organ/external/affecting = get_organ(pick(BODY_ZONE_CHEST, BODY_ZONE_CHEST, BODY_ZONE_CHEST, BODY_ZONE_HEAD))
 		if(affecting)
-			var/dmg = rand(mech.force / 2, mech.force)
-			switch(mech.damtype)
+			var/dmg = rand(M.force/2, M.force)
+			switch(M.damtype)
 				if(BRUTE)
-					if(mech.force > 35) // durand and other heavy mechas
-						Weaken(2 SECONDS)
-					else if(mech.force > 20 && !IsWeakened()) // lightweight mechas like gygax
-						Knockdown(4 SECONDS)
+					if(M.force > 35) // durand and other heavy mechas
+						Paralyse(2 SECONDS)
+					else if(M.force > 20 && !IsWeakened()) // lightweight mechas like gygax
+						Weaken(4 SECONDS)
 					apply_damage(dmg, BRUTE, def_zone = affecting)
 					playsound(src, 'sound/weapons/punch4.ogg', 50, TRUE)
 				if(BURN)
 					apply_damage(dmg, BURN, def_zone = affecting)
 					playsound(src, 'sound/items/welder.ogg', 50, TRUE)
 				if(TOX)
-					mech.mech_toxin_damage(src)
+					M.mech_toxin_damage(src)
 				else
 					return
 
-		mech.occupant_message(span_danger("Вы ударили [declent_ru(ACCUSATIVE)]."))
-		visible_message(span_danger("[mech.name] ударил [declent_ru(ACCUSATIVE)]!"), span_userdanger("[mech.name] ударил вас!"))
+		M.occupant_message(span_danger("Вы ударили [declent_ru(ACCUSATIVE)]."))
+		visible_message(span_danger("[M.name] ударил [declent_ru(ACCUSATIVE)]!"), span_userdanger("[M.name] ударил вас!"))
 
-		add_attack_logs(mech.occupant, src, "Mecha-meleed with [mech]")
+		add_attack_logs(M.occupant, src, "Mecha-meleed with [M]")
 	else
 		..()
+
 
 /mob/living/carbon/human/water_act(volume, temperature, source, method = REAGENT_TOUCH)
 	. = ..()
@@ -853,10 +849,10 @@ emp_act
 
 /mob/living/carbon/human/proc/reagent_safety_check(hot = TRUE)
 	if(wear_mask)
-		to_chat(src, span_danger("[DECLENT_RU_CAP(wear_mask, NOMINATIVE)] защища[PLUR_ET_YUT(wear_mask)] вас от [hot ? "горячей" : "холодной"] жидкости!"))
+		to_chat(src, span_danger("[capitalize(wear_mask.declent_ru(NOMINATIVE))] защища[pluralize_ru(wear_mask.gender, "ет", "ют")] вас от [hot ? "горячей" : "холодной"] жидкости!"))
 		return FALSE
 	if(head)
-		to_chat(src, span_danger("[DECLENT_RU_CAP(head, NOMINATIVE)] защища[PLUR_ET_YUT(head)] вас от [hot ? "горячей" : "холодной"] жидкости!"))
+		to_chat(src, span_danger("[capitalize(head.declent_ru(NOMINATIVE))] защища[pluralize_ru(head.gender, "ет", "ют")] вас от [hot ? "горячей" : "холодной"] жидкости!"))
 		return FALSE
 	return TRUE
 

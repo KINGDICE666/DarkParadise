@@ -4,9 +4,9 @@
 
 /obj/item/circuitboard/computer/addition_goals
 	board_name = "addition goals console"
-	greyscale_colors = CIRCUIT_COLOR_COMMAND
 	build_path = /obj/machinery/computer/addition_goals
 	origin_tech = "engineering=2;combat=2;bluespace=2" //TODO balance here
+
 
 /obj/machinery/computer/addition_goals
 	name = "addition goals console"
@@ -14,16 +14,16 @@
 	icon_screen = "addition_goal"
 	icon_keyboard = "addition_goal_key"
 	req_access = list(ACCESS_CAPTAIN)
-	circuit = /obj/item/circuitboard/computer/addition_goals
+	circuit = /obj/item/circuitboard/computer/bsa_control
 
 /obj/machinery/computer/addition_goals/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "консоль управления дополнительными целями смены",
 		GENITIVE = "консоли управления дополнительными целями смены",
 		DATIVE = "консоли управления дополнительными целями смены",
 		ACCUSATIVE = "консоль управления дополнительными целями смены",
 		INSTRUMENTAL = "консолью управления дополнительными целями смены",
-		PREPOSITIONAL = "консоли управления дополнительными целями смены",
+		PREPOSITIONAL = "консоли управления дополнительными целями смены"
 	)
 
 /obj/machinery/computer/addition_goals/Initialize(mapload, obj/structure/computerframe/frame)
@@ -71,6 +71,7 @@
 			id = "[goal.id]",
 			name = "[goal.name]"
 		))
+
 
 /obj/machinery/computer/addition_goals/ui_act(action, params)
 	if(..())

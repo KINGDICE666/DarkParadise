@@ -53,7 +53,8 @@
 			return copytext(text, 1, i + 1)
 	return ""
 
-#define TGS_FILE2LIST(filename) (splittext(trim_left(trim_right(file2text(filename))), "\n"))
+/datum/tgs_api/v3210/proc/file2list(filename)
+	return splittext(trim_left(trim_right(wrap_file2text(filename))), "\n")
 
 /datum/tgs_api/v3210/OnWorldNew(minimum_required_security_level)
 	. = FALSE
@@ -63,13 +64,13 @@
 	if(!instance_name)
 		instance_name = "TG Station Server"	//maybe just upgraded
 
-	var/list/logs = TGS_FILE2LIST(".git/logs/HEAD")
-	if(length(logs))
-		logs = splittext(logs[length(logs) - 1], " ")
+	var/list/logs = file2list(".git/logs/HEAD")
+	if(logs.len)
+		logs = splittext(logs[logs.len - 1], " ")
 		commit = logs[2]
-	logs = TGS_FILE2LIST(".git/logs/refs/remotes/origin/master")
-	if(length(logs))
-		originmastercommit = splittext(logs[length(logs) - 1], " ")[2]
+	logs = file2list(".git/logs/refs/remotes/origin/master")
+	if(logs.len)
+		originmastercommit = splittext(logs[logs.len - 1], " ")[2]
 
 	if(world.system_type != MS_WINDOWS)
 		TGS_ERROR_LOG("This API version is only supported on Windows. Not running on Windows. Aborting initialization!")
@@ -152,7 +153,7 @@
 	. = list()
 	if(!fexists(SERVICE_PR_TEST_JSON))
 		return
-	var/list/json = json_decode(WRAP_FILE2TEXT(SERVICE_PR_TEST_JSON))
+	var/list/json = json_decode(wrap_file2text(SERVICE_PR_TEST_JSON))
 	if(!json)
 		return
 	for(var/I in json)
@@ -225,5 +226,3 @@
 #undef SERVICE_REQUEST_API_VERSION
 
 #undef SERVICE_RETURN_SUCCESS
-
-#undef TGS_FILE2LIST

@@ -16,19 +16,20 @@
 	foodtype = MEAT
 
 /obj/item/reagent_containers/food/snacks/meat/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "кусок мяса",
 		GENITIVE = "куска мяса",
 		DATIVE = "куску мяса",
 		ACCUSATIVE = "кусок мяса",
 		INSTRUMENTAL = "куском мяса",
-		PREPOSITIONAL = "куске мяса",
+		PREPOSITIONAL = "куске мяса"
 	)
+
 
 /obj/item/reagent_containers/food/snacks/meat/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.sharp)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !is_sharp(I))
 		return .
 
 	if(!isturf(loc))
@@ -53,13 +54,13 @@
 	var/strips_amount = 3
 	if(istype(I, /obj/item/kitchen/knife) || istype(I, /obj/item/scalpel))
 		user.visible_message(
-			span_notice("[user] реж[PLUR_ET_UT(user)] мясо тонкими полосками."),
+			span_notice("[user] реж[pluralize_ru(user.gender, "ет", "ут")] мясо тонкими полосками."),
 			span_notice("Вы режете мясо тонкими полосками."),
 		)
 	else
 		strips_amount = 1
 		user.visible_message(
-			span_notice("[user] грубо реж[PLUR_ET_UT(user)] мясо тонкими полосками."),
+			span_notice("[user] грубо реж[pluralize_ru(user.gender, "ет", "ут")] мясо тонкими полосками."),
 			span_notice("Вы грубо режете мясо тонкими полосками."),
 		)
 	for(var/i = 1 to strips_amount)
@@ -69,7 +70,7 @@
 	qdel(src)
 
 /obj/item/reagent_containers/food/snacks/meat/burn()
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] приготовился!"))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] приготовился!"))
 	new /obj/item/reagent_containers/food/snacks/roasted_meat(loc)
 	qdel(src)
 
@@ -86,13 +87,13 @@
 	foodtype = MEAT
 
 /obj/item/reagent_containers/food/snacks/roasted_meat/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "жаренное мясо",
 		GENITIVE = "жаренного мяса",
 		DATIVE = "жаренному мясу",
 		ACCUSATIVE = "жаренное мясо",
 		INSTRUMENTAL = "жаренным мясом",
-		PREPOSITIONAL = "жаренном мясе",
+		PREPOSITIONAL = "жаренном мясе"
 	)
 
 /obj/item/reagent_containers/food/snacks/meat/syntiflesh
@@ -151,8 +152,8 @@
 	var/type1 = "meat_drask"
 	var/type2 = "meat_drask2"
 
-/obj/item/reagent_containers/food/snacks/meat/humanoid/drask/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/meat/humanoid/drask/New()
+	..()
 	icon_state = pick(type1, type2)
 
 /obj/item/reagent_containers/food/snacks/meat/humanoid/grey
@@ -164,8 +165,8 @@
 	var/type1 = "meat_grey"
 	var/type2 = "meat_grey2"
 
-/obj/item/reagent_containers/food/snacks/meat/humanoid/grey/Initialize(mapload)
-	. = ..()
+/obj/item/reagent_containers/food/snacks/meat/humanoid/grey/New()
+	..()
 	icon_state = pick(type1, type2)
 
 /obj/item/reagent_containers/food/snacks/meat/humanoid/skrell
@@ -350,10 +351,11 @@
 	list_reagents = list("protein" = 1)
 	foodtype = MEAT
 
+
 /obj/item/reagent_containers/food/snacks/rawcutlet/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
-	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !I.sharp)
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !is_sharp(I))
 		return .
 
 	if(!isturf(loc))
@@ -392,6 +394,7 @@
 		transfer_fingerprints_to(bacon)
 		bacon.add_fingerprint(user)
 	qdel(src)
+
 
 //////////////////////////
 //		Monster Meat	//
@@ -456,17 +459,17 @@
 	tastes = list("паутины" = 1, "слабых подёргиваний во рту" = 1)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/spiderleg/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "паучья лапка",
 		GENITIVE = "паучьей лапки",
 		DATIVE = "паучьей лапке",
 		ACCUSATIVE = "паучью лапку",
 		INSTRUMENTAL = "паучьей лапкой",
-		PREPOSITIONAL = "паучьей лапке",
+		PREPOSITIONAL = "паучьей лапке"
 	)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/spiderleg/burn()
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] приготовилась!"))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] приготовилась!"))
 	new /obj/item/reagent_containers/food/snacks/roasted_spiderleg(loc)
 	qdel(src)
 
@@ -494,17 +497,17 @@
 	tastes = list("жёсткого мяса" = 1)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/goliath/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мясо голиафа",
 		GENITIVE = "мяса голиафа",
 		DATIVE = "мясу голиафа",
 		ACCUSATIVE = "мясо голиафа",
 		INSTRUMENTAL = "мясом голиафа",
-		PREPOSITIONAL = "мясе голиафа",
+		PREPOSITIONAL = "мясе голиафа"
 	)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/goliath/burn()
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] приготовилось!"))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] приготовилось!"))
 	new /obj/item/reagent_containers/food/snacks/goliath_steak(loc)
 	qdel(src)
 
@@ -516,17 +519,17 @@
 	tastes = list("слизистого мяса" = 1)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/goldgrub/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "мясо златожора",
 		GENITIVE = "мяса златожора",
 		DATIVE = "мясу златожору",
 		ACCUSATIVE = "мясо златожора",
 		INSTRUMENTAL = "мясом златожором",
-		PREPOSITIONAL = "мясе златожора",
+		PREPOSITIONAL = "мясе златожора"
 	)
 
 /obj/item/reagent_containers/food/snacks/monstermeat/goldgrub/burn()
-	visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] приготовилось!"))
+	visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] приготовилось!"))
 	new /obj/item/reagent_containers/food/snacks/goldgrubmeat(loc)
 	qdel(src)
 
@@ -691,18 +694,14 @@
 	name = "tele bacon"
 	desc = "It tastes a little odd but it's still delicious."
 	icon_state = "bacon"
-	var/obj/item/beacon/bacon/baconbeacon
+	var/obj/item/radio/beacon/bacon/baconbeacon
 	list_reagents = list("nutriment" = 4, "porktonium" = 10)
 	tastes = list("bacon" = 1)
 	foodtype = MEAT
 
-/obj/item/reagent_containers/food/snacks/telebacon/Initialize(mapload)
-	. = ..()
-	baconbeacon = new /obj/item/beacon/bacon(src)
-
-/obj/item/reagent_containers/food/snacks/telebacon/Destroy()
-	QDEL_NULL(baconbeacon)
-	return ..()
+/obj/item/reagent_containers/food/snacks/telebacon/New()
+	..()
+	baconbeacon = new /obj/item/radio/beacon/bacon(src)
 
 /obj/item/reagent_containers/food/snacks/telebacon/On_Consume(mob/M, mob/user)
 	if(!reagents.total_volume)
@@ -783,13 +782,13 @@
 	foodtype = MEAT
 
 /obj/item/reagent_containers/food/snacks/goliath_steak/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "стейк из мяса голиафа",
 		GENITIVE = "стейка из мяса голиафа",
 		DATIVE = "стейку из мяса голиафа",
 		ACCUSATIVE = "стейк из мяса голиафа",
 		INSTRUMENTAL = "стейком из мяса голиафа",
-		PREPOSITIONAL = "стейке из мяса голиафа",
+		PREPOSITIONAL = "стейке из мяса голиафа"
 	)
 
 /obj/item/reagent_containers/food/snacks/roasted_spiderleg
@@ -805,13 +804,13 @@
 	foodtype = MEAT
 
 /obj/item/reagent_containers/food/snacks/roasted_spiderleg/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "жаренная паучья лапка",
 		GENITIVE = "жаренной паучьей лапки",
 		DATIVE = "жаренной паучьей лапке",
 		ACCUSATIVE = "жаренную паучью лапку",
 		INSTRUMENTAL = "жаренной паучьей лапкой",
-		PREPOSITIONAL = "жаренной паучьей лапке",
+		PREPOSITIONAL = "жаренной паучьей лапке"
 	)
 
 /obj/item/reagent_containers/food/snacks/goldgrubmeat
@@ -821,6 +820,7 @@
 	resistance_flags = LAVA_PROOF | FIRE_PROOF
 	list_reagents = list("grub_juice" = 5)
 	tastes = list("meat" = 1)
+
 
 /obj/item/reagent_containers/food/snacks/smokedsausage
 	name = "Smoked sausage"
@@ -858,7 +858,6 @@
 	icon_state = "monkeycube"
 	bitesize = 12
 	filling_color = "#ADAC7F"
-	var/faction
 	var/datum/species/monkey_type = /datum/species/monkey
 	list_reagents = list("nutriment" = 2)
 	tastes = list("the jungle" = 1, "bananas" = 1)
@@ -880,12 +879,12 @@
 		//Due to server crashing capabilities, chat feature is disabled.
 
 		//if(fingerprintslast)
-		//	to_chat(get_mob_by_ckey(fingerprintslast), span_warning("Bluespace harmonics prevent the spawning of more than [CONFIG_GET(number/cubemonkey_cap)] monkeys on the station at one time!"))
+		//	to_chat(get_mob_by_ckey(fingerprintslast), "<span class='warning'>Bluespace harmonics prevent the spawning of more than [CONFIG_GET(number/cubemonkey_cap)] monkeys on the station at one time!</span>")
 		//else
-		//	visible_message(span_notice("[src] fails to expand!"))
+		//	visible_message("<span class='notice'>[src] fails to expand!</span>")
 
 	if(!QDELETED(src))
-		visible_message(span_notice("[src] expands!"))
+		visible_message("<span class='notice'>[src] expands!</span>")
 		if(fingerprintslast)
 			add_misc_logs(what = "Cube ([monkey_type]) inflated, last touched by: " + fingerprintslast)
 		else
@@ -917,6 +916,7 @@
 	name = "neaera cube"
 	monkey_type = /datum/species/monkey/skrell
 
+
 //////////////////////
 //		Eggs		//
 //////////////////////
@@ -932,6 +932,7 @@
 
 	var/amount_grown = 0
 
+
 /obj/item/reagent_containers/food/snacks/egg/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	..()
 	var/turf/T = get_turf(hit_atom)
@@ -940,11 +941,13 @@
 		reagents.reaction(hit_atom, REAGENT_TOUCH)
 	qdel(src)
 
+
 /obj/item/reagent_containers/food/snacks/egg/update_icon_state()
 	icon_state = "egg[item_color ? "-[item_color]" : ""]"
 
+
 /obj/item/reagent_containers/food/snacks/egg/attackby(obj/item/I, mob/user, params)
-	if(iscrayon(I))
+	if(istype(I, /obj/item/toy/crayon))
 		var/obj/item/toy/crayon/crayon = I
 		var/crayon_color = crayon.colourName
 		var/static/list/acceptable_colors = list("blue","green","mime","orange","purple","rainbow","red","yellow")
@@ -957,6 +960,7 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
 
 /obj/item/reagent_containers/food/snacks/egg/blue
 	icon_state = "egg-blue"
@@ -1046,6 +1050,7 @@
 	list_reagents = list("nutriment" = 6, "egg" = 3, "vitamin" = 4)
 	tastes = list("egg" = 1, "bacon" = 1, "bun" = 1)
 	foodtype = EGG | GRAIN
+
 
 //////////////////////
 //		Misc		//

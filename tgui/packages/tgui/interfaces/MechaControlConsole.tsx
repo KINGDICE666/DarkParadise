@@ -24,8 +24,7 @@ type Beakon = {
   airtank: number;
   pilot: string;
   location: string;
-  active_left: string;
-  active_right: string;
+  active: string;
   cargoMax: number;
   cargoUsed: number;
 };
@@ -101,9 +100,7 @@ export const MechaControlConsole = (props: unknown) => {
                   {toTitleCase(beacon.location) || 'Unknown'}
                 </LabeledList.Item>
                 <LabeledList.Item label="Active Equipment">
-                  Левая рука:{beacon.active_left || 'None'}
-                  <br />
-                  Правая рука:{beacon.active_right || 'None'}
+                  {beacon.active || 'None'}
                 </LabeledList.Item>
                 {(beacon.cargoMax && (
                   <LabeledList.Item label="Cargo Space">

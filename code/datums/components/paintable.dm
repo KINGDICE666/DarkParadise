@@ -2,7 +2,7 @@
 	var/current_paint
 
 /datum/component/spraycan_paintable/Initialize()
-	RegisterSignal(parent, COMSIG_ATOM_ATTACKBY, PROC_REF(Repaint))
+	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, PROC_REF(Repaint))
 
 /datum/component/spraycan_paintable/Destroy()
 	RemoveCurrentCoat()
@@ -17,7 +17,7 @@
 		return
 	. = COMPONENT_CANCEL_ATTACK_CHAIN|COMPONENT_NO_AFTERATTACK
 	if(spraycan.capped)
-		to_chat(user, span_warning("Take the cap off first!"))
+		to_chat(user, "<span class='warning'>Take the cap off first!</span>")
 		return
 	if(spraycan.uses < 2)
 		to_chat(user, "<span class ='warning'>There is not enough paint in the can!")
@@ -28,4 +28,4 @@
 	var/atom/A = parent
 	A.add_atom_colour(colour, WASHABLE_COLOUR_PRIORITY)
 	playsound(spraycan, 'sound/effects/spray.ogg', 5, TRUE, 5)
-	to_chat(user, span_notice("You spray [spraycan] on [A], painting it."))
+	to_chat(user, "<span class='notice'>You spray [spraycan] on [A], painting it.</span>")

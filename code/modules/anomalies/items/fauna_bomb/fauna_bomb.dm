@@ -1,5 +1,5 @@
-#define	MAX_CREATED_MOBS 12
-#define	MAX_REMEMBERED_MOBS 12
+#define	MAX_CREATED_MOBS	12
+#define	MAX_REMEMBERED_MOBS	12
 
 /obj/item/fauna_bomb
 	name = "fauna bomb"
@@ -45,13 +45,13 @@
 	var/cur_choosing = 0
 
 /obj/item/fauna_bomb/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "фаунная бомба", \
 		GENITIVE = "фаунной бомбы", \
 		DATIVE = "фаунной бомбе", \
 		ACCUSATIVE = "фаунную бомбу", \
 		INSTRUMENTAL = "фаунной бомбой", \
-		PREPOSITIONAL = "фаунной бомбе",
+		PREPOSITIONAL = "фаунной бомбе"
 	)
 
 /obj/item/fauna_bomb/Destroy()
@@ -157,18 +157,18 @@
 	. += span_notice("Текущий заряд: [charge != max_charge ? charge : span_boldnotice("[charge]")]/[max_charge + used_charge]")
 	. += span_notice("Свободный заряд: [max_charge != max_charge + used_charge ? max_charge : span_boldnotice("[max_charge]")]/[max_charge + used_charge]")
 	. += span_notice("Скорость восстановления заряда: [charge_speed]")
-	. += span_notice("Проецируется существ: [length(created_mobs) != MAX_CREATED_MOBS ? length(created_mobs) : span_boldnotice("[length(created_mobs)]")]/[MAX_CREATED_MOBS]")
+	. += span_notice("Проецируется существ: [created_mobs.len != MAX_CREATED_MOBS ? created_mobs.len : span_boldnotice("[created_mobs.len]")]/[MAX_CREATED_MOBS]")
 
 /obj/item/fauna_bomb/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] направля[PLUR_ET_YUT(user)] проецирующую систему [declent_ru(GENITIVE)] себе в рот, \
-						выкручива[PLUR_ET_YUT(user)] на максимальную мощность и активиру[PLUR_ET_YUT(user)]."), \
+	user.visible_message(span_suicide("[user] направля[pluralize_ru(user.gender,"ет","ют")] проецирующую систему [declent_ru(GENITIVE)] себе в рот, \
+						выкручива[pluralize_ru(user.gender,"ет","ют")] на максимальную мощность и активиру[pluralize_ru(user.gender,"ет","ют")]."), \
 						span_suicide("Вы направляете проецирующую систему [declent_ru(GENITIVE)] себе в рот, \
 						выкручиваете на максимальную мощность и активируете."),
 						span_warning("Вы слышите громкий хлопок!"))
 	user.gib()
 	return OBLITERATION
 
-/obj/item/fauna_bomb/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/fauna_bomb/afterattack(atom/target, mob/user, proximity, params, status)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return ..()
 
@@ -184,10 +184,10 @@
 	if(isancientrobot(target) || isancientrobotleg(target) || isairmob(target))
 		return ..()
 
-	if(!proximity_flag)
+	if(!proximity)
 		return ..()
 
-	if(length(datas) >= MAX_REMEMBERED_MOBS)
+	if(datas.len >= MAX_REMEMBERED_MOBS)
 		user.balloon_alert(user, "мало памяти")
 		return
 
@@ -278,7 +278,7 @@
 			ui.user.balloon_alert(ui.user, "проекция развеяна")
 
 		if("create")
-			if(length(created_mobs) >= MAX_CREATED_MOBS)
+			if(created_mobs.len >= MAX_CREATED_MOBS)
 				ui.user.balloon_alert(ui.user, "превышение нагрузки")
 				return
 
@@ -310,6 +310,7 @@
 			last_command = action
 			do_commands()
 
+
 #define CHOOSING_ICON 'icons/effects/cult_target.dmi'
 
 /obj/item/fauna_bomb/proc/choose_target(client/client)
@@ -317,8 +318,7 @@
 	choose_target_timer = addtimer(CALLBACK(src, PROC_REF(choosing_target_off), cur_choosing), 3 SECONDS)
 	chooser = client
 	in_choose_mode = TRUE
-	if(!chooser?.mouse_override_icon)
-		chooser.mouse_override_icon = CHOOSING_ICON
+	if(chooser?.mouse_pointer_icon == initial(chooser.mouse_pointer_icon))
 		chooser.mouse_pointer_icon = CHOOSING_ICON
 
 /obj/item/fauna_bomb/proc/choosing_target_off(choosing_num)
@@ -327,8 +327,7 @@
 
 	choose_target_timer = null
 	in_choose_mode = FALSE
-	if(chooser?.mouse_override_icon == CHOOSING_ICON)
-		chooser.mouse_override_icon = null
+	if(chooser?.mouse_pointer_icon == CHOOSING_ICON)
 		chooser.mouse_pointer_icon = initial(chooser.mouse_pointer_icon)
 
 #undef CHOOSING_ICON
@@ -353,11 +352,9 @@
 	name = "Fauna bomb"
 	result = /obj/item/fauna_bomb
 	tools = list(TOOL_SCREWDRIVER)
-	reqs = list(
-		/obj/item/relict_production/pet_spray = 1,
-		/obj/item/grenade/chem_grenade/adv_release = 1,
-		/obj/item/stack/cable_coil = 5,
-	)
+	reqs = list(/obj/item/relict_production/pet_spray = 1,
+				/obj/item/grenade/chem_grenade/adv_release = 1,
+				/obj/item/stack/cable_coil = 5)
 	time = 300
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON

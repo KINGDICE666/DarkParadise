@@ -23,14 +23,16 @@
 	for(var/obj/item/W in H.get_all_slots())
 		ADD_TRAIT(W, TRAIT_NODROP, SUPERHERO_TRAIT)
 
+
 /datum/superheroes/proc/assign_genes(mob/living/carbon/human/H)
 	H.force_gene_block(GLOB.regenerateblock, TRUE)
 	H.force_gene_block(GLOB.breathlessblock, TRUE)
 	H.force_gene_block(GLOB.coldblock, TRUE)
 	H.gene_stability = 100
 
+
 /datum/superheroes/proc/assign_spells(mob/living/carbon/human/H)
-	if(length(default_spells))
+	if(default_spells.len)
 		for(var/spell in default_spells)
 			var/obj/effect/proc_holder/spell/S = spell
 			if(!S)
@@ -51,7 +53,7 @@
 		SSticker.mode.supervillains += H.mind
 	W.icon_state = "lifetimeid"
 	W.SetOwnerInfo(H)
-	W.update_label()
+	W.UpdateName()
 	ADD_TRAIT(W, TRAIT_NODROP, SUPERHERO_TRAIT)
 	H.equip_to_slot_or_del(W, ITEM_SLOT_ID)
 	H.regenerate_icons()
@@ -68,12 +70,13 @@
 /datum/superheroes/owlman/equip(mob/living/carbon/human/H)
 	..()
 
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/color/black/greytide(H), ITEM_SLOT_FEET)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/black/greytide(H), ITEM_SLOT_FEET)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/owl(H), ITEM_SLOT_CLOTH_INNER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/neck/cloak/toggle/owlwings(H), ITEM_SLOT_CLOTH_OUTER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/owl_mask/super_hero(H), ITEM_SLOT_MASK)
 	H.equip_to_slot_or_del(new /obj/item/storage/belt/bluespace/owlman(H), ITEM_SLOT_BELT)
 	H.equip_to_slot_or_del(new /obj/item/clothing/glasses/night(H), ITEM_SLOT_EYES)
+
 
 /datum/superheroes/griffin
 	name = "The Griffin"
@@ -94,6 +97,7 @@
 	var/obj/item/implant/freedom/L = new/obj/item/implant/freedom(H)
 	L.implant(H)
 
+
 /datum/superheroes/lightnian
 	name = "LightnIan"
 	class = "Superhero"
@@ -105,12 +109,13 @@
 /datum/superheroes/lightnian/equip(mob/living/carbon/human/H)
 	..()
 
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/color/orange(H), ITEM_SLOT_FEET)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/orange(H), ITEM_SLOT_FEET)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/color/brown(H), ITEM_SLOT_CLOTH_INNER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/corgisuit/super_hero(H), ITEM_SLOT_CLOTH_OUTER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/head/corgi/super_hero(H), ITEM_SLOT_HEAD)
 	H.equip_to_slot_or_del(new /obj/item/clothing/gloves/color/yellow(H), ITEM_SLOT_GLOVES)
 	H.equip_to_slot_or_del(new /obj/item/bedsheet/orange(H), ITEM_SLOT_BACK)
+
 
 /datum/superheroes/electro
 	name = "Electro-Negmatic"
@@ -123,13 +128,17 @@
 /datum/superheroes/electro/equip(mob/living/carbon/human/H)
 	..()
 
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/color/black/greytide(H), ITEM_SLOT_FEET)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/black/greytide(H), ITEM_SLOT_FEET)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/color/grey(H), ITEM_SLOT_CLOTH_INNER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/corgisuit/super_hero/en(H), ITEM_SLOT_CLOTH_OUTER)
 	H.equip_to_slot_or_del(new /obj/item/clothing/head/corgi/super_hero/en(H), ITEM_SLOT_HEAD)
 	H.equip_to_slot_or_del(new /obj/item/bedsheet/cult(H), ITEM_SLOT_BACK)
 
+
+
+
 ///////////////////////////////POWERS/ABILITIES CODE/////////////////////////////////////////
+
 
 //The Griffin's special recruit abilitiy
 /obj/effect/proc_holder/spell/recruit
@@ -140,9 +149,11 @@
 	action_icon_state = "spell_greytide"
 	var/recruiting = 0
 
-	selection_activated_message = span_notice_alt("You start preparing a mindblowing monologue. <b>ЛКМ по цели, чтобы применить!</b>")
-	selection_deactivated_message = span_notice_alt("You decide to save your brilliance for another day.")
+	selection_activated_message		= span_notice("You start preparing a mindblowing monologue. <b>ЛКМ по цели, чтобы применить!</b>")
+	selection_deactivated_message	= span_notice("You decide to save your brilliance for another day.")
 	need_active_overlay = TRUE
+
+
 
 /obj/effect/proc_holder/spell/recruit/create_new_targeting()
 	var/datum/spell_targeting/click/T = new()
@@ -150,8 +161,9 @@
 	T.range = 1
 	return T
 
+
 /obj/effect/proc_holder/spell/recruit/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
-	if(length(SSticker.mode.greyshirts) >= 3)
+	if(SSticker.mode.greyshirts.len >= 3)
 		if(show_message)
 			to_chat(user, span_warning("You have already recruited the maximum number of henchmen."))
 		return FALSE
@@ -162,8 +174,10 @@
 		return FALSE
 	return ..()
 
+
 /obj/effect/proc_holder/spell/recruit/valid_target(mob/living/carbon/human/target, user)
 	return target.ckey && !target.stat
+
 
 /obj/effect/proc_holder/spell/recruit/cast(list/targets,mob/living/user = usr)
 	var/mob/living/carbon/human/target = targets[1]
@@ -221,7 +235,7 @@
 		target.drop_item_ground(W)
 	target.rename_character(target.real_name, "Generic Henchman ([rand(1, 1000)])")
 	target.equip_to_slot_or_del(new /obj/item/clothing/under/color/grey/greytide(target), ITEM_SLOT_CLOTH_INNER)
-	target.equip_to_slot_or_del(new /obj/item/clothing/shoes/color/black/greytide(target), ITEM_SLOT_FEET)
+	target.equip_to_slot_or_del(new /obj/item/clothing/shoes/black/greytide(target), ITEM_SLOT_FEET)
 	target.equip_to_slot_or_del(new /obj/item/storage/toolbox/mechanical/greytide(target), ITEM_SLOT_HAND_LEFT)
 	target.equip_to_slot_or_del(new /obj/item/radio/headset(target), ITEM_SLOT_EAR_LEFT)
 	var/obj/item/card/id/syndicate/W = new(target)
@@ -231,6 +245,6 @@
 	W.rank = "Greyshirt"
 	ADD_TRAIT(W, TRAIT_NODROP, SUPERHERO_TRAIT)
 	W.SetOwnerInfo(target)
-	W.update_label()
+	W.UpdateName()
 	target.equip_to_slot_or_del(W, ITEM_SLOT_ID)
 	target.regenerate_icons()

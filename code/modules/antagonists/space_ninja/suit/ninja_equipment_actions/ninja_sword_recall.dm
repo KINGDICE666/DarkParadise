@@ -1,10 +1,12 @@
 /datum/action/item_action/advanced/ninja/ninja_sword_recall
-	name = "Призыв энерго-катаны"
-	desc = "Телепортирует вашу энерго-катану к вам. Затраты энергии: 200"
+	name = "Recall Energy Katana"
+	desc = "Teleports the Energy Katana linked to this suit to its wearer. Energy cost: 200"
+	use_itemicon = FALSE
 	check_flags = FALSE
 	charge_max = 0.5 SECONDS
 	button_icon_state = "energy_katana_green"
-	button_icon = 'icons/obj/ninjaobjects.dmi'
+	icon_icon = 'icons/obj/ninjaobjects.dmi'
+	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
 	action_initialisation_text = "Katana Recall System"
 
@@ -20,7 +22,7 @@
 	var/inview = TRUE
 
 	if(!energyKatana)
-		balloon_alert(ninja, "не удалось найти!")
+		to_chat(ninja, span_warning("Could not locate your Energy Katana!"))
 		return
 
 	if(energyKatana in ninja)
@@ -32,8 +34,9 @@
 		inview = FALSE
 
 	if(!ninjacost(200))	//Статичная цена в 200 энергии
-		var/datum/action/item_action/advanced/ninja/ninja_sword_recall/ninja_sword_recall = locate() in ninja.actions
-		ninja_sword_recall.use_action()
+		for(var/datum/action/item_action/advanced/ninja/ninja_sword_recall/ninja_action in actions)
+			ninja_action.use_action()
+			break
 		if(iscarbon(energyKatana.loc))
 			var/mob/living/carbon/sword_holder = energyKatana.loc
 			sword_holder.drop_item_ground(energyKatana, force = TRUE)
@@ -46,7 +49,7 @@
 				return
 			energyKatana.spark_system.start()
 			playsound(ninja, SFX_SPARKS, 50, TRUE, -9)
-			ninja.visible_message(span_danger("[DECLENT_RU_CAP(energyKatana, NOMINATIVE)] летит навстречу [ninja.declent_ru(DATIVE)]!"), span_warning("Вы протягиваете руку и [energyKatana.declent_ru(NOMINATIVE)] летит к вам!"))
+			ninja.visible_message(span_danger("\the [energyKatana] flies towards [ninja]!"),span_warning("You hold out your hand and \the [energyKatana] flies towards you!"))
 			energyKatana.throw_at(ninja, distance+1, energyKatana.throw_speed)
 
 		else //Else just TP it to us.

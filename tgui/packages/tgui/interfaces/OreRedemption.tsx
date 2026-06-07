@@ -15,7 +15,7 @@ import { Window } from '../layouts';
 import { SectionProps } from '../components/Section';
 import { useState } from 'react';
 
-const formatPoints = (amt: number) => amt.toLocaleString('en-US') + ' ед.';
+const formatPoints = (amt: number) => amt.toLocaleString('en-US') + ' pts';
 
 export const OreRedemption = (properties) => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -28,10 +28,10 @@ export const OreRedemption = (properties) => {
           </Stack.Item>
           <Tabs>
             <Tabs.Tab selected={tabIndex === 0} onClick={() => setTabIndex(0)}>
-              Листы материалов
+              Sheets
             </Tabs.Tab>
             <Tabs.Tab selected={tabIndex === 1} onClick={() => setTabIndex(1)}>
-              Сплавы
+              Alloys
             </Tabs.Tab>
           </Tabs>
           {tabIndex === 0 && <Sheet mt={-2} />}
@@ -76,15 +76,20 @@ const IdDisk = (properties: SectionProps) => {
   const { ...rest } = properties;
   return (
     <Section {...rest}>
+      <Box color="average" textAlign="center">
+        <Icon name="exclamation-triangle" mr="0.5rem" />
+        This machine only accepts ore. Gibtonite is not accepted.
+      </Box>
+      <Divider />
       <LabeledList>
-        <LabeledList.Item label="ID-карта">
+        <LabeledList.Item label="ID card">
           {id ? (
             <Button
               selected
               bold
               verticalAlign="middle"
               icon="eject"
-              tooltip="Извлечь ID-карту."
+              tooltip="Ejects the ID card."
               onClick={() => act('eject_id')}
               style={{
                 whiteSpace: 'pre-wrap',
@@ -95,25 +100,25 @@ const IdDisk = (properties: SectionProps) => {
           ) : (
             <Button
               icon="sign-in-alt"
-              tooltip="Вставить ID-карту в вашей руке."
+              tooltip="Hold the ID card in your hand to insert."
               onClick={() => act('insert_id')}
             >
-              Вставить
+              Insert
             </Button>
           )}
         </LabeledList.Item>
         {id && (
-          <LabeledList.Item label="Счёт шахтёрских очков">
+          <LabeledList.Item label="Current Mining Points">
             <Box bold>{formatPoints(id.points)}</Box>
           </LabeledList.Item>
         )}
         {id && (
-          <LabeledList.Item label="Всего шахтёрских очков">
+          <LabeledList.Item label="Total Mining Points">
             <Box bold>{formatPoints(id.total_points)}</Box>
           </LabeledList.Item>
         )}
         <LabeledList.Item
-          label="Буфер шахтёрских очков"
+          label="Unclaimed Points"
           color={points > 0 ? 'good' : 'grey'}
         >
           {formatPoints(points)}
@@ -124,42 +129,42 @@ const IdDisk = (properties: SectionProps) => {
             icon="hand-holding-usd"
             onClick={() => act('claim')}
           >
-            Получить
+            Claim
           </Button>
         </LabeledList.Item>
       </LabeledList>
       <Divider />
       {disk ? (
         <LabeledList>
-          <LabeledList.Item label="Дискета шаблона печати">
+          <LabeledList.Item label="Design disk">
             <Button
               selected
               bold
               icon="eject"
-              tooltip="Извлечь дискету."
+              tooltip="Ejects the design disk."
               onClick={() => act('eject_disk')}
             >
               {disk.name}
             </Button>
           </LabeledList.Item>
-          <LabeledList.Item label="Загруженный шаблон">
+          <LabeledList.Item label="Stored design">
             <Box color={disk.design && (disk.compatible ? 'good' : 'bad')}>
-              {disk.design || 'Н/Д'}
+              {disk.design || 'N/A'}
             </Box>
           </LabeledList.Item>
           <LabeledList.Item>
             <Button
               disabled={!disk.design || !disk.compatible}
               icon="upload"
-              tooltip="Загрузить шаблон печати в память машины."
+              tooltip="Downloads the design on the disk into the machine."
               onClick={() => act('download')}
             >
-              Загрузить
+              Download
             </Button>
           </LabeledList.Item>
         </LabeledList>
       ) : (
-        <Box color="label">Дискета шаблона печати отсутствует.</Box>
+        <Box color="label">No design disk inserted.</Box>
       )}
     </Section>
   );
@@ -177,11 +182,11 @@ const Sheet = (properties: SectionProps) => {
     <Stack.Item grow height="20%">
       <Section fill scrollable className="OreRedemption__Ores" p="0" {...rest}>
         <OreHeader
-          title="Листы материалов"
+          title="Sheets"
           columns={[
-            ['Доступно', '20%'],
-            ['Стоимость руды', '25%'],
-            ['Переплавить', '10%'],
+            ['Available', '25%'],
+            ['Ore Value', '15%'],
+            ['Smelt', '20%'],
           ]}
         />
         {sheets.map((sheet) => (
@@ -204,11 +209,11 @@ const Alloy = (properties: SectionProps) => {
     <Stack.Item grow>
       <Section fill scrollable className="OreRedemption__Ores" p="0" {...rest}>
         <OreHeader
-          title="Сплавы"
+          title="Alloys"
           columns={[
-            ['Рецепт', '30%'],
-            ['Доступно', '15%'],
-            ['Переплавить', '10%'],
+            ['Recipe', '50%'],
+            ['Available', '11%'],
+            ['Smelt', '20%'],
           ]}
         />
         {alloys.map((alloy) => (

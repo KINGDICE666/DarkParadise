@@ -147,13 +147,13 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 	var/obj/item/book/cache
 
 /obj/machinery/libraryscanner/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "сканер",
 		GENITIVE = "сканера",
 		DATIVE = "сканеру",
 		ACCUSATIVE = "сканер",
 		INSTRUMENTAL = "сканером",
-		PREPOSITIONAL = "сканере",
+		PREPOSITIONAL = "сканере"
 	)
 
 /obj/machinery/libraryscanner/attackby(obj/item/I, mob/user, params)
@@ -176,8 +176,9 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 /obj/machinery/libraryscanner/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I)
 
+
 /obj/machinery/libraryscanner/attack_hand(mob/user)
-	if(isdead(user))
+	if(istype(user,/mob/dead))
 		to_chat(user, span_danger("Фигу видишь?"))
 		return
 	add_fingerprint(user)
@@ -216,6 +217,7 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 	src.updateUsrDialog()
 	return
 
+
 /*
  * Book binder
  */
@@ -228,13 +230,13 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 	density = TRUE
 
 /obj/machinery/bookbinder/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "брошюратор",
 		GENITIVE = "брошюратора",
 		DATIVE = "брошюратору",
 		ACCUSATIVE = "брошюратор",
 		INSTRUMENTAL = "брошюратором",
-		PREPOSITIONAL = "брошюраторе",
+		PREPOSITIONAL = "брошюраторе"
 	)
 
 /obj/machinery/bookbinder/attackby(obj/item/I, mob/user, params)
@@ -247,7 +249,7 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 		if(!user.drop_transfer_item_to_loc(paper, src))
 			return ..()
 		user.visible_message(
-			span_notice("[user] загружа[PLUR_ET_YUT(user)] немного бумаги в [declent_ru(ACCUSATIVE)]. По мере прогрева печатных барабанов машина начинает гудеть."),
+			span_notice("[user] загружа[pluralize_ru(user.gender, "ет", "ют")] немного бумаги в [declent_ru(ACCUSATIVE)]. По мере прогрева печатных барабанов машина начинает гудеть."),
 			span_notice("Вы загружаете немного бумаги в [declent_ru(ACCUSATIVE)]. По мере прогрева печатных барабанов машина начинает гудеть."),
 		)
 		atom_say("Проходит печать книги...", FALSE)
@@ -257,25 +259,27 @@ GLOBAL_LIST_INIT(library_section_names, list("Any", "Fiction", "Non-Fiction", "A
 
 	return ..()
 
+
 /obj/machinery/bookbinder/proc/finalize_printing(obj/item/paper/paper)
 	if(QDELETED(paper) || paper.loc != src)
 		return
 	var/obj/item/book/new_book = new(loc)
 	new_book.dat = paper.info
 	new_book.name = "Print Job #[rand(100, 999)]"
-	new_book.ru_names = alist(
+	new_book.ru_names = list(
 		NOMINATIVE = "печатное издание №[rand(100, 999)]",
 		GENITIVE = "печатного издания №[rand(100, 999)]",
 		DATIVE = "печатному изданию №[rand(100, 999)]",
 		ACCUSATIVE = "печатное издание №[rand(100, 999)]",
 		INSTRUMENTAL = "печатным изданием №[rand(100, 999)]",
-		PREPOSITIONAL = "печатном издании №[rand(100, 999)]",
+		PREPOSITIONAL = "печатном издании №[rand(100, 999)]"
 	)
 	new_book.icon_state = "book[rand(1,16)]"
 	new_book.item_state = new_book.icon_state
 	atom_say("Печать книги успешно завершена.", FALSE)
 	playsound(loc, 'sound/machines/ping.ogg', 20, TRUE)
 	qdel(paper)
+
 
 /obj/machinery/libraryscanner/wrench_act(mob/living/user, obj/item/I)
 	return default_unfasten_wrench(user, I)

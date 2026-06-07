@@ -3,12 +3,13 @@
 	desc = "Why is this here?"
 	icon_state = "syndicate"
 
+
 /obj/structure/closet/syndicate/personal
 	desc = "It's a storage unit for operative gear."
 
 /obj/structure/closet/syndicate/personal/populate_contents()
 	new /obj/item/clothing/under/syndicate(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/ammo_box/magazine/m10mm(src)
 	new /obj/item/storage/belt/military(src)
 	new /obj/item/crowbar/red(src)
@@ -45,7 +46,7 @@
 	desc = "It's a storage unit for an elite syndicate strike team's gear."
 
 /obj/structure/closet/syndicate/sst/populate_contents()
-	new /obj/item/ammo_box/magazine/l6saw(src)
+	new /obj/item/ammo_box/magazine/a762x51(src)
 	new /obj/item/gun/projectile/automatic/l6_saw(src)
 	new /obj/item/tank/jetpack/oxygen/harness(src)
 	new /obj/item/storage/belt/military/sst(src)
@@ -219,7 +220,7 @@
 	new /obj/item/clothing/gloves/fingerless(src)
 	new /obj/item/clothing/under/rank/cargotech(src)
 	new /obj/item/clothing/under/rank/cargotech/skirt(src)
-	new /obj/item/clothing/shoes/color/black(src)
+	new /obj/item/clothing/shoes/black(src)
 	new /obj/item/encryptionkey/syndicate/taipan(src)
 	new /obj/item/storage/backpack/syndicate/cargo(src)
 	new /obj/item/storage/backpack/duffel/syndie(src)
@@ -234,7 +235,7 @@
 	new /obj/item/storage/backpack/duffel/syndie/surgery(src)
 	new /obj/item/clothing/under/rank/medical(src)
 	new /obj/item/clothing/suit/storage/labcoat(src)
-	new /obj/item/clothing/shoes/color/white(src)
+	new /obj/item/clothing/shoes/white(src)
 	new /obj/item/encryptionkey/syndicate/taipan(src)
 	new /obj/item/clothing/gloves/color/latex/nitrile(src)
 	new /obj/item/defibrillator/loaded(src)

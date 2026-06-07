@@ -35,7 +35,7 @@
 		if(times_fired % 4 == 0)
 			for(var/mob/living/simple_animal/K in oview(src, 1)) //Only for corpse right next to/on same tile
 				if(K.stat == DEAD || (!K.check_death_method() && K.health <= HEALTH_THRESHOLD_DEAD))
-					visible_message(span_danger("[src] consumes [K] whole!"))
+					visible_message("<span class='danger'>[src] consumes [K] whole!</span>")
 					if(health < maxHealth)
 						health += 10
 					qdel(K)
@@ -49,7 +49,7 @@
 					continue
 				if(faction_check_mob(L) && !attack_same)
 					return
-	visible_message(span_danger("<b>[src]</b> [ranged_message] at [A]!"))
+	visible_message("<span class='danger'><b>[src]</b> [ranged_message] at [A]!</span>")
 	throw_at(A, jumpdistance, jumpspeed, spin = FALSE, diagonals_first = TRUE)
 	ranged_cooldown = world.time + ranged_cooldown_time
 
@@ -84,7 +84,7 @@
 	human_overlays = H.overlays
 	update_icons()
 	H.forceMove(src)
-	visible_message(span_warning("The corpse of [H.name] suddenly rises!"))
+	visible_message("<span class='warning'>The corpse of [H.name] suddenly rises!</span>")
 
 /mob/living/simple_animal/hostile/headcrab/death(gibbed)
 	..()
@@ -94,7 +94,7 @@
 /mob/living/simple_animal/hostile/headcrab/handle_automated_speech() // This way they have different screams when attacking, sometimes. Might be seen as sphagetthi code though.
 	if(speak_chance)
 		if(rand(0,200) < speak_chance)
-			if(speak && length(speak))
+			if(speak && speak.len)
 				playsound(get_turf(src), pick(speak), 200, TRUE)
 
 /mob/living/simple_animal/hostile/headcrab/Destroy()
@@ -116,6 +116,7 @@
 
 		if(blocks_emissive)
 			add_overlay(get_emissive_block())
+
 
 /mob/living/simple_animal/hostile/headcrab/CanAttack(atom/the_target)
 	if(stat_attack == DEAD && isliving(the_target) && !ishuman(the_target))
@@ -139,6 +140,7 @@
 	speak_emote = list("визжит")
 	crab_head_overlay = "fast_headcrabpod"
 
+
 /mob/living/simple_animal/hostile/headcrab/fast/Zombify(mob/living/carbon/human/H)
 	. = ..()
 	speak = list('sound/creatures/fast_zombie_idle1.ogg','sound/creatures/fast_zombie_idle2.ogg','sound/creatures/fast_zombie_idle3.ogg')
@@ -159,6 +161,7 @@
 	speak_emote = list("визжит")
 	crab_head_overlay = "poison_headcrabpod"
 
+
 /mob/living/simple_animal/hostile/headcrab/poison/AttackingTarget()
 	. = ..()
 	if(iscarbon(target) && target.reagents)
@@ -166,4 +169,4 @@
 		var/mob/living/carbon/C = target
 		if(C.AmountEyeBlurry() < 120 SECONDS && (HAS_TRAIT(C, TRAIT_INCAPACITATED) || C.can_inject(null, FALSE, inject_target, FALSE)))
 			C.AdjustEyeBlurry(20 SECONDS)
-			visible_message(span_danger("[src] buries its fangs deep into the [inject_target] of [target]!"))
+			visible_message("<span class='danger'>[src] buries its fangs deep into the [inject_target] of [target]!</span>")

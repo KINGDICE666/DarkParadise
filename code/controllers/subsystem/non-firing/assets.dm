@@ -1,21 +1,15 @@
 SUBSYSTEM_DEF(assets)
 	name = "Assets"
-	dependencies = list(
-		/datum/controller/subsystem/atoms,
-	//	/datum/controller/subsystem/persistent_paintings,
-		/datum/controller/subsystem/processing/greyscale
-	)
-	ss_flags = SS_NO_FIRE
-
+	init_order = INIT_ORDER_ASSETS
+	flags = SS_NO_FIRE
+	ss_id = "assets"
 	/// Contains /datum/asset_cache_item
 	var/list/datum/asset_cache_item/cache = list()
 	var/list/preload = list()
 	var/datum/asset_transport/transport = new()
 
-/datum/controller/subsystem/assets/OnConfigLoad()
-	apply_configuration()
-
 /datum/controller/subsystem/assets/Initialize(timeofday)
+	apply_configuration()
 	load_assets()
 	return SS_INIT_SUCCESS
 
@@ -26,7 +20,7 @@ SUBSYSTEM_DEF(assets)
 /datum/controller/subsystem/assets/proc/apply_configuration()
 	var/newtransporttype = /datum/asset_transport
 	switch(CONFIG_GET(string/asset_transport))
-		if(ASSET_TRANSPORT_WEBROOT)
+		if("webroot")
 			newtransporttype = /datum/asset_transport/webroot
 
 	if(newtransporttype == transport.type)

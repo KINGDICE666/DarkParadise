@@ -30,7 +30,7 @@
 		/obj/item/reagent_containers/food/drinks/bottle/bottleofbanana = 1,
 		/obj/item/instrument/bikehorn = 1,
 		/obj/item/clown_recorder = 1,
-		/obj/item/clothing/head/beret/sec = 1,
+		/obj/item/clothing/head/beret/sec = 1
 	)
 	implants = list(/obj/item/implant/mindshield, /obj/item/implant/sad_trombone)
 
@@ -116,12 +116,12 @@
 
 	var/obj/item/card/id/I = H.wear_id
 	if(istype(I))
-		var/new_access = list(ACCESS_SECURITY, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_WEAPONS)
+		var/new_access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_WEAPONS)
 		if(is_physician)
-			new_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CHEMISTRY, ACCESS_VIROLOGY, ACCESS_GENETICS, ACCESS_SECURITY, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS)
+			new_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CHEMISTRY, ACCESS_VIROLOGY, ACCESS_GENETICS, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS)
 		if(is_warden)
 			new_access = list(
-				ACCESS_EVA, ACCESS_SECURITY, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_COURT,
+				ACCESS_EVA, ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_COURT,
 				ACCESS_FORENSICS_LOCKERS, ACCESS_PILOT, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS, ACCESS_ALL_PERSONAL_LOCKERS,
 				ACCESS_RESEARCH, ACCESS_ENGINE, ACCESS_MINING, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING,
 				ACCESS_HEADS, ACCESS_HOS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS
@@ -132,6 +132,7 @@
 	H.update_hud_set()
 	H.grant_mimicking()
 
+
 //=========== security clown equipment ===========
 /obj/item/pda/clown/security
 	default_request_console_cartridge = /obj/item/cartridge/request_console/clown_security
@@ -141,9 +142,9 @@
 /obj/item/card/id/security/clown
 	name = "Security-Clown ID"
 	registered_name = "Officer Clown"
-	icon_state = "clownsecurity"
+	icon_state = "security_clown"
 	desc = "Смотря на эту карту, вы понимаете что Центральное командование обладает специфичным чувством юмора."
-	access = list(ACCESS_SECURITY, ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_WEAPONS)
+	access = list(ACCESS_SECURITY, ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_WEAPONS)
 
 /obj/item/radio/headset/headset_sec/clown
 	name = "наушник клоуна службы безопасности"

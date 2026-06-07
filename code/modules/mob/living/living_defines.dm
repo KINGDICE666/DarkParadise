@@ -1,9 +1,6 @@
 /mob/living
-	abstract_type = /mob/living
 	see_invisible = SEE_INVISIBLE_LIVING
 	pressure_resistance = 10
-	interaction_flags_click = ALLOW_RESTING
-	interaction_flags_mouse_drop = ALLOW_RESTING
 
 	// Will be determined based on mob size if left null. Done in living/proc/determine_move_and_pull_forces()
 	move_resist = null
@@ -19,21 +16,15 @@
 	var/datum/middleClickOverride/middleClickOverride
 
 	//Damage related vars, NOTE: THESE SHOULD ONLY BE MODIFIED BY PROCS
-	///Brutal damage caused by brute force (punching, being clubbed by a toolbox ect... this also accounts for pressure damage)
-	var/bruteloss = 0
-	///Oxygen depravation damage (no air in lungs)
-	var/oxyloss = 0
-	///Toxic damage caused by being poisoned or radiated
-	var/toxloss = 0
-	///Burn damage caused by being way too hot, too cold or burnt.
-	var/fireloss = 0
-	///Damage caused by being cloned or ejected from the cloner early. slimes also deal cloneloss damage to victims
-	var/cloneloss = 0
-	///Stamina damage, or exhaustion. You recover it slowly naturally, and are stunned if it gets too high. Holodeck and hallucinations deal this.
-	var/staminaloss = 0
+	var/bruteloss = 0	//Brutal damage caused by brute force (punching, being clubbed by a toolbox ect... this also accounts for pressure damage)
+	var/oxyloss = 0	//Oxygen depravation damage (no air in lungs)
+	var/toxloss = 0	//Toxic damage caused by being poisoned or radiated
+	var/fireloss = 0	//Burn damage caused by being way too hot, too cold or burnt.
+	var/cloneloss = 0	//Damage caused by being cloned or ejected from the cloner early. slimes also deal cloneloss damage to victims
+	var/staminaloss = 0 //Stamina damage, or exhaustion. You recover it slowly naturally, and are stunned if it gets too high. Holodeck and hallucinations deal this.
 
-	///Used by the resist verb, likely used to prevent players from bypassing next_move by logging in/out.
-	var/last_special = 0
+
+	var/last_special = 0 //Used by the resist verb, likely used to prevent players from bypassing next_move by logging in/out.
 
 	//Allows mobs to move through dense areas without restriction. For instance, in space or out of holder objects.
 	var/incorporeal_move = INCORPOREAL_NONE
@@ -50,6 +41,7 @@
 	var/on_fire = 0
 	/// Tracks how many stacks of fire we have on, max is usually 20
 	var/fire_stacks = 0
+
 
 	var/mob_size = MOB_SIZE_HUMAN
 	/// More or less efficiency to metabolize helpful/harmful reagents and regulate body temperature.
@@ -68,9 +60,6 @@
 	/// The last direction we moved in a vent. Used to make holding two directions feel nice
 	var/last_vent_dir = NONE
 
-	/// Should only exist if you're in a pipe
-	var/datum/cell_tracker/pipetracker
-
 	/// Used to prevent spam with smoke reagent reaction on mob.
 	var/smoke_delay = 0
 
@@ -83,9 +72,6 @@
 
 	/// A list of surgery datums. Generally empty, they're added when the player wants them.
 	var/list/surgeries = list()
-
-	/// Lazylist of surgery speed modifiers - id to number - 2 = 2x faster, 0.5x = 0.5x slower
-	var/list/mob_surgery_speed_mods
 
 	var/gene_stability = DEFAULT_GENE_STABILITY
 	var/ignore_gene_stability = 0
@@ -144,6 +130,10 @@
 	/// Is this mob allowed to be buckled/unbuckled to/from things?
 	var/can_buckle_to = TRUE
 
+	/// The x amount a mob's sprite should be offset due to the current position they're in
+	var/body_position_pixel_x_offset = 0
+	/// The y amount a mob's sprite should be offset due to the current position they're in or size (e.g. lying down moves your sprite down)
+	var/body_position_pixel_y_offset = 0
 	/// The height offset of a mob's maptext due to their current size.
 	var/body_maptext_height_offset = 0
 
@@ -158,11 +148,8 @@
 	/// Hand currently used for pulling/grabing
 	var/pull_hand = PULL_WITHOUT_HANDS
 
-	/// The body part where the bleeding was suppressed by the right hand
-	var/left_hand_bleed_suppress_lib = null
-	/// The body part where the bleeding was suppressed by the left hand
-	var/right_hand_bleed_suppress_lib = null
-
+	//Did the blob infected mob burst.
+	var/was_bursted = FALSE
 	//Was death by turning to dust.
 	var/dusted = FALSE
 
@@ -176,7 +163,7 @@
 	var/last_words
 
 	/// List of alpha changelog from various sources
-	var/list/alphas = list(ALPHA_SOURCE_DEFAULT = 1)
+	var/list/alphas
 
 	//LETTING SIMPLE ANIMALS ATTACK? WHAT COULD GO WRONG. Defaults to zero so Ian can still be cuddly
 	var/melee_damage = 0
@@ -203,14 +190,3 @@
 	var/image/halbody
 	var/obj/halitem
 	var/hal_screwyhud = SCREWYHUD_NONE
-
-	/// Cooldown for projectile miss sound (5 deciseconds)
-	COOLDOWN_DECLARE(bullet_miss_cooldown)
-
-	/// How many tiles can this mob reach with their hands? 1 tile is adjacent.
-	var/reach_length = 1
-
-	/// Lazylists of pixel offsets this mob is currently using
-	/// Modify this via add_offsets and remove_offsets,
-	/// NOT directly (and definitely avoid modifying offsets directly)
-	VAR_PRIVATE/list/offsets

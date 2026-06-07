@@ -1,8 +1,8 @@
-#define MED_DATA_R_LIST 2 // Record list
-#define MED_DATA_MAINT 3 // Records maintenance
-#define MED_DATA_RECORD 4 // Record
-#define MED_DATA_V_DATA 5 // Virus database
-#define MED_DATA_MEDBOT 6 // Medbot monitor
+#define MED_DATA_R_LIST	2	// Record list
+#define MED_DATA_MAINT	3	// Records maintenance
+#define MED_DATA_RECORD	4	// Record
+#define MED_DATA_V_DATA	5	// Virus database
+#define MED_DATA_MEDBOT	6	// Medbot monitor
 
 #define FIELD(N, V, E) list(field = N, value = V, edit = E)
 #define MED_FIELD(N, V, E, LB) list(field = N, value = V, edit = E, line_break = LB)
@@ -26,13 +26,13 @@
 	light_color = LIGHT_COLOR_DARK_BLUE
 
 /obj/machinery/computer/med_data/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "консоль медицинских записей",
 		GENITIVE = "консоли медицинских записей",
 		DATIVE = "консоли медицинских записей",
 		ACCUSATIVE = "консоль медицинских записей",
 		INSTRUMENTAL = "консолью медицинских записей",
-		PREPOSITIONAL = "консоли медицинских записей",
+		PREPOSITIONAL = "консоли медицинских записей"
 	)
 
 /obj/machinery/computer/med_data/Initialize(mapload)
@@ -71,6 +71,7 @@
 	active2 = null
 	return ..()
 
+
 /obj/machinery/computer/med_data/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -80,6 +81,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
 
 /obj/machinery/computer/med_data/attack_hand(mob/user)
 	if(..())
@@ -112,7 +114,7 @@
 					data["records"] = records
 					for(var/datum/data/record/R in sortRecord(GLOB.data_core.general))
 						records[++records.len] = list(
-							"ref" = R.UID(),
+							"ref" = "\ref[R]",
 							"name" = R.fields["name"],
 							"id" = R.fields["id"],
 							"rank" = R.fields["rank"],
@@ -261,7 +263,7 @@
 					set_temp("Запись удалена.")
 					qdel(active2)
 			if("view_record")
-				var/datum/data/record/general_record = locateUID(params["view_record"] || "")
+				var/datum/data/record/general_record = locate(params["view_record"] || "")
 				if(!GLOB.data_core.general.Find(general_record))
 					set_temp("Запись не найдена.", "danger")
 					return
@@ -375,7 +377,7 @@
 					if(!length(answer) || !istype(active2) || !length(state.name))
 						return
 					active2.fields["comments"] += list(list(
-						header = "Создатель записи — [state.name] ([state.rank]). Запись создана [GLOB.current_date_string] [station_time_timestamp()].",
+						header = "Создатель записи - [state.name] ([state.rank]). Запись создана [GLOB.current_date_string] [station_time_timestamp()].",
 						text = answer
 					))
 				else
@@ -443,7 +445,7 @@
 		if(prob(10/severity))
 			switch(rand(1,6))
 				if(1)
-					R.fields["name"] = pick("[pick(GLOB.first_names_male)] [pick(GLOB.last_names_male)]", "[pick(GLOB.first_names_female)] [pick(GLOB.last_names_female)]")
+					R.fields["name"] = pick("[pick(GLOB.first_names_male)] [pick(GLOB.last_names)]", "[pick(GLOB.first_names_female)] [pick(GLOB.last_names_female)]")
 				if(2)
 					R.fields["sex"] = pick("Мужской", "Женский", "Небинарный", "Множественный")
 				if(3)
@@ -476,13 +478,13 @@
 	density = FALSE
 
 /obj/machinery/computer/med_data/laptop/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "медицинский ноутбук",
 		GENITIVE = "медицинского ноутбука",
 		DATIVE = "медицинскому ноутбуку",
 		ACCUSATIVE = "медицинский ноутбук",
 		INSTRUMENTAL = "медицинским ноутбуком",
-		PREPOSITIONAL = "медицинском ноутбуке",
+		PREPOSITIONAL = "медицинском ноутбуке"
 	)
 
 #undef MED_DATA_R_LIST

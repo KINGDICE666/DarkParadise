@@ -105,6 +105,7 @@
 	throw_speed_low = 4
 	throw_speed_high = 7
 
+
 // Tier 4 only
 
 /datum/anomaly_impulse/grav_fastmove

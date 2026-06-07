@@ -11,7 +11,7 @@
 	throw_range = 5
 	materials = list(MAT_METAL=10000)
 	origin_tech = "magnets=3;bluespace=4"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 30, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	var/icon_state_inactive = "hand_tele_inactive"
 	var/active_portals = 0
@@ -65,9 +65,11 @@
 	active_portals++
 	add_fingerprint(user)
 
+
 /obj/item/hand_tele/emp_act(severity)
 	make_inactive(severity)
 	return ..()
+
 
 /obj/item/hand_tele/proc/make_inactive(severity)
 	var/time = rand(10 SECONDS, 15 SECONDS) * (severity == EMP_HEAVY ? 2 : 1)
@@ -75,18 +77,22 @@
 	update_icon(UPDATE_ICON_STATE)
 	addtimer(CALLBACK(src, PROC_REF(check_inactive), emp_timer), time)
 
+
 /obj/item/hand_tele/proc/check_inactive(current_emp_timer)
 	if(emp_timer != current_emp_timer)
 		return
 	update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/hand_tele/examine(mob/user)
 	. = ..()
 	if(emp_timer > world.time)
 		. += span_warning("It looks inactive.")
 
+
 /obj/item/hand_tele/update_icon_state()
 	icon_state = (emp_timer > world.time) ? icon_state_inactive : base_icon_state
+
 
 /obj/item/hand_tele/portal_destroyed(obj/effect/portal/P)
 	active_portals--

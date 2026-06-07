@@ -53,6 +53,35 @@
 	icon_state = "fan"
 	desc = "A small desktop fan. The button seems to be stuck in the 'on' position."
 
+/obj/item/gift
+	name = "gift"
+	desc = "A wrapped item."
+	icon_state = "gift3"
+	var/size = 3.0
+	var/obj/item/gift = null
+	item_state = "gift"
+	w_class = WEIGHT_CLASS_BULKY
+
+
+/obj/item/gift/Destroy()
+	QDEL_NULL(gift)
+	return ..()
+
+
+/obj/item/gift/attack_self(mob/user)
+	if(gift)
+		gift.forceMove(drop_location())
+		user.put_in_active_hand(gift)
+		gift.add_fingerprint(user)
+	else
+		to_chat(user, span_notice("The gift was empty!"))
+	qdel(src)
+
+
+/obj/item/gift/emp_act(severity)
+	..()
+	gift.emp_act(severity)
+
 /obj/item/kidanglobe
 	name = "Kidan homeworld globe"
 	icon = 'icons/obj/decorations.dmi'
@@ -66,15 +95,18 @@
 	desc = "test lightning"
 	var/angle
 
+
 /obj/item/lightning/Initialize(mapload)
 	. = ..()
 	icon_state = "1"
 
+
 /obj/item/lightning/update_icon_state()
 	icon_state = "[angle]"
 
-/obj/item/lightning/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	var/angle = get_angle(target, user)
+
+/obj/item/lightning/afterattack(atom/A, mob/living/user, flag, params)
+	var/angle = get_angle(A, user)
 	//to_chat(world, angle)
 	angle = round(angle) + 45
 	if(angle > 180)
@@ -85,7 +117,7 @@
 	if(!angle)
 		angle = 1
 	update_icon(UPDATE_ICON_STATE)
-	user.Beam(target, "lightning", 'icons/obj/zap.dmi', 50, 15)
+	user.Beam(A, "lightning", 'icons/obj/zap.dmi', 50, 15)
 
 /obj/item/newton
 	name = "newton cradle"
@@ -143,6 +175,7 @@
 		if(do_after(user, 1 SECONDS, user))
 			active = TRUE
 			update_icon(UPDATE_ICON_STATE)
+
 
 /obj/item/nunchuck/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!active)

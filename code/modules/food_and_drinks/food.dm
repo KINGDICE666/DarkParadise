@@ -35,9 +35,6 @@
 	light_system = MOVABLE_LIGHT
 	light_on = FALSE
 
-/obj/item/reagent_containers/food/get_short_name()
-	return declent_ru(NOMINATIVE)
-
 /obj/item/reagent_containers/food/Initialize(mapload)
 	. = ..()
 	pixel_x = rand(-5, 5) //Randomizes postion
@@ -49,7 +46,7 @@
 
 /obj/item/reagent_containers/food/Destroy()
 	ant_location = null
-	if(datum_flags & DF_ISPROCESSING)
+	if(isprocessing)
 		STOP_PROCESSING(SSobj, src)
 	return ..()
 
@@ -59,9 +56,13 @@
 	if(world.time > last_ant_time + 5 MINUTES)
 		check_for_ants()
 
+/obj/item/reagent_containers/food/set_APTFT()
+	set hidden = TRUE
+	..()
+
 /obj/item/reagent_containers/food/empty()
 	set hidden = TRUE
-	return
+	..()
 
 /obj/item/reagent_containers/food/proc/check_for_ants()
 	var/turf/T = get_turf(src)
@@ -143,34 +144,34 @@
 /obj/item/reagent_containers/food/examine(mob/user)
 	. = ..()
 	if(foodtype & MEAT)
-		. += span_notice("It contains meat.")
+		. += "<span class='notice'>It contains meat.</span>"
 	if(foodtype & VEGETABLES)
-		. += span_notice("It contains vegetables.")
+		. += "<span class='notice'>It contains vegetables.</span>"
 	if(foodtype & RAW)
-		. += span_notice("It is not properly cooked.")
+		. += "<span class='notice'>It is not properly cooked.</span>"
 	if(foodtype & JUNKFOOD)
-		. += span_notice("It is junkfood.")
+		. += "<span class='notice'>It is junkfood.</span>"
 	if(foodtype & GRAIN)
-		. += span_notice("It is made of grain.")
+		. += "<span class='notice'>It is made of grain.</span>"
 	if(foodtype & FRUIT)
-		. += span_notice("It contains fruits.")
+		. += "<span class='notice'>It contains fruits.</span>"
 	if(foodtype & DAIRY)
-		. += span_notice("It contains dairy.")
+		. += "<span class='notice'>It contains dairy.</span>"
 	if(foodtype & FRIED)
-		. += span_notice("It is fried.")
+		. += "<span class='notice'>It is fried.</span>"
 	if(foodtype & SUGAR)
-		. += span_notice("It is sugary.")
+		. += "<span class='notice'>It is sugary.</span>"
 	if(foodtype & EGG)
-		. += span_notice("It contains eggs.")
+		. += "<span class='notice'>It contains eggs.</span>"
 	if(foodtype & GROSS)
-		. += span_notice("This is pure garbage.")
+		. += "<span class='notice'>This is pure garbage.</span>"
 	if(foodtype & TOXIC)
-		. += span_notice("This is straight up poisonous.")
+		. += "<span class='notice'>This is straight up poisonous.</span>"
 	if(user.can_see_food()) //Show each individual reagent
-		. += span_notice("It contains:")
+		. += "<span class='notice'>It contains:</span>"
 		for(var/I in reagents.reagent_list)
 			var/datum/reagent/R = I
-			. += span_notice("[R.volume] units of [R.name]")
+			. += "<span class='notice'>[R.volume] units of [R.name]</span>"
 
 #undef HATE_MESSAGES
 #undef DISLIKE_MESSAGES

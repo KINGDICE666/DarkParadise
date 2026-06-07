@@ -7,6 +7,8 @@
 	var/spawn_text = "emerges from"
 	var/list/faction = list("mining")
 
+
+
 /datum/component/spawner/Initialize(_mob_types, _spawn_time, _faction, _spawn_text, _max_mobs)
 	if(_spawn_time)
 		spawn_time=_spawn_time
@@ -19,11 +21,12 @@
 	if(_max_mobs)
 		max_mobs=_max_mobs
 
-	RegisterSignals(parent, list(COMSIG_QDELETING), PROC_REF(stop_spawning))
+	RegisterSignal(parent, list(COMSIG_QDELETING), PROC_REF(stop_spawning))
 	START_PROCESSING(SSprocessing, src)
 
 /datum/component/spawner/process()
 	try_spawn_mob()
+
 
 /datum/component/spawner/proc/stop_spawning(force)
 	STOP_PROCESSING(SSprocessing, src)
@@ -37,7 +40,7 @@
 	var/turf/T = get_turf(P)
 	if(GLOB.mob_suspension && T && !length(SSmobs?.clients_by_zlevel[T.z]))
 		return FALSE
-	if(length(spawned_mobs) >= max_mobs)
+	if(spawned_mobs.len >= max_mobs)
 		return FALSE
 	if(spawn_delay > world.time)
 		return FALSE

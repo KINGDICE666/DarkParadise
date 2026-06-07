@@ -49,11 +49,13 @@
 	dir = 6
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/item/radio/intercom/pirate/directional/east,
 /turf/simulated/floor/plasteel,
 /area/ruin/powered)
 "l" = (
 /obj/structure/table,
+/obj/item/radio/intercom/pirate{
+	name = "listening post intercom"
+	},
 /obj/machinery/light/small{
 	dir = 1
 	},
@@ -109,6 +111,9 @@
 /area/ruin/powered)
 "s" = (
 /obj/structure/table,
+/obj/item/radio/intercom/pirate{
+	name = "listening post intercom"
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
 /area/ruin/powered)
@@ -274,6 +279,7 @@
 /area/ruin/powered)
 "Q" = (
 /obj/machinery/shower{
+	tag = "icon-shower (WEST)";
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -287,6 +293,7 @@
 /area/ruin/powered)
 "S" = (
 /obj/structure/toilet{
+	tag = "icon-toilet00 (WEST)";
 	dir = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -300,12 +307,6 @@
 /obj/structure/disposalpipe/trunk,
 /turf/simulated/floor/plating/airless,
 /area/space)
-"U" = (
-/obj/structure/disposalpipe/segment,
-/obj/effect/decal/cleanable/dirt,
-/obj/item/radio/intercom/pirate/directional/east,
-/turf/simulated/floor/plasteel,
-/area/ruin/powered)
 "V" = (
 /obj/machinery/door/airlock/external,
 /obj/structure/disposalpipe/segment{
@@ -1070,7 +1071,7 @@ c
 f
 k
 q
-U
+b
 b
 X
 b

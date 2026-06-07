@@ -46,8 +46,8 @@
 	slot_flags = ITEM_SLOT_BELT
 	origin_tech = "magnets=3;engineering=4"
 	force = 8
-	toolbox_radial_menu_compatibility = TRUE
 
+	var/emagged = FALSE
 	var/max_uses = 20
 	var/uses = 10
 	// How much to increase per each glass?
@@ -66,7 +66,8 @@
 
 /obj/item/lightreplacer/examine(mob/user)
 	. = ..()
-	. += span_notice("[status_string()]")
+	. += "<span class='notice'>[status_string()]</span>"
+
 
 /obj/item/lightreplacer/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/sheet/glass))
@@ -148,12 +149,14 @@
 
 	return ..()
 
+
 /obj/item/lightreplacer/emag_act(mob/user)
 	if(!emagged)
 		emagged = TRUE
 		add_attack_logs(user, src, "emagged")
 		playsound(loc, SFX_SPARKS, 100, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
 		update_appearance(UPDATE_NAME|UPDATE_ICON_STATE)
+
 
 /obj/item/lightreplacer/update_name(updates = ALL)
 	. = ..()
@@ -162,13 +165,16 @@
 	else
 		name = initial(name)
 
+
 /obj/item/lightreplacer/update_icon_state()
 	icon_state = "lightreplacer[emagged]"
+
 
 /obj/item/lightreplacer/attack_self(mob/user)
 	for(var/obj/machinery/light/target in user.loc)
 		ReplaceLight(target, user)
 	to_chat(user, status_string())
+
 
 /obj/item/lightreplacer/proc/status_string()
 	return "It has [uses] light\s remaining (plus [bulb_shards] fragment\s)."
@@ -189,7 +195,7 @@
 		AddUses(new_bulbs)
 	bulb_shards = bulb_shards % shards_required
 	if(new_bulbs != 0)
-		to_chat(user, span_notice("[src] has fabricated a new bulb from the broken glass it has stored. It now has [uses] uses."))
+		to_chat(user, "<span class='notice'>[src] has fabricated a new bulb from the broken glass it has stored. It now has [uses] uses.</span>")
 		playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
 	return new_bulbs
 
@@ -204,7 +210,7 @@
 		if(CanUse(U))
 			if(!Use(U))
 				return
-			to_chat(U, span_notice("You replace the light [target.fitting] with [src]."))
+			to_chat(U, "<span class='notice'>You replace the light [target.fitting] with [src].</span>")
 
 			if(target.status != LIGHT_EMPTY)
 				AddShards(1, U)
@@ -231,8 +237,9 @@
 			to_chat(U, "[src]'s refill light blinks red.")
 			return
 	else
-		to_chat(U, span_warning("There is a working [target.fitting] already inserted!"))
+		to_chat(U, "<span class='warning'>There is a working [target.fitting] already inserted!</span>")
 		return
+
 
 /obj/item/lightreplacer/proc/CanUse(mob/living/user)
 	add_fingerprint(user)
@@ -241,30 +248,32 @@
 	else
 		return 0
 
-/obj/item/lightreplacer/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/lightreplacer/afterattack(atom/T, mob/U, proximity, params)
 	. = ..()
-	if(!proximity_flag && !bluespace_toggle)
+	if(!proximity && !bluespace_toggle)
 		return
-	if(!isturf(target))
+	if(!isturf(T))
 		return
-	if(get_dist(src, target) >= (user.client.maxview() + 2)) // To prevent people from using it over cameras
+	if(get_dist(src, T) >= (U.client.maxview() + 2)) // To prevent people from using it over cameras
 		return
 
 	var/used = FALSE
-	for(var/atom/A in target)
-		if(!CanUse(user))
+	for(var/atom/A in T)
+		if(!CanUse(U))
 			break
 		used = TRUE
 		if(istype(A, /obj/machinery/light))
-			if(!proximity_flag)  // only beams if at a distance
-				user.Beam(A, icon_state = "rped_upgrade", icon = 'icons/effects/effects.dmi', time = 5)
+			if(!proximity)  // only beams if at a distance
+				U.Beam(A, icon_state = "rped_upgrade", icon = 'icons/effects/effects.dmi', time = 5)
 				playsound(src, 'sound/items/pshoom.ogg', 40, TRUE)
-			ReplaceLight(A, user)
+			ReplaceLight(A, U)
 
 	if(!used)
-		to_chat(user, "[src]'s refill light blinks red.")
+		to_chat(U, "[src]'s refill light blinks red.")
+
 
 /obj/item/lightreplacer/cyborg
+
 
 /obj/item/lightreplacer/bluespace
 	name = "bluespace light replacer"

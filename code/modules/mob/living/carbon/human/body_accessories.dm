@@ -12,7 +12,7 @@ GLOBAL_LIST_EMPTY(body_accessory_by_species)
 				GLOB.body_accessory_by_species["[species]"] = list()
 			GLOB.body_accessory_by_species["[species]"]["[accessory.name]"] = accessory
 
-	if(length(GLOB.body_accessory_by_species))
+	if(GLOB.body_accessory_by_species.len)
 		return TRUE
 	return FALSE
 
@@ -62,6 +62,7 @@ GLOBAL_LIST_EMPTY(body_accessory_by_species)
 		return animated_icon_state
 
 	else	return icon_state
+
 
 //Bodies
 /datum/body_accessory/body

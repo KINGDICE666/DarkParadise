@@ -97,7 +97,8 @@
 /mob/living/simple_animal/hostile/poison/bees/examine(mob/user)
 	. = ..()
 	if(!bee_syndicate && !beehome)
-		. += span_warning("This bee is homeless!")
+		. += "<span class='warning'>This bee is homeless!</span>"
+
 
 /mob/living/simple_animal/hostile/poison/bees/ListTargets() // Bee processing is expessive, so we override them finding targets here.
 	if(!search_objects) //In case we want to have purely hostile bees
@@ -106,11 +107,12 @@
 	for(var/atom/movable/movable in oview(vision_range, targets_from))
 		. += movable
 
+
 /mob/living/simple_animal/hostile/poison/bees/regenerate_icons()
 	..()
 
 	var/col = BEE_DEFAULT_COLOUR
-	if(beegent?.color)
+	if(beegent && beegent.color)
 		col = beegent.color
 
 	var/image/greyscale
@@ -125,6 +127,7 @@
 		bee_icons["[initial(icon_state)]_wings"] = image(icon = 'icons/mob/bees.dmi', icon_state = "[initial(icon_state)]_wings")
 	wings = bee_icons["[initial(icon_state)]_wings"]
 	add_overlay(wings)
+
 
 //We don't attack beekeepers/people dressed as bees/wryns //Todo: bee costume
 /mob/living/simple_animal/hostile/poison/bees/CanAttack(atom/the_target)
@@ -216,7 +219,7 @@
 						target = beehome
 		if(!beehome) //add ourselves to a beebox (of the same reagent) if we have no home
 			for(var/obj/structure/beebox/BB in view(vision_range, src))
-				if(reagent_incompatible(BB.queen_bee) || length(BB.bees) >= BB.get_max_bees())
+				if(reagent_incompatible(BB.queen_bee) || BB.bees.len >= BB.get_max_bees())
 					continue
 				BB.bees |= src
 				beehome = BB
@@ -228,6 +231,7 @@
 	desc = "She's the queen of bees, BZZ BZZ"
 	icon_state = "queen"
 	isqueen = TRUE
+
 
 //the Queen doesn't leave the box on her own, and she CERTAINLY doesn't pollinate by herself
 /mob/living/simple_animal/hostile/poison/bees/queen/Found(atom/A)
@@ -252,6 +256,7 @@
 		return TRUE
 	return FALSE
 
+
 /obj/item/queen_bee
 	name = "queen bee"
 	desc = "She's the queen of bees, BZZ BZZ"
@@ -260,16 +265,19 @@
 	icon = 'icons/mob/bees.dmi'
 	var/mob/living/simple_animal/hostile/poison/bees/queen/queen
 
+
 /obj/item/queen_bee/bought/Initialize(mapload)
 	. = ..()
 	queen = new(src)
+
 
 /obj/item/queen_bee/Destroy()
 	QDEL_NULL(queen)
 	return ..()
 
+
 /obj/item/queen_bee/attackby(obj/item/I, mob/user, params)
-	if(issyringe(I))
+	if(istype(I, /obj/item/reagent_containers/syringe))
 		add_fingerprint(user)
 		var/obj/item/reagent_containers/syringe/syringe = I
 		if(syringe.mode != 1)	// injecting
@@ -311,6 +319,7 @@
 
 	return ..()
 
+
 /mob/living/simple_animal/hostile/poison/bees/consider_wakeup()
 	if(!beehome || loc != beehome) // If bees are chilling in their nest, they're not actively looking for targets
 		return ..()
@@ -318,6 +327,7 @@
 	if(idle >= BEE_IDLE_ROAMING && prob(BEE_PROB_GOROAM))
 		forceMove(beehome.loc)
 		toggle_ai(AI_ON)
+
 
 //Syndicate Bees
 /mob/living/simple_animal/hostile/poison/bees/syndi

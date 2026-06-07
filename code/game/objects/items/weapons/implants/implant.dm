@@ -41,6 +41,7 @@
 	///the implant_fluff datum attached to this implant, purely cosmetic "lore" information
 	var/datum/implant_fluff/implant_data = /datum/implant_fluff
 
+
 /obj/item/implant/Initialize(mapload)
 	. = ..()
 	RegisterSignal(src, COMSIG_ACTION_BUTTON_UPDATE, PROC_REF(update_button))
@@ -72,10 +73,12 @@
 	UnregisterSignal(src, COMSIG_ACTION_BUTTON_UPDATE)
 	return ..()
 
+
 /obj/item/implant/proc/unregister_emotes()
 	if(imp_in && LAZYLEN(trigger_emotes))
 		for(var/emote in trigger_emotes)
 			UnregisterSignal(imp_in, COMSIG_MOB_EMOTED(emote))
+
 
 /**
  * Set the emote that will trigger the implant.
@@ -112,6 +115,7 @@
 	LAZYOR(trigger_emotes, emote_key)
 	RegisterSignal(user, COMSIG_MOB_EMOTED(emote_key), PROC_REF(on_emote))
 
+
 /obj/item/implant/proc/on_emote(mob/living/user, datum/emote/fired_emote, key, emote_type, message, intentional)
 	SIGNAL_HANDLER
 
@@ -123,6 +127,7 @@
 
 	add_attack_logs(user, user, "[src] was [intentional ? "intentionally" : "unintentionally"] triggered with the emote [fired_emote].")
 	emote_trigger(key, user, intentional)
+
 
 /obj/item/implant/proc/on_death(mob/source, gibbed)
 	SIGNAL_HANDLER
@@ -142,19 +147,22 @@
 	add_attack_logs(source, source, "had their [src] bio-chip triggered on [gibbed ? "gib" : "death"].")
 	death_trigger(source, gibbed)
 
+
 /obj/item/implant/proc/emote_trigger(emote, mob/source, intentional)
 	return
+
 
 /obj/item/implant/proc/death_trigger(mob/source, gibbed)
 	return
 
+
 /obj/item/implant/proc/activate(cause)
-	SHOULD_CALL_PARENT(TRUE)
-	SEND_SIGNAL(src, COMSIG_IMPLANT_ACTIVATED, cause, imp_in)
-	return TRUE
+	return
+
 
 /obj/item/implant/ui_action_click(mob/user, datum/action/action, leftclick)
 	activate("action_button")
+
 
 /**
  * Try to implant ourselves into a mob.
@@ -168,7 +176,7 @@
  */
 /obj/item/implant/proc/implant(mob/living/carbon/human/source, mob/user, force = FALSE)
 	if(!force && !can_implant(source, user))
-		return FALSE
+		return
 	var/obj/item/implant/imp_e = locate(type) in source
 	if(!allow_multiple && imp_e && imp_e != src && imp_e.type == src.type)
 		if(imp_e.uses < initial(imp_e.uses) * 2)
@@ -185,7 +193,7 @@
 	implanted = BIOCHIP_IMPLANTED
 
 	if(trigger_emotes)
-		if(!(trigger_causes & (BIOCHIP_EMOTE_TRIGGER_INTENTIONAL|BIOCHIP_EMOTE_TRIGGER_UNINTENTIONAL)))
+		if(!(trigger_causes & BIOCHIP_EMOTE_TRIGGER_INTENTIONAL|BIOCHIP_EMOTE_TRIGGER_UNINTENTIONAL))
 			CRASH("Bio-chip [src] has trigger emotes defined but no trigger cause with which to use them!")
 		if(activated == BIOCHIP_ACTIVATED_PASSIVE && (trigger_causes & BIOCHIP_EMOTE_TRIGGER_INTENTIONAL))
 			CRASH("Bio-chip [src] has intentional emote triggers on a passive bio-chip")
@@ -197,10 +205,7 @@
 		for(var/datum/action/action as anything in actions)
 			action.Grant(source)
 			update_button(action)
-	else
-		for(var/datum/action/action as anything in actions)
-			action.Remove(source)
-			update_button(action)
+			action.UpdateButtonIcon()
 
 	if(trigger_causes & (BIOCHIP_TRIGGER_DEATH_ONCE|BIOCHIP_TRIGGER_DEATH_ANY))
 		RegisterSignal(source, COMSIG_MOB_DEATH, PROC_REF(on_death))
@@ -211,8 +216,8 @@
 	if(user)
 		add_attack_logs(user, source, "Chipped with [src]")
 
-	SEND_SIGNAL(src, COMSIG_IMPLANT_IMPLANTED, source, user, force)
 	return TRUE
+
 
 /**
  * Check that we can actually implant this before implanting it
@@ -225,6 +230,7 @@
  */
 /obj/item/implant/proc/can_implant(mob/source, mob/user)
 	return TRUE
+
 
 /**
  * Clean up when an implant is removed.
@@ -248,8 +254,8 @@
 
 	unregister_emotes()
 
-	SEND_SIGNAL(src, COMSIG_IMPLANT_REMOVED, source)
 	return TRUE
+
 
 /**
  * Updates button name and description.
@@ -258,8 +264,7 @@
 	SIGNAL_HANDLER
 	action?.name = "[initial(action.name)] [name]"
 	action?.desc = desc
-	action?.status_text = cooldown_system.cooldown_info()
-	action?.UpdateButtonIcon()
 	if(cooldown_system?.should_draw_cooldown())
+		action.apply_unavailable_effect()
 		return COMSIG_ACTION_UPDATE_INTERRUPT
 	return NONE

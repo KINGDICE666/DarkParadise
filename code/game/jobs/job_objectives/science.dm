@@ -32,6 +32,8 @@
 	desc += "(построено [units_completed])."
 	return desc
 
+
+
 //RIPLEY's
 /datum/job_objective/make_ripley
 	completion_payment = 600

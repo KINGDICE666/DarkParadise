@@ -27,13 +27,13 @@
 	mob_size = MOB_SIZE_SMALL
 
 /mob/living/simple_animal/crab/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "краб",
 		GENITIVE = "краба",
 		DATIVE = "крабу",
 		ACCUSATIVE = "краба",
 		INSTRUMENTAL = "крабом",
-		PREPOSITIONAL = "крабе",
+		PREPOSITIONAL = "крабе"
 	)
 
 /mob/living/simple_animal/crab/royal
@@ -50,13 +50,13 @@
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 3)
 
 /mob/living/simple_animal/crab/royal/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "королевский краб",
 		GENITIVE = "королевского краба",
 		DATIVE = "королевскому крабу",
 		ACCUSATIVE = "королевского краба",
 		INSTRUMENTAL = "королевским крабом",
-		PREPOSITIONAL = "королевском крабе",
+		PREPOSITIONAL = "королевском крабе"
 	)
 
 //COFFEE! SQUEEEEEEEEE!
@@ -68,13 +68,13 @@
 	unique_pet = TRUE
 
 /mob/living/simple_animal/crab/Coffee/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Коффи",
 		GENITIVE = "Коффи",
 		DATIVE = "Коффи",
 		ACCUSATIVE = "Коффи",
 		INSTRUMENTAL = "Коффи",
-		PREPOSITIONAL = "Коффи",
+		PREPOSITIONAL = "Коффи"
 	)
 
 // Billy Crabbington, MASTER OF THE GYM
@@ -92,13 +92,13 @@
 	unique_pet = TRUE
 
 /mob/living/simple_animal/crab/billy/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Билли Крабингтон",
 		GENITIVE = "Билли Крабингтона",
 		DATIVE = "Билли Крабингтону",
 		ACCUSATIVE = "Билли Крабингтона",
 		INSTRUMENTAL = "Билли Крабингтоном",
-		PREPOSITIONAL = "Билли Крабингтоне",
+		PREPOSITIONAL = "Билли Крабингтоне"
 	)
 
 /mob/living/simple_animal/crab/evil
@@ -112,11 +112,11 @@
 	holder_type = /obj/item/holder/evilcrab
 
 /mob/living/simple_animal/crab/evil/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "злой краб",
 		GENITIVE = "злого краба",
 		DATIVE = "злому крабу",
 		ACCUSATIVE = "злого краба",
 		INSTRUMENTAL = "злым крабом",
-		PREPOSITIONAL = "злом крабе",
+		PREPOSITIONAL = "злом крабе"
 	)

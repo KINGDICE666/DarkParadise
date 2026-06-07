@@ -1,3 +1,29 @@
+// Exist only for sdql2, deleted by official paradise
+/obj/effect/statclick
+	name = "Initializing..."
+	var/target
+
+INITIALIZE_IMMEDIATE(/obj/effect/statclick)
+
+/obj/effect/statclick/Initialize(mapload, text, target)
+	. = ..()
+	name = text
+	src.target = target
+	if(isdatum(target)) //Harddel man bad
+		RegisterSignal(target, COMSIG_QDELETING, PROC_REF(cleanup))
+
+/obj/effect/statclick/Destroy()
+	target = null
+	return ..()
+
+/obj/effect/statclick/proc/cleanup()
+	SIGNAL_HANDLER
+	qdel(src)
+
+/obj/effect/statclick/proc/update(text)
+	name = text
+	return src
+
 //SDQL2 datumized, /tg/station special!
 
 /*
@@ -194,21 +220,28 @@
 		state = SDQL2_STATE_ERROR;\
 		CRASH("SDQL2 fatal error");};
 
-ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_CATEGORY_DEBUG)
-	var/prompt = tgui_alert(user, "Run SDQL2 Query?", "SDQL2", list("Yes", "Cancel"))
+/client/proc/SDQL2_query()
+	set name = "SDQL2 Query"
+	set desc = "Run a SDQL2 query."
+	set category = STATPANEL_ADMIN_DEBUG
+	if(!check_rights(R_PROCCALL))  //Shouldn't happen... but just to be safe.
+		message_admins("<span class='danger'>ERROR: Non-admin [key_name_admin(usr)] attempted to execute a SDQL query!</span>")
+		log_admin("Non-admin [key_name(usr)] attempted to execute a SDQL query!")
+		return FALSE
+
+	var/prompt = tgui_alert(usr, "Run SDQL2 Query?", "SDQL2", list("Yes", "Cancel"))
 	if(prompt != "Yes")
 		return
 
-	var/query_text = tgui_input_text(user, "SDQL2 query", multiline = TRUE, encode = FALSE)
+	var/query_text = tgui_input_text(usr, "SDQL2 query", multiline = TRUE, encode = FALSE)
 
 	if(!query_text || length(query_text) < 1)
 		return
 
-	var/list/results = world.SDQL2_query(query_text, key_name_admin(user), "[key_name(user)]")
+	var/list/results = world.SDQL2_query(query_text, key_name_admin(usr), "[key_name(usr)]")
 	if(length(results) == 3)
 		for(var/I in 1 to 3)
-			to_chat(user, results[I], confidential = TRUE)
-	SSblackbox.record_feedback("nested tally", "SDQL query", 1, list(user.ckey, query_text))
+			to_chat(usr, results[I], confidential=TRUE)
 
 /world/proc/SDQL2_query(query_text, log_entry1, log_entry2)
 	log_and_message_admins("executed SDQL query: \"[query_text]\".")
@@ -242,7 +275,7 @@ ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_C
 		running += query
 		var/msg = "Starting query #[query.id] - [query.get_query_text()]."
 		if(usr)
-			to_chat(usr, span_admin("[msg]"), confidential = TRUE)
+			to_chat(usr, span_admin("[msg]"), confidential=TRUE)
 		log_admin(msg)
 		query.ARun()
 	else //Start all
@@ -250,7 +283,7 @@ ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_C
 			running += query
 			var/msg = "Starting query #[query.id] - [query.get_query_text()]."
 			if(usr)
-				to_chat(usr, span_admin("[msg]"), confidential = TRUE)
+				to_chat(usr, span_admin("[msg]"), confidential=TRUE)
 			log_admin(msg)
 			query.ARun()
 
@@ -271,7 +304,7 @@ ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_C
 				finished = FALSE
 				if(query.state == SDQL2_STATE_ERROR)
 					if(usr)
-						to_chat(usr, span_admin("SDQL query [query.get_query_text()] errored. It will NOT be automatically garbage collected. Please remove manually."), confidential = TRUE)
+						to_chat(usr, span_admin("SDQL query [query.get_query_text()] errored. It will NOT be automatically garbage collected. Please remove manually."), confidential=TRUE)
 					running -= query
 			else
 				if(query.finished)
@@ -282,18 +315,18 @@ ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_C
 					running -= query
 					if(!(query.options & SDQL2_OPTION_DO_NOT_AUTOGC))
 						QDEL_IN(query, 50)
-					if(sequential && length(waiting_queue))
+					if(sequential && waiting_queue.len)
 						finished = FALSE
 						var/datum/sdql2_query/next_query = popleft(waiting_queue)
 						running += next_query
 						var/msg = "Starting query #[next_query.id] - [next_query.get_query_text()]."
 						if(usr)
-							to_chat(usr, span_admin("[msg]"), confidential = TRUE)
+							to_chat(usr, span_admin("[msg]"), confidential=TRUE)
 						log_admin(msg)
 						next_query.ARun()
 				else
 					if(usr)
-						to_chat(usr, span_admin("SDQL query [query.get_query_text()] was halted. It will NOT be automatically garbage collected. Please remove manually."), confidential = TRUE)
+						to_chat(usr, span_admin("SDQL query [query.get_query_text()] was halted. It will NOT be automatically garbage collected. Please remove manually."), confidential=TRUE)
 					running -= query
 	while(!finished)
 
@@ -304,6 +337,7 @@ ADMIN_VERB(sdql2_query, R_PROCCALL, "SDQL2 Query", "Run a SDQL2 query.", ADMIN_C
 
 GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null, "VIEW VARIABLES (all)", null))
+
 
 /datum/sdql2_query
 	var/list/query_tree
@@ -336,6 +370,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 	var/obj/effect/statclick/SDQL2_delete/delete_click
 	var/obj/effect/statclick/SDQL2_action/action_click
 
+
 /datum/sdql2_query/New(list/tree, SU = FALSE, admin_interact = TRUE, _options = SDQL2_OPTIONS_DEFAULT, finished_qdel = FALSE)
 	if(IsAdminAdvancedProcCall() || !LAZYLEN(tree))
 		qdel(src)
@@ -366,7 +401,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 
 /proc/recursive_list_print(list/output = list(), list/input, datum/callback/datum_handler, datum/callback/atom_handler)
 	output += "\[ "
-	for(var/i in 1 to length(input))
+	for(var/i in 1 to input.len)
 		var/final = i == input.len
 		var/key = input[i]
 
@@ -564,12 +599,12 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 
 	// 1 and 2 are type and FROM.
 	var/i = 3
-	while(i <= length(tree))
+	while(i <= tree.len)
 		var/key = tree[i++]
 		var/list/expression = tree[i++]
 		switch(key)
 			if("map")
-				for(var/j = 1 to length(objs))
+				for(var/j = 1 to objs.len)
 					var/x = objs[j]
 					objs[j] = SDQL_expression(x, expression)
 					SDQL2_TICK_CHECK
@@ -790,7 +825,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 				SDQL_expression(d, set_list[sets])
 				break
 			i++
-			if(i == length(sets))
+			if(i == sets.len)
 				if(superuser)
 					if(temp.vars.Find(v))
 						temp.vars[v] = SDQL_expression(d, set_list[sets])
@@ -818,7 +853,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 	var/result = 0
 	var/val
 
-	for(var/i = start, i <= length(expression), i++)
+	for(var/i = start, i <= expression.len, i++)
 		var/op = ""
 
 		if(i > start)
@@ -864,7 +899,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 				if("or", "||")
 					result = (result || val)
 				else
-					to_chat(usr, span_danger("SDQL2: Unknown op [op]"), confidential = TRUE)
+					to_chat(usr, span_danger("SDQL2: Unknown op [op]"), confidential=TRUE)
 					result = null
 		else
 			result = val
@@ -875,10 +910,10 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 	var/i = start
 	var/val = null
 
-	if(i > length(expression))
+	if(i > expression.len)
 		return list("val" = null, "i" = i)
 
-	if(islist(expression[i]))
+	if(istype(expression[i], /list))
 		val = SDQL_expression(object, expression[i])
 
 	else if(expression[i] == "TRUE")
@@ -961,7 +996,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 	for(var/val in query_list)
 		if(val == ";")
 			do_parse = 1
-		else if(pos >= length(query_list))
+		else if(pos >= query_list.len)
 			query_tree += val
 			do_parse = 1
 
@@ -969,12 +1004,12 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 			parser.query = query_tree
 			var/list/parsed_tree
 			parsed_tree = parser.parse()
-			if(length(parsed_tree) > 0)
+			if(parsed_tree.len > 0)
 				querys.len = querys_pos
 				querys[querys_pos] = parsed_tree
 				querys_pos++
 			else //There was an error so don't run anything, and tell the user which query has errored.
-				to_chat(usr, span_danger("Parsing error on [querys_pos]\th query. Nothing was executed."), confidential = TRUE)
+				to_chat(usr, span_danger("Parsing error on [querys_pos]\th query. Nothing was executed."), confidential=TRUE)
 				return list()
 			query_tree = list()
 			do_parse = 0
@@ -993,23 +1028,23 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 			spaces += whitespace
 
 	for(var/item in query_tree)
-		if(islist(item))
-			to_chat(usr, "[spaces](", confidential = TRUE)
+		if(istype(item, /list))
+			to_chat(usr, "[spaces](", confidential=TRUE)
 			SDQL_testout(item, indent + 1)
-			to_chat(usr, "[spaces])", confidential = TRUE)
+			to_chat(usr, "[spaces])", confidential=TRUE)
 
 		else
-			to_chat(usr, "[spaces][item]", confidential = TRUE)
+			to_chat(usr, "[spaces][item]", confidential=TRUE)
 
 		if(!isnum(item) && query_tree[item])
 
-			if(islist(query_tree[item]))
-				to_chat(usr, "[spaces][whitespace](", confidential = TRUE)
+			if(istype(query_tree[item], /list))
+				to_chat(usr, "[spaces][whitespace](", confidential=TRUE)
 				SDQL_testout(query_tree[item], indent + 2)
-				to_chat(usr, "[spaces][whitespace])", confidential = TRUE)
+				to_chat(usr, "[spaces][whitespace])", confidential=TRUE)
 
 			else
-				to_chat(usr, "[spaces][whitespace][query_tree[item]]", confidential = TRUE)
+				to_chat(usr, "[spaces][whitespace][query_tree[item]]", confidential=TRUE)
 
 //Staying as a world proc as this is called too often for changes to offset the potential IsAdminAdvancedProcCall checking overhead.
 /world/proc/SDQL_var(object, list/expression, start = 1, source, superuser, datum/sdql2_query/query)
@@ -1021,20 +1056,16 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 		D = object
 
 	if(object == world && (!long || expression[start + 1] == ".") && !(expression[start] in exclude) && copytext(expression[start], 1, 3) != "SS") //3 == length("SS") + 1
-		to_chat(usr, span_danger("World variables are not allowed to be accessed. Use global."), confidential = TRUE)
+		to_chat(usr, span_danger("World variables are not allowed to be accessed. Use global."), confidential=TRUE)
 		return null
 
 	else if(expression [start] == "{" && long)
 		if(lowertext(copytext(expression[start + 1], 1, 3)) != "0x") //3 == length("0x") + 1
-			to_chat(usr, span_danger("Invalid pointer syntax: [expression[start + 1]]"), confidential = TRUE)
+			to_chat(usr, span_danger("Invalid pointer syntax: [expression[start + 1]]"), confidential=TRUE)
 			return null
-		var/pointer = "\[[expression[start + 1]]]"
-		var/datum/located = locate(pointer) || locateUID(pointer)
+		var/datum/located = locate("\[[expression[start + 1]]]")
 		if(!istype(located))
-			to_chat(usr, span_danger("Invalid pointer: [expression[start + 1]] - null or not datum"), confidential = TRUE)
-			return null
-		if(!located.can_vv_mark())
-			to_chat(usr, span_danger("Pointer [expression[start+1]] cannot be marked"), confidential = TRUE)
+			to_chat(usr, span_danger("Invalid pointer: [expression[start + 1]] - null or not datum"), confidential=TRUE)
 			return null
 		v = located
 		start++
@@ -1097,8 +1128,8 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 		else if(expression[start + 1] == "\[" && islist(v))
 			var/list/L = v
 			var/index = query.SDQL_expression(source, expression[start + 2])
-			if(isnum(index) && (!ISINTEGER(index) || length(L) < index))
-				to_chat(usr, span_danger("Invalid list index: [index]"), confidential = TRUE)
+			if(isnum(index) && (!ISINTEGER(index) || L.len < index))
+				to_chat(usr, span_danger("Invalid list index: [index]"), confidential=TRUE)
 				return null
 			return L[index]
 	return v
@@ -1150,7 +1181,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 
 		else if(char == "'")
 			if(word != "")
-				to_chat(usr, span_red(" SDQL2: You have an error in your SDQL syntax, unexpected ' in query: \"<span style='color: gray;'>[query_text]</span>\" following \"<span style='color: gray;'>[word]</span>\". Please check your syntax, and try again."), confidential = TRUE)
+				to_chat(usr, "\red SDQL2: You have an error in your SDQL syntax, unexpected ' in query: \"<span style='color: gray;'>[query_text]</span>\" following \"<span style='color: gray;'>[word]</span>\". Please check your syntax, and try again.", confidential=TRUE)
 				return null
 
 			word = "'"
@@ -1170,7 +1201,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 					word += char
 
 			if(i > len)
-				to_chat(usr, span_red(" SDQL2: You have an error in your SDQL syntax, unmatched ' in query: \"<span style='color: gray;'>[query_text]</span>\". Please check your syntax, and try again."), confidential = TRUE)
+				to_chat(usr, "\red SDQL2: You have an error in your SDQL syntax, unmatched ' in query: \"<span style='color: gray;'>[query_text]</span>\". Please check your syntax, and try again.", confidential=TRUE)
 				return null
 
 			query_list += "[word]'"
@@ -1178,7 +1209,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 
 		else if(char == "\"")
 			if(word != "")
-				to_chat(usr, span_red(" SDQL2: You have an error in your SDQL syntax, unexpected \" in query: \"<span style='color: gray;'>[query_text]</span>\" following \"<span style='color: gray;'>[word]</span>\". Please check your syntax, and try again."), confidential = TRUE)
+				to_chat(usr, "\red SDQL2: You have an error in your SDQL syntax, unexpected \" in query: \"<span style='color: gray;'>[query_text]</span>\" following \"<span style='color: gray;'>[word]</span>\". Please check your syntax, and try again.", confidential=TRUE)
 				return null
 
 			word = "\""
@@ -1198,7 +1229,7 @@ GLOBAL_DATUM_INIT(sdql2_vv_statobj, /obj/effect/statclick/sdql2_vv_all, new(null
 					word += char
 
 			if(i > len)
-				to_chat(usr, span_red(" SDQL2: You have an error in your SDQL syntax, unmatched \" in query: \"<span style='color: gray;'>[query_text]</span>\". Please check your syntax, and try again."), confidential = TRUE)
+				to_chat(usr, "\red SDQL2: You have an error in your SDQL syntax, unmatched \" in query: \"<span style='color: gray;'>[query_text]</span>\". Please check your syntax, and try again.", confidential=TRUE)
 				return null
 
 			query_list += "[word]\""

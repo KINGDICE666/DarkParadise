@@ -23,13 +23,13 @@
 	speed_process = TRUE
 
 /obj/machinery/mineral/processing_unit_console/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "консоль производственного аппарата",
 		GENITIVE = "консоли производственного аппарата",
 		DATIVE = "консоли производственного аппарата",
 		ACCUSATIVE = "консоль производственного аппарата",
 		INSTRUMENTAL = "консолью производственного аппарата",
-		PREPOSITIONAL = "консоли производственного аппарата",
+		PREPOSITIONAL = "консоли производственного аппарата"
 	)
 
 /obj/machinery/mineral/processing_unit_console/Initialize(mapload)
@@ -100,13 +100,13 @@
 	speed_process = TRUE
 
 /obj/machinery/mineral/processing_unit/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "плавильная печь",
 		GENITIVE = "плавильной печи",
 		DATIVE = "плавильной печи",
 		ACCUSATIVE = "плавильную печь",
 		INSTRUMENTAL = "плавильной печью",
-		PREPOSITIONAL = "плавильной печи",
+		PREPOSITIONAL = "плавильной печи"
 	)
 
 /obj/machinery/mineral/processing_unit/Initialize(mapload)
@@ -212,7 +212,7 @@
 	generate_mineral(alloy.build_path)
 
 /obj/machinery/mineral/processing_unit/proc/can_smelt(datum/design/D)
-	if(length(D.make_reagents))
+	if(D.make_reagents.len)
 		return FALSE
 
 	var/build_amount = SMELT_AMOUNT

@@ -21,6 +21,7 @@
 	/// Aditional text of question
 	var/question_text
 
+
 /datum/component/ghost_direct_control/Initialize(
 	ban_type = ROLE_SENTIENT,
 	role_name = null,
@@ -58,13 +59,13 @@
 /datum/component/ghost_direct_control/RegisterWithParent()
 	. = ..()
 	RegisterSignal(parent, COMSIG_ATOM_ATTACK_GHOST, PROC_REF(on_ghost_clicked))
-	RegisterSignal(parent, COMSIG_ATOM_EXAMINE, PROC_REF(on_examined))
+	RegisterSignal(parent, COMSIG_LIVING_EXAMINE, PROC_REF(on_examined))
 	RegisterSignal(parent, COMSIG_MOB_LOGIN, PROC_REF(on_login))
 	RegisterSignal(parent, COMSIG_IS_GHOST_CONTROLABLE, PROC_REF(on_ghost_controlable_check))
 	RegisterSignal(parent, COMSIG_MOB_DEATH, PROC_REF(on_death))
 
 /datum/component/ghost_direct_control/UnregisterFromParent()
-	UnregisterSignal(parent, list(COMSIG_ATOM_ATTACK_GHOST, COMSIG_ATOM_EXAMINE, COMSIG_MOB_LOGIN, COMSIG_MOB_DEATH))
+	UnregisterSignal(parent, list(COMSIG_ATOM_ATTACK_GHOST, COMSIG_LIVING_EXAMINE, COMSIG_MOB_LOGIN, COMSIG_MOB_DEATH))
 	return ..()
 
 /datum/component/ghost_direct_control/Destroy(force)
@@ -107,7 +108,7 @@
 		source = parent,
 		role_cleanname = role_name
 	)
-	var/mob/chosen_one = (length(possible_ghosts))? pick(possible_ghosts): null
+	var/mob/chosen_one = (possible_ghosts.len)? pick(possible_ghosts): null
 	awaiting_ghosts = FALSE
 	if(isnull(chosen_one))
 		return
@@ -132,7 +133,7 @@
 
 /// We got far enough to establish that this mob is a valid target, let's try to posssess it
 /datum/component/ghost_direct_control/proc/attempt_possession(mob/our_mob, mob/dead/observer/hopeful_ghost)
-	var/ghost_asked = tgui_alert(usr, "[question_text? question_text : "Стать [DECLENT_RU_CAP(our_mob, INSTRUMENTAL)]?"]", "Стать [DECLENT_RU_CAP(our_mob, INSTRUMENTAL)]?", list("Да", "Нет"))
+	var/ghost_asked = tgui_alert(usr, "[question_text? question_text : "Стать [capitalize(our_mob.declent_ru(INSTRUMENTAL))]?"]", "Стать [capitalize(our_mob.declent_ru(INSTRUMENTAL))]?", list("Да", "Нет"))
 	if(ghost_asked != "Да" || QDELETED(our_mob))
 		return
 	assume_direct_control(hopeful_ghost)
@@ -156,14 +157,14 @@
 		to_chat(harbinger, "Вы не можете повторно присоединиться к раунду, активировав антаг худ.")
 		return
 	if(new_body.key)
-		to_chat(harbinger, span_warning("[DECLENT_RU_CAP(new_body, NOMINATIVE)] уже является разумным!"))
+		to_chat(harbinger, span_warning("[capitalize(new_body.declent_ru(NOMINATIVE))] уже является разумным!"))
 		qdel(src)
 		return
 	if(extra_control_checks && !extra_control_checks.Invoke(harbinger))
 		return
 	add_game_logs("took control of [new_body].", harbinger)
 	// doesn't transfer mind because that transfers antag datum as well
-	new_body.possess_by_player(harbinger.ckey)
+	new_body.key = harbinger.key
 	if(isanimal(new_body))
 		var/mob/living/simple_animal/animal_body = new_body
 		animal_body.toggle_ai(AI_OFF)
@@ -181,6 +182,7 @@
 	to_chat(harbinger, span_boldnotice(assumed_control_message))
 	after_assumed_control?.Invoke(harbinger)
 	qdel(src)
+
 
 /datum/component/ghost_direct_control/proc/on_ghost_controlable_check(mob/user)
 	SIGNAL_HANDLER

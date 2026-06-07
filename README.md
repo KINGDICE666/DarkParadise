@@ -1,5 +1,5 @@
-<a align="center" href="#"><img src=".github/images/ss1984.gif" alt="Буквально SS1984"></a>
-# <p align="center"> Добро пожаловать в репозиторий проекта SS1984!</p>
+# <p align="center"> Буквально SS1984</p>
+<a align="center" href="#"><img src=".github/assets/ss1984.gif" alt="Буквально SS1984"></a>
 
 <p align="center">
 	<a href="https://github.com/ss220-space/Paradise/actions?query=workflow%3ACI"><img src="https://github.com/ss220-space/Paradise/workflows/CI/badge.svg" alt="CI"></a>
@@ -8,39 +8,36 @@
 
 
 <p align="center">
-	<img src=".github/images/badges/built-with-bugs.svg" alt="Bugs">
-	<img src=".github/images/badges/contains-copypaste.svg" alt="Copypaste">
-	<a href="https://www.reddit.com/r/SS13/comments/5oplxp/what_is_the_main_problem_with_byond_as_an_engine/dclbu1a/"><img src=".github/images/badges/made-in-byond.gif" alt="Made in BYOND"></a>
+	<a href="https://xkcd.ru/371/"><img src=".github/assets/60-percent-of-the-time-works-every-time.svg" alt="60% Works"></a>
+	<a href="https://www.reddit.com/r/SS13/comments/5oplxp/what_is_the_main_problem_with_byond_as_an_engine/dclbu1a/"><img src=".github/assets/made-in-byond.gif" alt="Made in BYOND"></a>
+	<a href="https://xkcd.ru/1296/"><img src=".github/assets/fuck-it-ship-it.svg" alt="Fuck it, Ship it"></a>
 </p>
 
-| Вебсайт             | Ссылка                                                                                               |
-| ------------------- | ---------------------------------------------------------------------------------------------------- |
-| Code                | https://github.com/ss220-space/Paradise                                                              |
-| Wiki                | https://wiki.ss220.space/                                                                            |
-| Codedocs            | https://ss220-space.github.io/Paradise/                                                              |
-| Discord             | https://discord.ss220.space                                                                          |
+# Ссылки SS1984
+
+- [Вебсайт](https://ss220.space/)
+- [Discord](https://discord.ss220.space)
+
+# Апстрим проект Paradise
+
+- [Github](https://github.com/ParadiseSS13/Paradise)
+- [Вебсайт](https://www.paradisestation.org/)
+- [Документация](https://devdocs.paradisestation.org)
+
+# Полезная документация (Устарело)
+
+- [Installation Guide](.github/DOWNLOADING.md)
+- [Contribution Guide](.github/CONTRIBUTING.md)
+- [Autodocumentation Guide](.github/AUTODOC_GUIDE.md)
 
 > [!TIP]
-> Некоторая полезная информация находится на нашем Discord-сервере в закрытых каналах разработки.<br>
-> Для получения доступа, посетите канал [#информация](https://discord.com/channels/617003227182792704/628271712097665025). В нём вы найдёте информацию о доступных ролях, их функциях и способах получения.<br>
-
-# Полезная документация
-
-- ### [Правила контрибьюции](.github/CONTRIBUTING.md)
-  Руководство по внесению вклада в проект, советы по работе с Github и стандарты разработки/написания кода. **Обязательно к ознакомлению!**
-
-- ### [Руководство по стилю](/.github/guides/STYLE.md)
-  Стандарты оформления кода для единообразия кодовой базы проекта.
-
-- ### [Руководство по автодокументации](.github/guides/AUTODOC.md)
-  Как оформлять комментарии для автоматической генерации документации.
-
-- ### [Руководство по локализации](/.github/guides/LOCALIZATION.md)
-  Правила и стандарты локализации, руководство по инструментам локализации.
-
-### LICENSE
+> Больше всего информации находиться у нас в Discord сервере в закрытых каналах<br>
+> Для получения доступа, обратитесь к каналу [#информация](https://discord.com/channels/617003227182792704/628271712097665025). Там указаны какие есть роли, что они дают и как их получить.<br>
+> Альтернативно, вы можете прочитать документарию апстрим Paradise [Getting Started Guide](https://devdocs.paradisestation.org/contributing/getting_started/)
 
 ---
+
+### LICENSE
 
 > [!CAUTION]
 > If you wish to use our code in a closed source manner (i.e. not make it available to the public and/or those who connect to services you offer using this code) you must **only** use code prior to commit [1af3ddef2af85937251e24384c2173c4b6c3222b on 2015/01/05 22:04 GMT](https://github.com/ParadiseSS13/Paradise/commit/1af3ddef2af85937251e24384c2173c4b6c3222b), which is licenced under GPLv3.

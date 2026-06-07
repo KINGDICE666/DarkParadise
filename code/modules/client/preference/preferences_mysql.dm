@@ -24,8 +24,7 @@
 					ghost_darkness_level,
 					toggles_3,
 					screentip_mode,
-					screentip_color,
-					achivements_sound
+					screentip_color
 					FROM [format_table_name("player")]
 					WHERE ckey=:ckey"}, list(
 						"ckey" = C.ckey
@@ -34,6 +33,7 @@
 	if(!query.warn_execute())
 		qdel(query)
 		return
+
 
 	//general preferences
 	while(query.NextRow())
@@ -61,13 +61,12 @@
 		toggles3 = text2num(query.item[22])
 		screentip_mode = query.item[23]
 		screentip_color = query.item[24]
-		achivements_sound = query.item[25]
 
 	qdel(query)
 
 	//Sanitize
 	ooccolor = sanitize_hexcolor(ooccolor, initial(ooccolor))
-	UI_style = sanitize_inlist(UI_style, list(UI_THEME_WHITE, UI_THEME_MIDNIGHT, UI_THEME_PLASMAFIRE, UI_THEME_RETRO, UI_THEME_SLIMECORE, UI_THEME_OPERATIVE, UI_THEME_CLOCKWORK), initial(UI_style))
+	UI_style = sanitize_inlist(UI_style, list(UI_THEME_WHITE, UI_THEME_MIDNIGHT, UI_THEME_PLASMAFIRE, UI_THEME_RETRO, UI_THEME_SLIMECORE, UI_THEME_OPERATIVE), initial(UI_style))
 	default_slot = sanitize_integer(default_slot, 1, max_save_slots, initial(default_slot))
 	toggles = sanitize_integer(toggles, 0, TOGGLES_TOTAL, initial(toggles))
 	toggles2 = sanitize_integer(toggles2, 0, TOGGLES_2_TOTAL, initial(toggles2))
@@ -92,7 +91,7 @@
 	// Might as well scrub out any malformed be_special list entries while we're here
 	for(var/role in be_special)
 		if(!(role in GLOB.special_roles))
-			stack_trace("[C.key] had a malformed role entry: '[role]'. Removing!")
+			log_runtime(EXCEPTION("[C.key] had a malformed role entry: '[role]'. Removing!"), src)
 			be_special -= role
 
 	// We're saving volume_mixer here as well, so no point in keeping the timer running
@@ -121,8 +120,7 @@
 					ghost_darkness_level=:ghost_darkness_level,
 					toggles_3=:toggles3,
 					screentip_mode=:screentip_mode,
-					screentip_color=:screentip_color,
-					achivements_sound=:achivements_sound
+					screentip_color=:screentip_color
 					WHERE ckey=:ckey"}, list(
 						// OH GOD THE PARAMETERS
 						"ooccolour" = ooccolor,
@@ -146,8 +144,7 @@
 						"ckey" = C.ckey,
 						"toggles3" = num2text(toggles3, CEILING(log(10, (TOGGLES_3_TOTAL)), 1)),
 						"screentip_mode" = screentip_mode,
-						"screentip_color" = screentip_color,
-						"achivements_sound" = achivements_sound
+						"screentip_color" = screentip_color
 					)
 					)
 
@@ -242,8 +239,7 @@
 					hair_gradient_offset,
 					hair_gradient_colour,
 					hair_gradient_alpha,
-					can_be_antagonist,
-					exoframe_type
+					can_be_antagonist
 					FROM [format_table_name("characters")] WHERE ckey=:ckey AND slot=:slot"}, list(
 						"ckey" = C.ckey,
 						"slot" = slot
@@ -282,6 +278,7 @@
 		undershirt_color = query.item[25]
 		backbag = query.item[26]
 		b_type = query.item[27]
+
 
 		//Jobs
 		alternate_option = text2num(query.item[28])
@@ -348,9 +345,6 @@
 		// Can be antagonist
 		can_be_antagonist = query.item[63]
 
-		// Exoframes for IPC
-		exoframe_type = query.item[64]
-
 		saved = TRUE
 
 	qdel(query)
@@ -395,7 +389,6 @@
 	custom_emotes_tmp = sanitize_json(custom_emotes_tmp)
 	custom_emotes = init_custom_emotes(custom_emotes_tmp)
 	can_be_antagonist = sanitize_integer(can_be_antagonist, 0, 1, 1)
-	exoframe_type	= sanitize_text(exoframe_type, initial(exoframe_type))
 
 	alternate_option = sanitize_integer(alternate_option, 0, 2, initial(alternate_option))
 	job_support_high = sanitize_integer(job_support_high, 0, 65535, initial(job_support_high))
@@ -456,7 +449,7 @@
 	for(var/title in player_alt_titles)
 		var/datum/job/job = SSjobs.GetJob(title)
 		if(job && !(player_alt_titles[title] in job.alt_titles))
-			stack_trace("[C.key] had a malformed job title entry: '[title]:[player_alt_titles[title]]'. Removing!")
+			log_runtime(EXCEPTION("[C.key] had a malformed job title entry: '[title]:[player_alt_titles[title]]'. Removing!"), src)
 			player_alt_titles -= title
 
 	var/organlist
@@ -550,8 +543,7 @@
 												uplink_pref=:uplink_pref,
 												tts_seed=:tts_seed,
 												custom_emotes=:custom_emotes,
-												can_be_antagonist=:can_be_antagonist,
-												exoframe_type=:exoframe_type
+												can_be_antagonist=:can_be_antagonist
 												WHERE ckey=:ckey
 												AND slot=:slot"}, list(
 													// OH GOD SO MANY PARAMETERS
@@ -618,7 +610,6 @@
 													"tts_seed" = tts_seed,
 													"custom_emotes" = json_encode(custom_emotes),
 													"can_be_antagonist" = can_be_antagonist,
-													"exoframe_type" = exoframe_type,
 													"ckey" = C.ckey,
 													"slot" = default_slot
 												)
@@ -661,7 +652,7 @@
 											exploit_record,
 											player_alt_titles,
 											disabilities, organ_data, rlimb_data, nanotrasen_relation, speciesprefs,
-											socks, body_accessory, gear, autohiss, hair_gradient, hair_gradient_offset, hair_gradient_colour, hair_gradient_alpha, uplink_pref, tts_seed, custom_emotes, can_be_antagonist, exoframe_type)
+											socks, body_accessory, gear, autohiss, hair_gradient, hair_gradient_offset, hair_gradient_colour, hair_gradient_alpha, uplink_pref, tts_seed, custom_emotes, can_be_antagonist)
 
 					VALUES
 											(:ckey, :slot, :metadata, :name, :be_random_name, :gender,
@@ -690,7 +681,7 @@
 											:exploit_record,
 											:playertitlelist,
 											:disabilities, :organlist, :rlimblist, :nanotrasen_relation, :speciesprefs,
-											:socks, :body_accessory, :gearlist, :autohiss_mode, :h_grad_style, :h_grad_offset, :h_grad_colour, :h_grad_alpha, :uplink_pref, :tts_seed, :custom_emotes, :can_be_antagonist, :exoframe_type)
+											:socks, :body_accessory, :gearlist, :autohiss_mode, :h_grad_style, :h_grad_offset, :h_grad_colour, :h_grad_alpha, :uplink_pref, :tts_seed, :custom_emotes, :can_be_antagonist)
 
 	"}, list(
 		// This has too many params for anyone to look at this without going insae
@@ -758,8 +749,7 @@
 		"uplink_pref" = uplink_pref,
 		"tts_seed" = tts_seed,
 		"can_be_antagonist" = can_be_antagonist,
-		"exoframe_type" = exoframe_type,
-		"custom_emotes" = json_encode(custom_emotes),
+		"custom_emotes" = json_encode(custom_emotes)
 	))
 
 	if(!query.warn_execute())
@@ -784,7 +774,7 @@
 		saves += text2num(query.item[1])
 	qdel(query)
 
-	if(!length(saves))
+	if(!saves.len)
 		load_character(C)
 		return 0
 	load_character(C,pick(saves))

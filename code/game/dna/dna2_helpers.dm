@@ -93,6 +93,7 @@
 		M.dna.UpdateSE()
 		M.check_genes()
 
+
 // I haven't yet figured out what the fuck this is supposed to do.
 /proc/miniscramble(input, rs, rd)
 	var/output
@@ -160,6 +161,7 @@
 // Simpler. Don't specify UI in order for the mob to use its own.
 /mob/proc/UpdateAppearance(list/UI)
 	. = FALSE
+
 
 /mob/living/carbon/human/UpdateAppearance(list/UI)
 	. = TRUE
@@ -231,9 +233,11 @@
 
 	regenerate_icons()
 
+
 /*
 	ORGAN WRITING PROCS
 */
+
 
 // I'm putting this here because nothing outside the DNA module should ever have
 // to directly mess with the guts of DNA code
@@ -242,16 +246,16 @@
 /datum/dna/proc/write_head_attributes(obj/item/organ/external/head/head_organ)
 
 	//Hair
-	var/hair = GetUIValueRange(DNA_UI_HAIR_STYLE,length(GLOB.hair_styles_full_list))
-	if((hair > 0) && (hair <= length(GLOB.hair_styles_full_list)))
+	var/hair = GetUIValueRange(DNA_UI_HAIR_STYLE,GLOB.hair_styles_full_list.len)
+	if((hair > 0) && (hair <= GLOB.hair_styles_full_list.len))
 		head_organ.h_style = GLOB.hair_styles_full_list[hair]
 
 	head_organ.hair_colour = rgb(head_organ.dna.GetUIValueRange(DNA_UI_HAIR_R, 255), head_organ.dna.GetUIValueRange(DNA_UI_HAIR_G, 255), head_organ.dna.GetUIValueRange(DNA_UI_HAIR_B, 255))
 	head_organ.sec_hair_colour = rgb(head_organ.dna.GetUIValueRange(DNA_UI_HAIR2_R, 255), head_organ.dna.GetUIValueRange(DNA_UI_HAIR2_G, 255), head_organ.dna.GetUIValueRange(DNA_UI_HAIR2_B, 255))
 
 	//Facial Hair
-	var/beard = GetUIValueRange(DNA_UI_BEARD_STYLE,length(GLOB.facial_hair_styles_list))
-	if((beard > 0) && (beard <= length(GLOB.facial_hair_styles_list)))
+	var/beard = GetUIValueRange(DNA_UI_BEARD_STYLE,GLOB.facial_hair_styles_list.len)
+	if((beard > 0) && (beard <= GLOB.facial_hair_styles_list.len))
 		head_organ.f_style = GLOB.facial_hair_styles_list[beard]
 
 	head_organ.facial_colour = rgb(head_organ.dna.GetUIValueRange(DNA_UI_BEARD_R, 255), head_organ.dna.GetUIValueRange(DNA_UI_BEARD_G, 255), head_organ.dna.GetUIValueRange(DNA_UI_BEARD_B, 255))
@@ -264,7 +268,7 @@
 		if(!(head_organ.dna.species.name in S.species_allowed)) //If the user's head is not of a species the head accessory style allows, skip it. Otherwise, add it to the list.
 			continue
 		available.Add(head_accessory)
-	var/list/sorted = sortTim(available, GLOBAL_PROC_REF(cmp_text_asc))
+	var/list/sorted = sortTim(available, cmp = /proc/cmp_text_asc)
 
 	var/headacc = GetUIValueRange(DNA_UI_HACC_STYLE, length(sorted))
 	if(headacc > 0 && headacc <= length(sorted))
@@ -324,8 +328,8 @@
 	SetUIValueRange(DNA_UI_HACC_G,		color2G(head_organ.headacc_colour),		255,	 1)
 	SetUIValueRange(DNA_UI_HACC_B,		color2B(head_organ.headacc_colour),		255,	 1)
 
-	SetUIValueRange(DNA_UI_HAIR_STYLE,	hair,		length(GLOB.hair_styles_full_list),		 1)
-	SetUIValueRange(DNA_UI_BEARD_STYLE,	beard,		length(GLOB.facial_hair_styles_list),	 1)
+	SetUIValueRange(DNA_UI_HAIR_STYLE,	hair,		GLOB.hair_styles_full_list.len,		 1)
+	SetUIValueRange(DNA_UI_BEARD_STYLE,	beard,		GLOB.facial_hair_styles_list.len,	 1)
 
 	var/list/available = character.generate_valid_head_accessories()
 	SetUIValueRange(DNA_UI_HACC_STYLE, available.Find(head_organ.ha_style), max(length(available), 1), 1)

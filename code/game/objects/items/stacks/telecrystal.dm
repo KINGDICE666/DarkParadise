@@ -2,6 +2,7 @@
 	name = "telecrystal"
 	desc = "Кажется, что он переполнен загадочной и притягательной энергией."
 	gender = MALE
+	description_antag = "Телекристалл можно активировать, используя на устройствах с активным аплинком."
 	singular_name = "telecrystal"
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "telecrystal"
@@ -11,13 +12,13 @@
 	origin_tech = "materials=6"
 
 /obj/item/stack/telecrystal/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "телекристалл",
 		GENITIVE = "телекристалла",
 		DATIVE = "телекристаллу",
 		ACCUSATIVE = "телекристалл",
 		INSTRUMENTAL = "телекристаллом",
-		PREPOSITIONAL = "телекристалле",
+		PREPOSITIONAL = "телекристалле"
 	)
 
 /obj/item/stack/telecrystal/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
@@ -32,15 +33,16 @@
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/stack/telecrystal/afterattack(obj/item/target, mob/user, proximity_flag, list/modifiers, status)
-	if(!proximity_flag)
+
+/obj/item/stack/telecrystal/afterattack(obj/item/I, mob/user, proximity, params)
+	if(!proximity)
 		return
-	if(istype(target) && target.hidden_uplink && target.hidden_uplink.active) //No metagaming by using this on every PDA around just to see if it gets used up.
-		target.hidden_uplink.uses += amount
+	if(istype(I) && I.hidden_uplink && I.hidden_uplink.active) //No metagaming by using this on every PDA around just to see if it gets used up.
+		I.hidden_uplink.uses += amount
 		use(amount)
 		balloon_alert(user, UNLINT("ТК активирован!"))
-	else if(istype(target, /obj/item/cartridge/frame))
-		var/obj/item/cartridge/frame/cart = target
+	else if(istype(I, /obj/item/cartridge/frame))
+		var/obj/item/cartridge/frame/cart = I
 		if(!cart.charges)
 			balloon_alert(user, "заряды кончился!")
 			return

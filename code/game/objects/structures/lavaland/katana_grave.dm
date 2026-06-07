@@ -7,13 +7,13 @@
 	var/obj/item/dropping_item = /obj/item/organ/internal/cyberimp/arm/katana  //fix
 
 /obj/structure/katana_grave/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "могила с катаной",
 		GENITIVE = "могилы с катаной",
 		DATIVE = "могиле с катаной",
 		ACCUSATIVE = "могилу с катаной",
 		INSTRUMENTAL = "могилой с катаной",
-		PREPOSITIONAL = "могиле с катаной",
+		PREPOSITIONAL = "могиле с катаной"
 	)
 
 /obj/structure/katana_grave/attack_hand(mob/user)

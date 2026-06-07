@@ -9,9 +9,9 @@
 	..()
 	var/list/things = params2list(loot)
 
-	if(things && length(things))
+	if(things && things.len)
 		for(var/i = lootcount, i > 0, i--)
-			if(!length(things))
+			if(!things.len)
 				return
 
 			var/loot_spawn = pick(things)

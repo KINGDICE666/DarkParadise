@@ -57,13 +57,13 @@
 	var/obj/item/clothing/mask/facehugger/hugger_holder
 
 /mob/living/simple_animal/hostile/facehugger/get_ru_names()
-	return alist(
+	return  list(
 		NOMINATIVE = "лицехват",
 		GENITIVE = "лицехвата",
 		DATIVE = "лицехвату",
 		ACCUSATIVE = "лицехвата",
 		INSTRUMENTAL = "лицехватом",
-		PREPOSITIONAL = "лицехвате",
+		PREPOSITIONAL = "лицехвате"
 	)
 
 /mob/living/simple_animal/hostile/facehugger/ComponentInitialize()
@@ -115,6 +115,7 @@
 		return
 	. = ..()
 
+
 /mob/living/simple_animal/hostile/facehugger/OpenFire(atom/A)
 	if(impregnated)
 		return
@@ -132,7 +133,7 @@
 					continue
 				if(faction_check_mob(L) && !attack_same)
 					return
-	visible_message(span_danger("<b>[DECLENT_RU_CAP(src, NOMINATIVE)]</b> [ranged_message] на [A]!"))
+	visible_message(span_danger("<b>[capitalize(declent_ru(NOMINATIVE))]</b> [ranged_message] на [A]!"))
 	throw_at(A, jumpdistance, jumpspeed, spin = FALSE, diagonals_first = TRUE, dodgeable = FALSE)
 	COOLDOWN_START(src, ranged_cooldown, ranged_cooldown_time)
 
@@ -191,6 +192,7 @@
 		QDEL_NULL(hugger_holder)
 		return (M.a_intent == INTENT_GRAB)? FALSE : ..()
 	return result
+
 
 /mob/living/simple_animal/hostile/facehugger/attack_proc()
 	if(impregnated)
@@ -268,7 +270,7 @@
 		if(!isflower(object) && !istable(object))
 			continue
 		var/list/path = get_path_to(src, object)
-		if(!length(path))
+		if(!path.len)
 			continue
 		var/dist = get_dist(object, src)
 		if(dist > max_dist)
@@ -303,6 +305,7 @@
 /mob/living/simple_animal/hostile/facehugger/pick_up_mob(mob/living/carbon/human_to_ask)
 	var/obj/item/hugger = get_scooped(human_to_ask)
 	hugger.attack_hand(human_to_ask)
+
 
 /mob/living/simple_animal/hostile/facehugger/get_scooped(mob/living/carbon/grabber)
 	if(!holder_type)
@@ -363,11 +366,11 @@
 	holder_type = /obj/item/clothing/mask/facehugger/lamarr
 
 /mob/living/simple_animal/hostile/facehugger/lamarr/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "ламарр",
 		GENITIVE = "ламарр",
 		DATIVE = "ламарр",
 		ACCUSATIVE = "ламарр",
 		INSTRUMENTAL = "ламарр",
-		PREPOSITIONAL = "ламарр",
+		PREPOSITIONAL = "ламарр"
 	)

@@ -53,11 +53,12 @@
 			return FALSE
 	return TRUE
 
+
 /obj/effect/sliding_puzzle/proc/validate()
 	if(finished)
 		return
 
-	if(length(elements) < 8) //Someone broke it
+	if(elements.len < 8) //Someone broke it
 		qdel(src)
 
 	//Check if everything is in place
@@ -96,9 +97,9 @@
 		current_ordering += E.id
 
 	var/swap_tally = 0
-	for(var/i in 1 to length(current_ordering))
+	for(var/i in 1 to current_ordering.len)
 		var/checked_value = current_ordering[i]
-		for(var/j in i to length(current_ordering))
+		for(var/j in i to current_ordering.len)
 			if(current_ordering[j] < checked_value)
 				swap_tally++
 
@@ -133,7 +134,7 @@
 	return 0
 
 /obj/effect/sliding_puzzle/proc/elements_in_order()
-	return sortTim(elements, GLOBAL_PROC_REF(cmp_xy_desc))
+	return sortTim(elements, cmp = /proc/cmp_xy_desc)
 
 /obj/effect/sliding_puzzle/proc/get_base_icon()
 	var/icon/I = new('icons/obj/puzzle.dmi')
@@ -214,8 +215,8 @@
 		C.Scale(19,19)
 		var/mutable_appearance/puzzle_small = new(C)
 		puzzle_small.layer = layer + 0.1
-		puzzle_small.pixel_w = 7
-		puzzle_small.pixel_z = 7
+		puzzle_small.pixel_x = 7
+		puzzle_small.pixel_y = 7
 		add_overlay(puzzle_small)
 
 /obj/structure/puzzle_element/Destroy()
@@ -277,7 +278,7 @@
 
 /obj/effect/sliding_puzzle/prison/Destroy()
 	if(prisoner)
-		to_chat(prisoner,span_userdanger("With the cube broken by force, you can feel your body falling apart."))
+		to_chat(prisoner,"<span class='userdanger'>With the cube broken by force, you can feel your body falling apart.</span>")
 		prisoner.death()
 		qdel(prisoner)
 	. = ..()
@@ -289,7 +290,7 @@
 
 //Some armor so it's harder to kill someone by mistake.
 /obj/structure/puzzle_element/prison
-	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 50, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 50, RAD = 50, FIRE = 50, ACID = 50)
 
 /obj/structure/puzzle_element/prison/relaymove(mob/user)
 	return
@@ -300,21 +301,21 @@
 	icon = 'icons/obj/lavaland/artefacts.dmi'
 	icon_state = "prison_cube"
 
-/obj/item/prisoncube/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+/obj/item/prisoncube/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	. = ..()
 	if(!proximity_flag || !isliving(target))
 		return
 	var/mob/living/victim = target
 	var/mob/living/carbon/carbon_victim = victim
-	//Handcuffed or unconscious
+	//Handcuffed or unconcious
 	if(istype(carbon_victim) && carbon_victim.handcuffed || victim.stat != CONSCIOUS)
 		if(!puzzle_imprison(target))
-			to_chat(user,span_warning("[src] does nothing."))
+			to_chat(user,"<span class='warning'>[src] does nothing.</span>")
 			return
-		to_chat(user,span_warning("You trap [victim] in the prison cube!"))
+		to_chat(user,"<span class='warning'>You trap [victim] in the prison cube!</span>")
 		qdel(src)
 	else
-		to_chat(user,span_notice("[src] only accepts restrained or unconscious prisoners."))
+		to_chat(user,"<span class='notice'>[src] only accepts restrained or unconcious prisoners.</span>")
 
 /proc/puzzle_imprison(mob/living/prisoner)
 	var/turf/T = get_turf(prisoner)
@@ -326,7 +327,7 @@
 	//First grab the prisoner and move them temporarily into the generator so they won't get thrown around.
 	ADD_TRAIT(prisoner, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(cube))
 	prisoner.forceMove(cube)
-	to_chat(prisoner,span_userdanger("You're trapped by the prison cube! You will remain trapped until someone solves it."))
+	to_chat(prisoner,"<span class='userdanger'>You're trapped by the prison cube! You will remain trapped until someone solves it.</span>")
 
 	//Clear the area from objects (and cube user)
 	var/list/things_to_throw = list()

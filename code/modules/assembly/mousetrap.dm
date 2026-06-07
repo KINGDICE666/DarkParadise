@@ -8,6 +8,7 @@
 
 	bomb_name = "contact mine"
 
+
 /obj/item/assembly/mousetrap/Initialize(mapload)
 	. = ..()
 	var/static/list/loc_connections = list(
@@ -15,11 +16,13 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /obj/item/assembly/mousetrap/examine(mob/user)
 	. = ..()
 	if(armed)
 		. += span_warning("It looks like it's armed.")
 	. += span_notice("<b>Alt-Click</b> to hide it.")
+
 
 /obj/item/assembly/mousetrap/activate()
 	if(!..())
@@ -37,10 +40,12 @@
 	if(usr)
 		playsound(usr.loc, 'sound/weapons/handcuffs.ogg', 30, TRUE, -3)
 
+
 /obj/item/assembly/mousetrap/update_icon_state()
 	icon_state = "mousetrap[armed ? "armed": ""]"
 	if(holder)
 		holder.update_icon()
+
 
 /obj/item/assembly/mousetrap/proc/triggered(mob/target, type = "feet")
 	if(!armed)
@@ -78,10 +83,11 @@
 		mouse.splat(src)
 
 	playsound(loc, 'sound/effects/snap.ogg', 50, TRUE)
-	layer = BELOW_MOB_LAYER
+	layer = MOB_LAYER - 0.2
 	armed = FALSE
 	update_icon()
 	pulse(FALSE, target)
+
 
 /obj/item/assembly/mousetrap/attack_self(mob/living/user)
 	if(!armed)
@@ -99,6 +105,7 @@
 	update_icon()
 	playsound(user.loc, 'sound/weapons/handcuffs.ogg', 30, TRUE, -3)
 
+
 /obj/item/assembly/mousetrap/attack_hand(mob/living/user)
 	if(armed && (user.getBrainLoss() >= 60 || HAS_TRAIT(user, TRAIT_CLUMSY)) && prob(50))
 		triggered(user, user.hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
@@ -109,10 +116,12 @@
 		return
 	..()
 
+
 /obj/item/assembly/mousetrap/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	INVOKE_ASYNC(src, PROC_REF(assembly_crossed), arrived, old_loc)
+
 
 /obj/item/assembly/mousetrap/assembly_crossed(atom/movable/crossed, atom/old_loc)
 	if(!armed)
@@ -129,6 +138,7 @@
 	else if(ismouse(crossed) || crossed.density)	// For mousetrap grenades, set off by anything heavy
 		triggered(crossed)
 
+
 /obj/item/assembly/mousetrap/on_found(mob/finder)
 	if(armed)
 		finder.visible_message(
@@ -139,26 +149,31 @@
 		return TRUE	//end the search!
 	return FALSE
 
+
 /obj/item/assembly/mousetrap/hitby(atom/movable/AM, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
 	if(!armed)
 		return ..()
 	visible_message(span_warning("[src] is triggered by [AM]."))
 	triggered()
 
+
 /obj/item/assembly/mousetrap/armed
 	icon_state = "mousetraparmed"
 	armed = TRUE
+
 
 /obj/item/assembly/mousetrap/click_alt(mob/user)
 	hide_under(user)
 	return CLICK_ACTION_SUCCESS
 
+
 /obj/item/assembly/mousetrap/verb/hide_under_verb()
 	set src in oview(1)
 	set name = "Спрятать"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 
 	hide_under(usr)
+
 
 /obj/item/assembly/mousetrap/proc/hide_under(mob/user = usr)
 	if(!isliving(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))

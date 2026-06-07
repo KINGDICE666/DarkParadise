@@ -1,4 +1,4 @@
-#define EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED 8
+#define EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED	8
 
 // For "Actual traitors"
 /datum/antagonist/traitor
@@ -24,7 +24,8 @@
 	var/datum/contractor_pending/contractor_pending
 	/// The associated traitor's uplink. Only present if `give_uplink` is set to `TRUE`.
 	var/obj/item/uplink/hidden/hidden_uplink = null
-	var/antag_sound = 'sound/ambience/antag/tatoralert.ogg'
+	var/antag_sound = "sound/ambience/antag/tatoralert.ogg"
+
 
 /datum/antagonist/traitor/on_gain()
 	// Create this in case the traitor wants to mindslaves someone.
@@ -89,18 +90,22 @@
 
 	return ..()
 
+
 /datum/antagonist/traitor/add_owner_to_gamemode()
 	SSticker.mode.traitors |= owner
+
 
 /datum/antagonist/traitor/remove_owner_from_gamemode()
 	SSticker.mode.traitors -= owner
 
+
 /datum/antagonist/traitor/add_antag_hud(mob/living/antag_mob)
-	if(HAS_TRAIT(owner, TRAIT_HIJACK))
+	if(locate(/datum/objective/hijack) in owner.get_all_objectives())
 		antag_hud_name = hijack_antag_hud_name
 	else
 		antag_hud_name = syndicate_antag_hud_name
 	return ..()
+
 
 /datum/antagonist/traitor/give_objectives()
 
@@ -110,14 +115,9 @@
 
 	// delete these end
 
-	// Give them an get equipment objective if they don't have one already.
-	var/all_objectives = owner.get_all_objectives()
-	if(!(locate(/datum/objective/get_equipment) in all_objectives))
-		if(owner.current?.client?.get_exp_type_num(EXP_TYPE_SPECIAL) < 300 HOURS)
-			add_objective(/datum/objective/get_equipment)
 
 	var/objective_count = hijacker_antag			//Hijacking counts towards number of objectives
-	if(!SSticker.mode.exchange_blue && length(SSticker.mode.traitors) >= EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED)	//Set up an exchange if there are enough traitors
+	if(!SSticker.mode.exchange_blue && SSticker.mode.traitors.len >= EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED)	//Set up an exchange if there are enough traitors
 		if(!SSticker.mode.exchange_red)
 			SSticker.mode.exchange_red = owner
 		else
@@ -129,13 +129,8 @@
 	var/objective_amount = CONFIG_GET(number/traitor_objectives_amount)
 
 	if(hijacker_antag && objective_count <= objective_amount) //Don't assign hijack if it would exceed the number of objectives set in CONFIG_GET(number/traitor_objectives_amount)
-		if(!(HAS_TRAIT(owner, TRAIT_HIJACK)))
-			if(!prob(40))
-				add_objective(/datum/objective/hijack)
-				return
-
-			add_objective(/datum/objective/supermatter_cascade)
-			add_objective(/datum/objective/survive)
+		if(!(locate(/datum/objective/hijack) in owner.get_all_objectives()))
+			add_objective(/datum/objective/hijack)
 			return
 
 	for(var/i = objective_count, i < objective_amount)
@@ -154,30 +149,29 @@
 			return
 
 	// Give them an escape objective if they don't have one already.
+	var/all_objectives = owner.get_all_objectives()
 	if(!(locate(/datum/objective/escape) in all_objectives) && !(locate(/datum/objective/survive) in all_objectives))
 		add_objective(/datum/objective/escape)
 
-/datum/antagonist/traitor/get_steal_objective_type()
-	return /datum/objective/steal/with_special_items
 
 /**
  * Assigning exchange role.
  */
 /datum/antagonist/traitor/proc/assign_exchange_role(datum/mind/exchange_role)
-	//set faction
-	var/faction = "red"
+	//set faction_local
+	var/faction_local = "red"
 	if(exchange_role == SSticker.mode.exchange_blue)
-		faction = "blue"
+		faction_local = "blue"
 
 	//Assign objectives
 	var/datum/objective/steal/exchange/exchange_objective = new
-	exchange_objective.set_faction(faction, ((faction == "red") ? SSticker.mode.exchange_blue : SSticker.mode.exchange_red))
+	exchange_objective.set_faction(faction_local, ((faction_local == "red") ? SSticker.mode.exchange_blue : SSticker.mode.exchange_red))
 	exchange_objective.owner = owner
 	objectives += exchange_objective
 
 	if(prob(20))
 		var/datum/objective/steal/exchange/backstab/backstab_objective = new
-		backstab_objective.set_faction(faction)
+		backstab_objective.set_faction(faction_local)
 		backstab_objective.owner = owner
 		objectives += backstab_objective
 
@@ -205,6 +199,7 @@
 	to_chat(mob, span_notice("<br><br>[where] is a folder containing <b>secret documents</b> that another Syndicate group wants. We have set up a meeting with one of their agents on station to make an exchange. Exercise extreme caution as they cannot be trusted and may be hostile.<br>"))
 	mob.update_icons()
 
+
 /**
  * Give traitors their uplink. Play the traitor an alert sound.
  */
@@ -231,16 +226,16 @@
 	var/phrases = jointext(GLOB.syndicate_code_phrase, ", ")
 	var/responses = jointext(GLOB.syndicate_code_response, ", ")
 
-	antag_memory += "<b>Code Phrase</b>: [span_red("[phrases]")]<br>"
-	antag_memory += "<b>Code Response</b>: [span_red("[responses]")]<br>"
+	antag_memory += "<b>Code Phrase</b>: <span class='red'>[phrases]</span><br>"
+	antag_memory += "<b>Code Response</b>: <span class='red'>[responses]</span><br>"
 
 	var/list/messages = list()
 	if(silent)
 		return messages
 
 	messages.Add("<u><b>The Syndicate have provided you with the following codewords to identify fellow agents:</b></u>")
-	messages.Add("<b>Code Phrase:</b> [span_codephrases("[phrases]")]")
-	messages.Add("<b>Code Response:</b> [span_coderesponses("[responses]")]")
+	messages.Add("<b>Code Phrase:</b> <span class='codephrases'>[phrases]</span>")
+	messages.Add("<b>Code Response:</b> <span class='coderesponses'>[responses]</span>")
 	messages.Add("Use the codewords during regular conversation to identify other agents. Proceed with caution, however, as everyone is a potential foe.")
 	messages.Add("<b><font color=red>You memorize the codewords, allowing you to recognize them when heard.</font></b>")
 
@@ -290,7 +285,7 @@
 			freq += 2
 			if((freq % 2) == 0)
 				freq += 1
-		freq = freqlist[rand(1, length(freqlist))]
+		freq = freqlist[rand(1, freqlist.len)]
 
 		var/obj/item/uplink/hidden/new_uplink = new(target_radio)
 		hidden_uplink = new_uplink
@@ -317,14 +312,16 @@
 
 	return FALSE
 
+
 /datum/antagonist/traitor/roundend_report_footer()
 	var/phrases = jointext(GLOB.syndicate_code_phrase, ", ")
 	var/responses = jointext(GLOB.syndicate_code_response, ", ")
 
-	var/message = "<br><b>The code phrases were:</b> [span_blue(span_big(phrases))]<br>\
-					<b>The code responses were:</b> [span_redtext("[responses]")]<br>"
+	var/message = "<br><b>The code phrases were:</b> <span class='bluetext'>[phrases]</span><br>\
+					<b>The code responses were:</b> <span class='redtext'>[responses]</span><br>"
 
 	return message
+
 
 /datum/antagonist/traitor/proc/announce_uplink_info()
 
@@ -335,14 +332,15 @@
 
 	if(is_pda(uplink_holder))
 		var/obj/item/pda/pda_uplink = uplink_holder
-		to_chat(owner.current, span_notice("The Syndicate have cunningly disguised a Syndicate Uplink as your [uplink_holder.name]. Simply enter the code \"[pda_uplink.lock_code]\" into the ringtone select to unlock its hidden features."))
+		to_chat(owner.current, "The Syndicate have cunningly disguised a Syndicate Uplink as your [uplink_holder.name]. Simply enter the code \"[pda_uplink.lock_code]\" into the ringtone select to unlock its hidden features.")
 
 	else if(isradio(uplink_holder))
 		var/obj/item/radio/radio_uplink = uplink_holder
-		to_chat(owner.current, span_notice("The Syndicate have cunningly disguised a Syndicate Uplink as your [uplink_holder.name]. Simply dial the frequency [format_frequency(radio_uplink.traitor_frequency)] to unlock its hidden features."))
+		to_chat(owner.current, "The Syndicate have cunningly disguised a Syndicate Uplink as your [uplink_holder.name]. Simply dial the frequency [format_frequency(radio_uplink.traitor_frequency)] to unlock its hidden features.")
 
 	else
 		to_chat(owner.current, span_warning("Unfortunately, the Syndicate wasn't able to get you a radio."))
+
 
 /**
  * Takes any datum `source` and checks it for traitor datum.
@@ -363,5 +361,6 @@
 		return FALSE
 
 	return mind_holder.mind.has_antag_datum(/datum/antagonist/traitor)
+
 
 #undef EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED

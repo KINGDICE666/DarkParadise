@@ -33,13 +33,13 @@
 	heatmod = 1.5
 
 	blood_species = "Skrell"
-	blood_color = BLOOD_COLOR_SKRELL
+	blood_color = "#1D2CBF"
 	base_color = "#38b661" //RGB: 56, 182, 97.
 	default_hair_colour = "#38b661"
 	eyes = "skrell_eyes_s"
 	//Default styles for created mobs.
 	default_hair = "Skrell Male Tentacles"
-	reagent_tag = ORGANIC
+	reagent_tag = PROCESS_ORG
 	butt_sprite = "skrell"
 
 	disliked_food = MEAT | RAW | EGG
@@ -108,8 +108,10 @@
 		/mob/living/carbon/human/verb/emote_frown,
 		/mob/living/carbon/human/verb/emote_snuffle))
 
+
 /datum/species/skrell/gain_muscles(mob/living/target, datum/strength_level/default, max_level, can_become_stronger)
 	..(target, target.gender == FEMALE ? default.prev_level : default, max_level, can_become_stronger)
+
 
 /datum/species/skrell/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
@@ -132,16 +134,18 @@
 		/mob/living/carbon/human/verb/emote_frown,
 		/mob/living/carbon/human/verb/emote_snuffle))
 
+
 /datum/species/skrell/water_act(mob/living/carbon/human/M, volume, temperature, source, method)
 	. = ..()
 	if(method == REAGENT_TOUCH)
 		var/update = NONE
 		if(M.getFireLoss() < 25 && M.getBruteLoss() < 25 && M.health != 100)
 			update |= M.heal_overall_damage(4, 4, updating_health = FALSE)
-			to_chat(M, span_notice("Освежающая вода закрывает ваши мелкие раны!"))
+			to_chat(M, "<span class='notice'>Освежающая вода закрывает ваши мелкие раны!</span>")
 		update |= M.heal_damage_type(5, OXY, updating_health = FALSE)
 		if(update)
 			M.updatehealth()
+
 
 /datum/species/skrell/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	if(R.id == "water")

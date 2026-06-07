@@ -11,11 +11,11 @@
 	origin_tech = "magnets=11"
 
 /obj/item/anomaly_upgrader/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "усилитель аномалий", \
 		GENITIVE = "усилителя аномалий", \
 		DATIVE = "усилителю аномалий", \
 		ACCUSATIVE = "усилитель аномалий", \
 		INSTRUMENTAL = "усилителем аномалий", \
-		PREPOSITIONAL = "усилителе аномалий",
+		PREPOSITIONAL = "усилителе аномалий"
 	)

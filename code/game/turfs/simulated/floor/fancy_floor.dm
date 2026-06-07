@@ -43,11 +43,9 @@
 	return make_plating(make_tile, user)
 
 /turf/simulated/floor/wood/cold
-	atmos_environment = ENVIRONMENT_COLD
-
-/turf/simulated/floor/wood/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
+	oxygen = 22
+	nitrogen = 82
+	temperature = 180
 
 /turf/simulated/floor/wood/dark
 	icon_state = "dark-wood"
@@ -71,9 +69,6 @@
 	icon_state = "wood-cherry"
 	floor_tile = /obj/item/stack/tile/wood/cherry
 
-/turf/simulated/floor/wood/cherry/cold
-	atmos_environment = ENVIRONMENT_COLD
-
 /turf/simulated/floor/wood/cherry/broken_states()
 	return list("wood-cherry-broken", "wood-cherry-broken2", "wood-cherry-broken3", "wood-cherry-broken4", "wood-cherry-broken5", "wood-cherry-broken6", "wood-cherry-broken7")
 
@@ -84,21 +79,12 @@
 /turf/simulated/floor/wood/fancy/oak/broken_states()
 	return list("fancy-wood-oak-broken", "fancy-wood-oak-broken2", "fancy-wood-oak-broken3", "fancy-wood-oak-broken4", "fancy-wood-oak-broken5", "fancy-wood-oak-broken6", "fancy-wood-oak-broken7")
 
-/turf/simulated/floor/wood/fancy/oak/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
 /turf/simulated/floor/wood/fancy/birch
 	icon_state = "fancy-wood-birch"
 	floor_tile = /obj/item/stack/tile/wood/fancy/birch
 
 /turf/simulated/floor/wood/fancy/birch/broken_states()
 	return list("fancy-wood-birch-broken", "fancy-wood-birch-broken2", "fancy-wood-birch-broken3", "fancy-wood-birch-broken4", "fancy-wood-birch-broken5", "fancy-wood-birch-broken6", "fancy-wood-birch-broken7")
-
-/turf/simulated/floor/wood/fancy/birch/airless
-	oxygen = 0
-	nitrogen = 0
-	temperature = TCMB
 
 /turf/simulated/floor/wood/fancy/cherry
 	icon_state = "fancy-wood-cherry"
@@ -133,6 +119,7 @@
 /turf/simulated/floor/grass/update_icon_state()
 	icon_state = "grass[pick("1","2","3","4")]"
 
+
 /turf/simulated/floor/grass/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -161,14 +148,6 @@
 		new /obj/item/stack/ore/glass(src, 2) //Make some sand if you shovel grass
 		return .|ATTACK_CHAIN_BLOCKED_ALL
 
-/turf/simulated/floor/grass/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
-/turf/simulated/floor/grass/airless
-	name = "grass patch airless"
-	oxygen = 0
-	nitrogen = 0
 
 // CARPETS
 /turf/simulated/floor/carpet
@@ -189,29 +168,24 @@
 	nitrogen = 0
 	temperature = TCMB
 
-/turf/simulated/floor/carpet/lavaland_air
-	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
-	atmos_environment = ENVIRONMENT_LAVALAND
-
-/turf/simulated/floor/carpet/cold
-	atmos_environment = ENVIRONMENT_COLD
-
 /turf/simulated/floor/carpet/Initialize(mapload)
 	. = ..()
 	update_icon()
 
+
 /turf/simulated/floor/carpet/broken_states()
 	return list("damaged")
+
 
 /turf/simulated/floor/carpet/update_icon_state()
 	dir = NONE //Prevents wrong smoothing
 	if(!broken && !burnt)
 		if(smooth)
-			QUEUE_SMOOTH(src)
+			queue_smooth(src)
 	else
 		make_plating(FALSE)
 		if(smooth)
-			QUEUE_SMOOTH_NEIGHBORS(src)
+			queue_smooth_neighbors(src)
 
 /turf/simulated/floor/carpet/break_tile()
 	broken = TRUE

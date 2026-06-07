@@ -135,7 +135,7 @@ const SleeperOccupant = (_props: unknown) => {
     >
       <LabeledList>
         <LabeledList.Item label="Имя">{occupant.name}</LabeledList.Item>
-        <LabeledList.Item label="Оценка здоровья">
+        <LabeledList.Item label="Оценка здорвоья">
           <ProgressBar
             minValue={0}
             maxValue={occupant.maxHealth}

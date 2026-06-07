@@ -28,10 +28,10 @@
 	var/datum/action/innate/terrorspider/queen/empress/empresslings/empresslings_action
 	var/datum/action/innate/terrorspider/queen/empress/empresserase/empresserase_action
 	tts_seed = "Queen"
-	spider_intro_text = "Вы — Императрица Ужаса, вершина иерархии гнезда и одно из самых опасных существ этого мира. Управляйте, разрушайте, захватывайте. Теперь это ВАША станция."
+	spider_intro_text = "Вы - Императрица Ужаса, вершина иерархии гнезда и одно из самых опасных существ этого мира. Управляйте, разрушайте, захватывайте. Теперь это ВАША станция."
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Императрица Ужаса",
 		GENITIVE = "Императрицы Ужаса",
 		DATIVE = "Императрице Ужаса",
@@ -40,8 +40,8 @@
 		PREPOSITIONAL = "Императрице Ужаса",
 	)
 
-/mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/Initialize(mapload)
-	. = ..()
+/mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/New()
+	..()
 	grant_actions()
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/proc/grant_actions()
@@ -56,7 +56,7 @@
 	return 50
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/NestMode()
 	..()
-	queeneggs_action.name = "Empress Eggs"
+	queeneggs_action.button.name = "Empress Eggs"
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/LayQueenEggs()
 	var/eggtype = tgui_input_list(usr, "Какой тип яиц?", "Тип яиц", list(TS_DESC_QUEEN, TS_DESC_MOTHER, TS_DESC_PRINCE, TS_DESC_PRINCESS, TS_DESC_KNIGHT, TS_DESC_LURKER, TS_DESC_HEALER, TS_DESC_WIDOW, TS_DESC_GUARDIAN, TS_DESC_DEFILER, TS_DESC_DESTROYER))
@@ -131,6 +131,13 @@
 	var/datum/team/terror_spiders/spider_team = GLOB.antagonist_teams[/datum/team/terror_spiders]
 	spider_team?.erase_eggs()
 	to_chat(src, span_userdanger("Все пауки ужаса, кроме вас, вскоре вымрут."))
+
+
+/obj/projectile/terrorspider/empress
+	name = "empress venom"
+	icon_state = "toxin5"
+	damage = 90
+	damage_type = BRUTE
 
 /mob/living/simple_animal/hostile/poison/terror_spider/queen/empress/weak
 	canlay = 10

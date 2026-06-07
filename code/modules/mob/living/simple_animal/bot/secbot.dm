@@ -25,12 +25,12 @@
 	data_hud_type = DATA_HUD_SECURITY_ADVANCED
 
 	var/base_icon = "secbot"
-	var/mob/living/carbon/target
+	var/mob/living/carbon/arrest_target
 	var/oldtarget_name
 	var/threatlevel = 0
-	/// Loc of target when arrested.
+	/// Loc of arrest_target when arrested.
 	var/target_lastloc
-	/// Delay between checks for target.
+	/// Delay between checks for arrest_target.
 	var/last_found
 	/// When making an arrest, should it notify everyone on the security channel?
 	var/declare_arrests = TRUE
@@ -51,7 +51,7 @@
 	var/speak_cooldown = FALSE
 
 /mob/living/simple_animal/bot/secbot/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "охранный робот",
 		GENITIVE = "охранного робота",
 		DATIVE = "охранному роботу",
@@ -60,13 +60,14 @@
 		PREPOSITIONAL = "охранном роботе",
 	)
 
+
 /mob/living/simple_animal/bot/secbot/beepsky
 	name = "Officer Beepsky"
 	desc = "Это Офицер Бипски! Работает с помощью картофеля и рюмки виски."
 	auto_patrol = TRUE
 
 /mob/living/simple_animal/bot/secbot/beepsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Бипски",
 		GENITIVE = "Офицера Бипски",
 		DATIVE = "Офицеру Бипски",
@@ -83,13 +84,14 @@
 	S.on_reagent_change()
 	..()
 
+
 /mob/living/simple_animal/bot/secbot/pingsky
 	name = "Officer Pingsky"
 	desc = "Это Офицер Пингски! Переведён на охрану спутника за разжигание античеловеческих настроений."
 	radio_channel = AI_FREQ_NAME
 
 /mob/living/simple_animal/bot/secbot/pingsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Пингски",
 		GENITIVE = "Офицера Пингски",
 		DATIVE = "Офицеру Пингски",
@@ -105,7 +107,7 @@
 	auto_patrol = TRUE
 
 /mob/living/simple_animal/bot/secbot/ofitser/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Тюремски",
 		GENITIVE = "Офицера Тюремски",
 		DATIVE = "Офицеру Тюремски",
@@ -125,7 +127,7 @@
 	emagged = 2
 
 /mob/living/simple_animal/bot/secbot/buzzsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Баззски",
 		GENITIVE = "Офицера Баззски",
 		DATIVE = "Офицеру Баззски",
@@ -143,7 +145,7 @@
 	auto_patrol = TRUE
 
 /mob/living/simple_animal/bot/secbot/armsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Арсеналски",
 		GENITIVE = "Офицера Арсеналски",
 		DATIVE = "Офицеру Арсеналски",
@@ -160,7 +162,7 @@
 	weaponscheck = TRUE
 
 /mob/living/simple_animal/bot/secbot/podsky/get_ru_names()
-	return alist(
+	return list(
 		NOMINATIVE = "Офицер Подски",
 		GENITIVE = "Офицера Подски",
 		DATIVE = "Офицеру Подски",
@@ -172,7 +174,7 @@
 /mob/living/simple_animal/bot/secbot/Initialize(mapload)
 	. = ..()
 	icon_state = "[base_icon][on]"
-	var/datum/job/security/detective/J = new/datum/job/security/detective
+	var/datum/job/detective/J = new/datum/job/detective
 	access_card.access += J.get_access()
 	prev_access = access_card.access
 
@@ -180,43 +182,50 @@
 
 	//SECHUD
 	var/datum/atom_hud/secsensor = GLOB.huds[DATA_HUD_SECURITY_ADVANCED]
-	secsensor.show_to(src)
+	secsensor.add_hud_to(src)
 
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
+
 /mob/living/simple_animal/bot/secbot/turn_on()
 	..()
 	icon_state = "[base_icon][on]"
+
 
 /mob/living/simple_animal/bot/secbot/turn_off()
 	..()
 	icon_state = "[base_icon][on]"
 
+
 /mob/living/simple_animal/bot/secbot/bot_reset()
 	..()
-	target = null
+	arrest_target = null
 	oldtarget_name = null
 	set_anchored(FALSE)
-	GLOB.move_manager.stop_looping(src)
+	SSmove_manager.stop_looping(src)
 	set_path(null)
 	last_found = world.time
+
 
 /mob/living/simple_animal/bot/secbot/set_custom_texts()
 	text_hack = "Вы взломали систему идентификации целей [declent_ru(GENITIVE)]."
 	text_dehack = "Вы восстановили систему идентификации целей [declent_ru(GENITIVE)]."
-	text_dehack_fail = "[DECLENT_RU_CAP(src, NOMINATIVE)] отказывается признавать вашу власть!"
+	text_dehack_fail = "[capitalize(declent_ru(NOMINATIVE))] отказывается признавать вашу власть!"
+
 
 /mob/living/simple_animal/bot/secbot/show_controls(mob/M)
 	ui_interact(M)
+
 
 /mob/living/simple_animal/bot/secbot/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "BotSecurity", name)
 		ui.open()
+
 
 /mob/living/simple_animal/bot/secbot/ui_data(mob/user)
 	var/list/data = list(
@@ -236,6 +245,7 @@
 		"arrest_declare" = declare_arrests // announce arrests on radio
 	)
 	return data
+
 
 /mob/living/simple_animal/bot/secbot/ui_act(action, params)
 	if(..())
@@ -278,13 +288,15 @@
 	threatlevel = H.assess_threat(src)
 	threatlevel += 6
 	if(threatlevel >= 4)
-		target = H
+		arrest_target = H
 		mode = BOT_HUNT
+
 
 /mob/living/simple_animal/bot/secbot/attack_hand(mob/living/carbon/human/H)
 	if(H.a_intent == INTENT_HARM || H.a_intent == INTENT_DISARM)
 		retaliate(H)
 	return ..()
+
 
 /mob/living/simple_animal/bot/secbot/attackby(obj/item/I, mob/user, params)
 	var/current_health = health
@@ -293,15 +305,17 @@
 		return .
 	retaliate(user)
 
+
 /mob/living/simple_animal/bot/secbot/emag_act(mob/user)
 	..()
 	if(emagged == 2)
 		if(user)
 			to_chat(user, span_danger("Вы замыкаете микросхемы системы целеуказания [declent_ru(GENITIVE)]."))
 			oldtarget_name = user.name
-		audible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] странно жужжит!"))
+		audible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] странно жужжит!"))
 		declare_arrests = FALSE
 		icon_state = "[base_icon][on]"
+
 
 /mob/living/simple_animal/bot/secbot/bullet_act(obj/projectile/Proj)
 	if(istype(Proj ,/obj/projectile/beam) || istype(Proj,/obj/projectile/bullet))
@@ -310,7 +324,8 @@
 				retaliate(Proj.firer)
 	..()
 
-/mob/living/simple_animal/bot/secbot/OnUnarmedAttack(atom/A, proximity_flag, list/modifiers)
+
+/mob/living/simple_animal/bot/secbot/OnUnarmedAttack(atom/A)
 	if(iscarbon(A))
 		var/mob/living/carbon/C = A
 		if((C.staminaloss < 110 || arrest_type) && !baton_delayed)
@@ -320,6 +335,7 @@
 	else
 		..()
 
+
 /mob/living/simple_animal/bot/secbot/hitby(atom/movable/AM, skipcatch = FALSE, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum)
 	if(isitem(AM))
 		var/obj/item/I = AM
@@ -328,12 +344,14 @@
 			retaliate(thrower)
 	..()
 
+
 /mob/living/simple_animal/bot/secbot/proc/cuff(mob/living/carbon/C)
 	mode = BOT_ARREST
 	playsound(loc, 'sound/weapons/cablecuff.ogg', 30, TRUE, -2)
-	C.visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает надевать стяжки на [C]!"),
-					span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] пытается надеть на вас стяжки!"))
+	C.visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] начинает надевать стяжки на [C]!"),
+					span_userdanger("[capitalize(declent_ru(NOMINATIVE))] пытается надеть на вас стяжки!"))
 	addtimer(CALLBACK(src, PROC_REF(cuff_callback), C), 6 SECONDS)
+
 
 /mob/living/simple_animal/bot/secbot/proc/cuff_callback(mob/living/carbon/C)
 	if(QDELETED(src) || QDELETED(C))
@@ -343,11 +361,12 @@
 		return
 
 	C.apply_restraints(new /obj/item/restraints/handcuffs/cable/zipties/used(null), ITEM_SLOT_HANDCUFFED, TRUE)
-	C.visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] надел стяжки на [C]!"),
-					span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] надел на вас стяжки!"))
+	C.visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] надел стяжки на [C]!"),
+					span_userdanger("[capitalize(declent_ru(NOMINATIVE))] надел на вас стяжки!"))
 
 	playsound(loc, pick('sound/voice/bgod.ogg', 'sound/voice/biamthelaw.ogg', 'sound/voice/bsecureday.ogg', 'sound/voice/bradio.ogg', 'sound/voice/binsult.ogg', 'sound/voice/bcreep.ogg'), 50, FALSE)
 	back_to_idle()
+
 
 /mob/living/simple_animal/bot/secbot/proc/stun_attack(mob/living/carbon/C)
 	playsound(loc, 'sound/weapons/egloves.ogg', 50, TRUE, -1)
@@ -368,11 +387,12 @@
 	if(declare_arrests)
 		var/area/location = get_area(src)
 		if(!speak_cooldown)
-			speak("[arrest_type ? "Удерживаю" : "Задерживаю"] подонка по имени <b>[C]</b> в локации <b>[location]</b>. Уровень опасности — [threat].", radio_channel)
+			speak("[arrest_type ? "Удерживаю" : "Задерживаю"] подонка по имени <b>[C]</b> в локации <b>[location]</b>. Уровень опасности - [threat].", radio_channel)
 			speak_cooldown = TRUE
 			addtimer(VARSET_CALLBACK(src, speak_cooldown, FALSE), SPEAK_COOLDOWN)
-	C.visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] [harmbaton ? "ударил" : "оглушил"] [C]!"),
-					span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] [harmbaton ? "ударил" : "оглушил"] вас!"))
+	C.visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] [harmbaton ? "ударил" : "оглушил"] [C]!"),
+					span_userdanger("[capitalize(declent_ru(NOMINATIVE))] [harmbaton ? "ударил" : "оглушил"] вас!"))
+
 
 /mob/living/simple_animal/bot/secbot/Life(seconds, times_fired)
 	. = ..()
@@ -391,12 +411,14 @@
 
 	prev_flashing_lights = flashing_lights
 
+
 /mob/living/simple_animal/bot/secbot/verb/toggle_flashing_lights()
 	set name = "Вкл/выкл фонарик"
-	set category = VERB_CATEGORY_OBJECT
+	set category = STATPANEL_OBJECT
 	set src = usr
 
 	flashing_lights = !flashing_lights
+
 
 /mob/living/simple_animal/bot/secbot/handle_automated_action()
 	if(!..())
@@ -406,7 +428,7 @@
 
 	switch(mode)
 		if(BOT_IDLE)		// idle
-			GLOB.move_manager.stop_looping(src)
+			SSmove_manager.stop_looping(src)
 			set_path(null)
 			look_for_perp()	// see if any criminals are in range
 			if(!mode && auto_patrol)	// still idle, and set to patrol
@@ -415,40 +437,40 @@
 		if(BOT_HUNT)		// hunting for perp
 			// if can't reach perp for long enough, go idle
 			if(frustration >= 8)
-				GLOB.move_manager.stop_looping(src)
+				SSmove_manager.stop_looping(src)
 				set_path(null)
 				back_to_idle()
 				return
 
-			if(target)		// make sure target exists
-				if(Adjacent(target) && isturf(target.loc) && !baton_delayed)	// if right next to perp
-					stun_attack(target)
+			if(arrest_target)		// make sure arrest_target exists
+				if(Adjacent(arrest_target) && isturf(arrest_target.loc) && !baton_delayed)	// if right next to perp
+					stun_attack(arrest_target)
 
 					mode = BOT_PREP_ARREST
 					set_anchored(TRUE)
-					target_lastloc = target.loc
+					target_lastloc = arrest_target.loc
 					return
 
 				else								// not next to perp
-					var/turf/olddist = get_dist(src, target)
-					GLOB.move_manager.move_to(src, target, 1, BOT_STEP_DELAY)
-					if((get_dist(src, target)) >= (olddist))
+					var/turf/olddist = get_dist(src, arrest_target)
+					SSmove_manager.move_to(src, arrest_target, 1, BOT_STEP_DELAY)
+					if((get_dist(src, arrest_target)) >= (olddist))
 						frustration++
 					else
 						frustration = 0
 			else
 				back_to_idle()
 
-		if(BOT_PREP_ARREST)		// preparing to arrest target
+		if(BOT_PREP_ARREST)		// preparing to arrest arrest_target
 			// see if he got away. If he's no no longer adjacent or inside a closet or about to get up, we hunt again.
 			if(!Adjacent(target) || !isturf(target.loc) || world.time - target.stam_regen_start_time < 4 SECONDS && target.getStaminaLoss() <= target.get_max_stamina())
 				back_to_hunt()
 				return
 
-			if(iscarbon(target) && target.has_organ_for_slot(ITEM_SLOT_HANDCUFFED))
+			if(iscarbon(arrest_target) && arrest_target.has_organ_for_slot(ITEM_SLOT_HANDCUFFED))
 				if(!arrest_type)
-					if(!target.handcuffed)  //he's not cuffed? Try to cuff him!
-						cuff(target)
+					if(!arrest_target.handcuffed)  //he's not cuffed? Try to cuff him!
+						cuff(arrest_target)
 					else
 						back_to_idle()
 						return
@@ -457,21 +479,21 @@
 				return
 
 		if(BOT_ARREST)
-			if(!target)
+			if(!arrest_target)
 				set_anchored(FALSE)
 				mode = BOT_IDLE
 				last_found = world.time
 				frustration = 0
 				return
 
-			if(target.handcuffed) //no target or target cuffed? back to idle.
+			if(arrest_target.handcuffed) //no arrest_target or arrest_target cuffed? back to idle.
 				back_to_idle()
 				return
 
-			if(!Adjacent(target) || !isturf(target.loc) || (target.loc != target_lastloc && target.staminaloss < 110)) //if he's changed loc and about to get up or not adjacent or got into a closet, we prep arrest again.
+			if(!Adjacent(arrest_target) || !isturf(arrest_target.loc) || (arrest_target.loc != target_lastloc && arrest_target.staminaloss < 110)) //if he's changed loc and about to get up or not adjacent or got into a closet, we prep arrest again.
 				back_to_hunt()
 				return
-			else //Try arresting again if the target escapes.
+			else //Try arresting again if the arrest_target escapes.
 				mode = BOT_PREP_ARREST
 				set_anchored(FALSE)
 
@@ -483,19 +505,22 @@
 			look_for_perp()
 			bot_patrol()
 
+
 /mob/living/simple_animal/bot/secbot/proc/back_to_idle()
 	set_anchored(FALSE)
 	mode = BOT_IDLE
-	target = null
+	arrest_target = null
 	last_found = world.time
 	frustration = 0
 	INVOKE_ASYNC(src, PROC_REF(handle_automated_action))
+
 
 /mob/living/simple_animal/bot/secbot/proc/back_to_hunt()
 	set_anchored(FALSE)
 	frustration = 0
 	mode = BOT_HUNT
 	INVOKE_ASYNC(src, PROC_REF(handle_automated_action))
+
 
 /**
  * Look for a criminal in view of the bot.
@@ -515,27 +540,29 @@
 			continue
 
 		else if(threatlevel >= 4)
-			target = C
+			arrest_target = C
 			oldtarget_name = C.name
 			speak("Вижу преступника! Уровень опасности - <b>[threatlevel]</b>!")
 			playsound(loc, pick('sound/voice/bcriminal.ogg', 'sound/voice/bjustice.ogg', 'sound/voice/bfreeze.ogg'), 50, FALSE)
-			visible_message("<b>[DECLENT_RU_CAP(src, NOMINATIVE)]</b> указывает на [C.name]!")
+			visible_message("<b>[capitalize(declent_ru(NOMINATIVE))]</b> указывает на [C.name]!")
 			mode = BOT_HUNT
 			INVOKE_ASYNC(src, PROC_REF(handle_automated_action))
 			break
 		else
 			continue
 
+
 /mob/living/simple_animal/bot/secbot/proc/check_for_weapons(obj/item/slot_item)
-	if(slot_item?.needs_permit)
+	if(slot_item && slot_item.needs_permit)
 		return TRUE
 	return FALSE
 
+
 /mob/living/simple_animal/bot/secbot/explode()
-	GLOB.move_manager.stop_looping(src)
-	visible_message(span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] разлетается на части!"))
+	SSmove_manager.stop_looping(src)
+	visible_message(span_userdanger("[capitalize(declent_ru(NOMINATIVE))] разлетается на части!"))
 	var/turf/Tsec = get_turf(src)
-	var/obj/item/bot_assembly/secbot_assembly/Sa = new /obj/item/bot_assembly/secbot_assembly(Tsec)
+	var/obj/item/secbot_assembly/Sa = new /obj/item/secbot_assembly(Tsec)
 	Sa.build_step = 1
 	Sa.add_overlay("hs_hole")
 	Sa.created_name = name
@@ -547,32 +574,38 @@
 	new /obj/effect/decal/cleanable/blood/oil(loc)
 	..()
 
+
 /mob/living/simple_animal/bot/secbot/attack_alien(mob/living/carbon/alien/user as mob)
 	..()
-	if(!isalien(target))
-		target = user
+	if(!isalien(arrest_target))
+		arrest_target = user
 		mode = BOT_HUNT
+
 
 /mob/living/simple_animal/bot/secbot/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
 	secbot_crossed(arrived)
 
+
 /mob/living/simple_animal/bot/secbot/proc/secbot_crossed(mob/living/carbon/arrived)
-	if(!iscarbon(arrived) || arrived != target || in_range(src, arrived))
+	if(!iscarbon(arrived) || arrived != arrest_target || in_range(src, arrived))
 		return
 
 	arrived.visible_message(span_warning("[pick( \
-						"[arrived] спотыка[PLUR_ET_YUT(arrived)]ся об [declent_ru(GENITIVE)]!", \
-						"[arrived] опрокидыва[PLUR_ET_YUT(arrived)]ся на [declent_ru(GENITIVE)]!", \
-						"[arrived] отлета[PLUR_ET_YUT(arrived)] с пути [declent_ru(GENITIVE)]!", \
-						"[DECLENT_RU_CAP(src, NOMINATIVE)] сбивает [arrived]!", \
-						"[DECLENT_RU_CAP(src, NOMINATIVE)] влетает в [arrived], заставляя [GEND_HIS_HER(arrived)] упасть!", \
-						"[DECLENT_RU_CAP(src, NOMINATIVE)] опрокидывает [arrived]!")]"))
+						"[arrived] спотыка[pluralize_ru(arrived.gender, "ет", "ют")]ся об [declent_ru(GENITIVE)]!", \
+						"[arrived] опрокидыва[pluralize_ru(arrived.gender, "ет", "ют")]ся на [declent_ru(GENITIVE)]!", \
+						"[arrived] отлета[pluralize_ru(arrived.gender, "ет", "ют")] с пути [declent_ru(GENITIVE)]!", \
+						"[capitalize(declent_ru(NOMINATIVE))] сбивает [arrived]!", \
+						"[capitalize(declent_ru(NOMINATIVE))] влетает в [arrived], заставляя [genderize_ru(arrived.gender, "его", "её", "его", "их")] упасть!", \
+						"[capitalize(declent_ru(NOMINATIVE))] опрокидывает [arrived]!")]"))
 	arrived.Weaken(4 SECONDS)
+
 
 /obj/machinery/bot_core/secbot
 	req_access = list(ACCESS_SECURITY)
+
+
 
 #undef SPEAK_COOLDOWN
 #undef BATON_COOLDOWN

@@ -4,11 +4,11 @@ GLOBAL_LIST_EMPTY(selectable_robolimbs)
 GLOBAL_DATUM(basic_robolimb, /datum/robolimb)
 
 ///Model = This iconset contains ONLY a monitor and is a subtypeof a Brand
-#define MODEL 0
+#define MODEL        0
 ///Brand = This iconset contains all body parts (including a monitor) and there are other monitor Models for this type/Brand
-#define BRAND 1
-///Childless = This iconset contains all body parts (including a monitor). There are no other monitor Models for this type
-#define CHILDLESS 2
+#define BRAND        1
+//Childless = This iconset contains all body parts (including a monitor). There are no other monitor Models for this type
+#define CHILDLESS    2
 
 /datum/robolimb
 	///The name shown when selecting the limb(s) from a menu.
@@ -24,7 +24,7 @@ GLOBAL_DATUM(basic_robolimb, /datum/robolimb)
 		SPECIES_GREY,
 		SPECIES_HUMAN,
 		SPECIES_KIDAN,
-		SPECIES_MACHINEPERSON,
+		SPECIES_MACNINEPERSON,
 		SPECIES_DIONA,
 		SPECIES_DRASK,
 		SPECIES_MOTH,
@@ -115,7 +115,7 @@ GLOBAL_DATUM(basic_robolimb, /datum/robolimb)
 	desc = "This limb has an olive drab casing, providing a reinforced housing look."
 	icon = 'icons/mob/human_races/cyberlimbs/hesphiastos/hesphiastos_titan.dmi'
 	has_subtypes = BRAND
-	species_allowed = list(SPECIES_MACHINEPERSON)
+	species_allowed = list(SPECIES_MACNINEPERSON)
 
 /datum/robolimb/titan/monitor
 	company = "Titan Enforcer"
@@ -124,6 +124,7 @@ GLOBAL_DATUM(basic_robolimb, /datum/robolimb)
 	has_subtypes = MODEL
 	is_monitor = TRUE
 	selectable = FALSE
+
 
 /* Morpheus */
 //Main
@@ -282,7 +283,7 @@ GLOBAL_DATUM(basic_robolimb, /datum/robolimb)
 	icon = 'icons/mob/human_races/cyberlimbs/zenghu/zenghu_spirit.dmi'
 	selectable = FALSE
 	// Only available for IPCs and at Chargen
-	species_allowed = list(SPECIES_MACHINEPERSON)
+	species_allowed = list(SPECIES_MACNINEPERSON)
 
 #undef MODEL
 #undef BRAND
