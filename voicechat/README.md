@@ -4,9 +4,15 @@
 
 * [getUserMedia()](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) requires a secure context, so the local helper serves the page over **https** with bundled test certificates.
 * Right now distance is calculated at **O(N^2)**. A spatial indexing library like [rbush](https://github.com/mourner/rbush) could improve this later.
-* roughly **10% of rtc connections fail** with this setup. This might be preventable by running a local [TURN](https://webrtc.org/getting-started/turn-server) server.
+* roughly **10% of rtc connections fail** with this setup. This might be preventable by running a local [TURN](https://webrtc.org/getting-started/turn-server) server. Only STUN is configured, so players behind symmetric NAT can still fail to connect — add a TURN entry to `ICE_SERVERS` in `node/public/voicechat.js` for full reliability.
 
 ![alt text](image.png)
+
+## behaviour notes
+
+* **Reconnection is resilient.** A dropped browser socket no longer kills the in-game session. The client rejoins automatically (the `sessionId` stays valid for the session), and the server holds the BYOND-side user for a short grace window (`DISCONNECT_GRACE_MS`) before tearing it down, so a brief network blip self-heals. The microphone capture survives a reconnect, so players keep talking the moment they are back.
+* **Ghosts can listen but not speak.** Dead players / observers are merged into the proximity pool of their z-level, so they hear living players around them, but the server flags them `listenOnly` and their browser stops transmitting (`updateAudioSenders` / VAD are gated). Two ghosts never hear each other. Each living speaker is capped at `MAX_GHOST_LISTENERS_PER_SPEAKER` ghost listeners to keep a crowd of observers from spawning dozens of peer connections on one player's client.
+* **Message framing.** The Node pipe server buffers each connection until it closes and parses the whole message, so large location packets that span multiple chunks are no longer mis-parsed as "invalid JSON".
 
 ## building
 

@@ -25,7 +25,10 @@ function handleSocketCommand(data, byondPort, io, eventName) {
 
     const socket = getSocketForUserCode(io, userCode);
     if (!socket) {
-        reportCommandError(byondPort, 'socket not found', data);
+        // Routine race: BYOND asked us to act on a user whose browser socket has
+        // already dropped (or is mid-reconnect). Not an error worth echoing back
+        // to BYOND — that would just spam the admins with "socket not found".
+        console.log(`Ignoring ${eventName} for ${userCode}: no live socket.`);
         return;
     }
 
@@ -70,7 +73,10 @@ function handleRequest(data, byondPort, io, shutdown) {
                 const socketId = userCodeToSocketId.get(userCode);
                 const socket = getSocketForUserCode(io, userCode);
                 if (!socketId || !socket) {
-                    reportCommandError(byondPort, 'socket not found', data);
+                    // Already gone (e.g. the browser closed first). BYOND just
+                    // wants the user removed, which is already true — log quietly
+                    // instead of echoing an error back and spamming the admins.
+                    console.log(`Disconnect for ${userCode}: no live socket, already removed.`);
                     return;
                 }
 

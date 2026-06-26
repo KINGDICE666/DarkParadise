@@ -1,6 +1,7 @@
 // Constants and Configuration
 const ICE_SERVERS = [
     { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
 ];
 const DEFAULT_VOLUME_THRESHOLD = 0.01;
 const VAD_DEBOUNCE_TIME = 200; // ms
@@ -17,6 +18,9 @@ const VAD_POLL_INTERVAL_MS = 50; // ms (~20 Hz, plenty for speech detection)
 // the overlay on its own once these stop (see VOICECHAT_SPEAKING_TIMEOUT).
 const VOICE_ACTIVITY_HEARTBEAT_MS = 500; // ms
 const GAIN_SCALE_FACTOR = 50; // Slider 0-100 maps to gain 0-2
+// If an established peer connection drops to "disconnected", give ICE this long
+// to recover on its own before we force an ICE restart.
+const ICE_DISCONNECT_GRACE_MS = 3000;
 
 // Global State
 let socket;
@@ -44,6 +48,14 @@ let testSource = null;
 let delayNode = null;
 let volumeThreshold = DEFAULT_VOLUME_THRESHOLD;
 let sinkId = null; // Output device ID
+// Set by the server (proximity packet) whenever this client is a ghost/observer.
+// Ghosts may hear nearby living players but must never transmit, so this gates
+// both the outbound WebRTC senders and voice-activity reporting.
+let isListenOnly = false;
+let micAccessGranted = false;
+// Consecutive "invalid session" rejections from the server. A couple are normal
+// (register/join race); after several the session is treated as dead.
+let invalidJoinCount = 0;
 
 // Extract sessionId from URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -140,7 +152,8 @@ async function getMic() {
         await populateDevices();
         setupGainNode(localStream);
         setupVoiceActivityDetection();
-        if (socket) {
+        micAccessGranted = true;
+        if (socket && socket.connected) {
             socket.emit('mic_access_granted');
         }
     } catch (err) {
@@ -255,7 +268,9 @@ function setupVoiceActivityDetection() {
             indicator.style.width = `${level}%`;
         }
 
-        if (!isManuallyMuted) {
+        // Ghosts (listen-only) and muted users never become "voice active", so
+        // they neither transmit audio nor raise a speaking bubble in game.
+        if (!isManuallyMuted && !isListenOnly) {
             if (rms > volumeThreshold) {
                 lastActiveTime = now;
                 if (!isVoiceActive) {
@@ -307,6 +322,21 @@ function emitVoiceActivity(active) {
     }
 }
 
+// Applies a listen-only (ghost) role change pushed by the server. Becoming
+// listen-only immediately stops any in-progress transmission; leaving it lets
+// the normal VAD path resume.
+function applyListenOnly(value) {
+    if (isListenOnly === value) {
+        return;
+    }
+    isListenOnly = value;
+    if (isListenOnly && isVoiceActive) {
+        isVoiceActive = false;
+        handleVoiceActivityChange(false);
+    }
+    updateAudioSenders();
+}
+
 // Mute/Deafen Controls
 // We swap senders' tracks (not track.enabled) because track.enabled=false
 // silences the source, including for VAD's MediaStreamSource — that creates
@@ -315,10 +345,10 @@ function emitVoiceActivity(active) {
 // shouldn't transmit. This matches the upstream SS1984 / SurfShack design.
 function updateAudioSenders() {
     if (!localStream) return;
-    const shouldSend = !isManuallyMuted && !isDeafened && isVoiceActive;
+    const shouldSend = !isManuallyMuted && !isDeafened && isVoiceActive && !isListenOnly;
     const track = shouldSend ? localStream.getAudioTracks()[0] : null;
     audioSenders.forEach(sender => {
-        sender.replaceTrack(track);
+        sender.replaceTrack(track).catch(err => console.warn('replaceTrack failed:', err.message));
     });
 }
 
@@ -395,9 +425,50 @@ function toggleMicTest() {
     }
 }
 
+// --- WebRTC signaling helpers ----------------------------------------------
+
+// ICE candidates can arrive before the remote description is set (trickle ICE).
+// addIceCandidate() then throws and the candidate is lost, which is a classic
+// cause of half-connected, audio-less peers. Buffer until the remote
+// description lands, then flush.
+function addRemoteCandidate(pc, candidate) {
+    if (!candidate) {
+        return;
+    }
+    if (pc._remoteSet) {
+        pc.addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(err => console.warn('addIceCandidate failed:', err.message));
+    } else {
+        pc._pendingCandidates.push(candidate);
+    }
+}
+
+function flushRemoteCandidates(pc) {
+    pc._remoteSet = true;
+    const pending = pc._pendingCandidates;
+    pc._pendingCandidates = [];
+    pending.forEach(candidate =>
+        pc.addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(err => console.warn('addIceCandidate (flush) failed:', err.message)));
+}
+
+// Creates and sends an offer. Used both for the initial offer and for ICE
+// restarts (iceRestart=true), which renegotiate connectivity without tearing
+// the connection down.
+function negotiate(pc, userCode, iceRestart) {
+    pc.createOffer(iceRestart ? { iceRestart: true } : undefined)
+        .then(offer => pc.setLocalDescription(offer))
+        .then(() => socket.emit('offer', { to: userCode, offer: pc.localDescription, iceRestart: !!iceRestart }))
+        .catch(err => console.error('Negotiation failed:', err));
+}
+
 // Peer Connection Management
 function createPeerConnection(userCode, sendOffer) {
     const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    pc._pendingCandidates = [];
+    pc._remoteSet = false;
+    pc._sendOffer = sendOffer;
+    pc._disconnectTimer = null;
     peerConnections.set(userCode, pc);
 
     const audio = document.createElement('audio');
@@ -414,17 +485,11 @@ function createPeerConnection(userCode, sendOffer) {
         const track = localStream.getAudioTracks()[0];
         const sender = pc.addTrack(track, localStream);
         audioSenders.set(userCode, sender);
-        updateAudioSenders(); // Apply current state
+        updateAudioSenders(); // Apply current mute/deafen/listen-only state.
     }
-
-    let iceCandidates = [];
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
-    const reconnectDelay = 500; // 0.5 seconds
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            iceCandidates.push(event.candidate);
             socket.emit('ice-candidate', { to: userCode, candidate: event.candidate });
         }
     };
@@ -432,30 +497,37 @@ function createPeerConnection(userCode, sendOffer) {
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState;
         console.log(`ICE connection state for ${userCode}: ${state}`);
-        if (state === 'failed' && reconnectAttempts < maxReconnectAttempts) {
-            console.log(`Reconnecting to ${userCode}, attempt ${reconnectAttempts + 1}`);
-            reconnectAttempts++;
-            setTimeout(() => {
-                // Clean up existing connection
-                pc.close();
-                peerConnections.delete(userCode);
-                audioElements.get(userCode)?.remove();
-                audioElements.delete(userCode);
-                audioSenders.delete(userCode);
 
-                // Create new connection
-                const newPc = createPeerConnection(userCode, sendOffer);
-                // Re-send any stored ICE candidates
-                iceCandidates.forEach(candidate => {
-                    socket.emit('ice-candidate', { to: userCode, candidate });
-                });
-            }, reconnectDelay);
-        } else if (state === 'failed') {
-            console.error(`Max reconnect attempts reached for ${userCode}`);
-            // Optionally notify user of persistent failure
-            updateStatus(`Не удалось восстановить связь с ${userCode} после ${maxReconnectAttempts} попыток. Подробности в консоли браузера.`);
-        } else if (state === 'connected' || state === 'completed') {
-            reconnectAttempts = 0; // Reset attempts on successful connection
+        if (state === 'connected' || state === 'completed') {
+            if (pc._disconnectTimer) {
+                clearTimeout(pc._disconnectTimer);
+                pc._disconnectTimer = null;
+            }
+            return;
+        }
+
+        if (state === 'failed') {
+            if (pc._disconnectTimer) {
+                clearTimeout(pc._disconnectTimer);
+                pc._disconnectTimer = null;
+            }
+            // The offerer owns recovery so the two sides don't both renegotiate
+            // at once (glare). The answerer waits for the offerer's restart.
+            if (pc._sendOffer) {
+                negotiate(pc, userCode, true);
+            }
+            return;
+        }
+
+        if (state === 'disconnected' && pc._sendOffer && !pc._disconnectTimer) {
+            // Often recovers on its own; give it a moment before forcing a restart.
+            pc._disconnectTimer = setTimeout(() => {
+                pc._disconnectTimer = null;
+                const current = pc.iceConnectionState;
+                if (current === 'disconnected' || current === 'failed') {
+                    negotiate(pc, userCode, true);
+                }
+            }, ICE_DISCONNECT_GRACE_MS);
         }
     };
 
@@ -465,13 +537,7 @@ function createPeerConnection(userCode, sendOffer) {
     };
 
     if (sendOffer) {
-        pc.createOffer()
-            .then(offer => pc.setLocalDescription(offer))
-            .then(() => socket.emit('offer', { to: userCode, offer: pc.localDescription }))
-            .catch(err => {
-                console.error('Failed to create offer:', err);
-                // updateStatus(`Failed to create WebRTC offer for ${userCode}: ${err.message}. Check microphone permissions, browser compatibility, or network stability.`);
-            });
+        negotiate(pc, userCode, false);
     }
 
     return pc;
@@ -480,6 +546,10 @@ function createPeerConnection(userCode, sendOffer) {
 function removePeer(userCode) {
     const pc = peerConnections.get(userCode);
     if (pc) {
+        if (pc._disconnectTimer) {
+            clearTimeout(pc._disconnectTimer);
+            pc._disconnectTimer = null;
+        }
         pc.close();
         peerConnections.delete(userCode);
     }
@@ -492,6 +562,24 @@ function removePeer(userCode) {
     distances.delete(userCode);
 }
 
+// Closes every peer connection without touching the microphone. Used on a
+// transient socket drop: the WebSocket reconnects and proximity rebuilds the
+// mesh, but the captured mic / gain / VAD graph must survive so the user can
+// keep talking the instant they are back.
+function closeAllPeers() {
+    peerConnections.forEach((pc) => {
+        if (pc._disconnectTimer) {
+            clearTimeout(pc._disconnectTimer);
+        }
+        pc.close();
+    });
+    peerConnections.clear();
+    audioElements.forEach(audio => audio.remove());
+    audioElements.clear();
+    audioSenders.clear();
+    distances.clear();
+}
+
 // Socket Event Handlers
 function setupSocketHandlers() {
     socket.on('update', (update) => {
@@ -501,38 +589,57 @@ function setupSocketHandlers() {
     });
 
     socket.on('loc', (data) => {
-        console.log(data);
+        applyListenOnly(!!data.listenOnly);
+
         if (data.none === 1) {
             Array.from(peerConnections.keys()).forEach(removePeer);
             toggleRoomStatus(false);
-        } else {
-            const peers = data['peers']
-            const myUserCode = data['own']
-            const newUserCodes = new Set(Object.keys(peers));
-            const currentUserCodes = new Set(peerConnections.keys());
-
-            const added = [...newUserCodes].filter(code => !currentUserCodes.has(code));
-            const removed = [...currentUserCodes].filter(code => !newUserCodes.has(code));
-
-            removed.forEach(removePeer);
-
-            added.forEach(code => {
-                const sendOffer = myUserCode < code;
-                createPeerConnection(code, sendOffer);
-            });
-
-            distances = new Map(Object.entries(peers));
-            updateVolumes();
-            toggleRoomStatus(peerConnections.size > 0);
+            return;
         }
+
+        const peers = data['peers'];
+        const myUserCode = data['own'];
+        const newUserCodes = new Set(Object.keys(peers));
+        const currentUserCodes = new Set(peerConnections.keys());
+
+        const added = [...newUserCodes].filter(code => !currentUserCodes.has(code));
+        const removed = [...currentUserCodes].filter(code => !newUserCodes.has(code));
+
+        removed.forEach(removePeer);
+
+        added.forEach(code => {
+            // Deterministic offerer per pair (lexicographically smaller userCode)
+            // so exactly one side sends the initial offer — no glare.
+            const sendOffer = myUserCode < code;
+            createPeerConnection(code, sendOffer);
+        });
+
+        distances = new Map(Object.entries(peers));
+        updateVolumes();
+        toggleRoomStatus(peerConnections.size > 0);
     });
 
     socket.on('offer', (data) => {
-        const { from, offer } = data;
-        console.log(`Received offer from ${from}`);
-        const pc = peerConnections.get(from) || createPeerConnection(from, false);
+        const { from, offer, iceRestart } = data;
+        console.log(`Received offer from ${from}${iceRestart ? ' (ice restart)' : ''}`);
+
+        let pc = peerConnections.get(from);
+        // A fresh (non-restart) offer for a peer we already track means that peer
+        // rebuilt its connection — e.g. after its own reconnect. Drop our stale
+        // one and build a matching fresh connection so both sides start clean.
+        if (pc && !iceRestart) {
+            removePeer(from);
+            pc = null;
+        }
+        if (!pc) {
+            pc = createPeerConnection(from, false);
+        }
+
         pc.setRemoteDescription(new RTCSessionDescription(offer))
-            .then(() => pc.createAnswer())
+            .then(() => {
+                flushRemoteCandidates(pc);
+                return pc.createAnswer();
+            })
             .then(answer => pc.setLocalDescription(answer))
             .then(() => socket.emit('answer', { to: from, answer: pc.localDescription }))
             .catch(err => console.error('Error handling offer:', err));
@@ -544,31 +651,62 @@ function setupSocketHandlers() {
         const pc = peerConnections.get(from);
         if (pc) {
             pc.setRemoteDescription(new RTCSessionDescription(answer))
+                .then(() => flushRemoteCandidates(pc))
                 .catch(err => console.error('Error setting remote description:', err));
         }
     });
 
     socket.on('ice-candidate', (data) => {
         const { from, candidate } = data;
-        console.log(`Received ICE candidate from ${from}`);
         const pc = peerConnections.get(from);
         if (pc) {
-            pc.addIceCandidate(new RTCIceCandidate(candidate))
-                .catch(err => console.error('Error adding ICE candidate:', err));
+            addRemoteCandidate(pc, candidate);
         }
     });
 
     socket.on('server-shutdown', () => {
         console.log('Server is shutting down. Cleaning up...');
-        cleanupConnections();
+        closeAllPeers();
         updateStatus('Сервер голосового чата выключается.');
         toggleRoomStatus(false);
     });
 
+    socket.on('session_invalid', () => {
+        // A few rejections are tolerated (the BYOND 'register' for a brand-new
+        // session can land just after our first 'join'). But a session that
+        // stays invalid means it is genuinely dead — almost always because the
+        // voice server restarted — so stop the endless reconnect attempts and
+        // tell the player to reopen the link from the game.
+        invalidJoinCount += 1;
+        if (invalidJoinCount >= 3) {
+            socket.io.reconnection(false);
+            updateStatus('Сессия недействительна. Нажмите «Подключиться» в игре, чтобы открыть новую ссылку.');
+            socket.disconnect();
+        }
+    });
+
+    socket.on('connect', () => {
+        // Fires on the initial connection AND every socket.io reconnect. Re-join
+        // with our sessionId so a dropped socket restores the session instead of
+        // leaving the player silently disconnected, and re-announce mic access if
+        // it was already granted before the drop.
+        console.log('Socket connected:', socket.id);
+        if (sessionId) {
+            socket.emit('join', { sessionId });
+        }
+        if (micAccessGranted) {
+            socket.emit('mic_access_granted');
+        }
+    });
+
     socket.on('disconnect', (reason) => {
         console.log(`Socket disconnected: ${reason}`);
-        cleanupConnections();
+        // Drop the peer mesh but KEEP the mic/VAD alive: socket.io will reconnect
+        // and proximity rebuilds the connections. Killing localStream here was the
+        // old bug that left players permanently muted after any blip.
+        closeAllPeers();
         toggleRoomStatus(false);
+        updateStatus('Переподключение...');
     });
 
     socket.on('mute_mic', () => {
@@ -591,15 +729,13 @@ function setupSocketHandlers() {
     });
 }
 
+// Full teardown including the microphone. Only used when the page is actually
+// going away (pagehide), never on a transient socket drop.
 function cleanupConnections() {
-    peerConnections.forEach(pc => pc.close());
-    peerConnections.clear();
-    audioElements.forEach(audio => audio.remove());
-    audioElements.clear();
-    audioSenders.clear();
-    distances.clear();
+    closeAllPeers();
     if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
     }
 }
 
@@ -676,10 +812,10 @@ function setupUIListeners() {
             clearInterval(voiceActivityHeartbeat);
             voiceActivityHeartbeat = null;
         }
-        if (vadAudioContext) vadAudioContext.close();
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
+        if (socket) {
+            socket.emit('disconnect_page');
         }
+        if (vadAudioContext) vadAudioContext.close();
         cleanupConnections();
     });
 }
@@ -699,9 +835,19 @@ async function init() {
         return;
     }
 
-    socket = io(address, { rejectUnauthorized: false });
+    // reconnection is on by default, but pin the timing explicitly so a flaky
+    // network keeps retrying forever with a bounded backoff instead of giving up.
+    socket = io(address, {
+        rejectUnauthorized: false,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+    });
     setupSocketHandlers();
-    socket.emit('join', { sessionId: sessionId });
+    // 'join' is emitted from the socket 'connect' handler so it also runs on
+    // every reconnect; no need to emit it here.
     await getMic();
 }
 
