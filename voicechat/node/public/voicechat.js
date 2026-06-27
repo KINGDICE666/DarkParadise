@@ -28,6 +28,16 @@ let localStream = null;
 let peerConnections = new Map();
 let audioElements = new Map();
 let audioSenders = new Map();
+// Received audio is rendered through a single persistent Web Audio graph
+// (playbackContext) instead of each <audio> element's own playout. A hidden /
+// background tab throttles media-element playout, so the WebRTC jitter buffer
+// drifts and latency grows without bound until it breaks — the "voice lags then
+// dies until I refocus the tab" bug. The Web Audio render thread is not subject
+// to that throttling, so playout stays in sync while the game is in front.
+let playbackContext = null;
+let masterGain = null; // Deafen cuts this to 0; everyone routes through it.
+let peerAudioNodes = new Map(); // userCode -> { source, gain }
+let audioContextWatchdog = null;
 let distances = new Map();
 let mutedUsers = new Map();
 let gainNode = null;
@@ -133,11 +143,12 @@ async function handleInputChange(event) {
 
 async function handleOutputChange(event) {
     sinkId = event.target.value;
-    audioElements.forEach(audio => {
-        if (audio.setSinkId) {
-            audio.setSinkId(sinkId).catch(err => console.warn('Failed to set audio output:', err));
-        }
-    });
+    // Playback runs through the shared AudioContext, so the output device is
+    // selected on the context (Chrome 110+). Falls back to the system default
+    // on browsers without AudioContext.setSinkId.
+    if (playbackContext && playbackContext.setSinkId) {
+        playbackContext.setSinkId(sinkId).catch(err => console.warn('Failed to set audio output:', err));
+    }
 }
 
 // Microphone Access
@@ -208,20 +219,16 @@ function updateSensitivity() {
 }
 
 function updateVolumes() {
-    const masterVolume = document.getElementById('volume_slider').value ;
-    audioElements.forEach((audio, userCode) => {
+    const masterVolume = parseFloat(document.getElementById('volume_slider').value);
+    peerAudioNodes.forEach((nodes, userCode) => {
         const isMuted = mutedUsers.get(userCode);
-        if(!isMuted){
+        if (!isMuted) {
             const dist = distances.get(userCode) || 0;
             const linearBase = Math.max(0, 1 - dist / 10);
-            // const baseVolume = Math.pow(linearBase, 2);
-            const vol = linearBase * masterVolume
-            audio.volume = vol
+            nodes.gain.gain.value = linearBase * masterVolume;
+        } else {
+            nodes.gain.gain.value = 0;
         }
-        else {
-            audio.volume = 0;
-        }
-        // console.log(`volume ${vol}`)
     });
 }
 
@@ -371,9 +378,11 @@ function toggleDeafen(forceDeafen = false) {
     if (!localStream) return;
     isDeafened = forceDeafen ? true : !isDeafened;
     isManuallyMuted = isDeafened;
-    audioElements.forEach(audio => {
-        audio.muted = isDeafened;
-    });
+    // Elements stay muted (playback is via Web Audio); deafen cuts the shared
+    // master gain so all incoming voice is silenced at once.
+    if (masterGain) {
+        masterGain.gain.value = isDeafened ? 0 : 1;
+    }
     if (isDeafened && isVoiceActive) {
         isVoiceActive = false;
         handleVoiceActivityChange(false);
@@ -462,6 +471,34 @@ function negotiate(pc, userCode, iceRestart) {
         .catch(err => console.error('Negotiation failed:', err));
 }
 
+// Lazily build the shared playback graph: source nodes (one per peer) -> master
+// gain -> destination. Created on the first received track so it inherits a user
+// gesture (the mic button click), which lets resume() succeed. Routing remote
+// audio here rather than through <audio>.volume keeps playout on the real-time
+// audio thread, immune to the background-tab throttling that grows latency.
+function ensurePlaybackContext() {
+    if (!playbackContext) {
+        playbackContext = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = playbackContext.createGain();
+        masterGain.gain.value = isDeafened ? 0 : 1;
+        masterGain.connect(playbackContext.destination);
+        if (sinkId && playbackContext.setSinkId) {
+            playbackContext.setSinkId(sinkId).catch(err => console.warn('Failed to set audio output:', err));
+        }
+    }
+    playbackContext.resume().catch(() => {});
+    return playbackContext;
+}
+
+function teardownPeerAudioNodes(userCode) {
+    const nodes = peerAudioNodes.get(userCode);
+    if (nodes) {
+        try { nodes.source.disconnect(); } catch (e) { /* already gone */ }
+        try { nodes.gain.disconnect(); } catch (e) { /* already gone */ }
+        peerAudioNodes.delete(userCode);
+    }
+}
+
 // Peer Connection Management
 function createPeerConnection(userCode, sendOffer) {
     const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
@@ -471,13 +508,14 @@ function createPeerConnection(userCode, sendOffer) {
     pc._disconnectTimer = null;
     peerConnections.set(userCode, pc);
 
+    // The element is kept muted: it exists only so Chrome keeps delivering the
+    // remote stream's frames (a known requirement for createMediaStreamSource on
+    // a remote peer stream — without an attached media sink it yields silence).
+    // Actual playback, volume and output-device routing all happen on the
+    // playbackContext graph instead.
     const audio = document.createElement('audio');
     audio.autoplay = true;
-    if (sinkId && audio.setSinkId) {
-        audio.setSinkId(sinkId).catch(err => console.warn('Failed to set audio output:', err));
-    }
-    audio.muted = isDeafened;
-    audio.volume = document.getElementById('volume_slider').value;
+    audio.muted = true;
     document.body.appendChild(audio);
     audioElements.set(userCode, audio);
 
@@ -532,7 +570,17 @@ function createPeerConnection(userCode, sendOffer) {
     };
 
     pc.ontrack = (event) => {
-        audio.srcObject = event.streams[0];
+        const stream = event.streams[0];
+        // Attach (muted) to keep frames flowing, then route through Web Audio.
+        audio.srcObject = stream;
+        const ctx = ensurePlaybackContext();
+        teardownPeerAudioNodes(userCode); // Renegotiation can fire ontrack again.
+        const source = ctx.createMediaStreamSource(stream);
+        const gain = ctx.createGain();
+        source.connect(gain);
+        gain.connect(masterGain);
+        peerAudioNodes.set(userCode, { source, gain });
+        updateVolumes(); // Apply distance / per-user mute to the new gain node.
         console.log(`Receiving audio from ${userCode}`);
     };
 
@@ -553,8 +601,10 @@ function removePeer(userCode) {
         pc.close();
         peerConnections.delete(userCode);
     }
+    teardownPeerAudioNodes(userCode);
     const audio = audioElements.get(userCode);
     if (audio) {
+        audio.srcObject = null;
         audio.remove();
         audioElements.delete(userCode);
     }
@@ -574,7 +624,15 @@ function closeAllPeers() {
         pc.close();
     });
     peerConnections.clear();
-    audioElements.forEach(audio => audio.remove());
+    peerAudioNodes.forEach((nodes) => {
+        try { nodes.source.disconnect(); } catch (e) { /* already gone */ }
+        try { nodes.gain.disconnect(); } catch (e) { /* already gone */ }
+    });
+    peerAudioNodes.clear();
+    audioElements.forEach(audio => {
+        audio.srcObject = null;
+        audio.remove();
+    });
     audioElements.clear();
     audioSenders.clear();
     distances.clear();
@@ -744,11 +802,24 @@ function cleanupConnections() {
 // this is wired to the first click/key/touch on the page as a fallback for the
 // immediate resume() attempts made when each context is created.
 function resumeAllAudioContexts() {
-    [gainAudioContext, vadAudioContext, testAudioContext].forEach((ctx) => {
+    [gainAudioContext, vadAudioContext, testAudioContext, playbackContext].forEach((ctx) => {
         if (ctx && ctx.state === 'suspended') {
             ctx.resume().catch(() => {});
         }
     });
+}
+
+// While the tab is kept in the background (the game window is in front the whole
+// session) the focus/visibilitychange events never fire, so a context Chrome
+// parks in "suspended" would otherwise stay dead until the player refocuses the
+// page. Poll on a slow timer to resume them in place. A page with an active
+// mic + audio output is exempt from 1-per-minute background throttling, so this
+// keeps ticking at ~1s resolution even when hidden.
+function startAudioContextWatchdog() {
+    if (audioContextWatchdog) {
+        return;
+    }
+    audioContextWatchdog = setInterval(resumeAllAudioContexts, 2000);
 }
 
 // UI Event Listeners
@@ -812,10 +883,15 @@ function setupUIListeners() {
             clearInterval(voiceActivityHeartbeat);
             voiceActivityHeartbeat = null;
         }
+        if (audioContextWatchdog) {
+            clearInterval(audioContextWatchdog);
+            audioContextWatchdog = null;
+        }
         if (socket) {
             socket.emit('disconnect_page');
         }
         if (vadAudioContext) vadAudioContext.close();
+        if (playbackContext) playbackContext.close();
         cleanupConnections();
     });
 }
@@ -846,6 +922,7 @@ async function init() {
         timeout: 20000,
     });
     setupSocketHandlers();
+    startAudioContextWatchdog();
     // 'join' is emitted from the socket 'connect' handler so it also runs on
     // every reconnect; no need to emit it here.
     await getMic();
