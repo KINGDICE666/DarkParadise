@@ -98,6 +98,9 @@
 /mob/living/carbon/human/kidan/Initialize(mapload)
 	. = ..(mapload, /datum/species/kidan)
 
+/mob/living/carbon/human/resomi/Initialize(mapload)
+	. = ..(mapload, /datum/species/resomi)
+
 /mob/living/carbon/human/plasma/Initialize(mapload)
 	. = ..(mapload, /datum/species/plasmaman)
 
@@ -1415,6 +1418,10 @@
 		else //Error 404: Eyes not found!
 			eyes_icon = new('icons/mob/human_face.dmi', dna.species.eyes)
 			eyes_icon.Blend("#800000", ICON_ADD)
+
+		// Short-headed species (e.g. Resomi) sit lower in the tile; drop the eyes.
+		if(dna.species.eye_offset_y)
+			eyes_icon.Shift(SOUTH, dna.species.eye_offset_y)
 
 		return eyes_icon
 

@@ -83,8 +83,9 @@ SUBSYSTEM_DEF(blood)
 		return // death human can not restore blood
 	if(HAS_TRAIT(target, TRAIT_NO_BLOOD_RESTORE))
 		return // specific trait for disable restore blood
-	if(target.blood_volume >= BLOOD_VOLUME_NORMAL)
-		return // already max blood in body
+	var/blood_mod = target.dna?.species?.blood_volume_mod || 1
+	if(target.blood_volume >= BLOOD_VOLUME_NORMAL * blood_mod)
+		return // already max blood in body (scaled for low-blood species)
 	var/regen_mod = calculate_reagents_regen_mod(target)
 	target.AdjustBlood(BLOOD_REGENERATION * regen_mod)
 
@@ -100,7 +101,10 @@ SUBSYSTEM_DEF(blood)
 	if(target.stat == DEAD)
 		return // dead humans can not have low blood effect
 
-	switch(target.blood_volume)
+	// Species with reduced blood (blood_volume_mod < 1) reach each danger tier at
+	// the same *relative* fraction as a human, so compare a scaled-up value.
+	var/blood_mod = target.dna?.species?.blood_volume_mod || 1
+	switch(target.blood_volume / blood_mod)
 		if(BLOOD_VOLUME_PALE to BLOOD_VOLUME_SAFE)
 			target.adjust_blood_loss_damage(BLOOD_PALE_DAMAGE)
 

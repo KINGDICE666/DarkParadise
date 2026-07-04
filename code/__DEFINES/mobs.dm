@@ -262,6 +262,7 @@
 #define SPECIES_VOX_ARMALIS "Vox Armalis"
 #define SPECIES_VULPKANIN "Vulpkanin"
 #define SPECIES_WRYN "Wryn"
+#define SPECIES_RESOMI "Resomi"
 
 // not race
 #define SPECIES_OTHER "Other"
@@ -316,7 +317,8 @@ GLOBAL_LIST_INIT(ru_species, list(
 	SPECIES_VOX = "вокс",
 	SPECIES_VOX_ARMALIS = "вокс армалис",
 	SPECIES_VULPKANIN = "вульпканин",
-	SPECIES_WRYN = "врин"
+	SPECIES_WRYN = "врин",
+	SPECIES_RESOMI = "резоми"
 ))
 
 #define GET_RU_SPECIES_NAME(species) (GLOB.ru_species[species] || (species))

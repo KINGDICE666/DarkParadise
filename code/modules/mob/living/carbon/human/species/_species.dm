@@ -22,6 +22,9 @@
 
 	/// Icon for eyes.
 	var/eyes = "eyes_s"
+	/// Pixels to shift the eye overlay downward (for short-headed species whose
+	/// head sits lower in the tile, e.g. Resomi). 0 = no shift.
+	var/eye_offset_y = 0
 	/// A brief lore summary for use in the chargen screen.
 	var/blurb = "A completely nondescript species."
 	var/butt_sprite = "human"
@@ -112,6 +115,11 @@
 
 	/// Maximum health of this species
 	var/total_health = 100
+	/// Multiplier on this species' effective blood volume. 1 = normal (560u).
+	/// SSblood scales the max-blood cap and the low-blood effect thresholds by
+	/// this, so e.g. 0.6 = a species with 40% less blood that still reaches
+	/// "full"/"pale"/"bad" at the same *relative* points as a human.
+	var/blood_volume_mod = 1
 	/// Maximum stamina of this species, MUST be lower than MAX_STAMINA_LOSS
 	var/total_stamina = BASE_MAX_STAMINA
 	/// Species default genes
@@ -121,6 +129,14 @@
 
 	var/has_fine_manipulation = 1 // Can use small items.
 	var/fingers_count = 10
+
+	/// Visual auto-fit for standard clothing on odd-sized species. 1 = no change.
+	/// Worn (not in-hand) clothing overlays are scaled by this factor so normal
+	/// station clothing "shrinks" onto a small body without bespoke sprites.
+	var/worn_clothing_scale = 1
+	/// Pixel Y shift applied together with worn_clothing_scale (to re-seat the
+	/// shrunk sprite over the body). Only used when worn_clothing_scale != 1.
+	var/worn_clothing_offset_y = 0
 
 	///Sounds to override barefeet walking
 	var/list/special_step_sounds

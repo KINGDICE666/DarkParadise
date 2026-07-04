@@ -393,6 +393,25 @@
 	new_name += "[pick(list("Тристан","Зарлан","Клак","Краз","Крамн","Орлан","Зракс"))]"
 	return new_name
 
+/datum/language/resomi
+	name = LANGUAGE_RESOMI
+	desc = "Трелевый язык, на котором говорят миниатюрные Резоми."
+	speech_verbs = list("щебеч%(ет,ут)%")
+	ask_verbs = list("чирика%(ет,ют)%")
+	exclaim_verbs = list("верещ%(ит,ат)%")
+	colour = "alien"
+	runechat_span = "alien"
+	key = "e"
+	flags = WHITELISTED
+	space_chance = 50
+	syllables = list(
+		"ca", "ra", "ma", "sa", "na", "ta", "la", "sha", "scha", "a", "a",
+		"ce", "re", "me", "se", "ne", "te", "le", "she", "sche", "e", "e",
+		"ci", "ri", "mi", "si", "ni", "ti", "li", "shi", "schi", "i", "i")
+
+/datum/language/resomi/get_random_name(gender)
+	return ..(gender, 1, 4)
+
 /datum/language/slime
 	name = LANGUAGE_SLIME
 	desc = "Язык Плазмолюдов. Это смесь булькающих и хлюпающих звуков. Другим гуманоидам очень сложно говорить на нём без механической помощи."

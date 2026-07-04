@@ -504,6 +504,11 @@ GLOBAL_LIST_EMPTY(channel_to_radio_key)
 	var/list/listening = get_hear(message_range, whisper_loc)
 	listening |= src
 
+	// Resomi have keen hearing and can make out whispers from a few tiles away.
+	for(var/mob/living/carbon/human/keen_listener in get_hear(3, whisper_loc))
+		if(is_species(keen_listener, /datum/species/resomi))
+			listening |= keen_listener
+
 	var/list/hearturfs = list()
 
 	// Pass whispers on to anything inside the immediate listeners.

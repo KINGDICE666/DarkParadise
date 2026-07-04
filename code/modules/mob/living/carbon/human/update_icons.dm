@@ -1381,5 +1381,13 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	standing.alpha = alpha
 	standing.color = color
 
+	// Auto-fit standard clothing onto odd-sized species (e.g. shrink onto Resomi).
+	if(!isinhands && istype(wearer) && wearer.dna?.species && wearer.dna.species.worn_clothing_scale != 1)
+		var/datum/species/wearer_species = wearer.dna.species
+		var/matrix/fit = matrix()
+		fit.Scale(wearer_species.worn_clothing_scale)
+		fit.Translate(0, wearer_species.worn_clothing_offset_y)
+		standing.transform = fit
+
 	return standing
 
