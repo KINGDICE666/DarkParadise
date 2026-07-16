@@ -44,6 +44,7 @@ type VoiceChatData = {
   ptt_keys: string[];
   transmission_mode: 'push_to_talk' | 'voice_activation';
   voice_activation_threshold: number;
+  noise_suppression_level: number;
   input_gain: number;
   output_volume: number;
   input_level: number;
@@ -87,6 +88,17 @@ const deviceOptions = (devices: VoiceDevice[]) =>
     value: device.id,
   }));
 
+const noiseSuppressionLabels = [
+  'Выкл.',
+  'Слабое',
+  'Среднее',
+  'Сильное',
+  'Максимальное',
+];
+
+const getNoiseSuppressionLabel = (level: number) =>
+  noiseSuppressionLabels[level] ?? 'Среднее';
+
 const launchHelper = (url: string) => {
   void fetch(url, {
     cache: 'no-store',
@@ -97,8 +109,11 @@ const launchHelper = (url: string) => {
 export const VoiceChat = (_properties: unknown) => {
   const { act, data } = useBackend<VoiceChatData>();
   const status = statusAppearance(data.status);
-  const helperFeaturesAvailable = data.helper_feature_version >= 3;
+  const helperFeaturesAvailable = data.helper_feature_version >= 4;
   const voiceActivation = data.transmission_mode === 'voice_activation';
+  const noiseSuppressionLabel = getNoiseSuppressionLabel(
+    data.noise_suppression_level,
+  );
   const pttLabel = data.ptt_keys.length
     ? data.ptt_keys.join(' + ')
     : 'не назначена';
@@ -173,7 +188,7 @@ export const VoiceChat = (_properties: unknown) => {
           {data.connected && !helperFeaturesAvailable && (
             <NoticeBox warning>
               Helper устарел. Установите новую версию, чтобы использовать
-              обработку звука, автокалибровку и UDP-аудио.
+              настройку обработки звука, автокалибровку и UDP-аудио.
             </NoticeBox>
           )}
           {!data.enabled ? (
@@ -193,7 +208,7 @@ export const VoiceChat = (_properties: unknown) => {
                     name={data.audio_processing_active ? 'shield-halved' : 'triangle-exclamation'}
                   />{' '}
                   {data.audio_processing_active
-                    ? 'WebRTC APM: AEC · NS · AGC'
+                    ? `WebRTC APM: AEC · AGC · NS ${noiseSuppressionLabel}`
                     : 'WebRTC APM не работает'}
                 </Box>
               </Stack.Item>
@@ -412,6 +427,29 @@ export const VoiceChat = (_properties: unknown) => {
               />
             </Stack.Item>
           </Stack>
+          <Stack align="center" mt={1}>
+            <Stack.Item width="128px" color="label">
+              Шумоподавление
+            </Stack.Item>
+            <Stack.Item grow>
+              <Slider
+                minValue={0}
+                maxValue={4}
+                step={1}
+                value={data.noise_suppression_level}
+                disabled={!data.connected || !helperFeaturesAvailable}
+                onChange={(_event, value) =>
+                  act('noise_suppression_level', { value })
+                }
+              />
+            </Stack.Item>
+            <Stack.Item width="96px" textAlign="right">
+              {noiseSuppressionLabel}
+            </Stack.Item>
+          </Stack>
+          <Box color="label" mt={0.5}>
+            Если голос звучит глухо или обрезается, выберите слабый уровень.
+          </Box>
           <ProgressBar
             mt={0.5}
             value={data.input_level}

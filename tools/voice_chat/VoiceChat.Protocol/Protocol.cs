@@ -6,12 +6,15 @@ namespace VoiceChat.Protocol;
 public static class VoiceProtocol
 {
     public const int Version = 1;
-    public const int HelperFeatureVersion = 3;
+    public const int HelperFeatureVersion = 4;
     public const int SampleRate = 48000;
     public const int Channels = 1;
     public const int FrameMilliseconds = 20;
     public const int SamplesPerFrame = SampleRate * FrameMilliseconds / 1000;
     public const int MaximumOpusPacketBytes = 4000;
+    public const int MinimumNoiseSuppressionLevel = 0;
+    public const int MaximumNoiseSuppressionLevel = 4;
+    public const int DefaultNoiseSuppressionLevel = 2;
     public const byte ClientAudioFrame = 1;
     public const byte RelayAudioFrame = 2;
     public const int UdpTokenBytes = 32;
@@ -167,6 +170,7 @@ public sealed record GameSessionSnapshot
     public List<string> PushToTalkKeys { get; init; } = [];
     public bool VoiceActivationEnabled { get; init; }
     public int VoiceActivationThreshold { get; init; } = 15;
+    public int NoiseSuppressionLevel { get; init; } = VoiceProtocol.DefaultNoiseSuppressionLevel;
     public int OutputTestSequence { get; init; }
     public int MicrophoneTestSequence { get; init; }
     public int CalibrationSequence { get; init; }
@@ -248,6 +252,7 @@ public sealed record HelperConfigMessage
     public List<string> PushToTalkKeys { get; init; } = [];
     public bool VoiceActivationEnabled { get; init; }
     public int VoiceActivationThreshold { get; init; } = 15;
+    public int NoiseSuppressionLevel { get; init; } = VoiceProtocol.DefaultNoiseSuppressionLevel;
     public int OutputTestSequence { get; init; }
     public int MicrophoneTestSequence { get; init; }
     public int CalibrationSequence { get; init; }

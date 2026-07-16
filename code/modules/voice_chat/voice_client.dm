@@ -15,6 +15,7 @@
 	var/push_to_talk_pressed = FALSE
 	var/transmission_mode = VOICE_CHAT_TRANSMISSION_PUSH_TO_TALK
 	var/voice_activation_threshold = VOICE_CHAT_DEFAULT_ACTIVATION_THRESHOLD
+	var/noise_suppression_level = VOICE_CHAT_DEFAULT_NOISE_SUPPRESSION
 	var/input_gain = VOICE_CHAT_DEFAULT_INPUT_GAIN
 	var/output_volume = VOICE_CHAT_DEFAULT_OUTPUT_VOLUME
 	var/input_device_id = ""
@@ -104,6 +105,7 @@
 	data["ptt_keys"] = get_push_to_talk_keys()
 	data["transmission_mode"] = transmission_mode
 	data["voice_activation_threshold"] = voice_activation_threshold
+	data["noise_suppression_level"] = noise_suppression_level
 	data["input_gain"] = input_gain
 	data["output_volume"] = output_volume
 	data["input_level"] = input_level
@@ -159,6 +161,14 @@
 			if(isnull(new_threshold))
 				return FALSE
 			voice_activation_threshold = clamp(round(new_threshold), VOICE_CHAT_MIN_ACTIVATION_THRESHOLD, VOICE_CHAT_MAX_ACTIVATION_THRESHOLD)
+			SSvoice_chat.synchronize()
+		if("noise_suppression_level")
+			if(helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION)
+				return FALSE
+			var/new_level = text2num(params["value"])
+			if(isnull(new_level))
+				return FALSE
+			noise_suppression_level = clamp(round(new_level), VOICE_CHAT_MIN_NOISE_SUPPRESSION, VOICE_CHAT_MAX_NOISE_SUPPRESSION)
 			SSvoice_chat.synchronize()
 		if("output_test")
 			if(status != VOICE_CHAT_STATUS_CONNECTED || helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION || !length(output_devices))
@@ -262,6 +272,7 @@
 		"push_to_talk_keys" = get_push_to_talk_keys(),
 		"voice_activation_enabled" = transmission_mode == VOICE_CHAT_TRANSMISSION_VOICE_ACTIVATION,
 		"voice_activation_threshold" = voice_activation_threshold,
+		"noise_suppression_level" = noise_suppression_level,
 		"output_test_sequence" = output_test_sequence,
 		"microphone_test_sequence" = microphone_test_sequence,
 		"calibration_sequence" = calibration_sequence,
