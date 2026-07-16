@@ -62,7 +62,14 @@ SUBSYSTEM_DEF(http)
 					log_data += "\tResponse body: [res.body]"
 					log_data += "\tResponse headers: [json_encode(res.headers)]"
 				log_data += "END ASYNC RESPONSE (ID: [req.id])"
-				WRITE_LOG(GLOB.http_log, replacetext_char(log_data.Join("\n[GLOB.log_end]"), CONFIG_GET(string/tts_token_silero), "TOKEN"))
+				var/log_text = log_data.Join("\n[GLOB.log_end]")
+				var/tts_token = CONFIG_GET(string/tts_token_silero)
+				if(tts_token)
+					log_text = replacetext_char(log_text, tts_token, "TOKEN")
+				var/voice_chat_api_key = CONFIG_GET(string/voice_chat_api_key)
+				if(voice_chat_api_key)
+					log_text = replacetext_char(log_text, voice_chat_api_key, "TOKEN")
+				WRITE_LOG(GLOB.http_log, log_text)
 		index++
 		if(MC_TICK_CHECK)
 			current_index = index

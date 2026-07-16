@@ -511,6 +511,7 @@
 	QDEL_NULL(tooltips)
 	QDEL_NULL(loot_panel)
 	QDEL_NULL(parallax_rock)
+	QDEL_NULL(voice_chat)
 	seen_messages = null
 	sound_tokens = null
 	Master.UpdateTickRate()
