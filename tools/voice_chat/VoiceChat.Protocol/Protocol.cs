@@ -6,7 +6,7 @@ namespace VoiceChat.Protocol;
 public static class VoiceProtocol
 {
     public const int Version = 1;
-    public const int HelperFeatureVersion = 2;
+    public const int HelperFeatureVersion = 3;
     public const int SampleRate = 48000;
     public const int Channels = 1;
     public const int FrameMilliseconds = 20;
@@ -14,6 +14,13 @@ public static class VoiceProtocol
     public const int MaximumOpusPacketBytes = 4000;
     public const byte ClientAudioFrame = 1;
     public const byte RelayAudioFrame = 2;
+    public const int UdpTokenBytes = 32;
+    public const byte UdpRegisterFrame = 3;
+    public const byte UdpRegisterAckFrame = 4;
+    public const byte UdpClientAudioFrame = 5;
+    public const byte UdpRelayAudioFrame = 6;
+
+    private static ReadOnlySpan<byte> UdpMagic => "PVC1"u8;
 
     public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -66,6 +73,69 @@ public static class VoiceProtocol
         opusPacket = frame[22..];
         return opusPacket.Length <= MaximumOpusPacketBytes;
     }
+
+    public static byte[] CreateUdpRegisterFrame(ReadOnlySpan<byte> token)
+    {
+        return CreateAuthenticatedUdpFrame(UdpRegisterFrame, token, []);
+    }
+
+    public static byte[] CreateUdpRegisterAckFrame(ReadOnlySpan<byte> token)
+    {
+        return CreateAuthenticatedUdpFrame(UdpRegisterAckFrame, token, []);
+    }
+
+    public static byte[] CreateUdpClientAudioFrame(
+        ReadOnlySpan<byte> token,
+        ReadOnlySpan<byte> clientFrame)
+    {
+        return CreateAuthenticatedUdpFrame(UdpClientAudioFrame, token, clientFrame);
+    }
+
+    public static byte[] CreateUdpRelayAudioFrame(
+        ReadOnlySpan<byte> token,
+        ReadOnlySpan<byte> relayFrame)
+    {
+        return CreateAuthenticatedUdpFrame(UdpRelayAudioFrame, token, relayFrame);
+    }
+
+    public static bool TryReadAuthenticatedUdpFrame(
+        ReadOnlySpan<byte> datagram,
+        byte expectedType,
+        out ReadOnlySpan<byte> token,
+        out ReadOnlySpan<byte> payload)
+    {
+        token = default;
+        payload = default;
+        var headerLength = UdpMagic.Length + 1 + UdpTokenBytes;
+        if (datagram.Length < headerLength ||
+            !datagram[..UdpMagic.Length].SequenceEqual(UdpMagic) ||
+            datagram[UdpMagic.Length] != expectedType)
+        {
+            return false;
+        }
+
+        token = datagram.Slice(UdpMagic.Length + 1, UdpTokenBytes);
+        payload = datagram[headerLength..];
+        return true;
+    }
+
+    private static byte[] CreateAuthenticatedUdpFrame(
+        byte type,
+        ReadOnlySpan<byte> token,
+        ReadOnlySpan<byte> payload)
+    {
+        if (token.Length != UdpTokenBytes)
+        {
+            throw new ArgumentException($"UDP token must contain {UdpTokenBytes} bytes.", nameof(token));
+        }
+
+        var frame = new byte[UdpMagic.Length + 1 + token.Length + payload.Length];
+        UdpMagic.CopyTo(frame);
+        frame[UdpMagic.Length] = type;
+        token.CopyTo(frame.AsSpan(UdpMagic.Length + 1));
+        payload.CopyTo(frame.AsSpan(UdpMagic.Length + 1 + token.Length));
+        return frame;
+    }
 }
 
 public sealed record VoicePosition
@@ -99,6 +169,8 @@ public sealed record GameSessionSnapshot
     public int VoiceActivationThreshold { get; init; } = 15;
     public int OutputTestSequence { get; init; }
     public int MicrophoneTestSequence { get; init; }
+    public int CalibrationSequence { get; init; }
+    public bool CalibrationRequested { get; init; }
     public int InputGain { get; init; } = 100;
     public int OutputVolume { get; init; } = 100;
     public string InputDeviceId { get; init; } = string.Empty;
@@ -122,6 +194,13 @@ public sealed record RelaySessionResponse
     public bool Speaking { get; init; }
     public int InputLevel { get; init; }
     public int HelperFeatureVersion { get; init; }
+    public bool Calibrating { get; init; }
+    public int CalibrationProgress { get; init; }
+    public int CalibrationSequence { get; init; }
+    public int RecommendedThreshold { get; init; }
+    public int NoiseFloor { get; init; }
+    public bool AudioProcessingActive { get; init; }
+    public string AudioTransport { get; init; } = string.Empty;
     public List<VoiceDevice> InputDevices { get; init; } = [];
     public List<VoiceDevice> OutputDevices { get; init; } = [];
 }
@@ -146,6 +225,13 @@ public sealed record HelperStatusMessage
     public bool Speaking { get; init; }
     public int InputLevel { get; init; }
     public string Error { get; init; } = string.Empty;
+    public bool Calibrating { get; init; }
+    public int CalibrationProgress { get; init; }
+    public int CalibrationSequence { get; init; }
+    public int RecommendedThreshold { get; init; }
+    public int NoiseFloor { get; init; }
+    public bool AudioProcessingActive { get; init; }
+    public string AudioTransport { get; init; } = "websocket";
     public List<VoiceDevice> InputDevices { get; init; } = [];
     public List<VoiceDevice> OutputDevices { get; init; } = [];
 }
@@ -164,10 +250,14 @@ public sealed record HelperConfigMessage
     public int VoiceActivationThreshold { get; init; } = 15;
     public int OutputTestSequence { get; init; }
     public int MicrophoneTestSequence { get; init; }
+    public int CalibrationSequence { get; init; }
+    public bool CalibrationRequested { get; init; }
     public int InputGain { get; init; }
     public int OutputVolume { get; init; }
     public string InputDeviceId { get; init; } = string.Empty;
     public string OutputDeviceId { get; init; } = string.Empty;
     public List<PeerVolume> PeerVolumes { get; init; } = [];
     public List<string> MutedPeers { get; init; } = [];
+    public string UdpToken { get; init; } = string.Empty;
+    public int UdpPort { get; init; }
 }

@@ -51,12 +51,14 @@ $healthUrl = "$internalUrl/health"
 $previousApiKey = $env:VOICE_CHAT_API_KEY
 $previousListenUrl = $env:VOICE_CHAT_LISTEN_URL
 $previousHelperPath = $env:VOICE_CHAT_HELPER_PATH
+$previousUdpPort = $env:VOICE_CHAT_UDP_PORT
 $relayProcess = $null
 
 try {
     $env:VOICE_CHAT_API_KEY = $apiKey
     $env:VOICE_CHAT_LISTEN_URL = $listenUrl
     $env:VOICE_CHAT_HELPER_PATH = $helperPath
+    $env:VOICE_CHAT_UDP_PORT = $internalUri.Port
     $relayProcess = Start-Process `
         -FilePath $relayPath `
         -PassThru `
@@ -97,4 +99,5 @@ finally {
     $env:VOICE_CHAT_API_KEY = $previousApiKey
     $env:VOICE_CHAT_LISTEN_URL = $previousListenUrl
     $env:VOICE_CHAT_HELPER_PATH = $previousHelperPath
+    $env:VOICE_CHAT_UDP_PORT = $previousUdpPort
 }

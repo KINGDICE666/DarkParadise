@@ -47,11 +47,19 @@ type VoiceChatData = {
   input_gain: number;
   output_volume: number;
   input_level: number;
+  calibrating: boolean;
+  calibration_progress: number;
+  recommended_threshold: number;
+  noise_floor: number;
+  audio_processing_active: boolean;
+  audio_transport: string;
   input_device_id: string;
   output_device_id: string;
   input_devices: VoiceDevice[];
   output_devices: VoiceDevice[];
+  observer: boolean;
   can_speak: boolean;
+  can_listen: boolean;
   speaking: boolean;
   nearby_players: NearbyPlayer[];
 };
@@ -89,7 +97,7 @@ const launchHelper = (url: string) => {
 export const VoiceChat = (_properties: unknown) => {
   const { act, data } = useBackend<VoiceChatData>();
   const status = statusAppearance(data.status);
-  const helperFeaturesAvailable = data.helper_feature_version >= 2;
+  const helperFeaturesAvailable = data.helper_feature_version >= 3;
   const voiceActivation = data.transmission_mode === 'voice_activation';
   const pttLabel = data.ptt_keys.length
     ? data.ptt_keys.join(' + ')
@@ -102,7 +110,7 @@ export const VoiceChat = (_properties: unknown) => {
   }, [data.helper_launch_url]);
 
   return (
-    <Window width={580} height={760} theme="ntos">
+    <Window width={580} height={820} theme="ntos">
       <Window.Content scrollable>
         <Section
           title={
@@ -157,10 +165,15 @@ export const VoiceChat = (_properties: unknown) => {
           }
         >
           {data.error && <NoticeBox danger>{data.error}</NoticeBox>}
+          {data.connected && !data.can_listen && (
+            <NoticeBox warning>
+              Персонаж сейчас не слышит голосовой чат.
+            </NoticeBox>
+          )}
           {data.connected && !helperFeaturesAvailable && (
             <NoticeBox warning>
               Helper устарел. Установите новую версию, чтобы использовать
-              проверку звука и активацию по голосу.
+              обработку звука, автокалибровку и UDP-аудио.
             </NoticeBox>
           )}
           {!data.enabled ? (
@@ -171,6 +184,26 @@ export const VoiceChat = (_properties: unknown) => {
               один раз. Если автоматический запуск заблокирован, используйте
               кнопку «Запустить helper».
             </Box>
+          )}
+          {data.connected && helperFeaturesAvailable && (
+            <Stack mt={1} align="center">
+              <Stack.Item grow>
+                <Box color={data.audio_processing_active ? 'good' : 'bad'}>
+                  <Icon
+                    name={data.audio_processing_active ? 'shield-halved' : 'triangle-exclamation'}
+                  />{' '}
+                  {data.audio_processing_active
+                    ? 'WebRTC APM: AEC · NS · AGC'
+                    : 'WebRTC APM не работает'}
+                </Box>
+              </Stack.Item>
+              <Stack.Item>
+                <Box color={data.audio_transport === 'udp' ? 'good' : 'average'}>
+                  <Icon name="network-wired" /> Аудио:{' '}
+                  {data.audio_transport === 'udp' ? 'UDP' : 'WebSocket (резерв)'}
+                </Box>
+              </Stack.Item>
+            </Stack>
           )}
         </Section>
 
@@ -276,8 +309,11 @@ export const VoiceChat = (_properties: unknown) => {
                 )}
               </Box>
               {!data.can_speak && (
-                <Box color="bad" mt={0.5}>
-                  <Icon name="ban" /> Персонаж сейчас не может говорить.
+                <Box color={data.observer ? 'average' : 'bad'} mt={0.5}>
+                  <Icon name={data.observer ? 'ghost' : 'ban'} />{' '}
+                  {data.observer
+                    ? 'Призрак слышит голоса рядом, но не может говорить.'
+                    : 'Персонаж сейчас не может говорить.'}
                 </Box>
               )}
             </Stack.Item>
@@ -310,6 +346,41 @@ export const VoiceChat = (_properties: unknown) => {
                 Уровень {data.input_level}% · порог{' '}
                 {data.voice_activation_threshold}%
               </ProgressBar>
+              <Button
+                fluid
+                mt={0.75}
+                icon={data.calibrating ? 'spinner' : 'sliders'}
+                iconSpin={data.calibrating}
+                color={data.calibrating ? 'average' : undefined}
+                disabled={
+                  !data.connected ||
+                  !helperFeaturesAvailable ||
+                  !data.input_devices.length ||
+                  data.calibrating
+                }
+                onClick={() => act('calibrate_microphone')}
+              >
+                {data.calibrating
+                  ? `Калибровка тишины — ${data.calibration_progress}%`
+                  : 'Автокалибровка порога — 5 секунд'}
+              </Button>
+              {data.calibrating && (
+                <ProgressBar
+                  mt={0.5}
+                  value={data.calibration_progress}
+                  minValue={0}
+                  maxValue={100}
+                  color="average"
+                >
+                  Не говорите и не шумите рядом с микрофоном
+                </ProgressBar>
+              )}
+              {!data.calibrating && data.recommended_threshold > 0 && (
+                <Box color="good" mt={0.5}>
+                  <Icon name="circle-check" /> Порог установлен: {data.recommended_threshold}%
+                  {' · '}фон {data.noise_floor}%
+                </Box>
+              )}
             </>
           )}
         </Section>

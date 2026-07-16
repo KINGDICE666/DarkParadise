@@ -11,6 +11,7 @@ public sealed class VoiceClient : IAsyncDisposable
     private readonly ClientWebSocket socket = new();
     private readonly AudioEngine audio = new();
     private readonly PushToTalkMonitor pushToTalk = new();
+    private readonly UdpAudioTransport udpAudio;
     private readonly SemaphoreSlim sendGate = new(1, 1);
     private readonly Channel<byte[]> outgoingAudio = Channel.CreateBounded<byte[]>(
         new BoundedChannelOptions(16)
@@ -24,7 +25,9 @@ public sealed class VoiceClient : IAsyncDisposable
     public VoiceClient(LaunchOptions options)
     {
         this.options = options;
+        udpAudio = new UdpAudioTransport(options.RelayUrl);
         audio.AudioFrameReady += OnAudioFrameReady;
+        udpAudio.RelayAudioFrameReceived += OnRelayAudioFrameReceived;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -44,6 +47,8 @@ public sealed class VoiceClient : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         audio.AudioFrameReady -= OnAudioFrameReady;
+        udpAudio.RelayAudioFrameReceived -= OnRelayAudioFrameReceived;
+        await udpAudio.DisposeAsync();
         audio.Dispose();
         if (socket.State is WebSocketState.Open or WebSocketState.CloseReceived)
         {
@@ -85,6 +90,7 @@ public sealed class VoiceClient : IAsyncDisposable
                 }
 
                 audio.ApplyConfig(config);
+                await udpAudio.ConfigureAsync(config.UdpToken, config.UdpPort, cancellationToken);
                 continue;
             }
 
@@ -92,11 +98,11 @@ public sealed class VoiceClient : IAsyncDisposable
                 VoiceProtocol.TryReadRelayAudioFrame(
                     buffer.AsSpan(0, result.Count),
                     out var speakerId,
-                    out _,
+                    out var sequence,
                     out var spatialVolume,
                     out var opusPacket))
             {
-                audio.Play(speakerId, spatialVolume, opusPacket);
+                audio.Play(speakerId, sequence, spatialVolume, opusPacket);
             }
         }
     }
@@ -106,7 +112,10 @@ public sealed class VoiceClient : IAsyncDisposable
         await foreach (var opusPacket in outgoingAudio.Reader.ReadAllAsync(cancellationToken))
         {
             var frame = VoiceProtocol.CreateClientAudioFrame(sequence++, opusPacket);
-            await SendAsync(frame, WebSocketMessageType.Binary, cancellationToken);
+            if (!await udpAudio.TrySendAudioAsync(frame, cancellationToken))
+            {
+                await SendAsync(frame, WebSocketMessageType.Binary, cancellationToken);
+            }
         }
     }
 
@@ -123,6 +132,13 @@ public sealed class VoiceClient : IAsyncDisposable
                 Error = audio.Error,
                 InputDevices = audio.InputDevices,
                 OutputDevices = audio.OutputDevices,
+                Calibrating = audio.Calibrating,
+                CalibrationProgress = audio.CalibrationProgress,
+                CalibrationSequence = audio.CalibrationSequence,
+                RecommendedThreshold = audio.RecommendedThreshold,
+                NoiseFloor = audio.NoiseFloor,
+                AudioProcessingActive = audio.AudioProcessingActive,
+                AudioTransport = udpAudio.Ready ? "udp" : "websocket",
             };
             var json = JsonSerializer.SerializeToUtf8Bytes(status, VoiceProtocol.JsonOptions);
             await SendAsync(json, WebSocketMessageType.Text, cancellationToken);
@@ -160,6 +176,19 @@ public sealed class VoiceClient : IAsyncDisposable
     private void OnAudioFrameReady(byte[] opusPacket)
     {
         outgoingAudio.Writer.TryWrite(opusPacket);
+    }
+
+    private void OnRelayAudioFrameReceived(byte[] frame)
+    {
+        if (VoiceProtocol.TryReadRelayAudioFrame(
+                frame,
+                out var speakerId,
+                out var packetSequence,
+                out var spatialVolume,
+                out var opusPacket))
+        {
+            audio.Play(speakerId, packetSequence, spatialVolume, opusPacket);
+        }
     }
 
     private static async Task IgnoreCancellationAsync(params Task[] tasks)

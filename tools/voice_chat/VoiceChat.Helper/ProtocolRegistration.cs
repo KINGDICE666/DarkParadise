@@ -13,6 +13,12 @@ internal static class ProtocolRegistration
     public static void Install(string executablePath)
     {
         var fullPath = Path.GetFullPath(executablePath);
+        using var previousRun = Registry.CurrentUser.OpenSubKey(RunPath);
+        using var previousSchemeCommand = Registry.CurrentUser.OpenSubKey($@"{SchemePath}\shell\open\command");
+        var previousCommand = previousRun?.GetValue(RunValueName) as string ??
+            previousSchemeCommand?.GetValue(string.Empty) as string;
+        StopPreviousHelper(previousCommand);
+
         using var scheme = Registry.CurrentUser.CreateSubKey(SchemePath, writable: true) ??
             throw new InvalidOperationException("Could not create the Paradise Voice protocol registration.");
         scheme.SetValue(string.Empty, "URL:Paradise Voice Protocol");
@@ -39,6 +45,62 @@ internal static class ProtocolRegistration
         };
         startInfo.ArgumentList.Add("--broker");
         Process.Start(startInfo)?.Dispose();
+    }
+
+    private static void StopPreviousHelper(string? command)
+    {
+        var executablePath = ParseExecutablePath(command);
+        if (executablePath is null)
+        {
+            return;
+        }
+
+        foreach (var process in Process.GetProcesses())
+        {
+            using (process)
+            {
+                try
+                {
+                    if (process.Id == Environment.ProcessId ||
+                        !string.Equals(
+                            process.MainModule?.FileName,
+                            executablePath,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    process.Kill();
+                    process.WaitForExit(5000);
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                catch (System.ComponentModel.Win32Exception)
+                {
+                }
+                catch (NotSupportedException)
+                {
+                }
+            }
+        }
+    }
+
+    private static string? ParseExecutablePath(string? command)
+    {
+        if (string.IsNullOrWhiteSpace(command))
+        {
+            return null;
+        }
+
+        var trimmed = command.Trim();
+        if (trimmed[0] != '"')
+        {
+            return trimmed.Split(' ', 2)[0];
+        }
+
+        var closingQuote = trimmed.IndexOf('"', 1);
+        return closingQuote > 1 ? trimmed[1..closingQuote] : null;
     }
 
     public static void ShowInstalledMessage()

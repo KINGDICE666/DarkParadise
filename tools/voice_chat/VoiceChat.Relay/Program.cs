@@ -18,14 +18,25 @@ if (string.IsNullOrWhiteSpace(apiKey))
     throw new InvalidOperationException("VOICE_CHAT_API_KEY must be configured.");
 }
 
-builder.Services.AddSingleton(new RelayStore(apiKey));
+var listenUrl = builder.Configuration["VOICE_CHAT_LISTEN_URL"] ?? "http://0.0.0.0:6180";
+var defaultUdpPort = new Uri(listenUrl.Replace("0.0.0.0", "127.0.0.1")).Port;
+var udpPort = int.TryParse(builder.Configuration["VOICE_CHAT_UDP_PORT"], out var configuredUdpPort)
+    ? configuredUdpPort
+    : defaultUdpPort;
+builder.Services.AddSingleton(new RelayStore(apiKey, udpPort));
+builder.Services.AddHostedService<UdpVoiceTransport>();
 var app = builder.Build();
 app.UseWebSockets(new WebSocketOptions
 {
     KeepAliveInterval = TimeSpan.FromSeconds(20),
 });
 
-app.MapGet("/health", () => Results.Ok(new { status = "ok", protocol_version = VoiceProtocol.Version }));
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    protocol_version = VoiceProtocol.Version,
+    udp_port = udpPort,
+}));
 
 app.MapGet("/download/windows", () =>
 {

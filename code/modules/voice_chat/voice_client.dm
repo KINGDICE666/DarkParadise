@@ -25,7 +25,19 @@
 	var/list/muted_peers = list()
 	var/output_test_sequence = 0
 	var/microphone_test_sequence = 0
+	var/calibration_sequence = 0
+	var/calibration_result_sequence = 0
+	var/calibration_pending = FALSE
+	var/calibrating = FALSE
+	var/calibration_progress = 0
+	var/recommended_threshold = 0
+	var/noise_floor = 0
+	var/audio_processing_active = FALSE
+	var/audio_transport = ""
 	var/speaking = FALSE
+	var/image/speaking_overlay
+	var/datum/weakref/speaking_mob
+	var/speaking_overlay_visible = FALSE
 	var/input_level = 0
 
 /datum/voice_chat_client/New(client/new_owner)
@@ -46,6 +58,7 @@
 		status = VOICE_CHAT_STATUS_DISABLED
 
 /datum/voice_chat_client/Destroy()
+	set_speaking(FALSE)
 	SStgui.close_uis(src)
 	SSvoice_chat?.unregister_session(src)
 	if(owner?.voice_chat == src)
@@ -55,6 +68,8 @@
 	output_devices = null
 	peer_volumes = null
 	muted_peers = null
+	speaking_overlay = null
+	speaking_mob = null
 	return ..()
 
 /datum/voice_chat_client/ui_state(mob/user)
@@ -92,11 +107,19 @@
 	data["input_gain"] = input_gain
 	data["output_volume"] = output_volume
 	data["input_level"] = input_level
+	data["calibrating"] = calibrating
+	data["calibration_progress"] = calibration_progress
+	data["recommended_threshold"] = recommended_threshold
+	data["noise_floor"] = noise_floor
+	data["audio_processing_active"] = audio_processing_active
+	data["audio_transport"] = audio_transport
 	data["input_device_id"] = input_device_id
 	data["output_device_id"] = output_device_id
 	data["input_devices"] = input_devices
 	data["output_devices"] = output_devices
+	data["observer"] = isobserver(owner?.mob)
 	data["can_speak"] = can_transmit_voice()
+	data["can_listen"] = can_receive_voice()
 	data["speaking"] = speaking
 	data["nearby_players"] = get_nearby_players()
 	return data
@@ -147,6 +170,16 @@
 				return FALSE
 			microphone_test_sequence++
 			SSvoice_chat.synchronize()
+		if("calibrate_microphone")
+			if(status != VOICE_CHAT_STATUS_CONNECTED || helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION || !length(input_devices))
+				return FALSE
+			calibration_sequence++
+			calibration_pending = TRUE
+			calibrating = TRUE
+			calibration_progress = 0
+			recommended_threshold = 0
+			noise_floor = 0
+			SSvoice_chat.synchronize()
 		if("input_gain")
 			var/new_gain = text2num(params["value"])
 			if(isnull(new_gain))
@@ -191,8 +224,15 @@
 	helper_launch_url = ""
 	status = VOICE_CHAT_STATUS_DISCONNECTED
 	status_error = ""
-	speaking = FALSE
+	set_speaking(FALSE)
 	input_level = 0
+	calibrating = FALSE
+	calibration_pending = FALSE
+	calibration_progress = 0
+	recommended_threshold = 0
+	noise_floor = 0
+	audio_processing_active = FALSE
+	audio_transport = ""
 	SSvoice_chat.synchronize()
 
 /datum/voice_chat_client/proc/set_push_to_talk(pressed)
@@ -214,7 +254,7 @@
 		"display_name" = copytext_char(player?.name || owner?.key || "Unknown", 1, MAX_NAME_LEN + 1),
 		"position" = position,
 		"can_speak" = can_transmit_voice(),
-		"can_listen" = !!player_turf,
+		"can_listen" = can_receive_voice(),
 		"wants_connection" = wants_connection,
 		"muted" = muted,
 		"deafened" = deafened,
@@ -224,6 +264,8 @@
 		"voice_activation_threshold" = voice_activation_threshold,
 		"output_test_sequence" = output_test_sequence,
 		"microphone_test_sequence" = microphone_test_sequence,
+		"calibration_sequence" = calibration_sequence,
+		"calibration_requested" = calibration_pending,
 		"input_gain" = input_gain,
 		"output_volume" = output_volume,
 		"input_device_id" = input_device_id,
@@ -234,7 +276,40 @@
 
 /datum/voice_chat_client/proc/can_transmit_voice()
 	var/mob/living/player = owner?.mob
-	return istype(player) && player.stat != DEAD && player.can_speak() && player.IsVocal()
+	return istype(player) && player.stat == CONSCIOUS && !player.IsSleeping() && player.can_speak() && player.IsVocal()
+
+/datum/voice_chat_client/proc/can_receive_voice()
+	var/mob/player = owner?.mob
+	if(isobserver(player))
+		return !!get_turf(player)
+	if(!isliving(player))
+		return FALSE
+	var/mob/living/living_player = player
+	return living_player.stat == CONSCIOUS && !living_player.IsSleeping() && !HAS_TRAIT(living_player, TRAIT_DEAF)
+
+/datum/voice_chat_client/proc/set_speaking(new_speaking)
+	var/mob/current_mob = owner?.mob
+	var/mob/previous_mob = speaking_mob?.resolve()
+	if(previous_mob != current_mob && speaking_overlay_visible)
+		previous_mob?.cut_overlay(speaking_overlay)
+		speaking_overlay_visible = FALSE
+
+	var/should_show = !!new_speaking && can_transmit_voice()
+	if(should_show && !speaking_overlay)
+		speaking_overlay = image('icons/mob/effects/talk.dmi', icon_state = VOICE_CHAT_SPEAKING_ICON_STATE, layer = FLY_LAYER)
+		speaking_overlay.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
+		speaking_overlay.alpha = VOICE_CHAT_SPEAKING_ICON_ALPHA
+
+	if(should_show && !speaking_overlay_visible)
+		SET_PLANE_EXPLICIT(speaking_overlay, ABOVE_GAME_PLANE, current_mob)
+		current_mob.add_overlay(speaking_overlay)
+		speaking_overlay_visible = TRUE
+	else if(!should_show && speaking_overlay_visible)
+		current_mob?.cut_overlay(speaking_overlay)
+		speaking_overlay_visible = FALSE
+
+	speaking = should_show
+	speaking_mob = current_mob ? WEAKREF(current_mob) : null
 
 /datum/voice_chat_client/proc/get_push_to_talk_keys()
 	var/list/keys = list()
@@ -287,9 +362,21 @@
 	if(new_status in list(VOICE_CHAT_STATUS_DISCONNECTED, VOICE_CHAT_STATUS_CONNECTING, VOICE_CHAT_STATUS_CONNECTED, VOICE_CHAT_STATUS_ERROR))
 		status = new_status
 	status_error = copytext_char("[data["error"]]", 1, VOICE_CHAT_MAX_ERROR_LENGTH + 1)
-	speaking = !!data["speaking"]
+	set_speaking(!!data["speaking"])
 	input_level = clamp(text2num(data["input_level"]), 0, 100)
 	helper_feature_version = max(0, round(text2num(data["helper_feature_version"])))
+	var/helper_calibrating = !!data["calibrating"]
+	calibration_progress = clamp(round(text2num(data["calibration_progress"])), 0, 100)
+	var/new_calibration_result_sequence = max(0, round(text2num(data["calibration_sequence"])))
+	recommended_threshold = clamp(round(text2num(data["recommended_threshold"])), 0, 100)
+	noise_floor = clamp(round(text2num(data["noise_floor"])), 0, 100)
+	audio_processing_active = !!data["audio_processing_active"]
+	audio_transport = copytext_char("[data["audio_transport"]]", 1, 17)
+	if(!helper_calibrating && new_calibration_result_sequence == calibration_sequence && new_calibration_result_sequence != calibration_result_sequence && recommended_threshold)
+		calibration_result_sequence = new_calibration_result_sequence
+		calibration_pending = FALSE
+		voice_activation_threshold = clamp(recommended_threshold, VOICE_CHAT_MIN_ACTIVATION_THRESHOLD, VOICE_CHAT_MAX_ACTIVATION_THRESHOLD)
+	calibrating = calibration_pending || helper_calibrating
 	input_devices = sanitize_devices(data["input_devices"])
 	output_devices = sanitize_devices(data["output_devices"])
 	if(!input_device_id)
@@ -307,8 +394,13 @@
 		return
 	status = VOICE_CHAT_STATUS_RELAY_UNAVAILABLE
 	status_error = copytext_char("[error]", 1, VOICE_CHAT_MAX_ERROR_LENGTH + 1)
-	speaking = FALSE
+	set_speaking(FALSE)
 	input_level = 0
+	calibrating = FALSE
+	calibration_pending = FALSE
+	calibration_progress = 0
+	audio_processing_active = FALSE
+	audio_transport = ""
 
 /datum/voice_chat_client/proc/sanitize_devices(list/devices)
 	var/list/result = list()

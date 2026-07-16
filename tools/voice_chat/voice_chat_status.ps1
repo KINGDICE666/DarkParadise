@@ -14,7 +14,7 @@ else {
     else {
         try {
             $health = Invoke-RestMethod -Uri $state.health_url -TimeoutSec 2
-            Write-Host "Relay: running (PID $($state.pid), protocol $($health.protocol_version))"
+            Write-Host "Relay: running (PID $($state.pid), protocol $($health.protocol_version), UDP $($health.udp_port))"
         }
         catch {
             Write-Host "Relay: process exists but health check failed (PID $($state.pid))"

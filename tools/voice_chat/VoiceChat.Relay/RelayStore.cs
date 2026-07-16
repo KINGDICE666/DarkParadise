@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,11 +14,15 @@ public sealed class RelayStore
     private readonly ConcurrentDictionary<string, ServerState> servers = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, TokenGrant> tokens = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<RelaySession, TokenGrant> sessionTokens = new();
+    private readonly ConcurrentDictionary<string, UdpBinding> udpBindings = new(StringComparer.Ordinal);
 
-    public RelayStore(string apiKey)
+    public RelayStore(string apiKey, int udpPort = 3000)
     {
         this.apiKey = Encoding.UTF8.GetBytes(apiKey);
+        UdpPort = udpPort;
     }
+
+    public int UdpPort { get; }
 
     public bool Authenticate(string suppliedKey)
     {
@@ -45,7 +50,7 @@ public sealed class RelayStore
             seenSessions.Add(gameSession.SessionId);
             var session = server.Sessions.GetOrAdd(
                 gameSession.SessionId,
-                sessionId => new RelaySession(server, sessionId));
+                sessionId => new RelaySession(server, sessionId, UdpPort));
             session.UpdateSnapshot(gameSession);
             if (session.Connection is not null)
             {
@@ -103,6 +108,7 @@ public sealed class RelayStore
         CancellationToken cancellationToken)
     {
         var connection = new RelayConnection(socket);
+        udpBindings[connection.UdpToken] = new UdpBinding(session, connection);
         var previousConnection = session.ReplaceConnection(connection);
         if (previousConnection is not null)
         {
@@ -117,7 +123,89 @@ public sealed class RelayStore
         finally
         {
             session.RemoveConnection(connection);
+            udpBindings.TryRemove(
+                new KeyValuePair<string, UdpBinding>(
+                    connection.UdpToken,
+                    new UdpBinding(session, connection)));
         }
+    }
+
+    public bool TryRegisterUdpEndpoint(
+        ReadOnlySpan<byte> token,
+        IPEndPoint endpoint,
+        out RelayConnection connection)
+    {
+        connection = null!;
+        var tokenText = Convert.ToBase64String(token);
+        if (!udpBindings.TryGetValue(tokenText, out var binding) ||
+            binding.Session.Connection != binding.Connection)
+        {
+            return false;
+        }
+
+        binding.Connection.SetUdpEndpoint(endpoint);
+        connection = binding.Connection;
+        return true;
+    }
+
+    public bool TryResolveUdpSender(
+        ReadOnlySpan<byte> token,
+        IPEndPoint endpoint,
+        out RelaySession session)
+    {
+        session = null!;
+        var tokenText = Convert.ToBase64String(token);
+        if (!udpBindings.TryGetValue(tokenText, out var binding) ||
+            binding.Session.Connection != binding.Connection ||
+            !binding.Connection.IsUdpEndpoint(endpoint))
+        {
+            return false;
+        }
+
+        session = binding.Session;
+        return true;
+    }
+
+    public async Task RouteUdpAudioAsync(
+        RelaySession speaker,
+        ReadOnlyMemory<byte> frame,
+        Func<ReadOnlyMemory<byte>, IPEndPoint, CancellationToken, ValueTask> sendUdpAsync,
+        CancellationToken cancellationToken)
+    {
+        if (!TryValidateAudioFrame(speaker, frame.Span, out var speakerId))
+        {
+            return;
+        }
+
+        var sends = new List<Task>();
+        foreach (var listener in speaker.Server.Sessions.Values)
+        {
+            var connection = listener.Connection;
+            if (listener == speaker || connection is null ||
+                !TryGetSpatialVolume(speaker, listener, out var spatialVolume))
+            {
+                continue;
+            }
+
+            var outboundFrame = VoiceProtocol.CreateRelayAudioFrame(
+                speakerId,
+                spatialVolume,
+                frame.Span);
+            var udpEndpoint = connection.UdpEndpoint;
+            if (udpEndpoint is not null)
+            {
+                var datagram = VoiceProtocol.CreateUdpRelayAudioFrame(
+                    connection.UdpTokenBytes,
+                    outboundFrame);
+                sends.Add(sendUdpAsync(datagram, udpEndpoint, cancellationToken).AsTask());
+            }
+            else
+            {
+                sends.Add(connection.SendBinaryAsync(outboundFrame, cancellationToken));
+            }
+        }
+
+        await Task.WhenAll(sends);
     }
 
     private async Task ReceiveLoopAsync(
@@ -128,7 +216,23 @@ public sealed class RelayStore
         var buffer = new byte[8192];
         while (connection.Socket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
-            var result = await connection.Socket.ReceiveAsync(buffer, cancellationToken);
+            WebSocketReceiveResult result;
+            try
+            {
+                result = await connection.Socket.ReceiveAsync(buffer, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (WebSocketException)
+            {
+                break;
+            }
+            catch (ObjectDisposedException)
+            {
+                break;
+            }
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 break;
@@ -174,11 +278,7 @@ public sealed class RelayStore
         ReadOnlyMemory<byte> frame,
         CancellationToken cancellationToken)
     {
-        var snapshot = speaker.Snapshot;
-        if (frame.Length < 6 || frame.Length > VoiceProtocol.MaximumOpusPacketBytes + 5 ||
-            frame.Span[0] != VoiceProtocol.ClientAudioFrame || !snapshot.WantsConnection ||
-            !snapshot.CanSpeak || snapshot.Muted || snapshot.Position is null ||
-            !Guid.TryParseExact(snapshot.SessionId, "N", out var speakerId))
+        if (!TryValidateAudioFrame(speaker, frame.Span, out var speakerId))
         {
             return;
         }
@@ -200,6 +300,19 @@ public sealed class RelayStore
         }
 
         await Task.WhenAll(sends);
+    }
+
+    private static bool TryValidateAudioFrame(
+        RelaySession speaker,
+        ReadOnlySpan<byte> frame,
+        out Guid speakerId)
+    {
+        speakerId = default;
+        var snapshot = speaker.Snapshot;
+        return frame.Length >= 6 && frame.Length <= VoiceProtocol.MaximumOpusPacketBytes + 5 &&
+            frame[0] == VoiceProtocol.ClientAudioFrame && snapshot.WantsConnection &&
+            snapshot.CanSpeak && !snapshot.Muted && snapshot.Position is not null &&
+            Guid.TryParseExact(snapshot.SessionId, "N", out speakerId);
     }
 
     private static bool TryGetSpatialVolume(
@@ -264,6 +377,7 @@ public sealed class RelayStore
     }
 
     private sealed record TokenGrant(string Token, RelaySession Session, DateTimeOffset ExpiresAt);
+    private sealed record UdpBinding(RelaySession Session, RelayConnection Connection);
 }
 
 public sealed class ServerState
@@ -285,9 +399,10 @@ public sealed class RelaySession
     private HelperStatusMessage helperStatus = new();
     private RelayConnection? connection;
 
-    public RelaySession(ServerState server, string sessionId)
+    public RelaySession(ServerState server, string sessionId, int udpPort = 3000)
     {
         Server = server;
+        UdpPort = udpPort;
         snapshot = new GameSessionSnapshot
         {
             SessionId = sessionId,
@@ -296,6 +411,7 @@ public sealed class RelaySession
     }
 
     public ServerState Server { get; }
+    public int UdpPort { get; }
 
     public GameSessionSnapshot Snapshot
     {
@@ -346,7 +462,11 @@ public sealed class RelaySession
             {
                 FeatureVersion = Math.Clamp(value.FeatureVersion, 0, VoiceProtocol.HelperFeatureVersion),
                 InputLevel = Math.Clamp(value.InputLevel, 0, 100),
+                CalibrationProgress = Math.Clamp(value.CalibrationProgress, 0, 100),
+                RecommendedThreshold = Math.Clamp(value.RecommendedThreshold, 0, 100),
+                NoiseFloor = Math.Clamp(value.NoiseFloor, 0, 100),
                 Error = value.Error[..Math.Min(value.Error.Length, 256)],
+                AudioTransport = value.AudioTransport[..Math.Min(value.AudioTransport.Length, 16)],
                 InputDevices = value.InputDevices.Take(32).ToList(),
                 OutputDevices = value.OutputDevices.Take(32).ToList(),
             };
@@ -390,12 +510,16 @@ public sealed class RelaySession
             VoiceActivationThreshold = value.VoiceActivationThreshold,
             OutputTestSequence = value.OutputTestSequence,
             MicrophoneTestSequence = value.MicrophoneTestSequence,
+            CalibrationSequence = value.CalibrationSequence,
+            CalibrationRequested = value.CalibrationRequested,
             InputGain = value.InputGain,
             OutputVolume = value.OutputVolume,
             InputDeviceId = value.InputDeviceId,
             OutputDeviceId = value.OutputDeviceId,
             PeerVolumes = value.PeerVolumes,
             MutedPeers = value.MutedPeers,
+            UdpToken = Connection?.UdpToken ?? string.Empty,
+            UdpPort = UdpPort,
         };
     }
 
@@ -413,6 +537,13 @@ public sealed class RelaySession
                 Speaking = connection is not null && helperStatus.Speaking,
                 InputLevel = connection is not null ? helperStatus.InputLevel : 0,
                 HelperFeatureVersion = connection is not null ? helperStatus.FeatureVersion : 0,
+                Calibrating = connection is not null && helperStatus.Calibrating,
+                CalibrationProgress = connection is not null ? helperStatus.CalibrationProgress : 0,
+                CalibrationSequence = connection is not null ? helperStatus.CalibrationSequence : 0,
+                RecommendedThreshold = connection is not null ? helperStatus.RecommendedThreshold : 0,
+                NoiseFloor = connection is not null ? helperStatus.NoiseFloor : 0,
+                AudioProcessingActive = connection is not null && helperStatus.AudioProcessingActive,
+                AudioTransport = connection is not null ? helperStatus.AudioTransport : string.Empty,
                 InputDevices = helperStatus.InputDevices,
                 OutputDevices = helperStatus.OutputDevices,
             };
@@ -432,13 +563,46 @@ public sealed class RelaySession
 public sealed class RelayConnection
 {
     private readonly SemaphoreSlim sendGate = new(1, 1);
+    private readonly object udpGate = new();
+    private IPEndPoint? udpEndpoint;
 
     public RelayConnection(WebSocket socket)
     {
         Socket = socket;
+        UdpTokenBytes = RandomNumberGenerator.GetBytes(VoiceProtocol.UdpTokenBytes);
+        UdpToken = Convert.ToBase64String(UdpTokenBytes);
     }
 
     public WebSocket Socket { get; }
+    public byte[] UdpTokenBytes { get; }
+    public string UdpToken { get; }
+
+    public IPEndPoint? UdpEndpoint
+    {
+        get
+        {
+            lock (udpGate)
+            {
+                return udpEndpoint;
+            }
+        }
+    }
+
+    public void SetUdpEndpoint(IPEndPoint value)
+    {
+        lock (udpGate)
+        {
+            udpEndpoint = value;
+        }
+    }
+
+    public bool IsUdpEndpoint(IPEndPoint value)
+    {
+        lock (udpGate)
+        {
+            return udpEndpoint?.Equals(value) == true;
+        }
+    }
 
     public Task SendConfigAsync(HelperConfigMessage config, CancellationToken cancellationToken)
     {

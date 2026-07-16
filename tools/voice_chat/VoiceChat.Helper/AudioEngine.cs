@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Concentus;
 using Concentus.Enums;
 using NAudio;
@@ -13,6 +14,8 @@ public sealed class AudioEngine : IDisposable
     private const int PcmBytesPerFrame = VoiceProtocol.SamplesPerFrame * sizeof(short);
     private const int VoiceActivationHoldMilliseconds = 600;
     private const int MicrophoneTestSeconds = 5;
+    private const int CalibrationSeconds = 5;
+    private const int OutputTestMilliseconds = 700;
     private const double OutputTestFrequency = 660;
     private const double OutputTestGain = 0.2;
 
@@ -23,6 +26,9 @@ public sealed class AudioEngine : IDisposable
         OpusApplication.OPUS_APPLICATION_VOIP);
     private readonly Dictionary<Guid, SpeakerPlayback> speakers = [];
     private readonly byte[] pendingPcm = new byte[PcmBytesPerFrame * 8];
+    private readonly List<int> calibrationLevels = [];
+    private readonly System.Threading.Timer playbackTimer;
+    private WebRtcAudioProcessor? audioProcessor;
     private HelperConfigMessage? config;
     private WaveInEvent? capture;
     private WaveOutEvent? output;
@@ -37,8 +43,16 @@ public sealed class AudioEngine : IDisposable
     private int inputLevel;
     private int lastOutputTestSequence;
     private int lastMicrophoneTestSequence;
+    private int lastCalibrationSequence;
+    private int calibrationSequence;
+    private int calibrationProgress;
+    private int recommendedThreshold;
+    private int noiseFloor;
+    private bool calibrating;
+    private long calibrationStartedTimestamp;
     private long voiceActivationUntilTimestamp;
     private long microphoneTestUntilTimestamp;
+    private long outputTestUntilTimestamp;
     private string error = string.Empty;
 
     public AudioEngine()
@@ -49,6 +63,20 @@ public sealed class AudioEngine : IDisposable
         encoder.PacketLossPercent = 10;
         InputDevices = EnumerateInputDevices();
         OutputDevices = EnumerateOutputDevices();
+        try
+        {
+            audioProcessor = new WebRtcAudioProcessor();
+        }
+        catch (Exception exception) when (
+            exception is InvalidOperationException or DllNotFoundException or BadImageFormatException)
+        {
+            error = $"Обработка звука WebRTC недоступна: {exception.Message}";
+        }
+        playbackTimer = new System.Threading.Timer(
+            _ => DrainSpeakerPlayback(),
+            null,
+            VoiceProtocol.FrameMilliseconds,
+            VoiceProtocol.FrameMilliseconds);
     }
 
     public event Action<byte[]>? AudioFrameReady;
@@ -56,6 +84,12 @@ public sealed class AudioEngine : IDisposable
     public List<VoiceDevice> InputDevices { get; }
     public List<VoiceDevice> OutputDevices { get; }
     public int InputLevel => Volatile.Read(ref inputLevel);
+    public bool Calibrating => Volatile.Read(ref calibrating);
+    public int CalibrationProgress => Volatile.Read(ref calibrationProgress);
+    public int CalibrationSequence => Volatile.Read(ref calibrationSequence);
+    public int RecommendedThreshold => Volatile.Read(ref recommendedThreshold);
+    public int NoiseFloor => Volatile.Read(ref noiseFloor);
+    public bool AudioProcessingActive => audioProcessor is not null;
     public string Error => error;
 
     public bool Speaking
@@ -85,20 +119,24 @@ public sealed class AudioEngine : IDisposable
         lock (gate)
         {
             config = value;
-            error = string.Empty;
+            error = audioProcessor is null ? error : string.Empty;
             var outputTestRequested = testSequencesInitialized &&
                 value.OutputTestSequence != lastOutputTestSequence;
             var microphoneTestRequested = testSequencesInitialized &&
                 value.MicrophoneTestSequence != lastMicrophoneTestSequence;
+            var calibrationRequested = value.CalibrationRequested &&
+                (!testSequencesInitialized || value.CalibrationSequence != lastCalibrationSequence);
             lastOutputTestSequence = value.OutputTestSequence;
             lastMicrophoneTestSequence = value.MicrophoneTestSequence;
+            lastCalibrationSequence = value.CalibrationSequence;
             testSequencesInitialized = true;
             if (!value.VoiceActivationEnabled)
             {
                 voiceActivationUntilTimestamp = 0;
             }
 
-            if (value.CanSpeak || microphoneTestRequested || IsMicrophoneTestActive())
+            if (value.CanSpeak || microphoneTestRequested || IsMicrophoneTestActive() ||
+                calibrationRequested || IsCalibrationActive())
             {
                 try
                 {
@@ -131,6 +169,10 @@ public sealed class AudioEngine : IDisposable
             {
                 StartMicrophoneTest();
             }
+            if (calibrationRequested && capture is not null)
+            {
+                StartCalibration(value.CalibrationSequence);
+            }
             if (outputTestRequested && mixer is not null)
             {
                 PlayOutputTest();
@@ -145,14 +187,14 @@ public sealed class AudioEngine : IDisposable
         lock (gate)
         {
             pushToTalkPressed = pressed;
-            if (!ShouldTransmit())
-            {
-                pendingPcmCount = 0;
-            }
         }
     }
 
-    public void Play(Guid speakerId, byte spatialVolume, ReadOnlySpan<byte> opusPacket)
+    public void Play(
+        Guid speakerId,
+        uint sequence,
+        byte spatialVolume,
+        ReadOnlySpan<byte> opusPacket)
     {
         lock (gate)
         {
@@ -169,7 +211,7 @@ public sealed class AudioEngine : IDisposable
 
             speaker.SpatialVolume = spatialVolume / 100f;
             UpdateSpeakerVolume(speakerId, speaker);
-            speaker.DecodeAndBuffer(opusPacket);
+            speaker.Enqueue(sequence, opusPacket);
         }
     }
 
@@ -177,6 +219,7 @@ public sealed class AudioEngine : IDisposable
     {
         lock (gate)
         {
+            playbackTimer.Dispose();
             capture?.StopRecording();
             capture?.Dispose();
             output?.Stop();
@@ -186,6 +229,8 @@ public sealed class AudioEngine : IDisposable
             microphoneMonitor = null;
             microphoneMonitorVolume = null;
             speakers.Clear();
+            audioProcessor?.Dispose();
+            audioProcessor = null;
         }
     }
 
@@ -271,7 +316,7 @@ public sealed class AudioEngine : IDisposable
             DesiredLatency = 60,
             NumberOfBuffers = 3,
         };
-        output.Init(mixer);
+        output.Init(new RenderReferenceSampleProvider(mixer, AnalyzeRender));
         output.Play();
     }
 
@@ -279,26 +324,143 @@ public sealed class AudioEngine : IDisposable
     {
         lock (gate)
         {
-            UpdateInputLevel(eventArgs.Buffer.AsSpan(0, eventArgs.BytesRecorded));
-            UpdateVoiceActivation();
-            if (IsMicrophoneTestActive())
-            {
-                microphoneMonitor?.AddSamples(eventArgs.Buffer, 0, eventArgs.BytesRecorded);
-            }
-            if (!ShouldTransmit())
-            {
-                pendingPcmCount = 0;
-                return;
-            }
-
             var available = Math.Min(eventArgs.BytesRecorded, pendingPcm.Length - pendingPcmCount);
             eventArgs.Buffer.AsSpan(0, available).CopyTo(pendingPcm.AsSpan(pendingPcmCount));
             pendingPcmCount += available;
             while (pendingPcmCount >= PcmBytesPerFrame)
             {
-                EncodeFrame(pendingPcm.AsSpan(0, PcmBytesPerFrame));
+                var frame = pendingPcm.AsSpan(0, PcmBytesPerFrame);
+                ProcessCaptureFrame(frame);
+                UpdateInputLevel(frame);
+                UpdateCalibration(frame);
+                UpdateVoiceActivation();
+                if (IsMicrophoneTestActive())
+                {
+                    microphoneMonitor?.AddSamples(pendingPcm, 0, PcmBytesPerFrame);
+                }
+                if (ShouldTransmit())
+                {
+                    EncodeFrame(frame);
+                }
                 pendingPcmCount -= PcmBytesPerFrame;
                 pendingPcm.AsSpan(PcmBytesPerFrame, pendingPcmCount).CopyTo(pendingPcm);
+            }
+        }
+    }
+
+    private void ProcessCaptureFrame(Span<byte> pcmBytes)
+    {
+        var samples = MemoryMarshal.Cast<byte, short>(pcmBytes);
+        if (audioProcessor is not null)
+        {
+            try
+            {
+                audioProcessor.ProcessCapture(samples);
+            }
+            catch (InvalidOperationException exception)
+            {
+                error = $"Обработка звука WebRTC: {exception.Message}";
+            }
+        }
+
+        var inputGain = config?.InputGain ?? 100;
+        if (inputGain == 100)
+        {
+            return;
+        }
+
+        for (var index = 0; index < samples.Length; index++)
+        {
+            samples[index] = (short)Math.Clamp(
+                samples[index] * inputGain / 100,
+                short.MinValue,
+                short.MaxValue);
+        }
+    }
+
+    private void AnalyzeRender(ReadOnlySpan<float> samples)
+    {
+        if (audioProcessor is null)
+        {
+            return;
+        }
+
+        try
+        {
+            audioProcessor.AnalyzeRender(samples);
+        }
+        catch (InvalidOperationException exception)
+        {
+            error = $"Эхоподавление WebRTC: {exception.Message}";
+        }
+    }
+
+    private void StartCalibration(int sequence)
+    {
+        calibrationLevels.Clear();
+        calibrationStartedTimestamp = Stopwatch.GetTimestamp();
+        Volatile.Write(ref calibrationSequence, sequence);
+        Volatile.Write(ref calibrationProgress, 0);
+        Volatile.Write(ref recommendedThreshold, 0);
+        Volatile.Write(ref noiseFloor, 0);
+        Volatile.Write(ref calibrating, true);
+        voiceActivationUntilTimestamp = 0;
+    }
+
+    private void UpdateCalibration(ReadOnlySpan<byte> pcmBytes)
+    {
+        if (!IsCalibrationActive())
+        {
+            return;
+        }
+
+        var samples = MemoryMarshal.Cast<byte, short>(pcmBytes);
+        double sumSquares = 0;
+        foreach (var sample in samples)
+        {
+            sumSquares += (double)sample * sample;
+        }
+
+        var rms = Math.Sqrt(sumSquares / samples.Length);
+        calibrationLevels.Add(Math.Clamp((int)Math.Round(rms * 100 / short.MaxValue), 0, 100));
+        var elapsedTicks = Stopwatch.GetTimestamp() - calibrationStartedTimestamp;
+        var progress = Math.Clamp(
+            (int)(elapsedTicks * 100 / (CalibrationSeconds * Stopwatch.Frequency)),
+            0,
+            100);
+        Volatile.Write(ref calibrationProgress, progress);
+        if (progress < 100)
+        {
+            return;
+        }
+
+        calibrationLevels.Sort();
+        var percentileIndex = Math.Clamp(
+            (int)Math.Floor((calibrationLevels.Count - 1) * 0.9),
+            0,
+            calibrationLevels.Count - 1);
+        var measuredNoiseFloor = calibrationLevels[percentileIndex];
+        var margin = Math.Max(4, (int)Math.Ceiling(measuredNoiseFloor * 0.5));
+        Volatile.Write(ref noiseFloor, measuredNoiseFloor);
+        Volatile.Write(
+            ref recommendedThreshold,
+            Math.Clamp(measuredNoiseFloor + margin, 3, 60));
+        Volatile.Write(ref calibrationProgress, 100);
+        Volatile.Write(ref calibrating, false);
+    }
+
+    private bool IsCalibrationActive()
+    {
+        return Volatile.Read(ref calibrating);
+    }
+
+    private void DrainSpeakerPlayback()
+    {
+        lock (gate)
+        {
+            foreach (var speaker in speakers.Values)
+            {
+                speaker.PlayNextFrame();
             }
         }
     }
@@ -313,17 +475,9 @@ public sealed class AudioEngine : IDisposable
 
     private void EncodeFrame(ReadOnlySpan<byte> pcmBytes)
     {
-        Span<short> pcm = stackalloc short[VoiceProtocol.SamplesPerFrame];
-        for (var index = 0; index < pcm.Length; index++)
-        {
-            var sample = BitConverter.ToInt16(pcmBytes.Slice(index * sizeof(short), sizeof(short)));
-            var gainedSample = sample * (config?.InputGain ?? 100) / 100;
-            pcm[index] = (short)Math.Clamp(gainedSample, short.MinValue, short.MaxValue);
-        }
-
         Span<byte> encoded = stackalloc byte[VoiceProtocol.MaximumOpusPacketBytes];
         var encodedLength = encoder.Encode(
-            pcm,
+            MemoryMarshal.Cast<byte, short>(pcmBytes),
             VoiceProtocol.SamplesPerFrame,
             encoded,
             encoded.Length);
@@ -339,13 +493,13 @@ public sealed class AudioEngine : IDisposable
             peak = Math.Max(peak, sample);
         }
 
-        var gainedPeak = peak * (config?.InputGain ?? 100) / 100;
-        Volatile.Write(ref inputLevel, Math.Clamp(gainedPeak * 100 / short.MaxValue, 0, 100));
+        Volatile.Write(ref inputLevel, Math.Clamp(peak * 100 / short.MaxValue, 0, 100));
     }
 
     private bool ShouldTransmit()
     {
-        if (config is not { CanSpeak: true, Muted: false } || IsMicrophoneTestActive())
+        if (config is not { CanSpeak: true, Muted: false } ||
+            IsMicrophoneTestActive() || IsOutputTestActive() || IsCalibrationActive())
         {
             return false;
         }
@@ -372,6 +526,11 @@ public sealed class AudioEngine : IDisposable
         return Stopwatch.GetTimestamp() <= microphoneTestUntilTimestamp;
     }
 
+    private bool IsOutputTestActive()
+    {
+        return Stopwatch.GetTimestamp() <= outputTestUntilTimestamp;
+    }
+
     private void StartMicrophoneTest()
     {
         microphoneMonitor?.ClearBuffer();
@@ -394,6 +553,8 @@ public sealed class AudioEngine : IDisposable
 
     private void PlayOutputTest()
     {
+        outputTestUntilTimestamp = Stopwatch.GetTimestamp() +
+            OutputTestMilliseconds * Stopwatch.Frequency / 1000;
         var signal = new SignalGenerator(VoiceProtocol.SampleRate, VoiceProtocol.Channels)
         {
             Frequency = OutputTestFrequency,
@@ -402,7 +563,7 @@ public sealed class AudioEngine : IDisposable
         };
         var duration = new OffsetSampleProvider(signal)
         {
-            Take = TimeSpan.FromMilliseconds(700),
+            Take = TimeSpan.FromMilliseconds(OutputTestMilliseconds),
         };
         var volume = new VolumeSampleProvider(duration)
         {
@@ -517,15 +678,24 @@ public sealed class AudioEngine : IDisposable
 
     private sealed class SpeakerPlayback
     {
+        private const int StartupDelayMilliseconds = 40;
+        private const int MaximumConcealedFrames = 3;
         private readonly IOpusDecoder decoder = OpusCodecFactory.CreateDecoder(
             VoiceProtocol.SampleRate,
             VoiceProtocol.Channels);
+        private readonly Dictionary<uint, byte[]> packets = [];
         private readonly BufferedWaveProvider buffer = new(
             new WaveFormat(VoiceProtocol.SampleRate, 16, VoiceProtocol.Channels))
         {
-            BufferDuration = TimeSpan.FromMilliseconds(240),
+            BufferDuration = TimeSpan.FromMilliseconds(320),
             DiscardOnBufferOverflow = true,
         };
+        private uint expectedSequence;
+        private bool sequenceInitialized;
+        private bool playbackStarted;
+        private int concealedFrames;
+        private long startupUntilTimestamp;
+        private long lastPacketTimestamp;
 
         public SpeakerPlayback()
         {
@@ -535,14 +705,83 @@ public sealed class AudioEngine : IDisposable
         public VolumeSampleProvider VolumeProvider { get; }
         public float SpatialVolume { get; set; } = 1;
 
-        public void DecodeAndBuffer(ReadOnlySpan<byte> opusPacket)
+        public void Enqueue(uint sequence, ReadOnlySpan<byte> opusPacket)
+        {
+            if (sequenceInitialized && unchecked((int)(sequence - expectedSequence)) < 0)
+            {
+                return;
+            }
+
+            if (!sequenceInitialized)
+            {
+                expectedSequence = sequence;
+                sequenceInitialized = true;
+                playbackStarted = false;
+                startupUntilTimestamp = Stopwatch.GetTimestamp() +
+                    StartupDelayMilliseconds * Stopwatch.Frequency / 1000;
+            }
+
+            packets.TryAdd(sequence, opusPacket.ToArray());
+            lastPacketTimestamp = Stopwatch.GetTimestamp();
+        }
+
+        public void PlayNextFrame()
+        {
+            if (!sequenceInitialized)
+            {
+                return;
+            }
+
+            if (!playbackStarted)
+            {
+                if (packets.Count < 2 && Stopwatch.GetTimestamp() < startupUntilTimestamp)
+                {
+                    return;
+                }
+                playbackStarted = true;
+            }
+
+            if (packets.Remove(expectedSequence, out var packet))
+            {
+                DecodeAndBuffer(packet, false);
+                expectedSequence++;
+                concealedFrames = 0;
+                return;
+            }
+
+            var nextSequence = expectedSequence + 1;
+            if (packets.TryGetValue(nextSequence, out var fecPacket))
+            {
+                DecodeAndBuffer(fecPacket, true);
+                expectedSequence++;
+                concealedFrames++;
+                return;
+            }
+
+            var stillReceiving = Stopwatch.GetTimestamp() - lastPacketTimestamp <=
+                MaximumConcealedFrames * VoiceProtocol.FrameMilliseconds * Stopwatch.Frequency / 1000;
+            if (packets.Count > 0 || stillReceiving && concealedFrames < MaximumConcealedFrames)
+            {
+                DecodeAndBuffer([], false);
+                expectedSequence++;
+                concealedFrames++;
+                return;
+            }
+
+            packets.Clear();
+            sequenceInitialized = false;
+            playbackStarted = false;
+            concealedFrames = 0;
+        }
+
+        private void DecodeAndBuffer(ReadOnlySpan<byte> opusPacket, bool decodeFec)
         {
             Span<short> pcm = stackalloc short[VoiceProtocol.SamplesPerFrame];
             var decodedSamples = decoder.Decode(
                 opusPacket,
                 pcm,
                 VoiceProtocol.SamplesPerFrame,
-                false);
+                decodeFec);
             var bytes = new byte[decodedSamples * sizeof(short)];
             for (var index = 0; index < decodedSamples; index++)
             {

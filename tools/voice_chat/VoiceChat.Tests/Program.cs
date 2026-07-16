@@ -1,9 +1,14 @@
 using System.Text.Json;
+using Concentus;
+using Concentus.Enums;
 using VoiceChat.Helper;
 using VoiceChat.Protocol;
 using VoiceChat.Relay;
 
 TestAudioFrameRoundTrip();
+TestUdpFrameRoundTrip();
+TestOpusLossRecovery();
+TestWebRtcAudioProcessing();
 TestDmBooleanJson();
 TestHelperFeatureVersion();
 TestLaunchUri();
@@ -29,6 +34,78 @@ static void TestAudioFrameRoundTrip()
     Assert(sequence == 1234, "Sequence changed during framing.");
     Assert(spatialVolume == 65, "Spatial volume changed during framing.");
     Assert(decodedPayload.SequenceEqual(payload), "Opus payload changed during framing.");
+}
+
+static void TestUdpFrameRoundTrip()
+{
+    var token = Enumerable.Range(0, VoiceProtocol.UdpTokenBytes)
+        .Select(value => (byte)value)
+        .ToArray();
+    var clientFrame = VoiceProtocol.CreateClientAudioFrame(77, [1, 2, 3]);
+    var datagram = VoiceProtocol.CreateUdpClientAudioFrame(token, clientFrame);
+    Assert(
+        VoiceProtocol.TryReadAuthenticatedUdpFrame(
+            datagram,
+            VoiceProtocol.UdpClientAudioFrame,
+            out var decodedToken,
+            out var decodedFrame),
+        "UDP audio frame was rejected.");
+    Assert(decodedToken.SequenceEqual(token), "UDP token changed during framing.");
+    Assert(decodedFrame.SequenceEqual(clientFrame), "UDP payload changed during framing.");
+    Assert(
+        !VoiceProtocol.TryReadAuthenticatedUdpFrame(
+            datagram,
+            VoiceProtocol.UdpRegisterFrame,
+            out _,
+            out _),
+        "UDP audio frame was accepted as a registration.");
+}
+
+static void TestOpusLossRecovery()
+{
+    var encoder = OpusCodecFactory.CreateEncoder(
+        VoiceProtocol.SampleRate,
+        VoiceProtocol.Channels,
+        OpusApplication.OPUS_APPLICATION_VOIP);
+    encoder.UseInbandFEC = true;
+    encoder.PacketLossPercent = 20;
+    var decoder = OpusCodecFactory.CreateDecoder(VoiceProtocol.SampleRate, VoiceProtocol.Channels);
+    var packets = new List<byte[]>();
+    var pcm = new short[VoiceProtocol.SamplesPerFrame];
+    var encoded = new byte[VoiceProtocol.MaximumOpusPacketBytes];
+    for (var frameIndex = 0; frameIndex < 8; frameIndex++)
+    {
+        for (var sampleIndex = 0; sampleIndex < pcm.Length; sampleIndex++)
+        {
+            pcm[sampleIndex] = (short)(
+                Math.Sin((frameIndex * pcm.Length + sampleIndex) * 0.04) * 4000);
+        }
+
+        var length = encoder.Encode(pcm, pcm.Length, encoded, encoded.Length);
+        packets.Add(encoded.AsSpan(0, length).ToArray());
+    }
+
+    Span<short> output = stackalloc short[VoiceProtocol.SamplesPerFrame];
+    for (var index = 0; index < 4; index++)
+    {
+        decoder.Decode(packets[index], output, output.Length, false);
+    }
+
+    var fecSamples = decoder.Decode(packets[5], output, output.Length, true);
+    Assert(fecSamples == VoiceProtocol.SamplesPerFrame, "Opus FEC did not recover a missing frame.");
+    decoder.Decode(packets[5], output, output.Length, false);
+    var plcSamples = decoder.Decode([], output, output.Length, false);
+    Assert(plcSamples == VoiceProtocol.SamplesPerFrame, "Opus PLC did not conceal a missing frame.");
+}
+
+static void TestWebRtcAudioProcessing()
+{
+    using var processor = new WebRtcAudioProcessor();
+    var capture = new short[VoiceProtocol.SamplesPerFrame];
+    var render = new float[VoiceProtocol.SampleRate / 100];
+    processor.AnalyzeRender(render);
+    processor.ProcessCapture(capture);
+    Assert(capture.All(sample => sample == 0), "WebRTC APM changed a silent capture frame.");
 }
 
 static void TestDmBooleanJson()
@@ -76,7 +153,7 @@ static void TestHelperFeatureVersion()
     {
         FeatureVersion = VoiceProtocol.HelperFeatureVersion,
     };
-    Assert(currentStatus.FeatureVersion == 2, "Current helper feature version changed.");
+    Assert(currentStatus.FeatureVersion == 3, "Current helper feature version changed.");
 }
 
 static void TestLaunchUri()
@@ -129,6 +206,8 @@ static async Task TestRelayTokensAsync()
                     VoiceActivationThreshold = 150,
                     OutputTestSequence = 3,
                     MicrophoneTestSequence = 4,
+                    CalibrationSequence = 5,
+                    CalibrationRequested = true,
                     Position = new VoicePosition { X = 1, Y = 2, Z = 3 },
                     PushToTalkKeys = ["Space"],
                 },
@@ -158,6 +237,8 @@ static async Task TestRelayTokensAsync()
                     VoiceActivationThreshold = 150,
                     OutputTestSequence = 3,
                     MicrophoneTestSequence = 4,
+                    CalibrationSequence = 5,
+                    CalibrationRequested = true,
                 },
             ],
         },
@@ -172,6 +253,8 @@ static async Task TestRelayTokensAsync()
     Assert(helperConfig.VoiceActivationThreshold == 100, "Voice activation threshold was not clamped.");
     Assert(helperConfig.OutputTestSequence == 3, "Output test request was not forwarded.");
     Assert(helperConfig.MicrophoneTestSequence == 4, "Microphone test request was not forwarded.");
+    Assert(helperConfig.CalibrationSequence == 5, "Calibration request was not forwarded.");
+    Assert(helperConfig.CalibrationRequested, "Calibration pending state was not forwarded.");
     Assert(!relay.TryConsumeToken(sessionResponse.ConnectToken, out _), "One-time token was accepted twice.");
 }
 

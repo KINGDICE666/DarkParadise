@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(voice_chat)
 	name = "Voice Chat"
-	wait = 1 SECONDS
+	wait = 0.2 SECONDS
 	ss_flags = SS_KEEP_TIMING | SS_BACKGROUND
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
 

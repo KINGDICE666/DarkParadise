@@ -5,8 +5,8 @@ This implementation keeps voice controls inside the game while moving microphone
 ## Components
 
 - `VoiceChat.Protocol` contains the versioned JSON and binary protocol.
-- `VoiceChat.Relay` authenticates game snapshots, issues one-time helper tokens, and routes proximity audio.
-- `VoiceChat.Helper` captures and plays audio through Windows, applies push-to-talk before transmission, and uses Opus at 48 kHz mono with 20 ms frames.
+- `VoiceChat.Relay` authenticates game snapshots, issues one-time helper and UDP tokens, and routes proximity audio.
+- `VoiceChat.Helper` captures and plays audio through Windows, runs WebRTC APM (AEC, NS, AGC), and uses Opus at 48 kHz mono with 20 ms frames.
 - `VoiceChat.Tests` checks framing, launch URI validation, API-key authentication, and one-time tokens without an external test framework.
 
 ## Relay
@@ -65,9 +65,11 @@ VOICE_CHAT_PUBLIC_URL ws://203.0.113.10:3000/v1/connect
 VOICE_CHAT_HELPER_DOWNLOAD_URL http://203.0.113.10:3000/download/windows
 ```
 
-Allow inbound TCP `3000` in Windows Firewall and forward TCP `3000` to the host. Raw `ws://` works but does not encrypt voice traffic; a domain with TLS and `wss://` is recommended for an Internet-facing server.
+Allow inbound **TCP and UDP** `3000` in Windows Firewall and forward both protocols to the host. TCP carries helper setup and control; UDP carries audio. If UDP is blocked by a VPN, NAT, or firewall, the helper automatically falls back to WebSocket audio and shows that state in the in-game panel. Raw `ws://` works but does not encrypt traffic; a domain with TLS and `wss://` is recommended for an Internet-facing server.
 
 Players open **Спецкоманды → Голосовой чат**. The default push-to-talk key is `Space` and can be changed in the normal keybinding preferences.
+
+The in-game panel can switch between push-to-talk and voice activation with an adjustable threshold. A five-second silence calibration measures the processed microphone noise floor and applies a suitable activation threshold. The panel also reports whether WebRTC APM and UDP are active, and includes a short output tone and a five-second local microphone monitor. Device tests and calibration suppress transmission to other players; headphones are recommended for microphone monitoring.
 
 ## Verification
 
