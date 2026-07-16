@@ -98,3 +98,9 @@ tools\voice_chat\stop_all.ps1
 ```
 
 `stop_voice_chat.ps1` stops only voice and leaves DreamDaemon running. `stop_all.ps1` stops both the local voice relay and this repository's DreamDaemon instance.
+
+If the ignored `dist` and `runtime` directories were deleted, rebuild, reinstall, start, and verify the complete voice stack with one command:
+
+```powershell
+tools\voice_chat\restore_voice_chat.ps1
+```
