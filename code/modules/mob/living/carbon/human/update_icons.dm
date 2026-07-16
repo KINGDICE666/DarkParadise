@@ -567,8 +567,9 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 		var/acc_state_type = accessory.item_state ? accessory.item_state : accessory.icon_state
 		var/mutable_appearance/acc_olay = mutable_appearance(accessory.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING], acc_state_type, alpha = accessory.alpha)
 		acc_olay.color = accessory.color
-		if(accessory.sprite_sheets?[dna.species.name])
-			acc_olay.icon = accessory.sprite_sheets[dna.species.name]
+		var/species_icon = accessory.sprite_sheets?[dna?.species?.name]
+		if(species_icon)
+			acc_olay.icon = species_icon
 		uniform_overlay.overlays += acc_olay
 
 	// over_uniform body marks
@@ -872,7 +873,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 
 	var/override_icon_state
 	if(alternate_head)
-		var/icon/icon_file = wear_mask.sprite_sheets?[dna.species.name] || wear_mask.onmob_sheets[ITEM_SLOT_MASK_STRING]
+		var/icon/icon_file = wear_mask.sprite_sheets?[dna?.species?.name] || wear_mask.onmob_sheets[ITEM_SLOT_MASK_STRING]
 		var/alt_icon_state = "[wear_mask.icon_state]_[alternate_head.suffix]"
 		override_icon_state = icon_exists(icon_file, alt_icon_state) ? alt_icon_state : null
 
@@ -977,7 +978,12 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 					accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
 			if(tail_marking_icon && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 				accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
-			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
+			if(bodypart_tail.body_accessory.render_behind_body)
+				var/mutable_appearance/underlimbs = mutable_appearance(accessory_s, layer = -TAIL_UNDERLIMBS_LAYER)
+				underlimbs.pixel_w = bodypart_tail.body_accessory.pixel_x_offset
+				underlimbs.pixel_z = bodypart_tail.body_accessory.pixel_y_offset
+				overlays_standing[TAIL_UNDERLIMBS_LAYER] = underlimbs
+			else if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 				var/icon/under = new/icon("icon" = 'icons/mob/clothing/body_accessory.dmi', "icon_state" = "accessory_none_s")
 				under.Insert(new/icon(accessory_s, dir=SOUTH), dir=SOUTH)
@@ -1083,7 +1089,12 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 				accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
 		if(tail_marking_icon && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 			accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
-		if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
+		if(bodypart_tail.body_accessory.render_behind_body)
+			var/mutable_appearance/underlimbs = mutable_appearance(accessory_s, layer = -TAIL_UNDERLIMBS_LAYER)
+			underlimbs.pixel_w = bodypart_tail.body_accessory.pixel_x_offset
+			underlimbs.pixel_z = bodypart_tail.body_accessory.pixel_y_offset
+			overlays_standing[TAIL_UNDERLIMBS_LAYER] = underlimbs
+		else if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 			// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 			var/icon/under = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[bodypart_tail.dna.species.name]_tail_delay")
 			under.Insert(new/icon(accessory_s, dir=SOUTH), dir=SOUTH)
@@ -1350,7 +1361,7 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	var/mob/living/carbon/wearer = loc
 	var/species
 	if(istype(wearer))
-		species = wearer?.dna?.species.name
+		species = wearer?.dna?.species?.name
 
 	//Find a valid icon_state from variables+arguments
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
@@ -1387,4 +1398,3 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	standing.color = color
 
 	return standing
-
