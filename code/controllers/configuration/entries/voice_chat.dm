@@ -7,6 +7,9 @@
 /datum/config_entry/string/voice_chat_public_url
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
 
+/datum/config_entry/string/voice_chat_helper_download_url
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
 /datum/config_entry/string/voice_chat_api_key
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
 
@@ -19,4 +22,3 @@
 	min_val = 1
 	max_val = 15
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
-

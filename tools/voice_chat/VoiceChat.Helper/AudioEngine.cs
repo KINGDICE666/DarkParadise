@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Concentus;
 using Concentus.Enums;
 using NAudio;
@@ -10,6 +11,10 @@ namespace VoiceChat.Helper;
 public sealed class AudioEngine : IDisposable
 {
     private const int PcmBytesPerFrame = VoiceProtocol.SamplesPerFrame * sizeof(short);
+    private const int VoiceActivationHoldMilliseconds = 600;
+    private const int MicrophoneTestSeconds = 5;
+    private const double OutputTestFrequency = 660;
+    private const double OutputTestGain = 0.2;
 
     private readonly object gate = new();
     private readonly IOpusEncoder encoder = OpusCodecFactory.CreateEncoder(
@@ -22,11 +27,18 @@ public sealed class AudioEngine : IDisposable
     private WaveInEvent? capture;
     private WaveOutEvent? output;
     private MixingSampleProvider? mixer;
+    private BufferedWaveProvider? microphoneMonitor;
+    private VolumeSampleProvider? microphoneMonitorVolume;
     private int pendingPcmCount;
     private bool pushToTalkPressed;
+    private bool testSequencesInitialized;
     private string activeInputDevice = string.Empty;
     private string activeOutputDevice = string.Empty;
     private int inputLevel;
+    private int lastOutputTestSequence;
+    private int lastMicrophoneTestSequence;
+    private long voiceActivationUntilTimestamp;
+    private long microphoneTestUntilTimestamp;
     private string error = string.Empty;
 
     public AudioEngine()
@@ -74,7 +86,19 @@ public sealed class AudioEngine : IDisposable
         {
             config = value;
             error = string.Empty;
-            if (value.CanSpeak)
+            var outputTestRequested = testSequencesInitialized &&
+                value.OutputTestSequence != lastOutputTestSequence;
+            var microphoneTestRequested = testSequencesInitialized &&
+                value.MicrophoneTestSequence != lastMicrophoneTestSequence;
+            lastOutputTestSequence = value.OutputTestSequence;
+            lastMicrophoneTestSequence = value.MicrophoneTestSequence;
+            testSequencesInitialized = true;
+            if (!value.VoiceActivationEnabled)
+            {
+                voiceActivationUntilTimestamp = 0;
+            }
+
+            if (value.CanSpeak || microphoneTestRequested || IsMicrophoneTestActive())
             {
                 try
                 {
@@ -89,7 +113,8 @@ public sealed class AudioEngine : IDisposable
             {
                 StopCapture();
             }
-            if (value.CanListen)
+            if (value.CanListen || outputTestRequested || microphoneTestRequested ||
+                IsMicrophoneTestActive())
             {
                 try
                 {
@@ -102,6 +127,15 @@ public sealed class AudioEngine : IDisposable
                         : $"{error}; устройство вывода: {exception.Message}";
                 }
             }
+            if (microphoneTestRequested && capture is not null && mixer is not null)
+            {
+                StartMicrophoneTest();
+            }
+            if (outputTestRequested && mixer is not null)
+            {
+                PlayOutputTest();
+            }
+            UpdateMicrophoneMonitorVolume();
             UpdateSpeakerVolumes();
         }
     }
@@ -149,6 +183,8 @@ public sealed class AudioEngine : IDisposable
             output?.Dispose();
             capture = null;
             output = null;
+            microphoneMonitor = null;
+            microphoneMonitorVolume = null;
             speakers.Clear();
         }
     }
@@ -191,6 +227,8 @@ public sealed class AudioEngine : IDisposable
         capture = null;
         activeInputDevice = string.Empty;
         pendingPcmCount = 0;
+        voiceActivationUntilTimestamp = 0;
+        microphoneTestUntilTimestamp = 0;
         Volatile.Write(ref inputLevel, 0);
     }
 
@@ -218,6 +256,15 @@ public sealed class AudioEngine : IDisposable
         {
             ReadFully = true,
         };
+        microphoneMonitor = new BufferedWaveProvider(
+            new WaveFormat(VoiceProtocol.SampleRate, 16, VoiceProtocol.Channels))
+        {
+            BufferDuration = TimeSpan.FromMilliseconds(240),
+            DiscardOnBufferOverflow = true,
+            ReadFully = true,
+        };
+        microphoneMonitorVolume = new VolumeSampleProvider(microphoneMonitor.ToSampleProvider());
+        mixer.AddMixerInput(microphoneMonitorVolume);
         output = new WaveOutEvent
         {
             DeviceNumber = deviceNumber,
@@ -233,6 +280,11 @@ public sealed class AudioEngine : IDisposable
         lock (gate)
         {
             UpdateInputLevel(eventArgs.Buffer.AsSpan(0, eventArgs.BytesRecorded));
+            UpdateVoiceActivation();
+            if (IsMicrophoneTestActive())
+            {
+                microphoneMonitor?.AddSamples(eventArgs.Buffer, 0, eventArgs.BytesRecorded);
+            }
             if (!ShouldTransmit())
             {
                 pendingPcmCount = 0;
@@ -287,12 +339,76 @@ public sealed class AudioEngine : IDisposable
             peak = Math.Max(peak, sample);
         }
 
-        Volatile.Write(ref inputLevel, Math.Clamp(peak * 100 / short.MaxValue, 0, 100));
+        var gainedPeak = peak * (config?.InputGain ?? 100) / 100;
+        Volatile.Write(ref inputLevel, Math.Clamp(gainedPeak * 100 / short.MaxValue, 0, 100));
     }
 
     private bool ShouldTransmit()
     {
-        return pushToTalkPressed && config is { CanSpeak: true, Muted: false };
+        if (config is not { CanSpeak: true, Muted: false } || IsMicrophoneTestActive())
+        {
+            return false;
+        }
+
+        return config.VoiceActivationEnabled
+            ? Stopwatch.GetTimestamp() <= voiceActivationUntilTimestamp
+            : pushToTalkPressed;
+    }
+
+    private void UpdateVoiceActivation()
+    {
+        if (config is not { VoiceActivationEnabled: true } ||
+            InputLevel < config.VoiceActivationThreshold)
+        {
+            return;
+        }
+
+        voiceActivationUntilTimestamp = Stopwatch.GetTimestamp() +
+            VoiceActivationHoldMilliseconds * Stopwatch.Frequency / 1000;
+    }
+
+    private bool IsMicrophoneTestActive()
+    {
+        return Stopwatch.GetTimestamp() <= microphoneTestUntilTimestamp;
+    }
+
+    private void StartMicrophoneTest()
+    {
+        microphoneMonitor?.ClearBuffer();
+        microphoneTestUntilTimestamp = Stopwatch.GetTimestamp() +
+            MicrophoneTestSeconds * Stopwatch.Frequency;
+    }
+
+    private void UpdateMicrophoneMonitorVolume()
+    {
+        if (microphoneMonitorVolume is null || config is null)
+        {
+            return;
+        }
+
+        microphoneMonitorVolume.Volume = Math.Clamp(
+            config.InputGain / 100f * config.OutputVolume / 100f,
+            0,
+            1);
+    }
+
+    private void PlayOutputTest()
+    {
+        var signal = new SignalGenerator(VoiceProtocol.SampleRate, VoiceProtocol.Channels)
+        {
+            Frequency = OutputTestFrequency,
+            Gain = OutputTestGain,
+            Type = SignalGeneratorType.Sin,
+        };
+        var duration = new OffsetSampleProvider(signal)
+        {
+            Take = TimeSpan.FromMilliseconds(700),
+        };
+        var volume = new VolumeSampleProvider(duration)
+        {
+            Volume = Math.Clamp((config?.OutputVolume ?? 100) / 100f, 0, 1),
+        };
+        mixer!.AddMixerInput(volume);
     }
 
     private SpeakerPlayback CreateSpeaker(Guid speakerId)

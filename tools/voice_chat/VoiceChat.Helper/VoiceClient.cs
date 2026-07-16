@@ -117,6 +117,7 @@ public sealed class VoiceClient : IAsyncDisposable
         {
             var status = new HelperStatusMessage
             {
+                FeatureVersion = VoiceProtocol.HelperFeatureVersion,
                 Speaking = audio.Speaking,
                 InputLevel = audio.InputLevel,
                 Error = audio.Error,

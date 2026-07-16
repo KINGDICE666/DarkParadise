@@ -4,11 +4,17 @@
 	var/status = VOICE_CHAT_STATUS_DISCONNECTED
 	var/status_error = ""
 	var/connect_token = ""
+	var/helper_feature_version = 0
+	var/helper_launch_url = ""
+	var/helper_relay_url = ""
+	var/helper_download_url = ""
+	var/is_local_connection = FALSE
 	var/wants_connection = FALSE
-	var/pending_launch = FALSE
 	var/muted = FALSE
 	var/deafened = FALSE
 	var/push_to_talk_pressed = FALSE
+	var/transmission_mode = VOICE_CHAT_TRANSMISSION_PUSH_TO_TALK
+	var/voice_activation_threshold = VOICE_CHAT_DEFAULT_ACTIVATION_THRESHOLD
 	var/input_gain = VOICE_CHAT_DEFAULT_INPUT_GAIN
 	var/output_volume = VOICE_CHAT_DEFAULT_OUTPUT_VOLUME
 	var/input_device_id = ""
@@ -17,12 +23,23 @@
 	var/list/output_devices = list()
 	var/list/peer_volumes = list()
 	var/list/muted_peers = list()
+	var/output_test_sequence = 0
+	var/microphone_test_sequence = 0
 	var/speaking = FALSE
 	var/input_level = 0
 
 /datum/voice_chat_client/New(client/new_owner)
 	owner = new_owner
 	session_id = md5("[world.realtime]-[world.time]-[rand(1, 1e9)]-[owner?.ckey]")
+	is_local_connection = owner?.address == VOICE_CHAT_LOOPBACK_IPV4 || owner?.address == VOICE_CHAT_LOOPBACK_IPV6
+	helper_relay_url = CONFIG_GET(string/voice_chat_public_url)
+	helper_download_url = CONFIG_GET(string/voice_chat_helper_download_url)
+	if(is_local_connection)
+		helper_relay_url = CONFIG_GET(string/voice_chat_relay_url)
+		helper_relay_url = replacetext_char(helper_relay_url, VOICE_CHAT_HTTP_PREFIX, VOICE_CHAT_WS_PREFIX)
+		helper_relay_url = replacetext_char(helper_relay_url, VOICE_CHAT_HTTPS_PREFIX, VOICE_CHAT_WSS_PREFIX)
+		helper_relay_url += VOICE_CHAT_CONNECT_PATH
+		helper_download_url = "[CONFIG_GET(string/voice_chat_relay_url)][VOICE_CHAT_DOWNLOAD_PATH]"
 	if(CONFIG_GET(flag/voice_chat_enabled) && SSvoice_chat?.can_fire)
 		SSvoice_chat.register_session(src)
 	else
@@ -63,10 +80,15 @@
 	data["error"] = status_error
 	data["connected"] = status == VOICE_CHAT_STATUS_CONNECTED
 	data["wants_connection"] = wants_connection
+	data["helper_download_available"] = !!helper_download_url
+	data["helper_launch_url"] = helper_launch_url
+	data["helper_feature_version"] = helper_feature_version
 	data["muted"] = muted
 	data["deafened"] = deafened
 	data["ptt_pressed"] = push_to_talk_pressed
 	data["ptt_keys"] = get_push_to_talk_keys()
+	data["transmission_mode"] = transmission_mode
+	data["voice_activation_threshold"] = voice_activation_threshold
 	data["input_gain"] = input_gain
 	data["output_volume"] = output_volume
 	data["input_level"] = input_level
@@ -87,6 +109,10 @@
 
 	. = TRUE
 	switch(action)
+		if("download_helper")
+			if(!helper_download_url)
+				return FALSE
+			owner << link(helper_download_url)
 		if("connect")
 			connect()
 		if("disconnect")
@@ -96,6 +122,30 @@
 			SSvoice_chat.synchronize()
 		if("toggle_deafen")
 			deafened = !deafened
+			SSvoice_chat.synchronize()
+		if("transmission_mode")
+			var/new_mode = params["mode"]
+			if(helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION || (new_mode != VOICE_CHAT_TRANSMISSION_PUSH_TO_TALK && new_mode != VOICE_CHAT_TRANSMISSION_VOICE_ACTIVATION))
+				return FALSE
+			transmission_mode = new_mode
+			SSvoice_chat.synchronize()
+		if("voice_activation_threshold")
+			if(helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION)
+				return FALSE
+			var/new_threshold = text2num(params["value"])
+			if(isnull(new_threshold))
+				return FALSE
+			voice_activation_threshold = clamp(round(new_threshold), VOICE_CHAT_MIN_ACTIVATION_THRESHOLD, VOICE_CHAT_MAX_ACTIVATION_THRESHOLD)
+			SSvoice_chat.synchronize()
+		if("output_test")
+			if(status != VOICE_CHAT_STATUS_CONNECTED || helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION || !length(output_devices))
+				return FALSE
+			output_test_sequence++
+			SSvoice_chat.synchronize()
+		if("microphone_test")
+			if(status != VOICE_CHAT_STATUS_CONNECTED || helper_feature_version < VOICE_CHAT_HELPER_FEATURE_VERSION || !length(input_devices) || !length(output_devices))
+				return FALSE
+			microphone_test_sequence++
 			SSvoice_chat.synchronize()
 		if("input_gain")
 			var/new_gain = text2num(params["value"])
@@ -127,15 +177,18 @@
 		status = VOICE_CHAT_STATUS_DISABLED
 		return
 	wants_connection = TRUE
-	pending_launch = TRUE
+	connect_token = ""
+	helper_feature_version = 0
+	helper_launch_url = ""
 	status = VOICE_CHAT_STATUS_CONNECTING
 	status_error = ""
 	SSvoice_chat.synchronize()
 
 /datum/voice_chat_client/proc/disconnect()
 	wants_connection = FALSE
-	pending_launch = FALSE
 	connect_token = ""
+	helper_feature_version = 0
+	helper_launch_url = ""
 	status = VOICE_CHAT_STATUS_DISCONNECTED
 	status_error = ""
 	speaking = FALSE
@@ -167,6 +220,10 @@
 		"deafened" = deafened,
 		"push_to_talk_pressed" = push_to_talk_pressed,
 		"push_to_talk_keys" = get_push_to_talk_keys(),
+		"voice_activation_enabled" = transmission_mode == VOICE_CHAT_TRANSMISSION_VOICE_ACTIVATION,
+		"voice_activation_threshold" = voice_activation_threshold,
+		"output_test_sequence" = output_test_sequence,
+		"microphone_test_sequence" = microphone_test_sequence,
 		"input_gain" = input_gain,
 		"output_volume" = output_volume,
 		"input_device_id" = input_device_id,
@@ -232,16 +289,18 @@
 	status_error = copytext_char("[data["error"]]", 1, VOICE_CHAT_MAX_ERROR_LENGTH + 1)
 	speaking = !!data["speaking"]
 	input_level = clamp(text2num(data["input_level"]), 0, 100)
+	helper_feature_version = max(0, round(text2num(data["helper_feature_version"])))
 	input_devices = sanitize_devices(data["input_devices"])
 	output_devices = sanitize_devices(data["output_devices"])
 	if(!input_device_id)
 		input_device_id = get_default_device(input_devices)
 	if(!output_device_id)
 		output_device_id = get_default_device(output_devices)
-	if(data["connect_token"])
+	if(data["connect_token"] && data["connect_token"] != connect_token)
 		connect_token = copytext_char("[data["connect_token"]]", 1, VOICE_CHAT_MAX_TOKEN_LENGTH + 1)
-	if(pending_launch && connect_token)
-		launch_helper()
+		var/relay_url = url_encode(helper_relay_url)
+		var/token = url_encode(connect_token)
+		helper_launch_url = "[VOICE_CHAT_HELPER_BROKER_URL]?relay=[relay_url]&token=[token]&protocol=[VOICE_CHAT_PROTOCOL_VERSION]"
 
 /datum/voice_chat_client/proc/set_relay_unavailable(error)
 	if(!wants_connection)
@@ -250,15 +309,6 @@
 	status_error = copytext_char("[error]", 1, VOICE_CHAT_MAX_ERROR_LENGTH + 1)
 	speaking = FALSE
 	input_level = 0
-
-/datum/voice_chat_client/proc/launch_helper()
-	if(!owner || !connect_token)
-		return
-	pending_launch = FALSE
-	var/scheme = CONFIG_GET(string/voice_chat_uri_scheme)
-	var/relay_url = url_encode(CONFIG_GET(string/voice_chat_public_url))
-	var/token = url_encode(connect_token)
-	owner << link("[scheme]://connect?relay=[relay_url]&token=[token]&session=[session_id]&protocol=[VOICE_CHAT_PROTOCOL_VERSION]")
 
 /datum/voice_chat_client/proc/sanitize_devices(list/devices)
 	var/list/result = list()

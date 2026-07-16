@@ -6,6 +6,7 @@ namespace VoiceChat.Protocol;
 public static class VoiceProtocol
 {
     public const int Version = 1;
+    public const int HelperFeatureVersion = 2;
     public const int SampleRate = 48000;
     public const int Channels = 1;
     public const int FrameMilliseconds = 20;
@@ -17,6 +18,7 @@ public static class VoiceProtocol
     public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        Converters = { new DmBooleanJsonConverter() },
     };
 
     public static byte[] CreateClientAudioFrame(uint sequence, ReadOnlySpan<byte> opusPacket)
@@ -93,6 +95,10 @@ public sealed record GameSessionSnapshot
     public bool Deafened { get; init; }
     public bool PushToTalkPressed { get; init; }
     public List<string> PushToTalkKeys { get; init; } = [];
+    public bool VoiceActivationEnabled { get; init; }
+    public int VoiceActivationThreshold { get; init; } = 15;
+    public int OutputTestSequence { get; init; }
+    public int MicrophoneTestSequence { get; init; }
     public int InputGain { get; init; } = 100;
     public int OutputVolume { get; init; } = 100;
     public string InputDeviceId { get; init; } = string.Empty;
@@ -115,6 +121,7 @@ public sealed record RelaySessionResponse
     public string ConnectToken { get; init; } = string.Empty;
     public bool Speaking { get; init; }
     public int InputLevel { get; init; }
+    public int HelperFeatureVersion { get; init; }
     public List<VoiceDevice> InputDevices { get; init; } = [];
     public List<VoiceDevice> OutputDevices { get; init; } = [];
 }
@@ -135,6 +142,7 @@ public sealed record PeerVolume
 public sealed record HelperStatusMessage
 {
     public string Type { get; init; } = "status";
+    public int FeatureVersion { get; init; }
     public bool Speaking { get; init; }
     public int InputLevel { get; init; }
     public string Error { get; init; } = string.Empty;
@@ -152,6 +160,10 @@ public sealed record HelperConfigMessage
     public bool Muted { get; init; }
     public bool Deafened { get; init; }
     public List<string> PushToTalkKeys { get; init; } = [];
+    public bool VoiceActivationEnabled { get; init; }
+    public int VoiceActivationThreshold { get; init; } = 15;
+    public int OutputTestSequence { get; init; }
+    public int MicrophoneTestSequence { get; init; }
     public int InputGain { get; init; }
     public int OutputVolume { get; init; }
     public string InputDeviceId { get; init; } = string.Empty;

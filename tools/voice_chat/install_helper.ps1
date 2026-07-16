@@ -11,4 +11,8 @@ New-Item -Path "$schemePath\DefaultIcon" -Force | Out-Null
 Set-ItemProperty -Path "$schemePath\DefaultIcon" -Name '(Default)' -Value "`"$resolvedExecutable`",0"
 New-Item -Path "$schemePath\shell\open\command" -Force | Out-Null
 Set-ItemProperty -Path "$schemePath\shell\open\command" -Name '(Default)' -Value "`"$resolvedExecutable`" `"%1`""
-Write-Host "Paradise Voice Helper registered for the current Windows user."
+$runPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+New-Item -Path $runPath -Force | Out-Null
+Set-ItemProperty -Path $runPath -Name 'ParadiseVoiceHelper' -Value "`"$resolvedExecutable`" --broker"
+Start-Process -FilePath $resolvedExecutable -ArgumentList '--broker' -WindowStyle Hidden
+Write-Host "Paradise Voice Helper registered and started for the current Windows user."

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useBackend } from '../backend';
 import {
   Box,
@@ -34,10 +35,15 @@ type VoiceChatData = {
   error: string;
   connected: boolean;
   wants_connection: boolean;
+  helper_download_available: boolean;
+  helper_launch_url: string;
+  helper_feature_version: number;
   muted: boolean;
   deafened: boolean;
   ptt_pressed: boolean;
   ptt_keys: string[];
+  transmission_mode: 'push_to_talk' | 'voice_activation';
+  voice_activation_threshold: number;
   input_gain: number;
   output_volume: number;
   input_level: number;
@@ -73,15 +79,30 @@ const deviceOptions = (devices: VoiceDevice[]) =>
     value: device.id,
   }));
 
+const launchHelper = (url: string) => {
+  void fetch(url, {
+    cache: 'no-store',
+    mode: 'no-cors',
+  }).catch(() => undefined);
+};
+
 export const VoiceChat = (_properties: unknown) => {
   const { act, data } = useBackend<VoiceChatData>();
   const status = statusAppearance(data.status);
+  const helperFeaturesAvailable = data.helper_feature_version >= 2;
+  const voiceActivation = data.transmission_mode === 'voice_activation';
   const pttLabel = data.ptt_keys.length
     ? data.ptt_keys.join(' + ')
     : 'не назначена';
 
+  useEffect(() => {
+    if (data.helper_launch_url) {
+      launchHelper(data.helper_launch_url);
+    }
+  }, [data.helper_launch_url]);
+
   return (
-    <Window width={560} height={670} theme="ntos">
+    <Window width={580} height={760} theme="ntos">
       <Window.Content scrollable>
         <Section
           title={
@@ -97,33 +118,58 @@ export const VoiceChat = (_properties: unknown) => {
             </Stack>
           }
           buttons={
-            data.connected || data.wants_connection ? (
-              <Button
-                icon="plug-circle-xmark"
-                color="bad"
-                onClick={() => act('disconnect')}
-              >
-                Отключиться
-              </Button>
-            ) : (
-              <Button
-                icon="plug"
-                color="good"
-                disabled={!data.enabled}
-                onClick={() => act('connect')}
-              >
-                Подключиться
-              </Button>
-            )
+            <>
+              {data.helper_download_available && (
+                <Button icon="download" onClick={() => act('download_helper')}>
+                  Установить helper
+                </Button>
+              )}
+              {data.wants_connection &&
+                !data.connected &&
+                data.helper_launch_url && (
+                  <Button
+                    icon="play"
+                    color="average"
+                    onClick={() => launchHelper(data.helper_launch_url)}
+                  >
+                    Запустить helper
+                  </Button>
+                )}
+              {data.connected || data.wants_connection ? (
+                <Button
+                  icon="plug-circle-xmark"
+                  color="bad"
+                  onClick={() => act('disconnect')}
+                >
+                  Отключиться
+                </Button>
+              ) : (
+                <Button
+                  icon="plug"
+                  color="good"
+                  disabled={!data.enabled}
+                  onClick={() => act('connect')}
+                >
+                  Подключиться
+                </Button>
+              )}
+            </>
           }
         >
           {data.error && <NoticeBox danger>{data.error}</NoticeBox>}
+          {data.connected && !helperFeaturesAvailable && (
+            <NoticeBox warning>
+              Helper устарел. Установите новую версию, чтобы использовать
+              проверку звука и активацию по голосу.
+            </NoticeBox>
+          )}
           {!data.enabled ? (
             <NoticeBox>Голосовой чат отключён в конфигурации сервера.</NoticeBox>
           ) : (
             <Box color="label">
-              Звук обрабатывает локальный Paradise Voice Helper. После нажатия
-              «Подключиться» игра запустит его автоматически.
+              Звук обрабатывает локальный Paradise Voice Helper. Установите его
+              один раз. Если автоматический запуск заблокирован, используйте
+              кнопку «Запустить helper».
             </Box>
           )}
         </Section>
@@ -159,7 +205,33 @@ export const VoiceChat = (_properties: unknown) => {
           </Stack>
         </Section>
 
-        <Section title="Push-to-talk">
+        <Section
+          title="Передача голоса"
+          buttons={
+            <>
+              <Button
+                icon="keyboard"
+                selected={!voiceActivation}
+                disabled={!data.connected || !helperFeaturesAvailable}
+                onClick={() =>
+                  act('transmission_mode', { mode: 'push_to_talk' })
+                }
+              >
+                Push-to-talk
+              </Button>
+              <Button
+                icon="wave-square"
+                selected={voiceActivation}
+                disabled={!data.connected || !helperFeaturesAvailable}
+                onClick={() =>
+                  act('transmission_mode', { mode: 'voice_activation' })
+                }
+              >
+                По голосу
+              </Button>
+            </>
+          }
+        >
           <Stack align="center">
             <Stack.Item>
               <Box
@@ -181,13 +253,27 @@ export const VoiceChat = (_properties: unknown) => {
               <Box fontSize="1.2rem" bold>
                 {data.speaking
                   ? 'Вас слышно'
-                  : data.ptt_pressed
+                  : !voiceActivation && data.ptt_pressed
                     ? 'Клавиша нажата'
-                    : 'Ожидание'}
+                    : voiceActivation
+                      ? 'Ожидание голоса'
+                      : 'Ожидание'}
               </Box>
               <Box color="label" mt={0.5}>
-                Удерживайте <Box as="span" bold color="white">{pttLabel}</Box>,
-                чтобы говорить. Клавиша меняется в настройках управления.
+                {voiceActivation ? (
+                  <>
+                    Канал открывается автоматически, когда голос становится
+                    громче выбранного порога.
+                  </>
+                ) : (
+                  <>
+                    Удерживайте{' '}
+                    <Box as="span" bold color="white">
+                      {pttLabel}
+                    </Box>
+                    , чтобы говорить. Клавиша меняется в настройках управления.
+                  </>
+                )}
               </Box>
               {!data.can_speak && (
                 <Box color="bad" mt={0.5}>
@@ -196,6 +282,36 @@ export const VoiceChat = (_properties: unknown) => {
               )}
             </Stack.Item>
           </Stack>
+          {voiceActivation && (
+            <>
+              <Stack align="center" mt={1}>
+                <Stack.Item width="120px" color="label">
+                  Порог активации
+                </Stack.Item>
+                <Stack.Item grow>
+                  <Slider
+                    minValue={1}
+                    maxValue={100}
+                    value={data.voice_activation_threshold}
+                    unit="%"
+                    onChange={(_event, value) =>
+                      act('voice_activation_threshold', { value })
+                    }
+                  />
+                </Stack.Item>
+              </Stack>
+              <ProgressBar
+                mt={0.5}
+                value={data.input_level}
+                minValue={0}
+                maxValue={100}
+                color={data.speaking ? 'good' : 'average'}
+              >
+                Уровень {data.input_level}% · порог{' '}
+                {data.voice_activation_threshold}%
+              </ProgressBar>
+            </>
+          )}
         </Section>
 
         <Section title="Устройства и уровни">
@@ -234,6 +350,24 @@ export const VoiceChat = (_properties: unknown) => {
           >
             Уровень микрофона
           </ProgressBar>
+          <Button
+            fluid
+            mt={0.75}
+            icon="microphone-lines"
+            disabled={
+              !data.connected ||
+              !helperFeaturesAvailable ||
+              !data.input_devices.length ||
+              !data.output_devices.length
+            }
+            onClick={() => act('microphone_test')}
+          >
+            Прослушать микрофон — 5 секунд
+          </Button>
+          <Box color="label" mt={0.5}>
+            Во время теста голос слышите только вы. Используйте наушники, чтобы
+            избежать эха.
+          </Box>
 
           <Box color="label" mt={1.5} mb={0.5}>
             <Icon name="headphones" /> Устройство вывода
@@ -261,6 +395,19 @@ export const VoiceChat = (_properties: unknown) => {
               />
             </Stack.Item>
           </Stack>
+          <Button
+            fluid
+            mt={0.75}
+            icon="volume-high"
+            disabled={
+              !data.connected ||
+              !helperFeaturesAvailable ||
+              !data.output_devices.length
+            }
+            onClick={() => act('output_test')}
+          >
+            Проверить устройство вывода
+          </Button>
         </Section>
 
         <Section

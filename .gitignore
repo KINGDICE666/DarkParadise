@@ -72,6 +72,7 @@ stddef.dm
 /tools/voice_chat/**/bin/
 /tools/voice_chat/**/obj/
 /tools/voice_chat/dist/
+/tools/voice_chat/runtime/
 
 # ignore midi2piano build cache
 /tools/midi2piano/midi2piano/obj/*

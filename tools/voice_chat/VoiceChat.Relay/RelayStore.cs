@@ -12,6 +12,7 @@ public sealed class RelayStore
     private readonly byte[] apiKey;
     private readonly ConcurrentDictionary<string, ServerState> servers = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, TokenGrant> tokens = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<RelaySession, TokenGrant> sessionTokens = new();
 
     public RelayStore(string apiKey)
     {
@@ -233,11 +234,20 @@ public sealed class RelayStore
 
     private string IssueToken(RelaySession session)
     {
+        var now = DateTimeOffset.UtcNow;
+        if (sessionTokens.TryGetValue(session, out var currentGrant) &&
+            currentGrant.ExpiresAt > now && tokens.ContainsKey(currentGrant.Token))
+        {
+            return currentGrant.Token;
+        }
+
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
             .TrimEnd('=')
             .Replace('+', '-')
             .Replace('/', '_');
-        tokens[token] = new TokenGrant(session, DateTimeOffset.UtcNow.AddSeconds(30));
+        var grant = new TokenGrant(token, session, now.AddSeconds(30));
+        tokens[token] = grant;
+        sessionTokens[session] = grant;
         return token;
     }
 
@@ -253,7 +263,7 @@ public sealed class RelayStore
         }
     }
 
-    private sealed record TokenGrant(RelaySession Session, DateTimeOffset ExpiresAt);
+    private sealed record TokenGrant(string Token, RelaySession Session, DateTimeOffset ExpiresAt);
 }
 
 public sealed class ServerState
@@ -317,6 +327,7 @@ public sealed class RelaySession
             {
                 InputGain = Math.Clamp(value.InputGain, 0, 150),
                 OutputVolume = Math.Clamp(value.OutputVolume, 0, 100),
+                VoiceActivationThreshold = Math.Clamp(value.VoiceActivationThreshold, 1, 100),
                 PushToTalkKeys = value.PushToTalkKeys.Take(8).ToList(),
                 PeerVolumes = value.PeerVolumes
                     .Take(128)
@@ -333,6 +344,7 @@ public sealed class RelaySession
         {
             helperStatus = value with
             {
+                FeatureVersion = Math.Clamp(value.FeatureVersion, 0, VoiceProtocol.HelperFeatureVersion),
                 InputLevel = Math.Clamp(value.InputLevel, 0, 100),
                 Error = value.Error[..Math.Min(value.Error.Length, 256)],
                 InputDevices = value.InputDevices.Take(32).ToList(),
@@ -374,6 +386,10 @@ public sealed class RelaySession
             Muted = value.Muted,
             Deafened = value.Deafened,
             PushToTalkKeys = value.PushToTalkKeys,
+            VoiceActivationEnabled = value.VoiceActivationEnabled,
+            VoiceActivationThreshold = value.VoiceActivationThreshold,
+            OutputTestSequence = value.OutputTestSequence,
+            MicrophoneTestSequence = value.MicrophoneTestSequence,
             InputGain = value.InputGain,
             OutputVolume = value.OutputVolume,
             InputDeviceId = value.InputDeviceId,
@@ -396,6 +412,7 @@ public sealed class RelaySession
                 ConnectToken = connectToken,
                 Speaking = connection is not null && helperStatus.Speaking,
                 InputLevel = connection is not null ? helperStatus.InputLevel : 0,
+                HelperFeatureVersion = connection is not null ? helperStatus.FeatureVersion : 0,
                 InputDevices = helperStatus.InputDevices,
                 OutputDevices = helperStatus.OutputDevices,
             };
@@ -441,7 +458,18 @@ public sealed class RelayConnection
         {
             if (Socket.State is WebSocketState.Open or WebSocketState.CloseReceived)
             {
-                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, cancellationToken);
+                try
+                {
+                    await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, cancellationToken);
+                }
+                catch (WebSocketException)
+                {
+                    // The helper may exit as soon as its session disappears.
+                }
+                catch (ObjectDisposedException)
+                {
+                    // A concurrent receive loop may dispose the socket first.
+                }
             }
         }
         finally
