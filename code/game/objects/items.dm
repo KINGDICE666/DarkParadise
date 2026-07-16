@@ -529,6 +529,8 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 
 /obj/item/proc/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
 	SEND_SIGNAL(src, COMSIG_ITEM_AFTERATTACK, target, user, proximity_flag, modifiers, status)
+	// Mob-side relay (heretic rune drawing etc.). No-op for mobs without listeners.
+	SEND_SIGNAL(user, COMSIG_MOB_ITEM_AFTERATTACK, target, src, proximity_flag, modifiers, status)
 
 /obj/item/attack_hand(mob/user, pickupfireoverride = FALSE)
 	. = ..()
@@ -936,6 +938,12 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 			to_chat(user, span_warning("Неведомая сила не позволяет Вам надеть [declent_ru(ACCUSATIVE)]."))
 		return FALSE
 	return TRUE
+
+/obj/item/proc/contains_pickupable_humanoid_holder()
+	for(var/obj/item/holder/holder in get_all_contents())
+		if(holder.held_mob && HAS_TRAIT(holder.held_mob, TRAIT_SMALL_MOB))
+			return TRUE
+	return FALSE
 
 /**
  * Mob 'M' is attempting to equip this item into the slot passed through as 'slot'. Return `TRUE` if it can do this and `FALSE` if it can't.
