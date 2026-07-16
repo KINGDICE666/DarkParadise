@@ -444,6 +444,10 @@ public sealed class RelaySession
                 InputGain = Math.Clamp(value.InputGain, 0, 150),
                 OutputVolume = Math.Clamp(value.OutputVolume, 0, 100),
                 VoiceActivationThreshold = Math.Clamp(value.VoiceActivationThreshold, 1, 100),
+                NoiseSuppressionLevel = Math.Clamp(
+                    value.NoiseSuppressionLevel,
+                    VoiceProtocol.MinimumNoiseSuppressionLevel,
+                    VoiceProtocol.MaximumNoiseSuppressionLevel),
                 PushToTalkKeys = value.PushToTalkKeys.Take(8).ToList(),
                 PeerVolumes = value.PeerVolumes
                     .Take(128)
@@ -508,6 +512,7 @@ public sealed class RelaySession
             PushToTalkKeys = value.PushToTalkKeys,
             VoiceActivationEnabled = value.VoiceActivationEnabled,
             VoiceActivationThreshold = value.VoiceActivationThreshold,
+            NoiseSuppressionLevel = value.NoiseSuppressionLevel,
             OutputTestSequence = value.OutputTestSequence,
             MicrophoneTestSequence = value.MicrophoneTestSequence,
             CalibrationSequence = value.CalibrationSequence,

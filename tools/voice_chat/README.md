@@ -69,7 +69,7 @@ Allow inbound **TCP and UDP** `3000` in Windows Firewall and forward both protoc
 
 Players open **Спецкоманды → Голосовой чат**. The default push-to-talk key is `Space` and can be changed in the normal keybinding preferences.
 
-The in-game panel can switch between push-to-talk and voice activation with an adjustable threshold. A five-second silence calibration measures the processed microphone noise floor and applies a suitable activation threshold. The panel also reports whether WebRTC APM and UDP are active, and includes a short output tone and a five-second local microphone monitor. Device tests and calibration suppress transmission to other players; headphones are recommended for microphone monitoring.
+The in-game panel can switch between push-to-talk and voice activation with an adjustable threshold. WebRTC noise suppression can be disabled or set from low to very high independently of echo cancellation and automatic gain control. A five-second silence calibration measures the processed microphone noise floor and applies a suitable activation threshold. The panel also reports whether WebRTC APM and UDP are active, and includes a short output tone and a five-second local microphone monitor. Device tests and calibration suppress transmission to other players; headphones are recommended for microphone monitoring.
 
 ## Verification
 

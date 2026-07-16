@@ -105,6 +105,8 @@ static void TestWebRtcAudioProcessing()
     var render = new float[VoiceProtocol.SampleRate / 100];
     processor.AnalyzeRender(render);
     processor.ProcessCapture(capture);
+    processor.SetNoiseSuppressionLevel(VoiceProtocol.MinimumNoiseSuppressionLevel);
+    processor.SetNoiseSuppressionLevel(VoiceProtocol.MaximumNoiseSuppressionLevel);
     Assert(capture.All(sample => sample == 0), "WebRTC APM changed a silent capture frame.");
 }
 
@@ -153,7 +155,7 @@ static void TestHelperFeatureVersion()
     {
         FeatureVersion = VoiceProtocol.HelperFeatureVersion,
     };
-    Assert(currentStatus.FeatureVersion == 3, "Current helper feature version changed.");
+    Assert(currentStatus.FeatureVersion == 4, "Current helper feature version changed.");
 }
 
 static void TestLaunchUri()
@@ -204,6 +206,7 @@ static async Task TestRelayTokensAsync()
                     CanListen = true,
                     VoiceActivationEnabled = true,
                     VoiceActivationThreshold = 150,
+                    NoiseSuppressionLevel = 150,
                     OutputTestSequence = 3,
                     MicrophoneTestSequence = 4,
                     CalibrationSequence = 5,
@@ -235,6 +238,7 @@ static async Task TestRelayTokensAsync()
                     CanListen = true,
                     VoiceActivationEnabled = true,
                     VoiceActivationThreshold = 150,
+                    NoiseSuppressionLevel = 150,
                     OutputTestSequence = 3,
                     MicrophoneTestSequence = 4,
                     CalibrationSequence = 5,
@@ -251,6 +255,9 @@ static async Task TestRelayTokensAsync()
     var helperConfig = session.CreateHelperConfig();
     Assert(helperConfig.VoiceActivationEnabled, "Voice activation was not forwarded to the helper.");
     Assert(helperConfig.VoiceActivationThreshold == 100, "Voice activation threshold was not clamped.");
+    Assert(
+        helperConfig.NoiseSuppressionLevel == VoiceProtocol.MaximumNoiseSuppressionLevel,
+        "Noise suppression level was not clamped.");
     Assert(helperConfig.OutputTestSequence == 3, "Output test request was not forwarded.");
     Assert(helperConfig.MicrophoneTestSequence == 4, "Microphone test request was not forwarded.");
     Assert(helperConfig.CalibrationSequence == 5, "Calibration request was not forwarded.");

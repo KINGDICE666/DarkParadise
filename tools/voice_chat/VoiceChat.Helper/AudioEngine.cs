@@ -120,6 +120,17 @@ public sealed class AudioEngine : IDisposable
         {
             config = value;
             error = audioProcessor is null ? error : string.Empty;
+            if (audioProcessor is not null)
+            {
+                try
+                {
+                    audioProcessor.SetNoiseSuppressionLevel(value.NoiseSuppressionLevel);
+                }
+                catch (InvalidOperationException exception)
+                {
+                    error = $"Шумоподавление WebRTC: {exception.Message}";
+                }
+            }
             var outputTestRequested = testSequencesInitialized &&
                 value.OutputTestSequence != lastOutputTestSequence;
             var microphoneTestRequested = testSequencesInitialized &&

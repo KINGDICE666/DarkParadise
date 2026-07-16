@@ -1,5 +1,6 @@
 using NAudio.Wave;
 using SoundFlow.Extensions.WebRtc.Apm;
+using VoiceChat.Protocol;
 
 namespace VoiceChat.Helper;
 
@@ -16,22 +17,43 @@ public sealed class WebRtcAudioProcessor : IDisposable
     private readonly float[][] renderInput = [new float[FrameSamples]];
     private readonly float[] pendingRender = new float[FrameSamples];
     private int pendingRenderCount;
+    private int noiseSuppressionLevel = -1;
 
     public WebRtcAudioProcessor()
     {
         module = new AudioProcessingModule();
         streamConfig = new StreamConfig(48000, 1);
-        using var config = new ApmConfig();
-        config.SetEchoCanceller(true, false);
-        config.SetNoiseSuppression(true, NoiseSuppressionLevel.High);
-        config.SetGainController1(true, GainControlMode.AdaptiveDigital, -3, 9, true);
-        config.SetGainController2(false);
-        config.SetHighPassFilter(true);
-        config.SetPreAmplifier(false, 1);
-        config.SetPipeline(48000, false, false, DownmixMethod.AverageChannels);
         EnsureSuccess(module.Initialize(), "initialize");
-        EnsureSuccess(module.ApplyConfig(config), "configure");
+        SetNoiseSuppressionLevel(VoiceProtocol.DefaultNoiseSuppressionLevel);
         module.SetStreamDelayMs(60);
+    }
+
+    public void SetNoiseSuppressionLevel(int value)
+    {
+        lock (gate)
+        {
+            var level = Math.Clamp(
+                value,
+                VoiceProtocol.MinimumNoiseSuppressionLevel,
+                VoiceProtocol.MaximumNoiseSuppressionLevel);
+            if (level == noiseSuppressionLevel)
+            {
+                return;
+            }
+
+            using var config = new ApmConfig();
+            config.SetEchoCanceller(true, false);
+            config.SetNoiseSuppression(
+                level > VoiceProtocol.MinimumNoiseSuppressionLevel,
+                (NoiseSuppressionLevel)Math.Max(0, level - 1));
+            config.SetGainController1(true, GainControlMode.AdaptiveDigital, -3, 9, true);
+            config.SetGainController2(false);
+            config.SetHighPassFilter(true);
+            config.SetPreAmplifier(false, 1);
+            config.SetPipeline(48000, false, false, DownmixMethod.AverageChannels);
+            EnsureSuccess(module.ApplyConfig(config), "configure");
+            noiseSuppressionLevel = level;
+        }
     }
 
     public void ProcessCapture(Span<short> samples)
