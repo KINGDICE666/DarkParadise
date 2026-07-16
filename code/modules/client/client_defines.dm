@@ -73,6 +73,7 @@
 
 	/// Sound tokens currently playing for this client. Managed by [/datum/sound_token] and the soundtoken subsystem.
 	var/list/datum/sound_token/sound_tokens = list()
+	var/datum/voice_chat_client/voice_chat
 
 		////////////
 		//SECURITY//

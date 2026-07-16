@@ -433,6 +433,16 @@ TOPIC_FILTERING_WHITELIST 127.0.0.1
 #TTS_ENABLED
 #TTS_CACHE
 
+## Native proximity voice chat. The internal relay URL is used by Dream Daemon,
+## while the public URL is passed to the local voice helper.
+#VOICE_CHAT_ENABLED
+#VOICE_CHAT_RELAY_URL http://127.0.0.1:6180
+#VOICE_CHAT_PUBLIC_URL wss://voice.example.org/v1/connect
+#VOICE_CHAT_HELPER_DOWNLOAD_URL https://voice.example.org/download/windows
+#VOICE_CHAT_API_KEY replace-me
+#VOICE_CHAT_URI_SCHEME paradise-voice
+#VOICE_CHAT_PROXIMITY_RANGE 7
+
 # Number of players required for automatic gamemode change to extended. Doesn't work if set to zero or commented
 #AUTO_EXTENDED_PLAYERS_NUM 10
 
