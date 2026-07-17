@@ -809,3 +809,17 @@
 			if(D)
 				D.Devolve()
 				return
+
+/datum/chemical_reaction/portal_fluid
+	name = "Quantum transport solution"
+	id = "portal_fluid"
+	result = "portal_fluid"
+	required_reagents = list(
+		"cryoxadone" = 1,
+		"liquid_solder" = 1,
+		"mutagen" = 1,
+		"plasma" = 1,
+		"teslium" = 1,
+	)
+	result_amount = 5
+	mix_message = "Раствор вспыхивает ярким зелёным светом."

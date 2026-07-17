@@ -712,3 +712,12 @@
 	target_mob.reagents.add_reagent("cream", 0.4)
 	target_mob.reagents.add_reagent("salglu_solution", 0.4)
 	return ..()
+
+/datum/reagent/portal_fluid
+	name = "Квантовый транспортный раствор"
+	id = "portal_fluid"
+	description = "Светящаяся зелёная жидкость, удерживающая нестабильные пространственные связи."
+	reagent_state = LIQUID
+	color = "#39FF63"
+	taste_description = "озона и бесконечного пространства"
+	can_synth = FALSE
