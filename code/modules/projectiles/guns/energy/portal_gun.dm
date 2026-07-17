@@ -12,9 +12,7 @@
 	gender = MALE
 	icon = 'icons/obj/weapons/portal_gun.dmi'
 	icon_state = "portal_fluid_canister_empty"
-	item_state = "portal_fluid_canister_empty"
-	lefthand_file = 'icons/mob/inhands/weapons/portal_gun_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/weapons/portal_gun_righthand.dmi'
+	item_state = "beaker"
 	w_class = WEIGHT_CLASS_SMALL
 	volume = 100
 	amount_per_transfer_from_this = 10
@@ -41,16 +39,14 @@
 /obj/item/reagent_containers/glass/portal_fluid_canister/update_icon_state()
 	if(reagents?.get_reagent_amount(/datum/reagent/portal_fluid))
 		icon_state = "portal_fluid_canister"
-		item_state = "portal_fluid_canister"
 		return
 	icon_state = "portal_fluid_canister_empty"
-	item_state = "portal_fluid_canister_empty"
 
 /obj/item/reagent_containers/glass/portal_fluid_canister/full
 	list_reagents = list(/datum/reagent/portal_fluid = 100)
 
 /obj/item/ammo_casing/energy/rick_portal
-	projectile_type = /obj/projectile/beam/rick_portal
+	projectile_type = /obj/projectile/energy/rick_portal
 	select_name = "portal"
 	fire_sound = 'sound/weapons/portal_gun.ogg'
 	muzzle_flash_color = "#43F45B"
@@ -62,45 +58,40 @@
 	if(BB && isturf(target))
 		BB.range = max(round(get_dist_euclidean(user, target), 1), 1)
 
-/obj/projectile/beam/rick_portal
-	name = "portal beam"
+/obj/projectile/energy/rick_portal
+	name = "portal bolt"
 	icon = 'icons/obj/weapons/portal_gun.dmi'
 	icon_state = "portal_bolt"
 	hitsound = SFX_SPARKS
-	damage = 0
 	nodamage = TRUE
-	eyeblur = 0 SECONDS
-	color = "#43F45B"
+	speed = 1
+	light_system = OVERLAY_LIGHT
+	light_range = 2
 	light_color = "#43F45B"
-	hitscan = TRUE
-	hitscan_light_color_override = "#43F45B"
-	tracer_type = /obj/effect/projectile/tracer/wormhole
-	muzzle_type = /obj/effect/projectile/muzzle/wormhole
-	impact_type = /obj/effect/projectile/impact/wormhole
 	ricochets_max = 0
 	reflectability = REFLECTABILITY_NEVER
 
-/obj/projectile/beam/rick_portal/get_ru_names()
+/obj/projectile/energy/rick_portal/get_ru_names()
 	return alist(
-		NOMINATIVE = "портальный луч",
-		GENITIVE = "портального луча",
-		DATIVE = "портальному лучу",
-		ACCUSATIVE = "портальный луч",
-		INSTRUMENTAL = "портальным лучом",
-		PREPOSITIONAL = "портальном луче",
+		NOMINATIVE = "портальный сгусток",
+		GENITIVE = "портального сгустка",
+		DATIVE = "портальному сгустку",
+		ACCUSATIVE = "портальный сгусток",
+		INSTRUMENTAL = "портальным сгустком",
+		PREPOSITIONAL = "портальном сгустке",
 	)
 
-/obj/projectile/beam/rick_portal/proc/anchor_portal()
+/obj/projectile/energy/rick_portal/proc/anchor_portal()
 	var/obj/item/gun/portal_gun/portal_gun = firer_source_atom
 	if(!istype(portal_gun))
 		return
 	portal_gun.create_portal(get_turf(src), firer)
 
-/obj/projectile/beam/rick_portal/on_hit(atom/target)
+/obj/projectile/energy/rick_portal/on_hit(atom/target)
 	anchor_portal()
 	return ..()
 
-/obj/projectile/beam/rick_portal/on_range()
+/obj/projectile/energy/rick_portal/on_range()
 	anchor_portal()
 	return ..()
 
@@ -155,6 +146,7 @@
 	attachable_allowed = GUN_MODULE_CLASS_NONE
 	clumsy_check = FALSE
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
+	fire_sound = 'sound/weapons/portal_gun.ogg'
 	fire_sound_text = "портальный разряд"
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	origin_tech = "bluespace=7;engineering=6;plasmatech=5"
@@ -321,14 +313,14 @@
 	var/fluid_cost = calculate_fluid_cost(portal_count = 1)
 	if(!entrance_portal)
 		entrance_portal = new(impact_turf, null, src, portal_lifespan, creator, FALSE)
-		fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid, fluid_cost)
+		fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid::id, fluid_cost)
 		investigate_log("was used by [key_name_log(creator)] to anchor an unpaired portal at [COORD(entrance_portal)].", INVESTIGATE_TELEPORTATION)
 		finish_portal_creation(creator)
 		return
 
 	exit_portal = new(impact_turf, get_turf(entrance_portal), src, portal_lifespan, creator, FALSE)
 	entrance_portal.target = impact_turf
-	fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid, fluid_cost)
+	fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid::id, fluid_cost)
 	investigate_log("was used by [key_name_log(creator)] to link portals between [COORD(entrance_portal)] and [COORD(exit_portal)].", INVESTIGATE_TELEPORTATION)
 	finish_portal_creation(creator)
 
@@ -346,7 +338,7 @@
 	close_portals()
 	entrance_portal = new(impact_turf, destination_turf, src, portal_lifespan, creator, FALSE)
 	exit_portal = new(destination_turf, impact_turf, src, portal_lifespan, creator, FALSE)
-	fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid, calculate_fluid_cost(portal_count = 2))
+	fluid_canister.reagents.remove_reagent(/datum/reagent/portal_fluid::id, calculate_fluid_cost(portal_count = 2))
 	investigate_log("was used by [key_name_log(creator)] to open a portal from [COORD(impact_turf)] to [COORD(destination_turf)].", INVESTIGATE_TELEPORTATION)
 	finish_portal_creation(creator)
 
