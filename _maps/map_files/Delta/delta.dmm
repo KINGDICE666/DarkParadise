@@ -23703,16 +23703,6 @@
 	icon_state = "dark"
 	},
 /area/station/ai/satellite/exterior)
-"feG" = (
-/obj/structure/sign/painting/large/library{
-	dir = 8;
-	pixel_x = -28;
-	pixel_y = -25
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "grimy"
-	},
-/area/station/service/library)
 "feI" = (
 /turf/simulated/floor/plasteel{
 	icon_state = "grimy"
@@ -96020,6 +96010,16 @@
 	icon_state = "white"
 	},
 /area/station/maintenance/asmaint)
+"svS" = (
+/obj/structure/sign/painting/large/library{
+	dir = 8;
+	pixel_x = -28;
+	pixel_y = -25
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "grimy"
+	},
+/area/station/service/library)
 "svV" = (
 /obj/machinery/vending/wallmed{
 	name = "Emergency NanoMed";
@@ -117584,6 +117584,16 @@
 	icon_state = "grimy"
 	},
 /area/station/maintenance/library)
+"wtO" = (
+/obj/structure/sign/painting/large/library{
+	dir = 8;
+	pixel_x = -28;
+	pixel_y = -8
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "grimy"
+	},
+/area/station/service/library)
 "wtT" = (
 /obj/machinery/computer/security/telescreen/entertainment{
 	pixel_y = 32
@@ -119966,16 +119976,6 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/hallway/secondary/entry/lounge)
-"wOF" = (
-/obj/structure/sign/painting/large/library{
-	dir = 8;
-	pixel_x = -28;
-	pixel_y = -8
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "grimy"
-	},
-/area/station/service/library)
 "wOM" = (
 /turf/simulated/wall,
 /area/station/science/robotics/chargebay)
@@ -155822,9 +155822,9 @@ rWR
 pwX
 oMI
 lxJ
-feG
+svS
 lxJ
-wOF
+wtO
 vTY
 lQS
 fHJ

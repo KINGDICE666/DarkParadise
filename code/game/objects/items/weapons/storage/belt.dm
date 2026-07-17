@@ -16,6 +16,9 @@
 	custom_price = PAYCHECK_COMMAND // belts are useful => they're expensive
 	abstract_type = /obj/item/storage/belt
 	dynamic_storage_size = TRUE
+	sprite_sheets = list(
+		SPECIES_RESOMI = 'icons/mob/clothing/species/resomi/belt.dmi',
+	)
 
 	/// Do we have overlays for items held inside the belt?
 	var/use_item_overlays = FALSE
@@ -133,6 +136,9 @@
 		/obj/item/clothing/gloves,
 		/obj/item/rcd,
 		/obj/item/rpd,
+		// Heretic Lock path: the key-blade is a crowbar tool and TG lets it ride in a toolbelt (it's added to
+		// the utility belt's holdable list there too). Mirror that here so the blade can be stored in the belt.
+		/obj/item/melee/sickly_blade/lock,
 	)
 
 /obj/item/storage/belt/utility/full/populate_contents()
