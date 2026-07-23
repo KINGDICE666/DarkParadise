@@ -1438,7 +1438,6 @@
 				message_admins("[key_name_admin(usr)] has de-culted [key_name_admin(current)]")
 			if("cultist")
 				if(!(src in SSticker.mode.cult))
-					to_chat(current, CULT_GREETING)
 					SSticker.mode.add_cultist(src)
 					to_chat(current, span_cultitalic("Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve [SSticker.cultdat.entity_title2] above all else. Bring It back."))
 					log_and_message_admins("[key_name(usr)] has culted [key_name(current)]")
@@ -1502,37 +1501,16 @@
 		switch(href_list["wizard"])
 			if("clear")
 				remove_wizard_role()
-				to_chat(current, span_userdanger(span_fontsize3("You have been brainwashed! You are no longer a wizard!")))
 				log_admin("[key_name(usr)] has de-wizarded [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has de-wizarded [key_name_admin(current)]")
-				if(src in SSticker.mode.apprentices)
-					SSticker.mode.apprentices -= src
-					special_role = null
-					current.spellremove(current)
-					current.faction = list("Station")
-					SSticker.mode.update_wiz_icons_removed(src)
-					to_chat(current, span_userdanger(span_fontsize3("You have been brainwashed! You are no longer a apprentice wizard!")))
-					log_admin("[key_name(usr)] has de-apprentice-wizarded [key_name(current)]")
-					message_admins("[key_name_admin(usr)] has de-apprentice-wizarded [key_name_admin(current)]")
 			if("wizard")
 				if(!(src in SSticker.mode.wizards) && !(src in SSticker.mode.apprentices))
-					SSticker.mode.wizards += src
-					special_role = SPECIAL_ROLE_WIZARD
-					//ticker.mode.learn_basic_spells(current)
-					SSticker.mode.update_wiz_icons_added(src)
-					SEND_SOUND(current, sound('sound/ambience/antag/ragesmages.ogg'))
-					to_chat(current, span_danger("You are a Space Wizard!"))
-					current.faction = list("wizard")
+					add_antag_datum(/datum/antagonist/wizard)
 					log_admin("[key_name(usr)] has wizarded [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has wizarded [key_name_admin(current)]")
 			if("apprentice")
 				if(!(src in SSticker.mode.wizards) && !(src in SSticker.mode.apprentices))
-					SSticker.mode.apprentices += src
-					special_role = SPECIAL_ROLE_WIZARD_APPRENTICE
-					SSticker.mode.update_wiz_icons_added(src)
-					SEND_SOUND(current, sound('sound/ambience/antag/ragesmages.ogg'))
-					to_chat(current, span_danger("You are a Apprentice of Space Wizard!"))
-					current.faction = list("wizard")
+					add_antag_datum(/datum/antagonist/wizard/apprentice)
 					log_admin("[key_name(usr)] has apprentice-wizarded [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has apprentice-wizarded [key_name_admin(current)]")
 			if("lair")
@@ -2641,9 +2619,7 @@
 	remove_antag_datum(/datum/antagonist/rev)
 
 /datum/mind/proc/remove_cult_role()
-	if(src in SSticker.mode.cult)
-		SSticker.mode.remove_cultist(src)
-		special_role = null
+	SSticker.mode.remove_cultist(src)
 
 /datum/mind/proc/remove_clocker_role()
 	if(src in SSticker.mode.clockwork_cult)
@@ -2651,18 +2627,7 @@
 		special_role = null
 
 /datum/mind/proc/remove_wizard_role()
-	if(src in SSticker.mode.wizards)
-		SSticker.mode.wizards -= src
-		special_role = null
-		current.spellremove(current)
-		current.faction = list("Station")
-		SSticker.mode.update_wiz_icons_removed(src)
-	if(src in SSticker.mode.apprentices)
-		SSticker.mode.apprentices -= src
-		special_role = null
-		current.spellremove(current)
-		current.faction = list("Station")
-		SSticker.mode.update_wiz_icons_removed(src)
+	SSticker.mode.remove_wizard(src)
 
 /datum/mind/proc/remove_changeling_role()
 	var/datum/antagonist/traitor/chan_datum = has_antag_datum(/datum/antagonist/changeling)
@@ -2835,24 +2800,22 @@
 		add_antag_datum(/datum/antagonist/vampire/free_vampire)
 
 /datum/mind/proc/make_Wizard()
-	if(!(src in SSticker.mode.wizards))
-		SSticker.mode.wizards += src
-		special_role = SPECIAL_ROLE_WIZARD
-		assigned_role = SPECIAL_ROLE_WIZARD
-		//ticker.mode.learn_basic_spells(current)
-		if(!length(GLOB.wizardstart))
-			current.forceMove(pick(GLOB.latejoin))
-			to_chat(current, "HOT INSERTION, GO GO GO")
-		else
-			current.forceMove(pick(GLOB.wizardstart))
+	if(src in SSticker.mode.wizards)
+		return
 
-		SSticker.mode.equip_wizard(current)
-		for(var/obj/item/spellbook/S in current.contents)
-			S.op = 0
-		INVOKE_ASYNC(SSticker.mode, TYPE_PROC_REF(/datum/game_mode/wizard, name_wizard), current)
-		SSticker.mode.forge_wizard_objectives(src)
-		SSticker.mode.greet_wizard(src)
-		SSticker.mode.update_wiz_icons_added(src)
+	assigned_role = SPECIAL_ROLE_WIZARD
+	if(!length(GLOB.wizardstart))
+		current.forceMove(pick(GLOB.latejoin))
+		to_chat(current, "HOT INSERTION, GO GO GO")
+	else
+		current.forceMove(pick(GLOB.wizardstart))
+
+	SSticker.mode.equip_wizard(current)
+	for(var/obj/item/spellbook/S in current.contents)
+		S.op = 0
+	INVOKE_ASYNC(SSticker.mode, TYPE_PROC_REF(/datum/game_mode/wizard, name_wizard), current)
+	SSticker.mode.forge_wizard_objectives(src)
+	add_antag_datum(/datum/antagonist/wizard)
 
 /datum/mind/proc/make_Space_Ninja(datum/objective/custom_objective)
 	if(isninja(src))

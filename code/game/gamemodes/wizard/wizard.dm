@@ -4,7 +4,6 @@
 	required_players = 20
 	required_enemies = 1
 	recommended_enemies = 1
-	var/use_huds = 1
 
 	var/finished = 0
 	var/but_wait_theres_more = 0
@@ -40,13 +39,11 @@
 /datum/game_mode/wizard/pre_setup()
 	for(var/datum/mind/wizard in wizards)
 		wizard.assigned_role = SPECIAL_ROLE_WIZARD //So they aren't chosen for other jobs.
-		wizard.special_role = SPECIAL_ROLE_WIZARD
 		wizard.offstation_role = TRUE
 		wizard.set_original_mob(wizard.current)
 		wizard.current.loc = pick(GLOB.wizardstart)
 	for(var/datum/mind/apprentice in apprentices)
 		apprentice.assigned_role = SPECIAL_ROLE_WIZARD_APPRENTICE //So they aren't chosen for other jobs.
-		apprentice.special_role = SPECIAL_ROLE_WIZARD_APPRENTICE
 		apprentice.offstation_role = TRUE
 		apprentice.set_original_mob(apprentice.current)
 		apprentice.current.loc = pick(GLOB.wizardstart)
@@ -55,61 +52,35 @@
 
 /datum/game_mode/wizard/post_setup()
 	var/datum/mind/wizard_teacher
-	for(var/datum/mind/wizard in wizards)
+	for(var/datum/mind/wizard in wizards.Copy())
 		add_game_logs("has been selected as a Wizard", wizard.current)
 		forge_wizard_objectives(wizard)
 		equip_wizard(wizard.current)
 		INVOKE_ASYNC(src, PROC_REF(name_wizard), wizard.current)
-		greet_wizard(wizard)
-		if(use_huds)
-			update_wiz_icons_added(wizard)
+		wizard.add_antag_datum(/datum/antagonist/wizard)
 		if(!wizard_teacher)
 			wizard_teacher = wizard
 
-	for(var/datum/mind/apprentice in apprentices)
+	for(var/datum/mind/apprentice in apprentices.Copy())
 		log_game("[key_name(apprentice)] has been selected as a Wizard-Apprentice")
 		forge_wizard_apprentice_objectives(wizard_teacher, apprentice)
 		equip_wizard_apprentice(apprentice.current)
 		INVOKE_ASYNC(src, PROC_REF(name_wizard), apprentice.current)
-		greet_wizard(apprentice)
-		if(use_huds)
-			update_wiz_icons_added(apprentice)
+		apprentice.add_antag_datum(/datum/antagonist/wizard/apprentice)
 
 	..()
 
 /datum/game_mode/proc/remove_wizard(datum/mind/wizard_mind)
-	if(wizard_mind in wizards)
-		SSticker.mode.wizards -= wizard_mind
-		wizard_mind.special_role = null
-		add_conversion_logs(wizard_mind.current, "De-wizarded")
-		wizard_mind.current.spellremove(wizard_mind.current)
-		wizard_mind.current.faction = list("Station")
-		if(issilicon(wizard_mind.current))
-			to_chat(wizard_mind.current, span_userdanger("You have been turned into a robot! You can feel your magical powers fading away..."))
-		else
-			to_chat(wizard_mind.current, span_userdanger("You have been brainwashed! You are no longer a wizard."))
-		SSticker.mode.update_wiz_icons_removed(wizard_mind)
-	else if(wizard_mind in apprentices)
-		SSticker.mode.apprentices -= wizard_mind
-		wizard_mind.special_role = null
-		add_conversion_logs(wizard_mind.current, "De-apprentice-wizarded")
-		wizard_mind.current.spellremove(wizard_mind.current)
-		wizard_mind.current.faction = list("Station")
-		if(issilicon(wizard_mind.current))
-			to_chat(wizard_mind.current, span_userdanger("You have been turned into a robot! You can feel your magical powers fading away..."))
-		else
-			to_chat(wizard_mind.current, span_userdanger("You have been brainwashed! You are no longer a wizard-apprentice."))
-		SSticker.mode.update_wiz_icons_removed(wizard_mind)
+	var/datum/antagonist/wizard/wizard = wizard_mind?.has_antag_datum(/datum/antagonist/wizard)
+	if(!wizard)
+		return
+	add_conversion_logs(wizard_mind.current, wizard.deconversion_log)
+	wizard_mind.remove_antag_datum(/datum/antagonist/wizard)
 
 /datum/game_mode/proc/update_wiz_icons_added(datum/mind/wiz_mind)
 	var/datum/atom_hud/antag/wizhud = GLOB.huds[ANTAG_HUD_WIZ]
 	wizhud.join_hud(wiz_mind.current)
 	set_antag_hud(wiz_mind.current, ((wiz_mind in wizards) ? "hudwizard" : "apprentice"))
-
-/datum/game_mode/proc/update_wiz_icons_removed(datum/mind/wiz_mind)
-	var/datum/atom_hud/antag/wizhud = GLOB.huds[ANTAG_HUD_WIZ]
-	wizhud.leave_hud(wiz_mind.current)
-	set_antag_hud(wiz_mind.current, null)
 
 /datum/game_mode/proc/forge_wizard_objectives(datum/mind/wizard)
 	var/datum/objective/wizchaos/wiz_objective = new
@@ -147,16 +118,11 @@
 			for(var/datum/objective/protect/objective in apprentice.objectives)
 				objective.explanation_text = "Protect [wizard_mob.real_name], the wizard teacher."
 
-/datum/game_mode/proc/greet_wizard(datum/mind/wizard, you_are=1)
-	addtimer(CALLBACK(wizard.current, TYPE_PROC_REF(/mob, playsound_local), null, 'sound/ambience/antag/ragesmages.ogg', 100, 0), 30)
+/datum/game_mode/proc/greet_wizard()
 	var/list/messages = list()
-	if(you_are)
-		messages.Add(span_danger("You are the Space Wizard!"))
+	messages.Add(span_danger("You are the Space Wizard!"))
 	messages.Add("<b>The Space Wizards Federation has given you the following tasks:</b>")
-	messages.Add(wizard.prepare_announce_objectives(title = FALSE))
-	messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Wizard\">Маг</a>"))
-	to_chat(wizard.current, custom_boxed_message("red_box center", messages.Join("<br>")))
-	return
+	return messages
 
 /datum/game_mode/proc/equip_wizard(mob/living/carbon/human/wizard_mob)
 	if(!istype(wizard_mob))

@@ -204,7 +204,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 		for(var/I in 1 to numCultists)
 			H = pick(candidates)
-			to_chat(H, CULT_GREETING)
 			SSticker.mode.add_cultist(H.mind)
 			SSticker.mode.equip_cultist(H)
 			candidates.Remove(H)

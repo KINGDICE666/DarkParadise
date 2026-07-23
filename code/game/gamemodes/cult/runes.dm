@@ -336,7 +336,6 @@ structure_check() searches for nearby cultist structures required for the invoca
 									span_cultlarge("<i>AAAAAAAAAAAAAA-</i>"))
 		SSticker.mode.add_cultist(convertee.mind)
 		SSticker.mode.ghost_summons += GHOST_SUMMONS_CONVERT
-		convertee.mind.special_role = "Cultist"
 		to_chat(convertee, span_cultitalic("<b>Your blood pulses. Your head throbs. The world goes red. All at once you are aware of a horrible, \
 											horrible, truth. The veil of reality has been ripped away and something evil takes root.</b>"))
 		to_chat(convertee, span_cultitalic("<b>Assist your new compatriots in their dark dealings. Your goal is theirs, and theirs is yours. \
