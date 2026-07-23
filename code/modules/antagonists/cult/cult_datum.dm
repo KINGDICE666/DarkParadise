@@ -15,6 +15,9 @@
 			qdel(action)
 	return ..()
 
+/datum/antagonist/cult/get_antag_menu_name()
+	return "Культист [SSticker.cultdat.entity_name]"
+
 /datum/antagonist/cult/add_owner_to_gamemode()
 	SSticker.mode.cult |= owner
 

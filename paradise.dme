@@ -2350,6 +2350,7 @@
 #include "code\modules\antagonists\changeling\powers\swap_form.dm"
 #include "code\modules\antagonists\changeling\powers\tiny_prick.dm"
 #include "code\modules\antagonists\changeling\powers\transform.dm"
+#include "code\modules\antagonists\clockwork\clockwork_datum.dm"
 #include "code\modules\antagonists\cult\cult_datum.dm"
 #include "code\modules\antagonists\de_kerberos_2\datums.dm"
 #include "code\modules\antagonists\de_kerberos_2\teams.dm"

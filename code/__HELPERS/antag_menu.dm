@@ -63,18 +63,8 @@
  */
 /proc/prepare_nodatum_antags(list/cached_data, list/antagonist_cache)
 	var/datum/game_mode/mode = SSticker.mode
-	prepare_antag_list(mode.clockwork_cult, cached_data, "Культист Ратвара", antagonist_cache)
-	prepare_antag_list(mode.cult, cached_data, "Культист [SSticker.cultdat.entity_name]", antagonist_cache)
 	prepare_antag_list(mode.abductors, cached_data, "Абдуктор", antagonist_cache)
 	prepare_antag_list(mode.abductees, cached_data, "Жертва абдукторов", antagonist_cache)
-	prepare_antag_list(mode.head_revolutionaries, cached_data, "Глава революции", antagonist_cache)
-	prepare_antag_list(mode.revolutionaries, cached_data, "Революционер", antagonist_cache)
-	prepare_antag_list(mode.wizards, cached_data, "Маг", antagonist_cache)
-	prepare_antag_list(mode.apprentices, cached_data, "Ученик мага", antagonist_cache)
-	prepare_antag_list(mode.space_ninjas, cached_data, "Клан Паука", antagonist_cache)
-	prepare_antag_list(mode.shadows, cached_data, "Тень", antagonist_cache)
-	prepare_antag_list(mode.shadowling_thralls, cached_data, "Раб теней", antagonist_cache)
-	prepare_antag_list(mode.raiders, cached_data, "Вокс рейдер", antagonist_cache)
 	prepare_antag_list(mode.superheroes, cached_data, "Супергерой", antagonist_cache)
 	prepare_antag_list(mode.supervillains, cached_data, "Суперзлодей", antagonist_cache)
 	prepare_antag_list(mode.greyshirts, cached_data, "Грейтайд", antagonist_cache)

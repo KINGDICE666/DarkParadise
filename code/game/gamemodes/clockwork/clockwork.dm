@@ -60,35 +60,14 @@ GLOBAL_LIST_EMPTY(all_clockers)
 		clockers_possible -= clocker
 		clockwork_cult += clocker
 		clocker.restricted_roles = restricted_jobs
-		clocker.special_role = SPECIAL_ROLE_CLOCKER
 	return (length(clockwork_cult) > 0)
 
 /datum/game_mode/clockwork/post_setup()
 	clocker_objs.setup()
 
-	for(var/datum/mind/clockwork_mind in clockwork_cult)
-		SEND_SOUND(clockwork_mind.current, sound('sound/ambience/antag/clockcult.ogg'))
-		var/list/messages = list(CLOCK_GREETING)
-		to_chat(clockwork_mind.current, custom_boxed_message("yellow_box", messages.Join("<br>")))
+	for(var/datum/mind/clockwork_mind in clockwork_cult.Copy())
+		clockwork_mind.add_antag_datum(/datum/antagonist/clockwork)
 		equip_clocker(clockwork_mind.current)
-		clockwork_mind.current.faction |= "clockwork_cult"
-		var/datum/objective/serveclock/obj = new
-		obj.owner = clockwork_mind
-		clockwork_mind.objectives += obj
-
-		if(clockwork_mind.assigned_role == JOB_TITLE_CLOWN)
-			to_chat(clockwork_mind.current, span_clockitalic("A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."))
-			clockwork_mind.current.force_gene_block(GLOB.clumsyblock, FALSE)
-			// Don't give them another action if they already have one.
-			if(!(locate(/datum/action/innate/toggle_clumsy) in clockwork_mind.current.actions))
-				var/datum/action/innate/toggle_clumsy/toggle_clumsy = new
-				toggle_clumsy.Grant(clockwork_mind.current)
-
-		if(iscarbon(clockwork_mind.current))
-			clockwork_mind.current.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["clockwork"], GLOB.halo_callbacks["clockwork"])
-
-		add_clock_actions(clockwork_mind)
-		update_clock_icons_added(clockwork_mind)
 		clocker_objs.study(clockwork_mind.current)
 	clockwork_threshold_check()
 	addtimer(CALLBACK(src, PROC_REF(clockwork_threshold_check)), 2 MINUTES) // Check again in 2 minutes for latejoiners
@@ -172,47 +151,19 @@ GLOBAL_LIST_EMPTY(all_clockers)
 		clocker_objs.setup()
 		clockwork_threshold_check()
 
-	if(!(clock_mind in clockwork_cult))
-		clockwork_cult += clock_mind
-		clock_mind.current.faction |= "clockwork_cult"
-		clock_mind.special_role = SPECIAL_ROLE_CLOCKER
+	if(!clock_mind.add_antag_datum(/datum/antagonist/clockwork))
+		return FALSE
 
-		if(clock_mind.assigned_role == JOB_TITLE_CLOWN)
-			to_chat(clock_mind.current, span_clockitalic("A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."))
-			clock_mind.current.force_gene_block(GLOB.clumsyblock, FALSE)
-			// Don't give them another action if they already have one.
-			if(!(locate(/datum/action/innate/toggle_clumsy) in clock_mind.current.actions))
-				var/datum/action/innate/toggle_clumsy/toggle_clumsy = new
-				toggle_clumsy.Grant(clock_mind.current)
+	add_conversion_logs(clock_mind.current, "converted to the clockwork cult")
+	if(!clocker_objs.clock_status && ishuman(clock_mind.current))
+		clocker_objs.setup()
 
-		SEND_SOUND(clock_mind.current, sound('sound/ambience/antag/clockcult.ogg'))
-		add_conversion_logs(clock_mind.current, "converted to the clockwork cult")
-
-		if(jobban_isbanned(clock_mind.current, ROLE_CLOCKER) || jobban_isbanned(clock_mind.current, ROLE_CULTIST) || jobban_isbanned(clock_mind.current, ROLE_SYNDICATE))
-			replace_jobbanned_player(clock_mind.current, ROLE_CLOCKER)
-		if(!clocker_objs.clock_status && ishuman(clock_mind.current))
-			clocker_objs.setup()
-		update_clock_icons_added(clock_mind)
-		add_clock_actions(clock_mind)
-		var/datum/objective/serveclock/obj = new
-		obj.owner = clock_mind
-		clock_mind.objectives += obj
-
-		adjust_clockwork_power(CLOCK_POWER_CONVERT)
-
-		if(iscarbon(clock_mind.current))
-			clock_mind.current.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["clockwork"], GLOB.halo_callbacks["clockwork"])
-
-		if(power_reveal)
-			powered(clock_mind.current)
-			powered_borgs(clock_mind.current)
-		if(crew_reveal)
-			clocked(clock_mind.current)
-		check_clock_reveal()
-		if(!clocker_objs.obj_demand.clockers_get)
-			clocker_objs.clockers_check()
-		clocker_objs.study(clock_mind.current)
-		return TRUE
+	adjust_clockwork_power(CLOCK_POWER_CONVERT)
+	check_clock_reveal()
+	if(!clocker_objs.obj_demand.clockers_get)
+		clocker_objs.clockers_check()
+	clocker_objs.study(clock_mind.current)
+	return TRUE
 
 /datum/game_mode/proc/check_power_reveal()
 	if(power_reveal)
@@ -269,64 +220,13 @@ GLOBAL_LIST_EMPTY(all_clockers)
 		SEND_SIGNAL(H, COMSIG_MOB_HALO_GAINED)
 
 /datum/game_mode/proc/remove_clocker(datum/mind/clock_mind, show_message = TRUE)
-	if(!clock_mind || !(clock_mind in clockwork_cult))
+	var/datum/antagonist/clockwork/clocker = clock_mind?.has_antag_datum(/datum/antagonist/clockwork)
+	if(!clocker || !clock_mind.current)
 		return
 
-	var/mob/clocker = clock_mind.current
-
-	if(!clocker)
-		return
-
-	clockwork_cult -= clock_mind
-	clocker.faction -= "clockwork_cult"
-	clock_mind.special_role = null
-
-	for(var/datum/objective/serveclock/objective in clock_mind.objectives)
-		clock_mind.objectives -= objective
-		qdel(objective)
-
-	for(var/datum/action/innate/clockwork/action in clocker.actions)
-		qdel(action)
-
-	update_clock_icons_removed(clock_mind)
-
-	clock_mind.current.RemoveElement(/datum/element/halo_attach)
-
-	if(ishuman(clocker))
-		var/mob/living/carbon/human/human = clocker
-		clock_mind.current.RemoveElement(/datum/element/halo_attach)
-		REMOVE_TRAIT(human, TRAIT_CLOCK_HANDS, CLOCK_TRAIT)
-		human.update_worn_gloves()
-		human.remove_overlay(HALO_LAYER)
-		human.update_body()
-
-	add_conversion_logs(clocker, "deconverted from the clockwork cult.")
-	if(show_message)
-		clocker.visible_message(span_clock("[clocker] looks like [clocker.p_they()] just reverted to [clocker.p_their()] old faith!"),
-		span_userdanger("An unfamiliar white light flashes through your mind, cleansing the taint of Ratvar and the memories of your time as their servant with it."))
-
-/datum/game_mode/proc/update_clock_icons_added(datum/mind/clock_mind)
-	var/datum/atom_hud/antag/clockhud = GLOB.huds[ANTAG_HUD_CLOCK]
-	if(clock_mind.current)
-		clockhud.join_hud(clock_mind.current)
-		set_antag_hud(clock_mind.current, "hudclocker")
-
-/datum/game_mode/proc/update_clock_icons_removed(datum/mind/clock_mind)
-	var/datum/atom_hud/antag/clockhud = GLOB.huds[ANTAG_HUD_CLOCK]
-	if(clock_mind.current)
-		clockhud.leave_hud(clock_mind.current)
-		set_antag_hud(clock_mind.current, null)
-
-/datum/game_mode/proc/add_clock_actions(datum/mind/clock_mind)
-	if(clock_mind.current)
-		var/datum/action/innate/clockwork/comm/C = new
-		var/datum/action/innate/clockwork/check_progress/D = new
-		C.Grant(clock_mind.current)
-		D.Grant(clock_mind.current)
-		if(ishuman(clock_mind.current) || issilicon(clock_mind.current) && !isAI(clock_mind.current))
-			var/datum/action/innate/clockwork/clock_magic/magic = new
-			magic.Grant(clock_mind.current)
-		clock_mind.current.update_action_buttons(TRUE)
+	clocker.silent = !show_message
+	clock_mind.remove_antag_datum(/datum/antagonist/clockwork)
+	add_conversion_logs(clock_mind.current, "deconverted from the clockwork cult.")
 
 /datum/game_mode/clockwork/declare_completion()
 	if(clocker_objs.clock_status == RATVAR_HAS_RISEN)

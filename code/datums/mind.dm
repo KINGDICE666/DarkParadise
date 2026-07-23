@@ -1460,7 +1460,6 @@
 				message_admins("[key_name_admin(usr)] has de-clocked [key_name_admin(current)]")
 			if("clocker")
 				if(!(src in SSticker.mode.clockwork_cult))
-					to_chat(current, CLOCK_GREETING)
 					SSticker.mode.add_clocker(src)
 					to_chat(current, span_clockitalic("Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve Ratvar above all else. Bring It back."))
 					log_and_message_admins("[key_name(usr)] has clocked [key_name(current)]")
@@ -2622,9 +2621,7 @@
 	SSticker.mode.remove_cultist(src)
 
 /datum/mind/proc/remove_clocker_role()
-	if(src in SSticker.mode.clockwork_cult)
-		SSticker.mode.remove_clocker(src)
-		special_role = null
+	SSticker.mode.remove_clocker(src)
 
 /datum/mind/proc/remove_wizard_role()
 	SSticker.mode.remove_wizard(src)

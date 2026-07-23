@@ -233,7 +233,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 		for(var/I in 1 to numclocks)
 			H = pick(candidates)
-			to_chat(H, CLOCK_GREETING)
 			SSticker.mode.add_clocker(H.mind)
 			SSticker.mode.equip_clocker(H)
 			candidates.Remove(H)

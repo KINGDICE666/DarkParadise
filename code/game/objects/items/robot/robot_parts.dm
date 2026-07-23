@@ -198,7 +198,6 @@
 	if(!target.mmi.clock) // so robots created from vessel have magic
 		return
 	target.UnlinkSelf()
-	SSticker.mode.add_clock_actions(target.mind)
 
 /obj/item/robot_parts/robot_suit/proc/process_job_task(mob/living/target)
 	var/datum/job_objective/make_cyborg/task = target.mind.findJobTask(/datum/job_objective/make_cyborg)
