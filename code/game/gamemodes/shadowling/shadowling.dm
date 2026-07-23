@@ -69,7 +69,6 @@ Made by Xhuis
 		var/datum/mind/shadow = pick(possible_shadowlings)
 		shadows += shadow
 		possible_shadowlings -= shadow
-		shadow.special_role = SPECIAL_ROLE_SHADOWLING
 		shadow.restricted_roles = restricted_jobs
 		shadowlings--
 
@@ -79,18 +78,9 @@ Made by Xhuis
 	return 1
 
 /datum/game_mode/shadowling/post_setup()
-	for(var/datum/mind/shadow in shadows)
+	for(var/datum/mind/shadow in shadows.Copy())
 		add_game_logs("has been selected as a Shadowling.", shadow.current)
-
-		var/list/messages = list()
-		spawn(rand(10,100))
-			messages.Add("<br>")
-			messages.Add(span_deadsay(span_fontsize3(span_bold("You are a shadowling!"))))
-			messages.Add(greet_shadow(shadow))
-			messages.Add(process_shadow_objectives(shadow))
-			finalize_shadowling(shadow)
-			to_chat(shadow.current, custom_boxed_message("red_box center", messages.Join("<br>")))
-		//give_shadowling_abilities(shadow)
+		shadow.add_antag_datum(/datum/antagonist/shadowling)
 	..()
 
 /datum/game_mode/proc/greet_shadow(datum/mind/shadow)
@@ -111,75 +101,49 @@ Made by Xhuis
 		return "<b>Цель #1</b>: [objective_explanation]<br>"
 
 /datum/game_mode/proc/finalize_shadowling(datum/mind/shadow_mind)
-	var/mob/living/carbon/human/S = shadow_mind.current
 	shadow_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_hatch(null))
-	spawn(0)
-		shadow_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
-		update_shadow_icons_added(shadow_mind)
-		if(shadow_mind.assigned_role == JOB_TITLE_CLOWN)
-			to_chat(S, span_notice("Твоя натура позволяет тебе преодолеть твою клоунаду."))
-			S.force_gene_block(GLOB.clumsyblock, FALSE)
+	shadow_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /datum/game_mode/proc/add_thrall(datum/mind/new_thrall_mind)
-	if(!istype(new_thrall_mind))
+	if(!istype(new_thrall_mind) || (new_thrall_mind in shadowling_thralls))
 		return 0
-	if(!(new_thrall_mind in shadowling_thralls))
-		shadowling_thralls += new_thrall_mind
-		new_thrall_mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
-		update_shadow_icons_added(new_thrall_mind)
-		add_conversion_logs(new_thrall_mind.current, "Became a Shadow thrall")
-		new_thrall_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
-		//If you add spells to thrall, be sure to remove them on dethrallize
-		new_thrall_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_guise(null))
-		new_thrall_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_vision/thrall(null))
-		var/list/messages = list()
-		messages.Add(span_shadowling("><b>Ты видишь правду. Ты понимаешь, каким дураком ты был..</b>"))
-		messages.Add(span_shadowling("<b>Тенелинги — твои хозяева.</b> Служи им превыше всего и следите за тем, чтобы они достигли своих целей."))
-		messages.Add(span_shadowling("Ты не должен причинять вред другим рабам или тенелингам. Однако ты не должен подчиняться другим рабам."))
-		messages.Add(span_shadowling("Твоё тело необратимо изменилось. Внимательный может это увидеть — ты можешь скрыть это, надев маску."))
-		messages.Add(span_shadowling("Хотя ты и не так силён, как твои хозяева, но ты обладаете некоторыми способностями."))
-		messages.Add(span_shadowling("Ты можете общаться со своими союзниками, используя Телепатическую сеть тенелингов. '[get_language_prefix(LANGUAGE_HIVE_SHADOWLING)]'."))
-		to_chat(new_thrall_mind.current, custom_boxed_message("red_box center", messages.Join("<br>")))
-		if(jobban_isbanned(new_thrall_mind.current, ROLE_SHADOWLING) || jobban_isbanned(new_thrall_mind.current, ROLE_SYNDICATE))
-			replace_jobbanned_player(new_thrall_mind.current, ROLE_SHADOWLING)
+	if(!new_thrall_mind.add_antag_datum(/datum/antagonist/shadowling_thrall))
+		return 0
+	add_conversion_logs(new_thrall_mind.current, "Became a Shadow thrall")
 
-		var/thralls = get_thralls()
-		var/victory_threshold = SSticker.mode.required_thralls
+	var/thralls = get_thralls()
+	var/victory_threshold = SSticker.mode.required_thralls
 
-		if(thralls < victory_threshold)
-			for(var/mob/shadowling in GLOB.alive_mob_list)
-				if(!is_shadow(shadowling))
-					continue
+	if(thralls < victory_threshold)
+		for(var/mob/shadowling in GLOB.alive_mob_list)
+			if(!is_shadow(shadowling))
+				continue
 
-				to_chat(shadowling, span_shadowling("Ты чувствуешь нового раба под твоей волей. Тебе нужно [victory_threshold] рабов, но у тебя есть только [thralls] живых рабов."))
+			to_chat(shadowling, span_shadowling("Ты чувствуешь нового раба под твоей волей. Тебе нужно [victory_threshold] рабов, но у тебя есть только [thralls] живых рабов."))
 
-		else if(thralls >= victory_threshold)
-			for(var/mob/shadowling in GLOB.alive_mob_list)
-				if(!is_shadow(shadowling))
-					continue
-				to_chat(shadowling, span_shadowling("<b>Тебе хватает сил для трансформации в истинную форму.</b>"))
+	else if(thralls >= victory_threshold)
+		for(var/mob/shadowling in GLOB.alive_mob_list)
+			if(!is_shadow(shadowling))
+				continue
+			to_chat(shadowling, span_shadowling("<b>Тебе хватает сил для трансформации в истинную форму.</b>"))
 
-		if(!victory_warning_announced && (length(shadowling_thralls) >= warning_threshold))//are the slings very close to winning?
-			victory_warning_announced = TRUE	//then let's give the station a warning
-			GLOB.major_announcement.announce(
-				message = "Сканерами дальнего действия обнаружена большая концентрация психической блюспейс-энергии. Вероятность вознесения тенеморфов высока, всему экипажу следует предотвратить вознесение любой ценой!",
-				new_title = ANNOUNCE_CCPARANORMAL_RU,
-				new_sound = SSstation.announcer.get_rand_report_sound(),
-			)
-			log_game("Shadowling reveal. Powergame and validhunt allowed.")
-		return 1
+	if(!victory_warning_announced && (length(shadowling_thralls) >= warning_threshold))//are the slings very close to winning?
+		victory_warning_announced = TRUE	//then let's give the station a warning
+		GLOB.major_announcement.announce(
+			message = "Сканерами дальнего действия обнаружена большая концентрация психической блюспейс-энергии. Вероятность вознесения тенеморфов высока, всему экипажу следует предотвратить вознесение любой ценой!",
+			new_title = ANNOUNCE_CCPARANORMAL_RU,
+			new_sound = SSstation.announcer.get_rand_report_sound(),
+		)
+		log_game("Shadowling reveal. Powergame and validhunt allowed.")
+	return 1
 
 /datum/game_mode/proc/remove_thrall(datum/mind/thrall_mind, kill = 0)
 	if(!istype(thrall_mind) || !(thrall_mind in shadowling_thralls) || !isliving(thrall_mind.current))
 		return 0 //If there is no mind, the mind isn't a thrall, or the mind's mob isn't alive, return
-	shadowling_thralls.Remove(thrall_mind)
+	var/datum/antagonist/shadowling_thrall/thrall = thrall_mind.has_antag_datum(/datum/antagonist/shadowling_thrall)
+	thrall.silent = TRUE
+	thrall_mind.remove_antag_datum(/datum/antagonist/shadowling_thrall)
 	add_conversion_logs(thrall_mind.current, "De-shadow thralled")
-	thrall_mind.special_role = null
-	update_shadow_icons_removed(thrall_mind)
-	//If you add spells to thrall, be sure to remove them on dethrallize
-	thrall_mind.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_guise)
-	thrall_mind.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_vision/thrall)
-	thrall_mind.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	if(kill && ishuman(thrall_mind.current)) //If dethrallization surgery fails, kill the mob as well as dethralling them
 		var/mob/living/carbon/human/H = thrall_mind.current
 		H.visible_message(span_warning("[H] резко дергается и падает неподвижно."), \
@@ -226,13 +190,12 @@ Made by Xhuis
 		return 1
 
 /datum/game_mode/proc/remove_shadowling(datum/mind/ling_mind)
-	if(!istype(ling_mind) || !(ling_mind in shadows)) return 0
-	update_shadow_icons_removed(ling_mind)
-	shadows.Remove(ling_mind)
+	var/datum/antagonist/shadowling/ling = ling_mind.has_antag_datum(/datum/antagonist/shadowling)
+	if(!ling)
+		return 0
+	ling.silent = TRUE
+	ling_mind.remove_antag_datum(/datum/antagonist/shadowling)
 	add_conversion_logs(ling_mind.current, "Deshadowlinged")
-	ling_mind.special_role = null
-	for(var/obj/effect/proc_holder/spell/spell as anything in ling_mind.spell_list)
-		ling_mind.RemoveSpell(spell)
 	var/mob/living/M = ling_mind.current
 	if(issilicon(M))
 		M.audible_message(span_notice("[M] lets out a short blip."))
@@ -320,11 +283,6 @@ Made by Xhuis
 	var/datum/atom_hud/antag/shadow_hud = GLOB.huds[ANTAG_HUD_SHADOW]
 	shadow_hud.join_hud(shadow_mind.current)
 	set_antag_hud(shadow_mind.current, ((shadow_mind in shadows) ? "hudshadowling" : "hudshadowlingthrall"))
-
-/datum/game_mode/proc/update_shadow_icons_removed(datum/mind/shadow_mind) //This should never actually occur, but it's here anyway.
-	var/datum/atom_hud/antag/shadow_hud = GLOB.huds[ANTAG_HUD_SHADOW]
-	shadow_hud.leave_hud(shadow_mind.current)
-	set_antag_hud(shadow_mind.current, null)
 
 /datum/game_mode/proc/recount_required_thralls()
 	var/thrall_scaling = round(num_players() / 3)

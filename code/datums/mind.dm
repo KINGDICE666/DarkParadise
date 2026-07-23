@@ -1393,42 +1393,25 @@
 				message_admins("[key_name_admin(usr)] has de-rev'd [key_name_admin(current)]")
 
 			if("rev")
-				if(src in SSticker.mode.head_revolutionaries)
-					for(var/datum/action/innate/revolution_recruitment/C in current.actions)
-						qdel(C)
-					SSticker.mode.head_revolutionaries -= src
-					SSticker.mode.update_rev_icons_removed(src)
-					to_chat(current, span_warning(span_fontsize3("<b>Revolution has been disappointed of your leadership traits! You are a regular revolutionary now!</b>")))
-				else if(!(src in SSticker.mode.revolutionaries))
-					to_chat(current, span_warning(span_fontsize3(" You are now a revolutionary! Follow orders given by revolution leaders. Do not harm your fellow freedom fighters. You can identify your comrades by the red \"R\" icons, and your leaders by the blue \"R\" icons.")))
+				var/datum/antagonist/rev/head/head = has_antag_datum(/datum/antagonist/rev/head, FALSE)
+				if(head)
+					head.demote()
+				else if(!has_antag_datum(/datum/antagonist/rev, FALSE))
+					add_antag_datum(/datum/antagonist/rev)
 				else
 					return
-				SSticker.mode.revolutionaries += src
-				SSticker.mode.update_rev_icons_added(src)
-				special_role = SPECIAL_ROLE_REV
-				SEND_SOUND(current, sound('sound/ambience/antag/revolutionary_tide.ogg'))
 				log_admin("[key_name(usr)] has rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has rev'd [key_name_admin(current)]")
 				current.create_log(MISC_LOG, "[current] was made into a revolutionary by [key_name_admin(usr)]")
 
 			if("headrev")
-				if(src in SSticker.mode.revolutionaries)
-					SSticker.mode.revolutionaries -= src
-					SSticker.mode.update_rev_icons_removed(src)
-					to_chat(current, span_userdanger("You have proven your devotion to revolution! You are a head revolutionary now!"))
-				else if(!(src in SSticker.mode.head_revolutionaries))
-					to_chat(current, span_notice("You are a member of the revolutionaries' leadership now!"))
+				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev, FALSE)
+				if(rev)
+					rev.promote()
+				else if(!has_antag_datum(/datum/antagonist/rev/head, FALSE))
+					add_antag_datum(/datum/antagonist/rev/head)
 				else
 					return
-
-				SSticker.mode.head_revolutionaries += src
-				SSticker.mode.update_rev_icons_added(src)
-				special_role = SPECIAL_ROLE_HEAD_REV
-				var/datum/action/innate/revolution_recruitment/recruit_action = locate() in current.actions
-				if(!recruit_action)
-					recruit_action = new
-					recruit_action.Grant(src.current)
-				SEND_SOUND(current, sound('sound/ambience/antag/revolutionary_tide.ogg'))
 				log_admin("[key_name(usr)] has head-rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has head-rev'd [key_name_admin(current)]")
 				current.create_log(MISC_LOG, "[current] was made into a head revolutionary by [key_name_admin(usr)]")
@@ -2286,13 +2269,8 @@
 				if(!ishuman(current))
 					to_chat(usr, span_warning("This only works on humans!"))
 					return
-				SSticker.mode.shadows += src
-				special_role = SPECIAL_ROLE_SHADOWLING
+				add_antag_datum(/datum/antagonist/shadowling)
 				SSticker.mode.recount_required_thralls()
-				to_chat(current, span_shadowling("<b>Что-то всплывает в глубинах вашего разума. Ваш взгляд заливает красным свечением, и вы медленно вспоминаете. Ваша маскировка под гуманоида прекрасно вам послужила, но \
-												время отбросить её и вернуться к своей истинной форме. Вы замаскировались под гуманоида, но вы не один из них. Вы — тенеморф, и вы должны возвыситься любой ценой.</b>"))
-				SSticker.mode.finalize_shadowling(src)
-				SSticker.mode.update_shadow_icons_added(src)
 				log_admin("[key_name(usr)] has shadowlinged [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has shadowlinged [key_name_admin(current)]")
 			if("thrall")
@@ -2660,17 +2638,7 @@
 	antag_datums = null
 
 /datum/mind/proc/remove_revolutionary_role()
-	if(src in SSticker.mode.revolutionaries)
-		SSticker.mode.revolutionaries -= src
-		to_chat(current, span_warning(span_fontsize3("<b>You have been brainwashed! You are no longer a revolutionary!</b>")))
-		SSticker.mode.update_rev_icons_removed(src)
-		special_role = null
-
-	if(src in SSticker.mode.head_revolutionaries)
-		SSticker.mode.head_revolutionaries -= src
-		to_chat(current, span_warning(span_fontsize3("<b>You have been brainwashed! You are no longer a head revolutionary!</b>")))
-		SSticker.mode.update_rev_icons_removed(src)
-		special_role = null
+	remove_antag_datum(/datum/antagonist/rev)
 
 /datum/mind/proc/remove_cult_role()
 	if(src in SSticker.mode.cult)
@@ -2755,14 +2723,10 @@
 	remove_antag_datum(thief_datum)
 
 /datum/mind/proc/remove_shadow_role()
-	SSticker.mode.update_shadow_icons_removed(src)
-	if(src in SSticker.mode.shadows)
-		SSticker.mode.shadows -= src
-		special_role = null
-		current.spellremove(current)
-		current.remove_language(LANGUAGE_HIVE_SHADOWLING)
-	else if(src in SSticker.mode.shadowling_thralls)
-		SSticker.mode.remove_thrall(src,0)
+	if(has_antag_datum(/datum/antagonist/shadowling))
+		remove_antag_datum(/datum/antagonist/shadowling)
+	else if(has_antag_datum(/datum/antagonist/shadowling_thrall))
+		SSticker.mode.remove_thrall(src, 0)
 
 /datum/mind/proc/remove_ninja_role()
 	var/datum/antagonist/ninja/ninja_datum = has_antag_datum(/datum/antagonist/ninja)
@@ -2910,10 +2874,7 @@
 	ninja_datum.make_objectives_generate_antags(NINJA_TYPE_GENERIC, custom_objective)
 
 /datum/mind/proc/make_Rev()
-	SSticker.mode.head_revolutionaries += src
-	SSticker.mode.forge_revolutionary_objectives(src)
-	SSticker.mode.equip_revolutionary(current)
-	SSticker.mode.greet_revolutionary(src,0)
+	add_antag_datum(/datum/antagonist/rev/head)
 
 /datum/mind/proc/make_Thief()
 	if(!has_antag_datum(/datum/antagonist/thief))
