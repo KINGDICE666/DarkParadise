@@ -106,7 +106,3 @@
 		INSTRUMENTAL = "черепахой",
 		PREPOSITIONAL = "черепахе",
 	)
-
-/mob/living/simple_animal/turtle/Initialize(mapload)
-	. = ..()
-	add_traits(list(TRAIT_NODROWN, TRAIT_SWIMMER), INNATE_TRAIT)

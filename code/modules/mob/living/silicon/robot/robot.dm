@@ -529,14 +529,11 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	icon = initial(icon)
 	icon_state = "robot"
 	base_icon = "robot"
-	if(module)
-		module.remove_subsystems_and_actions(src)
+	module.remove_subsystems_and_actions(src)
 	transform = matrix()
 
 	for(var/obj/item/borg/upgrade/upgrade in upgrades) //remove all upgrades, cuz we reseting
 		qdel(upgrade)
-
-	module.on_remove(src)
 
 	QDEL_NULL(module)
 
@@ -1499,8 +1496,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 		return TRUE
 
 /mob/living/silicon/robot/proc/radio_menu()
-	if(radio)
-		radio.interact(src)
+	radio.interact(src)
 
 /mob/living/silicon/robot/proc/control_headlamp()
 	if(stat || lamp_cooldown > world.time || low_power_mode)
@@ -1599,11 +1595,63 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	eject_riders()
 	qdel(src)
 
-/mob/living/silicon/robot/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change)
+/mob/living/silicon/robot/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
+	var/oldLoc = src.loc
 	. = ..()
+
 	if(.)
-		if(camera && old_loc != src.loc)
+		if(camera && oldLoc != src.loc)
 			GLOB.cameranet.updatePortableCamera(src.camera)
+
+	if(module)
+		if(module.type == /obj/item/robot_module/janitor)
+			var/turf/tile = loc
+			if(stat != DEAD && isturf(tile))
+				var/floor_only = TRUE
+
+				for(var/A in tile)
+					if(iseffect(A))
+						var/obj/effect/check = A
+
+						if(check.is_cleanable())
+							var/obj/effect/decal/cleanable/blood/B = check
+
+							if(istype(B) && B.off_floor)
+								floor_only = FALSE
+
+							else
+								qdel(B)
+
+					else if(isitem(A))
+						var/obj/item/cleaned_item = A
+						cleaned_item.clean_blood()
+
+					else if(ishuman(A))
+						var/mob/living/carbon/human/cleaned_human = A
+
+						if(cleaned_human.body_position == LYING_DOWN)
+							if(cleaned_human.head)
+								cleaned_human.head.clean_blood()
+								cleaned_human.update_worn_head()
+
+							if(cleaned_human.wear_suit)
+								cleaned_human.wear_suit.clean_blood()
+								cleaned_human.update_worn_oversuit()
+
+							else if(cleaned_human.w_uniform)
+								cleaned_human.w_uniform.clean_blood()
+								cleaned_human.update_worn_undersuit()
+
+							if(cleaned_human.shoes)
+								cleaned_human.shoes.clean_blood()
+								cleaned_human.update_worn_shoes()
+
+							cleaned_human.clean_blood()
+							to_chat(cleaned_human, span_danger("[src] cleans your face!"))
+
+				if(floor_only)
+					tile.clean_blood()
+		return
 
 /mob/living/silicon/robot/proc/self_destruct()
 	apply_status_effect(/datum/status_effect/selfdestruct, src)
@@ -1681,12 +1729,10 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 // Proc that calls radial menu for borg to choose AFTER he chose his module.
 // In module there is borg_skins
 /mob/living/silicon/robot/proc/choose_icon()
-	if(!module)
-		return
-	var/datum/robot_skin/skin = select_skin(module.borg_skins, module.default_skin)
+	var/datum/robot_skin/skin = select_skin(module.borg_skins, module?.default_skin)
 	if(!skin)
 		return
-	set_skin(skin, TRUE, skin.type != module.default_skin)
+	set_skin(skin, TRUE, skin.type != module?.default_skin)
 	return
 
 /mob/living/silicon/robot/proc/select_skin(list/skins, default_skin_name)
@@ -2233,8 +2279,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 
 	set_hud_image_state(DIAG_AISHELL_STAT_HUD, "hudtrackingai-active")
 	mainframe.set_hud_image_state(DIAG_AISHELL_STAT_HUD, "hudtrackingai")
-	if(module && mainframe?.aiRadio)
-		module.channels = mainframe.aiRadio.channels
+	module.channels = mainframe.aiRadio.channels
 	radio.recalculate_channels()
 
 //Called when the AI is leaving the AIshell.
@@ -2299,7 +2344,4 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	if(!check_rights(R_SKINS) && (var_name in list("icon", "icon_state")))
 		return FALSE
 	. = ..()
-
-/mob/living/silicon/robot/get_lootpanel_cache_key()
-	return "[module?.type] [selected_skin?.type]"
 

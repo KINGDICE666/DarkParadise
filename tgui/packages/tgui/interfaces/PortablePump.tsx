@@ -1,4 +1,3 @@
-import { BooleanLike } from 'common/react';
 import { useBackend } from '../backend';
 import {
   Button,
@@ -23,8 +22,6 @@ export type PortableBaseData = {
   port_connected: boolean;
   on: boolean;
   holding_tank: Tank;
-  hasHypernobCrystal: BooleanLike;
-  reactionSuppressionEnabled: BooleanLike;
 };
 
 type Tank = {
@@ -57,28 +54,11 @@ export const PortablePump = (_props: unknown) => {
 
 const PumpSettings = (_props: unknown) => {
   const { act, data } = useBackend<PortablePumpData>();
-  const {
-    on,
-    direction,
-    port_connected,
-    hasHypernobCrystal,
-    reactionSuppressionEnabled,
-  } = data;
+  const { on, direction, port_connected } = data;
 
   return (
     <Section title="Pump Settings">
       <LabeledList>
-        {!!hasHypernobCrystal && (
-          <LabeledList.Item label="Reaction Suppression">
-            <Button
-              icon={reactionSuppressionEnabled ? 'snowflake' : 'times'}
-              selected={reactionSuppressionEnabled}
-              onClick={() => act('reaction_suppression')}
-            >
-              {reactionSuppressionEnabled ? 'Enabled' : 'Disabled'}
-            </Button>
-          </LabeledList.Item>
-        )}
         <LabeledList.Item label="Power">
           <Button
             icon={on ? 'power-off' : 'power-off'}

@@ -475,6 +475,13 @@
 		uses--
 		return ..()
 
+	if(ismindshielded(L))
+		target.visible_message(
+			span_warning("Имплант [target.declent_ru(GENITIVE)] блокирует красный свет!"),
+			span_userdanger("Ваш имплант блокирует ослепляющий свет!"),
+		)
+		return ..()
+
 	to_chat(user, span_cultitalic("In a brilliant flash of red, [L] falls to the ground!"))
 	// These are in life cycles, so double the time that's stated.
 	L.Knockdown(3 SECONDS)

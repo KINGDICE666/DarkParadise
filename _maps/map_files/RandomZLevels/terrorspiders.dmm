@@ -267,13 +267,17 @@
 /turf/simulated/floor/carpet,
 /area/awaymission/UO71/plaza)
 "aQ" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
 /area/awaymission/UO71/plaza)
 "aR" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -1042,7 +1046,9 @@
 /obj/structure/disposalpipe/segment{
 	dir = 4
 	},
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 10
 	},
@@ -1121,7 +1127,9 @@
 /obj/structure/disposalpipe/segment{
 	dir = 10
 	},
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "green"
@@ -1970,7 +1978,9 @@
 	},
 /area/awaymission/UO71/centralhall)
 "fw" = (
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	pixel_y = 28
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "showroomfloor"
 	},
@@ -2174,7 +2184,9 @@
 /turf/simulated/wall,
 /area/awaymission/UO71/centralhall)
 "fY" = (
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	pixel_y = 28
+	},
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "cafeteria"
@@ -2438,7 +2450,7 @@
 "gJ" = (
 /obj/structure/table,
 /obj/item/stack/packageWrap,
-/obj/item/rag,
+/obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/plasteel{
 	icon_state = "bar"
 	},
@@ -3346,7 +3358,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/UO71/gateway)
 "ja" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/sign/nosmoking_2{
 	pixel_x = -32
@@ -3540,7 +3554,9 @@
 /turf/simulated/floor/plating,
 /area/awaymission/UO71/science)
 "jD" = (
-/obj/machinery/shower/directional/south,
+/obj/machinery/shower{
+	pixel_y = 15
+	},
 /obj/effect/turf_decal/stripes/line{
 	dir = 1
 	},
@@ -3549,7 +3565,9 @@
 	},
 /area/awaymission/UO71/science)
 "jE" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 25
+	},
 /obj/effect/turf_decal/stripes/line{
 	dir = 5
 	},
@@ -6839,7 +6857,10 @@
 /obj/structure/mirror{
 	pixel_x = 28
 	},
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -6987,7 +7008,10 @@
 	},
 /area/awaymission/UO71/centralhall)
 "qQ" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -7282,7 +7306,10 @@
 /obj/structure/mirror{
 	pixel_x = 28
 	},
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -8065,7 +8092,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/UO71/bridge)
 "sX" = (
-/obj/machinery/shower/directional/east,
+/obj/machinery/shower{
+	dir = 4
+	},
 /obj/item/soap/nanotrasen,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -8081,7 +8110,9 @@
 	},
 /area/awaymission/UO71/centralhall)
 "sZ" = (
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -8394,7 +8425,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/UO71/bridge)
 "tP" = (
-/obj/machinery/shower/directional/east,
+/obj/machinery/shower{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -8754,7 +8787,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/UO71/bridge)
 "uA" = (
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /obj/item/bikehorn/rubberducky,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
@@ -8771,7 +8806,9 @@
 /turf/simulated/wall,
 /area/awaymission/UO71/eng)
 "uD" = (
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -10113,7 +10150,10 @@
 	},
 /area/awaymission/UO71/eng)
 "xE" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /obj/machinery/light/small,
 /obj/structure/mirror{
 	pixel_x = 28

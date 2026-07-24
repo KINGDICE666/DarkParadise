@@ -317,7 +317,9 @@
 /area/shuttle/administration)
 "bR" = (
 /obj/machinery/optable,
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "titanium_blue"
@@ -869,8 +871,13 @@
 	},
 /area/shuttle/administration)
 "OA" = (
-/obj/structure/sink/directional/east,
-/obj/machinery/shower/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12
+	},
+/obj/machinery/shower{
+	dir = 4
+	},
 /obj/structure/curtain/open/shower,
 /turf/simulated/floor/shuttle{
 	icon_state = "floor3"

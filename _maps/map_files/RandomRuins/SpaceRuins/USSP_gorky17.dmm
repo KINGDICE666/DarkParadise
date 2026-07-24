@@ -4636,7 +4636,10 @@
 	},
 /area/ruin/space/USSP_gorky17/utility)
 "ro" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 12
+	},
 /obj/machinery/defibrillator_mount/directional/east,
 /obj/machinery/light{
 	dir = 4
@@ -9368,7 +9371,10 @@
 /area/ruin/space/USSP_gorky17/rnd)
 "Ih" = (
 /obj/machinery/optable,
-/obj/machinery/shower/directional/south,
+/obj/machinery/shower{
+	pixel_x = -3;
+	pixel_y = 3
+	},
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
 /turf/simulated/floor/plasteel{
@@ -11941,7 +11947,10 @@
 	},
 /area/ruin/space/USSP_gorky17/gate)
 "Rj" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 12
+	},
 /obj/structure/cable{
 	icon_state = "1-2"
 	},

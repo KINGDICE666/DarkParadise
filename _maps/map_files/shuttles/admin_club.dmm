@@ -209,7 +209,7 @@
 /area/shuttle/administration)
 "tM" = (
 /obj/structure/table/reinforced,
-/obj/item/rag,
+/obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/glass/reinforced/plasma,
 /area/shuttle/administration)
 "tQ" = (

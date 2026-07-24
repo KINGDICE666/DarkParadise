@@ -115,7 +115,10 @@
 /turf/simulated/floor/wood,
 /area/ruin/powered/green_bio)
 "iW" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "redfull"
 	},
@@ -390,7 +393,10 @@
 /turf/simulated/floor/carpet,
 /area/ruin/powered/green_bio)
 "Ci" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -603,7 +609,9 @@
 /obj/structure/window/reinforced{
 	dir = 8
 	},
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /obj/item/soap/syndie,
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"

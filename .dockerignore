@@ -6,6 +6,7 @@ README.md
 .gitignore
 .gitattributes
 .git
+.gemini
 .vs*
 cfg
 data

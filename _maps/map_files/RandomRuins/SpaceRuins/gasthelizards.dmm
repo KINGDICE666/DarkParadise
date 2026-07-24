@@ -307,7 +307,9 @@
 /area/ruin/space/gasthelizards/viewzone)
 "kO" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/sink/directional/north,
+/obj/structure/sink{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

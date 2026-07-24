@@ -1,6 +1,6 @@
 /obj/effect/proc_holder/spell/aoe/conjure
 	desc = "This spell conjures objs of the specified types in range."
-	/// Determines what exactly will be summoned. Should be text, like list("/mob/simple_animal/bot/ed209").
+	/// Determines what exactly will be summoned. Must be a list, like list(/mob/simple_animal/bot/ed209).
 	var/list/summon_type = list()
 	/// 0=permanent, any other time in deciseconds.
 	var/summon_lifespan = 0

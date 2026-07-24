@@ -33,7 +33,6 @@
 			/obj/item/grown/nettle/death = list("facid" = 0, "sacid" = 0),
 			/obj/item/grown/novaflower = list("capsaicin" = 0, "condensedcapsaicin" = 0),
 			/obj/item/stack/sheet/cheese = list("milk" = 20),
-			/obj/item/stack/ammonia_crystals = list("ammonia" = 10),
 
 			//Blender Stuff
 			/obj/item/reagent_containers/food/snacks/grown/tomato = list("ketchup" = 0),
@@ -205,7 +204,7 @@
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(is_reagent_container(I) && (I.container_type & OPENCONTAINER))
+	if(is_reagentcontainer(I) && (I.container_type & OPENCONTAINER))
 		add_fingerprint(user)
 		if(panel_open)
 			balloon_alert(user, "панель открыта!")
@@ -222,7 +221,7 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	add_fingerprint(user)
-	if(is_type_in_list(I, dried_items) && istype(I, /obj/item/reagent_containers/food/snacks/grown))
+	if(is_type_in_list(I, dried_items) && is_grownsnacks(I))
 		var/obj/item/reagent_containers/food/snacks/grown/grown = I
 		if(!grown.dry)
 			balloon_alert(user, "сначала высушите!")

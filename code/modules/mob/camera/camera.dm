@@ -19,7 +19,9 @@
 	return // Immune to gas flow.
 
 /mob/camera/forceMove(atom/destination)
-	abstract_move(destination)
+	var/oldloc = loc
+	loc = destination
+	Moved(oldloc, NONE)
 
 /mob/camera/move_up()
 	set name = "Подняться"

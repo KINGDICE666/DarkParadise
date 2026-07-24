@@ -174,7 +174,7 @@
 	var/obj/item/reagent_containers/food/snacks/newfood = gettype()
 	setIcon(cooking, newfood)
 	changename(cooking, newfood)
-	if(is_reagent_container(cooking))
+	if(is_reagentcontainer(cooking))
 		setRegents(cooking, newfood)
 	if(is_snack)
 		setCooked(cooking, newfood)

@@ -74,9 +74,6 @@
 	armor = list(MELEE = 100, BULLET = 100, LASER = 100, ENERGY = 100, BOMB = 100, BIO = 100, FIRE = 100, ACID = 100)
 
 // Most of these overrides procs below are overkill, but better safe than sorry.
-/obj/effect/abstract/swarmer_act()
-	return
-
 /obj/effect/abstract/bullet_act(obj/projectile/P)
 	return
 
@@ -92,7 +89,7 @@
 /obj/effect/abstract/singularity_act()
 	return
 
-/obj/effect/abstract/has_gravity(turf/gravity_turf)
+/obj/effect/abstract/get_gravity(turf/gravity_turf)
 	return FALSE
 
 /obj/effect/abstract/narsie_act()

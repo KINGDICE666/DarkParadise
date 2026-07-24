@@ -660,7 +660,9 @@
 /turf/simulated/floor/plating,
 /area/ruin/unpowered)
 "kO" = (
-/obj/machinery/shower/directional/south,
+/obj/machinery/shower{
+	pixel_y = 20
+	},
 /obj/structure/curtain/open/shower,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
@@ -1024,7 +1026,11 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "qY" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12;
+	pixel_y = 2
+	},
 /obj/effect/decal/cleanable/dirt,
 /obj/item/stack/ore/glass/basalt,
 /obj/structure/mirror{
@@ -1524,7 +1530,9 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Av" = (
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /obj/structure/curtain/open/shower,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,

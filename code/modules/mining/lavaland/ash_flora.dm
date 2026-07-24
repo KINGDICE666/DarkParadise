@@ -422,8 +422,6 @@
 		qdel(src)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	return ..()
-
 //SEEDS
 
 /obj/item/seeds/lavaland

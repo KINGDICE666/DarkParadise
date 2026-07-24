@@ -22,7 +22,6 @@
 	verb_yell = "ревёт"
 
 	blood_color = BLOOD_COLOR_XENO
-	looting_icon_mode = LOOT_ICON_ICON_TO_HTML
 
 	var/obj/item/card/id/wear_id = null // Fix for station bounced radios -- Skie
 	var/has_fine_manipulation = FALSE

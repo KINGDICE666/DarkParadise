@@ -223,7 +223,7 @@
 
 	var/datum/picture/P = new()
 	if(istype(src,/obj/item/camera/digital) && ishuman(user))
-		P.fields["name"] = tgui_input_text(user, "Name photo:", "Photo")
+		P.fields["name"] = tgui_input_text(user, "Name photo:", "Photo", encode = FALSE)
 		P.name = P.fields["name"]//So the name is displayed on the print/delete list.
 	else
 		P.fields["name"] = "photo"

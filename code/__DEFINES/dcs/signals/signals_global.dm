@@ -54,3 +54,6 @@
 
 /// Global signal when starlight color is changed (old_star, new_star)
 #define COMSIG_STARLIGHT_COLOR_CHANGED "!starlight_color_changed"
+
+/// Swarmer core was destroyed
+#define COMSIG_GLOB_SWARMER_CORE_DESTROYED "!swarmer_core_destroy"

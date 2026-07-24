@@ -147,7 +147,9 @@
 "ay" = (
 /obj/item/bikehorn/rubberducky,
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /obj/structure/curtain/open/shower,
 /turf/simulated/floor/plasteel/white,
 /area/mine/laborcamp)
@@ -438,7 +440,7 @@
 /area/mine/living_quarters)
 "bt" = (
 /obj/structure/table/reinforced,
-/obj/item/rag,
+/obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/plasteel{
 	icon_state = "grimy"
 	},
@@ -1669,7 +1671,9 @@
 /obj/structure/mirror{
 	pixel_y = -30
 	},
-/obj/structure/sink/directional/north,
+/obj/structure/sink{
+	dir = 1
+	},
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 1
 	},
@@ -1688,7 +1692,9 @@
 /area/mine/living_quarters)
 "gi" = (
 /obj/structure/curtain/open/shower,
-/obj/machinery/shower/directional/south,
+/obj/machinery/shower{
+	pixel_y = 20
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -2172,7 +2178,9 @@
 /obj/structure/mirror{
 	pixel_y = -30
 	},
-/obj/structure/sink/directional/north,
+/obj/structure/sink{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "freezerfloor"
 	},
@@ -4876,7 +4884,9 @@
 /turf/simulated/floor/plasteel,
 /area/mine/laborcamp)
 "yG" = (
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /obj/structure/extinguisher_cabinet/directional/north,
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -7093,7 +7103,10 @@
 	network = list("Mining Outpost")
 	},
 /obj/machinery/optable,
-/obj/machinery/shower/directional/south,
+/obj/machinery/shower{
+	pixel_x = -3;
+	pixel_y = 3
+	},
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
 /turf/simulated/floor/plasteel{
@@ -7104,7 +7117,10 @@
 "NG" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit,
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12
+	},
 /obj/structure/mirror{
 	pixel_x = -28
 	},

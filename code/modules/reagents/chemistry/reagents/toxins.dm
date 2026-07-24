@@ -234,14 +234,8 @@
 	/// How radioactive is this reagent
 	var/rad_power = 2
 
-#define RADIOACTIVE_HEAL -3
-
 /datum/reagent/radium/on_mob_life(mob/living/affected_mob)
 	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
 	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
 		var/chance = min(volume / (20 - rad_power * 5), rad_power)
 		if(prob(chance))
@@ -277,10 +271,6 @@
 
 /datum/reagent/polonium/on_mob_life(mob/living/affected_mob)
 	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
 	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
 		var/chance = min(volume / (20 - rad_power * 5), rad_power)
 		if(prob(chance))
@@ -379,10 +369,6 @@
 
 /datum/reagent/uranium/on_mob_life(mob/living/affected_mob)
 	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
 	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
 		var/chance = min(volume / (20 - rad_power * 5), rad_power)
 		if(prob(chance))
@@ -402,8 +388,6 @@
 			threshold = RAD_VERY_LIGHT_INSULATION,
 			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
 		)
-
-#undef RADIOACTIVE_HEAL
 
 /datum/reagent/lexorin
 	name = "Лексорин"
@@ -457,7 +441,7 @@
 		var/should_scream = TRUE
 
 		for(var/obj/item/organ/external/bodypart as anything in H.bodyparts)
-			if(istype(bodypart, /obj/item/organ/external/head) && !H.wear_mask && !H.head && volume > 25)
+			if(ishead(bodypart) && !H.wear_mask && !H.head && volume > 25)
 				bodypart.disfigure()
 				if(H.has_pain() && should_scream)
 					H.emote("scream")

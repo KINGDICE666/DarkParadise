@@ -1128,7 +1128,9 @@
 	dir = 9
 	},
 /obj/effect/turf_decal/siding/wood/corner,
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	pixel_y = 26
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "sepia"
 	},
@@ -2037,7 +2039,9 @@
 /turf/simulated/floor/pod/dark,
 /area/ruin/space/pirate_base/atrium)
 "fT" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 22
+	},
 /obj/effect/turf_decal/delivery/blue,
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -2250,7 +2254,9 @@
 /obj/effect/turf_decal/tile/neutral{
 	dir = 1
 	},
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /obj/effect/turf_decal{
 	icon_state = "plumbing";
 	name = "plumbing";
@@ -3413,7 +3419,10 @@
 /obj/effect/turf_decal/tile/neutral{
 	dir = 1
 	},
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -13
+	},
 /obj/structure/mirror{
 	pixel_x = -25
 	},
@@ -5594,7 +5603,10 @@
 	},
 /area/ruin/space/pirate_base/lab_sec)
 "qV" = (
-/obj/machinery/shower/directional/east,
+/obj/machinery/shower{
+	dir = 4;
+	pixel_x = -2
+	},
 /obj/structure/curtain/open/shower,
 /obj/effect/turf_decal{
 	icon_state = "plumbing";
@@ -5941,7 +5953,10 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/pirate_base/mining)
 "sb" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -13
+	},
 /obj/structure/mirror{
 	pixel_x = -25
 	},
@@ -11644,7 +11659,9 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/pirate_base/mining)
 "Jy" = (
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /obj/effect/turf_decal/delivery/blue,
 /obj/effect/turf_decal/stripes/line{
 	dir = 9
@@ -12072,7 +12089,9 @@
 /turf/simulated/floor/plating,
 /area/ruin/space/pirate_base/lab_solar)
 "KI" = (
-/obj/machinery/shower/directional/west,
+/obj/machinery/shower{
+	dir = 8
+	},
 /obj/effect/turf_decal/delivery/blue,
 /obj/effect/turf_decal/stripes/line{
 	dir = 10
@@ -12219,7 +12238,10 @@
 	},
 /area/ruin/space/pirate_base/lab_hall)
 "KV" = (
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	name = "sink";
+	pixel_y = 28
+	},
 /obj/effect/decal/cleanable/dirt,
 /mob/living/simple_animal/hostile/pirate{
 	health = 200;
@@ -13215,7 +13237,11 @@
 /obj/structure/window/reinforced{
 	dir = 8
 	},
-/obj/structure/sink/directional/north,
+/obj/structure/sink{
+	dir = 1;
+	layer = 5;
+	pixel_y = -5
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "whitebluefull"
 	},
@@ -13398,7 +13424,11 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/pirate_base/atrium)
 "OF" = (
-/obj/structure/sink/directional/north,
+/obj/structure/sink{
+	dir = 1;
+	layer = 5;
+	pixel_y = -5
+	},
 /obj/effect/turf_decal/delivery/blue,
 /obj/effect/turf_decal/stripes/line{
 	dir = 5
@@ -13771,7 +13801,10 @@
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/unpowered)
 "PG" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -13
+	},
 /obj/structure/mirror{
 	pixel_x = -25
 	},
@@ -15999,7 +16032,10 @@
 	},
 /area/ruin/space/pirate_base/security_medical)
 "WD" = (
-/obj/machinery/shower/directional/east,
+/obj/machinery/shower{
+	dir = 4;
+	pixel_x = -2
+	},
 /obj/structure/curtain/open/shower,
 /obj/effect/turf_decal{
 	icon_state = "plumbing";
@@ -16543,7 +16579,10 @@
 /turf/simulated/floor/plating,
 /area/ruin/space/pirate_base/prison_maint)
 "Yf" = (
-/obj/machinery/shower/directional/east,
+/obj/machinery/shower{
+	dir = 4;
+	pixel_x = -2
+	},
 /obj/structure/curtain/open/shower,
 /obj/effect/turf_decal{
 	icon_state = "plumbing";
@@ -16900,7 +16939,9 @@
 /obj/machinery/door/window/northleft{
 	req_access = list(160)
 	},
-/obj/machinery/shower/directional/north,
+/obj/machinery/shower{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},

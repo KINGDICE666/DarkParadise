@@ -14,7 +14,6 @@ import {
 } from '../components';
 import { formatSiUnit } from '../format';
 import { Window } from '../layouts';
-import { BooleanLike } from 'common/react';
 
 type CanisterData = {
   portConnected: boolean;
@@ -23,13 +22,11 @@ type CanisterData = {
   defaultReleasePressure: number;
   minReleasePressure: number;
   maxReleasePressure: number;
-  hasHypernobCrystal: BooleanLike;
   valveOpen: boolean;
   name: string;
   canLabel: boolean;
   hasHoldingTank: boolean;
   holdingTank: HoldingTank;
-  reactionSuppressionEnabled: BooleanLike;
 };
 
 type HoldingTank = {
@@ -51,8 +48,6 @@ export const Canister = (_props: unknown) => {
     canLabel,
     hasHoldingTank,
     holdingTank,
-    hasHypernobCrystal,
-    reactionSuppressionEnabled,
   } = data;
 
   return (
@@ -171,20 +166,6 @@ export const Canister = (_props: unknown) => {
               </Tooltip>
             </LabeledControls.Item>
           </LabeledControls>
-        </Section>
-        <Section>
-          <LabeledList>
-            {!!hasHypernobCrystal && (
-              <LabeledList.Item label="Reaction Suppression">
-                <Button
-                  icon={reactionSuppressionEnabled ? 'snowflake' : 'times'}
-                  content={reactionSuppressionEnabled ? 'Enabled' : 'Disabled'}
-                  selected={reactionSuppressionEnabled}
-                  onClick={() => act('reaction_suppression')}
-                />
-              </LabeledList.Item>
-            )}
-          </LabeledList>
         </Section>
         <Section
           title="Holding Tank"

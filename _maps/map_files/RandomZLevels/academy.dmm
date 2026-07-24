@@ -665,7 +665,9 @@
 	},
 /area/awaymission/academy/classrooms)
 "dk" = (
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	pixel_y = 28
+	},
 /obj/item/reagent_containers/glass/bucket,
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -874,7 +876,11 @@
 /turf/simulated/floor/carpet,
 /area/awaymission/academy/headmaster)
 "dX" = (
-/obj/structure/sink/kitchen/directional/south,
+/obj/structure/sink/kitchen{
+	desc = "A sink used for washing one's hands and face. It looks rusty and home-made";
+	name = "old sink";
+	pixel_y = 28
+	},
 /obj/effect/decal/cleanable/vomit{
 	pixel_x = 6;
 	pixel_y = 7
@@ -1940,7 +1946,11 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/academy/academyaft)
 "is" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12;
+	pixel_y = 2
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "cafeteria"
 	},
@@ -2297,7 +2307,10 @@
 /turf/simulated/floor/carpet/cyan,
 /area/awaymission/academy/headmaster)
 "jG" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "cafeteria"
 	},
@@ -2942,7 +2955,10 @@
 	},
 /area/awaymission/academy/headmaster)
 "nS" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /obj/structure/sign/poster/contraband/random{
 	pixel_x = 32
 	},
@@ -3945,7 +3961,11 @@
 /turf/simulated/floor/carpet/black,
 /area/awaymission/academy/headmaster)
 "ye" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12;
+	pixel_y = 2
+	},
 /obj/structure/sign/poster/contraband/random{
 	pixel_x = -32
 	},
@@ -4700,7 +4720,7 @@
 /area/awaymission/academy/headmaster)
 "Gx" = (
 /obj/structure/table/reinforced,
-/obj/item/rag,
+/obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/plasteel{
 	icon_state = "barber"
 	},
@@ -5414,7 +5434,11 @@
 	},
 /area/awaymission/academy/academyaft)
 "Oo" = (
-/obj/structure/sink/directional/east,
+/obj/structure/sink{
+	dir = 8;
+	pixel_x = -12;
+	pixel_y = 2
+	},
 /obj/effect/decal/cleanable/vomit,
 /turf/simulated/floor/plasteel{
 	icon_state = "cafeteria"

@@ -148,12 +148,14 @@
 			playsound(src, 'sound/effects/meteorimpact.ogg', 100, TRUE)
 
 /obj/attack_animal(mob/living/simple_animal/M)
+	..()
 	if((M.a_intent == INTENT_HELP && M.ckey) || (!M.melee_damage_upper && !M.obj_damage))
 		if(!M.can_use_machinery(src))
 			M.custom_emote(EMOTE_VISIBLE, "[M.friendly] [src].")
 			return FALSE
 
 		interact(M)
+		return TRUE
 
 	if(GLOB.pacifism_after_gt || HAS_TRAIT(M, TRAIT_PACIFISM))
 		to_chat(M, span_notice("Немного подумав, Вы решаете не трогать [declent_ru(ACCUSATIVE)]."))
@@ -267,8 +269,7 @@ GLOBAL_DATUM_INIT(acid_overlay, /mutable_appearance, mutable_appearance('icons/e
 	deconstruct(FALSE)
 
 /// Called when the obj is no longer on fire.
-/obj/extinguish()
-	. = ..()
+/obj/proc/extinguish()
 	if(resistance_flags & ON_FIRE)
 		resistance_flags &= ~ON_FIRE
 		cut_overlay(custom_fire_overlay ? custom_fire_overlay : GLOB.fire_overlay, TRUE)

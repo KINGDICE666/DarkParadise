@@ -743,13 +743,13 @@
 				to_chat(user, span_warning("Nothing happens..."))
 
 /obj/machinery/hydroponics/attackby(obj/item/I, mob/user, params)
-	var/is_reagent_container = is_reagent_container(I)
+	var/is_reagent_container = is_reagentcontainer(I)
 	if(user.a_intent == INTENT_HARM)
 		if(is_reagent_container)
 			return ..() | ATTACK_CHAIN_NO_AFTERATTACK
 		return ..()
 
-	if(is_reagent_container(I))  // Syringe stuff (and other reagent containers now too)
+	if(is_reagentcontainer(I))  // Syringe stuff (and other reagent containers now too)
 		add_fingerprint(user)
 		var/obj/item/reagent_containers/reagent_source = I
 		var/is_syringe = issyringe(reagent_source)
@@ -828,7 +828,7 @@
 
 		return ATTACK_CHAIN_PROCEED_SUCCESS|ATTACK_CHAIN_NO_AFTERATTACK
 
-	if(istype(I, /obj/item/seeds) && !istype(I, /obj/item/seeds/sample))
+	if(is_seeds(I) && !istype(I, /obj/item/seeds/sample))
 		add_fingerprint(user)
 		if(myseed)
 			to_chat(user, span_warning("The [name] already has [myseed] inside."))

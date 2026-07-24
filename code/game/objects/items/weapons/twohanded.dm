@@ -101,7 +101,6 @@
 	icon_state = "fireaxe0"
 	name = "fire axe"
 	desc = "Truly, the weapon of a madman. Who would think to fight fire with an axe?"
-	base_icon_state = "fireaxe"
 	gender = MALE
 	force = 5
 	throwforce = 15
@@ -133,7 +132,7 @@
 	)
 
 /obj/item/twohanded/fireaxe/update_icon_state()  //Currently only here to fuck with the on-mob icons.
-	icon_state = "[base_icon_state][HAS_TRAIT(src, TRAIT_WIELDED)]"
+	icon_state = "fireaxe[HAS_TRAIT(src, TRAIT_WIELDED)]"
 
 /obj/item/twohanded/fireaxe/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
 	. = ..()
@@ -148,7 +147,6 @@
 	icon_state = "bone_axe0"
 	name = "bone axe"
 	desc = "Большой и мощный топор, созданный из нескольких остро заточенных костяных пластин, грубо связанных вместе. Создан из монстров, путём убийства монстров, для убийства монстров."
-	base_icon_state = "bone_axe"
 	force_wielded = 23
 	needs_permit = TRUE
 
@@ -162,11 +160,13 @@
 		PREPOSITIONAL = "костяном топоре",
 	)
 
+/obj/item/twohanded/fireaxe/boneaxe/update_icon_state()
+	icon_state = "bone_axe[HAS_TRAIT(src, TRAIT_WIELDED)]"
+
 /obj/item/twohanded/fireaxe/boneaxe/guillotine
 	name = "guillotine"
 	desc = "Массивный, грозно выглядящий пилотопор, созданный с использованием костяного нароста ослеплённого жнеца. Идеален для убийства и последующей разделки чудовищ."
 	icon_state = "guillotine0"
-	base_icon_state = "guillotine"
 	hitsound = 'sound/weapons/circsawhit.ogg'
 	force_unwielded = 7
 	force_wielded = 25
@@ -197,6 +197,9 @@
 		requires_wielded = TRUE, \
 		swing_sound = SFX_CHOP_SWING_HEAVY \
 	)
+
+/obj/item/twohanded/fireaxe/boneaxe/guillotine/update_icon_state()
+	icon_state = "guillotine[HAS_TRAIT(src, TRAIT_WIELDED)]"
 
 /obj/item/twohanded/fireaxe/energized
 	desc = "Someone with a love for fire axes decided to turn this one into a high-powered energy weapon. Seems excessive."
@@ -250,18 +253,6 @@
 	var/atom/throw_target = get_edge_target_turf(target, get_dir(src, get_step_away(target, src)))
 	INVOKE_ASYNC(target, TYPE_PROC_REF(/atom/movable, throw_at), throw_target, 5, 1)
 
-/obj/item/twohanded/fireaxe/metal_h2_axe
-	name = "metallic hydrogen axe"
-	desc = "A lightweight crowbar with an extreme sharp fire axe head attached. It trades its heft as a weapon by making it easier to carry around when holstered to suits without having to sacrifice your backpack."
-	icon_state = "metalh2_axe0"
-	base_icon_state = "metalh2_axe"
-	//icon_angle = -45
-	force_wielded = 15
-	throwforce = 30
-	//demolition_mod = 2
-	tool_behaviour = TOOL_CROWBAR
-	toolspeed = 1
-
 /*
  * Double-Bladed Energy Swords - Cheridan
  */
@@ -285,6 +276,7 @@
 	armour_penetration = 35
 	origin_tech = "magnets=4;syndicate=5"
 	attack_verb = list("атаковал", "полоснул", "уколол", "поранил", "порезал")
+	block_chance = 75
 	sharp_when_wielded = TRUE // only sharp when wielded
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 70)
 	resistance_flags = FIRE_PROOF
@@ -310,9 +302,6 @@
 	RegisterSignal(src, COMSIG_TWOHANDED_WIELD, PROC_REF(on_wield))	//We need to listen for item wield
 	if(!blade_color)
 		blade_color = pick("red", "blue", "green", "purple", "yellow", "pink", "orange", "darkblue", "rainbow")
-
-/obj/item/twohanded/dualsaber/add_parry_component()
-	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.25, _parryable_attack_types = ALL_ATTACK_TYPES, _parry_cooldown = (1 / 3) SECONDS, _requires_two_hands = TRUE) // 0.3333 seconds of cooldown for 75% uptime
 
 /obj/item/twohanded/dualsaber/ComponentInitialize()
 	. = ..()
@@ -375,7 +364,7 @@
 /obj/item/twohanded/dualsaber/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "атакует", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(HAS_TRAIT(src, TRAIT_WIELDED))
 		return ..()
-	return HIT_RESULT_FAILED
+	return FALSE
 
 /obj/item/twohanded/dualsaber/green
 	blade_color = "green"
@@ -585,7 +574,7 @@
 			M.GiveTarget(L)
 
 /obj/item/twohanded/spear/attackby(obj/item/I, mob/living/user, params)
-	if(istype(I, /obj/item/organ/external/head))	//Putting heads on spears
+	if(ishead(I))	//Putting heads on spears
 		add_fingerprint(user)
 		if(loc == user && !user.can_unEquip(src))
 			return ATTACK_CHAIN_PROCEED
@@ -723,8 +712,8 @@
 	if(attack_type == PROJECTILE_ATTACK)
 		owner.visible_message(span_danger("Дальние атаки только сильнее злят [owner.declent_ru(ACCUSATIVE)]!"), projectile_message = TRUE)
 		playsound(src, pick('sound/weapons/bulletflyby.ogg','sound/weapons/bulletflyby2.ogg','sound/weapons/bulletflyby3.ogg'), 75, 1)
-		return HIT_RESULT_SUCCESS
-	return HIT_RESULT_FAILED
+		return TRUE
+	return FALSE
 
 ///CHAINSAW///
 /obj/item/twohanded/chainsaw
@@ -1061,6 +1050,7 @@
 	throwforce = 24
 	force_unwielded = 19
 	force_wielded = 25
+	block_chance = 50
 	block_type = MELEE_ATTACKS
 	light_system = OVERLAY_LIGHT
 	light_range = 3
@@ -1078,9 +1068,6 @@
 		INSTRUMENTAL = "демоническими вилами",
 		PREPOSITIONAL = "демонических вилах",
 	)
-
-/obj/item/twohanded/pitchfork/demonic/add_parry_component()
-	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.5, _parryable_attack_types = NON_PROJECTILE_ATTACKS, _requires_two_hands = TRUE)
 
 /obj/item/twohanded/pitchfork/demonic/greater
 	force = 24

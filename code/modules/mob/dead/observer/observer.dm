@@ -191,6 +191,14 @@ Works together with spawning an observer, noted above.
 		C.images += target.hud_list[SPECIALROLE_HUD]
 	return 1
 
+/// Offers mob a choice to ghostize.
+/mob/proc/offer_ghostize()
+	if(QDELETED(src))
+		return
+	var/choice = tgui_alert(src, "Хотите ли вы выйти в режим наблюдателя? Вы сможете вернуться в тело в любой момент.", "Выход в призраки", list("Да", "Нет"))
+	if(choice == "Да")
+		ghostize()
+
 /mob/proc/ghostize(flags = GHOST_CAN_REENTER)
 	if(!key)
 		return
@@ -547,7 +555,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 				rot_seg = 36 //360/10 bby, smooth enough aproximation of a circle
 
 		to_chat(src, span_notice("Вы следуете за [target]"))
-		orbit(target, orbitsize, FALSE, 20, rot_seg)
+		orbit(target, orbitsize, FALSE, 20, rot_seg, forceMove = TRUE)
 
 /mob/dead/observer/orbit(atom/A, radius, clockwise, rotation_speed, rotation_segments, pre_rotation, lockinorbit, forceMove)
 	setDir(SOUTH)//reset dir so the right directional sprites show up

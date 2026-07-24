@@ -106,7 +106,7 @@
 	if(!can_unarmed_attack())
 		return
 
-	var/signal = SEND_SIGNAL(src, COMSIG_LIVING_UNARMED_ATTACK, atom, proximity_flag)
+	var/signal = SEND_SIGNAL(src, COMSIG_LIVING_UNARMED_ATTACK, atom, proximity_flag, modifiers)
 
 	if(signal & COMPONENT_CANCEL_ATTACK_CHAIN)
 		return
@@ -159,7 +159,6 @@
 
 /atom/proc/attack_animal(mob/user)
 	SEND_SIGNAL(src, COMSIG_ATOM_ATTACK_ANIMAL, user)
-	return
 
 /atom/proc/attack_basic_mob(mob/user, list/modifiers)
 	SEND_SIGNAL(src, COMSIG_ATOM_ATTACK_BASIC_MOB, user)

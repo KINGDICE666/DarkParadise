@@ -22,7 +22,7 @@ export const file_labels = {
 		file_extensions: ['.dmm'],
 	},
 	'Инструменты': {
-		filepaths: ['tools/', '.vscode/', '.bin/'],
+		filepaths: ['tools/', '.vscode/', '.bin/', '.gemini/'],
 	},
 	'Изменение конфига': {
 		filepaths: ['config/', 'code/controllers/configuration/entries/'],

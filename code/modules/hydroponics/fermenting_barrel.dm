@@ -51,7 +51,7 @@
 	playsound(src, 'sound/effects/bubbles.ogg', 50, TRUE)
 
 /obj/structure/fermenting_barrel/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/reagent_containers/food/snacks/grown))
+	if(is_grownsnacks(I))
 		add_fingerprint(user)
 		var/obj/item/reagent_containers/food/snacks/grown/grown = I
 		if(!grown.can_distill)

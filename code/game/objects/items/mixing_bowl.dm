@@ -192,12 +192,10 @@
 	flags = OPENCONTAINER
 	update_icon(UPDATE_ICON_STATE)
 
-/obj/item/mixing_bowl/wash_tg(clean_types)
-	. = ..()
-
-	if(.)
+/obj/item/mixing_bowl/wash(mob/user, atom/source)
+	if(..())
 		clean()
-		update_dialog(usr)
+		update_dialog(user)
 
 /obj/item/mixing_bowl/proc/fail(obj/source)
 	if(!source)

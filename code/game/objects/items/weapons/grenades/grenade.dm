@@ -92,7 +92,7 @@
 
 /obj/item/grenade/proc/prime(mob/user)
 	SEND_SIGNAL(src, COMSIG_GRENADE_DETONATE, user)
-	return TRUE
+	return
 
 /obj/item/grenade/proc/update_mob()
 	if(ismob(loc))

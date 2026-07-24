@@ -1068,6 +1068,27 @@ h2.alert {
   margin-left: 0.25em;
 }
 
+// MARK: Swarmer
+.swarmer {
+  color: hsl(210, 100%, 50%);
+}
+
+.swarmerbold {
+  color: hsl(240, 100%, 40%);
+  font-weight: bold;
+}
+
+.swarmeritalic {
+  color: hsl(210, 100%, 50%);
+  font-style: italic;
+}
+
+.swarmerboldlarge {
+  color: hsl(210, 100%, 50%);
+  font-size: 120%;
+  font-weight: bold;
+}
+
 /**
  * ATTENTION! PLEASE!
  *

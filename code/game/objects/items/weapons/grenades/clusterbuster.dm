@@ -186,7 +186,7 @@
 
 /obj/item/grenade/clusterbuster/dirt
 	name = "Megamaid's Job Security Grenade"
-	payload = /obj/effect/spawner/random/decals_spawner
+	payload = /obj/effect/decal/cleanable/random
 
 /obj/item/grenade/clusterbuster/apocalypsefake
 	name = "Fun Bomb"

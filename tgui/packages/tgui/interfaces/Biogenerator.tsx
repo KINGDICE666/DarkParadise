@@ -58,17 +58,17 @@ const Storage = (props: unknown) => {
   } = data;
 
   return (
-    <Section title="Хранилище">
+    <Section title="Storage">
       <Stack>
         <Stack.Item mr="20px" color="silver">
-          Биомасса:
+          Biomass:
         </Stack.Item>
         <Stack.Item mr="5px">{biomass}</Stack.Item>
         <Icon name="leaf" size={1.2} color="#3d8c40" />
       </Stack>
       <Stack height="21px" mt="8px" align="center">
         <Stack.Item mr="10px" color="silver">
-          Контейнер:
+          Container:
         </Stack.Item>
         {container ? (
           <ProgressBar
@@ -79,11 +79,11 @@ const Storage = (props: unknown) => {
               {container_curr_reagents +
                 ' / ' +
                 container_max_reagents +
-                ' единиц'}
+                ' units'}
             </Box>
           </ProgressBar>
         ) : (
-          <Stack.Item>Отсутствует</Stack.Item>
+          <Stack.Item>None</Stack.Item>
         )}
       </Stack>
     </Section>
@@ -95,7 +95,7 @@ const Controls = (props: unknown) => {
   const { has_plants, container } = data;
 
   return (
-    <Section title="Управление">
+    <Section title="Controls">
       <Stack>
         <Stack.Item width="30%">
           <Button
@@ -103,11 +103,13 @@ const Controls = (props: unknown) => {
             textAlign="center"
             icon="power-off"
             disabled={!has_plants}
-            tooltip={has_plants ? '' : 'В биогенераторе нет растений.'}
+            tooltip={
+              has_plants ? '' : 'There are no plants in the biogenerator.'
+            }
             tooltipPosition="top-start"
             onClick={() => act('activate')}
           >
-            Включить
+            Activate
           </Button>
         </Stack.Item>
         <Stack.Item width="40%">
@@ -116,11 +118,13 @@ const Controls = (props: unknown) => {
             textAlign="center"
             icon="flask"
             disabled={!container}
-            tooltip={container ? '' : 'В биогенераторе нет контейнера.'}
+            tooltip={
+              container ? '' : 'The biogenerator does not have a container.'
+            }
             tooltipPosition="top"
             onClick={() => act('detach_container')}
           >
-            Отсоединить
+            Detach Container
           </Button>
         </Stack.Item>
         <Stack.Item width="30%">
@@ -129,11 +133,11 @@ const Controls = (props: unknown) => {
             textAlign="center"
             icon="eject"
             disabled={!has_plants}
-            tooltip={has_plants ? '' : 'В биогенераторе нет растений.'}
+            tooltip={has_plants ? '' : 'There are no stored plants to eject.'}
             tooltipPosition="top-end"
             onClick={() => act('eject_plants')}
           >
-            Выгрузить
+            Eject Plants
           </Button>
         </Stack.Item>
       </Stack>
@@ -170,7 +174,7 @@ const Products = (props: unknown) => {
                   icon="flask"
                   tooltip="Вставьте любой контейнер для использования этой опции"
                 >
-                  Отсутствует
+                  No containe
                 </Button>
               ) : (
                 <Button
@@ -183,7 +187,7 @@ const Products = (props: unknown) => {
                     })
                   }
                 >
-                  Печать
+                  Vend
                 </Button>
               )}
             </Stack.Item>
@@ -195,14 +199,14 @@ const Products = (props: unknown) => {
 
   return (
     <Section
-      title="Продукты"
+      title="Products"
       fill
       scrollable
       height={32}
       buttons={
         <>
           <Box inline mr="5px" color="silver">
-            Количество:
+            Amount to vend:
           </Box>
           <NumberInput
             animated

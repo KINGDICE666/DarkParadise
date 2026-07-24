@@ -187,7 +187,6 @@
 	bonfire_burn(seconds_per_tick)
 
 /obj/structure/bonfire/extinguish()
-	. = ..()
 	if(!burning)
 		return
 

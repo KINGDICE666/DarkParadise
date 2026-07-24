@@ -96,11 +96,3 @@ type SortTypeProps = Partial<{
   sortType: string;
   setSortType: React.Dispatch<React.SetStateAction<string>>;
 }>;
-
-type Painting = {
-  title: string;
-  creator: string;
-  md5: string;
-  ref: string;
-  ratio: number;
-};

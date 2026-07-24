@@ -283,7 +283,6 @@
 	var/build_inv = FALSE
 	if(!refill_canister)
 		build_inv = TRUE
-		build_products_from_categories()
 	else
 		component_parts = list()
 		var/obj/item/circuitboard/vendor/V = new

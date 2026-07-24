@@ -28,7 +28,7 @@
 	/// A list which holds all categories and items the biogenator has available. Used with the UI to save having to rebuild this every time someone opens it.
 	var/list/product_list = list()
 	/// The [/datum/design]'s categories which can be produced by this machine and can be uploaded via a disk.
-	var/static/list/categories = list(BIOGEN_CHEMICALS, BIOGEN_ORGANIC, BIOGEN_LEATHER_CLOTH, BIOGEN_CUBES, BIOGEN_FOOD)
+	var/static/list/categories = list("Food", "Botany Chemicals", "Organic Materials", "Leather and Cloth")
 
 /obj/machinery/biogenerator/Initialize(mapload)
 	. = ..()
@@ -140,7 +140,7 @@
 		SStgui.update_uis(src)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(istype(I, /obj/item/reagent_containers/food/snacks/grown))
+	if(is_grownsnacks(I))
 		if(length(stored_plants) >= max_storable_plants)
 			to_chat(user, span_warning("The [name] cannot hold any more plants."))
 			return ATTACK_CHAIN_PROCEED

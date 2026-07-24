@@ -88,18 +88,6 @@ GLOBAL_LIST_INIT(adjacent_direction_lookup, generate_adjacent_directions())
 		direction_map[dir] = acceptable_adjacents
 	return direction_map
 
-/// Takes a direction, turns it into all the junctions that it lines up with
-/proc/all_junctions_of_dir(dir)
-	if(dir == NORTH)
-		return NORTH_JUNCTION | NORTHEAST_JUNCTION | NORTHWEST_JUNCTION
-	if(dir == SOUTH)
-		return SOUTH_JUNCTION | SOUTHEAST_JUNCTION | SOUTHWEST_JUNCTION
-	if(dir == EAST)
-		return EAST_JUNCTION | SOUTHEAST_JUNCTION | NORTHEAST_JUNCTION
-	if(dir == WEST)
-		return WEST_JUNCTION | NORTHWEST_JUNCTION | SOUTHWEST_JUNCTION
-	return NONE
-
 /proc/dir_to_junction(dir)
 	switch(dir)
 		if(NORTH)
@@ -184,24 +172,24 @@ GLOBAL_LIST_INIT(adjacent_direction_lookup, generate_adjacent_directions())
 	)
 
 //do not use, use queue_smooth(atom)
-/atom/proc/smooth_icon()
-	if(!smooth || !z)
+/proc/smooth_icon(atom/A)
+	if(!A || !A.smooth || !A.z)
 		return
 
-	if(QDELETED(src))
+	if(QDELETED(A))
 		return
 
-	smooth &= ~SMOOTH_QUEUED
-	if(smooth & (SMOOTH_TRUE | SMOOTH_MORE))
-		var/adjacencies = calculate_adjacencies(src)
+	A.smooth &= ~SMOOTH_QUEUED
+	if(A.smooth & (SMOOTH_TRUE | SMOOTH_MORE))
+		var/adjacencies = calculate_adjacencies(A)
 
-		if(smooth & SMOOTH_DIAGONAL)
-			diagonal_smooth(adjacencies)
+		if(A.smooth & SMOOTH_DIAGONAL)
+			A.diagonal_smooth(adjacencies)
 		else
-			cardinal_smooth(src, adjacencies)
+			cardinal_smooth(A, adjacencies)
 
-	else if(smooth & SMOOTH_BITMASK)
-		bitmask_smooth()
+	else if(A.smooth & SMOOTH_BITMASK)
+		A.bitmask_smooth()
 
 	//if(isturf(A))
 	//	SSdemo.mark_turf(A)
@@ -515,13 +503,13 @@ GLOBAL_LIST_INIT(adjacent_direction_lookup, generate_adjacent_directions())
 	for(var/turf/turf_to_smooth as anything in away_turfs)
 		if(turf_to_smooth.smooth & (SMOOTH_CORNERS|SMOOTH_BITMASK))
 			if(now)
-				turf_to_smooth.smooth_icon()
+				smooth_icon(turf_to_smooth)
 			else
 				QUEUE_SMOOTH(turf_to_smooth)
 		for(var/atom/movable/movable_to_smooth as anything in turf_to_smooth)
 			if(movable_to_smooth.smooth & (SMOOTH_CORNERS|SMOOTH_BITMASK))
 				if(now)
-					movable_to_smooth.smooth_icon()
+					smooth_icon(movable_to_smooth)
 				else
 					QUEUE_SMOOTH(movable_to_smooth)
 

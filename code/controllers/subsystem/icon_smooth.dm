@@ -33,7 +33,7 @@ SUBSYSTEM_DEF(icon_smooth)
 		if(QDELETED(smoothing_atom) || !(smoothing_atom.smooth & SMOOTH_QUEUED))
 			continue
 		if(smoothing_atom.flags & INITIALIZED)
-			smoothing_atom.smooth_icon()
+			smooth_icon(smoothing_atom)
 		else
 			deferred += smoothing_atom
 		if(MC_TICK_CHECK)
@@ -53,11 +53,11 @@ SUBSYSTEM_DEF(icon_smooth)
 	// Smooth EVERYTHING in the world
 	for(var/turf/T in world)
 		if(T.smooth)
-			T.smooth_icon()
+			smooth_icon(T)
 		for(var/A in T)
 			var/atom/AA = A
 			if(AA.smooth)
-				AA.smooth_icon(AA)
+				smooth_icon(AA)
 				CHECK_TICK
 
 	// Incase any new atoms were added to the smoothing queue for whatever reason
@@ -66,7 +66,7 @@ SUBSYSTEM_DEF(icon_smooth)
 		var/atom/A = V
 		if(!A || A.z <= 2)
 			continue
-		A.smooth_icon()
+		smooth_icon(A)
 		CHECK_TICK
 
 	return SS_INIT_SUCCESS

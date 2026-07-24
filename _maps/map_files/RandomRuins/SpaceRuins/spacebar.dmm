@@ -228,7 +228,10 @@
 /turf/simulated/wall/r_wall,
 /area/ruin/powered/space_bar)
 "bn" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 11
+	},
 /turf/simulated/floor/wood,
 /area/ruin/powered/space_bar)
 "bp" = (
@@ -347,7 +350,9 @@
 /area/ruin/unpowered)
 "mN" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 22
+	},
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "ng" = (
@@ -671,7 +676,9 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "Lt" = (
-/obj/structure/sink/directional/south,
+/obj/structure/sink{
+	pixel_y = 22
+	},
 /turf/simulated/floor/plasteel,
 /area/ruin/powered/space_bar)
 "LV" = (

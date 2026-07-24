@@ -613,12 +613,9 @@
 	. = ..()
 	deductcharge(1000 / severity)
 
-/obj/item/melee/baton/security/wash_tg(clean_types)
-	. = ..()
-
-	var/mob/living/user = usr
-	if(user && active && cell?.charge)
-		flick("baton_active", src)
+/obj/item/melee/baton/security/wash(mob/living/user, atom/source)
+	if(active && cell?.charge)
+		flick("baton_active", source)
 		finalize_baton_attack(user, user, in_attack_chain = FALSE)
 		user.visible_message(
 			span_warning("[user] получа[PLUR_ET_YUT(user)] удар током при попытке помыть включённую [declent_ru(ACCUSATIVE)]!"),

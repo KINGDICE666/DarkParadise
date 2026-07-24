@@ -1222,8 +1222,9 @@
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
 "do" = (
+/obj/structure/sink/puddle,
 /obj/effect/mapping_helpers/no_lava,
-/turf/simulated/floor/water/lavaland_atmos/basalt,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
 "dp" = (
 /obj/item/pickaxe,

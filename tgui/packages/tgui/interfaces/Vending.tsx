@@ -241,9 +241,9 @@ const ProductDisplay = (props: ProductDisplayProps) => {
             return true;
           }
         })
-        .map((product, i) => (
+        .map((product) => (
           <Product
-            key={i}
+            key={product.name}
             fluid={toggleLayout === LAYOUT.List}
             product={product}
             productStock={stock[product.name]}

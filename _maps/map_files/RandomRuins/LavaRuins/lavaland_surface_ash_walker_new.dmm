@@ -1625,7 +1625,8 @@
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/ruin/unpowered/ash_walkers)
 "LJ" = (
-/turf/simulated/floor/water/lavaland_atmos/basalt,
+/obj/structure/sink/puddle,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/ruin/unpowered/ash_walkers)
 "Ms" = (
 /obj/structure/stone_tile/block{

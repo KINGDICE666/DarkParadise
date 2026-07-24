@@ -99,7 +99,7 @@
 /obj/structure/table/wood/fancy/black,
 /obj/item/book/manual/barman_recipes,
 /obj/item/reagent_containers/food/drinks/shaker,
-/obj/item/rag,
+/obj/item/reagent_containers/glass/rag,
 /turf/simulated/floor/pod,
 /area/survivalpod)
 "s" = (
@@ -167,7 +167,10 @@
 /turf/simulated/floor/pod,
 /area/survivalpod)
 "I" = (
-/obj/structure/sink/directional/west,
+/obj/structure/sink{
+	dir = 4;
+	pixel_x = 12
+	},
 /obj/machinery/light/small{
 	dir = 1
 	},

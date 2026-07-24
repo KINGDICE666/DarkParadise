@@ -2,31 +2,35 @@
 	set waitfor = FALSE
 	set invisibility = 0
 
-	var/signal_result = SEND_SIGNAL(src, COMSIG_LIVING_PRE_LIFE, seconds)
-
-	if(signal_result & COMPONENT_LIVING_CANCEL_LIFE_PROCESSING) // mmm less work
-		return
+	SEND_SIGNAL(src, COMSIG_LIVING_LIFE, seconds, times_fired)
 
 	track_z()
 
-	if(isnull(loc) || HAS_TRAIT(src, TRAIT_NO_TRANSFORM))
-		return
+	if(HAS_TRAIT(src, TRAIT_NO_TRANSFORM))
+		return FALSE
+
+	if(!loc)
+		return FALSE
 
 	if(stat != DEAD)
 		//Chemicals in the body
 		if(reagents)
 			handle_chemicals_in_body()
 
-	SEND_SIGNAL(src, COMSIG_LIVING_LIFE, seconds)
-	if(QDELETED(src)) // signal handlers such as diseases could delete the mob
+	if(QDELETED(src)) // some chems can gib mobs
 		return
 
 	if(!HAS_TRAIT(src, TRAIT_STASIS))
 		if(stat != DEAD)
+			//Mutations and radiation
+			handle_mutations(seconds)
 			//Heart Attack, if applicable
 			handle_heartattack()
 			//Breathing, if applicable
 			handle_breathing(times_fired)
+
+		if(LAZYLEN(diseases))
+			handle_diseases()
 
 		if(QDELETED(src)) // diseases can qdel the mob via transformations
 			return
@@ -92,8 +96,17 @@
 
 /mob/living/proc/handle_heartattack()
 	return
+
+/mob/living/proc/handle_mutations(seconds_per_tick)
+	return
+
 /mob/living/proc/handle_chemicals_in_body()
 	return
+
+/mob/living/proc/handle_diseases()
+	for(var/thing in diseases)
+		var/datum/disease/D = thing
+		D.stage_act()
 
 /mob/living/proc/handle_environment(datum/gas_mixture/environment)
 	SEND_SIGNAL(src, COMSIG_LIVING_HANDLE_BREATHING, environment)

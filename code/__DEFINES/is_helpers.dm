@@ -129,6 +129,12 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 
 #define isspeedloader(A) (istype(A, /obj/item/ammo_box/speedloader))
 
+#define is_energygun(A) (istype(A, /obj/item/gun/energy))
+
+#define is_projectilegun(A) (istype(A, /obj/item/gun/projectile))
+
+#define is_swarmerprojectile(A) (istype(A, /obj/projectile/beam/disabler/swarmer))
+
 #define isbaton(A) (istype(A, /obj/item/melee/baton))
 
 #define is_pen(W) (istype(W, /obj/item/pen))
@@ -185,6 +191,16 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 #define isdisposalunit(A) (istype(A, /obj/machinery/disposal))
 
 #define is_syndi_camera_bug(A) (istype(A, /obj/item/camera_bug/syndicate))
+
+#define isgrown(A) (istype(A, /obj/item/grown))
+
+#define is_grownsnacks(A) (istype(A, /obj/item/reagent_containers/food/snacks/grown))
+
+#define is_seeds(A) (istype(A, /obj/item/seeds))
+
+#define is_hydroponics(A) (istype(A, /obj/machinery/hydroponics))
+
+#define is_reagentcontainer(A) (istype(A, /obj/item/reagent_containers))
 
 GLOBAL_LIST_INIT(pointed_types, typecacheof(list(
 	/obj/item/pen,
@@ -308,6 +324,8 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 #define isgroin(A) (istype(A, /obj/item/organ/external/groin))
 
+#define ishead(A) (istype(A, /obj/item/organ/external/head))
+
 /// in some situations we can't rely on dynamic typing and use if(statement)
 #define istrue(statement) (statement == TRUE)
 
@@ -321,6 +339,9 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define ismouse(A) (istype(A, /mob/living/simple_animal/mouse))
 #define isbot(A) (istype(A, /mob/living/simple_animal/bot))
 #define isswarmer(A) (istype(A, /mob/living/simple_animal/hostile/swarmer))
+#define is_basicswarmer(A) (istype(A, /mob/living/simple_animal/hostile/swarmer/basic))
+#define is_roverswarmer(A) (istype(A, /mob/living/simple_animal/hostile/swarmer/rover))
+#define is_builderswarmer(A) (istype(A, /mob/living/simple_animal/hostile/swarmer/builder))
 #define isguardian(A) (istype(A, /mob/living/simple_animal/hostile/guardian))
 #define isnymph(A) (istype(A, /mob/living/simple_animal/diona))
 #define ishostile(A) (istype(A, /mob/living/simple_animal/hostile))
@@ -450,5 +471,3 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 #define is_area_nearby_station(checked_area) (istype(checked_area, /area/space) || istype(checked_area, /area/space/nearstation) || istype(checked_area, /area/centcom/asteroid))
 #define is_area_shuttle(checked_area) (istype(checked_area, /area/shuttle))
-
-#define is_reagent_container(O) (istype(O, /obj/item/reagent_containers))

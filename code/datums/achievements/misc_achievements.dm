@@ -90,9 +90,17 @@
 
 /datum/award/achievement/misc/rocket_holdup
 	name = "Ваш диск, пожалуйста!"
-	desc = "Эй, я наставил на тебя ракетницу, ты не боишься? Я бы на твоем месте не двигался и отдал мне диск."
+	desc = "Тот парень, что наставил на тебя ракетницу, реально готов нажать на спуск? Ты точно хочешь это выяснить?"
 	database_id = MEDAL_DISKPLEASE
 	icon_state = "rocket_holdup"
+
+/* nuSanya -> after swarmer pr
+/datum/award/achievement/misc/mega_swarmer_punch
+	name = "Получи по лицу"
+	desc = "Нанесите завершающий удар по мега-свармеру голыми руками. Вы, случаем, не лысеете?"
+	database_id = MEDAL_PUNCHED_SWARMER
+	icon_state = "swarmer" // nuSanya new sprite needed
+*/
 
 //TODO Uncomment when be implemented
 /*
