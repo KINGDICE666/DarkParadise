@@ -323,7 +323,6 @@
 							span_warning("Фальшивые лица все <b>ТЁМНЫЕ не настоящие, не настоящие, не настоящие</b>!!!"))
 	target.setOxyLoss(0) //In case the shadowling was choking them out
 	SSticker.mode.add_thrall(target.mind)
-	target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
 
 /**
  * Resets a shadowling's species to normal, removes genetic defects, and re-equips their armor.
@@ -922,8 +921,6 @@
 	to_chat(user, span_shadowling("Вы мгновенно изменяете воспоминания <b>[target]</b>, превращая [GEND_HIS_HER(target)] в раба"))
 	to_chat(target, span_userdanger(span_fontsize3("Волна мучительной боли проникает в ваше сознание, и...")))
 	SSticker.mode.add_thrall(target.mind)
-	target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
-	target.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /obj/effect/proc_holder/spell/ascendant_phase_shift
 	name = "Phase Shift"

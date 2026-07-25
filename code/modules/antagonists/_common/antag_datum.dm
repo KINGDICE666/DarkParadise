@@ -358,7 +358,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
  * * explanation_text - the explanation text that will be passed into the objective's `New()` proc
  * * mob/target_override - a target for the objective
  */
-/datum/antagonist/proc/add_objective(objective_type, explanation_text = "", mob/target_override = null)
+/datum/antagonist/proc/add_objective(objective_type, explanation_text = "", datum/mind/target_override = null)
 	var/datum/objective/new_objective = objective_type
 	if(ispath(objective_type))
 		new_objective = new objective_type(explanation_text)

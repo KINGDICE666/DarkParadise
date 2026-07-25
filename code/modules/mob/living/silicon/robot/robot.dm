@@ -1911,12 +1911,11 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	mind.current = src
 	mind.set_original_mob(src)
 	mind.assigned_role = SPECIAL_ROLE_ERT
-	mind.special_role = SPECIAL_ROLE_ERT
 
 	if(!(mind in SSticker.minds))
 		SSticker.minds += mind
 
-	SSticker.mode.ert += mind
+	mind.add_antag_datum(/datum/antagonist/ert)
 
 /mob/living/silicon/robot/ert/red
 	eprefix = "Red"

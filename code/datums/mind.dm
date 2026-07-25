@@ -2262,15 +2262,15 @@
 	else if(href_list["abductor"])
 		switch(href_list["abductor"])
 			if("clear")
-				to_chat(usr, "Not implemented yet. Sorry!")
-				//ticker.mode.update_abductor_icons_removed(src)
+				SSticker.mode.remove_abductor(src)
+				log_admin("[key_name(usr)] has de-abductored [key_name(current)]")
+				message_admins("[key_name_admin(usr)] has de-abductored [key_name_admin(current)]")
 			if("abductor")
 				if(!ishuman(current))
 					to_chat(usr, span_warning("This only works on humans!"))
 					return
 				make_Abductor()
 				log_admin("[key_name(usr)] turned [current] into abductor.")
-				SSticker.mode.update_abductor_icons_added(src)
 			if("equip")
 				if(!ishuman(current))
 					to_chat(usr, span_warning("This only works on humans!"))
@@ -2852,12 +2852,6 @@
 	if(!ishuman(current))
 		return
 
-	SSticker.mode.abductors |= src
-
-	var/datum/objective/stay_hidden/hidden_obj = new
-	hidden_obj.owner = src
-	objectives += hidden_obj
-
 	var/datum/objective/experiment/O = new
 	O.owner = src
 	objectives += O
@@ -2869,6 +2863,9 @@
 
 	if(role == "Scientist")
 		S.scientist = TRUE
+		add_antag_datum(/datum/antagonist/abductor/scientist)
+	else
+		add_antag_datum(/datum/antagonist/abductor)
 
 	S.team = team
 

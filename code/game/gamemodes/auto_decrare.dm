@@ -76,6 +76,45 @@
 			SSblackbox.record_feedback("tally", "revenant_success", 1, "FAIL")
 	return text.Join("")
 
+/datum/game_mode/proc/auto_declare_completion_demon()
+	if(!length(demons))
+		return
+
+	var/list/text = list(span_fontsize2("<b>Демонами были:</b>"))
+	for(var/datum/mind/demon in demons)
+		var/traitorwin = TRUE
+		text += "<br>[demon.get_mind_key()] был [demon.name] ("
+		if(demon.current)
+			if(demon.current.stat == DEAD)
+				text += "умер"
+			else
+				text += "жив"
+		else
+			text += "тело уничтожено"
+		text += ")"
+
+		var/list/all_objectives = demon.get_all_objectives()
+
+		if(length(all_objectives))
+			var/count = 1
+			for(var/datum/objective/objective in all_objectives)
+				if(objective.check_completion())
+					text += "<br><b>Цель #[count]</b>: [objective.explanation_text] <font color='green'><b>Успех!</b></font>"
+					SSblackbox.record_feedback("nested tally", "demon_objective", 1, list("[objective.type]", "SUCCESS"))
+				else
+					text += "<br><b>Цель #[count]</b>: [objective.explanation_text] <font color='red'>Провал.</font>"
+					SSblackbox.record_feedback("nested tally", "demon_objective", 1, list("[objective.type]", "FAIL"))
+					traitorwin = FALSE
+				count++
+
+		if(traitorwin)
+			text += "<br><font color='green'><b>Демон был успешен!</b></font>"
+			SSblackbox.record_feedback("tally", "demon_success", 1, "SUCCESS")
+		else
+			text += "<br><font color='red'><b>Демон провалился!</b></font>"
+			SSblackbox.record_feedback("tally", "demon_success", 1, "FAIL")
+	return text.Join("")
+
 /datum/game_mode/proc/auto_declare_completion_honksquad()
 	if(!length(honksquad))
 		return

@@ -870,6 +870,7 @@
 	. += auto_declare_completion_abduction()
 	. += auto_declare_completion_morph()
 	. += auto_declare_completion_revenant()
+	. += auto_declare_completion_demon()
 	. += auto_declare_completion_honksquad()
 	. += auto_declare_completion_deathsquad()
 	. += auto_declare_completion_sst()

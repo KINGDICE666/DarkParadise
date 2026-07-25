@@ -69,13 +69,9 @@
 		agent = preset_agent
 
 	scientist.assigned_role = SPECIAL_ROLE_ABDUCTOR_SCIENTIST
-	scientist.special_role = SPECIAL_ROLE_ABDUCTOR_SCIENTIST
-	scientist.offstation_role = TRUE
 	add_game_logs("has been selected as an abductor team [team_number] scientist.", scientist)
 
 	agent.assigned_role = SPECIAL_ROLE_ABDUCTOR_AGENT
-	agent.special_role = SPECIAL_ROLE_ABDUCTOR_AGENT
-	agent.offstation_role = TRUE
 	add_game_logs("has been selected as an abductor team [team_number] agent.", agent)
 
 	abductors |= agent
@@ -123,8 +119,7 @@
 	H.overeatduration = 0
 	H.flavor_text = null
 	H.equipOutfit(/datum/outfit/abductor/agent)
-	greet_agent(agent,team_number)
-	update_abductor_icons_added(agent)
+	give_abductor_datum(agent, /datum/antagonist/abductor, team_number)
 
 	scientist = scientists[team_number]
 	H = scientist.current
@@ -140,39 +135,14 @@
 	H.overeatduration = 0
 	H.flavor_text = null
 	H.equipOutfit(/datum/outfit/abductor/scientist)
-	greet_scientist(scientist,team_number)
-	update_abductor_icons_added(scientist)
+	give_abductor_datum(scientist, /datum/antagonist/abductor/scientist, team_number)
 
-/datum/game_mode/abduction/proc/greet_agent(datum/mind/abductor, team_number)
-	var/datum/objective/stay_hidden/O = new
-	abductor.objectives += O
+/datum/game_mode/abduction/proc/give_abductor_datum(datum/mind/abductor, datum_type, team_number)
 	abductor.objectives += team_objectives[team_number]
-	var/team_name = team_names[team_number]
-
-	var/list/messages = list()
-	messages.Add(span_notice("You are an agent of [team_name]!"))
-	messages.Add(span_notice("With the help of your teammate, kidnap and experiment on station crew members!"))
-	messages.Add(span_notice("Use your stealth technology and equipment to incapacitate humans for your scientist to retrieve."))
-	messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Abductor\">Абдуктор</a>"))
-	messages.Add(abductor.prepare_announce_objectives())
-	to_chat(abductor.current, custom_boxed_message("red_box center", messages.Join("<br>")))
-	log_game("[abductor] has become an abductor agent.")
-
-/datum/game_mode/abduction/proc/greet_scientist(datum/mind/abductor,team_number)
-	var/datum/objective/stay_hidden/O = new
-	abductor.objectives += O
-	abductor.objectives += team_objectives[team_number]
-	var/team_name = team_names[team_number]
-
-	var/list/messages = list()
-	messages.Add(span_notice("You are a scientist of [team_name]!"))
-	messages.Add(span_notice("With the help of your teammate, kidnap and experiment on station crew members!"))
-	messages.Add(span_notice("Use your tool and ship consoles to support the agent and retrieve human specimens."))
-	messages.Add(span_motd("For more information, check the wiki page: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Abductor\">Абдуктор</a>"))
-	messages.Add(abductor.prepare_announce_objectives())
-	to_chat(abductor.current, custom_boxed_message("red_box center", messages.Join("<br>")))
-	abductor.current.create_log(MISC_LOG, "[abductor.current] was made into an abductor scientist")
-	log_game("[abductor] has become an abductor scientist.")
+	var/datum/antagonist/abductor/abductor_datum = new datum_type
+	abductor_datum.team_name = team_names[team_number]
+	abductor.add_antag_datum(abductor_datum)
+	log_game("[abductor] has become [abductor_datum.name].")
 
 /datum/game_mode/abduction/proc/get_team_console(team_number)
 	for(var/obj/machinery/abductor/console/C in SSmachines.get_by_type(/obj/machinery/abductor/console))
@@ -268,22 +238,7 @@
 	return FALSE
 
 /datum/game_mode/proc/remove_abductor(datum/mind/abductor_mind)
-	if(abductor_mind in abductors)
-		SSticker.mode.abductors -= abductor_mind
-		abductor_mind.special_role = null
-		add_conversion_logs(abductor_mind.current, "No longer abductor")
-		if(issilicon(abductor_mind.current))
-			to_chat(abductor_mind.current, span_userdanger("You have been turned into a robot! You are no longer an abductor."))
-		else
-			to_chat(abductor_mind.current, span_userdanger("You have been brainwashed! You are no longer an abductor."))
-		SSticker.mode.update_abductor_icons_removed(abductor_mind)
-
-/datum/game_mode/proc/update_abductor_icons_added(datum/mind/alien_mind)
-	var/datum/atom_hud/antag/hud = GLOB.huds[ANTAG_HUD_ABDUCTOR]
-	hud.join_hud(alien_mind.current)
-	set_antag_hud(alien_mind.current, ((alien_mind in abductors) ? "abductor" : "abductee"))
-
-/datum/game_mode/proc/update_abductor_icons_removed(datum/mind/alien_mind)
-	var/datum/atom_hud/antag/hud = GLOB.huds[ANTAG_HUD_ABDUCTOR]
-	hud.leave_hud(alien_mind.current)
-	set_antag_hud(alien_mind.current, null)
+	if(!abductor_mind?.has_antag_datum(/datum/antagonist/abductor))
+		return
+	add_conversion_logs(abductor_mind.current, "No longer abductor")
+	abductor_mind.remove_antag_datum(/datum/antagonist/abductor)
