@@ -8,6 +8,8 @@
 	antag_hud_name = "hudshadowling"
 	antag_menu_name = "Тенеморф"
 	clown_gain_text = "Твоя натура позволяет тебе преодолеть твою клоунаду."
+	wiki_page_name = "Shadowling"
+	russian_wiki_name = "Тенеморф"
 
 /datum/antagonist/shadowling/Destroy(force)
 	if(owner?.current)
@@ -22,11 +24,13 @@
 /datum/antagonist/shadowling/remove_owner_from_gamemode()
 	SSticker.mode.shadows -= owner
 
+/datum/antagonist/shadowling/give_objectives()
+	add_objective(/datum/objective/enthrall)
+
 /datum/antagonist/shadowling/greet()
 	var/list/messages = list()
 	messages += span_deadsay(span_fontsize3(span_bold("You are a shadowling!")))
 	messages += SSticker.mode.greet_shadow(owner)
-	messages += SSticker.mode.process_shadow_objectives(owner)
 	return messages
 
 /datum/antagonist/shadowling/finalize_antag()

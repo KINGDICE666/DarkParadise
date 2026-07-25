@@ -9,6 +9,7 @@
 	antag_menu_name = "Культист Ратвара"
 	greet_box_class = "yellow_box"
 	clown_gain_text = "A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."
+	stinger_sound = 'sound/ambience/antag/clockcult.ogg'
 
 /datum/antagonist/clockwork/Destroy(force)
 	if(owner?.current)
@@ -17,6 +18,8 @@
 	return ..()
 
 /datum/antagonist/clockwork/is_banned(mob/user)
+	if(!user)
+		return FALSE
 	return ..() || jobban_isbanned(user, ROLE_CULTIST)
 
 /datum/antagonist/clockwork/add_owner_to_gamemode()
@@ -61,7 +64,6 @@
 		human_user.update_body()
 
 /datum/antagonist/clockwork/finalize_antag()
-	SEND_SOUND(owner.current, sound('sound/ambience/antag/clockcult.ogg'))
 	var/datum/action/innate/clockwork/comm/communion = new
 	communion.Grant(owner.current)
 	var/datum/action/innate/clockwork/check_progress/progress = new

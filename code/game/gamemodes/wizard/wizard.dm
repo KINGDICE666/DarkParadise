@@ -77,11 +77,6 @@
 	add_conversion_logs(wizard_mind.current, wizard.deconversion_log)
 	wizard_mind.remove_antag_datum(/datum/antagonist/wizard)
 
-/datum/game_mode/proc/update_wiz_icons_added(datum/mind/wiz_mind)
-	var/datum/atom_hud/antag/wizhud = GLOB.huds[ANTAG_HUD_WIZ]
-	wizhud.join_hud(wiz_mind.current)
-	set_antag_hud(wiz_mind.current, ((wiz_mind in wizards) ? "hudwizard" : "apprentice"))
-
 /datum/game_mode/proc/forge_wizard_objectives(datum/mind/wizard)
 	var/datum/objective/wizchaos/wiz_objective = new
 	wiz_objective.owner = wizard

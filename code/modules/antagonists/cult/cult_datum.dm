@@ -8,6 +8,7 @@
 	antag_hud_name = "hudcultist"
 	antag_menu_name = "Культист"
 	clown_gain_text = "A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."
+	stinger_sound = 'sound/ambience/antag/bloodcult.ogg'
 
 /datum/antagonist/cult/Destroy(force)
 	if(owner?.current)
@@ -62,7 +63,6 @@
 		human_user.update_body()
 
 /datum/antagonist/cult/finalize_antag()
-	SEND_SOUND(owner.current, sound('sound/ambience/antag/bloodcult.ogg'))
 	var/datum/action/innate/cult/comm/communion = new
 	communion.Grant(owner.current)
 	var/datum/action/innate/cult/check_progress/progress = new

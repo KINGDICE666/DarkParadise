@@ -50,6 +50,8 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	var/antag_menu_name
 	/// CSS class of the box the greeting text is wrapped in.
 	var/greet_box_class = "red_box center"
+	/// Sound played to the owner when they gain this datum.
+	var/stinger_sound
 
 /datum/antagonist/New()
 	GLOB.antagonists += src
@@ -70,7 +72,8 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	if(!silent)
 		farewell()
 
-	remove_innate_effects()
+	if(owner?.current)
+		remove_innate_effects()
 
 	antag_memory = null
 
@@ -152,11 +155,14 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	if(!silent)
 		messages.Add(greet())
 		messages.Add(owner.prepare_announce_objectives())
+		play_stinger()
 	apply_innate_effects()
 	messages.Add(finalize_antag())
-	if(wiki_page_name)
+	if(!silent && wiki_page_name)
 		messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/[wiki_page_name]\">[russian_wiki_name]"))
-	to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")))
+	list_clear_nulls(messages)
+	if(length(messages))
+		to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")))
 
 	if(is_banned(owner.current) && replace_banned)
 		INVOKE_ASYNC(src, PROC_REF(replace_banned_player))
@@ -185,6 +191,14 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	. = messages
 	if(owner?.current && !silent)
 		messages.Add(span_userdanger("You are a [special_role]!"))
+
+/**
+ * Plays this datum's stinger sound to the owner, if it has one.
+ */
+/datum/antagonist/proc/play_stinger()
+	if(!stinger_sound)
+		return
+	owner.current.playsound_local(null, stinger_sound, 100, FALSE, pressure_affected = FALSE, use_reverb = FALSE)
 
 /**
  * Displays a message to the antag mob while the datum is being deleted, i.e. "Your powers are gone and you're no longer a vampire!"

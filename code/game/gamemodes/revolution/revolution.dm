@@ -66,13 +66,10 @@
 		check_counter = 0
 	return FALSE
 
-/datum/game_mode/proc/forge_revolutionary_objectives(datum/mind/rev_mind)
-	var/datum/objective/rev_obj = new
-	rev_obj.needs_target = FALSE
-	rev_obj.owner = rev_mind
-	rev_obj.antag_menu_name = "Революция"
-	rev_obj.explanation_text = "Вы или ваши сподвижники должны занять командные должности, отправив в отставку занимающий их экипаж"
-	rev_mind.objectives += rev_obj
+/datum/objective/revolution
+	explanation_text = "Вы или ваши сподвижники должны занять командные должности, отправив в отставку занимающий их экипаж"
+	needs_target = FALSE
+	antag_menu_name = "Революция"
 
 /////////////////////////////////////////////////////////////////////////////////
 //This are equips the rev heads with their gear, and makes the clown not clumsy//
@@ -153,22 +150,6 @@
 		message_admins("[ADMIN_LOOKUPFLW(rev_mind.current)] has been borged while being a [remove_head ? "leader" : " member"] of the revolution.")
 		rev.silent = TRUE
 	rev_mind.remove_antag_datum(/datum/antagonist/rev)
-
-/////////////////////////////////////
-//Adds the rev hud to a new convert//
-/////////////////////////////////////
-/datum/game_mode/proc/update_rev_icons_added(datum/mind/rev_mind)
-	var/datum/atom_hud/antag/revhud = GLOB.huds[ANTAG_HUD_REV]
-	revhud.join_hud(rev_mind.current)
-	set_antag_hud(rev_mind.current, ((rev_mind in head_revolutionaries) ? "hudheadrevolutionary" : "hudrevolutionary"))
-
-/////////////////////////////////////////
-//Removes the hud from deconverted revs//
-/////////////////////////////////////////
-/datum/game_mode/proc/update_rev_icons_removed(datum/mind/rev_mind)
-	var/datum/atom_hud/antag/revhud = GLOB.huds[ANTAG_HUD_REV]
-	revhud.leave_hud(rev_mind.current)
-	set_antag_hud(rev_mind.current, null)
 
 //////////////////////////////////////////////////////////////////////
 //Announces the end of the game with all relavent information stated//

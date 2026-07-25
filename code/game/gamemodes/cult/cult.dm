@@ -219,18 +219,6 @@ GLOBAL_LIST_EMPTY(all_cults)
 	check_cult_size()
 	add_conversion_logs(cult_mind.current, "deconverted from the blood cult.")
 
-/datum/game_mode/proc/update_cult_icons_added(datum/mind/cult_mind)
-	var/datum/atom_hud/antag/culthud = GLOB.huds[ANTAG_HUD_CULT]
-	if(cult_mind?.current)
-		culthud.join_hud(cult_mind.current)
-		set_antag_hud(cult_mind.current, "hudcultist")
-
-/datum/game_mode/proc/update_cult_icons_removed(datum/mind/cult_mind)
-	var/datum/atom_hud/antag/culthud = GLOB.huds[ANTAG_HUD_CULT]
-	if(cult_mind?.current)
-		culthud.leave_hud(cult_mind.current)
-		set_antag_hud(cult_mind.current, null)
-
 /datum/game_mode/cult/declare_completion()
 	if(cult_objs.cult_status == NARSIE_HAS_RISEN)
 		SSticker.mode_result = "cult win - cult win"

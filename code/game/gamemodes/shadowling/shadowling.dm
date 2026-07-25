@@ -88,17 +88,18 @@ Made by Xhuis
 	messages.Add("<b>В настоящее время ты замаскирован под члена экипажа [station_name()].</b>")
 	messages.Add("<b>В твоём текущем состоянии у тебя есть две способности: Раскрытие и Телепатическая сеть тенелингов. '[get_language_prefix(LANGUAGE_HIVE_SHADOWLING)]'.</b>")
 	messages.Add("<b>Любые другие тенелинги — твои союзники. Ты должен помогать им, как и они будут помогать тебе..</b>")
-	messages.Add("<b>С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Shadowling\">Тенеморф</a></b><br>")
 	return messages
 
-/datum/game_mode/proc/process_shadow_objectives(datum/mind/shadow_mind)
-	var/objective = "enthrall" //may be devour later, but for now it seems murderbone-y
+/datum/objective/enthrall
+	needs_target = FALSE
+	antag_menu_name = "Возвышение"
 
-	if(objective == "enthrall")
-		objective_explanation = "Возвышайтесь до своей истинной формы, для этого используйте способность Ascend. Для возвышения необходимо [required_thralls] рабов, когда ты раскроешь свою форму используй Rapid Re-Hatch, чтобы разблокировать новые способности."
-		shadow_objectives += "enthrall"
-		shadow_mind.memory += "<b>Цель #1</b>: [objective_explanation]"
-		return "<b>Цель #1</b>: [objective_explanation]<br>"
+/datum/objective/enthrall/New(text, datum/team/team_to_join)
+	..()
+	explanation_text = "Возвышайтесь до своей истинной формы, для этого используйте способность Ascend. Для возвышения необходимо [SSticker.mode.required_thralls] рабов, когда ты раскроешь свою форму используй Rapid Re-Hatch, чтобы разблокировать новые способности."
+
+/datum/objective/enthrall/check_completion()
+	return SSticker.mode.shadowling_ascended
 
 /datum/game_mode/proc/finalize_shadowling(datum/mind/shadow_mind)
 	shadow_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_hatch(null))
@@ -216,10 +217,7 @@ Made by Xhuis
 			M.gib()
 
 /datum/game_mode/shadowling/proc/check_shadow_victory()
-	var/success = 0 //Did they win?
-	if(shadow_objectives.Find("enthrall"))
-		success = shadowling_ascended
-	return success
+	return shadowling_ascended
 
 /datum/game_mode/shadowling/declare_completion()
 	if(check_shadow_victory() && EMERGENCY_ESCAPED_OR_ENDGAMED) //Doesn't end instantly - this is hacky and I don't know of a better way ~X
@@ -278,11 +276,6 @@ Made by Xhuis
 /*
 	MISCELLANEOUS
 */
-
-/datum/game_mode/proc/update_shadow_icons_added(datum/mind/shadow_mind)
-	var/datum/atom_hud/antag/shadow_hud = GLOB.huds[ANTAG_HUD_SHADOW]
-	shadow_hud.join_hud(shadow_mind.current)
-	set_antag_hud(shadow_mind.current, ((shadow_mind in shadows) ? "hudshadowling" : "hudshadowlingthrall"))
 
 /datum/game_mode/proc/recount_required_thralls()
 	var/thrall_scaling = round(num_players() / 3)

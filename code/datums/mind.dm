@@ -74,8 +74,6 @@
 	var/offstation_role = FALSE //set to true for ERT, deathsquad, abductors, etc, that can go from and to z2 at will and shouldn't be antag targets
 	var/list/restricted_roles = list()
 
-	var/rev_cooldown = 0
-
 	var/list/spell_list
 	var/datum/martial_art/martial_art
 	var/list/known_martial_arts = list()
@@ -1417,7 +1415,10 @@
 				current.create_log(MISC_LOG, "[current] was made into a head revolutionary by [key_name_admin(usr)]")
 
 			if("autoobjectives")
-				SSticker.mode.forge_revolutionary_objectives(src)
+				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev)
+				if(!rev)
+					return
+				rev.give_objectives()
 				log_admin("[key_name(usr)] has automatically forged revolutionary objectives for [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has automatically forged revolutionary objectives for [key_name_admin(current)]")
 
@@ -1437,7 +1438,7 @@
 				log_admin("[key_name(usr)] has de-culted [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has de-culted [key_name_admin(current)]")
 			if("cultist")
-				if(!(src in SSticker.mode.cult))
+				if(!has_antag_datum(/datum/antagonist/cult))
 					SSticker.mode.add_cultist(src)
 					to_chat(current, span_cultitalic("Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve [SSticker.cultdat.entity_title2] above all else. Bring It back."))
 					log_and_message_admins("[key_name(usr)] has culted [key_name(current)]")
@@ -1459,7 +1460,7 @@
 				log_admin("[key_name(usr)] has de-clocked [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has de-clocked [key_name_admin(current)]")
 			if("clocker")
-				if(!(src in SSticker.mode.clockwork_cult))
+				if(!has_antag_datum(/datum/antagonist/clockwork))
 					SSticker.mode.add_clocker(src)
 					to_chat(current, span_clockitalic("Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve Ratvar above all else. Bring It back."))
 					log_and_message_admins("[key_name(usr)] has clocked [key_name(current)]")
@@ -2246,8 +2247,8 @@
 				if(!ishuman(current))
 					to_chat(usr, span_warning("This only works on humans!"))
 					return
-				add_antag_datum(/datum/antagonist/shadowling)
 				SSticker.mode.recount_required_thralls()
+				add_antag_datum(/datum/antagonist/shadowling)
 				log_admin("[key_name(usr)] has shadowlinged [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has shadowlinged [key_name_admin(current)]")
 			if("thrall")

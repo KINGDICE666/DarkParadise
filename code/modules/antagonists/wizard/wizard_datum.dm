@@ -10,6 +10,7 @@
 	wiki_page_name = "Wizard"
 	russian_wiki_name = "Маг"
 	give_objectives = FALSE
+	stinger_sound = 'sound/ambience/antag/ragesmages.ogg'
 	var/farewell_message = "You have been brainwashed! You are no longer a wizard."
 	var/deconversion_log = "De-wizarded"
 
@@ -36,14 +37,13 @@
 
 /datum/antagonist/wizard/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
-	user.faction = list("wizard")
+	user.faction -= "Station"
+	user.faction |= "wizard"
 
 /datum/antagonist/wizard/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
-	user.faction = list("Station")
-
-/datum/antagonist/wizard/finalize_antag()
-	addtimer(CALLBACK(owner.current, TYPE_PROC_REF(/mob, playsound_local), null, 'sound/ambience/antag/ragesmages.ogg', 100, FALSE), 3 SECONDS)
+	user.faction -= "wizard"
+	user.faction |= "Station"
 
 
 /datum/antagonist/wizard/apprentice

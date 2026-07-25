@@ -494,7 +494,6 @@
 	C.possess_by_player(target.key)
 	if(user && iscultist(user) || cult_override)
 		SSticker.mode.add_cultist(C.mind)
-		SSticker.mode.update_cult_icons_added(C.mind)
 	if(user && iscultist(user))
 		to_chat(C, "<b>You are still bound to serve the cult, follow their orders and help them complete their goals at all costs.</b>")
 	else
@@ -517,12 +516,12 @@
 
 		if(S.mind)
 			if(iswizard(user))
-				SSticker.mode.update_wiz_icons_added(S.mind)
-				S.mind.special_role = SPECIAL_ROLE_WIZARD_APPRENTICE
+				var/datum/antagonist/wizard/apprentice/apprentice = new
+				apprentice.silent = TRUE
+				S.mind.add_antag_datum(apprentice)
 
 			if(iscultist(user))
 				SSticker.mode.add_cultist(S.mind)
-				S.mind.special_role = SPECIAL_ROLE_CULTIST
 				S.mind.store_memory("<b>Serve the cult's will.</b>")
 				to_chat(S, span_userdanger("Your soul has been captured! You are now bound to the cult's will. Help them succeed in their goals at all costs."))
 
