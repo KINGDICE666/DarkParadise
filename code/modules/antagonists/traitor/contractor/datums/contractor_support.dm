@@ -1,6 +1,6 @@
 /datum/antagonist/contractor_support
 	name = "Агент поддержки Контрактника"
-	roundend_category = "Contractor Support"
+	roundend_category = "Агентами поддержки Контрактника"
 	special_role = SPECIAL_ROLE_TRAITOR
 	antag_menu_name = "Поддержка Контрактника"
 

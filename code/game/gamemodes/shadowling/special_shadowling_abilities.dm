@@ -232,11 +232,12 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	if(QDELETED(user))
 		return
 
-	if(!SSticker.mode.shadowling_ascended)
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
+	if(!shadowlings.ascended)
 		sleep(60 SECONDS)
 		SSticker?.mode?.end_game()
 
-	SSticker.mode.shadowling_ascended = TRUE
+	shadowlings.ascended = TRUE
 	ascendant.mind.RemoveSpell(src)
 	qdel(user)
 

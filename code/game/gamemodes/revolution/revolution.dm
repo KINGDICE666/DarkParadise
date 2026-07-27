@@ -13,9 +13,6 @@
 	required_enemies = 1
 	recommended_enemies = 3
 
-	var/check_counter = 0
-	var/max_headrevs = 3
-
 ///////////////////////////
 //Announces the game type//
 ///////////////////////////
@@ -32,7 +29,7 @@
 	if(CONFIG_GET(flag/protect_roles_from_antagonist))
 		restricted_jobs += protected_jobs
 
-	for(var/i=1 to max_headrevs)
+	for(var/i=1 to MAX_HEAD_REVOLUTIONARIES)
 		if(!length(possible_revolutionaries))
 			break
 		var/datum/mind/lenin = pick(possible_revolutionaries)
@@ -48,7 +45,7 @@
 /datum/game_mode/revolution/post_setup()
 	var/list/heads = get_living_heads()
 	var/list/sec = get_living_sec()
-	var/weighted_score = min(max(round(length(heads) - ((8 - length(sec)) / 3)),1),max_headrevs)
+	var/weighted_score = min(max(round(length(heads) - ((8 - length(sec)) / 3)),1),MAX_HEAD_REVOLUTIONARIES)
 
 	while(weighted_score < length(head_revolutionaries)) //das vi danya
 		var/datum/mind/trotsky = pick(head_revolutionaries)
@@ -60,10 +57,8 @@
 	..()
 
 /datum/game_mode/revolution/process()
-	check_counter++
-	if(check_counter >= 5)
-		check_latejoin()
-		check_counter = 0
+	var/datum/team/revolution/team = GLOB.antagonist_teams[/datum/team/revolution]
+	team?.check_latejoin()
 	return FALSE
 
 /datum/objective/revolution
@@ -99,33 +94,6 @@
 		to_chat(mob, "The chameleon security HUD in your [where2] will help you keep track of who is mindshield-implanted, and unable to be recruited.")
 		return 1
 
-////////////////////////////////////////////
-//Checks if new heads have joined midround//
-////////////////////////////////////////////
-/datum/game_mode/revolution/proc/check_latejoin()
-	if(length(head_revolutionaries) < max_headrevs)
-		var/list/heads = get_all_heads()
-		var/list/sec = get_all_sec()
-
-		if(length(head_revolutionaries) < round(length(heads) - ((8 - length(sec)) / 3)))
-			latejoin_headrev()
-
-///////////////////////////////
-//Adds a new headrev midround//
-///////////////////////////////
-/datum/game_mode/revolution/proc/latejoin_headrev()
-	if(revolutionaries) //Head Revs are not in this list
-		var/list/promotable_revs = list()
-		for(var/datum/mind/khrushchev in revolutionaries)
-			if(khrushchev.current && khrushchev.current.client && khrushchev.current.stat != DEAD)
-				if(ROLE_REV in khrushchev.current.client.prefs.be_special)
-					promotable_revs += khrushchev
-		if(length(promotable_revs))
-			var/datum/mind/stalin = pick(promotable_revs)
-			add_game_logs("has been promoted to a head rev", stalin.current)
-			var/datum/antagonist/rev/rev = stalin.has_antag_datum(/datum/antagonist/rev)
-			rev.promote()
-
 ///////////////////////////////////////////////////
 //Deals with converting players to the revolution//
 ///////////////////////////////////////////////////
@@ -157,119 +125,6 @@
 /datum/game_mode/revolution/declare_completion()
 	..()
 	return TRUE
-
-/datum/game_mode/proc/auto_declare_completion_revolution()
-	var/list/targets = list()
-	if(length(head_revolutionaries) || GAMEMODE_IS_REVOLUTION)
-		var/num_revs = 0
-		var/num_survivors = 0
-		for(var/mob/living/carbon/survivor in GLOB.alive_mob_list)
-			if(survivor.ckey)
-				num_survivors++
-				if(survivor.mind)
-					if((survivor.mind in head_revolutionaries) || (survivor.mind in revolutionaries))
-						num_revs++
-		if(num_survivors)
-			to_chat(world, "[TAB]Command's Approval Rating: [span_bold("[100 - round((num_revs/num_survivors)*100, 0.1)]%")]") // % of loyal crew
-		var/list/text = list(span_bold(span_fontsize3("<br>The head revolutionaries were:</font>")))
-		for(var/datum/mind/headrev in head_revolutionaries)
-			text += printplayer(headrev, 1)
-		text += "<br>"
-
-		// we dont show the revolutionaries because there are a LOT of them
-
-		text = list(span_bold(span_fontsize3("<br>The heads of staff were:")))
-		var/list/heads = get_all_heads()
-		for(var/datum/mind/head in heads)
-			var/target = (head in targets)
-			if(target)
-				text += span_boldannounceooc("Target")
-			text += printplayer(head, 1)
-		text += "<br>"
-		return text.Join("")
-
-/datum/game_mode/revolution/set_scoreboard_vars()
-	var/datum/scoreboard/scoreboard = SSticker.score
-	var/foecount = 0
-
-	for(var/datum/mind/M in SSticker.mode.head_revolutionaries)
-		foecount++
-		if(!M || !M.current)
-			scoreboard.score_ops_killed++
-			continue
-
-		if(M.current.stat == DEAD)
-			scoreboard.score_ops_killed++
-
-		else if(HAS_TRAIT(M, TRAIT_RESTRAINED))
-			scoreboard.score_arrested++
-
-	if(foecount == scoreboard.score_arrested)
-		scoreboard.all_arrested = TRUE
-
-	for(var/thing in GLOB.human_list)
-		var/mob/living/carbon/human/player = thing
-		if(player.stat == DEAD && player.mind?.assigned_role)
-			if(player.mind.assigned_role in list(JOB_TITLE_CAPTAIN, JOB_TITLE_HOS, JOB_TITLE_HOP, JOB_TITLE_QUARTERMASTER, JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_RD, JOB_TITLE_CMO))
-				scoreboard.score_dead_command++
-
-	var/arrestpoints = scoreboard.score_arrested * 1000
-	var/killpoints = scoreboard.score_ops_killed * 500
-	var/comdeadpts = scoreboard.score_dead_command * 500
-	if(scoreboard.score_greentext)
-		scoreboard.crewscore -= 10000
-
-	scoreboard.crewscore += arrestpoints
-	scoreboard.crewscore += killpoints
-	scoreboard.crewscore -= comdeadpts
-
-/datum/game_mode/revolution/get_scoreboard_stats()
-	var/datum/scoreboard/scoreboard = SSticker.score
-	var/foecount = 0
-	var/comcount = 0
-	var/revcount = 0
-	var/loycount = 0
-	for(var/datum/mind/M in SSticker.mode:head_revolutionaries)
-		if(M.current && M.current.stat != DEAD)
-			foecount++
-	for(var/datum/mind/M in SSticker.mode:revolutionaries)
-		if(M.current && M.current.stat != DEAD)
-			revcount++
-	for(var/thing in GLOB.human_list)
-		var/mob/living/carbon/human/player = thing
-		if(player.mind)
-			var/role = player.mind.assigned_role
-			if(role in list(JOB_TITLE_CAPTAIN, JOB_TITLE_HOS, JOB_TITLE_HOP, JOB_TITLE_QUARTERMASTER, JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_RD, JOB_TITLE_CMO))
-				if(player.stat != DEAD)
-					comcount++
-			else
-				if(player.mind in SSticker.mode.revolutionaries)
-					continue
-				loycount++
-
-	for(var/beepboop in GLOB.silicon_mob_list)
-		var/mob/living/silicon/X = beepboop
-		if(X.stat != DEAD)
-			loycount++
-
-	var/dat = ""
-
-	dat += "<b><u>Mode Statistics</u></b><br>"
-	dat += "<b>Number of Surviving Revolution Heads:</b> [foecount]<br>"
-	dat += "<b>Number of Surviving Command Staff:</b> [comcount]<br>"
-	dat += "<b>Number of Surviving Revolutionaries:</b> [revcount]<br>"
-	dat += "<b>Number of Surviving Loyal Crew:</b> [loycount]<br>"
-
-	dat += "<br>"
-	dat += "<b>Revolution Heads Arrested:</b> [scoreboard.score_arrested] ([scoreboard.score_arrested * 1000] Points)<br>"
-	dat += "<b>All Revolution Heads Arrested:</b> [scoreboard.all_arrested ? "Yes" : "No"] (Score tripled)<br>"
-
-	dat += "<b>Revolution Heads Slain:</b> [scoreboard.score_ops_killed] ([scoreboard.score_ops_killed * 500] Points)<br>"
-	dat += "<b>Command Staff Slain:</b> [scoreboard.score_dead_command] (-[scoreboard.score_dead_command * 500] Points)<br>"
-	dat += "<b>Revolution Successful:</b> [scoreboard.score_greentext ? "Yes" : "No"] (-[scoreboard.score_greentext * 10000] Points)<br>"
-	dat += "<hr>"
-
-	return dat
 
 /proc/is_revolutionary(mob/living/user)
 	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.revolutionaries)

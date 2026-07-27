@@ -1,7 +1,7 @@
 /datum/antagonist/morph
 	name = "Morph"
-	roundend_category = "morphs"
-	show_in_roundend = FALSE
+	roundend_category = "Морфами"
+	roundend_blackbox_key = "morph"
 	job_rank = ROLE_MORPH
 	special_role = SPECIAL_ROLE_MORPH
 	antag_menu_name = "Морф"

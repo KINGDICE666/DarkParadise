@@ -1,7 +1,7 @@
 /datum/antagonist/revenant
 	name = "Revenant"
-	roundend_category = "revenants"
-	show_in_roundend = FALSE
+	roundend_category = "Ревенантами"
+	roundend_blackbox_key = "revenant"
 	job_rank = ROLE_REVENANT
 	special_role = SPECIAL_ROLE_REVENANT
 	antag_menu_name = "Ревенант"

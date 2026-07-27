@@ -6,7 +6,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 /datum/antagonist/changeling
 	name = "Changeling"
-	roundend_category = "changelings"
+	roundend_category = "Генокрадами"
+	roundend_blackbox_key = "changeling"
 	job_rank = ROLE_CHANGELING
 	special_role = SPECIAL_ROLE_CHANGELING
 	antag_hud_name = "hudchangeling"
@@ -99,6 +100,9 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	QDEL_LIST(acquired_powers)
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
+/datum/antagonist/changeling/roundend_report_details()
+	return list("<b>ID генокрада:</b> [changelingID].", "<b>Поглощено геномов:</b> [absorbed_count]")
 
 /datum/antagonist/changeling/greet()
 	..()

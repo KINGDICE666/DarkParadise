@@ -29,8 +29,11 @@ GLOBAL_LIST_EMPTY(all_clockers)
 
 /proc/adjust_clockwork_power(amount)
 	GLOB.clockwork_power += amount
-	SSticker.mode.check_power_reveal()
-	SSticker.mode.clocker_objs.power_check()
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	if(!clock_team)
+		return
+	clock_team.check_power_reveal()
+	clock_team.clocker_objs.power_check()
 
 /datum/game_mode/clockwork
 	name = "Clockwork Cult"
@@ -53,6 +56,7 @@ GLOBAL_LIST_EMPTY(all_clockers)
 
 	max_clockers_to_start += floor((num_players() - required_players) / RATVAR_PLAYER_PER_CULTIST)
 	var/list/clockers_possible = get_players_for_role(ROLE_CLOCKER)
+	create_antag_team(/datum/team/clockwork_cult)
 	for(var/clockers_number in 1 to max_clockers_to_start)
 		if(!length(clockers_possible))
 			break
@@ -63,62 +67,16 @@ GLOBAL_LIST_EMPTY(all_clockers)
 	return (length(clockwork_cult) > 0)
 
 /datum/game_mode/clockwork/post_setup()
-	clocker_objs.setup()
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	clock_team.clocker_objs.setup()
 
 	for(var/datum/mind/clockwork_mind in clockwork_cult.Copy())
 		clockwork_mind.add_antag_datum(/datum/antagonist/clockwork)
 		equip_clocker(clockwork_mind.current)
-		clocker_objs.study(clockwork_mind.current)
-	clockwork_threshold_check()
-	addtimer(CALLBACK(src, PROC_REF(clockwork_threshold_check)), 2 MINUTES) // Check again in 2 minutes for latejoiners
+		clock_team.clocker_objs.study(clockwork_mind.current)
+	clock_team.clockwork_threshold_check()
+	addtimer(CALLBACK(clock_team, TYPE_PROC_REF(/datum/team/clockwork_cult, clockwork_threshold_check)), 2 MINUTES) // Check again in 2 minutes for latejoiners
 	. = ..()
-
-/**
- * Decides at the start of the round how many conversions are needed to reveal or how many power supplied to reveal.
- *
- * The number is decided by (Percentage * (Players - clockers)), so for example at 110 players it would be 16 conversions for rise. (0.15 * (110 - 4))
- * These values change based on population because 20 clockers are MUCH more powerful if there's only 50 players, compared to 120.
- *
- * Below 100 players, [CLOCK_POWER_REVEAL_LOW] and [CLOCK_CREW_REVEAL_LOW] are used.
- * Above 100 players, [CLOCK_POWER_REVEAL_HIGH] and [CLOCK_CREW_REVEAL_HIGH] are used.
- */
-/datum/game_mode/proc/clockwork_threshold_check()
-	var/players = length(GLOB.player_list)
-	var/clockers = get_clockers()
-	if(players >= CLOCK_POPULATION_THRESHOLD)
-		// Highpop
-		reveal_percent = CLOCK_CREW_REVEAL_HIGH
-		clocker_objs.power_goal = CLOCK_BASIC_POWER_GOAL + length(GLOB.player_list) * CLOCK_POWER_PER_CREW_HIGH
-		power_reveal_number = round(clocker_objs.power_goal * 0.67) // 2/3 of power goal
-		crew_reveal_number = round(CLOCK_CREW_REVEAL_HIGH * (players - clockers), 1)
-	else
-		// Lowpop
-		reveal_percent = CLOCK_CREW_REVEAL_LOW
-		clocker_objs.power_goal = CLOCK_BASIC_POWER_GOAL + length(GLOB.player_list) * CLOCK_POWER_PER_CREW_LOW
-		power_reveal_number = round(clocker_objs.power_goal * 0.67) // 2/3 of power goal
-		crew_reveal_number = round(CLOCK_CREW_REVEAL_LOW * (players - clockers), 1)
-	add_game_logs("Clockwork Cult power/crew reveal numbers: [power_reveal_number]/[clocker_objs.clocker_goal].")
-
-/**
- * Returns the current number of clockers and constructs.
- *
- * Returns the number of clockers and constructs in a list ([1] = Clockers, [2] = Constructs), or as one combined number.
- *
- * * separate - Should the number be returned in two separate values (Humans and Constructs) or as one?
- */
-/datum/game_mode/proc/get_clockers(separate = FALSE)
-	var/clockers = 0
-	var/constructs = 0
-	for(var/I in clockwork_cult)
-		var/datum/mind/mind = I
-		if(ishuman(mind.current) && !mind.madeby_sentience_potion)
-			clockers++
-		else if(ismarauder(mind.current) && isclocker(mind.current))
-			constructs++
-	if(separate)
-		return list(clockers, constructs)
-	else
-		return clockers + constructs
 
 /datum/game_mode/proc/equip_clocker(mob/living/carbon/human/H, metal = TRUE)
 	if(!istype(H))
@@ -147,77 +105,24 @@ GLOBAL_LIST_EMPTY(all_clockers)
 	if(!istype(clock_mind))
 		return FALSE
 
-	if(!reveal_percent) // If the rise/ascend thresholds haven't been set (non-cult rounds)
-		clocker_objs.setup()
-		clockwork_threshold_check()
-
 	if(!clock_mind.add_antag_datum(/datum/antagonist/clockwork))
 		return FALSE
 
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	if(!clock_team.reveal_percent)
+		clock_team.clocker_objs.setup()
+		clock_team.clockwork_threshold_check()
+
 	add_conversion_logs(clock_mind.current, "converted to the clockwork cult")
-	if(!clocker_objs.clock_status && ishuman(clock_mind.current))
-		clocker_objs.setup()
+	if(!clock_team.clocker_objs.clock_status && ishuman(clock_mind.current))
+		clock_team.clocker_objs.setup()
 
 	adjust_clockwork_power(CLOCK_POWER_CONVERT)
-	check_clock_reveal()
-	if(!clocker_objs.obj_demand.clockers_get)
-		clocker_objs.clockers_check()
-	clocker_objs.study(clock_mind.current)
+	clock_team.check_clock_reveal()
+	if(!clock_team.clocker_objs.obj_demand.clockers_get)
+		clock_team.clocker_objs.clockers_check()
+	clock_team.clocker_objs.study(clock_mind.current)
 	return TRUE
-
-/datum/game_mode/proc/check_power_reveal()
-	if(power_reveal)
-		return
-	if((GLOB.clockwork_power >= power_reveal_number) && !power_reveal)
-		power_reveal = TRUE
-		for(var/datum/mind/M in clockwork_cult)
-			if(!M.current)
-				continue
-			if(!ishuman(M.current))
-				powered_borgs(M.current)
-				continue
-			SEND_SOUND(M.current, sound('sound/hallucinations/i_see_you2.ogg'))
-			to_chat(M.current, span_clocklarge("The veil begins to stutter in fear as the power of Ratvar grows, your hands begin to glow..."))
-			addtimer(CALLBACK(src, PROC_REF(powered), M.current), 20 SECONDS)
-
-/datum/game_mode/proc/check_clock_reveal()
-	if(crew_reveal)
-		return
-	var/clocker_players = get_clockers()
-	if(clocker_players < crew_reveal_number && GLOB.heart.curse_dial)
-		return
-	for(var/datum/mind/M in clockwork_cult)
-		if(!M.current)
-			continue
-		SEND_SOUND(M.current, sound('sound/hallucinations/im_here1.ogg'))
-		if(!ishuman(M.current))
-			continue
-		to_chat(M.current, span_clocklarge("Your cult gets bigger as the clocked harvest approaches - you cannot hide your true nature for much longer!"))
-		addtimer(CALLBACK(src, PROC_REF(clocked), M.current), 20 SECONDS)
-	GLOB.major_announcement.announce("На вашей станции обнаружена внепространственная активность, связанная с Заводным культом Ратвара. Данные свидетельствуют о том, что в ряды культа обращено около [reveal_percent * 100]% экипажа станции. Служба безопасности получает право свободно применять летальную силу против культистов. Прочий персонал должен быть готов защищать себя и свои рабочие места от нападений культистов (в том числе используя летальную силу в качестве крайней меры самообороны), но не должен выслеживать культистов и охотиться на них. Погибшие члены экипажа должны быть оживлены и деконвертированы, как только ситуация будет взята под контроль.",
-										ANNOUNCE_CCPARANORMAL_RU,
-										SSstation.announcer.get_rand_report_sound()
-		)
-	log_game("Clockwork cult reveal. Powergame allowed.")
-	crew_reveal = TRUE
-
-/datum/game_mode/proc/powered(clocker)
-	if(ishuman(clocker) && isclocker(clocker))
-		var/mob/living/carbon/human/H = clocker
-
-		ADD_TRAIT(H, TRAIT_CLOCK_HANDS, CLOCK_TRAIT)
-		H.update_worn_gloves()
-
-/datum/game_mode/proc/powered_borgs(clocker)
-	if(isrobot(clocker))
-		var/mob/living/silicon/robot/borg = clocker
-		borg.update_icons()
-
-/datum/game_mode/proc/clocked(clocker)
-	if(ishuman(clocker) && isclocker(clocker))
-		var/mob/living/carbon/human/H = clocker
-		new /obj/effect/temp_visual/ratvar/sparks(get_turf(H), H.dir)
-		SEND_SIGNAL(H, COMSIG_MOB_HALO_GAINED)
 
 /datum/game_mode/proc/remove_clocker(datum/mind/clock_mind, show_message = TRUE)
 	var/datum/antagonist/clockwork/clocker = clock_mind?.has_antag_datum(/datum/antagonist/clockwork)
@@ -228,34 +133,9 @@ GLOBAL_LIST_EMPTY(all_clockers)
 	clock_mind.remove_antag_datum(/datum/antagonist/clockwork)
 	add_conversion_logs(clock_mind.current, "deconverted from the clockwork cult.")
 
-/datum/game_mode/clockwork/declare_completion()
-	if(clocker_objs.clock_status == RATVAR_HAS_RISEN)
-		SSticker.mode_result = "clockwork cult win - cult win"
-	else if(clocker_objs.clock_status == RATVAR_HAS_FALLEN)
-		SSticker.mode_result = "clockwork cult draw - ratvar died, nobody wins"
-	else
-		SSticker.mode_result = "clockwork cult loss - staff stopped the cult"
-
-	var/list/endtext = list()
-	endtext += "<br><b>The clockers' objectives were:</b>"
-	endtext += "<br>[clocker_objs.obj_demand.explanation_text] - "
-	if(!clocker_objs.obj_demand.check_completion())
-		endtext += "<font color='red'>Fail.</font>"
-	else
-		endtext += "<font color='green'><b>Success!</b></font>"
-
-	if(clocker_objs.clock_status >= RATVAR_NEEDS_SUMMONING)
-		endtext += "<br>[clocker_objs.obj_summon.explanation_text] - "
-		if(!clocker_objs.obj_summon.check_completion())
-			endtext+= "<font color='red'>Fail.</font>"
-		else
-			endtext += "<font color='green'><b>Success!</b></font>"
-
-	to_chat(world, endtext.Join(""))
-	. = ..()
-
 /proc/isclocker(mob/living/user)
 	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.clockwork_cult)
 
 /proc/isclocker_ascended(mob/living/user)
-	return isclocker(user) && SSticker.mode.crew_reveal
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	return isclocker(user) && clock_team?.crew_reveal

@@ -24,6 +24,9 @@
 		b = UID_of(b)
 	return sorttext("[a]", "[b]")
 
+/proc/cmp_antag_category(datum/antagonist/a, datum/antagonist/b)
+	return sorttext(b.roundend_category, a.roundend_category)
+
 /proc/cmp_list_len_asc(list/a, list/b)
 	return length(a) - length(b)
 

@@ -44,37 +44,4 @@
 		thief.add_antag_datum(/datum/antagonist/thief)
 	..()
 
-/datum/game_mode/proc/auto_declare_completion_thief()
-	if(!length(thieves))
-		return
-
-	var/list/text = list("<span style='font-size: 2;'><b>Воры в розыске:</b></span><br>")
-	for(var/datum/mind/thief in thieves)
-
-		text += printplayer(thief) + "<br>"
-
-		var/list/all_objectives = thief.get_all_objectives()
-		if(!length(all_objectives))
-			continue
-
-		var/count = 1
-		var/thiefwin = TRUE
-		for(var/datum/objective/objective in all_objectives)
-			if(objective.check_completion())
-				text += "<br><b>Цель #[count]</b>: [objective.explanation_text] <font color='green'><b>Выполнена!</b></font>"
-				SSblackbox.record_feedback("nested tally", "thief_objective", 1, list("[objective.type]", "SUCCESS"))
-			else
-				text += "<br><b>Цель #[count]</b>: [objective.explanation_text] <font color='red'>Провалена.</font>"
-				SSblackbox.record_feedback("nested tally", "thief_objective", 1, list("[objective.type]", "FAIL"))
-				thiefwin = FALSE
-			count++
-
-		if(thiefwin)
-			text += "<br><font color='green'><b>Вор преуспел!</b></font><br>"
-			SSblackbox.record_feedback("tally", "thief_success", 1, "SUCCESS")
-		else
-			text += "<br><font color='red'><b>Вор провалился.</b></font><br>"
-			SSblackbox.record_feedback("tally", "thief_success", 1, "FAIL")
-
-	return text.Join("")
 

@@ -10,6 +10,7 @@
 	clown_gain_text = "Your training has allowed you to overcome your clownish nature, allowing you to wield weapons without harming yourself."
 	clown_removal_text = "You lose your training and return to your own clumsy, clownish self."
 	stinger_sound = 'sound/ambience/antag/revolutionary_tide.ogg'
+	default_team_type = /datum/team/revolution
 
 /datum/antagonist/rev/can_be_owned(datum/mind/new_owner)
 	var/datum/mind/tested = new_owner || owner

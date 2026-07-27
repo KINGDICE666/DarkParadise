@@ -55,7 +55,10 @@
 
 /datum/antagonist/ert/deathsquad
 	name = "Death Commando"
-	roundend_category = "death squad"
+	roundend_category = "Бойцами Отряда Смерти"
+	show_in_roundend = TRUE
+	roundend_blackbox_key = "deathsquad"
+	roundend_death_is_failure = TRUE
 	job_rank = ROLE_DEATHSQUAD
 	special_role = SPECIAL_ROLE_DEATHSQUAD
 	antag_menu_name = "Боец Отряда Смерти"
@@ -77,7 +80,10 @@
 
 /datum/antagonist/ert/honksquad
 	name = "Honksquad Member"
-	roundend_category = "honksquad"
+	roundend_category = "Членами Хонксквада"
+	show_in_roundend = TRUE
+	roundend_blackbox_key = "honksquad"
+	roundend_death_is_failure = TRUE
 	special_role = SPECIAL_ROLE_HONKSQUAD
 	antag_menu_name = "Член Хонксквада"
 	show_in_orbit = TRUE
@@ -97,7 +103,10 @@
 
 /datum/antagonist/ert/syndicate_commando
 	name = "Syndicate Commando"
-	roundend_category = "syndicate strike team"
+	roundend_category = "Бойцами Ударного Отряда \"Синдиката\""
+	show_in_roundend = TRUE
+	roundend_blackbox_key = "sst"
+	roundend_death_is_failure = TRUE
 	special_role = SPECIAL_ROLE_SYNDICATE_DEATHSQUAD
 	antag_menu_name = "Боец SST"
 	antag_hud_type = ANTAG_HUD_OPS
@@ -124,7 +133,8 @@
 
 /datum/antagonist/ert/syndicate_commando/infiltrator
 	name = "Syndicate Infiltrator"
-	roundend_category = "syndicate infiltrators"
+	roundend_category = "Агентами Диверсионного Отряда \"Синдиката\""
+	roundend_blackbox_key = "sit"
 	special_role = SPECIAL_ROLE_SYNDICATE_INFILTRATOR
 	antag_menu_name = "Агент SIT"
 	greet_name = "Диверсант в подчинении \"Синдиката\""

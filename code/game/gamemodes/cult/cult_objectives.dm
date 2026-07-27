@@ -43,13 +43,14 @@
 			to_chat(M, span_danger("Error: Cult objective status currently unknown. Something went wrong. Oof."))
 
 	if(display_members)
-		var/list/cult = SSticker.mode.get_cultists(TRUE)
+		var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+		var/list/cult = cult_team.get_cultists(TRUE)
 		var/total_cult = cult[1] + cult[2]
-		var/rise = SSticker.mode.rise_number - total_cult
-		var/ascend = SSticker.mode.ascend_number - total_cult
+		var/rise = cult_team.rise_number - total_cult
+		var/ascend = cult_team.ascend_number - total_cult
 
 		var/overview = span_cultitalic("<br><b>Current cult members: [total_cult]")
-		if(!SSticker.mode.cult_ascendant)
+		if(!cult_team.cult_ascendant)
 			if(rise > 0)
 				overview += " | Conversions until Rise: [rise]"
 			else if(ascend > 0)
@@ -168,7 +169,8 @@
 	antag_menu_name = "Призвать [SSticker.cultdat.entity_name]"
 
 /datum/objective/eldergod/check_anatag_menu_ability()
-	return SSticker.mode.cult_objs.cult_status != NARSIE_IS_ASLEEP
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	return cult_team?.cult_objs.cult_status != NARSIE_IS_ASLEEP
 
 /datum/objective/eldergod/proc/find_summon_locations(reroll = FALSE)
 	if(reroll)

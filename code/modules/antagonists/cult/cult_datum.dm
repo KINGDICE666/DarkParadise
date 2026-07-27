@@ -9,6 +9,7 @@
 	antag_menu_name = "Культист"
 	clown_gain_text = "A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."
 	stinger_sound = 'sound/ambience/antag/bloodcult.ogg'
+	default_team_type = /datum/team/blood_cult
 
 /datum/antagonist/cult/Destroy(force)
 	if(owner?.current)
@@ -44,10 +45,11 @@
 	ADD_TRAIT(user, TRAIT_HEALS_FROM_CULT_PYLONS, CULT_TRAIT)
 	if(iscarbon(user))
 		user.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["cult"], GLOB.halo_callbacks["cult"])
-	if(SSticker.mode.cult_risen)
-		SSticker.mode.rise(user)
-		if(SSticker.mode.cult_ascendant)
-			SSticker.mode.ascend(user)
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	if(cult_team?.cult_risen)
+		cult_team.rise(user)
+		if(cult_team.cult_ascendant)
+			cult_team.ascend(user)
 
 /datum/antagonist/cult/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()

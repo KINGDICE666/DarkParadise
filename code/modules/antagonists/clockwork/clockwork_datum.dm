@@ -10,6 +10,7 @@
 	greet_box_class = "yellow_box"
 	clown_gain_text = "A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself."
 	stinger_sound = 'sound/ambience/antag/clockcult.ogg'
+	default_team_type = /datum/team/clockwork_cult
 
 /datum/antagonist/clockwork/Destroy(force)
 	if(owner?.current)
@@ -46,11 +47,12 @@
 	user.faction |= "clockwork_cult"
 	if(iscarbon(user))
 		user.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["clockwork"], GLOB.halo_callbacks["clockwork"])
-	if(SSticker.mode.power_reveal)
-		SSticker.mode.powered(user)
-		SSticker.mode.powered_borgs(user)
-	if(SSticker.mode.crew_reveal)
-		SSticker.mode.clocked(user)
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	if(clock_team?.power_reveal)
+		clock_team.powered(user)
+		clock_team.powered_borgs(user)
+	if(clock_team?.crew_reveal)
+		clock_team.clocked(user)
 
 /datum/antagonist/clockwork/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()

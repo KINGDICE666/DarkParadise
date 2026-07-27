@@ -1354,14 +1354,14 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	if(stat != DEAD && !HAS_TRAIT(src, TRAIT_INCAPACITATED) && !low_power_mode) //Not dead, not stunned.
 		var/eyes_olay
 		if(selected_skin)
-			if(isclocker(src) && SSticker.mode.power_reveal)
+			if(isclocker(src) && get_clockwork_cult_team().power_reveal)
 				eyes_olay = "eyes-[selected_skin.eye_prefix]-clocked"
 
 			else
 				eyes_olay = "eyes-[selected_skin.eye_prefix]"
 
 		else
-			if(isclocker(src) && SSticker.mode.power_reveal)
+			if(isclocker(src) && get_clockwork_cult_team().power_reveal)
 				eyes_olay = "eyes-[icon_state]-clocked"
 
 			else
@@ -1991,7 +1991,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 /mob/living/silicon/robot/destroyer/eyes_overlays()
 	if(stat != DEAD && !HAS_TRAIT(src, TRAIT_INCAPACITATED) && !low_power_mode) //Not dead, not stunned.
 		var/eyes_olay
-		if(isclocker(src) && SSticker.mode.power_reveal)
+		if(isclocker(src) && get_clockwork_cult_team().power_reveal)
 			eyes_olay = "eyes-[base_icon]-clocked"
 
 		else

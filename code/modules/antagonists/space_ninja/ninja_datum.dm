@@ -1,5 +1,8 @@
 /datum/antagonist/ninja
 	name = "Space Ninja"
+	roundend_category = "Космическими Ниндзя"
+	roundend_blackbox_key = "ninja"
+	roundend_death_is_failure = TRUE
 	job_rank = ROLE_NINJA
 	special_role = SPECIAL_ROLE_SPACE_NINJA
 	antag_hud_name = "hudninja"
@@ -91,6 +94,11 @@
 
 /datum/antagonist/ninja/remove_owner_from_gamemode()
 	SSticker.mode.space_ninjas -= owner
+
+/datum/antagonist/ninja/roundend_report_details()
+	if(!purchased_abilities)
+		return ..()
+	return list("Купленные способности: [purchased_abilities]")
 
 /datum/antagonist/ninja/greet()
 	SEND_SOUND(owner.current, sound('sound/ambience/antag/ninja_greeting.ogg'))

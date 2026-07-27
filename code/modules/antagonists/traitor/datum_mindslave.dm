@@ -2,7 +2,7 @@
 // For Mindslaves and Zealots
 /datum/antagonist/mindslave
 	name = "Mindslave"
-	roundend_category = "mindslaves"
+	roundend_category = "Рабами"
 	job_rank = SPECIAL_ROLE_TRAITOR
 	special_role = SPECIAL_ROLE_TRAITOR
 	antag_hud_type = ANTAG_HUD_TRAITOR
@@ -57,6 +57,11 @@
 /datum/antagonist/mindslave/remove_owner_from_gamemode()
 	SSticker.mode.implanted[owner] = null
 	SSticker.mode.implanted -= owner
+
+/datum/antagonist/mindslave/roundend_report_details()
+	if(!master?.current)
+		return ..()
+	return list("Хозяин: <b>[master.current]</b>")
 
 /datum/antagonist/mindslave/on_body_transfer(mob/living/old_body, mob/living/new_body)
 	..()

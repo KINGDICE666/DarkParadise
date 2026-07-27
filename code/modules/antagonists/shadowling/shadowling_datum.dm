@@ -10,6 +10,7 @@
 	clown_gain_text = "Твоя натура позволяет тебе преодолеть твою клоунаду."
 	wiki_page_name = "Shadowling"
 	russian_wiki_name = "Тенеморф"
+	default_team_type = /datum/team/shadowling
 
 /datum/antagonist/shadowling/Destroy(force)
 	if(owner?.current)
@@ -46,6 +47,7 @@
 	antag_hud_type = ANTAG_HUD_SHADOW
 	antag_hud_name = "hudshadowlingthrall"
 	antag_menu_name = "Раб тенеморфа"
+	default_team_type = /datum/team/shadowling
 
 /datum/antagonist/shadowling_thrall/Destroy(force)
 	if(owner?.current)

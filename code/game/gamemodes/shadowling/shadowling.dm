@@ -72,7 +72,7 @@ Made by Xhuis
 		shadow.restricted_roles = restricted_jobs
 		shadowlings--
 
-	recount_required_thralls()
+	get_shadowling_team()
 
 	..()
 	return 1
@@ -96,10 +96,12 @@ Made by Xhuis
 
 /datum/objective/enthrall/New(text, datum/team/team_to_join)
 	..()
-	explanation_text = "Возвышайтесь до своей истинной формы, для этого используйте способность Ascend. Для возвышения необходимо [SSticker.mode.required_thralls] рабов, когда ты раскроешь свою форму используй Rapid Re-Hatch, чтобы разблокировать новые способности."
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
+	explanation_text = "Возвышайтесь до своей истинной формы, для этого используйте способность Ascend. Для возвышения необходимо [shadowlings.required_thralls] рабов, когда ты раскроешь свою форму используй Rapid Re-Hatch, чтобы разблокировать новые способности."
 
 /datum/objective/enthrall/check_completion()
-	return SSticker.mode.shadowling_ascended
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
+	return shadowlings.ascended
 
 /datum/game_mode/proc/finalize_shadowling(datum/mind/shadow_mind)
 	shadow_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_hatch(null))
@@ -112,30 +114,19 @@ Made by Xhuis
 		return 0
 	add_conversion_logs(new_thrall_mind.current, "Became a Shadow thrall")
 
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
 	var/thralls = get_thralls()
-	var/victory_threshold = SSticker.mode.required_thralls
+	var/victory_threshold = shadowlings.required_thralls
 
-	if(thralls < victory_threshold)
-		for(var/mob/shadowling in GLOB.alive_mob_list)
-			if(!is_shadow(shadowling))
-				continue
-
+	for(var/mob/shadowling in GLOB.alive_mob_list)
+		if(!is_shadow(shadowling))
+			continue
+		if(thralls < victory_threshold)
 			to_chat(shadowling, span_shadowling("Ты чувствуешь нового раба под твоей волей. Тебе нужно [victory_threshold] рабов, но у тебя есть только [thralls] живых рабов."))
-
-	else if(thralls >= victory_threshold)
-		for(var/mob/shadowling in GLOB.alive_mob_list)
-			if(!is_shadow(shadowling))
-				continue
+		else
 			to_chat(shadowling, span_shadowling("<b>Тебе хватает сил для трансформации в истинную форму.</b>"))
 
-	if(!victory_warning_announced && (length(shadowling_thralls) >= warning_threshold))//are the slings very close to winning?
-		victory_warning_announced = TRUE	//then let's give the station a warning
-		GLOB.major_announcement.announce(
-			message = "Сканерами дальнего действия обнаружена большая концентрация психической блюспейс-энергии. Вероятность вознесения тенеморфов высока, всему экипажу следует предотвратить вознесение любой ценой!",
-			new_title = ANNOUNCE_CCPARANORMAL_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound(),
-		)
-		log_game("Shadowling reveal. Powergame and validhunt allowed.")
+	shadowlings.try_announce_victory_warning()
 	return 1
 
 /datum/game_mode/proc/remove_thrall(datum/mind/thrall_mind, kill = 0)
@@ -186,9 +177,10 @@ Made by Xhuis
 
 	if(shadows_alive)
 		return ..()
-	else
-		shadowling_dead = 1 //but shadowling was kill :(
-		return 1
+
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
+	shadowlings.wiped_out = TRUE //but shadowling was kill :(
+	return 1
 
 /datum/game_mode/proc/remove_shadowling(datum/mind/ling_mind)
 	var/datum/antagonist/shadowling/ling = ling_mind.has_antag_datum(/datum/antagonist/shadowling)
@@ -216,69 +208,3 @@ Made by Xhuis
 			playsound(M, 'sound/magic/disintegrate.ogg', 100, TRUE)
 			M.gib()
 
-/datum/game_mode/shadowling/proc/check_shadow_victory()
-	return shadowling_ascended
-
-/datum/game_mode/shadowling/declare_completion()
-	if(check_shadow_victory() && EMERGENCY_ESCAPED_OR_ENDGAMED) //Doesn't end instantly - this is hacky and I don't know of a better way ~X
-		SSticker.mode_result = "Победа тенелингов — тенелинги возвысились"
-		to_chat(world, span_fontsize3("<b>Победа тенелингов</b>"))
-		to_chat(world, span_greentext("<b>Тенелинги возвысились и полностью захватили станцию!</b>"))
-	else if(shadowling_dead && !check_shadow_victory()) //If the shadowlings have ascended, they can not lose the round
-		SSticker.mode_result = "Тенелинги проиграли — тенелинги погибли"
-		to_chat(world, span_fontsize3("<b>Крупная победа экипажа</b>"))
-		to_chat(world, span_redtext("<b>Тенелинги были убиты экипажем!</b>"))
-	else if(!check_shadow_victory() && EMERGENCY_ESCAPED_OR_ENDGAMED)
-		SSticker.mode_result = "Тенелинги проиграли — экипаж сбежал"
-		to_chat(world, span_fontsize3("<b>Мелкая победа экипажа</b>"))
-		to_chat(world, span_redtext("<b>Экипаж сбежал со станции до того, как тенелинги возвысились!</b>"))
-	else
-		SSticker.mode_result = "Тенелинги проиграли — тенелинги не справились"
-		to_chat(world, span_fontsize3("<b>Крупная победа экипажа</b>"))
-		to_chat(world, span_redtext("<b>Тенелинги не смогли возвыситься!</b>"))
-	..()
-	return 1
-
-/datum/game_mode/proc/auto_declare_completion_shadowling()
-	var/list/text = list("")
-	if(length(shadows))
-		text += "<br>[span_big("<b>Тенелингами были:</b>")]"
-		for(var/datum/mind/shadow in shadows)
-			text += "<br>[shadow.get_mind_key()] was [shadow.name] ("
-			if(shadow.current)
-				if(shadow.current.stat == DEAD)
-					text += "мертвы"
-				else
-					text += "живы"
-				if(shadow.current.real_name != shadow.name)
-					text += " as <b>[shadow.current.real_name]</b>"
-			else
-				text += "тело уничтожено"
-			text += ")"
-		text += "<br>"
-		if(length(shadowling_thralls))
-			text += "<br>[span_big("<b>Рабами были:</b>")]"
-			for(var/datum/mind/thrall in shadowling_thralls)
-				text += "<br>[thrall.get_mind_key()] was [thrall.name] ("
-				if(thrall.current)
-					if(thrall.current.stat == DEAD)
-						text += "мертвы"
-					else
-						text += "живы"
-					if(thrall.current.real_name != thrall.name)
-						text += " as <b>[thrall.current.real_name]</b>"
-				else
-					text += "тело уничтожено"
-				text += ")"
-	text += "<br>"
-	return text.Join("")
-
-/*
-	MISCELLANEOUS
-*/
-
-/datum/game_mode/proc/recount_required_thralls()
-	var/thrall_scaling = round(num_players() / 3)
-	required_thralls = clamp(thrall_scaling, 15, 25)
-	thrall_ratio = required_thralls / 15
-	warning_threshold = round(0.66 * required_thralls)

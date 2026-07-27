@@ -146,7 +146,7 @@
 	//if area isn't specified use current
 	if(isarea(A))
 		areabeacon = A
-	SSticker.mode.clocker_objs.beacon_check()
+	get_clockwork_cult_team().clocker_objs.beacon_check()
 
 /obj/structure/clockwork/functional/beacon/process()
 	adjust_clockwork_power(CLOCK_POWER_BEACON)
@@ -401,20 +401,19 @@
 	return TRUE
 
 /obj/structure/clockwork/functional/altar/proc/double_check(mob/living/user, area/A)
-	var/datum/game_mode/gamemode = SSticker.mode
-
 	if(GLOB.heart)
 		balloon_alert(user, "сердце уже призвано!")
 		return FALSE
 
-	if(gamemode.clocker_objs.clock_status < RATVAR_NEED_HEART)
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	if(clock_team.clocker_objs.clock_status < RATVAR_NEED_HEART)
 		to_chat(user, span_clockitalic("<b>Ratvar</b> is not ready to be summoned yet!"))
 		return FALSE
-	if(gamemode.clocker_objs.clock_status > RATVAR_NEED_HEART)
+	if(clock_team.clocker_objs.clock_status > RATVAR_NEED_HEART)
 		to_chat(user, span_clockitalic("\"My fellow. There is no need for it anymore.\""))
 		return FALSE
 
-	var/list/summon_areas = gamemode.clocker_objs.obj_summon.ritual_spots
+	var/list/summon_areas = clock_team.clocker_objs.obj_summon.ritual_spots
 	if(!(A in summon_areas))
 		to_chat(user, span_cultlarge("Ratvar can only be summoned where the veil is weak - in [english_list(summon_areas)]!"))
 		return FALSE

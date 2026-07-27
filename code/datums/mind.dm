@@ -2245,7 +2245,8 @@
 				if(!ishuman(current))
 					to_chat(usr, span_warning("This only works on humans!"))
 					return
-				SSticker.mode.recount_required_thralls()
+				var/datum/team/shadowling/shadowlings = get_shadowling_team()
+				shadowlings.recount_required_thralls()
 				add_antag_datum(/datum/antagonist/shadowling)
 				log_admin("[key_name(usr)] has shadowlinged [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has shadowlinged [key_name_admin(current)]")
@@ -2576,6 +2577,7 @@
 	antag.owner = src
 	LAZYADD(antag_datums, antag)
 
+	team ||= antag.default_team_type
 	if(team)
 		antag.create_team(team)
 		var/datum/team/antag_team = antag.get_team()

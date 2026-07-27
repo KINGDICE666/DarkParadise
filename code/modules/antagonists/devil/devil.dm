@@ -1,6 +1,6 @@
 /datum/antagonist/devil
 	name = "Devil"
-	roundend_category = "devils"
+	roundend_category = "Дьяволами"
 	antag_menu_name = "Дьявол"
 	job_rank = ROLE_DEVIL
 	special_role = ROLE_DEVIL

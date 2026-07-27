@@ -1,7 +1,7 @@
 /datum/antagonist/demon
 	name = "Demon"
-	roundend_category = "demons"
-	show_in_roundend = FALSE
+	roundend_category = "Демонами"
+	roundend_blackbox_key = "demon"
 	job_rank = ROLE_DEMON
 	special_role = SPECIAL_ROLE_DEMON
 	antag_menu_name = "Демон"

@@ -52,6 +52,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 
 	max_cultist_to_start += floor((num_players() - required_players) / CULT_PLAYER_PER_CULTIST)
 	var/list/cultists_possible = get_players_for_role(ROLE_CULTIST)
+	var/datum/team/blood_cult/cult_team = create_antag_team(/datum/team/blood_cult)
 	for(var/cultists_number = 1 to max_cultist_to_start)
 		if(!length(cultists_possible))
 			break
@@ -60,64 +61,20 @@ GLOBAL_LIST_EMPTY(all_cults)
 		cult += cultist
 		cultist.restricted_roles = restricted_jobs
 
-		ghost_summons = floor(num_players() / GHOST_SUMMONS_PER_READY)
+		cult_team.ghost_summons = floor(num_players() / GHOST_SUMMONS_PER_READY)
 	return (length(cult) > 0)
 
 /datum/game_mode/cult/post_setup()
-	cult_objs.setup()
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	cult_team.cult_objs.setup()
 
 	for(var/datum/mind/cult_mind in cult.Copy())
 		cult_mind.add_antag_datum(/datum/antagonist/cult)
 		equip_cultist(cult_mind.current)
-		cult_objs.study(cult_mind.current)
-	cult_threshold_check()
-	addtimer(CALLBACK(src, PROC_REF(cult_threshold_check)), 2 MINUTES) // Check again in 2 minutes for latejoiners
+		cult_team.cult_objs.study(cult_mind.current)
+	cult_team.cult_threshold_check()
+	addtimer(CALLBACK(cult_team, TYPE_PROC_REF(/datum/team/blood_cult, cult_threshold_check)), 2 MINUTES) // Check again in 2 minutes for latejoiners
 	..()
-
-/**
- * Decides at the start of the round how many conversions are needed to rise/ascend.
- *
- * The number is decided by (Percentage * (Players - Cultists)), so for example at 110 players it would be 11 conversions for rise. (0.1 * (110 - 4))
- * These values change based on population because 20 cultists are MUCH more powerful if there's only 50 players, compared to 120.
- *
- * Below 100 players, [CULT_RISEN_LOW] and [CULT_ASCENDANT_LOW] are used.
- * Above 100 players, [CULT_RISEN_HIGH] and [CULT_ASCENDANT_HIGH] are used.
- */
-/datum/game_mode/proc/cult_threshold_check()
-	var/players = length(GLOB.player_list)
-	var/cultists = get_cultists() // Don't count the starting cultists towards the number of needed conversions
-	if(players >= CULT_POPULATION_THRESHOLD)
-		// Highpop
-		ascend_percent = CULT_ASCENDANT_HIGH
-		rise_number = round(CULT_RISEN_HIGH * (players - cultists))
-		ascend_number = round(CULT_ASCENDANT_HIGH * (players - cultists))
-	else
-		// Lowpop
-		ascend_percent = CULT_ASCENDANT_LOW
-		rise_number = round(CULT_RISEN_LOW * (players - cultists))
-		ascend_number = round(CULT_ASCENDANT_LOW * (players - cultists))
-	add_game_logs("Blood Cult rise/ascend numbers: [rise_number]/[ascend_number].")
-
-/**
- * Returns the current number of cultists and constructs.
- *
- * Returns the number of cultists and constructs in a list ([1] = Cultists, [2] = Constructs), or as one combined number.
- *
- * * separate - Should the number be returned in two separate values (Humans and Constructs) or as one?
- */
-/datum/game_mode/proc/get_cultists(separate = FALSE)
-	var/cultists = 0
-	var/constructs = 0
-	for(var/I in cult)
-		var/datum/mind/M = I
-		if(ishuman(M.current) && !M.current.has_status_effect(STATUS_EFFECT_SUMMONEDGHOST) && !M.madeby_sentience_potion)
-			cultists++
-		else if(isconstruct(M.current))
-			constructs++
-	if(separate)
-		return list(cultists, constructs)
-	else
-		return cultists + constructs
 
 /datum/game_mode/proc/equip_cultist(mob/living/carbon/human/H, metal = TRUE)
 	if(!istype(H))
@@ -146,69 +103,23 @@ GLOBAL_LIST_EMPTY(all_cults)
 	if(!istype(cult_mind))
 		return FALSE
 
-	if(!ascend_percent) // If the rise/ascend thresholds haven't been set (non-cult rounds)
-		cult_objs.setup()
-		cult_threshold_check()
-
-	if(isnull(ghost_summons))
-		ghost_summons = floor(num_station_players() / GHOST_SUMMONS_PER_READY)
-
 	if(!cult_mind.add_antag_datum(/datum/antagonist/cult))
 		return FALSE
 
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	if(!cult_team.ascend_percent)
+		cult_team.cult_objs.setup()
+		cult_team.cult_threshold_check()
+
+	if(isnull(cult_team.ghost_summons))
+		cult_team.ghost_summons = floor(num_station_players() / GHOST_SUMMONS_PER_READY)
+
 	add_conversion_logs(cult_mind.current, "converted to the blood cult")
-	if(!cult_objs.cult_status && ishuman(cult_mind.current))
-		cult_objs.setup()
-	check_cult_size()
-	cult_objs.study(cult_mind.current)
+	if(!cult_team.cult_objs.cult_status && ishuman(cult_mind.current))
+		cult_team.cult_objs.setup()
+	cult_team.check_cult_size()
+	cult_team.cult_objs.study(cult_mind.current)
 	return TRUE
-
-/datum/game_mode/proc/check_cult_size()
-	if(cult_ascendant)
-		return
-	var/cult_players = get_cultists()
-
-	if((cult_players >= rise_number) && !cult_risen)
-		cult_risen = TRUE
-		for(var/datum/mind/M in cult)
-			if(!M.current || !ishuman(M.current))
-				continue
-			SEND_SOUND(M.current, sound('sound/ambience/antag/bloodcult_eyes.ogg'))
-			to_chat(M.current, span_cultlarge("The veil weakens as your cult grows, your eyes begin to glow..."))
-			log_admin("The Blood Cult has risen. The eyes started to glow.")
-			addtimer(CALLBACK(src, PROC_REF(rise), M.current), 20 SECONDS)
-
-	if(cult_players >= ascend_number)
-		cult_ascendant = TRUE
-		for(var/datum/mind/M in cult)
-			if(!M.current || !ishuman(M.current))
-				continue
-			SEND_SOUND(M.current, sound('sound/ambience/antag/bloodcult_halos.ogg'))
-			to_chat(M.current, span_cultlarge("Your cult is ascendant and the red harvest approaches - you cannot hide your true nature for much longer!"))
-			log_admin("The Blood Cult has Ascended. The blood halo started to appear.")
-			addtimer(CALLBACK(src, PROC_REF(ascend), M.current), 20 SECONDS)
-		GLOB.major_announcement.announce(
-			message = "На вашей станции обнаружена внепространственная активность, связанная с культом [SSticker.cultdat ? SSticker.cultdat.entity_name : "Нар’Си"]. Данные свидетельствуют о том, что в ряды культа обращено около [ascend_percent * 100]% экипажа станции. Служба безопасности получает право свободно применять летальную силу против культистов. Прочий персонал должен быть готов защищать себя и свои рабочие места от нападений культистов (в том числе используя летальную силу в качестве крайней меры самообороны). Погибшие члены экипажа должны быть оживлены и деконвертированы, как только ситуация будет взята под контроль.",
-			new_title = ANNOUNCE_CCPARANORMAL_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound()
-		)
-		log_game("Blood cult reveal. Powergame allowed.")
-
-/datum/game_mode/proc/rise(cultist)
-	if(ishuman(cultist) && iscultist(cultist))
-		var/mob/living/carbon/human/H = cultist
-		if(!H.original_eye_color)
-			H.original_eye_color = H.get_eye_color()
-		H.change_eye_color(BLOODCULT_EYE, FALSE)
-		H.update_eyes()
-		ADD_TRAIT(H, TRAIT_RED_EYES, CULT_TRAIT)
-		H.update_body()
-
-/datum/game_mode/proc/ascend(cultist)
-	if(ishuman(cultist) && iscultist(cultist))
-		var/mob/living/carbon/human/H = cultist
-		new /obj/effect/temp_visual/cult/sparks(get_turf(H), H.dir)
-		SEND_SIGNAL(H, COMSIG_MOB_HALO_GAINED)
 
 /datum/game_mode/proc/remove_cultist(datum/mind/cult_mind, show_message = TRUE)
 	var/datum/antagonist/cult/cultist = cult_mind?.has_antag_datum(/datum/antagonist/cult)
@@ -216,40 +127,13 @@ GLOBAL_LIST_EMPTY(all_cults)
 		return
 	cultist.silent = !show_message
 	cult_mind.remove_antag_datum(/datum/antagonist/cult)
-	check_cult_size()
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	cult_team?.check_cult_size()
 	add_conversion_logs(cult_mind.current, "deconverted from the blood cult.")
-
-/datum/game_mode/cult/declare_completion()
-	if(cult_objs.cult_status == NARSIE_HAS_RISEN)
-		SSticker.mode_result = "cult win - cult win"
-		to_chat(world, span_danger(span_fontsize3("The cult wins! It has succeeded in summoning [SSticker.cultdat.entity_name]!")))
-	else if(cult_objs.cult_status == NARSIE_HAS_FALLEN)
-		SSticker.mode_result = "cult draw - narsie died, nobody wins"
-		to_chat(world, span_danger(span_fontsize3("Nobody wins! [SSticker.cultdat.entity_name] was summoned, but banished!")))
-	else
-		SSticker.mode_result = "cult loss - staff stopped the cult"
-		to_chat(world, span_warning(span_fontsize3("The staff managed to stop the cult!")))
-
-	var/list/endtext = list()
-	endtext += "<br><b>The cultists' objectives were:</b>"
-	for(var/datum/objective/obj in cult_objs.presummon_objs)
-		endtext += "<br>[obj.explanation_text] - "
-		if(!obj.check_completion())
-			endtext += "<font color='red'>Fail.</font>"
-		else
-			endtext += "<font color='green'><b>Success!</b></font>"
-	if(cult_objs.cult_status >= NARSIE_NEEDS_SUMMONING)
-		endtext += "<br>[cult_objs.obj_summon.explanation_text] - "
-		if(!cult_objs.obj_summon.check_completion())
-			endtext+= "<font color='red'>Fail.</font>"
-		else
-			endtext += "<font color='green'><b>Success!</b></font>"
-
-	to_chat(world, endtext.Join(""))
-	..()
 
 /proc/iscultist(mob/living/user)
 	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.cult)
 
 /proc/iscultist_ascended(mob/living/user)
-	return iscultist(user) && SSticker.mode.cult_ascendant
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	return iscultist(user) && cult_team?.cult_ascendant

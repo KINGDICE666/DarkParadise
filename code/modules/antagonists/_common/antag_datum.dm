@@ -5,9 +5,13 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	/// The name of the antagonist.
 	var/name = "Antagonist"
 	/// Section of roundend report, datums with same category will be displayed together, also default header for the section.
-	var/roundend_category = "other antagonists"
+	var/roundend_category = "Прочими антагонистами"
 	/// Set to false to hide the antagonists from roundend report.
 	var/show_in_roundend = TRUE
+	/// Prefix of the blackbox feedback keys recorded by the roundend report. No feedback is recorded when unset.
+	var/roundend_blackbox_key
+	/// Whether dying makes the antagonist fail regardless of their objectives.
+	var/roundend_death_is_failure = FALSE
 	/// Mind that owns this datum.
 	var/datum/mind/owner
 	/// Silent will prevent the gain/lose texts to show.
@@ -26,6 +30,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	var/list/assigned_targets
 	/// Current antagonist teams
 	var/datum/team/team
+	var/default_team_type
 	/// Antagonist datum specific information that appears in the player's notes. Information stored here will be removed when the datum is removed from the player.
 	var/antag_memory
 	/// The special role that will be applied to the owner's `special_role` var. i.e. `SPECIAL_ROLE_TRAITOR`, `SPECIAL_ROLE_VAMPIRE`.
@@ -454,32 +459,62 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 		stack_trace("[name] datum has no owner")
 		return
 
-	var/list/report = list()
+	var/list/report = list("[owner.get_mind_key()] был [owner.name] ([get_roundend_status()])")
+	report += roundend_report_details()
 
-	report += printplayer(owner)
-
+	var/succeeded = !roundend_death_is_failure || (owner.current && owner.current.stat != DEAD)
 	var/count = 1
-	var/objectives_complete = TRUE
-	for(var/datum/objective/objective in objectives)
+	for(var/datum/objective/objective as anything in owner.get_all_objectives())
 		if(objective.check_completion())
-			report  += "<b>Objective #[count]</b>: [objective.explanation_text] [span_greentext("Success!")]"
+			report += "<b>Цель #[count]</b>: [objective.explanation_text] <font color='green'><b>Успех!</b></font>"
+			record_objective_feedback(objective, "SUCCESS")
 		else
-			objectives_complete = FALSE
-			report  += "<b>Objective #[count]</b>: [objective.explanation_text] [span_redtext("Fail.")]"
+			report += "<b>Цель #[count]</b>: [objective.explanation_text] <font color='red'>Провал.</font>"
+			record_objective_feedback(objective, "FAIL")
+			succeeded = FALSE
 		count++
 
-	if(!length(objectives) || objectives_complete)
-		report += span_greentext("<big>The [name] was successful!</big>")
+	if(succeeded)
+		report += "<font color='green'><b>[antag_menu_name || name] — успех!</b></font>"
 	else
-		report += span_redtext("<big>The [name] has failed!</big>")
+		report += "<font color='red'><b>[antag_menu_name || name] — провал.</b></font>"
+
+	if(roundend_blackbox_key)
+		SSblackbox.record_feedback("tally", "[roundend_blackbox_key]_success", 1, succeeded ? "SUCCESS" : "FAIL")
 
 	return report.Join("<br>")
+
+/**
+ * Body status of the owner, shown in brackets after their name in the roundend report.
+ */
+/datum/antagonist/proc/get_roundend_status()
+	if(!owner.current)
+		return "тело уничтожено"
+	var/status = owner.current.stat == DEAD ? "погиб" : "выжил"
+	if(owner.current.real_name != owner.name)
+		status += " как [owner.current.real_name]"
+	return status
+
+/**
+ * Extra lines shown between the owner's status and their objectives.
+ */
+/datum/antagonist/proc/roundend_report_details()
+	return list()
+
+/datum/antagonist/proc/record_objective_feedback(datum/objective/objective, result)
+	if(!roundend_blackbox_key)
+		return
+	if(istype(objective, /datum/objective/steal))
+		var/datum/objective/steal/steal_objective = objective
+		SSblackbox.record_feedback("nested tally", "[roundend_blackbox_key]_steal_objective", 1, list("Steal [steal_objective.steal_target]", result))
+		return
+	SSblackbox.record_feedback("nested tally", "[roundend_blackbox_key]_objective", 1, list("[objective.type]", result))
 
 /**
  * Displayed at the start of roundend_category section, default to roundend_category header.
  */
 /datum/antagonist/proc/roundend_report_header()
-	return	span_header("The [roundend_category] were:<br>")
+	return span_fontsize2("<b>[roundend_category] были:</b>")
 
 /**
  * Displayed at the end of roundend_category section.

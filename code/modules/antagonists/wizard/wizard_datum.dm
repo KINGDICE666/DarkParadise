@@ -1,7 +1,8 @@
 /datum/antagonist/wizard
 	name = "Wizard"
-	roundend_category = "wizards"
-	show_in_roundend = FALSE
+	roundend_category = "Магами и Ведьмами"
+	roundend_blackbox_key = "wizard"
+	roundend_death_is_failure = TRUE
 	job_rank = ROLE_WIZARD
 	special_role = SPECIAL_ROLE_WIZARD
 	antag_hud_type = ANTAG_HUD_WIZ
@@ -23,6 +24,14 @@
 
 /datum/antagonist/wizard/remove_owner_from_gamemode()
 	SSticker.mode.wizards -= owner
+
+/datum/antagonist/wizard/roundend_report_details()
+	if(!LAZYLEN(owner.spell_list))
+		return ..()
+	var/list/spell_names = list()
+	for(var/obj/effect/proc_holder/spell/spell as anything in owner.spell_list)
+		spell_names += spell.name
+	return list("<b>[owner.name] использовал заклинания:</b> [english_list(spell_names)]")
 
 /datum/antagonist/wizard/greet()
 	return SSticker.mode.greet_wizard()
@@ -48,6 +57,7 @@
 
 /datum/antagonist/wizard/apprentice
 	name = "Wizard Apprentice"
+	roundend_category = "Учениками магов"
 	special_role = SPECIAL_ROLE_WIZARD_APPRENTICE
 	antag_hud_name = "apprentice"
 	antag_menu_name = "Ученик мага"

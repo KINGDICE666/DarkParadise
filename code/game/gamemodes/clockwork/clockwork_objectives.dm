@@ -20,7 +20,7 @@
 
 /datum/clockwork_objectives/proc/set_clocker_goal()
 	var/players = length(GLOB.player_list)
-	var/clockers = SSticker.mode.get_clockers()
+	var/clockers = get_clockwork_cult_team().get_clockers()
 	var/reveal_percent = CLOCK_CREW_REVEAL_LOW / 2
 	if(players >= CLOCK_POPULATION_THRESHOLD)
 		reveal_percent = CLOCK_CREW_REVEAL_HIGH / 2
@@ -48,7 +48,7 @@
 			if(!obj_demand.beacon_get)
 				to_chat(M, span_clock("The beacons will mark the soft spots of the Veil. Beacons needed: [length(GLOB.clockwork_beacons)]/[beacon_goal]"))
 			if(!obj_demand.clockers_get)
-				to_chat(M, span_clock("Let the power from our clockers assemble the path for our Ratvar! Clockers needed: [SSticker.mode.get_clockers()]/[clocker_goal]"))
+				to_chat(M, span_clock("Let the power from our clockers assemble the path for our Ratvar! Clockers needed: [get_clockwork_cult_team().get_clockers()]/[clocker_goal]"))
 		if(RATVAR_NEED_HEART)
 			to_chat(M, span_clock("Завеса ослаблена! Однако, на сердце Ратвара все еще наложены печати, сковывающие нашего Повелителя. Нам необходимо призвать его сердце в наш мир и починить его!"))
 			to_chat(M, span_clock("Текущая цель: [obj_summon.explanation_text]"))
@@ -68,7 +68,7 @@
 			to_chat(M, span_danger("Error: Clock cult objective status currently unknown. Something went wrong. Oof."))
 
 	if(display_members)
-		var/list/clock_cult = SSticker.mode.get_clockers(TRUE)
+		var/list/clock_cult = get_clockwork_cult_team().get_clockers(TRUE)
 		var/total_clockers = clock_cult[1] + clock_cult[2]
 
 		to_chat(M, span_clockitalic("<br><b>Current cult members: [total_clockers]</b>"))
@@ -112,7 +112,7 @@
 		to_chat(clock_mind.current, message)
 
 /datum/clockwork_objectives/proc/clockers_check()
-	var/clockers =SSticker.mode.get_clockers()
+	var/clockers = get_clockwork_cult_team().get_clockers()
 	if(clockers < clocker_goal)
 		return
 	obj_demand.clockers_get = TRUE
@@ -177,7 +177,8 @@
 	antag_menu_name = "Набрать силу"
 
 /datum/objective/demand_power/check_anatag_menu_ability()
-	return SSticker?.mode.clocker_objs.clock_status != RATVAR_IS_ASLEEP
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	return clock_team?.clocker_objs.clock_status != RATVAR_IS_ASLEEP
 
 /datum/objective/demand_power/check_completion()
 	return (power_get && beacon_get && clockers_get) || completed
@@ -194,7 +195,8 @@
 	find_summon_locations()
 
 /datum/objective/clockgod/check_anatag_menu_ability()
-	return SSticker.mode.clocker_objs.clock_status != RATVAR_IS_ASLEEP
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	return clock_team?.clocker_objs.clock_status != RATVAR_IS_ASLEEP
 
 /datum/objective/clockgod/proc/find_summon_locations(reroll = FALSE)
 	if(reroll)

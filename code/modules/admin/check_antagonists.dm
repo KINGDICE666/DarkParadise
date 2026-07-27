@@ -155,25 +155,25 @@
 			dat += check_role_table("Ninjas", SSticker.mode.space_ninjas)
 
 		if(length(SSticker.mode.cult))
-			var/datum/game_mode/gamemode = SSticker.mode
-			var/datum/objective/current_sac_obj = gamemode.cult_objs.current_sac_objective()
+			var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+			var/datum/objective/current_sac_obj = cult_team.cult_objs.current_sac_objective()
 			dat += check_role_table("Cultists", SSticker.mode.cult)
 			if(current_sac_obj)
 				dat += "<br>Current cult objective: <br>[current_sac_obj.explanation_text]"
-			else if(gamemode.cult_objs.cult_status == NARSIE_NEEDS_SUMMONING)
+			else if(cult_team.cult_objs.cult_status == NARSIE_NEEDS_SUMMONING)
 				dat += "<br>Current cult objective: Summon [SSticker.cultdat ? SSticker.cultdat.entity_name : "Nar'Sie"]"
-			else if(gamemode.cult_objs.cult_status == NARSIE_HAS_RISEN)
+			else if(cult_team.cult_objs.cult_status == NARSIE_HAS_RISEN)
 				dat += "<br>Current cult objective: Feed [SSticker.cultdat ? SSticker.cultdat.entity_name : "Nar'Sie"]"
-			else if(gamemode.cult_objs.cult_status == NARSIE_HAS_FALLEN)
+			else if(cult_team.cult_objs.cult_status == NARSIE_HAS_FALLEN)
 				dat += "<br>Current cult objective: Kill all non-cultists"
 			else
 				dat += "<br>Current cult objective: None! (This is most likely a bug, or var editing gone wrong.)"
-			dat += "<br>Sacrifice objectives completed: [gamemode.cult_objs.sacrifices_done]"
-			dat += "<br>Sacrifice objectives needed for summoning: [gamemode.cult_objs.sacrifices_required]"
-			dat += "<br>Summoning locations: [english_list(gamemode.cult_objs.obj_summon.summon_spots)]"
+			dat += "<br>Sacrifice objectives completed: [cult_team.cult_objs.sacrifices_done]"
+			dat += "<br>Sacrifice objectives needed for summoning: [cult_team.cult_objs.sacrifices_required]"
+			dat += "<br>Summoning locations: [english_list(cult_team.cult_objs.obj_summon.summon_spots)]"
 			dat += "<br><a href='byond://?src=[UID()];cult_mindspeak=[UID()]'>Cult Mindspeak</a>"
 
-			if(gamemode.cult_objs.cult_status == NARSIE_DEMANDS_SACRIFICE)
+			if(cult_team.cult_objs.cult_status == NARSIE_DEMANDS_SACRIFICE)
 				dat += "<br><a href='byond://?src=[UID()];cult_adjustsacnumber=[UID()]'>Modify amount of sacrifices required</a>"
 				dat += "<br><a href='byond://?src=[UID()];cult_newtarget=[UID()]'>Reroll sacrifice target</a>"
 			else
@@ -184,26 +184,26 @@
 			dat += "<br><a href='byond://?src=[UID()];cult_unlocknarsie=[UID()]'>Unlock Nar'Sie summoning</a>"
 
 		if(length(SSticker.mode.clockwork_cult))
-			var/datum/game_mode/gamemode = SSticker.mode
-			var/datum/objective/cur_demand_obj = gamemode.clocker_objs.obj_demand
+			var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+			var/datum/objective/cur_demand_obj = clock_team.clocker_objs.obj_demand
 			dat += check_role_table("Clockers", SSticker.mode.clockwork_cult)
 			if(cur_demand_obj)
 				dat += "<br>Current clock cult objective: <br>[cur_demand_obj.explanation_text]"
-			else if(gamemode.clocker_objs.clock_status == RATVAR_NEEDS_SUMMONING)
+			else if(clock_team.clocker_objs.clock_status == RATVAR_NEEDS_SUMMONING)
 				dat += "<br>Current clock cult objective: Summon Ratvar"
-			else if(gamemode.clocker_objs.clock_status == RATVAR_HAS_RISEN)
+			else if(clock_team.clocker_objs.clock_status == RATVAR_HAS_RISEN)
 				dat += "<br>Current clock cult objective: Bring to Ratvar"
-			else if(gamemode.clocker_objs.clock_status == RATVAR_HAS_FALLEN)
+			else if(clock_team.clocker_objs.clock_status == RATVAR_HAS_FALLEN)
 				dat += "<br>Current clock cult objective: Kill all non-clockers"
 			else
 				dat += "<br>Current clock cult objective: None! (This is most likely a bug, or var editing gone wrong.)"
-			dat += "<br>Power needed: [GLOB.clockwork_power]/[gamemode.clocker_objs.power_goal]"
-			dat += "<br>Beacons needed: [length(GLOB.clockwork_beacons)]/[gamemode.clocker_objs.beacon_goal]"
-			dat += "<br>Clockers needed: [SSticker.mode.get_clockers()]/[gamemode.clocker_objs.clocker_goal] Reveal:[SSticker.mode.clocker_objs.clocker_goal]"
-			dat += "<br>Summoning locations: [english_list(gamemode.clocker_objs.obj_summon.ritual_spots)]"
+			dat += "<br>Power needed: [GLOB.clockwork_power]/[clock_team.clocker_objs.power_goal]"
+			dat += "<br>Beacons needed: [length(GLOB.clockwork_beacons)]/[clock_team.clocker_objs.beacon_goal]"
+			dat += "<br>Clockers needed: [clock_team.get_clockers()]/[clock_team.clocker_objs.clocker_goal] Reveal:[clock_team.clocker_objs.clocker_goal]"
+			dat += "<br>Summoning locations: [english_list(clock_team.clocker_objs.obj_summon.ritual_spots)]"
 			dat += "<br><a href='byond://?src=[UID()];clock_mindspeak=[UID()]'>Clock Cult Mindspeak</a>"
 
-			if(gamemode.clocker_objs.clock_status == RATVAR_DEMANDS_POWER)
+			if(clock_team.clocker_objs.clock_status == RATVAR_DEMANDS_POWER)
 				dat += "<br><a href='byond://?src=[UID()];clock_adjustpower=[UID()]'>POWER CHANGE</a>"
 				dat += "<br><a href='byond://?src=[UID()];clock_adjustbeacon=[UID()]'>BEACON CHANGE</a>"
 				dat += "<br><a href='byond://?src=[UID()];clock_adjustclocker=[UID()]'>CLOCKER CHANGE</a>"

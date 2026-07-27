@@ -1,7 +1,6 @@
 /datum/antagonist/abductor
 	name = "Abductor Agent"
-	roundend_category = "abductors"
-	show_in_roundend = FALSE
+	roundend_category = "Абдукторами"
 	job_rank = ROLE_ABDUCTOR
 	special_role = SPECIAL_ROLE_ABDUCTOR_AGENT
 	antag_hud_type = ANTAG_HUD_ABDUCTOR
@@ -53,8 +52,7 @@
 
 /datum/antagonist/abductee
 	name = "Abductee"
-	roundend_category = "abductees"
-	show_in_roundend = FALSE
+	roundend_category = "Жертвами абдукторов"
 	special_role = SPECIAL_ROLE_ABDUCTEE
 	antag_hud_type = ANTAG_HUD_ABDUCTOR
 	antag_hud_name = "abductee"

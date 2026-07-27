@@ -3,7 +3,8 @@
 // For "Actual traitors"
 /datum/antagonist/traitor
 	name = "Traitor"
-	roundend_category = "traitors"
+	roundend_category = "Предателями"
+	roundend_blackbox_key = "traitor"
 	job_rank = ROLE_TRAITOR
 	special_role = SPECIAL_ROLE_TRAITOR
 	antag_hud_name = "hudsyndicate"
@@ -94,6 +95,37 @@
 
 /datum/antagonist/traitor/remove_owner_from_gamemode()
 	SSticker.mode.traitors -= owner
+
+/datum/antagonist/traitor/roundend_report_footer()
+	return "<b>Кодовые фразы:</b> [span_danger(jointext(GLOB.syndicate_code_phrase, ", "))]<br><b>Ответы на них:</b> [span_danger(jointext(GLOB.syndicate_code_response, ", "))]"
+
+/datum/antagonist/traitor/roundend_report_details()
+	var/list/details = list()
+	var/obj/item/uplink/traitor_uplink = owner.find_syndicate_uplink() || owner.find_uplink_by_key()
+	if(traitor_uplink && (traitor_uplink.used_TC > 0 || traitor_uplink.purchase_log != ""))
+		details += "(потрачено [traitor_uplink.used_TC] ТС) [traitor_uplink.purchase_log]"
+
+	var/datum/antagonist/contractor/contractor = owner.has_antag_datum(/datum/antagonist/contractor)
+	var/obj/item/contractor_uplink/contractor_uplink = contractor?.contractor_uplink_ref?.resolve()
+	if(!contractor_uplink)
+		return details
+
+	var/count = 1
+	for(var/datum/syndicate_contract/contract in contractor_uplink.hub.contracts)
+		var/list/locations = list()
+		for(var/area/candidate in contract.contract.candidate_zones)
+			locations += (candidate == contract.contract.extraction_zone ? "<b><u>[candidate.map_name]</u></b>" : candidate.map_name)
+
+		var/result = ""
+		if(contract.status == CONTRACT_STATUS_COMPLETED)
+			result = "<font color='green'><b>Успех!</b></font>"
+		else if(contract.status != CONTRACT_STATUS_INACTIVE)
+			result = "<font color='red'>Провал.</font>"
+		details += "<font color='orange'><b>Контракт #[count]</b></font>: похитить и вывезти [contract.target_name] в [english_list(locations, and_text = " или ")]. [result]"
+		count++
+
+	details += "<font color='orange'><b>С контрактов получено [contractor_uplink.hub.reward_tc_paid_out] ТС.</b></font>"
+	return details
 
 /datum/antagonist/traitor/add_antag_hud(mob/living/antag_mob)
 	if(HAS_TRAIT(owner, TRAIT_HIJACK))

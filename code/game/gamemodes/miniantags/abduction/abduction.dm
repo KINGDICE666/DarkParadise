@@ -173,26 +173,6 @@
 	..()
 	return 1
 
-/datum/game_mode/proc/auto_declare_completion_abduction()
-	var/list/text = list()
-	if(length(abductors))
-		text += span_bigbold("<br>The abductors were:<br>")
-		for(var/datum/mind/abductor_mind in abductors)
-			text += printplayer(abductor_mind)
-			text += "<br>"
-			text += printobjectives(abductor_mind)
-			text += "<br>"
-		if(length(abductees))
-			text += span_bigbold("<br>The abductees were:<br>")
-			for(var/datum/mind/abductee_mind in abductees)
-				text += printplayer(abductee_mind)
-				text += "<br>"
-				text += printobjectives(abductee_mind)
-				text += "<br>"
-		return text.Join("")
-
-//Landmarks
-// TODO: Split into seperate landmarks for prettier ships
 /obj/effect/landmark/abductor
 	icon_state = "abductor_agent"
 	var/team = 1
