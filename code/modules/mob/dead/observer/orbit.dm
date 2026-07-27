@@ -169,7 +169,6 @@
 					// Associative list of antag name => whether this mind is this antag
 					if(SSticker?.mode)
 						other_antags += list(
-							"Ивент роли — ([length(SSticker.mode.eventmiscs)])" = (mind in SSticker.mode.eventmiscs),
 							"Культисты [SSticker.cultdat.entity_name] — ([length(SSticker.mode.cult)])" = (mind in SSticker.mode.cult),
 							"Культисты Ратвара — ([length(SSticker.mode.clockwork_cult)])" = (mind in SSticker.mode.clockwork_cult),
 							"Революционеры — ([length(SSticker.mode.revolutionaries)])" = (mind in SSticker.mode.revolutionaries),
@@ -178,12 +177,7 @@
 							"Тени — ([length(SSticker.mode.shadows)])" = (mind in SSticker.mode.shadows),
 							"Маги — ([length(SSticker.mode.wizards)])" = (mind in SSticker.mode.wizards),
 							"Ученики магов — ([length(SSticker.mode.apprentices)])" = (mind in SSticker.mode.apprentices),
-							"Торговцы — ([length(SSticker.mode.traders)])" = (mind in SSticker.mode.traders),
-							"Свармеры — ([length(SSticker.mode.swarmers)])" = (mind in SSticker.mode.swarmers),
-							"Голопаразиты — ([length(SSticker.mode.guardians)])" = (mind in SSticker.mode.guardians),
 							"Воксы рейдеры — ([length(SSticker.mode.raiders)])" = (mind in SSticker.mode.raiders),
-							"Супергерои — ([length(SSticker.mode.superheroes)])" = (mind in SSticker.mode.superheroes),
-							"Суперзлодеи — ([length(SSticker.mode.supervillains)])" = (mind in SSticker.mode.supervillains),
 						)
 
 				for(var/antag_name in other_antags)

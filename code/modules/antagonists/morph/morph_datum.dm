@@ -35,6 +35,21 @@
 	return messages
 
 
+/datum/antagonist/morph/wizard
+	name = "Awakened Morph"
+	antag_menu_name = "Пробуждённый морф"
+	var/datum/mind/summoner
+	var/objective_verb = "Eat"
+
+/datum/antagonist/morph/wizard/Destroy(force)
+	summoner = null
+	return ..()
+
+/datum/antagonist/morph/wizard/give_objectives()
+	add_objective(/datum/objective/assassinate, "[objective_verb] [summoner.current.real_name], the one who was foolish enough to awake you.", summoner)
+	add_objective(/datum/objective/morph_eat, "[objective_verb] everyone and everything else while you're at it.")
+
+
 /datum/objective/morph_eat
 	explanation_text = "Съешьте как можно больше живых существ, чтобы утолить голод внутри вас."
 	completed = TRUE

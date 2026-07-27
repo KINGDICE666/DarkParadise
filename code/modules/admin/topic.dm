@@ -3885,27 +3885,10 @@
 	if(!locate(/obj/item/implant/dust, hunter_mob))
 		var/obj/item/implant/dust/D = new /obj/item/implant/dust(hunter_mob)
 		D.implant(hunter_mob)
-	if(killthem)
-		var/datum/objective/assassinate/kill_objective = new
-		kill_objective.owner = hunter_mind
-		kill_objective.target = H.mind
-		kill_objective.explanation_text = "Kill [H.real_name], the [H.mind.assigned_role]."
-		hunter_mind.objectives += kill_objective
-	else
-		var/datum/objective/protect/protect_objective = new
-		protect_objective.owner = hunter_mind
-		protect_objective.target = H.mind
-		protect_objective.explanation_text = "Protect [H.real_name], the [H.mind.assigned_role]."
-		hunter_mind.objectives += protect_objective
-	SSticker.mode.traitors |= hunter_mob.mind
-	to_chat(hunter_mob, "[span_danger("ATTENTION:")] You are now on a mission!")
-	to_chat(hunter_mob, "<b>Goal: [span_danger("[killthem ? "MURDER" : "PROTECT"] [H.real_name]")], currently in [get_area(H.loc)].</b>");
-	if(killthem)
-		to_chat(hunter_mob, "<b>If you kill [H.p_them()], [H.p_they()] cannot be revived.</b>");
-	hunter_mob.mind.special_role = SPECIAL_ROLE_TRAITOR
-	var/datum/atom_hud/antag/tatorhud = GLOB.huds[ANTAG_HUD_TRAITOR]
-	tatorhud.join_hud(hunter_mob)
-	set_antag_hud(hunter_mob, "hudsyndicate")
+	var/datum/antagonist/contracted_agent/agent_datum = new
+	agent_datum.contract_target = H.mind
+	agent_datum.lethal = killthem
+	hunter_mind.add_antag_datum(agent_datum)
 
 /**
  * Generates admin follow links for tracking specific atoms, with special handling for clients, AIs, and observer mobs

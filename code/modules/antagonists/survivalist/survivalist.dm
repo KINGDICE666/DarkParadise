@@ -4,6 +4,12 @@
 	antag_menu_name = "Выживальщик"
 	var/greet_message = ""
 
+/datum/antagonist/survivalist/add_owner_to_gamemode()
+	SSticker.mode.traitors |= owner
+
+/datum/antagonist/survivalist/remove_owner_from_gamemode()
+	SSticker.mode.traitors -= owner
+
 /datum/antagonist/survivalist/give_objectives()
 	add_objective(/datum/objective/survive)
 

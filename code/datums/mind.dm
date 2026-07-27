@@ -520,7 +520,7 @@
 
 /datum/mind/proc/memory_edit_eventmisc(mob/living/H)
 	. = _memory_edit_header("event", list())
-	if(src in SSticker.mode.eventmiscs)
+	if(has_antag_datum(/datum/antagonist/eventmisc))
 		. += "<b>YES</b>|<a href='byond://?src=[UID()];eventmisc=clear'>no</a>"
 	else
 		. += "<a href='byond://?src=[UID()];eventmisc=eventmisc'>Event Role</a>|<b>NO</b>"
@@ -1847,14 +1847,12 @@
 	else if(href_list["eventmisc"])
 		switch(href_list["eventmisc"])
 			if("clear")
-				if(src in SSticker.mode.eventmiscs)
+				if(has_antag_datum(/datum/antagonist/eventmisc))
 					remove_event_role()
 					message_admins("[key_name_admin(usr)] has de-eventantag'ed [current].")
 					log_admin("[key_name(usr)] has de-eventantag'ed [current].")
 			if("eventmisc")
-				SSticker.mode.eventmiscs += src
-				special_role = SPECIAL_ROLE_EVENTMISC
-				SSticker.mode.update_eventmisc_icons_added(src)
+				add_antag_datum(/datum/antagonist/eventmisc)
 				message_admins("[key_name_admin(usr)] has eventantag'ed [current].")
 				log_admin("[key_name(usr)] has eventantag'ed [current].")
 	else if(href_list["devil"])
@@ -2646,10 +2644,7 @@
 	remove_antag_datum(/datum/antagonist/nuclear_operative)
 
 /datum/mind/proc/remove_event_role()
-	if(src in SSticker.mode.eventmiscs)
-		SSticker.mode.eventmiscs -= src
-		SSticker.mode.update_eventmisc_icons_removed(src)
-		special_role = null
+	remove_antag_datum(/datum/antagonist/eventmisc)
 
 /datum/mind/proc/remove_devil_role()
 	if(src in SSticker.mode.devils)

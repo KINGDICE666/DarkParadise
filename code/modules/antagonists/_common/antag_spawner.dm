@@ -280,25 +280,13 @@
 		to_chat(user, span_notice("The sludge does not respond to your attempt to awake it. Perhaps you should try again later."))
 
 /obj/item/antag_spawner/morph/spawn_antag(client/C, turf/T, type = "", mob/user)
-	var/mob/living/simple_animal/hostile/morph/wizard/M = new /mob/living/simple_animal/hostile/morph/wizard(pick(GLOB.xeno_spawn))
-	M.possess_by_player(C.key)
-	M.mind.assigned_role = SPECIAL_ROLE_MORPH
-	M.mind.special_role = SPECIAL_ROLE_MORPH
-	to_chat(M, M.playstyle_string)
-	SSticker.mode.traitors += M.mind
-	var/datum/objective/assassinate/KillDaWiz = new /datum/objective/assassinate
-	KillDaWiz.owner = M.mind
-	KillDaWiz.target = user.mind
-	KillDaWiz.explanation_text = "[objective_verb] [user.real_name], the one who was foolish enough to awake you."
-	M.mind.objectives += KillDaWiz
-	var/datum/objective/KillDaCrew = new /datum/objective
-	KillDaCrew.owner = M.mind
-	KillDaCrew.explanation_text = "[objective_verb] everyone and everything else while you're at it."
-	KillDaCrew.completed = TRUE
-	M.mind.objectives += KillDaCrew
-	var/list/messages = M.mind.prepare_announce_objectives()
-	to_chat(M, custom_boxed_message("red_box center", messages.Join("<br>")))
-	SEND_SOUND(src, sound('sound/magic/mutate.ogg'))
+	var/mob/living/simple_animal/hostile/morph/wizard/morph = new /mob/living/simple_animal/hostile/morph/wizard(pick(GLOB.xeno_spawn))
+	morph.possess_by_player(C.key)
+	morph.mind.assigned_role = SPECIAL_ROLE_MORPH
+	var/datum/antagonist/morph/wizard/morph_datum = new
+	morph_datum.summoner = user.mind
+	morph_datum.objective_verb = objective_verb
+	morph.mind.add_antag_datum(morph_datum)
 
 ///////////Pulse Demon
 

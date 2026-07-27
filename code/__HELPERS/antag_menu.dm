@@ -34,39 +34,3 @@
 	temp_list["ckey"] = ckey(antag_mind.key)
 	temp_list["is_hijacker"] = HAS_TRAIT(antag_mind, TRAIT_HIJACK)
 	cached_data["antagonists"][uid] = temp_list
-
-/**
- * Processes a list of antagonists and prepares their data
- *
- * Iterates through a list of antagonist minds and calls prepare_antag_data for each one.
- * Used to batch process multiple antagonists of the same type.
- *
- * Arguments:
- * * antags - List of antagonist minds to process
- * * cached_data - The main cache data structure to update
- * * antag_name - The type name of the antagonist role
- * * antagonist_cache - Cache of antagonist data indexed by mind UID
- */
-/proc/prepare_antag_list(list/antags, list/cached_data, antag_name, list/antagonist_cache)
-	for(var/antag in antags)
-		prepare_antag_data(antag, cached_data, antag_name, antagonist_cache)
-
-/**
- * Collects data for all non-datum based antagonist types
- *
- * Processes various antagonist lists from the game mode and prepares their data
- * for caching. Covers most standard antagonist types in the game.
- *
- * Arguments:
- * * cached_data - The main cache data structure to update
- * * antagonist_cache - Cache of antagonist data indexed by mind UID
- */
-/proc/prepare_nodatum_antags(list/cached_data, list/antagonist_cache)
-	var/datum/game_mode/mode = SSticker.mode
-	prepare_antag_list(mode.superheroes, cached_data, "Супергерой", antagonist_cache)
-	prepare_antag_list(mode.supervillains, cached_data, "Суперзлодей", antagonist_cache)
-	prepare_antag_list(mode.greyshirts, cached_data, "Грейтайд", antagonist_cache)
-	prepare_antag_list(mode.eventmiscs, cached_data, "Ивентроль", antagonist_cache)
-	prepare_antag_list(mode.traders, cached_data, "Торговец", antagonist_cache)
-	prepare_antag_list(mode.swarmers, cached_data, "Свармер", antagonist_cache)
-	prepare_antag_list(mode.guardians, cached_data, "Голопаразит", antagonist_cache)
