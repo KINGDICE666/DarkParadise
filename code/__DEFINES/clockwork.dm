@@ -138,7 +138,6 @@ GLOBAL_LIST_INIT(minigun_spells, list(
 #define CLOCK_CREW_REVEAL_HIGH 0.25
 /// Default power for goal
 #define CLOCK_BASIC_POWER_GOAL 120
-/// Share of the power goal which reveals the cult
 #define CLOCK_POWER_REVEAL_RATIO 0.67
 
 // Text

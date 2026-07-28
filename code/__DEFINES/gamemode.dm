@@ -26,7 +26,6 @@
 #define GAMEMODE_IS_RAGIN_MAGES (SSticker && istype(SSticker.mode, /datum/game_mode/wizard/raginmages))
 #define GAMEMODE_IS_METEOR (SSticker && istype(SSticker.mode, /datum/game_mode/meteor))
 
-//revolution
 #define MAX_HEAD_REVOLUTIONARIES 3
 
 // special roles

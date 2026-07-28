@@ -3,8 +3,6 @@
 	max_antag_cap = 1
 
 /datum/dynamic_ruleset/latejoin/is_valid_candidate(datum/mind/candidate)
-	if(candidate.assigned_role in get_blacklisted_roles())
-		return FALSE
 	if(ismindshielded(candidate.current))
 		return FALSE
 	return ..()

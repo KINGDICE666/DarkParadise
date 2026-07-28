@@ -1,5 +1,6 @@
 /datum/dynamic_ruleset/roundstart
 	repeatable = TRUE
+	var/solo = FALSE
 
 /datum/dynamic_ruleset/roundstart/traitor
 	name = "Traitors"
@@ -164,12 +165,7 @@
 	blacklisted_roles = list(JOB_TITLE_LAWYER)
 	always_protect_roles = TRUE
 	ruleset_flags = RULESET_HIGH_IMPACT
-	weight = alist(
-		DYNAMIC_TIER_LOW = 0,
-		DYNAMIC_TIER_LOWMEDIUM = 1,
-		DYNAMIC_TIER_MEDIUMHIGH = 3,
-		DYNAMIC_TIER_HIGH = 3,
-	)
+	weight = 0
 	min_pop = 20
 	max_antag_cap = MAX_HEAD_REVOLUTIONARIES
 	repeatable = FALSE
@@ -220,12 +216,8 @@
 	antag_role = ROLE_BLOB
 	special_role = SPECIAL_ROLE_BLOB
 	protected_species = BLOB_RESTRICTED_SPECIES
-	weight = alist(
-		DYNAMIC_TIER_LOW = 0,
-		DYNAMIC_TIER_LOWMEDIUM = 1,
-		DYNAMIC_TIER_MEDIUMHIGH = 3,
-		DYNAMIC_TIER_HIGH = 3,
-	)
+	ruleset_flags = RULESET_HIGH_IMPACT
+	weight = 0
 	min_pop = 30
 	max_antag_cap = list("denominator" = BLOB_PLAYERS_PER_CORE, "offset" = 0)
 	repeatable = FALSE

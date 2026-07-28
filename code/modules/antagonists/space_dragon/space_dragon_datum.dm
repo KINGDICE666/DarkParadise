@@ -1,6 +1,6 @@
 /datum/antagonist/space_dragon
 	name = "Space Dragon"
-	roundend_category = "space dragons"
+	roundend_category = "Космическими драконами"
 	job_rank = ROLE_SPACE_DRAGON
 	special_role = SPECIAL_ROLE_SPACE_DRAGON
 	antag_menu_name = "Космический дракон"

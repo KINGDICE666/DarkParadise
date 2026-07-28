@@ -38,6 +38,10 @@ ADMIN_VERB(dynamic_panel, R_ADMIN, "Dynamic Panel", "Inspect and steer the dynam
 
 /datum/admins/proc/dynamic_force_tier()
 	var/datum/game_mode/dynamic/mode = SSticker.mode
+	if(!istype(mode))
+		to_chat(usr, span_warning("Текущий режим игры — не динамический."))
+		return
+
 	if(mode.current_tier)
 		to_chat(usr, span_warning("Тир уже выбран."))
 		return
@@ -55,6 +59,10 @@ ADMIN_VERB(dynamic_panel, R_ADMIN, "Dynamic Panel", "Inspect and steer the dynam
 
 /datum/admins/proc/dynamic_force_midround()
 	var/datum/game_mode/dynamic/mode = SSticker.mode
+	if(!istype(mode))
+		to_chat(usr, span_warning("Текущий режим игры — не динамический."))
+		return
+
 	if(!mode.current_tier)
 		to_chat(usr, span_warning("Раунд ещё не начался."))
 		return
@@ -65,6 +73,10 @@ ADMIN_VERB(dynamic_panel, R_ADMIN, "Dynamic Panel", "Inspect and steer the dynam
 
 /datum/admins/proc/dynamic_toggle_ruleset()
 	var/datum/game_mode/dynamic/mode = SSticker.mode
+	if(!istype(mode))
+		to_chat(usr, span_warning("Текущий режим игры — не динамический."))
+		return
+
 	var/list/ruleset_choices = list()
 	for(var/datum/dynamic_ruleset/ruleset_type as anything in subtypesof(/datum/dynamic_ruleset))
 		if(!ruleset_type::config_tag)

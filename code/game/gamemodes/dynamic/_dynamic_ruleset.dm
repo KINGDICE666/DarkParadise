@@ -76,6 +76,8 @@
 		return FALSE
 	if(length(protected_species) && (candidate.current.client.prefs.species in protected_species))
 		return FALSE
+	if(candidate.assigned_role in get_blacklisted_roles())
+		return FALSE
 	return TRUE
 
 /datum/dynamic_ruleset/proc/trim_candidates(list/datum/mind/candidates)
@@ -107,7 +109,7 @@
 	var/list/restricted_roles = get_blacklisted_roles()
 	for(var/datum/mind/candidate as anything in picked_candidates)
 		candidate.special_role = special_role
-		candidate.restricted_roles = restricted_roles
+		candidate.restricted_roles = restricted_roles.Copy()
 		prepare_for_role(candidate)
 		selected_minds += candidate
 

@@ -19,7 +19,6 @@
 /datum/game_mode/dynamic/announce()
 	to_chat(world, "<b>Текущий режим игры — Динамический!</b>")
 	to_chat(world, "<b>Никто не знает, что именно ждёт станцию в эту смену. Будьте готовы ко всему.</b>")
-	to_chat(world, current_tier.advisory_report)
 
 /datum/game_mode/dynamic/pre_setup()
 	var/population_size = num_players()
@@ -42,6 +41,7 @@
 	return TRUE
 
 /datum/game_mode/dynamic/post_setup()
+	to_chat(world, current_tier.advisory_report)
 	for(var/datum/dynamic_ruleset/ruleset as anything in executed_rulesets)
 		ruleset.execute()
 	COOLDOWN_START(src, midround_cooldown, current_tier.get_time_threshold(DYNAMIC_MIDROUND))
@@ -102,10 +102,14 @@
 	. = list()
 	while(rulesets_to_spawn[category] > 0 && length(weighted_rulesets))
 		rulesets_to_spawn[category]--
-		var/datum/dynamic_ruleset/picked = pick_weight_classic(weighted_rulesets)
+		var/datum/dynamic_ruleset/roundstart/picked = pick_weight_classic(weighted_rulesets)
+		if(picked.solo)
+			. = list(picked.type)
+			break
+
 		. += picked.type
 
-		if(picked.ruleset_flags & RULESET_HIGH_IMPACT)
+		if(current_tier.tier != DYNAMIC_TIER_HIGH && (picked.ruleset_flags & RULESET_HIGH_IMPACT))
 			for(var/datum/dynamic_ruleset/other as anything in weighted_rulesets.Copy())
 				if(other.ruleset_flags & RULESET_HIGH_IMPACT)
 					weighted_rulesets -= other

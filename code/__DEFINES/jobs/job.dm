@@ -86,7 +86,6 @@
 #define JOB_FLAG_TEAM2 (1<<1)
 #define JOB_FLAG_TEAM3 (1<<2)
 
-// MARK: Antagonist job flags
 #define JOB_ANTAG_BLACKLISTED (1<<0)
 #define JOB_ANTAG_PROTECTED (1<<1)
 

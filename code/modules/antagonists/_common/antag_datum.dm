@@ -8,9 +8,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	var/roundend_category = "Прочими антагонистами"
 	/// Set to false to hide the antagonists from roundend report.
 	var/show_in_roundend = TRUE
-	/// Prefix of the blackbox feedback keys recorded by the roundend report. No feedback is recorded when unset.
 	var/roundend_blackbox_key
-	/// Whether dying makes the antagonist fail regardless of their objectives.
 	var/roundend_death_is_failure = FALSE
 	/// Mind that owns this datum.
 	var/datum/mind/owner
@@ -53,9 +51,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	var/show_in_orbit = TRUE
 	/// Role name in antag menu
 	var/antag_menu_name
-	/// CSS class of the box the greeting text is wrapped in.
 	var/greet_box_class = "red_box center"
-	/// Sound played to the owner when they gain this datum.
 	var/stinger_sound
 
 /datum/antagonist/New()
@@ -198,9 +194,6 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	if(owner?.current && !silent)
 		messages.Add(span_userdanger("You are a [special_role]!"))
 
-/**
- * Plays this datum's stinger sound to the owner, if it has one.
- */
 /datum/antagonist/proc/play_stinger()
 	if(!stinger_sound)
 		return
@@ -484,9 +477,6 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 
 	return report.Join("<br>")
 
-/**
- * Body status of the owner, shown in brackets after their name in the roundend report.
- */
 /datum/antagonist/proc/get_roundend_status()
 	if(!owner.current)
 		return "тело уничтожено"
@@ -495,9 +485,6 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 		status += " как [owner.current.real_name]"
 	return status
 
-/**
- * Extra lines shown between the owner's status and their objectives.
- */
 /datum/antagonist/proc/roundend_report_details()
 	return list()
 
