@@ -1,8 +1,6 @@
 /datum/game_mode/changeling
 	name = "changeling"
 	config_tag = "changeling"
-	restricted_jobs = list(JOB_TITLE_AI, JOB_TITLE_CYBORG)
-	protected_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCCAPTAIN, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
 	protected_species = SPECIES_BLOCKED_FOR_CHANGELING
 	required_players = 15
 	required_enemies = 1
@@ -19,9 +17,6 @@
 	to_chat(world, "<b>There are alien changelings on the station. Do not let the changelings succeed!</b>")
 
 /datum/game_mode/changeling/pre_setup()
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
-
 	var/list/datum/mind/possible_changelings = get_players_for_role(ROLE_CHANGELING)
 
 	var/changeling_scale = 10
@@ -35,7 +30,7 @@
 			break
 		var/datum/mind/changeling = pick_n_take(possible_changelings)
 		pre_changelings += changeling
-		changeling.restricted_roles = restricted_jobs
+		changeling.restricted_roles = get_restricted_roles()
 		changeling.special_role = SPECIAL_ROLE_CHANGELING
 
 	if(!length(pre_changelings))

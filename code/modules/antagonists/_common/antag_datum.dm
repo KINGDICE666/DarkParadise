@@ -176,13 +176,13 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	return TRUE
 
 /**
- * Adds the owner to their respective gamemode's list. For example `SSticker.mode.traitors |= owner`.
+ * Adds the owner to their respective gamemode's list. For example `SSticker.mode.blobs[BLOB_GROUP_INFECTED] |= owner`.
  */
 /datum/antagonist/proc/add_owner_to_gamemode()
 	return
 
 /**
- * Removes the owner from their respective gamemode's list. For example `SSticker.mode.traitors -= owner`.
+ * Removes the owner from their respective gamemode's list. For example `SSticker.mode.blobs[BLOB_GROUP_INFECTED] -= owner`.
  */
 /datum/antagonist/proc/remove_owner_from_gamemode()
 	return

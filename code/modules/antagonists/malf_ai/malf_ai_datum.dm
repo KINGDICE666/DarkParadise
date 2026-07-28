@@ -36,12 +36,6 @@
 		QDEL_NULL(malf.malf_picker)
 	return ..()
 
-/datum/antagonist/malf_ai/add_owner_to_gamemode()
-	SSticker.mode.traitors |= owner
-
-/datum/antagonist/malf_ai/remove_owner_from_gamemode()
-	SSticker.mode.traitors -= owner
-
 /datum/antagonist/malf_ai/give_objectives()
 	add_objective(/datum/objective/block)
 	add_objective(/datum/objective/survive)

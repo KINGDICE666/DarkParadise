@@ -27,12 +27,6 @@
 	special_role = "[owner.current.real_name] Prime"
 	return ..()
 
-/datum/antagonist/multiverse/prime/add_owner_to_gamemode()
-	SSticker.mode.traitors |= owner
-
-/datum/antagonist/multiverse/prime/remove_owner_from_gamemode()
-	SSticker.mode.traitors -= owner
-
 /datum/antagonist/multiverse/prime/give_objectives()
 	var/mob/living/prime = owner.current
 	if(evil)

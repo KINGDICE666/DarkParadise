@@ -25,7 +25,6 @@
 	return TRUE
 
 /datum/game_mode/space_ninja/pre_setup()
-	space_ninjas |= pre_ninja
 	pre_ninja.assigned_role = SPECIAL_ROLE_SPACE_NINJA //So they aren't chosen for other jobs.
 	pre_ninja.special_role = SPECIAL_ROLE_SPACE_NINJA
 	pre_ninja.offstation_role = TRUE //ninja can't be targeted as a victim for some pity traitors
@@ -44,7 +43,7 @@
 /datum/game_mode/space_ninja/check_finished()
 	var/ninjas_alive = 0
 
-	for(var/datum/mind/ninja in space_ninjas)
+	for(var/datum/mind/ninja in get_antag_minds(/datum/antagonist/ninja))
 		if(!iscarbon(ninja.current))
 			continue
 		if(ninja.current.stat == DEAD)
@@ -62,7 +61,8 @@
 /datum/game_mode/space_ninja/declare_completion(ragin = FALSE)
 	if(finished && !ragin)
 		SSticker.mode_result = "ninja loss - ninja killed"
-		to_chat(world, span_warning(span_bold(span_fontsize3(" Ниндзя был[(length(space_ninjas)>1)?"и":""] убит[(length(space_ninjas)>1)?"ы":""] экипажем! Клан Паука ещё не скоро отмоется от этого позора!"))))
+		var/ninja_count = length(get_antag_minds(/datum/antagonist/ninja))
+		to_chat(world, span_warning(span_bold(span_fontsize3(" Ниндзя был[ninja_count > 1 ? "и" : ""] убит[ninja_count > 1 ? "ы" : ""] экипажем! Клан Паука ещё не скоро отмоется от этого позора!"))))
 	..()
 	return TRUE
 

@@ -19,12 +19,6 @@
 		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	return ..()
 
-/datum/antagonist/shadowling/add_owner_to_gamemode()
-	SSticker.mode.shadows |= owner
-
-/datum/antagonist/shadowling/remove_owner_from_gamemode()
-	SSticker.mode.shadows -= owner
-
 /datum/antagonist/shadowling/give_objectives()
 	add_objective(/datum/objective/enthrall)
 
@@ -56,12 +50,6 @@
 		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	return ..()
 
-/datum/antagonist/shadowling_thrall/add_owner_to_gamemode()
-	SSticker.mode.shadowling_thralls |= owner
-
-/datum/antagonist/shadowling_thrall/remove_owner_from_gamemode()
-	SSticker.mode.shadowling_thralls -= owner
-
 /datum/antagonist/shadowling_thrall/greet()
 	var/list/messages = list()
 	messages += span_shadowling("><b>Ты видишь правду. Ты понимаешь, каким дураком ты был..</b>")
@@ -76,3 +64,12 @@
 	owner.AddSpell(new /obj/effect/proc_holder/spell/shadowling_guise(null))
 	owner.AddSpell(new /obj/effect/proc_holder/spell/shadowling_vision/thrall(null))
 	owner.current.add_language(LANGUAGE_HIVE_SHADOWLING)
+
+/proc/is_shadow(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/shadowling)
+
+/proc/is_thrall(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/shadowling_thrall)
+
+/proc/is_shadow_or_thrall(mob/living/user)
+	return is_shadow(user) || is_thrall(user)

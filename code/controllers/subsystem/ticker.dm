@@ -634,8 +634,9 @@ SUBSYSTEM_DEF(ticker)
 	if(dronecount)
 		end_of_round_info += "<b>There [dronecount > 1 ? "were" : "was"] [dronecount] industrious maintenance [dronecount > 1 ? "drones" : "drone"] this round.</b>"
 
-	if(length(mode.eventmiscs))
-		for(var/datum/mind/eventmind in mode.eventmiscs)
+	var/list/datum/mind/eventmiscs = get_antag_minds(/datum/antagonist/eventmisc)
+	if(length(eventmiscs))
+		for(var/datum/mind/eventmind in eventmiscs)
 			end_of_round_info += printeventplayer(eventmind)
 			end_of_round_info += printobjectives(eventmind)
 		end_of_round_info += "<br>"

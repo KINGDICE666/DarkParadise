@@ -22,12 +22,6 @@
 	if(mission)
 		antag_memory += "<b>Миссия:</b> [span_warning("[mission].")]<br>"
 
-/datum/antagonist/ert/add_owner_to_gamemode()
-	SSticker.mode.ert |= owner
-
-/datum/antagonist/ert/remove_owner_from_gamemode()
-	SSticker.mode.ert -= owner
-
 /datum/antagonist/ert/apply_innate_effects(mob/living/mob_override)
 	. = ..()
 	if(offstation_squad)
@@ -67,12 +61,6 @@
 	greet_name = "боец отряда Специальных Операций, подчиняющийся Центральному Командованию"
 	leader_greet_name = "<b>КОМАНДИР</b> отряда Специальных Операций, подчиняющийся Центральному Командованию"
 
-/datum/antagonist/ert/deathsquad/add_owner_to_gamemode()
-	SSticker.mode.deathsquad |= owner
-
-/datum/antagonist/ert/deathsquad/remove_owner_from_gamemode()
-	SSticker.mode.deathsquad -= owner
-
 /datum/antagonist/ert/deathsquad/cyborg
 	name = "Death Commando Cyborg"
 	greet_name = "борг отдела Специальных Операций, подчиняющийся Центральному Командованию"
@@ -90,12 +78,6 @@
 	offstation_squad = TRUE
 	greet_name = "член ХОНКсквада в подчинении Планеты Клоунов"
 	leader_greet_name = "<b>ЛИДЕР</b> ХОНКсквада в подчинении Планеты Клоунов"
-
-/datum/antagonist/ert/honksquad/add_owner_to_gamemode()
-	SSticker.mode.honksquad |= owner
-
-/datum/antagonist/ert/honksquad/remove_owner_from_gamemode()
-	SSticker.mode.honksquad -= owner
 
 /datum/antagonist/ert/honksquad/additional_messages()
 	return list(span_notice("Вас вызывают в случае крайне низкого уровня ХОНКа на объекте. Вы НЕ имеете права убивать."))
@@ -115,12 +97,6 @@
 	offstation_squad = TRUE
 	greet_name = "боец Элитного Отряда в подчинении \"Синдиката\""
 	leader_greet_name = "<b>Лидер</b> Элитного Отряда в подчинении \"Синдиката\""
-
-/datum/antagonist/ert/syndicate_commando/add_owner_to_gamemode()
-	SSticker.mode.sst |= owner
-
-/datum/antagonist/ert/syndicate_commando/remove_owner_from_gamemode()
-	SSticker.mode.sst -= owner
 
 /datum/antagonist/ert/syndicate_commando/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
@@ -145,12 +121,6 @@
 	. = ..()
 	antag_memory += "<b>Лидер:</b> [team_leader]<br>"
 	antag_memory += "<b>Стартовое снаряжение:</b> <br>- Наушник \"Синдиката\" ((:t для вашего канала))<br>- Хамелион-комбинезон ((правый щелчок мыши для смены цвета))<br> - ID карта агента ((Может изменять должность и другие данные))<br> - Имплант аплинка ((в левом верхнем углу экрана)) <br> - Имплант распыления ((превращает тело при смерти в пыль)) <br> - Боевые перчатки ((изолированы, замаскированны под черные перчатки)) <br> - Все, что куплено с помощью вашего импланта аплинка"
-
-/datum/antagonist/ert/syndicate_commando/infiltrator/add_owner_to_gamemode()
-	SSticker.mode.sit |= owner
-
-/datum/antagonist/ert/syndicate_commando/infiltrator/remove_owner_from_gamemode()
-	SSticker.mode.sit -= owner
 
 /datum/antagonist/ert/syndicate_commando/infiltrator/additional_messages()
 	var/list/messages = list()

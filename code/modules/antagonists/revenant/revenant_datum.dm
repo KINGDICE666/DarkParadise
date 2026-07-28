@@ -9,12 +9,6 @@
 	russian_wiki_name = "Ревенант"
 	stinger_sound = 'sound/effects/ghost.ogg'
 
-/datum/antagonist/revenant/add_owner_to_gamemode()
-	SSticker.mode.revenants |= owner
-
-/datum/antagonist/revenant/remove_owner_from_gamemode()
-	SSticker.mode.revenants -= owner
-
 /datum/antagonist/revenant/give_objectives()
 	add_objective(/datum/objective/revenant)
 	add_objective(/datum/objective/revenantFluff)

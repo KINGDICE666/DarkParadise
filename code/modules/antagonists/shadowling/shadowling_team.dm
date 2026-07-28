@@ -26,7 +26,7 @@
 	warning_threshold = round(SHADOWLING_WARNING_RATIO * required_thralls)
 
 /datum/team/shadowling/proc/try_announce_victory_warning()
-	if(victory_warning_announced || length(SSticker.mode.shadowling_thralls) < warning_threshold)
+	if(victory_warning_announced || length(get_antag_minds(/datum/antagonist/shadowling_thrall)) < warning_threshold)
 		return
 	victory_warning_announced = TRUE
 	GLOB.major_announcement.announce(
@@ -56,12 +56,13 @@
 		text += span_redtext("<b>Тенелинги не смогли возвыситься!</b>")
 
 	text += span_big("<b>Тенеморфами были:</b>")
-	for(var/datum/mind/shadow as anything in SSticker.mode.shadows)
+	for(var/datum/mind/shadow as anything in get_antag_minds(/datum/antagonist/shadowling))
 		text += print_shadowling_status(shadow)
 
-	if(length(SSticker.mode.shadowling_thralls))
+	var/list/datum/mind/thralls = get_antag_minds(/datum/antagonist/shadowling_thrall)
+	if(length(thralls))
 		text += span_big("<b>Рабами были:</b>")
-		for(var/datum/mind/thrall as anything in SSticker.mode.shadowling_thralls)
+		for(var/datum/mind/thrall as anything in thralls)
 			text += print_shadowling_status(thrall)
 
 	return text.Join("<br>")

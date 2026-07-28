@@ -13,12 +13,6 @@
 	summoner = null
 	return ..()
 
-/datum/antagonist/demon/add_owner_to_gamemode()
-	SSticker.mode.demons |= owner
-
-/datum/antagonist/demon/remove_owner_from_gamemode()
-	SSticker.mode.demons -= owner
-
 /datum/antagonist/demon/give_objectives()
 	if(!summoner)
 		return

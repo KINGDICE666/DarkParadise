@@ -9,12 +9,6 @@
 	replace_banned = FALSE
 	greet_box_class = "green_box"
 
-/datum/antagonist/trader/add_owner_to_gamemode()
-	SSticker.mode.traders |= owner
-
-/datum/antagonist/trader/remove_owner_from_gamemode()
-	SSticker.mode.traders -= owner
-
 /datum/antagonist/trader/apply_innate_effects(mob/living/mob_override)
 	. = ..()
 	owner.offstation_role = TRUE

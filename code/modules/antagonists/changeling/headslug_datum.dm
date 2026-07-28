@@ -7,12 +7,6 @@
 	antag_menu_name = "Личинка генокрада"
 	stinger_sound = 'sound/vox_fem/changeling.ogg'
 
-/datum/antagonist/headslug/add_owner_to_gamemode()
-	SSticker.mode.headslugs |= owner
-
-/datum/antagonist/headslug/remove_owner_from_gamemode()
-	SSticker.mode.headslugs -= owner
-
 /datum/antagonist/headslug/give_objectives()
 	add_objective(/datum/objective/find_host)
 

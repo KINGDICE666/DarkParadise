@@ -34,22 +34,20 @@ GLOBAL_LIST_EMPTY(all_cults)
 /datum/game_mode/cult
 	name = "cult"
 	config_tag = "cult"
-	restricted_jobs = list(JOB_TITLE_CHAPLAIN, JOB_TITLE_AI, JOB_TITLE_CYBORG, JOB_TITLE_LAWYER, JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_PILOT, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_HOP, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCCAPTAIN, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
-	protected_jobs = list()
+	restricted_jobs = list(JOB_TITLE_CHAPLAIN, JOB_TITLE_LAWYER)
+	always_protect_roles = TRUE
 	required_players = 30
 	required_enemies = 3
 	recommended_enemies = 4
 
 	var/static/max_cultist_to_start = 4
+	var/list/datum/mind/pre_cultists = list()
 
 /datum/game_mode/cult/announce()
 	to_chat(world, "<b>The current game mode is - Cult!</b>")
 	to_chat(world, "<b>Some crewmembers are attempting to start a cult!<br>\nCultists - complete your objectives. Convert crewmembers to your cause by using the offer rune. Remember - there is no you, there is only the cult.<br>\nPersonnel - Do not let the cult succeed in its mission. Brainwashing them with holy water reverts them to whatever CentComm-allowed faith they had.</b>")
 
 /datum/game_mode/cult/pre_setup()
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
-
 	max_cultist_to_start += floor((num_players() - required_players) / CULT_PLAYER_PER_CULTIST)
 	var/list/cultists_possible = get_players_for_role(ROLE_CULTIST)
 	var/datum/team/blood_cult/cult_team = create_antag_team(/datum/team/blood_cult)
@@ -58,17 +56,17 @@ GLOBAL_LIST_EMPTY(all_cults)
 			break
 		var/datum/mind/cultist = pick(cultists_possible)
 		cultists_possible -= cultist
-		cult += cultist
-		cultist.restricted_roles = restricted_jobs
+		pre_cultists += cultist
+		cultist.restricted_roles = get_restricted_roles()
 
 		cult_team.ghost_summons = floor(num_players() / GHOST_SUMMONS_PER_READY)
-	return (length(cult) > 0)
+	return (length(pre_cultists) > 0)
 
 /datum/game_mode/cult/post_setup()
 	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
 	cult_team.cult_objs.setup()
 
-	for(var/datum/mind/cult_mind in cult.Copy())
+	for(var/datum/mind/cult_mind in pre_cultists)
 		cult_mind.add_antag_datum(/datum/antagonist/cult)
 		equip_cultist(cult_mind.current)
 		cult_team.cult_objs.study(cult_mind.current)
@@ -130,10 +128,3 @@ GLOBAL_LIST_EMPTY(all_cults)
 	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
 	cult_team?.check_cult_size()
 	add_conversion_logs(cult_mind.current, "deconverted from the blood cult.")
-
-/proc/iscultist(mob/living/user)
-	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.cult)
-
-/proc/iscultist_ascended(mob/living/user)
-	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
-	return iscultist(user) && cult_team?.cult_ascendant

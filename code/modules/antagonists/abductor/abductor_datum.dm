@@ -12,12 +12,6 @@
 	var/greet_name = "an agent"
 	var/role_hint = "Use your stealth technology and equipment to incapacitate humans for your scientist to retrieve."
 
-/datum/antagonist/abductor/add_owner_to_gamemode()
-	SSticker.mode.abductors |= owner
-
-/datum/antagonist/abductor/remove_owner_from_gamemode()
-	SSticker.mode.abductors -= owner
-
 /datum/antagonist/abductor/apply_innate_effects(mob/living/mob_override)
 	. = ..()
 	owner.offstation_role = TRUE
@@ -58,12 +52,6 @@
 	antag_hud_name = "abductee"
 	antag_menu_name = "Жертва абдукторов"
 	replace_banned = FALSE
-
-/datum/antagonist/abductee/add_owner_to_gamemode()
-	SSticker.mode.abductees |= owner
-
-/datum/antagonist/abductee/remove_owner_from_gamemode()
-	SSticker.mode.abductees -= owner
 
 /datum/antagonist/abductee/give_objectives()
 	add_objective(pick(subtypesof(/datum/objective/abductee)))

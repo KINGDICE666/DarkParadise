@@ -280,7 +280,6 @@
 
 /obj/effect/proc_holder/spell/shadowling_enthrall/cast(list/targets, mob/user = usr)
 
-	list_clear_nulls(SSticker.mode.shadowling_thralls)
 	if(!is_shadow(user))
 		return
 
@@ -680,7 +679,7 @@
 			return
 
 		var/empowered_thralls = 0
-		for(var/datum/mind/thrall_mind in SSticker.mode.shadowling_thralls)
+		for(var/datum/mind/thrall_mind in get_antag_minds(/datum/antagonist/shadowling_thrall))
 			if(!ishuman(thrall_mind.current))
 				continue
 

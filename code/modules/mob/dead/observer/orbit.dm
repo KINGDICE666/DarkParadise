@@ -165,14 +165,6 @@
 						var/datum/team/team = GLOB.antagonist_teams[team_type]
 						if(team.need_antag_hud)
 							other_antags += list("[team.name] — ([team.alife_members_count()])" = (mind in team.members))
-					// Not-very-datumized antags follow
-					// Associative list of antag name => whether this mind is this antag
-					if(SSticker?.mode)
-						other_antags += list(
-							"Маги — ([length(SSticker.mode.wizards)])" = (mind in SSticker.mode.wizards),
-							"Ученики магов — ([length(SSticker.mode.apprentices)])" = (mind in SSticker.mode.apprentices),
-							"Воксы рейдеры — ([length(SSticker.mode.raiders)])" = (mind in SSticker.mode.raiders),
-						)
 
 				for(var/antag_name in other_antags)
 					var/is_antag = other_antags[antag_name]

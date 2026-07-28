@@ -8,10 +8,13 @@
 /datum/game_mode/revolution
 	name = "revolution"
 	config_tag = "revolution"
-	restricted_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_LAWYER, JOB_TITLE_AI, JOB_TITLE_CYBORG, JOB_TITLE_CAPTAIN, JOB_TITLE_HOP, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOS, JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_RD, JOB_TITLE_CMO, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_PRISONER)
+	restricted_jobs = list(JOB_TITLE_LAWYER)
+	always_protect_roles = TRUE
 	required_players = 20
 	required_enemies = 1
 	recommended_enemies = 3
+
+	var/list/datum/mind/pre_head_revolutionaries = list()
 
 ///////////////////////////
 //Announces the game type//
@@ -26,18 +29,15 @@
 /datum/game_mode/revolution/pre_setup()
 	var/list/possible_revolutionaries = get_players_for_role(ROLE_REV)
 
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
-
 	for(var/i=1 to MAX_HEAD_REVOLUTIONARIES)
 		if(!length(possible_revolutionaries))
 			break
 		var/datum/mind/lenin = pick(possible_revolutionaries)
 		possible_revolutionaries -= lenin
-		head_revolutionaries += lenin
-		lenin.restricted_roles = restricted_jobs
+		pre_head_revolutionaries += lenin
+		lenin.restricted_roles = get_restricted_roles()
 
-	if(length(head_revolutionaries) < required_enemies)
+	if(length(pre_head_revolutionaries) < required_enemies)
 		return FALSE
 
 	return TRUE
@@ -47,11 +47,11 @@
 	var/list/sec = get_living_sec()
 	var/weighted_score = min(max(round(length(heads) - ((8 - length(sec)) / 3)),1),MAX_HEAD_REVOLUTIONARIES)
 
-	while(weighted_score < length(head_revolutionaries)) //das vi danya
-		var/datum/mind/trotsky = pick(head_revolutionaries)
-		head_revolutionaries -= trotsky
+	while(weighted_score < length(pre_head_revolutionaries)) //das vi danya
+		var/datum/mind/trotsky = pick(pre_head_revolutionaries)
+		pre_head_revolutionaries -= trotsky
 
-	for(var/datum/mind/rev_mind in head_revolutionaries.Copy())
+	for(var/datum/mind/rev_mind in pre_head_revolutionaries)
 		add_game_logs("has been selected as a head rev", rev_mind.current)
 		rev_mind.add_antag_datum(/datum/antagonist/rev/head)
 	..()
@@ -98,7 +98,7 @@
 //Deals with converting players to the revolution//
 ///////////////////////////////////////////////////
 /datum/game_mode/proc/add_revolutionary(datum/mind/rev_mind)
-	if((rev_mind in revolutionaries) || (rev_mind in head_revolutionaries))
+	if(rev_mind.has_antag_datum(/datum/antagonist/rev))
 		return 0
 	if(!rev_mind.add_antag_datum(/datum/antagonist/rev))
 		return 0
@@ -125,10 +125,3 @@
 /datum/game_mode/revolution/declare_completion()
 	..()
 	return TRUE
-
-/proc/is_revolutionary(mob/living/user)
-	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.revolutionaries)
-
-/proc/is_head_revolutionary(mob/living/user)
-	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.head_revolutionaries)
-

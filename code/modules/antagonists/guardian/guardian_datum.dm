@@ -9,12 +9,6 @@
 	replace_banned = FALSE
 	var/mob_name = "Страж"
 
-/datum/antagonist/guardian/add_owner_to_gamemode()
-	SSticker.mode.guardians |= owner
-
-/datum/antagonist/guardian/remove_owner_from_gamemode()
-	SSticker.mode.guardians -= owner
-
 /datum/antagonist/guardian/greet()
 	var/mob/living/simple_animal/hostile/guardian/guardian = owner.current
 	var/mob/living/summoner = guardian.summoner

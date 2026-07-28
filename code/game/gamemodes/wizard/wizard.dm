@@ -10,6 +10,9 @@
 
 	var/required_num_players_for_apprentice = 25	//Each additional number of players above the minimum, a new apprentice is added
 
+	var/list/datum/mind/pre_wizards = list()
+	var/list/datum/mind/pre_apprentices = list()
+
 /datum/game_mode/wizard/announce()
 	to_chat(world, "<b>The current game mode is - Wizard!</b>")
 	to_chat(world, "<b>There is a <font color='red'>SPACE WIZARD</font> on the station. You can't let him achieve his objective!</b>")
@@ -25,24 +28,24 @@
 		return FALSE
 	var/datum/mind/wizard = pick_n_take(possible_wizards)
 
-	wizards += wizard
+	pre_wizards += wizard
 	var/playerC = num_players()
 	if(playerC >= required_players)
 		for(var/i in 1 to round((playerC - required_players) / required_num_players_for_apprentice))
 			if(!length(possible_wizards))
 				break
 			var/datum/mind/apprentice = pick_n_take(possible_wizards)
-			apprentices += apprentice
+			pre_apprentices += apprentice
 
 	return TRUE
 
 /datum/game_mode/wizard/pre_setup()
-	for(var/datum/mind/wizard in wizards)
+	for(var/datum/mind/wizard in pre_wizards)
 		wizard.assigned_role = SPECIAL_ROLE_WIZARD //So they aren't chosen for other jobs.
 		wizard.offstation_role = TRUE
 		wizard.set_original_mob(wizard.current)
 		wizard.current.loc = pick(GLOB.wizardstart)
-	for(var/datum/mind/apprentice in apprentices)
+	for(var/datum/mind/apprentice in pre_apprentices)
 		apprentice.assigned_role = SPECIAL_ROLE_WIZARD_APPRENTICE //So they aren't chosen for other jobs.
 		apprentice.offstation_role = TRUE
 		apprentice.set_original_mob(apprentice.current)
@@ -52,7 +55,7 @@
 
 /datum/game_mode/wizard/post_setup()
 	var/datum/mind/wizard_teacher
-	for(var/datum/mind/wizard in wizards.Copy())
+	for(var/datum/mind/wizard in pre_wizards)
 		add_game_logs("has been selected as a Wizard", wizard.current)
 		forge_wizard_objectives(wizard)
 		equip_wizard(wizard.current)
@@ -61,7 +64,7 @@
 		if(!wizard_teacher)
 			wizard_teacher = wizard
 
-	for(var/datum/mind/apprentice in apprentices.Copy())
+	for(var/datum/mind/apprentice in pre_apprentices)
 		log_game("[key_name(apprentice)] has been selected as a Wizard-Apprentice")
 		forge_wizard_apprentice_objectives(wizard_teacher, apprentice)
 		equip_wizard_apprentice(apprentice.current)
@@ -108,10 +111,9 @@
 	if(wizard_mob.mind)
 		wizard_mob.mind.name = newname
 
-	if(!(wizard_mob in wizards))
-		for(var/datum/mind/apprentice in apprentices)
-			for(var/datum/objective/protect/objective in apprentice.objectives)
-				objective.explanation_text = "Protect [wizard_mob.real_name], the wizard teacher."
+	for(var/datum/mind/apprentice in get_antag_minds(/datum/antagonist/wizard/apprentice))
+		for(var/datum/objective/protect/objective in apprentice.objectives)
+			objective.explanation_text = "Protect [wizard_mob.real_name], the wizard teacher."
 
 /datum/game_mode/proc/greet_wizard()
 	var/list/messages = list()
@@ -220,7 +222,7 @@
 	var/apprentices_alive = 0
 
 	// Wizards
-	for(var/datum/mind/wizard in wizards)
+	for(var/datum/mind/wizard in get_antag_minds(/datum/antagonist/wizard, specific = TRUE))
 		if(!iscarbon(wizard.current))
 			continue
 		if(wizard.current.stat==DEAD)
@@ -231,7 +233,7 @@
 
 	// Apprentices
 	if(!wizards_alive)
-		for(var/datum/mind/apprentice in apprentices)
+		for(var/datum/mind/apprentice in get_antag_minds(/datum/antagonist/wizard/apprentice))
 			if(!iscarbon(apprentice.current))
 				continue
 			if(apprentice.current.stat==DEAD)
@@ -249,7 +251,9 @@
 /datum/game_mode/wizard/declare_completion(ragin = 0)
 	if(finished && !ragin)
 		SSticker.mode_result = "wizard loss - wizard killed"
-		to_chat(world, span_warning(span_bold(span_fontsize3(" The wizard[(length(wizards)>1)?"s":""] [(length(apprentices)>1)?"and apprentices":""] has been killed by the crew! The Space Wizards Federation has been taught a lesson they will not soon forget!"))))
+		var/wizard_count = length(get_antag_minds(/datum/antagonist/wizard, specific = TRUE))
+		var/apprentice_count = length(get_antag_minds(/datum/antagonist/wizard/apprentice))
+		to_chat(world, span_warning(span_bold(span_fontsize3(" The wizard[wizard_count > 1 ? "s" : ""] [apprentice_count > 1 ? "and apprentices" : ""] has been killed by the crew! The Space Wizards Federation has been taught a lesson they will not soon forget!"))))
 	..()
 	return 1
 
@@ -279,6 +283,3 @@ Made a proc so this is not repeated 14 (or more) times.*/
 		return 0
 	else
 		return 1
-
-/proc/iswizard(mob/living/M as mob)
-	return istype(M) && M.mind && SSticker?.mode && ((M.mind in SSticker.mode.wizards) || (M.mind in SSticker.mode.apprentices))

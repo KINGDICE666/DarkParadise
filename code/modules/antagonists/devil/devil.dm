@@ -206,12 +206,6 @@
 		var/datum/objective/devil/sacrifice/security/sacrifice = new
 		add_objective(sacrifice)
 
-/datum/antagonist/devil/add_owner_to_gamemode()
-	LAZYADD(SSticker.mode.devils, owner)
-
-/datum/antagonist/devil/remove_owner_from_gamemode()
-	LAZYREMOVE(SSticker.mode.devils, owner)
-
 /datum/antagonist/devil/farewell()
 	to_chat(owner.current, span_userdanger("Ваша связь с адом пропадает. Вы более не дьявол!"))
 

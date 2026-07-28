@@ -1,8 +1,6 @@
 /datum/game_mode/thief
 	name = "thief"
 	config_tag = "thief"
-	restricted_jobs = list(JOB_TITLE_AI, JOB_TITLE_CYBORG)
-	protected_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCCAPTAIN, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
 	required_enemies = 1
 	recommended_enemies = 3
 	/// List of minds of soon to be thieves
@@ -13,9 +11,6 @@
 	to_chat(world, "<b>На станции зафиксирована деятельность гильдии воров. Не допустите кражу дорогостоящего оборудования!</b>")
 
 /datum/game_mode/thief/pre_setup()
-
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
 
 	var/list/datum/mind/possible_thieves = get_players_for_role(ROLE_THIEF, list(SPECIES_VOX = 4))
 
@@ -33,7 +28,7 @@
 			list_clear_duplicates(thief, possible_thieves)
 			pre_thieves += thief
 			thief.special_role = SPECIAL_ROLE_THIEF
-			thief.restricted_roles = restricted_jobs
+			thief.restricted_roles = get_restricted_roles()
 		..()
 		return TRUE
 	else

@@ -1,5 +1,6 @@
 /datum/job/head_of_staff
 	abstract_type = /datum/job/head_of_staff
+	job_flags = JOB_ANTAG_PROTECTED
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "Капитаном"
@@ -14,6 +15,7 @@
 
 /datum/job/captain
 	title = JOB_TITLE_CAPTAIN
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_CAPTAIN
 	department_flag = JOBCAT_ENGSEC
 	department = STATION_DEPARTMENT_COMMAND
@@ -131,6 +133,7 @@
 
 /datum/job/blueshield
 	title = JOB_TITLE_BLUESHIELD
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_BLUESHIELD
 	department_flag = JOBCAT_KARMA
 	department = STATION_DEPARTMENT_COMMAND

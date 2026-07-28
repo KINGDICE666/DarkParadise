@@ -20,12 +20,6 @@
 /datum/antagonist/cult/get_antag_menu_name()
 	return "Культист [SSticker.cultdat.entity_name]"
 
-/datum/antagonist/cult/add_owner_to_gamemode()
-	SSticker.mode.cult |= owner
-
-/datum/antagonist/cult/remove_owner_from_gamemode()
-	SSticker.mode.cult -= owner
-
 /datum/antagonist/cult/give_objectives()
 	add_objective(/datum/objective/servecult)
 
@@ -75,3 +69,10 @@
 		var/datum/action/innate/cult/use_dagger/dagger = new
 		dagger.Grant(owner.current)
 	owner.current.update_action_buttons(TRUE)
+
+/proc/iscultist(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/cult)
+
+/proc/iscultist_ascended(mob/living/user)
+	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	return iscultist(user) && cult_team?.cult_ascendant

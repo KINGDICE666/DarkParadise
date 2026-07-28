@@ -182,7 +182,7 @@
 /obj/structure/clockwork/functional/beacon/Destroy()
 	GLOB.clockwork_beacons -= src
 	STOP_PROCESSING(SSobj, src)
-	for(var/datum/mind/M in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/M as anything in get_clockwork_cult_team()?.members)
 		to_chat(M.current, span_danger("You get the feeling that one of the beacons have been destroyed! The source comes from [areabeacon.name]"))
 	return ..()
 

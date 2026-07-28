@@ -37,7 +37,7 @@
 	cult_team?.cult_objs.narsie_death()
 
 /obj/god/narsie/devotees()
-	return SSticker.mode?.cult || list()
+	return get_blood_cult_team()?.members || list()
 
 /obj/god/narsie/attack_ghost(mob/dead/observer/user)
 	if(!jobban_isbanned(user.ckey, ROLE_CULTIST))

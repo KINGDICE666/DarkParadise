@@ -19,12 +19,6 @@
 	owner?.current?.spellremove(owner.current)
 	return ..()
 
-/datum/antagonist/wizard/add_owner_to_gamemode()
-	SSticker.mode.wizards |= owner
-
-/datum/antagonist/wizard/remove_owner_from_gamemode()
-	SSticker.mode.wizards -= owner
-
 /datum/antagonist/wizard/roundend_report_details()
 	if(!LAZYLEN(owner.spell_list))
 		return ..()
@@ -64,8 +58,6 @@
 	farewell_message = "You have been brainwashed! You are no longer a wizard-apprentice."
 	deconversion_log = "De-apprentice-wizarded"
 
-/datum/antagonist/wizard/apprentice/add_owner_to_gamemode()
-	SSticker.mode.apprentices |= owner
 
-/datum/antagonist/wizard/apprentice/remove_owner_from_gamemode()
-	SSticker.mode.apprentices -= owner
+/proc/iswizard(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/wizard)

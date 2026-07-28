@@ -1833,6 +1833,24 @@
 
 		check_teams()
 
+	else if(href_list["dynamic_force_tier"])
+		if(!check_rights(R_ADMIN))
+			return
+
+		dynamic_force_tier()
+
+	else if(href_list["dynamic_force_midround"])
+		if(!check_rights(R_ADMIN))
+			return
+
+		dynamic_force_midround()
+
+	else if(href_list["dynamic_toggle_ruleset"])
+		if(!check_rights(R_ADMIN))
+			return
+
+		dynamic_toggle_ruleset()
+
 	else if(href_list["edit_blob_win_count"])
 		if(!check_rights(R_ADMIN))
 			return
@@ -2085,7 +2103,7 @@
 		if(!input)
 			return
 
-		for(var/datum/mind/H in SSticker.mode.cult)
+		for(var/datum/mind/H as anything in get_blood_cult_team()?.members)
 			if(H.current)
 				to_chat(H.current, "[span_cult("[SSticker.cultdat.entity_name] murmurs,")] \"[span_cultlarge(input)]\"")
 
@@ -2143,7 +2161,7 @@
 		if(!input)
 			return
 
-		for(var/datum/mind/H in SSticker.mode.clockwork_cult)
+		for(var/datum/mind/H as anything in get_clockwork_cult_team()?.members)
 			if(H.current)
 				to_chat(H.current, "[span_clock("Ratvar murmurs,")] \"[span_clocklarge(input)]\"")
 

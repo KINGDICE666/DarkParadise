@@ -15,12 +15,6 @@
 	contract_target = null
 	return ..()
 
-/datum/antagonist/contracted_agent/add_owner_to_gamemode()
-	SSticker.mode.traitors |= owner
-
-/datum/antagonist/contracted_agent/remove_owner_from_gamemode()
-	SSticker.mode.traitors -= owner
-
 /datum/antagonist/contracted_agent/give_objectives()
 	var/mob/living/victim = contract_target.current
 	if(lethal)

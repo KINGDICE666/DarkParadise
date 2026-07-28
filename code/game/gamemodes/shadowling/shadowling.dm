@@ -32,32 +32,21 @@ Made by Xhuis
 
 */
 
-/proc/is_thrall(mob/living/M)
-	return istype(M) && M.mind && SSticker?.mode && (M.mind in SSticker.mode.shadowling_thralls)
-
-/proc/is_shadow_or_thrall(mob/living/M)
-	return istype(M) && M.mind && SSticker?.mode && ((M.mind in SSticker.mode.shadowling_thralls) || (M.mind in SSticker.mode.shadows))
-
-/proc/is_shadow(mob/living/M)
-	return istype(M) && M.mind && SSticker?.mode && (M.mind in SSticker.mode.shadows)
-
 /datum/game_mode/shadowling
 	name = "shadowling"
 	config_tag = "shadowling"
 	required_players = 30
 	required_enemies = 2
 	recommended_enemies = 2
-	restricted_jobs = list(JOB_TITLE_AI, JOB_TITLE_CYBORG)
-	protected_jobs = list(JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_HOS, JOB_TITLE_HOP, JOB_TITLE_CAPTAIN, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_PILOT, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_LAWYER, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCCAPTAIN, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
+	protected_jobs = list(JOB_TITLE_LAWYER)
+
+	var/list/datum/mind/pre_shadows = list()
 
 /datum/game_mode/shadowling/announce()
 	to_chat(world, "<b>The current game mode is - Shadowling!</b>")
 	to_chat(world, "<b>There are alien [span_deadsay("shadowlings")] on the station. Crew: Kill the shadowlings before they can eat or enthrall the crew. Shadowlings: Enthrall the crew while remaining in hiding.</b>")
 
 /datum/game_mode/shadowling/pre_setup()
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
-
 	var/list/datum/mind/possible_shadowlings = get_players_for_role(ROLE_SHADOWLING)
 
 	if(!length(possible_shadowlings))
@@ -67,9 +56,9 @@ Made by Xhuis
 
 	while(shadowlings)
 		var/datum/mind/shadow = pick(possible_shadowlings)
-		shadows += shadow
+		pre_shadows += shadow
 		possible_shadowlings -= shadow
-		shadow.restricted_roles = restricted_jobs
+		shadow.restricted_roles = get_restricted_roles()
 		shadowlings--
 
 	get_shadowling_team()
@@ -78,7 +67,7 @@ Made by Xhuis
 	return 1
 
 /datum/game_mode/shadowling/post_setup()
-	for(var/datum/mind/shadow in shadows.Copy())
+	for(var/datum/mind/shadow in pre_shadows)
 		add_game_logs("has been selected as a Shadowling.", shadow.current)
 		shadow.add_antag_datum(/datum/antagonist/shadowling)
 	..()
@@ -108,7 +97,7 @@ Made by Xhuis
 	shadow_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /datum/game_mode/proc/add_thrall(datum/mind/new_thrall_mind)
-	if(!istype(new_thrall_mind) || (new_thrall_mind in shadowling_thralls))
+	if(!istype(new_thrall_mind) || new_thrall_mind.has_antag_datum(/datum/antagonist/shadowling_thrall))
 		return 0
 	if(!new_thrall_mind.add_antag_datum(/datum/antagonist/shadowling_thrall))
 		return 0
@@ -130,7 +119,7 @@ Made by Xhuis
 	return 1
 
 /datum/game_mode/proc/remove_thrall(datum/mind/thrall_mind, kill = 0)
-	if(!istype(thrall_mind) || !(thrall_mind in shadowling_thralls) || !isliving(thrall_mind.current))
+	if(!istype(thrall_mind) || !thrall_mind.has_antag_datum(/datum/antagonist/shadowling_thrall) || !isliving(thrall_mind.current))
 		return 0 //If there is no mind, the mind isn't a thrall, or the mind's mob isn't alive, return
 	var/datum/antagonist/shadowling_thrall/thrall = thrall_mind.has_antag_datum(/datum/antagonist/shadowling_thrall)
 	thrall.silent = TRUE
@@ -157,7 +146,7 @@ Made by Xhuis
 
 /datum/game_mode/shadowling/check_finished()
 	var/shadows_alive = 0 //and then shadowling was kill
-	for(var/datum/mind/shadow in shadows) //but what if shadowling was not kill?
+	for(var/datum/mind/shadow in get_antag_minds(/datum/antagonist/shadowling)) //but what if shadowling was not kill?
 		if(!ishuman(shadow.current) && !istype(shadow.current,/mob/living/simple_animal/ascendant_shadowling))
 			continue
 		if(shadow.current.stat == DEAD)

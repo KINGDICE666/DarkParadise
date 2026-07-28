@@ -94,7 +94,7 @@
 
 	cached_data["security"] = list()
 	var/list/security_list = SSticker.mode.get_all_sec()
-	security_list |= SSticker.mode.ert
+	security_list |= get_antag_minds(/datum/antagonist/ert)
 	for(var/mob/living/silicon/robot/robot in GLOB.silicon_mob_list)
 		if(robot.mind && istype(robot.module, /obj/item/robot_module/security))
 			security_list |= robot.mind

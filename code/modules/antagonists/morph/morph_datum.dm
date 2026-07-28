@@ -9,12 +9,6 @@
 	russian_wiki_name = "Морф"
 	stinger_sound = 'sound/magic/mutate.ogg'
 
-/datum/antagonist/morph/add_owner_to_gamemode()
-	SSticker.mode.morphs |= owner
-
-/datum/antagonist/morph/remove_owner_from_gamemode()
-	SSticker.mode.morphs -= owner
-
 /datum/antagonist/morph/give_objectives()
 	add_objective(/datum/objective/morph_eat)
 	add_objective(/datum/objective/morph_procreate)

@@ -389,7 +389,7 @@
 			to_chat(user, span_warning("Sticking a dead [new_mmi.name] into the frame would sort of defeat the purpose."))
 			return .
 
-		if(new_mmi.brainmob.mind in SSticker.mode.head_revolutionaries)
+		if(is_head_revolutionary(new_mmi.brainmob))
 			to_chat(user, span_warning("The frame's firmware lets out a shrill sound, and flashes 'Abnormal Memory Engram'. It refuses to accept [new_mmi]."))
 			return .
 

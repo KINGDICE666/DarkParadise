@@ -18,12 +18,6 @@
 		return FALSE
 	return ..()
 
-/datum/antagonist/rev/add_owner_to_gamemode()
-	SSticker.mode.revolutionaries |= owner
-
-/datum/antagonist/rev/remove_owner_from_gamemode()
-	SSticker.mode.revolutionaries -= owner
-
 /datum/antagonist/rev/give_objectives()
 	add_objective(/datum/objective/revolution)
 
@@ -46,12 +40,6 @@
 	special_role = SPECIAL_ROLE_HEAD_REV
 	antag_hud_name = "hudheadrevolutionary"
 	antag_menu_name = "Глава революции"
-
-/datum/antagonist/rev/head/add_owner_to_gamemode()
-	SSticker.mode.head_revolutionaries |= owner
-
-/datum/antagonist/rev/head/remove_owner_from_gamemode()
-	SSticker.mode.head_revolutionaries -= owner
 
 /datum/antagonist/rev/head/greet()
 	return span_danger("You are a member of the revolutionaries' leadership!")
@@ -78,6 +66,13 @@
 	silent = TRUE
 	owner.remove_antag_datum(/datum/antagonist/rev/head)
 	old_owner.add_antag_datum(/datum/antagonist/rev)
+
+
+/proc/is_revolutionary(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/rev, FALSE)
+
+/proc/is_head_revolutionary(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/rev/head)
 
 
 /datum/action/innate/revolution_recruitment

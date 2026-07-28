@@ -91,7 +91,7 @@
 	else
 		need_heart()
 		adjust_clockwork_power(-0.6*power_goal)
-	for(var/datum/mind/clock_mind in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/clock_mind as anything in get_clockwork_cult_team().members)
 		if(!clock_mind || !clock_mind.current)
 			continue
 		to_chat(clock_mind.current, message)
@@ -106,7 +106,7 @@
 		message += span_clock("But there's still more tasks to do.")
 	else
 		need_heart()
-	for(var/datum/mind/clock_mind in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/clock_mind as anything in get_clockwork_cult_team().members)
 		if(!clock_mind || !clock_mind.current)
 			continue
 		to_chat(clock_mind.current, message)
@@ -122,7 +122,7 @@
 		message += span_clock("But there's still more tasks to do.")
 	else
 		need_heart()
-	for(var/datum/mind/clock_mind in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/clock_mind as anything in get_clockwork_cult_team().members)
 		if(!clock_mind || !clock_mind.current)
 			continue
 		to_chat(clock_mind.current, message)
@@ -131,7 +131,7 @@
 	clock_status = RATVAR_NEED_HEART
 
 /datum/clockwork_objectives/proc/check_heart()
-	for(var/datum/mind/clock_mind as anything in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/clock_mind as anything in get_clockwork_cult_team().members)
 		if(!clock_mind || !clock_mind.current)
 			continue
 		to_chat(clock_mind.current, span_clocklarge("Сердце призвано, теперь необходимо сломать печати. Да воссияет же Ратвар!"))
@@ -147,7 +147,7 @@
 	if(clock_status >= RATVAR_NEEDS_SUMMONING) //or already prepared or summoned
 		return
 	clock_status = RATVAR_NEEDS_SUMMONING
-	for(var/datum/mind/clock_mind in SSticker.mode.clockwork_cult)
+	for(var/datum/mind/clock_mind as anything in get_clockwork_cult_team().members)
 		if(!clock_mind || !clock_mind.current)
 			continue
 		to_chat(clock_mind.current, span_clock("Вам и другим аколитам удалось подготовить станцию к финальному ритуалу!"))

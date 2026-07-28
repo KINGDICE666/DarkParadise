@@ -13,7 +13,6 @@
 
 	objectives += generic_objective
 	update_contractor_support_icons()
-	SSticker.mode.support += owner
 	return ..()
 
 /datum/antagonist/contractor_support/proc/update_contractor_support_icons()

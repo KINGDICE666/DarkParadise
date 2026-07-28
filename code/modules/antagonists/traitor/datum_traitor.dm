@@ -90,12 +90,6 @@
 
 	return ..()
 
-/datum/antagonist/traitor/add_owner_to_gamemode()
-	SSticker.mode.traitors |= owner
-
-/datum/antagonist/traitor/remove_owner_from_gamemode()
-	SSticker.mode.traitors -= owner
-
 /datum/antagonist/traitor/roundend_report_footer()
 	return "<b>Кодовые фразы:</b> [span_danger(jointext(GLOB.syndicate_code_phrase, ", "))]<br><b>Ответы на них:</b> [span_danger(jointext(GLOB.syndicate_code_response, ", "))]"
 
@@ -149,7 +143,7 @@
 			add_objective(/datum/objective/get_equipment)
 
 	var/objective_count = hijacker_antag			//Hijacking counts towards number of objectives
-	if(!SSticker.mode.exchange_blue && length(SSticker.mode.traitors) >= EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED)	//Set up an exchange if there are enough traitors
+	if(!SSticker.mode.exchange_blue && length(get_antag_minds(/datum/antagonist/traitor)) >= EXCHANGE_OBJECTIVE_TRAITORS_REQUIRED)	//Set up an exchange if there are enough traitors
 		if(!SSticker.mode.exchange_red)
 			SSticker.mode.exchange_red = owner
 		else

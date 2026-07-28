@@ -76,7 +76,6 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		purchaseable_powers = get_powers_of_type(CHANGELING_PURCHASABLE_POWER)
 
 /datum/antagonist/changeling/on_gain()
-	SSticker.mode.changelings |= owner
 	var/honorific = owner.current.gender == FEMALE ? "Ms." : "Mr."
 	if(length(GLOB.possible_changeling_IDs))
 		changelingID = pick(GLOB.possible_changeling_IDs)
@@ -95,7 +94,6 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	..()
 
 /datum/antagonist/changeling/Destroy()
-	SSticker.mode.changelings -= owner
 	chosen_sting = null
 	QDEL_LIST(acquired_powers)
 	STOP_PROCESSING(SSobj, src)

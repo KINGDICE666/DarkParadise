@@ -147,7 +147,6 @@
 	// Check if the rune is allowed
 	var/area/A = get_area(src)
 	var/turf/runeturf = get_turf(user)
-	var/datum/game_mode/gamemode = SSticker.mode
 	if(ispath(rune, /obj/effect/rune/summon))
 		if(!is_station_level(runeturf.z) || isspacearea(A))
 			to_chat(user, span_cultitalic("The veil is not weak enough here to summon a cultist, you must be on station!"))
@@ -165,7 +164,7 @@
 		if(!(A in summon_areas))  // Check again to make sure they didn't move
 			to_chat(user, span_cultlarge("The ritual can only begin where the veil is weak - in [english_list(summon_areas)]!"))
 			return
-		for(var/datum/mind/M in gamemode.cult)
+		for(var/datum/mind/M as anything in get_blood_cult_team().members)
 			if(M.current)
 				SEND_SOUND(M.current, sound('sound/ambience/antag/bloodcult_scribe.ogg'))
 		GLOB.major_announcement.announce(

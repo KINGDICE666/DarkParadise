@@ -23,12 +23,6 @@
 		return FALSE
 	return ..() || jobban_isbanned(user, ROLE_CULTIST)
 
-/datum/antagonist/clockwork/add_owner_to_gamemode()
-	SSticker.mode.clockwork_cult |= owner
-
-/datum/antagonist/clockwork/remove_owner_from_gamemode()
-	SSticker.mode.clockwork_cult -= owner
-
 /datum/antagonist/clockwork/give_objectives()
 	add_objective(/datum/objective/serveclock)
 
@@ -74,3 +68,10 @@
 		var/datum/action/innate/clockwork/clock_magic/magic = new
 		magic.Grant(owner.current)
 	owner.current.update_action_buttons(TRUE)
+
+/proc/isclocker(mob/living/user)
+	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/clockwork)
+
+/proc/isclocker_ascended(mob/living/user)
+	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	return isclocker(user) && clock_team?.crew_reveal

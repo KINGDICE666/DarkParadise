@@ -27,7 +27,8 @@
 	max_mages = wizard_cap
 	add_game_logs("Number of wizards chosen: [wizard_cap]")
 
-	for(var/datum/mind/wizard in wizards)
+	var/list/datum/mind/live_wizards = get_antag_minds(/datum/antagonist/wizard, specific = TRUE)
+	for(var/datum/mind/wizard in live_wizards)
 		if(isnull(wizard.current))
 			continue
 		if(!iscarbon(wizard.current))
@@ -72,7 +73,7 @@
 			time_checked = world.time
 			make_more_mages()
 	else
-		if(length(wizards) >= wizard_cap)
+		if(length(get_antag_minds(/datum/antagonist/wizard, specific = TRUE)) >= wizard_cap)
 			finished = 1
 			return 1
 		else
@@ -86,7 +87,7 @@
 	for(var/mob/living/L in A) // To hit non-wizard griefers
 		if(L.mind || L.client)
 			marked_for_death |= L
-	for(var/datum/mind/M in wizards.Copy())
+	for(var/datum/mind/M in get_antag_minds(/datum/antagonist/wizard, specific = TRUE))
 		if(istype(M.current) && istype(get_area(M.current), /area/centcom/wizard_station))
 			mages_made -= 1
 			var/datum/antagonist/wizard/wizard = M.has_antag_datum(/datum/antagonist/wizard)

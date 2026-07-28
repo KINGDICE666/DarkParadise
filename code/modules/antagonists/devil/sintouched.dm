@@ -29,12 +29,6 @@
 
 	add_objective(pick(sins))
 
-/datum/antagonist/sintouched/add_owner_to_gamemode()
-	LAZYADD(SSticker.mode.sintouched, owner)
-
-/datum/antagonist/sintouched/remove_owner_from_gamemode()
-	LAZYREMOVE(SSticker.mode.sintouched, owner)
-
 /datum/antagonist/sintouched/apply_innate_effects(mob/living/mob_override)
 	. = ..()
 

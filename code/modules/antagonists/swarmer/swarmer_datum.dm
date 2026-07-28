@@ -7,9 +7,3 @@
 	give_objectives = FALSE
 	replace_banned = FALSE
 	silent = TRUE
-
-/datum/antagonist/swarmer/add_owner_to_gamemode()
-	SSticker.mode.swarmers |= owner
-
-/datum/antagonist/swarmer/remove_owner_from_gamemode()
-	SSticker.mode.swarmers -= owner

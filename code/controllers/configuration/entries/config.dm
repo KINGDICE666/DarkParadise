@@ -505,6 +505,21 @@
 		ANTAG_TRIPPLE = 2,
 	)
 
+/datum/config_entry/keyed_list/dynamic_ruleset_weights
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
+/datum/config_entry/keyed_list/dynamic_ruleset_min_pop
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
+/datum/config_entry/keyed_list/dynamic_tier_weights
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
 //Made that way because compatibility reasons.
 /datum/config_entry/keyed_list/event_delay_lower
 	default = list("ev_level_mundane" = 10, "ev_level_moderate" = 30, "ev_level_major" = 50) //minutes

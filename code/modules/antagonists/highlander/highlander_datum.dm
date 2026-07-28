@@ -5,12 +5,6 @@
 	special_role = SPECIAL_ROLE_HIGHLANDER
 	antag_menu_name = "Хайлендер"
 
-/datum/antagonist/highlander/add_owner_to_gamemode()
-	SSticker.mode.traitors |= owner
-
-/datum/antagonist/highlander/remove_owner_from_gamemode()
-	SSticker.mode.traitors -= owner
-
 /datum/antagonist/highlander/give_objectives()
 	add_objective(/datum/objective/hijack)
 

@@ -51,13 +51,6 @@
 	slaved.add_serv_hud(master, master_hud_icon)
 	return ..()
 
-/datum/antagonist/mindslave/add_owner_to_gamemode()
-	SSticker.mode.implanted[owner] = master
-
-/datum/antagonist/mindslave/remove_owner_from_gamemode()
-	SSticker.mode.implanted[owner] = null
-	SSticker.mode.implanted -= owner
-
 /datum/antagonist/mindslave/roundend_report_details()
 	if(!master?.current)
 		return ..()

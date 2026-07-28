@@ -38,22 +38,20 @@ GLOBAL_LIST_EMPTY(all_clockers)
 /datum/game_mode/clockwork
 	name = "Clockwork Cult"
 	config_tag = "clockwork"
-	restricted_jobs = list(JOB_TITLE_CHAPLAIN, JOB_TITLE_AI, JOB_TITLE_CYBORG, JOB_TITLE_LAWYER, JOB_TITLE_OFFICER, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_PILOT, JOB_TITLE_HOS, JOB_TITLE_CAPTAIN, JOB_TITLE_HOP, JOB_TITLE_BLUESHIELD, JOB_TITLE_REPRESENTATIVE, JOB_TITLE_MAGISTRATE, JOB_TITLE_BRIGDOC, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD, JOB_TITLE_CCSPECOPS, JOB_TITLE_CCCAPTAIN, JOB_TITLE_SYNDICATE_OFFICER, JOB_TITLE_PRISONER, JOB_TITLE_CMO, JOB_TITLE_RD, JOB_TITLE_QUARTERMASTER, JOB_TITLE_HOP, JOB_TITLE_CHIEF_ENGINEER)
-	protected_jobs = list()
+	restricted_jobs = list(JOB_TITLE_CHAPLAIN, JOB_TITLE_LAWYER)
+	always_protect_roles = TRUE
 	required_players = 30
 	required_enemies = 3
 	recommended_enemies = 4
 
 	var/static/max_clockers_to_start = 4
+	var/list/datum/mind/pre_clockers = list()
 
 /datum/game_mode/clockwork/announce()
 	to_chat(world, "<b>The current game mode is - Clockwork Cult!</b>")
 	to_chat(world, "<b>Some crewmembers are attempting to start a clockwork cult!<br>\nClockers - complete your objectives. Convert crewmembers to your cause by using the credence structure. Remember - there is no you, there is only the cult.<br>\nPersonnel - Do not let the cult succeed in its mission. Brainwashing them with holy water reverts them to whatever CentComm-allowed faith they had.</b>")
 
 /datum/game_mode/clockwork/pre_setup()
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		restricted_jobs += protected_jobs
-
 	max_clockers_to_start += floor((num_players() - required_players) / RATVAR_PLAYER_PER_CULTIST)
 	var/list/clockers_possible = get_players_for_role(ROLE_CLOCKER)
 	create_antag_team(/datum/team/clockwork_cult)
@@ -62,15 +60,15 @@ GLOBAL_LIST_EMPTY(all_clockers)
 			break
 		var/datum/mind/clocker = pick(clockers_possible)
 		clockers_possible -= clocker
-		clockwork_cult += clocker
-		clocker.restricted_roles = restricted_jobs
-	return (length(clockwork_cult) > 0)
+		pre_clockers += clocker
+		clocker.restricted_roles = get_restricted_roles()
+	return (length(pre_clockers) > 0)
 
 /datum/game_mode/clockwork/post_setup()
 	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
 	clock_team.clocker_objs.setup()
 
-	for(var/datum/mind/clockwork_mind in clockwork_cult.Copy())
+	for(var/datum/mind/clockwork_mind in pre_clockers)
 		clockwork_mind.add_antag_datum(/datum/antagonist/clockwork)
 		equip_clocker(clockwork_mind.current)
 		clock_team.clocker_objs.study(clockwork_mind.current)
@@ -132,10 +130,3 @@ GLOBAL_LIST_EMPTY(all_clockers)
 	clocker.silent = !show_message
 	clock_mind.remove_antag_datum(/datum/antagonist/clockwork)
 	add_conversion_logs(clock_mind.current, "deconverted from the clockwork cult.")
-
-/proc/isclocker(mob/living/user)
-	return istype(user) && user.mind && SSticker?.mode && (user.mind in SSticker.mode.clockwork_cult)
-
-/proc/isclocker_ascended(mob/living/user)
-	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
-	return isclocker(user) && clock_team?.crew_reveal

@@ -8,23 +8,11 @@
 	replace_banned = FALSE
 	silent = TRUE
 
-/datum/antagonist/superhero/add_owner_to_gamemode()
-	SSticker.mode.superheroes |= owner
-
-/datum/antagonist/superhero/remove_owner_from_gamemode()
-	SSticker.mode.superheroes -= owner
-
 
 /datum/antagonist/superhero/supervillain
 	name = "Supervillain"
 	roundend_category = "supervillains"
 	antag_menu_name = "Суперзлодей"
-
-/datum/antagonist/superhero/supervillain/add_owner_to_gamemode()
-	SSticker.mode.supervillains |= owner
-
-/datum/antagonist/superhero/supervillain/remove_owner_from_gamemode()
-	SSticker.mode.supervillains -= owner
 
 
 /datum/antagonist/greyshirt
@@ -40,12 +28,6 @@
 /datum/antagonist/greyshirt/Destroy(force)
 	boss = null
 	return ..()
-
-/datum/antagonist/greyshirt/add_owner_to_gamemode()
-	SSticker.mode.greyshirts |= owner
-
-/datum/antagonist/greyshirt/remove_owner_from_gamemode()
-	SSticker.mode.greyshirts -= owner
 
 /datum/antagonist/greyshirt/greet()
 	var/mob/living/leader = boss.current

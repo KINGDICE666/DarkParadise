@@ -5,6 +5,7 @@
 	required_players = 15
 	var/max_teams = 4
 	abductor_teams = 1
+	var/list/datum/mind/pre_abductors = list()
 	var/list/datum/mind/scientists = list()
 	var/list/datum/mind/agents = list()
 	var/list/datum/objective/team_objectives = list()
@@ -28,7 +29,7 @@
 	var/possible_teams = max(1,round(length(possible_abductors) / 2))
 	abductor_teams = min(abductor_teams,possible_teams)
 
-	abductors.len = 2*abductor_teams
+	pre_abductors.len = 2*abductor_teams
 	scientists.len = abductor_teams
 	agents.len = abductor_teams
 	team_objectives.len = abductor_teams
@@ -74,8 +75,8 @@
 	agent.assigned_role = SPECIAL_ROLE_ABDUCTOR_AGENT
 	add_game_logs("has been selected as an abductor team [team_number] agent.", agent)
 
-	abductors |= agent
-	abductors |= scientist
+	pre_abductors |= agent
+	pre_abductors |= scientist
 	scientists[team_number] = scientist
 	agents[team_number] = agent
 	return 1
