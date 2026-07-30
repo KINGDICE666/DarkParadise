@@ -1617,6 +1617,8 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	return (health <= HEALTH_THRESHOLD_CRIT && stat == UNCONSCIOUS)
 
 /mob/living/carbon/human/IsAdvancedToolUser()
+	if(HAS_TRAIT(src, TRAIT_DISCOORDINATED))
+		return FALSE
 	if(dna.species.has_fine_manipulation || ischangeling(src) || BorerControlling())
 		return TRUE
 	return FALSE
@@ -1900,7 +1902,7 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	brains.original_body = WEAKREF(self_chest)
 
 /mob/living/carbon/human/is_literate()
-	return getBrainLoss() < 100
+	return !HAS_TRAIT(src, TRAIT_ILLITERATE) && getBrainLoss() < BRAIN_DAMAGE_SEVERE
 
 /mob/living/carbon/human/fakefire()
 	ADD_TRAIT(src, TRAIT_FAKE_FIRE, FAKEFIRE_TRAIT)

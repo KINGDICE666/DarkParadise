@@ -986,8 +986,11 @@
 
 /datum/reagent/medicine/mannitol/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
-	if(M.getBrainLoss() <= 100)
+	if(M.getBrainLoss() <= BRAIN_DAMAGE_SEVERE)
 		update_flags |= M.adjustBrainLoss(-3, FALSE)
+	if(iscarbon(M) && prob(16))
+		var/mob/living/carbon/patient = M
+		patient.cure_trauma_type(resilience = TRAUMA_RESILIENCE_BASIC)
 	return ..() | update_flags
 
 /datum/reagent/medicine/fomepizole

@@ -604,6 +604,27 @@ GLOBAL_LIST_INIT(ru_species, list(
 // Megafauna
 #define MINER_DASH_RANGE 4
 
+#define BRAIN_DAMAGE_MILD 20
+#define BRAIN_DAMAGE_SEVERE 100
+#define BRAIN_DAMAGE_DEATH 200
+
+#define BRAIN_TRAUMA_MILD /datum/brain_trauma/mild
+#define BRAIN_TRAUMA_SEVERE /datum/brain_trauma/severe
+#define BRAIN_TRAUMA_SPECIAL /datum/brain_trauma/special
+#define BRAIN_TRAUMA_MAGIC /datum/brain_trauma/magic
+
+#define TRAUMA_RESILIENCE_BASIC 1
+#define TRAUMA_RESILIENCE_SURGERY 2
+#define TRAUMA_RESILIENCE_LOBOTOMY 3
+#define TRAUMA_RESILIENCE_MAGIC 4
+#define TRAUMA_RESILIENCE_ABSOLUTE 5
+
+#define TRAUMA_LIMIT_BASIC 3
+#define TRAUMA_LIMIT_SURGERY 2
+#define TRAUMA_LIMIT_LOBOTOMY 3
+#define TRAUMA_LIMIT_MAGIC 3
+#define TRAUMA_LIMIT_ABSOLUTE INFINITY
+
 // Used in living mob offset list for determining pixel offsets
 #define PIXEL_W_OFFSET "w"
 #define PIXEL_X_OFFSET "x"

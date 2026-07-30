@@ -78,3 +78,5 @@
 #define CHEMISTRY_TOOLS_FILE "chemistry_tools.json"
 /// File location for revenant names
 #define REVENANT_NAME_FILE "revenant_names.json"
+/// File location for brain trauma speech
+#define BRAIN_DAMAGE_FILE "traumas.json"

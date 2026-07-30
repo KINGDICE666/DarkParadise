@@ -92,6 +92,8 @@
 	var/emp_resistant = FALSE
 	/// Whether this bodypart can be used for grasping
 	var/can_grasp = FALSE
+	/// Trait that renders this bodypart unusable while its owner has it. Whoever grants it keeps usable_hands / usable_legs in sync.
+	var/paralysis_trait
 
 	/// Whether prosthetic bodypart is emagged, it will detonate when it fails
 	var/sabotaged = FALSE
@@ -1267,6 +1269,8 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 /obj/item/organ/external/proc/is_usable()
 	if((is_robotic() && get_damage() >= max_damage) && !tough) //robot limbs just become inoperable at max damage
+		return FALSE
+	if(owner && paralysis_trait && HAS_TRAIT(owner, paralysis_trait))
 		return FALSE
 	return !(status & (ORGAN_MUTATED|ORGAN_DEAD))
 

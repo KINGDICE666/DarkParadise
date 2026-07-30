@@ -273,6 +273,7 @@
 	icon_position = LEFT
 	parent_organ_zone = BODY_ZONE_L_LEG
 	amputation_point = "левую лодыжку"
+	paralysis_trait = TRAIT_PARALYSIS_L_LEG
 
 /obj/item/organ/external/foot/get_ru_names()
 	return alist(
@@ -389,6 +390,7 @@
 	icon_position = RIGHT
 	parent_organ_zone = BODY_ZONE_R_LEG
 	amputation_point = "правую лодыжку"
+	paralysis_trait = TRAIT_PARALYSIS_R_LEG
 
 /obj/item/organ/external/foot/right/get_ru_names()
 	return alist(
@@ -417,6 +419,7 @@
 	parent_organ_zone = BODY_ZONE_L_ARM
 	amputation_point = "левое запястье"
 	can_grasp = TRUE
+	paralysis_trait = TRAIT_PARALYSIS_L_ARM
 
 /obj/item/organ/external/hand/get_ru_names()
 	return alist(
@@ -524,6 +527,7 @@
 	limb_body_flag = HAND_RIGHT
 	parent_organ_zone = BODY_ZONE_R_ARM
 	amputation_point = "правое запястье"
+	paralysis_trait = TRAIT_PARALYSIS_R_ARM
 
 /obj/item/organ/external/hand/right/get_ru_names()
 	return alist(

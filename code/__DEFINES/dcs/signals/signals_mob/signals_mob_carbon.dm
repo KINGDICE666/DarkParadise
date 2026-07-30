@@ -2,6 +2,9 @@
 
 ///from base of mob/living/carbon/soundbang_act(): (list(intensity))
 #define COMSIG_CARBON_SOUNDBANG "carbon_soundbang"
+///from /obj/item/organ/internal/brain/proc/brain_gain_trauma(): (datum/brain_trauma/trauma, resilience)
+#define COMSIG_CARBON_GAIN_TRAUMA "carbon_gain_trauma"
+	#define COMSIG_CARBON_BLOCK_TRAUMA (1<<0)
 ///from /item/organ/proc/Insert() (/obj/item/organ/)
 #define COMSIG_CARBON_GAIN_ORGAN "carbon_gain_organ"
 ///from /item/organ/proc/Remove() (/obj/item/organ/)

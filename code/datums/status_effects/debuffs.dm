@@ -1629,3 +1629,117 @@
 /datum/status_effect/gene_instability/major/critical/proc/on_time_end()
 	if(owner.gene_stability < GENETIC_DAMAGE_STAGE_3)
 		owner.gib()
+
+/datum/status_effect/spasms
+	id = "spasms"
+	status_type = STATUS_EFFECT_MULTIPLE
+	alert_type = null
+
+/datum/status_effect/spasms/tick(seconds_between_ticks)
+	if(owner.stat >= UNCONSCIOUS || owner.incapacitated() || HAS_TRAIT(owner, TRAIT_HANDS_BLOCKED) || HAS_TRAIT(owner, TRAIT_IMMOBILIZED))
+		return
+	if(!prob(15))
+		return
+
+	var/obj/item/held_item = owner.get_active_hand()
+	switch(rand(1, 5))
+		if(1)
+			if((owner.mobility_flags & MOBILITY_MOVE) && isturf(owner.loc))
+				to_chat(owner, span_warning("Ваша нога дёргается!"))
+				step(owner, pick(GLOB.cardinal))
+		if(2)
+			if(!held_item)
+				return
+			to_chat(owner, span_warning("Ваши пальцы дёргаются!"))
+			owner.create_log(MISC_LOG, "used [held_item] due to muscle spasms")
+			held_item.attack_self(owner)
+		if(3)
+			var/list/mob/living/targets = list()
+			for(var/mob/living/nearby in oview(istype(held_item, /obj/item/gun) ? 7 : 1, owner))
+				targets += nearby
+			if(!length(targets))
+				return
+			to_chat(owner, span_warning("Ваша рука дёргается!"))
+			owner.create_log(ATTACK_LOG, "attacked someone due to muscle spasms")
+			spasm_attack(pick(targets))
+		if(4)
+			to_chat(owner, span_warning("Ваша рука дёргается!"))
+			owner.create_log(ATTACK_LOG, "attacked themselves due to muscle spasms")
+			spasm_attack(owner)
+		if(5)
+			if(!held_item)
+				return
+			var/list/turf/targets = list()
+			for(var/turf/nearby in oview(3, owner))
+				targets += nearby
+			if(!length(targets))
+				return
+			to_chat(owner, span_warning("Ваша рука дёргается!"))
+			owner.create_log(MISC_LOG, "threw [held_item] due to muscle spasms")
+			owner.throw_item(pick(targets))
+
+/datum/status_effect/spasms/proc/spasm_attack(atom/target)
+	var/previous_intent = owner.a_intent
+	owner.a_intent = INTENT_HARM
+	owner.ClickOn(target)
+	owner.a_intent = previous_intent
+
+/datum/status_effect/discoordinated
+	id = "discoordinated"
+	alert_type = null
+
+/datum/status_effect/discoordinated/on_apply()
+	ADD_TRAIT(owner, TRAIT_DISCOORDINATED, id)
+	return TRUE
+
+/datum/status_effect/discoordinated/on_remove()
+	REMOVE_TRAIT(owner, TRAIT_DISCOORDINATED, id)
+
+/datum/status_effect/trance
+	id = "trance"
+	duration = 30 SECONDS
+	alert_type = null
+	var/stun = TRUE
+
+/datum/status_effect/trance/on_creation(mob/living/new_owner, new_duration = 30 SECONDS, new_stun = TRUE)
+	duration = new_duration
+	stun = new_stun
+	return ..()
+
+/datum/status_effect/trance/on_apply()
+	if(!iscarbon(owner))
+		return FALSE
+	RegisterSignal(owner, COMSIG_MOVABLE_HEAR, PROC_REF(hypnotize))
+	ADD_TRAIT(owner, TRAIT_MUTE, id)
+	if(stun)
+		owner.visible_message(span_warning("[DECLENT_RU_CAP(owner, NOMINATIVE)] замира[PLUR_ET_YUT(owner)] на месте, [GEND_HIS_HER(owner)] взгляд упирается в одну точку."))
+	to_chat(owner, span_warning(pick("Ваши мысли замедляются...", "Вас накрывает сильное головокружение...", "Вам кажется, что вы посреди сна...", "Вы чувствуете полное расслабление...")))
+	return TRUE
+
+/datum/status_effect/trance/tick(seconds_between_ticks)
+	if(stun)
+		owner.Stun(6 SECONDS)
+	owner.SetDizzy(40 SECONDS)
+
+/datum/status_effect/trance/on_remove()
+	UnregisterSignal(owner, COMSIG_MOVABLE_HEAR)
+	REMOVE_TRAIT(owner, TRAIT_MUTE, id)
+	owner.SetDizzy(0)
+	to_chat(owner, span_warning("Вы приходите в себя!"))
+
+/datum/status_effect/trance/proc/hypnotize(datum/source, mob/speaker, list/message_pieces)
+	SIGNAL_HANDLER
+
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+		return
+
+	var/phrase = multilingual_to_message(message_pieces)
+	if(!phrase)
+		return
+
+	var/mob/living/carbon/victim = owner
+	victim.cure_trauma_type(/datum/brain_trauma/hypnosis, TRAUMA_RESILIENCE_SURGERY)
+	speaker.create_log(ATTACK_LOG, "hypnotised [key_name(victim)] with the phrase '[phrase]'", victim)
+	addtimer(CALLBACK(victim, TYPE_PROC_REF(/mob/living/carbon, gain_trauma), /datum/brain_trauma/hypnosis, TRAUMA_RESILIENCE_SURGERY, phrase), 1 SECONDS)
+	addtimer(CALLBACK(victim, TYPE_PROC_REF(/mob/living, Stun), 6 SECONDS), 1.5 SECONDS)
+	qdel(src)

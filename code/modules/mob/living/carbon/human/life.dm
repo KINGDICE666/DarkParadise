@@ -647,11 +647,11 @@
 
 	var/guaranteed_death_threshold = health + (getOxyLoss() * 0.5) - (getFireLoss() * 0.67) - (getBruteLoss() * 0.67)
 
-	if(getBrainLoss() >= 120 || (guaranteed_death_threshold) <= -500)
+	if(getBrainLoss() >= BRAIN_DAMAGE_DEATH || (guaranteed_death_threshold) <= -500)
 		death()
 		return
 
-	if(getBrainLoss() >= 100) // braindeath
+	if(getBrainLoss() >= BRAIN_DAMAGE_SEVERE) // braindeath
 		AdjustLoseBreath(20 SECONDS, bound_lower = 0, bound_upper = 50 SECONDS)
 		Weaken(60 SECONDS)
 

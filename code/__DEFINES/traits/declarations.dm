@@ -394,6 +394,23 @@
 
 #define TRAIT_DECOY_BRAIN "decoy_brain"
 
+#define TRAIT_BRAIN_TRAUMA_IMMUNITY "brain_trauma_immunity"
+
+#define TRAIT_SPECIAL_TRAUMA_BOOST "special_trauma_boost"
+
+#define TRAIT_DISCOORDINATED "discoordinated"
+
+#define TRAIT_DUMB "dumb"
+
+#define TRAIT_UNINTELLIGIBLE_SPEECH "unintelligible_speech"
+
+#define TRAIT_ILLITERATE "illiterate"
+
+#define TRAIT_PARALYSIS_L_ARM "paralysis_l_arm"
+#define TRAIT_PARALYSIS_R_ARM "paralysis_r_arm"
+#define TRAIT_PARALYSIS_L_LEG "paralysis_l_leg"
+#define TRAIT_PARALYSIS_R_LEG "paralysis_r_leg"
+
 #define TRAIT_BAD_SOUL "bad_soul"
 
 #define TRAIT_NOT_TURRET_GUN "not_turret_gun"

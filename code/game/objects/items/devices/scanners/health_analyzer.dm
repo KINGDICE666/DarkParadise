@@ -314,7 +314,7 @@
 		balloon_alert(user, "невозможно!")
 		return
 
-	if((HAS_TRAIT(user, TRAIT_CLUMSY) || user.getBrainLoss() >= 60) && prob(50))
+	if((HAS_TRAIT(user, TRAIT_CLUMSY) || HAS_TRAIT(user, TRAIT_DUMB) || user.getBrainLoss() >= 60) && prob(50))
 		user.visible_message(
 			span_warning("[user] анализиру[PLUR_ET_YUT(user)] жизненные показатели пола!"),
 			span_notice("Вы по глупости проанализировали жизненные показатели пола!")
@@ -671,13 +671,17 @@
 	if(H.borer?.controlling)
 		scan_data += span_warning("Обнаружены отклонения в работе мозга.")
 
-	if(H.get_int_organ(/obj/item/organ/internal/brain))
-		if(H.getBrainLoss() >= 100)
+	var/obj/item/organ/internal/brain/sponge = H.get_int_organ(/obj/item/organ/internal/brain)
+	if(sponge)
+		if(H.getBrainLoss() >= BRAIN_DAMAGE_SEVERE)
 			scan_data += span_warning("Мозг мёртв.")
 		else if(H.getBrainLoss() >= 60)
 			scan_data += span_warning("Обнаружено серьёзное повреждение мозга.")
 		else if(H.getBrainLoss() >= 10)
 			scan_data += span_warning("Обнаружено значительное повреждение мозга.")
+		var/trauma_scan = sponge.get_trauma_scan_data()
+		if(trauma_scan)
+			scan_data += span_warning(trauma_scan)
 	else
 		scan_data += span_warning(">Мозг не обнаружен.")
 
