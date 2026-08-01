@@ -663,7 +663,8 @@
 				return
 
 		if(health <= HEALTH_THRESHOLD_CRIT)
-			if(get_perceived_trauma(shock_reduction()) <= 0)
+			var/stays_conscious = HAS_TRAIT(src, TRAIT_NOHARDCRIT)
+			if(get_perceived_trauma(shock_reduction()) <= 0 && !HAS_TRAIT(src, TRAIT_NOSOFTCRIT))
 				if(prob(5))
 					emote(pick("faint", "collapse", "cry", "moan", "gasp", "shudder", "shiver"))
 				SetStuttering(10 SECONDS)
@@ -681,12 +682,14 @@
 					if(prob(health * -0.2))
 						var/datum/disease/critical/heart_failure/D = new
 						D.Contract(src)
-					Paralyse(10 SECONDS)
+					if(!stays_conscious)
+						Paralyse(10 SECONDS)
 				if(-99 to -80)
 					adjustOxyLoss(1)
 					if(prob(4))
 						to_chat(src, span_userdanger("Грудь пронзает боль..."))
-						Paralyse(4 SECONDS)
+						if(!stays_conscious)
+							Paralyse(4 SECONDS)
 						var/datum/disease/critical/heart_failure/D = new
 						D.Contract(src)
 				if(-79 to -50)
@@ -699,8 +702,9 @@
 						D.Contract(src)
 					if(prob(6))
 						to_chat(src, span_userdanger("Вы чувствуете [pick("себя ужасно", "себя отвратительно", "себя, как дерьмо", "себя очень плохо", "тепло", "покалывание", "себя очень, очень плохо", "себя кошмарно")]!"))
-						Weaken(6 SECONDS)
-					if(prob(3))
+						if(!stays_conscious)
+							Weaken(6 SECONDS)
+					if(prob(3) && !stays_conscious)
 						Paralyse(4 SECONDS)
 				if(-49 to 0)
 					adjustOxyLoss(1)
@@ -709,7 +713,8 @@
 						D.Contract(src)
 					if(prob(5))
 						to_chat(src, span_userdanger("Вы чувствуете [pick("себя ужасно", "себя отвратительно", "себя, как дерьмо", "боль", "онемение", "холод", "покалывание", "себя кошмарно")]!"))
-						Knockdown(6 SECONDS)
+						if(!stays_conscious)
+							Knockdown(6 SECONDS)
 
 #define BODYPART_PAIN_REDUCTION 5
 

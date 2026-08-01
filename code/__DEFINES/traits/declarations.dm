@@ -308,6 +308,10 @@
 #define TRAIT_NO_PAIN "no_pain"
 /// This human mob will not feedback user about the damage done via HUD alerts
 #define TRAIT_NO_PAIN_HUD "no_pain_hud"
+/// This mob keeps acting normally while its health is below the crit threshold
+#define TRAIT_NOSOFTCRIT "nosoftcrit"
+/// This mob is not knocked out by the damage it took past the crit threshold
+#define TRAIT_NOHARDCRIT "nohardcrit"
 /// Another biotype thing
 #define TRAIT_PLANT_ORIGIN "plant_origin"
 /// Another damn biotype
@@ -554,6 +558,9 @@
 
 /// eignore blindness or blurriness or nearsightedness
 #define TRAIT_SIGHT_BYPASS "perfect_sight"
+
+/// Mob hears the dead as if it was one of them
+#define TRAIT_SIXTHSENSE "sixthsense"
 
 // Hud traits
 /// This hud is owned by a client with an open escape menu

@@ -31,6 +31,8 @@
 
 /obj/structure/closet/fireaxecabinet/populate_contents()
 	fireaxe = new(src)
+	if(!GLOB.bridge_axe && istype(get_area(src), /area/station/command/bridge))
+		GLOB.bridge_axe = fireaxe
 	has_axe = "full"
 	update_icon(UPDATE_ICON_STATE)	// So its initial icon doesn't show it without the fireaxe
 

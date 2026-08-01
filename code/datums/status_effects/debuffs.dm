@@ -602,6 +602,7 @@
 #define THRESHOLD_COLLAPSE 150 SECONDS
 #define THRESHOLD_FAINT 180 SECONDS
 #define THRESHOLD_BRAIN_DAMAGE 240 SECONDS
+#define THRESHOLD_BLACKOUT 300 SECONDS
 #define DRUNK_BRAWLING /datum/martial_art/drunk_brawling
 
 /datum/status_effect/transient/drunkenness/on_remove()
@@ -676,6 +677,9 @@
 	// THRESHOLD_BRAIN_DAMAGE (240 SECONDS)
 	if(actual_strength >= THRESHOLD_BRAIN_DAMAGE && prob(1))
 		owner.adjustBrainLoss(1)
+	// THRESHOLD_BLACKOUT (300 SECONDS)
+	if(actual_strength >= THRESHOLD_BLACKOUT && owner.stat == CONSCIOUS && iscarbon(owner) && prob(2))
+		attempt_to_blackout()
 
 #undef THRESHOLD_SLUR
 #undef THRESHOLD_BRAWLING
@@ -686,7 +690,15 @@
 #undef THRESHOLD_COLLAPSE
 #undef THRESHOLD_FAINT
 #undef THRESHOLD_BRAIN_DAMAGE
+#undef THRESHOLD_BLACKOUT
 #undef DRUNK_BRAWLING
+
+/datum/status_effect/transient/drunkenness/proc/attempt_to_blackout()
+	var/mob/living/carbon/drunkard = owner
+	if(drunkard.has_trauma_type(/datum/brain_trauma/severe/split_personality/blackout))
+		return
+	if(drunkard.gain_trauma(/datum/brain_trauma/severe/split_personality/blackout, TRAUMA_RESILIENCE_ABSOLUTE))
+		strength *= 0.5
 
 /datum/status_effect/transient/drunkenness/calc_decay()
 	if(ishuman(owner))
