@@ -294,9 +294,10 @@
 	owner.update_fractures_fall()
 
 /obj/item/organ/external/foot/remove(mob/living/carbon/human/user, special = ORGAN_MANIPULATION_DEFAULT, ignore_children = FALSE)
+	var/was_usable = is_usable()
 	. = ..()
 	user.set_num_legs(user.num_legs - 1)
-	if(is_usable())
+	if(was_usable)
 		user.set_usable_legs(user.usable_legs - 1, special)
 	user.update_fractures_slowdown()
 	user.update_fractures_fall()
@@ -467,9 +468,10 @@
 		owner.set_usable_hands(owner.usable_hands + 1, special, limb_zone)
 
 /obj/item/organ/external/hand/remove(mob/living/carbon/human/user, special = ORGAN_MANIPULATION_DEFAULT, ignore_children = FALSE)
+	var/was_usable = is_usable()
 	. = ..()
 	user.set_num_hands(user.num_hands - 1)
-	if(is_usable())
+	if(was_usable)
 		user.set_usable_hands(user.usable_hands - 1, special, limb_zone)
 	if(special == ORGAN_MANIPULATION_DEFAULT)
 		user.drop_item_ground(user.gloves, force = TRUE)

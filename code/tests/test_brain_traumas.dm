@@ -21,6 +21,32 @@
 		TEST_ASSERT(phrase, "[BRAIN_DAMAGE_FILE] gave an empty phrase")
 		TEST_ASSERT(!findtext(phrase, "@pick("), "[BRAIN_DAMAGE_FILE] left an unresolved substitution in '[phrase]'")
 
+/datum/unit_test/phobia_data/Run()
+	var/static/list/innocent_words = list(
+		"автоматически", "бригада", "бригадир", "заговорил", "заговорить", "костюм",
+		"костяшка", "костёр", "кровать", "кровля", "подставил", "подставка", "провалено",
+		"провалился", "тянет", "тянуть", "шутить", "шутка", "шутник",
+	)
+
+	for(var/phobia_type in GLOB.phobia_random_types)
+		TEST_ASSERT(GLOB.phobia_regexes[phobia_type], "randomly rollable phobia '[phobia_type]' has no word list")
+
+	for(var/phobia_type in GLOB.phobia_regexes)
+		TEST_ASSERT(GLOB.phobia_types[phobia_type], "phobia '[phobia_type]' has no player facing name")
+		var/regex/trigger = GLOB.phobia_regexes[phobia_type]
+		var/list/words = strings(PHOBIA_FILE, phobia_type)
+
+		for(var/word in words)
+			TEST_ASSERT(trigger.Find("вот [word]ами и всё"), "phobia '[phobia_type]' does not match its own word '[word]'")
+			TEST_ASSERT_EQUAL("[trigger.group[2]][trigger.group[3]]", "[word]ами", "phobia '[phobia_type]' did not capture all of the inflected '[word]'")
+			TEST_ASSERT(trigger.Find("ВОТ [uppertext(word)]АМИ И ВСЁ"), "phobia '[phobia_type]' does not match '[word]' in caps")
+			for(var/shadowed in words)
+				if(shadowed != word)
+					TEST_ASSERT(findtext(shadowed, word) != 1, "phobia '[phobia_type]' lists '[shadowed]', which '[word]' already swallows")
+
+		for(var/innocent in innocent_words)
+			TEST_ASSERT(!trigger.Find("вот [innocent] и всё"), "phobia '[phobia_type]' fires on the unrelated word '[innocent]'")
+
 /datum/unit_test/room_test/brain_trauma_lifecycle/Run()
 	for(var/datum/brain_trauma/trauma_type as anything in subtypesof(/datum/brain_trauma))
 		if(trauma_type::abstract_type == trauma_type)
@@ -29,6 +55,7 @@
 		var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
 		var/datum/brain_trauma/trauma = patient.gain_trauma(trauma_type)
 		if(QDELETED(trauma))
+			qdel(patient)
 			continue
 
 		TEST_ASSERT_EQUAL(trauma.type, trauma_type, "gain_trauma() gave [trauma.type] instead of [trauma_type]")
@@ -38,6 +65,7 @@
 
 		qdel(trauma)
 		TEST_ASSERT(!patient.has_trauma_type(trauma_type, TRAUMA_RESILIENCE_ABSOLUTE), "[trauma_type] survived being deleted")
+		qdel(patient)
 
 /datum/unit_test/room_test/brain_trauma_resilience/Run()
 	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)

@@ -79,6 +79,7 @@
 #define SPECIAL_ROLE_TERROR_DESTROYER "Terror Destroyer"
 #define SPECIAL_ROLE_SPACE_NINJA "Space Ninja"
 #define SPECIAL_ROLE_THIEF "Thief"
+#define SPECIAL_ROLE_OBSESSED "Obsessed"
 #define SPECIAL_ROLE_SPACE_DRAGON "Space Dragon"
 #define SPECIAL_ROLE_EVENTMISC "Event Role"
 #define SPECIAL_ROLE_MALFAI "Malfunctioning AI"

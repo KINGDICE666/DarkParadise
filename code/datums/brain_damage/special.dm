@@ -1,3 +1,5 @@
+#define BEEPSKY_SPAWN_RANGE 12
+
 /datum/brain_trauma/special
 	abstract_type = /datum/brain_trauma/special
 
@@ -144,7 +146,6 @@
 
 /obj/effect/temp_visual/bluespace_fissure
 	name = "bluespace fissure"
-	icon = 'icons/effects/effects.dmi'
 	icon_state = "bluestream_fade"
 	duration = 0.9 SECONDS
 
@@ -358,6 +359,163 @@
 /obj/effect/nonexistence/AllowDrop()
 	return TRUE
 
+/datum/brain_trauma/special/beepsky
+	name = "Criminal"
+	desc = "Пациент убеждён, что он преступник и что за ним идёт правосудие."
+	scan_desc = "криминальное мышление"
+	gain_text = span_warning_alt("Правосудие идёт за вами.")
+	lose_text = span_notice_alt("Вам отпустили все ваши прегрешения.")
+	random_gain = FALSE
+	known_trauma = FALSE
+	var/obj/effect/client_image_holder/securitron/securitron
+
+/datum/brain_trauma/special/beepsky/Destroy()
+	QDEL_NULL(securitron)
+	return ..()
+
+/datum/brain_trauma/special/beepsky/on_gain()
+	create_securitron()
+	return ..()
+
+/datum/brain_trauma/special/beepsky/on_lose(silent)
+	QDEL_NULL(securitron)
+	return ..()
+
+/datum/brain_trauma/special/beepsky/proc/create_securitron()
+	QDEL_NULL(securitron)
+	var/turf/spawn_turf = locate(owner.x + pick(-BEEPSKY_SPAWN_RANGE, BEEPSKY_SPAWN_RANGE), owner.y + pick(-BEEPSKY_SPAWN_RANGE, BEEPSKY_SPAWN_RANGE), owner.z)
+	if(!spawn_turf)
+		return
+	securitron = new(spawn_turf, owner)
+
+/datum/brain_trauma/special/beepsky/on_life()
+	if(QDELETED(securitron) || !securitron.loc || securitron.z != owner.z)
+		if(prob(30))
+			create_securitron()
+		return
+
+	if(get_dist(owner, securitron) >= 10 && prob(20))
+		create_securitron()
+		return
+
+	if(owner.stat != CONSCIOUS)
+		if(prob(20))
+			owner.playsound_local(get_turf(securitron), 'sound/voice/biamthelaw.ogg', 50)
+		return
+
+	if(get_dist(owner, securitron) <= 1)
+		owner.playsound_local(get_turf(owner), 'sound/weapons/egloves.ogg', 50)
+		owner.visible_message(
+			span_warning("[DECLENT_RU_CAP(owner, NOMINATIVE)] дёрга[PLUR_ET_YUT(owner)]ся, словно от удара током."),
+			span_userdanger("Вы чувствуете кулак ЗАКОНА."),
+		)
+		owner.adjustStaminaLoss(rand(40, 70))
+		QDEL_NULL(securitron)
+		return
+
+	if(prob(20) && get_dist(owner, securitron) <= 8)
+		owner.playsound_local(get_turf(securitron), 'sound/voice/bcriminal.ogg', 40)
+
+/obj/effect/client_image_holder/securitron
+	name = "Securitron"
+	desc = "ЗАКОН уже близко."
+	image_icon = 'icons/obj/aibots.dmi'
+	image_state = "secbot-c"
+
+/obj/effect/client_image_holder/securitron/Initialize(mapload, list/mobs_which_see_us)
+	. = ..()
+	name = pick("Officer Beepsky", "Officer Johnson", "Officer Pingsky")
+	START_PROCESSING(SSfastprocess, src)
+
+/obj/effect/client_image_holder/securitron/Destroy(force)
+	STOP_PROCESSING(SSfastprocess, src)
+	return ..()
+
+/obj/effect/client_image_holder/securitron/process()
+	if(prob(40))
+		return
+
+	var/mob/victim = pick(who_sees_us)
+	forceMove(get_step_towards(src, victim))
+	if(!prob(5))
+		return
+
+	var/warning = "Нарушение десятого уровня!"
+	to_chat(victim, "[span_name("[name]")] заявляет: [span_robot("«[warning]»")]")
+	if(victim.client?.prefs?.toggles2 & PREFTOGGLE_2_RUNECHAT)
+		victim.create_chat_message(src, warning, list("robot"))
+
+/datum/brain_trauma/special/ptsd
+	name = "Combat PTSD"
+	desc = "Пациент переживает посттравматическое расстройство после боевого опыта: его накрывают флешбэки и слуховые галлюцинации."
+	scan_desc = "посттравматическое расстройство"
+	gain_text = span_warning_alt("Вас швыряет обратно в хаос прошлого! Взрывы! Выстрелы!")
+	lose_text = span_notice_alt("Отголоски прошлого стихают, и в голове проясняется.")
+	resilience = TRAUMA_RESILIENCE_ABSOLUTE
+	random_gain = FALSE
+	COOLDOWN_DECLARE(flashback_cooldown)
+
+/datum/brain_trauma/special/ptsd/on_life()
+	if(owner.stat != CONSCIOUS || !COOLDOWN_FINISHED(src, flashback_cooldown))
+		return
+
+	COOLDOWN_START(src, flashback_cooldown, rand(10 SECONDS, 10 MINUTES))
+	owner.hallucinate_living(pick("battle", "sounds"))
+
+/datum/brain_trauma/special/primal_instincts
+	name = "Feral Instincts"
+	desc = "Разум пациента застревает в первобытном состоянии, и временами он действует не рассудком, а инстинктом."
+	scan_desc = "одичание"
+	gain_text = span_warning_alt("Ваши зрачки расширяются, и думать становится тяжелее.")
+	lose_text = span_notice_alt("В голове проясняется, и вы снова владеете собой.")
+	var/feral = FALSE
+	var/aggressive = FALSE
+
+/datum/brain_trauma/special/primal_instincts/on_lose(silent)
+	if(feral)
+		calm_down()
+	return ..()
+
+/datum/brain_trauma/special/primal_instincts/on_life()
+	if(owner.stat != CONSCIOUS)
+		return
+
+	if(!feral)
+		if(prob(3))
+			go_feral()
+		return
+
+	if(aggressive)
+		owner.a_intent = INTENT_HARM
+
+	if(prob(25))
+		drop_tools()
+
+	if(prob(10))
+		owner.emote(aggressive ? "scream" : "chuckle")
+
+/datum/brain_trauma/special/primal_instincts/proc/go_feral()
+	feral = TRUE
+	aggressive = prob(75)
+	owner.add_language(LANGUAGE_MONKEY_HUMAN)
+	drop_tools()
+	to_chat(owner, span_warning("Вас захлёстывает желание поддаться первобытным инстинктам..."))
+	add_game_logs("became controlled by primal instincts ([aggressive ? "aggressive" : "docile"])", owner)
+	addtimer(CALLBACK(src, PROC_REF(calm_down)), rand(20 SECONDS, 40 SECONDS), TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
+
+/datum/brain_trauma/special/primal_instincts/proc/calm_down()
+	feral = FALSE
+	aggressive = FALSE
+	owner.remove_language(LANGUAGE_MONKEY_HUMAN)
+	to_chat(owner, span_green("Позыв отступает."))
+
+/datum/brain_trauma/special/primal_instincts/proc/drop_tools()
+	for(var/obj/item/held in list(owner.get_active_hand(), owner.get_inactive_hand()))
+		if(HAS_TRAIT(held, TRAIT_NODROP))
+			continue
+		owner.drop_item_ground(held)
+		owner.balloon_alert(owner, "руки не слушаются!")
+
 /datum/brain_trauma/special/axedoration
 	name = "Axe Delusions"
 	desc = "Пациент считает своим священным долгом оберегать пожарный топор и видит связанные с ним галлюцинации."
@@ -514,3 +672,5 @@
 	while(axe_loc && !ismob(axe_loc) && !isarea(axe_loc))
 		axe_loc = axe_loc.loc
 	return axe_loc
+
+#undef BEEPSKY_SPAWN_RANGE

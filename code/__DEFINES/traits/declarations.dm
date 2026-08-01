@@ -415,6 +415,8 @@
 #define TRAIT_PARALYSIS_L_LEG "paralysis_l_leg"
 #define TRAIT_PARALYSIS_R_LEG "paralysis_r_leg"
 
+#define TRAIT_ANTIMAGIC "antimagic"
+
 #define TRAIT_BAD_SOUL "bad_soul"
 
 #define TRAIT_NOT_TURRET_GUN "not_turret_gun"

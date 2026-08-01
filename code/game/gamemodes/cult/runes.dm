@@ -254,6 +254,8 @@ structure_check() searches for nearby cultist structures required for the invoca
 	var/obj/item/nullrod/N = locate() in src
 	if(N)
 		return N
+	if(HAS_TRAIT(src, TRAIT_ANTIMAGIC))
+		return src
 	return FALSE
 
 //Rite of Enlightenment: Converts a normal crewmember to the cult, or offer them as sacrifice if cant be converted.

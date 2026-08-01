@@ -46,6 +46,7 @@
 	#define COMPONENT_OVERRIDE_HEALTH_HUD (1<<0)
 ///Called when someone attempts to cuff a carbon
 #define COMSIG_CARBON_CUFF_ATTEMPTED "carbon_attempt_cuff"
+#define COMSIG_CARBON_HELPED "carbon_helped_someone"
 
 
 // /mob/living/carbon/human signals

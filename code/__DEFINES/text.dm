@@ -80,3 +80,5 @@
 #define REVENANT_NAME_FILE "revenant_names.json"
 /// File location for brain trauma speech
 #define BRAIN_DAMAGE_FILE "traumas.json"
+/// File location for words that set off a phobia
+#define PHOBIA_FILE "phobia.json"

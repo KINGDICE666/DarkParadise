@@ -448,9 +448,9 @@
 		if(CRUSH_SPELL)
 			if(ishuman(living))
 				var/mob/living/carbon/human/human = living
-				var/obj/item/rod = human.null_rod_check()
-				if(rod)
-					human.visible_message(span_danger("[human]'s [rod] shines as it deflects magic from [user]!"))
+				var/atom/deflector = human.null_rod_check()
+				if(deflector)
+					human.visible_message(span_danger("[isitem(deflector) ? "[human]'s [deflector]" : "[human]"] shines as it deflects magic from [user]!"))
 					deplete_spell()
 					return
 				var/obj/item/organ/external/BP = pick(human.bodyparts)
