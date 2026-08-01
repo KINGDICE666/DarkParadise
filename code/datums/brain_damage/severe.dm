@@ -201,6 +201,8 @@
 		owner.AdjustDrowsy(rand(drowsy_time_minimum, drowsy_time_maximum))
 		if(prob(50))
 			owner.emote("yawn")
+		else if(prob(33))
+			owner.custom_emote(EMOTE_VISIBLE, "трёт глаза.")
 		return
 
 	to_chat(owner, span_warning("Вы засыпаете."))

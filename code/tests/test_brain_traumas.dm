@@ -67,6 +67,55 @@
 		TEST_ASSERT(!patient.has_trauma_type(trauma_type, TRAUMA_RESILIENCE_ABSOLUTE), "[trauma_type] survived being deleted")
 		qdel(patient)
 
+/datum/unit_test/room_test/imaginary_friend_appearance/Run()
+	var/mob/camera/imaginary_friend/friend = allocate(/mob/camera/imaginary_friend)
+	friend.setup_appearance()
+
+	TEST_ASSERT(friend.friend_icon, "the imaginary friend was given no appearance at all")
+	TEST_ASSERT_NOTEQUAL(friend.real_name, initial(friend.real_name), "the imaginary friend kept its placeholder name")
+
+	var/icon/appearance = friend.friend_icon
+	var/drawn_pixels = 0
+	for(var/pixel_x in 1 to appearance.Width())
+		for(var/pixel_y in 1 to appearance.Height())
+			if(appearance.GetPixel(pixel_x, pixel_y))
+				drawn_pixels++
+	TEST_ASSERT(drawn_pixels, "the imaginary friend's appearance rendered completely blank")
+
+/datum/unit_test/room_test/obsessed_antagonist/Run()
+	var/mob/living/carbon/human/creep = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/crush = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/bystander = allocate(/mob/living/carbon/human)
+	for(var/mob/living/carbon/human/participant as anything in list(creep, crush, bystander))
+		participant.mind_initialize()
+		participant.mind.assigned_role = JOB_TITLE_ENGINEER
+
+	var/datum/antagonist/obsessed/antagonist = new
+	antagonist.obsession = crush.mind
+	TEST_ASSERT(creep.mind.add_antag_datum(antagonist), "the obsessed antag datum refused to attach")
+	TEST_ASSERT_EQUAL(length(antagonist.objectives), antagonist.objectives_to_generate + 1, "the obsessed got the wrong number of objectives")
+
+	for(var/datum/objective/objective as anything in antagonist.objectives)
+		TEST_ASSERT(objective.explanation_text, "obsessed objective [objective.type] has no explanation text")
+		TEST_ASSERT_NOTEQUAL(objective.explanation_text, "Свободная цель", "obsessed objective [objective.type] failed to find its target")
+		objective.check_completion()
+
+	TEST_ASSERT(antagonist.roundend_report(), "the obsessed roundend report came out empty")
+
+/datum/unit_test/room_test/split_personality_backseats/Run()
+	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
+	var/datum/brain_trauma/severe/split_personality/trauma = new
+	trauma.owner = patient
+	trauma.make_backseats()
+
+	TEST_ASSERT(trauma.stranger_backseat, "split personality made no backseat for the stranger")
+	TEST_ASSERT(trauma.owner_backseat, "split personality made no backseat for the owner")
+	TEST_ASSERT_EQUAL(trauma.stranger_backseat.body, patient, "the stranger backseat is not attached to the body")
+	TEST_ASSERT_EQUAL(trauma.stranger_backseat.real_name, patient.real_name, "the stranger backseat did not take the body's name")
+	TEST_ASSERT(locate(/datum/action/innate/personality_commune) in trauma.stranger_backseat.actions, "the backseat cannot commune with the host")
+
+	qdel(trauma)
+
 /datum/unit_test/room_test/brain_trauma_resilience/Run()
 	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
 	var/datum/brain_trauma/stubborn = patient.gain_trauma(/datum/brain_trauma/unit_test/stubborn)

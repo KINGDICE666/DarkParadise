@@ -219,7 +219,7 @@
 
 	var/triggered = FALSE
 	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		if(!findtext(piece.message, codeword))
+		if(!findtext(piece.message, codeword) || !owner.say_understands(speaker, piece.speaking))
 			continue
 		piece.message = replacetext(piece.message, codeword, span_warning("[codeword]"))
 		triggered = TRUE
@@ -267,9 +267,13 @@
 		qdel(src)
 		return
 
-	if(world.time >= sober_time)
+	var/seconds_left = round((sober_time - world.time) / (1 SECONDS))
+	if(seconds_left <= 0)
 		qdel(src)
 		return
+
+	if(seconds_left <= 60 && !(seconds_left % 20))
+		to_chat(owner, span_warning("Вам осталось [seconds_left] секунд до отрезвления!"))
 
 	if(current_controller == PERSONALITY_OWNER && stranger_backseat?.client)
 		owner.overlay_fullscreen("fade_to_black", /atom/movable/screen/fullscreen/blind)
@@ -280,6 +284,7 @@
 		ADD_TRAIT(owner, TRAIT_DISCOORDINATED, TRAUMA_TRAIT)
 		owner.balloon_alert(owner, "руки не слушаются!")
 		addtimer(TRAIT_CALLBACK_REMOVE(owner, TRAIT_DISCOORDINATED, TRAUMA_TRAIT), 10 SECONDS)
+		addtimer(CALLBACK(owner, TYPE_PROC_REF(/atom, balloon_alert), owner, "руки снова слушаются"), 10 SECONDS)
 
 	if(prob(15))
 		owner.emote("burp")

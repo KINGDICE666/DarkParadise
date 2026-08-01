@@ -151,7 +151,7 @@
 
 /mob/camera/imaginary_friend/proc/group_clients()
 	var/list/group = list()
-	for(var/mob/member as anything in host.imaginary_group)
+	for(var/mob/member as anything in host?.imaginary_group)
 		if(member.client)
 			group += member.client
 	return group

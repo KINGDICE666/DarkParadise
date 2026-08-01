@@ -94,7 +94,7 @@
 		return
 
 	for(var/datum/multilingual_say_piece/piece as anything in message_pieces)
-		if(!trigger_regex.Find(piece.message))
+		if(!owner.say_understands(speaker, piece.speaking) || !trigger_regex.Find(piece.message))
 			continue
 
 		var/scary_word = "[trigger_regex.group[2]][trigger_regex.group[3]]"

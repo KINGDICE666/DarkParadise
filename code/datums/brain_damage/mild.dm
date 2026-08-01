@@ -9,6 +9,10 @@
 	lose_text = span_notice_alt("Вы снова ощущаете под собой твёрдую почву.")
 	var/uncapped = FALSE
 
+/datum/brain_trauma/mild/hallucinations/on_gain()
+	owner.add_language(LANGUAGE_APHASIA)
+	return ..()
+
 /datum/brain_trauma/mild/hallucinations/on_life()
 	if(owner.stat >= UNCONSCIOUS)
 		return
@@ -16,6 +20,8 @@
 
 /datum/brain_trauma/mild/hallucinations/on_lose(silent)
 	owner.SetHallucinate(0)
+	if(!owner.has_trauma_type(/datum/brain_trauma/severe/aphasia))
+		owner.remove_language(LANGUAGE_APHASIA)
 	return ..()
 
 /datum/brain_trauma/mild/stuttering
@@ -170,6 +176,7 @@
 	if(prob(5))
 		to_chat(owner, span_warning(pick("У вас начинается приступ кашля!", "Вы не можете перестать кашлять!")))
 		owner.Immobilize(2 SECONDS)
+		owner.emote("cough")
 		addtimer(CALLBACK(owner, TYPE_PROC_REF(/mob, emote), "cough"), 0.6 SECONDS)
 		addtimer(CALLBACK(owner, TYPE_PROC_REF(/mob, emote), "cough"), 1.2 SECONDS)
 	owner.emote("cough")

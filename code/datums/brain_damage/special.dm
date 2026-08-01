@@ -42,7 +42,7 @@
 	owner.default_language = GLOB.all_languages[LANGUAGE_ANGEL]
 	owner.say(uppertext(message), ignore_speech_problems = TRUE, ignore_atmospherics = TRUE)
 	owner.default_language = previous_default
-	voice_of_god(message, owner, include_speaker = include_owner)
+	voice_of_god(message, owner, power_multiplier = 2.5, include_speaker = include_owner)
 
 /datum/brain_trauma/special/bluespace_prophet
 	name = "Bluespace Prophecy"
@@ -138,7 +138,7 @@
 		"выскальзывает из складки пространства",
 	)
 
-	user.visible_message(span_warning("[user] [slip_in_message]."))
+	user.visible_message(span_warning("[user] [slip_in_message]."), ignored_mobs = user)
 	if(do_teleport(user, destination_turf))
 		user.visible_message(span_warning("[user] [slip_out_message]."), span_notice("...и находите путь на ту сторону."))
 	else
@@ -240,7 +240,7 @@
 	if(!ishuman(owner))
 		return
 	psychotic_brawling = new
-	psychotic_brawling.teach(owner, TRUE)
+	psychotic_brawling.teach(owner)
 
 /datum/brain_trauma/special/psychotic_brawling/on_lose(silent)
 	if(psychotic_brawling && ishuman(owner))
@@ -276,7 +276,7 @@
 	var/whispering = FALSE
 
 /datum/brain_trauma/special/death_whispers/on_life()
-	if(!whispering && prob(4))
+	if(!whispering && prob(2))
 		start_whispering()
 
 /datum/brain_trauma/special/death_whispers/on_lose(silent)
@@ -573,6 +573,8 @@
 			to_chat(owner, span_warning("Я не справился со своим долгом..."))
 			owner.AdjustJitter(5 SECONDS)
 			owner.AdjustStuttering(5 SECONDS)
+			if(prob(40))
+				owner.vomit()
 		return
 
 	if(!prob(3))
