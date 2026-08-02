@@ -84,8 +84,8 @@
 	else
 		gain_trauma_type(BRAIN_TRAUMA_SEVERE, natural_gain = TRUE)
 
-/obj/item/organ/internal/brain/proc/get_trauma_scan_data()
-	var/list/scanned_traumas = list()
+/obj/item/organ/internal/brain/proc/get_trauma_scan_list()
+	. = list()
 	for(var/datum/brain_trauma/trauma as anything in traumas)
 		var/severity
 		switch(trauma.resilience)
@@ -99,8 +99,10 @@
 				severity = "стойкая"
 			if(TRAUMA_RESILIENCE_ABSOLUTE)
 				severity = "необратимая"
-		scanned_traumas += "[severity] [trauma.scan_desc]"
+		. += "[severity] [trauma.scan_desc]"
 
+/obj/item/organ/internal/brain/proc/get_trauma_scan_data()
+	var/list/scanned_traumas = get_trauma_scan_list()
 	if(!length(scanned_traumas))
 		return
 	return "Психические травмы: [russian_list(scanned_traumas)]."

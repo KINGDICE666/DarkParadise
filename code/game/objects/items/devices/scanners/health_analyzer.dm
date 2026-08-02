@@ -236,6 +236,11 @@
 	else if(scan_data["brainDamage"] >= 10)
 		P.header += "[span_color("Обнаружено значительное повреждение мозга.", "#d82020")]<br>"
 
+	if(scan_data["traumaList"])
+		P.header += "[span_color("<b>Психические травмы:</b>", "#d82020")]<br>"
+		for(var/trauma in scan_data["traumaList"])
+			P.header += span_color("&emsp;[capitalize(trauma)]<br>", "#d82020")
+
 	if(scan_data["implantDetect"])
 		P.header += "Обнаружены кибернетические модификации:<br>"
 		for(var/implant in scan_data["implantDetect"])
@@ -503,8 +508,12 @@
 	if(H.borer?.controlling)
 		data["brainWorms"] = TRUE
 
-	if(H.get_int_organ(/obj/item/organ/internal/brain))
+	var/obj/item/organ/internal/brain/sponge = H.get_int_organ(/obj/item/organ/internal/brain)
+	if(sponge)
 		data["brainDamage"] = H.getBrainLoss()
+		var/list/traumas = sponge.get_trauma_scan_list()
+		if(length(traumas))
+			data["traumaList"] = traumas
 	else
 		data["brainDamage"] = ORGAN_STATUS_LESS
 
