@@ -104,16 +104,16 @@
 	// система кладёт свободные очки, вложенные игроком в персонажа до раунда, и тогда
 	// два морпеха в одном отряде стреляют с разной меткостью. В бою сторона на стороне
 	// это перекос, которого до перехода не было.
-	character.mind?.give_basic_skills()
-
-	// Классовые бонусы к скорости работы. Снимаем оба и выдаём заново: переназначенный
-	// из санитара в стрелки не должен уносить с собой чужую скорость перевязки.
-	REMOVE_TRAIT(character, TRAIT_MW_MEDIC, JOB_TRAIT)
-	REMOVE_TRAIT(character, TRAIT_MW_ENGINEER, JOB_TRAIT)
-	if(outfit.field_medic)
-		ADD_TRAIT(character, TRAIT_MW_MEDIC, JOB_TRAIT)
-	if(outfit.combat_engineer)
-		ADD_TRAIT(character, TRAIT_MW_ENGINEER, JOB_TRAIT)
+	// Специальность поднимает свои строки до легенды — это половина времени на действие.
+	// Выдаём после общего выравнивания, поэтому переназначенный из санитара в стрелки
+	// чужую скорость с собой не уносит: give_basic_skills уже вернул ему базу.
+	var/datum/mind/mind = character.mind
+	mind?.give_basic_skills()
+	if(mind && outfit.field_medic)
+		mind.set_skill_level(/datum/skill/medical/heal, SKILL_LEVEL_LEGEND)
+	if(mind && outfit.combat_engineer)
+		mind.set_skill_level(/datum/skill/engineering/building, SKILL_LEVEL_LEGEND)
+		mind.set_skill_level(/datum/skill/engineering/construction, SKILL_LEVEL_LEGEND)
 
 	character.forceMove(mountain_wars_spawnpoint(team_role))
 	// Карта есть у всех и всегда: на ней держится связка со звеном, а терять её вместе

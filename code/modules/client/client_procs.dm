@@ -258,11 +258,6 @@
 
 	GLOB.directory[ckey] = src
 
-	// Клиент после реконнекта новый, и список картинок у него пустой. Кто видел минное
-	// поле до обрыва, должен видеть его и после, см. mines.dm.
-	if(GLOB.mw_mine_watchers[ckey])
-		mw_mine_vision(ckey, TRUE)
-
 	if(GLOB.persistent_clients_by_ckey[ckey])
 		persistent_client = GLOB.persistent_clients_by_ckey[ckey]
 		persistent_client.byond_build = byond_build

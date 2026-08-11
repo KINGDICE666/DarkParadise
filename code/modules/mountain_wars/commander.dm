@@ -182,8 +182,6 @@
 // выбор приказа перестал бы быть выбором.
 #define MW_ORDER_RANGE 7
 #define MW_ORDER_DURATION 45 SECONDS
-/// Источник трейта у приказа «Огонь» — чтобы снимать только своё.
-#define MW_ORDER_TRAIT "mw_order"
 
 /datum/movespeed_modifier/mw_order_advance
 	multiplicative_slowdown = -0.4
@@ -243,8 +241,12 @@
 	soldier.physiology.stun_mod /= stun_scale
 
 // MARK: Приказ «Сосредоточить огонь»
-// Кучность считается в самом стволе, поэтому вешаем трейт: гнуть accuracy-датум
-// нельзя, он у части оружия общий на тип и правка растеклась бы на все стволы.
+// Разброс и меткость ствол берёт из навыка «Точность стрельбы» (SPREAD_MOD, ACCURACY_MOD),
+// поэтому приказ поднимает бойцу сам навык, а не вешает свой трейт. Гнуть accuracy-датум
+// нельзя: он у части оружия общий на тип и правка растеклась бы на все стволы.
+//
+// Возврат жёстко в базу, а не в «что было»: в режиме все выходят на базовом уровне и
+// поднимает его только этот приказ (см. deploy_member в teams.dm).
 /datum/status_effect/mw_order/focus
 	id = "mw_order_focus"
 	alert_type = /atom/movable/screen/alert/status_effect/mw_order_focus
@@ -255,11 +257,14 @@
 	icon_state = "aimed"
 
 /datum/status_effect/mw_order/focus/on_apply()
-	ADD_TRAIT(owner, TRAIT_MW_FOCUSED, MW_ORDER_TRAIT)
+	var/datum/mind/mind = owner?.mind
+	if(!mind)
+		return FALSE
+	mind.set_skill_level(/datum/skill/combat/accuracy, SKILL_LEVEL_LEGEND)
 	return TRUE
 
 /datum/status_effect/mw_order/focus/on_remove()
-	REMOVE_TRAIT(owner, TRAIT_MW_FOCUSED, MW_ORDER_TRAIT)
+	owner?.mind?.set_skill_level(/datum/skill/combat/accuracy, SKILL_LEVEL_BASIC)
 
 // MARK: Приказ на экране
 // Приказ должен доходить без чтения чата: боец в перестрелке в него не смотрит. Поэтому
@@ -439,7 +444,6 @@
 
 #undef MW_ORDER_RANGE
 #undef MW_ORDER_DURATION
-#undef MW_ORDER_TRAIT
 #undef MW_ORDER_CARD_TIME
 #undef MW_ORDER_FACE_ZOOM
 #undef MW_ORDER_MAPTEXT

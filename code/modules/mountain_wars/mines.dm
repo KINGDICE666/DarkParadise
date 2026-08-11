@@ -5,18 +5,26 @@
 // сапёрные очки. Взрыватель при этом не разбирает своих и чужих: повстанец, забывший,
 // где закопал, подорвётся на своей же мине.
 //
-// Видимость раздаётся картинками в client.images, а не невидимостью атома. Невидимость
-// в BYOND — свойство самого объекта, одно на всех, а нам нужно по-разному разным
-// игрокам. Список зрителей по ckey, а не по мобам: игрок за раунд меняет тело (смерть,
-// гост, респавн), а картинки лежат на клиенте и переезжают вместе с ним сами.
+// Видимость раздаётся ХУДом, а не невидимостью атома. Невидимость в BYOND — свойство
+// самого объекта, одно на всех, а нам нужно по-разному разным игрокам.
+//
+// Именно ХУДом, а не своим списком картинок в client.images: клиент после реконнекта
+// новый и список у него пустой, а ХУД мобу возвращается сам — /mob/Login() зовёт
+// reload_huds(). Тот же датум сам следит за z-уровнями и снимает картинку удалённой
+// мины по COMSIG_QDELETING. Свой ХУД, а не строка в GLOB.huds: у режима он один на
+// раунд и категория в общем списке ему не нужна (uses_global_hud_category = FALSE).
 //
 // Снимается кусачками или мультитулом. Инструмент лежит в поясе у сапёров обеих сторон,
 // остальным мину придётся обходить или накрывать взрывом: чужой взрыв её детонирует.
 
-/// Все закопанные мины: по ним раздаются картинки новым зрителям.
-GLOBAL_LIST_EMPTY(mw_mines)
-/// ckey -> TRUE. Кто сейчас видит минное поле.
-GLOBAL_LIST_EMPTY(mw_mine_watchers)
+/// Категория ХУДа мин — ключ в hud_list самой мины.
+#define MW_MINE_HUD "mw_mine_hud"
+
+/datum/atom_hud/mw_mines
+	hud_icons = list(MW_MINE_HUD)
+	uses_global_hud_category = FALSE
+
+GLOBAL_DATUM_INIT(mw_mine_hud, /datum/atom_hud/mw_mines, new)
 
 /// Сколько закапывается мина.
 #define MW_MINE_PLANT_TIME (4 SECONDS)
@@ -81,22 +89,23 @@ GLOBAL_LIST_EMPTY(mw_mine_watchers)
 	// Метка детектора, а не сама мина: в пыли её надо замечать издалека.
 	marker.color = "#ff6a4a"
 	marker.appearance_flags |= RESET_COLOR | RESET_ALPHA
-	GLOB.mw_mines += src
-	for(var/watcher_key in GLOB.mw_mine_watchers)
-		var/client/watcher = get_client_by_ckey(watcher_key)
-		watcher?.images |= marker
+	// Списки заполняем руками, без prepare_huds(): тот берёт кадр из общего icons/mob/hud.dmi
+	// по hud_possible, а у метки свой — перекрашенный кадр самой мины.
+	hud_list = list(MW_MINE_HUD = marker)
+	active_hud_list = list(MW_MINE_HUD = marker)
+	GLOB.mw_mine_hud.add_atom_to_hud(src)
 
 /obj/effect/mine/mw/Destroy()
-	GLOB.mw_mines -= src
-	for(var/watcher_key in GLOB.mw_mine_watchers)
-		var/client/watcher = get_client_by_ckey(watcher_key)
-		watcher?.images -= marker
+	// Метку у зрителей снимает сам ХУД: COMSIG_QDELETING рассылается до Destroy, и к
+	// этой строке мина из ХУДа уже выписана. Здесь остаётся только отпустить ссылки.
+	hud_list = null
+	active_hud_list = null
 	marker = null
 	return ..()
 
 /// Замечает ли боец эту мину. Кто не замечает — тот и потрогать её не может.
 /obj/effect/mine/mw/proc/spotted_by(mob/user)
-	return user?.ckey && GLOB.mw_mine_watchers[user.ckey]
+	return user && GLOB.mw_mine_hud.hud_users_all_z_levels[user]
 
 // Чужой осмотр не должен выдавать мину: для не видящего под ногами просто грунт.
 /obj/effect/mine/mw/examine(mob/user)
@@ -182,33 +191,33 @@ GLOBAL_LIST_EMPTY(mw_mine_watchers)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
 // MARK: Кто видит поле
+// Зритель — моб, а не ckey: ХУД держит своих по мобам и сам возвращает картинки после
+// реконнекта. Смена тела (смерть, гост, респавн) проходит через mw_refresh_mine_vision,
+// её и хватает.
 /// Включить или выключить игроку метки мин.
-/proc/mw_mine_vision(watcher_key, seeing)
-	if(!watcher_key)
-		return
-	if(seeing)
-		GLOB.mw_mine_watchers[watcher_key] = TRUE
-	else
-		GLOB.mw_mine_watchers -= watcher_key
-	var/client/watcher = get_client_by_ckey(watcher_key)
+/proc/mw_mine_vision(mob/watcher, seeing)
 	if(!watcher)
 		return
-	for(var/obj/effect/mine/mw/mine as anything in GLOB.mw_mines)
-		if(seeing)
-			watcher.images |= mine.marker
-		else
-			watcher.images -= mine.marker
+	var/datum/atom_hud/hud = GLOB.mw_mine_hud
+	if(!seeing)
+		hud.hide_from(watcher, TRUE)
+		return
+	// show_to() на уже показанном ХУДе просто накручивает счётчик источников, и снять
+	// его потом одним hide_from не вышло бы. Проверка счётчика делает вызов идемпотентным
+	// — а зовут его каждую секунду на каждого госта, см. respawn.dm.
+	if(!hud.hud_users_all_z_levels[watcher])
+		hud.show_to(watcher)
 
 /// Пересчитать видимость по бойцу: повстанцам поле видно всегда, морпеху — пока на нём
 /// сапёрные очки. Вызывается при выдаче роли и при снятии очков.
 /proc/mw_refresh_mine_vision(mob/body)
-	if(!body?.ckey)
+	if(!body)
 		return
 	var/sees = mountain_wars_faction(body) == JOB_TITLE_MW_INSURGENT
 	if(!sees && ishuman(body))
 		var/mob/living/carbon/human/soldier = body
 		sees = istype(soldier.glasses, /obj/item/clothing/glasses/mw_sapper)
-	mw_mine_vision(body.ckey, sees)
+	mw_mine_vision(body, sees)
 
 // MARK: Сапёрные очки
 /obj/item/clothing/glasses/mw_sapper
@@ -220,7 +229,7 @@ GLOBAL_LIST_EMPTY(mw_mine_watchers)
 /obj/item/clothing/glasses/mw_sapper/equipped(mob/user, slot, initial)
 	. = ..()
 	if(slot & ITEM_SLOT_EYES)
-		mw_mine_vision(user.ckey, TRUE)
+		mw_mine_vision(user, TRUE)
 
 /obj/item/clothing/glasses/mw_sapper/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
@@ -228,6 +237,7 @@ GLOBAL_LIST_EMPTY(mw_mine_watchers)
 	if(slot & ITEM_SLOT_EYES)
 		mw_refresh_mine_vision(user)
 
+#undef MW_MINE_HUD
 #undef MW_MINE_PLANT_TIME
 #undef MW_MINE_DEFUSE_TIME
 #undef MW_MINE_OWN_DEFUSE_TIME

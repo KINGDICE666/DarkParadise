@@ -681,11 +681,6 @@
 	bonus_spread += user.get_fracture_spread_bonus(is_left_hand)
 	if(user.buckled)
 		bonus_spread += 45
-	// Mountain Wars: приказ «Сосредоточить огонь» собирает бойцу кучность. Ниже нуля
-	// не уводим — разброс там уже не уменьшается, а начинает считаться от знака.
-	if(HAS_TRAIT(user, TRAIT_MW_FOCUSED))
-		bonus_spread = max(0, bonus_spread - 20)
-
 	SEND_SIGNAL(src, COMSIG_GUN_FIRED, user, target)
 	last_fired = world.time
 	SEND_SIGNAL(src, COMSIG_MOB_GUN_FIRED, target, src)

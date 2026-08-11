@@ -59,9 +59,7 @@
 				ignored_mobs = user,
 			)
 			target.balloon_alert(user, "применение на [GLOB.body_zone[affecting.limb_zone][PREPOSITIONAL]]...")
-			// mw_medic_delay поверх навыка: санитар Mountain Wars перевязывает вдвое
-			// быстрее. Вне режима трейта ни у кого нет и множитель равен единице.
-			if(!do_after(human_target, mw_medic_delay(user, self_delay * skill_duration_mod), human_target, use_flags, max_interact_count = 1))
+			if(!do_after(human_target, self_delay * skill_duration_mod, human_target, use_flags, max_interact_count = 1))
 				return .
 
 			var/obj/item/organ/external/affecting_rechecked = human_target.get_organ(selected_zone)
@@ -83,7 +81,7 @@
 			)
 			target.balloon_alert(user, "применение на [GLOB.body_zone[affecting.limb_zone][PREPOSITIONAL]] цели...")
 
-			if(use_duration && !do_after(user, mw_medic_delay(user, use_duration * skill_duration_mod), human_target))
+			if(use_duration && !do_after(user, use_duration * skill_duration_mod, human_target))
 				return .
 		return .|ATTACK_CHAIN_SUCCESS
 
@@ -1034,7 +1032,7 @@
 	balloon_alert(user, "наложение на [GLOB.body_zone[affecting.limb_zone][ACCUSATIVE]]...")
 
 	CALCULATE_SKILL_MOD(user, HEAL_DURATION_MOD, skill_duration_mod)
-	if(!do_after(user, mw_medic_delay(user, self_duration * skill_duration_mod), user, DA_IGNORE_USER_LOC_CHANGE | DA_IGNORE_LYING) || applied_bodypart)
+	if(!do_after(user, self_duration * skill_duration_mod, user, DA_IGNORE_USER_LOC_CHANGE | DA_IGNORE_LYING) || applied_bodypart)
 		return
 
 	var/obj/item/organ/external/affecting_rechecked = user.get_organ(selected_zone)
@@ -1063,7 +1061,7 @@
 	human_target.balloon_alert(user, "наложение на [GLOB.body_zone[affecting.limb_zone][ACCUSATIVE]]...")
 
 	CALCULATE_SKILL_MOD(user, HEAL_DURATION_MOD, skill_duration_mod)
-	if(!do_after(user, mw_medic_delay(user, other_duration * skill_duration_mod), human_target) || applied_bodypart)
+	if(!do_after(user, other_duration * skill_duration_mod, human_target) || applied_bodypart)
 		return
 
 	var/obj/item/organ/external/affecting_rechecked = human_target.get_organ(selected_zone)
@@ -1108,7 +1106,7 @@
 
 	applied_bodypart.owner.balloon_alert(user, "снятие турникета...")
 	CALCULATE_SKILL_MOD(user, HEAL_DURATION_MOD, skill_duration_mod)
-	if(!do_after(user, mw_medic_delay(user, remove_duration * skill_duration_mod), applied_bodypart.owner) || !applied_bodypart)
+	if(!do_after(user, remove_duration * skill_duration_mod, applied_bodypart.owner) || !applied_bodypart)
 		return FALSE
 
 	var/drop_loc = applied_bodypart.drop_location()

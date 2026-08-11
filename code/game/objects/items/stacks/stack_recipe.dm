@@ -148,9 +148,7 @@
 		if(modifier_name)
 			CALCULATE_SKILL_MOD(user, modifier_name, mod)
 			calculated_time = calculated_time * mod
-		// mw_build_delay поверх навыка: сапёр Mountain Wars собирает вдвое быстрее.
-		// Вне режима трейта ни у кого нет и задержка возвращается как есть.
-		if(!do_after(user, mw_build_delay(user, calculated_time), target = material.loc))
+		if(!do_after(user, calculated_time, target = material.loc))
 			return FALSE
 
 	if(cult_structure && locate(/obj/structure/cult) in get_turf(src)) //Check again after do_after to prevent queuing construction exploit.
