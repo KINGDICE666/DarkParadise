@@ -46172,12 +46172,6 @@
 /obj/effect/landmark/start/detective,
 /turf/simulated/floor/plasteel,
 /area/station/security/main)
-"fMV" = (
-/obj/machinery/light/small,
-/turf/simulated/floor/plasteel{
-	icon_state = "cult"
-	},
-/area/station/service/library)
 "fMW" = (
 /obj/structure/disposalpipe/segment,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -57933,6 +57927,12 @@
 	icon_state = "yellow"
 	},
 /area/station/maintenance/fpmaint)
+"kzZ" = (
+/obj/machinery/light/small,
+/turf/simulated/floor/plasteel{
+	icon_state = "cult"
+	},
+/area/station/service/library)
 "kAa" = (
 /obj/machinery/chem_heater,
 /turf/simulated/floor/plasteel{
@@ -135922,7 +135922,7 @@ bem
 bfY
 aGX
 cXA
-fMV
+kzZ
 bau
 pgq
 djm

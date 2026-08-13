@@ -20820,11 +20820,6 @@
 	icon_state = "green"
 	},
 /area/coldcolony/malta/resid_serv/crew_quarters/cabin2)
-"hNJ" = (
-/turf/simulated/floor/plasteel{
-	icon_state = "grimy"
-	},
-/area/coldcolony/malta/resid_serv/library)
 "hOk" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
@@ -21784,6 +21779,15 @@
 	icon_state = "neutralfull"
 	},
 /area/coldcolony/malta/engineering/break_room)
+"ihI" = (
+/obj/structure/closet,
+/obj/effect/spawner/random_spawners/syndicate/loot{
+	result = list(/obj/item/storage/toolbox/syndicate = 1, /obj/item/storage/fancy/cigarettes/cigpack_syndicate = 1, /obj/item/deck/cards/syndicate = 1, /obj/item/storage/secure/briefcase/syndie = 1, /obj/item/toy/balloon/syndicate = 1, /obj/item/soap/syndie = 1, /obj/item/clothing/under/syndicate = 1, /obj/item/clothing/under/syndicate/tacticool = 1, /obj/item/clothing/mask/gas/syndicate = 1, /obj/item/gun_module/muzzle/suppressor = 1, /obj/item/coin/antagtoken/syndicate = 1, /obj/item/storage/box/syndie_kit/cutouts = 1)
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/coldcolony/ruin/syndie_outpost)
 "ihJ" = (
 /obj/machinery/door/airlock/atmos/glass{
 	name = "Atmospherics Storage";
@@ -25090,15 +25094,6 @@
 /obj/effect/mapping_helpers/turfs/burn,
 /turf/simulated/floor/plating/cold,
 /area/shuttle/pirate_corvette)
-"jrh" = (
-/obj/structure/closet,
-/obj/effect/spawner/random_spawners/syndicate/loot{
-	result = list(/obj/item/storage/toolbox/syndicate = 1, /obj/item/storage/fancy/cigarettes/cigpack_syndicate = 1, /obj/item/deck/cards/syndicate = 1, /obj/item/storage/secure/briefcase/syndie = 1, /obj/item/toy/balloon/syndicate = 1, /obj/item/soap/syndie = 1, /obj/item/clothing/under/syndicate = 1, /obj/item/clothing/under/syndicate/tacticool = 1, /obj/item/clothing/mask/gas/syndicate = 1, /obj/item/gun_module/muzzle/suppressor = 1, /obj/item/coin/antagtoken/syndicate = 1, /obj/item/storage/box/syndie_kit/cutouts = 1)
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/coldcolony/ruin/syndie_outpost)
 "jrj" = (
 /obj/structure/window/reinforced{
 	dir = 4
@@ -58754,6 +58749,11 @@
 	icon_state = "brown"
 	},
 /area/coldcolony/malta/quartermaster/office)
+"vYI" = (
+/turf/simulated/floor/plasteel{
+	icon_state = "grimy"
+	},
+/area/coldcolony/malta/resid_serv/library)
 "vYK" = (
 /obj/machinery/door/airlock/command{
 	name = "Command"
@@ -68249,7 +68249,7 @@ vPw
 vPw
 vPw
 qKF
-jrh
+ihI
 tcz
 tcz
 cWp
@@ -68506,7 +68506,7 @@ vPw
 qKF
 qKF
 qKF
-jrh
+ihI
 vPm
 tcz
 qKF
@@ -99454,7 +99454,7 @@ ptd
 tkc
 qAD
 kNe
-hNJ
+vYI
 lDY
 twC
 ufB
