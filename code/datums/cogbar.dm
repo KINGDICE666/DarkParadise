@@ -47,7 +47,7 @@
 	if(user)
 		SSvis_overlays.remove_vis_overlay(user, user.managed_vis_overlays)
 
-	for(var/client/viewer as anything in hidden_from)
+	for(var/client/viewer in hidden_from)
 		viewer.images -= blank
 	hidden_from = null
 
@@ -75,7 +75,7 @@
 	if(user_client)
 		hidden_from += user_client
 
-	for(var/client/viewer as anything in GLOB.clients)
+	for(var/client/viewer in GLOB.clients)
 		if(viewer == user_client)
 			continue
 		if(viewer.prefs.toggles3 & PREFTOGGLE_3_HIDE_OTHER_COGS)
@@ -89,7 +89,7 @@
 	blank.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
 	blank.override = TRUE
 
-	for(var/client/viewer as anything in hidden_from)
+	for(var/client/viewer in hidden_from)
 		viewer.images += blank
 
 
