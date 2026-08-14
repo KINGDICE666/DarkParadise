@@ -1044,7 +1044,6 @@
 	value = "anti-mage_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
-	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/arc_warden_dota_2
 	name = "Arc Warden"
