@@ -18,6 +18,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	var/list/antag_datum_blacklist
 	/// If current antag datum should be deleted on mind deletion.
 	var/delete_on_mind_deletion = TRUE
+	var/obj/item/uplink/hidden/hidden_uplink = null
 	/// Used to determine if the player jobbanned from this role. Things like `SPECIAL_ROLE_TRAITOR` should go here to determine the role.
 	var/job_rank
 	/// Should we replace the role-banned player with a ghost?
@@ -69,6 +70,13 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 
 	remove_owner_from_gamemode()
 	GLOB.antagonists -= src
+
+	if(hidden_uplink)
+		var/obj/item/uplink_holder = hidden_uplink.loc
+		if(!QDELETED(uplink_holder))
+			uplink_holder.hidden_uplink = null
+
+		QDEL_NULL(hidden_uplink)
 
 	if(!silent)
 		farewell()

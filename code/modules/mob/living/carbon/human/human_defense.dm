@@ -545,8 +545,6 @@ emp_act
 					)
 					apply_effect(4 SECONDS, KNOCKDOWN, armor)
 					AdjustConfused(30 SECONDS)
-				if(mind?.special_role == SPECIAL_ROLE_REV && prob(item.force + ((100 - health)/2)) && src != user && item.damtype == BRUTE)
-					SSticker.mode.remove_revolutionary(mind)
 
 			if(bloody)//Apply blood
 				if(wear_mask)

@@ -2396,6 +2396,7 @@
 #include "code\modules\antagonists\prisoner\prisoner_antag_datum.dm"
 #include "code\modules\antagonists\pyro_slime\pyro_slime_datum.dm"
 #include "code\modules\antagonists\revolution\revolution_datum.dm"
+#include "code\modules\antagonists\revolution\revolution_items.dm"
 #include "code\modules\antagonists\revolution\revolution_team.dm"
 #include "code\modules\antagonists\revenant\revenant_datum.dm"
 #include "code\modules\antagonists\servant\servant.dm"

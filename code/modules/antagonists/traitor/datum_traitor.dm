@@ -23,8 +23,6 @@
 	/// Whether the traitor will receive only hijack objective.
 	var/is_hijacker = FALSE
 	var/datum/contractor_pending/contractor_pending
-	/// The associated traitor's uplink. Only present if `give_uplink` is set to `TRUE`.
-	var/obj/item/uplink/hidden/hidden_uplink = null
 	var/antag_sound = 'sound/ambience/antag/tatoralert.ogg'
 
 /datum/antagonist/traitor/on_gain()
@@ -76,12 +74,6 @@
 		owner.som = null
 
 	if(hidden_uplink)
-		var/obj/item/uplink_holder = hidden_uplink.loc
-		if(!QDELETED(uplink_holder))
-			uplink_holder.hidden_uplink = null
-
-		QDEL_NULL(hidden_uplink)
-
 		for(var/obj/item/implant/uplink/uplink_implant in owner.current.contents)
 			if(QDELETED(uplink_implant))
 				continue
@@ -282,7 +274,12 @@
 /**
  * Gives a traitor their uplink, and uplink code.
  */
-/datum/antagonist/traitor/proc/give_uplink()
+/datum/antagonist/traitor/give_uplink()
+	. = ..()
+	if(hidden_uplink)
+		hidden_uplink.traitor = src
+
+/datum/antagonist/proc/give_uplink()
 	if(isAI(owner.current))
 		return FALSE
 
@@ -320,7 +317,6 @@
 
 		var/obj/item/uplink/hidden/new_uplink = new(target_radio)
 		hidden_uplink = new_uplink
-		hidden_uplink.traitor = src
 		target_radio.hidden_uplink = new_uplink
 		new_uplink.uplink_owner = "[traitor_mob.key]"
 		target_radio.traitor_frequency = freq
@@ -332,7 +328,6 @@
 		var/obj/item/pda/target_pda = uplink_holder
 		var/obj/item/uplink/hidden/new_uplink = new(target_pda)
 		hidden_uplink = new_uplink
-		hidden_uplink.traitor = src
 		target_pda.hidden_uplink = new_uplink
 		new_uplink.uplink_owner = "[traitor_mob.key]"
 

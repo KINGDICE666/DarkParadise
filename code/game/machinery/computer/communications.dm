@@ -44,6 +44,7 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	var/display_icon
 
 	var/datum/announcer/announcer = new(config_type = /datum/announcement_configuration/comms_console)
+	var/streaming_data = FALSE
 
 	light_color = LIGHT_COLOR_BLUE
 
@@ -64,7 +65,59 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 /obj/machinery/computer/communications/Destroy()
 	GLOB.shuttle_caller_list -= src
 	SSshuttle.autoEvac()
+	stop_data_stream()
 	return ..()
+
+/obj/machinery/computer/communications/update_overlays()
+	. = ..()
+	if(streaming_data && !(stat & (NOPOWER|BROKEN)))
+		. += "syndicate_data_stream"
+
+/obj/machinery/computer/communications/power_change(forced = FALSE)
+	. = ..()
+	if(streaming_data && (stat & (NOPOWER|BROKEN)))
+		stop_data_stream()
+
+/obj/machinery/computer/communications/click_alt(mob/living/user)
+	if(!is_head_revolutionary(user))
+		return NONE
+	start_data_stream(user)
+	return CLICK_ACTION_SUCCESS
+
+/obj/machinery/computer/communications/proc/start_data_stream(mob/living/user)
+	var/datum/game_mode/revolution/revolution = SSticker.mode
+	if(!istype(revolution))
+		return
+	if(streaming_data)
+		balloon_alert(user, "поток уже идёт!")
+		return
+	if(stat & (NOPOWER|BROKEN))
+		balloon_alert(user, "нет питания!")
+		return
+	if(revolution.data_stream_console && revolution.data_stream_console != src)
+		balloon_alert(user, "поток уже настроен!")
+		return
+
+	var/setup_time = max(DATA_STREAM_SETUP_TIME - (revolution.living_head_revolutionaries(user.mind) * DATA_STREAM_SETUP_BONUS), DATA_STREAM_SETUP_BONUS)
+	balloon_alert(user, "настраиваю поток...")
+	if(!do_after(user, setup_time, src) || streaming_data || (stat & (NOPOWER|BROKEN)))
+		return
+
+	streaming_data = TRUE
+	revolution.data_stream_console = src
+	update_icon(UPDATE_OVERLAYS)
+	add_game_logs("started the syndicate data stream", user)
+	revolution.declare_war()
+
+/obj/machinery/computer/communications/proc/stop_data_stream()
+	if(!streaming_data)
+		return
+	streaming_data = FALSE
+	var/datum/game_mode/revolution/revolution = SSticker.mode
+	if(istype(revolution) && revolution.data_stream_console == src)
+		revolution.data_stream_console = null
+	send_to_playing_players(span_boldannounceic("Передача данных Синдиката прервана: [get_area_name(src)]."))
+	update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/computer/communications/proc/is_authenticated(mob/user, message = TRUE)
 	if(user.can_admin_interact())

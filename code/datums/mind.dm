@@ -330,16 +330,18 @@
 /datum/mind/proc/memory_edit_revolution(mob/living/carbon/human/H)
 	. = _memory_edit_header("revolution")
 	if(has_antag_datum(/datum/antagonist/rev/head))
-		. += "<a href='byond://?src=[UID()];revolution=clear'>no</a>|<b><font color='red'>HEADREV</font></b>|<a href='byond://?src=[UID()];revolution=rev'>rev</a>"
+		. += "<a href='byond://?src=[UID()];revolution=clear'>no</a>|<b><font color='red'>HEADREV</font></b>|<a href='byond://?src=[UID()];revolution=volunteer'>volunteer</a>|<a href='byond://?src=[UID()];revolution=slave'>slave</a>"
 		. += " <a href='byond://?src=[UID()];revolution=reequip'>Reequip</a> (gives security HUD and spray can)."
 		if(!length(objectives))
 			. += "<br>Objectives are empty! <a href='byond://?src=[UID()];revolution=autoobjectives'>Set to kill all heads</a>."
-	else if(has_antag_datum(/datum/antagonist/rev, FALSE))
-		. += "<a href='byond://?src=[UID()];revolution=clear'>no</a>|<a href='byond://?src=[UID()];revolution=headrev'>headrev</a>|<b><font color='red'>REV</font></b>"
+	else if(has_antag_datum(/datum/antagonist/rev/volunteer))
+		. += "<a href='byond://?src=[UID()];revolution=clear'>no</a>|<a href='byond://?src=[UID()];revolution=headrev'>headrev</a>|<b><font color='red'>VOLUNTEER</font></b>|<a href='byond://?src=[UID()];revolution=slave'>slave</a>"
+	else if(has_antag_datum(/datum/antagonist/rev/slave))
+		. += "<a href='byond://?src=[UID()];revolution=clear'>no</a>|<a href='byond://?src=[UID()];revolution=headrev'>headrev</a>|<a href='byond://?src=[UID()];revolution=volunteer'>volunteer</a>|<b><font color='red'>SLAVE</font></b>"
 	else if(ismindshielded(H))
-		. += "<b>NO</b>|headrev|rev"
+		. += "<b>NO</b>|headrev|volunteer|slave"
 	else
-		. += "<b>NO</b>|<a href='byond://?src=[UID()];revolution=headrev'>headrev</a>|<a href='byond://?src=[UID()];revolution=rev'>rev</a>"
+		. += "<b>NO</b>|<a href='byond://?src=[UID()];revolution=headrev'>headrev</a>|<a href='byond://?src=[UID()];revolution=volunteer'>volunteer</a>|<a href='byond://?src=[UID()];revolution=slave'>slave</a>"
 
 	. += _memory_edit_role_enabled(ROLE_REV)
 
@@ -1369,7 +1371,7 @@
 				message_admins("[key_name_admin(usr)] has given [key_name_admin(current)] a mindshield implant")
 
 				to_chat(H, span_warning(span_fontsize3("<b>You somehow have become the recepient of a mindshield transplant, and it just activated!</b>")))
-				if(has_antag_datum(/datum/antagonist/rev, FALSE))
+				if(has_antag_datum(/datum/antagonist/rev))
 					SSticker.mode.remove_revolutionary(src)
 			if("ertadd")
 				var/obj/item/implant/mindshield/ert/L = new/obj/item/implant/mindshield/ert(H)
@@ -1379,7 +1381,7 @@
 				message_admins("[key_name_admin(usr)] has given [key_name_admin(current)] a ert mindshield implant")
 
 				to_chat(H, span_warning(span_fontsize3("<b>You somehow have become the recepient of a ert mindshield transplant, and it just activated!</b>")))
-				if(has_antag_datum(/datum/antagonist/rev, FALSE))
+				if(has_antag_datum(/datum/antagonist/rev))
 					SSticker.mode.remove_revolutionary(src)
 
 	else if(href_list["revolution"])
@@ -1390,26 +1392,32 @@
 				log_admin("[key_name(usr)] has de-rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has de-rev'd [key_name_admin(current)]")
 
-			if("rev")
-				var/datum/antagonist/rev/head/head = has_antag_datum(/datum/antagonist/rev/head, FALSE)
-				if(head)
-					head.demote()
-				else if(!has_antag_datum(/datum/antagonist/rev, FALSE))
-					add_antag_datum(/datum/antagonist/rev)
+			if("volunteer")
+				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev)
+				if(rev)
+					rev.switch_tier(/datum/antagonist/rev/volunteer)
 				else
-					return
+					add_antag_datum(/datum/antagonist/rev/volunteer)
 				log_admin("[key_name(usr)] has rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has rev'd [key_name_admin(current)]")
 				current.create_log(MISC_LOG, "[current] was made into a revolutionary by [key_name_admin(usr)]")
 
-			if("headrev")
-				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev, FALSE)
+			if("slave")
+				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev)
 				if(rev)
-					rev.promote()
-				else if(!has_antag_datum(/datum/antagonist/rev/head, FALSE))
-					add_antag_datum(/datum/antagonist/rev/head)
+					rev.switch_tier(/datum/antagonist/rev/slave)
 				else
-					return
+					add_antag_datum(/datum/antagonist/rev/slave)
+				log_admin("[key_name(usr)] has enslaved [key_name(current)] to the revolution")
+				message_admins("[key_name_admin(usr)] has enslaved [key_name_admin(current)] to the revolution")
+				current.create_log(MISC_LOG, "[current] was made into a revolution slave by [key_name_admin(usr)]")
+
+			if("headrev")
+				var/datum/antagonist/rev/rev = has_antag_datum(/datum/antagonist/rev)
+				if(rev)
+					rev.switch_tier(/datum/antagonist/rev/head)
+				else
+					add_antag_datum(/datum/antagonist/rev/head)
 				log_admin("[key_name(usr)] has head-rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has head-rev'd [key_name_admin(current)]")
 				current.create_log(MISC_LOG, "[current] was made into a head revolutionary by [key_name_admin(usr)]")

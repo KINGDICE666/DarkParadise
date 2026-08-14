@@ -27,6 +27,20 @@
 #define GAMEMODE_IS_METEOR (SSticker && istype(SSticker.mode, /datum/game_mode/meteor))
 
 #define MAX_HEAD_REVOLUTIONARIES 3
+#define SLAVE_HELPLESS_DECONVERSION_INTERVAL (10 SECONDS)
+#define SLAVE_HELPLESS_DECONVERSION_CHANCE 10
+#define SLAVE_DEATH_DECONVERSION_CHANCE 50
+#define REVOLUTION_WAR_DURATION (15 MINUTES)
+#define DATA_STREAM_SETUP_TIME (30 SECONDS)
+#define DATA_STREAM_SETUP_BONUS (10 SECONDS)
+#define REVOLUTION_SYNDICATE_ENDING_DELAY (2 MINUTES)
+#define REVOLUTION_EVAC_TIME (5 MINUTES)
+#define REVOLUTION_ENDING_SPAWNS_PER_BEACON 3
+
+#define REVOLUTION_VICTOR_SYNDICATE "syndicate"
+#define REVOLUTION_VICTOR_NT "nanotrasen"
+#define CREW_PER_SUPPLY_POD 10
+#define CREW_PER_REINFORCED_POD 15
 
 // special roles
 // Distinct from the ROLE_X defines because some antags have multiple special roles but only one ban type

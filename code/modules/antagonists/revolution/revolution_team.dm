@@ -23,7 +23,9 @@
 		return
 
 	var/list/promotable_revs = list()
-	for(var/datum/mind/khrushchev as anything in (members - leaders))
+	for(var/datum/mind/khrushchev as anything in members)
+		if(!khrushchev.has_antag_datum(/datum/antagonist/rev/volunteer))
+			continue
 		if(!khrushchev.current?.client || khrushchev.current.stat == DEAD)
 			continue
 		if(ROLE_REV in khrushchev.current.client.prefs.be_special)
@@ -34,8 +36,8 @@
 
 	var/datum/mind/stalin = pick(promotable_revs)
 	add_game_logs("has been promoted to a head rev", stalin.current)
-	var/datum/antagonist/rev/rev = stalin.has_antag_datum(/datum/antagonist/rev)
-	rev.promote()
+	var/datum/antagonist/rev/volunteer/volunteer = stalin.has_antag_datum(/datum/antagonist/rev/volunteer)
+	volunteer.switch_tier(/datum/antagonist/rev/head)
 
 /datum/team/revolution/declare_completion()
 	if(!length(members))
@@ -52,12 +54,34 @@
 			num_revs++
 
 	var/list/text = list()
+	var/datum/game_mode/revolution/revolution = SSticker.mode
+	if(istype(revolution) && revolution.victor)
+		if(revolution.victor == REVOLUTION_VICTOR_SYNDICATE)
+			text += span_bold(span_fontsize3("<br>Революция победила: флот Синдиката занял станцию."))
+		else
+			text += span_bold(span_fontsize3("<br>Революция подавлена: флот Нанотрейзен успел первым."))
+	else if(istype(revolution) && revolution.war_declared)
+		text += span_bold(span_fontsize3("<br>Война за консоль связи не была доиграна до конца."))
+
+	if(istype(revolution) && revolution.war_declared)
+		text += "<br>[TAB]Поток данных Синдиката: [span_bold("[round(revolution.syndicate_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
+		text += "<br>[TAB]Контроль Нанотрейзен: [span_bold("[round(revolution.nt_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
+
 	if(num_survivors)
-		text += "[TAB]Command's Approval Rating: [span_bold("[100 - round((num_revs / num_survivors) * 100, 0.1)]%")]"
+		text += "<br>[TAB]Command's Approval Rating: [span_bold("[100 - round((num_revs / num_survivors) * 100, 0.1)]%")]"
 
 	text += span_bold(span_fontsize3("<br>The head revolutionaries were:</font>"))
 	for(var/datum/mind/headrev as anything in leaders)
 		text += printplayer(headrev, 1)
+
+	var/volunteers = 0
+	var/slaves = 0
+	for(var/datum/mind/member as anything in members)
+		if(member.has_antag_datum(/datum/antagonist/rev/volunteer))
+			volunteers++
+		else if(member.has_antag_datum(/datum/antagonist/rev/slave))
+			slaves++
+	text += "<br>Добровольцев революции: [span_bold("[volunteers]")], рабов революции: [span_bold("[slaves]")]"
 
 	text += span_bold(span_fontsize3("<br>The heads of staff were:"))
 	for(var/datum/mind/head as anything in SSticker.mode.get_all_heads())
@@ -67,6 +91,9 @@
 
 /datum/team/revolution/set_scoreboard_vars()
 	var/datum/scoreboard/scoreboard = SSticker.score
+	var/datum/game_mode/revolution/revolution = SSticker.mode
+	if(istype(revolution) && revolution.victor == REVOLUTION_VICTOR_SYNDICATE)
+		scoreboard.score_greentext = TRUE
 	var/list/leaders = get_head_revolutionaries()
 
 	for(var/datum/mind/leader as anything in leaders)

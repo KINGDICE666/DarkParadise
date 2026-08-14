@@ -73,8 +73,9 @@
 		dat += "<a href='byond://?src=[UID()];check_teams=1'>View Teams</a><br>"
 
 		var/list/datum/mind/head_revs = get_antag_minds(/datum/antagonist/rev/head)
-		var/list/datum/mind/revs = get_antag_minds(/datum/antagonist/rev, specific = TRUE)
-		if(length(head_revs) || length(revs))
+		var/list/datum/mind/volunteers = get_antag_minds(/datum/antagonist/rev/volunteer)
+		var/list/datum/mind/slaves = get_antag_minds(/datum/antagonist/rev/slave)
+		if(length(head_revs) || length(volunteers) || length(slaves))
 			dat += "<br><table cellspacing=5><tr><td><b>Revolutionaries</b></td><td></td></tr>"
 			for(var/datum/mind/N in head_revs)
 				var/mob/M = N.current
@@ -82,10 +83,14 @@
 					dat += "<tr><td><i>Head Revolutionary not found!</i></td></tr>"
 				else
 					dat += check_antagonists_line(M, "(leader)")
-			for(var/datum/mind/N in revs)
+			for(var/datum/mind/N in volunteers)
 				var/mob/M = N.current
 				if(M)
-					dat += check_antagonists_line(M)
+					dat += check_antagonists_line(M, "(volunteer)")
+			for(var/datum/mind/N in slaves)
+				var/mob/M = N.current
+				if(M)
+					dat += check_antagonists_line(M, "(slave)")
 			dat += "</table><table cellspacing=5><tr><td><b>Target(s)</b></td><td></td><td><b>Location</b></td></tr>"
 			for(var/datum/mind/N in SSticker.mode.get_living_heads())
 				var/mob/M = N.current
