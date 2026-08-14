@@ -15,7 +15,6 @@
 	item_state = "beaker"
 	w_class = WEIGHT_CLASS_SMALL
 	volume = 100
-	amount_per_transfer_from_this = 10
 	possible_transfer_amounts = list(5, 10, 20, 25, 50, 100)
 	has_lid = FALSE
 	resistance_flags = ACID_PROOF | FIRE_PROOF
@@ -98,10 +97,7 @@
 /obj/effect/portal/rick
 	name = "interdimensional portal"
 	desc = "Непрозрачная зелёная поверхность дрожит, словно жидкость."
-	gender = MALE
 	icon = 'icons/obj/weapons/portal_gun.dmi'
-	icon_state = "portal"
-	base_icon_state = "portal"
 	fail_icon = null
 	failed_teleport = FALSE
 	failchance = 0
@@ -139,11 +135,7 @@
 	lefthand_file = 'icons/mob/inhands/weapons/portal_gun_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/portal_gun_righthand.dmi'
 	w_class = WEIGHT_CLASS_SMALL
-	force = 5
-	throw_speed = 3
-	throw_range = 5
 	accuracy = GUN_ACCURACY_SNIPER
-	attachable_allowed = GUN_MODULE_CLASS_NONE
 	clumsy_check = FALSE
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
 	fire_sound = 'sound/weapons/portal_gun.ogg'

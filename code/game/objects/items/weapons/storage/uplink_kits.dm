@@ -1017,3 +1017,22 @@ To apply, hold the injector a short distance away from the outer thigh before ap
 /obj/item/storage/box/syndie_kit/combat_exoframe/populate_contents()
 	new /obj/item/organ/internal/cyberimp/chest/exoframe/combat(src)
 	new /obj/item/autoimplanter/oneuse(src)
+
+/obj/item/storage/box/syndie_kit/portal_gun
+	name = "portal gun kit"
+	desc = "Коробка, содержащая портальную пушку и два картриджа с квантовым транспортным раствором."
+
+/obj/item/storage/box/syndie_kit/portal_gun/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор с портальной пушкой",
+		GENITIVE = "набора с портальной пушкой",
+		DATIVE = "набору с портальной пушкой",
+		ACCUSATIVE = "набор с портальной пушкой",
+		INSTRUMENTAL = "набором с портальной пушкой",
+		PREPOSITIONAL = "наборе с портальной пушкой",
+	)
+
+/obj/item/storage/box/syndie_kit/portal_gun/populate_contents()
+	new /obj/item/gun/portal_gun(src)
+	new /obj/item/reagent_containers/glass/portal_fluid_canister/full(src)
+	new /obj/item/reagent_containers/glass/portal_fluid_canister/full(src)
