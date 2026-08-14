@@ -719,3 +719,12 @@
 	description = "An agent that yields metallic foam which conforms to area boundaries when mixed with light metal and a strong acid."
 	color = "#664B63" // rgb: 102, 75, 99
 	taste_description = "metal"
+
+/datum/reagent/portal_fluid
+	name = "Квантовый транспортный раствор"
+	id = "portal_fluid"
+	description = "Светящаяся зелёная жидкость, удерживающая нестабильные пространственные связи."
+	reagent_state = LIQUID
+	color = "#39FF63"
+	taste_description = "озона и бесконечного пространства"
+	can_synth = FALSE
