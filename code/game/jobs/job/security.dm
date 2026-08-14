@@ -3,7 +3,7 @@
 	flag = JOB_FLAG_HOS
 	department = STATION_DEPARTMENT_SECURITY
 	department_flag = JOBCAT_ENGSEC
-	is_security = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_SECURITY
 	selection_color = "#c25656"
 	access = list(
 		ACCESS_EVA, ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_COURT,
@@ -60,7 +60,7 @@
 	job_flags = JOB_ANTAG_PROTECTED
 	department = STATION_DEPARTMENT_SECURITY
 	department_flag = JOBCAT_ENGSEC
-	is_security = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_SECURITY
 	supervisors = "Главой службы безопасности"
 	department_head = list(JOB_TITLE_HOS)
 	selection_color = "#edcdcd"
@@ -186,7 +186,7 @@
 	minimal_access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_WEAPONS)
 	law_level = LAW_LEVEL_SEC
 	alt_titles = list(
-		ALT_JOB_TITLE_RU_PATROL_OFFICER,
+		ALT_JOB_TITLE_RU_PATROL_OFFICER, ALT_JOB_TITLE_RU_SECURITY_CADET,
 	)
 	outfit = /datum/outfit/job/officer
 

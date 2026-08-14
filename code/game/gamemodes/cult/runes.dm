@@ -124,13 +124,11 @@ To draw a rune, use a ritual dagger.
 
 /obj/effect/rune/cult_conceal() //for concealing spell
 	visible_message(span_danger("[src] fades away."))
-	invisibility = INVISIBILITY_HIDDEN_RUNES
-	alpha = 100 //To help ghosts distinguish hidden runes
+	set_cult_veil(TRUE)
 
 /obj/effect/rune/cult_reveal() //for revealing spell
-	invisibility = 0
+	set_cult_veil(FALSE)
 	visible_message(span_danger("[src] suddenly appears!"))
-	alpha = initial(alpha)
 
 /obj/effect/rune/is_cleanable()
 	return TRUE
@@ -155,7 +153,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 	//This proc determines if the rune can be invoked at the time. If there are multiple required cultists, it will find all nearby cultists.
 	var/list/invokers = list() //people eligible to invoke the rune
 	var/list/chanters = list() //people who will actually chant the rune when passed to invoke()
-	if(invisibility == INVISIBILITY_HIDDEN_RUNES)//hidden rune
+	if(HAS_TRAIT(src, TRAIT_CULT_CONCEALED))//hidden rune
 		return
 	// Get the user
 	if(user)
@@ -224,7 +222,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 
 /obj/effect/rune/proc/fail_invoke()
 	//This proc contains the effects of a rune if it is not invoked correctly, through either invalid wording or not enough cultists. By default, it's just a basic fizzle.
-	if(!invisibility) // No visible messages if not visible
+	if(!HAS_TRAIT(src, TRAIT_CULT_CONCEALED)) // No visible messages if not visible
 		visible_message(span_warning("The markings pulse with a small flash of red light, then fall dark."))
 	animate(src, color = rgb(255, 0, 0), time = 0)
 	animate(src, color = rune_blood_color, time = 5)
@@ -394,17 +392,25 @@ structure_check() searches for nearby cultist structures required for the invoca
 			cult_team.ghost_summons += GHOST_SUMMONS_OBJECTIVE
 
 	new /obj/effect/temp_visual/cult/sac(loc)
-	for(var/M in invokers)
-		if(sacrifice_fulfilled)
-			to_chat(M, span_cultlarge("\"Yes! This is the one I desire! You have done well.\""))
-		else
-			if(ishuman(offering) || isrobot(offering))
-				to_chat(M, span_cultlarge("\"I accept this sacrifice.\""))
+	var/signal_result = SEND_SIGNAL(offering, COMSIG_LIVING_CULT_SACRIFICED, invokers)
+	if(!(signal_result & SILENCE_SACRIFICE_MESSAGE))
+		for(var/M in invokers)
+			if(sacrifice_fulfilled)
+				to_chat(M, span_cultlarge("\"Yes! This is the one I desire! You have done well.\""))
 			else
-				to_chat(M, span_cultlarge("\"I accept this meager sacrifice.\""))
+				if(ishuman(offering) || isrobot(offering))
+					to_chat(M, span_cultlarge("\"I accept this sacrifice.\""))
+				else
+					to_chat(M, span_cultlarge("\"I accept this meager sacrifice.\""))
 	playsound(offering, 'sound/misc/demon_consume.ogg', 100, TRUE)
 
-	if((ishuman(offering) || isrobot(offering) || isbrain(offering)) && offering.mind)
+	if(signal_result & STOP_SACRIFICE)
+		return FALSE
+
+	if(signal_result & DUST_SACRIFICE)
+		offering.dust()
+		playsound(offering, 'sound/magic/disintegrate.ogg', 100, TRUE)
+	else if((ishuman(offering) || isrobot(offering) || isbrain(offering)) && offering.mind)
 		if(isrobot(offering))
 			var/mob/living/silicon/robot/robot = offering
 			if(robot.shell && robot.mainframe)

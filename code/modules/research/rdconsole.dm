@@ -358,10 +358,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			return
 
 	linked_destroy.busy = TRUE
+	var/deconstruct_delay = DECONSTRUCT_DELAY
 	flick("[linked_destroy.base_icon_state]_process", linked_destroy)
-	add_wait_message("Разборка объекта и обновление базы данных...", DECONSTRUCT_DELAY)
+	add_wait_message("Разборка объекта и обновление базы данных...", deconstruct_delay)
 	playsound(loc, 'sound/machines/rnd_machines/destructor_scanning.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1, use_reverb = TRUE)
-	addtimer(CALLBACK(src, PROC_REF(finish_destroyer), temp_tech, user), DECONSTRUCT_DELAY)
+	addtimer(CALLBACK(src, PROC_REF(finish_destroyer), temp_tech, user), deconstruct_delay)
 
 // Sends salvaged materials to a linked protolathe, if any.
 /obj/machinery/computer/rdconsole/proc/send_mats()
@@ -382,10 +383,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	if(!linked_destroy || !temp_tech)
 		return
 
+	var/success = prob(100)
 	if(!linked_destroy.hacked)
 		if(!linked_destroy.loaded_item)
 			to_chat(usr, span_danger("[DECLENT_RU_CAP(linked_destroy, NOMINATIVE)] пуст!"))
-		else
+		else if(success)
 			var/tech_log
 			for(var/T in temp_tech)
 				var/new_level = files.UpdateTech(T, temp_tech[T])
@@ -393,6 +395,9 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 					tech_log += "[T] [new_level], "
 			if(tech_log)
 				investigate_log("[user] increased tech deconstructing [linked_destroy.loaded_item]: [tech_log]. ", INVESTIGATE_RESEARCH)
+		else // item destroyed, but tech level not increase if skill check failed
+			linked_destroy.add_shared_particles(/particles/smoke)
+			addtimer(CALLBACK(linked_destroy, TYPE_PROC_REF(/atom/movable, remove_shared_particles), /particles/smoke), 3 SECONDS)
 		send_mats()
 		linked_destroy.loaded_item = null
 
@@ -459,7 +464,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	var/max_amount = is_lathe ? 10 : 1
 	amount = max(1, min(max_amount, amount))
-
 	var/power = BUILD_POWER
 	for(var/M in being_built.materials)
 		power += round(being_built.materials[M] * amount / 5)

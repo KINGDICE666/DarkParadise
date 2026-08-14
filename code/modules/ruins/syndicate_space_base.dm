@@ -36,6 +36,7 @@
 	pickable_species = list(SPECIES_HUMAN, SPECIES_VULPKANIN, SPECIES_TAJARAN, SPECIES_UNATHI, SPECIES_SKRELL, SPECIES_DIONA, SPECIES_DRASK, SPECIES_VOX, SPECIES_PLASMAMAN, SPECIES_MACHINEPERSON, SPECIES_KIDAN, SPECIES_GREY, SPECIES_NUCLEATION, SPECIES_SLIMEPERSON, SPECIES_WRYN, SPECIES_MOTH)
 	faction = list("syndicate")
 	min_hours = 10
+	use_antag_skills = TRUE
 
 /obj/effect/mob_spawn/human/space_base_syndicate/Destroy()
 	var/obj/machinery/cryopod/syndie/S = new(get_turf(src))
@@ -109,6 +110,7 @@
 	description = "Проводите медицинские опыты сомнительного содержания. Вылечивайте своих коллег, которые опять поссорились с генералом Синди, или оживляйте неудачливых космических путников, для допросов или киборгизации. Даже \"Синдикату\" нужны врачи!"
 	outfit = /datum/outfit/space_base_syndicate/medic
 	assignedrole = JOB_TITLE_TAIPAN_MEDIC
+
 /datum/outfit/space_base_syndicate/medic
 	name = "Space Base Syndicate Medic"
 	glasses = /obj/item/clothing/glasses/hud/health

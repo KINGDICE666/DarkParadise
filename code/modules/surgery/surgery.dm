@@ -375,6 +375,7 @@
 
 	var/step_result
 
+
 	if((prob(prob_success) || silicons_ignore_prob && isrobot(user)) && chem_check_result && !try_to_fail)
 		step_result = end_step(user, target, target_zone, tool, surgery)
 		INVOKE_ASYNC(src, PROC_REF(play_end_sound), user, target, tool)

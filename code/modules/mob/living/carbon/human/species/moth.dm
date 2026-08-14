@@ -89,6 +89,7 @@
 		JOB_MIN_AGE_COMMAND = 15,
 	)
 
+
 /datum/species/moth/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	H.add_movespeed_mod_immunities(type, /datum/movespeed_modifier/limbless)

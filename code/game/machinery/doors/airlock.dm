@@ -1088,7 +1088,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(user.a_intent == INTENT_HARM)
 		return
 	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
 		return
 	panel_open = !panel_open
 	to_chat(user, span_notice("You [panel_open ? "open":"close"] [src]'s maintenance panel."))
@@ -1104,7 +1104,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		return
 	if(panel_open && security_level == AIRLOCK_SECURITY_PLASTEEL_I_S)
 		to_chat(user, span_notice("You start removing the inner layer of shielding..."))
-		if(I.use_tool(src, user, 40, volume = I.tool_volume))
+		if(I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL_I_S)
 				return
 			user.visible_message(
@@ -1118,7 +1118,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 			update_icon()
 	else if(panel_open && security_level == AIRLOCK_SECURITY_PLASTEEL_O_S)
 		to_chat(user, span_notice("You start removing outer layer of shielding..."))
-		if(I.use_tool(src, user, 40, volume = I.tool_volume))
+		if(I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL_O_S)
 				return
 			user.visible_message(
@@ -1147,7 +1147,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		if(arePowerSystemsOn() && shock(user, 60)) // Protective grille of wiring is electrified
 			return
 		to_chat(user, span_notice("You start cutting through the outer grille."))
-		if(I.use_tool(src, user, 10, volume = I.tool_volume))
+		if(I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
 			if(!panel_open || security_level != AIRLOCK_SECURITY_PLASTEEL)
 				return
 			user.visible_message(
@@ -1177,7 +1177,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		return
 	if(isAllPowerLoss())
 		to_chat(user, span_notice("You start wrenching bolt reducer."))
-		if(I.use_tool(src, user, 300, volume = I.tool_volume))
+		if(I.use_tool(src, user, 30 SECONDS, volume = I.tool_volume))
 			user.visible_message(
 				span_notice("[user] raise \the [src]'s bolt manually."),
 				span_notice("You raise \the [src]'s bolt manually.")

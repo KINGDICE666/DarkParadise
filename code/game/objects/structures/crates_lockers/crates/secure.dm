@@ -92,7 +92,7 @@
 		return
 	. = TRUE
 	balloon_alert(user, "откручиваем панель...")
-	if(!tool.use_tool(src, user, 160, volume = tool.tool_volume))
+	if(!tool.use_tool(src, user, 16 SECONDS, volume = tool.tool_volume))
 		return
 	if(prob(95)) // EZ
 		if(broken == SECURE_CRATE_STAGE_PANEL_OPEN)

@@ -126,17 +126,11 @@
 
 	user.changeNext_move(CLICK_CD_MELEE)
 
-	var/open_time = manual_open_time
-	if(ishuman(user))
-		var/datum/strength_level/level = user.get_strength_level()
-		if(level)
-			open_time = manual_open_time / max(0.1, level.door_open_speed_modifier)
-
 	user.visible_message(
 		span_notice("[user] tries to open [src] manually."),
 		span_notice("You operate the manual lever on [src]."))
 
-	if(do_after(user, open_time, src))
+	if(do_after(user, manual_open_time, src))
 		add_fingerprint(user)
 		user.visible_message(
 			span_notice("[user] opens [src]."),
@@ -158,7 +152,7 @@
 	if(operating || !welded)
 		return
 	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
 		return
 	user.visible_message(
 		span_notice("[user] [boltslocked ? "unlocks" : "locks"] [src]'s bolts."), \
@@ -181,7 +175,7 @@
 		span_notice("[user] starts undoing [src]'s bolts..."), \
 		span_notice("You start unfastening [src]'s floor bolts...")
 	)
-	if(!I.use_tool(src, user, 50, volume = I.tool_volume) || boltslocked)
+	if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume) || boltslocked)
 		return
 	user.visible_message(
 		span_notice("[user] unfastens [src]'s bolts."), \
@@ -196,7 +190,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	WELDER_ATTEMPT_WELD_MESSAGE
-	if(!I.use_tool(src, user, 40, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 		return
 	if(!density) //In case someone opens it while it's getting welded
 		return
@@ -533,7 +527,7 @@
 			span_notice("[user] starts prying a metal plate into [src]..."), \
 			span_notice("You begin prying the cover plate back onto [src]...")
 		)
-		if(!I.use_tool(src, user, 50, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
 			return
 		if(constructionStep != CONSTRUCTION_WIRES_EXPOSED)
 			return
@@ -547,7 +541,7 @@
 			span_notice("[user] starts prying something out from [src]..."), \
 			span_notice("You begin prying out the wire cover...")
 		)
-		if(!I.use_tool(src, user, 50, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
 			return
 		if(constructionStep != CONSTRUCTION_PANEL_OPEN)
 			return
@@ -561,7 +555,7 @@
 			span_notice("[user] begins removing the circuit board from [src]..."), \
 			span_notice("You begin prying out the circuit board from [src]...")
 		)
-		if(!I.use_tool(src, user, 50, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
 			return
 		if(constructionStep != CONSTRUCTION_GUTTED)
 			return
@@ -584,7 +578,7 @@
 		span_notice("[user] starts cutting the wires from [src]..."), \
 		span_notice("You begin removing [src]'s wires...")
 	)
-	if(!I.use_tool(src, user, 50, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
 		return
 	if(constructionStep != CONSTRUCTION_WIRES_EXPOSED)
 		return
@@ -609,7 +603,7 @@
 		span_notice("[user] starts bolting down [src]..."), \
 		span_notice("You begin bolting [src]...")
 	)
-	if(!I.use_tool(src, user, 50, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
 		return
 	if(locate(/obj/machinery/door/firedoor) in get_turf(src))
 		return
@@ -630,7 +624,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	WELDER_ATTEMPT_SLICING_MESSAGE
-	if(!I.use_tool(src, user, 40, amount = 1, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 4 SECONDS, amount = 1, volume = I.tool_volume))
 		return
 	if(constructionStep != CONSTRUCTION_NOCIRCUIT)
 		return

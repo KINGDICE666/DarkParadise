@@ -1650,9 +1650,11 @@
 
 /obj/mecha/proc/use_power(amount)
 	if(get_charge())
-		cell.use(amount)
 		if(occupant)
+			cell.use(round(amount))
 			update_cell()
+			return TRUE
+		cell.use(amount)
 		return TRUE
 	return FALSE
 

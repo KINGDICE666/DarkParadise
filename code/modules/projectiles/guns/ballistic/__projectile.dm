@@ -11,6 +11,8 @@
 	var/can_tactical = FALSE //check to see if the gun can tactically reload
 	/// Register fireshoot component
 	var/can_air_shoot = FALSE
+	/// Magazine reload duration
+	var/reload_duration = 1.2 SECONDS
 
 /obj/item/gun/projectile/Initialize(mapload)
 	. = ..()
@@ -112,6 +114,9 @@
 
 /obj/item/gun/projectile/proc/reload(obj/item/ammo_box/magazine/new_magazine, mob/user)
 	playsound(loc, magin_sound, 50, TRUE)
+	if(!do_after(user, reload_duration, src, DA_IGNORE_USER_LOC_CHANGE, max_interact_count = 1))
+		return FALSE
+
 	if(user && !user.drop_transfer_item_to_loc(new_magazine, src, silent = TRUE))
 		return FALSE
 
@@ -158,6 +163,9 @@
 		return FALSE
 
 	add_fingerprint(user)
+	if(!do_after(user, reload_duration, src, DA_IGNORE_USER_LOC_CHANGE, max_interact_count = 1))
+		return FALSE
+
 	var/num_loaded = magazine.reload(item, user)
 	if(!num_loaded)
 		return
@@ -260,3 +268,4 @@
 		if(AC.BB)
 			fast_fire(user, user)
 			. = TRUE
+

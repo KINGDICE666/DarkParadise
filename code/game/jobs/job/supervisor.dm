@@ -12,6 +12,7 @@
 	head_position = TRUE
 	insurance_type = INSURANCE_TYPE_DELUXE
 	paycheck = PAYCHECK_COMMAND
+	law_level = LAW_LEVEL_HEAD
 
 /datum/job/captain
 	title = JOB_TITLE_CAPTAIN
@@ -25,7 +26,7 @@
 	department_head = list(JOB_TITLE_CCOFFICER)
 	selection_color = "#6691ff"
 	req_admin_notify = 1
-	is_command = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_COMMAND
 	access = list()	//See get_access()
 	minimal_access = list()	//See get_access()
 	law_level = LAW_LEVEL_CAPTAIN
@@ -85,7 +86,7 @@
 	department_flag = JOBCAT_KARMA
 	department = STATION_DEPARTMENT_COMMAND
 	selection_color = "#d1deff"
-	is_command = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_COMMAND
 	transfer_allowed = FALSE
 	blocked_race_for_job = list(SPECIES_VOX)
 	head_position = FALSE
@@ -143,7 +144,7 @@
 	department_head = list(JOB_TITLE_CAPTAIN)
 	selection_color = "#d1deff"
 	req_admin_notify = 1
-	is_command = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_COMMAND
 	transfer_allowed = FALSE
 	minimal_player_age = 21
 	blocked_race_for_job = list(SPECIES_VOX, SPECIES_NUCLEATION)
@@ -197,7 +198,7 @@
 	supervisors = "верховным судом \"Нанотрейзен\""
 	department_head = list(JOB_TITLE_CAPTAIN)
 	selection_color = "#db6d92"
-	is_legal = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_LEGAL
 	transfer_allowed = FALSE
 	minimal_player_age = 30
 	min_age_type = JOB_MIN_AGE_COMMAND
@@ -251,7 +252,7 @@
 	department = STATION_DEPARTMENT_LEGAL
 	total_positions = 2
 	spawn_positions = 2
-	is_legal = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_LEGAL
 	supervisors = "Магистратом"
 	department_head = list(JOB_TITLE_CAPTAIN)
 	selection_color = "#edccd7"

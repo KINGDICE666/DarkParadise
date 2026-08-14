@@ -6,6 +6,8 @@
 	target.add_fingerprint(user)
 	if(!tool_start_check(target, user, amount) && !delay)
 		return
+
+
 	delay *= toolspeed
 	delay *= user.get_actionspeed_by_category(DA_CAT_TOOL)
 
@@ -17,11 +19,11 @@
 		var/datum/callback/tool_check = CALLBACK(src, PROC_REF(tool_check_callback), user, target, amount, extra_checks)
 
 		if(ismob(target))
-			if(!do_after(user, delay, target, DA_IGNORE_SLOWDOWNS, extra_checks = tool_check))
+			if(!do_after(user, delay, target, DA_IGNORE_SLOWDOWNS, extra_checks = tool_check, max_interact_count = 1))
 				return
 
 		else
-			if(!do_after(user, delay, target, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_SLOWDOWNS, extra_checks = tool_check))
+			if(!do_after(user, delay, target, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_SLOWDOWNS, extra_checks = tool_check, max_interact_count = 1))
 				return
 	else
 		// Invoke the extra checks once, just in case.

@@ -164,7 +164,7 @@
 			qdel(src)
 	else
 		to_chat(user, span_notice("You start to [open ? "close":"open"] [src]."))
-		if(!I.use_tool(src, user, 20, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume))
 			return
 		to_chat(user,  span_notice("You [open ? "close":"open"] [src]."))
 		toggle_lock(user)

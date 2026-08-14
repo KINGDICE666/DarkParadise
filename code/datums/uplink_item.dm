@@ -567,6 +567,15 @@
 	job = list(JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE, JOB_TITLE_CHIEF_ENGINEER, \
 			JOB_TITLE_SPACEPOD_TECHNICIAN, JOB_TITLE_ROBOTICIST, JOB_TITLE_PARAMEDIC)
 
+/datum/uplink_item/jobspecific/meltdown_rod
+	name = "Стержень ядерного расплава"
+	desc = "Специально разработанный ядерный стержень, гарантирующий вызов расплава любого реактора, в который он будет помещён."
+	item = /obj/item/nuclear_rod/fuel/meltdown
+	cost = 25
+	job = list(JOB_TITLE_ENGINEER, JOB_TITLE_CHIEF_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE, JOB_TITLE_ATMOSTECH)
+	hijack_only = TRUE
+	excludefrom = list(UPLINK_TYPE_NUCLEAR)
+
 //SCI
 
 /datum/uplink_item/jobspecific/telegun
@@ -1299,6 +1308,13 @@
 	cost = 4
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
+/datum/uplink_item/ammo/quiver
+	name = "Колчан стрел"
+	desc = "Колчан с 30 композитными стрелами"
+	item = /obj/item/storage/backpack/quiver/modern/full
+	cost = 4
+	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST, UPLINK_TYPE_TRAITOR)
+
 /**
  * MARK: Stealthy Weapons
  */
@@ -1446,7 +1462,7 @@
 	name = "Дегидрированный Космический карп"
 	desc = "Просто добавьте воды, чтобы обзавестись ручным карпом, который будет настроен агрессивно по отношению ко всем, кроме вас. \
 			Он замаскирован под игрушечного карпа. Не забудьте обнять карпа перед тем, как налить воду, иначе он не признает вас своим хозяином."
-	item = /obj/item/toy/carpplushie/dehy_carp
+	item = /obj/item/toy/plushie/carp/dehy_carp
 	cost = 7
 
 /**
@@ -2459,7 +2475,7 @@
 /datum/uplink_item/badass/balloon
 	name = "Фирменный воздушный шар \"Синдикат\""
 	desc = "Изящный красный воздушный шар с эмблемой \"Синдиката\"."
-	item = /obj/item/toy/syndicateballoon
+	item = /obj/item/toy/balloon/syndicate
 	cost = 100
 	can_discount = FALSE
 
@@ -2526,6 +2542,14 @@
 	cost = 110 // normally 135
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
+/datum/uplink_item/bundles_TC/portal_gun
+	name = "Набор — Портальная пушка"
+	desc = "Коробка, в которой находятся: портальная пушка и два картриджа с квантовым транспортным раствором. \
+			Пушка пробивает пару связанных между собой порталов или проход в выбранную на карте локацию. \
+			Раствор расходуется с каждым выстрелом, но его можно синтезировать в химической лаборатории."
+	item = /obj/item/storage/box/syndie_kit/portal_gun
+	cost = 80
+
 /datum/uplink_item/bundles_TC/gun_mods
 	name = "Набор модулей для оружия"
 	desc = "Коробка, содержащая различные модули для улучшения вашего оружия."
@@ -2554,6 +2578,13 @@
 	item = /obj/item/storage/box/syndicate
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	var/crate_value = 250
+
+/datum/uplink_item/bundles_TC/bow
+	name = "Набор — Тактический лук"
+	desc = "Сумка, в которой находятся: тактический лук и 2 колчана со стрелами"
+	item = /obj/item/storage/backpack/duffel/syndie/bow
+	cost = 30
+	uplinktypes = list(UPLINK_TYPE_TRAITOR, UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/bundles_TC/surplus_crate/super
 	name = "Большой ящик снабжения \"Синдиката\""
@@ -2625,7 +2656,7 @@
 	name = "Воздушный шарик Контрактника"
 	desc = "Изящный воздушный шар, выполненный в черно-золотых тонах и украшенный символикой контрактников. \
 			Чтобы приобрести этот предмет, необходимо успешно завершить все предоставленные контракты в самой сложной локации."
-	item = /obj/item/toy/syndicateballoon/contractor
+	item = /obj/item/toy/balloon/contractor
 	cost = 240
 
 /datum/uplink_item/contractor/baton

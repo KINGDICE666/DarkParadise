@@ -266,7 +266,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	WELDER_ATTEMPT_WELD_MESSAGE
-	if(I.use_tool(src, user, 20, volume = I.tool_volume))
+	if(I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume))
 		to_chat(user, span_notice("You deconstruct the frame."))
 		new /obj/item/stack/sheet/plasteel(drop_location(), 4)
 		qdel(src)

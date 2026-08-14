@@ -48,7 +48,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	WELDER_ATTEMPT_REPAIR_MESSAGE
-	if(I.use_tool(src, user, 40, volume = I.tool_volume))
+	if(I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 		WELDER_REPAIR_SUCCESS_MESSAGE
 		update_integrity(clamp(obj_integrity + 20, 0, max_integrity))
 		update_icon()
@@ -131,7 +131,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	TOOL_ATTEMPT_DISMANTLE_MESSAGE
-	if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 3 SECONDS, volume = I.tool_volume))
 		return
 	deconstruct(TRUE)
 	TOOL_DISMANTLE_SUCCESS_MESSAGE

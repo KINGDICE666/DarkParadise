@@ -182,6 +182,7 @@
 	. = FALSE
 	if(!local_designs.known_designs[D.id] || !(D.build_type & allowed_design_types))
 		return
+
 	if(being_built)
 		atom_say("Ошибка: уже в процессе печати!", FALSE)
 		return
@@ -412,7 +413,7 @@
 
 	return data
 
-/obj/machinery/mecha_part_fabricator/ui_act(action, params)
+/obj/machinery/mecha_part_fabricator/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..())
 		return
 

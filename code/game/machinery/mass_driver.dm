@@ -138,9 +138,9 @@
 	if(build != MASS_DRIVER_BUILD_GRILLE) // Grille in place
 		return FALSE
 	. = TRUE
-	if(!I.use_tool(src, user, volume = I.tool_volume))
-		return .
 	to_chat(user, "You finalize the Mass Driver...")
+	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+		return .
 	var/obj/machinery/mass_driver/driver = new(loc)
 	driver.setDir(dir)
 	qdel(src)

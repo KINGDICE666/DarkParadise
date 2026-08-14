@@ -259,7 +259,6 @@
 /datum/wires/proc/can_see_wire_info(mob/user)
 	if(user.can_admin_interact())
 		return TRUE
-
 	if(ismultitool(user.get_active_hand()))
 		var/obj/item/multitool/M = user.get_active_hand()
 		if(M.shows_wire_information)

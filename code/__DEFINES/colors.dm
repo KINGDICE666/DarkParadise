@@ -339,6 +339,8 @@
 #define LIGHT_COLOR_HOLY_MAGIC "#fff743"
 /// deep crimson
 #define LIGHT_COLOR_BLOOD_MAGIC "#d00000"
+/// Dimmed yellow, leaning kaki. rgb(225, 225, 125)
+#define LIGHT_COLOR_YELLOW "#e1e17d"
 
 // These ones aren't a direct colour like the ones above, because nothing would fit
 /// Warm orange color, leaning strongly towards yellow. rgb(250, 160, 25)
@@ -540,18 +542,6 @@ GLOBAL_LIST_INIT(cable_colors, list(
 	CABLE_COLOR_YELLOW = CABLE_HEX_COLOR_YELLOW,
 	CABLE_COLOR_BROWN = CABLE_HEX_COLOR_BROWN
 ))
-
-GLOBAL_LIST_INIT(heretic_path_to_color, list(
-		PATH_START = COLOR_LIME,
-		PATH_RUST = COLOR_CARGO_BROWN,
-		PATH_FLESH = COLOR_SOFT_RED,
-		PATH_ASH = COLOR_VIVID_RED,
-		PATH_VOID = COLOR_CYAN,
-		PATH_BLADE = COLOR_SILVER,
-		PATH_COSMIC = COLOR_PURPLE,
-		PATH_LOCK = COLOR_YELLOW,
-		PATH_MOON = COLOR_BLUE_LIGHT,
-	))
 
 #define HUSK_COLOR_TONE rgb(96, 88, 80)
 

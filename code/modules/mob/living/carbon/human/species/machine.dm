@@ -99,6 +99,7 @@
 		JOB_MIN_AGE_COMMAND = 15,
 	)
 
+
 /datum/species/machine/on_species_gain(mob/living/carbon/human/human)
 	. = ..()
 	var/datum/action/innate/change_monitor/monitor = locate() in human.actions

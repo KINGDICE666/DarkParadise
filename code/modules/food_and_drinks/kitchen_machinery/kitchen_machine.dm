@@ -163,7 +163,7 @@
 		return NONE
 
 	add_fingerprint(human)
-	cook()
+	cook(human)
 	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/kitchen_machine/CtrlShiftClick(mob/living/carbon/human/human)
@@ -334,7 +334,7 @@
 
 	switch(action)
 		if("start")
-			cook()
+			cook(usr)
 			return TRUE
 		if("eject")
 			dispose(usr)
@@ -344,7 +344,7 @@
 *   Machine Menu Handling/Cooking	*
 ************************************/
 
-/obj/machinery/kitchen_machine/proc/cook()
+/obj/machinery/kitchen_machine/proc/cook(mob/user)
 	if(use_power != NO_POWER_USE && stat & (NOPOWER|BROKEN))
 		return
 	start()
@@ -362,7 +362,8 @@
 		//If there are multiple sources, this bit gets skipped.
 		if(can_be_dirty)
 			dirty += 1
-		if(prob(max(10,dirty*5)))	//chance to get so dirty we require cleaning before next use
+		var/broke_chance = max(10, dirty * 5) //chance to get so dirty we require cleaning before next use
+		if(prob(broke_chance))
 			if(!wzhzhzh(4))
 				abort()
 				return
@@ -393,7 +394,7 @@
 			abort()
 			fail()
 			return
-		make_recipes(recipes_to_make)
+		make_recipes(recipes_to_make, user)
 
 //choose_recipes(): picks out recipes for the machine and any mixing bowls it may contain.
 	//builds a list of the selected recipes to be made in a later proc by associating the "source" of the ingredients (mixing bowl, machine) with the recipe for that source
@@ -414,7 +415,7 @@
 	return recipes_to_make
 
 //make_recipes(recipes_to_make): cycles through the supplied list of recipes and creates each recipe associated with the "source" for that entry
-/obj/machinery/kitchen_machine/proc/make_recipes(list/recipes_to_make)
+/obj/machinery/kitchen_machine/proc/make_recipes(list/recipes_to_make, mob/user)
 	if(!recipes_to_make)
 		return
 	var/datum/reagents/temp_reagents = new(500)
@@ -435,7 +436,10 @@
 					O.reagents.trans_to(temp_reagents, O.reagents.total_volume, no_react = TRUE) // Don't react with the abstract holder please
 				qdel(O)
 			source.reagents.clear_reagents()
-			for(var/e=1 to efficiency)		//upgraded machine? make additional servings and split the ingredient reagents among each serving equally.
+
+			var/actual_efficiency = efficiency
+
+			for(var/e in 1 to actual_efficiency)		//upgraded machine? make additional servings and split the ingredient reagents among each serving equally.
 				var/obj/cooked = new recipe.result()
 				if(transfer_reagents_from_ingredients)
 					temp_reagents.trans_to(cooked, temp_reagents.total_volume/efficiency, no_react = TRUE) // Don't react with the abstract holder please
@@ -557,7 +561,7 @@
 
 	switch(href_list["action"])
 		if("cook")
-			cook()
+			cook(usr)
 
 		if("dispose")
 			dispose(usr)

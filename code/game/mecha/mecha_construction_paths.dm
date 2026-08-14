@@ -9,16 +9,18 @@
 		var/obj/item/stack/cable_coil/C = used_atom
 		if(C.use(4))
 			playsound(holder, C.usesound, 50, TRUE)
+			return TRUE
 		else
 			to_chat(user, ("There's not enough cable to finish the task."))
-			return 0
+			return FALSE
 	else if(isstack(used_atom))
 		var/obj/item/stack/S = used_atom
 		if(S.get_amount() < STANDARD_STACK_AMOUNT)
 			to_chat(user, ("There's not enough material in this stack."))
-			return 0
+			return FALSE
 		else
 			S.use(STANDARD_STACK_AMOUNT)
+			return TRUE
 	else
 		return ..()
 
@@ -30,9 +32,10 @@
 		var/obj/item/stack/cable_coil/C = used_atom
 		if(C.use(4))
 			playsound(holder, C.usesound, 50, TRUE)
+			return TRUE
 		else
 			to_chat(user, ("There's not enough cable to finish the task."))
-			return 0
+			return FALSE
 	else if(isstack(used_atom))
 		var/obj/item/stack/S = used_atom
 		if(S.get_amount() < STANDARD_STACK_AMOUNT)
@@ -40,12 +43,14 @@
 			return 0
 		else
 			S.use(STANDARD_STACK_AMOUNT)
+			return TRUE
 	else if(isitem(used_atom))
 		var/obj/item/I = used_atom
 		if(I.tool_behaviour in CONSTRUCTION_TOOL_BEHAVIOURS)
 			if(!I.use_tool(holder, user, 0, volume = I.tool_volume))
 				return 0
-	return 1
+			return TRUE
+	return TRUE
 
 #undef STANDARD_STACK_AMOUNT
 

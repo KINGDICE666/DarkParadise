@@ -379,7 +379,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	if(!I.tool_use_check(user, 0))
 		return
 	WELDER_ATTEMPT_REPAIR_MESSAGE
-	if(I.use_tool(src, user, 40, volume = I.tool_volume))
+	if(I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 		update_integrity(max_integrity)
 		WELDER_REPAIR_SUCCESS_MESSAGE
 		update_icon(UPDATE_OVERLAYS)
@@ -547,7 +547,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 			continue
 		. |= cleanable_washed
 		vis_contents -= cleanables
-		
+
 /obj/structure/window/proc/on_painted(datum/source, new_color)
 	SIGNAL_HANDLER
 	if(painted)

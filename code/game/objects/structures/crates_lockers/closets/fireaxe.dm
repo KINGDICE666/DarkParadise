@@ -46,6 +46,7 @@
 		return FALSE
 
 	. = TRUE
+
 	if(locked)
 		to_chat(user, span_warning("Resetting circuitry..."))
 		if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume) || smashed || !locked)

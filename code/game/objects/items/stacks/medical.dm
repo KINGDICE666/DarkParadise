@@ -58,7 +58,6 @@
 				ignored_mobs = user,
 			)
 			target.balloon_alert(user, "применение на [GLOB.body_zone[affecting.limb_zone][PREPOSITIONAL]]...")
-
 			if(!do_after(human_target, self_delay, human_target, use_flags, max_interact_count = 1))
 				return .
 
@@ -125,7 +124,6 @@
 	var/obj/item/organ/external/affecting = target.get_organ(selected_zone)
 
 	target.balloon_alert(user, "применено")
-
 	var/rembrute = max(0, heal_brute - affecting.brute_dam) // Maxed with 0 since heal_damage let you pass in a negative value
 	var/remburn = max(0, heal_burn - affecting.burn_dam) // And deduct it from their health (aka deal damage)
 	var/nrembrute = rembrute

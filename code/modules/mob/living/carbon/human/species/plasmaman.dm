@@ -72,6 +72,7 @@
 		"с" = list("сс", "ссс", "сссс"),
 	)
 
+
 /datum/species/plasmaman/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	add_verb(H, /mob/living/carbon/human/proc/emote_rattle)

@@ -174,7 +174,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	if(!I.tool_use_check(user, 0))
 		return
 	CROWBAR_ATTEMPT_PRY_CIRCUIT_MESSAGE
-	if(!I.use_tool(src, user, 20, volume = I.tool_volume) || buildstage != FIRE_ALARM_UNWIRED)
+	if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume) || buildstage != FIRE_ALARM_UNWIRED)
 		return
 	new /obj/item/firealarm_electronics(drop_location())
 	buildstage = FIRE_ALARM_FRAME

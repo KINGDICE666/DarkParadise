@@ -3,7 +3,7 @@
 	flag = JOB_FLAG_CHIEF
 	department_flag = JOBCAT_ENGSEC
 	department = STATION_DEPARTMENT_ENGINEERING
-	is_engineering = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_ENGINEERING
 	selection_color = "#ffba4c"
 	access = list(
 		ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_TECH_STORAGE, ACCESS_MAINT_TUNNELS,
@@ -49,7 +49,7 @@
 	abstract_type = /datum/job/engineering
 	department = STATION_DEPARTMENT_ENGINEERING
 	department_flag = JOBCAT_ENGSEC
-	is_engineering = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_ENGINEERING
 	supervisors = "Главным инженером"
 	department_head = list(JOB_TITLE_CHIEF_ENGINEER)
 	selection_color = "#ffeaca"
@@ -156,3 +156,8 @@
 				uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant
 				if(H.gender == FEMALE)
 					uniform = /obj/item/clothing/under/rank/engineer/trainee/assistant/skirt
+				head = /obj/item/clothing/head/soft/orange
+			if("Technical Student", "Technical Trainee")
+				head = /obj/item/clothing/head/soft/orange
+			if("Engineer Student")
+				head = /obj/item/clothing/head/beret/eng

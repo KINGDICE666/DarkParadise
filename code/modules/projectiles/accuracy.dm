@@ -194,6 +194,36 @@ GLOBAL_DATUM_INIT(gun_accuracy_sniper, /datum/gun_accuracy, GUN_ACCURACY_SNIPER)
 	min_spread = 10
 	max_spread = 23
 
+/datum/gun_accuracy/bow
+	head = 75
+	arms = 66
+	legs = 66
+	hands = 50
+	foots = 50
+	other = 50
+	min_spread = 10
+	max_spread = 25
+
+/datum/gun_accuracy/bow/advanced
+	head = 85
+	arms = 76
+	legs = 76
+	hands = 60
+	foots = 60
+	other = 60
+	min_spread = 8
+	max_spread = 20
+
+/datum/gun_accuracy/bow/master
+	head = 90
+	arms = 81
+	legs = 81
+	hands = 70
+	foots = 70
+	other = 70
+	min_spread = 6
+	max_spread = 15
+
 // MARK: Procs
 
 /datum/gun_accuracy/proc/randomize_spread(mob/living/user, bonus_spread, shoots_count)
@@ -240,7 +270,8 @@ GLOBAL_DATUM_INIT(gun_accuracy_sniper, /datum/gun_accuracy, GUN_ACCURACY_SNIPER)
 	if(istype(gun) && gun.accuracy)
 		gun_accuracy = gun.accuracy
 	var/def_zone_accuracy = gun_accuracy.get_accuracy_for(projectile.def_zone)
-	return clamp(def_zone_accuracy * (max(100 - 3*distance, 33) / 100), 0, 100)
+	var/distance_accuracy = max(100 - 3 * distance, 33) / 100
+	return clamp(def_zone_accuracy * distance_accuracy, 0, 100)
 
 #undef FULL_ACCURACY_DISTANCE
 #undef MIN_ACCURACY_DISTANCE

@@ -60,6 +60,8 @@
 	if(ismineralturf(target_turf))
 		var/turf/simulated/mineral/mineral = target_turf
 		mineral.attempt_drill(firer, FALSE, power)
+		// If there is a mind, check for skill modifier to allow them to reload faster.
+		kinetic_gun.attempt_reload(kinetic_gun.overheat_time) //If you hit a mineral, you might get a quicker reload. epic gamer style.
 	var/obj/effect/temp_visual/kinetic_blast/K = new /obj/effect/temp_visual/kinetic_blast(target_turf)
 	K.color = color
 

@@ -60,6 +60,7 @@
 		JOB_MIN_AGE_COMMAND = 30,
 	)
 
+
 /datum/species/nucleation/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	H.light_color = COLOR_NUCLEATION_LIGHT

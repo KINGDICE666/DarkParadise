@@ -65,7 +65,7 @@
 		if(I.tool_behaviour in CONSTRUCTION_TOOL_BEHAVIOURS)
 			if(!I.use_tool(holder, user, 0, volume = I.tool_volume))
 				return 0
-	return 1
+	return TRUE
 
 /datum/construction/proc/check_all_steps(atom/used_atom,mob/user as mob) //check all steps, remove matching one.
 	for(var/i in 1 to length(steps))

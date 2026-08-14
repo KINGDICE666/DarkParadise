@@ -310,7 +310,7 @@
 		req_components[path]--
 		components += part
 		to_chat(user, span_notice("[part.declent_ru(NOMINATIVE)] вставлен[GEND_A_O_Y(part)]."))
-		return apply_parts_from_construction_bag(bag, user, count + 1)
+		break
 	balloon_alert(user, "вставлен[declension_ru(count, "а", "о", "о")] [count] детал[declension_ru(count, "ь", "и", "ей")]")
 	return TRUE
 
@@ -487,6 +487,59 @@ to destroy them and players will be able to make replacements.
 	board_type = "machine"
 	origin_tech = "powerstorage=3;materials=2"
 	req_components = list(/obj/item/stock_parts/capacitor = 1)
+
+/obj/item/circuitboard/machine/reactor_gas_node
+	board_name = "Reactor Gas Node"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/atmospherics/unary/reactor_gas_node
+	origin_tech = "engineering=2"
+	req_components = list(
+		/obj/item/stack/cable_coil = 2,
+		/obj/item/stack/sheet/metal = 2,
+	)
+
+/obj/item/circuitboard/machine/reactor_moderator_gas_node
+	board_name = "Moderator Gas Node"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/atmospherics/unary/reactor_gas_node/moderator
+	origin_tech = "engineering=2"
+	req_components = list(
+		/obj/item/stack/cable_coil = 2,
+		/obj/item/stack/sheet/metal = 2,
+	)
+
+/obj/item/circuitboard/nuclear_centrifuge
+	board_name = "Nuclear Centrifuge"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/nuclear_centrifuge
+	board_type = "machine"
+	origin_tech = "programming=4;engineering=4"
+	req_components = list(
+		/obj/item/stock_parts/manipulator = 4,
+	)
+
+/obj/item/circuitboard/nuclear_rod_fabricator
+	board_name = "Nuclear Rod Fabricator"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/nuclear_rod_fabricator
+	board_type = "machine"
+	origin_tech = "programming=4;engineering=4"
+	req_components = list(
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/matter_bin = 2,
+	)
+
+/obj/item/circuitboard/machine/reactor_chamber
+	board_name = "Reactor Chamber"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/atmospherics/reactor_chamber
+	origin_tech = "engineering=2"
+	req_components = list(
+		/obj/item/stack/cable_coil = 5,
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stack/sheet/metal = 2,
+		/obj/item/stack/sheet/mineral/plastitanium = 2,
+	)
 
 /obj/item/circuitboard/recharger
 	board_name = "Recharger"
@@ -1343,6 +1396,18 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/manipulator = 2,
 		/obj/item/stock_parts/capacitor = 2,
+		/obj/item/stack/cable_coil = 5,
+	)
+
+/obj/item/circuitboard/portagrav
+	board_name = "Портативный гравигенератор"
+	build_path = /obj/machinery/power/portagrav
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	origin_tech = "programming=3;engineering=4;magnets=3"
+	req_components = list(
+		/obj/item/stock_parts/capacitor = 2,
+		/obj/item/stock_parts/micro_laser = 2,
 		/obj/item/stack/cable_coil = 5,
 	)
 

@@ -34,7 +34,6 @@
 	default_genes = list(/datum/dna/gene/basic/grant_spell/remotetalk)
 
 	inherent_traits = list(
-		TRAIT_WEAK_PULLING,
 		TRAIT_NO_VOCAL_CORDS,
 		TRAIT_HAS_LIPS,
 		TRAIT_HAS_REGENERATION,
@@ -60,6 +59,7 @@
 		JOB_MIN_AGE_HIGH_ED = 13,
 		JOB_MIN_AGE_COMMAND = 13,
 	)
+
 
 /datum/species/grey/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
@@ -119,7 +119,7 @@
 
 	var/command_roles = FALSE
 
-	if(ismindshielded(H) || J.is_command)
+	if(ismindshielded(H) || (J.departments_bitflags & DEPARTMENT_BITFLAG_COMMAND))
 		command_roles = TRUE
 
 	if(!translator_pref && !command_roles) // Not command and didn't want wingdings chip, so..

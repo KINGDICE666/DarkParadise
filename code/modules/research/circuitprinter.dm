@@ -395,7 +395,6 @@ using metal and glass, it uses glass and reagents (usually sulfuric acis).
 
 /obj/machinery/r_n_d/circuit_imprinter/proc/print_module(list/design)
 	flick("[base_icon_state]_ani", src)
-
 	addtimer(CALLBACK(src, PROC_REF(finish_module_print), design), 1.6 SECONDS)
 
 /obj/machinery/r_n_d/circuit_imprinter/proc/finish_module_print(list/design)

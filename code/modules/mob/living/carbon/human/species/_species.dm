@@ -279,6 +279,8 @@
 
 	var/max_radiation = CARBON_MAX_RADIATION //! Maximum radiation species can hold
 
+	var/bonus_skill_free_points = 0
+
 /datum/species/New()
 	unarmed = new unarmed_type()
 
@@ -697,7 +699,8 @@
 		if(istype(user.gloves, /obj/item/clothing/gloves))
 			var/obj/item/clothing/gloves/gloves = user.gloves
 			extra_knock_chance = gloves.extra_knock_chance
-	if(randn <= 5 + extra_knock_chance)
+	var/knockdown_chance = 5 + extra_knock_chance
+	if(randn <= knockdown_chance)
 		target.apply_effect(4 SECONDS, KNOCKDOWN, target.run_armor_check(affecting, MELEE))
 		playsound(target.loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 		target.visible_message(span_danger("[user.declent_ru(NOMINATIVE)] толка[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)]!"))
@@ -754,12 +757,14 @@
 				return TRUE
 
 	var/moved = TRUE
-	if(target.a_intent == INTENT_HELP || prob(25)) // Chance to move with shove
+	var/shove_move_chance = 25
+	if(target.a_intent == INTENT_HELP || prob(shove_move_chance)) // Chance to move with shove
 		moved = target.Move(shove_to, shove_dir)
 
 	SEND_SIGNAL(target, COMSIG_HUMAN_DISARM_HIT, user, target)
 	if(!moved) //they got pushed into a dense object
-		if(prob(75)) // Chance to knockdown on wall hit
+		var/wall_hit_disarm_chance = 75
+		if(prob(wall_hit_disarm_chance)) // Chance to knockdown on wall hit
 			add_attack_logs(user, target, "Disarmed into a dense object", ATKLOG_ALL)
 			target.visible_message(
 				span_warning("[DECLENT_RU_CAP(user, NOMINATIVE)] толка[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)]"),
@@ -773,7 +778,8 @@
 				target.Stun(0.5 SECONDS)
 	else
 		var/obj/item/I = target.get_active_hand()
-		if(I && prob(40)) // Chance to disarm target item
+		var/disarm_chance = 40
+		if(I && prob(disarm_chance)) // Chance to disarm target item
 			target.drop_from_active_hand()
 			add_attack_logs(user, target, "Disarmed object out of hand", ATKLOG_ALL)
 		else
@@ -1193,10 +1199,7 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 		human.add_sight(glasses.vision_flags)
 		human.nightvision = max(glasses.see_in_dark, human.nightvision)
 
-		if(glasses.invis_override)
-			human.set_invis_see(glasses.invis_override)
-		else
-			human.set_invis_see(min(glasses.invis_view, human.see_invisible))
+		human.set_invis_see(min(glasses.invis_view, human.see_invisible))
 
 		if(!isnull(glasses.lighting_alpha))
 			human.lighting_alpha = min(glasses.lighting_alpha, human.lighting_alpha)

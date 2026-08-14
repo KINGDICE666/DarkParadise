@@ -159,6 +159,9 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 /obj/effect/mob_spawn/proc/equip(mob/M, use_prefs = FALSE, _mob_name = FALSE, _mob_gender = FALSE, _mob_species = FALSE)
 	return
 
+/obj/effect/mob_spawn/proc/after_possess(mob/M)
+	return
+
 /obj/effect/mob_spawn/proc/create(mob/plr, flavour = TRUE, name, prefs = FALSE, _mob_name = FALSE, _mob_gender = FALSE, _mob_species = FALSE)
 	var/mob/living/mob = new mob_type(get_turf(src)) // Living mobs only
 	if(!random)
@@ -211,6 +214,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 			mob.mind.assigned_role = assignedrole
 
 		mob.mind.offstation_role = offstation_role
+		after_possess(mob)
 		special(mob, name)
 		MM.name = mob.real_name
 		if(allow_tts_pick)
@@ -266,6 +270,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 	var/skin_tone
 
 	var/list/del_types = list(/obj/item/pda, /obj/item/radio/headset)
+	var/use_antag_skills = FALSE
 
 /obj/effect/mob_spawn/human/Initialize(mapload)
 	if(ispath(outfit))

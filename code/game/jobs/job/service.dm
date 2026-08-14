@@ -3,7 +3,7 @@
 	flag = JOB_FLAG_HOP
 	department = STATION_DEPARTMENT_SERVICE
 	department_flag = JOBCAT_SUPPORT
-	is_service = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_SERVICE
 	blocked_race_for_job = list(SPECIES_VOX)
 	selection_color = "#6bef76"
 	access = list(
@@ -29,6 +29,7 @@
 	exp_type = EXP_TYPE_SERVICE
 	outfit = /datum/outfit/job/hop
 
+
 /datum/outfit/job/hop
 	name = JOB_TITLE_RU_HOP
 	jobtype = /datum/job/head_of_staff/hop
@@ -45,14 +46,13 @@
 		/obj/item/storage/box/ids = 1,
 		/obj/item/melee/baton/telescopic = 1,
 	)
-
 	implants = list()
 
 /datum/job/service
 	abstract_type = /datum/job/service
 	department = STATION_DEPARTMENT_SERVICE
 	department_flag = JOBCAT_SUPPORT
-	is_service = 1
+	departments_bitflags = DEPARTMENT_BITFLAG_SERVICE
 	supervisors = "Главой персонала"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"

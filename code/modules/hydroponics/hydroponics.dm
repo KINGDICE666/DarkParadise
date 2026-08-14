@@ -28,6 +28,7 @@
 	var/lastproduce = 0		//Last time it was harvested
 	var/lastcycle = 0		//Used for timing of cycles.
 	var/cycledelay = 200	//About 10 seconds / cycle
+	/// Growth rate (set when plant seed, depends on botany skill. Higher value - faster loops calls)
 	var/harvest = 0			//Ready to harvest?
 	var/obj/item/seeds/myseed = null	//The currently planted seed
 	var/rating = 1
@@ -866,7 +867,7 @@
 			span_notice("You start to uproot the weeds..."),
 		)
 		weed_pulling = TRUE
-		while(do_after(user, 2 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL))
+		while(do_after(user, 2 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))
 			if(weedlevel <= 0)
 				break
 			adjustWeeds(-2)
@@ -904,7 +905,7 @@
 			span_notice("You start digging out [src]'s plants..."),
 		)
 		I.play_tool_sound(src)
-		if(!do_after(user, 2.5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL) || (!myseed && !weedlevel))
+		if(!do_after(user, 2.5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1) || (!myseed && !weedlevel))
 			return ATTACK_CHAIN_PROCEED
 		I.play_tool_sound(src)
 		user.visible_message(
@@ -993,7 +994,8 @@
 		return
 	if(harvest)
 		add_fingerprint(user)
-		myseed.harvest(user)
+		if(do_after(user, 2 SECONDS, src, max_interact_count = 1))
+			myseed.harvest(user)
 	else if(dead)
 		add_fingerprint(user)
 		dead = 0

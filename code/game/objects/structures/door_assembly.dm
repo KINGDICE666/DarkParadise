@@ -297,7 +297,7 @@
 	if(!I.tool_use_check(user, 0))
 		return
 	user.visible_message("[user] is cutting the wires from the airlock assembly...", "You start to cut the wires from airlock assembly...")
-	if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS)
+	if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume) || state != AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS)
 		return
 	to_chat(user, span_notice("You cut the wires from the airlock assembly."))
 	new/obj/item/stack/cable_coil(get_turf(user), 1)
@@ -314,7 +314,7 @@
 		user.visible_message("[user] is unsecuring the airlock assembly from the floor...", "You start to unsecure the airlock assembly from the floor...")
 	else
 		user.visible_message("[user] is securing the airlock assembly to the floor...", "You start to secure the airlock assembly to the floor...")
-	if(!I.use_tool(src, user, 40, volume = I.tool_volume) || state != AIRLOCK_ASSEMBLY_NEEDS_WIRES)
+	if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume) || state != AIRLOCK_ASSEMBLY_NEEDS_WIRES)
 		return
 	to_chat(user, span_notice("You [anchored ? "un" : ""]secure the airlock assembly."))
 	set_anchored(!anchored)
@@ -329,7 +329,7 @@
 		visible_message(span_notice("[user] welds the [mineral] plating off [src]."),\
 			span_notice("You start to weld the [mineral] plating off [src]..."),\
 			span_warning("You hear welding."))
-		if(!I.use_tool(src, user, 40, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 			return
 		to_chat(user, span_notice("You weld the [mineral] plating off."))
 		new mineral_path(loc, 2)
@@ -339,7 +339,7 @@
 		visible_message(span_notice("[user] welds the glass panel out of [src]."),\
 			span_notice("You start to weld the glass panel out of the [src]..."),\
 			span_warning("You hear welding."))
-		if(!I.use_tool(src, user, 40, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 			return
 		to_chat(user, span_notice("You weld the glass panel out."))
 		if(heat_proof_finished)
@@ -353,7 +353,7 @@
 		visible_message(span_warning("[user] disassembles [src]."), \
 			span_notice("You start to disassemble [src]..."),\
 			span_warning("You hear welding."))
-		if(!I.use_tool(src, user, 40, volume = I.tool_volume))
+		if(!I.use_tool(src, user, 4 SECONDS, volume = I.tool_volume))
 			return
 		to_chat(user, span_notice("You disassemble the airlock assembly."))
 		deconstruct(TRUE)

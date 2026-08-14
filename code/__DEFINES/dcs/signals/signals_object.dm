@@ -51,7 +51,6 @@
 ///from base of obj/item/hit_reaction(): (list/args)
 #define COMSIG_ITEM_HIT_REACT "item_hit_react"
 	#define COMPONENT_BLOCK_SUCCESSFUL (1 << 0)
-	#define COMPONENT_BLOCK_PERFECT (1 << 2)
 ///called on item when crossed by something (): (/atom/movable, mob/living/crossed)
 #define COMSIG_ITEM_WEARERCROSSED "wearer_crossed"
 ///from base of item/sharpener/attackby(): (amount, max)
@@ -385,3 +384,8 @@
 #define COMSIG_ITEM_EXPORTED "item_sold"
 	/// Stops the export from adding the export information to the report, so you can handle it manually.
 	#define COMPONENT_STOP_EXPORT_REPORT (1<<0)
+
+/// A mob has just equipped an item. Called on [/mob] from base of [/obj/item/equipped()]: (/obj/item/equipped_item, slot)
+#define COMSIG_MOB_EQUIPPED_ITEM "mob_equipped_item"
+
+#define COMSIG_GRIPPED_ITEM_CHANGE "gripped_item_change"

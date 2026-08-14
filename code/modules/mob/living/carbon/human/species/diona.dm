@@ -88,6 +88,7 @@
 		JOB_MIN_AGE_COMMAND = 26,
 	)
 
+
 /datum/species/diona/can_understand(mob/other)
 	if(isnymph(other))
 		return TRUE
