@@ -59,13 +59,13 @@
 		if(revolution.victor == REVOLUTION_VICTOR_SYNDICATE)
 			text += span_bold(span_fontsize3("<br>Революция победила: флот Синдиката занял станцию."))
 		else
-			text += span_bold(span_fontsize3("<br>Революция подавлена: флот Нанотрейзен успел первым."))
+			text += span_bold(span_fontsize3("<br>Революция подавлена: флот \"Нанотрейзен\" успел первым."))
 	else if(istype(revolution) && revolution.war_declared)
 		text += span_bold(span_fontsize3("<br>Война за консоль связи не была доиграна до конца."))
 
 	if(istype(revolution) && revolution.war_declared)
 		text += "<br>[TAB]Поток данных Синдиката: [span_bold("[round(revolution.syndicate_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
-		text += "<br>[TAB]Контроль Нанотрейзен: [span_bold("[round(revolution.nt_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
+		text += "<br>[TAB]Контроль \"Нанотрейзен\": [span_bold("[round(revolution.nt_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
 
 	if(num_survivors)
 		text += "<br>[TAB]Command's Approval Rating: [span_bold("[100 - round((num_revs / num_survivors) * 100, 0.1)]%")]"

@@ -28,8 +28,8 @@
 /datum/game_mode/revolution/announce()
 	to_chat(world, "<b>Текущий режим игры - <font color='red'>Революция</font>!</b>")
 	to_chat(world, "<b>Мятеж на станции спонсируется и возглавляется Синдикатом. Об этом знают и сами мятежники, и служба безопасности.</b>")
-	to_chat(world, "Революционеры - наберите сторонников, запустите с консоли связи передачу данных флоту Синдиката и удержите её до подхода флота.")
-	to_chat(world, "Экипаж - не дайте передаче состояться. Рабов революции возвращайте имплантами защиты разума, добровольцев и главрев судите как врагов Нанотрейзен.")
+	to_chat(world, "Революционеры — наберите сторонников, запустите с консоли связи передачу данных флоту Синдиката и удержите её до подхода флота.")
+	to_chat(world, "Экипаж — не дайте передаче состояться. Рабов революции возвращайте имплантами защиты разума, добровольцев и главрев судите как врагов \"Нанотрейзен\".")
 
 ///////////////////////////////////////////////////////////////////////////////
 //Gets the round setup, cancelling if there's not enough players at the start//
@@ -183,13 +183,13 @@ GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
 	data_stream_console?.stop_data_stream()
 
 	if(victor == REVOLUTION_VICTOR_SYNDICATE)
-		send_to_playing_players(span_boldannounceic("Флот Синдиката вышел из блюспейса раньше сил Нанотрейзен и берёт [station_name()] под свой контроль. \
+		send_to_playing_players(span_boldannounceic("Флот Синдиката вышел из блюспейса раньше сил \"Нанотрейзен\" и берёт [station_name()] под свой контроль. \
 			Связь с Трурлем оборвана. Абордажные группы уже на борту."))
 		spawn_on_beacons(/mob/living/simple_animal/hostile/syndicate/ranged/space)
 		addtimer(CALLBACK(src, PROC_REF(finish_round)), REVOLUTION_SYNDICATE_ENDING_DELAY)
 		return
 
-	send_to_playing_players(span_boldannounceic("Флот Нанотрейзен успел занять сектор и закрыл [station_name()] от кораблей Синдиката. \
+	send_to_playing_players(span_boldannounceic("Флот \"Нанотрейзен\" успел занять сектор и закрыл [station_name()] от кораблей Синдиката. \
 		Плацдарм потерян, революция обезглавлена. Эвакуационный шаттл вызван."))
 	spawn_on_beacons(/mob/living/simple_animal/bot/ed209)
 	for(var/datum/mind/rebel as anything in get_antag_minds(/datum/antagonist/rev))
