@@ -1,6 +1,6 @@
 /datum/antagonist/superhero
 	name = "Superhero"
-	roundend_category = "superheroes"
+	roundend_category = "Супергероями"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_SUPER
 	antag_menu_name = "Супергерой"
@@ -11,13 +11,13 @@
 
 /datum/antagonist/superhero/supervillain
 	name = "Supervillain"
-	roundend_category = "supervillains"
+	roundend_category = "Суперзлодеями"
 	antag_menu_name = "Суперзлодей"
 
 
 /datum/antagonist/greyshirt
 	name = "Greyshirt"
-	roundend_category = "greyshirts"
+	roundend_category = "Грейтайдерами"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_GREYSHIRT
 	antag_menu_name = "Грейтайд"

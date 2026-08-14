@@ -1,6 +1,6 @@
 /datum/antagonist/cult
 	name = "Cultist"
-	roundend_category = "cultists"
+	roundend_category = "Культистами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_CULTIST
 	special_role = SPECIAL_ROLE_CULTIST
@@ -45,11 +45,24 @@
 		if(cult_team.cult_ascendant)
 			cult_team.ascend(user)
 
+	if(locate(/datum/action/innate/cult/comm) in user.actions)
+		return
+	var/datum/action/innate/cult/comm/communion = new
+	communion.Grant(user)
+	var/datum/action/innate/cult/check_progress/progress = new
+	progress.Grant(user)
+	if(ishuman(user))
+		var/datum/action/innate/cult/blood_magic/magic = new
+		magic.Grant(user)
+		var/datum/action/innate/cult/use_dagger/dagger = new
+		dagger.Grant(user)
+	user.update_action_buttons(TRUE)
+
 /datum/antagonist/cult/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
 	user.faction -= "cult"
 	REMOVE_TRAIT(user, TRAIT_HEALS_FROM_CULT_PYLONS, CULT_TRAIT)
-	user.RemoveElement(/datum/element/halo_attach)
+	user.RemoveElement(/datum/element/halo_attach, GLOB.halo_overlays["cult"], GLOB.halo_callbacks["cult"])
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user
 		REMOVE_TRAIT(human_user, TRAIT_RED_EYES, CULT_TRAIT)
@@ -57,18 +70,6 @@
 		human_user.update_eyes()
 		human_user.remove_overlay(HALO_LAYER)
 		human_user.update_body()
-
-/datum/antagonist/cult/finalize_antag()
-	var/datum/action/innate/cult/comm/communion = new
-	communion.Grant(owner.current)
-	var/datum/action/innate/cult/check_progress/progress = new
-	progress.Grant(owner.current)
-	if(ishuman(owner.current))
-		var/datum/action/innate/cult/blood_magic/magic = new
-		magic.Grant(owner.current)
-		var/datum/action/innate/cult/use_dagger/dagger = new
-		dagger.Grant(owner.current)
-	owner.current.update_action_buttons(TRUE)
 
 /proc/iscultist(mob/living/user)
 	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/cult)

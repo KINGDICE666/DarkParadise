@@ -24,13 +24,7 @@
 	var/population_size = num_players()
 	pick_tier(population_size)
 
-	for(var/ruleset_type in pick_rulesets(DYNAMIC_ROUNDSTART, /datum/dynamic_ruleset/roundstart, population_size))
-		var/datum/dynamic_ruleset/roundstart/ruleset = new ruleset_type
-		if(!ruleset.prepare_execution(population_size))
-			add_game_logs("Dynamic: [ruleset.config_tag] was picked, but did not run - [ruleset.log_data]")
-			qdel(ruleset)
-			continue
-
+	for(var/datum/dynamic_ruleset/roundstart/ruleset as anything in pick_rulesets(DYNAMIC_ROUNDSTART, /datum/dynamic_ruleset/roundstart, population_size))
 		executed_rulesets += ruleset
 		for(var/datum/mind/selected as anything in ruleset.selected_minds)
 			add_game_logs("has been selected for [ruleset.config_tag]", selected.current)
@@ -97,32 +91,43 @@
 
 /datum/game_mode/dynamic/proc/pick_rulesets(category, ruleset_family, population_size)
 	var/list/weighted_rulesets = get_weighted_rulesets(ruleset_family, population_size)
-	var/list/available_rulesets = weighted_rulesets.Copy()
 
 	. = list()
 	while(rulesets_to_spawn[category] > 0 && length(weighted_rulesets))
-		rulesets_to_spawn[category]--
 		var/datum/dynamic_ruleset/roundstart/picked = pick_weight_classic(weighted_rulesets)
-		if(picked.solo)
-			. = list(picked.type)
-			break
+		var/picked_weight = weighted_rulesets[picked]
+		weighted_rulesets -= picked
 
-		. += picked.type
+		if(picked.solo && length(.))
+			qdel(picked)
+			continue
+
+		if(!picked.prepare_execution(population_size))
+			add_game_logs("Dynamic: [picked.config_tag] was picked, but did not run - [picked.log_data]")
+			qdel(picked)
+			continue
+
+		rulesets_to_spawn[category]--
+		. += picked
+
+		if(picked.solo)
+			break
 
 		if(current_tier.tier != DYNAMIC_TIER_HIGH && (picked.ruleset_flags & RULESET_HIGH_IMPACT))
 			for(var/datum/dynamic_ruleset/other as anything in weighted_rulesets.Copy())
-				if(other.ruleset_flags & RULESET_HIGH_IMPACT)
-					weighted_rulesets -= other
+				if(!(other.ruleset_flags & RULESET_HIGH_IMPACT))
+					continue
+				weighted_rulesets -= other
+				qdel(other)
 
 		if(!picked.repeatable)
-			weighted_rulesets -= picked
 			continue
 
-		weighted_rulesets[picked] -= picked.repeatable_weight_decrease
-		if(weighted_rulesets[picked] <= 0)
-			weighted_rulesets -= picked
+		var/repeat_weight = picked_weight - picked.repeatable_weight_decrease
+		if(repeat_weight > 0)
+			weighted_rulesets[new picked.type] = repeat_weight
 
-	QDEL_LIST(available_rulesets)
+	QDEL_LIST(weighted_rulesets)
 
 /datum/game_mode/dynamic/proc/try_spawn_midround()
 	var/population_size = num_station_players()
@@ -131,7 +136,7 @@
 	if(!picked)
 		add_game_logs("Dynamic: no midround ruleset available.")
 		QDEL_LIST(weighted_rulesets)
-		return
+		return FALSE
 
 	weighted_rulesets -= picked
 	QDEL_LIST(weighted_rulesets)
@@ -139,7 +144,7 @@
 	if(!picked.prepare_execution(population_size))
 		add_game_logs("Dynamic: midround [picked.config_tag] did not run - [picked.log_data]")
 		qdel(picked)
-		return
+		return FALSE
 
 	rulesets_to_spawn[DYNAMIC_MIDROUND]--
 	executed_rulesets += picked
@@ -147,6 +152,7 @@
 	for(var/datum/mind/selected as anything in picked.selected_minds)
 		message_admins("Dynamic: [ADMIN_LOOKUPFLW(selected.current)] has been selected for [picked.config_tag].")
 		add_game_logs("has been selected for [picked.config_tag]", selected.current)
+	return TRUE
 
 /datum/game_mode/dynamic/proc/try_spawn_latejoin(datum/mind/joiner)
 	var/population_size = num_station_players()
@@ -154,7 +160,8 @@
 	while(length(weighted_rulesets))
 		var/datum/dynamic_ruleset/latejoin/picked = pick_weight_classic(weighted_rulesets)
 		weighted_rulesets -= picked
-		if(!picked.prepare_execution(population_size, joiner))
+		picked.joiner = joiner
+		if(!picked.prepare_execution(population_size))
 			qdel(picked)
 			continue
 

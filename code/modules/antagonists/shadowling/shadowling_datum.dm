@@ -1,6 +1,6 @@
 /datum/antagonist/shadowling
 	name = "Shadowling"
-	roundend_category = "shadowlings"
+	roundend_category = "Тенеморфами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_SHADOWLING
 	special_role = SPECIAL_ROLE_SHADOWLING
@@ -14,7 +14,7 @@
 
 /datum/antagonist/shadowling/Destroy(force)
 	if(owner?.current)
-		for(var/obj/effect/proc_holder/spell/spell as anything in owner.spell_list)
+		for(var/obj/effect/proc_holder/spell/spell as anything in owner.spell_list.Copy())
 			owner.RemoveSpell(spell)
 		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	return ..()
@@ -34,7 +34,7 @@
 
 /datum/antagonist/shadowling_thrall
 	name = "Shadowling Thrall"
-	roundend_category = "shadowlings"
+	roundend_category = "Тенеморфами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_SHADOWLING
 	special_role = SPECIAL_ROLE_SHADOWLING_THRALL

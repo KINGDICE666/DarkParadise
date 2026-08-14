@@ -1,6 +1,6 @@
 /datum/antagonist/guardian
 	name = "Guardian"
-	roundend_category = "guardians"
+	roundend_category = "Голопаразитами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_GUARDIAN
 	special_role = SPECIAL_ROLE_GUARDIAN

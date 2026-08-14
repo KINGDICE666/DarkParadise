@@ -1,6 +1,6 @@
 /datum/antagonist/eventmisc
 	name = "Event Role"
-	roundend_category = "event roles"
+	roundend_category = "Ивент-ролями"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_EVENTMISC
 	antag_menu_name = "Ивентроль"

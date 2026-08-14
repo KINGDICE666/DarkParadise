@@ -51,6 +51,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 	max_cultist_to_start += floor((num_players() - required_players) / CULT_PLAYER_PER_CULTIST)
 	var/list/cultists_possible = get_players_for_role(ROLE_CULTIST)
 	var/datum/team/blood_cult/cult_team = create_antag_team(/datum/team/blood_cult)
+	cult_team.sets_round_result = TRUE
 	for(var/cultists_number = 1 to max_cultist_to_start)
 		if(!length(cultists_possible))
 			break
@@ -101,13 +102,13 @@ GLOBAL_LIST_EMPTY(all_cults)
 	if(!istype(cult_mind))
 		return FALSE
 
-	if(!cult_mind.add_antag_datum(/datum/antagonist/cult))
-		return FALSE
-
-	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+	var/datum/team/blood_cult/cult_team = create_antag_team(/datum/team/blood_cult)
 	if(!cult_team.ascend_percent)
 		cult_team.cult_objs.setup()
 		cult_team.cult_threshold_check()
+
+	if(!cult_mind.add_antag_datum(/datum/antagonist/cult))
+		return FALSE
 
 	if(isnull(cult_team.ghost_summons))
 		cult_team.ghost_summons = floor(num_station_players() / GHOST_SUMMONS_PER_READY)

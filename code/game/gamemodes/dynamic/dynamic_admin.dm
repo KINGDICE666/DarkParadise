@@ -69,7 +69,8 @@ ADMIN_VERB(dynamic_panel, R_ADMIN, "Dynamic Panel", "Inspect and steer the dynam
 
 	mode.rulesets_to_spawn[DYNAMIC_MIDROUND]++
 	log_and_message_admins("has forced a dynamic midround ruleset")
-	mode.try_spawn_midround()
+	if(!mode.try_spawn_midround())
+		mode.rulesets_to_spawn[DYNAMIC_MIDROUND]--
 
 /datum/admins/proc/dynamic_toggle_ruleset()
 	var/datum/game_mode/dynamic/mode = SSticker.mode

@@ -1,6 +1,6 @@
 /datum/antagonist/swarmer
 	name = "Swarmer"
-	roundend_category = "swarmers"
+	roundend_category = "Свармерами"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_SWARMER
 	antag_menu_name = "Свармер"

@@ -106,6 +106,7 @@
 	if(!.)
 		return
 	var/datum/team/blood_cult/cult_team = create_antag_team(/datum/team/blood_cult)
+	cult_team.sets_round_result = TRUE
 	cult_team.ghost_summons = floor(population_size / GHOST_SUMMONS_PER_READY)
 
 /datum/dynamic_ruleset/roundstart/blood_cult/execute()
@@ -143,7 +144,8 @@
 	. = ..()
 	if(!.)
 		return
-	create_antag_team(/datum/team/clockwork_cult)
+	var/datum/team/clockwork_cult/clock_team = create_antag_team(/datum/team/clockwork_cult)
+	clock_team.sets_round_result = TRUE
 
 /datum/dynamic_ruleset/roundstart/clockwork_cult/execute()
 	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
@@ -165,7 +167,6 @@
 	blacklisted_roles = list(JOB_TITLE_LAWYER)
 	always_protect_roles = TRUE
 	ruleset_flags = RULESET_HIGH_IMPACT
-	weight = 0
 	min_pop = 20
 	max_antag_cap = MAX_HEAD_REVOLUTIONARIES
 	repeatable = FALSE
@@ -205,7 +206,8 @@
 	. = ..()
 	if(!.)
 		return
-	get_shadowling_team()
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
+	shadowlings.sets_round_result = TRUE
 
 /datum/dynamic_ruleset/roundstart/shadowling/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/shadowling)
@@ -217,7 +219,6 @@
 	special_role = SPECIAL_ROLE_BLOB
 	protected_species = BLOB_RESTRICTED_SPECIES
 	ruleset_flags = RULESET_HIGH_IMPACT
-	weight = 0
 	min_pop = 30
 	max_antag_cap = list("denominator" = BLOB_PLAYERS_PER_CORE, "offset" = 0)
 	repeatable = FALSE
@@ -286,7 +287,7 @@
 	candidate.assigned_role = SPECIAL_ROLE_NUKEOPS
 
 /datum/dynamic_ruleset/roundstart/nuclear/create_execute_args()
-	return list(new /datum/team/nuclear_team)
+	return list(create_antag_team(/datum/team/nuclear_team))
 
 /datum/dynamic_ruleset/roundstart/nuclear/execute()
 	. = ..()

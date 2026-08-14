@@ -94,12 +94,16 @@
 	SEND_SIGNAL(clocker, COMSIG_MOB_HALO_GAINED)
 
 /datum/team/clockwork_cult/declare_completion()
-	if(clocker_objs.clock_status == RATVAR_HAS_RISEN)
-		SSticker.mode_result = "clockwork cult win - cult win"
-	else if(clocker_objs.clock_status == RATVAR_HAS_FALLEN)
-		SSticker.mode_result = "clockwork cult draw - ratvar died, nobody wins"
-	else
-		SSticker.mode_result = "clockwork cult loss - staff stopped the cult"
+	if(!length(members))
+		return
+
+	if(sets_round_result)
+		if(clocker_objs.clock_status == RATVAR_HAS_RISEN)
+			SSticker.mode_result = "clockwork cult win - cult win"
+		else if(clocker_objs.clock_status == RATVAR_HAS_FALLEN)
+			SSticker.mode_result = "clockwork cult draw - ratvar died, nobody wins"
+		else
+			SSticker.mode_result = "clockwork cult loss - staff stopped the cult"
 
 	var/list/text = list("<b>The clockers' objectives were:</b>")
 	text += "[clocker_objs.obj_demand.explanation_text] - [clocker_objs.obj_demand.check_completion() ? "<font color='green'><b>Success!</b></font>" : "<font color='red'>Fail.</font>"]"

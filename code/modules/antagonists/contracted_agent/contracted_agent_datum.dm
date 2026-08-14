@@ -1,6 +1,6 @@
 /datum/antagonist/contracted_agent
 	name = "Contracted Agent"
-	roundend_category = "contracted agents"
+	roundend_category = "Наёмными агентами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_TRAITOR
 	special_role = SPECIAL_ROLE_CONTRACTED_AGENT

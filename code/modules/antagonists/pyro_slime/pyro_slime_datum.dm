@@ -1,6 +1,6 @@
 /datum/antagonist/pyro_slime
 	name = "Pyroclastic Anomaly Slime"
-	roundend_category = "pyroclastic anomaly slimes"
+	roundend_category = "Слаймами атмосферной аномалии"
 	show_in_roundend = FALSE
 	job_rank = ROLE_SENTIENT
 	special_role = SPECIAL_ROLE_PYROCLASTIC_SLIME

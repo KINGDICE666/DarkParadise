@@ -1,6 +1,6 @@
 /datum/antagonist/multiverse
 	name = "Multiverse Traveller"
-	roundend_category = "multiverse travellers"
+	roundend_category = "Путешественниками по мультивселенной"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_MULTIVERSE
 	antag_menu_name = "Путешественник по мультивселенной"

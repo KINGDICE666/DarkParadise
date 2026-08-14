@@ -61,7 +61,8 @@ Made by Xhuis
 		shadow.restricted_roles = get_restricted_roles()
 		shadowlings--
 
-	get_shadowling_team()
+	var/datum/team/shadowling/shadowling_team = get_shadowling_team()
+	shadowling_team.sets_round_result = TRUE
 
 	..()
 	return 1

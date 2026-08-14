@@ -1,5 +1,6 @@
 /datum/antagonist/vampire/goon_vampire
 	name = "Goon-Vampire"
+	roundend_category = "Goon-вампирами"
 	nullification = OLD_NULLIFICATION
 	is_garlic_affected = TRUE
 	antag_datum_blacklist = list(/datum/antagonist/vampire/new_vampire)

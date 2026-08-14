@@ -93,16 +93,23 @@
 	SEND_SIGNAL(cultist, COMSIG_MOB_HALO_GAINED)
 
 /datum/team/blood_cult/declare_completion()
+	if(!length(members))
+		return
+
 	var/list/text = list()
+	var/result
 	if(cult_objs.cult_status == NARSIE_HAS_RISEN)
-		SSticker.mode_result = "cult win - cult win"
+		result = "cult win - cult win"
 		text += span_danger(span_fontsize3("The cult wins! It has succeeded in summoning [SSticker.cultdat.entity_name]!"))
 	else if(cult_objs.cult_status == NARSIE_HAS_FALLEN)
-		SSticker.mode_result = "cult draw - narsie died, nobody wins"
+		result = "cult draw - narsie died, nobody wins"
 		text += span_danger(span_fontsize3("Nobody wins! [SSticker.cultdat.entity_name] was summoned, but banished!"))
 	else
-		SSticker.mode_result = "cult loss - staff stopped the cult"
+		result = "cult loss - staff stopped the cult"
 		text += span_warning(span_fontsize3("The staff managed to stop the cult!"))
+
+	if(sets_round_result)
+		SSticker.mode_result = result
 
 	text += "<b>The cultists' objectives were:</b>"
 	for(var/datum/objective/objective as anything in cult_objs.presummon_objs)

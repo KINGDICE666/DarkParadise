@@ -17,6 +17,7 @@
 	var/list/protected_species
 	var/list/preferred_species
 	var/list/datum/mind/selected_minds = list()
+	var/list/cached_blacklisted_roles
 	var/log_data
 
 /datum/dynamic_ruleset/New()
@@ -63,18 +64,21 @@
 	return ceil(population_size / antag_cap["denominator"]) + antag_cap["offset"]
 
 /datum/dynamic_ruleset/proc/get_blacklisted_roles()
-	. = SSticker.mode.get_restricted_roles() | blacklisted_roles
-	if(!always_protect_roles)
-		return
-	for(var/datum/job/job as anything in SSjobs.occupations)
-		if(job.job_flags & JOB_ANTAG_PROTECTED)
-			. |= job.title
+	if(cached_blacklisted_roles)
+		return cached_blacklisted_roles
+
+	cached_blacklisted_roles = SSticker.mode.get_restricted_roles() | blacklisted_roles
+	if(always_protect_roles)
+		for(var/datum/job/job as anything in SSjobs.occupations)
+			if(job.job_flags & JOB_ANTAG_PROTECTED)
+				cached_blacklisted_roles |= job.title
+	return cached_blacklisted_roles
 
 /datum/dynamic_ruleset/proc/is_valid_candidate(datum/mind/candidate)
 	SHOULD_CALL_PARENT(TRUE)
 	if(candidate.special_role || candidate.offstation_role)
 		return FALSE
-	if(length(protected_species) && (candidate.current.client.prefs.species in protected_species))
+	if(length(protected_species) && (candidate.current.client?.prefs.species in protected_species))
 		return FALSE
 	if(candidate.assigned_role in get_blacklisted_roles())
 		return FALSE

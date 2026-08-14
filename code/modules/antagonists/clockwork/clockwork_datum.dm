@@ -1,6 +1,6 @@
 /datum/antagonist/clockwork
 	name = "Clockwork Cultist"
-	roundend_category = "clockwork cultists"
+	roundend_category = "Культистами Ратвара"
 	show_in_roundend = FALSE
 	job_rank = ROLE_CLOCKER
 	special_role = SPECIAL_ROLE_CLOCKER
@@ -48,26 +48,27 @@
 	if(clock_team?.crew_reveal)
 		clock_team.clocked(user)
 
+	if(locate(/datum/action/innate/clockwork/comm) in user.actions)
+		return
+	var/datum/action/innate/clockwork/comm/communion = new
+	communion.Grant(user)
+	var/datum/action/innate/clockwork/check_progress/progress = new
+	progress.Grant(user)
+	if(ishuman(user) || issilicon(user) && !isAI(user))
+		var/datum/action/innate/clockwork/clock_magic/magic = new
+		magic.Grant(user)
+	user.update_action_buttons(TRUE)
+
 /datum/antagonist/clockwork/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
 	user.faction -= "clockwork_cult"
-	user.RemoveElement(/datum/element/halo_attach)
+	user.RemoveElement(/datum/element/halo_attach, GLOB.halo_overlays["clockwork"], GLOB.halo_callbacks["clockwork"])
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user
 		REMOVE_TRAIT(human_user, TRAIT_CLOCK_HANDS, CLOCK_TRAIT)
 		human_user.update_worn_gloves()
 		human_user.remove_overlay(HALO_LAYER)
 		human_user.update_body()
-
-/datum/antagonist/clockwork/finalize_antag()
-	var/datum/action/innate/clockwork/comm/communion = new
-	communion.Grant(owner.current)
-	var/datum/action/innate/clockwork/check_progress/progress = new
-	progress.Grant(owner.current)
-	if(ishuman(owner.current) || issilicon(owner.current) && !isAI(owner.current))
-		var/datum/action/innate/clockwork/clock_magic/magic = new
-		magic.Grant(owner.current)
-	owner.current.update_action_buttons(TRUE)
 
 /proc/isclocker(mob/living/user)
 	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/clockwork)

@@ -38,6 +38,9 @@
 	rev.promote()
 
 /datum/team/revolution/declare_completion()
+	if(!length(members))
+		return
+
 	var/list/leaders = get_head_revolutionaries()
 	var/num_revs = 0
 	var/num_survivors = 0

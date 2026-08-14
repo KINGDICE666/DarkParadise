@@ -759,7 +759,6 @@
 
 		goal.print_result()
 
-
 /datum/game_mode/proc/apocalypse_cinema(obj/god/god, inevitable = FALSE)
 	if(istype(god, /obj/god/narsie))
 		return SSticker.cultdat.apocalypse_cinema

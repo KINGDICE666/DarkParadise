@@ -54,7 +54,8 @@ GLOBAL_LIST_EMPTY(all_clockers)
 /datum/game_mode/clockwork/pre_setup()
 	max_clockers_to_start += floor((num_players() - required_players) / RATVAR_PLAYER_PER_CULTIST)
 	var/list/clockers_possible = get_players_for_role(ROLE_CLOCKER)
-	create_antag_team(/datum/team/clockwork_cult)
+	var/datum/team/clockwork_cult/clock_team = create_antag_team(/datum/team/clockwork_cult)
+	clock_team.sets_round_result = TRUE
 	for(var/clockers_number in 1 to max_clockers_to_start)
 		if(!length(clockers_possible))
 			break
@@ -103,13 +104,13 @@ GLOBAL_LIST_EMPTY(all_clockers)
 	if(!istype(clock_mind))
 		return FALSE
 
-	if(!clock_mind.add_antag_datum(/datum/antagonist/clockwork))
-		return FALSE
-
-	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
+	var/datum/team/clockwork_cult/clock_team = create_antag_team(/datum/team/clockwork_cult)
 	if(!clock_team.reveal_percent)
 		clock_team.clocker_objs.setup()
 		clock_team.clockwork_threshold_check()
+
+	if(!clock_mind.add_antag_datum(/datum/antagonist/clockwork))
+		return FALSE
 
 	add_conversion_logs(clock_mind.current, "converted to the clockwork cult")
 	if(!clock_team.clocker_objs.clock_status && ishuman(clock_mind.current))

@@ -37,23 +37,30 @@
 	log_game("Shadowling reveal. Powergame and validhunt allowed.")
 
 /datum/team/shadowling/declare_completion()
+	if(!length(members))
+		return
+
 	var/list/text = list()
+	var/result
 	if(ascended && EMERGENCY_ESCAPED_OR_ENDGAMED)
-		SSticker.mode_result = "Победа тенелингов — тенелинги возвысились"
+		result = "Победа тенелингов — тенелинги возвысились"
 		text += span_fontsize3("<b>Победа тенелингов</b>")
 		text += span_greentext("<b>Тенелинги возвысились и полностью захватили станцию!</b>")
 	else if(wiped_out && !ascended)
-		SSticker.mode_result = "Тенелинги проиграли — тенелинги погибли"
+		result = "Тенелинги проиграли — тенелинги погибли"
 		text += span_fontsize3("<b>Крупная победа экипажа</b>")
 		text += span_redtext("<b>Тенелинги были убиты экипажем!</b>")
 	else if(EMERGENCY_ESCAPED_OR_ENDGAMED)
-		SSticker.mode_result = "Тенелинги проиграли — экипаж сбежал"
+		result = "Тенелинги проиграли — экипаж сбежал"
 		text += span_fontsize3("<b>Мелкая победа экипажа</b>")
 		text += span_redtext("<b>Экипаж сбежал со станции до того, как тенелинги возвысились!</b>")
 	else
-		SSticker.mode_result = "Тенелинги проиграли — тенелинги не справились"
+		result = "Тенелинги проиграли — тенелинги не справились"
 		text += span_fontsize3("<b>Крупная победа экипажа</b>")
 		text += span_redtext("<b>Тенелинги не смогли возвыситься!</b>")
+
+	if(sets_round_result)
+		SSticker.mode_result = result
 
 	text += span_big("<b>Тенеморфами были:</b>")
 	for(var/datum/mind/shadow as anything in get_antag_minds(/datum/antagonist/shadowling))
@@ -68,12 +75,12 @@
 	return text.Join("<br>")
 
 /datum/team/shadowling/proc/print_shadowling_status(datum/mind/member)
-	var/text = "[member.get_mind_key()] was [member.name] ("
+	var/text = "[member.get_mind_key()] был [member.name] ("
 	if(!member.current)
 		return text + "тело уничтожено)"
-	text += member.current.stat == DEAD ? "мертвы" : "живы"
+	text += member.current.stat == DEAD ? "погиб" : "выжил"
 	if(member.current.real_name != member.name)
-		text += " as <b>[member.current.real_name]</b>"
+		text += " как <b>[member.current.real_name]</b>"
 	return text + ")"
 
 #undef SHADOWLING_MIN_THRALLS

@@ -1,6 +1,6 @@
 /datum/antagonist/headslug
 	name = "Headslug"
-	roundend_category = "headslugs"
+	roundend_category = "Личинками генокрада"
 	show_in_roundend = FALSE
 	job_rank = ROLE_CHANGELING
 	special_role = SPECIAL_ROLE_HEADSLUG

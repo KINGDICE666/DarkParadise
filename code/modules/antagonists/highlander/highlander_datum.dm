@@ -1,6 +1,6 @@
 /datum/antagonist/highlander
 	name = "Highlander"
-	roundend_category = "highlanders"
+	roundend_category = "Хайлендерами"
 	show_in_roundend = FALSE
 	special_role = SPECIAL_ROLE_HIGHLANDER
 	antag_menu_name = "Хайлендер"

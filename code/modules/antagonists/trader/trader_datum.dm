@@ -1,6 +1,6 @@
 /datum/antagonist/trader
 	name = "Sol Trader"
-	roundend_category = "traders"
+	roundend_category = "Торговцами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_TRADER
 	special_role = SPECIAL_ROLE_TRADER

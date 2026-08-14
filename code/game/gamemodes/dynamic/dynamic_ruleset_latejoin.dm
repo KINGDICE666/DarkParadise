@@ -1,13 +1,18 @@
 /datum/dynamic_ruleset/latejoin
 	repeatable = TRUE
 	max_antag_cap = 1
+	var/datum/mind/joiner
+
+/datum/dynamic_ruleset/latejoin/Destroy(force)
+	joiner = null
+	return ..()
 
 /datum/dynamic_ruleset/latejoin/is_valid_candidate(datum/mind/candidate)
 	if(ismindshielded(candidate.current))
 		return FALSE
 	return ..()
 
-/datum/dynamic_ruleset/latejoin/prepare_execution(population_size, datum/mind/joiner)
+/datum/dynamic_ruleset/latejoin/prepare_execution(population_size)
 	if(!can_be_selected())
 		log_data = "ruleset can no longer be selected"
 		return FALSE

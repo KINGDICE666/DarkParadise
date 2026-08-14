@@ -1,6 +1,6 @@
 /datum/antagonist/rev
 	name = "Revolutionary"
-	roundend_category = "revolutionaries"
+	roundend_category = "Революционерами"
 	show_in_roundend = FALSE
 	job_rank = ROLE_REV
 	special_role = SPECIAL_ROLE_REV

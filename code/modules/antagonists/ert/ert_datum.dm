@@ -1,6 +1,6 @@
 /datum/antagonist/ert
 	name = "Emergency Response Officer"
-	roundend_category = "response team"
+	roundend_category = "Бойцами Отряда Быстрого Реагирования"
 	show_in_roundend = FALSE
 	job_rank = ROLE_ERT
 	special_role = SPECIAL_ROLE_ERT
