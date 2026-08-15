@@ -78,15 +78,17 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	if(streaming_data && (stat & (NOPOWER|BROKEN)))
 		stop_data_stream()
 
-/obj/machinery/computer/communications/click_alt(mob/living/user)
-	if(!is_head_revolutionary(user))
-		return NONE
+/obj/machinery/computer/communications/attack_hand_secondary(mob/user, list/modifiers)
+	. = ..()
+	if(. == SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN || !is_head_revolutionary(user))
+		return .
 	start_data_stream(user)
-	return CLICK_ACTION_SUCCESS
+	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
 /obj/machinery/computer/communications/proc/start_data_stream(mob/living/user)
-	var/datum/game_mode/revolution/revolution = SSticker.mode
-	if(!istype(revolution))
+	var/datum/team/revolution/revolution = get_revolution_team()
+	if(!revolution)
+		balloon_alert(user, "нет связи с синдикатом!")
 		return
 	if(streaming_data)
 		balloon_alert(user, "поток уже идёт!")
@@ -113,8 +115,8 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	if(!streaming_data)
 		return
 	streaming_data = FALSE
-	var/datum/game_mode/revolution/revolution = SSticker.mode
-	if(istype(revolution) && revolution.data_stream_console == src)
+	var/datum/team/revolution/revolution = get_revolution_team()
+	if(revolution?.data_stream_console == src)
 		revolution.data_stream_console = null
 	send_to_playing_players(span_boldannounceic("Передача данных Синдиката прервана: [get_area_name(src)]."))
 	update_icon(UPDATE_OVERLAYS)

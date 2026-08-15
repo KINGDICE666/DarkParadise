@@ -2,6 +2,29 @@
 	name = "Революция"
 	antag_datum_type = /datum/antagonist/rev
 	var/check_counter = 0
+	var/obj/machinery/computer/communications/data_stream_console
+	var/war_declared = FALSE
+	var/syndicate_progress = 0
+	var/nt_progress = 0
+	var/last_progress_tick = 0
+	var/victor
+
+/proc/get_revolution_team()
+	RETURN_TYPE(/datum/team/revolution)
+	return GLOB.antagonist_teams[/datum/team/revolution]
+
+/datum/team/revolution/New(list/starting_members)
+	. = ..()
+	START_PROCESSING(SSprocessing, src)
+
+/datum/team/revolution/Destroy(force = FALSE)
+	STOP_PROCESSING(SSprocessing, src)
+	data_stream_console = null
+	return ..()
+
+/datum/team/revolution/process()
+	check_latejoin()
+	advance_war()
 
 /datum/team/revolution/proc/get_head_revolutionaries()
 	var/list/leaders = list()
@@ -39,6 +62,145 @@
 	var/datum/antagonist/rev/volunteer/volunteer = stalin.has_antag_datum(/datum/antagonist/rev/volunteer)
 	volunteer.switch_tier(/datum/antagonist/rev/head)
 
+/datum/team/revolution/proc/living_head_revolutionaries(datum/mind/excluded)
+	. = 0
+	for(var/datum/mind/leader as anything in get_head_revolutionaries())
+		if(leader == excluded || !leader.current || leader.current.stat == DEAD)
+			continue
+		.++
+
+/datum/team/revolution/proc/declare_war()
+	if(war_declared)
+		return
+	war_declared = TRUE
+	last_progress_tick = world.time
+	SSsecurity_level.set_level(SECURITY_CODE_GAMMA)
+	for(var/datum/mind/rebel as anything in get_antag_minds(/datum/antagonist/rev))
+		to_chat(rebel.current, span_userdanger("Поток данных пошёл. Прятаться больше незачем — экипаж знает, кто вы. Удержите консоль!"))
+	send_to_playing_players(span_boldannounceic("ВНИМАНИЕ: с одной из консолей связи [station_name()] идёт несанкционированная передача данных флоту Синдиката. \
+		Обнаружившим её приказано немедленно прервать передачу. Все причастные лишаются статуса сотрудника и подлежат немедленной ликвидации. \
+		Капсулы со снаряжением сброшены на станцию."))
+	launch_nanotrasen_pods()
+
+GLOBAL_LIST_INIT(revolution_standard_pod_kits, list(
+	list(/obj/item/gun/projectile/automatic/smg/wt550 = 1, /obj/item/ammo_box/magazine/wt550m9 = 3),
+	list(/obj/item/gun/projectile/shotgun/riot = 1, /obj/item/ammo_box/shotgun = 2),
+	list(/obj/item/gun/projectile/shotgun/winchester = 1, /obj/item/ammo_box/shotgun = 2),
+	list(/obj/item/storage/backpack/duffel/security/bulletproof_armory = 1, /obj/item/storage/belt/security/sec = 1),
+	list(/obj/item/storage/backpack/duffel/security/riot_armory = 1, /obj/item/storage/belt/security/sec = 1),
+	list(/obj/item/mod/control/pre_equipped/security = 1),
+))
+
+GLOBAL_LIST_INIT(revolution_reinforced_pod_kits, list(
+	list(/obj/item/gun/projectile/shotgun/automatic/combat = 1, /obj/item/ammo_box/speedloader/shotgun/slug = 2),
+	list(/obj/item/gun/projectile/automatic/smg/sfg = 1, /obj/item/ammo_box/magazine/sfg9mm = 2),
+	list(/obj/item/gun/projectile/automatic/smg/saber = 1, /obj/item/ammo_box/magazine/smgm9mm = 2),
+	list(/obj/item/gun/projectile/automatic/ik60 = 1, /obj/item/ammo_box/magazine/ik60mag = 2),
+	list(/obj/item/mod/control/pre_equipped/safeguard_mk_two = 1, /obj/item/gun/projectile/automatic/pistol/sp8 = 1, /obj/item/ammo_box/magazine/sp8 = 2),
+))
+
+GLOBAL_LIST_INIT(revolution_pod_blacklist, typecacheof(list(
+	/area/station/command,
+	/area/station/maintenance,
+	/area/station/security/brig,
+)))
+
+GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
+	/area/station/command/office,
+	/area/station/command/bridge,
+	/area/station/security/brig,
+)))
+
+/datum/team/revolution/proc/launch_nanotrasen_pods()
+	var/crew = length(GLOB.data_core.general)
+	for(var/count in 1 to round(crew / CREW_PER_SUPPLY_POD))
+		drop_supply_pod(pick_pod_turf(reinforced = FALSE), standard_pod_payload())
+	for(var/count in 1 to round(crew / CREW_PER_REINFORCED_POD))
+		drop_supply_pod(pick_pod_turf(reinforced = TRUE), pick(GLOB.revolution_reinforced_pod_kits) + list(/obj/item/storage/lockbox/mindshield = 1))
+
+/datum/team/revolution/proc/standard_pod_payload()
+	var/list/payload = pick(GLOB.revolution_standard_pod_kits) + list(/obj/item/implanter/mindshield = 2)
+	if(payload[/obj/item/mod/control/pre_equipped/security])
+		var/datum/security_voucher_kit/officer/kit = pick(subtypesof(/datum/security_voucher_kit/officer))
+		payload[kit.kit_box] = 1
+	return payload
+
+/datum/team/revolution/proc/pick_pod_turf(reinforced)
+	var/list/candidates = list()
+	for(var/area/station/area as anything in GLOB.areas)
+		if(!istype(area))
+			continue
+		if(reinforced ? !is_type_in_typecache(area, GLOB.revolution_reinforced_pod_areas) : is_type_in_typecache(area, GLOB.revolution_pod_blacklist))
+			continue
+		candidates += area
+	while(length(candidates))
+		var/area/chosen = pick_n_take(candidates)
+		var/list/turfs = chosen.get_turfs_from_all_zlevels()
+		shuffle_inplace(turfs)
+		for(var/turf/simulated/floor/candidate_turf in turfs)
+			if(is_station_level(candidate_turf.z) && !candidate_turf.density)
+				return candidate_turf
+
+/datum/team/revolution/proc/drop_supply_pod(turf/landing_spot, list/payload)
+	if(!landing_spot)
+		return
+	podspawn(list(
+		"target" = landing_spot,
+		"path" = /obj/structure/closet/supplypod/podspawn,
+		"spawn" = payload,
+	))
+
+/datum/team/revolution/proc/advance_war()
+	if(!war_declared || victor)
+		return
+	var/elapsed = world.time - last_progress_tick
+	last_progress_tick = world.time
+	if(data_stream_console?.streaming_data)
+		syndicate_progress += elapsed
+	else
+		nt_progress += elapsed
+
+	if(syndicate_progress >= REVOLUTION_WAR_DURATION)
+		declare_victor(REVOLUTION_VICTOR_SYNDICATE)
+	else if(nt_progress >= REVOLUTION_WAR_DURATION)
+		declare_victor(REVOLUTION_VICTOR_NT)
+
+/datum/team/revolution/proc/declare_victor(new_victor)
+	if(victor)
+		return
+	victor = new_victor
+	data_stream_console?.stop_data_stream()
+
+	if(victor == REVOLUTION_VICTOR_SYNDICATE)
+		send_to_playing_players(span_boldannounceic("Флот Синдиката вышел из блюспейса раньше сил \"Нанотрейзен\" и берёт [station_name()] под свой контроль. \
+			Связь с Трурлем оборвана. Абордажные группы уже на борту."))
+		spawn_on_beacons(/mob/living/simple_animal/hostile/syndicate/ranged/space)
+		addtimer(CALLBACK(src, PROC_REF(finish_round)), REVOLUTION_SYNDICATE_ENDING_DELAY)
+		return
+
+	send_to_playing_players(span_boldannounceic("Флот \"Нанотрейзен\" успел занять сектор и закрыл [station_name()] от кораблей Синдиката. \
+		Плацдарм потерян, революция обезглавлена. Эвакуационный шаттл вызван."))
+	spawn_on_beacons(/mob/living/simple_animal/bot/ed209)
+	for(var/datum/mind/rebel as anything in get_antag_minds(/datum/antagonist/rev))
+		if(rebel.has_antag_datum(/datum/antagonist/rev/slave))
+			continue
+		var/datum/antagonist/rev/revolutionary = rebel.has_antag_datum(/datum/antagonist/rev)
+		revolutionary.add_objective(/datum/objective/survive)
+		to_chat(rebel.current, span_userdanger("Синдикат не придёт. Выживите любой ценой."))
+	SSshuttle.emergency.canRecall = FALSE
+	SSshuttle.emergency.request(null, REVOLUTION_EVAC_TIME / SSshuttle.emergencyCallTime)
+
+/datum/team/revolution/proc/spawn_on_beacons(mob_type)
+	for(var/obj/item/beacon/beacon as anything in GLOB.beacons)
+		var/turf/landing_spot = get_turf(beacon)
+		if(!landing_spot || !is_station_level(landing_spot.z))
+			continue
+		for(var/count in 1 to REVOLUTION_ENDING_SPAWNS_PER_BEACON)
+			new mob_type(landing_spot)
+
+/datum/team/revolution/proc/finish_round()
+	SSticker.force_ending = TRUE
+
 /datum/team/revolution/declare_completion()
 	if(!length(members))
 		return
@@ -54,18 +216,17 @@
 			num_revs++
 
 	var/list/text = list()
-	var/datum/game_mode/revolution/revolution = SSticker.mode
-	if(istype(revolution) && revolution.victor)
-		if(revolution.victor == REVOLUTION_VICTOR_SYNDICATE)
+	if(victor)
+		if(victor == REVOLUTION_VICTOR_SYNDICATE)
 			text += span_bold(span_fontsize3("<br>Революция победила: флот Синдиката занял станцию."))
 		else
 			text += span_bold(span_fontsize3("<br>Революция подавлена: флот \"Нанотрейзен\" успел первым."))
-	else if(istype(revolution) && revolution.war_declared)
+	else if(war_declared)
 		text += span_bold(span_fontsize3("<br>Война за консоль связи не была доиграна до конца."))
 
-	if(istype(revolution) && revolution.war_declared)
-		text += "<br>[TAB]Поток данных Синдиката: [span_bold("[round(revolution.syndicate_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
-		text += "<br>[TAB]Контроль \"Нанотрейзен\": [span_bold("[round(revolution.nt_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
+	if(war_declared)
+		text += "<br>[TAB]Поток данных Синдиката: [span_bold("[round(syndicate_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
+		text += "<br>[TAB]Контроль \"Нанотрейзен\": [span_bold("[round(nt_progress / (1 MINUTES), 0.1)] мин")] из [round(REVOLUTION_WAR_DURATION / (1 MINUTES))]"
 
 	if(num_survivors)
 		text += "<br>[TAB]Command's Approval Rating: [span_bold("[100 - round((num_revs / num_survivors) * 100, 0.1)]%")]"
@@ -91,8 +252,7 @@
 
 /datum/team/revolution/set_scoreboard_vars()
 	var/datum/scoreboard/scoreboard = SSticker.score
-	var/datum/game_mode/revolution/revolution = SSticker.mode
-	if(istype(revolution) && revolution.victor == REVOLUTION_VICTOR_SYNDICATE)
+	if(victor == REVOLUTION_VICTOR_SYNDICATE)
 		scoreboard.score_greentext = TRUE
 	var/list/leaders = get_head_revolutionaries()
 
