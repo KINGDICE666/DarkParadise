@@ -77,9 +77,13 @@
 	SSsecurity_level.set_level(SECURITY_CODE_GAMMA)
 	for(var/datum/mind/rebel as anything in get_antag_minds(/datum/antagonist/rev))
 		to_chat(rebel.current, span_userdanger("Поток данных пошёл. Прятаться больше незачем — экипаж знает, кто вы. Удержите консоль!"))
-	send_to_playing_players(span_boldannounceic("ВНИМАНИЕ: с одной из консолей связи [station_name()] идёт несанкционированная передача данных флоту Синдиката. \
-		Обнаружившим её приказано немедленно прервать передачу. Все причастные лишаются статуса сотрудника и подлежат немедленной ликвидации. \
-		Капсулы со снаряжением сброшены на станцию."))
+	GLOB.major_announcement.announce(
+		message = "С одной из консолей связи [station_name()] идёт несанкционированная передача данных флоту Синдиката. \
+			Обнаружившим её приказано немедленно прервать передачу. Все причастные лишаются статуса сотрудника и подлежат немедленной ликвидации. \
+			Капсулы со снаряжением сброшены на станцию.",
+		new_title = ANNOUNCE_CCMSG_RU,
+		new_sound = SSstation.announcer.get_rand_report_sound()
+	)
 	launch_nanotrasen_pods()
 
 GLOBAL_LIST_INIT(revolution_standard_pod_kits, list(
@@ -172,14 +176,22 @@ GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
 	data_stream_console?.stop_data_stream()
 
 	if(victor == REVOLUTION_VICTOR_SYNDICATE)
-		send_to_playing_players(span_boldannounceic("Флот Синдиката вышел из блюспейса раньше сил \"Нанотрейзен\" и берёт [station_name()] под свой контроль. \
-			Связь с Трурлем оборвана. Абордажные группы уже на борту."))
+		GLOB.major_announcement.announce(
+			message = "Флот Синдиката вышел из блюспейса раньше сил \"Нанотрейзен\" и берёт [station_name()] под свой контроль. \
+				Связь с Трурлем оборвана. Абордажные группы уже на борту.",
+			new_title = ANNOUNCE_DECLAREWAR_RU,
+			new_sound = 'sound/effects/siren.ogg'
+		)
 		spawn_on_beacons(/mob/living/simple_animal/hostile/syndicate/ranged/space)
 		addtimer(CALLBACK(src, PROC_REF(finish_round)), REVOLUTION_SYNDICATE_ENDING_DELAY)
 		return
 
-	send_to_playing_players(span_boldannounceic("Флот \"Нанотрейзен\" успел занять сектор и закрыл [station_name()] от кораблей Синдиката. \
-		Плацдарм потерян, революция обезглавлена. Эвакуационный шаттл вызван."))
+	GLOB.major_announcement.announce(
+		message = "Флот \"Нанотрейзен\" успел занять сектор и закрыл [station_name()] от кораблей Синдиката. \
+			Плацдарм потерян, революция обезглавлена. Эвакуационный шаттл вызван.",
+		new_title = ANNOUNCE_CCMSG_RU,
+		new_sound = SSstation.announcer.get_rand_report_sound()
+	)
 	spawn_on_beacons(/mob/living/simple_animal/bot/ed209)
 	for(var/datum/mind/rebel as anything in get_antag_minds(/datum/antagonist/rev))
 		if(rebel.has_antag_datum(/datum/antagonist/rev/slave))

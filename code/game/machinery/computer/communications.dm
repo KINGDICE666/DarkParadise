@@ -99,17 +99,31 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	if(revolution.data_stream_console && revolution.data_stream_console != src)
 		balloon_alert(user, "поток уже настроен!")
 		return
+	if(revolution.victor)
+		balloon_alert(user, "война уже окончена!")
+		return
 
 	var/setup_time = max(DATA_STREAM_SETUP_TIME - (revolution.living_head_revolutionaries(user.mind) * DATA_STREAM_SETUP_BONUS), DATA_STREAM_SETUP_BONUS)
 	balloon_alert(user, "настраиваю поток...")
 	if(!do_after(user, setup_time, src) || streaming_data || (stat & (NOPOWER|BROKEN)))
+		return
+	if(revolution.data_stream_console || revolution.victor)
+		balloon_alert(user, "поток уже настроен!")
 		return
 
 	streaming_data = TRUE
 	revolution.data_stream_console = src
 	update_icon(UPDATE_OVERLAYS)
 	add_game_logs("started the syndicate data stream", user)
-	revolution.declare_war()
+	if(!revolution.war_declared)
+		revolution.declare_war()
+		return
+
+	GLOB.major_announcement.announce(
+		message = "Несанкционированная передача данных флоту Синдиката возобновлена с одной из консолей связи [station_name()]. Найдите и прервите её.",
+		new_title = ANNOUNCE_CCMSG_RU,
+		new_sound = SSstation.announcer.get_rand_report_sound()
+	)
 
 /obj/machinery/computer/communications/proc/stop_data_stream()
 	if(!streaming_data)
@@ -118,7 +132,12 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	var/datum/team/revolution/revolution = get_revolution_team()
 	if(revolution?.data_stream_console == src)
 		revolution.data_stream_console = null
-	send_to_playing_players(span_boldannounceic("Передача данных Синдиката прервана: [get_area_name(src)]."))
+	if(!revolution?.victor)
+		GLOB.major_announcement.announce(
+			message = "Несанкционированная передача данных прервана: [get_area_name(src)].",
+			new_title = ANNOUNCE_CCMSG_RU,
+			new_sound = SSstation.announcer.get_rand_report_sound()
+		)
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/computer/communications/proc/is_authenticated(mob/user, message = TRUE)

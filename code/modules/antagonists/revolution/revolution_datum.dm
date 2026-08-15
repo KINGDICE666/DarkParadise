@@ -124,7 +124,6 @@
 /datum/antagonist/rev/head/finalize_antag()
 	. = ..()
 	SSticker.mode.equip_revolutionary(owner.current)
-	give_uplink()
 
 /proc/is_revolutionary(mob/living/user)
 	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/rev)

@@ -143,7 +143,9 @@
 	if(!try_use_flash(user))
 		return ATTACK_CHAIN_PROCEED
 
-	flash_carbon(target, user, 10 SECONDS, TRUE)
+	if(!flash_carbon(target, user, 10 SECONDS, TRUE))
+		return ATTACK_CHAIN_PROCEED
+
 	target.Sleeping(3 SECONDS)
 	to_chat(target, span_userdanger("Вспышка выжигает вашу волю. Мысли путаются, и остаётся только чужой голос."))
 	add_attack_logs(user, target, "Hypnotised with [src]")
