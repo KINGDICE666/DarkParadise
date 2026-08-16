@@ -386,6 +386,11 @@ BYOND_ACCOUNT_AGE_THRESHOLD 7
 ## DISCORD_MENTOR_WEBHOOK_URLS https://url2
 #DISCORD_MENTOR_WEBHOOK_URLS
 
+## Webhook URLs for the OOC relay webhook. Separate multiple URLs with enter, like:
+## DISCORD_OOC_WEBHOOK_URLS https://url1
+## DISCORD_OOC_WEBHOOK_URLS https://url2
+#DISCORD_OOC_WEBHOOK_URLS
+
 ## Uncomment to send all ahelps to discord. If the line is commented, only ahelps made when no admins are online will be forwarded
 ## Ahelps forwarded when staff are online will never have the role ping, regardless of the setting above
 #DISCORD_FORWARD_ALL_AHELPS

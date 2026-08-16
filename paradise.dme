@@ -4707,6 +4707,7 @@
 #include "code\modules\world_topic\fixtts.dm"
 #include "code\modules\world_topic\hostannounce.dm"
 #include "code\modules\world_topic\manifest.dm"
+#include "code\modules\world_topic\ooc.dm"
 #include "code\modules\world_topic\ping.dm"
 #include "code\modules\world_topic\playerlist_ext.dm"
 #include "code\modules\world_topic\players.dm"
