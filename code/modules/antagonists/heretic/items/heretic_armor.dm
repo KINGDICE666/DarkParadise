@@ -1527,3 +1527,154 @@
 	overlay_icon_state = "bg_heretic_border"
 
 #undef HOODED_MANTLE_HIDDEN_SLOTS
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm
+	name = "dancer's regalia"
+	desc = "Костюм, сшитый под чужую пляску. Ткань подрагивает в такт сердцу того, кто её носит, \
+			и принимает удары на себя, превращая их в усталость."
+	icon_state = "rhytm_armor"
+	hoodtype = /obj/item/clothing/head/hooded/cult_hoodie/eldritch/rhytm
+	armor = list("melee" = 60, "bullet" = 60, "laser" = 40, "energy" = 100, "bomb" = 30, "bio" = 30, "fire" = 30, "acid" = 30)
+	var/absorbed_damage = 5
+	var/atom/movable/screen/rhytm_stamina/stamina_hud
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/get_ru_names()
+	return alist(
+		NOMINATIVE = "танцевальный костюм",
+		GENITIVE = "танцевального костюма",
+		DATIVE = "танцевальному костюму",
+		ACCUSATIVE = "танцевальный костюм",
+		INSTRUMENTAL = "танцевальным костюмом",
+		PREPOSITIONAL = "танцевальном костюме",
+	)
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/examine(mob/user)
+	. = ..()
+	if(!IS_HERETIC(user))
+		return
+	. += span_notice("Пока вы держите ритм, любой удар уходит в усталость, а слабые удары только \
+					подхлёстывают такт. Когда силы кончатся, сердце остановится.")
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/Destroy()
+	QDEL_NULL(stamina_hud)
+	return ..()
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	if(slot != ITEM_SLOT_CLOTH_OUTER || !IS_HERETIC(user))
+		return
+	RegisterSignal(user, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS, PROC_REF(take_the_hit))
+	user.add_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
+	show_stamina_hud(user)
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/dropped(mob/user, slot, silent = FALSE)
+	. = ..()
+	UnregisterSignal(user, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS)
+	user.remove_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
+	hide_stamina_hud(user)
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
+	. = ..()
+	if(isinhands)
+		return
+	. += mutable_appearance('icons/mob/clothing/suit.dmi', "rhytm_armor_overlay")
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/show_stamina_hud(mob/living/user)
+	if(!ishuman(user) || stamina_hud)
+		return
+	var/mob/living/carbon/human/human_user = user
+	var/datum/hud/our_hud = human_user.hud_used
+	if(!our_hud)
+		return
+	stamina_hud = new(null, our_hud)
+	human_user.stamina_bar?.invisibility = INVISIBILITY_ABSTRACT
+	our_hud.infodisplay += stamina_hud
+	human_user.client?.screen += stamina_hud
+	RegisterSignal(human_user, COMSIG_LIVING_LIFE, PROC_REF(update_stamina_hud), override = TRUE)
+	update_stamina_hud(human_user)
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/hide_stamina_hud(mob/living/user)
+	if(!stamina_hud)
+		return
+	if(ishuman(user))
+		var/mob/living/carbon/human/human_user = user
+		UnregisterSignal(human_user, COMSIG_LIVING_LIFE)
+		var/datum/hud/our_hud = human_user.hud_used
+		our_hud?.infodisplay -= stamina_hud
+		human_user.client?.screen -= stamina_hud
+		human_user.stamina_bar?.invisibility = 0
+	QDEL_NULL(stamina_hud)
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/update_stamina_hud(mob/living/source, seconds_per_tick, times_fired)
+	SIGNAL_HANDLER
+	stamina_hud?.update_stamina(MAX_STAMINA_LOSS - source.getStaminaLoss())
+
+
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/take_the_hit(mob/living/wearer, list/damage_mods, damage, damagetype, def_zone, sharp, used_weapon)
+	SIGNAL_HANDLER
+
+	if(damage <= 0 || damagetype == STAMINA || damagetype == OXY)
+		return
+
+	var/datum/status_effect/heretic_passive/rhytm/our_rhythm = get_heretic_rhytm(wearer)
+	if(!our_rhythm?.rhythm)
+		return
+
+	damage_mods += 0
+	if(damage <= absorbed_damage)
+		our_rhythm.adjust_rhythm(round(damage))
+		return
+
+	wearer.adjustStaminaLoss(damage)
+	if(wearer.getStaminaLoss() < MAX_STAMINA_LOSS)
+		return
+
+	our_rhythm.adjust_rhythm(-our_rhythm.rhythm)
+	if(ishuman(wearer))
+		var/mob/living/carbon/human/human_wearer = wearer
+		human_wearer.set_heartattack(TRUE)
+	wearer.visible_message(
+		span_danger("[DECLENT_RU_CAP(wearer, NOMINATIVE)] замирает на середине движения!"),
+		span_userdanger("Такт обрывается, и ваше сердце останавливается вместе с ним!"),
+	)
+
+
+/obj/item/clothing/head/hooded/cult_hoodie/eldritch/rhytm
+	name = "dancer's mask"
+	desc = "Маска с застывшей улыбкой, под которой не разглядеть лица — только чужое движение."
+	icon_state = "rhytm_armor"
+
+
+/obj/item/clothing/head/hooded/cult_hoodie/eldritch/rhytm/get_ru_names()
+	return alist(
+		NOMINATIVE = "танцевальная маска",
+		GENITIVE = "танцевальной маски",
+		DATIVE = "танцевальной маске",
+		ACCUSATIVE = "танцевальную маску",
+		INSTRUMENTAL = "танцевальной маской",
+		PREPOSITIONAL = "танцевальной маске",
+	)
+
+
+/atom/movable/screen/rhytm_stamina
+	name = "Выносливость"
+	icon = 'icons/hud/rhytm_stamina_64x64.dmi'
+	icon_state = "stamina_counter"
+	screen_loc = "EAST-2:16,CENTER-1:0"
+	maptext_x = 20
+	maptext_y = 26
+
+
+/atom/movable/screen/rhytm_stamina/proc/update_stamina(remaining)
+	maptext = MAPTEXT_TINY_UNICODE("<span style='text-align:center'>[round(remaining)]</span>")
+

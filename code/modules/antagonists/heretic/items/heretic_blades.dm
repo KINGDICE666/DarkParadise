@@ -703,3 +703,65 @@
 
 /obj/item/melee/sickly_blade/training/check_usability(mob/living/user)
 	return TRUE
+
+
+/obj/item/melee/sickly_blade/rhytm
+	name = "pulsating blade"
+	desc = "Клинок, выкованный вокруг чужого сердца. Оно всё ещё бьётся где-то в основании лезвия, \
+			и чем быстрее его такт, тем охотнее клинок идёт вперёд."
+	icon_state = "rhytm_blade"
+	base_icon_state = "rhytm_blade"
+	item_state = "rhytm_blade"
+	force = 15
+	after_use_message = "Такт ведёт вас прочь..."
+	var/empowered_force = 5
+	var/cleaving = FALSE
+
+
+/obj/item/melee/sickly_blade/rhytm/Initialize(mapload)
+	. = ..()
+	qdel(GetComponent(/datum/component/cleave_attack))
+
+
+/obj/item/melee/sickly_blade/rhytm/get_ru_names()
+	return alist(
+		NOMINATIVE = "пульсирующий клинок",
+		GENITIVE = "пульсирующего клинка",
+		DATIVE = "пульсирующему клинку",
+		ACCUSATIVE = "пульсирующий клинок",
+		INSTRUMENTAL = "пульсирующим клинком",
+		PREPOSITIONAL = "пульсирующем клинке",
+	)
+
+
+/obj/item/melee/sickly_blade/rhytm/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	sync_to_rhythm(get_heretic_rhytm(user))
+
+
+/obj/item/melee/sickly_blade/rhytm/pickup(mob/living/user)
+	. = ..()
+	sync_to_rhythm(get_heretic_rhytm(user))
+
+
+/obj/item/melee/sickly_blade/rhytm/pre_attackby(atom/target, mob/living/user, modifiers)
+	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(user)
+	sync_to_rhythm(beat)
+	return ..()
+
+
+/obj/item/melee/sickly_blade/rhytm/proc/sync_to_rhythm(datum/status_effect/heretic_passive/rhytm/beat)
+	var/beats = beat ? beat.effective_rhythm() : 0
+	attack_speed = initial(attack_speed) * (1 - beats * 0.01)
+	force = initial(force) + ((beat?.rhythm >= RHYTM_EMPOWER_THRESHOLD) ? empowered_force : 0)
+	set_cleaving(beat?.rhythm >= RHYTM_DANCE_THRESHOLD)
+
+
+/obj/item/melee/sickly_blade/rhytm/proc/set_cleaving(should_cleave)
+	if(should_cleave == cleaving)
+		return
+	cleaving = should_cleave
+	if(!should_cleave)
+		qdel(GetComponent(/datum/component/cleave_attack))
+		return
+	AddComponent(/datum/component/cleave_attack)

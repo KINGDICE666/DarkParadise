@@ -9,6 +9,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 		PATH_LOCK = COLOR_YELLOW,
 		PATH_MOON = COLOR_BLUE_LIGHT,
 		PATH_BLUESPACE = COLOR_DARK_CYAN,
+		PATH_RHYTM = COLOR_MAROON,
 	))
 
 /// Generates a string of garbled symbols up to [length] characters, used for spooky ascension announcements.
