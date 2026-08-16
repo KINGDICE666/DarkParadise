@@ -1580,13 +1580,6 @@
 	hide_stamina_hud(user)
 
 
-/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
-	. = ..()
-	if(isinhands)
-		return
-	. += mutable_appearance('icons/mob/clothing/suit.dmi', "rhytm_armor_overlay")
-
-
 /obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/show_stamina_hud(mob/living/user)
 	if(!ishuman(user) || stamina_hud)
 		return
