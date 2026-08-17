@@ -433,7 +433,7 @@
 	desc = "Ваше сердце ведёт счёт. Чем выше ритм, тем быстрее вы двигаетесь и тем скорее затягиваются раны."
 	icon = 'icons/mob/screen_alert_heretic.dmi'
 	icon_state = "rhytm_count"
-	maptext_y = 7
+	maptext_y = 5
 
 
 /obj/effect/temp_visual/heretic_dance

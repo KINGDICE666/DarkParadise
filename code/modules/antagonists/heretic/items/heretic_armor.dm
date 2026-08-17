@@ -1668,7 +1668,7 @@
 	icon = 'icons/hud/rhytm_stamina_64x64.dmi'
 	icon_state = "stamina_counter"
 	screen_loc = "EAST-2:16,CENTER-1:0"
-	maptext_y = 31
+	maptext_y = 29
 	maptext_width = 64
 
 
