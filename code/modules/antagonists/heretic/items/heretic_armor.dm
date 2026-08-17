@@ -1569,7 +1569,6 @@
 	if(slot != ITEM_SLOT_CLOTH_OUTER || !IS_HERETIC(user))
 		return
 	RegisterSignal(user, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS, PROC_REF(take_the_hit), override = TRUE)
-	user.add_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
 	show_stamina_hud(user)
 
 
@@ -1591,8 +1590,8 @@
 	human_user.stamina_bar?.invisibility = INVISIBILITY_ABSTRACT
 	our_hud.infodisplay += stamina_hud
 	human_user.client?.screen += stamina_hud
-	RegisterSignal(human_user, COMSIG_LIVING_LIFE, PROC_REF(update_stamina_hud), override = TRUE)
-	update_stamina_hud(human_user)
+	RegisterSignal(human_user, COMSIG_LIVING_LIFE, PROC_REF(on_wearer_life), override = TRUE)
+	on_wearer_life(human_user)
 
 
 /obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/hide_stamina_hud(mob/living/user)
@@ -1608,9 +1607,14 @@
 	QDEL_NULL(stamina_hud)
 
 
-/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/update_stamina_hud(mob/living/source, seconds_per_tick, times_fired)
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/on_wearer_life(mob/living/source, seconds_per_tick, times_fired)
 	SIGNAL_HANDLER
 	stamina_hud?.update_stamina(MAX_STAMINA_LOSS - source.getStaminaLoss())
+	var/datum/status_effect/heretic_passive/rhytm/our_rhythm = get_heretic_rhytm(source)
+	if(our_rhythm?.rhythm)
+		source.add_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
+		return
+	source.remove_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
 
 
 /obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/take_the_hit(mob/living/wearer, list/damage_mods, damage, damagetype, def_zone, sharp, used_weapon)

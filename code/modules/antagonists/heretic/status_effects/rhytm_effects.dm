@@ -42,6 +42,7 @@
 	var/next_heal = 0
 	var/combat_until = 0
 	var/applied_click_speed = 1
+	var/applied_bonus = 0
 	var/pulse_until = 0
 	var/always_pulse = FALSE
 	var/dancing = FALSE
@@ -147,6 +148,9 @@
 
 /datum/status_effect/heretic_passive/rhytm/proc/update_modifiers()
 	var/bonus = effective_rhythm() * 0.01
+	if(bonus == applied_bonus)
+		return
+	applied_bonus = bonus
 	owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/rhytm, multiplicative_slowdown = -bonus)
 	owner.add_or_update_variable_actionspeed_modifier(/datum/actionspeed_modifier/rhytm, multiplicative_slowdown = -bonus)
 	owner.next_move_modifier /= applied_click_speed
@@ -206,7 +210,8 @@
 		to_chat(owner, span_userdanger("Ритм рвётся наружу и бьёт вас изнутри!"))
 		return
 
-	owner.heal_overall_damage(power * 0.5, power * 0.5, updating_health = FALSE, internal = rhythm >= RHYTM_MEND_THRESHOLD)
+	var/brute_to_heal = min(power, owner.getBruteLoss())
+	owner.heal_overall_damage(brute_to_heal, power - brute_to_heal, updating_health = FALSE, internal = rhythm >= RHYTM_MEND_THRESHOLD)
 	owner.adjustStaminaLoss(-power, updating_health = FALSE)
 	owner.updatehealth("rhytm heartbeat")
 

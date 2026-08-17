@@ -85,12 +85,14 @@
 		show_outline(user, heard)
 		if(IS_HERETIC_OR_MONSTER(heard) || get_dist(user, heard) > TIMPAN_RANGE)
 			continue
-		if(heard.getStaminaLoss() >= MAX_STAMINA_LOSS)
-			heard.apply_damage(TIMPAN_STAMINA_THEFT, BRUTE, BODY_ZONE_HEAD)
-			to_chat(heard, span_userdanger("Удар отдаётся у вас в черепе!"))
+		var/drained = min(TIMPAN_STAMINA_THEFT, MAX_STAMINA_LOSS - heard.getStaminaLoss())
+		if(drained > 0)
+			heard.adjustStaminaLoss(drained)
+			stolen_stamina += drained
+		if(drained >= TIMPAN_STAMINA_THEFT)
 			continue
-		heard.adjustStaminaLoss(TIMPAN_STAMINA_THEFT)
-		stolen_stamina += TIMPAN_STAMINA_THEFT
+		heard.apply_damage(TIMPAN_STAMINA_THEFT - drained, BRUTE, BODY_ZONE_HEAD)
+		to_chat(heard, span_userdanger("Удар отдаётся у вас в черепе!"))
 
 	if(stolen_stamina)
 		user.adjustStaminaLoss(-stolen_stamina)
