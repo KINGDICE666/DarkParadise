@@ -1535,7 +1535,7 @@
 			и принимает удары на себя, превращая их в усталость."
 	icon_state = "rhytm_armor"
 	hoodtype = /obj/item/clothing/head/hooded/cult_hoodie/eldritch/rhytm
-	armor = list("melee" = 60, "bullet" = 60, "laser" = 40, "energy" = 100, "bomb" = 30, "bio" = 30, "fire" = 30, "acid" = 30)
+	armor = list(MELEE = 60, BULLET = 60, LASER = 40, ENERGY = 100, BOMB = 30, BIO = 30, FIRE = 30, ACID = 30)
 	var/absorbed_damage = 5
 	var/atom/movable/screen/rhytm_stamina/stamina_hud
 
@@ -1568,7 +1568,7 @@
 	. = ..()
 	if(slot != ITEM_SLOT_CLOTH_OUTER || !IS_HERETIC(user))
 		return
-	RegisterSignal(user, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS, PROC_REF(take_the_hit))
+	RegisterSignal(user, COMSIG_MOB_APPLY_DAMAGE_MODIFIERS, PROC_REF(take_the_hit), override = TRUE)
 	user.add_traits(list(TRAIT_STUNIMMUNE, TRAIT_IGNORESLOWDOWN), UID())
 	show_stamina_hud(user)
 
@@ -1616,7 +1616,7 @@
 /obj/item/clothing/suit/hooded/cultrobes/eldritch/rhytm/proc/take_the_hit(mob/living/wearer, list/damage_mods, damage, damagetype, def_zone, sharp, used_weapon)
 	SIGNAL_HANDLER
 
-	if(damage <= 0 || damagetype == STAMINA || damagetype == OXY)
+	if(damage <= 0 || !(damagetype in list(BRUTE, BURN, TOX, CLONE)))
 		return
 
 	var/datum/status_effect/heretic_passive/rhytm/our_rhythm = get_heretic_rhytm(wearer)

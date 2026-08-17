@@ -214,5 +214,4 @@
 	var/skintype = ascended_heretic.dna.species.skinned_type
 	if(skintype)
 		new skintype(get_turf(ascended_heretic))
-	ADD_TRAIT(ascended_heretic, TRAIT_HUSK, type)
-	ascended_heretic.update_body()
+	ascended_heretic.ChangeToHusk()

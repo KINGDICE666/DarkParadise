@@ -1,6 +1,7 @@
 #define TIMPAN_RHYTM_GAIN 3
 #define TIMPAN_STAMINA_THEFT 5
 #define TIMPAN_RANGE 4
+#define TIMPAN_SIGHT_RANGE 7
 #define TIMPAN_HASTE_DURATION (3 SECONDS)
 #define TIMPAN_SIGHT_DURATION (5 SECONDS)
 
@@ -22,6 +23,7 @@
 	COOLDOWN_DECLARE(beat_cooldown)
 	var/list/image/heard_outlines = list()
 	var/datum/weakref/listener_ref
+	var/sight_timer
 
 
 /obj/item/unwaking_timpan/get_ru_names()
@@ -77,22 +79,22 @@
 	var/stolen_stamina = 0
 	clear_outlines()
 	listener_ref = WEAKREF(user)
-	for(var/mob/living/victim in range(TIMPAN_RANGE, user))
-		if(victim == user)
+	for(var/mob/living/heard in range(TIMPAN_SIGHT_RANGE, user))
+		if(heard == user)
 			continue
-		show_outline(user, victim)
-		if(IS_HERETIC_OR_MONSTER(victim))
+		show_outline(user, heard)
+		if(IS_HERETIC_OR_MONSTER(heard) || get_dist(user, heard) > TIMPAN_RANGE)
 			continue
-		if(victim.getStaminaLoss() >= MAX_STAMINA_LOSS)
-			victim.apply_damage(TIMPAN_STAMINA_THEFT, BRUTE, BODY_ZONE_HEAD)
-			to_chat(victim, span_userdanger("Удар отдаётся у вас в черепе!"))
+		if(heard.getStaminaLoss() >= MAX_STAMINA_LOSS)
+			heard.apply_damage(TIMPAN_STAMINA_THEFT, BRUTE, BODY_ZONE_HEAD)
+			to_chat(heard, span_userdanger("Удар отдаётся у вас в черепе!"))
 			continue
-		victim.adjustStaminaLoss(TIMPAN_STAMINA_THEFT)
+		heard.adjustStaminaLoss(TIMPAN_STAMINA_THEFT)
 		stolen_stamina += TIMPAN_STAMINA_THEFT
 
 	if(stolen_stamina)
 		user.adjustStaminaLoss(-stolen_stamina)
-	addtimer(CALLBACK(src, PROC_REF(clear_outlines)), TIMPAN_SIGHT_DURATION)
+	sight_timer = addtimer(CALLBACK(src, PROC_REF(clear_outlines)), TIMPAN_SIGHT_DURATION, TIMER_STOPPABLE)
 
 
 /obj/item/unwaking_timpan/proc/show_outline(mob/living/user, mob/living/heard)
@@ -105,6 +107,8 @@
 
 
 /obj/item/unwaking_timpan/proc/clear_outlines()
+	deltimer(sight_timer)
+	sight_timer = null
 	var/mob/listener = listener_ref?.resolve()
 	for(var/image/outline as anything in heard_outlines)
 		listener?.client?.images -= outline
@@ -125,5 +129,6 @@
 #undef TIMPAN_RHYTM_GAIN
 #undef TIMPAN_STAMINA_THEFT
 #undef TIMPAN_RANGE
+#undef TIMPAN_SIGHT_RANGE
 #undef TIMPAN_HASTE_DURATION
 #undef TIMPAN_SIGHT_DURATION

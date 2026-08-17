@@ -47,7 +47,7 @@
 	var/dancing = FALSE
 	var/dance_timer
 	var/old_bleed_mod = 1
-	var/obj/effect/rhytm_dance/dance_overlay
+	var/obj/effect/abstract/rhytm_dance/dance_overlay
 
 
 /datum/status_effect/heretic_passive/rhytm/on_apply()
@@ -64,7 +64,7 @@
 	RegisterSignal(owner, COMSIG_MOB_ITEM_ATTACK, PROC_REF(on_damage_dealt))
 	RegisterSignal(owner, COMSIG_GET_MELEE_DAMAGE_DELTAS, PROC_REF(on_unarmed_attack))
 	RegisterSignal(owner, COMSIG_HUMAN_CHECK_SHIELDS, PROC_REF(try_dodge))
-	update_modifiers()
+	on_rhythm_changed()
 
 
 /datum/status_effect/heretic_passive/rhytm/level_upgrade()
@@ -166,8 +166,8 @@
 	if(dancing)
 		return
 	dancing = TRUE
-	dance_overlay = new(get_turf(owner))
-	dance_overlay.follow(owner)
+	dance_overlay = new(owner)
+	owner.vis_contents += dance_overlay
 	dance_step()
 
 
@@ -175,7 +175,9 @@
 	dancing = FALSE
 	deltimer(dance_timer)
 	dance_timer = null
-	QDEL_NULL(dance_overlay)
+	if(dance_overlay)
+		owner.vis_contents -= dance_overlay
+		QDEL_NULL(dance_overlay)
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/dance_step()
@@ -218,7 +220,7 @@
 	var/pulse_range = 1 + round(rhythm / RHYTM_PULSE_RANGE_PER_POINT)
 	new /obj/effect/temp_visual/resonant_pulse(get_turf(owner))
 	playsound(owner, 'sound/magic/heretic/rhytm/timpan3.ogg', 50, TRUE)
-	for(var/mob/living/victim in range(pulse_range, owner))
+	for(var/mob/living/victim in view(pulse_range, owner))
 		if(victim == owner || IS_HERETIC_OR_MONSTER(victim))
 			continue
 		victim.apply_damage(power, BRUTE, BODY_ZONE_CHEST)
@@ -386,7 +388,7 @@
 		return FALSE
 	RegisterSignal(owner, COMSIG_MOB_CLIENT_PRE_MOVE, PROC_REF(block_own_steps))
 	RegisterSignal(conductor, COMSIG_MOVABLE_MOVED, PROC_REF(follow_the_beat))
-	RegisterSignal(conductor, COMSIG_QDELETING, PROC_REF(on_conductor_gone))
+	RegisterSignals(conductor, list(COMSIG_LIVING_DEATH, COMSIG_QDELETING), PROC_REF(on_conductor_gone))
 	owner.visible_message(
 		span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] пускается в пляс, будто [GEND_HIM_HER(owner)] дёргают за нити!"),
 		span_userdanger("Ваше тело больше не слушается вас — оно подчиняется чужому такту!"),
@@ -397,7 +399,7 @@
 /datum/status_effect/festival_puppet/on_remove()
 	UnregisterSignal(owner, COMSIG_MOB_CLIENT_PRE_MOVE)
 	if(conductor)
-		UnregisterSignal(conductor, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING))
+		UnregisterSignal(conductor, list(COMSIG_MOVABLE_MOVED, COMSIG_LIVING_DEATH, COMSIG_QDELETING))
 		conductor = null
 	to_chat(owner, span_notice("Такт отпускает вас."))
 	return ..()
@@ -435,33 +437,14 @@
 	maptext_y = 2
 
 
-/obj/effect/rhytm_dance
+/obj/effect/abstract/rhytm_dance
 	icon = 'icons/effects/eldritch.dmi'
 	icon_state = "heretic_dance"
-	layer = ABOVE_MOB_LAYER
+	layer = ABOVE_ALL_MOB_LAYER
+	invisibility = INVISIBILITY_NONE
+	vis_flags = VIS_INHERIT_ID
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	pixel_y = 22
-
-
-/obj/effect/rhytm_dance/Initialize(mapload)
-	. = ..()
-	SET_PLANE_EXPLICIT(src, ABOVE_GAME_PLANE, src)
-
-
-/obj/effect/rhytm_dance/proc/follow(mob/living/target)
-	RegisterSignal(target, COMSIG_MOVABLE_MOVED, PROC_REF(on_target_moved))
-	RegisterSignal(target, COMSIG_QDELETING, PROC_REF(on_target_deleted))
-	forceMove(get_turf(target))
-
-
-/obj/effect/rhytm_dance/proc/on_target_moved(atom/movable/source)
-	SIGNAL_HANDLER
-	forceMove(get_turf(source))
-
-
-/obj/effect/rhytm_dance/proc/on_target_deleted(atom/movable/source)
-	SIGNAL_HANDLER
-	qdel(src)
 
 
 /obj/effect/temp_visual/resonant_pulse

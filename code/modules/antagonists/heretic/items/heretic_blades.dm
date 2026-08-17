@@ -715,12 +715,11 @@
 	force = 15
 	after_use_message = "Такт ведёт вас прочь..."
 	var/empowered_force = 5
-	var/cleaving = FALSE
 
 
 /obj/item/melee/sickly_blade/rhytm/Initialize(mapload)
 	. = ..()
-	qdel(GetComponent(/datum/component/cleave_attack))
+	ADD_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
 
 
 /obj/item/melee/sickly_blade/rhytm/get_ru_names()
@@ -745,23 +744,15 @@
 
 
 /obj/item/melee/sickly_blade/rhytm/pre_attackby(atom/target, mob/living/user, modifiers)
-	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(user)
-	sync_to_rhythm(beat)
+	sync_to_rhythm(get_heretic_rhytm(user))
 	return ..()
 
 
-/obj/item/melee/sickly_blade/rhytm/proc/sync_to_rhythm(datum/status_effect/heretic_passive/rhytm/beat)
-	var/beats = beat ? beat.effective_rhythm() : 0
+/obj/item/melee/sickly_blade/rhytm/proc/sync_to_rhythm(datum/status_effect/heretic_passive/rhytm/our_rhythm)
+	var/beats = our_rhythm ? our_rhythm.effective_rhythm() : 0
 	attack_speed = initial(attack_speed) * (1 - beats * 0.01)
-	force = initial(force) + ((beat?.rhythm >= RHYTM_EMPOWER_THRESHOLD) ? empowered_force : 0)
-	set_cleaving(beat?.rhythm >= RHYTM_DANCE_THRESHOLD)
-
-
-/obj/item/melee/sickly_blade/rhytm/proc/set_cleaving(should_cleave)
-	if(should_cleave == cleaving)
+	force = initial(force) + ((our_rhythm?.rhythm >= RHYTM_EMPOWER_THRESHOLD) ? empowered_force : 0)
+	if(our_rhythm?.rhythm >= RHYTM_DANCE_THRESHOLD)
+		REMOVE_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
 		return
-	cleaving = should_cleave
-	if(!should_cleave)
-		qdel(GetComponent(/datum/component/cleave_attack))
-		return
-	AddComponent(/datum/component/cleave_attack)
+	ADD_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
