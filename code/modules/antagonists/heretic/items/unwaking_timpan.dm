@@ -1,7 +1,9 @@
-#define TIMPAN_RHYTM_GAIN 3
+#define TIMPAN_RHYTM_GAIN 1
 #define TIMPAN_STAMINA_THEFT 5
+#define TIMPAN_BRUTE_DAMAGE 5
 #define TIMPAN_RANGE 4
 #define TIMPAN_SIGHT_RANGE 7
+#define TIMPAN_COOLDOWN (3 SECONDS)
 #define TIMPAN_HASTE_DURATION (3 SECONDS)
 #define TIMPAN_SIGHT_DURATION (5 SECONDS)
 
@@ -47,6 +49,7 @@
 	if(!IS_HERETIC_OR_MONSTER(user))
 		return
 	. += span_notice("Удар по тимпану поднимает ваш ритм, разгоняет вас и вытягивает силы из всех вокруг. \
+					Если вам нечего восполнять, удар просто отдаётся в их черепах. \
 					Бить можно прямо из кармана.")
 
 
@@ -66,17 +69,18 @@
 	if(!COOLDOWN_FINISHED(src, beat_cooldown))
 		return
 
-	COOLDOWN_START(src, beat_cooldown, 1 SECONDS)
+	COOLDOWN_START(src, beat_cooldown, TIMPAN_COOLDOWN)
 	playsound(user, pick('sound/magic/heretic/rhytm/timpan1.ogg', 'sound/magic/heretic/rhytm/timpan2.ogg', 'sound/magic/heretic/rhytm/timpan3.ogg'), 60, TRUE)
 	flick("timpan_use", src)
 
 	var/datum/status_effect/heretic_passive/rhytm/our_rhythm = get_heretic_rhytm(user)
 	our_rhythm?.adjust_rhythm(TIMPAN_RHYTM_GAIN)
+	our_rhythm?.flourish()
 
 	user.add_movespeed_modifier(/datum/movespeed_modifier/unwaking_timpan)
 	addtimer(CALLBACK(user, TYPE_PROC_REF(/mob, remove_movespeed_modifier), /datum/movespeed_modifier/unwaking_timpan), TIMPAN_HASTE_DURATION)
 
-	var/stolen_stamina = 0
+	var/nothing_to_steal = !user.getStaminaLoss()
 	clear_outlines()
 	listener_ref = WEAKREF(user)
 	for(var/mob/living/heard in range(TIMPAN_SIGHT_RANGE, user))
@@ -85,17 +89,17 @@
 		show_outline(user, heard)
 		if(IS_HERETIC_OR_MONSTER(heard) || get_dist(user, heard) > TIMPAN_RANGE)
 			continue
-		var/drained = min(TIMPAN_STAMINA_THEFT, MAX_STAMINA_LOSS - heard.getStaminaLoss())
-		if(drained > 0)
-			heard.adjustStaminaLoss(drained)
-			stolen_stamina += drained
-		if(drained >= TIMPAN_STAMINA_THEFT)
+		if(nothing_to_steal)
+			heard.apply_damage(TIMPAN_BRUTE_DAMAGE, BRUTE, BODY_ZONE_HEAD)
+			to_chat(heard, span_userdanger("Удар отдаётся у вас в черепе!"))
 			continue
-		heard.apply_damage(TIMPAN_STAMINA_THEFT - drained, BRUTE, BODY_ZONE_HEAD)
-		to_chat(heard, span_userdanger("Удар отдаётся у вас в черепе!"))
+		var/stolen = min(TIMPAN_STAMINA_THEFT, MAX_STAMINA_LOSS - heard.getStaminaLoss())
+		if(stolen <= 0)
+			continue
+		heard.adjustStaminaLoss(stolen, forced = TRUE)
+		user.adjustStaminaLoss(-stolen)
+		to_chat(heard, span_userdanger("Удар тимпана вытягивает из вас силы!"))
 
-	if(stolen_stamina)
-		user.adjustStaminaLoss(-stolen_stamina)
 	sight_timer = addtimer(CALLBACK(src, PROC_REF(clear_outlines)), TIMPAN_SIGHT_DURATION, TIMER_STOPPABLE)
 
 
@@ -130,7 +134,9 @@
 
 #undef TIMPAN_RHYTM_GAIN
 #undef TIMPAN_STAMINA_THEFT
+#undef TIMPAN_BRUTE_DAMAGE
 #undef TIMPAN_RANGE
 #undef TIMPAN_SIGHT_RANGE
+#undef TIMPAN_COOLDOWN
 #undef TIMPAN_HASTE_DURATION
 #undef TIMPAN_SIGHT_DURATION

@@ -39,6 +39,7 @@
 		return
 
 	beat.pulse_until = world.time + HEART_RESONANCE_DURATION
+	beat.flourish()
 	new /obj/effect/temp_visual/resonant_pulse(get_turf(caster))
 	to_chat(caster, span_hierophant("Все сердца вокруг сбиваются на ваш такт."))
 

@@ -3,10 +3,10 @@
 #define RHYTM_MAX_UPGRADED 50
 #define RHYTM_MAX_FINAL 100
 #define RHYTM_BONUS_CAP 25
-#define RHYTM_PARRY_THRESHOLD 20
+#define RHYTM_DODGE_THRESHOLD 20
 #define RHYTM_BACKLASH_THRESHOLD 25
 #define RHYTM_EMPOWER_STAMINA 5
-#define RHYTM_BACKLASH_CHANCE 25
+#define RHYTM_BACKLASH_CHANCE 10
 #define RHYTM_MEND_THRESHOLD 10
 #define RHYTM_HEAL_INTERVAL (5 SECONDS)
 #define RHYTM_UPGRADED_HEAL_INTERVAL (3.3 SECONDS)
@@ -15,6 +15,8 @@
 #define RHYTM_COMBAT_DELAY (5 SECONDS)
 #define RHYTM_ASCENDED_MINIMUM 30
 #define RHYTM_PULSE_RANGE_PER_POINT 10
+#define RHYTM_PULSE_DAMAGE_MULTIPLIER 0.5
+#define RHYTM_SPIN_SPEED (0.6 SECONDS)
 #define FESTIVAL_STAMINA_PER_STEP 5
 #define RHYTM_PER_RESONATING_HEART 5
 #define RHYTM_PER_MARK 5
@@ -64,6 +66,7 @@
 	RegisterSignal(owner, COMSIG_MOB_ITEM_ATTACK, PROC_REF(on_damage_dealt))
 	RegisterSignal(owner, COMSIG_GET_MELEE_DAMAGE_DELTAS, PROC_REF(on_unarmed_attack))
 	RegisterSignal(owner, COMSIG_HUMAN_CHECK_SHIELDS, PROC_REF(try_dodge))
+	RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(dodge_projectile))
 	on_rhythm_changed()
 
 
@@ -94,6 +97,7 @@
 		COMSIG_MOB_ITEM_ATTACK,
 		COMSIG_GET_MELEE_DAMAGE_DELTAS,
 		COMSIG_HUMAN_CHECK_SHIELDS,
+		COMSIG_HUMAN_TRY_DEFLECT_BULLET,
 		COMSIG_LIVING_GENERIC_INCAPACITATE_CHECK,
 	))
 	owner.remove_movespeed_modifier(/datum/movespeed_modifier/rhytm)
@@ -181,10 +185,14 @@
 /datum/status_effect/heretic_passive/rhytm/proc/dance_step()
 	if(!dancing || QDELETED(owner))
 		return
-	new /obj/effect/temp_visual/heretic_dance(get_turf(owner))
-	INVOKE_ASYNC(owner, TYPE_PROC_REF(/atom, SpinAnimation), 0.6 SECONDS, 1)
+	flourish()
 	INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, custom_emote), EMOTE_VISIBLE, pick("жутко подёргивается.", "радостно танцует."))
 	dance_timer = addtimer(CALLBACK(src, PROC_REF(dance_step)), rand(8 SECONDS, 14 SECONDS), TIMER_STOPPABLE)
+
+
+/datum/status_effect/heretic_passive/rhytm/proc/flourish()
+	new /obj/effect/temp_visual/heretic_dance(get_turf(owner))
+	owner.SpinAnimation(RHYTM_SPIN_SPEED, 1)
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/beat()
@@ -197,7 +205,7 @@
 
 	var/resonating = world.time < pulse_until
 	if(always_pulse || resonating)
-		pulse(power)
+		pulse()
 
 	if(resonating)
 		for(var/mob/living/watcher in view(owner))
@@ -216,14 +224,15 @@
 	owner.updatehealth("rhytm heartbeat")
 
 
-/datum/status_effect/heretic_passive/rhytm/proc/pulse(power)
+/datum/status_effect/heretic_passive/rhytm/proc/pulse()
 	var/pulse_range = 1 + round(rhythm / RHYTM_PULSE_RANGE_PER_POINT)
+	var/pulse_damage = rhythm * RHYTM_PULSE_DAMAGE_MULTIPLIER
 	new /obj/effect/temp_visual/resonant_pulse(get_turf(owner))
 	playsound(owner, 'sound/magic/heretic/rhytm/timpan3.ogg', 50, TRUE)
 	for(var/mob/living/victim in view(pulse_range, owner))
 		if(victim == owner || IS_HERETIC_OR_MONSTER(victim))
 			continue
-		victim.apply_damage(power, BRUTE, BODY_ZONE_CHEST)
+		victim.apply_damage(pulse_damage, BRUTE, BODY_ZONE_CHEST)
 		to_chat(victim, span_userdanger("Чужое сердцебиение бьёт вас изнутри!"))
 
 
@@ -260,22 +269,38 @@
 /datum/status_effect/heretic_passive/rhytm/proc/try_dodge(mob/living/carbon/human/source, atom/movable/hitby, attack_text, armour_penetration, damage, attack_type)
 	SIGNAL_HANDLER
 
-	if(owner.body_position == LYING_DOWN || owner.stat != CONSCIOUS)
+	if(attack_type == PROJECTILE_ATTACK)
+		return
+	if(!can_dodge() || !prob(effective_rhythm()))
 		return
 
-	var/is_projectile = (attack_type == PROJECTILE_ATTACK)
-	if(!is_projectile && !prob(effective_rhythm()))
-		return
-	if(is_projectile && rhythm < RHYTM_PARRY_THRESHOLD && !prob(effective_rhythm()))
-		return
+	announce_dodge(hitby)
+	return SHIELD_BLOCK
 
+
+/datum/status_effect/heretic_passive/rhytm/proc/dodge_projectile(mob/living/source, obj/projectile/hitting_projectile, def_zone)
+	SIGNAL_HANDLER
+
+	if(!can_dodge())
+		return NONE
+	if(rhythm < RHYTM_DODGE_THRESHOLD && !prob(effective_rhythm()))
+		return NONE
+
+	announce_dodge(hitting_projectile)
+	return COMPONENT_BULLET_DEFLECTED
+
+
+/datum/status_effect/heretic_passive/rhytm/proc/can_dodge()
+	return owner.body_position != LYING_DOWN && owner.stat == CONSCIOUS
+
+
+/datum/status_effect/heretic_passive/rhytm/proc/announce_dodge(atom/movable/hitby)
 	owner.visible_message(
 		span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] уходит с линии удара, не сбившись с такта!"),
 		span_userdanger("Такт ведёт вас в сторону, и [hitby.declent_ru(NOMINATIVE)] проходит мимо."),
 	)
 	playsound(owner, 'sound/magic/heretic/rhytm/timpan2.ogg', 40, TRUE)
 	adjust_rhythm(1)
-	return SHIELD_BLOCK
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/shrug_off_knockdown(mob/living/source, check_flags, force_apply)
@@ -464,7 +489,7 @@
 #undef RHYTM_MAX_UPGRADED
 #undef RHYTM_MAX_FINAL
 #undef RHYTM_BONUS_CAP
-#undef RHYTM_PARRY_THRESHOLD
+#undef RHYTM_DODGE_THRESHOLD
 #undef RHYTM_BACKLASH_THRESHOLD
 #undef RHYTM_EMPOWER_STAMINA
 #undef RHYTM_BACKLASH_CHANCE
@@ -476,6 +501,8 @@
 #undef RHYTM_COMBAT_DELAY
 #undef RHYTM_ASCENDED_MINIMUM
 #undef RHYTM_PULSE_RANGE_PER_POINT
+#undef RHYTM_PULSE_DAMAGE_MULTIPLIER
+#undef RHYTM_SPIN_SPEED
 #undef FESTIVAL_STAMINA_PER_STEP
 #undef RHYTM_PER_RESONATING_HEART
 #undef RHYTM_PER_MARK

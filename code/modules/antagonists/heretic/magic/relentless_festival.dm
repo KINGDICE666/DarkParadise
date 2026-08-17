@@ -44,6 +44,8 @@
 /obj/effect/proc_holder/spell/aoe/relentless_festival/cast(list/targets, mob/user = usr)
 	. = ..()
 	var/mob/living/caster = action.owner || user
+	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(caster)
+	beat?.flourish()
 	new /obj/effect/temp_visual/relentless_festival(get_turf(caster))
 	for(var/mob/living/victim as anything in get_things_to_cast_on(caster))
 		victim.apply_status_effect(/datum/status_effect/festival_puppet, caster)

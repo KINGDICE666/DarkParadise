@@ -719,6 +719,8 @@
 
 /obj/item/melee/sickly_blade/rhytm/Initialize(mapload)
 	. = ..()
+	qdel(GetComponent(/datum/component/cleave_attack))
+	AddComponent(/datum/component/cleave_attack, swing_speed_mod = 1, afterswing_slowdown = 0)
 	ADD_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
 
 
@@ -745,6 +747,9 @@
 
 /obj/item/melee/sickly_blade/rhytm/pre_attackby(atom/target, mob/living/user, modifiers)
 	sync_to_rhythm(get_heretic_rhytm(user))
+	if(user.a_intent == INTENT_HARM && !HAS_TRAIT(src, TRAIT_CLEAVE_BLOCKED) && !HAS_TRAIT(src, TRAIT_CLEAVING) && !HAS_TRAIT(user, TRAIT_PACIFISM))
+		var/datum/component/cleave_attack/sweep = GetComponent(/datum/component/cleave_attack)
+		INVOKE_ASYNC(sweep, TYPE_PROC_REF(/datum/component/cleave_attack, perform_sweep), src, target, user, modifiers)
 	return ..()
 
 

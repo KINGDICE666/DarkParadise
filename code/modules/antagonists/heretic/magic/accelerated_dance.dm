@@ -33,6 +33,8 @@
 	var/mob/living/cast_on = targets[1]
 	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(cast_on)
 	beat?.adjust_rhythm(ACCELERATED_DANCE_RHYTM)
+	beat?.flourish()
+	cast_on.emote("dance", ignore_cooldowns = TRUE)
 	cast_on.apply_status_effect(/datum/status_effect/accelerated_dance)
 
 
