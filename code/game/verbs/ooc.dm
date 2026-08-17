@@ -65,7 +65,7 @@ GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KI
 				message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")
 				return
 
-	GLOB.discord_manager.queue_ooc(holder?.fakekey || key, msg)
+	GLOB.discord_manager.queue_ooc(holder?.fakekey || key, emojisToDiscord(msg))
 
 	msg = handleDiscordEmojis(msg)
 
