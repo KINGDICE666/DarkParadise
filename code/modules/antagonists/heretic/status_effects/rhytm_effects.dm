@@ -47,7 +47,6 @@
 	var/dancing = FALSE
 	var/dance_timer
 	var/old_bleed_mod = 1
-	var/obj/effect/abstract/rhytm_dance/dance_overlay
 
 
 /datum/status_effect/heretic_passive/rhytm/on_apply()
@@ -166,8 +165,6 @@
 	if(dancing)
 		return
 	dancing = TRUE
-	dance_overlay = new(owner)
-	owner.vis_contents += dance_overlay
 	dance_step()
 
 
@@ -175,14 +172,12 @@
 	dancing = FALSE
 	deltimer(dance_timer)
 	dance_timer = null
-	if(dance_overlay)
-		owner.vis_contents -= dance_overlay
-		QDEL_NULL(dance_overlay)
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/dance_step()
 	if(!dancing || QDELETED(owner))
 		return
+	new /obj/effect/temp_visual/heretic_dance(get_turf(owner))
 	INVOKE_ASYNC(owner, TYPE_PROC_REF(/atom, SpinAnimation), 0.6 SECONDS, 1)
 	INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, custom_emote), EMOTE_VISIBLE, pick("жутко подёргивается.", "радостно танцует."))
 	dance_timer = addtimer(CALLBACK(src, PROC_REF(dance_step)), rand(8 SECONDS, 14 SECONDS), TIMER_STOPPABLE)
@@ -436,14 +431,13 @@
 	maptext_y = 7
 
 
-/obj/effect/abstract/rhytm_dance
+/obj/effect/temp_visual/heretic_dance
 	icon = 'icons/effects/eldritch.dmi'
 	icon_state = "heretic_dance"
+	duration = 0.7 SECONDS
 	layer = ABOVE_ALL_MOB_LAYER
-	invisibility = INVISIBILITY_NONE
-	vis_flags = VIS_INHERIT_ID
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	pixel_y = 22
+	alpha = 160
+	randomdir = FALSE
 
 
 /obj/effect/temp_visual/resonant_pulse
