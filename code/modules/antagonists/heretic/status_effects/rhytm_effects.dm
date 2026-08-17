@@ -139,7 +139,7 @@
 	update_modifiers()
 	update_dance()
 	if(linked_alert)
-		linked_alert.maptext = MAPTEXT_TINY_UNICODE("<span style='text-align:center'>[rhythm]</span>")
+		linked_alert.maptext = MAPTEXT_TINY_UNICODE("<div align='center'>[rhythm]</div>")
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/effective_rhythm()
@@ -433,8 +433,7 @@
 	desc = "Ваше сердце ведёт счёт. Чем выше ритм, тем быстрее вы двигаетесь и тем скорее затягиваются раны."
 	icon = 'icons/mob/screen_alert_heretic.dmi'
 	icon_state = "rhytm_count"
-	maptext_x = 2
-	maptext_y = 2
+	maptext_y = 7
 
 
 /obj/effect/abstract/rhytm_dance

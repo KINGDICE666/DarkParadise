@@ -1664,10 +1664,10 @@
 	icon = 'icons/hud/rhytm_stamina_64x64.dmi'
 	icon_state = "stamina_counter"
 	screen_loc = "EAST-2:16,CENTER-1:0"
-	maptext_x = 20
-	maptext_y = 26
+	maptext_y = 31
+	maptext_width = 64
 
 
 /atom/movable/screen/rhytm_stamina/proc/update_stamina(remaining)
-	maptext = MAPTEXT_TINY_UNICODE("<span style='text-align:center'>[round(remaining)]</span>")
+	maptext = MAPTEXT_TINY_UNICODE("<div align='center'>[round(remaining)]</div>")
 
