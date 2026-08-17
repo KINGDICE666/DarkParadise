@@ -364,7 +364,7 @@
 	add_fingerprint(user)
 	if(I.tool_behaviour != TOOL_CROWBAR)
 		return FALSE
-	if(!I.use_tool(src, user, 1 SECONDS, volume = 0))
+	if(!I.use_tool(src, user, 0, volume = 0))
 		return FALSE
 	if((panel_open || ignore_panel) && !(obj_flags & NODECONSTRUCT))
 		deconstruct(TRUE)
@@ -377,7 +377,7 @@
 	add_fingerprint(user)
 	if(I.tool_behaviour != TOOL_SCREWDRIVER)
 		return FALSE
-	if(!I.use_tool(src, user, 1 SECONDS, volume = 0))
+	if(!I.use_tool(src, user, 0, volume = 0))
 		return FALSE
 	if(!(obj_flags & NODECONSTRUCT))
 		var/prev_icon_state = icon_state

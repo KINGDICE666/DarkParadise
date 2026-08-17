@@ -18,6 +18,7 @@
 	value = "puchkow"
 	category = TTS_CATEGORY_MEDIA
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/moriarti
 	name = "Мориарти"
@@ -36,6 +37,7 @@
 	value = "planya"
 	category = TTS_CATEGORY_MEDIA
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/mana
 	name = "Мана"
@@ -54,6 +56,7 @@
 	value = "biden"
 	category = TTS_CATEGORY_MEDIA
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/obama
 	name = "Барак Обама"
@@ -72,6 +75,7 @@
 	value = "dbkn2"
 	category = TTS_CATEGORY_MEDIA
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/xrenoid
 	name = "Хреноид"
@@ -90,6 +94,7 @@
 	value = "briman"
 	category = TTS_CATEGORY_HALFLIFE2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/father_grigori
 	name = "Отец Григорий"
@@ -108,6 +113,7 @@
 	value = "mossman"
 	category = TTS_CATEGORY_HALFLIFE2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/vance
 	name = "Илай Вэнс"
@@ -126,6 +132,7 @@
 	value = "gman"
 	category = TTS_CATEGORY_HALFLIFE2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/barni
 	name = "Барни Калхун"
@@ -144,6 +151,7 @@
 	value = "neco_arc_2"
 	category = TTS_CATEGORY_FATE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/angry_neco_arc
 	name = "Злая Неко-Арк"
@@ -162,6 +170,7 @@
 	value = "squidward"
 	category = TTS_CATEGORY_SPONGEBOB
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sentrybot
 	name = "SentryBot"
@@ -180,6 +189,7 @@
 	value = "robert_maccready"
 	category = TTS_CATEGORY_FALLOUT3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/threedog
 	name = "Тридогнайт"
@@ -198,6 +208,7 @@
 	value = "mister_handy_fl3"
 	category = TTS_CATEGORY_FALLOUT3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/mister_gutsy_fl3
 	name = "Мистер Храбрец"
@@ -216,6 +227,7 @@
 	value = "elder_lyons_fl3"
 	category = TTS_CATEGORY_FALLOUT3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sarah_lyons_fl3
 	name = "Сара Лайонс"
@@ -234,6 +246,7 @@
 	value = "john_henry_eden_fl3"
 	category = TTS_CATEGORY_FALLOUT3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/super_mutant_fl3
 	name = "Супер-Мутант"
@@ -252,6 +265,7 @@
 	value = "romka"
 	category = TTS_CATEGORY_TINYBUNNY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/boris_petrov_father_tb
 	name = "Борис Петров"
@@ -270,6 +284,7 @@
 	value = "kate_smirnova_tb"
 	category = TTS_CATEGORY_TINYBUNNY
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/semen_baburin_tb
 	name = "Семён Бабурин"
@@ -288,6 +303,7 @@
 	value = "cicero"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sheogorath
 	name = "Шеогорат"
@@ -306,6 +322,7 @@
 	value = "khajiit"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/elenwen
 	name = "Эленвен"
@@ -324,6 +341,7 @@
 	value = "guard"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/hagraven
 	name = "Ворожея"
@@ -342,6 +360,7 @@
 	value = "nord"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/ulfric
 	name = "Ульфрик Буревестник"
@@ -360,6 +379,7 @@
 	value = "maven"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/nazir
 	name = "Назир"
@@ -378,6 +398,7 @@
 	value = "lord_harkon"
 	category = TTS_CATEGORY_SKYRIM
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/serana
 	name = "Серана"
@@ -396,6 +417,7 @@
 	value = "adventure_core"
 	category = TTS_CATEGORY_PORTAL2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/fact_core
 	name = "Модуль Фактов"
@@ -414,6 +436,7 @@
 	value = "turret_floor"
 	category = TTS_CATEGORY_PORTAL2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/geralt
 	name = "Геральт из Ривии"
@@ -432,6 +455,7 @@
 	value = "cerys"
 	category = TTS_CATEGORY_WITCHER
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/lambert
 	name = "Ламберт"
@@ -450,6 +474,7 @@
 	value = "kovir_nobleman"
 	category = TTS_CATEGORY_WITCHER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/zoltan_chivay
 	name = "Золтан Хивай"
@@ -468,6 +493,7 @@
 	value = "guillaume_de_launfal"
 	category = TTS_CATEGORY_WITCHER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/philippa_eilhart
 	name = "Филиппа Эйльхарт"
@@ -486,6 +512,7 @@
 	value = "dandelion"
 	category = TTS_CATEGORY_WITCHER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/shani
 	name = "Шани"
@@ -504,6 +531,7 @@
 	value = "ekko"
 	category = TTS_CATEGORY_LOL
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/twitch
 	name = "Твич"
@@ -522,6 +550,7 @@
 	value = "caitlyn"
 	category = TTS_CATEGORY_LOL
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/arthas
 	name = "Артас Менетил"
@@ -540,6 +569,7 @@
 	value = "rexxar"
 	category = TTS_CATEGORY_WARCRAFT3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/voljin
 	name = "Вол'джин"
@@ -558,6 +588,7 @@
 	value = "forester"
 	category = TTS_CATEGORY_STALKER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sidorovich
 	name = "Сидорович"
@@ -576,6 +607,7 @@
 	value = "tracer"
 	category = TTS_CATEGORY_OVERWATCH
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/soldier
 	name = "Солдат"
@@ -594,6 +626,7 @@
 	value = "heavy"
 	category = TTS_CATEGORY_TEAMFORTRESS2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/medic
 	name = "Медик"
@@ -612,6 +645,7 @@
 	value = "sniper"
 	category = TTS_CATEGORY_TEAMFORTRESS2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/spy
 	name = "Шпион"
@@ -630,6 +664,7 @@
 	value = "johnny"
 	category = TTS_CATEGORY_CYBERPUNK
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/panam
 	name = "Панам Палмер"
@@ -648,6 +683,7 @@
 	value = "judy"
 	category = TTS_CATEGORY_CYBERPUNK
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/mitch
 	name = "Митч Андерсон"
@@ -666,6 +702,7 @@
 	value = "jackie"
 	category = TTS_CATEGORY_CYBERPUNK
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/maiko
 	name = "Майко Маэда"
@@ -684,6 +721,7 @@
 	value = "nancy_hartley"
 	category = TTS_CATEGORY_CYBERPUNK
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/oswald_forrest
 	name = "Освальд Форрест"
@@ -702,6 +740,7 @@
 	value = "dornan"
 	category = TTS_CATEGORY_FALLOUT2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/officer_enclave
 	name = "Офицер Анклава"
@@ -720,6 +759,7 @@
 	value = "butch"
 	category = TTS_CATEGORY_FALLOUT2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/marcus
 	name = "Маркус"
@@ -738,6 +778,7 @@
 	value = "myron"
 	category = TTS_CATEGORY_FALLOUT2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/good_thalya
 	name = "Добрая Талия"
@@ -756,6 +797,7 @@
 	value = "narrator_d3"
 	category = TTS_CATEGORY_DUNGEONS3
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/dude
 	name = "Чувак"
@@ -774,6 +816,7 @@
 	value = "brukan"
 	category = TTS_CATEGORY_HEARTHSTONE
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/garrosh
 	name = "Гаррош Адский Крик"
@@ -792,6 +835,7 @@
 	value = "uther_hs"
 	category = TTS_CATEGORY_HEARTHSTONE
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/adjutant
 	name = "Адъютант"
@@ -810,6 +854,7 @@
 	value = "bralik"
 	category = TTS_CATEGORY_STARCRAFT
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/horner
 	name = "Мэтт Хорнер"
@@ -828,6 +873,7 @@
 	value = "tychus"
 	category = TTS_CATEGORY_STARCRAFT
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/amitkakkar
 	name = "Амит Таккар"
@@ -846,6 +892,7 @@
 	value = "ernielark"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/ignatiaflootravel
 	name = "Игнатия Уайлдсмит"
@@ -864,6 +911,7 @@
 	value = "phineasblack"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/ranrak
 	name = "Ранрок"
@@ -882,6 +930,7 @@
 	value = "zenobianoke"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/gladwinmoon
 	name = "Глэдвин Мун"
@@ -900,6 +949,7 @@
 	value = "natsaionai"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/ominisgaunt
 	name = "Оминис Мракс"
@@ -918,6 +968,7 @@
 	value = "generic_goblin_c"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/dinah_hecat
 	name = "Дина Гекат"
@@ -936,6 +987,7 @@
 	value = "abraham_ronen"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/samantha_dale
 	name = "Саманта Дейл"
@@ -954,6 +1006,7 @@
 	value = "sophronia_franklin"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/everett_clopton
 	name = "Эверетт Клоптон"
@@ -972,6 +1025,7 @@
 	value = "sanctuary_house_elf"
 	category = TTS_CATEGORY_HOGWARTS_LEGACY
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/abaddon_dota_2
 	name = "Abaddon"
@@ -1008,6 +1062,7 @@
 	value = "bloodseeker_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/bounty_hunter_dota_2
 	name = "Bounty Hunter"
@@ -1026,6 +1081,7 @@
 	value = "broodmother_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/centaur_warrunner_dota_2
 	name = "Centaur Warrunner"
@@ -1044,6 +1100,7 @@
 	value = "clockwerk_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/crystal_maiden_dota_2
 	name = "Crystal Maiden"
@@ -1062,6 +1119,7 @@
 	value = "disruptor_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/doom_dota_2
 	name = "Doom"
@@ -1080,6 +1138,7 @@
 	value = "dragon_knight_dragon_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/drow_ranger_dota_2
 	name = "Drow Ranger"
@@ -1098,6 +1157,7 @@
 	value = "ember_spirit_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/enigma_dota_2
 	name = "Enigma"
@@ -1116,6 +1176,7 @@
 	value = "huskar_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/invoker_dota_2
 	name = "Invoker"
@@ -1134,6 +1195,7 @@
 	value = "keeper_of_the_light_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/kunkka_dota_2
 	name = "Kunkka"
@@ -1152,6 +1214,7 @@
 	value = "legion_commander_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/lich_dota_2
 	name = "Lich"
@@ -1170,6 +1233,7 @@
 	value = "luna_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/lycan_dota_2
 	name = "Lycan"
@@ -1188,6 +1252,7 @@
 	value = "meepo_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/mirana_dota_2
 	name = "Mirana"
@@ -1206,6 +1271,7 @@
 	value = "monkey_king_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/necrophos_dota_2
 	name = "Necrophos"
@@ -1224,6 +1290,7 @@
 	value = "omniknight_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/outworld_destroyer_dota_2
 	name = "Outworld Destroyer"
@@ -1242,6 +1309,7 @@
 	value = "phantom_assassin_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/phantom_lancer_dota_2
 	name = "Phantom Lancer"
@@ -1260,6 +1328,7 @@
 	value = "queen_of_pain_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/razor_dota_2
 	name = "Razor"
@@ -1278,6 +1347,7 @@
 	value = "rubick_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sand_king_dota_2
 	name = "Sand King"
@@ -1296,6 +1366,7 @@
 	value = "shadow_shaman_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/skywrath_mage_dota_2
 	name = "Skywrath Mage"
@@ -1314,6 +1385,7 @@
 	value = "slark_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/spirit_breaker_dota_2
 	name = "Spirit Breaker"
@@ -1332,6 +1404,7 @@
 	value = "sven_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/templar_assassin_dota_2
 	name = "Templar Assassin"
@@ -1350,6 +1423,7 @@
 	value = "treant_protector_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/underlord_dota_2
 	name = "Underlord"
@@ -1368,6 +1442,7 @@
 	value = "windranger_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/winter_wyvern_dota_2
 	name = "Winter Wyvern"
@@ -1386,6 +1461,7 @@
 	value = "wraith_king_dota_2"
 	category = TTS_CATEGORY_DOTA2
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/zeus_dota_2
 	name = "Zeus"
@@ -1398,30 +1474,35 @@
 	value = "mita"
 	category = TTS_CATEGORY_MISIDE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_IV
 
 /datum/tts_seed/ntts/mitadream
 	name = "Сонная Мита"
 	value = "mitadream"
 	category = TTS_CATEGORY_MISIDE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_IV
 
 /datum/tts_seed/ntts/mitaghost
 	name = "Мита Призрак"
 	value = "mitaghost"
 	category = TTS_CATEGORY_MISIDE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_IV
 
 /datum/tts_seed/ntts/mitakind
 	name = "Добрая Мита"
 	value = "mitakind"
 	category = TTS_CATEGORY_MISIDE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_IV
 
 /datum/tts_seed/ntts/mitashorthairs
 	name = "Коротковолосая Мита"
 	value = "mitashorthairs"
 	category = TTS_CATEGORY_MISIDE
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_IV
 
 /datum/tts_seed/ntts/chaos_marines_cultists_dow
 	name = "Культисты Хаоса"
@@ -1440,6 +1521,7 @@
 	value = "chaos_marines_lord_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/chaos_marines_sorceror_dow
 	name = "Колдун Хаоса"
@@ -1458,6 +1540,7 @@
 	value = "dark_eldar_mandrake_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/dark_eldar_warrior_dow
 	name = "Воин Тёмных Эльдар"
@@ -1476,6 +1559,7 @@
 	value = "eldar_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/eldar_farseer_dow
 	name = "Провидец Эльдар"
@@ -1494,6 +1578,7 @@
 	value = "eldar_warlock_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/guard_assassin_dow
 	name = "Ассасин Имперской Гвардии"
@@ -1512,6 +1597,7 @@
 	value = "guard_commissar_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/guard_enginseer_dow
 	name = "Техножрец Имперской Гвардии"
@@ -1530,6 +1616,7 @@
 	value = "guard_heavy_weapons_platoon_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/guard_karskin_dow
 	name = "Касркин Имперской Гвардии"
@@ -1548,6 +1635,7 @@
 	value = "guard_priest_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/guard_psyker_dow
 	name = "Псайкер Имперской Гвардии"
@@ -1566,6 +1654,7 @@
 	value = "orks_flashgitznobs_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/orks_grots_dow
 	name = "Гретчины Орков"
@@ -1584,6 +1673,7 @@
 	value = "sisters_battle_sister_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/sisters_missionary_dow
 	name = "Миссионер Сестёр Битвы"
@@ -1602,6 +1692,7 @@
 	value = "space_marines_chaplain_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/space_marines_dow
 	name = "Космодесантники"
@@ -1620,6 +1711,7 @@
 	value = "space_marines_librarian_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_MALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/tau_ethereal_dow
 	name = "Эфирный Тау"
@@ -1638,6 +1730,7 @@
 	value = "tutorial_f_dow"
 	category = TTS_CATEGORY_WARHAMMER
 	gender = TTS_GENDER_FEMALE
+	donator_level = DONATOR_TIER_I
 
 /datum/tts_seed/ntts/tutorial_m_dow
 	name = "Инструктор DOW"

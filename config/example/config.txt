@@ -169,13 +169,13 @@ CHECK_RANDOMIZER
 GITHUBURL https://github.com/KINGDICE666/DarkParadise
 
 ## Discord address
-DISCORDURL https://discord.gg/nGDfQuScM7
+DISCORDURL https://discord.gg/5N55TJgTa9
 
 ## Discord address (forum-based invite)
-DISCORDFORUMURL https://discord.gg/nGDfQuScM7
+DISCORDFORUMURL https://discord.gg/5N55TJgTa9
 
 ## Discord address (bug report)
-DISCORDBUGREPORTURL https://discord.gg/nGDfQuScM7
+DISCORDBUGREPORTURL https://discord.gg/5N55TJgTa9
 
 ## Donations address
 DONATIONSURL https://boosty.to/king_dice
@@ -184,7 +184,7 @@ DONATIONSURL https://boosty.to/king_dice
 REPOSITORYURL https://github.com/KINGDICE666/DarkParadise
 
 ## Ban appeals URL - usually for a forum or wherever people should go to contact your admins
-BANAPPEALS https://discord.gg/nGDfQuScM7
+BANAPPEALS https://discord.gg/5N55TJgTa9
 
 ## In-game features
 ## spawns a spellbook which gives object-type spells instead of verb-type spells for the wizard
@@ -385,6 +385,11 @@ BYOND_ACCOUNT_AGE_THRESHOLD 7
 ## DISCORD_MENTOR_WEBHOOK_URLS https://url1
 ## DISCORD_MENTOR_WEBHOOK_URLS https://url2
 #DISCORD_MENTOR_WEBHOOK_URLS
+
+## Webhook URLs for the OOC relay webhook. Separate multiple URLs with enter, like:
+## DISCORD_OOC_WEBHOOK_URLS https://url1
+## DISCORD_OOC_WEBHOOK_URLS https://url2
+#DISCORD_OOC_WEBHOOK_URLS
 
 ## Uncomment to send all ahelps to discord. If the line is commented, only ahelps made when no admins are online will be forwarded
 ## Ahelps forwarded when staff are online will never have the role ping, regardless of the setting above

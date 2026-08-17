@@ -152,7 +152,7 @@
 	if(operating || !welded)
 		return
 	. = TRUE
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	user.visible_message(
 		span_notice("[user] [boltslocked ? "unlocks" : "locks"] [src]'s bolts."), \

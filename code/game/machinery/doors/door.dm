@@ -316,7 +316,7 @@
 	. = TRUE
 	if(operating)
 		return
-	if(!I.use_tool(src, user, 1 SECONDS, volume = 0))
+	if(!I.use_tool(src, user, 0, volume = 0))
 		return
 	try_to_crowbar(user, I)
 

@@ -183,7 +183,7 @@
 	. = TRUE
 	if(shock(user, 100))
 		return
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	deconstruct()
 
@@ -193,7 +193,7 @@
 	. = TRUE
 	if(shock(user, 90))
 		return
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	set_anchored(!anchored)
 	user.visible_message(span_notice("[user] [anchored ? "fastens" : "unfastens"] [src]."), \
