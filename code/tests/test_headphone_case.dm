@@ -18,6 +18,10 @@
 	if(case.icon_state != "case_white_open_on")
 		TEST_FAIL("Headphone case did not light up after being turned on, its state was [case.icon_state]!")
 
+	var/list/open_data = case.ui_data(listener)
+	if(open_data["left_bud_overlay"] || !open_data["right_bud_overlay"])
+		TEST_FAIL("The panel drew the wrong earbuds for an open case holding only the right one!")
+
 	listener.equip_to_slot_if_possible(case.left_bud, ITEM_SLOT_EAR_LEFT, disable_warning = TRUE)
 	if(listener.l_ear != case.left_bud)
 		TEST_FAIL("The earbud could not be worn in an ear slot!")
@@ -38,6 +42,7 @@
 	if(!(listener in case.player.get_active_listeners()))
 		TEST_FAIL("Headphone case stopped the music when one of the two earbuds a mob was wearing came out!")
 
+	case.player.start_time = world.time - 30 SECONDS
 	latecomer.put_in_hands(case.right_bud)
 	latecomer.equip_to_slot_if_possible(case.right_bud, ITEM_SLOT_EAR_RIGHT, disable_warning = TRUE)
 	if(!(latecomer in case.player.get_active_listeners()))
@@ -61,11 +66,17 @@
 	if(case.icon_state != "case_white_on")
 		TEST_FAIL("Headphone case did not close after both earbuds were back inside, its state was [case.icon_state]!")
 
+	var/list/closed_data = case.ui_data(listener)
+	if(closed_data["left_bud_overlay"] || closed_data["right_bud_overlay"])
+		TEST_FAIL("The panel drew earbuds on top of a closed case!")
+
 	case.toggle_power()
 	if(!isnull(case.song_timerid))
 		TEST_FAIL("Headphone case kept its track running after being turned off!")
 
 	text2file("unit test leftovers", "[SONG_CACHE_DIRECTORY]/unit_test.mp3")
+	if(!fexists("[SONG_CACHE_DIRECTORY]/unit_test.mp3"))
+		TEST_FAIL("Could not seed the song cache, the cleanup check below proves nothing!")
 	SSsounds.clear_song_cache()
 	if(length(flist("[SONG_CACHE_DIRECTORY]/")))
 		TEST_FAIL("The song cache still had tracks in it after being cleared!")

@@ -2352,7 +2352,7 @@
 		case.powered = FALSE
 		case.update_icon(UPDATE_ICON_STATE)
 		log_admin("[key_name(usr)] stopped the music playing from [case] ([case.UID()])")
-		message_admins("[key_name_admin(usr)] выключил музыку в наушниках.")
+		message_admins("[key_name_admin(usr)] stopped the music playing from a headphone case.")
 
 	else if(href_list["cryossd"])
 		if(!check_rights(R_ADMIN))

@@ -172,6 +172,7 @@ const Display = () => {
           {playing ? (
             <Countdown
               timeLeft={end_time - world_time}
+              current={world_time}
               format={(value, formatted) => formatted.substring(3)}
             />
           ) : (
