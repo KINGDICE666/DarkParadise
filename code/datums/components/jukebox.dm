@@ -235,6 +235,9 @@
 	start_time = world.time
 	end_time = start_time + selection.song_length
 
+/datum/jukebox/proc/has_listener(mob/listener)
+	return !isnull(listeners[listener])
+
 /// Helper to get all mobs currently, ACTIVELY listening to the jukebox.
 /datum/jukebox/proc/get_active_listeners()
 	var/list/all_listeners = list()

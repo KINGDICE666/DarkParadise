@@ -2,6 +2,7 @@
 #define HEADPHONE_TRACK_MAX_LENGTH (10 MINUTES)
 #define HEADPHONE_FETCH_COOLDOWN (30 SECONDS)
 #define HEADPHONE_GLOBAL_FETCH_COOLDOWN (10 SECONDS)
+#define HEADPHONE_URL_MAX_LENGTH 300
 
 GLOBAL_LIST_EMPTY(headphone_case_tracks)
 GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
@@ -164,7 +165,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	return wearers
 
 /obj/item/headphone_case/proc/bud_worn(mob/wearer)
-	if(!powered || isnull(song_timerid))
+	if(!powered || isnull(song_timerid) || player.has_listener(wearer))
 		return
 	player.add_listener(wearer)
 
@@ -188,7 +189,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 		return
 
 	url = trim(url)
-	if(!findtext(url, GLOB.is_http_protocol))
+	if(!findtext(url, GLOB.is_http_protocol) || length(url) > HEADPHONE_URL_MAX_LENGTH)
 		to_chat(user, span_warning("Кейс принимает только http(s) ссылки."))
 		return
 
@@ -209,6 +210,9 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 		return
 
 	var/track_length = sound_info.duration * 1 SECONDS
+	if(!track_length)
+		to_chat(user, span_warning("Кейс не берёт прямые трансляции."))
+		return
 	if(track_length > HEADPHONE_TRACK_MAX_LENGTH)
 		to_chat(user, span_warning("Трек длиннее [DisplayTimeText(HEADPHONE_TRACK_MAX_LENGTH)], в память кейса он не влезет."))
 		return
@@ -360,3 +364,4 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 #undef HEADPHONE_TRACK_MAX_LENGTH
 #undef HEADPHONE_FETCH_COOLDOWN
 #undef HEADPHONE_GLOBAL_FETCH_COOLDOWN
+#undef HEADPHONE_URL_MAX_LENGTH

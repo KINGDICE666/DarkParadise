@@ -29,7 +29,16 @@
 	if(isnull(case.player.active_song_sound))
 		TEST_FAIL("Headphone case did not build its sound when the track started, so late listeners cannot be synced!")
 
-	case.dispense_bud(latecomer, case.right_bud)
+	case.dispense_bud(listener, case.right_bud)
+	listener.equip_to_slot_if_possible(case.right_bud, ITEM_SLOT_EAR_RIGHT, disable_warning = TRUE)
+	if(listener.r_ear != case.right_bud)
+		TEST_FAIL("The second earbud could not be worn in the other ear!")
+
+	listener.drop_item_ground(case.right_bud, force = TRUE)
+	if(!(listener in case.player.get_active_listeners()))
+		TEST_FAIL("Headphone case stopped the music when one of the two earbuds a mob was wearing came out!")
+
+	latecomer.put_in_hands(case.right_bud)
 	latecomer.equip_to_slot_if_possible(case.right_bud, ITEM_SLOT_EAR_RIGHT, disable_warning = TRUE)
 	if(!(latecomer in case.player.get_active_listeners()))
 		TEST_FAIL("Headphone case did not pick up a mob that put an earbud in mid track!")
