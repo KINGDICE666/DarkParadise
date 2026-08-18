@@ -1,3 +1,5 @@
+#define SONG_CACHE_DIRECTORY "cache/songs"
+
 //max channel is 1024. Only go lower from here, because byond tends to pick the first availiable channel to play sounds on
 #define CHANNEL_LOBBYMUSIC 1024
 #define CHANNEL_ADMIN 1023
