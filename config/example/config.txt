@@ -513,6 +513,10 @@ CACHE_ASSETS 0
 ## Admins receive the request with a PLAY link that runs it through yt-dlp. Requires INVOKE_YOUTUBEDL.
 REQUEST_INTERNET_SOUND
 
+## Allows players to play internet sounds through wireless earbuds cases.
+## Uses the same source whitelist as REQUEST_INTERNET_ALLOWED. Requires INVOKE_YOUTUBEDL.
+HEADPHONE_CASE_MUSIC
+
 ## Comma separated list of url patterns players may request. Each entry is matched as a regex (case-insensitive).
 REQUEST_INTERNET_ALLOWED youtube\.com\/watch?v=,youtu\.be\/,soundcloud\.com\/,bandcamp\.com\/track\/
 
