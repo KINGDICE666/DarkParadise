@@ -1820,12 +1820,12 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 								valid_hairstyles += hairstyle
 
 					sortTim(valid_hairstyles, GLOBAL_PROC_REF(cmp_text_asc)) //this alphabetizes the list
-					var/new_h_style = tgui_input_list(user, "Выберите стиль причёски", "Причёска", valid_hairstyles)
+					var/new_h_style = tgui_input_accessory(user, "Выберите стиль причёски", "Причёска", valid_hairstyles, h_style, ACCESSORY_CATEGORY_HAIR)
 					if(new_h_style)
 						h_style = new_h_style
 
 				if("h_grad_style")
-					var/result = tgui_input_list(user, "Выберите стиль градиента причёски", "Градиент причёски", GLOB.hair_gradients_list)
+					var/result = tgui_input_accessory(user, "Выберите стиль градиента причёски", "Градиент причёски", GLOB.hair_gradients_list, h_grad_style, ACCESSORY_CATEGORY_HAIR_GRADIENT)
 					if(result)
 						h_grad_style = result
 
@@ -1866,7 +1866,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							valid_head_accessory_styles += head_accessory_style
 
 						sortTim(valid_head_accessory_styles, GLOBAL_PROC_REF(cmp_text_asc))
-						var/new_head_accessory_style = tgui_input_list(user, "Выберите тип аксессуаров на голове", "Аксессуары на голове", valid_head_accessory_styles)
+						var/new_head_accessory_style = tgui_input_accessory(user, "Выберите тип аксессуаров на голове", "Аксессуары на голове", valid_head_accessory_styles, ha_style, ACCESSORY_CATEGORY_HEAD_ACCESSORY)
 						if(new_head_accessory_style)
 							ha_style = new_head_accessory_style
 
@@ -1883,7 +1883,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 
 							valid_alt_heads += alternate_head
 
-						var/new_alt_head = tgui_input_list(user, "Выберите альтернативный тип головы", "Тип головы", valid_alt_heads)
+						var/new_alt_head = tgui_input_accessory(user, "Выберите альтернативный тип головы", "Тип головы", valid_alt_heads, alt_head, ACCESSORY_CATEGORY_ALT_HEAD)
 						if(new_alt_head)
 							alt_head = new_alt_head
 						if(m_styles["head"])
@@ -1924,7 +1924,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 
 							valid_markings += markingstyle
 						sortTim(valid_markings, GLOBAL_PROC_REF(cmp_text_asc))
-						var/new_marking_style = tgui_input_list(user, "Выберите тип отметок на голове", "Отметки на голове", valid_markings)
+						var/new_marking_style = tgui_input_accessory(user, "Выберите тип отметок на голове", "Отметки на голове", valid_markings, m_styles["head"], ACCESSORY_CATEGORY_MARKING)
 						if(new_marking_style)
 							m_styles["head"] = new_marking_style
 
@@ -1952,7 +1952,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 								continue
 							valid_markings += markingstyle
 						sortTim(valid_markings, GLOBAL_PROC_REF(cmp_text_asc))
-						var/new_marking_style = tgui_input_list(user, "Выберите тип отметок на теле", "Отметки на теле", valid_markings)
+						var/new_marking_style = tgui_input_accessory(user, "Выберите тип отметок на теле", "Отметки на теле", valid_markings, m_styles["body"], ACCESSORY_CATEGORY_MARKING)
 						if(new_marking_style)
 							m_styles["body"] = new_marking_style
 
@@ -1981,7 +1981,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 
 							valid_markings += markingstyle
 						sortTim(valid_markings, GLOBAL_PROC_REF(cmp_text_asc))
-						var/new_marking_style = tgui_input_list(user, "Выберите тип отметок на хвосте", "Отметки на хвосте", valid_markings)
+						var/new_marking_style = tgui_input_accessory(user, "Выберите тип отметок на хвосте", "Отметки на хвосте", valid_markings, m_styles["tail"], ACCESSORY_CATEGORY_MARKING)
 						if(new_marking_style)
 							m_styles["tail"] = new_marking_style
 
@@ -2005,7 +2005,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					else
 						possible_body_accessories.Remove("None") // in case an admin is viewing it
 					sortTim(possible_body_accessories, GLOBAL_PROC_REF(cmp_text_asc))
-					var/new_body_accessory = tgui_input_list(user, "Выберите тип аксессуаров на теле", "Аксессуары на теле", possible_body_accessories)
+					var/new_body_accessory = tgui_input_accessory(user, "Выберите тип аксессуаров на теле", "Аксессуары на теле", possible_body_accessories, body_accessory, ACCESSORY_CATEGORY_BODY_ACCESSORY)
 					if(new_body_accessory)
 						m_styles["tail"] = "None"
 						body_accessory = (new_body_accessory == "None") ? null : new_body_accessory
@@ -2053,7 +2053,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							if(species in SA.species_allowed) //If the user's head is of a species the facial hair style allows, add it to the list.
 								valid_facial_hairstyles += facialhairstyle
 					sortTim(valid_facial_hairstyles, GLOBAL_PROC_REF(cmp_text_asc))
-					var/new_f_style = tgui_input_list(user, "Выберите стиль лицевой растительности", "Лицевая растительность", valid_facial_hairstyles)
+					var/new_f_style = tgui_input_accessory(user, "Выберите стиль лицевой растительности", "Лицевая растительность", valid_facial_hairstyles, f_style, ACCESSORY_CATEGORY_FACIAL_HAIR)
 					if(new_f_style)
 						f_style = new_f_style
 
@@ -2067,7 +2067,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							continue
 						valid_underwear[underwear] = GLOB.underwear_list[underwear]
 					sortTim(valid_underwear, GLOBAL_PROC_REF(cmp_text_asc))
-					var/new_underwear = tgui_input_list(user, "Выберите тип нижнего белья", "Нижнее бельё", valid_underwear)
+					var/new_underwear = tgui_input_accessory(user, "Выберите тип нижнего белья", "Нижнее бельё", valid_underwear, underwear, ACCESSORY_CATEGORY_UNDERWEAR)
 					ShowChoices(user)
 					if(new_underwear)
 						underwear = new_underwear
@@ -2087,7 +2087,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							continue
 						valid_undershirts[undershirt] = GLOB.undershirt_list[undershirt]
 					sortTim(valid_undershirts, GLOBAL_PROC_REF(cmp_text_asc))
-					var/new_undershirt = tgui_input_list(user, "Выберите тип нательной рубашки", "Нательная рубашка", valid_undershirts)
+					var/new_undershirt = tgui_input_accessory(user, "Выберите тип нательной рубашки", "Нательная рубашка", valid_undershirts, undershirt, ACCESSORY_CATEGORY_UNDERSHIRT)
 					ShowChoices(user)
 					if(new_undershirt)
 						undershirt = new_undershirt
@@ -2107,7 +2107,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							continue
 						valid_sockstyles[sockstyle] = GLOB.socks_list[sockstyle]
 					sortTim(valid_sockstyles, GLOBAL_PROC_REF(cmp_text_asc))
-					var/new_socks = tgui_input_list(user, "Выберите тип носков", "Носки", valid_sockstyles)
+					var/new_socks = tgui_input_accessory(user, "Выберите тип носков", "Носки", valid_sockstyles, socks, ACCESSORY_CATEGORY_SOCKS)
 					ShowChoices(user)
 					if(new_socks)
 						socks = new_socks
