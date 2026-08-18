@@ -833,6 +833,9 @@
 /datum/config_entry/flag/request_internet_sound
 	default = TRUE
 
+/datum/config_entry/flag/headphone_case_music
+	default = TRUE
+
 /// Comma separated list of url patterns players are allowed to request. Each entry is matched as a regex.
 /datum/config_entry/string/request_internet_allowed
 	protection = CONFIG_ENTRY_LOCKED

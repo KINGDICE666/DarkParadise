@@ -35,6 +35,9 @@
 	/// Max possible to set volume.
 	VAR_PROTECTED/max_volume = 100
 
+	VAR_PROTECTED/sound_channel = CHANNEL_JUKEBOX
+	VAR_PROTECTED/positional = TRUE
+
 	/// Range at which the sound plays to players, can also be a view "XxY" string
 	VAR_PROTECTED/sound_range
 	/// How far away horizontally from the jukebox can you be before you stop hearing it
@@ -232,6 +235,9 @@
 	start_time = world.time
 	end_time = start_time + selection.song_length
 
+/datum/jukebox/proc/has_listener(mob/listener)
+	return !isnull(listeners[listener])
+
 /// Helper to get all mobs currently, ACTIVELY listening to the jukebox.
 /datum/jukebox/proc/get_active_listeners()
 	var/list/all_listeners = list()
@@ -259,15 +265,7 @@
 		listeners[new_listener] |= SOUND_MUTE
 
 	if(isnull(active_song_sound))
-		var/area/juke_area = get_area(parent)
-		active_song_sound = sound(selection.song_path)
-		active_song_sound.channel = CHANNEL_JUKEBOX
-		active_song_sound.priority = 255
-		active_song_sound.falloff = 2
-		active_song_sound.volume = volume
-		active_song_sound.y = 1
-		active_song_sound.environment = juke_area.sound_environment || SOUND_ENVIRONMENT_NONE
-		active_song_sound.repeat = sound_loops
+		build_song_sound()
 
 	update_listener(new_listener)
 	// if you have a sound with status SOUND_UPDATE,
@@ -276,6 +274,17 @@
 	// so we only add this status AFTER the first update, which plays the first sound.
 	// and after that it's fine to keep it on the sound so it updates as the x/z does.
 	listeners[new_listener] |= SOUND_UPDATE
+
+/datum/jukebox/proc/build_song_sound()
+	var/area/juke_area = get_area(parent)
+	active_song_sound = sound(selection.song_path)
+	active_song_sound.channel = sound_channel
+	active_song_sound.priority = 255
+	active_song_sound.falloff = 2
+	active_song_sound.volume = volume
+	active_song_sound.y = 1
+	active_song_sound.environment = juke_area.sound_environment || SOUND_ENVIRONMENT_NONE
+	active_song_sound.repeat = sound_loops
 
 /// Deregisters mobs on deletion.
 /datum/jukebox/proc/listener_deleted(mob/source)
@@ -341,7 +350,7 @@
 	PROTECTED_PROC(TRUE)
 
 	listeners -= no_longer_listening
-	no_longer_listening.stop_sound_channel(CHANNEL_JUKEBOX)
+	no_longer_listening.stop_sound_channel(sound_channel)
 	UnregisterSignal(no_longer_listening, list(
 		COMSIG_MOB_LOGIN,
 		COMSIG_QDELETING,
@@ -375,8 +384,8 @@
 		else if(listeners[listener] & SOUND_MUTE)
 			unmute_listener(listener, MUTE_RANGE)
 
-		active_song_sound.x = new_x
-		active_song_sound.z = new_z
+		active_song_sound.x = positional ? new_x : 0
+		active_song_sound.z = positional ? new_z : 0
 
 		if(IS_PREF_MUTED(listener))
 			listeners[listener] |= SOUND_MUTE
