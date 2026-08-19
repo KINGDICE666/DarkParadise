@@ -1,3 +1,7 @@
+GLOBAL_VAR(dynamic_forced_tier)
+GLOBAL_LIST_EMPTY(dynamic_queued_rulesets)
+GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
+
 /datum/game_mode/dynamic
 	name = "dynamic"
 	config_tag = "dynamic"
@@ -6,8 +10,6 @@
 	var/datum/dynamic_tier/current_tier
 	var/list/datum/dynamic_ruleset/executed_rulesets = list()
 	var/list/rulesets_to_spawn = list()
-	var/list/admin_disabled_rulesets = list()
-	var/forced_tier_type
 	COOLDOWN_DECLARE(midround_cooldown)
 	COOLDOWN_DECLARE(latejoin_cooldown)
 
@@ -51,7 +53,11 @@
 	try_spawn_midround()
 
 /datum/game_mode/dynamic/latespawn(mob/player)
-	if(!player.mind || rulesets_to_spawn[DYNAMIC_LATEJOIN] <= 0 || !COOLDOWN_FINISHED(src, latejoin_cooldown))
+	if(!player.mind)
+		return
+	if(try_spawn_queued_latejoin(player.mind))
+		return
+	if(rulesets_to_spawn[DYNAMIC_LATEJOIN] <= 0 || !COOLDOWN_FINISHED(src, latejoin_cooldown))
 		return
 	try_spawn_latejoin(player.mind)
 
@@ -68,7 +74,7 @@
 			continue
 		tier_weights[tier_type] = tier_weight
 
-	var/picked_tier = forced_tier_type || pick_weight_classic(tier_weights) || /datum/dynamic_tier/lowmedium
+	var/picked_tier = GLOB.dynamic_forced_tier || pick_weight_classic(tier_weights) || /datum/dynamic_tier/lowmedium
 	current_tier = new picked_tier
 
 	for(var/category in list(DYNAMIC_ROUNDSTART, DYNAMIC_MIDROUND, DYNAMIC_LATEJOIN))
@@ -80,7 +86,7 @@
 /datum/game_mode/dynamic/proc/get_weighted_rulesets(ruleset_family, population_size)
 	. = list()
 	for(var/ruleset_type in subtypesof(ruleset_family))
-		if(ruleset_type in admin_disabled_rulesets)
+		if(ruleset_type in GLOB.dynamic_disabled_rulesets)
 			continue
 		var/datum/dynamic_ruleset/ruleset = new ruleset_type
 		var/ruleset_weight = ruleset.get_weight(population_size, current_tier.tier)
@@ -90,9 +96,13 @@
 		.[ruleset] = ruleset_weight
 
 /datum/game_mode/dynamic/proc/pick_rulesets(category, ruleset_family, population_size)
+	. = take_queued_rulesets(ruleset_family, population_size)
+	if(length(.))
+		rulesets_to_spawn[category] = max(rulesets_to_spawn[category] - length(.), 0)
+		return
+
 	var/list/weighted_rulesets = get_weighted_rulesets(ruleset_family, population_size)
 
-	. = list()
 	while(rulesets_to_spawn[category] > 0 && length(weighted_rulesets))
 		var/datum/dynamic_ruleset/roundstart/picked = pick_weight_classic(weighted_rulesets)
 		var/picked_weight = weighted_rulesets[picked]
@@ -174,3 +184,48 @@
 		break
 
 	QDEL_LIST(weighted_rulesets)
+
+/datum/game_mode/dynamic/proc/take_queued_rulesets(ruleset_family, population_size)
+	. = list()
+	for(var/ruleset_type in GLOB.dynamic_queued_rulesets.Copy())
+		if(!ispath(ruleset_type, ruleset_family))
+			continue
+		GLOB.dynamic_queued_rulesets -= ruleset_type
+		var/datum/dynamic_ruleset/ruleset = new ruleset_type
+		if(!ruleset.prepare_execution(population_size))
+			add_game_logs("Dynamic: queued [ruleset.config_tag] did not run - [ruleset.log_data]")
+			qdel(ruleset)
+			continue
+		. += ruleset
+
+/datum/game_mode/dynamic/proc/try_spawn_queued_latejoin(datum/mind/joiner)
+	var/population_size = num_station_players()
+	for(var/ruleset_type in GLOB.dynamic_queued_rulesets.Copy())
+		if(!ispath(ruleset_type, /datum/dynamic_ruleset/latejoin))
+			continue
+		var/datum/dynamic_ruleset/latejoin/queued = new ruleset_type
+		queued.joiner = joiner
+		if(!queued.prepare_execution(population_size))
+			qdel(queued)
+			continue
+		GLOB.dynamic_queued_rulesets -= ruleset_type
+		executed_rulesets += queued
+		queued.execute()
+		message_admins("Dynamic: [ADMIN_LOOKUPFLW(joiner.current)] has been selected for queued [queued.config_tag].")
+		add_game_logs("has been selected for [queued.config_tag]", joiner.current)
+		return TRUE
+	return FALSE
+
+/datum/game_mode/dynamic/proc/force_ruleset(ruleset_type, mob/admin)
+	var/datum/dynamic_ruleset/forced = new ruleset_type
+	if(!forced.prepare_execution(num_station_players()))
+		to_chat(admin, span_warning("Правило [forced.config_tag] не запустилось: [forced.log_data]."))
+		qdel(forced)
+		return FALSE
+
+	executed_rulesets += forced
+	forced.execute()
+	for(var/datum/mind/selected as anything in forced.selected_minds)
+		message_admins("Dynamic: [ADMIN_LOOKUPFLW(selected.current)] has been selected for forced [forced.config_tag].")
+		add_game_logs("has been selected for [forced.config_tag]", selected.current)
+	return TRUE

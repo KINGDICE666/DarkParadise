@@ -1837,24 +1837,6 @@
 
 		check_teams()
 
-	else if(href_list["dynamic_force_tier"])
-		if(!check_rights(R_ADMIN))
-			return
-
-		dynamic_force_tier()
-
-	else if(href_list["dynamic_force_midround"])
-		if(!check_rights(R_ADMIN))
-			return
-
-		dynamic_force_midround()
-
-	else if(href_list["dynamic_toggle_ruleset"])
-		if(!check_rights(R_ADMIN))
-			return
-
-		dynamic_toggle_ruleset()
-
 	else if(href_list["edit_blob_win_count"])
 		if(!check_rights(R_ADMIN))
 			return
