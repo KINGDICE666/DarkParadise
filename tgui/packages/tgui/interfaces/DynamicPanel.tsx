@@ -22,7 +22,7 @@ type Ruleset = {
   typepath: string;
   weight: string;
   min_pop: string;
-  min_round_time: number;
+  min_round_time: string;
   high_impact: BooleanLike;
 };
 
@@ -324,9 +324,9 @@ const RulesetsTab = () => {
                       <Flex.Item ml={1}>
                         <Tooltip
                           content={`${ruleset.id} — вес ${ruleset.weight}, минимум игроков ${ruleset.min_pop}${
-                            ruleset.min_round_time
-                              ? `, не раньше ${Math.round(ruleset.min_round_time / 600)} мин`
-                              : ''
+                            ruleset.min_round_time === '0'
+                              ? ''
+                              : `, не раньше ${ruleset.min_round_time} мин`
                           }`}
                         >
                           <Box

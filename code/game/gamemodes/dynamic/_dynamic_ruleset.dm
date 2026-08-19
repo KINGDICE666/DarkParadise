@@ -54,7 +54,7 @@
 		return 0
 	if(get_tier_value(min_pop, tier) > population_size)
 		return 0
-	if(ROUND_TIME < min_round_time)
+	if(ROUND_TIME < get_tier_value(min_round_time, tier))
 		return 0
 	return get_tier_value(weight, tier)
 

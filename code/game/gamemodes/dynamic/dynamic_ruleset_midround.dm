@@ -92,7 +92,13 @@
 		DYNAMIC_TIER_HIGH = 3,
 	)
 	min_pop = 30
-	min_round_time = 30 MINUTES
+	min_round_time = alist(
+		DYNAMIC_TIER_GREEN = 60 MINUTES,
+		DYNAMIC_TIER_LOW = 60 MINUTES,
+		DYNAMIC_TIER_LOWMEDIUM = 60 MINUTES,
+		DYNAMIC_TIER_MEDIUMHIGH = 60 MINUTES,
+		DYNAMIC_TIER_HIGH = 30 MINUTES,
+	)
 	max_antag_cap = 1
 	repeatable = FALSE
 	skip_mindshielded = FALSE
@@ -111,7 +117,13 @@
 	protected_species = BLOB_RESTRICTED_SPECIES
 	ruleset_flags = RULESET_HIGH_IMPACT
 	min_pop = 30
-	min_round_time = 30 MINUTES
+	min_round_time = alist(
+		DYNAMIC_TIER_GREEN = 60 MINUTES,
+		DYNAMIC_TIER_LOW = 60 MINUTES,
+		DYNAMIC_TIER_LOWMEDIUM = 60 MINUTES,
+		DYNAMIC_TIER_MEDIUMHIGH = 60 MINUTES,
+		DYNAMIC_TIER_HIGH = 30 MINUTES,
+	)
 	max_antag_cap = list("denominator" = BLOB_PLAYERS_PER_CORE, "offset" = 0)
 	repeatable = FALSE
 	skip_mindshielded = FALSE

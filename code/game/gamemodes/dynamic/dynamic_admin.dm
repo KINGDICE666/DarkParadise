@@ -33,17 +33,17 @@ ADMIN_VERB(dynamic_panel, R_ADMIN, "Dynamic Panel", "Inspect and steer the dynam
 			"typepath" = "[ruleset_type]",
 			"weight" = format_tier_value(ruleset, ruleset.weight),
 			"min_pop" = format_tier_value(ruleset, ruleset.min_pop),
-			"min_round_time" = ruleset.min_round_time,
+			"min_round_time" = format_tier_value(ruleset, ruleset.min_round_time, 1 MINUTES),
 			"high_impact" = !!(ruleset.ruleset_flags & RULESET_HIGH_IMPACT),
 		))
 		qdel(ruleset)
 
-/datum/dynamic_panel/proc/format_tier_value(datum/dynamic_ruleset/ruleset, value)
+/datum/dynamic_panel/proc/format_tier_value(datum/dynamic_ruleset/ruleset, value, divisor = 1)
 	if(!isalist(value))
-		return "[value]"
+		return "[value / divisor]"
 	var/list/per_tier = list()
 	for(var/tier in DYNAMIC_TIER_GREEN to DYNAMIC_TIER_HIGH)
-		per_tier += "[ruleset.get_tier_value(value, tier)]"
+		per_tier += "[ruleset.get_tier_value(value, tier) / divisor]"
 	return per_tier.Join("/")
 
 /datum/dynamic_panel/ui_state(mob/user)
