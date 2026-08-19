@@ -139,7 +139,7 @@
 		return FALSE
 	. = TRUE
 	to_chat(user, "You finalize the Mass Driver...")
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, volume = I.tool_volume))
 		return .
 	var/obj/machinery/mass_driver/driver = new(loc)
 	driver.setDir(dir)

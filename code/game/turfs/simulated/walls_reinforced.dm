@@ -176,7 +176,7 @@
 	if(d_state != RWALL_INTACT)
 		return
 	. = TRUE
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	d_state = RWALL_SUPPORT_LINES
 	update_icon()

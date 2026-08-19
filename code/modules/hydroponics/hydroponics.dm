@@ -994,8 +994,7 @@
 		return
 	if(harvest)
 		add_fingerprint(user)
-		if(do_after(user, 2 SECONDS, src, max_interact_count = 1))
-			myseed.harvest(user)
+		myseed.harvest(user)
 	else if(dead)
 		add_fingerprint(user)
 		dead = 0

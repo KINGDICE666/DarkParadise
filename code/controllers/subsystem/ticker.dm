@@ -448,7 +448,7 @@ SUBSYSTEM_DEF(ticker)
 	login_music_data["url"] = sound_info.url
 	login_music_data["link"] = sound_info.webpage_url
 	login_music_data["id"] = sound_info.id
-	login_music_data["path"] = "cache/songs/[sound_info.id].mp3"
+	login_music_data["path"] = "[SONG_CACHE_DIRECTORY]/[sound_info.id].mp3"
 	login_music_data["title_link"] = sound_info.webpage_url ? "<a href=\"[sound_info.webpage_url]\">[sound_info.title]</a>" : sound_info.title
 	// Same metadata keys the now-playing widget reads for admin web sounds.
 	login_music_data["duration"] = DisplayTimeText(sound_info.duration * 1 SECONDS)

@@ -671,6 +671,8 @@
 /// Webhook URLs for the requests webhook
 /datum/config_entry/str_list/discord_requests_webhook_urls
 
+/datum/config_entry/str_list/discord_ooc_webhook_urls
+
 /// Do we want to forward all adminhelps to the discord or just ahelps when admins are offline.
 /// (This does not mean all ahelps are pinged, only ahelps sent when staff are offline get the ping, regardless of this setting)
 /datum/config_entry/flag/discord_forward_all_ahelps
@@ -844,6 +846,9 @@
 
 /// Allows players to request internet sounds (via the OOC verb) for admins to play.
 /datum/config_entry/flag/request_internet_sound
+	default = TRUE
+
+/datum/config_entry/flag/headphone_case_music
 	default = TRUE
 
 /// Comma separated list of url patterns players are allowed to request. Each entry is matched as a regex.

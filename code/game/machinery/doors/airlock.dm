@@ -1088,7 +1088,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(user.a_intent == INTENT_HARM)
 		return
 	. = TRUE
-	if(!I.use_tool(src, user, 1 SECONDS, volume = I.tool_volume))
+	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	panel_open = !panel_open
 	to_chat(user, span_notice("You [panel_open ? "open":"close"] [src]'s maintenance panel."))

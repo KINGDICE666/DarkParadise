@@ -2359,6 +2359,18 @@
 			return
 		web_sound(usr.client, link_url, href_list["credit"])
 
+	else if(href_list["stop_headphones"])
+		if(!check_rights(R_SOUNDS))
+			return
+		var/obj/item/headphone_case/case = locateUID(href_list["stop_headphones"])
+		if(!istype(case))
+			return
+		case.stop_music()
+		case.powered = FALSE
+		case.update_icon(UPDATE_ICON_STATE)
+		log_admin("[key_name(usr)] stopped the music playing from [case] ([case.UID()])")
+		message_admins("[key_name_admin(usr)] stopped the music playing from a headphone case.")
+
 	else if(href_list["cryossd"])
 		if(!check_rights(R_ADMIN))
 			return
