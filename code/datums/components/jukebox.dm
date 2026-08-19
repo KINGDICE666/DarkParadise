@@ -284,7 +284,7 @@
 	active_song_sound.falloff = 2
 	active_song_sound.volume = volume
 	active_song_sound.y = 1
-	active_song_sound.environment = juke_area.sound_environment || SOUND_ENVIRONMENT_NONE
+	active_song_sound.environment = juke_area?.sound_environment || SOUND_ENVIRONMENT_NONE
 	active_song_sound.repeat = sound_loops
 
 /// Deregisters mobs on deletion.
