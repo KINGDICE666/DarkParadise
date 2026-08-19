@@ -280,7 +280,6 @@
 
 /obj/effect/proc_holder/spell/shadowling_enthrall/cast(list/targets, mob/user = usr)
 
-	list_clear_nulls(SSticker.mode.shadowling_thralls)
 	if(!is_shadow(user))
 		return
 
@@ -323,7 +322,6 @@
 							span_warning("Фальшивые лица все <b>ТЁМНЫЕ не настоящие, не настоящие, не настоящие</b>!!!"))
 	target.setOxyLoss(0) //In case the shadowling was choking them out
 	SSticker.mode.add_thrall(target.mind)
-	target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
 
 /**
  * Resets a shadowling's species to normal, removes genetic defects, and re-equips their armor.
@@ -363,8 +361,9 @@
 	eyes = new /obj/item/organ/internal/cyberimp/eyes/thermals/ling(null) // thermal without item
 	eyes.insert(user)
 
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
 	var/thralls = get_thralls()
-	var/victory_threshold = SSticker.mode.required_thralls
+	var/victory_threshold = shadowlings.required_thralls
 
 	if(!do_after(user, 3 SECONDS, user))
 		to_chat(user, span_warning("Ваша концентрация нарушена."))
@@ -373,15 +372,15 @@
 	if(QDELETED(user))
 		return
 
-	if(thralls >= ceil(1 * SSticker.mode.thrall_ratio) && !blind_smoke_acquired)
+	if(thralls >= ceil(1 * shadowlings.thrall_ratio) && !blind_smoke_acquired)
 		blind_smoke_acquired = TRUE
 		user.mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_blindness_smoke(null))
 
-	if(thralls >= ceil(3 * SSticker.mode.thrall_ratio) && !screech_acquired)
+	if(thralls >= ceil(3 * shadowlings.thrall_ratio) && !screech_acquired)
 		screech_acquired = TRUE
 		user.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/shadowling_screech(null))
 
-	if(thralls >= ceil(5 * SSticker.mode.thrall_ratio) && !revive_thrall_acquired)
+	if(thralls >= ceil(5 * shadowlings.thrall_ratio) && !revive_thrall_acquired)
 		revive_thrall_acquired = TRUE
 		user.mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_revive_thrall(null))
 
@@ -439,8 +438,9 @@
 
 	to_chat(user, span_shadowling("<b>You focus your telepathic energies abound, harnessing and drawing together the strength of your thralls.</b>"))
 
+	var/datum/team/shadowling/shadowlings = get_shadowling_team()
 	var/thralls = get_thralls()
-	var/victory_threshold = SSticker.mode.required_thralls
+	var/victory_threshold = shadowlings.required_thralls
 
 	if(!do_after(user, 3 SECONDS, user))
 		to_chat(user, span_warning("Your concentration has been broken. The mental hooks you have sent out now retract into your mind."))
@@ -449,18 +449,18 @@
 	if(QDELETED(user))
 		return
 
-	if(thralls >= ceil(1 * SSticker.mode.thrall_ratio) && !blind_smoke_acquired)
+	if(thralls >= ceil(1 * shadowlings.thrall_ratio) && !blind_smoke_acquired)
 		blind_smoke_acquired = TRUE
 		to_chat(user, span_shadowling("<i>The power of your thralls has granted you the <b>Blinding Smoke</b> ability. \
 			It will create a choking cloud that will blind any non-thralls who enter.</i>"))
 		user.mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_blindness_smoke(null))
 
-	if(thralls >= ceil(3 * SSticker.mode.thrall_ratio) && !screech_acquired)
+	if(thralls >= ceil(3 * shadowlings.thrall_ratio) && !screech_acquired)
 		screech_acquired = TRUE
 		to_chat(user, span_shadowling("<i>The power of your thralls has granted you the <b>Null Charge</b> ability. This ability will drain an APC's contents to the void, preventing it from recharging or sending power until repaired.</i>"))
 		user.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/shadowling_screech(null))
 
-	if(thralls >= ceil(5 * SSticker.mode.thrall_ratio) && !revive_thrall_acquired)
+	if(thralls >= ceil(5 * shadowlings.thrall_ratio) && !revive_thrall_acquired)
 		revive_thrall_acquired = TRUE
 		to_chat(user, span_shadowling("<i>The power of your thralls has granted you the <b>Black Recuperation</b> ability. \
 			This will, after a short time, bring a dead thrall completely back to life with no bodily defects.</i>"))
@@ -679,7 +679,7 @@
 			return
 
 		var/empowered_thralls = 0
-		for(var/datum/mind/thrall_mind in SSticker.mode.shadowling_thralls)
+		for(var/datum/mind/thrall_mind in get_antag_minds(/datum/antagonist/shadowling_thrall))
 			if(!ishuman(thrall_mind.current))
 				continue
 
@@ -922,8 +922,6 @@
 	to_chat(user, span_shadowling("Вы мгновенно изменяете воспоминания <b>[target]</b>, превращая [GEND_HIS_HER(target)] в раба"))
 	to_chat(target, span_userdanger(span_fontsize3("Волна мучительной боли проникает в ваше сознание, и...")))
 	SSticker.mode.add_thrall(target.mind)
-	target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
-	target.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /obj/effect/proc_holder/spell/ascendant_phase_shift
 	name = "Phase Shift"

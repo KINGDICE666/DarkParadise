@@ -37,6 +37,7 @@
 
 /datum/job/civilian/prisoner
 	title = JOB_TITLE_PRISONER
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_PRISONER
 	total_positions = ROLE_PRISONERS_MAX_COUNT
 	spawn_positions = ROLE_PRISONERS_MAX_COUNT

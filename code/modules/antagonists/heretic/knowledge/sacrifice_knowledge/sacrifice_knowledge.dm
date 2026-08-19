@@ -227,7 +227,7 @@
 	if(!prob(min(15 * rewards_given)) || (rewards_given > 5))
 		return
 
-	for(var/datum/mind/mind as anything in SSticker.mode.cult)
+	for(var/datum/mind/mind as anything in get_blood_cult_team()?.members)
 		if(!mind.current)
 			continue
 

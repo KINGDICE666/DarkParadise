@@ -35,7 +35,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	if(M.stat || !M.mind || M.mind.special_role || M.mind.offstation_role)
 		return FALSE
 	if(temp)
-		if((M.mind.assigned_role in temp.restricted_jobs) || (M.client.prefs.species in temp.protected_species))
+		if((M.mind.assigned_role in temp.get_restricted_roles()) || (M.client.prefs.species in temp.protected_species))
 			return FALSE
 	if(role) // Don't even bother evaluating if there's no role
 		if(player_old_enough_antag(M.client,role) && (role in M.client.prefs.be_special) && !M.client.prefs?.skip_antag && (!jobban_isbanned(M, role)))
@@ -47,9 +47,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 /datum/admins/proc/makeTraitors()
 	var/datum/game_mode/traitor/temp = new
-
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
 
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
@@ -78,9 +75,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 /datum/admins/proc/makeChangelings()
 
 	var/datum/game_mode/changeling/temp = new
-
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
 
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
@@ -136,9 +130,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 /datum/admins/proc/makeRevs()
 
 	var/datum/game_mode/revolution/temp = new
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
-
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
 
@@ -185,9 +176,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 /datum/admins/proc/makeCult()
 
 	var/datum/game_mode/cult/temp = new
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
-
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
 	var/antnum = tgui_input_number(owner, "How many cultists do you want to create? Enter 0 to cancel.", "Amount:", 0)
@@ -205,7 +193,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 		for(var/I in 1 to numCultists)
 			H = pick(candidates)
-			to_chat(H, CULT_GREETING)
 			SSticker.mode.add_cultist(H.mind)
 			SSticker.mode.equip_cultist(H)
 			candidates.Remove(H)
@@ -215,9 +202,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 /datum/admins/proc/makeClockwork()
 
 	var/datum/game_mode/clockwork/temp = new
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
-
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
 	var/antnum = tgui_input_number(owner, "How many cultists do you want to create? Enter 0 to cancel.", "Amount:", 0)
@@ -235,7 +219,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 		for(var/I in 1 to numclocks)
 			H = pick(candidates)
-			to_chat(H, CLOCK_GREETING)
 			SSticker.mode.add_clocker(H.mind)
 			SSticker.mode.equip_clocker(H)
 			candidates.Remove(H)
@@ -351,9 +334,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 /datum/admins/proc/makeVampires()
 
 	var/datum/game_mode/vampire/temp = new
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
-
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
 
@@ -488,9 +468,6 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 /datum/admins/proc/makeThieves()
 	var/datum/game_mode/thief/temp = new
-	if(CONFIG_GET(flag/protect_roles_from_antagonist))
-		temp.restricted_jobs += temp.protected_jobs
-
 	var/list/mob/living/carbon/human/candidates = list()
 	var/mob/living/carbon/human/H = null
 

@@ -491,7 +491,7 @@
 	if(!target.mind)
 		return FALSE
 
-	if(target.mind in SSticker.mode.sintouched)
+	if(target.mind.has_antag_datum(/datum/antagonist/sintouched))
 		return FALSE
 
 	if(locate(/datum/disease/ectoplasmic) in target.diseases)

@@ -18,6 +18,7 @@ GLOBAL_ALIST_INIT(huds, alist(
 	ANTAG_HUD_CULT = new/datum/atom_hud/antag(),
 	ANTAG_HUD_CLOCK = new/datum/atom_hud/antag(),
 	ANTAG_HUD_REV = new/datum/atom_hud/antag(),
+	ANTAG_HUD_REV_SLAVE = new/datum/atom_hud/antag(),
 	ANTAG_HUD_OPS = new/datum/atom_hud/antag(),
 	ANTAG_HUD_WIZ  = new/datum/atom_hud/antag(),
 	ANTAG_HUD_SHADOW  = new/datum/atom_hud/antag(),

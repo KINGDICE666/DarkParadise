@@ -795,10 +795,11 @@
 			QDEL_LIST(C.reagents.addiction_list)
 			C.reagents.addiction_threshold_accumulated.Cut()
 		if(iscultist(src))
-			if(SSticker.mode.cult_risen)
-				SSticker.mode.rise(src)
-			if(SSticker.mode.cult_ascendant)
-				SSticker.mode.ascend(src)
+			var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+			if(cult_team.cult_risen)
+				cult_team.rise(src)
+			if(cult_team.cult_ascendant)
+				cult_team.ascend(src)
 
 		QDEL_LIST(C.processing_patches)
 

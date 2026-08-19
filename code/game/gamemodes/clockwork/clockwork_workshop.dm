@@ -57,7 +57,7 @@
 	)
 
 /obj/structure/clockwork/functional/workshop/proc/get_item_list()
-	var/datum/clockwork_objectives/clocker_objs = SSticker.mode.clocker_objs
+	var/datum/clockwork_objectives/clocker_objs = get_clockwork_cult_team()?.clocker_objs
 	if(!clocker_objs)
 		return item_list
 	if(!clocker_objs.unlocked_heretic_items[BRASS_BLADE_UNLOCKED])

@@ -16,6 +16,8 @@
 	var/department_flag = 0
 	var/department_head = list()
 
+	var/job_flags = NONE
+
 	/// How many players can be this job
 	var/total_positions = 0
 

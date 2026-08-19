@@ -116,6 +116,7 @@
 //species hud
 #define DATA_HUD_KIDAN_PHEROMONES 35
 #define ANTAG_HUD_LUNATIC 36
+#define ANTAG_HUD_REV_SLAVE 37
 
 // Notification action types
 #define NOTIFY_JUMP "jump"

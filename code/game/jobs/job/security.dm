@@ -57,6 +57,7 @@
 
 /datum/job/security
 	abstract_type = /datum/job/security
+	job_flags = JOB_ANTAG_PROTECTED
 	department = STATION_DEPARTMENT_SECURITY
 	department_flag = JOBCAT_ENGSEC
 	departments_bitflags = DEPARTMENT_BITFLAG_SECURITY

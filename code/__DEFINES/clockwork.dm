@@ -138,6 +138,7 @@ GLOBAL_LIST_INIT(minigun_spells, list(
 #define CLOCK_CREW_REVEAL_HIGH 0.25
 /// Default power for goal
 #define CLOCK_BASIC_POWER_GOAL 120
+#define CLOCK_POWER_REVEAL_RATIO 0.67
 
 // Text
 #define CLOCK_GREETING span_clocklarge("You catch a glimpse of the Realm of Ratvar, the Clockwork Justiciar. \

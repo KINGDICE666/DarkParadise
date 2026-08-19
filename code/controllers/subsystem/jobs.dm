@@ -19,10 +19,7 @@ SUBSYSTEM_DEF(jobs)
 	var/id_change_counter = 1
 	//Players who need jobs
 	var/list/unassigned = list()
-	/// Used to grant AI job if antag was rolled.
-	var/mob/new_player/new_malf
-	/// Used to grant prisoner job if antag was rolled.
-	var/list/mob/new_player/new_prisoners = list()
+	var/list/datum/mind/forced_occupations = list()
 	//Debug info
 	var/list/job_debug = list()
 
@@ -204,7 +201,7 @@ SUBSYSTEM_DEF(jobs)
 		if(flag && !(flag in player.client.prefs.be_special))
 			Debug("FOC flag failed, Player: [player], Flag: [flag], ")
 			continue
-		if(player.mind && (job.title in player.mind.restricted_roles))
+		if(job_blocked_for(player.mind, job.title))
 			Debug("FOC incompatbile with antagonist role, Player: [player]")
 			continue
 		if(job.species_in_blacklist(player.client))
@@ -259,7 +256,7 @@ SUBSYSTEM_DEF(jobs)
 			Debug("GRJ player character not old enough rendering them ineligible for job, Player: [player]")
 			continue
 
-		if(player.mind && (job.title in player.mind.restricted_roles))
+		if(job_blocked_for(player.mind, job.title))
 			Debug("GRJ incompatible with antagonist role, Player: [player], Job: [job.title]")
 			continue
 
@@ -274,6 +271,7 @@ SUBSYSTEM_DEF(jobs)
 			break
 
 /datum/controller/subsystem/jobs/proc/ResetOccupations()
+	forced_occupations.Cut()
 	for(var/mob/new_player/player in GLOB.player_list)
 		if(player?.mind)
 			player.mind.assigned_role = null
@@ -322,26 +320,19 @@ SUBSYSTEM_DEF(jobs)
 		var/mob/new_player/candidate = pick(candidates)
 		AssignRole(candidate, command_position)
 
-/datum/controller/subsystem/jobs/proc/FillMalfAIPosition()
-	if(!CONFIG_GET(flag/allow_ai))
-		return FALSE
-
-	var/datum/job/job = GetJob(JOB_TITLE_AI)
-	if(!job)
-		return FALSE
-
-	if(new_malf && AssignRole(new_malf, JOB_TITLE_AI))
-		return TRUE
-
-/datum/controller/subsystem/jobs/proc/fill_prisoners_position()
-	var/datum/job/job = GetJob(JOB_TITLE_PRISONER)
-	if(!job)
-		return FALSE
-	for(var/mob/new_player/new_prisoner in new_prisoners)
-		if(!new_prisoner)
+/datum/controller/subsystem/jobs/proc/assign_forced_occupations()
+	for(var/datum/mind/mind as anything in forced_occupations)
+		if(!mind.current)
 			continue
-		AssignRole(new_prisoner, JOB_TITLE_PRISONER)
-	return TRUE
+		AssignRole(mind.current, forced_occupations[mind])
+
+/datum/controller/subsystem/jobs/proc/job_blocked_for(datum/mind/mind, job_title)
+	if(!mind)
+		return FALSE
+	var/forced_title = forced_occupations[mind]
+	if(forced_title)
+		return forced_title != job_title
+	return job_title in mind.restricted_roles
 
 /** Proc DivideOccupations
 *  fills var "assigned_role" for all ready players.
@@ -380,16 +371,10 @@ SUBSYSTEM_DEF(jobs)
 
 	HandleFeedbackGathering()
 
-	if(new_malf)	// code to assign malf AI before civs.
-		Debug("DO, Running AI Check")
-		FillMalfAIPosition()
-		Debug("DO, AI Check end")
-		new_malf = null
-
-	if(length(new_prisoners)) // code to assign traitor prisoner before civs.
-		Debug("DO, Running Traitor Prisoners Check")
-		fill_prisoners_position()
-		Debug("DO, Traitor Prisoners Check end")
+	if(length(forced_occupations))
+		Debug("DO, Running Forced Occupations Check")
+		assign_forced_occupations()
+		Debug("DO, Forced Occupations Check end")
 
 	//People who wants to be assistants, sure, go on.
 	Debug("DO, Running Civilian Check 1")
@@ -452,7 +437,7 @@ SUBSYSTEM_DEF(jobs)
 					Debug("DO player character not old enough rendering them ineligible for job, Player: [player], Job:[job.title]")
 					continue
 
-				if(player.mind && (job.title in player.mind.restricted_roles))
+				if(job_blocked_for(player.mind, job.title))
 					Debug("DO incompatible with antagonist role, Player: [player], Job:[job.title]")
 					continue
 				if(job.species_in_blacklist(player.client))

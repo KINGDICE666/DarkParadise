@@ -634,8 +634,9 @@ SUBSYSTEM_DEF(ticker)
 	if(dronecount)
 		end_of_round_info += "<b>There [dronecount > 1 ? "were" : "was"] [dronecount] industrious maintenance [dronecount > 1 ? "drones" : "drone"] this round.</b>"
 
-	if(length(mode.eventmiscs))
-		for(var/datum/mind/eventmind in mode.eventmiscs)
+	var/list/datum/mind/eventmiscs = get_antag_minds(/datum/antagonist/eventmisc)
+	if(length(eventmiscs))
+		for(var/datum/mind/eventmind in eventmiscs)
 			end_of_round_info += printeventplayer(eventmind)
 			end_of_round_info += printobjectives(eventmind)
 		end_of_round_info += "<br>"
@@ -652,7 +653,8 @@ SUBSYSTEM_DEF(ticker)
 
 	mode.declare_completion()//To declare normal completion.
 
-	end_of_round_info += mode.get_end_of_round_antagonist_statistics()
+	end_of_round_info += antag_report()
+	end_of_round_info += mode.auto_declare_completion_blob()
 
 	// Save the data before end of the round griefing
 	SSpersistent_data.save()
@@ -686,6 +688,31 @@ SUBSYSTEM_DEF(ticker)
 	SSdbcore.SetRoundEnd()
 
 	return TRUE
+
+/datum/controller/subsystem/ticker/proc/antag_report()
+	var/list/reported_antags = list()
+	for(var/datum/antagonist/antag as anything in GLOB.antagonists)
+		if(!antag.owner || !antag.show_in_roundend || antag.get_team())
+			continue
+		reported_antags += antag
+
+	if(!length(reported_antags))
+		return ""
+
+	sortTim(reported_antags, GLOBAL_PROC_REF(cmp_antag_category))
+
+	var/list/report = list()
+	var/datum/antagonist/previous
+	for(var/datum/antagonist/antag as anything in reported_antags)
+		if(!previous || antag.roundend_category != previous.roundend_category)
+			report += previous?.roundend_report_footer()
+			report += antag.roundend_report_header()
+		report += antag.roundend_report()
+		previous = antag
+		CHECK_TICK
+
+	report += previous.roundend_report_footer()
+	return report.Join("<br>")
 
 /// Whether the game has started, including roundend.
 /datum/controller/subsystem/ticker/proc/HasRoundStarted()

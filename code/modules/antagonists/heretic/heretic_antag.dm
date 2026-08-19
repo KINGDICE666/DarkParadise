@@ -674,7 +674,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 	for(var/mob/living/culto as anything in invokers)
 		to_chat(culto, span_cultlarge("Душа последователя забытых богов... Ты будешь вознаграждён за столь ценную жертву."))
 
-	SSticker.mode.cult_objs.unlock_heretic_item()
+	get_blood_cult_team().cult_objs.unlock_heretic_item()
 
 	return SILENCE_SACRIFICE_MESSAGE|DUST_SACRIFICE
 
@@ -686,7 +686,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 	for(var/mob/living/clocker as anything in invokers)
 		to_chat(clocker, span_clocklarge("Душа последователя забытых богов... Механизмы Ратвара с радостью примут столь ценную жертву."))
 
-	SSticker.mode.clocker_objs.unlock_heretic_item()
+	get_clockwork_cult_team().clocker_objs.unlock_heretic_item()
 
 	return DUST_SACRIFICE
 

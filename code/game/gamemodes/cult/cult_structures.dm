@@ -170,7 +170,7 @@
 							"Mirror Shield" = /obj/item/shield/mirror)
 
 /obj/structure/cult/functional/forge/get_choosable_items()
-	if(!SSticker.mode.cult_objs.unlocked_heretic_items[CURSED_BLADE_UNLOCKED])
+	if(!get_blood_cult_team().cult_objs.unlocked_heretic_items[CURSED_BLADE_UNLOCKED])
 		return ..()
 	return ..() + list(CURSED_BLADE_UNLOCKED = /obj/item/melee/sickly_blade/cursed)
 
@@ -332,7 +332,7 @@ GLOBAL_LIST_INIT(blacklisted_pylon_turfs, typecacheof(list(
 							"Veil Shifter" = /obj/item/cult_shift) //Add void torch to veil shifter spawn
 
 /obj/structure/cult/functional/archives/get_choosable_items()
-	if(!SSticker.mode.cult_objs.unlocked_heretic_items[CRIMSON_MEDALLION_UNLOCKED])
+	if(!get_blood_cult_team().cult_objs.unlocked_heretic_items[CRIMSON_MEDALLION_UNLOCKED])
 		return ..()
 	return ..() + list(CRIMSON_MEDALLION_UNLOCKED = /obj/item/clothing/neck/heretic_focus/crimson_medallion)
 

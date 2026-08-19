@@ -2,6 +2,7 @@
 // General-purpose CC official. Can hear out grievances, investigate cases, issue demotions, etc.
 /datum/job/ntnavyofficer
 	title = JOB_TITLE_CCOFFICER
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_CENTCOM
 	department_flag = JOB_FLAG_CENTCOM // This gets its job as its own flag because admin jobs dont have flags
 	department = STATION_DEPARTMENT_OTHER
@@ -68,6 +69,7 @@
 // CC Officials who lead ERTs, Death Squads, etc.
 /datum/job/ntspecops
 	title = JOB_TITLE_CCSPECOPS
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_CENTCOM
 	department_flag = JOB_FLAG_CENTCOM // This gets its job as its own flag because admin jobs dont have flags
 	department = STATION_DEPARTMENT_OTHER
