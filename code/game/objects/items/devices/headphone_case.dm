@@ -209,6 +209,8 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 
 	var/youtubedl = CONFIG_GET(string/invoke_youtubedl)
 	var/datum/web_sound_info/sound_info = get_web_sound_info(youtubedl, url)
+	if(QDELETED(src) || QDELETED(user) || !powered)
+		return
 	if(!sound_info.success)
 		to_chat(user, span_warning("Кейс не смог достучаться до трека."))
 		log_game("[key_name(user)] failed to fetch [url] through [type]: [sound_info.error_message]")
@@ -225,6 +227,8 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	var/datum/track/track = GLOB.headphone_case_tracks[sound_info.id]
 	if(!track)
 		var/datum/web_sound_download/download = download_web_sound(youtubedl, url, sound_info.id)
+		if(QDELETED(src) || QDELETED(user) || !powered)
+			return
 		if(!download.success || !fexists(download.file_path))
 			to_chat(user, span_warning("Кейс не смог скачать трек."))
 			log_game("[key_name(user)] failed to download [url] through [type]: [download.error_message]")
