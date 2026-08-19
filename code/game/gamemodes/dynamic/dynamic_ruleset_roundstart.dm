@@ -9,7 +9,7 @@
 	special_role = SPECIAL_ROLE_TRAITOR
 	weight = 10
 	min_pop = 5
-	max_antag_cap = list("denominator" = 24, "offset" = 1)
+	max_antag_cap = list("denominator" = 24)
 
 /datum/dynamic_ruleset/roundstart/traitor/assign_role(datum/mind/candidate)
 	var/datum/antagonist/traitor/new_antag = new
@@ -24,7 +24,7 @@
 	protected_species = SPECIES_BLOCKED_FOR_CHANGELING
 	weight = 5
 	min_pop = 15
-	max_antag_cap = list("denominator" = 29, "offset" = 1)
+	max_antag_cap = list("denominator" = 29)
 
 /datum/dynamic_ruleset/roundstart/changeling/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/changeling)
@@ -38,7 +38,7 @@
 	blacklisted_roles = list(JOB_TITLE_CHAPLAIN)
 	weight = 5
 	min_pop = 15
-	max_antag_cap = list("denominator" = 29, "offset" = 1)
+	max_antag_cap = list("denominator" = 29)
 
 /datum/dynamic_ruleset/roundstart/vampire/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/vampire/new_vampire)
@@ -51,7 +51,7 @@
 	preferred_species = list(SPECIES_VOX = 4)
 	weight = 6
 	min_pop = 5
-	max_antag_cap = list("denominator" = 29, "offset" = 1)
+	max_antag_cap = list("denominator" = 29)
 
 /datum/dynamic_ruleset/roundstart/thief/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/thief)
