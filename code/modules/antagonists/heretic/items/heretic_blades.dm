@@ -703,3 +703,61 @@
 
 /obj/item/melee/sickly_blade/training/check_usability(mob/living/user)
 	return TRUE
+
+
+/obj/item/melee/sickly_blade/rhytm
+	name = "pulsating blade"
+	desc = "Клинок, выкованный вокруг чужого сердца. Оно всё ещё бьётся где-то в основании лезвия, \
+			и чем быстрее его такт, тем охотнее клинок идёт вперёд."
+	icon_state = "rhytm_blade"
+	base_icon_state = "rhytm_blade"
+	item_state = "rhytm_blade"
+	force = 15
+	after_use_message = "Такт ведёт вас прочь..."
+	var/empowered_force = 5
+
+
+/obj/item/melee/sickly_blade/rhytm/Initialize(mapload)
+	. = ..()
+	qdel(GetComponent(/datum/component/cleave_attack))
+	AddComponent(/datum/component/cleave_attack, swing_speed_mod = 1, afterswing_slowdown = 0)
+	ADD_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
+
+
+/obj/item/melee/sickly_blade/rhytm/get_ru_names()
+	return alist(
+		NOMINATIVE = "пульсирующий клинок",
+		GENITIVE = "пульсирующего клинка",
+		DATIVE = "пульсирующему клинку",
+		ACCUSATIVE = "пульсирующий клинок",
+		INSTRUMENTAL = "пульсирующим клинком",
+		PREPOSITIONAL = "пульсирующем клинке",
+	)
+
+
+/obj/item/melee/sickly_blade/rhytm/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	sync_to_rhythm(get_heretic_rhytm(user))
+
+
+/obj/item/melee/sickly_blade/rhytm/pickup(mob/living/user)
+	. = ..()
+	sync_to_rhythm(get_heretic_rhytm(user))
+
+
+/obj/item/melee/sickly_blade/rhytm/pre_attackby(atom/target, mob/living/user, modifiers)
+	sync_to_rhythm(get_heretic_rhytm(user))
+	if(user.a_intent == INTENT_HARM && !HAS_TRAIT(src, TRAIT_CLEAVE_BLOCKED) && !HAS_TRAIT(src, TRAIT_CLEAVING) && !HAS_TRAIT(user, TRAIT_PACIFISM))
+		var/datum/component/cleave_attack/sweep = GetComponent(/datum/component/cleave_attack)
+		INVOKE_ASYNC(sweep, TYPE_PROC_REF(/datum/component/cleave_attack, perform_sweep), src, target, user, modifiers)
+	return ..()
+
+
+/obj/item/melee/sickly_blade/rhytm/proc/sync_to_rhythm(datum/status_effect/heretic_passive/rhytm/our_rhythm)
+	var/beats = our_rhythm ? our_rhythm.effective_rhythm() : 0
+	attack_speed = initial(attack_speed) * (1 - beats * 0.01)
+	force = initial(force) + ((our_rhythm?.rhythm >= RHYTM_EMPOWER_THRESHOLD) ? empowered_force : 0)
+	if(our_rhythm?.rhythm >= RHYTM_DANCE_THRESHOLD)
+		REMOVE_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())
+		return
+	ADD_TRAIT(src, TRAIT_CLEAVE_BLOCKED, UID())

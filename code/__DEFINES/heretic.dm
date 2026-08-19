@@ -13,6 +13,7 @@
 #define PATH_LOCK "Путь Замка́"
 #define PATH_MOON "Путь Луны"
 #define PATH_BLUESPACE "Путь Блюспейса"
+#define PATH_RHYTM "Путь Ритма"
 
 // Heretic knowledge tree defines (keys used in the knowledge tree assoc lists).
 #define HKT_NEXT "next"
@@ -56,6 +57,9 @@
 #define MAX_KNOWLEDGE_PRIORITY 100
 
 #define BLUESPACE_MAX_INSTABILITY 2
+
+#define RHYTM_DANCE_THRESHOLD 10
+#define RHYTM_EMPOWER_THRESHOLD 15
 
 #define MOON_BRAIN_DAMAGE_MODIFIER 0.6
 

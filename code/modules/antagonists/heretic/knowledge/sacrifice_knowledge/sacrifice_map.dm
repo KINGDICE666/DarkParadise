@@ -68,6 +68,11 @@ GLOBAL_LIST_EMPTY(heretic_sacrifice_landmarks)
 	for_heretic_path = PATH_COSMIC
 
 
+/obj/effect/landmark/heretic/rhytm
+	name = "rhytm heretic sacrifice landmark"
+	for_heretic_path = PATH_RHYTM
+
+
 /obj/effect/landmark/heretic/blade
 	name = "blade heretic sacrifice landmark"
 	for_heretic_path = PATH_BLADE
@@ -257,6 +262,11 @@ GLOBAL_LIST_EMPTY(heretic_sacrifice_landmarks)
 /area/centcom/heretic_sacrifice/moon
 	name = "Лунные Врата Обители"
 	sound_environment = SOUND_ENVIRONMENT_PSYCHOTIC
+
+
+/area/centcom/heretic_sacrifice/rhytm
+	name = "Гремящие Врата Обители"
+	sound_environment = SOUND_ENVIRONMENT_FOREST
 
 
 /area/centcom/heretic_sacrifice/bluespace
