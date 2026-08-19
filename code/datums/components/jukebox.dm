@@ -1,6 +1,3 @@
-/// Checks if the mob has jukebox muted in their preferences
-#define IS_PREF_MUTED(mob) (!isnull(mob.client) && !(mob.client.prefs.sound & SOUND_DISCO))
-
 // Reasons for appling STATUS_MUTE to a mob's sound status
 /// The mob is deaf
 #define MUTE_DEAF (1<<0)
@@ -37,6 +34,7 @@
 
 	VAR_PROTECTED/sound_channel = CHANNEL_JUKEBOX
 	VAR_PROTECTED/positional = TRUE
+	VAR_PROTECTED/mute_preference = SOUND_DISCO
 
 	/// Range at which the sound plays to players, can also be a view "XxY" string
 	VAR_PROTECTED/sound_range
@@ -235,6 +233,9 @@
 	start_time = world.time
 	end_time = start_time + selection.song_length
 
+/datum/jukebox/proc/is_pref_muted(mob/listener)
+	return mute_preference && !isnull(listener.client) && !(listener.client.prefs.sound & mute_preference)
+
 /datum/jukebox/proc/has_listener(mob/listener)
 	return !isnull(listeners[listener])
 
@@ -261,7 +262,7 @@
 	RegisterSignals(new_listener, list(COMSIG_MOVABLE_MOVED, COMSIG_MOB_JUKEBOX_PREFERENCE_APPLIED), PROC_REF(listener_moved))
 	RegisterSignals(new_listener, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)), PROC_REF(listener_deaf))
 
-	if(HAS_TRAIT(new_listener, TRAIT_DEAF) || IS_PREF_MUTED(new_listener))
+	if(HAS_TRAIT(new_listener, TRAIT_DEAF) || is_pref_muted(new_listener))
 		listeners[new_listener] |= SOUND_MUTE
 
 	if(isnull(active_song_sound))
@@ -283,7 +284,7 @@
 	active_song_sound.falloff = 2
 	active_song_sound.volume = volume
 	active_song_sound.y = 1
-	active_song_sound.environment = juke_area.sound_environment || SOUND_ENVIRONMENT_NONE
+	active_song_sound.environment = juke_area?.sound_environment || SOUND_ENVIRONMENT_NONE
 	active_song_sound.repeat = sound_loops
 
 /// Deregisters mobs on deletion.
@@ -327,7 +328,7 @@
 	if((reason & MUTE_DEAF) && HAS_TRAIT(listener, TRAIT_DEAF))
 		return FALSE
 
-	if((reason & MUTE_PREF) && IS_PREF_MUTED(listener))
+	if((reason & MUTE_PREF) && is_pref_muted(listener))
 		return FALSE
 
 	if(reason & MUTE_RANGE)
@@ -387,12 +388,12 @@
 		active_song_sound.x = positional ? new_x : 0
 		active_song_sound.z = positional ? new_z : 0
 
-		if(IS_PREF_MUTED(listener))
+		if(is_pref_muted(listener))
 			listeners[listener] |= SOUND_MUTE
 		else
 			unmute_listener(listener, MUTE_PREF)
 			// Scale by the listener's volume mixer setting so mixer changes are honored here.
-			var/mixer_mult = listener.client?.prefs?.get_channel_volume(CHANNEL_JUKEBOX)
+			var/mixer_mult = listener.client?.prefs?.get_channel_volume(sound_channel)
 			active_song_sound.volume = volume * (isnull(mixer_mult) ? 1 : mixer_mult)
 
 	// Assign status AFTER mute/unmute decisions so SEND_SOUND reflects the current state,
@@ -491,4 +492,3 @@
 	song_length = 2 MINUTES + 57 SECONDS
 	song_beat_deciseconds = 5 DECISECONDS
 
-#undef IS_PREF_MUTED

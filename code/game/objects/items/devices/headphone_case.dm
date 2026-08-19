@@ -97,10 +97,13 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	data["icon_state"] = icon_state
 	data["powered"] = powered
 	data["playing"] = !isnull(song_timerid)
-	data["left_inside"] = left_bud?.loc == src
-	data["right_inside"] = right_bud?.loc == src
-	data["left_bud_overlay"] = left_bud?.loc == src ? "[base_icon_state]_left_bud" : null
-	data["right_bud_overlay"] = right_bud?.loc == src ? "[base_icon_state]_right_bud" : null
+	var/left_inside = left_bud?.loc == src
+	var/right_inside = right_bud?.loc == src
+	var/lid_closed = left_inside && right_inside
+	data["left_inside"] = left_inside
+	data["right_inside"] = right_inside
+	data["left_bud_overlay"] = (left_inside && !lid_closed) ? "[base_icon_state]_left_bud" : null
+	data["right_bud_overlay"] = (right_inside && !lid_closed) ? "[base_icon_state]_right_bud" : null
 	data["left_missing"] = QDELETED(left_bud)
 	data["right_missing"] = QDELETED(right_bud)
 	data["track_length"] = player.selection?.song_length
@@ -117,7 +120,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	var/mob/user = ui.user
 	switch(action)
 		if("power")
-			toggle_power(user)
+			toggle_power()
 			return TRUE
 
 		if("eject")
@@ -176,18 +179,20 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 
 /obj/item/headphone_case/proc/load_track(mob/user, url)
 	if(!powered)
-		balloon_alert(user, "кейс выключен!")
+		to_chat(user, span_warning("Кейс выключен."))
 		return
 	if(!CONFIG_GET(flag/headphone_case_music) || !CONFIG_GET(string/invoke_youtubedl))
 		to_chat(user, span_warning("Медиасеть станции недоступна."))
 		return
 	if(!COOLDOWN_FINISHED(src, fetch_cooldown) || !CLIENT_COOLDOWN_FINISHED(GLOB, headphone_case_fetch_cooldown))
-		balloon_alert(user, "кейс ещё думает!")
+		to_chat(user, span_warning("Кейс ещё обрабатывает предыдущий запрос."))
 		return
 	if(check_mute(user.ckey, MUTE_INTERNET_REQUEST))
 		to_chat(user, span_warning("Вам запрещено включать музыку."))
 		return
 
+	if(!istext(url))
+		return
 	url = trim(url)
 	if(!findtext(url, GLOB.is_http_protocol) || length(url) > HEADPHONE_URL_MAX_LENGTH)
 		to_chat(user, span_warning("Кейс принимает только http(s) ссылки."))
@@ -204,6 +209,8 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 
 	var/youtubedl = CONFIG_GET(string/invoke_youtubedl)
 	var/datum/web_sound_info/sound_info = get_web_sound_info(youtubedl, url)
+	if(QDELETED(src) || QDELETED(user) || !powered)
+		return
 	if(!sound_info.success)
 		to_chat(user, span_warning("Кейс не смог достучаться до трека."))
 		log_game("[key_name(user)] failed to fetch [url] through [type]: [sound_info.error_message]")
@@ -220,6 +227,8 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	var/datum/track/track = GLOB.headphone_case_tracks[sound_info.id]
 	if(!track)
 		var/datum/web_sound_download/download = download_web_sound(youtubedl, url, sound_info.id)
+		if(QDELETED(src) || QDELETED(user) || !powered)
+			return
 		if(!download.success || !fexists(download.file_path))
 			to_chat(user, span_warning("Кейс не смог скачать трек."))
 			log_game("[key_name(user)] failed to download [url] through [type]: [download.error_message]")
@@ -234,8 +243,8 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	play_track(track)
 
 	var/display_url = html_encode(url)
-	add_game_logs("started web sound [url] in [type]", user)
-	message_admins("[key_name_admin(user)] запустил в наушниках [span_linkify(display_url)] [ADMIN_STOP_HEADPHONES(src)] [ADMIN_LOOKUPFLW(user)]")
+	add_game_logs("started web sound [url] in [type] ([UID()])", user)
+	message_admins("[key_name_admin(user)] played web sound in a headphone case: [span_linkify(display_url)] [ADMIN_STOP_HEADPHONES(src)] [ADMIN_LOOKUPFLW(user)]")
 	SSblackbox.record_feedback("nested tally", "headphone_case_url", 1, list("[user.ckey]", "[url]"))
 
 /obj/item/headphone_case/proc/play_track(datum/track/track)
@@ -262,7 +271,6 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	name = "wireless earbud"
 	desc = "Беспроводной наушник Nanotrasen. Работает только рядом со своим кейсом."
 	icon = 'icons/obj/audio_devices.dmi'
-	icon_state = "earbud_white"
 	abstract_type = /obj/item/clothing/ears/earbud
 	sprite_sheets = null
 	onmob_sheets = list(
@@ -315,22 +323,25 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	return (wearer.l_ear == src || wearer.r_ear == src) ? wearer : null
 
 /obj/item/clothing/ears/earbud/left
+	icon_state = "earbud_white_l"
 	item_state = "earbud_white_l"
 
 /obj/item/clothing/ears/earbud/left/black
-	icon_state = "earbud_black"
+	icon_state = "earbud_black_l"
 	item_state = "earbud_black_l"
 
 /obj/item/clothing/ears/earbud/right
+	icon_state = "earbud_white_r"
 	item_state = "earbud_white_r"
 
 /obj/item/clothing/ears/earbud/right/black
-	icon_state = "earbud_black"
+	icon_state = "earbud_black_r"
 	item_state = "earbud_black_r"
 
 /datum/jukebox/headphones
 	requires_range_check = FALSE
 	positional = FALSE
+	mute_preference = NONE
 	volume = 40
 
 /datum/jukebox/headphones/New(atom/new_parent)
