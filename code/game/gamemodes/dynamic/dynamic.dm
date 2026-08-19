@@ -37,7 +37,7 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 	return TRUE
 
 /datum/game_mode/dynamic/post_setup()
-	to_chat(world, current_tier.advisory_report)
+	to_chat(world, get_advisory_report())
 	for(var/datum/dynamic_ruleset/ruleset as anything in executed_rulesets)
 		ruleset.execute()
 	COOLDOWN_START(src, midround_cooldown, current_tier.get_time_threshold(DYNAMIC_MIDROUND))
@@ -83,6 +83,18 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 	add_game_logs("Dynamic: tier [current_tier.name], population [population_size], rulesets \
 		[rulesets_to_spawn[DYNAMIC_ROUNDSTART]]/[rulesets_to_spawn[DYNAMIC_MIDROUND]]/[rulesets_to_spawn[DYNAMIC_LATEJOIN]]")
 
+/datum/game_mode/dynamic/proc/get_advisory_report()
+	var/shown_tier = current_tier.tier
+	if(prob(ADVISORY_REPORT_WRONG_TIER_CHANCE))
+		shown_tier = pick(list(DYNAMIC_TIER_LOW, DYNAMIC_TIER_LOWMEDIUM, DYNAMIC_TIER_MEDIUMHIGH, DYNAMIC_TIER_HIGH) - current_tier.tier)
+	else if(prob(ADVISORY_REPORT_NEAR_TIER_CHANCE))
+		shown_tier = clamp(current_tier.tier + pick(-1, 1), DYNAMIC_TIER_LOW, DYNAMIC_TIER_HIGH)
+
+	for(var/datum/dynamic_tier/tier_type as anything in subtypesof(/datum/dynamic_tier))
+		if(tier_type::tier == shown_tier)
+			return tier_type::advisory_report
+	return current_tier.advisory_report
+
 /datum/game_mode/dynamic/proc/get_weighted_rulesets(ruleset_family, population_size)
 	. = list()
 	for(var/ruleset_type in subtypesof(ruleset_family))
@@ -90,6 +102,16 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 			continue
 		var/datum/dynamic_ruleset/ruleset = new ruleset_type
 		var/ruleset_weight = ruleset.get_weight(population_size, current_tier.tier)
+		for(var/datum/dynamic_ruleset/executed as anything in executed_rulesets)
+			if(current_tier.tier != DYNAMIC_TIER_HIGH && (ruleset.ruleset_flags & RULESET_HIGH_IMPACT) && (executed.ruleset_flags & RULESET_HIGH_IMPACT))
+				ruleset_weight = 0
+				break
+			if(!istype(executed, ruleset_type))
+				continue
+			if(!ruleset.repeatable)
+				ruleset_weight = 0
+				break
+			ruleset_weight -= ruleset.repeatable_weight_decrease
 		if(ruleset_weight <= 0)
 			qdel(ruleset)
 			continue
