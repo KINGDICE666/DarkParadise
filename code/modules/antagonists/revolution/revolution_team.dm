@@ -117,10 +117,12 @@ GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
 
 /datum/team/revolution/proc/launch_nanotrasen_pods()
 	var/crew = length(GLOB.data_core.general)
+	var/list/standard_areas = collect_pod_areas(reinforced = FALSE)
+	var/list/reinforced_areas = collect_pod_areas(reinforced = TRUE)
 	for(var/count in 1 to round(crew / CREW_PER_SUPPLY_POD))
-		drop_supply_pod(pick_pod_turf(reinforced = FALSE), standard_pod_payload())
+		drop_supply_pod(pick_pod_turf(standard_areas), standard_pod_payload())
 	for(var/count in 1 to round(crew / CREW_PER_REINFORCED_POD))
-		drop_supply_pod(pick_pod_turf(reinforced = TRUE), pick(GLOB.revolution_reinforced_pod_kits) + list(/obj/item/storage/lockbox/mindshield = 1))
+		drop_supply_pod(pick_pod_turf(reinforced_areas), pick(GLOB.revolution_reinforced_pod_kits) + list(/obj/item/storage/lockbox/mindshield = 1))
 
 /datum/team/revolution/proc/standard_pod_payload()
 	var/list/payload = pick(GLOB.revolution_standard_pod_kits) + list(/obj/item/implanter/mindshield = 2)
@@ -129,14 +131,16 @@ GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
 		payload[kit.kit_box] = 1
 	return payload
 
-/datum/team/revolution/proc/pick_pod_turf(reinforced)
-	var/list/candidates = list()
+/datum/team/revolution/proc/collect_pod_areas(reinforced)
+	. = list()
 	for(var/area/station/area as anything in GLOB.areas)
 		if(!istype(area))
 			continue
 		if(reinforced ? !is_type_in_typecache(area, GLOB.revolution_reinforced_pod_areas) : is_type_in_typecache(area, GLOB.revolution_pod_blacklist))
 			continue
-		candidates += area
+		. += area
+
+/datum/team/revolution/proc/pick_pod_turf(list/candidates)
 	while(length(candidates))
 		var/area/chosen = pick_n_take(candidates)
 		var/list/turfs = chosen.get_turfs_from_all_zlevels()
@@ -200,15 +204,19 @@ GLOBAL_LIST_INIT(revolution_reinforced_pod_areas, typecacheof(list(
 		revolutionary.add_objective(/datum/objective/survive)
 		to_chat(rebel.current, span_userdanger("Синдикат не придёт. Выживите любой ценой."))
 	SSshuttle.emergency.canRecall = FALSE
-	SSshuttle.emergency.request(null, REVOLUTION_EVAC_TIME / SSshuttle.emergencyCallTime)
+	SSshuttle.emergency.request(null, REVOLUTION_EVAC_TIME / max(SSshuttle.emergencyCallTime, 1))
 
 /datum/team/revolution/proc/spawn_on_beacons(mob_type)
+	var/spawned = 0
 	for(var/obj/item/beacon/beacon as anything in GLOB.beacons)
 		var/turf/landing_spot = get_turf(beacon)
 		if(!landing_spot || !is_station_level(landing_spot.z))
 			continue
 		for(var/count in 1 to REVOLUTION_ENDING_SPAWNS_PER_BEACON)
 			new mob_type(landing_spot)
+			spawned++
+			if(spawned >= REVOLUTION_ENDING_MAX_SPAWNS)
+				return
 
 /datum/team/revolution/proc/finish_round()
 	SSticker.force_ending = TRUE
