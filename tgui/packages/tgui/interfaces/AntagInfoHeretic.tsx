@@ -730,6 +730,8 @@ const pathBackgrounds: Record<string, string> = {
     'radial-gradient(circle, rgb(215,179,218) 54%, rgb(163,139,165) 60%, rgb(108,92,109) 80%, rgba(13,7,26,1) 100%)',
   'Путь Блюспейса':
     'radial-gradient(circle, rgb(4,26,48) 54%, rgb(6,42,76) 60%, rgb(8,68,120) 80%, rgb(10,102,175) 100%)',
+  'Путь Ритма':
+    'radial-gradient(circle, rgb(46,6,10) 54%, rgb(74,9,16) 60%, rgb(104,14,24) 80%, rgb(138,22,34) 100%)',
 };
 
 const defaultBackground =
