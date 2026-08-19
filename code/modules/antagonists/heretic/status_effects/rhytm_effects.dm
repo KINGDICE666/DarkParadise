@@ -15,7 +15,10 @@
 #define RHYTM_COMBAT_DELAY (5 SECONDS)
 #define RHYTM_ASCENDED_MINIMUM 30
 #define RHYTM_PULSE_RANGE_PER_POINT 10
+#define RHYTM_PULSE_MAX_RANGE 5
+#define RHYTM_PULSE_INTERVAL (5 SECONDS)
 #define RHYTM_PULSE_DAMAGE_MULTIPLIER 0.5
+#define RHYTM_HEAL_CAP 50
 #define RHYTM_SPIN_SPEED (0.6 SECONDS)
 #define FESTIVAL_STAMINA_PER_STEP 5
 #define RHYTM_PER_RESONATING_HEART 5
@@ -46,6 +49,7 @@
 	var/applied_click_speed = 1
 	var/applied_bonus = 0
 	var/pulse_until = 0
+	var/next_pulse = 0
 	var/always_pulse = FALSE
 	var/dancing = FALSE
 	var/dance_timer
@@ -199,12 +203,13 @@
 	if(!rhythm || owner.stat == DEAD)
 		return
 
-	var/power = rhythm
+	var/power = min(rhythm, RHYTM_HEAL_CAP)
 	if(applied_level < 3 && world.time < combat_until)
 		power *= RHYTM_COMBAT_HEAL_MULTIPLIER
 
 	var/resonating = world.time < pulse_until
-	if(always_pulse || resonating)
+	if((always_pulse || resonating) && world.time >= next_pulse)
+		next_pulse = world.time + RHYTM_PULSE_INTERVAL
 		pulse()
 
 	if(resonating)
@@ -225,7 +230,7 @@
 
 
 /datum/status_effect/heretic_passive/rhytm/proc/pulse()
-	var/pulse_range = 1 + round(rhythm / RHYTM_PULSE_RANGE_PER_POINT)
+	var/pulse_range = min(1 + round(rhythm / RHYTM_PULSE_RANGE_PER_POINT), RHYTM_PULSE_MAX_RANGE)
 	var/pulse_damage = rhythm * RHYTM_PULSE_DAMAGE_MULTIPLIER
 	new /obj/effect/temp_visual/resonant_pulse(get_turf(owner))
 	playsound(owner, 'sound/magic/heretic/rhytm/timpan3.ogg', 50, TRUE)
@@ -345,20 +350,24 @@
 	duration = 10 SECONDS
 	alert_type = null
 	var/stamina_mod_applied = 0.5
+	var/old_stamina_mod = 1
 
 
 /datum/status_effect/accelerated_dance/on_apply()
+	. = ..()
+	if(!.)
+		return
 	owner.add_movespeed_modifier(/datum/movespeed_modifier/accelerated_dance)
 	RegisterSignal(owner, COMSIG_LIVING_GENERIC_INCAPACITATE_CHECK, PROC_REF(stay_on_feet))
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human_owner = owner
+		old_stamina_mod = human_owner.physiology.stamina_mod
 		human_owner.physiology.stamina_mod *= stamina_mod_applied
 	owner.visible_message(
 		span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] срывается в неистовый танец!"),
 		span_notice("Такт подхватывает вас и несёт вперёд."),
 	)
 	playsound(owner, 'sound/magic/heretic/rhytm/timpan1.ogg', 60, TRUE)
-	return TRUE
 
 
 /datum/status_effect/accelerated_dance/on_remove()
@@ -366,7 +375,7 @@
 	UnregisterSignal(owner, COMSIG_LIVING_GENERIC_INCAPACITATE_CHECK)
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human_owner = owner
-		human_owner.physiology.stamina_mod /= stamina_mod_applied
+		human_owner.physiology.stamina_mod = old_stamina_mod
 	owner.adjustStaminaLoss(MAX_STAMINA_LOSS * 0.2)
 	to_chat(owner, span_warning("Танец обрывается, и всё тело разом вспоминает про усталость."))
 	return ..()
@@ -398,7 +407,7 @@
 
 /datum/status_effect/festival_puppet
 	id = "festival_puppet"
-	duration = 20 SECONDS
+	duration = 10 SECONDS
 	alert_type = null
 	var/mob/living/conductor
 
@@ -501,6 +510,9 @@
 #undef RHYTM_COMBAT_DELAY
 #undef RHYTM_ASCENDED_MINIMUM
 #undef RHYTM_PULSE_RANGE_PER_POINT
+#undef RHYTM_PULSE_MAX_RANGE
+#undef RHYTM_PULSE_INTERVAL
+#undef RHYTM_HEAL_CAP
 #undef RHYTM_PULSE_DAMAGE_MULTIPLIER
 #undef RHYTM_SPIN_SPEED
 #undef FESTIVAL_STAMINA_PER_STEP
