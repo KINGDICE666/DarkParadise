@@ -56,6 +56,50 @@
 /datum/dynamic_ruleset/roundstart/thief/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/thief)
 
+/datum/dynamic_ruleset/roundstart/heretic
+	name = "Heretics"
+	config_tag = "roundstart heretic"
+	antag_role = ROLE_HERETIC
+	special_role = SPECIAL_ROLE_HERETIC
+	blacklisted_roles = list(JOB_TITLE_CHAPLAIN)
+	weight = 5
+	min_pop = 30
+	max_antag_cap = list("denominator" = 24)
+
+/datum/dynamic_ruleset/roundstart/heretic/assign_role(datum/mind/candidate)
+	candidate.add_antag_datum(/datum/antagonist/heretic)
+
+/datum/dynamic_ruleset/roundstart/hijacker
+	name = "Hijacker"
+	config_tag = "roundstart hijacker"
+	antag_role = ROLE_HIJACKER
+	special_role = SPECIAL_ROLE_TRAITOR
+	weight = 4
+	min_pop = 20
+	max_antag_cap = 1
+
+/datum/dynamic_ruleset/roundstart/hijacker/assign_role(datum/mind/candidate)
+	var/datum/antagonist/traitor/hijacker = new
+	hijacker.is_hijacker = TRUE
+	hijacker.contractor_pending = new(candidate)
+	addtimer(CALLBACK(candidate, TYPE_PROC_REF(/datum/mind, add_antag_datum), hijacker), rand(1 SECONDS, 10 SECONDS))
+
+/datum/dynamic_ruleset/roundstart/prisoner
+	name = "Escaping Prisoners"
+	config_tag = "roundstart prisoner"
+	antag_role = ROLE_ESCAPING_PRISONER
+	special_role = SPECIAL_ROLE_ESCAPING_PRISONER
+	required_job_rank = JOB_TITLE_PRISONER
+	weight = 4
+	min_pop = 15
+	max_antag_cap = ROLE_PRISONERS_MAX_COUNT
+
+/datum/dynamic_ruleset/roundstart/prisoner/prepare_for_role(datum/mind/candidate)
+	SSjobs.forced_occupations[candidate] = JOB_TITLE_PRISONER
+
+/datum/dynamic_ruleset/roundstart/prisoner/assign_role(datum/mind/candidate)
+	candidate.add_antag_datum(/datum/antagonist/traitor/prisoner)
+
 /datum/dynamic_ruleset/roundstart/malf_ai
 	name = "Malfunctioning AI"
 	config_tag = "roundstart malf ai"

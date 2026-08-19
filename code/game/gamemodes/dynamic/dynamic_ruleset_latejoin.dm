@@ -80,3 +80,15 @@
 
 /datum/dynamic_ruleset/latejoin/changeling/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/changeling)
+
+/datum/dynamic_ruleset/latejoin/heretic
+	name = "Heretic"
+	config_tag = "latejoin heretic"
+	antag_role = ROLE_HERETIC
+	special_role = SPECIAL_ROLE_HERETIC
+	blacklisted_roles = list(JOB_TITLE_CHAPLAIN)
+	weight = 4
+	min_pop = 25
+
+/datum/dynamic_ruleset/latejoin/heretic/assign_role(datum/mind/candidate)
+	candidate.add_antag_datum(/datum/antagonist/heretic)

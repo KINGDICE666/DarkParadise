@@ -146,8 +146,9 @@ ANTAG_PARADISE_DOUBLE_ANTAG_CHANCE 0
 #DYNAMIC_RULESET_WEIGHTS midround traitor 10
 #DYNAMIC_RULESET_WEIGHTS latejoin traitor 10
 ##
-## Ruleset population floors. Built-in defaults: traitor and thief 5, changeling and vampire 15,
-## revolution and wizard 20, space ninja 25, everything round-defining (cults, nukies, blob,
-## shadowlings, malf AI) 30. Setting one here overrides the per-tier defaults with a flat number.
+## Ruleset population floors. Built-in defaults: traitor and thief 5, prisoner 15, changeling and
+## vampire 15, revolution, wizard and hijacker 20, space ninja and midround heretic 25, everything
+## round-defining (cults, nukies, blob, shadowlings, malf AI, roundstart heretic) 30.
+## Setting one here overrides the per-tier defaults with a flat number.
 #DYNAMIC_RULESET_MIN_POP roundstart traitor 5
 #DYNAMIC_RULESET_MIN_POP roundstart nuclear 30
