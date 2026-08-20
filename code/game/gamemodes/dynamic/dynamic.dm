@@ -64,8 +64,12 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 /datum/game_mode/dynamic/proc/pick_tier(population_size)
 	var/list/tier_weights = list()
 	var/list/weight_overrides = CONFIG_GET(keyed_list/dynamic_tier_weights)
+	var/list/min_pop_overrides = CONFIG_GET(keyed_list/dynamic_tier_min_pop)
 	for(var/datum/dynamic_tier/tier_type as anything in subtypesof(/datum/dynamic_tier))
-		if(population_size < tier_type::min_pop)
+		var/tier_min_pop = tier_type::min_pop
+		if(tier_type::config_tag in min_pop_overrides)
+			tier_min_pop = min_pop_overrides[tier_type::config_tag]
+		if(population_size < tier_min_pop)
 			continue
 		var/tier_weight = tier_type::weight
 		if(tier_type::config_tag in weight_overrides)
@@ -74,7 +78,7 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 			continue
 		tier_weights[tier_type] = tier_weight
 
-	var/picked_tier = GLOB.dynamic_forced_tier || pick_weight_classic(tier_weights) || /datum/dynamic_tier/lowmedium
+	var/picked_tier = GLOB.dynamic_forced_tier || pick_weight_classic(tier_weights) || /datum/dynamic_tier/greenshift
 	current_tier = new picked_tier
 
 	for(var/category in list(DYNAMIC_ROUNDSTART, DYNAMIC_MIDROUND, DYNAMIC_LATEJOIN))
