@@ -1769,11 +1769,11 @@
 
 /datum/reagent/consumable/ethanol/light/on_mob_life(mob/living/M)
 	. = ..()
-	if(M.lighting_alpha < LIGHTING_PLANE_ALPHA_NV_TRAIT)
+	if(M.lighting_cutoff > LIGHTING_CUTOFF_REAL_LOW)
 		return
-	M.lighting_alpha = LIGHTING_PLANE_ALPHA_NV_TRAIT
+	M.lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 	if(volume < 0.4)
-		M.lighting_alpha = initial(M.lighting_alpha)
+		M.lighting_cutoff = initial(M.lighting_cutoff)
 
 /datum/reagent/consumable/ethanol/bees_knees
 	name = "Пчелиные Колени"

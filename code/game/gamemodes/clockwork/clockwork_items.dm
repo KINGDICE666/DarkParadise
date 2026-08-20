@@ -1153,7 +1153,7 @@
 	var/active = FALSE //If the visor is online
 	actions_types = list(/datum/action/item_action/toggle)
 	flash_protect = FLASH_PROTECTION_FLASH
-	lighting_alpha = null
+	lighting_cutoff = null
 
 /obj/item/clothing/glasses/clockwork/equipped(mob/living/user, slot, initial)
 	. = ..()
@@ -1180,7 +1180,7 @@
 	icon_state = "judicial_visor_[active]"
 	flash_protect = !active
 	see_in_dark = active ? 8 : 0
-	lighting_alpha = active ? LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE : null
+	lighting_cutoff = active ? LIGHTING_CUTOFF_HIGH : null
 	switch(active)
 		if(TRUE)
 			to_chat(user, span_notice("You toggle [src], its lens begins to glow."))

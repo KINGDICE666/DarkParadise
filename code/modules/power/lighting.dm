@@ -176,6 +176,7 @@
 	desc = "A lighting fixture."
 	anchored = TRUE
 	layer = FLY_LAYER
+	light_angle = 170
 	max_integrity = 10
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
 	use_power = ACTIVE_POWER_USE
@@ -194,7 +195,7 @@
 	/// Light intensity
 	var/brightness_power = 1
 	/// Light colour when on
-	var/brightness_color = COLOR_WHITE
+	var/brightness_color = LIGHT_COLOR_DEFAULT
 	/// Light fixture status (LIGHT_OK | LIGHT_EMPTY | LIGHT_BURNED | LIGHT_BROKEN)
 	var/status = LIGHT_OK
 	/// Is the light currently flickering?
@@ -224,7 +225,7 @@
 	/// Light intensity when in night shift mode
 	var/nightshift_light_power = 0.45
 	/// The colour of the light while it's in night shift mode
-	var/nightshift_light_color = "#e0eeff"
+	var/nightshift_light_color = "#ffddcc"
 	/// The colour of the light while it's in emergency mode
 	var/bulb_emergency_colour = "#ff4e4e"
 
@@ -272,6 +273,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 	deconstruct_type = /obj/machinery/light_construct/floor
 	brightness_range = 6
 	nightshift_light_range = 6
+	light_angle = 360
 	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
 
@@ -311,7 +313,12 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 			brightness_range = 6
 			if(prob(3))
 				break_light_tube(TRUE)
+	set_light(l_dir = REVERSE_DIR(dir))
 	update(FALSE, mapload ? FALSE : TRUE)
+
+/obj/machinery/light/setDir(newdir)
+	. = ..()
+	set_light(l_dir = REVERSE_DIR(dir))
 
 /obj/machinery/light/proc/on_security_level_change_planned(datum/source, previous_level_number, new_level_number)
 	SIGNAL_HANDLER
@@ -375,7 +382,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 
 	if(status != LIGHT_OK || !on)
 		return
-	if(nightshift_enabled || emergency_mode || fire_mode)
+	if(emergency_mode || fire_mode)
 		underlays += emissive_appearance(icon, "[base_icon_state]_emergency_lightmask", src)
 	else
 		underlays += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
