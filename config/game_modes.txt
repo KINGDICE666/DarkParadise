@@ -130,9 +130,10 @@ ANTAG_PARADISE_DOUBLE_ANTAG_CHANCE 0
 ## Dynamic mode tuning.
 ##
 ## Dynamic picks a chaos tier for the round, then draws rulesets (antagonists) from a weighted pool.
-## Low population is handled by the rulesets themselves: every ruleset has a min_pop below which it
-## cannot be drawn, so a lowpop round quietly ends up with traitors and thieves only. On top of that
-## the tier halves or quarters its ruleset count below 40 and 25 players, and High Chaos needs 25.
+## Low population is handled on three levels: every ruleset has a min_pop below which it cannot be
+## drawn, so a lowpop round quietly ends up with traitors and thieves only; the tier halves or
+## quarters its ruleset count below 40 and 25 players; and every tier above Greenshift has its own
+## population floor, so lowpop rounds cannot roll a high tier in the first place.
 ##
 ## Tier weights. Defaults: greenshift 2, low chaos 8, low-medium chaos 46, medium-high chaos 34, high chaos 10.
 #DYNAMIC_TIER_WEIGHTS greenshift 2
@@ -140,6 +141,12 @@ ANTAG_PARADISE_DOUBLE_ANTAG_CHANCE 0
 #DYNAMIC_TIER_WEIGHTS low-medium chaos 46
 #DYNAMIC_TIER_WEIGHTS medium-high chaos 34
 #DYNAMIC_TIER_WEIGHTS high chaos 10
+##
+## Tier population floors. Defaults: greenshift 0, low chaos 5, low-medium chaos 10,
+## medium-high chaos 15, high chaos 25. A tier is not drawn at all below its floor.
+#DYNAMIC_TIER_MIN_POP low-medium chaos 10
+#DYNAMIC_TIER_MIN_POP medium-high chaos 15
+#DYNAMIC_TIER_MIN_POP high chaos 25
 ##
 ## Ruleset weights. 0 disables a ruleset entirely, admins can still force it from the Dynamic Panel.
 #DYNAMIC_RULESET_WEIGHTS roundstart traitor 10
