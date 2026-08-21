@@ -8,6 +8,9 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "launcherbtt"
 	desc = "A remote control switch for a mass driver."
+	light_range = 1.5
+	light_power = 0.5
+	light_color = LIGHT_COLOR_VIVID_GREEN
 	var/id_tag = "default"
 	var/active = FALSE
 	anchored = TRUE
@@ -47,8 +50,14 @@
 	radio_connection = null
 	return ..()
 
+/obj/machinery/driver_button/power_change(forced = FALSE)
+	. = ..()
+	if(.)
+		update_icon(UPDATE_ICON_STATE)
+
 /obj/machinery/driver_button/update_icon_state()
 	icon_state = active ? "launcheract" : "launcherbtt"
+	set_light_on(!(stat & (NOPOWER|BROKEN)))
 
 /obj/machinery/driver_button/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -148,6 +157,9 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "launcherbtt"
 	desc = "A remote control switch for a mounted igniter."
+	light_range = 1.5
+	light_power = 0.5
+	light_color = LIGHT_COLOR_VIVID_GREEN
 	var/id = null
 	var/active = FALSE
 	anchored = TRUE
@@ -190,6 +202,12 @@
 	active = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
+/obj/machinery/ignition_switch/power_change(forced = FALSE)
+	. = ..()
+	if(.)
+		update_icon(UPDATE_ICON_STATE)
+
 /obj/machinery/ignition_switch/update_icon_state()
 	icon_state = active ? "launcheract" : "launcherbtt"
+	set_light_on(!(stat & (NOPOWER|BROKEN)))
 

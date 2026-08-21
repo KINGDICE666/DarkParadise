@@ -312,10 +312,12 @@ GLOBAL_LIST_INIT(human_tlv, list(
 				icon_state = "alarm_b2"
 			if(AIR_ALARM_WIRED)
 				icon_state = "alarmx"
+		set_light_on(FALSE)
 		return
 
 	if((stat & (NOPOWER|BROKEN)) || shorted)
 		icon_state = "alarmp"
+		set_light_on(FALSE)
 		return
 
 	if(!alarm_area) // We wont have our alarm_area if we aint initialised
@@ -324,10 +326,13 @@ GLOBAL_LIST_INIT(human_tlv, list(
 	switch(max(danger_level, alarm_area.atmosalm - 1))
 		if(ATMOS_ALARM_NONE)
 			icon_state = "alarm0"
+			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#00ffcc", l_on = TRUE)
 		if(ATMOS_ALARM_WARNING)
 			icon_state = "alarm2" //yes, alarm2 is yellow alarm
+			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#ffaa00", l_on = TRUE)
 		if(ATMOS_ALARM_DANGER)
 			icon_state = "alarm1"
+			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#ff0022", l_on = TRUE)
 
 /obj/machinery/alarm/update_overlays()
 	. = ..()

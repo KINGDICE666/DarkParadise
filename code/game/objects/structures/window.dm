@@ -672,6 +672,9 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	icon_state = "light-off"
 	desc = "Пульт дистанционного управления для поляризованных окон."
 	anchored = TRUE
+	light_range = 1.5
+	light_power = 0.5
+	light_color = LIGHT_COLOR_VIVID_GREEN
 	var/range = 7
 	var/id = 0
 	var/active = 0
@@ -728,9 +731,11 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		return
 	if(active && !powered(power_channel))
 		toggle_tint()
+	update_icon(UPDATE_ICON_STATE)
 
 /obj/machinery/button/windowtint/update_icon_state()
 	icon_state = "light[active ? "-on" : "-off"]"
+	set_light_on(!(stat & (NOPOWER|BROKEN)))
 
 /obj/structure/window/plasmabasic
 	name = "plasma window"

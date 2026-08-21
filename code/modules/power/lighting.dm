@@ -249,9 +249,8 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light, 0, 0)
 	base_icon_state = "bulb"
 	fitting = "bulb"
 	brightness_range = 4
-	brightness_color = "#ffebb0"
+	brightness_color = LIGHT_COLOR_TUNGSTEN
 	nightshift_light_range = 4
-	nightshift_light_color = "#ffefa0"
 	light_type = /obj/item/light/bulb
 	deconstruct_type = /obj/machinery/light_construct/small
 
@@ -276,6 +275,9 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 	light_angle = 360
 	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
+
+/obj/machinery/light/floor/get_light_offset()
+	return list(0, 0)
 
 /obj/machinery/light/built
 	status = LIGHT_EMPTY
@@ -319,6 +321,13 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 /obj/machinery/light/setDir(newdir)
 	. = ..()
 	set_light(l_dir = REVERSE_DIR(dir))
+
+/obj/machinery/light/get_light_offset()
+	var/list/hand_back = ..()
+	var/list/dir_offset = dir2offset(REVERSE_DIR(dir))
+	hand_back[1] += dir_offset[1] * 0.5
+	hand_back[2] += dir_offset[2] * 0.5
+	return hand_back
 
 /obj/machinery/light/proc/on_security_level_change_planned(datum/source, previous_level_number, new_level_number)
 	SIGNAL_HANDLER
