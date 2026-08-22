@@ -1,7 +1,7 @@
 /obj/machinery/camera
 	name = "security camera"
 	desc = "It's used to monitor rooms."
-	icon = 'icons/obj/machines/monitors.dmi'
+	icon = 'icons/obj/machines/camera.dmi'
 	icon_state = "camera"
 	use_power = ACTIVE_POWER_USE
 	idle_power_usage = 5
@@ -71,6 +71,8 @@
 		toggle_cam(null, FALSE)
 		wires.cut_all()
 
+	update_icon()
+
 /obj/machinery/camera/Destroy()
 	SStgui.close_uis(wires)
 	QDEL_NULL(assembly)
@@ -92,7 +94,7 @@
 		if(prob(150/severity))
 			stat |= EMPED
 			set_light_on(FALSE)
-			update_icon(UPDATE_ICON_STATE)
+			update_icon()
 
 			GLOB.cameranet.removeCamera(src)
 
@@ -102,7 +104,7 @@
 
 /obj/machinery/camera/proc/restore_from_emp()
 	stat &= ~EMPED
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 	if(can_use())
 		GLOB.cameranet.addCamera(src)
@@ -202,6 +204,7 @@
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	panel_open = !panel_open
+	update_icon(UPDATE_OVERLAYS)
 	to_chat(user, span_notice("You screw [src]'s panel [panel_open ? "open" : "closed"]."))
 
 /obj/machinery/camera/wirecutter_act(mob/user, obj/item/I)
@@ -243,7 +246,7 @@
 
 /obj/item/analyzer/camera_upgrade(obj/machinery/camera/target, power_use_update = TRUE)
 	..()
-	target.update_icon(UPDATE_ICON_STATE)
+	target.update_icon()
 	//Update what it can see.
 	GLOB.cameranet.updateVisibility(target, opacity_check = FALSE)
 
@@ -285,11 +288,32 @@
 	qdel(src)
 
 /obj/machinery/camera/update_icon_state()
-	icon_state = isXRay() ? "xray[initial(icon_state)]" : initial(icon_state)
+	var/base_state = "[isXRay() ? "xray" : ""][initial(icon_state)]"
+	if(!status || (stat & EMPED))
+		icon_state = "[base_state]_off"
+		return
+
+	icon_state = base_state
+
+/obj/machinery/camera/update_overlays()
+	. = ..()
+	underlays.Cut()
+
+	if(panel_open)
+		. += "[initial(icon_state)]_panel"
+
+	var/base_state = "[isXRay() ? "xray" : ""][initial(icon_state)]"
+	if(stat & EMPED)
+		. += "[base_state]_emp"
+		underlays += emissive_appearance(icon, "[base_state]_emp", src, alpha = alpha)
+		return
+
 	if(!status)
-		icon_state = "[icon_state]1"
-	else if(stat & EMPED)
-		icon_state = "[icon_state]emp"
+		return
+
+	var/lit_state = "[base_state]_[light_range ? "in_use" : "on"]"
+	. += lit_state
+	underlays += emissive_appearance(icon, lit_state, src, alpha = alpha)
 
 /obj/machinery/camera/proc/toggle_cam(mob/user, displaymessage = TRUE)
 	status = !status
@@ -322,7 +346,7 @@
 			visible_message(span_danger("\The [src] [change_msg]!"))
 
 		playsound(loc, toggle_sound, 100, TRUE)
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/camera/proc/triggerCameraAlarm()
 	if(status || alarm_on || (assembly && assembly.state == 1)) // checks if camera still off OR alarms already on OR camera disasembled
@@ -418,6 +442,7 @@
 		set_light(AI_CAMERA_LUMINOSITY, l_on = TRUE)
 	else
 		set_light(0)
+	update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/camera/proc/nano_structure()
 	var/cam[0]

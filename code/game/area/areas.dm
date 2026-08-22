@@ -563,7 +563,6 @@
 	fire = TRUE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	for(var/obj/machinery/firealarm/alarm as anything in firealarms)
-		alarm.update_fire_light()
 		alarm.update_icon()
 	if(area_emergency_mode) //Fires are not legally allowed if the power is off
 		return
@@ -576,7 +575,6 @@
 	fire = FALSE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	for(var/obj/machinery/firealarm/alarm as anything in firealarms)
-		alarm.update_fire_light()
 		alarm.update_icon()
 	if(area_emergency_mode) //The lights stay red until the crisis is resolved
 		return

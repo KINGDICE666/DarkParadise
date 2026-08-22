@@ -51,6 +51,7 @@
 
 /obj/machinery/gibber/update_overlays()
 	. = ..()
+	underlays.Cut()
 
 	if(dirty)
 		. +=  "grbloody"
@@ -60,12 +61,15 @@
 
 	if(!occupant)
 		. += "grjam"
+		underlays += emissive_appearance(icon, "grjam", src)
 
 	else if(operating)
 		. +=  "gruse"
+		underlays += emissive_appearance(icon, "gruse", src)
 
 	else
 		. += "gridle"
+		underlays += emissive_appearance(icon, "gridle", src)
 
 /obj/machinery/gibber/suicide_act(mob/living/user)
 	if(occupant || locked)

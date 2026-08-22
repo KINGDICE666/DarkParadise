@@ -57,8 +57,8 @@ GLOBAL_LIST_INIT(human_tlv, list(
 
 /obj/machinery/alarm
 	name = "air alarm"
-	icon = 'icons/obj/machines/monitors.dmi'
-	icon_state = "alarm0"
+	icon = 'icons/obj/machines/wallmounts.dmi'
+	icon_state = "alarmp"
 	anchored = TRUE
 	idle_power_usage = 4
 	active_power_usage = 8
@@ -189,6 +189,8 @@ GLOBAL_LIST_INIT(human_tlv, list(
 	if(is_taipan(z)) // Синдидоступ при сборке на тайпане
 		req_access = list(ACCESS_SYNDICATE)
 
+	update_icon()
+
 /obj/machinery/alarm/Destroy()
 	SStgui.close_uis(wires)
 	GLOB.air_alarms -= src
@@ -303,46 +305,52 @@ GLOBAL_LIST_INIT(human_tlv, list(
 
 			environment.merge(gas)
 
-/obj/machinery/alarm/update_icon_state()
-	if(wiresexposed)
-		switch(buildstage)
-			if(AIR_ALARM_BUILD_NO_CIRCUIT)
-				icon_state = "alarm_b1"
-			if(AIR_ALARM_BUILD_CIRCUIT)
-				icon_state = "alarm_b2"
-			if(AIR_ALARM_WIRED)
-				icon_state = "alarmx"
-		set_light_on(FALSE)
-		return
+/obj/machinery/alarm/update_icon(updates = ALL)
+	. = ..()
 
-	if((stat & (NOPOWER|BROKEN)) || shorted)
-		icon_state = "alarmp"
+	if(!alarm_area || wiresexposed || shorted || (stat & (NOPOWER|BROKEN)))
 		set_light_on(FALSE)
-		return
-
-	if(!alarm_area) // We wont have our alarm_area if we aint initialised
 		return
 
 	switch(max(danger_level, alarm_area.atmosalm - 1))
 		if(ATMOS_ALARM_NONE)
-			icon_state = "alarm0"
 			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#00ffcc", l_on = TRUE)
 		if(ATMOS_ALARM_WARNING)
-			icon_state = "alarm2" //yes, alarm2 is yellow alarm
 			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#ffaa00", l_on = TRUE)
 		if(ATMOS_ALARM_DANGER)
-			icon_state = "alarm1"
 			set_light(AIR_ALARM_LIGHT_RANGE, 1, "#ff0022", l_on = TRUE)
+
+/obj/machinery/alarm/update_icon_state()
+	if(!wiresexposed)
+		icon_state = "alarmp"
+		return
+
+	switch(buildstage)
+		if(AIR_ALARM_BUILD_NO_CIRCUIT)
+			icon_state = "alarm_b1"
+		if(AIR_ALARM_BUILD_CIRCUIT)
+			icon_state = "alarm_b2"
+		if(AIR_ALARM_WIRED)
+			icon_state = "alarmx"
 
 /obj/machinery/alarm/update_overlays()
 	. = ..()
 	underlays.Cut()
 
-	if(stat & NOPOWER || buildstage != AIR_ALARM_WIRED || wiresexposed || shorted)
+	if(!alarm_area || wiresexposed || shorted || buildstage != AIR_ALARM_WIRED || (stat & (NOPOWER|BROKEN)))
 		return
 
-	underlays += emissive_appearance(icon, "alarm_lightmask", src)
+	var/indicator
+	switch(max(danger_level, alarm_area.atmosalm - 1))
+		if(ATMOS_ALARM_NONE)
+			indicator = "alarm0"
+		if(ATMOS_ALARM_WARNING)
+			indicator = "alarm2" //yes, alarm2 is yellow alarm
+		if(ATMOS_ALARM_DANGER)
+			indicator = "alarm1"
 
+	. += indicator
+	underlays += emissive_appearance(icon, indicator, src)
 
 /obj/machinery/alarm/set_frequency(new_frequency)
 	SSradio.remove_object(src, frequency)

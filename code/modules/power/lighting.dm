@@ -228,6 +228,10 @@
 	var/nightshift_light_color = "#ffddcc"
 	/// The colour of the light while it's in emergency mode
 	var/bulb_emergency_colour = "#ff4e4e"
+	/// Light range while the area is on fire alert
+	var/fire_brightness = 9
+	/// The colour of the light while the area is on fire alert
+	var/fire_colour = COLOR_FIRE_LIGHT_RED
 
 	/// If true, the light is in emergency mode
 	var/emergency_mode = FALSE
@@ -251,6 +255,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light, 0, 0)
 	brightness_range = 4
 	brightness_color = LIGHT_COLOR_TUNGSTEN
 	nightshift_light_range = 4
+	fire_brightness = 4.5
 	light_type = /obj/item/light/bulb
 	deconstruct_type = /obj/machinery/light_construct/small
 
@@ -272,6 +277,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 	deconstruct_type = /obj/machinery/light_construct/floor
 	brightness_range = 6
 	nightshift_light_range = 6
+	fire_brightness = 4.5
 	light_angle = 360
 	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
@@ -674,7 +680,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 		emergency_lights_off(current_area, current_apc)
 		return
 	if(fire_mode)
-		set_light(nightshift_light_range, nightshift_light_power, bulb_emergency_colour, l_on = TRUE)
+		set_light(fire_brightness, brightness_power, fire_colour, l_on = TRUE)
 		update_icon()
 		return
 	emergency_mode = TRUE
