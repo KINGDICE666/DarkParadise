@@ -62,7 +62,6 @@
 	var/transfer_allowed = TRUE
 	/// If true, job preferences screen never shows this job.
 	var/hidden_from_job_prefs = FALSE
-	var/list/blocked_race_for_job = list()
 
 	var/admin_only = 0
 	var/spawn_ert = 0
@@ -203,13 +202,6 @@
 	var/datum/species/species = GLOB.all_species[C.prefs.species]
 	if(C.prefs.age >= get_age_limits(species, min_age_type))
 		. = TRUE
-
-/datum/job/proc/species_in_blacklist(client/C)
-	if(!C)
-		return FALSE
-	if(C.prefs.species in blocked_race_for_job)
-		return TRUE
-	return FALSE
 
 /datum/job/proc/is_position_available()
 	return (current_positions < total_positions) || (total_positions == -1)

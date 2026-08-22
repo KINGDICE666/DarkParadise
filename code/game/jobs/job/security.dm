@@ -17,7 +17,6 @@
 		ACCESS_RESEARCH, ACCESS_ENGINE, ACCESS_MINING, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING,
 		ACCESS_HEADS, ACCESS_HOS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_PILOT, ACCESS_WEAPONS
 	)
-	blocked_race_for_job = list(SPECIES_VOX, SPECIES_NUCLEATION)
 	law_level = LAW_LEVEL_HOS
 	exp_type = EXP_TYPE_SECURITY
 	disabilities_allowed_slightly = 0
@@ -65,7 +64,6 @@
 	department_head = list(JOB_TITLE_HOS)
 	selection_color = "#edcdcd"
 	minimal_player_age = 14
-	blocked_race_for_job = list(SPECIES_VOX, SPECIES_NUCLEATION)
 	exp_requirements = 900
 	exp_type = EXP_TYPE_CREW
 	disabilities_allowed = 0
@@ -131,7 +129,6 @@
 		ALT_JOB_TITLE_RU_INVESTIGATOR,
 		ALT_JOB_TITLE_RU_CRIMINOLOGIST,
 	)
-	blocked_race_for_job = list(SPECIES_VOX)
 	outfit = /datum/outfit/job/detective
 
 /datum/outfit/job/detective
@@ -236,7 +233,6 @@
 		ALT_JOB_TITLE_RU_SECURITY_MEDIC,
 		ALT_JOB_TITLE_RU_TACTICAL_MEDIC,
 	)
-	blocked_race_for_job = list(SPECIES_VOX)
 	exp_type = EXP_TYPE_MEDICAL
 	outfit = /datum/outfit/job/brigdoc
 

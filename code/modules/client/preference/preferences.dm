@@ -206,7 +206,6 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 
 	//Keeps track of preferrence for not getting any wanted jobs
 	var/alternate_option = 2
-	var/final_alternate_option
 
 	// maps each organ to either null(intact), "cyborg" or "amputated"
 	// will probably not be able to do this for head and torso ;)
@@ -907,9 +906,6 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 			if(!job.character_old_enough(user.client))
 				var/datum/species/current_species = GLOB.all_species[species]
 				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ВОЗРАСТ ОТ [get_age_limits(current_species, job.min_age_type)] [declension_ru(get_age_limits(current_species, job.min_age_type), "года", "лет", "лет")]]</b></span></td></tr>"
-				continue
-			if(job.species_in_blacklist(user.client))
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[НЕДОСТУПНО ДЛЯ ДАННОЙ РАСЫ]</b></span></td></tr>"
 				continue
 			if(!job.check_custom_requirements(user.client))
 				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[НУЖНО ДОСТИЖЕНИЕ]</b></span></td></tr>"
