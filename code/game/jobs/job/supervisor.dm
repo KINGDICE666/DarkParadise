@@ -32,7 +32,6 @@
 	law_level = LAW_LEVEL_CAPTAIN
 	minimal_player_age = 30
 	min_age_type = JOB_MIN_AGE_COMMAND
-	blocked_race_for_job = list(SPECIES_VOX)
 	exp_requirements = 3000
 	exp_type = EXP_TYPE_COMMAND
 	disabilities_allowed = 0
@@ -88,7 +87,6 @@
 	selection_color = "#d1deff"
 	departments_bitflags = DEPARTMENT_BITFLAG_COMMAND
 	transfer_allowed = FALSE
-	blocked_race_for_job = list(SPECIES_VOX)
 	head_position = FALSE
 	exp_requirements = 1200
 	exp_type = EXP_TYPE_COMMAND
@@ -147,7 +145,6 @@
 	departments_bitflags = DEPARTMENT_BITFLAG_COMMAND
 	transfer_allowed = FALSE
 	minimal_player_age = 21
-	blocked_race_for_job = list(SPECIES_VOX, SPECIES_NUCLEATION)
 	exp_requirements = 3000
 	exp_type = EXP_TYPE_SECURITY
 	disabilities_allowed = 0
@@ -202,7 +199,6 @@
 	transfer_allowed = FALSE
 	minimal_player_age = 30
 	min_age_type = JOB_MIN_AGE_COMMAND
-	blocked_race_for_job = list(SPECIES_VOX)
 	exp_requirements = 1200
 	exp_type = EXP_TYPE_COMMAND
 	access = list(
@@ -262,7 +258,6 @@
 		ALT_JOB_TITLE_RU_LAWYER,
 	)
 	minimal_player_age = 30
-	blocked_race_for_job = list(SPECIES_VOX)
 	exp_requirements = 3000
 	exp_type = EXP_TYPE_CREW
 	outfit = /datum/outfit/job/lawyer

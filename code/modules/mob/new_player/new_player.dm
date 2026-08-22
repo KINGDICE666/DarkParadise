@@ -416,12 +416,6 @@
 		tgui_alert(usr, msg)
 		return FALSE
 
-	if(thisjob.species_in_blacklist(client))
-		var/msg = "Должность [rank] недоступна для данной расы. Пожалуйста, попробуйте другую."
-		to_chat(src, span_warning(msg))
-		tgui_alert(usr, msg)
-		return FALSE
-
 	if(!thisjob.check_custom_requirements(client))
 		var/msg = "Должность [rank] доступна только после получения достижения \"Опора проекта\". Пожалуйста, попробуйте другую."
 		to_chat(src, span_warning(msg))
