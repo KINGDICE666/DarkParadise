@@ -36,9 +36,9 @@
 	var/list/settings = ruleset_type_settings[category]
 	var/low_end = settings[RULESET_LOW_END]
 	var/high_end = settings[RULESET_HIGH_END]
-	if(population_size < settings[RULESET_HALF_RANGE_POP])
+	if(population_size <= settings[RULESET_HALF_RANGE_POP])
 		high_end = max(low_end, ceil(high_end * 0.25))
-	else if(population_size < settings[RULESET_FULL_RANGE_POP])
+	else if(population_size <= settings[RULESET_FULL_RANGE_POP])
 		high_end = max(low_end, ceil(high_end * 0.5))
 	return rand(low_end, high_end)
 
@@ -60,6 +60,7 @@
 	config_tag = "low chaos"
 	tier = DYNAMIC_TIER_LOW
 	weight = 8
+	min_pop = 5
 	advisory_report = "Уровень угрозы: <b>Синяя Звезда</b>. Активность враждебных сил в вашем секторе минимальна, однако мы не исключаем единичных инцидентов."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(
@@ -93,6 +94,7 @@
 	config_tag = "low-medium chaos"
 	tier = DYNAMIC_TIER_LOWMEDIUM
 	weight = 46
+	min_pop = 10
 	advisory_report = "Уровень угрозы: <b>Зелёная Звезда</b>. Обстановка в вашем секторе штатная, но расслабляться не советуем."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(
@@ -126,6 +128,7 @@
 	config_tag = "medium-high chaos"
 	tier = DYNAMIC_TIER_MEDIUMHIGH
 	weight = 34
+	min_pop = 15
 	advisory_report = "Уровень угрозы: <b>Жёлтая Звезда</b>. В вашем секторе зафиксирована повышенная активность враждебных организаций. Будьте бдительны."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(

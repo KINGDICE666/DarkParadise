@@ -4,7 +4,6 @@
 	department = STATION_DEPARTMENT_SERVICE
 	department_flag = JOBCAT_SUPPORT
 	departments_bitflags = DEPARTMENT_BITFLAG_SERVICE
-	blocked_race_for_job = list(SPECIES_VOX)
 	selection_color = "#6bef76"
 	access = list(
 		ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_FORENSICS_LOCKERS,
