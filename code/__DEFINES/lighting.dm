@@ -129,6 +129,10 @@ GLOBAL_LIST_INIT(specular_color, SPECULAR_COLOR)
 /// Controls how bright specular emissives sourced from overlay lights are
 /// Keep in mind that overlay lights are also affected by the specular cutoff, so the maximum light value achievable is (contrast - cutoff)
 #define SPECULAR_EMISSIVE_OVERLAY_CONTRAST 1.4
+#define WINDOW_SPECULAR_ALPHA 140
+#define LIGHT_GOD_RAY_COLOR "#5a0000"
+#define LIGHT_GOD_RAY_SIZE 24
+#define LIGHT_GOD_RAY_OFFSET 10
 
 #define _EM_BLOCK_COLOR(val) list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,val, 0,0,0,0)
 /// The color matrix applied to all emissive blockers. Should be solely dependent on alpha and not have RGB overlap with [EMISSIVE_COLOR].

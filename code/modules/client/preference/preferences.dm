@@ -584,6 +584,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 				dat += "<b>Звук сообщения от администрации:</b> <a href='byond://?_src_=prefs;preference=hear_adminhelps'><b>[(sound & SOUND_ADMINHELP)? "Включить" : "Выключить"]</b></a><br>"
 			dat += "<b>Переход в криосон при неактивности:</b> <a href='byond://?_src_=prefs;preference=afk_watch'>[(toggles2 & PREFTOGGLE_2_AFKWATCH) ? "Да" : "Нет"]</a><br>"
 			dat += "<b>Окружающее затенение:</b> <a href='byond://?_src_=prefs;preference=ambientocclusion'><b>[toggles & PREFTOGGLE_AMBIENT_OCCLUSION ? "Включить" : "Выключить"]</b></a><br>"
+			dat += "<b>Свечение ярких поверхностей:</b> <a href='byond://?_src_=prefs;preference=emissivebloom'><b>[toggles & PREFTOGGLE_DISABLE_EMISSIVE_BLOOM ? "Выключить" : "Включить"]</b></a><br>"
 			dat += "<b>Анимации атаки:</b> <a href='byond://?_src_=prefs;preference=ghost_att_anim'>[(toggles2 & PREFTOGGLE_2_ITEMATTACK) ? "Да" : "Нет"]</a><br>"
 			dat += "<b>Автонаведение медицины:</b> <a href='byond://?_src_=prefs;preference=auto_aim_medicine'>[(toggles2 & PREFTOGGLE_2_AUTO_AIM_MEDICINE) ? "Да" : "Нет"]</a><br>"
 			if(unlock_content)
@@ -2640,6 +2641,12 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					toggles ^= PREFTOGGLE_AMBIENT_OCCLUSION
 					if(length(parent?.screen))
 						for(var/atom/movable/screen/plane_master/plane_master as anything in parent.mob?.hud_used?.get_true_plane_masters(RENDER_PLANE_GAME_WORLD))
+							plane_master.show_to(parent.mob)
+
+				if("emissivebloom")
+					toggles ^= PREFTOGGLE_DISABLE_EMISSIVE_BLOOM
+					if(length(parent?.screen))
+						for(var/atom/movable/screen/plane_master/plane_master as anything in parent.mob?.hud_used?.get_true_plane_masters(RENDER_PLANE_EMISSIVE_BLOOM))
 							plane_master.show_to(parent.mob)
 
 				if("parallax")

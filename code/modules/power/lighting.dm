@@ -396,10 +396,20 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 
 	if(status != LIGHT_OK || !on)
 		return
+	var/mutable_appearance/lightmask
 	if(emergency_mode || fire_mode)
-		. += emissive_appearance(icon, "[base_icon_state]_emergency_lightmask", src)
+		lightmask = emissive_appearance(icon, "[base_icon_state]_emergency_lightmask", src)
 	else
-		. += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
+		lightmask = emissive_appearance(icon, "[base_icon_state]_lightmask", src)
+
+	var/list/ray_offset = light_angle < 360 ? dir2offset(REVERSE_DIR(dir)) : list(0, 0)
+	lightmask.add_filter("god_rays", 1, rays_filter(
+		size = LIGHT_GOD_RAY_SIZE,
+		color = LIGHT_GOD_RAY_COLOR,
+		x = ray_offset[1] * LIGHT_GOD_RAY_OFFSET,
+		y = ray_offset[2] * LIGHT_GOD_RAY_OFFSET
+	))
+	. += lightmask
 
 /**
  * Updates the light's properties

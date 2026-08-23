@@ -63,6 +63,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	var/added_leaning = FALSE
 	/// How well this window resists superconductivity.
 	var/superconductivity = WINDOW_HEAT_TRANSFER_COEFFICIENT
+	var/specular_alpha = WINDOW_SPECULAR_ALPHA
 
 /obj/structure/window/get_ru_names()
 	return alist(
@@ -121,6 +122,8 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		COMSIG_ATOM_EXIT = PROC_REF(on_exit),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
+
+	update_icon(UPDATE_OVERLAYS)
 
 /obj/structure/window/add_debris_element()
 	generate_debris_handler(DEBRIS_GLASS, -40, 5)
@@ -477,6 +480,11 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 		return superconductivity
 	return ..()
 
+/obj/structure/window/set_smoothed_icon_state(new_junction)
+	. = ..()
+	if(. != new_junction)
+		update_icon(UPDATE_OVERLAYS)
+
 //This proc is used to update the icons of nearby windows.
 /obj/structure/window/proc/update_nearby_icons()
 	update_icon(UPDATE_OVERLAYS)
@@ -485,7 +493,13 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 
 /obj/structure/window/update_overlays()
 	. = ..()
-	if(QDELETED(src) || !fulltile)
+	if(QDELETED(src))
+		return
+
+	if(specular_alpha)
+		. += emissive_appearance(icon, icon_state, src, alpha = specular_alpha, effect_type = EMISSIVE_SPECULAR)
+
+	if(!fulltile)
 		return
 
 	var/ratio = obj_integrity / max_integrity
@@ -884,6 +898,7 @@ GLOBAL_LIST_INIT(wcCommon, pick(list("#379963", "#0d8395", "#58b5c3", "#49e46e",
 	icon_state = "paperframe-0"
 	base_icon_state = "paperframe"
 	max_integrity = 50
+	specular_alpha = 0
 	smooth = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_PAPERFRAME
 	canSmoothWith = SMOOTH_GROUP_PAPERFRAME
