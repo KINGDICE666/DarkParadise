@@ -170,7 +170,7 @@ GLOBAL_LIST_INIT(human_tlv, list(
 			setDir(direction)
 		buildstage = AIR_ALARM_BUILD_NO_CIRCUIT
 		wiresexposed = TRUE
-		set_pixel_offsets_from_dir(23, -23, 23, -23)
+		set_pixel_offsets_from_dir(27, -27, 27, -27)
 
 	GLOB.air_alarms += src
 	alarm_area.air_alarms += src
@@ -305,6 +305,11 @@ GLOBAL_LIST_INIT(human_tlv, list(
 
 			environment.merge(gas)
 
+/obj/machinery/alarm/power_change(forced = FALSE)
+	. = ..()
+	if(.)
+		update_icon()
+
 /obj/machinery/alarm/update_icon(updates = ALL)
 	. = ..()
 
@@ -335,7 +340,6 @@ GLOBAL_LIST_INIT(human_tlv, list(
 
 /obj/machinery/alarm/update_overlays()
 	. = ..()
-	underlays.Cut()
 
 	if(!alarm_area || wiresexposed || shorted || buildstage != AIR_ALARM_WIRED || (stat & (NOPOWER|BROKEN)))
 		return
@@ -350,7 +354,7 @@ GLOBAL_LIST_INIT(human_tlv, list(
 			indicator = "alarm1"
 
 	. += indicator
-	underlays += emissive_appearance(icon, indicator, src)
+	. += emissive_appearance(icon, indicator, src)
 
 /obj/machinery/alarm/set_frequency(new_frequency)
 	SSradio.remove_object(src, frequency)
@@ -1079,14 +1083,14 @@ Just an object used in constructing air alarms
 #undef MIN_TEMPERATURE
 
 // MARK: Mapping Dir Helpers
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/all_access, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/all_access/monitor, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/kitchen_cold_room, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/monitor, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/monitor/server, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/old, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/server, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/syndicate, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/syndicate/pirate, 23, 23)
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/vox, 23, 23)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/all_access, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/all_access/monitor, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/kitchen_cold_room, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/monitor, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/monitor/server, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/old, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/server, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/syndicate, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/syndicate/pirate, 27, 27)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/alarm/vox, 27, 27)

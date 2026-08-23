@@ -25,6 +25,8 @@
 
 #define APC_UPDATE_ICON_COOLDOWN (20 SECONDS)
 
+#define APC_LIGHT_ON_RANGE 1.5
+
 // main_status var
 #define APC_EXTERNAL_POWER_NOTCONNECTED 0
 #define APC_EXTERNAL_POWER_NOENERGY 1
@@ -411,7 +413,7 @@
 					color = LIGHT_COLOR_BLUE
 				if(APC_FULLY_CHARGED)
 					color = LIGHT_COLOR_GREEN
-			set_light(2, 0.5, color, l_on = TRUE)
+			set_light(APC_LIGHT_ON_RANGE, 1, color, l_on = TRUE)
 		else
 			set_light_on(FALSE)
 
@@ -447,10 +449,9 @@
 
 /obj/machinery/power/apc/update_overlays()
 	. = ..()
-	underlays.Cut()
 
 	if(update_state & UPSTATE_BLUESCREEN)
-		underlays += emissive_appearance(icon, "emit_apcemag", src)
+		. += emissive_appearance(icon, "emit_apcemag", src)
 		return
 
 	if((stat & (BROKEN|MAINT)) || !(update_state & UPSTATE_ALLGOOD))
@@ -460,8 +461,8 @@
 	var/image/statover_charg = status_overlays_charging[charging + 1]
 	. += statover_lock
 	. += statover_charg
-	underlays += emissive_appearance(icon, statover_lock.icon_state, src)
-	underlays += emissive_appearance(icon, statover_charg.icon_state, src)
+	. += emissive_appearance(icon, statover_lock.icon_state, src)
+	. += emissive_appearance(icon, statover_charg.icon_state, src)
 
 	if(!operating)
 		return
@@ -472,9 +473,9 @@
 	. += statover_equip
 	. += statover_light
 	. += statover_envir
-	underlays += emissive_appearance(icon, statover_equip.icon_state, src)
-	underlays += emissive_appearance(icon, statover_light.icon_state, src)
-	underlays += emissive_appearance(icon, statover_envir.icon_state, src)
+	. += emissive_appearance(icon, statover_equip.icon_state, src)
+	. += emissive_appearance(icon, statover_light.icon_state, src)
+	. += emissive_appearance(icon, statover_envir.icon_state, src)
 
 /obj/machinery/power/apc/proc/check_updates()
 
@@ -1832,6 +1833,7 @@
 #undef APC_UPOVERLAY_LOCKED
 
 #undef APC_UPDATE_ICON_COOLDOWN
+#undef APC_LIGHT_ON_RANGE
 
 #undef APC_EXTERNAL_POWER_NOTCONNECTED
 #undef APC_EXTERNAL_POWER_NOENERGY

@@ -282,7 +282,6 @@
 
 /obj/machinery/door_control/update_overlays()
 	. = ..()
-	underlays.Cut()
 	if(open)
 		// access_board overlay
 		if(access_electronics)
@@ -297,7 +296,7 @@
 	if(open || (stat & NOPOWER))
 		return
 
-	underlays += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
+	. += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
 
 /obj/machinery/door_control/secure //Use icon_state = "altdoorctrl" if you just want cool icon for your button on map. This button is created for Admin-zones.
 	icon_state = "altdoorctrl"

@@ -297,7 +297,6 @@
 
 /obj/machinery/camera/update_overlays()
 	. = ..()
-	underlays.Cut()
 
 	if(panel_open)
 		. += "[initial(icon_state)]_panel"
@@ -305,7 +304,7 @@
 	var/base_state = "[isXRay() ? "xray" : ""][initial(icon_state)]"
 	if(stat & EMPED)
 		. += "[base_state]_emp"
-		underlays += emissive_appearance(icon, "[base_state]_emp", src, alpha = alpha)
+		. += emissive_appearance(icon, "[base_state]_emp", src, alpha = alpha)
 		return
 
 	if(!status)
@@ -313,7 +312,7 @@
 
 	var/lit_state = "[base_state]_[light_range ? "in_use" : "on"]"
 	. += lit_state
-	underlays += emissive_appearance(icon, lit_state, src, alpha = alpha)
+	. += emissive_appearance(icon, lit_state, src, alpha = alpha)
 
 /obj/machinery/camera/proc/toggle_cam(mob/user, displaymessage = TRUE)
 	status = !status

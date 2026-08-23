@@ -92,15 +92,21 @@
 		return
 
 	. += "smes-op[outputting]"
+	. += emissive_appearance(icon, "smes-op[outputting]", src)
 
+	var/input_state
 	if(inputting)
-		. += "smes-oc[inputting]"
+		input_state = "smes-oc[inputting]"
 	else if(input_attempt)
-		. += "smes-oc0"
+		input_state = "smes-oc0"
+	if(input_state)
+		. += input_state
+		. += emissive_appearance(icon, input_state, src)
 
 	var/clevel = chargedisplay()
 	if(clevel > 0)
 		. += "smes-og[clevel]"
+		. += emissive_appearance(icon, "smes-og[clevel]", src)
 
 /obj/machinery/power/smes/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)

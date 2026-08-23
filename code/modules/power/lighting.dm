@@ -393,14 +393,13 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/light/small, 0, 0)
 
 /obj/machinery/light/update_overlays()
 	. = ..()
-	underlays.Cut()
 
 	if(status != LIGHT_OK || !on)
 		return
 	if(emergency_mode || fire_mode)
-		underlays += emissive_appearance(icon, "[base_icon_state]_emergency_lightmask", src)
+		. += emissive_appearance(icon, "[base_icon_state]_emergency_lightmask", src)
 	else
-		underlays += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
+		. += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
 
 /**
  * Updates the light's properties

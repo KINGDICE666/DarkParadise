@@ -114,19 +114,18 @@ GLOBAL_LIST_EMPTY(firealarms)
 
 /obj/machinery/firealarm/update_overlays()
 	. = ..()
-	underlays.Cut()
 
 	if(wiresexposed || (stat & (NOPOWER|BROKEN)))
 		return
 
 	if(emagged)
 		. += "fire_emag"
-		underlays += emissive_appearance(icon, "fire_emag_e", src)
+		. += emissive_appearance(icon, "fire_emag_e", src)
 		return
 
 	if(myArea?.fire)
 		. += "fire_alerting"
-		underlays += emissive_appearance(icon, "fire_alerting_e", src)
+		. += emissive_appearance(icon, "fire_alerting_e", src)
 		return
 
 	if(!detecting)
@@ -136,7 +135,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	else
 		. += "fire_offstation"
 
-	underlays += emissive_appearance(icon, "fire_level_e", src)
+	. += emissive_appearance(icon, "fire_level_e", src)
 
 /obj/machinery/firealarm/emag_act(mob/user)
 	if(!emagged)
