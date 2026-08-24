@@ -1,5 +1,9 @@
 #define DEFAULT_MAP_SIZE 15
 
+/// Living mobs currently driving an advanced camera console. The Caretaker's Last Refuge (lock-path heretic)
+/// reads this to tell whether one of them has a given turf on their feed right now.
+GLOBAL_LIST_EMPTY(camera_console_watchers)
+
 /obj/machinery/computer/security
 	name = "security camera console"
 	desc = "Используется для доступа к сетям камер на станции."
@@ -208,6 +212,7 @@
 	ui_interact(user)
 
 /atom/movable/screen/map_view/camera
+	popup_group_type = /datum/plane_master_group/popup/camera
 	/// All the plane masters that need to be applied.
 	var/atom/movable/screen/background/cam_background
 
@@ -358,6 +363,12 @@
 	desc = "Используется для наблюдения за зоной содержания сингулярности."
 	network = list("Singularity")
 	circuit = /obj/item/circuitboard/camera/telescreen/singularity
+
+/obj/machinery/computer/security/telescreen/nfr
+	name = "NFR Engine Telescreen"
+	desc = "Используется для наблюдения за активной зоной ядерного реактора."
+	network = list("NFR")
+	circuit = /obj/item/circuitboard/camera/telescreen/nfr
 
 /obj/machinery/computer/security/telescreen/toxin_chamber
 	name = "Toxins Telescreen"

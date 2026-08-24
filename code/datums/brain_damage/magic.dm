@@ -130,5 +130,16 @@
 	image_icon = 'icons/mob/lavaland/lavaland_monsters.dmi'
 	image_state = "curseblob"
 
+/datum/brain_trauma/magic/stalker/cosmic
+	stalker_type = /obj/effect/client_image_holder/stalker_phantom/cosmic
+	random_gain = FALSE
+	known_trauma = FALSE
+
+/obj/effect/client_image_holder/stalker_phantom/cosmic
+	image_icon = 'icons/mob/96x96eldritch_mobs.dmi'
+	image_state = "star_gazer"
+	image_pixel_x = -32
+	image_pixel_y = -32
+
 #undef LUMIPHOBIA_LIGHT_THRESHOLD
 #undef STALKER_SPAWN_RANGE

@@ -45,6 +45,8 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 
 #define ishuman(A) (istype(A, /mob/living/carbon/human))
 
+#define isdummy(A) (istype(A, /mob/living/carbon/human/dummy))
+
 #define isalien(A) (istype(A, /mob/living/carbon/alien))
 
 #define isdevil(A) (istype(A, /mob/living/carbon/true_devil))
@@ -227,6 +229,8 @@ GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 #define iscoret3(O) (istype(O, /obj/item/assembly/signaler/core) && O.tier == 3)
 #define iscell(O) (istype(O, /obj/item/stock_parts/cell)) // Not assembly, but neaely.
 
+#define iscyborgmobilitymodule(O) (istype(O, /obj/item/borg/destroyer/mobility))
+
 //Turfs
 #define issimulatedturf(A) (istype(A, /turf/simulated))
 
@@ -370,6 +374,7 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 // Locations
 #define is_ventcrawling(A) (istype(A.loc, /obj/machinery/atmospherics))
+#define is_mecha_occupant(A) (istype(A.loc, /obj/mecha))
 
 //Human sub-species
 #define isshadowling(A) (is_species(A, /datum/species/shadow/ling))
@@ -447,6 +452,14 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 #define is_cargo_shelf(A) (istype(A, /obj/structure/cargo_shelf))
 #define is_crate(A) (istype(A, /obj/structure/closet/crate))
+
+/// Heretic helpers.
+#define isplatingturf(A) (istype(A, /turf/simulated/floor/plating))
+#define issnowturf(A) (istype(A, /turf/simulated/floor/plating/asteroid/snow))
+#define IS_HERETIC(mob) (mob?.mind?.has_antag_datum(/datum/antagonist/heretic))
+#define GET_HERETIC(mob) (mob?.mind?.has_antag_datum(/datum/antagonist/heretic))
+#define IS_LUNATIC(mob) (mob.mind?.has_antag_datum(/datum/antagonist/lunatic))
+#define IS_HERETIC_OR_MONSTER(mob) (IS_HERETIC(mob) || HAS_TRAIT(mob, TRAIT_HERETIC_SUMMON) || IS_LUNATIC(mob))
 
 #define is_area_nearby_station(checked_area) (istype(checked_area, /area/space) || istype(checked_area, /area/space/nearstation) || istype(checked_area, /area/centcom/asteroid))
 #define is_area_shuttle(checked_area) (istype(checked_area, /area/shuttle))

@@ -35,6 +35,7 @@
 
 #define CMAGGED "clown_emag"
 
+#define NO_HITSCAN_TURRET_TRAIT "no-hitscan-in-turret"
 #define ABSTRACT_ITEM_TRAIT "abstract-item"
 #define ABDUCTOR_VEST_TRAIT "abductor-vest"
 #define CYBORG_ITEM_TRAIT "cyborg-item"
@@ -204,6 +205,12 @@
 #define GIVE_TRAIT "give"
 /// Trait from mob/living/update_transform()
 #define UPDATE_TRANSFORM_TRAIT "update_transform"
+
+/// Heretic antagonist trait sources.
+#define HERETIC_TRAIT "heretic"
+#define HERETIC_ARENA_TRAIT "heretic_arena"
+#define HOLYWATER_TRAIT "holywater"
+#define HAND_REPLACEMENT_TRAIT "magic-hand"
 
 /// Trait acquired from being painted a certain color
 #define ATOM_COLOR_TRAIT "atom_color"

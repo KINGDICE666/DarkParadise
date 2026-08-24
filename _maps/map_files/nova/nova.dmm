@@ -9105,6 +9105,21 @@
 	icon_state = "darkbluealt"
 	},
 /area/station/hallway/primary/command)
+"byD" = (
+/obj/effect/turf_decal/siding/wood{
+	dir = 1
+	},
+/obj/structure/disposalpipe/segment{
+	dir = 6
+	},
+/obj/machinery/camera{
+	c_tag = "Librarian Desk";
+	dir = 4;
+	pixel_x = 1;
+	pixel_y = -2
+	},
+/turf/simulated/floor/carpet,
+/area/station/service/library)
 "byF" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -49004,22 +49019,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/engineering/storage/secure)
-"hFN" = (
-/obj/effect/turf_decal/siding/wood{
-	dir = 1
-	},
-/obj/structure/disposalpipe/segment{
-	dir = 6
-	},
-/obj/machinery/camera{
-	c_tag = "Librarian Desk";
-	dir = 4;
-	pixel_x = 1;
-	pixel_y = -2
-	},
-/obj/machinery/computer/skill_manuals,
-/turf/simulated/floor/carpet,
-/area/station/service/library)
 "hFQ" = (
 /obj/item/radio/intercom/directional/south,
 /obj/structure/table/wood,
@@ -58485,16 +58484,6 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /turf/simulated/floor/plasteel,
 /area/station/engineering/break_room)
-"jel" = (
-/obj/structure/window/reinforced{
-	dir = 4
-	},
-/obj/structure/table,
-/obj/item/toy/carpplushie/void,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/station/commons/fitness)
 "jen" = (
 /obj/machinery/processor{
 	desc = "A machine used to process slimes and retrieve their extract.";
@@ -72153,6 +72142,13 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/security/main)
+"lhr" = (
+/obj/effect/turf_decal/delivery/red/hollow,
+/obj/machinery/flasher/portable,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/station/security/hallway/armory)
 "lhI" = (
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -75532,6 +75528,14 @@
 /obj/structure/closet,
 /turf/simulated/floor/plating,
 /area/station/maintenance/starboard)
+"lJs" = (
+/obj/structure/chair/sofa/right,
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/random/plushie,
+/turf/simulated/floor/wood,
+/area/station/medical/psych)
 "lJt" = (
 /obj/effect/decal/cleanable/blood/drip{
 	pixel_x = -4;
@@ -128147,14 +128151,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/station/security/prison/perma)
-"tEF" = (
-/obj/structure/chair/sofa/right,
-/obj/random/therapy,
-/obj/machinery/light/small{
-	dir = 1
-	},
-/turf/simulated/floor/wood,
-/area/station/medical/psych)
 "tEH" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 1
@@ -129377,6 +129373,16 @@
 /obj/item/radio/intercom/directional/west,
 /turf/simulated/floor/wood,
 /area/station/maintenance/library)
+"tPc" = (
+/obj/structure/window/reinforced{
+	dir = 4
+	},
+/obj/structure/table,
+/obj/item/toy/plushie/carp/void,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/station/commons/fitness)
 "tPf" = (
 /obj/machinery/door/airlock/medical/glass{
 	name = "Virology Office";
@@ -180063,7 +180069,7 @@ uko
 uko
 wAx
 tdA
-hFN
+byD
 tRh
 aRZ
 qJo
@@ -180300,7 +180306,7 @@ jqR
 fwm
 xCg
 jgI
-tEF
+lJs
 fhn
 oGl
 xJa
@@ -200158,7 +200164,7 @@ rDq
 sxm
 oCz
 udh
-jel
+tPc
 nsw
 sAY
 wxI
@@ -240446,7 +240452,7 @@ rYy
 pnb
 xEZ
 eLk
-uON
+lhr
 qbw
 nkK
 dXK

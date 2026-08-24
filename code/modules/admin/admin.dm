@@ -576,19 +576,19 @@ ADMIN_VERB(delay, R_SERVER, "Delay Pre-Game", "Delay the game start.", ADMIN_CAT
 	if(!SSticker.mode || !istype(M) || !M.mind)
 		return FALSE
 
-	if(M.mind in SSticker.mode.head_revolutionaries)
+	if(is_head_revolutionary(M))
 		antag_list += "Head Rev"
-	if(M.mind in SSticker.mode.revolutionaries)
+	if(is_revolutionary(M))
 		antag_list += "Revolutionary"
-	if(M.mind in SSticker.mode.cult)
+	if(iscultist(M))
 		antag_list += "Cultist"
 	if(M.mind.has_antag_datum(/datum/antagonist/nuclear_operative))
 		antag_list += "Nuclear Operative"
-	if(M.mind in SSticker.mode.wizards)
+	if(iswizard(M))
 		antag_list += "Wizard"
-	if(M.mind in SSticker.mode.changelings)
+	if(ischangeling(M))
 		antag_list += "Changeling"
-	if(M.mind in SSticker.mode.abductors)
+	if(M.mind.has_antag_datum(/datum/antagonist/abductor))
 		antag_list += "Abductor"
 	if(M.mind.has_antag_datum(/datum/antagonist/vampire))
 		antag_list += "Vampire"

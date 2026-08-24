@@ -49,10 +49,9 @@
 
 	. = TRUE
 
-	CALCULATE_SKILL_MOD(user, LOCKPICK_SPEED_MOD, lockpick_mod)
 	if(locked)
 		to_chat(user, span_warning("Resetting circuitry..."))
-		if(!I.use_tool(src, user, 2 SECONDS * lockpick_mod, volume = I.tool_volume) || smashed || !locked)
+		if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume) || smashed || !locked)
 			return .
 		locked = FALSE
 		to_chat(user, span_caution("You disable the locking modules."))
@@ -66,7 +65,7 @@
 
 	to_chat(user, span_warning("Resetting circuitry..."))
 	playsound(user, 'sound/machines/lockenable.ogg', 50, TRUE)
-	if(!I.use_tool(src, user, 2 SECONDS * lockpick_mod, volume = I.tool_volume) || smashed || locked)
+	if(!I.use_tool(src, user, 2 SECONDS, volume = I.tool_volume) || smashed || locked)
 		return .
 
 	locked = TRUE

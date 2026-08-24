@@ -4,6 +4,15 @@ GLOBAL_VAR_INIT(devs_ooc_colour, "#129c00")
 GLOBAL_VAR_INIT(mentor_ooc_colour, "#00B0EB")
 GLOBAL_VAR_INIT(moderator_ooc_colour, "#184880")
 GLOBAL_VAR_INIT(admin_ooc_colour, "#b82e00")
+GLOBAL_VAR_INIT(discord_ooc_colour, "#7289DA")
+
+GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KINGDICE666", "boosty.to/king_dice"))
+
+/proc/has_allowed_ooc_link(msg)
+	for(var/allowed_link in GLOB.ooc_allowed_links)
+		if(findtext(msg, allowed_link))
+			return TRUE
+	return FALSE
 
 /client/verb/ooc(msg = "" as text)
 	set name = "OOC"
@@ -50,11 +59,13 @@ GLOBAL_VAR_INIT(admin_ooc_colour, "#b82e00")
 			message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")
 			return
 		if(findtext(msg, "https://") || findtext(msg, "http://"))
-			if(!findtext(msg, "ss220.space"))
+			if(!has_allowed_ooc_link(msg))
 				to_chat(src, "<b>Advertising other sites is not allowed.</b>")
 				log_admin("[key_name_log(src)] has attempted to advertise in OOC: [msg]")
 				message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")
 				return
+
+	GLOB.discord_manager.queue_ooc(holder?.fakekey || key, emojisToDiscord(msg))
 
 	msg = handleDiscordEmojis(msg)
 
@@ -158,7 +169,7 @@ GLOBAL_VAR_INIT(admin_ooc_colour, "#b82e00")
 			message_admins("[key_name_admin(src)] has attempted to advertise in LOOC: [msg]")
 			return
 		if(findtext(msg, "https://") || findtext(msg, "http://"))
-			if(!findtext(msg, "ss220.space"))
+			if(!has_allowed_ooc_link(msg))
 				to_chat(src, "<b>Advertising other sites is not allowed.</b>")
 				log_admin("[key_name_log(src)] has attempted to advertise in OOC: [msg]")
 				message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")

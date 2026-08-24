@@ -19,11 +19,6 @@
 	outfit = /datum/outfit/job/assistant
 	insurance_type = INSURANCE_TYPE_BUDGETARY
 	paycheck = PAYCHECK_MIN
-	skill_levels = list(
-		/datum/skill/general/mod_use = SKILL_LEVEL_BEGINNER,
-		/datum/skill/service/cleaning = SKILL_LEVEL_BEGINNER,
-		/datum/skill/general/cooking = SKILL_LEVEL_BEGINNER,
-	)
 
 /datum/outfit/job/assistant
 	name = JOB_TITLE_RU_CIVILIAN
@@ -42,6 +37,7 @@
 
 /datum/job/civilian/prisoner
 	title = JOB_TITLE_PRISONER
+	job_flags = JOB_ANTAG_PROTECTED
 	flag = JOB_FLAG_PRISONER
 	total_positions = ROLE_PRISONERS_MAX_COUNT
 	spawn_positions = ROLE_PRISONERS_MAX_COUNT

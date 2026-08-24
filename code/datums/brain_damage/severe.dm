@@ -442,5 +442,42 @@
 	owner.setDir(previous_dir)
 	COOLDOWN_START(src, steal_cooldown, 8 SECONDS)
 
+/datum/brain_trauma/severe/flesh_desire
+	name = "Расстройство Бина"
+	desc = "У пациента наблюдается зацикленность на потреблении сырого мяса, особенно того же вида. Пациент также страдает от психосоматических приступов голода."
+	scan_desc = "умеренное расстройство пищевого поведения"
+	gain_text = span_warning_alt("Вам сильно хочется есть... Есть органы и сырое мясо...")
+	lose_text = span_notice_alt("Ваши вкусовые предпочтения вернулись в норму.")
+	random_gain = FALSE
+	var/hunger_rate = 15
+
+/datum/brain_trauma/severe/flesh_desire/on_gain()
+	ADD_TRAIT(owner, TRAIT_FLESH_DESIRE, TRAUMA_TRAIT)
+	return ..()
+
+/datum/brain_trauma/severe/flesh_desire/on_life()
+	owner.adjust_nutrition(-hunger_rate * HUNGER_FACTOR)
+	if(prob(20))
+		to_chat(owner, span_notice_alt(pick("Вы не можете перестать думать о сыром мясе...", "Вам **НУЖНО** съесть кого-нибудь.", "Муки голода вернулись...", "Вы жаждете плоти.", "Вы голодны!")))
+
+	owner.overeatduration = max(owner.overeatduration - 200 SECONDS, 0)
+
+/datum/brain_trauma/severe/flesh_desire/on_lose(silent)
+	REMOVE_TRAIT(owner, TRAIT_FLESH_DESIRE, TRAUMA_TRAIT)
+	return ..()
+
+/datum/brain_trauma/severe/eldritch_beauty
+	name = "Eldritch Beauty"
+	desc = "Пациент одержим видениями неописуемой потусторонней красоты."
+	scan_desc = "тяжёлое диссоциативное расстройство"
+	gain_text = span_warning_alt("Перед вашими глазами расцветает невыразимая, ужасающая красота...")
+	lose_text = span_notice_alt("Видения меркнут.")
+	random_gain = FALSE
+	resilience = TRAUMA_RESILIENCE_MAGIC
+
+/datum/brain_trauma/severe/eldritch_beauty/on_life()
+	if(prob(8))
+		to_chat(owner, span_warning_alt(pick("Узоры на стенах складываются в нечто прекрасное и неправильное.", "Вы не можете отвести взгляд от пустоты.", "Красота Обители зовёт вас.")))
+
 #undef MONOPHOBIA_PANIC_STRESS
 #undef MONOPHOBIA_HEART_ATTACK_STRESS

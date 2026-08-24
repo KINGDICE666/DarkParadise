@@ -31,6 +31,12 @@
 	for(var/phobia_type in GLOB.phobia_random_types)
 		TEST_ASSERT(GLOB.phobia_regexes[phobia_type], "randomly rollable phobia '[phobia_type]' has no word list")
 
+	for(var/phobia_type in GLOB.phobia_types)
+		if(phobia_type == "strangers")
+			continue
+		var/sights = length(GLOB.phobia_mobs[phobia_type]) + length(GLOB.phobia_objs[phobia_type]) + length(GLOB.phobia_turfs[phobia_type]) + length(GLOB.phobia_species[phobia_type])
+		TEST_ASSERT(sights, "phobia '[phobia_type]' has nothing to be scared of on sight")
+
 	for(var/phobia_type in GLOB.phobia_regexes)
 		TEST_ASSERT(GLOB.phobia_types[phobia_type], "phobia '[phobia_type]' has no player facing name")
 		var/regex/trigger = GLOB.phobia_regexes[phobia_type]
@@ -206,3 +212,34 @@
 	TEST_ASSERT(!patient.has_trauma_type(/datum/brain_trauma/special/beepsky, TRAUMA_RESILIENCE_ABSOLUTE), "the securitron outlived the beepsky smash")
 
 	TEST_ASSERT(GLOB.chemical_reagents_list["neurine"], "neurine is not a registered reagent")
+
+/datum/unit_test/room_test/phobia_sight/Run()
+	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/officer = allocate(/mob/living/carbon/human)
+	var/obj/item/bikehorn/horn = allocate(/obj/item/bikehorn)
+	officer.equip_to_slot_or_del(new /obj/item/clothing/under/rank/captain, ITEM_SLOT_CLOTH_INNER)
+
+	var/datum/brain_trauma/mild/phobia/coulrophobia = patient.gain_trauma(new /datum/brain_trauma/mild/phobia("clowns"))
+	TEST_ASSERT(coulrophobia.is_scary_obj(horn), "a clown phobe is not scared of a bike horn")
+	TEST_ASSERT_EQUAL(coulrophobia.find_scary_thing(), horn, "a clown phobe did not spot the bike horn lying in view")
+
+	var/datum/brain_trauma/mild/phobia/authority_phobia = new("authority")
+	authority_phobia.owner = patient
+	authority_phobia.on_gain()
+	TEST_ASSERT(authority_phobia.is_scary_mob(officer), "an authority phobe is not scared of the captain's jumpsuit worn by a colleague")
+	qdel(authority_phobia)
+
+	officer.set_species(/datum/species/unathi/ashwalker)
+	var/datum/brain_trauma/mild/phobia/herpetophobia = new("lizards")
+	herpetophobia.owner = patient
+	herpetophobia.on_gain()
+	TEST_ASSERT(herpetophobia.is_scary_mob(officer), "a lizard phobe is not scared of an unathi")
+	qdel(herpetophobia)
+
+/datum/unit_test/room_test/cosmic_robes_curse/Run()
+	var/mob/living/carbon/human/thief = allocate(/mob/living/carbon/human)
+	thief.equip_to_slot_or_del(new /obj/item/clothing/suit/hooded/cultrobes/eldritch/cosmic, ITEM_SLOT_CLOTH_OUTER)
+
+	var/datum/brain_trauma/magic/stalker/cosmic/curse = thief.has_trauma_type(/datum/brain_trauma/magic/stalker/cosmic, TRAUMA_RESILIENCE_MAGIC)
+	TEST_ASSERT(curse, "a non-heretic who put on the starwoven cloak was not cursed")
+	TEST_ASSERT_EQUAL(curse.stalker_type, /obj/effect/client_image_holder/stalker_phantom/cosmic, "the cosmic stalker kept the default phantom")

@@ -6,7 +6,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 /datum/antagonist/changeling
 	name = "Changeling"
-	roundend_category = "changelings"
+	roundend_category = "Генокрадами"
+	roundend_blackbox_key = "changeling"
 	job_rank = ROLE_CHANGELING
 	special_role = SPECIAL_ROLE_CHANGELING
 	antag_hud_name = "hudchangeling"
@@ -75,7 +76,6 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		purchaseable_powers = get_powers_of_type(CHANGELING_PURCHASABLE_POWER)
 
 /datum/antagonist/changeling/on_gain()
-	SSticker.mode.changelings |= owner
 	var/honorific = owner.current.gender == FEMALE ? "Ms." : "Mr."
 	if(length(GLOB.possible_changeling_IDs))
 		changelingID = pick(GLOB.possible_changeling_IDs)
@@ -94,11 +94,13 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	..()
 
 /datum/antagonist/changeling/Destroy()
-	SSticker.mode.changelings -= owner
 	chosen_sting = null
 	QDEL_LIST(acquired_powers)
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
+/datum/antagonist/changeling/roundend_report_details()
+	return list("<b>ID генокрада:</b> [changelingID].", "<b>Поглощено геномов:</b> [absorbed_count]")
 
 /datum/antagonist/changeling/greet()
 	..()
@@ -306,7 +308,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
  */
 /datum/antagonist/changeling/proc/remove_changeling_powers(keep_innate_powers = FALSE)
 	for(var/datum/action/changeling/power in acquired_powers)
-		if(keep_innate_powers && (power.power_type == CHANGELING_INNATE_POWER))
+		if(keep_innate_powers && (power.power_type == CHANGELING_INNATE_POWER || power.power_type == CHANGELING_UNOBTAINABLE_POWER))
 			continue
 		acquired_powers -= power
 		qdel(power)

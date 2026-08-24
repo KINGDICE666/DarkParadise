@@ -1098,7 +1098,7 @@
 	return TRUE
 
 /mob/proc/cannot_speak_loudly()
-	return FALSE
+	return HAS_TRAIT(src, TRAIT_SOFTSPOKEN)
 
 /mob/proc/get_access_locations()
 	return list()
@@ -1313,8 +1313,7 @@ GLOBAL_LIST_INIT(holy_areas, typecacheof(list(
 		return FALSE
 
 	//Allows cult to bypass holy areas once they summon
-	var/datum/game_mode/gamemode = SSticker.mode
-	if(iscultist(src) && gamemode.cult_objs.cult_status == NARSIE_HAS_RISEN)
+	if(iscultist(src) && get_blood_cult_team().cult_objs.cult_status == NARSIE_HAS_RISEN)
 		return FALSE
 
 	//Execption for Holy Constructs

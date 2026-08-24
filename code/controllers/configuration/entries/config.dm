@@ -441,6 +441,7 @@
 		ROLE_TRAITOR,
 		ROLE_VAMPIRE,
 		ROLE_CHANGELING,
+		ROLE_HERETIC,
 	)
 
 /datum/config_entry/keyed_list/antag_paradise_single_antags_weights
@@ -451,6 +452,7 @@
 		ROLE_THIEF = 0,
 		ROLE_VAMPIRE = 20,
 		ROLE_CHANGELING = 20,
+		ROLE_HERETIC = 20,
 	)
 
 /datum/config_entry/keyed_list/antag_paradise_double_antags_weights
@@ -461,6 +463,7 @@
 		ROLE_THIEF = 0,
 		ROLE_VAMPIRE = 20,
 		ROLE_CHANGELING = 20,
+		ROLE_HERETIC = 20,
 	)
 
 /datum/config_entry/keyed_list/antag_paradise_tripple_antags_weights
@@ -471,6 +474,7 @@
 		ROLE_THIEF = 0,
 		ROLE_VAMPIRE = 20,
 		ROLE_CHANGELING = 20,
+		ROLE_HERETIC = 20,
 	)
 
 /datum/config_entry/keyed_list/antag_paradise_special_antags_weights
@@ -484,6 +488,7 @@
 		"thief" = 10,
 		"nothing" = 20,
 		"devil" = 10,
+		"heretic" = 10,
 	)
 
 /datum/config_entry/keyed_list/antag_paradise_mode_subtypes
@@ -504,6 +509,26 @@
 		ANTAG_DOUBLE = 4,
 		ANTAG_TRIPPLE = 2,
 	)
+
+/datum/config_entry/keyed_list/dynamic_ruleset_weights
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
+/datum/config_entry/keyed_list/dynamic_ruleset_min_pop
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
+/datum/config_entry/keyed_list/dynamic_tier_weights
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
+
+/datum/config_entry/keyed_list/dynamic_tier_min_pop
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM
+	default = list()
 
 //Made that way because compatibility reasons.
 /datum/config_entry/keyed_list/event_delay_lower
@@ -650,6 +675,8 @@
 //Needs attention
 /// Webhook URLs for the requests webhook
 /datum/config_entry/str_list/discord_requests_webhook_urls
+
+/datum/config_entry/str_list/discord_ooc_webhook_urls
 
 /// Do we want to forward all adminhelps to the discord or just ahelps when admins are offline.
 /// (This does not mean all ahelps are pinged, only ahelps sent when staff are offline get the ping, regardless of this setting)
@@ -824,6 +851,9 @@
 
 /// Allows players to request internet sounds (via the OOC verb) for admins to play.
 /datum/config_entry/flag/request_internet_sound
+	default = TRUE
+
+/datum/config_entry/flag/headphone_case_music
 	default = TRUE
 
 /// Comma separated list of url patterns players are allowed to request. Each entry is matched as a regex.

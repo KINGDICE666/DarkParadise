@@ -99,5 +99,5 @@ GLOBAL_LIST_INIT(mod_themes, setup_mod_themes())
 
 GLOBAL_DATUM(lone_operative_meta, /datum/event_meta/lone_operative)
 
-/// The fire axe locked in the bridge cabinet, the one the Axe Delusions trauma swears to protect
+GLOBAL_DATUM(main_fission_reactor, /obj/machinery/atmospherics/fission_reactor)
 GLOBAL_DATUM(bridge_axe, /obj/item/twohanded/fireaxe)
