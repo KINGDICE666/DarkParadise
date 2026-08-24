@@ -42,8 +42,11 @@
 	INVOKE_ASYNC(src, PROC_REF(relay_hearing), speaker, message_pieces)
 
 /datum/brain_trauma/special/imaginary_friend/proc/relay_hearing(mob/speaker, list/message_pieces)
-	if(!QDELETED(friend))
-		friend.hear_say(message_pieces, speaker = speaker)
+	if(QDELETED(friend))
+		return
+	friend.relaying_hearing = TRUE
+	friend.hear_say(message_pieces, speaker = speaker)
+	friend.relaying_hearing = FALSE
 
 /datum/brain_trauma/special/imaginary_friend/proc/reroll_friend()
 	if(friend?.client)
@@ -98,6 +101,7 @@
 	var/hidden = FALSE
 	var/move_delay = 0
 	var/image/indicator_image
+	var/relaying_hearing = FALSE
 
 /mob/camera/imaginary_friend/Initialize(mapload)
 	. = ..()
@@ -179,6 +183,11 @@
 	if(!host)
 		return ..()
 	return host.say_understands(other, speaking)
+
+/mob/camera/imaginary_friend/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = FALSE, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
+	if(!relaying_hearing)
+		return
+	return ..()
 
 /mob/camera/imaginary_friend/setDir(newdir)
 	. = ..()
