@@ -126,6 +126,8 @@
 	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
 	var/datum/brain_trauma/stubborn = patient.gain_trauma(/datum/brain_trauma/unit_test/stubborn)
 
+	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma/unit_test/stubborn), "has_trauma_type() with no resilience argument missed a surgery tier trauma")
+
 	patient.cure_trauma_type(resilience = TRAUMA_RESILIENCE_BASIC)
 	TEST_ASSERT(!QDELETED(stubborn), "a surgery tier trauma was cured by basic tier curing")
 
