@@ -185,3 +185,24 @@
 	recipient.cure_trauma_type(/datum/brain_trauma/unit_test, TRAUMA_RESILIENCE_ABSOLUTE)
 	TEST_ASSERT(QDELETED(trauma), "cure_trauma_type() did not delete the trauma")
 	TEST_ASSERT(!length(donor_brain.traumas), "the cured trauma was left in the brain's trauma list")
+
+/datum/unit_test/room_test/brain_trauma_sources/Run()
+	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
+
+	var/datum/event/brain_trauma/event = new(null, TRUE)
+	event.traumatize(patient)
+	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma, TRAUMA_RESILIENCE_ABSOLUTE), "the spontaneous brain trauma event handed out no trauma")
+	patient.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
+	qdel(event)
+
+	patient.reagents.add_reagent("bath_salts", 5)
+	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma/special/psychotic_brawling/bath_salts, TRAUMA_RESILIENCE_ABSOLUTE), "bath salts did not induce chemical psychosis")
+	patient.reagents.del_reagent("bath_salts")
+	TEST_ASSERT(!patient.has_trauma_type(/datum/brain_trauma/special/psychotic_brawling/bath_salts, TRAUMA_RESILIENCE_ABSOLUTE), "the chemical psychosis outlived the bath salts")
+
+	patient.reagents.add_reagent("beepskysmash", 5)
+	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma/special/beepsky, TRAUMA_RESILIENCE_ABSOLUTE), "beepsky smash conjured no securitron")
+	patient.reagents.del_reagent("beepskysmash")
+	TEST_ASSERT(!patient.has_trauma_type(/datum/brain_trauma/special/beepsky, TRAUMA_RESILIENCE_ABSOLUTE), "the securitron outlived the beepsky smash")
+
+	TEST_ASSERT(GLOB.chemical_reagents_list["neurine"], "neurine is not a registered reagent")

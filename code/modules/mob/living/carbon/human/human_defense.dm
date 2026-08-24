@@ -545,6 +545,8 @@ emp_act
 					)
 					apply_effect(4 SECONDS, KNOCKDOWN, armor)
 					AdjustConfused(30 SECONDS)
+					if(item.damtype == BRUTE && !item.get_sharpness() && prob(10))
+						gain_trauma(/datum/brain_trauma/mild/concussion)
 				if(mind?.special_role == SPECIAL_ROLE_REV && prob(item.force + ((100 - health)/2)) && src != user && item.damtype == BRUTE)
 					SSticker.mode.remove_revolutionary(mind)
 

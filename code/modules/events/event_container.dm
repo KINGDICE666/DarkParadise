@@ -242,6 +242,8 @@ GLOBAL_LIST_EMPTY(event_last_fired)
 		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_MASS_HALLUCINATION, /datum/event/mass_hallucination, 300),
 		new /datum/event_meta(
+			EVENT_LEVEL_MODERATE, EVENT_BRAIN_TRAUMA, /datum/event/brain_trauma, 100, list(ASSIGNMENT_MEDICAL = 30)),
+		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_DIGITAL_VIRUS, /datum/event/brand_intelligence, 50, list(ASSIGNMENT_ENGINEER = 25), TRUE),
 		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_SPACE_DUST, /datum/event/dust, 50, list(ASSIGNMENT_ENGINEER = 50)),

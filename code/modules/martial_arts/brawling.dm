@@ -101,8 +101,8 @@
 			A.apply_damage(rand(5, 10), BRUTE, A.get_organ(BODY_ZONE_HEAD))
 			if(!istype(D.head, /obj/item/clothing/head/helmet))
 				D.adjustBrainLoss(5)
-			A.Stun(rand(1 SECONDS, 4.5 SECONDS))
-			D.Stun(rand(0.5 SECONDS, 3 SECONDS))
+			A.Stun(randfloat(1 SECONDS, 4.5 SECONDS))
+			D.Stun(randfloat(0.5 SECONDS, 3 SECONDS))
 			add_attack_logs(A, D, "headbutted with [src]")
 			return TRUE
 		if(5, 6)

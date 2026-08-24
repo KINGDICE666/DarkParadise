@@ -128,7 +128,7 @@
 			if(limb.paralysis_trait in paralysis_traits)
 				previously_usable[limb] = limb.is_usable()
 
-	for(var/trait as anything in paralysis_traits)
+	for(var/trait in paralysis_traits)
 		if(paralysed)
 			ADD_TRAIT(owner, trait, TRAUMA_TRAIT)
 		else

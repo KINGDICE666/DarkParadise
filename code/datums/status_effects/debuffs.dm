@@ -1667,7 +1667,7 @@
 			held_item.attack_self(owner)
 		if(3)
 			var/list/mob/living/targets = list()
-			for(var/mob/living/nearby in oview(istype(held_item, /obj/item/gun) ? 7 : 1, owner))
+			for(var/mob/living/nearby in oview(isgun(held_item) ? 7 : 1, owner))
 				targets += nearby
 			if(!length(targets))
 				return
