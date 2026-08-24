@@ -115,19 +115,6 @@
 	index_name = "a pair of headphones"
 	path = /obj/item/clothing/ears/headphones
 
-/datum/gear/headphone_case
-	index_name = "a wireless earbuds case, select"
-	display_name = "Кейс беспроводных наушников"
-	path = /obj/item/headphone_case
-
-/datum/gear/headphone_case/New()
-	..()
-	var/list/cases = list(
-		"white" = /obj/item/headphone_case,
-		"black" = /obj/item/headphone_case/black,
-	)
-	gear_tweaks += new /datum/gear_tweak/path(cases, src)
-
 /datum/gear/fannypack
 	index_name = "a fannypack"
 	path = /obj/item/storage/belt/fannypack
