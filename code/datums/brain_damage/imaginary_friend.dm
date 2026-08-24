@@ -78,6 +78,8 @@
 	friend.possess_by_player(ghost.ckey)
 	friend.attach_to_owner(owner)
 	friend.setup_appearance()
+	friend.tts_seed = SStts.get_random_seed(friend)
+	friend.change_voice()
 	friend_initialized = TRUE
 	add_game_logs("became [key_name(owner)]'s imaginary friend", friend)
 	message_admins("[ADMIN_LOOKUPFLW(friend)] became [ADMIN_LOOKUPFLW(owner)]'s imaginary friend.")
@@ -173,6 +175,11 @@
 
 	client.images |= current_image
 
+/mob/camera/imaginary_friend/say_understands(atom/movable/other, datum/language/speaking = null)
+	if(!host)
+		return ..()
+	return host.say_understands(other, speaking)
+
 /mob/camera/imaginary_friend/setDir(newdir)
 	. = ..()
 	show_self()
@@ -262,6 +269,7 @@
 		to_chat(listener, rendered)
 		if(listener.client?.prefs?.toggles2 & PREFTOGGLE_2_RUNECHAT)
 			listener.create_chat_message(src, message)
+		INVOKE_ASYNC(GLOBAL_PROC, /proc/tts_cast, src, listener, message, tts_seed)
 
 	speech_bubble("[bubble_icon][say_test(message)]", src, group_clients())
 

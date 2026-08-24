@@ -62,6 +62,8 @@
 		return
 
 	stranger_backseat.possess_by_player(ghost.ckey)
+	stranger_backseat.tts_seed = SStts.get_random_seed(stranger_backseat)
+	stranger_backseat.change_voice()
 	polling_finished = TRUE
 	add_game_logs("became [key_name(owner)]'s split personality", stranger_backseat)
 	message_admins("[ADMIN_LOOKUPFLW(stranger_backseat)] became [ADMIN_LOOKUPFLW(owner)]'s split personality.")
@@ -124,6 +126,7 @@
 		body = loc
 		name = body.real_name
 		real_name = body.real_name
+		tts_seed = body.tts_seed
 
 	var/datum/action/innate/personality_commune/commune = new(trauma)
 	commune.Grant(src)
@@ -160,6 +163,11 @@
 /mob/living/split_personality/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
 	to_chat(src, span_warning("Вы не можете говорить, вашим телом управляет ваше второе «я»!"))
 
+/mob/living/split_personality/say_understands(atom/movable/other, datum/language/speaking = null)
+	if(!body)
+		return ..()
+	return body.say_understands(other, speaking)
+
 /mob/living/split_personality/emote(emote_key, type_override = null, message = null, intentional = FALSE, force_silence = FALSE, ignore_cooldowns = FALSE)
 	return FALSE
 
@@ -180,6 +188,7 @@
 
 	to_chat(backseat, "[span_boldnotice("Вы сосредотачиваетесь и передаёте мысль своему второму «я»:")] [span_notice(message)]")
 	to_chat(split.owner, "[span_boldnotice("Вы слышите эхо чужого голоса на задворках сознания...")] [span_notice(message)]")
+	INVOKE_ASYNC(GLOBAL_PROC, /proc/tts_cast, null, split.owner, message, backseat.tts_seed, FALSE)
 	add_say_logs(backseat, message, split.owner)
 
 	for(var/mob/dead/observer/ghost in GLOB.dead_mob_list)
