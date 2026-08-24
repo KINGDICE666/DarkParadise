@@ -37,7 +37,6 @@
 // #define PREFTOGGLE_TYPING_ONCE (1<<20) // Not used since tgui say
 #define PREFTOGGLE_AMBIENT_OCCLUSION (1<<21)
 #define PREFTOGGLE_CHAT_GHOSTPDA (1<<22)
-#define PREFTOGGLE_DISABLE_EMISSIVE_BLOOM (1<<23)
 
 #define TOGGLES_TOTAL 16777215 // If you add or remove a preference toggle above, make sure you update this define with the total value of the toggles combined.
 
