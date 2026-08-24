@@ -101,7 +101,7 @@ export const Referrals = (props: unknown) => {
                     ranges={{ good: [required_minutes, Infinity] }}
                   >
                     {`Наиграно: ${Math.floor(minutes / 60)} / ${Math.floor(
-                      required_minutes / 60,
+                      required_minutes / 60
                     )} ч`}
                   </ProgressBar>
                 </Stack.Item>
@@ -165,7 +165,7 @@ export const Referrals = (props: unknown) => {
             </Box>
             <Box mt="0.5rem">
               {`Как только он наиграет ${Math.floor(
-                required_minutes / 60,
+                required_minutes / 60
               )} часов минимум за ${required_days} разных дня, вам начислится первый уровень подписки на ${reward_days} дней. Каждое следующее приглашение продлевает срок.`}
             </Box>
             <Box mt="0.5rem">
