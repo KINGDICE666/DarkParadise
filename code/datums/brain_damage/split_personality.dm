@@ -160,6 +160,14 @@
 	to_chat(src, span_notice("Как расщеплённая личность, вы не можете ничего, кроме как наблюдать. Однако рано или поздно вы получите контроль над телом, поменявшись местами с текущей личностью."))
 	to_chat(src, span_boldwarning("Не совершайте суицид и не подставляйте тело под удар. Ведите себя так, будто оно дорого вам не меньше, чем его хозяину."))
 
+/mob/living/split_personality/ghost()
+	if(tgui_alert(src, "Вы уверены, что хотите перестать быть расщеплённой личностью?", "Призрак", list("Остаться", "Стать призраком")) != "Стать призраком")
+		return
+	ghostize()
+
+/mob/living/split_personality/be_suicidal(forced = FALSE)
+	to_chat(src, span_warning("Вы не можете покончить с собой — телом управляет ваше второе «я»!"))
+
 /mob/living/split_personality/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
 	to_chat(src, span_warning("Вы не можете говорить, вашим телом управляет ваше второе «я»!"))
 

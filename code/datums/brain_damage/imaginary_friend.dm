@@ -1,4 +1,5 @@
 #define IMAGINARY_FRIEND_RANGE 9
+#define ALTER_EGO_STAGE_TIME (4 MINUTES)
 
 /datum/brain_trauma/special/imaginary_friend
 	name = "Imaginary Friend"
@@ -102,6 +103,7 @@
 	var/move_delay = 0
 	var/image/indicator_image
 	var/relaying_hearing = FALSE
+	var/friend_outfit
 
 /mob/camera/imaginary_friend/Initialize(mapload)
 	. = ..()
@@ -128,6 +130,20 @@
 		greet()
 	show_self()
 
+/mob/camera/imaginary_friend/verb/ghost()
+	set category = VERB_CATEGORY_OOC
+	set name = "Призрак"
+	set desc = "Relinquish your life and enter the land of the dead."
+
+	if(tgui_alert(src, "Вы уверены, что хотите перестать быть воображаемым другом?", "Призрак", list("Остаться", "Стать призраком")) != "Стать призраком")
+		return
+	ghostize()
+
+/mob/camera/imaginary_friend/verb/suicide()
+	set hidden = TRUE
+
+	to_chat(src, span_warning("Вы всего лишь плод чужого воображения — вам нечем убивать себя."))
+
 /mob/camera/imaginary_friend/proc/greet()
 	to_chat(src, span_notice("<b>Вы — воображаемый друг [host]!</b>"))
 	to_chat(src, span_notice("Вы абсолютно преданы своему другу, что бы ни случилось."))
@@ -148,8 +164,11 @@
 	name = real_name
 	gender = model.gender
 
-	var/datum/job/dressed_as = pick(SSjobs.occupations)
-	model.equipOutfit(dressed_as.outfit, visualsOnly = TRUE)
+	var/outfit_to_wear = friend_outfit
+	if(!outfit_to_wear)
+		var/datum/job/dressed_as = pick(SSjobs.occupations)
+		outfit_to_wear = dressed_as.outfit
+	model.equipOutfit(outfit_to_wear, visualsOnly = TRUE)
 	friend_icon = getFlatIcon(model)
 	qdel(model)
 	qdel(appearance)
@@ -408,4 +427,88 @@
 	friend_icon = icon('icons/mob/lavaland/lavaland_monsters.dmi', "curseblob")
 	show_self()
 
+/datum/brain_trauma/special/imaginary_friend/alter_ego
+	name = "Dominant Alter Ego"
+	desc = "Вторая личность пациента вытесняет основную и рано или поздно займёт её место."
+	scan_desc = "доминантное расщепление личности"
+	gain_text = span_warning_alt("Вы знакомитесь с самым интересным человеком в своей жизни. С самим собой.")
+	lose_text = span_notice_alt("Чужой голос в вашей голове затихает. Вы снова только вы.")
+	resilience = TRAUMA_RESILIENCE_SURGERY
+	poll_role = "доминантную личность"
+	var/next_stage_time
+	var/stage = 0
+	var/taken_over = FALSE
+
+/datum/brain_trauma/special/imaginary_friend/alter_ego/add_friend(mob/dead/observer/ghost)
+	. = ..()
+	if(QDELETED(src))
+		return
+	stage = 0
+	next_stage_time = world.time + ALTER_EGO_STAGE_TIME
+
+/datum/brain_trauma/special/imaginary_friend/alter_ego/on_lose(silent)
+	return ..(silent || taken_over)
+
+/datum/brain_trauma/special/imaginary_friend/alter_ego/make_friend()
+	friend = new /mob/camera/imaginary_friend/alter_ego(get_turf(owner))
+
+/datum/brain_trauma/special/imaginary_friend/alter_ego/on_life()
+	..()
+	if(QDELETED(src) || !friend_initialized || !friend.client)
+		return
+
+	if(world.time < next_stage_time)
+		return
+
+	var/static/list/creeping_messages = list(
+		"Вы ловите себя на том, что говорите его словами.",
+		"Вы приходите в себя там, где не помните, как туда попали.",
+		"Вы уже не уверены, кто из вас двоих настоящий.",
+	)
+	next_stage_time = world.time + ALTER_EGO_STAGE_TIME
+	stage++
+	if(stage > length(creeping_messages))
+		take_over()
+		return
+
+	to_chat(owner, span_userdanger(creeping_messages[stage]))
+	to_chat(friend, span_boldnotice("Вы всё глубже пускаете корни в чужой голове."))
+
+/datum/brain_trauma/special/imaginary_friend/alter_ego/proc/take_over()
+	var/ego_ckey = friend.ckey
+	if(!ego_ckey || owner.stat == DEAD || !owner.client)
+		return
+
+	to_chat(owner, span_userdanger("Вы наконец понимаете, кто из вас двоих был лишним. Это были вы."))
+	to_chat(friend, span_userdanger("Хватит прятаться. Это тело ваше."))
+	add_game_logs("took over [key_name(owner)]'s body as a dominant alter ego", friend)
+	message_admins("[ADMIN_LOOKUPFLW(friend)] took over [ADMIN_LOOKUPFLW(owner)]'s body as a dominant alter ego.")
+
+	var/mob/living/carbon/body = owner
+	var/mob/dead/observer/displaced = body.ghostize(0)
+	body.possess_by_player(ego_ckey)
+	taken_over = TRUE
+	qdel(src)
+
+	var/datum/brain_trauma/special/imaginary_friend/trapped_owner/remnant = body.gain_trauma(/datum/brain_trauma/special/imaginary_friend/trapped_owner)
+	remnant?.add_friend(displaced)
+
+/mob/camera/imaginary_friend/alter_ego
+	desc = "Тот, кем его хозяин всегда хотел быть."
+	friend_outfit = /datum/outfit/alter_ego
+
+/mob/camera/imaginary_friend/alter_ego/greet()
+	to_chat(src, span_notice("<b>Вы — вторая личность [host], та, что сильнее.</b>"))
+	to_chat(src, span_notice("Вы ничем не обязаны [host] — вы и есть [host], только без страха и оглядки."))
+	to_chat(src, span_boldwarning("Пока вы лишь голос в чужой голове, но рано или поздно это тело станет вашим целиком."))
+
+/datum/outfit/alter_ego
+	name = "Dominant Alter Ego"
+	uniform = /obj/item/clothing/under/redhawaiianshirt
+	suit = /obj/item/clothing/suit/jacket/leather
+	shoes = /obj/item/clothing/shoes/leather
+	glasses = /obj/item/clothing/glasses/sunglasses
+	mask = /obj/item/clothing/mask/cigarette
+
+#undef ALTER_EGO_STAGE_TIME
 #undef IMAGINARY_FRIEND_RANGE
