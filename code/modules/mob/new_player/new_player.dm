@@ -132,6 +132,9 @@
 	if(href_list["poll_panel"])
 		handle_player_polling()
 
+	if(href_list["referrals"])
+		client.referral_panel()
+
 	if(href_list["viewpoll"])
 		var/datum/poll_question/poll = locateUID(href_list["viewpoll"])
 		poll_player(poll)
