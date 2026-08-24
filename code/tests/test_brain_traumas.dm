@@ -245,3 +245,25 @@
 	var/datum/brain_trauma/magic/stalker/cosmic/curse = thief.has_trauma_type(/datum/brain_trauma/magic/stalker/cosmic, TRAUMA_RESILIENCE_MAGIC)
 	TEST_ASSERT(curse, "a non-heretic who put on the starwoven cloak was not cursed")
 	TEST_ASSERT_EQUAL(curse.stalker_type, /obj/effect/client_image_holder/stalker_phantom/cosmic, "the cosmic stalker kept the default phantom")
+
+/datum/unit_test/room_test/flesh_desire_palate/Run()
+	var/mob/living/carbon/human/glutton = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/bystander = allocate(/mob/living/carbon/human)
+	var/obj/item/reagent_containers/food/snacks/gore = allocate(/obj/item/reagent_containers/food/snacks)
+	var/obj/item/reagent_containers/food/snacks/second_helping = allocate(/obj/item/reagent_containers/food/snacks)
+	var/obj/item/reagent_containers/food/snacks/greens = allocate(/obj/item/reagent_containers/food/snacks)
+	gore.foodtype = MEAT | GROSS
+	second_helping.foodtype = MEAT | GROSS
+	greens.foodtype = VEGETABLES
+
+	gore.check_liked(1, bystander)
+	TEST_ASSERT(bystander.AmountDisgust() > 0, "raw meat did not disgust an ordinary human")
+
+	glutton.gain_trauma(/datum/brain_trauma/severe/flesh_desire)
+	glutton.SetDisgust(50)
+	second_helping.check_liked(1, glutton)
+	TEST_ASSERT(glutton.AmountDisgust() < 50, "flesh desire did not make raw meat appetising")
+
+	glutton.SetDisgust(0)
+	greens.check_liked(1, glutton)
+	TEST_ASSERT(glutton.AmountDisgust() > 0, "flesh desire did not make vegetables repulsive")
