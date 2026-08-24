@@ -88,6 +88,33 @@
 				drawn_pixels++
 	TEST_ASSERT(drawn_pixels, "the imaginary friend's appearance rendered completely blank")
 
+/datum/unit_test/room_test/alter_ego_appearance/Run()
+	var/mob/camera/imaginary_friend/alter_ego/tyler = allocate(/mob/camera/imaginary_friend/alter_ego)
+	tyler.setup_appearance()
+
+	TEST_ASSERT_EQUAL(tyler.real_name, "Tyler Durden", "the alter ego did not take its fixed name")
+	TEST_ASSERT_EQUAL(tyler.gender, MALE, "the alter ego did not take its fixed gender")
+
+	var/icon/appearance = tyler.friend_icon
+	TEST_ASSERT_NOTNULL(appearance, "the alter ego was given no appearance at all")
+
+	var/drawn_pixels = 0
+	for(var/pixel_x in 1 to appearance.Width())
+		for(var/pixel_y in 1 to appearance.Height())
+			if(appearance.GetPixel(pixel_x, pixel_y))
+				drawn_pixels++
+	TEST_ASSERT(drawn_pixels, "the alter ego's appearance rendered completely blank")
+
+/datum/unit_test/room_test/alter_ego_outfit/Run()
+	var/mob/living/carbon/human/wearer = allocate(/mob/living/carbon/human)
+	wearer.equipOutfit(/datum/outfit/alter_ego, visualsOnly = TRUE)
+
+	TEST_ASSERT(istype(wearer.wear_mask, /obj/item/clothing/mask/cigarette), "the alter ego outfit left no cigarette in the mask slot")
+	var/obj/item/clothing/mask/cigarette/cig = wearer.wear_mask
+	TEST_ASSERT(cig.lit, "the alter ego's cigarette was never lit")
+	TEST_ASSERT_NOTNULL(wearer.glasses, "the alter ego outfit left the glasses slot empty")
+	TEST_ASSERT_NOTNULL(wearer.wear_suit, "the alter ego outfit left the suit slot empty")
+
 /datum/unit_test/room_test/obsessed_antagonist/Run()
 	var/mob/living/carbon/human/creep = allocate(/mob/living/carbon/human)
 	var/mob/living/carbon/human/crush = allocate(/mob/living/carbon/human)

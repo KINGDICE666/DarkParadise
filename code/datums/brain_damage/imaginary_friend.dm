@@ -103,7 +103,6 @@
 	var/move_delay = 0
 	var/image/indicator_image
 	var/relaying_hearing = FALSE
-	var/friend_outfit
 
 /mob/camera/imaginary_friend/Initialize(mapload)
 	. = ..()
@@ -164,11 +163,8 @@
 	name = real_name
 	gender = model.gender
 
-	var/outfit_to_wear = friend_outfit
-	if(!outfit_to_wear)
-		var/datum/job/dressed_as = pick(SSjobs.occupations)
-		outfit_to_wear = dressed_as.outfit
-	model.equipOutfit(outfit_to_wear, visualsOnly = TRUE)
+	var/datum/job/dressed_as = pick(SSjobs.occupations)
+	model.equipOutfit(dressed_as.outfit, visualsOnly = TRUE)
 	friend_icon = getFlatIcon(model)
 	qdel(model)
 	qdel(appearance)
@@ -494,21 +490,51 @@
 	remnant?.add_friend(displaced)
 
 /mob/camera/imaginary_friend/alter_ego
-	desc = "Тот, кем его хозяин всегда хотел быть."
-	friend_outfit = /datum/outfit/alter_ego
+	desc = "Тот, кем его хозяин боится быть."
+
+/mob/camera/imaginary_friend/alter_ego/setup_appearance()
+	var/mob/living/carbon/human/dummy/model = new(null)
+	var/datum/preferences/appearance = new
+	appearance.real_name = "Tyler Durden"
+	appearance.gender = MALE
+	appearance.age = 30
+	appearance.s_tone = -10
+	appearance.h_style = "Short Spiked"
+	appearance.f_style = "Shaved"
+	appearance.h_colour = "#BF9B60"
+	appearance.h_sec_colour = "#BF9B60"
+	appearance.e_colour = "#3D6EA5"
+	appearance.underwear = "Nude"
+	appearance.undershirt = "Nude"
+	appearance.socks = "Nude"
+	appearance.copy_to(model)
+	real_name = model.real_name
+	name = real_name
+	gender = model.gender
+
+	model.equipOutfit(/datum/outfit/alter_ego, visualsOnly = TRUE)
+	friend_icon = getFlatIcon(model)
+	qdel(model)
+	qdel(appearance)
+	show_self()
 
 /mob/camera/imaginary_friend/alter_ego/greet()
-	to_chat(src, span_notice("<b>Вы — вторая личность [host], та, что сильнее.</b>"))
-	to_chat(src, span_notice("Вы ничем не обязаны [host] — вы и есть [host], только без страха и оглядки."))
+	to_chat(src, span_notice("<b>Вы — Тайлер Дёрден, вторая личность [host].</b>"))
+	to_chat(src, span_notice("Вы — то, кем [host] боится быть: свободнее, злее, живее."))
 	to_chat(src, span_boldwarning("Пока вы лишь голос в чужой голове, но рано или поздно это тело станет вашим целиком."))
 
 /datum/outfit/alter_ego
 	name = "Dominant Alter Ego"
 	uniform = /obj/item/clothing/under/redhawaiianshirt
-	suit = /obj/item/clothing/suit/jacket/leather
+	suit = /obj/item/clothing/suit/jacket/leather/overcoat
 	shoes = /obj/item/clothing/shoes/leather
 	glasses = /obj/item/clothing/glasses/sunglasses
 	mask = /obj/item/clothing/mask/cigarette
+
+/datum/outfit/alter_ego/post_equip(mob/living/carbon/human/wearer, visualsOnly = FALSE)
+	. = ..()
+	var/obj/item/clothing/mask/cigarette/cig = wearer.get_item_by_slot(ITEM_SLOT_MASK)
+	cig.light()
 
 #undef ALTER_EGO_STAGE_TIME
 #undef IMAGINARY_FRIEND_RANGE
