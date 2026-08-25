@@ -83,7 +83,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	launcher_claimed_ckey = claimed_ckey
-	account_ckey = GLOB.launcher_account_aliases[claimed_ckey] || claimed_ckey
+	var/linked_ckey = GLOB.launcher_account_aliases[claimed_ckey]
+	account_ckey = (linked_ckey && !GLOB.directory[linked_ckey]) ? linked_ckey : claimed_ckey
 	launcher_state = LAUNCHER_PENDING
 	addtimer(CALLBACK(src, PROC_REF(launcher_link_timeout)), LAUNCHER_VERIFY_TIMEOUT)
 
