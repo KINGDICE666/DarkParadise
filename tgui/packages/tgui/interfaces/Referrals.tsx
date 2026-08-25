@@ -29,6 +29,8 @@ type ReferralsData = {
   max_player_age: number;
   reward_days: number;
   referrer_min_hours: number;
+  invites_per_tier: number;
+  tier: number;
   error: string | null;
 };
 
@@ -51,6 +53,8 @@ export const Referrals = (props: unknown) => {
     max_player_age,
     reward_days,
     referrer_min_hours,
+    invites_per_tier,
+    tier,
     error,
   } = data;
   const [enteredCode, setEnteredCode] = useState('');
@@ -73,6 +77,9 @@ export const Referrals = (props: unknown) => {
             <LabeledList.Item label="Приглашено">{invited}</LabeledList.Item>
             <LabeledList.Item label="Освоились">
               {invited_rewarded}
+            </LabeledList.Item>
+            <LabeledList.Item label="Уровень подписки">
+              {active_until ? tier : 'не начислен'}
             </LabeledList.Item>
             <LabeledList.Item label="Подписка активна до">
               {active_until || 'не начислена'}
@@ -166,7 +173,10 @@ export const Referrals = (props: unknown) => {
             <Box mt="0.5rem">
               {`Как только он наиграет ${Math.floor(
                 required_minutes / 60
-              )} часов минимум за ${required_days} разных дня, вам начислится первый уровень подписки на ${reward_days} дней. Каждое следующее приглашение продлевает срок.`}
+              )} часов минимум за ${required_days} разных дня, вам начислится первый уровень подписки на ${reward_days} дней. Каждое следующее приглашение продлевает срок ещё на ${reward_days} дней.`}
+            </Box>
+            <Box mt="0.5rem">
+              {`Каждое ${invites_per_tier}-е приглашение поднимает уровень подписки на единицу, а срок отсчитывается заново с ${reward_days} дней.`}
             </Box>
             <Box mt="0.5rem">
               {`Приглашать могут те, кто наиграл больше ${referrer_min_hours} часов. Один аккаунт — один код, навсегда.`}

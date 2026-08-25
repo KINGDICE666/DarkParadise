@@ -1,9 +1,25 @@
 /client/proc/referral_code_available()
 	return SSdbcore.IsConnected() && !is_guest_key(key) && isnum(player_age) && player_age <= REFERRAL_CODE_MAX_PLAYER_AGE_DAYS
 
-/client/proc/referral_reward_active()
+/proc/referral_tier_by_invites(invites)
+	return clamp(round(invites / REFERRAL_INVITES_PER_TIER) + DONATOR_TIER_I, DONATOR_TIER_I, DONATOR_LEVEL_MAX)
+
+/proc/referral_rewarded_invites(referrer_ckey)
+	. = 0
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT COUNT(*) FROM [format_table_name("referral")]
+		WHERE referrer_ckey = :ckey AND rewarded = TRUE AND revoked = FALSE
+	"}, list("ckey" = referrer_ckey))
+	if(!query.warn_execute())
+		qdel(query)
+		return
+	if(query.NextRow())
+		. = text2num(query.item[1])
+	qdel(query)
+
+/client/proc/referral_reward_tier()
 	if(!SSdbcore.IsConnected())
-		return FALSE
+		return NO_DONATOR_TIER
 	var/datum/db_query/query = SSdbcore.NewQuery({"
 		SELECT id FROM [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
 		WHERE ckey = :ckey AND source = '[REFERRAL_BUDGET_SOURCE]' AND is_valid = TRUE AND date_start <= NOW() AND NOW() < date_end
@@ -11,9 +27,12 @@
 	"}, list("ckey" = ckey))
 	if(!query.warn_execute())
 		qdel(query)
-		return FALSE
-	. = query.NextRow()
+		return NO_DONATOR_TIER
+	var/active = query.NextRow()
 	qdel(query)
+	if(!active)
+		return NO_DONATOR_TIER
+	return referral_tier_by_invites(referral_rewarded_invites(ckey))
 
 /client/proc/referral_playtime_progress()
 	. = list("minutes" = 0, "days" = 0)
@@ -174,6 +193,10 @@
 	to_chat(src, custom_boxed_message("green_box", span_darkmblue("Вы наиграли достаточно времени — пригласивший вас <b>[referrer_ckey]</b> получил уровень подписки. Спасибо, что остались с нами!")), confidential = TRUE)
 
 /proc/grant_referral_reward(referrer_ckey)
+	var/invites = referral_rewarded_invites(referrer_ckey)
+	var/tier = referral_tier_by_invites(invites)
+	var/tier_up = tier > referral_tier_by_invites(invites - 1)
+
 	var/datum/db_query/query_active = SSdbcore.NewQuery({"
 		SELECT id FROM [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
 		WHERE ckey = :ckey AND source = '[REFERRAL_BUDGET_SOURCE]' AND is_valid = TRUE AND NOW() < date_end
@@ -189,17 +212,23 @@
 	qdel(query_active)
 
 	var/datum/db_query/query_reward
-	if(reward_id)
+	if(!reward_id)
+		query_reward = SSdbcore.NewQuery({"
+			INSERT INTO [CONFIG_GET(string/utility_database)].[format_table_name("budget")] (ckey, amount, source, date_start, date_end)
+			VALUES (:ckey, 0, '[REFERRAL_BUDGET_SOURCE]', NOW(), NOW() + INTERVAL [REFERRAL_REWARD_DAYS] DAY)
+		"}, list("ckey" = referrer_ckey))
+	else if(tier_up)
+		query_reward = SSdbcore.NewQuery({"
+			UPDATE [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
+			SET date_start = NOW(), date_end = NOW() + INTERVAL [REFERRAL_REWARD_DAYS] DAY
+			WHERE id = :id
+		"}, list("id" = reward_id))
+	else
 		query_reward = SSdbcore.NewQuery({"
 			UPDATE [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
 			SET date_end = LEAST(date_end + INTERVAL [REFERRAL_REWARD_DAYS] DAY, NOW() + INTERVAL [REFERRAL_REWARD_MAX_DAYS] DAY)
 			WHERE id = :id
 		"}, list("id" = reward_id))
-	else
-		query_reward = SSdbcore.NewQuery({"
-			INSERT INTO [CONFIG_GET(string/utility_database)].[format_table_name("budget")] (ckey, amount, source, date_start, date_end)
-			VALUES (:ckey, 0, '[REFERRAL_BUDGET_SOURCE]', NOW(), NOW() + INTERVAL [REFERRAL_REWARD_DAYS] DAY)
-		"}, list("ckey" = referrer_ckey))
 	. = query_reward.warn_execute()
 	qdel(query_reward)
 	if(!.)
@@ -209,7 +238,10 @@
 	if(!referrer)
 		return
 	referrer.donator_check()
-	to_chat(referrer, custom_boxed_message("green_box", span_darkmblue("Приглашённый вами игрок освоился на станции!<br>Вам начислено [REFERRAL_REWARD_DAYS] дней первого уровня подписки.")), confidential = TRUE)
+	var/reward_message = "Вам начислено [REFERRAL_REWARD_DAYS] дней подписки [tier] уровня."
+	if(tier_up)
+		reward_message = "Ваш уровень подписки повышен до <b>[tier]</b>!<br>Срок начислен заново — [REFERRAL_REWARD_DAYS] дней."
+	to_chat(referrer, custom_boxed_message("green_box", span_darkmblue("Приглашённый вами игрок освоился на станции!<br>[reward_message]")), confidential = TRUE)
 
 /client/proc/referral_stats()
 	referral_payout_check()
@@ -229,7 +261,9 @@
 		"required_days" = REFERRAL_REQUIRED_DAYS,
 		"max_player_age" = REFERRAL_CODE_MAX_PLAYER_AGE_DAYS,
 		"reward_days" = REFERRAL_REWARD_DAYS,
-		"referrer_min_hours" = round(REFERRAL_REFERRER_MIN_MINUTES / 60)
+		"referrer_min_hours" = round(REFERRAL_REFERRER_MIN_MINUTES / 60),
+		"invites_per_tier" = REFERRAL_INVITES_PER_TIER,
+		"tier" = NO_DONATOR_TIER
 	)
 
 	var/datum/db_query/query_mine = SSdbcore.NewQuery({"
@@ -254,6 +288,8 @@
 	if(query_invited.warn_execute() && query_invited.NextRow())
 		.["invited"] = text2num(query_invited.item[1])
 		.["invited_rewarded"] = text2num(query_invited.item[2])
+		if(.["invited_rewarded"])
+			.["tier"] = referral_tier_by_invites(.["invited_rewarded"])
 	qdel(query_invited)
 
 	var/datum/db_query/query_reward = SSdbcore.NewQuery({"
