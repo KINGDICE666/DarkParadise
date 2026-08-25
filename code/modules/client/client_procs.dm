@@ -631,8 +631,9 @@
 		donor_loadout_points()
 	qdel(query_donor_select)
 
-	if(donator_level < DONATOR_TIER_I && referral_reward_active())
-		donator_level = DONATOR_TIER_I
+	var/referral_tier = referral_reward_tier()
+	if(donator_level < referral_tier)
+		donator_level = referral_tier
 		donor_loadout_points()
 
 /client/proc/donor_loadout_points()
