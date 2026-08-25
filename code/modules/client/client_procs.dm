@@ -343,6 +343,7 @@
 	log_client_to_db(tdata)
 	check_launcher_link(tdata)
 	check_launcher_ban()
+	check_launcher_link_requests()
 	. = ..()	//calls mob.Login()
 
 	INVOKE_ASYNC(src, PROC_REF(acquire_dpi))

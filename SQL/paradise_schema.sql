@@ -828,3 +828,18 @@ CREATE TABLE `launcher_link` (
 	PRIMARY KEY (`steamid64`),
 	KEY `ckey` (`ckey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `launcher_link_request`
+--
+
+DROP TABLE IF EXISTS `launcher_link_request`;
+CREATE TABLE `launcher_link_request` (
+	`launcher_ckey` VARCHAR(32) NOT NULL,
+	`ckey` VARCHAR(32) NOT NULL,
+	`requested` DATETIME DEFAULT now() NOT NULL,
+	`resolved` DATETIME NULL DEFAULT NULL,
+	`approved` TINYINT(1) NULL DEFAULT NULL,
+	PRIMARY KEY (`launcher_ckey`, `ckey`),
+	KEY `ckey` (`ckey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

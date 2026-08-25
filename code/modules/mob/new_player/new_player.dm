@@ -89,10 +89,7 @@
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
-		var/linked_ckey = client.refresh_launcher_alias()
-		if(linked_ckey)
-			to_chat(usr, span_danger("Этот Discord уже привязан к игровому аккаунту [linked_ckey] — теперь он ваш и здесь."))
-			to_chat(usr, span_warning("Перезайдите на сервер, чтобы играть под ним со всеми своими персонажами и наигранным временем."))
+		if(client.blocked_by_launcher_link())
 			return FALSE
 		if(!is_used_species_available(client.prefs.species))
 			to_chat(usr, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
@@ -167,10 +164,7 @@
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
-		var/linked_ckey = client.refresh_launcher_alias()
-		if(linked_ckey)
-			to_chat(usr, span_danger("Этот Discord уже привязан к игровому аккаунту [linked_ckey] — теперь он ваш и здесь."))
-			to_chat(usr, span_warning("Перезайдите на сервер, чтобы играть под ним со всеми своими персонажами и наигранным временем."))
+		if(client.blocked_by_launcher_link())
 			return FALSE
 		if(!SSticker || SSticker.current_state == GAME_STATE_STARTUP)
 			to_chat(usr, span_warning("Пожалуйста, подождите, пока сервер полностью запустится, прежде чем присоединяться!"))
@@ -222,10 +216,7 @@
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
-		var/linked_ckey = client.refresh_launcher_alias()
-		if(linked_ckey)
-			to_chat(usr, span_danger("Этот Discord уже привязан к игровому аккаунту [linked_ckey] — теперь он ваш и здесь."))
-			to_chat(usr, span_warning("Перезайдите на сервер, чтобы играть под ним со всеми своими персонажами и наигранным временем."))
+		if(client.blocked_by_launcher_link())
 			return FALSE
 		if(!SSticker || SSticker.current_state != GAME_STATE_PLAYING)
 			to_chat(usr, span_warning("Раунд либо ещё не готов, либо в данный момент уже завершён..."))

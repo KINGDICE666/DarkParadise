@@ -126,6 +126,7 @@
 
 	var/account_ckey
 	var/launcher_claimed_ckey
+	var/launcher_link_target
 	var/steam_id = null
 	var/launcher_nickname = null
 	var/launcher_state = LAUNCHER_UNLINKED

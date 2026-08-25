@@ -8,11 +8,12 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"
-		SELECT launcher.ckey, byond.ckey FROM [format_table_name("player")] AS launcher
-		INNER JOIN [format_table_name("player")] AS byond ON byond.discord_id = launcher.discord_id
-		WHERE launcher.ckey LIKE :prefix AND byond.ckey NOT LIKE :prefix
+		SELECT request.launcher_ckey, request.ckey FROM [format_table_name("launcher_link_request")] AS request
+		INNER JOIN [format_table_name("player")] AS launcher ON launcher.ckey = request.launcher_ckey
+		INNER JOIN [format_table_name("player")] AS byond ON byond.ckey = request.ckey
+		WHERE request.approved = 1 AND launcher.discord_id = byond.discord_id
 		AND LENGTH(launcher.discord_id) < :token_length
-	"}, list("prefix" = "[LAUNCHER_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
+	"}, list("token_length" = DISCORD_TOKEN_LENGTH))
 
 	if(!query.warn_execute(async = FALSE))
 		qdel(query)
@@ -35,13 +36,14 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return account_ckey
 	return "[launcher_nickname] (Steam)"
 
-/client/proc/refresh_launcher_alias()
+/client/proc/request_launcher_link()
+	launcher_link_target = null
 	if(!is_launcher_client() || !SSdbcore.IsConnected())
-		return
+		return LAUNCHER_LINK_NONE
 	if(GLOB.launcher_account_aliases[launcher_claimed_ckey])
-		return
+		return LAUNCHER_LINK_NONE
 
-	var/datum/db_query/query = SSdbcore.NewQuery({"
+	var/datum/db_query/query_sibling = SSdbcore.NewQuery({"
 		SELECT byond.ckey FROM [format_table_name("player")] AS launcher
 		INNER JOIN [format_table_name("player")] AS byond ON byond.discord_id = launcher.discord_id
 		WHERE launcher.ckey = :ckey AND byond.ckey NOT LIKE :prefix
@@ -49,21 +51,116 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		LIMIT 1
 	"}, list("ckey" = launcher_claimed_ckey, "prefix" = "[LAUNCHER_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
 
+	if(!query_sibling.warn_execute())
+		qdel(query_sibling)
+		return LAUNCHER_LINK_NONE
+
+	if(query_sibling.NextRow())
+		launcher_link_target = query_sibling.item[1]
+	qdel(query_sibling)
+
+	if(!launcher_link_target)
+		return LAUNCHER_LINK_NONE
+
+	var/datum/db_query/query_request = SSdbcore.NewQuery({"
+		SELECT approved FROM [format_table_name("launcher_link_request")]
+		WHERE launcher_ckey = :launcher_ckey AND ckey = :ckey
+	"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = launcher_link_target))
+
+	if(!query_request.warn_execute())
+		qdel(query_request)
+		return LAUNCHER_LINK_NONE
+
+	var/known_request = FALSE
+	var/approved
+	if(query_request.NextRow())
+		known_request = TRUE
+		approved = query_request.item[1]
+	qdel(query_request)
+
+	if(!known_request)
+		var/datum/db_query/query_insert = SSdbcore.NewQuery({"
+			INSERT INTO [format_table_name("launcher_link_request")] (launcher_ckey, ckey)
+			VALUES (:launcher_ckey, :ckey)
+		"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = launcher_link_target))
+		query_insert.warn_execute()
+		qdel(query_insert)
+		log_game("Launcher account [launcher_claimed_ckey] asked to be linked to [launcher_link_target]")
+		var/client/target = GLOB.directory[launcher_link_target]
+		if(target)
+			INVOKE_ASYNC(target, TYPE_PROC_REF(/client, prompt_launcher_link), launcher_claimed_ckey)
+		return LAUNCHER_LINK_PENDING
+
+	if(isnull(approved))
+		return LAUNCHER_LINK_PENDING
+
+	if(!text2num(approved))
+		return LAUNCHER_LINK_REJECTED
+
+	GLOB.launcher_account_aliases[launcher_claimed_ckey] = launcher_link_target
+	return LAUNCHER_LINK_APPROVED
+
+/client/proc/blocked_by_launcher_link()
+	switch(request_launcher_link())
+		if(LAUNCHER_LINK_PENDING)
+			to_chat(src, span_danger("Этот Discord привязан к игровому аккаунту [launcher_link_target]."), confidential = TRUE)
+			to_chat(src, span_warning("Зайдите в игру под [launcher_link_target] и подтвердите связку — так мы убеждаемся, что оба аккаунта ваши."), confidential = TRUE)
+			return TRUE
+		if(LAUNCHER_LINK_REJECTED)
+			to_chat(src, span_danger("Владелец аккаунта [launcher_link_target] отклонил связку. Обратитесь к администрации."), confidential = TRUE)
+			return TRUE
+		if(LAUNCHER_LINK_APPROVED)
+			to_chat(src, span_danger("Связка с [launcher_link_target] подтверждена."), confidential = TRUE)
+			to_chat(src, span_warning("Перезайдите на сервер, чтобы играть под ним со всеми своими персонажами и наигранным временем."), confidential = TRUE)
+			return TRUE
+	return FALSE
+
+/client/proc/check_launcher_link_requests()
+	set waitfor = FALSE
+	if(is_launcher_client() || !SSdbcore.IsConnected())
+		return
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT launcher_ckey FROM [format_table_name("launcher_link_request")]
+		WHERE ckey = :ckey AND approved IS NULL
+	"}, list("ckey" = account_ckey))
+
 	if(!query.warn_execute())
 		qdel(query)
 		return
 
-	var/linked_ckey
-	if(query.NextRow())
-		linked_ckey = query.item[1]
+	var/list/pending = list()
+	while(query.NextRow())
+		pending += query.item[1]
 	qdel(query)
 
-	if(!linked_ckey)
+	for(var/launcher_ckey in pending)
+		prompt_launcher_link(launcher_ckey)
+
+/client/proc/prompt_launcher_link(launcher_ckey)
+	var/answer = tgui_alert(src, "Аккаунт лаунчера [launcher_ckey] просит связать себя с вашим аккаунтом. После связки вход из Steam будет идти под [account_ckey]: те же персонажи, настройки и наигранное время. Если это не вы — откажите и смените пароль от Discord.", "Связка аккаунтов", list("Подтвердить", "Отклонить"), timeout = 5 MINUTES)
+	if(!answer)
 		return
 
-	GLOB.launcher_account_aliases[launcher_claimed_ckey] = linked_ckey
-	log_game("Launcher account [launcher_claimed_ckey] linked to [linked_ckey] through Discord")
-	return linked_ckey
+	var/approved = answer == "Подтвердить"
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		UPDATE [format_table_name("launcher_link_request")] SET approved = :approved, resolved = Now()
+		WHERE launcher_ckey = :launcher_ckey AND ckey = :ckey AND approved IS NULL
+	"}, list("approved" = approved, "launcher_ckey" = launcher_ckey, "ckey" = account_ckey))
+
+	if(!query.warn_execute())
+		qdel(query)
+		return
+	qdel(query)
+
+	if(approved)
+		GLOB.launcher_account_aliases[launcher_ckey] = account_ckey
+		to_chat(src, span_notice("Аккаунт лаунчера [launcher_ckey] связан с вашим."), confidential = TRUE)
+	else
+		to_chat(src, span_notice("Связка с [launcher_ckey] отклонена."), confidential = TRUE)
+
+	log_game("[account_ckey] [approved ? "approved" : "rejected"] the launcher link with [launcher_ckey]")
+	message_admins("[key_name_admin(src)] [approved ? "подтвердил" : "отклонил"] связку с аккаунтом лаунчера [launcher_ckey].")
 
 /client/proc/has_persistent_identity()
 	return !is_guest_key(key) || launcher_state == LAUNCHER_VERIFIED
