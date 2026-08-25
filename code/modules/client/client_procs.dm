@@ -340,6 +340,7 @@
 	connection_realtime = world.realtime
 	connection_timeofday = world.timeofday
 	log_client_to_db(tdata)
+	check_launcher_link(tdata)
 	. = ..()	//calls mob.Login()
 
 	INVOKE_ASYNC(src, PROC_REF(acquire_dpi))
