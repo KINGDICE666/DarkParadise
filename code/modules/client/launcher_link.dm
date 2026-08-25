@@ -94,7 +94,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	if(isnull(approved))
 		return LAUNCHER_LINK_PENDING
 
-	if(!text2num(approved))
+	if(!text2num("[approved]"))
 		return LAUNCHER_LINK_REJECTED
 
 	GLOB.launcher_account_aliases[launcher_claimed_ckey] = launcher_link_target
