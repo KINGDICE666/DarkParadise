@@ -7,6 +7,9 @@
 /client/proc/is_launcher_client()
 	return account_ckey != ckey
 
+/client/proc/display_key()
+	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
+
 /client/proc/has_persistent_identity()
 	return !is_guest_key(key) || launcher_state == LAUNCHER_VERIFIED
 
