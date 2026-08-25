@@ -1,5 +1,26 @@
+GLOBAL_LIST_EMPTY(launcher_account_aliases)
+
 /proc/is_launcher_ckey(test_ckey)
 	return findtext(test_ckey, LAUNCHER_CKEY_PREFIX, 1, length(LAUNCHER_CKEY_PREFIX) + 1) == 1
+
+/proc/load_launcher_aliases()
+	if(!SSdbcore.IsConnected())
+		return
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT launcher.ckey, byond.ckey FROM [format_table_name("player")] AS launcher
+		INNER JOIN [format_table_name("player")] AS byond ON byond.discord_id = launcher.discord_id
+		WHERE launcher.ckey LIKE :prefix AND byond.ckey NOT LIKE :prefix
+		AND LENGTH(launcher.discord_id) < :token_length
+	"}, list("prefix" = "[LAUNCHER_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
+
+	if(!query.warn_execute(async = FALSE))
+		qdel(query)
+		return
+
+	while(query.NextRow())
+		GLOB.launcher_account_aliases[query.item[1]] = query.item[2]
+	qdel(query)
 
 /mob/proc/get_account_ckey()
 	return client?.account_ckey || persistent_client?.account_ckey || ckey
@@ -8,7 +29,41 @@
 	return account_ckey != ckey
 
 /client/proc/display_key()
-	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
+	if(!launcher_nickname)
+		return key
+	if(!is_launcher_ckey(account_ckey))
+		return account_ckey
+	return "[launcher_nickname] (Steam)"
+
+/client/proc/refresh_launcher_alias()
+	if(!is_launcher_client() || !SSdbcore.IsConnected())
+		return
+	if(GLOB.launcher_account_aliases[launcher_claimed_ckey])
+		return
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT byond.ckey FROM [format_table_name("player")] AS launcher
+		INNER JOIN [format_table_name("player")] AS byond ON byond.discord_id = launcher.discord_id
+		WHERE launcher.ckey = :ckey AND byond.ckey NOT LIKE :prefix
+		AND LENGTH(launcher.discord_id) < :token_length
+		LIMIT 1
+	"}, list("ckey" = launcher_claimed_ckey, "prefix" = "[LAUNCHER_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
+
+	if(!query.warn_execute())
+		qdel(query)
+		return
+
+	var/linked_ckey
+	if(query.NextRow())
+		linked_ckey = query.item[1]
+	qdel(query)
+
+	if(!linked_ckey)
+		return
+
+	GLOB.launcher_account_aliases[launcher_claimed_ckey] = linked_ckey
+	log_game("Launcher account [launcher_claimed_ckey] linked to [linked_ckey] through Discord")
+	return linked_ckey
 
 /client/proc/has_persistent_identity()
 	return !is_guest_key(key) || launcher_state == LAUNCHER_VERIFIED
@@ -27,7 +82,8 @@
 	if(!is_launcher_ckey(claimed_ckey))
 		return
 
-	account_ckey = claimed_ckey
+	launcher_claimed_ckey = claimed_ckey
+	account_ckey = GLOB.launcher_account_aliases[claimed_ckey] || claimed_ckey
 	launcher_state = LAUNCHER_PENDING
 	addtimer(CALLBACK(src, PROC_REF(launcher_link_timeout)), LAUNCHER_VERIFY_TIMEOUT)
 
@@ -69,8 +125,8 @@
 		reject_launcher_client("Не удалось подтвердить вход через лаунчер.")
 		return
 
-	if(data["ckey"] != account_ckey)
-		log_adminwarn("Launcher identity mismatch: [key] claimed [account_ckey], backend returned [data["ckey"]]")
+	if(data["ckey"] != launcher_claimed_ckey)
+		log_adminwarn("Launcher identity mismatch: [key] claimed [launcher_claimed_ckey], backend returned [data["ckey"]]")
 		reject_launcher_client("Учётная запись лаунчера не совпала с заявленной.")
 		return
 
@@ -78,6 +134,11 @@
 	launcher_nickname = data["nickname"]
 	launcher_state = LAUNCHER_VERIFIED
 	store_launcher_link()
+	claim_admin_holder()
+	if(holder)
+		add_admin_verbs()
+		INVOKE_ASYNC(src, PROC_REF(announce_join))
+		INVOKE_ASYNC(src, PROC_REF(admin_memo_output), "Show", FALSE, TRUE)
 	donator_check()
 	referral_payout_check()
 

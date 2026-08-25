@@ -279,10 +279,8 @@
 	if(!CONFIG_GET(flag/disable_localhost_admin))
 		if(is_connecting_from_localhost())
 			new /datum/admins("!LOCALHOST!", R_HOST, account_ckey) // Makes localhost rank
-	holder = GLOB.admin_datums[account_ckey]
-	if(holder)
-		GLOB.admins += src
-		holder.owner = src
+	if(launcher_state != LAUNCHER_PENDING)
+		claim_admin_holder()
 
 	// We have a holder. Inform the relevant places
 	INVOKE_ASYNC(src, PROC_REF(announce_join))
@@ -530,6 +528,13 @@
 	Master.UpdateTickRate()
 	..() //Even though we're going to be hard deleted there are still some things that want to know the destroy is happening
 	return QDEL_HINT_HARDDEL_NOW
+
+/client/proc/claim_admin_holder()
+	holder = GLOB.admin_datums[account_ckey]
+	if(!holder)
+		return
+	GLOB.admins += src
+	holder.owner = src
 
 #define REDIS_ANNOUNCER_NAME "Смотритель"
 
@@ -1357,6 +1362,13 @@
 	set hidden = 1
 	fit_viewport()
 
+/client/proc/needs_discord_link()
+	if(prefs?.discord_id && length(prefs.discord_id) < DISCORD_TOKEN_LENGTH)
+		return FALSE
+	if(is_launcher_client())
+		return TRUE
+	return CONFIG_GET(number/minimum_byondacc_age) && byondacc_age <= CONFIG_GET(number/minimum_byondacc_age)
+
 /client/verb/link_discord_account()
 	set name = "Привязка Discord"
 	set category = VERB_CATEGORY_SPECIALVERBS
@@ -1374,10 +1386,10 @@
 		return
 	var/token = md5("[world.time+rand(1000,1000000)]")
 	if(SSdbcore.IsConnected())
-		var/datum/db_query/query_update_token = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET discord_id=:token WHERE ckey =:ckey", list("token" = token, "ckey" = ckey))
+		var/datum/db_query/query_update_token = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET discord_id=:token WHERE ckey =:ckey", list("token" = token, "ckey" = account_ckey))
 		if(!query_update_token.warn_execute())
 			to_chat(usr, span_warning("Ошибка записи токена в БД! Обратитесь к администрации."), confidential = TRUE)
-			log_debug("link_discord_account: failed db update discord_id for ckey [ckey]")
+			log_debug("link_discord_account: failed db update discord_id for ckey [account_ckey]")
 			qdel(query_update_token)
 			return
 		qdel(query_update_token)
