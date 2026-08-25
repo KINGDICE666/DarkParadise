@@ -125,6 +125,7 @@
 #include "code\__DEFINES\jukebox.dm"
 #include "code\__DEFINES\keybindings.dm"
 #include "code\__DEFINES\language.dm"
+#include "code\__DEFINES\launcher.dm"
 #include "code\__DEFINES\lavaland.dm"
 #include "code\__DEFINES\layers.dm"
 #include "code\__DEFINES\lazy_templates.dm"

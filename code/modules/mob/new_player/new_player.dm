@@ -77,6 +77,9 @@
 		if(!client.tos_consent)
 			to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
 			return FALSE
+		if(client.launcher_state == LAUNCHER_PENDING)
+			to_chat(usr, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
+			return FALSE
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
@@ -385,6 +388,10 @@
 
 	if(!GLOB.enter_allowed)
 		to_chat(usr, span_notice("Администратор заблокировал вход в игру!"))
+		return FALSE
+
+	if(client.launcher_state == LAUNCHER_PENDING)
+		to_chat(usr, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
 		return FALSE
 
 	if("[client.prefs.default_slot]" in persistent_client.joined_as_slots)

@@ -224,12 +224,13 @@
 /client/New(TopicData)
 	var/tdata = TopicData //save this for later use
 	TopicData = null //Prevent calls to client.Topic from connect
+	setup_account_ckey(tdata)
 
 	stat_panel = new(src, "statbrowser")
 	stat_panel.subscribe(src, PROC_REF(on_stat_panel_message))
 
 	// Create a PM tracker bound to this ckey.
-	pm_tracker = new(ckey)
+	pm_tracker = new(account_ckey)
 
 	//kill old tgui panel
 	winset(src, "output_selector.legacy_output_selector", "left=output_legacy")
@@ -256,14 +257,16 @@
 	// Actually sent to client much later, so it appears after MOTD.
 	to_chat(src, span_warning("Если вы видите чёрный экран, это означает, что процесс загрузки ещё продолжается. Пожалуйста, подождите немного, пока не появится начальный экран."), confidential = TRUE)
 
-	GLOB.directory[ckey] = src
+	GLOB.directory[account_ckey] = src
+	if(account_ckey != ckey)
+		GLOB.directory[ckey] = src
 
-	if(GLOB.persistent_clients_by_ckey[ckey])
-		persistent_client = GLOB.persistent_clients_by_ckey[ckey]
+	if(GLOB.persistent_clients_by_ckey[account_ckey])
+		persistent_client = GLOB.persistent_clients_by_ckey[account_ckey]
 		persistent_client.byond_build = byond_build
 		persistent_client.byond_version = byond_version
 	else
-		persistent_client = new(ckey)
+		persistent_client = new(account_ckey)
 		persistent_client.byond_build = byond_build
 		persistent_client.byond_version = byond_version
 
@@ -275,8 +278,8 @@
 	// Automatically makes localhost connection an admin
 	if(!CONFIG_GET(flag/disable_localhost_admin))
 		if(is_connecting_from_localhost())
-			new /datum/admins("!LOCALHOST!", R_HOST, ckey) // Makes localhost rank
-	holder = GLOB.admin_datums[ckey]
+			new /datum/admins("!LOCALHOST!", R_HOST, account_ckey) // Makes localhost rank
+	holder = GLOB.admin_datums[account_ckey]
 	if(holder)
 		GLOB.admins += src
 		holder.owner = src
@@ -285,10 +288,10 @@
 	INVOKE_ASYNC(src, PROC_REF(announce_join))
 
 	//preferences datum - also holds some persistant data for the client (because we may as well keep these datums to a minimum)
-	prefs = GLOB.preferences_datums[ckey]
+	prefs = GLOB.preferences_datums[account_ckey]
 	if(!prefs)
 		prefs = new /datum/preferences(src)
-		GLOB.preferences_datums[ckey] = prefs
+		GLOB.preferences_datums[account_ckey] = prefs
 	else
 		prefs.parent = src
 
@@ -311,7 +314,7 @@
 
 	#ifdef MULTIINSTANCE
 	// This sleeps so it has to go here. Dont fucking move it.
-	SSinstancing.update_playercache(ckey)
+	SSinstancing.update_playercache(account_ckey)
 	#endif
 
 	// This has to go here to avoid issues
@@ -344,10 +347,10 @@
 	. = ..()	//calls mob.Login()
 
 	INVOKE_ASYNC(src, PROC_REF(acquire_dpi))
-	if(ckey in GLOB.clientmessages)
-		for(var/message in GLOB.clientmessages[ckey])
+	if(account_ckey in GLOB.clientmessages)
+		for(var/message in GLOB.clientmessages[account_ckey])
 			to_chat(src, message)
-		GLOB.clientmessages.Remove(ckey)
+		GLOB.clientmessages.Remove(account_ckey)
 
 	if(SSinput.initialized)
 		set_macros()
@@ -497,6 +500,7 @@
 		GLOB.admins -= src
 
 	GLOB.directory -= ckey
+	GLOB.directory -= account_ckey
 	GLOB.clients -= src
 
 	persistent_client?.client = null
@@ -663,14 +667,14 @@
 
 /client/proc/log_client_to_db(connectiontopic)
 	set waitfor = FALSE // This needs to run async because any sleep() inside /client/New() breaks stuff badly
-	if(is_guest_key(key))
+	if(is_guest_key(key) && launcher_state == LAUNCHER_UNLINKED)
 		return
 
 	if(!SSdbcore.IsConnected())
 		return
 
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT id, datediff(Now(),firstseen) as age FROM [format_table_name("player")] WHERE ckey=:ckey", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query.warn_execute())
 		qdel(query)
@@ -692,7 +696,7 @@
 		return
 	related_accounts_ip = list()
 	while(query_ip.NextRow())
-		if(ckey != query_ip.item[1])
+		if(account_ckey != query_ip.item[1])
 			related_accounts_ip.Add("[query_ip.item[1]]")
 
 	qdel(query_ip)
@@ -706,7 +710,7 @@
 
 	related_accounts_cid = list()
 	while(query_cid.NextRow())
-		if(ckey != query_cid.item[1])
+		if(account_ckey != query_cid.item[1])
 			related_accounts_cid.Add("[query_cid.item[1]]")
 
 	qdel(query_cid)
@@ -723,7 +727,7 @@
 	if(length(related_accounts_cid))
 		log_admin("[key_name(src)] alts:[jointext(related_accounts_cid, " - ")]")
 
-	var/watchreason = check_watchlist(ckey)
+	var/watchreason = check_watchlist(account_ckey)
 	if(watchreason)
 		message_admins(span_red("<b>Notice: </b></font><font color='#EB4E00'>[key_name_admin(src)] is on the watchlist and has just connected - Reason: [watchreason]"))
 		GLOB.discord_manager.send2discord_simple_noadmins("**\[Watchlist]** [key_name(src)] is on the watchlist and has just connected - Reason: [watchreason]")
@@ -745,7 +749,7 @@
 		if(CONFIG_GET(string/tutorial_server_url))
 			var/datum/db_query/exp_read = SSdbcore.NewQuery(
 				"SELECT exp FROM [format_table_name("player")] WHERE ckey=:ckey",
-				list("ckey" = ckey)
+				list("ckey" = account_ckey)
 			)
 			exp_read.warn_execute()
 
@@ -758,7 +762,7 @@
 						"UPDATE [format_table_name("player")] SET exp =:newexp WHERE ckey=:ckey",
 						list(
 							"newexp" = list2params(exp),
-							"ckey" = ckey
+							"ckey" = account_ckey
 						)
 					)
 					update_query.warn_execute()
@@ -794,7 +798,7 @@
 		is_tutorial_needed = !!CONFIG_GET(string/tutorial_server_url)
 
 		var/datum/db_query/query_insert = SSdbcore.NewQuery("INSERT INTO [format_table_name("player")] (id, ckey, firstseen, lastseen, ip, computerid, lastadminrank) VALUES (null, :ckey, Now(), Now(), :ip, :cid, :rank)", list(
-			"ckey" = ckey,
+			"ckey" = account_ckey,
 			"ip" = "[address ? address : ""]", // This is important. NULL is not the same as "", and if you directly open the `.dmb` file, you get a NULL IP.
 			"cid" = computer_id,
 			"rank" = admin_rank
@@ -809,7 +813,7 @@
 
 	// Log player connections to DB
 	var/datum/db_query/query_accesslog = SSdbcore.NewQuery("INSERT INTO `[format_table_name("connection_log")]` (`datetime`, `ckey`, `ip`, `computerid`, `server_id`) VALUES(Now(), :ckey, :ip, :cid, :server_id)", list(
-		"ckey" = ckey,
+		"ckey" = account_ckey,
 		"ip" = "[address ? address : ""]", // This is important. NULL is not the same as "", and if you directly open the `.dmb` file, you get a NULL IP.
 		"cid" = computer_id,
 		"server_id" = CONFIG_GET(string/instance_id)
@@ -833,7 +837,7 @@
 			log_debug("check_ip_intel: skip check for player [key_name_admin(src)] connecting from localhost.")
 			return
 
-		if(vpn_whitelist_check(ckey))
+		if(vpn_whitelist_check(account_ckey))
 			log_debug("check_ip_intel: skip check for player [key_name_admin(src)] [address] on whitelist.")
 			return
 

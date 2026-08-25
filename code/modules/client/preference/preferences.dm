@@ -3038,7 +3038,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 /datum/preferences/proc/open_load_dialog(mob/user)
 
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot, real_name FROM [format_table_name("characters")] WHERE ckey=:ckey ORDER BY slot", list(
-		"ckey" = user.ckey
+		"ckey" = parent.account_ckey
 	))
 	var/list/slotnames[max_save_slots]
 
@@ -3096,7 +3096,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 /// Get random charecter with can_be_antagonist on. If no such characters, don't change current.
 /datum/preferences/proc/get_possible_antagonist()
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey AND can_be_antagonist=:req_can_be_antagonist ORDER BY slot", list(
-		"ckey" = parent.ckey,
+		"ckey" = parent.account_ckey,
 		"req_can_be_antagonist" = 1,
 	))
 
