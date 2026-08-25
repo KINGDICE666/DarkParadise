@@ -365,6 +365,7 @@
 	tgui_say.initialize()
 
 	donator_check()
+	INVOKE_ASYNC(src, PROC_REF(referral_payout_check))
 	check_ip_intel()
 	send_resources()
 
@@ -629,6 +630,11 @@
 			donator_level = DONATOR_LEVEL_MAX
 		donor_loadout_points()
 	qdel(query_donor_select)
+
+	var/referral_tier = referral_reward_tier()
+	if(donator_level < referral_tier)
+		donator_level = referral_tier
+		donor_loadout_points()
 
 /client/proc/donor_loadout_points()
 	if(donator_level > 0 && prefs)
