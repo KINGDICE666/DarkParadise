@@ -27,11 +27,11 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	return account_ckey != ckey
 
 /client/proc/display_key()
-	if(!launcher_nickname)
+	if(!is_launcher_client())
 		return key
 	if(!is_launcher_ckey(account_ckey))
 		return account_ckey
-	return "[launcher_nickname] (Steam)"
+	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
 
 /client/proc/request_launcher_link()
 	launcher_link_target = null
