@@ -233,9 +233,9 @@ ADMIN_VERB(cmd_admin_godmode_in_list, R_ADMIN, "Godmode in List", "Toggles godmo
 		BLACKBOX_LOG_ADMIN_VERB("Automute")
 		return
 
-	toggle_mute(M.client.ckey, mute_type)
+	toggle_mute(M.client.account_ckey, mute_type)
 
-	if(check_mute(M.client.ckey, mute_type))
+	if(check_mute(M.client.account_ckey, mute_type))
 		muteunmute = "muted"
 	else
 		muteunmute = "unmuted"

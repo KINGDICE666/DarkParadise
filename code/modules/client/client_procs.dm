@@ -106,7 +106,7 @@
 		if(!holder && received_discord_pm < world.time - 6000) // Worse they can do is spam discord for 10 minutes
 			to_chat(usr, span_warning("Вы больше не можете воспользоваться этой функцией, так как с момента ответа администратора Discord прошло более 10 минут."), confidential = TRUE)
 			return
-		if(check_mute(ckey, MUTE_ADMINHELP))
+		if(check_mute(account_ckey, MUTE_ADMINHELP))
 			to_chat(usr, span_warning("Вы не можете воспользоваться этой функцией, поскольку ваш клиент был отключён от возможности отправлять сообщения администраторам в Discord."), confidential = TRUE)
 			return
 		cmd_admin_discord_pm()
@@ -344,6 +344,7 @@
 	connection_timeofday = world.timeofday
 	log_client_to_db(tdata)
 	check_launcher_link(tdata)
+	check_launcher_ban()
 	. = ..()	//calls mob.Login()
 
 	INVOKE_ASYNC(src, PROC_REF(acquire_dpi))
@@ -444,8 +445,8 @@
 	check_donator_achivements()
 
 /client/proc/check_donator_achivements()
-	var/count = SSdonations.get_donations_count(ckey)
-	var/amount = SSdonations.get_donations_amount(ckey)
+	var/count = SSdonations.get_donations_count(account_ckey)
+	var/amount = SSdonations.get_donations_amount(account_ckey)
 
 	if(!count)
 		return
@@ -541,7 +542,7 @@
 
 	if(check_rights(R_ADMIN, FALSE))
 		var/list/admincounter = staff_countup(R_ADMIN)
-		var/msg = "<b>[ckey]</b> зашел на сервер. Админов в сети: <b>[admincounter[1]]</b>."
+		var/msg = "<b>[account_ckey]</b> зашел на сервер. Админов в сети: <b>[admincounter[1]]</b>."
 		var/list/data = list()
 		data["author"] = REDIS_ANNOUNCER_NAME
 		data["source"] = CONFIG_GET(string/instance_id)
@@ -550,7 +551,7 @@
 
 	else if(check_rights(R_MENTOR, FALSE))
 		var/list/mentorcounter = staff_countup(R_MENTOR)
-		var/msg = "<b>[ckey]</b> зашел на сервер. Менторов в сети: <b>[mentorcounter[1]]</b>."
+		var/msg = "<b>[account_ckey]</b> зашел на сервер. Менторов в сети: <b>[mentorcounter[1]]</b>."
 		var/list/data = list()
 		data["author"] = REDIS_ANNOUNCER_NAME
 		data["source"] = CONFIG_GET(string/instance_id)
@@ -569,7 +570,7 @@
 		var/admin_count = admincounter[1]
 		if(!(holder.fakekey || is_afk()))
 			admin_count-- // Exclude ourself
-		var/msg = "<b>[ckey]</b> покинул сервер. Админов в сети: <b>[admin_count]</b>."
+		var/msg = "<b>[account_ckey]</b> покинул сервер. Админов в сети: <b>[admin_count]</b>."
 		var/list/data = list()
 		data["author"] = REDIS_ANNOUNCER_NAME
 		data["source"] = CONFIG_GET(string/instance_id)
@@ -581,7 +582,7 @@
 		var/mentor_count = mentorcounter[1]
 		if(!(holder.fakekey || is_afk()))
 			mentor_count-- // Exclude ourself
-		var/msg = "<b>[ckey]</b> покинул сервер. Менторов в сети: <b>[mentor_count]</b>."
+		var/msg = "<b>[account_ckey]</b> покинул сервер. Менторов в сети: <b>[mentor_count]</b>."
 		var/list/data = list()
 		data["author"] = REDIS_ANNOUNCER_NAME
 		data["source"] = CONFIG_GET(string/instance_id)
@@ -592,7 +593,7 @@
 
 /client/proc/donator_check()
 	set waitfor = FALSE // This needs to run async because any sleep() inside /client/New() breaks stuff badly
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		return
 
 	#ifdef FAST_LOAD
@@ -617,7 +618,7 @@
 			AND date_start <= NOW()
 			AND (NOW() < date_end OR date_end IS NULL)
 		GROUP BY ckey
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 
 	if(!query_donor_select.warn_execute())
 		qdel(query_donor_select)
@@ -870,7 +871,7 @@
 
 /client/proc/create_oauth_token()
 	var/datum/db_query/query_find_token = SSdbcore.NewQuery("SELECT token FROM [format_table_name("oauth_tokens")] WHERE ckey=:ckey limit 1", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	// These queries have log_error=FALSE to avoid auth tokens being in plaintext logs
 	if(!query_find_token.warn_execute(log_error=FALSE))
@@ -882,10 +883,10 @@
 		return tkn
 	qdel(query_find_token)
 
-	var/tokenstr = md5("[rand(0,9999)][world.time][rand(0,9999)][ckey][rand(0,9999)][address][rand(0,9999)][computer_id][rand(0,9999)]")
+	var/tokenstr = md5("[rand(0,9999)][world.time][rand(0,9999)][account_ckey][rand(0,9999)][address][rand(0,9999)][computer_id][rand(0,9999)]")
 
 	var/datum/db_query/query_insert_token = SSdbcore.NewQuery("INSERT INTO [format_table_name("oauth_tokens")] (ckey, token) VALUES(:ckey, :tokenstr)", list(
-		"ckey" = ckey,
+		"ckey" = account_ckey,
 		"tokenstr" = tokenstr,
 	))
 	// These queries have log_error=FALSE to avoid auth tokens being in plaintext logs
@@ -898,7 +899,7 @@
 /client/proc/link_forum_account(fromban)
 	if(!CONFIG_GET(string/forum_link_url))
 		return
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		to_chat(src, "Guest keys cannot be linked.", confidential = TRUE)
 		return
 	if(prefs?.fuid)
@@ -906,7 +907,7 @@
 			to_chat(src, "Your forum account is already set.", confidential = TRUE)
 		return
 	var/datum/db_query/query_find_link = SSdbcore.NewQuery("SELECT fuid FROM [format_table_name("player")] WHERE ckey=:ckey LIMIT 1", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_find_link.warn_execute())
 		qdel(query_find_link)
@@ -1024,7 +1025,7 @@
 
 	// Check for notes in the last day - only 1 note per 24 hours
 	var/datum/db_query/query_get_notes = SSdbcore.NewQuery("SELECT id from [CONFIG_GET(string/utility_database)].[format_table_name("notes")] WHERE ckey=:ckey AND adminckey=:adminckey AND timestamp + INTERVAL 1 DAY < NOW()", list(
-		"ckey" = ckey,
+		"ckey" = account_ckey,
 		"adminckey" = adminckey
 	))
 	if(!query_get_notes.warn_execute())
@@ -1037,7 +1038,7 @@
 
 	// Only add a note if their most recent note isn't from the randomizer blocker, either
 	var/datum/db_query/query_get_note = SSdbcore.NewQuery("SELECT adminckey FROM [CONFIG_GET(string/utility_database)].[format_table_name("notes")] WHERE ckey=:ckey ORDER BY timestamp DESC LIMIT 1", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_get_note.warn_execute())
 		qdel(query_get_note)
@@ -1363,7 +1364,7 @@
 
 	if(!CONFIG_GET(string/discordurl))
 		return
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		to_chat(usr, "Гостевой аккаунт не может быть связан.", confidential = TRUE)
 		return
 	if(prefs)
@@ -1465,6 +1466,9 @@
  * * notify - Do we notify admins of this new accounts date
  */
 /client/proc/get_byond_account_date(notify = FALSE)
+	if(is_launcher_client())
+		return
+
 	// First we see if the client has a saved date in the DB
 	var/datum/db_query/query_date = SSdbcore.NewQuery("SELECT byond_date, DATEDIFF(Now(), byond_date) FROM [format_table_name("player")] WHERE ckey=:ckey", list(
 		"ckey" = ckey
@@ -1571,7 +1575,7 @@
 		return TRUE
 
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT ckey FROM [format_table_name("privacy")] WHERE ckey=:ckey AND consent=1", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query.warn_execute())
 		qdel(query)

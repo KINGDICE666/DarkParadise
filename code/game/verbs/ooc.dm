@@ -20,7 +20,7 @@ GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KI
 
 	if(!mob)
 		return
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		to_chat(src, span_danger("Guests may not use OOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 		return
 
@@ -31,7 +31,7 @@ GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KI
 		if(!CONFIG_GET(flag/dooc_allowed) && (mob.stat == DEAD))
 			to_chat(usr, span_danger("OOC for dead mobs has been turned off."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 			return
-		if(check_mute(ckey, MUTE_OOC))
+		if(check_mute(account_ckey, MUTE_OOC))
 			to_chat(src, span_danger("You cannot use OOC (muted)."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 			return
 
@@ -134,7 +134,7 @@ GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KI
 
 	if(!mob)
 		return
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		to_chat(src, span_danger("Guests may not use LOOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 		return
 
@@ -145,7 +145,7 @@ GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KI
 		if(!CONFIG_GET(flag/dooc_allowed) && (mob.stat == DEAD))
 			to_chat(usr, span_danger("LOOC for dead mobs has been turned off."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 			return
-		if(check_mute(ckey, MUTE_OOC))
+		if(check_mute(account_ckey, MUTE_OOC))
 			to_chat(src, span_danger("You cannot use LOOC (muted)."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 			return
 

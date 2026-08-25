@@ -50,7 +50,7 @@
 
 	if(href_list["consent_signed"])
 		var/datum/db_query/query = SSdbcore.NewQuery("REPLACE INTO [format_table_name("privacy")] (ckey, datetime, consent) VALUES (:ckey, Now(), 1)", list(
-			"ckey" = ckey
+			"ckey" = get_account_ckey()
 		))
 		// If the query fails we dont want them permenantly stuck on being unable to accept TOS
 		query.warn_execute()
@@ -62,7 +62,7 @@
 		client.tos_consent = FALSE
 		to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
 		var/datum/db_query/query = SSdbcore.NewQuery("REPLACE INTO [format_table_name("privacy")] (ckey, datetime, consent) VALUES (:ckey, Now(), 0)", list(
-			"ckey" = ckey
+			"ckey" = get_account_ckey()
 		))
 		// If the query fails we dont want them permenantly stuck on being unable to accept TOS
 		query.warn_execute()
@@ -83,7 +83,7 @@
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
+		if(!client.is_launcher_client() && CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
 			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
 				client.prefs.load_preferences(client)
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
@@ -156,7 +156,7 @@
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
+		if(!client.is_launcher_client() && CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
 			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
 				client.prefs.load_preferences(client)
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
@@ -206,7 +206,7 @@
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
+		if(!client.is_launcher_client() && CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
 			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
 				client.prefs.load_preferences(client)
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))

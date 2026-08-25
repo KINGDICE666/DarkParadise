@@ -1,6 +1,15 @@
 /proc/is_launcher_ckey(test_ckey)
 	return findtext(test_ckey, LAUNCHER_CKEY_PREFIX, 1, length(LAUNCHER_CKEY_PREFIX) + 1) == 1
 
+/mob/proc/get_account_ckey()
+	return client?.account_ckey || persistent_client?.account_ckey || ckey
+
+/client/proc/is_launcher_client()
+	return account_ckey != ckey
+
+/client/proc/has_persistent_identity()
+	return !is_guest_key(key) || launcher_state == LAUNCHER_VERIFIED
+
 /client/proc/setup_account_ckey(connectiontopic)
 	account_ckey = ckey
 
@@ -66,6 +75,8 @@
 	launcher_nickname = data["nickname"]
 	launcher_state = LAUNCHER_VERIFIED
 	store_launcher_link()
+	donator_check()
+	referral_payout_check()
 
 /client/proc/store_launcher_link()
 	if(!SSdbcore.IsConnected())
@@ -78,6 +89,61 @@
 	"}, list("steamid" = steam_id, "ckey" = account_ckey, "nickname" = launcher_nickname))
 	query.warn_execute()
 	qdel(query)
+
+/client/proc/check_launcher_ban()
+	set waitfor = FALSE
+	if(!is_launcher_client())
+		return
+
+	var/ban_message
+	if(CONFIG_GET(flag/ban_legacy_system))
+		var/list/legacy_ban = CheckBan(account_ckey, computer_id, address)
+		if(legacy_ban)
+			ban_message = "Учётная запись [account_ckey] заблокирована.[legacy_ban["desc"]]"
+	else
+		if(!SSdbcore.IsConnected())
+			log_world("Ban database connection failure. Launcher account [account_ckey] not checked")
+			return
+
+		var/datum/db_query/query = SSdbcore.NewQuery({"
+			SELECT a_ckey, reason, expiration_time, duration, bantime, bantype FROM [CONFIG_GET(string/utility_database)].[format_table_name("ban")]
+			WHERE ckey = :ckey AND (bantype = 'PERMABAN' OR bantype = 'ADMIN_PERMABAN'
+			OR ((bantype = 'TEMPBAN' OR bantype = 'ADMIN_TEMPBAN') AND expiration_time > Now())) AND isnull(unbanned)
+		"}, list("ckey" = account_ckey))
+
+		if(!query.warn_execute())
+			message_admins("Failed to do a launcher ban check for [account_ckey]. You have been warned.")
+			qdel(query)
+			return
+
+		while(query.NextRow())
+			var/a_ckey = query.item[1]
+			var/reason = query.item[2]
+			var/expiration = query.item[3]
+			var/duration = query.item[4]
+			var/bantime = query.item[5]
+			var/bantype = query.item[6]
+			var/is_admin_ban = bantype == "ADMIN_PERMABAN" || bantype == "ADMIN_TEMPBAN"
+			if(holder && (holder.rights & R_ADMIN) && !is_admin_ban)
+				log_admin("The admin [account_ckey] has been allowed to bypass a matching ban")
+				continue
+			var/expires = "Бан не истекает автоматически, его нужно обжаловать."
+			if(text2num(duration) > 0)
+				expires = "Бан выдан на [duration] минут и истекает [expiration] (время сервера)."
+			var/appeal = ""
+			if(CONFIG_GET(string/banappeals))
+				appeal = " Обжаловать можно здесь: [CONFIG_GET(string/banappeals)]"
+			ban_message = "Учётная запись [account_ckey] заблокирована. Причина: [reason]. Бан выдал [a_ckey], [bantime]. [expires][appeal]"
+			break
+
+		qdel(query)
+
+	if(!ban_message)
+		return
+
+	log_adminwarn("Failed Login: [key]/[account_ckey] [computer_id] [address] - Banned launcher account")
+	to_chat(src, span_danger(ban_message), confidential = TRUE)
+	qdel(src)
 
 /client/proc/reject_launcher_client(reason)
 	to_chat(src, span_danger("[reason] Запустите игру из лаунчера или войдите с аккаунтом BYOND."), confidential = TRUE)

@@ -797,7 +797,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 				dat += "<tr><td colspan=4><br></td></tr>"
 
 	dat += "<hr><center>"
-	if(!is_guest_key(user.key))
+	if(user.client?.has_persistent_identity())
 		dat += "<a href='byond://?_src_=prefs;preference=load'>Отменить изменения</a> – "
 		dat += "<a href='byond://?_src_=prefs;preference=save'>Сохранить изменения</a> – "
 
@@ -2617,7 +2617,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					clear_character_slot(user)
 
 				if("open_load_dialog")
-					if(!is_guest_key(user.key))
+					if(user.client?.has_persistent_identity())
 						open_load_dialog(user)
 						return 1
 
