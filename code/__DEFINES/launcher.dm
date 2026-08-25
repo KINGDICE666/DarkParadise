@@ -1,4 +1,4 @@
-#define LAUNCHER_CKEY_PREFIX "sdp"
+#define LAUNCHER_CKEY_PREFIX "steam"
 
 #define LAUNCHER_UNLINKED 0
 #define LAUNCHER_PENDING 1
