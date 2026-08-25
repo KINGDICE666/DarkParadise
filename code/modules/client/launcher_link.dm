@@ -8,12 +8,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"
-		SELECT request.launcher_ckey, request.ckey FROM [format_table_name("launcher_link_request")] AS request
-		INNER JOIN [format_table_name("player")] AS launcher ON launcher.ckey = request.launcher_ckey
-		INNER JOIN [format_table_name("player")] AS byond ON byond.ckey = request.ckey
-		WHERE request.approved = 1 AND launcher.discord_id = byond.discord_id
-		AND LENGTH(launcher.discord_id) < :token_length
-	"}, list("token_length" = DISCORD_TOKEN_LENGTH))
+		SELECT launcher_ckey, ckey FROM [format_table_name("launcher_link_request")]
+		WHERE approved = 1
+	"})
 
 	if(!query.warn_execute(async = FALSE))
 		qdel(query)
@@ -180,6 +177,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	launcher_claimed_ckey = claimed_ckey
+	if(!is_guest_key(key))
+		return
+
 	var/linked_ckey = GLOB.launcher_account_aliases[claimed_ckey]
 	account_ckey = (linked_ckey && !GLOB.directory[linked_ckey]) ? linked_ckey : claimed_ckey
 	launcher_state = LAUNCHER_PENDING
@@ -215,23 +215,28 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/on_launcher_link_response(datum/http_response/response)
 	if(!response || response.errored || response.status_code != 200 || !response.body)
-		reject_launcher_client("Не удалось подтвердить вход через лаунчер.")
+		fail_launcher_link("Не удалось подтвердить вход через лаунчер.")
 		return
 
 	var/list/data = safe_json_decode(response.body)
 	if(!islist(data) || !data["steamid64"])
-		reject_launcher_client("Не удалось подтвердить вход через лаунчер.")
+		fail_launcher_link("Не удалось подтвердить вход через лаунчер.")
 		return
 
 	if(data["ckey"] != launcher_claimed_ckey)
 		log_adminwarn("Launcher identity mismatch: [key] claimed [launcher_claimed_ckey], backend returned [data["ckey"]]")
-		reject_launcher_client("Учётная запись лаунчера не совпала с заявленной.")
+		fail_launcher_link("Учётная запись лаунчера не совпала с заявленной.")
 		return
 
 	steam_id = data["steamid64"]
 	launcher_nickname = data["nickname"]
-	launcher_state = LAUNCHER_VERIFIED
 	store_launcher_link()
+
+	if(launcher_state != LAUNCHER_PENDING)
+		approve_launcher_link()
+		return
+
+	launcher_state = LAUNCHER_VERIFIED
 	claim_admin_holder()
 	if(holder)
 		add_admin_verbs()
@@ -239,6 +244,32 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		INVOKE_ASYNC(src, PROC_REF(admin_memo_output), "Show", FALSE, TRUE)
 	donator_check()
 	referral_payout_check()
+
+/client/proc/fail_launcher_link(reason)
+	if(launcher_state != LAUNCHER_PENDING)
+		log_game("Launcher link check failed for [account_ckey]: [reason]")
+		return
+
+	reject_launcher_client(reason)
+
+/client/proc/approve_launcher_link()
+	if(!SSdbcore.IsConnected() || GLOB.launcher_account_aliases[launcher_claimed_ckey] == account_ckey)
+		return
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		INSERT INTO [format_table_name("launcher_link_request")] (launcher_ckey, ckey, resolved, approved)
+		VALUES (:launcher_ckey, :ckey, Now(), 1)
+		ON DUPLICATE KEY UPDATE resolved = Now(), approved = 1
+	"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = account_ckey))
+
+	if(!query.warn_execute())
+		qdel(query)
+		return
+	qdel(query)
+
+	GLOB.launcher_account_aliases[launcher_claimed_ckey] = account_ckey
+	log_game("Launcher account [launcher_claimed_ckey] linked to [account_ckey] by BYOND login")
+	to_chat(src, span_notice("Ваш аккаунт лаунчера [launcher_claimed_ckey] связан с [account_ckey]."), confidential = TRUE)
 
 /client/proc/store_launcher_link()
 	if(!SSdbcore.IsConnected())
