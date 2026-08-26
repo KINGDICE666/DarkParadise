@@ -109,7 +109,6 @@
 						span_userdanger("Вы блюёте!"))
 
 	playsound(get_turf(src), 'sound/effects/splat.ogg', 50, TRUE)
-
 	var/turf/turf = get_turf(src)
 
 	if(!turf)
