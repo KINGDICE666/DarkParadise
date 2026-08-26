@@ -87,8 +87,13 @@ GLOBAL_LIST_EMPTY(dynamic_disabled_rulesets)
 	add_game_logs("Dynamic: tier [current_tier.name], population [population_size], rulesets \
 		[rulesets_to_spawn[DYNAMIC_ROUNDSTART]]/[rulesets_to_spawn[DYNAMIC_MIDROUND]]/[rulesets_to_spawn[DYNAMIC_LATEJOIN]]")
 
+/datum/game_mode/dynamic/allow_antag_events()
+	return current_tier.tier != DYNAMIC_TIER_GREEN
+
 /datum/game_mode/dynamic/proc/get_advisory_report()
 	var/shown_tier = current_tier.tier
+	if(shown_tier == DYNAMIC_TIER_GREEN)
+		return current_tier.advisory_report
 	if(prob(ADVISORY_REPORT_WRONG_TIER_CHANCE))
 		shown_tier = pick(list(DYNAMIC_TIER_LOW, DYNAMIC_TIER_LOWMEDIUM, DYNAMIC_TIER_MEDIUMHIGH, DYNAMIC_TIER_HIGH) - current_tier.tier)
 	else if(prob(ADVISORY_REPORT_NEAR_TIER_CHANCE))

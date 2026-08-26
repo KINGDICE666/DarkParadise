@@ -113,6 +113,9 @@
 /datum/game_mode/proc/generate_report() //Generates a small text blurb for the gamemode in centcom report
 	return "Gamemode report for [name] not set. Contact a coder."
 
+/datum/game_mode/proc/allow_antag_events()
+	return TRUE
+
 /**
  * Checks to see if the game can be setup and ran with the current number of players or whatnot.
  */
