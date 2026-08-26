@@ -95,7 +95,7 @@
 	tier = DYNAMIC_TIER_LOWMEDIUM
 	weight = 46
 	min_pop = 10
-	advisory_report = "Уровень угрозы: <b>Зелёная Звезда</b>. Обстановка в вашем секторе штатная, но расслабляться не советуем."
+	advisory_report = "Уровень угрозы: <b>Жёлтая Звезда</b>. Разведка отмечает в вашем секторе умеренную активность враждебных сил. Не теряйте бдительности."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(
 			RULESET_LOW_END = 1,
@@ -129,7 +129,7 @@
 	tier = DYNAMIC_TIER_MEDIUMHIGH
 	weight = 34
 	min_pop = 15
-	advisory_report = "Уровень угрозы: <b>Жёлтая Звезда</b>. В вашем секторе зафиксирована повышенная активность враждебных организаций. Будьте бдительны."
+	advisory_report = "Уровень угрозы: <b>Красная Звезда</b>. В вашем секторе зафиксирована повышенная активность враждебных организаций. Будьте бдительны."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(
 			RULESET_LOW_END = 2,
@@ -163,7 +163,7 @@
 	tier = DYNAMIC_TIER_HIGH
 	weight = 10
 	min_pop = 25
-	advisory_report = "Уровень угрозы: <b>Красная Звезда</b>. Ваш сектор находится под пристальным вниманием враждебных сил. Ожидайте худшего."
+	advisory_report = "Уровень угрозы: <b>Чёрная Звезда</b>. Ваш сектор находится под пристальным вниманием враждебных сил. Ожидайте худшего."
 	ruleset_type_settings = list(
 		DYNAMIC_ROUNDSTART = list(
 			RULESET_LOW_END = 2,

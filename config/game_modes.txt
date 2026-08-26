@@ -144,6 +144,9 @@ ANTAG_PARADISE_DOUBLE_ANTAG_CHANCE 0
 ##
 ## Tier population floors. Defaults: greenshift 0, low chaos 5, low-medium chaos 10,
 ## medium-high chaos 15, high chaos 25. A tier is not drawn at all below its floor.
+## Below the low chaos floor only Greenshift is left, and Greenshift also suppresses the random
+## events that hand a ghost an antagonist (revenant, morph, demons, blob, lone op and friends).
+#DYNAMIC_TIER_MIN_POP low chaos 5
 #DYNAMIC_TIER_MIN_POP low-medium chaos 10
 #DYNAMIC_TIER_MIN_POP medium-high chaos 15
 #DYNAMIC_TIER_MIN_POP high chaos 25
