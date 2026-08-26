@@ -934,7 +934,7 @@ SUBSYSTEM_DEF(jobs)
 
 		var/datum/db_query/exp_read = SSdbcore.NewQuery(
 			"SELECT exp FROM [format_table_name("player")] WHERE ckey=:ckey",
-			list("ckey" = C.ckey)
+			list("ckey" = C.account_ckey)
 		)
 
 		select_queries[C.ckey] = exp_read
@@ -1019,7 +1019,7 @@ SUBSYSTEM_DEF(jobs)
 			"UPDATE [format_table_name("player")] SET exp =:newexp, lastseen=NOW() WHERE ckey=:ckey",
 			list(
 				"newexp" = new_exp,
-				"ckey" = C.ckey
+				"ckey" = C.account_ckey
 			)
 		)
 
@@ -1030,7 +1030,7 @@ SUBSYSTEM_DEF(jobs)
 			VALUES (:ckey, CURDATE(), :addedliving, :addedghost)
 			ON DUPLICATE KEY UPDATE time_living=time_living + VALUES(time_living), time_ghost=time_ghost + VALUES(time_ghost)"},
 			list(
-				"ckey" = C.ckey,
+				"ckey" = C.account_ckey,
 				"addedliving" = added_living,
 				"addedghost" = added_ghost
 			)
