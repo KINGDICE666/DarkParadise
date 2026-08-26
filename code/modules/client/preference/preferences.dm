@@ -797,7 +797,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 				dat += "<tr><td colspan=4><br></td></tr>"
 
 	dat += "<hr><center>"
-	if(!is_guest_key(user.key))
+	if(user.client?.has_persistent_identity())
 		dat += "<a href='byond://?_src_=prefs;preference=load'>Отменить изменения</a> – "
 		dat += "<a href='byond://?_src_=prefs;preference=save'>Сохранить изменения</a> – "
 
@@ -2604,20 +2604,20 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					toggles2 ^= PREFTOGGLE_2_SEE_ITEM_OUTLINES
 
 				if("save")
-					save_preferences(user)
-					save_character(user)
+					save_preferences(user.client)
+					save_character(user.client)
 
 				if("reload")
-					load_preferences(user)
-					load_character(user)
+					load_preferences(user.client)
+					load_character(user.client)
 
 				if("clear")
 					if(!saved || real_name != tgui_input_text(usr, "Это действие полностью очистит текущий слот. Для подтверждения введите полное имя."))
 						return FALSE
-					clear_character_slot(user)
+					clear_character_slot(user.client)
 
 				if("open_load_dialog")
-					if(!is_guest_key(user.key))
+					if(user.client?.has_persistent_identity())
 						open_load_dialog(user)
 						return 1
 
@@ -2625,10 +2625,10 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					close_load_dialog(user)
 
 				if("changeslot")
-					if(!load_character(user,text2num(href_list["num"])))
+					if(!load_character(user.client,text2num(href_list["num"])))
 						random_character()
 						real_name = random_name(gender)
-						save_character(user)
+						save_character(user.client)
 					close_load_dialog(user)
 					user.client << output(real_name, "title_browser:update_current_character")
 
@@ -2831,16 +2831,16 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 							var/desired_emote = tgui_input_text(user, "Введите текст для вашей пользовательской эмоции. Максимум 128 символов.", "Настройка пользовательской эмоции", emote_text, max_length = 128)
 							if(desired_emote && (desired_emote != custom_emote_keybind.default_emote_text)) //don't let them save the default custom emote text
 								user.client.prefs.custom_emotes[custom_emote_keybind.name] = desired_emote
-							save_character(user)
+							save_character(user.client)
 
 					else if(href_list["custom_emote_reset"])
 						var/datum/keybinding/custom/custom_emote_keybind = locateUID(href_list["custom_emote_reset"])
 						if(custom_emote_keybind)
 							user.client.prefs.custom_emotes.Remove(custom_emote_keybind.name)
-							save_character(user)
+							save_character(user.client)
 
 					init_keybindings(keybindings_overrides)
-					save_preferences(user) //Ideally we want to save people's keybinds when they enter them
+					save_preferences(user.client) //Ideally we want to save people's keybinds when they enter them
 
 				if("preference_toggles")
 					if(href_list["toggle"])
@@ -3038,7 +3038,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 /datum/preferences/proc/open_load_dialog(mob/user)
 
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot, real_name FROM [format_table_name("characters")] WHERE ckey=:ckey ORDER BY slot", list(
-		"ckey" = user.ckey
+		"ckey" = parent.account_ckey
 	))
 	var/list/slotnames[max_save_slots]
 
@@ -3096,7 +3096,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 /// Get random charecter with can_be_antagonist on. If no such characters, don't change current.
 /datum/preferences/proc/get_possible_antagonist()
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey AND can_be_antagonist=:req_can_be_antagonist ORDER BY slot", list(
-		"ckey" = parent.ckey,
+		"ckey" = parent.account_ckey,
 		"req_can_be_antagonist" = 1,
 	))
 
