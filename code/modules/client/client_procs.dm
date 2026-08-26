@@ -1381,7 +1381,7 @@
 		to_chat(usr, "Гостевой аккаунт не может быть связан.", confidential = TRUE)
 		return
 	if(prefs)
-		prefs.load_preferences(usr)
+		prefs.load_preferences(src)
 	if(prefs?.discord_id && length(prefs.discord_id) < 32)
 		to_chat(usr, custom_boxed_message("red_box center", span_darkmblue("Аккаунт Discord уже привязан!<br>Чтобы отвязать используйте команду [span_boldannounceooc("/отвязать_аккаунт")]<br>В канале <b>#дом-бота</b> в Discord-сообществе!")), confidential = TRUE)
 		return
@@ -1396,7 +1396,7 @@
 		qdel(query_update_token)
 		to_chat(usr, custom_boxed_message("blue_box", span_darkmblue("Для завершения привязки используйте команду<br>[span_boldannounceooc("/привязать_аккаунт [token]")]<br>В канале <b>#дом-бота</b> в Discord-сообществе!")), confidential = TRUE)
 		if(prefs)
-			prefs.load_preferences(usr)
+			prefs.load_preferences(src)
 
 /client/proc/check_say_flood(rate = 5)
 	client_keysend_amount += rate
