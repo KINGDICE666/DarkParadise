@@ -1,4 +1,6 @@
 /datum/preferences/proc/load_preferences(client/C)
+	if(C.launcher_state == LAUNCHER_PENDING)
+		return FALSE
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"SELECT
 					ooccolor,
@@ -162,6 +164,9 @@
 	return 1
 
 /datum/preferences/proc/load_character(client/C, slot)
+	if(C.launcher_state == LAUNCHER_PENDING)
+		return FALSE
+
 	saved = FALSE
 
 	if(!slot)

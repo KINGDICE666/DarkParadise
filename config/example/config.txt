@@ -138,6 +138,17 @@ PANIC_BUNKER_THRESHOLD 150
 ## URL to use for admins accessing the web-based tools menu
 #FORUM_PLAYERINFO_URL https://example.com/info.php?ckey=
 
+## Base URL of the launcher backend. Leave undefined to disable Steam launcher logins entirely.
+## Launcher clients connect as BYOND guests, so GUEST_BAN above has to be commented out for them to get in.
+#LAUNCHER_API_URL https://example.com/api
+## Shared secret sent to the launcher backend as the x-game-secret header.
+#LAUNCHER_API_SECRET changeme
+## Identifier of this server as it is known to the launcher backend.
+#LAUNCHER_SERVER_ID main
+## Refuse any guest connection that did not come from the launcher.
+## Enable this whenever GUEST_BAN is off, otherwise anyone can join as a plain guest and dodge bans.
+#LAUNCHER_REQUIRED
+
 ## Comment to disable checking for the cid randomizer dll. (disabled if database isn't enabled or connected)
 CHECK_RANDOMIZER
 

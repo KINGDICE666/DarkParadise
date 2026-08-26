@@ -9,7 +9,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"
 		SELECT launcher_ckey, ckey FROM [format_table_name("launcher_link_request")]
-		WHERE approved = 1
+		WHERE approved = 1 ORDER BY resolved
 	"})
 
 	if(!query.warn_execute(async = FALSE))
@@ -165,6 +165,10 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /client/proc/setup_account_ckey(connectiontopic)
 	account_ckey = ckey
 
+	var/client/squatter = GLOB.directory[ckey]
+	if(squatter && squatter != src && squatter.is_launcher_client())
+		addtimer(CALLBACK(squatter, TYPE_PROC_REF(/client, reject_launcher_client), "Владелец аккаунта [ckey] зашёл через BYOND."))
+
 	if(!CONFIG_GET(string/launcher_api_url))
 		return
 
@@ -178,6 +182,11 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 	launcher_claimed_ckey = claimed_ckey
 	if(!is_guest_key(key))
+		return
+
+	if(GLOB.directory[claimed_ckey])
+		launcher_claimed_ckey = null
+		addtimer(CALLBACK(src, PROC_REF(reject_launcher_client), "Этот аккаунт лаунчера уже в игре."))
 		return
 
 	var/linked_ckey = GLOB.launcher_account_aliases[claimed_ckey]
@@ -211,9 +220,12 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		"token" = token,
 		"serverId" = CONFIG_GET(string/launcher_server_id),
 	))
-	SShttp.create_async_request(RUSTG_HTTP_METHOD_POST, "[api_url]/v1/connect/verify", body, headers, CALLBACK(src, PROC_REF(on_launcher_link_response)))
+	SShttp.create_async_request(RUSTG_HTTP_METHOD_POST, "[api_url]/v1/connect/verify", body, headers, CALLBACK(src, PROC_REF(on_launcher_link_response), connectiontopic))
 
-/client/proc/on_launcher_link_response(datum/http_response/response)
+/client/proc/on_launcher_link_response(connectiontopic, datum/http_response/response)
+	if(QDELETED(src))
+		return
+
 	if(!response || response.errored || response.status_code != 200 || !response.body)
 		fail_launcher_link("Не удалось подтвердить вход через лаунчер.")
 		return
@@ -229,7 +241,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	steam_id = data["steamid64"]
-	launcher_nickname = data["nickname"]
+	launcher_nickname = sanitize(copytext_char(data["nickname"], 1, LAUNCHER_NICKNAME_MAX_LEN))
 	store_launcher_link()
 
 	if(launcher_state != LAUNCHER_PENDING)
@@ -237,6 +249,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	launcher_state = LAUNCHER_VERIFIED
+	bind_verified_preferences()
+	log_client_to_db(connectiontopic)
 	claim_admin_holder()
 	if(holder)
 		add_admin_verbs()
@@ -244,6 +258,18 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		INVOKE_ASYNC(src, PROC_REF(admin_memo_output), "Show", FALSE, TRUE)
 	donator_check()
 	referral_payout_check()
+
+/client/proc/bind_verified_preferences()
+	var/datum/preferences/stored = GLOB.preferences_datums[account_ckey]
+	if(stored)
+		prefs = stored
+		prefs.parent = src
+	else
+		GLOB.preferences_datums[account_ckey] = prefs
+		if(prefs.load_preferences(src) && prefs.load_character(src))
+			prefs.init_custom_emotes(prefs.custom_emotes)
+
+	apply_preferences()
 
 /client/proc/fail_launcher_link(reason)
 	if(launcher_state != LAUNCHER_PENDING)
@@ -253,7 +279,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	reject_launcher_client(reason)
 
 /client/proc/approve_launcher_link()
-	if(!SSdbcore.IsConnected() || GLOB.launcher_account_aliases[launcher_claimed_ckey] == account_ckey)
+	if(!launcher_claimed_ckey || !SSdbcore.IsConnected() || GLOB.launcher_account_aliases[launcher_claimed_ckey] == account_ckey)
 		return
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"
@@ -279,7 +305,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		INSERT INTO [format_table_name("launcher_link")] (steamid64, ckey, nickname)
 		VALUES (:steamid, :ckey, :nickname)
 		ON DUPLICATE KEY UPDATE ckey = :ckey, nickname = :nickname, last_seen = Now()
-	"}, list("steamid" = steam_id, "ckey" = account_ckey, "nickname" = launcher_nickname))
+	"}, list("steamid" = steam_id, "ckey" = account_ckey, "nickname" = copytext_char(launcher_nickname, 1, LAUNCHER_NICKNAME_MAX_LEN + 1)))
 	query.warn_execute()
 	qdel(query)
 

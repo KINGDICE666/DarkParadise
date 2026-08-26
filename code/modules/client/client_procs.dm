@@ -286,29 +286,20 @@
 	INVOKE_ASYNC(src, PROC_REF(announce_join))
 
 	//preferences datum - also holds some persistant data for the client (because we may as well keep these datums to a minimum)
-	prefs = GLOB.preferences_datums[account_ckey]
-	if(!prefs)
+	if(launcher_state == LAUNCHER_PENDING)
 		prefs = new /datum/preferences(src)
-		GLOB.preferences_datums[account_ckey] = prefs
 	else
-		prefs.parent = src
+		prefs = GLOB.preferences_datums[account_ckey]
+		if(!prefs)
+			prefs = new /datum/preferences(src)
+			GLOB.preferences_datums[account_ckey] = prefs
+		else
+			prefs.parent = src
 
 	if(SSinput.initialized)
 		set_macros()
 
-	// Setup widescreen
-	view = prefs.viewrange
-
-	prefs.init_keybindings(prefs.keybindings_overrides) //The earliest sane place to do it where prefs are not null, if they are null you can't do crap at lobby
-	prefs.last_ip = address				//these are gonna be used for banning
-	prefs.last_id = computer_id			//these are gonna be used for banning
-	if(prefs.clientfps)
-		fps = prefs.clientfps
-	else
-		fps = CONFIG_GET(number/clientfps)
-
-	// Check if the client has or has not accepted TOS
-	check_tos_consent()
+	apply_preferences()
 
 	#ifdef MULTIINSTANCE
 	// This sleeps so it has to go here. Dont fucking move it.
@@ -499,11 +490,14 @@
 		holder.owner = null
 		GLOB.admins -= src
 
-	GLOB.directory -= ckey
-	GLOB.directory -= account_ckey
+	if(GLOB.directory[ckey] == src)
+		GLOB.directory -= ckey
+	if(GLOB.directory[account_ckey] == src)
+		GLOB.directory -= account_ckey
 	GLOB.clients -= src
 
-	persistent_client?.client = null
+	if(persistent_client?.client == src)
+		persistent_client.client = null
 
 	#ifdef MULTIINSTANCE
 	INVOKE_ASYNC(SSinstancing, TYPE_PROC_REF(/datum/controller/subsystem/instancing, update_playercache)) // Clear us out
@@ -529,6 +523,21 @@
 	Master.UpdateTickRate()
 	..() //Even though we're going to be hard deleted there are still some things that want to know the destroy is happening
 	return QDEL_HINT_HARDDEL_NOW
+
+/client/proc/apply_preferences()
+	// Setup widescreen
+	view = prefs.viewrange
+
+	prefs.init_keybindings(prefs.keybindings_overrides) //The earliest sane place to do it where prefs are not null, if they are null you can't do crap at lobby
+	prefs.last_ip = address				//these are gonna be used for banning
+	prefs.last_id = computer_id			//these are gonna be used for banning
+	if(prefs.clientfps)
+		fps = prefs.clientfps
+	else
+		fps = CONFIG_GET(number/clientfps)
+
+	// Check if the client has or has not accepted TOS
+	check_tos_consent()
 
 /client/proc/claim_admin_holder()
 	holder = GLOB.admin_datums[account_ckey]
@@ -674,7 +683,7 @@
 
 /client/proc/log_client_to_db(connectiontopic)
 	set waitfor = FALSE // This needs to run async because any sleep() inside /client/New() breaks stuff badly
-	if(is_guest_key(key) && launcher_state == LAUNCHER_UNLINKED)
+	if(!has_persistent_identity())
 		return
 
 	if(!SSdbcore.IsConnected())

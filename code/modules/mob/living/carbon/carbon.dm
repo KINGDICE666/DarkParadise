@@ -124,7 +124,8 @@
 			adjust_nutrition(-lost_nutrition)
 
 			if(stun)
-				adjustToxLoss(-3)
+				adjustToxLoss(-5)
+				AdjustDrunk(-10 SECONDS)
 
 		if(mode & VOMIT_BLOOD)
 			add_splatter_floor(turf)
