@@ -28,7 +28,7 @@
 					achivements_sound
 					FROM [format_table_name("player")]
 					WHERE ckey=:ckey"}, list(
-						"ckey" = C.ckey
+						"ckey" = C.account_ckey
 					))
 
 	if(!query.warn_execute())
@@ -88,6 +88,8 @@
 	return TRUE
 
 /datum/preferences/proc/save_preferences(client/C)
+	if(C.launcher_state == LAUNCHER_PENDING)
+		return
 
 	// Might as well scrub out any malformed be_special list entries while we're here
 	for(var/role in be_special)
@@ -143,7 +145,7 @@
 						"keybindings" = json_encode(keybindings_overrides),
 						"viewrange" = viewrange,
 						"ghost_darkness_level" = ghost_darkness_level,
-						"ckey" = C.ckey,
+						"ckey" = C.account_ckey,
 						"toggles3" = num2text(toggles3, CEILING(log(10, (TOGGLES_3_TOTAL)), 1)),
 						"screentip_mode" = screentip_mode,
 						"screentip_color" = screentip_color,
@@ -168,7 +170,7 @@
 		default_slot = slot
 		var/datum/db_query/firstquery = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET default_slot=:slot WHERE ckey=:ckey", list(
 			"slot" = slot,
-			"ckey" = C.ckey
+			"ckey" = C.account_ckey
 		))
 		if(!firstquery.warn_execute(async = FALSE)) // Dont make this async. It makes roundstart slow.
 			qdel(firstquery)
@@ -245,7 +247,7 @@
 					can_be_antagonist,
 					exoframe_type
 					FROM [format_table_name("characters")] WHERE ckey=:ckey AND slot=:slot"}, list(
-						"ckey" = C.ckey,
+						"ckey" = C.account_ckey,
 						"slot" = slot
 					))
 	if(!query.warn_execute(async = FALSE)) // Dont make this async. It makes roundstart slow.
@@ -452,6 +454,8 @@
 		choosen_gears[gear] = new_gear
 
 /datum/preferences/proc/save_character(client/C)
+	if(C.launcher_state == LAUNCHER_PENDING)
+		return
 
 	for(var/title in player_alt_titles)
 		var/datum/job/job = SSjobs.GetJob(title)
@@ -479,7 +483,7 @@
 		gearlist = list2params(savelist)
 
 	var/datum/db_query/firstquery = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey ORDER BY slot", list(
-		"ckey" = C.ckey
+		"ckey" = C.account_ckey
 	))
 	if(!firstquery.warn_execute())
 		qdel(firstquery)
@@ -619,7 +623,7 @@
 													"custom_emotes" = json_encode(custom_emotes),
 													"can_be_antagonist" = can_be_antagonist,
 													"exoframe_type" = exoframe_type,
-													"ckey" = C.ckey,
+													"ckey" = C.account_ckey,
 													"slot" = default_slot
 												)
 												)
@@ -694,7 +698,7 @@
 
 	"}, list(
 		// This has too many params for anyone to look at this without going insae
-		"ckey" = C.ckey,
+		"ckey" = C.account_ckey,
 		"slot" = default_slot,
 		"metadata" = metadata,
 		"name" = real_name,
@@ -772,7 +776,7 @@
 
 /datum/preferences/proc/load_random_character_slot(client/C)
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey ORDER BY slot", list(
-		"ckey" = C.ckey
+		"ckey" = C.account_ckey
 	))
 	var/list/saves = list()
 
@@ -794,7 +798,7 @@
 	. = FALSE
 	// Is there a character in that slot?
 	var/datum/db_query/query = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey AND slot=:slot", list(
-		"ckey" = C.ckey,
+		"ckey" = C.account_ckey,
 		"slot" = default_slot
 	))
 
@@ -809,7 +813,7 @@
 	qdel(query)
 
 	var/datum/db_query/delete_query = SSdbcore.NewQuery("DELETE FROM [format_table_name("characters")] WHERE ckey=:ckey AND slot=:slot", list(
-		"ckey" = C.ckey,
+		"ckey" = C.account_ckey,
 		"slot" = default_slot
 	))
 
@@ -835,7 +839,7 @@
 		"UPDATE [format_table_name("player")] SET volume_mixer=:volume_mixer WHERE ckey=:ckey",
 		list(
 			"volume_mixer" = serialize_volume_mixer(volume_mixer),
-			"ckey" = parent.ckey
+			"ckey" = parent.account_ckey
 		)
 	)
 

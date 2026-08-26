@@ -51,7 +51,7 @@ ADMIN_VERB(admin_pm_by_key_panel, R_ADMIN|R_MENTOR, "Admin PM Key", "Send a PM b
 //takes input from cmd_admin_pm_context, cmd_admin_pm_panel or /client/Topic and sends them a PM.
 //Fetching a message if needed. src is the sender and C is the target client
 /client/proc/cmd_admin_pm(whom, msg, type = "Сообщение", ticket_id = -1)
-	if(check_mute(ckey, MUTE_ADMINHELP))
+	if(check_mute(account_ckey, MUTE_ADMINHELP))
 		to_chat(src, span_danger("Error: Private-Message: You are unable to use PM-s (muted)."), confidential = TRUE)
 		return
 
@@ -231,7 +231,7 @@ ADMIN_VERB(admin_pm_by_key_panel, R_ADMIN|R_MENTOR, "Admin PM Key", "Send a PM b
 		tickets_system.addResponse(tickets, src, msg)
 
 /client/proc/cmd_admin_discord_pm()
-	if(check_mute(ckey, MUTE_ADMINHELP))
+	if(check_mute(account_ckey, MUTE_ADMINHELP))
 		to_chat(src, span_danger("Error: Private-Message: You are unable to use PMs (muted)."), confidential = TRUE)
 		return
 

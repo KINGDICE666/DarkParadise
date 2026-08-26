@@ -124,6 +124,13 @@
 	/// GeoIPdata about a current client
 	var/datum/geoip_data/geoip = null
 
+	var/account_ckey
+	var/launcher_claimed_ckey
+	var/launcher_link_target
+	var/steam_id = null
+	var/launcher_nickname = null
+	var/launcher_state = LAUNCHER_UNLINKED
+
 	//datum that controls the displaying and hiding of tooltips
 	var/datum/tooltip/tooltips
 

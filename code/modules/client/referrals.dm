@@ -1,5 +1,5 @@
 /client/proc/referral_code_available()
-	return SSdbcore.IsConnected() && !is_guest_key(key) && isnum(player_age) && player_age <= REFERRAL_CODE_MAX_PLAYER_AGE_DAYS
+	return SSdbcore.IsConnected() && has_persistent_identity() && isnum(player_age) && player_age <= REFERRAL_CODE_MAX_PLAYER_AGE_DAYS
 
 /proc/referral_tier_by_invites(invites)
 	return clamp(round(invites / REFERRAL_INVITES_PER_TIER) + DONATOR_TIER_I, DONATOR_TIER_I, DONATOR_LEVEL_MAX)
@@ -24,7 +24,7 @@
 		SELECT id FROM [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
 		WHERE ckey = :ckey AND source = '[REFERRAL_BUDGET_SOURCE]' AND is_valid = TRUE AND date_start <= NOW() AND NOW() < date_end
 		LIMIT 1
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(!query.warn_execute())
 		qdel(query)
 		return NO_DONATOR_TIER
@@ -32,7 +32,7 @@
 	qdel(query)
 	if(!active)
 		return NO_DONATOR_TIER
-	return referral_tier_by_invites(referral_rewarded_invites(ckey))
+	return referral_tier_by_invites(referral_rewarded_invites(account_ckey))
 
 /client/proc/referral_playtime_progress()
 	. = list("minutes" = 0, "days" = 0)
@@ -40,7 +40,7 @@
 		SELECT CAST(COALESCE(SUM(time_living), 0) AS UNSIGNED INTEGER), COUNT(*)
 		FROM [format_table_name("playtime_history")]
 		WHERE ckey = :ckey AND time_living > 0
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(!query.warn_execute())
 		qdel(query)
 		return
@@ -56,7 +56,7 @@
 		INNER JOIN [format_table_name("connection_log")] AS theirs ON mine.ip = theirs.ip OR mine.computerid = theirs.computerid
 		WHERE mine.ckey = :ckey AND theirs.ckey = :other_ckey
 		LIMIT 1
-	"}, list("ckey" = ckey, "other_ckey" = other_ckey))
+	"}, list("ckey" = account_ckey, "other_ckey" = other_ckey))
 	if(!query.warn_execute())
 		qdel(query)
 		return TRUE
@@ -74,19 +74,19 @@
 	var/referrer_ckey = ckey(referral_key)
 	if(!referrer_ckey)
 		return "Введите код приглашения."
-	if(referrer_ckey == ckey)
+	if(referrer_ckey == account_ckey)
 		return "Нельзя пригласить самого себя."
 
 	var/datum/db_query/query_used = SSdbcore.NewQuery({"
 		SELECT referred_ckey FROM [format_table_name("referral")]
 		WHERE referred_ckey = :ckey OR referred_discord_id = :discord_id
 		LIMIT 1
-	"}, list("ckey" = ckey, "discord_id" = prefs.discord_id))
+	"}, list("ckey" = account_ckey, "discord_id" = prefs.discord_id))
 	if(!query_used.warn_execute())
 		qdel(query_used)
 		return "Ошибка базы данных, попробуйте позже."
 	if(query_used.NextRow())
-		var/used_by_self = query_used.item[1] == ckey
+		var/used_by_self = query_used.item[1] == account_ckey
 		qdel(query_used)
 		return used_by_self ? "Вы уже воспользовались реферальным кодом." : "Этот аккаунт Discord уже участвовал в реферальной программе."
 	qdel(query_used)
@@ -115,7 +115,7 @@
 		SELECT ckey FROM [format_table_name("connection_log")]
 		WHERE computerid = :computerid AND ckey != :ckey
 		LIMIT 1
-	"}, list("computerid" = computer_id, "ckey" = ckey))
+	"}, list("computerid" = computer_id, "ckey" = account_ckey))
 	if(!query_alts.warn_execute())
 		qdel(query_alts)
 		return "Ошибка базы данных, попробуйте позже."
@@ -131,7 +131,7 @@
 		INSERT INTO [format_table_name("referral")] (referred_ckey, referrer_ckey, referred_ip, referred_computerid, referred_discord_id)
 		VALUES (:ckey, :referrer_ckey, :ip, :computerid, :discord_id)
 	"}, list(
-		"ckey" = ckey,
+		"ckey" = account_ckey,
 		"referrer_ckey" = referrer_ckey,
 		"ip" = address,
 		"computerid" = computer_id,
@@ -145,12 +145,12 @@
 	return null
 
 /client/proc/referral_payout_check()
-	if(!SSdbcore.IsConnected() || is_guest_key(key))
+	if(!SSdbcore.IsConnected() || !has_persistent_identity())
 		return
 	var/datum/db_query/query_pending = SSdbcore.NewQuery({"
 		SELECT referrer_ckey FROM [format_table_name("referral")]
 		WHERE referred_ckey = :ckey AND rewarded = FALSE AND revoked = FALSE
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(!query_pending.warn_execute())
 		qdel(query_pending)
 		return
@@ -169,7 +169,7 @@
 		var/datum/db_query/query_revoke = SSdbcore.NewQuery({"
 			UPDATE [format_table_name("referral")] SET revoked = TRUE
 			WHERE referred_ckey = :ckey AND rewarded = FALSE
-		"}, list("ckey" = ckey))
+		"}, list("ckey" = account_ckey))
 		query_revoke.warn_execute()
 		qdel(query_revoke)
 		log_admin("Referral: [key_name(src)] shares a computer or address with [referrer_ckey], reward denied.")
@@ -179,14 +179,14 @@
 	var/datum/db_query/query_claim = SSdbcore.NewQuery({"
 		UPDATE [format_table_name("referral")] SET rewarded = TRUE, reward_date = NOW()
 		WHERE referred_ckey = :ckey AND rewarded = FALSE AND revoked = FALSE
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(!query_claim.warn_execute() || !query_claim.affected)
 		qdel(query_claim)
 		return
 	qdel(query_claim)
 
 	if(!grant_referral_reward(referrer_ckey))
-		log_debug("referral_payout_check: failed to grant the reward of [ckey] to [referrer_ckey]")
+		log_debug("referral_payout_check: failed to grant the reward of [account_ckey] to [referrer_ckey]")
 		return
 	log_admin("Referral: [key_name(src)] earned a subscription tier for [referrer_ckey].")
 	message_admins("Referral: [key_name_admin(src)] earned a subscription tier for [referrer_ckey].")
@@ -246,7 +246,7 @@
 /client/proc/referral_stats()
 	referral_payout_check()
 	. = list(
-		"code" = ckey,
+		"code" = account_ckey,
 		"can_enter" = referral_code_available(),
 		"discord_linked" = !!(prefs?.discord_id && length(prefs.discord_id) != 32),
 		"referrer" = null,
@@ -269,7 +269,7 @@
 	var/datum/db_query/query_mine = SSdbcore.NewQuery({"
 		SELECT referrer_ckey, rewarded, revoked FROM [format_table_name("referral")]
 		WHERE referred_ckey = :ckey
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(query_mine.warn_execute() && query_mine.NextRow())
 		.["referrer"] = query_mine.item[1]
 		.["rewarded"] = !!text2num(query_mine.item[2])
@@ -284,7 +284,7 @@
 	var/datum/db_query/query_invited = SSdbcore.NewQuery({"
 		SELECT COUNT(*), CAST(COALESCE(SUM(rewarded), 0) AS UNSIGNED INTEGER) FROM [format_table_name("referral")]
 		WHERE referrer_ckey = :ckey AND revoked = FALSE
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(query_invited.warn_execute() && query_invited.NextRow())
 		.["invited"] = text2num(query_invited.item[1])
 		.["invited_rewarded"] = text2num(query_invited.item[2])
@@ -295,7 +295,7 @@
 	var/datum/db_query/query_reward = SSdbcore.NewQuery({"
 		SELECT DATE_FORMAT(MAX(date_end), '%d.%m.%Y') FROM [CONFIG_GET(string/utility_database)].[format_table_name("budget")]
 		WHERE ckey = :ckey AND source = '[REFERRAL_BUDGET_SOURCE]' AND is_valid = TRUE AND NOW() < date_end
-	"}, list("ckey" = ckey))
+	"}, list("ckey" = account_ckey))
 	if(query_reward.warn_execute() && query_reward.NextRow())
 		.["active_until"] = query_reward.item[1]
 	qdel(query_reward)
@@ -308,7 +308,7 @@
 	if(!SSdbcore.IsConnected())
 		to_chat(usr, span_warning("База данных недоступна, попробуйте позже."), confidential = TRUE)
 		return
-	if(is_guest_key(key))
+	if(!has_persistent_identity())
 		to_chat(usr, span_warning("Гостевой аккаунт не может участвовать в реферальной программе."), confidential = TRUE)
 		return
 	var/datum/ui_module/referrals/panel = new()

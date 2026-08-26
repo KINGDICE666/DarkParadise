@@ -65,15 +65,15 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(vuap_personal, R_ADMIN|R_MOD, "Open TGUI PP", mob/t
 			// Safely check mute states
 			if(client_info.prefs)
 				player_data["muteStates"] = list(
-					"ic" = check_mute(player.client.ckey, MUTE_IC),
-					"ooc" = check_mute(player.client.ckey, MUTE_OOC),
-					"pray" = check_mute(player.client.ckey, MUTE_PRAY),
-					"adminhelp" = check_mute(player.client.ckey, MUTE_ADMINHELP),
-					"deadchat" = check_mute(player.client.ckey, MUTE_DEADCHAT),
-					"tts" = check_mute(player.client.ckey, MUTE_TTS),
-					"emote" = check_mute(player.client.ckey, MUTE_EMOTE),
-					"webreq" = check_mute(player.client.ckey, MUTE_INTERNET_REQUEST),
-					"all" = check_mute(player.client.ckey, MUTE_ALL)
+					"ic" = check_mute(player.client.account_ckey, MUTE_IC),
+					"ooc" = check_mute(player.client.account_ckey, MUTE_OOC),
+					"pray" = check_mute(player.client.account_ckey, MUTE_PRAY),
+					"adminhelp" = check_mute(player.client.account_ckey, MUTE_ADMINHELP),
+					"deadchat" = check_mute(player.client.account_ckey, MUTE_DEADCHAT),
+					"tts" = check_mute(player.client.account_ckey, MUTE_TTS),
+					"emote" = check_mute(player.client.account_ckey, MUTE_EMOTE),
+					"webreq" = check_mute(player.client.account_ckey, MUTE_INTERNET_REQUEST),
+					"all" = check_mute(player.client.account_ckey, MUTE_ALL)
 				)
 		player_data["adminRights"] = rights2text(user.client.holder.rights)
 		return player_data
