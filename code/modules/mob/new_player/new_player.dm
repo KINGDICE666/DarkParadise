@@ -50,7 +50,7 @@
 
 	if(href_list["consent_signed"])
 		var/datum/db_query/query = SSdbcore.NewQuery("REPLACE INTO [format_table_name("privacy")] (ckey, datetime, consent) VALUES (:ckey, Now(), 1)", list(
-			"ckey" = ckey
+			"ckey" = get_account_ckey()
 		))
 		// If the query fails we dont want them permenantly stuck on being unable to accept TOS
 		query.warn_execute()
@@ -62,7 +62,7 @@
 		client.tos_consent = FALSE
 		to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
 		var/datum/db_query/query = SSdbcore.NewQuery("REPLACE INTO [format_table_name("privacy")] (ckey, datetime, consent) VALUES (:ckey, Now(), 0)", list(
-			"ckey" = ckey
+			"ckey" = get_account_ckey()
 		))
 		// If the query fails we dont want them permenantly stuck on being unable to accept TOS
 		query.warn_execute()
@@ -77,15 +77,20 @@
 		if(!client.tos_consent)
 			to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
 			return FALSE
+		if(client.launcher_state == LAUNCHER_PENDING)
+			to_chat(usr, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
+			return FALSE
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
-			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
-				client.prefs.load_preferences(client)
+		if(client.needs_discord_link())
+			client.prefs.load_preferences(client)
+			if(client.needs_discord_link())
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
+		if(client.blocked_by_launcher_link())
+			return FALSE
 		if(!is_used_species_available(client.prefs.species))
 			to_chat(usr, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
 			return FALSE
@@ -153,12 +158,14 @@
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
-			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
-				client.prefs.load_preferences(client)
+		if(client.needs_discord_link())
+			client.prefs.load_preferences(client)
+			if(client.needs_discord_link())
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
+		if(client.blocked_by_launcher_link())
+			return FALSE
 		if(!SSticker || SSticker.current_state == GAME_STATE_STARTUP)
 			to_chat(usr, span_warning("Пожалуйста, подождите, пока сервер полностью запустится, прежде чем присоединяться!"))
 			return FALSE
@@ -203,12 +210,14 @@
 		if(client.version_blocked)
 			client.show_update_notice()
 			return FALSE
-		if(CONFIG_GET(number/minimum_byondacc_age) && client.byondacc_age <= CONFIG_GET(number/minimum_byondacc_age))
-			if(!client.prefs.discord_id || (client.prefs.discord_id && length(client.prefs.discord_id) == 32))
-				client.prefs.load_preferences(client)
+		if(client.needs_discord_link())
+			client.prefs.load_preferences(client)
+			if(client.needs_discord_link())
 				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
 				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
 				return FALSE
+		if(client.blocked_by_launcher_link())
+			return FALSE
 		if(!SSticker || SSticker.current_state != GAME_STATE_PLAYING)
 			to_chat(usr, span_warning("Раунд либо ещё не готов, либо в данный момент уже завершён..."))
 			return
@@ -385,6 +394,10 @@
 
 	if(!GLOB.enter_allowed)
 		to_chat(usr, span_notice("Администратор заблокировал вход в игру!"))
+		return FALSE
+
+	if(client.launcher_state == LAUNCHER_PENDING)
+		to_chat(usr, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
 		return FALSE
 
 	if("[client.prefs.default_slot]" in persistent_client.joined_as_slots)

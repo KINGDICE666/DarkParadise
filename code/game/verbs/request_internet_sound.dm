@@ -26,7 +26,7 @@
 		to_chat(src, span_danger("Недопустимый URL. Используйте ссылку с одного из сайтов: [sites_display]"), confidential = TRUE)
 		return
 
-	if(check_mute(ckey, MUTE_INTERNET_REQUEST))
+	if(check_mute(account_ckey, MUTE_INTERNET_REQUEST))
 		to_chat(src, span_danger("Вы не можете заказывать музыку (заглушено)."), confidential = TRUE)
 		return
 

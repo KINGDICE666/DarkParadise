@@ -187,7 +187,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	if(!COOLDOWN_FINISHED(src, fetch_cooldown) || !CLIENT_COOLDOWN_FINISHED(GLOB, headphone_case_fetch_cooldown))
 		to_chat(user, span_warning("Кейс ещё обрабатывает предыдущий запрос."))
 		return
-	if(check_mute(user.ckey, MUTE_INTERNET_REQUEST))
+	if(check_mute(user.get_account_ckey(), MUTE_INTERNET_REQUEST))
 		to_chat(user, span_warning("Вам запрещено включать музыку."))
 		return
 

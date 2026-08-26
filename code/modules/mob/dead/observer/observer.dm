@@ -807,7 +807,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	if(!client)
 		return
 	client.prefs.ghost_darkness_level = GLOB.ghost_lightings[desired_dark]
-	client.prefs.save_preferences(src)
+	client.prefs.save_preferences(client)
 	lighting_cutoff = client.prefs.ghost_darkness_level
 	update_sight()
 

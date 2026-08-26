@@ -171,7 +171,7 @@ GLOBAL_LIST_EMPTY(overminds)
 		return
 
 	if(client)
-		if(GLOB.admin_mutes_assoc[ckey] & MUTE_IC)
+		if(GLOB.admin_mutes_assoc[get_account_ckey()] & MUTE_IC)
 			to_chat(src, span_boldwarning("Вы не можете писать IC сообщения (мут)."))
 			return
 		if(client.handle_spam_prevention(message, MUTE_IC))

@@ -814,3 +814,32 @@ CREATE TABLE `achievement_metadata` (
 	`achievement_description` VARCHAR(512) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
 	PRIMARY KEY (`achievement_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `launcher_link`
+--
+DROP TABLE IF EXISTS `launcher_link`;
+CREATE TABLE `launcher_link` (
+	`steamid64` BIGINT UNSIGNED NOT NULL,
+	`ckey` VARCHAR(32) NOT NULL,
+	`nickname` VARCHAR(32) NULL DEFAULT NULL,
+	`first_seen` DATETIME DEFAULT now() NOT NULL,
+	`last_seen` DATETIME DEFAULT now() NOT NULL,
+	PRIMARY KEY (`steamid64`),
+	KEY `ckey` (`ckey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `launcher_link_request`
+--
+
+DROP TABLE IF EXISTS `launcher_link_request`;
+CREATE TABLE `launcher_link_request` (
+	`launcher_ckey` VARCHAR(32) NOT NULL,
+	`ckey` VARCHAR(32) NOT NULL,
+	`requested` DATETIME DEFAULT now() NOT NULL,
+	`resolved` DATETIME NULL DEFAULT NULL,
+	`approved` TINYINT(1) NULL DEFAULT NULL,
+	PRIMARY KEY (`launcher_ckey`, `ckey`),
+	KEY `ckey` (`ckey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

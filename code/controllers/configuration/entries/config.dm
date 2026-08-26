@@ -930,3 +930,17 @@
 /// Pop requirement for the server to be removed from the hub
 /datum/config_entry/number/max_hub_pop
 	min_val = 0
+
+/datum/config_entry/string/launcher_api_url
+	default = null
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/string/launcher_api_secret
+	default = null
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/string/launcher_server_id
+	default = null
+	protection = CONFIG_ENTRY_LOCKED
+
+/datum/config_entry/flag/launcher_required

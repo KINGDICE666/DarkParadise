@@ -20,7 +20,7 @@
 				if(client.holder && client.holder.big_brother && !check_rights(R_PERMISSIONS, FALSE)) // need PERMISSIONS to see BB
 					continue
 
-				var/entry = "\t[client.key]"
+				var/entry = "\t[client.display_key()]"
 				if(client.holder && client.holder.fakekey)
 					entry += " <i>(как [client.holder.fakekey])</i>"
 				if(isnewplayer(client.mob))
@@ -62,7 +62,7 @@
 				if(client.holder && client.holder.big_brother && !check_rights(R_PERMISSIONS, FALSE)) // need PERMISSIONS to see BB
 					continue
 
-				var/entry = "[client.key]"
+				var/entry = "[client.display_key()]"
 				if(client.holder && client.holder.fakekey)
 					entry += " <i>(как [client.holder.fakekey])</i>"
 				entry += " ([round(client.avgping, 1)]ms)"
@@ -75,7 +75,7 @@
 			if(client.holder && client.holder.fakekey)
 				lines += "[client.holder.fakekey] ([round(client.avgping, 1)]ms)"
 			else
-				lines += "[client.key] ([round(client.avgping, 1)]ms)"
+				lines += "[client.display_key()] ([round(client.avgping, 1)]ms)"
 
 	var/num_lines = 0
 	msg += "<table style='width: 100%; table-layout: fixed'><tr>"
