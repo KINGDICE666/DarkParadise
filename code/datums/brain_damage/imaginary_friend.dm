@@ -501,8 +501,8 @@
 	appearance.s_tone = -10
 	appearance.h_style = "Short Spiked"
 	appearance.f_style = "Shaved"
-	appearance.h_colour = "#BF9B60"
-	appearance.h_sec_colour = "#BF9B60"
+	appearance.h_colour = "#5B3A29"
+	appearance.h_sec_colour = "#5B3A29"
 	appearance.e_colour = "#3D6EA5"
 	appearance.underwear = "Nude"
 	appearance.undershirt = "Nude"

@@ -1,5 +1,6 @@
 #define MONOPHOBIA_PANIC_STRESS 60
 #define MONOPHOBIA_HEART_ATTACK_STRESS 90
+#define ITALIAN_TUMOR_MAX_NAMES 4
 
 /datum/brain_trauma/severe
 	abstract_type = /datum/brain_trauma/severe
@@ -479,5 +480,104 @@
 	if(prob(8))
 		to_chat(owner, span_warning_alt(pick("Узоры на стенах складываются в нечто прекрасное и неправильное.", "Вы не можете отвести взгляд от пустоты.", "Красота Обители зовёт вас.")))
 
+/datum/brain_trauma/severe/italian_tumor
+	name = "Italian Tumor"
+	desc = "Пациент видит вместо живых существ невозможных тварей, а вместо речи слышит только их имена."
+	scan_desc = "опухоль в височно-затылочной области"
+	gain_text = span_warning_alt("В голове что-то тяжело ворочается, и вы перестаёте узнавать всё вокруг...")
+	lose_text = span_notice_alt("Твари вокруг расплываются, и вы снова узнаёте лица.")
+	var/list/delusions = list()
+	var/static/list/beasts = list(
+		"Tralalero Tralala" = "tralalelo",
+		"Trippi Troppi" = "tralalelo",
+		"Frulli Frulla" = "tralalelo",
+		"Bombardiro Crocodilo" = "crocodilo",
+		"Bombombini Gusini" = "crocodilo",
+		"Glorbo Fruttodrillo" = "crocodilo",
+		"Tung Tung Tung Sahur" = "sahur",
+		"Cappuccino Assassino" = "sahur",
+		"Boneca Ambalabu" = "sahur",
+		"Brr Brr Patapim" = "bear",
+		"Chimpanzini Bananini" = "bear",
+		"Bobrito Bandito" = "bear",
+		"Lirili Larila" = "candy",
+		"Ballerina Cappuccina" = "candy",
+		"Burbaloni Luliloli" = "candy",
+	)
+
+/datum/brain_trauma/severe/italian_tumor/on_gain()
+	. = ..()
+	ADD_TRAIT(owner, TRAIT_ITALIAN_TUMOR, TRAUMA_TRAIT)
+	refresh_delusions()
+
+/datum/brain_trauma/severe/italian_tumor/on_lose(silent)
+	REMOVE_TRAIT(owner, TRAIT_ITALIAN_TUMOR, TRAUMA_TRAIT)
+	clear_delusions()
+	return ..()
+
+/datum/brain_trauma/severe/italian_tumor/on_life()
+	refresh_delusions()
+
+/datum/brain_trauma/severe/italian_tumor/handle_hearing(datum/source, mob/speaker, list/message_pieces)
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+		return
+
+	for(var/datum/multilingual_say_piece/piece in message_pieces)
+		if(!piece.message)
+			continue
+		var/list/words = splittext(piece.message, " ")
+		var/list/babble = list()
+		for(var/spoken in 1 to min(length(words), ITALIAN_TUMOR_MAX_NAMES))
+			babble += pick(beasts)
+		piece.message = jointext(babble, ", ")
+
+/datum/brain_trauma/severe/italian_tumor/proc/refresh_delusions()
+	if(!owner.client)
+		return
+
+	for(var/mob/living/creature in view(owner))
+		if(creature == owner)
+			continue
+		disguise(creature)
+
+/datum/brain_trauma/severe/italian_tumor/proc/disguise(mob/living/creature)
+	var/creature_uid = creature.UID()
+	var/image/beast = delusions[creature_uid]
+	if(!beast)
+		var/beast_name = pick(beasts)
+		beast = image('icons/mob/italian_brainrot.dmi', creature, beasts[beast_name])
+		beast.name = beast_name
+		beast.override = TRUE
+		delusions[creature_uid] = beast
+		RegisterSignal(creature, COMSIG_QDELETING, PROC_REF(forget_creature))
+	owner.client?.images |= beast
+	return beast
+
+/datum/brain_trauma/severe/italian_tumor/proc/forget_creature(mob/living/creature)
+	SIGNAL_HANDLER
+	UnregisterSignal(creature, COMSIG_QDELETING)
+	var/creature_uid = creature.UID()
+	owner?.client?.images -= delusions[creature_uid]
+	delusions -= creature_uid
+
+/datum/brain_trauma/severe/italian_tumor/proc/clear_delusions()
+	for(var/creature_uid in delusions)
+		var/mob/living/creature = locateUID(creature_uid)
+		if(creature)
+			UnregisterSignal(creature, COMSIG_QDELETING)
+		owner?.client?.images -= delusions[creature_uid]
+	delusions.Cut()
+
+/mob/living/carbon/perceived_name(atom/movable/speaker, speaker_name)
+	if(!HAS_TRAIT(src, TRAIT_ITALIAN_TUMOR) || !isliving(speaker) || speaker == src)
+		return speaker_name
+
+	var/datum/brain_trauma/severe/italian_tumor/tumor = has_trauma_type(/datum/brain_trauma/severe/italian_tumor)
+	if(!tumor)
+		return speaker_name
+	var/image/beast = tumor.disguise(speaker)
+	return beast.name
+
 #undef MONOPHOBIA_PANIC_STRESS
 #undef MONOPHOBIA_HEART_ATTACK_STRESS
+#undef ITALIAN_TUMOR_MAX_NAMES

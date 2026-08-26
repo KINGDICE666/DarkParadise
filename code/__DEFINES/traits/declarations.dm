@@ -414,6 +414,8 @@
 
 #define TRAIT_UNINTELLIGIBLE_SPEECH "unintelligible_speech"
 
+#define TRAIT_ITALIAN_TUMOR "italian_tumor"
+
 #define TRAIT_ILLITERATE "illiterate"
 
 #define TRAIT_PARALYSIS_L_ARM "paralysis_l_arm"
