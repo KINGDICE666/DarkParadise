@@ -2794,6 +2794,7 @@
 #include "code\modules\arcade\claw_game.dm"
 #include "code\modules\arcade\prize_counter.dm"
 #include "code\modules\arcade\prize_datums.dm"
+#include "code\modules\art\painted_mask.dm"
 #include "code\modules\art\paintings.dm"
 #include "code\modules\assembly\assembly.dm"
 #include "code\modules\assembly\bomb.dm"
