@@ -2,6 +2,7 @@
 #define PAINTED_MASK_HEIGHT 16
 #define PAINTED_MASK_WORN_X 10
 #define PAINTED_MASK_WORN_Y 17
+#define PAINTED_MASK_SIDE_SHIFT 3
 #define PAINTED_MASK_HELD_SCALE 2
 #define PAINTED_MASK_HELD_X 3
 #define PAINTED_MASK_HELD_Y 1
@@ -53,7 +54,10 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 		config_flags = NONE,
 		tool_flags = SPRITE_EDITOR_TOOL_PENCIL | SPRITE_EDITOR_TOOL_BUCKET | SPRITE_EDITOR_TOOL_ERASER
 	)
-	workspace.layers[1]["data"]["[SOUTH]"] = deep_copy_list(GLOB.painted_mask_blank_grid)
+	var/list/blank_frame = workspace.layers[1]["data"]["[SOUTH]"]
+	for(var/i in 1 to PAINTED_MASK_HEIGHT)
+		var/list/blank_row = GLOB.painted_mask_blank_grid[i]
+		blank_frame[i] = blank_row.Copy()
 	RegisterSignal(workspace, COMSIG_SPRITE_EDITOR_VALIDATE_COLOR, PROC_REF(validate_color))
 
 /obj/item/clothing/mask/painted/Destroy()
@@ -151,19 +155,24 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 	if(!isicon(art))
 		return
 
-	var/icon/mirrored = new(art)
-	mirrored.Flip(WEST)
-
 	var/icon/front = icon(PAINTED_MASK_BLANK_ICON, "nothing")
 	front.Blend(art, ICON_OVERLAY, PAINTED_MASK_WORN_X, PAINTED_MASK_WORN_Y)
-	var/icon/side = icon(PAINTED_MASK_BLANK_ICON, "nothing")
-	side.Blend(mirrored, ICON_OVERLAY, PAINTED_MASK_WORN_X, PAINTED_MASK_WORN_Y)
+
+	var/icon/east = icon(DEFAULT_ICON_WEAR_MASK, PAINTED_MASK_STATE, EAST)
+	var/icon/profile_silhouette = new(east)
+	profile_silhouette.Blend("#ffffff", ICON_ADD)
+	var/icon/profile_art = icon(PAINTED_MASK_BLANK_ICON, "nothing")
+	profile_art.Blend(art, ICON_OVERLAY, PAINTED_MASK_WORN_X + PAINTED_MASK_SIDE_SHIFT, PAINTED_MASK_WORN_Y)
+	profile_art.Blend(profile_silhouette, ICON_MULTIPLY)
+	east.Blend(profile_art, ICON_OVERLAY)
+	var/icon/west = new(east)
+	west.Flip(WEST)
 
 	var/icon/worn = icon(PAINTED_MASK_BLANK_ICON, "nothing")
 	worn.Insert(front, PAINTED_MASK_STATE, dir = SOUTH)
-	worn.Insert(front, PAINTED_MASK_STATE, dir = NORTH)
-	worn.Insert(front, PAINTED_MASK_STATE, dir = EAST)
-	worn.Insert(side, PAINTED_MASK_STATE, dir = WEST)
+	worn.Insert(icon(DEFAULT_ICON_WEAR_MASK, PAINTED_MASK_STATE, NORTH), PAINTED_MASK_STATE, dir = NORTH)
+	worn.Insert(east, PAINTED_MASK_STATE, dir = EAST)
+	worn.Insert(west, PAINTED_MASK_STATE, dir = WEST)
 	onmob_sheets[ITEM_SLOT_MASK_STRING] = fcopy_rsc(worn)
 
 	art.Scale(PAINTED_MASK_WIDTH * PAINTED_MASK_HELD_SCALE, PAINTED_MASK_HEIGHT * PAINTED_MASK_HELD_SCALE)
@@ -180,6 +189,7 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 #undef PAINTED_MASK_HEIGHT
 #undef PAINTED_MASK_WORN_X
 #undef PAINTED_MASK_WORN_Y
+#undef PAINTED_MASK_SIDE_SHIFT
 #undef PAINTED_MASK_HELD_SCALE
 #undef PAINTED_MASK_HELD_X
 #undef PAINTED_MASK_HELD_Y
