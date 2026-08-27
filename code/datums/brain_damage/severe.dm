@@ -508,10 +508,15 @@
 /datum/brain_trauma/severe/italian_tumor/on_gain()
 	. = ..()
 	ADD_TRAIT(owner, TRAIT_ITALIAN_TUMOR, TRAUMA_TRAIT)
+	owner.mob_flags |= MOB_HAS_SCREENTIPS_NAME_OVERRIDE
+	RegisterSignal(owner, COMSIG_MOB_REQUESTING_SCREENTIP_NAME_FROM_USER, PROC_REF(override_screentip_name))
+	RegisterSignal(owner, COMSIG_LIVING_PERCEIVE_EXAMINE_NAME, PROC_REF(override_examine_name))
 	refresh_delusions()
 
 /datum/brain_trauma/severe/italian_tumor/on_lose(silent)
 	REMOVE_TRAIT(owner, TRAIT_ITALIAN_TUMOR, TRAUMA_TRAIT)
+	owner.mob_flags &= ~MOB_HAS_SCREENTIPS_NAME_OVERRIDE
+	UnregisterSignal(owner, list(COMSIG_MOB_REQUESTING_SCREENTIP_NAME_FROM_USER, COMSIG_LIVING_PERCEIVE_EXAMINE_NAME))
 	clear_delusions()
 	return ..()
 
@@ -535,7 +540,7 @@
 	if(!owner.client)
 		return
 
-	for(var/mob/living/creature in view(owner))
+	for(var/mob/living/creature as anything in GLOB.mob_living_list)
 		if(creature == owner)
 			continue
 		disguise(creature)
@@ -559,6 +564,22 @@
 	var/creature_uid = creature.UID()
 	owner?.client?.images -= delusions[creature_uid]
 	delusions -= creature_uid
+
+/datum/brain_trauma/severe/italian_tumor/proc/override_screentip_name(datum/source, list/returned_name, obj/item/held_item, atom/hovered)
+	SIGNAL_HANDLER
+	if(!isliving(hovered) || hovered == owner)
+		return NONE
+	var/image/beast = disguise(hovered)
+	returned_name[1] = beast.name
+	return SCREENTIP_NAME_SET
+
+/datum/brain_trauma/severe/italian_tumor/proc/override_examine_name(datum/source, mob/living/examined, visible_name, list/name_override)
+	SIGNAL_HANDLER
+	if(examined == owner)
+		return NONE
+	var/image/beast = disguise(examined)
+	name_override[1] = beast.name
+	return COMPONENT_EXAMINE_NAME_OVERRIDEN
 
 /datum/brain_trauma/severe/italian_tumor/proc/clear_delusions()
 	for(var/creature_uid in delusions)
