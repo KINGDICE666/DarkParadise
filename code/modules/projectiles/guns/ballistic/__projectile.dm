@@ -11,6 +11,10 @@
 	var/can_tactical = FALSE //check to see if the gun can tactically reload
 	/// Register fireshoot component
 	var/can_air_shoot = FALSE
+	/// Стреляная гильза удаляется вместо падения на пол. Для оружия, из которого стреляют
+	/// много и одновременно: каждая гильза иначе остаётся живым объектом с крутящейся
+	/// анимацией и звуком падения, а очередь на сотню стволов их сыплет тысячами.
+	var/delete_casings = FALSE
 
 /obj/item/gun/projectile/Initialize(mapload)
 	. = ..()
@@ -79,7 +83,13 @@
 	if(!istype(hold_casing))
 		chamber_round()
 		return
-	if(eject_casing && !QDELETED(hold_casing))
+	if(eject_casing && !QDELETED(hold_casing) && delete_casings)
+		// Патронник зануляем сами: следом идёт chamber_round(), а он грузит новый
+		// патрон только в пустой ствол.
+		if(chambered == hold_casing)
+			chambered = null
+		qdel(hold_casing)
+	else if(eject_casing && !QDELETED(hold_casing))
 		hold_casing.forceMove(drop_location())	//Eject casing onto ground.
 		hold_casing.pixel_x = rand(-10, 10)
 		hold_casing.pixel_y = rand(-10, 10)

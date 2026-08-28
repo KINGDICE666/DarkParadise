@@ -405,6 +405,19 @@ SUBSYSTEM_DEF(mapping)
 		map_z_level = GLOB.space_manager.add_new_zlevel(MAIN_STATION, linkage = map_datum.linkage, traits = s_traits)
 	GLOB.maploader.load_map(WRAP_FILE(map_datum.map_path), z_offset = map_z_level)
 
+	// Уровни, лежащие отдельными файлами. Держать их в одном .dmm со станцией
+	// необязательно: уровень создаётся тем же способом, что и станционный, и файл
+	// заливается в него следом. Карте от этого только легче — четырёхуровневый .dmm
+	// весит под мегабайт и тяжело открывается в редакторе. У всех карт, которые
+	// extra_levels не заполняют, список пуст и цикл не делает ничего.
+	for(var/path in map_datum.extra_levels)
+		var/list/level = map_datum.extra_levels[path]
+		if(!fexists(path))
+			log_startup_progress("ERROR: extra level [path] not found, skipped.")
+			continue
+		var/extra_z = GLOB.space_manager.add_new_zlevel(level["name"], linkage = map_datum.linkage, traits = level["traits"])
+		GLOB.maploader.load_map(WRAP_FILE(path), z_offset = extra_z)
+
 	if(map_datum?.forced_mode)
 		GLOB.master_mode = map_datum.forced_mode.name
 
