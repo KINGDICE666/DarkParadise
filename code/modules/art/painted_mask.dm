@@ -3,9 +3,8 @@
 #define PAINTED_MASK_WORN_X 10
 #define PAINTED_MASK_WORN_Y 17
 #define PAINTED_MASK_SIDE_SHIFT 3
-#define PAINTED_MASK_HELD_SCALE 2
-#define PAINTED_MASK_HELD_X 3
-#define PAINTED_MASK_HELD_Y 1
+#define PAINTED_MASK_ITEM_X 10
+#define PAINTED_MASK_ITEM_Y 9
 #define PAINTED_MASK_STATE "morutopia"
 #define PAINTED_MASK_BLANK_ICON 'icons/blanks/32x32.dmi'
 
@@ -166,12 +165,11 @@
 	worn.Insert(west, PAINTED_MASK_STATE, dir = WEST)
 	onmob_sheets[ITEM_SLOT_MASK_STRING] = fcopy_rsc(worn)
 
-	art.Scale(PAINTED_MASK_WIDTH * PAINTED_MASK_HELD_SCALE, PAINTED_MASK_HEIGHT * PAINTED_MASK_HELD_SCALE)
-	var/icon/enlarged = icon(PAINTED_MASK_BLANK_ICON, "nothing")
-	enlarged.Blend(art, ICON_OVERLAY, PAINTED_MASK_HELD_X, PAINTED_MASK_HELD_Y)
-	var/icon/held = icon(PAINTED_MASK_BLANK_ICON, "nothing")
-	held.Insert(enlarged, PAINTED_MASK_STATE)
-	icon = fcopy_rsc(held)
+	var/icon/on_ground = icon(PAINTED_MASK_BLANK_ICON, "nothing")
+	on_ground.Blend(art, ICON_OVERLAY, PAINTED_MASK_ITEM_X, PAINTED_MASK_ITEM_Y)
+	var/icon/item_sheet = icon(PAINTED_MASK_BLANK_ICON, "nothing")
+	item_sheet.Insert(on_ground, PAINTED_MASK_STATE)
+	icon = fcopy_rsc(item_sheet)
 
 	update_appearance()
 	update_equipped_item()
@@ -181,8 +179,7 @@
 #undef PAINTED_MASK_WORN_X
 #undef PAINTED_MASK_WORN_Y
 #undef PAINTED_MASK_SIDE_SHIFT
-#undef PAINTED_MASK_HELD_SCALE
-#undef PAINTED_MASK_HELD_X
-#undef PAINTED_MASK_HELD_Y
+#undef PAINTED_MASK_ITEM_X
+#undef PAINTED_MASK_ITEM_Y
 #undef PAINTED_MASK_STATE
 #undef PAINTED_MASK_BLANK_ICON
