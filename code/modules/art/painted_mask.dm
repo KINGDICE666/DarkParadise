@@ -9,21 +9,6 @@
 #define PAINTED_MASK_STATE "morutopia"
 #define PAINTED_MASK_BLANK_ICON 'icons/blanks/32x32.dmi'
 
-GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
-
-/proc/init_painted_mask_blank_grid()
-	var/icon/source = icon(DEFAULT_ICON_WEAR_MASK, PAINTED_MASK_STATE, SOUTH)
-	. = list()
-	for(var/y in 1 to PAINTED_MASK_HEIGHT)
-		var/list/row = list()
-		for(var/x in 1 to PAINTED_MASK_WIDTH)
-			var/pixel = source.GetPixel(PAINTED_MASK_WORN_X + x - 1, PAINTED_MASK_WORN_Y + PAINTED_MASK_HEIGHT - y)
-			if(!pixel)
-				row += "#00000000"
-			else
-				row += length(pixel) == 7 ? "[pixel]ff" : pixel
-		. += list(row)
-
 /obj/item/clothing/mask/painted
 	name = "papier-mache mask"
 	desc = "Гладкая заготовка из папье-маше. Разрисуйте её на свой вкус."
@@ -31,9 +16,9 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 	item_state = "mime"
 	flags_cover = MASKCOVERSEYES
 	custom_price = PAYCHECK_CREW
-	/// The sprite editor workspace that carries the face painted onto this mask
+	sprite_sheets = null
 	var/datum/sprite_editor_workspace/workspace
-	var/rebuild_timer
+	var/painted = FALSE
 
 /obj/item/clothing/mask/painted/get_ru_names()
 	return alist(
@@ -54,14 +39,12 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 		config_flags = NONE,
 		tool_flags = SPRITE_EDITOR_TOOL_PENCIL | SPRITE_EDITOR_TOOL_BUCKET | SPRITE_EDITOR_TOOL_ERASER
 	)
-	var/list/blank_frame = workspace.layers[1]["data"]["[SOUTH]"]
-	for(var/i in 1 to PAINTED_MASK_HEIGHT)
-		var/list/blank_row = GLOB.painted_mask_blank_grid[i]
-		blank_frame[i] = blank_row.Copy()
+	var/icon/blank = icon(DEFAULT_ICON_WEAR_MASK, PAINTED_MASK_STATE, SOUTH)
+	blank.Crop(PAINTED_MASK_WORN_X, PAINTED_MASK_WORN_Y, PAINTED_MASK_WORN_X + PAINTED_MASK_WIDTH - 1, PAINTED_MASK_WORN_Y + PAINTED_MASK_HEIGHT - 1)
+	fill_grid_from_icon(workspace.get_first_layer_pixel_data(), blank)
 	RegisterSignal(workspace, COMSIG_SPRITE_EDITOR_VALIDATE_COLOR, PROC_REF(validate_color))
 
 /obj/item/clothing/mask/painted/Destroy()
-	deltimer(rebuild_timer)
 	QDEL_NULL(workspace)
 	return ..()
 
@@ -103,6 +86,12 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 		"editable" = !isnull(implement_color),
 	)
 
+/obj/item/clothing/mask/painted/ui_close(mob/user)
+	if(!painted)
+		return
+	painted = FALSE
+	rebuild_art()
+
 /obj/item/clothing/mask/painted/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
 	if(.)
@@ -116,10 +105,13 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 			if(params["command"] != "transaction")
 				return
 
+			if(isnull(get_paint_tool_color(implement)))
+				return
+
 			if(!workspace.new_transaction(params["transaction"]))
 				return
 
-			rebuild_timer = addtimer(CALLBACK(src, PROC_REF(rebuild_art)), 1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_STOPPABLE)
+			painted = TRUE
 
 		if("onSelectColor")
 			. = TRUE
@@ -140,7 +132,6 @@ GLOBAL_LIST_INIT(painted_mask_blank_grid, init_painted_mask_blank_grid())
 
 		if("finalize")
 			. = TRUE
-			rebuild_art()
 			SStgui.close_uis(src)
 
 /obj/item/clothing/mask/painted/proc/validate_color(_source, paint_color)
