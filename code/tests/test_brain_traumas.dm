@@ -105,6 +105,16 @@
 				drawn_pixels++
 	TEST_ASSERT(drawn_pixels, "the alter ego's appearance rendered completely blank")
 
+/datum/unit_test/room_test/trapped_owner_appearance/Run()
+	var/mob/living/carbon/human/body = allocate(/mob/living/carbon/human)
+	var/mob/camera/imaginary_friend/trapped/remnant = allocate(/mob/camera/imaginary_friend/trapped)
+	remnant.attach_to_owner(body)
+	remnant.setup_appearance()
+
+	TEST_ASSERT_EQUAL(remnant.real_name, "[body.real_name]?", "the trapped victim did not take its host's name")
+	TEST_ASSERT_NOTNULL(remnant.friend_icon, "the trapped victim was given no appearance at all")
+	TEST_ASSERT(remnant in body.imaginary_group, "the trapped victim never joined its host's imaginary group")
+
 /datum/unit_test/room_test/alter_ego_outfit/Run()
 	var/mob/living/carbon/human/wearer = allocate(/mob/living/carbon/human)
 	wearer.equipOutfit(/datum/outfit/alter_ego, visualsOnly = TRUE)

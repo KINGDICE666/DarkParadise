@@ -475,19 +475,23 @@
 	if(!ego_ckey || owner.stat == DEAD || !owner.client)
 		return
 
+	var/mob/living/carbon/body = owner
+	var/datum/brain_trauma/special/imaginary_friend/trapped_owner/remnant = body.gain_trauma(/datum/brain_trauma/special/imaginary_friend/trapped_owner)
+	if(!remnant)
+		return
+
 	to_chat(owner, span_userdanger("Вы наконец понимаете, кто из вас двоих был лишним. Это были вы."))
 	to_chat(friend, span_userdanger("Хватит прятаться. Это тело ваше."))
 	add_game_logs("took over [key_name(owner)]'s body as a dominant alter ego", friend)
 	message_admins("[ADMIN_LOOKUPFLW(friend)] took over [ADMIN_LOOKUPFLW(owner)]'s body as a dominant alter ego.")
 
-	var/mob/living/carbon/body = owner
 	var/mob/dead/observer/displaced = body.ghostize(0)
+	GLOB.non_respawnable_keys -= displaced.ckey
 	body.possess_by_player(ego_ckey)
 	taken_over = TRUE
 	qdel(src)
 
-	var/datum/brain_trauma/special/imaginary_friend/trapped_owner/remnant = body.gain_trauma(/datum/brain_trauma/special/imaginary_friend/trapped_owner)
-	remnant?.add_friend(displaced)
+	remnant.add_friend(displaced)
 
 /mob/camera/imaginary_friend/alter_ego
 	desc = "Тот, кем его хозяин боится быть."
