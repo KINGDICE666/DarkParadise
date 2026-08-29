@@ -450,7 +450,7 @@
 	set_invis_see(initial(see_invisible))
 	nightvision = initial(nightvision)
 	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
+	lighting_cutoff = initial(lighting_cutoff)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
@@ -459,15 +459,15 @@
 
 	if(sight_mode & SILICONMESON)
 		add_sight(SEE_TURFS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 
 	if(sight_mode & SILICONTHERM)
 		add_sight(SEE_MOBS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 
 	if(sight_mode & SILICONNIGHTVISION)
 		nightvision = 8
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+		lighting_cutoff = LIGHTING_CUTOFF_HIGH
 
 	..()
 

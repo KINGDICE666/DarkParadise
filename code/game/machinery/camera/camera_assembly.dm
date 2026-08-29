@@ -8,7 +8,7 @@
 /obj/item/camera_assembly
 	name = "camera assembly"
 	desc = "A pre-fabricated security camera kit, ready to be assembled and mounted to a surface."
-	icon = 'icons/obj/machines/monitors.dmi'
+	icon = 'icons/obj/machines/camera.dmi'
 	icon_state = "cameracase"
 	w_class = WEIGHT_CLASS_SMALL
 	materials = list(MAT_METAL=400, MAT_GLASS=250)
@@ -154,7 +154,7 @@
 
 /obj/item/camera_assembly/update_icon_state()
 	if(anchored)
-		icon_state = "camera1"
+		icon_state = "camera_off"
 	else
 		icon_state = "cameracase"
 

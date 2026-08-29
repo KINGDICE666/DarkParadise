@@ -9,7 +9,7 @@ GLOBAL_LIST_EMPTY(overminds)
 	nightvision = 8
 	sight = SEE_TURFS|SEE_MOBS|SEE_OBJS
 	invisibility = INVISIBILITY_OBSERVER
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	mouse_opacity = MOUSE_OPACITY_OPAQUE
 	see_invisible = SEE_INVISIBLE_LIVING
 	pass_flags = PASSBLOB
@@ -102,7 +102,7 @@ GLOBAL_LIST_EMPTY(overminds)
 		return FALSE
 	sync_mind()
 	update_health_hud()
-	sync_lighting_plane_alpha()
+	sync_lighting_plane_cutoff()
 	add_points(0)
 	var/turf/T = get_turf(src)
 	if(isturf(T))

@@ -279,8 +279,8 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 	var/list/keybindings_overrides = null
 	/// View range preference for this client
 	var/viewrange = DEFAULT_CLIENT_VIEWSIZE
-	/// How dark things are if client is a ghost, 0-255
-	var/ghost_darkness_level = LIGHTING_PLANE_ALPHA_VISIBLE
+	/// How much darkness is cut off if client is a ghost, 0-100
+	var/ghost_darkness_level = LIGHTING_CUTOFF_VISIBLE
 
 	/// Minigames notification about their end, start and etc.
 	var/minigames_notifications = TRUE

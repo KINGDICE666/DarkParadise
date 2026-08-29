@@ -26,7 +26,7 @@
 	melee_damage_lower = 15
 	melee_damage_upper = 15
 	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	vision_range = 1 // Only attack when target is close
 	wander = 0
 	attacktext = "кусает"

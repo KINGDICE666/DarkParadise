@@ -91,16 +91,23 @@
 	if((stat & BROKEN) || panel_open)
 		return
 
-	. += "smes-op[outputting]"
+	var/output_state = "smes-op[outputting]"
+	. += output_state
+	. += emissive_appearance(icon, "[output_state]_lightmask", src)
 
+	var/input_state
 	if(inputting)
-		. += "smes-oc[inputting]"
+		input_state = "smes-oc[inputting]"
 	else if(input_attempt)
-		. += "smes-oc0"
+		input_state = "smes-oc0"
+	if(input_state)
+		. += input_state
+		. += emissive_appearance(icon, "[input_state]_lightmask", src)
 
 	var/clevel = chargedisplay()
 	if(clevel > 0)
 		. += "smes-og[clevel]"
+		. += emissive_appearance(icon, "smes-og[clevel]_lightmask", src)
 
 /obj/machinery/power/smes/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)

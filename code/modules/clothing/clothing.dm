@@ -571,7 +571,8 @@
 
 	var/vision_flags = 0
 	var/see_in_dark = 0
-	var/lighting_alpha
+	var/lighting_cutoff
+	var/list/color_cutoffs
 
 	sprite_sheets = list(
 		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/head.dmi',

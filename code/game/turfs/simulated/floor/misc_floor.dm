@@ -12,6 +12,9 @@
 
 /turf/simulated/floor/bluegrid
 	icon_state = "bcircuit"
+	light_range = 2
+	light_power = 1.5
+	light_color = LIGHT_COLOR_BABY_BLUE
 
 /turf/simulated/floor/bluegrid/telecomms
 	nitrogen = 100
@@ -23,13 +26,19 @@
 
 /turf/simulated/floor/greengrid
 	icon_state = "gcircuit"
+	light_range = 2
+	light_power = 1.5
+	light_color = LIGHT_COLOR_VIVID_GREEN
 
 /turf/simulated/floor/bluegrid/telecomms/mainframe
 	name = "Mainframe Floor"
 	icon_state = "dark"
+	light_range = 0
 
 /turf/simulated/floor/bluegrid/telecomms/mainframe/gcircuit
 	icon_state = "gcircuit"
+	light_range = 2
+	light_color = LIGHT_COLOR_VIVID_GREEN
 
 /turf/simulated/floor/greengrid/airless
 	name = "airless floor"
@@ -43,6 +52,9 @@
 
 /turf/simulated/floor/redgrid
 	icon_state = "rcircuit"
+	light_range = 2
+	light_power = 1.5
+	light_color = LIGHT_COLOR_INTENSE_RED
 
 /turf/simulated/floor/beach
 	name = "beach"

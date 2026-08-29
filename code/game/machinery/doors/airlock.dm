@@ -43,6 +43,7 @@
 GLOBAL_LIST_EMPTY(restricted_door_tags)
 GLOBAL_LIST_EMPTY(airlock_overlays)
 GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
+GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 
 /obj/machinery/door/airlock
 	name = "airlock"
@@ -93,11 +94,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	var/normal_integrity = AIRLOCK_INTEGRITY_N
 	var/paintable = TRUE // If the airlock type can be painted with an airlock painter
 	var/id //ID for tint controlle
-
-	var/mutable_appearance/old_buttons_underlay
-	var/mutable_appearance/old_lights_underlay
-	var/mutable_appearance/old_damag_underlay
-	var/mutable_appearance/old_sparks_underlay
 
 	var/doorOpen = 'sound/machines/airlock_open.ogg'
 	var/doorClose = 'sound/machines/airlock_close.ogg'
@@ -541,22 +537,11 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	add_overlay(check_unres())
 
 	//EMISSIVE ICONS
-	if(buttons_underlay != old_buttons_underlay)
-		underlays -= old_buttons_underlay
-		underlays += buttons_underlay
-		old_buttons_underlay = buttons_underlay
-	if(lights_underlay != old_lights_underlay)
-		underlays -= old_lights_underlay
-		underlays += lights_underlay
-		old_lights_underlay = lights_underlay
-	if(damag_underlay != old_damag_underlay)
-		underlays -= old_damag_underlay
-		underlays += damag_underlay
-		old_damag_underlay = damag_underlay
-	if(sparks_underlay != old_sparks_underlay)
-		underlays -= old_sparks_underlay
-		underlays += sparks_underlay
-		old_sparks_underlay = sparks_underlay
+	underlays.Cut()
+	for(var/image/body_part in list(frame_overlay, filling_overlay, panel_overlay, weld_overlay, note_overlay))
+		underlays += get_airlock_emissive_blocker(body_part.icon_state, body_part.icon, src)
+	for(var/mutable_appearance/glow in list(buttons_underlay, lights_underlay, damag_underlay, sparks_underlay))
+		underlays += glow
 
 /proc/get_airlock_overlay(icon_state, icon_file)
 	var/iconkey = "[icon_state][icon_file]"
@@ -572,6 +557,14 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		return GLOB.airlock_emissive_underlays[iconkey]
 	GLOB.airlock_emissive_underlays[iconkey] = emissive_appearance(icon_file, icon_state, offset_spokesman = offset_spokesman)
 	return GLOB.airlock_emissive_underlays[iconkey]
+
+/proc/get_airlock_emissive_blocker(icon_state, icon_file, atom/offset_spokesman)
+	var/turf/our_turf = get_turf(offset_spokesman)
+	var/iconkey = "[icon_state][icon_file][GET_TURF_PLANE_OFFSET(our_turf)]"
+	if(GLOB.airlock_emissive_blockers[iconkey])
+		return GLOB.airlock_emissive_blockers[iconkey]
+	GLOB.airlock_emissive_blockers[iconkey] = emissive_blocker(icon_file, icon_state, offset_spokesman = offset_spokesman)
+	return GLOB.airlock_emissive_blockers[iconkey]
 
 /obj/machinery/door/airlock/do_animate(animation)
 	switch(animation)

@@ -20,7 +20,7 @@
 	health =  INFINITY //Revenants don't use health, they use essence instead
 	maxHealth =  INFINITY
 	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	response_help   = "passes through"
 	response_disarm = "swings at"
 	response_harm   = "punches"

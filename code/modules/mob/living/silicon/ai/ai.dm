@@ -1356,14 +1356,14 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	set_invis_see(initial(see_invisible))
 	nightvision = initial(nightvision)
 	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
+	lighting_cutoff = initial(lighting_cutoff)
 
 	if(aiRestorePowerRoutine)
 		clear_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
 		nightvision = 0
 
 	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
+	sync_lighting_plane_cutoff()
 
 	return ..()
 
