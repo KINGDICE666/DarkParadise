@@ -165,6 +165,9 @@ GLOBAL_LIST_EMPTY(channel_to_radio_key)
 				S.message = stutter(S.message)
 			verb = "заика[PLUR_ET_YUT(src)]ся"
 
+		if(HAS_TRAIT(src, TRAIT_UNINTELLIGIBLE_SPEECH))
+			S.message = unintelligize(S.message)
+
 		if(AmountCultSlurring())
 			S.message = cultslur(S.message)
 			verb = "бормоч[PLUR_ET_UT(src)]"

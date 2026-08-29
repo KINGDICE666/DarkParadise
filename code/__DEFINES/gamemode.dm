@@ -111,6 +111,7 @@
 #define SPECIAL_ROLE_THIEF "Thief"
 #define SPECIAL_ROLE_TRADER "Sol Trader"
 #define SPECIAL_ROLE_CONTRACTED_AGENT "Contracted Agent"
+#define SPECIAL_ROLE_OBSESSED "Obsessed"
 #define SPECIAL_ROLE_SPACE_DRAGON "Space Dragon"
 #define SPECIAL_ROLE_EVENTMISC "Event Role"
 #define SPECIAL_ROLE_MALFAI "Malfunctioning AI"

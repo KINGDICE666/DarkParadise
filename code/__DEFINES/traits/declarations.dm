@@ -312,6 +312,10 @@
 #define TRAIT_NO_PAIN "no_pain"
 /// This human mob will not feedback user about the damage done via HUD alerts
 #define TRAIT_NO_PAIN_HUD "no_pain_hud"
+/// This mob keeps acting normally while its health is below the crit threshold
+#define TRAIT_NOSOFTCRIT "nosoftcrit"
+/// This mob is not knocked out by the damage it took past the crit threshold
+#define TRAIT_NOHARDCRIT "nohardcrit"
 /// Another biotype thing
 #define TRAIT_PLANT_ORIGIN "plant_origin"
 /// Another damn biotype
@@ -399,6 +403,27 @@
 #define TRAIT_CAN_SEE_WIRES "can_see_wires"
 
 #define TRAIT_DECOY_BRAIN "decoy_brain"
+
+#define TRAIT_BRAIN_TRAUMA_IMMUNITY "brain_trauma_immunity"
+
+#define TRAIT_SPECIAL_TRAUMA_BOOST "special_trauma_boost"
+
+#define TRAIT_DISCOORDINATED "discoordinated"
+
+#define TRAIT_DUMB "dumb"
+
+#define TRAIT_UNINTELLIGIBLE_SPEECH "unintelligible_speech"
+
+#define TRAIT_ITALIAN_TUMOR "italian_tumor"
+
+#define TRAIT_ILLITERATE "illiterate"
+
+#define TRAIT_PARALYSIS_L_ARM "paralysis_l_arm"
+#define TRAIT_PARALYSIS_R_ARM "paralysis_r_arm"
+#define TRAIT_PARALYSIS_L_LEG "paralysis_l_leg"
+#define TRAIT_PARALYSIS_R_LEG "paralysis_r_leg"
+
+#define TRAIT_ANTIMAGIC "antimagic"
 
 #define TRAIT_BAD_SOUL "bad_soul"
 
@@ -543,6 +568,9 @@
 
 /// eignore blindness or blurriness or nearsightedness
 #define TRAIT_SIGHT_BYPASS "perfect_sight"
+
+/// Mob hears the dead as if it was one of them
+#define TRAIT_SIXTHSENSE "sixthsense"
 
 // Hud traits
 /// This hud is owned by a client with an open escape menu

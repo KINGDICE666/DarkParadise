@@ -31,6 +31,7 @@
 #define ROLE_TRADER "trader"
 #define ROLE_VAMPIRE "vampire"
 #define ROLE_THIEF "thief"
+#define ROLE_OBSESSED "obsessed"
 #define ROLE_TERROR_SPIDER "Terror Spider"
 #define ROLE_BINGLE "Bingle"
 // Role tags for EVERYONE!

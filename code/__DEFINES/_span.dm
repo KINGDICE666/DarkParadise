@@ -176,6 +176,7 @@
 #define span_his_grace(str) ("<span class='his_grace'>[str]</span>")
 #define span_hypnophrase(str) ("<span class='hypnophrase'>" + str + "</span>")
 #define span_mansus(str) ("<span class='mansus'>" + str + "</span>")
+#define span_phobia(str) ("<span class='phobia'>" + str + "</span>")
 #define span_shadowling(str) ("<span class='shadowling'>[str]</span>")
 #define span_shadowling_alt(str) ("<span class='shadowling'>" + str + "</span>")
 #define span_holoparasite(str) ("<span class='holoparasite'>[str]</span>")

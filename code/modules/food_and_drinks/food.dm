@@ -5,6 +5,8 @@
 #define HATE_MESSAGES list("Что это было?! Я ненавижу <b>$TYPE</b>, я же $ASPECIES!", "Это было ужасно! Как уважающий себя $ASPECIES, я не могу есть <b>$TYPE</b>.", "Боже, это было опасно! <b>$CAPITALTYPE</b> $IS вредно для $PLURALSPECIES!")
 #define DISLIKE_MESSAGES list("Не очень вкусно. Мне, как $ASPECIES, лучше избегать <b>$TYPE</b>.", "<b>$CAPITALTYPE</b> $IS не лучшая еда для $PLURALSPECIES. Больше не буду это есть.", "Фу. <b>$CAPITALTYPE</b> $IS не то, что должен есть $ASPECIES.")
 #define LOVE_MESSAGES list("Восхитительно! Обожаю <b>$TYPE</b>!", "Ням. Я создан, чтобы есть <b>$TYPE</b>.", "Обожаю этот вкус. <b>$CAPITALTYPE</b> $IS прекрасно.", "<b>$CAPITALTYPE</b> $IS потрясающе. Надо есть это чаще.")
+#define FLESH_DESIRE_CRAVED_FOOD (MEAT | GROSS)
+#define FLESH_DESIRE_REPULSIVE_FOOD (VEGETABLES | DAIRY | FRUIT | FRIED)
 
 /obj/item/reagent_containers/food
 	possible_transfer_amounts = null
@@ -87,18 +89,25 @@
 	if(last_check_time + 2 SECONDS < world.time)
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
-			if(foodtype & H.dna.species.toxic_food)
-				var/type_string = matched_food_type(foodtype & H.dna.species.toxic_food)
+			var/toxic_food = H.dna.species.toxic_food
+			var/disliked_food = H.dna.species.disliked_food
+			var/liked_food = H.dna.species.liked_food
+			if(HAS_TRAIT(H, TRAIT_FLESH_DESIRE))
+				toxic_food = FLESH_DESIRE_REPULSIVE_FOOD
+				disliked_food &= ~FLESH_DESIRE_CRAVED_FOOD
+				liked_food = FLESH_DESIRE_CRAVED_FOOD
+			if(foodtype & toxic_food)
+				var/type_string = matched_food_type(foodtype & toxic_food)
 				to_chat(H, span_warning("[format_message(type_string, HATE_MESSAGES, H.dna.species)]"))
 
 				H.AdjustDisgust((25 + 30 * fraction) STATUS_EFFECT_CONSTANT)
-			if(foodtype & H.dna.species.disliked_food)
-				var/type_string = matched_food_type(foodtype & H.dna.species.disliked_food)
+			if(foodtype & disliked_food)
+				var/type_string = matched_food_type(foodtype & disliked_food)
 				to_chat(H, span_warning("[format_message(type_string, DISLIKE_MESSAGES, H.dna.species)]"))
 
 				H.AdjustDisgust((15 + 16 * fraction) STATUS_EFFECT_CONSTANT)
-			if(foodtype & H.dna.species.liked_food)
-				var/type_string = matched_food_type(foodtype & H.dna.species.liked_food)
+			if(foodtype & liked_food)
+				var/type_string = matched_food_type(foodtype & liked_food)
 				to_chat(H, span_notice("[format_message(type_string, LOVE_MESSAGES, H.dna.species)]"))
 
 				H.AdjustDisgust((-12 + -8 * fraction) STATUS_EFFECT_CONSTANT)
@@ -180,3 +189,5 @@
 #undef HATE_MESSAGES
 #undef DISLIKE_MESSAGES
 #undef LOVE_MESSAGES
+#undef FLESH_DESIRE_CRAVED_FOOD
+#undef FLESH_DESIRE_REPULSIVE_FOOD

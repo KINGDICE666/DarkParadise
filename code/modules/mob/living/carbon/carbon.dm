@@ -285,6 +285,8 @@
 			span_notice("Вы обнимаете [name]."),
 		)
 
+	SEND_SIGNAL(shaker, COMSIG_CARBON_HELPED, src)
+
 	if(ishuman(src))
 		var/mob/living/carbon/human/human_src = src
 		if(human_src.wear_suit)

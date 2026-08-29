@@ -25,11 +25,6 @@
 /// From the Cosmic-path hunter rifle (/obj/item/gun/...) when its projectile hits a target.
 #define COMSIG_LIONHUNTER_ON_HIT "lionhunter_on_hit"
 
-/// Sent on a carbon when they're about to gain a brain trauma : (datum/brain_trauma/trauma, resilience)
-#define COMSIG_CARBON_GAIN_TRAUMA "carbon_gain_trauma"
-	/// Return to block the trauma from being applied.
-	#define COMSIG_CARBON_BLOCK_TRAUMA (1<<0)
-
 // Heretic-used signals absent from master220. Defined so listeners compile.
 // NOTE: master220 may not emit all of these yet — the corresponding behaviour needs runtime-pass wiring.
 /// From a touch spell cast without a free hand (handless cast).

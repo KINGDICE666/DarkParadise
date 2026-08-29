@@ -1,69 +1,69 @@
 /datum/brain_trauma/hypnosis
-	name = "Гипноз"
-	desc = "Подсознание пациента полностью захвачено словом или фразой, подчиняющей его мысли и действия."
-	scan_desc = "зацикленный паттерн мышления"
+	name = "Hypnosis"
+	desc = "Подсознание пациента полностью захвачено словом или фразой, вокруг которой вращаются все его мысли и поступки."
+	scan_desc = "зациклившийся ход мыслей"
 	gain_text = ""
 	lose_text = ""
 	resilience = TRAUMA_RESILIENCE_SURGERY
 	random_gain = FALSE
 	var/datum/antagonist/hypnotized/antagonist
-	var/hypnotic_phrase = ""
+	var/hypnotic_phrase
 	var/regex/target_phrase
 
 /datum/brain_trauma/hypnosis/New(phrase)
 	if(!phrase)
 		qdel(src)
 		return
+
 	hypnotic_phrase = phrase
 	try
 		target_phrase = new("(\\b[REGEX_QUOTE(hypnotic_phrase)]\\b)", "ig")
-	catch(var/exception/error)
-		stack_trace("[error] on [error.file]:[error.line]")
+	catch(var/exception/regex_error)
+		stack_trace("[regex_error] on [regex_error.file]:[regex_error.line]")
 		qdel(src)
 	..()
 
 /datum/brain_trauma/hypnosis/on_gain()
-	message_admins("[ADMIN_LOOKUPFLW(owner)] has been hypnotized with the phrase '[hypnotic_phrase]'.")
-	add_game_logs("was hypnotized with the phrase '[hypnotic_phrase]'.", owner)
+	message_admins("[ADMIN_LOOKUPFLW(owner)] was hypnotized with the phrase '[hypnotic_phrase]'.")
+	owner.create_log(MISC_LOG, "was hypnotized with the phrase '[hypnotic_phrase]'")
 	to_chat(owner, span_reallybig(span_hypnophrase("[hypnotic_phrase]")))
-	to_chat(owner, span_notice("[pick(list(
-			"Что-то в этих словах звучит... правильно. Вы чувствуете, что должны следовать им.",
-			"Эти слова эхом отдаются в вашей голове. Вы полностью очарованы ими.",
-			"Часть вашего разума повторяет это снова и снова. Вы должны следовать этим словам.",
-			"Ваши мысли сосредотачиваются на этой фразе... вы не можете выкинуть её из головы.",
-			"Голова болит, но это — всё, о чём вы можете думать. Это должно быть жизненно важно.",
-	))]"))
-	to_chat(owner, span_boldwarning("Вы загипнотизированы этой фразой. Вы должны следовать этим словам. \
-		Если это не прямой приказ, вы можете свободно трактовать, как именно им следовать, \
-		но вы обязаны вести себя так, будто эти слова — ваш наивысший приоритет."))
+	to_chat(owner, span_notice(pick(
+		"Что-то в этих словах кажется... правильным. Вы чувствуете, что должны им следовать.",
+		"Эти слова эхом отдаются в голове. Вы полностью ими очарованы.",
+		"Часть вашего разума повторяет это снова и снова. Вы должны следовать этим словам.",
+		"Ваши мысли сходятся на этой фразе... вы не можете выкинуть её из головы.",
+		"Голова болит, но вы способны думать только об этом. Это жизненно важно.",
+	)))
+	to_chat(owner, span_boldwarning("Вы загипнотизированы этой фразой и должны ей следовать. Если это не прямой приказ, вы вольны трактовать его как угодно, пока действуете так, будто эти слова — ваш главный приоритет."))
 	var/atom/movable/screen/alert/hypnosis/hypno_alert = owner.throw_alert("hypnosis", /atom/movable/screen/alert/hypnosis)
+	if(hypno_alert)
+		hypno_alert.desc = "«[hypnotic_phrase]»... ваш разум зациклен на этой мысли."
 	if(owner.mind)
 		antagonist = owner.mind.add_antag_datum(new /datum/antagonist/hypnotized(hypnotic_phrase))
 		antagonist.trauma = src
-	if(hypno_alert)
-		hypno_alert.desc = "\"[hypnotic_phrase]\"... ваш разум зациклен на этой мысли."
 	return ..()
 
 /datum/brain_trauma/hypnosis/on_lose(silent)
 	message_admins("[ADMIN_LOOKUPFLW(owner)] is no longer hypnotized with the phrase '[hypnotic_phrase]'.")
-	add_game_logs("is no longer hypnotized with the phrase '[hypnotic_phrase]'.", owner)
-	to_chat(owner, span_userdanger("Вы внезапно выходите из гипноза. Фраза '[hypnotic_phrase]' больше не кажется вам важной."))
+	owner.create_log(MISC_LOG, "is no longer hypnotized with the phrase '[hypnotic_phrase]'")
+	to_chat(owner, span_userdanger("Гипноз внезапно отпускает вас. Фраза «[hypnotic_phrase]» больше не кажется важной."))
 	owner.clear_alert("hypnosis")
-	..()
-	if(!isnull(antagonist))
+	if(antagonist)
 		antagonist.trauma = null
 	owner.mind?.remove_antag_datum(/datum/antagonist/hypnotized)
 	antagonist = null
+	return ..()
 
-/datum/brain_trauma/hypnosis/on_life(seconds_per_tick, times_fired)
-	..()
-	if(SPT_PROB(1, seconds_per_tick))
+/datum/brain_trauma/hypnosis/on_life()
+	if(prob(2))
 		to_chat(owner, span_hypnophrase("<i>...[lowertext(hypnotic_phrase)]...</i>"))
 
-/datum/brain_trauma/hypnosis/handle_hearing(datum/source, list/hearing_args)
-	if(!target_phrase || HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
+/datum/brain_trauma/hypnosis/handle_hearing(datum/source, mob/speaker, list/message_pieces)
+	if(!target_phrase || HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
 		return
-	hearing_args[HEARING_RAW_MESSAGE] = target_phrase.Replace(hearing_args[HEARING_RAW_MESSAGE], span_hypnophrase("$1"))
+
+	for(var/datum/multilingual_say_piece/piece in message_pieces)
+		piece.message = target_phrase.Replace(piece.message, span_hypnophrase("$1"))
 
 /atom/movable/screen/alert/hypnosis
 	name = "Гипноз"

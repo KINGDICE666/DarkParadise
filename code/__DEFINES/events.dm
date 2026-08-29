@@ -13,6 +13,7 @@
 #define EVENT_APPENDIX "Аппендицит"
 #define EVENT_BLOB "Блоб"
 #define EVENT_BORER_INFESTATION "Нашествие бореров"
+#define EVENT_BRAIN_TRAUMA "Спонтанная травма мозга"
 #define EVENT_CARP_INFESTATION "Скопление карпов"
 #define EVENT_CARP_MIGRATION "Миграция карпов"
 #define EVENT_CURSED_PIANO "Проклятое фортепиано"

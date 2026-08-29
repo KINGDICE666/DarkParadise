@@ -336,6 +336,16 @@
 	)
 
 
+/obj/item/clothing/suit/hooded/cultrobes/eldritch/cosmic/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	if(slot != ITEM_SLOT_CLOTH_OUTER)
+		return
+	if(IS_HERETIC(user) || !iscarbon(user))
+		return
+	var/mob/living/carbon/thief = user
+	thief.gain_trauma(/datum/brain_trauma/magic/stalker/cosmic, TRAUMA_RESILIENCE_MAGIC)
+
+
 /obj/item/clothing/suit/hooded/cultrobes/eldritch/cosmic/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(istype(action, /datum/action/item_action/toggle_gravity))
 		toggle_gravity(user)

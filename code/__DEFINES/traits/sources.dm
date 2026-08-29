@@ -223,3 +223,5 @@
 
 /// Trait granted by lipstick
 #define LIPSTICK_TRAIT "lipstick_trait"
+
+#define TRAUMA_TRAIT "trauma"
