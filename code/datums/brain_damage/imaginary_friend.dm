@@ -165,10 +165,19 @@
 
 	var/datum/job/dressed_as = pick(SSjobs.occupations)
 	model.equipOutfit(dressed_as.outfit, visualsOnly = TRUE)
-	friend_icon = getFlatIcon(model)
+	build_friend_icon(model)
 	qdel(model)
 	qdel(appearance)
 	show_self()
+
+/mob/camera/imaginary_friend/proc/build_friend_icon(mob/living/carbon/human/dummy/model)
+	var/list/directional_icons = list()
+	for(var/direction in GLOB.cardinal)
+		directional_icons += getFlatIcon(model, defdir = direction)
+
+	friend_icon = new /icon()
+	for(var/index in 1 to length(GLOB.cardinal))
+		friend_icon.Insert(directional_icons[index], "", GLOB.cardinal[index])
 
 /mob/camera/imaginary_friend/proc/group_clients()
 	var/list/group = list()
@@ -183,6 +192,7 @@
 
 	var/list/friend_clients = group_clients() - client
 	remove_image_from_clients(current_image, friend_clients)
+	client.images -= current_image
 
 	current_image = image(friend_icon, src, null, MOB_LAYER, dir)
 	current_image.override = TRUE
@@ -517,7 +527,7 @@
 	gender = model.gender
 
 	model.equipOutfit(/datum/outfit/alter_ego, visualsOnly = TRUE)
-	friend_icon = getFlatIcon(model)
+	build_friend_icon(model)
 	qdel(model)
 	qdel(appearance)
 	show_self()

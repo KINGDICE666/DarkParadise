@@ -88,6 +88,15 @@
 				drawn_pixels++
 	TEST_ASSERT(drawn_pixels, "the imaginary friend's appearance rendered completely blank")
 
+	var/icon/facing_north = icon(appearance, dir = NORTH)
+	var/icon/facing_south = icon(appearance, dir = SOUTH)
+	var/directional_pixels = 0
+	for(var/pixel_x in 1 to appearance.Width())
+		for(var/pixel_y in 1 to appearance.Height())
+			if(facing_north.GetPixel(pixel_x, pixel_y) != facing_south.GetPixel(pixel_x, pixel_y))
+				directional_pixels++
+	TEST_ASSERT(directional_pixels, "the imaginary friend's appearance does not change with direction")
+
 /datum/unit_test/room_test/alter_ego_appearance/Run()
 	var/mob/camera/imaginary_friend/alter_ego/tyler = allocate(/mob/camera/imaginary_friend/alter_ego)
 	tyler.setup_appearance()
