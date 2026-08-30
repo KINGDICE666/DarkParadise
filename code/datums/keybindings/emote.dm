@@ -693,6 +693,17 @@
 	name = "Рычать (вульпы)"
 
 /**
+ * MARK: Trottine
+ */
+/datum/keybinding/emote/carbon/human/swine/oink
+	linked_emote = /datum/emote/living/carbon/human/swine/oink
+	name = "Хрюкать (троттины)"
+
+/datum/keybinding/emote/carbon/human/swine/squeal
+	linked_emote = /datum/emote/living/carbon/human/swine/squeal
+	name = "Визжать (троттины)"
+
+/**
  * MARK: Tajaran
  */
 /datum/keybinding/emote/carbon/human/tajaran/hiss

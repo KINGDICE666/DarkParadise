@@ -93,6 +93,9 @@
 /mob/living/carbon/human/voxarmalis/Initialize(mapload)
 	. = ..(mapload, /datum/species/vox/armalis)
 
+/mob/living/carbon/human/swine/Initialize(mapload)
+	. = ..(mapload, /datum/species/swine)
+
 /mob/living/carbon/human/skeleton/Initialize(mapload)
 	. = ..(mapload, /datum/species/skeleton)
 

@@ -710,6 +710,8 @@
 	for(var/obj/item/thing as anything in get_equipped_items())
 		if(!(thing.item_flags & IGNORE_SLOWDOWN))
 			. += thing.slowdown
+	if(. > 0)
+		. *= dna.species.equipment_slowdown_mod
 
 /// Returns if the carbon is wearing shock proof gloves
 /mob/living/carbon/human/proc/wearing_shock_proof_gloves()
