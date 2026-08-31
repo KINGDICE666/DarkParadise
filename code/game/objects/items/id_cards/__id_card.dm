@@ -30,6 +30,8 @@
 	var/mining_points = 0
 	/// Total mining points earned on the current Shift.
 	var/total_mining_points = 0
+	/// For redeeming at the bitrunning vendor
+	var/bitrunning_points = 0
 	var/list/access = list()
 	var/law_level = LAW_LEVEL_BASE
 	/// The name, registered on the card

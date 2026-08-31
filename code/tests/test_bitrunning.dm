@@ -1,0 +1,46 @@
+/datum/unit_test/room_test/bitrunning
+
+/datum/unit_test/room_test/bitrunning/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	var/obj/machinery/byteforge/forge = allocate(/obj/machinery/byteforge, locate(anchor.x + 1, anchor.y, anchor.z))
+
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_OUTPOST), "server failed to boot the outpost domain")
+	TEST_ASSERT_NOTNULL(server.generated_domain, "server lost the reference to the loaded domain")
+	TEST_ASSERT_NOTNULL(server.domain_reservation, "server lost the reference to the domain reservation")
+	TEST_ASSERT(length(server.exit_turfs), "no exit turfs were collected from the domain")
+	TEST_ASSERT(length(server.goal_turfs), "no goal turfs were collected from the domain")
+
+	var/obj/structure/closet/crate/secure/bitrunning/encrypted/cache
+	for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
+		cache = locate() in tile
+		if(cache)
+			break
+
+	TEST_ASSERT_NOTNULL(cache, "the domain loaded without an encrypted cache")
+
+	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/avatar = server.start_new_connection(pilot)
+	TEST_ASSERT_NOTNULL(avatar, "server failed to build an avatar")
+	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
+	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
+
+	var/points_before = server.points
+	var/reward_points = server.generated_domain.reward_points
+	cache.forceMove(pick(server.goal_turfs))
+
+	TEST_ASSERT(server.domain_complete, "delivering the cache did not complete the domain")
+	TEST_ASSERT_EQUAL(server.points, points_before + reward_points, "completing the domain did not award server points")
+
+	sleep(2 SECONDS)
+
+	var/obj/structure/closet/crate/secure/bitrunning/decrypted/reward = locate() in get_turf(forge)
+	TEST_ASSERT_NOTNULL(reward, "the byteforge did not materialize a decrypted cache")
+	TEST_ASSERT(locate(/obj/item/stack/ore/iron) in reward, "the decrypted cache came without ore")
+	TEST_ASSERT(locate(/obj/item/paper) in reward, "the decrypted cache came without a completion certificate")
+	TEST_ASSERT(locate(/obj/item/stack/sheet/metal) in reward, "the decrypted cache came without the domain completion loot")
+
+	server.scrub_vdom()
+	TEST_ASSERT_NULL(server.generated_domain, "scrubbing did not clear the loaded domain")
+	TEST_ASSERT_NULL(server.domain_reservation, "scrubbing did not release the domain reservation")
+	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
