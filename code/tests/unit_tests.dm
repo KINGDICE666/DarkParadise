@@ -15,6 +15,7 @@
 #include "test_announcements.dm"
 #include "test_asset_smart_cache.dm"
 #include "test_brain_traumas.dm"
+#include "test_circuit_import.dm"
 #include "test_components.dm"
 #include "test_detect_room.dm"
 #include "test_elements.dm"
