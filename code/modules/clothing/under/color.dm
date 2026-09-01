@@ -14,6 +14,7 @@
 	)
 	greyscale_config_worn_species = list(
 		SPECIES_VOX = /datum/greyscale_config/jumpsuit_worn/vox,
+		SPECIES_SWINE = /datum/greyscale_config/jumpsuit_worn/swine,
 		SPECIES_UNATHI = /datum/greyscale_config/jumpsuit_worn/unathi,
 		SPECIES_ASHWALKER_BASIC = /datum/greyscale_config/jumpsuit_worn/unathi,
 		SPECIES_ASHWALKER_SHAMAN = /datum/greyscale_config/jumpsuit_worn/unathi,
@@ -192,6 +193,7 @@
 	)
 	greyscale_config_worn_species = list(
 		SPECIES_VOX = /datum/greyscale_config/jumpsuit_prison_worn/vox,
+		SPECIES_SWINE = /datum/greyscale_config/jumpsuit_prison_worn/swine,
 		SPECIES_DRASK = /datum/greyscale_config/jumpsuit_prison_worn/drask,
 		SPECIES_UNATHI = /datum/greyscale_config/jumpsuit_prison_worn/unathi,
 		SPECIES_ASHWALKER_BASIC = /datum/greyscale_config/jumpsuit_prison_worn/unathi,

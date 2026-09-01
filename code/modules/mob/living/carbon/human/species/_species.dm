@@ -118,6 +118,9 @@
 	var/list/default_genes
 	/// Species movement speed. Positive numbers make it move slower, negative numbers make it move faster
 	var/speed_mod = 0
+	var/blood_volume_mod = 1
+	var/equipment_slowdown_mod = 1
+	var/climb_speed_mod = 1
 
 	var/has_fine_manipulation = 1 // Can use small items.
 	var/fingers_count = 10
@@ -143,6 +146,7 @@
 	var/can_craft = TRUE //! Can this mob using crafting or not?
 
 	var/bodyflags = 0
+	var/list/worn_sheets
 
 	var/blood_color = BLOOD_COLOR_RED
 	var/flesh_color = "#d1aa2e" //Gold.
@@ -373,6 +377,9 @@
 	if(speed_mod)
 		target.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/species_speedmod, multiplicative_slowdown = speed_mod)
 
+	if(blood_volume_mod != 1)
+		target.setBlood(target.blood_volume * blood_volume_mod)
+
 	if(toolspeedmod)
 		target.add_or_update_variable_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod, multiplicative_slowdown = toolspeedmod)
 
@@ -437,6 +444,9 @@
 
 	if(speed_mod)
 		human.remove_movespeed_modifier(/datum/movespeed_modifier/species_speedmod)
+
+	if(blood_volume_mod != 1)
+		human.setBlood(human.blood_volume / blood_volume_mod)
 
 	if(toolspeedmod)
 		human.remove_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod)
