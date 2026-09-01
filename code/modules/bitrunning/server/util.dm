@@ -80,7 +80,26 @@
 	pilot.dna.transfer_identity(avatar)
 	avatar.equipOutfit(generated_domain.forced_outfit || /datum/outfit/bit_avatar)
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
+	stock_gear(avatar, pilot)
 	return avatar
+
+/obj/machinery/quantum_server/proc/stock_gear(mob/living/carbon/human/avatar, mob/living/carbon/human/pilot)
+	var/domain_flags = generated_domain.domain_flags
+	var/list/forbidden = list()
+	if(domain_flags & DOMAIN_FORBIDS_ITEMS)
+		forbidden += "предметы"
+	if(domain_flags & DOMAIN_FORBIDS_ABILITIES)
+		forbidden += "способности"
+
+	if(length(forbidden))
+		to_chat(pilot, span_warning("Домен запрещает подгружать [english_list(forbidden, and_text = " и ")] — ваши диски не сработают."))
+
+	var/load_result = SEND_SIGNAL(pilot, COMSIG_BITRUNNER_STOCKING_GEAR, avatar, domain_flags)
+
+	if(load_result & BITRUNNER_GEAR_LOAD_FAILED)
+		to_chat(pilot, span_warning("Как минимум один диск не смог загрузиться. Проверьте, не дублируются ли записи."))
+	if(load_result & BITRUNNER_GEAR_LOAD_BLOCKED)
+		to_chat(pilot, span_warning("Как минимум один диск заблокирован ограничениями домена."))
 
 /obj/machinery/quantum_server/proc/get_random_domain_id()
 	var/list/datum/lazy_template/virtual_domain/available = list()

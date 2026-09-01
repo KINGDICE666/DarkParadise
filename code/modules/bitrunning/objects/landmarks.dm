@@ -17,4 +17,3 @@
 
 /obj/effect/landmark/bitrunning/cache_spawn
 	name = "Bitrunning crate spawn"
-	icon_state = "crate"

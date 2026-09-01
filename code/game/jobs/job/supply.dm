@@ -75,6 +75,30 @@
 	pda = /obj/item/pda/cargo
 	backpack = /obj/item/storage/backpack/cargo
 
+/datum/job/supply/bitrunner
+	title = JOB_TITLE_BITRUNNER
+	flag = JOB_FLAG_BITRUNNER
+	total_positions = 2
+	spawn_positions = 2
+	access = list(ACCESS_MAINT_TUNNELS, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_BITRUNNING, ACCESS_MINERAL_STOREROOM, ACCESS_MINING)
+	minimal_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_BITRUNNING, ACCESS_MINERAL_STOREROOM)
+	alt_titles = list(
+		ALT_JOB_TITLE_RU_VIRTUAL_DIVER,
+		ALT_JOB_TITLE_RU_DOMAIN_OPERATOR,
+	)
+	outfit = /datum/outfit/job/bitrunner
+
+/datum/outfit/job/bitrunner
+	name = JOB_TITLE_RU_BITRUNNER
+	jobtype = /datum/job/supply/bitrunner
+
+	uniform = /obj/item/clothing/under/rank/bitrunner
+	shoes = /obj/item/clothing/shoes/black
+	l_ear = /obj/item/radio/headset/headset_cargo
+	id = /obj/item/card/id/supply
+	pda = /obj/item/pda/cargo
+	backpack = /obj/item/storage/backpack/cargo
+
 /datum/job/supply/mining
 	title = JOB_TITLE_MINER
 	flag = JOB_FLAG_MINER

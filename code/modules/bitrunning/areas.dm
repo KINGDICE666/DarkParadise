@@ -1,7 +1,6 @@
 /area/station/cargo/bitrunning
 	name = "Bitrunning Den"
 	icon_state = "quartoffice"
-	sound_environment = SOUND_AREA_STANDARD_STATION
 
 /area/virtual_domain
 	name = "Virtual Domain"

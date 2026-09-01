@@ -9,3 +9,4 @@
 #define COMSIG_BITRUNNER_NETPOD_SEVER "bitrunner_netpod_sever"
 #define COMSIG_BITRUNNER_QSRV_SEVER "bitrunner_qsrv_sever"
 #define COMSIG_BITRUNNER_SHUTDOWN_ALERT "bitrunner_shutdown_alert"
+#define COMSIG_BITRUNNER_STOCKING_GEAR "bitrunner_stocking_gear"

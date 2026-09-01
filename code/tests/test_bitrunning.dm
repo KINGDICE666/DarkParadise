@@ -20,8 +20,13 @@
 	TEST_ASSERT_NOTNULL(cache, "the domain loaded without an encrypted cache")
 
 	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human)
+	var/obj/item/disk/bitrunning/item/tier1/program = allocate(/obj/item/disk/bitrunning/item/tier1)
+	program.selected_path = /obj/item/resonator
+	pilot.put_in_hands(program)
+
 	var/mob/living/carbon/human/avatar = server.start_new_connection(pilot)
 	TEST_ASSERT_NOTNULL(avatar, "server failed to build an avatar")
+	TEST_ASSERT(locate(/obj/item/resonator) in avatar, "the carried program did not load its gear onto the avatar")
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
 
