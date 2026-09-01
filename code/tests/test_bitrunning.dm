@@ -18,6 +18,8 @@
 			break
 
 	TEST_ASSERT_NOTNULL(cache, "the domain loaded without an encrypted cache")
+	TEST_ASSERT(length(server.mutation_candidate_refs), "no mutation candidates were collected from the domain")
+	TEST_ASSERT_NOTNULL(server.get_glitch_role(), "no glitch role was available at zero threat")
 
 	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human)
 	var/obj/item/disk/bitrunning/item/tier1/program = allocate(/obj/item/disk/bitrunning/item/tier1)

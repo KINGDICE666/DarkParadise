@@ -23,6 +23,9 @@
 	var/scanner_tier = 1
 	var/server_cooldown_time = 2 MINUTES
 	var/servo_bonus = 0
+	var/threat = 0
+	var/list/datum/weakref/mutation_candidate_refs = list()
+	var/list/datum/weakref/spawned_threat_refs = list()
 	var/list/turf/exit_turfs = list()
 	var/list/turf/goal_turfs = list()
 
@@ -42,6 +45,8 @@
 	if(generated_domain)
 		scrub_vdom()
 	avatar_connection_refs.Cut()
+	mutation_candidate_refs.Cut()
+	spawned_threat_refs.Cut()
 	exit_turfs.Cut()
 	goal_turfs.Cut()
 	return ..()

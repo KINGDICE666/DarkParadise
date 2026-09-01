@@ -106,6 +106,7 @@
 		time_score = 2
 
 	score += time_score * base
+	threat += score
 
 	switch(score)
 		if(1 to 4)

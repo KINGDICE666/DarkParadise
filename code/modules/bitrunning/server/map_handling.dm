@@ -25,6 +25,9 @@
 
 	is_ready = TRUE
 	domain_randomized = was_random_selection
+
+	if(prob(clamp(threat * BITRUNNER_GLITCH_CHANCE, 0, BITRUNNER_GLITCH_CHANCE_MAX)))
+		INVOKE_ASYNC(src, PROC_REF(setup_glitch))
 	points -= generated_domain.cost
 	generated_domain.start_time = world.time
 
@@ -84,6 +87,8 @@
 		stack_trace("vdom: no goal turfs on [generated_domain.key]")
 		return FALSE
 
+	collect_mutation_candidates()
+
 	return attempt_spawn_cache(cache_turfs)
 
 /obj/machinery/quantum_server/proc/begin_shutdown(mob/living/user)
@@ -118,6 +123,7 @@
 	retries_spent = 0
 
 	sever_connections()
+	notify_spawned_threats()
 
 	addtimer(CALLBACK(src, PROC_REF(scrub_vdom)), 15 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE)
 	addtimer(CALLBACK(src, PROC_REF(cool_off)), round(server_cooldown_time * capacitor_coefficient), TIMER_UNIQUE|TIMER_OVERRIDE)
@@ -139,6 +145,8 @@
 		QDEL_NULL(domain_reservation)
 
 	avatar_connection_refs.Cut()
+	mutation_candidate_refs.Cut()
+	spawned_threat_refs.Cut()
 	exit_turfs.Cut()
 	goal_turfs.Cut()
 	generated_domain = null

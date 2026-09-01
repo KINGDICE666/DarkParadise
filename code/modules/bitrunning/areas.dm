@@ -17,3 +17,4 @@
 
 /area/virtual_domain/safehouse
 	name = "Virtual Domain Safehouse"
+	area_flags = VIRTUAL_SAFE_AREA

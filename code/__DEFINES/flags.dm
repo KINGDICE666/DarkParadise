@@ -190,6 +190,8 @@
 #define BLOBS_ALLOWED (1<<5)
 /// If blobs can spawn there and if it counts towards their score.
 #define MORTAR_ALLOWED (1<<6)
+/// If virtual entities of a bitrunning domain are barred from entering
+#define VIRTUAL_SAFE_AREA (1<<7)
 
 //ORGAN TYPE FLAGS
 #define AFFECT_ROBOTIC_ORGAN (1<<0)
