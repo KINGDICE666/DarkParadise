@@ -33,3 +33,19 @@
 		domains += domain
 
 	return domains
+
+/proc/get_available_domains(scanner_tier, server_points)
+	var/list/entries = list()
+
+	for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
+		var/can_view = domain.can_view_name(scanner_tier, server_points)
+		entries += list(list(
+			"cost" = domain.cost,
+			"desc" = can_view ? domain.desc : "Сканера не хватает, чтобы разобрать содержимое домена.",
+			"difficulty" = domain.difficulty,
+			"id" = domain.key,
+			"name" = can_view ? domain.name : DOMAIN_REDACTED,
+			"reward" = domain.can_view_reward(scanner_tier, server_points) ? domain.reward_points : DOMAIN_REDACTED,
+		))
+
+	return entries

@@ -4,6 +4,9 @@
 	var/turf/anchor = run_loc_floor_bottom_left
 	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
 	var/obj/machinery/byteforge/forge = allocate(/obj/machinery/byteforge, locate(anchor.x + 1, anchor.y, anchor.z))
+	var/obj/machinery/computer/quantum_console/console = allocate(/obj/machinery/computer/quantum_console, locate(anchor.x, anchor.y + 1, anchor.z))
+
+	TEST_ASSERT_EQUAL(console.find_server(), server, "the console did not find the server standing next to it")
 
 	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_OUTPOST), "server failed to boot the outpost domain")
 	TEST_ASSERT_NOTNULL(server.generated_domain, "server lost the reference to the loaded domain")
@@ -32,6 +35,11 @@
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
 
+	var/list/console_data = console.ui_data(pilot)
+	TEST_ASSERT(console_data["connected"], "the console reported no server in its interface data")
+	TEST_ASSERT_EQUAL(console_data["generated_domain"], LAZY_TEMPLATE_KEY_BITRUNNING_OUTPOST, "the console reported the wrong loaded domain")
+	TEST_ASSERT(length(console_data["available_domains"]), "the console offered no domains to load")
+
 	var/points_before = server.points
 	var/reward_points = server.generated_domain.reward_points
 	cache.forceMove(pick(server.goal_turfs))
@@ -51,3 +59,4 @@
 	TEST_ASSERT_NULL(server.generated_domain, "scrubbing did not clear the loaded domain")
 	TEST_ASSERT_NULL(server.domain_reservation, "scrubbing did not release the domain reservation")
 	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
+	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")

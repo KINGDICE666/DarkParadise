@@ -5,6 +5,29 @@
 	playsound(src, 'sound/machines/ping.ogg', 30, TRUE)
 	update_appearance()
 
+/obj/machinery/quantum_server/proc/get_avatar_data()
+	var/list/hosted_avatars = list()
+
+	for(var/datum/weakref/connection_ref as anything in avatar_connection_refs)
+		var/datum/component/avatar_connection/connection = connection_ref.resolve()
+		if(isnull(connection))
+			continue
+
+		var/mob/living/avatar = connection.parent
+		var/mob/living/pilot = connection.old_body_ref?.resolve()
+
+		hosted_avatars += list(list(
+			"brute" = avatar.getBruteLoss(),
+			"burn" = avatar.getFireLoss(),
+			"health" = avatar.health,
+			"name" = avatar.name,
+			"oxy" = avatar.getOxyLoss(),
+			"pilot" = pilot?.name,
+			"tox" = avatar.getToxLoss(),
+		))
+
+	return hosted_avatars
+
 /obj/machinery/quantum_server/proc/sever_connections()
 	if(!length(avatar_connection_refs))
 		return

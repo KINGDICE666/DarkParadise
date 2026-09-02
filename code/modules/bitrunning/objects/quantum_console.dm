@@ -1,5 +1,3 @@
-#define RANDOM_DOMAIN_LABEL "Случайный домен"
-
 /obj/machinery/computer/quantum_console
 	name = "quantum console"
 	desc = "Терминал управления квантовым сервером. Отсюда выбирают, во что нырять."
@@ -41,52 +39,69 @@
 	if(..())
 		return TRUE
 
-	INVOKE_ASYNC(src, PROC_REF(open_menu), user)
-
-/obj/machinery/computer/quantum_console/proc/open_menu(mob/living/user)
 	if(!allowed(user))
 		balloon_alert(user, "доступ запрещён!")
-		return
+		playsound(src, SFX_BUTTON_DENIED, 20)
+		return TRUE
+
+	add_fingerprint(user)
+	ui_interact(user)
+
+/obj/machinery/computer/quantum_console/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "QuantumConsole", name)
+		ui.open()
+
+/obj/machinery/computer/quantum_console/ui_data(mob/user)
+	var/list/data = list()
 
 	var/obj/machinery/quantum_server/server = find_server()
 	if(isnull(server))
-		balloon_alert(user, "сервер не найден!")
-		return
+		data["connected"] = FALSE
+		return data
 
-	if(server.generated_domain)
-		if(tgui_alert(user, "Домен \"[server.generated_domain.name]\" запущен. Остановить его?", "Квантовая консоль", list("Остановить", "Отмена")) != "Остановить")
-			return
-		server.begin_shutdown(user)
-		return
+	data["connected"] = TRUE
+	data["available_domains"] = get_available_domains(server.scanner_tier, server.points)
+	data["avatars"] = server.get_avatar_data()
+	data["generated_domain"] = server.generated_domain?.key
+	data["occupants"] = length(server.avatar_connection_refs)
+	data["points"] = server.points
+	data["randomized"] = server.domain_randomized
+	data["ready"] = server.is_ready && server.is_operational()
+	data["retries_left"] = length(server.exit_turfs) - server.retries_spent
+	data["scanner_tier"] = server.scanner_tier
 
-	if(!server.is_ready)
-		balloon_alert(user, "сервер остывает!")
-		return
+	return data
 
-	var/list/options = list()
-	options[RANDOM_DOMAIN_LABEL] = RANDOM_DOMAIN_LABEL
+/obj/machinery/computer/quantum_console/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
 
-	for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
-		if(domain.cost > server.points)
-			continue
+	if(!allowed(usr))
+		to_chat(usr, span_warning("Доступ запрещён."))
+		playsound(src, SFX_BUTTON_DENIED, 20)
+		return TRUE
 
-		var/label = domain.can_view_name(server.scanner_tier, server.points) ? domain.name : "Зашифрованный домен [domain.key]"
-		if(domain.can_view_reward(server.scanner_tier, server.points))
-			label += " (цена [domain.cost], награда [domain.reward_points])"
+	var/obj/machinery/quantum_server/server = find_server()
+	if(isnull(server))
+		return TRUE
 
-		options[label] = domain
+	. = TRUE
+	switch(action)
+		if("random_domain")
+			server.cold_boot_map(server.get_random_domain_id(), was_random_selection = TRUE)
 
-	var/choice = tgui_input_list(user, "Какой домен собрать?", "Квантовая консоль", options)
-	if(isnull(choice) || !Adjacent(user) || !is_operational())
-		return
+		if("set_domain")
+			server.cold_boot_map(params["id"])
 
-	var/picked = options[choice]
-	if(picked == RANDOM_DOMAIN_LABEL)
-		server.cold_boot_map(server.get_random_domain_id(), was_random_selection = TRUE)
-		return
+		if("stop_domain")
+			server.begin_shutdown(usr)
 
-	var/datum/lazy_template/virtual_domain/chosen_domain = picked
-	server.cold_boot_map(chosen_domain.key)
+		else
+			return FALSE
+
+	add_fingerprint(usr)
 
 /obj/machinery/computer/quantum_console/proc/find_server()
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
@@ -100,5 +115,3 @@
 
 		server_ref = WEAKREF(server)
 		return server
-
-#undef RANDOM_DOMAIN_LABEL
