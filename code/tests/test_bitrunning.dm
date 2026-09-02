@@ -1,3 +1,6 @@
+#define DEN_TEMPLATE "bitrunning_den.dmm"
+#define DEN_TEST_OFFSET 12
+
 /datum/unit_test/room_test/bitrunning
 
 /datum/unit_test/room_test/bitrunning/Run()
@@ -60,3 +63,53 @@
 	TEST_ASSERT_NULL(server.domain_reservation, "scrubbing did not release the domain reservation")
 	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
 	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")
+
+/datum/unit_test/room_test/bitrunning_den
+
+/datum/unit_test/room_test/bitrunning_den/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/datum/map_template/den = GLOB.map_templates[DEN_TEMPLATE]
+	TEST_ASSERT_NOTNULL(den, "the bitrunning den template was not preloaded")
+
+	var/turf/origin = locate(anchor.x, anchor.y + DEN_TEST_OFFSET, anchor.z)
+	TEST_ASSERT(den.load(origin), "the bitrunning den template failed to load")
+
+	var/obj/machinery/quantum_server/server
+	var/obj/machinery/computer/quantum_console/console
+	var/obj/machinery/byteforge/forge
+	var/obj/machinery/bitrunner_vendor/vendor
+	var/obj/machinery/power/apc/breaker
+	var/list/netpods = list()
+	var/list/spawns = list()
+
+	for(var/turf/tile as anything in den.get_affected_turfs(origin))
+		server ||= locate(/obj/machinery/quantum_server) in tile
+		console ||= locate(/obj/machinery/computer/quantum_console) in tile
+		forge ||= locate(/obj/machinery/byteforge) in tile
+		vendor ||= locate(/obj/machinery/bitrunner_vendor) in tile
+		breaker ||= locate(/obj/machinery/power/apc) in tile
+
+		var/obj/machinery/netpod/pod = locate() in tile
+		if(pod)
+			netpods += pod
+
+		var/obj/effect/landmark/start/bitrunner/spawn_point = locate() in tile
+		if(spawn_point)
+			spawns += spawn_point
+
+	TEST_ASSERT_NOTNULL(server, "the den was mapped without a quantum server")
+	TEST_ASSERT_NOTNULL(console, "the den was mapped without a quantum console")
+	TEST_ASSERT_NOTNULL(forge, "the den was mapped without a byteforge")
+	TEST_ASSERT_NOTNULL(vendor, "the den was mapped without a bitrunner vendor")
+	TEST_ASSERT_NOTNULL(breaker, "the den was mapped without an apc")
+	TEST_ASSERT_EQUAL(length(netpods), 3, "the den does not hold three netpods")
+	TEST_ASSERT_EQUAL(length(spawns), 2, "the den does not hold a spawn point per bitrunner slot")
+
+	TEST_ASSERT_EQUAL(console.find_server(), server, "the console cannot reach the server it stands next to")
+	TEST_ASSERT_EQUAL(server.get_random_nearby_forge(), forge, "the server cannot reach the byteforge")
+
+	for(var/obj/machinery/netpod/pod as anything in netpods)
+		TEST_ASSERT_EQUAL(pod.find_server(), server, "a netpod was mapped out of range of the server")
+
+#undef DEN_TEMPLATE
+#undef DEN_TEST_OFFSET
