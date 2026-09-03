@@ -109,8 +109,6 @@
 	if(isnull(old_body) || damagetype == STAMINA || damagetype == OXY)
 		return
 
-	nohit = FALSE
-
 	if(damage >= old_body.health + old_body.maxHealth)
 		full_avatar_disconnect(cause_damage = TRUE)
 		return
@@ -124,6 +122,8 @@
 
 	if(old_body.stat != CONSCIOUS)
 		full_avatar_disconnect(cause_damage = TRUE)
+
+	nohit = FALSE
 
 /datum/component/avatar_connection/proc/on_domain_completed(datum/source, atom/movable/forge, reward_points)
 	SIGNAL_HANDLER
