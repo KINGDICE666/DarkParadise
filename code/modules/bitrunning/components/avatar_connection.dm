@@ -1,3 +1,6 @@
+#define SCREAM_DAMAGE_THRESHOLD 30
+#define SCREAM_PROBABILITY 30
+
 /datum/component/avatar_connection
 	var/datum/weakref/netpod_ref
 	var/datum/weakref/old_body_ref
@@ -113,6 +116,9 @@
 		full_avatar_disconnect(cause_damage = TRUE)
 		return
 
+	if(damage > SCREAM_DAMAGE_THRESHOLD && prob(SCREAM_PROBABILITY))
+		INVOKE_ASYNC(old_body, TYPE_PROC_REF(/mob/living, emote), "scream")
+
 	var/zone = def_zone
 	if(isexternalorgan(def_zone))
 		var/obj/item/organ/external/limb = def_zone
@@ -177,3 +183,6 @@
 		return
 
 	full_avatar_disconnect(cause_damage = TRUE)
+
+#undef SCREAM_DAMAGE_THRESHOLD
+#undef SCREAM_PROBABILITY
