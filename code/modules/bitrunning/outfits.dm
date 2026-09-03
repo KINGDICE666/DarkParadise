@@ -1,12 +1,8 @@
 /datum/outfit/bit_avatar
 	name = "Bit Avatar"
-	uniform = /obj/item/clothing/under/color/grey
+	uniform = /obj/item/clothing/under/rank/bitrunner
 	shoes = /obj/item/clothing/shoes/black
-	back = /obj/item/storage/backpack
-	backpack_contents = list(
-		/obj/item/flashlight = 1,
-		/obj/item/storage/firstaid/regular = 1,
-	)
+	belt = /obj/item/bitrunning_host_monitor
 
 GLOBAL_LIST_INIT(hacker_aliases, list(
 	"Ноль",

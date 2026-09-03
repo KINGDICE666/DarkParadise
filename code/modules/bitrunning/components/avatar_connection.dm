@@ -24,12 +24,14 @@
 		avatar.mind_initialize()
 
 	RegisterSignals(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED), PROC_REF(on_sever_connection))
+	RegisterSignal(old_body, COMSIG_MOB_STATCHANGE, PROC_REF(on_pilot_stat_change))
 	RegisterSignal(pod, COMSIG_BITRUNNER_CROWBAR_ALERT, PROC_REF(on_netpod_crowbar))
 	RegisterSignal(pod, COMSIG_BITRUNNER_NETPOD_INTEGRITY, PROC_REF(on_netpod_damaged))
 	RegisterSignal(pod, COMSIG_BITRUNNER_NETPOD_SEVER, PROC_REF(on_sever_connection))
 	RegisterSignal(server, COMSIG_BITRUNNER_DOMAIN_COMPLETE, PROC_REF(on_domain_completed))
 	RegisterSignal(server, COMSIG_BITRUNNER_QSRV_SEVER, PROC_REF(on_sever_connection))
 	RegisterSignal(server, COMSIG_BITRUNNER_SHUTDOWN_ALERT, PROC_REF(on_shutting_down))
+	RegisterSignal(avatar.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_mind_transfer))
 
 	avatar.playsound_local(get_turf(avatar), 'sound/effects/phasein.ogg', 25, TRUE)
 	avatar.EyeBlind(1 SECONDS)
@@ -39,7 +41,7 @@
 	var/mob/living/old_body = old_body_ref?.resolve()
 	if(old_body)
 		REMOVE_TRAIT(old_body, TRAIT_MIND_TEMPORARILY_GONE, NETPOD_TRAIT)
-		UnregisterSignal(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED))
+		UnregisterSignal(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_MOB_STATCHANGE))
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
 	if(pod)
@@ -47,13 +49,19 @@
 
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
 	if(server)
-		server.avatar_connection_refs -= WEAKREF(src)
 		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT))
 
 	netpod_ref = null
 	old_body_ref = null
 	server_ref = null
 	return ..()
+
+/datum/component/avatar_connection/PostTransfer()
+	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
+	if(!isliving(parent) || isnull(pod))
+		return COMPONENT_INCOMPATIBLE
+
+	pod.avatar_ref = WEAKREF(parent)
 
 /datum/component/avatar_connection/RegisterWithParent()
 	ADD_TRAIT(parent, TRAIT_TEMPORARY_BODY, NETPOD_TRAIT)
@@ -77,6 +85,10 @@
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
 	pod?.disconnect_occupant(cause_damage)
+
+	var/obj/machinery/quantum_server/server = server_ref?.resolve()
+	if(server)
+		server.avatar_connection_refs -= WEAKREF(src)
 
 	qdel(src)
 
@@ -147,5 +159,21 @@
 
 /datum/component/avatar_connection/proc/on_sever_connection(datum/source)
 	SIGNAL_HANDLER
+
+	full_avatar_disconnect(cause_damage = TRUE)
+
+/datum/component/avatar_connection/proc/on_mind_transfer(datum/mind/source, mob/living/new_character)
+	SIGNAL_HANDLER
+
+	if(new_character == parent)
+		return
+
+	new_character.TakeComponent(src)
+
+/datum/component/avatar_connection/proc/on_pilot_stat_change(datum/source, new_stat, old_stat)
+	SIGNAL_HANDLER
+
+	if(new_stat == CONSCIOUS)
+		return
 
 	full_avatar_disconnect(cause_damage = TRUE)

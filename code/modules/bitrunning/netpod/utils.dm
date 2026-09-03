@@ -44,12 +44,14 @@
 
 	var/mob/living/carbon/human/avatar = avatar_ref?.resolve()
 	if(isnull(avatar) || avatar.stat != CONSCIOUS)
-		avatar = server.start_new_connection(pilot)
+		avatar = server.start_new_connection(pilot, copy_body)
 
 	if(isnull(avatar))
 		balloon_alert(pilot, "свободных выходов нет!")
 		open_machine()
 		return
+
+	add_healing(pilot)
 
 	if(!validate_entry(pilot, avatar))
 		open_machine()
@@ -60,6 +62,14 @@
 
 	connected = TRUE
 	update_icon(UPDATE_ICON_STATE)
+
+/obj/machinery/netpod/proc/add_healing(mob/living/carbon/target)
+	if(target != occupant)
+		return
+
+	target.AddComponent(/datum/component/netpod_healing, src)
+	target.playsound_local(get_turf(src), 'sound/effects/slosh.ogg', 20, TRUE)
+	target.ExtinguishMob()
 
 /obj/machinery/netpod/proc/validate_entry(mob/living/pilot, mob/living/avatar)
 	if(QDELETED(pilot) || QDELETED(avatar) || QDELETED(src) || !is_operational())

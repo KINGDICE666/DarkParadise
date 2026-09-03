@@ -1,4 +1,4 @@
-#define NETPOD_HEAL_AMOUNT 2
+#define SCANNING_TOGGLE_COOLDOWN (0.5 SECONDS)
 
 /obj/machinery/netpod
 	name = "netpod"
@@ -13,8 +13,10 @@
 	var/mob/living/carbon/occupant
 	var/state_open = TRUE
 	var/connected = FALSE
+	var/copy_body = FALSE
 	var/datum/weakref/avatar_ref
 	var/datum/weakref/server_ref
+	COOLDOWN_DECLARE(scanning_cooldown)
 
 /obj/machinery/netpod/Initialize(mapload)
 	. = ..()
@@ -48,8 +50,9 @@
 
 /obj/machinery/netpod/add_context(atom/source, list/context, obj/item/held_item, mob/user)
 	. = ..()
+	context[SCREENTIP_CONTEXT_ALT_LMB] = copy_body ? "Отключить сканер" : "Включить сканер"
 	if(isnull(held_item))
-		return
+		return CONTEXTUAL_SCREENTIP_SET
 
 	if(held_item.tool_behaviour == TOOL_SCREWDRIVER && isnull(occupant) && !state_open)
 		context[SCREENTIP_CONTEXT_LMB] = panel_open ? "Закрыть панель" : "Открыть панель"
@@ -71,6 +74,7 @@
 
 	. += span_notice("Затащите себя в капсулу, чтобы установить связь.")
 	. += span_notice("Капсула поддерживает тело в стазисе и понемногу лечит его.")
+	. += span_notice("Сканер внешности [copy_body ? "включён: аватар будет копировать ваше тело" : "выключен: аватар получит случайное тело"]. Alt-клик переключает.")
 	. += span_warning("Её можно вскрыть ломом, но система безопасности предупредит спящего.")
 
 	if(isnull(occupant))
@@ -136,16 +140,6 @@
 /obj/machinery/netpod/relaymove(mob/living/user, direction)
 	if(!state_open)
 		container_resist_act(user)
-
-/obj/machinery/netpod/process()
-	if(state_open || isnull(occupant) || !is_operational())
-		return
-
-	occupant.adjustBruteLoss(-NETPOD_HEAL_AMOUNT, updating_health = FALSE)
-	occupant.adjustFireLoss(-NETPOD_HEAL_AMOUNT, updating_health = FALSE)
-	occupant.adjustToxLoss(-NETPOD_HEAL_AMOUNT, updating_health = FALSE)
-	occupant.adjustOxyLoss(-NETPOD_HEAL_AMOUNT, updating_health = FALSE)
-	occupant.updatehealth()
 
 /obj/machinery/netpod/power_change(forced = FALSE)
 	..()
@@ -215,7 +209,6 @@
 	occupant = target
 	state_open = FALSE
 	set_density(TRUE)
-	ADD_TRAIT(target, TRAIT_STASIS, NETPOD_TRAIT)
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
 	update_use_power(ACTIVE_POWER_USE)
 	update_icon(UPDATE_ICON_STATE)
@@ -233,11 +226,19 @@
 
 	var/mob/living/carbon/leaving = occupant
 	occupant = null
-	if(leaving)
-		REMOVE_TRAIT(leaving, TRAIT_STASIS, NETPOD_TRAIT)
-		leaving.forceMove(loc)
+	leaving?.forceMove(loc)
 
 	update_use_power(IDLE_POWER_USE)
 	update_icon(UPDATE_ICON_STATE)
 
-#undef NETPOD_HEAL_AMOUNT
+/obj/machinery/netpod/click_alt(mob/user)
+	if(!COOLDOWN_FINISHED(src, scanning_cooldown))
+		return CLICK_ACTION_BLOCKING
+
+	COOLDOWN_START(src, scanning_cooldown, SCANNING_TOGGLE_COOLDOWN)
+	copy_body = !copy_body
+	playsound(src, 'sound/machines/click.ogg', 50, TRUE)
+	balloon_alert(user, "сканер [copy_body ? "включён" : "выключен"]")
+	return CLICK_ACTION_SUCCESS
+
+#undef SCANNING_TOGGLE_COOLDOWN

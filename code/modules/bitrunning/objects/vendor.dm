@@ -175,7 +175,7 @@ GLOBAL_LIST_INIT(bitrunner_vendor_items, list(
 
 	return static_data
 
-/obj/machinery/bitrunner_vendor/ui_act(action, params)
+/obj/machinery/bitrunner_vendor/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..())
 		return
 
@@ -206,7 +206,7 @@ GLOBAL_LIST_INIT(bitrunner_vendor_items, list(
 		else
 			return FALSE
 
-	add_fingerprint()
+	add_fingerprint(usr)
 
 #undef BITRUNNER_VENDOR_FLAIR
 #undef BITRUNNER_VENDOR_GEAR

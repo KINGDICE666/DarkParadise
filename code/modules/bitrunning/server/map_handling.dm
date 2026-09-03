@@ -55,8 +55,9 @@
 
 /obj/machinery/quantum_server/proc/load_map_items()
 	var/list/obj/effect/landmark/bitrunning/found_landmarks = list()
-	for(var/obj/effect/landmark/bitrunning/landmark in GLOB.landmarks_list)
-		found_landmarks += landmark
+	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
+		for(var/obj/effect/landmark/bitrunning/landmark in tile)
+			found_landmarks += landmark
 
 	var/list/turf/cache_turfs = list()
 

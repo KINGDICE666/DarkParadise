@@ -91,17 +91,18 @@
 	retries_spent += 1
 	return new /obj/structure/hololadder(exit_tile, src)
 
-/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot)
+/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE)
 	var/obj/structure/hololadder/entry_point = get_avatar_destination()
 	if(isnull(entry_point))
 		return
 
-	return generate_avatar(get_turf(entry_point), pilot)
+	return generate_avatar(get_turf(entry_point), pilot, copy_body)
 
-/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot)
+/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot, copy_body = FALSE)
 	var/mob/living/carbon/human/avatar = new(destination)
-	pilot.dna.transfer_identity(avatar)
-	avatar.equipOutfit(generated_domain.forced_outfit || /datum/outfit/bit_avatar)
+	if(copy_body)
+		pilot.dna.transfer_identity(avatar)
+	avatar.equipOutfit(generated_domain.forced_outfit || /datum/outfit/bit_avatar, visualsOnly = TRUE)
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
 	return avatar

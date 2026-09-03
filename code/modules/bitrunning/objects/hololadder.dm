@@ -41,7 +41,7 @@
 
 	. += span_notice("Нажмите на лестницу или встаньте на неё, чтобы отключиться от аватара.")
 
-/obj/structure/hololadder/attack_hand(mob/living/user)
+/obj/structure/hololadder/attack_hand(mob/living/user, list/modifiers)
 	. = ..()
 	if(.)
 		return

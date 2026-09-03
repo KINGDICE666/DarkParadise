@@ -71,6 +71,7 @@
 			/datum/component/temporary_body, \
 			old_mind = ghost.mind, \
 			old_body = ghost.mind.current, \
+			delete_on_death = TRUE, \
 		)
 
 	glitch.possess_by_player(ghost.key)
