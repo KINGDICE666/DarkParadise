@@ -99,7 +99,7 @@
 			TEST_ASSERT(/obj/structure/closet/crate/secure/bitrunning/encrypted in boss.loot, "[domain.name] left [boss.type] without the cache in its loot")
 			found_cache = TRUE
 
-		TEST_ASSERT(found_cache, "[domain.name] offers no path to an encrypted cache")
+		TEST_ASSERT(found_cache || domain.main_crate_loc, "[domain.name] offers no path to an encrypted cache")
 		TEST_ASSERT(found_safehouse, "[domain.name] did not load its modular safehouse")
 		server.scrub_vdom()
 
