@@ -870,7 +870,7 @@
 "lb" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
-	info = "Исследователи, цель миссии - Исследование сети пещер и сбор артефактов на исследование."
+	info = "Исследователи, цель миссии — Исследование сети пещер и сбор артефактов на исследование."
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
