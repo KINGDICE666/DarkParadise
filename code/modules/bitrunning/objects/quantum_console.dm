@@ -4,7 +4,7 @@
 	icon_keyboard = "mining_key"
 	icon_screen = "mining"
 	circuit = /obj/item/circuitboard/quantum_console
-	req_access = list(ACCESS_MINING)
+	req_access = list(ACCESS_BITRUNNING)
 	var/datum/weakref/server_ref
 
 /obj/machinery/computer/quantum_console/get_ru_names()

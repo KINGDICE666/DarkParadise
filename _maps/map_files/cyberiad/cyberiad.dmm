@@ -5600,13 +5600,13 @@
 "axc" = (
 /obj/machinery/quantum_server,
 /turf/simulated/floor/bluegrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "axe" = (
 /turf/simulated/wall,
 /area/station/security/detectives_office)
 "axl" = (
 /turf/simulated/wall/r_wall,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "axn" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
 	dir = 4
@@ -10831,7 +10831,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aUj" = (
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
@@ -18735,7 +18735,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "bEE" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -36334,7 +36334,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "dbs" = (
 /obj/structure/cable/yellow{
 	icon_state = "4-8"
@@ -44905,7 +44905,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "fjQ" = (
 /obj/effect/spawner/random_spawners/grille_13,
 /obj/structure/cable{
@@ -45374,10 +45374,11 @@
 	},
 /area/station/commons/storage/primary)
 "fvT" = (
+/obj/effect/landmark/start/bitrunner,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "fwe" = (
 /obj/machinery/atmospherics/binary/valve/digital/open{
 	name = "Nitrogen Outlet Valve"
@@ -47036,7 +47037,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "gdZ" = (
 /obj/structure/cable{
 	icon_state = "0-8"
@@ -51320,7 +51321,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "hQb" = (
 /obj/structure/cable{
 	icon_state = "2-8"
@@ -52805,7 +52806,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ivd" = (
 /obj/machinery/status_display{
 	layer = 4;
@@ -56095,7 +56096,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "jMn" = (
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -58276,7 +58277,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "kEQ" = (
 /obj/machinery/light{
 	dir = 4
@@ -64267,7 +64268,7 @@
 /area/space)
 "ncG" = (
 /turf/simulated/wall,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ncS" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -64465,7 +64466,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "nhT" = (
 /obj/structure/table/glass,
 /obj/item/stack/packageWrap,
@@ -65223,6 +65224,11 @@
 /obj/effect/spawner/lootdrop/maintenance/double,
 /turf/simulated/floor/plating,
 /area/station/maintenance/genetics)
+"nyy" = (
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/station/cargo/bitrunning/den)
 "nyF" = (
 /obj/machinery/computer/secure_data,
 /obj/item/radio/intercom/department/security/directional/east,
@@ -67997,7 +68003,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "oJN" = (
 /obj/machinery/firealarm/directional/west,
 /turf/simulated/floor/plasteel,
@@ -69937,7 +69943,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "pvX" = (
 /obj/item/shard{
 	icon_state = "small"
@@ -71951,7 +71957,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "qkd" = (
 /obj/structure/grille,
 /turf/simulated/floor/plating,
@@ -72477,7 +72483,7 @@
 /obj/effect/turf_decal/box,
 /obj/machinery/byteforge,
 /turf/simulated/floor/greengrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "qug" = (
 /obj/structure/safe/floor{
 	known_by = list("captain")
@@ -80783,7 +80789,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "tRy" = (
 /turf/simulated/floor/plasteel{
 	dir = 8;
@@ -81851,12 +81857,6 @@
 	icon_state = "blue"
 	},
 /area/station/hallway/primary/central/north)
-"ulZ" = (
-/obj/effect/landmark/start/bitrunner,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/station/cargo/bitrunning)
 "umC" = (
 /obj/machinery/alarm/directional/south,
 /obj/machinery/hologram/holopad,
@@ -85776,7 +85776,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "vRl" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable{
@@ -86188,7 +86188,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "vYx" = (
 /obj/effect/turf_decal/stripes/corner{
 	dir = 8
@@ -86355,7 +86355,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "wcc" = (
 /obj/machinery/door_control{
 	id = "rdlab2";
@@ -87654,7 +87654,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "wDh" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/item/trash/sosjerky,
@@ -88377,7 +88377,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "wQq" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /turf/simulated/floor/plating,
@@ -88693,7 +88693,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "wYl" = (
 /obj/effect/landmark/start/hangover,
 /obj/structure/cable{
@@ -88971,7 +88971,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "xej" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 8
@@ -110721,7 +110721,7 @@ uTI
 uTI
 axl
 tRn
-fvT
+nyy
 axc
 fvT
 dbr
@@ -110978,9 +110978,9 @@ uTI
 uTI
 axl
 tRn
+nyy
+nyy
 fvT
-fvT
-ulZ
 fjN
 cgQ
 pht
@@ -111235,8 +111235,8 @@ uTI
 uTI
 axl
 iuY
-fvT
-fvT
+nyy
+nyy
 kEC
 gdA
 pvR
@@ -111492,9 +111492,9 @@ uTI
 uTI
 axl
 vYu
-fvT
+nyy
 qtR
-ulZ
+fvT
 wCZ
 ncG
 kbQ
@@ -111749,9 +111749,9 @@ uTI
 uTI
 axl
 xei
-fvT
+nyy
 wbI
-fvT
+nyy
 vRh
 cng
 wEQ
@@ -112006,7 +112006,7 @@ lTl
 doE
 axl
 qjW
-fvT
+nyy
 nhH
 wPK
 bEB

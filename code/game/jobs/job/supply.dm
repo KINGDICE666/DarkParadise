@@ -78,8 +78,8 @@
 /datum/job/supply/bitrunner
 	title = JOB_TITLE_BITRUNNER
 	flag = JOB_FLAG_BITRUNNER
-	total_positions = 2
-	spawn_positions = 2
+	total_positions = 3
+	spawn_positions = 3
 	access = list(ACCESS_MAINT_TUNNELS, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_BITRUNNING, ACCESS_MINERAL_STOREROOM, ACCESS_MINING)
 	minimal_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_BITRUNNING, ACCESS_MINERAL_STOREROOM)
 	alt_titles = list(

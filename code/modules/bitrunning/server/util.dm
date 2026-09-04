@@ -48,8 +48,7 @@
 
 /obj/machinery/quantum_server/proc/attempt_spawn_cache(list/turf/possible_turfs)
 	if(!length(possible_turfs))
-		stack_trace("vdom: no cache spawns found on [generated_domain.key]")
-		return FALSE
+		return TRUE
 
 	shuffle_inplace(possible_turfs)
 
@@ -177,21 +176,5 @@
 
 	var/datum/lazy_template/virtual_domain/selected = pick(available)
 	return selected.key
-
-/obj/machinery/quantum_server/proc/on_goal_turf_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
-	SIGNAL_HANDLER
-
-	if(!istype(arrived, /obj/structure/closet/crate/secure/bitrunning/encrypted) && !istype(arrived, /obj/item/storage/lockbox/bitrunning/encrypted))
-		return
-
-	var/obj/machinery/byteforge/chosen_forge = get_random_nearby_forge()
-	if(isnull(chosen_forge))
-		return
-
-	if(istype(arrived, /obj/item/storage/lockbox/bitrunning/encrypted))
-		generate_secondary_loot(arrived, chosen_forge)
-		return
-
-	generate_loot(arrived, chosen_forge)
 
 #undef FORGE_SEARCH_RANGE

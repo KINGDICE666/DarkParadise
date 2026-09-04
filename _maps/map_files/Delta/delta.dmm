@@ -3063,7 +3063,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aGu" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/spray/cleaner/janitor,
@@ -4903,7 +4903,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aYG" = (
 /obj/structure/lattice/catwalk,
 /obj/machinery/atmospherics/pipe/simple/visible/cyan{
@@ -15218,11 +15218,12 @@
 	},
 /area/station/engineering/atmos)
 "dkq" = (
+/obj/effect/landmark/start/bitrunner,
 /obj/machinery/firealarm/directional/south,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "dkB" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 4
@@ -16092,7 +16093,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "dup" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -21630,7 +21631,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "eCo" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -26228,7 +26229,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "fsr" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -28917,7 +28918,7 @@
 	dir = 9
 	},
 /turf/simulated/floor/plating,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "fTr" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -32162,7 +32163,7 @@
 /obj/effect/turf_decal/box,
 /obj/machinery/byteforge,
 /turf/simulated/floor/greengrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "gvF" = (
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -39088,7 +39089,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "hJI" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 4
@@ -42813,7 +42814,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "isZ" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -44088,7 +44089,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "iGJ" = (
 /obj/item/gun/energy/gun/advtaser{
 	pixel_x = -3;
@@ -45227,7 +45228,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "iRC" = (
 /obj/machinery/power/energy_accumulator/tesla_coil,
 /obj/effect/decal/cleanable/dirt,
@@ -45854,7 +45855,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "iYk" = (
 /obj/structure/window/reinforced/polarized{
 	color = "#222222";
@@ -46162,7 +46163,7 @@
 	dir = 4
 	},
 /turf/simulated/floor/plating,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "jbh" = (
 /obj/structure/disposalpipe/broken,
 /obj/machinery/atmospherics/pipe/cap/hidden/scrubbers,
@@ -50822,7 +50823,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "jTv" = (
 /obj/structure/table/wood,
 /turf/simulated/floor/carpet,
@@ -52449,7 +52450,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "khh" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 6
@@ -59009,7 +59010,7 @@
 "lpT" = (
 /obj/machinery/quantum_server,
 /turf/simulated/floor/bluegrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "lpX" = (
 /obj/machinery/door_timer/cell_2{
 	pixel_y = -32
@@ -62948,7 +62949,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "maf" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/structure/rack,
@@ -68891,7 +68892,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "nfD" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
@@ -71368,7 +71369,7 @@
 /area/station/commons/sleep)
 "nCx" = (
 /turf/simulated/wall/r_wall,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "nCA" = (
 /obj/structure/grille/broken,
 /obj/effect/decal/cleanable/dirt,
@@ -72128,7 +72129,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "nKB" = (
 /obj/structure/chair/comfy/purp{
 	dir = 1
@@ -73693,7 +73694,7 @@
 /area/station/science/robotics)
 "nZE" = (
 /turf/simulated/wall,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "nZG" = (
 /obj/machinery/light/small{
 	dir = 1
@@ -74490,7 +74491,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ohu" = (
 /obj/item/twohanded/required/kirbyplants,
 /obj/machinery/atmospherics/unary/vent_pump/on,
@@ -86084,7 +86085,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "qnO" = (
 /obj/machinery/light{
 	dir = 8
@@ -93461,7 +93462,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "rDg" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -93832,7 +93833,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "rGI" = (
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
@@ -96468,7 +96469,7 @@
 	dir = 4
 	},
 /turf/simulated/floor/plating,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "sbO" = (
 /turf/simulated/floor/plasteel{
 	dir = 8;
@@ -101163,7 +101164,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /turf/simulated/floor/plating,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "sRQ" = (
 /obj/structure/closet/secure_closet/blueshield,
 /obj/item/stack/tape_roll,
@@ -102650,7 +102651,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "tez" = (
 /obj/item/twohanded/required/kirbyplants{
 	icon_state = "plant-25"
@@ -107921,7 +107922,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ugp" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -115853,7 +115854,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "vBB" = (
 /obj/structure/extinguisher_cabinet/directional/west,
 /obj/structure/disposalpipe/segment{
@@ -117050,7 +117051,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "vOD" = (
 /obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/plasteel{
@@ -118657,7 +118658,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "weh" = (
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging/junction,
 /obj/effect/spawner/window/reinforced/plasma,

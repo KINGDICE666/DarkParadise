@@ -8,14 +8,9 @@
 	var/config_file
 	var/key
 
-INITIALIZE_IMMEDIATE(/obj/modular_map_root)
-
-/obj/modular_map_root/Initialize(mapload)
-	. = ..()
-	INVOKE_ASYNC(src, PROC_REF(load_module))
-
 /obj/modular_map_root/proc/load_module()
 	if(isnull(config_file) || isnull(key))
+		stack_trace("modular map root: missing config_file or key (config [config_file], key [key])")
 		return
 
 	var/turf/destination = get_turf(src)

@@ -57,6 +57,7 @@
 		generated_domain = null
 		return FALSE
 
+	RegisterSignal(generated_domain, COMSIG_LAZY_TEMPLATE_LOADED, PROC_REF(on_template_loaded))
 	domain_reservation = generated_domain.lazy_load()
 	if(isnull(domain_reservation))
 		generated_domain = null
@@ -103,6 +104,10 @@
 	var/list/obj/effect/landmark/bitrunning/found_landmarks = list()
 	var/list/turf/cache_turfs = list()
 	var/list/turf/curiosity_turfs = list()
+
+	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
+		for(var/obj/modular_map_root/root in tile)
+			root.load_module()
 
 	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
 		for(var/obj/effect/landmark/bitrunning/landmark in tile)

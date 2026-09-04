@@ -1,7 +1,7 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
 "aa" = (
 /turf/simulated/wall/r_wall,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ab" = (
 /obj/machinery/netpod,
 /obj/machinery/light{
@@ -10,13 +10,13 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ac" = (
 /obj/machinery/netpod,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ad" = (
 /obj/machinery/light{
 	dir = 1
@@ -24,25 +24,25 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ae" = (
 /obj/machinery/alarm/directional/north,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "af" = (
 /obj/machinery/bitrunner_vendor,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ag" = (
 /obj/item/radio/intercom/directional/east,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ah" = (
 /obj/machinery/light{
 	dir = 8
@@ -50,12 +50,12 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ai" = (
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aj" = (
 /obj/machinery/camera{
 	c_tag = "Bitrunning Den";
@@ -64,7 +64,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ak" = (
 /obj/machinery/computer/quantum_console{
 	dir = 4
@@ -72,41 +72,35 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "al" = (
 /obj/machinery/quantum_server,
 /turf/simulated/floor/bluegrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "am" = (
 /obj/effect/turf_decal/box,
 /obj/machinery/byteforge,
 /turf/simulated/floor/greengrid,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "an" = (
 /obj/structure/table/reinforced,
 /obj/item/multitool,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ao" = (
 /obj/structure/extinguisher_cabinet/directional/east,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
-"ap" = (
-/obj/effect/landmark/start/bitrunner,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aq" = (
 /obj/machinery/hologram/holopad,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ar" = (
 /obj/machinery/light{
 	dir = 4
@@ -114,7 +108,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "as" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
@@ -122,7 +116,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "at" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -133,7 +127,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "au" = (
 /obj/machinery/firealarm/directional/south,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -145,7 +139,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "av" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
 	dir = 1
@@ -159,7 +153,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aw" = (
 /obj/machinery/light_switch/directional/south,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -174,7 +168,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ax" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -188,7 +182,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "ay" = (
 /obj/machinery/power/apc/directional/east,
 /obj/structure/cable{
@@ -200,11 +194,11 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "az" = (
 /obj/effect/spawner/window/reinforced,
 /turf/simulated/floor/plating,
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
 "aA" = (
 /obj/machinery/door/airlock/mining{
 	name = "Bitrunning Den";
@@ -219,7 +213,13 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
-/area/station/cargo/bitrunning)
+/area/station/cargo/bitrunning/den)
+"tz" = (
+/obj/effect/landmark/start/bitrunner,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/station/cargo/bitrunning/den)
 
 (1,1,1) = {"
 aa
@@ -244,7 +244,7 @@ aa
 ac
 ai
 al
-ai
+tz
 at
 az
 "}
@@ -253,7 +253,7 @@ aa
 ac
 ai
 ai
-ap
+tz
 au
 aa
 "}
@@ -271,7 +271,7 @@ aa
 ae
 ai
 am
-ap
+tz
 aw
 aa
 "}

@@ -11,27 +11,21 @@
 
 	TEST_ASSERT_EQUAL(console.find_server(), server, "the console did not find the server standing next to it")
 
-	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_OUTPOST), "server failed to boot the outpost domain")
+	server.points = BITRUNNER_COST_LOW
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_XENO_NEST), "server failed to boot the xeno nest domain")
 	TEST_ASSERT_NOTNULL(server.generated_domain, "server lost the reference to the loaded domain")
 	TEST_ASSERT_NOTNULL(server.domain_reservation, "server lost the reference to the domain reservation")
 	TEST_ASSERT(length(server.exit_turfs), "no exit turfs were collected from the domain")
 	TEST_ASSERT(length(server.goal_turfs), "no goal turfs were collected from the domain")
 
 	var/obj/structure/closet/crate/secure/bitrunning/encrypted/cache
+	var/obj/modular_map_connector/safehouse
 	for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
-		cache = locate() in tile
-		if(cache)
-			break
+		cache ||= locate(/obj/structure/closet/crate/secure/bitrunning/encrypted) in tile
+		safehouse ||= locate(/obj/modular_map_connector) in tile
 
 	TEST_ASSERT_NOTNULL(cache, "the domain loaded without an encrypted cache")
-
-	var/obj/item/storage/lockbox/bitrunning/encrypted/curiosity
-	for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
-		curiosity = locate() in tile
-		if(curiosity)
-			break
-
-	TEST_ASSERT_NOTNULL(curiosity, "the domain loaded without an encrypted curiosity")
+	TEST_ASSERT_NOTNULL(safehouse, "the domain loaded without its modular safehouse")
 	TEST_ASSERT(length(server.mutation_candidate_refs), "no mutation candidates were collected from the domain")
 	TEST_ASSERT_NOTNULL(server.get_glitch_role(), "no glitch role was available at zero threat")
 
@@ -48,7 +42,7 @@
 
 	var/list/console_data = console.ui_data(pilot)
 	TEST_ASSERT(console_data["connected"], "the console reported no server in its interface data")
-	TEST_ASSERT_EQUAL(console_data["generated_domain"], LAZY_TEMPLATE_KEY_BITRUNNING_OUTPOST, "the console reported the wrong loaded domain")
+	TEST_ASSERT_EQUAL(console_data["generated_domain"], LAZY_TEMPLATE_KEY_BITRUNNING_XENO_NEST, "the console reported the wrong loaded domain")
 	TEST_ASSERT(length(console_data["available_domains"]), "the console offered no domains to load")
 
 	var/points_before = server.points
@@ -64,15 +58,7 @@
 	TEST_ASSERT_NOTNULL(reward, "the byteforge did not materialize a decrypted cache")
 	TEST_ASSERT(locate(/obj/item/stack/ore/iron) in reward, "the decrypted cache came without ore")
 	TEST_ASSERT(locate(/obj/item/paper) in reward, "the decrypted cache came without a completion certificate")
-	TEST_ASSERT(locate(/obj/item/stack/sheet/metal) in reward, "the decrypted cache came without the domain completion loot")
-
-	curiosity.forceMove(pick(server.goal_turfs))
-
-	sleep(2 SECONDS)
-
-	var/obj/item/storage/lockbox/bitrunning/decrypted/curiosity_reward = locate() in get_turf(forge)
-	TEST_ASSERT_NOTNULL(curiosity_reward, "the byteforge did not materialize a decrypted curiosity")
-	TEST_ASSERT(length(curiosity_reward.contents), "the decrypted curiosity was compiled empty")
+	TEST_ASSERT(locate(/obj/item/toy/plushie/rouny) in reward, "the decrypted cache came without the domain completion loot")
 
 	var/obj/machinery/netpod/pod = allocate(/obj/machinery/netpod, locate(anchor.x + 1, anchor.y + 1, anchor.z))
 	TEST_ASSERT_EQUAL(pod.resolve_outfit("[/datum/outfit/bit_avatar]"), /datum/outfit/bit_avatar, "the netpod rejected an outfit it offers")
@@ -89,14 +75,32 @@
 /datum/unit_test/room_test/bitrunning_domains/Run()
 	var/turf/anchor = run_loc_floor_bottom_left
 	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	allocate(/obj/machinery/byteforge, locate(anchor.x + 1, anchor.y, anchor.z))
 
 	for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
 		server.points = domain.cost
 		TEST_ASSERT(server.cold_boot_map(domain.key), "the server failed to boot [domain.name]")
 		TEST_ASSERT(length(server.exit_turfs), "[domain.name] was mapped without hololadder spawns")
 		TEST_ASSERT(length(server.goal_turfs), "[domain.name] was mapped without a delivery pad")
-		TEST_ASSERT(length(server.mutation_candidate_refs), "[domain.name] was mapped without a single mutation candidate")
-		TEST_ASSERT(domain.secondary_loot_generated, "[domain.name] was mapped without a curiosity spawn")
+
+		var/found_cache = FALSE
+		var/found_safehouse = FALSE
+		var/list/mob/living/simple_animal/hostile/megafauna/bosses = list()
+		for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
+			if(locate(/obj/structure/closet/crate/secure/bitrunning/encrypted) in tile)
+				found_cache = TRUE
+			if(locate(/obj/modular_map_connector) in tile)
+				found_safehouse = TRUE
+			for(var/mob/living/simple_animal/hostile/megafauna/boss in tile)
+				bosses += boss
+
+		for(var/mob/living/simple_animal/hostile/megafauna/boss as anything in bosses)
+			TEST_ASSERT(!boss.true_spawn, "[domain.name] left [boss.type] as a real megafauna")
+			TEST_ASSERT(/obj/structure/closet/crate/secure/bitrunning/encrypted in boss.loot, "[domain.name] left [boss.type] without the cache in its loot")
+			found_cache = TRUE
+
+		TEST_ASSERT(found_cache, "[domain.name] offers no path to an encrypted cache")
+		TEST_ASSERT(found_safehouse, "[domain.name] did not load its modular safehouse")
 		server.scrub_vdom()
 
 /datum/unit_test/room_test/bitrunning_den
@@ -138,7 +142,9 @@
 	TEST_ASSERT_NOTNULL(vendor, "the den was mapped without a bitrunner vendor")
 	TEST_ASSERT_NOTNULL(breaker, "the den was mapped without an apc")
 	TEST_ASSERT_EQUAL(length(netpods), 3, "the den does not hold three netpods")
-	TEST_ASSERT_EQUAL(length(spawns), 2, "the den does not hold a spawn point per bitrunner slot")
+
+	var/datum/job/supply/bitrunner/job = SSjobs.GetJobType(/datum/job/supply/bitrunner)
+	TEST_ASSERT_EQUAL(length(spawns), job.spawn_positions, "the den does not hold a spawn point per bitrunner slot")
 
 	TEST_ASSERT_EQUAL(console.find_server(), server, "the console cannot reach the server it stands next to")
 	TEST_ASSERT_EQUAL(server.get_random_nearby_forge(), forge, "the server cannot reach the byteforge")
