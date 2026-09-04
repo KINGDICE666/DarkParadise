@@ -79,7 +79,7 @@
 		glitch.mind_initialize()
 
 	glitch.mind.add_antag_datum(chosen_role)
-	glitch.AddComponent(/datum/component/virtual_entity)
+	glitch.AddComponent(/datum/component/virtual_entity, src)
 	glitch.create_digital_aura()
 
 	spawned_threat_refs += WEAKREF(glitch)

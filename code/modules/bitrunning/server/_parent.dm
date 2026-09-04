@@ -10,6 +10,8 @@
 	idle_power_usage = 200
 	active_power_usage = 1500
 	var/capacitor_coefficient = 1
+	var/glitch_chance = 0.2
+	var/threat_prob_max = 15
 	var/datum/lazy_template/virtual_domain/generated_domain
 	var/datum/turf_reservation/domain_reservation
 	var/domain_complete = FALSE
@@ -28,6 +30,8 @@
 	var/list/datum/weakref/spawned_threat_refs = list()
 	var/list/turf/exit_turfs = list()
 	var/list/turf/goal_turfs = list()
+	var/list/mob/polled_ghosts
+	COOLDOWN_DECLARE(polling_cooldown)
 
 /obj/machinery/quantum_server/Initialize(mapload)
 	. = ..()
@@ -49,6 +53,7 @@
 	spawned_threat_refs.Cut()
 	exit_turfs.Cut()
 	goal_turfs.Cut()
+	polled_ghosts = null
 	return ..()
 
 /obj/machinery/quantum_server/get_ru_names()
@@ -84,6 +89,27 @@
 		. += span_notice("Манипуляторы увеличивают награду в [servo_bonus]x и смягчают травму от аварийного отключения.")
 	if(!is_ready)
 		. += span_warning("Сервер остывает. Дайте ему пару минут.")
+
+	if(isobserver(user) && emagged)
+		. += span_notice("Тревожные индикаторы мигают красным. В сервер кто-то залез.")
+
+/obj/machinery/quantum_server/emag_act(mob/user)
+	if(emagged)
+		return
+
+	emagged = TRUE
+	glitch_chance *= 2
+	threat_prob_max *= 2
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_SERVER_EMAGGED)
+
+	balloon_alert(user, "система взломана...")
+	playsound(src, 'sound/effects/sparks1.ogg', 35, TRUE)
+	update_icon(UPDATE_OVERLAYS)
+
+/obj/machinery/quantum_server/update_overlays()
+	. = ..()
+	if(emagged)
+		. += mutable_appearance(icon, "emag_overlay")
 
 /obj/machinery/quantum_server/update_icon_state()
 	if(isnull(generated_domain) || !is_operational())
