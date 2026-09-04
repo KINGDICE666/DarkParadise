@@ -64,9 +64,29 @@
 	certificate.name = "сертификат о прохождении домена"
 	certificate.info = get_completion_certificate(completion_time, grade, bonus)
 
+	if(can_generate_tech_disk(grade))
+		generated_domain.disk_reward_spawned = TRUE
+		var/disk_path = pick(subtypesof(/obj/item/disk/tech_disk/loaded))
+		new disk_path(reward_cache)
+
 	chosen_forge.start_to_spawn(reward_cache)
 
 	domain_complete = TRUE
+
+/obj/machinery/quantum_server/proc/generate_secondary_loot(obj/curiosity, obj/machinery/byteforge/chosen_forge)
+	spark_at_location(curiosity)
+	qdel(curiosity)
+
+	chosen_forge.start_to_spawn(new /obj/item/storage/lockbox/bitrunning/decrypted(src, generated_domain))
+
+/obj/machinery/quantum_server/proc/can_generate_tech_disk(grade)
+	if(generated_domain.disk_reward_spawned)
+		return FALSE
+
+	if(generated_domain.difficulty < BITRUNNER_DIFFICULTY_MEDIUM)
+		return FALSE
+
+	return grade == GRADE_A || grade == GRADE_S
 
 /obj/machinery/quantum_server/proc/get_completion_certificate(completion_time, grade, bonus)
 	var/text = "<center><b>Сертификат о прохождении домена</b></center><hr>"

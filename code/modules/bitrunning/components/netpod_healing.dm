@@ -10,10 +10,10 @@
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(on_remove))
 
 	ADD_TRAIT(parent, TRAIT_STASIS, NETPOD_TRAIT)
-	START_PROCESSING(SSmachines, src)
+	START_PROCESSING(SSdcs, src)
 
 /datum/component/netpod_healing/Destroy(force)
-	STOP_PROCESSING(SSmachines, src)
+	STOP_PROCESSING(SSdcs, src)
 	REMOVE_TRAIT(parent, TRAIT_STASIS, NETPOD_TRAIT)
 	return ..()
 

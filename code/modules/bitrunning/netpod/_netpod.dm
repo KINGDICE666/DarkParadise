@@ -14,6 +14,7 @@
 	var/state_open = TRUE
 	var/connected = FALSE
 	var/copy_body = FALSE
+	var/datum/outfit/netsuit = /datum/outfit/bit_avatar
 	var/datum/weakref/avatar_ref
 	var/datum/weakref/server_ref
 	COOLDOWN_DECLARE(scanning_cooldown)
@@ -75,6 +76,7 @@
 	. += span_notice("Затащите себя в капсулу, чтобы установить связь.")
 	. += span_notice("Капсула поддерживает тело в стазисе и понемногу лечит его.")
 	. += span_notice("Сканер внешности [copy_body ? "включён: аватар будет копировать ваше тело" : "выключен: аватар получит случайное тело"]. Alt-клик переключает.")
+	. += span_notice("Нажмите на открытую капсулу, чтобы выбрать облик снаряжения аватара.")
 	. += span_warning("Её можно вскрыть ломом, но система безопасности предупредит спящего.")
 
 	if(isnull(occupant))
@@ -114,8 +116,83 @@
 	if(..())
 		return TRUE
 
-	if(!state_open && user == occupant)
-		container_resist_act(user)
+	if(!state_open)
+		if(user == occupant)
+			container_resist_act(user)
+		return TRUE
+
+	ui_interact(user)
+	return TRUE
+
+/obj/machinery/netpod/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "NetpodOutfits", name)
+		ui.set_autoupdate(FALSE)
+		ui.open()
+
+/obj/machinery/netpod/ui_status(mob/user, datum/ui_state/state)
+	if(panel_open || occupant)
+		return UI_CLOSE
+
+	return ..()
+
+/obj/machinery/netpod/ui_data(mob/user)
+	var/list/data = list()
+	data["netsuit"] = "[netsuit]"
+	return data
+
+/obj/machinery/netpod/ui_static_data(mob/user)
+	var/list/data = list()
+	data["collections"] = get_outfit_collections()
+	return data
+
+/obj/machinery/netpod/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
+
+	if(action != "select_outfit")
+		return FALSE
+
+	var/datum/outfit/chosen = resolve_outfit(params["outfit"])
+	if(isnull(chosen))
+		return FALSE
+
+	netsuit = chosen
+	return TRUE
+
+/obj/machinery/netpod/proc/get_outfit_collections()
+	var/static/list/collections
+	if(collections)
+		return collections
+
+	collections = list()
+	collections += list(build_outfit_collection("Базовые", list(/datum/outfit/bit_avatar)))
+	collections += list(build_outfit_collection("Должности", subtypesof(/datum/outfit/job)))
+	return collections
+
+/obj/machinery/netpod/proc/build_outfit_collection(identifier, list/outfit_paths)
+	var/list/collection = list("name" = identifier, "outfits" = list())
+
+	for(var/datum/outfit/outfit as anything in outfit_paths)
+		var/outfit_name = initial(outfit.name)
+		if(findtext(outfit_name, "(") || findtext(outfit_name, "-"))
+			continue
+
+		collection["outfits"] += list(list("path" = "[outfit]", "name" = outfit_name))
+
+	return collection
+
+/obj/machinery/netpod/proc/resolve_outfit(outfit_text)
+	if(!ispath(text2path(outfit_text), /datum/outfit))
+		return
+
+	for(var/list/collection as anything in get_outfit_collections())
+		for(var/list/entry as anything in collection["outfits"])
+			if(entry["path"] == outfit_text)
+				return text2path(outfit_text)
+
+	message_admins("[key_name_admin(usr)] tried to select an unavailable netpod outfit: [outfit_text]")
 
 /obj/machinery/netpod/attack_ghost(mob/dead/observer/user)
 	var/mob/living/avatar = avatar_ref?.resolve()

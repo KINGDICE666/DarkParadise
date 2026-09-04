@@ -24,6 +24,14 @@
 			break
 
 	TEST_ASSERT_NOTNULL(cache, "the domain loaded without an encrypted cache")
+
+	var/obj/item/storage/lockbox/bitrunning/encrypted/curiosity
+	for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
+		curiosity = locate() in tile
+		if(curiosity)
+			break
+
+	TEST_ASSERT_NOTNULL(curiosity, "the domain loaded without an encrypted curiosity")
 	TEST_ASSERT(length(server.mutation_candidate_refs), "no mutation candidates were collected from the domain")
 	TEST_ASSERT_NOTNULL(server.get_glitch_role(), "no glitch role was available at zero threat")
 
@@ -58,11 +66,38 @@
 	TEST_ASSERT(locate(/obj/item/paper) in reward, "the decrypted cache came without a completion certificate")
 	TEST_ASSERT(locate(/obj/item/stack/sheet/metal) in reward, "the decrypted cache came without the domain completion loot")
 
+	curiosity.forceMove(pick(server.goal_turfs))
+
+	sleep(2 SECONDS)
+
+	var/obj/item/storage/lockbox/bitrunning/decrypted/curiosity_reward = locate() in get_turf(forge)
+	TEST_ASSERT_NOTNULL(curiosity_reward, "the byteforge did not materialize a decrypted curiosity")
+	TEST_ASSERT(length(curiosity_reward.contents), "the decrypted curiosity was compiled empty")
+
+	var/obj/machinery/netpod/pod = allocate(/obj/machinery/netpod, locate(anchor.x + 1, anchor.y + 1, anchor.z))
+	TEST_ASSERT_EQUAL(pod.resolve_outfit("[/datum/outfit/bit_avatar]"), /datum/outfit/bit_avatar, "the netpod rejected an outfit it offers")
+	TEST_ASSERT_NULL(pod.resolve_outfit("[/obj/item/stack/sheet/metal]"), "the netpod accepted something that is not an outfit")
+
 	server.scrub_vdom()
 	TEST_ASSERT_NULL(server.generated_domain, "scrubbing did not clear the loaded domain")
 	TEST_ASSERT_NULL(server.domain_reservation, "scrubbing did not release the domain reservation")
 	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
 	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")
+
+/datum/unit_test/room_test/bitrunning_domains
+
+/datum/unit_test/room_test/bitrunning_domains/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+
+	for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
+		server.points = domain.cost
+		TEST_ASSERT(server.cold_boot_map(domain.key), "the server failed to boot [domain.name]")
+		TEST_ASSERT(length(server.exit_turfs), "[domain.name] was mapped without hololadder spawns")
+		TEST_ASSERT(length(server.goal_turfs), "[domain.name] was mapped without a delivery pad")
+		TEST_ASSERT(length(server.mutation_candidate_refs), "[domain.name] was mapped without a single mutation candidate")
+		TEST_ASSERT(domain.secondary_loot_generated, "[domain.name] was mapped without a curiosity spawn")
+		server.scrub_vdom()
 
 /datum/unit_test/room_test/bitrunning_den
 

@@ -17,3 +17,6 @@
 
 /obj/effect/landmark/bitrunning/cache_spawn
 	name = "Bitrunning crate spawn"
+
+/obj/effect/landmark/bitrunning/curiosity_spawn
+	name = "Bitrunning curiosity spawn"

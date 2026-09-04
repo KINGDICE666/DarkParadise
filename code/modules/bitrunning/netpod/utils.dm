@@ -44,7 +44,7 @@
 
 	var/mob/living/carbon/human/avatar = avatar_ref?.resolve()
 	if(isnull(avatar) || avatar.stat != CONSCIOUS)
-		avatar = server.start_new_connection(pilot, copy_body)
+		avatar = server.start_new_connection(pilot, copy_body, netsuit)
 
 	if(isnull(avatar))
 		balloon_alert(pilot, "свободных выходов нет!")

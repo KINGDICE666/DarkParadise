@@ -60,6 +60,7 @@
 			found_landmarks += landmark
 
 	var/list/turf/cache_turfs = list()
+	var/list/turf/curiosity_turfs = list()
 
 	for(var/obj/effect/landmark/bitrunning/landmark as anything in found_landmarks)
 		var/turf/tile = get_turf(landmark)
@@ -78,6 +79,9 @@
 		else if(istype(landmark, /obj/effect/landmark/bitrunning/cache_spawn))
 			cache_turfs += tile
 
+		else if(istype(landmark, /obj/effect/landmark/bitrunning/curiosity_spawn))
+			curiosity_turfs += tile
+
 		qdel(landmark)
 
 	if(!length(exit_turfs))
@@ -89,6 +93,7 @@
 		return FALSE
 
 	collect_mutation_candidates()
+	spawn_curiosities(curiosity_turfs)
 
 	return attempt_spawn_cache(cache_turfs)
 
@@ -145,6 +150,7 @@
 		generated_domain?.reservations -= domain_reservation
 		QDEL_NULL(domain_reservation)
 
+	generated_domain?.secondary_loot_generated = 0
 	avatar_connection_refs.Cut()
 	mutation_candidate_refs.Cut()
 	spawned_threat_refs.Cut()

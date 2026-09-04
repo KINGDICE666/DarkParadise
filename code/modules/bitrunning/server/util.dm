@@ -64,6 +64,24 @@
 	stack_trace("vdom: every cache spawn on [generated_domain.key] was blocked")
 	return FALSE
 
+/obj/machinery/quantum_server/proc/spawn_curiosities(list/turf/possible_turfs)
+	var/remaining = counterlist_sum(generated_domain.secondary_loot)
+	if(!remaining || !length(possible_turfs))
+		return
+
+	shuffle_inplace(possible_turfs)
+
+	for(var/turf/tile as anything in possible_turfs)
+		if(generated_domain.secondary_loot_generated >= remaining)
+			return
+
+		var/turf/chosen_turf = validate_turf(tile)
+		if(isnull(chosen_turf))
+			continue
+
+		new /obj/item/storage/lockbox/bitrunning/encrypted(chosen_turf)
+		generated_domain.secondary_loot_generated += 1
+
 /obj/machinery/quantum_server/proc/get_random_nearby_forge()
 	var/list/obj/machinery/byteforge/nearby_forges = list()
 	for(var/obj/machinery/byteforge/forge in oview(FORGE_SEARCH_RANGE, src))
@@ -91,18 +109,38 @@
 	retries_spent += 1
 	return new /obj/structure/hololadder(exit_tile, src)
 
-/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE)
+/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/obj/structure/hololadder/entry_point = get_avatar_destination()
 	if(isnull(entry_point))
 		return
 
-	return generate_avatar(get_turf(entry_point), pilot, copy_body)
+	return generate_avatar(get_turf(entry_point), pilot, copy_body, netsuit)
 
-/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot, copy_body = FALSE)
+/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/mob/living/carbon/human/avatar = new(destination)
 	if(copy_body)
 		pilot.dna.transfer_identity(avatar)
-	avatar.equipOutfit(generated_domain.forced_outfit || /datum/outfit/bit_avatar, visualsOnly = TRUE)
+	else
+		avatar.scramble_appearance()
+
+	var/outfit_path = generated_domain.forced_outfit || netsuit
+	var/datum/outfit/to_wear = new outfit_path()
+	to_wear.belt = /obj/item/bitrunning_host_monitor
+	to_wear.glasses = null
+	to_wear.gloves = null
+	to_wear.l_ear = null
+	to_wear.r_ear = null
+	to_wear.l_hand = null
+	to_wear.r_hand = null
+	to_wear.l_pocket = null
+	to_wear.r_pocket = null
+	to_wear.suit = null
+	to_wear.suit_store = null
+	avatar.equipOutfit(to_wear, visualsOnly = TRUE)
+
+	for(var/obj/item/clothing/worn as anything in avatar.get_equipped_items())
+		worn.set_armor(getArmor())
+
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
 	return avatar
@@ -126,9 +164,12 @@
 		to_chat(pilot, span_warning("Как минимум один диск заблокирован ограничениями домена."))
 
 /obj/machinery/quantum_server/proc/get_random_domain_id()
+	if(points < BITRUNNER_COST_LOW)
+		return
+
 	var/list/datum/lazy_template/virtual_domain/available = list()
 	for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
-		if(domain.cost <= points)
+		if(domain.cost > BITRUNNER_COST_NONE && domain.cost <= points)
 			available += domain
 
 	if(!length(available))
@@ -140,11 +181,15 @@
 /obj/machinery/quantum_server/proc/on_goal_turf_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
-	if(!istype(arrived, /obj/structure/closet/crate/secure/bitrunning/encrypted))
+	if(!istype(arrived, /obj/structure/closet/crate/secure/bitrunning/encrypted) && !istype(arrived, /obj/item/storage/lockbox/bitrunning/encrypted))
 		return
 
 	var/obj/machinery/byteforge/chosen_forge = get_random_nearby_forge()
 	if(isnull(chosen_forge))
+		return
+
+	if(istype(arrived, /obj/item/storage/lockbox/bitrunning/encrypted))
+		generate_secondary_loot(arrived, chosen_forge)
 		return
 
 	generate_loot(arrived, chosen_forge)

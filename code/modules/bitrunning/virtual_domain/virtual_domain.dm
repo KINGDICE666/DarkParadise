@@ -10,7 +10,18 @@
 	var/help_text = "Найдите зашифрованный контейнер и доставьте его на площадку выдачи."
 	var/start_time
 	var/list/completion_loot
+	var/list/secondary_loot
+	var/secondary_loot_generated = 0
+	var/disk_reward_spawned = FALSE
 	var/datum/outfit/forced_outfit
+
+/datum/lazy_template/virtual_domain/proc/take_secondary_loot()
+	var/path = pick_weight_classic(secondary_loot)
+	if(isnull(path))
+		return
+
+	secondary_loot[path] -= 1
+	return path
 
 /datum/lazy_template/virtual_domain/proc/can_view_name(scanner_tier, server_points)
 	return difficulty < scanner_tier && cost <= server_points + 5

@@ -56,6 +56,67 @@
 		PREPOSITIONAL = "расшифрованном контейнере",
 	)
 
+/obj/item/storage/lockbox/bitrunning
+	name = "curiosity"
+	desc = "Запертый ящик, собранный из чистых данных."
+	icon_state = "lockbox"
+	icon_locked = "lockbox+l"
+	icon_closed = "lockbox"
+	req_access = list(ACCESS_BITRUNNING)
+
+/obj/item/storage/lockbox/bitrunning/get_ru_names()
+	return alist(
+		NOMINATIVE = "диковина",
+		GENITIVE = "диковины",
+		DATIVE = "диковине",
+		ACCUSATIVE = "диковину",
+		INSTRUMENTAL = "диковиной",
+		PREPOSITIONAL = "диковине",
+	)
+
+/obj/item/storage/lockbox/bitrunning/encrypted
+	name = "encrypted curiosity"
+	desc = "Зашифрована. Положите её на площадку выдачи в убежище, как и основной груз."
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+
+/obj/item/storage/lockbox/bitrunning/encrypted/get_ru_names()
+	return alist(
+		NOMINATIVE = "зашифрованная диковина",
+		GENITIVE = "зашифрованной диковины",
+		DATIVE = "зашифрованной диковине",
+		ACCUSATIVE = "зашифрованную диковину",
+		INSTRUMENTAL = "зашифрованной диковиной",
+		PREPOSITIONAL = "зашифрованной диковине",
+	)
+
+/obj/item/storage/lockbox/bitrunning/decrypted
+	name = "decrypted curiosity"
+	desc = "Скомпилирована из виртуального домена. Побочная добыча битраннера."
+	locked = FALSE
+	var/datum/lazy_template/virtual_domain/source_domain
+
+/obj/item/storage/lockbox/bitrunning/decrypted/get_ru_names()
+	return alist(
+		NOMINATIVE = "расшифрованная диковина",
+		GENITIVE = "расшифрованной диковины",
+		DATIVE = "расшифрованной диковине",
+		ACCUSATIVE = "расшифрованную диковину",
+		INSTRUMENTAL = "расшифрованной диковиной",
+		PREPOSITIONAL = "расшифрованной диковине",
+	)
+
+/obj/item/storage/lockbox/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain)
+	source_domain = completed_domain
+	. = ..()
+	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
+
+/obj/item/storage/lockbox/bitrunning/decrypted/populate_contents()
+	var/path = source_domain?.take_secondary_loot()
+	if(isnull(path))
+		return
+
+	new path(src)
+
 /obj/structure/closet/crate/secure/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain, rewards_multiplier = 1)
 	. = ..()
 	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
