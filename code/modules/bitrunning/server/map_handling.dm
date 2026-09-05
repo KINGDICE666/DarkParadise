@@ -114,6 +114,7 @@
 			found_landmarks += landmark
 		for(var/obj/effect/mob_spawn/spawner in tile)
 			LAZYADD(generated_domain.ghost_spawners, spawner)
+			RegisterSignal(spawner, COMSIG_BITRUNNER_SPAWNED, PROC_REF(on_threat_created))
 
 	for(var/obj/effect/landmark/bitrunning/landmark as anything in found_landmarks)
 		var/turf/tile = get_turf(landmark)

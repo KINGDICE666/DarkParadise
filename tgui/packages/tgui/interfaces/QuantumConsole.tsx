@@ -21,6 +21,8 @@ type Data =
   | {
       available_domains: Domain[];
       avatars: Avatar[];
+      broadcasting: BooleanLike;
+      broadcasting_on_cd: BooleanLike;
       connected: 1;
       generated_domain: string | null;
       occupants: number;
@@ -100,6 +102,8 @@ const AccessView = (_properties) => {
 
   const {
     available_domains = [],
+    broadcasting,
+    broadcasting_on_cd,
     generated_domain,
     occupants,
     points,
@@ -126,6 +130,16 @@ const AccessView = (_properties) => {
         <Section
           buttons={
             <Stack align="center">
+              <Stack.Item>
+                <Button.Checkbox
+                  checked={broadcasting}
+                  disabled={broadcasting_on_cd}
+                  onClick={() => act('broadcast')}
+                  tooltip="Транслировать происходящее в домене на развлекательные мониторы станции."
+                >
+                  Трансляция
+                </Button.Checkbox>
+              </Stack.Item>
               <Stack.Item>
                 <Button
                   disabled={

@@ -9,8 +9,11 @@ GLOBAL_LIST_INIT(bitrunner_order_items, list(
 		BITRUNNER_ORDER("Cornchips", /obj/item/reagent_containers/food/snacks/cornchips, 100),
 		BITRUNNER_ORDER("Space Mountain Wind", /obj/item/reagent_containers/food/drinks/cans/space_mountain_wind, 100),
 		BITRUNNER_ORDER("Thirteen Loko", /obj/item/reagent_containers/food/drinks/cans/thirteenloko, 200),
+		BITRUNNER_ORDER("Heart Attack", /obj/item/reagent_containers/food/drinks/cans/energy, 200),
+		BITRUNNER_ORDER("GreyPower", /obj/item/reagent_containers/food/drinks/cans/energy/grey, 200),
 		BITRUNNER_ORDER("Sunglasses", /obj/item/clothing/glasses/sunglasses, 1000),
 		BITRUNNER_ORDER("Brown Trenchcoat", /obj/item/clothing/suit/storage/browntrenchcoat, 1000),
+		BITRUNNER_ORDER("Black Trenchcoat", /obj/item/clothing/suit/storage/blacktrenchcoat, 1000),
 		BITRUNNER_ORDER("Jackboots", /obj/item/clothing/shoes/jackboots, 1000),
 	),
 	BITRUNNER_ORDER_GEAR = list(
@@ -26,6 +29,10 @@ GLOBAL_LIST_INIT(bitrunner_order_items, list(
 		BITRUNNER_ORDER("Basic Ability Program", /obj/item/disk/bitrunning/ability/tier1, 750),
 		BITRUNNER_ORDER("Complex Ability Program", /obj/item/disk/bitrunning/ability/tier2, 1500),
 		BITRUNNER_ORDER("Elite Ability Program", /obj/item/disk/bitrunning/ability/tier3, 2500),
+		BITRUNNER_ORDER("PKA Mod Program", /obj/item/disk/bitrunning/item/pka_mods, 750),
+		BITRUNNER_ORDER("Premium PKA Mod Program", /obj/item/disk/bitrunning/item/pka_mods/premium, 1600),
+		BITRUNNER_ORDER("PKC Mod Program", /obj/item/disk/bitrunning/item/pkc_mods, 750),
+		BITRUNNER_ORDER("Premium PKC Mod Program", /obj/item/disk/bitrunning/item/pkc_mods/premium, 1600),
 	),
 ))
 

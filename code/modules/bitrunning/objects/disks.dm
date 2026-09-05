@@ -122,3 +122,41 @@
 		"Молния" = /obj/effect/proc_holder/spell/charge_up/bounce/lightning,
 		"Остановка времени" = /obj/effect/proc_holder/spell/aoe/conjure/timestop,
 	)
+
+/obj/item/disk/bitrunning/item/pka_mods
+	name = "bitrunning gear: proto-kinetic accelerator mods"
+	selectable = list(
+		"Увеличение дальности" = /obj/item/borg/upgrade/modkit/range,
+		"Увеличение урона" = /obj/item/borg/upgrade/modkit/damage,
+		"Ускорение перезарядки" = /obj/item/borg/upgrade/modkit/cooldown,
+		"Взрывная волна" = /obj/item/borg/upgrade/modkit/aoe/mobs,
+	)
+
+/obj/item/disk/bitrunning/item/pka_mods/premium
+	name = "bitrunning gear: premium proto-kinetic accelerator mods"
+	selectable = list(
+		"Скорострельный повторитель" = /obj/item/borg/upgrade/modkit/cooldown/repeater,
+		"Кристалл кражи жизни" = /obj/item/borg/upgrade/modkit/lifesteal,
+		"Резонаторные заряды" = /obj/item/borg/upgrade/modkit/resonator_blasts,
+		"Сифон смерти" = /obj/item/borg/upgrade/modkit/bounty,
+		"Гаситель давления" = /obj/item/borg/upgrade/modkit/indoors,
+	)
+
+/obj/item/disk/bitrunning/item/pkc_mods
+	name = "bitrunning gear: proto-kinetic crusher mods"
+	selectable = list(
+		"Крыло смотрителя" = /obj/item/crusher_trophy/watcher_wing,
+		"Крыло магмового смотрителя" = /obj/item/crusher_trophy/blaster_tubes/magma_wing,
+		"Череп легиона" = /obj/item/crusher_trophy/legion_skull,
+	)
+
+/obj/item/disk/bitrunning/item/pkc_mods/premium
+	name = "bitrunning gear: premium proto-kinetic crusher mods"
+	selectable = list(
+		"Крыло ледяного смотрителя" = /obj/item/crusher_trophy/watcher_wing/ice_wing,
+		"Бластерные трубки" = /obj/item/crusher_trophy/blaster_tubes,
+		"Глаз хмельного охотника" = /obj/item/crusher_trophy/miner_eye,
+		"Хвостовой шип" = /obj/item/crusher_trophy/tail_spike,
+		"Когти демона" = /obj/item/crusher_trophy/demon_claws,
+		"Талисман вихря" = /obj/item/crusher_trophy/vortex_talisman,
+	)

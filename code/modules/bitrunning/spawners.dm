@@ -46,6 +46,7 @@ GLOBAL_LIST_INIT(virtual_pirate_names, list(
 	if(antag && spawned.mind)
 		spawned.mind.add_antag_datum(/datum/antagonist/domain_actor)
 
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_SPAWNED, spawned)
 	return spawned
 
 /obj/effect/mob_spawn/human/alive/virtual_domain/pirate

@@ -31,6 +31,8 @@
 	var/list/turf/exit_turfs = list()
 	var/list/turf/goal_turfs = list()
 	var/list/mob/polled_ghosts
+	var/broadcasting = FALSE
+	COOLDOWN_DECLARE(broadcast_toggle_cd)
 	COOLDOWN_DECLARE(polling_cooldown)
 
 /obj/machinery/quantum_server/Initialize(mapload)

@@ -162,6 +162,15 @@
 	if(load_result & BITRUNNER_GEAR_LOAD_BLOCKED)
 		to_chat(pilot, span_warning("Как минимум один диск заблокирован ограничениями домена."))
 
+/obj/machinery/quantum_server/proc/toggle_broadcast()
+	if(!COOLDOWN_FINISHED(src, broadcast_toggle_cd))
+		return FALSE
+
+	broadcasting = !broadcasting
+	COOLDOWN_START(src, broadcast_toggle_cd, 5 SECONDS)
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_BROADCAST_TOGGLED, broadcasting)
+	return TRUE
+
 /obj/machinery/quantum_server/proc/get_random_domain_id()
 	if(points < BITRUNNER_COST_LOW)
 		return

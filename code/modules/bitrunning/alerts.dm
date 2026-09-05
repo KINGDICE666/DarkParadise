@@ -15,6 +15,10 @@
 	name = "Перезагрузка домена"
 	desc = "Домен перезагружается. Ищите выход."
 
+/atom/movable/screen/alert/bitrunning/threat
+	name = "Обнаружена угроза"
+	desc = "В потоке данных завелись помехи."
+
 /atom/movable/screen/alert/bitrunning/reset
 	name = "Помечен на удаление"
 	desc = "Сервер перезагружается. Впереди небытие."

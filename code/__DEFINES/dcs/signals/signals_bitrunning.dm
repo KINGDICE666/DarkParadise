@@ -12,5 +12,6 @@
 #define COMSIG_BITRUNNER_STOCKING_GEAR "bitrunner_stocking_gear"
 #define COMSIG_BITRUNNER_THREAT_CREATED "bitrunner_threat_created"
 #define COMSIG_BITRUNNER_SERVER_EMAGGED "bitrunner_server_emagged"
+#define COMSIG_BITRUNNER_BROADCAST_TOGGLED "bitrunner_broadcast_toggled"
 #define COMSIG_BITRUNNER_SPAWNED "bitrunner_spawned"
 #define COMSIG_BITRUNNING_MOB_SEGMENT_SPAWNED "bitrunner_mob_segment_spawned"

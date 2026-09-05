@@ -63,6 +63,8 @@
 
 	data["connected"] = TRUE
 	data["available_domains"] = get_available_domains(server.scanner_tier, server.points)
+	data["broadcasting"] = server.broadcasting
+	data["broadcasting_on_cd"] = !COOLDOWN_FINISHED(server, broadcast_toggle_cd)
 	data["avatars"] = server.get_avatar_data()
 	data["generated_domain"] = server.generated_domain?.key
 	data["occupants"] = length(server.avatar_connection_refs)
@@ -97,6 +99,9 @@
 
 		if("stop_domain")
 			server.begin_shutdown(usr)
+
+		if("broadcast")
+			server.toggle_broadcast()
 
 		else
 			return FALSE

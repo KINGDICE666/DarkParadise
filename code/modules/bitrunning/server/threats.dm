@@ -1,3 +1,8 @@
+/obj/machinery/quantum_server/proc/add_threats(mob/living/threat)
+	spawned_threat_refs += WEAKREF(threat)
+	threat.AddComponent(/datum/component/virtual_entity, src)
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_THREAT_CREATED)
+
 /obj/machinery/quantum_server/proc/collect_mutation_candidates()
 	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
 		for(var/mob/living/creature in tile)
@@ -79,10 +84,9 @@
 		glitch.mind_initialize()
 
 	glitch.mind.add_antag_datum(chosen_role)
-	glitch.AddComponent(/datum/component/virtual_entity, src)
 	glitch.create_digital_aura()
 
-	spawned_threat_refs += WEAKREF(glitch)
+	add_threats(glitch)
 	playsound(glitch, 'sound/effects/phasein.ogg', 50, TRUE)
 	message_admins("[key_name_admin(glitch)] was made into a bitrunning glitch at [ADMIN_JMP(src)].")
 

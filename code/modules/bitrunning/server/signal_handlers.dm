@@ -42,4 +42,4 @@
 /obj/machinery/quantum_server/proc/on_threat_created(datum/source, mob/living/threat)
 	SIGNAL_HANDLER
 
-	spawned_threat_refs += WEAKREF(threat)
+	add_threats(threat)

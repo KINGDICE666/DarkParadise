@@ -36,3 +36,4 @@
 #define ALERT_BITRUNNER_INTEGRITY "bitrunner_integrity"
 #define ALERT_BITRUNNER_SHUTDOWN "bitrunner_shutdown"
 #define ALERT_BITRUNNER_RESET "bitrunner_reset"
+#define ALERT_BITRUNNER_THREAT "bitrunner_threat"

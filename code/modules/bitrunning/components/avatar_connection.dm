@@ -6,6 +6,7 @@
 	var/datum/weakref/old_body_ref
 	var/datum/weakref/server_ref
 	var/nohit = TRUE
+	var/obj/machinery/camera/portable/no_ai/bodycam
 
 /datum/component/avatar_connection/Initialize(mob/living/old_body, obj/machinery/quantum_server/server, obj/machinery/netpod/pod)
 	if(!isliving(parent) || !isliving(old_body) || isnull(old_body.key))
@@ -34,7 +35,13 @@
 	RegisterSignal(server, COMSIG_BITRUNNER_DOMAIN_COMPLETE, PROC_REF(on_domain_completed))
 	RegisterSignal(server, COMSIG_BITRUNNER_QSRV_SEVER, PROC_REF(on_sever_connection))
 	RegisterSignal(server, COMSIG_BITRUNNER_SHUTDOWN_ALERT, PROC_REF(on_shutting_down))
+	RegisterSignal(server, COMSIG_BITRUNNER_THREAT_CREATED, PROC_REF(on_threat_created))
+	RegisterSignal(server, COMSIG_BITRUNNER_BROADCAST_TOGGLED, PROC_REF(on_broadcast_toggled))
 	RegisterSignal(avatar.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_mind_transfer))
+
+	update_avatar_id()
+	if(server.broadcasting)
+		start_broadcast()
 
 	var/datum/action/avatar_domain_info/domain_info = new(avatar)
 	domain_info.help_text = server.generated_domain.help_text
@@ -56,7 +63,9 @@
 
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
 	if(server)
-		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT))
+		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT, COMSIG_BITRUNNER_THREAT_CREATED, COMSIG_BITRUNNER_BROADCAST_TOGGLED))
+
+	stop_broadcast()
 
 	netpod_ref = null
 	old_body_ref = null
@@ -134,6 +143,45 @@
 		full_avatar_disconnect(cause_damage = TRUE)
 
 	nohit = FALSE
+
+/datum/component/avatar_connection/proc/start_broadcast()
+	if(bodycam)
+		return
+
+	var/mob/living/avatar = parent
+	bodycam = new(avatar, list("news"), "Аватар [avatar.real_name]")
+	GLOB.active_entertainment_cameras |= bodycam
+
+/datum/component/avatar_connection/proc/stop_broadcast()
+	if(isnull(bodycam))
+		return
+
+	GLOB.active_entertainment_cameras -= bodycam
+	QDEL_NULL(bodycam)
+
+/datum/component/avatar_connection/proc/on_broadcast_toggled(datum/source, broadcasting)
+	SIGNAL_HANDLER
+
+	if(broadcasting)
+		start_broadcast()
+		return
+
+	stop_broadcast()
+
+/datum/component/avatar_connection/proc/update_avatar_id()
+	var/mob/living/avatar = parent
+	var/obj/item/card/id/avatar_id = locate() in avatar.get_all_contents()
+	if(isnull(avatar_id))
+		return
+
+	avatar_id.registered_name = avatar.real_name
+	avatar_id.update_label()
+
+/datum/component/avatar_connection/proc/on_threat_created(datum/source)
+	SIGNAL_HANDLER
+
+	var/mob/living/avatar = parent
+	avatar.throw_alert(ALERT_BITRUNNER_THREAT, /atom/movable/screen/alert/bitrunning/threat, new_master = source)
 
 /datum/component/avatar_connection/proc/on_domain_completed(datum/source, atom/movable/forge, reward_points)
 	SIGNAL_HANDLER
