@@ -36,6 +36,10 @@
 	RegisterSignal(server, COMSIG_BITRUNNER_SHUTDOWN_ALERT, PROC_REF(on_shutting_down))
 	RegisterSignal(avatar.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_mind_transfer))
 
+	var/datum/action/avatar_domain_info/domain_info = new(avatar)
+	domain_info.help_text = server.generated_domain.help_text
+	domain_info.Grant(avatar)
+
 	avatar.playsound_local(get_turf(avatar), 'sound/effects/phasein.ogg', 25, TRUE)
 	avatar.EyeBlind(1 SECONDS)
 	to_chat(avatar, span_notice("Соединение установлено. [server.generated_domain.help_text]"))
@@ -173,6 +177,12 @@
 
 	if(new_character == parent)
 		return
+
+	var/mob/living/previous_body = parent
+	var/datum/action/avatar_domain_info/domain_info = locate() in previous_body.actions
+	if(domain_info)
+		domain_info.link_to(new_character)
+		domain_info.Grant(new_character)
 
 	new_character.TakeComponent(src)
 

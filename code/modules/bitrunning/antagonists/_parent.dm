@@ -47,6 +47,7 @@ GLOBAL_LIST_INIT(cyberauth_names, list(
 		return
 
 	agent.equipOutfit(outfit)
+	agent.set_service_style()
 	agent.rename_character(agent.real_name, pick(GLOB.cyberauth_names))
 
 	var/obj/item/card/id/agent_id = agent.wear_id

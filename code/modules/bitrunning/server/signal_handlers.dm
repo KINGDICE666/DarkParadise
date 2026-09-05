@@ -33,6 +33,12 @@
 
 	generate_loot(arrived, chosen_forge)
 
+/obj/machinery/quantum_server/proc/on_goal_turf_examined(datum/source, mob/examiner, list/examine_text)
+	SIGNAL_HANDLER
+
+	examine_text += span_notice("Под вашим взглядом пол едва заметно пульсирует потоками закодированных данных.")
+	examine_text += span_notice("Похоже, это часть площадки, куда сдают зашифрованные контейнеры.")
+
 /obj/machinery/quantum_server/proc/on_threat_created(datum/source, mob/living/threat)
 	SIGNAL_HANDLER
 

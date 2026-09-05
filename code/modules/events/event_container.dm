@@ -209,6 +209,8 @@ GLOBAL_LIST_EMPTY(event_last_fired)
 		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_DRONE_MALFUNCTION, /datum/event/rogue_drone, 0, list(ASSIGNMENT_SECURITY = 20)),
 		new /datum/event_meta(
+			EVENT_LEVEL_MODERATE, EVENT_BITRUNNING_GLITCH, /datum/event/bitrunning_glitch, 50),
+		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_SPACEVINE, /datum/event/spacevine, 250, list(ASSIGNMENT_ENGINEER = 10)),
 		new /datum/event_meta(
 			EVENT_LEVEL_MODERATE, EVENT_METEOR_WAVE, /datum/event/meteor_wave, 10, list(ASSIGNMENT_ENGINEER = 25)),

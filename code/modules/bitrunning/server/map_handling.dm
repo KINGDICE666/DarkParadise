@@ -131,6 +131,7 @@
 		else if(istype(landmark, /obj/effect/landmark/bitrunning/cache_goal_turf))
 			goal_turfs += tile
 			RegisterSignal(tile, COMSIG_ATOM_ENTERED, PROC_REF(on_goal_turf_entered))
+			RegisterSignal(tile, COMSIG_ATOM_EXAMINE, PROC_REF(on_goal_turf_examined))
 
 		else if(istype(landmark, /obj/effect/landmark/bitrunning/cache_spawn))
 			cache_turfs += tile
@@ -238,7 +239,7 @@
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_DOMAIN_SCRUBBED)
 
 	for(var/turf/tile as anything in goal_turfs)
-		UnregisterSignal(tile, COMSIG_ATOM_ENTERED)
+		UnregisterSignal(tile, list(COMSIG_ATOM_ENTERED, COMSIG_ATOM_EXAMINE))
 
 	for(var/datum/weakref/creature_ref as anything in spawned_threat_refs + mutation_candidate_refs)
 		var/mob/living/creature = creature_ref?.resolve()
