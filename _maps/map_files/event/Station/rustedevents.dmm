@@ -4,7 +4,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ac" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/radio/phone/ussp,
@@ -21,12 +21,12 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "an" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ao" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/lighter/zippo/black,
@@ -70,7 +70,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bj" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -80,14 +80,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bk" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "br" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit,
@@ -96,14 +96,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bu" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bw" = (
 /obj/machinery/firealarm/directional/east,
 /turf/simulated/floor/mineral/plastitanium,
@@ -119,13 +119,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bM" = (
 /mob/living/simple_animal/hostile/scarybat,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "bN" = (
 /obj/effect/turf_decal/siding/dark{
 	dir = 4
@@ -137,7 +137,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cb" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -145,7 +145,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ct" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -166,14 +166,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cz" = (
 /obj/effect/decal/cleanable/blood/xeno,
 /obj/effect/decal/cleanable/glass,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cA" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -201,7 +201,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cJ" = (
 /obj/machinery/shower{
 	dir = 1;
@@ -229,7 +229,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cT" = (
 /obj/effect/mine/gas/n2o,
 /obj/effect/decal/cleanable/dust,
@@ -244,7 +244,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "cU" = (
 /obj/structure/rack,
 /obj/item/camera,
@@ -258,7 +258,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "dd" = (
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dust,
@@ -282,7 +282,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "dq" = (
 /obj/structure/fence,
 /obj/effect/turf_decal/siding/dark{
@@ -303,7 +303,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "dK" = (
 /obj/structure/closet/crate/plastic,
 /obj/effect/decal/cleanable/dust,
@@ -327,7 +327,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "dU" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -348,13 +348,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "eb" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "el" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
@@ -363,26 +363,26 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "et" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ev" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ew" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ey" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
@@ -390,7 +390,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "eA" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -414,39 +414,39 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "eV" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/cult,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "eY" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fg" = (
 /obj/structure/closet,
 /obj/item/reagent_containers/glass/bottle/reagent/formaldehyde,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fn" = (
 /obj/effect/decal/cleanable/glass,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fq" = (
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fr" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/tritium,
@@ -455,7 +455,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/chasm/straight_down/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ft" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/water_vapor,
@@ -467,7 +467,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fw" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -476,7 +476,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fH" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/rune,
@@ -487,7 +487,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fL" = (
 /obj/structure/closet/crate{
 	name = "Лидер"
@@ -513,7 +513,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fS" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/chair/wood{
@@ -522,23 +522,23 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fV" = (
 /obj/structure/rack/wooden,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fW" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/turf_decal,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "fY" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "gh" = (
 /obj/machinery/computer/crew,
 /turf/simulated/floor/mineral/plastitanium,
@@ -569,7 +569,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "gM" = (
 /obj/structure/closet,
 /obj/item/reagent_containers/glass/bottle/reagent/hairgrownium,
@@ -577,7 +577,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "gP" = (
 /obj/structure/chair/office/dark{
 	dir = 8
@@ -596,7 +596,7 @@
 /obj/effect/decal/cleanable/blood/gibs,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hm" = (
 /obj/effect/turf_decal/siding/dark/inner_corner,
 /turf/simulated/floor/pod/dark,
@@ -610,7 +610,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hq" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -629,20 +629,20 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hA" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/rail_way,
 /obj/effect/turf_decal,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hE" = (
 /obj/item/clothing/accessory/stethoscope,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hJ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -664,7 +664,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "hV" = (
 /obj/machinery/iv_drip,
 /obj/item/stack/cable_coil/random,
@@ -699,10 +699,10 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ip" = (
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ix" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -716,13 +716,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "iJ" = (
 /obj/item/tripod,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "iV" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood/fancy/light,
@@ -734,7 +734,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "jc" = (
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner{
 	loot = list(/obj/item/melee/energy/cleaving_saw,/obj/item/gem/phoron)
@@ -742,7 +742,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "jk" = (
 /obj/structure/chair/sofa/corp/left,
 /turf/simulated/floor/mineral/plastitanium,
@@ -760,7 +760,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "jR" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
@@ -773,7 +773,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "jX" = (
 /obj/effect/decal/remains/human,
 /obj/effect/overlay/turf/zauker,
@@ -783,7 +783,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "kd" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -801,7 +801,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ks" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -822,7 +822,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "kz" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/message_monitor/laptop,
@@ -865,20 +865,20 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "kL" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "kN" = (
 /obj/structure/closet/crate/secure/loot,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "kP" = (
 /obj/structure/rack,
 /obj/item/broadcast_camera,
@@ -902,7 +902,7 @@
 "lb" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
-	info = "Исследователи, цель миссии — Исследование сети пещер и сбор артефактов на исследование."
+	info = "Исследователи, цель миссии - Исследование сети пещер и сбор артефактов на исследование."
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -920,7 +920,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "lB" = (
 /obj/structure/chair/wood{
 	dir = 4
@@ -937,7 +937,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "lU" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -950,11 +950,11 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "mf" = (
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/r_wall,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ml" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/mineral/plastitanium,
@@ -972,7 +972,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "my" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
@@ -989,7 +989,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "mL" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/chair/wood{
@@ -998,14 +998,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "mO" = (
 /obj/structure/rack/wooden,
 /obj/item/melee/cultblade,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "mU" = (
 /obj/machinery/blackbox_recorder,
 /turf/simulated/floor/mineral/plastitanium,
@@ -1024,7 +1024,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "nj" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -1034,7 +1034,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "nn" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/wood/fancy/oak,
@@ -1064,7 +1064,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "nO" = (
 /obj/structure/chair/wood{
 	dir = 8
@@ -1087,7 +1087,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "oi" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -1102,7 +1102,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "on" = (
 /obj/structure/table/reinforced,
 /obj/item/sensor_device,
@@ -1135,7 +1135,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "oJ" = (
 /obj/structure/decorative_structures/corpse{
 	dir = 4
@@ -1144,7 +1144,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "oP" = (
 /obj/effect/turf_decal/arrows/white{
 	dir = 1
@@ -1166,7 +1166,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "pa" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -1176,7 +1176,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "py" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1191,31 +1191,31 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "pG" = (
 /mob/living/simple_animal/hostile/netherworld,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "pL" = (
 /obj/vehicle/ridden/lavaboat,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "pQ" = (
 /obj/item/clothing/neck/eldritch_amulet,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "pT" = (
 /obj/item/broken_device,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qd" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
@@ -1224,7 +1224,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qi" = (
 /obj/structure/rack/wooden,
 /obj/item/clothing/shoes/cult,
@@ -1232,7 +1232,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qk" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1254,7 +1254,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qt" = (
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
@@ -1264,7 +1264,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qy" = (
 /obj/structure/decorative_structures/corpse{
 	dir = 4
@@ -1277,7 +1277,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qA" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress/dirty,
@@ -1286,7 +1286,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qH" = (
 /obj/machinery/power/apc/directional/north,
 /obj/item/storage/toolbox/electrical,
@@ -1300,7 +1300,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "qS" = (
 /obj/machinery/door/airlock/vault{
 	name = "Брифинг"
@@ -1329,7 +1329,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "rp" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/storage/firstaid/doctor,
@@ -1345,7 +1345,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/r_wall/coated,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "rs" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/library/public,
@@ -1381,7 +1381,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "rB" = (
 /obj/structure/rack/wooden,
 /obj/item/paper{
@@ -1390,7 +1390,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "rC" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1412,7 +1412,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sa" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -1420,7 +1420,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sg" = (
 /obj/effect/decal/cleanable/glass,
 /obj/effect/decal/cleanable/dust,
@@ -1431,7 +1431,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ss" = (
 /obj/structure/safe/floor/random_documents,
 /turf/simulated/floor/pod/dark,
@@ -1439,14 +1439,14 @@
 "sv" = (
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/r_wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sx" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/rail_way,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sG" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1461,7 +1461,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sU" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
@@ -1474,7 +1474,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "sZ" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -1504,13 +1504,13 @@
 /obj/effect/overlay/turf/healium,
 /obj/item/documents/ussp,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ts" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ty" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/mineral/plastitanium,
@@ -1524,7 +1524,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "tB" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/cobweb,
@@ -1540,7 +1540,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "tL" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -1575,7 +1575,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ue" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress,
@@ -1589,20 +1589,20 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "uj" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "up" = (
 /obj/item/broken_bottle,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ur" = (
 /obj/structure/bed/old,
 /obj/structure/bed/cardboard,
@@ -1610,12 +1610,12 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "uw" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/chasm/straight_down/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ux" = (
 /obj/effect/mine/stun,
 /obj/effect/rune,
@@ -1627,7 +1627,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "uH" = (
 /obj/structure/table/wood/fancy/black,
 /turf/simulated/floor/carpet/black,
@@ -1638,7 +1638,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "uL" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -1649,7 +1649,7 @@
 "uR" = (
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "vb" = (
 /obj/item/radio/intercom/locked/prison/directional/north,
 /obj/structure/chair/office/dark{
@@ -1669,7 +1669,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "vF" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -1694,19 +1694,19 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "wb" = (
 /obj/structure/decorative_structures/corpse,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "wx" = (
 /obj/structure/decorative_structures/corpse,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "wG" = (
 /obj/effect/turf_decal,
 /turf/simulated/floor/pod/dark,
@@ -1726,7 +1726,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "xg" = (
 /obj/effect/rune,
 /obj/structure/decorative_structures/corpse{
@@ -1736,7 +1736,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "xq" = (
 /obj/structure/sink/directional/north,
 /obj/structure/mirror{
@@ -1762,7 +1762,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "xA" = (
 /obj/structure/closet/crate{
 	name = "Медик"
@@ -1796,7 +1796,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "xK" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1810,7 +1810,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "xY" = (
 /obj/structure/wooden_sign{
 	name = "Табличка";
@@ -1819,7 +1819,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "yb" = (
 /obj/effect/rune/malformed,
 /obj/effect/overlay/turf/healium,
@@ -1833,7 +1833,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "yq" = (
 /obj/structure/closet/cardboard,
 /obj/effect/decal/cleanable/dust,
@@ -1867,7 +1867,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "zm" = (
 /obj/structure/reagent_dispensers/oil,
 /turf/simulated/floor/vault,
@@ -1880,7 +1880,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "zx" = (
 /obj/structure/dispenser,
 /turf/simulated/floor/mineral/plastitanium,
@@ -1922,13 +1922,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "zF" = (
 /obj/item/tripod,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "zH" = (
 /obj/machinery/anomalous_crystal/dark_reprise,
 /obj/effect/overlay/turf/healium,
@@ -1952,7 +1952,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ag" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1965,7 +1965,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "An" = (
 /obj/effect/landmark/observer_start,
 /turf/simulated/floor/carpet/black,
@@ -1974,13 +1974,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Au" = (
 /obj/effect/decal/remains/human,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "AH" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
@@ -2000,7 +2000,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Bf" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
@@ -2012,13 +2012,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Bo" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Bv" = (
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
@@ -2026,7 +2026,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "BA" = (
 /obj/machinery/firealarm/directional/south,
 /turf/simulated/floor/mineral/plastitanium,
@@ -2059,7 +2059,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/r_wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Cm" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/reagent_containers/food/snacks/appletart,
@@ -2074,14 +2074,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "CF" = (
 /obj/effect/decal/cleanable/dust,
 /mob/living/simple_animal/hostile/scarybat,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "CG" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
@@ -2089,7 +2089,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "CL" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -2099,14 +2099,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "CX" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Da" = (
 /obj/structure/closet/cardboard,
 /obj/effect/decal/cleanable/dust,
@@ -2122,7 +2122,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Dg" = (
 /obj/machinery/door/poddoor/impassable/preopen,
 /obj/effect/turf_decal/delivery,
@@ -2134,7 +2134,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Dk" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2148,12 +2148,12 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Dl" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Dn" = (
 /obj/effect/decal/cleanable/cobweb,
 /obj/effect/decal/cleanable/dust,
@@ -2168,20 +2168,20 @@
 /obj/effect/decal/cleanable/blood/old,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Dz" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "DB" = (
 /obj/structure/decorative_structures/cult_crystal,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "DJ" = (
 /obj/structure/table/reinforced,
 /obj/item/camera_film,
@@ -2201,7 +2201,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ev" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2214,7 +2214,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "EF" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2240,13 +2240,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Fd" = (
 /obj/structure/closet/crate/secure/unknownchemicals,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Fh" = (
 /obj/structure/decorative_structures/corpse{
 	dir = 1;
@@ -2260,13 +2260,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Fm" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Fr" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/water_vapor,
@@ -2278,7 +2278,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ft" = (
 /obj/effect/decal/cleanable/fungus,
 /turf/simulated/wall/r_wall/coated,
@@ -2288,13 +2288,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "FO" = (
 /obj/effect/decal/cleanable/cobweb,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "FQ" = (
 /obj/effect/decal/cleanable/glass,
 /obj/effect/decal/cleanable/dust,
@@ -2304,30 +2304,30 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "FV" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "FW" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "FX" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Gc" = (
 /obj/structure/showcase/horrific_experiment,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Gd" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
@@ -2336,7 +2336,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Gl" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2346,7 +2346,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Go" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2361,12 +2361,12 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Gs" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Gw" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/ants,
@@ -2379,7 +2379,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "GI" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2399,7 +2399,7 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Hn" = (
 /obj/machinery/iv_drip,
 /obj/effect/decal/cleanable/dust,
@@ -2411,7 +2411,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Hp" = (
 /obj/machinery/tcomms/core,
 /turf/simulated/floor/bluegrid/telecomms,
@@ -2425,7 +2425,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "HS" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dirt,
@@ -2443,7 +2443,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/reinforced/rusted,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ik" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -2452,7 +2452,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Il" = (
 /obj/effect/mine/stun,
 /obj/effect/overlay/turf/healium,
@@ -2470,13 +2470,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "IK" = (
 /obj/structure/bookcase,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "IR" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2495,13 +2495,13 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Jc" = (
 /obj/effect/mine/explosive,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Jd" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2515,7 +2515,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "JL" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/security/telescreen/entertainment,
@@ -2559,7 +2559,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Kf" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/snacks/birthdaycakeslice,
@@ -2571,7 +2571,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Kv" = (
 /obj/effect/turf_decal,
 /turf/simulated/floor/mineral/plastitanium,
@@ -2583,7 +2583,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "KB" = (
 /obj/effect/turf_decal/siding/dark/inner_corner{
 	dir = 8
@@ -2596,7 +2596,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "KM" = (
 /obj/machinery/door/airlock/vault{
 	locked = 1;
@@ -2614,7 +2614,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "KV" = (
 /obj/structure/chair{
 	dir = 4
@@ -2632,7 +2632,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Lm" = (
 /obj/effect/rune/manifest,
 /obj/effect/overlay/turf/healium,
@@ -2646,14 +2646,14 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Lw" = (
 /obj/structure/decorative_structures/cult_crystal,
 /obj/item/twohanded/cult_spear,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "LA" = (
 /obj/structure/curtain,
 /obj/effect/decal/cleanable/blood/tracks,
@@ -2661,7 +2661,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "LC" = (
 /obj/effect/turf_decal/siding/dark/inner_corner{
 	dir = 4
@@ -2703,7 +2703,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "LY" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2712,13 +2712,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ma" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Mc" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/mine/stun,
@@ -2731,20 +2731,20 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Mr" = (
 /obj/structure/cult/pylon,
 /obj/effect/rune/narsie,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Mw" = (
 /obj/effect/decal/cleanable/blood/drip,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "MB" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/pod/dark,
@@ -2756,7 +2756,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "MH" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood,
@@ -2764,14 +2764,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "MS" = (
 /obj/structure/rack/wooden,
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "MU" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/stack/spacecash/ussp/c100,
@@ -2791,7 +2791,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ny" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2819,7 +2819,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ok" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2842,7 +2842,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Ox" = (
 /obj/structure/window/plastitanium,
 /obj/structure/fans/tiny/invisible,
@@ -2864,17 +2864,17 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Pg" = (
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Pl" = (
 /obj/item/tripod,
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Pm" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
@@ -2889,7 +2889,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Px" = (
 /obj/effect/mine/stun,
 /obj/effect/decal/cleanable/dust,
@@ -2901,7 +2901,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Pz" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/folder/ussp,
@@ -2913,13 +2913,13 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "PH" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "PI" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2941,7 +2941,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qa" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress/dirty,
@@ -2949,7 +2949,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qb" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2964,13 +2964,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qd" = (
 /obj/structure/cult/forge,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qi" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
@@ -2982,7 +2982,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qj" = (
 /obj/structure/table/reinforced,
 /obj/item/paper_bin/ussp,
@@ -2996,7 +2996,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Qq" = (
 /obj/structure/table/reinforced,
 /obj/item/toy/desk/fan,
@@ -3032,7 +3032,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Rj" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -3044,7 +3044,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Rn" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -3091,13 +3091,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Si" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Sn" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -3118,7 +3118,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Su" = (
 /obj/machinery/door/airlock/vault{
 	locked = 1;
@@ -3155,7 +3155,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Tk" = (
 /obj/structure/closet/cardboard,
 /obj/effect/decal/cleanable/dust,
@@ -3206,7 +3206,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Un" = (
 /obj/structure/mineral_door/wood,
 /obj/effect/overlay/turf/healium,
@@ -3218,7 +3218,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Uu" = (
 /obj/structure/curtain/black,
 /obj/machinery/door/firedoor/heavy,
@@ -3248,14 +3248,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "UN" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "UR" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/barricade/wooden/crude,
@@ -3263,7 +3263,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Vh" = (
 /obj/structure/window/full/shuttle/gray,
 /obj/structure/curtain/black,
@@ -3289,7 +3289,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Vr" = (
 /obj/machinery/kitchen_machine/oven,
 /obj/effect/decal/cleanable/dust,
@@ -3320,7 +3320,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "VQ" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/healium,
@@ -3344,7 +3344,7 @@
 /obj/effect/overlay/turf/healium,
 /obj/effect/overlay/turf/healium,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Wu" = (
 /obj/structure/fence/corner,
 /obj/structure/curtain/black,
@@ -3359,7 +3359,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "WC" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/wall/r_wall/coated,
@@ -3372,7 +3372,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "WP" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/ants,
@@ -3402,7 +3402,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Xd" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/med_data/laptop,
@@ -3419,7 +3419,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Xf" = (
 /obj/structure/closet/coffin,
 /obj/effect/decal/cleanable/dust,
@@ -3443,7 +3443,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Xm" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/ammo_box/magazine/aks74u,
@@ -3462,7 +3462,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "XF" = (
 /obj/structure/mineral_door/wood,
 /obj/effect/overlay/turf/healium,
@@ -3483,7 +3483,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "XJ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -3525,7 +3525,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Yk" = (
 /obj/structure/chair/sofa/corp/right,
 /turf/simulated/floor/mineral/plastitanium,
@@ -3548,7 +3548,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Yv" = (
 /obj/effect/turf_decal/box/red,
 /obj/structure/ore_box,
@@ -3580,7 +3580,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "YP" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/barricade/wooden,
@@ -3588,7 +3588,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "YS" = (
 /obj/structure/fence/corner{
 	dir = 10
@@ -3608,7 +3608,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "YV" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
@@ -3625,7 +3625,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Zc" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -3637,7 +3637,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Zg" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -3645,20 +3645,20 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Zh" = (
 /obj/structure/cult/archives,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Zn" = (
 /obj/structure/closet,
 /obj/item/reagent_containers/glass/bottle/reagent/acid,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "Zy" = (
 /obj/structure/reagent_dispensers/holywatertank,
 /turf/simulated/floor/mineral/plastitanium,
@@ -3674,7 +3674,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ZL" = (
 /obj/structure/closet/fireaxecabinet{
 	pixel_y = -31
@@ -3686,7 +3686,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/ae13/asteroid)
 "ZU" = (
 /obj/machinery/light/floor,
 /obj/effect/decal/cleanable/dust,
