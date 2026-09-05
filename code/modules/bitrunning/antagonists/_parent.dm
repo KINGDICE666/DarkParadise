@@ -23,6 +23,13 @@ GLOBAL_LIST_INIT(cyberauth_names, list(
 	var/threat = 0
 	var/outfit = /datum/outfit/cyber_police
 
+/datum/antagonist/bitrunning_glitch/on_gain()
+	. = ..()
+	owner.current.AddComponent(/datum/component/npc_friendly)
+	if(iscarbon(owner.current))
+		var/mob/living/carbon/carbon_glitch = owner.current
+		carbon_glitch.make_virtual_mob()
+
 /datum/antagonist/bitrunning_glitch/give_objectives()
 	add_objective(/datum/objective/bitrunning_glitch)
 

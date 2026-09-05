@@ -85,12 +85,15 @@
 
 		var/found_cache = FALSE
 		var/found_safehouse = FALSE
+		var/mapped_spawners = 0
 		var/list/mob/living/simple_animal/hostile/megafauna/bosses = list()
 		for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
 			if(locate(/obj/structure/closet/crate/secure/bitrunning/encrypted) in tile)
 				found_cache = TRUE
 			if(locate(/obj/modular_map_connector) in tile)
 				found_safehouse = TRUE
+			for(var/obj/effect/mob_spawn/spawner in tile)
+				mapped_spawners += 1
 			for(var/mob/living/simple_animal/hostile/megafauna/boss in tile)
 				bosses += boss
 
@@ -101,6 +104,7 @@
 
 		TEST_ASSERT(found_cache || domain.main_crate_loc, "[domain.name] offers no path to an encrypted cache")
 		TEST_ASSERT(found_safehouse, "[domain.name] did not load its modular safehouse")
+		TEST_ASSERT_EQUAL(length(domain.ghost_spawners), mapped_spawners, "[domain.name] did not register every mapped ghost role spawner")
 		server.scrub_vdom()
 
 /datum/unit_test/room_test/bitrunning_den
