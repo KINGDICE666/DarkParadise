@@ -32,7 +32,7 @@
 	},
 /area/station/cargo/bitrunning/den)
 "af" = (
-/obj/machinery/bitrunner_vendor,
+/obj/machinery/computer/bitrunner_orders,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

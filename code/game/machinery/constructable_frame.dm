@@ -1461,17 +1461,6 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stack/sheet/glass = 1,
 	)
 
-/obj/item/circuitboard/machine/bitrunner_vendor
-	board_name = "Bitrunner Vendor"
-	build_path = /obj/machinery/bitrunner_vendor
-	greyscale_colors = CIRCUIT_COLOR_SUPPLY
-	origin_tech = "programming=4;engineering=3;materials=2"
-	req_components = list(
-		/obj/item/stock_parts/matter_bin = 1,
-		/obj/item/stock_parts/manipulator = 1,
-		/obj/item/stack/cable_coil = 2,
-	)
-
 /obj/item/circuitboard/machine/byteforge
 	board_name = "Byteforge"
 	build_path = /obj/machinery/byteforge

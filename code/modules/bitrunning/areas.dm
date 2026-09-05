@@ -36,17 +36,13 @@
 	name = "Virtual Domain Lava Ruins"
 	icon_state = "away"
 	area_flags = VIRTUAL_AREA
-	holomap_should_draw = FALSE
 	report_alerts = FALSE
 	tele_proof = TRUE
 
 /area/ruin/space/virtual_domain
 	name = "Virtual Domain Unexplored Location"
-	icon_state = "away"
-	has_gravity = STANDARD_GRAVITY
 	requires_power = FALSE
 	area_flags = VIRTUAL_AREA
-	holomap_should_draw = FALSE
 	report_alerts = FALSE
 	tele_proof = TRUE
 

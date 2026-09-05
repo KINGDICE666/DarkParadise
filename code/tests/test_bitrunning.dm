@@ -116,7 +116,7 @@
 	var/obj/machinery/quantum_server/server
 	var/obj/machinery/computer/quantum_console/console
 	var/obj/machinery/byteforge/forge
-	var/obj/machinery/bitrunner_vendor/vendor
+	var/obj/machinery/computer/bitrunner_orders/orders
 	var/obj/machinery/power/apc/breaker
 	var/list/netpods = list()
 	var/list/spawns = list()
@@ -125,7 +125,7 @@
 		server ||= locate(/obj/machinery/quantum_server) in tile
 		console ||= locate(/obj/machinery/computer/quantum_console) in tile
 		forge ||= locate(/obj/machinery/byteforge) in tile
-		vendor ||= locate(/obj/machinery/bitrunner_vendor) in tile
+		orders ||= locate(/obj/machinery/computer/bitrunner_orders) in tile
 		breaker ||= locate(/obj/machinery/power/apc) in tile
 
 		var/obj/machinery/netpod/pod = locate() in tile
@@ -139,7 +139,7 @@
 	TEST_ASSERT_NOTNULL(server, "the den was mapped without a quantum server")
 	TEST_ASSERT_NOTNULL(console, "the den was mapped without a quantum console")
 	TEST_ASSERT_NOTNULL(forge, "the den was mapped without a byteforge")
-	TEST_ASSERT_NOTNULL(vendor, "the den was mapped without a bitrunner vendor")
+	TEST_ASSERT_NOTNULL(orders, "the den was mapped without an order console")
 	TEST_ASSERT_NOTNULL(breaker, "the den was mapped without an apc")
 	TEST_ASSERT_EQUAL(length(netpods), 3, "the den does not hold three netpods")
 
@@ -148,6 +148,24 @@
 
 	TEST_ASSERT_EQUAL(console.find_server(), server, "the console cannot reach the server it stands next to")
 	TEST_ASSERT_EQUAL(server.get_random_nearby_forge(), forge, "the server cannot reach the byteforge")
+
+	var/obj/item/card/id/payment = allocate(/obj/item/card/id)
+	payment.bitrunning_points = 1000
+	orders.inserted_id = payment
+
+	var/orders_before = length(SSshuttle.shoppinglist)
+	TEST_ASSERT(orders.try_order(null, "Flair", "Cornchips"), "the console refused an order the card could afford")
+	TEST_ASSERT_EQUAL(length(SSshuttle.shoppinglist), orders_before + 1, "ordering from the console did not queue a supply order")
+	TEST_ASSERT_EQUAL(payment.bitrunning_points, 900, "ordering did not charge the card its bitrunning points")
+
+	var/datum/supply_order/placed = SSshuttle.shoppinglist[length(SSshuttle.shoppinglist)]
+	TEST_ASSERT(/obj/item/reagent_containers/food/snacks/cornchips in placed.object.contains, "the queued order does not carry the ordered item")
+
+	TEST_ASSERT(!orders.try_order(null, "Tech", "Elite Ability Program"), "the console sold an order the card could not afford")
+	TEST_ASSERT_EQUAL(length(SSshuttle.shoppinglist), orders_before + 1, "a refused order still reached the shopping list")
+
+	SSshuttle.shoppinglist -= placed
+	orders.inserted_id = null
 
 	for(var/obj/machinery/netpod/pod as anything in netpods)
 		TEST_ASSERT_EQUAL(pod.find_server(), server, "a netpod was mapped out of range of the server")

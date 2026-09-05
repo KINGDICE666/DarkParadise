@@ -88967,7 +88967,7 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/apmaint)
 "xei" = (
-/obj/machinery/bitrunner_vendor,
+/obj/machinery/computer/bitrunner_orders,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

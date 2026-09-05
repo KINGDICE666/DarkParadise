@@ -458,6 +458,12 @@
 	build_path = /obj/machinery/computer/supplycomp/public
 	origin_tech = "programming=3"
 
+/obj/item/circuitboard/bitrunner_orders
+	board_name = "NexaCache Order Console"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	build_path = /obj/machinery/computer/bitrunner_orders
+	origin_tech = "programming=3;bluespace=1"
+
 /obj/item/circuitboard/quantum_console
 	board_name = "Quantum Console"
 	greyscale_colors = CIRCUIT_COLOR_SUPPLY

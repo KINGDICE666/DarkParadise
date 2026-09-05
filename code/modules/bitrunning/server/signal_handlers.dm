@@ -4,7 +4,7 @@
 	UnregisterSignal(source, COMSIG_LAZY_TEMPLATE_LOADED)
 
 	for(var/thing in created_atoms)
-		if(istype(thing, /mob/living/simple_animal/hostile/megafauna))
+		if(ismegafauna(thing))
 			var/mob/living/simple_animal/hostile/megafauna/boss = thing
 			boss.make_virtual_megafauna()
 			continue

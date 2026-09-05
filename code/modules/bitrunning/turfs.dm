@@ -15,7 +15,6 @@
 
 /turf/simulated/floor/indestructible/binary
 	name = "tear in the fabric of reality"
-	icon = 'icons/turf/floors.dmi'
 	icon_state = "binary"
 
 /turf/simulated/floor/indestructible/binary/get_ru_names()

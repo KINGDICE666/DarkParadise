@@ -458,12 +458,12 @@
 	build_path = /obj/item/circuitboard/machine/byteforge
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
 
-/datum/design/bitrunner_vendor
-	id = "bitrunner_vendor"
-	req_tech = list(RESEARCH_TREE_PROGRAMMING = 4)
+/datum/design/bitrunner_orders
+	id = "bitrunner_orders"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3)
 	build_type = IMPRINTER
 	materials = list(MAT_GLASS = 1000)
-	build_path = /obj/item/circuitboard/machine/bitrunner_vendor
+	build_path = /obj/item/circuitboard/bitrunner_orders
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
 
 /datum/design/clawgame

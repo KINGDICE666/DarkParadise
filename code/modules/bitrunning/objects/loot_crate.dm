@@ -60,8 +60,6 @@
 	name = "curiosity"
 	desc = "Запертый ящик, собранный из чистых данных."
 	icon_state = "lockbox"
-	icon_locked = "lockbox+l"
-	icon_closed = "lockbox"
 	req_access = list(ACCESS_BITRUNNING)
 
 /obj/item/storage/lockbox/bitrunning/get_ru_names()

@@ -39085,7 +39085,7 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint3)
 "hJD" = (
-/obj/machinery/bitrunner_vendor,
+/obj/machinery/computer/bitrunner_orders,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

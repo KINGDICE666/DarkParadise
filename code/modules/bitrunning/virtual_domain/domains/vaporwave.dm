@@ -2,7 +2,6 @@
 	name = "Космический реликт"
 	cost = BITRUNNER_COST_EXTREME
 	desc = "Подвешенный в безмолвной пустоте неоновый реликт — гулкое эхо ретрофутуристической эпохи. Отдохните, полюбуйтесь видом."
-	difficulty = BITRUNNER_DIFFICULTY_NONE
 	completion_loot = list(/obj/item/stack/spacecash/c500 = 4)
 	key = LAZY_TEMPLATE_KEY_BITRUNNING_VAPORWAVE
 	map_name = "vaporwave"
