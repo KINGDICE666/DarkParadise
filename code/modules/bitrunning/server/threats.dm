@@ -63,13 +63,18 @@
 		mutation_target.remove_digital_aura()
 		return
 
-	var/mob/living/carbon/human/glitch = new(mutation_target.loc)
-	glitch.faction = mutation_target.faction.Copy()
-	glitch.faction |= ROLE_GLITCH
-	qdel(mutation_target)
+	var/mob/living/glitch
+	if(ispath(chosen_role, /datum/antagonist/bitrunning_glitch/netguardian))
+		glitch = new /mob/living/basic/netguardian(mutation_target.loc)
+	else
+		var/mob/living/carbon/human/humanoid_glitch = new(mutation_target.loc)
+		humanoid_glitch.faction = mutation_target.faction.Copy()
+		humanoid_glitch.faction |= ROLE_GLITCH
+		ghost.client?.prefs.copy_to(humanoid_glitch)
+		humanoid_glitch.UpdateAppearance()
+		glitch = humanoid_glitch
 
-	ghost.client?.prefs.copy_to(glitch)
-	glitch.UpdateAppearance()
+	qdel(mutation_target)
 	glitch.add_traits(list(TRAIT_TEMPORARY_BODY), INNATE_TRAIT)
 	if(ghost.mind)
 		glitch.AddComponent( \

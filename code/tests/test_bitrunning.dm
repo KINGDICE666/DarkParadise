@@ -176,3 +176,16 @@
 
 #undef DEN_TEMPLATE
 #undef DEN_TEST_OFFSET
+
+/datum/unit_test/room_test/netguardian_smoke
+
+/datum/unit_test/room_test/netguardian_smoke/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/mob/living/basic/netguardian/guardian = allocate(/mob/living/basic/netguardian, anchor)
+	TEST_ASSERT_NOTNULL(guardian.ai_controller, "the netguardian lost its ai controller on spawn")
+	var/obj/effect/proc_holder/spell/netguardian_rockets/rockets = locate() in guardian.mob_spell_list
+	TEST_ASSERT_NOTNULL(rockets, "the netguardian was not granted its rocket ability")
+	TEST_ASSERT_EQUAL(guardian.ai_controller.blackboard[BB_TARGETED_ACTION], rockets, "the rocket ability did not reach the ai blackboard")
+
+	var/mob/living/carbon/human/victim = allocate(/mob/living/carbon/human, locate(anchor.x + 4, anchor.y, anchor.z))
+	TEST_ASSERT(rockets.cast(list(victim), guardian), "the netguardian rocket volley failed to fire")

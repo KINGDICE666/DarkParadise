@@ -2966,6 +2966,7 @@
 #include "code\modules\bitrunning\antagonists\_parent.dm"
 #include "code\modules\bitrunning\antagonists\cyber_police.dm"
 #include "code\modules\bitrunning\antagonists\ghost_role.dm"
+#include "code\modules\bitrunning\antagonists\netguardian.dm"
 #include "code\modules\bitrunning\components\avatar_connection.dm"
 #include "code\modules\bitrunning\components\avatar_gear.dm"
 #include "code\modules\bitrunning\components\netpod_healing.dm"
