@@ -84,6 +84,7 @@
 	RegisterSignals(parent, list(COMSIG_BITRUNNER_ALERT_SEVER, COMSIG_BITRUNNER_CACHE_SEVER, COMSIG_BITRUNNER_LADDER_SEVER), PROC_REF(on_safe_disconnect))
 	RegisterSignals(parent, list(COMSIG_LIVING_DEATH, COMSIG_QDELETING), PROC_REF(on_sever_connection))
 	RegisterSignal(parent, COMSIG_MOB_APPLY_DAMAGE, PROC_REF(on_linked_damage))
+	RegisterSignal(parent, COMSIG_LIVING_PILL_CONSUMED, PROC_REF(disconnect_if_red_pill))
 
 /datum/component/avatar_connection/UnregisterFromParent()
 	REMOVE_TRAIT(parent, TRAIT_TEMPORARY_BODY, NETPOD_TRAIT)
@@ -92,6 +93,7 @@
 		COMSIG_BITRUNNER_CACHE_SEVER,
 		COMSIG_BITRUNNER_LADDER_SEVER,
 		COMSIG_LIVING_DEATH,
+		COMSIG_LIVING_PILL_CONSUMED,
 		COMSIG_MOB_APPLY_DAMAGE,
 		COMSIG_QDELETING,
 	))
@@ -209,6 +211,14 @@
 	var/mob/living/avatar = parent
 	avatar.playsound_local(get_turf(avatar), 'sound/machines/terminal_alert.ogg', 50, TRUE)
 	avatar.throw_alert(ALERT_BITRUNNER_SHUTDOWN, /atom/movable/screen/alert/bitrunning/shutdown, new_master = hackerman)
+
+/datum/component/avatar_connection/proc/disconnect_if_red_pill(datum/source, obj/item/reagent_containers/food/pill/pill, mob/feeder)
+	SIGNAL_HANDLER
+
+	if(pill.icon_state != RED_PILL_ICON_STATE)
+		return
+
+	full_avatar_disconnect()
 
 /datum/component/avatar_connection/proc/on_safe_disconnect(datum/source)
 	SIGNAL_HANDLER
