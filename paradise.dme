@@ -2976,6 +2976,7 @@
 #include "code\modules\bitrunning\netpod\utils.dm"
 #include "code\modules\bitrunning\objects\byteforge.dm"
 #include "code\modules\bitrunning\objects\disks.dm"
+#include "code\modules\bitrunning\objects\gimmick_disks.dm"
 #include "code\modules\bitrunning\objects\hololadder.dm"
 #include "code\modules\bitrunning\objects\host_monitor.dm"
 #include "code\modules\bitrunning\objects\landmarks.dm"

@@ -29,6 +29,8 @@ GLOBAL_LIST_INIT(bitrunner_order_items, list(
 		BITRUNNER_ORDER("Basic Ability Program", /obj/item/disk/bitrunning/ability/tier1, 750),
 		BITRUNNER_ORDER("Complex Ability Program", /obj/item/disk/bitrunning/ability/tier2, 1500),
 		BITRUNNER_ORDER("Elite Ability Program", /obj/item/disk/bitrunning/ability/tier3, 2500),
+		BITRUNNER_ORDER("Sports Gimmick Program", /obj/item/disk/bitrunning/gimmick/sports, 750),
+		BITRUNNER_ORDER("Dungeon Gimmick Program", /obj/item/disk/bitrunning/gimmick/dungeon, 1250),
 		BITRUNNER_ORDER("PKA Mod Program", /obj/item/disk/bitrunning/item/pka_mods, 750),
 		BITRUNNER_ORDER("Premium PKA Mod Program", /obj/item/disk/bitrunning/item/pka_mods/premium, 1600),
 		BITRUNNER_ORDER("PKC Mod Program", /obj/item/disk/bitrunning/item/pkc_mods, 750),

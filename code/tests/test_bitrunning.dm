@@ -187,5 +187,21 @@
 	TEST_ASSERT_NOTNULL(rockets, "the netguardian was not granted its rocket ability")
 	TEST_ASSERT_EQUAL(guardian.ai_controller.blackboard[BB_TARGETED_ACTION], rockets, "the rocket ability did not reach the ai blackboard")
 
+	guardian.ai_controller.set_ai_status(AI_STATUS_OFF)
 	var/mob/living/carbon/human/victim = allocate(/mob/living/carbon/human, locate(anchor.x + 4, anchor.y, anchor.z))
 	TEST_ASSERT(rockets.cast(list(victim), guardian), "the netguardian rocket volley failed to fire")
+
+/datum/unit_test/room_test/bitrunning_gimmicks
+
+/datum/unit_test/room_test/bitrunning_gimmicks/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/mob/living/carbon/human/avatar = allocate(/mob/living/carbon/human, anchor)
+
+	for(var/disk_type in list(/obj/item/disk/bitrunning/gimmick/sports, /obj/item/disk/bitrunning/gimmick/dungeon))
+		var/obj/item/disk/bitrunning/gimmick/disk = allocate(disk_type, anchor)
+		for(var/choice in disk.selectable)
+			disk.selected_path = disk.selectable[choice]
+			TEST_ASSERT_EQUAL(disk.load_onto_avatar(avatar, avatar, NONE), NONE, "[choice] failed to load onto the avatar")
+			TEST_ASSERT(locate(/obj/item/storage/briefcase) in avatar.get_all_contents(), "[choice] handed the avatar no loadout container")
+			for(var/obj/item/storage/briefcase/kit in avatar.get_all_contents())
+				qdel(kit)
