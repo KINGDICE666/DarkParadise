@@ -70,6 +70,37 @@
 	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
 	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")
 
+/datum/unit_test/room_test/bitrunning_escape
+
+/datum/unit_test/room_test/bitrunning_escape/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	var/obj/machinery/byteforge/forge = allocate(/obj/machinery/byteforge, locate(anchor.x + 1, anchor.y, anchor.z))
+
+	server.points = BITRUNNER_COST_LOW
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_XENO_NEST), "server failed to boot the xeno nest domain")
+
+	server.threat = 50
+
+	var/mob/living/carbon/human/glitch = allocate(/mob/living/carbon/human, pick(server.goal_turfs))
+	glitch.mind_initialize()
+	glitch.mind.add_antag_datum(/datum/antagonist/bitrunning_glitch/cyber_police)
+	server.add_threats(glitch)
+	server.emagged = TRUE
+
+	server.station_spawn(glitch, forge)
+
+	TEST_ASSERT_NOTNULL(glitch.GetComponent(/datum/component/glitch), "the escaping antag was not turned into a glitch")
+	TEST_ASSERT_EQUAL(get_turf(glitch), get_turf(forge), "the escaping antag was not materialized at the byteforge")
+	TEST_ASSERT(glitch.maxHealth >= 200, "the escaped glitch did not get its health boost")
+	TEST_ASSERT(!(WEAKREF(glitch) in server.spawned_threat_refs), "the escaped glitch is still tracked as a domain threat")
+
+	forge.obj_break()
+	TEST_ASSERT_NOTNULL(glitch.alerts[ALERT_BITRUNNER_GLITCH], "breaking the byteforge did not alert the glitch")
+	TEST_ASSERT(glitch.has_movespeed_modifier(/datum/movespeed_modifier/glitch_slowdown), "breaking the byteforge did not slow the glitch down")
+
+	server.scrub_vdom()
+
 /datum/unit_test/room_test/bitrunning_domains
 
 /datum/unit_test/room_test/bitrunning_domains/Run()

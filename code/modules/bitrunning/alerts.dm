@@ -19,6 +19,14 @@
 	name = "Обнаружена угроза"
 	desc = "В потоке данных завелись помехи."
 
+/atom/movable/screen/alert/bitrunning/breach
+	name = "Взлом периметра"
+	desc = "Враждебная сущность прорывается наружу. Ищите выход."
+
+/atom/movable/screen/alert/bitrunning/forge_broken
+	name = "Источник повреждён"
+	desc = "Байткузница, которая держит вас в этом мире, вышла из строя."
+
 /atom/movable/screen/alert/bitrunning/reset
 	name = "Помечен на удаление"
 	desc = "Сервер перезагружается. Впереди небытие."

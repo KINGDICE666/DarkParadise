@@ -8,6 +8,7 @@
 	anchored = TRUE
 	max_integrity = 300
 	idle_power_usage = 100
+	var/angry = FALSE
 
 /obj/machinery/byteforge/Initialize(mapload)
 	. = ..()
@@ -54,7 +55,7 @@
 	if(!is_operational() || panel_open)
 		return
 
-	. += mutable_appearance(icon, "on_particles", ABOVE_MOB_LAYER)
+	. += mutable_appearance(icon, "on_particles[angry ? "_angry" : ""]", ABOVE_MOB_LAYER)
 
 /obj/machinery/byteforge/power_change(forced = FALSE)
 	..()
@@ -68,18 +69,31 @@
 /obj/machinery/byteforge/crowbar_act(mob/living/user, obj/item/tool)
 	return default_deconstruction_crowbar(user, tool)
 
-/obj/machinery/byteforge/proc/start_to_spawn(obj/cache)
-	flick_overlay_view(mutable_appearance(icon, "on_overlay"), 1 SECONDS)
-	set_light(l_range = 2, l_power = 1.5, l_color = LIGHT_COLOR_BABY_BLUE, l_on = TRUE)
+/obj/machinery/byteforge/proc/setup_particles(angry = FALSE)
+	if(src.angry == angry)
+		return
+
+	src.angry = angry
+	update_icon(UPDATE_OVERLAYS)
+
+/obj/machinery/byteforge/proc/charge_up()
+	flick_overlay_view(mutable_appearance(icon, "on_overlay[angry ? "_angry" : ""]"), 1 SECONDS)
+	set_light(l_range = 2, l_power = 1.5, l_color = angry ? LIGHT_COLOR_INTENSE_RED : LIGHT_COLOR_BABY_BLUE, l_on = TRUE)
 	playsound(src, 'sound/machines/terminal_processing.ogg', 30, TRUE)
+
+/obj/machinery/byteforge/proc/flash()
+	set_light(l_on = FALSE)
+	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
+	do_sparks(5, TRUE, get_turf(src))
+
+/obj/machinery/byteforge/proc/start_to_spawn(obj/cache)
+	charge_up()
 	addtimer(CALLBACK(src, PROC_REF(spawn_cache), cache), 1 SECONDS)
 
 /obj/machinery/byteforge/proc/spawn_cache(obj/cache)
-	set_light(l_on = FALSE)
+	flash()
 
 	if(QDELETED(cache))
 		return
 
-	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
-	do_sparks(5, TRUE, get_turf(src))
 	cache.forceMove(get_turf(src))

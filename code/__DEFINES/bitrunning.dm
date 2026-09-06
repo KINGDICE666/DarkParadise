@@ -32,8 +32,10 @@
 #define BITRUNNER_THREAT_CYBER_TAC 50
 #define BITRUNNER_THREAT_NETGUARDIAN 90
 
+#define ALERT_BITRUNNER_BREACH "bitrunner_breach"
 #define ALERT_BITRUNNER_COMPLETED "bitrunner_completed"
 #define ALERT_BITRUNNER_CROWBAR "bitrunner_crowbar"
+#define ALERT_BITRUNNER_GLITCH "bitrunner_glitch"
 #define ALERT_BITRUNNER_INTEGRITY "bitrunner_integrity"
 #define ALERT_BITRUNNER_SHUTDOWN "bitrunner_shutdown"
 #define ALERT_BITRUNNER_RESET "bitrunner_reset"

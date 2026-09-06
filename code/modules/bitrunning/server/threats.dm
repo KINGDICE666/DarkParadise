@@ -3,6 +3,55 @@
 	threat.AddComponent(/datum/component/virtual_entity, src)
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_THREAT_CREATED)
 
+/obj/machinery/quantum_server/proc/remove_threat(mob/living/threat)
+	spawned_threat_refs -= WEAKREF(threat)
+
+/obj/machinery/quantum_server/proc/station_spawn(mob/living/antag, obj/machinery/byteforge/chosen_forge)
+	antag.balloon_alert(antag, "сканирование...")
+	chosen_forge.setup_particles(TRUE)
+	radio_announce("ТРЕВОГА КВАНТОВОГО СЕРВЕРА: обнаружен взлом периметра. Идёт несанкционированная последовательность входа...", "Квантовый сервер", SUP_FREQ, src)
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_STATION_SPAWN)
+
+	var/timeout = 2 SECONDS
+	if(!ishuman(antag))
+		radio_announce("ТРЕВОГА КВАНТОВОГО СЕРВЕРА: протоколы сборки аварийно завершены. Покиньте помещение.", "Квантовый сервер", SUP_FREQ, src)
+		timeout = 10 SECONDS
+
+	var/bitrunners_alive = 0
+	for(var/datum/weakref/connection_ref as anything in avatar_connection_refs)
+		var/datum/component/avatar_connection/connection = connection_ref.resolve()
+		var/mob/living/bitrunner = connection?.parent
+		if(isnull(bitrunner) || bitrunner.stat > CONSCIOUS || !bitrunner.client)
+			continue
+		bitrunners_alive += 1
+		timeout *= 5
+
+	if(bitrunners_alive)
+		to_chat(antag, span_warning("В домене всё ещё хозяйничают чужаки ([bitrunners_alive] шт.). Пока с ними не разберутся, выбраться будет тяжелее."))
+
+	if(!do_after(antag, timeout) || QDELETED(chosen_forge) || QDELETED(src) || !is_ready || !is_operational())
+		chosen_forge.setup_particles()
+		return
+
+	var/datum/component/glitch/effect = antag.AddComponent(/datum/component/glitch, src, chosen_forge)
+
+	chosen_forge.charge_up()
+	if(!do_after(antag, 1 SECONDS))
+		chosen_forge.setup_particles()
+		qdel(effect)
+		return
+
+	chosen_forge.flash()
+
+	if(ishuman(antag))
+		reset_equipment(antag)
+
+	var/datum/antagonist/bitrunning_glitch/antag_datum = antag.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch)
+	antag_datum?.show_in_roundend = TRUE
+
+	qdel(antag.GetComponent(/datum/component/temporary_body))
+	do_teleport(antag, get_turf(chosen_forge), asoundin = 'sound/effects/phasein.ogg', asoundout = 'sound/effects/phasein.ogg', bypass_area_flag = TRUE, ignore_blocking_traits = TRUE)
+
 /obj/machinery/quantum_server/proc/collect_mutation_candidates()
 	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
 		for(var/mob/living/creature in tile)

@@ -108,6 +108,13 @@
 	retries_spent += 1
 	return new /obj/structure/hololadder(exit_tile, src)
 
+/obj/machinery/quantum_server/proc/reset_equipment(mob/living/carbon/human/person)
+	for(var/obj/item/gear as anything in person.get_equipped_items(INCLUDE_POCKETS | INCLUDE_ACCESSORIES))
+		qdel(gear)
+
+	var/datum/antagonist/bitrunning_glitch/antag_datum = person.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch)
+	antag_datum?.convert_agent()
+
 /obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/obj/structure/hololadder/entry_point = get_avatar_destination()
 	if(isnull(entry_point))

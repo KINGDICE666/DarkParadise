@@ -20,6 +20,16 @@
 /obj/machinery/quantum_server/proc/on_goal_turf_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
+	if(emagged && isliving(arrived))
+		var/mob/living/creature = arrived
+		if(!creature.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch))
+			return
+
+		var/obj/machinery/byteforge/escape_forge = get_random_nearby_forge()
+		if(escape_forge)
+			INVOKE_ASYNC(src, PROC_REF(station_spawn), creature, escape_forge)
+		return
+
 	if(!istype(arrived, /obj/structure/closet/crate/secure/bitrunning/encrypted) && !istype(arrived, /obj/item/storage/lockbox/bitrunning/encrypted))
 		return
 

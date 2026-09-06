@@ -22,6 +22,14 @@
 		src.old_body_ref = WEAKREF(old_body)
 	src.delete_on_death = delete_on_death
 
+/datum/component/temporary_body/Destroy(force)
+	var/mob/living/old_body = old_body_ref?.resolve()
+	if(old_body)
+		REMOVE_TRAIT(old_body, TRAIT_MIND_TEMPORARILY_GONE, UID())
+	old_mind_ref = null
+	old_body_ref = null
+	return ..()
+
 /datum/component/temporary_body/RegisterWithParent()
 	RegisterSignal(parent, COMSIG_QDELETING, PROC_REF(on_parent_destroy))
 

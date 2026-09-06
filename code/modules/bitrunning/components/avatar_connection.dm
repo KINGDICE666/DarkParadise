@@ -35,6 +35,7 @@
 	RegisterSignal(server, COMSIG_BITRUNNER_DOMAIN_COMPLETE, PROC_REF(on_domain_completed))
 	RegisterSignal(server, COMSIG_BITRUNNER_QSRV_SEVER, PROC_REF(on_sever_connection))
 	RegisterSignal(server, COMSIG_BITRUNNER_SHUTDOWN_ALERT, PROC_REF(on_shutting_down))
+	RegisterSignal(server, COMSIG_BITRUNNER_STATION_SPAWN, PROC_REF(on_station_spawn))
 	RegisterSignal(server, COMSIG_BITRUNNER_THREAT_CREATED, PROC_REF(on_threat_created))
 	RegisterSignal(server, COMSIG_BITRUNNER_BROADCAST_TOGGLED, PROC_REF(on_broadcast_toggled))
 	RegisterSignal(avatar.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_mind_transfer))
@@ -178,6 +179,13 @@
 
 	avatar_id.registered_name = avatar.real_name
 	avatar_id.update_label()
+
+/datum/component/avatar_connection/proc/on_station_spawn(datum/source)
+	SIGNAL_HANDLER
+
+	var/mob/living/avatar = parent
+	avatar.playsound_local(get_turf(avatar), 'sound/machines/terminal_alert.ogg', 50, TRUE)
+	avatar.throw_alert(ALERT_BITRUNNER_BREACH, /atom/movable/screen/alert/bitrunning/breach, new_master = source)
 
 /datum/component/avatar_connection/proc/on_threat_created(datum/source)
 	SIGNAL_HANDLER
