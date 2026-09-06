@@ -1,3 +1,58 @@
+GLOBAL_LIST_INIT(character_setting_names, list(
+	"metadata" = "OOC-информация",
+	"real_name" = "имя",
+	"be_random_name" = "случайное имя",
+	"gender" = "пол",
+	"age" = "возраст",
+	"species" = "раса",
+	"language" = "дополнительный язык",
+	"h_style" = "причёска",
+	"h_colour" = "цвет причёски",
+	"h_sec_colour" = "дополнительный цвет причёски",
+	"h_grad_style" = "градиент причёски",
+	"h_grad_colour" = "цвет градиента причёски",
+	"h_grad_alpha" = "прозрачность градиента причёски",
+	"f_style" = "лицевая растительность",
+	"f_colour" = "цвет лицевой растительности",
+	"f_sec_colour" = "дополнительный цвет лицевой растительности",
+	"ha_style" = "аксессуары на голове",
+	"hacc_colour" = "цвет аксессуаров на голове",
+	"alt_head" = "тип головы",
+	"e_colour" = "цвет глаз",
+	"s_tone" = "тон кожи",
+	"s_colour" = "цвет кожи",
+	"underwear" = "нижнее бельё",
+	"underwear_color" = "цвет нижнего белья",
+	"undershirt" = "нательная рубашка",
+	"undershirt_color" = "цвет нательной рубашки",
+	"socks" = "носки",
+	"b_type" = "группа крови",
+	"nanotrasen_relation" = "отношение к \"Нанотрейзен\"",
+	"exoframe_type" = "каркас экзоскелета",
+	"autohiss_mode" = "уровень авто-акцента",
+	"flavor_text" = "описание внешности",
+	"med_record" = "медицинские записи",
+	"sec_record" = "записи службы безопасности",
+	"gen_record" = "записи отдела кадров",
+	"alternate_option" = "действие при неудачном выборе должности",
+	"disabilities" = "особенности персонажа",
+	"speciesprefs" = "расовые настройки",
+	"can_be_antagonist" = "возможность стать антагонистом"
+))
+
+GLOBAL_LIST_INIT(game_setting_names, list(
+	"achivements_sound" = "звук получения достижения",
+	"screentip_color" = "цвет всплывающей подсказки",
+	"viewrange" = "размер экрана",
+	"ghost_darkness_level" = "уровень освещения для призраков",
+	"lastchangelog" = "отметка о прочтении списка изменений"
+))
+
+/datum/preferences/proc/find_unset_setting(list/checked_settings)
+	for(var/setting in checked_settings)
+		if(isnull(vars[setting]))
+			return setting
+
 /datum/preferences/proc/load_preferences(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
 		return FALSE
@@ -92,6 +147,12 @@
 
 /datum/preferences/proc/save_preferences(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
+		return
+
+	var/unset_setting = find_unset_setting(GLOB.game_setting_names)
+	if(unset_setting)
+		to_chat(C, span_warning("Настройки не сохранены: не выбран пункт «[GLOB.game_setting_names[unset_setting]]». Выберите значение и сохраните снова."))
+		stack_trace("[C.ckey] tried to save preferences with an unset setting: [unset_setting]")
 		return
 
 	// Might as well scrub out any malformed be_special list entries while we're here
@@ -461,6 +522,12 @@
 
 /datum/preferences/proc/save_character(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
+		return
+
+	var/unset_setting = find_unset_setting(GLOB.character_setting_names)
+	if(unset_setting)
+		to_chat(C, span_warning("Персонаж не сохранён: не выбран пункт «[GLOB.character_setting_names[unset_setting]]». Выберите значение и сохраните снова."))
+		stack_trace("[C.ckey] tried to save a character with an unset setting: [unset_setting]")
 		return
 
 	for(var/title in player_alt_titles)
