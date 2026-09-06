@@ -364,9 +364,7 @@
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain/protected_space)
 "nk" = (
-/obj/machinery/power/apc{
-	dir = 1
-	},
+/obj/machinery/power/apc/directional/north,
 /obj/structure/cable,
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain)
@@ -469,9 +467,7 @@
 /turf/simulated/wall/r_wall,
 /area/virtual_domain)
 "rH" = (
-/obj/machinery/alarm{
-	dir = 1
-	},
+/obj/machinery/alarm/directional/north,
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain)
 "rM" = (
@@ -999,12 +995,11 @@
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain)
 "PR" = (
-/obj/machinery/door/airlock/highsecurity,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock{
+/obj/machinery/door/airlock/highsecurity{
 	desc = "Vault airlock preventing air from going out.";
 	name = "Syndicate Vault Airlock"
 	},
+/obj/structure/fans/tiny,
 /turf/simulated/floor/pod/dark,
 /area/virtual_domain/protected_space)
 "Qg" = (

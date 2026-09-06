@@ -294,9 +294,7 @@
 	},
 /area/virtual_domain/fullbright)
 "qc" = (
-/obj/structure/extinguisher_cabinet{
-	dir = 2
-	},
+/obj/structure/extinguisher_cabinet/directional/south,
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/fullbright)
 "qg" = (
@@ -345,9 +343,7 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "tF" = (
-/obj/structure/extinguisher_cabinet{
-	dir = 4
-	},
+/obj/structure/extinguisher_cabinet/directional/east,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "tZ" = (
@@ -912,9 +908,7 @@
 /turf/simulated/floor/plasteel/white,
 /area/virtual_domain/fullbright)
 "QP" = (
-/obj/structure/extinguisher_cabinet{
-	dir = 1
-	},
+/obj/structure/extinguisher_cabinet/directional/north,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "QX" = (

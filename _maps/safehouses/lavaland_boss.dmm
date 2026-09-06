@@ -64,9 +64,7 @@
 /turf/simulated/floor/indestructible/bitrunning_transport,
 /area/virtual_domain/safehouse)
 "A" = (
-/obj/structure/extinguisher_cabinet{
-	dir = 1
-	},
+/obj/structure/extinguisher_cabinet/directional/north,
 /turf/simulated/floor/plasteel/dark,
 /area/virtual_domain/safehouse)
 "B" = (
