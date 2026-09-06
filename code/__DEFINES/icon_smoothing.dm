@@ -128,7 +128,7 @@
 #define SMOOTH_GROUP_MINERAL_WALLS S_TURF(57) ///turf/closed/mineral, /turf/closed/indestructible
 #define SMOOTH_GROUP_BOSS_WALLS S_TURF(58) ///turf/closed/indestructible/riveted/boss
 #define SMOOTH_GROUP_SURVIVAL_TITANIUM_WALLS S_TURF(59) ///turf/simulated/wall/mineral/titanium/survival
-#define SMOOTH_GROUP_FLOOR_CLIFF S_TURF(60) ///turf/simulated/cliff
+#define SMOOTH_GROUP_FLOOR_CLIFF S_TURF(60) ///turf/simulated/floor/cliff
 
 #define MAX_S_TURF 62 //Always match this value with the one above it.
 

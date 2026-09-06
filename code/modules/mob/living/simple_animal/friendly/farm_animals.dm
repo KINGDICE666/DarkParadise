@@ -47,6 +47,7 @@
 /mob/living/simple_animal/hostile/retaliate/goat/Initialize(mapload)
 	. = ..()
 	udder = new()
+	AddElement(/datum/element/cliff_walking)
 
 /mob/living/simple_animal/hostile/retaliate/goat/Destroy()
 	QDEL_NULL(udder)

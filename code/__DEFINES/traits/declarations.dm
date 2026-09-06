@@ -111,6 +111,8 @@
 #define TRAIT_CHASM_DESTROYED "chasm_destroyed"
 /// Objects with this trait can cross chasm safe/
 #define TRAIT_CHASM_IGNORED "chasm_ignored"
+/// We can walk up or around cliffs, or at least we don't fall off of it
+#define TRAIT_CLIFF_WALKER "cliff_walker"
 /// This mob has red glowing eyes with special text upon examination
 #define TRAIT_RED_EYES "red_eyes"
 #define TRAIT_DREAMT_EYES "dreamt_eyes"
