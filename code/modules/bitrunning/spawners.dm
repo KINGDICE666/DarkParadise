@@ -107,3 +107,72 @@ GLOBAL_LIST_INIT(virtual_pirate_names, list(
 	shoes = /obj/item/clothing/shoes/combat
 	id = /obj/item/card/id/syndicate
 	implants = list(/obj/item/implant/weapons_auth)
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach
+	name = "virtual beach bum sleeper"
+	desc = "Криокапсула под соломенной крышей. Кто-то отдыхает даже во сне."
+	description = "Отыграйте пляжного завсегдатая. Он даже не знает, что живёт в симуляции."
+	mob_name = "Beach Bum"
+	outfit = /datum/outfit/virtual_beach_bum
+	flavour_text = "Йо. Ты приехал сюда оторваться на весенних каникулах, чувак. Битраннинг тебя не касается — ты вообще не в курсе, что всё вокруг симуляция."
+	antag = FALSE
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach/get_ru_names()
+	return alist(
+		NOMINATIVE = "капсула пляжника",
+		GENITIVE = "капсулы пляжника",
+		DATIVE = "капсуле пляжника",
+		ACCUSATIVE = "капсулу пляжника",
+		INSTRUMENTAL = "капсулой пляжника",
+		PREPOSITIONAL = "капсуле пляжника",
+	)
+
+/datum/outfit/virtual_beach_bum
+	name = "Virtual Beach Bum"
+	uniform = /obj/item/clothing/under/shorts/red
+	shoes = /obj/item/clothing/shoes/sandal
+	glasses = /obj/item/clothing/glasses/sunglasses
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach/lifeguard
+	name = "virtual lifeguard sleeper"
+	mob_name = "Lifeguard"
+	mob_gender = FEMALE
+	outfit = /datum/outfit/virtual_beach_bum/lifeguard
+	flavour_text = "Вы — спасатель на этом пляже. Следите, чтобы никто не утоп и не был съеден вредоносным кодом."
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach/lifeguard/get_ru_names()
+	return alist(
+		NOMINATIVE = "капсула спасателя",
+		GENITIVE = "капсулы спасателя",
+		DATIVE = "капсуле спасателя",
+		ACCUSATIVE = "капсулу спасателя",
+		INSTRUMENTAL = "капсулой спасателя",
+		PREPOSITIONAL = "капсуле спасателя",
+	)
+
+/datum/outfit/virtual_beach_bum/lifeguard
+	name = "Virtual Lifeguard"
+	uniform = /obj/item/clothing/under/swimsuit/red
+	r_hand = /obj/item/storage/toolbox/mechanical
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach/bartender
+	name = "virtual bartender sleeper"
+	mob_name = "Bartender"
+	outfit = /datum/outfit/virtual_beach_bum/bartender
+	flavour_text = "Вы — бармен этого пляжа. Ваша работа — чтобы виртуальные напитки не кончались, а гости как следует симулировали опьянение."
+
+/obj/effect/mob_spawn/human/alive/virtual_domain/beach/bartender/get_ru_names()
+	return alist(
+		NOMINATIVE = "капсула бармена",
+		GENITIVE = "капсулы бармена",
+		DATIVE = "капсуле бармена",
+		ACCUSATIVE = "капсулу бармена",
+		INSTRUMENTAL = "капсулой бармена",
+		PREPOSITIONAL = "капсуле бармена",
+	)
+
+/datum/outfit/virtual_beach_bum/bartender
+	name = "Virtual Bartender"
+	uniform = /obj/item/clothing/under/rank/bartender
+	suit = /obj/item/clothing/suit/armor/vest
+	shoes = /obj/item/clothing/shoes/color/black
