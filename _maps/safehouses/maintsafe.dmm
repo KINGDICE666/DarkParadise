@@ -13,6 +13,10 @@
 /obj/effect/landmark/bitrunning/hololadder_spawn,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/safehouse)
+"o" = (
+/obj/modular_map_connector,
+/turf/simulated/wall,
+/area/virtual_domain/safehouse)
 "q" = (
 /obj/effect/landmark/bitrunning/hololadder_spawn,
 /obj/effect/decal/cleanable/dirt,
@@ -62,7 +66,7 @@ j
 j
 j
 j
-j
+o
 "}
 (2,1,1) = {"
 j

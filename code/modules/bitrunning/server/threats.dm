@@ -88,7 +88,7 @@
 	if(isnull(chosen_role))
 		return
 
-	mutation_target.create_digital_aura()
+	mutation_target.AddComponent(/datum/component/digital_aura)
 
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates(
 		question = "Хотите сыграть за сбой виртуального домена? Вы вернётесь в своё тело, когда домен выгрузят.",
@@ -99,7 +99,7 @@
 	)
 
 	if(!length(candidates))
-		mutation_target.remove_digital_aura()
+		qdel(mutation_target.GetComponent(/datum/component/digital_aura))
 		return
 
 	spawn_glitch(chosen_role, mutation_target, pick(candidates))
@@ -109,7 +109,7 @@
 		return
 
 	if(QDELETED(src) || isnull(generated_domain) || !is_operational())
-		mutation_target.remove_digital_aura()
+		qdel(mutation_target.GetComponent(/datum/component/digital_aura))
 		return
 
 	var/mob/living/glitch
@@ -138,11 +138,21 @@
 		glitch.mind_initialize()
 
 	glitch.mind.add_antag_datum(chosen_role)
-	glitch.create_digital_aura()
+	glitch.AddComponent(/datum/component/digital_aura)
 
 	add_threats(glitch)
 	playsound(glitch, 'sound/effects/phasein.ogg', 50, TRUE)
 	message_admins("[key_name_admin(glitch)] was made into a bitrunning glitch at [ADMIN_JMP(src)].")
+
+/obj/machinery/quantum_server/proc/has_awake_glitch()
+	for(var/datum/weakref/threat_ref as anything in spawned_threat_refs)
+		var/mob/living/threat = threat_ref.resolve()
+		if(isnull(threat?.client) || threat.stat != CONSCIOUS)
+			continue
+		if(threat.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch))
+			return TRUE
+
+	return FALSE
 
 /obj/machinery/quantum_server/proc/notify_spawned_threats()
 	for(var/datum/weakref/threat_ref as anything in spawned_threat_refs)

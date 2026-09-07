@@ -229,8 +229,8 @@
 	sever_connections()
 	notify_spawned_threats()
 
-	addtimer(CALLBACK(src, PROC_REF(scrub_vdom)), 15 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE)
-	addtimer(CALLBACK(src, PROC_REF(cool_off)), round(server_cooldown_time * capacitor_coefficient), TIMER_UNIQUE|TIMER_OVERRIDE)
+	addtimer(CALLBACK(src, PROC_REF(scrub_vdom)), 15 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
+	addtimer(CALLBACK(src, PROC_REF(cool_off)), round(server_cooldown_time * capacitor_coefficient), TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
 
 	update_use_power(IDLE_POWER_USE)
 	update_appearance()

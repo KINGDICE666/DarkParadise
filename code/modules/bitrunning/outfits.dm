@@ -3,6 +3,7 @@
 	uniform = /obj/item/clothing/under/rank/bitrunner
 	shoes = /obj/item/clothing/shoes/black
 	belt = /obj/item/bitrunning_host_monitor
+	back = /obj/item/storage/backpack
 
 GLOBAL_LIST_INIT(hacker_aliases, list(
 	"Ноль",

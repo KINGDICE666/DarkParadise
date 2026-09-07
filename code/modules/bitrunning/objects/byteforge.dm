@@ -88,7 +88,7 @@
 
 /obj/machinery/byteforge/proc/start_to_spawn(obj/cache)
 	charge_up()
-	addtimer(CALLBACK(src, PROC_REF(spawn_cache), cache), 1 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(spawn_cache), cache), 1 SECONDS, TIMER_DELETE_ME)
 
 /obj/machinery/byteforge/proc/spawn_cache(obj/cache)
 	flash()

@@ -147,6 +147,12 @@
 	for(var/obj/item/clothing/worn as anything in avatar.get_equipped_items())
 		worn.set_armor(getArmor())
 
+	var/obj/item/storage/backpack/bag = avatar.back
+	if(istype(bag))
+		new /obj/item/storage/box/survival(bag)
+		new /obj/item/storage/firstaid/regular(bag)
+		new /obj/item/flashlight(bag)
+
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
 	return avatar

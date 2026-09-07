@@ -104,7 +104,7 @@
 		return
 
 	var/heal_time = pilot.health < pilot.maxHealth ? 30 SECONDS : 2 SECONDS
-	addtimer(CALLBACK(src, PROC_REF(auto_disconnect)), heal_time, TIMER_UNIQUE|TIMER_OVERRIDE)
+	addtimer(CALLBACK(src, PROC_REF(auto_disconnect)), heal_time, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
 
 	if(!cause_damage)
 		return

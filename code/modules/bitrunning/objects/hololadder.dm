@@ -60,6 +60,11 @@
 		balloon_alert(user, "соединение не обнаружено")
 		return
 
+	var/obj/machinery/quantum_server/server = server_ref?.resolve()
+	if(server && !server.domain_complete && server.has_awake_glitch())
+		to_chat(user, span_danger("Что-то в симуляции держит вас и не даёт уйти. Сначала доставьте груз или разберитесь с помехой."))
+		return
+
 	balloon_alert(user, "отключение...")
 	if(!do_after(user, travel_time, src))
 		return

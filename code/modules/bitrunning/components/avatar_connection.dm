@@ -64,6 +64,7 @@
 
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
 	if(server)
+		server.avatar_connection_refs -= WEAKREF(src)
 		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT, COMSIG_BITRUNNER_THREAT_CREATED, COMSIG_BITRUNNER_BROADCAST_TOGGLED))
 
 	stop_broadcast()
@@ -104,10 +105,6 @@
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
 	pod?.disconnect_occupant(cause_damage)
-
-	var/obj/machinery/quantum_server/server = server_ref?.resolve()
-	if(server)
-		server.avatar_connection_refs -= WEAKREF(src)
 
 	qdel(src)
 

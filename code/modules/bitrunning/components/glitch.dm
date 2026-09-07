@@ -21,7 +21,7 @@
 	owner.faction = list(ROLE_GLITCH)
 	owner.maxHealth = clamp(owner.maxHealth + health_boost, 200, 500)
 	owner.revive()
-	owner.create_digital_aura()
+	owner.AddComponent(/datum/component/digital_aura)
 
 /datum/component/glitch/RegisterWithParent()
 	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_death))

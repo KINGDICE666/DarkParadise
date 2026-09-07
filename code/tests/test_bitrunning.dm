@@ -208,6 +208,30 @@
 #undef DEN_TEMPLATE
 #undef DEN_TEST_OFFSET
 
+#define SAFEHOUSE_CONFIG "strings/modular_maps/safehouse.toml"
+#define SAFEHOUSE_TEST_OFFSET 12
+#define SAFEHOUSE_TEST_SPAN 7
+
+/datum/unit_test/room_test/bitrunning_safehouses
+
+/datum/unit_test/room_test/bitrunning_safehouses/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/turf/origin = locate(anchor.x, anchor.y + SAFEHOUSE_TEST_OFFSET, anchor.z)
+	var/list/config = rustg_read_toml_file(SAFEHOUSE_CONFIG)
+
+	for(var/room_key in config["rooms"])
+		for(var/module_name in config["rooms"][room_key]["modules"])
+			for(var/turf/tile as anything in block(origin, locate(origin.x + SAFEHOUSE_TEST_SPAN, origin.y + SAFEHOUSE_TEST_SPAN, origin.z)))
+				tile.empty()
+
+			var/datum/map_template/module = new(path = "[config["directory"]][module_name]")
+			TEST_ASSERT(module.load(origin), "safehouse module [module_name] failed to load")
+			TEST_ASSERT_NOTNULL(locate(/obj/modular_map_connector) in origin, "safehouse module [module_name] does not carry its connector on the root tile")
+
+#undef SAFEHOUSE_CONFIG
+#undef SAFEHOUSE_TEST_OFFSET
+#undef SAFEHOUSE_TEST_SPAN
+
 /datum/unit_test/room_test/netguardian_smoke
 
 /datum/unit_test/room_test/netguardian_smoke/Run()

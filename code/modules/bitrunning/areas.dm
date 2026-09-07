@@ -53,12 +53,3 @@
 	holomap_should_draw = FALSE
 	report_alerts = FALSE
 	tele_proof = TRUE
-
-GLOBAL_LIST_INIT(virtual_areas, populate_virtual_areas())
-
-/proc/populate_virtual_areas()
-	var/list/area/virtual_areas = list()
-	for(var/area/area_type as anything in subtypesof(/area))
-		if(initial(area_type.area_flags) & VIRTUAL_AREA)
-			virtual_areas[area_type] = TRUE
-	return virtual_areas
