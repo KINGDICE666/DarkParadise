@@ -42,7 +42,9 @@
 	dir = 1
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/closet/crate,
+/obj/structure/closet/crate{
+	opened = 1
+	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
 "bx" = (
@@ -60,7 +62,9 @@
 /obj/structure/lattice/catwalk{
 	name = "industrial lift"
 	},
-/obj/structure/closet/crate,
+/obj/structure/closet/crate{
+	opened = 1
+	},
 /obj/structure/railing,
 /turf/simulated/floor/chasm,
 /area/virtual_domain)
@@ -140,7 +144,9 @@
 	},
 /area/virtual_domain)
 "fj" = (
-/obj/structure/closet/crate,
+/obj/structure/closet/crate{
+	opened = 1
+	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
 "fw" = (
@@ -150,12 +156,6 @@
 /area/virtual_domain)
 "fK" = (
 /obj/structure/chair/stool/bar{
-	dir = 8
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
-"fR" = (
-/obj/structure/sign/poster/official/random{
 	dir = 8
 	},
 /turf/simulated/floor/plasteel,
@@ -274,6 +274,10 @@
 /obj/machinery/door/airlock/glass,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
+"lP" = (
+/obj/structure/sign/poster/official/random,
+/turf/simulated/wall,
+/area/virtual_domain)
 "lW" = (
 /obj/structure/disposalpipe/sortjunction{
 	dir = 8
@@ -294,15 +298,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
-"nc" = (
-/obj/structure/disposalpipe/segment{
-	dir = 4
-	},
-/obj/structure/sign/poster/official/safety_internals{
-	dir = 2
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
 "nD" = (
 /obj/structure/disposalpipe/trunk/multiz,
 /turf/simulated/floor/plating,
@@ -317,16 +312,6 @@
 	dir = 5
 	},
 /turf/simulated/floor/plating,
-/area/virtual_domain)
-"op" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/machinery/light{
-	dir = 1
-	},
-/obj/structure/sign/securearea{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "oN" = (
 /obj/machinery/conveyor/auto,
@@ -348,6 +333,10 @@
 /obj/effect/spawner/window/reinforced,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
+"pn" = (
+/obj/effect/mob_spawn/human/corpse/factory,
+/turf/simulated/floor/plating,
+/area/virtual_domain)
 "pI" = (
 /obj/machinery/light/small{
 	dir = 4
@@ -357,13 +346,6 @@
 "qk" = (
 /obj/structure/disposalpipe/segment{
 	dir = 10
-	},
-/turf/simulated/floor/plating,
-/area/virtual_domain)
-"qK" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/sign/securearea{
-	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
@@ -388,9 +370,6 @@
 /area/virtual_domain)
 "rc" = (
 /obj/structure/disposalpipe/segment,
-/obj/structure/sign/poster/contraband/random{
-	dir = 1
-	},
 /obj/effect/landmark/bitrunning/cache_spawn,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -461,6 +440,10 @@
 /obj/effect/decal/cleanable/blood/splatter,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
+"uv" = (
+/obj/effect/mob_spawn/human/corpse/factory/guard,
+/turf/simulated/floor/plating,
+/area/virtual_domain)
 "uC" = (
 /obj/structure/falsewall,
 /turf/simulated/floor/plating,
@@ -469,6 +452,10 @@
 /obj/structure/disposalpipe/segment,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
+/area/virtual_domain)
+"uI" = (
+/obj/structure/sign/poster/official,
+/turf/simulated/wall,
 /area/virtual_domain)
 "uP" = (
 /turf/simulated/floor/carpet/royalblue{
@@ -503,7 +490,9 @@
 	dir = 4
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/closet/crate,
+/obj/structure/closet/crate{
+	opened = 1
+	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
 "wh" = (
@@ -602,7 +591,7 @@
 /turf/simulated/floor/carpet/orange,
 /area/virtual_domain)
 "zB" = (
-/obj/structure/closet/crate,
+/obj/structure/closet/crate/can,
 /obj/item/trash/tray,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -618,6 +607,9 @@
 "zO" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/light,
+/obj/effect/turf_decal/siding/white{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "Av" = (
@@ -675,14 +667,15 @@
 /obj/effect/decal/cleanable/blood/gibs/robot,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
+"Cl" = (
+/obj/structure/sign/securearea,
+/turf/simulated/wall,
+/area/virtual_domain)
 "Ct" = (
 /obj/machinery/conveyor/auto{
 	dir = 6
 	},
 /obj/machinery/light{
-	dir = 1
-	},
-/obj/structure/sign/vacuum{
 	dir = 1
 	},
 /obj/structure/window/reinforced{
@@ -700,7 +693,7 @@
 /area/virtual_domain)
 "CQ" = (
 /obj/item/trash/chips,
-/obj/structure/closet/secure_closet/freezer/kitchen,
+/obj/structure/closet/secure_closet/freezer/empty/open,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "Dr" = (
@@ -752,7 +745,9 @@
 /area/virtual_domain)
 "Fr" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/closet/crate,
+/obj/structure/closet/crate{
+	opened = 1
+	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "Fw" = (
@@ -782,6 +777,10 @@
 /turf/simulated/floor/carpet/royalblue{
 	icon_state = "carpet_royalblue-21"
 	},
+/area/virtual_domain)
+"Gg" = (
+/obj/structure/sign/poster/official/cleanliness,
+/turf/simulated/wall,
 /area/virtual_domain)
 "Gy" = (
 /obj/machinery/conveyor/auto{
@@ -814,12 +813,28 @@
 /obj/machinery/door/airlock/engineering/glass,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
+"Ix" = (
+/obj/structure/sign/vacuum,
+/turf/simulated/wall,
+/area/virtual_domain)
 "IF" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
+/area/virtual_domain)
+"IM" = (
+/obj/structure/sign/poster/contraband/random,
+/turf/simulated/wall,
+/area/virtual_domain)
+"IS" = (
+/obj/effect/mob_spawn/human/corpse/factory,
+/obj/effect/decal/cleanable/blood,
+/obj/effect/turf_decal/siding/white{
+	dir = 4
+	},
+/turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "IZ" = (
 /obj/structure/lattice/catwalk{
@@ -840,23 +855,11 @@
 /obj/structure/railing/corner{
 	dir = 8
 	},
-/obj/structure/sign/securearea{
-	dir = 4
-	},
 /turf/simulated/floor/plasteel,
-/area/virtual_domain)
-"Jq" = (
-/obj/structure/sign/poster/contraband/random{
-	dir = 8
-	},
-/turf/simulated/floor/plating,
 /area/virtual_domain)
 "JE" = (
 /obj/machinery/light/small{
 	dir = 1
-	},
-/obj/structure/sign/nosmoking_1{
-	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
@@ -883,6 +886,14 @@
 	dir = 4
 	},
 /turf/simulated/floor/plasteel,
+/area/virtual_domain)
+"Lv" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/disposalpipe/segment{
+	dir = 5
+	},
+/obj/effect/turf_decal/tile/dark,
+/turf/simulated/floor/plating,
 /area/virtual_domain)
 "LN" = (
 /obj/machinery/light{
@@ -954,9 +965,6 @@
 /area/virtual_domain)
 "OQ" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/sign/poster/ripped{
-	dir = 8
-	},
 /turf/simulated/floor/carpet/orange,
 /area/virtual_domain)
 "Po" = (
@@ -967,18 +975,16 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
-"Pr" = (
-/obj/structure/sign/poster/official/random{
-	dir = 4
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
 "PH" = (
 /obj/structure/railing/corner{
 	dir = 8
 	},
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
+/area/virtual_domain)
+"PR" = (
+/obj/structure/sign/nosmoking_1,
+/turf/simulated/wall,
 /area/virtual_domain)
 "Qd" = (
 /obj/machinery/light{
@@ -1030,9 +1036,6 @@
 /turf/simulated/floor/plating,
 /area/virtual_domain)
 "QP" = (
-/obj/structure/sign/poster/contraband/random{
-	dir = 4
-	},
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
@@ -1073,6 +1076,7 @@
 /turf/simulated/floor/plating,
 /area/virtual_domain)
 "Te" = (
+/obj/effect/mob_spawn/human/corpse/factory/qm,
 /obj/effect/decal/cleanable/blood/tracks{
 	dir = 5
 	},
@@ -1098,13 +1102,20 @@
 /obj/item/ammo_casing/shotgun/buckshot,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
+"Ua" = (
+/obj/structure/sign/poster/ripped,
+/turf/simulated/wall,
+/area/virtual_domain)
 "Ue" = (
 /obj/structure/table/reinforced,
 /obj/machinery/light/small{
 	dir = 8
 	},
-/obj/structure/sign/poster/official/cleanliness{
-	dir = 8
+/turf/simulated/floor/plasteel,
+/area/virtual_domain)
+"UH" = (
+/obj/effect/turf_decal/siding/white{
+	dir = 4
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -1135,12 +1146,6 @@
 /obj/structure/table,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
-"VL" = (
-/obj/structure/sign/securearea{
-	dir = 2
-	},
-/turf/simulated/floor/plating,
-/area/virtual_domain)
 "VO" = (
 /obj/machinery/light{
 	dir = 1
@@ -1153,6 +1158,10 @@
 	},
 /obj/structure/railing,
 /turf/simulated/floor/chasm,
+/area/virtual_domain)
+"WQ" = (
+/obj/structure/sign/poster/official/safety_internals,
+/turf/simulated/wall/r_wall,
 /area/virtual_domain)
 "WT" = (
 /obj/effect/turf_decal/stripes{
@@ -1191,12 +1200,6 @@
 /obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plating,
 /area/virtual_domain)
-"XL" = (
-/obj/structure/sign/vacuum{
-	dir = 2
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
 "XN" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/disposalpipe/segment{
@@ -1231,9 +1234,6 @@
 	},
 /obj/machinery/light/small{
 	dir = 2
-	},
-/obj/structure/sign/poster/official{
-	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/virtual_domain)
@@ -1358,11 +1358,11 @@ RI
 rO
 rO
 eg
-eg
+Gg
 SS
 eg
 eg
-eg
+Ua
 Xb
 rO
 rO
@@ -1456,10 +1456,10 @@ RI
 RI
 RI
 eg
-aL
-aL
-qN
-aL
+UH
+UH
+IS
+UH
 zO
 eg
 pa
@@ -1501,7 +1501,7 @@ eg
 eg
 eg
 eg
-eg
+IM
 eg
 eg
 RI
@@ -1551,7 +1551,7 @@ eg
 vA
 Dr
 bw
-Jq
+iz
 gc
 eg
 RI
@@ -1713,8 +1713,8 @@ nS
 iz
 Qj
 aL
-nc
-eY
+iw
+WQ
 aK
 aK
 aK
@@ -1748,7 +1748,7 @@ RI
 RI
 RI
 eg
-eg
+PR
 kJ
 lx
 lx
@@ -1760,7 +1760,7 @@ mu
 AJ
 mu
 eJ
-nS
+Lv
 cB
 aL
 iw
@@ -1802,8 +1802,8 @@ JE
 gj
 nL
 iz
-VL
-eg
+iz
+Cl
 eg
 eg
 VO
@@ -1860,7 +1860,7 @@ xl
 iz
 iz
 iz
-iz
+uv
 iz
 aL
 aL
@@ -1901,7 +1901,7 @@ Aw
 Wd
 gj
 nL
-iz
+pn
 gj
 cB
 aL
@@ -1914,8 +1914,8 @@ iz
 iz
 aL
 aL
-XL
-eg
+aL
+Ix
 pf
 eY
 JR
@@ -2036,7 +2036,7 @@ rO
 rO
 RI
 eg
-eg
+IM
 eg
 eg
 Xb
@@ -2097,16 +2097,16 @@ pf
 Ip
 pf
 eg
-eg
-eg
+uI
+Cl
 iz
 nL
 iz
 iz
 KO
 eg
-eg
-op
+Cl
+eN
 iz
 iz
 iw
@@ -2136,7 +2136,7 @@ AU
 AU
 aK
 aK
-eg
+Ix
 Ct
 oN
 Gy
@@ -2198,8 +2198,8 @@ aL
 dz
 eg
 uC
-eg
-qK
+Cl
+nL
 iz
 iz
 iz
@@ -2296,7 +2296,7 @@ eg
 eN
 gN
 aL
-eg
+IM
 rc
 mu
 rM
@@ -2400,7 +2400,7 @@ eg
 eg
 eg
 eg
-eg
+lP
 rO
 rO
 rO
@@ -2440,7 +2440,7 @@ rO
 RI
 rO
 rO
-iz
+uv
 aL
 eY
 aL
@@ -2450,7 +2450,7 @@ eg
 cB
 Qd
 jv
-fR
+aL
 cB
 rO
 RI
@@ -2747,7 +2747,7 @@ aL
 iw
 cB
 eg
-Pr
+aL
 LN
 xM
 pI
@@ -2797,7 +2797,7 @@ qW
 iw
 rz
 eg
-eg
+lP
 eg
 eg
 rO

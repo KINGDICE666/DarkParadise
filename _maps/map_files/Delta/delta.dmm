@@ -117040,7 +117040,7 @@
 "vOB" = (
 /obj/machinery/camera{
 	c_tag = "Bitrunning Den";
-	dir = 4
+	dir = 8
 	},
 /obj/structure/disposalpipe/segment,
 /obj/structure/cable{

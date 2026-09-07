@@ -9,12 +9,14 @@
 	RegisterSignals(pod, list(COMSIG_QDELETING, COMSIG_BITRUNNER_NETPOD_OPENED), PROC_REF(on_remove))
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(on_remove))
 
-	ADD_TRAIT(parent, TRAIT_STASIS, NETPOD_TRAIT)
+	var/mob/living/carbon/pilot = parent
+	pilot.apply_status_effect(/datum/status_effect/netpod_stasis)
 	START_PROCESSING(SSdcs, src)
 
 /datum/component/netpod_healing/Destroy(force)
 	STOP_PROCESSING(SSdcs, src)
-	REMOVE_TRAIT(parent, TRAIT_STASIS, NETPOD_TRAIT)
+	var/mob/living/carbon/pilot = parent
+	pilot.remove_status_effect(/datum/status_effect/netpod_stasis)
 	return ..()
 
 /datum/component/netpod_healing/process(seconds_per_tick)
@@ -33,5 +35,21 @@
 	SIGNAL_HANDLER
 
 	qdel(src)
+
+/datum/status_effect/netpod_stasis
+	id = "netpod_stasis"
+	alert_type = /atom/movable/screen/alert/status_effect/netpod_stasis
+
+/datum/status_effect/netpod_stasis/on_apply()
+	ADD_TRAIT(owner, TRAIT_STASIS, NETPOD_TRAIT)
+	return ..()
+
+/datum/status_effect/netpod_stasis/on_remove()
+	REMOVE_TRAIT(owner, TRAIT_STASIS, NETPOD_TRAIT)
+
+/atom/movable/screen/alert/status_effect/netpod_stasis
+	name = "Эмбриональный стазис"
+	desc = "Кажется, будто вы во сне."
+	icon_state = "netpod_stasis"
 
 #undef NETPOD_HEAL_AMOUNT

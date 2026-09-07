@@ -14,6 +14,8 @@
 	name = "bitrunning gimmick: sports"
 	selectable = list(
 		"Боксёр" = /datum/bitrunning_gimmick/boxer,
+		"Лучник" = /datum/bitrunning_gimmick/archer,
+		"Рыбак" = /datum/bitrunning_gimmick/fisher,
 		"Геймер" = /datum/bitrunning_gimmick/gamer,
 	)
 
@@ -86,6 +88,26 @@
 		/obj/item/reagent_containers/food/drinks/cans/energy/grey,
 	)
 
+/datum/bitrunning_gimmick/archer
+	name = "Archer"
+	granted_items = list(
+		/obj/item/clothing/shoes/sandal,
+		/obj/item/storage/backpack/quiver/weaver/full,
+		/obj/item/gun/projectile/bow,
+	)
+
+/datum/bitrunning_gimmick/fisher
+	name = "Fisher"
+	granted_items = list(
+		/obj/item/clothing/under/overalls,
+		/obj/item/clothing/suit/jacket/miljacket,
+		/obj/item/clothing/head/soft/black,
+		/obj/item/clothing/shoes/jackboots,
+		/obj/item/twohanded/fishing_rod,
+		/obj/item/storage/bag/medpouch/fishing,
+		/obj/item/reagent_containers/food/snacks/bait/goldgrub_larva,
+	)
+
 /datum/bitrunning_gimmick/alchemist
 	name = "Alchemist"
 	granted_items = list(
@@ -125,8 +147,11 @@
 		/obj/item/storage/box/matches,
 	)
 	granted_spells = list(
-		/obj/effect/proc_holder/spell/smoke,
+		/obj/effect/proc_holder/spell/smoke/digital,
 	)
+
+/obj/effect/proc_holder/spell/smoke/digital
+	name = "Digi-Smoke"
 
 GLOBAL_LIST_INIT(alchemist_reagents, list(
 	"aluminum",

@@ -120,12 +120,6 @@
 "da" = (
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
-"dd" = (
-/obj/structure/sign/vacuum{
-	dir = 1
-	},
-/turf/simulated/floor/mineral/plastitanium,
-/area/virtual_domain)
 "di" = (
 /obj/machinery/power/terminal{
 	dir = 1
@@ -427,9 +421,7 @@
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/virtual_domain)
 "pU" = (
-/obj/machinery/shower{
-	dir = 1
-	},
+/obj/machinery/shower/directional/north,
 /obj/machinery/light{
 	dir = 2
 	},
@@ -699,6 +691,10 @@
 	},
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain)
+"Cr" = (
+/obj/structure/sign/vacuum,
+/turf/simulated/wall/r_wall,
+/area/virtual_domain)
 "CK" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
@@ -882,9 +878,7 @@
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/virtual_domain)
 "JP" = (
-/obj/structure/sink{
-	dir = 2
-	},
+/obj/structure/sink/directional/south,
 /turf/simulated/floor/plasteel/dark,
 /area/virtual_domain)
 "Kz" = (
@@ -986,12 +980,6 @@
 	dir = 1
 	},
 /obj/structure/cable,
-/turf/simulated/floor/mineral/plastitanium,
-/area/virtual_domain)
-"PQ" = (
-/obj/structure/sign/vacuum{
-	dir = 2
-	},
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain)
 "PR" = (
@@ -1176,11 +1164,9 @@
 /turf/simulated/floor/carpet/royalblack,
 /area/virtual_domain)
 "YV" = (
-/obj/structure/sink{
-	dir = 2
-	},
+/obj/structure/sink/directional/south,
 /obj/structure/mirror{
-	dir = 8
+	pixel_x = -28
 	},
 /turf/simulated/floor/plasteel/dark,
 /area/virtual_domain)
@@ -2948,8 +2934,8 @@ qx
 ru
 uP
 uP
-ru
-dd
+Cr
+uP
 uP
 uP
 Ox
@@ -2957,8 +2943,8 @@ aw
 uP
 uP
 uP
-PQ
-ru
+uP
+Cr
 uP
 Qg
 ru

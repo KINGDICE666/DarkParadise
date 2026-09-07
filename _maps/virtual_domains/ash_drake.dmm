@@ -46,6 +46,10 @@
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors/virtual_domain)
+"n" = (
+/obj/effect/mob_spawn/human/miner,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors/virtual_domain)
 "p" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/simulated/mineral/volcanic/lava_land_surface,
@@ -498,7 +502,7 @@ a
 a
 a
 a
-a
+n
 a
 a
 a
@@ -1340,7 +1344,7 @@ J
 a
 a
 a
-a
+n
 a
 a
 a

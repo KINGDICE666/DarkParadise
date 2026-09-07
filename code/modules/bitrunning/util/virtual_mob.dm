@@ -1,5 +1,8 @@
 /mob/living/carbon/proc/make_virtual_mob()
-	ADD_TRAIT(src, TRAIT_NO_BREATH, VIRTUAL_ENTITY_TRAIT)
+	add_traits(list(TRAIT_NO_BREATH, TRAIT_NO_BLOOD, TRAIT_NO_HUNGER, TRAIT_RESIST_COLD, TRAIT_WEATHER_IMMUNE), VIRTUAL_ENTITY_TRAIT)
+	if(ishuman(src))
+		var/mob/living/carbon/human/human = src
+		human.physiology.pressure_mod = 0
 
 /mob/living/carbon/human/proc/set_service_style()
 	var/static/list/approved_hair_colors = list(

@@ -22,6 +22,10 @@
 /obj/structure/stone_tile/block/cracked,
 /turf/simulated/floor/lava/lava_land_surface,
 /area/lavaland/surface/outdoors/virtual_domain)
+"g" = (
+/obj/effect/mob_spawn/human/miner,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors/virtual_domain)
 "h" = (
 /obj/machinery/light/small{
 	dir = 2
@@ -766,7 +770,7 @@ a
 a
 a
 a
-a
+g
 a
 a
 a
@@ -1360,7 +1364,7 @@ a
 a
 a
 a
-a
+g
 a
 a
 a

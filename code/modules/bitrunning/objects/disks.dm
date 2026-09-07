@@ -65,7 +65,7 @@
 	selectable = list(
 		"Медицинский луч" = /obj/item/gun/medbeam,
 		"Заряд C-4" = /obj/item/grenade/plastic/c4,
-		"Резонатор" = /obj/item/resonator,
+		"Бесконечная пицца" = /obj/item/pizzabox/infinite,
 	)
 
 /obj/item/disk/bitrunning/item/tier2
@@ -104,8 +104,8 @@
 /obj/item/disk/bitrunning/ability/tier1
 	name = "bitrunning program: basic abilities"
 	selectable = list(
-		"Мигание" = /obj/effect/proc_holder/spell/turf_teleport/blink,
-		"Целительное касание" = /obj/effect/proc_holder/spell/touch/healtouch,
+		"Призыв сыра" = /obj/effect/proc_holder/spell/aoe/conjure/bitrunner_cheese,
+		"Малое исцеление" = /obj/effect/proc_holder/spell/bitrunner_heal,
 	)
 
 /obj/item/disk/bitrunning/ability/tier2
@@ -113,14 +113,14 @@
 	selectable = list(
 		"Огненный шар" = /obj/effect/proc_holder/spell/fireball,
 		"Силовая стена" = /obj/effect/proc_holder/spell/forcewall,
-		"Волшебная ракета" = /obj/effect/proc_holder/spell/projectile/magic_missile,
+		"Молния" = /obj/effect/proc_holder/spell/fireball/bitrunner_lightning,
 	)
 
 /obj/item/disk/bitrunning/ability/tier3
 	name = "bitrunning program: elite abilities"
 	selectable = list(
-		"Молния" = /obj/effect/proc_holder/spell/charge_up/bounce/lightning,
-		"Остановка времени" = /obj/effect/proc_holder/spell/aoe/conjure/timestop,
+		"Форма дракона" = /obj/effect/proc_holder/spell/shapeshift/dragon,
+		"Форма белого медведя" = /obj/effect/proc_holder/spell/shapeshift/bitrunner_polar_bear,
 	)
 
 /obj/item/disk/bitrunning/item/pka_mods
@@ -130,6 +130,7 @@
 		"Увеличение урона" = /obj/item/borg/upgrade/modkit/damage,
 		"Ускорение перезарядки" = /obj/item/borg/upgrade/modkit/cooldown,
 		"Взрывная волна" = /obj/item/borg/upgrade/modkit/aoe/mobs,
+		"Прохождение сквозь гуманоидов" = /obj/item/borg/upgrade/modkit/human_passthrough,
 	)
 
 /obj/item/disk/bitrunning/item/pka_mods/premium

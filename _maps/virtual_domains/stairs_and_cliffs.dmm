@@ -78,6 +78,12 @@
 /obj/structure/flora/tree/pine,
 /turf/simulated/floor/plating/asteroid/snow,
 /area/virtual_domain/fullbright)
+"ly" = (
+/obj/effect/turf_decal/weather/snow/corner{
+	dir = 8
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/fullbright)
 "nj" = (
 /obj/structure/chair/sofa/bench/left,
 /turf/simulated/floor/plating,
@@ -120,6 +126,26 @@
 	},
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"vH" = (
+/obj/structure/railing,
+/obj/structure/railing{
+	dir = 1
+	},
+/obj/effect/turf_decal/weather/snow/corner{
+	dir = 8
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/fullbright)
+"wa" = (
+/obj/structure/railing{
+	dir = 1
+	},
+/obj/structure/railing,
+/obj/effect/turf_decal/weather/snow/corner{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/fullbright)
 "wZ" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/simulated/wall/indestructible/rock,
@@ -166,6 +192,12 @@
 	},
 /turf/simulated/floor/cliff/snowrock/virtual_domain,
 /area/virtual_domain/fullbright)
+"FW" = (
+/obj/effect/turf_decal/weather/snow/corner{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/fullbright)
 "Gn" = (
 /obj/structure/flora/rock/pile/icy,
 /obj/effect/decal/cleanable/blood,
@@ -201,6 +233,16 @@
 /area/virtual_domain/fullbright)
 "Nv" = (
 /turf/simulated/floor/plasteel/stairs,
+/area/virtual_domain/fullbright)
+"Oy" = (
+/obj/structure/railing,
+/obj/structure/railing{
+	dir = 1
+	},
+/obj/effect/turf_decal/weather/snow/corner{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "Qv" = (
 /turf/simulated/wall/indestructible/rock,
@@ -2493,7 +2535,7 @@ sM
 sM
 sM
 sM
-cu
+vH
 sM
 sM
 sM
@@ -2622,7 +2664,7 @@ RD
 Qv
 sM
 sM
-hE
+ly
 sM
 sM
 sM
@@ -2647,7 +2689,7 @@ dR
 sM
 sM
 sM
-cu
+Oy
 sM
 sM
 sM
@@ -2930,7 +2972,7 @@ RD
 Qv
 dR
 sM
-hE
+FW
 sM
 dR
 sM
@@ -4331,7 +4373,7 @@ sM
 sM
 sM
 jK
-cu
+vH
 sM
 sM
 sM
@@ -4562,7 +4604,7 @@ sM
 sM
 sM
 sM
-nY
+wa
 Eh
 sM
 sM

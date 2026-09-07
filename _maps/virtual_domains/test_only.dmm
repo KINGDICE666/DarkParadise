@@ -2,6 +2,10 @@
 "a" = (
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
+"u" = (
+/obj/effect/mob_spawn/human/miner,
+/turf/simulated/floor/plasteel,
+/area/virtual_domain)
 "I" = (
 /mob/living/simple_animal/pet/dog/corgi,
 /turf/simulated/floor/plasteel,
@@ -21,7 +25,7 @@ a
 U
 "}
 (2,1,1) = {"
-a
+u
 a
 a
 a

@@ -11,6 +11,7 @@
 		rewards_base += 0.2
 
 	rewards_base += servo_bonus
+	rewards_base += length(spawned_threat_refs) * 2
 	rewards_base += get_multiplayer_bonus()
 	rewards_base += get_nohit_bonus()
 
@@ -106,13 +107,15 @@
 
 	if(servo_bonus)
 		text += "Манипуляторы сервера: +[servo_bonus]<br>"
+	if(length(spawned_threat_refs))
+		text += "Угрозы: [length(spawned_threat_refs)], бонус +[length(spawned_threat_refs) * 2]<br>"
 
 	text += "<center><b>Оценка: [grade]</b></center>"
 
 	return text
 
 /obj/machinery/quantum_server/proc/grade_completion(completion_time)
-	var/score = generated_domain.reward_points
+	var/score = generated_domain.reward_points + length(spawned_threat_refs) * 5
 	var/base = generated_domain.difficulty + 1
 	var/time_score = 1
 

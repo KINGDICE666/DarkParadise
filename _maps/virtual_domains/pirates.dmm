@@ -20,6 +20,16 @@
 /area/virtual_domain/fullbright)
 "be" = (
 /obj/structure/flora/rock/pile,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
+"by" = (
+/obj/structure/flora/tree/palm,
+/turf/simulated/floor/plating/asteroid,
+/area/virtual_domain/fullbright)
+"bA" = (
+/obj/effect/turf_decal/weather/dirt,
+/obj/effect/turf_decal/weather/dirt,
 /turf/simulated/floor/beach/water,
 /area/virtual_domain/protected_space)
 "bI" = (
@@ -33,12 +43,22 @@
 /obj/item/gun/energy/laser{
 	pixel_y = -3
 	},
+/obj/effect/turf_decal/siding/wood{
+	dir = 1
+	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
 "cr" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
+"cC" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
 "cX" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/item/melee/energy/sword/pirate,
@@ -68,6 +88,9 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain)
 "eP" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
 /turf/simulated/floor/plating/asteroid{
 	dir = 6
 	},
@@ -124,6 +147,10 @@
 /obj/structure/flora/grass/jungle,
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/protected_space)
+"hX" = (
+/obj/effect/turf_decal/siding/wood,
+/turf/simulated/floor/wood,
+/area/virtual_domain/fullbright)
 "jp" = (
 /obj/effect/landmark/bitrunning/cache_spawn,
 /turf/simulated/floor/plating/asteroid,
@@ -136,6 +163,10 @@
 /obj/structure/flora/ausbushes/fullgrass,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"kN" = (
+/obj/effect/turf_decal/siding/wood,
+/turf/simulated/floor/wood,
+/area/virtual_domain/protected_space/fullbright)
 "lF" = (
 /obj/structure/table/wood,
 /obj/item/melee/energy/sword/pirate{
@@ -216,6 +247,9 @@
 "ri" = (
 /obj/effect/decal/cleanable/dirt,
 /mob/living/simple_animal/hostile/pirate/ranged,
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
 "rm" = (
@@ -235,6 +269,9 @@
 /obj/machinery/recharger{
 	pixel_y = 6;
 	pixel_x = -5
+	},
+/obj/effect/turf_decal/siding/wood{
+	dir = 1
 	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
@@ -304,6 +341,9 @@
 "wj" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/blood/oil,
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "wu" = (
@@ -354,6 +394,7 @@
 	},
 /obj/item/gun/energy/laser/retro,
 /obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/siding/wood,
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
 "zR" = (
@@ -389,6 +430,9 @@
 /obj/structure/bed{
 	pixel_x = 2;
 	pixel_y = 13
+	},
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
 	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
@@ -431,6 +475,7 @@
 /area/virtual_domain)
 "ER" = (
 /mob/living/simple_animal/hostile/pirate/ranged,
+/obj/effect/turf_decal/siding/wood,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "FP" = (
@@ -456,6 +501,12 @@
 	},
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
+"Ia" = (
+/obj/effect/turf_decal/siding/wood{
+	dir = 1
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/protected_space/fullbright)
 "ID" = (
 /obj/effect/landmark/bitrunning/cache_spawn,
 /turf/simulated/floor/plating/asteroid,
@@ -480,11 +531,20 @@
 	},
 /turf/simulated/floor/beach/water,
 /area/virtual_domain/fullbright)
+"JP" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/siding/wood,
+/turf/simulated/floor/wood,
+/area/virtual_domain/protected_space/fullbright)
 "JX" = (
 /turf/simulated/floor/plating/asteroid{
 	dir = 1
 	},
 /area/virtual_domain/fullbright)
+"Ko" = (
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
 "KP" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/simulated/wall/indestructible/binary,
@@ -494,6 +554,9 @@
 	dir = 2
 	},
 /obj/effect/landmark/bitrunning/cache_spawn,
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
 "KU" = (
@@ -535,6 +598,12 @@
 /obj/structure/barricade/sandbags,
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/fullbright)
+"NB" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
 "NE" = (
 /obj/effect/mob_spawn/human/corpse/damaged,
 /turf/simulated/floor/beach/water,
@@ -573,6 +642,12 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
+"PX" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
 "QU" = (
 /obj/effect/mob_spawn/human/corpse/pirate,
 /turf/simulated/floor/beach/water,
@@ -591,11 +666,17 @@
 	pixel_y = -3
 	},
 /obj/structure/closet/cabinet,
+/obj/effect/turf_decal/siding/wood{
+	dir = 1
+	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
 "RJ" = (
 /obj/effect/decal/cleanable/dirt,
 /mob/living/simple_animal/hostile/pirate/ranged,
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "ST" = (
@@ -609,11 +690,20 @@
 /obj/structure/bookcase/random/fiction,
 /turf/simulated/floor/wood,
 /area/virtual_domain)
+"TM" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/beach/water,
+/area/virtual_domain/protected_space)
 "Ul" = (
 /turf/simulated/wall/mineral/wood/nonmetal,
 /area/virtual_domain)
 "VG" = (
 /obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
 "Wu" = (
@@ -635,6 +725,12 @@
 	},
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"Xx" = (
+/obj/effect/turf_decal/siding/wood{
+	dir = 10
+	},
+/turf/simulated/floor/wood,
+/area/virtual_domain/protected_space/fullbright)
 "XP" = (
 /obj/structure/barricade/wooden/crude,
 /turf/simulated/wall/mineral/wood/nonmetal,
@@ -666,6 +762,9 @@
 	pixel_x = 3;
 	pixel_y = 7
 	},
+/obj/effect/turf_decal/siding/wood{
+	dir = 8
+	},
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain)
 "Za" = (
@@ -685,6 +784,7 @@
 	pixel_y = -5;
 	pixel_x = 8
 	},
+/obj/effect/turf_decal/siding/wood,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 
@@ -972,7 +1072,7 @@ al
 dc
 dc
 dc
-zU
+by
 dc
 Yr
 DM
@@ -1142,7 +1242,7 @@ zj
 bb
 dc
 dc
-bb
+hX
 dc
 dc
 xp
@@ -1207,7 +1307,7 @@ nN
 nQ
 rn
 cr
-cr
+JP
 ub
 ub
 ub
@@ -1295,7 +1395,7 @@ au
 nQ
 nQ
 oM
-oM
+kN
 ub
 ub
 ub
@@ -1339,7 +1439,7 @@ au
 au
 au
 au
-oM
+kN
 ub
 ub
 ub
@@ -1450,7 +1550,7 @@ Mf
 gx
 tQ
 dc
-zU
+by
 dc
 xp
 xp
@@ -1470,7 +1570,7 @@ au
 au
 au
 au
-oM
+kN
 au
 ub
 ub
@@ -1514,7 +1614,7 @@ au
 au
 au
 nQ
-cr
+JP
 au
 au
 au
@@ -1557,9 +1657,9 @@ au
 au
 au
 au
-oM
+Ia
 cr
-oM
+Xx
 au
 au
 au
@@ -1603,7 +1703,7 @@ au
 af
 nQ
 LK
-cr
+JP
 au
 au
 au
@@ -1645,7 +1745,7 @@ au
 au
 au
 au
-oM
+Ia
 cr
 af
 au
@@ -1851,7 +1951,7 @@ DM
 DM
 tA
 fd
-db
+TM
 tA
 DM
 DM
@@ -1895,7 +1995,7 @@ DM
 DM
 tA
 KV
-db
+TM
 tA
 tA
 DM
@@ -1939,7 +2039,7 @@ DM
 DM
 tA
 qk
-db
+NB
 db
 tA
 tA
@@ -1984,8 +2084,8 @@ DM
 tA
 Gl
 qk
-db
-db
+NB
+PX
 db
 tA
 tA
@@ -2030,7 +2130,7 @@ tA
 qk
 qk
 Oi
-db
+TM
 db
 be
 gc
@@ -2074,9 +2174,9 @@ tA
 tA
 qk
 CL
+NB
 db
-db
-db
+bA
 qk
 rm
 tA
@@ -2119,8 +2219,8 @@ tA
 fd
 qk
 wu
-db
-db
+NB
+Ko
 BX
 qk
 rm
@@ -2164,7 +2264,7 @@ tA
 qk
 qk
 NU
-db
+cC
 hq
 zc
 ID

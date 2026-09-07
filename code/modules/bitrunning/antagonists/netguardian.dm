@@ -44,7 +44,8 @@
 
 /mob/living/basic/netguardian/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/ranged_attacks, /obj/item/ammo_casing/c46x30mm, 'sound/weapons/gunshots/1c20.ogg')
+	AddElement(/datum/element/simple_flying)
+	AddComponent(/datum/component/ranged_attacks, casing_type = /obj/item/ammo_casing/c46x30mm, projectile_sound = 'sound/weapons/gunshots/1c20.ogg', burst_shots = 6)
 
 	var/obj/effect/proc_holder/spell/netguardian_rockets/rockets = new
 	AddSpell(rockets)
@@ -54,6 +55,10 @@
 /mob/living/basic/netguardian/death(gibbed)
 	do_sparks(3, FALSE, src)
 	playsound(src, 'sound/mecha/weapdestr.ogg', 100, TRUE)
+	return ..()
+
+/mob/living/basic/netguardian/melee_attack(atom/target)
+	melee_damage = rand(45, 65)
 	return ..()
 
 /mob/living/basic/netguardian/update_overlays()

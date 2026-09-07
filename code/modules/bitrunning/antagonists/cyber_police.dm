@@ -29,10 +29,9 @@
 
 /datum/outfit/cyber_police/tactical
 	name = "Cyber Tactical"
-	head = /obj/item/clothing/head/helmet
-	suit = /obj/item/clothing/suit/armor/vest
-	back = /obj/item/storage/backpack/security
-	l_hand = /obj/item/gun/projectile/automatic/aks74u
+	back = /obj/item/mod/control/pre_equipped/glitch
+	l_hand = /obj/item/gun/projectile/automatic/m90
 	backpack_contents = list(
-		/obj/item/ammo_box/magazine/aks74u = 2,
+		/obj/item/ammo_box/magazine/m556 = 3,
 	)
+	implants = list(/obj/item/implant/weapons_auth)

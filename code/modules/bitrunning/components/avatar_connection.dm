@@ -4,6 +4,7 @@
 /datum/component/avatar_connection
 	var/datum/weakref/netpod_ref
 	var/datum/weakref/old_body_ref
+	var/datum/weakref/old_mind_ref
 	var/datum/weakref/server_ref
 	var/nohit = TRUE
 	var/obj/machinery/camera/portable/no_ai/bodycam
@@ -19,6 +20,7 @@
 
 	netpod_ref = WEAKREF(pod)
 	old_body_ref = WEAKREF(old_body)
+	old_mind_ref = WEAKREF(old_body.mind)
 	server_ref = WEAKREF(server)
 	server.avatar_connection_refs += WEAKREF(src)
 
@@ -71,6 +73,7 @@
 
 	netpod_ref = null
 	old_body_ref = null
+	old_mind_ref = null
 	server_ref = null
 	return ..()
 
@@ -111,10 +114,18 @@
 /datum/component/avatar_connection/proc/return_to_old_body()
 	var/mob/living/avatar = parent
 	var/mob/living/old_body = old_body_ref?.resolve()
-	var/player_key = avatar.key
+	var/datum/mind/old_mind = old_mind_ref?.resolve()
 
-	if(isnull(old_body) || isnull(player_key))
+	if(isnull(old_body) || isnull(old_mind))
 		return
+
+	var/player_key = avatar.key
+	if(isnull(player_key))
+		var/mob/dead/observer/ghost = avatar.get_ghost(even_if_they_cant_reenter = TRUE)
+		if(isnull(ghost))
+			return
+		ghost.mind = old_mind
+		player_key = ghost.key
 
 	old_body.possess_by_player(player_key)
 
@@ -175,6 +186,7 @@
 		return
 
 	avatar_id.registered_name = avatar.real_name
+	avatar_id.assignment = BIT_AVATAR_ASSIGNMENT
 	avatar_id.update_label()
 
 /datum/component/avatar_connection/proc/on_station_spawn(datum/source)

@@ -2,12 +2,10 @@
 	name = "Пляжный бар"
 	announce_to_ghosts = TRUE
 	desc = "Солнечный берег, где дружелюбные скелеты разливают напитки. Кстати, а как вы все умерли?"
-	difficulty = BITRUNNER_DIFFICULTY_LOW
-	completion_loot = list(/obj/item/toy/plushie/carp = 1)
+	completion_loot = list(/obj/item/beach_ball = 1)
 	help_text = "Заведение держится на скелетной команде, и подробностями делиться она не спешит. Может, пара стаканов развяжет языки. Как говорится, не можешь победить — присоединяйся."
 	key = LAZY_TEMPLATE_KEY_BITRUNNING_BEACH_BAR
 	map_name = "beach_bar"
-	reward_points = BITRUNNER_REWARD_LOW
 	domain_flags = DOMAIN_NO_NOHIT_BONUS
 
 /datum/lazy_template/virtual_domain/beach_bar/setup_domain(list/created_atoms)

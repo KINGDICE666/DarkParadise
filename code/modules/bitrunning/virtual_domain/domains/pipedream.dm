@@ -13,3 +13,50 @@
 		/datum/modular_mob_segment/hivebots_strong,
 	)
 	reward_points = BITRUNNER_REWARD_LOW
+
+/datum/outfit/factory
+	name = "Factory Worker"
+	uniform = /obj/item/clothing/under/rank/cargotech
+	suit = /obj/item/clothing/suit/storage/hazardvest
+	gloves = /obj/item/clothing/gloves/color/black
+	head = /obj/item/clothing/head/soft/yellow
+	shoes = /obj/item/clothing/shoes/workboots
+	l_pocket = /obj/item/flashlight/seclite
+
+/datum/outfit/factory/guard
+	name = "Factory Guard"
+	uniform = /obj/item/clothing/under/rank/security
+	suit = /obj/item/clothing/suit/armor/vest/security
+	head = /obj/item/clothing/head/soft/sec
+	shoes = /obj/item/clothing/shoes/jackboots
+	l_pocket = /obj/item/restraints/handcuffs
+	r_pocket = /obj/item/flash
+
+/datum/outfit/factory/qm
+	name = "Factory Quartermaster"
+	uniform = /obj/item/clothing/under/rank/cargo
+	suit = null
+	head = /obj/item/clothing/head/soft/yellow
+	shoes = /obj/item/clothing/shoes/jackboots
+	l_pocket = /obj/item/melee/baton/telescopic
+	r_pocket = /obj/item/stamp/qm
+
+/obj/effect/mob_spawn/human/corpse/factory
+	name = "Factory Worker"
+	mob_name = "Factory Worker"
+	id_job = "Factory Worker"
+	id_access_list = list(ACCESS_MAILSORTING, ACCESS_CARGO)
+	outfit = /datum/outfit/factory
+
+/obj/effect/mob_spawn/human/corpse/factory/guard
+	name = "Factory Guard"
+	mob_name = "Factory Guard"
+	id_job = "Factory Guard"
+	outfit = /datum/outfit/factory/guard
+
+/obj/effect/mob_spawn/human/corpse/factory/qm
+	name = "Factory Quartermaster"
+	mob_name = "Factory Quartermaster"
+	id_job = "Factory Quartermaster"
+	id_access_list = list(ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_QM)
+	outfit = /datum/outfit/factory/qm

@@ -136,19 +136,25 @@
 	to_wear.gloves = null
 	to_wear.l_ear = null
 	to_wear.r_ear = null
-	to_wear.l_hand = null
-	to_wear.r_hand = null
+	if(!generated_domain.forced_outfit)
+		to_wear.l_hand = null
+		to_wear.r_hand = null
 	to_wear.l_pocket = null
 	to_wear.r_pocket = null
 	to_wear.suit = null
 	to_wear.suit_store = null
 	avatar.equipOutfit(to_wear, visualsOnly = TRUE)
 
-	for(var/obj/item/clothing/worn as anything in avatar.get_equipped_items())
-		worn.set_armor(getArmor())
+	var/obj/item/clothing/under/jumpsuit = avatar.w_uniform
+	if(istype(jumpsuit))
+		jumpsuit.set_armor(getArmor(bio = 10))
+	var/obj/item/clothing/head/hat = avatar.head
+	if(istype(hat))
+		hat.set_armor(getArmor())
 
 	var/obj/item/storage/backpack/bag = avatar.back
 	if(istype(bag))
+		QDEL_LIST(bag.contents)
 		new /obj/item/storage/box/survival(bag)
 		new /obj/item/storage/firstaid/regular(bag)
 		new /obj/item/flashlight(bag)
@@ -180,7 +186,8 @@
 		return FALSE
 
 	broadcasting = !broadcasting
-	COOLDOWN_START(src, broadcast_toggle_cd, 5 SECONDS)
+	if(generated_domain)
+		COOLDOWN_START(src, broadcast_toggle_cd, 5 SECONDS)
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_BROADCAST_TOGGLED, broadcasting)
 	return TRUE
 

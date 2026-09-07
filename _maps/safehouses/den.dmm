@@ -50,14 +50,16 @@
 /area/virtual_domain/safehouse)
 "u" = (
 /obj/structure/railing,
-/obj/structure/sign/poster/contraband/hacking_guide{
-	dir = 4
-	},
 /obj/effect/landmark/bitrunning/cache_goal_turf,
 /obj/effect/turf_decal/loading_area{
 	dir = 4
 	},
+/obj/effect/turf_decal/siding/dark,
 /turf/simulated/floor/indestructible/bitrunning_transport,
+/area/virtual_domain/safehouse)
+"w" = (
+/obj/structure/sign/poster/contraband/hacking_guide,
+/turf/simulated/wall,
 /area/virtual_domain/safehouse)
 "z" = (
 /obj/effect/landmark/bitrunning/hololadder_spawn,
@@ -178,7 +180,7 @@ C
 (7,1,1) = {"
 C
 C
-C
+w
 J
 J
 C

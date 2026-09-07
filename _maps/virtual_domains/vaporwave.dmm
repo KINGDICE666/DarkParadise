@@ -3,12 +3,17 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
+/obj/effect/turf_decal/sand/plating,
 /turf/simulated/floor/plating/airless,
 /area/virtual_domain)
 "bs" = (
+/obj/effect/turf_decal/sand,
+/obj/effect/turf_decal/sand,
 /turf/simulated/floor/plasteel/airless,
 /area/ruin/space/virtual_domain)
 "bF" = (
+/obj/effect/turf_decal/sand,
+/obj/effect/turf_decal/sand/plating,
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/virtual_domain)
 "bJ" = (
@@ -32,10 +37,15 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "df" = (
+/obj/effect/turf_decal/sand,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "stairs-l"
 	},
 /area/ruin/space/virtual_domain)
+"eq" = (
+/obj/structure/sign/poster/contraband/clown,
+/turf/simulated/wall,
+/area/virtual_domain)
 "eF" = (
 /turf/simulated/wall/indestructible/binary,
 /area/space)
@@ -43,7 +53,7 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "fQ" = (
-/obj/structure/flora/tree/jungle,
+/obj/structure/flora/tree/palm,
 /turf/simulated/floor,
 /area/virtual_domain)
 "gM" = (
@@ -71,16 +81,11 @@
 /turf/template_noop,
 /area/virtual_domain/safehouse)
 "kF" = (
+/obj/effect/turf_decal/sand,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "stairs-r"
 	},
 /area/ruin/space/virtual_domain)
-"ll" = (
-/obj/structure/sign/poster/contraband/clown{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
 "lu" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/simulated/wall/rust,
@@ -93,16 +98,20 @@
 /area/virtual_domain/safehouse)
 "lI" = (
 /obj/structure/table/reinforced,
-/obj/machinery/chem_dispenser,
+/obj/machinery/chem_dispenser/beer,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "qm" = (
-/obj/structure/flora/tree/jungle,
+/obj/structure/flora/tree/palm,
 /obj/machinery/light{
 	dir = 8
 	},
 /turf/simulated/floor,
 /area/virtual_domain)
+"qH" = (
+/obj/structure/closet/crate/can,
+/turf/simulated/floor/plating/asteroid/airless,
+/area/ruin/space/virtual_domain)
 "xb" = (
 /obj/structure/chair/stool{
 	dir = 8
@@ -118,6 +127,7 @@
 /area/virtual_domain)
 "AX" = (
 /obj/effect/turf_decal/stripes/asteroid/line,
+/obj/effect/turf_decal/sand/plating,
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/virtual_domain)
 "Cq" = (
@@ -136,10 +146,19 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
+"GA" = (
+/obj/effect/turf_decal/sand,
+/turf/simulated/floor/plasteel/airless,
+/area/ruin/space/virtual_domain)
 "Hf" = (
+/obj/effect/turf_decal/sand,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "recharge_floor_asteroid"
 	},
+/area/ruin/space/virtual_domain)
+"Hj" = (
+/obj/effect/turf_decal/sand/plating,
+/turf/simulated/floor/plating/airless,
 /area/ruin/space/virtual_domain)
 "HV" = (
 /obj/structure/chair/comfy/black{
@@ -163,6 +182,7 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "KY" = (
+/obj/effect/turf_decal/sand,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "stairs-m"
 	},
@@ -176,7 +196,7 @@
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/space/virtual_domain)
 "LP" = (
-/obj/structure/flora/tree/jungle,
+/obj/structure/flora/tree/palm,
 /obj/machinery/light{
 	dir = 4
 	},
@@ -210,7 +230,7 @@
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/virtual_domain)
 "Vc" = (
-/obj/structure/flora/tree/jungle,
+/obj/structure/flora/tree/palm,
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/space/virtual_domain)
 "XJ" = (
@@ -469,7 +489,7 @@ Pv
 Pv
 Pv
 LJ
-Qh
+qH
 xK
 fQ
 hN
@@ -507,7 +527,7 @@ Jr
 Jr
 Jr
 xK
-bF
+Hj
 Vc
 Qh
 cz
@@ -537,7 +557,7 @@ fx
 fx
 fx
 xK
-bF
+Hj
 bs
 bF
 Qh
@@ -560,8 +580,8 @@ Pv
 Pv
 Qh
 Qh
-xK
-ll
+eq
+fx
 fx
 fx
 fx
@@ -597,9 +617,9 @@ fx
 fx
 fx
 XJ
-bs
+GA
 KY
-bs
+GA
 bs
 Pv
 Pv
@@ -629,7 +649,7 @@ cL
 xK
 Hf
 kF
-bs
+GA
 bs
 Pv
 Pv
@@ -657,7 +677,7 @@ fx
 YE
 lI
 bJ
-bF
+Hj
 bs
 bF
 bF
@@ -774,7 +794,7 @@ Qh
 Qh
 UV
 LJ
-Qh
+qH
 UV
 Qh
 Qh

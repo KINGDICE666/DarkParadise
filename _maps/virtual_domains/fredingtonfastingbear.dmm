@@ -16,7 +16,7 @@
 /turf/simulated/wall/indestructible/reinforced,
 /area/virtual_domain/protected_space/fullbright)
 "bR" = (
-/obj/machinery/chem_dispenser,
+/obj/machinery/chem_dispenser/beer,
 /obj/structure/table/wood,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -47,13 +47,6 @@
 	},
 /turf/simulated/wall/indestructible/reinforced,
 /area/virtual_domain)
-"dl" = (
-/obj/structure/sign/poster/contraband{
-	dir = 2
-	},
-/obj/effect/landmark/bitrunning/cache_spawn,
-/turf/simulated/floor/wood,
-/area/virtual_domain)
 "dz" = (
 /obj/structure/table/wood,
 /turf/simulated/floor/plasteel,
@@ -65,12 +58,6 @@
 "dV" = (
 /obj/structure/table/glass,
 /turf/simulated/floor/plasteel,
-/area/virtual_domain)
-"ex" = (
-/obj/structure/sign/poster/contraband{
-	dir = 2
-	},
-/turf/template_noop,
 /area/virtual_domain)
 "eE" = (
 /obj/structure/closet/gmcloset,
@@ -144,6 +131,7 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "jE" = (
+/obj/structure/sign/poster/contraband,
 /obj/structure/sign/poster,
 /obj/structure/sign/poster/official/the_owl,
 /turf/simulated/wall/indestructible/reinforced,
@@ -308,13 +296,6 @@
 "sg" = (
 /turf/template_noop,
 /area/virtual_domain)
-"sl" = (
-/obj/effect/spawner/window/reinforced,
-/obj/structure/sign/poster/contraband{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/virtual_domain/protected_space/fullbright)
 "sR" = (
 /obj/structure/chair/sofa/corp/right{
 	dir = 1
@@ -375,7 +356,7 @@
 "vF" = (
 /obj/machinery/door_control{
 	id = "door2";
-	dir = 8
+	pixel_x = -24
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -406,12 +387,6 @@
 "xk" = (
 /obj/structure/table,
 /obj/effect/decal/cleanable/confetti,
-/turf/simulated/floor/plasteel,
-/area/virtual_domain)
-"xv" = (
-/obj/structure/sign/poster/official{
-	dir = 8
-	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "xY" = (
@@ -540,7 +515,7 @@
 	},
 /obj/machinery/door_control{
 	id = "door2";
-	dir = 4
+	pixel_x = 24
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/protected_space/fullbright)
@@ -595,7 +570,7 @@
 "LU" = (
 /obj/machinery/door_control{
 	id = "door1";
-	dir = 4
+	pixel_x = 24
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
@@ -774,7 +749,7 @@
 "YT" = (
 /obj/machinery/door_control{
 	id = "door1";
-	dir = 8
+	pixel_x = -24
 	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/protected_space/fullbright)
@@ -794,6 +769,10 @@
 	dir = 4
 	},
 /turf/simulated/floor/wood,
+/area/virtual_domain)
+"ZT" = (
+/obj/structure/sign/poster/official,
+/turf/simulated/wall/indestructible/reinforced,
 /area/virtual_domain)
 
 (1,1,1) = {"
@@ -1365,8 +1344,8 @@ Cm
 Uj
 OB
 OB
-dl
-hI
+vm
+gl
 aV
 Vs
 dN
@@ -1484,8 +1463,8 @@ hI
 hI
 hI
 Fc
-Fc
-sl
+Wj
+nF
 SW
 Fc
 Wj
@@ -1576,7 +1555,7 @@ lP
 qK
 sg
 sg
-ex
+sg
 jE
 VS
 Vd
@@ -1670,7 +1649,7 @@ hI
 hI
 hI
 hI
-hI
+ZT
 Fc
 Fc
 nF
@@ -1717,7 +1696,7 @@ aV
 aV
 aV
 aV
-xv
+aV
 aV
 aV
 aV

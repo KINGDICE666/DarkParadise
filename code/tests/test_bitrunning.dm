@@ -31,12 +31,12 @@
 
 	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human)
 	var/obj/item/disk/bitrunning/item/tier1/program = allocate(/obj/item/disk/bitrunning/item/tier1)
-	program.selected_path = /obj/item/resonator
+	program.selected_path = /obj/item/pizzabox/infinite
 	pilot.put_in_hands(program)
 
 	var/mob/living/carbon/human/avatar = server.start_new_connection(pilot)
 	TEST_ASSERT_NOTNULL(avatar, "server failed to build an avatar")
-	TEST_ASSERT(locate(/obj/item/resonator) in avatar, "the carried program did not load its gear onto the avatar")
+	TEST_ASSERT(locate(/obj/item/pizzabox/infinite) in avatar, "the carried program did not load its gear onto the avatar")
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
 
@@ -260,3 +260,42 @@
 			TEST_ASSERT(locate(/obj/item/storage/briefcase) in avatar.get_all_contents(), "[choice] handed the avatar no loadout container")
 			for(var/obj/item/storage/briefcase/kit in avatar.get_all_contents())
 				qdel(kit)
+
+/datum/unit_test/room_test/bitrunning_gondola/Run()
+	var/mob/living/carbon/human/avatar = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+	avatar.mind_initialize()
+	var/datum/mind/avatar_mind = avatar.mind
+	var/datum/reagent/virtual_tranquility/reagent = new
+	reagent.reaction_mob(avatar, REAGENT_INGEST, 5)
+	qdel(reagent)
+	var/datum/disease/virus/transformation/virtual_gondola/disease = locate() in avatar.diseases
+	TEST_ASSERT_NOTNULL(disease, "eating gondola meat did not infect the avatar")
+	var/mob/living/simple_animal/pet/gondola/virtual_domain/gondola = disease.do_disease_transformation()
+	TEST_ASSERT(istype(gondola), "the infected avatar did not become a virtual gondola")
+	TEST_ASSERT_EQUAL(gondola.mind, avatar_mind, "gondola transformation lost the avatar mind")
+	var/obj/structure/closet/crate/secure/bitrunning/encrypted/gondola/cache = allocate(/obj/structure/closet/crate/secure/bitrunning/encrypted/gondola, run_loc_floor_bottom_left)
+	TEST_ASSERT(gondola.move_force > cache.move_resist, "the transformed gondola cannot move the domain cache")
+
+/datum/unit_test/room_test/bitrunning_tactical/Run()
+	var/mob/living/carbon/human/agent = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+	agent.equipOutfit(/datum/outfit/cyber_police/tactical)
+	var/obj/item/mod/control/pre_equipped/glitch/mod = agent.back
+	TEST_ASSERT(istype(mod), "Cyber Tactical did not receive the glitch MOD")
+	TEST_ASSERT_NOTNULL(mod.bag, "the glitch MOD has no storage")
+	var/magazines = 0
+	for(var/obj/item/ammo_box/magazine/m556/magazine in mod.bag)
+		magazines++
+	TEST_ASSERT_EQUAL(magazines, 3, "Cyber Tactical did not receive three spare magazines")
+	TEST_ASSERT(locate(/obj/item/gun/projectile/automatic/m90) in agent, "Cyber Tactical did not receive the M90")
+	for(var/obj/item/part as anything in mod.get_parts())
+		TEST_ASSERT(part.icon_state in icon_states(part.icon), "the glitch MOD has a missing part sprite: [part.icon_state]")
+
+/datum/unit_test/room_test/bitrunning_passthrough/Run()
+	var/mob/living/carbon/human/teammate = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+	var/obj/item/borg/upgrade/modkit/human_passthrough/mod = allocate(/obj/item/borg/upgrade/modkit/human_passthrough)
+	var/obj/projectile/kinetic/projectile = allocate(/obj/projectile/kinetic, run_loc_floor_bottom_left)
+	mod.modify_projectile(projectile)
+	projectile.Bump(teammate)
+	TEST_ASSERT_EQUAL(teammate.getBruteLoss(), 0, "the passthrough projectile injured a teammate")
+	TEST_ASSERT(!QDELETED(projectile), "the passthrough projectile was consumed by a teammate")
+	TEST_ASSERT(teammate in projectile.permutated, "the passthrough projectile did not skip the teammate")

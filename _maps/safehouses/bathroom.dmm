@@ -8,6 +8,10 @@
 /obj/structure/extinguisher_cabinet/directional/north,
 /turf/simulated/floor/plasteel/freezer,
 /area/virtual_domain/safehouse)
+"d" = (
+/obj/structure/sign/poster,
+/turf/simulated/wall/mineral/silver,
+/area/virtual_domain/safehouse)
 "e" = (
 /obj/effect/spawner/window,
 /obj/effect/decal/cleanable/blood/splatter,
@@ -19,7 +23,7 @@
 /area/virtual_domain/safehouse)
 "q" = (
 /obj/structure/urinal{
-	dir = 8
+	pixel_x = -30
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/virtual_domain/safehouse)
@@ -58,9 +62,6 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/virtual_domain/safehouse)
 "z" = (
-/obj/structure/sign/poster{
-	dir = 4
-	},
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/plasteel/freezer,
 /area/virtual_domain/safehouse)
@@ -154,7 +155,7 @@ e
 G
 G
 G
-G
+d
 G
 G
 "}

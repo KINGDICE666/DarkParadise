@@ -2,6 +2,13 @@
 "aj" = (
 /turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
+"aq" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "av" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/ausbushes,
@@ -14,13 +21,46 @@
 /obj/structure/flora/ausbushes/fullgrass,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"bo" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor,
+/area/virtual_domain/fullbright)
 "br" = (
 /obj/structure/flora/ausbushes,
 /turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
+"bz" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "bG" = (
 /obj/effect/landmark/bitrunning/mob_segment,
 /turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"bM" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"bN" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"bR" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
 "bU" = (
 /turf/simulated/floor,
@@ -28,10 +68,20 @@
 "ce" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/tree/jungle/small,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "cL" = (
 /obj/structure/flora/ausbushes,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"cN" = (
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "cS" = (
@@ -43,9 +93,29 @@
 /obj/structure/flora/rock/pile,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"dp" = (
+/obj/structure/flora/rock/pile,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"dB" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "ec" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/simulated/wall/indestructible/binary,
+/area/virtual_domain/fullbright)
+"ej" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
 "eE" = (
 /obj/structure/flora/ausbushes/lavendergrass,
@@ -56,8 +126,29 @@
 /obj/structure/flora/ausbushes/sparsegrass,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"fk" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "fK" = (
 /turf/simulated/wall/indestructible/rock,
+/area/virtual_domain/fullbright)
+"gf" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"gk" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "gT" = (
 /obj/structure/table/wood,
@@ -70,12 +161,48 @@
 /obj/item/gun/projectile/shotgun/boltaction,
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"hm" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"il" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/tree/jungle/small,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "iy" = (
 /obj/structure/flora/tree/jungle/small,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"jt" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "kd" = (
 /obj/structure/flora/tree/jungle,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"ki" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/structure/flora/tree/jungle/small,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"kA" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "kG" = (
@@ -100,10 +227,40 @@
 /obj/structure/table/wood,
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"lR" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"md" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "nK" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/rock/pile,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"nU" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"nX" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "od" = (
@@ -117,9 +274,93 @@
 /obj/structure/flora/ausbushes,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"oU" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor,
+/area/virtual_domain/fullbright)
+"pi" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"qb" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"qv" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"qx" = (
+/obj/effect/turf_decal/weather/dirt,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"qz" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"qO" = (
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"qQ" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"rg" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "rx" = (
 /obj/structure/flora/ausbushes/sparsegrass,
 /obj/structure/flora/tree/jungle,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"rN" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"sf" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"sg" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "st" = (
@@ -131,15 +372,60 @@
 /obj/structure/flora/ausbushes/fullgrass,
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/fullbright)
+"ub" = (
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "uh" = (
 /obj/structure/flora/ausbushes/fullgrass,
 /obj/effect/landmark/bitrunning/mob_segment,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"vT" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"vW" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"wE" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/tree/jungle/small,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "wT" = (
 /obj/structure/flora/ausbushes/sparsegrass,
 /obj/structure/flora/ausbushes,
 /turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"xe" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor,
+/area/virtual_domain/fullbright)
+"xn" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
 "xE" = (
 /obj/structure/flora/ausbushes,
@@ -151,12 +437,28 @@
 /obj/structure/flora/rock/pile/largejungle,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"zB" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"zG" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "zX" = (
 /obj/modular_map_root/safehouse{
 	key = "wood"
 	},
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"Ar" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "AM" = (
 /obj/effect/baseturf_helper/virtual_domain,
 /turf/template_noop,
@@ -171,17 +473,78 @@
 /obj/structure/flora/ausbushes,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"Cg" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Cn" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "CH" = (
 /obj/structure/flora/rock/pile,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"CR" = (
+/obj/structure/flora/tree/jungle/small,
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "Dk" = (
 /obj/effect/landmark/bitrunning/loot_signal,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Dr" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Fb" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/structure/flora/tree/jungle/small,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Fe" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "Fm" = (
 /obj/structure/flora/tree/jungle,
 /obj/structure/flora/ausbushes/sparsegrass,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"FP" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"GR" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "Ib" = (
@@ -193,23 +556,83 @@
 /obj/structure/flora/rock/pile,
 /turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
+"Jt" = (
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "JD" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/rock/pile,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"KG" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "Lx" = (
 /turf/template_noop,
 /area/virtual_domain/safehouse)
+"LW" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"MB" = (
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "No" = (
 /obj/structure/flora/ausbushes/sparsegrass,
 /obj/structure/flora/rock/pile,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Nr" = (
+/obj/structure/flora/ausbushes/sparsegrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "NY" = (
 /obj/structure/flora/tree/dead,
 /obj/structure/flora/ausbushes/fullgrass,
 /turf/simulated/floor/plating/asteroid,
+/area/virtual_domain/fullbright)
+"OE" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Pn" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
+"Pt" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"PK" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "PM" = (
 /obj/structure/flora/ausbushes/sparsegrass,
@@ -218,22 +641,123 @@
 "PX" = (
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/fullbright)
+"QD" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "RL" = (
 /obj/structure/flora/ausbushes/sparsegrass,
 /obj/structure/flora/tree/jungle/small,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Sm" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
 "SK" = (
 /obj/structure/flora/rock/pile,
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/fullbright)
+"Te" = (
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/beach,
+/area/virtual_domain/fullbright)
 "Tx" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/ausbushes/sparsegrass,
 /turf/simulated/floor/grass,
 /area/virtual_domain/fullbright)
+"TC" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 10
+	},
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Vg" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 5
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Vj" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 8
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Vm" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 9
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
 "VN" = (
 /turf/simulated/wall/indestructible/binary,
+/area/virtual_domain/fullbright)
+"Wi" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"WZ" = (
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Xp" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 6
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Xq" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Xs" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"XO" = (
+/obj/structure/flora/ausbushes/lavendergrass,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 4
+	},
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Yp" = (
+/obj/structure/flora/ausbushes/fullgrass,
+/obj/effect/turf_decal/weather/dirt,
+/turf/simulated/floor/grass,
+/area/virtual_domain/fullbright)
+"Yr" = (
+/obj/structure/flora/ausbushes,
+/obj/effect/turf_decal/weather/dirt{
+	dir = 1
+	},
+/turf/simulated/floor/beach,
 /area/virtual_domain/fullbright)
 
 (1,1,1) = {"
@@ -639,9 +1163,9 @@ br
 br
 aj
 aj
-aj
-aj
-aj
+dB
+dB
+Ar
 PM
 PM
 PM
@@ -719,9 +1243,9 @@ Js
 aj
 aj
 aj
-aj
-aj
-aj
+dB
+dB
+Ar
 PM
 PM
 PM
@@ -792,23 +1316,23 @@ aj
 aj
 aj
 br
+hm
+ej
+ej
+hm
 br
 aj
 aj
-br
-br
-aj
-aj
-aj
-aj
-aj
-br
-br
+dB
+dB
+rg
+bR
+jt
 PM
 SK
 SK
 SK
-cL
+lR
 lf
 aZ
 aZ
@@ -873,19 +1397,19 @@ SK
 PX
 PX
 PM
+Yr
 br
-br
 aj
 aj
-aj
+Te
 st
-aj
+Pn
 br
-br
-br
+bR
+jt
 PM
 PX
-aZ
+aq
 aZ
 aZ
 aZ
@@ -950,20 +1474,20 @@ fK
 fK
 PX
 PM
-br
-br
-br
+qz
+hm
+hm
+ej
+aj
+dB
 aj
 aj
-aj
-aj
-aj
 br
-br
+zG
 PM
 NY
 PM
-lf
+Cg
 aZ
 kG
 aD
@@ -1031,16 +1555,16 @@ PX
 tw
 PM
 PM
+rN
+ej
 aj
 aj
 aj
-aj
-aj
-aj
+Te
 PM
 tw
 PX
-eE
+ki
 kG
 aD
 aZ
@@ -1102,7 +1626,7 @@ fK
 fK
 aD
 aZ
-lf
+Xs
 PM
 PM
 PX
@@ -1110,14 +1634,14 @@ PX
 PX
 PX
 tw
+rN
 aj
 aj
-aj
-aj
+Te
 PX
 tw
 tw
-Bl
+Xq
 aZ
 aD
 aD
@@ -1180,21 +1704,21 @@ aD
 cL
 cL
 lf
-lf
-lf
-aD
+nU
+nU
+sg
 PX
 PX
 PX
 PM
 PM
+Pn
 aj
-aj
-aj
+Te
 PM
 tw
 PX
-aZ
+OE
 cL
 aZ
 aZ
@@ -1260,18 +1784,18 @@ aZ
 lf
 lf
 aZ
-kX
-lf
+wE
+LW
 PX
 PX
 PM
-aj
+Pn
 br
-aj
+Te
 PX
 PX
 PM
-aZ
+aq
 cL
 aZ
 aZ
@@ -1338,18 +1862,18 @@ kG
 aD
 aZ
 lf
-aZ
+Yp
 tw
 PX
 PX
+Pn
 aj
 aj
-aj
-br
+jt
 tw
 PM
 PX
-cL
+lR
 lf
 aZ
 aZ
@@ -1415,18 +1939,18 @@ aZ
 aD
 aD
 aD
-aZ
+Yp
 tw
 PM
+qv
 aj
 aj
 aj
-aj
-aj
+Te
 tw
 PM
 PX
-cL
+lR
 aZ
 aZ
 aZ
@@ -1492,18 +2016,18 @@ aZ
 aD
 aD
 aD
-aZ
+Yp
 tw
 PM
-br
+Yr
 aj
 aj
 aj
-aj
+Te
 tw
 PM
 PX
-aD
+bN
 aZ
 aZ
 aD
@@ -1569,17 +2093,17 @@ aD
 aZ
 aZ
 aD
-kG
+nX
 PX
 PX
-br
+Yr
 aj
 Js
 br
-aj
+Te
 PM
 tw
-aD
+Fe
 aD
 aZ
 aD
@@ -1647,16 +2171,16 @@ aZ
 aZ
 kG
 kG
-kG
+bM
 PX
+rN
 aj
 aj
 aj
-aj
-aj
+Te
 PM
 tw
-aZ
+OE
 cL
 aD
 aD
@@ -1679,13 +2203,13 @@ iy
 wT
 aD
 fa
-fa
+MB
+Pt
+MB
 aD
-fa
-aD
-aD
-fa
-aD
+Pt
+MB
+Pt
 Lx
 Lx
 Lx
@@ -1724,16 +2248,16 @@ iy
 cL
 aD
 kG
-kG
+nX
 PX
 PM
+Pn
 aj
 aj
-aj
-aj
+Te
 PM
 tw
-lf
+Cg
 aZ
 aZ
 aZ
@@ -1753,13 +2277,13 @@ aZ
 aD
 aD
 cL
-fa
-aD
-aD
+MB
+Pt
+Jt
 PX
 PX
 PX
-aD
+sf
 PX
 PM
 PX
@@ -1801,16 +2325,16 @@ cL
 aD
 aD
 aZ
-aZ
+Yp
 PX
 PM
-br
+Yr
 br
 aj
-aj
+Te
 PM
 PX
-cL
+lR
 lf
 aZ
 aD
@@ -1829,12 +2353,12 @@ aZ
 aZ
 aZ
 aD
-fa
+qO
 PX
 PX
-aD
-fa
-fa
+bN
+Nr
+cN
 PX
 PX
 PX
@@ -1878,16 +2402,16 @@ cL
 aD
 fa
 aZ
-aZ
+Yp
 PM
 PM
-br
+Yr
 br
 aj
-aj
+Te
 PX
 PX
-cL
+Vg
 lf
 lf
 fa
@@ -1905,17 +2429,17 @@ AP
 aZ
 aZ
 aZ
-aD
+WZ
 PM
 PX
-aD
+Fe
 aZ
 aD
 aD
-cL
-fa
-fa
-aD
+bz
+Nr
+Nr
+gk
 cL
 Lx
 Lx
@@ -1958,14 +2482,14 @@ cL
 cL
 ce
 PM
+qz
 br
 br
-br
-aj
+Te
 tw
 PX
 PX
-aZ
+OE
 aD
 fa
 fa
@@ -1980,11 +2504,11 @@ fa
 fa
 aD
 aZ
-aD
-aD
+Pt
+Jt
 PX
 PX
-fa
+ub
 aD
 aZ
 aD
@@ -2033,16 +2557,16 @@ aZ
 aD
 cL
 cL
-cL
+zB
 PX
 PM
-br
+qz
 aj
 aj
-aj
+Ar
 PM
 PX
-aD
+kA
 aD
 fa
 fa
@@ -2056,11 +2580,11 @@ aD
 aD
 aD
 aD
-aD
+Jt
 PX
-aD
-aD
-aD
+bN
+gk
+gk
 aD
 aZ
 aZ
@@ -2110,17 +2634,17 @@ aZ
 aZ
 aD
 aZ
-aZ
+Yp
 PX
 PM
 PX
-br
+qz
 aj
 aj
-aj
+Ar
 PX
 PX
-Ib
+CR
 aZ
 aZ
 fa
@@ -2134,7 +2658,7 @@ cL
 fa
 aD
 aD
-fa
+Nr
 aD
 aZ
 aZ
@@ -2188,16 +2712,16 @@ aD
 aD
 aZ
 aZ
-kG
+bM
 PX
 tw
 PM
+rN
 aj
-aj
-aj
+fk
 tw
 PX
-aD
+bN
 aZ
 aZ
 aZ
@@ -2266,14 +2790,14 @@ aD
 CH
 kG
 kG
-kG
+bM
 PX
 PM
 PX
-aj
+qx
 PX
 PX
-aZ
+QD
 aD
 aZ
 aZ
@@ -2343,14 +2867,14 @@ aZ
 aD
 aD
 aZ
-kG
+nX
 PX
 tw
 PX
-aj
+qx
 tw
 PX
-aZ
+OE
 aD
 aZ
 aZ
@@ -2421,12 +2945,12 @@ aD
 aZ
 aZ
 aZ
-aD
+sg
 PX
 tw
-aj
+FP
 PM
-kG
+Vm
 kG
 aD
 aD
@@ -2498,12 +3022,12 @@ aD
 aD
 aZ
 aD
-aD
+Jt
 PX
 PX
-aj
+FP
 PM
-kG
+vT
 aZ
 aZ
 aD
@@ -2575,13 +3099,13 @@ aZ
 aD
 aD
 aZ
-aZ
+Yp
 tw
 PM
-aj
+FP
 PM
 PX
-aZ
+OE
 aZ
 aD
 aD
@@ -2652,13 +3176,13 @@ cL
 aD
 aZ
 aZ
-aZ
+Yp
 PX
 PM
-Js
+dp
 tw
 PX
-aD
+kA
 aD
 aD
 aD
@@ -2729,14 +3253,14 @@ aD
 aD
 aD
 aZ
-aZ
+Yp
 PX
 PX
-Js
+dp
 PX
 tw
 PX
-aZ
+OE
 aZ
 aD
 aD
@@ -2806,14 +3330,14 @@ fa
 fa
 fa
 cL
-cL
+zB
 PX
 PX
-aj
-aj
+Pn
+Ar
 tw
 PM
-aZ
+OE
 aZ
 aZ
 aD
@@ -2883,14 +3407,14 @@ aZ
 aZ
 aZ
 cL
-cL
+zB
 PX
 tw
-aj
-aj
+Pn
+fk
 PX
 PM
-aZ
+OE
 aZ
 aD
 aD
@@ -2960,14 +3484,14 @@ aZ
 aZ
 lf
 cL
-cL
+Xp
 PM
 tw
-aj
+FP
 PM
 PX
 PM
-aD
+bN
 aD
 aD
 fa
@@ -3036,14 +3560,14 @@ aD
 aZ
 aZ
 aZ
-cL
+zB
 PX
 PM
 PX
-aj
+FP
 PM
 PX
-aZ
+QD
 aD
 cL
 cL
@@ -3113,15 +3637,15 @@ aD
 aD
 aZ
 aD
-aD
+Jt
 PX
 PX
-aj
-aj
+gf
+Te
 PM
 PX
-aZ
-cL
+aq
+pi
 cL
 aD
 aZ
@@ -3191,15 +3715,15 @@ Ib
 cL
 aD
 aZ
-aZ
+Sm
 PX
 SK
-aj
-aj
+Pn
+Ar
 PX
 PX
 PX
-aZ
+OE
 aZ
 aZ
 aZ
@@ -3268,15 +3792,15 @@ cL
 aD
 aZ
 aZ
-aZ
+Yp
 PX
 PX
-aj
-br
+Pn
+zG
 PM
 PX
 PX
-aZ
+OE
 cL
 aZ
 aZ
@@ -3345,15 +3869,15 @@ kG
 aD
 aD
 aZ
-aZ
+Yp
 PX
 PM
-aj
+rN
 br
-br
+jt
 PM
 PX
-aD
+kA
 aD
 aD
 aZ
@@ -3422,16 +3946,16 @@ cL
 aD
 aD
 Bl
-kG
+nX
 PX
 PM
 PX
-aj
+Pn
 br
-br
+jt
 PM
 PX
-aZ
+OE
 aZ
 aD
 fa
@@ -3499,16 +4023,16 @@ lf
 aD
 kG
 Bl
-eE
+Fb
 PX
 PM
 PM
-aj
+Pn
 br
-br
+zG
 PM
 PX
-aZ
+OE
 aZ
 aD
 fa
@@ -3576,16 +4100,16 @@ aZ
 fa
 aD
 kG
-kG
+qb
 PX
 PX
 PX
-br
+Yr
 aj
-br
+xn
 PX
 tw
-aZ
+OE
 aZ
 aD
 fa
@@ -3652,17 +4176,17 @@ aZ
 aZ
 fa
 aD
-aZ
+Yp
 PM
 PX
+md
+bR
 br
-br
-br
-aj
+Te
 tw
 PX
 PM
-aD
+bN
 CH
 aD
 aZ
@@ -3729,16 +4253,16 @@ aZ
 aZ
 fa
 kG
-aZ
+Yp
 PX
 PX
 tw
-br
+Yr
 aj
-aj
+Te
 tw
 PX
-aD
+Fe
 aD
 aD
 aD
@@ -3806,15 +4330,15 @@ aD
 aD
 bG
 aD
-aD
+Jt
 PX
 PM
+qv
 aj
 aj
-aj
-aj
+fk
 PX
-aZ
+QD
 aZ
 cL
 iy
@@ -3883,15 +4407,15 @@ fa
 fa
 aD
 aZ
-aD
+WZ
 PX
+qv
 aj
 aj
-aj
-aj
+Te
 PX
 PX
-aZ
+OE
 aZ
 aD
 cL
@@ -3959,15 +4483,15 @@ aD
 aD
 aD
 aZ
-aZ
+Yp
 PX
 PX
-aj
+Pn
 aj
 br
-aj
+Te
 PM
-cL
+Cn
 aD
 aD
 aD
@@ -4036,15 +4560,15 @@ aD
 aD
 Fm
 aZ
-aZ
+Yp
 PX
 PM
+Pn
 aj
 aj
-aj
-aj
+fk
 PM
-aZ
+OE
 aZ
 cL
 cL
@@ -4113,15 +4637,15 @@ aD
 aD
 aZ
 aZ
-aZ
+Yp
 PX
 PM
+Pn
 aj
-aj
-aj
+Te
 PX
 PX
-aZ
+OE
 aZ
 cL
 cL
@@ -4190,32 +4714,32 @@ aD
 cL
 aD
 aZ
-aZ
+Yp
 PX
 PM
+Pn
 aj
-aj
-aj
+Te
 tw
 PX
-kX
-aZ
-cL
-cL
-cL
-aD
-aD
-kG
-kG
+il
+GR
+pi
+pi
+pi
+Pt
 aD
 kG
+kG
 aD
-aD
-aZ
-aZ
-aZ
-cL
-lf
+kG
+Pt
+Pt
+GR
+GR
+GR
+pi
+KG
 cL
 aD
 aZ
@@ -4267,12 +4791,12 @@ aD
 Fm
 cL
 aZ
-aZ
+Yp
 PX
 PX
+Pn
 aj
-aj
-aj
+Te
 PX
 PM
 PM
@@ -4281,11 +4805,11 @@ tw
 tw
 tw
 PX
-kG
-kG
-kG
+vT
+XO
+XO
 aD
-aD
+WZ
 PX
 tw
 PX
@@ -4293,8 +4817,8 @@ PM
 tw
 PX
 PX
-cL
-aZ
+Vg
+GR
 aZ
 aZ
 kG
@@ -4344,15 +4868,15 @@ cL
 cL
 cL
 aD
-aD
+Jt
 PM
 tw
+rN
 aj
 aj
-aj
-aj
-aj
-aj
+dB
+dB
+Ar
 PX
 PX
 PM
@@ -4361,7 +4885,7 @@ PX
 PX
 PX
 PX
-aD
+Dr
 PM
 PX
 PX
@@ -4372,9 +4896,9 @@ PX
 PX
 PX
 PX
-aZ
-aZ
-aD
+aq
+GR
+Pt
 kG
 aZ
 kG
@@ -4421,30 +4945,30 @@ aZ
 aD
 aD
 cL
-cL
+zB
 PX
 PX
 PM
-br
+Yr
 aj
 aj
 aj
 aj
-aj
-br
-br
-br
-br
+dB
+bR
+bR
+bR
+jt
 PM
 PM
 tw
 PX
 tw
 PX
-aj
-aj
-aj
-aj
+qv
+dB
+dB
+Ar
 PM
 PX
 tw
@@ -4452,7 +4976,7 @@ tw
 PM
 PM
 PX
-kG
+Wi
 aD
 kG
 aZ
@@ -4499,10 +5023,10 @@ fa
 aD
 cL
 cL
-cL
+PK
 PX
 PX
-br
+Yr
 br
 aj
 aj
@@ -4511,25 +5035,25 @@ aj
 aj
 br
 br
-br
+zG
 PM
 PM
 PX
 SK
+qv
+dB
 aj
 aj
 aj
 aj
-aj
-aj
-br
-aj
+bR
+Ar
 tw
 tw
 tw
 PX
 PM
-aZ
+OE
 aZ
 aZ
 aD
@@ -4577,19 +5101,10 @@ cL
 aD
 cL
 cL
-aD
+sg
 PX
-br
-br
-br
-aj
-aj
-aj
-aj
-aj
-aj
-br
-br
+qz
+hm
 br
 aj
 aj
@@ -4597,16 +5112,25 @@ aj
 aj
 aj
 aj
+br
+bR
+bR
+dB
+dB
 aj
 aj
 aj
 aj
 aj
 aj
+aj
+aj
+dB
+Ar
 PM
 PX
 PM
-aZ
+aq
 aZ
 aZ
 aD
@@ -4654,37 +5178,37 @@ cL
 aD
 aZ
 aZ
-aD
+Jt
 PX
 PX
 PM
-br
+qz
+ej
+ej
+ej
+ej
+ej
+aj
+aj
+aj
+ej
 aj
 aj
 aj
 aj
+ej
+hm
+hm
+ej
 aj
 aj
 aj
 aj
-aj
-aj
-aj
-aj
-aj
-aj
-br
-br
-aj
-aj
-aj
-aj
-aj
-aj
+Ar
 PX
 NY
 tw
-aD
+bN
 aD
 aD
 fa
@@ -4732,7 +5256,7 @@ fa
 aZ
 aZ
 aD
-aD
+sg
 PX
 PM
 PM
@@ -4741,27 +5265,27 @@ PM
 PM
 PM
 tw
+rN
 aj
-aj
-aj
+Te
 st
+Pn
 aj
-aj
-aj
-aj
+ej
+fk
 PX
 tw
 PM
 PM
+rN
 aj
 aj
 aj
-aj
-aj
+Te
 PM
 PX
 PM
-aD
+kA
 aZ
 CH
 CH
@@ -4810,20 +5334,20 @@ aZ
 aZ
 fa
 aD
-aD
+sg
 PX
 PX
-aD
+TC
 PM
 PM
 PM
 PM
 PX
-aj
-aj
-aj
-br
-aj
+rN
+ej
+vW
+hm
+fk
 PX
 PX
 PX
@@ -4831,15 +5355,15 @@ PM
 tw
 PX
 PM
-br
+Yr
 br
 aj
 aj
-br
+jt
 PM
 PX
 PM
-aZ
+OE
 dk
 dk
 fK
@@ -4888,9 +5412,9 @@ AP
 aZ
 aZ
 aD
-kG
-kG
-kG
+qQ
+qQ
+nX
 PX
 PM
 tw
@@ -4905,14 +5429,14 @@ PX
 PX
 PX
 PX
-aD
-aZ
+Fe
+Sm
 PM
-br
+Yr
 br
 aj
 aj
-br
+zG
 PM
 PX
 PX
@@ -4968,34 +5492,34 @@ cL
 aD
 kG
 kG
-aD
-aD
-aZ
-aZ
+gk
+gk
+Vj
+Sm
 PM
 PM
 PX
 PX
 PX
-aZ
-aZ
-aZ
+QD
+Vj
+Vj
+gk
+gk
 aD
-aD
-aD
-aZ
+Yp
 PM
-br
-br
+qz
+hm
 br
 aj
 aj
-aj
-br
+dB
+jt
 PX
 SK
 SK
-bU
+bo
 fK
 fK
 fK
@@ -5049,29 +5573,29 @@ aZ
 fa
 aZ
 aZ
-aD
-aZ
-aZ
-aZ
-cL
+gk
+Vj
+Vj
+Vj
+bz
 aZ
 aZ
 aZ
 aZ
 aD
 kG
-kG
+nX
 PX
 PM
 PM
-br
+Yr
 aj
 aj
 aj
-br
+zG
 PM
 PX
-bU
+oU
 bU
 cS
 bU
@@ -5138,16 +5662,16 @@ aD
 kG
 kG
 kG
-aD
+sg
 PX
 PX
+rN
+ej
+ej
+ej
 aj
-aj
-aj
-aj
-aj
-aj
-aj
+dB
+dB
 aj
 aj
 aj
@@ -5215,14 +5739,14 @@ cL
 aD
 aD
 aZ
-aZ
+Yp
 PM
 PX
 PM
 PM
 PX
 PX
-aj
+Pn
 aj
 aj
 aj
@@ -5299,7 +5823,7 @@ PX
 PX
 PX
 tw
-aj
+rN
 aj
 br
 br
@@ -5377,7 +5901,7 @@ fK
 SK
 PX
 PX
-bU
+xe
 bU
 bU
 bU
@@ -5455,7 +5979,7 @@ fK
 SK
 PX
 SK
-bU
+bo
 bU
 bU
 bU

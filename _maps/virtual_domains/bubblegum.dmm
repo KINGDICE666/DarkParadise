@@ -42,6 +42,10 @@
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors/virtual_domain)
+"y" = (
+/obj/effect/mob_spawn/human/miner,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors/virtual_domain)
 "z" = (
 /obj/structure/marker_beacon{
 	picked_color = "Purple"
@@ -1257,7 +1261,7 @@ a
 a
 a
 a
-a
+y
 a
 a
 a
@@ -2673,7 +2677,7 @@ Z
 Z
 Z
 a
-a
+y
 a
 a
 a

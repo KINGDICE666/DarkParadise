@@ -55,15 +55,15 @@
 /obj/machinery/quantum_server/proc/collect_mutation_candidates()
 	for(var/turf/tile as anything in domain_reservation.reserved_turfs)
 		for(var/mob/living/creature in tile)
-			if(creature.mind || creature.stat == DEAD)
+			if(creature.mind || ismegafauna(creature))
 				continue
-			mutation_candidate_refs += WEAKREF(creature)
+			mutation_candidate_refs |= WEAKREF(creature)
 
 /obj/machinery/quantum_server/proc/get_mutation_target()
 	while(length(mutation_candidate_refs))
 		var/datum/weakref/candidate_ref = pick_n_take(mutation_candidate_refs)
 		var/mob/living/candidate = candidate_ref.resolve()
-		if(!QDELETED(candidate) && isnull(candidate.mind) && candidate.stat != DEAD)
+		if(!QDELETED(candidate) && isnull(candidate.mind) && !ismegafauna(candidate))
 			return candidate
 
 /obj/machinery/quantum_server/proc/get_glitch_role()
@@ -123,7 +123,7 @@
 		humanoid_glitch.UpdateAppearance()
 		glitch = humanoid_glitch
 
-	qdel(mutation_target)
+	mutation_target.gib()
 	glitch.add_traits(list(TRAIT_TEMPORARY_BODY), INNATE_TRAIT)
 	if(ghost.mind)
 		glitch.AddComponent( \

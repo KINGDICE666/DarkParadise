@@ -39,6 +39,10 @@
 	},
 /turf/simulated/floor/indestructible/hierophant/two,
 /area/lavaland/surface/outdoors/virtual_domain)
+"D" = (
+/obj/effect/mob_spawn/human/miner,
+/turf/simulated/floor/indestructible/hierophant,
+/area/lavaland/surface/outdoors/virtual_domain)
 "E" = (
 /mob/living/simple_animal/hostile/megafauna/hierophant/virtual_domain,
 /turf/simulated/floor/indestructible/hierophant/two,
@@ -413,7 +417,7 @@ a
 r
 W
 r
-a
+D
 a
 r
 r
@@ -834,7 +838,7 @@ c
 a
 r
 r
-a
+D
 c
 K
 a

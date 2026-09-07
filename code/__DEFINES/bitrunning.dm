@@ -41,4 +41,6 @@
 #define ALERT_BITRUNNER_RESET "bitrunner_reset"
 #define ALERT_BITRUNNER_THREAT "bitrunner_threat"
 
+#define BIT_AVATAR_ASSIGNMENT "Bit Avatar"
+
 #define RED_PILL_ICON_STATE "pill4"

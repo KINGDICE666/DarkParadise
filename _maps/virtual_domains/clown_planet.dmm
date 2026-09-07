@@ -111,6 +111,7 @@
 /turf/simulated/floor/plating,
 /area/lavaland/surface/outdoors/virtual_domain)
 "fh" = (
+/obj/effect/mob_spawn/human/corpse/damaged,
 /obj/effect/decal/cleanable/blood,
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
@@ -286,6 +287,7 @@
 /turf/simulated/floor/indestructible/light,
 /area/lavaland/surface/outdoors/virtual_domain)
 "tv" = (
+/obj/effect/mob_spawn/human/corpse/damaged,
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/indestructible,
 /area/lavaland/surface/outdoors/virtual_domain)

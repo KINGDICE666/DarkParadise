@@ -56,6 +56,7 @@
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dirt,
 /obj/item/storage/toolbox/emergency,
+/obj/effect/turf_decal/tile/neutral,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/safehouse)
 "r" = (
@@ -85,6 +86,9 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/landmark/bitrunning/hololadder_spawn,
+/obj/effect/turf_decal/tile/neutral{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/safehouse)
 "D" = (
