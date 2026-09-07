@@ -58,6 +58,14 @@
 	polled_ghosts = null
 	return ..()
 
+/obj/machinery/quantum_server/on_deconstruction()
+	if(is_ready)
+		return
+	var/obj/item/circuitboard/machine/quantum_server/board = locate() in component_parts
+	if(board)
+		component_parts -= board
+		qdel(board)
+
 /obj/machinery/quantum_server/get_ru_names()
 	return alist(
 		NOMINATIVE = "квантовый сервер",
@@ -142,6 +150,18 @@
 	. = ..()
 	sever_connections()
 	update_icon(UPDATE_ICON_STATE)
+
+/obj/machinery/quantum_server/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
+	if(!istype(tool, /obj/item/bitrunning_debug))
+		return ..()
+
+	balloon_alert(user, "я в системе")
+	emagged = TRUE
+	glitch_chance = 0.5
+	capacitor_coefficient = 0.1
+	points = 100
+	update_icon(UPDATE_OVERLAYS)
+	return ITEM_INTERACT_SUCCESS
 
 /obj/machinery/quantum_server/crowbar_act(mob/living/user, obj/item/tool)
 	if(!is_ready)

@@ -71,6 +71,12 @@
 		/mob/living/carbon/human/lesser/monkey,
 	)
 
+/datum/modular_mob_segment/abductor_agents
+	mobs = list(
+		/mob/living/simple_animal/hostile/abductor,
+		/mob/living/simple_animal/hostile/abductor/ranged,
+	)
+
 /datum/modular_mob_segment/syndicate_team
 	mobs = list(
 		/mob/living/simple_animal/hostile/syndicate/ranged,

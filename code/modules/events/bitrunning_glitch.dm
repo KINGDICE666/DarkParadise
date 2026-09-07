@@ -6,7 +6,7 @@
 /datum/event/bitrunning_glitch/proc/wrapped_start()
 	var/list/obj/machinery/quantum_server/loaded_servers = list()
 	for(var/obj/machinery/quantum_server/server as anything in SSmachines.get_by_type(/obj/machinery/quantum_server))
-		if(isnull(server.generated_domain) || !server.is_operational() || !length(server.mutation_candidate_refs))
+		if(isnull(server.generated_domain) || server.generated_domain.difficulty == BITRUNNER_DIFFICULTY_NONE || !server.is_operational() || !length(server.mutation_candidate_refs))
 			continue
 		loaded_servers += server
 

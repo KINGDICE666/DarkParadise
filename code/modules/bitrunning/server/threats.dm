@@ -79,12 +79,12 @@
 	threat -= initial(chosen.threat) * 0.5
 	return chosen
 
-/obj/machinery/quantum_server/proc/setup_glitch()
+/obj/machinery/quantum_server/proc/setup_glitch(datum/antagonist/bitrunning_glitch/forced_role)
 	var/mob/living/mutation_target = get_mutation_target()
 	if(isnull(mutation_target))
 		return
 
-	var/datum/antagonist/bitrunning_glitch/chosen_role = get_glitch_role()
+	var/datum/antagonist/bitrunning_glitch/chosen_role = forced_role || get_glitch_role()
 	if(isnull(chosen_role))
 		return
 
