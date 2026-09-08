@@ -101,6 +101,18 @@
 		dug = TRUE
 		return .|ATTACK_CHAIN_SUCCESS
 
+/turf/simulated/floor/beach/coast
+	name = "coastline"
+	icon_state = "beach"
+	footstep = FOOTSTEP_WATER
+	barefootstep = FOOTSTEP_WATER
+	clawfootstep = FOOTSTEP_WATER
+	heavyfootstep = FOOTSTEP_WATER
+	baseturf = /turf/simulated/floor/beach/coast
+
+/turf/simulated/floor/beach/coast/corner
+	icon_state = "beachcorner"
+
 /turf/simulated/floor/beach/coastline
 	name = "coastline"
 	icon = 'icons/misc/beach2.dmi'

@@ -14,7 +14,7 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "bc" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 10
 	},
 /area/virtual_domain/fullbright)
@@ -25,7 +25,7 @@
 /area/virtual_domain/protected_space)
 "by" = (
 /obj/structure/flora/tree/palm,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "bA" = (
 /obj/effect/turf_decal/weather/dirt,
@@ -70,15 +70,13 @@
 /obj/item/gun/energy/laser{
 	pixel_y = -3
 	},
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "db" = (
 /turf/simulated/floor/beach/water,
 /area/virtual_domain/protected_space)
 "dc" = (
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "dN" = (
 /obj/machinery/door/airlock/vault{
@@ -91,7 +89,7 @@
 /obj/effect/turf_decal/weather/dirt{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 6
 	},
 /area/virtual_domain/protected_space)
@@ -123,16 +121,14 @@
 /area/virtual_domain/fullbright)
 "gu" = (
 /obj/structure/flora/ausbushes,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/coast,
 /area/virtual_domain/fullbright)
 "gx" = (
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "gD" = (
 /obj/item/flashlight/flare/torch,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "gK" = (
 /obj/structure/flora/ausbushes,
@@ -153,7 +149,7 @@
 /area/virtual_domain/fullbright)
 "jp" = (
 /obj/effect/landmark/bitrunning/cache_spawn,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "jE" = (
 /turf/simulated/floor/wood,
@@ -189,7 +185,7 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "mp" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 4
 	},
 /area/virtual_domain/fullbright)
@@ -199,13 +195,11 @@
 	pixel_y = 11
 	},
 /obj/effect/mob_spawn/human/alive/virtual_domain/pirate,
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "nr" = (
 /mob/living/simple_animal/hostile/pirate,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "nN" = (
 /obj/structure/flora/rock,
@@ -228,7 +222,7 @@
 /area/virtual_domain/fullbright)
 "ps" = (
 /obj/machinery/smartfridge/drying_rack,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "py" = (
 /turf/simulated/wall/indestructible/binary,
@@ -282,12 +276,12 @@
 	pixel_y = 1
 	},
 /obj/effect/decal/cleanable/cobweb,
-/obj/item/toy/plushie,
+/obj/item/toy/plushie/nianplushie/beeplushie,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "sj" = (
 /obj/effect/mine/explosive,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "td" = (
 /obj/effect/decal/cleanable/dirt,
@@ -311,9 +305,7 @@
 /area/virtual_domain)
 "tQ" = (
 /obj/structure/barricade/sandbags,
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "ub" = (
 /turf/template_noop,
@@ -334,9 +326,7 @@
 	pixel_x = 8;
 	pixel_y = 6
 	},
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "wj" = (
 /obj/effect/decal/cleanable/dirt,
@@ -370,12 +360,15 @@
 "xp" = (
 /turf/simulated/floor/beach/water,
 /area/virtual_domain/fullbright)
+"xG" = (
+/turf/simulated/floor/beach/coast,
+/area/virtual_domain/fullbright)
 "yF" = (
 /obj/effect/light_emitter{
 	light_power = 3;
 	light_range = 5
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/coast,
 /area/virtual_domain/fullbright)
 "zc" = (
 /obj/item/gun/energy/laser{
@@ -403,7 +396,7 @@
 /area/virtual_domain/safehouse)
 "zU" = (
 /obj/structure/flora/tree/jungle,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "zW" = (
 /obj/structure/flora/ausbushes{
@@ -441,7 +434,7 @@
 /area/virtual_domain)
 "BV" = (
 /obj/structure/bonfire,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "BX" = (
 /obj/structure/flora/ausbushes{
@@ -481,9 +474,10 @@
 "FP" = (
 /obj/effect/decal/cleanable/cobweb,
 /obj/machinery/jukebox,
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
+/area/virtual_domain/fullbright)
+"Gg" = (
+/turf/simulated/floor/beach/coast/corner,
 /area/virtual_domain/fullbright)
 "Gl" = (
 /obj/structure/flora/rock/pile,
@@ -537,7 +531,7 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/protected_space/fullbright)
 "JX" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast/corner{
 	dir = 1
 	},
 /area/virtual_domain/fullbright)
@@ -590,13 +584,11 @@
 /area/virtual_domain/protected_space/fullbright)
 "Mf" = (
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "MG" = (
 /obj/structure/barricade/sandbags,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "NB" = (
 /obj/effect/turf_decal/weather/dirt{
@@ -615,9 +607,7 @@
 "NP" = (
 /mob/living/simple_animal/hostile/pirate/ranged,
 /obj/structure/chair/wood,
-/turf/simulated/floor/wood{
-	icon_state = "wood_large"
-	},
+/turf/simulated/floor/wood/fancy/oak,
 /area/virtual_domain/fullbright)
 "NU" = (
 /obj/structure/flora/grass/jungle{
@@ -631,7 +621,7 @@
 /turf/simulated/floor/plating/asteroid,
 /area/virtual_domain/protected_space)
 "Ov" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 6
 	},
 /area/virtual_domain/fullbright)
@@ -717,7 +707,7 @@
 /obj/item/reagent_containers/food/drinks{
 	pixel_y = -10
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Xn" = (
 /obj/modular_map_root/safehouse{
@@ -737,14 +727,14 @@
 /area/virtual_domain/fullbright)
 "XW" = (
 /obj/effect/mob_spawn/human/corpse/pirate,
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 8
 	},
 /area/virtual_domain/fullbright)
 "Yr" = (
 /obj/effect/mob_spawn/human/corpse/pirate,
 /obj/effect/decal/cleanable/blood/gibs,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "YJ" = (
 /obj/structure/table/wood,
@@ -769,7 +759,7 @@
 /area/virtual_domain)
 "Za" = (
 /obj/structure/barricade/wooden,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Zq" = (
 /obj/structure/railing{
@@ -1156,7 +1146,7 @@ MG
 MG
 dc
 dc
-dc
+Gg
 mp
 mp
 mp
@@ -1244,7 +1234,7 @@ dc
 dc
 hX
 dc
-dc
+xG
 xp
 xp
 xp
@@ -1287,7 +1277,7 @@ Za
 dc
 wP
 XP
-dc
+Gg
 Ov
 xp
 xp
@@ -1331,7 +1321,7 @@ dc
 dc
 lK
 Zt
-dc
+xG
 xp
 xp
 xp
@@ -1375,7 +1365,7 @@ dc
 dc
 Zq
 Ci
-dc
+xG
 xp
 xp
 xp
@@ -1419,7 +1409,7 @@ dc
 dc
 bb
 ER
-dc
+xG
 xp
 xp
 xp
@@ -1463,7 +1453,7 @@ dc
 dc
 dc
 Ci
-dc
+xG
 xp
 xp
 xp
@@ -1507,7 +1497,7 @@ gx
 dc
 dc
 dc
-dc
+xG
 xp
 xp
 xp
@@ -1551,7 +1541,7 @@ gx
 tQ
 dc
 by
-dc
+xG
 xp
 xp
 xp
@@ -1595,7 +1585,7 @@ gx
 tQ
 dc
 dc
-dc
+xG
 xp
 xp
 xp
@@ -1639,7 +1629,7 @@ NP
 tQ
 dc
 dc
-dc
+xG
 xp
 xp
 xp
@@ -1683,7 +1673,7 @@ tQ
 tQ
 dc
 dc
-dc
+xG
 xp
 xp
 xp
@@ -1727,7 +1717,7 @@ dc
 dc
 dc
 dc
-dc
+xG
 xp
 xp
 xp

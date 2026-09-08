@@ -1228,10 +1228,7 @@
 /obj/structure/bed/dogbed{
 	name = "cat bed"
 	},
-/obj/item/toy/plushie{
-	pixel_x = 3;
-	pixel_y = 4
-	},
+/obj/item/toy/plushie/nianplushie,
 /obj/machinery/light/small{
 	dir = 2
 	},

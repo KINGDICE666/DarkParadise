@@ -38,23 +38,23 @@
 /mob/living/simple_animal/crab{
 	name = "Jonny"
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "bC" = (
 /mob/living/simple_animal/crab{
 	name = "James"
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "bM" = (
 /mob/living/simple_animal/crab{
 	name = "Jon"
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "bQ" = (
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/coast,
 /area/virtual_domain/fullbright)
 "bS" = (
 /obj/machinery/chem_master/condimaster{
@@ -77,7 +77,9 @@
 /obj/machinery/jukebox,
 /obj/item/coin/gold,
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/plasteel{
+	icon_state = "sepia"
+	},
 /area/virtual_domain/fullbright)
 "cG" = (
 /obj/structure/flora/ausbushes/sparsegrass,
@@ -114,7 +116,7 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "dj" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 1
 	},
 /area/virtual_domain/fullbright)
@@ -123,7 +125,9 @@
 	dir = 8
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/plasteel{
+	icon_state = "sepia"
+	},
 /area/virtual_domain/fullbright)
 "dI" = (
 /obj/machinery/light{
@@ -170,13 +174,15 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "gE" = (
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/plasteel{
+	icon_state = "sepia"
+	},
 /area/virtual_domain/fullbright)
 "gJ" = (
 /obj/structure/railing{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 4
 	},
 /area/virtual_domain/fullbright)
@@ -212,7 +218,7 @@
 /area/virtual_domain/fullbright)
 "jl" = (
 /obj/structure/flora/rock/pile,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "jy" = (
 /obj/effect/decal/fakelattice,
@@ -223,7 +229,7 @@
 /area/virtual_domain/fullbright)
 "jW" = (
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "ke" = (
 /obj/structure/marker_beacon{
@@ -239,7 +245,9 @@
 	dir = 8
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/plasteel{
+	icon_state = "sepia"
+	},
 /area/virtual_domain/fullbright)
 "kv" = (
 /turf/simulated/wall/indestructible/binary,
@@ -267,7 +275,10 @@
 /turf/simulated/wall/mineral/sandstone,
 /area/virtual_domain/fullbright)
 "lS" = (
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/light{
+	icon_state = "light_on-dancefloor_A";
+	state = 9
+	},
 /area/virtual_domain/fullbright)
 "ml" = (
 /turf/template_noop,
@@ -279,7 +290,7 @@
 "mG" = (
 /obj/structure/easel,
 /obj/item/canvas/twentythree_twentythree,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "mX" = (
 /obj/structure/closet/secure_closet/freezer/meat/open,
@@ -295,6 +306,11 @@
 /obj/item/stack/sheet/metal/fifty,
 /turf/simulated/floor/plating,
 /area/virtual_domain/fullbright)
+"oC" = (
+/turf/simulated/floor/beach/coast/corner{
+	dir = 1
+	},
+/area/virtual_domain/fullbright)
 "oE" = (
 /obj/structure/railing{
 	dir = 1
@@ -302,7 +318,7 @@
 /obj/machinery/light{
 	dir = 2
 	},
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast/corner{
 	dir = 8
 	},
 /area/virtual_domain/fullbright)
@@ -325,13 +341,13 @@
 /obj/machinery/light{
 	dir = 2
 	},
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 1
 	},
 /area/virtual_domain/fullbright)
 "qc" = (
 /obj/structure/extinguisher_cabinet/directional/south,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "qR" = (
 /obj/effect/spawner/window,
@@ -342,7 +358,7 @@
 /mob/living/simple_animal/chicken{
 	name = "Chicken Joe"
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "rc" = (
 /obj/machinery/light{
@@ -360,7 +376,7 @@
 /obj/item/canvas/twentythree_twentythree,
 /obj/item/canvas/twentythree_twentythree,
 /obj/item/canvas/twentythree_twentythree,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "sT" = (
 /obj/effect/baseturf_helper/virtual_domain,
@@ -432,7 +448,7 @@
 /obj/structure/chair/stool{
 	dir = 2
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "vL" = (
 /obj/structure/sign/poster/official/cohiba_robusto_ad,
@@ -449,7 +465,7 @@
 /obj/structure/railing{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/coast/corner,
 /area/virtual_domain/fullbright)
 "wb" = (
 /obj/structure/closet/crate/freezer{
@@ -473,7 +489,7 @@
 /obj/item/reagent_containers/food/drinks/drinkingglass,
 /obj/item/reagent_containers/food/drinks/drinkingglass,
 /obj/item/reagent_containers/food/drinks/drinkingglass,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "xk" = (
 /obj/structure/table/wood/poker,
@@ -553,7 +569,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "yB" = (
 /obj/item/instrument/guitar,
@@ -569,7 +585,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 8
 	},
 /area/virtual_domain/fullbright)
@@ -591,11 +607,13 @@
 	dir = 8
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/plasteel{
+	icon_state = "sepia"
+	},
 /area/virtual_domain/fullbright)
 "Ae" = (
 /obj/structure/chair,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Al" = (
 /turf/simulated/mineral/volcanic/lava_land_surface,
@@ -623,13 +641,13 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "Bu" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast{
 	dir = 8
 	},
 /area/virtual_domain/fullbright)
 "Bw" = (
 /obj/structure/flora/ausbushes/sparsegrass,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "BD" = (
 /obj/structure/table/wood,
@@ -650,7 +668,7 @@
 /mob/living/simple_animal/crab{
 	name = "Eddie"
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Cv" = (
 /obj/machinery/hydroponics/constructable,
@@ -725,7 +743,7 @@
 	dir = 4
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "FY" = (
 /obj/structure/mineral_door/wood,
@@ -733,7 +751,7 @@
 /area/virtual_domain/fullbright)
 "Gz" = (
 /obj/structure/flora/tree/palm,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "GA" = (
 /obj/structure/window/reinforced{
@@ -793,7 +811,7 @@
 /area/virtual_domain/fullbright)
 "Jt" = (
 /obj/item/reagent_containers/food/drinks/drinkingglass,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "JE" = (
 /obj/structure/closet/secure_closet/freezer/kitchen/open,
@@ -805,7 +823,7 @@
 /area/virtual_domain/fullbright)
 "JY" = (
 /obj/structure/flora/rock,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "KH" = (
 /obj/structure/mineral_door/wood{
@@ -845,7 +863,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Nw" = (
 /obj/structure/bed{
@@ -869,7 +887,10 @@
 /area/virtual_domain/fullbright)
 "NX" = (
 /obj/effect/landmark/bitrunning/loot_signal,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/light{
+	icon_state = "light_on-dancefloor_A";
+	state = 9
+	},
 /area/virtual_domain/fullbright)
 "OE" = (
 /obj/effect/mob_spawn/human/alive/virtual_domain/beach{
@@ -881,7 +902,7 @@
 /obj/machinery/light{
 	dir = 2
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "OW" = (
 /obj/structure/sink/kitchen/directional/east{
@@ -901,7 +922,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Pg" = (
 /obj/effect/mob_spawn/human/alive/virtual_domain/beach/bartender{
@@ -980,7 +1001,7 @@
 "UU" = (
 /obj/structure/flora/ausbushes,
 /obj/structure/flora/ausbushes,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Ve" = (
 /obj/machinery/processor,
@@ -1002,7 +1023,7 @@
 /area/virtual_domain/fullbright)
 "VX" = (
 /obj/structure/flora/ausbushes,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "We" = (
 /obj/structure/table/wood,
@@ -1035,7 +1056,7 @@
 /turf/simulated/wall/mineral/sandstone,
 /area/virtual_domain/fullbright)
 "Xt" = (
-/turf/simulated/floor/plating/asteroid{
+/turf/simulated/floor/beach/coast/corner{
 	dir = 4
 	},
 /area/virtual_domain/fullbright)
@@ -1069,7 +1090,10 @@
 	dir = 8
 	},
 /obj/effect/turf_decal/sand,
-/turf/simulated/floor/plating/asteroid,
+/turf/simulated/floor/beach/sand,
+/area/virtual_domain/fullbright)
+"YV" = (
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain/fullbright)
 "Zg" = (
 /obj/structure/table,
@@ -1574,9 +1598,9 @@ Fn
 HV
 Fn
 Fn
-bQ
+YV
 cv
-bQ
+YV
 Bw
 JY
 Fn
@@ -1616,11 +1640,11 @@ pT
 pT
 pT
 PM
-bQ
-bQ
+YV
+YV
 cv
-bQ
-bQ
+YV
+YV
 OR
 Fn
 ug
@@ -1659,11 +1683,11 @@ Et
 pT
 pT
 PM
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
 qc
 Fn
 Fn
@@ -1703,12 +1727,12 @@ Fn
 Fn
 Fn
 Gz
-bQ
+YV
 Bw
 rm
-bQ
-bQ
-bQ
+YV
+YV
+YV
 Ii
 dx
 kn
@@ -1744,14 +1768,14 @@ ab
 Ir
 IP
 YN
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
 mG
 vv
 Bw
-bQ
+YV
 Rx
 gE
 lS
@@ -1787,14 +1811,14 @@ jW
 bC
 jW
 jW
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
 Bw
-bQ
-bQ
-bQ
+YV
+YV
+YV
 Rx
 gE
 lS
@@ -1825,19 +1849,19 @@ Fn
 Fn
 KH
 LG
-bQ
-bQ
-bQ
+YV
+YV
+YV
 Bw
-bQ
+YV
 VX
-bQ
+YV
 UU
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
 Rx
 gE
 lS
@@ -1865,22 +1889,22 @@ Fn
 tE
 tE
 Fn
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
 jc
 gE
 gE
@@ -1905,10 +1929,10 @@ kv
 Al
 Fn
 jl
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
 FS
 jW
 jW
@@ -1918,12 +1942,12 @@ jW
 jW
 jW
 FS
-bQ
-bQ
-bQ
+YV
+YV
+YV
 wb
-bQ
-bQ
+YV
+YV
 vT
 gJ
 gJ
@@ -1947,11 +1971,11 @@ kv
 kv
 Al
 Fn
-bQ
-bQ
+YV
+YV
 Bw
-bQ
-bQ
+YV
+YV
 BM
 BM
 BM
@@ -1962,11 +1986,11 @@ Iv
 BM
 BM
 Nr
-bQ
+YV
 yl
 ag
-bQ
-bQ
+YV
+YV
 bQ
 KZ
 Ww
@@ -1991,10 +2015,10 @@ kv
 Al
 Fn
 Fn
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
 BM
 Zg
 VH
@@ -2004,12 +2028,12 @@ hE
 hE
 mX
 BM
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
+YV
 bQ
 Ww
 Ww
@@ -2035,9 +2059,9 @@ Al
 gl
 Fn
 Cb
-bQ
-bQ
-bQ
+YV
+YV
+YV
 BM
 aw
 hE
@@ -2047,12 +2071,12 @@ aw
 hE
 hE
 ya
-bQ
-bQ
+YV
+YV
 YJ
 YJ
-bQ
-bQ
+YV
+YV
 bQ
 Ww
 Ww
@@ -2077,10 +2101,10 @@ kv
 Al
 gl
 Fn
-bQ
+YV
 Gz
 WX
-bQ
+YV
 BM
 Em
 hE
@@ -2090,12 +2114,12 @@ aw
 hE
 hE
 cb
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
+YV
 bQ
 Ww
 Ww
@@ -2120,10 +2144,10 @@ kv
 Al
 gl
 XM
-bQ
+YV
 Gz
 LW
-bQ
+YV
 BM
 bS
 hE
@@ -2133,12 +2157,12 @@ vq
 hE
 hE
 vN
-bQ
-bQ
+YV
+YV
 XP
 yB
-bQ
-bQ
+YV
+YV
 bQ
 KZ
 Ww
@@ -2164,9 +2188,9 @@ Al
 gl
 Fn
 Nr
-bQ
-bQ
-bQ
+YV
+YV
+YV
 BM
 Ve
 rc
@@ -2176,12 +2200,12 @@ hE
 hE
 CO
 BM
-bQ
+YV
 Bw
 ys
-bQ
-bQ
-bQ
+YV
+YV
+YV
 bQ
 Ww
 Ww
@@ -2207,9 +2231,9 @@ Al
 Fn
 Fn
 Bw
-bQ
-bQ
-bQ
+YV
+YV
+YV
 BM
 BM
 BM
@@ -2219,12 +2243,12 @@ BM
 BM
 BM
 er
-bQ
+YV
 GA
 xq
 jy
-bQ
-bQ
+YV
+YV
 bQ
 Ww
 cG
@@ -2249,10 +2273,10 @@ kv
 Al
 Fn
 Nr
-bQ
-bQ
+YV
+YV
 Bw
-bQ
+YV
 YN
 jW
 jW
@@ -2262,11 +2286,11 @@ jW
 jW
 jW
 YN
-bQ
+YV
 xR
 CA
 Uh
-bQ
+YV
 qW
 bQ
 Ww
@@ -2291,27 +2315,27 @@ pr
 kv
 Al
 Fn
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
 Jt
-bQ
-dj
+YV
+oC
 zn
 Bu
 Bu
@@ -2338,20 +2362,20 @@ Ds
 Ds
 Fn
 VX
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
 ys
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
+YV
+YV
+YV
+YV
 jW
 Fn
 Fn
@@ -2388,12 +2412,12 @@ qR
 Fn
 Fn
 VX
-bQ
+YV
 Bw
-bQ
-bQ
-bQ
-bQ
+YV
+YV
+YV
+YV
 bM
 jW
 aE
@@ -2434,9 +2458,9 @@ Fn
 qR
 Fn
 Fn
-bQ
-bQ
-bQ
+YV
+YV
+YV
 Ae
 jW
 zw
@@ -2478,9 +2502,9 @@ OE
 Nw
 Fn
 Gz
-bQ
-bQ
-bQ
+YV
+YV
+YV
 jW
 xw
 xw
@@ -2520,10 +2544,10 @@ hE
 hE
 dI
 Fn
-bQ
-bQ
+YV
+YV
 Bw
-bQ
+YV
 jW
 zw
 xw

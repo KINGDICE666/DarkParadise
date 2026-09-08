@@ -36,7 +36,6 @@
 	name = "Factory Quartermaster"
 	uniform = /obj/item/clothing/under/rank/cargo
 	suit = null
-	head = /obj/item/clothing/head/soft/yellow
 	shoes = /obj/item/clothing/shoes/jackboots
 	l_pocket = /obj/item/melee/baton/telescopic
 	r_pocket = /obj/item/stamp/qm

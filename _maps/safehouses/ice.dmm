@@ -18,7 +18,7 @@
 /area/virtual_domain/safehouse)
 "e" = (
 /obj/modular_map_connector,
-/turf/simulated/wall/mineral,
+/turf/simulated/wall/ice,
 /area/virtual_domain/safehouse)
 "f" = (
 /obj/effect/decal/cleanable/dirt,
@@ -30,7 +30,7 @@
 /turf/simulated/floor/plating/snow,
 /area/virtual_domain/safehouse)
 "i" = (
-/turf/simulated/wall/mineral,
+/turf/simulated/wall/ice,
 /area/virtual_domain/safehouse)
 "m" = (
 /obj/effect/decal/cleanable/dirt,

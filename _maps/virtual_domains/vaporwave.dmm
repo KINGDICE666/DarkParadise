@@ -54,7 +54,7 @@
 /area/virtual_domain)
 "fQ" = (
 /obj/structure/flora/tree/palm,
-/turf/simulated/floor,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain)
 "gM" = (
 /obj/structure/table/reinforced,
@@ -64,14 +64,14 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "hN" = (
-/turf/simulated/floor,
+/turf/simulated/floor/beach/water,
 /area/virtual_domain)
 "iP" = (
 /obj/machinery/suit_storage_unit/standard_unit,
 /turf/template_noop,
 /area/virtual_domain/safehouse)
 "kj" = (
-/obj/effect/spawner/window{
+/obj/structure/window/basic{
 	dir = 4
 	},
 /obj/structure/closet/crate/secure/bitrunning/encrypted,
@@ -106,7 +106,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/turf/simulated/floor,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain)
 "qH" = (
 /obj/structure/closet/crate/can,
@@ -125,6 +125,9 @@
 "xK" = (
 /turf/simulated/wall,
 /area/virtual_domain)
+"zY" = (
+/turf/simulated/floor/beach/coast,
+/area/virtual_domain)
 "AX" = (
 /obj/effect/turf_decal/stripes/asteroid/line,
 /obj/effect/turf_decal/sand/plating,
@@ -132,10 +135,13 @@
 /area/ruin/space/virtual_domain)
 "Cq" = (
 /obj/item/instrument/eguitar,
-/turf/simulated/floor,
+/turf/simulated/floor/beach/sand,
+/area/virtual_domain)
+"Cy" = (
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain)
 "Dk" = (
-/obj/effect/spawner/window{
+/obj/structure/window/basic{
 	dir = 4
 	},
 /turf/simulated/floor/plasteel,
@@ -170,7 +176,7 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "Jr" = (
-/obj/effect/spawner/window{
+/obj/structure/window/basic{
 	dir = 8
 	},
 /turf/simulated/floor/plasteel,
@@ -200,10 +206,10 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/turf/simulated/floor,
+/turf/simulated/floor/beach/sand,
 /area/virtual_domain)
 "Nz" = (
-/obj/effect/spawner/window{
+/obj/structure/window/basic{
 	dir = 4
 	},
 /obj/structure/table/reinforced,
@@ -492,9 +498,9 @@ LJ
 qH
 xK
 fQ
-hN
+Cy
 qm
-hN
+zY
 hN
 xK
 aA
@@ -734,7 +740,7 @@ bJ
 fQ
 Cq
 LP
-hN
+zY
 hN
 bJ
 aA

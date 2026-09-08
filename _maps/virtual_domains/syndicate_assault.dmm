@@ -725,7 +725,7 @@
 /obj/item/ammo_box/magazine/smgm45,
 /obj/item/ammo_box/magazine/smgm45,
 /obj/item/ammo_box/magazine/smgm45,
-/obj/item/gun/projectile/automatic,
+/obj/item/gun/projectile/automatic/smg/c20r,
 /turf/simulated/floor/mineral/plastitanium,
 /area/virtual_domain/protected_space)
 "EB" = (

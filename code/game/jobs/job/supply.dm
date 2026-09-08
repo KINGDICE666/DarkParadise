@@ -93,7 +93,6 @@
 	jobtype = /datum/job/supply/bitrunner
 
 	uniform = /obj/item/clothing/under/rank/bitrunner
-	shoes = /obj/item/clothing/shoes/black
 	l_ear = /obj/item/radio/headset/headset_cargo
 	id = /obj/item/card/id/supply
 	pda = /obj/item/pda/cargo

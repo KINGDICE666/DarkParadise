@@ -82,12 +82,14 @@
 		var/datum/milla_safe/freeze_z_level/milla_freeze = new()
 		milla_freeze.invoke_async(bottom_left.z)
 		UNTIL(milla_freeze.done)
+		SSatoms.map_loader_begin()
 		GLOB.maploader.load_map(
 			file(load_path),
 			bottom_left.x,
 			bottom_left.y,
 			bottom_left.z,
 		)
+		SSatoms.map_loader_stop()
 		for(var/turf/turf as anything in block(bottom_left, top_right))
 			loaded_turfs += turf
 			loaded_areas |= get_area(turf)

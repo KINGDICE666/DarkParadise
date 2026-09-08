@@ -29,7 +29,7 @@
 	if(bitrunners_alive)
 		to_chat(antag, span_warning("В домене всё ещё хозяйничают чужаки ([bitrunners_alive] шт.). Пока с ними не разберутся, выбраться будет тяжелее."))
 
-	if(!do_after(antag, timeout) || QDELETED(chosen_forge) || QDELETED(src) || !is_ready || !is_operational())
+	if(!do_after(antag, timeout) || QDELETED(chosen_forge) || QDELETED(antag) || QDELETED(src) || !is_ready || !is_operational())
 		chosen_forge.setup_particles()
 		return
 

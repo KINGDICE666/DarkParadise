@@ -42,6 +42,11 @@
 		open_machine()
 		return
 
+	if(isnull(server.generated_domain) || !server.is_ready)
+		balloon_alert(pilot, "домен не загружен!")
+		open_machine()
+		return
+
 	var/mob/living/carbon/human/avatar = avatar_ref?.resolve()
 	if(isnull(avatar) || avatar.stat != CONSCIOUS)
 		avatar = server.start_new_connection(pilot, copy_body, netsuit)

@@ -7,7 +7,7 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "aI" = (
 /obj/item/bikehorn/airhorn,
@@ -15,14 +15,14 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "aM" = (
 /obj/item/bikehorn,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "aP" = (
 /obj/structure/disposalpipe/segment{
 	dir = 10
 	},
-/obj/effect/decal/cleanable,
-/turf/simulated/floor/indestructible,
+/obj/effect/decal/cleanable/pie_smudge,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "ba" = (
 /obj/structure/mecha_wreckage/honker,
@@ -37,7 +37,7 @@
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "bp" = (
 /turf/simulated/floor/indestructible/light,
@@ -46,7 +46,7 @@
 /obj/structure/disposalpipe/segment{
 	dir = 10
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "by" = (
 /obj/effect/baseturf_helper/virtual_domain,
@@ -57,7 +57,7 @@
 	dir = 4;
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "bR" = (
 /obj/item/paper/crumpled/bloody/ruins/lavaland/clown_planet/hope,
@@ -74,7 +74,7 @@
 /obj/structure/disposalpipe/segment{
 	dir = 6
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "cM" = (
 /obj/structure/disposalpipe/trunk{
@@ -85,12 +85,19 @@
 	},
 /turf/simulated/floor/plating,
 /area/lavaland/surface/outdoors/virtual_domain)
+"cO" = (
+/obj/structure/disposalpipe/segment{
+	dir = 4;
+	invisibility = 101
+	},
+/turf/simulated/floor/indestructible/medical_white,
+/area/lavaland/surface/outdoors/virtual_domain)
 "cW" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "ed" = (
 /obj/structure/disposalpipe/segment{
@@ -99,10 +106,10 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "eE" = (
-/obj/effect/spawner/window/reinforced{
+/obj/structure/window/reinforced{
 	dir = 2
 	},
 /obj/structure/disposalpipe/segment{
@@ -116,7 +123,7 @@
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "gd" = (
 /obj/structure/disposalpipe/segment{
@@ -137,13 +144,13 @@
 "gH" = (
 /obj/item/bikehorn,
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "gK" = (
 /obj/structure/disposalpipe/segment{
 	dir = 9
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "hK" = (
 /obj/item/clothing/head/cone,
@@ -183,7 +190,7 @@
 	dir = 5
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "lj" = (
 /obj/structure/disposalpipe/trunk{
@@ -201,7 +208,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "lr" = (
 /obj/item/bikehorn,
@@ -209,7 +216,7 @@
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "ly" = (
 /obj/structure/disposalpipe/segment{
@@ -218,20 +225,23 @@
 /turf/simulated/wall/indestructible/binary,
 /area/virtual_domain/fullbright)
 "lP" = (
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "mD" = (
 /turf/simulated/floor/plating,
 /area/lavaland/surface/outdoors/virtual_domain)
 "mE" = (
 /obj/structure/disposalpipe/segment,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "mF" = (
 /turf/simulated/floor/carpet,
 /area/lavaland/surface/outdoors/virtual_domain)
 "nE" = (
 /turf/simulated/wall/r_wall,
+/area/lavaland/surface/outdoors/virtual_domain)
+"od" = (
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "oI" = (
 /obj/structure/table/glass,
@@ -240,7 +250,10 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "pl" = (
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
+/area/lavaland/surface/outdoors/virtual_domain)
+"pY" = (
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "qM" = (
 /obj/structure/disposalpipe/segment{
@@ -249,7 +262,7 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "rg" = (
 /obj/item/coin/clown,
@@ -267,13 +280,17 @@
 	invisibility = 101
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "sq" = (
 /obj/machinery/light{
 	dir = 1
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
+/area/lavaland/surface/outdoors/virtual_domain)
+"tj" = (
+/obj/effect/decal/cleanable/cobweb,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "tq" = (
 /obj/effect/spawner/window/reinforced,
@@ -289,7 +306,7 @@
 "tv" = (
 /obj/effect/mob_spawn/human/corpse/damaged,
 /obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "tF" = (
 /turf/simulated/wall/indestructible/binary,
@@ -303,6 +320,12 @@
 	dir = 4
 	},
 /turf/simulated/floor/carpet,
+/area/lavaland/surface/outdoors/virtual_domain)
+"ui" = (
+/obj/structure/disposalpipe/segment{
+	dir = 10
+	},
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "uX" = (
 /mob/living/simple_animal/hostile/retaliate/clown,
@@ -318,7 +341,7 @@
 	},
 /obj/structure/table,
 /obj/item/paper/crumpled/bloody/ruins/lavaland/clown_planet/escape,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "wz" = (
 /obj/machinery/light/small{
@@ -335,7 +358,7 @@
 /area/virtual_domain/safehouse)
 "yd" = (
 /obj/effect/decal/cleanable/cobweb,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "yz" = (
 /obj/structure/disposalpipe/segment{
@@ -354,7 +377,7 @@
 	dir = 9
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "zA" = (
 /obj/structure/statue/bananium/clown,
@@ -369,13 +392,19 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/lavaland/surface/outdoors/virtual_domain)
+"Ac" = (
+/obj/structure/disposalpipe/segment{
+	dir = 9
+	},
+/turf/simulated/floor/indestructible/medical_white,
+/area/lavaland/surface/outdoors/virtual_domain)
 "Bi" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4;
 	invisibility = 101
 	},
 /obj/effect/decal/cleanable/cobweb,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Cp" = (
 /obj/structure/disposalpipe/segment{
@@ -385,7 +414,7 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Cs" = (
 /obj/item/bikehorn,
@@ -393,14 +422,20 @@
 	dir = 4;
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "DL" = (
 /obj/structure/disposalpipe/segment{
 	dir = 5
 	},
 /obj/item/bikehorn,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
+/area/lavaland/surface/outdoors/virtual_domain)
+"Ew" = (
+/obj/machinery/light{
+	dir = 1
+	},
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Fb" = (
 /obj/structure/disposalpipe/segment{
@@ -409,6 +444,12 @@
 	},
 /turf/simulated/wall/indestructible/binary,
 /area/virtual_domain/fullbright)
+"Fp" = (
+/obj/structure/disposalpipe/segment{
+	dir = 5
+	},
+/turf/simulated/floor/indestructible/medical_white,
+/area/lavaland/surface/outdoors/virtual_domain)
 "FI" = (
 /obj/item/reagent_containers/food/drinks/drinkingglass,
 /obj/structure/table/glass,
@@ -431,7 +472,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ie" = (
 /obj/structure/disposalpipe/segment{
@@ -444,7 +485,7 @@
 	dir = 10
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "IN" = (
 /obj/structure/disposalpipe/segment{
@@ -460,15 +501,20 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ka" = (
-/obj/effect/decal/cleanable,
-/turf/simulated/floor/indestructible,
+/obj/effect/decal/cleanable/pie_smudge,
+/turf/simulated/floor/lubed,
+/area/lavaland/surface/outdoors/virtual_domain)
+"Kd" = (
+/obj/effect/mob_spawn/human/corpse/damaged,
+/obj/effect/decal/cleanable/blood,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "KG" = (
 /obj/item/pickaxe,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "KI" = (
 /obj/structure/disposalpipe/segment{
@@ -485,7 +531,11 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
+/area/lavaland/surface/outdoors/virtual_domain)
+"Nl" = (
+/obj/effect/decal/cleanable/dirt,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "NB" = (
 /obj/machinery/disposal,
@@ -508,14 +558,14 @@
 /obj/structure/disposalpipe/segment{
 	dir = 10
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ov" = (
 /obj/structure/disposalpipe/segment{
 	dir = 6
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "PJ" = (
 /obj/structure/disposalpipe/trunk,
@@ -533,7 +583,7 @@
 	invisibility = 101
 	},
 /obj/item/pickaxe,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "QP" = (
 /turf/template_noop,
@@ -546,7 +596,7 @@
 /obj/structure/disposalpipe/segment{
 	dir = 5
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Rx" = (
 /obj/structure/disposalpipe/segment{
@@ -555,15 +605,15 @@
 	},
 /obj/structure/table,
 /obj/item/flashlight/lamp/bananalamp,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Sg" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4;
 	invisibility = 101
 	},
-/obj/effect/decal/cleanable,
-/turf/simulated/floor/indestructible,
+/obj/effect/decal/cleanable/pie_smudge,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Sm" = (
 /obj/structure/disposalpipe/segment{
@@ -572,11 +622,11 @@
 /turf/simulated/wall/r_wall,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Tm" = (
-/obj/effect/decal/cleanable,
+/obj/effect/decal/cleanable/pie_smudge,
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Tx" = (
 /obj/structure/disposalpipe/segment{
@@ -622,7 +672,7 @@
 /obj/structure/disposalpipe/segment{
 	invisibility = 101
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Vx" = (
 /obj/structure/disposalpipe/segment{
@@ -630,6 +680,12 @@
 	},
 /turf/simulated/wall/indestructible/binary,
 /area/virtual_domain/fullbright)
+"VG" = (
+/obj/structure/disposalpipe/segment{
+	dir = 6
+	},
+/turf/simulated/floor/indestructible/medical_white,
+/area/lavaland/surface/outdoors/virtual_domain)
 "VI" = (
 /obj/structure/disposalpipe/segment{
 	dir = 10
@@ -645,14 +701,14 @@
 	invisibility = 101
 	},
 /obj/effect/decal/cleanable/dirt,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "WB" = (
 /obj/machinery/disposal{
 	dir = 1
 	},
 /obj/structure/disposalpipe/trunk,
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "WT" = (
 /obj/machinery/door/airlock/bananium{
@@ -664,7 +720,7 @@
 /obj/machinery/light{
 	dir = 2
 	},
-/turf/simulated/floor/indestructible,
+/turf/simulated/floor/mineral/bananium/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "ZR" = (
 /obj/structure/disposalpipe/trunk{
@@ -1015,8 +1071,8 @@ Sm
 KI
 KI
 nE
-yd
-lP
+tj
+pY
 lP
 pl
 pl
@@ -1058,12 +1114,12 @@ Ww
 KI
 TH
 KI
-bQ
+cO
 Cp
 uY
 nE
-sq
-lP
+Ew
+pY
 lP
 nE
 nE
@@ -1103,14 +1159,14 @@ yZ
 bQ
 bQ
 KI
-bQ
-bQ
-bQ
+cO
+cO
+cO
 KG
 uY
 nE
 nE
-lP
+pY
 lP
 lP
 pl
@@ -1149,14 +1205,14 @@ Rh
 KI
 Ww
 KI
-bQ
-bQ
+cO
+cO
 tt
 bp
-lP
-lP
-lP
-lP
+od
+pY
+pY
+pY
 lP
 nE
 lP
@@ -1195,14 +1251,14 @@ yZ
 Ww
 Ww
 KI
-bQ
+cO
 PQ
 tt
 bp
 uY
 nE
-lP
-lP
+pY
+pY
 lP
 lP
 nE
@@ -1242,12 +1298,12 @@ Ww
 yz
 gK
 KI
-bQ
+cO
 Lv
-lP
+od
 nE
 nE
-lP
+pY
 lP
 lP
 nE
@@ -1382,7 +1438,7 @@ TK
 Tm
 UQ
 yZ
-pl
+Nl
 bQ
 bq
 Rh
@@ -1477,7 +1533,7 @@ Rh
 Ok
 mE
 rH
-pl
+Nl
 nE
 mF
 Gg
@@ -1518,12 +1574,12 @@ Ww
 bQ
 bQ
 bQ
-lP
+pY
 bq
 Rh
 Ka
 KI
-tv
+Kd
 nE
 FI
 mF
@@ -1610,9 +1666,9 @@ bQ
 Ww
 bQ
 KI
-cw
+VG
 ed
-gK
+Ac
 nE
 UL
 Sm
@@ -1656,13 +1712,13 @@ KI
 Ww
 KI
 uZ
-bQ
+cO
 bp
 bp
 uY
 nE
 bQ
-lP
+pY
 lP
 lP
 nE
@@ -1702,7 +1758,7 @@ ki
 Ww
 KI
 Rx
-bQ
+cO
 bp
 bp
 WB
@@ -1742,19 +1798,19 @@ nE
 ik
 nE
 nE
-lP
+pY
 bQ
 bQ
 Cs
 bQ
-bQ
-bq
-Rh
-lP
+cO
+ui
+Fp
+od
 uY
 nE
-lP
-lP
+pY
+pY
 lP
 lP
 pl
@@ -1788,18 +1844,18 @@ nE
 ik
 nE
 nE
-pl
+Nl
 bQ
 KI
 bQ
 KI
 KI
-cw
+VG
 lm
 uY
 nE
-sq
-lP
+Ew
+pY
 lP
 lP
 lP
@@ -1834,7 +1890,7 @@ nE
 ik
 ik
 nE
-yd
+tj
 bQ
 bQ
 bQ
@@ -1843,8 +1899,8 @@ gK
 KI
 nE
 nE
-lP
-lP
+pY
+pY
 lP
 lP
 lP
@@ -1931,7 +1987,7 @@ nE
 mD
 nE
 Ka
-lP
+pY
 mD
 nE
 ik

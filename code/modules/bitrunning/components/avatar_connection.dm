@@ -66,7 +66,6 @@
 
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
 	if(server)
-		server.avatar_connection_refs -= WEAKREF(src)
 		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT, COMSIG_BITRUNNER_THREAT_CREATED, COMSIG_BITRUNNER_BROADCAST_TOGGLED))
 
 	stop_broadcast()
@@ -83,6 +82,9 @@
 		return COMPONENT_INCOMPATIBLE
 
 	pod.avatar_ref = WEAKREF(parent)
+	if(bodycam)
+		stop_broadcast()
+		start_broadcast()
 
 /datum/component/avatar_connection/RegisterWithParent()
 	ADD_TRAIT(parent, TRAIT_TEMPORARY_BODY, NETPOD_TRAIT)
@@ -108,6 +110,10 @@
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
 	pod?.disconnect_occupant(cause_damage)
+
+	var/obj/machinery/quantum_server/server = server_ref?.resolve()
+	if(server)
+		server.avatar_connection_refs -= WEAKREF(src)
 
 	qdel(src)
 

@@ -108,9 +108,6 @@
 /obj/structure/fans/tiny,
 /turf/simulated/floor/plasteel/white,
 /area/virtual_domain/safehouse)
-"G" = (
-/turf/simulated/wall/mineral,
-/area/virtual_domain/safehouse)
 "H" = (
 /turf/simulated/floor/plasteel,
 /area/virtual_domain/safehouse)
@@ -129,7 +126,7 @@
 /obj/structure/shuttle/engine/propulsion/burst{
 	dir = 8
 	},
-/obj/effect/spawner/window/reinforced{
+/obj/structure/window/reinforced{
 	dir = 4
 	},
 /obj/effect/turf_decal/stripes/line{
@@ -178,10 +175,10 @@ A
 o
 W
 D
-G
+i
 "}
 (3,1,1) = {"
-G
+i
 c
 H
 U
@@ -194,10 +191,10 @@ z
 H
 b
 Y
-G
+i
 "}
 (5,1,1) = {"
-G
+i
 c
 O
 b
@@ -210,13 +207,13 @@ q
 n
 L
 B
-G
+i
 "}
 (7,1,1) = {"
 i
-G
+i
 a
 a
-G
+i
 i
 "}
