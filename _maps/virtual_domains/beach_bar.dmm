@@ -852,11 +852,11 @@
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "Mw" = (
-/obj/structure/chair/sofa/bench/right,
+/obj/structure/chair/sofa/left,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "Mz" = (
-/obj/structure/chair/sofa/bench/left,
+/obj/structure/chair/sofa/right,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "Nr" = (
