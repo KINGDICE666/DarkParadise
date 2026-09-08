@@ -576,10 +576,10 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 
 	for(var/obj/item/clothing/accessory/accessory as anything in w_uniform.accessories)
 		var/acc_state_type = accessory.item_state ? accessory.item_state : accessory.icon_state
-		var/mutable_appearance/acc_olay = mutable_appearance(accessory.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING], acc_state_type, alpha = accessory.alpha)
+		var/acc_sheet = accessory.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING]
+		acc_sheet = accessory.sprite_sheets?[dna.species.name] || dna.species.worn_sheets?[acc_sheet] || acc_sheet
+		var/mutable_appearance/acc_olay = mutable_appearance(acc_sheet, acc_state_type, alpha = accessory.alpha)
 		acc_olay.color = accessory.color
-		if(accessory.sprite_sheets?[dna.species.name])
-			acc_olay.icon = accessory.sprite_sheets[dna.species.name]
 		uniform_overlay.overlays += acc_olay
 
 	// over_uniform body marks
@@ -1190,7 +1190,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/mutable_appearance/standing = null
 
 	if(wear_suit)
-		C = new(wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING])
+		C = new(dna.species.worn_sheets?[wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING]] || wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING])
 		if(wear_suit.sprite_sheets && wear_suit.sprite_sheets[dna.species.name])
 			var/icon_path = "[wear_suit.sprite_sheets[dna.species.name]]"
 			icon_path = "[copytext(icon_path, 1, findtext(icon_path, "/suit.dmi"))]/collar.dmi" //If this file doesn't exist, the end result is that COLLAR_LAYER will be unchanged (empty).
@@ -1367,6 +1367,8 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
 	//Find a valid icon file from variables+arguments
 	var/file2use = override_file || (species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null)  || default_icon_file
+	if(!isinhands && istype(wearer))
+		file2use = wearer.dna?.species.worn_sheets?[file2use] || file2use
 	//Find a valid layer from variables+arguments
 	var/layer2use = default_layer
 

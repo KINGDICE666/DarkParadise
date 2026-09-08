@@ -262,6 +262,7 @@
 #define SPECIES_SKELETON "Skeleton"
 #define SPECIES_SKRELL "Skrell"
 #define SPECIES_SLIMEPERSON "Slime People"
+#define SPECIES_SWINE "Trottine"
 #define SPECIES_TAJARAN "Tajaran"
 
 #define SPECIES_UNATHI "Unathi"
@@ -319,6 +320,7 @@ GLOBAL_LIST_INIT(ru_species, list(
 	SPECIES_SKELETON = "скелет",
 	SPECIES_SKRELL = "скрелл",
 	SPECIES_SLIMEPERSON = "слаймолюд",
+	SPECIES_SWINE = "троттин",
 	SPECIES_TAJARAN = "таяран",
 	SPECIES_UNATHI = "унати",
 	SPECIES_ASHWALKER_BASIC = "пеплоходец",
