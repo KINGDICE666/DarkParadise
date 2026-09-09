@@ -1,3 +1,0 @@
-#define UNIT_TESTS
-#include "paradise.dme"
-#include "bitrunner-review-probes.dm"
