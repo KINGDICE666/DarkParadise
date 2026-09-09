@@ -1072,6 +1072,10 @@
 "XP" = (
 /turf/simulated/floor/carpet/blue,
 /area/virtual_domain/fullbright)
+"XU" = (
+/obj/item/beach_ball,
+/turf/simulated/floor/beach/sand,
+/area/virtual_domain/fullbright)
 "Yq" = (
 /obj/machinery/portable_atmospherics/canister/air,
 /turf/simulated/floor/plating,
@@ -1812,7 +1816,7 @@ bC
 jW
 jW
 YV
-YV
+XU
 YV
 YV
 Bw

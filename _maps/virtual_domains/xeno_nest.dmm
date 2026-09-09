@@ -67,7 +67,9 @@
 /area/virtual_domain)
 "p" = (
 /obj/structure/alien/weeds,
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/simple_animal/hostile/alien/drone{
+	plants_off = 1
+	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/virtual_domain)
 "q" = (
@@ -80,7 +82,9 @@
 /area/virtual_domain/safehouse)
 "s" = (
 /obj/structure/alien/weeds/node,
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/simple_animal/hostile/alien/drone{
+	plants_off = 1
+	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/virtual_domain)
 "t" = (
@@ -158,10 +162,11 @@
 /area/virtual_domain)
 "J" = (
 /obj/structure/alien/weeds,
-/mob/living/simple_animal/hostile/alien/queen{
+/mob/living/simple_animal/hostile/alien/queen/large{
 	desc = "A gigantic alien who is in charge of the hive and all of its loyal servants.";
 	name = "alien queen";
-	pixel_x = -16
+	pixel_x = -16;
+	plants_off = 1
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/virtual_domain)

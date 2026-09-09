@@ -62,7 +62,7 @@
 "bR" = (
 /obj/item/paper/crumpled/bloody/ruins/lavaland/clown_planet/hope,
 /obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "bU" = (
 /obj/structure/disposalpipe/segment{
@@ -154,7 +154,7 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "hK" = (
 /obj/item/clothing/head/cone,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "hY" = (
 /turf/template_noop,
@@ -163,10 +163,10 @@
 /obj/structure/disposalpipe/trunk{
 	dir = 8
 	},
-/obj/machinery/disposal{
+/obj/machinery/disposal/deliveryChute{
 	dir = 4
 	},
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "ik" = (
 /turf/simulated/floor/lava,
@@ -196,7 +196,7 @@
 /obj/structure/disposalpipe/trunk{
 	dir = 4
 	},
-/obj/machinery/disposal{
+/obj/machinery/disposal/deliveryChute{
 	dir = 8
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -254,6 +254,13 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "pY" = (
 /turf/simulated/floor/lubed,
+/area/lavaland/surface/outdoors/virtual_domain)
+"qH" = (
+/obj/structure/disposalpipe/sortjunction/reversed{
+	dir = 1;
+	sortType = 3
+	},
+/turf/simulated/wall/r_wall,
 /area/lavaland/surface/outdoors/virtual_domain)
 "qM" = (
 /obj/structure/disposalpipe/segment{
@@ -329,7 +336,7 @@
 /area/lavaland/surface/outdoors/virtual_domain)
 "uX" = (
 /mob/living/simple_animal/hostile/retaliate/clown,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "uY" = (
 /turf/simulated/mineral,
@@ -348,7 +355,7 @@
 	dir = 2
 	},
 /mob/living/simple_animal/hostile/retaliate/clown,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "xt" = (
 /obj/modular_map_root/safehouse{
@@ -390,7 +397,7 @@
 /obj/structure/disposaloutlet{
 	dir = 8
 	},
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ac" = (
 /obj/structure/disposalpipe/segment{
@@ -538,20 +545,20 @@
 /turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "NB" = (
-/obj/machinery/disposal,
+/obj/machinery/disposal/deliveryChute,
 /obj/structure/disposalpipe/trunk{
 	dir = 1
 	},
 /turf/simulated/floor/carpet,
 /area/lavaland/surface/outdoors/virtual_domain)
 "NL" = (
-/obj/machinery/disposal{
+/obj/machinery/disposal/deliveryChute{
 	desc = "The following is engraved upon the chute: A FATE WORSE THAN DEATH LIES WITHIN";
 	dir = 1;
 	name = "THE TRIAL OF HONKITUDE"
 	},
 /obj/structure/disposalpipe/trunk,
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ok" = (
 /obj/item/bikehorn,
@@ -572,7 +579,7 @@
 /obj/structure/disposaloutlet{
 	dir = 1
 	},
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "PM" = (
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -693,7 +700,7 @@
 /turf/simulated/wall/indestructible/binary,
 /area/virtual_domain/fullbright)
 "VQ" = (
-/turf/simulated/floor/plasteel,
+/turf/simulated/floor/noslip,
 /area/lavaland/surface/outdoors/virtual_domain)
 "Ww" = (
 /obj/structure/disposalpipe/segment{
@@ -704,7 +711,7 @@
 /turf/simulated/floor/lubed,
 /area/lavaland/surface/outdoors/virtual_domain)
 "WB" = (
-/obj/machinery/disposal{
+/obj/machinery/disposal/deliveryChute{
 	dir = 1
 	},
 /obj/structure/disposalpipe/trunk,
@@ -1521,7 +1528,7 @@ VQ
 uX
 PJ
 TK
-nE
+qH
 kn
 bQ
 bQ

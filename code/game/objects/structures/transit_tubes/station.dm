@@ -263,7 +263,7 @@
 	base_icon_state = "terminusdispenser0"
 
 /obj/structure/transit_tube/station/dispenser/reverse/init_tube_dirs()
-	tube_dirs = list(turn(dir, 90))
+	tube_dirs = list(turn(dir, -90))
 	boarding_dir = reverse_direction(dir)
 
 /obj/structure/transit_tube/station/dispenser/reverse/flipped

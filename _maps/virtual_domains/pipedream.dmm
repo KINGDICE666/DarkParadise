@@ -6,7 +6,7 @@
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "aw" = (
-/obj/structure/disposalpipe/sortjunction{
+/obj/structure/disposalpipe/sortjunction/reversed{
 	dir = 1
 	},
 /turf/simulated/floor/plating,
