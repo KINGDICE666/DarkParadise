@@ -1,7 +1,15 @@
 /obj/machinery/quantum_server/proc/add_threats(mob/living/threat)
 	spawned_threat_refs += WEAKREF(threat)
-	threat.AddComponent(/datum/component/virtual_entity, src)
+	if(emagged)
+		announce_jailbreak(threat)
+	else
+		threat.AddComponent(/datum/component/virtual_entity, src)
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_THREAT_CREATED)
+
+/obj/machinery/quantum_server/proc/announce_jailbreak(mob/living/threat)
+	to_chat(threat, span_bolddanger("На мгновение вас пробирает дрожь от небывалой ясности."))
+	to_chat(threat, span_notice("Вы могли бы пойти <i>куда угодно</i>. Даже покинуть эту симуляцию прямо сейчас."))
+	to_chat(threat, span_danger("Но учтите: квантовая запутанность сотрёт всё, чем вы были раньше."))
 
 /obj/machinery/quantum_server/proc/remove_threat(mob/living/threat)
 	spawned_threat_refs -= WEAKREF(threat)

@@ -99,6 +99,10 @@
 	TEST_ASSERT_NOTNULL(glitch.alerts[ALERT_BITRUNNER_GLITCH], "breaking the byteforge did not alert the glitch")
 	TEST_ASSERT(glitch.has_movespeed_modifier(/datum/movespeed_modifier/glitch_slowdown), "breaking the byteforge did not slow the glitch down")
 
+	var/mob/living/carbon/human/late_threat = allocate(/mob/living/carbon/human, pick(server.goal_turfs))
+	server.add_threats(late_threat)
+	TEST_ASSERT_NULL(late_threat.GetComponent(/datum/component/virtual_entity), "a threat spawned on an emagged server was still bound to the domain")
+
 	server.scrub_vdom()
 
 /datum/unit_test/room_test/bitrunning_domains
