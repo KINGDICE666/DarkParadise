@@ -87,6 +87,23 @@
 	threat -= initial(chosen.threat) * 0.5
 	return chosen
 
+/proc/get_glitch_ready_servers()
+	. = list()
+	for(var/obj/machinery/quantum_server/server as anything in SSmachines.get_by_type(/obj/machinery/quantum_server))
+		if(server.can_spawn_glitch())
+			. += server
+
+/obj/machinery/quantum_server/proc/can_spawn_glitch()
+	if(isnull(generated_domain) || generated_domain.difficulty == BITRUNNER_DIFFICULTY_NONE || !is_operational())
+		return FALSE
+
+	for(var/datum/weakref/candidate_ref as anything in mutation_candidate_refs)
+		var/mob/living/candidate = candidate_ref.resolve()
+		if(!QDELETED(candidate) && isnull(candidate.mind) && !ismegafauna(candidate))
+			return TRUE
+
+	return FALSE
+
 /obj/machinery/quantum_server/proc/setup_glitch(datum/antagonist/bitrunning_glitch/forced_role)
 	var/mob/living/mutation_target = get_mutation_target()
 	if(isnull(mutation_target))
@@ -110,7 +127,7 @@
 		qdel(mutation_target.GetComponent(/datum/component/digital_aura))
 		return
 
-	spawn_glitch(chosen_role, mutation_target, pick(candidates))
+	return spawn_glitch(chosen_role, mutation_target, pick(candidates))
 
 /obj/machinery/quantum_server/proc/spawn_glitch(datum/antagonist/bitrunning_glitch/chosen_role, mob/living/mutation_target, mob/dead/observer/ghost)
 	if(QDELETED(mutation_target))
@@ -151,6 +168,7 @@
 	add_threats(glitch)
 	playsound(glitch, 'sound/effects/phasein.ogg', 50, TRUE)
 	message_admins("[key_name_admin(glitch)] was made into a bitrunning glitch at [ADMIN_JMP(src)].")
+	return glitch
 
 /obj/machinery/quantum_server/proc/has_awake_glitch()
 	for(var/datum/weakref/threat_ref as anything in spawned_threat_refs)

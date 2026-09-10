@@ -134,7 +134,7 @@
 	to_wear.belt = /obj/item/bitrunning_host_monitor
 	to_wear.glasses = null
 	to_wear.gloves = null
-	to_wear.l_ear = null
+	to_wear.l_ear = /obj/item/radio/headset/headset_cargo/virtual
 	to_wear.r_ear = null
 	if(!generated_domain.forced_outfit)
 		to_wear.l_hand = null

@@ -28,6 +28,7 @@
 	TEST_ASSERT_NOTNULL(safehouse, "the domain loaded without its modular safehouse")
 	TEST_ASSERT(length(server.mutation_candidate_refs), "no mutation candidates were collected from the domain")
 	TEST_ASSERT_NOTNULL(server.get_glitch_role(), "no glitch role was available at zero threat")
+	TEST_ASSERT(server in get_glitch_ready_servers(), "the glitch event could not find the server running a domain")
 
 	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human)
 	var/obj/item/disk/bitrunning/item/tier1/program = allocate(/obj/item/disk/bitrunning/item/tier1)
@@ -39,6 +40,17 @@
 	TEST_ASSERT(locate(/obj/item/pizzabox/infinite) in avatar, "the carried program did not load its gear onto the avatar")
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
+
+	var/mob/living/carbon/human/crewman = allocate(/mob/living/carbon/human, anchor)
+	crewman.equipOutfit(/datum/outfit/job/cargo_tech)
+	var/obj/item/radio/headset/crew_headset = crewman.l_ear
+	var/obj/item/radio/headset/avatar_headset = avatar.l_ear
+	var/supply_freq = SSradio.return_frequency(SUP_FREQ).frequency
+
+	TEST_ASSERT(istype(avatar_headset, /obj/item/radio/headset/headset_cargo/virtual), "the avatar was not given a virtual headset")
+	TEST_ASSERT(avatar_headset.receive_range(supply_freq, list(crewman.z)) > -1, "the avatar cannot hear the station on its virtual headset")
+	TEST_ASSERT(crew_headset.receive_range(supply_freq, list(0)) > -1, "the station cannot hear a domain broadcast")
+	TEST_ASSERT_EQUAL(crew_headset.receive_range(supply_freq, list(avatar.z)), -1, "an ordinary headset started hearing across z-levels")
 
 	var/list/console_data = console.ui_data(pilot)
 	TEST_ASSERT(console_data["connected"], "the console reported no server in its interface data")
@@ -69,6 +81,7 @@
 	TEST_ASSERT_NULL(server.domain_reservation, "scrubbing did not release the domain reservation")
 	TEST_ASSERT_EQUAL(length(server.exit_turfs), 0, "scrubbing did not clear the exit turfs")
 	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")
+	TEST_ASSERT(!length(get_glitch_ready_servers()), "the glitch event still offered a server with no domain loaded")
 
 /datum/unit_test/room_test/bitrunning_escape
 
