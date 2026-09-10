@@ -16,6 +16,7 @@
 	)
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	bodyflags = HAS_HEAD_ACCESSORY | HAS_HAIR | HAS_SKIN_TONE
+	fit_profile = /datum/species_fit/swine
 	reagent_tag = ORGANIC
 
 	blood_species = "Trottine"
@@ -48,7 +49,6 @@
 
 	worn_sheets = list(
 		DEFAULT_ICON_JUMPSUIT = 'icons/mob/clothing/species/swine/uniform.dmi',
-		DEFAULT_ICON_OUTER_SUIT = 'icons/mob/clothing/species/swine/suit.dmi',
 		DEFAULT_ICON_BACK = 'icons/mob/clothing/species/swine/back.dmi',
 		DEFAULT_ICON_BELT = 'icons/mob/clothing/species/swine/belt.dmi',
 		DEFAULT_ICON_SUITSTORE = 'icons/mob/clothing/species/swine/belt_mirror.dmi',

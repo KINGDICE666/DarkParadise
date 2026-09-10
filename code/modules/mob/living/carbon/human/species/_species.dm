@@ -147,6 +147,7 @@
 
 	var/bodyflags = 0
 	var/list/worn_sheets
+	var/fit_profile
 
 	var/blood_color = BLOOD_COLOR_RED
 	var/flesh_color = "#d1aa2e" //Gold.

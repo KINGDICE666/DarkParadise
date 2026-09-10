@@ -1367,14 +1367,21 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
 	//Find a valid icon file from variables+arguments
 	var/file2use = override_file || (species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null)  || default_icon_file
+	var/icon/fitted_icon
 	if(!isinhands && istype(wearer))
-		file2use = wearer.dna?.species.worn_sheets?[file2use] || file2use
+		var/datum/species/wearer_species = wearer.dna?.species
+		var/species_sheet = wearer_species?.worn_sheets?[file2use]
+		if(species_sheet)
+			file2use = species_sheet
+		else
+			var/datum/species_fit/species_fit = get_species_fit(wearer_species?.fit_profile)
+			fitted_icon = species_fit?.fit_worn_icon(src, file2use, t_state)
 	//Find a valid layer from variables+arguments
 	var/layer2use = default_layer
 
 	var/mutable_appearance/draw_target // MA of the item itself, not the final result
 
-	draw_target = mutable_appearance(file2use, t_state, layer = -layer2use)
+	draw_target = mutable_appearance(fitted_icon || file2use, fitted_icon ? "" : t_state, layer = -layer2use)
 
 	//Get the overlays for this item when it's being worn
 	//eg: ammo counters, primed grenade flashes, etc.
