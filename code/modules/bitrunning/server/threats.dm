@@ -107,10 +107,12 @@
 /obj/machinery/quantum_server/proc/setup_glitch(datum/antagonist/bitrunning_glitch/forced_role)
 	var/mob/living/mutation_target = get_mutation_target()
 	if(isnull(mutation_target))
+		log_debug("vdom: [src] had no valid mutation target left for a glitch")
 		return
 
 	var/datum/antagonist/bitrunning_glitch/chosen_role = forced_role || get_glitch_role()
 	if(isnull(chosen_role))
+		log_debug("vdom: [src] had no glitch role available at threat [threat]")
 		return
 
 	mutation_target.AddComponent(/datum/component/digital_aura)
@@ -125,6 +127,7 @@
 
 	if(!length(candidates))
 		qdel(mutation_target.GetComponent(/datum/component/digital_aura))
+		log_debug("vdom: nobody signed up to play a glitch on [src]")
 		return
 
 	return spawn_glitch(chosen_role, mutation_target, pick(candidates))
