@@ -357,8 +357,10 @@
 	M.update_icon(UPDATE_ICON_STATE)
 
 /obj/machinery/obj_break(damage_flag)
-	if(!(obj_flags & NODECONSTRUCT))
-		stat |= BROKEN
+	if(obj_flags & NODECONSTRUCT || stat & BROKEN)
+		return
+	stat |= BROKEN
+	SEND_SIGNAL(src, COMSIG_MACHINERY_BROKEN, damage_flag)
 
 /obj/machinery/proc/default_deconstruction_crowbar(mob/user, obj/item/I, ignore_panel = 0)
 	add_fingerprint(user)

@@ -259,6 +259,7 @@ GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 #define islava(A) (istype(A, /turf/simulated/floor/lava))
 
 #define ischasm(A) (istype(A, /turf/simulated/floor/chasm))
+#define iscliffturf(A) (istype(A, /turf/simulated/floor/cliff))
 
 #define issingularity(atom) (istype(atom, /obj/singularity))
 

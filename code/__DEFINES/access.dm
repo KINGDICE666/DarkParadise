@@ -74,6 +74,7 @@
 #define ACCESS_MINERAL_STOREROOM 76
 #define ACCESS_NETWORK 77
 #define ACCESS_INVESTOR 78
+#define ACCESS_BITRUNNING 79
 
 #define ACCESS_WEAPONS 99 //Weapon authorization for secbots
 

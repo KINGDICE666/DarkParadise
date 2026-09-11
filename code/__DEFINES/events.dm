@@ -11,6 +11,7 @@
 #define EVENT_APC_OVERLOAD "Перегрузка ЛКП"
 #define EVENT_APC_SHORTAGE "Замыкание ЛКП"
 #define EVENT_APPENDIX "Аппендицит"
+#define EVENT_BITRUNNING_GLITCH "Сбой домена"
 #define EVENT_BLOB "Блоб"
 #define EVENT_BORER_INFESTATION "Нашествие бореров"
 #define EVENT_BRAIN_TRAUMA "Спонтанная травма мозга"

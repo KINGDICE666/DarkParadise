@@ -144,7 +144,7 @@
 		if(JOB_TITLE_HOS)
 			O = new /datum/outfit/plasmaman/hos
 
-		if(JOB_TITLE_CARGOTECH)
+		if(JOB_TITLE_CARGOTECH, JOB_TITLE_BITRUNNER)
 			O = new /datum/outfit/plasmaman/cargo
 
 		if(JOB_TITLE_QUARTERMASTER)

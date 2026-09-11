@@ -67,6 +67,7 @@
 #define SPECIAL_ROLE_HONKSQUAD "Honksquad"
 #define SPECIAL_ROLE_REV "Revolutionary"
 #define SPECIAL_ROLE_MORPH "Morph"
+#define SPECIAL_ROLE_GLITCH "Digital Glitch"
 #define SPECIAL_ROLE_MULTIVERSE "Multiverse Traveller"
 #define SPECIAL_ROLE_HIGHLANDER "Highlander"
 #define SPECIAL_ROLE_NUKEOPS "Syndicate"

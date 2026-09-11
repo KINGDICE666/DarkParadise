@@ -540,6 +540,10 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/awaystart)
 	name = JOB_TITLE_CARGOTECH
 	icon_state = "Cargo_Tech"
 
+/obj/effect/landmark/start/bitrunner
+	name = JOB_TITLE_BITRUNNER
+	icon_state = "Bitrunner"
+
 /obj/effect/landmark/start/shaft_miner
 	name = JOB_TITLE_MINER
 	icon_state = "Miner"

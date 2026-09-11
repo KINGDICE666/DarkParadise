@@ -48,6 +48,7 @@
 #define ROLE_DEATHSQUAD "deathsquad"
 #define ROLE_EVENTMISC "eventmisc"
 #define ROLE_GHOST "ghost role"
+#define ROLE_GLITCH "digital glitch"
 #define ROLE_ELITE "lavaland elite"
 #define ROLE_SPACE_DRAGON "space dragon"
 #define ROLE_MALF_AI "Malfunctioning AI"
@@ -68,6 +69,7 @@ GLOBAL_LIST_INIT(special_roles, list(
 	ROLE_CLOCKER = /datum/game_mode/clockwork, // Clockwork Cultist
 	ROLE_DEMON, // Demons (Slaughter/Laughter/Shadow)
 	ROLE_DEVIL, // Devil
+	ROLE_GLITCH, // Digital glitch
 	ROLE_GSPIDER, // Giant spider
 	ROLE_GUARDIAN, // Guardian
 	ROLE_HERETIC, // Heretic
