@@ -19,10 +19,13 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/trunk_states = list("torso_m", "groin_m")
 	var/list/limb_states = list("l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 	var/list/head_states = list("head_m")
+	var/list/tier_states
+	var/max_squash = 1
 	var/list/steps = list(
 		/datum/fit_step/mark_bare_skin,
 		/datum/fit_step/warp,
 		/datum/fit_step/edge_repair,
+		/datum/fit_step/span_remap,
 		/datum/fit_step/vertical_warp,
 		/datum/fit_step/cover_skin,
 		/datum/fit_step/keep_solid,
@@ -39,6 +42,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/target_body_masks
 	var/list/warp_maps
 	var/list/row_maps
+	var/list/span_maps
+	var/list/pixel_tier_maps
 	var/list/shrunk_masks
 	var/list/step_instances
 	var/list/icon_cache
@@ -47,6 +52,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/built = FALSE
 
 /datum/species_fit/New()
+	if(!tier_states)
+		tier_states = list(head_states, list("l_foot", "r_foot"), list("l_hand", "r_hand"), trunk_states,
+			list("l_leg", "r_leg"), list("l_arm", "r_arm"))
 	icon_cache = list()
 	disk_cache = list()
 	step_instances = list()
@@ -57,13 +65,15 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(built)
 		return
 	built = TRUE
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
 	target_body_masks = list()
 	warp_maps = list()
 	row_maps = list()
+	span_maps = list()
+	pixel_tier_maps = list()
 	shrunk_masks = list()
 	for(var/fit_dir in GLOB.cardinal)
 		var/key = "[fit_dir]"
@@ -71,8 +81,16 @@ GLOBAL_LIST_EMPTY(species_fits)
 		reference_body_masks[key] = build_mask(reference_sheet, trunk_states + limb_states, fit_dir)
 		target_trunk_masks[key] = build_mask(target_sheet, trunk_states, fit_dir)
 		target_body_masks[key] = build_mask(target_sheet, trunk_states + limb_states, fit_dir)
+		var/list/reference_tiers = list()
+		var/list/target_tiers = list()
+		for(var/list/tier_group in tier_states)
+			reference_tiers += list(build_mask(reference_sheet, tier_group, fit_dir))
+			target_tiers += list(build_mask(target_sheet, tier_group, fit_dir))
 		warp_maps[key] = build_warp_map(fit_dir)
 		row_maps[key] = build_row_map(fit_dir)
+		var/list/pixel_tier = new(width * height)
+		span_maps[key] = build_span_map(reference_tiers, target_tiers, pixel_tier)
+		pixel_tier_maps[key] = pixel_tier
 		shrunk_masks[key] = build_shrunk_mask(fit_dir)
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
@@ -136,6 +154,45 @@ GLOBAL_LIST_EMPTY(species_fits)
 			if(!length(rows) || (y >= rows[1] && y <= rows[length(rows)]))
 				continue
 			map[index] = nearest_line(rows, y)
+	return map
+
+/datum/species_fit/proc/span_endpoints(list/mask, x)
+	var/first = 0
+	var/last = 0
+	for(var/y in 1 to height)
+		if(!mask[width * (y - 1) + x])
+			continue
+		if(!first)
+			first = y
+		last = y
+	return first ? list(first, last) : null
+
+/datum/species_fit/proc/build_span_map(list/reference_tiers, list/target_tiers, list/pixel_tier)
+	var/list/map = new(width * height)
+	for(var/x in 1 to width)
+		for(var/tier in 1 to length(target_tiers))
+			var/list/target_mask = target_tiers[tier]
+			var/list/reference_span = span_endpoints(reference_tiers[tier], x)
+			var/list/target_span = span_endpoints(target_mask, x)
+			if(!reference_span || !target_span)
+				continue
+			var/first_reference = reference_span[1]
+			var/last_reference = reference_span[2]
+			var/first_target = target_span[1]
+			var/last_target = target_span[2]
+			var/grown = first_target <= first_reference && last_target >= last_reference
+			var/squashed = (last_reference - first_reference) - (last_target - first_target)
+			for(var/y in first_target to last_target)
+				var/index = width * (y - 1) + x
+				if(pixel_tier[index] || !target_mask[index])
+					continue
+				pixel_tier[index] = tier
+				if(grown || squashed > max_squash)
+					continue
+				if(last_target == first_target)
+					map[index] = first_reference
+					continue
+				map[index] = first_reference + round((y - first_target) * (last_reference - first_reference) / (last_target - first_target) + 0.5)
 	return map
 
 /datum/species_fit/proc/build_shrunk_mask(fit_dir)
@@ -349,6 +406,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/working
 	var/list/warp_map
 	var/list/row_map
+	var/list/span_map
+	var/list/pixel_tier
 	var/list/dirty_rows
 
 /datum/fit_context/New(datum/species_fit/profile, fit_dir, list/pixels)
@@ -360,6 +419,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	working = pixels.Copy()
 	warp_map = profile.warp_maps["[fit_dir]"]
 	row_map = profile.row_maps["[fit_dir]"]
+	span_map = profile.span_maps["[fit_dir]"]
+	pixel_tier = profile.pixel_tier_maps["[fit_dir]"]
 
 /datum/fit_context/proc/changed()
 	for(var/index in 1 to length(working))

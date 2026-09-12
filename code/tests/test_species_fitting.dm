@@ -135,3 +135,33 @@
 	TEST_ASSERT(!fexists("[directory]/[entry_name].dmi"), "an invalidated cache entry was left on disk")
 
 	fdel("[directory]/")
+
+/datum/unit_test/species_fitting_span_remap
+
+/datum/unit_test/species_fitting_span_remap/Run()
+	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
+	swine_fit.build()
+
+	var/remapped_pixels = 0
+	var/claimed_pixels = 0
+	for(var/fit_dir in GLOB.cardinal)
+		var/list/span_map = swine_fit.span_maps["[fit_dir]"]
+		var/list/pixel_tier = swine_fit.pixel_tier_maps["[fit_dir]"]
+		for(var/index in 1 to swine_fit.width * swine_fit.height)
+			if(span_map[index])
+				remapped_pixels++
+			if(pixel_tier[index])
+				claimed_pixels++
+	TEST_ASSERT(claimed_pixels > 0, "no target pixel was claimed by a body part, so the span map never saw the body")
+	TEST_ASSERT(remapped_pixels > 0, "the span map is empty, so the remap step is dead code on the swine")
+
+	var/icon/vanilla = icon(DEFAULT_ICON_SHOES, "workboots")
+	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_SHOES, "workboots")
+	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a boot")
+	for(var/fit_dir in GLOB.cardinal)
+		var/list/shrunk = swine_fit.shrunk_masks["[fit_dir]"]
+		for(var/y in 1 to swine_fit.height)
+			for(var/x in 1 to swine_fit.width)
+				if(!vanilla.GetPixel(x, y, dir = fit_dir) || shrunk[swine_fit.width * (y - 1) + x])
+					continue
+				TEST_ASSERT_NOTNULL(fitted.GetPixel(x, y, dir = fit_dir), "the remap squashed the boot into a hole at ([x], [y]) of its [dir2text(fit_dir)] frame")

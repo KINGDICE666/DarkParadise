@@ -105,6 +105,20 @@
 		remainders[best] = -1
 		given++
 
+/datum/fit_step/span_remap/apply(datum/fit_context/context)
+	if(!context.span_map)
+		return
+	var/list/remapped = context.working.Copy()
+	for(var/y in 1 to context.height)
+		var/row_offset = context.width * (y - 1)
+		for(var/x in 1 to context.width)
+			var/index = row_offset + x
+			var/source_row = context.span_map[index]
+			if(!source_row)
+				continue
+			remapped[index] = context.working[context.width * (source_row - 1) + x]
+	context.working = remapped
+
 /datum/fit_step/vertical_warp/apply(datum/fit_context/context)
 	if(!context.row_map)
 		return
@@ -137,7 +151,19 @@
 	for(var/index in 1 to length(context.working))
 		if(context.working[index] || !context.source[index])
 			continue
+		if(context.span_map?[index] && !holed(context, index))
+			continue
 		context.working[index] = context.source[index]
+
+/datum/fit_step/keep_solid/proc/holed(datum/fit_context/context, index)
+	var/tier = context.pixel_tier[index]
+	var/above = index - context.width
+	var/below = index + context.width
+	if(above >= 1 && context.working[above] && context.pixel_tier[above] == tier)
+		return TRUE
+	if(below <= length(context.working) && context.working[below] && context.pixel_tier[below] == tier)
+		return TRUE
+	return FALSE
 
 /datum/fit_step/trim/apply(datum/fit_context/context)
 	var/list/shrunk = context.shrunk_mask()

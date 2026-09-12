@@ -5,6 +5,9 @@ code/modules/mob/living/carbon/human/species/fitting/, otherwise the numbers lie
 """
 from dmi import LIMB_STATES, TRUNK_STATES, body_mask
 
+TIER_STATES = (("head_m",), ("l_foot", "r_foot"), ("l_hand", "r_hand"), TRUNK_STATES,
+               ("l_leg", "r_leg"), ("l_arm", "r_arm"))
+
 FULL_STATES = TRUNK_STATES + LIMB_STATES + ("head_m",)
 
 TRANSPARENT = None
@@ -75,10 +78,19 @@ def _rebuild_run(source, y, from_column, to_column, target_width):
     return rebuilt[:target_width]
 
 
+def _span_endpoints(mask, line, size, along_rows):
+    hits = [index for index in range(size)
+            if ((line, index) if along_rows else (index, line)) in mask]
+    return (hits[0], hits[-1]) if hits else None
+
+
 class SpeciesFit:
-    def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none"):
+    def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none", remap="none",
+                 max_squash=1):
         self.width, self.height = width, height
         self.trim = trim
+        self.remap = remap
+        self.max_squash = max_squash
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
@@ -86,6 +98,9 @@ class SpeciesFit:
         self.reference_trunk, self.reference_body = {}, {}
         self.target_trunk, self.target_body = {}, {}
         self.warp_maps, self.row_maps = {}, {}
+        self.reference_head, self.target_head = {}, {}
+        self.reference_tiers, self.target_tiers = {}, {}
+        self.span_maps, self.pixel_tiers = {}, {}
         for dir_index in range(4):
             self.reference_trunk[dir_index] = body_mask(reference_sheet, TRUNK_STATES, dir_index, width, height)
             self.reference_body[dir_index] = body_mask(
@@ -93,6 +108,12 @@ class SpeciesFit:
             self.target_trunk[dir_index] = body_mask(target_sheet, TRUNK_STATES, dir_index, width, height)
             self.target_body[dir_index] = body_mask(
                 target_sheet, TRUNK_STATES + LIMB_STATES, dir_index, width, height)
+            self.reference_head[dir_index] = body_mask(reference_sheet, ("head_m",), dir_index, width, height)
+            self.target_head[dir_index] = body_mask(target_sheet, ("head_m",), dir_index, width, height)
+            self.reference_tiers[dir_index] = [
+                body_mask(reference_sheet, states, dir_index, width, height) for states in TIER_STATES]
+            self.target_tiers[dir_index] = [
+                body_mask(target_sheet, states, dir_index, width, height) for states in TIER_STATES]
             self.warp_maps[dir_index] = self._build_warp_map(dir_index)
             self.row_maps[dir_index] = self._build_row_map(dir_index)
             reference_rows = {y for _, y in body_mask(reference_sheet, FULL_STATES, dir_index, width, height)}
@@ -101,6 +122,8 @@ class SpeciesFit:
             self.target_full[dir_index] = body_mask(target_sheet, FULL_STATES, dir_index, width, height)
             self.reference_full[dir_index] = body_mask(reference_sheet, FULL_STATES, dir_index, width, height)
             self.shrunk[dir_index] = self.reference_full[dir_index] - self.target_full[dir_index]
+        for dir_index in range(4):
+            self.span_maps[dir_index] = self._build_span_map(dir_index)
 
     def _build_warp_map(self, dir_index):
         reference_trunk, reference_body = self.reference_trunk[dir_index], self.reference_body[dir_index]
@@ -117,6 +140,39 @@ class SpeciesFit:
                 else:
                     warp_map[(x, y)] = x
         return warp_map
+
+    def _build_span_map(self, dir_index):
+        span_map, claimed = {}, {}
+        self.pixel_tiers[dir_index] = claimed
+        for x in range(self.width):
+            for tier, (reference_mask, target_mask) in enumerate(
+                    zip(self.reference_tiers[dir_index], self.target_tiers[dir_index])):
+                reference = _span_endpoints(reference_mask, x, self.height, True)
+                target = _span_endpoints(target_mask, x, self.height, True)
+                if not reference or not target:
+                    continue
+                (first_reference, last_reference), (first_target, last_target) = reference, target
+                grown = first_target <= first_reference and last_target >= last_reference
+                squashed = (last_reference - first_reference) - (last_target - first_target)
+                for y in range(first_target, last_target + 1):
+                    if (x, y) in claimed or (x, y) not in target_mask:
+                        continue
+                    claimed[(x, y)] = tier
+                    if grown or squashed > self.max_squash:
+                        continue
+                    if last_target == first_target:
+                        span_map[(x, y)] = first_reference
+                        continue
+                    span_map[(x, y)] = first_reference + int(
+                        (y - first_target) * (last_reference - first_reference)
+                        / (last_target - first_target) + 0.5)
+        return span_map
+
+    def _span_remap(self, working, dir_index):
+        remapped = dict(working)
+        for (x, y), source_row in self.span_maps[dir_index].items():
+            remapped[(x, y)] = working[(x, source_row)]
+        return remapped
 
     def _build_row_map(self, dir_index):
         reference_trunk, reference_body = self.reference_trunk[dir_index], self.reference_body[dir_index]
@@ -147,10 +203,16 @@ class SpeciesFit:
         dirty = self._mark_bare_skin(source, dir_index)
         working = self._warp(dict(source), dirty, dir_index)
         working = self._edge_repair(working, source, dirty, dir_index)
+        if self.remap == "auto":
+            working = self._span_remap(working, dir_index)
         working = self._vertical_warp(working, dir_index)
         working = self._cover_skin(working, dir_index)
         floating = self.floating_rows[dir_index] if self.trim == "rows" else frozenset()
+        remapped = self.span_maps[dir_index] if self.remap == "auto" else {}
+        tiers = self.pixel_tiers.get(dir_index, {})
         for key, pixel in source.items():
+            if key in remapped and not self._holed(working, tiers, key):
+                continue
             if working[key] is None and pixel is not None and key[1] not in floating:
                 working[key] = pixel
         for y in floating:
@@ -211,6 +273,16 @@ class SpeciesFit:
             if working[(x, y)] is None:
                 stretched[(x, y)] = working[(x, source_row)]
         return stretched
+
+    def _holed(self, working, tiers, key):
+        x, y = key
+        tier = tiers.get(key)
+        for neighbour in ((x, y - 1), (x, y + 1)):
+            if neighbour not in working or working[neighbour] is None:
+                continue
+            if tiers.get(neighbour) == tier:
+                return True
+        return False
 
     def _cover_skin(self, working, dir_index):
         reference_body, target_body = self.reference_body[dir_index], self.target_body[dir_index]
