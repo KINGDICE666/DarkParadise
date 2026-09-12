@@ -105,6 +105,20 @@
 		remainders[best] = -1
 		given++
 
+/datum/fit_step/vertical_warp/apply(datum/fit_context/context)
+	if(!context.row_map)
+		return
+	var/list/stretched = context.working.Copy()
+	for(var/y in 1 to context.height)
+		var/row_offset = context.width * (y - 1)
+		for(var/x in 1 to context.width)
+			var/index = row_offset + x
+			var/source_row = context.row_map[index]
+			if(!source_row || context.working[index])
+				continue
+			stretched[index] = context.working[context.width * (source_row - 1) + x]
+	context.working = stretched
+
 /datum/fit_step/cover_skin/apply(datum/fit_context/context)
 	var/list/reference_mask = context.reference_mask()
 	var/list/target_mask = context.target_mask()
@@ -124,3 +138,9 @@
 		if(context.working[index] || !context.source[index])
 			continue
 		context.working[index] = context.source[index]
+
+/datum/fit_step/trim/apply(datum/fit_context/context)
+	var/list/shrunk = context.shrunk_mask()
+	for(var/index in 1 to length(context.working))
+		if(shrunk[index])
+			context.working[index] = null

@@ -577,8 +577,10 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	for(var/obj/item/clothing/accessory/accessory as anything in w_uniform.accessories)
 		var/acc_state_type = accessory.item_state ? accessory.item_state : accessory.icon_state
 		var/acc_sheet = accessory.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING]
-		acc_sheet = accessory.sprite_sheets?[dna.species.name] || dna.species.worn_sheets?[acc_sheet] || acc_sheet
-		var/mutable_appearance/acc_olay = mutable_appearance(acc_sheet, acc_state_type, alpha = accessory.alpha)
+		var/species_acc_sheet = accessory.sprite_sheets?[dna.species.name]
+		var/icon/fitted_accessory = species_acc_sheet ? null : get_fitted_worn_icon(dna.species, accessory, acc_sheet, acc_state_type)
+		acc_sheet = species_acc_sheet || dna.species.worn_sheets?[acc_sheet] || acc_sheet
+		var/mutable_appearance/acc_olay = mutable_appearance(fitted_accessory || acc_sheet, fitted_accessory ? "" : acc_state_type, alpha = accessory.alpha)
 		acc_olay.color = accessory.color
 		uniform_overlay.overlays += acc_olay
 
@@ -1190,7 +1192,9 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/mutable_appearance/standing = null
 
 	if(wear_suit)
-		C = new(dna.species.worn_sheets?[wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING]] || wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING])
+		var/collar_sheet = wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING]
+		var/icon/fitted_collar = get_fitted_worn_icon(dna.species, wear_suit, collar_sheet, wear_suit.icon_state)
+		C = new(dna.species.worn_sheets?[collar_sheet] || collar_sheet)
 		if(wear_suit.sprite_sheets && wear_suit.sprite_sheets[dna.species.name])
 			var/icon_path = "[wear_suit.sprite_sheets[dna.species.name]]"
 			icon_path = "[copytext(icon_path, 1, findtext(icon_path, "/suit.dmi"))]/collar.dmi" //If this file doesn't exist, the end result is that COLLAR_LAYER will be unchanged (empty).
@@ -1198,6 +1202,8 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 				var/icon/icon_file = new(icon_path)
 				if(wear_suit.icon_state in icon_file.IconStates())
 					standing = mutable_appearance(icon_file, "[wear_suit.icon_state]", layer = -COLLAR_LAYER)
+		else if(fitted_collar)
+			standing = mutable_appearance(fitted_collar, "", layer = -COLLAR_LAYER)
 		else
 			if(wear_suit.icon_state in C.IconStates())
 				standing = mutable_appearance(C, "[wear_suit.icon_state]", layer = -COLLAR_LAYER)
@@ -1366,16 +1372,13 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	//Find a valid icon_state from variables+arguments
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
 	//Find a valid icon file from variables+arguments
-	var/file2use = override_file || (species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null)  || default_icon_file
+	var/species_sheet = species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null
+	var/file2use = override_file || species_sheet || default_icon_file
 	var/icon/fitted_icon
-	if(!isinhands && istype(wearer))
+	if(!isinhands && !species_sheet && istype(wearer))
 		var/datum/species/wearer_species = wearer.dna?.species
-		var/species_sheet = wearer_species?.worn_sheets?[file2use]
-		if(species_sheet)
-			file2use = species_sheet
-		else
-			var/datum/species_fit/species_fit = get_species_fit(wearer_species?.fit_profile)
-			fitted_icon = species_fit?.fit_worn_icon(src, file2use, t_state)
+		fitted_icon = get_fitted_worn_icon(wearer_species, src, file2use, t_state)
+		file2use = wearer_species?.worn_sheets?[file2use] || file2use
 	//Find a valid layer from variables+arguments
 	var/layer2use = default_layer
 
