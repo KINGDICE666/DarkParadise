@@ -50,11 +50,12 @@
 	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
 
 	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s", SOUTH)
-	TEST_ASSERT_NULL(vanilla.GetPixel(16, 23), "the vanilla uniform is expected to stop below the swine shoulders")
+	TEST_ASSERT_NULL(vanilla.GetPixel(16, 7), "the vanilla uniform is expected to stop above the lower swine groin")
+	TEST_ASSERT_NULL(vanilla.GetPixel(11, 9), "the vanilla uniform is expected to stop short of the wider swine hip")
 
 	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
-	TEST_ASSERT_NOTNULL(fitted.GetPixel(16, 23, dir = SOUTH), "the fitted uniform still leaves the taller swine shoulders bare")
-	TEST_ASSERT_NOTNULL(fitted.GetPixel(15, 24, dir = SOUTH), "the fitted uniform still leaves the swine neckline bare")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(16, 7, dir = SOUTH), "the fitted uniform still leaves the swine bare where its body reaches lower than a human one")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(11, 9, dir = SOUTH), "the fitted uniform still leaves the swine bare where its body is wider than a human one")
 
 /datum/unit_test/species_fitting_greyscale
 
@@ -165,3 +166,27 @@
 				if(!vanilla.GetPixel(x, y, dir = fit_dir) || shrunk[swine_fit.width * (y - 1) + x])
 					continue
 				TEST_ASSERT_NOTNULL(fitted.GetPixel(x, y, dir = fit_dir), "the remap squashed the boot into a hole at ([x], [y]) of its [dir2text(fit_dir)] frame")
+
+/datum/unit_test/species_fitting_head_trim
+
+/datum/unit_test/species_fitting_head_trim/Run()
+	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
+
+	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s", SOUTH)
+	TEST_ASSERT_NULL(vanilla.GetPixel(15, 23), "the vanilla uniform is expected to leave the human head bare here")
+	TEST_ASSERT_NOTNULL(vanilla.GetPixel(15, 22), "the vanilla uniform is expected to draw its own collar here")
+
+	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
+	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a plain uniform state")
+	TEST_ASSERT_NULL(fitted.GetPixel(15, 23, dir = SOUTH), "the fitter smeared the uniform onto a head the garment does not dress")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(15, 22, dir = SOUTH), "the head trim ate the collar the garment draws itself")
+
+	var/icon/hat = swine_fit.fit_worn_icon(null, DEFAULT_ICON_HEAD, "welding")
+	TEST_ASSERT_NOTNULL(hat, "the swine profile refused to fit a welding helmet")
+	var/list/target_head = swine_fit.target_head_masks["[SOUTH]"]
+	var/hat_pixels = 0
+	for(var/y in 1 to swine_fit.height)
+		for(var/x in 1 to swine_fit.width)
+			if(target_head[swine_fit.width * (y - 1) + x] && hat.GetPixel(x, y, dir = SOUTH))
+				hat_pixels++
+	TEST_ASSERT(hat_pixels > 0, "the head trim stripped a helmet, which is exactly the garment that should dress a head")

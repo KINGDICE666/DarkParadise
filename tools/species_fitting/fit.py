@@ -12,6 +12,8 @@ FULL_STATES = TRUNK_STATES + LIMB_STATES + ("head_m",)
 
 TRANSPARENT = None
 
+HEAD_GARMENT_SHARE = 0.1
+
 
 def _nearest_line(lines, line):
     best, best_distance = line, 1 << 30
@@ -86,11 +88,12 @@ def _span_endpoints(mask, line, size, along_rows):
 
 class SpeciesFit:
     def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none", remap="none",
-                 max_squash=1):
+                 max_squash=1, head_trim=False):
         self.width, self.height = width, height
         self.trim = trim
         self.remap = remap
         self.max_squash = max_squash
+        self.head_trim = head_trim
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
@@ -225,6 +228,13 @@ class SpeciesFit:
         elif self.trim == "shrink":
             for key in self.shrunk[dir_index]:
                 working[key] = None
+        if self.head_trim:
+            reference_head = self.reference_head[dir_index]
+            dressed = sum(1 for key in reference_head if source[key] is not None)
+            if dressed < len(reference_head) * HEAD_GARMENT_SHARE:
+                for key in self.target_head[dir_index]:
+                    if source[key] is None:
+                        working[key] = None
         return working, any(dirty)
 
     def _mark_bare_skin(self, working, dir_index):
@@ -258,6 +268,8 @@ class SpeciesFit:
                     from_column -= 1
                 while to_column < self.width - 1 and source[(to_column + 1, y)] is not None:
                     to_column += 1
+                if to_column < from_column:
+                    continue
                 new_width = end - start + 1
                 if new_width <= to_column - from_column + 1:
                     continue

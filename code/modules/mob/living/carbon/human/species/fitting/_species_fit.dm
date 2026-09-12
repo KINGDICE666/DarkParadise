@@ -30,6 +30,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 		/datum/fit_step/cover_skin,
 		/datum/fit_step/keep_solid,
 		/datum/fit_step/trim,
+		/datum/fit_step/head_trim,
 	)
 	var/list/manual_sheets
 	var/list/blocked_sheets
@@ -44,6 +45,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/row_maps
 	var/list/span_maps
 	var/list/pixel_tier_maps
+	var/list/reference_head_masks
+	var/list/target_head_masks
 	var/list/shrunk_masks
 	var/list/step_instances
 	var/list/icon_cache
@@ -74,6 +77,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	row_maps = list()
 	span_maps = list()
 	pixel_tier_maps = list()
+	reference_head_masks = list()
+	target_head_masks = list()
 	shrunk_masks = list()
 	for(var/fit_dir in GLOB.cardinal)
 		var/key = "[fit_dir]"
@@ -91,6 +96,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 		var/list/pixel_tier = new(width * height)
 		span_maps[key] = build_span_map(reference_tiers, target_tiers, pixel_tier)
 		pixel_tier_maps[key] = pixel_tier
+		reference_head_masks[key] = build_mask(reference_sheet, head_states, fit_dir)
+		target_head_masks[key] = build_mask(target_sheet, head_states, fit_dir)
 		shrunk_masks[key] = build_shrunk_mask(fit_dir)
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
@@ -436,5 +443,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /datum/fit_context/proc/shrunk_mask()
 	return profile.shrunk_masks["[fit_dir]"]
+
+/datum/fit_context/proc/reference_head_mask()
+	return profile.reference_head_masks["[fit_dir]"]
+
+/datum/fit_context/proc/target_head_mask()
+	return profile.target_head_masks["[fit_dir]"]
 
 #undef FIT_DEFAULT_SIZE

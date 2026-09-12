@@ -41,10 +41,10 @@ def _frame_pixels(image, width, height):
 
 
 def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none",
-                  max_squash=1):
+                  max_squash=1, head_trim=False):
     reference_sheet, width, height = read_dmi(REFERENCE)
     target_sheet, _, _ = read_dmi(target_path, target_git_ref)
-    fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash)
+    fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash, head_trim)
     visible = {index: _visible_body(target_sheet, index, width, height) for index in range(4)}
     reference_head = {index: _head_mask(reference_sheet, index, width, height) for index in range(4)}
     target_head = {index: _head_mask(target_sheet, index, width, height) for index in range(4)}
@@ -102,12 +102,13 @@ def replaceable(stats, tolerance=0):
             and stats["generated_off_body"] <= stats["manual_off_body"] + tolerance)
 
 
-def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none", max_squash=1):
+def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none", max_squash=1,
+          head_trim=False):
     totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
               "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
               "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0,
               "vanilla_head_cloth": 0, "generated_head_cloth": 0, "manual_head_cloth": 0}
-    for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim, remap, max_squash):
+    for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim, remap, max_squash, head_trim):
         for key in totals:
             totals[key] += stats[key]
     return totals
@@ -122,6 +123,8 @@ def main():
     parser.add_argument("--target-git-ref", help="read the body sheet from this git ref")
     parser.add_argument("--trim", default="none", choices=("none", "rows", "body", "shrink"))
     parser.add_argument("--remap", default="none", choices=("none", "auto"))
+    parser.add_argument("--head-trim", action="store_true",
+                        help="strip fitter-added cloth from a head the garment does not dress")
     parser.add_argument("--max-squash", type=int, default=1,
                         help="rows a body part may lose before the remap leaves it alone")
     parser.add_argument("--per-state", action="store_true",
@@ -134,7 +137,7 @@ def main():
         per_state(arguments, pairs)
         return
     totals = score(arguments.target, pairs, arguments.git_ref, arguments.target_git_ref,
-                   arguments.trim, arguments.remap, arguments.max_squash)
+                   arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim)
 
     print(f"frames compared            {totals['frames']}")
     print(f"already vanilla by hand    {totals['untouched_by_hand']}")
@@ -154,7 +157,7 @@ def per_state(arguments, pairs):
     kept = {}
     for _, manual_path, state, stats in _state_scores(
             arguments.target, pairs, arguments.git_ref, arguments.target_git_ref,
-            arguments.trim, arguments.remap, arguments.max_squash):
+            arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim):
         sheet = kept.setdefault(manual_path, {"keep": [], "drop": 0})
         if replaceable(stats, arguments.tolerance):
             sheet["drop"] += 1
