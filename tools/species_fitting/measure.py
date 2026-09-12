@@ -41,7 +41,7 @@ def _frame_pixels(image, width, height):
 
 
 def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none",
-                  max_squash=1, head_trim=False):
+                  max_squash=1, head_trim=True):
     reference_sheet, width, height = read_dmi(REFERENCE)
     target_sheet, _, _ = read_dmi(target_path, target_git_ref)
     fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash, head_trim)
@@ -103,7 +103,7 @@ def replaceable(stats, tolerance=0):
 
 
 def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none", max_squash=1,
-          head_trim=False):
+          head_trim=True):
     totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
               "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
               "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0,
@@ -123,8 +123,8 @@ def main():
     parser.add_argument("--target-git-ref", help="read the body sheet from this git ref")
     parser.add_argument("--trim", default="none", choices=("none", "rows", "body", "shrink"))
     parser.add_argument("--remap", default="none", choices=("none", "auto"))
-    parser.add_argument("--head-trim", action="store_true",
-                        help="strip fitter-added cloth from a head the garment does not dress")
+    parser.add_argument("--no-head-trim", dest="head_trim", action="store_false",
+                        help="keep fitter-added cloth on a head the garment does not dress")
     parser.add_argument("--max-squash", type=int, default=1,
                         help="rows a body part may lose before the remap leaves it alone")
     parser.add_argument("--per-state", action="store_true",

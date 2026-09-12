@@ -190,3 +190,19 @@
 			if(target_head[swine_fit.width * (y - 1) + x] && hat.GetPixel(x, y, dir = SOUTH))
 				hat_pixels++
 	TEST_ASSERT(hat_pixels > 0, "the head trim stripped a helmet, which is exactly the garment that should dress a head")
+
+/datum/unit_test/species_fitting_profiles
+
+/datum/unit_test/species_fitting_profiles/Run()
+	for(var/fit_type in list(/datum/species_fit/vox, /datum/species_fit/drask))
+		var/datum/species_fit/fit = get_species_fit(fit_type)
+		TEST_ASSERT_NOTNULL(fit, "[fit_type] was never created")
+		TEST_ASSERT_NOTNULL(fit.fit_worn_icon(null, DEFAULT_ICON_BELT, "assault"), "[fit_type] left a belt human-shaped, and no hand-drawn sheet covers that slot")
+
+	TEST_ASSERT_NULL(/datum/species/vox/armalis::fit_profile, "the armalis form inherited the vox profile, whose masks come from a body half its height")
+
+	var/mob/living/carbon/human/raider = allocate(/mob/living/carbon/human)
+	raider.set_species(/datum/species/vox)
+	var/obj/item/clothing/gloves/gauntlets = allocate(/obj/item/clothing/gloves/vox)
+	raider.equip_to_slot_or_del(gauntlets, ITEM_SLOT_GLOVES)
+	TEST_ASSERT_EQUAL(get_worn_icon_source(raider, gauntlets, DEFAULT_ICON_GLOVES, gauntlets.icon_state), "sprite_sheets", "a hand-drawn vox sheet lost to the generator")

@@ -61,7 +61,7 @@ class Auditor:
         self.reference_sheet, self.width, self.height = read_dmi(REFERENCE)
         self.target_sheet, _, _ = read_dmi(target_path, target_git_ref)
         self.fitter = SpeciesFit(self.reference_sheet, self.target_sheet,
-                                 self.width, self.height, "shrink", "auto", max_squash)
+                                 self.width, self.height, "shrink", "auto", max_squash, True)
         self.target_body, self.reference_head, self.target_head, self.visible = {}, {}, {}, {}
         self.reference_tiers, self.target_tiers = {}, {}
         for dir_index in range(4):

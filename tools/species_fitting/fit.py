@@ -88,7 +88,7 @@ def _span_endpoints(mask, line, size, along_rows):
 
 class SpeciesFit:
     def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none", remap="none",
-                 max_squash=1, head_trim=False):
+                 max_squash=1, head_trim=True):
         self.width, self.height = width, height
         self.trim = trim
         self.remap = remap
