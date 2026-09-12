@@ -42,10 +42,13 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/shrunk_masks
 	var/list/step_instances
 	var/list/icon_cache
+	var/list/disk_cache
+	var/cache_key
 	var/built = FALSE
 
 /datum/species_fit/New()
 	icon_cache = list()
+	disk_cache = list()
 	step_instances = list()
 	for(var/step_type in steps)
 		step_instances += new step_type
@@ -54,6 +57,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(built)
 		return
 	built = TRUE
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -217,7 +221,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(manual_sheet && icon_exists(manual_sheet, state_name))
 		fitted = icon(manual_sheet, state_name)
 	else if(icon_exists(sheet, state_name))
-		fitted = build_fitted_icon(sheet, state_name)
+		fitted = read_disk_cache(sheet, state_name)
+		if(!fitted)
+			fitted = build_fitted_icon(sheet, state_name)
+			if(fitted)
+				write_disk_cache(sheet, state_name, fitted)
 	icon_cache[cache_key] = fitted || FIT_SKIP
 	return fitted
 
@@ -254,6 +262,83 @@ GLOBAL_LIST_EMPTY(species_fits)
 			if(pixel)
 				frame.DrawBox(pixel, x, y)
 	return frame
+
+/datum/species_fit/proc/sheet_hash(sheet)
+	var/sheet_path = "[sheet]"
+	return fexists(sheet_path) ? rustg_hash_file(RUSTG_HASH_XXH64, sheet_path) : null
+
+/datum/species_fit/proc/cache_directory()
+	return "[FIT_CACHE_DIRECTORY]/[cache_key]"
+
+/datum/species_fit/proc/cache_entry_name(sheet_path)
+	var/static/regex/unsafe_characters = regex(@"[^a-zA-Z0-9]", "g")
+	return replacetext(sheet_path, unsafe_characters, "_")
+
+/datum/species_fit/proc/load_disk_cache()
+	var/directory = cache_directory()
+	var/manifest_path = "[directory]/manifest.json"
+	if(!fexists(manifest_path))
+		return
+	var/list/manifest = json_decode(file2text(manifest_path))
+	for(var/entry_name in manifest)
+		var/list/entry = manifest[entry_name]
+		var/dmi_path = "[directory]/[entry_name].dmi"
+		if(!fexists(dmi_path))
+			continue
+		if(entry["hash"] != sheet_hash(entry["sheet"]))
+			fdel(dmi_path)
+			continue
+		var/datum/fit_sheet_cache/sheet_cache = new
+		sheet_cache.sheet_icon = icon(file(dmi_path))
+		sheet_cache.source_hash = entry["hash"]
+		for(var/state_name in icon_states(sheet_cache.sheet_icon))
+			if(state_name)
+				sheet_cache.states[state_name] = TRUE
+		disk_cache[entry["sheet"]] = sheet_cache
+
+/datum/species_fit/proc/flush_disk_cache()
+	if(!length(disk_cache))
+		return
+	var/directory = cache_directory()
+	var/list/manifest = list()
+	for(var/sheet_path in disk_cache)
+		var/datum/fit_sheet_cache/sheet_cache = disk_cache[sheet_path]
+		var/entry_name = cache_entry_name(sheet_path)
+		if(sheet_cache.dirty)
+			var/dmi_path = "[directory]/[entry_name].dmi"
+			fdel(dmi_path)
+			fcopy(sheet_cache.sheet_icon, dmi_path)
+			sheet_cache.dirty = FALSE
+		manifest[entry_name] = list("sheet" = sheet_path, "hash" = sheet_cache.source_hash)
+	rustg_file_write(json_encode(manifest), "[directory]/manifest.json", "false")
+
+/datum/species_fit/proc/read_disk_cache(sheet, state_name)
+	RETURN_TYPE(/icon)
+	var/datum/fit_sheet_cache/sheet_cache = disk_cache["[sheet]"]
+	if(!sheet_cache || !sheet_cache.states[state_name])
+		return null
+	return icon(sheet_cache.sheet_icon, state_name)
+
+/datum/species_fit/proc/write_disk_cache(sheet, state_name, icon/fitted)
+	var/sheet_path = "[sheet]"
+	if(findtext(sheet_path, "icons/") != 1)
+		return
+	var/datum/fit_sheet_cache/sheet_cache = disk_cache[sheet_path]
+	if(!sheet_cache)
+		sheet_cache = new
+		sheet_cache.sheet_icon = icon('icons/effects/effects.dmi', "nothing")
+		sheet_cache.source_hash = sheet_hash(sheet_path)
+		disk_cache[sheet_path] = sheet_cache
+	sheet_cache.sheet_icon.Insert(fitted, state_name)
+	sheet_cache.states[state_name] = TRUE
+	sheet_cache.dirty = TRUE
+	addtimer(CALLBACK(src, PROC_REF(flush_disk_cache)), FIT_CACHE_FLUSH_DELAY, TIMER_UNIQUE | TIMER_OVERRIDE)
+
+/datum/fit_sheet_cache
+	var/icon/sheet_icon
+	var/list/states = list()
+	var/source_hash
+	var/dirty = FALSE
 
 /datum/fit_context
 	var/datum/species_fit/profile

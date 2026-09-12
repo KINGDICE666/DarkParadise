@@ -1,7 +1,8 @@
 """Score the generated fit against the hand-drawn species sheets.
 
-    python measure.py --target icons/mob/human_races/r_swine.dmi \
-        --pair icons/mob/clothing/suit.dmi:icons/mob/clothing/species/swine/suit.dmi
+    python measure.py --target icons/mob/human_races/r_resomi.dmi --trim shrink \
+        --target-git-ref ResomiNEWVodka --git-ref ResomiNEWVodka \
+        --pair icons/mob/clothing/suit.dmi:icons/mob/clothing/species/resomi/suit.dmi
 
 Only pixels the player can actually see are counted: rows hidden behind the head
 sprite are subtracted, and fully transparent pixels are never compared by colour
@@ -35,17 +36,13 @@ def _frame_pixels(image, width, height):
     return out
 
 
-def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none"):
+def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="none"):
     reference_sheet, width, height = read_dmi(REFERENCE)
     target_sheet, _, _ = read_dmi(target_path, target_git_ref)
     fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim)
     visible = {index: _visible_body(target_sheet, index, width, height) for index in range(4)}
-
     full_body = {index: body_mask(target_sheet, TRUNK_STATES + LIMB_STATES + ("head_m",), index, width, height)
                  for index in range(4)}
-    totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
-              "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
-              "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0}
 
     for vanilla_path, manual_path in pairs:
         vanilla_sheet, _, _ = read_dmi(vanilla_path)
@@ -55,6 +52,9 @@ def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none"):
                 continue
             if frames[0].size != (width, height):
                 continue
+            stats = {key: 0 for key in ("frames", "generated_bare", "vanilla_bare", "manual_bare",
+                                        "generated_erased", "manual_erased", "exact", "untouched_by_hand",
+                                        "vanilla_off_body", "generated_off_body", "manual_off_body")}
             for dir_index in range(4):
                 vanilla_frame = frame_for_dir(vanilla_sheet, state, dir_index)
                 manual_frame = frame_for_dir(manual_sheet, state, dir_index)
@@ -62,22 +62,39 @@ def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none"):
                 manual = _frame_pixels(manual_frame, width, height)
                 generated, _ = fitter.fit_frame(vanilla_frame, dir_index)
                 skin = visible[dir_index]
-                totals["frames"] += 1
-                totals["vanilla_bare"] += sum(1 for key in skin if vanilla[key] is None)
-                totals["manual_bare"] += sum(1 for key in skin if manual[key] is None)
-                totals["generated_bare"] += sum(1 for key in skin if generated[key] is None)
-                totals["generated_erased"] += sum(
+                stats["frames"] += 1
+                stats["vanilla_bare"] += sum(1 for key in skin if vanilla[key] is None)
+                stats["manual_bare"] += sum(1 for key in skin if manual[key] is None)
+                stats["generated_bare"] += sum(1 for key in skin if generated[key] is None)
+                stats["generated_erased"] += sum(
                     1 for key in vanilla if vanilla[key] is not None and generated[key] is None)
-                totals["manual_erased"] += sum(
+                stats["manual_erased"] += sum(
                     1 for key in vanilla if vanilla[key] is not None and manual[key] is None)
                 off = [key for key in vanilla if key not in full_body[dir_index]]
-                totals["vanilla_off_body"] += sum(1 for key in off if vanilla[key] is not None)
-                totals["manual_off_body"] += sum(1 for key in off if manual[key] is not None)
-                totals["generated_off_body"] += sum(1 for key in off if generated[key] is not None)
+                stats["vanilla_off_body"] += sum(1 for key in off if vanilla[key] is not None)
+                stats["manual_off_body"] += sum(1 for key in off if manual[key] is not None)
+                stats["generated_off_body"] += sum(1 for key in off if generated[key] is not None)
                 if all(generated[key] == manual[key] for key in manual):
-                    totals["exact"] += 1
+                    stats["exact"] += 1
                 if all(vanilla[key] == manual[key] for key in manual):
-                    totals["untouched_by_hand"] += 1
+                    stats["untouched_by_hand"] += 1
+            yield vanilla_path, manual_path, state, stats
+
+
+def replaceable(stats, tolerance=0):
+    """The generator may take over a hand-drawn state only if it is no worse on every axis."""
+    return (stats["generated_bare"] <= stats["manual_bare"] + tolerance
+            and stats["generated_erased"] <= stats["manual_erased"] + tolerance
+            and stats["generated_off_body"] <= stats["manual_off_body"] + tolerance)
+
+
+def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none"):
+    totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
+              "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
+              "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0}
+    for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim):
+        for key in totals:
+            totals[key] += stats[key]
     return totals
 
 
@@ -89,8 +106,15 @@ def main():
     parser.add_argument("--git-ref", help="read the manual sheets from this git ref")
     parser.add_argument("--target-git-ref", help="read the body sheet from this git ref")
     parser.add_argument("--trim", default="none", choices=("none", "rows", "body", "shrink"))
+    parser.add_argument("--per-state", action="store_true",
+                        help="print a keep/drop verdict for every hand-drawn state")
+    parser.add_argument("--tolerance", type=int, default=0,
+                        help="pixels per state the generator may lose before a state is kept by hand")
     arguments = parser.parse_args()
     pairs = [tuple(item.split(":", 1)) for item in arguments.pair]
+    if arguments.per_state:
+        per_state(arguments, pairs)
+        return
     totals = score(arguments.target, pairs, arguments.git_ref, arguments.target_git_ref, arguments.trim)
 
     print(f"frames compared            {totals['frames']}")
@@ -103,6 +127,26 @@ def main():
           f" | generated {totals['generated_erased']:>7} | hand {totals['manual_erased']:>7}")
     print(f"{'cloth hanging off body':<26} vanilla {totals['vanilla_off_body']:>7}"
           f" | generated {totals['generated_off_body']:>7} | hand {totals['manual_off_body']:>7}")
+
+
+def per_state(arguments, pairs):
+    kept = {}
+    for _, manual_path, state, stats in _state_scores(
+            arguments.target, pairs, arguments.git_ref, arguments.target_git_ref, arguments.trim):
+        sheet = kept.setdefault(manual_path, {"keep": [], "drop": 0})
+        if replaceable(stats, arguments.tolerance):
+            sheet["drop"] += 1
+            continue
+        sheet["keep"].append((state, stats))
+
+    for manual_path, sheet in kept.items():
+        total = sheet["drop"] + len(sheet["keep"])
+        print(f"{manual_path}  {sheet['drop']}/{total} states can be generated")
+        for state, stats in sorted(sheet["keep"], key=lambda item: item[0]):
+            print(f"    keep {state:<34}"
+                  f" bare {stats['generated_bare']:>5}/{stats['manual_bare']:<5}"
+                  f" erased {stats['generated_erased']:>5}/{stats['manual_erased']:<5}"
+                  f" off-body {stats['generated_off_body']:>5}/{stats['manual_off_body']:<5}")
 
 
 if __name__ == "__main__":

@@ -47,28 +47,6 @@
 	warning_high_pressure = WARNING_HIGH_PRESSURE * 1.2
 	hazard_high_pressure = HAZARD_HIGH_PRESSURE * 1.2
 
-	worn_sheets = list(
-		DEFAULT_ICON_JUMPSUIT = 'icons/mob/clothing/species/swine/uniform.dmi',
-		DEFAULT_ICON_BACK = 'icons/mob/clothing/species/swine/back.dmi',
-		DEFAULT_ICON_BELT = 'icons/mob/clothing/species/swine/belt.dmi',
-		DEFAULT_ICON_SUITSTORE = 'icons/mob/clothing/species/swine/belt_mirror.dmi',
-		DEFAULT_ICON_NECK = 'icons/mob/clothing/species/swine/neck.dmi',
-		DEFAULT_ICON_SHOES = 'icons/mob/clothing/species/swine/feet.dmi',
-		DEFAULT_ICON_HEAD = 'icons/mob/clothing/species/swine/head.dmi',
-		DEFAULT_ICON_GLASSES = 'icons/mob/clothing/species/swine/eyes.dmi',
-		DEFAULT_ICON_GLOVES = 'icons/mob/clothing/species/swine/hands.dmi',
-		DEFAULT_ICON_LEFT_EAR = 'icons/mob/clothing/species/swine/ears.dmi',
-		DEFAULT_ICON_ACCESSORY = 'icons/mob/clothing/species/swine/ties.dmi',
-		DEFAULT_ICON_COLLAR = 'icons/mob/clothing/species/swine/collar.dmi',
-		'icons/mob/clothing/jewelry.dmi' = 'icons/mob/clothing/species/swine/jewelry.dmi',
-		'icons/mob/clothing/contractor.dmi' = 'icons/mob/clothing/species/swine/contractor.dmi',
-		'icons/mob/clothing/modsuit/mod_clothing.dmi' = 'icons/mob/clothing/modsuit/species/swine/mod_clothing.dmi',
-		'icons/goonstation/mob/clothing/uniform.dmi' = 'icons/goonstation/mob/clothing/species/swine/uniform.dmi',
-		'icons/goonstation/mob/clothing/feet.dmi' = 'icons/goonstation/mob/clothing/species/swine/feet.dmi',
-		'icons/obj/ninjaobjects.dmi' = 'icons/obj/clothing/species/swine/ninjaobjects.dmi',
-		'icons/obj/custom_items.dmi' = 'icons/obj/clothing/species/swine/custom_items.dmi',
-	)
-
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/swine
 	special_diet = MATERIAL_CLASS_CLOTH | MATERIAL_CLASS_TECH | MATERIAL_CLASS_SOAP
 
