@@ -42,6 +42,7 @@
 		heat_damage = 20, \
 		cold_damage = 20, \
 	)
+	AddElement(/datum/element/cliff_walking)
 
 /mob/living/simple_animal/hostile/poison/giant_spider/get_spacemove_backup(moving_direction, continuous_move)
 	. = ..()

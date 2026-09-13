@@ -50,6 +50,7 @@
 	if(!target.eat(src, user) || !user.can_unEquip(src))
 		return .
 	user.drop_transfer_item_to_loc(src, target)
+	SEND_SIGNAL(target, COMSIG_LIVING_PILL_CONSUMED, src, user)
 	qdel(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
