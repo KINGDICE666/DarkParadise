@@ -71,6 +71,7 @@
 #define JOB_FLAG_MINING_MEDIC (1<<15)
 #define JOB_FLAG_PRISONER (1<<16)
 #define JOB_FLAG_INVESTOR (1<<17)
+#define JOB_FLAG_BITRUNNER (1<<18)
 
 #define JOBCAT_KARMA (1<<3) // DELETE THIS SHIT!!!
 

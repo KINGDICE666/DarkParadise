@@ -53,6 +53,7 @@
 		return .
 
 	. |= ATTACK_CHAIN_SUCCESS
+	SEND_SIGNAL(src, COMSIG_GLASS_DRANK, target, user)
 
 	var/list/transfer_data = reagents.get_transferred_reagents(target, amount_per_transfer_from_this)
 	//Cyborg modules that include drinks automatically refill themselves, but drain the borg's cell

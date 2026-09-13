@@ -28,13 +28,15 @@
 
 /obj/structure/transit_tube_pod/Initialize(mapload)
 	. = ..()
-	// Give auto tubes time to align before trying to start moving
-	spawn(5)
-
 	air_contents.set_oxygen(MOLES_O2STANDARD * 2)
 	air_contents.set_nitrogen(MOLES_N2STANDARD)
 	air_contents.set_temperature(T20C)
+	// Give auto tubes time to align before trying to start moving
+	addtimer(CALLBACK(src, PROC_REF(align_to_tube)), 0.5 SECONDS)
 
+/obj/structure/transit_tube_pod/proc/align_to_tube()
+	if(moving)
+		return
 	for(var/obj/structure/transit_tube/tube in loc)
 		setDir(pick(tube.directions()))
 		break

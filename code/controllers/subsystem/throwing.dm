@@ -221,6 +221,9 @@ SUBSYSTEM_DEF(throwing)
 
 	if(thrownthing)
 		SEND_SIGNAL(thrownthing, COMSIG_MOVABLE_THROW_LANDED, src)
+		var/turf/landed_turf = get_turf(thrownthing)
+		if(landed_turf)
+			SEND_SIGNAL(landed_turf, COMSIG_TURF_MOVABLE_THROW_LANDED, thrownthing)
 		thrownthing?.end_throw()
 
 	thrownthing.newtonian_move(init_dir)
