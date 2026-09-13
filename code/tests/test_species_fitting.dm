@@ -267,3 +267,29 @@
 	TEST_ASSERT_NOTEQUAL(get_worn_icon_source(raider, hood, DEFAULT_ICON_WEAR_MASK, hood.icon_state), "sprite_sheets", "a species sheet without the state still won, and a sheet without the state draws nothing")
 	var/mutable_appearance/worn = hood.build_worn_icon(default_icon_file = DEFAULT_ICON_WEAR_MASK, override_state = hood.icon_state)
 	TEST_ASSERT(!worn.icon_state || icon_exists("[worn.icon]", worn.icon_state), "the worn mask points at a sheet that has no such state, so the wearer renders bare-faced")
+
+	var/obj/item/clothing/accessory/vest = allocate(/obj/item/clothing/accessory/waistcoat)
+	TEST_ASSERT_NOTNULL(vest.sprite_sheets[SPECIES_MONKEY], "this accessory dropped its monkey sheet, so it no longer exercises the accessory fallback")
+	TEST_ASSERT(icon_exists(vest.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING], vest.item_state), "this state left the vanilla accessory sheet, so it no longer tells a missing species state from a missing state")
+	TEST_ASSERT_NULL(vest.species_worn_sheet(SPECIES_MONKEY, vest.item_state), "a species sheet without the state still won the accessory slot, and a sheet without the state draws nothing")
+
+
+/datum/unit_test/species_fitting_collar
+
+/datum/unit_test/species_fitting_collar/Run()
+	var/obj/item/clothing/suit/bomb_suit/security/bomb_suit = allocate(/obj/item/clothing/suit/bomb_suit/security)
+	var/collar_sheet = bomb_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING]
+	TEST_ASSERT(icon_exists(collar_sheet, bomb_suit.icon_state), "this suit lost its human collar sprite, so nothing is left to fall back to")
+	TEST_ASSERT_NOTNULL(bomb_suit.sprite_sheets[SPECIES_VULPKANIN], "this suit dropped its vulpkanin sheet, so it no longer exercises the collar fallback")
+
+	var/mob/living/carbon/human/scout = allocate(/mob/living/carbon/human)
+	scout.set_species(/datum/species/vulpkanin)
+	scout.equip_to_slot_or_del(bomb_suit, ITEM_SLOT_CLOTH_OUTER)
+	TEST_ASSERT_NOTNULL(scout.overlays_standing[COLLAR_LAYER], "a suit with a species sheet but no hand-drawn species collar lost its collar entirely")
+
+	var/mob/living/carbon/human/raider = allocate(/mob/living/carbon/human)
+	raider.set_species(/datum/species/vox)
+	raider.equip_to_slot_or_del(allocate(/obj/item/clothing/suit/bomb_suit/security), ITEM_SLOT_CLOTH_OUTER)
+	var/mutable_appearance/vox_collar = raider.overlays_standing[COLLAR_LAYER]
+	TEST_ASSERT_NOTNULL(vox_collar, "the vox lost the collar somebody drew for it by hand")
+	TEST_ASSERT_NOTEQUAL("[vox_collar.icon]", "", "the hand-drawn vox collar lost to the generator")

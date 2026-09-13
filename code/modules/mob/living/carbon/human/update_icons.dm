@@ -577,7 +577,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	for(var/obj/item/clothing/accessory/accessory as anything in w_uniform.accessories)
 		var/acc_state_type = accessory.item_state ? accessory.item_state : accessory.icon_state
 		var/acc_sheet = accessory.onmob_sheets[ITEM_SLOT_ACCESSORY_STRING]
-		var/species_acc_sheet = accessory.sprite_sheets?[dna.species.name]
+		var/species_acc_sheet = accessory.species_worn_sheet(dna.species.name, acc_state_type)
 		var/icon/fitted_accessory = species_acc_sheet ? null : get_fitted_worn_icon(dna.species, accessory, acc_sheet, acc_state_type)
 		acc_sheet = species_acc_sheet || dna.species.worn_sheets?[acc_sheet] || acc_sheet
 		var/mutable_appearance/acc_olay = mutable_appearance(fitted_accessory || acc_sheet, fitted_accessory ? "" : acc_state_type, alpha = accessory.alpha)
@@ -1185,28 +1185,26 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 
 //Adds a collar overlay above the helmet layer if the suit has one
 //	Suit needs an identically named sprite in icons/mob/clothing/collar.dmi
-//  For suits with sprite_sheets, an identically named sprite needs to exist in a file like this icons/mob/clothing/species/[species_name_here]/collar.dmi.
+//  For suits with sprite_sheets, a hand-drawn collar is looked up in a file like this icons/mob/clothing/species/[species_name_here]/collar.dmi,
+//  and the fitted or human collar is drawn when that file has no sprite for this suit.
 /mob/living/carbon/human/proc/update_collar()
 	remove_overlay(COLLAR_LAYER)
-	var/icon/C = null
 	var/mutable_appearance/standing = null
 
 	if(wear_suit)
 		var/collar_sheet = wear_suit.onmob_sheets[ITEM_SLOT_COLLAR_STRING]
-		var/icon/fitted_collar = get_fitted_worn_icon(dna.species, wear_suit, collar_sheet, wear_suit.icon_state)
-		C = new(dna.species.worn_sheets?[collar_sheet] || collar_sheet)
-		if(wear_suit.sprite_sheets && wear_suit.sprite_sheets[dna.species.name])
-			var/icon_path = "[wear_suit.sprite_sheets[dna.species.name]]"
-			icon_path = "[copytext(icon_path, 1, findtext(icon_path, "/suit.dmi"))]/collar.dmi" //If this file doesn't exist, the end result is that COLLAR_LAYER will be unchanged (empty).
-			if(fexists(icon_path)) //Just ensuring the nonexistance of a file with the above path won't cause a runtime.
-				var/icon/icon_file = new(icon_path)
-				if(wear_suit.icon_state in icon_file.IconStates())
-					standing = mutable_appearance(icon_file, "[wear_suit.icon_state]", layer = -COLLAR_LAYER)
-		else if(fitted_collar)
-			standing = mutable_appearance(fitted_collar, "", layer = -COLLAR_LAYER)
+		var/species_sheet = "[wear_suit.sprite_sheets?[dna.species.name]]"
+		var/suit_suffix = findtext(species_sheet, "/suit.dmi")
+		var/species_collar = suit_suffix ? "[copytext(species_sheet, 1, suit_suffix)]/collar.dmi" : null
+		if(species_collar && fexists(species_collar) && icon_exists(species_collar, wear_suit.icon_state))
+			standing = mutable_appearance(new /icon(species_collar), wear_suit.icon_state, layer = -COLLAR_LAYER)
 		else
-			if(wear_suit.icon_state in C.IconStates())
-				standing = mutable_appearance(C, "[wear_suit.icon_state]", layer = -COLLAR_LAYER)
+			var/icon/fitted_collar = get_fitted_worn_icon(dna.species, wear_suit, collar_sheet, wear_suit.icon_state)
+			var/human_collar = dna.species.worn_sheets?[collar_sheet] || collar_sheet
+			if(fitted_collar)
+				standing = mutable_appearance(fitted_collar, "", layer = -COLLAR_LAYER)
+			else if(icon_exists(human_collar, wear_suit.icon_state))
+				standing = mutable_appearance(human_collar, wear_suit.icon_state, layer = -COLLAR_LAYER)
 
 		overlays_standing[COLLAR_LAYER]	= standing
 	apply_overlay(COLLAR_LAYER)
@@ -1326,6 +1324,10 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	. = list()
 	SEND_SIGNAL(src, COMSIG_ITEM_GET_SEPARATE_WORN_OVERLAYS, ., standing, draw_target, isinhands, icon_file)
 
+/obj/item/proc/species_worn_sheet(species_name, state_name, isinhands = FALSE)
+	var/sheet = isinhands ? sprite_sheets_inhand?[species_name] : sprite_sheets?[species_name]
+	return icon_exists(sheet, state_name) ? sheet : null
+
 /*
 Does everything in relation to building the /mutable_appearance used in the mob's overlays list
 covers:
@@ -1372,9 +1374,7 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	//Find a valid icon_state from variables+arguments
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
 	//Find a valid icon file from variables+arguments
-	var/species_sheet = species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null
-	if(species_sheet && !icon_exists(species_sheet, t_state))
-		species_sheet = null
+	var/species_sheet = species ? species_worn_sheet(species, t_state, isinhands) : null
 	var/file2use = override_file || species_sheet || default_icon_file
 	var/icon/fitted_icon
 	if(!isinhands && !species_sheet && istype(wearer))

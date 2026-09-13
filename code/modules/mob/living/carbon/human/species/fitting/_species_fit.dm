@@ -80,7 +80,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/bare_names = list()
 	for(var/list/part_group in bare_parts)
 		bare_names += jointext(part_group, ",")
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -299,8 +299,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /proc/get_worn_icon_source(mob/living/carbon/human/wearer, obj/item/clothing_item, sheet, state_name)
 	var/datum/species/wearer_species = wearer.dna?.species
-	var/species_sheet = clothing_item.sprite_sheets?[wearer_species?.name]
-	if(species_sheet && icon_exists(species_sheet, state_name))
+	if(clothing_item.species_worn_sheet(wearer_species?.name, state_name))
 		return "sprite_sheets"
 	if(wearer_species?.worn_sheets?[sheet])
 		return "worn_sheets"
