@@ -41,10 +41,11 @@ def _frame_pixels(image, width, height):
 
 
 def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none",
-                  max_squash=1, head_trim=True):
+                  max_squash=1, head_trim=True, head_warp=True, bare_parts=()):
     reference_sheet, width, height = read_dmi(REFERENCE)
     target_sheet, _, _ = read_dmi(target_path, target_git_ref)
-    fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash, head_trim)
+    fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash, head_trim,
+                        head_warp, bare_parts)
     visible = {index: _visible_body(target_sheet, index, width, height) for index in range(4)}
     reference_head = {index: _head_mask(reference_sheet, index, width, height) for index in range(4)}
     target_head = {index: _head_mask(target_sheet, index, width, height) for index in range(4)}
@@ -60,6 +61,9 @@ def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="n
             if frames[0].size != (width, height):
                 continue
             dresses_head = fitter.dresses_head(vanilla_sheet, state)
+            dressed_parts = tuple(fitter.dresses_part(vanilla_sheet, state, part)
+                                  for part in range(len(bare_parts)))
+            warps_head = fitter.warps_head(vanilla_sheet, state)
             stats = {key: 0 for key in ("frames", "generated_bare", "vanilla_bare", "manual_bare",
                                         "generated_erased", "manual_erased", "exact", "untouched_by_hand",
                                         "vanilla_off_body", "generated_off_body", "manual_off_body",
@@ -69,7 +73,7 @@ def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="n
                 manual_frame = frame_for_dir(manual_sheet, state, dir_index)
                 vanilla = _frame_pixels(vanilla_frame, width, height)
                 manual = _frame_pixels(manual_frame, width, height)
-                generated, _ = fitter.fit_frame(vanilla_frame, dir_index, dresses_head)
+                generated, _ = fitter.fit_frame(vanilla_frame, dir_index, dresses_head, dressed_parts, warps_head)
                 skin = visible[dir_index]
                 stats["frames"] += 1
                 stats["vanilla_bare"] += sum(1 for key in skin if vanilla[key] is None)
@@ -105,12 +109,13 @@ def replaceable(stats, tolerance=0):
 
 
 def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none", max_squash=1,
-          head_trim=True):
+          head_trim=True, head_warp=True, bare_parts=()):
     totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
               "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
               "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0,
               "vanilla_head_cloth": 0, "generated_head_cloth": 0, "manual_head_cloth": 0}
-    for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim, remap, max_squash, head_trim):
+    for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim, remap, max_squash,
+                                        head_trim, head_warp, bare_parts):
         for key in totals:
             totals[key] += stats[key]
     return totals
@@ -127,6 +132,11 @@ def main():
     parser.add_argument("--remap", default="none", choices=("none", "auto"))
     parser.add_argument("--no-head-trim", dest="head_trim", action="store_false",
                         help="keep fitter-added cloth on a head the garment does not dress")
+    parser.add_argument("--no-head-warp", dest="head_warp", action="store_false",
+                        help="leave head garments on the human head position")
+    parser.add_argument("--bare-part", action="append", default=[],
+                        help="comma-separated body states the fitter may not smear cloth onto, "
+                             "mirroring bare_parts in the species profile (repeat per part)")
     parser.add_argument("--max-squash", type=int, default=1,
                         help="rows a body part may lose before the remap leaves it alone")
     parser.add_argument("--per-state", action="store_true",
@@ -135,11 +145,13 @@ def main():
                         help="pixels per state the generator may lose before a state is kept by hand")
     arguments = parser.parse_args()
     pairs = [tuple(item.split(":", 1)) for item in arguments.pair]
+    arguments.bare_parts = tuple(tuple(part.split(",")) for part in arguments.bare_part)
     if arguments.per_state:
         per_state(arguments, pairs)
         return
     totals = score(arguments.target, pairs, arguments.git_ref, arguments.target_git_ref,
-                   arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim)
+                   arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim,
+                   arguments.head_warp, arguments.bare_parts)
 
     print(f"frames compared            {totals['frames']}")
     print(f"already vanilla by hand    {totals['untouched_by_hand']}")
@@ -159,7 +171,8 @@ def per_state(arguments, pairs):
     kept = {}
     for _, manual_path, state, stats in _state_scores(
             arguments.target, pairs, arguments.git_ref, arguments.target_git_ref,
-            arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim):
+            arguments.trim, arguments.remap, arguments.max_squash, arguments.head_trim,
+            arguments.head_warp, arguments.bare_parts):
         sheet = kept.setdefault(manual_path, {"keep": [], "drop": 0})
         if replaceable(stats, arguments.tolerance):
             sheet["drop"] += 1

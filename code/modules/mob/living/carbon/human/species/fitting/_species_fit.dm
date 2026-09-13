@@ -19,6 +19,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/trunk_states = list("torso_m", "groin_m")
 	var/list/limb_states = list("l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 	var/list/head_states = list("head_m")
+	var/list/bare_parts
 	var/list/tier_states
 	var/max_squash = 1
 	var/list/steps = list(
@@ -29,8 +30,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 		/datum/fit_step/vertical_warp,
 		/datum/fit_step/cover_skin,
 		/datum/fit_step/keep_solid,
+		/datum/fit_step/head_warp,
 		/datum/fit_step/trim,
 		/datum/fit_step/head_trim,
+		/datum/fit_step/bare_part_trim,
 	)
 	var/list/manual_sheets
 	var/list/blocked_sheets
@@ -47,6 +50,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/pixel_tier_maps
 	var/list/reference_head_masks
 	var/list/target_head_masks
+	var/list/head_shifts
+	var/list/reference_bare_masks
+	var/list/target_bare_masks
 	var/list/shrunk_masks
 	var/list/step_instances
 	var/list/icon_cache
@@ -71,7 +77,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/tier_names = list()
 	for(var/list/tier_group in tier_states)
 		tier_names += jointext(tier_group, ",")
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(tier_names, ";")]")
+	var/list/bare_names = list()
+	for(var/list/part_group in bare_parts)
+		bare_names += jointext(part_group, ",")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -82,6 +91,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 	pixel_tier_maps = list()
 	reference_head_masks = list()
 	target_head_masks = list()
+	head_shifts = list()
+	reference_bare_masks = list()
+	target_bare_masks = list()
 	shrunk_masks = list()
 	for(var/fit_dir in GLOB.cardinal)
 		var/key = "[fit_dir]"
@@ -101,6 +113,14 @@ GLOBAL_LIST_EMPTY(species_fits)
 		pixel_tier_maps[key] = pixel_tier
 		reference_head_masks[key] = build_mask(reference_sheet, head_states, fit_dir)
 		target_head_masks[key] = build_mask(target_sheet, head_states, fit_dir)
+		head_shifts[key] = build_head_shift(fit_dir)
+		var/list/reference_bare = list()
+		var/list/target_bare = list()
+		for(var/list/part_states in bare_parts)
+			reference_bare += list(build_mask(reference_sheet, part_states, fit_dir))
+			target_bare += list(build_mask(target_sheet, part_states, fit_dir))
+		reference_bare_masks[key] = reference_bare
+		target_bare_masks[key] = target_bare
 		shrunk_masks[key] = build_shrunk_mask(fit_dir)
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
@@ -205,6 +225,46 @@ GLOBAL_LIST_EMPTY(species_fits)
 				map[index] = first_reference + round((y - first_target) * (last_reference - first_reference) / (last_target - first_target) + 0.5)
 	return map
 
+/datum/species_fit/proc/build_head_shift(fit_dir)
+	var/key = "[fit_dir]"
+	var/list/reference_head = reference_head_masks[key]
+	var/list/target_head = target_head_masks[key]
+	var/list/rows = new(height)
+	var/reference_column = median_column(reference_head)
+	var/target_column = median_column(target_head)
+	if(!reference_column || !target_column || reference_column == target_column)
+		return rows
+	for(var/y in max(first_mask_row(reference_head), first_mask_row(target_head)) to height)
+		rows[y] = target_column - reference_column
+	return rows
+
+/datum/species_fit/proc/median_column(list/mask)
+	var/list/counts = new(width)
+	var/total = 0
+	for(var/y in 1 to height)
+		var/row_offset = width * (y - 1)
+		for(var/x in 1 to width)
+			if(mask[row_offset + x])
+				counts[x]++
+				total++
+	if(!total)
+		return 0
+	var/middle = round(total / 2)
+	var/seen = 0
+	for(var/x in 1 to width)
+		seen += counts[x]
+		if(seen > middle)
+			return x
+	return width
+
+/datum/species_fit/proc/first_mask_row(list/mask)
+	for(var/y in 1 to height)
+		var/row_offset = width * (y - 1)
+		for(var/x in 1 to width)
+			if(mask[row_offset + x])
+				return y
+	return 0
+
 /datum/species_fit/proc/build_shrunk_mask(fit_dir)
 	var/list/reference_full = build_mask(reference_sheet, trunk_states + limb_states + head_states, fit_dir)
 	var/list/target_full = build_mask(target_sheet, trunk_states + limb_states + head_states, fit_dir)
@@ -302,17 +362,28 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/fitted_anything = FALSE
 	var/list/frames = list()
 	var/dresses_head = FALSE
+	var/warps_head = FALSE
+	var/list/dressed_parts = new(length(bare_parts))
 	for(var/fit_dir in GLOB.cardinal)
 		var/icon/frame = icon(sheet, state_name, fit_dir)
 		if(frame.Width() != width || frame.Height() != height)
 			return null
 		var/list/pixels = read_frame(frame)
 		frames["[fit_dir]"] = pixels
-		if(covers_head(pixels, fit_dir))
+		var/head_share = covered_share(pixels, reference_head_masks["[fit_dir]"])
+		if(head_share >= FIT_PART_GARMENT_SHARE)
 			dresses_head = TRUE
+		if(head_share >= FIT_HEAD_WARP_SHARE)
+			warps_head = TRUE
+		var/list/reference_bare = reference_bare_masks["[fit_dir]"]
+		for(var/part in 1 to length(reference_bare))
+			if(covered_share(pixels, reference_bare[part]) >= FIT_PART_GARMENT_SHARE)
+				dressed_parts[part] = TRUE
 	for(var/fit_dir in GLOB.cardinal)
 		var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"])
 		context.dresses_head = dresses_head
+		context.warps_head = warps_head
+		context.dressed_parts = dressed_parts
 		for(var/datum/fit_step/step in step_instances)
 			step.apply(context)
 		if(context.changed())
@@ -320,17 +391,18 @@ GLOBAL_LIST_EMPTY(species_fits)
 		assembled.Insert(write_frame(context.working), dir = fit_dir)
 	return fitted_anything ? assembled : null
 
-/datum/species_fit/proc/covers_head(list/pixels, fit_dir)
-	var/list/reference_head = reference_head_masks["[fit_dir]"]
-	var/head_pixels = 0
+/datum/species_fit/proc/covered_share(list/pixels, list/mask)
+	var/part_pixels = 0
 	var/dressed = 0
-	for(var/index in 1 to length(reference_head))
-		if(!reference_head[index])
+	for(var/index in 1 to length(mask))
+		if(!mask[index])
 			continue
-		head_pixels++
+		part_pixels++
 		if(pixels[index])
 			dressed++
-	return dressed >= head_pixels * FIT_HEAD_GARMENT_SHARE
+	if(!part_pixels)
+		return 1
+	return dressed / part_pixels
 
 /datum/species_fit/proc/read_frame(icon/frame)
 	var/list/pixels = new(width * height)
@@ -440,6 +512,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/pixel_tier
 	var/list/dirty_rows
 	var/dresses_head = FALSE
+	var/warps_head = FALSE
+	var/list/dressed_parts
 
 /datum/fit_context/New(datum/species_fit/profile, fit_dir, list/pixels)
 	src.profile = profile
@@ -473,5 +547,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /datum/fit_context/proc/target_head_mask()
 	return profile.target_head_masks["[fit_dir]"]
+
+/datum/fit_context/proc/head_shift()
+	return profile.head_shifts["[fit_dir]"]
+
+/datum/fit_context/proc/target_bare_masks()
+	return profile.target_bare_masks["[fit_dir]"]
 
 #undef FIT_DEFAULT_SIZE

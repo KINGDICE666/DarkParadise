@@ -54,11 +54,13 @@ def _covered(pixels, mask):
 
 
 class Auditor:
-    def __init__(self, target_path, target_git_ref=None, max_squash=1):
+    def __init__(self, target_path, target_git_ref=None, max_squash=1, bare_parts=()):
         self.reference_sheet, self.width, self.height = read_dmi(REFERENCE)
         self.target_sheet, _, _ = read_dmi(target_path, target_git_ref)
         self.fitter = SpeciesFit(self.reference_sheet, self.target_sheet,
-                                 self.width, self.height, "shrink", "auto", max_squash, True)
+                                 self.width, self.height, "shrink", "auto", max_squash, True, True,
+                                 bare_parts)
+        self.bare_parts = tuple(bare_parts)
         self.target_body, self.reference_head, self.target_head, self.visible = {}, {}, {}, {}
         self.reference_tiers, self.target_tiers = {}, {}
         for dir_index in range(4):
@@ -78,9 +80,9 @@ class Auditor:
                 body_mask(self.target_sheet, states, dir_index, self.width, self.height)
                 for states in TIER_STATES]
 
-    def frame_scores(self, frame, dir_index, dresses_head):
+    def frame_scores(self, frame, dir_index, dresses_head, dressed_parts, warps_head):
         vanilla = _pixels(frame, self.width, self.height)
-        fitted, _ = self.fitter.fit_frame(frame, dir_index, dresses_head)
+        fitted, _ = self.fitter.fit_frame(frame, dir_index, dresses_head, dressed_parts, warps_head)
         scores = dict.fromkeys(AXES, 0)
         for tier in range(len(TIER_STATES)):
             reference_mask = self.reference_tiers[dir_index][tier]
@@ -111,9 +113,13 @@ class Auditor:
                     continue
                 totals = dict.fromkeys(AXES, 0)
                 dresses_head = self.fitter.dresses_head(sheet, state)
+                dressed_parts = tuple(self.fitter.dresses_part(sheet, state, part)
+                                      for part in range(len(self.bare_parts)))
+                warps_head = self.fitter.warps_head(sheet, state)
                 for dir_index in range(4):
                     for axis, value in self.frame_scores(
-                            frame_for_dir(sheet, state, dir_index), dir_index, dresses_head).items():
+                            frame_for_dir(sheet, state, dir_index), dir_index, dresses_head,
+                            dressed_parts, warps_head).items():
                         totals[axis] += value
                 yield sheet_path, state, totals
 
@@ -158,6 +164,9 @@ def main():
     parser.add_argument("--sheet", action="append",
                         help="vanilla sheet to score (default: every sheet in icons/mob/clothing)")
     parser.add_argument("--max-squash", type=int, default=1)
+    parser.add_argument("--bare-part", action="append", default=[],
+                        help="comma-separated body states the fitter may not smear cloth onto, "
+                             "mirroring bare_parts in the species profile (repeat per part)")
     parser.add_argument("--worst", type=int, default=6, help="states to list per axis")
     parser.add_argument("--sweep", action="store_true", help="score a range of max_squash instead")
     parser.add_argument("--sweep-span", type=int, default=4, help="highest max_squash to sweep")
@@ -166,7 +175,8 @@ def main():
     if arguments.sweep:
         sweep(arguments.target, arguments.target_git_ref, sheets, arguments.sweep_span)
         return
-    report(Auditor(arguments.target, arguments.target_git_ref, arguments.max_squash),
+    report(Auditor(arguments.target, arguments.target_git_ref, arguments.max_squash,
+                   tuple(tuple(part.split(",")) for part in arguments.bare_part)),
            sheets, arguments.worst)
 
 

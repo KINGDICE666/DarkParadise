@@ -12,7 +12,9 @@ FULL_STATES = TRUNK_STATES + LIMB_STATES + ("head_m",)
 
 TRANSPARENT = None
 
-HEAD_GARMENT_SHARE = 0.1
+PART_GARMENT_SHARE = 0.1
+
+HEAD_WARP_SHARE = 0.25
 
 
 def _nearest_line(lines, line):
@@ -92,12 +94,14 @@ def _span_endpoints(mask, line, size, along_rows):
 
 class SpeciesFit:
     def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none", remap="none",
-                 max_squash=1, head_trim=True):
+                 max_squash=1, head_trim=True, head_warp=True, bare_parts=()):
         self.width, self.height = width, height
         self.trim = trim
         self.remap = remap
         self.max_squash = max_squash
         self.head_trim = head_trim
+        self.head_warp = head_warp
+        self.bare_parts = tuple(bare_parts)
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
@@ -108,6 +112,8 @@ class SpeciesFit:
         self.reference_head, self.target_head = {}, {}
         self.reference_tiers, self.target_tiers = {}, {}
         self.span_maps, self.pixel_tiers = {}, {}
+        self.head_shifts = {}
+        self.reference_bare, self.target_bare = {}, {}
         for dir_index in range(4):
             self.reference_trunk[dir_index] = _flip_keys(
                 body_mask(reference_sheet, TRUNK_STATES, dir_index, width, height), height)
@@ -127,6 +133,13 @@ class SpeciesFit:
             self.target_tiers[dir_index] = [
                 _flip_keys(body_mask(target_sheet, states, dir_index, width, height), height)
                 for states in TIER_STATES]
+            self.reference_bare[dir_index] = [
+                _flip_keys(body_mask(reference_sheet, states, dir_index, width, height), height)
+                for states in self.bare_parts]
+            self.target_bare[dir_index] = [
+                _flip_keys(body_mask(target_sheet, states, dir_index, width, height), height)
+                for states in self.bare_parts]
+            self.head_shifts[dir_index] = self._build_head_shifts(dir_index)
             self.warp_maps[dir_index] = self._build_warp_map(dir_index)
             self.row_maps[dir_index] = self._build_row_map(dir_index)
             self.target_full[dir_index] = _flip_keys(
@@ -139,6 +152,27 @@ class SpeciesFit:
             self.shrunk[dir_index] = self.reference_full[dir_index] - self.target_full[dir_index]
         for dir_index in range(4):
             self.span_maps[dir_index] = self._build_span_map(dir_index)
+
+    def _build_head_shifts(self, dir_index):
+        reference_head, target_head = self.reference_head[dir_index], self.target_head[dir_index]
+        if not reference_head or not target_head:
+            return {}
+        reference_columns = sorted(x for x, _ in reference_head)
+        target_columns = sorted(x for x, _ in target_head)
+        shift = (target_columns[len(target_columns) // 2]
+                 - reference_columns[len(reference_columns) // 2])
+        if not shift:
+            return {}
+        first_row = max(min(y for _, y in reference_head), min(y for _, y in target_head))
+        return {y: shift for y in range(first_row, self.height)}
+
+    def _head_warp(self, working, dir_index):
+        shifted = dict(working)
+        for y, shift in self.head_shifts[dir_index].items():
+            for x in range(self.width):
+                column = x - shift
+                shifted[(x, y)] = working[(column, y)] if 0 <= column < self.width else None
+        return shifted
 
     def _build_warp_map(self, dir_index):
         reference_trunk, reference_body = self.reference_trunk[dir_index], self.reference_body[dir_index]
@@ -209,16 +243,28 @@ class SpeciesFit:
                 row_map[(x, y)] = _nearest_line(rows, y)
         return row_map
 
-    def dresses_head(self, sheet, state):
+    def _covered_share(self, sheet, state, masks):
+        best = 0.0
         for dir_index in range(4):
+            mask = masks[dir_index]
+            if not mask:
+                return 1.0
             pixels = frame_for_dir(sheet, state, dir_index).load()
-            mask = self.reference_head[dir_index]
-            dressed = sum(1 for (x, y) in mask if pixels[x, self.height - 1 - y][3] > 0)
-            if dressed >= len(mask) * HEAD_GARMENT_SHARE:
-                return True
-        return False
+            covered = sum(1 for (x, y) in mask if pixels[x, self.height - 1 - y][3] > 0)
+            best = max(best, covered / len(mask))
+        return best
 
-    def fit_frame(self, image, dir_index, dresses_head):
+    def dresses_head(self, sheet, state):
+        return self._covered_share(sheet, state, self.reference_head) >= PART_GARMENT_SHARE
+
+    def warps_head(self, sheet, state):
+        return self._covered_share(sheet, state, self.reference_head) >= HEAD_WARP_SHARE
+
+    def dresses_part(self, sheet, state, part):
+        masks = {dir_index: self.reference_bare[dir_index][part] for dir_index in range(4)}
+        return self._covered_share(sheet, state, masks) >= PART_GARMENT_SHARE
+
+    def fit_frame(self, image, dir_index, dresses_head, dressed_parts, warps_head):
         pixels = image.load()
         source = {}
         for y in range(self.height):
@@ -243,6 +289,8 @@ class SpeciesFit:
         for y in floating:
             for x in range(self.width):
                 working[(x, y)] = None
+        if self.head_warp and warps_head:
+            working = self._head_warp(working, dir_index)
         if self.trim == "body":
             for key in working:
                 if key not in self.target_full[dir_index]:
@@ -252,6 +300,12 @@ class SpeciesFit:
                 working[key] = None
         if self.head_trim and not dresses_head:
             for key in self.target_head[dir_index]:
+                if source[key] is None:
+                    working[key] = None
+        for part, mask in enumerate(self.target_bare[dir_index]):
+            if part < len(dressed_parts) and dressed_parts[part]:
+                continue
+            for key in mask:
                 if source[key] is None:
                     working[key] = None
         return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, any(dirty)

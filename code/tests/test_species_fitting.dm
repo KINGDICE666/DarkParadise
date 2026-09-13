@@ -196,6 +196,49 @@
 	var/icon/monocle = swine_fit.fit_worn_icon(null, DEFAULT_ICON_GLASSES, "monocle")
 	TEST_ASSERT_NOTNULL(monocle.GetPixel(19, 23, dir = NORTH), "the monocle was head-trimmed on the one frame where it barely covers a human head, so the gate is being judged per direction instead of per state")
 
+/datum/unit_test/species_fitting_head_warp
+
+/datum/unit_test/species_fitting_head_warp/Run()
+	var/datum/species_fit/vox_fit = get_species_fit(/datum/species_fit/vox)
+
+	var/icon/vanilla = icon(DEFAULT_ICON_HEAD, "beret_hos_black", EAST)
+	TEST_ASSERT_NULL(vanilla.GetPixel(20, 28), "the vanilla beret is expected to leave the vox beak bare here")
+	TEST_ASSERT_NOTNULL(vanilla.GetPixel(13, 28), "the vanilla beret is expected to draw itself where only a human head reaches")
+
+	var/icon/fitted = vox_fit.fit_worn_icon(null, DEFAULT_ICON_HEAD, "beret_hos_black")
+	TEST_ASSERT_NOTNULL(fitted, "the vox profile refused to fit a beret")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(20, 28, dir = EAST), "the beret stayed on the human head position instead of following the vox one")
+	TEST_ASSERT_NULL(fitted.GetPixel(13, 28, dir = EAST), "the beret kept a tail hanging behind the vox head")
+	TEST_ASSERT_NULL(vox_fit.head_shifts["[SOUTH]"][28], "the front frame was shifted, and a vox head faces exactly where a human one does")
+
+	var/icon/coat = vox_fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, "armor-combat")
+	TEST_ASSERT_NOTNULL(coat, "the vox profile refused to fit combat armour")
+	TEST_ASSERT_NOTNULL(coat.GetPixel(13, 22, dir = EAST), "a collar that merely brushes the human head mask was shifted like a hat, tearing the shoulder line")
+
+	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
+	for(var/fit_dir in GLOB.cardinal)
+		var/list/shifts = swine_fit.head_shifts["[fit_dir]"]
+		TEST_ASSERT_NULL(shifts[swine_fit.height], "the swine head moved on its [dir2text(fit_dir)] frame, and only the snout sits off the human centre line")
+
+/datum/unit_test/species_fitting_bare_parts
+
+/datum/unit_test/species_fitting_bare_parts/Run()
+	var/datum/species_fit/vox_fit = get_species_fit(/datum/species_fit/vox)
+
+	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s", EAST)
+	TEST_ASSERT_NULL(vanilla.GetPixel(22, 11), "the vanilla uniform is expected to leave this pixel to the fitter")
+
+	var/icon/uniform = vox_fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
+	TEST_ASSERT_NOTNULL(uniform, "the vox profile refused to fit a plain uniform state")
+	TEST_ASSERT_NULL(uniform.GetPixel(22, 11, dir = EAST), "the fitter smeared a sleeve over the vox hand, which a uniform does not dress")
+
+	var/icon/gloves = vox_fit.fit_worn_icon(null, DEFAULT_ICON_GLOVES, "bgloves")
+	TEST_ASSERT_NOTNULL(gloves, "the vox profile refused to fit plain gloves")
+	TEST_ASSERT_NOTNULL(gloves.GetPixel(14, 10, dir = EAST), "the bare part trim stripped gloves, and gloves are exactly the garment that dresses a hand")
+
+	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
+	TEST_ASSERT_NULL(swine_fit.bare_parts, "the swine kept its sleeves over the trotters by hand, and its sheets were migrated against that")
+
 /datum/unit_test/species_fitting_profiles
 
 /datum/unit_test/species_fitting_profiles/Run()

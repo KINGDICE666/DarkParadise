@@ -1,6 +1,11 @@
 /datum/fit_step/proc/apply(datum/fit_context/context)
 	return
 
+/datum/fit_step/proc/clear_added(datum/fit_context/context, list/mask)
+	for(var/index in 1 to length(mask))
+		if(mask[index] && !context.source[index])
+			context.working[index] = null
+
 /datum/fit_step/mark_bare_skin/apply(datum/fit_context/context)
 	var/list/reference_mask = context.reference_mask()
 	var/list/target_mask = context.target_mask()
@@ -167,6 +172,21 @@
 		return TRUE
 	return FALSE
 
+/datum/fit_step/head_warp/apply(datum/fit_context/context)
+	if(!context.warps_head)
+		return
+	var/list/head_shift = context.head_shift()
+	var/list/shifted = context.working.Copy()
+	for(var/y in 1 to context.height)
+		var/shift = head_shift[y]
+		if(!shift)
+			continue
+		var/row_offset = context.width * (y - 1)
+		for(var/x in 1 to context.width)
+			var/column = x - shift
+			shifted[row_offset + x] = (column >= 1 && column <= context.width) ? context.working[row_offset + column] : null
+	context.working = shifted
+
 /datum/fit_step/trim/apply(datum/fit_context/context)
 	var/list/shrunk = context.shrunk_mask()
 	for(var/index in 1 to length(context.working))
@@ -176,7 +196,11 @@
 /datum/fit_step/head_trim/apply(datum/fit_context/context)
 	if(context.dresses_head)
 		return
-	var/list/target_head = context.target_head_mask()
-	for(var/index in 1 to length(target_head))
-		if(target_head[index] && !context.source[index])
-			context.working[index] = null
+	clear_added(context, context.target_head_mask())
+
+/datum/fit_step/bare_part_trim/apply(datum/fit_context/context)
+	var/list/target_parts = context.target_bare_masks()
+	for(var/part in 1 to length(target_parts))
+		if(context.dressed_parts[part])
+			continue
+		clear_added(context, target_parts[part])
