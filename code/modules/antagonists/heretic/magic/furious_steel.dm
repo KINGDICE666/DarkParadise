@@ -1,19 +1,18 @@
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel
+/datum/action/cooldown/spell/pointed/projectile/furious_steel
 	name = "Яростная Сталь"
 	desc = "Призывает три серебряных клинка, вращающихся вокруг вас. \
 			Эти клинки защитят вас от атак, но будут расходоваться при использовании. \
 			Кроме того, вы можете кликнуть, чтобы выстрелить клинками в цель, нанося урон и вызывая кровотечение."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "furious_steel"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "furious_steel"
 	sound = 'sound/weapons/guillotine.ogg'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	spell_requirements = NONE
+	cooldown_time = 30 SECONDS
 	invocation = "Р'СТН СТ'ЛЬ!"
 
 	active_msg = "Вы призываете три серебряных клинка."
@@ -28,30 +27,30 @@
 	var/datum/status_effect/protective_blades/blade_effect
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/on_spell_gain(mob/user = usr)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/Grant(mob/grant_to)
 	. = ..()
-	if(!action?.owner)
+	if(!owner)
 		return
 
-	if(IS_HERETIC(action.owner))
-		RegisterSignal(action.owner, SIGNAL_REMOVETRAIT(TRAIT_ALLOW_HERETIC_CASTING), PROC_REF(on_focus_lost))
+	if(IS_HERETIC(owner))
+		RegisterSignal(owner, SIGNAL_REMOVETRAIT(TRAIT_ALLOW_HERETIC_CASTING), PROC_REF(on_focus_lost))
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/on_spell_loss(mob/remove_from)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/Remove(mob/remove_from)
 	UnregisterSignal(remove_from, SIGNAL_REMOVETRAIT(TRAIT_ALLOW_HERETIC_CASTING))
 	return ..()
 
 
 /// Signal proc for [SIGNAL_REMOVETRAIT], via [TRAIT_ALLOW_HERETIC_CASTING], to remove the effect when we lose the focus trait
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/proc/on_focus_lost(mob/source)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/proc/on_focus_lost(mob/source)
 	SIGNAL_HANDLER
 
-	remove_mousepointer(source.client, refund_cooldown = TRUE)
+	unset_click_ability(source.client, refund_cooldown = TRUE)
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/InterceptClickOn(mob/living/clicker, params, atom/target)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/InterceptClickOn(mob/living/clicker, params, atom/target)
 	if(!blade_effect)
-		clicker.ranged_ability.remove_ranged_ability(clicker)
+		unset_click_ability(clicker)
 
 	if(clicker.get_active_hand())
 		return FALSE
@@ -61,7 +60,7 @@
 	return ..()
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/on_activation(mob/on_who)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/on_activation(mob/on_who)
 	. = ..()
 	if(!.)
 		return
@@ -77,7 +76,7 @@
 	RegisterSignal(blade_effect, COMSIG_BLADE_BARRIER_TRIGGERED, PROC_REF(on_status_effect_triggered))
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/before_cast(list/targets, mob/user = usr)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
@@ -85,11 +84,11 @@
 	if(!isnull(blade_effect) && current_amount)
 		return . | SPELL_NO_IMMEDIATE_COOLDOWN
 
-	remove_mousepointer(action.owner.client, refund_cooldown = FALSE)
+	unset_click_ability(owner.client, refund_cooldown = FALSE)
 	return SPELL_CANCEL_CAST
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/fire_projectile(mob/living/user, atom/target)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/fire_projectile(mob/living/user, atom/target)
 	if(blade_effect.blades.len == 0)
 		return
 
@@ -97,26 +96,26 @@
 	qdel(blade_effect.blades[1])
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/ready_projectile(obj/projectile/to_launch, atom/target, mob/user, iteration)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/ready_projectile(obj/projectile/to_launch, atom/target, mob/user, iteration)
 	. = ..()
 	to_launch.def_zone = check_zone(user.zone_selected)
 
 
 /// If our blade status effect is deleted, clear our refs and deactivate
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/proc/on_status_effect_deleted(datum/status_effect/protective_blades/source)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/proc/on_status_effect_deleted(datum/status_effect/protective_blades/source)
 	SIGNAL_HANDLER
 
 	blade_effect = null
 	var/blades_remaining = current_amount
-	remove_mousepointer(action.owner.client, refund_cooldown = FALSE)
+	unset_click_ability(owner.client, refund_cooldown = FALSE)
 	if(blades_remaining > 0)
 		return
 
-	cooldown_handler.start_recharge()
+	StartCooldown()
 
 
 /// Reduce our projectile amount when our blade status effect is triggered
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/proc/on_status_effect_triggered(datum/status_effect/protective_blades/source, atom/target)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/proc/on_status_effect_triggered(datum/status_effect/protective_blades/source, atom/target)
 	SIGNAL_HANDLER
 	current_amount--
 
@@ -187,21 +186,21 @@
 	)
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/solo
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/solo
 	name = "Ослабленная Яростная Сталь"
-	base_cooldown = 20 SECONDS
+	cooldown_time = 20 SECONDS
 	projectile_amount = 1
 	active_msg = "Вы призываете серебряный клинок."
 	deactive_msg = "Вы отзываете серебряный клинок."
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/haunted
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/haunted
 	name = "Проклятая Сталь"
 	desc = "Призывает два проклятых клинка, вращающихся вокруг вас. \
 			Эти клинки защитят вас от атак, уничтожаясь в процессе. \
 			Кроме того, вы можете кликнуть, чтобы выстрелить клинками в цель, нанося урон и вызывая кровотечение."
 
-	base_cooldown = 40 SECONDS
+	cooldown_time = 40 SECONDS
 	invocation = "IA!"
 	invocation_type = INVOCATION_SHOUT
 

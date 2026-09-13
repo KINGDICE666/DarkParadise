@@ -14,9 +14,9 @@
 	ai_controller = /datum/ai_controller/basic_controller/stalker
 	/// Actions to grant on spawn
 	var/static/list/actions_to_add = list(
-		/obj/effect/proc_holder/spell/emplosion/eldritch = BB_GENERIC_ACTION,
-		/obj/effect/proc_holder/spell/ethereal_jaunt/ash = null,
-		/obj/effect/proc_holder/spell/shapeshift/eldritch = BB_SHAPESHIFT_ACTION,
+		/datum/action/cooldown/spell/emplosion/eldritch = BB_GENERIC_ACTION,
+		/datum/action/cooldown/spell/jaunt/ethereal_jaunt/ash = null,
+		/datum/action/cooldown/spell/shapeshift/eldritch = BB_SHAPESHIFT_ACTION,
 	)
 
 

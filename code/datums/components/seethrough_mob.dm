@@ -43,7 +43,7 @@
 	// The toggle is body-bound (tg Grants its action to the mob, not the mind): mindless mobs like the
 	// freshly-summoned star gazer must not crash here, and whoever pilots the body later gets the button.
 	var/mob/mob = parent
-	mob.AddSpell(new /obj/effect/proc_holder/spell/toggle_seethrough)
+	mob.AddSpell(new /datum/action/cooldown/spell/toggle_seethrough)
 
 
 /datum/component/seethrough_mob/Destroy(force)
@@ -123,28 +123,23 @@
 		untrick_mob()
 
 
-/obj/effect/proc_holder/spell/toggle_seethrough
+/datum/action/cooldown/spell/toggle_seethrough
 	name = "Видеть сквозь себя"
 	desc = "Позволяет видеть из-за вашего огромного тела и кликать сквозь него."
-	action_icon_state = "alien_sneak"
-	action_background_icon_state = "bg_alien"
-	base_cooldown = 1 SECONDS
+	button_icon_state = "alien_sneak"
+	background_icon_state = "bg_alien"
+	cooldown_time = 1 SECONDS
 	// This is a form-only toggle granted to the (non-human) ascended monster, so it must NOT require a human
 	// body or wizard garb - otherwise can_cast() short-circuits with "only humans can cast" (TG's action has
 	// no such requirement). Matches TG /datum/action/cooldown/toggle_seethrough.
-	clothes_req = FALSE
-	human_req = FALSE
+	spell_requirements = NONE
 	//melee_cooldown_time = 0
 	//can_be_shared = FALSE
 
 
 // Without this, `targeting` stays null and master220's choose_targets() null-derefs `targeting.use_intercept_click`
 // on click - the button looks dead ("не кликабельная кнопка"). Self-cast, like every other heretic toggle.
-/obj/effect/proc_holder/spell/toggle_seethrough/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/toggle_seethrough/on_spell_loss(mob/remove_from)
+/datum/action/cooldown/spell/toggle_seethrough/Remove(mob/remove_from)
 	var/datum/component/seethrough_mob/transparency = remove_from.GetComponent(/datum/component/seethrough_mob)
 	if(!transparency || !transparency.is_active)
 		return ..()
@@ -153,9 +148,7 @@
 	return ..()
 
 
-/obj/effect/proc_holder/spell/toggle_seethrough/cast(list/targets, mob/user)
+/datum/action/cooldown/spell/toggle_seethrough/cast(atom/cast_on)
 	. = ..()
-	for(var/atom/target as anything in targets)
-		cooldown_handler.start_recharge()
-		var/datum/component/seethrough_mob/transparency = target.GetComponent(/datum/component/seethrough_mob)
-		transparency.toggle_active()
+	var/datum/component/seethrough_mob/transparency = cast_on.GetComponent(/datum/component/seethrough_mob)
+	transparency?.toggle_active()

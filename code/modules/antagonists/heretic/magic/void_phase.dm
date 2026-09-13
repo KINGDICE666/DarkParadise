@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/pointed/void_phase
+/datum/action/cooldown/spell/pointed/void_phase
 	name = "Пустотный Сдвиг"
 	desc = "Позволяет переместиться в выбранное место, повреждает всех в квадрате 3x3 вокруг \
 			выбранного места и вашего текущего местоположения. Минимальная дальность — 3 клетки, \
 			максимальная — 9 клеток."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "voidblink"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "voidblink"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/throw_target.dmi'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 20 SECONDS
+	cooldown_time = 20 SECONDS
 
 	invocation = "СДВ'Г Р'ЛЬН'СТ."
 	invocation_type = INVOCATION_WHISPER
@@ -26,29 +24,29 @@
 	var/damage_radius = 1
 
 
-/obj/effect/proc_holder/spell/pointed/void_phase/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/void_phase/before_cast(list/targets, mob/user = usr)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
 
 	var/atom/cast_on = targets[1]
-	if(!action.owner || get_dist(get_turf(action.owner), get_turf(cast_on)) >= min_cast_range)
+	if(!owner || get_dist(get_turf(owner), get_turf(cast_on)) >= min_cast_range)
 		return
 
-	cast_on.balloon_alert(action.owner, "слишком близко!")
+	cast_on.balloon_alert(owner, "слишком близко!")
 	return . | SPELL_CANCEL_CAST
 
 
-/obj/effect/proc_holder/spell/pointed/void_phase/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/void_phase/cast(atom/cast_on)
 	. = ..()
-	var/turf/source_turf = get_turf(action.owner)
-	var/turf/targeted_turf = get_turf(targets[1])
+	var/turf/source_turf = get_turf(owner)
+	var/turf/targeted_turf = get_turf(cast_on)
 
 	cause_aoe(source_turf, /obj/effect/temp_visual/voidin)
 	cause_aoe(targeted_turf, /obj/effect/temp_visual/voidout)
 
 	do_teleport(
-		action.owner,
+		owner,
 		targeted_turf,
 		aprecision = 1,
 		ignore_bluespace_interference = TRUE,
@@ -57,11 +55,11 @@
 
 
 /// Does the AOE effect of the blink at the passed turf
-/obj/effect/proc_holder/spell/pointed/void_phase/proc/cause_aoe(turf/target_turf, effect_type = /obj/effect/temp_visual/voidin)
+/datum/action/cooldown/spell/pointed/void_phase/proc/cause_aoe(turf/target_turf, effect_type = /obj/effect/temp_visual/voidin)
 	new effect_type(target_turf)
 	playsound(target_turf, 'sound/magic/voidblink.ogg', 60, FALSE)
 	for(var/mob/living/living_mob in range(damage_radius, target_turf))
-		if(IS_HERETIC_OR_MONSTER(living_mob) || living_mob == action.owner)
+		if(IS_HERETIC_OR_MONSTER(living_mob) || living_mob == owner)
 			continue
 
 		if(living_mob.can_block_magic(antimagic_flags))

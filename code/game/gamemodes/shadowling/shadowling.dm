@@ -94,7 +94,7 @@ Made by Xhuis
 	return shadowlings.ascended
 
 /datum/game_mode/proc/finalize_shadowling(datum/mind/shadow_mind)
-	shadow_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_hatch(null))
+	shadow_mind.AddSpell(new /datum/action/cooldown/spell/shadowling_hatch)
 	shadow_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /datum/game_mode/proc/add_thrall(datum/mind/new_thrall_mind)

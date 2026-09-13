@@ -1,9 +1,9 @@
-/obj/effect/proc_holder/spell/shapeshift/eldritch
+/datum/action/cooldown/spell/shapeshift/eldritch
 	name = "Метаморфоза" // 177013 :)
 	desc = "Заклинание, позволяющее вам принять облик другого существа, приобретая его способности. \
 			Сделав выбор, вы больше не сможете принимать другую форму."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
 
 	school = SCHOOL_FORBIDDEN
@@ -24,13 +24,10 @@
 	var/old_shouldwakeup
 
 
-/obj/effect/proc_holder/spell/shapeshift/eldritch/Shapeshift(mob/living/caster)
-	..()
-	var/mob/living/shape = caster.loc
-	if(!istype(shape) || !(shape in current_shapes))
-		return null
-
-	RegisterSignal(shape, COMSIG_MOB_DEATH, PROC_REF(on_death))
+/datum/action/cooldown/spell/shapeshift/eldritch/do_shapeshift(mob/living/caster)
+	var/mob/living/shape = ..()
+	if(!shape)
+		return shape
 
 	if(LAZYIN(caster.mob_spell_list, src))
 		LAZYREMOVE(caster.mob_spell_list, src)
@@ -45,24 +42,18 @@
 	return shape
 
 
-/obj/effect/proc_holder/spell/shapeshift/eldritch/proc/on_death(mob/living/source)
-	SIGNAL_HANDLER
-	Restore(source)
+/datum/action/cooldown/spell/shapeshift/eldritch/do_unshapeshift(mob/living/caster)
+	LAZYREMOVE(caster.mob_spell_list, src)
 
+	var/mob/living/unshifted = ..()
+	if(QDELETED(unshifted))
+		return unshifted
 
-/obj/effect/proc_holder/spell/shapeshift/eldritch/Restore(mob/living/shape)
-	var/mob/living/simple_animal/animal
-	for(var/mob/living/simple_animal/candidate in shape)
-		if(candidate in current_casters)
-			animal = candidate
-			break
-
-	if(animal)
-		LAZYREMOVE(shape.mob_spell_list, src)
-
-	. = ..()
-
-	if(!QDELETED(animal))
+	if(is_simple_animal(unshifted))
+		var/mob/living/simple_animal/animal = unshifted
 		animal.shouldwakeup = old_shouldwakeup
-		if(!LAZYIN(animal.mob_spell_list, src))
-			animal.AddSpell(src)
+
+	if(!LAZYIN(unshifted.mob_spell_list, src))
+		unshifted.AddSpell(src)
+
+	return unshifted

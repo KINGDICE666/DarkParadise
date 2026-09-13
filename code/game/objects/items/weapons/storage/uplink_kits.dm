@@ -1162,5 +1162,5 @@ To apply, hold the injector a short distance away from the outer thigh before ap
 
 /obj/item/storage/box/syndie_kit/portal_gun/populate_contents()
 	new /obj/item/gun/portal_gun(src)
-	new /obj/item/reagent_containers/glass/portal_fluid_canister/full(src)
-	new /obj/item/reagent_containers/glass/portal_fluid_canister/full(src)
+	new /obj/item/reagent_containers/cup/portal_fluid_canister/full(src)
+	new /obj/item/reagent_containers/cup/portal_fluid_canister/full(src)

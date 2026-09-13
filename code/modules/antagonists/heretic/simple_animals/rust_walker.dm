@@ -32,8 +32,8 @@
 	AddElement(/datum/element/footstep, FOOTSTEP_MOB_RUST)
 
 	var/static/list/grantable_spells = list(
-		/obj/effect/proc_holder/spell/aoe/rust_conversion = BB_GENERIC_ACTION,
-		/obj/effect/proc_holder/spell/fireball/rust_wave/short = BB_TARGETED_ACTION,
+		/datum/action/cooldown/spell/aoe/rust_conversion = BB_GENERIC_ACTION,
+		/datum/action/cooldown/spell/pointed/projectile/fireball/rust_wave/short = BB_TARGETED_ACTION,
 	)
 	for(var/path in grantable_spells)
 		AddSpell(new path)

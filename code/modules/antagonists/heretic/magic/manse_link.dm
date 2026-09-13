@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/pointed/manse_link
+/datum/action/cooldown/spell/pointed/manse_link
 	name = "Связь Обители"
 	desc = "Это заклинание позволяет вам соединять разумы с другими существами. \
 			Все разумы, подключенные к вашей связи, смогут \
 			незаметно общаться на больших расстояниях."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "mansus_link"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "mansus_link"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/throw_target.dmi'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 20 SECONDS
+	cooldown_time = 20 SECONDS
 
 	invocation = "Р'СКР'Й СВ'Й Р'З'М"
 	invocation_type = INVOCATION_SHOUT
@@ -22,26 +20,26 @@
 
 	/// The time it takes to link to a mob.
 	var/link_time = 6 SECONDS
-	/// The mind_linker component that created us. `action.owner` is the CASTER mob, not the component.
+	/// The mind_linker component that created us. `owner` is the CASTER mob, not the component.
 	var/datum/component/mind_linker/linker
 
 
-/obj/effect/proc_holder/spell/pointed/manse_link/Initialize(mapload, datum/component/mind_linker/linker)
+/datum/action/cooldown/spell/pointed/manse_link/New(Target)
 	. = ..()
-	if(isnull(linker)) // instantiated bare (e.g. unit tests) — the linker will never be set, but don't runtime
+	if(isnull(Target)) // instantiated bare (e.g. unit tests) — the linker will never be set, but don't runtime
 		return
-	if(!istype(linker))
+	if(!istype(Target, /datum/component/mind_linker))
 		stack_trace("[name] ([type]) was instantiated on a non-mind_linker target, this doesn't work.")
 		return
-	src.linker = linker
+	linker = Target
 
 
-/obj/effect/proc_holder/spell/pointed/manse_link/Destroy(force)
+/datum/action/cooldown/spell/pointed/manse_link/Destroy(force)
 	linker = null
 	return ..()
 
 
-/obj/effect/proc_holder/spell/pointed/manse_link/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/manse_link/is_valid_target(atom/cast_on)
 	. = ..()
 	if(!.)
 		return FALSE
@@ -49,7 +47,7 @@
 	return isliving(cast_on)
 
 
-/obj/effect/proc_holder/spell/pointed/manse_link/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/manse_link/before_cast(list/targets, mob/user = usr)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
@@ -63,8 +61,8 @@
 
 
 /// Links linkee to our network.
-/obj/effect/proc_holder/spell/pointed/manse_link/proc/do_linking(mob/living/linkee)
-	var/mob/living/caster = action?.owner
+/datum/action/cooldown/spell/pointed/manse_link/proc/do_linking(mob/living/linkee)
+	var/mob/living/caster = owner
 	if(QDELETED(linker) || QDELETED(caster))
 		return FALSE
 

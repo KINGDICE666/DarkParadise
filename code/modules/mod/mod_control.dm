@@ -762,7 +762,7 @@
 	// 		INVOKE_ASYNC(src, PROC_REF(remove_pai), /* user = */ null, /* forced = */ TRUE) // async to appease spaceman DMM because the branch we don't run has a do_after
 	// 	else
 	// 		for(var/datum/action/action as anything in actions)
-	// 			if(action.owner == ai_assistant)
+	// 			if(owner == ai_assistant)
 	// 				action.Remove(ai_assistant)
 	// 		new /obj/item/mod/ai_minicard(drop_location(), ai_assistant)
 

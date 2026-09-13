@@ -2485,7 +2485,6 @@
 #include "code\modules\antagonists\heretic\knowledge\side_knowledge\tier_one.dm"
 #include "code\modules\antagonists\heretic\knowledge\side_knowledge\tier_three.dm"
 #include "code\modules\antagonists\heretic\knowledge\side_knowledge\tier_two.dm"
-#include "code\modules\antagonists\heretic\magic\_spell_bases.dm"
 #include "code\modules\antagonists\heretic\magic\accelerated_dance.dm"
 #include "code\modules\antagonists\heretic\magic\aggressive_spread.dm"
 #include "code\modules\antagonists\heretic\magic\apetravulnera.dm"

@@ -255,7 +255,7 @@
 	var/turf/anchor = run_loc_floor_bottom_left
 	var/mob/living/basic/netguardian/guardian = allocate(/mob/living/basic/netguardian, anchor)
 	TEST_ASSERT_NOTNULL(guardian.ai_controller, "the netguardian lost its ai controller on spawn")
-	var/obj/effect/proc_holder/spell/netguardian_rockets/rockets = locate() in guardian.mob_spell_list
+	var/datum/action/cooldown/spell/pointed/netguardian_rockets/rockets = locate() in guardian.mob_spell_list
 	TEST_ASSERT_NOTNULL(rockets, "the netguardian was not granted its rocket ability")
 	TEST_ASSERT_EQUAL(guardian.ai_controller.blackboard[BB_TARGETED_ACTION], rockets, "the rocket ability did not reach the ai blackboard")
 

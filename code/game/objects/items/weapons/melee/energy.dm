@@ -267,7 +267,7 @@
 			owner.visible_message(span_danger("[owner] blocks [attack_text] with [src]!"))
 			playsound(src, 'sound/weapons/effects/ric3.ogg', 100, TRUE)
 			return TRUE
-		owner.visible_message(span_danger("[owner] parries [attack_text] with [src]!"), projectile_message = TRUE)
+		owner.visible_message(span_danger("[owner] parries [attack_text] with [src]!"))
 		add_attack_logs(P.firer, src, "hit by [P.type] but got parried by [src]")
 		return -1
 	return TRUE

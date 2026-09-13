@@ -29,8 +29,8 @@
 /mob/living/simple_animal/hostile/heretic_summon/ash_spirit/Initialize(mapload)
 	. = ..()
 	var/static/list/actions_to_add = list(
-		/obj/effect/proc_holder/spell/fire_sworn,
-		/obj/effect/proc_holder/spell/ethereal_jaunt/ash,
+		/datum/action/cooldown/spell/fire_sworn,
+		/datum/action/cooldown/spell/jaunt/ethereal_jaunt/ash,
 	)
 	for(var/path in actions_to_add)
 		AddSpell(new path)

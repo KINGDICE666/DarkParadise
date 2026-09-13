@@ -1,38 +1,32 @@
 
-/obj/effect/proc_holder/spell/aoe/bluespace_stasis
+/datum/action/cooldown/spell/aoe/bluespace_stasis
 	name = "Стазис"
 	desc = "Вырывает всех не-еретиков и все снаряды в радиусе шести плиток из течения времени на четыре секунды. \
 			Застывшие неуязвимы и не могут действовать, но вы свободно перемещаетесь между ними. \
 			Навредить застывшему нельзя — зато \"Пространственная Рокировка\" работает как обычно, \
 			а \"Расплетение Формы\" снимает стазис с цели и развязывает нить."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "bluespace_stasis"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "bluespace_stasis"
 
 	sound = 'sound/magic/voidblink.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 45 SECONDS
+	cooldown_time = 45 SECONDS
 
 	invocation = "СТ'З'С!"
 	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
-	aoe_range = 6
+	aoe_radius = 6
 	var/stasis_duration = 4 SECONDS
 
 
-/obj/effect/proc_holder/spell/aoe/bluespace_stasis/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/aoe/bluespace_stasis/get_things_to_cast_on(atom/center, radius_override)
+/datum/action/cooldown/spell/aoe/bluespace_stasis/get_things_to_cast_on(atom/center, radius_override)
 	var/list/stuff = list()
-	for(var/mob/living/frozen in range(radius_override || aoe_range, center))
-		if(frozen == action.owner || IS_HERETIC_OR_MONSTER(frozen))
+	for(var/mob/living/frozen in range(radius_override || aoe_radius, center))
+		if(frozen == owner || IS_HERETIC_OR_MONSTER(frozen))
 			continue
 
 		stuff += frozen
@@ -40,15 +34,16 @@
 	return stuff
 
 
-/obj/effect/proc_holder/spell/aoe/bluespace_stasis/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action?.owner
+/datum/action/cooldown/spell/aoe/bluespace_stasis/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
 	if(!caster)
 		return FALSE
 
 	for(var/mob/living/frozen as anything in get_things_to_cast_on(get_turf(caster)))
 		frozen.apply_status_effect(/datum/status_effect/bluespace_stasis)
 
-	for(var/obj/projectile/stalled in range(aoe_range, caster))
+	for(var/obj/projectile/stalled in range(aoe_radius, caster))
 		stalled.paused = TRUE
 		addtimer(VARSET_CALLBACK(stalled, paused, FALSE), stasis_duration)
 
@@ -56,23 +51,21 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/spatial_rewind
+/datum/action/cooldown/spell/spatial_rewind
 	name = "Откат Пространства"
 	desc = "Запоминает положение существ и незакреплённых предметов в радиусе семи плиток. \
 			Через пять секунд область откатывается: все не-еретики возвращаются на прежние места, \
 			получают тридцать урона по выносливости и два Разлома. \
 			Здоровье, раны, реагенты и содержимое карманов не откатываются."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "spatial_rewind"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "spatial_rewind"
 
 	sound = 'sound/magic/timeparadox2.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 60 SECONDS
+	cooldown_time = 60 SECONDS
 
 	invocation = "'ТК'Т!"
 	invocation_type = INVOCATION_SHOUT
@@ -82,12 +75,9 @@
 	var/rewind_delay = 5 SECONDS
 
 
-/obj/effect/proc_holder/spell/spatial_rewind/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/spatial_rewind/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action?.owner
+/datum/action/cooldown/spell/spatial_rewind/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
 	if(!caster)
 		return FALSE
 
@@ -114,7 +104,7 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/spatial_rewind/proc/roll_back(mob/living/caster, list/snapshot)
+/datum/action/cooldown/spell/spatial_rewind/proc/roll_back(mob/living/caster, list/snapshot)
 	for(var/atom/movable/restored as anything in snapshot)
 		if(QDELETED(restored))
 			continue
@@ -136,22 +126,20 @@
 	playsound(get_turf(caster), pick(GLOB.bluespace_collapse_sounds), 70, TRUE)
 
 
-/obj/effect/proc_holder/spell/pointed/bluespace_banish
+/datum/action/cooldown/spell/pointed/bluespace_banish
 	name = "Изгнание в Блюспейс"
 	desc = "Втягивает в разлом существо без сознания, которое только что пережило схлопывание. \
 			Через три секунды оно перестаёт существовать. Изгнание прерывается, если цель придёт в себя, \
 			уйдёт из поля зрения или если вы потеряете возможность поддерживать заклинание."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "bluespace_banish"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "bluespace_banish"
 
 	sound = 'sound/magic/disintegrate.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 90 SECONDS
+	cooldown_time = 90 SECONDS
 
 	invocation = "'ЗГН'Н'!"
 	invocation_type = INVOCATION_SHOUT
@@ -162,7 +150,7 @@
 	var/banish_range = 7
 
 
-/obj/effect/proc_holder/spell/pointed/bluespace_banish/valid_target(atom/cast_on, mob/user)
+/datum/action/cooldown/spell/pointed/bluespace_banish/is_valid_target(atom/cast_on, mob/user)
 	if(!isliving(cast_on) || cast_on == user)
 		return FALSE
 	var/mob/living/living_target = cast_on
@@ -171,13 +159,13 @@
 	return is_collapsed(living_target)
 
 
-/obj/effect/proc_holder/spell/pointed/bluespace_banish/proc/is_collapsed(mob/living/target)
+/datum/action/cooldown/spell/pointed/bluespace_banish/proc/is_collapsed(mob/living/target)
 	return target.stat != CONSCIOUS && target.has_status_effect(/datum/status_effect/collapse_immunity)
 
 
-/obj/effect/proc_holder/spell/pointed/bluespace_banish/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action?.owner
-	var/mob/living/cast_on = targets[1]
+/datum/action/cooldown/spell/pointed/bluespace_banish/cast(mob/living/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
 	if(!caster || !isliving(cast_on))
 		return FALSE
 
@@ -190,7 +178,7 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/bluespace_banish/proc/finish_banishment(mob/living/caster, mob/living/cast_on)
+/datum/action/cooldown/spell/pointed/bluespace_banish/proc/finish_banishment(mob/living/caster, mob/living/cast_on)
 	if(QDELETED(cast_on))
 		return
 
