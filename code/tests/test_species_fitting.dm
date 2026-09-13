@@ -183,13 +183,19 @@
 
 	var/icon/hat = swine_fit.fit_worn_icon(null, DEFAULT_ICON_HEAD, "welding")
 	TEST_ASSERT_NOTNULL(hat, "the swine profile refused to fit a welding helmet")
-	var/list/target_head = swine_fit.target_head_masks["[SOUTH]"]
-	var/hat_pixels = 0
-	for(var/y in 1 to swine_fit.height)
-		for(var/x in 1 to swine_fit.width)
-			if(target_head[swine_fit.width * (y - 1) + x] && hat.GetPixel(x, y, dir = SOUTH))
-				hat_pixels++
-	TEST_ASSERT(hat_pixels > 0, "the head trim stripped a helmet, which is exactly the garment that should dress a head")
+	for(var/fit_dir in GLOB.cardinal)
+		var/list/target_head = swine_fit.target_head_masks["[fit_dir]"]
+		var/hat_pixels = 0
+		for(var/y in 1 to swine_fit.height)
+			for(var/x in 1 to swine_fit.width)
+				if(target_head[swine_fit.width * (y - 1) + x] && hat.GetPixel(x, y, dir = fit_dir))
+					hat_pixels++
+		TEST_ASSERT(hat_pixels > 0, "the head trim stripped a helmet on its [dir2text(fit_dir)] frame, and a helmet is exactly the garment that should dress a head")
+
+	var/icon/vanilla_monocle = icon(DEFAULT_ICON_GLASSES, "monocle", NORTH)
+	TEST_ASSERT_NULL(vanilla_monocle.GetPixel(19, 23), "the vanilla monocle is expected to leave this pixel to the fitter")
+	var/icon/monocle = swine_fit.fit_worn_icon(null, DEFAULT_ICON_GLASSES, "monocle")
+	TEST_ASSERT_NOTNULL(monocle.GetPixel(19, 23, dir = NORTH), "the monocle was head-trimmed on the one frame where it barely covers a human head, so the gate is being judged per direction instead of per state")
 
 /datum/unit_test/species_fitting_profiles
 

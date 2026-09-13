@@ -174,18 +174,9 @@
 			context.working[index] = null
 
 /datum/fit_step/head_trim/apply(datum/fit_context/context)
-	var/list/reference_head = context.reference_head_mask()
-	var/list/target_head = context.target_head_mask()
-	var/head_pixels = 0
-	var/dressed = 0
-	for(var/index in 1 to length(reference_head))
-		if(!reference_head[index])
-			continue
-		head_pixels++
-		if(context.source[index])
-			dressed++
-	if(dressed >= head_pixels * FIT_HEAD_GARMENT_SHARE)
+	if(context.dresses_head)
 		return
+	var/list/target_head = context.target_head_mask()
 	for(var/index in 1 to length(target_head))
 		if(target_head[index] && !context.source[index])
 			context.working[index] = null

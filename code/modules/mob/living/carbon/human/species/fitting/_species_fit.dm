@@ -297,17 +297,37 @@ GLOBAL_LIST_EMPTY(species_fits)
 	build()
 	var/icon/assembled = icon('icons/effects/effects.dmi', "nothing")
 	var/fitted_anything = FALSE
+	var/list/frames = list()
+	var/dresses_head = FALSE
 	for(var/fit_dir in GLOB.cardinal)
 		var/icon/frame = icon(sheet, state_name, fit_dir)
 		if(frame.Width() != width || frame.Height() != height)
 			return null
-		var/datum/fit_context/context = new(src, fit_dir, read_frame(frame))
+		var/list/pixels = read_frame(frame)
+		frames["[fit_dir]"] = pixels
+		if(covers_head(pixels, fit_dir))
+			dresses_head = TRUE
+	for(var/fit_dir in GLOB.cardinal)
+		var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"])
+		context.dresses_head = dresses_head
 		for(var/datum/fit_step/step in step_instances)
 			step.apply(context)
 		if(context.changed())
 			fitted_anything = TRUE
 		assembled.Insert(write_frame(context.working), dir = fit_dir)
 	return fitted_anything ? assembled : null
+
+/datum/species_fit/proc/covers_head(list/pixels, fit_dir)
+	var/list/reference_head = reference_head_masks["[fit_dir]"]
+	var/head_pixels = 0
+	var/dressed = 0
+	for(var/index in 1 to length(reference_head))
+		if(!reference_head[index])
+			continue
+		head_pixels++
+		if(pixels[index])
+			dressed++
+	return dressed >= head_pixels * FIT_HEAD_GARMENT_SHARE
 
 /datum/species_fit/proc/read_frame(icon/frame)
 	var/list/pixels = new(width * height)
@@ -416,6 +436,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/span_map
 	var/list/pixel_tier
 	var/list/dirty_rows
+	var/dresses_head = FALSE
 
 /datum/fit_context/New(datum/species_fit/profile, fit_dir, list/pixels)
 	src.profile = profile

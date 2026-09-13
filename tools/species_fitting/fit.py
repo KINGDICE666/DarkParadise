@@ -3,7 +3,7 @@
 Pipeline order and every heuristic here must stay identical to
 code/modules/mob/living/carbon/human/species/fitting/, otherwise the numbers lie.
 """
-from dmi import LIMB_STATES, TRUNK_STATES, body_mask
+from dmi import LIMB_STATES, TRUNK_STATES, body_mask, frame_for_dir
 
 TIER_STATES = (("head_m",), ("l_foot", "r_foot"), ("l_hand", "r_hand"), TRUNK_STATES,
                ("l_leg", "r_leg"), ("l_arm", "r_arm"))
@@ -196,7 +196,16 @@ class SpeciesFit:
                 row_map[(x, y)] = _nearest_line(rows, y)
         return row_map
 
-    def fit_frame(self, image, dir_index):
+    def dresses_head(self, sheet, state):
+        for dir_index in range(4):
+            pixels = frame_for_dir(sheet, state, dir_index).load()
+            mask = self.reference_head[dir_index]
+            dressed = sum(1 for (x, y) in mask if pixels[x, y][3] > 0)
+            if dressed >= len(mask) * HEAD_GARMENT_SHARE:
+                return True
+        return False
+
+    def fit_frame(self, image, dir_index, dresses_head):
         pixels = image.load()
         source = {}
         for y in range(self.height):
@@ -228,13 +237,10 @@ class SpeciesFit:
         elif self.trim == "shrink":
             for key in self.shrunk[dir_index]:
                 working[key] = None
-        if self.head_trim:
-            reference_head = self.reference_head[dir_index]
-            dressed = sum(1 for key in reference_head if source[key] is not None)
-            if dressed < len(reference_head) * HEAD_GARMENT_SHARE:
-                for key in self.target_head[dir_index]:
-                    if source[key] is None:
-                        working[key] = None
+        if self.head_trim and not dresses_head:
+            for key in self.target_head[dir_index]:
+                if source[key] is None:
+                    working[key] = None
         return working, any(dirty)
 
     def _mark_bare_skin(self, working, dir_index):

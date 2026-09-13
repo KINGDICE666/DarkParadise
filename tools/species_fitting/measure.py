@@ -59,6 +59,7 @@ def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="n
                 continue
             if frames[0].size != (width, height):
                 continue
+            dresses_head = fitter.dresses_head(vanilla_sheet, state)
             stats = {key: 0 for key in ("frames", "generated_bare", "vanilla_bare", "manual_bare",
                                         "generated_erased", "manual_erased", "exact", "untouched_by_hand",
                                         "vanilla_off_body", "generated_off_body", "manual_off_body",
@@ -68,7 +69,7 @@ def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="n
                 manual_frame = frame_for_dir(manual_sheet, state, dir_index)
                 vanilla = _frame_pixels(vanilla_frame, width, height)
                 manual = _frame_pixels(manual_frame, width, height)
-                generated, _ = fitter.fit_frame(vanilla_frame, dir_index)
+                generated, _ = fitter.fit_frame(vanilla_frame, dir_index, dresses_head)
                 skin = visible[dir_index]
                 stats["frames"] += 1
                 stats["vanilla_bare"] += sum(1 for key in skin if vanilla[key] is None)

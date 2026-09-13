@@ -81,9 +81,9 @@ class Auditor:
                 body_mask(self.target_sheet, states, dir_index, self.width, self.height)
                 for states in TIER_STATES]
 
-    def frame_scores(self, frame, dir_index):
+    def frame_scores(self, frame, dir_index, dresses_head):
         vanilla = _pixels(frame, self.width, self.height)
-        fitted, _ = self.fitter.fit_frame(frame, dir_index)
+        fitted, _ = self.fitter.fit_frame(frame, dir_index, dresses_head)
         scores = dict.fromkeys(AXES, 0)
         for tier in range(len(TIER_STATES)):
             reference_mask = self.reference_tiers[dir_index][tier]
@@ -113,9 +113,10 @@ class Auditor:
                 if frames[0].size != (self.width, self.height):
                     continue
                 totals = dict.fromkeys(AXES, 0)
+                dresses_head = self.fitter.dresses_head(sheet, state)
                 for dir_index in range(4):
                     for axis, value in self.frame_scores(
-                            frame_for_dir(sheet, state, dir_index), dir_index).items():
+                            frame_for_dir(sheet, state, dir_index), dir_index, dresses_head).items():
                         totals[axis] += value
                 yield sheet_path, state, totals
 
