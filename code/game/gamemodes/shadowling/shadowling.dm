@@ -157,7 +157,7 @@ Made by Xhuis
 			if(ishuman(shadow.current))
 				var/mob/living/carbon/human/H = shadow.current
 				if(!isshadowling(H))
-					for(var/obj/effect/proc_holder/spell/shadowling_hatch/hatch_ability in shadow.spell_list)
+					for(var/datum/action/cooldown/spell/shadowling_hatch/hatch_ability in shadow.spell_list)
 						hatch_ability.cycles_unused++
 						if(prob(20) && hatch_ability.cycles_unused > CONFIG_GET(number/shadowling_max_age))
 							var/shadow_nag_messages = list("Ты едва можешь терпеть эту низшую форму!», «Желание стать чем-то большим непреодолимо!», «Ты чувствуешь жгучую страсть освободиться от этой оболочки и обрести божественность».!")
@@ -182,7 +182,7 @@ Made by Xhuis
 	var/mob/living/M = ling_mind.current
 	if(issilicon(M))
 		M.audible_message(span_notice("[M] lets out a short blip."))
-		to_chat(M, span_userdanger("Тебя превратили в робота! Ты больше не теньлинг! Как бы ты ни старался, ты не можешь вспомнить ничего о том времени, когда ты был им..."))
+		to_chat(M, span_userdanger("Тебя превратили в робота! Ты больше не тенелинг! Как бы ты ни старался, ты не можешь вспомнить ничего о том времени, когда ты был им..."))
 	else
 		M.visible_message(
 			span_big("[M] кричит и корчится!"), \
