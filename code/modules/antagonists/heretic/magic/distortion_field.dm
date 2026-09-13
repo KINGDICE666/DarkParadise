@@ -22,7 +22,7 @@
 	active_msg = "Вы выбираете точку, где пространство станет длиннее..."
 
 
-/datum/action/cooldown/spell/pointed/distortion_field/is_valid_target(atom/cast_on, mob/user)
+/datum/action/cooldown/spell/pointed/distortion_field/is_valid_target(atom/cast_on)
 	return !isnull(get_turf(cast_on))
 
 

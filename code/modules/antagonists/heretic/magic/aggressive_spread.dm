@@ -18,7 +18,7 @@
 	aoe_radius = 2
 
 
-/datum/action/cooldown/spell/aoe/rust_conversion/is_valid_target(target, user)
+/datum/action/cooldown/spell/aoe/rust_conversion/is_valid_target(atom/cast_on)
 	return TRUE
 
 

@@ -33,7 +33,7 @@
 	to_chat(cast_on, span_notice("Вы начали перестраивать свой организм."))
 
 
-/datum/action/cooldown/spell/realignment/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/realignment/after_cast(atom/cast_on)
 	. = ..()
 	if(!level_realignment())
 		return

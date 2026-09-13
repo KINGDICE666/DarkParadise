@@ -24,8 +24,8 @@
 	var/beam_duration = 2 SECONDS
 
 
-/datum/action/cooldown/spell/charged/beam/fire_blast/is_valid_target(target, user)
-	return ..() && isliving(target)
+/datum/action/cooldown/spell/charged/beam/fire_blast/is_valid_target(atom/cast_on)
+	return ..() && isliving(cast_on)
 
 
 /datum/action/cooldown/spell/charged/beam/fire_blast/cast(atom/cast_on)

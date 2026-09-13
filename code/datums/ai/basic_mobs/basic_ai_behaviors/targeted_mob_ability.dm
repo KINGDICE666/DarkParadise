@@ -12,7 +12,7 @@
 
 	var/mob/pawn = controller.pawn
 	pawn.face_atom(target, controller.pawn)
-	var/result = ability.cast(list(target), controller.pawn)
+	var/result = ability.Trigger(target = target)
 	if(result)
 		return AI_BEHAVIOR_INSTANT | AI_BEHAVIOR_SUCCEEDED
 

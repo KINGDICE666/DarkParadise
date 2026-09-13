@@ -24,12 +24,11 @@
 	var/damage_radius = 1
 
 
-/datum/action/cooldown/spell/pointed/void_phase/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/void_phase/before_cast(atom/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
 
-	var/atom/cast_on = targets[1]
 	if(!owner || get_dist(get_turf(owner), get_turf(cast_on)) >= min_cast_range)
 		return
 

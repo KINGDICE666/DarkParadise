@@ -150,8 +150,8 @@
 	var/banish_range = 7
 
 
-/datum/action/cooldown/spell/pointed/bluespace_banish/is_valid_target(atom/cast_on, mob/user)
-	if(!isliving(cast_on) || cast_on == user)
+/datum/action/cooldown/spell/pointed/bluespace_banish/is_valid_target(atom/cast_on)
+	if(!isliving(cast_on) || cast_on == owner)
 		return FALSE
 	var/mob/living/living_target = cast_on
 	if(IS_HERETIC_OR_MONSTER(living_target) || living_target.mob_size > MOB_SIZE_HUMAN)

@@ -35,7 +35,7 @@
 	return TRUE
 
 
-/datum/action/cooldown/spell/aoe/wave_of_desperation/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/aoe/wave_of_desperation/before_cast(atom/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return

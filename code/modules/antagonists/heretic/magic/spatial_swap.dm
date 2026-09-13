@@ -34,7 +34,7 @@
 	return ..()
 
 
-/datum/action/cooldown/spell/pointed/spatial_swap/is_valid_target(atom/cast_on, mob/user)
+/datum/action/cooldown/spell/pointed/spatial_swap/is_valid_target(atom/cast_on)
 	if(cast_on == first_target_ref?.resolve())
 		return FALSE
 	if(isliving(cast_on))
@@ -64,7 +64,7 @@
 	unset_click_ability(caster)
 
 
-/datum/action/cooldown/spell/pointed/spatial_swap/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/pointed/spatial_swap/after_cast(atom/cast_on)
 	. = ..()
 	if(first_target_ref)
 		return

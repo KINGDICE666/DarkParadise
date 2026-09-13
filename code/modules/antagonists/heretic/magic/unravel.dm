@@ -34,8 +34,8 @@
 	)
 
 
-/datum/action/cooldown/spell/pointed/unravel/is_valid_target(atom/cast_on, mob/user)
-	if(!isliving(cast_on) || cast_on == user)
+/datum/action/cooldown/spell/pointed/unravel/is_valid_target(atom/cast_on)
+	if(!isliving(cast_on) || cast_on == owner)
 		return FALSE
 	var/mob/living/living_target = cast_on
 	return !IS_HERETIC_OR_MONSTER(living_target)
@@ -85,7 +85,7 @@
 	return TRUE
 
 
-/datum/action/cooldown/spell/pointed/unravel/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/pointed/unravel/after_cast(atom/cast_on)
 	. = ..()
 	StartCooldown()
 

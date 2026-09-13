@@ -17,12 +17,12 @@
 	aoe_radius = 2
 
 
-/datum/action/cooldown/spell/aoe/void_pull/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/aoe/void_pull/before_cast(atom/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
 
-	new /obj/effect/temp_visual/voidin(get_turf(user))
+	new /obj/effect/temp_visual/voidin(get_turf(owner))
 
 
 /datum/action/cooldown/spell/aoe/void_pull/get_things_to_cast_on(atom/center, radius_override)

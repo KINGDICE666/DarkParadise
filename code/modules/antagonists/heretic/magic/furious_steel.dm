@@ -76,7 +76,7 @@
 	RegisterSignal(blade_effect, COMSIG_BLADE_BARRIER_TRIGGERED, PROC_REF(on_status_effect_triggered))
 
 
-/datum/action/cooldown/spell/pointed/projectile/furious_steel/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/projectile/furious_steel/before_cast(atom/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return

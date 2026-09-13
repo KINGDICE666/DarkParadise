@@ -21,8 +21,8 @@
 	active_msg = "Вы нащупываете нить, которой цель держится за мир..."
 
 
-/datum/action/cooldown/spell/pointed/displacement/is_valid_target(atom/cast_on, mob/user)
-	if(!isliving(cast_on) || cast_on == user)
+/datum/action/cooldown/spell/pointed/displacement/is_valid_target(atom/cast_on)
+	if(!isliving(cast_on) || cast_on == owner)
 		return FALSE
 	var/mob/living/living_target = cast_on
 	return !IS_HERETIC_OR_MONSTER(living_target)

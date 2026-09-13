@@ -47,13 +47,12 @@
 	return isliving(cast_on)
 
 
-/datum/action/cooldown/spell/pointed/manse_link/before_cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/manse_link/before_cast(atom/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
 
-	var/mob/living/cast_on = targets[1]
-	if(!istype(cast_on))
+	if(!isliving(cast_on))
 		return SPELL_CANCEL_CAST
 
 	if(!do_linking(cast_on))

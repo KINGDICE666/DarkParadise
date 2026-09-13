@@ -67,7 +67,7 @@
 			caster.updatehealth()
 
 
-/datum/action/cooldown/spell/aoe/fiery_rebirth/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/aoe/fiery_rebirth/after_cast(atom/cast_on)
 	. = ..()
 	if(!victims_counter)
 		StartCooldown(cooldown_time)

@@ -24,9 +24,9 @@
 	return ..() && isliving(owner)
 
 
-/datum/action/cooldown/spell/pointed/mind_gate/is_valid_target(atom/cast_on, mob/user)
+/datum/action/cooldown/spell/pointed/mind_gate/is_valid_target(atom/cast_on)
 	if(!ishuman(cast_on))
-		cast_on?.balloon_alert(user || owner, "нет разума!")
+		cast_on?.balloon_alert(owner, "нет разума!")
 		return FALSE
 	return ..()
 
