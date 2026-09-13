@@ -16,7 +16,6 @@
 	w_class = WEIGHT_CLASS_SMALL
 	volume = 100
 	possible_transfer_amounts = list(5, 10, 20, 25, 50, 100)
-	has_lid = FALSE
 	resistance_flags = ACID_PROOF | FIRE_PROOF
 
 /obj/item/reagent_containers/cup/portal_fluid_canister/get_ru_names()

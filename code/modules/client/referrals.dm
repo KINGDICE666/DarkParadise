@@ -300,11 +300,7 @@
 		.["active_until"] = query_reward.item[1]
 	qdel(query_reward)
 
-/client/verb/referral_panel()
-	set name = "Реферальная система"
-	set category = VERB_CATEGORY_SPECIALVERBS
-	set desc = "Пригласить друга на сервер и получить за это уровень подписки."
-
+GAME_VERB_DESC(/client, referral_panel, "Реферальная система", "Пригласить друга на сервер и получить за это уровень подписки.", VERB_CATEGORY_SPECIALVERBS)
 	if(!SSdbcore.IsConnected())
 		to_chat(usr, span_warning("База данных недоступна, попробуйте позже."), confidential = TRUE)
 		return

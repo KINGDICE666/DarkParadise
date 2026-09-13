@@ -12,7 +12,7 @@
 	. = ..()
 	for(var/turf/tile as anything in created_atoms)
 		for(var/atom/thing as anything in tile.get_all_contents())
-			if(istype(thing, /obj/item/reagent_containers/cup))
+			if(iscup(thing))
 				RegisterSignal(thing, COMSIG_GLASS_DRANK, PROC_REF(on_drink_drank))
 				continue
 
@@ -22,7 +22,7 @@
 /datum/lazy_template/virtual_domain/beach_bar/proc/on_item_vended(datum/source, obj/item/vended_item)
 	SIGNAL_HANDLER
 
-	if(!istype(vended_item, /obj/item/reagent_containers/cup))
+	if(!iscup(vended_item))
 		return
 
 	RegisterSignal(vended_item, COMSIG_GLASS_DRANK, PROC_REF(on_drink_drank))

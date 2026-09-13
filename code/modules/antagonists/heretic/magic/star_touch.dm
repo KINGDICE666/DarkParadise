@@ -11,11 +11,9 @@
 	button_icon = 'icons/mob/actions/actions_ecult.dmi'
 	button_icon_state = "star_touch"
 
-	sound = 'sound/items/welder.ogg'
 	school = SCHOOL_FORBIDDEN
 	cooldown_time = 15 SECONDS
 	invocation = "ЗВ'ЗДН К'С'Н!"
-	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
 	hand_path = /obj/item/melee/touch_attack/star_touch
