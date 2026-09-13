@@ -28,10 +28,6 @@
 	name = "Worn Jumpsuit (Unathi)"
 	icon_file = 'icons/mob/clothing/species/unathi/uniform.dmi'
 
-/datum/greyscale_config/jumpsuit_worn/swine
-	name = "Worn Jumpsuit (Trottine)"
-	icon_file = 'icons/mob/clothing/species/swine/uniform.dmi'
-
 /datum/greyscale_config/jumpsuit_inhand_left
 	name = "Held Jumpsuit, Left"
 	icon_file = 'icons/mob/inhands/clothing_lefthand.dmi'
@@ -71,10 +67,6 @@
 /datum/greyscale_config/jumpsuit_prison_worn/unathi
 	name = "Worn Prison Jumpsuit (Unathi)"
 	icon_file = 'icons/mob/clothing/species/unathi/uniform.dmi'
-
-/datum/greyscale_config/jumpsuit_prison_worn/swine
-	name = "Worn Prison Jumpsuit (Trottine)"
-	icon_file = 'icons/mob/clothing/species/swine/uniform.dmi'
 
 /datum/greyscale_config/jumpsuit_prison_inhand_left
 	name = "Held Prison Jumpsuit, Left"
@@ -122,10 +114,6 @@
 	name = "Worn Sneakers (Unathi)"
 	icon_file = 'icons/mob/clothing/species/unathi/shoes.dmi'
 
-/datum/greyscale_config/sneakers_worn/swine
-	name = "Worn Sneakers (Trottine)"
-	icon_file = 'icons/mob/clothing/species/swine/feet.dmi'
-
 /datum/greyscale_config/sneakers_orange_worn/vox
 	name = "Worn Orange Sneakers (Vox)"
 	icon_file = 'icons/mob/clothing/species/vox/shoes.dmi'
@@ -141,7 +129,3 @@
 /datum/greyscale_config/sneakers_orange_worn/drask
 	name = "Worn Orange Sneakers (Drask)"
 	icon_file = 'icons/mob/clothing/species/drask/shoes.dmi'
-
-/datum/greyscale_config/sneakers_orange_worn/swine
-	name = "Worn Orange Sneakers (Trottine)"
-	icon_file = 'icons/mob/clothing/species/swine/feet.dmi'

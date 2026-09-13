@@ -3,6 +3,7 @@
 	name_plural = "Vox"
 	icobase = 'icons/mob/human_races/vox/r_vox.dmi'
 	deform = 'icons/mob/human_races/vox/r_def_vox.dmi'
+	fit_profile = /datum/species_fit/vox
 	dangerous_existence = TRUE
 	language = LANGUAGE_VOX
 	tail = "voxtail"
@@ -212,6 +213,7 @@
 	name_plural = "Vox Armalis"
 	icobase = 'icons/mob/human_races/r_armalis.dmi'
 	deform = 'icons/mob/human_races/r_armalis.dmi'
+	fit_profile = null
 	unarmed_type = /datum/unarmed_attack/claws/armalis
 	blacklisted = TRUE
 
