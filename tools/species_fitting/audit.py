@@ -18,13 +18,10 @@ Axes, all measured against the vanilla sheet on the same body:
     cloth off body    fitted cloth hanging outside the silhouette
     cloth over head   fitted cloth on the head the garment does not put on a human head
 
-This deliberately does NOT tell you which states need a manual patch. That was tried
-and it does not work: calibrated against the swine, where the artist's own 19 sheets
-say which 21 of 2632 states the fitter loses, every axis above puts 27-48% of the
-states the fitter handles fine inside the range of the ones it loses. The losing class
-is an artist preferring 16-26 px more coverage, which is below the noise floor of
-anything derived from geometry alone. Use --sweep to pick max_squash, then read the
-worst states here and judge them by eye.
+Picking which states still want a hand-drawn patch is not something these axes answer:
+measured against the swine, where the artist's sheets say which states the fitter loses,
+their ranges overlap the states it handles fine. Use --sweep to pick max_squash, then
+read the worst states here and judge them by eye.
 """
 import argparse
 import glob

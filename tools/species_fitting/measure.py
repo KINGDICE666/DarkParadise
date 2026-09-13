@@ -4,9 +4,9 @@
         --target-git-ref ResomiNEWVodka --git-ref ResomiNEWVodka \
         --pair icons/mob/clothing/suit.dmi:icons/mob/clothing/species/resomi/suit.dmi
 
-Only pixels the player can actually see are counted: rows hidden behind the head
-sprite are subtracted, and fully transparent pixels are never compared by colour
-(their RGB is garbage and inflates every metric).
+Fully transparent pixels are never compared by colour: their RGB is garbage and
+inflates every metric. The bare-skin axis skips the head mask, so it says nothing
+about helmets, masks or glasses - read cloth over the head for those.
 """
 import argparse
 import sys
