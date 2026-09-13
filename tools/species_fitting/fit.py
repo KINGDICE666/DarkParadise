@@ -49,7 +49,7 @@ def _stretch_segments(counts, extra):
         return
     given, remainders = 0, [0] * len(counts)
     for segment in range(first, last + 1):
-        share = round(extra * counts[segment] / weight)
+        share = int(extra * counts[segment] / weight)
         remainders[segment] = (extra * counts[segment]) % weight
         counts[segment] += share
         given += share
@@ -80,6 +80,10 @@ def _rebuild_run(source, y, from_column, to_column, target_width):
     return rebuilt[:target_width]
 
 
+def _flip_keys(keys, height):
+    return {(x, height - 1 - y) for (x, y) in keys}
+
+
 def _span_endpoints(mask, line, size, along_rows):
     hits = [index for index in range(size)
             if ((line, index) if along_rows else (index, line)) in mask]
@@ -105,25 +109,33 @@ class SpeciesFit:
         self.reference_tiers, self.target_tiers = {}, {}
         self.span_maps, self.pixel_tiers = {}, {}
         for dir_index in range(4):
-            self.reference_trunk[dir_index] = body_mask(reference_sheet, TRUNK_STATES, dir_index, width, height)
-            self.reference_body[dir_index] = body_mask(
-                reference_sheet, TRUNK_STATES + LIMB_STATES, dir_index, width, height)
-            self.target_trunk[dir_index] = body_mask(target_sheet, TRUNK_STATES, dir_index, width, height)
-            self.target_body[dir_index] = body_mask(
-                target_sheet, TRUNK_STATES + LIMB_STATES, dir_index, width, height)
-            self.reference_head[dir_index] = body_mask(reference_sheet, ("head_m",), dir_index, width, height)
-            self.target_head[dir_index] = body_mask(target_sheet, ("head_m",), dir_index, width, height)
+            self.reference_trunk[dir_index] = _flip_keys(
+                body_mask(reference_sheet, TRUNK_STATES, dir_index, width, height), height)
+            self.reference_body[dir_index] = _flip_keys(body_mask(
+                reference_sheet, TRUNK_STATES + LIMB_STATES, dir_index, width, height), height)
+            self.target_trunk[dir_index] = _flip_keys(
+                body_mask(target_sheet, TRUNK_STATES, dir_index, width, height), height)
+            self.target_body[dir_index] = _flip_keys(body_mask(
+                target_sheet, TRUNK_STATES + LIMB_STATES, dir_index, width, height), height)
+            self.reference_head[dir_index] = _flip_keys(
+                body_mask(reference_sheet, ("head_m",), dir_index, width, height), height)
+            self.target_head[dir_index] = _flip_keys(
+                body_mask(target_sheet, ("head_m",), dir_index, width, height), height)
             self.reference_tiers[dir_index] = [
-                body_mask(reference_sheet, states, dir_index, width, height) for states in TIER_STATES]
+                _flip_keys(body_mask(reference_sheet, states, dir_index, width, height), height)
+                for states in TIER_STATES]
             self.target_tiers[dir_index] = [
-                body_mask(target_sheet, states, dir_index, width, height) for states in TIER_STATES]
+                _flip_keys(body_mask(target_sheet, states, dir_index, width, height), height)
+                for states in TIER_STATES]
             self.warp_maps[dir_index] = self._build_warp_map(dir_index)
             self.row_maps[dir_index] = self._build_row_map(dir_index)
-            reference_rows = {y for _, y in body_mask(reference_sheet, FULL_STATES, dir_index, width, height)}
-            target_rows = {y for _, y in body_mask(target_sheet, FULL_STATES, dir_index, width, height)}
+            self.target_full[dir_index] = _flip_keys(
+                body_mask(target_sheet, FULL_STATES, dir_index, width, height), height)
+            self.reference_full[dir_index] = _flip_keys(
+                body_mask(reference_sheet, FULL_STATES, dir_index, width, height), height)
+            reference_rows = {y for _, y in self.reference_full[dir_index]}
+            target_rows = {y for _, y in self.target_full[dir_index]}
             self.floating_rows[dir_index] = reference_rows - target_rows
-            self.target_full[dir_index] = body_mask(target_sheet, FULL_STATES, dir_index, width, height)
-            self.reference_full[dir_index] = body_mask(reference_sheet, FULL_STATES, dir_index, width, height)
             self.shrunk[dir_index] = self.reference_full[dir_index] - self.target_full[dir_index]
         for dir_index in range(4):
             self.span_maps[dir_index] = self._build_span_map(dir_index)
@@ -150,18 +162,19 @@ class SpeciesFit:
         for x in range(self.width):
             for tier, (reference_mask, target_mask) in enumerate(
                     zip(self.reference_tiers[dir_index], self.target_tiers[dir_index])):
-                reference = _span_endpoints(reference_mask, x, self.height, True)
                 target = _span_endpoints(target_mask, x, self.height, True)
-                if not reference or not target:
+                if not target:
                     continue
-                (first_reference, last_reference), (first_target, last_target) = reference, target
+                reference = _span_endpoints(reference_mask, x, self.height, True)
+                first_reference, last_reference = reference if reference else (0, 0)
+                first_target, last_target = target
                 grown = first_target <= first_reference and last_target >= last_reference
                 squashed = (last_reference - first_reference) - (last_target - first_target)
                 for y in range(first_target, last_target + 1):
                     if (x, y) in claimed or (x, y) not in target_mask:
                         continue
                     claimed[(x, y)] = tier
-                    if grown or squashed > self.max_squash:
+                    if not reference or grown or squashed > self.max_squash:
                         continue
                     if last_target == first_target:
                         span_map[(x, y)] = first_reference
@@ -200,7 +213,7 @@ class SpeciesFit:
         for dir_index in range(4):
             pixels = frame_for_dir(sheet, state, dir_index).load()
             mask = self.reference_head[dir_index]
-            dressed = sum(1 for (x, y) in mask if pixels[x, y][3] > 0)
+            dressed = sum(1 for (x, y) in mask if pixels[x, self.height - 1 - y][3] > 0)
             if dressed >= len(mask) * HEAD_GARMENT_SHARE:
                 return True
         return False
@@ -210,7 +223,7 @@ class SpeciesFit:
         source = {}
         for y in range(self.height):
             for x in range(self.width):
-                pixel = pixels[x, y]
+                pixel = pixels[x, self.height - 1 - y]
                 source[(x, y)] = pixel if pixel[3] > 0 else None
         dirty = self._mark_bare_skin(source, dir_index)
         working = self._warp(dict(source), dirty, dir_index)
@@ -241,7 +254,7 @@ class SpeciesFit:
             for key in self.target_head[dir_index]:
                 if source[key] is None:
                     working[key] = None
-        return working, any(dirty)
+        return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, any(dirty)
 
     def _mark_bare_skin(self, working, dir_index):
         reference_body, target_body = self.reference_body[dir_index], self.target_body[dir_index]

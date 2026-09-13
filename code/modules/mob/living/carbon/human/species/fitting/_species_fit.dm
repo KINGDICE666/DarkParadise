@@ -68,7 +68,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(built)
 		return
 	built = TRUE
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]")
+	var/list/tier_names = list()
+	for(var/list/tier_group in tier_states)
+		tier_names += jointext(tier_group, ",")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(tier_names, ";")]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -179,12 +182,12 @@ GLOBAL_LIST_EMPTY(species_fits)
 	for(var/x in 1 to width)
 		for(var/tier in 1 to length(target_tiers))
 			var/list/target_mask = target_tiers[tier]
-			var/list/reference_span = span_endpoints(reference_tiers[tier], x)
 			var/list/target_span = span_endpoints(target_mask, x)
-			if(!reference_span || !target_span)
+			if(!target_span)
 				continue
-			var/first_reference = reference_span[1]
-			var/last_reference = reference_span[2]
+			var/list/reference_span = span_endpoints(reference_tiers[tier], x)
+			var/first_reference = reference_span ? reference_span[1] : 0
+			var/last_reference = reference_span ? reference_span[2] : 0
 			var/first_target = target_span[1]
 			var/last_target = target_span[2]
 			var/grown = first_target <= first_reference && last_target >= last_reference
@@ -194,7 +197,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 				if(pixel_tier[index] || !target_mask[index])
 					continue
 				pixel_tier[index] = tier
-				if(grown || squashed > max_squash)
+				if(!reference_span || grown || squashed > max_squash)
 					continue
 				if(last_target == first_target)
 					map[index] = first_reference

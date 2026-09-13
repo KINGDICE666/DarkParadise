@@ -100,7 +100,8 @@ def replaceable(stats, tolerance=0):
     """The generator may take over a hand-drawn state only if it is no worse on every axis."""
     return (stats["generated_bare"] <= stats["manual_bare"] + tolerance
             and stats["generated_erased"] <= stats["manual_erased"] + tolerance
-            and stats["generated_off_body"] <= stats["manual_off_body"] + tolerance)
+            and stats["generated_off_body"] <= stats["manual_off_body"] + tolerance
+            and stats["generated_head_cloth"] <= stats["manual_head_cloth"] + tolerance)
 
 
 def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="none", remap="none", max_squash=1,

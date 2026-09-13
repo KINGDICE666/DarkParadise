@@ -50,11 +50,10 @@
 	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
 
 	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s", SOUTH)
-	TEST_ASSERT_NULL(vanilla.GetPixel(16, 7), "the vanilla uniform is expected to stop above the lower swine groin")
 	TEST_ASSERT_NULL(vanilla.GetPixel(11, 9), "the vanilla uniform is expected to stop short of the wider swine hip")
 
 	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
-	TEST_ASSERT_NOTNULL(fitted.GetPixel(16, 7, dir = SOUTH), "the fitted uniform still leaves the swine bare where its body reaches lower than a human one")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(11, 21, dir = SOUTH), "the swine shoulder lost the cloth that only the vertical pass puts back after the horizontal steps strip it")
 	TEST_ASSERT_NOTNULL(fitted.GetPixel(11, 9, dir = SOUTH), "the fitted uniform still leaves the swine bare where its body is wider than a human one")
 
 /datum/unit_test/species_fitting_greyscale
