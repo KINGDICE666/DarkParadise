@@ -261,7 +261,7 @@
 
 	guardian.ai_controller.set_ai_status(AI_STATUS_OFF)
 	var/mob/living/carbon/human/victim = allocate(/mob/living/carbon/human, locate(anchor.x + 4, anchor.y, anchor.z))
-	TEST_ASSERT(rockets.cast(list(victim), guardian), "the netguardian rocket volley failed to fire")
+	TEST_ASSERT(rockets.cast(victim), "the netguardian rocket volley failed to fire")
 
 /datum/unit_test/room_test/bitrunning_gimmicks
 

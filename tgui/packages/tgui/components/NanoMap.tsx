@@ -122,7 +122,7 @@ export const NanoMap = (props: Props) => {
   };
 
   useEffect(() => {
-    setZCurrent(props.zCurrent);
+    setZCurrent(props.zCurrent ?? 0);
   }, [props.zCurrent]);
 
   const handleReset = (e: Event) => {

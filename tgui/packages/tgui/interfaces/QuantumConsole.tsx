@@ -1,17 +1,6 @@
-import { BooleanLike } from 'common/react';
+import type { BooleanLike } from 'tgui-core/react';
 import { useBackend, useSharedState } from '../backend';
-import {
-  Button,
-  Collapsible,
-  Icon,
-  NoticeBox,
-  ProgressBar,
-  Section,
-  Stack,
-  Table,
-  Tabs,
-  Tooltip,
-} from '../components';
+import { Button, Collapsible, Icon, NoticeBox, ProgressBar, Section, Stack, Table, Tabs, Tooltip } from 'tgui-core/components';
 import { Window } from '../layouts';
 
 type Data =

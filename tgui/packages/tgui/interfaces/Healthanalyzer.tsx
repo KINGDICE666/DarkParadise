@@ -1,4 +1,4 @@
-import { capitalize } from 'common/string';
+import { capitalize } from 'tgui-core/string';
 import { Box, Button, LabeledList, Section } from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 import { useBackend } from '../backend';

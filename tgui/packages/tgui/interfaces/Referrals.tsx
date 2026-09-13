@@ -1,15 +1,6 @@
 import { useBackend } from '../backend';
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Input,
-  LabeledList,
-  NoticeBox,
-  ProgressBar,
-  Section,
-  Stack,
-} from '../components';
+import { Box, Button, Input, LabeledList, NoticeBox, ProgressBar, Section, Stack } from 'tgui-core/components';
 import { Window } from '../layouts';
 
 type ReferralsData = {

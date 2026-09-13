@@ -1,19 +1,8 @@
-import { BooleanLike } from 'common/react';
-import { createSearch } from 'common/string';
+import type { BooleanLike } from 'tgui-core/react';
+import { createSearch } from 'tgui-core/string';
 import { useState } from 'react';
 import { useBackend } from '../backend';
-import {
-  Box,
-  Button,
-  Flex,
-  Input,
-  LabeledList,
-  NoticeBox,
-  Section,
-  Stack,
-  Tabs,
-  Tooltip,
-} from '../components';
+import { Box, Button, Flex, Input, LabeledList, NoticeBox, Section, Stack, Tabs, Tooltip } from 'tgui-core/components';
 import { Window } from '../layouts';
 
 type Ruleset = {
