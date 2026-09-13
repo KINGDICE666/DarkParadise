@@ -242,15 +242,28 @@
 /datum/unit_test/species_fitting_profiles
 
 /datum/unit_test/species_fitting_profiles/Run()
-	for(var/fit_type in list(/datum/species_fit/vox, /datum/species_fit/drask))
+	for(var/fit_type in list(/datum/species_fit/vox, /datum/species_fit/drask, /datum/species_fit/unathi, /datum/species_fit/golem))
 		var/datum/species_fit/fit = get_species_fit(fit_type)
 		TEST_ASSERT_NOTNULL(fit, "[fit_type] was never created")
 		TEST_ASSERT_NOTNULL(fit.fit_worn_icon(null, DEFAULT_ICON_BELT, "assault"), "[fit_type] left a belt human-shaped, and no hand-drawn sheet covers that slot")
 
-	TEST_ASSERT_NULL(/datum/species/vox/armalis::fit_profile, "the armalis form inherited the vox profile, whose masks come from a body half its height")
+	for(var/species_name in GLOB.all_species)
+		var/datum/species/species = GLOB.all_species[species_name]
+		var/datum/species_fit/species_fit = get_species_fit(species.fit_profile)
+		if(!species_fit)
+			continue
+		TEST_ASSERT_EQUAL("[species_fit.target_sheet]", "[species.icobase]", "[species.type] fits clothing against [species_fit.target_sheet] but wears [species.icobase], so a subtype inherited a profile built for another body")
 
 	var/mob/living/carbon/human/raider = allocate(/mob/living/carbon/human)
 	raider.set_species(/datum/species/vox)
 	var/obj/item/clothing/gloves/gauntlets = allocate(/obj/item/clothing/gloves/vox)
 	raider.equip_to_slot_or_del(gauntlets, ITEM_SLOT_GLOVES)
 	TEST_ASSERT_EQUAL(get_worn_icon_source(raider, gauntlets, DEFAULT_ICON_GLOVES, gauntlets.icon_state), "sprite_sheets", "a hand-drawn vox sheet lost to the generator")
+
+	var/obj/item/clothing/mask/gas/space_ninja/hood = allocate(/obj/item/clothing/mask/gas/space_ninja)
+	raider.equip_to_slot_or_del(hood, ITEM_SLOT_MASK)
+	TEST_ASSERT(icon_exists(DEFAULT_ICON_WEAR_MASK, hood.icon_state), "this state left the vanilla sheet, so it no longer tells a missing species state from a missing state")
+	TEST_ASSERT_NOT(icon_exists(hood.sprite_sheets[SPECIES_VOX], hood.icon_state), "the vox mask sheet grew this state, so it no longer exercises the fallback")
+	TEST_ASSERT_NOTEQUAL(get_worn_icon_source(raider, hood, DEFAULT_ICON_WEAR_MASK, hood.icon_state), "sprite_sheets", "a species sheet without the state still won, and a sheet without the state draws nothing")
+	var/mutable_appearance/worn = hood.build_worn_icon(default_icon_file = DEFAULT_ICON_WEAR_MASK, override_state = hood.icon_state)
+	TEST_ASSERT(!worn.icon_state || icon_exists("[worn.icon]", worn.icon_state), "the worn mask points at a sheet that has no such state, so the wearer renders bare-faced")

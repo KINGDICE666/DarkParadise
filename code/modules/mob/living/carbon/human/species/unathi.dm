@@ -3,6 +3,7 @@
 	name_plural = "Unathi"
 	icobase = 'icons/mob/human_races/r_lizard.dmi'
 	deform = 'icons/mob/human_races/r_def_lizard.dmi'
+	fit_profile = /datum/species_fit/unathi
 	language = LANGUAGE_UNATHI
 	tail = "sogtail"
 	speech_sounds = list('sound/voice/unathitalk.mp3', 'sound/voice/unathitalk2.mp3', 'sound/voice/unathitalk4.mp3')

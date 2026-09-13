@@ -299,7 +299,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /proc/get_worn_icon_source(mob/living/carbon/human/wearer, obj/item/clothing_item, sheet, state_name)
 	var/datum/species/wearer_species = wearer.dna?.species
-	if(clothing_item.sprite_sheets?[wearer_species?.name])
+	var/species_sheet = clothing_item.sprite_sheets?[wearer_species?.name]
+	if(species_sheet && icon_exists(species_sheet, state_name))
 		return "sprite_sheets"
 	if(wearer_species?.worn_sheets?[sheet])
 		return "worn_sheets"

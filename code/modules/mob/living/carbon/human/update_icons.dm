@@ -1373,6 +1373,8 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	var/t_state = override_state || (isinhands || use_item_state) && item_state || icon_state
 	//Find a valid icon file from variables+arguments
 	var/species_sheet = species ? (isinhands ? sprite_sheets_inhand?[species] : sprite_sheets?[species]) : null
+	if(species_sheet && !icon_exists(species_sheet, t_state))
+		species_sheet = null
 	var/file2use = override_file || species_sheet || default_icon_file
 	var/icon/fitted_icon
 	if(!isinhands && !species_sheet && istype(wearer))
