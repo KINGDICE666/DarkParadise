@@ -18,6 +18,7 @@ GLOBAL_LIST_EMPTY(slime_actions)
 	language = LANGUAGE_SLIME
 	icobase = 'icons/mob/human_races/r_slime.dmi'
 	deform = 'icons/mob/human_races/r_slime.dmi'
+	fit_profile = /datum/species_fit/slime
 	remains_type = /obj/effect/decal/remains/slime
 	inherent_factions = list("slime")
 

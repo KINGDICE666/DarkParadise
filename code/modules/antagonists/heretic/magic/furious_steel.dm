@@ -204,7 +204,6 @@
 	invocation = "IA!"
 	invocation_type = INVOCATION_SHOUT
 
-	spell_requirements = NONE
 
 	active_msg = "Вы призываете два проклятых клинка."
 	deactive_msg = "Вы отзываете проклятые клинки."

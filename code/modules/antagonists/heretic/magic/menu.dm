@@ -4,7 +4,6 @@
 	background_icon = 'icons/mob/actions/backgrounds.dmi'
 	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	school = SCHOOL_UNSET
 	spell_requirements = NONE
 	cooldown_time = 1 SECONDS
 

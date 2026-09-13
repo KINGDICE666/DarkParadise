@@ -15,7 +15,6 @@
 	school = SCHOOL_FORBIDDEN
 	cooldown_time = 20 SECONDS
 	invocation = "МН Н'ЖН ТВ Р'К С'РДЦ!"
-	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
 	hand_path = /obj/item/melee/touch_attack/flesh_surgery

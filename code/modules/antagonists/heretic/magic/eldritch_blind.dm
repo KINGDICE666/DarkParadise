@@ -55,7 +55,6 @@
 	overlay_icon_state = "bg_heretic_border"
 
 	school = SCHOOL_FORBIDDEN
-	spell_requirements = NONE
 	invocation = "ГЛ'З"
 
 	cast_range = 10

@@ -40,6 +40,3 @@
 	icon_state = "ash_shift"
 
 
-/// Red coloured variant
-/obj/effect/dummy/phased_mob/spell_jaunt/red
-	phased_mob_icon_state = "red_1"

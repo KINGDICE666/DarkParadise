@@ -40,6 +40,7 @@
 #include "test_reagent_id_typos.dm"
 #include "test_security_levels.dm"
 #include "test_spawn_humans.dm"
+#include "test_species_fitting.dm"
 #include "test_spritesheets.dm"
 #include "test_sql.dm"
 #include "test_station_traits.dm"

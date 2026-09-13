@@ -6,6 +6,7 @@
 	name_plural = "Greys"
 	icobase = 'icons/mob/human_races/r_grey.dmi'
 	deform = 'icons/mob/human_races/r_def_grey.dmi'
+	fit_profile = /datum/species_fit/grey
 	language = LANGUAGE_GREY
 	eyes = "grey_eyes_s"
 	butt_sprite = "grey"

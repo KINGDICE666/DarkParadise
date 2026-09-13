@@ -59,7 +59,6 @@
 	name = "Polar Bear Form"
 	desc = "Превращает вас в белого медведя."
 	invocation = "*roar"
-	invocation_type = "none"
 	spell_requirements = NONE
 	shapeshift_type = /mob/living/simple_animal/hostile/bear/polar/bitrunner
 	possible_shapes = list(/mob/living/simple_animal/hostile/bear/polar/bitrunner)
@@ -92,7 +91,6 @@
 	desc = "Выпускает молнию, перескакивающую между целями без оглушения."
 	cooldown_time = 10 SECONDS
 	invocation = "P'WAH, UNLIM'TED P'WAH!"
-	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC
 	projectile_type = /obj/projectile/magic/bitrunner_lightning
 	button_icon_state = "lightning"
 	sound = 'sound/magic/lightningbolt.ogg'

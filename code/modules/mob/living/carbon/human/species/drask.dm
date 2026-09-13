@@ -5,6 +5,7 @@
 	name_plural = "Drask"
 	icobase = 'icons/mob/human_races/r_drask.dmi'
 	deform = 'icons/mob/human_races/r_drask.dmi'
+	fit_profile = /datum/species_fit/drask
 	language = LANGUAGE_DRASK
 	eyes = "drask_eyes_s"
 

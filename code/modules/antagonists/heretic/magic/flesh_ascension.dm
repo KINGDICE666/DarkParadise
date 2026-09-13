@@ -11,7 +11,6 @@
 	school = SCHOOL_FORBIDDEN
 	invocation = "ДА РАСКРОЕТСЯ РЕАЛЬНОСТЬ!"
 	spell_requirements = NONE
-	cooldown_time = 10 SECONDS
 
 	shapeshift_type = /mob/living/simple_animal/hostile/heretic_summon/armsy
 	possible_shapes = list(/mob/living/simple_animal/hostile/heretic_summon/armsy)

@@ -7,7 +7,6 @@
 	button_icon = 'icons/mob/actions/actions_ecult.dmi'
 	button_icon_state = "mansus_grasp"
 	targeting_overlay = "bg_spell_border_active_red"
-	sound = 'sound/items/welder.ogg'
 
 	spell_requirements = SPELL_CASTABLE_WITHOUT_INVOCATION
 
