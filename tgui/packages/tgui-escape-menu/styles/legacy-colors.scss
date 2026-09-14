@@ -3,28 +3,28 @@
 // declaration that derives a colour, which leaves the interface grey.
 @supports not (color: hsl(from red h s l)) {
   :root {
-    --color-secondary: var(--color-base);
-    --color-base-start: var(--color-base);
-    --color-base-end: var(--color-base);
-    --color-scrollbar-thumb: var(--color-base);
-    --color-hover: var(--color-action);
-    --color-active: var(--color-action);
-    --color-selected: var(--color-action);
-    --color-label: var(--color-primary);
-    --color-text-translucent: var(--color-text);
-    --color-text-translucent-light: var(--color-text);
-    --color-border-primary: var(--color-primary);
-    --color-border-secondary: var(--color-border-primary);
-    --blockquote-color: var(--color-label);
-    --dialog-background: var(--color-section);
-    --dimmer-background: var(--color-base);
-    --dropdown-menu-background: var(--color-base);
-    --tab-background-hover: var(--color-hover);
-    --tab-background-selected: var(--color-selected);
-    --tab-color-selected: var(--color-primary);
-    --input-background: var(--color-base);
-    --knob-color: var(--color-base);
-    --restricted-input-border-color-focus: var(--color-good);
-    --tooltip-background: var(--color-base);
+    --color-secondary: #393939;
+    --color-base-start: #2b2b2b;
+    --color-base-end: #212121;
+    --color-scrollbar-thumb: #3e3e3e;
+    --color-hover: rgba(128,128,128,0.25);
+    --color-active: rgba(128,128,128,0.3);
+    --color-selected: rgba(128,128,128,0.4);
+    --color-label: #8093a6;
+    --color-text-translucent: rgba(255,255,255,0.5);
+    --color-text-translucent-light: rgba(255,255,255,0.75);
+    --color-border-primary: rgba(128,191,255,0.75);
+    --color-border-secondary: #80bfff;
+    --blockquote-color: #8fa0b1;
+    --dialog-background: rgba(0,0,0,0.5);
+    --dimmer-background: rgba(13,13,13,0.75);
+    --dropdown-menu-background: rgba(24,24,24,0.85);
+    --tab-background-hover: rgba(96,96,96,0.25);
+    --tab-background-selected: rgba(96,96,96,0.4);
+    --tab-color-selected: #dce6ef;
+    --input-background: #0d0d0d;
+    --knob-color: #363030;
+    --restricted-input-border-color-focus: #72d030;
+    --tooltip-background: rgba(13,13,13,0.85);
   }
 }
