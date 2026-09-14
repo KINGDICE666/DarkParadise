@@ -303,7 +303,7 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 
 	var/action_buttons_screen_locs = list()
 	var/zoom = 0
-	var/zoom_mode = SCALING_METHOD_NORMAL
+	var/zoom_mode = SCALING_METHOD_DISTORT
 
 /datum/preferences/New(client/C)
 	parent = C
