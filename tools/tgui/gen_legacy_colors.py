@@ -355,20 +355,38 @@ def main():
         produced = []
         for name, value in DECL.findall(body):
             value = value.strip()
+            important = ""
+            if value.lower().endswith("!important"):
+                value = value[: -len("!important")].strip()
+                important = " !important"
             if not REL.match(value):
                 continue
             colour = resolver.colour(value)
             if colour is not None:
-                produced.append((selector, name, format_colour(colour)))
+                produced.append((selector, name, format_colour(colour) + important))
                 continue
             base, pseudo = split_pseudo(selector)
+            own = next(
+                (
+                    class_colours["." + token]
+                    for token in base.split(".")[1:][::-1]
+                    if "." + token in class_colours
+                ),
+                None,
+            )
+            if own:
+                local = Resolver({**variables, "--color": own}, numbers)
+                colour = local.colour(value)
+                if colour is not None:
+                    produced.append((selector, name, format_colour(colour) + important))
+                    continue
             for variant, source in class_colours.items():
                 if not variant.startswith(base + "--"):
                     continue
                 local = Resolver({**variables, "--color": source}, numbers)
                 colour = local.colour(value)
                 if colour is not None:
-                    produced.append((variant + pseudo, name, format_colour(colour)))
+                    produced.append((variant + pseudo, name, format_colour(colour) + important))
         return produced
 
     rules, seen = [], set()
