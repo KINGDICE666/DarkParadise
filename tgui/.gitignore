@@ -7,6 +7,3 @@ node_modules
 !/public/*.html
 !/public/ntos-error.min.css
 !/public/helpers.min.js
-!/public/*.bundle.css
-!/public/*.bundle.js
-!/public/transparency_checkerboard.svg
