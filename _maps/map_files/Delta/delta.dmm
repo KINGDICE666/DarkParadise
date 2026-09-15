@@ -50737,6 +50737,7 @@
 	name = "Kitchen Shutters"
 	},
 /obj/machinery/door/firedoor,
+/obj/item/reagent_containers/food/snacks/canned_meat,
 /turf/simulated/floor/plasteel{
 	icon_state = "redfull"
 	},
@@ -69933,6 +69934,7 @@
 	name = "Kitchen Shutters"
 	},
 /obj/machinery/door/firedoor,
+/obj/item/reagent_containers/food/snacks/canned_meat,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
