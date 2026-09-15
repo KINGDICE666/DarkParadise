@@ -61,6 +61,26 @@ html, body {
   background: var(--bg) url(space.png) repeat;
 }
 
+.leaflet-tile {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+.cursor-coords {
+  position: fixed;
+  z-index: 1200;
+  pointer-events: none;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: rgba(20, 22, 31, 0.92);
+  color: var(--text);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .leaflet-control-layers, .leaflet-bar a {
   background: var(--bar);
   color: var(--text);

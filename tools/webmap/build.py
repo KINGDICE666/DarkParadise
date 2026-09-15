@@ -201,6 +201,8 @@ def main():
     (out_root / "index.html").write_text(index, encoding="utf-8")
     shutil.copy(templates / "webmap.css", out_root / "webmap.css")
     shutil.copy(templates / "space.png", out_root / "space.png")
+    shutil.copy(templates / "favicon.ico", out_root / "favicon.ico")
+    shutil.copy(templates / "apple-touch-icon.png", out_root / "apple-touch-icon.png")
     vendor_leaflet(out_root, args.allow_offline)
 
     print(f"built {len(built)} maps into {out_root}")
