@@ -25,8 +25,18 @@ LEAFLET_FILES = [
 Image.MAX_IMAGE_PIXELS = None
 
 
-def render_name(dmm_path, z):
-    return f"{Path(dmm_path).stem}_nanomap_z{z}.png"
+def render_candidates(dmm_path, z):
+    stem = Path(dmm_path).stem
+    return [f"{stem}-{z}.png", f"{stem}_nanomap_z{z}.png"]
+
+
+def find_render(renders, dmm_path, z):
+    names = render_candidates(dmm_path, z)
+    for name in names:
+        candidate = renders / name
+        if candidate.exists():
+            return candidate
+    return None
 
 
 def source_version(path):
@@ -122,9 +132,9 @@ def main():
     for entry in config["maps"]:
         levels = []
         for level in entry["levels"]:
-            source = renders / render_name(entry["dmm"], level["z"])
-            if not source.exists():
-                message = f"missing render {source}"
+            source = find_render(renders, entry["dmm"], level["z"])
+            if source is None:
+                message = f"missing render {renders / render_candidates(entry['dmm'], level['z'])[0]}"
                 if args.skip_missing:
                     print(f"  ! {entry['key']}: {message}, skipped")
                     continue
@@ -190,6 +200,7 @@ def main():
     )
     (out_root / "index.html").write_text(index, encoding="utf-8")
     shutil.copy(templates / "webmap.css", out_root / "webmap.css")
+    shutil.copy(templates / "space.png", out_root / "space.png")
     vendor_leaflet(out_root, args.allow_offline)
 
     print(f"built {len(built)} maps into {out_root}")

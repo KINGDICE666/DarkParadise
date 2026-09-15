@@ -108,6 +108,17 @@ function writeHash() {
   history.replaceState(null, "", "#z" + active.z + "/" + turf.x + "/" + turf.y + "/" + map.getZoom());
 }
 
+const mapElement = document.getElementById("map");
+const parallaxAnchor = boundsFor(active).getNorthWest();
+
+function updateParallax() {
+  const point = map.latLngToContainerPoint(parallaxAnchor);
+  mapElement.style.backgroundPosition = (point.x * 0.35) + "px " + (point.y * 0.35) + "px";
+}
+
+map.on("move zoomend", updateParallax);
+updateParallax();
+
 const coords = document.getElementById("coords");
 map.on("mousemove", (event) => {
   const turf = turfAt(event.latlng);
