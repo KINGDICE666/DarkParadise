@@ -11,4 +11,5 @@
 	company_name = "\"Нанотрейзен\""
 	company_short = "НТ"
 	starsys_name = "Эпсилон Лукуста"
+	webmap_url = "https://webmap.wiki-ss13.space/coldcolony/"
 	planetary = TRUE
