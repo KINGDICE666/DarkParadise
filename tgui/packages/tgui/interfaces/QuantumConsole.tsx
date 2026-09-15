@@ -50,7 +50,7 @@ enum Difficulty {
 
 const difficultyTabs = [
   { difficulty: Difficulty.None, label: 'Мирный', textColor: 'white' },
-  { difficulty: Difficulty.Low, label: 'Лёгкий', textColor: 'black' },
+  { difficulty: Difficulty.Low, label: 'Лёгкий', textColor: 'white' },
   { difficulty: Difficulty.Medium, label: 'Средний', textColor: 'white' },
   { difficulty: Difficulty.High, label: 'Тяжёлый', textColor: 'white' },
 ];
