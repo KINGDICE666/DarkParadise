@@ -249,6 +249,7 @@ const DomainEntry = (properties: { domain: Domain }) => {
         </Button>
       }
       color={getColor(difficulty)}
+      textColor="white"
       title={name}
     >
       <Stack>
