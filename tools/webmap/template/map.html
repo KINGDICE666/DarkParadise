@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{TITLE}}</title>
-<link rel="stylesheet" href="../leaflet/leaflet.css">
-<link rel="stylesheet" href="../webmap.css">
+<link rel="stylesheet" href="../leaflet/leaflet.css?v={{LEAFLET_VERSION}}">
+<link rel="stylesheet" href="../webmap.css?v={{CSS_VERSION}}">
 </head>
 <body class="map-page">
 <header class="bar">
@@ -14,7 +14,7 @@
   <div class="coords" id="coords"></div>
 </header>
 <div id="map"></div>
-<script src="../leaflet/leaflet.js"></script>
+<script src="../leaflet/leaflet.js?v={{LEAFLET_VERSION}}"></script>
 <script>
 const CONFIG = {{CONFIG}};
 const EMPTY_TILE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -45,7 +45,7 @@ function latLngFor(level, turfX, turfY) {
 const layers = {};
 const byZ = {};
 CONFIG.levels.forEach((level) => {
-  const layer = L.tileLayer("tiles/z" + level.z + "/{z}/{x}/{y}.png", {
+  const layer = L.tileLayer("tiles/z" + level.z + "/{z}/{x}/{y}.png?v=" + level.version, {
     tileSize: CONFIG.tile_size,
     minZoom: 0,
     maxZoom: level.max_zoom + 2,

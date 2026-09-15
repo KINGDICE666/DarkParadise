@@ -2,11 +2,10 @@
 """Slice rendered station PNGs into Leaflet tile pyramids and emit the static site."""
 
 import argparse
+import hashlib
 import json
 import math
-import os
 import shutil
-import sys
 import urllib.request
 from pathlib import Path
 
@@ -28,6 +27,14 @@ Image.MAX_IMAGE_PIXELS = None
 
 def render_name(dmm_path, z):
     return f"{Path(dmm_path).stem}_nanomap_z{z}.png"
+
+
+def source_version(path):
+    digest = hashlib.md5()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()[:10]
 
 
 def build_pyramid(image, out_dir, tile_size):
@@ -109,6 +116,7 @@ def main():
     renders = Path(args.renders)
     out_root = Path(args.out)
     out_root.mkdir(parents=True, exist_ok=True)
+    css_version = source_version(templates / "webmap.css")
 
     built = []
     for entry in config["maps"]:
@@ -136,6 +144,7 @@ def main():
                     "width": image.size[0],
                     "height": image.size[1],
                     "max_zoom": max_zoom,
+                    "version": source_version(source),
                 }
             )
             image.close()
@@ -157,6 +166,8 @@ def main():
                 "STATION_NAME": entry["station_name"],
                 "MAP_NAME": entry["name"],
                 "CONFIG": json.dumps(page_config, ensure_ascii=False),
+                "CSS_VERSION": css_version,
+                "LEAFLET_VERSION": LEAFLET_VERSION,
             },
         )
         (out_root / entry["key"] / "index.html").write_text(page, encoding="utf-8")
@@ -170,7 +181,12 @@ def main():
     )
     index = render_template(
         templates / "index.html",
-        {"TITLE": config["site_title"], "SITE_TITLE": config["site_title"], "CARDS": cards},
+        {
+            "TITLE": config["site_title"],
+            "SITE_TITLE": config["site_title"],
+            "CARDS": cards,
+            "CSS_VERSION": css_version,
+        },
     )
     (out_root / "index.html").write_text(index, encoding="utf-8")
     shutil.copy(templates / "webmap.css", out_root / "webmap.css")
