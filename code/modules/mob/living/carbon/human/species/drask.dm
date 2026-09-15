@@ -113,8 +113,6 @@
 		coma = new
 		coma.Grant(human)
 
-	add_verb(human, /mob/living/carbon/human/proc/emote_hum)
-
 /datum/species/drask/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	..(target, STRENGTH_LEVEL_IDEAL, STRENGTH_LEVEL_SUPERHUMAN)
 
@@ -123,8 +121,6 @@
 
 	var/datum/action/innate/drask/coma/coma = locate() in human.actions
 	coma?.Remove(human)
-
-	remove_verb(human, /mob/living/carbon/human/proc/emote_hum)
 
 /datum/species/drask/handle_life(mob/living/carbon/human/human)
 	. = ..()

@@ -1,4 +1,4 @@
-import { Box } from '../../components';
+import { Box } from 'tgui-core/components';
 import { NtosSupermatterContent } from '../NtosSupermatter';
 
 export const pda_supermatter = (props: unknown) => {

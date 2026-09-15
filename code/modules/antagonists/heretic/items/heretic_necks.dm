@@ -54,8 +54,8 @@
 		team_color = COLOR_CULT_RED
 
 	else if(IS_HERETIC_OR_MONSTER(user) && !active)
-		for(var/obj/effect/proc_holder/spell/spell_action in user.actions)
-			spell_action.base_cooldown *= 0.5
+		for(var/datum/action/cooldown/spell/spell_action in user.actions)
+			spell_action.cooldown_time *= 0.5
 		active = TRUE
 
 		team_color = COLOR_GREEN
@@ -90,8 +90,8 @@
 		to_chat(user, span_notice("Ваши сердце и кровь возвращаются к своему обычному ритму и течению."))
 
 	if(IS_HERETIC_OR_MONSTER(user) && active)
-		for(var/obj/effect/proc_holder/spell/spell_action in user.actions)
-			spell_action.base_cooldown *= 2
+		for(var/datum/action/cooldown/spell/spell_action in user.actions)
+			spell_action.cooldown_time *= 2
 			active = FALSE
 
 	QDEL_NULL(component)

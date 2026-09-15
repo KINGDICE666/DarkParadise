@@ -12,7 +12,7 @@
 | `build.py` | Нарезка пирамиды тайлов + генерация страниц |
 | `template/` | Шаблоны страниц и стили |
 
-Рендерер (`tools/github-actions/nanomap-renderer`) — ELF под Linux, под Windows не
+Рендерер (`tools/github-actions/dmm-tools-para`) — ELF под Linux, под Windows не
 запускается. Локально можно гонять только `build.py` по уже готовым PNG.
 
 ## Локальная сборка

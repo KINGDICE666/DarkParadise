@@ -3,8 +3,8 @@
 	desc = "Длинный, тонкий, ветхий конструкт, изначально созданный, чтобы возвестить о возвышении Нар'Си, \
 			но затем оскверненный и заржавевший под натиском сил Обители."
 	construct_spells = list(
-		/obj/effect/proc_holder/spell/aoe/rust_conversion,
-		/obj/effect/proc_holder/spell/pointed/rust_construction,
+		/datum/action/cooldown/spell/aoe/rust_conversion,
+		/datum/action/cooldown/spell/pointed/rust_construction,
 	)
 	can_repair = FALSE
 	faction = list(FACTION_HERETIC)
@@ -70,32 +70,28 @@
 	visible_message(span_danger("[declent_ru(NOMINATIVE)] сбивает [human_target.declent_ru(ACCUSATIVE)] с ног!"))
 
 
-/obj/effect/proc_holder/spell/seek_master
+/datum/action/cooldown/spell/seek_master
 	name = "Найти своего хозяина"
 	desc = "Используйте прямую связь с Обителью, чтобы определить местонахождение вашего хозяина."
-	action_icon_state = "cult_mark"
-	action_icon = 'icons/mob/actions/actions_cult.dmi'
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	button_icon_state = "cult_mark"
+	button_icon = 'icons/mob/actions/actions_cult.dmi'
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	var/tracking = TRUE
 	var/mob/living/simple_animal/hostile/construct/the_construct
 
 
-/obj/effect/proc_holder/spell/seek_master/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/seek_master/Initialize(mapload, mob/living/simple_animal/hostile/construct/the_construct)
+/datum/action/cooldown/spell/seek_master/New(Target)
 	. = ..()
-	if(!isconstruct(the_construct)) // instantiated bare (e.g. unit tests)
+	if(!isconstruct(Target)) // instantiated bare (e.g. unit tests)
 		return
-	src.the_construct = the_construct
+	the_construct = Target
 	the_construct.seeking = TRUE
 
 
-/obj/effect/proc_holder/spell/seek_master/on_spell_gain(mob/living/player)
-	the_construct = player
-	..()
+/datum/action/cooldown/spell/seek_master/Grant(mob/grant_to)
+	the_construct = target
+	return ..()
 
 
 /mob/living/simple_animal/hostile/construct/harvester/heretic/proc/link_master(mob/self, mob/master)
@@ -140,7 +136,7 @@
 		message_probability = 7,\
 		current_owner = src,\
 	)
-	var/obj/effect/proc_holder/spell/seek_master/seek = new(null, src)
+	var/datum/action/cooldown/spell/seek_master/seek = new(null, src)
 	mind.AddSpell(seek)
 
 

@@ -3,7 +3,7 @@
 # Linux only: the renderer is the same ELF used by the nanomap workflow.
 set -euo pipefail
 
-RENDERER="${RENDERER:-tools/github-actions/nanomap-renderer}"
+RENDERER="${RENDERER:-tools/github-actions/dmm-tools-para}"
 OUT="${OUT:-data/webmap-renders}"
 MAPS="${MAPS:-tools/webmap/maps.json}"
 

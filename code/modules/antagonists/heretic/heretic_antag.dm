@@ -504,7 +504,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 	if(!QDELETED(heretic_mob))
 		to_chat(heretic_mob, span_boldwarning("Вы обрели немалую силу. Обитель больше не позволит вам ломать свои клинки, но теперь вы можете создавать их без ограничений."))
 		heretic_mob.balloon_alert(heretic_mob, "клинки больше не ломаются!")
-		heretic_mob.mind?.RemoveSpell(/obj/effect/proc_holder/spell/shadow_cloak)
+		heretic_mob.mind?.RemoveSpell(/datum/action/cooldown/spell/shadow_cloak)
 	update_heretic_aura()
 
 /// Signal handler for [COMSIG_MOB_LOGIN]. Fires when our heretic's client (re)attaches to the body. The
@@ -533,7 +533,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 		var/datum/heretic_knowledge/spell/spell_knowledge = researched_knowledge[knowledge_index]
 		if(!istype(spell_knowledge) || !spell_knowledge.spell_to_add)
 			continue
-		if(unlimited_blades && spell_knowledge.spell_to_add == /obj/effect/proc_holder/spell/shadow_cloak)
+		if(unlimited_blades && spell_knowledge.spell_to_add == /datum/action/cooldown/spell/shadow_cloak)
 			continue
 		if(locate(spell_knowledge.spell_to_add) in source.mind.spell_list)
 			continue
@@ -552,7 +552,7 @@ GLOBAL_LIST_INIT(heretic_path_to_color, list(
 
 /// Signal proc for [COMSIG_MOB_BEFORE_SPELL_CAST] and [COMSIG_MOB_SPELL_ACTIVATED]. Cancels forbidden-school
 /// casts unless the heretic has [TRAIT_ALLOW_HERETIC_CASTING] or is ascended.
-/datum/antagonist/heretic/proc/on_spell_cast(mob/living/source, obj/effect/proc_holder/spell/spell)
+/datum/antagonist/heretic/proc/on_spell_cast(mob/living/source, datum/action/cooldown/spell/spell)
 	SIGNAL_HANDLER
 
 	if(ascended)

@@ -102,8 +102,6 @@
 /// Time it takes for the server to start the game
 /datum/config_entry/number/pregame_timestart
 	default = 240
-/// allow votes to change mode
-/datum/config_entry/flag/allow_vote_mode
 
 /// minimum time between voting sessions (deciseconds, 10 minute default)
 /datum/config_entry/number/vote_delay
@@ -132,9 +130,6 @@
 /// offstation role people can't vote (tbi)
 /datum/config_entry/flag/vote_no_offstation_role
 	default = TRUE
-
-/// vote does not default to nochange/norestart (tbi)
-/datum/config_entry/flag/default_no_vote
 
 /// qdel's new players if they log before they spawn in
 /datum/config_entry/flag/del_new_on_log
@@ -615,6 +610,7 @@
 /datum/config_entry/flag/shutdown_on_reboot
 
 /datum/config_entry/flag/kill_on_shutdown
+	default = TRUE
 
 /datum/config_entry/flag/autoreconnect
 
@@ -945,3 +941,12 @@
 	protection = CONFIG_ENTRY_LOCKED
 
 /datum/config_entry/flag/launcher_required
+/// allow votes to change map
+/datum/config_entry/flag/allow_vote_map
+	default = TRUE
+
+/// allow votes to change game mode
+/datum/config_entry/flag/allow_vote_gamemode
+
+/datum/config_entry/flag/emojis
+	default = TRUE

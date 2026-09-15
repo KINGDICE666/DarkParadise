@@ -86,7 +86,7 @@
 	gain_text = "Я не выбирал этот шаг. Такт выбрал его за меня, и ноги пошли сами."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "accelerated_dance"
-	spell_to_add = /obj/effect/proc_holder/spell/accelerated_dance
+	spell_to_add = /datum/action/cooldown/spell/accelerated_dance
 	cost = 2
 
 
@@ -134,7 +134,7 @@
 	gain_text = "Я сделал шаг — и весь коридор шагнул со мной. Никто из них не хотел танцевать."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "relentless_festival"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/relentless_festival
+	spell_to_add = /datum/action/cooldown/spell/aoe/relentless_festival
 	cost = 2
 
 
@@ -179,7 +179,7 @@
 	gain_text = "Их сердца сбились на мой такт, и я впервые услышал, как много вокруг живого."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "heart_resonance"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/heart_resonance
+	spell_to_add = /datum/action/cooldown/spell/aoe/heart_resonance
 	cost = 2
 	is_final_knowledge = TRUE
 

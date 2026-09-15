@@ -380,7 +380,7 @@
 /area/virtual_domain)
 "og" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/food/drinks/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/virtual_domain)
 "oM" = (

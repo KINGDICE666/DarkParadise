@@ -29,7 +29,7 @@ GLOBAL_LIST_EMPTY(discord_ooc_cooldowns)
 
 	GLOB.discord_ooc_cooldowns[sender_ckey] = world.time + OOC_COOLDOWN
 
-	msg = handleDiscordEmojis(msg)
+	msg = handle_emojis(msg)
 	log_ooc_discord(msg, sender_ckey)
 
 	if(!CONFIG_GET(flag/disable_ooc_emoji))

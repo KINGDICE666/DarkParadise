@@ -97,7 +97,6 @@
 
 // Component / signal-handler return flags used by heretic code.
 #define LADDER_TRAVEL_BLOCK (1<<0)
-#define COMPONENT_CAST_HANDLESS (1<<0)
 #define COMPONENT_CANT_Z_MOVE (1<<0)
 #define COMPONENT_AFTERATTACK_STOP (1<<1)
 #define ACCESS_DISALLOWED (1<<1)

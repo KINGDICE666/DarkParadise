@@ -1,17 +1,15 @@
-/obj/effect/proc_holder/spell/pointed/apetra_vulnera
+/datum/action/cooldown/spell/pointed/apetra_vulnera
 	name = "Усугубление"
 	desc = "Ломает части тела, имеющие 15 единиц физических повреждений и выше. Если таковых нет, \
 			ломает случайную часть тела."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "apetra_vulnera"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "apetra_vulnera"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 45 SECONDS
+	cooldown_time = 45 SECONDS
 
 	invocation = "С'Г'БЛ'Н!"
 	invocation_type = INVOCATION_WHISPER
@@ -20,12 +18,11 @@
 	cast_range = 4
 
 
-/obj/effect/proc_holder/spell/pointed/apetra_vulnera/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/apetra_vulnera/is_valid_target(atom/cast_on)
 	return ..() && ishuman(cast_on)
 
 
-/obj/effect/proc_holder/spell/pointed/apetra_vulnera/cast(list/targets, mob/user = usr)
-	var/mob/living/carbon/human/cast_on = targets[1]
+/datum/action/cooldown/spell/pointed/apetra_vulnera/cast(mob/living/carbon/human/cast_on)
 	. = ..()
 
 	if(IS_HERETIC_OR_MONSTER(cast_on))

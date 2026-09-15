@@ -833,7 +833,7 @@ to destroy them and players will be able to make replacements.
 	greyscale_colors = CIRCUIT_COLOR_MEDICAL
 	origin_tech = "materials=3;programming=2;biotech=3"
 	req_components = list(
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 		/obj/item/stock_parts/manipulator = 1,
 		/obj/item/stack/sheet/glass = 1,
 	)
@@ -925,7 +925,7 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/matter_bin = 2,
 		/obj/item/stock_parts/manipulator = 2,
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 	)
 
 /obj/item/circuitboard/chem_dispenser/soda
@@ -947,7 +947,7 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/matter_bin = 1,
 		/obj/item/stock_parts/manipulator = 1,
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 	)
 
 /obj/item/circuitboard/pacman

@@ -448,11 +448,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 			fdel(dmi_path)
 			continue
 		var/datum/fit_sheet_cache/sheet_cache = new
-		sheet_cache.sheet_icon = icon(file(dmi_path))
+		var/icon/stored = icon(file(dmi_path))
 		sheet_cache.source_hash = entry["hash"]
-		for(var/state_name in icon_states(sheet_cache.sheet_icon))
+		for(var/state_name in icon_states(stored))
 			if(state_name)
-				sheet_cache.states[state_name] = TRUE
+				sheet_cache.states[state_name] = icon(stored, state_name)
 		disk_cache[entry["sheet"]] = sheet_cache
 
 /datum/species_fit/proc/flush_disk_cache()
@@ -465,8 +465,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 		var/entry_name = cache_entry_name(sheet_path)
 		if(sheet_cache.dirty)
 			var/dmi_path = "[directory]/[entry_name].dmi"
+			var/icon/sheet_icon = icon('icons/effects/effects.dmi', "nothing")
+			for(var/state_name in sheet_cache.states)
+				sheet_icon.Insert(sheet_cache.states[state_name], state_name)
 			fdel(dmi_path)
-			fcopy(sheet_cache.sheet_icon, dmi_path)
+			fcopy(sheet_icon, dmi_path)
 			sheet_cache.dirty = FALSE
 		manifest[entry_name] = list("sheet" = sheet_path, "hash" = sheet_cache.source_hash)
 	rustg_file_write(json_encode(manifest), "[directory]/manifest.json", "false")
@@ -474,9 +477,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 /datum/species_fit/proc/read_disk_cache(sheet, state_name)
 	RETURN_TYPE(/icon)
 	var/datum/fit_sheet_cache/sheet_cache = disk_cache["[sheet]"]
-	if(!sheet_cache || !sheet_cache.states[state_name])
+	if(!sheet_cache)
 		return null
-	return icon(sheet_cache.sheet_icon, state_name)
+	return sheet_cache.states[state_name]
 
 /datum/species_fit/proc/write_disk_cache(sheet, state_name, icon/fitted)
 	var/sheet_path = "[sheet]"
@@ -485,16 +488,13 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/datum/fit_sheet_cache/sheet_cache = disk_cache[sheet_path]
 	if(!sheet_cache)
 		sheet_cache = new
-		sheet_cache.sheet_icon = icon('icons/effects/effects.dmi', "nothing")
 		sheet_cache.source_hash = sheet_hash(sheet_path)
 		disk_cache[sheet_path] = sheet_cache
-	sheet_cache.sheet_icon.Insert(fitted, state_name)
-	sheet_cache.states[state_name] = TRUE
+	sheet_cache.states[state_name] = fitted
 	sheet_cache.dirty = TRUE
 	addtimer(CALLBACK(src, PROC_REF(flush_disk_cache)), FIT_CACHE_FLUSH_DELAY, TIMER_UNIQUE | TIMER_OVERRIDE)
 
 /datum/fit_sheet_cache
-	var/icon/sheet_icon
 	var/list/states = list()
 	var/source_hash
 	var/dirty = FALSE

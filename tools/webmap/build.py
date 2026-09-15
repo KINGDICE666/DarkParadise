@@ -25,8 +25,22 @@ LEAFLET_FILES = [
 Image.MAX_IMAGE_PIXELS = None
 
 
-def render_name(dmm_path, z):
-    return f"{Path(dmm_path).stem}_nanomap_z{z}.png"
+def render_candidates(dmm_path, z):
+    stem = Path(dmm_path).stem
+    return [
+        f"{stem}-{z}.png",
+        f"{stem}_nanomap_z{z}.png",
+        f"{stem.capitalize()}_nanomap_z{z}.png",
+    ]
+
+
+def find_render(renders, dmm_path, z):
+    names = render_candidates(dmm_path, z)
+    for name in names:
+        candidate = renders / name
+        if candidate.exists():
+            return candidate, None
+    return None, f"missing render {renders / names[0]}"
 
 
 def source_version(path):
@@ -122,9 +136,8 @@ def main():
     for entry in config["maps"]:
         levels = []
         for level in entry["levels"]:
-            source = renders / render_name(entry["dmm"], level["z"])
-            if not source.exists():
-                message = f"missing render {source}"
+            source, message = find_render(renders, entry["dmm"], level["z"])
+            if source is None:
                 if args.skip_missing:
                     print(f"  ! {entry['key']}: {message}, skipped")
                     continue

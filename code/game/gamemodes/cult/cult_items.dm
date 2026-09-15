@@ -295,7 +295,7 @@
 		to_chat(user, span_notice("[src] crumbles to ashes."))
 		qdel(src)
 
-/obj/item/reagent_containers/food/drinks/bottle/unholywater
+/obj/item/reagent_containers/cup/glass/bottle/unholywater
 	name = "flask of unholy water"
 	desc = "Toxic to nonbelievers; this water renews and reinvigorates the faithful of a cult."
 	icon_state = "holyflask"
@@ -682,7 +682,7 @@
 	if(isliving(loc))
 		var/mob/living/holder = loc
 		return prob(reflect_chance) && iscultist(holder) //so non-cultist can not reflect using this shield
-	return FALSE
+	return REFLECT_NOTHING
 
 /obj/item/twohanded/cult_spear
 	name = "blood halberd"
@@ -754,7 +754,7 @@
 		final_block_chance *= 2
 	if(prob(final_block_chance))
 		if(attack_type == PROJECTILE_ATTACK)
-			owner.visible_message(span_danger("[owner] deflects [attack_text] with [src]!"), projectile_message = TRUE)
+			owner.visible_message(span_danger("[owner] deflects [attack_text] with [src]!"))
 			playsound(src, pick('sound/weapons/effects/ric1.ogg', 'sound/weapons/effects/ric2.ogg', 'sound/weapons/effects/ric3.ogg', 'sound/weapons/effects/ric4.ogg', 'sound/weapons/effects/ric5.ogg'), 100, TRUE)
 			return TRUE
 		else

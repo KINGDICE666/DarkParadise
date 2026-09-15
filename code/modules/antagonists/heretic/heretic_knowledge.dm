@@ -208,7 +208,7 @@
 /datum/heretic_knowledge/spell
 	abstract_type = /datum/heretic_knowledge/spell
 	/// Spell path we add to the heretic. Type-path.
-	var/obj/effect/proc_holder/spell/spell_to_add
+	var/datum/action/cooldown/spell/spell_to_add
 
 
 /datum/heretic_knowledge/spell/Destroy()

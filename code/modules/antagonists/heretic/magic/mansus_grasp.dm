@@ -1,26 +1,24 @@
-/obj/effect/proc_holder/spell/touch/mansus_grasp
+/datum/action/cooldown/spell/touch/mansus_grasp
 	name = "Хватка Обители"
 	desc = "Заклинание, позволяющее направлять силу Древних Богов через вашу руку."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "mansus_grasp"
-	action_targeting_overlay = "bg_spell_border_active_red"
-	sound = 'sound/items/welder.ogg'
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "mansus_grasp"
+	targeting_overlay = "bg_spell_border_active_red"
 
-	clothes_req = FALSE
 	spell_requirements = SPELL_CASTABLE_WITHOUT_INVOCATION
 
 	hand_path = /obj/item/melee/touch_attack/mansus_fist
 
 
-/obj/effect/proc_holder/spell/touch/mansus_grasp/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/touch/mansus_grasp/is_valid_target(atom/cast_on)
 	return TRUE // This baby can hit anything
 
 
-/obj/effect/proc_holder/spell/touch/mansus_grasp/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
-	return ..() && (IS_HERETIC(user) || !!IS_LUNATIC(user))
+/datum/action/cooldown/spell/touch/mansus_grasp/can_cast_spell(feedback = TRUE)
+	return ..() && (IS_HERETIC(owner) || !!IS_LUNATIC(owner))
 
 
 /obj/item/melee/touch_attack/mansus_fist/proc/attack_effect(atom/victim, mob/living/carbon/caster)
@@ -61,8 +59,8 @@
 	if(isliving(victim))
 		return SECONDARY_ATTACK_CALL_NORMAL
 	if(SEND_SIGNAL(caster, COMSIG_HERETIC_MANSUS_GRASP_ATTACK_SECONDARY, victim) & COMPONENT_USE_HAND)
-		if(attached_spell)
-			attached_spell.perform(list(), user = caster)
+		var/datum/action/cooldown/spell/touch/mansus_grasp/hand_spell = spell_which_made_us?.resolve()
+		hand_spell?.cast(caster)
 		qdel(src)
 	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
@@ -92,7 +90,6 @@
 	lefthand_file = 'icons/mob/inhands/touchspell_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/touchspell_righthand.dmi'
 	item_flags = ABSTRACT | DROPDEL | NOBLUDGEON
-	catchphrase = "Р'СКР ПР'ВД'!"
 
 
 /obj/item/melee/touch_attack/mansus_fist/get_ru_names()
@@ -124,11 +121,11 @@
 
 /// Toggles the red "armed" border on the grasp's action button via the spell's action.targeting_process.
 /obj/item/melee/touch_attack/mansus_fist/proc/set_grasp_indicator(active)
-	var/datum/action/spell_action = attached_spell?.action
-	if(!spell_action)
+	var/datum/action/cooldown/spell/touch/hand_spell = spell_which_made_us?.resolve()
+	if(!hand_spell)
 		return
-	spell_action.targeting_process = active
-	spell_action.UpdateButtonIcon()
+	hand_spell.targeting_process = active
+	hand_spell.build_all_button_icons()
 
 
 /// Callback for effect_remover component.
@@ -146,7 +143,7 @@
 /obj/item/melee/touch_attack/mansus_fist/suicide_act(mob/living/user)
 	user.visible_message(span_suicide("[user.declent_ru(NOMINATIVE)] делает фейспалм [declent_ru(INSTRUMENTAL)]! Похоже [GEND_HE_SHE(user)] пыта[PLUR_ET_YUT(user)]ся убить себя!"))
 	var/mob/living/carbon/carbon_user = user //iscarbon already used in spell's parent
-	var/obj/effect/proc_holder/spell/touch/mansus_grasp/source = attached_spell//?.resolve()
+	var/datum/action/cooldown/spell/touch/mansus_grasp/source = spell_which_made_us?.resolve()
 	if(QDELETED(source) || !IS_HERETIC(user))
 		return SHAME
 
