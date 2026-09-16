@@ -1,5 +1,115 @@
 /datum/unit_test/species_fitting
 
+/datum/species_fit/pixel_map_test
+	target_sheet = 'icons/mob/human_races/r_swine.dmi'
+	pixel_map = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-trottine.json'
+
+/datum/unit_test/species_fitting_pixel_map
+
+/datum/unit_test/species_fitting_pixel_map/Run()
+	var/datum/species_fit/mapped = new /datum/species_fit/pixel_map_test
+	var/datum/species_fit/unmapped = new /datum/species_fit/swine
+	unmapped.pixel_map = null
+	mapped.build()
+	unmapped.build()
+	TEST_ASSERT(mapped.cache_key != unmapped.cache_key, "the pixel map did not invalidate the disk cache")
+	var/list/map = mapped.pixel_maps["[SOUTH]"]
+	TEST_ASSERT_EQUAL(map[32 * 19 + 10], 32 * 19 + 11, "tool (9,12) must pull (10,12), at BYOND (10,20) and (11,20)")
+	var/list/pixels = new(32 * 32)
+	pixels[32 * 19 + 11] = "#12345678"
+	pixels[32 * 19 + 10] = "#abcdef"
+	var/datum/fit_context/context = new(mapped, SOUTH, pixels)
+	for(var/datum/fit_step/step in mapped.step_instances)
+		step.apply(context)
+	TEST_ASSERT_EQUAL(context.working[32 * 19 + 10], "#abcdef", "equal-width map correction failed to restore the original detail")
+	TEST_ASSERT_EQUAL(context.working[32 * 19 + 11], "#12345678", "map correction lost source alpha")
+	mapped.pixel_maps["[NORTH]"] = list()
+	var/icon/fitted = mapped.build_fitted_icon(DEFAULT_ICON_JUMPSUIT, "security_s")
+	var/icon/fallback = unmapped.build_fitted_icon(DEFAULT_ICON_JUMPSUIT, "security_s")
+	for(var/y in 1 to 32)
+		for(var/x in 1 to 32)
+			TEST_ASSERT_EQUAL(fitted.GetPixel(x, y, dir = NORTH), fallback.GetPixel(x, y, dir = NORTH), "a direction without mappings must retain geometry")
+	map = mapped.pixel_maps["[SOUTH]"]
+	map[32 * 19 + 10] = 0
+	context = new(mapped, SOUTH, pixels)
+	var/datum/fit_step/pixel_map/map_step = new
+	map_step.apply(context)
+	TEST_ASSERT_NULL(context.working[32 * 19 + 10], "an explicit null mapping was treated as an absent mapping")
+	TEST_ASSERT_EQUAL(context.working[32 * 19 + 11], "#12345678", "mapping used its own output instead of the original pixels")
+	mapped.manual_sheets = list(DEFAULT_ICON_JUMPSUIT = DEFAULT_ICON_JUMPSUIT)
+	TEST_ASSERT_EQUAL(mapped.describe_source(null, DEFAULT_ICON_JUMPSUIT, "maid_s"), "manual patch", "pixel maps bypassed the artist's patch")
+
+
+/datum/unit_test/species_fitting_map_refit
+
+/datum/unit_test/species_fitting_map_refit/Run()
+	var/datum/fit_step/pixel_map/step = new
+	var/list/source = list(null, "#202020", "#c0c0c080", "#c0c0c080", "#202020", null)
+	var/list/adapted = list("#202020", "#202020", "#c0c0c080", "#c0c0c080", "#202020", "#202020")
+	var/list/result = step.refit(source, adapted, 6, 1, list(TRUE))
+	TEST_ASSERT_EQUAL(result[1], "#202020", "the left outline moved")
+	TEST_ASSERT_EQUAL(result[6], "#202020", "the right outline moved")
+	for(var/index in 2 to 5)
+		TEST_ASSERT_EQUAL(result[index], "#c0c0c080", "the outline thickened instead of extending the fill, or alpha was lost")
+	result = step.refit(source, adapted, 6, 1, list(FALSE))
+	TEST_ASSERT_EQUAL(result[2], "#202020", "an unmapped row was refitted")
+	source = list("#202020", "#c0c0c0", null, "#c0c0c0", "#202020")
+	adapted = list("#202020", "#202020", "#202020", "#202020", "#202020")
+	result = step.refit(source, adapted, 5, 1, list(TRUE))
+	TEST_ASSERT_EQUAL(result[3], "#c0c0c0", "the coverage guard exposed skin instead of filling with adjacent cloth")
+	result = step.refit(adapted, list(null, "#202020", "#c0c0c0", "#202020", null), 5, 1, list(TRUE))
+	TEST_ASSERT_NULL(result[1], "the refit tried to reconstruct a narrowed row")
+	var/datum/species_fit/profile = new /datum/species_fit/pixel_map_test
+	profile.build()
+	var/list/pixels = new(32 * 32)
+	pixels[322] = "#202020"
+	pixels[323] = "#c0c0c080"
+	pixels[324] = "#c0c0c080"
+	pixels[325] = "#202020"
+	var/list/map = new(32 * 32)
+	map[321] = 322
+	map[326] = 325
+	profile.pixel_maps["[SOUTH]"] = map
+	var/datum/fit_context/context = new(profile, SOUTH, pixels)
+	step.apply(context)
+	TEST_ASSERT_EQUAL(context.working[322], "#c0c0c080", "the map step never applied its outline correction")
+	TEST_ASSERT_EQUAL(context.working[325], "#c0c0c080", "the map step left the duplicated right outline")
+	TEST_ASSERT_EQUAL(context.working[321], "#202020", "the map step lost the expanded silhouette")
+
+/datum/unit_test/species_fitting_map_cache
+
+/datum/unit_test/species_fitting_map_cache/Run()
+	var/map_path = "data/species-fitting-test-map.json"
+	var/list/data = list("version" = 1, "resolution" = list("width" = 32, "height" = 32), "supportedDirections" = "eight")
+	data["mappings"] = list("South" = list(list("source" = list("x" = 0, "y" = 0), "target" = null)))
+	rustg_file_write(json_encode(data), map_path, "false")
+	var/datum/species_fit/first = new /datum/species_fit/swine
+	first.pixel_map = map_path
+	first.build()
+	var/list/map = first.pixel_maps["[SOUTH]"]
+	TEST_ASSERT_EQUAL(map[993], 0, "an explicit transparent output was not loaded")
+	map = first.pixel_maps["[NORTH]"]
+	TEST_ASSERT_NULL(map[993], "a missing direction did not fall back to geometry")
+	data["mappings"] = list("South" = list(list("source" = list("x" = 0, "y" = 0), "target" = list("x" = 1, "y" = 1))))
+	rustg_file_write(json_encode(data), map_path, "false")
+	var/datum/species_fit/second = new /datum/species_fit/swine
+	second.pixel_map = map_path
+	second.build()
+	TEST_ASSERT(first.cache_key != second.cache_key, "editing the map at the same path did not invalidate L2")
+	fdel(map_path)
+
+/datum/unit_test/species_fitting_preview
+
+/datum/unit_test/species_fitting_preview/Run()
+	for(var/species_type in list(/datum/species/human, /datum/species/swine, /datum/species/vox, /datum/species/drask))
+		var/datum/species/species = new species_type
+		var/icon/preview = worn_preview_icon(species, DEFAULT_ICON_JUMPSUIT, "security_s")
+		var/icon/expected = get_fitted_worn_icon(species, null, DEFAULT_ICON_JUMPSUIT, "security_s") || icon(species.worn_sheets?[DEFAULT_ICON_JUMPSUIT] || DEFAULT_ICON_JUMPSUIT, "security_s")
+		for(var/fit_dir in GLOB.cardinal)
+			for(var/y in 1 to 32)
+				for(var/x in 1 to 32)
+					TEST_ASSERT_EQUAL(preview.GetPixel(x, y, dir = fit_dir), expected.GetPixel(x, y, dir = fit_dir), "the character preview bypassed worn sprite selection")
+
 /datum/unit_test/species_fitting/Run()
 	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
 	TEST_ASSERT_NOTNULL(swine_fit, "the swine fit profile was not created")
@@ -20,7 +130,9 @@
 
 /datum/unit_test/species_fitting_priority/Run()
 	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
-	TEST_ASSERT_EQUAL(swine_fit.describe_source(null, DEFAULT_ICON_JUMPSUIT, "maid_s"), "manual patch", "a hand-drawn patch state lost to the generator")
+	TEST_ASSERT_NULL(swine_fit.manual_sheets, "the swine still depends on pre-fitted clothing sheets")
+	TEST_ASSERT_NOTNULL(swine_fit.pixel_map, "the swine lost its fitting template")
+	TEST_ASSERT_EQUAL(swine_fit.describe_source(null, DEFAULT_ICON_JUMPSUIT, "maid_s"), "generated", "a former patch state did not switch to template generation")
 	TEST_ASSERT_EQUAL(swine_fit.describe_source(null, DEFAULT_ICON_JUMPSUIT, "security_s"), "generated", "a state with no hand-drawn patch was not generated")
 	TEST_ASSERT_EQUAL(swine_fit.describe_source(null, DEFAULT_ICON_WEAR_MASK, "gas_alt"), "blocked", "the deliberately vanilla mask slot was fitted anyway")
 
@@ -80,15 +192,45 @@
 	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, "labcoat")
 	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a labcoat")
 
+	var/icon/vanilla = icon(DEFAULT_ICON_OUTER_SUIT, "labcoat")
 	var/list/shrunk = swine_fit.shrunk_masks["[SOUTH]"]
 	var/shrunk_pixels = 0
 	for(var/y in 1 to swine_fit.height)
 		for(var/x in 1 to swine_fit.width)
-			if(!shrunk[swine_fit.width * (y - 1) + x])
+			if(!shrunk[swine_fit.width * (y - 1) + x] || vanilla.GetPixel(x, y, dir = SOUTH))
 				continue
 			shrunk_pixels++
-			TEST_ASSERT_NULL(fitted.GetPixel(x, y, dir = SOUTH), "cloth was left hanging at ([x], [y]), where the swine body is narrower than the human one")
+			TEST_ASSERT_NULL(fitted.GetPixel(x, y, dir = SOUTH), "the fit hung cloth at ([x], [y]), where the swine body is narrower than the human one")
 	TEST_ASSERT(shrunk_pixels > 0, "the swine body is nowhere narrower than the human one, so the trim step went untested")
+
+	var/datum/species_fit/vox_fit = get_species_fit(/datum/species_fit/vox)
+	var/icon/coat = vox_fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, "labcoat")
+	TEST_ASSERT_NOTNULL(coat, "the vox profile refused to fit a labcoat")
+	TEST_ASSERT_NOTNULL(vanilla.GetPixel(8, 15, dir = SOUTH), "the labcoat lost the skirt the vox is too narrow to fill, so the trim step is no longer tested against hand-drawn cloth")
+	TEST_ASSERT_NOTNULL(coat.GetPixel(8, 15, dir = SOUTH), "the trim punched a hole through cloth the coat draws itself, where a vox is narrower than a human")
+	TEST_ASSERT_NOTNULL(coat.GetPixel(12, 11, dir = EAST), "the trim ate the coat outline on the vox profile frame")
+
+/datum/unit_test/species_fitting_reach
+
+/datum/unit_test/species_fitting_reach/Run()
+	var/datum/species_fit/swine_fit = get_species_fit(/datum/species_fit/swine)
+	var/icon/vanilla = icon(DEFAULT_ICON_BELT, "utility", EAST)
+	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_BELT, "utility")
+	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a belt")
+
+	var/lowest_row = 0
+	for(var/y in 1 to swine_fit.height)
+		for(var/x in 1 to swine_fit.width)
+			if(vanilla.GetPixel(x, y))
+				lowest_row = y
+				break
+		if(lowest_row)
+			break
+	TEST_ASSERT(lowest_row > 1, "the belt is drawn down to the bottom of its frame, so nothing is left below it to test")
+
+	for(var/y in 1 to lowest_row - 1)
+		for(var/x in 1 to swine_fit.width)
+			TEST_ASSERT_NULL(fitted.GetPixel(x, y, dir = EAST), "the vertical pass hung belt cloth at ([x], [y]), below anything the belt draws, because it measured the human body one column at a time")
 
 /datum/unit_test/species_fitting_disk_cache
 
@@ -96,6 +238,8 @@
 	var/datum/species_fit/writer = new /datum/species_fit/swine
 	writer.build()
 	TEST_ASSERT_NOTNULL(writer.cache_key, "the swine profile produced no key to store its cached sheets under")
+	var/test_key = "unit_test_[writer.cache_key]"
+	writer.cache_key = test_key
 
 	var/icon/fitted = writer.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
 	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a plain uniform state")
@@ -108,6 +252,7 @@
 
 	var/datum/species_fit/reader = new /datum/species_fit/swine
 	reader.build()
+	reader.cache_key = test_key
 	reader.load_disk_cache()
 	var/icon/restored = reader.read_disk_cache(DEFAULT_ICON_JUMPSUIT, "security_s")
 	TEST_ASSERT_NOTNULL(restored, "the flushed uniform state was not found in the cache on the next load")
@@ -122,6 +267,19 @@
 				TEST_ASSERT_EQUAL(restored.GetPixel(x, y, dir = fit_dir), pixel, "the cached uniform lost pixel ([x], [y]) of its [dir2text(fit_dir)] frame")
 	TEST_ASSERT(east_pixels > 0, "the east frame is empty, so the cache never proved it round-trips anything but south")
 
+	TEST_ASSERT_NOTNULL(reader.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "maid_s"), "the swine profile refused to fit a second uniform state")
+	reader.flush_disk_cache()
+	TEST_ASSERT_NOTNULL(reader.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "chef_s"), "the swine profile refused to fit a third uniform state")
+	reader.flush_disk_cache()
+
+	var/datum/species_fit/reloader = new /datum/species_fit/swine
+	reloader.build()
+	reloader.cache_key = test_key
+	reloader.load_disk_cache()
+	TEST_ASSERT_NOTNULL(reloader.read_disk_cache(DEFAULT_ICON_JUMPSUIT, "security_s"), "writing to a cache loaded from disk dropped the states that were already on disk")
+	TEST_ASSERT_NOTNULL(reloader.read_disk_cache(DEFAULT_ICON_JUMPSUIT, "maid_s"), "a state fitted after the cache came back from disk never reached the disk itself")
+	TEST_ASSERT_NOTNULL(reloader.read_disk_cache(DEFAULT_ICON_JUMPSUIT, "chef_s"), "the cache stopped taking states once a flush replaced the file it was loaded from")
+
 	var/list/manifest = json_decode(file2text("[directory]/manifest.json"))
 	var/list/entry = manifest[entry_name]
 	TEST_ASSERT_NOTNULL(entry, "the flushed uniform sheet is missing from the manifest")
@@ -130,6 +288,7 @@
 
 	var/datum/species_fit/stale_reader = new /datum/species_fit/swine
 	stale_reader.build()
+	stale_reader.cache_key = test_key
 	stale_reader.load_disk_cache()
 	TEST_ASSERT_NULL(stale_reader.read_disk_cache(DEFAULT_ICON_JUMPSUIT, "security_s"), "a cache entry was served even though its source sheet had changed")
 	TEST_ASSERT(!fexists("[directory]/[entry_name].dmi"), "an invalidated cache entry was left on disk")
@@ -155,16 +314,18 @@
 	TEST_ASSERT(claimed_pixels > 0, "no target pixel was claimed by a body part, so the span map never saw the body")
 	TEST_ASSERT(remapped_pixels > 0, "the span map is empty, so the remap step is dead code on the swine")
 
-	var/icon/vanilla = icon(DEFAULT_ICON_SHOES, "workboots")
-	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_SHOES, "workboots")
-	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a boot")
+	TEST_ASSERT_NULL(swine_fit.fit_worn_icon(null, DEFAULT_ICON_SHOES, "workboots"), "a boot was remapped, and the hand-drawn swine sheets say a boot belongs on the vanilla foot")
+
+	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s")
+	var/icon/fitted = swine_fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "security_s")
+	TEST_ASSERT_NOTNULL(fitted, "the swine profile refused to fit a plain uniform state")
 	for(var/fit_dir in GLOB.cardinal)
 		var/list/shrunk = swine_fit.shrunk_masks["[fit_dir]"]
 		for(var/y in 1 to swine_fit.height)
 			for(var/x in 1 to swine_fit.width)
 				if(!vanilla.GetPixel(x, y, dir = fit_dir) || shrunk[swine_fit.width * (y - 1) + x])
 					continue
-				TEST_ASSERT_NOTNULL(fitted.GetPixel(x, y, dir = fit_dir), "the remap squashed the boot into a hole at ([x], [y]) of its [dir2text(fit_dir)] frame")
+				TEST_ASSERT_NOTNULL(fitted.GetPixel(x, y, dir = fit_dir), "the remap squashed the uniform into a hole at ([x], [y]) of its [dir2text(fit_dir)] frame")
 
 /datum/unit_test/species_fitting_head_trim
 
@@ -191,10 +352,10 @@
 					hat_pixels++
 		TEST_ASSERT(hat_pixels > 0, "the head trim stripped a helmet on its [dir2text(fit_dir)] frame, and a helmet is exactly the garment that should dress a head")
 
-	var/icon/vanilla_monocle = icon(DEFAULT_ICON_GLASSES, "monocle", NORTH)
-	TEST_ASSERT_NULL(vanilla_monocle.GetPixel(19, 23), "the vanilla monocle is expected to leave this pixel to the fitter")
-	var/icon/monocle = swine_fit.fit_worn_icon(null, DEFAULT_ICON_GLASSES, "monocle")
-	TEST_ASSERT_NOTNULL(monocle.GetPixel(19, 23, dir = NORTH), "the monocle was head-trimmed on the one frame where it barely covers a human head, so the gate is being judged per direction instead of per state")
+	var/icon/vanilla_hood = icon(DEFAULT_ICON_HEAD, "xantholne_winterhood", SOUTH)
+	TEST_ASSERT_NULL(vanilla_hood.GetPixel(16, 23), "the vanilla hood is expected to leave this pixel to the fitter")
+	var/icon/hood = swine_fit.build_fitted_icon(DEFAULT_ICON_HEAD, "xantholne_winterhood")
+	TEST_ASSERT_NOTNULL(hood.GetPixel(16, 23, dir = SOUTH), "the hood was head-trimmed on the one frame where it barely covers a human head, so the gate is being judged per direction instead of per state")
 
 /datum/unit_test/species_fitting_head_warp
 
@@ -245,7 +406,7 @@
 	for(var/fit_type in list(/datum/species_fit/vox, /datum/species_fit/drask, /datum/species_fit/unathi, /datum/species_fit/golem))
 		var/datum/species_fit/fit = get_species_fit(fit_type)
 		TEST_ASSERT_NOTNULL(fit, "[fit_type] was never created")
-		TEST_ASSERT_NOTNULL(fit.fit_worn_icon(null, DEFAULT_ICON_BELT, "assault"), "[fit_type] left a belt human-shaped, and no hand-drawn sheet covers that slot")
+		TEST_ASSERT_NOTNULL(fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, "labcoat"), "[fit_type] left a labcoat human-shaped, and no hand-drawn sheet covers that slot")
 
 	for(var/species_name in GLOB.all_species)
 		var/datum/species/species = GLOB.all_species[species_name]
@@ -293,3 +454,61 @@
 	var/mutable_appearance/vox_collar = raider.overlays_standing[COLLAR_LAYER]
 	TEST_ASSERT_NOTNULL(vox_collar, "the vox lost the collar somebody drew for it by hand")
 	TEST_ASSERT_NOTEQUAL("[vox_collar.icon]", "", "the hand-drawn vox collar lost to the generator")
+
+/datum/unit_test/species_fitting_underwear
+
+/datum/unit_test/species_fitting_underwear/Run()
+	var/mob/living/carbon/human/wearer = allocate(/mob/living/carbon/human)
+	wearer.set_species(/datum/species/swine)
+	wearer.underwear = "Mens Briefs"
+	wearer.undershirt = null
+	wearer.socks = null
+	wearer.color_underwear = "#5577aa"
+	var/datum/sprite_accessory/accessory = GLOB.underwear_list[wearer.underwear]
+	TEST_ASSERT_NULL(accessory.sprite_sheets[SPECIES_SWINE], "the swine still uses a pre-fitted underwear sheet")
+	var/datum/species_fit/fit = get_species_fit(wearer.dna.species.fit_profile)
+	var/icon/cached = fit.fit_worn_icon(null, accessory.icon, "uw_[accessory.icon_state]_s")
+	TEST_ASSERT_NOTNULL(cached, "the template did not fit the briefs")
+	var/icon/untinted = new /icon(cached)
+	var/icon/expected = new /icon(cached)
+	expected.Blend(wearer.color_underwear, ICON_MULTIPLY)
+	wearer.update_body()
+	var/mutable_appearance/underwear_layer = wearer.overlays_standing[UNDERWEAR_LAYER]
+	TEST_ASSERT_NOTNULL(underwear_layer, "generated underwear never reached the worn layer")
+	var/icon/actual = new /icon(underwear_layer.icon)
+	var/icon/preview = fitted_underwear_icon(wearer.dna.species, accessory, "uw_[accessory.icon_state]_s")
+	for(var/fit_dir in GLOB.cardinal)
+		for(var/y in 1 to 32)
+			for(var/x in 1 to 32)
+				TEST_ASSERT_EQUAL(actual.GetPixel(x, y, dir = fit_dir), expected.GetPixel(x, y, dir = fit_dir), "the worn underwear bypassed fitting or tinting")
+				TEST_ASSERT_EQUAL(preview.GetPixel(x, y, dir = fit_dir), untinted.GetPixel(x, y, dir = fit_dir), "tinting underwear mutated the shared fitting cache")
+	var/datum/species/vox_species = new /datum/species/vox
+	var/icon/vox_result = fitted_underwear_icon(vox_species, accessory, "uw_[accessory.icon_state]_s")
+	var/icon/vox_expected = new /icon(accessory.sprite_sheets[SPECIES_VOX], "uw_[accessory.icon_state]_s")
+	for(var/fit_dir in GLOB.cardinal)
+		for(var/y in 1 to 32)
+			for(var/x in 1 to 32)
+				TEST_ASSERT_EQUAL(vox_result.GetPixel(x, y, dir = fit_dir), vox_expected.GetPixel(x, y, dir = fit_dir), "another species lost its underwear sheet")
+
+/datum/unit_test/species_fitting_live_cache
+
+/datum/unit_test/species_fitting_live_cache/Run()
+	var/datum/species_fit/live = get_species_fit(/datum/species_fit/swine)
+	var/datum/fit_sheet_cache/sheet_cache = live.disk_cache["[DEFAULT_ICON_JUMPSUIT]"]
+	if(!length(sheet_cache?.states))
+		return
+
+	var/fresh_state
+	for(var/state_name in icon_states(DEFAULT_ICON_JUMPSUIT))
+		if(!state_name || sheet_cache.states[state_name])
+			continue
+		if(live.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, state_name))
+			fresh_state = state_name
+			break
+	TEST_ASSERT_NOTNULL(fresh_state, "every uniform state was already cached, so writing into a cache inherited from an earlier round went untested")
+
+	live.flush_disk_cache()
+	var/datum/species_fit/reloaded = new /datum/species_fit/swine
+	reloaded.build()
+	reloaded.load_disk_cache()
+	TEST_ASSERT_NOTNULL(reloaded.read_disk_cache(DEFAULT_ICON_JUMPSUIT, fresh_state), "a state fitted in a round that inherited its cache from an earlier round never reached the disk")

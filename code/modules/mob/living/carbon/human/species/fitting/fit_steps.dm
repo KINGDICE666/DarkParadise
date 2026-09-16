@@ -1,6 +1,129 @@
 /datum/fit_step/proc/apply(datum/fit_context/context)
 	return
 
+/datum/fit_step/pixel_map/apply(datum/fit_context/context)
+	var/list/map = context.profile.pixel_maps["[context.fit_dir]"]
+	if(!length(map))
+		return
+	var/list/mapped = context.source.Copy()
+	var/list/rows = new(context.height)
+	var/list/vertical_rows = new(context.height)
+	for(var/index in 1 to length(map))
+		var/origin = map[index]
+		if(isnull(origin))
+			continue
+		mapped[index] = origin ? context.source[origin] : null
+		if(!origin)
+			continue
+		var/row = round((index - 1) / context.width) + 1
+		if(round((origin - 1) / context.width) + 1 == row)
+			rows[row] = TRUE
+		else
+			vertical_rows[row] = TRUE
+	for(var/row in 1 to context.height)
+		if(vertical_rows[row])
+			rows[row] = FALSE
+	var/list/corrected = refit(context.source, mapped, context.width, context.height, rows)
+	for(var/index in 1 to length(map))
+		if(!isnull(map[index]) || corrected[index] != mapped[index])
+			context.working[index] = !isnull(map[index]) && !map[index] ? null : corrected[index]
+
+/datum/fit_step/pixel_map/proc/refit(list/source, list/adapted, width, height, list/rows)
+	var/list/counts = list()
+	var/list/edges = list()
+	var/list/light = list()
+	for(var/list/grid in list(source, adapted))
+		for(var/y in 1 to height)
+			for(var/x in 1 to width)
+				var/index = width * (y - 1) + x
+				var/pixel = grid[index]
+				if(!pixel)
+					continue
+				counts[pixel] = (counts[pixel] || 0) + 1
+				if(isnull(light[pixel]))
+					var/list/channels = rgb2num(pixel)
+					light[pixel] = 299 * channels[1] + 587 * channels[2] + 114 * channels[3]
+				if(x == 1 || x == width || y == 1 || y == height || !grid[index - 1] || !grid[index + 1] || !grid[index - width] || !grid[index + width])
+					edges[pixel] = TRUE
+	var/list/result = adapted.Copy()
+	for(var/y in 1 to height)
+		if(!rows[y])
+			continue
+		var/offset = width * (y - 1)
+		var/source_first = 0
+		var/source_last = 0
+		var/target_first = 0
+		var/target_last = 0
+		for(var/x in 1 to width)
+			if(source[offset + x])
+				source_first ||= x
+				source_last = x
+			if(adapted[offset + x])
+				target_first ||= x
+				target_last = x
+		if(!source_first || !target_first)
+			continue
+		var/list/original = source.Copy(offset + source_first, offset + source_last + 1)
+		var/extra = target_last - target_first - (source_last - source_first)
+		if(extra < 0 || extra > FIT_REFIT_MAX_GROWTH)
+			continue
+		var/list/rebuilt = original.Copy()
+		if(extra)
+			var/list/candidates = list()
+			for(var/gap in 2 to length(original))
+				var/left = original[gap - 1]
+				var/right = original[gap]
+				if(!left || !right)
+					continue
+				var/color = left
+				var/cost = 0
+				if(left != right)
+					var/high = light[left] >= light[right] ? left : right
+					var/low = high == left ? right : left
+					color = counts[high] >= FIT_REFIT_COMMON_COLOR ? high : low
+					cost = FIT_REFIT_COLOR_COST
+				if(edges[color])
+					cost += FIT_REFIT_EDGE_COST
+				if(counts[color] < FIT_REFIT_RARE_COLOR)
+					cost += FIT_REFIT_RARE_COST
+				candidates += list(list(gap, color, cost))
+			if(!length(candidates))
+				continue
+			var/list/insertions = new(length(original))
+			for(var/number in 1 to extra)
+				var/ideal = number * length(original) / (extra + 1)
+				var/list/best
+				var/best_cost = INFINITY
+				var/best_distance = INFINITY
+				for(var/list/candidate in candidates)
+					var/distance = abs(candidate[1] - 1 - ideal)
+					var/cost = candidate[3] + FIT_REFIT_DISTANCE_COST * distance
+					if(cost < best_cost || (cost == best_cost && distance < best_distance))
+						best = candidate
+						best_cost = cost
+						best_distance = distance
+				var/list/at_gap = insertions[best[1]]
+				if(!at_gap)
+					at_gap = list()
+					insertions[best[1]] = at_gap
+				at_gap += best[2]
+			rebuilt = list()
+			for(var/index in 1 to length(original))
+				var/list/at_gap = insertions[index]
+				if(at_gap)
+					rebuilt += at_gap
+				rebuilt.len++
+				rebuilt[length(rebuilt)] = original[index]
+		for(var/index in 1 to length(rebuilt))
+			if(rebuilt[index] || !adapted[offset + target_first + index - 1])
+				continue
+			var/left = index > 1 ? rebuilt[index - 1] : null
+			var/right = index < length(rebuilt) ? rebuilt[index + 1] : null
+			rebuilt[index] = left && right ? (light[left] >= light[right] ? left : right) : (left || right || adapted[offset + target_first + index - 1])
+		for(var/index in 1 to length(rebuilt))
+			result[offset + target_first + index - 1] = rebuilt[index]
+	return result
+
 /datum/fit_step/proc/clear_added(datum/fit_context/context, list/mask)
 	for(var/index in 1 to length(mask))
 		if(mask[index] && !context.source[index])
@@ -188,10 +311,7 @@
 	context.working = shifted
 
 /datum/fit_step/trim/apply(datum/fit_context/context)
-	var/list/shrunk = context.shrunk_mask()
-	for(var/index in 1 to length(context.working))
-		if(shrunk[index])
-			context.working[index] = null
+	clear_added(context, context.shrunk_mask())
 
 /datum/fit_step/head_trim/apply(datum/fit_context/context)
 	if(context.dresses_head)
