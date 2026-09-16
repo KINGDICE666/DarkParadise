@@ -113,6 +113,10 @@
 /obj/item/twohanded/dualsaber/toy/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	return FALSE
 
+/obj/item/twohanded/dualsaber/toy/IsReflect()
+	if(HAS_TRAIT(src, TRAIT_WIELDED))
+		return REFLECT_TOY
+
 /obj/item/toy/katana
 	name = "replica katana"
 	desc = "Неоправданно слабая в настольных играх."

@@ -1,37 +1,31 @@
-/obj/effect/proc_holder/spell/aoe/fiery_rebirth
+/datum/action/cooldown/spell/aoe/fiery_rebirth
 	name = "Возрождение Ночного Дозорного"
 	desc = "Заклинание, которое тушит вас и высасывает жизненную силу из язычников, охваченных огнём, \
 			исцеляя вас за каждую жертву. Те, кто находится в критическом состоянии, \
 			потеряют последние жизненные силы, что приведёт к их смерти."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "smoke"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "smoke"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 1 MINUTES
+	cooldown_time = 1 MINUTES
 
 	invocation = "СЛ'В Н'ЧН'М Д'З'РН'М"
 	invocation_type = INVOCATION_WHISPER
 	spell_requirements = SPELL_REQUIRES_HUMAN
 	sound = 'sound/magic/fireball.ogg'
-	aoe_range = 14
+	aoe_radius = 14
 	/// Tracks how many victims the spell drained this cast, used to lower the cooldown per victim.
 	var/victims_counter = 0
 
 
-/obj/effect/proc_holder/spell/aoe/fiery_rebirth/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/aoe/fiery_rebirth/get_things_to_cast_on(atom/center)
+/datum/action/cooldown/spell/aoe/fiery_rebirth/get_things_to_cast_on(atom/center)
 	victims_counter = 0
 	var/list/things = list()
-	for(var/mob/living/carbon/nearby_mob in range(aoe_range, center))
-		if(nearby_mob == action.owner || nearby_mob == center)
+	for(var/mob/living/carbon/nearby_mob in range(aoe_radius, center))
+		if(nearby_mob == owner || nearby_mob == center)
 			continue
 
 		if(IS_HERETIC_OR_MONSTER(nearby_mob))
@@ -46,8 +40,9 @@
 	return things
 
 
-/obj/effect/proc_holder/spell/aoe/fiery_rebirth/cast(list/targets, mob/user = usr)
-	var/mob/living/carbon/human/caster = user
+/datum/action/cooldown/spell/aoe/fiery_rebirth/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/carbon/human/caster = owner
 	if(!istype(caster))
 		return
 	caster.ExtinguishMob()
@@ -72,12 +67,12 @@
 			caster.updatehealth()
 
 
-/obj/effect/proc_holder/spell/aoe/fiery_rebirth/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/aoe/fiery_rebirth/after_cast(atom/cast_on)
 	. = ..()
 	if(!victims_counter)
-		cooldown_handler.start_recharge(base_cooldown)
+		StartCooldown(cooldown_time)
 		return
-	cooldown_handler.start_recharge(max(9 SECONDS, base_cooldown - victims_counter * 10 SECONDS))
+	StartCooldown(max(9 SECONDS, cooldown_time - victims_counter * 10 SECONDS))
 
 
 /obj/effect/temp_visual/eldritch_smoke

@@ -104,23 +104,23 @@
 /obj/item/disk/bitrunning/ability/tier1
 	name = "bitrunning program: basic abilities"
 	selectable = list(
-		"Призыв сыра" = /obj/effect/proc_holder/spell/aoe/conjure/bitrunner_cheese,
-		"Малое исцеление" = /obj/effect/proc_holder/spell/bitrunner_heal,
+		"Призыв сыра" = /datum/action/cooldown/spell/conjure/bitrunner_cheese,
+		"Малое исцеление" = /datum/action/cooldown/spell/bitrunner_heal,
 	)
 
 /obj/item/disk/bitrunning/ability/tier2
 	name = "bitrunning program: complex abilities"
 	selectable = list(
-		"Огненный шар" = /obj/effect/proc_holder/spell/fireball,
-		"Силовая стена" = /obj/effect/proc_holder/spell/forcewall,
-		"Молния" = /obj/effect/proc_holder/spell/fireball/bitrunner_lightning,
+		"Огненный шар" = /datum/action/cooldown/spell/pointed/projectile/fireball,
+		"Силовая стена" = /datum/action/cooldown/spell/forcewall,
+		"Молния" = /datum/action/cooldown/spell/pointed/projectile/fireball/bitrunner_lightning,
 	)
 
 /obj/item/disk/bitrunning/ability/tier3
 	name = "bitrunning program: elite abilities"
 	selectable = list(
-		"Форма дракона" = /obj/effect/proc_holder/spell/shapeshift/dragon,
-		"Форма белого медведя" = /obj/effect/proc_holder/spell/shapeshift/bitrunner_polar_bear,
+		"Форма дракона" = /datum/action/cooldown/spell/shapeshift/dragon,
+		"Форма белого медведя" = /datum/action/cooldown/spell/shapeshift/bitrunner_polar_bear,
 	)
 
 /obj/item/disk/bitrunning/item/pka_mods

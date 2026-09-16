@@ -1,27 +1,26 @@
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap
+/datum/action/cooldown/spell/pointed/spatial_swap
 	name = "Пространственная Рокировка"
 	desc = "Позволяет выбрать два объекта или существа и поменять их местами. \
 			Обе цели должны быть на виду, не дальше девяти плиток от вас и не дальше девяти плиток друг от друга. \
 			Каждая перемещённая жертва получает Разлом."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "spatial_swap"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "spatial_swap"
 
 	sound = 'sound/magic/blink.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 25 SECONDS
-	should_recharge_after_cast = FALSE
+	cooldown_time = 25 SECONDS
+	should_go_on_cooldown = FALSE
 
 	invocation = "Р'К'Р'ВК'!"
 	invocation_type = INVOCATION_WHISPER
 	spell_requirements = NONE
 
 	cast_range = 9
+	unset_after_click = FALSE
 	active_msg = "Вы выделяете первый объект для рокировки..."
 	var/datum/weakref/first_target_ref
 	var/datum/weakref/caster_ref
@@ -30,16 +29,12 @@
 	var/max_swap_distance = 9
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/Destroy()
+/datum/action/cooldown/spell/pointed/spatial_swap/Destroy()
 	clear_selection()
 	return ..()
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/should_remove_click_intercept(mob/user)
-	return FALSE
-
-
-/obj/effect/proc_holder/spell/pointed/spatial_swap/valid_target(atom/cast_on, mob/user)
+/datum/action/cooldown/spell/pointed/spatial_swap/is_valid_target(atom/cast_on)
 	if(cast_on == first_target_ref?.resolve())
 		return FALSE
 	if(isliving(cast_on))
@@ -53,9 +48,10 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action?.owner
-	var/atom/movable/picked = targets[1]
+/datum/action/cooldown/spell/pointed/spatial_swap/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
+	var/atom/movable/picked = cast_on
 	if(!caster || !ismovable(picked))
 		return FALSE
 
@@ -65,17 +61,17 @@
 		return TRUE
 
 	. = perform_swap(caster, first_target, picked)
-	remove_ranged_ability(caster)
+	unset_click_ability(caster)
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/pointed/spatial_swap/after_cast(atom/cast_on)
 	. = ..()
 	if(first_target_ref)
 		return
-	cooldown_handler.start_recharge()
+	StartCooldown()
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/proc/select_first(mob/living/caster, atom/movable/picked)
+/datum/action/cooldown/spell/pointed/spatial_swap/proc/select_first(mob/living/caster, atom/movable/picked)
 	first_target_ref = WEAKREF(picked)
 	caster_ref = WEAKREF(caster)
 	selection_outline = image('icons/effects/eldritch.dmi', picked, "bluespace_mark", ABOVE_LIGHTING_PLANE)
@@ -87,14 +83,14 @@
 	selection_timer = addtimer(CALLBACK(src, PROC_REF(selection_expired), caster), 5 SECONDS, TIMER_STOPPABLE)
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/proc/selection_expired(mob/living/caster)
+/datum/action/cooldown/spell/pointed/spatial_swap/proc/selection_expired(mob/living/caster)
 	clear_selection()
 	to_chat(caster, span_warning("Выделение сброшено."))
-	remove_ranged_ability(caster)
-	cooldown_handler.start_recharge()
+	unset_click_ability(caster)
+	StartCooldown()
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/proc/clear_selection()
+/datum/action/cooldown/spell/pointed/spatial_swap/proc/clear_selection()
 	var/mob/living/caster = caster_ref?.resolve()
 	caster?.client?.images -= selection_outline
 	selection_outline = null
@@ -106,7 +102,7 @@
 	selection_timer = null
 
 
-/obj/effect/proc_holder/spell/pointed/spatial_swap/proc/perform_swap(mob/living/caster, atom/movable/first_target, atom/movable/second_target)
+/datum/action/cooldown/spell/pointed/spatial_swap/proc/perform_swap(mob/living/caster, atom/movable/first_target, atom/movable/second_target)
 	clear_selection()
 
 	var/turf/first_turf = get_turf(first_target)

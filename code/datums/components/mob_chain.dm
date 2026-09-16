@@ -66,7 +66,7 @@
 		RegisterSignal(parent, COMSIG_CARBON_LIMB_DAMAGED, PROC_REF(on_limb_damage))
 
 	var/mob/living/liv_parent = parent
-	liv_parent.AddSpell(new /obj/effect/proc_holder/spell/worm_contract)
+	liv_parent.AddSpell(new /datum/action/cooldown/spell/worm_contract)
 
 
 /datum/component/mob_chain/UnregisterFromParent()
@@ -91,7 +91,7 @@
 	))
 	qdel(parent.GetComponent(/datum/component/leash))
 	var/mob/living/living_parent = parent
-	var/obj/effect/proc_holder/spell/worm_contract/shrink = locate() in living_parent.actions
+	var/datum/action/cooldown/spell/worm_contract/shrink = locate() in living_parent.actions
 	qdel(shrink)
 
 
@@ -252,25 +252,20 @@
 /**
  * Shrink the chain of mobs into one tile.
  */
-/obj/effect/proc_holder/spell/worm_contract
+/datum/action/cooldown/spell/worm_contract
 	name = "Сжать тело"
 	desc = "Сжимает ваше тело так, чтобы все его части оказались на одной плитке."
-	action_background_icon_state = "bg_heretic"
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "worm_contract"
-	base_cooldown = 30 SECONDS
-	clothes_req = FALSE
-	human_req = FALSE
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "worm_contract"
+	cooldown_time = 30 SECONDS
+	spell_requirements = NONE
 	//melee_cooldown_time = 0 SECONDS
 
 
 // Self-cast: master220 spells runtime in choose_targets() without a targeting datum (the base spell
 // doesn't supply one), which is why the button looked dead - the click threw before reaching cast().
-/obj/effect/proc_holder/spell/worm_contract/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/worm_contract/cast(list/targets, mob/user = usr)
-	SEND_SIGNAL(action.owner, COMSIG_MOB_CHAIN_CONTRACT)
+/datum/action/cooldown/spell/worm_contract/cast(atom/cast_on)
+	SEND_SIGNAL(owner, COMSIG_MOB_CHAIN_CONTRACT)
 	. = ..()

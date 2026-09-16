@@ -9,7 +9,7 @@
  */
 /datum/component/living_heart
 	/// The spell we create and give to our heart.
-	var/obj/effect/proc_holder/spell/track_target/spell
+	var/datum/action/cooldown/spell/track_target/spell
 
 /datum/component/living_heart/Initialize()
 	if(!isorgan(parent))
@@ -65,15 +65,15 @@
  * The spell associated with the living heart.
  * Allows a heretic to track sacrifice targets.
  */
-/obj/effect/proc_holder/spell/track_target
+/datum/action/cooldown/spell/track_target
 	name = "Биение Живого Сердца"
 	desc = "ЛКМ: Выберите одну из целей жертвоприношения для отслеживания.\nАльт-клик: Переключает автовыбор последней выбранной цели."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
-	action_icon = 'icons/obj/eldritch.dmi'
-	action_icon_state = "living_heart"
-	base_cooldown = 4 SECONDS
-	clothes_req = FALSE
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
+	button_icon = 'icons/obj/eldritch.dmi'
+	button_icon_state = "living_heart"
+	cooldown_time = 4 SECONDS
+	spell_requirements = NONE
 
 	/// Tracks whether we were right clicked or left clicked in our last trigger
 	var/alt_clicked = FALSE
@@ -85,20 +85,12 @@
 	var/datum/status_effect/agent_pinpointer/scan/heretic/heretic_pinpointer
 
 
-/obj/effect/proc_holder/spell/track_target/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/track_target/can_add(mob/granted)
-	return IS_HERETIC(granted)
-
-
-/obj/effect/proc_holder/spell/track_target/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
+/datum/action/cooldown/spell/track_target/can_cast_spell(feedback = TRUE)
 	. = ..()
 	if(!.)
 		return
 
-	if(!IS_HERETIC(action.owner))
+	if(!IS_HERETIC(owner))
 		return FALSE
 
 	if(radial_open)
@@ -107,17 +99,18 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/track_target/click_alt(mob/user)
+/datum/action/cooldown/spell/track_target/AltTrigger(mob/clicker, trigger_flags)
 	. = ..()
 	alt_clicked = !alt_clicked
 
 
-/obj/effect/proc_holder/spell/track_target/cast(list/targets, mob/user = usr)
-	var/datum/antagonist/heretic/heretic_datum = GET_HERETIC(action.owner)
+/datum/action/cooldown/spell/track_target/cast(atom/cast_on)
+	. = ..()
+	var/datum/antagonist/heretic/heretic_datum = GET_HERETIC(owner)
 	var/datum/heretic_knowledge/sac_knowledge = heretic_datum.get_knowledge(/datum/heretic_knowledge/hunt_and_sacrifice)
 
 	if(!LAZYLEN(heretic_datum.sac_targets))
-		action.owner.balloon_alert(action.owner, "нет целей!")
+		owner.balloon_alert(owner, "нет целей!")
 		return
 
 	var/list/choosable_targets = list()
@@ -138,7 +131,7 @@
 		if(!istype(blade, /obj/item/melee/sickly_blade))
 			continue // Just in case someone makes a /datum/heretic_knowledge/limited_amount/starting that doesn't create blades
 
-		if(get(blade, /mob/living) == action.owner)
+		if(get(blade, /mob/living) == owner)
 			continue
 
 		choosable_targets[blade.name] = image(icon = blade.icon, icon_state = blade.icon_state)
@@ -151,8 +144,8 @@
 	if(isnull(last_tracked_name) || !alt_clicked)
 		radial_open = TRUE
 		last_tracked_name = show_radial_menu(
-			action.owner,
-			action.owner,
+			owner,
+			owner,
 			choosable_targets,
 			custom_check = CALLBACK(src, PROC_REF(check_menu)),
 			radius = 40,
@@ -168,8 +161,8 @@
 		last_tracked_name = null
 		return
 
-	playsound(action.owner, 'sound/effects/singlebeat.ogg', 50, TRUE, SILENCED_SOUND_EXTRARANGE)
-	action.owner.balloon_alert(action.owner, get_balloon_message(tracked_thing))
+	playsound(owner, 'sound/effects/singlebeat.ogg', 50, TRUE, SILENCED_SOUND_EXTRARANGE)
+	owner.balloon_alert(owner, get_balloon_message(tracked_thing))
 
 	if(!ismob(tracked_thing))
 		return
@@ -178,27 +171,27 @@
 	if(tracked_mob.stat != DEAD)
 		return
 
-	to_chat(action.owner, span_mansus("[DECLENT_RU_CAP(tracked_mob, NOMINATIVE)] мертв[GEND_A_O_Y(tracked_mob)]. \
+	to_chat(owner, span_mansus("[DECLENT_RU_CAP(tracked_mob, NOMINATIVE)] мертв[GEND_A_O_Y(tracked_mob)]. \
 										Принесите [GEND_HIS_HER(tracked_mob)] на руну трансформации и используйте \
 										\"[sac_knowledge.name]\", чтобы принести [GEND_HIS_HER(tracked_mob)] в жертву!"))
 
 
 /// Callback for the radial to ensure it's closed when not allowed.
-/obj/effect/proc_holder/spell/track_target/proc/check_menu()
+/datum/action/cooldown/spell/track_target/proc/check_menu()
 	if(QDELETED(src))
 		return FALSE
 
-	if(!IS_HERETIC(action.owner))
+	if(!IS_HERETIC(owner))
 		return FALSE
 
 	return TRUE
 
 
 /// Gets the balloon message for who we're tracking.
-/obj/effect/proc_holder/spell/track_target/proc/get_balloon_message(atom/tracked_thing)
+/datum/action/cooldown/spell/track_target/proc/get_balloon_message(atom/tracked_thing)
 	var/balloon_message = "ошибка!"
 	var/turf/their_turf = get_turf(tracked_thing)
-	var/turf/our_turf = get_turf(action.owner)
+	var/turf/our_turf = get_turf(owner)
 	var/their_z = their_turf?.z
 	var/our_z = our_turf?.z
 
@@ -244,8 +237,8 @@
 				balloon_message = "слишком далеко!"
 				arrow_color = COLOR_RED
 
-		if(action.owner.hud_used)
-			new /atom/movable/screen/navigate_arrow(null, action.owner.hud_used, their_turf, arrow_color)
+		if(owner.hud_used)
+			new /atom/movable/screen/navigate_arrow(null, owner.hud_used, their_turf, arrow_color)
 
 	if(!ismob(tracked_thing))
 		return balloon_message

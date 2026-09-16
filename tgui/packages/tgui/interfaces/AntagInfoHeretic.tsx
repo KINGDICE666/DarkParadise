@@ -1,15 +1,6 @@
 import { useState } from 'react';
-import {
-  BlockQuote,
-  Box,
-  Button,
-  DmIcon,
-  Flex,
-  Section,
-  Stack,
-  Tabs,
-} from '../components';
-import { BooleanLike } from 'common/react';
+import { BlockQuote, Box, Button, DmIcon, Flex, Section, Stack, Tabs } from 'tgui-core/components';
+import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
@@ -420,7 +411,8 @@ const KnowledgeShop = (props) => {
   // Group the shop knowledges into tiers by their depth.
   const tiers: Knowledge[][] = shop.reduce((acc, node) => {
     const tierIndex = (node.depth || 1) - 1;
-    (acc[tierIndex] ??= []).push(node);
+    acc[tierIndex] ??= [];
+    acc[tierIndex].push(node);
     return acc;
   }, [] as Knowledge[][]);
 

@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast
+/datum/action/cooldown/spell/pointed/projectile/star_blast
 	name = "Звёздный Взрыв"
 	desc = "Это заклинание запускает в цель неудержимый диск с космической энергией, распространяющий звёздную метку. \
 			При повторном применении вы телепортируетесь к диску, а от диска и вас расходятся космические поля, \
 			затягивающие в них ближайших язычников."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "star_blast"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "star_blast"
 
 	sound = 'sound/magic/cosmic_energy.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 1 SECONDS // Cooldown is tied to teleportation, not firing.
+	cooldown_time = 1 SECONDS // Cooldown is tied to teleportation, not firing.
 
 	invocation = "ЗВ'ЗДН'Й ВЗР'В!"
 	invocation_type = INVOCATION_SHOUT
@@ -29,49 +27,47 @@
 	var/datum/weakref/summoner
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/ready_projectile(obj/projectile/to_fire, atom/target, mob/user, iteration)
+/datum/action/cooldown/spell/pointed/projectile/star_blast/ready_projectile(obj/projectile/to_fire, atom/target, mob/user, iteration)
 	. = ..()
 	projectile_weakref = WEAKREF(to_fire)
 	RegisterSignal(to_fire, COMSIG_QDELETING, PROC_REF(on_ball_deleted))
 	to_fire.AddElement(cosmic_trail_based_on_passive(user), /obj/effect/forcefield/cosmic_field/fast)
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/Click()
+/datum/action/cooldown/spell/pointed/projectile/star_blast/Trigger(mob/clicker, trigger_flags, atom/target)
 	var/obj/projectile/magic/star_ball/active_ball = projectile_weakref?.resolve()
 	if(!active_ball)
 		return ..()
-	if(!cast_check(TRUE, FALSE, usr))
+	if(!can_cast_spell())
 		return TRUE
 
 	pull_victims()
-	do_teleport(action.owner, get_turf(active_ball))
+	do_teleport(owner, get_turf(active_ball))
 	pull_victims() // Intentional: pull from where we were, AND from where we teleported to.
 	QDEL_NULL(active_ball) // on_ball_deleted clears the weakref and the green border.
-	cooldown_handler.start_recharge(25 SECONDS)
-	action?.UpdateButtonIcon()
+	StartCooldown(25 SECONDS)
+	build_all_button_icons()
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/after_cast(atom/cast_on)
+/datum/action/cooldown/spell/pointed/projectile/star_blast/after_cast(atom/cast_on)
 	. = ..()
 	if(projectile_weakref?.resolve())
 		set_ball_indicator(TRUE)
 
 
 /// The disk died (hit range end / we teleported to it) - drop the weakref and the green border.
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/proc/on_ball_deleted(datum/source)
+/datum/action/cooldown/spell/pointed/projectile/star_blast/proc/on_ball_deleted(datum/source)
 	SIGNAL_HANDLER
 	projectile_weakref = null
 	set_ball_indicator(FALSE)
 
 
 /// Toggles the green "teleport available" border on the action button while our disk is alive.
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/proc/set_ball_indicator(active)
-	if(!action)
-		return
-	action.targeting_overlay = active ? "bg_spell_border_active_green" : ACTION_BUTTON_DEFAULT_TARGETING_OVERLAY
-	action.targeting_process = active
-	action.UpdateButtonIcon()
+/datum/action/cooldown/spell/pointed/projectile/star_blast/proc/set_ball_indicator(active)
+	targeting_overlay = active ? "bg_spell_border_active_green" : ACTION_BUTTON_DEFAULT_TARGETING_OVERLAY
+	targeting_process = active
+	build_all_button_icons()
 
 
 /obj/effect/temp_visual/circle_wave/star_blast
@@ -79,8 +75,8 @@
 
 
 /// Raises a ring of cosmic fields around us and drags nearby heathens in, star-marking them.
-/obj/effect/proc_holder/spell/pointed/projectile/star_blast/proc/pull_victims()
-	var/mob/living/caster = action.owner
+/datum/action/cooldown/spell/pointed/projectile/star_blast/proc/pull_victims()
+	var/mob/living/caster = owner
 	if(!caster)
 		return
 	new /obj/effect/temp_visual/circle_wave/star_blast(get_turf(caster))

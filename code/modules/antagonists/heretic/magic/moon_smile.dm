@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/pointed/moon_smile
+/datum/action/cooldown/spell/pointed/moon_smile
 	name = "Улыбка Луны"
 	desc = "Позволяет обратить на кого-то взгляд луны, кликнув по нему. \
 			Временно ослепляет, заглушает и ошеломляет одну цель."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "moon_smile"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "moon_smile"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/moon_target.dmi'
 
 	sound = 'sound/magic/blind.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 20 SECONDS
+	cooldown_time = 20 SECONDS
 	antimagic_flags = MAGIC_RESISTANCE|MAGIC_RESISTANCE_MIND
 	invocation = "Л'НН УЛ'БК!"
 	invocation_type = INVOCATION_SHOUT
@@ -23,24 +21,23 @@
 	active_msg = "Вы готовы позволить им увидеть истинное лицо луны..."
 
 
-/obj/effect/proc_holder/spell/pointed/moon_smile/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
-	return ..() && isliving(user)
+/datum/action/cooldown/spell/pointed/moon_smile/can_cast_spell(feedback = TRUE)
+	return ..() && isliving(owner)
 
 
-/obj/effect/proc_holder/spell/pointed/moon_smile/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/moon_smile/is_valid_target(atom/cast_on)
 	return ..() && ishuman(cast_on)
 
 
-/obj/effect/proc_holder/spell/pointed/moon_smile/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/moon_smile/cast(mob/living/carbon/human/cast_on)
 	. = ..()
-	var/mob/living/carbon/human/cast_on = targets[1]
 	if(!istype(cast_on))
 		return FALSE
 
 	var/moon_smile_duration = 15 SECONDS
 	if(cast_on.can_block_magic(antimagic_flags))
 		to_chat(cast_on, span_notice("Луна отворачивается, и её улыбка больше не обращена к вам."))
-		to_chat(action.owner, span_warning("Луна не желает улыбаться."))
+		to_chat(owner, span_warning("Луна не желает улыбаться."))
 		return FALSE
 
 	playsound(cast_on, 'sound/hallucinations/i_see_you1.ogg', 50, 1)

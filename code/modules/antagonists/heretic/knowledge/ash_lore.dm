@@ -85,12 +85,12 @@
 	if(!.)
 		return
 
-	var/obj/effect/proc_holder/spell/touch/mansus_grasp/grasp = locate() in source.mind.spell_list
+	var/datum/action/cooldown/spell/touch/mansus_grasp/grasp = locate() in source.mind.spell_list
 	if(!grasp)
 		return
 
-	grasp.cooldown_handler.recharge_time -= round(grasp.base_cooldown * 0.75)
-	grasp.action?.UpdateButtonIcon()
+	grasp.next_use_time -= round(grasp.cooldown_time * 0.75)
+	grasp.build_all_button_icons()
 
 
 /datum/heretic_knowledge/spell/ash_passage
@@ -99,7 +99,7 @@
 	gain_text = "Он умел ходить между мирами."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "ash_shift"
-	spell_to_add = /obj/effect/proc_holder/spell/ethereal_jaunt/ash
+	spell_to_add = /datum/action/cooldown/spell/jaunt/ethereal_jaunt/ash
 	cost = 2
 	drafting_tier = 5
 
@@ -112,7 +112,7 @@
 	gain_text = "Никакой огонь не был достаточно жарким, чтобы разжечь фонарь вновь. Никакой огонь не был достаточно ярким, чтобы спасти их. Никакой огонь не вечен."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "flames"
-	spell_to_add = /obj/effect/proc_holder/spell/charged/beam/fire_blast
+	spell_to_add = /datum/action/cooldown/spell/charged/beam/fire_blast
 	cost = 2
 	research_tree_icon_frame = 7
 
@@ -189,7 +189,7 @@
 				Ночной Дозорный был особенным человеком, всегда наблюдавшим."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "smoke"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/fiery_rebirth
+	spell_to_add = /datum/action/cooldown/spell/aoe/fiery_rebirth
 	cost = 2
 	research_tree_icon_frame = 5
 	is_final_knowledge = TRUE
@@ -237,18 +237,18 @@
 
 /datum/heretic_knowledge/ultimate/ash_final/on_finished_recipe(mob/living/user, list/selected_atoms, turf/loc)
 	. = ..()
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/fire_sworn())
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/fire_cascade/big())
-	var/obj/effect/proc_holder/spell/charged/beam/fire_blast/existing_beam_spell = locate() in user.mind.spell_list
+	user.mind.AddSpell(new /datum/action/cooldown/spell/fire_sworn())
+	user.mind.AddSpell(new /datum/action/cooldown/spell/fire_cascade/big())
+	var/datum/action/cooldown/spell/charged/beam/fire_blast/existing_beam_spell = locate() in user.mind.spell_list
 	if(existing_beam_spell)
 		existing_beam_spell.max_beam_bounces *= 2 // Double beams
 		existing_beam_spell.beam_duration *= 0.66 // Faster beams
-		existing_beam_spell.base_cooldown *= 0.66 // Lower cooldown
-		existing_beam_spell.cooldown_handler?.recharge_duration = existing_beam_spell.base_cooldown
+		existing_beam_spell.cooldown_time *= 0.66 // Lower cooldown
+		existing_beam_spell.cooldown_time = existing_beam_spell.cooldown_time
 
-	var/obj/effect/proc_holder/spell/aoe/fiery_rebirth/fiery_rebirth = locate() in user.mind.spell_list
+	var/datum/action/cooldown/spell/aoe/fiery_rebirth/fiery_rebirth = locate() in user.mind.spell_list
 	if(fiery_rebirth)
-		fiery_rebirth.base_cooldown *= 0.16
-		fiery_rebirth.cooldown_handler?.recharge_duration = fiery_rebirth.base_cooldown
+		fiery_rebirth.cooldown_time *= 0.16
+		fiery_rebirth.cooldown_time = fiery_rebirth.cooldown_time
 
 	user.add_traits(traits_to_apply, type)

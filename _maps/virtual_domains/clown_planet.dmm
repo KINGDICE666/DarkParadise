@@ -458,7 +458,7 @@
 /turf/simulated/floor/indestructible/medical_white,
 /area/lavaland/surface/outdoors/virtual_domain)
 "FI" = (
-/obj/item/reagent_containers/food/drinks/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
 /obj/structure/table/glass,
 /turf/simulated/floor/carpet,
 /area/lavaland/surface/outdoors/virtual_domain)

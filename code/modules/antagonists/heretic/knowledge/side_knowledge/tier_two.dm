@@ -27,7 +27,7 @@
 	gain_text = "Мои оковы были разорваны в тёмной ярости, их слабые путы рушатся под давлением моей силы."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "uncuff"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/wave_of_desperation
+	spell_to_add = /datum/action/cooldown/spell/aoe/wave_of_desperation
 	cost = 1
 
 

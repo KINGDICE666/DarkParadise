@@ -47,7 +47,7 @@
 	AddElement(/datum/element/simple_flying)
 	AddComponent(/datum/component/ranged_attacks, casing_type = /obj/item/ammo_casing/c46x30mm, projectile_sound = 'sound/weapons/gunshots/1c20.ogg', burst_shots = 6)
 
-	var/obj/effect/proc_holder/spell/netguardian_rockets/rockets = new
+	var/datum/action/cooldown/spell/pointed/netguardian_rockets/rockets = new
 	AddSpell(rockets)
 	ai_controller.set_blackboard_key(BB_TARGETED_ACTION, rockets)
 	update_icon(UPDATE_OVERLAYS)
@@ -68,49 +68,45 @@
 
 	. += emissive_appearance(icon, "netguardian_emissive", src)
 
-/obj/effect/proc_holder/spell/netguardian_rockets
+/datum/action/cooldown/spell/pointed/netguardian_rockets
 	name = "2E Rocket Launcher"
 	desc = "Накрывает цель залпом ракет."
-	base_cooldown = 30 SECONDS
-	clothes_req = FALSE
-	human_req = FALSE
-	action_icon_state = "explosion"
+	cooldown_time = 30 SECONDS
+	spell_requirements = NONE
+	button_icon_state = "explosion"
+	cast_range = 12
 	var/rocket_type = /obj/projectile/bullet/a84mm_he
 	var/shot_count = 3
 	var/shot_spread = 15
 
-/obj/effect/proc_holder/spell/netguardian_rockets/create_new_targeting()
-	var/datum/spell_targeting/clicked_atom/targeting = new
-	targeting.range = 12
-	return targeting
-
-/obj/effect/proc_holder/spell/netguardian_rockets/cast(list/targets, mob/living/user = usr)
-	var/atom/target = targets[1]
+/datum/action/cooldown/spell/pointed/netguardian_rockets/cast(atom/cast_on)
+	. = ..()
+	var/atom/target = cast_on
 	if(isnull(target))
 		return FALSE
 
-	playsound(user, 'sound/mecha/skyfall_power_up.ogg', 120, TRUE)
-	user.say("цель захвачена.")
+	playsound(owner, 'sound/mecha/skyfall_power_up.ogg', 120, TRUE)
+	owner.say("цель захвачена.")
 
 	var/list/warning_overlays = list(
-		mutable_appearance(user.icon, "scan"),
-		mutable_appearance(user.icon, "rockets"),
-		emissive_appearance(user.icon, "scan", user),
+		mutable_appearance(owner.icon, "scan"),
+		mutable_appearance(owner.icon, "rockets"),
+		emissive_appearance(owner.icon, "scan", owner),
 	)
-	user.add_overlay(warning_overlays)
+	owner.add_overlay(warning_overlays)
 
-	. = do_after(user, 1.5 SECONDS, target = user)
-	user.cut_overlay(warning_overlays)
+	. = do_after(owner, 1.5 SECONDS, target = owner)
+	owner.cut_overlay(warning_overlays)
 	if(!.)
 		return FALSE
 
-	var/base_angle = get_angle(user, target)
+	var/base_angle = get_angle(owner, target)
 	for(var/shot in 1 to shot_count)
-		var/obj/projectile/rocket = new rocket_type(get_turf(user))
-		rocket.current = get_turf(user)
+		var/obj/projectile/rocket = new rocket_type(get_turf(owner))
+		rocket.current = get_turf(owner)
 		rocket.original = target
-		rocket.firer = user
-		rocket.preparePixelProjectile(target, user)
+		rocket.firer = owner
+		rocket.preparePixelProjectile(target, owner)
 		rocket.fire(base_angle + rand(-shot_spread, shot_spread))
 
 	return TRUE

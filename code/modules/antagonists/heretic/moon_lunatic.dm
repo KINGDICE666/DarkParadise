@@ -68,9 +68,9 @@
 	if(ismaster)
 		return
 
-	var/obj/effect/proc_holder/spell/lunatic_track/moon_track = new /obj/effect/proc_holder/spell/lunatic_track()
+	var/datum/action/cooldown/spell/lunatic_track/moon_track = new /datum/action/cooldown/spell/lunatic_track()
 	our_mob.mind.AddSpell(moon_track)
-	var/obj/effect/proc_holder/spell/touch/mansus_grasp/mad_touch = new /obj/effect/proc_holder/spell/touch/mansus_grasp()
+	var/datum/action/cooldown/spell/touch/mansus_grasp/mad_touch = new /datum/action/cooldown/spell/touch/mansus_grasp()
 	our_mob.mind.AddSpell(mad_touch)
 
 
