@@ -173,7 +173,6 @@
 	species_allowed = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_DIONA, SPECIES_VULPKANIN, SPECIES_TAJARAN, SPECIES_KIDAN, SPECIES_GREY, SPECIES_PLASMAMAN, SPECIES_MACHINEPERSON, SPECIES_WRYN, SPECIES_SKRELL, SPECIES_SLIMEPERSON, SPECIES_SKELETON, SPECIES_DRASK, SPECIES_VOX, SPECIES_MOTH, SPECIES_SWINE)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 	)
@@ -205,7 +204,6 @@
 	allow_change_color = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -243,7 +241,6 @@
 	icon_state = "female_red_alt"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_TAJARAN = 'icons/mob/clothing/species/tajaran/underwear.dmi',
@@ -254,7 +251,6 @@
 	icon_state = "female_babydoll"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_TAJARAN = 'icons/mob/clothing/species/tajaran/underwear.dmi',
@@ -265,7 +261,6 @@
 	icon_state = "female_kinky_alt"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_TAJARAN = 'icons/mob/clothing/species/tajaran/underwear.dmi',
@@ -280,7 +275,6 @@
 	icon_state = "neko_female_black"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -290,7 +284,6 @@
 	allow_change_color = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -335,7 +328,6 @@
 	species_allowed = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_DIONA, SPECIES_VULPKANIN, SPECIES_TAJARAN, SPECIES_KIDAN, SPECIES_GREY, SPECIES_PLASMAMAN, SPECIES_MACHINEPERSON, SPECIES_WRYN, SPECIES_SKRELL, SPECIES_SLIMEPERSON, SPECIES_SKELETON, SPECIES_DRASK, SPECIES_VOX, SPECIES_MOTH, SPECIES_SWINE)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 	)
@@ -353,7 +345,6 @@
 	allow_change_color = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -364,7 +355,6 @@
 	icon_state = "turtleneck"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
 	)
@@ -374,7 +364,6 @@
 	icon_state = "sweater"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
 	)
@@ -389,7 +378,6 @@
 	icon_state = "female_cuttedshirt"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -400,7 +388,6 @@
 	icon_state = "female_longslevshirt"
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -493,7 +480,6 @@
 	allow_change_color = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -555,7 +541,6 @@
 	allow_change_color = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/underwear.dmi',
@@ -587,7 +572,6 @@
 	species_allowed = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_DIONA, SPECIES_VULPKANIN, SPECIES_TAJARAN, SPECIES_KIDAN, SPECIES_GREY, SPECIES_PLASMAMAN, SPECIES_MACHINEPERSON, SPECIES_WRYN, SPECIES_SKRELL, SPECIES_SLIMEPERSON, SPECIES_SKELETON, SPECIES_DRASK, SPECIES_VOX, SPECIES_MOTH, SPECIES_SWINE)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/underwear.dmi',
-		SPECIES_SWINE = 'icons/mob/clothing/species/swine/underwear.dmi',
 		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_ASHWALKER_BASIC = 'icons/mob/clothing/species/unathi/underwear.dmi',
 		SPECIES_ASHWALKER_SHAMAN = 'icons/mob/clothing/species/unathi/underwear.dmi',
