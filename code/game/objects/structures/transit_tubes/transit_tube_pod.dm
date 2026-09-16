@@ -83,6 +83,8 @@
 		return
 
 	var/move_result = move_animation(current_move_anim_mode)
+	if(QDELETED(src))
+		return PROCESS_KILL
 	if(isnull(move_result))
 		if(isnull(current_tube) || (!(dir in current_tube.directions()) && !(reverse_direction(dir) in current_tube.directions())))
 			outside_tube()
@@ -136,6 +138,8 @@
 
 		if(current_tube?.should_stop_pod(src, next_dir))
 			current_tube.pod_stopped(src, dir)
+			if(QDELETED(src))
+				return
 		else
 			COOLDOWN_START(src, move_cooldown, exit_delay)
 			return MOVE_ANIMATION_STAGE_ONE
