@@ -39,8 +39,8 @@ def find_render(renders, dmm_path, z):
     for name in names:
         candidate = renders / name
         if candidate.exists():
-            return candidate, None
-    return None, f"missing render {renders / names[0]}"
+            return candidate
+    return None
 
 
 def source_version(path):
@@ -136,8 +136,9 @@ def main():
     for entry in config["maps"]:
         levels = []
         for level in entry["levels"]:
-            source, message = find_render(renders, entry["dmm"], level["z"])
+            source = find_render(renders, entry["dmm"], level["z"])
             if source is None:
+                message = f"missing render {renders / render_candidates(entry['dmm'], level['z'])[0]}"
                 if args.skip_missing:
                     print(f"  ! {entry['key']}: {message}, skipped")
                     continue
@@ -203,6 +204,9 @@ def main():
     )
     (out_root / "index.html").write_text(index, encoding="utf-8")
     shutil.copy(templates / "webmap.css", out_root / "webmap.css")
+    shutil.copy(templates / "space.png", out_root / "space.png")
+    shutil.copy(templates / "favicon.ico", out_root / "favicon.ico")
+    shutil.copy(templates / "apple-touch-icon.png", out_root / "apple-touch-icon.png")
     vendor_leaflet(out_root, args.allow_offline)
 
     print(f"built {len(built)} maps into {out_root}")

@@ -12,8 +12,23 @@
 | `build.py` | Нарезка пирамиды тайлов + генерация страниц |
 | `template/` | Шаблоны страниц и стили |
 
-Рендерер (`tools/github-actions/dmm-tools-para`) — ELF под Linux, под Windows не
-запускается. Локально можно гонять только `build.py` по уже готовым PNG.
+Рендерит апстримный `dmm-tools` из SpacemanDMM. Ставится как `dreamchecker` и
+`dmdoc` — скриптом `tools/ci/install_dmm_tools.sh`, версия берётся из
+`SPACEMANDMM_TAG` в `_build_dependencies.sh`.
+
+Форк `tools/github-actions/nanomap-renderer` здесь НЕ подходит: он рисует только
+турфы, без мебели, машин и прочих объектов. Для внутриигровых наномап это и нужно,
+для вебкарты — нет.
+
+Под Windows можно проверять локально: в релизе лежит `dmm-tools.exe`. Рендер
+отдельного участка:
+
+```bash
+dmm-tools.exe minimap --min 200,75,1 --max 220,95,1 -o out _maps/map_files/Delta/delta.dmm
+```
+
+Имена выходных файлов у двух рендереров разные (`delta-1.png` против
+`delta_nanomap_z1.png`), `build.py` понимает оба.
 
 ## Локальная сборка
 

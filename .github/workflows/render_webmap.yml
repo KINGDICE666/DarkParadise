@@ -29,8 +29,11 @@ jobs:
       - name: Install dependencies
         run: pip install pillow
 
+      - name: Install DMM-TOOLS
+        run: bash tools/ci/install_dmm_tools.sh
+
       - name: Render maps
-        run: bash tools/webmap/render.sh
+        run: RENDERER=~/dmm-tools bash tools/webmap/render.sh
 
       - name: Build tiles and pages
         run: python tools/webmap/build.py --renders data/webmap-renders --out dist/webmap --skip-missing
