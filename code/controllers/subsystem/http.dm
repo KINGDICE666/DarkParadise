@@ -42,7 +42,7 @@ SUBSYSTEM_DEF(http)
 				req.cb.InvokeAsync(res)
 
 			// And log the result
-			if(logging_enabled)
+			if(logging_enabled && !req.sensitive)
 				if(logging_errors_only && (!res.errored || res.status_code != 200))
 					index++
 					continue
@@ -78,8 +78,9 @@ SUBSYSTEM_DEF(http)
  * Generates an async request, and adds it to the subsystem's processing list
  * These should be used as they do not lock the entire DD process up as they execute inside their own thread pool inside RUSTG
  */
-/datum/controller/subsystem/http/proc/create_async_request(method, url, body = "", list/headers, datum/callback/proc_callback, output_file)
+/datum/controller/subsystem/http/proc/create_async_request(method, url, body = "", list/headers, datum/callback/proc_callback, output_file, sensitive = FALSE)
 	var/datum/http_request/req = new()
+	req.sensitive = sensitive
 	req.prepare(method, url, body, headers, output_file)
 	if(proc_callback)
 		req.cb = proc_callback

@@ -31,6 +31,7 @@
 #include "test_map_templates.dm"
 #include "test_modsuit.dm"
 #include "test_missing_icons.dm"
+#include "test_ntrnet.dm"
 #include "test_orphaned_genturf.dm"
 #include "test_painted_mask.dm"
 #include "test_paintings.dm"

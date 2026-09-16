@@ -1,0 +1,55 @@
+{
+  "zones": [
+    { "name": "ss13", "server_id": null, "active": true },
+    { "name": "ss13dp", "server_id": "dark-paradise", "active": true }
+  ],
+  "sites": [
+    {
+      "id": "welcome",
+      "domain": "welcome.ss13",
+      "title": "Добро пожаловать в НТрнет",
+      "version": "1",
+      "pages": [
+        {
+          "slug": "index",
+          "title": "Главная",
+          "tree": {
+            "type": "div",
+            "children": [
+              { "type": "h2", "children": [{ "type": "text", "text": "Ваша станция — часть сети" }] },
+              { "type": "p", "children": [{ "type": "text", "text": "Это тестовая страница НТрнета. Сайты из разных зон доступны в одном КПК." }] },
+              { "type": "link", "site_id": "dark-paradise", "slug": "index", "children": [{ "type": "text", "text": "Заглянуть на Dark Paradise" }] }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dark-paradise",
+      "domain": "station.ss13dp",
+      "title": "Dark Paradise",
+      "version": "1",
+      "pages": [
+        {
+          "slug": "index",
+          "title": "Станция",
+          "tree": {
+            "type": "div",
+            "children": [
+              { "type": "h2", "children": [{ "type": "text", "text": "Станционный узел связи" }] },
+              { "type": "p", "children": [{ "type": "text", "text": "Связь установлена. Добро пожаловать на Dark Paradise!" }] }
+            ]
+          }
+        },
+        {
+          "slug": "about",
+          "title": "О сети",
+          "tree": {
+            "type": "p",
+            "children": [{ "type": "text", "text": "Страницы передаются как данные. Скрипты и внешние ресурсы не выполняются." }]
+          }
+        }
+      ]
+    }
+  ]
+}
