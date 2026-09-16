@@ -16,12 +16,14 @@ GLOBAL_LIST_EMPTY(species_fits)
 /datum/species_fit
 	var/reference_sheet = 'icons/mob/human_races/r_human.dmi'
 	var/target_sheet
+	var/pixel_map
+	var/list/pixel_maps
 	var/list/trunk_states = list("torso_m", "groin_m")
 	var/list/limb_states = list("l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 	var/list/head_states = list("head_m")
 	var/list/bare_parts
 	var/list/tier_states
-	var/max_squash = 1
+	var/max_squash = 0
 	var/list/steps = list(
 		/datum/fit_step/mark_bare_skin,
 		/datum/fit_step/warp,
@@ -34,6 +36,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 		/datum/fit_step/trim,
 		/datum/fit_step/head_trim,
 		/datum/fit_step/bare_part_trim,
+		/datum/fit_step/pixel_map,
 	)
 	var/list/manual_sheets
 	var/list/blocked_sheets
@@ -74,6 +77,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(built)
 		return
 	built = TRUE
+	load_pixel_map()
 	var/list/tier_names = list()
 	for(var/list/tier_group in tier_states)
 		tier_names += jointext(tier_group, ",")
@@ -81,6 +85,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	for(var/list/part_group in bare_parts)
 		bare_names += jointext(part_group, ",")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[pixel_map]|[pixel_map ? md5(file2text(pixel_map)) : ""]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -123,6 +128,34 @@ GLOBAL_LIST_EMPTY(species_fits)
 		target_bare_masks[key] = target_bare
 		shrunk_masks[key] = build_shrunk_mask(fit_dir)
 
+/datum/species_fit/proc/load_pixel_map()
+	pixel_maps = list()
+	if(!pixel_map)
+		return
+	var/list/data = json_decode(file2text(pixel_map))
+	var/list/resolution = data["resolution"]
+	if(data["version"] != 1 || resolution?["width"] != width || resolution?["height"] != height)
+		CRASH("Invalid species fitting pixel map: [pixel_map]")
+	if(!(data["supportedDirections"] in list("four", "eight")))
+		CRASH("Unsupported pixel map directions: [pixel_map]")
+	var/list/mappings = data["mappings"]
+	var/list/directions = list("South" = SOUTH, "North" = NORTH, "East" = EAST, "West" = WEST)
+	for(var/direction_name in directions)
+		var/list/map = new(width * height)
+		var/list/pairs = mappings[direction_name]
+		for(var/list/pair in pairs)
+			var/output_index = pixel_map_index(pair["source"])
+			var/list/target = pair["target"]
+			map[output_index] = isnull(target) ? 0 : pixel_map_index(target)
+		pixel_maps["[directions[direction_name]]"] = map
+
+/datum/species_fit/proc/pixel_map_index(list/point)
+	var/x = point?["x"]
+	var/y = point?["y"]
+	if(!isnum(x) || !isnum(y) || x != round(x) || y != round(y) || x < 0 || x >= width || y < 0 || y >= height)
+		CRASH("Invalid pixel map coordinate in [pixel_map]")
+	return width * (height - 1 - y) + x + 1
+
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
 	var/list/mask = new(width * height)
 	for(var/state_name in state_names)
@@ -164,27 +197,30 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /datum/species_fit/proc/build_row_map(fit_dir)
 	var/key = "[fit_dir]"
-	var/list/reference_trunk = reference_trunk_masks[key]
-	var/list/reference_body = reference_body_masks[key]
 	var/list/target_trunk = target_trunk_masks[key]
 	var/list/target_body = target_body_masks[key]
+	var/list/trunk_rows = mask_rows(reference_trunk_masks[key])
+	var/list/body_rows = mask_rows(reference_body_masks[key])
 	var/list/map = new(width * height)
-	for(var/x in 1 to width)
-		var/list/trunk_rows = list()
-		var/list/body_rows = list()
-		for(var/y in 1 to height)
-			var/index = width * (y - 1) + x
-			if(reference_trunk[index])
-				trunk_rows += y
-			if(reference_body[index])
-				body_rows += y
-		for(var/y in 1 to height)
-			var/index = width * (y - 1) + x
+	for(var/y in 1 to height)
+		var/row_offset = width * (y - 1)
+		for(var/x in 1 to width)
+			var/index = row_offset + x
 			var/list/rows = target_trunk[index] ? trunk_rows : (target_body[index] ? body_rows : null)
 			if(!length(rows) || (y >= rows[1] && y <= rows[length(rows)]))
 				continue
 			map[index] = nearest_line(rows, y)
 	return map
+
+/datum/species_fit/proc/mask_rows(list/mask)
+	var/list/rows = list()
+	for(var/y in 1 to height)
+		var/row_offset = width * (y - 1)
+		for(var/x in 1 to width)
+			if(mask[row_offset + x])
+				rows += y
+				break
+	return rows
 
 /datum/species_fit/proc/span_endpoints(list/mask, x)
 	var/first = 0
@@ -296,6 +332,17 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(fitted)
 		return new /icon(fitted)
 	return new /icon(preview_species?.worn_sheets?[sheet] || sheet, state_name)
+
+/proc/fitted_underwear_icon(datum/species/wearer_species, datum/sprite_accessory/accessory, state_name)
+	var/species_sheet = accessory.sprite_sheets?[wearer_species.name]
+	if(species_sheet)
+		return new /icon(species_sheet, state_name)
+	var/datum/species_fit/fit = get_species_fit(wearer_species.fit_profile)
+	if(fit?.pixel_map)
+		var/icon/fitted = fit.fit_worn_icon(null, accessory.icon, state_name)
+		if(fitted)
+			return new /icon(fitted)
+	return new /icon(accessory.icon, state_name)
 
 /proc/get_worn_icon_source(mob/living/carbon/human/wearer, obj/item/clothing_item, sheet, state_name)
 	var/datum/species/wearer_species = wearer.dna?.species
@@ -477,9 +524,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 /datum/species_fit/proc/read_disk_cache(sheet, state_name)
 	RETURN_TYPE(/icon)
 	var/datum/fit_sheet_cache/sheet_cache = disk_cache["[sheet]"]
-	if(!sheet_cache)
-		return null
-	return sheet_cache.states[state_name]
+	return sheet_cache?.states[state_name]
 
 /datum/species_fit/proc/write_disk_cache(sheet, state_name, icon/fitted)
 	var/sheet_path = "[sheet]"

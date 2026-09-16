@@ -3,7 +3,6 @@
 	name_plural = "Vulpkanin"
 	icobase = 'icons/mob/human_races/r_vulpkanin.dmi'
 	deform = 'icons/mob/human_races/r_vulpkanin.dmi'
-	fit_profile = /datum/species_fit/vulpkanin
 	language = LANGUAGE_VULPKANIN
 	primitive_form = /datum/species/monkey/vulpkanin
 	tail = "vulptail"

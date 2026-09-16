@@ -12,7 +12,7 @@ FULL_STATES = TRUNK_STATES + LIMB_STATES + ("head_m",)
 
 TRANSPARENT = None
 
-PART_GARMENT_SHARE = 0.1
+PART_GARMENT_SHARE = 0.25
 
 HEAD_WARP_SHARE = 0.25
 
@@ -86,6 +86,105 @@ def _flip_keys(keys, height):
     return {(x, height - 1 - y) for (x, y) in keys}
 
 
+DIRECTION_NAMES = ("South", "North", "East", "West")
+
+
+def _read_pixel_map(path, width, height):
+    """AdaptiveDMITool export: the output pixel is `source`, read from input pixel `target`."""
+    if not path:
+        return {index: {} for index in range(4)}
+    import json
+    from pathlib import Path
+    data = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    if data.get("version") != 1 or data.get("supportedDirections") not in ("four", "eight"):
+        raise ValueError("unsupported pixel map format")
+    resolution = data.get("resolution") or {}
+    if resolution.get("width") != width or resolution.get("height") != height:
+        raise ValueError("pixel map is %sx%s, body is %sx%s"
+                         % (resolution.get("width"), resolution.get("height"), width, height))
+    mappings = data.get("mappings") or {}
+    maps = {}
+    for index, name in enumerate(DIRECTION_NAMES):
+        built = {}
+        for pair in mappings.get(name) or ():
+            out = pair["source"]
+            if (type(out["x"]) is not int or type(out["y"]) is not int
+                    or not (0 <= out["x"] < width and 0 <= out["y"] < height)):
+                raise ValueError("invalid output coordinate")
+            key = (out["x"], height - 1 - out["y"])
+            into = pair["target"]
+            if into is None:
+                built[key] = None
+                continue
+            if (type(into["x"]) is not int or type(into["y"]) is not int
+                    or not (0 <= into["x"] < width and 0 <= into["y"] < height)):
+                raise ValueError("invalid input coordinate")
+            built[key] = (into["x"], height - 1 - into["y"])
+        maps[index] = built
+    return maps
+
+
+def _refit_rows(source, adapted, width, height, rows):
+    from collections import Counter
+    counts = Counter(pixel for grid in (source, adapted) for pixel in grid.values() if pixel)
+    edge = set()
+    for grid in (source, adapted):
+        for (x, y), pixel in grid.items():
+            if pixel and any(grid.get((x + dx, y + dy)) is None
+                             for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                edge.add(pixel)
+    light = {pixel: 299 * pixel[0] + 587 * pixel[1] + 114 * pixel[2] for pixel in counts}
+    result = dict(adapted)
+    for y in rows:
+        original = [source[x, y] for x in range(width)]
+        current = [adapted[x, y] for x in range(width)]
+        original_span = [x for x, pixel in enumerate(original) if pixel]
+        current_span = [x for x, pixel in enumerate(current) if pixel]
+        if not original_span or not current_span or original == current:
+            continue
+        original = original[original_span[0]:original_span[-1] + 1]
+        current = current[current_span[0]:current_span[-1] + 1]
+        extra = len(current) - len(original)
+        if extra < 0 or extra > 8:
+            continue
+        rebuilt = list(original)
+        if extra:
+            candidates = []
+            for gap in range(1, len(original)):
+                left, right = original[gap - 1], original[gap]
+                if left is None or right is None:
+                    continue
+                if left == right:
+                    color, cost = left, 0
+                else:
+                    high, low = (left, right) if light[left] >= light[right] else (right, left)
+                    color, cost = high if counts[high] >= 4 else low, 4
+                cost += 8 if color in edge else 0
+                cost += 3 if counts[color] < 8 else 0
+                candidates.append((gap, color, cost))
+            if not candidates:
+                continue
+            insertions = {}
+            for number in range(extra):
+                ideal = (number + 1) * len(original) / (extra + 1)
+                gap, color, _ = min(candidates, key=lambda item:
+                    (item[2] + 0.6 * abs(item[0] - ideal), abs(item[0] - ideal)))
+                insertions.setdefault(gap, []).append(color)
+            rebuilt = []
+            for index, pixel in enumerate(original):
+                rebuilt.extend(insertions.get(index, ()))
+                rebuilt.append(pixel)
+        for index, pixel in enumerate(rebuilt):
+            if pixel is not None or current[index] is None:
+                continue
+            neighbours = [rebuilt[other] for other in (index - 1, index + 1)
+                          if 0 <= other < len(rebuilt) and rebuilt[other] is not None]
+            rebuilt[index] = max(neighbours, key=light.get) if neighbours else current[index]
+        for index, pixel in enumerate(rebuilt):
+            result[current_span[0] + index, y] = pixel
+    return result
+
+
 def _span_endpoints(mask, line, size, along_rows):
     hits = [index for index in range(size)
             if ((line, index) if along_rows else (index, line)) in mask]
@@ -93,8 +192,8 @@ def _span_endpoints(mask, line, size, along_rows):
 
 
 class SpeciesFit:
-    def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="none", remap="none",
-                 max_squash=1, head_trim=True, head_warp=True, bare_parts=()):
+    def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="shrink", remap="auto",
+                 max_squash=0, head_trim=True, head_warp=True, bare_parts=(), pixel_map=None):
         self.width, self.height = width, height
         self.trim = trim
         self.remap = remap
@@ -102,6 +201,7 @@ class SpeciesFit:
         self.head_trim = head_trim
         self.head_warp = head_warp
         self.bare_parts = tuple(bare_parts)
+        self.pixel_maps = _read_pixel_map(pixel_map, width, height)
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
@@ -227,10 +327,10 @@ class SpeciesFit:
     def _build_row_map(self, dir_index):
         reference_trunk, reference_body = self.reference_trunk[dir_index], self.reference_body[dir_index]
         target_trunk, target_body = self.target_trunk[dir_index], self.target_body[dir_index]
+        trunk_rows = sorted({y for _, y in reference_trunk})
+        body_rows = sorted({y for _, y in reference_body})
         row_map = {}
         for x in range(self.width):
-            trunk_rows = [y for y in range(self.height) if (x, y) in reference_trunk]
-            body_rows = [y for y in range(self.height) if (x, y) in reference_body]
             for y in range(self.height):
                 if (x, y) in target_trunk:
                     rows = trunk_rows
@@ -297,7 +397,8 @@ class SpeciesFit:
                     working[key] = None
         elif self.trim == "shrink":
             for key in self.shrunk[dir_index]:
-                working[key] = None
+                if source[key] is None:
+                    working[key] = None
         if self.head_trim and not dresses_head:
             for key in self.target_head[dir_index]:
                 if source[key] is None:
@@ -308,7 +409,18 @@ class SpeciesFit:
             for key in mask:
                 if source[key] is None:
                     working[key] = None
-        return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, any(dirty)
+        mapping = self.pixel_maps[dir_index]
+        if mapping:
+            mapped = dict(source)
+            for key, origin in mapping.items():
+                mapped[key] = source[origin] if origin is not None else None
+            rows = {y for (x, y), origin in mapping.items() if origin is not None and origin[1] == y}
+            rows -= {y for (x, y), origin in mapping.items() if origin is not None and origin[1] != y}
+            corrected = _refit_rows(source, mapped, self.width, self.height, rows) if rows else mapped
+            for key in working:
+                if key in mapping or corrected[key] != mapped[key]:
+                    working[key] = None if key in mapping and mapping[key] is None else corrected[key]
+        return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, working != source
 
     def _mark_bare_skin(self, working, dir_index):
         reference_body, target_body = self.reference_body[dir_index], self.target_body[dir_index]
