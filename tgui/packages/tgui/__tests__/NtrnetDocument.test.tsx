@@ -90,3 +90,33 @@ test('internal links never become browser navigation', () => {
   expect(html).not.toContain('href');
   expect(html).not.toContain('byond:');
 });
+
+test('allows only explicit safe styles', () => {
+  const html = render({
+    type: 'p',
+    style: {
+      color: '#74e3bc',
+      textAlign: 'center',
+      backgroundImage: 'url(https://evil.example)',
+      width: 'calc(100%)',
+    },
+    children: [{ type: 'text', text: 'styled' }],
+  });
+  expect(html).toContain('color:#74e3bc');
+  expect(html).toContain('text-align:center');
+  expect(html).not.toContain('evil.example');
+  expect(html).not.toContain('calc');
+});
+
+test('renders media only from the NTrnet bucket', () => {
+  const good = render({
+    type: 'image',
+    src: 'https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.png',
+    alt: '<station>',
+  });
+  expect(good).toContain('<img');
+  expect(good).toContain('&lt;station&gt;');
+  const bad = render({ type: 'video', src: 'https://evil.example/track.mp4' });
+  expect(bad).not.toContain('<video');
+  expect(bad).not.toContain('evil.example');
+});

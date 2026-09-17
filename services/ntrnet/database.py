@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 import time
 
 from sqlalchemy import (
@@ -31,6 +32,7 @@ sites = Table('sites', metadata,
     Column('title', String(160), nullable=False),
     Column('version', BigInteger, nullable=False, default=1),
     Column('hidden', Boolean, nullable=False, default=False),
+    Column('preview_token', String(43), nullable=False, unique=True, default=lambda: secrets.token_urlsafe(32)),
     UniqueConstraint('name', 'zone', name='uq_site_domain'),
     **table_options)
 
@@ -39,7 +41,19 @@ pages = Table('pages', metadata,
     Column('slug', String(64), primary_key=True),
     Column('title', String(160), nullable=False),
     Column('position', Integer, nullable=False),
+    Column('source_html', Text().with_variant(MEDIUMTEXT(), 'mysql', 'mariadb'), nullable=False, default=''),
+    Column('source_css', Text().with_variant(MEDIUMTEXT(), 'mysql', 'mariadb'), nullable=False, default=''),
     Column('tree', Text().with_variant(MEDIUMTEXT(), 'mysql', 'mariadb'), nullable=False),
+    **table_options)
+
+media = Table('media', metadata,
+    Column('id', String(32), primary_key=True),
+    Column('site_id', String(64), ForeignKey('sites.id', ondelete='CASCADE'), nullable=False, index=True),
+    Column('filename', String(160), nullable=False),
+    Column('object_key', String(160), nullable=False, unique=True),
+    Column('content_type', String(64), nullable=False),
+    Column('size', BigInteger, nullable=False),
+    Column('created_at', BigInteger, nullable=False),
     **table_options)
 
 device_codes = Table('device_codes', metadata,

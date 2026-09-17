@@ -72,9 +72,9 @@ class AuthTests(unittest.TestCase):
         page = self.browser.get('/').get_data(as_text=True)
         self.assertIn('alice.ss13dp', page)
         self.assertNotIn('Bob private title', page)
-        self.assertIn('<code>.ss13</code>', page)
-        self.assertIn('<code>.ss13dp</code>', page)
-        self.assertNotIn('<code>.other</code>', page)
+        self.assertIn('<option value="ss13">.ss13</option>', page)
+        self.assertIn('<option value="ss13dp">.ss13dp</option>', page)
+        self.assertNotIn('<option value="other">.other</option>', page)
 
     def test_no_public_catalog_even_with_browser_session(self):
         self.redeem(self.issue().json['code'])
@@ -162,7 +162,7 @@ class AuthTests(unittest.TestCase):
         self.redeem(self.issue().json['code'])
         html = self.browser.get('/').get_data(as_text=True)
         self.assertIn('alice.ss13dp', html)
-        self.assertNotIn('<code>.ss13dp</code>', html)
+        self.assertNotIn('<option value="ss13dp">.ss13dp</option>', html)
         response = self.browser.get('/api/v1/sites/alice/pages/index', headers={'X-Server-Key': 'a' * 43})
         self.assertEqual(response.status_code, 200)
 

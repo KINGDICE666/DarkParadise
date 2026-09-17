@@ -1,16 +1,39 @@
 server {
     listen 80;
-    server_name ntrnet.wiki-ss13.space;
-    return 301 https://ntrnet.wiki-ss13.space$request_uri;
+    server_name ntrnet.wiki-ss13.space media.wiki-ss13.space;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name media.wiki-ss13.space;
+    ssl_certificate /etc/letsencrypt/live/ntrnet.wiki-ss13.space/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ntrnet.wiki-ss13.space/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    include /etc/nginx/snippets/cloudflare-realip.conf;
+
+    location / {
+        root /srv/ntrnet-media;
+        try_files $uri =404;
+        autoindex off;
+        limit_except GET HEAD { deny all; }
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Robots-Tag "noindex, nofollow" always;
+        access_log off;
+    }
 }
 
 server {
     listen 443 ssl;
     server_name ntrnet.wiki-ss13.space;
-    ssl_certificate /etc/ssl/ntrnet/fullchain.pem;
-    ssl_certificate_key /etc/ssl/ntrnet/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    client_max_body_size 4k;
+    ssl_certificate /etc/letsencrypt/live/ntrnet.wiki-ss13.space/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ntrnet.wiki-ss13.space/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    client_max_body_size 32m;
+    include /etc/nginx/snippets/cloudflare-realip.conf;
 
     location / {
         proxy_pass http://127.0.0.1:8091;
@@ -18,7 +41,7 @@ server {
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_connect_timeout 5s;
-        proxy_read_timeout 20s;
+        proxy_read_timeout 45s;
         proxy_cache off;
     }
 }

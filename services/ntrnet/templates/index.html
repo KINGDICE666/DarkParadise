@@ -13,18 +13,33 @@
     {% if account %}
     <p class="eyebrow">КАБИНЕТ АВТОРА</p>
     <h1>Добро пожаловать, {{ account.ckey }}.</h1>
-    <p>Вход подтверждён через игровой сервер. Здесь будут Ваши сайты.</p>
+    <p>Вход подтверждён через игровой сервер. Создавайте страницы, сохраняйте — и они сразу появятся в НТрнете.</p>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
     <section>
       <h2>Ваши сайты</h2>
       {% for site in sites %}
-      <article><strong>{{ site.title }}</strong><small>{{ site.name }}.{{ site.zone }}</small></article>
+      <article class="row"><span><strong>{{ site.title }}</strong><small>{{ site.name }}.{{ site.zone }}</small></span><a class="button compact" href="/sites/{{ site.id }}">Открыть</a></article>
       {% else %}
       <p>Сайтов пока нет.</p>
       {% endfor %}
-      <p class="muted">Редактор страниц ещё разрабатывается.</p>
     </section>
-    <p>Доступные зоны: {% for zone in zones %}<code>.{{ zone }}</code> {% else %}нет активных зон{% endfor %}</p>
-    <form method="post" action="/logout">
+    {% if sites|length < 3 and zones %}
+    <section>
+      <h2>Новый сайт</h2>
+      <form method="post" action="/sites">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label for="title">Название сайта</label>
+        <input id="title" name="title" maxlength="160" placeholder="Журнал станции" required>
+        <div class="domain-fields">
+          <div><label for="name">Адрес</label><input id="name" name="name" minlength="3" maxlength="24" pattern="[A-Za-zА-Яа-яЁё0-9-]+" placeholder="journal" required></div>
+          <div><label for="zone">Зона</label><select id="zone" name="zone">{% for zone in zones %}<option value="{{ zone }}">.{{ zone }}</option>{% endfor %}</select></div>
+        </div>
+        <button type="submit">Создать сайт</button>
+      </form>
+      <p class="muted">До трёх сайтов на аккаунт. В адресе нельзя смешивать латиницу и кириллицу.</p>
+    </section>
+    {% endif %}
+    <form class="inline-form" method="post" action="/logout">
       <input type="hidden" name="csrf" value="{{ csrf }}">
       <button class="secondary" type="submit">Выйти</button>
     </form>

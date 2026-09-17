@@ -10,6 +10,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from database import device_codes, digest, make_engine, now, pages, rate_limits, servers, sessions, sites, zones
+from editor import create_editor
+from storage import LocalMediaStore
 
 CODE_TTL = 15 * 60
 SESSION_TTL = 7 * 24 * 60 * 60
@@ -17,7 +19,7 @@ CODE_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
 CKEY = re.compile(r'[a-z0-9]{1,64}\Z', re.ASCII)
 
 
-def create_app(database_url=None, public_url=None):
+def create_app(database_url=None, public_url=None, media_store=None):
     app = Flask(__name__)
     public_url = (public_url or os.environ['NTRNET_PUBLIC_URL']).rstrip('/')
     public = urlsplit(public_url)
@@ -27,13 +29,14 @@ def create_app(database_url=None, public_url=None):
     engine = make_engine(database_url or os.environ['NTRNET_DATABASE_URL'])
     if engine.dialect.name == 'sqlite' and not local:
         raise ValueError('SQLite is only supported for local development')
-    app.config.update(MAX_CONTENT_LENGTH=4096, MAX_FORM_MEMORY_SIZE=4096,
-                      MAX_FORM_PARTS=8, TRUSTED_HOSTS=[public.hostname])
+    app.config.update(MAX_CONTENT_LENGTH=32 * 1024 * 1024, MAX_FORM_MEMORY_SIZE=192 * 1024,
+                      MAX_FORM_PARTS=16, TRUSTED_HOSTS=[public.hostname])
     app.extensions['ntrnet_engine'] = engine
     if os.environ.get('NTRNET_TRUST_PROXY') == '1':
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     cookie_name = 'ntrnet_session' if local else '__Host-ntrnet_session'
     csrf_cookie = 'ntrnet_csrf' if local else '__Host-ntrnet_csrf'
+    media_store = media_store or LocalMediaStore()
 
     @app.before_request
     def open_connection():
@@ -113,7 +116,7 @@ def create_app(database_url=None, public_url=None):
         own_sites = []
         own_zones = []
         if account:
-            own_sites = g.db.execute(select(sites.c.name, sites.c.zone, sites.c.title).where(
+            own_sites = g.db.execute(select(sites.c.id, sites.c.name, sites.c.zone, sites.c.title).where(
                 sites.c.owner_ckey == account['ckey'],
             ).order_by(sites.c.name)).mappings().all()
             own_zones = g.db.execute(select(zones.c.name).where(zones.c.active.is_(True), or_(
@@ -130,7 +133,12 @@ def create_app(database_url=None, public_url=None):
 
     @app.get('/')
     def home():
-        return browser_page()
+        errors = {
+            'limit': 'Можно создать не больше трёх сайтов.',
+            'site': 'Проверьте имя, название и выбранную зону.',
+            'domain': 'Такой адрес уже занят.',
+        }
+        return browser_page(errors.get(request.args.get('error')))
 
     @app.get('/health')
     def health():
@@ -139,6 +147,8 @@ def create_app(database_url=None, public_url=None):
 
     @app.post('/api/v1/device/new')
     def new_device():
+        if request.content_length is not None and request.content_length > 4096:
+            abort(413)
         server = game_server()
         payload = request.get_json(silent=True)
         if not isinstance(payload, dict) or set(payload) != {'ckey'}:
@@ -161,6 +171,8 @@ def create_app(database_url=None, public_url=None):
 
     @app.post('/login')
     def login():
+        if request.content_length is not None and request.content_length > 4096:
+            abort(413)
         if not csrf_valid():
             abort(403)
         limit('redeem:' + (request.remote_addr or 'unknown'), 10, 60)
@@ -234,11 +246,13 @@ def create_app(database_url=None, public_url=None):
         ))).mappings().all()
         return jsonify(zones=[dict(row) for row in records])
 
+    app.register_blueprint(create_editor(identity, csrf_valid, csrf_cookie, media_store))
+
     return app
 
 
 if __name__ == '__main__':
     from waitress import serve
     serve(create_app(), host='127.0.0.1', port=int(os.environ.get('NTRNET_PORT', '8091')),
-          threads=4, connection_limit=64, channel_timeout=15, max_request_body_size=4096,
+          threads=4, connection_limit=64, channel_timeout=30, max_request_body_size=32 * 1024 * 1024,
           max_request_header_size=16384)

@@ -1,4 +1,4 @@
-import { createElement, ReactNode } from 'react';
+import { createElement, CSSProperties, ReactNode } from 'react';
 import { Button } from '../../components/Button';
 
 const TAGS = new Set([
@@ -24,6 +24,54 @@ const TAGS = new Set([
 ]);
 const MAX_DEPTH = 16;
 const MAX_NODES = 1024;
+const STYLE_NAMES = new Set([
+  'backgroundColor',
+  'border',
+  'borderColor',
+  'borderRadius',
+  'borderStyle',
+  'borderWidth',
+  'color',
+  'fontSize',
+  'fontStyle',
+  'fontWeight',
+  'lineHeight',
+  'margin',
+  'marginBottom',
+  'marginLeft',
+  'marginRight',
+  'marginTop',
+  'maxWidth',
+  'padding',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'textAlign',
+  'textDecoration',
+  'whiteSpace',
+  'width',
+]);
+const MEDIA_URL =
+  /^https:\/\/media\.wiki-ss13\.space\/[a-z0-9]{32}\/[a-f0-9]{16}\.(?:png|jpg|gif|webp|mp4)$/;
+
+const sanitizeStyle = (value: unknown): CSSProperties | undefined => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+  const style: Record<string, string> = {};
+  for (const [name, item] of Object.entries(value)) {
+    if (
+      STYLE_NAMES.has(name) &&
+      typeof item === 'string' &&
+      item.length <= 100 &&
+      !/(?:url|var\(|calc\(|expression|@|\\)/i.test(item)
+    ) {
+      style[name] = item;
+    }
+  }
+  return Object.keys(style).length ? (style as CSSProperties) : undefined;
+};
 
 type Props = {
   tree: unknown;
@@ -48,12 +96,39 @@ export const NtrnetDocument = ({ tree, onNavigate }: Props) => {
     }
     if (
       typeof node.type !== 'string' ||
-      (node.type !== 'link' && !TAGS.has(node.type))
+      (!['link', 'image', 'video'].includes(node.type) && !TAGS.has(node.type))
     ) {
       return null;
     }
     if (node.type === 'br' || node.type === 'hr') {
-      return createElement(node.type, { key });
+      return createElement(node.type, {
+        key,
+        style: sanitizeStyle(node.style),
+      });
+    }
+    if (node.type === 'image' || node.type === 'video') {
+      if (typeof node.src !== 'string' || !MEDIA_URL.test(node.src)) {
+        return null;
+      }
+      if (node.type === 'image') {
+        return (
+          <img
+            key={key}
+            src={node.src}
+            alt={typeof node.alt === 'string' ? node.alt.slice(0, 160) : ''}
+            style={{ maxWidth: '100%', ...sanitizeStyle(node.style) }}
+          />
+        );
+      }
+      return (
+        <video
+          key={key}
+          src={node.src}
+          controls
+          preload="metadata"
+          style={{ maxWidth: '100%', ...sanitizeStyle(node.style) }}
+        />
+      );
     }
     const children: ReactNode[] = [];
     if (Array.isArray(node.children)) {
@@ -74,12 +149,20 @@ export const NtrnetDocument = ({ tree, onNavigate }: Props) => {
       const siteId = node.site_id;
       const slug = node.slug;
       return (
-        <Button key={key} onClick={() => onNavigate(siteId, slug)}>
+        <Button
+          key={key}
+          style={sanitizeStyle(node.style)}
+          onClick={() => onNavigate(siteId, slug)}
+        >
           {children}
         </Button>
       );
     }
-    return createElement(node.type, { key }, children);
+    return createElement(
+      node.type,
+      { key, style: sanitizeStyle(node.style) },
+      children
+    );
   };
   return (
     <div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
