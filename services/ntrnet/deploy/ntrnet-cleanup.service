@@ -1,0 +1,18 @@
+[Unit]
+Description=Remove expired NTrnet authentication records
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=ntrnet
+Group=ntrnet
+WorkingDirectory=/srv/ntrnet
+EnvironmentFile=/etc/ntrnet.env
+ExecStart=/srv/ntrnet/.venv/bin/python manage.py cleanup
+MemoryMax=128M
+CPUQuota=25%
+Nice=19
+OOMScoreAdjust=500
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true

@@ -17,12 +17,18 @@ type Data = {
     site: Site | null;
     page: { tree: unknown } | null;
     slug: string | null;
+    login: {
+      code: string | null;
+      pending: boolean;
+      retry_seconds: number;
+      error: string | null;
+    };
   };
 };
 
 export const pda_ntrnet = () => {
   const { act, data } = useBackend<Data>();
-  const { available, loading, catalog, site, page, slug } = data.ntrnet;
+  const { available, loading, catalog, site, page, slug, login } = data.ntrnet;
   const navigate = (siteId: string, pageSlug: string) =>
     act('ntrnet_open', { site_id: siteId, slug: pageSlug });
   return (
@@ -41,6 +47,25 @@ export const pda_ntrnet = () => {
           }
         >
           Межсерверная сеть сайтов
+          <Box mt={1}>
+            <Button
+              icon="key"
+              disabled={login.pending || login.retry_seconds > 0}
+              onClick={() => act('ntrnet_login')}
+            >
+              {login.pending ? 'Получение кода…' : 'Войти в редактор'}
+            </Button>
+            {login.retry_seconds > 0 && !login.pending && (
+              <Box color="label">Новый код через {login.retry_seconds} с.</Box>
+            )}
+            {login.code && (
+              <NoticeBox>
+                Ваш код: <b>{login.code}</b>. Введите его в браузере в течение
+                15 минут. Ссылка на редактор отправлена Вам в чат.
+              </NoticeBox>
+            )}
+            {login.error && <NoticeBox danger>{login.error}</NoticeBox>}
+          </Box>
         </Section>
       </Stack.Item>
       {!available && !loading && (

@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly NTrnet authentication cleanup
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

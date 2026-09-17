@@ -4071,6 +4071,7 @@
 #include "code\modules\pda\ai.dm"
 #include "code\modules\pda\app.dm"
 #include "code\modules\pda\apps\ntrnet.dm"
+#include "code\modules\pda\apps\ntrnet_login.dm"
 #include "code\modules\pda\cart.dm"
 #include "code\modules\pda\cart_apps.dm"
 #include "code\modules\pda\core_apps.dm"

@@ -1,0 +1,25 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; color: #e7edf2; background: #0c141b; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at top right, #12373b 0, transparent 60%); }
+main { width: min(100% - 40px, 640px); margin: auto; padding: 48px 0; }
+header { display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 700; margin-bottom: 70px; }
+.mark { display: grid; place-items: center; width: 52px; height: 52px; background: #74e3bc; color: #102c27; border-radius: 12px; }
+small { display: block; font-size: 13px; color: #95aab6; font-weight: 400; margin-top: 4px; }
+.eyebrow { color: #74e3bc; font-size: 12px; letter-spacing: .16em; }
+h1 { font-size: clamp(30px, 7vw, 48px); line-height: 1.15; letter-spacing: -.04em; overflow-wrap: anywhere; }
+h2 { font-size: 20px; }
+p { line-height: 1.65; color: #bdcbd4; }
+form { margin: 30px 0 16px; }
+label { display: block; font-size: 14px; margin-bottom: 10px; }
+input:not([type=hidden]) { width: 100%; border: 1px solid #3d535f; border-radius: 8px; background: #131f28; padding: 16px; color: white; font: 22px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+input:focus { outline: 2px solid #74e3bc; outline-offset: 2px; }
+button { width: 100%; border: 0; border-radius: 8px; padding: 15px; margin-top: 14px; font: 600 16px system-ui, sans-serif; color: #102c27; background: #74e3bc; cursor: pointer; }
+button:hover { background: #9aefd0; }
+button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+.secondary { width: auto; padding-inline: 28px; background: #213641; color: #e7edf2; }
+.muted, footer { font-size: 13px; color: #95aab6; }
+footer { border-top: 1px solid #263944; margin-top: 56px; padding-top: 22px; }
+section { background: #131f28; border: 1px solid #263944; border-radius: 12px; padding: 10px 24px; margin-block: 28px; }
+article { padding-block: 12px; }
+code { color: #74e3bc; }
+.error { border-left: 3px solid #ff9c8e; padding: 12px; background: #342624; color: #ffb7aa; }

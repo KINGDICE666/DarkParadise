@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>НТрнет — кабинет автора</title>
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+  <main>
+    <header><span class="mark">НТ</span><span>НТрнет<small>Межсерверная сеть</small></span></header>
+    {% if account %}
+    <p class="eyebrow">КАБИНЕТ АВТОРА</p>
+    <h1>Добро пожаловать, {{ account.ckey }}.</h1>
+    <p>Вход подтверждён через игровой сервер. Здесь будут Ваши сайты.</p>
+    <section>
+      <h2>Ваши сайты</h2>
+      {% for site in sites %}
+      <article><strong>{{ site.title }}</strong><small>{{ site.name }}.{{ site.zone }}</small></article>
+      {% else %}
+      <p>Сайтов пока нет.</p>
+      {% endfor %}
+      <p class="muted">Редактор страниц ещё разрабатывается.</p>
+    </section>
+    <p>Доступные зоны: {% for zone in zones %}<code>.{{ zone }}</code> {% else %}нет активных зон{% endfor %}</p>
+    <form method="post" action="/logout">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="secondary" type="submit">Выйти</button>
+    </form>
+    {% else %}
+    <p class="eyebrow">ВХОД ДЛЯ АВТОРОВ</p>
+    <h1>Ваша страница.<br>На каждой станции.</h1>
+    <p>Откройте НТрнет в игровом КПК и нажмите «Войти в редактор». Введите полученный код здесь.</p>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <form method="post" action="/login">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="code">Одноразовый код из КПК</label>
+      <input id="code" name="code" type="text" maxlength="32" placeholder="ABCD-EFGH-JKLM" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" required autofocus>
+      <button type="submit">Войти</button>
+    </form>
+    <p class="muted">Код действует 15 минут и используется один раз. Не передавайте его другим игрокам.</p>
+    {% endif %}
+    <footer>Сайты НТрнета доступны для просмотра внутри игры.</footer>
+  </main>
+</body>
+</html>
