@@ -93,7 +93,7 @@
 				всегда должны были находиться."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "spatial_swap"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/spatial_swap
+	spell_to_add = /datum/action/cooldown/spell/pointed/spatial_swap
 	cost = 2
 
 
@@ -105,7 +105,7 @@
 	gain_text = "Его рука пришла в движение, но удар случился где-то в стороне от мира."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "displacement"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/displacement
+	spell_to_add = /datum/action/cooldown/spell/pointed/displacement
 	cost = 2
 
 
@@ -136,7 +136,7 @@
 				и каждый шаг внутри занимал больше пути, чем снаружи."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "distortion_field"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/distortion_field
+	spell_to_add = /datum/action/cooldown/spell/pointed/distortion_field
 	cost = 2
 
 
@@ -181,7 +181,7 @@
 				Одну из них можно было развязать."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "unravel"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/unravel
+	spell_to_add = /datum/action/cooldown/spell/pointed/unravel
 	cost = 2
 	is_final_knowledge = TRUE
 
@@ -211,9 +211,9 @@
 /datum/heretic_knowledge/ultimate/bluespace_final/on_finished_recipe(mob/living/user, list/selected_atoms, turf/loc)
 	. = ..()
 
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/bluespace_stasis())
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/spatial_rewind())
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/pointed/bluespace_banish())
+	user.mind.AddSpell(new /datum/action/cooldown/spell/aoe/bluespace_stasis())
+	user.mind.AddSpell(new /datum/action/cooldown/spell/spatial_rewind())
+	user.mind.AddSpell(new /datum/action/cooldown/spell/pointed/bluespace_banish())
 
 	user.apply_status_effect(/datum/status_effect/unmoored_name)
 	user.AddElement(/datum/element/effect_trail/bluespace_echo, /obj/effect/temp_visual/bluespace_echo)

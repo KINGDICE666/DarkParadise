@@ -543,7 +543,7 @@
 /obj/machinery/smartfridge/medbay/Initialize(mapload)
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
-		/obj/item/reagent_containers/glass,
+		/obj/item/reagent_containers/cup,
 		/obj/item/reagent_containers/iv_bag,
 		/obj/item/reagent_containers/applicator,
 		/obj/item/storage/pill_bottle,
@@ -597,7 +597,7 @@
 /obj/machinery/smartfridge/secure/medbay/Initialize(mapload)
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
-		/obj/item/reagent_containers/glass,
+		/obj/item/reagent_containers/cup,
 		/obj/item/reagent_containers/iv_bag,
 		/obj/item/reagent_containers/applicator,
 		/obj/item/storage/pill_bottle,
@@ -641,7 +641,7 @@
 	)
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
-		/obj/item/reagent_containers/glass,
+		/obj/item/reagent_containers/cup,
 		/obj/item/reagent_containers/iv_bag,
 		/obj/item/reagent_containers/applicator,
 		/obj/item/storage/pill_bottle,
@@ -689,8 +689,8 @@
 	starting_items = list(
 		/obj/item/reagent_containers/food/pill/epinephrine = 12,
 		/obj/item/reagent_containers/food/pill/charcoal = 5,
-		/obj/item/reagent_containers/glass/bottle/epinephrine = 1,
-		/obj/item/reagent_containers/glass/bottle/charcoal = 1,
+		/obj/item/reagent_containers/cup/bottle/epinephrine = 1,
+		/obj/item/reagent_containers/cup/bottle/charcoal = 1,
 	)
 	. = ..()
 
@@ -801,8 +801,8 @@
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
 		/obj/item/reagent_containers/syringe,
-		/obj/item/reagent_containers/glass/bottle,
-		/obj/item/reagent_containers/glass/beaker,
+		/obj/item/reagent_containers/cup/bottle,
+		/obj/item/reagent_containers/cup/beaker,
 	))
 
 /**
@@ -816,13 +816,13 @@
 /obj/machinery/smartfridge/secure/chemistry/virology/preloaded/Initialize(mapload)
 	starting_items = list(
 		/obj/item/reagent_containers/syringe/antiviral = 4,
-		/obj/item/reagent_containers/glass/bottle/cold = 1,
-		/obj/item/reagent_containers/glass/bottle/flu = 1,
-		/obj/item/reagent_containers/glass/bottle/sneezing = 1,
-		/obj/item/reagent_containers/glass/bottle/cough = 1,
-		/obj/item/reagent_containers/glass/bottle/mutagen = 1,
-		/obj/item/reagent_containers/glass/bottle/plasma = 1,
-		/obj/item/reagent_containers/glass/bottle/diphenhydramine = 1,
+		/obj/item/reagent_containers/cup/bottle/cold = 1,
+		/obj/item/reagent_containers/cup/bottle/flu = 1,
+		/obj/item/reagent_containers/cup/bottle/sneezing = 1,
+		/obj/item/reagent_containers/cup/bottle/cough = 1,
+		/obj/item/reagent_containers/cup/bottle/mutagen = 1,
+		/obj/item/reagent_containers/cup/bottle/plasma = 1,
+		/obj/item/reagent_containers/cup/bottle/diphenhydramine = 1,
 	)
 	. = ..()
 
@@ -858,9 +858,9 @@
 /obj/machinery/smartfridge/drinks/Initialize(mapload)
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
-		/obj/item/reagent_containers/glass,
-		/obj/item/reagent_containers/food/drinks,
-		/obj/item/reagent_containers/food/condiment,
+		/obj/item/reagent_containers/cup,
+		/obj/item/reagent_containers/cup/glass,
+		/obj/item/reagent_containers/condiment,
 	))
 
 /**
@@ -885,9 +885,9 @@
 /obj/machinery/smartfridge/dish/Initialize(mapload)
 	. = ..()
 	accepted_items_typecache = typecacheof(list(
-		/obj/item/reagent_containers/food/condiment,
+		/obj/item/reagent_containers/condiment,
 		/obj/item/kitchen,
-		/obj/item/reagent_containers/glass,
+		/obj/item/reagent_containers/cup,
 		/obj/item/reagent_containers/food,
 	))
 

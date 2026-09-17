@@ -1,10 +1,11 @@
+import { expect, test } from 'bun:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server.node';
 import { NtrnetDocument } from '../interfaces/PDA/NtrnetDocument';
 
 const render = (tree: unknown) =>
   renderToStaticMarkup(
-    createElement(NtrnetDocument, { tree, onNavigate: () => {} })
+    createElement(NtrnetDocument, { tree, onNavigate: () => {} }),
   );
 
 test('renders text as text, without interpreting HTML', () => {

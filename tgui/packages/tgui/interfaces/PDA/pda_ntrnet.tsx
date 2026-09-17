@@ -1,5 +1,5 @@
 import { useBackend } from '../../backend';
-import { Box, Button, NoticeBox, Section, Stack } from '../../components';
+import { Box, Button, NoticeBox, Section, Stack } from 'tgui-core/components';
 import { NtrnetDocument } from './NtrnetDocument';
 
 type Site = {

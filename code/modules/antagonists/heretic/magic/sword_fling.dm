@@ -1,15 +1,15 @@
 
-/obj/effect/proc_holder/spell/pointed/sword_fling
+/datum/action/cooldown/spell/pointed/sword_fling
 	name = "Метание Меча"
 	desc = "Попробуйте метнуть себя куда-нибудь."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_cult_border"
 
-	action_icon = 'icons/mob/actions/actions_cult.dmi'
-	action_icon_state = "sword_fling"
+	button_icon = 'icons/mob/actions/actions_cult.dmi'
+	button_icon_state = "sword_fling"
 
-	base_cooldown = 4 SECONDS
+	cooldown_time = 4 SECONDS
 	spell_requirements = NONE
 
 	cast_range = 6
@@ -17,26 +17,21 @@
 	var/obj/item/melee/cultblade/haunted/flinged_sword
 
 
-/obj/effect/proc_holder/spell/pointed/sword_fling/Initialize(mapload, obj/item/melee/cultblade/haunted/flinged_sword)
-	. = ..()
-	src.flinged_sword = flinged_sword
-
-
-/obj/effect/proc_holder/spell/pointed/sword_fling/Destroy()
+/datum/action/cooldown/spell/pointed/sword_fling/Destroy()
 	flinged_sword = null
 	. = ..()
 
 
-/obj/effect/proc_holder/spell/pointed/sword_fling/can_cast(mob/user, charge_check, show_message)
+/datum/action/cooldown/spell/pointed/sword_fling/can_cast_spell(feedback = TRUE)
 	if(flinged_sword?.bound)
 		return FALSE
 
 	return ..()
 
 
-/obj/effect/proc_holder/spell/pointed/sword_fling/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/sword_fling/cast(atom/cast_on)
 	. = ..()
-	var/turf/cast_on = get_turf(targets[1])
+	var/turf/target_turf = get_turf(cast_on)
 	var/atom/sword_loc = flinged_sword.loc
 	if(ismob(sword_loc))
 		var/mob/loccer = sword_loc
@@ -68,7 +63,7 @@
 		playsound(loccer, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 
 		if(!prob(resist_chance))
-			to_chat(action.owner, span_warning(fail_text))
+			to_chat(owner, span_warning(fail_text))
 			return
 
 		flinged_sword.forceMove(get_turf(loccer))
@@ -81,7 +76,7 @@
 	if(iscloset(sword_loc))
 		var/obj/structure/closet/sword_closet = sword_loc
 		if(!(sword_closet.open()))
-			sword_closet.container_resist_act(action.owner)
+			sword_closet.container_resist_act(owner)
 
 		flinged_sword.visible_message(span_alert("[DECLENT_RU_CAP(flinged_sword, NOMINATIVE)] вырывается из [sword_closet.declent_ru(GENITIVE)]!"))
 
@@ -90,9 +85,9 @@
 		return
 
 	new /obj/effect/temp_visual/sword_sparks(sword_loc)
-	flinged_sword.throw_at(cast_on, cast_range, flinged_sword.throw_speed, action.owner)
+	flinged_sword.throw_at(target_turf, cast_range, flinged_sword.throw_speed, owner)
 	flinged_sword.visible_message(\
-		span_warning("[DECLENT_RU_CAP(flinged_sword, NOMINATIVE)] бросается на [cast_on.declent_ru(ACCUSATIVE)]!"))
+		span_warning("[DECLENT_RU_CAP(flinged_sword, NOMINATIVE)] бросается на [target_turf.declent_ru(ACCUSATIVE)]!"))
 	playsound(flinged_sword, 'sound/items/haunted/ghostitemattack.ogg', 100, TRUE)
 	flinged_sword.add_filter("cool_glow", 2, list("type" = "outline", "color" = COLOR_HERETIC_GREEN, "size" = 0.7))
 	addtimer(CALLBACK(flinged_sword, TYPE_PROC_REF(/datum, remove_filter), "cool_glow"), 0.7 SECONDS)

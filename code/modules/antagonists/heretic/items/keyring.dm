@@ -232,7 +232,7 @@
 		clear_portals()
 		return ATTACK_CHAIN_SUCCESS
 
-	if(!istype(target, /obj/machinery/door))
+	if(!is_door(target))
 		return ..()
 
 	if(!is_teleport_allowed(target.z))

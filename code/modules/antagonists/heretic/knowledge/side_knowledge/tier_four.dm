@@ -6,7 +6,7 @@
 	gain_text = "Вы чувствуете, что ваше тело может перемещаться в пространстве, словно вы космическая пыль."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "space_crawl"
-	spell_to_add = /obj/effect/proc_holder/spell/jaunt/space_crawl
+	spell_to_add = /datum/action/cooldown/spell/jaunt/space_crawl
 	cost = 1
 
 	research_tree_icon_frame = 6
@@ -21,7 +21,7 @@
 				велел мне научиться. Скоро, сказал он, я овладею ими в совершенстве."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "blood_siphon"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/cleave
+	spell_to_add = /datum/action/cooldown/spell/pointed/cleave
 	cost = 2
 
 

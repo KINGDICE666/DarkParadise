@@ -5,7 +5,6 @@
 /obj/item/gun/projectile/shotgun/boltaction/lionhunter
 	name = "lionhunter's rifle"
 	desc = "Старинное ружье, выглядящее безупречно, несмотря на то, что оно явно очень старое."
-	gender = FEMALE
 	icon = 'icons/obj/weapons/wide_guns.dmi'
 	icon_state = "lionhunter"
 	item_state = "lionhunter"
@@ -225,7 +224,6 @@
 /obj/item/ammo_box/speedloader/lionhunter
 	name = "ammo box .310 hunter"
 	desc = "Обойма с загадочными патронами. Она не подходит к обычным баллистическим винтовкам."
-	gender = FEMALE
 	caliber = CALIBER_DOT_310
 	icon_state = "310_strip"
 	gun_name = "винтовки охотника на львов"

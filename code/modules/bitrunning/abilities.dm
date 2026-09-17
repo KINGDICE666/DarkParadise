@@ -24,47 +24,41 @@
 /datum/action/avatar_domain_info/ui_static_data(mob/user)
 	return list("help_text" = help_text)
 
-/obj/effect/proc_holder/spell/aoe/conjure/bitrunner_cheese
+/datum/action/cooldown/spell/conjure/bitrunner_cheese
 	name = "Summon Cheese"
 	desc = "Создаёт девять головок сыра вокруг заклинателя."
-	base_cooldown = 1 MINUTES
-	clothes_req = FALSE
-	human_req = FALSE
+	cooldown_time = 1 MINUTES
 	spell_requirements = NONE
 	invocation = "PL'YR DOT PL'CTM' OOO'B'ABEE G!"
-	invocation_type = "shout"
-	aoe_range = 1
-	summon_amt = 9
+	invocation_type = INVOCATION_SHOUT
+	summon_radius = 1
+	summon_amount = 9
 	summon_type = list(/obj/item/reagent_containers/food/snacks/sliceable/cheesewheel)
-	delay = 0
-	cast_sound = 'sound/magic/summonitems_generic.ogg'
+	sound = 'sound/magic/summonitems_generic.ogg'
 
-/obj/effect/proc_holder/spell/bitrunner_heal
+/datum/action/cooldown/spell/bitrunner_heal
 	name = "Lesser Heal"
 	desc = "Исцеляет по 10 единиц физических повреждений и ожогов заклинателя."
-	clothes_req = FALSE
 	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC
 	invocation = "Victus sano!"
-	invocation_type = "whisper"
+	invocation_type = INVOCATION_WHISPER
 	sound = 'sound/magic/staff_healing.ogg'
 	var/brute_to_heal = 10
 	var/burn_to_heal = 10
 
-/obj/effect/proc_holder/spell/bitrunner_heal/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-/obj/effect/proc_holder/spell/bitrunner_heal/cast(list/targets, mob/living/user = usr)
-	user.adjustBruteLoss(-brute_to_heal, updating_health = FALSE)
-	user.adjustFireLoss(-burn_to_heal, updating_health = FALSE)
-	user.updatehealth()
-	user.visible_message(span_notice("[user] окутывается мягким светом."), span_notice("Вы окутываете себя целительным светом."))
+/datum/action/cooldown/spell/bitrunner_heal/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/healed = owner
+	healed.adjustBruteLoss(-brute_to_heal, updating_health = FALSE)
+	healed.adjustFireLoss(-burn_to_heal, updating_health = FALSE)
+	healed.updatehealth()
+	owner.visible_message(span_notice("[owner] окутывается мягким светом."), span_notice("Вы окутываете себя целительным светом."))
 	return TRUE
 
-/obj/effect/proc_holder/spell/shapeshift/bitrunner_polar_bear
+/datum/action/cooldown/spell/shapeshift/bitrunner_polar_bear
 	name = "Polar Bear Form"
 	desc = "Превращает вас в белого медведя."
 	invocation = "*roar"
-	invocation_type = "none"
 	spell_requirements = NONE
 	shapeshift_type = /mob/living/simple_animal/hostile/bear/polar/bitrunner
 	possible_shapes = list(/mob/living/simple_animal/hostile/bear/polar/bitrunner)
@@ -92,23 +86,16 @@
 		PREPOSITIONAL = "волшебном белом медведе",
 	)
 
-/obj/effect/proc_holder/spell/fireball/bitrunner_lightning
+/datum/action/cooldown/spell/pointed/projectile/fireball/bitrunner_lightning
 	name = "Lightning Bolt"
 	desc = "Выпускает молнию, перескакивающую между целями без оглушения."
-	base_cooldown = 10 SECONDS
+	cooldown_time = 10 SECONDS
 	invocation = "P'WAH, UNLIM'TED P'WAH!"
-	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC
-	fireball_type = /obj/projectile/magic/bitrunner_lightning
-	action_icon_state = "lightning"
+	projectile_type = /obj/projectile/magic/bitrunner_lightning
+	button_icon_state = "lightning"
 	sound = 'sound/magic/lightningbolt.ogg'
-	selection_activated_message = span_notice_alt("Ваши руки наливаются древним электричеством! <b>Кликните по цели левой кнопкой!</b>")
-	selection_deactivated_message = span_notice_alt("Вы позволяете энергии утечь обратно...")
-
-/obj/effect/proc_holder/spell/fireball/bitrunner_lightning/update_icon_state()
-	if(!action)
-		return
-	action.button_icon_state = action_icon_state
-	action.UpdateButtonIcon()
+	active_msg = span_notice_alt("Ваши руки наливаются древним электричеством! <b>Кликните по цели левой кнопкой!</b>")
+	deactive_msg = span_notice_alt("Вы позволяете энергии утечь обратно...")
 
 /obj/projectile/magic/bitrunner_lightning
 	name = "lightning bolt"

@@ -30,8 +30,8 @@
 
 /obj/item/grenade/chem_grenade/rust_sower/Initialize(mapload)
 	. = ..()
-	var/obj/item/reagent_containers/glass/beaker/large/beaker_one = new(src)
-	var/obj/item/reagent_containers/glass/beaker/large/beaker_two = new(src)
+	var/obj/item/reagent_containers/cup/beaker/large/beaker_one = new(src)
+	var/obj/item/reagent_containers/cup/beaker/large/beaker_two = new(src)
 
 	beaker_one.reagents.add_reagent(/datum/reagent/heretic_rust, 50)
 	beaker_one.reagents.add_reagent(/datum/reagent/potassium, 50)

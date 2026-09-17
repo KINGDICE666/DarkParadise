@@ -7,10 +7,10 @@
 GLOBAL_LIST_INIT(bitrunner_order_items, list(
 	BITRUNNER_ORDER_FLAIR = list(
 		BITRUNNER_ORDER("Cornchips", /obj/item/reagent_containers/food/snacks/cornchips, 100),
-		BITRUNNER_ORDER("Space Mountain Wind", /obj/item/reagent_containers/food/drinks/cans/space_mountain_wind, 100),
-		BITRUNNER_ORDER("Thirteen Loko", /obj/item/reagent_containers/food/drinks/cans/thirteenloko, 200),
-		BITRUNNER_ORDER("Heart Attack", /obj/item/reagent_containers/food/drinks/cans/energy, 200),
-		BITRUNNER_ORDER("GreyPower", /obj/item/reagent_containers/food/drinks/cans/energy/grey, 200),
+		BITRUNNER_ORDER("Space Mountain Wind", /obj/item/reagent_containers/cup/soda_cans/space_mountain_wind, 100),
+		BITRUNNER_ORDER("Thirteen Loko", /obj/item/reagent_containers/cup/soda_cans/thirteenloko, 200),
+		BITRUNNER_ORDER("Heart Attack", /obj/item/reagent_containers/cup/soda_cans/energy, 200),
+		BITRUNNER_ORDER("GreyPower", /obj/item/reagent_containers/cup/soda_cans/energy/grey, 200),
 		BITRUNNER_ORDER("Sunglasses", /obj/item/clothing/glasses/sunglasses, 1000),
 		BITRUNNER_ORDER("Brown Trenchcoat", /obj/item/clothing/suit/storage/browntrenchcoat, 1000),
 		BITRUNNER_ORDER("Black Trenchcoat", /obj/item/clothing/suit/storage/blacktrenchcoat, 1000),

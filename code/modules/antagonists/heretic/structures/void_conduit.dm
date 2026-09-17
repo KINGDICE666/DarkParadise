@@ -102,7 +102,7 @@
 				else
 					affected_mob.apply_status_effect(/datum/status_effect/void_chill, 1)
 
-			if(istype(thing_to_affect, /obj/machinery/door) || istype(thing_to_affect, /obj/structure/door_assembly) \
+			if(is_door(thing_to_affect) || istype(thing_to_affect, /obj/structure/door_assembly) \
 				|| is_window(thing_to_affect) || istype(thing_to_affect, /obj/structure/grille))
 				var/obj/affected_structure = thing_to_affect
 				affected_structure.take_damage(rand(15, 30))

@@ -150,7 +150,7 @@
 	/// The message sent to someone when unlinked.
 	var/unlink_message
 	/// The master's linking action, which allows them to link people to the network.
-	VAR_FINAL/obj/effect/proc_holder/spell/linker_spell
+	VAR_FINAL/datum/action/cooldown/spell/linker_spell
 
 /datum/component/mind_linker/active_linking/Initialize(
 	// Customization related settings

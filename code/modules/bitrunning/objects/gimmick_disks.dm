@@ -74,7 +74,7 @@
 		/obj/item/clothing/gloves/boxing,
 		/obj/item/clothing/under/shorts/red,
 		/obj/item/clothing/shoes/laceup,
-		/obj/item/reagent_containers/food/drinks/cans/energy,
+		/obj/item/reagent_containers/cup/soda_cans/energy,
 	)
 
 /datum/bitrunning_gimmick/gamer
@@ -85,7 +85,7 @@
 		/obj/item/clothing/gloves/color/black,
 		/obj/item/clothing/glasses/sunglasses,
 		/obj/item/toy/eight_ball,
-		/obj/item/reagent_containers/food/drinks/cans/energy/grey,
+		/obj/item/reagent_containers/cup/soda_cans/energy/grey,
 	)
 
 /datum/bitrunning_gimmick/archer
@@ -147,10 +147,10 @@
 		/obj/item/storage/box/matches,
 	)
 	granted_spells = list(
-		/obj/effect/proc_holder/spell/smoke/digital,
+		/datum/action/cooldown/spell/smoke/digital,
 	)
 
-/obj/effect/proc_holder/spell/smoke/digital
+/datum/action/cooldown/spell/smoke/digital
 	name = "Digi-Smoke"
 
 GLOBAL_LIST_INIT(alchemist_reagents, list(
@@ -182,12 +182,12 @@ GLOBAL_LIST_INIT(alchemist_reagents, list(
 	"water",
 ))
 
-/obj/item/reagent_containers/glass/bottle/alchemist
+/obj/item/reagent_containers/cup/bottle/alchemist
 	name = "unlabeled bottle"
 	desc = "Небольшая бутылочка. Вы уже не помните, что в неё налили."
 	var/unstable = FALSE
 
-/obj/item/reagent_containers/glass/bottle/alchemist/get_ru_names()
+/obj/item/reagent_containers/cup/bottle/alchemist/get_ru_names()
 	return alist(
 		NOMINATIVE = "бутылочка без этикетки",
 		GENITIVE = "бутылочки без этикетки",
@@ -197,16 +197,16 @@ GLOBAL_LIST_INIT(alchemist_reagents, list(
 		PREPOSITIONAL = "бутылочке без этикетки",
 	)
 
-/obj/item/reagent_containers/glass/bottle/alchemist/Initialize(mapload)
+/obj/item/reagent_containers/cup/bottle/alchemist/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(unstable ? get_random_reagent_id() : pick(GLOB.alchemist_reagents), volume)
 
-/obj/item/reagent_containers/glass/bottle/alchemist/unstable
+/obj/item/reagent_containers/cup/bottle/alchemist/unstable
 	name = "skull-labeled bottle"
 	desc = "Небольшая бутылочка с черепом на этикетке. Что бы в ней ни было, оно вам не понравится."
 	unstable = TRUE
 
-/obj/item/reagent_containers/glass/bottle/alchemist/unstable/get_ru_names()
+/obj/item/reagent_containers/cup/bottle/alchemist/unstable/get_ru_names()
 	return alist(
 		NOMINATIVE = "бутылочка с черепом",
 		GENITIVE = "бутылочки с черепом",
@@ -220,7 +220,7 @@ GLOBAL_LIST_INIT(alchemist_reagents, list(
 	name = "box of unlabeled bottles"
 	desc = "Коробка с бутылочками без этикеток. Алхимия — это про смелость."
 	icon_state = "box_pillpacks"
-	var/bottle_type = /obj/item/reagent_containers/glass/bottle/alchemist
+	var/bottle_type = /obj/item/reagent_containers/cup/bottle/alchemist
 
 /obj/item/storage/box/alchemist/get_ru_names()
 	return alist(
@@ -239,4 +239,4 @@ GLOBAL_LIST_INIT(alchemist_reagents, list(
 /obj/item/storage/box/alchemist/unstable
 	name = "box of skull-labeled bottles"
 	desc = "Коробка с бутылочками, помеченными черепами. Кто-то очень старался предупредить."
-	bottle_type = /obj/item/reagent_containers/glass/bottle/alchemist/unstable
+	bottle_type = /obj/item/reagent_containers/cup/bottle/alchemist/unstable

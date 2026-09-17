@@ -67,7 +67,7 @@
 /datum/heretic_knowledge/limited_amount/starting/base_knock/on_gain(mob/user, datum/antagonist/heretic/our_heretic, mind_transfer = FALSE)
 	. = ..()
 	RegisterSignal(user, COMSIG_HERETIC_MANSUS_GRASP_ATTACK_SECONDARY, PROC_REF(on_secondary_mansus_grasp), override = TRUE)
-	var/obj/effect/proc_holder/spell/touch/mansus_grasp/grasp = locate() in user.mob_spell_list
+	var/datum/action/cooldown/spell/touch/mansus_grasp/grasp = locate() in user.mob_spell_list
 	if(grasp)
 		grasp.invocation_type = INVOCATION_NONE
 		grasp.sound = null
@@ -189,7 +189,7 @@
 				всегда захочет узнать больше о новых дверях."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "burglarsfinesse"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/burglar_finesse
+	spell_to_add = /datum/action/cooldown/spell/pointed/burglar_finesse
 	cost = 2
 
 
@@ -230,7 +230,7 @@
 	gain_text = "Завистливо преследовали меня Страж и Гончая. Но я скрыл свой облик, став неосязаемым туманом."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "caretaker"
-	spell_to_add = /obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker
+	spell_to_add = /datum/action/cooldown/spell/jaunt/space_crawl/caretaker
 	cost = 2
 	is_final_knowledge = TRUE
 
@@ -280,7 +280,7 @@
 
 /datum/heretic_knowledge/ultimate/lock_final/on_finished_recipe(mob/living/user, list/selected_atoms, turf/loc)
 	. = ..()
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/shapeshift/eldritch/ascension)
+	user.mind.AddSpell(new /datum/action/cooldown/spell/shapeshift/eldritch/ascension)
 	var/datum/antagonist/heretic/heretic_datum = GET_HERETIC(user)
 	var/datum/heretic_knowledge/blade_upgrade/flesh/lock/blade_upgrade = heretic_datum.get_knowledge(/datum/heretic_knowledge/blade_upgrade/flesh/lock)
 	blade_upgrade.chance += 30

@@ -16,8 +16,8 @@
 	if(!controller.blackboard_key_exists(target_key))
 		return
 
-	var/obj/effect/proc_holder/spell/using_action = controller.blackboard[ability_key]
-	if(!using_action?.can_cast(controller.pawn))
+	var/datum/action/cooldown/spell/using_action = controller.blackboard[ability_key]
+	if(!using_action?.can_cast_spell(feedback = FALSE))
 		return
 
 	if(!additional_ability_checks(controller, using_action))
@@ -28,7 +28,7 @@
 		return SUBTREE_RETURN_FINISH_PLANNING
 
 /// Any additional checks before we queue the behaviour
-/datum/ai_planning_subtree/targeted_mob_ability/proc/additional_ability_checks(datum/ai_controller/controller, obj/effect/proc_holder/spell/using_action)
+/datum/ai_planning_subtree/targeted_mob_ability/proc/additional_ability_checks(datum/ai_controller/controller, datum/action/cooldown/spell/using_action)
 	return TRUE
 
 /datum/ai_planning_subtree/targeted_mob_ability/continue_planning

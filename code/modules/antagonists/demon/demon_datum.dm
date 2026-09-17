@@ -54,7 +54,7 @@
 
 /datum/antagonist/demon/slaughter/cult/finalize_antag()
 	var/mob/living/simple_animal/demon/slaughter/cult/demon = owner.current
-	demon.AddSpell(new /obj/effect/proc_holder/spell/sense_victims)
+	demon.AddSpell(new /datum/action/cooldown/spell/sense_victims)
 
 
 /datum/antagonist/demon/shadow

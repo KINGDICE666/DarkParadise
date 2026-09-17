@@ -6,5 +6,7 @@
 ///from base of obj/item/reagent_containers/food/pill/attack(): (obj/item/reagent_containers/food/pill, mob/feeder)
 #define COMSIG_LIVING_PILL_CONSUMED "living_pill_consumed"
 
-///from base of obj/item/reagent_containers/food/drinks/attack(): (mob/living/drinker, mob/feeder)
+//Drink
+
+///from base of obj/item/reagent_containers/cup/attack(): (mob/M, mob/user)
 #define COMSIG_GLASS_DRANK "glass_drank"

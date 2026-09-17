@@ -1,5 +1,5 @@
-import { createElement, CSSProperties, ReactNode } from 'react';
-import { Button } from '../../components/Button';
+import { createElement, type CSSProperties, type ReactNode } from 'react';
+import { Button } from 'tgui-core/components';
 
 const TAGS = new Set([
   'div',
@@ -138,7 +138,7 @@ export const NtrnetDocument = ({ tree, onNavigate }: Props) => {
         index++
       ) {
         children.push(
-          render(node.children[index], depth + 1, `${key}.${index}`)
+          render(node.children[index], depth + 1, `${key}.${index}`),
         );
       }
     }
@@ -161,7 +161,7 @@ export const NtrnetDocument = ({ tree, onNavigate }: Props) => {
     return createElement(
       node.type,
       { key, style: sanitizeStyle(node.style) },
-      children
+      children,
     );
   };
   return (

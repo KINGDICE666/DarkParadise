@@ -1,36 +1,29 @@
 #define ACCELERATED_DANCE_RHYTM 10
 
 
-/obj/effect/proc_holder/spell/accelerated_dance
+/datum/action/cooldown/spell/accelerated_dance
 	name = "Ускоренный Танец"
 	desc = "Сорваться в танец: ритм подскакивает, вы двигаетесь заметно быстрее, вдвое хуже \
 			чувствуете усталость и вас нельзя сбить с ног. Когда танец кончится, тело потребует своё."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_rhytm"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_rhytm"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "accelerated_dance"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "accelerated_dance"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 45 SECONDS
+	cooldown_time = 45 SECONDS
 	invocation = "Т'НЦ'Й!"
 	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
 
-/obj/effect/proc_holder/spell/accelerated_dance/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/accelerated_dance/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/accelerated_dance/is_valid_target(atom/cast_on)
 	return isliving(cast_on)
 
 
-/obj/effect/proc_holder/spell/accelerated_dance/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/accelerated_dance/cast(mob/living/cast_on)
 	. = ..()
-	var/mob/living/cast_on = targets[1]
 	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(cast_on)
 	beat?.adjust_rhythm(ACCELERATED_DANCE_RHYTM)
 	beat?.flourish()

@@ -1,18 +1,8 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Countdown,
-  DmIcon,
-  Input,
-  Knob,
-  NoticeBox,
-  ProgressBar,
-  Section,
-  Stack,
-} from '../components';
-import { classes } from 'common/react';
-import type { BooleanLike } from 'common/react';
+import { Box, Button, DmIcon, Input, Knob, NoticeBox, ProgressBar, Section, Stack } from 'tgui-core/components';
+import { Countdown } from '../components';
+import { classes } from 'tgui-core/react';
+import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
@@ -158,11 +148,11 @@ const Display = () => {
       <Stack align="center">
         <Stack.Item grow>
           {playing ? (
-            <ProgressBar.Countdown
+            <ProgressBar
               className="HeadphoneCase__bar"
-              start={start_time}
-              current={world_time}
-              end={end_time}
+              minValue={start_time}
+              maxValue={end_time}
+              value={world_time}
             />
           ) : (
             <Box className="HeadphoneCase__bar" />
@@ -171,8 +161,8 @@ const Display = () => {
         <Stack.Item className="HeadphoneCase__time">
           {playing ? (
             <Countdown
-              timeLeft={end_time - world_time}
-              current={world_time}
+              timeStart={world_time}
+              timeEnd={end_time}
               format={(value, formatted) => formatted.substring(3)}
             />
           ) : (

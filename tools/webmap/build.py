@@ -27,7 +27,11 @@ Image.MAX_IMAGE_PIXELS = None
 
 def render_candidates(dmm_path, z):
     stem = Path(dmm_path).stem
-    return [f"{stem}-{z}.png", f"{stem}_nanomap_z{z}.png"]
+    return [
+        f"{stem}-{z}.png",
+        f"{stem}_nanomap_z{z}.png",
+        f"{stem.capitalize()}_nanomap_z{z}.png",
+    ]
 
 
 def find_render(renders, dmm_path, z):

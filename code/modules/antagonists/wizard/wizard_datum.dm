@@ -23,7 +23,7 @@
 	if(!LAZYLEN(owner.spell_list))
 		return ..()
 	var/list/spell_names = list()
-	for(var/obj/effect/proc_holder/spell/spell as anything in owner.spell_list)
+	for(var/datum/action/cooldown/spell/spell as anything in owner.spell_list)
 		spell_names += spell.name
 	return list("<b>[owner.name] использовал заклинания:</b> [english_list(spell_names)]")
 
