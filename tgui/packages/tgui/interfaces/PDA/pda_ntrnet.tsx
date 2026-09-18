@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import { useBackend } from '../../backend';
-import {
-  Box,
-  Button,
-  Input,
-  NoticeBox,
-  Section,
-  Stack,
-} from 'tgui-core/components';
+import { Box, Button, Input, NoticeBox, Section, Stack } from 'tgui-core/components';
 import { NtrnetDocument } from './NtrnetDocument';
 
 type Site = {
@@ -16,6 +9,8 @@ type Site = {
   title: string;
   pages: { slug: string; title: string }[];
 };
+
+type View = 'home' | 'catalog' | 'create' | 'search';
 
 type Data = {
   ntrnet: {
@@ -44,64 +39,101 @@ export const pda_ntrnet = () => {
   const { act, data } = useBackend<Data>();
   const { available, loading, catalog, site, page, slug, search, login } =
     data.ntrnet;
+  const [view, setView] = useState<View>('home');
   const [query, setQuery] = useState(search.query || '');
-  const [showCatalog, setShowCatalog] = useState(false);
 
   const navigate = (siteId: string, pageSlug: string) =>
     act('ntrnet_open', { site_id: siteId, slug: pageSlug });
+  const goHome = () => {
+    if (site) {
+      act('Back');
+    }
+    setView('home');
+  };
+  const goBack = () => {
+    if (site) {
+      act('Back');
+    } else {
+      setView('home');
+    }
+  };
   const submitSearch = () => {
-    const trimmedQuery = query.trim();
-    if (trimmedQuery.length < 2 || search.pending) {
+    const value = query.trim();
+    if (value.length < 2 || search.pending) {
       return;
     }
-    setShowCatalog(false);
-    act('ntrnet_search', { query: trimmedQuery });
+    setView('search');
+    act('ntrnet_search', { query: value });
   };
-  const openHome = () => {
-    setShowCatalog(false);
-    act('Back');
-  };
+  const address = site
+    ? site.domain
+    : view === 'catalog'
+      ? 'ntrnet://sites'
+      : view === 'create'
+        ? 'ntrnet://create'
+        : view === 'search'
+          ? `ntrnet://search?q=${search.query || query}`
+          : 'ntrnet://home';
+  const tabTitle = site
+    ? site.title
+    : view === 'catalog'
+      ? 'Список сайтов'
+      : view === 'create'
+        ? 'Создать сайт'
+        : view === 'search'
+          ? 'Поиск'
+          : 'Новая вкладка';
 
-  if (site) {
-    return (
-      <Stack vertical>
-        <Stack.Item>
-          <Section>
-            <Stack align="center">
-              <Stack.Item>
-                <Button icon="arrow-left" onClick={openHome} />
-              </Stack.Item>
-              <Stack.Item>
-                <Button icon="home" onClick={openHome} />
-              </Stack.Item>
-              <Stack.Item grow>
-                <Box
-                  backgroundColor="rgba(0, 0, 0, 0.25)"
-                  p={0.75}
-                  color="label"
-                >
-                  {site.domain}
-                </Box>
-              </Stack.Item>
-              <Stack.Item>
-                <Button
-                  icon="sync"
-                  disabled={loading}
-                  onClick={() => act('ntrnet_refresh')}
-                />
-              </Stack.Item>
-            </Stack>
-          </Section>
-        </Stack.Item>
-        {!available && !loading && (
+  return (
+    <Section>
+      <Box backgroundColor="#111" p={0.5}>
+        <Box
+          backgroundColor="#292929"
+          px={1.5}
+          py={0.75}
+          width="190px"
+          style={{ borderRadius: '6px 6px 0 0' }}
+        >
+          <Box inline mr={1}>🌐</Box>
+          {tabTitle}
+        </Box>
+        <Stack align="center" mt={0.5}>
           <Stack.Item>
-            <NoticeBox>
-              НТрнет недоступен. Сохранённые страницы доступны из кэша.
-            </NoticeBox>
+            <Button icon="arrow-left" tooltip="Назад" onClick={goBack} />
           </Stack.Item>
-        )}
-        <Stack.Item>
-          <Section title={site.title}>
+          <Stack.Item>
+            <Button icon="home" tooltip="Домой" onClick={goHome} />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="sync"
+              tooltip="Обновить"
+              disabled={loading}
+              onClick={() => act('ntrnet_refresh')}
+            />
+          </Stack.Item>
+          <Stack.Item grow>
+            <Box
+              backgroundColor="#050505"
+              px={1}
+              py={0.75}
+              style={{ border: '1px solid #555', borderRadius: '4px' }}
+            >
+              🔒 {address}
+            </Box>
+          </Stack.Item>
+        </Stack>
+      </Box>
+
+      {!available && !loading ? (
+        <NoticeBox>НТрнет сейчас недоступен.</NoticeBox>
+      ) : null}
+
+      <Box backgroundColor="#181818" minHeight="430px" p={2}>
+        {site ? (
+          <>
+            <Box bold fontSize={1.5} mb={0.5}>{site.title}</Box>
+            <Box color="label" mb={1}>{site.domain}</Box>
             <Box mb={1}>
               {site.pages.map((entry) => (
                 <Button
@@ -115,39 +147,20 @@ export const pda_ntrnet = () => {
             </Box>
             {page ? (
               <NtrnetDocument tree={page.tree} onNavigate={navigate} />
-            ) : loading ? (
-              <NoticeBox>Загрузка страницы…</NoticeBox>
             ) : (
-              <NoticeBox>
-                Страница не загрузилась. Нажмите кнопку обновления сверху.
-              </NoticeBox>
+              <NoticeBox>{loading ? 'Загрузка страницы…' : 'Страница не загрузилась.'}</NoticeBox>
             )}
-          </Section>
-        </Stack.Item>
-      </Stack>
-    );
-  }
-
-  const visibleSites = showCatalog ? catalog : search.results;
-  const resultsTitle = showCatalog
-    ? 'Список сайтов'
-    : `Результаты поиска: ${search.query}`;
-
-  return (
-    <Stack vertical>
-      <Stack.Item>
-        <Section>
-          <Box textAlign="center" mt={2} mb={2}>
-            <Box bold fontSize="48px" lineHeight={1} mb={2}>
-              НТрнет
-            </Box>
+          </>
+        ) : view === 'home' ? (
+          <Box textAlign="center" mt={5}>
+            <Box bold fontSize="48px" lineHeight={1} mb={2}>НТрнет</Box>
             <Stack justify="center">
               <Stack.Item grow basis="360px">
                 <Input
                   fluid
                   value={query}
                   maxLength={80}
-                  placeholder="Найти сайт"
+                  placeholder="Поиск в НТрнете"
                   onChange={setQuery}
                   onEnter={submitSearch}
                 />
@@ -160,99 +173,84 @@ export const pda_ntrnet = () => {
                 />
               </Stack.Item>
             </Stack>
-            <Box mt={1}>
-              <Button
-                color="transparent"
-                icon="list"
-                onClick={() => setShowCatalog(true)}
-              >
+            <Box mt={2}>
+              <Button icon="list" onClick={() => setView('catalog')}>
                 Список сайтов
               </Button>
-              <Button
-                color="transparent"
-                icon="plus"
-                disabled={login.pending || login.retry_seconds > 0}
-                onClick={() => act('ntrnet_login')}
-              >
+              <Button icon="plus" onClick={() => setView('create')}>
                 Создать сайт
               </Button>
             </Box>
           </Box>
-        </Section>
-      </Stack.Item>
-
-      {!available && !loading && (
-        <Stack.Item>
-          <NoticeBox>НТрнет сейчас недоступен.</NoticeBox>
-        </Stack.Item>
-      )}
-      {(loading || search.pending) && (
-        <Stack.Item>
-          <NoticeBox>Загрузка…</NoticeBox>
-        </Stack.Item>
-      )}
-      {!!search.error && (
-        <Stack.Item>
-          <NoticeBox danger>{search.error}</NoticeBox>
-        </Stack.Item>
-      )}
-      {login.retry_seconds > 0 && !login.pending && (
-        <Stack.Item>
-          <Box color="label">
-            Новый код можно получить через {login.retry_seconds} с.
-          </Box>
-        </Stack.Item>
-      )}
-      {!!login.code && (
-        <Stack.Item>
-          <NoticeBox>
-            Ваш код: <b>{login.code}</b>. Введите его в редакторе в течение 15
-            минут. Ссылка отправлена Вам в чат.
-          </NoticeBox>
-        </Stack.Item>
-      )}
-      {!!login.error && (
-        <Stack.Item>
-          <NoticeBox danger>{login.error}</NoticeBox>
-        </Stack.Item>
-      )}
-
-      {(showCatalog || !!search.query) && !search.pending && (
-        <Stack.Item>
-          <Section
-            title={resultsTitle}
-            buttons={
-              <Button
-                icon="sync"
-                disabled={loading}
-                onClick={() => act('ntrnet_refresh')}
-              >
-                Обновить
-              </Button>
-            }
-          >
-            {visibleSites.map((entry) => (
-              <Box key={entry.id} mb={1}>
-                <Button
-                  fluid
-                  icon="globe"
-                  onClick={() => navigate(entry.id, entry.pages[0].slug)}
-                >
-                  {entry.title}
-                </Button>
-                <Box color="label">{entry.domain}</Box>
+        ) : view === 'catalog' ? (
+          <BrowserList
+            title="Список сайтов"
+            sites={catalog}
+            empty="В НТрнете пока нет сайтов."
+            navigate={navigate}
+          />
+        ) : view === 'create' ? (
+          <>
+            <Box bold fontSize={1.5} mb={1}>Создать сайт</Box>
+            <Box mb={2}>
+              Получите одноразовый код, затем перейдите по ссылке из чата в редактор.
+            </Box>
+            <Button
+              icon="key"
+              disabled={login.pending || login.retry_seconds > 0}
+              onClick={() => act('ntrnet_login')}
+            >
+              {login.pending ? 'Получение кода…' : 'Получить код редактора'}
+            </Button>
+            {login.retry_seconds > 0 && !login.pending ? (
+              <Box color="label" mt={1}>
+                Новый код можно получить через {login.retry_seconds} с.
               </Box>
-            ))}
-            {!visibleSites.length && !loading && (
-              <Box color="label">
-                {showCatalog
-                  ? 'В списке пока нет сайтов.'
-                  : 'По этому запросу ничего не найдено.'}
-              </Box>
-            )}
-          </Section>
-        </Stack.Item>
-      )}
-    </Stack>
+            ) : null}
+            {login.code ? (
+              <NoticeBox mt={2}>
+                Ваш код: <b>{login.code}</b>. Ссылка на редактор отправлена Вам в чат.
+              </NoticeBox>
+            ) : null}
+            {login.error ? <NoticeBox danger>{login.error}</NoticeBox> : null}
+          </>
+        ) : (
+          <>
+            <BrowserList
+              title={`Результаты поиска: ${search.query || query}`}
+              sites={search.results}
+              empty="По этому запросу ничего не найдено."
+              navigate={navigate}
+            />
+            {search.pending ? <NoticeBox>Поиск…</NoticeBox> : null}
+            {search.error ? <NoticeBox danger>{search.error}</NoticeBox> : null}
+          </>
+        )}
+      </Box>
+    </Section>
   );
 };
+
+const BrowserList = (props: {
+  title: string;
+  sites: Site[];
+  empty: string;
+  navigate: (siteId: string, slug: string) => void;
+}) => (
+  <>
+    <Box bold fontSize={1.5} mb={1}>{props.title}</Box>
+    {props.sites.map((entry) => (
+      <Box key={entry.id} mb={1}>
+        <Button
+          fluid
+          icon="globe"
+          onClick={() => props.navigate(entry.id, entry.pages[0].slug)}
+        >
+          {entry.title}
+        </Button>
+        <Box color="label">{entry.domain}</Box>
+      </Box>
+    ))}
+    {!props.sites.length ? <Box color="label">{props.empty}</Box> : null}
+  </>
+);
