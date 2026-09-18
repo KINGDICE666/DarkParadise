@@ -74,7 +74,7 @@
 /area/virtual_domain)
 "fo" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_x = 5
 	},
 /turf/simulated/floor/plasteel,
@@ -408,11 +408,11 @@
 /area/virtual_domain)
 "AF" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_y = 11;
 	pixel_x = 7
 	},
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_x = -4
 	},
 /turf/simulated/floor/plasteel,
@@ -665,7 +665,7 @@
 /area/virtual_domain/protected_space/fullbright)
 "Ti" = (
 /obj/structure/table/glass,
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_x = 3;
 	pixel_y = 6
 	},
@@ -733,7 +733,7 @@
 /area/virtual_domain)
 "Ye" = (
 /obj/structure/table/glass,
-/obj/item/reagent_containers/food/drinks,
+/obj/item/reagent_containers/cup/glass,
 /turf/simulated/floor/plasteel,
 /area/virtual_domain)
 "Yy" = (

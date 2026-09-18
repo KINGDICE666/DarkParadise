@@ -1,5 +1,5 @@
+import { Button, LabeledList } from 'tgui-core/components';
 import { useBackend } from '../backend';
-import { Button, LabeledList } from '../components';
 import { Window } from '../layouts';
 
 type StyleEntry = {
@@ -340,7 +340,7 @@ const ColorContent = (props: unknown) => {
             <Button key={c.key} onClick={() => act(c.action)}>
               {c.text}
             </Button>
-          )
+          ),
       )}
     </LabeledList.Item>
   );

@@ -6,7 +6,7 @@
 #define PORTAL_GUN_BASE_FLUID_COST 5
 #define PORTAL_GUN_COST_TIME_STEP (30 SECONDS)
 
-/obj/item/reagent_containers/glass/portal_fluid_canister
+/obj/item/reagent_containers/cup/portal_fluid_canister
 	name = "portal fluid canister"
 	desc = "Компактный герметичный картридж для квантового транспортного раствора."
 	gender = MALE
@@ -16,10 +16,9 @@
 	w_class = WEIGHT_CLASS_SMALL
 	volume = 100
 	possible_transfer_amounts = list(5, 10, 20, 25, 50, 100)
-	has_lid = FALSE
 	resistance_flags = ACID_PROOF | FIRE_PROOF
 
-/obj/item/reagent_containers/glass/portal_fluid_canister/get_ru_names()
+/obj/item/reagent_containers/cup/portal_fluid_canister/get_ru_names()
 	return alist(
 		NOMINATIVE = "картридж для портальной жидкости",
 		GENITIVE = "картриджа для портальной жидкости",
@@ -29,19 +28,19 @@
 		PREPOSITIONAL = "картридже для портальной жидкости",
 	)
 
-/obj/item/reagent_containers/glass/portal_fluid_canister/on_reagent_change()
+/obj/item/reagent_containers/cup/portal_fluid_canister/on_reagent_change()
 	update_appearance(UPDATE_ICON_STATE)
 	if(ismob(loc))
 		var/mob/holder = loc
 		holder.update_held_items()
 
-/obj/item/reagent_containers/glass/portal_fluid_canister/update_icon_state()
+/obj/item/reagent_containers/cup/portal_fluid_canister/update_icon_state()
 	if(reagents?.get_reagent_amount(/datum/reagent/portal_fluid))
 		icon_state = "portal_fluid_canister"
 		return
 	icon_state = "portal_fluid_canister_empty"
 
-/obj/item/reagent_containers/glass/portal_fluid_canister/full
+/obj/item/reagent_containers/cup/portal_fluid_canister/full
 	list_reagents = list(/datum/reagent/portal_fluid = 100)
 
 /obj/item/ammo_casing/energy/rick_portal
@@ -142,7 +141,7 @@
 	fire_sound_text = "портальный разряд"
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	origin_tech = "bluespace=7;engineering=6;plasmatech=5"
-	var/obj/item/reagent_containers/glass/portal_fluid_canister/fluid_canister
+	var/obj/item/reagent_containers/cup/portal_fluid_canister/fluid_canister
 	var/obj/effect/portal/rick/entrance_portal
 	var/obj/effect/portal/rick/exit_portal
 	var/portal_mode = PORTAL_GUN_MODE_PAIR
@@ -184,7 +183,7 @@
 	. += span_notice("В картридже осталось <b>[fluid_amount]</b> единиц портальной жидкости, выстрел стоит <b>[calculate_fluid_cost()]</b>.")
 
 /obj/item/gun/portal_gun/attackby(obj/item/item, mob/living/user, list/modifiers)
-	if(!istype(item, /obj/item/reagent_containers/glass/portal_fluid_canister))
+	if(!istype(item, /obj/item/reagent_containers/cup/portal_fluid_canister))
 		return ..()
 
 	if(fluid_canister)
@@ -317,7 +316,7 @@
 	finish_portal_creation(creator)
 
 /obj/item/gun/portal_gun/proc/create_location_portals(turf/impact_turf, mob/creator)
-	var/area/destination_area = SSmapping.teleportlocs[selected_location]
+	var/area/destination_area = GLOB.teleportlocs[selected_location]
 	if(!destination_area || destination_area.tele_proof)
 		balloon_alert(creator, "локация недоступна!")
 		return
@@ -367,7 +366,7 @@
 /obj/item/gun/portal_gun/proc/eject_canister(mob/user)
 	if(!fluid_canister)
 		return
-	var/obj/item/reagent_containers/glass/portal_fluid_canister/old_canister = fluid_canister
+	var/obj/item/reagent_containers/cup/portal_fluid_canister/old_canister = fluid_canister
 	fluid_canister = null
 	old_canister.forceMove(drop_location())
 	user.put_in_hands(old_canister, ignore_anim = FALSE)
@@ -390,8 +389,8 @@
 
 /obj/item/gun/portal_gun/proc/build_location_markers(list/station_level_numbers)
 	var/list/markers = list()
-	for(var/location_name in SSmapping.teleportlocs)
-		var/area/destination_area = SSmapping.teleportlocs[location_name]
+	for(var/location_name in GLOB.teleportlocs)
+		var/area/destination_area = GLOB.teleportlocs[location_name]
 		if(!destination_area || destination_area.tele_proof)
 			continue
 		var/turf/marker_turf = find_destination_turf(destination_area, randomize = FALSE)
@@ -456,7 +455,7 @@
 			portal_lifespan = clamp(new_lifespan * (1 SECONDS), PORTAL_GUN_MIN_LIFESPAN, PORTAL_GUN_MAX_LIFESPAN)
 		if("set_location")
 			var/new_location = params["location"]
-			var/area/destination_area = SSmapping.teleportlocs[new_location]
+			var/area/destination_area = GLOB.teleportlocs[new_location]
 			if(!destination_area || destination_area.tele_proof)
 				return FALSE
 			selected_location = new_location

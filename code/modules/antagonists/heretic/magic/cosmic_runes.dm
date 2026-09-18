@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/cosmic_rune
+/datum/action/cooldown/spell/cosmic_rune
 	name = "Звёздные Руны"
 	desc = "Создаёт космическую руну у вас под ногами. Одновременно могут существовать \
 			только две. Применение одной руны переносит вас к другой. \
 			Любой, у кого есть звёздная метка, переносится вместе с вами."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "cosmic_rune"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "cosmic_rune"
 
 	sound = 'sound/magic/forcewall.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 15 SECONDS
+	cooldown_time = 15 SECONDS
 
 	invocation = "К'СМ'Ч'СК Р'Н"
 	invocation_type = INVOCATION_WHISPER
@@ -27,13 +25,8 @@
 	var/obj/effect/rune_remove_effect = /obj/effect/temp_visual/cosmic_rune_fade
 
 
-/obj/effect/proc_holder/spell/cosmic_rune/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/cosmic_rune/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/cosmic_rune/cast(atom/cast_on)
 	. = ..()
-	var/atom/cast_on = targets[1]
 	var/obj/effect/cosmic_rune/first_rune_resolved = first_rune?.resolve()
 	var/obj/effect/cosmic_rune/second_rune_resolved = second_rune?.resolve()
 	if(first_rune_resolved && second_rune_resolved)
@@ -55,7 +48,7 @@
 
 
 /// Returns a weak reference to a new rune, linked to an existing rune if provided
-/obj/effect/proc_holder/spell/cosmic_rune/proc/make_new_rune(turf/target_turf, obj/effect/cosmic_rune/other_rune)
+/datum/action/cooldown/spell/cosmic_rune/proc/make_new_rune(turf/target_turf, obj/effect/cosmic_rune/other_rune)
 	var/obj/effect/cosmic_rune/new_rune = new /obj/effect/cosmic_rune(target_turf)
 	if(!other_rune)
 		return WEAKREF(new_rune)

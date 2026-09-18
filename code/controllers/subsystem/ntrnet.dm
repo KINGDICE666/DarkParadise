@@ -1,0 +1,127 @@
+#define NTRNET_REFRESH_INTERVAL (5 MINUTES)
+#define NTRNET_RETRY_INTERVAL (30 SECONDS)
+#define NTRNET_MAX_INDEX_BYTES (512 * 1024)
+#define NTRNET_MAX_PAGE_BYTES (64 * 1024)
+#define NTRNET_MAX_SITES 500
+#define NTRNET_MAX_PAGES 20
+#define NTRNET_CACHE_PAGES 32
+#define NTRNET_MAX_REQUESTS 4
+
+/datum/config_entry/flag/ntrnet_enabled
+
+/datum/config_entry/string/ntrnet_api_url
+
+/datum/config_entry/string/ntrnet_server_key
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+SUBSYSTEM_DEF(ntrnet)
+	name = "NTrnet"
+	wait = NTRNET_REFRESH_INTERVAL
+	ss_flags = SS_NO_INIT | SS_BACKGROUND
+	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
+	var/list/sites = list()
+	var/list/catalog = list()
+	var/list/pages = list()
+	var/list/page_retry = list()
+	var/list/pending = list()
+	var/available = FALSE
+	var/index_pending = FALSE
+	var/next_refresh = 0
+
+/datum/controller/subsystem/ntrnet/fire(resumed = FALSE)
+	refresh_index()
+
+/datum/controller/subsystem/ntrnet/proc/is_enabled()
+	return CONFIG_GET(flag/ntrnet_enabled) && CONFIG_GET(string/ntrnet_api_url) && CONFIG_GET(string/ntrnet_server_key)
+
+/datum/controller/subsystem/ntrnet/proc/refresh_index()
+	if(!is_enabled() || index_pending || world.time < next_refresh)
+		return
+	index_pending = TRUE
+	next_refresh = world.time + NTRNET_REFRESH_INTERVAL
+	SShttp.create_async_request(RUSTG_HTTP_METHOD_GET, "[CONFIG_GET(string/ntrnet_api_url)]/api/v1/catalog", headers = list("X-Server-Key" = CONFIG_GET(string/ntrnet_server_key)), proc_callback = CALLBACK(src, PROC_REF(on_index)), sensitive = TRUE)
+
+/datum/controller/subsystem/ntrnet/proc/on_index(datum/http_response/response)
+	index_pending = FALSE
+	available = FALSE
+	if(response.errored || response.status_code != 200 || !istext(response.body) || length(response.body) > NTRNET_MAX_INDEX_BYTES)
+		return
+	var/list/document = safe_json_decode(response.body)
+	if(!islist(document) || !islist(document["sites"]))
+		return
+	var/list/entries = document["sites"]
+	if(length(entries) > NTRNET_MAX_SITES)
+		return
+	var/list/new_sites = list()
+	for(var/list/site as anything in entries)
+		if(!islist(site) || !istext(site["id"]) || !length(site["id"]) || length(site["id"]) > 64 || !istext(site["domain"]) || !istext(site["title"]) || !istext(site["version"]) || !islist(site["pages"]))
+			return
+		var/site_id = site["id"]
+		var/list/site_pages = site["pages"]
+		if(new_sites[site_id] || !length(site_pages) || length(site_pages) > NTRNET_MAX_PAGES)
+			return
+		var/list/slugs = list()
+		for(var/list/page as anything in site_pages)
+			if(!islist(page) || !istext(page["slug"]) || !length(page["slug"]) || length(page["slug"]) > 64 || !istext(page["title"]) || (page["slug"] in slugs))
+				return
+			slugs += page["slug"]
+		new_sites[site_id] = site
+	sites = new_sites
+	catalog = entries
+	for(var/cache_key in pages.Copy())
+		var/list/cached = pages[cache_key]
+		var/list/site = sites[cached["site_id"]]
+		if(!site || site["version"] != cached["version"])
+			pages -= cache_key
+	page_retry.Cut()
+	available = TRUE
+
+/datum/controller/subsystem/ntrnet/proc/has_page(site_id, slug)
+	if(!istext(site_id) || !istext(slug))
+		return FALSE
+	var/list/site = sites[site_id]
+	if(!site)
+		return FALSE
+	for(var/list/page as anything in site["pages"])
+		if(page["slug"] == slug)
+			return TRUE
+	return FALSE
+
+/datum/controller/subsystem/ntrnet/proc/request_page(site_id, slug)
+	if(!is_enabled() || !has_page(site_id, slug))
+		return
+	var/cache_key = json_encode(list(site_id, slug))
+	if(pages[cache_key] || pending[cache_key] || length(pending) >= NTRNET_MAX_REQUESTS || world.time < page_retry[cache_key])
+		return
+	pending[cache_key] = TRUE
+	var/list/site = sites[site_id]
+	SShttp.create_async_request(RUSTG_HTTP_METHOD_GET, "[CONFIG_GET(string/ntrnet_api_url)]/api/v1/sites/[url_encode(site_id)]/pages/[url_encode(slug)]", headers = list("X-Server-Key" = CONFIG_GET(string/ntrnet_server_key)), proc_callback = CALLBACK(src, PROC_REF(on_page), site_id, slug, site["version"]), sensitive = TRUE)
+
+/datum/controller/subsystem/ntrnet/proc/on_page(site_id, slug, version, datum/http_response/response)
+	var/cache_key = json_encode(list(site_id, slug))
+	pending -= cache_key
+	page_retry[cache_key] = world.time + NTRNET_RETRY_INTERVAL
+	if(response.errored || response.status_code != 200 || !istext(response.body) || length(response.body) > NTRNET_MAX_PAGE_BYTES)
+		available = FALSE
+		return
+	var/list/site = sites[site_id]
+	if(!site || site["version"] != version || !has_page(site_id, slug))
+		return
+	var/list/document = safe_json_decode(response.body)
+	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || document["version"] != version || !islist(document["tree"]))
+		available = FALSE
+		return
+	if(length(pages) >= NTRNET_CACHE_PAGES)
+		pages.Cut(1, 2)
+	pages[cache_key] = document
+	page_retry -= cache_key
+	available = TRUE
+
+#undef NTRNET_REFRESH_INTERVAL
+#undef NTRNET_RETRY_INTERVAL
+#undef NTRNET_MAX_INDEX_BYTES
+#undef NTRNET_MAX_PAGE_BYTES
+#undef NTRNET_MAX_SITES
+#undef NTRNET_MAX_PAGES
+#undef NTRNET_CACHE_PAGES
+#undef NTRNET_MAX_REQUESTS

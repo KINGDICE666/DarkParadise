@@ -1,57 +1,28 @@
-@use 'sass:meta';
+.theme-headphones:root {
+  --headphones-color: hsl(96, 53.4%, 45.1%);
 
-@use '../colors.scss' with (
-  $primary: hsl(96, 53.4%, 45.1%),
-  $fg-map-keys: (),
-  $bg-map-keys: ()
-);
-@use '../base.scss' with (
-  $color-bg: hsl(220, 8.5%, 13.9%),
-  $color-bg-grad-spread: 4%,
-  $border-radius: 4px
-);
+  // Base
+  --color-base: hsl(220, 8.5%, 13.9%);
+  --color-primary: var(--headphones-color);
+  --base-gradient-spread: 4;
+  --border-radius-unit: 0.17;
 
-.theme-headphones {
-  @include meta.load-css('../atomic/color.scss');
-
-  @include meta.load-css(
-    '../components/Button.scss',
-    $with: (
-      'color-default': hsl(220, 6.5%, 25.1%),
-      'color-disabled': hsl(220, 5%, 17.6%),
-      'color-selected': hsl(96, 53.4%, 35.3%),
-      'color-caution': hsl(38, 90%, 45%),
-      'color-danger': hsl(0, 65%, 42%)
-    )
-  );
-  @include meta.load-css(
-    '../components/Input.scss',
-    $with: ('border-color': hsl(96, 40%, 40%))
-  );
-  @include meta.load-css(
-    '../components/NoticeBox.scss',
-    $with: ('background-color': hsl(220, 6.5%, 25.1%))
-  );
-  @include meta.load-css(
-    '../components/ProgressBar.scss',
-    $with: ('background-color': rgba(0, 0, 0, 0.5))
-  );
-  @include meta.load-css('../components/Knob.scss');
-  @include meta.load-css('../components/Section.scss');
-
-  @include meta.load-css('../layouts/Layout.scss');
-  @include meta.load-css('../layouts/Window.scss');
-  @include meta.load-css(
-    '../layouts/TitleBar.scss',
-    $with: ('background-color': hsl(220, 8.5%, 19.6%))
-  );
+  // Components
+  --button-background-default: hsl(220, 6.5%, 25.1%);
+  --button-background-disabled: hsl(220, 5%, 17.6%);
+  --button-background-selected: hsl(96, 53.4%, 35.3%);
+  --button-background-caution: hsl(38, 90%, 45%);
+  --button-background-danger: hsl(0, 65%, 42%);
+  --input-border-color: hsl(96, 40%, 40%);
+  --notice-box-background: hsl(220, 6.5%, 25.1%);
+  --progress-bar-background: hsla(0, 0%, 0%, 0.5);
+  --section-border-color: hsl(220, 6.5%, 25.1%);
 
   .Layout__content {
     background-image: none;
   }
 
-  .Section {
-    border: 1px solid hsl(220, 6.5%, 25.1%);
-    border-radius: 4px;
+  .TitleBar {
+    background-color: hsl(220, 8.5%, 19.6%);
   }
 }

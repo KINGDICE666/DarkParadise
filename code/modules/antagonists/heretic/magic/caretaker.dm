@@ -1,15 +1,15 @@
 #define CARETAKER_MAX_WATCH_RANGE 9
 #define CARETAKER_WATCH_CACHE_TIME (0.5 SECONDS)
 
-/obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker
+/datum/action/cooldown/spell/jaunt/space_crawl/caretaker
 	name = "Последнее Пристанище Смотрителя"
 	desc = "Скрывает вас в Убежище Смотрителя, делая прозрачным и неосязаемым. \
 			Войти можно, только пока вас никто не видит; выйти — лишь там, где вас никто не видит. \
 			В убежище вы неуязвимы, но не можете действовать."
-	action_icon_state = "caretaker"
-	base_cooldown = 2 SECONDS
+	button_icon_state = "caretaker"
+	cooldown_time = 2 SECONDS
 	invalid_turf_message = "За вами наблюдают — вы не можете скрыться!"
-	jaunt_type = /obj/effect/dummy/spell_jaunt/caretaker
+	jaunt_type = /obj/effect/dummy/phased_mob/spell_jaunt/caretaker
 	jaunt_hand_type = /obj/item/space_crawl/caretaker
 	jaunt_in_sound = 'sound/magic/heretic/caretaker_lock.ogg'
 	jaunt_out_sound = 'sound/magic/heretic/caretaker_lock.ogg'
@@ -20,7 +20,7 @@
 
 /// The Refuge's "valid turf" is any spot where no conscious onlooker can see us. Used for both entering
 /// (while we are visible) and resurfacing (checks the spot we would reappear on).
-/obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker/is_valid_turf(mob/user = usr)
+/datum/action/cooldown/spell/jaunt/space_crawl/caretaker/is_valid_turf(mob/user = usr)
 	var/turf/our_turf = get_turf(user)
 	if(!our_turf)
 		return FALSE
@@ -38,12 +38,12 @@
 	return cached_verdict
 
 
-/obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
+/datum/action/cooldown/spell/jaunt/space_crawl/caretaker/can_cast_spell(feedback = TRUE)
 	. = ..()
 	if(!.)
 		return FALSE
-	if(show_message && is_watched_by_camera(get_turf(user)))
-		to_chat(user, span_warning(invalid_turf_message))
+	if(feedback && is_watched_by_camera(get_turf(owner)))
+		to_chat(owner, span_warning(invalid_turf_message))
 		return FALSE
 
 
@@ -52,7 +52,7 @@
 /// there has to be a live, conscious onlooker whose feed actually shows this turf right now. Otherwise a ghost
 /// who peeked at a camera (which leaks into computers_watched_by, never cleared on a non-living close) or an
 /// operator staring at a different part of the station would lock the heretic out of the Refuge forever.
-/obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker/proc/is_watched_by_camera(turf/our_turf)
+/datum/action/cooldown/spell/jaunt/space_crawl/caretaker/proc/is_watched_by_camera(turf/our_turf)
 	if(!GLOB.cameranet.checkTurfVis(our_turf))
 		return FALSE
 	for(var/mob/living/silicon/ai/ai as anything in GLOB.ai_list)
@@ -88,7 +88,7 @@
 /// computers_watched_by alone: it only means "a console has this camera selected," and it leaks (a ghost peeking
 /// at the feed adds the console but a non-living ui_close never removes it), so we re-check the console's own
 /// concurrent_users for a real watcher.
-/obj/effect/proc_holder/spell/jaunt/space_crawl/caretaker/proc/has_live_console_watcher(obj/machinery/camera/cam)
+/datum/action/cooldown/spell/jaunt/space_crawl/caretaker/proc/has_live_console_watcher(obj/machinery/camera/cam)
 	for(var/obj/machinery/computer/security/console as anything in cam.computers_watched_by)
 		for(var/uid in console.concurrent_users)
 			var/mob/living/operator = locateUID(uid)
@@ -99,7 +99,7 @@
 
 /// Jaunt holder for the Caretaker's Refuge. The holder itself is invisible; this only defines the
 /// position-indicator the jaunter sees (a pulsing eldritch crystal, in icons/effects/eldritch.dmi).
-/obj/effect/dummy/spell_jaunt/caretaker
+/obj/effect/dummy/phased_mob/spell_jaunt/caretaker
 	phased_mob_icon = 'icons/effects/eldritch.dmi'
 	phased_mob_icon_state = "caretaker"
 	movespeed = 0

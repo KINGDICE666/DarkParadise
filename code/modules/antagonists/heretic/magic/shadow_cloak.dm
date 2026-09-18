@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/shadow_cloak
+/datum/action/cooldown/spell/shadow_cloak
 	name = "Плащ Тьмы"
 	desc = "Полностью скрывает вашу личность, но не делает вас невидимым. Можно активировать снова, чтобы отключить эффект. \
 			При использовании вы двигаетесь быстрее, но совершаете действия медленнее. \
 			Получение урона при надетом плаще может привести к его внезапному отключению."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_minor_antag.dmi'
-	action_icon_state = "ninja_cloak"
+	button_icon = 'icons/mob/actions/actions_minor_antag.dmi'
+	button_icon_state = "ninja_cloak"
 	sound = 'sound/effects/curse/curse2.ogg'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 6 SECONDS
+	cooldown_time = 6 SECONDS
 	spell_requirements = NONE
 
 	/// How long before we automatically uncloak? Kept in sync with /datum/status_effect/shadow_cloak's duration.
@@ -22,11 +20,7 @@
 	var/datum/status_effect/shadow_cloak/active_cloak
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/shadow_cloak/on_spell_loss(mob/living/remove_from)
+/datum/action/cooldown/spell/shadow_cloak/Remove(mob/remove_from)
 	if(!active_cloak)
 		return ..()
 
@@ -34,7 +28,7 @@
 	return ..()
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/shadow_cloak/is_valid_target(atom/cast_on)
 	if(!HAS_TRAIT(cast_on, TRAIT_HULK)) // Hulks are not stealthy. Need not apply
 		return isliving(cast_on)
 
@@ -42,7 +36,7 @@
 	return FALSE
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/before_cast(mob/living/cast_on)
+/datum/action/cooldown/spell/shadow_cloak/before_cast(mob/living/cast_on)
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		return
@@ -63,22 +57,21 @@
 	return . | SPELL_NO_IMMEDIATE_COOLDOWN
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/shadow_cloak/cast(mob/living/cast_on)
 	. = ..()
-	var/mob/living/cast_on = targets[1]
 	if(active_cloak)
 		var/time_left = max(active_cloak.duration - world.time, 0)
 		var/time_elapsed = uncloak_time - time_left
-		var/new_cd = max(time_elapsed / 3, base_cooldown)
+		var/new_cd = max(time_elapsed / 3, cooldown_time)
 		uncloak_mob(cast_on)
-		cooldown_handler.start_recharge(new_cd)
+		StartCooldown(new_cd)
 		return
 
 	cloak_mob(cast_on)
-	cooldown_handler.start_recharge()
+	StartCooldown()
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/proc/cloak_mob(mob/living/cast_on)
+/datum/action/cooldown/spell/shadow_cloak/proc/cloak_mob(mob/living/cast_on)
 	playsound(cast_on, 'sound/effects/ahaha.ogg', 50, TRUE, -1, extrarange = SILENCED_SOUND_EXTRARANGE, frequency = 0.5)
 	cast_on.visible_message(
 		span_warning("[DECLENT_RU_CAP(cast_on, NOMINATIVE)] скрывается в тени!"),
@@ -90,7 +83,7 @@
 	RegisterSignal(cast_on, SIGNAL_REMOVETRAIT(TRAIT_ALLOW_HERETIC_CASTING), PROC_REF(on_focus_lost))
 
 
-/obj/effect/proc_holder/spell/shadow_cloak/proc/uncloak_mob(mob/living/cast_on, show_message = TRUE)
+/datum/action/cooldown/spell/shadow_cloak/proc/uncloak_mob(mob/living/cast_on, show_message = TRUE)
 	if(!QDELETED(active_cloak))
 		UnregisterSignal(active_cloak, COMSIG_QDELETING)
 		qdel(active_cloak)
@@ -108,7 +101,7 @@
 /// Signal proc for [COMSIG_QDELETING]. Fires when the cloak status ends without the spell removing it
 /// itself (i.e. natural duration timeout, or a forced break from damage/crit). Only the forced breaks
 /// impart the reveal penalty - a natural timeout just uncloaks cleanly.
-/obj/effect/proc_holder/spell/shadow_cloak/proc/on_early_cloak_loss(datum/status_effect/shadow_cloak/source)
+/datum/action/cooldown/spell/shadow_cloak/proc/on_early_cloak_loss(datum/status_effect/shadow_cloak/source)
 	SIGNAL_HANDLER
 
 	var/mob/living/removed = source.owner
@@ -125,11 +118,11 @@
 	removed.Knockdown(0.5 SECONDS)
 	removed.add_movespeed_modifier(/datum/movespeed_modifier/shadow_cloak/early_remove)
 	addtimer(CALLBACK(removed, TYPE_PROC_REF(/mob, remove_movespeed_modifier), /datum/movespeed_modifier/shadow_cloak/early_remove), 2 MINUTES, TIMER_UNIQUE|TIMER_OVERRIDE)
-	cooldown_handler.start_recharge(uncloak_time * 2/3)
+	StartCooldown(uncloak_time * 2/3)
 
 
 /// Signal proc for [SIGNAL_REMOVETRAIT] via [TRAIT_ALLOW_HERETIC_CASTING], losing our focus midcast will throw us out.
-/obj/effect/proc_holder/spell/shadow_cloak/proc/on_focus_lost(mob/living/source)
+/datum/action/cooldown/spell/shadow_cloak/proc/on_focus_lost(mob/living/source)
 	SIGNAL_HANDLER
 
 	uncloak_mob(source, show_message = FALSE)
@@ -137,7 +130,7 @@
 		span_warning("[DECLENT_RU_CAP(source, NOMINATIVE)] внезапно появляется из тени!"),
 		span_userdanger("После потери концентрации, вы больше не можете скрываться в тени!"),
 	)
-	cooldown_handler.start_recharge(uncloak_time / 3)
+	StartCooldown(uncloak_time / 3)
 
 
 /// Shadow cloak effect. Conceals the owner in a cloud of purple smoke, making them unidentifiable.

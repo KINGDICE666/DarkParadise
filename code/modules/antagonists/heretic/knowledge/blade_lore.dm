@@ -190,7 +190,7 @@
 	gain_text = "В круговерти смерти он обрёл внутренний покой. Несмотря на непреодолимые препятствия, он продолжал идти вперёд."
 	research_tree_icon_path = 'icons/hud/implants.dmi'
 	research_tree_icon_state = "adrenal"
-	spell_to_add = /obj/effect/proc_holder/spell/realignment
+	spell_to_add = /datum/action/cooldown/spell/realignment
 	cost = 2
 
 
@@ -207,7 +207,7 @@
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "among_sheep"
 	cost = 2
-	spell_to_add = /obj/effect/proc_holder/spell/wolves_among_sheep
+	spell_to_add = /datum/action/cooldown/spell/wolves_among_sheep
 	is_final_knowledge = TRUE
 
 
@@ -313,7 +313,7 @@
 				впервые почувствовав боль. Его клинки стали моими."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "furious_steel"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/projectile/furious_steel
+	spell_to_add = /datum/action/cooldown/spell/pointed/projectile/furious_steel
 	cost = 2
 
 
@@ -370,11 +370,9 @@
 		delete_after_passing_max = FALSE,
 		recharge_time = 2 MINUTES,
 	)
-	var/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/steel_spell = locate() in user.mob_spell_list
+	var/datum/action/cooldown/spell/pointed/projectile/furious_steel/steel_spell = locate() in user.mob_spell_list
 	if(steel_spell)
-		steel_spell.base_cooldown /= 2
-		if(steel_spell.cooldown_handler)
-			steel_spell.cooldown_handler.recharge_duration /= 2
+		steel_spell.cooldown_time /= 2
 
 
 /// Wipes plain external bleeding (the only kind master220 has no per-limb prevention flag for). Early-outs

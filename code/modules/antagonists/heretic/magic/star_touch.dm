@@ -1,23 +1,19 @@
-/obj/effect/proc_holder/spell/touch/star_touch
+/datum/action/cooldown/spell/touch/star_touch
 	name = "Звёздное Касание"
 	desc = "Создаёт космические поля на плитках рядом с вами, одновременно отмечая жертву звёздной меткой \
 			или поглощая уже существующую звёздную метку, чтобы усыпить её на 4 секунды. \
 			Затем жертва будет связана с вами космическим лучом: если связь не оборвётся, жертва уснёт и \
 			будет притянута к вам, но стоит ей скрыться от вас — луч разорвётся. \"Звёздное Касание\" также \
 			может стереть Космические руны или телепортировать вас к вашему Звёздному Наблюдателю при использовании на себе."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "star_touch"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "star_touch"
 
-	sound = 'sound/items/welder.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 15 SECONDS
+	cooldown_time = 15 SECONDS
 	invocation = "ЗВ'ЗДН К'С'Н!"
-	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
 	hand_path = /obj/item/melee/touch_attack/star_touch
@@ -27,14 +23,14 @@
 	var/ascended = FALSE
 
 
-/obj/effect/proc_holder/spell/touch/star_touch/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/touch/star_touch/is_valid_target(atom/cast_on)
 	if(!isliving(cast_on))
 		return FALSE
 
 	return TRUE
 
 /*
-/obj/effect/proc_holder/spell/touch/star_touch/on_antimagic_triggered(obj/item/melee/touch_attack/hand, atom/victim, mob/living/carbon/caster)
+/datum/action/cooldown/spell/touch/star_touch/on_antimagic_triggered(obj/item/melee/touch_attack/hand, atom/victim, mob/living/carbon/caster)
 	victim.visible_message(
 		span_danger("The spell bounces off of you!"),
 	)
@@ -70,24 +66,28 @@
 
 
 /obj/item/melee/touch_attack/star_touch/proc/get_turfs(mob/living/victim)
-	var/list/target_turfs = list(get_turf(owner))
-	var/obj/effect/proc_holder/spell/touch/star_touch/star_touch = attached_spell
+	var/datum/action/cooldown/spell/touch/star_touch/star_touch = spell_which_made_us?.resolve()
+	var/mob/caster = star_touch?.owner
+	if(!caster)
+		return list()
+
+	var/list/target_turfs = list(get_turf(caster))
 	var/range = star_touch.ascended ? 2 : 1
-	var/list/directions = list(turn(owner.dir, 90), turn(owner.dir, 270))
+	var/list/directions = list(turn(caster.dir, 90), turn(caster.dir, 270))
 	for(var/direction in directions)
 		for(var/i in 1 to range)
-			target_turfs += get_ranged_target_turf(owner, direction, i)
+			target_turfs += get_ranged_target_turf(caster, direction, i)
 
 	return target_turfs
 
 
 /// To set the star gazer
-/obj/effect/proc_holder/spell/touch/star_touch/proc/set_star_gazer(mob/living/simple_animal/hostile/heretic_summon/star_gazer/star_gazer_mob)
+/datum/action/cooldown/spell/touch/star_touch/proc/set_star_gazer(mob/living/simple_animal/hostile/heretic_summon/star_gazer/star_gazer_mob)
 	star_gazer = WEAKREF(star_gazer_mob)
 
 
 /// To obtain the star gazer if there is one
-/obj/effect/proc_holder/spell/touch/star_touch/proc/get_star_gazer()
+/datum/action/cooldown/spell/touch/star_touch/proc/get_star_gazer()
 	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/star_gazer_resolved = star_gazer?.resolve()
 	if(star_gazer_resolved)
 		return star_gazer_resolved
@@ -130,7 +130,7 @@
 
 /obj/item/melee/touch_attack/star_touch/proc/after_clear_rune(obj/effect/target, mob/living/user)
 	new /obj/effect/temp_visual/cosmic_rune_fade(get_turf(target))
-	var/obj/effect/proc_holder/spell/cosmic_rune/rune_spell = locate() in user.mob_spell_list
+	var/datum/action/cooldown/spell/cosmic_rune/rune_spell = locate() in user.mob_spell_list
 	if(rune_spell)
 		var/obj/effect/cosmic_rune/first_rune = rune_spell.first_rune?.resolve()
 		var/obj/effect/cosmic_rune/second_rune = rune_spell.second_rune?.resolve()
@@ -147,7 +147,7 @@
 	remove_hand_with_no_refund(user)
 
 /obj/item/melee/touch_attack/star_touch/attack_self(mob/living/user)
-	var/obj/effect/proc_holder/spell/touch/star_touch/star_touch_spell = attached_spell
+	var/datum/action/cooldown/spell/touch/star_touch/star_touch_spell = spell_which_made_us?.resolve()
 	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/star_gazer_mob = star_touch_spell?.get_star_gazer()
 	if(!star_gazer_mob)
 		balloon_alert(user, "нет привязанного существа!")

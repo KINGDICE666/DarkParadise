@@ -93,7 +93,7 @@
 				она исчезла, оставив меня посреди метели."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "voidblink"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/void_phase
+	spell_to_add = /datum/action/cooldown/spell/pointed/void_phase
 	cost = 2
 	research_tree_icon_frame = 7
 
@@ -173,7 +173,7 @@
 				Их притяжение огромно, я не могу повернуть назад."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "voidpull"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/void_pull
+	spell_to_add = /datum/action/cooldown/spell/aoe/void_pull
 	cost = 2
 
 	research_tree_icon_frame = 6
@@ -388,7 +388,7 @@
 			close_carbon.EyeBlurry(rand(0 SECONDS, 2 SECONDS))
 			close_carbon.adjust_bodytemperature(-30 * TEMPERATURE_DAMAGE_COEFFICIENT)
 
-		if(istype(thing_in_range, /obj/machinery/door) || istype(thing_in_range, /obj/structure/door_assembly))
+		if(is_door(thing_in_range) || istype(thing_in_range, /obj/structure/door_assembly))
 			var/obj/affected_door = thing_in_range
 			affected_door.take_damage(rand(60, 80))
 

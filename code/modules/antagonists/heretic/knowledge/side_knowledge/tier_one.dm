@@ -51,7 +51,7 @@
 		/obj/structure/reagent_dispensers/watertank = 1,
 		/obj/item/shard = 1,
 	)
-	result_atoms = list(/obj/item/reagent_containers/glass/beaker/eldritch)
+	result_atoms = list(/obj/item/reagent_containers/cup/beaker/eldritch)
 	cost = 1
 
 
@@ -73,7 +73,7 @@
 		/obj/item/stack/sheet/glass = 1,
 		/obj/item/reagent_containers/food/snacks/grown/poppy = 1,
 	)
-	result_atoms = list(/obj/item/reagent_containers/glass/phylactery)
+	result_atoms = list(/obj/item/reagent_containers/cup/phylactery)
 	cost = 1
 	research_tree_icon_path = 'icons/obj/eldritch.dmi'
 	research_tree_icon_state = "phylactery_2"

@@ -1,18 +1,16 @@
-/obj/effect/proc_holder/spell/wolves_among_sheep
+/datum/action/cooldown/spell/wolves_among_sheep
 	name = "Волк среди Овец"
 	desc = "Изменяет ткань реальности, создавая магическую арену, недоступную для посторонних. \
 			Все участники оказываются в ловушке. \
 			Пойманным участникам даруется Клинок, и они не могут покинуть арену, пока не убьют противника."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = null
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "among_sheep"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "among_sheep"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 5 MINUTES
+	cooldown_time = 5 MINUTES
 
 	invocation = "В'ЛК В'ЛК' В'ЛК!"
 	invocation_type = INVOCATION_SHOUT
@@ -33,13 +31,9 @@
 	var/ongoing_arena
 
 
-/obj/effect/proc_holder/spell/wolves_among_sheep/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/wolves_among_sheep/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/wolves_among_sheep/cast(atom/cast_on)
 	. = ..()
-	center_turf = get_turf(action.owner)
+	center_turf = get_turf(owner)
 	playsound(center_turf,'sound/machines/airlock/airlockopen.ogg', 750, TRUE)
 	to_transform = list()
 	addtimer(CALLBACK(src, PROC_REF(create_arena), center_turf), 1 SECONDS)
@@ -65,21 +59,21 @@
 
 	apply_visual(list(center_turf))
 
-/obj/effect/proc_holder/spell/wolves_among_sheep/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
+/datum/action/cooldown/spell/wolves_among_sheep/can_cast_spell(feedback = TRUE)
 	. = ..()
 	if(!.)
 		return FALSE
 
 	for(var/obj/nearby_arena as anything in GLOB.heretic_arenas)
-		if(get_dist(user, nearby_arena) > 25)
+		if(get_dist(owner, nearby_arena) > 25)
 			continue
 
-		if(show_message)
-			user.balloon_alert(user, "другая арена рядом!")
+		if(feedback)
+			owner.balloon_alert(owner, "другая арена рядом!")
 		return FALSE
 
 /// Applies a visual to each turf
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/apply_visual(list/turfs)
+/datum/action/cooldown/spell/wolves_among_sheep/proc/apply_visual(list/turfs)
 	for(var/turf/target as anything in turfs)
 		if(isfloorturf(target))
 			var/turf_icon = "rose_stone_[pick(1, 2, 3, 4, 5, 6, 7, 8)]"
@@ -101,15 +95,15 @@
 
 
 /// Sets up the proximity monitor which handles things that are within the area and leave once they get someone to crit
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/create_arena(turf/target)
-	RegisterSignal(action.owner, SIGNAL_ADDTRAIT(TRAIT_INCAPACITATED), PROC_REF(on_caster_crit))
+/datum/action/cooldown/spell/wolves_among_sheep/proc/create_arena(turf/target)
+	RegisterSignal(owner, SIGNAL_ADDTRAIT(TRAIT_INCAPACITATED), PROC_REF(on_caster_crit))
 
-	ongoing_arena = new /obj/effect/abstract/heretic_arena(target, max_range, 60 SECONDS, action.owner)
+	ongoing_arena = new /obj/effect/abstract/heretic_arena(target, max_range, 60 SECONDS, owner)
 	RegisterSignal(ongoing_arena, COMSIG_QDELETING, PROC_REF(on_arena_delete))
 
 
 /// Clears the timer if the arena is deleted
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/on_arena_delete()
+/datum/action/cooldown/spell/wolves_among_sheep/proc/on_arena_delete()
 	SIGNAL_HANDLER
 	deltimer(revert_timer)
 	ongoing_arena = null
@@ -117,15 +111,15 @@
 
 
 /// If the caster goes into crit, the arena falls apart right away
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/on_caster_crit()
+/datum/action/cooldown/spell/wolves_among_sheep/proc/on_caster_crit()
 	SIGNAL_HANDLER
 	deltimer(revert_timer)
 	revert_effects()
 
 
 /// Undoes our changes
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/revert_effects()
-	UnregisterSignal(action.owner, list(SIGNAL_ADDTRAIT(TRAIT_INCAPACITATED)))
+/datum/action/cooldown/spell/wolves_among_sheep/proc/revert_effects()
+	UnregisterSignal(owner, list(SIGNAL_ADDTRAIT(TRAIT_INCAPACITATED)))
 	for(var/iterator in 1 to greatest_dist)
 		var/backwards_iterator = greatest_dist - iterator + 1 //We go backwards
 		if(!to_transform["[backwards_iterator]"])
@@ -141,7 +135,7 @@
 
 
 /// Transforms all the turfs and restores the airlocks
-/obj/effect/proc_holder/spell/wolves_among_sheep/proc/revert_terrain(list/turfs)
+/datum/action/cooldown/spell/wolves_among_sheep/proc/revert_terrain(list/turfs)
 	for(var/turf/target as anything in turfs)
 		target.remove_alt_appearance("heretic_arena[target.UID()]")
 		target.turf_flags = initial(target.turf_flags) // Restore flags to what they were

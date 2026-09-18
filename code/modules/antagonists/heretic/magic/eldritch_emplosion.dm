@@ -1,14 +1,12 @@
-/obj/effect/proc_holder/spell/emplosion/eldritch
+/datum/action/cooldown/spell/emplosion/eldritch
 	name = "Энергетический Импульс"
 	desc = "Заклинание, вызывающее вокруг вас сильный ЭМИ, выводящий из строя электронику."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 
 	invocation = "М'П'ЛС"
 	invocation_type = INVOCATION_WHISPER
