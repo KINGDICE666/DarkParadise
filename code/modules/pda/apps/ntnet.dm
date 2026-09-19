@@ -7,6 +7,9 @@
 	name = "NTnet"
 	icon = "globe"
 	template = "pda_ntnet"
+	fullscreen = TRUE
+	window_width = 1000
+	window_height = 820
 	var/site_id
 	var/slug
 	var/search_query

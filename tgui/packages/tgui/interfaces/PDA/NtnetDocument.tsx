@@ -1,5 +1,4 @@
-import { createElement, type CSSProperties, type ReactNode } from 'react';
-import { Button } from 'tgui-core/components';
+import { type CSSProperties, createElement, type ReactNode } from 'react';
 
 const TAGS = new Set([
   'div',
@@ -149,13 +148,18 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
       const siteId = node.site_id;
       const slug = node.slug;
       return (
-        <Button
+        <span
           key={key}
-          style={sanitizeStyle(node.style)}
+          style={{
+            color: '#1a5fb4',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            ...sanitizeStyle(node.style),
+          }}
           onClick={() => onNavigate(siteId, slug)}
         >
           {children}
-        </Button>
+        </span>
       );
     }
     return createElement(

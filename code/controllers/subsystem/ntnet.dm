@@ -44,6 +44,7 @@ SUBSYSTEM_DEF(ntnet)
 /datum/controller/subsystem/ntnet/proc/on_index(datum/http_response/response)
 	index_pending = FALSE
 	available = FALSE
+	next_refresh = world.time + NTNET_RETRY_INTERVAL
 	if(response.errored || response.status_code != 200 || !istext(response.body) || length(response.body) > NTNET_MAX_INDEX_BYTES)
 		return
 	var/list/document = safe_json_decode(response.body)
@@ -74,6 +75,7 @@ SUBSYSTEM_DEF(ntnet)
 		if(!site || site["version"] != cached["version"])
 			pages -= cache_key
 	page_retry.Cut()
+	next_refresh = world.time + NTNET_REFRESH_INTERVAL
 	available = TRUE
 
 /datum/controller/subsystem/ntnet/proc/has_page(site_id, slug)

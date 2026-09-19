@@ -1,0 +1,87 @@
+import { expect, test } from 'bun:test';
+import {
+  formatAddress,
+  formatTitle,
+  type NtnetSite,
+  parseAddress,
+} from '../interfaces/PDA/NtnetAddress';
+
+const sites: NtnetSite[] = [
+  {
+    id: 'welcome',
+    domain: 'welcome.ss13',
+    title: 'Добро пожаловать',
+    pages: [
+      { slug: 'index', title: 'Главная' },
+      { slug: 'rules', title: 'Правила' },
+    ],
+  },
+];
+
+test('opens a site by its domain', () => {
+  expect(parseAddress('welcome.ss13', sites)).toEqual({
+    kind: 'site',
+    siteId: 'welcome',
+    slug: 'index',
+  });
+  expect(parseAddress('  NTNET://Welcome.SS13/rules ', sites)).toEqual({
+    kind: 'site',
+    siteId: 'welcome',
+    slug: 'rules',
+  });
+});
+
+test('reports unknown domains and pages instead of searching', () => {
+  expect(parseAddress('nothing.ss13', sites)).toEqual({
+    kind: 'missing',
+    address: 'nothing.ss13',
+  });
+  expect(parseAddress('welcome.ss13/secret', sites)).toEqual({
+    kind: 'missing',
+    address: 'welcome.ss13/secret',
+  });
+});
+
+test('treats free text as a search query', () => {
+  expect(parseAddress('бар на станции', sites)).toEqual({
+    kind: 'search',
+    query: 'бар на станции',
+  });
+  expect(parseAddress('ntnet://search?q=%D0%B1%D0%B0%D1%80', sites)).toEqual({
+    kind: 'search',
+    query: 'бар',
+  });
+  expect(parseAddress('x', sites)).toBeNull();
+});
+
+test('resolves the internal browser pages', () => {
+  expect(parseAddress('', sites)).toEqual({ kind: 'home' });
+  expect(parseAddress('ntnet://sites', sites)).toEqual({ kind: 'catalog' });
+  expect(parseAddress('ntnet://create', sites)).toEqual({ kind: 'create' });
+});
+
+test('round trips every address back through the bar', () => {
+  for (const address of [
+    'ntnet://home',
+    'ntnet://sites',
+    'ntnet://create',
+    'welcome.ss13',
+    'welcome.ss13/rules',
+  ]) {
+    const location = parseAddress(address, sites);
+    expect(location).not.toBeNull();
+    expect(formatAddress(location!, sites)).toBe(address);
+  }
+  const search = parseAddress('станция', sites);
+  expect(formatAddress(search!, sites)).toBe('ntnet://search?q=станция');
+});
+
+test('names tabs after the page being shown', () => {
+  expect(formatTitle({ kind: 'home' }, sites)).toBe('Новая вкладка');
+  expect(
+    formatTitle({ kind: 'site', siteId: 'welcome', slug: 'rules' }, sites),
+  ).toBe('Правила');
+  expect(
+    formatTitle({ kind: 'site', siteId: 'gone', slug: 'index' }, sites),
+  ).toBe('Новая вкладка');
+});
