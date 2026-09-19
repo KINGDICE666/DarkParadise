@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server.node';
-import { NtrnetDocument } from '../interfaces/PDA/NtrnetDocument';
+import { NtnetDocument } from '../interfaces/PDA/NtnetDocument';
 
 const render = (tree: unknown) =>
   renderToStaticMarkup(
-    createElement(NtrnetDocument, { tree, onNavigate: () => {} }),
+    createElement(NtnetDocument, { tree, onNavigate: () => {} }),
   );
 
 test('renders text as text, without interpreting HTML', () => {
@@ -109,7 +109,7 @@ test('allows only explicit safe styles', () => {
   expect(html).not.toContain('calc');
 });
 
-test('renders media only from the NTrnet bucket', () => {
+test('renders media only from the NTnet bucket', () => {
   const good = render({
     type: 'image',
     src: 'https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.png',

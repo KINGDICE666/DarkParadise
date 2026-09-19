@@ -78,7 +78,7 @@ type Props = {
   onNavigate: (siteId: string, slug: string) => void;
 };
 
-export const NtrnetDocument = ({ tree, onNavigate }: Props) => {
+export const NtnetDocument = ({ tree, onNavigate }: Props) => {
   let remaining = MAX_NODES;
   const render = (value: unknown, depth: number, key: string): ReactNode => {
     if (

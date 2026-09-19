@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useBackend } from '../../backend';
 import { Box, Button, Input, NoticeBox, Section, Stack } from 'tgui-core/components';
-import { NtrnetDocument } from './NtrnetDocument';
+import { NtnetDocument } from './NtnetDocument';
 
 type Site = {
   id: string;
@@ -13,7 +13,7 @@ type Site = {
 type View = 'home' | 'catalog' | 'create' | 'search';
 
 type Data = {
-  ntrnet: {
+  ntnet: {
     available: boolean;
     loading: boolean;
     catalog: Site[];
@@ -35,15 +35,15 @@ type Data = {
   };
 };
 
-export const pda_ntrnet = () => {
+export const pda_ntnet = () => {
   const { act, data } = useBackend<Data>();
   const { available, loading, catalog, site, page, slug, search, login } =
-    data.ntrnet;
+    data.ntnet;
   const [view, setView] = useState<View>('home');
   const [query, setQuery] = useState(search.query || '');
 
   const navigate = (siteId: string, pageSlug: string) =>
-    act('ntrnet_open', { site_id: siteId, slug: pageSlug });
+    act('ntnet_open', { site_id: siteId, slug: pageSlug });
   const goHome = () => {
     if (site) {
       act('Back');
@@ -63,17 +63,17 @@ export const pda_ntrnet = () => {
       return;
     }
     setView('search');
-    act('ntrnet_search', { query: value });
+    act('ntnet_search', { query: value });
   };
   const address = site
     ? site.domain
     : view === 'catalog'
-      ? 'ntrnet://sites'
+      ? 'ntnet://sites'
       : view === 'create'
-        ? 'ntrnet://create'
+        ? 'ntnet://create'
         : view === 'search'
-          ? `ntrnet://search?q=${search.query || query}`
-          : 'ntrnet://home';
+          ? `ntnet://search?q=${search.query || query}`
+          : 'ntnet://home';
   const tabTitle = site
     ? site.title
     : view === 'catalog'
@@ -109,7 +109,7 @@ export const pda_ntrnet = () => {
               icon="sync"
               tooltip="Обновить"
               disabled={loading}
-              onClick={() => act('ntrnet_refresh')}
+              onClick={() => act('ntnet_refresh')}
             />
           </Stack.Item>
           <Stack.Item grow>
@@ -126,7 +126,7 @@ export const pda_ntrnet = () => {
       </Box>
 
       {!available && !loading ? (
-        <NoticeBox>НТрнет сейчас недоступен.</NoticeBox>
+        <NoticeBox>NTnet сейчас недоступен.</NoticeBox>
       ) : null}
 
       <Box backgroundColor="#181818" minHeight="430px" p={2}>
@@ -146,21 +146,21 @@ export const pda_ntrnet = () => {
               ))}
             </Box>
             {page ? (
-              <NtrnetDocument tree={page.tree} onNavigate={navigate} />
+              <NtnetDocument tree={page.tree} onNavigate={navigate} />
             ) : (
               <NoticeBox>{loading ? 'Загрузка страницы…' : 'Страница не загрузилась.'}</NoticeBox>
             )}
           </>
         ) : view === 'home' ? (
           <Box textAlign="center" mt={5}>
-            <Box bold fontSize="48px" lineHeight={1} mb={2}>НТрнет</Box>
+            <Box bold fontSize="48px" lineHeight={1} mb={2}>NTnet</Box>
             <Stack justify="center">
               <Stack.Item grow basis="360px">
                 <Input
                   fluid
                   value={query}
                   maxLength={80}
-                  placeholder="Поиск в НТрнете"
+                  placeholder="Поиск в NTnet"
                   onChange={setQuery}
                   onEnter={submitSearch}
                 />
@@ -186,7 +186,7 @@ export const pda_ntrnet = () => {
           <BrowserList
             title="Список сайтов"
             sites={catalog}
-            empty="В НТрнете пока нет сайтов."
+            empty="В NTnet пока нет сайтов."
             navigate={navigate}
           />
         ) : view === 'create' ? (
@@ -198,7 +198,7 @@ export const pda_ntrnet = () => {
             <Button
               icon="key"
               disabled={login.pending || login.retry_seconds > 0}
-              onClick={() => act('ntrnet_login')}
+              onClick={() => act('ntnet_login')}
             >
               {login.pending ? 'Получение кода…' : 'Получить код редактора'}
             </Button>
