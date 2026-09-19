@@ -1,9 +1,12 @@
 /datum/map/coldcolony
 	name = "Malta"
-	map_path = "_maps/map_files/event/Station/coldcolony.dmm"
+	map_path = "_maps/map_files/event/Station/rustedevents.dmm"
 	lavaland_path = "_maps/map_files/coldcolony/Lavaland.dmm"
-	traits = list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "Surface", REACHABLE, AI_OK, ZTRAIT_SNOWSTORM, ZTRAIT_BASETURF = /turf/simulated/floor/plating/asteroid/snow)
-
+	traits = list(
+	     list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "First Floor", ZTRAIT_UP, REACHABLE,ZTRAIT_BASETURF = /turf/simulated/floor/plating/asteroid),
+	     list(STATION_LEVEL = "Second Floor", STATION_CONTACT, REACHABLE, ZTRAIT_SNOWSTORM, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+    )
+	space_ruins_levels = 0
 	station_name = "ШОН Мальта"
 	english_station_name = "NMC Malta"
 	station_short = "Мальта"
