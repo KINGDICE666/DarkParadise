@@ -171,7 +171,8 @@ test('carries the whitelisted attributes and drops the rest', () => {
     type: 'details',
     open: true,
     title: 'Подсказка',
-    id: 'secret',
+    id: 'menu',
+    class: 'card wide',
     onClick: 'alert(1)',
     children: [
       { type: 'summary', children: [{ type: 'text', text: 'Меню' }] },
@@ -184,8 +185,30 @@ test('carries the whitelisted attributes and drops the rest', () => {
   expect(html).toContain('value="70"');
   expect(html).toContain('start="3"');
   expect(html).toContain('reversed');
-  expect(html).not.toContain('secret');
+  expect(html).toContain('id="menu"');
+  expect(html).toContain('class="card wide"');
   expect(html).not.toContain('alert(1)');
+});
+
+test('carries a scoped stylesheet and refuses a dangerous one', () => {
+  const html = render({
+    type: 'div',
+    css: '.ntnet-doc .card:hover{color:red}@keyframes fade{0%{opacity:0}}',
+    children: [{ type: 'text', text: 'карточка' }],
+  });
+  expect(html).toContain('<style>');
+  expect(html).toContain('.card:hover{color:red}');
+  expect(html).toContain('@keyframes fade');
+  for (const css of [
+    '.a{background:url(https://evil.example)}',
+    '@import "https://evil.example";',
+    '.a{position:fixed;top:0}',
+    '.a{color:red}</style><script>alert(1)</script>',
+    '.a{color:red',
+  ]) {
+    const attempt = render({ type: 'div', css, children: [] });
+    expect(attempt).not.toContain('<style>');
+  }
 });
 
 test('renders the new effect properties', () => {

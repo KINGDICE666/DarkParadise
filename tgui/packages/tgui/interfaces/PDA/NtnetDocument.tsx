@@ -282,7 +282,15 @@ const sanitizeStyle = (value: unknown): CSSProperties | undefined => {
   return Object.keys(style).length ? (style as CSSProperties) : undefined;
 };
 
+const SCOPE = 'ntnet-doc';
+const MAX_CSS = 32768;
+const NAME_VALUE = /^[\w\u0400-\u04ff -]{1,120}$/;
+const CSS_FORBIDDEN =
+  /url\(|@import|@charset|expression|javascript:|<\/|position\s*:\s*(?:fixed|sticky)/i;
+
 const ATTRIBUTES: Record<string, string> = {
+  class: 'className',
+  id: 'id',
   colspan: 'colSpan',
   high: 'high',
   low: 'low',
@@ -309,11 +317,33 @@ const nodeProps = (node: Record<string, unknown>) => {
       props[property] = value;
     } else if (typeof value === 'number' && value >= 0 && value <= limit) {
       props[property] = value;
-    } else if (typeof value === 'string' && name === 'title') {
-      props[property] = value.slice(0, MAX_VALUE);
+    } else if (typeof value === 'string') {
+      if (name === 'title') {
+        props[property] = value.slice(0, MAX_VALUE);
+      } else if (NAME_VALUE.test(value)) {
+        props[property] = value;
+      }
     }
   }
   return props;
+};
+
+const sanitizeCss = (value: unknown): string => {
+  if (typeof value !== 'string' || !value || value.length > MAX_CSS) {
+    return '';
+  }
+  if (CSS_FORBIDDEN.test(value)) {
+    return '';
+  }
+  let depth = 0;
+  for (const character of value) {
+    if (character === '{') {
+      depth++;
+    } else if (character === '}' && --depth < 0) {
+      return '';
+    }
+  }
+  return depth === 0 ? value : '';
 };
 
 type Props = {
@@ -322,6 +352,11 @@ type Props = {
 };
 
 export const NtnetDocument = ({ tree, onNavigate }: Props) => {
+  const css = sanitizeCss(
+    tree && typeof tree === 'object'
+      ? (tree as Record<string, unknown>).css
+      : null,
+  );
   let remaining = MAX_NODES;
   const render = (value: unknown, depth: number, key: string): ReactNode => {
     if (
@@ -422,6 +457,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
   };
   return (
     <div
+      className={SCOPE}
       style={{
         position: 'relative',
         isolation: 'isolate',
@@ -429,6 +465,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
         overflowWrap: 'anywhere',
       }}
     >
+      {css ? <style>{css}</style> : null}
       {render(tree, 0, 'root')}
     </div>
   );
