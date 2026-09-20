@@ -9,9 +9,38 @@ import {
   type NtnetLocation,
   type NtnetSite,
   parseAddress,
+  siteIcon,
 } from './NtnetAddress';
 import { NtnetDocument } from './NtnetDocument';
 import { isInteractive, NtnetInteractive } from './NtnetInteractive';
+
+const SiteIcon = (props: {
+  site?: { icon?: unknown };
+  size: string;
+  color?: string;
+}) => {
+  const icon = siteIcon(props.site);
+  if (!icon) {
+    return (
+      <Icon
+        name="globe"
+        style={{ fontSize: props.size, color: props.color ?? ACCENT }}
+      />
+    );
+  }
+  return (
+    <img
+      src={icon}
+      alt=""
+      width={props.size}
+      height={props.size}
+      style={{ borderRadius: '3px', objectFit: 'cover' }}
+    />
+  );
+};
+
+const tabSite = (location: NtnetLocation, sites: NtnetSite[]) =>
+  location.kind === 'site' ? findSite(sites, location.siteId) : undefined;
 
 type NtnetResult = {
   site_id: string;
@@ -266,6 +295,7 @@ export const pda_ntnet = () => {
             key={entry.id}
             active={entry.id === tab.id}
             title={formatTitle(entry.history[entry.index], catalog)}
+            site={tabSite(entry.history[entry.index], catalog)}
             onSelect={() => selectTab(entry.id)}
             onClose={() => closeTab(entry.id)}
           />
@@ -524,6 +554,7 @@ const ToolButton = (props: {
 const BrowserTab = (props: {
   active: boolean;
   title: string;
+  site?: NtnetSite;
   onSelect: () => void;
   onClose: () => void;
 }) => (
@@ -541,7 +572,7 @@ const BrowserTab = (props: {
       color: props.active ? TEXT : MUTED,
     }}
   >
-    <Icon name="globe" style={{ fontSize: '0.8rem', color: ACCENT }} />
+    <SiteIcon site={props.site} size="0.8rem" />
     <Box
       style={{
         flex: 1,
@@ -760,7 +791,7 @@ const ListPage = (props: {
             background: SURFACE,
           }}
         >
-          <Icon name="globe" style={{ color: ACCENT, fontSize: '1.2rem' }} />
+          <SiteIcon site={entry} size="1.2rem" />
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Box bold>{entry.title}</Box>
             <Box style={{ color: MUTED, fontSize: '0.85rem' }}>
@@ -833,7 +864,7 @@ const SearchPage = (props: {
                 fontSize: '0.8rem',
               }}
             >
-              <Icon name="globe" style={{ color: ACCENT }} />
+              <SiteIcon site={site} size="1rem" />
               {site.domain}
               {first ? null : ` › ${entry.title}`}
             </Box>

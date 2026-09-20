@@ -53,6 +53,9 @@
 	network.on_page("test", "index", "1", response)
 	cached_page = network.pages[cache_key]
 	TEST_ASSERT_NULL(cached_page["interactive"], "Foreign interactive address was accepted")
+	TEST_ASSERT(network.media_address("https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.png"), "Media address was rejected")
+	TEST_ASSERT_NOT(network.media_address("https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.svg"), "Svg icon was accepted")
+	TEST_ASSERT_NOT(network.media_address("javascript:alert(1)"), "Junk icon was accepted")
 	var/list/bad_addresses = list("byond://?src=admin", "javascript:alert(1)")
 	bad_addresses += "http://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index"
 	bad_addresses += "https://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index?x=1"
