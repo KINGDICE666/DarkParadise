@@ -34,6 +34,7 @@ export const findSite = (sites: NtnetSite[], siteId: string) =>
 export const parseAddress = (
   raw: string,
   sites: NtnetSite[],
+  zones: string[] = [],
 ): NtnetLocation | null => {
   const value = raw.trim().replace(/^(?:ntnet|https?):\/\//i, '');
   const lower = value.toLowerCase();
@@ -54,6 +55,7 @@ export const parseAddress = (
   const zone = parts?.[2].toLowerCase();
   const known =
     zone === SHARED_ZONE ||
+    zones.some((entry) => entry.toLowerCase() === zone) ||
     sites.some((entry) => entry.domain.toLowerCase().endsWith(`.${zone}`));
   if (!parts || !known) {
     return value.length >= 2 ? { kind: 'search', query: value } : null;

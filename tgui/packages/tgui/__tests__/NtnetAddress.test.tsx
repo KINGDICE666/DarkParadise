@@ -64,6 +64,17 @@ test('opens a site in a server zone and searches for unknown zones', () => {
   });
 });
 
+test('accepts a zone the service reported even without sites in it', () => {
+  expect(parseAddress('outpost.mine', sites)).toEqual({
+    kind: 'search',
+    query: 'outpost.mine',
+  });
+  expect(parseAddress('outpost.mine', sites, ['ss13', 'mine'])).toEqual({
+    kind: 'missing',
+    address: 'outpost.mine',
+  });
+});
+
 test('treats free text as a search query', () => {
   expect(parseAddress('бар на станции', sites)).toEqual({
     kind: 'search',

@@ -10,7 +10,7 @@
 /datum/unit_test/ntnet_responses/Run()
 	var/datum/controller/subsystem/ntnet/network = SSntnet
 	saved_state = list()
-	for(var/var_name in list("sites", "catalog", "pages", "page_retry", "pending", "available", "index_pending"))
+	for(var/var_name in list("sites", "catalog", "zones", "pages", "page_retry", "pending", "available", "index_pending"))
 		saved_state[var_name] = network.vars[var_name]
 	network.sites = list()
 	network.catalog = list()
@@ -20,9 +20,15 @@
 	var/datum/http_response/response = allocate(/datum/http_response)
 	response.status_code = 200
 	var/list/site = list("id" = "test", "domain" = "test.ss13", "title" = "Test", "version" = "1", "pages" = list(list("slug" = "index", "title" = "Index")))
-	response.body = json_encode(list("sites" = list(site)))
+	response.body = json_encode(list("sites" = list(site), "zones" = list("ss13", "dp")))
 	network.on_index(response)
 	TEST_ASSERT(network.available, "Valid catalog was rejected")
+	TEST_ASSERT_EQUAL(length(network.zones), 2, "Zone list was not cached")
+	response.body = json_encode(list("sites" = list(site), "zones" = list(42)))
+	network.on_index(response)
+	TEST_ASSERT_NOT(network.available, "Malformed zone list was accepted")
+	response.body = json_encode(list("sites" = list(site), "zones" = list("ss13", "dp")))
+	network.on_index(response)
 	TEST_ASSERT(network.has_page("test", "index"), "Catalog page is missing")
 	TEST_ASSERT_NOT(network.has_page("test", "../secret"), "Unlisted page was accepted")
 	TEST_ASSERT_NOT(network.has_page(list("test"), "index"), "Malformed site ID was accepted")

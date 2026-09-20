@@ -21,10 +21,11 @@
 /datum/data/pda/app/ntnet/start()
 	if(!SSntnet.is_enabled())
 		return FALSE
-	. = ..()
-	SSntnet.refresh_index()
+	return ..()
 
 /datum/data/pda/app/ntnet/update_ui(mob/user, list/data)
+	SSntnet.last_used = world.time
+	SSntnet.refresh_index()
 	var/list/site = SSntnet.sites[site_id]
 	if(site_id && !SSntnet.has_page(site_id, slug))
 		site_id = null
@@ -39,6 +40,7 @@
 		"available" = SSntnet.available,
 		"loading" = site_id ? !!SSntnet.pending[cache_key] : SSntnet.index_pending,
 		"catalog" = SSntnet.catalog,
+		"zones" = SSntnet.zones,
 		"site" = site,
 		"page" = SSntnet.pages[cache_key],
 		"slug" = slug,

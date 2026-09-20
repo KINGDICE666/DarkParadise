@@ -23,6 +23,7 @@ type Data = {
     available: boolean;
     loading: boolean;
     catalog: NtnetSite[];
+    zones: string[];
     site: NtnetSite | null;
     page: { site_id: string; slug: string; tree: unknown } | null;
     slug: string | null;
@@ -52,7 +53,8 @@ const MUTED = '#8b93a3';
 
 export const pda_ntnet = () => {
   const { act, data } = useBackend<Data>();
-  const { available, loading, catalog, site, page, slug, search } = data.ntnet;
+  const { available, loading, catalog, zones, site, page, slug, search } =
+    data.ntnet;
 
   const [tabs, setTabs] = useState<Tab[]>(() => [
     {
@@ -282,7 +284,7 @@ export const pda_ntnet = () => {
                 setTimeout(() => addressRef.current?.select(), 0);
               }
             }}
-            onEnter={(value) => go(parseAddress(value, catalog))}
+            onEnter={(value) => go(parseAddress(value, catalog, zones))}
             onEscape={() => setAddressKey(addressKey + 1)}
           />
         </Box>

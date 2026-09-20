@@ -1,8 +1,11 @@
 #define NTNET_REFRESH_INTERVAL (5 MINUTES)
 #define NTNET_RETRY_INTERVAL (30 SECONDS)
+#define NTNET_IDLE_TIMEOUT (15 MINUTES)
 #define NTNET_MAX_INDEX_BYTES (512 * 1024)
 #define NTNET_MAX_PAGE_BYTES (64 * 1024)
 #define NTNET_MAX_SITES 500
+#define NTNET_MAX_ZONES 32
+#define NTNET_MAX_ZONE_LENGTH 24
 #define NTNET_MAX_PAGES 20
 #define NTNET_CACHE_PAGES 32
 #define NTNET_MAX_REQUESTS 4
@@ -21,14 +24,18 @@ SUBSYSTEM_DEF(ntnet)
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
 	var/list/sites = list()
 	var/list/catalog = list()
+	var/list/zones = list()
 	var/list/pages = list()
 	var/list/page_retry = list()
 	var/list/pending = list()
 	var/available = FALSE
 	var/index_pending = FALSE
 	var/next_refresh = 0
+	var/last_used = 0
 
 /datum/controller/subsystem/ntnet/fire(resumed = FALSE)
+	if(world.time > last_used + NTNET_IDLE_TIMEOUT)
+		return
 	refresh_index()
 
 /datum/controller/subsystem/ntnet/proc/is_enabled()
@@ -53,6 +60,15 @@ SUBSYSTEM_DEF(ntnet)
 	var/list/entries = document["sites"]
 	if(length(entries) > NTNET_MAX_SITES)
 		return
+	var/list/zone_names = document["zones"]
+	var/list/new_zones = list()
+	if(islist(zone_names))
+		if(length(zone_names) > NTNET_MAX_ZONES)
+			return
+		for(var/zone in zone_names)
+			if(!istext(zone) || !length(zone) || length(zone) > NTNET_MAX_ZONE_LENGTH)
+				return
+			new_zones += zone
 	var/list/new_sites = list()
 	for(var/list/site as anything in entries)
 		if(!islist(site) || !istext(site["id"]) || !length(site["id"]) || length(site["id"]) > 64 || !istext(site["domain"]) || !istext(site["title"]) || !istext(site["version"]) || !islist(site["pages"]))
@@ -69,6 +85,7 @@ SUBSYSTEM_DEF(ntnet)
 		new_sites[site_id] = site
 	sites = new_sites
 	catalog = entries
+	zones = new_zones
 	for(var/cache_key in pages.Copy())
 		var/list/cached = pages[cache_key]
 		var/list/site = sites[cached["site_id"]]
@@ -121,9 +138,12 @@ SUBSYSTEM_DEF(ntnet)
 
 #undef NTNET_REFRESH_INTERVAL
 #undef NTNET_RETRY_INTERVAL
+#undef NTNET_IDLE_TIMEOUT
 #undef NTNET_MAX_INDEX_BYTES
 #undef NTNET_MAX_PAGE_BYTES
 #undef NTNET_MAX_SITES
+#undef NTNET_MAX_ZONES
+#undef NTNET_MAX_ZONE_LENGTH
 #undef NTNET_MAX_PAGES
 #undef NTNET_CACHE_PAGES
 #undef NTNET_MAX_REQUESTS
