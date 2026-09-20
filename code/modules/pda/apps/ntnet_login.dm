@@ -6,14 +6,6 @@
 /datum/config_entry/string/ntnet_editor_url
 	default = "https://ntnet.wiki-ss13.space"
 
-/client
-	var/ntnet_code
-	var/ntnet_code_expires = 0
-	var/ntnet_login_pending = FALSE
-	var/ntnet_login_retry = 0
-	var/ntnet_login_request = 0
-	var/ntnet_login_error
-
 /datum/controller/subsystem/ntnet/proc/request_login(client/user)
 	if(!user || !is_enabled() || user.ntnet_login_pending || world.time < user.ntnet_login_retry)
 		return
