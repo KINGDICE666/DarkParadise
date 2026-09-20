@@ -3,6 +3,22 @@ import { useEffect, useRef, useState } from 'react';
 const SANDBOX_URL =
   /^https:\/\/sandbox\.wiki-ss13\.space\/i\/[a-f0-9]{32}\/[a-z0-9][a-z0-9-]{0,62}$/;
 const FRAME_SANDBOX = 'allow-scripts';
+const FRAME_POLICY = [
+  "default-src 'none'",
+  "script-src 'unsafe-inline'",
+  "style-src 'unsafe-inline'",
+  'img-src https://media.wiki-ss13.space data:',
+  'media-src https://media.wiki-ss13.space',
+  "font-src data:",
+  "connect-src 'none'",
+  "form-action 'none'",
+  "frame-src 'none'",
+  "child-src 'none'",
+  "worker-src 'none'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  'sandbox allow-scripts',
+].join('; ');
 const PROBE_TIMEOUT = 700;
 const LAG_TICK = 1000;
 const LAG_LIMIT = 4000;
@@ -171,8 +187,16 @@ export const NtnetInteractive = (props: Props) => {
         </span>
       </div>
       <iframe
+        key={interactive.url}
         title={title}
-        src={interactive.url}
+        ref={(node) => {
+          if (!node || node.dataset.ntnetLoaded === interactive.url) {
+            return;
+          }
+          node.dataset.ntnetLoaded = interactive.url;
+          node.setAttribute('csp', FRAME_POLICY);
+          node.setAttribute('src', interactive.url);
+        }}
         sandbox={FRAME_SANDBOX}
         allow=""
         referrerPolicy="no-referrer"
