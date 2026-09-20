@@ -16,6 +16,12 @@ const sites: NtnetSite[] = [
       { slug: 'rules', title: 'Правила' },
     ],
   },
+  {
+    id: 'local',
+    domain: 'bar.dp',
+    title: 'Бар',
+    pages: [{ slug: 'index', title: 'Меню' }],
+  },
 ];
 
 test('opens a site by its domain', () => {
@@ -39,6 +45,22 @@ test('reports unknown domains and pages instead of searching', () => {
   expect(parseAddress('welcome.ss13/secret', sites)).toEqual({
     kind: 'missing',
     address: 'welcome.ss13/secret',
+  });
+});
+
+test('opens a site in a server zone and searches for unknown zones', () => {
+  expect(parseAddress('bar.dp', sites)).toEqual({
+    kind: 'site',
+    siteId: 'local',
+    slug: 'index',
+  });
+  expect(parseAddress('nothing.dp', sites)).toEqual({
+    kind: 'missing',
+    address: 'nothing.dp',
+  });
+  expect(parseAddress('example.com', sites)).toEqual({
+    kind: 'search',
+    query: 'example.com',
   });
 });
 

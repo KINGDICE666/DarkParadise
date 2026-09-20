@@ -16,8 +16,9 @@ export type NtnetLocation =
 export const NTNET_HOME: NtnetLocation = { kind: 'home' };
 
 const SEARCH_PREFIX = 'search?q=';
+const SHARED_ZONE = 'ss13';
 const DOMAIN =
-  /^([a-z0-9\u0400-\u04ff-]{3,24}\.ss13)(?:\/([a-z0-9-]{0,64}))?$/i;
+  /^([a-z0-9\u0400-\u04ff-]{3,24}\.([a-z0-9]{2,24}))(?:\/([a-z0-9-]{0,64}))?$/i;
 
 const decodeQuery = (value: string) => {
   try {
@@ -50,7 +51,11 @@ export const parseAddress = (
     return query.length >= 2 ? { kind: 'search', query } : null;
   }
   const parts = value.match(DOMAIN);
-  if (!parts) {
+  const zone = parts?.[2].toLowerCase();
+  const known =
+    zone === SHARED_ZONE ||
+    sites.some((entry) => entry.domain.toLowerCase().endsWith(`.${zone}`));
+  if (!parts || !known) {
     return value.length >= 2 ? { kind: 'search', query: value } : null;
   }
   const domain = parts[1].toLowerCase();
@@ -58,7 +63,7 @@ export const parseAddress = (
   if (!site) {
     return { kind: 'missing', address: value };
   }
-  const slug = parts[2];
+  const slug = parts[3];
   if (slug && !site.pages.some((entry) => entry.slug === slug)) {
     return { kind: 'missing', address: value };
   }
