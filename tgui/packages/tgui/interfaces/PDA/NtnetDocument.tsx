@@ -10,6 +10,7 @@ const TAGS = new Set([
   'bdo',
   'blockquote',
   'br',
+  'button',
   'caption',
   'cite',
   'code',
