@@ -1,9 +1,10 @@
-import { expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
   formatAddress,
   formatTitle,
   type NtnetSite,
   parseAddress,
+  siteIcon,
 } from '../interfaces/PDA/NtnetAddress';
 
 const sites: NtnetSite[] = [
@@ -117,4 +118,29 @@ test('names tabs after the page being shown', () => {
   expect(
     formatTitle({ kind: 'site', siteId: 'gone', slug: 'index' }, sites),
   ).toBe('Новая вкладка');
+});
+
+describe('site icon', () => {
+  const base = 'https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef';
+
+  test('accepts an icon from the media bucket', () => {
+    const url = `${base}/0123456789abcdef.png`;
+    expect(siteIcon({ icon: url })).toBe(url);
+  });
+
+  test('refuses anything else', () => {
+    for (const icon of [
+      `${base}/0123456789abcdef.svg`,
+      `${base}/0123456789abcdef.png?x=1`,
+      'https://evil.example/0123456789abcdef0123456789abcdef/0123456789abcdef.png',
+      'javascript:alert(1)',
+      'byond://?src=admin',
+      42,
+      null,
+      undefined,
+    ]) {
+      expect(siteIcon({ icon })).toBeNull();
+    }
+    expect(siteIcon(undefined)).toBeNull();
+  });
 });

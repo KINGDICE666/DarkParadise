@@ -87,6 +87,8 @@ SUBSYSTEM_DEF(ntnet)
 			if(!islist(page) || !istext(page["slug"]) || !length(page["slug"]) || length(page["slug"]) > 64 || !istext(page["title"]) || (page["slug"] in slugs))
 				return
 			slugs += page["slug"]
+		if(!isnull(site["icon"]) && !media_address(site["icon"]))
+			site -= "icon"
 		new_sites[site_id] = site
 	sites = new_sites
 	catalog = entries
@@ -157,6 +159,10 @@ SUBSYSTEM_DEF(ntnet)
 	pages[cache_key] = document
 	page_retry -= cache_key
 	available = TRUE
+
+/datum/controller/subsystem/ntnet/proc/media_address(address)
+	var/static/regex/media = regex(@"^https://[a-z0-9.-]{4,64}/[a-f0-9]{32}/[a-f0-9]{16}\.(?:png|jpg|gif|webp)$")
+	return istext(address) && length(address) <= NTNET_MAX_INTERACTIVE_URL && media.Find(address)
 
 /datum/controller/subsystem/ntnet/proc/interactive_address(address)
 	var/static/regex/sandbox = regex(@"^https://[a-z0-9.-]{4,64}/i/[a-f0-9]{32}/[a-z0-9][a-z0-9-]{0,62}$")
