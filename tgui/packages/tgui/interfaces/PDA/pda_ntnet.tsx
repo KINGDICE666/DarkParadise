@@ -11,6 +11,7 @@ import {
   parseAddress,
 } from './NtnetAddress';
 import { NtnetDocument } from './NtnetDocument';
+import { isInteractive, NtnetInteractive } from './NtnetInteractive';
 
 type NtnetResult = {
   site_id: string;
@@ -33,7 +34,12 @@ type Data = {
     zones: string[];
     theme: string;
     site: NtnetSite | null;
-    page: { site_id: string; slug: string; tree: unknown } | null;
+    page: {
+      site_id: string;
+      slug: string;
+      tree: unknown;
+      interactive?: unknown;
+    } | null;
     slug: string | null;
     search: {
       query: string | null;
@@ -1002,6 +1008,25 @@ const MissingPage = (props: {
   </Box>
 );
 
+const renderPage = (
+  page: NonNullable<Data['ntnet']['page']>,
+  title: string,
+  onOpen: (siteId: string, slug: string) => void,
+) => {
+  const document = <NtnetDocument tree={page.tree} onNavigate={onOpen} />;
+  const interactive = isInteractive(page.interactive);
+  if (!interactive) {
+    return document;
+  }
+  return (
+    <NtnetInteractive
+      interactive={interactive}
+      title={title}
+      fallback={document}
+    />
+  );
+};
+
 const SitePage = (props: {
   site: NtnetSite | undefined;
   slug: string;
@@ -1048,7 +1073,7 @@ const SitePage = (props: {
       </Box>
       <Box style={{ padding: '20px 24px 48px' }}>
         {ready ? (
-          <NtnetDocument tree={page.tree} onNavigate={props.onOpen} />
+          renderPage(page, site.title, props.onOpen)
         ) : (
           <Box style={{ color: MUTED }}>
             {props.loading

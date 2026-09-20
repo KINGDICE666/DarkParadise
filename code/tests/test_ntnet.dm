@@ -36,6 +36,12 @@
 	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "1", "tree" = list("type" = "text", "text" = "hello")))
 	network.on_page("test", "index", "1", response)
 	TEST_ASSERT(network.pages[cache_key], "Valid page was not cached")
+	var/list/cached_page = network.pages[cache_key]
+	TEST_ASSERT_NULL(cached_page["interactive"], "Interactive page was accepted while disabled")
+	var/address = "https://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index"
+	TEST_ASSERT(network.interactive_address(address), "Sandbox address was rejected")
+	for(var/bad_address in list("http://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index", 		"https://sandbox.wiki-ss13.space/i/short/index", "byond://?src=admin", 		"https://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index?x=1", 		"javascript:alert(1)", "https://sandbox.wiki-ss13.space/other/path"))
+		TEST_ASSERT_NOT(network.interactive_address(bad_address), "Bad interactive address was accepted: [bad_address]")
 	response.errored = TRUE
 	network.on_index(response)
 	TEST_ASSERT_NOT(network.available, "Network failure was not reported")
