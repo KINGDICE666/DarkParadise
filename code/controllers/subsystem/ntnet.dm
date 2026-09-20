@@ -31,7 +31,8 @@ SUBSYSTEM_DEF(ntnet)
 	var/available = FALSE
 	var/index_pending = FALSE
 	var/next_refresh = 0
-	var/last_used = 0
+	var/last_used = -INFINITY
+	var/generation = 0
 
 /datum/controller/subsystem/ntnet/fire(resumed = FALSE)
 	if(world.time > last_used + NTNET_IDLE_TIMEOUT)
@@ -92,8 +93,19 @@ SUBSYSTEM_DEF(ntnet)
 		if(!site || site["version"] != cached["version"])
 			pages -= cache_key
 	page_retry.Cut()
+	generation++
 	next_refresh = world.time + NTNET_REFRESH_INTERVAL
 	available = TRUE
+
+/datum/controller/subsystem/ntnet/proc/force_refresh(site_id, slug)
+	next_refresh = 0
+	refresh_index()
+	if(!site_id)
+		return
+	var/cache_key = json_encode(list(site_id, slug))
+	pages -= cache_key
+	page_retry -= cache_key
+	request_page(site_id, slug)
 
 /datum/controller/subsystem/ntnet/proc/has_page(site_id, slug)
 	if(!istext(site_id) || !istext(slug))

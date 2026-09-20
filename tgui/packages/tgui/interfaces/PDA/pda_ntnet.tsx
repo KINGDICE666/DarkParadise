@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { Box, Icon, Input, Tooltip } from 'tgui-core/components';
 import { useBackend } from '../../backend';
 import {
@@ -12,6 +12,13 @@ import {
 } from './NtnetAddress';
 import { NtnetDocument } from './NtnetDocument';
 
+type NtnetResult = {
+  site_id: string;
+  slug: string;
+  title: string;
+  snippet: string;
+};
+
 type Tab = {
   id: number;
   history: NtnetLocation[];
@@ -24,12 +31,13 @@ type Data = {
     loading: boolean;
     catalog: NtnetSite[];
     zones: string[];
+    theme: string;
     site: NtnetSite | null;
     page: { site_id: string; slug: string; tree: unknown } | null;
     slug: string | null;
     search: {
       query: string | null;
-      results: NtnetSite[];
+      results: NtnetResult[];
       pending: boolean;
       error: string | null;
     };
@@ -42,19 +50,71 @@ type Data = {
   };
 };
 
-const CHROME = '#1b1e24';
-const CHROME_DARK = '#101217';
-const CHROME_LINE = '#33394a';
-const ACCENT = '#4a9eff';
-const PAPER = '#f2f3f5';
-const INK = '#16181d';
-const VOID = '#15171c';
-const MUTED = '#8b93a3';
+const ACCENT = 'var(--nt-accent)';
+const CHROME = 'var(--nt-chrome)';
+const CHROME_DARK = 'var(--nt-deep)';
+const CHROME_LINE = 'var(--nt-line)';
+const MUTED = 'var(--nt-muted)';
+const SURFACE = 'var(--nt-surface)';
+const TEXT = 'var(--nt-text)';
+const PAPER = 'var(--nt-paper)';
+const SHEET = 'var(--nt-sheet)';
+const SHEET_LINE = 'var(--nt-sheet-line)';
+const INK = 'var(--nt-ink)';
+const VOID = 'var(--nt-canvas)';
+const PALETTES: Record<string, Record<string, string>> = {
+  dark: {
+    '--nt-accent': '#4a9eff',
+    '--nt-chrome': '#1b1e24',
+    '--nt-deep': '#101217',
+    '--nt-line': '#33394a',
+    '--nt-text': '#e6e9ef',
+    '--nt-muted': '#8b93a3',
+    '--nt-disabled': '#4d5361',
+    '--nt-surface': 'rgba(255, 255, 255, 0.05)',
+    '--nt-canvas': '#15171c',
+    '--nt-paper': '#101217',
+    '--nt-sheet': '#1c1f26',
+    '--nt-sheet-line': '#2c313b',
+    '--nt-ink': '#e6e9ef',
+    '--nt-link': '#6aa9ff',
+    '--nt-secure': '#57c785',
+    '--nt-danger': '#ff8080',
+  },
+  light: {
+    '--nt-accent': '#1a73e8',
+    '--nt-chrome': '#dfe3ea',
+    '--nt-deep': '#c3cad4',
+    '--nt-line': '#aab3c0',
+    '--nt-text': '#1f2328',
+    '--nt-muted': '#5f6672',
+    '--nt-disabled': '#a7aebb',
+    '--nt-surface': 'rgba(0, 0, 0, 0.06)',
+    '--nt-canvas': '#f2f3f5',
+    '--nt-paper': '#e8eaed',
+    '--nt-sheet': '#ffffff',
+    '--nt-sheet-line': '#dfe3e8',
+    '--nt-ink': '#16181d',
+    '--nt-link': '#1a5fb4',
+    '--nt-secure': '#1e8e3e',
+    '--nt-danger': '#c5221f',
+  },
+};
 
 export const pda_ntnet = () => {
   const { act, data } = useBackend<Data>();
-  const { available, loading, catalog, zones, site, page, slug, search } =
-    data.ntnet;
+  const {
+    available,
+    loading,
+    catalog,
+    zones,
+    theme,
+    site,
+    page,
+    slug,
+    search,
+  } = data.ntnet;
+  const palette = PALETTES[theme] || PALETTES.dark;
 
   const [tabs, setTabs] = useState<Tab[]>(() => [
     {
@@ -183,7 +243,8 @@ export const pda_ntnet = () => {
         flexDirection: 'column',
         height: '100%',
         background: CHROME_DARK,
-        color: '#e6e9ef',
+        color: TEXT,
+        ...palette,
       }}
     >
       <Box
@@ -260,7 +321,10 @@ export const pda_ntnet = () => {
         >
           <Icon
             name={onPaper ? 'lock' : 'globe'}
-            style={{ color: onPaper ? '#57c785' : MUTED, fontSize: '0.8rem' }}
+            style={{
+              color: onPaper ? 'var(--nt-secure)' : MUTED,
+              fontSize: '0.8rem',
+            }}
           />
           <Input
             key={`${address}|${addressKey}`}
@@ -277,7 +341,7 @@ export const pda_ntnet = () => {
               borderRadius: 0,
               padding: 0,
               height: '26px',
-              color: '#e6e9ef',
+              color: TEXT,
             }}
             onMouseDown={() => {
               if (document.activeElement !== addressRef.current) {
@@ -297,6 +361,11 @@ export const pda_ntnet = () => {
           icon="plus-square"
           tooltip="Создать сайт"
           onClick={() => go({ kind: 'create' })}
+        />
+        <ToolButton
+          icon={theme === 'light' ? 'moon' : 'sun'}
+          tooltip={theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
+          onClick={() => act('ntnet_theme')}
         />
         <ToolButton
           icon="times"
@@ -329,7 +398,7 @@ export const pda_ntnet = () => {
           minHeight: 0,
           overflowY: 'auto',
           background: onPaper ? PAPER : VOID,
-          color: onPaper ? INK : '#e6e9ef',
+          color: onPaper ? INK : TEXT,
         }}
       >
         {current.kind === 'home' ? (
@@ -348,7 +417,13 @@ export const pda_ntnet = () => {
             onOpen={openSite}
           />
         ) : current.kind === 'search' ? (
-          <SearchPage query={current.query} search={search} onOpen={openSite} />
+          <SearchPage
+            query={current.query}
+            search={search}
+            catalog={catalog}
+            onOpen={openSite}
+            onGo={go}
+          />
         ) : current.kind === 'create' ? (
           <CreatePage />
         ) : current.kind === 'missing' ? (
@@ -392,20 +467,25 @@ export const pda_ntnet = () => {
   );
 };
 
-const plural = (count: number) => {
+const plural = (
+  count: number,
+  one = 'сайт',
+  few = 'сайта',
+  many = 'сайтов',
+) => {
   const tail = count % 100;
   if (tail > 10 && tail < 20) {
-    return 'сайтов';
+    return many;
   }
   switch (count % 10) {
     case 1:
-      return 'сайт';
+      return one;
     case 2:
     case 3:
     case 4:
-      return 'сайта';
+      return few;
     default:
-      return 'сайтов';
+      return many;
   }
 };
 
@@ -426,8 +506,8 @@ const ToolButton = (props: {
         height: '26px',
         borderRadius: '13px',
         cursor: props.disabled ? 'default' : 'pointer',
-        color: props.disabled ? '#4d5361' : '#c9cfdb',
-        background: 'rgba(255, 255, 255, 0.04)',
+        color: props.disabled ? 'var(--nt-disabled)' : TEXT,
+        background: SURFACE,
       }}
     >
       <Icon name={props.icon} />
@@ -451,8 +531,8 @@ const BrowserTab = (props: {
       padding: '6px 8px',
       borderRadius: '8px 8px 0 0',
       cursor: 'pointer',
-      background: props.active ? CHROME : 'rgba(255, 255, 255, 0.05)',
-      color: props.active ? '#e6e9ef' : MUTED,
+      background: props.active ? CHROME : SURFACE,
+      color: props.active ? TEXT : MUTED,
     }}
   >
     <Icon name="globe" style={{ fontSize: '0.8rem', color: ACCENT }} />
@@ -516,7 +596,7 @@ const HomePage = (props: {
           height: '42px',
           margin: '28px 0 0',
           padding: '0 18px',
-          background: '#1d2027',
+          background: SURFACE,
           border: `1px solid ${CHROME_LINE}`,
           borderRadius: '21px',
         }}
@@ -536,7 +616,7 @@ const HomePage = (props: {
             padding: 0,
             height: '40px',
             fontSize: '1.1rem',
-            color: '#e6e9ef',
+            color: TEXT,
           }}
           onChange={setQuery}
           onEnter={(value) => props.onSearch(value)}
@@ -584,7 +664,7 @@ const HomePage = (props: {
                 padding: '10px 4px',
                 borderRadius: '10px',
                 cursor: 'pointer',
-                background: 'rgba(255, 255, 255, 0.04)',
+                background: SURFACE,
               }}
             >
               <Box
@@ -638,7 +718,7 @@ const QuickAction = (props: {
       padding: '8px 16px',
       borderRadius: '16px',
       cursor: 'pointer',
-      background: 'rgba(255, 255, 255, 0.06)',
+      background: SURFACE,
     }}
   >
     <Icon name={props.icon} style={{ color: ACCENT }} />
@@ -671,7 +751,7 @@ const ListPage = (props: {
             marginBottom: '8px',
             borderRadius: '10px',
             cursor: 'pointer',
-            background: 'rgba(255, 255, 255, 0.04)',
+            background: SURFACE,
           }}
         >
           <Icon name="globe" style={{ color: ACCENT, fontSize: '1.2rem' }} />
@@ -696,7 +776,9 @@ const ListPage = (props: {
 const SearchPage = (props: {
   query: string;
   search: Data['ntnet']['search'];
+  catalog: NtnetSite[];
   onOpen: (siteId: string, slug: string) => void;
+  onGo: (location: NtnetLocation) => void;
 }) => {
   const { query, search } = props;
   if (search.error) {
@@ -722,14 +804,107 @@ const SearchPage = (props: {
     );
   }
   return (
-    <ListPage
-      title={`Результаты поиска: ${query}`}
-      subtitle={`Найдено ${search.results.length} ${plural(search.results.length)}`}
-      sites={search.results}
-      empty="По этому запросу ничего не найдено. Попробуйте другие слова."
-      onOpen={props.onOpen}
-    />
+    <Box style={{ maxWidth: '720px', padding: '18px 28px 40px' }}>
+      <Box style={{ color: MUTED, fontSize: '0.8rem' }}>
+        {search.results.length
+          ? `Найдено ${search.results.length} ${plural(search.results.length, 'страница', 'страницы', 'страниц')} по запросу «${query}»`
+          : `По запросу «${query}» ничего не найдено`}
+      </Box>
+      {search.results.map((entry) => {
+        const site = findSite(props.catalog, entry.site_id);
+        if (!site) {
+          return null;
+        }
+        const first = site.pages[0].slug === entry.slug;
+        return (
+          <Box key={`${entry.site_id}.${entry.slug}`} mt={2.5}>
+            <Box
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: MUTED,
+                fontSize: '0.8rem',
+              }}
+            >
+              <Icon name="globe" style={{ color: ACCENT }} />
+              {site.domain}
+              {first ? null : ` › ${entry.title}`}
+            </Box>
+            <Box
+              onClick={() => props.onOpen(entry.site_id, entry.slug)}
+              style={{
+                marginTop: '2px',
+                color: 'var(--nt-link)',
+                fontSize: '1.25rem',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              {first ? site.title : entry.title}
+            </Box>
+            <Box mt={0.5} style={{ lineHeight: 1.5 }}>
+              {highlight(entry.snippet, query)}
+            </Box>
+          </Box>
+        );
+      })}
+      {search.results.length ? null : (
+        <Box mt={2} style={{ color: MUTED, lineHeight: 1.6 }}>
+          Попробуйте другие слова или откройте{' '}
+          <Box
+            as="span"
+            onClick={() => props.onGo({ kind: 'catalog' })}
+            style={{ color: 'var(--nt-link)', cursor: 'pointer' }}
+          >
+            список сайтов
+          </Box>
+          .
+        </Box>
+      )}
+    </Box>
   );
+};
+
+const highlight = (snippet: string, query: string): ReactNode[] => {
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 1)
+    .map((word) =>
+      word.length > 6
+        ? word.slice(0, -2)
+        : word.length > 4
+          ? word.slice(0, -1)
+          : word,
+    );
+  const lowered = snippet.toLowerCase();
+  const marks = new Array(snippet.length).fill(false);
+  for (const word of words) {
+    let at = lowered.indexOf(word);
+    while (at >= 0) {
+      marks.fill(true, at, at + word.length);
+      at = lowered.indexOf(word, at + word.length);
+    }
+  }
+  const parts: ReactNode[] = [];
+  let start = 0;
+  for (let index = 1; index <= snippet.length; index++) {
+    if (index === snippet.length || marks[index] !== marks[start]) {
+      const text = snippet.slice(start, index);
+      parts.push(
+        marks[start] ? (
+          <b key={start}>{text}</b>
+        ) : (
+          <Box as="span" key={start} style={{ color: MUTED }}>
+            {text}
+          </Box>
+        ),
+      );
+      start = index;
+    }
+  }
+  return parts;
 };
 
 const CreatePage = () => {
@@ -758,7 +933,7 @@ const CreatePage = () => {
           padding: '10px 20px',
           borderRadius: '18px',
           cursor: login.pending || login.retry_seconds ? 'default' : 'pointer',
-          background: login.pending || login.retry_seconds ? '#2a2e38' : ACCENT,
+          background: login.pending || login.retry_seconds ? SURFACE : ACCENT,
           color: login.pending || login.retry_seconds ? MUTED : CHROME_DARK,
           fontWeight: 'bold',
         }}
@@ -777,7 +952,7 @@ const CreatePage = () => {
           style={{
             padding: '16px 20px',
             borderRadius: '10px',
-            background: 'rgba(74, 158, 255, 0.12)',
+            background: SURFACE,
             border: `1px solid ${ACCENT}`,
           }}
         >
@@ -795,7 +970,7 @@ const CreatePage = () => {
         </Box>
       ) : null}
       {login.error ? (
-        <Box mt={2} style={{ color: '#ff8080' }}>
+        <Box mt={2} style={{ color: 'var(--nt-danger)' }}>
           {login.error}
         </Box>
       ) : null}
@@ -837,14 +1012,14 @@ const SitePage = (props: {
   const { site, slug, page } = props;
   if (!site) {
     return (
-      <Box style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+      <Box style={{ padding: '40px', textAlign: 'center', color: MUTED }}>
         Сайт больше не доступен в NTnet.
       </Box>
     );
   }
   const ready = page && page.site_id === site.id && page.slug === slug;
   return (
-    <Box style={{ maxWidth: '820px', margin: '0 auto', background: '#fff' }}>
+    <Box style={{ maxWidth: '820px', margin: '0 auto', background: SHEET }}>
       <Box
         style={{
           display: 'flex',
@@ -852,7 +1027,7 @@ const SitePage = (props: {
           flexWrap: 'wrap',
           gap: '14px',
           padding: '12px 24px',
-          borderBottom: '1px solid #dfe3e8',
+          borderBottom: `1px solid ${SHEET_LINE}`,
         }}
       >
         <Box bold>{site.title}</Box>
@@ -864,7 +1039,7 @@ const SitePage = (props: {
             style={{
               cursor: 'pointer',
               fontWeight: entry.slug === slug ? 'bold' : 'normal',
-              color: entry.slug === slug ? INK : '#1a5fb4',
+              color: entry.slug === slug ? INK : 'var(--nt-link)',
             }}
           >
             {entry.title}
@@ -875,7 +1050,7 @@ const SitePage = (props: {
         {ready ? (
           <NtnetDocument tree={page.tree} onNavigate={props.onOpen} />
         ) : (
-          <Box style={{ color: '#666' }}>
+          <Box style={{ color: MUTED }}>
             {props.loading
               ? 'Загрузка страницы…'
               : 'Страница не загрузилась. Обновите её позже.'}

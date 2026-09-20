@@ -360,6 +360,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
             src={node.src}
             alt={typeof node.alt === 'string' ? node.alt.slice(0, 160) : ''}
             style={{ ...DEFAULT_STYLES.img, ...sanitizeStyle(node.style) }}
+            {...nodeProps(node)}
           />
         );
       }
@@ -370,6 +371,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
           controls
           preload="metadata"
           style={{ ...DEFAULT_STYLES.video, ...sanitizeStyle(node.style) }}
+          {...nodeProps(node)}
         />
       );
     }
@@ -395,12 +397,13 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
         <span
           key={key}
           style={{
-            color: '#1a5fb4',
+            color: 'var(--nt-link, #1a5fb4)',
             textDecoration: 'underline',
             cursor: 'pointer',
             ...sanitizeStyle(node.style),
           }}
           onClick={() => onNavigate(siteId, slug)}
+          {...nodeProps(node)}
         >
           {children}
         </span>

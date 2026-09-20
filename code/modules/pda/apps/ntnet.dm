@@ -1,7 +1,8 @@
 #define NTNET_SEARCH_TIMEOUT (20 SECONDS)
 #define NTNET_SEARCH_MAX_QUERY_LENGTH 80
 #define NTNET_SEARCH_MAX_RESULTS 20
-#define NTNET_SEARCH_MAX_BODY 8192
+#define NTNET_SEARCH_MAX_BODY (64 * 1024)
+#define NTNET_SEARCH_MAX_SNIPPET 400
 
 /datum/data/pda/app/ntnet
 	name = "NTnet"
@@ -17,6 +18,7 @@
 	var/search_pending = FALSE
 	var/search_error
 	var/search_request = 0
+	var/search_generation = 0
 
 /datum/data/pda/app/ntnet/start()
 	if(!SSntnet.is_enabled())
@@ -26,6 +28,11 @@
 /datum/data/pda/app/ntnet/update_ui(mob/user, list/data)
 	SSntnet.last_used = world.time
 	SSntnet.refresh_index()
+	if(length(search_results) && search_generation != SSntnet.generation)
+		search_generation = SSntnet.generation
+		for(var/list/entry as anything in search_results.Copy())
+			if(!SSntnet.has_page(entry["site_id"], entry["slug"]))
+				search_results -= list(entry)
 	var/list/site = SSntnet.sites[site_id]
 	if(site_id && !SSntnet.has_page(site_id, slug))
 		site_id = null
@@ -51,6 +58,7 @@
 		"pending" = search_pending,
 		"error" = search_error,
 	)
+	data["ntnet"]["theme"] = user.client?.ntnet_light_theme ? "light" : "dark"
 	var/client/viewer = user.client
 	data["ntnet"]["login"] = list(
 		"code" = viewer && viewer.ntnet_code_expires > world.time ? viewer.ntnet_code : null,
@@ -74,9 +82,11 @@
 			slug = params["slug"]
 			SSntnet.request_page(site_id, slug)
 		if("ntnet_refresh")
-			SSntnet.refresh_index()
-			if(site_id)
-				SSntnet.request_page(site_id, slug)
+			SSntnet.force_refresh(site_id, slug)
+		if("ntnet_theme")
+			var/client/viewer = ui.user.client
+			if(viewer)
+				viewer.ntnet_light_theme = !viewer.ntnet_light_theme
 		if("ntnet_search")
 			search(params["query"])
 		if("Back")
@@ -124,19 +134,20 @@
 		if(!QDELETED(pda))
 			SStgui.update_uis(pda)
 		return
-	var/list/site_ids = document["site_ids"]
-	if(!islist(site_ids) || length(site_ids) > NTNET_SEARCH_MAX_RESULTS)
+	var/list/found = document["results"]
+	if(!islist(found) || length(found) > NTNET_SEARCH_MAX_RESULTS)
 		if(!QDELETED(pda))
 			SStgui.update_uis(pda)
 		return
 	var/list/results = list()
-	for(var/result_id in site_ids)
-		if(!istext(result_id) || length(result_id) > 64)
+	for(var/list/entry as anything in found)
+		if(!islist(entry) || !istext(entry["site_id"]) || !istext(entry["slug"]) || !istext(entry["title"]) || !istext(entry["snippet"]))
 			continue
-		var/list/site = SSntnet.sites[result_id]
-		if(site && !(site in results))
-			results += list(site)
+		if(length(entry["snippet"]) > NTNET_SEARCH_MAX_SNIPPET || !SSntnet.has_page(entry["site_id"], entry["slug"]))
+			continue
+		results += list(entry)
 	search_results = results
+	search_generation = SSntnet.generation
 	search_error = null
 	if(!QDELETED(pda))
 		SStgui.update_uis(pda)
@@ -145,3 +156,4 @@
 #undef NTNET_SEARCH_MAX_QUERY_LENGTH
 #undef NTNET_SEARCH_MAX_RESULTS
 #undef NTNET_SEARCH_MAX_BODY
+#undef NTNET_SEARCH_MAX_SNIPPET

@@ -137,6 +137,7 @@
 	var/ntnet_login_retry = 0
 	var/ntnet_login_request = 0
 	var/ntnet_login_error
+	var/ntnet_light_theme = FALSE
 
 	//datum that controls the displaying and hiding of tooltips
 	var/datum/tooltip/tooltips
