@@ -36,6 +36,30 @@
 	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "1", "tree" = list("type" = "text", "text" = "hello")))
 	network.on_page("test", "index", "1", response)
 	TEST_ASSERT(network.pages[cache_key], "Valid page was not cached")
+	var/list/cached_page = network.pages[cache_key]
+	TEST_ASSERT_NULL(cached_page["interactive"], "Missing interactive field was invented")
+	var/address = "https://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index"
+	TEST_ASSERT(network.interactive_address(address), "Sandbox address was rejected")
+	var/list/document = list("site_id" = "test", "slug" = "index", "version" = "1")
+	document["tree"] = list("type" = "text", "text" = "hello")
+	document["interactive"] = list("url" = address, "version" = 1)
+	response.body = json_encode(document)
+	network.on_page("test", "index", "1", response)
+	cached_page = network.pages[cache_key]
+	var/list/kept = cached_page["interactive"]
+	TEST_ASSERT_EQUAL(kept["url"], address, "Interactive address was not kept")
+	document["interactive"] = list("url" = "https://evil.example/steal")
+	response.body = json_encode(document)
+	network.on_page("test", "index", "1", response)
+	cached_page = network.pages[cache_key]
+	TEST_ASSERT_NULL(cached_page["interactive"], "Foreign interactive address was accepted")
+	var/list/bad_addresses = list("byond://?src=admin", "javascript:alert(1)")
+	bad_addresses += "http://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index"
+	bad_addresses += "https://sandbox.wiki-ss13.space/i/0123456789abcdef0123456789abcdef/index?x=1"
+	bad_addresses += "https://sandbox.wiki-ss13.space/i/short/index"
+	bad_addresses += "https://sandbox.wiki-ss13.space/other/path"
+	for(var/bad_address in bad_addresses)
+		TEST_ASSERT_NOT(network.interactive_address(bad_address), "Bad interactive address was accepted: [bad_address]")
 	response.errored = TRUE
 	network.on_index(response)
 	TEST_ASSERT_NOT(network.available, "Network failure was not reported")

@@ -9,8 +9,12 @@
 #define NTNET_MAX_PAGES 20
 #define NTNET_CACHE_PAGES 32
 #define NTNET_MAX_REQUESTS 4
+#define NTNET_MAX_INTERACTIVE_URL 200
 
 /datum/config_entry/flag/ntnet_enabled
+
+/datum/config_entry/flag/ntnet_interactive
+	default = TRUE
 
 /datum/config_entry/string/ntnet_api_url
 
@@ -142,12 +146,23 @@ SUBSYSTEM_DEF(ntnet)
 	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || document["version"] != version || !islist(document["tree"]))
 		available = FALSE
 		return
+	var/list/interactive = document["interactive"]
+	document -= "interactive"
+	if(CONFIG_GET(flag/ntnet_interactive) && islist(interactive))
+		var/address = interactive["url"]
+		if(istext(address) && length(address) <= NTNET_MAX_INTERACTIVE_URL && interactive_address(address))
+			document["interactive"] = list("url" = address)
 	if(length(pages) >= NTNET_CACHE_PAGES)
 		pages.Cut(1, 2)
 	pages[cache_key] = document
 	page_retry -= cache_key
 	available = TRUE
 
+/datum/controller/subsystem/ntnet/proc/interactive_address(address)
+	var/static/regex/sandbox = regex(@"^https://[a-z0-9.-]{4,64}/i/[a-f0-9]{32}/[a-z0-9][a-z0-9-]{0,62}$")
+	return sandbox.Find(address)
+
+#undef NTNET_MAX_INTERACTIVE_URL
 #undef NTNET_REFRESH_INTERVAL
 #undef NTNET_RETRY_INTERVAL
 #undef NTNET_IDLE_TIMEOUT
