@@ -92,21 +92,31 @@ test('internal links never become browser navigation', () => {
   expect(html).not.toContain('byond:');
 });
 
-test('allows only explicit safe styles', () => {
+test('keeps ordinary styles and drops the dangerous ones', () => {
   const html = render({
     type: 'p',
     style: {
       color: '#74e3bc',
       textAlign: 'center',
       backgroundImage: 'url(https://evil.example)',
-      width: 'calc(100%)',
+      background: 'image-set("evil.png")',
+      behavior: 'binding(evil)',
+      position: 'fixed',
+      width: 'calc(100% - 2rem)',
+      '--accent': '#74e3bc',
+      WebkitTextStroke: '1px #000',
     },
     children: [{ type: 'text', text: 'styled' }],
   });
   expect(html).toContain('color:#74e3bc');
   expect(html).toContain('text-align:center');
+  expect(html).toContain('width:calc(100% - 2rem)');
+  expect(html).toContain('--accent:#74e3bc');
+  expect(html).toContain('-webkit-text-stroke:1px #000');
   expect(html).not.toContain('evil.example');
-  expect(html).not.toContain('calc');
+  expect(html).not.toContain('image-set');
+  expect(html).not.toContain('binding');
+  expect(html).not.toContain('fixed');
 });
 
 test('renders media only from the NTnet bucket', () => {
@@ -193,16 +203,30 @@ test('carries the whitelisted attributes and drops the rest', () => {
 test('carries a scoped stylesheet and refuses a dangerous one', () => {
   const html = render({
     type: 'div',
-    css: '.ntnet-doc .card:hover{color:red}@keyframes fade{0%{opacity:0}}',
+    css:
+      '.ntnet-doc .card:hover{color:red}@keyframes fade{0%{opacity:0}}' +
+      '.ntnet-doc .card{--accent:#74e3bc;color:var(--accent);width:calc(100% - 2rem)}' +
+      '.ntnet-doc .card + .card{margin-top:8px}',
     children: [{ type: 'text', text: 'карточка' }],
   });
   expect(html).toContain('<style>');
   expect(html).toContain('.card:hover{color:red}');
   expect(html).toContain('@keyframes fade');
+  expect(html).toContain('color:var(--accent)');
+  expect(html).toContain('width:calc(100% - 2rem)');
+  expect(html).toContain('.card + .card{margin-top:8px}');
   for (const css of [
     '.a{background:url(https://evil.example)}',
+    '.a{background:url (https://evil.example)}',
+    '.a{background:image-set("evil.png")}',
+    '.a{background:element(#evil)}',
+    '.a{content:attr(href)}',
+    '.a{-moz-binding:binding(evil)}',
+    '.a{background:\\75 rl(evil.png)}',
     '@import "https://evil.example";',
+    '@font-face{font-family:evil}',
     '.a{position:fixed;top:0}',
+    '.a{position:sticky;top:0}',
     '.a{color:red}</style><script>alert(1)</script>',
     '.a{color:red',
   ]) {
@@ -228,5 +252,5 @@ test('renders the new effect properties', () => {
   expect(html).toContain('filter:blur(2px)');
   expect(html).toContain('clip-path:inset(10% 0 0 0)');
   expect(html).toContain('mix-blend-mode:screen');
-  expect(html).not.toContain('will-change');
+  expect(html).toContain('will-change:transform');
 });

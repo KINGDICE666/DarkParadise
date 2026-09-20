@@ -259,7 +259,10 @@ const DEFAULT_STYLES: Record<string, CSSProperties> = {
   video: { maxWidth: '100%' },
 };
 const POSITIONS = new Set(['static', 'relative', 'absolute']);
-const MAX_VALUE = 240;
+const MAX_VALUE = 512;
+const STYLE_NAME = /^(?:--[\w-]{1,40}|[a-zA-Z][a-zA-Z0-9]{1,39})$/;
+const VALUE_FORBIDDEN =
+  /(?:url|image-set|cross-fade|element|attr|paint|src)\s*\(|expression|binding|behavior|progid:|javascript:|<\/|[{};<]|@|\\/i;
 const MEDIA_URL =
   /^https:\/\/media\.wiki-ss13\.space\/[a-z0-9]{32}\/[a-f0-9]{16}\.(?:png|jpg|gif|webp|mp4)$/;
 
@@ -270,11 +273,11 @@ const sanitizeStyle = (value: unknown): CSSProperties | undefined => {
   const style: Record<string, string> = {};
   for (const [name, item] of Object.entries(value)) {
     if (
-      STYLE_NAMES.has(name) &&
+      (STYLE_NAMES.has(name) || STYLE_NAME.test(name)) &&
       typeof item === 'string' &&
       item.length <= MAX_VALUE &&
       (name !== 'position' || POSITIONS.has(item.toLowerCase())) &&
-      !/(?:url|var\(|calc\(|expression|@|\\)/i.test(item)
+      !VALUE_FORBIDDEN.test(item)
     ) {
       style[name] = item;
     }
@@ -286,7 +289,7 @@ const SCOPE = 'ntnet-doc';
 const MAX_CSS = 32768;
 const NAME_VALUE = /^[\w\u0400-\u04ff -]{1,120}$/;
 const CSS_FORBIDDEN =
-  /url\(|@import|@charset|expression|javascript:|<\/|position\s*:\s*(?:fixed|sticky)/i;
+  /(?:url|image-set|cross-fade|element|attr|paint|src)\s*\(|@import|@charset|@font-face|expression\s*\(|progid:|javascript:|behavior\s*:|binding\s*:|<\/|\\|position\s*:\s*(?:fixed|sticky)/i;
 
 const ATTRIBUTES: Record<string, string> = {
   class: 'className',
