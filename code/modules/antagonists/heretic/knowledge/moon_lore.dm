@@ -174,7 +174,7 @@
 	gain_text = "Мой разум распахивается, как врата, и это, ценой немалых жертв, позволяет мне постичь истину."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "mind_gate"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/mind_gate
+	spell_to_add = /datum/action/cooldown/spell/pointed/mind_gate
 	cost = 2
 
 
@@ -226,7 +226,7 @@
 	gain_text = "Музыка, словно из глубин их души, влекла — как мотыльков к пламени."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "moon_parade"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/projectile/moon_parade
+	spell_to_add = /datum/action/cooldown/spell/pointed/projectile/moon_parade
 	cost = 2
 	drafting_tier = 5
 
@@ -266,7 +266,7 @@
 				Главарь указал вверх, и тусклый свет истины озарил нас ярче."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "moon_ringleader"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/moon_ringleader
+	spell_to_add = /datum/action/cooldown/spell/aoe/moon_ringleader
 	cost = 2
 	research_tree_icon_frame = 5
 	is_final_knowledge = TRUE

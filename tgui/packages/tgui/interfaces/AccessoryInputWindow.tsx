@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Button, Input, Section, Stack } from 'tgui/components';
-import { KEY_ENTER, KEY_ESCAPE } from 'common/keycodes';
+import { Box, Button, Input, Section, Stack } from 'tgui-core/components';
+import { KEY_ENTER, KEY_ESCAPE } from 'tgui-core/keycodes';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';

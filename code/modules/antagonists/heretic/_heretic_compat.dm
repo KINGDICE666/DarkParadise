@@ -122,50 +122,8 @@
 /proc/dir2rustext_where(direction)
 	return "на [dir2rustext(direction)]е"
 
-/obj/effect/dummy/spell_jaunt/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
-	. = ..()
-	if(!ismob(arrived) || arrived == jaunter)
-		return
-	jaunter = arrived
-	if(!phased_mob_icon_state)
-		return
-	var/mob/mob_jaunter = arrived
-	position_indicator = image(phased_mob_icon, src, phased_mob_icon_state, ABOVE_LIGHTING_PLANE)
-	position_indicator.appearance_flags |= RESET_ALPHA
-	SET_PLANE_EXPLICIT(position_indicator, ABOVE_LIGHTING_PLANE, src)
-	RegisterSignal(mob_jaunter, COMSIG_MOB_LOGIN, PROC_REF(show_client_image), override = TRUE)
-	show_client_image(mob_jaunter)
-
-/// Shows our position indicator to the jaunter's client (re-shown on relog).
-/obj/effect/dummy/spell_jaunt/proc/show_client_image(mob/show_to)
-	SIGNAL_HANDLER
-	show_to.client?.images |= position_indicator
-
-/obj/effect/dummy/spell_jaunt/Exited(atom/movable/gone, direction)
-	. = ..()
-	if(gone != jaunter)
-		return
-	var/mob/mob_jaunter = jaunter
-	mob_jaunter.client?.images -= position_indicator
-	UnregisterSignal(mob_jaunter, COMSIG_MOB_LOGIN)
-	jaunter = null
-	position_indicator = null
-
-/// Ejects the jaunter to our turf and deletes the dummy.
-/obj/effect/dummy/spell_jaunt/proc/eject_jaunter()
-	if(!jaunter)
-		return
-	var/turf/eject_spot = get_turf(src)
-	if(!eject_spot)
-		return
-	var/atom/movable/exiting = jaunter
-	jaunter.forceMove(eject_spot)
-	SEND_SIGNAL(src, COMSIG_MOB_EJECTED_FROM_JAUNT, exiting)
-	qdel(src)
-
-/// TRUE if the given mob is currently inside a jaunt dummy.
-/proc/is_jaunting(mob/living/possibly_jaunting)
-	return istype(possibly_jaunting?.loc, /obj/effect/dummy/spell_jaunt)
+/mob/proc/can_block_magic(magic_flags = MAGIC_RESISTANCE, charge_cost = 0)
+	return !can_cast_magic(magic_flags)
 
 /// tg's get_held_items() - master220 exposes hands via get_active_hand()/get_inactive_hand().
 /mob/living/proc/get_held_items()
@@ -243,6 +201,6 @@
 	return IS_HERETIC_OR_MONSTER(viewer) || isobserver(viewer)
 
 
-/obj/effect/proc_holder/spell/watchers_look/heretic
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+/datum/action/cooldown/spell/watchers_look/heretic
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"

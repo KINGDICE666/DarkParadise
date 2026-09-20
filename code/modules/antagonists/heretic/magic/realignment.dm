@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/realignment
+/datum/action/cooldown/spell/realignment
 	name = "Перестройка"
 	desc = "Перестроив свой организм, вы быстро восстановите выносливость и уменьшите время \
 			оглушения или ошеломления. Вы не можете атаковать, пока заклинание активно. \
 			Можно применять несколько раз подряд, но каждое применение \
 			увеличивает время перезарядки."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/hud/implants.dmi'
-	action_icon_state = "adrenal"
+	button_icon = 'icons/hud/implants.dmi'
+	button_icon_state = "adrenal"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 6 SECONDS
+	cooldown_time = 6 SECONDS
 	invocation = "П'Р'СТР'ЙК"
 	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
@@ -25,44 +23,39 @@
 	var/realign_cooldown_step = 6 SECONDS
 
 
-/obj/effect/proc_holder/spell/realignment/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/realignment/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/realignment/is_valid_target(atom/cast_on)
 	return isliving(cast_on)
 
 
-/obj/effect/proc_holder/spell/realignment/cast(list/targets, mob/user = usr)
-	var/mob/living/cast_on = targets[1]
+/datum/action/cooldown/spell/realignment/cast(mob/living/cast_on)
 	. = ..()
 	cast_on.apply_status_effect(/datum/status_effect/realignment)
 	to_chat(cast_on, span_notice("Вы начали перестраивать свой организм."))
 
 
-/obj/effect/proc_holder/spell/realignment/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/realignment/after_cast(atom/cast_on)
 	. = ..()
 	if(!level_realignment())
 		return
-	var/reduction_timer = max(cooldown_handler.recharge_duration * realign_max_level * 0.5, 1.5 MINUTES)
+	var/reduction_timer = max(cooldown_time * realign_max_level * 0.5, 1.5 MINUTES)
 	addtimer(CALLBACK(src, PROC_REF(delevel_realignment)), reduction_timer)
 
 
 /// Ramps the cooldown up a level. Returns TRUE if it actually changed (i.e. not already capped).
-/obj/effect/proc_holder/spell/realignment/proc/level_realignment()
+/datum/action/cooldown/spell/realignment/proc/level_realignment()
 	if(realign_level >= realign_max_level)
 		return FALSE
 	realign_level++
-	cooldown_handler.recharge_duration = min(base_cooldown + realign_cooldown_step * realign_level, base_cooldown * realign_max_level)
+	cooldown_time = min(cooldown_time + realign_cooldown_step * realign_level, cooldown_time * realign_max_level)
 	return TRUE
 
 
 /// Walks the cooldown back down a level. Scheduled on a delay after each cast.
-/obj/effect/proc_holder/spell/realignment/proc/delevel_realignment()
+/datum/action/cooldown/spell/realignment/proc/delevel_realignment()
 	if(realign_level <= 0)
 		return
 	realign_level--
-	cooldown_handler.recharge_duration = max(base_cooldown + realign_cooldown_step * realign_level, base_cooldown)
+	cooldown_time = max(cooldown_time + realign_cooldown_step * realign_level, cooldown_time)
 
 
 /datum/status_effect/realignment

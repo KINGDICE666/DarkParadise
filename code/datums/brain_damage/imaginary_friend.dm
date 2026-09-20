@@ -129,18 +129,12 @@
 		greet()
 	show_self()
 
-/mob/camera/imaginary_friend/verb/ghost()
-	set category = VERB_CATEGORY_OOC
-	set name = "Призрак"
-	set desc = "Relinquish your life and enter the land of the dead."
-
+GAME_VERB_DESC(/mob/camera/imaginary_friend, ghost, "Призрак", "Relinquish your life and enter the land of the dead.", VERB_CATEGORY_OOC)
 	if(tgui_alert(src, "Вы уверены, что хотите перестать быть воображаемым другом?", "Призрак", list("Остаться", "Стать призраком")) != "Стать призраком")
 		return
 	ghostize()
 
-/mob/camera/imaginary_friend/verb/suicide()
-	set hidden = TRUE
-
+GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 	to_chat(src, span_warning("Вы всего лишь плод чужого воображения — вам нечем убивать себя."))
 
 /mob/camera/imaginary_friend/proc/greet()

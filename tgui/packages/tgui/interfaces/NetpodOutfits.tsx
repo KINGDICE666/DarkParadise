@@ -1,6 +1,6 @@
-import { createSearch } from 'common/string';
+import { createSearch } from 'tgui-core/string';
 import { useBackend, useLocalState } from '../backend';
-import { Button, Input, NoticeBox, Section, Stack, Tabs } from '../components';
+import { Button, Input, NoticeBox, Section, Stack, Tabs } from 'tgui-core/components';
 import { Window } from '../layouts';
 
 type Data = {

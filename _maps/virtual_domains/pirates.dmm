@@ -256,7 +256,7 @@
 	pixel_y = 10;
 	pixel_x = 7
 	},
-/obj/item/reagent_containers/food/drinks{
+/obj/item/reagent_containers/cup/glass{
 	pixel_y = -16;
 	pixel_x = 12
 	},
@@ -704,7 +704,7 @@
 /obj/structure/fermenting_barrel{
 	pixel_x = 4
 	},
-/obj/item/reagent_containers/food/drinks{
+/obj/item/reagent_containers/cup/glass{
 	pixel_y = -10
 	},
 /turf/simulated/floor/beach/sand,
@@ -738,17 +738,17 @@
 /area/virtual_domain/fullbright)
 "YJ" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	desc = "Rum with ghostly properties that can help the drinker enter the spirit realm. It has fermented under the sea of space for ages.";
 	name = "Ghost Pirate Rum";
 	pixel_x = -4;
 	pixel_y = 12
 	},
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_x = -7;
 	pixel_y = 5
 	},
-/obj/item/reagent_containers/food/drinks/drinkingglass{
+/obj/item/reagent_containers/cup/glass/drinkingglass{
 	pixel_x = 3;
 	pixel_y = 7
 	},

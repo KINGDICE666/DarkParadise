@@ -1,19 +1,18 @@
-/obj/effect/proc_holder/spell/jaunt/mirror_walk
+/datum/action/cooldown/spell/jaunt/mirror_walk
 	name = "По ту Сторону Зеркал"
 	desc = "Позволяет вам незаметно и свободно перемещаться по станции в пределах зеркального мира. \
 			Вы можете входить и выходить из зеркального мира только при наличии рядом отражающих \
 			поверхностей и предметов, таких как окна, зеркала, отражающие стены или оборудование."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_minor_antag.dmi'
-	action_icon_state = "ninja_cloak"
+	button_icon = 'icons/mob/actions/actions_minor_antag.dmi'
+	button_icon_state = "ninja_cloak"
 
-	base_cooldown = 6 SECONDS
-	jaunt_type = /obj/effect/dummy/spell_jaunt/mirror_walk
-	clothes_req = FALSE
-	human_req = FALSE
-	phase_allowed = TRUE
+	cooldown_time = 6 SECONDS
+	jaunt_type = /obj/effect/dummy/phased_mob/spell_jaunt/mirror_walk
+	spell_requirements = NONE
+	check_flags = AB_CHECK_CONSCIOUS
 	/// The time it takes to enter the mirror / phase out / enter jaunt.
 	var/phase_out_time = 1.5 SECONDS
 	/// The time it takes to exit a mirror / phase in / exit jaunt.
@@ -25,41 +24,40 @@
 	))
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/on_spell_gain(mob/user = usr)
+/datum/action/cooldown/spell/jaunt/mirror_walk/Grant(mob/grant_to)
 	. = ..()
-	RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(update_status_on_signal))
+	RegisterSignal(grant_to, COMSIG_MOVABLE_MOVED, PROC_REF(update_status_on_signal))
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/on_spell_loss(mob/remove_from)
+/datum/action/cooldown/spell/jaunt/mirror_walk/Remove(mob/remove_from)
 	. = ..()
 	UnregisterSignal(remove_from, COMSIG_MOVABLE_MOVED)
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/can_cast(mob/user = usr, charge_check = TRUE, show_message = FALSE)
+/datum/action/cooldown/spell/jaunt/mirror_walk/can_cast_spell(feedback = TRUE)
 	. = ..()
 	if(!.)
 		return FALSE
 
-	var/turf/owner_turf = get_turf(user)
+	var/turf/owner_turf = get_turf(owner)
 	if(!is_reflection_nearby(get_turf(owner_turf)))
-		if(!show_message)
+		if(!feedback)
 			return FALSE
 
-		to_chat(user, span_warning("Рядом нет отражающих поверхностей!"))
+		to_chat(owner, span_warning("Рядом нет отражающих поверхностей!"))
 		return FALSE
 
 	if(owner_turf.is_blocked_turf(exclude_mobs = TRUE))
-		if(!show_message)
+		if(!feedback)
 			return FALSE
 
-		to_chat(user, span_warning("Что-то не даёт вам перейти через отражение!"))
+		to_chat(owner, span_warning("Что-то не даёт вам перейти через отражение!"))
 		return FALSE
 
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/cast(list/targets, mob/user = usr)
-	var/mob/living/cast_on = targets[1]
+/datum/action/cooldown/spell/jaunt/mirror_walk/cast(mob/living/cast_on)
 	. = ..()
 	if(is_jaunting(cast_on))
 		return exit_jaunt(cast_on)
@@ -67,7 +65,7 @@
 		return enter_jaunt(cast_on)
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/enter_jaunt(mob/living/jaunter, turf/loc_override)
+/datum/action/cooldown/spell/jaunt/mirror_walk/enter_jaunt(mob/living/jaunter, turf/loc_override)
 	var/atom/nearby_reflection = is_reflection_nearby(jaunter)
 	if(!nearby_reflection)
 		to_chat(jaunter, span_warning("Рядом нет отражающих поверхностей, через которые можно было бы войти в зеркальный мир!"))
@@ -84,7 +82,7 @@
 		span_notice("Вы прыгаете в отражение в [nearby_reflection.declent_ru(PREPOSITIONAL)], попадая в зеркальный мир."),
 	)
 
-	var/obj/effect/dummy/spell_jaunt/jaunt = ..(jaunter, get_turf(nearby_reflection))
+	var/obj/effect/dummy/phased_mob/spell_jaunt/jaunt = ..(jaunter, get_turf(nearby_reflection))
 	if(!jaunt)
 		return FALSE
 
@@ -92,7 +90,7 @@
 	return jaunt
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/exit_jaunt(mob/living/unjaunter, turf/loc_override)
+/datum/action/cooldown/spell/jaunt/mirror_walk/exit_jaunt(mob/living/unjaunter, turf/loc_override)
 	var/turf/phase_turf = get_turf(unjaunter)
 	var/atom/nearby_reflection = is_reflection_nearby(phase_turf)
 	if(!nearby_reflection)
@@ -107,7 +105,7 @@
 	return ..(unjaunter, phase_turf)
 
 
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/on_jaunt_exited(obj/effect/dummy/spell_jaunt/jaunt, mob/living/unjaunter)
+/datum/action/cooldown/spell/jaunt/mirror_walk/on_jaunt_exited(obj/effect/dummy/phased_mob/spell_jaunt/jaunt, mob/living/unjaunter)
 	. = ..()
 	UnregisterSignal(jaunt, COMSIG_MOVABLE_MOVED)
 	playsound(unjaunter, 'sound/magic/ethereal_exit.ogg', 50, TRUE, -1)
@@ -127,7 +125,7 @@
 
 /// Checks all nearby atoms in sight of the caster for a "reflective" surface usable to enter/exit.
 /// Returns the reflective atom found, or null if none was.
-/obj/effect/proc_holder/spell/jaunt/mirror_walk/proc/is_reflection_nearby(atom/caster)
+/datum/action/cooldown/spell/jaunt/mirror_walk/proc/is_reflection_nearby(atom/caster)
 	for(var/atom/thing as anything in view(2, caster))
 		if(isitem(thing))
 			var/obj/item/item_thing = thing
@@ -153,5 +151,5 @@
 	return null
 
 
-/obj/effect/dummy/spell_jaunt/mirror_walk
+/obj/effect/dummy/phased_mob/spell_jaunt/mirror_walk
 	name = "reflection"

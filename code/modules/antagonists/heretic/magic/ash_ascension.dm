@@ -33,19 +33,17 @@
 	set_light(l_color = color)
 
 /// Creates a constant Ring of Fire around the caster for a set duration of time, which follows them.
-/obj/effect/proc_holder/spell/fire_sworn
+/datum/action/cooldown/spell/fire_sworn
 	name = "Клятва Пламени"
 	desc = "Во время действия вы будете пассивно создавать вокруг себя огненные кольца."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "fire_ring"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "fire_ring"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 70 SECONDS
+	cooldown_time = 70 SECONDS
 
 	invocation = "ПЛ'М"
 	invocation_type = INVOCATION_WHISPER
@@ -57,21 +55,16 @@
 	var/duration = 1 MINUTES
 
 
-/obj/effect/proc_holder/spell/fire_sworn/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/fire_sworn/on_spell_loss(mob/living/remove_from)
+/datum/action/cooldown/spell/fire_sworn/Remove(mob/living/remove_from)
 	remove_from.remove_status_effect(/datum/status_effect/fire_ring)
 	return ..()
 
 
-/obj/effect/proc_holder/spell/fire_sworn/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/fire_sworn/is_valid_target(atom/cast_on)
 	return isliving(cast_on)
 
 
-/obj/effect/proc_holder/spell/fire_sworn/cast(list/targets, mob/user = usr)
-	var/mob/living/cast_on = targets[1]
+/datum/action/cooldown/spell/fire_sworn/cast(mob/living/cast_on)
 	. = ..()
 	cast_on.apply_status_effect(/datum/status_effect/fire_ring, duration, fire_radius)
 
@@ -105,20 +98,18 @@
 
 
 /// Creates one, large, expanding ring of fire around the caster, which does not follow them.
-/obj/effect/proc_holder/spell/fire_cascade
+/datum/action/cooldown/spell/fire_cascade
 	name = "Малый Каскад Пламени"
 	desc = "Нагревает воздух вокруг вас."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "fire_ring"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "fire_ring"
 	sound = 'sound/items/welder.ogg'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 
 	invocation = "К'СК'Д"
 	invocation_type = INVOCATION_WHISPER
@@ -128,44 +119,37 @@
 	var/flame_radius = 4
 
 
-/obj/effect/proc_holder/spell/fire_cascade/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/fire_cascade/cast(list/targets, mob/user = usr)
-	var/atom/cast_on = targets[1]
+/datum/action/cooldown/spell/fire_cascade/cast(atom/cast_on)
 	. = ..()
 	INVOKE_ASYNC(src, PROC_REF(fire_cascade), get_turf(cast_on), flame_radius)
 
 
 /// Spreads a huge wave of fire in a radius around us, staggered between levels
-/obj/effect/proc_holder/spell/fire_cascade/proc/fire_cascade(atom/centre, flame_radius = 1)
+/datum/action/cooldown/spell/fire_cascade/proc/fire_cascade(atom/centre, flame_radius = 1)
 	for(var/i in 0 to flame_radius)
 		for(var/turf/nearby_turf as anything in spiral_range_turfs(i + 1, centre))
-			ash_flame_turf(nearby_turf, 5, action.owner)
+			ash_flame_turf(nearby_turf, 5, owner)
 
 		stoplag(0.3 SECONDS)
 
 
-/obj/effect/proc_holder/spell/fire_cascade/big
+/datum/action/cooldown/spell/fire_cascade/big
 	name = "Высший Каскад Пламени"
 	flame_radius = 6
 
 
-/obj/effect/proc_holder/spell/pointed/ash_beams
+/datum/action/cooldown/spell/pointed/ash_beams
 	name = "Обряд Ночного Дозорного"
 	desc = "Мощное заклинание, выпускающее в цель пять потоков потустороннего пламени."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "flames"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "flames"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/throw_target.dmi'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 300
+	cooldown_time = 300
 
 	invocation = "F'R."
 	invocation_type = INVOCATION_WHISPER
@@ -175,18 +159,18 @@
 	var/flame_line_length = 15
 
 
-/obj/effect/proc_holder/spell/pointed/ash_beams/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/ash_beams/is_valid_target(atom/cast_on)
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/ash_beams/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/ash_beams/cast(atom/cast_on)
 	. = ..()
 	var/static/list/offsets = list(-25, -10, 0, 10, 25)
 	for(var/offset in offsets)
-		INVOKE_ASYNC(src, PROC_REF(fire_line), action.owner, line_target(offset, flame_line_length, targets[1], action.owner))
+		INVOKE_ASYNC(src, PROC_REF(fire_line), owner, line_target(offset, flame_line_length, cast_on, owner))
 
 
-/obj/effect/proc_holder/spell/pointed/ash_beams/proc/line_target(offset, range, atom/at, atom/user)
+/datum/action/cooldown/spell/pointed/ash_beams/proc/line_target(offset, range, atom/at, atom/user)
 	var/turf/user_loc = get_turf(user)
 	if(!at)
 		return
@@ -203,7 +187,7 @@
 	return (get_line(user_loc, T) - user_loc)
 
 
-/obj/effect/proc_holder/spell/pointed/ash_beams/proc/fire_line(atom/source, list/turfs)
+/datum/action/cooldown/spell/pointed/ash_beams/proc/fire_line(atom/source, list/turfs)
 	var/list/hit_list = list()
 	for(var/turf/T in turfs)
 		if(iswallturf(T))

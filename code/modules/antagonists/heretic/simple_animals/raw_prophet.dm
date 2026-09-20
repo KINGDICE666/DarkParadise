@@ -17,9 +17,9 @@
 	sight = SEE_MOBS|SEE_OBJS|SEE_TURFS
 	/// List of innate abilities we have to add.
 	var/static/list/innate_spells = list(
-		/obj/effect/proc_holder/spell/ethereal_jaunt/ash/long = null,
-		/obj/effect/proc_holder/spell/pointed/eldritch_telepathy = null,
-		/obj/effect/proc_holder/spell/view_range/expand_sight = null,
+		/datum/action/cooldown/spell/jaunt/ethereal_jaunt/ash/long = null,
+		/datum/action/cooldown/spell/pointed/eldritch_telepathy = null,
+		/datum/action/cooldown/spell/view_range/expand_sight = null,
 	)
 
 
@@ -50,7 +50,7 @@
 		post_unlink_callback = CALLBACK(src, PROC_REF(after_unlink)), \
 		speech_action_background_icon_state = "bg_heretic", \
 		speech_action_overlay_state = "bg_heretic_border", \
-		linker_spell_path = /obj/effect/proc_holder/spell/pointed/manse_link, \
+		linker_spell_path = /datum/action/cooldown/spell/pointed/manse_link, \
 		link_message = on_link_message, \
 		unlink_message = on_unlink_message, \
 	)
@@ -62,7 +62,7 @@
 /// Returns a list of abilities that we should add.
 /mob/living/simple_animal/hostile/heretic_summon/raw_prophet/proc/get_innate_spells()
 	var/list/returnable_list = innate_spells.Copy()
-	returnable_list += list(/obj/effect/proc_holder/spell/pointed/blind/eldritch = BB_TARGETED_ACTION)
+	returnable_list += list(/datum/action/cooldown/spell/pointed/blind/eldritch = BB_TARGETED_ACTION)
 	return returnable_list
 
 
@@ -99,7 +99,7 @@
 
 /mob/living/simple_animal/hostile/heretic_summon/raw_prophet/ruins/get_innate_spells()
 	var/list/returnable_list = innate_spells.Copy()
-	returnable_list += list(/obj/effect/proc_holder/spell/watchers_look/heretic = BB_TARGETED_ACTION)
+	returnable_list += list(/datum/action/cooldown/spell/watchers_look/heretic = BB_TARGETED_ACTION)
 	return returnable_list
 
 

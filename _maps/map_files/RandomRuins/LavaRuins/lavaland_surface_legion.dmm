@@ -9,14 +9,6 @@
 /obj/item/rod_of_asclepius,
 /turf/simulated/floor/pod/dark/lavaland_air,
 /area/ruin/unpowered/misc_lavaruin)
-"c" = (
-/obj/effect/turf_decal/sand/plating,
-/obj/structure/table,
-/obj/item/reagent_containers/food/drinks/bottle/absinthe/premium{
-	pixel_y = 7
-	},
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
 "g" = (
 /obj/structure/bed,
 /obj/item/bedsheet/brown,
@@ -78,15 +70,7 @@
 /obj/item/clothing/head/helmet/roman/legionaire,
 /turf/simulated/floor/pod/dark/lavaland_air,
 /area/ruin/unpowered/misc_lavaruin)
-"R" = (
-/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/ruin/unpowered/misc_lavaruin)
-"T" = (
-/obj/effect/turf_decal/sand/plating,
-/mob/living/simple_animal/hostile/asteroid/hivelord/legion,
-/turf/simulated/floor/pod/dark/lavaland_air,
-/area/ruin/unpowered/misc_lavaruin)
-"U" = (
+"M" = (
 /obj/effect/turf_decal/sand/plating,
 /obj/structure/rack,
 /obj/item/shield/riot/roman{
@@ -98,6 +82,22 @@
 	force = 30;
 	name = "ancient sword"
 	},
+/turf/simulated/floor/pod/dark/lavaland_air,
+/area/ruin/unpowered/misc_lavaruin)
+"Q" = (
+/obj/effect/turf_decal/sand/plating,
+/obj/structure/table,
+/obj/item/reagent_containers/cup/glass/bottle/absinthe/premium{
+	pixel_y = 7
+	},
+/turf/simulated/floor/pod/dark/lavaland_air,
+/area/ruin/unpowered/misc_lavaruin)
+"R" = (
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/ruin/unpowered/misc_lavaruin)
+"T" = (
+/obj/effect/turf_decal/sand/plating,
+/mob/living/simple_animal/hostile/asteroid/hivelord/legion,
 /turf/simulated/floor/pod/dark/lavaland_air,
 /area/ruin/unpowered/misc_lavaruin)
 "V" = (
@@ -225,10 +225,10 @@ T
 a
 z
 q
-U
-U
-U
-U
+M
+M
+M
+M
 q
 q
 "}
@@ -299,7 +299,7 @@ R
 B
 a
 a
-c
+Q
 v
 q
 F

@@ -90,7 +90,7 @@
 				услышал эхо собственных слов."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "cosmic_rune"
-	spell_to_add = /obj/effect/proc_holder/spell/cosmic_rune
+	spell_to_add = /datum/action/cooldown/spell/cosmic_rune
 	cost = 2
 
 
@@ -104,7 +104,7 @@
 				Мои вены начали излучать странное фиолетовое свечение. Зверь знает, что я превзойду его ожидания."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "star_touch"
-	spell_to_add = /obj/effect/proc_holder/spell/touch/star_touch
+	spell_to_add = /datum/action/cooldown/spell/touch/star_touch
 	cost = 2
 
 
@@ -115,7 +115,7 @@
 	gain_text = "Зверь всегда был позади меня, и с каждой принесенной жертвой я чувствовал его одобрение."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "star_blast"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/projectile/star_blast
+	spell_to_add = /datum/action/cooldown/spell/pointed/projectile/star_blast
 	cost = 2
 
 
@@ -253,7 +253,7 @@
 	gain_text = "Земля подо мной задрожала. Зверь вселился в меня. Его голос опьянял."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "cosmic_domain"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/conjure/cosmic_expansion
+	spell_to_add = /datum/action/cooldown/spell/conjure/cosmic_expansion
 	cost = 2
 	is_final_knowledge = TRUE
 
@@ -318,8 +318,8 @@
 	star_gazer_mob.leash_to(star_gazer_mob, user)
 	user.AddComponent(/datum/component/death_linked, star_gazer_mob)
 
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/open_mob_commands(null, star_gazer_mob))
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/replace_star_gazer(null, star_gazer_mob))
+	user.mind.AddSpell(new /datum/action/cooldown/spell/open_mob_commands(star_gazer_mob))
+	user.mind.AddSpell(new /datum/action/cooldown/spell/replace_star_gazer(star_gazer_mob))
 
 	var/datum/antagonist/heretic/heretic_datum = GET_HERETIC(user)
 	var/datum/heretic_knowledge/blade_upgrade/cosmic/blade_upgrade = heretic_datum.get_knowledge(/datum/heretic_knowledge/blade_upgrade/cosmic)
@@ -328,45 +328,41 @@
 	blade_upgrade.max_combo_duration = 30 SECONDS
 	blade_upgrade.increase_amount = 2 SECONDS
 	blade_upgrade.max_attack_range = 3
-	var/obj/effect/proc_holder/spell/aoe/conjure/cosmic_expansion/cosmic_expansion_spell = locate() in user.mob_spell_list
+	var/datum/action/cooldown/spell/conjure/cosmic_expansion/cosmic_expansion_spell = locate() in user.mob_spell_list
 	cosmic_expansion_spell?.ascended = TRUE
-	var/obj/effect/proc_holder/spell/touch/star_touch/star_touch_spell = locate() in user.mob_spell_list
+	var/datum/action/cooldown/spell/touch/star_touch/star_touch_spell = locate() in user.mob_spell_list
 	if(star_touch_spell)
 		star_touch_spell.set_star_gazer(star_gazer_mob)
 		star_touch_spell.ascended = TRUE
 
 
-/obj/effect/proc_holder/spell/open_mob_commands
+/datum/action/cooldown/spell/open_mob_commands
 	name = "Управлять Звёздным Наблюдателем"
 	desc = "Открывает меню для управления вашим Звёздным Наблюдателем."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "stargazer_menu"
-	base_cooldown = 1 SECONDS
-	human_req = FALSE
-	clothes_req = FALSE
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "stargazer_menu"
+	cooldown_time = 1 SECONDS
+	spell_requirements = NONE
 	/// Weakref for storing our stargazer
 	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/our_mob
 
 
-/obj/effect/proc_holder/spell/open_mob_commands/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/open_mob_commands/Initialize(mapload, mob/living/simple_animal/hostile/heretic_summon/star_gazer/our_mob)
+/datum/action/cooldown/spell/open_mob_commands/New(Target)
 	. = ..()
-	src.our_mob = our_mob
+	our_mob = Target
 
 
-/obj/effect/proc_holder/spell/open_mob_commands/cast(list/targets, mob/user)
+/datum/action/cooldown/spell/open_mob_commands/cast(atom/cast_on)
+	. = ..()
 	open_menu()
 	return TRUE
 
 
 /// Opens the pet command options menu for a mob.
-/obj/effect/proc_holder/spell/open_mob_commands/proc/open_menu()
+/datum/action/cooldown/spell/open_mob_commands/proc/open_menu()
 	if(!our_mob)
 		return
 
@@ -374,42 +370,38 @@
 	if(!command_component)
 		return
 
-	command_component.display_menu(action.owner)
+	command_component.display_menu(owner)
 
 
-/obj/effect/proc_holder/spell/replace_star_gazer
+/datum/action/cooldown/spell/replace_star_gazer
 	name = "Сменить разум Наблюдателя"
 	desc = "Заменяет разум вашего Звёздного Наблюдателя разумом другого призрака."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "stargazer_menu"
-	base_cooldown = 5 MINUTES
-	human_req = FALSE
-	clothes_req = FALSE
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "stargazer_menu"
+	cooldown_time = 5 MINUTES
+	spell_requirements = NONE
 	/// The stargazer whose mind we swap out.
 	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/our_mob
 
 
-/obj/effect/proc_holder/spell/replace_star_gazer/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/replace_star_gazer/Initialize(mapload, mob/living/simple_animal/hostile/heretic_summon/star_gazer/our_mob)
+/datum/action/cooldown/spell/replace_star_gazer/New(Target)
 	. = ..()
-	src.our_mob = our_mob
+	our_mob = Target
 
 
-/obj/effect/proc_holder/spell/replace_star_gazer/cast(list/targets, mob/user)
+/datum/action/cooldown/spell/replace_star_gazer/cast(atom/cast_on)
+	. = ..()
 	if(QDELETED(our_mob))
-		to_chat(user, span_warning("У вас нет Звёздного Наблюдателя."))
+		to_chat(owner, span_warning("У вас нет Звёздного Наблюдателя."))
 		return FALSE
 
-	to_chat(user, span_mansus("Вы побуждаете [our_mob.declent_ru(ACCUSATIVE)] сменить свою личность..."))
-	var/list/candidates = SSghost_spawns.poll_candidates("Вы хотите играть за [our_mob.declent_ru(ACCUSATIVE)] [span_danger("[user.real_name]")]?", null, FALSE, poll_time = 10 SECONDS, ignore_respawnability = TRUE, source = our_mob)
+	to_chat(owner, span_mansus("Вы побуждаете [our_mob.declent_ru(ACCUSATIVE)] сменить свою личность..."))
+	var/list/candidates = SSghost_spawns.poll_candidates("Вы хотите играть за [our_mob.declent_ru(ACCUSATIVE)] [span_danger("[owner.real_name]")]?", null, FALSE, poll_time = 10 SECONDS, ignore_respawnability = TRUE, source = our_mob)
 	if(!length(candidates))
-		to_chat(user, span_mansus("Никто не откликнулся на ваш зов. Похоже, пока придётся обойтись тем, что есть."))
+		to_chat(owner, span_mansus("Никто не откликнулся на ваш зов. Похоже, пока придётся обойтись тем, что есть."))
 		return FALSE
 
 	var/mob/dead/observer/observer = pick(candidates)
@@ -419,6 +411,6 @@
 	our_mob.key = observer.key
 	if(our_mob.mind && !our_mob.mind.has_antag_datum(/datum/antagonist/heretic_monster))
 		var/datum/antagonist/heretic_monster/heretic_monster = our_mob.mind.add_antag_datum(/datum/antagonist/heretic_monster)
-		heretic_monster.set_owner(user.mind)
-	to_chat(user, span_mansus("Разум [our_mob.declent_ru(GENITIVE)] перекроился под вас."))
+		heretic_monster.set_owner(owner.mind)
+	to_chat(owner, span_mansus("Разум [our_mob.declent_ru(GENITIVE)] перекроился под вас."))
 	return TRUE

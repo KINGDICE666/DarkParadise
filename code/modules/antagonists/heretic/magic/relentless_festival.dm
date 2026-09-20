@@ -1,33 +1,27 @@
-/obj/effect/proc_holder/spell/aoe/relentless_festival
+/datum/action/cooldown/spell/aoe/relentless_festival
 	name = "Безустанный Фестиваль"
 	desc = "Объявляет фестиваль: все, кто окажется рядом, теряют власть над собственными ногами \
 			и повторяют каждый ваш шаг, теряя силы с каждым движением."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_rhytm"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_rhytm"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "relentless_festival"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "relentless_festival"
 	sound = 'sound/magic/heretic/rhytm/timpan1.ogg'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 60 SECONDS
+	cooldown_time = 60 SECONDS
 
 	invocation = "Т'НЦ'ЙТ' В'С'!"
 	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
-	aoe_range = 5
+	aoe_radius = 5
 
 
-/obj/effect/proc_holder/spell/aoe/relentless_festival/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/aoe/relentless_festival/get_things_to_cast_on(atom/center, radius_override)
+/datum/action/cooldown/spell/aoe/relentless_festival/get_things_to_cast_on(atom/center, radius_override)
 	var/list/things = list()
-	for(var/mob/living/nearby_mob in view(radius_override || aoe_range, center))
-		if(nearby_mob == action.owner || nearby_mob == center)
+	for(var/mob/living/nearby_mob in view(radius_override || aoe_radius, center))
+		if(nearby_mob == owner || nearby_mob == center)
 			continue
 		if(!isturf(nearby_mob.loc))
 			continue
@@ -41,9 +35,9 @@
 	return things
 
 
-/obj/effect/proc_holder/spell/aoe/relentless_festival/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/aoe/relentless_festival/cast(atom/cast_on)
 	. = ..()
-	var/mob/living/caster = action.owner || user
+	var/mob/living/caster = owner || owner
 	var/datum/status_effect/heretic_passive/rhytm/beat = get_heretic_rhytm(caster)
 	beat?.flourish()
 	new /obj/effect/temp_visual/relentless_festival(get_turf(caster))

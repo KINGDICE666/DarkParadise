@@ -1,22 +1,20 @@
 
 #define UNRAVEL_OBLIVION_CHOICE "Беспамятство"
 
-/obj/effect/proc_holder/spell/pointed/unravel
+/datum/action/cooldown/spell/pointed/unravel
 	name = "Расплетение Формы"
 	desc = "Показывает нити, которыми выбранное существо привязано к миру, и позволяет временно развязать одну из них. \
 			Одновременно на цели может держаться только одно расплетение, и каждое проверяется магической защитой."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "unravel"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "unravel"
 
 	sound = 'sound/magic/ethereal_enter.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 55 SECONDS
-	should_recharge_after_cast = FALSE
+	cooldown_time = 55 SECONDS
+	should_go_on_cooldown = FALSE
 
 	invocation = "Р'СПЛ'Т' Ф'РМ'!"
 	invocation_type = INVOCATION_WHISPER
@@ -36,16 +34,16 @@
 	)
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/valid_target(atom/cast_on, mob/user)
-	if(!isliving(cast_on) || cast_on == user)
+/datum/action/cooldown/spell/pointed/unravel/is_valid_target(atom/cast_on)
+	if(!isliving(cast_on) || cast_on == owner)
 		return FALSE
 	var/mob/living/living_target = cast_on
 	return !IS_HERETIC_OR_MONSTER(living_target)
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action?.owner
-	var/mob/living/cast_on = targets[1]
+/datum/action/cooldown/spell/pointed/unravel/cast(mob/living/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
 	if(!caster || !isliving(cast_on))
 		return FALSE
 
@@ -74,7 +72,7 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/proc/knock_out(mob/living/caster, mob/living/cast_on)
+/datum/action/cooldown/spell/pointed/unravel/proc/knock_out(mob/living/caster, mob/living/cast_on)
 	cast_on.SetSleeping(2 SECONDS)
 	if(!cast_on.IsSleeping())
 		to_chat(caster, span_warning("Эта нить [cast_on.declent_ru(GENITIVE)] не поддаётся."))
@@ -87,12 +85,12 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/after_cast(list/targets, mob/user)
+/datum/action/cooldown/spell/pointed/unravel/after_cast(atom/cast_on)
 	. = ..()
-	cooldown_handler.start_recharge()
+	StartCooldown()
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/proc/pick_thread(mob/living/caster, mob/living/cast_on)
+/datum/action/cooldown/spell/pointed/unravel/proc/pick_thread(mob/living/caster, mob/living/cast_on)
 	var/list/choices = list()
 	for(var/label in unravel_threads)
 		choices[label] = image('icons/mob/actions/actions_ecult.dmi', thread_icons[label])
@@ -112,7 +110,7 @@
 	)
 
 
-/obj/effect/proc_holder/spell/pointed/unravel/proc/check_menu(mob/living/caster)
+/datum/action/cooldown/spell/pointed/unravel/proc/check_menu(mob/living/caster)
 	if(QDELETED(caster))
 		return FALSE
 	return !caster.incapacitated()

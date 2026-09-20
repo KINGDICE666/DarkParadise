@@ -118,7 +118,7 @@
 				Или, возможно, они никогда не были таковыми."
 	research_tree_icon_path = 'icons/mob/actions/actions_spells.dmi'
 	research_tree_icon_state = "shield"
-	spell_to_add = /obj/effect/proc_holder/spell/pointed/rust_construction
+	spell_to_add = /datum/action/cooldown/spell/pointed/rust_construction
 	cost = 2
 
 
@@ -130,7 +130,7 @@
 				И все же рассказ Кузнеца был вдохновляющим."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "corrode"
-	spell_to_add = /obj/effect/proc_holder/spell/aoe/rust_conversion
+	spell_to_add = /datum/action/cooldown/spell/aoe/rust_conversion
 	cost = 2
 	research_tree_icon_frame = 5
 
@@ -186,7 +186,7 @@
 				Кузнец исчез, но его клинок остался с вами. Воины надежды, Ржавеющий уже близко!"
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "entropic_plume"
-	spell_to_add = /obj/effect/proc_holder/spell/cone/staggered/entropic_plume
+	spell_to_add = /datum/action/cooldown/spell/cone/staggered/entropic_plume
 	cost = 2
 
 
@@ -255,8 +255,8 @@
 	INVOKE_ASYNC(src, PROC_REF(trigger), loc)
 	RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(on_move))
 	RegisterSignal(user, COMSIG_LIVING_LIFE, PROC_REF(on_life))
-	var/obj/effect/proc_holder/spell/aoe/rust_spread_spell = locate() in user.mob_spell_list
-	rust_spread_spell?.base_cooldown /= 2
+	var/datum/action/cooldown/spell/aoe/rust_spread_spell = locate() in user.mob_spell_list
+	rust_spread_spell?.cooldown_time /= 2
 
 
 /datum/heretic_knowledge/ultimate/rust_final/proc/trigger(turf/center)
@@ -358,7 +358,7 @@
 				Я быстро собрался с духом и двинулся вперёд: последний отрезок пути был самым опасным."
 	research_tree_icon_path = 'icons/mob/actions/actions_items.dmi'
 	research_tree_icon_state = "sniper_zoom"
-	spell_to_add = /obj/effect/proc_holder/spell/mob_cooldown/charge/rust
+	spell_to_add = /datum/action/cooldown/spell/pointed/charge/rust
 	cost = 2
 
 

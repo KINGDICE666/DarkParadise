@@ -1,19 +1,17 @@
-/obj/effect/proc_holder/spell/pointed/projectile/moon_parade
+/datum/action/cooldown/spell/pointed/projectile/moon_parade
 	name = "Лунный Парад"
 	desc = "Оно жаждет парада, заставляя всех, кто окажется на пути, \
 			присоединиться к нему и страдать от галлюцинаций."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "moon_parade"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "moon_parade"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/moon_target.dmi'
 
 	sound = 'sound/magic/cosmic_energy.ogg'
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 
 	invocation = "Л'НН'Й П'Р'Д!"
 	invocation_type = INVOCATION_SHOUT
