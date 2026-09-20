@@ -14,6 +14,7 @@
 /datum/config_entry/flag/ntnet_enabled
 
 /datum/config_entry/flag/ntnet_interactive
+	default = TRUE
 
 /datum/config_entry/string/ntnet_api_url
 
