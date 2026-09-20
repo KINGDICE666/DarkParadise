@@ -824,7 +824,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/awaystart)
 	GLOB.start_override_outfit = new paths[selected_outfit]
 
 /obj/effect/landmark/start_override/prisoner
-	connected_outfit = /datum/outfit/job/assistant/prisoner
+	connected_outfit = /datum/outfit/job/prisoner
 
 // MARK: Unit Tests
 /// Marks the bottom left of the testing zone.
