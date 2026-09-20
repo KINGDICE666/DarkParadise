@@ -1,56 +1,264 @@
 import { type CSSProperties, createElement, type ReactNode } from 'react';
 
 const TAGS = new Set([
+  'abbr',
+  'address',
+  'article',
+  'aside',
+  'b',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'br',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'data',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dialog',
   'div',
-  'p',
-  'span',
+  'dl',
+  'dt',
+  'em',
+  'figcaption',
+  'figure',
+  'footer',
   'h1',
   'h2',
   'h3',
   'h4',
-  'strong',
-  'em',
-  'u',
-  's',
-  'ul',
-  'ol',
-  'li',
-  'blockquote',
-  'pre',
-  'code',
-  'br',
+  'h5',
+  'h6',
+  'header',
+  'hgroup',
   'hr',
+  'i',
+  'ins',
+  'kbd',
+  'li',
+  'main',
+  'mark',
+  'menu',
+  'meter',
+  'nav',
+  'ol',
+  'output',
+  'p',
+  'picture',
+  'pre',
+  'progress',
+  'q',
+  'rp',
+  'rt',
+  'ruby',
+  's',
+  'samp',
+  'section',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'tr',
+  'u',
+  'ul',
+  'var',
+  'wbr',
 ]);
 const MAX_DEPTH = 16;
 const MAX_NODES = 1024;
 const STYLE_NAMES = new Set([
+  'alignContent',
+  'alignItems',
+  'alignSelf',
+  'aspectRatio',
+  'backdropFilter',
+  'background',
+  'backgroundAttachment',
+  'backgroundBlendMode',
+  'backgroundClip',
   'backgroundColor',
+  'backgroundImage',
+  'backgroundOrigin',
+  'backgroundPosition',
+  'backgroundRepeat',
+  'backgroundSize',
   'border',
+  'borderBottom',
+  'borderBottomColor',
+  'borderBottomLeftRadius',
+  'borderBottomRightRadius',
+  'borderBottomStyle',
+  'borderBottomWidth',
+  'borderCollapse',
   'borderColor',
+  'borderLeft',
+  'borderLeftColor',
+  'borderLeftStyle',
+  'borderLeftWidth',
   'borderRadius',
+  'borderRight',
+  'borderRightColor',
+  'borderRightStyle',
+  'borderRightWidth',
+  'borderSpacing',
   'borderStyle',
+  'borderTop',
+  'borderTopColor',
+  'borderTopLeftRadius',
+  'borderTopRightRadius',
+  'borderTopStyle',
+  'borderTopWidth',
   'borderWidth',
+  'bottom',
+  'boxShadow',
+  'boxSizing',
+  'captionSide',
+  'clear',
+  'clipPath',
   'color',
+  'columnCount',
+  'columnGap',
+  'columnRule',
+  'columnRuleColor',
+  'columnRuleStyle',
+  'columnRuleWidth',
+  'cursor',
+  'direction',
+  'display',
+  'filter',
+  'flex',
+  'flexBasis',
+  'flexDirection',
+  'flexGrow',
+  'flexShrink',
+  'flexWrap',
+  'float',
+  'fontFamily',
   'fontSize',
+  'fontStretch',
   'fontStyle',
+  'fontVariant',
   'fontWeight',
+  'gap',
+  'gridArea',
+  'gridAutoColumns',
+  'gridAutoFlow',
+  'gridAutoRows',
+  'gridColumn',
+  'gridRow',
+  'gridTemplateAreas',
+  'gridTemplateColumns',
+  'gridTemplateRows',
+  'height',
+  'hyphens',
+  'inset',
+  'isolation',
+  'justifyContent',
+  'justifyItems',
+  'justifySelf',
+  'left',
+  'letterSpacing',
   'lineHeight',
+  'listStyle',
+  'listStylePosition',
+  'listStyleType',
   'margin',
   'marginBottom',
   'marginLeft',
   'marginRight',
   'marginTop',
+  'maxHeight',
   'maxWidth',
+  'minHeight',
+  'minWidth',
+  'mixBlendMode',
+  'objectFit',
+  'objectPosition',
+  'opacity',
+  'order',
+  'outline',
+  'outlineColor',
+  'outlineOffset',
+  'outlineStyle',
+  'outlineWidth',
+  'overflow',
+  'overflowWrap',
+  'overflowX',
+  'overflowY',
   'padding',
   'paddingBottom',
   'paddingLeft',
   'paddingRight',
   'paddingTop',
+  'placeContent',
+  'placeItems',
+  'placeSelf',
+  'pointerEvents',
+  'position',
+  'resize',
+  'right',
+  'rotate',
+  'rowGap',
+  'scale',
+  'scrollBehavior',
+  'scrollbarColor',
+  'scrollbarWidth',
+  'tabSize',
+  'tableLayout',
   'textAlign',
   'textDecoration',
+  'textDecorationColor',
+  'textDecorationStyle',
+  'textDecorationThickness',
+  'textIndent',
+  'textOrientation',
+  'textOverflow',
+  'textShadow',
+  'textTransform',
+  'textUnderlineOffset',
+  'textWrap',
+  'top',
+  'transform',
+  'transformOrigin',
+  'transition',
+  'transitionDelay',
+  'transitionDuration',
+  'transitionProperty',
+  'transitionTimingFunction',
+  'translate',
+  'userSelect',
+  'verticalAlign',
+  'visibility',
   'whiteSpace',
   'width',
+  'wordBreak',
+  'wordSpacing',
+  'writingMode',
+  'zIndex',
 ]);
+const VOID_TAGS = new Set(['br', 'hr', 'wbr', 'col']);
+const DEFAULT_STYLES: Record<string, CSSProperties> = {
+  dialog: { display: 'block', position: 'static' },
+  pre: { whiteSpace: 'pre-wrap' },
+  img: { maxWidth: '100%' },
+  video: { maxWidth: '100%' },
+};
+const POSITIONS = new Set(['static', 'relative', 'absolute']);
+const MAX_VALUE = 240;
 const MEDIA_URL =
   /^https:\/\/media\.wiki-ss13\.space\/[a-z0-9]{32}\/[a-f0-9]{16}\.(?:png|jpg|gif|webp|mp4)$/;
 
@@ -63,13 +271,48 @@ const sanitizeStyle = (value: unknown): CSSProperties | undefined => {
     if (
       STYLE_NAMES.has(name) &&
       typeof item === 'string' &&
-      item.length <= 100 &&
+      item.length <= MAX_VALUE &&
+      (name !== 'position' || POSITIONS.has(item.toLowerCase())) &&
       !/(?:url|var\(|calc\(|expression|@|\\)/i.test(item)
     ) {
       style[name] = item;
     }
   }
   return Object.keys(style).length ? (style as CSSProperties) : undefined;
+};
+
+const ATTRIBUTES: Record<string, string> = {
+  colspan: 'colSpan',
+  high: 'high',
+  low: 'low',
+  max: 'max',
+  min: 'min',
+  open: 'open',
+  optimum: 'optimum',
+  reversed: 'reversed',
+  rowspan: 'rowSpan',
+  span: 'span',
+  start: 'start',
+  title: 'title',
+  value: 'value',
+};
+
+const COUNT_ATTRIBUTES = new Set(['colspan', 'rowspan', 'span']);
+
+const nodeProps = (node: Record<string, unknown>) => {
+  const props: Record<string, unknown> = {};
+  for (const [name, property] of Object.entries(ATTRIBUTES)) {
+    const value = node[name];
+    const limit = COUNT_ATTRIBUTES.has(name) ? 64 : 1000000;
+    if (value === true) {
+      props[property] = value;
+    } else if (typeof value === 'number' && value >= 0 && value <= limit) {
+      props[property] = value;
+    } else if (typeof value === 'string' && name === 'title') {
+      props[property] = value.slice(0, MAX_VALUE);
+    }
+  }
+  return props;
 };
 
 type Props = {
@@ -99,10 +342,11 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
     ) {
       return null;
     }
-    if (node.type === 'br' || node.type === 'hr') {
+    if (VOID_TAGS.has(node.type)) {
       return createElement(node.type, {
         key,
         style: sanitizeStyle(node.style),
+        ...nodeProps(node),
       });
     }
     if (node.type === 'image' || node.type === 'video') {
@@ -115,7 +359,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
             key={key}
             src={node.src}
             alt={typeof node.alt === 'string' ? node.alt.slice(0, 160) : ''}
-            style={{ maxWidth: '100%', ...sanitizeStyle(node.style) }}
+            style={{ ...DEFAULT_STYLES.img, ...sanitizeStyle(node.style) }}
           />
         );
       }
@@ -125,7 +369,7 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
           src={node.src}
           controls
           preload="metadata"
-          style={{ maxWidth: '100%', ...sanitizeStyle(node.style) }}
+          style={{ ...DEFAULT_STYLES.video, ...sanitizeStyle(node.style) }}
         />
       );
     }
@@ -164,12 +408,23 @@ export const NtnetDocument = ({ tree, onNavigate }: Props) => {
     }
     return createElement(
       node.type,
-      { key, style: sanitizeStyle(node.style) },
+      {
+        key,
+        style: { ...DEFAULT_STYLES[node.type], ...sanitizeStyle(node.style) },
+        ...nodeProps(node),
+      },
       children,
     );
   };
   return (
-    <div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
+    <div
+      style={{
+        position: 'relative',
+        isolation: 'isolate',
+        overflow: 'hidden',
+        overflowWrap: 'anywhere',
+      }}
+    >
       {render(tree, 0, 'root')}
     </div>
   );
