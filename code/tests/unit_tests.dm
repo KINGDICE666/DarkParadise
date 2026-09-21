@@ -53,7 +53,6 @@
 #include "test_tgui_create_message.dm"
 #include "test_timer_sanity.dm"
 #include "test_washing.dm"
-#include "test_zzz_scratch.dm"
 #endif
 
 #ifdef MAP_TESTS
