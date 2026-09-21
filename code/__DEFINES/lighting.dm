@@ -28,6 +28,8 @@
 
 #define MINIMUM_USEFUL_LIGHT_RANGE 1.4
 
+#define MAXIMUM_LIGHT_RANGE 512
+
 /// light UNDER the floor. primarily used for starlight, shouldn't fuck with this
 #define LIGHTING_HEIGHT_SPACE -0.5
 /// light ON the floor
