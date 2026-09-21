@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { isInteractive } from '../interfaces/PDA/NtnetInteractive';
+import {
+  isInteractive,
+  navigationRequest,
+} from '../interfaces/PDA/NtnetInteractive';
 
 const SITE = '0123456789abcdef0123456789abcdef';
 const GOOD = `https://sandbox.wiki-ss13.space/i/${SITE}/index`;
@@ -39,6 +42,33 @@ describe('NTnet interactive address', () => {
   test('refuses junk instead of an object', () => {
     for (const value of [null, undefined, 'x', 42, [], { version: 1 }]) {
       expect(isInteractive(value)).toBeNull();
+    }
+  });
+});
+
+describe('NTnet navigation request from the frame', () => {
+  test('accepts an internal address', () => {
+    expect(
+      navigationRequest({ ntnet: 'navigate', site: SITE, slug: 'news-2' }),
+    ).toEqual({ siteId: SITE, slug: 'news-2' });
+  });
+
+  test('refuses anything else', () => {
+    for (const value of [
+      null,
+      undefined,
+      'navigate',
+      { ntnet: 'stop', site: SITE, slug: 'index' },
+      { site: SITE, slug: 'index' },
+      { ntnet: 'navigate', site: SITE },
+      { ntnet: 'navigate', site: 'short', slug: 'index' },
+      { ntnet: 'navigate', site: SITE.toUpperCase(), slug: 'index' },
+      { ntnet: 'navigate', site: SITE, slug: 'ИНДЕКС' },
+      { ntnet: 'navigate', site: SITE, slug: '../index' },
+      { ntnet: 'navigate', site: SITE, slug: '-news' },
+      { ntnet: 'navigate', site: SITE, slug: '' },
+    ]) {
+      expect(navigationRequest(value)).toBeNull();
     }
   });
 });

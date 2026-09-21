@@ -1054,6 +1054,7 @@ const renderPage = (
       interactive={interactive}
       title={title}
       fallback={document}
+      onNavigate={onOpen}
     />
   );
 };

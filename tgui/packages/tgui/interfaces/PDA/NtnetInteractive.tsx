@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const SANDBOX_URL =
   /^https:\/\/sandbox\.wiki-ss13\.space\/i\/[a-f0-9]{32}\/[a-z0-9][a-z0-9-]{0,62}$/;
+const SITE_ID = /^[a-f0-9]{32}$/;
+const PAGE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
 const FRAME_SANDBOX = 'allow-scripts';
 const FRAME_POLICY = [
   "default-src 'none'",
@@ -38,6 +40,25 @@ export const isInteractive = (value: unknown): Interactive | null => {
     return null;
   }
   return { url, version: typeof version === 'number' ? version : 1 };
+};
+
+export const navigationRequest = (
+  value: unknown,
+): { siteId: string; slug: string } | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const { ntnet, site, slug } = value as Record<string, unknown>;
+  if (
+    ntnet !== 'navigate' ||
+    typeof site !== 'string' ||
+    typeof slug !== 'string' ||
+    !SITE_ID.test(site) ||
+    !PAGE_SLUG.test(slug)
+  ) {
+    return null;
+  }
+  return { siteId: site, slug };
 };
 
 let rendererCheck: Promise<boolean> | null = null;
@@ -104,13 +125,15 @@ type Props = {
   interactive: Interactive;
   title: string;
   fallback: React.ReactNode;
+  onNavigate: (siteId: string, slug: string) => void;
 };
 
 export const NtnetInteractive = (props: Props) => {
-  const { interactive, title, fallback } = props;
+  const { interactive, title, fallback, onNavigate } = props;
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stopped, setStopped] = useState(false);
   const lastTick = useRef(0);
+  const frame = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -127,6 +150,20 @@ export const NtnetInteractive = (props: Props) => {
   useEffect(() => {
     setStopped(false);
   }, [interactive.url]);
+
+  useEffect(() => {
+    const listener = (event: MessageEvent) => {
+      if (!frame.current || event.source !== frame.current.contentWindow) {
+        return;
+      }
+      const request = navigationRequest(event.data);
+      if (request) {
+        onNavigate(request.siteId, request.slug);
+      }
+    };
+    window.addEventListener('message', listener);
+    return () => window.removeEventListener('message', listener);
+  }, [onNavigate]);
 
   useEffect(() => {
     if (allowed !== true || stopped) {
@@ -190,6 +227,7 @@ export const NtnetInteractive = (props: Props) => {
         key={interactive.url}
         title={title}
         ref={(node) => {
+          frame.current = node;
           if (!node || node.dataset.ntnetLoaded === interactive.url) {
             return;
           }
