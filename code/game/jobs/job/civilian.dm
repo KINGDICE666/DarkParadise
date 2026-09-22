@@ -49,7 +49,7 @@
 		ALT_JOB_TITLE_RU_ARRESTEE,
 		ALT_JOB_TITLE_RU_CONVICT,
 	)
-	outfit = /datum/outfit/job/assistant/prisoner
+	outfit = /datum/outfit/job/prisoner
 	insurance_type = INSURANCE_TYPE_NONE
 
 /datum/job/civilian/prisoner/after_spawn(mob/living/carbon/human/human)
@@ -74,7 +74,7 @@
 		. += ", [crime]"
 	. += "."
 
-/datum/outfit/job/assistant/prisoner
+/datum/outfit/job/prisoner
 	name = JOB_TITLE_RU_PRISONER
 	allow_loadout = FALSE
 	jobtype = /datum/job/civilian/prisoner

@@ -7,7 +7,6 @@
 	gender = FEMALE
 	icon_state = "pill"
 	item_state = "pill"
-	possible_transfer_amounts = null
 	volume = 100
 	consume_sound = null
 	can_taste = FALSE
@@ -50,6 +49,7 @@
 	if(!target.eat(src, user) || !user.can_unEquip(src))
 		return .
 	user.drop_transfer_item_to_loc(src, target)
+	SEND_SIGNAL(target, COMSIG_LIVING_PILL_CONSUMED, src, user)
 	qdel(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
@@ -119,22 +119,6 @@
 		ACCUSATIVE = "таблетку (Капулеттий+)",
 		INSTRUMENTAL = "таблеткой (Капулеттий+)",
 		PREPOSITIONAL = "таблетке (Капулеттий+)",
-	)
-
-/obj/item/reagent_containers/food/pill/adminordrazine
-	name = "Adminordrazine pill"
-	desc = "Магия. Тут нечего объяснять."
-	icon_state = "pill16"
-	list_reagents = list("adminordrazine" = 50)
-
-/obj/item/reagent_containers/food/pill/adminordrazine/get_ru_names()
-	return alist(
-		NOMINATIVE = "таблетка (Админордразин)",
-		GENITIVE = "таблетки (Админордразин)",
-		DATIVE = "таблетке (Админордразин)",
-		ACCUSATIVE = "таблетку (Админордразин)",
-		INSTRUMENTAL = "таблеткой (Админордразин)",
-		PREPOSITIONAL = "таблетке (Админордразин)",
 	)
 
 /obj/item/reagent_containers/food/pill/morphine

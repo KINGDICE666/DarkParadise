@@ -47,6 +47,7 @@
 /mob/living/simple_animal/hostile/retaliate/goat/Initialize(mapload)
 	. = ..()
 	udder = new()
+	AddElement(/datum/element/cliff_walking)
 
 /mob/living/simple_animal/hostile/retaliate/goat/Destroy()
 	QDEL_NULL(udder)
@@ -89,7 +90,7 @@
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-	if(isglassreagentcontainer(I))
+	if(iscup(I))
 		add_fingerprint(user)
 		if(stat != CONSCIOUS)
 			to_chat(user, span_warning("[src] has problems with health."))	// yeah, ITS DEAD
@@ -221,7 +222,7 @@
 		qdel(I)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(isglassreagentcontainer(I))
+	if(iscup(I))
 		add_fingerprint(user)
 		if(stat != CONSCIOUS)
 			to_chat(user, span_warning("[src] has problems with health."))
@@ -729,7 +730,7 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	if(prob(probability))
 		reagents.add_reagent("milk", rand(5, 10))
 
-/obj/item/udder/proc/milkAnimal(obj/item/reagent_containers/glass/container, mob/user)
+/obj/item/udder/proc/milkAnimal(obj/item/reagent_containers/cup/container, mob/user)
 	if(!container.reagents)
 		balloon_alert(user, "неподходящая ёмкость!")
 		return FALSE

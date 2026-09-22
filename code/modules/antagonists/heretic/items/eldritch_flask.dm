@@ -1,4 +1,4 @@
-/obj/item/reagent_containers/glass/beaker/eldritch
+/obj/item/reagent_containers/cup/beaker/eldritch
 	name = "flask of eldritch essence"
 	desc = "Токсичен для людей с ограниченным мышлением, но освежает тех, кто обладает знаниями о запредельном."
 	gender = MALE
@@ -7,7 +7,7 @@
 	list_reagents = list(/datum/reagent/eldritch = 50)
 
 
-/obj/item/reagent_containers/glass/beaker/eldritch/get_ru_names()
+/obj/item/reagent_containers/cup/beaker/eldritch/get_ru_names()
 	return alist(
 		NOMINATIVE = "флакон с жуткой эссенцией",
 		GENITIVE = "флакона с жуткой эссенцией",
@@ -18,7 +18,7 @@
 	)
 
 
-/obj/item/reagent_containers/glass/phylactery
+/obj/item/reagent_containers/cup/phylactery
 	name = "phylactery of damnation"
 	desc = "Используется для кражи крови у будущих жертв. Крадёт кровь по правому клику, даже на расстоянии."
 	gender = FEMALE
@@ -30,7 +30,7 @@
 	COOLDOWN_DECLARE(drain_cooldown)
 
 
-/obj/item/reagent_containers/glass/phylactery/get_ru_names()
+/obj/item/reagent_containers/cup/phylactery/get_ru_names()
 	return alist(
 		NOMINATIVE = "проклятая филактерия",
 		GENITIVE = "проклятой филактерии",
@@ -41,7 +41,7 @@
 	)
 
 
-/obj/item/reagent_containers/glass/phylactery/interact_with_atom_secondary(atom/target, mob/living/user, list/modifiers)
+/obj/item/reagent_containers/cup/phylactery/interact_with_atom_secondary(atom/target, mob/living/user, list/modifiers)
 	if(!COOLDOWN_FINISHED(src, drain_cooldown))
 		user.balloon_alert(user, "подождите!")
 		return NONE
@@ -76,16 +76,16 @@
 	return ITEM_INTERACT_SUCCESS
 
 
-/obj/item/reagent_containers/glass/phylactery/ranged_interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
+/obj/item/reagent_containers/cup/phylactery/ranged_interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
 	return interact_with_atom_secondary(interacting_with, user, modifiers)
 
 
-/obj/item/reagent_containers/glass/phylactery/on_reagent_change()
+/obj/item/reagent_containers/cup/phylactery/on_reagent_change()
 	. = ..()
 	update_icon()
 
 
-/obj/item/reagent_containers/glass/phylactery/update_icon_state()
+/obj/item/reagent_containers/cup/phylactery/update_icon_state()
 	. = ..()
 	switch(reagents.total_volume)
 		if(0)

@@ -1,17 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBackend } from '../backend';
-import {
-  Box,
-  Button,
-  Dropdown,
-  Input,
-  NanoMap,
-  NoticeBox,
-  ProgressBar,
-  Section,
-  Slider,
-  Stack,
-} from '../components';
+import { Box, Button, Dropdown, Input, NoticeBox, ProgressBar, Section, Slider, Stack } from 'tgui-core/components';
+import { NanoMap } from '../components';
 import { Window } from '../layouts';
 
 type Location = {

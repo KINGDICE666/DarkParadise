@@ -398,6 +398,9 @@ GLOBAL_VAR_INIT(record_id_num, 1001)
 		if(JOB_TITLE_CARGOTECH)
 			clothes_s = new /icon('icons/mob/clothing/uniform.dmi', "cargotech_s")
 			clothes_s.Blend(new /icon('icons/mob/clothing/feet.dmi', "black"), ICON_UNDERLAY)
+		if(JOB_TITLE_BITRUNNER)
+			clothes_s = new /icon('icons/mob/clothing/uniform.dmi', "bitrunner_s")
+			clothes_s.Blend(new /icon('icons/mob/clothing/feet.dmi', "black"), ICON_UNDERLAY)
 		if(JOB_TITLE_MINER)
 			clothes_s = new /icon('icons/mob/clothing/uniform.dmi', "explorer_s")
 			clothes_s.Blend(new /icon('icons/mob/clothing/feet.dmi', "explorer"), ICON_UNDERLAY)
@@ -558,3 +561,9 @@ GLOBAL_VAR_INIT(record_id_num, 1001)
 	qdel(clothes_s)
 
 	return preview_icon
+
+/datum/datacore/proc/find_general_record_by_name(name)
+	for(var/datum/data/record/finded_record as anything in general)
+		if(finded_record.fields["name"] == name)
+			return finded_record
+	return null

@@ -147,6 +147,7 @@
 
 	var/bodyflags = 0
 	var/list/worn_sheets
+	var/fit_profile
 
 	var/blood_color = BLOOD_COLOR_RED
 	var/flesh_color = "#d1aa2e" //Gold.
@@ -708,9 +709,9 @@
 				span_userdanger("[user.declent_ru(NOMINATIVE)] ослабля[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)]!")
 			)
 			target.apply_effect(4 SECONDS, KNOCKDOWN, armor_block)
-			target.forcesay(GLOB.hit_appends)
+			target.force_say(GLOB.hit_appends)
 		else if(target.body_position == LYING_DOWN)
-			target.forcesay(GLOB.hit_appends)
+			target.force_say(GLOB.hit_appends)
 
 /datum/species/proc/disarm(mob/living/carbon/human/user, mob/living/carbon/human/target, datum/martial_art/attacker_style)
 	if(user == target)

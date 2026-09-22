@@ -14,7 +14,7 @@
 
 /datum/antagonist/shadowling/Destroy(force)
 	if(owner?.current)
-		for(var/obj/effect/proc_holder/spell/spell as anything in owner.spell_list.Copy())
+		for(var/datum/action/cooldown/spell/spell as anything in owner.spell_list.Copy())
 			owner.RemoveSpell(spell)
 		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	return ..()
@@ -45,8 +45,8 @@
 
 /datum/antagonist/shadowling_thrall/Destroy(force)
 	if(owner?.current)
-		owner.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_guise)
-		owner.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_vision/thrall)
+		owner.RemoveSpell(/datum/action/cooldown/spell/shadowling_guise)
+		owner.RemoveSpell(/datum/action/cooldown/spell/shadowling_vision/thrall)
 		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	return ..()
 
@@ -61,8 +61,8 @@
 	return messages
 
 /datum/antagonist/shadowling_thrall/finalize_antag()
-	owner.AddSpell(new /obj/effect/proc_holder/spell/shadowling_guise(null))
-	owner.AddSpell(new /obj/effect/proc_holder/spell/shadowling_vision/thrall(null))
+	owner.AddSpell(new /datum/action/cooldown/spell/shadowling_guise)
+	owner.AddSpell(new /datum/action/cooldown/spell/shadowling_vision/thrall)
 	owner.current.add_language(LANGUAGE_HIVE_SHADOWLING)
 
 /proc/is_shadow(mob/living/user)

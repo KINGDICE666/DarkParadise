@@ -225,3 +225,7 @@
 #define LIPSTICK_TRAIT "lipstick_trait"
 
 #define TRAUMA_TRAIT "trauma"
+
+#define NETPOD_TRAIT "netpod"
+
+#define VIRTUAL_ENTITY_TRAIT "virtual_entity"

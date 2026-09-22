@@ -131,6 +131,14 @@
 	var/launcher_nickname = null
 	var/launcher_state = LAUNCHER_UNLINKED
 
+	var/ntnet_code
+	var/ntnet_code_expires = 0
+	var/ntnet_login_pending = FALSE
+	var/ntnet_login_retry = 0
+	var/ntnet_login_request = 0
+	var/ntnet_login_error
+	var/ntnet_light_theme = FALSE
+
 	//datum that controls the displaying and hiding of tooltips
 	var/datum/tooltip/tooltips
 
@@ -302,6 +310,19 @@
 	///Which ambient sound this client is currently being provided.
 	var/current_ambient_sound
 
+
+	var/commandbar_thinking = FALSE
+	var/commandbar_typing = FALSE
+
+	/// Whether or not this client has standard hotkeys enabled
+	var/hotkeys = TRUE
+
+	/// If this client has been fully initialized or not
+	var/fully_created = FALSE
+
+	var/datum/admin_verb_panel/admin_verb_panel
+
+	var/datum/escape_menu/escape_menu
 
 /client/vv_edit_var(var_name, var_value)
 	if(var_name == NAMEOF(src, tos_consent))

@@ -17,9 +17,9 @@
 	light_color = COLOR_HERETIC_GREEN
 	light_range = 3
 	/// holder for the actual action when created.
-	var/list/obj/effect/proc_holder/spell/path_sword_actions
+	var/list/datum/action/cooldown/spell/path_sword_actions
 	/// holder for the actual action when created.
-	var/list/obj/effect/proc_holder/spell/path_wielder_actions
+	var/list/datum/action/cooldown/spell/path_wielder_actions
 	var/mob/living/trapped_entity
 	/// The heretic path that the variable below uses to index abilities. Assigned when the heretic is ensouled.
 	var/heretic_path
@@ -28,43 +28,43 @@
 	/// Nested static list used to index abilities and names.
 	var/static/list/heretic_paths_to_haunted_sword_abilities = list(
 		PATH_ASH = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/ethereal_jaunt/ash),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/ash_beams),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/jaunt/ethereal_jaunt/ash),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/ash_beams),
 			SWORD_PREFIX = "пепельный",
 		),
 		PATH_FLESH = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/pointed/blood_siphon),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/cleave),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/pointed/blood_siphon),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/cleave),
 			SWORD_PREFIX = "кровавый",
 		),
 		PATH_VOID = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/pointed/void_phase),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/aoe/void_pull),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/pointed/void_phase),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/aoe/void_pull),
 			SWORD_PREFIX = "мрачный",
 		),
 		PATH_BLADE = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/haunted),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/projectile/furious_steel/solo),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/pointed/projectile/furious_steel/haunted),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/projectile/furious_steel/solo),
 			SWORD_PREFIX = "яростный",
 		),
 		PATH_RUST = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/cone/staggered/entropic_plume),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/aoe/rust_conversion, /obj/effect/proc_holder/spell/pointed/rust_construction),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/cone/staggered/entropic_plume),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/aoe/rust_conversion, /datum/action/cooldown/spell/pointed/rust_construction),
 			SWORD_PREFIX = "ржавый",
 		),
 		PATH_COSMIC = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/aoe/conjure/cosmic_expansion),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/projectile/star_blast),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/conjure/cosmic_expansion),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/projectile/star_blast),
 			SWORD_PREFIX = "астральный",
 		),
 		PATH_LOCK = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/pointed/burglar_finesse),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/apetra_vulnera),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/pointed/burglar_finesse),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/apetra_vulnera),
 			SWORD_PREFIX = "утончённый",
 		),
 		PATH_MOON = list(
-			WIELDER_SPELLS = list(/obj/effect/proc_holder/spell/pointed/projectile/moon_parade),
-			SWORD_SPELLS = list(/obj/effect/proc_holder/spell/pointed/moon_smile),
+			WIELDER_SPELLS = list(/datum/action/cooldown/spell/pointed/projectile/moon_parade),
+			SWORD_SPELLS = list(/datum/action/cooldown/spell/pointed/moon_smile),
 			SWORD_PREFIX = "сияющий",
 		),
 		PATH_START = list(
@@ -222,10 +222,10 @@
 
 	visible_message(span_danger("[user] освободил [declent_ru(ACCUSATIVE)]!"))
 	bound = FALSE
-	for(var/obj/effect/proc_holder/spell/sword_spell as anything in path_sword_actions)
+	for(var/datum/action/cooldown/spell/sword_spell as anything in path_sword_actions)
 		trapped_entity.mind.AddSpell(sword_spell)
 
-	for(var/obj/effect/proc_holder/spell/wielder_spell as anything in path_wielder_actions)
+	for(var/datum/action/cooldown/spell/wielder_spell as anything in path_wielder_actions)
 		trapped_entity.mind.AddSpell(wielder_spell)
 
 	free_use = TRUE
@@ -244,10 +244,10 @@
 	armour_penetration -= 10
 	free_use = FALSE // it's a cult blade and you sealed away the other power.
 	light_range -= 3
-	for(var/obj/effect/proc_holder/spell/sword_spell as anything in path_sword_actions)
+	for(var/datum/action/cooldown/spell/sword_spell as anything in path_sword_actions)
 		user.mind.RemoveSpell(sword_spell)
 
-	for(var/obj/effect/proc_holder/spell/wielder_spell as anything in path_wielder_actions)
+	for(var/datum/action/cooldown/spell/wielder_spell as anything in path_wielder_actions)
 		user.mind.RemoveSpell(wielder_spell)
 
 
@@ -287,7 +287,9 @@
 	if(!heretic_holder)
 		stack_trace("[soul_to_bind] in but not a heretic on the heretic soul blade.")
 
-	trapped_entity.AddSpell(new /obj/effect/proc_holder/spell/pointed/sword_fling(null, awakener))
+	var/datum/action/cooldown/spell/pointed/sword_fling/fling_spell = new(trapped_entity)
+	fling_spell.flinged_sword = src
+	trapped_entity.AddSpell(fling_spell)
 
 	heretic_path = heretic_holder.heretic_path?.route
 
@@ -308,8 +310,8 @@
 	name = "[path_spells[SWORD_PREFIX]] [name]"
 
 	if(sword_spells)
-		for(var/obj/effect/proc_holder/spell/sword_spell as anything in sword_spells)
-			var/obj/effect/proc_holder/spell/instanced_spell = new sword_spell(trapped_entity)
+		for(var/datum/action/cooldown/spell/sword_spell as anything in sword_spells)
+			var/datum/action/cooldown/spell/instanced_spell = new sword_spell(trapped_entity)
 			LAZYADD(path_sword_actions, instanced_spell)
 			instanced_spell.overlay_icon_state = "bg_cult_border" // for flavor, and also helps distinguish
 
@@ -317,8 +319,8 @@
 		binding_filters_update()
 		return
 
-	for(var/obj/effect/proc_holder/spell/wielder_spell as anything in wielder_spells)
-		var/obj/effect/proc_holder/spell/instanced_spell = new wielder_spell(trapped_entity)
+	for(var/datum/action/cooldown/spell/wielder_spell as anything in wielder_spells)
+		var/datum/action/cooldown/spell/instanced_spell = new wielder_spell(trapped_entity)
 		LAZYADD(path_wielder_actions, instanced_spell)
 		instanced_spell.overlay_icon_state = "bg_cult_border"
 
@@ -336,7 +338,7 @@
 
 /obj/item/melee/cultblade/haunted/dropped(mob/user, silent)
 	. = ..()
-	for(var/obj/effect/proc_holder/spell/wielder_spell in path_wielder_actions)
+	for(var/datum/action/cooldown/spell/wielder_spell in path_wielder_actions)
 		user.mind.RemoveSpell(wielder_spell)
 
 	binding_filters_update()

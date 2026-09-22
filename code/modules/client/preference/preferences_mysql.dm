@@ -1,3 +1,58 @@
+GLOBAL_LIST_INIT(character_setting_names, list(
+	"metadata" = "OOC-информация",
+	"real_name" = "имя",
+	"be_random_name" = "случайное имя",
+	"gender" = "пол",
+	"age" = "возраст",
+	"species" = "раса",
+	"language" = "дополнительный язык",
+	"h_style" = "причёска",
+	"h_colour" = "цвет причёски",
+	"h_sec_colour" = "дополнительный цвет причёски",
+	"h_grad_style" = "градиент причёски",
+	"h_grad_colour" = "цвет градиента причёски",
+	"h_grad_alpha" = "прозрачность градиента причёски",
+	"f_style" = "лицевая растительность",
+	"f_colour" = "цвет лицевой растительности",
+	"f_sec_colour" = "дополнительный цвет лицевой растительности",
+	"ha_style" = "аксессуары на голове",
+	"hacc_colour" = "цвет аксессуаров на голове",
+	"alt_head" = "тип головы",
+	"e_colour" = "цвет глаз",
+	"s_tone" = "тон кожи",
+	"s_colour" = "цвет кожи",
+	"underwear" = "нижнее бельё",
+	"underwear_color" = "цвет нижнего белья",
+	"undershirt" = "нательная рубашка",
+	"undershirt_color" = "цвет нательной рубашки",
+	"socks" = "носки",
+	"b_type" = "группа крови",
+	"nanotrasen_relation" = "отношение к \"Нанотрейзен\"",
+	"exoframe_type" = "каркас экзоскелета",
+	"autohiss_mode" = "уровень авто-акцента",
+	"flavor_text" = "описание внешности",
+	"med_record" = "медицинские записи",
+	"sec_record" = "записи службы безопасности",
+	"gen_record" = "записи отдела кадров",
+	"alternate_option" = "действие при неудачном выборе должности",
+	"disabilities" = "особенности персонажа",
+	"speciesprefs" = "расовые настройки",
+	"can_be_antagonist" = "возможность стать антагонистом"
+))
+
+GLOBAL_LIST_INIT(game_setting_names, list(
+	"achivements_sound" = "звук получения достижения",
+	"screentip_color" = "цвет всплывающей подсказки",
+	"viewrange" = "размер экрана",
+	"ghost_darkness_level" = "уровень освещения для призраков",
+	"lastchangelog" = "отметка о прочтении списка изменений"
+))
+
+/datum/preferences/proc/find_unset_setting(list/checked_settings)
+	for(var/setting in checked_settings)
+		if(isnull(vars[setting]))
+			return setting
+
 /datum/preferences/proc/load_preferences(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
 		return FALSE
@@ -68,14 +123,14 @@
 	qdel(query)
 
 	//Sanitize
-	ooccolor = sanitize_hexcolor(ooccolor, initial(ooccolor))
+	ooccolor = sanitize_hexcolor(ooccolor, default = initial(ooccolor))
 	UI_style = sanitize_inlist(UI_style, list(UI_THEME_WHITE, UI_THEME_MIDNIGHT, UI_THEME_PLASMAFIRE, UI_THEME_RETRO, UI_THEME_SLIMECORE, UI_THEME_OPERATIVE, UI_THEME_CLOCKWORK), initial(UI_style))
 	default_slot = sanitize_integer(default_slot, 1, max_save_slots, initial(default_slot))
 	toggles = sanitize_integer(toggles, 0, TOGGLES_TOTAL, initial(toggles))
 	toggles2 = sanitize_integer(toggles2, 0, TOGGLES_2_TOTAL, initial(toggles2))
 	toggles3 = sanitize_integer(toggles3, 0, TOGGLES_3_TOTAL, initial(toggles3))
 	sound = sanitize_integer(sound, 0, 65535, initial(sound))
-	UI_style_color = sanitize_hexcolor(UI_style_color, initial(UI_style_color))
+	UI_style_color = sanitize_hexcolor(UI_style_color, default = initial(UI_style_color))
 	UI_style_alpha = sanitize_integer(UI_style_alpha, 0, 255, initial(UI_style_alpha))
 	lastchangelog = sanitize_text(lastchangelog, initial(lastchangelog))
 	exp	= sanitize_text(exp, initial(exp))
@@ -87,11 +142,18 @@
 	discord_id = sanitize_text(discord_id, initial(discord_id))
 	discord_name = sanitize_text(discord_name, initial(discord_name))
 	screentip_mode = sanitize_integer(screentip_mode, 0, 20, initial(screentip_mode))
-	screentip_color = sanitize_hexcolor(screentip_color, initial(screentip_color))
+	screentip_color = sanitize_hexcolor(screentip_color, default = initial(screentip_color))
+	parent?.view_size?.setDefault(VIEWPORT_USE_PREF)
 	return TRUE
 
 /datum/preferences/proc/save_preferences(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
+		return
+
+	var/unset_setting = find_unset_setting(GLOB.game_setting_names)
+	if(unset_setting)
+		to_chat(C, span_warning("Настройки не сохранены: не выбран пункт «[GLOB.game_setting_names[unset_setting]]». Выберите значение и сохраните снова."))
+		stack_trace("[C.ckey] tried to save preferences with an unset setting: [unset_setting]")
 		return
 
 	// Might as well scrub out any malformed be_special list entries while we're here
@@ -382,7 +444,7 @@
 	s_tone			= sanitize_integer(s_tone, -185, 34, initial(s_tone))
 	s_colour		= sanitize_hexcolor(s_colour)
 	for(var/marking_location in m_colours)
-		m_colours[marking_location] = sanitize_hexcolor(m_colours[marking_location], DEFAULT_MARKING_COLOURS[marking_location])
+		m_colours[marking_location] = sanitize_hexcolor(m_colours[marking_location], default = DEFAULT_MARKING_COLOURS[marking_location])
 	hacc_colour		= sanitize_hexcolor(hacc_colour)
 	h_style			= sanitize_inlist(h_style, GLOB.hair_styles_public_list, initial(h_style))
 	f_style			= sanitize_inlist(f_style, GLOB.facial_hair_styles_list, initial(f_style))
@@ -461,6 +523,12 @@
 
 /datum/preferences/proc/save_character(client/C)
 	if(C.launcher_state == LAUNCHER_PENDING)
+		return
+
+	var/unset_setting = find_unset_setting(GLOB.character_setting_names)
+	if(unset_setting)
+		to_chat(C, span_warning("Персонаж не сохранён: не выбран пункт «[GLOB.character_setting_names[unset_setting]]». Выберите значение и сохраните снова."))
+		stack_trace("[C.ckey] tried to save a character with an unset setting: [unset_setting]")
 		return
 
 	for(var/title in player_alt_titles)

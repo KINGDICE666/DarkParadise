@@ -833,7 +833,7 @@ to destroy them and players will be able to make replacements.
 	greyscale_colors = CIRCUIT_COLOR_MEDICAL
 	origin_tech = "materials=3;programming=2;biotech=3"
 	req_components = list(
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 		/obj/item/stock_parts/manipulator = 1,
 		/obj/item/stack/sheet/glass = 1,
 	)
@@ -925,7 +925,7 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/matter_bin = 2,
 		/obj/item/stock_parts/manipulator = 2,
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 	)
 
 /obj/item/circuitboard/chem_dispenser/soda
@@ -947,7 +947,7 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/matter_bin = 1,
 		/obj/item/stock_parts/manipulator = 1,
-		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/reagent_containers/cup/beaker = 2,
 	)
 
 /obj/item/circuitboard/pacman
@@ -1435,4 +1435,39 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stock_parts/matter_bin = 1,
 		/obj/item/stock_parts/capacitor/adv = 1,
 		/obj/item/stock_parts/micro_laser/high = 2,
+	)
+
+/obj/item/circuitboard/machine/quantum_server
+	board_name = "Quantum Server"
+	build_path = /obj/machinery/quantum_server
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=5;engineering=4;bluespace=3"
+	req_components = list(
+		/obj/item/stock_parts/capacitor = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stack/cable_coil = 2,
+	)
+
+/obj/item/circuitboard/machine/netpod
+	board_name = "Netpod"
+	build_path = /obj/machinery/netpod
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=4;biotech=3;engineering=3"
+	req_components = list(
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stack/cable_coil = 2,
+		/obj/item/stack/sheet/glass = 1,
+	)
+
+/obj/item/circuitboard/machine/byteforge
+	board_name = "Byteforge"
+	build_path = /obj/machinery/byteforge
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=4;engineering=4;materials=3"
+	req_components = list(
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stock_parts/matter_bin = 1,
+		/obj/item/stack/cable_coil = 2,
 	)

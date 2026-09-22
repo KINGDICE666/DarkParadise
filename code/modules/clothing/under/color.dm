@@ -14,7 +14,6 @@
 	)
 	greyscale_config_worn_species = list(
 		SPECIES_VOX = /datum/greyscale_config/jumpsuit_worn/vox,
-		SPECIES_SWINE = /datum/greyscale_config/jumpsuit_worn/swine,
 		SPECIES_UNATHI = /datum/greyscale_config/jumpsuit_worn/unathi,
 		SPECIES_ASHWALKER_BASIC = /datum/greyscale_config/jumpsuit_worn/unathi,
 		SPECIES_ASHWALKER_SHAMAN = /datum/greyscale_config/jumpsuit_worn/unathi,
@@ -159,7 +158,7 @@
 	)
 
 /obj/item/clothing/under/color/grey/glorf/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
-	owner.forcesay(GLOB.hit_appends)
+	owner.force_say(GLOB.hit_appends)
 	return 0
 
 /obj/item/clothing/under/color/orange
@@ -193,7 +192,6 @@
 	)
 	greyscale_config_worn_species = list(
 		SPECIES_VOX = /datum/greyscale_config/jumpsuit_prison_worn/vox,
-		SPECIES_SWINE = /datum/greyscale_config/jumpsuit_prison_worn/swine,
 		SPECIES_DRASK = /datum/greyscale_config/jumpsuit_prison_worn/drask,
 		SPECIES_UNATHI = /datum/greyscale_config/jumpsuit_prison_worn/unathi,
 		SPECIES_ASHWALKER_BASIC = /datum/greyscale_config/jumpsuit_prison_worn/unathi,

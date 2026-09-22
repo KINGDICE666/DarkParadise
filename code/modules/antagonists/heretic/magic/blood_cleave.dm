@@ -1,18 +1,16 @@
-/obj/effect/proc_holder/spell/pointed/cleave
+/datum/action/cooldown/spell/pointed/cleave
 	name = "Кровавое Рассечение" // Crimson Cleave
 	desc = "Направленное заклинание: вытягивает здоровье и кровь у жертв в небольшом радиусе вокруг цели, \
 			исцеляя вас. При применении очищает все ваши раны."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "blood_siphon"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "blood_siphon"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/throw_target.dmi'
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 
 	invocation = "Р'СЧЛ'Н'Н!"
 	invocation_type = INVOCATION_WHISPER
@@ -24,14 +22,13 @@
 	var/cleave_radius = 1
 
 
-/obj/effect/proc_holder/spell/pointed/cleave/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/cleave/is_valid_target(atom/cast_on)
 	return ..() && ishuman(cast_on)
 
 
-/obj/effect/proc_holder/spell/pointed/cleave/cast(list/targets, mob/user = usr)
-	var/mob/living/carbon/human/cast_on = targets[1]
+/datum/action/cooldown/spell/pointed/cleave/cast(mob/living/carbon/human/cast_on)
 	. = ..()
-	var/mob/living/caster = action?.owner || user
+	var/mob/living/caster = owner || owner
 	if(isliving(caster))
 		caster.adjustBruteLoss(-20)
 		caster.adjustFireLoss(-20)

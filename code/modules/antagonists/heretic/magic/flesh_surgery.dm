@@ -1,29 +1,26 @@
-/obj/effect/proc_holder/spell/touch/flesh_surgery
+/datum/action/cooldown/spell/touch/flesh_surgery
 	name = "Управление Плотью"
 	desc = "Заклинание, позволяющее касанием собирать или восстанавливать плоть цели. \
 			Извлекает органы жертвы без необходимости проводить \
 			операцию или потрошить её. При применении к призванным существам \
 			или миньонам восстанавливает им здоровье. Также может использоваться для лечения \
 			повреждённых органов."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "mad_touch"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "mad_touch"
 	sound = null
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 20 SECONDS
+	cooldown_time = 20 SECONDS
 	invocation = "МН Н'ЖН ТВ Р'К С'РДЦ!"
-	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
 
 	hand_path = /obj/item/melee/touch_attack/flesh_surgery
 
 
-/obj/effect/proc_holder/spell/touch/flesh_surgery/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/touch/flesh_surgery/is_valid_target(atom/cast_on)
 	return isliving(cast_on) || isorgan(cast_on)
 
 
@@ -37,7 +34,7 @@
 	if(!proximity)
 		return FALSE
 
-	var/obj/effect/proc_holder/spell/touch/flesh_surgery/spell = attached_spell
+	var/datum/action/cooldown/spell/touch/flesh_surgery/spell = spell_which_made_us?.resolve()
 	if(isorgan(victim))
 		heal_organ(src, victim, caster)
 		return
@@ -96,7 +93,7 @@
 
 
 /// If cast on a carbon, we'll try to steal one of their organs directly from their person.
-/obj/effect/proc_holder/spell/touch/flesh_surgery/proc/steal_organ_from_mob(obj/item/melee/touch_attack/hand, mob/living/victim, mob/living/carbon/caster)
+/datum/action/cooldown/spell/touch/flesh_surgery/proc/steal_organ_from_mob(obj/item/melee/touch_attack/hand, mob/living/victim, mob/living/carbon/caster)
 	var/mob/living/carbon/carbon_victim = victim
 	if(!istype(carbon_victim) || !length(carbon_victim.internal_organs))
 		victim.balloon_alert(caster, "нет органов!")
@@ -195,7 +192,7 @@
 
 
 /// Extra checks ran while we're extracting an organ to make sure we can continue to do.
-/obj/effect/proc_holder/spell/touch/flesh_surgery/proc/extraction_checks(obj/item/organ/picked_organ, obj/item/melee/touch_attack/hand, mob/living/carbon/victim, mob/living/carbon/caster)
+/datum/action/cooldown/spell/touch/flesh_surgery/proc/extraction_checks(obj/item/organ/picked_organ, obj/item/melee/touch_attack/hand, mob/living/carbon/victim, mob/living/carbon/caster)
 	if(QDELETED(src) || QDELETED(hand) || QDELETED(picked_organ) || QDELETED(victim))
 		return FALSE
 

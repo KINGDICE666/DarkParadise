@@ -1,4 +1,4 @@
-import { sendAct as act } from 'tgui/backend';
+import { sendAct as act } from 'tgui/events/act';
 import { parseHexColorString } from '../../colorSpaces';
 import {
   bresenhamLine,
@@ -36,7 +36,7 @@ class EraserTransaction implements LayerTransaction {
 
   getPreviewLayer(layer: StringLayer) {
     const outLayer = copyLayer(layer);
-    this.points.values().forEach(([x, y]) => {
+    this.points.forEach(([x, y]) => {
       outLayer[y][x] = '#00000000';
     });
     return outLayer;
@@ -50,7 +50,7 @@ class EraserTransaction implements LayerTransaction {
         name: 'Eraser',
         layer: this.layer + 1,
         dir: `${this.dir}`,
-        points: this.points.values().toArray(),
+        points: Array.from(this.points.values()),
       },
     });
   }
@@ -67,7 +67,7 @@ export class Eraser extends Tool {
     data: SpriteData,
     x: number,
     y: number,
-    isRightClick: boolean
+    isRightClick: boolean,
   ) {
     const { selectedDir, selectedLayer, setPreviewLayer, setPreviewData } =
       context;
@@ -79,15 +79,15 @@ export class Eraser extends Tool {
       this.currentTransaction.addPoint(
         px,
         py,
-        getDataPixel(data, selectedLayer, selectedDir, px, py)
+        getDataPixel(data, selectedLayer, selectedDir, px, py),
       );
     }
     this.lastPoint = [px, py];
     setPreviewLayer(selectedLayer);
     setPreviewData(
       this.currentTransaction.getPreviewLayer(
-        layers[selectedLayer].data[selectedDir]!
-      )
+        layers[selectedLayer].data[selectedDir]!,
+      ),
     );
     return true;
   }
@@ -96,7 +96,7 @@ export class Eraser extends Tool {
     context: SpriteEditorToolContext,
     data: SpriteData,
     x: number,
-    y: number
+    y: number,
   ) {
     const { currentTransaction, lastPoint } = this;
     if (!currentTransaction) return;
@@ -112,12 +112,12 @@ export class Eraser extends Tool {
       currentTransaction.addPoint(
         x,
         y,
-        getDataPixel(data, selectedLayer, selectedDir, x, y)
+        getDataPixel(data, selectedLayer, selectedDir, x, y),
       );
     });
     this.lastPoint = [px, py];
     setPreviewData(
-      currentTransaction.getPreviewLayer(layers[layer].data[dir]!)
+      currentTransaction.getPreviewLayer(layers[layer].data[dir]!),
     );
   }
 
@@ -125,14 +125,14 @@ export class Eraser extends Tool {
     context: SpriteEditorToolContext,
     data: SpriteData,
     x: number,
-    y: number
+    y: number,
   ) {
     if (!this.currentTransaction) return;
     if (this.currentTransaction.points.size !== 0) {
       this.currentTransaction.commit();
     }
-    this.currentTransaction.commit();
     this.currentTransaction = null;
+    this.lastPoint = null;
   }
 
   cancel(context: SpriteEditorToolCancelContext) {

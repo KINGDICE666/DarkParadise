@@ -22,7 +22,7 @@ GLOBAL_LIST_INIT(heretic_start_knowledge, initialize_starting_knowledge())
 			заклинание, которое можно применить без фокуса."
 	research_tree_icon_path = 'icons/effects/effects.dmi'
 	research_tree_icon_state = "static"
-	spell_to_add = /obj/effect/proc_holder/spell/touch/mansus_grasp
+	spell_to_add = /datum/action/cooldown/spell/touch/mansus_grasp
 	is_starting_knowledge = TRUE
 
 /*
@@ -31,7 +31,7 @@ GLOBAL_LIST_INIT(heretic_start_knowledge, initialize_starting_knowledge())
 	RegisterSignal(user, COMSIG_TOUCH_HANDLESS_CAST, PROC_REF(on_grasp_cast))
 
 
-/datum/heretic_knowledge/spell/basic/proc/on_grasp_cast(mob/living/carbon/cast_on, obj/effect/proc_holder/spell/touch/touch_spell)
+/datum/heretic_knowledge/spell/basic/proc/on_grasp_cast(mob/living/carbon/cast_on, datum/action/cooldown/spell/touch/touch_spell)
 	SIGNAL_HANDLER
 
 	if(!istype(touch_spell, spell_to_add))
@@ -42,7 +42,7 @@ GLOBAL_LIST_INIT(heretic_start_knowledge, initialize_starting_knowledge())
 		return NONE
 
 	INVOKE_ASYNC(cast_on, TYPE_PROC_REF(/atom/movable, say), message = "R'CH T'H F'SH!", forced = "fishing rod infusion invocation")
-	playsound(cast_on, /obj/effect/proc_holder/spell/touch/mansus_grasp::sound, 15)
+	playsound(cast_on, /datum/action/cooldown/spell/touch/mansus_grasp::sound, 15)
 	cast_on.visible_message(span_notice("[cast_on] snaps [cast_on.p_their()] fingers next to [held_rod], covering it in a burst of purple flames!"))
 
 	ADD_TRAIT(held_rod, TRAIT_ROD_MANSUS_INFUSED, held_rod.UID())
@@ -196,7 +196,7 @@ GLOBAL_LIST_INIT(heretic_start_knowledge, initialize_starting_knowledge())
 	desc = "Открывает меню, в котором можно изучать новые знания."
 	research_tree_icon_path = 'icons/mob/actions/actions.dmi'
 	research_tree_icon_state = "spell_default"
-	spell_to_add = /obj/effect/proc_holder/spell/heretic_menu
+	spell_to_add = /datum/action/cooldown/spell/heretic_menu
 	is_starting_knowledge = TRUE
 
 
@@ -207,7 +207,7 @@ GLOBAL_LIST_INIT(heretic_start_knowledge, initialize_starting_knowledge())
 	notice = "Можно применить, только пока у вас есть Живое Сердце."
 	research_tree_icon_path = 'icons/effects/effects.dmi'
 	research_tree_icon_state = "curse"
-	spell_to_add = /obj/effect/proc_holder/spell/shadow_cloak
+	spell_to_add = /datum/action/cooldown/spell/shadow_cloak
 	cost = 1
 	drafting_tier = 1
 	is_shop_only = TRUE

@@ -90,7 +90,6 @@
 	/// AI or pAI mob inhabiting the MOD.
 	var/mob/living/silicon/ai_assistant
 
-
 /obj/item/mod/control/get_ru_names()
 	return alist(
 		NOMINATIVE = "блок управления МЭК",
@@ -153,9 +152,10 @@
 		else
 			. += span_notice("Слот для ядра пуст.")
 
-/obj/item/mod/control/examine_more(mob/user)
-	. = ..()
-	. += "<i>[extended_desc]</i>"
+/obj/item/mod/control/add_deep_lore()
+	if(!extended_desc)
+		return
+	AddElement(/datum/element/examine_lore, lore = extended_desc)
 
 /obj/item/mod/control/process()
 	if(seconds_electrified > 0)
@@ -762,7 +762,7 @@
 	// 		INVOKE_ASYNC(src, PROC_REF(remove_pai), /* user = */ null, /* forced = */ TRUE) // async to appease spaceman DMM because the branch we don't run has a do_after
 	// 	else
 	// 		for(var/datum/action/action as anything in actions)
-	// 			if(action.owner == ai_assistant)
+	// 			if(owner == ai_assistant)
 	// 				action.Remove(ai_assistant)
 	// 		new /obj/item/mod/ai_minicard(drop_location(), ai_assistant)
 

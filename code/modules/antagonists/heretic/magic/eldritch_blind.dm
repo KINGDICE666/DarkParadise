@@ -1,13 +1,13 @@
-/obj/effect/proc_holder/spell/pointed/blind
+/datum/action/cooldown/spell/pointed/blind
 	name = "Слепота"
 	desc = "Это заклинание временно ослепляет одну цель."
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "eye"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "eye"
 	ranged_mousepointer = 'icons/effects/mouse_pointers/throw_target.dmi'
 
 	sound = 'sound/magic/blind.ogg'
 	school = SCHOOL_TRANSMUTATION
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 
 	invocation = "СТ' К'Л'!"
 	invocation_type = INVOCATION_WHISPER
@@ -21,7 +21,7 @@
 	var/eye_blur_duration = 40 SECONDS
 
 
-/obj/effect/proc_holder/spell/pointed/blind/valid_target(atom/cast_on)
+/datum/action/cooldown/spell/pointed/blind/is_valid_target(atom/cast_on)
 	. = ..()
 	if(!.)
 		return FALSE
@@ -32,15 +32,14 @@
 	return !human_target.is_blind()
 
 
-/obj/effect/proc_holder/spell/pointed/blind/cast(list/targets, mob/user = usr)
+/datum/action/cooldown/spell/pointed/blind/cast(mob/living/carbon/human/cast_on)
 	. = ..()
-	var/mob/living/carbon/human/cast_on = targets[1]
 	if(!istype(cast_on))
 		return FALSE
 
 	if(cast_on.can_block_magic(antimagic_flags))
 		to_chat(cast_on, span_notice("Ваш глаз зудит, но это быстро проходит."))
-		to_chat(action.owner, span_warning("Заклинание не возымело эффекта!"))
+		to_chat(owner, span_warning("Заклинание не возымело эффекта!"))
 		return FALSE
 
 	to_chat(cast_on, span_warning("Ваши глаза вспыхивают болью!"))
@@ -49,15 +48,13 @@
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/pointed/blind/eldritch
+/datum/action/cooldown/spell/pointed/blind/eldritch
 	name = "Жуткая Слепота"
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
 
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
 	invocation = "ГЛ'З"
 
 	cast_range = 10

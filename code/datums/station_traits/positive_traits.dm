@@ -55,7 +55,7 @@
 	new pizza_type_to_spawn(pod)
 
 	for(var/i in 1 to 2)
-		new /obj/item/reagent_containers/food/drinks/cans/beer(pod)
+		new /obj/item/reagent_containers/cup/soda_cans/beer(pod)
 
 	new /obj/effect/pod_landingzone(choosen_turf, pod)
 
@@ -306,6 +306,7 @@
 		/datum/job/lawyer = /obj/item/organ/internal/cyberimp/eyes/hud/security,
 		/datum/job/head_of_staff/qm = /obj/item/organ/internal/liver/cybernetic,
 		/datum/job/supply/cargo_tech = /obj/item/organ/internal/heart/cybernetic,
+		/datum/job/supply/bitrunner = /obj/item/organ/internal/cyberimp/brain/bci,
 		/datum/job/supply/mining = /obj/item/organ/internal/cyberimp/eyes/meson,
 		/datum/job/supply/mining_medic = /obj/item/organ/internal/cyberimp/arm/surgery,
 		/datum/job/investor = /obj/item/organ/internal/cyberimp/eyes/xray, // why not

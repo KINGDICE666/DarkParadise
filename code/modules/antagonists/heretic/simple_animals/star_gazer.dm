@@ -41,10 +41,10 @@
 	var/begging_timer
 	/// Abilities given to the star gazer mob
 	var/list/abilities_to_grant = list(
-		/obj/effect/proc_holder/spell/aoe/conjure/cosmic_expansion,
-		/obj/effect/proc_holder/spell/pointed/projectile/star_blast,
-		/obj/effect/proc_holder/spell/recall_stargazer,
-		/obj/effect/proc_holder/spell/stargazer_laser,
+		/datum/action/cooldown/spell/conjure/cosmic_expansion,
+		/datum/action/cooldown/spell/pointed/projectile/star_blast,
+		/datum/action/cooldown/spell/recall_stargazer,
+		/datum/action/cooldown/spell/stargazer_laser,
 	)
 
 
@@ -64,13 +64,13 @@
 	if(master)
 		summoner = WEAKREF(master)
 	for(var/spell_path in abilities_to_grant)
-		var/obj/effect/proc_holder/spell/spell = new spell_path(src)
+		var/datum/action/cooldown/spell/spell = new spell_path(src)
 		AddSpell(spell)
-		if(istype(spell, /obj/effect/proc_holder/spell/pointed/projectile/star_blast))
-			var/obj/effect/proc_holder/spell/pointed/projectile/star_blast/blast = spell
+		if(istype(spell, /datum/action/cooldown/spell/pointed/projectile/star_blast))
+			var/datum/action/cooldown/spell/pointed/projectile/star_blast/blast = spell
 			blast.summoner = summoner
-		else if(istype(spell, /obj/effect/proc_holder/spell/stargazer_laser))
-			var/obj/effect/proc_holder/spell/stargazer_laser/laser = spell
+		else if(istype(spell, /datum/action/cooldown/spell/stargazer_laser))
+			var/datum/action/cooldown/spell/stargazer_laser/laser = spell
 			laser.our_master = summoner
 	AddComponent(/datum/component/seethrough_mob)
 	var/static/list/death_loot = list(/obj/effect/temp_visual/cosmic_domain)
@@ -151,51 +151,44 @@
 		add_attack_logs(src, nearby_mob, "slashed (star gazer cleave)")
 
 
-/obj/effect/proc_holder/spell/recall_stargazer
+/datum/action/cooldown/spell/recall_stargazer
 	name = "Найти хозяина"
 	desc = "Телепортирует вас к вашему хозяину."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "stargazer_menu"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "stargazer_menu"
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 5 SECONDS
+	cooldown_time = 5 SECONDS
 	spell_requirements = NONE
 
 
-/obj/effect/proc_holder/spell/recall_stargazer/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/recall_stargazer/cast(list/targets, mob/user = usr)
-	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/real_owner = action.owner
+/datum/action/cooldown/spell/recall_stargazer/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/real_owner = owner
 	if(!istype(real_owner))
 		return FALSE
 	var/mob/living/master = real_owner.summoner?.resolve()
 	if(!master)
 		to_chat(real_owner, span_warning("У вас нет хозяина!"))
-		revert_cast(real_owner)
+		reset_spell_cooldown()
 		return FALSE
 	do_teleport(real_owner, get_turf(master))
 	return TRUE
 
 
-/obj/effect/proc_holder/spell/stargazer_laser
+/datum/action/cooldown/spell/stargazer_laser
 	name = "Звёздный взор"
 	desc = "Создаёт колоссальный смертоносный луч, испепеляющий всё на своём пути. \
 			Обладает собственной гравитацией, затягивающей новые жертвы."
-	action_background_icon = 'icons/mob/actions/backgrounds.dmi'
-	action_background_icon_state = "bg_heretic"
+	background_icon = 'icons/mob/actions/backgrounds.dmi'
+	background_icon_state = "bg_heretic"
 	overlay_icon_state = "bg_heretic_border"
-	action_icon = 'icons/mob/actions/actions_ecult.dmi'
-	action_icon_state = "gazer_beam_charge"
+	button_icon = 'icons/mob/actions/actions_ecult.dmi'
+	button_icon_state = "gazer_beam_charge"
 	school = SCHOOL_FORBIDDEN
-	human_req = FALSE
-	clothes_req = FALSE
-	base_cooldown = 30 SECONDS
+	cooldown_time = 30 SECONDS
 	invocation = "SH''P D' W''P"
 	invocation_type = INVOCATION_SHOUT
 	spell_requirements = NONE
@@ -219,23 +212,20 @@
 	var/cycle_tracker = 0
 
 
-/obj/effect/proc_holder/spell/stargazer_laser/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-
-/obj/effect/proc_holder/spell/stargazer_laser/Initialize(mapload)
+/datum/action/cooldown/spell/stargazer_laser/New(Target)
 	. = ..()
 	sound_loop = new
 
 
-/obj/effect/proc_holder/spell/stargazer_laser/Destroy()
+/datum/action/cooldown/spell/stargazer_laser/Destroy()
 	stop_beaming()
 	QDEL_NULL(sound_loop)
 	return ..()
 
 
-/obj/effect/proc_holder/spell/stargazer_laser/cast(list/targets, mob/user = usr)
-	var/mob/living/caster = action.owner
+/datum/action/cooldown/spell/stargazer_laser/cast(atom/cast_on)
+	. = ..()
+	var/mob/living/caster = owner
 	if(!caster)
 		return FALSE
 
@@ -263,7 +253,7 @@
 	var/beam_timer = addtimer(CALLBACK(src, PROC_REF(open_laser), caster, beam_targets), 2.2 SECONDS, TIMER_STOPPABLE)
 	playsound(caster, 'sound/creatures/stargazer/beam_open.ogg', 50, FALSE)
 	if(!do_after(caster, 3 SECONDS, caster))
-		cooldown_handler.start_recharge(1 SECONDS)
+		StartCooldown(1 SECONDS)
 		deltimer(beam_timer)
 		UnregisterSignal(caster, list(COMSIG_MOVABLE_MOVED, COMSIG_ATOM_DIR_CHANGE))
 		QDEL_NULL(orb_visual)
@@ -288,7 +278,7 @@
 
 
 /// Spawns the beginning of the laser, uses `beam_targets` to determine the rotation
-/obj/effect/proc_holder/spell/stargazer_laser/proc/open_laser(mob/owner, list/turf/beam_targets)
+/datum/action/cooldown/spell/stargazer_laser/proc/open_laser(mob/owner, list/turf/beam_targets)
 	beam_visual = new(get_step(get_step(owner, owner.dir), owner.dir), beam_targets[length(beam_targets)])
 	end_visual = new(beam_targets[length(beam_targets)], owner)
 	var/start_index = min(4, length(beam_targets))
@@ -299,7 +289,7 @@
 
 
 /// Recursive proc which affects whatever is caught within the beam
-/obj/effect/proc_holder/spell/stargazer_laser/proc/process_beam()
+/datum/action/cooldown/spell/stargazer_laser/proc/process_beam()
 	if(cycle_tracker > 33)
 		stop_beaming()
 	for(var/obj/effect/abstract/gazer_beam_filling/fillings as anything in beam_fillings)
@@ -347,11 +337,11 @@
 
 
 /// Stops the beam after we cancel it
-/obj/effect/proc_holder/spell/stargazer_laser/proc/stop_beaming()
+/datum/action/cooldown/spell/stargazer_laser/proc/stop_beaming()
 	SIGNAL_HANDLER
 	sound_loop.stop()
-	if(action?.owner)
-		UnregisterSignal(action.owner, list(COMSIG_MOVABLE_MOVED, COMSIG_ATOM_DIR_CHANGE))
+	if(owner)
+		UnregisterSignal(owner, list(COMSIG_MOVABLE_MOVED, COMSIG_ATOM_DIR_CHANGE))
 	QDEL_NULL(beam_visual)
 	QDEL_NULL(end_visual)
 	QDEL_LIST(beam_fillings)

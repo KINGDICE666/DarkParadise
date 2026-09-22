@@ -16,3 +16,5 @@
 	starsys_name = "Эпсилон Лукуста"
 	admin_only = TRUE
 	planetary = TRUE
+	webmap_url = "https://webmap.wiki-ss13.space/coldcolony/"
+	planetary = TRUE

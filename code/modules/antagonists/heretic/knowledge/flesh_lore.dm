@@ -236,7 +236,7 @@
 				я не заставил их замолчать."
 	research_tree_icon_path = 'icons/mob/actions/actions_ecult.dmi'
 	research_tree_icon_state = "mad_touch"
-	spell_to_add = /obj/effect/proc_holder/spell/touch/flesh_surgery
+	spell_to_add = /datum/action/cooldown/spell/touch/flesh_surgery
 	cost = 2
 
 
@@ -346,7 +346,7 @@
 
 /datum/heretic_knowledge/ultimate/flesh_final/on_finished_recipe(mob/living/user, list/selected_atoms, turf/loc)
 	. = ..()
-	user.mind.AddSpell(new /obj/effect/proc_holder/spell/shapeshift/shed_human_form)
+	user.mind.AddSpell(new /datum/action/cooldown/spell/shapeshift/shed_human_form)
 
 	var/datum/antagonist/heretic/heretic_datum = GET_HERETIC(user)
 	var/datum/heretic_knowledge/limited_amount/starting/base_flesh/blade_ritual = heretic_datum.get_knowledge(/datum/heretic_knowledge/limited_amount/starting/base_flesh)
