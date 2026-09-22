@@ -221,8 +221,8 @@
 /area/ruin/unpowered/coldcolony_outside)
 "co" = (
 /obj/structure/closet,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
@@ -341,7 +341,7 @@
 "dC" = (
 /obj/effect/decal/cleanable/cobweb,
 /obj/structure/rack/wooden,
-/obj/item/reagent_containers/glass/bucket/wooden,
+/obj/item/reagent_containers/cup/bucket/wooden,
 /turf/simulated/floor/indestructible/dirt_floor,
 /area/ruin/unpowered/coldcolony_outside)
 "dD" = (
@@ -1023,8 +1023,8 @@
 /area/coldcolony/malta/engineering/engine)
 "jT" = (
 /obj/structure/rack/wooden,
-/obj/item/reagent_containers/glass/bucket/wooden,
-/obj/item/reagent_containers/glass/bucket/wooden,
+/obj/item/reagent_containers/cup/bucket/wooden,
+/obj/item/reagent_containers/cup/bucket/wooden,
 /turf/simulated/floor/indestructible/dirt_floor,
 /area/ruin/unpowered/coldcolony_outside)
 "ka" = (
@@ -1152,19 +1152,19 @@
 /obj/item/kitchen/knife,
 /obj/item/kitchen/cutter,
 /obj/item/kitchen/cutter,
-/obj/item/reagent_containers/food/condiment/enzyme{
+/obj/item/reagent_containers/condiment/enzyme{
 	layer = 5;
 	pixel_y = 14
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
@@ -1246,7 +1246,7 @@
 "lM" = (
 /obj/structure/rack/wooden,
 /obj/item/shovel/spade/wooden,
-/obj/item/reagent_containers/glass/bucket/wooden,
+/obj/item/reagent_containers/cup/bucket/wooden,
 /turf/simulated/floor/indestructible/dirt_floor,
 /area/ruin/unpowered/coldcolony_outside)
 "lN" = (
@@ -1543,10 +1543,10 @@
 /area/coldcolony/malta/medical/medbay)
 "oi" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/glass/bottle/morphine,
-/obj/item/reagent_containers/glass/bottle/morphine,
-/obj/item/reagent_containers/glass/bottle/morphine,
-/obj/item/reagent_containers/glass/bottle/morphine,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/item/reagent_containers/cup/bottle/morphine,
 /obj/structure/sign/goldenplaque{
 	pixel_y = 29
 	},
@@ -2815,9 +2815,7 @@
 	name = "Спортзал"
 	},
 /obj/machinery/door/firedoor,
-/turf/simulated/floor/pod/light{
-	name = ы
-	},
+/turf/simulated/floor/pod/light,
 /area/coldcolony/malta/hallway/service)
 "zi" = (
 /obj/machinery/light/directional/east,
@@ -3014,7 +3012,7 @@
 /area/ruin/unpowered/coldcolony_outside)
 "Be" = (
 /obj/machinery/camera{
-	c_tag = Camera;
+	c_tag = "Camera";
 	dir = 1;
 	network = list("SWT")
 	},
@@ -3281,7 +3279,7 @@
 "Dj" = (
 /obj/machinery/firealarm/directional/south,
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/food/condiment/peppermill,
+/obj/item/reagent_containers/condiment/peppermill,
 /obj/machinery/light/directional/south,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod/light,
@@ -3463,10 +3461,10 @@
 /area/coldcolony/malta/medical/medbay)
 "Fe" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/food/condiment/saltshaker,
-/obj/item/reagent_containers/food/condiment/saltshaker,
-/obj/item/reagent_containers/food/condiment/peppermill,
-/obj/item/reagent_containers/food/condiment/peppermill,
+/obj/item/reagent_containers/condiment/saltshaker,
+/obj/item/reagent_containers/condiment/saltshaker,
+/obj/item/reagent_containers/condiment/peppermill,
+/obj/item/reagent_containers/condiment/peppermill,
 /obj/machinery/chem_dispenser/soda{
 	dir = 4
 	},
@@ -3660,7 +3658,7 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/fakelattice,
-/mob/living/simple_animal/hostile/vampire/bats,
+/mob/living/simple_animal/hostile/vampire/bats_summoned,
 /turf/simulated/floor/indestructible/dirt_floor,
 /area/ruin/unpowered/coldcolony_outside)
 "GS" = (
@@ -3989,7 +3987,7 @@
 	pixel_y = 32
 	},
 /obj/structure/reagent_dispensers/watertank/high,
-/obj/item/reagent_containers/glass/bucket,
+/obj/item/reagent_containers/cup/bucket,
 /obj/item/cultivator{
 	pixel_x = -3;
 	pixel_y = -2
@@ -4004,9 +4002,9 @@
 	},
 /obj/item/shovel/spade,
 /obj/item/shovel/spade,
-/obj/item/reagent_containers/glass/bucket,
-/obj/item/reagent_containers/glass/bucket,
-/obj/item/reagent_containers/glass/bucket,
+/obj/item/reagent_containers/cup/bucket,
+/obj/item/reagent_containers/cup/bucket,
+/obj/item/reagent_containers/cup/bucket,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod/light,
 /area/coldcolony/malta/hallway/service)
@@ -4080,7 +4078,7 @@
 /area/coldcolony/malta/engineering/engine)
 "Kl" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/food/condiment/peppermill,
+/obj/item/reagent_containers/condiment/peppermill,
 /turf/simulated/floor/pod/light,
 /area/coldcolony/malta/hallway/service)
 "Kz" = (
@@ -4587,7 +4585,7 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dirt,
-/mob/living/simple_animal/hostile/vampire/bats,
+/mob/living/simple_animal/hostile/vampire/bats_summoned,
 /turf/simulated/floor/indestructible/dirt_floor,
 /area/ruin/unpowered/coldcolony_outside)
 "Pn" = (
@@ -4849,10 +4847,10 @@
 /area/ruin/unpowered/coldcolony_outside)
 "RH" = (
 /obj/structure/table/glass,
-/obj/item/reagent_containers/glass/bucket,
-/obj/item/reagent_containers/glass/bucket,
-/obj/item/reagent_containers/glass/bucket,
-/obj/item/reagent_containers/glass/bucket,
+/obj/item/reagent_containers/cup/bucket,
+/obj/item/reagent_containers/cup/bucket,
+/obj/item/reagent_containers/cup/bucket,
+/obj/item/reagent_containers/cup/bucket,
 /turf/simulated/floor/pod/light,
 /area/coldcolony/malta/medical/medbay)
 "RJ" = (
@@ -5139,12 +5137,12 @@
 /area/ruin/unpowered/coldcolony_outside)
 "TI" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
+/obj/item/reagent_containers/cup/glass/bottle/vodka,
 /obj/structure/sign/poster/official/vodka{
 	pixel_y = 31
 	},
