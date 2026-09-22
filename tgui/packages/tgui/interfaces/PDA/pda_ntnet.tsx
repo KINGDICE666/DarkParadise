@@ -32,9 +32,12 @@ const SiteIcon = (props: {
     <img
       src={icon}
       alt=""
-      width={props.size}
-      height={props.size}
-      style={{ borderRadius: '3px', objectFit: 'cover' }}
+      style={{
+        width: props.size,
+        height: props.size,
+        borderRadius: '3px',
+        objectFit: 'cover',
+      }}
     />
   );
 };
