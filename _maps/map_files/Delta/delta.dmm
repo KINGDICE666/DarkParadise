@@ -62989,13 +62989,10 @@
 /turf/space,
 /area/space)
 "mbW" = (
-/obj/structure/statue/gold/hop{
-	desc = "Золотая литая статуя, посвящённая великому ХоПу — Михаилу Калинину, который продолжал исполнять свой долг даже в самых критических ситуациях";
-	name = "Статуя Михаила Калинина"
-	},
 /obj/structure/window/reinforced{
 	dir = 8
 	},
+/obj/structure/statue/silver/loharca,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "darkblue"
@@ -129536,10 +129533,6 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/engineering)
 "ygM" = (
-/obj/structure/statue/gold/ce{
-	desc = "Золотая литая статуя, посвящённая великому СЕ — Гарри Оппенгеймеру, который продолжал исполнять свой долг даже в самых тяжелых условиях";
-	name = "Статуя Гарри Оппенгеймера"
-	},
 /obj/structure/window/reinforced{
 	dir = 4
 	},
