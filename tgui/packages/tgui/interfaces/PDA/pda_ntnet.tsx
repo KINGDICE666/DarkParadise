@@ -14,31 +14,74 @@ import {
 import { NtnetDocument } from './NtnetDocument';
 import { isInteractive, NtnetInteractive } from './NtnetInteractive';
 
+const LETTER_COLORS = [
+  '#e0584e',
+  '#e8833a',
+  '#d4a72c',
+  '#4caf6a',
+  '#26a69a',
+  '#3d8fe0',
+  '#6c6ce0',
+  '#a45ad6',
+  '#d6548f',
+  '#78909c',
+];
+
+const letterColor = (domain: string) => {
+  let hash = 0;
+  for (const char of domain) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return LETTER_COLORS[hash % LETTER_COLORS.length];
+};
+
 const SiteIcon = (props: {
-  site?: { icon?: unknown };
-  size: string;
-  color?: string;
+  site?: { domain: string; icon?: unknown };
+  size: number;
 }) => {
-  const icon = siteIcon(props.site);
-  if (!icon) {
+  const { site, size } = props;
+  const icon = siteIcon(site);
+  const [broken, setBroken] = useState<string | null>(null);
+  if (!site) {
     return (
-      <Icon
-        name="globe"
-        style={{ fontSize: props.size, color: props.color ?? ACCENT }}
-      />
+      <Icon name="globe" style={{ fontSize: `${size}px`, color: ACCENT }} />
+    );
+  }
+  const plate = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: `${Math.round(size * 0.22)}px`,
+    overflow: 'hidden',
+  };
+  if (icon && broken !== icon) {
+    return (
+      <Box style={{ ...plate, background: '#ffffff' }}>
+        <img
+          src={icon}
+          alt=""
+          onError={() => setBroken(icon)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </Box>
     );
   }
   return (
-    <img
-      src={icon}
-      alt=""
+    <Box
       style={{
-        width: props.size,
-        height: props.size,
-        borderRadius: '3px',
-        objectFit: 'cover',
+        ...plate,
+        background: letterColor(site.domain),
+        color: '#ffffff',
+        fontSize: `${Math.round(size * 0.55)}px`,
+        fontWeight: 'bold',
+        lineHeight: 1,
       }}
-    />
+    >
+      {site.domain.slice(0, 1).toUpperCase()}
+    </Box>
   );
 };
 
@@ -575,7 +618,7 @@ const BrowserTab = (props: {
       color: props.active ? TEXT : MUTED,
     }}
   >
-    <SiteIcon site={props.site} size="0.8rem" />
+    <SiteIcon site={props.site} size={16} />
     <Box
       style={{
         flex: 1,
@@ -707,22 +750,7 @@ const HomePage = (props: {
                 background: SURFACE,
               }}
             >
-              <Box
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '20px',
-                  background: ACCENT,
-                  color: CHROME_DARK,
-                  fontSize: '1.3rem',
-                  fontWeight: 'bold',
-                }}
-              >
-                {entry.domain.slice(0, 1).toUpperCase()}
-              </Box>
+              <SiteIcon site={entry} size={44} />
               <Box
                 style={{
                   width: '100%',
@@ -794,7 +822,7 @@ const ListPage = (props: {
             background: SURFACE,
           }}
         >
-          <SiteIcon site={entry} size="1.2rem" />
+          <SiteIcon site={entry} size={32} />
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Box bold>{entry.title}</Box>
             <Box style={{ color: MUTED, fontSize: '0.85rem' }}>
@@ -867,7 +895,7 @@ const SearchPage = (props: {
                 fontSize: '0.8rem',
               }}
             >
-              <SiteIcon site={site} size="1rem" />
+              <SiteIcon site={site} size={18} />
               {site.domain}
               {first ? null : ` › ${entry.title}`}
             </Box>
