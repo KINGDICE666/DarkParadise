@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  frameAddress,
   isInteractive,
+  tokenRequest,
   navigationRequest,
 } from '../interfaces/PDA/NtnetInteractive';
 
@@ -69,6 +71,32 @@ describe('NTnet navigation request from the frame', () => {
       { ntnet: 'navigate', site: SITE, slug: '' },
     ]) {
       expect(navigationRequest(value)).toBeNull();
+    }
+  });
+});
+
+describe('NTnet site database handshake', () => {
+  test('asks the sandbox for the connected policy', () => {
+    expect(frameAddress(GOOD)).toBe(`${GOOD}?csp=2`);
+  });
+
+  test('recognises only a token request', () => {
+    expect(tokenRequest({ ntnet: 'token' })).toEqual({ renew: false });
+    expect(tokenRequest({ ntnet: 'token', renew: true })).toEqual({
+      renew: true,
+    });
+    expect(tokenRequest({ ntnet: 'token', renew: 'yes' })).toEqual({
+      renew: false,
+    });
+    for (const value of [
+      null,
+      undefined,
+      'token',
+      { ntnet: 'navigate' },
+      { token: 'x' },
+      [],
+    ]) {
+      expect(tokenRequest(value)).toBeNull();
     }
   });
 });

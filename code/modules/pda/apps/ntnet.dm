@@ -45,7 +45,8 @@
 		SSntnet.request_page(site_id, slug)
 	data["ntnet"] = list(
 		"available" = SSntnet.available,
-		"loading" = site_id ? !!SSntnet.pending[cache_key] : SSntnet.index_pending,
+		"loading" = site_id ? !SSntnet.pages[cache_key] && !SSntnet.page_failed(site_id, slug) : world.time < SSntnet.index_pending,
+		"failed" = site_id && SSntnet.page_failed(site_id, slug),
 		"catalog" = SSntnet.catalog,
 		"zones" = SSntnet.zones,
 		"site" = site,
@@ -66,6 +67,11 @@
 		"retry_seconds" = viewer ? max(0, ceil((viewer.ntnet_login_retry - world.time) / (1 SECONDS))) : 0,
 		"error" = viewer?.ntnet_login_error,
 	)
+	var/list/viewer_entry = site_id && viewer ? viewer.ntnet_viewer_tokens[site_id] : null
+	data["ntnet"]["viewer"] = list(
+		"token" = site_id ? SSntnet.viewer_token(viewer, site_id) : null,
+		"error" = LAZYACCESS(viewer_entry, "error"),
+	)
 
 /datum/data/pda/app/ntnet/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..())
@@ -81,6 +87,8 @@
 			site_id = params["site_id"]
 			slug = params["slug"]
 			SSntnet.request_page(site_id, slug)
+		if("ntnet_token")
+			SSntnet.request_viewer_token(ui.user.client, site_id, ui.user.real_name, !!params["renew"])
 		if("ntnet_refresh")
 			SSntnet.force_refresh(site_id, slug)
 		if("ntnet_theme")
