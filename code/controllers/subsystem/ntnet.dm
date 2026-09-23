@@ -11,16 +11,7 @@
 #define NTNET_CACHE_PAGES 32
 #define NTNET_MAX_REQUESTS 4
 #define NTNET_MAX_INTERACTIVE_URL 200
-
-/datum/config_entry/flag/ntnet_enabled
-
-/datum/config_entry/flag/ntnet_interactive
-	default = TRUE
-
-/datum/config_entry/string/ntnet_api_url
-
-/datum/config_entry/string/ntnet_server_key
-	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+#define NTNET_MAX_ID_LENGTH 64
 
 SUBSYSTEM_DEF(ntnet)
 	name = "NTnet"
@@ -77,7 +68,7 @@ SUBSYSTEM_DEF(ntnet)
 			new_zones += zone
 	var/list/new_sites = list()
 	for(var/list/site as anything in entries)
-		if(!islist(site) || !istext(site["id"]) || !length(site["id"]) || length(site["id"]) > 64 || !istext(site["domain"]) || !istext(site["title"]) || !istext(site["version"]) || !islist(site["pages"]))
+		if(!islist(site) || !istext(site["id"]) || !length(site["id"]) || length(site["id"]) > NTNET_MAX_ID_LENGTH || !istext(site["domain"]) || !istext(site["title"]) || !istext(site["version"]) || !islist(site["pages"]))
 			return
 		var/site_id = site["id"]
 		var/list/site_pages = site["pages"]
@@ -85,7 +76,7 @@ SUBSYSTEM_DEF(ntnet)
 			return
 		var/list/slugs = list()
 		for(var/list/page as anything in site_pages)
-			if(!islist(page) || !istext(page["slug"]) || !length(page["slug"]) || length(page["slug"]) > 64 || !istext(page["title"]) || (page["slug"] in slugs))
+			if(!islist(page) || !istext(page["slug"]) || !length(page["slug"]) || length(page["slug"]) > NTNET_MAX_ID_LENGTH || !istext(page["title"]) || (page["slug"] in slugs))
 				return
 			slugs += page["slug"]
 		if(!isnull(site["icon"]) && !media_address(site["icon"]))
@@ -187,6 +178,7 @@ SUBSYSTEM_DEF(ntnet)
 	return sandbox.Find(address)
 
 #undef NTNET_MAX_INTERACTIVE_URL
+#undef NTNET_MAX_ID_LENGTH
 #undef NTNET_REFRESH_INTERVAL
 #undef NTNET_RETRY_INTERVAL
 #undef NTNET_IDLE_TIMEOUT

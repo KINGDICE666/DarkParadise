@@ -10,9 +10,6 @@
 #define NTNET_VIEWER_MAX_TOKEN_LENGTH 1024
 #define NTNET_VIEWER_MAX_NAME 64
 
-/datum/config_entry/string/ntnet_editor_url
-	default = "https://ntnet.wiki-ss13.space"
-
 /datum/controller/subsystem/ntnet/proc/request_login(client/user)
 	if(!user || !is_enabled() || user.ntnet_login_pending || world.time < user.ntnet_login_retry)
 		return
@@ -123,7 +120,7 @@
 	if(response.errored || response.status_code != 201 || !istext(response.body) || length(response.body) > NTNET_LOGIN_MAX_BODY)
 		return
 	var/list/document = safe_json_decode(response.body)
-	if(!islist(document) || !istext(document["code"]) || length(document["code"]) != 14 || document["expires_in"] != NTNET_CODE_LIFETIME / (1 SECONDS))
+	if(!islist(document) || !istext(document["code"]) || document["expires_in"] != NTNET_CODE_LIFETIME / (1 SECONDS))
 		return
 	var/static/regex/code_pattern = regex("^\[23456789ABCDEFGHJKLMNPQRSTUVWXYZ\]{4}-\[23456789ABCDEFGHJKLMNPQRSTUVWXYZ\]{4}-\[23456789ABCDEFGHJKLMNPQRSTUVWXYZ\]{4}$")
 	if(!code_pattern.Find(document["code"]))
