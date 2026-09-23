@@ -150,7 +150,7 @@ SUBSYSTEM_DEF(ntnet)
 		return
 	available = TRUE
 	if(response.status_code == 404)
-		next_refresh = 0
+		next_refresh = min(next_refresh, world.time + NTNET_RETRY_INTERVAL)
 	if(response.status_code != 200 || !istext(response.body) || length(response.body) > NTNET_MAX_PAGE_BYTES)
 		page_retry[cache_key] = world.time + NTNET_RETRY_INTERVAL
 		return
