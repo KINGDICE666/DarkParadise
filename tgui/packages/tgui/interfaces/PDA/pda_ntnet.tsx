@@ -105,6 +105,7 @@ type Data = {
   ntnet: {
     available: boolean;
     loading: boolean;
+    failed?: boolean;
     catalog: NtnetSite[];
     zones: string[];
     theme: string;
@@ -516,7 +517,13 @@ export const pda_ntnet = () => {
             slug={current.slug}
             page={page}
             loading={loading}
+            failed={
+              !!data.ntnet.failed &&
+              site?.id === current.siteId &&
+              slug === current.slug
+            }
             onOpen={openSite}
+            onRetry={reload}
           />
         )}
       </Box>
@@ -1095,7 +1102,9 @@ const SitePage = (props: {
   slug: string;
   page: Data['ntnet']['page'];
   loading: boolean;
+  failed: boolean;
   onOpen: (siteId: string, slug: string) => void;
+  onRetry: () => void;
 }) => {
   const { site, slug, page } = props;
   if (!site) {
@@ -1139,9 +1148,27 @@ const SitePage = (props: {
           renderPage(page, site.title, props.onOpen)
         ) : (
           <Box style={{ color: MUTED }}>
-            {props.loading
-              ? 'Загрузка страницы…'
-              : 'Страница не загрузилась. Обновите её позже.'}
+            {props.failed ? (
+              <>
+                Страница не загрузилась.{' '}
+                <Box
+                  as="span"
+                  onClick={props.onRetry}
+                  style={{
+                    color: 'var(--nt-link)',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Повторить
+                </Box>
+              </>
+            ) : (
+              <>
+                <Icon name="spinner" spin mr={1} />
+                Загрузка страницы…
+              </>
+            )}
           </Box>
         )}
       </Box>

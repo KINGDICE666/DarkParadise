@@ -45,7 +45,8 @@
 		SSntnet.request_page(site_id, slug)
 	data["ntnet"] = list(
 		"available" = SSntnet.available,
-		"loading" = site_id ? !!SSntnet.pending[cache_key] : SSntnet.index_pending,
+		"loading" = site_id ? !SSntnet.pages[cache_key] && !SSntnet.page_failed(site_id, slug) : world.time < SSntnet.index_pending,
+		"failed" = site_id && SSntnet.page_failed(site_id, slug),
 		"catalog" = SSntnet.catalog,
 		"zones" = SSntnet.zones,
 		"site" = site,

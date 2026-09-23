@@ -150,6 +150,7 @@ export const NtnetInteractive = (props: Props) => {
   const { act, data } = useBackend<Data>();
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stopped, setStopped] = useState(false);
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
   const lastTick = useRef(0);
   const frame = useRef<HTMLIFrameElement | null>(null);
   const wantsToken = useRef(false);
@@ -291,14 +292,31 @@ export const NtnetInteractive = (props: Props) => {
         sandbox={FRAME_SANDBOX}
         allow=""
         referrerPolicy="no-referrer"
+        onLoad={() => setLoadedUrl(interactive.url)}
         style={{
           width: '100%',
-          height: '620px',
+          height: 'calc(100vh - 260px)',
+          minHeight: '420px',
           border: '1px solid #d7cbb6',
           borderRadius: '6px',
           background: '#ffffff',
         }}
       />
+      {loadedUrl !== interactive.url && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '32px',
+            left: 0,
+            right: 0,
+            padding: '24px',
+            textAlign: 'center',
+            color: '#5c6b77',
+          }}
+        >
+          Загрузка интерактивной страницы…
+        </div>
+      )}
     </div>
   );
 };

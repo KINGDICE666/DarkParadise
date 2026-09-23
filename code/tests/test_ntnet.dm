@@ -10,7 +10,7 @@
 /datum/unit_test/ntnet_responses/Run()
 	var/datum/controller/subsystem/ntnet/network = SSntnet
 	saved_state = list()
-	for(var/var_name in list("sites", "catalog", "zones", "pages", "page_retry", "pending", "available", "index_pending"))
+	for(var/var_name in list("sites", "catalog", "zones", "pages", "page_retry", "pending", "available", "index_pending", "next_refresh"))
 		saved_state[var_name] = network.vars[var_name]
 	network.sites = list()
 	network.catalog = list()
@@ -34,7 +34,7 @@
 	TEST_ASSERT_NOT(network.has_page(list("test"), "index"), "Malformed site ID was accepted")
 	var/cache_key = json_encode(list("test", "index"))
 	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "1", "tree" = list("type" = "text", "text" = "hello")))
-	network.on_page("test", "index", "1", response)
+	network.on_page("test", "index", response)
 	TEST_ASSERT(network.pages[cache_key], "Valid page was not cached")
 	var/list/cached_page = network.pages[cache_key]
 	TEST_ASSERT_NULL(cached_page["interactive"], "Missing interactive field was invented")
@@ -44,13 +44,13 @@
 	document["tree"] = list("type" = "text", "text" = "hello")
 	document["interactive"] = list("url" = address, "version" = 1)
 	response.body = json_encode(document)
-	network.on_page("test", "index", "1", response)
+	network.on_page("test", "index", response)
 	cached_page = network.pages[cache_key]
 	var/list/kept = cached_page["interactive"]
 	TEST_ASSERT_EQUAL(kept["url"], address, "Interactive address was not kept")
 	document["interactive"] = list("url" = "https://evil.example/steal")
 	response.body = json_encode(document)
-	network.on_page("test", "index", "1", response)
+	network.on_page("test", "index", response)
 	cached_page = network.pages[cache_key]
 	TEST_ASSERT_NULL(cached_page["interactive"], "Foreign interactive address was accepted")
 	TEST_ASSERT(network.media_address("https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.png"), "Media address was rejected")
@@ -80,8 +80,24 @@
 	network.on_index(response)
 	TEST_ASSERT_NULL(network.pages[cache_key], "Updated site retained stale page")
 	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "1", "tree" = list()))
-	network.on_page("test", "index", "1", response)
+	network.on_page("test", "index", response)
 	TEST_ASSERT_NULL(network.pages[cache_key], "Late response restored stale page")
+	TEST_ASSERT_NOT(network.page_failed("test", "index"), "Stale response blocked an immediate retry")
+	network.next_refresh = INFINITY
+	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "3", "tree" = list()))
+	network.on_page("test", "index", response)
+	TEST_ASSERT(network.pages[cache_key], "Page saved after the catalog refresh was rejected")
+	TEST_ASSERT_EQUAL(network.next_refresh, 0, "Newer page did not schedule a catalog refresh")
+	network.pages -= cache_key
+	response.status_code = 404
+	network.on_page("test", "index", response)
+	TEST_ASSERT(network.available, "Missing page took the whole network offline")
+	TEST_ASSERT(network.page_failed("test", "index"), "Missing page was not reported as failed")
+	response.status_code = 200
+	network.page_retry.Cut()
+	network.pending[json_encode(list("stuck", "index"))] = world.time - 1
+	network.request_page("test", "index")
+	TEST_ASSERT_NULL(network.pending[json_encode(list("stuck", "index"))], "Lost request kept its slot forever")
 	response.body = json_encode(list("sites" = list()))
 	network.on_index(response)
 	TEST_ASSERT_NOT(network.has_page("test", "index"), "Removed site remains accessible")
