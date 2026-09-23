@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useBackend } from '../../backend';
+
+const SANDBOX_ORIGIN = 'https://sandbox.wiki-ss13.space';
 const SANDBOX_URL =
   /^https:\/\/sandbox\.wiki-ss13\.space\/i\/[a-f0-9]{32}\/[a-z0-9][a-z0-9-]{0,62}$/;
 const SITE_ID = /^[a-f0-9]{32}$/;
@@ -11,8 +14,8 @@ const FRAME_POLICY = [
   "style-src 'unsafe-inline'",
   'img-src https://media.wiki-ss13.space data:',
   'media-src https://media.wiki-ss13.space',
-  "font-src data:",
-  "connect-src 'none'",
+  'font-src data:',
+  `connect-src ${SANDBOX_ORIGIN}`,
   "form-action 'none'",
   "frame-src 'none'",
   "child-src 'none'",
@@ -21,15 +24,29 @@ const FRAME_POLICY = [
   "base-uri 'none'",
   'sandbox allow-scripts',
 ].join('; ');
+const FRAME_POLICY_VERSION = 2;
 const PROBE_TIMEOUT = 700;
 const LAG_TICK = 1000;
 const LAG_LIMIT = 4000;
 const CSP_PROBE =
   '<meta http-equiv="Content-Security-Policy" content="script-src \'none\'">' +
   '<script>parent.postMessage("ntnet-probe-csp","*")</script>';
-const SANDBOX_PROBE = '<script>parent.postMessage("ntnet-probe-sandbox","*")</script>';
+const SANDBOX_PROBE =
+  '<script>parent.postMessage("ntnet-probe-sandbox","*")</script>';
 
 export type Interactive = { url: string; version: number };
+
+type Viewer = { token: string | null; error: string | null };
+
+type Data = { ntnet: { viewer?: Viewer } };
+
+export const frameAddress = (url: string) =>
+  `${url}?csp=${FRAME_POLICY_VERSION}`;
+
+export const isTokenRequest = (value: unknown) =>
+  !!value &&
+  typeof value === 'object' &&
+  (value as Record<string, unknown>).ntnet === 'token';
 
 export const isInteractive = (value: unknown): Interactive | null => {
   if (!value || typeof value !== 'object') {
@@ -130,10 +147,35 @@ type Props = {
 
 export const NtnetInteractive = (props: Props) => {
   const { interactive, title, fallback, onNavigate } = props;
+  const { act, data } = useBackend<Data>();
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stopped, setStopped] = useState(false);
   const lastTick = useRef(0);
   const frame = useRef<HTMLIFrameElement | null>(null);
+  const wantsToken = useRef(false);
+  const viewer = useRef<Viewer | undefined>(undefined);
+  viewer.current = data.ntnet?.viewer;
+
+  const deliverToken = () => {
+    const target = frame.current?.contentWindow;
+    const current = viewer.current;
+    if (!wantsToken.current || !target || !current) {
+      return;
+    }
+    if (current.token) {
+      target.postMessage({ ntnet: 'token', token: current.token }, '*');
+    } else if (current.error) {
+      target.postMessage({ ntnet: 'token', error: current.error }, '*');
+    } else {
+      return;
+    }
+    wantsToken.current = false;
+  };
+
+  useEffect(deliverToken, [
+    data.ntnet?.viewer?.token,
+    data.ntnet?.viewer?.error,
+  ]);
 
   useEffect(() => {
     let alive = true;
@@ -149,11 +191,20 @@ export const NtnetInteractive = (props: Props) => {
 
   useEffect(() => {
     setStopped(false);
+    wantsToken.current = false;
   }, [interactive.url]);
 
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (!frame.current || event.source !== frame.current.contentWindow) {
+        return;
+      }
+      if (isTokenRequest(event.data)) {
+        wantsToken.current = true;
+        if (!viewer.current?.token) {
+          act('ntnet_token');
+        }
+        deliverToken();
         return;
       }
       const request = navigationRequest(event.data);
@@ -163,7 +214,7 @@ export const NtnetInteractive = (props: Props) => {
     };
     window.addEventListener('message', listener);
     return () => window.removeEventListener('message', listener);
-  }, [onNavigate]);
+  }, [onNavigate, act]);
 
   useEffect(() => {
     if (allowed !== true || stopped) {
@@ -182,7 +233,9 @@ export const NtnetInteractive = (props: Props) => {
   }, [allowed, stopped, interactive.url]);
 
   if (allowed === null) {
-    return <div style={{ color: '#5c6b77' }}>Проверка интерактивного режима…</div>;
+    return (
+      <div style={{ color: '#5c6b77' }}>Проверка интерактивного режима…</div>
+    );
   }
   if (allowed === false || stopped) {
     return (
@@ -233,7 +286,7 @@ export const NtnetInteractive = (props: Props) => {
           }
           node.dataset.ntnetLoaded = interactive.url;
           node.setAttribute('csp', FRAME_POLICY);
-          node.setAttribute('src', interactive.url);
+          node.setAttribute('src', frameAddress(interactive.url));
         }}
         sandbox={FRAME_SANDBOX}
         allow=""

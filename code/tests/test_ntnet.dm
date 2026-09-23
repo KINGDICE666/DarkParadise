@@ -101,6 +101,18 @@
 		response.body = bad_body
 		TEST_ASSERT_NULL(parse_ntnet_login_response(response), "Malformed login response accepted")
 
+/datum/unit_test/ntnet_viewer_token/Run()
+	var/datum/http_response/response = allocate(/datum/http_response)
+	response.status_code = 201
+	response.body = json_encode(list("token" = "eyJzIjoiYSJ9.c2lnbmF0dXJl_-", "expires_in" = 3600))
+	TEST_ASSERT_EQUAL(parse_ntnet_viewer_token(response), "eyJzIjoiYSJ9.c2lnbmF0dXJl_-", "Valid viewer token rejected")
+	response.status_code = 404
+	TEST_ASSERT_NULL(parse_ntnet_viewer_token(response), "Refused viewer token accepted")
+	response.status_code = 201
+	for(var/bad_body in list("not json", json_encode(list("token" = "abc.def", "expires_in" = 900)), json_encode(list("token" = "abc.def.ghi", "expires_in" = 3600)), json_encode(list("token" = "abc'.def", "expires_in" = 3600)), json_encode(list("token" = list("abc.def"), "expires_in" = 3600))))
+		response.body = bad_body
+		TEST_ASSERT_NULL(parse_ntnet_viewer_token(response), "Malformed viewer token accepted")
+
 /datum/unit_test/ntnet_opt_in
 	var/saved_enabled
 	var/saved_url
