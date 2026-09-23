@@ -124,6 +124,15 @@
 	/// GeoIPdata about a current client
 	var/datum/geoip_data/geoip = null
 
+	var/ntnet_code
+	var/ntnet_code_expires = 0
+	var/ntnet_login_pending = FALSE
+	var/ntnet_login_retry = 0
+	var/ntnet_login_request = 0
+	var/ntnet_login_error
+	var/ntnet_light_theme = FALSE
+	var/list/ntnet_viewer_tokens = list()
+
 	//datum that controls the displaying and hiding of tooltips
 	var/datum/tooltip/tooltips
 
