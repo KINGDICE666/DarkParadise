@@ -296,7 +296,7 @@ export const NtnetInteractive = (props: Props) => {
         style={{
           width: '100%',
           height: 'calc(100vh - 260px)',
-          minHeight: '420px',
+          minHeight: '620px',
           border: '1px solid #d7cbb6',
           borderRadius: '6px',
           background: '#ffffff',
