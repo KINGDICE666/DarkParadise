@@ -70,10 +70,14 @@
 		return null
 	return entry["token"]
 
-/datum/controller/subsystem/ntnet/proc/request_viewer_token(client/user, site_id, character_name)
-	if(!user || !is_enabled() || !CONFIG_GET(flag/ntnet_interactive) || !istext(site_id) || !sites[site_id] || viewer_token(user, site_id))
+/datum/controller/subsystem/ntnet/proc/request_viewer_token(client/user, site_id, character_name, renew = FALSE)
+	if(!user || !is_enabled() || !CONFIG_GET(flag/ntnet_interactive) || !istext(site_id) || !sites[site_id])
 		return
 	var/list/entry = user.ntnet_viewer_tokens[site_id]
+	if(renew && entry)
+		entry["expires"] = 0
+	if(viewer_token(user, site_id))
+		return
 	if(entry && (world.time < entry["pending"] || world.time < entry["retry"]))
 		return
 	if(!entry && length(user.ntnet_viewer_tokens) >= NTNET_VIEWER_MAX_TOKENS)

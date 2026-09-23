@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   frameAddress,
   isInteractive,
-  isTokenRequest,
+  tokenRequest,
   navigationRequest,
 } from '../interfaces/PDA/NtnetInteractive';
 
@@ -81,7 +81,13 @@ describe('NTnet site database handshake', () => {
   });
 
   test('recognises only a token request', () => {
-    expect(isTokenRequest({ ntnet: 'token' })).toBe(true);
+    expect(tokenRequest({ ntnet: 'token' })).toEqual({ renew: false });
+    expect(tokenRequest({ ntnet: 'token', renew: true })).toEqual({
+      renew: true,
+    });
+    expect(tokenRequest({ ntnet: 'token', renew: 'yes' })).toEqual({
+      renew: false,
+    });
     for (const value of [
       null,
       undefined,
@@ -90,7 +96,7 @@ describe('NTnet site database handshake', () => {
       { token: 'x' },
       [],
     ]) {
-      expect(isTokenRequest(value)).toBe(false);
+      expect(tokenRequest(value)).toBeNull();
     }
   });
 });

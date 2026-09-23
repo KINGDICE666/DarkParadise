@@ -88,7 +88,7 @@
 			slug = params["slug"]
 			SSntnet.request_page(site_id, slug)
 		if("ntnet_token")
-			SSntnet.request_viewer_token(ui.user.client, site_id, ui.user.real_name)
+			SSntnet.request_viewer_token(ui.user.client, site_id, ui.user.real_name, !!params["renew"])
 		if("ntnet_refresh")
 			SSntnet.force_refresh(site_id, slug)
 		if("ntnet_theme")

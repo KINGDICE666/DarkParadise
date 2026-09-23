@@ -43,10 +43,13 @@ type Data = { ntnet: { viewer?: Viewer } };
 export const frameAddress = (url: string) =>
   `${url}?csp=${FRAME_POLICY_VERSION}`;
 
-export const isTokenRequest = (value: unknown) =>
-  !!value &&
-  typeof value === 'object' &&
-  (value as Record<string, unknown>).ntnet === 'token';
+export const tokenRequest = (value: unknown): { renew: boolean } | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const { ntnet, renew } = value as Record<string, unknown>;
+  return ntnet === 'token' ? { renew: renew === true } : null;
+};
 
 export const isInteractive = (value: unknown): Interactive | null => {
   if (!value || typeof value !== 'object') {
@@ -154,6 +157,7 @@ export const NtnetInteractive = (props: Props) => {
   const lastTick = useRef(0);
   const frame = useRef<HTMLIFrameElement | null>(null);
   const wantsToken = useRef(false);
+  const staleToken = useRef<string | null>(null);
   const viewer = useRef<Viewer | undefined>(undefined);
   viewer.current = data.ntnet?.viewer;
 
@@ -163,8 +167,9 @@ export const NtnetInteractive = (props: Props) => {
     if (!wantsToken.current || !target || !current) {
       return;
     }
-    if (current.token) {
+    if (current.token && current.token !== staleToken.current) {
       target.postMessage({ ntnet: 'token', token: current.token }, '*');
+      staleToken.current = null;
     } else if (current.error) {
       target.postMessage({ ntnet: 'token', error: current.error }, '*');
     } else {
@@ -193,6 +198,7 @@ export const NtnetInteractive = (props: Props) => {
   useEffect(() => {
     setStopped(false);
     wantsToken.current = false;
+    staleToken.current = null;
   }, [interactive.url]);
 
   useEffect(() => {
@@ -200,9 +206,13 @@ export const NtnetInteractive = (props: Props) => {
       if (!frame.current || event.source !== frame.current.contentWindow) {
         return;
       }
-      if (isTokenRequest(event.data)) {
+      const asked = tokenRequest(event.data);
+      if (asked) {
         wantsToken.current = true;
-        if (!viewer.current?.token) {
+        if (asked.renew) {
+          staleToken.current = viewer.current?.token || null;
+          act('ntnet_token', { renew: 1 });
+        } else if (!viewer.current?.token) {
           act('ntnet_token');
         }
         deliverToken();
