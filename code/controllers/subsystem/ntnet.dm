@@ -158,10 +158,10 @@ SUBSYSTEM_DEF(ntnet)
 		return
 	var/list/site = sites[site_id]
 	var/list/document = safe_json_decode(response.body)
-	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || !istext(document["version"]) || !islist(document["tree"]))
+	var/document_version = islist(document) && istext(document["version"]) ? text2num(document["version"]) : null
+	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || !isnum(document_version) || !islist(document["tree"]))
 		page_retry[cache_key] = world.time + NTNET_RETRY_INTERVAL
 		return
-	var/document_version = text2num(document["version"])
 	var/catalog_version = text2num(site["version"])
 	if(document_version < catalog_version)
 		return

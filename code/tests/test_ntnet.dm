@@ -83,6 +83,10 @@
 	network.on_page("test", "index", response)
 	TEST_ASSERT_NULL(network.pages[cache_key], "Late response restored stale page")
 	TEST_ASSERT_NOT(network.page_failed("test", "index"), "Stale response blocked an immediate retry")
+	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "junk", "tree" = list()))
+	network.on_page("test", "index", response)
+	TEST_ASSERT(network.page_failed("test", "index"), "Junk version was not treated as a broken response")
+	network.page_retry.Cut()
 	network.next_refresh = INFINITY
 	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "3", "tree" = list()))
 	network.on_page("test", "index", response)

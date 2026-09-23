@@ -516,7 +516,6 @@ export const pda_ntnet = () => {
             site={findSite(catalog, current.siteId)}
             slug={current.slug}
             page={page}
-            loading={loading}
             failed={
               !!data.ntnet.failed &&
               site?.id === current.siteId &&
@@ -1101,7 +1100,6 @@ const SitePage = (props: {
   site: NtnetSite | undefined;
   slug: string;
   page: Data['ntnet']['page'];
-  loading: boolean;
   failed: boolean;
   onOpen: (siteId: string, slug: string) => void;
   onRetry: () => void;
