@@ -3020,6 +3020,7 @@
 #include "code\modules\client\referrals.dm"
 #include "code\modules\client\preference\preference_info.dm"
 #include "code\modules\client\preference\preferences.dm"
+#include "code\modules\client\preference\preferences_jobs.dm"
 #include "code\modules\client\preference\preferences_mysql.dm"
 #include "code\modules\client\preference\preferences_spawnpoints.dm"
 #include "code\modules\client\preference\preferences_toggles.dm"
