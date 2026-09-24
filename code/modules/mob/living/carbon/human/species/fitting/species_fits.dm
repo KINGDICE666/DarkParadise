@@ -52,7 +52,6 @@
 		DEFAULT_ICON_NECK = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/neck.json',
 		DEFAULT_ICON_COLLAR = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/neck.json',
 		DEFAULT_ICON_ACCESSORY = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/ties.json',
-		'icons/mob/clothing/modsuit/mod_clothing.dmi' = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/mod_clothing.json',
 		'icons/mob/clothing/underwear.dmi' = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/uniform.json',
 	)
 	slot_pixel_maps = list(

@@ -208,6 +208,11 @@ GLOBAL_LIST_EMPTY(species_fits)
 	for(var/slot_string in clothing_item?.onmob_sheets)
 		if(clothing_item.onmob_sheets[slot_string] == sheet && slot_step_instances[slot_string])
 			return slot_step_instances[slot_string]
+	var/map_file = sheet_pixel_maps?[sheet]
+	if(map_file)
+		for(var/slot_string in slot_step_instances)
+			if(slot_pixel_maps[slot_string] == map_file)
+				return slot_step_instances[slot_string]
 	return step_instances
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)

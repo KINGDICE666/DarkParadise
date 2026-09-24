@@ -430,7 +430,8 @@ class SpeciesFit:
                 mapped[key] = source[origin] if origin is not None else None
             rows = {y for (x, y), origin in mapping.items() if origin is not None and origin[1] == y}
             rows -= {y for (x, y), origin in mapping.items() if origin is not None and origin[1] != y}
-            corrected = _refit_rows(source, mapped, self.width, self.height, rows) if rows else mapped
+            corrected = (_refit_rows(source, mapped, self.width, self.height, rows)
+                         if rows and len(mapping) < self.width * self.height else mapped)
             for key in working:
                 if key in mapping or corrected[key] != mapped[key]:
                     working[key] = None if key in mapping and mapping[key] is None else corrected[key]

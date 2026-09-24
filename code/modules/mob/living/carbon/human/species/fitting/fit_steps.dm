@@ -8,10 +8,12 @@
 	var/list/mapped = context.source.Copy()
 	var/list/rows = new(context.height)
 	var/list/vertical_rows = new(context.height)
+	var/mapped_pixels = 0
 	for(var/index in 1 to length(map))
 		var/origin = map[index]
 		if(isnull(origin))
 			continue
+		mapped_pixels++
 		mapped[index] = origin ? context.source[origin] : null
 		if(!origin)
 			continue
@@ -23,7 +25,7 @@
 	for(var/row in 1 to context.height)
 		if(vertical_rows[row])
 			rows[row] = FALSE
-	var/list/corrected = refit(context.source, mapped, context.width, context.height, rows)
+	var/list/corrected = mapped_pixels == length(mapped) ? mapped : refit(context.source, mapped, context.width, context.height, rows)
 	for(var/index in 1 to length(map))
 		if(!isnull(map[index]) || corrected[index] != mapped[index])
 			context.working[index] = !isnull(map[index]) && !map[index] ? null : corrected[index]
