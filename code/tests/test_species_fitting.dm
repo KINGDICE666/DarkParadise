@@ -512,3 +512,32 @@
 	reloaded.build()
 	reloaded.load_disk_cache()
 	TEST_ASSERT_NOTNULL(reloaded.read_disk_cache(DEFAULT_ICON_JUMPSUIT, fresh_state), "a state fitted in a round that inherited its cache from an earlier round never reached the disk")
+
+/datum/unit_test/species_fitting_sheet_maps
+
+/datum/unit_test/species_fitting_sheet_maps/Run()
+	var/datum/species_fit/fit = get_species_fit(/datum/species_fit/resomi)
+	fit.build()
+	var/list/uniform_map = fit.sheet_maps["[DEFAULT_ICON_JUMPSUIT]"]["[SOUTH]"]
+	TEST_ASSERT_NOTNULL(uniform_map, "the uniform sheet map was not loaded")
+	TEST_ASSERT(uniform_map != fit.pixel_maps["[SOUTH]"], "the uniform sheet shares the general map instead of its own")
+	TEST_ASSERT(uniform_map == fit.sheet_maps["[DEFAULT_ICON_JUMPSUIT]"]["[SOUTH]"], "one map file was loaded twice")
+	var/list/pixels = new(32 * 32)
+	TEST_ASSERT(fit.maps_for(null, DEFAULT_ICON_JUMPSUIT)["[SOUTH]"] == uniform_map, "a jumpsuit frame did not pick the uniform map")
+	TEST_ASSERT(fit.maps_for(null, 'icons/mob/clothing/jewelry.dmi') == fit.pixel_maps, "an unlisted sheet did not fall back to the general map")
+	var/obj/item/clothing/under/color/jumpsuit = allocate(/obj/item/clothing/under/color)
+	TEST_ASSERT(fit.maps_for(jumpsuit, jumpsuit.onmob_sheets[ITEM_SLOT_CLOTH_INNER_STRING])["[SOUTH]"] == uniform_map, "a greyscale jumpsuit did not pick the uniform map through its slot")
+	var/datum/fit_context/context = new(fit, SOUTH, pixels, fit.maps_for(null, DEFAULT_ICON_JUMPSUIT))
+	TEST_ASSERT(context.pixel_map == uniform_map, "the fit context ignored the maps it was given")
+	var/icon/vanilla = icon(DEFAULT_ICON_JUMPSUIT, "security_s")
+	var/list/vanilla_pixels = fit.read_frame(icon(vanilla, dir = SOUTH))
+	context = new(fit, SOUTH, vanilla_pixels, fit.maps_for(null, DEFAULT_ICON_JUMPSUIT))
+	var/datum/fit_step/pixel_map/map_step = new
+	map_step.apply(context)
+	for(var/index in 1 to length(uniform_map))
+		var/origin = uniform_map[index]
+		TEST_ASSERT_EQUAL(context.working[index], origin ? vanilla_pixels[origin] : null, "the uniform map step does not follow its map at pixel [index]")
+	var/icon/fitted = fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, "grey_s")
+	TEST_ASSERT_NOTNULL(fitted, "the resomi profile left a plain uniform human-sized")
+	TEST_ASSERT_NOTNULL(fitted.GetPixel(20, 7, dir = SOUTH), "the jumpsuit leaves the right resomi leg bare, the body sits half a pixel right of the human one")
+	TEST_ASSERT(fit.has_pixel_map('icons/mob/clothing/underwear.dmi'), "resomi underwear skips the map")

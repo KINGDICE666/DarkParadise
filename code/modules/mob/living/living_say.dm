@@ -506,6 +506,9 @@ GLOBAL_LIST_EMPTY(channel_to_radio_key)
 	var/atom/whisper_loc = get_whisper_loc()
 	var/list/listening = get_hear(message_range, whisper_loc)
 	listening |= src
+	for(var/mob/living/keen_listener in hearers(GOOD_HEARING_WHISPER_RANGE, whisper_loc))
+		if(HAS_TRAIT(keen_listener, TRAIT_GOOD_HEARING))
+			listening |= keen_listener
 
 	var/list/hearturfs = list()
 

@@ -18,6 +18,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/target_sheet
 	var/pixel_map
 	var/list/pixel_maps
+	var/list/sheet_pixel_maps
+	var/list/sheet_maps
+	var/list/slot_pixel_maps
+	var/list/slot_maps
 	var/list/trunk_states = list("torso_m", "groin_m")
 	var/list/limb_states = list("l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 	var/list/head_states = list("head_m")
@@ -86,6 +90,12 @@ GLOBAL_LIST_EMPTY(species_fits)
 		bare_names += jointext(part_group, ",")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[pixel_map]|[pixel_map ? md5(file2text(pixel_map)) : ""]")
+	for(var/sheet in sheet_pixel_maps)
+		var/map_file = sheet_pixel_maps[sheet]
+		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[sheet]|[map_file]|[md5(file2text(map_file))]")
+	for(var/slot_string in slot_pixel_maps)
+		var/map_file = slot_pixel_maps[slot_string]
+		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[map_file]|[md5(file2text(map_file))]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -129,32 +139,57 @@ GLOBAL_LIST_EMPTY(species_fits)
 		shrunk_masks[key] = build_shrunk_mask(fit_dir)
 
 /datum/species_fit/proc/load_pixel_map()
-	pixel_maps = list()
-	if(!pixel_map)
-		return
-	var/list/data = json_decode(file2text(pixel_map))
+	pixel_maps = pixel_map ? read_pixel_map(pixel_map) : list()
+	sheet_maps = list()
+	slot_maps = list()
+	var/list/loaded = list()
+	for(var/sheet in sheet_pixel_maps)
+		var/map_file = sheet_pixel_maps[sheet]
+		loaded["[map_file]"] ||= read_pixel_map(map_file)
+		sheet_maps["[sheet]"] = loaded["[map_file]"]
+	for(var/slot_string in slot_pixel_maps)
+		var/map_file = slot_pixel_maps[slot_string]
+		loaded["[map_file]"] ||= read_pixel_map(map_file)
+		slot_maps[slot_string] = loaded["[map_file]"]
+
+/datum/species_fit/proc/read_pixel_map(map_file)
+	var/list/maps = list()
+	var/list/data = json_decode(file2text(map_file))
 	var/list/resolution = data["resolution"]
 	if(data["version"] != 1 || resolution?["width"] != width || resolution?["height"] != height)
-		CRASH("Invalid species fitting pixel map: [pixel_map]")
+		CRASH("Invalid species fitting pixel map: [map_file]")
 	if(!(data["supportedDirections"] in list("four", "eight")))
-		CRASH("Unsupported pixel map directions: [pixel_map]")
+		CRASH("Unsupported pixel map directions: [map_file]")
 	var/list/mappings = data["mappings"]
 	var/list/directions = list("South" = SOUTH, "North" = NORTH, "East" = EAST, "West" = WEST)
 	for(var/direction_name in directions)
 		var/list/map = new(width * height)
 		var/list/pairs = mappings[direction_name]
 		for(var/list/pair in pairs)
-			var/output_index = pixel_map_index(pair["source"])
+			var/output_index = pixel_map_index(pair["source"], map_file)
 			var/list/target = pair["target"]
-			map[output_index] = isnull(target) ? 0 : pixel_map_index(target)
-		pixel_maps["[directions[direction_name]]"] = map
+			map[output_index] = isnull(target) ? 0 : pixel_map_index(target, map_file)
+		maps["[directions[direction_name]]"] = map
+	return maps
 
-/datum/species_fit/proc/pixel_map_index(list/point)
+/datum/species_fit/proc/pixel_map_index(list/point, map_file)
 	var/x = point?["x"]
 	var/y = point?["y"]
 	if(!isnum(x) || !isnum(y) || x != round(x) || y != round(y) || x < 0 || x >= width || y < 0 || y >= height)
-		CRASH("Invalid pixel map coordinate in [pixel_map]")
+		CRASH("Invalid pixel map coordinate in [map_file]")
 	return width * (height - 1 - y) + x + 1
+
+/datum/species_fit/proc/has_pixel_map(sheet)
+	return pixel_map || sheet_pixel_maps?[sheet]
+
+/datum/species_fit/proc/maps_for(obj/item/clothing_item, sheet)
+	var/list/maps = sheet_maps["[sheet]"]
+	if(maps || !clothing_item)
+		return maps || pixel_maps
+	for(var/slot_string in clothing_item.onmob_sheets)
+		if(clothing_item.onmob_sheets[slot_string] == sheet)
+			return slot_maps[slot_string] || pixel_maps
+	return pixel_maps
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
 	var/list/mask = new(width * height)
@@ -338,7 +373,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(species_sheet)
 		return new /icon(species_sheet, state_name)
 	var/datum/species_fit/fit = get_species_fit(wearer_species.fit_profile)
-	if(fit?.pixel_map)
+	if(fit?.has_pixel_map(accessory.icon))
 		var/icon/fitted = fit.fit_worn_icon(null, accessory.icon, state_name)
 		if(fitted)
 			return new /icon(fitted)
@@ -397,14 +432,15 @@ GLOBAL_LIST_EMPTY(species_fits)
 	else if(icon_exists(sheet, state_name))
 		fitted = read_disk_cache(sheet, state_name)
 		if(!fitted)
-			fitted = build_fitted_icon(sheet, state_name)
+			fitted = build_fitted_icon(sheet, state_name, clothing_item)
 			if(fitted)
 				write_disk_cache(sheet, state_name, fitted)
 	icon_cache[cache_key] = fitted || FIT_SKIP
 	return fitted
 
-/datum/species_fit/proc/build_fitted_icon(sheet, state_name)
+/datum/species_fit/proc/build_fitted_icon(sheet, state_name, obj/item/clothing_item)
 	build()
+	var/list/maps = maps_for(clothing_item, sheet)
 	var/icon/assembled = icon('icons/effects/effects.dmi', "nothing")
 	var/fitted_anything = FALSE
 	var/list/frames = list()
@@ -427,7 +463,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 			if(covered_share(pixels, reference_bare[part]) >= FIT_PART_GARMENT_SHARE)
 				dressed_parts[part] = TRUE
 	for(var/fit_dir in GLOB.cardinal)
-		var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"])
+		var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"], maps)
 		context.dresses_head = dresses_head
 		context.warps_head = warps_head
 		context.dressed_parts = dressed_parts
@@ -555,12 +591,13 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/row_map
 	var/list/span_map
 	var/list/pixel_tier
+	var/list/pixel_map
 	var/list/dirty_rows
 	var/dresses_head = FALSE
 	var/warps_head = FALSE
 	var/list/dressed_parts
 
-/datum/fit_context/New(datum/species_fit/profile, fit_dir, list/pixels)
+/datum/fit_context/New(datum/species_fit/profile, fit_dir, list/pixels, list/maps)
 	src.profile = profile
 	src.fit_dir = fit_dir
 	width = profile.width
@@ -571,6 +608,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	row_map = profile.row_maps["[fit_dir]"]
 	span_map = profile.span_maps["[fit_dir]"]
 	pixel_tier = profile.pixel_tier_maps["[fit_dir]"]
+	pixel_map = (maps || profile.pixel_maps)["[fit_dir]"]
 
 /datum/fit_context/proc/changed()
 	for(var/index in 1 to length(working))

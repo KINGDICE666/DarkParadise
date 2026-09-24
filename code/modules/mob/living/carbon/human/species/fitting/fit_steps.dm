@@ -2,7 +2,7 @@
 	return
 
 /datum/fit_step/pixel_map/apply(datum/fit_context/context)
-	var/list/map = context.profile.pixel_maps["[context.fit_dir]"]
+	var/list/map = context.pixel_map
 	if(!length(map))
 		return
 	var/list/mapped = context.source.Copy()
@@ -123,6 +123,43 @@
 		for(var/index in 1 to length(rebuilt))
 			result[offset + target_first + index - 1] = rebuilt[index]
 	return result
+
+/datum/fit_step/cover_parts
+	var/list/part_groups = list(list("torso_m", "groin_m"), list("l_leg", "r_leg"), list("l_arm", "r_arm"))
+	var/list/reference_masks
+	var/list/target_masks
+
+/datum/fit_step/cover_parts/apply(datum/fit_context/context)
+	var/datum/species_fit/profile = context.profile
+	var/key = "[context.fit_dir]"
+	if(!reference_masks)
+		reference_masks = list()
+		target_masks = list()
+		for(var/fit_dir in GLOB.cardinal)
+			var/list/reference_parts = list()
+			var/list/target_parts = list()
+			for(var/list/part_states in part_groups)
+				reference_parts += list(profile.build_mask(profile.reference_sheet, part_states, fit_dir))
+				target_parts += list(profile.build_mask(profile.target_sheet, part_states, fit_dir))
+			reference_masks["[fit_dir]"] = reference_parts
+			target_masks["[fit_dir]"] = target_parts
+	var/list/snapshot = context.working.Copy()
+	var/list/reference_parts = reference_masks[key]
+	var/list/target_parts = target_masks[key]
+	for(var/part in 1 to length(target_parts))
+		if(profile.covered_share(context.source, reference_parts[part]) < FIT_COVER_PART_SHARE)
+			continue
+		var/list/target_mask = target_parts[part]
+		for(var/index in 1 to length(target_mask))
+			if(!target_mask[index] || snapshot[index])
+				continue
+			var/x = (index - 1) % context.width + 1
+			for(var/distance in 1 to FIT_COVER_PART_REACH)
+				var/left = x - distance >= 1 ? snapshot[index - distance] : null
+				var/right = x + distance <= context.width ? snapshot[index + distance] : null
+				if(left || right)
+					context.working[index] = left || right
+					break
 
 /datum/fit_step/proc/clear_added(datum/fit_context/context, list/mask)
 	for(var/index in 1 to length(mask))

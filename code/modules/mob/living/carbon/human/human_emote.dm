@@ -1393,3 +1393,65 @@
 		'sound/voice/unathi/rumble.ogg',
 		'sound/voice/unathi/rumble2.ogg',
 	)
+
+/**
+ * Resomi
+ */
+/datum/emote/living/carbon/human/resomi
+	abstract_type = /datum/emote/living/carbon/human/resomi
+	species_type_whitelist_typecache = list(/datum/species/resomi)
+
+/datum/emote/living/carbon/human/resomi/wurble
+	name = "Тихо курлыкать (резоми)"
+	key = "wurble"
+	key_third_person = "wurbles"
+	message = "тихо курлыч%(ет,ут)%."
+	message_mime = "беззвучно шевел%(ит,ят)% клювом."
+	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
+	muzzled_noises = list("тихие")
+	sound = 'sound/voice/wurble.ogg'
+
+/datum/emote/living/carbon/human/resomi/warbles
+	name = "Курлыкать (резоми)"
+	key = "warbles"
+	key_third_person = "warbles"
+	message = "курлыч%(ет,ут)%."
+	message_mime = "беззвучно курлыч%(ет,ут)%."
+	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
+	muzzled_noises = list("гортанные")
+	sound = 'sound/voice/warbles.ogg'
+
+/datum/emote/living/carbon/human/resomi/trill
+	name = "Издать трель (резоми)"
+	key = "trill"
+	key_third_person = "trills"
+	message = "изда%(ёт,ют)% трель."
+	message_mime = "дела%(ет,ют)% вид, что изда%(ёт,ют)% трель."
+	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
+	muzzled_noises = list("громкие")
+	sound = 'sound/voice/resomitrill.ogg'
+
+/datum/emote/living/carbon/human/resomi/fluff_feathers
+	name = "Распушить перья (резоми)"
+	key = "fluff_feathers"
+	key_third_person = "fluff_feathers"
+	message = "распуша%(ет,ют)% перья."
+	emote_type = EMOTE_AUDIBLE
+	sound = 'sound/creatures/wings_flapping.ogg'
+
+/datum/emote/living/carbon/human/resomi/shake_feathers
+	name = "Встряхнуть перья (резоми)"
+	key = "shake_feathers"
+	key_third_person = "shake_feathers"
+	message = "встряхива%(ет,ют)% перья."
+	emote_type = EMOTE_AUDIBLE
+	sound = 'sound/effects/voxrustle.ogg'
+
+/datum/emote/living/carbon/human/resomi/click_beak
+	name = "Щёлкнуть клювом (резоми)"
+	key = "click_beak"
+	key_third_person = "click_beak"
+	message = "щёлка%(ет,ют)% клювом."
+	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
+	muzzled_noises = list("тихие")
+	sound = 'sound/effects/kidanclack2.ogg'

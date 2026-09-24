@@ -16,6 +16,12 @@ PART_GARMENT_SHARE = 0.25
 
 HEAD_WARP_SHARE = 0.25
 
+COVER_PART_GROUPS = (TRUNK_STATES, ("l_leg", "r_leg"), ("l_arm", "r_arm"))
+
+COVER_PART_SHARE = 0.9
+
+COVER_PART_REACH = 2
+
 
 def _nearest_line(lines, line):
     best, best_distance = line, 1 << 30
@@ -193,7 +199,8 @@ def _span_endpoints(mask, line, size, along_rows):
 
 class SpeciesFit:
     def __init__(self, reference_sheet, target_sheet, width=32, height=32, trim="shrink", remap="auto",
-                 max_squash=0, head_trim=True, head_warp=True, bare_parts=(), pixel_map=None):
+                 max_squash=0, head_trim=True, head_warp=True, bare_parts=(), pixel_map=None,
+                 sheet_pixel_maps=None, cover_parts=False):
         self.width, self.height = width, height
         self.trim = trim
         self.remap = remap
@@ -202,6 +209,13 @@ class SpeciesFit:
         self.head_warp = head_warp
         self.bare_parts = tuple(bare_parts)
         self.pixel_maps = _read_pixel_map(pixel_map, width, height)
+        self.sheet_maps = {sheet: _read_pixel_map(path, width, height)
+                           for sheet, path in (sheet_pixel_maps or {}).items()}
+        self.cover_parts = cover_parts
+        self.reference_cover = {index: [_flip_keys(body_mask(reference_sheet, states, index, width, height), height)
+                                        for states in COVER_PART_GROUPS] for index in range(4)}
+        self.target_cover = {index: [_flip_keys(body_mask(target_sheet, states, index, width, height), height)
+                                     for states in COVER_PART_GROUPS] for index in range(4)}
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
@@ -364,7 +378,7 @@ class SpeciesFit:
         masks = {dir_index: self.reference_bare[dir_index][part] for dir_index in range(4)}
         return self._covered_share(sheet, state, masks) >= PART_GARMENT_SHARE
 
-    def fit_frame(self, image, dir_index, dresses_head, dressed_parts, warps_head):
+    def fit_frame(self, image, dir_index, dresses_head, dressed_parts, warps_head, sheet=None):
         pixels = image.load()
         source = {}
         for y in range(self.height):
@@ -409,7 +423,7 @@ class SpeciesFit:
             for key in mask:
                 if source[key] is None:
                     working[key] = None
-        mapping = self.pixel_maps[dir_index]
+        mapping = self.sheet_maps.get(sheet, self.pixel_maps)[dir_index]
         if mapping:
             mapped = dict(source)
             for key, origin in mapping.items():
@@ -420,6 +434,20 @@ class SpeciesFit:
             for key in working:
                 if key in mapping or corrected[key] != mapped[key]:
                     working[key] = None if key in mapping and mapping[key] is None else corrected[key]
+        if self.cover_parts:
+            snapshot = dict(working)
+            for reference_mask, target_mask in zip(self.reference_cover[dir_index], self.target_cover[dir_index]):
+                if reference_mask and (sum(1 for key in reference_mask if source[key] is not None)
+                                       / len(reference_mask)) < COVER_PART_SHARE:
+                    continue
+                for (x, y) in target_mask:
+                    if snapshot[(x, y)] is not None:
+                        continue
+                    for distance in range(1, COVER_PART_REACH + 1):
+                        left, right = snapshot.get((x - distance, y)), snapshot.get((x + distance, y))
+                        if left is not None or right is not None:
+                            working[(x, y)] = left if left is not None else right
+                            break
         return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, working != source
 
     def _mark_bare_skin(self, working, dir_index):

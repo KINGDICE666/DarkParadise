@@ -8,26 +8,98 @@
 	slot_flags = ITEM_SLOT_HEAD
 	origin_tech = "biotech=2"
 	holder_flags = HUMAN_HOLDER
+	var/mob/living/held_mob
 
 /obj/item/holder/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
 
 /obj/item/holder/Destroy()
+	clear_held_mob()
 	STOP_PROCESSING(SSobj, src)
 	return ..()
 
+/obj/item/holder/proc/clear_held_mob()
+	if(held_mob && !QDELETED(held_mob))
+		UnregisterSignal(held_mob, list(
+			COMSIG_CARBON_APPLY_OVERLAY,
+			COMSIG_CARBON_REMOVE_OVERLAY,
+			COMSIG_MOB_UPDATE_HELD_ITEMS,
+			COMSIG_MOB_UNEQUIPPED_ITEM,
+			COMSIG_HUMAN_REGENERATE_ICONS,
+			COMSIG_QDELETING,
+		))
+		held_mob.clear_alert(ALERT_PICKUPABLE_CONTAINER)
+	held_mob = null
+
+/obj/item/holder/proc/release_contents(play_land_sound = FALSE, inertia_direction = NONE)
+	var/turf/landing = get_turf(src)
+	if(landing)
+		for(var/mob/living/released in contents)
+			released.forceMove(landing)
+			if(inertia_direction)
+				released.newtonian_move(inertia_direction)
+		if(play_land_sound)
+			playsound(landing, get_drop_sound(), YEET_SOUND_VOLUME, ignore_walls = FALSE)
+	qdel(src)
+
+/obj/item/holder/proc/release_if_dropped()
+	if(QDELETED(src) || throwing || !isturf(loc) || !length(contents))
+		return
+	release_contents(TRUE)
+
+/obj/item/holder/proc/update_held_mob_appearance()
+	if(!held_mob || QDELETED(held_mob))
+		return
+	var/old_layer = layer
+	var/old_plane = plane
+	var/old_pixel_x = pixel_x
+	var/old_pixel_y = pixel_y
+	appearance = held_mob.appearance
+	layer = old_layer
+	plane = old_plane
+	pixel_x = old_pixel_x
+	pixel_y = old_pixel_y
+	name = held_mob.name
+	desc = held_mob.desc
+
+/obj/item/holder/proc/on_held_mob_icon_updated(datum/source)
+	SIGNAL_HANDLER
+	update_held_mob_appearance()
+
+/obj/item/holder/proc/on_held_mob_qdeleting(datum/source)
+	SIGNAL_HANDLER
+	held_mob = null
+
 /obj/item/holder/process()
-
-	if(isturf(loc) || !(length(contents)))
-
-		for(var/mob/M in contents)
-
-			var/atom/movable/mob_container
-			mob_container = M
-			mob_container.forceMove(get_turf(src))
-
+	if(isturf(loc) && !throwing)
+		release_contents(TRUE)
+		return
+	if(!length(contents))
 		qdel(src)
+
+/obj/item/holder/allow_click()
+	return TRUE
+
+/obj/item/holder/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
+	. = ..()
+	if(length(contents) && isturf(loc) && !throwing)
+		addtimer(CALLBACK(src, PROC_REF(release_if_dropped)), 0, TIMER_UNIQUE|TIMER_OVERRIDE)
+	if(!held_mob || QDELETED(held_mob) || !HAS_TRAIT(held_mob, TRAIT_SMALL_MOB))
+		return
+	held_mob.clear_alert(ALERT_PICKUPABLE_CONTAINER)
+	if(isstorage(loc))
+		held_mob.throw_alert(ALERT_PICKUPABLE_CONTAINER, /atom/movable/screen/alert/pickupable_container, new_master = loc)
+
+/obj/item/holder/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
+	if(!length(contents))
+		return ..()
+	release_contents(TRUE, throwingdatum?.init_dir)
+
+/obj/item/holder/attack_hand(mob/living/user, list/modifiers)
+	if(user && user == held_mob)
+		return TRUE
+	return ..()
 
 /obj/item/holder/attackby(obj/item/I, mob/user, params)
 	for(var/mob/living/animal in contents)
@@ -103,16 +175,23 @@
 		return
 
 	var/obj/item/holder/H = new holder_type(loc)
+	H.held_mob = src
+	H.RegisterSignals(src, list(
+		COMSIG_CARBON_APPLY_OVERLAY,
+		COMSIG_CARBON_REMOVE_OVERLAY,
+		COMSIG_MOB_UPDATE_HELD_ITEMS,
+		COMSIG_MOB_UNEQUIPPED_ITEM,
+		COMSIG_HUMAN_REGENERATE_ICONS,
+	), TYPE_PROC_REF(/obj/item/holder, on_held_mob_icon_updated))
+	H.RegisterSignal(src, COMSIG_QDELETING, TYPE_PROC_REF(/obj/item/holder, on_held_mob_qdeleting))
+	H.update_held_mob_appearance()
 	src.forceMove(H)
-	H.name = name
-	H.icon = icon
-	H.icon_state = icon_state
-	if(desc)
-		H.desc = desc
-	H.attack_hand(grabber)
-	to_chat(grabber, "<span class='notice'>Вы подняли [src.name].")
-	to_chat(src, span_notice("[grabber.name] поднял[GEND_A_O_I(grabber)] вас."))
-	grabber.status_flags |= PASSEMOTES
+	if(grabber)
+		H.attack_hand(grabber)
+		to_chat(grabber, span_notice("Вы подняли [src.declent_ru(ACCUSATIVE)] на руки."))
+		to_chat(src, span_notice("[grabber.name] поднял[GEND_A_O_I(grabber)] вас на руки."))
+		playsound(grabber.loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
+		grabber.status_flags |= PASSEMOTES
 
 	switch(mob_size)
 		if(MOB_SIZE_TINY)
@@ -125,6 +204,16 @@
 			H.w_class = WEIGHT_CLASS_HUGE
 
 	return H
+
+/mob/living/proc/is_hiding_in_storage()
+	return HAS_TRAIT(src, TRAIT_SMALL_MOB) && istype(loc, /obj/item/holder) && isstorage(loc.loc)
+
+/mob/living/proc/can_be_picked_up(mob/living/carbon/human/picker)
+	if(!picker || !holder_type || !HAS_TRAIT(src, TRAIT_SMALL_MOB))
+		return FALSE
+	if(src == picker || !isturf(loc) || buckled)
+		return FALSE
+	return TRUE
 
 //Mob specific holders.
 
@@ -155,6 +244,15 @@
 	desc = "It's a little robot."
 	icon_state = "pai-repairbot"
 	origin_tech = "materials=3;programming=4;engineering=4"
+
+/obj/item/holder/humanoid
+	name = "small humanoid"
+	desc = "A small humanoid curled up into a carryable pose."
+	slot_flags = NONE
+
+/obj/item/holder/humanoid/Initialize(mapload)
+	. = ..()
+	dir = SOUTH
 
 /obj/item/holder/mouse
 	name = "mouse"
