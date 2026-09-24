@@ -91,6 +91,7 @@
 		internal = null
 		update_action_buttons_icon()
 	if(forced || \
+		get_species_fit(dna.species.fit_profile)?.headwear_hides_hair || \
 		(check_item.flags_inv & HIDE_ALL_HAIR) || \
 		(initial(check_item.flags_inv) & HIDE_ALL_HAIR) || \
 		(check_item.visor_flags_inv & HIDE_ALL_HAIR) || \

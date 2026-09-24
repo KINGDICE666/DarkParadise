@@ -45,6 +45,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/manual_sheets
 	var/list/blocked_sheets
 	var/list/item_overrides
+	var/headwear_hides_hair = FALSE
 	var/width = FIT_DEFAULT_SIZE
 	var/height = FIT_DEFAULT_SIZE
 	var/list/reference_trunk_masks
@@ -62,7 +63,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/target_bare_masks
 	var/list/shrunk_masks
 	var/list/step_instances
+	var/list/slot_steps
+	var/list/slot_step_instances
 	var/list/icon_cache
+	var/list/hair_cover_cache
 	var/list/disk_cache
 	var/cache_key
 	var/built = FALSE
@@ -72,10 +76,17 @@ GLOBAL_LIST_EMPTY(species_fits)
 		tier_states = list(head_states, list("l_foot", "r_foot"), list("l_hand", "r_hand"), trunk_states,
 			list("l_leg", "r_leg"), list("l_arm", "r_arm"))
 	icon_cache = list()
+	hair_cover_cache = list()
 	disk_cache = list()
 	step_instances = list()
 	for(var/step_type in steps)
 		step_instances += new step_type
+	slot_step_instances = list()
+	for(var/slot_string in slot_steps)
+		var/list/instances = list()
+		for(var/step_type in slot_steps[slot_string])
+			instances += new step_type
+		slot_step_instances[slot_string] = instances
 
 /datum/species_fit/proc/build()
 	if(built)
@@ -96,6 +107,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	for(var/slot_string in slot_pixel_maps)
 		var/map_file = slot_pixel_maps[slot_string]
 		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[map_file]|[md5(file2text(map_file))]")
+	for(var/slot_string in slot_steps)
+		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[jointext(slot_steps[slot_string], "|")]")
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -190,6 +203,12 @@ GLOBAL_LIST_EMPTY(species_fits)
 		if(clothing_item.onmob_sheets[slot_string] == sheet)
 			return slot_maps[slot_string] || pixel_maps
 	return pixel_maps
+
+/datum/species_fit/proc/steps_for(obj/item/clothing_item, sheet)
+	for(var/slot_string in clothing_item?.onmob_sheets)
+		if(clothing_item.onmob_sheets[slot_string] == sheet && slot_step_instances[slot_string])
+			return slot_step_instances[slot_string]
+	return step_instances
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
 	var/list/mask = new(width * height)
@@ -441,6 +460,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 /datum/species_fit/proc/build_fitted_icon(sheet, state_name, obj/item/clothing_item)
 	build()
 	var/list/maps = maps_for(clothing_item, sheet)
+	var/list/fit_steps = steps_for(clothing_item, sheet)
 	var/icon/assembled = icon('icons/effects/effects.dmi', "nothing")
 	var/fitted_anything = FALSE
 	var/list/frames = list()
@@ -467,12 +487,30 @@ GLOBAL_LIST_EMPTY(species_fits)
 		context.dresses_head = dresses_head
 		context.warps_head = warps_head
 		context.dressed_parts = dressed_parts
-		for(var/datum/fit_step/step in step_instances)
+		for(var/datum/fit_step/step in fit_steps)
 			step.apply(context)
 		if(context.changed())
 			fitted_anything = TRUE
 		assembled.Insert(write_frame(context.working), dir = fit_dir)
 	return fitted_anything ? assembled : null
+
+/datum/species_fit/proc/hides_hair(sheet, state_name)
+	if(!headwear_hides_hair || !isfile(sheet) || !icon_exists(sheet, state_name))
+		return FALSE
+	var/cache_key = "[sheet]|[state_name]"
+	if(!isnull(hair_cover_cache[cache_key]))
+		return hair_cover_cache[cache_key]
+	build()
+	var/hidden = FALSE
+	for(var/fit_dir in GLOB.cardinal)
+		var/icon/frame = icon(sheet, state_name, fit_dir)
+		if(frame.Width() != width || frame.Height() != height)
+			break
+		if(covered_share(read_frame(frame), reference_head_masks["[fit_dir]"]) >= FIT_PART_GARMENT_SHARE)
+			hidden = TRUE
+			break
+	hair_cover_cache[cache_key] = hidden
+	return hidden
 
 /datum/species_fit/proc/covered_share(list/pixels, list/mask)
 	var/part_pixels = 0

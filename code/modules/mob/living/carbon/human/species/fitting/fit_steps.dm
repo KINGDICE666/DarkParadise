@@ -361,3 +361,134 @@
 		if(context.dressed_parts[part])
 			continue
 		clear_added(context, target_parts[part])
+
+/datum/fit_step/head_offset
+	var/list/offsets
+	var/list/uncovered_masks
+
+/datum/fit_step/head_offset/apply(datum/fit_context/context)
+	var/key = "[context.fit_dir]"
+	if(!offsets)
+		build_offsets(context.profile)
+	var/list/offset = offsets[key]
+	var/list/shifted = new(length(context.working))
+	for(var/y in 1 to context.height)
+		var/from_y = y - offset[2]
+		if(from_y < 1 || from_y > context.height)
+			continue
+		for(var/x in 1 to context.width)
+			var/from_x = x - offset[1]
+			if(from_x < 1 || from_x > context.width)
+				continue
+			shifted[context.width * (y - 1) + x] = context.working[context.width * (from_y - 1) + from_x]
+	context.working = shifted.Copy()
+	var/list/uncovered = uncovered_masks[key]
+	for(var/index in 1 to length(uncovered))
+		if(!uncovered[index] || shifted[index])
+			continue
+		var/x = (index - 1) % context.width + 1
+		if(x > 1 && shifted[index - 1])
+			context.working[index] = shifted[index - 1]
+		else if(x < context.width && shifted[index + 1])
+			context.working[index] = shifted[index + 1]
+
+/datum/fit_step/head_offset/proc/build_offsets(datum/species_fit/profile)
+	offsets = list()
+	uncovered_masks = list()
+	for(var/fit_dir in GLOB.cardinal)
+		var/key = "[fit_dir]"
+		var/list/reference = profile.reference_head_masks[key]
+		var/list/target = profile.target_head_masks[key]
+		var/list/reference_box = mask_box(reference, profile.width)
+		var/list/target_box = mask_box(target, profile.width)
+		var/offset_x = target_box[1] - reference_box[1]
+		var/offset_y = target_box[2] - reference_box[2]
+		offsets[key] = list(offset_x, offset_y)
+		var/list/uncovered = new(length(target))
+		for(var/index in 1 to length(target))
+			if(!target[index])
+				continue
+			var/x = (index - 1) % profile.width + 1 - offset_x
+			var/y = round((index - 1) / profile.width) + 1 - offset_y
+			if(x < 1 || x > profile.width || y < 1 || y > profile.height || !reference[profile.width * (y - 1) + x])
+				uncovered[index] = TRUE
+		uncovered_masks[key] = uncovered
+
+/datum/fit_step/proc/mask_box(list/mask, width)
+	var/first_x = INFINITY
+	var/last_x = 0
+	var/top_y = 0
+	for(var/index in 1 to length(mask))
+		if(!mask[index])
+			continue
+		var/x = (index - 1) % width + 1
+		first_x = min(first_x, x)
+		last_x = max(last_x, x)
+		top_y = max(top_y, round((index - 1) / width) + 1)
+	return list(first_x, top_y, last_x)
+
+/datum/fit_step/foot_fit
+	var/list/foot_groups
+
+/datum/fit_step/foot_fit/apply(datum/fit_context/context)
+	if(!foot_groups)
+		build_groups(context.profile)
+	var/list/fitted = new(length(context.working))
+	for(var/list/group in foot_groups["[context.fit_dir]"])
+		var/reference_first = group[1]
+		var/reference_last = group[2]
+		var/target_first = group[3]
+		var/target_last = group[4]
+		var/low = group[5]
+		var/high = group[6]
+		var/paired = group[7]
+		var/scale = (target_last - target_first + 1) / (reference_last - reference_first + 1)
+		for(var/y in 1 to context.height)
+			var/row_offset = context.width * (y - 1)
+			var/garment_first = 0
+			var/garment_last = 0
+			for(var/x in low to high)
+				if(context.working[row_offset + x])
+					garment_first ||= x
+					garment_last = x
+			if(!garment_first)
+				continue
+			var/fitted_first = garment_first + target_first - reference_first
+			var/fitted_last = garment_last + target_last - reference_last
+			if(paired)
+				if(garment_first < reference_first)
+					fitted_first = target_first - 1 - floor((reference_first - garment_first) * scale)
+				else
+					fitted_first = target_first + round((garment_first - reference_first) * scale, 1)
+				if(garment_last > reference_last)
+					fitted_last = target_last + 1 + floor((garment_last - reference_last) * scale)
+				else
+					fitted_last = target_last - round((reference_last - garment_last) * scale, 1)
+			fitted_first = max(low, fitted_first)
+			fitted_last = min(high, fitted_last)
+			for(var/x in fitted_first to fitted_last)
+				var/from_x = fitted_last == fitted_first ? garment_first : garment_first + round((x - fitted_first) * (garment_last - garment_first) / (fitted_last - fitted_first), 1)
+				var/pixel = context.working[row_offset + from_x]
+				if(!pixel && from_x > garment_first)
+					pixel = context.working[row_offset + from_x - 1]
+				if(!pixel && from_x < garment_last)
+					pixel = context.working[row_offset + from_x + 1]
+				if(pixel)
+					fitted[row_offset + x] = pixel
+	context.working = fitted
+
+/datum/fit_step/foot_fit/proc/build_groups(datum/species_fit/profile)
+	foot_groups = list()
+	var/half = profile.width / 2
+	for(var/fit_dir in list(NORTH, SOUTH))
+		var/list/groups = list()
+		for(var/foot in list("l_foot", "r_foot"))
+			var/list/reference_box = mask_box(profile.build_mask(profile.reference_sheet, list(foot), fit_dir), profile.width)
+			var/list/target_box = mask_box(profile.build_mask(profile.target_sheet, list(foot), fit_dir), profile.width)
+			var/left_side = reference_box[1] <= half
+			groups += list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], left_side ? 1 : half + 1, left_side ? half : profile.width, TRUE))
+		foot_groups["[fit_dir]"] = groups
+	for(var/fit_dir in list(EAST, WEST))
+		var/list/reference_box = mask_box(profile.build_mask(profile.reference_sheet, list("l_foot", "r_foot"), fit_dir), profile.width)
+		var/list/target_box = mask_box(profile.build_mask(profile.target_sheet, list("l_foot", "r_foot"), fit_dir), profile.width)
+		foot_groups["[fit_dir]"] = list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], 1, profile.width, FALSE))

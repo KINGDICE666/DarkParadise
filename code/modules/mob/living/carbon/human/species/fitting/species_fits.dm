@@ -36,6 +36,7 @@
 /datum/species_fit/resomi
 	target_sheet = 'icons/mob/human_races/r_resomi.dmi'
 	pixel_map = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi.json'
+	headwear_hides_hair = TRUE
 	sheet_pixel_maps = list(
 		DEFAULT_ICON_JUMPSUIT = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/uniform.json',
 		DEFAULT_ICON_OUTER_SUIT = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/suit.json',
@@ -74,4 +75,8 @@
 	steps = list(
 		/datum/fit_step/pixel_map,
 		/datum/fit_step/cover_parts,
+	)
+	slot_steps = list(
+		ITEM_SLOT_HEAD_STRING = list(/datum/fit_step/head_offset),
+		ITEM_SLOT_FEET_STRING = list(/datum/fit_step/foot_fit),
 	)
