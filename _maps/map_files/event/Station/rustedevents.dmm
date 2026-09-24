@@ -9128,13 +9128,13 @@
 	dir = 1
 	},
 /obj/item/reagent_containers/cup/bottle{
-	list_reagents = list("eznutriment" = 50)
+	list_reagents = list("eznutriment"=50)
 	},
 /obj/item/reagent_containers/cup/bottle{
-	list_reagents = list("eznutriment" = 50)
+	list_reagents = list("eznutriment"=50)
 	},
 /obj/item/reagent_containers/cup/bottle{
-	list_reagents = list("eznutriment" = 50)
+	list_reagents = list("eznutriment"=50)
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -32704,7 +32704,7 @@
 "lbV" = (
 /obj/effect/mob_spawn/human/abductor,
 /obj/item/reagent_containers/cup/bottle{
-	list_reagents = list("rezadone" = 30)
+	list_reagents = list("rezadone"=30)
 	},
 /turf/simulated/floor/carpet/cold,
 /area/coldcolony/ruin/abandoned_house)
@@ -33331,7 +33331,7 @@
 /obj/item/reagent_containers/cup/bottle/charcoal,
 /obj/item/reagent_containers/applicator/burn,
 /obj/item/reagent_containers/cup/bottle{
-	list_reagents = list("iodine" = 30)
+	list_reagents = list("iodine"=30)
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -70060,8 +70060,8 @@
 /turf/simulated/floor/carpet/orange,
 /area/ruin/unpowered/safe_cave)
 "xUf" = (
-/obj/item/reagent_containers/cup/glass/bottle{
-	list_reagents = list("ethanol" = 100)pixel_y = -5
+/obj/item/reagent_containers/cup/bottle{
+	list_reagents = list("ethanol"=100)pixel_y = -5
 	},
 /obj/structure/closet,
 /obj/effect/decal/cleanable/dirt,
