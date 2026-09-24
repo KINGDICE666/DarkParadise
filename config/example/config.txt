@@ -511,6 +511,17 @@ REQUEST_INTERNET_ALLOWED youtube\.com\/watch,youtu\.be\/,soundcloud\.com\/,bandc
 ## Enable the replay demo recording subsystem
 #DEMOS_ENABLED
 
+## NTnet: PDA browser for player-made websites shared between servers.
+## The app shows up in PDAs only when NTNET_ENABLED is set and both NTNET_API_URL and NTNET_SERVER_KEY are filled in.
+## The server key is issued by the NTnet service owner.
+#NTNET_ENABLED
+#NTNET_API_URL https://ntnet.wiki-ss13.space
+#NTNET_SERVER_KEY
+## Site editor link sent to players together with their login code.
+#NTNET_EDITOR_URL https://ntnet.wiki-ss13.space
+## Interactive pages run in a sandboxed frame. Set to 0 to show static pages only.
+#NTNET_INTERACTIVE 0
+
 ### INITIALIZATION SETTINGS ###
 ## This section contains settings directly affecting initializing progress. Uncomment these to make your world load faster.
 

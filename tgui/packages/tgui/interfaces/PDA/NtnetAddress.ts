@@ -9,7 +9,9 @@ export type NtnetSite = {
 const SITE_ICON =
   /^https:\/\/media\.wiki-ss13\.space\/[a-f0-9]{32}\/[a-f0-9]{16}\.(?:png|jpg|gif|webp)$/;
 
-export const siteIcon = (site: { icon?: unknown } | undefined): string | null => {
+export const siteIcon = (
+  site: { icon?: unknown } | undefined,
+): string | null => {
   const icon = site?.icon;
   return typeof icon === 'string' && SITE_ICON.test(icon) ? icon : null;
 };

@@ -950,3 +950,16 @@
 
 /datum/config_entry/flag/emojis
 	default = TRUE
+
+/datum/config_entry/flag/ntnet_enabled
+
+/datum/config_entry/flag/ntnet_interactive
+	default = TRUE
+
+/datum/config_entry/string/ntnet_api_url
+
+/datum/config_entry/string/ntnet_server_key
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/string/ntnet_editor_url
+	default = "https://ntnet.wiki-ss13.space"
