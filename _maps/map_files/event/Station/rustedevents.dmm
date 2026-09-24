@@ -3829,7 +3829,7 @@
 	dir = 8
 	},
 /obj/structure/closet/crate/sci,
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -3;
 	pixel_y = 3
 	},
@@ -6698,7 +6698,7 @@
 /area/coldcolony/malta/quartermaster/miningbar)
 "chH" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/glass/beaker,
+/obj/item/reagent_containers/cup/beaker,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/wood/cherry/cold,
 /area/coldcolony/ruin/abandoned_banya)
@@ -8724,11 +8724,11 @@
 /area/coldcolony/malta/security/permabrig)
 "cRJ" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/glass/beaker/large,
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large,
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_y = 8
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
@@ -9849,8 +9849,8 @@
 	dir = 4
 	},
 /obj/machinery/constructable_frame/machine_frame,
-/obj/item/reagent_containers/glass/beaker,
-/obj/item/reagent_containers/glass/beaker,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/beaker,
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/medical/virology)
@@ -16169,7 +16169,7 @@
 	pixel_x = 4;
 	pixel_y = 4
 	},
-/obj/item/reagent_containers/glass/beaker/large,
+/obj/item/reagent_containers/cup/beaker/large,
 /obj/item/reagent_containers/dropper,
 /turf/simulated/floor/plating/asteroid/snow,
 /area/ruin/unpowered/coldcolony_outside)
@@ -18526,7 +18526,7 @@
 /area/shuttle/pirate_corvette)
 "gqj" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/glass/beaker/large,
+/obj/item/reagent_containers/cup/beaker/large,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/kitchen)
 "gqp" = (
@@ -19853,19 +19853,19 @@
 /area/coldcolony/malta/resid_serv/library/game_zone)
 "gMW" = (
 /obj/structure/table/glass,
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = -5;
 	pixel_y = 1
 	},
@@ -23448,7 +23448,7 @@
 /area/coldcolony/malta/bridge/hop)
 "iaX" = (
 /obj/effect/overlay/turf/water_vapor,
-/obj/item/reagent_containers/glass/beaker/waterbottle/large,
+/obj/item/reagent_containers/cup/beaker/waterbottle/large,
 /turf/simulated/floor/indestructible/beach/sand,
 /area/centcom/admin_room)
 "ibe" = (
@@ -27022,7 +27022,7 @@
 /obj/structure/table,
 /obj/item/radio/intercom/directional/east,
 /obj/item/clothing/accessory/stethoscope,
-/obj/item/reagent_containers/glass/beaker/cryoxadone{
+/obj/item/reagent_containers/cup/beaker/cryoxadone{
 	pixel_x = 8;
 	pixel_y = 9
 	},
@@ -29618,7 +29618,7 @@
 "kbm" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/structure/flora/rock/jungle,
-/obj/item/reagent_containers/glass/beaker/waterbottle/large,
+/obj/item/reagent_containers/cup/beaker/waterbottle/large,
 /turf/simulated/floor/grass,
 /area/centcom/admin_room)
 "kbA" = (
@@ -37166,7 +37166,7 @@
 /area/ruin/unpowered/safe_cave)
 "mFg" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/glass/beaker,
+/obj/item/reagent_containers/cup/beaker,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/carpet/orange,
@@ -40774,7 +40774,7 @@
 	dir = 4
 	},
 /obj/structure/table/glass,
-/obj/item/reagent_containers/glass/beaker,
+/obj/item/reagent_containers/cup/beaker,
 /turf/simulated/floor/plasteel{
 	dir = 9;
 	icon_state = "darkpurple"
@@ -64793,7 +64793,7 @@
 /area/coldcolony/malta/security/customs)
 "wgZ" = (
 /obj/effect/overlay/turf/water_vapor,
-/obj/item/reagent_containers/glass/beaker/waterbottle/large,
+/obj/item/reagent_containers/cup/beaker/waterbottle/large,
 /turf/simulated/floor/grass,
 /area/centcom/admin_room)
 "wha" = (
@@ -68365,7 +68365,7 @@
 "xoO" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/structure/flora/grass/jungle,
-/obj/item/reagent_containers/glass/beaker/waterbottle/large,
+/obj/item/reagent_containers/cup/beaker/waterbottle/large,
 /turf/simulated/floor/grass,
 /area/centcom/admin_room)
 "xoR" = (
@@ -69589,7 +69589,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/item/reagent_containers/glass/beaker/large{
+/obj/item/reagent_containers/cup/beaker/large{
 	pixel_x = 7;
 	pixel_y = 14
 	},
