@@ -127,7 +127,7 @@
 	return result
 
 /datum/fit_step/cover_parts
-	var/list/part_groups = list(list("torso_m", "groin_m"), list("l_leg", "r_leg"), list("l_arm", "r_arm"))
+	var/list/part_groups = list(list("torso_m"), list("groin_m"), list("l_leg", "r_leg"), list("l_arm", "r_arm"))
 	var/list/reference_masks
 	var/list/target_masks
 
@@ -140,9 +140,18 @@
 		for(var/fit_dir in GLOB.cardinal)
 			var/list/reference_parts = list()
 			var/list/target_parts = list()
+			var/list/reference_bare = profile.build_mask(profile.reference_sheet, list("head_m", "l_hand", "r_hand"), fit_dir)
+			var/list/target_bare = profile.build_mask(profile.target_sheet, list("head_m", "l_hand", "r_hand"), fit_dir)
 			for(var/list/part_states in part_groups)
-				reference_parts += list(profile.build_mask(profile.reference_sheet, part_states, fit_dir))
-				target_parts += list(profile.build_mask(profile.target_sheet, part_states, fit_dir))
+				var/list/reference_mask = profile.build_mask(profile.reference_sheet, part_states, fit_dir)
+				var/list/target_mask = profile.build_mask(profile.target_sheet, part_states, fit_dir)
+				for(var/index in 1 to length(reference_mask))
+					if(reference_bare[index])
+						reference_mask[index] = null
+					if(target_bare[index])
+						target_mask[index] = null
+				reference_parts += list(reference_mask)
+				target_parts += list(target_mask)
 			reference_masks["[fit_dir]"] = reference_parts
 			target_masks["[fit_dir]"] = target_parts
 	var/list/snapshot = context.working.Copy()
@@ -444,6 +453,8 @@
 		var/low = group[5]
 		var/high = group[6]
 		var/paired = group[7]
+		var/list/target_mask = group[9]
+		var/covers_foot = context.profile.covered_share(context.source, group[8]) >= FIT_COVER_PART_SHARE
 		var/scale = (target_last - target_first + 1) / (reference_last - reference_first + 1)
 		for(var/y in 1 to context.height)
 			var/row_offset = context.width * (y - 1)
@@ -466,6 +477,11 @@
 					fitted_last = target_last + 1 + floor((garment_last - reference_last) * scale)
 				else
 					fitted_last = target_last - round((reference_last - garment_last) * scale, 1)
+			if(covers_foot)
+				for(var/x in target_first to target_last)
+					if(target_mask[row_offset + x])
+						fitted_first = min(fitted_first, x)
+						fitted_last = max(fitted_last, x)
 			fitted_first = max(low, fitted_first)
 			fitted_last = min(high, fitted_last)
 			for(var/x in fitted_first to fitted_last)
@@ -485,12 +501,16 @@
 	for(var/fit_dir in list(NORTH, SOUTH))
 		var/list/groups = list()
 		for(var/foot in list("l_foot", "r_foot"))
-			var/list/reference_box = mask_box(profile.build_mask(profile.reference_sheet, list(foot), fit_dir), profile.width)
-			var/list/target_box = mask_box(profile.build_mask(profile.target_sheet, list(foot), fit_dir), profile.width)
+			var/list/reference_mask = profile.build_mask(profile.reference_sheet, list(foot), fit_dir)
+			var/list/target_mask = profile.build_mask(profile.target_sheet, list(foot), fit_dir)
+			var/list/reference_box = mask_box(reference_mask, profile.width)
+			var/list/target_box = mask_box(target_mask, profile.width)
 			var/left_side = reference_box[1] <= half
-			groups += list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], left_side ? 1 : half + 1, left_side ? half : profile.width, TRUE))
+			groups += list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], left_side ? 1 : half + 1, left_side ? half : profile.width, TRUE, reference_mask, target_mask))
 		foot_groups["[fit_dir]"] = groups
 	for(var/fit_dir in list(EAST, WEST))
-		var/list/reference_box = mask_box(profile.build_mask(profile.reference_sheet, list("l_foot", "r_foot"), fit_dir), profile.width)
-		var/list/target_box = mask_box(profile.build_mask(profile.target_sheet, list("l_foot", "r_foot"), fit_dir), profile.width)
-		foot_groups["[fit_dir]"] = list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], 1, profile.width, FALSE))
+		var/list/reference_mask = profile.build_mask(profile.reference_sheet, list("l_foot", "r_foot"), fit_dir)
+		var/list/target_mask = profile.build_mask(profile.target_sheet, list("l_foot", "r_foot"), fit_dir)
+		var/list/reference_box = mask_box(reference_mask, profile.width)
+		var/list/target_box = mask_box(target_mask, profile.width)
+		foot_groups["[fit_dir]"] = list(list(reference_box[1], reference_box[3], target_box[1], target_box[3], 1, profile.width, FALSE, reference_mask, target_mask))

@@ -33,7 +33,8 @@ def body_map(direction):
             else:
                 source_x = interpolate(x, ((0, -3), (13, 11 if direction == 2 else 12),
                                            (18, 19 if direction == 2 else 20), (31, 35)))
-                lower_x = x if direction == 2 else x - 1
+                lower_x = interpolate(x, ((0, -4), (12, 12), (18, 18), (31, 35))) if direction == 2 else interpolate(
+                    x, ((0, -4), (14, 13), (19, 19), (31, 35)))
                 blend = min(1, max(0, (y - 19) / 3))
                 source_x = source_x * (1 - blend) + lower_x * blend
             if y < 14:

@@ -16,7 +16,7 @@ PART_GARMENT_SHARE = 0.25
 
 HEAD_WARP_SHARE = 0.25
 
-COVER_PART_GROUPS = (TRUNK_STATES, ("l_leg", "r_leg"), ("l_arm", "r_arm"))
+COVER_PART_GROUPS = (("torso_m",), ("groin_m",), ("l_leg", "r_leg"), ("l_arm", "r_arm"))
 
 COVER_PART_SHARE = 0.9
 
@@ -216,6 +216,10 @@ class SpeciesFit:
                                         for states in COVER_PART_GROUPS] for index in range(4)}
         self.target_cover = {index: [_flip_keys(body_mask(target_sheet, states, index, width, height), height)
                                      for states in COVER_PART_GROUPS] for index in range(4)}
+        for index in range(4):
+            for sheet, masks in ((reference_sheet, self.reference_cover), (target_sheet, self.target_cover)):
+                bare = _flip_keys(body_mask(sheet, ("head_m", "l_hand", "r_hand"), index, width, height), height)
+                masks[index] = [mask - bare for mask in masks[index]]
         self.floating_rows = {}
         self.target_full = {}
         self.reference_full = {}
