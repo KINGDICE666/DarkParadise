@@ -6698,7 +6698,7 @@
 /area/coldcolony/malta/quartermaster/miningbar)
 "chH" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/glass/beaker/noreact,
+/obj/item/reagent_containers/glass/beaker,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/wood/cherry/cold,
 /area/coldcolony/ruin/abandoned_banya)
@@ -37166,7 +37166,7 @@
 /area/ruin/unpowered/safe_cave)
 "mFg" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/glass/beaker/noreact,
+/obj/item/reagent_containers/glass/beaker,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/carpet/orange,
