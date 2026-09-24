@@ -759,7 +759,8 @@
 	close_window(src, "latechoices") //closes late choices window
 	close_window(src, "playersetup") //closes the player setup window
 	close_window(src, "preferences") //closes preferences
-	close_window(src, "mob_occupation") //closes job selection
+	if(client?.prefs)
+		SStgui.close_uis(client.prefs.job_menu)
 
 /mob/new_player/proc/has_admin_rights()
 	return check_rights(R_ADMIN, FALSE, src)

@@ -294,6 +294,7 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	var/skip_antag = FALSE
 
 	var/datum/ui_module/loadout/loadout
+	var/datum/ui_module/job_preferences/job_menu
 
 	var/static/list/exoframe_names = list(
 		PREF_EXOFRAME_REINFORCED = "Укрепленный каркас экзоскелета",
@@ -309,6 +310,7 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	parent = C
 	b_type = pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
 	max_gear_slots = CONFIG_GET(number/max_loadout_points)
+	job_menu = new()
 
 	var/loaded_preferences_successfully = FALSE
 	if(istype(C))
@@ -839,180 +841,9 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	metadata["[tweak]"] = new_metadata
 	tweak.update_gear_intro(new_metadata)
 
-/datum/preferences/proc/SetChoices(mob/user, limit = 17, list/splitJobs = list(JOB_TITLE_CMO, JOB_TITLE_QUARTERMASTER, JOB_TITLE_MAGISTRATE), widthPerColumn = 400, height = 700)
-	if(!SSjobs)
-		return
-
-	//limit - The amount of jobs allowed per column. Defaults to 17 to make it look nice.
-	//splitJobs - Allows you split the table by job. You can make different tables for each department by including their heads. Defaults to CE to make it look nice.
-	//widthPerColumn - Screen's width for every column.
-	//height - Screen's height.
-	var/width = widthPerColumn
-
-	var/list/html = list()
-	html += "<body>"
-	if(!length(SSjobs.occupations))
-		html += "Подсистема должностей ещё не успела создать должности, пожалуйста, повторите попытку позже."
-		html += "<center><a href='byond://?_src_=prefs;preference=job;task=close'>Принять</a></center><br>" // Easier to press up here.
-	else
-		html += "<tt><center>"
-		html += "<b>Выберите предпочитаемые должности</b><br>Определите приоритет на получение желаемой должности.<br><br>"
-		html += "<center><a href='byond://?_src_=prefs;preference=job;task=close'>Сохранить</a></center><br>" // Easier to press up here.
-		html += "<div align='center'>Левый клик — для повышения предпочтения, правый — для понижения.<br></div>"
-		html += "<script type='text/javascript'>function setJobPrefRedirect(level, rank) { window.location.href='byond://?_src_=prefs;preference=job;task=setJobLevel;level=' + level + ';text=' + encodeURIComponent(rank); return false; }</script>"
-		html += "<table width='100%' cellpadding='1' cellspacing='0'><tr><td width='20%'>" // Table within a table for alignment, also allows you to easily add more colomns.
-		html += "<table width='100%' cellpadding='1' cellspacing='0'>"
-		var/index = -1
-
-		//The job before the current job. I only use this to get the previous jobs color when I'm filling in blank rows.
-		var/datum/job/lastJob
-		if(!SSjobs)
-			return
-		for(var/J in SSjobs.occupations)
-			var/datum/job/job = J
-
-			if(job.admin_only || job.hidden_from_job_prefs || !job.can_novice_play(user.client))
-				continue
-
-			index += 1
-			if((index >= limit) || (job.title in splitJobs))
-				if((index < limit) && (lastJob != null))
-					// Dynamic window width
-					width += widthPerColumn
-					//If the cells were broken up by a job in the splitJob list then it will fill in the rest of the cells with
-					//the last job's selection color. Creating a rather nice effect.
-					for(var/i in 1 to limit - index)
-						html += "<tr bgcolor='[lastJob.selection_color]'><td width='60%' align='right'>&nbsp</td><td>&nbsp</td></tr>"
-				html += "</table></td><td width='20%'><table width='100%' cellpadding='1' cellspacing='0'>"
-				index = 0
-
-			var/color
-			color = "dark"
-			if(job.admin_only)
-				color = "light"
-			html += "<tr bgcolor='[job.selection_color]'><td width='60%' align='right'>"
-			var/rank
-			if(job.alt_titles)
-				rank = "<a href=\"byond://?_src_=prefs;preference=job;task=alt_title;job=[job.UID()]\">[get_job_title_ru(GetPlayerAltTitle(job))]</a>"
-			else
-				rank = get_job_title_ru(job.title)
-			if(is_job_title_muted(job_support_low, job.title))
-				rank = "<font class='text-muted'>[get_job_title_ru(GetPlayerAltTitle(job))]</font>"
-			lastJob = job
-			if(jobban_isbanned(user, job_title_ru_to_en(job.title)))
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ЗАБАНЕНО]</b></span></td></tr>"
-				continue
-			var/available_in_playtime = job.available_in_playtime(user.client)
-			if(available_in_playtime)
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[" + get_exp_format(available_in_playtime) + " за " + job.get_exp_req_type()  + "\]</b></span></td></tr>"
-				continue
-			if(job.barred_by_disability(user.client))
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ИНВАЛИДНОСТЬ\]</b></span></td></tr>"
-				continue
-			if(!job.player_old_enough(user.client))
-				var/available_in_days = job.available_in_days(user.client)
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ЧЕРЕЗ [available_in_days] [declension_ru(available_in_days, "день", "дня", "дней")]]</b></span></td></tr>"
-				continue
-			if(!job.character_old_enough(user.client))
-				var/datum/species/current_species = GLOB.all_species[species]
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ВОЗРАСТ ОТ [get_age_limits(current_species, job.min_age_type)] [declension_ru(get_age_limits(current_species, job.min_age_type), "года", "лет", "лет")]]</b></span></td></tr>"
-				continue
-			if(!job.check_custom_requirements(user.client))
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[НУЖНО ДОСТИЖЕНИЕ]</b></span></td></tr>"
-				continue
-			if((job.title in GLOB.command_positions) || (job.title == JOB_TITLE_AI))//Bold head jobs
-				html += "<b><span class='[color]'>[rank]</span></b>"
-			else
-				html += "<span class='[color]'>[rank]</span>"
-
-			html += "</td><td width='40%'>"
-
-			var/prefLevelLabel = "ОШИБКА"
-			var/prefLevelColor = "bg-danger"
-			var/prefUpperLevel = -1 // level to assign on left click
-			var/prefLowerLevel = -1 // level to assign on right click
-
-			if(GetJobDepartment(job, 1) & job.flag)
-				prefLevelLabel = "ВЫСОКИЙ"
-				prefLevelColor = "btn-primary text-light"
-				prefUpperLevel = 4
-				prefLowerLevel = 2
-			else if(GetJobDepartment(job, 2) & job.flag)
-				prefLevelLabel = "СРЕДНИЙ"
-				prefLevelColor = "btn-success text-light"
-				prefUpperLevel = 1
-				prefLowerLevel = 3
-			else if(GetJobDepartment(job, 3) & job.flag)
-				prefLevelLabel = "НИЗКИЙ"
-				prefLevelColor = "btn-warning text-dark"
-				prefUpperLevel = 2
-				prefLowerLevel = 4
-			else
-				prefLevelLabel = "НИКОГДА"
-				prefLevelColor = "btn-outline-secondary"
-				prefUpperLevel = 3
-				prefLowerLevel = 1
-
-			html += "<a class='nobg' href='byond://?_src_=prefs;preference=job;task=setJobLevel;level=[prefUpperLevel];text=[job.title]' oncontextmenu='javascript:return setJobPrefRedirect([prefLowerLevel], \"[job.title]\");'>"
-
-			if(job.title == JOB_TITLE_CIVILIAN)//Civilian is special
-				if(job_support_low & JOB_FLAG_CIVILIAN)
-					html += " <span class='btn btn-sm btn-primary text-light border border-secondary' style='padding: 0px 4px;'>ДА</span></a>"
-				else
-					html += " <span class='btn btn-sm btn-outline-secondary' style='padding: 0px 4px; background-color: #f8f9fa;' onmouseover=\"this.style.backgroundColor='#6c757d';\" onmouseout=\"this.style.backgroundColor='#f8f9fa';\">НЕТ</span></a>"
-				html += "</td></tr>"
-				continue
-			if(job.title == JOB_TITLE_PRISONER)//Prisoner is special
-				if(job_support_low & JOB_FLAG_PRISONER)
-					html += " <span class='btn btn-sm btn-primary text-light border border-secondary' style='padding: 0px 4px;'>ДА</span></a>"
-				else
-					html += " <span class='btn btn-sm btn-outline-secondary' style='padding: 0px 4px; background-color: #f8f9fa;' onmouseover=\"this.style.backgroundColor='#6c757d';\" onmouseout=\"this.style.backgroundColor='#f8f9fa';\">НЕТ</span></a>"
-				html += "</td></tr>"
-				continue
-			if(job.title == JOB_TITLE_INVESTOR)//Investor is special
-				if(job_support_low & JOB_FLAG_INVESTOR)
-					html += " <span class='btn btn-sm btn-primary text-light border border-secondary' style='padding: 0px 4px;'>ДА</span></a>"
-				else
-					html += " <span class='btn btn-sm btn-outline-secondary' style='padding: 0px 4px; background-color: #f8f9fa;' onmouseover=\"this.style.backgroundColor='#6c757d';\" onmouseout=\"this.style.backgroundColor='#f8f9fa';\">НЕТ</span></a>"
-				html += "</td></tr>"
-				index += 1
-				html += "<tr bgcolor='[lastJob ? lastJob.selection_color : "#ffffff"]'><td width='60%' align='right'>&nbsp</td><td>&nbsp</td></tr>"
-				continue
-
-			if(prefLowerLevel>1)
-				html += "<span class='btn btn-sm [prefLevelColor] border border-secondary' style='padding: 0px 4px;'>[prefLevelLabel]</span></a>"
-			else
-				html += "<span class='btn btn-sm [prefLevelColor]' style='padding: 0px 4px; background-color: #f8f9fa;' onmouseover=\"this.style.backgroundColor='#6c757d';\" onmouseout=\"this.style.backgroundColor='#f8f9fa';\">[prefLevelLabel]</span></a>"
-
-			html += "</td></tr>"
-
-		index += 1
-		for(var/i in 1 to limit - index) // Finish the column so it is even
-			html += "<tr bgcolor='[lastJob ? lastJob.selection_color : "#ffffff"]'><td width='60%' align='right'>&nbsp</td><td>&nbsp</td></tr>"
-
-		html += "</td></tr></table>"
-		html += "</center></table>"
-
-		switch(alternate_option)
-			if(GET_RANDOM_JOB)
-				html += "<center><br><u><a href='byond://?_src_=prefs;preference=job;task=random'>Выбрать случайную должность, если предпочитаемая должность недоступна</a></u></center><br>"
-			if(BE_ASSISTANT)
-				html += "<center><br><u><a href='byond://?_src_=prefs;preference=job;task=random'>Стать гражданским, если предпочитаемая должность недоступна</a></u></center><br>"
-			if(RETURN_TO_LOBBY)
-				html += "<center><br><u><a href='byond://?_src_=prefs;preference=job;task=random'>Вернуться в лобби, если предпочитаемая должность недоступна</a></u></center><br>"
-
-		html += "<center><a href='byond://?_src_=prefs;preference=job;task=reset'>Сброс</a></center>"
-		html += "<center><br><a href='byond://?_src_=prefs;preference=job;task=learnaboutselection'>Узнать о \"Выборе должности\"</a></center>"
-		html += "</tt>"
-
+/datum/preferences/proc/SetChoices(mob/user)
 	close_window(user, "preferences")
-	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Предпочитаемые должности</div>", width, height)
-	popup.set_window_options("can_close=0")
-	var/html_string = html.Join()
-	popup.set_content(html_string)
-	popup.add_stylesheet("bootstrap.min.css", 'html/browser/bootstrap.min.css')
-	popup.open(0)
-	return
+	job_menu.ui_interact(user)
 
 /datum/preferences/proc/init_keybindings(overrides, raw)
 	if(raw)
@@ -1144,7 +975,7 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	var/datum/job/job = SSjobs.GetJob(role)
 
 	if(!job)
-		close_window(user, "mob_occupation")
+		SStgui.close_uis(job_menu)
 		ShowChoices(user)
 		return
 
@@ -1160,11 +991,9 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 			job_support_low |= job.flag
 			job_support_low &= ~(JOB_FLAG_CIVILIAN | JOB_FLAG_PRISONER | JOB_FLAG_INVESTOR)
 			job_support_low |= job.flag
-		SetChoices(user)
 		return 1
 
 	SetJobPreferenceLevel(job, desiredLvl)
-	SetChoices(user)
 
 	return 1
 
@@ -1279,7 +1108,7 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 /datum/preferences/proc/SetJob(mob/user, role)
 	var/datum/job/job = SSjobs.GetJob(role)
 	if(!job)
-		close_window(user, "mob_occupation")
+		SStgui.close_uis(job_menu)
 		ShowChoices(user)
 		return
 
@@ -1479,39 +1308,8 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	var/datum/species/S = GLOB.all_species[species]
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
-			if("close")
-				close_window(user, "mob_occupation")
-				ShowChoices(user)
-			if("reset")
-				ResetJobs()
-				SetChoices(user)
-			if("learnaboutselection")
-				if(CONFIG_GET(string/wikiurl))
-					if(tgui_alert(user, "Вы хотите открыть страницу с информацией о выборе профессии в своём браузере?", "Выбор профессии", list("Да", "Нет")) == "Да")
-						user << link("[CONFIG_GET(string/wikiurl)]/index.php/Job_Selection_and_Assignment")
-				else
-					to_chat(user, span_danger("Данный URL-адрес отсутствует в конфигурации сервера."))
-			if("random")
-				if(alternate_option == GET_RANDOM_JOB || alternate_option == BE_ASSISTANT)
-					alternate_option += 1
-				else if(alternate_option == RETURN_TO_LOBBY)
-					alternate_option = 0
-				else
-					return 0
-				SetChoices(user)
-			if("alt_title")
-				var/datum/job/job = locateUID(href_list["job"])
-				if(job)
-					var/choices = list(get_job_title_ru(job.title)) + job.alt_titles
-					var/choice = tgui_input_list(user, "Выберите альтернативное название для должности \"[get_job_title_ru(job.title)]\".", "Альтернативные названия", choices)
-					if(choice)
-						choice = job_title_ru_to_en(choice)
-						SetPlayerAltTitle(job, choice)
-						SetChoices(user)
 			if("input")
 				SetJob(user, href_list["text"])
-			if("setJobLevel")
-				UpdateJobPreference(user, href_list["text"], text2num(href_list["level"]))
 			else
 				SetChoices(user)
 		return 1
