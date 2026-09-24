@@ -15,6 +15,9 @@
 	START_PROCESSING(SSobj, src)
 
 /obj/item/holder/Destroy()
+	var/turf/landing = get_turf(src)
+	for(var/mob/living/released in contents)
+		released.forceMove(landing)
 	clear_held_mob()
 	STOP_PROCESSING(SSobj, src)
 	return ..()
@@ -96,7 +99,7 @@
 		return ..()
 	release_contents(TRUE, throwingdatum?.init_dir)
 
-/obj/item/holder/attack_hand(mob/living/user, list/modifiers)
+/obj/item/holder/attack_hand(mob/user, pickupfireoverride = FALSE)
 	if(user && user == held_mob)
 		return TRUE
 	return ..()
@@ -188,8 +191,8 @@
 	src.forceMove(H)
 	if(grabber)
 		H.attack_hand(grabber)
-		to_chat(grabber, span_notice("Вы подняли [src.declent_ru(ACCUSATIVE)] на руки."))
-		to_chat(src, span_notice("[grabber.name] поднял[GEND_A_O_I(grabber)] вас на руки."))
+		to_chat(grabber, span_notice("Вы подняли [declent_ru(ACCUSATIVE)] на руки."))
+		to_chat(src, span_notice("[DECLENT_RU_CAP(grabber, NOMINATIVE)] поднял[GEND_A_O_I(grabber)] вас на руки."))
 		playsound(grabber.loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 		grabber.status_flags |= PASSEMOTES
 
@@ -247,7 +250,7 @@
 
 /obj/item/holder/humanoid
 	name = "small humanoid"
-	desc = "A small humanoid curled up into a carryable pose."
+	desc = "Маленький гуманоид, свернувшийся так, чтобы его было удобно нести."
 	slot_flags = NONE
 
 /obj/item/holder/humanoid/Initialize(mapload)

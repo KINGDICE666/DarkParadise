@@ -57,6 +57,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/span_maps
 	var/list/pixel_tier_maps
 	var/list/reference_head_masks
+	var/list/reference_crown_masks
 	var/list/target_head_masks
 	var/list/head_shifts
 	var/list/reference_bare_masks
@@ -99,7 +100,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/bare_names = list()
 	for(var/list/part_group in bare_parts)
 		bare_names += jointext(part_group, ",")
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]|[FIT_COVER_PART_SHARE]|[FIT_COVER_PART_REACH]|[FIT_HEADWEAR_BRIM_SCALE]|[FIT_SHOE_HEIGHT_SCALE]|[FIT_SHOE_MIN_ROWS]")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[pixel_map]|[pixel_map ? md5(file2text(pixel_map)) : ""]")
 	for(var/sheet in sheet_pixel_maps)
 		var/map_file = sheet_pixel_maps[sheet]
@@ -118,6 +119,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	span_maps = list()
 	pixel_tier_maps = list()
 	reference_head_masks = list()
+	reference_crown_masks = list()
 	target_head_masks = list()
 	head_shifts = list()
 	reference_bare_masks = list()
@@ -140,6 +142,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 		span_maps[key] = build_span_map(reference_tiers, target_tiers, pixel_tier)
 		pixel_tier_maps[key] = pixel_tier
 		reference_head_masks[key] = build_mask(reference_sheet, head_states, fit_dir)
+		reference_crown_masks[key] = build_crown_mask(reference_head_masks[key])
 		target_head_masks[key] = build_mask(target_sheet, head_states, fit_dir)
 		head_shifts[key] = build_head_shift(fit_dir)
 		var/list/reference_bare = list()
@@ -195,19 +198,25 @@ GLOBAL_LIST_EMPTY(species_fits)
 /datum/species_fit/proc/has_pixel_map(sheet)
 	return pixel_map || sheet_pixel_maps?[sheet]
 
-/datum/species_fit/proc/maps_for(obj/item/clothing_item, sheet)
-	var/list/maps = sheet_maps["[sheet]"]
-	if(maps || !clothing_item)
-		return maps || pixel_maps
+/datum/species_fit/proc/worn_slot(obj/item/clothing_item, sheet)
+	if(!clothing_item)
+		return null
 	for(var/slot_string in clothing_item.onmob_sheets)
 		if(clothing_item.onmob_sheets[slot_string] == sheet)
-			return slot_maps[slot_string] || pixel_maps
-	return pixel_maps
+			return slot_string
+	return slot_bitfield_to_slot_string(clothing_item.slot_flags)
+
+/datum/species_fit/proc/maps_for(obj/item/clothing_item, sheet)
+	var/list/maps = sheet_maps["[sheet]"]
+	if(maps)
+		return maps
+	var/slot_string = worn_slot(clothing_item, sheet)
+	return (slot_string && slot_maps[slot_string]) || pixel_maps
 
 /datum/species_fit/proc/steps_for(obj/item/clothing_item, sheet)
-	for(var/slot_string in clothing_item?.onmob_sheets)
-		if(clothing_item.onmob_sheets[slot_string] == sheet && slot_step_instances[slot_string])
-			return slot_step_instances[slot_string]
+	var/item_slot = worn_slot(clothing_item, sheet)
+	if(item_slot && slot_step_instances[item_slot])
+		return slot_step_instances[item_slot]
 	var/map_file = sheet_pixel_maps?[sheet]
 	if(map_file)
 		for(var/slot_string in slot_step_instances)
@@ -511,11 +520,23 @@ GLOBAL_LIST_EMPTY(species_fits)
 		var/icon/frame = icon(sheet, state_name, fit_dir)
 		if(frame.Width() != width || frame.Height() != height)
 			break
-		if(covered_share(read_frame(frame), reference_head_masks["[fit_dir]"]) >= FIT_PART_GARMENT_SHARE)
+		var/list/pixels = read_frame(frame)
+		if(covered_share(pixels, reference_head_masks["[fit_dir]"]) >= FIT_PART_GARMENT_SHARE || covered_share(pixels, reference_crown_masks["[fit_dir]"]) == 1)
 			hidden = TRUE
 			break
 	hair_cover_cache[cache_key] = hidden
 	return hidden
+
+/datum/species_fit/proc/build_crown_mask(list/head_mask)
+	var/top_row = 0
+	for(var/index in 1 to length(head_mask))
+		if(head_mask[index])
+			top_row = max(top_row, round((index - 1) / width) + 1)
+	var/list/crown = new(length(head_mask))
+	for(var/index in 1 to length(head_mask))
+		if(head_mask[index] && round((index - 1) / width) + 1 > top_row - FIT_CROWN_ROWS)
+			crown[index] = TRUE
+	return crown
 
 /datum/species_fit/proc/covered_share(list/pixels, list/mask)
 	var/part_pixels = 0

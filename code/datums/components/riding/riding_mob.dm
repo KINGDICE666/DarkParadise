@@ -1,4 +1,5 @@
 #define SMALL_RIDER_SHOVE_OFF_CHANCE 30
+#define SMALL_RIDER_EXTRA_HEIGHT 4
 
 // For any mob that can be ridden
 
@@ -282,7 +283,7 @@
 /datum/component/riding/creature/human/get_offsets(pass_index)
 	var/mob/living/carbon/human/H = parent
 	var/mob/living/rider = H.buckled_mobs[pass_index]
-	var/y_offset_bonus = rider && HAS_TRAIT(rider, TRAIT_SMALL_MOB) ? 4 : 0
+	var/y_offset_bonus = rider && HAS_TRAIT(rider, TRAIT_SMALL_MOB) ? SMALL_RIDER_EXTRA_HEIGHT : 0
 	if(H.buckle_lying)
 		return list(TEXT_NORTH = list(0, 6), TEXT_SOUTH = list(0, 6), TEXT_EAST = list(0, 6), TEXT_WEST = list(0, 6))
 	else
@@ -321,3 +322,4 @@
 	return robot.selected_skin.get_riding_offsets()
 
 #undef SMALL_RIDER_SHOVE_OFF_CHANCE
+#undef SMALL_RIDER_EXTRA_HEIGHT

@@ -441,10 +441,13 @@
 		return
 
 	var/used_icon_file = overlay_icon_file
+	var/icon/fitted_icon
 	if(sprite_sheets[mod.wearer?.dna?.species?.name])
 		used_icon_file = sprite_sheets[mod.wearer?.dna?.species?.name]
+	else
+		fitted_icon = get_fitted_worn_icon(mod.wearer?.dna?.species, source, used_icon_file, used_overlay)
 
-	var/mutable_appearance/module_icon = mutable_appearance(used_icon_file, used_overlay, layer = standing.layer + 0.1)
+	var/mutable_appearance/module_icon = mutable_appearance(fitted_icon || used_icon_file, fitted_icon ? "" : used_overlay, layer = standing.layer + 0.1)
 	if(use_mod_colors)
 		module_icon.color = mod.color
 		if(mod.cached_color_filter)

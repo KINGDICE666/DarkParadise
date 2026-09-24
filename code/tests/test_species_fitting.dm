@@ -556,7 +556,7 @@
 		var/list/glove_pixels = fit.read_frame(icon(fitted_gloves, dir = fit_dir))
 		var/list/hands = fit.build_mask(fit.target_sheet, list("l_hand", "r_hand"), fit_dir)
 		for(var/index in 1 to length(feet))
-			if(feet[index])
+			if(feet[index] && (index - 1) / fit.width < FIT_SHOE_MIN_ROWS)
 				TEST_ASSERT_NOTNULL(boot_pixels[index], "jackboots leave resomi toes bare at pixel [index] facing [fit_dir]")
 			if(hands[index])
 				TEST_ASSERT_NOTNULL(glove_pixels[index], "gloves leave resomi fingers bare at pixel [index] facing [fit_dir]")

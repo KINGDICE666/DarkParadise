@@ -29,3 +29,9 @@
 	TEST_ASSERT(resomi.is_hiding_in_storage(), "resomi in a backpack does not count as hiding in it")
 	TEST_ASSERT_NOT(resomi.can_use_guns(light), "resomi fired a gun from inside a backpack")
 	TEST_ASSERT_NOTNULL(resomi.alerts?[ALERT_PICKUPABLE_CONTAINER], "resomi got no alert to open the backpack it sits in")
+	qdel(bag)
+	TEST_ASSERT(!QDELETED(resomi) && isturf(resomi.loc), "deleting the backpack deleted the resomi sitting in it")
+
+	resomi.change_body_accessory("Spiky tail")
+	resomi.regenerate_icons()
+	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_LAYER], "the resomi tail is drawn under the body when seen from behind")

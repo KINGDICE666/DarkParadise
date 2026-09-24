@@ -31,7 +31,7 @@
 	coldmod = 0.5
 	body_temperature = 314.15
 	taste_sensitivity = TASTE_SENSITIVITY_SHARP
-	bodyflags = HAS_SKIN_COLOR | HAS_BODY_MARKINGS | HAS_BODY_ACCESSORY
+	bodyflags = HAS_SKIN_COLOR | HAS_BODY_MARKINGS | HAS_BODY_ACCESSORY | TAIL_OVERLAPPED
 	eyes = "resomi_eyes_s"
 	default_hair = "Resomi Ears"
 	default_bodyacc = "Spiky tail"

@@ -389,6 +389,8 @@
 			continue
 		for(var/x in 1 to context.width)
 			var/from_x = x - offset[1]
+			if(offset[3] && from_x > offset[3])
+				from_x--
 			if(from_x < 1 || from_x > context.width)
 				continue
 			shifted[context.width * (y - 1) + x] = context.working[context.width * (from_y - 1) + from_x]
@@ -402,6 +404,33 @@
 			context.working[index] = shifted[index - 1]
 		else if(x < context.width && shifted[index + 1])
 			context.working[index] = shifted[index + 1]
+	var/head_first = offset[4]
+	var/head_last = offset[5]
+	var/garment_first = context.width
+	var/garment_last = 1
+	for(var/index in 1 to length(context.working))
+		if(!context.working[index])
+			continue
+		var/x = (index - 1) % context.width + 1
+		garment_first = min(garment_first, x)
+		garment_last = max(garment_last, x)
+	var/brim_first = head_first - CEILING(max(0, head_first - garment_first) * FIT_HEADWEAR_BRIM_SCALE, 1)
+	var/brim_last = head_last + CEILING(max(0, garment_last - head_last) * FIT_HEADWEAR_BRIM_SCALE, 1)
+	if(garment_first >= brim_first && garment_last <= brim_last)
+		return
+	var/list/clamped = context.working.Copy()
+	for(var/y in 1 to context.height)
+		var/row_offset = context.width * (y - 1)
+		for(var/x in 1 to context.width)
+			var/from_x = x
+			if(x < brim_first || x > brim_last)
+				from_x = 0
+			else if(x < head_first && garment_first < brim_first)
+				from_x = head_first - round((head_first - x) * (head_first - garment_first) / (head_first - brim_first), 1)
+			else if(x > head_last && garment_last > brim_last)
+				from_x = head_last + round((x - head_last) * (garment_last - head_last) / (brim_last - head_last), 1)
+			clamped[row_offset + x] = from_x ? context.working[row_offset + from_x] : null
+	context.working = clamped
 
 /datum/fit_step/head_offset/proc/build_offsets(datum/species_fit/profile)
 	offsets = list()
@@ -414,12 +443,17 @@
 		var/list/target_box = mask_box(target, profile.width)
 		var/offset_x = target_box[1] - reference_box[1]
 		var/offset_y = target_box[2] - reference_box[2]
-		offsets[key] = list(offset_x, offset_y)
+		var/split_x = 0
+		if(target_box[3] - target_box[1] == reference_box[3] - reference_box[1] + 1)
+			split_x = (reference_box[1] + reference_box[3]) / 2
+		offsets[key] = list(offset_x, offset_y, split_x, target_box[1], target_box[3])
 		var/list/uncovered = new(length(target))
 		for(var/index in 1 to length(target))
 			if(!target[index])
 				continue
 			var/x = (index - 1) % profile.width + 1 - offset_x
+			if(split_x && x > split_x)
+				x--
 			var/y = round((index - 1) / profile.width) + 1 - offset_y
 			if(x < 1 || x > profile.width || y < 1 || y > profile.height || !reference[profile.width * (y - 1) + x])
 				uncovered[index] = TRUE
@@ -493,7 +527,17 @@
 					pixel = context.working[row_offset + from_x + 1]
 				if(pixel)
 					fitted[row_offset + x] = pixel
-	context.working = fitted
+	var/top_row = 0
+	for(var/index in 1 to length(fitted))
+		if(fitted[index])
+			top_row = round((index - 1) / context.width) + 1
+	var/squashed_top = max(min(top_row, FIT_SHOE_MIN_ROWS), round(top_row * FIT_SHOE_HEIGHT_SCALE, 1))
+	var/list/squashed = new(length(fitted))
+	for(var/y in 1 to squashed_top)
+		var/from_y = squashed_top == 1 ? 1 : 1 + round((y - 1) * (top_row - 1) / (squashed_top - 1), 1)
+		for(var/x in 1 to context.width)
+			squashed[context.width * (y - 1) + x] = fitted[context.width * (from_y - 1) + x]
+	context.working = squashed
 
 /datum/fit_step/foot_fit/proc/build_groups(datum/species_fit/profile)
 	foot_groups = list()
