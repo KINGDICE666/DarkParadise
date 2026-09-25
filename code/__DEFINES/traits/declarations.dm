@@ -318,6 +318,8 @@
 #define TRAIT_NOSOFTCRIT "nosoftcrit"
 /// This mob is not knocked out by the damage it took past the crit threshold
 #define TRAIT_NOHARDCRIT "nohardcrit"
+#define TRAIT_SMALL_MOB "small_mob"
+#define TRAIT_GOOD_HEARING "good_hearing"
 /// Another biotype thing
 #define TRAIT_PLANT_ORIGIN "plant_origin"
 /// Another damn biotype
@@ -424,6 +426,7 @@
 #define TRAIT_PARALYSIS_R_ARM "paralysis_r_arm"
 #define TRAIT_PARALYSIS_L_LEG "paralysis_l_leg"
 #define TRAIT_PARALYSIS_R_LEG "paralysis_r_leg"
+#define TRAIT_PASSTABLE "passtable"
 
 #define TRAIT_ANTIMAGIC "antimagic"
 

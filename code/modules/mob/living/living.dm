@@ -1449,6 +1449,9 @@ GAME_VERB(/mob/living, resist, "Сопротивляться", VERB_CATEGORY_IC)
 	gib()
 
 /mob/living/proc/can_use_guns(obj/item/gun/gun)
+	if(is_hiding_in_storage())
+		to_chat(src, span_warning("Слишком тесно для стрельбы!"))
+		return FALSE
 	if(gun.trigger_guard != TRIGGER_GUARD_ALLOW_ALL && !IsAdvancedToolUser() && !is_monkeybasic(src))
 		to_chat(src, span_warning("У вас недостаточно ловкости для этого!"))
 		return FALSE

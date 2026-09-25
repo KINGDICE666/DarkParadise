@@ -792,7 +792,7 @@ GAME_VERB(/mob, cancel_camera, "Сбросить позицию камеры", V
 /mob/mouse_drop_dragged(atom/over_object, mob/living/user, src_location, over_location, params)
 	if(user == src || over_object != user || !HAS_TRAIT(user, TRAIT_CAN_STRIP))
 		return
-	if(!user.can_strip || isliving(user) && user.mob_size <= MOB_SIZE_SMALL)
+	if(!user.can_strip || isliving(user) && user.mob_size <= MOB_SIZE_SMALL && !HAS_TRAIT(user, TRAIT_SMALL_MOB))
 		return // Stops pAI drones and small mobs (borers, parrots, crabs) from stripping people. --DZD
 	if(IsFrozen(src) && !is_admin(user))
 		to_chat(user, span_boldnotice("Interacting with admin-frozen players is not permitted."))
