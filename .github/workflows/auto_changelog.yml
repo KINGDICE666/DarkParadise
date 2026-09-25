@@ -8,6 +8,7 @@ on:
       - master220
 permissions:
   contents: write
+  pull-requests: write
 jobs:
   auto_changelog:
     runs-on: ubuntu-24.04
@@ -15,8 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          allow-unsafe-pr-checkout: true
 
       - name: Generate App Token
         id: app-token-generation
