@@ -126,7 +126,7 @@ SUBSYSTEM_DEF(ntnet)
 	if(pages[cache_key] || pending[cache_key] || length(pending) >= NTNET_MAX_REQUESTS || world.time < page_retry[cache_key])
 		return
 	pending[cache_key] = world.time + NTNET_REQUEST_TIMEOUT
-	SShttp.create_async_request(RUSTG_HTTP_METHOD_GET, "[CONFIG_GET(string/ntnet_api_url)]/api/v1/sites/[url_encode(site_id)]/pages/[url_encode(slug)]", headers = list("X-Server-Key" = CONFIG_GET(string/ntnet_server_key)), proc_callback = CALLBACK(src, PROC_REF(on_page), site_id, slug), sensitive = TRUE)
+	SShttp.create_async_request(RUSTG_HTTP_METHOD_GET, "[CONFIG_GET(string/ntnet_api_url)]/api/v1/sites/[url_encode(site_id)]/pages/[url_encode(slug)]?tree=text", headers = list("X-Server-Key" = CONFIG_GET(string/ntnet_server_key)), proc_callback = CALLBACK(src, PROC_REF(on_page), site_id, slug), sensitive = TRUE)
 
 /datum/controller/subsystem/ntnet/proc/page_failed(site_id, slug)
 	var/cache_key = json_encode(list(site_id, slug))
@@ -150,7 +150,7 @@ SUBSYSTEM_DEF(ntnet)
 	var/list/site = sites[site_id]
 	var/list/document = safe_json_decode(response.body)
 	var/document_version = islist(document) && istext(document["version"]) ? text2num(document["version"]) : null
-	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || !isnum(document_version) || !islist(document["tree"]))
+	if(!islist(document) || document["site_id"] != site_id || document["slug"] != slug || !isnum(document_version) || !(istext(document["tree"]) || islist(document["tree"])))
 		page_retry[cache_key] = world.time + NTNET_RETRY_INTERVAL
 		return
 	var/catalog_version = text2num(site["version"])

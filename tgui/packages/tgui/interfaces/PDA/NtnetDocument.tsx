@@ -1,4 +1,9 @@
-import { type CSSProperties, createElement, type ReactNode } from 'react';
+import {
+  type CSSProperties,
+  createElement,
+  type ReactNode,
+  useMemo,
+} from 'react';
 
 const TAGS = new Set([
   'abbr',
@@ -354,7 +359,19 @@ type Props = {
   onNavigate: (siteId: string, slug: string) => void;
 };
 
-export const NtnetDocument = ({ tree, onNavigate }: Props) => {
+const parseTree = (source: unknown): unknown => {
+  if (typeof source !== 'string') {
+    return source;
+  }
+  try {
+    return JSON.parse(source);
+  } catch {
+    return null;
+  }
+};
+
+export const NtnetDocument = ({ tree: source, onNavigate }: Props) => {
+  const tree = useMemo(() => parseTree(source), [source]);
   const css = sanitizeCss(
     tree && typeof tree === 'object'
       ? (tree as Record<string, unknown>).css
