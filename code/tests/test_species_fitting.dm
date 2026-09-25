@@ -563,3 +563,39 @@
 	TEST_ASSERT(fit.steps_for(null, DEFAULT_ICON_HEAD) == fit.steps_for(helmet, DEFAULT_ICON_HEAD), "previewing a helmet selects a different fitting pipeline and poisons its worn cache")
 	var/obj/item/clothing/gloves/mod/gauntlets = allocate(/obj/item/clothing/gloves/mod)
 	TEST_ASSERT(fit.maps_for(gauntlets, gauntlets.onmob_sheets[ITEM_SLOT_GLOVES_STRING]) == fit.maps_for(null, DEFAULT_ICON_GLOVES), "MOD gauntlets use a body map instead of the glove map")
+
+/datum/unit_test/species_fitting_sealed_suits
+
+/datum/unit_test/species_fitting_sealed_suits/Run()
+	var/datum/species_fit/fit = get_species_fit(/datum/species_fit/resomi)
+	var/datum/fit_step/cover_parts/extremities/step = new
+	for(var/state in list("space", "engspace_suit", "bio", "firesuit"))
+		var/icon/fitted = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
+		for(var/fit_dir in GLOB.cardinal)
+			var/list/pixels = fit.read_frame(icon(fitted, dir = fit_dir))
+			var/list/extremities = fit.build_mask(fit.target_sheet, list("l_hand", "r_hand", "l_foot", "r_foot"), fit_dir)
+			for(var/index in 1 to length(extremities))
+				if(extremities[index])
+					TEST_ASSERT_NOTNULL(pixels[index], "[state] leaves a resomi extremity bare at [index] facing [fit_dir]")
+	for(var/state in list("labcoat", "wintercoat", "armor-combat"))
+		for(var/fit_dir in GLOB.cardinal)
+			var/list/source = fit.read_frame(icon(DEFAULT_ICON_OUTER_SUIT, state, fit_dir))
+			var/datum/fit_context/context = new(fit, fit_dir, source, fit.maps_for(null, DEFAULT_ICON_OUTER_SUIT))
+			step.apply(context)
+			TEST_ASSERT_NOT(context.changed(), "extremity coverage paints over the open hands or feet of [state] facing [fit_dir]")
+
+/datum/unit_test/species_fitting_single_direction
+
+/datum/unit_test/species_fitting_single_direction/Run()
+	var/datum/species_fit/fit = get_species_fit(/datum/species_fit/resomi)
+	for(var/state in list("labcoat_burnt_open", "wardentanjacket"))
+		TEST_ASSERT_EQUAL(length(icon_states(icon(DEFAULT_ICON_OUTER_SUIT, state, NORTH))), 0, "[state] no longer exercises the single-direction fallback")
+		var/icon/fitted = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
+		for(var/fit_dir in GLOB.cardinal)
+			var/list/pixels = fit.read_frame(icon(fitted, dir = fit_dir))
+			var/visible = FALSE
+			for(var/pixel in pixels)
+				if(pixel)
+					visible = TRUE
+					break
+			TEST_ASSERT(visible, "[state] disappears when the resomi turns to [fit_dir]")

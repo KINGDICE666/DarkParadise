@@ -127,3 +127,20 @@
 		INSTRUMENTAL = "аппендиксом резоми",
 		PREPOSITIONAL = "аппендиксе резоми",
 	)
+
+/obj/item/organ/external/tail/resomi
+	species_type = /datum/species/resomi
+	name = "resomi tail"
+	desc = "Хвост. Этот принадлежал резоми."
+	force_icon = 'icons/mob/sprite_accessories/resomi/resomi_tail.dmi'
+	icon_name = "resomitail_s"
+
+/obj/item/organ/external/tail/resomi/get_ru_names()
+	return alist(
+		NOMINATIVE = "хвост резоми",
+		GENITIVE = "хвоста резоми",
+		DATIVE = "хвосту резоми",
+		ACCUSATIVE = "хвост резоми",
+		INSTRUMENTAL = "хвостом резоми",
+		PREPOSITIONAL = "хвосте резоми",
+	)

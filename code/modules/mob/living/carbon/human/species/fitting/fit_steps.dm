@@ -128,6 +128,7 @@
 
 /datum/fit_step/cover_parts
 	var/list/part_groups = list(list("torso_m"), list("groin_m"), list("l_leg", "r_leg"), list("l_arm", "r_arm"))
+	var/list/bare_states = list("head_m", "l_hand", "r_hand")
 	var/list/reference_masks
 	var/list/target_masks
 
@@ -140,8 +141,8 @@
 		for(var/fit_dir in GLOB.cardinal)
 			var/list/reference_parts = list()
 			var/list/target_parts = list()
-			var/list/reference_bare = profile.build_mask(profile.reference_sheet, list("head_m", "l_hand", "r_hand"), fit_dir)
-			var/list/target_bare = profile.build_mask(profile.target_sheet, list("head_m", "l_hand", "r_hand"), fit_dir)
+			var/list/reference_bare = profile.build_mask(profile.reference_sheet, bare_states, fit_dir)
+			var/list/target_bare = profile.build_mask(profile.target_sheet, bare_states, fit_dir)
 			for(var/list/part_states in part_groups)
 				var/list/reference_mask = profile.build_mask(profile.reference_sheet, part_states, fit_dir)
 				var/list/target_mask = profile.build_mask(profile.target_sheet, part_states, fit_dir)
@@ -160,17 +161,43 @@
 	for(var/part in 1 to length(target_parts))
 		if(profile.covered_share(context.source, reference_parts[part]) < FIT_COVER_PART_SHARE)
 			continue
-		var/list/target_mask = target_parts[part]
-		for(var/index in 1 to length(target_mask))
-			if(!target_mask[index] || snapshot[index])
+		cover_mask(context, reference_parts[part], target_parts[part], snapshot)
+
+/datum/fit_step/cover_parts/proc/cover_mask(datum/fit_context/context, list/reference_mask, list/target_mask, list/snapshot)
+	for(var/index in 1 to length(target_mask))
+		if(!target_mask[index] || snapshot[index])
+			continue
+		var/x = (index - 1) % context.width + 1
+		for(var/distance in 1 to FIT_COVER_PART_REACH)
+			var/left = x - distance >= 1 ? snapshot[index - distance] : null
+			var/right = x + distance <= context.width ? snapshot[index + distance] : null
+			if(left || right)
+				context.working[index] = left || right
+				break
+
+/datum/fit_step/cover_parts/extremities
+	part_groups = list(list("l_hand"), list("r_hand"), list("l_foot"), list("r_foot"))
+	bare_states = list("head_m")
+
+/datum/fit_step/cover_parts/extremities/cover_mask(datum/fit_context/context, list/reference_mask, list/target_mask, list/snapshot)
+	var/list/reference_rows = context.profile.mask_rows(reference_mask)
+	var/list/target_rows = context.profile.mask_rows(target_mask)
+	for(var/row in 1 to length(target_rows))
+		var/y = target_rows[row]
+		var/from_y = reference_rows[1 + round((row - 1) * (length(reference_rows) - 1) / max(1, length(target_rows) - 1), 1)]
+		var/list/reference_columns = list()
+		var/list/target_columns = list()
+		for(var/x in 1 to context.width)
+			if(reference_mask[context.width * (from_y - 1) + x])
+				reference_columns += x
+			if(target_mask[context.width * (y - 1) + x])
+				target_columns += x
+		for(var/column in 1 to length(target_columns))
+			var/index = context.width * (y - 1) + target_columns[column]
+			if(snapshot[index])
 				continue
-			var/x = (index - 1) % context.width + 1
-			for(var/distance in 1 to FIT_COVER_PART_REACH)
-				var/left = x - distance >= 1 ? snapshot[index - distance] : null
-				var/right = x + distance <= context.width ? snapshot[index + distance] : null
-				if(left || right)
-					context.working[index] = left || right
-					break
+			var/from_x = reference_columns[1 + round((column - 1) * (length(reference_columns) - 1) / max(1, length(target_columns) - 1), 1)]
+			context.working[index] = context.source[context.width * (from_y - 1) + from_x]
 
 /datum/fit_step/proc/clear_added(datum/fit_context/context, list/mask)
 	for(var/index in 1 to length(mask))
@@ -414,8 +441,11 @@
 		var/x = (index - 1) % context.width + 1
 		garment_first = min(garment_first, x)
 		garment_last = max(garment_last, x)
-	var/brim_first = head_first - CEILING(max(0, head_first - garment_first) * FIT_HEADWEAR_BRIM_SCALE, 1)
-	var/brim_last = head_last + CEILING(max(0, garment_last - head_last) * FIT_HEADWEAR_BRIM_SCALE, 1)
+	var/rim = offset[3] ? FIT_HEADWEAR_RIM_WIDTH : 0
+	var/left_overhang = max(0, head_first - garment_first)
+	var/right_overhang = max(0, garment_last - head_last)
+	var/brim_first = head_first - (left_overhang > rim ? CEILING(left_overhang * FIT_HEADWEAR_BRIM_SCALE, 1) : 0)
+	var/brim_last = head_last + (right_overhang > rim ? CEILING(right_overhang * FIT_HEADWEAR_BRIM_SCALE, 1) : 0)
 	if(garment_first >= brim_first && garment_last <= brim_last)
 		return
 	var/list/clamped = context.working.Copy()

@@ -3,6 +3,8 @@
 Pipeline order and every heuristic here must stay identical to
 code/modules/mob/living/carbon/human/species/fitting/, otherwise the numbers lie.
 """
+import math
+
 from dmi import LIMB_STATES, TRUNK_STATES, body_mask, frame_for_dir
 
 TIER_STATES = (("head_m",), ("l_foot", "r_foot"), ("l_hand", "r_hand"), TRUNK_STATES,
@@ -17,6 +19,7 @@ PART_GARMENT_SHARE = 0.25
 HEAD_WARP_SHARE = 0.25
 
 COVER_PART_GROUPS = (("torso_m",), ("groin_m",), ("l_leg", "r_leg"), ("l_arm", "r_arm"))
+EXTREMITY_STATES = ("l_hand", "r_hand", "l_foot", "r_foot")
 
 COVER_PART_SHARE = 0.9
 
@@ -212,6 +215,13 @@ class SpeciesFit:
         self.sheet_maps = {sheet: _read_pixel_map(path, width, height)
                            for sheet, path in (sheet_pixel_maps or {}).items()}
         self.cover_parts = cover_parts
+        self.extremity_masks = {}
+        for index in range(4):
+            self.extremity_masks[index] = [
+                [_flip_keys(body_mask(sheet, (part,), index, width, height)
+                            - body_mask(sheet, ("head_m",), index, width, height), height)
+                 for part in EXTREMITY_STATES]
+                for sheet in (reference_sheet, target_sheet)]
         self.reference_cover = {index: [_flip_keys(body_mask(reference_sheet, states, index, width, height), height)
                                         for states in COVER_PART_GROUPS] for index in range(4)}
         self.target_cover = {index: [_flip_keys(body_mask(target_sheet, states, index, width, height), height)
@@ -453,6 +463,24 @@ class SpeciesFit:
                         if left is not None or right is not None:
                             working[(x, y)] = left if left is not None else right
                             break
+            snapshot = dict(working)
+            for reference_mask, target_mask in zip(*self.extremity_masks[dir_index]):
+                if not reference_mask or (sum(source[key] is not None for key in reference_mask)
+                                          / len(reference_mask)) < COVER_PART_SHARE:
+                    continue
+                reference_rows = sorted({y for x, y in reference_mask})
+                target_rows = sorted({y for x, y in target_mask})
+                for row, y in enumerate(target_rows):
+                    from_y = reference_rows[math.floor(row * (len(reference_rows) - 1)
+                                                      / max(1, len(target_rows) - 1) + 0.5)]
+                    reference_columns = sorted(x for x, row_y in reference_mask if row_y == from_y)
+                    target_columns = sorted(x for x, row_y in target_mask if row_y == y)
+                    for column, x in enumerate(target_columns):
+                        if snapshot[x, y] is not None:
+                            continue
+                        from_x = reference_columns[math.floor(column * (len(reference_columns) - 1)
+                                                              / max(1, len(target_columns) - 1) + 0.5)]
+                        working[x, y] = source[from_x, from_y]
         return {(x, self.height - 1 - y): pixel for (x, y), pixel in working.items()}, working != source
 
     def _mark_bare_skin(self, working, dir_index):

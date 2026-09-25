@@ -65,6 +65,7 @@
 	pixel_y = old_pixel_y
 	name = held_mob.name
 	desc = held_mob.desc
+	dir = SOUTH
 
 /obj/item/holder/proc/on_held_mob_icon_updated(datum/source)
 	SIGNAL_HANDLER
@@ -252,10 +253,7 @@
 	name = "small humanoid"
 	desc = "Маленький гуманоид, свернувшийся так, чтобы его было удобно нести."
 	slot_flags = NONE
-
-/obj/item/holder/humanoid/Initialize(mapload)
-	. = ..()
-	dir = SOUTH
+	slot_flags_2 = ITEM_FLAG_POCKET_DENY
 
 /obj/item/holder/mouse
 	name = "mouse"

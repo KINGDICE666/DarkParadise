@@ -100,7 +100,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/bare_names = list()
 	for(var/list/part_group in bare_parts)
 		bare_names += jointext(part_group, ",")
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]|[FIT_COVER_PART_SHARE]|[FIT_COVER_PART_REACH]|[FIT_HEADWEAR_BRIM_SCALE]|[FIT_SHOE_HEIGHT_SCALE]|[FIT_SHOE_MIN_ROWS]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]|[FIT_COVER_PART_SHARE]|[FIT_COVER_PART_REACH]|[FIT_HEADWEAR_BRIM_SCALE]|[FIT_HEADWEAR_RIM_WIDTH]|[FIT_SHOE_HEIGHT_SCALE]|[FIT_SHOE_MIN_ROWS]")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[pixel_map]|[pixel_map ? md5(file2text(pixel_map)) : ""]")
 	for(var/sheet in sheet_pixel_maps)
 		var/map_file = sheet_pixel_maps[sheet]
@@ -481,8 +481,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/dresses_head = FALSE
 	var/warps_head = FALSE
 	var/list/dressed_parts = new(length(bare_parts))
+	var/single_direction = !length(icon_states(icon(sheet, state_name, NORTH)))
 	for(var/fit_dir in GLOB.cardinal)
-		var/icon/frame = icon(sheet, state_name, fit_dir)
+		var/icon/frame = icon(sheet, state_name, single_direction ? SOUTH : fit_dir)
 		if(frame.Width() != width || frame.Height() != height)
 			return null
 		var/list/pixels = read_frame(frame)

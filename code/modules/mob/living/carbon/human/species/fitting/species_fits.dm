@@ -74,6 +74,7 @@
 	steps = list(
 		/datum/fit_step/pixel_map,
 		/datum/fit_step/cover_parts,
+		/datum/fit_step/cover_parts/extremities,
 	)
 	slot_steps = list(
 		ITEM_SLOT_HEAD_STRING = list(/datum/fit_step/head_offset),

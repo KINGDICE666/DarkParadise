@@ -59,7 +59,7 @@
 	female_sneeze_sound = list('sound/voice/resomisneeze.ogg')
 	male_giggle_sound = list('sound/voice/resomichirp.ogg')
 	female_giggle_sound = list('sound/voice/resomichirp.ogg')
-	butt_sprite = "resomi"
+	butt_sprite = "vox"
 	toxic_food = TOXIC | VEGETABLES | FRUIT | GRAIN
 	liked_food = MEAT | RAW | EGG
 	has_organ = list(
@@ -84,20 +84,20 @@
 		BODY_ZONE_PRECISE_R_HAND = list("path" = /obj/item/organ/external/hand/right),
 		BODY_ZONE_PRECISE_L_FOOT = list("path" = /obj/item/organ/external/foot),
 		BODY_ZONE_PRECISE_R_FOOT = list("path" = /obj/item/organ/external/foot/right),
-		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail),
+		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail/resomi),
 	)
 
 /datum/species/resomi/on_species_gain(mob/living/carbon/human/target)
 	. = ..()
 	target.mob_size = MOB_SIZE_SMALL
 	target.holder_type = /obj/item/holder/humanoid
-	target.pass_flags |= PASSTABLE
+	passtable_on(target, SPECIES_TRAIT)
 
 /datum/species/resomi/on_species_loss(mob/living/carbon/human/target)
 	. = ..()
 	target.mob_size = initial(target.mob_size)
 	target.holder_type = initial(target.holder_type)
-	target.pass_flags &= ~PASSTABLE
+	passtable_off(target, SPECIES_TRAIT)
 
 /datum/species/resomi/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
 	return ..(target, STRENGTH_LEVEL_WEAK, STRENGTH_LEVEL_STRONG, can_become_stronger)
