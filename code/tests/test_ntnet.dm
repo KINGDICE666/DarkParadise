@@ -53,6 +53,15 @@
 	network.on_page("test", "index", response)
 	cached_page = network.pages[cache_key]
 	TEST_ASSERT_NULL(cached_page["interactive"], "Foreign interactive address was accepted")
+	var/deep_tree = "{\"type\":\"text\",\"text\":\"deep\"}"
+	for(var/level in 1 to 16)
+		deep_tree = "{\"type\":\"div\",\"children\":\[[deep_tree]\]}"
+	response.body = json_encode(list("site_id" = "test", "slug" = "index", "version" = "1", "tree" = deep_tree))
+	network.on_page("test", "index", response)
+	cached_page = network.pages[cache_key]
+	TEST_ASSERT_EQUAL(cached_page["tree"], deep_tree, "Deep page tree was not kept as text")
+	var/list/ui_payload = list("data" = list("ntnet" = list("page" = cached_page)))
+	TEST_ASSERT_NOT(findtext(json_encode(ui_payload), "null"), "Deep page tree broke the UI payload")
 	TEST_ASSERT(network.media_address("https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.png"), "Media address was rejected")
 	TEST_ASSERT_NOT(network.media_address("https://media.wiki-ss13.space/0123456789abcdef0123456789abcdef/0123456789abcdef.svg"), "Svg icon was accepted")
 	TEST_ASSERT_NOT(network.media_address("javascript:alert(1)"), "Junk icon was accepted")

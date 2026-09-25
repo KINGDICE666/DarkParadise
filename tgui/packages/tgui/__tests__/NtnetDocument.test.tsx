@@ -79,6 +79,16 @@ test('ignores malformed nodes', () => {
   }
 });
 
+test('renders a tree delivered as JSON text', () => {
+  let tree: unknown = { type: 'text', text: 'deep-text' };
+  for (let index = 0; index < 12; index++) {
+    tree = { type: 'div', children: [tree] };
+  }
+  expect(render(JSON.stringify(tree))).toContain('deep-text');
+  expect(() => render('{"type":"div",')).not.toThrow();
+  expect(render('<b>raw</b>')).not.toContain('raw');
+});
+
 test('internal links never become browser navigation', () => {
   const html = render({
     type: 'link',
