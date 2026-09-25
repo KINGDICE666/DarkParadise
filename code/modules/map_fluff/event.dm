@@ -3,14 +3,14 @@
 	map_path = "_maps/map_files/event/Station/rustedevents.dmm"
 	lavaland_path = "_maps/map_files/coldcolony/Lavaland.dmm"
 	traits = list(
-		list(STATION_LEVEL = "First Floor", STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_BASETURF = /turf/simulated/floor/plating/ironsand),
-		list(STATION_LEVEL = "Second Floor", STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
-		list(STATION_LEVEL = "Third Floor", STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
-		list(STATION_LEVEL = "Fourth Floor", STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
-		list(STATION_LEVEL = "Fifth Floor", STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
-		list(MAIN_STATION, STATION_LEVEL = "Sixth Floor", STATION_CONTACT, REACHABLE, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
-    )
-	space_ruins_levels = 0
+		list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "Surface", REACHABLE, AI_OK, ZTRAIT_SNOWSTORM, ZTRAIT_BASETURF = /turf/simulated/floor/plating/asteroid/snow),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_BASETURF = /turf/simulated/floor/plating/ironsand),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_BASETURF = /turf/simulated/floor/plating/ironsand),
+	)
+	space_ruins_levels = 1
 	station_name = "ШОН Мальта"
 	english_station_name = "NMC Malta"
 	station_short = "Мальта"
