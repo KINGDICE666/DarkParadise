@@ -1,6 +1,6 @@
-/datum/unit_test/resomi_mechanics
+/datum/unit_test/room_test/resomi_mechanics
 
-/datum/unit_test/resomi_mechanics/Run()
+/datum/unit_test/room_test/resomi_mechanics/Run()
 	var/mob/living/carbon/human/resomi = allocate(/mob/living/carbon/human)
 	resomi.set_species(/datum/species/resomi)
 	TEST_ASSERT(resomi.pass_flags & PASSTABLE, "resomi cannot run over tables")
