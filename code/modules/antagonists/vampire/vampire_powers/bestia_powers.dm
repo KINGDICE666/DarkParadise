@@ -1755,7 +1755,7 @@
 	dead_for_sure = TRUE
 	if(parent_spell && human_vampire)
 		transform_back()
-	parent_spell.return_vamp_spells()
+	parent_spell?.return_vamp_spells()
 	SEND_SIGNAL(src, COMSIG_LIVING_DEATH, FALSE)
 
 /mob/living/simple_animal/hostile/vampire/proc/transform_back()
