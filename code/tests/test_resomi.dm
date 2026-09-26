@@ -1,3 +1,37 @@
+/datum/unit_test/resomi_shoes
+
+/datum/unit_test/resomi_shoes/Run()
+	var/mob/living/carbon/human/wearer = allocate(/mob/living/carbon/human)
+	wearer.set_species(/datum/species/resomi)
+	for(var/shoe_type in list(/obj/item/clothing/shoes/color/black, /obj/item/clothing/shoes/jackboots))
+		var/obj/item/clothing/shoes/shoes = allocate(shoe_type)
+		wearer.equip_to_slot_or_del(shoes, ITEM_SLOT_FEET)
+		var/sheet = shoes.onmob_sheets[ITEM_SLOT_FEET_STRING]
+		var/mutable_appearance/clean = shoes.build_worn_icon(default_layer = SHOES_LAYER, default_icon_file = sheet)
+		TEST_ASSERT_EQUAL(clean.icon_state, "", "resomi shoes bypassed fitting")
+		var/icon/clean_icon = icon(clean.icon, clean.icon_state)
+		TEST_ASSERT_NULL(clean_icon.GetPixel(10, 1, dir = SOUTH), "shoes still extend to the human toe position")
+		TEST_ASSERT_NOTNULL(clean_icon.GetPixel(15, 3, dir = SOUTH), "fitting flattened the shoe upper into the sole")
+		shoes.blood_DNA = list("resomi-shoe-test" = "O+")
+		shoes.blood_color = COLOR_RED
+		var/list/blood_overlays = shoes.separate_worn_overlays(clean, clean, FALSE, sheet)
+		TEST_ASSERT_EQUAL(length(blood_overlays), 1, "bloody shoes need one separate blood layer")
+		var/mutable_appearance/blood_overlay = blood_overlays[1]
+		TEST_ASSERT_EQUAL(blood_overlay.color, COLOR_RED, "fitting changed the blood color")
+		var/icon/blood_icon = icon(blood_overlay.icon, blood_overlay.icon_state)
+		for(var/fit_dir in GLOB.cardinal)
+			var/blood_pixels = 0
+			for(var/y in 1 to 32)
+				for(var/x in 1 to 32)
+					if(!blood_icon.GetPixel(x, y, dir = fit_dir))
+						continue
+					blood_pixels++
+					TEST_ASSERT_NOTNULL(clean_icon.GetPixel(x, y, dir = fit_dir), "blood floats outside the fitted shoe at [x],[y] facing [fit_dir]")
+			TEST_ASSERT(blood_pixels, "fitting erased all shoe blood facing [fit_dir]")
+		shoes.blood_DNA = null
+		TEST_ASSERT_EQUAL(length(shoes.separate_worn_overlays(clean, clean, FALSE, sheet)), 0, "clean shoes retained their blood layer")
+		wearer.drop_item_ground(shoes)
+
 /datum/unit_test/room_test/resomi_mechanics
 
 /datum/unit_test/room_test/resomi_mechanics/Run()
