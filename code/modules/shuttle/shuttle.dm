@@ -404,8 +404,6 @@
 
 //this is a hook for custom behaviour. Maybe at some point we could add checks to see if engines are intact
 /obj/docking_port/mobile/proc/canMove()
-	if(SEND_SIGNAL(src, COMSIG_SHUTTLE_SHOULD_MOVE) & BLOCK_SHUTTLE_MOVE)
-		return FALSE
 	return TRUE
 
 /obj/docking_port/mobile/proc/uses_hull_fit()
@@ -533,7 +531,6 @@
 		if(SHUTTLE_IDLE, SHUTTLE_IGNITING, SHUTTLE_RECHARGING)
 			destination = S
 			mode = SHUTTLE_IGNITING
-			SEND_SIGNAL(src, COMSIG_SHUTTLE_IGNITION)
 			setTimer(ignitionTime)
 	return FALSE
 
@@ -555,7 +552,6 @@
 			WARNING("shuttle \"[id]\" could not enter transit space. Docked at [S0 ? S0.id : "null"]. Transit dock [S1 ? S1.id : "null"].")
 		else
 			previous = S0
-			SEND_SIGNAL(src, COMSIG_SHUTTLE_TRANSIT, S1)
 			return TRUE
 	else
 		WARNING("shuttle \"[id]\" could not enter transit space. S0=[S0 ? S0.id : "null"] S1=[S1 ? S1.id : "null"]")

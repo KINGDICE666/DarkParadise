@@ -39,7 +39,7 @@
 	var/turf/spot = parent.get_turf_at(coord_x, coord_y)
 	if(!spot)
 		return FALSE
-	overmap_clear_tile_for_feature(parent, spot)
+	overmap_clear_tile_for_feature(spot)
 	var/obj/overmap/placed = new token_type(spot)
 	parent.add_object(placed, spot)
 	token = placed
@@ -93,7 +93,7 @@
 			spot = parent.get_random_open_turf()
 		if(!spot)
 			continue
-		overmap_clear_tile_for_feature(parent, spot)
+		overmap_clear_tile_for_feature(spot)
 		var/obj/overmap/entity/feature/ruin/ruin_token = new(spot)
 		ruin_token.configure(src, cell)
 		parent.add_object(ruin_token, spot)
@@ -329,7 +329,7 @@
 /obj/overmap/entity/feature/update_icon_state()
 	icon_state = overmap_icon_preset || "event"
 
-/proc/overmap_clear_tile_for_feature(datum/overmap_sector/sector, turf/spot)
+/proc/overmap_clear_tile_for_feature(turf/spot)
 	if(!spot)
 		return
 	for(var/obj/overmap/feature/hazard/hazard in spot)
@@ -410,6 +410,9 @@
 /datum/controller/subsystem/overmap/proc/spawn_overmap_ruins(datum/overmap_sector/sector)
 	if(!sector || sector.ruin_spawn_weight <= 0)
 		return
+	#ifdef SKIP_SPACE_LEVELS
+	return
+	#endif
 	if(CONFIG_GET(flag/disable_space_ruins) || (SSmapping.map_datum.disables & DISABLE_SPACE_RUINS))
 		return
 	var/pool = overmap_ruin_pool_for_sector(sector)

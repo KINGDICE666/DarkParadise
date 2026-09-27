@@ -84,19 +84,10 @@
 /obj/docking_port/mobile/proc/overmap_dir_rotation(from_dir, to_dir)
 	if(!from_dir || !to_dir || from_dir == to_dir)
 		return 0
-	var/angle = round((dir2angle(to_dir) - dir2angle(from_dir)) / 90, 1) * 90
-	while(angle < 0)
-		angle += 360
-	while(angle >= 360)
-		angle -= 360
-	return angle
+	return SIMPLIFY_DEGREES(round((dir2angle(to_dir) - dir2angle(from_dir)) / 90, 1) * 90)
 
 /obj/docking_port/mobile/proc/overmap_rotate_vec(dx, dy, rotation)
-	while(rotation < 0)
-		rotation += 360
-	while(rotation >= 360)
-		rotation -= 360
-	switch(rotation)
+	switch(SIMPLIFY_DEGREES(rotation))
 		if(90)
 			return list(dy, -dx)
 		if(180)

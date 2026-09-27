@@ -649,9 +649,15 @@ GLOBAL_LIST_EMPTY(admin_objective_list)
 	agent.equip_or_collect(kit, ITEM_SLOT_BACKPACK)
 
 /datum/objective/hijack/check_completion()
-	if(!SSshuttle?.emergency)
+	var/obj/docking_port/mobile/emergency/evac = SSshuttle.emergency
+	if(evac?.getDockedId() != "emergency_syndicate")
 		return FALSE
-	return SSshuttle.emergency.getDockedId() == "emergency_syndicate"
+
+	for(var/datum/mind/player in get_owners())
+		if(QDELETED(player.current) || player.current.stat != CONSCIOUS || issilicon(player.current) || !evac.shuttle_areas[get_area(player.current)])
+			return FALSE
+
+	return TRUE
 
 // MARK: Hijack with clones
 /datum/objective/hijackclone

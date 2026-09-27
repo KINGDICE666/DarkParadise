@@ -38,7 +38,7 @@
 
 /datum/component/overmap_flight/proc/needs_physics()
 	var/obj/overmap/entity/vessel = parent
-	if(src.held_thrust_dir || src.held_thrust_power || src.held_brake || src.autopilot)
+	if(held_thrust_dir || held_thrust_power || held_brake || autopilot)
 		return TRUE
 	return vessel.movable && !vessel.halted && vessel.is_moving()
 
@@ -204,7 +204,7 @@
 	var/delta = get_burn_acceleration()
 	if(delta <= 0)
 		return FALSE
-	src.last_burn = world.time
+	last_burn = world.time
 	delta *= clamp(power, 0, 1)
 	vessel.adjust_speed(delta * (nx / mag), delta * (ny / mag))
 	return TRUE
@@ -213,7 +213,7 @@
 	var/obj/overmap/entity/vessel = parent
 	if((!vessel.speed[1] && !vessel.speed[2]) || !can_burn())
 		return FALSE
-	src.last_burn = world.time
+	last_burn = world.time
 	var/delta = get_burn_acceleration()
 	if(delta <= 0)
 		return FALSE
@@ -243,9 +243,9 @@
 	var/obj/overmap/entity/vessel = parent
 	var/accel = get_acceleration()
 	var/current = vessel.get_speed()
-	if(!accel || current < vessel.min_speed || !src.burn_delay)
+	if(!accel || current < vessel.min_speed || !burn_delay)
 		return 0
-	var/accel_per_ds = accel / src.burn_delay
+	var/accel_per_ds = accel / burn_delay
 	if(accel_per_ds <= 0)
 		return 0
 	return (current * current) / (2 * accel_per_ds) + 0.2
@@ -260,38 +260,38 @@
 
 /datum/component/overmap_flight/proc/set_autopilot(enabled, dest_x, dest_y)
 	var/obj/overmap/entity/vessel = parent
-	var/was_on = src.autopilot
-	src.autopilot = enabled
-	if(was_on && !src.autopilot)
+	var/was_on = autopilot
+	autopilot = enabled
+	if(was_on && !autopilot)
 		SEND_SIGNAL(vessel, COMSIG_OVERMAP_MANUAL_CONTROL)
-	if(src.autopilot)
+	if(autopilot)
 		clear_held_thrust()
-		src.held_brake = FALSE
-		src.engines_state = TRUE
+		held_brake = FALSE
+		engines_state = TRUE
 	if(!isnull(dest_x))
-		src.autopilot_x = dest_x
+		autopilot_x = dest_x
 	if(!isnull(dest_y))
-		src.autopilot_y = dest_y
+		autopilot_y = dest_y
 	if(vessel.sector)
-		if(!isnull(src.autopilot_x))
-			src.autopilot_x = clamp(round(src.autopilot_x), 1, vessel.sector.size)
-		if(!isnull(src.autopilot_y))
-			src.autopilot_y = clamp(round(src.autopilot_y), 1, vessel.sector.size)
-	if(src.autopilot && (isnull(src.autopilot_x) || isnull(src.autopilot_y)))
-		src.autopilot = FALSE
+		if(!isnull(autopilot_x))
+			autopilot_x = clamp(round(autopilot_x), 1, vessel.sector.size)
+		if(!isnull(autopilot_y))
+			autopilot_y = clamp(round(autopilot_y), 1, vessel.sector.size)
+	if(autopilot && (isnull(autopilot_x) || isnull(autopilot_y)))
+		autopilot = FALSE
 
 /datum/component/overmap_flight/proc/process_autopilot()
 	var/obj/overmap/entity/vessel = parent
-	if(!src.autopilot || src.held_brake)
+	if(!autopilot || held_brake)
 		return
-	if(src.held_thrust_power > 0)
+	if(held_thrust_power > 0)
 		return
-	if(isnull(src.autopilot_x) || isnull(src.autopilot_y))
+	if(isnull(autopilot_x) || isnull(autopilot_y))
 		return
 	var/turf/here = vessel.get_overmap_turf()
 	if(!here || !can_steer())
 		return
-	var/turf/target = vessel.sector?.get_turf_at(src.autopilot_x, src.autopilot_y)
+	var/turf/target = vessel.sector?.get_turf_at(autopilot_x, autopilot_y)
 	if(!target || target.z != here.z)
 		return
 	if(here == target)
@@ -303,11 +303,11 @@
 	if(distance <= 0)
 		arrive_autopilot()
 		return
-	src.engines_state = TRUE
+	engines_state = TRUE
 	var/current = vessel.get_speed()
 	var/cruise = get_effective_cruise()
 	if(cruise <= 0)
-		cruise = max(src.cruise_speed, OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE))
+		cruise = max(cruise_speed, OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE))
 	var/brake_dist = get_brake_distance()
 	var/remaining = remaining_to_enter_turf(target)
 	if(remaining > 0 && remaining <= brake_dist && current > vessel.min_speed)
@@ -329,20 +329,20 @@
 
 /datum/component/overmap_flight/proc/arrive_autopilot()
 	var/obj/overmap/entity/vessel = parent
-	var/turf/target = vessel.sector?.get_turf_at(src.autopilot_x, src.autopilot_y)
+	var/turf/target = vessel.sector?.get_turf_at(autopilot_x, autopilot_y)
 	if(target && isturf(vessel.loc) && vessel.loc != target && target.z == vessel.z)
 		vessel.forceMove(target)
 		vessel.position = list(0, 0)
 		vessel.update_overmap_pixel()
 	vessel.speed[1] = 0
 	vessel.speed[2] = 0
-	src.autopilot = FALSE
+	autopilot = FALSE
 	vessel.refresh_heading_overlay()
 	notify_arrival()
 
 /datum/component/overmap_flight/proc/get_effective_cruise()
 	var/obj/overmap/entity/vessel = parent
-	var/limit = src.cruise_speed
+	var/limit = cruise_speed
 	if(vessel.programmed && vessel.is_programmed_locked())
 		limit = min(limit, OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE))
 	if(!vessel.programmed_mission)
@@ -368,9 +368,9 @@
 	if(current <= target_speed)
 		return 0
 	var/accel = get_acceleration()
-	if(!accel || !src.burn_delay)
+	if(!accel || !burn_delay)
 		return 0
-	var/accel_per_ds = accel / src.burn_delay
+	var/accel_per_ds = accel / burn_delay
 	if(accel_per_ds <= 0)
 		return 0
 	return ((current * current) - (target_speed * target_speed)) / (2 * accel_per_ds)
@@ -378,7 +378,7 @@
 /datum/component/overmap_flight/proc/remaining_to_next_course_tile()
 	var/obj/overmap/entity/vessel = parent
 	var/turf/here = vessel.get_overmap_turf()
-	var/turf/target = vessel.sector?.get_turf_at(src.autopilot_x, src.autopilot_y)
+	var/turf/target = vessel.sector?.get_turf_at(autopilot_x, autopilot_y)
 	if(!here || !target || here == target)
 		return 0
 	return remaining_to_tile_edge(sign(target.x - here.x), sign(target.y - here.y))
@@ -412,9 +412,9 @@
 		return INFINITY
 	if(locate_hazard_on_turf(here))
 		return 0
-	if(!src.autopilot_x || !src.autopilot_y)
+	if(!autopilot_x || !autopilot_y)
 		return INFINITY
-	var/turf/target = vessel.sector.get_turf_at(src.autopilot_x, src.autopilot_y)
+	var/turf/target = vessel.sector.get_turf_at(autopilot_x, autopilot_y)
 	if(!target)
 		return INFINITY
 	var/tx = here.x

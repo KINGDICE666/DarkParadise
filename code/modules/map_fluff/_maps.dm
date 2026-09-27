@@ -14,8 +14,6 @@
 	/// A list of lists: every list inside is a trait list for every z-level. null for default 1 z-level space station. (May used by snow station or multi-z station)
 	var/list/traits = null
 	var/linkage = CROSSLINKED
-	/// null for default number of ruins. Use it to override. Can be used to neglect lagging from multi-z station.
-	var/space_ruins_levels = null
 
 	/// Ingame Station name in Russian.
 	var/station_name = "BAD Station"

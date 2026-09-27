@@ -290,8 +290,3 @@
 /datum/overmap_sector/wilderness/alpha
 	id = OVERMAP_SECTOR_ID_WILDERNESS_A
 	name = "Рубеж Альфа"
-/*
-/datum/overmap_sector/wilderness/beta
-	id = OVERMAP_SECTOR_ID_WILDERNESS_B
-	name = "Рубеж Бета"
-*/

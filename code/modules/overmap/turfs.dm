@@ -107,7 +107,7 @@
 	color = "#000000"
 	name = "map void"
 
-/turf/simulated/floor/indestructible/hyperspace //123123123
+/turf/simulated/floor/indestructible/hyperspace
 	name = "hyperspace"
 	icon = 'icons/turf/space.dmi'
 	icon_state = "black"

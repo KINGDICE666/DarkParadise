@@ -319,7 +319,7 @@
 				var/hyperspace_progress_sound = sound('sound/effects/hyperspace_progress.ogg')
 				for(var/area/shuttle/escape/E in world)
 					SEND_SOUND(E, hyperspace_progress_sound)
-				var/destination_dock = "emergency_away"
+				var/destination_dock = force_hijacked ? "emergency_syndicate" : "emergency_away"
 				overmap_escape_dock = destination_dock
 				mode = SHUTTLE_ESCAPE
 				overmap_leg_started = TRUE

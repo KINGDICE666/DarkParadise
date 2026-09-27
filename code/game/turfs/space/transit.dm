@@ -123,8 +123,8 @@
 /proc/expose_to_hyperspace(atom/movable/dumpee)
 	if(HAS_TRAIT(dumpee, TRAIT_HYPERSPACE_DRIFT))
 		return
-	ADD_TRAIT(dumpee, TRAIT_HYPERSPACE_DRIFT, "hyperspace_turf")
-	addtimer(TRAIT_CALLBACK_REMOVE(dumpee, TRAIT_HYPERSPACE_DRIFT, "hyperspace_turf"), 3 SECONDS)
+	ADD_TRAIT(dumpee, TRAIT_HYPERSPACE_DRIFT, HYPERSPACE_TRAIT)
+	addtimer(TRAIT_CALLBACK_REMOVE(dumpee, TRAIT_HYPERSPACE_DRIFT, HYPERSPACE_TRAIT), 3 SECONDS)
 	dumpee.newtonian_move(dumpee.dir || pick(GLOB.alldirs))
 
 /proc/dump_near_shuttle_in_real_space(atom/movable/dumpee, obj/docking_port/mobile/shuttle)

@@ -46,7 +46,7 @@
 	data["end_terminal"] = s_TGUI_initialized
 
 	var/obj/machinery/computer/shuttle/ninja/console = ensure_shuttle_controller()
-	var/shuttle_id = console?.shuttleId || "ombra"
+	var/shuttle_id = console?.shuttleId || /obj/machinery/computer/shuttle/ninja::shuttleId
 	var/obj/docking_port/mobile/ninja_shuttle_port = SSshuttle.getShuttle(shuttle_id)
 	var/shuttle_status
 	if(ninja_shuttle_port)
@@ -81,7 +81,7 @@
 
 /obj/item/clothing/suit/space/space_ninja/proc/linked_overmap_vessel()
 	var/obj/machinery/computer/shuttle/ninja/console = ensure_shuttle_controller()
-	var/shuttle_id = console?.shuttleId || "ombra"
+	var/shuttle_id = console?.shuttleId || /obj/machinery/computer/shuttle/ninja::shuttleId
 	if(!SSovermap)
 		return null
 	return SSovermap.shuttle_vessels[SSshuttle.getShuttle(shuttle_id)]

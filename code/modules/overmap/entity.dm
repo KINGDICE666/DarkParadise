@@ -35,7 +35,6 @@
 	var/identity_distress = FALSE
 	var/identity_broadcasting = TRUE
 	var/identity_locked = FALSE
-	/// Faction IFF ids. `list(OVERMAP_IFF_SYNDICATE)` = listen+TX. Assoc FALSE = key loaded, TX off. Global TX is identity_broadcasting.
 	var/list/identity_iff_ids
 	var/overmap_icon_preset = "station"
 	var/overmap_icon_file = OVERMAP_ICON_FILE

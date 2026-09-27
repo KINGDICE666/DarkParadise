@@ -59,6 +59,25 @@
 			helm.preset_waypoints = list()
 		helm.preset_waypoints[label] = list("x" = mark_x, "y" = mark_y)
 
+/obj/docking_port/mobile/proc/overmap_try_programmed_move(dock_id)
+	if(!SSovermap?.initialized)
+		return null
+	var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
+	if(!vessel)
+		vessel = SSovermap.get_or_register_shuttle(src)
+	if(!vessel?.programmed)
+		return null
+	if(vessel.is_programmed_emagged())
+		return 2
+	if(getDockedId() == dock_id)
+		vessel.snap_physical_redock()
+		return 0
+	if(id == "supply" && !canMove())
+		return 2
+	if(vessel.start_programmed_route(dock_id, TRUE, TRUE) == TRUE)
+		return 0
+	return 2
+
 /obj/docking_port/mobile/proc/overmap_follow_programmed_leg(dock_id)
 	if(!SSovermap?.initialized)
 		return FALSE

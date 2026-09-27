@@ -1,8 +1,3 @@
-/**
- * Turf transfer for docking_port/mobile.
- * dock() waits for MILLA(atmos), then runs collect > preflight > takeoff > restore > postflight.
- */
-
 /obj/docking_port/mobile/proc/dock(obj/docking_port/stationary/new_dock, force = FALSE, transit = FALSE)
 	if(new_dock.get_docked() == src)
 		remove_ripples()
@@ -19,18 +14,15 @@
 			remove_ripples()
 			return DOCKING_IMMOBILIZED
 
-	SEND_SIGNAL(src, COMSIG_SHUTTLE_PRE_DOCK, new_dock)
-
 	transfer_busy = TRUE
 	var/datum/milla_safe_must_sleep/docking_port_dock/job = new()
 	job.invoke_async(src, new_dock, force, transit)
 	if(!job.finished && Master?.current_runlevel)
 		var/deadline = world.time + 2 MINUTES
 		UNTIL(job.finished || world.time > deadline)
-	transfer_busy = FALSE
 	if(!job.finished)
-		job.finished = TRUE
-		job.result = DOCKING_IMMOBILIZED
+		transfer_busy = FALSE
+		return DOCKING_IMMOBILIZED
 	return job.result
 
 /datum/milla_safe_must_sleep/docking_port_dock
@@ -41,6 +33,7 @@
 	result = DOCKING_BLOCKED
 	if(!QDELETED(mobile_port) && !QDELETED(new_dock))
 		result = mobile_port.run_dock_transfer(src, new_dock, force, transit)
+	mobile_port.transfer_busy = FALSE
 	finished = TRUE
 
 /obj/docking_port/mobile/proc/run_dock_transfer(datum/milla_safe_must_sleep/docking_port_dock/job, obj/docking_port/stationary/new_dock, force, transit)
@@ -73,8 +66,6 @@
 		return DOCKING_NULL_DESTINATION
 
 	closePortDoors(old_dock)
-	if(old_dock)
-		SEND_SIGNAL(src, COMSIG_SHUTTLE_UNDOCK, old_dock)
 
 	remove_ripples()
 	shuttle_smash(old_turfs, new_turfs, move_data["move_dir"], move_data["use_hull"])

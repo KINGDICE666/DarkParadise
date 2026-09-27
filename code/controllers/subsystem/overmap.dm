@@ -211,8 +211,6 @@ SUBSYSTEM_DEF(overmap)
 	if(existing && !QDELETED(existing))
 		ensure_shuttle_overmap_placement(existing)
 		return existing
-	// Request consoles LateInitialize before sectors exist. Creating a token
-	// here leaves loc/sector null forever because register_roundstart returns existing.
 	if(!overmap_world_ready())
 		return null
 	var/obj/overmap/entity/shuttle/vessel = new /obj/overmap/entity/shuttle
@@ -344,7 +342,7 @@ SUBSYSTEM_DEF(overmap)
 	else if(!host_key && is_taipan(pad.z))
 		host_key = OVERMAP_HOST_TAIPAN
 	if(!host_key)
-		var/obj/overmap/entity/service_site/site = get_service_site(pad)
+		var/obj/overmap/entity/site = get_ruin_host(pad) || get_service_site(pad)
 		if(site)
 			pad.overmap_host_uid = site.UID()
 			return site

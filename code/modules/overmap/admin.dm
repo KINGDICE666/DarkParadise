@@ -645,7 +645,7 @@
 			if(!ispath(spawn_path, /obj/overmap) || spawn_path == /obj/overmap/entity/admin_shell)
 				to_chat(user, span_warning("Неизвестный тип объекта."), confidential = TRUE)
 				return
-			overmap_clear_tile_for_feature(sector, spot)
+			overmap_clear_tile_for_feature(spot)
 			var/obj/overmap/token = new spawn_path(spot)
 			sector.add_object(token, spot)
 			apply_spawn_look(token, params)

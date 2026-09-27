@@ -605,7 +605,6 @@
 	update_overmap_pixel()
 	hidden_from_contacts = TRUE
 	update_overmap_visibility()
-	SEND_SIGNAL(src, COMSIG_OVERMAP_NESTED, host)
 	SEND_SIGNAL(src, COMSIG_OVERMAP_MOVED)
 
 /obj/overmap/entity/proc/release_to_overmap(turf/open_turf)
@@ -634,7 +633,6 @@
 		position = saved_position
 		update_overmap_pixel()
 	update_overmap_visibility()
-	SEND_SIGNAL(src, COMSIG_OVERMAP_RELEASED)
 	SEND_SIGNAL(src, COMSIG_OVERMAP_MOVED)
 
 /obj/overmap/entity/proc/get_owned_dock_ids()

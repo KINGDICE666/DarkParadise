@@ -322,24 +322,6 @@ SUBSYSTEM_DEF(mapping)
 	critical_planes = list()
 	create_plane_offsets(0, 0)
 
-// Do not confuse with seedRuins()
-/datum/controller/subsystem/mapping/proc/handleRuins()
-	// load in extra levels of space ruins
-	var/load_zlevels_timer = start_watch()
-	log_startup_progress("Creating random space levels...")
-	var/num_extra_space = map_datum?.space_ruins_levels ? map_datum.space_ruins_levels : SPACE_RUINS_NUMBER
-	for(var/i in 1 to num_extra_space)
-		GLOB.space_manager.add_new_zlevel("Ruin Area #[i]", linkage = CROSSLINKED, traits = list(REACHABLE, SPAWN_RUINS))
-	log_startup_progress("Loaded random space levels in [stop_watch(load_zlevels_timer)]s.")
-
-	// Now spawn ruins, random budget between 20 and 30 for all zlevels combined.
-	// While this may seem like a high number, the amount of ruin Z levels can be anywhere between 3 and 7.
-	// Note that this budget is not split evenly accross all zlevels
-	log_startup_progress("Seeding ruins...")
-	var/seed_ruins_timer = start_watch()
-	seedRuins(levels_by_trait(SPAWN_RUINS), rand(20, 30), /area/space, GLOB.space_ruins_templates)
-	log_startup_progress("Successfully seeded ruins in [stop_watch(seed_ruins_timer)]s.")
-
 /datum/controller/subsystem/mapping/proc/create_landmarks(turf/place)
 	var/landmarks = list(
 		/obj/effect/landmark/spawner/late/crew,
@@ -572,7 +554,7 @@ SUBSYSTEM_DEF(mapping)
 
 /datum/controller/subsystem/mapping/proc/add_ruin_space_zlevel(noisy = FALSE)
 	num_of_res_levels++
-	var/new_res_z = GLOB.space_manager.add_new_zlevel("Ruin Space #[num_of_res_levels]", linkage = UNAFFECTED, traits = list(ADMIN_LEVEL, BLOCK_TELEPORT, RESERVED_LEVEL, RUIN_SPACE_LEVEL))
+	var/new_res_z = GLOB.space_manager.add_new_zlevel("Ruin Space #[num_of_res_levels]", linkage = UNAFFECTED, traits = list(BLOCK_TELEPORT, RESERVED_LEVEL, RUIN_SPACE_LEVEL))
 	initialize_reserved_level(new_res_z, noisy, 2)
 	return new_res_z
 

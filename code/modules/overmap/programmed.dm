@@ -441,6 +441,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/next_nav_warn = 0
 	var/persist_until_dock = FALSE
 	var/cancellable = FALSE
+	var/processing = FALSE
 
 /datum/overmap_programmed_mission/New(obj/overmap/entity/owner, target_dock, skip_windup)
 	vessel = owner
@@ -475,8 +476,14 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	return "[add_zero(num2text(round(seconds / 60)), 2)]:[add_zero(num2text(seconds % 60), 2)]"
 
 /datum/overmap_programmed_mission/proc/process_mission()
-	if(QDELETED(vessel) || QDELETED(src))
+	set waitfor = FALSE
+	if(processing || QDELETED(vessel) || QDELETED(src))
 		return
+	processing = TRUE
+	advance_phase()
+	processing = FALSE
+
+/datum/overmap_programmed_mission/proc/advance_phase()
 	if(vessel.is_overmap_jammed() && phase != OVERMAP_PROG_JUMP)
 		return
 	switch(phase)

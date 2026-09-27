@@ -123,7 +123,7 @@
 			apply_damage(OVERMAP_HYPERSPACE_LIMB_BRUTE, BRUTE, part, forced = TRUE, silent = TRUE, updating_health = FALSE)
 		updatehealth("hyperspace")
 		return
-	apply_damage(OVERMAP_HYPERSPACE_LIMB_BRUTE * 6, BRUTE, forced = TRUE, silent = TRUE)
+	apply_damage(OVERMAP_HYPERSPACE_MOB_BRUTE, BRUTE, forced = TRUE, silent = TRUE)
 
 //this updates all special effects: mainly stamina
 /mob/living/proc/handle_status_effects() // We check for the status effect in this proc as opposed to the procs below to avoid excessive proc call overhead

@@ -327,7 +327,7 @@
 			href_list["check_antagonist"] = TRUE
 			return
 		if(!(SSshuttle.emergency.mode in list(SHUTTLE_CALL, SHUTTLE_RECALL, SHUTTLE_DOCKED)))
-			to_chat(usr, span_warning("На этом этапе нельзя менять ETA. Используйте force ock."), confidential = TRUE)
+			to_chat(usr, span_warning("На этом этапе нельзя менять ETA. Используйте force dock."), confidential = TRUE)
 			href_list["check_antagonist"] = TRUE
 			return
 

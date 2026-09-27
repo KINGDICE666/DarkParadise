@@ -25,18 +25,14 @@
 	var/suffix = null
 	/// Can the ruin be found by the locator
 	var/can_found = FALSE
-	/// Overmap footprint: OVERMAP_RUIN_SIZE_SMALL/MEDIUM/LARGE.
 	var/overmap_size
-	/// Overmap spawn pools
 	var/list/overmap_pools
-	/// Overmap beacon name. Defaults to ruin name if unset.
 	var/identity_name
 	var/identity_color = COLOR_WHITE
 	var/identity_icon = "event"
 	var/identity_distress = FALSE
 	var/identity_broadcasting = FALSE
 	var/identity_locked = FALSE
-	/// Same as shuttle profiles, id or id = FALSE for TX off.
 	var/list/identity_iff_ids
 
 /datum/map_template/ruin/New()
