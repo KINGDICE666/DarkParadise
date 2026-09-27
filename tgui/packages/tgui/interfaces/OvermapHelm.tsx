@@ -1,6 +1,14 @@
-import { Box, Button, ByondUi, NoticeBox, NumberInput, Section, Stack } from 'tgui-core/components';
-import type { BooleanLike } from 'tgui-core/react';
 import { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  ByondUi,
+  NoticeBox,
+  NumberInput,
+  Section,
+  Stack,
+} from 'tgui-core/components';
+import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend, useLocalState } from '../backend';
 import {
@@ -214,7 +222,11 @@ export const OvermapHelm = () => {
           sector={sector_name}
           xy={linked ? `${x}:${y}` : undefined}
           lamps={[
-            { label: status || 'оффлайн', on: !!linked, warn: status?.includes('Пристыкован') },
+            {
+              label: status || 'оффлайн',
+              on: !!linked,
+              warn: status?.includes('Пристыкован'),
+            },
             { label: 'двигатели', on: !!engines_on },
             { label: 'автопилот', on: !!autopilot },
             { label: 'тормоз', warn: !!braking },
@@ -255,360 +267,312 @@ export const OvermapHelm = () => {
       }
     >
       <div className="OvermapHelmLockHost">
-      <Stack
-        fill
-        vertical
-        className={programmed_locked ? 'OvermapHelmLockHost__dim' : undefined}
-      >
-        <Stack.Item height="300px" shrink={0}>
-          <Section
-            fill
-            fitted
-            className="OvermapMapSection"
-            title={
-              tab === 'dock'
-                ? selected_dock
-                  ? `Стыковка — ${selected_dock}`
-                  : 'Нет выбранной площадки'
-                : map_jammed
-                  ? 'Помехи гиперпрыжка'
-                  : `${sector_name} — вид от корабля`
-            }
-          >
-            <div className="OvermapMinimap">
-              {map_jammed && tab === 'flight' ? (
-                <NoticeBox danger>
-                  Сигнал потерян.
-                </NoticeBox>
-              ) : (
-                <ByondUi
-                  key={`${mapRef}-${map_revision}-${tab}`}
-                  height="100%"
-                  width="100%"
-                  params={{
-                    id: mapRef,
-                    type: 'map',
-                    zoom: map_zoom ?? 1,
-                  }}
-                />
-              )}
-            </div>
-          </Section>
-        </Stack.Item>
-        <Stack.Item shrink={0}>
-          <div className="OvermapPanel">
-            <div className="OvermapHelmBar">
-              <div className="OvermapHelmBar__left">
-                <OvermapStats stack>
-                  <OvermapStat
-                    label="скорость"
-                    value={`${speed} Gm/h`}
-                    tone={speed_fast ? 'warn' : speed_slow ? 'good' : undefined}
+        <Stack
+          fill
+          vertical
+          className={programmed_locked ? 'OvermapHelmLockHost__dim' : undefined}
+        >
+          <Stack.Item height="300px" shrink={0}>
+            <Section
+              fill
+              fitted
+              className="OvermapMapSection"
+              title={
+                tab === 'dock'
+                  ? selected_dock
+                    ? `Стыковка — ${selected_dock}`
+                    : 'Нет выбранной площадки'
+                  : map_jammed
+                    ? 'Помехи гиперпрыжка'
+                    : `${sector_name} — вид от корабля`
+              }
+            >
+              <div className="OvermapMinimap">
+                {map_jammed && tab === 'flight' ? (
+                  <NoticeBox danger>Сигнал потерян.</NoticeBox>
+                ) : (
+                  <ByondUi
+                    key={`${mapRef}-${map_revision}-${tab}`}
+                    height="100%"
+                    width="100%"
+                    params={{
+                      id: mapRef,
+                      type: 'map',
+                      zoom: map_zoom ?? 1,
+                    }}
                   />
-                  <OvermapStat label="курс" value={`${heading}°`} />
-                  <OvermapStat label="ускор." value={accel} />
-                  <OvermapStat label="eta" value={eta} />
-                  <OvermapStat
-                    label="лимит"
-                    value={
+                )}
+              </div>
+            </Section>
+          </Stack.Item>
+          <Stack.Item shrink={0}>
+            <div className="OvermapPanel">
+              <div className="OvermapHelmBar">
+                <div className="OvermapHelmBar__left">
+                  <OvermapStats stack>
+                    <OvermapStat
+                      label="скорость"
+                      value={`${speed} Gm/h`}
+                      tone={
+                        speed_fast ? 'warn' : speed_slow ? 'good' : undefined
+                      }
+                    />
+                    <OvermapStat label="курс" value={`${heading}°`} />
+                    <OvermapStat label="ускор." value={accel} />
+                    <OvermapStat label="eta" value={eta} />
+                    <OvermapStat
+                      label="лимит"
+                      value={
+                        <NumberInput
+                          width="70px"
+                          unit="Gm/h"
+                          value={max_speed}
+                          minValue={1}
+                          maxValue={45}
+                          step={1}
+                          disabled={!!programmed_locked}
+                          onChange={(value) =>
+                            act('set_max_speed', { value: value })
+                          }
+                        />
+                      }
+                    />
+                  </OvermapStats>
+                  <Box>
+                    <Box className="OvermapStat__label">скорость / лимит</Box>
+                    <div className="OvermapGauge">
+                      <div
+                        className="OvermapGauge__fill"
+                        style={{ width: `${speedFill}%` }}
+                      />
+                    </div>
+                  </Box>
+                </div>
+                <div className="OvermapHelmBar__center">
+                  <div className="OvermapStickCol">
+                    <OvermapStick
+                      x={stick_x}
+                      y={stick_y}
+                      power={(stick_power || 0) / 100}
+                      heading={heading}
+                      speedRatio={max_speed ? speed / max_speed : 0}
+                      disabled={!can_steer}
+                      onChange={(nx, ny, power) =>
+                        act('stick', { x: nx, y: ny, power })
+                      }
+                    />
+                    <OvermapStat label="мощность" value={`${stick_power}%`} />
+                    <Button
+                      icon="hand"
+                      color="bad"
+                      selected={!!braking}
+                      disabled={!can_steer}
+                      onClick={() => act('brake')}
+                    >
+                      Тормоз
+                    </Button>
+                    <Box className="OvermapStat__label">Автопилот</Box>
+                    <Box>
                       <NumberInput
-                        width="70px"
-                        unit="Gm/h"
-                        value={max_speed}
+                        width="52px"
+                        value={dest_x || x || 1}
                         minValue={1}
-                        maxValue={45}
+                        maxValue={sector_size || 20}
                         step={1}
-                        disabled={!!programmed_locked}
                         onChange={(value) =>
-                          act('set_max_speed', { value: value })
+                          act('set_dest', { x: value, y: dest_y || y })
                         }
                       />
-                    }
-                  />
-                </OvermapStats>
-                <Box>
-                  <Box className="OvermapStat__label">скорость / лимит</Box>
-                  <div className="OvermapGauge">
-                    <div
-                      className="OvermapGauge__fill"
-                      style={{ width: `${speedFill}%` }}
+                      <NumberInput
+                        ml={1}
+                        width="52px"
+                        value={dest_y || y || 1}
+                        minValue={1}
+                        maxValue={sector_size || 20}
+                        step={1}
+                        onChange={(value) =>
+                          act('set_dest', { x: dest_x || x, y: value })
+                        }
+                      />
+                    </Box>
+                    <Button
+                      icon="robot"
+                      selected={!!autopilot}
+                      onClick={() => act('toggle_autopilot')}
+                    >
+                      {autopilot ? 'Авто вкл' : 'Авто выкл'}
+                    </Button>
+                    <Button
+                      icon="search"
+                      color={inspecting ? 'good' : undefined}
+                      selected={!!inspecting}
+                      disabled={!!map_jammed}
+                      onClick={() => act('inspect')}
+                    >
+                      Обзор
+                    </Button>
+                    <OvermapStat
+                      label="до цели"
+                      value={dest_range == null ? '—' : `${dest_range} кл.`}
                     />
                   </div>
-                </Box>
-              </div>
-              <div className="OvermapHelmBar__center">
-                <div className="OvermapStickCol">
-                  <OvermapStick
-                    x={stick_x}
-                    y={stick_y}
-                    power={(stick_power || 0) / 100}
-                    heading={heading}
-                    speedRatio={max_speed ? speed / max_speed : 0}
-                    disabled={!can_steer}
-                    onChange={(nx, ny, power) =>
-                      act('stick', { x: nx, y: ny, power })
-                    }
-                  />
-                  <OvermapStat label="мощность" value={`${stick_power}%`} />
-                  <Button
-                    icon="hand"
-                    color="bad"
-                    selected={!!braking}
-                    disabled={!can_steer}
-                    onClick={() => act('brake')}
-                  >
-                    Тормоз
-                  </Button>
-                  <Box className="OvermapStat__label">Автопилот</Box>
-                  <Box>
-                    <NumberInput
-                      width="52px"
-                      value={dest_x || x || 1}
-                      minValue={1}
-                      maxValue={sector_size || 20}
-                      step={1}
-                      onChange={(value) =>
-                        act('set_dest', { x: value, y: dest_y || y })
+                </div>
+                <div className="OvermapHelmBar__right">
+                  <OvermapStats stack>
+                    <OvermapStat label="тяга" value={thrust} />
+                    <OvermapStat label="масса" value={`${mass} т`} />
+                    <OvermapStat label="док" value={docked_to || '—'} />
+                    <OvermapStat
+                      label="эфир"
+                      value={broadcasting ? 'вкл' : 'скрыт'}
+                      tone={broadcasting ? 'good' : 'warn'}
+                    />
+                    <OvermapStat label="сектор" value={sector_name || '—'} />
+                    <OvermapStat
+                      label="курс к цели"
+                      value={dest_bearing == null ? '—' : `${dest_bearing}°`}
+                    />
+                    <OvermapStat
+                      label="контакты"
+                      value={nearby.length}
+                      tone={
+                        nearbyDistress
+                          ? 'bad'
+                          : nearby.length
+                            ? 'warn'
+                            : undefined
                       }
                     />
-                    <NumberInput
-                      ml={1}
-                      width="52px"
-                      value={dest_y || y || 1}
-                      minValue={1}
-                      maxValue={sector_size || 20}
-                      step={1}
-                      onChange={(value) =>
-                        act('set_dest', { x: dest_x || x, y: value })
-                      }
-                    />
+                    {!!is_shuttle && (
+                      <OvermapStat
+                        label="пады"
+                        value={`${pad_free}/${pad_total}`}
+                        tone={
+                          pad_free ? 'good' : pad_total ? 'warn' : undefined
+                        }
+                      />
+                    )}
+                  </OvermapStats>
+                  <Box mt={1}>
+                    <Button
+                      icon="power-off"
+                      selected={!!engines_on}
+                      color={engines_on ? 'good' : 'average'}
+                      onClick={() => act('cut_engines')}
+                    >
+                      {engines_on ? 'Двиг. вкл' : 'Инерция'}
+                    </Button>
                   </Box>
-                  <Button
-                    icon="robot"
-                    selected={!!autopilot}
-                    onClick={() => act('toggle_autopilot')}
-                  >
-                    {autopilot ? 'Авто вкл' : 'Авто выкл'}
-                  </Button>
-                  <Button
-                    icon="search"
-                    color={inspecting ? 'good' : undefined}
-                    selected={!!inspecting}
-                    disabled={!!map_jammed}
-                    onClick={() => act('inspect')}
-                  >
-                    Обзор
-                  </Button>
-                  <OvermapStat
-                    label="до цели"
-                    value={dest_range == null ? '—' : `${dest_range} кл.`}
-                  />
                 </div>
               </div>
-              <div className="OvermapHelmBar__right">
-                <OvermapStats stack>
-                  <OvermapStat label="тяга" value={thrust} />
-                  <OvermapStat label="масса" value={`${mass} т`} />
-                  <OvermapStat label="док" value={docked_to || '—'} />
-                  <OvermapStat
-                    label="эфир"
-                    value={broadcasting ? 'вкл' : 'скрыт'}
-                    tone={broadcasting ? 'good' : 'warn'}
-                  />
-                  <OvermapStat label="сектор" value={sector_name || '—'} />
-                  <OvermapStat
-                    label="курс к цели"
-                    value={dest_bearing == null ? '—' : `${dest_bearing}°`}
-                  />
-                  <OvermapStat
-                    label="контакты"
-                    value={nearby.length}
-                    tone={
-                      nearbyDistress ? 'bad' : nearby.length ? 'warn' : undefined
-                    }
-                  />
-                  {!!is_shuttle && (
-                    <OvermapStat
-                      label="пады"
-                      value={`${pad_free}/${pad_total}`}
-                      tone={pad_free ? 'good' : pad_total ? 'warn' : undefined}
-                    />
-                  )}
-                </OvermapStats>
-                <Box mt={1}>
-                  <Button
-                    icon="power-off"
-                    selected={!!engines_on}
-                    color={engines_on ? 'good' : 'average'}
-                    onClick={() => act('cut_engines')}
-                  >
-                    {engines_on ? 'Двиг. вкл' : 'Инерция'}
-                  </Button>
-                </Box>
-              </div>
             </div>
-          </div>
-        </Stack.Item>
-        <Stack.Item shrink={0}>
-          <OvermapSeg
-            value={tab}
-            onChange={setTab}
-            items={[
-              { id: 'flight', label: 'Полёт' },
-              { id: 'dock', label: 'Стыковка' },
-            ]}
-          />
-        </Stack.Item>
-        <Stack.Item grow minHeight={0}>
-          <Section fill scrollable>
-            {tab === 'flight' && (
-              <OvermapList>
-                {waypoints.map((waypoint) => (
-                  <OvermapRow
-                    key={waypoint.name}
-                    tag="метка"
-                    title={waypoint.name}
-                    meta={<OvermapCoord x={waypoint.x} y={waypoint.y} />}
-                  >
-                    <Button
-                      onClick={() =>
-                        act('set_dest', { x: waypoint.x, y: waypoint.y })
-                      }
+          </Stack.Item>
+          <Stack.Item shrink={0}>
+            <OvermapSeg
+              value={tab}
+              onChange={setTab}
+              items={[
+                { id: 'flight', label: 'Полёт' },
+                { id: 'dock', label: 'Стыковка' },
+              ]}
+            />
+          </Stack.Item>
+          <Stack.Item grow minHeight={0}>
+            <Section fill scrollable>
+              {tab === 'flight' && (
+                <OvermapList>
+                  {waypoints.map((waypoint) => (
+                    <OvermapRow
+                      key={waypoint.name}
+                      tag="метка"
+                      title={waypoint.name}
+                      meta={<OvermapCoord x={waypoint.x} y={waypoint.y} />}
                     >
-                      Курс
-                    </Button>
-                    <Button
-                      icon="times"
-                      onClick={() =>
-                        act('remove_waypoint', { name: waypoint.name })
+                      <Button
+                        onClick={() =>
+                          act('set_dest', { x: waypoint.x, y: waypoint.y })
+                        }
+                      >
+                        Курс
+                      </Button>
+                      <Button
+                        icon="times"
+                        onClick={() =>
+                          act('remove_waypoint', { name: waypoint.name })
+                        }
+                      />
+                    </OvermapRow>
+                  ))}
+                  {objects.map((object) => (
+                    <OvermapRow
+                      key={`${object.name}-${object.x}-${object.y}`}
+                      tag={overmapKindLabel(object.kind)}
+                      title={
+                        <Box color={object.color} inline>
+                          {object.name}
+                          {object.is_self ? ' (вы)' : ''}
+                          {object.distress ? ' ⚠' : ''}
+                        </Box>
+                      }
+                      meta={
+                        <>
+                          <OvermapCoord x={object.x} y={object.y} />{' '}
+                          {object.speed ?? 0} Gm/h · {object.heading ?? 0}°
+                          {object.nested
+                            ? ` · в доке${object.docked_to ? ` ${object.docked_to}` : ''}`
+                            : ''}
+                          {object.status ? ` · ${object.status}` : ''}
+                        </>
+                      }
+                      muted={!!object.nested}
+                      bad={!!object.distress}
+                    >
+                      <Button
+                        onClick={() =>
+                          act('set_dest', { x: object.x, y: object.y })
+                        }
+                      >
+                        Курс
+                      </Button>
+                    </OvermapRow>
+                  ))}
+                </OvermapList>
+              )}
+              {tab === 'dock' && (
+                <>
+                  <OvermapStats>
+                    <OvermapStat label="фаза" value={shuttle_mode || '—'} />
+                    <OvermapStat label="хост" value={host_name || 'космос'} />
+                    <OvermapStat
+                      label="скорость"
+                      value={`${speed} Gm/h`}
+                      tone={
+                        can_physical_dock ? 'good' : speed ? 'warn' : undefined
                       }
                     />
-                  </OvermapRow>
-                ))}
-                {objects.map((object) => (
-                  <OvermapRow
-                    key={`${object.name}-${object.x}-${object.y}`}
-                    tag={overmapKindLabel(object.kind)}
-                    title={
-                      <Box color={object.color} inline>
-                        {object.name}
-                        {object.is_self ? ' (вы)' : ''}
-                        {object.distress ? ' ⚠' : ''}
-                      </Box>
-                    }
-                    meta={
-                      <>
-                        <OvermapCoord x={object.x} y={object.y} />{' '}
-                        {object.speed ?? 0} Gm/h · {object.heading ?? 0}°
-                        {object.nested
-                          ? ` · в доке${object.docked_to ? ` ${object.docked_to}` : ''}`
-                          : ''}
-                        {object.status ? ` · ${object.status}` : ''}
-                      </>
-                    }
-                    muted={!!object.nested}
-                    bad={!!object.distress}
-                  >
-                    <Button
-                      onClick={() =>
-                        act('set_dest', { x: object.x, y: object.y })
-                      }
-                    >
-                      Курс
-                    </Button>
-                  </OvermapRow>
-                ))}
-              </OvermapList>
-            )}
-            {tab === 'dock' && (
-              <>
-                <OvermapStats>
-                  <OvermapStat label="фаза" value={shuttle_mode || '—'} />
-                  <OvermapStat label="хост" value={host_name || 'космос'} />
-                  <OvermapStat
-                    label="скорость"
-                    value={`${speed} Gm/h`}
-                    tone={can_physical_dock ? 'good' : speed ? 'warn' : undefined}
-                  />
-                  <OvermapStat
-                    label="площадки"
-                    value={`${pad_free}/${pad_total}`}
-                  />
-                </OvermapStats>
-                {!is_shuttle && !is_pod && (
-                  <NoticeBox mt={1}>
-                    Слишком большой объект для стыковки
-                  </NoticeBox>
-                )}
-                {!!is_pod && (
-                  <>
+                    <OvermapStat
+                      label="площадки"
+                      value={`${pad_free}/${pad_total}`}
+                    />
+                  </OvermapStats>
+                  {!is_shuttle && !is_pod && (
                     <NoticeBox mt={1}>
-                      Отстыковка в космосе - у края сектора или у посадочного маяка.
+                      Слишком большой объект для стыковки
                     </NoticeBox>
-                    {!!at_station && (
-                      <>
-                        <Box mt={1} mb={1} color="label">
-                          {selected_dock || 'вариант не выбран'}
-                        </Box>
-                        <Box className="OvermapStat__label" mb={0.5}>
-                          Посадка на {host_name || 'объект'}
-                        </Box>
-                        <OvermapList>
-                          {docks.map((pad) => (
-                            <OvermapRow
-                              key={pad.id}
-                              selected={!!pad.selected}
-                              tag={
-                                pad.can_dock
-                                  ? 'свободно'
-                                  : pad.state === 'small'
-                                    ? 'не влезает'
-                                    : 'занято'
-                              }
-                              title={pad.name}
-                              meta={pad.reason}
-                              muted={!pad.can_dock}
-                              onClick={() =>
-                                act('select_dock', { id: pad.id })
-                              }
-                            />
-                          ))}
-                        </OvermapList>
-                        {!docks.length && (
-                          <NoticeBox>
-                            На этом объекте нет вариантов посадки.
-                          </NoticeBox>
-                        )}
-                      </>
-                    )}
-                    {!at_station && (
-                      <NoticeBox>
-                        {near_planet
-                          ? 'Лаваленд принимает челноки только на посадочный маяк. Подлетите к клетке аванпоста.'
-                          : 'Подлетите к клетке объекта, чтобы сесть на маяк или край сектора.'}
+                  )}
+                  {!!is_pod && (
+                    <>
+                      <NoticeBox mt={1}>
+                        Отстыковка в космосе - у края сектора или у посадочного
+                        маяка.
                       </NoticeBox>
-                    )}
-                  </>
-                )}
-                {!!is_shuttle && (
-                  <>
-                    {!!at_station && (
-                      <Box mt={1} mb={1} color="label">
-                        {selected_dock || 'вариант не выбран'}
-                      </Box>
-                    )}
-                    {!at_station && (
-                      <NoticeBox>
-                        {near_planet
-                          ? 'Над Лавалендом: стыковка с клетки аванпоста. Кастомная посадка отключена — используйте маяк.'
-                          : 'В открытом космосе стыковаться некуда.'}
-                      </NoticeBox>
-                    )}
-                    {!!at_station && (
-                      <Stack fill>
-                        <Stack.Item grow minWidth={0}>
+                      {!!at_station && (
+                        <>
+                          <Box mt={1} mb={1} color="label">
+                            {selected_dock || 'вариант не выбран'}
+                          </Box>
                           <Box className="OvermapStat__label" mb={0.5}>
-                            Посадка на {host_name || 'хост'}
+                            Посадка на {host_name || 'объект'}
                           </Box>
                           <OvermapList>
                             {docks.map((pad) => (
@@ -616,13 +580,11 @@ export const OvermapHelm = () => {
                                 key={pad.id}
                                 selected={!!pad.selected}
                                 tag={
-                                  pad.current
-                                    ? 'сейчас'
+                                  pad.can_dock
+                                    ? 'свободно'
                                     : pad.state === 'small'
                                       ? 'не влезает'
-                                      : pad.can_dock
-                                        ? 'свободно'
-                                        : 'занято'
+                                      : 'занято'
                                 }
                                 title={pad.name}
                                 meta={pad.reason}
@@ -630,109 +592,167 @@ export const OvermapHelm = () => {
                                 onClick={() =>
                                   act('select_dock', { id: pad.id })
                                 }
-                              >
-                                {pad.id === '__overmap_custom' && (
-                                  <Button
-                                    icon="crosshairs"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      act('pick_custom_dock');
-                                    }}
-                                  >
-                                    Заменить
-                                  </Button>
-                                )}
-                              </OvermapRow>
-                            ))}
-                          </OvermapList>
-                        </Stack.Item>
-                        <Stack.Item grow minWidth={0}>
-                          <Box className="OvermapStat__label" mb={0.5}>
-                            Наши шлюзы
-                          </Box>
-                          <OvermapList>
-                            {collars.map((collar) => (
-                              <OvermapRow
-                                key={collar.id}
-                                selected={!!collar.selected}
-                                tag={collar.selected ? 'активен' : 'шлюз'}
-                                title={collar.name}
-                                meta={collar.dir || ''}
-                                onClick={() =>
-                                  act('select_collar', { id: collar.id })
-                                }
                               />
                             ))}
                           </OvermapList>
-                        </Stack.Item>
-                      </Stack>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </Section>
-        </Stack.Item>
-      </Stack>
-      {!!programmed_locked && (
-        <div className="OvermapHelmLockOverlay">
-          <div className="OvermapHelmLockOverlay__card">
-            <div className="OvermapHelmLockOverlay__title">
-              Прямое управление заблокировано поставщиком
-            </div>
-            <div className="OvermapHelmLockOverlay__sub">
-              Используйте заранее заготовленный маршрут
-            </div>
-            {!!programmed_has_routes && (
-              <>
-                <Box mt={1.5} mb={0.5} className="OvermapStat__label">
-                  назначение
-                </Box>
-                <Stack vertical>
-                  {programmed_routes.map((route) => (
-                    <Stack.Item key={route.id}>
-                      <Button
-                        fluid
-                        selected={
-                          !!route.selected ||
-                          programmed_selected === route.id
-                        }
-                        disabled={!!programmed_busy}
-                        onClick={() =>
-                          act('select_programmed', { id: route.id })
-                        }
-                      >
-                        {route.name}
-                      </Button>
-                    </Stack.Item>
-                  ))}
-                </Stack>
-                <Box mt={1.5}>
-                  <Button
-                    icon="play"
-                    color="good"
-                    disabled={!programmed_routes.length || !!programmed_busy}
-                    onClick={() =>
-                      act('execute_programmed', {
-                        id: programmed_selected,
-                      })
-                    }
-                  >
-                    Исполнить
-                  </Button>
-                </Box>
-                {!!programmed_busy && (
-                  <Box mt={1} className="OvermapRail__meta">
-                    {programmed_windup
-                      ? `Отправление через ${programmed_windup} с`
-                      : `В пути ${programmed_eta || ''}`}
+                          {!docks.length && (
+                            <NoticeBox>
+                              На этом объекте нет вариантов посадки.
+                            </NoticeBox>
+                          )}
+                        </>
+                      )}
+                      {!at_station && (
+                        <NoticeBox>
+                          {near_planet
+                            ? 'Лаваленд принимает челноки только на посадочный маяк. Подлетите к клетке аванпоста.'
+                            : 'Подлетите к клетке объекта, чтобы сесть на маяк или край сектора.'}
+                        </NoticeBox>
+                      )}
+                    </>
+                  )}
+                  {!!is_shuttle && (
+                    <>
+                      {!!at_station && (
+                        <Box mt={1} mb={1} color="label">
+                          {selected_dock || 'вариант не выбран'}
+                        </Box>
+                      )}
+                      {!at_station && (
+                        <NoticeBox>
+                          {near_planet
+                            ? 'Над Лавалендом: стыковка с клетки аванпоста. Кастомная посадка отключена — используйте маяк.'
+                            : 'В открытом космосе стыковаться некуда.'}
+                        </NoticeBox>
+                      )}
+                      {!!at_station && (
+                        <Stack fill>
+                          <Stack.Item grow minWidth={0}>
+                            <Box className="OvermapStat__label" mb={0.5}>
+                              Посадка на {host_name || 'хост'}
+                            </Box>
+                            <OvermapList>
+                              {docks.map((pad) => (
+                                <OvermapRow
+                                  key={pad.id}
+                                  selected={!!pad.selected}
+                                  tag={
+                                    pad.current
+                                      ? 'сейчас'
+                                      : pad.state === 'small'
+                                        ? 'не влезает'
+                                        : pad.can_dock
+                                          ? 'свободно'
+                                          : 'занято'
+                                  }
+                                  title={pad.name}
+                                  meta={pad.reason}
+                                  muted={!pad.can_dock}
+                                  onClick={() =>
+                                    act('select_dock', { id: pad.id })
+                                  }
+                                >
+                                  {pad.id === '__overmap_custom' && (
+                                    <Button
+                                      icon="crosshairs"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        act('pick_custom_dock');
+                                      }}
+                                    >
+                                      Заменить
+                                    </Button>
+                                  )}
+                                </OvermapRow>
+                              ))}
+                            </OvermapList>
+                          </Stack.Item>
+                          <Stack.Item grow minWidth={0}>
+                            <Box className="OvermapStat__label" mb={0.5}>
+                              Наши шлюзы
+                            </Box>
+                            <OvermapList>
+                              {collars.map((collar) => (
+                                <OvermapRow
+                                  key={collar.id}
+                                  selected={!!collar.selected}
+                                  tag={collar.selected ? 'активен' : 'шлюз'}
+                                  title={collar.name}
+                                  meta={collar.dir || ''}
+                                  onClick={() =>
+                                    act('select_collar', { id: collar.id })
+                                  }
+                                />
+                              ))}
+                            </OvermapList>
+                          </Stack.Item>
+                        </Stack>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </Section>
+          </Stack.Item>
+        </Stack>
+        {!!programmed_locked && (
+          <div className="OvermapHelmLockOverlay">
+            <div className="OvermapHelmLockOverlay__card">
+              <div className="OvermapHelmLockOverlay__title">
+                Прямое управление заблокировано поставщиком
+              </div>
+              <div className="OvermapHelmLockOverlay__sub">
+                Используйте заранее заготовленный маршрут
+              </div>
+              {!!programmed_has_routes && (
+                <>
+                  <Box mt={1.5} mb={0.5} className="OvermapStat__label">
+                    назначение
                   </Box>
-                )}
-              </>
-            )}
+                  <Stack vertical>
+                    {programmed_routes.map((route) => (
+                      <Stack.Item key={route.id}>
+                        <Button
+                          fluid
+                          selected={
+                            !!route.selected || programmed_selected === route.id
+                          }
+                          disabled={!!programmed_busy}
+                          onClick={() =>
+                            act('select_programmed', { id: route.id })
+                          }
+                        >
+                          {route.name}
+                        </Button>
+                      </Stack.Item>
+                    ))}
+                  </Stack>
+                  <Box mt={1.5}>
+                    <Button
+                      icon="play"
+                      color="good"
+                      disabled={!programmed_routes.length || !!programmed_busy}
+                      onClick={() =>
+                        act('execute_programmed', {
+                          id: programmed_selected,
+                        })
+                      }
+                    >
+                      Исполнить
+                    </Button>
+                  </Box>
+                  {!!programmed_busy && (
+                    <Box mt={1} className="OvermapRail__meta">
+                      {programmed_windup
+                        ? `Отправление через ${programmed_windup} с`
+                        : `В пути ${programmed_eta || ''}`}
+                    </Box>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </OvermapFrame>
   );

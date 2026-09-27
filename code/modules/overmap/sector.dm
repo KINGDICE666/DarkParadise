@@ -163,22 +163,6 @@
 	local_y = clamp(local_y, OVERMAP_EDGE + 1, size - OVERMAP_EDGE - footprint + 1)
 	return locate_local(local_x, local_y)
 
-/datum/overmap_sector/proc/get_turf_at_range_from_rect(min_x, min_y, max_x, max_y, min_dist, max_dist)
-	var/low_x = origin_x + OVERMAP_EDGE
-	var/low_y = origin_y + OVERMAP_EDGE
-	var/high_x = origin_x + size - OVERMAP_EDGE - 1
-	var/high_y = origin_y + size - OVERMAP_EDGE - 1
-	var/list/candidates = list()
-	for(var/turf/open_turf as anything in block(locate(low_x, low_y, z_level), locate(high_x, high_y, z_level)))
-		if(turf_occupied(open_turf))
-			continue
-		var/dist = chebyshev_to_rect(open_turf, min_x, min_y, max_x, max_y)
-		if(dist >= min_dist && dist <= max_dist)
-			candidates += open_turf
-	if(length(candidates))
-		return pick(candidates)
-	return get_random_open_turf()
-
 /datum/overmap_sector/proc/get_turf_near(turf/anchor, min_dist, max_dist, obj/overmap/planet/avoid_planet)
 	if(!anchor)
 		return get_random_open_turf()
@@ -212,43 +196,6 @@
 	if(!length(candidates))
 		return locate(rand(low_x, high_x), rand(low_y, high_y), z_level)
 	return pick(candidates)
-
-/datum/overmap_sector/proc/find_footprint_origin(footprint, turf/avoid, min_dist, max_dist)
-	var/low = OVERMAP_EDGE + 1
-	var/high = size - OVERMAP_EDGE - footprint + 1
-	if(high < low)
-		return null
-	var/list/preferred = list()
-	var/list/fallback = list()
-	for(var/local_x in low to high)
-		for(var/local_y in low to high)
-			var/turf/origin = locate_local(local_x, local_y)
-			if(!origin)
-				continue
-			var/blocked = FALSE
-			var/closest = INFINITY
-			for(var/spot_x in local_x to local_x + footprint - 1)
-				for(var/spot_y in local_y to local_y + footprint - 1)
-					var/turf/spot = locate_local(spot_x, spot_y)
-					if(turf_occupied(spot))
-						blocked = TRUE
-						break
-					if(avoid)
-						closest = min(closest, max(abs(avoid.x - spot.x), abs(avoid.y - spot.y)))
-				if(blocked)
-					break
-			if(blocked)
-				continue
-			if(avoid && closest <= 1)
-				continue
-			fallback += origin
-			if(!avoid || (closest >= min_dist && closest <= max_dist))
-				preferred += origin
-	if(length(preferred))
-		return pick(preferred)
-	if(length(fallback))
-		return pick(fallback)
-	return null
 
 /datum/overmap_sector/proc/get_edge_band_turf(min_inset = 2, max_inset = 3)
 	var/low_x = origin_x + OVERMAP_EDGE

@@ -1,4 +1,11 @@
-import { Box, Button, ColorBox, Dropdown, Input, Stack } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  ColorBox,
+  Dropdown,
+  Input,
+  Stack,
+} from 'tgui-core/components';
 import { type BooleanLike, classes } from 'tgui-core/react';
 
 import { useBackend, useLocalState } from '../backend';
@@ -177,9 +184,7 @@ export const OvermapTransponder = () => {
                       icon="times"
                       compact
                       tooltip="Удалить ключ"
-                      onClick={() =>
-                        act('remove_channel', { id: channel.id })
-                      }
+                      onClick={() => act('remove_channel', { id: channel.id })}
                     />
                   )}
                 </div>

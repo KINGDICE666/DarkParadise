@@ -13,9 +13,6 @@
 	if(!pad || istype(pad, /obj/docking_port/stationary/transit))
 		return FALSE
 	shuttle.unlockPortDoors(pad)
-	for(var/obj/machinery/door/airlock/A in GLOB.airlocks)
-		if(A.id_tag == pad.id && A.locked)
-			A.unlock(TRUE)
 	for(var/area/place as anything in shuttle.shuttle_areas)
 		for(var/obj/machinery/door/airlock/external/docking/door in place)
 			if(door.locked)

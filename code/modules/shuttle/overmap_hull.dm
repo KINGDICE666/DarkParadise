@@ -237,10 +237,6 @@
 		if(newT)
 			. += newT
 
-/obj/docking_port/mobile/proc/overmap_dest_turfs(obj/docking_port/stationary/S)
-	var/list/pairs = overmap_move_pairs(S)
-	return pairs[2]
-
 /obj/docking_port/mobile/proc/overmap_hull_blocked(obj/docking_port/stationary/S)
 	if(!S || istype(S, /obj/docking_port/stationary/transit))
 		return FALSE

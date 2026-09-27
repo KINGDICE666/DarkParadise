@@ -64,39 +64,6 @@
 	allow_map_clicks()
 	return TRUE
 
-/datum/overmap_map_view/proc/refresh_size(obj/overmap/entity/vessel, tiles, force = FALSE)
-	if(!cam_screen)
-		return FALSE
-	if(!vessel?.sector)
-		clear()
-		return TRUE
-	var/turf/here = vessel.get_overmap_turf()
-	if(!here)
-		clear()
-		return TRUE
-	tiles = max(1, tiles)
-	if(!force && here == last_center && last_range == tiles)
-		return FALSE
-	last_center = here
-	last_range = tiles
-	var/res_min_x = vessel.sector.origin_x
-	var/res_min_y = vessel.sector.origin_y
-	var/res_max_x = vessel.sector.reserved_max_x()
-	var/res_max_y = vessel.sector.reserved_max_y()
-	tiles = min(tiles, res_max_x - res_min_x + 1, res_max_y - res_min_y + 1)
-	var/range = round((tiles - 1) / 2)
-	var/min_x = clamp(here.x - range, res_min_x, res_max_x - tiles + 1)
-	var/min_y = clamp(here.y - range, res_min_y, res_max_y - tiles + 1)
-	var/max_x = min_x + tiles - 1
-	var/max_y = min_y + tiles - 1
-	map_view_min_x = min_x
-	map_view_min_y = min_y
-	last_size_x = tiles
-	last_size_y = tiles
-	cam_screen.show_camera(block(locate(min_x, min_y, here.z), locate(max_x, max_y, here.z)), tiles, tiles)
-	allow_map_clicks()
-	return TRUE
-
 /datum/overmap_map_view/proc/refresh_rect(obj/overmap/entity/vessel, size_x, size_y, force = FALSE)
 	if(!cam_screen)
 		return FALSE

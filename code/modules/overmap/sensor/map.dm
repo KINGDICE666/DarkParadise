@@ -9,17 +9,6 @@
 			if(open_ui.user?.client)
 				open_ui.user.client.register_map_obj(piece)
 
-/proc/overmap_ensure_blips(list/blips, needed, map_name, list/open_uis)
-	if(!blips)
-		blips = list()
-	while(length(blips) < needed)
-		var/atom/movable/screen/overmap_sensor_blip/blip = new
-		blip.assigned_map = map_name
-		blip.del_on_map_removal = FALSE
-		blips += blip
-	overmap_register_map_screens(blips, map_name, open_uis)
-	return blips
-
 /proc/overmap_ensure_fog(list/cells, needed, map_name, list/open_uis)
 	if(!cells)
 		cells = list()
@@ -154,26 +143,6 @@
 		new_blips += spare
 	overmap_register_map_screens(new_blips, map_name, open_uis)
 	return new_blips
-
-/proc/overmap_ensure_radars(list/radars, needed, map_name, list/open_uis)
-	if(!radars)
-		radars = list()
-	while(length(radars) < needed)
-		var/atom/movable/screen/overmap_sensor_radar/radar = new
-		radar.assigned_map = map_name
-		radar.del_on_map_removal = FALSE
-		radars += radar
-	overmap_register_map_screens(radars, map_name, open_uis)
-	return radars
-
-/proc/overmap_radar_progress(obj/overmap/entity/source)
-	if(!source?.sensor_peel_at)
-		return null
-	var/elapsed = world.time - source.sensor_peel_at
-	var/duration = max(OVERMAP_SENSOR_TIME_DELAY * OVERMAP_SENSOR_LONG_VIEW, 1)
-	if(elapsed < 0 || elapsed > duration)
-		return null
-	return elapsed / duration
 
 /proc/overmap_paint_sensor_radars(obj/overmap/entity/vessel, list/radars, map_name, min_x, min_y, view_range, list/open_uis, include_local_short = FALSE)
 	if(!vessel || !map_name || !min_x || !min_y)

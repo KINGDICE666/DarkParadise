@@ -102,14 +102,6 @@
 /obj/overmap/proc/is_moving()
 	return abs(speed[1]) >= min_speed || abs(speed[2]) >= min_speed
 
-/obj/overmap/proc/get_heading()
-	var/result = NONE
-	if(abs(speed[1]) >= min_speed)
-		result |= speed[1] > 0 ? EAST : WEST
-	if(abs(speed[2]) >= min_speed)
-		result |= speed[2] > 0 ? NORTH : SOUTH
-	return result
-
 /obj/overmap/proc/get_heading_angle()
 	if(OVERMAP_SPEED_STOPPED(get_speed()))
 		return 0

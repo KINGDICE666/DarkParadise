@@ -378,9 +378,6 @@
 		cell.space_area.region = cell
 	return cell
 
-/datum/controller/subsystem/overmap/proc/spawn_roundstart_ruin_sites()
-	return
-
 /datum/controller/subsystem/overmap/proc/overmap_ruin_pool_for_sector(datum/overmap_sector/sector)
 	if(sector?.sector_kind == OVERMAP_SECTOR_KIND_WILDERNESS)
 		return OVERMAP_RUIN_POOL_WILD
@@ -412,6 +409,8 @@
 
 /datum/controller/subsystem/overmap/proc/spawn_overmap_ruins(datum/overmap_sector/sector)
 	if(!sector || sector.ruin_spawn_weight <= 0)
+		return
+	if(CONFIG_GET(flag/disable_space_ruins) || (SSmapping.map_datum.disables & DISABLE_SPACE_RUINS))
 		return
 	var/pool = overmap_ruin_pool_for_sector(sector)
 	var/medium_count = clamp(round(sector.size * sector.ruin_spawn_weight / 7), 1, 12)

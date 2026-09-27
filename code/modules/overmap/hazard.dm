@@ -497,6 +497,3 @@
 		if(!start)
 			break
 		overmap_hazard_paint_random(hazard_type, sector, start)
-
-/proc/spawn_moving_overmap_hazards(datum/overmap_sector/sector)
-	return

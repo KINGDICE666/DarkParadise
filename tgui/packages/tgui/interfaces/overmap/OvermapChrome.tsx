@@ -252,8 +252,15 @@ export const OvermapStick = (props: {
   disabled?: BooleanLike;
   onChange: (x: number, y: number, power: number) => void;
 }) => {
-  const { x, y, power = 0, heading = 0, speedRatio = 0, disabled, onChange } =
-    props;
+  const {
+    x,
+    y,
+    power = 0,
+    heading = 0,
+    speedRatio = 0,
+    disabled,
+    onChange,
+  } = props;
   const ref = useRef<HTMLDivElement>(null);
   const lastSent = useRef(0);
   const [drag, setDrag] = useState<{
@@ -290,8 +297,7 @@ export const OvermapStick = (props: {
     const rect = node.getBoundingClientRect();
     const nx =
       (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-    const ny =
-      (rect.top + rect.height / 2 - event.clientY) / (rect.height / 2);
+    const ny = (rect.top + rect.height / 2 - event.clientY) / (rect.height / 2);
     const length = Math.hypot(nx, ny);
     const cx = length > 1 ? nx / length : nx;
     const cy = length > 1 ? ny / length : ny;

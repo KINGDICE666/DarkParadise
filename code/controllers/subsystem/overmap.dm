@@ -75,7 +75,6 @@ SUBSYSTEM_DEF(overmap)
 	relink_hardware()
 	ensure_station_transponder()
 	station_sector?.populate_roundstart()
-	spawn_roundstart_ruin_sites()
 	spawn_taipan()
 	start_programmed_roundstart_routes()
 	snap_roundstart_docks()
@@ -100,14 +99,6 @@ SUBSYSTEM_DEF(overmap)
 				new /atom/movable/lighting_object(null, spot)
 			CHECK_TICK
 
-/datum/controller/subsystem/overmap/proc/refresh_sector_views(datum/overmap_sector/sector)
-	if(!sector)
-		return
-	for(var/obj/overmap/entity/vessel as anything in vessels)
-		if(QDELETED(vessel) || vessel.sector != sector)
-			continue
-		SEND_SIGNAL(vessel, COMSIG_OVERMAP_DISPLAY_CHANGED)
-
 /datum/controller/subsystem/overmap/fire(resumed)
 	var/elapsed = world.time - last_fire_time
 	last_fire_time = world.time
@@ -128,13 +119,6 @@ SUBSYSTEM_DEF(overmap)
 		if(QDELETED(hazard))
 			continue
 		hazard.process_tick(elapsed)
-
-/datum/controller/subsystem/overmap/proc/create_sector(sector_id, sector_name, size, access_flags)
-	if(sectors[sector_id])
-		return sectors[sector_id]
-	var/datum/overmap_sector/sector = new(sector_id, sector_name, size, access_flags)
-	sectors[sector_id] = sector
-	return sector
 
 /datum/controller/subsystem/overmap/proc/create_typed_sector(sector_type)
 	var/datum/overmap_sector/sector = new sector_type
@@ -337,20 +321,6 @@ SUBSYSTEM_DEF(overmap)
 		var/datum/overmap_sector/candidate = sectors[sector_id]
 		if(candidate?.contains_turf(spot))
 			return candidate
-	return null
-
-/datum/controller/subsystem/overmap/proc/host_key_for(obj/overmap/entity/host)
-	if(!host)
-		return null
-	if(host == station_entity)
-		return OVERMAP_HOST_STATION
-	if(host == lavaland_entity)
-		return OVERMAP_HOST_LAVALAND
-	if(host == taipan_entity)
-		return OVERMAP_HOST_TAIPAN
-	var/obj/overmap/entity/service_site/site = host
-	if(istype(site))
-		return site.site_id
 	return null
 
 /datum/controller/subsystem/overmap/proc/stamp_pad_hosts()
@@ -587,22 +557,6 @@ SUBSYSTEM_DEF(overmap)
 	stamp_pad_hosts()
 	relink_hardware()
 	log_world("Overmap: Taipan token spawned at [spawn_turf.x],[spawn_turf.y] on sector [local_sector.id].")
-
-/datum/controller/subsystem/overmap/proc/spawn_portal(datum/overmap_sector/from_sector, dest_sector_id, portal_name, required_flags, dest_x, dest_y)
-	if(!from_sector)
-		from_sector = local_sector
-	var/datum/overmap_sector/target = sectors[dest_sector_id]
-	if(!target)
-		return null
-	var/turf/here = from_sector.get_random_open_turf()
-	var/obj/overmap/portal/portal = new(here)
-	portal.name = portal_name || "warp portal"
-	portal.destination_sector = target
-	portal.destination_x = dest_x || round(target.size / 2)
-	portal.destination_y = dest_y || round(target.size / 2)
-	portal.required_vessel_flags = required_flags
-	from_sector.add_object(portal, here)
-	return portal
 
 /datum/controller/subsystem/overmap/proc/overmap_coord_label(obj/overmap/token)
 	if(!token)

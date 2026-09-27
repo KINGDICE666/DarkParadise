@@ -25,7 +25,6 @@
 		id = "overmap_pad_[UID()]"
 	. = ..()
 	register()
-	return .
 
 /obj/docking_port/stationary/overmap/apply_overmap_dock_role()
 	overmap_dock_mode = OVERMAP_DOCK_MANUAL
@@ -454,13 +453,12 @@ GLOBAL_LIST_EMPTY(landing_beacons)
 /obj/item/overmap_landing_beacon/attack_self(mob/user)
 	deploy(get_turf(user), user)
 
-/obj/item/overmap_landing_beacon/afterattack(atom/target, mob/user, proximity, params)
-	if(!proximity)
-		return
-	var/turf/spot = get_turf(target)
+/obj/item/overmap_landing_beacon/interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)
+	var/turf/spot = get_turf(interacting_with)
 	if(!spot)
-		return
+		return NONE
 	deploy(spot, user)
+	return ITEM_INTERACT_SUCCESS
 
 /obj/item/overmap_landing_beacon/proc/deploy(turf/spot, mob/user)
 	if(!spot)

@@ -396,6 +396,10 @@
 		previous = null
 		QDEL_NULL(assigned_transit) //don't need it where we're goin'!
 		shuttle_areas = null
+		if(SSovermap)
+			qdel(SSovermap.shuttle_vessels[src])
+			SSovermap.area_shuttles.Cut()
+			SSovermap.area_shuttle_cache_ready = FALSE
 	return ..()
 
 //this is a hook for custom behaviour. Maybe at some point we could add checks to see if engines are intact
@@ -655,15 +659,16 @@
 /obj/docking_port/mobile/proc/closePortDoors(obj/docking_port/stationary/old_dock)
 	if(!istype(old_dock) || isnull(old_dock.id))
 		return
-	for(var/obj/machinery/door/airlock/A as anything in GLOB.airlocks_by_id_tag[old_dock.id])
-		A.close()
-		A.lock()
+	for(var/obj/machinery/door/airlock/A in GLOB.airlocks)
+		if(A.id_tag == old_dock.id)
+			A.close()
+			A.lock()
 
 /obj/docking_port/mobile/proc/unlockPortDoors(obj/docking_port/stationary/new_dock)
 	if(!istype(new_dock) || isnull(new_dock.id))
 		return
-	for(var/obj/machinery/door/airlock/A as anything in GLOB.airlocks_by_id_tag[new_dock.id])
-		if(A.locked)
+	for(var/obj/machinery/door/airlock/A in GLOB.airlocks)
+		if(A.id_tag == new_dock.id && A.locked)
 			A.unlock(TRUE)
 
 //used by shuttle subsystem to check timers

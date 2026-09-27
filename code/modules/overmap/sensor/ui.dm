@@ -23,8 +23,10 @@
 
 /obj/machinery/computer/sensors/attackby(obj/item/item, mob/living/user, params)
 	if(can_dump && istype(item, /obj/item/paper) && !istype(item, /obj/item/paper_bundle))
-		insert_dump_paper(item, user)
-		return
+		add_fingerprint(user)
+		if(insert_dump_paper(item, user))
+			return ATTACK_CHAIN_BLOCKED_ALL
+		return ATTACK_CHAIN_PROCEED
 	return ..()
 
 /obj/machinery/computer/sensors/attack_ai(mob/user)

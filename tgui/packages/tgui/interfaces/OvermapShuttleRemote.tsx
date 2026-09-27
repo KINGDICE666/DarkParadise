@@ -1,4 +1,11 @@
-import { Box, Button, ByondUi, NoticeBox, Section, Stack } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  ByondUi,
+  NoticeBox,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend } from '../backend';
@@ -86,7 +93,11 @@ export const OvermapShuttleRemote = () => {
           <Section
             fitted
             className="OvermapMapSection"
-            title={map_jammed ? 'Помехи' : `Карта шаттла ${map_tiles_x}×${map_tiles_y}`}
+            title={
+              map_jammed
+                ? 'Помехи'
+                : `Карта шаттла ${map_tiles_x}×${map_tiles_y}`
+            }
           >
             <div
               className="OvermapMinimap OvermapMinimap--exact"

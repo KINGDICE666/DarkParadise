@@ -696,9 +696,7 @@ const SpawnTab = () => {
             <Dropdown
               width="100%"
               options={tokenTypes
-                .filter(
-                  (entry) => kind === 'token' || entry.group === kind,
-                )
+                .filter((entry) => kind === 'token' || entry.group === kind)
                 .map((entry) => ({
                   value: entry.path,
                   displayText: `${entry.name} (${entry.path})`,
@@ -762,10 +760,7 @@ const SpawnTab = () => {
               </Button>
             </LabeledList.Item>
             <LabeledList.Item label="DMM">
-              <Button
-                selected={!useUpload}
-                onClick={() => setUseUpload(false)}
-              >
+              <Button selected={!useUpload} onClick={() => setUseUpload(false)}>
                 Из шаблонов
               </Button>
               <Button selected={useUpload} onClick={() => setUseUpload(true)}>
@@ -942,7 +937,8 @@ const CommsTab = () => {
   const [body, setBody] = useState('');
   const [key, setKey] = useState('');
   const [sender, setSender] = useState('Админ');
-  const current = sectors.find((sector) => sector.id === sectorId) || sectors[0];
+  const current =
+    sectors.find((sector) => sector.id === sectorId) || sectors[0];
   return (
     <Section title="Межсекторная связь">
       <LabeledList>
@@ -1082,7 +1078,10 @@ export const OvermapAdmin = () => {
           >
             Спавн объектов
           </Tabs.Tab>
-          <Tabs.Tab selected={tab === TAB_DUMP} onClick={() => setTab(TAB_DUMP)}>
+          <Tabs.Tab
+            selected={tab === TAB_DUMP}
+            onClick={() => setTab(TAB_DUMP)}
+          >
             Дамп секторов
           </Tabs.Tab>
           <Tabs.Tab selected={tab === TAB_IFF} onClick={() => setTab(TAB_IFF)}>

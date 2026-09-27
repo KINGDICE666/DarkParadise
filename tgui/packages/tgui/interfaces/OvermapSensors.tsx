@@ -1,4 +1,13 @@
-import { Box, Button, ByondUi, Input, NoticeBox, ProgressBar, Section, Stack } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  ByondUi,
+  Input,
+  NoticeBox,
+  ProgressBar,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend, useLocalState } from '../backend';
@@ -171,7 +180,9 @@ export const OvermapSensors = () => {
                 <Button
                   key={alert.id}
                   selected={!!alert.on}
-                  color={alert.id === 'distress' && alert.on ? 'bad' : undefined}
+                  color={
+                    alert.id === 'distress' && alert.on ? 'bad' : undefined
+                  }
                   onClick={() => act('toggle_alert', { id: alert.id })}
                 >
                   {alert.label}
@@ -230,9 +241,7 @@ export const OvermapSensors = () => {
                         {entry.note ? ` · ${entry.note}` : ''}
                       </>
                     }
-                    meta={
-                      <OvermapCoord x={entry.x} y={entry.y} />
-                    }
+                    meta={<OvermapCoord x={entry.x} y={entry.y} />}
                     tone={entry.tone}
                     bad={entry.tone === 'bad' || entry.kind === 'scanned_by'}
                   />
@@ -297,9 +306,7 @@ export const OvermapSensors = () => {
             >
               <div className="OvermapMinimap">
                 {map_jammed ? (
-                  <NoticeBox danger>
-                    Связь потеряна.
-                  </NoticeBox>
+                  <NoticeBox danger>Связь потеряна.</NoticeBox>
                 ) : (
                   <ByondUi
                     key={`${mapRef}-${map_revision}-${view_mode}-${scanning ? 'scan' : 'nav'}`}
@@ -322,7 +329,8 @@ export const OvermapSensors = () => {
                 scrollable
                 title="Результат"
                 buttons={
-                  !!scan_done && !!can_print && (
+                  !!scan_done &&
+                  !!can_print && (
                     <Button icon="print" onClick={() => act('print_scan')}>
                       Печать
                     </Button>
@@ -347,7 +355,11 @@ export const OvermapSensors = () => {
                       value={overmapKindLabel(scan.kind)}
                     />
                     <OvermapStat scan label="масса" value={`${scan.mass} т`} />
-                    <OvermapStat scan label="живые сигнатуры" value={scan.living} />
+                    <OvermapStat
+                      scan
+                      label="живые сигнатуры"
+                      value={scan.living}
+                    />
                     <OvermapStat
                       scan
                       label="двигатели"
@@ -370,9 +382,7 @@ export const OvermapSensors = () => {
                     )}
                   </OvermapStats>
                 ) : (
-                  <NoticeBox>
-                    Идёт анализ сигнатуры.
-                  </NoticeBox>
+                  <NoticeBox>Идёт анализ сигнатуры.</NoticeBox>
                 )}
               </Section>
             </Stack.Item>
