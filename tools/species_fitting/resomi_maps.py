@@ -39,9 +39,8 @@ def main():
         json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
     data["mappings"] = {direction.title(): clothing_map(reference, index)
                         for index, direction in enumerate(DIR_ORDER)}
-    for slot in ("uniform", "suit"):
-        (MAP_DIRECTORY / f"human-to-resomi/{slot}.json").write_text(
-            json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
+    (MAP_DIRECTORY / "human-to-resomi/suit.json").write_text(
+        json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
 
 
 def clothing_map(reference, direction):

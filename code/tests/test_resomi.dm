@@ -2,12 +2,16 @@
 
 /datum/unit_test/resomi_clothing/Run()
 	var/datum/species_fit/fit = get_species_fit(/datum/species_fit/resomi)
-	for(var/state in list("grey_s", "security_s"))
+	for(var/state in list("grey_s", "security_s", "engine_s"))
 		var/icon/uniform = fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, state)
-		for(var/fit_dir in list(SOUTH, NORTH))
-			TEST_ASSERT_NULL(uniform.GetPixel(11, 16, dir = fit_dir), "[state] extends past the resomi shoulder")
-			TEST_ASSERT_NULL(uniform.GetPixel(22, 16, dir = fit_dir), "[state] extends past the other resomi shoulder")
-			TEST_ASSERT_NOTNULL(uniform.GetPixel(16, 16, dir = fit_dir), "[state] lost its chest while narrowing the shoulders")
+		for(var/fit_dir in GLOB.cardinal)
+			var/reaches_ankles = FALSE
+			for(var/y in 1 to 3)
+				for(var/x in 1 to 32)
+					if(uniform.GetPixel(x, y, dir = fit_dir))
+						reaches_ankles = TRUE
+			TEST_ASSERT(reaches_ankles, "[state] trousers stop short of the resomi ankles facing [fit_dir]")
+			TEST_ASSERT_NOTNULL(uniform.GetPixel(16, 16, dir = fit_dir), "[state] lost its chest facing [fit_dir]")
 	for(var/state in list("labcoat", "labcoat_open", "wintercoat"))
 		var/icon/coat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
 		for(var/fit_dir in list(EAST, WEST))
