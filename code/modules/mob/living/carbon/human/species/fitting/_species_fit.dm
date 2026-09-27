@@ -475,39 +475,62 @@ GLOBAL_LIST_EMPTY(species_fits)
 	build()
 	var/list/maps = maps_for(clothing_item, sheet)
 	var/list/fit_steps = steps_for(clothing_item, sheet)
-	var/icon/assembled = icon('icons/effects/effects.dmi', "nothing")
+	var/icon/source = icon(sheet, state_name)
+	if(source.Width() != width || source.Height() != height)
+		return null
+	var/icon/assembled = icon(source)
 	var/fitted_anything = FALSE
-	var/list/frames = list()
-	var/dresses_head = FALSE
-	var/warps_head = FALSE
-	var/list/dressed_parts = new(length(bare_parts))
-	var/single_direction = !length(icon_states(icon(sheet, state_name, NORTH)))
-	for(var/fit_dir in GLOB.cardinal)
-		var/icon/frame = icon(sheet, state_name, single_direction ? SOUTH : fit_dir)
-		if(frame.Width() != width || frame.Height() != height)
-			return null
-		var/list/pixels = read_frame(frame)
-		frames["[fit_dir]"] = pixels
-		var/head_share = covered_share(pixels, reference_head_masks["[fit_dir]"])
-		if(head_share >= FIT_PART_GARMENT_SHARE)
-			dresses_head = TRUE
-		if(head_share >= FIT_HEAD_WARP_SHARE)
-			warps_head = TRUE
-		var/list/reference_bare = reference_bare_masks["[fit_dir]"]
-		for(var/part in 1 to length(reference_bare))
-			if(covered_share(pixels, reference_bare[part]) >= FIT_PART_GARMENT_SHARE)
-				dressed_parts[part] = TRUE
-	for(var/fit_dir in GLOB.cardinal)
-		var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"], maps)
-		context.dresses_head = dresses_head
-		context.warps_head = warps_head
-		context.dressed_parts = dressed_parts
-		for(var/datum/fit_step/step in fit_steps)
-			step.apply(context)
-		if(context.changed())
-			fitted_anything = TRUE
-		assembled.Insert(write_frame(context.working), dir = fit_dir)
-	return fitted_anything ? assembled : null
+	for(var/moving in list(FALSE, TRUE))
+		var/single_direction = !length(icon_states(icon(source, dir = NORTH, moving = moving)))
+		for(var/frame_index = 1; length(icon_states(icon(source, dir = SOUTH, frame = frame_index, moving = moving))); frame_index++)
+			var/list/frames = list()
+			var/dresses_head = FALSE
+			var/warps_head = FALSE
+			var/list/dressed_parts = new(length(bare_parts))
+			for(var/fit_dir in GLOB.cardinal)
+				var/icon/frame = icon(source, dir = single_direction ? SOUTH : fit_dir, frame = frame_index, moving = moving)
+				var/list/pixels = read_frame(frame)
+				frames["[fit_dir]"] = pixels
+				var/head_share = covered_share(pixels, reference_head_masks["[fit_dir]"])
+				if(head_share >= FIT_PART_GARMENT_SHARE)
+					dresses_head = TRUE
+				if(head_share >= FIT_HEAD_WARP_SHARE)
+					warps_head = TRUE
+				var/list/reference_bare = reference_bare_masks["[fit_dir]"]
+				for(var/part in 1 to length(reference_bare))
+					if(covered_share(pixels, reference_bare[part]) >= FIT_PART_GARMENT_SHARE)
+						dressed_parts[part] = TRUE
+			for(var/fit_dir in GLOB.cardinal)
+				var/datum/fit_context/context = new(src, fit_dir, frames["[fit_dir]"], maps)
+				context.dresses_head = dresses_head
+				context.warps_head = warps_head
+				context.dressed_parts = dressed_parts
+				for(var/datum/fit_step/step in fit_steps)
+					step.apply(context)
+				if(context.changed())
+					fitted_anything = TRUE
+				assembled.Insert(write_frame(context.working), dir = fit_dir, frame = frame_index, moving = moving)
+	return fitted_anything ? restore_playback(assembled, sheet, state_name) : null
+
+/datum/species_fit/proc/restore_playback(icon/assembled, sheet, state_name)
+	var/list/source_states = list()
+	for(var/list/source_state in icon_metadata(sheet)["states"])
+		if(source_state["name"] == state_name && (source_state["rewind"] || source_state["loop_count"]))
+			source_states["[source_state["movement"]]"] = source_state
+	if(!length(source_states))
+		return assembled
+	var/temp_path = "tmp/species_fit/[cache_key].dmi"
+	fcopy(assembled, temp_path)
+	var/list/metadata = rustlib_dmi_read_metadata(temp_path)
+	for(var/list/fitted_state in metadata["states"])
+		var/list/source_state = source_states["[fitted_state["movement"]]"]
+		fitted_state["rewind"] = source_state?["rewind"]
+		fitted_state["loop_count"] = source_state?["loop_count"]
+	rustlib_dmi_strip_metadata(temp_path)
+	rustlib_dmi_inject_metadata(temp_path, json_encode(metadata))
+	var/icon/restored = icon(file(temp_path))
+	fdel(temp_path)
+	return restored
 
 /datum/species_fit/proc/hides_hair(sheet, state_name)
 	if(!headwear_hides_hair || !isfile(sheet) || !icon_exists(sheet, state_name))

@@ -5,11 +5,32 @@ from pathlib import Path
 
 from PIL import Image
 
-from dmi import read_dmi
+from dmi import body_mask, frame_for_dir, read_dmi
 from fit import SpeciesFit, _read_pixel_map, _refit_rows
+from measure import read_profiles
 
 
 class PixelMapTests(unittest.TestCase):
+    def test_resomi_coat_hem(self):
+        profile = read_profiles()["resomi"]
+        reference = read_dmi("icons/mob/human_races/r_human.dmi")[0]
+        target = read_dmi(profile["target"])[0]
+        sheet_path = "icons/mob/clothing/suit.dmi"
+        sheet = read_dmi(sheet_path)[0]
+        fitter = SpeciesFit(reference, target, pixel_map=profile["pixel_map"],
+                            sheet_pixel_maps=profile["sheet_pixel_maps"], cover_parts=True)
+        for state in ("leathercoat", "bltrenchcoat", "brtrenchcoat"):
+            for direction in range(4):
+                with self.subTest(state=state, direction=direction):
+                    fitted, changed = fitter.fit_frame(frame_for_dir(sheet, state, direction),
+                                                       direction, False, (), False, sheet_path)
+                    feet = body_mask(target, ("l_foot", "r_foot"), direction, 32, 32)
+                    ankle = min(y for x, y in feet)
+                    self.assertTrue(changed)
+                    self.assertTrue(any(fitted.values()))
+                    self.assertFalse(any(pixel for (x, y), pixel in fitted.items() if y > ankle),
+                                     "the coat hem extends below the resomi's ankles")
+
     def test_refit_outline_and_alpha(self):
         dark, cloth = (20, 10, 5, 255), (220, 190, 70, 128)
         source = dict(enumerate([None, dark, cloth, cloth, dark, None]))

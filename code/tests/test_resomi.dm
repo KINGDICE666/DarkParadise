@@ -1,3 +1,85 @@
+/datum/unit_test/resomi_clothing
+
+/datum/unit_test/resomi_clothing/Run()
+	var/datum/species_fit/fit = get_species_fit(/datum/species_fit/resomi)
+	for(var/state in list("grey_s", "security_s"))
+		var/icon/uniform = fit.fit_worn_icon(null, DEFAULT_ICON_JUMPSUIT, state)
+		for(var/fit_dir in list(SOUTH, NORTH))
+			TEST_ASSERT_NULL(uniform.GetPixel(11, 16, dir = fit_dir), "[state] extends past the resomi shoulder")
+			TEST_ASSERT_NULL(uniform.GetPixel(22, 16, dir = fit_dir), "[state] extends past the other resomi shoulder")
+			TEST_ASSERT_NOTNULL(uniform.GetPixel(16, 16, dir = fit_dir), "[state] lost its chest while narrowing the shoulders")
+	for(var/state in list("labcoat", "labcoat_open", "wintercoat"))
+		var/icon/coat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
+		for(var/fit_dir in list(EAST, WEST))
+			var/hem_pixels = 0
+			for(var/x in 1 to 32)
+				if(!coat.GetPixel(x, 10, dir = fit_dir))
+					continue
+				TEST_ASSERT(x >= 13 && x <= 20, "[state] retains a human-width hem facing [fit_dir]")
+				hem_pixels++
+			TEST_ASSERT(hem_pixels, "[state] lost its hem while narrowing the coat")
+	for(var/state in list("leathercoat", "bltrenchcoat", "brtrenchcoat"))
+		var/icon/coat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
+		for(var/fit_dir in GLOB.cardinal)
+			for(var/y in 1 to 5)
+				for(var/x in 1 to 32)
+					TEST_ASSERT_NULL(coat.GetPixel(x, y, dir = fit_dir), "[state] hem covers the resomi feet facing [fit_dir]")
+	for(var/state in list("hastur", "ghost_sheet", "magusblue", "spacemime_suit"))
+		var/icon/suit = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
+		for(var/fit_dir in list(SOUTH, NORTH))
+			for(var/y in 19 to 32)
+				for(var/x in 1 to 32)
+					if(x >= 8 && x <= 24)
+						continue
+					TEST_ASSERT_NULL(suit.GetPixel(x, y, dir = fit_dir), "[state] keeps human-width shoulders above the resomi shoulders facing [fit_dir]")
+
+/datum/unit_test/resomi_animation
+
+/datum/unit_test/resomi_animation/Run()
+	var/datum/species_fit/writer = new /datum/species_fit/resomi
+	writer.build()
+	writer.cache_key = "unit_test_animation_[writer.cache_key]"
+	for(var/state in list("cigon", "cigaron", "swat", "spliffon2"))
+		TEST_ASSERT_NOTNULL(writer.fit_worn_icon(null, DEFAULT_ICON_WEAR_MASK, state), "[state] skipped fitting")
+	writer.flush_disk_cache()
+	var/datum/species_fit/reader = new /datum/species_fit/resomi
+	reader.build()
+	reader.cache_key = writer.cache_key
+	reader.load_disk_cache()
+	var/list/source_metadata = icon_metadata(DEFAULT_ICON_WEAR_MASK)
+	var/list/cached_metadata = rustlib_dmi_read_metadata("[writer.cache_directory()]/[writer.cache_entry_name("[DEFAULT_ICON_WEAR_MASK]")].dmi")
+	for(var/state in list("cigon", "cigaron", "swat", "spliffon2"))
+		var/icon/fitted = reader.read_disk_cache(DEFAULT_ICON_WEAR_MASK, state)
+		TEST_ASSERT_NOTNULL(fitted, "[state] did not survive the disk cache")
+		var/list/source_state
+		var/list/cached_state
+		for(var/list/metadata in source_metadata["states"])
+			if(metadata["name"] == state)
+				source_state = metadata
+		for(var/list/metadata in cached_metadata["states"])
+			if(metadata["name"] == state)
+				cached_state = metadata
+		TEST_ASSERT_NOTNULL(cached_state, "[state] has no cached metadata")
+		for(var/key in list("delay", "rewind", "movement", "loop_count"))
+			TEST_ASSERT_EQUAL(json_encode(cached_state[key]), json_encode(source_state[key]), "[state] lost animation [key]")
+	var/icon/cigarette = reader.read_disk_cache(DEFAULT_ICON_WEAR_MASK, "cigon")
+	var/datum/fit_step/pixel_map/map_step = new
+	for(var/fit_dir in GLOB.cardinal)
+		var/list/first_pixels
+		var/animated = FALSE
+		for(var/frame_index in 1 to 8)
+			TEST_ASSERT(length(icon_states(icon(cigarette, dir = fit_dir, frame = frame_index))), "cigarette lost frame [frame_index] facing [fit_dir]")
+			var/list/pixels = writer.read_frame(icon(DEFAULT_ICON_WEAR_MASK, "cigon", fit_dir, frame_index))
+			var/datum/fit_context/context = new(writer, fit_dir, pixels, writer.maps_for(null, DEFAULT_ICON_WEAR_MASK))
+			map_step.apply(context)
+			var/list/fitted_pixels = writer.read_frame(icon(cigarette, dir = fit_dir, frame = frame_index))
+			TEST_ASSERT_EQUAL(json_encode(fitted_pixels), json_encode(context.working), "cigarette frame [frame_index] was frozen or fitted incorrectly facing [fit_dir]")
+			if(first_pixels && json_encode(first_pixels) != json_encode(fitted_pixels))
+				animated = TRUE
+			first_pixels ||= fitted_pixels
+		TEST_ASSERT(animated, "all fitted cigarette frames are identical facing [fit_dir]")
+	fdel("[writer.cache_directory()]/")
+
 /datum/unit_test/resomi_shoes
 
 /datum/unit_test/resomi_shoes/Run()
