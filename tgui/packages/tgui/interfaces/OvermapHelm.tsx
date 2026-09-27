@@ -11,6 +11,7 @@ import {
 import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend, useLocalState } from '../backend';
+import { TransponderPanel, type TransponderState } from './OvermapTransponder';
 import {
   OvermapCoord,
   OvermapFrame,
@@ -63,6 +64,17 @@ type ShuttleCollar = {
   dir?: string;
 };
 
+type EngineInfo = {
+  name: string;
+  ref: string;
+  on: BooleanLike;
+  thrust: number;
+  limit: number;
+  status: string;
+};
+
+type HelmTab = 'flight' | 'dock' | 'engines' | 'transponder';
+
 type ProgrammedRoute = {
   id: string;
   name: string;
@@ -98,7 +110,10 @@ type OvermapHelmData = {
   braking: BooleanLike;
   thrust: number;
   mass: number;
-  map_zoom: number;
+  thrust_limit: number;
+  engines: EngineInfo[];
+  has_transponder: BooleanLike;
+  transponder: TransponderState | null;
   map_revision?: number;
   eta: string;
   is_shuttle: BooleanLike;
@@ -141,7 +156,6 @@ export const OvermapHelm = () => {
     mapRef,
     vessel_name,
     status,
-    docked_to,
     x,
     y,
     sector_name,
@@ -165,8 +179,10 @@ export const OvermapHelm = () => {
     braking,
     thrust,
     mass,
-    inspecting,
-    map_zoom,
+    thrust_limit = 100,
+    engines = [],
+    has_transponder,
+    transponder,
     map_revision = 0,
     eta,
     is_shuttle,
@@ -187,8 +203,6 @@ export const OvermapHelm = () => {
     pad_free = 0,
     objects = [],
     waypoints = [],
-    can_portal,
-    can_hyperrelay,
     map_jammed,
     programmed_locked,
     programmed_has_routes,
@@ -198,12 +212,17 @@ export const OvermapHelm = () => {
     programmed_selected,
     programmed_routes = [],
   } = data;
-  const [tab, setTab] = useLocalState<'flight' | 'dock'>('helmTab', 'flight');
+  const [tab, setTab] = useLocalState<HelmTab>('helmTab', 'flight');
+  const can_dock_mode = !!(is_shuttle || is_pod);
+  const listTab = tab === 'dock' && !can_dock_mode ? 'flight' : tab;
+  const mode = listTab === 'dock' ? 'dock' : 'flight';
+  const actTransponder = (op: string, params: Record<string, unknown> = {}) =>
+    act('transponder', { op, ...params });
+  const enginesOn = engines.filter((engine) => engine.on).length;
   useEffect(() => {
-    act('helm_tab', { tab });
-  }, [tab]);
+    act('helm_tab', { tab: mode });
+  }, [mode]);
   const nearby = objects.filter((object) => !object.is_self);
-  const nearbyDistress = nearby.filter((object) => object.distress).length;
   const speedFill = Math.max(
     0,
     Math.min(100, max_speed ? (speed / max_speed) * 100 : 0),
@@ -213,7 +232,7 @@ export const OvermapHelm = () => {
     <OvermapFrame
       title="Helm"
       width={900}
-      height={900}
+      height={880}
       linked={linked}
       onRelink={() => act('relink')}
       rail={
@@ -227,9 +246,11 @@ export const OvermapHelm = () => {
               on: !!linked,
               warn: status?.includes('Пристыкован'),
             },
-            { label: 'двигатели', on: !!engines_on },
-            { label: 'автопилот', on: !!autopilot },
-            { label: 'тормоз', warn: !!braking },
+            {
+              label: broadcasting ? 'эфир' : 'эфир скрыт',
+              on: !!broadcasting,
+              warn: !broadcasting,
+            },
             { label: 'авария', bad: !!distress, on: !!distress },
           ]}
         />
@@ -237,7 +258,7 @@ export const OvermapHelm = () => {
       actions={
         linked && !programmed_locked ? (
           <>
-            {!!(is_shuttle || is_pod) && (
+            {can_dock_mode && (
               <Button
                 icon="eject"
                 disabled={!can_undock}
@@ -246,7 +267,7 @@ export const OvermapHelm = () => {
                 Отстыковка
               </Button>
             )}
-            {!!(is_shuttle || is_pod) && (
+            {can_dock_mode && (
               <Button
                 icon="anchor"
                 disabled={!at_station || !!can_undock}
@@ -272,44 +293,51 @@ export const OvermapHelm = () => {
           vertical
           className={programmed_locked ? 'OvermapHelmLockHost__dim' : undefined}
         >
-          <Stack.Item height="300px" shrink={0}>
-            <Section
-              fill
-              fitted
-              className="OvermapMapSection"
-              title={
-                tab === 'dock'
-                  ? selected_dock
-                    ? `Стыковка — ${selected_dock}`
-                    : 'Нет выбранной площадки'
-                  : map_jammed
-                    ? 'Помехи гиперпрыжка'
-                    : `${sector_name} — вид от корабля`
-              }
-            >
-              <div className="OvermapMinimap">
-                {map_jammed && tab === 'flight' ? (
-                  <NoticeBox danger>Сигнал потерян.</NoticeBox>
-                ) : (
-                  <ByondUi
-                    key={`${mapRef}-${map_revision}-${tab}`}
-                    height="100%"
-                    width="100%"
-                    params={{
-                      id: mapRef,
-                      type: 'map',
-                      zoom: map_zoom ?? 1,
-                    }}
-                  />
-                )}
-              </div>
-            </Section>
-          </Stack.Item>
-          <Stack.Item shrink={0}>
-            <div className="OvermapPanel">
-              <div className="OvermapHelmBar">
-                <div className="OvermapHelmBar__left">
-                  <OvermapStats stack>
+          <Stack.Item grow minHeight={0}>
+            <Stack fill>
+              <Stack.Item grow minWidth={0}>
+                <Section
+                  fill
+                  fitted
+                  className="OvermapMapSection"
+                  title={
+                    mode === 'dock'
+                      ? selected_dock
+                        ? `Стыковка — ${selected_dock}`
+                        : 'Нет выбранной площадки'
+                      : map_jammed
+                        ? 'Помехи гиперпрыжка'
+                        : sector_name
+                  }
+                  buttons={
+                    mode === 'flight' &&
+                    !map_jammed && (
+                      <Box className="OvermapHelmSide__meta">
+                        клик по карте — цель автопилота
+                      </Box>
+                    )
+                  }
+                >
+                  <div className="OvermapMinimap">
+                    {map_jammed && mode === 'flight' ? (
+                      <NoticeBox danger>Сигнал потерян.</NoticeBox>
+                    ) : (
+                      <ByondUi
+                        key={`${mapRef}-${map_revision}-${mode}`}
+                        height="100%"
+                        width="100%"
+                        params={{
+                          id: mapRef,
+                          type: 'map',
+                        }}
+                      />
+                    )}
+                  </div>
+                </Section>
+              </Stack.Item>
+              <Stack.Item width="250px" shrink={0}>
+                <div className="OvermapPanel OvermapHelmSide">
+                  <OvermapStats grid>
                     <OvermapStat
                       label="скорость"
                       value={`${speed} Gm/h`}
@@ -319,12 +347,13 @@ export const OvermapHelm = () => {
                     />
                     <OvermapStat label="курс" value={`${heading}°`} />
                     <OvermapStat label="ускор." value={accel} />
+                    <OvermapStat label="мощность" value={`${stick_power}%`} />
                     <OvermapStat label="eta" value={eta} />
                     <OvermapStat
                       label="лимит"
                       value={
                         <NumberInput
-                          width="70px"
+                          width="100%"
                           unit="Gm/h"
                           value={max_speed}
                           minValue={1}
@@ -338,31 +367,26 @@ export const OvermapHelm = () => {
                       }
                     />
                   </OvermapStats>
-                  <Box>
-                    <Box className="OvermapStat__label">скорость / лимит</Box>
-                    <div className="OvermapGauge">
-                      <div
-                        className="OvermapGauge__fill"
-                        style={{ width: `${speedFill}%` }}
-                      />
-                    </div>
-                  </Box>
-                </div>
-                <div className="OvermapHelmBar__center">
-                  <div className="OvermapStickCol">
-                    <OvermapStick
-                      x={stick_x}
-                      y={stick_y}
-                      power={(stick_power || 0) / 100}
-                      heading={heading}
-                      speedRatio={max_speed ? speed / max_speed : 0}
-                      disabled={!can_steer}
-                      onChange={(nx, ny, power) =>
-                        act('stick', { x: nx, y: ny, power })
-                      }
+                  <div className="OvermapGauge">
+                    <div
+                      className="OvermapGauge__fill"
+                      style={{ width: `${speedFill}%` }}
                     />
-                    <OvermapStat label="мощность" value={`${stick_power}%`} />
+                  </div>
+                  <OvermapStick
+                    x={stick_x}
+                    y={stick_y}
+                    power={(stick_power || 0) / 100}
+                    heading={heading}
+                    speedRatio={max_speed ? speed / max_speed : 0}
+                    disabled={!can_steer}
+                    onChange={(nx, ny, power) =>
+                      act('stick', { x: nx, y: ny, power })
+                    }
+                  />
+                  <div className="OvermapHelmSide__row">
                     <Button
+                      fluid
                       icon="hand"
                       color="bad"
                       selected={!!braking}
@@ -371,90 +395,8 @@ export const OvermapHelm = () => {
                     >
                       Тормоз
                     </Button>
-                    <Box className="OvermapStat__label">Автопилот</Box>
-                    <Box>
-                      <NumberInput
-                        width="52px"
-                        value={dest_x || x || 1}
-                        minValue={1}
-                        maxValue={sector_size || 20}
-                        step={1}
-                        onChange={(value) =>
-                          act('set_dest', { x: value, y: dest_y || y })
-                        }
-                      />
-                      <NumberInput
-                        ml={1}
-                        width="52px"
-                        value={dest_y || y || 1}
-                        minValue={1}
-                        maxValue={sector_size || 20}
-                        step={1}
-                        onChange={(value) =>
-                          act('set_dest', { x: dest_x || x, y: value })
-                        }
-                      />
-                    </Box>
                     <Button
-                      icon="robot"
-                      selected={!!autopilot}
-                      onClick={() => act('toggle_autopilot')}
-                    >
-                      {autopilot ? 'Авто вкл' : 'Авто выкл'}
-                    </Button>
-                    <Button
-                      icon="search"
-                      color={inspecting ? 'good' : undefined}
-                      selected={!!inspecting}
-                      disabled={!!map_jammed}
-                      onClick={() => act('inspect')}
-                    >
-                      Обзор
-                    </Button>
-                    <OvermapStat
-                      label="до цели"
-                      value={dest_range == null ? '—' : `${dest_range} кл.`}
-                    />
-                  </div>
-                </div>
-                <div className="OvermapHelmBar__right">
-                  <OvermapStats stack>
-                    <OvermapStat label="тяга" value={thrust} />
-                    <OvermapStat label="масса" value={`${mass} т`} />
-                    <OvermapStat label="док" value={docked_to || '—'} />
-                    <OvermapStat
-                      label="эфир"
-                      value={broadcasting ? 'вкл' : 'скрыт'}
-                      tone={broadcasting ? 'good' : 'warn'}
-                    />
-                    <OvermapStat label="сектор" value={sector_name || '—'} />
-                    <OvermapStat
-                      label="курс к цели"
-                      value={dest_bearing == null ? '—' : `${dest_bearing}°`}
-                    />
-                    <OvermapStat
-                      label="контакты"
-                      value={nearby.length}
-                      tone={
-                        nearbyDistress
-                          ? 'bad'
-                          : nearby.length
-                            ? 'warn'
-                            : undefined
-                      }
-                    />
-                    {!!is_shuttle && (
-                      <OvermapStat
-                        label="пады"
-                        value={`${pad_free}/${pad_total}`}
-                        tone={
-                          pad_free ? 'good' : pad_total ? 'warn' : undefined
-                        }
-                      />
-                    )}
-                  </OvermapStats>
-                  <Box mt={1}>
-                    <Button
+                      fluid
                       icon="power-off"
                       selected={!!engines_on}
                       color={engines_on ? 'good' : 'average'}
@@ -462,24 +404,94 @@ export const OvermapHelm = () => {
                     >
                       {engines_on ? 'Двиг. вкл' : 'Инерция'}
                     </Button>
+                  </div>
+                  <Box className="OvermapStat__label">автопилот</Box>
+                  <div className="OvermapHelmSide__row">
+                    <NumberInput
+                      value={dest_x || x || 1}
+                      minValue={1}
+                      maxValue={sector_size || 20}
+                      step={1}
+                      onChange={(value) =>
+                        act('set_dest', { x: value, y: dest_y || y })
+                      }
+                    />
+                    <NumberInput
+                      value={dest_y || y || 1}
+                      minValue={1}
+                      maxValue={sector_size || 20}
+                      step={1}
+                      onChange={(value) =>
+                        act('set_dest', { x: dest_x || x, y: value })
+                      }
+                    />
+                  </div>
+                  <Button
+                    fluid
+                    icon="robot"
+                    selected={!!autopilot}
+                    onClick={() => act('toggle_autopilot')}
+                  >
+                    {autopilot ? 'Автопилот вкл' : 'Автопилот выкл'}
+                  </Button>
+                  <Box className="OvermapHelmSide__meta">
+                    {dest_range == null
+                      ? 'цель не задана'
+                      : `до цели ${dest_range} кл. · курс ${dest_bearing ?? 0}°`}
                   </Box>
+                  <Box className="OvermapStat__label">транспондер</Box>
+                  <div className="OvermapHelmSide__row">
+                    <Button
+                      fluid
+                      icon="tower-broadcast"
+                      selected={!!transponder?.broadcasting}
+                      disabled={!transponder}
+                      onClick={() => actTransponder('toggle_broadcast')}
+                    >
+                      {transponder?.broadcasting ? 'В эфире' : 'Скрыт'}
+                    </Button>
+                    <Button
+                      fluid
+                      icon="triangle-exclamation"
+                      color={distress ? 'bad' : undefined}
+                      selected={!!distress}
+                      disabled={!transponder}
+                      onClick={() => actTransponder('toggle_distress')}
+                    >
+                      SOS
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </Stack.Item>
+            </Stack>
           </Stack.Item>
           <Stack.Item shrink={0}>
             <OvermapSeg
-              value={tab}
+              value={listTab}
               onChange={setTab}
               items={[
-                { id: 'flight', label: 'Полёт' },
-                { id: 'dock', label: 'Стыковка' },
+                { id: 'flight', label: `Контакты · ${nearby.length}` },
+                ...(can_dock_mode
+                  ? [
+                      {
+                        id: 'dock' as const,
+                        label: pad_total
+                          ? `Стыковка · ${pad_free}/${pad_total}`
+                          : 'Стыковка',
+                      },
+                    ]
+                  : []),
+                {
+                  id: 'engines',
+                  label: `Двигатели · ${enginesOn}/${engines.length}`,
+                },
+                { id: 'transponder', label: 'Транспондер' },
               ]}
             />
           </Stack.Item>
-          <Stack.Item grow minHeight={0}>
+          <Stack.Item height="240px" shrink={0}>
             <Section fill scrollable>
-              {tab === 'flight' && (
+              {listTab === 'flight' && (
                 <OvermapList>
                   {waypoints.map((waypoint) => (
                     <OvermapRow
@@ -538,7 +550,7 @@ export const OvermapHelm = () => {
                   ))}
                 </OvermapList>
               )}
-              {tab === 'dock' && (
+              {listTab === 'dock' && (
                 <>
                   <OvermapStats>
                     <OvermapStat label="фаза" value={shuttle_mode || '—'} />
@@ -692,6 +704,81 @@ export const OvermapHelm = () => {
                   )}
                 </>
               )}
+              {listTab === 'engines' && (
+                <>
+                  <OvermapStats>
+                    <OvermapStat label="тяга" value={thrust} />
+                    <OvermapStat label="масса" value={`${mass} т`} />
+                    <OvermapStat label="ускор." value={accel} />
+                    <OvermapStat
+                      label="общий лимит"
+                      value={
+                        <NumberInput
+                          width="70px"
+                          unit="%"
+                          value={thrust_limit}
+                          minValue={0}
+                          maxValue={100}
+                          step={5}
+                          onChange={(value) =>
+                            act('set_thrust_limit', { value: value })
+                          }
+                        />
+                      }
+                    />
+                  </OvermapStats>
+                  <Box mt={1}>
+                    <OvermapList>
+                      {engines.map((engine) => (
+                        <OvermapRow
+                          key={engine.ref}
+                          tag={engine.status}
+                          title={engine.name}
+                          meta={`тяга ${engine.thrust}`}
+                          muted={!engine.on}
+                        >
+                          <NumberInput
+                            width="60px"
+                            unit="%"
+                            value={engine.limit}
+                            minValue={0}
+                            maxValue={100}
+                            step={5}
+                            onChange={(value) =>
+                              act('set_engine_limit', {
+                                ref: engine.ref,
+                                value: value,
+                              })
+                            }
+                          />
+                          <Button
+                            icon="power-off"
+                            selected={!!engine.on}
+                            onClick={() =>
+                              act('toggle_engine', { ref: engine.ref })
+                            }
+                          >
+                            {engine.on ? 'Вкл' : 'Выкл'}
+                          </Button>
+                        </OvermapRow>
+                      ))}
+                    </OvermapList>
+                    {!engines.length && (
+                      <NoticeBox>Двигатели не найдены.</NoticeBox>
+                    )}
+                  </Box>
+                </>
+              )}
+              {listTab === 'transponder' &&
+                (transponder ? (
+                  <TransponderPanel data={transponder} act={actTransponder} />
+                ) : (
+                  <NoticeBox danger={!!has_transponder}>
+                    {has_transponder
+                      ? 'Транспондер не отвечает: нет питания или он повреждён.'
+                      : 'На борту нет транспондера.'}
+                  </NoticeBox>
+                ))}
             </Section>
           </Stack.Item>
         </Stack>

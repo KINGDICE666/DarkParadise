@@ -130,7 +130,6 @@
 	},
 /area/centcom/syndicate_base/prison)
 "aaN" = (
-/obj/machinery/computer/engines,
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "dark"
@@ -14820,7 +14819,6 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/obj/machinery/computer/engines,
 /turf/simulated/floor/shuttle,
 /area/shuttle/mining)
 "hjG" = (
@@ -44865,7 +44863,6 @@
 	},
 /area/centcom/syndicate_base/control)
 "umm" = (
-/obj/machinery/computer/engines,
 /turf/simulated/floor/plasteel{
 	dir = 6;
 	icon_state = "darkyellow"
@@ -47964,7 +47961,6 @@
 	icon = 'icons/obj/syndie_logo.dmi';
 	icon_state = "logo4"
 	},
-/obj/machinery/computer/engines,
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "plastitanium"

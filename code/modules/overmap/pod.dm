@@ -40,10 +40,6 @@
 	vessel.helms |= src
 	update_map_view()
 
-/obj/machinery/computer/helm/pod/check_eye(mob/user)
-	if(!overmap_pod_user_ok(user, loc) || !vessel)
-		unlook(user)
-
 /obj/machinery/computer/helm/pod/ui_status(mob/user, datum/ui_state/state)
 	if(!overmap_pod_user_ok(user, loc))
 		return UI_CLOSE

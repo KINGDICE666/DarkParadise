@@ -30,8 +30,7 @@ type IffChannel = {
   tone?: string;
 };
 
-type OvermapTransponderData = {
-  linked: BooleanLike;
+export type TransponderState = {
   broadcast_name: string;
   broadcast_color: string;
   broadcasting: BooleanLike;
@@ -40,6 +39,10 @@ type OvermapTransponderData = {
   transmitting: BooleanLike;
   colors?: ColorChoice[];
   channels?: IffChannel[];
+};
+
+type OvermapTransponderData = TransponderState & {
+  linked: BooleanLike;
 };
 
 const channelHint = (id: string) => {
@@ -73,16 +76,15 @@ const IffSwitch = (props: {
   </button>
 );
 
-export const OvermapTransponder = () => {
-  const { act, data } = useBackend<OvermapTransponderData>();
+export const TransponderPanel = (props: {
+  data: TransponderState;
+  act: (action: string, params?: Record<string, unknown>) => void;
+}) => {
+  const { data, act } = props;
   const {
-    linked,
     broadcast_name,
     broadcast_color,
-    broadcasting,
-    distress,
     identity_locked,
-    transmitting,
     colors = [],
     channels = [],
   } = data;
@@ -90,6 +92,121 @@ export const OvermapTransponder = () => {
   const selectedColor =
     colors.find((choice) => choice.color === broadcast_color)?.name ||
     broadcast_color;
+
+  return (
+    <>
+      <Box mb={0.4} className="OvermapStat__label">
+        Имя
+      </Box>
+      {identity_locked ? (
+        <Box bold>{broadcast_name}</Box>
+      ) : (
+        <Input
+          fluid
+          value={broadcast_name}
+          onChange={(value) => act('set_name', { name: value })}
+        />
+      )}
+      <Box mt={1} mb={0.4} className="OvermapStat__label">
+        Цвет IFF
+      </Box>
+      <ColorBox color={broadcast_color} mr={1} />
+      <Dropdown
+        width="220px"
+        selected={selectedColor}
+        options={colors.map((choice) => choice.name)}
+        onSelected={(value) => act('set_color', { name: value })}
+      />
+      <Box mt={1.2} mb={0.5} className="OvermapStat__label">
+        Ключи шифрования
+      </Box>
+      <div className="OvermapIffGrid">
+        {channels.map((channel) => (
+          <div
+            key={channel.id}
+            className={classes([
+              'OvermapIffCard',
+              `OvermapIffCard--${channel.tone || channel.id}`,
+            ])}
+          >
+            <div className="OvermapIffCard__head">
+              <div>
+                <div className="OvermapIffCard__title">{channel.label}</div>
+                <div className="OvermapIffCard__hint">
+                  {channelHint(channel.id)}
+                </div>
+              </div>
+              <div className="OvermapIffCard__tags">
+                <span className="OvermapIffCard__tag">
+                  {channel.permanent ? 'прошит' : 'ключ'}
+                </span>
+                {!channel.permanent && (
+                  <Button
+                    icon="times"
+                    compact
+                    tooltip="Удалить ключ"
+                    onClick={() => act('remove_channel', { id: channel.id })}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="OvermapIffCard__switches">
+              <IffSwitch
+                label="Приём"
+                on={channel.receive}
+                onClick={() =>
+                  act('toggle_channel', {
+                    id: channel.id,
+                    side: 'receive',
+                  })
+                }
+              />
+              <IffSwitch
+                label="Эфир"
+                on={channel.transmit}
+                onClick={() =>
+                  act('toggle_channel', {
+                    id: channel.id,
+                    side: 'transmit',
+                  })
+                }
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="OvermapIffSlot">
+        <div className="OvermapIffSlot__label">Загрузить ключ</div>
+        <Stack>
+          <Stack.Item grow>
+            <Input
+              fluid
+              className="OvermapIffSlot__input"
+              placeholder="XXXXXXXX"
+              value={keyDraft}
+              onChange={setKeyDraft}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="lock"
+              onClick={() => {
+                act('add_key', { key: keyDraft });
+                setKeyDraft('');
+              }}
+            >
+              Принять
+            </Button>
+          </Stack.Item>
+        </Stack>
+      </div>
+    </>
+  );
+};
+
+export const OvermapTransponder = () => {
+  const { act, data } = useBackend<OvermapTransponderData>();
+  const { linked, broadcast_name, broadcasting, distress, transmitting } = data;
 
   return (
     <OvermapFrame
@@ -134,111 +251,9 @@ export const OvermapTransponder = () => {
             tone={distress ? 'bad' : undefined}
           />
         </OvermapStats>
-        <Box mt={1} mb={0.4} className="OvermapStat__label">
-          Имя
+        <Box mt={1}>
+          <TransponderPanel data={data} act={act} />
         </Box>
-        {identity_locked ? (
-          <Box bold>{broadcast_name}</Box>
-        ) : (
-          <Input
-            fluid
-            value={broadcast_name}
-            onChange={(value) => act('set_name', { name: value })}
-          />
-        )}
-        <Box mt={1} mb={0.4} className="OvermapStat__label">
-          Цвет IFF
-        </Box>
-        <ColorBox color={broadcast_color} mr={1} />
-        <Dropdown
-          width="220px"
-          selected={selectedColor}
-          options={colors.map((choice) => choice.name)}
-          onSelected={(value) => act('set_color', { name: value })}
-        />
-        <Box mt={1.2} mb={0.5} className="OvermapStat__label">
-          Ключи шифрования
-        </Box>
-        <div className="OvermapIffGrid">
-          {channels.map((channel) => (
-            <div
-              key={channel.id}
-              className={classes([
-                'OvermapIffCard',
-                `OvermapIffCard--${channel.tone || channel.id}`,
-              ])}
-            >
-              <div className="OvermapIffCard__head">
-                <div>
-                  <div className="OvermapIffCard__title">{channel.label}</div>
-                  <div className="OvermapIffCard__hint">
-                    {channelHint(channel.id)}
-                  </div>
-                </div>
-                <div className="OvermapIffCard__tags">
-                  <span className="OvermapIffCard__tag">
-                    {channel.permanent ? 'прошит' : 'ключ'}
-                  </span>
-                  {!channel.permanent && (
-                    <Button
-                      icon="times"
-                      compact
-                      tooltip="Удалить ключ"
-                      onClick={() => act('remove_channel', { id: channel.id })}
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="OvermapIffCard__switches">
-                <IffSwitch
-                  label="Приём"
-                  on={channel.receive}
-                  onClick={() =>
-                    act('toggle_channel', {
-                      id: channel.id,
-                      side: 'receive',
-                    })
-                  }
-                />
-                <IffSwitch
-                  label="Эфир"
-                  on={channel.transmit}
-                  onClick={() =>
-                    act('toggle_channel', {
-                      id: channel.id,
-                      side: 'transmit',
-                    })
-                  }
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="OvermapIffSlot">
-          <div className="OvermapIffSlot__label">Загрузить ключ</div>
-          <Stack>
-            <Stack.Item grow>
-              <Input
-                fluid
-                className="OvermapIffSlot__input"
-                placeholder="XXXXXXXX"
-                value={keyDraft}
-                onChange={setKeyDraft}
-              />
-            </Stack.Item>
-            <Stack.Item>
-              <Button
-                icon="lock"
-                onClick={() => {
-                  act('add_key', { key: keyDraft });
-                  setKeyDraft('');
-                }}
-              >
-                Принять
-              </Button>
-            </Stack.Item>
-          </Stack>
-        </div>
       </div>
     </OvermapFrame>
   );

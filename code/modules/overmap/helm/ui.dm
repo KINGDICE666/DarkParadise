@@ -32,8 +32,6 @@
 /obj/machinery/computer/helm/ui_close(mob/user)
 	. = ..()
 	cam_screen?.hide_from(user)
-	if(viewing_overmap(user))
-		unlook(user)
 
 /obj/machinery/computer/helm/ui_data(mob/user)
 	var/list/data = list()
@@ -71,8 +69,21 @@
 	data["braking"] = !!nav?.held_brake
 	data["thrust"] = vessel.get_total_thrust()
 	data["mass"] = vessel.vessel_mass
-	data["inspecting"] = viewing_overmap(user)
-	data["map_zoom"] = map_zoom
+	data["thrust_limit"] = round((nav?.thrust_limit || 0) * 100)
+	var/list/engines = list()
+	for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
+		engines += list(list(
+			"name" = engine.name,
+			"ref" = engine.UID(),
+			"on" = engine.on,
+			"thrust" = engine.get_thrust(),
+			"limit" = round(engine.thrust_limit * 100),
+			"status" = engine.get_status(),
+		))
+	data["engines"] = engines
+	var/obj/machinery/transponder/beacon = vessel.transponder
+	data["has_transponder"] = !!beacon
+	data["transponder"] = beacon && !(beacon.stat & (NOPOWER|BROKEN)) ? beacon.transponder_data() : null
 	data["map_revision"] = map_revision
 	data["helm_tab"] = helm_tab
 	data["eta"] = speed ? "[round(vessel.ETA() / 10)] с" : "N/A"
@@ -212,6 +223,29 @@
 		if("cut_engines")
 			vessel.cut_engines()
 			. = TRUE
+		if("set_thrust_limit")
+			if(vessel.flight)
+				vessel.flight.thrust_limit = clamp(text2num(params["value"]) / 100, 0, 1)
+				for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
+					engine.thrust_limit = vessel.flight.thrust_limit
+			. = TRUE
+		if("toggle_engine")
+			var/obj/machinery/ship_engine/engine = locateUID(params["ref"])
+			if(engine in vessel.engines)
+				engine.toggle()
+			. = TRUE
+		if("set_engine_limit")
+			var/obj/machinery/ship_engine/engine = locateUID(params["ref"])
+			if(engine in vessel.engines)
+				engine.thrust_limit = clamp(text2num(params["value"]) / 100, 0, 1)
+			. = TRUE
+		if("transponder")
+			var/obj/machinery/transponder/beacon = vessel.transponder
+			if(!beacon || (beacon.stat & (NOPOWER|BROKEN)))
+				to_chat(usr, span_warning("Транспондер не отвечает."))
+				return TRUE
+			beacon.handle_action(params["op"], params, usr)
+			. = TRUE
 		if("set_dest")
 			var/dest_x = text2num(params["x"])
 			var/dest_y = text2num(params["y"])
@@ -236,14 +270,6 @@
 		if("set_max_speed")
 			if(vessel.flight)
 				vessel.flight.cruise_speed = OVERMAP_FROM_DISPLAY(clamp(text2num(params["value"]), OVERMAP_CRUISE_MIN, OVERMAP_CRUISE_MAX))
-			. = TRUE
-		if("inspect")
-			if(vessel.is_overmap_jammed())
-				to_chat(usr, span_warning("Потеря сигнала."))
-			else if(viewing_overmap(usr))
-				unlook(usr)
-			else
-				look(usr)
 			. = TRUE
 		if("remove_waypoint")
 			var/waypoint_name = params["name"]
@@ -339,12 +365,5 @@
 
 /obj/machinery/computer/helm/process()
 	if(..())
-		if(vessel)
-			var/turf/here = vessel.get_overmap_turf()
-			if(here != last_map_turf)
-				update_map_view()
-			else if(length(viewers))
-				refresh_inspect_positions()
-			if(vessel.is_moving())
-				sync_inspect_camera_pixels()
+		on_vessel_loc_changed()
 		SStgui.update_uis(src)

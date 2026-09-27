@@ -412,9 +412,6 @@
 	if(!peel_hit_times)
 		peel_hit_times = list()
 	refresh_sensor_blips()
-	for(var/obj/machinery/computer/helm/helm as anything in vessel.helms)
-		if(!QDELETED(helm) && length(helm.viewers))
-			helm.play_inspect_radar(vessel)
 	var/turf/here = vessel.get_overmap_turf()
 	if(here && vessel.sector)
 		for(var/obj/overmap/other as anything in vessel.sector.objects)
@@ -471,7 +468,6 @@
 		for(var/atom/movable/screen/overmap_sensor_blip/blip as anything in helm.sensor_blips)
 			if(blip.contact_uid == uid)
 				overmap_play_peel_blip(blip, peak_alpha)
-		helm.animate_inspect_peel(other, peak_alpha)
 	for(var/obj/machinery/computer/sensors/console as anything in vessel.sensors)
 		if(QDELETED(console))
 			continue

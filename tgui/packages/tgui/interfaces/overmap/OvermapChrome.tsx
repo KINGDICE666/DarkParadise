@@ -134,10 +134,10 @@ export const OvermapSeg = <T extends string>(props: {
 
 export const OvermapStats = (props: {
   children: ReactNode;
-  stack?: boolean;
+  grid?: boolean;
 }) => (
   <div
-    className={classes(['OvermapStats', props.stack && 'OvermapStats--stack'])}
+    className={classes(['OvermapStats', props.grid && 'OvermapStats--grid'])}
   >
     {props.children}
   </div>

@@ -191,11 +191,8 @@
 	set_autopilot(FALSE)
 	overmap_jammed_until = world.time + OVERMAP_HYPERRELAY_JUMP_TIME
 	for(var/obj/machinery/computer/helm/helm as anything in helms)
-		if(QDELETED(helm))
-			continue
-		for(var/mob/viewer as anything in helm.viewers.Copy())
-			helm.unlook(viewer)
-		helm.update_map_view(TRUE)
+		if(!QDELETED(helm))
+			helm.update_map_view(TRUE)
 	for(var/obj/machinery/computer/sensors/sensor as anything in sensors)
 		if(!QDELETED(sensor))
 			sensor.update_map_view(TRUE)

@@ -291,44 +291,39 @@
   }
 }
 
-.OvermapStats--stack {
-  flex-direction: column;
-  width: 7.2em;
-}
-
-.OvermapHelmBar {
+.OvermapStats--grid {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: stretch;
-  gap: 0.5em;
-}
+  grid-template-columns: 1fr 1fr;
 
-.OvermapHelmBar__left {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  .OvermapStats--stack {
-    width: 9.5em;
+  .OvermapStat {
+    min-width: 0;
   }
 }
 
-.OvermapHelmBar__center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.OvermapHelmBar__right {
+.OvermapHelmSide {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
+  gap: 0.45em;
+  overflow-y: auto;
 
-  .OvermapStats--stack {
-    width: 9.5em;
+  > * {
+    flex-shrink: 0;
   }
+}
+
+.OvermapHelmSide__row {
+  display: flex;
+  gap: 0.35em;
+
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.OvermapHelmSide__meta {
+  font-size: 0.8em;
+  color: #6e9098;
 }
 
 .OvermapMapSection {
@@ -526,13 +521,6 @@
   background: #7ad0c4;
   box-shadow: 0 0 8px #7ad0c4;
   pointer-events: none;
-}
-
-.OvermapStickCol {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4em;
 }
 
 .OvermapKey {

@@ -541,12 +541,6 @@
 	build_path = /obj/machinery/computer/helm
 	origin_tech = "programming=3;magnets=2"
 
-/obj/item/circuitboard/engines
-	board_name = "Engines Control Console"
-	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
-	build_path = /obj/machinery/computer/engines
-	origin_tech = "programming=3;engineering=3"
-
 /obj/item/circuitboard/sensors
 	board_name = "Sensor Control Console"
 	greyscale_colors = CIRCUIT_COLOR_SCIENCE

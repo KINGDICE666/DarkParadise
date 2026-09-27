@@ -191,14 +191,3 @@
 	del_on_map_removal = FALSE
 	appearance_flags = RESET_COLOR | RESET_TRANSFORM | KEEP_APART
 	color = "#5ad1ff"
-
-/atom/movable/screen/overmap_self_ghost
-	name = "local vessel"
-	icon = OVERMAP_ICON_FILE
-	icon_state = OVERMAP_ICON_SHUTTLE_C
-	layer = ABOVE_HUD_LAYER
-	plane = GAME_PLANE
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	del_on_map_removal = FALSE
-	alpha = 0
-	appearance_flags = RESET_COLOR | RESET_TRANSFORM | KEEP_APART

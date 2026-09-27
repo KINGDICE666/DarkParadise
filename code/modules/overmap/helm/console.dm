@@ -7,9 +7,7 @@
 	circuit = /obj/item/circuitboard/helm
 	var/obj/overmap/entity/vessel
 	var/extra_view = OVERMAP_HELM_VIEW
-	var/map_zoom = 2
 	var/map_revision = 0
-	var/list/viewers = list()
 	var/atom/movable/screen/map_view/camera/cam_screen
 	var/datum/overmap_map_view/map_camera
 	var/turf/last_map_turf
@@ -19,14 +17,8 @@
 	var/list/preset_waypoints = list()
 	var/obj/machinery/computer/camera_advanced/shuttle_docker/overmap/dock_picker
 	var/atom/movable/screen/overmap_nav_blip/nav_blip
-	var/atom/movable/screen/overmap_self_ghost/self_ghost
 	var/list/atom/movable/screen/overmap_sensor_blip/sensor_blips
 	var/list/atom/movable/screen/overmap_sensor_radar/radar_blips
-	var/image/inspect_nav_image
-	var/image/inspect_self_ghost
-	var/list/image/inspect_contact_images
-	var/list/image/inspect_radar_images
-	var/list/inspect_radar_peel_at
 	var/map_view_min_x
 	var/map_view_min_y
 	var/helm_tab = "flight"
@@ -52,22 +44,14 @@
 	nav_blip = new
 	nav_blip.assigned_map = map_name
 	nav_blip.del_on_map_removal = FALSE
-	self_ghost = new
-	self_ghost.assigned_map = map_name
-	self_ghost.del_on_map_removal = FALSE
 	sensor_blips = list()
 	radar_blips = list()
-	inspect_contact_images = list()
-	inspect_radar_images = list()
-	inspect_radar_peel_at = list()
 	dock_picker = new(src)
 	if(SSovermap?.initialized)
 		link_vessel()
 
 /obj/machinery/computer/helm/Destroy()
 	GLOB.helm_computers -= src
-	for(var/mob/viewer as anything in viewers)
-		unlook(viewer)
 	if(vessel)
 		UnregisterSignal(vessel, list(COMSIG_OVERMAP_MOVED, COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
 		vessel.helms -= src
@@ -76,12 +60,8 @@
 	QDEL_NULL(dock_picker)
 	QDEL_NULL(cam_screen)
 	QDEL_NULL(nav_blip)
-	QDEL_NULL(self_ghost)
 	QDEL_LIST(sensor_blips)
 	QDEL_LIST(radar_blips)
-	inspect_nav_image = null
-	inspect_self_ghost = null
-	clear_inspect_sensor_images()
 	clear_dock_preview_ghosts()
 	return ..()
 
@@ -112,9 +92,6 @@
 	SIGNAL_HANDLER
 	update_map_view(TRUE)
 	SStgui.update_uis(src)
-	if(length(viewers))
-		refresh_inspect_positions()
-		sync_inspect_camera_pixels()
 
 /obj/machinery/computer/helm/proc/map_view_range()
 	. = extra_view
@@ -134,19 +111,14 @@
 	if(!vessel?.sector || vessel.is_overmap_jammed())
 		map_camera.clear()
 		last_map_turf = null
-		map_zoom = OVERMAP_HELM_MAP_PX / (15 * world.icon_size)
 		if(vessel?.is_overmap_jammed())
-			update_self_ghost()
 			update_sensor_ghosts()
 			update_nav_marker()
 		return
-	var/view_range = map_view_range()
-	map_camera.refresh(vessel, view_range, force)
-	map_zoom = map_camera.fit_zoom(OVERMAP_HELM_MAP_PX, OVERMAP_HELM_MAP_PX)
+	map_camera.refresh(vessel, max(map_view_range(), OVERMAP_HELM_MAP_RANGE), force)
 	last_map_turf = map_camera.last_center
 	map_view_min_x = map_camera.map_view_min_x
 	map_view_min_y = map_camera.map_view_min_y
-	update_self_ghost()
 	update_sensor_ghosts()
 	update_nav_marker()
 
@@ -154,9 +126,6 @@
 	if(nav_blip)
 		nav_blip.screen_loc = null
 		nav_blip.alpha = 0
-	if(self_ghost)
-		self_ghost.screen_loc = null
-		self_ghost.alpha = 0
 	for(var/atom/movable/screen/overmap_sensor_blip/blip as anything in sensor_blips)
 		overmap_hide_blip(blip)
 	for(var/atom/movable/screen/overmap_sensor_radar/radar as anything in radar_blips)
@@ -182,7 +151,6 @@
 	if(!pad || !vessel?.shuttle || !pad.z)
 		clear_dock_preview_ghosts()
 		map_camera.clear()
-		map_zoom = OVERMAP_HELM_MAP_PX / (15 * world.icon_size)
 		return
 	var/list/hull_new = vessel.shuttle.overmap_preview_turfs(pad)
 	var/min_x = pad.x
@@ -210,7 +178,6 @@
 		min_y = clamp(center_y - round((tiles - 1) / 2), 1, world.maxy - tiles + 1)
 		max_x = min_x + tiles - 1
 		max_y = min_y + tiles - 1
-	map_zoom = OVERMAP_HELM_MAP_PX / (tiles * world.icon_size)
 	var/list/visible = block(locate(min_x, min_y, pad.z), locate(min_x + tiles - 1, min_y + tiles - 1, pad.z))
 	cam_screen.show_camera(visible, tiles, tiles)
 	map_view_min_x = min_x

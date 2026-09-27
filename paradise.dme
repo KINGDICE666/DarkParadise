@@ -4008,7 +4008,6 @@
 #include "code\modules\overmap\hazard.dm"
 #include "code\modules\overmap\helm\console.dm"
 #include "code\modules\overmap\helm\docker.dm"
-#include "code\modules\overmap\helm\engines.dm"
 #include "code\modules\overmap\helm\ui.dm"
 #include "code\modules\overmap\helm\view.dm"
 #include "code\modules\overmap\hyperrelay.dm"

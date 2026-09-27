@@ -12,7 +12,6 @@
 	var/obj/overmap/entity/docked_to
 	var/obj/docking_port/mobile/shuttle
 	var/list/obj/machinery/computer/helm/helms = list()
-	var/list/obj/machinery/computer/engines/engine_consoles = list()
 	var/list/obj/machinery/computer/sensors/sensors = list()
 	var/list/obj/machinery/sensor_array/sensor_arrays = list()
 	var/long_sensors_on = FALSE
@@ -131,10 +130,6 @@
 		if(helm.vessel == src)
 			helm.vessel = null
 	helms.Cut()
-	for(var/obj/machinery/computer/engines/console as anything in engine_consoles)
-		if(console.vessel == src)
-			console.vessel = null
-	engine_consoles.Cut()
 	for(var/obj/machinery/computer/sensors/sensor as anything in sensors)
 		if(sensor.vessel == src)
 			sensor.vessel = null

@@ -205,7 +205,6 @@
 	var/turf/here = get_turf(src)
 	if(here)
 		new /obj/machinery/computer/helm(here)
-		new /obj/machinery/computer/engines(get_step(here, EAST) || here)
 		new /obj/machinery/ship_engine/infinite(get_step(here, WEST) || here)
 		new /obj/machinery/transponder(get_step(here, SOUTH) || here)
 		new /obj/machinery/computer/sensors(get_step(here, NORTH) || here)

@@ -26,6 +26,9 @@
 	var/datum/found = locateUID(contact_uid)
 	if(!istype(found, /obj/overmap))
 		return ..()
+	var/obj/machinery/computer/helm/helm = overmap_open_helm(usr, control)
+	if(helm?.mark_atom(usr, found))
+		return
 	for(var/datum/tgui/open_ui as anything in usr?.tgui_open_uis)
 		var/obj/machinery/computer/sensors/console = open_ui.src_object
 		if(!istype(console) || console.view_mode != OVERMAP_SENSOR_KIND_SHORT)
