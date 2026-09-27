@@ -60,15 +60,6 @@
 	if(user.machine == src)
 		user.unset_machine()
 
-/obj/machinery/computer/sensors/ui_status(mob/user, datum/ui_state/state)
-	if(stat & (NOPOWER|BROKEN))
-		return UI_CLOSE
-	if(user.incapacitated())
-		return UI_CLOSE
-	if(!user.Adjacent(src) && !user.has_unlimited_silicon_privilege)
-		return UI_CLOSE
-	return UI_INTERACTIVE
-
 /obj/machinery/computer/sensors/proc/play_sensor_alert(kind)
 	if(!kind || (stat & (NOPOWER|BROKEN)))
 		return

@@ -35,15 +35,6 @@
 	if(viewing_overmap(user))
 		unlook(user)
 
-/obj/machinery/computer/helm/ui_status(mob/user, datum/ui_state/state)
-	if(stat & (NOPOWER|BROKEN))
-		return UI_CLOSE
-	if(user.incapacitated())
-		return UI_CLOSE
-	if(!user.Adjacent(src) && !user.has_unlimited_silicon_privilege)
-		return UI_CLOSE
-	return UI_INTERACTIVE
-
 /obj/machinery/computer/helm/ui_data(mob/user)
 	var/list/data = list()
 	data["linked"] = !!vessel

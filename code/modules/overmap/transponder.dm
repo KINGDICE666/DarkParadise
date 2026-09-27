@@ -250,15 +250,6 @@ GLOBAL_LIST_INIT(overmap_transponder_colors, list(
 		ui = new(user, src, "OvermapTransponder", name)
 		ui.open()
 
-/obj/machinery/transponder/ui_status(mob/user, datum/ui_state/state)
-	if(stat & (NOPOWER|BROKEN))
-		return UI_CLOSE
-	if(user.incapacitated())
-		return UI_CLOSE
-	if(!user.Adjacent(src) && !user.has_unlimited_silicon_privilege)
-		return UI_CLOSE
-	return UI_INTERACTIVE
-
 /obj/machinery/transponder/ui_data(mob/user)
 	var/list/data = list()
 	data["linked"] = !!vessel
