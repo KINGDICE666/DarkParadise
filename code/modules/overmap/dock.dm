@@ -1,5 +1,5 @@
 /obj/docking_port/stationary/overmap
-	name = "Площадка"
+	name = "overmap pad"
 	width = 1
 	height = 1
 
@@ -333,7 +333,7 @@
 GLOBAL_LIST_EMPTY(landing_beacons)
 
 /obj/machinery/landing_beacon
-	name = "посадочный маяк"
+	name = "landing beacon"
 	desc = "Маяк посадки. Позволяет садиться шаттлам и челнокам на это место без необходимости установки док-шлюза."
 	icon = 'icons/obj/radio.dmi'
 	icon_state = "beacon"
@@ -444,11 +444,21 @@ GLOBAL_LIST_EMPTY(landing_beacons)
 	sync_pad()
 
 /obj/item/overmap_landing_beacon
-	name = "посадочный маяк"
-	desc = "Сложите на пол, чтобы разместить площадку посадки."
+	name = "landing beacon"
+	desc = "Положите на пол, чтобы разместить площадку посадки."
 	icon = 'icons/obj/radio.dmi'
 	icon_state = "beacon"
 	w_class = WEIGHT_CLASS_SMALL
+
+/obj/item/overmap_landing_beacon/get_ru_names()
+	return alist(
+		NOMINATIVE = "посадочный маяк",
+		GENITIVE = "посадочного маяка",
+		DATIVE = "посадочному маяку",
+		ACCUSATIVE = "посадочный маяк",
+		INSTRUMENTAL = "посадочным маяком",
+		PREPOSITIONAL = "посадочном маяке",
+	)
 
 /obj/item/overmap_landing_beacon/attack_self(mob/user)
 	deploy(get_turf(user), user)

@@ -58,7 +58,7 @@
 	var/turf/origin = get_turf(dumpee)
 	if(istype(origin, /turf/space/transit))
 		var/obj/spacepod/craft = dumpee
-		if(craft?.overmap_vessel?.overmap_pod)
+		if(isspacepod(craft) && craft.overmap_vessel?.overmap_pod)
 			craft.overmap_vessel.overmap_pod.rescue_from_transit()
 			return
 		var/datum/turf_reservation/reservation = SSmapping.used_turfs[origin]
