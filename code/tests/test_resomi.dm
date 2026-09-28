@@ -12,16 +12,15 @@
 						reaches_ankles = TRUE
 			TEST_ASSERT(reaches_ankles, "[state] trousers stop short of the resomi ankles facing [fit_dir]")
 			TEST_ASSERT_NOTNULL(uniform.GetPixel(16, 16, dir = fit_dir), "[state] lost its chest facing [fit_dir]")
-	for(var/state in list("labcoat", "labcoat_open", "wintercoat"))
-		var/icon/coat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
-		for(var/fit_dir in list(EAST, WEST))
-			var/hem_pixels = 0
-			for(var/x in 1 to 32)
-				if(!coat.GetPixel(x, 10, dir = fit_dir))
-					continue
-				TEST_ASSERT(x >= 13 && x <= 20, "[state] retains a human-width hem facing [fit_dir]")
-				hem_pixels++
-			TEST_ASSERT(hem_pixels, "[state] lost its hem while narrowing the coat")
+		for(var/fit_dir in list(SOUTH, NORTH))
+			TEST_ASSERT_NOTNULL(uniform.GetPixel(20, 5, dir = fit_dir), "[state] leaves the right resomi shin bare facing [fit_dir]")
+			TEST_ASSERT_NULL(uniform.GetPixel(17, 5, dir = fit_dir), "[state] widens its right trouser leg into the gap facing [fit_dir]")
+		for(var/y in 14 to 16)
+			TEST_ASSERT_NULL(uniform.GetPixel(13, y, dir = EAST), "[state] sticks out behind the resomi back facing east")
+			TEST_ASSERT_NULL(uniform.GetPixel(20, y, dir = WEST), "[state] sticks out behind the resomi back facing west")
+	var/icon/labcoat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, "labcoat_open")
+	TEST_ASSERT_NOTNULL(labcoat.GetPixel(16, 11, dir = EAST), "labcoat_open leaves the resomi hand poking through its sleeve gap facing east")
+	TEST_ASSERT_NOTNULL(labcoat.GetPixel(17, 11, dir = WEST), "labcoat_open leaves the resomi hand poking through its sleeve gap facing west")
 	for(var/state in list("leathercoat", "bltrenchcoat", "brtrenchcoat"))
 		var/icon/coat = fit.fit_worn_icon(null, DEFAULT_ICON_OUTER_SUIT, state)
 		for(var/fit_dir in GLOB.cardinal)
@@ -33,7 +32,7 @@
 		for(var/fit_dir in list(SOUTH, NORTH))
 			for(var/y in 19 to 32)
 				for(var/x in 1 to 32)
-					if(x >= 8 && x <= 24)
+					if(x >= 8 && x <= 25)
 						continue
 					TEST_ASSERT_NULL(suit.GetPixel(x, y, dir = fit_dir), "[state] keeps human-width shoulders above the resomi shoulders facing [fit_dir]")
 

@@ -17,8 +17,10 @@ class PixelMapTests(unittest.TestCase):
         target = read_dmi(profile["target"])[0]
         sheet_path = "icons/mob/clothing/suit.dmi"
         sheet = read_dmi(sheet_path)[0]
+        sheet_pixel_maps = dict(profile["sheet_pixel_maps"])
+        sheet_pixel_maps[sheet_path] = sheet_pixel_maps[sheet_path].replace("suit.json", "suit_long.json")
         fitter = SpeciesFit(reference, target, pixel_map=profile["pixel_map"],
-                            sheet_pixel_maps=profile["sheet_pixel_maps"], cover_parts=True)
+                            sheet_pixel_maps=sheet_pixel_maps, cover_parts=True)
         for state in ("leathercoat", "bltrenchcoat", "brtrenchcoat"):
             for direction in range(4):
                 with self.subTest(state=state, direction=direction):

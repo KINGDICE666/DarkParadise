@@ -54,6 +54,9 @@
 		DEFAULT_ICON_ACCESSORY = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/ties.json',
 		'icons/mob/clothing/underwear.dmi' = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/uniform.json',
 	)
+	long_hem_pixel_maps = list(
+		'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/suit.json' = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/suit_long.json',
+	)
 	slot_pixel_maps = list(
 		ITEM_SLOT_CLOTH_INNER_STRING = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/uniform.json',
 		ITEM_SLOT_CLOTH_OUTER_STRING = 'code/modules/mob/living/carbon/human/species/fitting/maps/human-to-resomi/suit.json',
@@ -75,6 +78,7 @@
 		/datum/fit_step/pixel_map,
 		/datum/fit_step/cover_parts,
 		/datum/fit_step/cover_parts/extremities,
+		/datum/fit_step/close_hand_gaps,
 	)
 	slot_steps = list(
 		ITEM_SLOT_HEAD_STRING = list(/datum/fit_step/head_offset),

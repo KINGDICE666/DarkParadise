@@ -22,6 +22,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/sheet_maps
 	var/list/slot_pixel_maps
 	var/list/slot_maps
+	var/list/long_hem_pixel_maps
+	var/list/long_hem_maps
 	var/list/trunk_states = list("torso_m", "groin_m")
 	var/list/limb_states = list("l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 	var/list/head_states = list("head_m")
@@ -58,6 +60,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/pixel_tier_maps
 	var/list/reference_head_masks
 	var/list/reference_crown_masks
+	var/list/reference_feet_mask
 	var/list/target_head_masks
 	var/list/head_shifts
 	var/list/reference_bare_masks
@@ -100,7 +103,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/bare_names = list()
 	for(var/list/part_group in bare_parts)
 		bare_names += jointext(part_group, ",")
-	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]|[FIT_COVER_PART_SHARE]|[FIT_COVER_PART_REACH]|[FIT_HEADWEAR_BRIM_SCALE]|[FIT_HEADWEAR_RIM_WIDTH]|[FIT_SHOE_HEIGHT_SCALE]|[FIT_SHOE_MIN_ROWS]")
+	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[FIT_CACHE_VERSION]|[reference_sheet]|[sheet_hash(reference_sheet)]|[target_sheet]|[sheet_hash(target_sheet)]|[jointext(steps, "|")]|[max_squash]|[jointext(limb_states, ",")]|[jointext(tier_names, ";")]|[jointext(bare_names, ";")]|[FIT_PART_GARMENT_SHARE]|[FIT_HEAD_WARP_SHARE]|[FIT_COVER_PART_SHARE]|[FIT_COVER_PART_REACH]|[FIT_HEADWEAR_BRIM_SCALE]|[FIT_HEADWEAR_RIM_WIDTH]|[FIT_SHOE_HEIGHT_SCALE]|[FIT_SHOE_MIN_ROWS]|[FIT_LONG_HEM_MIN_GAP]|[FIT_LONG_HEM_MAX_GAP]|[FIT_HAND_PEEK_PIXELS]")
 	cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[pixel_map]|[pixel_map ? md5(file2text(pixel_map)) : ""]")
 	for(var/sheet in sheet_pixel_maps)
 		var/map_file = sheet_pixel_maps[sheet]
@@ -108,6 +111,9 @@ GLOBAL_LIST_EMPTY(species_fits)
 	for(var/slot_string in slot_pixel_maps)
 		var/map_file = slot_pixel_maps[slot_string]
 		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[map_file]|[md5(file2text(map_file))]")
+	for(var/map_file in long_hem_pixel_maps)
+		var/long_map_file = long_hem_pixel_maps[map_file]
+		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[map_file]|[long_map_file]|[md5(file2text(long_map_file))]")
 	for(var/slot_string in slot_steps)
 		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[jointext(slot_steps[slot_string], "|")]")
 	reference_trunk_masks = list()
@@ -125,6 +131,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	reference_bare_masks = list()
 	target_bare_masks = list()
 	shrunk_masks = list()
+	reference_feet_mask = build_mask(reference_sheet, list("l_foot", "r_foot"), SOUTH)
 	for(var/fit_dir in GLOB.cardinal)
 		var/key = "[fit_dir]"
 		reference_trunk_masks[key] = build_mask(reference_sheet, trunk_states, fit_dir)
@@ -167,6 +174,12 @@ GLOBAL_LIST_EMPTY(species_fits)
 		var/map_file = slot_pixel_maps[slot_string]
 		loaded["[map_file]"] ||= read_pixel_map(map_file)
 		slot_maps[slot_string] = loaded["[map_file]"]
+	long_hem_maps = list()
+	for(var/map_file in long_hem_pixel_maps)
+		var/long_map_file = long_hem_pixel_maps[map_file]
+		loaded["[map_file]"] ||= read_pixel_map(map_file)
+		loaded["[long_map_file]"] ||= read_pixel_map(long_map_file)
+		long_hem_maps[loaded["[map_file]"]] = loaded["[long_map_file]"]
 
 /datum/species_fit/proc/read_pixel_map(map_file)
 	var/list/maps = list()
@@ -478,6 +491,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/icon/source = icon(sheet, state_name)
 	if(source.Width() != width || source.Height() != height)
 		return null
+	if(long_hem_maps[maps] && has_long_hem(source))
+		maps = long_hem_maps[maps]
 	var/icon/assembled = icon(source)
 	var/fitted_anything = FALSE
 	for(var/moving in list(FALSE, TRUE))
@@ -511,6 +526,17 @@ GLOBAL_LIST_EMPTY(species_fits)
 					fitted_anything = TRUE
 				assembled.Insert(write_frame(context.working), dir = fit_dir, frame = frame_index, moving = moving)
 	return fitted_anything ? restore_playback(assembled, sheet, state_name) : null
+
+/datum/species_fit/proc/has_long_hem(icon/source)
+	var/list/pixels = read_frame(icon(source, dir = SOUTH, frame = 1))
+	if(covered_share(pixels, reference_feet_mask) >= FIT_PART_GARMENT_SHARE)
+		return FALSE
+	var/list/garment_rows = mask_rows(pixels)
+	var/list/feet_rows = mask_rows(reference_feet_mask)
+	if(!length(garment_rows))
+		return FALSE
+	var/hem_gap = garment_rows[1] - feet_rows[length(feet_rows)]
+	return hem_gap >= FIT_LONG_HEM_MIN_GAP && hem_gap <= FIT_LONG_HEM_MAX_GAP
 
 /datum/species_fit/proc/restore_playback(icon/assembled, sheet, state_name)
 	var/list/source_states = list()

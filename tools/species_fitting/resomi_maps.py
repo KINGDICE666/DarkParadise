@@ -6,15 +6,9 @@ from dmi import DIR_ORDER, body_mask, read_dmi
 
 
 MAP_DIRECTORY = Path("code/modules/mob/living/carbon/human/species/fitting/maps")
-CLOTHING_ROWS = (
-    ((0, -4), (14, 10), (20, 18), (24, 22), (27, 29), (31, 31)),
-    ((0, -4), (14, 10), (20, 18), (24, 22), (27, 29), (31, 31)),
-    ((0, -5), (16, 11), (20, 18), (24, 22), (27, 29), (31, 31)),
-    ((0, -5), (16, 11), (20, 18), (24, 22), (27, 29), (31, 31)),
-)
-CLOTHING_COLUMNS = ((15, 15.5, 0.6, 0.75), (15, 15.5, 0.6, 0.75),
-                    (15, 16, 0.7, 0.7), (16, 15, 0.7, 0.7))
-HOOD_MARGIN = 2
+REFERENCE_CENTER = 15
+TARGET_CENTER = 15.5
+PROFILE_PARTS = ("torso_m", "groin_m", "l_arm", "r_arm", "l_hand", "r_hand")
 
 
 def interpolate(value, anchors):
@@ -37,29 +31,92 @@ def main():
                         for index, direction in enumerate(DIR_ORDER)}
     (MAP_DIRECTORY / "human-to-resomi/hands.json").write_text(
         json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
-    data["mappings"] = {direction.title(): clothing_map(reference, index)
+    for slot in ("uniform", "suit"):
+        slot_path = MAP_DIRECTORY / f"human-to-resomi/{slot}.json"
+        clothing = json.loads(slot_path.read_text(encoding="utf-8"))
+        for direction in ("South", "North"):
+            clothing["mappings"][direction] = mirrored_map(clothing["mappings"][direction])
+        if slot == "uniform":
+            for index, direction in enumerate(DIR_ORDER[2:], start=2):
+                clothing["mappings"][direction.title()] = narrow_profile_map(
+                    clothing["mappings"][direction.title()], reference, target, index)
+        slot_path.write_text(
+            json.dumps(clothing, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
+    suit = json.loads((MAP_DIRECTORY / "human-to-resomi/suit.json").read_text(encoding="utf-8"))
+    data["mappings"] = {direction.title(): long_hem_map(suit["mappings"][direction.title()], target, index)
                         for index, direction in enumerate(DIR_ORDER)}
-    (MAP_DIRECTORY / "human-to-resomi/suit.json").write_text(
+    (MAP_DIRECTORY / "human-to-resomi/suit_long.json").write_text(
         json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
 
 
-def clothing_map(reference, direction):
-    anchors = CLOTHING_ROWS[direction]
-    source_center, target_center, shoulder_scale, hip_scale = CLOTHING_COLUMNS[direction]
-    head_shift = round(target_center - source_center)
-    head_columns = [x for x, y in body_mask(reference, ("head_m",), direction, 32, 32)]
-    head_left, head_right = min(head_columns) - HOOD_MARGIN, max(head_columns) + HOOD_MARGIN
-    mapping = []
+def mirrored_map(mapping):
+    targets = {(pair["source"]["x"], pair["source"]["y"]): pair["target"] for pair in mapping}
+    mirrored = []
     for y in range(32):
-        source_y = math.floor(interpolate(y, anchors) + 0.5)
-        scale = shoulder_scale if y < anchors[2][0] else hip_scale
         for x in range(32):
-            source_x = math.floor(source_center + (x - target_center) / scale + 0.5)
-            if y < anchors[1][0] and head_left <= x - head_shift <= head_right:
-                source_x = x - head_shift
-            target = {"x": source_x, "y": source_y} if 0 <= source_x < 32 and 0 <= source_y < 32 else None
-            mapping.append({"source": {"x": x, "y": y}, "target": target})
-    return mapping
+            target = targets[x, y]
+            if x > TARGET_CENTER:
+                target = targets[31 - x, y]
+                if target and 0 <= 2 * REFERENCE_CENTER - target["x"] < 32:
+                    target = {"x": 2 * REFERENCE_CENTER - target["x"], "y": target["y"]}
+                else:
+                    target = None
+            mirrored.append({"source": {"x": x, "y": y}, "target": target})
+    return mirrored
+
+
+def narrow_profile_map(mapping, reference, target, direction):
+    targets = {(pair["source"]["x"], pair["source"]["y"]): pair["target"] for pair in mapping}
+    reference_body = body_mask(reference, PROFILE_PARTS, direction, 32, 32)
+    target_body = body_mask(target, PROFILE_PARTS, direction, 32, 32)
+    reference_trunk = body_mask(reference, ("torso_m", "groin_m"), direction, 32, 32)
+    reference_hands = body_mask(reference, ("l_hand", "r_hand"), direction, 32, 32)
+    target_trunk = body_mask(target, ("torso_m", "groin_m"), direction, 32, 32)
+    arm_rows = sorted({y for x, y in body_mask(target, ("l_arm", "r_arm", "l_hand", "r_hand"), direction, 32, 32)})
+    for y in range(arm_rows[0] - 1, arm_rows[-1] + 1):
+        span_row = max(y, arm_rows[0])
+        columns = sorted(x for x, row in target_body if row == span_row)
+        source_rows = [targets[x, y]["y"] for x in columns if targets[x, y]]
+        source_y = max(set(source_rows), key=source_rows.count)
+        source_columns = sorted(x for x, row in reference_body if row == source_y)
+        if not source_columns:
+            continue
+        first, last = columns[0], columns[-1]
+        source_first, source_last = source_columns[0], source_columns[-1]
+        narrower = last - first < source_last - source_first
+        for x in range(32):
+            if first <= x <= last and narrower:
+                source_x = source_first + math.floor((x - first) * (source_last - source_first) / (last - first) + 0.5)
+                targets[x, y] = {"x": source_x, "y": source_y}
+            elif not first <= x <= last and targets[x, y] and source_first <= targets[x, y]["x"] <= source_last:
+                targets[x, y] = None
+        for x in range(32):
+            source = targets[x, y]
+            if (x, y) not in target_trunk or not source or (source["x"], source["y"]) not in reference_hands:
+                continue
+            trunk_columns = [column for column, row in reference_trunk
+                             if row == source["y"] and (column, row) not in reference_hands]
+            if trunk_columns:
+                nearest = min(sorted(trunk_columns), key=lambda column: abs(column - source["x"]))
+                targets[x, y] = {"x": nearest, "y": source["y"]}
+    return [{"source": {"x": x, "y": y}, "target": targets[x, y]} for y in range(32) for x in range(32)]
+
+
+def long_hem_map(mapping, target, direction):
+    first = min(y for x, y in body_mask(target, ("groin_m",), direction, 32, 32))
+    last = min(y for x, y in body_mask(target, ("l_foot", "r_foot"), direction, 32, 32)) - 1
+    targets = {(pair["source"]["x"], pair["source"]["y"]): pair["target"] for pair in mapping}
+    lifted = []
+    for y in range(32):
+        source_y = y
+        if y > last:
+            source_y = None
+        elif y > first:
+            source_y = first + math.floor((y - first) * (31 - first) / (last - first) + 0.5)
+        for x in range(32):
+            target = targets[x, source_y] if source_y is not None else None
+            lifted.append({"source": {"x": x, "y": y}, "target": target})
+    return lifted
 
 
 def hand_map(reference, target, direction):

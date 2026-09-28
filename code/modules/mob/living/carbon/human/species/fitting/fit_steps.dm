@@ -199,6 +199,55 @@
 			var/from_x = reference_columns[1 + round((column - 1) * (length(reference_columns) - 1) / max(1, length(target_columns) - 1), 1)]
 			context.working[index] = context.source[context.width * (from_y - 1) + from_x]
 
+/datum/fit_step/close_hand_gaps
+	var/list/target_hand_masks
+
+/datum/fit_step/close_hand_gaps/apply(datum/fit_context/context)
+	if(!length(context.pixel_map))
+		return
+	var/datum/species_fit/profile = context.profile
+	if(!target_hand_masks)
+		target_hand_masks = list()
+		for(var/fit_dir in GLOB.cardinal)
+			target_hand_masks["[fit_dir]"] = profile.build_mask(profile.target_sheet, list("l_hand", "r_hand"), fit_dir)
+	var/list/target_hands = target_hand_masks["[context.fit_dir]"]
+	var/list/snapshot = context.working.Copy()
+	var/list/visited = new(length(snapshot))
+	for(var/start in 1 to length(snapshot))
+		if(snapshot[start] || visited[start])
+			continue
+		var/list/gap = list(start)
+		visited[start] = TRUE
+		var/enclosed = TRUE
+		var/position = 1
+		while(position <= length(gap))
+			var/index = gap[position++]
+			var/x = (index - 1) % context.width + 1
+			var/y = round((index - 1) / context.width) + 1
+			if(x == 1 || x == context.width || y == 1 || y == context.height)
+				enclosed = FALSE
+			for(var/neighbour in list(x > 1 ? index - 1 : 0, x < context.width ? index + 1 : 0, index - context.width, index + context.width))
+				if(neighbour < 1 || neighbour > length(snapshot) || visited[neighbour] || snapshot[neighbour])
+					continue
+				visited[neighbour] = TRUE
+				gap += neighbour
+		if(!enclosed)
+			continue
+		var/list/peeking = list()
+		for(var/index in gap)
+			if(target_hands[index])
+				peeking += index
+		if(!length(peeking) || length(peeking) > FIT_HAND_PEEK_PIXELS)
+			continue
+		for(var/index in peeking)
+			var/x = (index - 1) % context.width + 1
+			for(var/distance in 1 to FIT_COVER_PART_REACH)
+				var/left = x - distance >= 1 ? snapshot[index - distance] : null
+				var/right = x + distance <= context.width ? snapshot[index + distance] : null
+				if(left || right)
+					context.working[index] = left || right
+					break
+
 /datum/fit_step/proc/clear_added(datum/fit_context/context, list/mask)
 	for(var/index in 1 to length(mask))
 		if(mask[index] && !context.source[index])
