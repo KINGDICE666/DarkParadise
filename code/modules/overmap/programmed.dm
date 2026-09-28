@@ -534,13 +534,19 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		return FALSE
 	return host.sector != vessel.sector
 
+/datum/overmap_programmed_mission/proc/route_relay()
+	RETURN_TYPE(/obj/overmap/entity/hyperrelay)
+	return vessel.nearest_hyperrelay(resolved_dest_host()?.sector)
+
+/datum/overmap_programmed_mission/proc/on_route_relay()
+	var/obj/overmap/entity/hyperrelay/relay = route_relay()
+	return relay && vessel.hyperrelay_on_tile() == relay
+
 /datum/overmap_programmed_mission/proc/nav_turf()
 	if(!vessel.sector)
 		return null
 	if(needs_hyperrelay())
-		if(vessel.hyperrelay_on_tile())
-			return vessel.get_overmap_turf()
-		return vessel.nearest_hyperrelay()?.get_overmap_turf()
+		return route_relay()?.get_overmap_turf()
 	var/turf/dest = resolved_dest_host()?.get_overmap_turf()
 	var/turf/here = vessel.get_overmap_turf()
 	if(!dest || !here || dest.z != here.z)
@@ -577,10 +583,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		return
 	var/turf/here = vessel.get_overmap_turf()
 	if(needs_hyperrelay())
-		if(vessel.hyperrelay_on_tile() && OVERMAP_SPEED_STOPPED(vessel.get_speed()))
+		if(on_route_relay() && OVERMAP_SPEED_STOPPED(vessel.get_speed()))
 			on_overmap_arrived()
 			return
-		var/turf/relay_turf = vessel.nearest_hyperrelay()?.get_overmap_turf()
+		var/turf/relay_turf = route_relay()?.get_overmap_turf()
 		if(!relay_turf || !here || relay_turf.z != here.z)
 			return
 		if(vessel.flight)
@@ -601,7 +607,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	if(phase != OVERMAP_PROG_FLY && phase != OVERMAP_PROG_JUMP)
 		return
 	if(needs_hyperrelay())
-		if(!vessel.hyperrelay_on_tile())
+		if(!on_route_relay())
 			phase = OVERMAP_PROG_FLY
 			return
 		phase = OVERMAP_PROG_JUMP
@@ -618,7 +624,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		phase = OVERMAP_PROG_FLY
 		try_fly()
 		return
-	if(!needs_hyperrelay() || !vessel.hyperrelay_on_tile())
+	if(!needs_hyperrelay() || !on_route_relay())
 		phase = OVERMAP_PROG_FLY
 		return
 	if(vessel.begin_hyperrelay_jump(TRUE) == TRUE)
@@ -673,22 +679,40 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	vessel.announce_programmed("[text] Повторная стыковка через 15 секунд.")
 	vessel.announce_sensor_event("[vessel.get_overmap_display_name()]: стыковка не удалась. [text] Повтор через 15 секунд.", "dock_fail")
 
-/obj/overmap/entity/proc/nearest_hyperrelay()
+/obj/overmap/entity/proc/nearest_hyperrelay(datum/overmap_sector/goal_sector)
 	RETURN_TYPE(/obj/overmap/entity/hyperrelay)
-	if(!sector)
+	if(!sector || !goal_sector || goal_sector == sector)
 		return null
+	var/list/hops_to_goal = list()
+	hops_to_goal[goal_sector] = 0
+	var/list/queue = list(goal_sector)
+	while(length(queue))
+		var/datum/overmap_sector/current = popleft(queue)
+		for(var/obj/overmap/overmap_object as anything in current.objects)
+			var/obj/overmap/entity/hyperrelay/relay = overmap_object
+			if(!istype(relay) || QDELETED(relay.paired) || !relay.paired.sector)
+				continue
+			if(!isnull(hops_to_goal[relay.paired.sector]))
+				continue
+			hops_to_goal[relay.paired.sector] = hops_to_goal[current] + 1
+			queue += relay.paired.sector
 	var/turf/here = get_overmap_turf()
 	var/obj/overmap/entity/hyperrelay/best
+	var/best_hops = INFINITY
 	var/best_dist = INFINITY
 	for(var/obj/overmap/overmap_object as anything in sector.objects)
 		var/obj/overmap/entity/hyperrelay/relay = overmap_object
 		if(!istype(relay) || QDELETED(relay.paired))
 			continue
+		var/hops = hops_to_goal[relay.paired.sector]
+		if(isnull(hops))
+			continue
 		var/turf/there = relay.get_overmap_turf()
 		if(!there || !here)
 			continue
 		var/dist = max(abs(here.x - there.x), abs(here.y - there.y))
-		if(dist < best_dist)
+		if(hops < best_hops || (hops == best_hops && dist < best_dist))
+			best_hops = hops
 			best_dist = dist
 			best = relay
 	return best
@@ -732,19 +756,14 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		. += 90 SECONDS
 		return
 	if(sector && host.sector && sector != host.sector)
-		var/obj/overmap/entity/hyperrelay/relay = nearest_hyperrelay()
+		var/obj/overmap/entity/hyperrelay/relay = nearest_hyperrelay(host.sector)
 		var/turf/relay_turf = relay?.get_overmap_turf()
 		if(relay_turf)
 			. += estimate_overmap_leg(here, relay_turf, sector)
 		if(mission?.phase != OVERMAP_PROG_JUMP)
 			. += OVERMAP_HYPERRELAY_JUMP_TIME
 		var/turf/dest = host.get_overmap_turf()
-		var/turf/other_relay
-		for(var/obj/overmap/overmap_object as anything in host.sector?.objects)
-			var/obj/overmap/entity/hyperrelay/pair = overmap_object
-			if(istype(pair))
-				other_relay = pair.get_overmap_turf()
-				break
+		var/turf/other_relay = relay?.paired?.get_overmap_turf()
 		if(dest && other_relay)
 			. += estimate_overmap_leg(other_relay, dest, host.sector)
 		. += 8 SECONDS
