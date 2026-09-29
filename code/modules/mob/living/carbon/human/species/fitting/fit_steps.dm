@@ -521,7 +521,7 @@
 		var/list/reference_box = mask_box(reference, profile.width)
 		var/list/target_box = mask_box(target, profile.width)
 		var/offset_x = target_box[1] - reference_box[1]
-		var/offset_y = target_box[2] - reference_box[2]
+		var/offset_y = seat_row(target, profile) - seat_row(reference, profile)
 		var/split_x = 0
 		if(target_box[3] - target_box[1] == reference_box[3] - reference_box[1] + 1)
 			split_x = (reference_box[1] + reference_box[3]) / 2
@@ -537,6 +537,16 @@
 			if(x < 1 || x > profile.width || y < 1 || y > profile.height || !reference[profile.width * (y - 1) + x])
 				uncovered[index] = TRUE
 		uncovered_masks[key] = uncovered
+
+/datum/fit_step/head_offset/proc/seat_row(list/mask, datum/species_fit/profile)
+	for(var/y in profile.height to 1 step -1)
+		var/row_width = 0
+		for(var/x in 1 to profile.width)
+			if(mask[profile.width * (y - 1) + x])
+				row_width++
+		if(row_width >= FIT_HEADWEAR_SEAT_WIDTH)
+			return y
+	return 0
 
 /datum/fit_step/proc/mask_box(list/mask, width)
 	var/first_x = INFINITY
