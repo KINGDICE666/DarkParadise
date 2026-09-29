@@ -148,6 +148,8 @@
 	var/bodyflags = 0
 	var/list/worn_sheets
 	var/fit_profile
+	var/inhand_offset_y = 0
+	var/inhand_scale = 1
 
 	var/blood_color = BLOOD_COLOR_RED
 	var/flesh_color = "#d1aa2e" //Gold.

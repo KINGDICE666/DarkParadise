@@ -865,28 +865,26 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 		return
 
 	var/mob/user = loc
-	var/is_mob = istype(user)
+	var/blood_state = "shoes"
+	if(istype(user) && !user.has_both_feet())
+		if(user.has_left_foot())
+			blood_state = "shoe_l"
+		else if(user.has_right_foot())
+			blood_state = "shoe_r"
+		else
+			return
 
-	var/blood_overlay
-
-	// We don't want overlays to lay one on another, so we separate conditions with two and one feet
-	if(!is_mob || is_mob && user.has_both_feet())
-		blood_overlay = get_blood_overlay("shoes")
-		if(blood_overlay)
-			. += blood_overlay
+	var/mutable_appearance/blood_overlay = get_blood_overlay(blood_state)
+	if(!blood_overlay)
 		return
-
-	if(user.has_left_foot())
-		blood_overlay = get_blood_overlay("shoe_l")
-		if(blood_overlay)
-			. += blood_overlay
-		return
-
-	if(user.has_right_foot())
-		blood_overlay = get_blood_overlay("shoe_r")
-		if(blood_overlay)
-			. += blood_overlay
-		return
+	if(!draw_target.icon_state && istype(user) && blood_overlay.icon == 'icons/mob/human_races/masks/blood_human.dmi')
+		var/icon/fitted = get_fitted_worn_icon(user.dna?.species, src, blood_overlay.icon, blood_overlay.icon_state)
+		if(fitted)
+			var/icon/clipped = new /icon(fitted)
+			clipped.AddAlphaMask(icon(draw_target.icon, draw_target.icon_state))
+			blood_overlay.icon = clipped
+			blood_overlay.icon_state = ""
+	. += blood_overlay
 
 //Suit
 /obj/item/clothing/suit

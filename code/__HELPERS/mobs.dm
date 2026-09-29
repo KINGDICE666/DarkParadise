@@ -856,3 +856,16 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		sleep(0.1 SECONDS)
 	if(set_original_dir)
 		target_movable.setDir(original_dir)
+
+/proc/passtable_on(target, source)
+	var/mob/living/living_target = target
+	if(!HAS_TRAIT(living_target, TRAIT_PASSTABLE) && living_target.pass_flags & PASSTABLE)
+		ADD_TRAIT(living_target, TRAIT_PASSTABLE, INNATE_TRAIT)
+	ADD_TRAIT(living_target, TRAIT_PASSTABLE, source)
+	living_target.pass_flags |= PASSTABLE
+
+/proc/passtable_off(target, source)
+	var/mob/living/living_target = target
+	REMOVE_TRAIT(living_target, TRAIT_PASSTABLE, source)
+	if(!HAS_TRAIT(living_target, TRAIT_PASSTABLE))
+		living_target.pass_flags &= ~PASSTABLE

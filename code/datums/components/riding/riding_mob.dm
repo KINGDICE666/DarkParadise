@@ -1,3 +1,6 @@
+#define SMALL_RIDER_SHOVE_OFF_CHANCE 30
+#define SMALL_RIDER_EXTRA_HEIGHT 4
+
 // For any mob that can be ridden
 
 /datum/component/riding/creature
@@ -178,7 +181,8 @@
 /datum/component/riding/creature/human/Initialize(mob/living/riding_mob, force = FALSE, ride_check_flags = NONE, potion_boost = FALSE)
 	. = ..()
 	var/mob/living/carbon/human/human_parent = parent
-	human_parent.add_movespeed_modifier(/datum/movespeed_modifier/human_carry)
+	if(!HAS_TRAIT(riding_mob, TRAIT_SMALL_MOB))
+		human_parent.add_movespeed_modifier(/datum/movespeed_modifier/human_carry)
 
 	if(ride_check_flags & RIDER_NEEDS_ARMS) // piggyback
 		human_parent.buckle_lying = 0
@@ -218,9 +222,21 @@
 /datum/component/riding/creature/human/vehicle_mob_unbuckle(datum/source, mob/living/former_rider, force = FALSE)
 	unequip_buckle_inhands(parent)
 	var/mob/living/carbon/human/H = parent
-	H.remove_movespeed_modifier(/datum/movespeed_modifier/human_carry)
+	if(!HAS_TRAIT(former_rider, TRAIT_SMALL_MOB))
+		H.remove_movespeed_modifier(/datum/movespeed_modifier/human_carry)
+	UnregisterSignal(former_rider, COMSIG_HUMAN_DISARM_HIT)
 	REMOVE_TRAIT(former_rider, TRAIT_UNDENSE, VEHICLE_TRAIT)
 	return ..()
+
+/datum/component/riding/creature/human/post_vehicle_mob_buckle(atom/movable/ridden, atom/movable/rider)
+	. = ..()
+	if(HAS_TRAIT(rider, TRAIT_SMALL_MOB))
+		RegisterSignal(rider, COMSIG_HUMAN_DISARM_HIT, PROC_REF(on_small_rider_shoved))
+
+/datum/component/riding/creature/human/proc/on_small_rider_shoved(mob/living/carbon/human/source, mob/living/carbon/human/attacker, mob/living/carbon/human/target)
+	SIGNAL_HANDLER
+	if(source.buckled == parent && prob(SMALL_RIDER_SHOVE_OFF_CHANCE))
+		force_dismount(source)
 
 /// If the carrier shoves the person they're carrying, force the carried mob off
 /datum/component/riding/creature/human/proc/on_host_unarmed_melee(mob/living/source, atom/target, proximity, modifiers)
@@ -266,10 +282,12 @@
 
 /datum/component/riding/creature/human/get_offsets(pass_index)
 	var/mob/living/carbon/human/H = parent
+	var/mob/living/rider = H.buckled_mobs[pass_index]
+	var/y_offset_bonus = rider && HAS_TRAIT(rider, TRAIT_SMALL_MOB) ? SMALL_RIDER_EXTRA_HEIGHT : 0
 	if(H.buckle_lying)
 		return list(TEXT_NORTH = list(0, 6), TEXT_SOUTH = list(0, 6), TEXT_EAST = list(0, 6), TEXT_WEST = list(0, 6))
 	else
-		return list(TEXT_NORTH = list(0, 6), TEXT_SOUTH = list(0, 6), TEXT_EAST = list(-6, 4), TEXT_WEST = list(6, 4))
+		return list(TEXT_NORTH = list(0, 6 + y_offset_bonus), TEXT_SOUTH = list(0, 6 + y_offset_bonus), TEXT_EAST = list(-6, 4 + y_offset_bonus), TEXT_WEST = list(6, 4 + y_offset_bonus))
 
 /datum/component/riding/creature/human/force_dismount(mob/living/dismounted_rider)
 	var/atom/movable/AM = parent
@@ -302,3 +320,6 @@
 	if(!robot.selected_skin)
 		return ..()
 	return robot.selected_skin.get_riding_offsets()
+
+#undef SMALL_RIDER_SHOVE_OFF_CHANCE
+#undef SMALL_RIDER_EXTRA_HEIGHT

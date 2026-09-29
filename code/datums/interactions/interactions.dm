@@ -1,6 +1,7 @@
 #define INTERACTION_CATEGORY_DEFAULT ""
 #define INTERACTION_CATEGORY_HANDS "Руки"
 #define INTERACTION_CATEGORY_MOUTH "Язык"
+#define INTERACTION_CATEGORY_SMALL "Маленькость"
 
 #define INTERACTION_CHECH_HANDS (1<<0)
 #define INTERACTION_CHECH_ADJACENT (1<<1)
@@ -353,9 +354,39 @@
 	else
 		user.custom_emote(message = "особо тщательно лизнул[GEND_A_O_I(user)] [target].")
 
+/datum/interaction/small
+	abstract_type = /datum/interaction/small
+	category = INTERACTION_CATEGORY_SMALL
+	intaraction_flags = INTERACTION_CHECH_ADJACENT|INTERACTION_CHECH_INCAPITATED
+
+/datum/interaction/small/request_pick_up
+	action = "Попроситься на ручки"
+
+/datum/interaction/small/request_pick_up/is_available(mob/living/carbon/human/user, mob/living/carbon/human/target, cached_checks)
+	. = ..()
+	if(!.)
+		return FALSE
+	return user.can_request_pick_up_from(target)
+
+/datum/interaction/small/request_pick_up/execute(mob/living/carbon/human/user, mob/living/carbon/human/target)
+	user.offer_self_pick_up(target)
+
+/datum/interaction/small/jump_on_back
+	action = "Запрыгнуть на спину"
+
+/datum/interaction/small/jump_on_back/is_available(mob/living/carbon/human/user, mob/living/carbon/human/target, cached_checks)
+	. = ..()
+	if(!.)
+		return FALSE
+	return user.can_jump_on_back_of(target)
+
+/datum/interaction/small/jump_on_back/execute(mob/living/carbon/human/user, mob/living/carbon/human/target)
+	user.try_jump_on_back(target)
+
 #undef INTERACTION_CATEGORY_DEFAULT
 #undef INTERACTION_CATEGORY_HANDS
 #undef INTERACTION_CATEGORY_MOUTH
+#undef INTERACTION_CATEGORY_SMALL
 
 #undef INTERACTION_CHECH_HANDS
 #undef INTERACTION_CHECH_ADJACENT
