@@ -143,8 +143,3 @@
 	if(pad.overmap_host_uid)
 		return pad.overmap_host_uid == host.UID()
 	return host.dock_host?.matches_pad(pad)
-
-/obj/overmap/entity/proc/allows_custom_landing(obj/overmap/entity/host)
-	if(!host)
-		host = get_dock_host()
-	return host?.dock_host?.allow_custom_landing

@@ -134,9 +134,11 @@ export const OvermapRadar = (props: {
               fontSize={labelSize}
               textAnchor="middle"
             >
-              {`${contact.name} · ${contact.distance} м · ${
-                (contact.closing || 0) > 0 ? '▼' : '▲'
-              }${Math.abs(contact.closing || 0)} м/с`}
+              {`${contact.name} · ${contact.distance} м${
+                Math.abs(contact.closing || 0) >= 1
+                  ? ` · ${(contact.closing || 0) > 0 ? 'сближается' : 'удаляется'} ${Math.abs(contact.closing || 0)} м/с`
+                  : ''
+              }`}
             </text>
           ))}
       </svg>

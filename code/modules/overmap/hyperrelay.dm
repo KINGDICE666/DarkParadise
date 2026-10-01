@@ -228,10 +228,11 @@
 	shuttle_visible_message(span_warning("Корпус дёргается и снова становится неподвижным."))
 	programmed_mission?.try_fly()
 
-/obj/overmap/entity/proc/play_shuttle_sound(soundfile)
+/obj/overmap/entity/proc/play_shuttle_sound(soundfile, volume = 100)
 	if(!soundfile || !shuttle)
 		return
 	var/sound/clip = sound(soundfile)
+	clip.volume = volume
 	if(shuttle.areaInstance)
 		SEND_SOUND(shuttle.areaInstance, clip)
 	for(var/area/place as anything in shuttle.shuttle_areas)

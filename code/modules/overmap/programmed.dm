@@ -397,7 +397,6 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	programmed_emag_ready = world.time + OVERMAP_PROGRAMMED_EMAG_CD
 	if(flight)
 		flight.cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE)
-		flight.clear_held_thrust()
 		flight.held_brake = FALSE
 		flight.engines_state = TRUE
 	halted = FALSE

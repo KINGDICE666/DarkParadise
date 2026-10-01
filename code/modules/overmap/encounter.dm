@@ -31,6 +31,15 @@
 		max_y = max(max_y, hull_turf.y)
 	hull_center_x = (min_x + max_x) / 2
 	hull_center_y = (min_y + max_y) / 2
+	hull_edge = list()
+	var/spread = 0
+	for(var/turf/hull_turf as anything in hull_turfs)
+		spread += (hull_turf.x - hull_center_x) ** 2 + (hull_turf.y - hull_center_y) ** 2
+		for(var/direction in GLOB.cardinal)
+			if(!hull_turfs[get_step(hull_turf, direction)])
+				hull_edge += hull_turf
+				break
+	hull_inertia = max(spread / max(length(hull_turfs), 1), 1)
 	hull_z = shuttle.z
 	hull_collars = list()
 	for(var/obj/machinery/door/airlock/external/docking/door as anything in overmap_shuttle?.shuttle_collars())
@@ -67,6 +76,7 @@
 	SSovermap.flight_reservations -= flight_reservation
 	flight_reservation = null
 	hull_turfs = null
+	hull_edge = null
 	hull_collars = null
 	radar_shape = null
 	flight_bounds = null
@@ -112,16 +122,22 @@
 				best_distance = distance
 				. = list(own, theirs)
 
+/obj/overmap/entity/proc/dockable_ship()
+	RETURN_TYPE(/obj/overmap/entity)
+	if(docked_ship)
+		return
+	for(var/obj/overmap/entity/other as anything in neighbor_proxies)
+		if(relative_speed(other) <= OVERMAP_SHIP_DOCK_SPEED && find_dock_pair(other))
+			return other
+
 /obj/overmap/entity/proc/dock_to_nearest_ship()
 	if(docked_ship)
 		return "Корабль уже пристыкован."
-	for(var/obj/overmap/entity/other as anything in neighbor_proxies)
-		if(relative_speed(other) > OVERMAP_SHIP_DOCK_SPEED)
-			continue
+	var/obj/overmap/entity/other = dockable_ship()
+	if(other)
 		var/list/pair = find_dock_pair(other)
-		if(pair)
-			dock_to_ship(other, pair[1], pair[2])
-			return TRUE
+		dock_to_ship(other, pair[1], pair[2])
+		return TRUE
 	return "Рядом нет подходящего шлюза. Подведите стыковочный шлюз вплотную к шлюзу другого корабля и уравняйте скорость."
 
 /obj/overmap/entity/proc/relative_speed(obj/overmap/entity/other)
@@ -152,6 +168,7 @@
 	var/world_x = door_world[1] - (local_x * cos(new_facing) + local_y * sin(new_facing))
 	var/world_y = door_world[2] - (local_y * cos(new_facing) - local_x * sin(new_facing))
 	set_world_position(world_x, world_y)
+	remember_pose()
 	var/list/in_host = host.world_to_hull(world_x, world_y)
 	docked_ship = host
 	dock_hull_x = in_host[1]
@@ -210,20 +227,18 @@
 /obj/effect/abstract/dock_seal/CanAtmosPass(direction)
 	return FALSE
 
-/obj/overmap/entity/proc/world_to_hull(world_x, world_y)
-	var/delta_x = world_x - get_world_x()
-	var/delta_y = world_y - get_world_y()
-	var/facing = get_facing()
+/obj/overmap/entity/proc/world_to_hull(world_x, world_y, origin_x = get_world_x(), origin_y = get_world_y(), facing = get_facing())
+	var/delta_x = world_x - origin_x
+	var/delta_y = world_y - origin_y
 	return list(hull_center_x + delta_x * cos(facing) - delta_y * sin(facing), hull_center_y + delta_x * sin(facing) + delta_y * cos(facing))
 
-/obj/overmap/entity/proc/hull_to_world(hull_x, hull_y)
+/obj/overmap/entity/proc/hull_to_world(hull_x, hull_y, origin_x = get_world_x(), origin_y = get_world_y(), facing = get_facing())
 	var/local_x = hull_x - hull_center_x
 	var/local_y = hull_y - hull_center_y
-	var/facing = get_facing()
-	return list(get_world_x() + local_x * cos(facing) + local_y * sin(facing), get_world_y() - local_x * sin(facing) + local_y * cos(facing))
+	return list(origin_x + local_x * cos(facing) + local_y * sin(facing), origin_y - local_x * sin(facing) + local_y * cos(facing))
 
-/obj/overmap/entity/proc/hull_turf_at(world_x, world_y)
-	var/list/spot = world_to_hull(world_x, world_y)
+/obj/overmap/entity/proc/hull_turf_at(world_x, world_y, origin_x = get_world_x(), origin_y = get_world_y(), facing = get_facing())
+	var/list/spot = world_to_hull(world_x, world_y, origin_x, origin_y, facing)
 	var/turf/hull_turf = locate(FLOOR(spot[1] + 0.5, 1), FLOOR(spot[2] + 0.5, 1), hull_z)
 	return hull_turfs[hull_turf] ? hull_turf : null
 

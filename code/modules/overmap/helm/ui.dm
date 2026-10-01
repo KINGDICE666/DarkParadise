@@ -51,19 +51,27 @@
 	data["y"] = vessel.sector && here ? vessel.sector.coord_y(here) : here?.y
 	data["sector_name"] = vessel.sector?.name
 	data["sector_size"] = vessel.sector?.size || OVERMAP_DEFAULT_SIZE
+	if(vessel.sector && here)
+		data["self_pos"] = list(vessel.sector.coord_x(here) + vessel.position[1], vessel.sector.coord_y(here) + vessel.position[2])
 	var/speed = vessel.get_speed()
 	data["speed"] = round(OVERMAP_DISPLAY_SPEED(speed), 0.01)
-	data["speed_slow"] = speed < SHIP_SPEED_SLOW
-	data["speed_fast"] = speed > SHIP_SPEED_FAST
 	data["heading"] = vessel.get_heading_angle()
 	data["facing"] = round(vessel.flight?.facing || 0)
+	data["phase"] = flight_phase()
 	data["piloting"] = vessel.flight?.pilot == user
 	data["pilot_name"] = vessel.flight?.pilot?.name
 	data["ship_docked_to"] = vessel.docked_ship?.get_overmap_display_name()
 	data["ship_guests"] = length(vessel.docked_guests)
-	data["ship_neighbors"] = length(vessel.neighbor_proxies)
-	data["jumping"] = vessel.is_jumping()
+	data["ship_dock_ready"] = vessel.dockable_ship()?.get_overmap_display_name()
 	data["can_jump"] = vessel.in_free_flight()
+	data["local_space"] = !!vessel.local_space
+	if(vessel.jump_spool_end)
+		data["jump_left"] = round((vessel.jump_spool_end - world.time) / (1 SECONDS))
+		data["jump_progress"] = round(100 * (1 - (vessel.jump_spool_end - world.time) / OVERMAP_JUMP_SPOOL))
+		data["jump_spooling"] = TRUE
+	else if(vessel.jump_start_time)
+		data["jump_left"] = round((vessel.jump_start_time + vessel.jump_duration - world.time) / (1 SECONDS))
+		data["jump_progress"] = round(100 * (world.time - vessel.jump_start_time) / vessel.jump_duration)
 	data["radar_enabled"] = vessel.free_flight_view
 	if(vessel.free_flight_view)
 		data["radar_shapes"] = vessel.radar_shapes()
@@ -73,16 +81,10 @@
 		data["radar_world"] = list(vessel.get_world_x(), vessel.get_world_y())
 	data["accel"] = round(OVERMAP_DISPLAY_SPEED(vessel.get_effective_acceleration()), 0.01)
 	var/datum/component/overmap_flight/nav = vessel.flight
-	data["stick_x"] = nav?.held_thrust_nx
-	data["stick_y"] = nav?.held_thrust_ny
-	data["stick_power"] = round((nav?.held_thrust_power || 0) * 100)
 	data["can_steer"] = vessel.can_steer() && !vessel.is_overmap_jammed() && !vessel.is_programmed_locked()
 	data["autopilot"] = !!nav?.autopilot
-	data["dest_x"] = nav?.autopilot_x
-	data["dest_y"] = nav?.autopilot_y
 	data["max_speed"] = round(OVERMAP_DISPLAY_SPEED(nav?.cruise_speed || 0), 0.1)
 	data["engines_on"] = !!nav?.engines_state
-	data["thrusting"] = nav?.held_thrust_dir
 	data["braking"] = !!nav?.held_brake
 	data["thrust"] = vessel.get_total_thrust()
 	data["mass"] = vessel.vessel_mass
@@ -103,26 +105,27 @@
 	data["transponder"] = beacon && !(beacon.stat & (NOPOWER|BROKEN)) ? beacon.transponder_data() : null
 	data["map_revision"] = map_revision
 	data["helm_tab"] = helm_tab
-	data["eta"] = speed ? "[round(vessel.ETA() / 10)] с" : "N/A"
-	data["dest_range"] = null
-	data["dest_bearing"] = null
-	if(nav?.autopilot_x && nav.autopilot_y && here)
-		var/here_x = vessel.sector ? vessel.sector.coord_x(here) : here.x
-		var/here_y = vessel.sector ? vessel.sector.coord_y(here) : here.y
-		data["dest_range"] = max(abs(here_x - nav.autopilot_x), abs(here_y - nav.autopilot_y))
-		var/dx = nav.autopilot_x - here_x
-		var/dy = nav.autopilot_y - here_y
-		if(dx || dy)
-			data["dest_bearing"] = (round(ATAN2(dx, -dy), 1) + 450) % 360
+	var/turf/target = nav?.autopilot_x && nav.autopilot_y && vessel.sector?.get_turf_at(nav.autopilot_x, nav.autopilot_y)
+	if(target && here)
+		data["dest"] = list(nav.autopilot_x, nav.autopilot_y)
+		var/target_name = length(waypoints) && waypoints[1]
+		var/list/mark = target_name && waypoints[target_name]
+		data["dest_name"] = mark && mark["x"] == nav.autopilot_x && mark["y"] == nav.autopilot_y ? target_name : "Клетка [nav.autopilot_x]-[nav.autopilot_y]"
+		data["dest_range"] = max(abs(vessel.sector.coord_x(here) - nav.autopilot_x), abs(vessel.sector.coord_y(here) - nav.autopilot_y))
+		for(var/obj/overmap/entity/hyperrelay/relay in target)
+			if(relay.paired && vessel.contact_identified(relay))
+				data["dest_relay"] = relay.paired.sector?.name
+		if(vessel.in_free_flight())
+			var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
+			var/distance = sqrt((target.x * span - vessel.get_world_x()) ** 2 + (target.y * span - vessel.get_world_y()) ** 2)
+			data["dest_jump_time"] = round((OVERMAP_JUMP_SPOOL + max(OVERMAP_JUMP_MIN_TIME, distance / OVERMAP_JUMP_SPEED)) / (1 SECONDS))
 	data["is_shuttle"] = !!vessel.overmap_shuttle
 	data["is_pod"] = !!vessel.overmap_pod
 	data["can_undock"] = vessel.can_helm_undock()
 	data["can_physical_dock"] = vessel.can_helm_physical_dock()
 	data["can_edge_dock"] = vessel.can_helm_edge_dock()
-	data["can_custom_dock"] = vessel.can_helm_custom_dock()
 	data["docks"] = vessel.build_dock_list()
 	data["collars"] = vessel.build_collar_list()
-	data["shuttle_mode"] = vessel.get_shuttle_phase_text()
 	data["selected_dock"] = vessel.selected_dock_id
 	for(var/list/pad as anything in data["docks"])
 		if(pad["selected"] || pad["id"] == data["selected_dock"])
@@ -142,15 +145,6 @@
 	data["near_planet"] = FALSE
 	if(!data["at_station"] && SSovermap.lavaland_planet?.covers_turf(here))
 		data["near_planet"] = TRUE
-
-	var/obj/overmap/portal/portal = here ? locate(/obj/overmap/portal) in here : null
-	data["can_portal"] = !!portal && !vessel.overmap_pod && (vessel.status == OVERMAP_STATUS_OVERMAP || vessel.status == OVERMAP_STATUS_TRANSIT) && !vessel.is_moving() && !vessel.is_overmap_jammed()
-	data["can_hyperrelay"] = vessel.can_hyperrelay_jump()
-	data["dock_name"] = portal?.name
-	if(!portal)
-		var/obj/overmap/entity/hyperrelay/relay = vessel.hyperrelay_on_tile()
-		if(relay && vessel.contact_identified(relay))
-			data["dock_name"] = "Гипертранслятор"
 	data["map_jammed"] = vessel.is_overmap_jammed()
 
 	var/list/objects = list()
@@ -163,13 +157,18 @@
 			if(here && max(abs(here.x - object_turf.x), abs(here.y - object_turf.y)) > view_range)
 				continue
 			var/is_self = overmap_object == vessel
-			if(!is_self && !vessel.senses_object(overmap_object))
-				continue
-			if(!is_self && overmap_object.hidden_from_contacts)
-				continue
+			var/is_terrain = istype(overmap_object, /obj/overmap/planet) || istype(overmap_object, /obj/overmap/feature/hazard)
+			var/is_vessel = istype(overmap_object, /obj/overmap/entity/shuttle) || istype(overmap_object, /obj/overmap/entity/pod)
+			if(!is_self && !is_terrain)
+				if(!isturf(overmap_object.loc) || !vessel.senses_object(overmap_object))
+					continue
+				if(overmap_object.hidden_from_contacts && !is_vessel)
+					continue
 			var/identified = vessel.display_identified(overmap_object)
 			var/obj/overmap/entity/contact = overmap_object
 			var/is_entity = istype(contact)
+			var/obj/overmap/planet/planet = overmap_object
+			var/obj/overmap/entity/hyperrelay/relay = overmap_object
 			objects += list(list(
 				"name" = is_self || identified ? overmap_object.get_overmap_display_name() : OVERMAP_UNKNOWN_NAME,
 				"kind" = identified || is_self ? overmap_object.overmap_kind : "unknown",
@@ -184,8 +183,11 @@
 				"distress" = is_entity && contact.identity_distress,
 				"identified" = identified || is_self,
 				"docked_to" = is_entity ? contact.docked_to?.name : null,
+				"size" = istype(planet) ? planet.footprint : 1,
+				"leads_to" = istype(relay) && relay.paired && identified ? relay.paired.sector?.name : null,
 			))
 	data["objects"] = objects
+	data["view_range"] = view_range
 	var/list/saved_waypoints = list()
 	for(var/waypoint_name in preset_waypoints)
 		saved_waypoints += list(list(
@@ -215,7 +217,7 @@
 		to_chat(usr, span_warning("Прямое управление заблокировано поставщиком услуг."))
 		return TRUE
 
-	if(vessel.is_jumping() && (action in list("undock", "dock", "dock_edge", "dock_ship", "portal")))
+	if(vessel.is_jumping() && (action in list("undock", "dock", "dock_edge", "dock_ship")))
 		to_chat(usr, span_warning("Идёт гиперпрыжок."))
 		return TRUE
 
@@ -228,15 +230,6 @@
 			if(result != TRUE)
 				to_chat(usr, span_warning("[result]"))
 			. = TRUE
-		if("thrust")
-			var/direction = text2num(params["dir"])
-			if(direction && !vessel.set_held_thrust(direction))
-				to_chat(usr, span_warning("Судно не может маневрировать."))
-			. = TRUE
-		if("stick")
-			if(!vessel.set_held_vector(params["x"], params["y"], params["power"]))
-				to_chat(usr, span_warning("Судно не может маневрировать."))
-			return FALSE
 		if("take_helm")
 			var/datum/component/overmap_flight/nav = vessel.flight
 			if(!nav)
@@ -245,7 +238,7 @@
 				nav.release_pilot()
 			else if(nav.pilot)
 				to_chat(usr, span_warning("За штурвалом уже [nav.pilot.name]."))
-			else if(!isliving(usr) || !usr.Adjacent(src))
+			else if(!isliving(usr) || !can_pilot(usr))
 				to_chat(usr, span_warning("Нужно стоять у консоли."))
 			else if(!vessel.can_steer())
 				to_chat(usr, span_warning("Судно не может маневрировать."))
@@ -255,7 +248,7 @@
 				to_chat(usr, span_warning("Идёт гиперпрыжок."))
 			else
 				nav.take_pilot(usr, src)
-				to_chat(usr, span_notice("Вы за штурвалом. W и S — тяга вперёд и назад, A и D — поворот."))
+				to_chat(usr, span_notice("Вы за штурвалом. W и S — тяга, A и D — сдвиг вбок, Q и E — поворот, пробел — тормоз."))
 			. = TRUE
 		if("hyperjump")
 			var/jump_result = vessel.start_jump()
@@ -310,8 +303,17 @@
 				if(vessel.sector)
 					dest_x = clamp(dest_x, 1, vessel.sector.size)
 					dest_y = clamp(dest_y, 1, vessel.sector.size)
+				add_waypoint(params["name"], dest_x, dest_y)
 				vessel.set_autopilot(vessel.flight?.autopilot, dest_x, dest_y)
 				update_nav_marker()
+			. = TRUE
+		if("clear_dest")
+			waypoints.Cut()
+			if(vessel.flight)
+				vessel.flight.autopilot_x = null
+				vessel.flight.autopilot_y = null
+			vessel.set_autopilot(FALSE)
+			update_nav_marker()
 			. = TRUE
 		if("toggle_autopilot")
 			if(vessel.local_space)
@@ -394,23 +396,22 @@
 			else
 				vessel.set_selected_pad(OVERMAP_DOCK_ID_CUSTOM)
 			. = TRUE
-		if("portal")
-			var/turf/here = vessel.get_overmap_turf()
-			var/obj/overmap/portal/portal = here ? locate(/obj/overmap/portal) in here : null
-			var/result
-			if(portal)
-				result = vessel.dock_with(portal)
-			else
-				result = vessel.begin_hyperrelay_jump()
-			if(result != TRUE)
-				to_chat(usr, span_warning(portal ? "[result]" : "Прыжок недоступен."))
-			else if(portal)
-				to_chat(usr, span_notice("Прыжок через гипертранслятор выполнен."))
-			update_map_view(TRUE)
-			. = TRUE
 		if("relink")
 			link_vessel()
 			. = TRUE
+
+/obj/machinery/computer/helm/proc/flight_phase()
+	if(vessel.is_programmed_locked())
+		return "route"
+	if(vessel.is_jumping())
+		return "jump"
+	if(vessel.is_overmap_jammed())
+		return "relay"
+	if(vessel.can_helm_undock())
+		return "docked"
+	if(vessel.status == OVERMAP_STATUS_TRANSIT)
+		return "transit"
+	return "flight"
 
 /obj/machinery/computer/helm/emag_act(mob/user)
 	if(!vessel)

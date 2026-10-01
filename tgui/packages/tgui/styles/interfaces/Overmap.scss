@@ -321,12 +321,29 @@
   }
 }
 
+.OvermapKeys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2em 0.6em;
+  font-size: 0.85em;
+
+  > :nth-child(odd) {
+    color: #7ad0c4;
+    font-family: monospace;
+  }
+}
+
 .OvermapHelmSide__meta {
   font-size: 0.8em;
   color: #6e9098;
 }
 
 .OvermapMapSection {
+  .Section__rest {
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .Section__content {
     padding: 0;
     height: 100%;
@@ -422,51 +439,6 @@
   border-color: #ff6a6a;
 }
 
-.OvermapStick {
-  position: relative;
-  width: 116px;
-  height: 116px;
-  margin: 0 auto;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, rgba(20, 50, 56, 0.4) 0%, #08141a 62%),
-    repeating-radial-gradient(
-      circle at center,
-      rgba(122, 208, 196, 0.18) 0 1px,
-      transparent 1px 18px
-    );
-  border: 2px solid rgba(140, 220, 230, 0.45);
-  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.65);
-  cursor: crosshair;
-  user-select: none;
-}
-
-.OvermapStick--off {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.OvermapStick__headingWrap {
-  position: absolute;
-  inset: -8px;
-  pointer-events: none;
-}
-
-.OvermapStick__heading {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-top: 0;
-  border-bottom: 12px solid #e8f7fb;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  filter: drop-shadow(0 0 4px #7ad0c4);
-}
-
 .OvermapAlerts {
   display: flex;
   flex-wrap: wrap;
@@ -489,38 +461,6 @@
   .OvermapStat__value {
     font-size: 1.28em;
   }
-}
-
-.OvermapStick__ring {
-  position: absolute;
-  inset: 18%;
-  border: 1px dashed rgba(122, 208, 196, 0.28);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.OvermapStick__dead {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 20%;
-  height: 20%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  pointer-events: none;
-}
-
-.OvermapStick__knob {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #7ad0c4;
-  box-shadow: 0 0 8px #7ad0c4;
-  pointer-events: none;
 }
 
 .OvermapKey {
@@ -832,7 +772,6 @@
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 360px;
   background: radial-gradient(circle, rgba(20, 60, 70, 0.35), #030a0d 70%);
 }
 
@@ -889,4 +828,410 @@
   position: absolute;
   right: 0.5em;
   bottom: 0.5em;
+}
+
+.OvermapHelm {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  gap: 0.5em;
+  padding: 0.5em;
+
+  .Button {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.9em;
+  }
+}
+
+.OvermapHelm__view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid rgba(110, 190, 210, 0.22);
+  background: rgba(4, 12, 16, 0.72);
+}
+
+.OvermapHelm__viewBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.35em 0.5em;
+  border-bottom: 1px solid rgba(110, 190, 210, 0.22);
+}
+
+.OvermapViewSwitch {
+  display: flex;
+  gap: 0.25em;
+}
+
+.OvermapHelm__viewTitle {
+  font-weight: bold;
+  color: #e8f7fb;
+}
+
+.OvermapHelm__viewHint {
+  margin-left: auto;
+  font-size: 0.85em;
+  color: #7aa3ad;
+}
+
+.OvermapHelm__screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.OvermapHelm__side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: 300px;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.OvermapHelm__status,
+.OvermapHelm__actions,
+.OvermapHelm__target,
+.OvermapHelm__places {
+  border: 1px solid rgba(110, 190, 210, 0.22);
+  background: rgba(4, 12, 16, 0.72);
+  padding: 0.5em 0.6em;
+}
+
+.OvermapHelm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.OvermapHelm__statusTitle {
+  font-size: 1.15em;
+  font-weight: bold;
+  color: #e8f7fb;
+}
+
+.OvermapHelm__statusHint {
+  margin-top: 0.2em;
+  font-size: 0.9em;
+  color: #9fc3cc;
+}
+
+.OvermapHelm__gauges {
+  display: flex;
+  gap: 1.2em;
+  margin-top: 0.45em;
+  font-size: 1.2em;
+  color: #e8f7fb;
+  font-family: Consolas, 'Courier New', monospace;
+
+  span {
+    display: block;
+    font-family: inherit;
+    font-size: 0.6em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7aa3ad;
+  }
+}
+
+.OvermapHelm__primary {
+  padding: 0.35em 0.5em;
+  font-size: 1em !important;
+  font-weight: bold;
+}
+
+.OvermapHelm__target {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  border-color: rgba(255, 196, 92, 0.45);
+}
+
+.OvermapHelm__targetHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+.OvermapHelm__targetName {
+  font-size: 1.05em;
+  font-weight: bold;
+  color: #ffd58a;
+}
+
+.OvermapHelm__caption {
+  display: block;
+  margin-bottom: 0.25em;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7aa3ad;
+}
+
+.OvermapHelm__places {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.OvermapHelm__placesList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.OvermapHelm__systemsButton {
+  margin-left: 0.5em;
+}
+
+.OvermapHelm__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 8, 0.7);
+}
+
+.OvermapHelm__overlayCard {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, 92%);
+  max-height: 92%;
+  border: 1px solid rgba(180, 210, 220, 0.45);
+  background: #08141a;
+
+  .Button {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.9em;
+  }
+}
+
+.OvermapHelm__overlayHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em 0.7em;
+  border-bottom: 1px solid rgba(110, 190, 210, 0.22);
+}
+
+.OvermapHelm__overlayBody {
+  padding: 0.6em 0.7em;
+  overflow-y: auto;
+}
+
+.OvermapLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1em;
+  padding: 0.3em 0.5em;
+  border-top: 1px solid rgba(110, 190, 210, 0.22);
+  font-size: 0.82em;
+  color: #9fc3cc;
+
+  i {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    margin-right: 0.2em;
+    vertical-align: -0.05em;
+  }
+}
+
+.OvermapLegend__self {
+  background: #5dffd9;
+  clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%);
+}
+
+.OvermapLegend__station {
+  background: #8ec8d6;
+}
+
+.OvermapLegend__ship {
+  background: #e3c56e;
+  clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%);
+}
+
+.OvermapLegend__relay {
+  background: #c58cff;
+  transform: rotate(45deg) scale(0.8);
+}
+
+.OvermapLegend__hazard {
+  border-radius: 50%;
+  background: rgba(255, 80, 70, 0.55);
+  border: 1px solid #ff5a4e;
+}
+
+.OvermapLegend__sensors {
+  border-radius: 50%;
+  border: 1px dashed rgba(93, 255, 217, 0.6);
+}
+
+.OvermapSector {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.OvermapSector__space {
+  fill: #08151c;
+}
+
+.OvermapSector__grid,
+.OvermapSector__grid--major {
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__grid {
+  stroke: rgba(122, 208, 196, 0.07);
+}
+
+.OvermapSector__grid--major {
+  stroke: rgba(122, 208, 196, 0.2);
+}
+
+.OvermapSector__coord {
+  fill: #4f6f77;
+}
+
+.OvermapSector__sensors {
+  fill: rgba(93, 255, 217, 0.04);
+  stroke: rgba(93, 255, 217, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__planet {
+  fill: #5a1a12;
+  stroke: #d9573c;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__label,
+.OvermapSector__destLabel,
+.OvermapSector__selfLabel {
+  paint-order: stroke;
+  stroke: #04090c;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.OvermapSector__label {
+  fill: #d8e6ea;
+}
+
+.OvermapSector__label--planet {
+  fill: #ffb19c;
+  font-weight: bold;
+}
+
+.OvermapSector__label--sos {
+  fill: #ff7a6e;
+  font-weight: bold;
+}
+
+.OvermapSector__marker {
+  cursor: pointer;
+}
+
+.OvermapSector__hit {
+  fill: transparent;
+}
+
+.OvermapSector__hoverRing {
+  fill: rgba(255, 255, 255, 0.08);
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__glyph {
+  stroke: #04090c;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__glyph--hollow {
+  fill: none;
+  stroke-width: 2;
+}
+
+.OvermapSector__unknown {
+  fill: #d8e6ea;
+  pointer-events: none;
+}
+
+.OvermapSector__hazard {
+  fill: rgba(255, 80, 70, 0.35);
+  stroke: #ff5a4e;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__route {
+  stroke: #ffc45c;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.OvermapSector__dest {
+  pointer-events: none;
+
+  circle,
+  line {
+    fill: none;
+    stroke: #ffc45c;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.OvermapSector__destLabel {
+  fill: #ffd58a;
+  font-weight: bold;
+}
+
+.OvermapSector__self {
+  pointer-events: none;
+
+  polygon {
+    fill: #5dffd9;
+    stroke: #04090c;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.OvermapSector__selfHalo {
+  fill: rgba(93, 255, 217, 0.14);
+  stroke: rgba(93, 255, 217, 0.6);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapSector__selfLabel {
+  fill: #5dffd9;
+  font-weight: bold;
 }

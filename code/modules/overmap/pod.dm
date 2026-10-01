@@ -45,6 +45,9 @@
 		return UI_CLOSE
 	return UI_INTERACTIVE
 
+/obj/machinery/computer/helm/pod/can_pilot(mob/user)
+	return overmap_pod_user_ok(user, loc)
+
 /obj/machinery/computer/helm/pod/ui_interact(mob/user, datum/tgui/ui = null)
 	if(!vessel)
 		link_vessel()
@@ -148,14 +151,7 @@
 	craft.overmap_vessel.register_engine(src)
 
 /obj/machinery/ship_engine/pod/proc/burn_cost()
-	var/obj/spacepod/craft = loc
-	if(!isspacepod(craft))
-		return OVERMAP_POD_CELL_BURN_BASE
-	var/datum/component/overmap_flight/nav = craft.overmap_vessel?.flight
-	var/power = nav?.held_thrust_power || 1
-	if(nav?.held_brake)
-		power = 1
-	return clamp(round(OVERMAP_POD_CELL_BURN_BASE + (OVERMAP_POD_CELL_BURN_MAX - OVERMAP_POD_CELL_BURN_BASE) * power), 1, OVERMAP_POD_CELL_BURN_MAX)
+	return isspacepod(loc) ? OVERMAP_POD_CELL_BURN_MAX : OVERMAP_POD_CELL_BURN_BASE
 
 /obj/machinery/ship_engine/pod/can_burn()
 	if(!on || (stat & BROKEN))

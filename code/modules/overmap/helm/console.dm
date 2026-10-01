@@ -79,6 +79,9 @@
 	RegisterSignal(resolved, COMSIG_OVERMAP_DISPLAY_CHANGED, PROC_REF(on_overmap_display_changed), override = TRUE)
 	update_map_view()
 
+/obj/machinery/computer/helm/proc/can_pilot(mob/user)
+	return user.Adjacent(src)
+
 /obj/machinery/computer/helm/proc/on_overmap_moved()
 	SIGNAL_HANDLER
 	on_vessel_loc_changed()

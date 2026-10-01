@@ -99,7 +99,6 @@
 	jump_spool_end = world.time + OVERMAP_JUMP_SPOOL
 	flight.release_pilot()
 	flight.set_autopilot(FALSE)
-	flight.clear_held_thrust()
 	play_shuttle_sound('sound/effects/hyperspace_begin.ogg')
 	shake_shuttle(OVERMAP_JUMP_SPOOL, 1)
 	flicker_shuttle_lights()
@@ -138,5 +137,10 @@
 	shake_shuttle(3, 2)
 	flicker_shuttle_lights()
 	announce_sensor_event("Гиперпрыжок завершён: [get_overmap_display_name()]", "jump")
+	var/obj/overmap/portal/portal = locate() in get_overmap_turf()
+	if(portal && can_use_portal(portal))
+		portal.transit_vessel(src)
+	else if(can_hyperrelay_jump())
+		begin_hyperrelay_jump()
 
 #undef OVERMAP_PARALLAX_SCROLL

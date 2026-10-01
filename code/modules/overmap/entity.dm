@@ -61,6 +61,8 @@
 	var/obj/machinery/ship_engine/virtual_engine
 	var/free_flight_view = FALSE
 	var/list/hull_turfs
+	var/list/hull_edge
+	var/hull_inertia = 1
 	var/hull_center_x
 	var/hull_center_y
 	var/hull_z
@@ -84,7 +86,7 @@
 	var/last_world_x
 	var/last_world_y
 	var/last_facing = 0
-	var/next_ram_damage = 0
+	var/next_ram_effect = 0
 	var/jump_spool_end = 0
 	var/jump_start_time = 0
 	var/jump_duration
@@ -410,30 +412,6 @@
 		return "Стоит"
 	return "Дрейф"
 
-/obj/overmap/entity/proc/get_shuttle_phase_text()
-	if(!shuttle)
-		return null
-	switch(shuttle.mode)
-		if(SHUTTLE_IDLE)
-			return "Готов"
-		if(SHUTTLE_IGNITING)
-			return "Зажигание двигателей"
-		if(SHUTTLE_CALL)
-			return "В пути"
-		if(SHUTTLE_DOCKED)
-			return "На площадке"
-		if(SHUTTLE_RECHARGING)
-			return "Перезарядка"
-		if(SHUTTLE_RECALL)
-			return "Возврат"
-		if(SHUTTLE_ENDGAME)
-			return "Конец"
-		if(SHUTTLE_ESCAPE)
-			return "Эвакуация"
-		if(SHUTTLE_STRANDED)
-			return "Заблокирован"
-	return shuttle.mode
-
 /obj/overmap/entity/proc/can_helm_undock()
 	if(overmap_pod)
 		return overmap_pod.is_landed() && overmap_pod.can_undock_here()
@@ -448,6 +426,3 @@
 
 /obj/overmap/entity/proc/can_helm_edge_dock()
 	return overmap_pod?.can_edge_dock() && overmap_pod.can_physical_dock()
-
-/obj/overmap/entity/proc/can_helm_custom_dock()
-	return overmap_shuttle && shuttle && allows_custom_landing()
