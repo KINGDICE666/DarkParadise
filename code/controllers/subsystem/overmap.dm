@@ -9,7 +9,7 @@ GLOBAL_LIST_EMPTY(overmap_intercoms)
 
 SUBSYSTEM_DEF(overmap)
 	name = "Overmap"
-	wait = 10
+	wait = OVERMAP_FLIGHT_TICK
 	ss_flags = SS_KEEP_TIMING
 	runlevels = RUNLEVEL_SETUP | RUNLEVEL_GAME | RUNLEVEL_POSTGAME
 	dependencies = list(
@@ -39,10 +39,19 @@ SUBSYSTEM_DEF(overmap)
 	var/list/datum/overmap_space_region/pooled_large_cells = list()
 	var/list/transit_space_zs = list()
 	var/list/datum/component/overmap_flight/flights = list()
+	var/list/client/drifting_viewers = list()
+	var/list/datum/overmap_bubble/bubbles = list()
+	var/list/obj/overmap/entity/flying_vessels = list()
+	var/list/obj/overmap/entity/flight_reservations = list()
+	var/datum/turf_reservation/spare_bubble_space
+	var/preparing_bubble_space = FALSE
+	var/list/datum/overmap_bubble/bubbles_by_reservation = list()
+	var/list/datum/overmap_bubble/bubbles_by_z = list()
 	var/list/datum/component/overmap_dock_host/dock_hosts = list()
 	var/list/obj/docking_port/mobile/area_shuttles = list()
 	var/area_shuttle_cache_ready = FALSE
 	var/last_fire_time = 0
+	var/slow_elapsed = 0
 	var/iff_key_centcom
 	var/iff_key_syndicate
 
@@ -74,6 +83,7 @@ SUBSYSTEM_DEF(overmap)
 	relink_hardware()
 	ensure_station_transponder()
 	station_sector?.populate_roundstart()
+	create_local_spaces()
 	spawn_taipan()
 	start_programmed_roundstart_routes()
 	snap_roundstart_docks()
@@ -103,6 +113,17 @@ SUBSYSTEM_DEF(overmap)
 	last_fire_time = world.time
 	if(elapsed <= 0)
 		return
+	slow_elapsed += elapsed
+	if(slow_elapsed >= OVERMAP_SLOW_TICK)
+		process_slow_tick(slow_elapsed)
+		slow_elapsed = 0
+	for(var/datum/component/overmap_flight/flight as anything in flights)
+		if(QDELETED(flight))
+			continue
+		flight.process_tick(elapsed)
+	process_flight_views(elapsed)
+
+/datum/controller/subsystem/overmap/proc/process_slow_tick(elapsed)
 	for(var/obj/overmap/entity/vessel as anything in vessels)
 		if(QDELETED(vessel))
 			continue
@@ -110,14 +131,11 @@ SUBSYSTEM_DEF(overmap)
 			vessel.process_transponder_fx()
 		vessel.process_sensors()
 		vessel.programmed_mission?.process_mission()
-	for(var/datum/component/overmap_flight/flight as anything in flights)
-		if(QDELETED(flight))
-			continue
-		flight.process_tick(elapsed)
 	for(var/obj/overmap/feature/hazard/hazard as anything in hazards)
 		if(QDELETED(hazard))
 			continue
 		hazard.process_tick(elapsed)
+	expire_bubbles()
 
 /datum/controller/subsystem/overmap/proc/create_typed_sector(sector_type)
 	var/datum/overmap_sector/sector = new sector_type

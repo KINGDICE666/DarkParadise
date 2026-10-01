@@ -100,7 +100,7 @@
 	return round(sqrt(speed[1] ** 2 + speed[2] ** 2), OVERMAP_MOVE_RESOLUTION)
 
 /obj/overmap/proc/is_moving()
-	return abs(speed[1]) >= min_speed || abs(speed[2]) >= min_speed
+	return speed[1] || speed[2]
 
 /obj/overmap/proc/get_heading_angle()
 	if(OVERMAP_SPEED_STOPPED(get_speed()))
@@ -141,7 +141,7 @@
 	var/list/deltas = list(0, 0)
 	var/travel = sector.tile_travel || 1
 	for(var/i in 1 to 2)
-		if(abs(speed[i]) < min_speed)
+		if(!speed[i])
 			continue
 		position[i] += speed[i] * elapsed / travel
 		if(position[i] >= OVERMAP_TILE_EDGE)

@@ -408,6 +408,7 @@
 		return profile.block_move_message || "Шаттл не может перемещаться с текущим грузом."
 	vessel.last_dock_id = vessel.shuttle.getDockedId()
 	vessel.selected_dock_id = null
+	vessel.record_undock_origin()
 	var/obj/docking_port/stationary/undock_pad = get_undock_pad()
 	if(!undock_pad)
 		return "Гиперпространство ещё не готово."

@@ -12,6 +12,10 @@
 	var/autopilot = FALSE
 	var/autopilot_x
 	var/autopilot_y
+	var/facing = 0
+	var/angular_velocity = 0
+	var/mob/living/pilot
+	var/obj/machinery/computer/helm/pilot_helm
 
 	var/cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_CRUISE_DEFAULT)
 
@@ -27,6 +31,7 @@
 	SSovermap?.flights |= src
 
 /datum/component/overmap_flight/UnregisterFromParent()
+	release_pilot()
 	var/obj/overmap/entity/token = parent
 	if(token.flight == src)
 		token.flight = null
@@ -38,20 +43,125 @@
 
 /datum/component/overmap_flight/proc/needs_physics()
 	var/obj/overmap/entity/vessel = parent
-	if(held_thrust_dir || held_thrust_power || held_brake || autopilot)
+	if(held_thrust_dir || held_thrust_power || held_brake || autopilot || pilot)
 		return TRUE
 	return vessel.movable && !vessel.halted && vessel.is_moving()
 
 /datum/component/overmap_flight/proc/process_tick(elapsed)
 	var/obj/overmap/entity/vessel = parent
-	if(QDELETED(vessel))
+	if(QDELETED(vessel) || vessel.docked_ship)
 		return
+	if(vessel.is_jumping())
+		vessel.process_jump()
+		return
+	var/turn_input = 0
+	if(pilot)
+		turn_input = process_pilot(elapsed)
+	spin(turn_input, elapsed)
 	if(!needs_physics())
 		return
 	process_held_controls()
 	process_autopilot()
-	enforce_cruise_speed()
+	if(!pilot && (autopilot || held_thrust_power || held_thrust_dir) && vessel.is_moving())
+		steer_towards(delta_to_angle(vessel.speed[1], vessel.speed[2]), elapsed)
+	enforce_cruise_speed(elapsed)
 	vessel.process_movement(elapsed)
+
+/datum/component/overmap_flight/proc/get_turn_rate()
+	var/obj/overmap/entity/vessel = parent
+	if(!engines_state || !can_steer())
+		return 0
+	var/thrust = get_total_thrust()
+	if(thrust <= 0)
+		return 0
+	return clamp(thrust / max(vessel.total_mass(), 1) * OVERMAP_TURN_RATE_PER_THRUST, OVERMAP_TURN_RATE_MIN, OVERMAP_TURN_RATE_MAX)
+
+/datum/component/overmap_flight/proc/set_facing(new_facing)
+	facing = SIMPLIFY_DEGREES(new_facing)
+
+/datum/component/overmap_flight/proc/spin(turn_input, elapsed)
+	if(!turn_input && !angular_velocity)
+		return
+	var/turn_rate = get_turn_rate()
+	var/target = turn_input * turn_rate
+	var/spin_step = turn_rate * elapsed / OVERMAP_SPIN_UP_TIME
+	if(angular_velocity > target)
+		angular_velocity = max(angular_velocity - spin_step, target)
+	else
+		angular_velocity = min(angular_velocity + spin_step, target)
+	if(angular_velocity)
+		set_facing(facing + angular_velocity * elapsed)
+
+/datum/component/overmap_flight/proc/steer_towards(target_angle, elapsed)
+	var/max_turn = get_turn_rate() * elapsed
+	var/difference = closer_angle_difference(facing, target_angle)
+	if(!max_turn || abs(difference) < 1)
+		return
+	angular_velocity = 0
+	set_facing(facing + clamp(difference, -max_turn, max_turn))
+
+/datum/component/overmap_flight/proc/take_pilot(mob/living/new_pilot, obj/machinery/computer/helm/helm)
+	release_pilot()
+	pilot = new_pilot
+	pilot_helm = helm
+	autopilot = FALSE
+	held_brake = FALSE
+	engines_state = TRUE
+	clear_held_thrust()
+	SEND_SIGNAL(parent, COMSIG_OVERMAP_MANUAL_CONTROL)
+	RegisterSignal(pilot, COMSIG_MOB_CLIENT_PRE_LIVING_MOVE, PROC_REF(block_pilot_walk))
+	RegisterSignal(pilot, COMSIG_QDELETING, PROC_REF(release_pilot))
+	RegisterSignal(pilot_helm, COMSIG_QDELETING, PROC_REF(release_pilot))
+
+/datum/component/overmap_flight/proc/release_pilot()
+	SIGNAL_HANDLER
+	if(pilot)
+		UnregisterSignal(pilot, list(COMSIG_MOB_CLIENT_PRE_LIVING_MOVE, COMSIG_QDELETING))
+	if(pilot_helm)
+		UnregisterSignal(pilot_helm, COMSIG_QDELETING)
+	pilot = null
+	pilot_helm = null
+
+/datum/component/overmap_flight/proc/block_pilot_walk()
+	SIGNAL_HANDLER
+	return COMSIG_MOB_CLIENT_BLOCK_PRE_LIVING_MOVE
+
+/datum/component/overmap_flight/proc/pilot_can_fly()
+	var/obj/overmap/entity/vessel = parent
+	if(!pilot.client || pilot.incapacitated() || !pilot.Adjacent(pilot_helm))
+		return FALSE
+	if(pilot_helm.stat & (NOPOWER|BROKEN))
+		return FALSE
+	if(vessel.is_overmap_jammed() || vessel.is_programmed_locked())
+		return FALSE
+	return can_steer()
+
+/datum/component/overmap_flight/proc/process_pilot(elapsed)
+	if(!pilot_can_fly())
+		to_chat(pilot, span_warning("Вы отпускаете штурвал."))
+		release_pilot()
+		return 0
+	var/keys = pilot.client.intended_direction
+	var/throttle = !!(keys & NORTH) - !!(keys & SOUTH)
+	if(throttle)
+		drive(throttle, elapsed)
+	return !!(keys & EAST) - !!(keys & WEST)
+
+/datum/component/overmap_flight/proc/drive(throttle, elapsed)
+	var/obj/overmap/entity/vessel = parent
+	if(!engines_state || !has_working_engines())
+		return
+	if(world.time >= last_burn + burn_delay)
+		last_burn = world.time
+		apply_thrust()
+	var/delta = get_total_thrust() / inertial_mass() / burn_delay * elapsed * throttle
+	vessel.speed[1] += delta * sin(facing)
+	vessel.speed[2] += delta * cos(facing)
+	var/current = sqrt(vessel.speed[1] ** 2 + vessel.speed[2] ** 2)
+	if(current > vessel.max_speed)
+		vessel.speed[1] *= vessel.max_speed / current
+		vessel.speed[2] *= vessel.max_speed / current
+	vessel.refresh_heading_overlay()
 
 /datum/component/overmap_flight/proc/get_total_thrust()
 	. = 0
@@ -61,7 +171,7 @@
 
 /datum/component/overmap_flight/proc/inertial_mass()
 	var/obj/overmap/entity/vessel = parent
-	return max(vessel.vessel_mass, 1) * OVERMAP_MASS_INERTIA
+	return max(vessel.total_mass(), 1) * OVERMAP_MASS_INERTIA
 
 /datum/component/overmap_flight/proc/get_acceleration()
 	return round(get_total_thrust() / inertial_mass(), OVERMAP_MOVE_RESOLUTION)
@@ -224,12 +334,12 @@
 		vessel.adjust_speed(-(vessel.speed[1] * delta) / mag, -(vessel.speed[2] * delta) / mag)
 	return TRUE
 
-/datum/component/overmap_flight/proc/enforce_cruise_speed()
+/datum/component/overmap_flight/proc/enforce_cruise_speed(elapsed)
 	var/obj/overmap/entity/vessel = parent
 	var/current = vessel.get_speed()
 	if(current <= get_effective_cruise() || current <= 0)
 		return
-	var/delta = get_acceleration()
+	var/delta = get_acceleration() * elapsed / burn_delay
 	if(delta <= 0)
 		return
 	var/excess = current - get_effective_cruise()
@@ -282,7 +392,7 @@
 
 /datum/component/overmap_flight/proc/process_autopilot()
 	var/obj/overmap/entity/vessel = parent
-	if(!autopilot || held_brake)
+	if(!autopilot || held_brake || (vessel.local_space && !vessel.programmed_mission))
 		return
 	if(held_thrust_power > 0)
 		return

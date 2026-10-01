@@ -59,6 +59,38 @@
 	var/programmed_selected_dock
 	var/programmed_has_routes = TRUE
 	var/obj/machinery/ship_engine/virtual_engine
+	var/free_flight_view = FALSE
+	var/list/hull_turfs
+	var/hull_center_x
+	var/hull_center_y
+	var/hull_z
+	var/hull_radius = 0
+	var/list/flight_bounds
+	var/list/datum/hull_proxy/neighbor_proxies = list()
+	var/list/obj/effect/abstract/hull_proxy_tile/drifter_mirrors = list()
+	var/list/hull_collars
+	var/list/radar_shape
+	var/datum/turf_reservation/flight_reservation
+	var/obj/overmap/entity/docked_ship
+	var/list/obj/overmap/entity/docked_guests = list()
+	var/dock_hull_x
+	var/dock_hull_y
+	var/dock_facing_offset
+	var/dock_collar_angle
+	var/next_autodock = 0
+	var/list/undock_origin
+	var/datum/overmap_bubble/local_space
+	var/datum/terrain_view/terrain_view
+	var/last_world_x
+	var/last_world_y
+	var/last_facing = 0
+	var/next_ram_damage = 0
+	var/jump_spool_end = 0
+	var/jump_start_time = 0
+	var/jump_duration
+	var/list/jump_origin
+	var/list/jump_target
+	var/list/obj/effect/abstract/dock_seal/dock_seals = list()
 
 /obj/overmap/entity/shuttle
 	name = "shuttle"
@@ -144,6 +176,7 @@
 		transponder.vessel = null
 	transponder = null
 	QDEL_LIST(virtual_iff_channels)
+	clear_encounter_visuals()
 	return ..()
 
 /obj/overmap/entity/proc/register_engine(obj/machinery/ship_engine/engine)

@@ -62,6 +62,9 @@
 			craft.overmap_vessel.overmap_pod.rescue_from_transit()
 			return
 		var/datum/turf_reservation/reservation = SSmapping.used_turfs[origin]
+		var/obj/overmap/entity/vessel = SSovermap.flight_reservations[reservation]
+		if(vessel?.eject_to_bubble(dumpee, origin))
+			return
 		var/obj/docking_port/mobile/shuttle = get_shuttle_for_transit_reservation(reservation)
 		var/turf/shuttle_turf = shuttle && get_turf(shuttle)
 		if(shuttle_turf && !istype(shuttle_turf, /turf/space/transit))

@@ -24,6 +24,12 @@ import {
   OvermapStick,
   overmapKindLabel,
 } from './overmap/OvermapChrome';
+import {
+  OvermapRadar,
+  type RadarContact,
+  type RadarShape,
+  type RadarTerrain,
+} from './overmap/OvermapRadar';
 
 type OvermapObject = {
   name: string;
@@ -95,6 +101,20 @@ type OvermapHelmData = {
   speed_slow: BooleanLike;
   speed_fast: BooleanLike;
   heading: number;
+  facing: number;
+  piloting: BooleanLike;
+  pilot_name?: string | null;
+  ship_docked_to?: string | null;
+  ship_guests?: number;
+  ship_neighbors?: number;
+  radar_enabled?: BooleanLike;
+  radar_shapes?: Record<string, RadarShape>;
+  radar?: RadarContact[];
+  radar_drifters?: number[][];
+  radar_terrain?: RadarTerrain | null;
+  radar_world?: number[];
+  jumping?: BooleanLike;
+  can_jump?: BooleanLike;
   accel: number;
   stick_x: number;
   stick_y: number;
@@ -164,6 +184,20 @@ export const OvermapHelm = () => {
     speed_slow,
     speed_fast,
     heading,
+    facing = 0,
+    piloting,
+    pilot_name,
+    ship_docked_to,
+    ship_guests = 0,
+    ship_neighbors = 0,
+    radar_enabled,
+    radar_shapes = {},
+    radar = [],
+    radar_drifters = [],
+    radar_terrain,
+    radar_world,
+    jumping,
+    can_jump,
     accel,
     stick_x = 0,
     stick_y = 0,
@@ -213,9 +247,15 @@ export const OvermapHelm = () => {
     programmed_routes = [],
   } = data;
   const [tab, setTab] = useLocalState<HelmTab>('helmTab', 'flight');
+  const [helmView, setHelmView] = useLocalState<'map' | 'radar'>(
+    'helmView',
+    'radar',
+  );
   const can_dock_mode = !!(is_shuttle || is_pod);
   const listTab = tab === 'dock' && !can_dock_mode ? 'flight' : tab;
   const mode = listTab === 'dock' ? 'dock' : 'flight';
+  const showRadar =
+    mode === 'flight' && !!radar_enabled && helmView === 'radar';
   const actTransponder = (op: string, params: Record<string, unknown> = {}) =>
     act('transponder', { op, ...params });
   const enginesOn = engines.filter((engine) => engine.on).length;
@@ -277,6 +317,26 @@ export const OvermapHelm = () => {
               </Button>
             )}
             <Button
+              icon="bolt"
+              selected={!!jumping}
+              disabled={!can_jump || !!jumping}
+              onClick={() => act('hyperjump')}
+            >
+              {jumping ? 'Гиперпрыжок...' : 'Гиперпрыжок'}
+            </Button>
+            <Button
+              icon="link"
+              selected={!!ship_docked_to || ship_guests > 0}
+              disabled={!ship_docked_to && !ship_guests && !ship_neighbors}
+              onClick={() => act('dock_ship')}
+            >
+              {ship_docked_to
+                ? `Расстыковка: ${ship_docked_to}`
+                : ship_guests > 0
+                  ? 'Отпустить корабли'
+                  : 'Стыковка с кораблём'}
+            </Button>
+            <Button
               icon="portal-enter"
               disabled={!!map_jammed}
               onClick={() => act('portal')}
@@ -311,15 +371,34 @@ export const OvermapHelm = () => {
                   }
                   buttons={
                     mode === 'flight' &&
-                    !map_jammed && (
+                    !map_jammed &&
+                    (radar_enabled ? (
+                      <OvermapSeg
+                        value={helmView}
+                        onChange={setHelmView}
+                        items={[
+                          { id: 'radar', label: 'Радар' },
+                          { id: 'map', label: 'Карта' },
+                        ]}
+                      />
+                    ) : (
                       <Box className="OvermapHelmSide__meta">
                         клик по карте — цель автопилота
                       </Box>
-                    )
+                    ))
                   }
                 >
                   <div className="OvermapMinimap">
-                    {map_jammed && mode === 'flight' ? (
+                    {showRadar ? (
+                      <OvermapRadar
+                        shapes={radar_shapes}
+                        contacts={radar}
+                        drifters={radar_drifters}
+                        facing={facing}
+                        terrain={radar_terrain}
+                        world={radar_world}
+                      />
+                    ) : map_jammed && mode === 'flight' ? (
                       <NoticeBox danger>Сигнал потерян.</NoticeBox>
                     ) : (
                       <ByondUi
@@ -346,8 +425,8 @@ export const OvermapHelm = () => {
                       }
                     />
                     <OvermapStat label="курс" value={`${heading}°`} />
+                    <OvermapStat label="нос" value={`${facing}°`} />
                     <OvermapStat label="ускор." value={accel} />
-                    <OvermapStat label="мощность" value={`${stick_power}%`} />
                     <OvermapStat label="eta" value={eta} />
                     <OvermapStat
                       label="лимит"
@@ -405,6 +484,24 @@ export const OvermapHelm = () => {
                       {engines_on ? 'Двиг. вкл' : 'Инерция'}
                     </Button>
                   </div>
+                  <Button
+                    fluid
+                    icon="gamepad"
+                    selected={!!piloting}
+                    disabled={!can_steer || (!!pilot_name && !piloting)}
+                    onClick={() => act('take_helm')}
+                  >
+                    {piloting
+                      ? 'Отпустить штурвал'
+                      : pilot_name
+                        ? `Штурвал: ${pilot_name}`
+                        : 'Взять штурвал'}
+                  </Button>
+                  {!!piloting && (
+                    <Box className="OvermapHelmSide__meta">
+                      W/S — тяга, A/D — поворот
+                    </Box>
+                  )}
                   <Box className="OvermapStat__label">автопилот</Box>
                   <div className="OvermapHelmSide__row">
                     <NumberInput

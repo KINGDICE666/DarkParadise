@@ -32,6 +32,8 @@
 /obj/machinery/computer/helm/ui_close(mob/user)
 	. = ..()
 	cam_screen?.hide_from(user)
+	if(vessel?.flight?.pilot == user)
+		vessel.flight.release_pilot()
 
 /obj/machinery/computer/helm/ui_data(mob/user)
 	var/list/data = list()
@@ -54,6 +56,21 @@
 	data["speed_slow"] = speed < SHIP_SPEED_SLOW
 	data["speed_fast"] = speed > SHIP_SPEED_FAST
 	data["heading"] = vessel.get_heading_angle()
+	data["facing"] = round(vessel.flight?.facing || 0)
+	data["piloting"] = vessel.flight?.pilot == user
+	data["pilot_name"] = vessel.flight?.pilot?.name
+	data["ship_docked_to"] = vessel.docked_ship?.get_overmap_display_name()
+	data["ship_guests"] = length(vessel.docked_guests)
+	data["ship_neighbors"] = length(vessel.neighbor_proxies)
+	data["jumping"] = vessel.is_jumping()
+	data["can_jump"] = vessel.in_free_flight()
+	data["radar_enabled"] = vessel.free_flight_view
+	if(vessel.free_flight_view)
+		data["radar_shapes"] = vessel.radar_shapes()
+		data["radar"] = vessel.radar_contacts()
+		data["radar_drifters"] = vessel.radar_drifters()
+		data["radar_terrain"] = vessel.radar_terrain()
+		data["radar_world"] = list(vessel.get_world_x(), vessel.get_world_y())
 	data["accel"] = round(OVERMAP_DISPLAY_SPEED(vessel.get_effective_acceleration()), 0.01)
 	var/datum/component/overmap_flight/nav = vessel.flight
 	data["stick_x"] = nav?.held_thrust_nx
@@ -198,6 +215,10 @@
 		to_chat(usr, span_warning("Прямое управление заблокировано поставщиком услуг."))
 		return TRUE
 
+	if(vessel.is_jumping() && (action in list("undock", "dock", "dock_edge", "dock_ship", "portal")))
+		to_chat(usr, span_warning("Идёт гиперпрыжок."))
+		return TRUE
+
 	switch(action)
 		if("select_programmed")
 			vessel.programmed_selected_dock = params["id"]
@@ -216,6 +237,42 @@
 			if(!vessel.set_held_vector(params["x"], params["y"], params["power"]))
 				to_chat(usr, span_warning("Судно не может маневрировать."))
 			return FALSE
+		if("take_helm")
+			var/datum/component/overmap_flight/nav = vessel.flight
+			if(!nav)
+				return TRUE
+			if(nav.pilot == usr)
+				nav.release_pilot()
+			else if(nav.pilot)
+				to_chat(usr, span_warning("За штурвалом уже [nav.pilot.name]."))
+			else if(!isliving(usr) || !usr.Adjacent(src))
+				to_chat(usr, span_warning("Нужно стоять у консоли."))
+			else if(!vessel.can_steer())
+				to_chat(usr, span_warning("Судно не может маневрировать."))
+			else if(vessel.docked_ship)
+				to_chat(usr, span_warning("Корабль пристыкован к [vessel.docked_ship.get_overmap_display_name()]."))
+			else if(vessel.is_jumping())
+				to_chat(usr, span_warning("Идёт гиперпрыжок."))
+			else
+				nav.take_pilot(usr, src)
+				to_chat(usr, span_notice("Вы за штурвалом. W и S — тяга вперёд и назад, A и D — поворот."))
+			. = TRUE
+		if("hyperjump")
+			var/jump_result = vessel.start_jump()
+			if(jump_result != TRUE)
+				to_chat(usr, span_warning("[jump_result]"))
+			. = TRUE
+		if("dock_ship")
+			if(vessel.docked_ship)
+				vessel.undock_ship()
+			else if(length(vessel.docked_guests))
+				for(var/obj/overmap/entity/guest as anything in vessel.docked_guests.Copy())
+					guest.undock_ship()
+			else
+				var/dock_result = vessel.dock_to_nearest_ship()
+				if(dock_result != TRUE)
+					to_chat(usr, span_warning("[dock_result]"))
+			. = TRUE
 		if("brake")
 			if(!vessel.set_held_brake(!vessel.flight?.held_brake))
 				to_chat(usr, span_warning("Невозможно тормозить."))
@@ -257,7 +314,9 @@
 				update_nav_marker()
 			. = TRUE
 		if("toggle_autopilot")
-			if(!vessel.flight?.autopilot_x || !vessel.flight.autopilot_y)
+			if(vessel.local_space)
+				to_chat(usr, span_warning("У станции автопилот не работает. Отметьте цель на карте и уходите гиперпрыжком."))
+			else if(!vessel.flight?.autopilot_x || !vessel.flight.autopilot_y)
 				to_chat(usr, span_warning("Нет установленной цели автопилота."))
 			else
 				var/turf/here = vessel.get_overmap_turf()

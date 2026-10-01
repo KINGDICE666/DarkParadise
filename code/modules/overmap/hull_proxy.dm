@@ -1,29 +1,24 @@
-#define HULL_PROXY_ORBIT_RADIUS 6
-#define HULL_PROXY_ORBIT_PERIOD (30 SECONDS)
-#define HULL_PROXY_ORBIT_STEPS 72
-#define HULL_PROXY_STEP_DEGREES 3
-#define HULL_PROXY_ROW_SPACING 12
-#define HULL_PROXY_STEPPER_OFFSET 12
 #define HULL_PROXY_SEAM_SCALE 1.03
 #define HULL_PROXY_SHADING_SCALE 1.3
 #define HULL_PROXY_LIGHT_COPY_INTERVAL (1 SECONDS)
 #define HULL_PROXY_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 1)
 #define HULL_PROXY_SHADE_LAYER (FLOOR_EMISSIVE_START_LAYER - 0.01)
 
-GLOBAL_LIST_EMPTY(hull_proxies)
-
-/obj/effect/abstract/hull_proxy
-	name = "hull proxy"
-	invisibility = 0
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	var/obj/docking_port/mobile/source
+/datum/hull_proxy
+	var/obj/overmap/entity/vessel
 	var/list/obj/effect/abstract/hull_proxy_tile/tiles = list()
-	var/heading = 0
+	var/center_x
+	var/center_y
+	var/proxy_z
+	var/heading
 
 /obj/effect/abstract/hull_proxy_tile
 	name = "hull proxy tile"
 	invisibility = 0
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
+	animate_movement = NO_STEPS
+	vis_flags = VIS_HIDE
 	var/base_x = 0
 	var/base_y = 0
 	var/turf/hull_turf
@@ -36,6 +31,7 @@ GLOBAL_LIST_EMPTY(hull_proxies)
 	name = "hull proxy light"
 	invisibility = 0
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
 	plane = LIGHTING_PLANE
 	layer = HULL_PROXY_LIGHT_LAYER
 	appearance_flags = RESET_COLOR | RESET_ALPHA
@@ -46,54 +42,27 @@ GLOBAL_LIST_EMPTY(hull_proxies)
 	icon_state = "white"
 	invisibility = 0
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
 	plane = EMISSIVE_PLANE
 	layer = HULL_PROXY_SHADE_LAYER
 	appearance_flags = RESET_COLOR | RESET_ALPHA
 
-/obj/effect/abstract/hull_proxy/Initialize(mapload, obj/docking_port/mobile/source, heading, orbiting, stepping)
-	. = ..()
-	src.source = source
-	src.heading = heading
-	var/list/hull_turfs = list()
-	for(var/turf/hull_turf as anything in source.return_turfs())
-		if(source.shuttle_areas[get_area(hull_turf)])
-			hull_turfs += hull_turf
-	if(!length(hull_turfs))
-		return INITIALIZE_HINT_QDEL
-	var/min_x = world.maxx
-	var/max_x = 1
-	var/min_y = world.maxy
-	var/max_y = 1
-	for(var/turf/hull_turf as anything in hull_turfs)
-		min_x = min(min_x, hull_turf.x)
-		max_x = max(max_x, hull_turf.x)
-		min_y = min(min_y, hull_turf.y)
-		max_y = max(max_y, hull_turf.y)
-	var/center_x = (min_x + max_x) / 2
-	var/center_y = (min_y + max_y) / 2
-	for(var/turf/hull_turf as anything in hull_turfs)
-		var/obj/effect/abstract/hull_proxy_tile/tile = new(src)
-		tile.base_x = (hull_turf.x - center_x) * ICON_SIZE_X
-		tile.base_y = (hull_turf.y - center_y) * ICON_SIZE_Y
+/datum/hull_proxy/New(obj/overmap/entity/vessel, turf/viewer_turf)
+	src.vessel = vessel
+	for(var/turf/hull_turf as anything in vessel.hull_turfs)
+		var/obj/effect/abstract/hull_proxy_tile/tile = new(null)
+		tile.base_x = (hull_turf.x - vessel.hull_center_x) * ICON_SIZE_X
+		tile.base_y = (hull_turf.y - vessel.hull_center_y) * ICON_SIZE_Y
 		tile.hull_turf = hull_turf
 		tile.vis_contents += hull_turf
-		tile.setup_shading(get_turf(src))
+		tile.setup_shading(viewer_turf)
 		tiles += tile
-	vis_contents += tiles
-	set_heading(heading)
-	RegisterSignal(source, COMSIG_QDELETING, PROC_REF(on_source_deleted))
-	GLOB.hull_proxies += src
-	if(orbiting)
-		start_orbit()
-	if(stepping)
-		addtimer(CALLBACK(src, PROC_REF(step_heading)), 1, TIMER_LOOP|TIMER_DELETE_ME)
+	RegisterSignal(vessel, COMSIG_QDELETING, PROC_REF(on_vessel_deleted))
 	addtimer(CALLBACK(src, PROC_REF(refresh_light_copies)), HULL_PROXY_LIGHT_COPY_INTERVAL, TIMER_LOOP|TIMER_DELETE_ME)
 
-/obj/effect/abstract/hull_proxy/Destroy()
-	GLOB.hull_proxies -= src
-	vis_contents.Cut()
+/datum/hull_proxy/Destroy(force)
 	QDEL_LIST(tiles)
-	source = null
+	vessel = null
 	return ..()
 
 /obj/effect/abstract/hull_proxy_tile/Destroy()
@@ -104,9 +73,43 @@ GLOBAL_LIST_EMPTY(hull_proxies)
 	copied_light_color = null
 	return ..()
 
-/obj/effect/abstract/hull_proxy/proc/on_source_deleted()
+/datum/hull_proxy/proc/on_vessel_deleted()
 	SIGNAL_HANDLER
 	qdel(src)
+
+/datum/hull_proxy/proc/place(new_center_x, new_center_y, new_z, new_heading, list/bounds, time)
+	if(new_center_x == center_x && new_center_y == center_y && new_z == proxy_z && new_heading == heading)
+		return
+	if(new_z != proxy_z)
+		time = 0
+	center_x = new_center_x
+	center_y = new_center_y
+	proxy_z = new_z
+	heading = new_heading
+	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
+		tile.glide(center_x + tile.rotated_x(heading) / ICON_SIZE_X, center_y + tile.rotated_y(heading) / ICON_SIZE_Y, proxy_z, tile.rotated_transform(heading), bounds, time)
+
+/obj/effect/abstract/hull_proxy_tile/proc/glide(visual_x, visual_y, target_z, matrix/new_transform, list/bounds, time)
+	var/anchor_x = clamp(round(visual_x, 1), bounds[1], bounds[3])
+	var/anchor_y = clamp(round(visual_y, 1), bounds[2], bounds[4])
+	var/turf/anchor = loc
+	if(!anchor || anchor.z != target_z || abs(anchor.x - anchor_x) > 1 || abs(anchor.y - anchor_y) > 1)
+		var/turf/new_anchor = locate(anchor_x, anchor_y, target_z)
+		if(anchor?.z == target_z)
+			pixel_x += (anchor.x - new_anchor.x) * ICON_SIZE_X
+			pixel_y += (anchor.y - new_anchor.y) * ICON_SIZE_Y
+		else
+			time = 0
+		forceMove(new_anchor)
+		anchor = new_anchor
+	var/offset_x = (visual_x - anchor.x) * ICON_SIZE_X
+	var/offset_y = (visual_y - anchor.y) * ICON_SIZE_Y
+	if(!time)
+		pixel_x = offset_x
+		pixel_y = offset_y
+		transform = new_transform
+		return
+	animate(src, pixel_x = offset_x, pixel_y = offset_y, transform = new_transform, time = time)
 
 /obj/effect/abstract/hull_proxy_tile/proc/setup_shading(turf/viewer_turf)
 	var/matrix/shading_scale = matrix()
@@ -141,102 +144,22 @@ GLOBAL_LIST_EMPTY(hull_proxies)
 	light_copy.transform = light_mask.transform
 	light_mask.appearance = light_copy
 
-/obj/effect/abstract/hull_proxy/proc/refresh_light_copies()
+/datum/hull_proxy/proc/refresh_light_copies()
 	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
 		tile.copy_light()
 
-/obj/effect/abstract/hull_proxy/proc/set_heading(new_heading, time)
-	heading = new_heading
-	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
-		if(time)
-			animate(tile, pixel_x = tile.rotated_x(heading), pixel_y = tile.rotated_y(heading), transform = tile.rotated_transform(heading), time = time)
-		else
-			tile.pixel_x = tile.rotated_x(heading)
-			tile.pixel_y = tile.rotated_y(heading)
-			tile.transform = tile.rotated_transform(heading)
-
-/obj/effect/abstract/hull_proxy/proc/step_heading()
-	set_heading((heading + HULL_PROXY_STEP_DEGREES) % 360, 1)
-
-/obj/effect/abstract/hull_proxy/proc/start_orbit()
-	var/step_time = HULL_PROXY_ORBIT_PERIOD / HULL_PROXY_ORBIT_STEPS
-	pixel_w = orbit_offset_x(0)
-	pixel_z = orbit_offset_y(0)
-	for(var/step in 1 to HULL_PROXY_ORBIT_STEPS)
-		var/angle = step * 360 / HULL_PROXY_ORBIT_STEPS
-		if(step == 1)
-			animate(src, pixel_w = orbit_offset_x(angle), pixel_z = orbit_offset_y(angle), time = step_time, loop = -1)
-		else
-			animate(pixel_w = orbit_offset_x(angle), pixel_z = orbit_offset_y(angle), time = step_time)
-	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
-		tile.start_spin(step_time)
-
-/obj/effect/abstract/hull_proxy/proc/orbit_offset_x(angle)
-	return HULL_PROXY_ORBIT_RADIUS * ICON_SIZE_X * cos(angle)
-
-/obj/effect/abstract/hull_proxy/proc/orbit_offset_y(angle)
-	return HULL_PROXY_ORBIT_RADIUS * ICON_SIZE_Y * sin(angle)
-
-/obj/effect/abstract/hull_proxy_tile/proc/start_spin(step_time)
-	for(var/step in 1 to HULL_PROXY_ORBIT_STEPS)
-		var/angle = step * 360 / HULL_PROXY_ORBIT_STEPS
-		if(step == 1)
-			animate(src, pixel_x = rotated_x(angle), pixel_y = rotated_y(angle), transform = rotated_transform(angle), time = step_time, loop = -1)
-		else
-			animate(pixel_x = rotated_x(angle), pixel_y = rotated_y(angle), transform = rotated_transform(angle), time = step_time)
-
 /obj/effect/abstract/hull_proxy_tile/proc/rotated_x(angle)
-	return base_x * cos(angle) - base_y * sin(angle)
+	return base_x * cos(angle) + base_y * sin(angle)
 
 /obj/effect/abstract/hull_proxy_tile/proc/rotated_y(angle)
-	return base_x * sin(angle) + base_y * cos(angle)
+	return base_y * cos(angle) - base_x * sin(angle)
 
 /obj/effect/abstract/hull_proxy_tile/proc/rotated_transform(angle)
 	var/matrix/rotation = matrix()
 	rotation.Scale(HULL_PROXY_SEAM_SCALE)
-	rotation.Turn(-angle)
+	rotation.Turn(angle)
 	return rotation
 
-ADMIN_VERB(hull_proxy_test, R_DEBUG, "Hull Proxy Test", "Живые зеркала шаттла: неподвижные под углом, пошаговое вращение и орбита.", ADMIN_CATEGORY_DEBUG)
-	if(length(GLOB.hull_proxies))
-		QDEL_LIST(GLOB.hull_proxies)
-		to_chat(user, span_notice("Зеркала шаттлов удалены."))
-		return
-	var/list/choices = list()
-	for(var/obj/docking_port/mobile/port as anything in SSshuttle.mobile)
-		choices["[port.name] ([port.id])"] = port
-	var/choice = tgui_input_list(user.mob, "Какой шаттл отзеркалить?", "Hull Proxy Test", choices)
-	if(!choice)
-		return
-	var/obj/docking_port/mobile/port = choices[choice]
-	if(QDELETED(port))
-		return
-	if(tgui_alert(user.mob, "Погасить лампы на самом шаттле, чтобы было видно тень?", "Hull Proxy Test", list("Да", "Нет")) == "Да")
-		for(var/turf/hull_turf as anything in port.return_turfs())
-			if(!port.shuttle_areas[get_area(hull_turf)])
-				continue
-			for(var/obj/machinery/light/lamp in hull_turf)
-				lamp.seton(FALSE)
-	var/turf/center = get_turf(user.mob)
-	var/start_time = REALTIMEOFDAY
-	var/list/row_angles = list(0, 30, 45)
-	for(var/index in 1 to length(row_angles))
-		var/turf/row_spot = locate(center.x + index * HULL_PROXY_ROW_SPACING, center.y, center.z)
-		if(row_spot)
-			new /obj/effect/abstract/hull_proxy(row_spot, port, row_angles[index], FALSE, FALSE)
-	var/turf/stepper_spot = locate(center.x, center.y + HULL_PROXY_STEPPER_OFFSET, center.z)
-	if(stepper_spot)
-		new /obj/effect/abstract/hull_proxy(stepper_spot, port, 0, FALSE, TRUE)
-	new /obj/effect/abstract/hull_proxy(center, port, 0, TRUE, FALSE)
-	to_chat(user, span_notice("Зеркала [choice]: [length(GLOB.hull_proxies)] шт., собраны за [(REALTIMEOFDAY - start_time) / 10] с. Восточнее — неподвижные под 0/30/45°, севернее — пошаговое вращение, вокруг вас — орбита."))
-	BLACKBOX_LOG_ADMIN_VERB("Hull Proxy Test")
-
-#undef HULL_PROXY_ORBIT_RADIUS
-#undef HULL_PROXY_ORBIT_PERIOD
-#undef HULL_PROXY_ORBIT_STEPS
-#undef HULL_PROXY_STEP_DEGREES
-#undef HULL_PROXY_ROW_SPACING
-#undef HULL_PROXY_STEPPER_OFFSET
 #undef HULL_PROXY_SEAM_SCALE
 #undef HULL_PROXY_SHADING_SCALE
 #undef HULL_PROXY_LIGHT_COPY_INTERVAL
