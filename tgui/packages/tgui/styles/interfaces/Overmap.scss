@@ -803,8 +803,89 @@
   fill: #7fd98a;
 }
 
-.OvermapRadar__terrain {
+.OvermapRadar__floor {
+  fill: rgba(110, 170, 190, 0.12);
+}
+
+.OvermapRadar__frame {
   fill: rgba(142, 200, 214, 0.35);
+}
+
+.OvermapRadar__wall {
+  fill: rgba(170, 220, 232, 0.75);
+}
+
+.OvermapRadar__engine {
+  fill: #6b7a80;
+}
+
+.OvermapRadar__engine--firing {
+  fill: #9fd6ff;
+}
+
+.OvermapRadar__burn {
+  stroke: #6ec4ff;
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.OvermapHelm__gaugeNote {
+  margin-left: 0.4em;
+  opacity: 0.55;
+  font-size: 0.85em;
+}
+
+.OvermapThrust {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas:
+    '. front .'
+    'left turn right'
+    '. back .';
+  gap: 0.25em;
+  margin: 0.4em 0;
+  font-size: 0.85em;
+  text-align: center;
+}
+
+.OvermapThrust__side,
+.OvermapThrust__turn {
+  padding: 0.2em 0.3em;
+  border-radius: 3px;
+  background: rgba(110, 196, 255, 0.1);
+
+  span {
+    display: block;
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+}
+
+.OvermapThrust__side--front {
+  grid-area: front;
+}
+
+.OvermapThrust__side--back {
+  grid-area: back;
+}
+
+.OvermapThrust__side--left {
+  grid-area: left;
+}
+
+.OvermapThrust__side--right {
+  grid-area: right;
+}
+
+.OvermapThrust__turn {
+  grid-area: turn;
+  background: transparent;
+}
+
+.OvermapThrust__side--none {
+  background: rgba(255, 90, 78, 0.15);
+  color: #ff8a80;
 }
 
 .OvermapRadar__collar {
@@ -1072,9 +1153,7 @@
 }
 
 .OvermapLegend__hazard {
-  border-radius: 50%;
-  background: rgba(255, 80, 70, 0.55);
-  border: 1px solid #ff5a4e;
+  background: rgba(255, 90, 78, 0.35);
 }
 
 .OvermapLegend__sensors {
@@ -1183,10 +1262,9 @@
 }
 
 .OvermapSector__hazard {
-  fill: rgba(255, 80, 70, 0.35);
-  stroke: #ff5a4e;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+  fill: #ff5a4e;
+  fill-opacity: 0.22;
+  stroke: none;
 }
 
 .OvermapSector__route {

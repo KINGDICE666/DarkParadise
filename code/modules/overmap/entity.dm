@@ -48,6 +48,7 @@
 	var/overmap_jammed_until = 0
 	var/overmap_jam_was_halted = FALSE
 	var/next_overmap_hazard_carp = 0
+	var/next_overmap_hazard_hit = 0
 	var/programmed = FALSE
 	var/datum/overmap_programmed_mission/programmed_mission
 	var/programmed_emag_until = 0
@@ -61,6 +62,8 @@
 	var/obj/machinery/ship_engine/virtual_engine
 	var/free_flight_view = FALSE
 	var/list/hull_turfs
+	var/list/hull_watch
+	var/hull_dirty = FALSE
 	var/list/hull_edge
 	var/hull_inertia = 1
 	var/hull_center_x

@@ -6,8 +6,8 @@ export type SectorObject = {
   kind: string;
   x: number;
   y: number;
-  color: string;
-  is_self: BooleanLike;
+  color?: string | null;
+  is_self?: BooleanLike;
   heading?: number;
   distress?: BooleanLike;
   size?: number;
@@ -19,9 +19,6 @@ const MAP_PAD = 1.4;
 export const overmapObjectLabel = (object: SectorObject) => {
   if (object.kind === 'relay' && object.leads_to) {
     return `Ретранслятор → ${object.leads_to}`;
-  }
-  if (object.kind === 'hazard') {
-    return 'Опасная зона';
   }
   return object.name;
 };
@@ -82,8 +79,6 @@ const Glyph = (props: { object: SectorObject; radius: number }) => {
           stroke={color}
         />
       );
-    case 'hazard':
-      return <circle className="OvermapSector__hazard" r={radius * 1.3} />;
     default:
       return (
         <>
@@ -127,8 +122,10 @@ export const OvermapSectorMap = (props: {
     lines.push(line);
   }
   const terrain = objects.filter((object) => object.kind === 'planet');
+  const hazards = objects.filter((object) => object.kind === 'hazard');
   const markers = objects.filter(
-    (object) => !object.is_self && object.kind !== 'planet',
+    (object) =>
+      !object.is_self && object.kind !== 'planet' && object.kind !== 'hazard',
   );
   const destMarked =
     !!dest &&
@@ -199,6 +196,19 @@ export const OvermapSectorMap = (props: {
           )}
         </g>
       ))}
+      {hazards.map((hazard) => (
+        <rect
+          key={`${hazard.x}-${hazard.y}`}
+          className="OvermapSector__hazard"
+          x={hazard.x - 1}
+          y={size - hazard.y}
+          width={1}
+          height={1}
+          style={hazard.color ? { fill: hazard.color } : undefined}
+        >
+          <title>{`${hazard.name} (${hazard.x}:${hazard.y})`}</title>
+        </rect>
+      ))}
       {!!self && !!viewRange && (
         <circle
           className="OvermapSector__sensors"
@@ -267,21 +277,19 @@ export const OvermapSectorMap = (props: {
               <circle className="OvermapSector__hoverRing" r={radius * 2.2} />
             )}
             <Glyph object={object} radius={radius} />
-            {(object.kind !== 'hazard' || hovered) && (
-              <text
-                className={
-                  object.distress
-                    ? 'OvermapSector__label OvermapSector__label--sos'
-                    : 'OvermapSector__label'
-                }
-                x={radius * 1.8}
-                y={0}
-                fontSize={font}
-                dominantBaseline="central"
-              >
-                {object.distress ? `SOS · ${label}` : label}
-              </text>
-            )}
+            <text
+              className={
+                object.distress
+                  ? 'OvermapSector__label OvermapSector__label--sos'
+                  : 'OvermapSector__label'
+              }
+              x={radius * 1.8}
+              y={0}
+              fontSize={font}
+              dominantBaseline="central"
+            >
+              {object.distress ? `SOS · ${label}` : label}
+            </text>
           </g>
         );
       })}

@@ -21,6 +21,7 @@ import {
 import {
   OvermapRadar,
   type RadarContact,
+  type RadarEngine,
   type RadarShape,
   type RadarTerrain,
 } from './overmap/OvermapRadar';
@@ -66,6 +67,14 @@ type EngineInfo = {
   thrust: number;
   limit: number;
   status: string;
+  push?: number | null;
+};
+
+const PUSH_LABELS: Record<number, string> = {
+  1: 'вперёд',
+  2: 'назад',
+  4: 'вправо',
+  8: 'влево',
 };
 
 type ProgrammedRoute = {
@@ -104,6 +113,7 @@ type OvermapHelmData = {
   radar_drifters?: number[][];
   radar_terrain?: RadarTerrain | null;
   radar_world?: number[];
+  radar_engines?: RadarEngine[];
   can_jump?: BooleanLike;
   local_space?: BooleanLike;
   jump_left?: number;
@@ -120,6 +130,11 @@ type OvermapHelmData = {
   max_speed: number;
   engines_on: BooleanLike;
   braking: BooleanLike;
+  dampeners?: BooleanLike;
+  thrust_sides?: number[];
+  turn_accel?: number;
+  top_speed?: number;
+  omni_thrust?: BooleanLike;
   thrust: number;
   mass: number;
   thrust_limit: number;
@@ -328,6 +343,7 @@ const FlightView = (props: {
             facing={data.facing || 0}
             terrain={data.radar_terrain}
             world={data.radar_world}
+            engines={data.radar_engines || []}
           />
         ) : (
           <OvermapSectorMap
@@ -372,7 +388,7 @@ const FlightView = (props: {
 
 const FlightSide = (props: { onLanding: () => void }) => {
   const { data } = useBackend<OvermapHelmData>();
-  const { phase, speed, facing, heading, radar_enabled } = data;
+  const { phase, speed, facing, heading, radar_enabled, top_speed } = data;
   const hint = phaseHint(data);
   return (
     <>
@@ -384,6 +400,9 @@ const FlightSide = (props: { onLanding: () => void }) => {
             <div>
               <span>скорость</span>
               {speed} м/с
+              {!!top_speed && (
+                <span className="OvermapHelm__gaugeNote">из {top_speed}</span>
+              )}
             </div>
             <div>
               <span>{radar_enabled ? 'нос' : 'курс'}</span>
@@ -444,7 +463,8 @@ const JumpProgress = () => {
 
 const PilotControls = () => {
   const { act, data } = useBackend<OvermapHelmData>();
-  const { piloting, pilot_name, can_steer, braking, autopilot } = data;
+  const { piloting, pilot_name, can_steer, braking, autopilot, dampeners } =
+    data;
   return (
     <>
       <Button
@@ -465,15 +485,16 @@ const PilotControls = () => {
       {!!piloting && (
         <div className="OvermapKeys">
           <span>W S</span>
-          <span>тяга вперёд и назад</span>
+          <span>вперёд и назад</span>
           <span>A D</span>
-          <span>сдвиг влево и вправо</span>
+          <span>влево и вправо</span>
           <span>Q E</span>
           <span>поворот</span>
           <span>Пробел</span>
           <span>тормоз</span>
         </div>
       )}
+      {!!piloting && <ThrustCompass />}
       {!piloting && !!autopilot && (
         <Box className="OvermapHelm__statusHint">Сейчас ведёт автопилот.</Box>
       )}
@@ -487,7 +508,51 @@ const PilotControls = () => {
       >
         {braking ? 'Тормозим… (нажмите, чтобы отменить)' : 'Остановить корабль'}
       </Button>
+      <Button
+        fluid
+        icon="anchor-lock"
+        selected={!!dampeners}
+        tooltip="Когда штурвал отпущен, двигатели сами гасят скорость"
+        onClick={() => act('toggle_dampeners')}
+      >
+        {dampeners ? 'Гаситель инерции включён' : 'Гаситель инерции выключен'}
+      </Button>
     </>
+  );
+};
+
+const THRUST_SIDES = [
+  { index: 0, label: 'вперёд', className: 'OvermapThrust__side--front' },
+  { index: 1, label: 'вправо', className: 'OvermapThrust__side--right' },
+  { index: 2, label: 'назад', className: 'OvermapThrust__side--back' },
+  { index: 3, label: 'влево', className: 'OvermapThrust__side--left' },
+];
+
+const ThrustCompass = () => {
+  const { data } = useBackend<OvermapHelmData>();
+  const { thrust_sides = [], turn_accel = 0, omni_thrust } = data;
+  if (omni_thrust) {
+    return null;
+  }
+  return (
+    <div className="OvermapThrust">
+      {THRUST_SIDES.map((side) => {
+        const accel = thrust_sides[side.index] || 0;
+        return (
+          <div
+            key={side.index}
+            className={`OvermapThrust__side ${side.className}${accel ? '' : ' OvermapThrust__side--none'}`}
+          >
+            <span>{side.label}</span>
+            {accel ? `${accel} м/с²` : 'нет тяги'}
+          </div>
+        );
+      })}
+      <div className="OvermapThrust__turn">
+        <span>поворот</span>
+        {turn_accel ? `${turn_accel}°/с²` : 'нечем'}
+      </div>
+    </div>
   );
 };
 
@@ -593,7 +658,7 @@ const TargetCard = () => {
               unit="м/с"
               value={max_speed}
               minValue={1}
-              maxValue={45}
+              maxValue={30}
               step={1}
               onChange={(value) => act('set_max_speed', { value: value })}
             />
@@ -872,7 +937,7 @@ const SystemsOverlay = (props: { onClose: () => void }) => {
                 key={engine.ref}
                 tag={engine.status}
                 title={engine.name}
-                meta={`тяга ${engine.thrust}`}
+                meta={`тяга ${engine.thrust}${engine.push ? ` · толкает ${PUSH_LABELS[engine.push]}` : ''}`}
                 muted={!engine.on}
               >
                 <NumberInput

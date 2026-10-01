@@ -280,7 +280,7 @@
 	size = OVERMAP_SECTOR_WILDERNESS_SIZE
 	sector_kind = OVERMAP_SECTOR_KIND_WILDERNESS
 	ruin_spawn_weight = 2
-	hazard_spawn_weight = 2
+	hazard_spawn_weight = 1
 	tile_travel = 3
 
 /datum/overmap_sector/wilderness/populate_roundstart()

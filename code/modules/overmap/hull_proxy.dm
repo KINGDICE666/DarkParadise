@@ -3,6 +3,10 @@
 #define HULL_PROXY_LIGHT_COPY_INTERVAL (1 SECONDS)
 #define HULL_PROXY_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 1)
 #define HULL_PROXY_SHADE_LAYER (FLOOR_EMISSIVE_START_LAYER - 0.01)
+#define HULL_PROXY_GLOW_MIN_RANGE 3
+#define HULL_PROXY_GLOW_MAX_RANGE 8
+#define HULL_PROXY_GLOW_POWER 0.6
+#define HULL_PROXY_GLOW_COLOR "#cfe0ff"
 
 /datum/hull_proxy
 	var/obj/overmap/entity/vessel
@@ -11,6 +15,7 @@
 	var/center_y
 	var/proxy_z
 	var/heading
+	var/obj/effect/abstract/hull_proxy_glow/glow
 
 /obj/effect/abstract/hull_proxy_tile
 	name = "hull proxy tile"
@@ -36,6 +41,14 @@
 	layer = HULL_PROXY_LIGHT_LAYER
 	appearance_flags = RESET_COLOR | RESET_ALPHA
 
+/obj/effect/abstract/hull_proxy_glow
+	name = "hull glow"
+	invisibility = 0
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
+	light_color = HULL_PROXY_GLOW_COLOR
+	light_power = HULL_PROXY_GLOW_POWER
+
 /obj/effect/abstract/hull_proxy_shade
 	name = "hull proxy shade"
 	icon = 'icons/effects/alphacolors.dmi'
@@ -47,8 +60,11 @@
 	layer = HULL_PROXY_SHADE_LAYER
 	appearance_flags = RESET_COLOR | RESET_ALPHA
 
-/datum/hull_proxy/New(obj/overmap/entity/vessel, turf/viewer_turf)
+/datum/hull_proxy/New(obj/overmap/entity/vessel, turf/viewer_turf, glowing = FALSE)
 	src.vessel = vessel
+	if(glowing)
+		glow = new(null)
+		refresh_glow()
 	for(var/turf/hull_turf as anything in vessel.hull_turfs)
 		var/obj/effect/abstract/hull_proxy_tile/tile = new(null)
 		tile.base_x = (hull_turf.x - vessel.hull_center_x) * ICON_SIZE_X
@@ -62,6 +78,7 @@
 
 /datum/hull_proxy/Destroy(force)
 	QDEL_LIST(tiles)
+	QDEL_NULL(glow)
 	vessel = null
 	return ..()
 
@@ -88,6 +105,9 @@
 	heading = new_heading
 	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
 		tile.glide(center_x + tile.rotated_x(heading) / ICON_SIZE_X, center_y + tile.rotated_y(heading) / ICON_SIZE_Y, proxy_z, tile.rotated_transform(heading), bounds, time)
+	var/turf/glow_turf = glow && locate(clamp(round(center_x, 1), bounds[1], bounds[3]), clamp(round(center_y, 1), bounds[2], bounds[4]), proxy_z)
+	if(glow_turf && glow.loc != glow_turf)
+		glow.forceMove(glow_turf)
 
 /obj/effect/abstract/hull_proxy_tile/proc/glide(visual_x, visual_y, target_z, matrix/new_transform, list/bounds, time)
 	var/anchor_x = clamp(round(visual_x, 1), bounds[1], bounds[3])
@@ -147,6 +167,19 @@
 /datum/hull_proxy/proc/refresh_light_copies()
 	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
 		tile.copy_light()
+	refresh_glow()
+
+/datum/hull_proxy/proc/refresh_glow()
+	if(!glow)
+		return
+	var/lit = FALSE
+	for(var/area/place as anything in vessel.shuttle?.shuttle_areas)
+		if(place.powered(LIGHT))
+			lit = TRUE
+			break
+	var/glow_range = lit ? clamp(round(vessel.hull_radius) + 2, HULL_PROXY_GLOW_MIN_RANGE, HULL_PROXY_GLOW_MAX_RANGE) : 0
+	if(glow.light_range != glow_range)
+		glow.set_light_range(glow_range)
 
 /obj/effect/abstract/hull_proxy_tile/proc/rotated_x(angle)
 	return base_x * cos(angle) + base_y * sin(angle)
@@ -165,3 +198,7 @@
 #undef HULL_PROXY_LIGHT_COPY_INTERVAL
 #undef HULL_PROXY_LIGHT_LAYER
 #undef HULL_PROXY_SHADE_LAYER
+#undef HULL_PROXY_GLOW_MIN_RANGE
+#undef HULL_PROXY_GLOW_MAX_RANGE
+#undef HULL_PROXY_GLOW_POWER
+#undef HULL_PROXY_GLOW_COLOR

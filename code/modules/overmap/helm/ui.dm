@@ -77,6 +77,7 @@
 		data["radar_shapes"] = vessel.radar_shapes()
 		data["radar"] = vessel.radar_contacts()
 		data["radar_drifters"] = vessel.radar_drifters()
+		data["radar_engines"] = vessel.radar_engines()
 		data["radar_terrain"] = vessel.radar_terrain()
 		data["radar_world"] = list(vessel.get_world_x(), vessel.get_world_y())
 	data["accel"] = round(OVERMAP_DISPLAY_SPEED(vessel.get_effective_acceleration()), 0.01)
@@ -89,6 +90,13 @@
 	data["thrust"] = vessel.get_total_thrust()
 	data["mass"] = vessel.vessel_mass
 	data["thrust_limit"] = round((nav?.thrust_limit || 0) * 100)
+	if(nav)
+		nav.refresh_thrust()
+		data["dampeners"] = nav.dampeners
+		data["thrust_sides"] = list(nav.side_accel(nav.thrust_north), nav.side_accel(nav.thrust_east), nav.side_accel(nav.thrust_south), nav.side_accel(nav.thrust_west))
+		data["turn_accel"] = round(nav.angular_accel(min(nav.torque_left, nav.torque_right)) * (1 SECONDS) * (1 SECONDS), 0.1)
+		data["top_speed"] = round(OVERMAP_DISPLAY_SPEED(nav.top_speed()), 0.1)
+		data["omni_thrust"] = nav.omni_thrust
 	var/list/engines = list()
 	for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
 		engines += list(list(
@@ -98,6 +106,7 @@
 			"thrust" = engine.get_thrust(),
 			"limit" = round(engine.thrust_limit * 100),
 			"status" = engine.get_status(),
+			"push" = engine.omnidirectional ? null : REVERSE_DIR(engine.dir),
 		))
 	data["engines"] = engines
 	var/obj/machinery/transponder/beacon = vessel.transponder
@@ -169,6 +178,15 @@
 			var/is_entity = istype(contact)
 			var/obj/overmap/planet/planet = overmap_object
 			var/obj/overmap/entity/hyperrelay/relay = overmap_object
+			if(istype(overmap_object, /obj/overmap/feature/hazard))
+				objects += list(list(
+					"name" = identified ? overmap_object.get_overmap_display_name() : OVERMAP_HAZARD_UNKNOWN_NAME,
+					"kind" = OVERMAP_KIND_HAZARD,
+					"x" = vessel.sector.coord_x(object_turf),
+					"y" = vessel.sector.coord_y(object_turf),
+					"color" = identified ? overmap_object.map_color : null,
+				))
+				continue
 			objects += list(list(
 				"name" = is_self || identified ? overmap_object.get_overmap_display_name() : OVERMAP_UNKNOWN_NAME,
 				"kind" = identified || is_self ? overmap_object.overmap_kind : "unknown",
@@ -248,7 +266,7 @@
 				to_chat(usr, span_warning("Идёт гиперпрыжок."))
 			else
 				nav.take_pilot(usr, src)
-				to_chat(usr, span_notice("Вы за штурвалом. W и S — тяга, A и D — сдвиг вбок, Q и E — поворот, пробел — тормоз."))
+				to_chat(usr, span_notice("Вы за штурвалом. W, A, S и D толкают корабль двигателями нужного борта, Q и E — поворот, пробел — тормоз."))
 			. = TRUE
 		if("hyperjump")
 			var/jump_result = vessel.start_jump()
@@ -272,6 +290,10 @@
 			. = TRUE
 		if("cut_engines")
 			vessel.cut_engines()
+			. = TRUE
+		if("toggle_dampeners")
+			if(vessel.flight)
+				vessel.flight.dampeners = !vessel.flight.dampeners
 			. = TRUE
 		if("set_thrust_limit")
 			if(vessel.flight)

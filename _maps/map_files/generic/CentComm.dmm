@@ -234,6 +234,16 @@
 /obj/structure/flora/grass/jungle,
 /turf/simulated/floor/indestructible/grass,
 /area/centcom/syndicate_base/outside)
+"adk" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 9;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_corners"
+	},
+/area/shuttle/ninja)
 "adx" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 4;
@@ -752,6 +762,14 @@
 /obj/structure/decorative_structures/metal/statue/sun,
 /turf/simulated/wall/indestructible/fakeglass/brass,
 /area/centcom/vox_station)
+"apQ" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/funeral)
 "aqV" = (
 /obj/effect/turf_decal/siding/yellow{
 	dir = 8
@@ -1793,6 +1811,12 @@
 	},
 /turf/simulated/floor/wood,
 /area/centcom/trader_station/sol)
+"aQZ" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/escape)
 "aRd" = (
 /obj/machinery/atmospherics/pipe/simple/hidden{
 	dir = 5
@@ -2204,6 +2228,12 @@
 	icon_state = "darkredalt"
 	},
 /area/centcom/central_command_areas/prison)
+"beh" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/trade/sol)
 "bej" = (
 /obj/structure/chair/comfy/shuttle,
 /obj/machinery/light{
@@ -2459,6 +2489,16 @@
 	icon_state = "floor4"
 	},
 /area/shuttle/ussp)
+"bjx" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 5;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_corners"
+	},
+/area/shuttle/ninja)
 "bjJ" = (
 /obj/structure/closet{
 	custom_door_overlay = "green";
@@ -2600,6 +2640,14 @@
 /obj/machinery/light/directional/south,
 /turf/simulated/floor/mineral/plastitanium/nitrogen/pink,
 /area/centcom/vox_station)
+"bpr" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/specops)
 "bpI" = (
 /obj/structure/table/wood{
 	color = "#996633"
@@ -4703,6 +4751,14 @@
 	icon_state = "freezerfloor"
 	},
 /area/centcom/syndicate_base)
+"cuS" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/specops)
 "cvb" = (
 /obj/effect/turf_decal/delivery/hollow,
 /obj/effect/mapping_helpers/turfs/damage,
@@ -5232,6 +5288,14 @@
 /obj/structure/table/wood/fancy/royalblue,
 /turf/simulated/floor/carpet/black,
 /area/shuttle/administration)
+"cHf" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_sit)
 "cHC" = (
 /obj/structure/grille,
 /obj/structure/window/full/shuttle/gray,
@@ -5459,6 +5523,14 @@
 	},
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/central_command_areas/special_operations)
+"cNU" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/ussp)
 "cNV" = (
 /obj/machinery/door/poddoor/shutters/invincible{
 	armor = list("melee"=100,"bullet"=100,"laser"=100,"energy"=100,"bomb"=100,"bio"=100,"fire"=100,"acid"=100);
@@ -5775,6 +5847,12 @@
 /obj/effect/turf_decal/weather/snow/corner,
 /turf/simulated/floor/indestructible/asteroid,
 /area/centcom/ninja/outside)
+"cUL" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/administration)
 "cVb" = (
 /obj/effect/turf_decal/weather/snow/corner{
 	dir = 6
@@ -5944,6 +6022,14 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/ninja)
+"dab" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate)
 "daj" = (
 /obj/structure/closet/fireaxecabinet{
 	pixel_y = 32
@@ -6961,6 +7047,14 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/centcom/central_command_areas/special_operations)
+"dxp" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/ussp)
 "dxv" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/mineral/plastitanium/nitrogen/pink,
@@ -7122,6 +7216,12 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating/nitrogen,
 /area/space)
+"dCf" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/mining)
 "dCm" = (
 /obj/item/stack/wrapping_paper,
 /obj/item/stack/wrapping_paper,
@@ -7252,6 +7352,12 @@
 /obj/effect/landmark/start,
 /turf/simulated/wall/indestructible/splashscreen,
 /area/misc/start)
+"dEf" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/administration)
 "dEr" = (
 /obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/poddoor/shutters/invincible{
@@ -7504,6 +7610,12 @@
 /obj/machinery/sensor_array/long_range,
 /turf/simulated/wall/shuttle,
 /area/shuttle/escape)
+"dLu" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/transport)
 "dLC" = (
 /obj/machinery/light/small{
 	dir = 1
@@ -7760,6 +7872,12 @@
 	icon_state = "darkgrey"
 	},
 /area/centcom/central_command_areas/evacuation)
+"dSj" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/spacebar)
 "dSn" = (
 /obj/structure/rack,
 /obj/item/reagent_containers/spray/plantbgone,
@@ -10926,6 +11044,14 @@
 /obj/structure/shuttle/engine/platform,
 /turf/simulated/floor/plating,
 /area/centcom/syndicate_base/cargo)
+"frK" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/funeral)
 "fsf" = (
 /obj/effect/turf_decal/siding/wood,
 /turf/simulated/floor/carpet/blue,
@@ -12530,6 +12656,12 @@
 	icon_state = "dark"
 	},
 /area/centcom/syndicate_base/cargo)
+"gbB" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/spacebar)
 "gbQ" = (
 /obj/structure/flora/junglebush,
 /obj/effect/turf_decal/siding/green,
@@ -14764,6 +14896,14 @@
 	icon_state = "darkyellowcornersalt"
 	},
 /area/centcom/syndicate_base/cargo)
+"hil" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_elite)
 "hiC" = (
 /obj/machinery/light/small{
 	dir = 1
@@ -15056,6 +15196,12 @@
 /obj/effect/spawner/window/plastitanium,
 /turf/simulated/floor/plating/nitrogen,
 /area/shuttle/vox)
+"hpN" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/siberia)
 "hqm" = (
 /obj/effect/turf_decal/tile{
 	alpha = 128;
@@ -15086,6 +15232,14 @@
 /obj/machinery/overmap_intercom/directional/west,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/central_command_areas/special_operations)
+"hsp" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/specops)
 "hsz" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 8
@@ -15176,13 +15330,6 @@
 /obj/structure/bed,
 /turf/simulated/floor/carpet/black,
 /area/centcom/syndicate_base/control)
-"htX" = (
-/turf/simulated/wall/shuttle/nosmooth{
-	dir = 10;
-	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
-	icon_state = "ninja_walls_T_alt"
-	},
-/area/shuttle/ninja)
 "hua" = (
 /obj/machinery/light,
 /obj/effect/turf_decal/tile{
@@ -15258,6 +15405,14 @@
 	name = "Tatami"
 	},
 /area/centcom/ninja/outpost)
+"hvS" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/indestructible/syndicate{
+	smooth = 2
+	},
+/area/shuttle/vox)
 "hvW" = (
 /turf/simulated/floor/bluegrid,
 /area/centcom/heretic_sacrifice/bluespace)
@@ -15357,6 +15512,14 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/zone/three)
+"hyj" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate)
 "hzh" = (
 /obj/effect/decal/cleanable/confetti,
 /obj/effect/decal/cleanable/dirt,
@@ -15883,6 +16046,12 @@
 /obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/carpet,
 /area/centcom/central_command_areas/evacuation)
+"hNI" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/trade/sol)
 "hNK" = (
 /obj/structure/chair/sofa/left,
 /obj/effect/mine/sound/bwoink{
@@ -16115,6 +16284,12 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/specops)
+"hVC" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/spacebar)
 "hWf" = (
 /obj/structure/chair/sofa/corp/left,
 /turf/simulated/floor/carpet,
@@ -18680,6 +18855,12 @@
 	},
 /turf/simulated/floor/wood/fancy/cherry,
 /area/centcom/central_command_areas/bridge)
+"jdB" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/spacebar)
 "jdQ" = (
 /obj/structure/window/reinforced{
 	dir = 4
@@ -18912,6 +19093,12 @@
 	},
 /turf/simulated/floor/indestructible/asteroid,
 /area/centcom/syndicate_base/outside)
+"jhE" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/trade/sol)
 "jhY" = (
 /obj/machinery/vending/ntc_resources{
 	req_access = list(114)
@@ -18959,6 +19146,12 @@
 /area/centcom/syndicate_base/outside)
 "jiI" = (
 /turf/simulated/wall/shuttle/nodiagonal,
+/area/shuttle/administration)
+"jiM" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
 /area/shuttle/administration)
 "jiV" = (
 /obj/effect/mapping_helpers/light,
@@ -19064,6 +19257,12 @@
 /obj/item/toy/plushie/voxplushie/brick,
 /turf/simulated/floor/mineral/plastitanium/red/nitrogen,
 /area/centcom/vox_station)
+"jln" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/trade/sol)
 "jlp" = (
 /obj/structure/window/reinforced{
 	dir = 8
@@ -24529,6 +24728,12 @@
 	},
 /turf/simulated/floor/indestructible/abductor,
 /area/centcom/abductor_ship)
+"luq" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/transport)
 "lus" = (
 /obj/effect/turf_decal/stripes/asteroid/corner{
 	dir = 1
@@ -24554,6 +24759,18 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/dark/nitrogen,
 /area/centcom/vox_station)
+"luU" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/spacebar)
+"lvP" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/transport)
 "lvT" = (
 /obj/structure/weightmachine/stacklifter,
 /turf/simulated/floor/grass,
@@ -25634,6 +25851,14 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/special_operations)
+"lUL" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_sit)
 "lVo" = (
 /obj/structure/flora/rock/jungle,
 /obj/effect/turf_decal/siding/green{
@@ -26419,13 +26644,6 @@
 /obj/item/flashlight/lantern,
 /turf/simulated/floor/grass,
 /area/centcom/central_command_areas/evacuation)
-"mll" = (
-/turf/simulated/wall/shuttle/nosmooth{
-	dir = 6;
-	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
-	icon_state = "ninja_walls_T_alt"
-	},
-/area/shuttle/ninja)
 "mls" = (
 /obj/structure/table/wood/fancy/black,
 /turf/simulated/floor/plating{
@@ -30175,6 +30393,12 @@
 	icon_state = "darkyellow"
 	},
 /area/centcom/central_command_areas/supplypod/loading/three)
+"nOe" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/siberia)
 "nOh" = (
 /turf/simulated/floor/mineral/plastitanium/red/nitrogen,
 /area/centcom/vox_station)
@@ -30623,6 +30847,16 @@
 	icon_state = "fancy-wood-cherry"
 	},
 /area/centcom/syndicate_base/control)
+"nYx" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 6;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_T_alt"
+	},
+/area/shuttle/ninja)
 "nYA" = (
 /obj/machinery/light/small{
 	dir = 8
@@ -31133,6 +31367,12 @@
 /obj/structure/flora/ausbushes/lavendergrass,
 /turf/simulated/floor/indestructible/grass,
 /area/centcom/syndicate_base/outside)
+"okj" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/transport)
 "oks" = (
 /obj/effect/turf_decal/siding{
 	color = "#444444";
@@ -32586,9 +32826,6 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/centcom/central_command_areas/zone/two)
-"oQV" = (
-/turf/simulated/wall/shuttle/onlyselfsmooth,
-/area/shuttle/mining)
 "oRh" = (
 /obj/machinery/door/airlock/syndicate/cargo/glass{
 	name = "Cargo shuttle control room";
@@ -33522,6 +33759,12 @@
 	},
 /turf/simulated/floor/indestructible/asteroid,
 /area/centcom/ninja/outside)
+"pqy" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/escape)
 "pqR" = (
 /obj/effect/decal/syndie_logo{
 	icon_state = "logo6"
@@ -34065,6 +34308,12 @@
 	icon_state = "darkyellowfull"
 	},
 /area/centcom/syndicate_base/cargo)
+"pDc" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/siberia)
 "pDd" = (
 /obj/effect/decal/syndie_logo{
 	icon_state = "logo6"
@@ -35508,6 +35757,14 @@
 	},
 /turf/simulated/floor/wood,
 /area/centcom/central_command_areas/zone/three)
+"qku" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_elite)
 "qkx" = (
 /obj/structure/bed,
 /obj/item/bedsheet/qm,
@@ -37225,6 +37482,12 @@
 	icon_state = "floor3"
 	},
 /area/shuttle/administration)
+"qXI" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/escape)
 "qXK" = (
 /obj/machinery/door_control/secure{
 	id = "SST_armory_mech_maintenance";
@@ -37464,6 +37727,12 @@
 	},
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/syndicate_base/prison)
+"rbN" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/escape)
 "rbO" = (
 /obj/effect/turf_decal/stripes/line{
 	icon = 'icons/turf/floors.dmi';
@@ -37627,6 +37896,12 @@
 /obj/item/clothing/head/helmet/space/vox/pressure,
 /turf/simulated/floor/mineral/plastitanium/red/nitrogen,
 /area/centcom/vox_station)
+"rdm" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/transport)
 "rdx" = (
 /obj/structure/railing,
 /obj/effect/turf_decal/stripes/line{
@@ -38408,6 +38683,14 @@
 	},
 /turf/simulated/floor/mineral/plastitanium/nitrogen/yellow,
 /area/centcom/vox_station)
+"rsk" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/ussp)
 "rsy" = (
 /obj/effect/turf_decal/stripes/gold{
 	dir = 6
@@ -38459,13 +38742,6 @@
 	},
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/central_command_areas/evacuation)
-"rug" = (
-/turf/simulated/wall/shuttle/nosmooth{
-	dir = 5;
-	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
-	icon_state = "ninja_walls_corners"
-	},
-/area/shuttle/ninja)
 "ruh" = (
 /obj/machinery/ship_engine{
 	dir = 1;
@@ -39612,6 +39888,16 @@
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "floor13"
+	},
+/area/shuttle/ninja)
+"rTf" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 10;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_corners"
 	},
 /area/shuttle/ninja)
 "rTw" = (
@@ -41879,6 +42165,16 @@
 	icon_state = "bot"
 	},
 /area/shuttle/escape)
+"sXR" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 10;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_T_alt"
+	},
+/area/shuttle/ninja)
 "sYF" = (
 /obj/effect/decal/syndie_logo{
 	icon_state = "logo6"
@@ -42302,6 +42598,14 @@
 	icon_state = "warndarkgreyred"
 	},
 /area/centcom/syndicate_base)
+"tfA" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/ussp)
 "tfR" = (
 /obj/structure/window/reinforced,
 /obj/effect/turf_decal/siding/white,
@@ -42425,6 +42729,14 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/evacuation)
+"tjQ" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/ussp)
 "tjU" = (
 /obj/item/flag/species/drask,
 /obj/machinery/light/small{
@@ -42946,6 +43258,12 @@
 	},
 /turf/simulated/floor/indestructible/asteroid,
 /area/centcom/syndicate_base/outside)
+"tvt" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/mining)
 "tvL" = (
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -42965,6 +43283,12 @@
 	icon_state = "darkgrey"
 	},
 /area/centcom/syndicate_base)
+"twT" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/mining)
 "txk" = (
 /obj/effect/turf_decal/stripes/gold{
 	dir = 9
@@ -43981,6 +44305,12 @@
 	icon_state = "dark"
 	},
 /area/centcom/syndicate_base/cargo)
+"tPF" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/siberia)
 "tPL" = (
 /turf/simulated/floor/wood{
 	icon_state = "fancy-wood-oak-broken4"
@@ -44734,6 +45064,14 @@
 	icon_state = "floor4"
 	},
 /area/shuttle/syndicate_elite)
+"uiQ" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/funeral)
 "ujo" = (
 /obj/machinery/door/poddoor{
 	id_tag = "nukeop_ready";
@@ -46374,6 +46712,12 @@
 	icon_state = "darkgreynavyblue"
 	},
 /area/centcom/central_command_areas/special_operations)
+"uUd" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/trade/sol)
 "uUr" = (
 /obj/effect/turf_decal/stripes/gold{
 	dir = 6
@@ -46837,6 +47181,16 @@
 	icon_state = "fancy-wood-cherry"
 	},
 /area/centcom/syndicate_base/control)
+"vfv" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/nosmooth{
+	dir = 6;
+	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
+	icon_state = "ninja_walls_corners"
+	},
+/area/shuttle/ninja)
 "vfD" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
@@ -47194,6 +47548,14 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/centcom/central_command_areas/zone/two)
+"vma" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_sit)
 "vmC" = (
 /obj/structure/railing{
 	dir = 4
@@ -48489,6 +48851,14 @@
 	icon_state = "light-fancy-wood"
 	},
 /area/centcom/central_command_areas/special_operations)
+"vPJ" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_elite)
 "vPS" = (
 /obj/effect/decal/syndie_logo{
 	icon_state = "logo9"
@@ -48673,6 +49043,14 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/zone/one)
+"vUP" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate_elite)
 "vUW" = (
 /obj/structure/window/reinforced{
 	dir = 1
@@ -49131,13 +49509,6 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/centcom/syndicate_base/prison)
-"whe" = (
-/turf/simulated/wall/shuttle/nosmooth{
-	dir = 9;
-	icon = 'icons/turf/walls/shuttle/ninja_shuttle_wall.dmi';
-	icon_state = "ninja_walls_corners"
-	},
-/area/shuttle/ninja)
 "whO" = (
 /obj/effect/turf_decal/number/number_6{
 	dir = 4
@@ -49910,6 +50281,14 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/centcom/central_command_areas/special_operations)
+"wEq" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/specops)
 "wEu" = (
 /obj/machinery/light{
 	dir = 4
@@ -50212,6 +50591,12 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/supply)
+"wNW" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/siberia)
 "wNY" = (
 /obj/machinery/ship_engine{
 	dir = 8;
@@ -51023,6 +51408,14 @@
 	icon_state = "fancy-wood-oak"
 	},
 /area/centcom/syndicate_base)
+"xfY" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/syndicate)
 "xgh" = (
 /obj/machinery/mass_driver{
 	dir = 4;
@@ -52004,6 +52397,12 @@
 /obj/machinery/syndiepad/loadpad,
 /turf/simulated/floor/carpet,
 /area/centcom/syndicate_base/control)
+"xzl" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 8
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/administration)
 "xzN" = (
 /obj/machinery/door/poddoor/shutters/preopen{
 	dir = 8;
@@ -52595,6 +52994,20 @@
 	icon_state = "fancy-wood-oak-broken3"
 	},
 /area/centcom/syndicate_base)
+"xNP" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle/onlyselfsmooth,
+/area/shuttle/escape)
+"xNS" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/shuttle{
+	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
+	},
+/area/shuttle/specops)
 "xNZ" = (
 /obj/structure/bed,
 /obj/item/bedsheet/qm,
@@ -53338,6 +53751,12 @@
 	icon_state = "darkblue"
 	},
 /area/centcom/central_command_areas/zone/three)
+"ykv" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/administration)
 "ykS" = (
 /turf/simulated/floor/indestructible/snow,
 /area/centcom/ninja/outside)
@@ -58401,21 +58820,21 @@ kov
 lFi
 mVX
 dpp
-aPg
-aPg
-aPg
-rQu
-aPg
-rQu
-aPg
+hvS
 aPg
 aPg
 rQu
+aPg
 rQu
 aPg
 aPg
 aPg
+rQu
+rQu
 aPg
+aPg
+hvS
+hvS
 dpp
 mVX
 jMD
@@ -59171,7 +59590,7 @@ lFi
 vJk
 uZY
 aPg
-aPg
+hvS
 aPg
 aPg
 fzi
@@ -62040,7 +62459,7 @@ lPg
 msl
 mNY
 vLL
-vLL
+cHf
 vLL
 vLL
 vLL
@@ -62048,7 +62467,7 @@ vLL
 tjm
 qpO
 tjm
-vLL
+cHf
 vLL
 rgB
 keo
@@ -62306,7 +62725,7 @@ sJa
 tVF
 vfg
 vtg
-vLL
+lUL
 rgB
 keo
 nYK
@@ -62820,7 +63239,7 @@ sSp
 tDJ
 upD
 uws
-vLL
+lUL
 rgB
 keo
 nYK
@@ -63068,6 +63487,7 @@ lTg
 mvd
 mNY
 vLL
+vma
 vLL
 vLL
 vLL
@@ -63075,8 +63495,7 @@ vLL
 vLL
 vLL
 vLL
-vLL
-vLL
+vma
 vLL
 rgB
 keo
@@ -65637,7 +66056,7 @@ lmY
 lXY
 qiR
 yiJ
-yiJ
+xfY
 xqR
 yiJ
 yiJ
@@ -66149,7 +66568,7 @@ jOH
 kAO
 aOe
 lXY
-xqR
+hyj
 xaF
 xir
 xun
@@ -66169,7 +66588,7 @@ yiJ
 yiJ
 yiJ
 yiJ
-yiJ
+xfY
 yiJ
 ugm
 uHa
@@ -67434,7 +67853,7 @@ jOH
 kAO
 aOe
 lXz
-xqR
+hyj
 mjd
 vLM
 xcS
@@ -67454,7 +67873,7 @@ yiJ
 yiJ
 yiJ
 yiJ
-yiJ
+dab
 yiJ
 uhy
 uLg
@@ -67950,7 +68369,7 @@ aOe
 lXY
 qiR
 yiJ
-yiJ
+dab
 xqR
 yiJ
 yiJ
@@ -70521,15 +70940,15 @@ max
 mzI
 mTh
 vzm
+qku
 vzm
 vzm
 vzm
 vzm
 vzm
 vzm
-vzm
-vzm
-vzm
+qku
+vPJ
 qiR
 rkx
 mZB
@@ -71549,15 +71968,15 @@ lTg
 mCv
 mTh
 vzm
-vzm
+hil
 vzm
 vzm
 vzm
 vzm
 trC
 jfR
-trC
-vzm
+vUP
+vPJ
 qiR
 rkx
 mZB
@@ -77564,11 +77983,11 @@ rRS
 rRS
 "}
 (95,1,1) = {"
-hoJ
-gRr
+gbB
+luU
 fWE
 gRr
-hoJ
+jdB
 hoJ
 mVX
 mVX
@@ -78335,11 +78754,11 @@ rRS
 rRS
 "}
 (98,1,1) = {"
-hoJ
-gRr
+gbB
+hVC
 jHe
 gRr
-hoJ
+dSj
 hoJ
 mVX
 mVX
@@ -78592,13 +79011,13 @@ rRS
 rRS
 "}
 (99,1,1) = {"
+tjQ
+cNU
 jvI
 jvI
 jvI
 jvI
-jvI
-jvI
-giC
+rsk
 jvI
 mVX
 mVX
@@ -79117,11 +79536,11 @@ hCr
 mVX
 mVX
 piE
-oQV
+twT
 dDb
 ftK
 dDb
-oQV
+twT
 piE
 mVX
 mVX
@@ -79373,7 +79792,7 @@ bSw
 hCr
 mVX
 mVX
-oQV
+tvt
 nuC
 qDA
 qDA
@@ -79620,13 +80039,13 @@ rRS
 rRS
 "}
 (103,1,1) = {"
-jvI
-giC
+tjQ
+dxp
 aWY
 giC
 giC
 gmU
-jvI
+tfA
 jvI
 mVX
 mVX
@@ -79878,16 +80297,16 @@ rRS
 "}
 (104,1,1) = {"
 bRt
-bRt
+uiQ
 bRt
 vQc
 vQc
 vQc
 eIX
 iUN
+uiQ
 bRt
-bRt
-oQV
+tvt
 ejG
 qDA
 qDA
@@ -80143,13 +80562,13 @@ ted
 rxG
 bnT
 wQE
-bRt
+frK
 piE
-oQV
+dCf
 dDb
 jNQ
 dDb
-oQV
+dCf
 piE
 mVX
 mVX
@@ -80402,13 +80821,13 @@ ted
 gEb
 kAR
 oJI
-sKg
+wNW
 lDH
 sKg
 ata
 sXM
 prf
-oJI
+pDc
 oJI
 mVX
 mVX
@@ -80658,7 +81077,7 @@ bnT
 ted
 hwm
 kAR
-sKg
+hpN
 lBl
 lOB
 svC
@@ -81171,8 +81590,8 @@ ted
 uPJ
 bnT
 ePZ
-bRt
-sKg
+frK
+hpN
 ogO
 oiv
 ovE
@@ -81420,23 +81839,23 @@ rRS
 "}
 (110,1,1) = {"
 bRt
-bRt
+apQ
 bRt
 vQc
 vQc
 vQc
 eIX
 rKd
-bRt
+apQ
 bRt
 oJI
-sKg
+tPF
 okx
 sKg
 sKg
 dhK
 dhK
-oJI
+nOe
 oJI
 mVX
 mVX
@@ -87381,7 +87800,7 @@ drh
 tcW
 mfc
 iFb
-whe
+adk
 vNF
 hNg
 azE
@@ -87903,7 +88322,7 @@ iVW
 iVW
 odX
 gfP
-xDA
+rTf
 iFb
 rns
 ykS
@@ -88160,7 +88579,7 @@ xhP
 xhP
 fCJ
 xfs
-mll
+nYx
 iFb
 ykS
 ykS
@@ -88315,7 +88734,7 @@ mVX
 fzV
 fzV
 fzV
-fzV
+xzl
 fzV
 mVX
 mVX
@@ -88551,11 +88970,11 @@ nIr
 nIr
 waZ
 nAN
-dcl
+dLu
 jAV
 jAV
 jAV
-dcl
+okj
 nAN
 nAN
 mVX
@@ -88565,7 +88984,7 @@ aRJ
 wdS
 uMf
 fzV
-vtH
+jiM
 xRD
 xRD
 vtH
@@ -88931,7 +89350,7 @@ xhP
 xhP
 fBV
 bYi
-htX
+sXR
 iFb
 ykS
 ykS
@@ -89072,7 +89491,7 @@ owH
 dcl
 nAN
 nAN
-fzV
+dEf
 jcI
 jJA
 jJA
@@ -89089,7 +89508,7 @@ dVg
 buk
 laj
 qXF
-fzV
+ykv
 pqb
 pqb
 pqb
@@ -89188,7 +89607,7 @@ iVW
 iVW
 acK
 rgH
-bQF
+vfv
 iFb
 nQm
 ykS
@@ -89329,7 +89748,7 @@ kTa
 ePN
 nAN
 nAN
-vtH
+cUL
 sHU
 jJA
 jJA
@@ -89346,7 +89765,7 @@ fzV
 jiI
 iac
 csr
-fzV
+ykv
 pqb
 pqb
 pqb
@@ -89694,7 +90113,7 @@ pqv
 tcW
 mfn
 iFb
-rug
+bjx
 bpJ
 hNg
 qlD
@@ -90864,11 +91283,11 @@ oJt
 ckm
 hya
 nAN
-nSu
+luq
 wDk
 lGL
 dmx
-nSu
+lvP
 nAN
 nAN
 vtH
@@ -91121,11 +91540,11 @@ kTW
 bBh
 rCg
 nAN
-nSu
+rdm
 ePN
 rrQ
 ePN
-nSu
+rdm
 nAN
 nAN
 nrV
@@ -92156,7 +92575,7 @@ ueN
 sRk
 ase
 kWm
-fzV
+dEf
 dbM
 dbM
 dbM
@@ -92173,7 +92592,7 @@ nFl
 dbM
 dbM
 dbM
-fzV
+ykv
 pqb
 pqb
 pqb
@@ -92419,12 +92838,12 @@ fKr
 xig
 fzV
 mVX
-fzV
+dEf
 rcB
 rDf
 rDf
 xVY
-fzV
+ykv
 mVX
 fzV
 xig
@@ -101213,12 +101632,12 @@ mVX
 mVX
 mVX
 wmt
-wmt
+jhE
 uyn
 uyn
 uyn
 uyn
-wmt
+jhE
 wmt
 mVX
 mVX
@@ -102494,7 +102913,7 @@ mVX
 "}
 (192,1,1) = {"
 fCq
-wmt
+uUd
 eDO
 qti
 hHU
@@ -102507,7 +102926,7 @@ riz
 hHU
 qti
 kws
-wmt
+jln
 fCq
 eaV
 eaV
@@ -104550,7 +104969,7 @@ mVX
 "}
 (200,1,1) = {"
 fCq
-wJV
+hNI
 jGP
 adx
 wJV
@@ -104563,7 +104982,7 @@ mqy
 wJV
 jGP
 adx
-wJV
+beh
 dRc
 egF
 jrL
@@ -109653,15 +110072,15 @@ tgn
 nAN
 nAN
 dTg
-usR
-usR
+bpr
+wEq
 tKr
 aLg
 iAb
 tKr
 usR
 usR
-tKr
+hsp
 usR
 nAN
 tnU
@@ -110621,8 +111040,8 @@ vAA
 wkN
 bud
 bud
-wkN
-vAA
+rbN
+qXI
 vAA
 mVX
 mVX
@@ -110681,15 +111100,15 @@ mVX
 mVX
 jMD
 dTg
+bpr
+xNS
 usR
 usR
 usR
 usR
 usR
 usR
-usR
-usR
-tKr
+cuS
 usR
 mVX
 nAN
@@ -110858,7 +111277,7 @@ mVX
 mVX
 mVX
 mVX
-wkN
+aQZ
 rpQ
 hkQ
 tnA
@@ -111625,9 +112044,9 @@ mVX
 mVX
 mVX
 vAA
-wkN
+rbN
 bud
-wkN
+rbN
 vAA
 vAA
 esN
@@ -111881,7 +112300,7 @@ mVX
 mVX
 mVX
 mVX
-wkN
+aQZ
 xnF
 pSS
 dDZ
@@ -113680,7 +114099,7 @@ mVX
 mVX
 mVX
 mVX
-wkN
+aQZ
 pvA
 qlQ
 qwd
@@ -113938,9 +114357,9 @@ mVX
 mVX
 mVX
 vAA
-wkN
+xNP
 bud
-wkN
+xNP
 vAA
 vAA
 ugU
@@ -114713,7 +115132,7 @@ mVX
 mVX
 mVX
 mVX
-wkN
+aQZ
 rsS
 rYn
 rYn
@@ -114986,12 +115405,12 @@ vAA
 vAA
 vAA
 vAA
-vAA
+pqy
 bud
 vtX
 vKS
 bud
-vAA
+pqy
 vAA
 mVX
 mVX

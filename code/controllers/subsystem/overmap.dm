@@ -44,6 +44,7 @@ SUBSYSTEM_DEF(overmap)
 	var/list/obj/overmap/entity/flying_vessels = list()
 	var/list/obj/overmap/entity/flight_reservations = list()
 	var/datum/turf_reservation/spare_bubble_space
+	var/mirroring_explosion = FALSE
 	var/preparing_bubble_space = FALSE
 	var/list/datum/overmap_bubble/bubbles_by_reservation = list()
 	var/list/datum/overmap_bubble/bubbles_by_z = list()
@@ -89,6 +90,7 @@ SUBSYSTEM_DEF(overmap)
 	snap_roundstart_docks()
 	seed_shuttle_helm_waypoints()
 	refresh_ruin_space_lighting()
+	RegisterSignal(SSdcs, COMSIG_GLOB_EXPLOSION, PROC_REF(mirror_explosion))
 	last_fire_time = world.time
 	return SS_INIT_SUCCESS
 

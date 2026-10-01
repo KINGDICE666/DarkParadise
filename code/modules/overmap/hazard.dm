@@ -71,11 +71,15 @@
 	return OVERMAP_HAZARD_HIT_CHANCE_CAP * clamp((speed - OVERMAP_HAZARD_SAFE_SPEED) / span, 0, 1)
 
 /obj/overmap/feature/hazard/proc/should_strike_moving(obj/overmap/entity/vessel)
-	if(vessel.is_moving())
-		return prob(movement_hit_chance(vessel))
+	if(world.time < vessel.next_overmap_hazard_hit)
+		return FALSE
+	var/chance = vessel.is_moving() ? movement_hit_chance(vessel) : 0
 	if(moving_hazard)
-		return prob(OVERMAP_HAZARD_IDLE_HIT_CHANCE)
-	return FALSE
+		chance = max(chance, OVERMAP_HAZARD_IDLE_HIT_CHANCE)
+	if(!prob(chance))
+		return FALSE
+	vessel.next_overmap_hazard_hit = world.time + OVERMAP_HAZARD_HIT_COOLDOWN
+	return TRUE
 
 /obj/overmap/feature/hazard/proc/is_open_void(turf/spot)
 	return isspaceturf(spot)
@@ -486,9 +490,9 @@
 	if(!sector || sector.hazard_spawn_weight <= 0)
 		return
 	var/scale = sector.hazard_spawn_weight * (sector.size / OVERMAP_DEFAULT_SIZE)
-	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/asteroid, max(1, round(rand(4, 6) * scale)))
-	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/emp, max(1, round(rand(2, 4) * scale)))
-	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/carp, max(1, round(rand(2, 4) * scale)))
+	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/asteroid, max(1, round(rand(2, 3) * scale)))
+	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/emp, max(1, round(rand(1, 2) * scale)))
+	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/carp, max(1, round(rand(1, 2) * scale)))
 	log_world("Overmap: static hazards placed on sector [sector.id].")
 
 /proc/scatter_overmap_hazard_type(datum/overmap_sector/sector, hazard_type, amount)

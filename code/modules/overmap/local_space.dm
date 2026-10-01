@@ -1,4 +1,10 @@
-#define OVERMAP_RADAR_TERRAIN_RANGE 40
+#define OVERMAP_RADAR_TERRAIN_RANGE 64
+#define OVERMAP_RADAR_CHUNK 16
+#define OVERMAP_RADAR_CHUNK_REFRESH (30 SECONDS)
+#define OVERMAP_RADAR_WALL 1
+#define OVERMAP_RADAR_FRAME 2
+#define OVERMAP_RADAR_FLOOR 3
+#define OVERMAP_RADAR_EXPIRY 4
 #define OVERMAP_TERRAIN_VIEW_RANGE 14
 #define OVERMAP_LOCAL_ARRIVAL_MARGIN 12
 #define OVERMAP_TERRAIN_SEAM_SCALE 1.03
@@ -149,17 +155,67 @@
 	if(!local_space)
 		return null
 	var/list/spot = local_space.to_bubble(get_world_x(), get_world_y())
-	var/spot_x = round(spot[1], 1)
-	var/spot_y = round(spot[2], 1)
-	var/list/cells = list()
-	for(var/turf/nearby as anything in block(max(spot_x - OVERMAP_RADAR_TERRAIN_RANGE, 1), max(spot_y - OVERMAP_RADAR_TERRAIN_RANGE, 1), local_space.bubble_z, min(spot_x + OVERMAP_RADAR_TERRAIN_RANGE, world.maxx), min(spot_y + OVERMAP_RADAR_TERRAIN_RANGE, world.maxy), local_space.bubble_z))
-		if(!nearby.is_blocked_turf(exclude_mobs = TRUE))
-			continue
-		cells += (nearby.x - spot[1]) * 2
-		cells += (nearby.y - spot[2]) * 2
-	return list("x" = get_world_x(), "y" = get_world_y(), "cells" = cells)
+	var/list/walls = list()
+	var/list/frames = list()
+	var/list/floors = list()
+	var/first_x = max(round((spot[1] - OVERMAP_RADAR_TERRAIN_RANGE) / OVERMAP_RADAR_CHUNK), 0)
+	var/last_x = round(min(spot[1] + OVERMAP_RADAR_TERRAIN_RANGE, world.maxx) / OVERMAP_RADAR_CHUNK)
+	var/first_y = max(round((spot[2] - OVERMAP_RADAR_TERRAIN_RANGE) / OVERMAP_RADAR_CHUNK), 0)
+	var/last_y = round(min(spot[2] + OVERMAP_RADAR_TERRAIN_RANGE, world.maxy) / OVERMAP_RADAR_CHUNK)
+	for(var/chunk_x in first_x to last_x)
+		for(var/chunk_y in first_y to last_y)
+			var/list/chunk = local_space.radar_chunk(chunk_x, chunk_y)
+			walls += chunk[OVERMAP_RADAR_WALL]
+			frames += chunk[OVERMAP_RADAR_FRAME]
+			floors += chunk[OVERMAP_RADAR_FLOOR]
+	var/list/anchor = local_space.to_world(0, 0)
+	return list("x" = anchor[1], "y" = anchor[2], "walls" = walls, "frames" = frames, "floors" = floors)
+
+/datum/overmap_bubble/proc/radar_chunk(chunk_x, chunk_y)
+	var/key = "[chunk_x]_[chunk_y]"
+	var/list/cached = radar_chunks[key]
+	if(cached && world.time < cached[OVERMAP_RADAR_EXPIRY])
+		return cached
+	var/static/list/wall_types = typecacheof(list(/obj/structure/window, /obj/structure/falsewall, /obj/machinery/door/airlock, /obj/machinery/door/poddoor, /obj/machinery/door/window))
+	var/static/list/frame_types = typecacheof(list(/obj/structure/lattice, /obj/structure/grille, /obj/machinery/power/solar, /obj/machinery/power/tracker))
+	var/list/runs = list(list(), list(), list())
+	var/low_x = max(chunk_x * OVERMAP_RADAR_CHUNK, 1)
+	var/high_x = min(chunk_x * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxx)
+	for(var/row in max(chunk_y * OVERMAP_RADAR_CHUNK, 1) to min(chunk_y * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxy))
+		var/run_kind = 0
+		var/run_start = 0
+		for(var/column in low_x to high_x + 1)
+			var/kind = 0
+			if(column <= high_x)
+				var/turf/spot = locate(column, row, bubble_z)
+				if(!isspaceturf(spot))
+					kind = spot.density ? OVERMAP_RADAR_WALL : OVERMAP_RADAR_FLOOR
+				for(var/atom/movable/thing as anything in spot)
+					if(wall_types[thing.type])
+						kind = OVERMAP_RADAR_WALL
+						break
+					if(!kind && frame_types[thing.type])
+						kind = OVERMAP_RADAR_FRAME
+			if(kind == run_kind)
+				continue
+			if(run_kind)
+				var/list/target = runs[run_kind]
+				target += run_start
+				target += row
+				target += column - run_start
+			run_kind = kind
+			run_start = column
+	runs += world.time + OVERMAP_RADAR_CHUNK_REFRESH
+	radar_chunks[key] = runs
+	return runs
 
 #undef OVERMAP_RADAR_TERRAIN_RANGE
+#undef OVERMAP_RADAR_CHUNK
+#undef OVERMAP_RADAR_CHUNK_REFRESH
+#undef OVERMAP_RADAR_WALL
+#undef OVERMAP_RADAR_FRAME
+#undef OVERMAP_RADAR_FLOOR
+#undef OVERMAP_RADAR_EXPIRY
 #undef OVERMAP_TERRAIN_VIEW_RANGE
 #undef OVERMAP_LOCAL_ARRIVAL_MARGIN
 #undef OVERMAP_TERRAIN_SEAM_SCALE
