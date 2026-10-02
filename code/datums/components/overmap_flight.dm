@@ -4,7 +4,8 @@
 	var/last_burn = 0
 	var/engines_state = TRUE
 	var/held_brake = FALSE
-	var/dampeners = TRUE
+	var/pilot_braking = FALSE
+	var/dampeners = FALSE
 	var/thrust_limit = 1
 	var/autopilot = FALSE
 	var/autopilot_x
@@ -69,16 +70,20 @@
 	refresh_thrust()
 	burn_sides = NONE
 	burn_turn = 0
+	pilot_braking = FALSE
 	var/manual_drive = FALSE
 	if(pilot)
 		manual_drive = process_pilot(elapsed)
 	var/aim
 	if(autopilot && needs_physics())
 		aim = process_autopilot(elapsed)
-	if(isnull(aim))
+	if(!isnull(aim))
+		steer_towards(aim - main_axis_angle(), elapsed)
+	else if(pilot_turn)
 		change_spin(pilot_turn * OVERMAP_TURN_RATE_MAX, elapsed)
 	else
-		steer_towards(aim - main_axis_angle(), elapsed)
+		change_spin((held_brake || pilot_braking || dampeners) ? 0 : angular_velocity, elapsed)
+	apply_drag(elapsed)
 	if(needs_physics())
 		if(held_brake || (dampeners && !manual_drive && !autopilot && vessel.shuttle))
 			brake(elapsed)
@@ -86,6 +91,20 @@
 			enforce_cruise_speed(elapsed)
 		vessel.process_movement(elapsed)
 	update_burn()
+
+/datum/component/overmap_flight/proc/apply_drag(elapsed)
+	var/obj/overmap/entity/vessel = parent
+	var/drag = 1 / (1 + OVERMAP_DRIFT_DAMPING * elapsed)
+	angular_velocity *= drag
+	if(abs(angular_velocity) < OVERMAP_SPIN_EPSILON)
+		angular_velocity = 0
+	if(!vessel.is_moving())
+		return
+	vessel.speed[1] *= drag
+	vessel.speed[2] *= drag
+	if(abs(vessel.speed[1]) < OVERMAP_SPEED_EPSILON && abs(vessel.speed[2]) < OVERMAP_SPEED_EPSILON)
+		vessel.speed[1] = 0
+		vessel.speed[2] = 0
 
 /datum/component/overmap_flight/proc/refresh_thrust()
 	var/obj/overmap/entity/vessel = parent
@@ -245,6 +264,7 @@
 	var/list/keys = pilot.client.keys_held
 	pilot_turn = !!keys["E"] - !!keys["Q"]
 	if(keys["Space"])
+		pilot_braking = TRUE
 		brake(elapsed)
 		return TRUE
 	var/direction = pilot.client.intended_direction
@@ -311,7 +331,7 @@
 		local_y -= sign(local_y) * slow_y
 	vessel.speed[1] = local_x * cos(facing) + local_y * sin(facing)
 	vessel.speed[2] = local_y * cos(facing) - local_x * sin(facing)
-	if(abs(vessel.speed[1]) < OVERMAP_MOVE_RESOLUTION * 0.01 && abs(vessel.speed[2]) < OVERMAP_MOVE_RESOLUTION * 0.01)
+	if(abs(vessel.speed[1]) < OVERMAP_SPEED_EPSILON && abs(vessel.speed[2]) < OVERMAP_SPEED_EPSILON)
 		vessel.speed[1] = 0
 		vessel.speed[2] = 0
 	vessel.refresh_heading_overlay()

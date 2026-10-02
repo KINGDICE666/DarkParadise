@@ -401,6 +401,8 @@
 	if(!vessel.hull_needs_transit_undock())
 		vessel.release_to_overmap()
 		return TRUE
+	if(vessel.shuttle.has_collar_guests())
+		return "К стыковочному шлюзу пристыкован другой корабль. Сначала он должен отстыковаться."
 	if(!instant && vessel.shuttle.mode != SHUTTLE_IDLE && vessel.shuttle.mode != SHUTTLE_RECHARGING)
 		return "Шаттл уже выполняет манёвр."
 	var/datum/overmap_programmed_profile/profile = vessel.programmed_profile()
@@ -494,6 +496,8 @@
 		vessel.halted = FALSE
 		if(!isturf(vessel.loc))
 			vessel.release_to_overmap()
+		if(!vessel.free_flight_view && vessel.in_free_flight())
+			vessel.set_free_flight_view(TRUE)
 		return
 	if(!istype(new_dock, /obj/docking_port/stationary/overmap/landing))
 		salvage_transit_leftovers(port)

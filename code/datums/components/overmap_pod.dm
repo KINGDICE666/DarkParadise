@@ -303,8 +303,6 @@
 		release_pocket()
 		return FALSE
 	pocket_area = new /area/spacepod/hyperspace
-	pocket_area.parallax_movedir = SOUTH
-	pocket_area.moving = TRUE
 	LISTASSERTLEN(pocket_area.turfs_by_zlevel, bottom.z, list())
 	var/turf/inner = inner_origin()
 	if(!inner)
@@ -327,6 +325,8 @@
 		old_area.turfs_to_uncontain_by_zlevel[spot.z] += spot
 		pocket_area.contents += spot
 		pocket_area.turfs_by_zlevel[spot.z] += spot
+		spot.icon_state = "space"
+		spot.transform = matrix()
 	return TRUE
 
 /datum/component/overmap_pod/proc/pocket_center()

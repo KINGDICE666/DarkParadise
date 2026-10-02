@@ -10,7 +10,6 @@
 	name = "Hyperspace"
 	static_lighting = FALSE
 	base_lighting_alpha = 255
-	parallax_movedir = SOUTH
 	moving = TRUE
 
 /obj/machinery/computer/helm/pod

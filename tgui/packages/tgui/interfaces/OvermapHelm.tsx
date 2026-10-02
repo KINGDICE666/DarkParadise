@@ -107,6 +107,7 @@ type OvermapHelmData = {
   ship_docked_to?: string | null;
   ship_guests?: number;
   ship_dock_ready?: string | null;
+  station_dock_ready?: string | null;
   radar_enabled?: BooleanLike;
   radar_shapes?: Record<string, RadarShape>;
   radar?: RadarContact[];
@@ -562,6 +563,7 @@ const NearbyActions = (props: { onLanding: () => void }) => {
     ship_docked_to,
     ship_guests = 0,
     ship_dock_ready,
+    station_dock_ready,
     at_station,
     host_name,
     is_shuttle,
@@ -583,6 +585,16 @@ const NearbyActions = (props: { onLanding: () => void }) => {
       {!ship_docked_to && !ship_guests && !!ship_dock_ready && (
         <Button fluid icon="link" color="good" onClick={() => act('dock_ship')}>
           Пристыковаться к {ship_dock_ready}
+        </Button>
+      )}
+      {!ship_docked_to && !ship_guests && !!station_dock_ready && (
+        <Button
+          fluid
+          icon="link"
+          color="good"
+          onClick={() => act('dock_station')}
+        >
+          Пристыковаться к шлюзу «{station_dock_ready}»
         </Button>
       )}
       {canLand && (

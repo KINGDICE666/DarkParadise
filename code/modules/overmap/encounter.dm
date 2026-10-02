@@ -19,6 +19,7 @@
 #define OVERMAP_SHOVE_MAX_DAMAGE 25
 #define OVERMAP_CLING_SPEED 5
 #define OVERMAP_CLING_SPEED_MAGBOOTS 10
+#define OVERMAP_RADAR_DOCK_RANGE 64
 
 /obj/overmap/entity/proc/map_hull(keep_center = FALSE)
 	unwatch_hull()
@@ -180,6 +181,12 @@
 /obj/overmap/entity/proc/try_autodock()
 	if(docked_ship || length(docked_guests) || world.time < next_autodock)
 		return
+	var/list/station_pair = find_station_dock(OVERMAP_SHIP_AUTODOCK_RANGE, OVERMAP_SHIP_AUTODOCK_ALIGN)
+	if(!station_pair)
+		station_autodock_armed = TRUE
+	else if(station_autodock_armed)
+		dock_to_station(station_pair[1], station_pair[2])
+		return
 	for(var/obj/overmap/entity/other as anything in neighbor_proxies)
 		if(other.docked_ship || relative_speed(other) > OVERMAP_SHIP_AUTODOCK_SPEED)
 			continue
@@ -189,6 +196,99 @@
 		if(pair)
 			dock_to_ship(other, pair[1], pair[2])
 			return
+
+/obj/overmap/entity/proc/station_dock_targets(reach)
+	. = list()
+	var/list/center = local_space.to_bubble(get_world_x(), get_world_y())
+	for(var/obj/docking_port/stationary/pad as anything in SSshuttle.stationary)
+		var/obj/machinery/door/airlock/external/docking/airlock = pad.dock_airlock
+		if(!airlock || pad.z != local_space.bubble_z || abs(pad.x - center[1]) > reach || abs(pad.y - center[2]) > reach || pad.get_docked())
+			continue
+		var/obj/overmap/entity/owner = SSovermap.shuttle_vessels[SSovermap.get_shuttle_at(airlock)]
+		. += list(list(airlock, get_turf(pad), airlock.dir, pad, owner?.get_overmap_display_name() || airlock.get_helm_label()))
+	var/list/seen_collars = list()
+	for(var/obj/docking_port/mobile/port as anything in SSshuttle.mobile)
+		if(port == shuttle || port.z != local_space.bubble_z || abs(port.x - center[1]) > reach + max(port.width, port.height) || abs(port.y - center[2]) > reach + max(port.width, port.height))
+			continue
+		var/obj/docking_port/stationary/port_pad = port.get_docked()
+		if(!port_pad || istype(port_pad, /obj/docking_port/stationary/transit))
+			continue
+		var/label = SSovermap.shuttle_vessels[port]?.get_overmap_display_name() || port.name
+		for(var/area/place as anything in port.shuttle_areas)
+			for(var/obj/machinery/door/airlock/external/docking/collar in place)
+				if(collar.overmap_is_support || collar.overmap_pad || seen_collars[collar])
+					continue
+				seen_collars[collar] = TRUE
+				for(var/direction in GLOB.cardinal)
+					var/turf/outside = get_step(collar, direction)
+					if(isspaceturf(outside) && !port.shuttle_areas[outside.loc])
+						. += list(list(collar, outside, direction, null, label))
+						break
+
+/obj/overmap/entity/proc/find_station_dock(best_distance = OVERMAP_SHIP_DOCK_RANGE, max_misalign = OVERMAP_SHIP_DOCK_ALIGN)
+	if(!local_space || docked_ship || length(docked_guests) || !length(hull_collars))
+		return
+	if(sqrt(speed[1] ** 2 + speed[2] ** 2) * OVERMAP_TILE_SPAN > OVERMAP_SHIP_DOCK_SPEED)
+		return
+	for(var/list/target as anything in station_dock_targets(hull_radius + best_distance))
+		var/turf/target_turf = target[2]
+		var/list/target_world = local_space.to_world(target_turf.x, target_turf.y)
+		for(var/list/own as anything in hull_collars)
+			var/turf/door_turf = own[1]
+			var/list/door_world = hull_to_world(door_turf.x, door_turf.y)
+			var/distance = sqrt((door_world[1] - target_world[1]) ** 2 + (door_world[2] - target_world[2]) ** 2)
+			var/misalign = abs(closer_angle_difference(own[3] + get_facing(), dir2angle(target[3]) + 180))
+			if(distance <= best_distance && misalign <= max_misalign)
+				best_distance = distance
+				. = list(own, target)
+
+/obj/overmap/entity/proc/dock_to_nearest_station()
+	var/list/pair = find_station_dock()
+	if(!pair)
+		return "Рядом нет свободного стыковочного шлюза. Подведите свой шлюз вплотную к другому шлюзу и остановитесь."
+	return dock_to_station(pair[1], pair[2])
+
+/obj/overmap/entity/proc/dock_to_station(list/own, list/target)
+	var/turf/door_turf = own[1]
+	var/obj/machinery/door/airlock/external/docking/collar = locate() in door_turf
+	if(!collar)
+		return "Стыковочный шлюз корабля не найден."
+	shuttle.overmap_collar = collar
+	var/obj/machinery/door/airlock/external/docking/airlock = target[1]
+	var/obj/docking_port/stationary/pad = target[4]
+	if(!pad)
+		pad = new /obj/docking_port/stationary/overmap(target[2])
+		pad.setDir(target[3])
+		airlock.setDir(target[3])
+		pad.dock_airlock = airlock
+		airlock.overmap_pad = pad
+		airlock.owns_overmap_pad = TRUE
+		airlock.sync_dock_label()
+	var/can_status = shuttle.canDock(pad)
+	if(can_status != SHUTTLE_CAN_DOCK)
+		station_autodock_armed = FALSE
+		return dock_fail_text(can_status)
+	speed[1] = 0
+	speed[2] = 0
+	flight.angular_velocity = 0
+	flight.release_pilot()
+	flight.set_autopilot(FALSE)
+	selected_dock_id = pad.id
+	station_autodock_armed = FALSE
+	play_shuttle_sound('sound/effects/clang.ogg')
+	shake_shuttle(OVERMAP_SHIP_DOCK_SHAKE_TIME, OVERMAP_SHIP_DOCK_SHAKE_STRENGTH)
+	announce_sensor_event("Стыковка: [get_overmap_display_name()] → [target[5]]", "dock")
+	INVOKE_ASYNC(shuttle, TYPE_PROC_REF(/obj/docking_port/mobile, dock), pad)
+	return TRUE
+
+/obj/overmap/entity/proc/radar_station_docks()
+	. = list()
+	if(!local_space)
+		return
+	for(var/list/target as anything in station_dock_targets(OVERMAP_RADAR_DOCK_RANGE))
+		var/obj/machinery/door/airlock/external/docking/airlock = target[1]
+		. += airlock.x * 2
+		. += airlock.y * 2
 
 /obj/overmap/entity/proc/dock_to_ship(obj/overmap/entity/host, list/own, list/theirs)
 	var/new_facing = SIMPLIFY_DEGREES(theirs[3] + host.get_facing() + 180 - own[3])
@@ -878,3 +978,4 @@
 #undef OVERMAP_SHOVE_MAX_DAMAGE
 #undef OVERMAP_CLING_SPEED
 #undef OVERMAP_CLING_SPEED_MAGBOOTS
+#undef OVERMAP_RADAR_DOCK_RANGE

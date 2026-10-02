@@ -133,7 +133,7 @@
 
 /obj/overmap/entity/proc/record_undock_origin()
 	map_hull()
-	undock_origin = list(hull_z, hull_center_x, hull_center_y, shuttle.dir)
+	undock_origin = list(hull_z, hull_center_x, hull_center_y, shuttle.overmap_origin()[2])
 
 /obj/overmap/entity/proc/place_at_undock_origin()
 	var/list/origin = undock_origin
@@ -145,7 +145,7 @@
 		return
 	var/list/spot = origin_space.to_world(origin[2], origin[3])
 	flight?.set_autopilot(FALSE)
-	flight?.set_facing(dir2angle(origin[4]) - dir2angle(shuttle.dir))
+	flight?.set_facing(dir2angle(origin[4]) - dir2angle(shuttle.overmap_origin()[2]))
 	speed[1] = 0
 	speed[2] = 0
 	set_world_position(spot[1], spot[2])
@@ -169,7 +169,7 @@
 			frames += chunk[OVERMAP_RADAR_FRAME]
 			floors += chunk[OVERMAP_RADAR_FLOOR]
 	var/list/anchor = local_space.to_world(0, 0)
-	return list("x" = anchor[1], "y" = anchor[2], "walls" = walls, "frames" = frames, "floors" = floors)
+	return list("x" = anchor[1], "y" = anchor[2], "walls" = walls, "frames" = frames, "floors" = floors, "docks" = radar_station_docks())
 
 /datum/overmap_bubble/proc/radar_chunk(chunk_x, chunk_y)
 	var/key = "[chunk_x]_[chunk_y]"

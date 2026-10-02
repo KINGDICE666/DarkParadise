@@ -31,6 +31,7 @@
 	var/obj/effect/abstract/hull_proxy_shade/shade
 	var/copied_light_state
 	var/list/copied_light_color
+	var/corner_mask
 
 /obj/effect/abstract/hull_proxy_light
 	name = "hull proxy light"
@@ -88,6 +89,7 @@
 	QDEL_NULL(shade)
 	hull_turf = null
 	copied_light_color = null
+	corner_mask = null
 	return ..()
 
 /datum/hull_proxy/proc/on_vessel_deleted()
@@ -134,10 +136,14 @@
 /obj/effect/abstract/hull_proxy_tile/proc/setup_shading(turf/viewer_turf)
 	var/matrix/shading_scale = matrix()
 	shading_scale.Scale(HULL_PROXY_SHADING_SCALE)
+	if((hull_turf.smooth & SMOOTH_DIAGONAL_CORNERS) && length(hull_turf.underlays))
+		corner_mask = filter(type = "alpha", icon = icon(hull_turf.icon, hull_turf.icon_state))
 	shade = new(src)
 	SET_PLANE_EXPLICIT(shade, EMISSIVE_PLANE, viewer_turf)
 	shade.color = GLOB.em_block_color
 	shade.transform = shading_scale
+	if(corner_mask)
+		shade.filters += corner_mask
 	vis_contents += shade
 	if(!hull_turf.lighting_object)
 		return
@@ -162,6 +168,8 @@
 	light_copy.appearance_flags = RESET_COLOR | RESET_ALPHA
 	light_copy.invisibility = 0
 	light_copy.transform = light_mask.transform
+	if(corner_mask)
+		light_copy.filters = corner_mask
 	light_mask.appearance = light_copy
 
 /datum/hull_proxy/proc/refresh_light_copies()

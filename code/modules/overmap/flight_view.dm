@@ -10,6 +10,7 @@
 	if(enabled)
 		map_hull()
 		remember_pose()
+		station_autodock_armed = FALSE
 	else
 		clear_encounter_visuals()
 	var/obj/docking_port/stationary/transit/pad = shuttle.get_docked()
@@ -42,6 +43,10 @@
 		flying += vessel
 		for(var/area/place as anything in port.shuttle_areas)
 			flying_areas[place] = vessel
+	for(var/obj/spacepod/craft as anything in pod_vessels)
+		var/obj/overmap/entity/pod/pod_vessel = pod_vessels[craft]
+		if(pod_vessel?.overmap_pod?.is_in_own_pocket())
+			flying_areas[pod_vessel.overmap_pod.pocket_area] = pod_vessel
 	flying_vessels = flying
 	process_encounters(flying, elapsed)
 	if(!length(flying_areas) && !length(bubbles) && !length(drifting_viewers))

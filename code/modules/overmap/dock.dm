@@ -229,6 +229,8 @@
 	lock()
 
 /obj/machinery/door/airlock/external/docking/onShuttleMove()
+	if(owns_overmap_pad && !overmap_pad?.get_docked())
+		qdel(overmap_pad, TRUE)
 	. = ..()
 	if(.)
 		INVOKE_ASYNC(src, PROC_REF(lock))

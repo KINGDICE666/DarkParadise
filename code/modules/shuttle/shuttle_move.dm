@@ -188,11 +188,14 @@
 	for(var/turf/spot as anything in turfs)
 		if(!spot)
 			continue
-		spot.lighting_build_overlay()
+		var/area/spot_area = spot.loc
+		if(!spot.space_lit && spot_area.static_lighting)
+			spot.lighting_build_overlay()
 		var/list/connectivity = spot.private_unsafe_recalculate_atmos_connectivity()
 		set_tile_airtight(spot, connectivity[1])
 		reset_superconductivity(spot)
 		reduce_superconductivity(spot, connectivity[2])
+	SSlighting.update_turfs_now(turfs)
 
 /obj/docking_port/mobile/proc/postflight_dock(obj/docking_port/stationary/new_dock, list/new_turfs, list/move_data, transit)
 	var/in_hyperspace = transit || istype(new_dock, /obj/docking_port/stationary/transit)

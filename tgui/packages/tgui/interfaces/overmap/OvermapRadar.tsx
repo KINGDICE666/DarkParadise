@@ -12,6 +12,7 @@ export type RadarTerrain = {
   walls: number[];
   frames: number[];
   floors: number[];
+  docks?: number[];
 };
 
 export type RadarContact = {
@@ -92,14 +93,16 @@ const RadarTerrainLayer = (props: { terrain: RadarTerrain }) => {
       floors: runsPath(terrain.floors),
       frames: runsPath(terrain.frames, 0.3),
       walls: runsPath(terrain.walls),
+      docks: cellsPath(terrain.docks || []),
     }),
-    [terrain.floors, terrain.frames, terrain.walls],
+    [terrain.floors, terrain.frames, terrain.walls, terrain.docks],
   );
   return (
     <>
       <path className="OvermapRadar__floor" d={paths.floors} />
       <path className="OvermapRadar__frame" d={paths.frames} />
       <path className="OvermapRadar__wall" d={paths.walls} />
+      <path className="OvermapRadar__collar" d={paths.docks} />
     </>
   );
 };

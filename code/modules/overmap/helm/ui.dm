@@ -63,6 +63,9 @@
 	data["ship_docked_to"] = vessel.docked_ship?.get_overmap_display_name()
 	data["ship_guests"] = length(vessel.docked_guests)
 	data["ship_dock_ready"] = vessel.dockable_ship()?.get_overmap_display_name()
+	var/list/station_pair = vessel.find_station_dock()
+	var/list/station_target = station_pair?[2]
+	data["station_dock_ready"] = station_target?[5]
 	data["can_jump"] = vessel.in_free_flight()
 	data["local_space"] = !!vessel.local_space
 	if(vessel.jump_spool_end)
@@ -235,7 +238,7 @@
 		to_chat(usr, span_warning("Прямое управление заблокировано поставщиком услуг."))
 		return TRUE
 
-	if(vessel.is_jumping() && (action in list("undock", "dock", "dock_edge", "dock_ship")))
+	if(vessel.is_jumping() && (action in list("undock", "dock", "dock_edge", "dock_ship", "dock_station")))
 		to_chat(usr, span_warning("Идёт гиперпрыжок."))
 		return TRUE
 
@@ -272,6 +275,11 @@
 			var/jump_result = vessel.start_jump()
 			if(jump_result != TRUE)
 				to_chat(usr, span_warning("[jump_result]"))
+			. = TRUE
+		if("dock_station")
+			var/station_result = vessel.dock_to_nearest_station()
+			if(station_result != TRUE)
+				to_chat(usr, span_warning("[station_result]"))
 			. = TRUE
 		if("dock_ship")
 			if(vessel.docked_ship)

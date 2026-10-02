@@ -188,6 +188,10 @@
 	update_icon(UPDATE_ICON_STATE)
 
 /turf/space/transit/update_icon_state()
+	if(SSovermap.flight_reservations[SSmapping.used_turfs[src]])
+		icon_state = "space"
+		transform = matrix()
+		return
 	var/p = 9
 	var/angle = 0
 	var/state = 1
@@ -212,7 +216,4 @@
 	transform = turn(matrix(), angle)
 
 /turf/space/transit/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
-	underlay_appearance.icon = icon
-	underlay_appearance.icon_state = icon_state
-	underlay_appearance.transform = transform
-	return TRUE
+	. = ..()

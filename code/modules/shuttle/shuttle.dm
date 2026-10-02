@@ -404,7 +404,14 @@
 
 //this is a hook for custom behaviour. Maybe at some point we could add checks to see if engines are intact
 /obj/docking_port/mobile/proc/canMove()
-	return TRUE
+	return !has_collar_guests()
+
+/obj/docking_port/mobile/proc/has_collar_guests()
+	for(var/area/place as anything in shuttle_areas)
+		for(var/obj/machinery/door/airlock/external/docking/collar in place)
+			if(collar.owns_overmap_pad && collar.overmap_pad?.get_docked())
+				return TRUE
+	return FALSE
 
 /obj/docking_port/mobile/proc/uses_hull_fit()
 	switch(shuttle_fit)
@@ -659,6 +666,9 @@
 		if(A.id_tag == old_dock.id)
 			A.close()
 			A.lock()
+	var/obj/machinery/door/airlock/external/docking/host_collar = old_dock.dock_airlock
+	if(host_collar?.owns_overmap_pad && is_area_shuttle(get_area(host_collar)))
+		INVOKE_ASYNC(host_collar, TYPE_PROC_REF(/obj/machinery/door, close), 0, 1)
 
 /obj/docking_port/mobile/proc/unlockPortDoors(obj/docking_port/stationary/new_dock)
 	if(!istype(new_dock) || isnull(new_dock.id))

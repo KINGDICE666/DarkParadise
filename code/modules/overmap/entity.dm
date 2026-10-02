@@ -83,6 +83,7 @@
 	var/dock_facing_offset
 	var/dock_collar_angle
 	var/next_autodock = 0
+	var/station_autodock_armed = FALSE
 	var/list/undock_origin
 	var/datum/overmap_bubble/local_space
 	var/datum/terrain_view/terrain_view
