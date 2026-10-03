@@ -74,8 +74,7 @@
 			struck = locate(CEILING(bubble_x - 0.5, 1), CEILING(bubble_y - 0.5, 1), space.bubble_z)
 			if(!space.is_solid(struck))
 				continue
-		if(struck)
-			. += list(list(hull_turf, struck, list(world_x, world_y)))
+		. += list(list(hull_turf, struck, list(world_x, world_y)))
 
 /obj/overmap/entity/proc/find_impact(obj/overmap/entity/other)
 	var/steps = clamp(CEILING((pose_travel() + other?.pose_travel()) / OVERMAP_RAM_SWEEP_STEP, 1), 1, OVERMAP_RAM_MAX_SWEEP)
@@ -244,10 +243,7 @@
 
 /datum/controller/subsystem/overmap/proc/process_collisions(list/flying)
 	for(var/obj/overmap/entity/vessel as anything in flying)
-		var/datum/overmap_bubble/space = vessel.collision_space()
-		if(!space)
-			continue
-		if(space.terrain_near(space.to_bubble(vessel.get_world_x(), vessel.get_world_y()), vessel.hull_radius + vessel.pose_travel() + 1))
+		if(vessel.collision_space())
 			vessel.collide()
 	for(var/index in 1 to length(flying))
 		var/obj/overmap/entity/vessel = flying[index]

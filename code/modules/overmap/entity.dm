@@ -74,6 +74,7 @@
 	var/list/datum/hull_proxy/neighbor_proxies = list()
 	var/list/obj/overmap/entity/nearby_ships = list()
 	var/next_moved_signal = 0
+	var/moved_signal_queued = FALSE
 	var/list/obj/effect/abstract/hull_proxy_tile/drifter_mirrors = list()
 	var/list/hull_collars
 	var/list/radar_shape
@@ -340,8 +341,16 @@
 	SEND_SIGNAL(src, COMSIG_OVERMAP_DISPLAY_CHANGED)
 
 /obj/overmap/entity/sync_inspect_follow()
-	if(world.time < next_moved_signal)
+	if(world.time >= next_moved_signal)
+		send_moved_signal()
 		return
+	if(moved_signal_queued)
+		return
+	moved_signal_queued = TRUE
+	addtimer(CALLBACK(src, PROC_REF(send_moved_signal)), next_moved_signal - world.time)
+
+/obj/overmap/entity/proc/send_moved_signal()
+	moved_signal_queued = FALSE
 	next_moved_signal = world.time + OVERMAP_SLOW_TICK
 	SEND_SIGNAL(src, COMSIG_OVERMAP_MOVED)
 

@@ -8,16 +8,19 @@
 #define OVERMAP_TERRAIN_VIEW_RANGE 14
 #define OVERMAP_LOCAL_ARRIVAL_MARGIN 12
 #define OVERMAP_TERRAIN_SEAM_SCALE 1.03
+#define OVERMAP_TERRAIN_SPARE_TILES 32
 
 /datum/terrain_view
 	var/obj/overmap/entity/vessel
 	var/datum/overmap_bubble/local_space
 	var/turf/viewer_turf
 	var/list/obj/effect/abstract/hull_proxy_tile/tiles = list()
+	var/list/obj/effect/abstract/hull_proxy_tile/carrier/carriers = list()
+	var/list/turf/hidden = list()
+	var/list/obj/effect/abstract/hull_proxy_tile/spare_tiles = list()
 	var/last_x
 	var/last_y
 	var/last_facing
-	var/last_turned_facing
 	var/next_refresh = 0
 
 /datum/terrain_view/New(obj/overmap/entity/vessel, datum/overmap_bubble/local_space)
@@ -27,7 +30,10 @@
 	addtimer(CALLBACK(src, PROC_REF(refresh_light_copies)), 1 SECONDS, TIMER_LOOP|TIMER_DELETE_ME)
 
 /datum/terrain_view/Destroy(force)
-	QDEL_LIST_ASSOC_VAL(tiles)
+	QDEL_LIST_ASSOC_VAL(carriers)
+	tiles.Cut()
+	hidden.Cut()
+	QDEL_LIST(spare_tiles)
 	vessel = null
 	local_space = null
 	viewer_turf = null
@@ -44,51 +50,105 @@
 	var/moved = spot[1] != last_x || spot[2] != last_y || facing != last_facing
 	if(!moved && world.time < next_refresh)
 		return
-	next_refresh = world.time + OVERMAP_FLIGHT_TICK
+	next_refresh = world.time + OVERMAP_SLOW_TICK
+	var/turned_changed = facing != last_facing
 	last_x = spot[1]
 	last_y = spot[2]
 	last_facing = facing
 	var/matrix/turned = matrix()
 	turned.Scale(OVERMAP_TERRAIN_SEAM_SCALE)
 	turned.Turn(-facing)
-	var/turned_changed = facing != last_turned_facing
-	last_turned_facing = facing
 	var/cos_facing = cos(facing)
 	var/sin_facing = sin(facing)
 	var/radius = round(vessel.hull_radius + OVERMAP_TERRAIN_VIEW_RANGE)
 	var/center_x = round(spot[1], 1)
 	var/center_y = round(spot[2], 1)
+	var/hull_reach = (vessel.hull_radius + 1) ** 2
 	var/list/wanted = list()
-	var/list/shown_turfs = list()
+	var/list/turf/fresh = list()
 	for(var/chunk_x in max(round((center_x - radius) / OVERMAP_RADAR_CHUNK), 0) to round(min(center_x + radius, world.maxx) / OVERMAP_RADAR_CHUNK))
 		for(var/chunk_y in max(round((center_y - radius) / OVERMAP_RADAR_CHUNK), 0) to round(min(center_y + radius, world.maxy) / OVERMAP_RADAR_CHUNK))
 			var/list/chunk = local_space.terrain_chunk(chunk_x, chunk_y)
 			for(var/index in 2 to length(chunk))
-				shown_turfs += chunk[index]
-	for(var/turf/shown as anything in shown_turfs)
-		if(abs(shown.x - center_x) > radius || abs(shown.y - center_y) > radius)
-			continue
-		var/delta_x = shown.x - spot[1]
-		var/delta_y = shown.y - spot[2]
-		var/hull_x = vessel.hull_center_x + delta_x * cos_facing - delta_y * sin_facing
-		var/hull_y = vessel.hull_center_y + delta_x * sin_facing + delta_y * cos_facing
-		if(vessel.hull_turfs[locate(FLOOR(hull_x + 0.5, 1), FLOOR(hull_y + 0.5, 1), vessel.hull_z)])
-			continue
-		wanted[shown] = TRUE
-		var/obj/effect/abstract/hull_proxy_tile/tile = tiles[shown]
-		var/fresh = !tile
-		if(fresh)
-			tile = new(null)
-			tile.hull_turf = shown
-			tile.vis_contents += shown
-			tile.setup_shading(viewer_turf)
-			tiles[shown] = tile
-		if(fresh || moved)
-			tile.glide(hull_x, hull_y, vessel.hull_z, (fresh || turned_changed) ? turned : null, vessel.flight_bounds, elapsed)
+				var/turf/shown = chunk[index]
+				if(abs(shown.x - center_x) > radius || abs(shown.y - center_y) > radius)
+					continue
+				var/obj/effect/abstract/hull_proxy_tile/tile = tiles[shown]
+				var/delta_x = shown.x - spot[1]
+				var/delta_y = shown.y - spot[2]
+				if(delta_x * delta_x + delta_y * delta_y <= hull_reach)
+					var/hull_x = vessel.hull_center_x + delta_x * cos_facing - delta_y * sin_facing
+					var/hull_y = vessel.hull_center_y + delta_x * sin_facing + delta_y * cos_facing
+					if(vessel.hull_turfs[locate(FLOOR(hull_x + 0.5, 1), FLOOR(hull_y + 0.5, 1), vessel.hull_z)])
+						if(tile)
+							wanted[shown] = TRUE
+							if(!hidden[shown])
+								hidden[shown] = TRUE
+								tile.carrier.vis_contents -= tile
+						continue
+				wanted[shown] = TRUE
+				if(!tile)
+					fresh += shown
+					continue
+				var/time = elapsed
+				if(hidden[shown])
+					hidden -= shown
+					tile.carrier.vis_contents += tile
+					time = 0
+				else if(!turned_changed)
+					continue
+				tile.shift(tile.base_x * cos_facing - tile.base_y * sin_facing, tile.base_x * sin_facing + tile.base_y * cos_facing, turned, time)
 	for(var/turf/shown as anything in tiles)
-		if(!wanted[shown])
-			qdel(tiles[shown])
-			tiles -= shown
+		if(wanted[shown])
+			continue
+		var/obj/effect/abstract/hull_proxy_tile/tile = tiles[shown]
+		var/obj/effect/abstract/hull_proxy_tile/carrier/carrier = tile.carrier
+		carrier.remove_member(tile)
+		tiles -= shown
+		hidden -= shown
+		if(length(spare_tiles) < OVERMAP_TERRAIN_SPARE_TILES)
+			spare_tiles += tile
+		else
+			qdel(tile)
+		if(!length(carrier.members))
+			carriers -= carrier.chunk_key
+			qdel(carrier)
+	for(var/turf/shown as anything in fresh)
+		var/obj/effect/abstract/hull_proxy_tile/tile = add_tile(shown)
+		tile.shift(tile.base_x * cos_facing - tile.base_y * sin_facing, tile.base_x * sin_facing + tile.base_y * cos_facing, turned, 0)
+	for(var/key in carriers)
+		var/obj/effect/abstract/hull_proxy_tile/carrier/carrier = carriers[key]
+		if(!moved && carrier.loc)
+			continue
+		var/delta_x = carrier.base_x - spot[1]
+		var/delta_y = carrier.base_y - spot[2]
+		carrier.glide(vessel.hull_center_x + delta_x * cos_facing - delta_y * sin_facing, vessel.hull_center_y + delta_x * sin_facing + delta_y * cos_facing, vessel.hull_z, null, vessel.flight_bounds, elapsed)
+
+/datum/terrain_view/proc/add_tile(turf/shown)
+	var/chunk_x = round(shown.x / OVERMAP_MIRROR_CHUNK) * OVERMAP_MIRROR_CHUNK + 1
+	var/chunk_y = round(shown.y / OVERMAP_MIRROR_CHUNK) * OVERMAP_MIRROR_CHUNK + 1
+	var/key = "[chunk_x]_[chunk_y]"
+	var/obj/effect/abstract/hull_proxy_tile/carrier/carrier = carriers[key]
+	if(!carrier)
+		carrier = new(null)
+		carrier.chunk_key = key
+		carrier.base_x = chunk_x
+		carrier.base_y = chunk_y
+		carriers[key] = carrier
+	var/obj/effect/abstract/hull_proxy_tile/tile = pop(spare_tiles)
+	if(tile)
+		animate(tile)
+		tile.vis_contents.Cut()
+	else
+		tile = new(null)
+	tile.base_x = (shown.x - chunk_x) * ICON_SIZE_X
+	tile.base_y = (shown.y - chunk_y) * ICON_SIZE_Y
+	tile.hull_turf = shown
+	tile.vis_contents += shown
+	tile.setup_shading(viewer_turf)
+	tiles[shown] = tile
+	carrier.add_member(tile)
+	return tile
 
 /obj/overmap/entity/proc/update_terrain_view(elapsed)
 	if(!local_space)
@@ -190,7 +250,7 @@
 	var/list/cached = terrain_chunks[key]
 	if(cached && world.time < cached[1])
 		return cached
-	cached = list(world.time + OVERMAP_FLIGHT_TICK)
+	cached = list(world.time + OVERMAP_SLOW_TICK)
 	var/turf/low = locate(max(chunk_x * OVERMAP_RADAR_CHUNK, 1), max(chunk_y * OVERMAP_RADAR_CHUNK, 1), bubble_z)
 	var/turf/high = locate(min(chunk_x * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxx), min(chunk_y * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxy), bubble_z)
 	for(var/turf/spot as anything in block(low, high))
@@ -198,18 +258,6 @@
 			cached += spot
 	terrain_chunks[key] = cached
 	return cached
-
-/datum/overmap_bubble/proc/terrain_near(list/spot, reach)
-	var/low_x = max(FLOOR(spot[1] - reach, 1), bounds[1])
-	var/low_y = max(FLOOR(spot[2] - reach, 1), bounds[2])
-	var/high_x = min(CEILING(spot[1] + reach, 1), bounds[3])
-	var/high_y = min(CEILING(spot[2] + reach, 1), bounds[4])
-	if(low_x > high_x || low_y > high_y)
-		return FALSE
-	for(var/turf/nearby as anything in block(locate(low_x, low_y, bubble_z), locate(high_x, high_y, bubble_z)))
-		if(is_solid(nearby))
-			return TRUE
-	return FALSE
 
 /datum/overmap_bubble/proc/radar_chunk(chunk_x, chunk_y)
 	var/key = "[chunk_x]_[chunk_y]"
@@ -259,3 +307,4 @@
 #undef OVERMAP_TERRAIN_VIEW_RANGE
 #undef OVERMAP_LOCAL_ARRIVAL_MARGIN
 #undef OVERMAP_TERRAIN_SEAM_SCALE
+#undef OVERMAP_TERRAIN_SPARE_TILES

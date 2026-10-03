@@ -869,6 +869,9 @@
 	AddComponent(/datum/component/overmap_sensors)
 	AddComponent(/datum/component/overmap_flight)
 
+/obj/overmap/entity/admin_shell/sync_inspect_follow()
+	send_moved_signal()
+
 /obj/overmap/entity/admin_shell/proc/bind_slave(obj/overmap/token)
 	slave = token
 	name = token.get_overmap_display_name()
