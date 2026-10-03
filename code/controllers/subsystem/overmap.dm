@@ -46,6 +46,7 @@ SUBSYSTEM_DEF(overmap)
 	var/datum/turf_reservation/spare_bubble_space
 	var/mirroring_explosion = FALSE
 	var/preparing_bubble_space = FALSE
+	var/station_radio_level
 	var/list/datum/overmap_bubble/bubbles_by_reservation = list()
 	var/list/datum/overmap_bubble/bubbles_by_z = list()
 	var/list/datum/component/overmap_dock_host/dock_hosts = list()

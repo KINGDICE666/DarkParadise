@@ -94,7 +94,6 @@
 	data["mass"] = vessel.vessel_mass
 	data["thrust_limit"] = round((nav?.thrust_limit || 0) * 100)
 	if(nav)
-		nav.refresh_thrust()
 		data["dampeners"] = nav.dampeners
 		data["thrust_sides"] = list(nav.side_accel(nav.thrust_north), nav.side_accel(nav.thrust_east), nav.side_accel(nav.thrust_south), nav.side_accel(nav.thrust_west))
 		data["turn_accel"] = round(nav.angular_accel(min(nav.torque_left, nav.torque_right)) * (1 SECONDS) * (1 SECONDS), 0.1)
@@ -333,7 +332,7 @@
 				if(vessel.sector)
 					dest_x = clamp(dest_x, 1, vessel.sector.size)
 					dest_y = clamp(dest_y, 1, vessel.sector.size)
-				add_waypoint(params["name"], dest_x, dest_y)
+				add_waypoint(strip_html(params["name"], MAX_NAME_LEN), dest_x, dest_y)
 				vessel.set_autopilot(vessel.flight?.autopilot, dest_x, dest_y)
 				update_nav_marker()
 			. = TRUE

@@ -48,8 +48,24 @@
 		if(pod_vessel?.overmap_pod?.is_in_own_pocket())
 			flying_areas[pod_vessel.overmap_pod.pocket_area] = pod_vessel
 	flying_vessels = flying
-	process_encounters(flying, elapsed)
-	if(!length(flying_areas) && !length(bubbles) && !length(drifting_viewers))
+	var/list/watched = list()
+	var/list/eyes = list()
+	if(length(flying))
+		for(var/client/viewer as anything in GLOB.clients)
+			var/turf/eye_turf = get_turf(viewer.eye)
+			if(!eye_turf)
+				continue
+			eyes += eye_turf
+			var/datum/eye_frame = frame_owner(eye_turf)
+			if(eye_frame)
+				watched[eye_frame] = TRUE
+	process_encounters(flying, elapsed, watched, eyes)
+	var/drifting_bubble = FALSE
+	for(var/datum/overmap_bubble/bubble as anything in bubbles)
+		if(bubble.speed_x || bubble.speed_y)
+			drifting_bubble = TRUE
+			break
+	if(!length(flying_areas) && !drifting_bubble && !length(drifting_viewers))
 		return
 	for(var/client/viewer as anything in drifting_viewers)
 		if(QDELETED(viewer))

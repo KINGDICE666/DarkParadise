@@ -219,7 +219,10 @@
 
 /datum/controller/subsystem/overmap/proc/process_collisions(list/flying)
 	for(var/obj/overmap/entity/vessel as anything in flying)
-		if(vessel.collision_space())
+		var/datum/overmap_bubble/space = vessel.collision_space()
+		if(!space)
+			continue
+		if(space.terrain_near(space.to_bubble(vessel.get_world_x(), vessel.get_world_y()), vessel.hull_radius + vessel.pose_travel() + 1))
 			vessel.collide()
 	for(var/index in 1 to length(flying))
 		var/obj/overmap/entity/vessel = flying[index]

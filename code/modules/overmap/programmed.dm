@@ -18,6 +18,16 @@
 	for(var/shuttle_id in GLOB.overmap_programmed_profiles)
 		.[shuttle_id] = TRUE
 
+/proc/is_overmap_programmed_dock(dock_id)
+	var/static/list/programmed_docks
+	if(isnull(programmed_docks))
+		programmed_docks = list()
+		for(var/shuttle_id in GLOB.overmap_programmed_profiles)
+			var/datum/overmap_programmed_profile/profile = GLOB.overmap_programmed_profiles[shuttle_id]
+			for(var/profile_dock in profile.dock_ids())
+				programmed_docks[profile_dock] = TRUE
+	return programmed_docks[dock_id]
+
 GLOBAL_LIST_INIT(overmap_programmed_profiles, build_overmap_programmed_profiles())
 GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttle_ids())
 
@@ -43,6 +53,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/block_if_canMove = FALSE
 	var/block_move_message
 	var/needs_virtual_engine = TRUE
+	var/manual_helm = FALSE
 	var/list/datum/overmap_programmed_leg/legs
 
 /datum/overmap_programmed_profile/New()
@@ -82,6 +93,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 
 /datum/overmap_programmed_profile/mining
 	shuttle_id = "mining"
+	manual_helm = TRUE
 
 /datum/overmap_programmed_profile/mining/setup_legs()
 	add_leg("mining_home", "mining_west")
@@ -89,6 +101,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 
 /datum/overmap_programmed_profile/laborcamp
 	shuttle_id = "laborcamp"
+	manual_helm = TRUE
 
 /datum/overmap_programmed_profile/laborcamp/setup_legs()
 	add_leg("laborcamp_home", "labor_west")
@@ -173,6 +186,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	return pad.overmap_dock_label || pad.name || pad_id
 
 /obj/overmap/entity/proc/programmed_profile()
+	RETURN_TYPE(/datum/overmap_programmed_profile)
 	if(!shuttle?.id)
 		return null
 	return GLOB.overmap_programmed_profiles[shuttle.id]
@@ -193,7 +207,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		ensure_virtual_engine()
 
 /obj/overmap/entity/proc/is_programmed_locked()
-	if(!programmed)
+	if(!programmed || programmed_profile()?.manual_helm)
 		return FALSE
 	return world.time >= programmed_emag_until
 

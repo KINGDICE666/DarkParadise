@@ -72,6 +72,8 @@
 	var/hull_radius = 0
 	var/list/flight_bounds
 	var/list/datum/hull_proxy/neighbor_proxies = list()
+	var/list/obj/overmap/entity/nearby_ships = list()
+	var/next_moved_signal = 0
 	var/list/obj/effect/abstract/hull_proxy_tile/drifter_mirrors = list()
 	var/list/hull_collars
 	var/list/radar_shape
@@ -191,6 +193,7 @@
 
 /obj/overmap/entity/proc/unregister_engine(obj/machinery/ship_engine/engine)
 	engines -= engine
+	flight?.engine_torques -= engine
 	if(engine.vessel == src)
 		engine.vessel = null
 
@@ -337,6 +340,9 @@
 	SEND_SIGNAL(src, COMSIG_OVERMAP_DISPLAY_CHANGED)
 
 /obj/overmap/entity/sync_inspect_follow()
+	if(world.time < next_moved_signal)
+		return
+	next_moved_signal = world.time + OVERMAP_SLOW_TICK
 	SEND_SIGNAL(src, COMSIG_OVERMAP_MOVED)
 
 /obj/overmap/entity/on_overmap_loc_changed()

@@ -99,14 +99,21 @@
 /datum/hull_proxy/proc/place(new_center_x, new_center_y, new_z, new_heading, list/bounds, time)
 	if(new_center_x == center_x && new_center_y == center_y && new_z == proxy_z && new_heading == heading)
 		return
+	var/matrix/turned
+	if(new_heading != heading || new_z != proxy_z)
+		turned = matrix()
+		turned.Scale(HULL_PROXY_SEAM_SCALE)
+		turned.Turn(new_heading)
 	if(new_z != proxy_z)
 		time = 0
 	center_x = new_center_x
 	center_y = new_center_y
 	proxy_z = new_z
 	heading = new_heading
+	var/cos_heading = cos(heading)
+	var/sin_heading = sin(heading)
 	for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in tiles)
-		tile.glide(center_x + tile.rotated_x(heading) / ICON_SIZE_X, center_y + tile.rotated_y(heading) / ICON_SIZE_Y, proxy_z, tile.rotated_transform(heading), bounds, time)
+		tile.glide(center_x + (tile.base_x * cos_heading + tile.base_y * sin_heading) / ICON_SIZE_X, center_y + (tile.base_y * cos_heading - tile.base_x * sin_heading) / ICON_SIZE_Y, proxy_z, turned, bounds, time)
 	var/turf/glow_turf = glow && locate(clamp(round(center_x, 1), bounds[1], bounds[3]), clamp(round(center_y, 1), bounds[2], bounds[4]), proxy_z)
 	if(glow_turf && glow.loc != glow_turf)
 		glow.forceMove(glow_turf)
@@ -129,9 +136,13 @@
 	if(!time)
 		pixel_x = offset_x
 		pixel_y = offset_y
-		transform = new_transform
+		if(new_transform)
+			transform = new_transform
 		return
-	animate(src, pixel_x = offset_x, pixel_y = offset_y, transform = new_transform, time = time)
+	if(new_transform)
+		animate(src, pixel_x = offset_x, pixel_y = offset_y, transform = new_transform, time = time)
+		return
+	animate(src, pixel_x = offset_x, pixel_y = offset_y, time = time)
 
 /obj/effect/abstract/hull_proxy_tile/proc/setup_shading(turf/viewer_turf)
 	var/matrix/shading_scale = matrix()
@@ -188,18 +199,6 @@
 	var/glow_range = lit ? clamp(round(vessel.hull_radius) + 2, HULL_PROXY_GLOW_MIN_RANGE, HULL_PROXY_GLOW_MAX_RANGE) : 0
 	if(glow.light_range != glow_range)
 		glow.set_light_range(glow_range)
-
-/obj/effect/abstract/hull_proxy_tile/proc/rotated_x(angle)
-	return base_x * cos(angle) + base_y * sin(angle)
-
-/obj/effect/abstract/hull_proxy_tile/proc/rotated_y(angle)
-	return base_y * cos(angle) - base_x * sin(angle)
-
-/obj/effect/abstract/hull_proxy_tile/proc/rotated_transform(angle)
-	var/matrix/rotation = matrix()
-	rotation.Scale(HULL_PROXY_SEAM_SCALE)
-	rotation.Turn(angle)
-	return rotation
 
 #undef HULL_PROXY_SEAM_SCALE
 #undef HULL_PROXY_SHADING_SCALE

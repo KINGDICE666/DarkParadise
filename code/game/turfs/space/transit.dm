@@ -188,7 +188,7 @@
 	update_icon(UPDATE_ICON_STATE)
 
 /turf/space/transit/update_icon_state()
-	if(SSovermap.flight_reservations[SSmapping.used_turfs[src]])
+	if(istype(loc, /area/spacepod/hyperspace) || SSovermap.flight_reservations[SSmapping.used_turfs[src]])
 		icon_state = "space"
 		transform = matrix()
 		return

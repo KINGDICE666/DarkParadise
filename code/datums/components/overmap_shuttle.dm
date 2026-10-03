@@ -2,6 +2,7 @@
 	dupe_mode = COMPONENT_DUPE_UNIQUE
 	var/list/owned_dock_ids_cache
 	var/owned_docks_dirty = TRUE
+	var/list/obj/machinery/door/airlock/external/docking/collar_cache
 
 /datum/component/overmap_shuttle/Initialize()
 	if(!istype(parent, /obj/overmap/entity))
@@ -17,6 +18,7 @@
 		token.overmap_shuttle = null
 	if(token.shuttle)
 		UnregisterSignal(token.shuttle, COMSIG_SHUTTLE_DOCK)
+	reset_collar_cache()
 
 /datum/component/overmap_shuttle/proc/bind(obj/docking_port/mobile/port)
 	var/obj/overmap/entity/vessel = parent
@@ -324,15 +326,28 @@
 	. += here_rows + free_rows + busy_rows + small_rows
 
 /datum/component/overmap_shuttle/proc/shuttle_collars()
-	. = list()
 	var/obj/overmap/entity/vessel = parent
 	if(!vessel.shuttle)
-		return
+		return list()
+	if(!isnull(collar_cache))
+		return collar_cache
+	collar_cache = list()
 	for(var/area/place as anything in vessel.shuttle.shuttle_areas)
 		for(var/obj/machinery/door/airlock/external/docking/door in place)
 			if(door.overmap_is_support)
 				continue
-			. += door
+			collar_cache += door
+			RegisterSignal(door, COMSIG_QDELETING, PROC_REF(forget_collar))
+	return collar_cache
+
+/datum/component/overmap_shuttle/proc/forget_collar(obj/machinery/door/airlock/external/docking/door)
+	SIGNAL_HANDLER
+	collar_cache -= door
+
+/datum/component/overmap_shuttle/proc/reset_collar_cache()
+	for(var/obj/machinery/door/airlock/external/docking/door as anything in collar_cache)
+		UnregisterSignal(door, COMSIG_QDELETING)
+	collar_cache = null
 
 /datum/component/overmap_shuttle/proc/ensure_default_collar()
 	var/obj/overmap/entity/vessel = parent
@@ -491,6 +506,7 @@
 	if(port != vessel.shuttle || QDELETED(new_dock))
 		return
 	owned_docks_dirty = TRUE
+	reset_collar_cache()
 	if(istype(new_dock, /obj/docking_port/stationary/transit))
 		vessel.status = OVERMAP_STATUS_OVERMAP
 		vessel.halted = FALSE

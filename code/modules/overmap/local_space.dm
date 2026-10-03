@@ -17,6 +17,7 @@
 	var/last_x
 	var/last_y
 	var/last_facing
+	var/last_turned_facing
 
 /datum/terrain_view/New(obj/overmap/entity/vessel, datum/overmap_bubble/local_space)
 	src.vessel = vessel
@@ -47,14 +48,22 @@
 	var/matrix/turned = matrix()
 	turned.Scale(OVERMAP_TERRAIN_SEAM_SCALE)
 	turned.Turn(-facing)
+	var/turned_changed = facing != last_turned_facing
+	last_turned_facing = facing
 	var/cos_facing = cos(facing)
 	var/sin_facing = sin(facing)
 	var/radius = round(vessel.hull_radius + OVERMAP_TERRAIN_VIEW_RANGE)
 	var/center_x = round(spot[1], 1)
 	var/center_y = round(spot[2], 1)
 	var/list/wanted = list()
-	for(var/turf/shown as anything in block(max(center_x - radius, 1), max(center_y - radius, 1), local_space.bubble_z, min(center_x + radius, world.maxx), min(center_y + radius, world.maxy), local_space.bubble_z))
-		if(isspaceturf(shown) && !(locate(/obj/structure) in shown))
+	var/list/shown_turfs = list()
+	for(var/chunk_x in max(round((center_x - radius) / OVERMAP_RADAR_CHUNK), 0) to round(min(center_x + radius, world.maxx) / OVERMAP_RADAR_CHUNK))
+		for(var/chunk_y in max(round((center_y - radius) / OVERMAP_RADAR_CHUNK), 0) to round(min(center_y + radius, world.maxy) / OVERMAP_RADAR_CHUNK))
+			var/list/chunk = local_space.terrain_chunk(chunk_x, chunk_y)
+			for(var/index in 2 to length(chunk))
+				shown_turfs += chunk[index]
+	for(var/turf/shown as anything in shown_turfs)
+		if(abs(shown.x - center_x) > radius || abs(shown.y - center_y) > radius)
 			continue
 		var/delta_x = shown.x - spot[1]
 		var/delta_y = shown.y - spot[2]
@@ -64,13 +73,14 @@
 			continue
 		wanted[shown] = TRUE
 		var/obj/effect/abstract/hull_proxy_tile/tile = tiles[shown]
-		if(!tile)
+		var/fresh = !tile
+		if(fresh)
 			tile = new(null)
 			tile.hull_turf = shown
 			tile.vis_contents += shown
 			tile.setup_shading(viewer_turf)
 			tiles[shown] = tile
-		tile.glide(hull_x, hull_y, vessel.hull_z, turned, vessel.flight_bounds, elapsed)
+		tile.glide(hull_x, hull_y, vessel.hull_z, (fresh || turned_changed) ? turned : null, vessel.flight_bounds, elapsed)
 	for(var/turf/shown as anything in tiles)
 		if(!wanted[shown])
 			qdel(tiles[shown])
@@ -170,6 +180,27 @@
 			floors += chunk[OVERMAP_RADAR_FLOOR]
 	var/list/anchor = local_space.to_world(0, 0)
 	return list("x" = anchor[1], "y" = anchor[2], "walls" = walls, "frames" = frames, "floors" = floors, "docks" = radar_station_docks())
+
+/datum/overmap_bubble/proc/terrain_chunk(chunk_x, chunk_y)
+	var/key = "[chunk_x]_[chunk_y]"
+	var/list/cached = terrain_chunks[key]
+	if(cached && world.time < cached[1])
+		return cached
+	cached = list(world.time + OVERMAP_RADAR_CHUNK_REFRESH)
+	var/turf/low = locate(max(chunk_x * OVERMAP_RADAR_CHUNK, 1), max(chunk_y * OVERMAP_RADAR_CHUNK, 1), bubble_z)
+	var/turf/high = locate(min(chunk_x * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxx), min(chunk_y * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxy), bubble_z)
+	for(var/turf/spot as anything in block(low, high))
+		if(!isspaceturf(spot) || (locate(/obj/structure) in spot))
+			cached += spot
+	terrain_chunks[key] = cached
+	return cached
+
+/datum/overmap_bubble/proc/terrain_near(list/spot, reach)
+	for(var/chunk_x in max(round((spot[1] - reach) / OVERMAP_RADAR_CHUNK), 0) to round(min(spot[1] + reach, world.maxx) / OVERMAP_RADAR_CHUNK))
+		for(var/chunk_y in max(round((spot[2] - reach) / OVERMAP_RADAR_CHUNK), 0) to round(min(spot[2] + reach, world.maxy) / OVERMAP_RADAR_CHUNK))
+			if(length(terrain_chunk(chunk_x, chunk_y)) > 1)
+				return TRUE
+	return FALSE
 
 /datum/overmap_bubble/proc/radar_chunk(chunk_x, chunk_y)
 	var/key = "[chunk_x]_[chunk_y]"
