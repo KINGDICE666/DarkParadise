@@ -636,19 +636,28 @@ GLOBAL_LIST_EMPTY(admin_objective_list)
 
 /datum/objective/hijack/on_add_objective(datum/mind)
 	ADD_TRAIT(mind, TRAIT_HIJACK, UNIQUE_TRAIT_SOURCE(src))
+	give_hijack_kit(mind)
 
 /datum/objective/hijack/on_remove_objective(datum/mind)
 	REMOVE_TRAIT(mind, TRAIT_HIJACK, UNIQUE_TRAIT_SOURCE(src))
 
+/datum/objective/hijack/proc/give_hijack_kit(datum/mind/mind)
+	var/mob/living/carbon/human/agent = mind?.current
+	if(!ishuman(agent))
+		return
+	var/obj/item/storage/box/syndie_kit/hijack/kit = new
+	agent.equip_or_collect(kit, ITEM_SLOT_BACKPACK)
+
 /datum/objective/hijack/check_completion()
-	if(SSshuttle.emergency.mode != SHUTTLE_ENDGAME)
+	var/obj/docking_port/mobile/emergency/evac = SSshuttle.emergency
+	if(evac?.getDockedId() != "emergency_syndicate")
 		return FALSE
 
 	for(var/datum/mind/player in get_owners())
-		if(QDELETED(player.current) || player.current.stat != CONSCIOUS || issilicon(player.current) || get_area(player.current) != SSshuttle.emergency.areaInstance)
+		if(QDELETED(player.current) || player.current.stat != CONSCIOUS || issilicon(player.current) || !evac.shuttle_areas[get_area(player.current)])
 			return FALSE
 
-	return SSshuttle.emergency.is_hijacked()
+	return TRUE
 
 // MARK: Hijack with clones
 /datum/objective/hijackclone

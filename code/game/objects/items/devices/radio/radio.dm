@@ -575,7 +575,7 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	tcm.sender_job = jobname
 	tcm.sender_rank = rankname
 	tcm.message_pieces = message_pieces_copy
-	tcm.source_level = position.z
+	tcm.source_level = SSovermap.radio_level(position)
 	tcm.freq = connection.frequency
 	tcm.vmask = voicemask
 	tcm.needs_tcomms = requires_tcomms
@@ -637,7 +637,7 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 		return -1
 	if(!cross_zlevel && !(0 in level))
 		var/turf/position = get_turf(src)
-		if(!position || !(position.z in level))
+		if(!position || !(SSovermap.radio_level(position) in level))
 			return -1
 	if(freq in SSradio.ANTAG_FREQS)
 		if(!(syndiekey))//Checks to see if it's allowed on that frequency, based on the encryption keys
