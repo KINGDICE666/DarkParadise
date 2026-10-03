@@ -18,6 +18,7 @@
 	var/last_y
 	var/last_facing
 	var/last_turned_facing
+	var/next_refresh = 0
 
 /datum/terrain_view/New(obj/overmap/entity/vessel, datum/overmap_bubble/local_space)
 	src.vessel = vessel
@@ -40,8 +41,10 @@
 /datum/terrain_view/proc/update(elapsed)
 	var/list/spot = local_space.to_bubble(vessel.get_world_x(), vessel.get_world_y())
 	var/facing = vessel.get_facing()
-	if(spot[1] == last_x && spot[2] == last_y && facing == last_facing)
+	var/moved = spot[1] != last_x || spot[2] != last_y || facing != last_facing
+	if(!moved && world.time < next_refresh)
 		return
+	next_refresh = world.time + OVERMAP_FLIGHT_TICK
 	last_x = spot[1]
 	last_y = spot[2]
 	last_facing = facing
@@ -80,7 +83,8 @@
 			tile.vis_contents += shown
 			tile.setup_shading(viewer_turf)
 			tiles[shown] = tile
-		tile.glide(hull_x, hull_y, vessel.hull_z, (fresh || turned_changed) ? turned : null, vessel.flight_bounds, elapsed)
+		if(fresh || moved)
+			tile.glide(hull_x, hull_y, vessel.hull_z, (fresh || turned_changed) ? turned : null, vessel.flight_bounds, elapsed)
 	for(var/turf/shown as anything in tiles)
 		if(!wanted[shown])
 			qdel(tiles[shown])
@@ -186,7 +190,7 @@
 	var/list/cached = terrain_chunks[key]
 	if(cached && world.time < cached[1])
 		return cached
-	cached = list(world.time + OVERMAP_RADAR_CHUNK_REFRESH)
+	cached = list(world.time + OVERMAP_FLIGHT_TICK)
 	var/turf/low = locate(max(chunk_x * OVERMAP_RADAR_CHUNK, 1), max(chunk_y * OVERMAP_RADAR_CHUNK, 1), bubble_z)
 	var/turf/high = locate(min(chunk_x * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxx), min(chunk_y * OVERMAP_RADAR_CHUNK + OVERMAP_RADAR_CHUNK - 1, world.maxy), bubble_z)
 	for(var/turf/spot as anything in block(low, high))
@@ -196,10 +200,15 @@
 	return cached
 
 /datum/overmap_bubble/proc/terrain_near(list/spot, reach)
-	for(var/chunk_x in max(round((spot[1] - reach) / OVERMAP_RADAR_CHUNK), 0) to round(min(spot[1] + reach, world.maxx) / OVERMAP_RADAR_CHUNK))
-		for(var/chunk_y in max(round((spot[2] - reach) / OVERMAP_RADAR_CHUNK), 0) to round(min(spot[2] + reach, world.maxy) / OVERMAP_RADAR_CHUNK))
-			if(length(terrain_chunk(chunk_x, chunk_y)) > 1)
-				return TRUE
+	var/low_x = max(FLOOR(spot[1] - reach, 1), bounds[1])
+	var/low_y = max(FLOOR(spot[2] - reach, 1), bounds[2])
+	var/high_x = min(CEILING(spot[1] + reach, 1), bounds[3])
+	var/high_y = min(CEILING(spot[2] + reach, 1), bounds[4])
+	if(low_x > high_x || low_y > high_y)
+		return FALSE
+	for(var/turf/nearby as anything in block(locate(low_x, low_y, bubble_z), locate(high_x, high_y, bubble_z)))
+		if(is_solid(nearby))
+			return TRUE
 	return FALSE
 
 /datum/overmap_bubble/proc/radar_chunk(chunk_x, chunk_y)

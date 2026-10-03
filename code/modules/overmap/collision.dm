@@ -46,11 +46,36 @@
 	var/list/pose = pose_at(fraction)
 	var/list/other_pose = other?.pose_at(fraction)
 	var/datum/overmap_bubble/space = collision_space()
+	var/cos_facing = cos(pose[3])
+	var/sin_facing = sin(pose[3])
+	var/cos_other = other && cos(other_pose[3])
+	var/sin_other = other && sin(other_pose[3])
+	var/drift_x = space?.drift_x()
+	var/drift_y = space?.drift_y()
 	for(var/turf/hull_turf as anything in hull_edge)
-		var/list/spot = hull_to_world(hull_turf.x, hull_turf.y, pose[1], pose[2], pose[3])
-		var/turf/struck = other ? other.hull_turf_at(spot[1], spot[2], other_pose[1], other_pose[2], other_pose[3]) : space.solid_turf_at(spot[1], spot[2])
+		var/local_x = hull_turf.x - hull_center_x
+		var/local_y = hull_turf.y - hull_center_y
+		var/world_x = pose[1] + local_x * cos_facing + local_y * sin_facing
+		var/world_y = pose[2] - local_x * sin_facing + local_y * cos_facing
+		var/turf/struck
+		if(other)
+			var/delta_x = world_x - other_pose[1]
+			var/delta_y = world_y - other_pose[2]
+			var/hull_x = other.hull_center_x + delta_x * cos_other - delta_y * sin_other
+			var/hull_y = other.hull_center_y + delta_x * sin_other + delta_y * cos_other
+			struck = locate(FLOOR(hull_x + 0.5, 1), FLOOR(hull_y + 0.5, 1), other.hull_z)
+			if(!other.hull_turfs[struck])
+				continue
+		else
+			var/bubble_x = space.center_x + world_x - space.origin_x - drift_x
+			var/bubble_y = space.center_y + world_y - space.origin_y - drift_y
+			if(bubble_x < space.bounds[1] || bubble_x > space.bounds[3] || bubble_y < space.bounds[2] || bubble_y > space.bounds[4])
+				continue
+			struck = locate(CEILING(bubble_x - 0.5, 1), CEILING(bubble_y - 0.5, 1), space.bubble_z)
+			if(!space.is_solid(struck))
+				continue
 		if(struck)
-			. += list(list(hull_turf, struck, spot))
+			. += list(list(hull_turf, struck, list(world_x, world_y)))
 
 /obj/overmap/entity/proc/find_impact(obj/overmap/entity/other)
 	var/steps = clamp(CEILING((pose_travel() + other?.pose_travel()) / OVERMAP_RAM_SWEEP_STEP, 1), 1, OVERMAP_RAM_MAX_SWEEP)

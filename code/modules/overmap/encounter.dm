@@ -112,6 +112,16 @@
 	QDEL_LIST_ASSOC_VAL(neighbor_proxies)
 	QDEL_LIST_ASSOC_VAL(drifter_mirrors)
 	nearby_ships = list()
+	for(var/obj/overmap/entity/other as anything in SSovermap.flying_vessels)
+		other.nearby_ships -= src
+		if(other.neighbor_proxies[src])
+			qdel(other.neighbor_proxies[src])
+			other.neighbor_proxies -= src
+	for(var/datum/overmap_bubble/bubble as anything in SSovermap.bubbles)
+		bubble.ships -= src
+		if(bubble.ship_proxies[src])
+			qdel(bubble.ship_proxies[src])
+			bubble.ship_proxies -= src
 	SSovermap.flight_reservations -= flight_reservation
 	flight_reservation = null
 	hull_turfs = null
@@ -590,6 +600,7 @@
 		SSovermap.bubbles_by_z[bubble_z] = null
 	QDEL_LIST_ASSOC_VAL(ship_proxies)
 	ships.Cut()
+	terrain_chunks.Cut()
 	clingers.Cut()
 	for(var/atom/movable/drifter as anything in drifters.Copy())
 		remove_drifter(drifter)
