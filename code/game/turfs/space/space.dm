@@ -196,7 +196,7 @@ GLOBAL_LIST_EMPTY(starlight)
 		return ..()
 
 	. = ..()
-	SSovermap.on_space_entered(src, arrived)
+	SSovermap.on_space_entered(src, arrived, old_loc)
 
 /turf/space/proc/check_taipan_availability(atom/movable/arrived, destination_z)
 	if(!is_taipan(destination_z))

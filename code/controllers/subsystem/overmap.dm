@@ -285,6 +285,9 @@ SUBSYSTEM_DEF(overmap)
 	var/obj/docking_port/mobile/shuttle = get_shuttle_at(craft)
 	if(shuttle)
 		return get_or_register_shuttle(shuttle)
+	var/obj/overmap/entity/ruin_token = get_ruin_host(craft)
+	if(ruin_token)
+		return ruin_token
 	var/obj/overmap/entity/service_site/site = get_service_site(craft)
 	if(site)
 		return site

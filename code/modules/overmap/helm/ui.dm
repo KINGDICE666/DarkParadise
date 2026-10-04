@@ -366,14 +366,17 @@
 			waypoints -= waypoint_name
 			. = TRUE
 		if("undock")
-			var/undock_result = vessel.begin_physical_undock()
+			if(vessel.shuttle && vessel.shuttle.mode != SHUTTLE_IDLE && vessel.shuttle.mode != SHUTTLE_RECHARGING)
+				to_chat(usr, span_warning("Шаттл уже выполняет манёвр."))
+				return TRUE
+			var/undock_result = vessel.begin_physical_undock(instant = TRUE)
 			if(undock_result != TRUE)
 				to_chat(usr, span_warning("[undock_result]"))
 			else if(vessel.overmap_pod)
 				to_chat(usr, span_notice("Челнок выходит в гиперпространство."))
 				update_map_view()
 			else
-				to_chat(usr, span_notice("Шаттл выходит в гиперпространство."))
+				to_chat(usr, span_notice("Шаттл отстыковался."))
 				update_map_view()
 			. = TRUE
 		if("dock")

@@ -736,6 +736,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/dist = max(abs(start.x - finish.x), abs(start.y - finish.y))
 	if(dist <= 0)
 		return 0
+	if(start == get_overmap_turf())
+		var/axis = abs(finish.x - start.x) >= abs(finish.y - start.y) ? 1 : 2
+		var/heading = sign(axis == 1 ? finish.x - start.x : finish.y - start.y)
+		dist = max(0, dist - OVERMAP_TILE_EDGE - position[axis] * heading)
 	var/speed = OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE)
 	if(flight)
 		speed = max(speed, flight.cruise_speed)

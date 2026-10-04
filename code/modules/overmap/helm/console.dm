@@ -208,6 +208,9 @@
 	if(!dock_picker)
 		to_chat(user, span_warning("Камера посадки недоступна."))
 		return FALSE
+	if(dock_picker.current_user)
+		to_chat(user, span_warning("Консоль уже используется."))
+		return FALSE
 	var/obj/overmap/entity/host = vessel.get_dock_host()
 	if(!host)
 		to_chat(user, span_warning("Невозможно установить произвольную точку посадки."))
@@ -224,4 +227,4 @@
 	dock_picker.my_port = vessel.get_custom_dock(host)
 	dock_picker.stat &= ~NOPOWER
 	dock_picker.attack_hand(user)
-	return TRUE
+	return dock_picker.current_user == user

@@ -21,6 +21,8 @@
 	access_derelict = FALSE
 	space_turfs_only = !pads?.planet_landing
 	CalculateAvailable_z_lvls()
+	if(current_user)
+		remove_eye_control(current_user)
 	QDEL_NULL(eyeobj)
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/overmap/proc/ruin_region()
@@ -130,7 +132,7 @@
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/overmap/check_eye(mob/user)
 	var/obj/machinery/computer/helm/helm = loc
-	if(!istype(helm) || (helm.stat & (NOPOWER|BROKEN)) || !helm.Adjacent(user) || user.incapacitated() || !user.has_vision())
+	if(!istype(helm) || (helm.stat & (NOPOWER|BROKEN)) || !helm.Adjacent(user) || user.incapacitated() || !user.has_vision() || !user.client)
 		user.unset_machine()
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/overmap/attack_hand(mob/user)
@@ -147,7 +149,7 @@
 	user.set_machine(src)
 	if(!eyeobj)
 		CreateEye()
-	if(!eyeobj)
+	if(!get_turf(eyeobj))
 		user.unset_machine()
 		to_chat(user, span_warning("Не удалось открыть камеру посадки."))
 		return

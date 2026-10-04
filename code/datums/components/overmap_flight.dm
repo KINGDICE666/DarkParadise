@@ -435,15 +435,7 @@
 	vessel.refresh_heading_overlay()
 
 /datum/component/overmap_flight/proc/get_brake_distance()
-	var/obj/overmap/entity/vessel = parent
-	var/accel = get_acceleration()
-	var/current = vessel.get_speed()
-	if(!accel || current < vessel.min_speed || !burn_delay)
-		return 0
-	var/accel_per_ds = accel / burn_delay
-	if(accel_per_ds <= 0)
-		return 0
-	return (current * current) / (2 * accel_per_ds) + 0.2
+	return brake_distance_to_speed(OVERMAP_FROM_DISPLAY(OVERMAP_HEADING_SPEED_MIN))
 
 /datum/component/overmap_flight/proc/set_autopilot(enabled, dest_x, dest_y)
 	var/obj/overmap/entity/vessel = parent
@@ -497,7 +489,7 @@
 		cruise = max(cruise_speed, OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE))
 	var/brake_dist = get_brake_distance()
 	var/remaining = remaining_to_enter_turf(target)
-	if(remaining > 0 && remaining <= brake_dist && current > vessel.min_speed)
+	if(remaining > 0 && remaining <= brake_dist)
 		brake(elapsed)
 		return velocity_angle()
 	if(current > cruise * 1.02)
@@ -597,7 +589,7 @@
 	var/accel_per_ds = accel / burn_delay
 	if(accel_per_ds <= 0)
 		return 0
-	return ((current * current) - (target_speed * target_speed)) / (2 * accel_per_ds)
+	return ((current * current) - (target_speed * target_speed)) / (2 * accel_per_ds * (vessel.sector?.tile_travel || 1))
 
 /datum/component/overmap_flight/proc/remaining_to_next_course_tile()
 	var/obj/overmap/entity/vessel = parent

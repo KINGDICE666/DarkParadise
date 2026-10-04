@@ -18,6 +18,13 @@
 #define OVERMAP_SHOVE_CLEARANCE 4
 #define OVERMAP_SHOVE_HURT_SPEED 4
 #define OVERMAP_SHOVE_MAX_DAMAGE 25
+#define OVERMAP_SHOVE_HURT_COOLDOWN (2 SECONDS)
+#define OVERMAP_BOARD_REACH 1
+#define OVERMAP_BOARD_SIDE 0.3
+#define OVERMAP_BOARD_DOOR_BIAS 0.5
+#define OVERMAP_HULL_SIGHT_SECTORS 8
+#define OVERMAP_HULL_SIGHT_DISTANCE 6
+#define OVERMAP_HULL_SIGHT_REFRESH (3 SECONDS)
 #define OVERMAP_CLING_SPEED 5
 #define OVERMAP_CLING_SPEED_MAGBOOTS 10
 #define OVERMAP_RADAR_DOCK_RANGE 64
@@ -25,6 +32,7 @@
 /obj/overmap/entity/proc/map_hull(keep_center = FALSE)
 	unwatch_hull()
 	hull_dirty = FALSE
+	hull_sight_cache = null
 	hull_turfs = list()
 	hull_watch = list()
 	var/min_x = world.maxx
@@ -52,7 +60,7 @@
 		spread += (hull_turf.x - hull_center_x) ** 2 + (hull_turf.y - hull_center_y) ** 2
 		for(var/direction in GLOB.cardinal)
 			if(!hull_turfs[get_step(hull_turf, direction)])
-				hull_edge += hull_turf
+				hull_edge[hull_turf] = TRUE
 				break
 	hull_inertia = max(spread / max(length(hull_turfs), 1), 1)
 	hull_z = shuttle.z
@@ -126,6 +134,7 @@
 	flight_reservation = null
 	hull_turfs = null
 	hull_edge = null
+	hull_sight_cache = null
 	hull_collars = null
 	radar_shape = null
 	flight_bounds = null
@@ -397,6 +406,24 @@
 	var/turf/hull_turf = locate(FLOOR(spot[1] + 0.5, 1), FLOOR(spot[2] + 0.5, 1), hull_z)
 	return hull_turfs[hull_turf] ? hull_turf : null
 
+/obj/overmap/entity/proc/hull_sight_toward(world_x, world_y)
+	var/list/hull_point = world_to_hull(world_x, world_y)
+	var/sector = round(SIMPLIFY_DEGREES(delta_to_angle(hull_point[1] - hull_center_x, hull_point[2] - hull_center_y) + 360) / (360 / OVERMAP_HULL_SIGHT_SECTORS)) % OVERMAP_HULL_SIGHT_SECTORS
+	LAZYINITLIST(hull_sight_cache)
+	var/list/cached = hull_sight_cache["[sector]"]
+	if(cached && world.time < cached[1])
+		return cached[2]
+	var/angle = sector * (360 / OVERMAP_HULL_SIGHT_SECTORS)
+	var/distance = hull_radius + OVERMAP_HULL_SIGHT_DISTANCE
+	var/turf/eye = locate(clamp(round(hull_center_x + distance * sin(angle), 1), flight_bounds[1], flight_bounds[3]), clamp(round(hull_center_y + distance * cos(angle), 1), flight_bounds[2], flight_bounds[4]), hull_z)
+	var/list/turf/sighted = list()
+	FOR_DVIEW(var/turf/seen, CEILING(distance + hull_radius, 1), eye, 0)
+		if(hull_turfs[seen])
+			sighted[seen] = TRUE
+	FOR_DVIEW_END
+	hull_sight_cache["[sector]"] = list(world.time + OVERMAP_HULL_SIGHT_REFRESH, sighted)
+	return sighted
+
 /obj/overmap/entity/proc/quarter_turns()
 	return round(get_facing() / 90, 1) * 90
 
@@ -419,6 +446,7 @@
 			proxy = new(other, locate(round(hull_center_x), round(hull_center_y), hull_z))
 			neighbor_proxies[other] = proxy
 		proxy.place(spot[1], spot[2], hull_z, other.get_facing() - get_facing(), flight_bounds, elapsed)
+		proxy.refresh_sight(list(list(get_world_x(), get_world_y())))
 	for(var/obj/overmap/entity/other as anything in neighbor_proxies)
 		if(!seen[other])
 			qdel(neighbor_proxies[other])
@@ -656,6 +684,12 @@
 			proxy = new(vessel, locate(round(center_x), round(center_y), bubble_z), TRUE)
 			ship_proxies[vessel] = proxy
 		proxy.place(spot[1], spot[2], bubble_z, vessel.get_facing(), bounds, elapsed)
+		var/list/viewer_points = list()
+		var/reach = vessel.hull_radius + OVERMAP_NEIGHBOR_RANGE
+		for(var/turf/eye as anything in eyes)
+			if(eye.z == bubble_z && abs(eye.x - spot[1]) <= reach && abs(eye.y - spot[2]) <= reach)
+				viewer_points += list(to_world(eye.x, eye.y))
+		proxy.refresh_sight(viewer_points)
 	for(var/obj/overmap/entity/vessel as anything in ship_proxies)
 		if(!drawn[vessel])
 			qdel(ship_proxies[vessel])
@@ -699,7 +733,7 @@
 		if(hull_turf?.is_blocked_turf(exclude_mobs = TRUE))
 			return COMSIG_MOVABLE_STOP_SPACEMOVE
 
-/datum/overmap_bubble/proc/try_board(atom/movable/drifter)
+/datum/overmap_bubble/proc/try_board(atom/movable/drifter, turf/approach)
 	var/turf/spot = drifter.loc
 	if(!isturf(spot))
 		return FALSE
@@ -708,16 +742,58 @@
 		return FALSE
 	var/obj/overmap/entity/vessel = hull[1]
 	var/turf/hull_turf = hull[2]
-	if(hull_turf.is_blocked_turf(exclude_mobs = TRUE))
+	var/obj/projectile/bullet = drifter
+	var/turf/entry = nearest_hull_edge(vessel, spot, TRUE, approach)
+	if(!entry)
+		if(!istype(bullet) && !hull_turf.is_blocked_turf(exclude_mobs = TRUE))
+			shove_drifter(drifter, vessel)
 		return FALSE
 	var/board_dir = turn(drifter.dir || SOUTH, vessel.quarter_turns())
-	cross_frame_with_pull(drifter, hull_turf)
-	var/obj/projectile/bullet = drifter
+	cross_frame_with_pull(drifter, entry)
 	if(istype(bullet))
 		bullet.cross_frames(-vessel.get_facing())
 	else
 		drifter.setDir(board_dir)
 	return TRUE
+
+/datum/overmap_bubble/proc/nearest_hull_edge(obj/overmap/entity/vessel, turf/spot, open, turf/approach)
+	var/list/spot_world = to_world(spot.x, spot.y)
+	var/list/spot_hull = vessel.world_to_hull(spot_world[1], spot_world[2])
+	var/list/approach_hull = spot_hull
+	if(isturf(approach) && SSovermap.bubble_for_turf(approach) == src)
+		var/list/approach_world = to_world(approach.x, approach.y)
+		approach_hull = vessel.world_to_hull(approach_world[1], approach_world[2])
+	var/base_x = FLOOR(spot_hull[1] + 0.5, 1)
+	var/base_y = FLOOR(spot_hull[2] + 0.5, 1)
+	var/turf/best
+	var/best_score = INFINITY
+	for(var/offset_x in -1 to 1)
+		for(var/offset_y in -1 to 1)
+			var/turf/candidate = locate(base_x + offset_x, base_y + offset_y, vessel.hull_z)
+			if(!vessel.hull_edge[candidate])
+				continue
+			var/blocked = candidate.is_blocked_turf(exclude_mobs = TRUE)
+			if(open ? blocked : !blocked)
+				continue
+			var/delta_x = spot_hull[1] - candidate.x
+			var/delta_y = spot_hull[2] - candidate.y
+			var/distance = sqrt(delta_x ** 2 + delta_y ** 2)
+			if(distance > OVERMAP_BOARD_REACH)
+				continue
+			if(open && max(abs(delta_x), abs(delta_y)) > OVERMAP_TILE_EDGE)
+				var/side_x = approach_hull[1] - candidate.x
+				var/side_y = approach_hull[2] - candidate.y
+				var/outside_x = abs(side_x) >= OVERMAP_BOARD_SIDE && !vessel.hull_turfs[locate(candidate.x + sign(side_x), candidate.y, vessel.hull_z)]
+				var/outside_y = abs(side_y) >= OVERMAP_BOARD_SIDE && !vessel.hull_turfs[locate(candidate.x, candidate.y + sign(side_y), vessel.hull_z)]
+				if(!outside_x && !outside_y)
+					continue
+			var/score = distance
+			if(!open && (locate(/obj/machinery/door) in candidate))
+				score -= OVERMAP_BOARD_DOOR_BIAS
+			if(score < best_score)
+				best_score = score
+				best = candidate
+	return best
 
 /datum/overmap_bubble/proc/carry_clingers()
 	for(var/mob/living/clinger as anything in clingers)
@@ -775,26 +851,37 @@
 	var/velocity_x = (vessel.speed[1] - speed_x) * OVERMAP_TILE_SPAN
 	var/velocity_y = (vessel.speed[2] - speed_y) * OVERMAP_TILE_SPAN
 	var/impact = sqrt(velocity_x ** 2 + velocity_y ** 2) * (1 SECONDS)
-	var/push_dir
+	var/preferred_dir
 	if(impact >= 1)
-		push_dir = angle2dir_cardinal(delta_to_angle(velocity_x, velocity_y))
+		preferred_dir = angle2dir_cardinal(delta_to_angle(velocity_x, velocity_y))
 	else
 		var/list/drifter_world = to_world(drifter.x, drifter.y)
-		push_dir = angle2dir_cardinal(delta_to_angle(drifter_world[1] - vessel.get_world_x(), drifter_world[2] - vessel.get_world_y()))
-	var/turf/landing = drifter.loc
-	for(var/step in 1 to OVERMAP_SHOVE_CLEARANCE)
-		landing = get_step(landing, push_dir)
-		if(!landing || !covers(list(landing.x, landing.y), 0))
-			return
-		var/list/hull = hull_under(landing)
-		var/turf/hull_turf = hull?[2]
-		if(!hull_turf?.is_blocked_turf(exclude_mobs = TRUE))
+		preferred_dir = angle2dir_cardinal(delta_to_angle(drifter_world[1] - vessel.get_world_x(), drifter_world[2] - vessel.get_world_y()))
+	var/push_dir
+	var/turf/landing
+	var/fewest_steps = CEILING(vessel.hull_radius * 2, 1) + 1
+	for(var/direction in list(preferred_dir) + (GLOB.cardinal - preferred_dir))
+		var/turf/cursor = drifter.loc
+		for(var/step in 1 to fewest_steps - 1)
+			cursor = get_step(cursor, direction)
+			if(!cursor || !covers(list(cursor.x, cursor.y), 0))
+				break
+			if(hull_under(cursor))
+				continue
+			fewest_steps = step
+			push_dir = direction
+			landing = cursor
 			break
+		if(push_dir == preferred_dir && fewest_steps <= OVERMAP_SHOVE_CLEARANCE)
+			break
+	if(!landing)
+		return
 	drifter.forceMove(landing)
 	drifter.newtonian_move(push_dir)
-	if(!isliving(drifter) || impact < OVERMAP_SHOVE_HURT_SPEED)
+	if(!isliving(drifter) || impact < OVERMAP_SHOVE_HURT_SPEED || TIMER_COOLDOWN_RUNNING(drifter, COOLDOWN_OVERMAP_HULL_SHOVE))
 		return
 	var/mob/living/victim = drifter
+	TIMER_COOLDOWN_START(victim, COOLDOWN_OVERMAP_HULL_SHOVE, OVERMAP_SHOVE_HURT_COOLDOWN)
 	playsound(landing, 'sound/effects/bang.ogg', 50, TRUE)
 	victim.Knockdown(2 SECONDS)
 	victim.apply_damage(min(impact * 2, OVERMAP_SHOVE_MAX_DAMAGE), BRUTE)
@@ -909,11 +996,42 @@
 		return
 	var/datum/overmap_bubble/bubble = SSovermap.bubble_for_turf(src)
 	var/list/hull = bubble?.hull_under(src)
-	var/turf/hull_turf = hull?[2]
-	if(!hull_turf?.is_blocked_turf(exclude_mobs = TRUE))
+	if(!hull || bubble.nearest_hull_edge(hull[1], src, TRUE, mover.loc))
 		return
-	bump_into_hull(mover, hull_turf)
+	bump_into_hull(mover, bubble.nearest_hull_edge(hull[1], src, FALSE) || hull[2])
 	return FALSE
+
+/mob/dead/observer/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change)
+	. = ..()
+	if(length(SSovermap?.flying_vessels))
+		SSovermap.cross_ghost_frame(src, movement_dir)
+
+/datum/controller/subsystem/overmap/proc/cross_ghost_frame(mob/dead/observer/ghost, movement_dir)
+	var/turf/spot = ghost.loc
+	if(!isspaceturf(spot))
+		return
+	var/datum/overmap_bubble/bubble = bubble_for_turf(spot)
+	if(bubble)
+		var/list/hull = length(bubble.ships) && bubble.hull_under(spot)
+		if(hull)
+			ghost.abstract_move(hull[2])
+		return
+	var/obj/overmap/entity/vessel = flight_reservations[SSmapping.used_turfs[spot]]
+	if(!vessel?.hull_turfs)
+		return
+	var/list/spot_world = vessel.hull_to_world(spot.x, spot.y)
+	var/datum/overmap_bubble/outside = find_bubble(vessel.sector, spot_world[1], spot_world[2])
+	var/turf/landing = outside?.turf_at(spot_world[1], spot_world[2])
+	if(!landing)
+		return
+	var/exit_dir = turn(movement_dir || SOUTH, -vessel.quarter_turns())
+	for(var/step in 1 to CEILING(vessel.hull_radius * 2, 1))
+		if(!outside.hull_under(landing))
+			ghost.abstract_move(landing)
+			return
+		landing = get_step(landing, exit_dir)
+		if(!landing)
+			return
 
 /turf/space/transit/Enter(atom/movable/mover)
 	. = ..()
@@ -942,14 +1060,14 @@
 		return bubbles_by_z[spot.z]
 	return bubbles_by_reservation[SSmapping.used_turfs[spot]]
 
-/datum/controller/subsystem/overmap/proc/on_space_entered(turf/space/spot, atom/movable/arrived)
+/datum/controller/subsystem/overmap/proc/on_space_entered(turf/space/spot, atom/movable/arrived, atom/old_loc)
 	if(!arrived.simulated || isobserver(arrived) || arrived.loc != spot)
 		return
 	var/datum/overmap_bubble/bubble = bubble_for_turf(spot)
 	if(!bubble || (bubble.static_level && !length(bubble.ships)))
 		return
 	bubble.add_drifter(arrived)
-	bubble.try_board(arrived)
+	bubble.try_board(arrived, old_loc)
 
 /datum/controller/subsystem/overmap/proc/find_bubble(datum/overmap_sector/sector, world_x, world_y)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles)
@@ -1025,6 +1143,13 @@
 #undef OVERMAP_SHOVE_CLEARANCE
 #undef OVERMAP_SHOVE_HURT_SPEED
 #undef OVERMAP_SHOVE_MAX_DAMAGE
+#undef OVERMAP_SHOVE_HURT_COOLDOWN
+#undef OVERMAP_BOARD_REACH
+#undef OVERMAP_BOARD_SIDE
+#undef OVERMAP_BOARD_DOOR_BIAS
+#undef OVERMAP_HULL_SIGHT_SECTORS
+#undef OVERMAP_HULL_SIGHT_DISTANCE
+#undef OVERMAP_HULL_SIGHT_REFRESH
 #undef OVERMAP_CLING_SPEED
 #undef OVERMAP_CLING_SPEED_MAGBOOTS
 #undef OVERMAP_RADAR_DOCK_RANGE

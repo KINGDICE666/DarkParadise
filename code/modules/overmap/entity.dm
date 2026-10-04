@@ -65,6 +65,7 @@
 	var/list/hull_watch
 	var/hull_dirty = FALSE
 	var/list/hull_edge
+	var/list/hull_sight_cache
 	var/hull_inertia = 1
 	var/hull_center_x
 	var/hull_center_y

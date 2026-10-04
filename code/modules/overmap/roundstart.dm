@@ -107,6 +107,16 @@
 	setTimer(max(20, vessel.estimate_programmed_trip(dock_id, vessel.programmed_mission)))
 	return null
 
+/obj/docking_port/mobile/proc/overmap_programmed_lead_time(dock_id)
+	if(!SSovermap?.initialized)
+		return 0
+	var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
+	if(!vessel?.programmed || vessel.is_programmed_emagged())
+		return 0
+	if(getDockedId() == dock_id && vessel.status == OVERMAP_STATUS_DOCKED)
+		return 0
+	return max(0, vessel.estimate_programmed_trip(dock_id) - OVERMAP_PROGRAMMED_WINDUP)
+
 /obj/docking_port/mobile/emergency/proc/overmap_launch_escape_pods()
 	for(var/obj/docking_port/mobile/pod/pod as anything in SSshuttle.mobile)
 		if(!istype(pod) || !is_station_level(pod.z))

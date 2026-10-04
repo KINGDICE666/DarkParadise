@@ -7,6 +7,7 @@
 #define HULL_PROXY_GLOW_MAX_RANGE 8
 #define HULL_PROXY_GLOW_POWER 0.6
 #define HULL_PROXY_GLOW_COLOR "#cfe0ff"
+#define HULL_PROXY_SIGHT_INTERVAL (0.5 SECONDS)
 
 /datum/hull_proxy
 	var/obj/overmap/entity/vessel
@@ -16,6 +17,7 @@
 	var/proxy_z
 	var/heading
 	var/obj/effect/abstract/hull_proxy_glow/glow
+	var/next_sight_refresh = 0
 
 /obj/effect/abstract/hull_proxy_tile
 	name = "hull proxy tile"
@@ -33,6 +35,7 @@
 	var/copied_light_state
 	var/list/copied_light_color
 	var/corner_mask
+	var/occluded = FALSE
 
 /obj/effect/abstract/hull_proxy_tile/carrier
 	name = "hull proxy carrier"
@@ -99,6 +102,20 @@
 	QDEL_NULL(glow)
 	vessel = null
 	return ..()
+
+/datum/hull_proxy/proc/refresh_sight(list/viewer_points)
+	if(world.time < next_sight_refresh || !length(viewer_points) || !vessel.flight_bounds)
+		return
+	next_sight_refresh = world.time + HULL_PROXY_SIGHT_INTERVAL
+	var/list/turf/sighted = list()
+	for(var/list/point as anything in viewer_points)
+		for(var/turf/seen as anything in vessel.hull_sight_toward(point[1], point[2]))
+			sighted[seen] = TRUE
+	for(var/obj/effect/abstract/hull_proxy_tile/carrier/carrier as anything in carriers)
+		for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in carrier.members)
+			var/visible = sighted[tile.hull_turf]
+			if(tile.occluded == !!visible)
+				tile.set_occluded(!visible)
 
 /obj/effect/abstract/hull_proxy_tile/Destroy()
 	vis_contents.Cut()
@@ -207,6 +224,24 @@
 	copy_light()
 	vis_contents += light_mask
 
+/obj/effect/abstract/hull_proxy_tile/proc/set_occluded(new_occluded)
+	if(occluded == !!new_occluded)
+		return
+	occluded = !!new_occluded
+	if(occluded)
+		vis_contents -= hull_turf
+		vis_contents -= light_mask
+		icon = 'icons/effects/alphacolors.dmi'
+		icon_state = "white"
+		color = COLOR_BLACK
+		return
+	icon = null
+	icon_state = null
+	color = null
+	vis_contents += hull_turf
+	if(light_mask)
+		vis_contents += light_mask
+
 /obj/effect/abstract/hull_proxy_tile/proc/copy_light()
 	var/atom/movable/lighting_object/source_light = hull_turf.lighting_object
 	if(!light_mask || !source_light)
@@ -253,3 +288,4 @@
 #undef HULL_PROXY_GLOW_MAX_RANGE
 #undef HULL_PROXY_GLOW_POWER
 #undef HULL_PROXY_GLOW_COLOR
+#undef HULL_PROXY_SIGHT_INTERVAL

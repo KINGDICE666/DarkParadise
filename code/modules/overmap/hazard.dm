@@ -93,6 +93,14 @@
 					continue
 				. += spot
 		return
+	var/obj/overmap/entity/pod/pod_vessel = vessel
+	if(istype(pod_vessel))
+		var/turf/pod_turf = get_turf(pod_vessel.pod)
+		if(pod_turf)
+			. += pod_turf
+		return
+	if(vessel != SSovermap.station_entity)
+		return
 	var/list/zs = levels_by_trait(STATION_LEVEL)
 	if(!length(zs))
 		return
@@ -159,12 +167,18 @@
 		return find_approach_space(anchor)
 	return pick(spots)
 
-/obj/overmap/feature/hazard/proc/count_nearby_carp(turf/spot)
+/obj/overmap/feature/hazard/proc/count_nearby_carp(obj/overmap/entity/vessel, turf/spot)
 	. = 0
-	if(!spot)
-		return
-	for(var/mob/living/simple_animal/hostile/carp/carp in range(12, spot))
-		.++
+	var/list/centers = list()
+	centers[spot] = 0
+	var/datum/overmap_bubble/bubble = vessel.shuttle && SSovermap.find_bubble(vessel.sector, vessel.get_world_x(), vessel.get_world_y())
+	var/turf/mirror = bubble?.turf_at(vessel.get_world_x(), vessel.get_world_y())
+	if(mirror)
+		centers[mirror] = round(vessel.hull_radius)
+	for(var/turf/center as anything in centers)
+		for(var/mob/living/simple_animal/hostile/carp/carp in range(OVERMAP_HAZARD_CARP_COUNT_RANGE + centers[center], center))
+			if(carp.stat != DEAD)
+				.++
 
 /obj/overmap/feature/hazard/proc/spawn_meteor_at(obj/overmap/entity/vessel)
 	var/turf/goal = pick_impact_turf(vessel)
@@ -285,7 +299,7 @@
 	var/turf/probe = pick_space_near_hull(vessel)
 	if(!probe)
 		return
-	if(count_nearby_carp(probe) >= OVERMAP_HAZARD_CARP_CAP)
+	if(count_nearby_carp(vessel, probe) >= OVERMAP_HAZARD_CARP_CAP)
 		return
 	var/amount = rand(OVERMAP_HAZARD_CARP_MIN, OVERMAP_HAZARD_CARP_MAX)
 	for(var/i in 1 to amount)

@@ -136,7 +136,7 @@
 		if(SHUTTLE_RECALL, SHUTTLE_IDLE, SHUTTLE_CALL)
 			mode = SHUTTLE_CALL
 			overmap_leg_started = FALSE
-			setTimer(call_time)
+			setTimer(max(call_time, overmap_programmed_lead_time("emergency_home")))
 		else
 			return
 
@@ -257,7 +257,7 @@
 				mode = SHUTTLE_IDLE
 				timer = 0
 		if(SHUTTLE_CALL)
-			if(overmap_leg_started || time_left <= 0)
+			if(overmap_leg_started || time_left <= overmap_programmed_lead_time("emergency_home"))
 				var/overmap_result = overmap_follow_programmed_leg("emergency_home")
 				if(isnull(overmap_result))
 					overmap_leg_started = TRUE

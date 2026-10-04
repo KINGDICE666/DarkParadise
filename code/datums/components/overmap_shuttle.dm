@@ -432,6 +432,7 @@
 	var/can_status = vessel.shuttle.canDock(undock_pad)
 	if(can_status != SHUTTLE_CAN_DOCK && can_status != SHUTTLE_ALREADY_DOCKED)
 		return dock_fail_text(can_status)
+	var/obj/overmap/entity/host = vessel.docked_to
 	if(instant)
 		if(can_status != SHUTTLE_ALREADY_DOCKED)
 			vessel.shuttle.overmap_force_dock = TRUE
@@ -441,10 +442,10 @@
 			vessel.shuttle.overmap_force_dock = FALSE
 		vessel.release_to_overmap()
 		owned_docks_dirty = TRUE
+		vessel.announce_sensor_event("Отстыковка: [vessel.get_overmap_display_name()][host ? " от [host.name]" : ""]", "undock")
 		return TRUE
 	if(vessel.shuttle.request(undock_pad))
 		return "Не удалось уйти с площадки."
-	var/obj/overmap/entity/host = vessel.docked_to
 	play_area_sound('sound/effects/hyperspace_begin.ogg')
 	vessel.announce_sensor_event("Отстыковка: [vessel.get_overmap_display_name()][host ? " от [host.name]" : ""]", "undock")
 	owned_docks_dirty = TRUE

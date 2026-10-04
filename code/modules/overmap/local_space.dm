@@ -7,8 +7,11 @@
 #define OVERMAP_RADAR_EXPIRY 4
 #define OVERMAP_TERRAIN_VIEW_RANGE 14
 #define OVERMAP_LOCAL_ARRIVAL_MARGIN 12
+#define OVERMAP_LOCAL_ARRIVAL_TURN_STEP 15
+#define OVERMAP_LOCAL_ARRIVAL_TURNS 12
 #define OVERMAP_TERRAIN_SEAM_SCALE 1.03
 #define OVERMAP_TERRAIN_SPARE_TILES 32
+#define OVERMAP_TERRAIN_SIGHT_STEP 2
 
 /datum/terrain_view
 	var/obj/overmap/entity/vessel
@@ -22,6 +25,9 @@
 	var/last_y
 	var/last_facing
 	var/next_refresh = 0
+	var/turf/sight_eye
+	var/list/turf/in_sight
+	var/next_sight_refresh = 0
 
 /datum/terrain_view/New(obj/overmap/entity/vessel, datum/overmap_bubble/local_space)
 	src.vessel = vessel
@@ -37,6 +43,8 @@
 	vessel = null
 	local_space = null
 	viewer_turf = null
+	sight_eye = null
+	in_sight = null
 	return ..()
 
 /datum/terrain_view/proc/refresh_light_copies()
@@ -64,6 +72,16 @@
 	var/center_x = round(spot[1], 1)
 	var/center_y = round(spot[2], 1)
 	var/hull_reach = (vessel.hull_radius + 1) ** 2
+	var/turf/eye = locate(center_x, center_y, local_space.bubble_z)
+	if(world.time >= next_sight_refresh || !eye || !sight_eye || get_dist(eye, sight_eye) >= OVERMAP_TERRAIN_SIGHT_STEP)
+		sight_eye = eye
+		next_sight_refresh = world.time + OVERMAP_SLOW_TICK
+		in_sight = null
+		if(eye)
+			in_sight = list()
+			FOR_DVIEW(var/turf/seen, radius, eye, 0)
+				in_sight[seen] = TRUE
+			FOR_DVIEW_END
 	var/list/wanted = list()
 	var/list/turf/fresh = list()
 	for(var/chunk_x in max(round((center_x - radius) / OVERMAP_RADAR_CHUNK), 0) to round(min(center_x + radius, world.maxx) / OVERMAP_RADAR_CHUNK))
@@ -76,20 +94,26 @@
 				var/obj/effect/abstract/hull_proxy_tile/tile = tiles[shown]
 				var/delta_x = shown.x - spot[1]
 				var/delta_y = shown.y - spot[2]
-				if(delta_x * delta_x + delta_y * delta_y <= hull_reach)
+				var/distance_squared = delta_x * delta_x + delta_y * delta_y
+				var/under_hull = FALSE
+				if(distance_squared <= hull_reach)
 					var/hull_x = vessel.hull_center_x + delta_x * cos_facing - delta_y * sin_facing
 					var/hull_y = vessel.hull_center_y + delta_x * sin_facing + delta_y * cos_facing
-					if(vessel.hull_turfs[locate(FLOOR(hull_x + 0.5, 1), FLOOR(hull_y + 0.5, 1), vessel.hull_z)])
-						if(tile)
-							wanted[shown] = TRUE
-							if(!hidden[shown])
-								hidden[shown] = TRUE
-								tile.carrier.vis_contents -= tile
-						continue
-				wanted[shown] = TRUE
-				if(!tile)
-					fresh += shown
+					under_hull = !!vessel.hull_turfs[locate(FLOOR(hull_x + 0.5, 1), FLOOR(hull_y + 0.5, 1), vessel.hull_z)]
+				if(under_hull)
+					if(tile)
+						wanted[shown] = TRUE
+						if(!hidden[shown])
+							hidden[shown] = TRUE
+							tile.carrier.vis_contents -= tile
 					continue
+				wanted[shown] = TRUE
+				var/out_of_sight = in_sight && !in_sight[shown]
+				if(!tile)
+					fresh[shown] = out_of_sight
+					continue
+				if(tile.occluded != !!out_of_sight)
+					tile.set_occluded(out_of_sight)
 				var/time = elapsed
 				if(hidden[shown])
 					hidden -= shown
@@ -115,6 +139,7 @@
 			qdel(carrier)
 	for(var/turf/shown as anything in fresh)
 		var/obj/effect/abstract/hull_proxy_tile/tile = add_tile(shown)
+		tile.set_occluded(fresh[shown])
 		tile.shift(tile.base_x * cos_facing - tile.base_y * sin_facing, tile.base_x * sin_facing + tile.base_y * cos_facing, turned, 0)
 	for(var/key in carriers)
 		var/obj/effect/abstract/hull_proxy_tile/carrier/carrier = carriers[key]
@@ -138,6 +163,7 @@
 	var/obj/effect/abstract/hull_proxy_tile/tile = pop(spare_tiles)
 	if(tile)
 		animate(tile)
+		tile.set_occluded(FALSE)
 		tile.vis_contents.Cut()
 	else
 		tile = new(null)
@@ -183,15 +209,32 @@
 	if(!arrival_space)
 		return target
 	var/list/bounds = arrival_space.bounds
-	var/half_size = min(bounds[3] - bounds[1], bounds[4] - bounds[2]) / 2 - OVERMAP_LOCAL_ARRIVAL_MARGIN - hull_radius
+	var/half_width = (bounds[3] - bounds[1]) / 2 - OVERMAP_LOCAL_ARRIVAL_MARGIN - hull_radius
+	var/half_height = (bounds[4] - bounds[2]) / 2 - OVERMAP_LOCAL_ARRIVAL_MARGIN - hull_radius
 	var/list/center = arrival_space.to_world(arrival_space.center_x, arrival_space.center_y)
-	var/approach_x = origin[1] - center[1]
-	var/approach_y = origin[2] - center[2]
-	var/approach_length = sqrt(approach_x ** 2 + approach_y ** 2)
-	if(!approach_length)
-		approach_y = 1
-		approach_length = 1
-	return list(center[1] + approach_x / approach_length * half_size, center[2] + approach_y / approach_length * half_size)
+	var/approach_angle = delta_to_angle(origin[1] - center[1], origin[2] - center[2])
+	var/list/fallback
+	for(var/turn_step in 0 to OVERMAP_LOCAL_ARRIVAL_TURNS)
+		for(var/side in (turn_step ? list(1, -1) : list(1)))
+			var/angle = approach_angle + side * turn_step * OVERMAP_LOCAL_ARRIVAL_TURN_STEP
+			var/dir_x = sin(angle)
+			var/dir_y = cos(angle)
+			var/reach = min(dir_x ? half_width / abs(dir_x) : INFINITY, dir_y ? half_height / abs(dir_y) : INFINITY)
+			var/list/spot = list(center[1] + dir_x * reach, center[2] + dir_y * reach)
+			if(local_arrival_clear(arrival_space, spot))
+				return spot
+			fallback ||= spot
+	return fallback
+
+/obj/overmap/entity/proc/local_arrival_clear(datum/overmap_bubble/arrival_space, list/spot)
+	if(!length(hull_turfs))
+		return !arrival_space.solid_turf_at(spot[1], spot[2])
+	var/facing = get_facing()
+	for(var/turf/hull_turf as anything in hull_turfs)
+		var/list/hull_world = hull_to_world(hull_turf.x, hull_turf.y, spot[1], spot[2], facing)
+		if(arrival_space.solid_turf_at(hull_world[1], hull_world[2]))
+			return FALSE
+	return TRUE
 
 /datum/controller/subsystem/overmap/proc/local_space_at(datum/overmap_sector/sector, world_x, world_y)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles_by_z)
@@ -306,5 +349,8 @@
 #undef OVERMAP_RADAR_EXPIRY
 #undef OVERMAP_TERRAIN_VIEW_RANGE
 #undef OVERMAP_LOCAL_ARRIVAL_MARGIN
+#undef OVERMAP_LOCAL_ARRIVAL_TURN_STEP
+#undef OVERMAP_LOCAL_ARRIVAL_TURNS
 #undef OVERMAP_TERRAIN_SEAM_SCALE
 #undef OVERMAP_TERRAIN_SPARE_TILES
+#undef OVERMAP_TERRAIN_SIGHT_STEP
