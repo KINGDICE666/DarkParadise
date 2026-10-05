@@ -588,7 +588,7 @@
 
 /obj/item/circuitboard/shuttle/golem_ship
 	board_name = "Golem Ship"
-	build_path = /obj/machinery/computer/shuttle/golem_ship
+	build_path = /obj/machinery/computer/helm/golem_ship
 
 /obj/item/circuitboard/HolodeckControl
 	board_name = "Holodeck Control"

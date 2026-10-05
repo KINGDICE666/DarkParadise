@@ -1144,6 +1144,17 @@
 	resistance_flags = INDESTRUCTIBLE
 	overmap_request_console = TRUE
 
+/obj/machinery/computer/helm/golem_ship
+	name = "Golem Ship Console"
+	desc = "Используется для управления шаттлом големов."
+	circuit = /obj/item/circuitboard/shuttle/golem_ship
+
+/obj/machinery/computer/helm/golem_ship/attack_hand(mob/user)
+	if(!isgolem(user) && !isobserver(user))
+		to_chat(user, span_notice("Консоль не реагирует. Похоже, ей могут пользоваться только големы."))
+		return
+	return ..()
+
 //#undef DOCKING_PORT_HIGHLIGHT
 
 /turf/proc/copyTurf(turf/T)
