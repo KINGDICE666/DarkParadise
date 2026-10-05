@@ -25258,7 +25258,6 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/machinery/overmap_intercom,
 /obj/machinery/transponder/directional/north,
 /turf/simulated/floor/shuttle,
 /area/shuttle/pod_3)
@@ -49678,7 +49677,6 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/machinery/overmap_intercom,
 /obj/machinery/transponder/directional/north,
 /turf/simulated/floor/shuttle,
 /area/shuttle/pod_4)
