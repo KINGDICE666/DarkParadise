@@ -243,7 +243,7 @@
 
 /datum/controller/subsystem/overmap/proc/create_local_spaces()
 	var/list/station_levels = levels_by_trait(STATION_LEVEL)
-	if(!station_entity?.sector || !length(station_levels))
+	if(!station_entity?.sector || !length(station_levels) || SSmapping.is_planetary())
 		return
 	var/datum/overmap_bubble/station_space = new(station_entity.sector, station_entity.get_world_x(), station_entity.get_world_y(), 0, 0)
 	station_space.fill_level(station_levels[1])
