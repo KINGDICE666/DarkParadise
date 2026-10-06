@@ -263,7 +263,7 @@
 	else if(target.getBruteLoss() >= 180 || target.getFireLoss() >= 180 || target.getCloneLoss() >= 180)
 		defib_ref.atom_say("Реанимация не удалась — обнаружены обширные повреждения тканей!", FALSE)
 		defib_success = FALSE
-	else if(target.blood_volume < BLOOD_VOLUME_SURVIVE)
+	else if(target.get_blood_volume(apply_modifiers = TRUE) < BLOOD_VOLUME_SURVIVE)
 		defib_ref.atom_say("Реанимация не удалась — объём крови в организме пациента на критически низком уровне!", FALSE)
 		defib_success = FALSE
 	else if(!target.get_organ_slot(INTERNAL_ORGAN_BRAIN))  //So things like headless clings don't get outed

@@ -71,7 +71,6 @@
 	var/mob/remoteview_target = null
 	var/meatleft = 3 //For chef item
 	var/decaylevel = 0 // For rotting bodies
-	var/max_blood = BLOOD_VOLUME_NORMAL // For stuff in the vessel
 	var/bleed_rate = 0
 
 	var/heartbeat = 0

@@ -637,6 +637,8 @@
 		/obj/item/reagent_containers/iv_bag/blood/diona = 4,
 		/obj/item/reagent_containers/iv_bag/blood/wryn = 4,
 		/obj/item/reagent_containers/iv_bag/blood/nian = 4,
+		/obj/item/reagent_containers/iv_bag/blood/resomi = 4,
+		/obj/item/reagent_containers/iv_bag/blood/trottine = 4,
 		/obj/item/reagent_containers/iv_bag/bloodsynthetic/nitrogenis = 4,
 	)
 	. = ..()

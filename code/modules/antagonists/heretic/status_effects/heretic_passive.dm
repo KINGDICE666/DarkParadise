@@ -149,8 +149,8 @@
 		source.updatehealth()
 
 	source.AdjustImmobilized((-0.5 * applied_level) * delta_time)
-	if(source.blood_volume < BLOOD_VOLUME_NORMAL)
-		source.blood_volume = min(source.blood_volume + 2.5 * delta_time, BLOOD_VOLUME_NORMAL)
+	if(source.blood_volume < source.max_blood)
+		source.blood_volume = min(source.blood_volume + 2.5 * delta_time, source.max_blood)
 
 	for(var/datum/reagent/reagent as anything in source.reagents.reagent_list)
 		reagent.volume = max(0, reagent.volume - delta_time)

@@ -955,7 +955,7 @@ GAME_VERB_SRC(/mob/living, Examine_OOC, view(), "Мета-инфа (OOC)", VERB_
 	if(!trail_type)
 		return
 
-	if(blood_volume < 0.5 * BLOOD_VOLUME_SURVIVE) // don't leave trail if blood volume below a threshold
+	if(get_blood_volume(apply_modifiers = TRUE) < 0.5 * BLOOD_VOLUME_SURVIVE) // don't leave trail if blood volume below a threshold
 		return
 
 	apply_blood_trail_bleeding()

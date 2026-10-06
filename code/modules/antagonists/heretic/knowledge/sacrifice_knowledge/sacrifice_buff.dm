@@ -99,7 +99,7 @@
 	if(!ishuman(owner) || !owner.blood_volume)
 		return
 
-	if(owner.blood_volume < BLOOD_VOLUME_NORMAL)
+	if(owner.blood_volume < owner.max_blood)
 		owner.blood_volume = owner.blood_volume + (2 * seconds_between_ticks)
 
 	if(!prob(20))

@@ -382,6 +382,7 @@
 
 	if(blood_volume_mod != 1)
 		target.setBlood(target.blood_volume * blood_volume_mod)
+		target.max_blood = BLOOD_VOLUME_NORMAL * blood_volume_mod
 
 	if(toolspeedmod)
 		target.add_or_update_variable_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod, multiplicative_slowdown = toolspeedmod)
@@ -450,6 +451,7 @@
 
 	if(blood_volume_mod != 1)
 		human.setBlood(human.blood_volume / blood_volume_mod)
+		human.max_blood = BLOOD_VOLUME_NORMAL
 
 	if(toolspeedmod)
 		human.remove_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod)
@@ -491,7 +493,7 @@
 		regenerate = FALSE
 		H.adjustBruteLoss(1)
 
-	if(regenerate && (H.blood_volume > BLOOD_VOLUME_REGENERATION) && HAS_TRAIT(H, TRAIT_HAS_REGENERATION) && (H.getBruteLoss() || H.getFireLoss()))
+	if(regenerate && (H.get_blood_volume(apply_modifiers = TRUE) > BLOOD_VOLUME_REGENERATION) && HAS_TRAIT(H, TRAIT_HAS_REGENERATION) && (H.getBruteLoss() || H.getFireLoss()))
 		H.heal_overall_damage(0.1, 0.1)
 
 /**
@@ -1212,6 +1214,11 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 		human.set_invis_see(initial(human.see_invisible))
 		human.lighting_cutoff = initial(human.lighting_cutoff)
 		human.lighting_color_cutoffs = list(human.lighting_cutoff_red, human.lighting_cutoff_green, human.lighting_cutoff_blue)
+
+	if(eyes?.has_darksight && get_turf(human.client?.eye) == get_turf(human))
+		human.overlay_fullscreen("darksight", /atom/movable/screen/fullscreen/darksight)
+	else
+		human.clear_fullscreen("darksight", animated = FALSE)
 
 	if(human.client && human.client.eye != human)
 		var/atom/atom = human.client.eye

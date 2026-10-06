@@ -16,6 +16,7 @@
 /obj/item/organ/internal/eyes/resomi
 	species_type = /datum/species/resomi
 	see_in_dark = 5
+	has_darksight = TRUE
 	name = "resomi eyes"
 	desc = "Пара глаз резоми, приспособленных улавливать мельчайшие движения на высокой скорости."
 
