@@ -12,6 +12,9 @@
 	active_power_usage = 2000
 	resistance_flags = INDESTRUCTIBLE
 	smoothing_groups = SMOOTH_GROUP_SHUTTLE_PARTS
+	light_range = 2
+	var/burn_light_range = 3
+	var/burn_light_power = 2
 	var/obj/overmap/entity/vessel
 	var/on = TRUE
 	var/thrust_limit = 1
@@ -38,7 +41,6 @@
 /obj/machinery/ship_engine/Initialize(mapload)
 	. = ..()
 	GLOB.ship_engines += src
-	set_light_range_power_color(2)
 	if(SSovermap?.initialized)
 		link_vessel()
 
@@ -89,8 +91,10 @@
 	firing = new_firing
 	update_icon(UPDATE_OVERLAYS)
 	if(!firing)
+		set_light(src::light_range, src::light_power, src::light_color)
 		burn_sound?.stop()
 		return
+	set_light(burn_light_range, burn_light_power, LIGHT_COLOR_BLUE)
 	if(!isturf(loc))
 		return
 	if(!burn_sound)
@@ -148,6 +152,8 @@
 	icon = 'icons/obj/2x2.dmi'
 	icon_state = "large_engine"
 	appearance_flags = LONG_GLIDE
+	light_range = 3
+	burn_light_range = 4
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
 	idle_power_usage = 1500
 	active_power_usage = 6000
@@ -175,6 +181,8 @@
 	pixel_x = -32
 	pixel_y = -32
 	appearance_flags = LONG_GLIDE
+	light_range = 3
+	burn_light_range = 5
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
 	idle_power_usage = 1500
 	active_power_usage = 6000
@@ -221,6 +229,8 @@
 	opacity = FALSE
 	invisibility = INVISIBILITY_ABSTRACT
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	light_power = 0
+	burn_light_power = 0
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 
 /obj/machinery/ship_engine/virtual/Initialize(mapload)
@@ -245,6 +255,8 @@
 	density = FALSE
 	opacity = FALSE
 	smoothing_groups = null
+	light_power = 0
+	burn_light_power = 0
 	idle_power_usage = 50
 	active_power_usage = 400
 	generated_thrust = OVERMAP_ENGINE_THRUSTER_THRUST
