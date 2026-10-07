@@ -48,6 +48,8 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/blocked_sheets
 	var/list/item_overrides
 	var/headwear_hides_hair = FALSE
+	var/paints_covered_tail = FALSE
+	var/list/covered_tail_colors
 	var/width = FIT_DEFAULT_SIZE
 	var/height = FIT_DEFAULT_SIZE
 	var/list/reference_trunk_masks
@@ -600,6 +602,26 @@ GLOBAL_LIST_EMPTY(species_fits)
 	if(!part_pixels)
 		return 1
 	return dressed / part_pixels
+
+/datum/species_fit/proc/covered_tail_color(obj/item/covering_suit)
+	var/icon_key = "[covering_suit.icon]|[covering_suit.icon_state]"
+	var/tail_color = LAZYACCESS(covered_tail_colors, icon_key)
+	if(tail_color)
+		return tail_color
+	var/list/pixel_counts = list()
+	var/main_color
+	for(var/pixel in read_frame(icon(covering_suit.icon, covering_suit.icon_state, SOUTH, 1)))
+		if(length(pixel) != 7)
+			continue
+		pixel_counts[pixel]++
+		if(!main_color || pixel_counts[pixel] > pixel_counts[main_color])
+			main_color = pixel
+	if(!main_color)
+		return null
+	var/list/channels = rgb2num(main_color)
+	tail_color = rgb(max(channels[1] - FIT_COVERED_TAIL_SHADE, 0), max(channels[2] - FIT_COVERED_TAIL_SHADE, 0), max(channels[3] - FIT_COVERED_TAIL_SHADE, 0))
+	LAZYSET(covered_tail_colors, icon_key, tail_color)
+	return tail_color
 
 /datum/species_fit/proc/read_frame(icon/frame)
 	var/list/pixels = new(width * height)

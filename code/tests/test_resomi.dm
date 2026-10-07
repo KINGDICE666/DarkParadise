@@ -174,3 +174,7 @@
 	resomi.change_body_accessory("Spiky tail")
 	resomi.regenerate_icons()
 	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_LAYER], "the resomi tail is drawn under the body when seen from behind")
+	resomi.equip_to_slot_or_del(new /obj/item/clothing/suit/bio_suit(resomi), ITEM_SLOT_CLOTH_OUTER)
+	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_LAYER], "a suit covering the tail leaves the resomi tailless")
+	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_UNDERLIMBS_LAYER], "a suit covering the tail leaves the resomi tailless from the front")
+	qdel(resomi.wear_suit)
