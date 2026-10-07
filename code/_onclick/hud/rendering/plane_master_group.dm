@@ -136,7 +136,7 @@
 		scale_by = 1
 
 	var/list/offsets = list()
-	var/multiz_boundary = do_offset ? our_mob?.canon_client?.prefs?.multiz_detail : MULTIZ_DETAIL_LOW //low means no offset
+	var/multiz_boundary = do_offset ? our_mob?.canon_client?.prefs?.read_preference(/datum/preference/choiced/multiz_detail) : MULTIZ_DETAIL_LOW //low means no offset
 
 	// We accept negatives so going down "zooms" away the drop above as it goes
 	for(var/offset in -SSmapping.max_plane_offset to SSmapping.max_plane_offset)

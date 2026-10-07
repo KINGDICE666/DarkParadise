@@ -112,7 +112,7 @@
 	var/obj/item/organ/internal/cyberimp/mouth/translator/grey_retraslator/retranslator = new
 	retranslator.insert(H)
 
-	var/translator_pref = H.client.prefs.speciesprefs
+	var/translator_pref = H.client.prefs.read_preference(/datum/preference/toggle/species_preference)
 
 	if(!HAS_TRAIT(H, TRAIT_WINGDINGS))
 		return handle_loadout_chip(H, retranslator)

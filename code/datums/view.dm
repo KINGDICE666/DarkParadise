@@ -49,19 +49,19 @@
 	zoom = 0
 
 /datum/view_data/proc/resetFormat()//Cuck
-	zoom = /*chief?.prefs.read_preference(/datum/preference/numeric/pixel_size) */ chief?.prefs.zoom
+	zoom = chief?.prefs.read_preference(/datum/preference/numeric/pixel_size)
 	winset(chief, SKIN_MAPWINDOW_MAP, "zoom=[zoom]")
 	chief?.attempt_auto_fit_viewport() // If you change zoom mode, fit the viewport
 
 /datum/view_data/proc/setZoomMode()
-	winset(chief, SKIN_MAPWINDOW_MAP, "zoom-mode=[/*chief?.prefs.read_preference(/datum/preference/choiced/scaling_method)*/ chief?.prefs.zoom_mode]")
+	winset(chief, SKIN_MAPWINDOW_MAP, "zoom-mode=[chief?.prefs.read_preference(/datum/preference/choiced/scaling_method)]")
 
 /datum/view_data/proc/isZooming()
 	return (width || height)
 
 /datum/view_data/proc/getScreenSize()
-	if(chief.prefs.viewrange)
-		return chief.prefs.viewrange
+	if(chief.prefs.read_preference(/datum/preference/choiced/view_range))
+		return chief.prefs.read_preference(/datum/preference/choiced/view_range)
 	return WIDESCREEN_PARTIAL_VIEWPORT_SIZE
 
 /datum/view_data/proc/resetToDefault()

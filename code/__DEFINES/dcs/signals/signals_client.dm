@@ -12,6 +12,3 @@
 
 /// Called after a client logs into a mob: (mob)
 #define COMSIG_CLIENT_MOB_LOGIN "client_mob_changed"
-
-#define COMSIG_TILE_MENU_OPEN "tile_menu_open"
-	#define COMPONENT_BLOCK_OPEN (1<<0)

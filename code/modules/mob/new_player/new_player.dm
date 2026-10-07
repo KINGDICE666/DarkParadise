@@ -6,6 +6,7 @@
 	universal_speak = 1
 
 	invisibility = INVISIBILITY_ABSTRACT
+	hud_type = /datum/hud/new_player
 
 	density = FALSE
 	stat = DEAD
@@ -72,79 +73,6 @@
 		query.warn_execute()
 		qdel(query)
 
-	if(href_list["show_preferences"])
-		client.prefs.current_tab = 0
-		client.prefs.ShowChoices(src)
-		return TRUE
-
-	if(href_list["ready"])
-		if(!client.tos_consent)
-			to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
-			privacy_consent()
-			return FALSE
-		if(client.launcher_state == LAUNCHER_PENDING)
-			to_chat(usr, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
-			return FALSE
-		if(client.version_blocked)
-			client.show_update_notice()
-			return FALSE
-		if(client.needs_discord_link())
-			client.prefs.load_preferences(client)
-			if(client.needs_discord_link())
-				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
-				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
-				return FALSE
-		if(client.blocked_by_launcher_link())
-			return FALSE
-		if(!is_used_species_available(client.prefs.species))
-			to_chat(usr, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
-			return FALSE
-		if(CONFIG_GET(flag/tts_enabled))
-			if(!client.prefs.tts_seed)
-				to_chat(usr, span_danger("Пожалуйста, настройте голос вашего персонажа! Не забудьте сохранить изменения."))
-				client.prefs.ShowChoices(src)
-				return FALSE
-			var/datum/tts_seed/seed = SStts.tts_seeds[client.prefs.tts_seed]
-			if(client.donator_level < seed.donator_level)
-				to_chat(usr, span_danger("К сожалению, выбранный вами голос персонажа больше не доступен на вашем текущем уровне подписки."))
-				client.prefs.ShowChoices(src)
-				return FALSE
-		ready = !ready
-		client << output(ready, "title_browser:ready")
-
-	if(href_list["skip_antag"])
-		client.prefs?.skip_antag = !client.prefs?.skip_antag
-		client << output(client.prefs.skip_antag, "title_browser:skip_antag")
-
-	if(href_list["game_preferences"])
-		client.prefs.current_tab = 1
-		client.prefs.ShowChoices(usr)
-
-	if(href_list["job_preferences"])
-		client.prefs.SetChoices(usr)
-
-	if(href_list["wiki"])
-		if(tgui_alert(usr, "Открыть вики проекта?", "Вики", list("Да", "Нет")) != "Да")
-			return
-		client << link(CONFIG_GET(string/wikiurl))
-
-	if(href_list["discord"])
-		if(tgui_alert(usr, "Перейти на Discord сервер?", "Discord", list("Да", "Нет")) != "Да")
-			return
-		client << link(CONFIG_GET(string/discordurl))
-
-	if(href_list["changelog"])
-		client.changelog()
-
-	if(href_list["sound_options"])
-		client.volume_mixer()
-
-	if(href_list["poll_panel"])
-		handle_player_polling()
-
-	if(href_list["referrals"])
-		client.referral_panel()
-
 	if(href_list["viewpoll"])
 		var/datum/poll_question/poll = locateUID(href_list["viewpoll"])
 		poll_player(poll)
@@ -156,101 +84,6 @@
 	if(href_list["refresh"])
 		close_window(src, "playersetup")		//closes the player setup window
 
-	if(href_list["observe"])
-		if(!client.tos_consent)
-			to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
-			privacy_consent()
-			return FALSE
-		if(client.version_blocked)
-			client.show_update_notice()
-			return FALSE
-		if(client.needs_discord_link())
-			client.prefs.load_preferences(client)
-			if(client.needs_discord_link())
-				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
-				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
-				return FALSE
-		if(client.blocked_by_launcher_link())
-			return FALSE
-		if(!SSticker || SSticker.current_state == GAME_STATE_STARTUP)
-			to_chat(usr, span_warning("Пожалуйста, подождите, пока сервер полностью запустится, прежде чем присоединяться!"))
-			return FALSE
-
-		if(tgui_alert(src,"Вы уверены что хотите стать наблюдателем?[(CONFIG_GET(flag/respawn_observer) ? "" : " Вы не сможете принять участие в этом раунде в качестве члена экипажа после этого!")]","Наблюдать", list("Да","Нет")) == "Да")
-			if(!client)
-				return 1
-			var/mob/dead/observer/observer = new()
-			close_window(src, "playersetup")
-			spawning = 1
-			// stop_sound_channel(CHANNEL_LOBBYMUSIC)
-			client?.tgui_panel?.stop_music()
-
-			observer.started_as_observer = 1
-			close_spawn_windows()
-			var/obj/O = locate(/obj/effect/landmark/observer_start)
-			to_chat(src, span_notice("Телепортация."))
-			observer.abstract_move(get_turf(O))
-			client.prefs.update_preview_icon(1)
-			observer.icon = client.prefs.preview_icon
-			observer.alpha = 127
-
-			if(client.prefs.be_random_name)
-				client.prefs.real_name = random_name(client.prefs.gender,client.prefs.species)
-			observer.real_name = client.prefs.real_name
-			observer.name = observer.real_name
-			observer.possess_by_player(key)
-			observer.persistent_client.time_of_death = world.time
-			if(CONFIG_GET(flag/respawn_observer))
-				observer.add_to_respawnable_list()			// If enabled in config - observer cant respawn as Player
-			qdel(src)
-			return 1
-
-	if(href_list["tos"])
-		privacy_consent()
-		return FALSE
-
-	if(href_list["late_join"])
-		if(!client.tos_consent)
-			to_chat(usr, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
-			privacy_consent()
-			return FALSE
-		if(client.version_blocked)
-			client.show_update_notice()
-			return FALSE
-		if(client.needs_discord_link())
-			client.prefs.load_preferences(client)
-			if(client.needs_discord_link())
-				to_chat(usr, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
-				to_chat(usr, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
-				return FALSE
-		if(client.blocked_by_launcher_link())
-			return FALSE
-		if(!SSticker || SSticker.current_state != GAME_STATE_PLAYING)
-			to_chat(usr, span_warning("Раунд либо ещё не готов, либо в данный момент уже завершён..."))
-			return
-		if(!is_used_species_available(client.prefs.species))
-			to_chat(usr, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
-			return
-		if(CONFIG_GET(flag/tts_enabled))
-			if(!client.prefs.tts_seed)
-				to_chat(usr, span_danger("Пожалуйста, настройте голос вашего персонажа! Не забудьте сохранить изменения."))
-				client.prefs.ShowChoices(src)
-				return FALSE
-			var/datum/tts_seed/seed = SStts.tts_seeds[client.prefs.tts_seed]
-			if(client.donator_level < seed.donator_level)
-				to_chat(usr, span_danger("К сожалению, выбранный вами голос персонажа больше не доступен на вашем текущем уровне подписки."))
-				client.prefs.ShowChoices(src)
-				return FALSE
-		if(SSticker?.mode?.late_join(src))
-			return
-		LateChoices()
-
-	if(href_list["manifest"])
-		ViewManifest()
-
-	if(href_list["connect_discord"])
-		client?.link_discord_account()
-
 	if(href_list["SelectedJob"])
 
 		if(!GLOB.enter_allowed)
@@ -260,14 +93,14 @@
 		if(client.prefs.toggles2 & PREFTOGGLE_2_RANDOMSLOT)
 			client.prefs.load_random_character_slot(client)
 
-		if(!is_used_species_available(client.prefs.species))
+		if(!is_used_species_available(client.prefs.read_preference(/datum/preference/choiced/species)))
 			to_chat(usr, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
 			return
 
 		//Prevents people rejoining as same character.
 		if(!is_admin(usr)) //Админам можно всё
 			for(var/C in GLOB.human_names_list)
-				var/char_name = client.prefs.real_name
+				var/char_name = client.prefs.read_preference(/datum/preference/name/real_name)
 				if(char_name == C)
 					to_chat (usr, span_danger("Уже существует персонаж с таким именем: <b>[C]</b>, пожалуйста, выберите другое имя."))
 					return
@@ -276,34 +109,103 @@
 		AttemptLateSpawn(href_list["SelectedJob"],client.prefs.spawnpoint)
 		return
 
-	if(!ready && href_list["preference"])
-		if(client)
-			client.prefs.process_link(src, href_list)
+/mob/new_player/proc/check_join_access()
+	if(!client.tos_consent)
+		to_chat(src, span_warning("Прежде чем присоединиться, вы должны согласиться с политикой конфиденциальности!"))
+		privacy_consent()
+		return FALSE
+	if(client.version_blocked)
+		client.show_update_notice()
+		return FALSE
+	if(client.needs_discord_link())
+		client.prefs.load_preferences(client)
+		if(client.needs_discord_link())
+			to_chat(src, span_danger("Вам необходимо привязать ваш профиль в Discord к аккаунту!"))
+			to_chat(src, span_warning("Нажмите на кнопку \"Привязка Discord\" во вкладке \"Special Verbs\", чтобы получить необходимые инструкции."))
+			return FALSE
+	if(client.blocked_by_launcher_link())
+		return FALSE
+	return TRUE
 
-	if(href_list["change_picture"])
-		SSadmin_verbs.dynamic_invoke_verb(client, /datum/admin_verb/admin_change_title_screen)
+/mob/new_player/proc/check_character_access()
+	if(!is_used_species_available(client.prefs.read_preference(/datum/preference/choiced/species)))
+		to_chat(src, span_warning("Вы не можете играть за выбранную расу персонажа, так как она в данный момент недоступна для вас! Пожалуйста, выберите другую расу."))
+		return FALSE
+	if(!CONFIG_GET(flag/tts_enabled))
+		return TRUE
+	var/tts_seed = client.prefs.read_preference(/datum/preference/tts_seed)
+	if(!tts_seed)
+		to_chat(src, span_danger("Пожалуйста, настройте голос вашего персонажа!"))
+		client.prefs.open_window(src, PREFERENCE_TAB_CHARACTER_PREFERENCES)
+		return FALSE
+	var/datum/tts_seed/seed = SStts.tts_seeds[tts_seed]
+	if(client.donator_level < seed.donator_level)
+		to_chat(src, span_danger("К сожалению, выбранный вами голос персонажа больше не доступен на вашем текущем уровне подписки."))
+		client.prefs.open_window(src, PREFERENCE_TAB_CHARACTER_PREFERENCES)
+		return FALSE
+	return TRUE
+
+/mob/new_player/proc/toggle_ready()
+	if(ready)
+		ready = FALSE
+		return TRUE
+	if(!check_join_access())
+		return FALSE
+	if(client.launcher_state == LAUNCHER_PENDING)
+		to_chat(src, span_warning("Вход через лаунчер ещё подтверждается, подождите пару секунд."))
+		return FALSE
+	if(!check_character_access())
+		return FALSE
+	ready = TRUE
+	return TRUE
+
+/mob/new_player/proc/try_late_join()
+	if(!check_join_access())
 		return
-
-	if(href_list["leave_notice"])
-		SSadmin_verbs.dynamic_invoke_verb(client, /datum/admin_verb/change_title_screen_notice)
+	if(SSticker?.current_state != GAME_STATE_PLAYING)
+		to_chat(src, span_warning("Раунд либо ещё не готов, либо в данный момент уже завершён..."))
 		return
-
-	if(href_list["switch_server"])
-		var/selected_port = text2num(href_list["switch_server"])
-		if(selected_port == world.port)
-			to_chat(usr, span_warning("Вы уже подключены к данному серверу."))
-			return
-
-		to_chat(usr, span_warning("Подключение к новому серверу..."))
-
-		// Formulate a connection URL
-		var/target = "byond://[world.internet_address]:[selected_port]"
-		src << link(target)
+	if(!check_character_access())
 		return
-
-	if(href_list["focus"])
-		winset(client, SKIN_MAPWINDOW_MAP, "focus=true")
+	if(SSticker.mode?.late_join(src))
 		return
+	LateChoices()
+
+/mob/new_player/proc/make_me_an_observer()
+	if(!check_join_access())
+		return FALSE
+	if(!SSticker || SSticker.current_state == GAME_STATE_STARTUP)
+		to_chat(src, span_warning("Пожалуйста, подождите, пока сервер полностью запустится, прежде чем присоединяться!"))
+		return FALSE
+	if(tgui_alert(src, "Вы уверены что хотите стать наблюдателем?[(CONFIG_GET(flag/respawn_observer) ? "" : " Вы не сможете принять участие в этом раунде в качестве члена экипажа после этого!")]", "Наблюдать", list("Да", "Нет")) != "Да")
+		return FALSE
+	if(!client)
+		return FALSE
+
+	var/mob/dead/observer/observer = new()
+	close_window(src, "playersetup")
+	spawning = 1
+	client?.tgui_panel?.stop_music()
+
+	observer.started_as_observer = 1
+	close_spawn_windows()
+	var/obj/O = locate(/obj/effect/landmark/observer_start)
+	to_chat(src, span_notice("Телепортация."))
+	observer.abstract_move(get_turf(O))
+	observer.icon = client.prefs.get_preview_icon()
+	observer.alpha = 127
+
+	var/observer_name = client.prefs.read_preference(/datum/preference/name/real_name)
+	if(client.prefs.read_preference(/datum/preference/toggle/random_name))
+		observer_name = random_name(client.prefs.read_preference(/datum/preference/choiced/gender), client.prefs.read_preference(/datum/preference/choiced/species))
+	observer.real_name = observer_name
+	observer.name = observer.real_name
+	observer.possess_by_player(key)
+	observer.persistent_client.time_of_death = world.time
+	if(CONFIG_GET(flag/respawn_observer))
+		observer.add_to_respawnable_list()			// If enabled in config - observer cant respawn as Player
+	qdel(src)
+	return TRUE
 
 /mob/new_player/proc/IsJobAvailable(rank)
 	var/datum/job/job = SSjobs.GetJob(rank)
@@ -433,8 +335,8 @@
 		return FALSE
 
 	if(!thisjob.character_old_enough(client))
-		var/datum/species/species = GLOB.all_species[client?.prefs.species]
-		var/msg = "Должность [rank] недоступна в связи с недостаточным возрастом персонажа ([client?.prefs.age]). Минимальный возраст — [get_age_limits(species, thisjob.min_age_type)]"
+		var/datum/species/species = client.prefs.get_species_prototype()
+		var/msg = "Должность [rank] недоступна в связи с недостаточным возрастом персонажа ([client.prefs.read_preference(/datum/preference/numeric/age)]). Минимальный возраст — [get_age_limits(species, thisjob.min_age_type)]"
 		to_chat(src, span_warning(msg))
 		tgui_alert(usr, msg)
 		return FALSE
@@ -683,7 +585,7 @@
 
 // If current character can't be antagonist, try to pick random character, who can.
 /mob/new_player/proc/handle_can_be_antagonist()
-	if(!mind.special_role || client.prefs.can_be_antagonist)
+	if(!mind.special_role || client.prefs.read_preference(/datum/preference/toggle/can_be_antagonist))
 		return
 
 	client.prefs.get_possible_antagonist()
@@ -692,19 +594,25 @@
 	spawning = TRUE
 	close_spawn_windows()
 
-	check_prefs_are_sane()
 	var/mob/living/carbon/human/new_character = new(loc)
 	new_character.lastarea = get_area(loc)
 
-
 	handle_can_be_antagonist()
-	if(SSticker.random_players || appearance_isbanned(new_character))
-		client.prefs.random_character()
-		client.prefs.real_name = random_name(client.prefs.gender)
-
 	LAZYADD(persistent_client.joined_as_slots, "[client.prefs.default_slot]")
 
-	client.prefs.copy_to(new_character)
+	if(SSticker.random_players || appearance_isbanned(new_character))
+		client.prefs.sync_save_data(PREFERENCE_CHARACTER)
+		var/datum/preferences/random_preferences = new
+		random_preferences.character_data = client.prefs.character_data.Copy()
+		random_preferences.clear_character_cache()
+		random_preferences.organ_data = client.prefs.organ_data.Copy()
+		random_preferences.rlimb_data = client.prefs.rlimb_data.Copy()
+		random_preferences.disabilities = client.prefs.disabilities
+		random_preferences.randomise_appearance_prefs()
+		random_preferences.apply_prefs_to(new_character)
+		qdel(random_preferences)
+	else
+		client.prefs.apply_prefs_to(new_character)
 
 	// stop_sound_channel(CHANNEL_LOBBYMUSIC)
 	client?.tgui_panel?.stop_music()
@@ -728,27 +636,6 @@
 
 	return new_character
 
-// This is to check that the player only has preferences set that they're supposed to
-/mob/new_player/proc/check_prefs_are_sane()
-	var/datum/species/chosen_species
-	if(client.prefs.species)
-		chosen_species = GLOB.all_species[client.prefs.species]
-	if(!chosen_species)
-		// Have to recheck admin due to no usr at roundstart. Latejoins are fine though.
-		stack_trace("[src] had species [client.prefs.species], though they weren't supposed to. Setting to Human.")
-		client.prefs.species = SPECIES_HUMAN
-
-	var/datum/language/chosen_language
-	if(client.prefs.language)
-		chosen_language = GLOB.all_languages[client.prefs.language]
-	if((!chosen_language && client.prefs.language != LANGUAGE_NONE) || (chosen_language && chosen_language.flags & RESTRICTED))
-		stack_trace("[src] had language [client.prefs.language], though they weren't supposed to. Setting to None.")
-		client.prefs.language = LANGUAGE_NONE
-		INVOKE_ASYNC(src, PROC_REF(save_character))
-
-/mob/new_player/proc/save_character()
-	client?.prefs?.save_character(client)
-
 /mob/new_player/proc/ViewManifest()
 	GLOB.generic_crew_manifest.ui_interact(usr)
 
@@ -766,8 +653,9 @@
 	return check_rights(R_ADMIN, FALSE, src)
 
 /mob/new_player/get_gender()
-	if(!client || !client.prefs) ..()
-	return client.prefs.gender
+	if(!client?.prefs)
+		return ..()
+	return client.prefs.read_preference(/datum/preference/choiced/gender)
 
 /mob/new_player/is_ready()
 	return ready && ..()

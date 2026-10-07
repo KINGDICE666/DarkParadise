@@ -49,8 +49,6 @@
 		ASSIGN_GAME_VERB(src, /client, readmin)
 	. = TRUE
 
-	SStitle.show_title_screen_to(client)
-
 	client?.playtitlemusic()
 
 /mob/new_player/proc/whitelist_check()

@@ -1399,7 +1399,7 @@
 			to_chat(usr, span_warning("[M] doesn't seem to have an active client."), confidential = TRUE)
 			return
 
-		if(M.flavor_text == "" && M.client.prefs.flavor_text == "")
+		if(M.flavor_text == "" && M.client.prefs.read_preference(/datum/preference/text/record/flavor_text) == "")
 			to_chat(usr, span_warning("[M] has no flavor text set."), confidential = TRUE)
 			return
 
@@ -1413,7 +1413,7 @@
 		M.flavor_text = ""
 
 		// Clear and save the DB character's flavor text
-		M.client.prefs.flavor_text = ""
+		M.client.prefs.write_preference(GLOB.preference_entries[/datum/preference/text/record/flavor_text], "")
 		M.client.prefs.save_character(M.client)
 
 	else if(href_list["userandomname"])
@@ -1437,11 +1437,11 @@
 		message_admins("[key_name_admin(usr)] has forced [key_name_admin(M)] to use a random name.")
 
 		// Update the mob's name with a random one straight away
-		var/random_name = random_name(M.client.prefs.gender, M.client.prefs.species)
+		var/random_name = random_name(M.client.prefs.read_preference(/datum/preference/choiced/gender), M.client.prefs.read_preference(/datum/preference/choiced/species))
 		M.rename_character(M.real_name, random_name)
 
 		// Save that random name for next rounds
-		M.client.prefs.real_name = random_name
+		M.client.prefs.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], random_name)
 		M.client.prefs.save_character(M.client)
 
 	else if(href_list["cma_admin"])

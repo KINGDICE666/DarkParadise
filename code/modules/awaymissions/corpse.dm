@@ -195,7 +195,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 
 	mob.color = mob_color
 	if(plr && prefs)
-		plr.client?.prefs.copy_to(mob)
+		plr.client?.prefs.apply_prefs_to(mob)
 
 	equip(mob, use_prefs = prefs, _mob_name = _mob_name, _mob_gender = _mob_gender, _mob_species = _mob_species)
 
@@ -296,11 +296,11 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 	if(use_prefs != "Yes")
 		return FALSE
 
-	if(user.client.prefs.real_name in GLOB.human_names_list)
+	if(user.client.prefs.read_preference(/datum/preference/name/real_name) in GLOB.human_names_list)
 		to_chat(user, span_warning("You have already entered the round with this name, choose another slot."))
 		return FALSE
 
-	var/char_species = user.client.prefs.species
+	var/char_species = user.client.prefs.read_preference(/datum/preference/choiced/species)
 	if(!(char_species in pickable_species))
 		to_chat(user, span_warning("Your character's current species is not suitable for this role."))
 		return FALSE

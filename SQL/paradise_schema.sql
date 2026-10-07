@@ -24,7 +24,7 @@ CREATE TABLE `characters` (
   `ckey` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
   `slot` int(2) NOT NULL,
   `OOC_Notes` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `real_name` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `real_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name_is_always_random` tinyint(1) NOT NULL,
   `gender` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
   `age` smallint(4) NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE `characters` (
   `gear` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `autohiss` tinyint(1) NOT NULL,
   `uplink_pref` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tts_seed` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tts_seed` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `hair_gradient` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   `hair_gradient_offset` varchar(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0,0',
   `hair_gradient_colour` varchar(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#000000',
@@ -87,6 +87,7 @@ CREATE TABLE `characters` (
   `custom_emotes` longtext COLLATE 'utf8mb4_unicode_ci' DEFAULT NULL,
   `can_be_antagonist` tinyint(1) NOT NULL DEFAULT '1',
   `exoframe_type` VARCHAR(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'EXO_REINFORCED',
+  `preferences` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ckey` (`ckey`)
 ) ENGINE=InnoDB AUTO_INCREMENT=125467 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -300,6 +301,7 @@ CREATE TABLE `player` (
   `achivements_sound` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Success Ping',
   `zoom` float NOT NULL DEFAULT '0',
   `zoom_mode` varchar(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'distort',
+  `preferences` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ckey` (`ckey`),
   KEY `lastseen` (`lastseen`),

@@ -19,6 +19,20 @@
 	/// Rights required to be able to use this pref option
 	var/rights_required
 
+/datum/preference_toggle/proc/is_available(client/user)
+	return !rights_required || check_rights_client(rights_required, FALSE, user)
+
+/datum/preference_toggle/proc/is_enabled(datum/preferences/preferences)
+	switch(preftoggle_toggle)
+		if(PREFTOGGLE_TOGGLE1)
+			return !!(preferences.toggles & preftoggle_bitflag)
+		if(PREFTOGGLE_TOGGLE2)
+			return !!(preferences.toggles2 & preftoggle_bitflag)
+		if(PREFTOGGLE_TOGGLE3)
+			return !!(preferences.toggles3 & preftoggle_bitflag)
+		if(PREFTOGGLE_SOUND)
+			return !!(preferences.sound & preftoggle_bitflag)
+
 /datum/preference_toggle/proc/set_toggles(client/user)
 	var/datum/preferences/our_prefs = user.prefs
 	switch(preftoggle_toggle)
@@ -472,12 +486,13 @@ GAME_VERB_DESC(/client, silence_current_midi, "Заглушить MIDI", "Заг
 	blackbox_message = "Set Own OOC"
 
 /datum/preference_toggle/special_toggle/set_ooc_color/set_toggles(client/user)
-	var/new_ooccolor = tgui_input_color(usr, "Выберите цвет ваших сообщений в OOC-чате.", "Цвет OOC-сообщений", user.prefs.ooccolor)
+	var/new_ooccolor = tgui_input_color(usr, "Выберите цвет ваших сообщений в OOC-чате.", "Цвет OOC-сообщений", user.prefs.read_preference(/datum/preference/color/ooc_color))
+	var/datum/preference/color/ooc_color/ooc_color = GLOB.preference_entries[/datum/preference/color/ooc_color]
 	if(!isnull(new_ooccolor))
-		user.prefs.ooccolor = new_ooccolor
+		user.prefs.write_preference(ooc_color, new_ooccolor)
 		to_chat(usr, "Выбранный цвет OOC-сообщений — [new_ooccolor].")
 	else
-		user.prefs.ooccolor = initial(user.prefs.ooccolor)
+		user.prefs.write_preference(ooc_color, ooc_color.create_default_value())
 		to_chat(usr, "Цвет OOC-сообщений был сброшен.")
 	return ..()
 
@@ -494,21 +509,17 @@ GAME_VERB_DESC(/client, silence_current_midi, "Заглушить MIDI", "Заг
 	if(!input)
 		return
 	var/attack_log_type = attack_log_settings[input]
+	user.prefs.write_preference(GLOB.preference_entries[/datum/preference/choiced/attack_log_level], attack_log_type)
 	switch(attack_log_type)
 		if(ATKLOG_ALL)
-			user.prefs.atklog = ATKLOG_ALL
 			to_chat(usr, "Выбранный режим отображения боевых сообщений: показывать ВСЕ сообщения.")
 		if(ATKLOG_ALMOSTALL)
-			user.prefs.atklog = ATKLOG_ALMOSTALL
 			to_chat(usr, "Выбранный режим отображения боевых сообщений: показывать ПОЧТИ ВСЕ сообщения (исключения: NPC, атакующие других NPC; укусы вампиров; надевание/снятие предметов; толчки гуманоидов другими гуманоидами).")
 		if(ATKLOG_MOST)
-			user.prefs.atklog = ATKLOG_MOST
 			to_chat(usr, "Выбранный режим отображения боевых сообщений: показывать БОЛЬШУЮ ЧАСТЬ сообщений (идентично режиму ПОЧТИ ВСЕ, за исключением боевых сообщений между NPC и игроками, а также некоторыми локациями, такими как Лаваленд, Тайпан, тандердом и т.д.)")
 		if(ATKLOG_FEW)
-			user.prefs.atklog = ATKLOG_FEW
 			to_chat(usr, "Выбранный режим отображения боевых сообщений: показывать НЕКОТОРЫЕ сообщения (только самое необходимое: атаки на КРС-игроков; взрывы; энего-двигатели; разрыв тела; форматирование ИИ; насильное кормление; кислотные спреи; извлечение органов).")
 		if(ATKLOG_NONE)
-			user.prefs.atklog = ATKLOG_NONE
 			to_chat(usr, "Выбранный режим отображения боевых сообщений: не показывать НИКАКИЕ сообщения.")
 	return ..()
 
@@ -686,7 +697,6 @@ GAME_VERB_DESC(/client, silence_current_midi, "Заглушить MIDI", "Заг
 		user.acquire_dpi()
 		INVOKE_ASYNC(user, TYPE_VERB_REF(/client, refresh_tgui))
 		user.tgui_say?.load()
-		user.fix_title_screen()
 
 /datum/preference_toggle/pain_blurb
 	name = "Переключить вывод боли на экран"
@@ -737,3 +747,121 @@ GAME_VERB_DESC(/client, silence_current_midi, "Заглушить MIDI", "Заг
 	enable_message = "Теперь вы не будете видеть шестерёнки над головами других существ."
 	disable_message = "Теперь вы будете видеть шестерёнки над головами других существ."
 	blackbox_message = "Toggle other cogbars"
+
+/datum/preference_toggle/toggle_afk_watch
+	name = "Переход в криосон при неактивности"
+	description = "Переключает автоматическое перемещение персонажа в криосон при долгой неактивности."
+	preftoggle_bitflag = PREFTOGGLE_2_AFKWATCH
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
+	disable_message = "Автоматический переход в криосон выключен."
+	blackbox_message = "Toggle AFK watch"
+
+/datum/preference_toggle/toggle_afk_watch/set_toggles(client/user)
+	enable_message = "Ваш персонаж будет автоматически перемещён в криосон после [CONFIG_GET(number/auto_cryo_afk)] минут[declension_ru(CONFIG_GET(number/auto_cryo_afk), "ы", "", "")] неактивности. 		После чего через [CONFIG_GET(number/auto_despawn_afk)] минут[DECL_SEC_MIN(CONFIG_GET(number/auto_despawn_afk))] ваш персонаж будет удалён. Перед перемещением в криосон вы получите уведомление."
+	return ..()
+
+/datum/preference_toggle/toggle_ambient_occlusion
+	name = "Окружающее затенение"
+	description = "Переключает мягкие тени вокруг объектов."
+	preftoggle_bitflag = PREFTOGGLE_AMBIENT_OCCLUSION
+	preftoggle_toggle = PREFTOGGLE_TOGGLE1
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Окружающее затенение включено."
+	disable_message = "Окружающее затенение выключено."
+	blackbox_message = "Toggle ambient occlusion"
+
+/datum/preference_toggle/toggle_ambient_occlusion/set_toggles(client/user)
+	. = ..()
+	for(var/atom/movable/screen/plane_master/plane_master as anything in user.mob?.hud_used?.get_true_plane_masters(RENDER_PLANE_GAME_WORLD))
+		plane_master.show_to(user.mob)
+
+/datum/preference_toggle/toggle_member_publicity
+	name = "Публичность членства BYOND"
+	description = "Переключает отображение значка членства BYOND в OOC-чате."
+	preftoggle_bitflag = PREFTOGGLE_MEMBER_PUBLIC
+	preftoggle_toggle = PREFTOGGLE_TOGGLE1
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь ваше членство BYOND видно другим."
+	disable_message = "Теперь ваше членство BYOND скрыто."
+	blackbox_message = "Toggle member publicity"
+
+/datum/preference_toggle/toggle_member_publicity/is_available(client/user)
+	return ..() && user.prefs.unlock_content
+
+/datum/preference_toggle/toggle_donor_publicity
+	name = "Публичность донат-статуса"
+	description = "Переключает отображение донат-статуса в OOC-чате."
+	preftoggle_bitflag = PREFTOGGLE_DONATOR_PUBLIC
+	preftoggle_toggle = PREFTOGGLE_TOGGLE1
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь ваш донат-статус виден другим."
+	disable_message = "Теперь ваш донат-статус скрыт."
+	blackbox_message = "Toggle donor publicity"
+
+/datum/preference_toggle/toggle_donor_publicity/is_available(client/user)
+	return ..() && user.donator_level > 0
+
+/datum/preference_toggle/toggle_random_slot
+	name = "Случайный слот персонажа"
+	description = "Переключает выбор случайного слота персонажа при входе в раунд."
+	preftoggle_bitflag = PREFTOGGLE_2_RANDOMSLOT
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь при входе в раунд будет выбран случайный слот персонажа."
+	disable_message = "Теперь при входе в раунд будет использован текущий слот персонажа."
+	blackbox_message = "Toggle random slot"
+
+/datum/preference_toggle/toggle_window_flashing
+	name = "Мигающие окна"
+	description = "Переключает мигание окна игры на панели задач при важных событиях."
+	preftoggle_bitflag = PREFTOGGLE_2_WINDOWFLASHING
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь окно игры будет мигать при важных событиях."
+	disable_message = "Теперь окно игры не будет мигать."
+	blackbox_message = "Toggle window flashing"
+
+/datum/preference_toggle/toggle_fancy_tgui
+	name = "Оформление окон TGUI"
+	description = "Переключает собственную рамку окон TGUI вместо системной."
+	preftoggle_bitflag = PREFTOGGLE_2_FANCYUI
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь окна TGUI используют собственную рамку."
+	disable_message = "Теперь окна TGUI используют системную рамку."
+	blackbox_message = "Toggle fancy TGUI"
+
+/datum/preference_toggle/toggle_large_input_buttons
+	name = "Большие кнопки окон ввода"
+	description = "Переключает размер кнопок в окнах ввода TGUI."
+	preftoggle_bitflag = PREFTOGGLE_2_LARGE_INPUT_BUTTONS
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь кнопки окон ввода большие."
+	disable_message = "Теперь кнопки окон ввода маленькие."
+	blackbox_message = "Toggle large input buttons"
+
+/datum/preference_toggle/toggle_swap_input_buttons
+	name = "Поменять порядок кнопок ввода"
+	description = "Меняет местами кнопки подтверждения и отмены в окнах ввода TGUI."
+	preftoggle_bitflag = PREFTOGGLE_2_SWAP_INPUT_BUTTONS
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь кнопка подтверждения находится слева."
+	disable_message = "Теперь кнопка подтверждения находится справа."
+	blackbox_message = "Toggle swap input buttons"
+
+/datum/preference_toggle/toggle_tgui_say_light_mode
+	name = "Светлая тема TGUI say"
+	description = "Переключает тему окна ввода сообщений."
+	preftoggle_bitflag = PREFTOGGLE_2_ENABLE_TGUI_SAY_LIGHT_MODE
+	preftoggle_toggle = PREFTOGGLE_TOGGLE2
+	preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+	enable_message = "Теперь окно ввода сообщений светлое."
+	disable_message = "Теперь окно ввода сообщений тёмное."
+	blackbox_message = "Toggle TGUI say light mode"
+
+/datum/preference_toggle/toggle_tgui_say_light_mode/set_toggles(client/user)
+	. = ..()
+	user.tgui_say?.load()

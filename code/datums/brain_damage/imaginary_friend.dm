@@ -152,7 +152,7 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 /mob/camera/imaginary_friend/proc/setup_appearance()
 	var/mob/living/carbon/human/dummy/model = new(null)
 	var/datum/preferences/appearance = new
-	appearance.copy_to(model)
+	appearance.apply_prefs_to(model)
 	real_name = model.real_name
 	name = real_name
 	gender = model.gender
@@ -503,19 +503,24 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 /mob/camera/imaginary_friend/alter_ego/setup_appearance()
 	var/mob/living/carbon/human/dummy/model = new(null)
 	var/datum/preferences/appearance = new
-	appearance.real_name = "Tyler Durden"
-	appearance.gender = MALE
-	appearance.age = 30
-	appearance.s_tone = -10
-	appearance.h_style = "Short Spiked"
-	appearance.f_style = "Shaved"
-	appearance.h_colour = "#5B3A29"
-	appearance.h_sec_colour = "#5B3A29"
-	appearance.e_colour = "#3D6EA5"
-	appearance.underwear = "Nude"
-	appearance.undershirt = "Nude"
-	appearance.socks = "Nude"
-	appearance.copy_to(model)
+	var/static/list/alter_ego_preferences = list(
+		/datum/preference/choiced/species = SPECIES_HUMAN,
+		/datum/preference/choiced/gender = MALE,
+		/datum/preference/name/real_name = "Tyler Durden",
+		/datum/preference/numeric/age = 30,
+		/datum/preference/numeric/skin_tone = -10,
+		/datum/preference/choiced/accessory/hair = "Short Spiked",
+		/datum/preference/choiced/accessory/facial_hair = "Shaved",
+		/datum/preference/color/hair_color = "#5b3a29",
+		/datum/preference/color/secondary_hair_color = "#5b3a29",
+		/datum/preference/color/eye_color = "#3d6ea5",
+		/datum/preference/choiced/accessory/underwear = "Nude",
+		/datum/preference/choiced/accessory/undershirt = "Nude",
+		/datum/preference/choiced/accessory/socks = "Nude",
+	)
+	for(var/preference_type in alter_ego_preferences)
+		appearance.write_preference(GLOB.preference_entries[preference_type], alter_ego_preferences[preference_type])
+	appearance.apply_prefs_to(model)
 	real_name = model.real_name
 	name = real_name
 	gender = model.gender

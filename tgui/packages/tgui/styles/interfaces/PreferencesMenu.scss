@@ -1,0 +1,98 @@
+.PreferencesMenu {
+  &__Antags {
+    &__antagSelection {
+      gap: var(--space-l);
+
+      @mixin animate-hover {
+        .antagonist-icon-parent .antagonist-icon {
+          &:hover {
+            transform: scale(1.3);
+            transition: transform var(--transition-time-fast) ease-out;
+          }
+        }
+      }
+
+      &__antagonist {
+        .antagonist-icon-parent {
+          cursor: var(--cursor-pointer);
+          border-style: solid;
+          border-radius: var(--border-radius-circular);
+          border-width: var(--border-thickness-large);
+          box-sizing: content-box;
+          overflow: hidden;
+          position: relative;
+
+          height: 96px;
+          width: 96px;
+
+          .antagonist-icon {
+            image-rendering: pixelated;
+            border-radius: var(--border-radius-circular);
+            overflow: hidden;
+            transition: transform var(--transition-time-fast) ease-in;
+          }
+        }
+
+        &--off {
+          @include animate-hover;
+
+          .antagonist-icon-parent {
+            border-color: var(--color-red);
+
+            .antagonist-icon {
+              opacity: 0.5;
+
+              &:hover {
+                opacity: 1;
+              }
+            }
+          }
+        }
+
+        &--on {
+          @include animate-hover;
+
+          .antagonist-icon-parent {
+            border-color: var(--color-green);
+          }
+        }
+
+        &--banned {
+          .antagonist-icon-parent {
+            border-color: var(--color-grey);
+          }
+
+          .antagonist-icon {
+            opacity: 0.5;
+          }
+        }
+
+        .antagonist-banned-slash {
+          background: var(--color-grey);
+
+          width: 100%;
+          height: 3px;
+
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translateY(-50%) translateX(-50%) rotate(35deg);
+
+          opacity: 0.8;
+        }
+
+        .antagonist-days-left {
+          text-align: center;
+          text-shadow: 1px 1px 1px hsl(0, 0%, 13.3%);
+
+          width: 100%;
+
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translateY(-50%) translateX(-50%);
+        }
+      }
+    }
+  }
+}

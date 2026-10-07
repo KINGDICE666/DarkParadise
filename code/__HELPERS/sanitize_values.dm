@@ -1,3 +1,10 @@
+/proc/sanitize_float(number, min = 0, max = 1, accuracy = 1, default = 0)
+	if(isnum(number))
+		number = round(number, accuracy)
+		if(round(min, accuracy) <= number && number <= round(max, accuracy))
+			return number
+	return default
+
 /**
  * Sanitizes an integer value to ensure it falls within a specified range
  *

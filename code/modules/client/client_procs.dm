@@ -122,7 +122,6 @@
 	switch(href_list["_src_"])
 		if("holder")	hsrc = holder
 		if("usr")		hsrc = mob
-		if("prefs")		return prefs.process_link(usr,href_list)
 		if("vars")		return view_var_Topic(href,href_list,hsrc)
 
 	if(href_list["ssdwarning"])
@@ -557,8 +556,8 @@
 	prefs.init_keybindings(prefs.keybindings_overrides) //The earliest sane place to do it where prefs are not null, if they are null you can't do crap at lobby
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning
-	if(prefs.clientfps)
-		fps = prefs.clientfps
+	if(prefs.read_preference(/datum/preference/numeric/fps))
+		fps = prefs.read_preference(/datum/preference/numeric/fps)
 	else
 		fps = CONFIG_GET(number/clientfps)
 
@@ -1377,15 +1376,6 @@ GAME_VERB_DESC(/client, fit_viewport, "Подгонка области види�
 
 GAME_VERB_HIDDEN(/client, fix_stat_panel, "Fix Stat Panel")
 	init_verbs()
-
-/**
- * Reloads the titlescreen if it is bugged for someone.
- */
-GAME_VERB_DESC(/client, fix_title_screen, "Починить меню лобби", "Lobbyscreen broke? Press this.", VERB_CATEGORY_SPECIALVERBS)
-	if(isnewplayer(mob))
-		SStitle.show_title_screen_to(src)
-	else
-		SStitle.hide_title_screen_from(src)
 
 GAME_VERB_HIDDEN(/client, fitviewport, "")// wrapper for mainwindow
 	fit_viewport()

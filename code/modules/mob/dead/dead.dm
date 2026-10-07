@@ -5,7 +5,6 @@
 	var/turf/T = get_turf(src)
 	if(isturf(T))
 		update_z(T.z)
-	SStitle.hide_title_screen_from(client)
 
 /mob/dead/Logout()
 	update_z(null)
