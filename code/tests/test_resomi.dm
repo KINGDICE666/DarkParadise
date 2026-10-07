@@ -162,6 +162,12 @@
 	TEST_ASSERT(resomi.is_hiding_in_storage(), "resomi in a backpack does not count as hiding in it")
 	TEST_ASSERT_NOT(resomi.can_use_guns(light), "resomi fired a gun from inside a backpack")
 	TEST_ASSERT_NOTNULL(resomi.alerts?[ALERT_PICKUPABLE_CONTAINER], "resomi got no alert to open the backpack it sits in")
+	var/obj/item/pen/neighbour = new(bag)
+	TEST_ASSERT(neighbour.IsReachableBy(resomi), "resomi cannot reach an item lying next to them in the backpack")
+	neighbour.attack_hand(resomi)
+	TEST_ASSERT(neighbour.loc == resomi, "resomi cannot take an item lying next to them in the backpack")
+	TEST_ASSERT_NOT(bag.IsReachableBy(resomi), "resomi can grab the backpack they sit in")
+	resomi.drop_transfer_item_to_loc(neighbour, bag, silent = TRUE)
 	qdel(bag)
 	TEST_ASSERT(!QDELETED(resomi) && isturf(resomi.loc), "deleting the backpack deleted the resomi sitting in it")
 

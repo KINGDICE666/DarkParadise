@@ -303,7 +303,9 @@
 	return ..() + contents
 
 /mob/living/DirectAccess(atom/target)
-	return ..() + get_all_contents()
+	. = ..() + get_all_contents()
+	if(is_hiding_in_storage())
+		. += loc.loc.contents
 
 /atom/proc/AllowClick()
 	return FALSE
