@@ -187,6 +187,7 @@
 
 /obj/overmap/entity/proc/keep_inside_local_space()
 	if(!local_space)
+		enter_local_space()
 		return
 	if(programmed_mission)
 		local_space = null
@@ -203,6 +204,17 @@
 		speed[2] = 0
 	var/list/inside = local_space.to_world(clamped_x, clamped_y)
 	set_world_position(inside[1], inside[2])
+
+/obj/overmap/entity/proc/enter_local_space()
+	if(programmed_mission || is_jumping())
+		return
+	var/datum/overmap_bubble/entered = SSovermap.local_space_at(sector, get_world_x(), get_world_y())
+	if(!entered || !entered.covers(entered.to_bubble(get_world_x(), get_world_y()), -hull_radius))
+		return
+	local_space = entered
+	var/list/goal = flight?.autopilot_goal
+	if(flight?.autopilot && !(goal && entered.covers(entered.to_bubble(goal[1], goal[2]), 0)))
+		flight.set_autopilot(FALSE)
 
 /obj/overmap/entity/proc/local_arrival_point(list/target, list/origin)
 	var/datum/overmap_bubble/arrival_space = SSovermap.local_space_at(sector, target[1], target[2])

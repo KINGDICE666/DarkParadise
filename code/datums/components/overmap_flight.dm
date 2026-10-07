@@ -10,6 +10,7 @@
 	var/autopilot = FALSE
 	var/autopilot_x
 	var/autopilot_y
+	var/list/autopilot_goal
 	var/facing = 0
 	var/angular_velocity = 0
 	var/mob/living/pilot
@@ -441,6 +442,7 @@
 	var/obj/overmap/entity/vessel = parent
 	var/was_on = autopilot
 	autopilot = enabled
+	autopilot_goal = null
 	if(was_on && !autopilot)
 		SEND_SIGNAL(vessel, COMSIG_OVERMAP_MANUAL_CONTROL)
 	if(autopilot)
@@ -461,7 +463,7 @@
 
 /datum/component/overmap_flight/proc/process_autopilot(elapsed)
 	var/obj/overmap/entity/vessel = parent
-	if(held_brake || (vessel.local_space && !vessel.programmed_mission))
+	if(held_brake || (vessel.local_space && !vessel.programmed_mission && !autopilot_goal))
 		return
 	if(isnull(autopilot_x) || isnull(autopilot_y))
 		return
@@ -513,9 +515,11 @@
 
 /datum/component/overmap_flight/proc/fly_to(turf/target, elapsed)
 	var/obj/overmap/entity/vessel = parent
-	var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
-	var/offset_x = target.x * span - vessel.get_world_x()
-	var/offset_y = target.y * span - vessel.get_world_y()
+	if(!autopilot_goal)
+		var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
+		autopilot_goal = vessel.local_arrival_point(list(target.x * span, target.y * span), list(vessel.get_world_x(), vessel.get_world_y()))
+	var/offset_x = autopilot_goal[1] - vessel.get_world_x()
+	var/offset_y = autopilot_goal[2] - vessel.get_world_y()
 	var/distance = sqrt(offset_x ** 2 + offset_y ** 2)
 	var/velocity_x = vessel.speed[1] * OVERMAP_TILE_SPAN
 	var/velocity_y = vessel.speed[2] * OVERMAP_TILE_SPAN
