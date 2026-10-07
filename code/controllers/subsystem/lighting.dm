@@ -158,15 +158,20 @@ SUBSYSTEM_DEF(lighting)
 		if(!source.needs_update)
 			continue
 		source.update_corners()
-		if(!QDELETED(source))
-			source.needs_update = LIGHTING_NO_UPDATE
+		if(QDELETED(source))
+			continue
+		source.needs_update = LIGHTING_NO_UPDATE
+		sources_queue -= source
+		current_sources -= source
 	for(var/turf/lit_turf in turfs)
 		for(var/datum/lighting_corner/corner as anything in list(lit_turf.lighting_corner_NE, lit_turf.lighting_corner_SE, lit_turf.lighting_corner_SW, lit_turf.lighting_corner_NW))
 			if(corner?.needs_update)
 				corner.needs_update = FALSE
+				corners_queue -= corner
 				corner.update_objects()
 	for(var/turf/lit_turf in turfs)
 		var/atom/movable/lighting_object/object = lit_turf.lighting_object
 		if(object?.needs_update)
 			object.needs_update = FALSE
+			objects_queue -= object
 			object.update()

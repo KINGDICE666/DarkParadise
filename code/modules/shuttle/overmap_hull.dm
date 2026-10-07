@@ -84,7 +84,7 @@
 /obj/docking_port/mobile/proc/overmap_dir_rotation(from_dir, to_dir)
 	if(!from_dir || !to_dir || from_dir == to_dir)
 		return 0
-	return SIMPLIFY_DEGREES(round((dir2angle(to_dir) - dir2angle(from_dir)) / 90, 1) * 90)
+	return SIMPLIFY_DEGREES(round((dir2angle(to_dir) - dir2angle(from_dir)) / 90, 1) * 90 + 360)
 
 /obj/docking_port/mobile/proc/overmap_rotate_vec(dx, dy, rotation)
 	switch(SIMPLIFY_DEGREES(rotation))
