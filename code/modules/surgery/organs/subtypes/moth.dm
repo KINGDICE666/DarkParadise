@@ -3,6 +3,7 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали луам."
 	item_state = "nian_eyes"
 	see_in_dark = 5
+	lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 
 /obj/item/organ/internal/eyes/nian/get_ru_names()
 	return alist(
