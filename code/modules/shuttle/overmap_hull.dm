@@ -101,6 +101,9 @@
 		return get_turf(S)
 	if(S?.dock_airlock)
 		return get_step(S.dock_airlock, S.dock_airlock.dir) || get_turf(S)
+	var/list/anchor = overmap_legacy_anchor(S)
+	if(anchor)
+		return anchor[1]
 	return get_turf(S)
 
 /obj/docking_port/mobile/proc/overmap_hull_center(list/hull)
@@ -124,7 +127,47 @@
 		return origin_dir
 	if(S?.dock_airlock)
 		return S.dock_airlock.dir
+	var/list/anchor = overmap_legacy_anchor(S)
+	if(anchor)
+		return anchor[2]
 	return S.dir
+
+/obj/docking_port/mobile/proc/overmap_legacy_anchor(obj/docking_port/stationary/S)
+	if(!S || S.dock_airlock || istype(S, /obj/docking_port/stationary/transit) || istype(S, /obj/docking_port/stationary/overmap))
+		return null
+	var/list/origin = overmap_origin()
+	var/turf/origin_turf = origin[1]
+	if(!origin_turf)
+		return null
+	var/list/footprint = list()
+	for(var/turf/tile as anything in S.return_turfs())
+		footprint[tile] = TRUE
+	var/list/anchors = list()
+	for(var/turf/tile as anything in footprint)
+		for(var/direction in GLOB.cardinal)
+			var/turf/outside = get_step(tile, direction)
+			if(!outside || footprint[outside] || is_area_shuttle(get_area(outside)))
+				continue
+			var/obj/machinery/door/airlock/door = locate() in outside
+			if(!door)
+				continue
+			var/list/anchor = list(tile, REVERSE_DIR(direction))
+			if(door.id_tag == S.id)
+				anchors.Insert(1, list(anchor))
+			else
+				anchors += list(anchor)
+	if(!length(anchors))
+		return null
+	var/list/hull = overmap_collect_hull(origin_turf)
+	anchor_loop:
+		for(var/list/anchor as anything in anchors)
+			for(var/turf/oldT as anything in hull)
+				if(is_turf_blacklisted_for_transit(oldT))
+					continue
+				if(overmap_dest_tile_blocked(overmap_project_turf(oldT, origin_turf, origin[2], anchor[1], anchor[2]), S))
+					continue anchor_loop
+			return anchor
+	return null
 
 /obj/docking_port/mobile/proc/overmap_project_turf(turf/oldT, turf/origin, origin_dir, turf/dest, dest_dir)
 	if(!oldT || !origin || !dest)
