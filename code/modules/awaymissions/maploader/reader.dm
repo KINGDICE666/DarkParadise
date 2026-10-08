@@ -7,6 +7,17 @@
 GLOBAL_VAR_INIT(use_preloader, FALSE)
 GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 
+#define MAPLOADING_CHECK_TICK(defer_init) \
+	if(TICK_CHECK) { \
+		if(defer_init) { \
+			SSatoms.map_loader_stop(); \
+			stoplag(); \
+			SSatoms.map_loader_begin(); \
+		} else { \
+			stoplag(); \
+		} \
+	}
+
 /**
  * Construct the model map and control the loading process
  *
@@ -25,7 +36,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
  * atmos will attempt to start before it's ready, causing runtimes galore if init is
  * allowed to romp unchecked.
  */
-/datum/dmm_suite/proc/load_map(dmm_file, x_offset = 0, y_offset = 0, z_offset = 0, shouldCropMap = FALSE, measureOnly = FALSE)
+/datum/dmm_suite/proc/load_map(dmm_file, x_offset = 0, y_offset = 0, z_offset = 0, shouldCropMap = FALSE, measureOnly = FALSE, defer_init = FALSE)
 	var/map_data
 	var/fname = "Lambda"
 	if(isfile(dmm_file))
@@ -60,6 +71,10 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	var/key_len = 0
 
 	var/datum/dmm_suite/loaded_map/LM = new
+	defer_init = defer_init && !measureOnly
+	LM.defer_init = defer_init
+	if(defer_init)
+		SSatoms.map_loader_begin()
 	// This try-catch is used as a budget "Finally" clause, as the dirt count.
 	// needs to be reset.
 	var/watch = start_watch()
@@ -152,16 +167,18 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 									parse_grid(grid_models[model_key], xcrd, ycrd, zcrd, LM, new_z)
 									// After this call, it is NOT safe to reference `dmmRegex` without another call to
 									// "Find" - we might've hit a map loader here and changed its state
-									CHECK_TICK
+									MAPLOADING_CHECK_TICK(defer_init)
 
 								maxx = max(maxx, xcrd)
 								++xcrd
 						--ycrd
 				bounds[MAP_MAXX] = max(bounds[MAP_MAXX], shouldCropMap ? min(maxx, world.maxx) : maxx)
 
-			CHECK_TICK
+			MAPLOADING_CHECK_TICK(defer_init)
 	catch(var/exception/e)
 		GLOB._preloader.reset()
+		if(defer_init)
+			SSatoms.map_loader_stop()
 		throw e
 
 	GLOB._preloader.reset()
@@ -169,6 +186,8 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	qdel(LM)
 
 	if(bounds[MAP_MINX] == 1.#INF) // Shouldn't need to check every item
+		if(defer_init)
+			SSatoms.map_loader_stop()
 		CRASH("Bad Map bounds in [fname], Min x: [bounds[MAP_MINX]], Min y: [bounds[MAP_MINY]], Min z: [bounds[MAP_MINZ]], Max x: [bounds[MAP_MAXX]], Max y: [bounds[MAP_MAXY]], Max z: [bounds[MAP_MAXZ]]")
 	else
 		if(!measureOnly)
@@ -179,9 +198,11 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 			for(var/turf/turf as anything in turfs)
 				// we do this after we load everything in. if we don't; we'll have weird atmos bugs regarding atmos adjacent turfs
 				turf.AfterChange(CHANGETURF_IGNORE_AIR|CHANGETURF_KEEP_CABLING)
-				CHECK_TICK
+				MAPLOADING_CHECK_TICK(defer_init)
 			// lavaland fuck this
 			//SSlighting.setup_static_lighting_if_needed(turfs)
+		if(defer_init)
+			SSatoms.map_loader_stop()
 		return bounds
 
 /**
@@ -258,7 +279,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 			members_attributes.len++
 			members_attributes[index++] = fields
 
-			CHECK_TICK
+			MAPLOADING_CHECK_TICK(LM.defer_init)
 		while(dpos != 0)
 
 		modelCache[model] = list(members, members_attributes)
@@ -325,7 +346,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	// finally instance all remainings objects/mobs
 	for(index in 1 to first_turf_index - 1)
 		instance_atom(members[index], members_attributes[index], xcrd, ycrd, zcrd)
-		CHECK_TICK
+		MAPLOADING_CHECK_TICK(LM.defer_init)
 
 ////////////////
 // Helpers procs
@@ -500,6 +521,7 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	/// We do this to allow non unique areas, so we'll only load one per map
 	var/list/area/loaded_areas = list()
 	var/index = 1 // To store the state of the regex
+	var/defer_init = FALSE
 
 /datum/dmm_suite/loaded_map/proc/area_path_to_real_area(area/A)
 	var/area/area_instance = loaded_areas[A]
@@ -523,3 +545,5 @@ GLOBAL_DATUM_INIT(_preloader, /datum/dmm_suite/preloader, new())
 	name = "Turf Passthrough"
 	icon_state = "noop" // now turf passthrought won't mess with other structures like lattice or plates in space on ruin maps in map editor. it was too much annoyng before the change. noop icon added in areas.dmi as well
 	init_air = FALSE
+
+#undef MAPLOADING_CHECK_TICK
