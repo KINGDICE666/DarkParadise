@@ -71,12 +71,12 @@
 			if(HAS_TRAIT(M, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
 				to_chat(M, span_warning("Вы не хотите причинять вред [declent_ru(DATIVE)]!"))
 				return
-			M.do_attack_animation(src, ATTACK_EFFECT_PUNCH)
+			M.do_attack_animation(src, M.dna.species.unarmed.animation_type)
 			visible_message(
 				span_danger("[DECLENT_RU_CAP(M, NOMINATIVE)] [response_harm] [declent_ru(ACCUSATIVE)]!"),
 				span_userdanger("[DECLENT_RU_CAP(M, NOMINATIVE)] [response_harm] вас!")
 			)
-			playsound(loc, attacked_sound, 25, TRUE, -1)
+			playsound(loc, attacked_sound || M.dna.species.unarmed.attack_sound, 25, TRUE, -1)
 			attack_threshold_check(harm_intent_damage)
 			add_attack_logs(M, src, "Melee attacked with fists")
 			return TRUE

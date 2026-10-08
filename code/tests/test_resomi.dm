@@ -157,6 +157,8 @@
 	TEST_ASSERT_NOT(carrier.can_equip(held, ITEM_SLOT_POCKET_LEFT, disable_warning = TRUE), "a held resomi fits into a jumpsuit pocket")
 	var/obj/item/storage/backpack/bag = allocate(/obj/item/storage/backpack)
 	TEST_ASSERT(bag.can_be_inserted(held, stop_messages = TRUE), "a held resomi does not fit into a backpack")
+	var/obj/item/storage/box/box = allocate(/obj/item/storage/box)
+	TEST_ASSERT_NOT(box.can_be_inserted(held, stop_messages = TRUE), "a held resomi fits into a box")
 	carrier.drop_item_ground(held)
 	bag.handle_item_insertion(held, prevent_warning = TRUE)
 	TEST_ASSERT(resomi.is_hiding_in_storage(), "resomi in a backpack does not count as hiding in it")

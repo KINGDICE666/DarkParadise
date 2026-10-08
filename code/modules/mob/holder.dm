@@ -255,6 +255,12 @@
 	slot_flags = NONE
 	slot_flags_2 = ITEM_FLAG_POCKET_DENY
 
+/obj/item/holder/humanoid/can_enter_storage(obj/item/storage/target, mob/user)
+	if(target.w_class < WEIGHT_CLASS_BULKY)
+		user?.balloon_alert(user, "слишком тесно!")
+		return FALSE
+	return TRUE
+
 /obj/item/holder/mouse
 	name = "mouse"
 	desc = "It's a small, disease-ridden rodent."
