@@ -64,6 +64,8 @@ SUBSYSTEM_DEF(lighting)
 		i += 1
 
 		var/datum/light_source/source = queue[i]
+		if(QDELETED(source))
+			continue
 		source.update_corners()
 		if(!QDELETED(source))
 			source.needs_update = LIGHTING_NO_UPDATE
