@@ -1,41 +1,41 @@
-/area/syndicate/unpowered
+/area/SyndicateLava/unpowered
 
-/area/syndicate/unpowered/syndicate_lava_base
+/area/SyndicateLava/unpowered/syndicate_lava_base
 	name = "Secret Base"
 	icon_state = "dk_yellow"
 	ambience_index = AMBIENCE_DANGER
 	report_alerts = FALSE
 	hide_attacklogs = TRUE
 
-/area/syndicate/unpowered/syndicate_lava_base/engineering
+/area/SyndicateLava/unpowered/syndicate_lava_base/engineering
 	name = "Syndicate Lavaland Engineering"
 
-/area/syndicate/unpowered/syndicate_lava_base/medbay
+/area/SyndicateLava/unpowered/syndicate_lava_base/medbay
 	name = "Syndicate Lavaland Medbay"
 
-/area/syndicate/unpowered/syndicate_lava_base/arrivals
+/area/SyndicateLava/unpowered/syndicate_lava_base/arrivals
 	name = "Syndicate Lavaland Arrivals"
 
-/area/syndicate/unpowered/syndicate_lava_base/bar
+/area/SyndicateLava/unpowered/syndicate_lava_base/bar
 	name = "Syndicate Lavaland Bar"
 
-/area/syndicate/unpowered/syndicate_lava_base/main
+/area/SyndicateLava/unpowered/syndicate_lava_base/main
 	name = "Syndicate Lavaland Primary Hallway"
 
-/area/syndicate/unpowered/syndicate_lava_base/cargo
+/area/SyndicateLava/unpowered/syndicate_lava_base/cargo
 	name = "Syndicate Lavaland Cargo Bay"
 
-/area/syndicate/unpowered/syndicate_lava_base/chemistry
+/area/SyndicateLava/unpowered/syndicate_lava_base/chemistry
 	name = "Syndicate Lavaland Chemistry"
 
-/area/syndicate/unpowered/syndicate_lava_base/virology
+/area/SyndicateLava/unpowered/syndicate_lava_base/virology
 	name = "Syndicate Lavaland Virology"
 
-/area/syndicate/unpowered/syndicate_lava_base/testlab
+/area/SyndicateLava/unpowered/syndicate_lava_base/testlab
 	name = "Syndicate Lavaland Experimentation Lab"
 
-/area/syndicate/unpowered/syndicate_lava_base/dormitories
+/area/SyndicateLava/unpowered/syndicate_lava_base/dormitories
 	name = "Syndicate Lavaland Dormitories"
 
-/area/syndicate/unpowered/syndicate_lava_base/telecomms
+/area/SyndicateLava/unpowered/syndicate_lava_base/telecomms
 	name = "Syndicate Lavaland Telecommunications"
