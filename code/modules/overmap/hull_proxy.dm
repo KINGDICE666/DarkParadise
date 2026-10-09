@@ -103,13 +103,13 @@
 	vessel = null
 	return ..()
 
-/datum/hull_proxy/proc/refresh_sight(list/viewer_points)
+/datum/hull_proxy/proc/refresh_sight(list/viewer_points, exact = FALSE)
 	if(world.time < next_sight_refresh || !length(viewer_points) || !vessel.flight_bounds)
 		return
 	next_sight_refresh = world.time + HULL_PROXY_SIGHT_INTERVAL
 	var/list/turf/sighted = list()
 	for(var/list/point as anything in viewer_points)
-		for(var/turf/seen as anything in vessel.hull_sight_toward(point[1], point[2]))
+		for(var/turf/seen as anything in vessel.hull_sight_toward(point[1], point[2], exact))
 			sighted[seen] = TRUE
 	for(var/obj/effect/abstract/hull_proxy_tile/carrier/carrier as anything in carriers)
 		for(var/obj/effect/abstract/hull_proxy_tile/tile as anything in carrier.members)
