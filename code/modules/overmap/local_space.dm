@@ -193,6 +193,10 @@
 		local_space = null
 		return
 	var/list/spot = local_space.to_bubble(get_world_x(), get_world_y())
+	if(local_space.anchor)
+		if(local_space.sector != sector || !local_space.covers(spot, -hull_radius))
+			local_space = null
+		return
 	var/list/bounds = local_space.bounds
 	var/clamped_x = clamp(spot[1], bounds[1] + hull_radius, bounds[3] - hull_radius)
 	var/clamped_y = clamp(spot[2], bounds[2] + hull_radius, bounds[4] - hull_radius)
@@ -208,7 +212,7 @@
 /obj/overmap/entity/proc/enter_local_space()
 	if(programmed_mission || is_jumping())
 		return
-	var/datum/overmap_bubble/entered = SSovermap.local_space_at(sector, get_world_x(), get_world_y())
+	var/datum/overmap_bubble/entered = SSovermap.local_space_at(sector, get_world_x(), get_world_y(), src)
 	if(!entered || !entered.covers(entered.to_bubble(get_world_x(), get_world_y()), -hull_radius))
 		return
 	local_space = entered
@@ -217,7 +221,7 @@
 		flight.set_autopilot(FALSE)
 
 /obj/overmap/entity/proc/local_arrival_point(list/target, list/origin)
-	var/datum/overmap_bubble/arrival_space = SSovermap.local_space_at(sector, target[1], target[2])
+	var/datum/overmap_bubble/arrival_space = SSovermap.local_space_at(sector, target[1], target[2], src)
 	if(!arrival_space)
 		return target
 	var/list/bounds = arrival_space.bounds
@@ -248,9 +252,9 @@
 			return FALSE
 	return TRUE
 
-/datum/controller/subsystem/overmap/proc/local_space_at(datum/overmap_sector/sector, world_x, world_y)
+/datum/controller/subsystem/overmap/proc/local_space_at(datum/overmap_sector/sector, world_x, world_y, obj/overmap/entity/asker)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles_by_z)
-		if(bubble?.sector == sector && bubble.covers(bubble.to_bubble(world_x, world_y), 0))
+		if(bubble?.sector == sector && (!bubble.anchor || bubble.anchor != asker) && bubble.covers(bubble.to_bubble(world_x, world_y), 0))
 			return bubble
 
 /datum/controller/subsystem/overmap/proc/create_local_spaces()
@@ -259,6 +263,10 @@
 		return
 	var/datum/overmap_bubble/station_space = new(station_entity.sector, station_entity.get_world_x(), station_entity.get_world_y(), 0, 0)
 	station_space.fill_level(station_levels[1])
+	var/obj/overmap/entity/station/ship/station_ship = station_entity
+	if(istype(station_ship))
+		station_space.anchor = station_ship
+		station_ship.home_space = station_space
 
 /obj/overmap/entity/proc/record_undock_origin()
 	map_hull()

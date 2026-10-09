@@ -5708,20 +5708,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/production)
-"EN" = (
-/obj/docking_port/stationary{
-	area_type = /area/lavaland/surface/outdoors;
-	dir = 8;
-	dwidth = 3;
-	height = 5;
-	id = "mining_away";
-	name = "lavaland mine";
-	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
-	width = 7
-	},
-/obj/effect/mapping_helpers/no_lava,
-/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors)
 "EQ" = (
 /obj/structure/stone_tile/block/cracked,
 /obj/structure/stone_tile/block/cracked{
@@ -7406,6 +7392,23 @@
 	icon_state = "brown"
 	},
 /area/mine/living_quarters)
+"PX" = (
+/obj/docking_port/stationary{
+	area_type = /area/lavaland/surface/outdoors;
+	dir = 8;
+	dwidth = 3;
+	height = 5;
+	id = "mining_away";
+	name = "lavaland mine";
+	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
+	width = 7
+	},
+/obj/effect/mapping_helpers/no_lava,
+/obj/machinery/landing_beacon{
+	dock_name = "Лаваленд, шахта"
+	},
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors)
 "PY" = (
 /obj/structure/stone_tile/block/cracked{
 	dir = 4
@@ -23457,7 +23460,7 @@ fw
 fw
 fw
 fw
-EN
+PX
 fw
 fw
 fw

@@ -582,6 +582,7 @@
 	var/static_level = FALSE
 	var/list/radar_chunks = list()
 	var/list/clingers = list()
+	var/obj/overmap/entity/anchor
 
 /datum/overmap_bubble/New(datum/overmap_sector/sector, origin_x, origin_y, speed_x, speed_y)
 	src.sector = sector
@@ -636,13 +637,26 @@
 	reservation = null
 	bubble_area = null
 	sector = null
+	var/obj/overmap/entity/station/ship/station_ship = anchor
+	if(istype(station_ship) && station_ship.home_space == src)
+		station_ship.home_space = null
+	anchor = null
 	return ..()
 
 /datum/overmap_bubble/proc/drift_x()
+	if(anchor)
+		return anchor.get_world_x() - origin_x
 	return speed_x * OVERMAP_TILE_SPAN * (world.time - start_time)
 
 /datum/overmap_bubble/proc/drift_y()
+	if(anchor)
+		return anchor.get_world_y() - origin_y
 	return speed_y * OVERMAP_TILE_SPAN * (world.time - start_time)
+
+/datum/overmap_bubble/proc/drift_velocity()
+	if(anchor)
+		return anchor.speed
+	return list(speed_x, speed_y)
 
 /datum/overmap_bubble/proc/to_bubble(world_x, world_y)
 	return list(center_x + world_x - origin_x - drift_x(), center_y + world_y - origin_y - drift_y())
@@ -818,7 +832,8 @@
 	clingers.Cut()
 
 /datum/overmap_bubble/proc/grab_hull(obj/overmap/entity/vessel)
-	var/relative_speed = sqrt((vessel.speed[1] - speed_x) ** 2 + (vessel.speed[2] - speed_y) ** 2) * OVERMAP_TILE_SPAN * (1 SECONDS)
+	var/list/velocity = drift_velocity()
+	var/relative_speed = sqrt((vessel.speed[1] - velocity[1]) ** 2 + (vessel.speed[2] - velocity[2]) ** 2) * OVERMAP_TILE_SPAN * (1 SECONDS)
 	for(var/turf/hull_turf as anything in vessel.hull_edge)
 		if(!hull_turf.is_blocked_turf(exclude_mobs = TRUE))
 			continue
@@ -853,8 +868,9 @@
 			shove_drifter(thing, vessel)
 
 /datum/overmap_bubble/proc/shove_drifter(atom/movable/drifter, obj/overmap/entity/vessel)
-	var/velocity_x = (vessel.speed[1] - speed_x) * OVERMAP_TILE_SPAN
-	var/velocity_y = (vessel.speed[2] - speed_y) * OVERMAP_TILE_SPAN
+	var/list/velocity = drift_velocity()
+	var/velocity_x = (vessel.speed[1] - velocity[1]) * OVERMAP_TILE_SPAN
+	var/velocity_y = (vessel.speed[2] - velocity[2]) * OVERMAP_TILE_SPAN
 	var/impact = sqrt(velocity_x ** 2 + velocity_y ** 2) * (1 SECONDS)
 	var/preferred_dir
 	if(impact >= 1)

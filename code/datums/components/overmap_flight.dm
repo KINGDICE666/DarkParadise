@@ -28,12 +28,14 @@
 	var/burn_turn = 0
 	var/was_burning = FALSE
 	var/next_jolt = 0
+	var/fixed_facing = FALSE
 
 	var/cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_CRUISE_DEFAULT)
 
-/datum/component/overmap_flight/Initialize()
+/datum/component/overmap_flight/Initialize(fixed_facing = FALSE)
 	if(!istype(parent, /obj/overmap/entity))
 		return COMPONENT_INCOMPATIBLE
+	src.fixed_facing = fixed_facing
 	if(istype(parent, /obj/overmap/entity/pod))
 		cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_POD_CRUISE)
 
@@ -86,7 +88,7 @@
 		change_spin((held_brake || pilot_braking || dampeners) ? 0 : angular_velocity, elapsed)
 	apply_drag(elapsed)
 	if(needs_physics())
-		if(held_brake || (dampeners && !manual_drive && !autopilot && vessel.shuttle))
+		if(held_brake || (dampeners && !manual_drive && !autopilot && (vessel.shuttle || fixed_facing)))
 			brake(elapsed)
 		if(autopilot)
 			enforce_cruise_speed(elapsed)
@@ -183,6 +185,8 @@
 	return torque * OVERMAP_TORQUE_SCALE / (max(vessel.total_mass(), 1) * vessel.hull_inertia)
 
 /datum/component/overmap_flight/proc/flip_time()
+	if(fixed_facing)
+		return 0
 	var/accel = angular_accel(min(torque_left, torque_right))
 	if(!accel)
 		return 0
@@ -194,7 +198,7 @@
 		facing += 360
 
 /datum/component/overmap_flight/proc/change_spin(wanted, elapsed)
-	if(!wanted && !angular_velocity)
+	if(fixed_facing || (!wanted && !angular_velocity))
 		return
 	if(wanted != angular_velocity && engines_state && can_steer())
 		var/turning = wanted > angular_velocity ? 1 : -1
@@ -473,7 +477,7 @@
 	var/turf/target = vessel.sector?.get_turf_at(autopilot_x, autopilot_y)
 	if(!target || target.z != here.z)
 		return
-	if(vessel.free_flight_view && !vessel.programmed_mission)
+	if((vessel.free_flight_view || fixed_facing) && !vessel.programmed_mission)
 		return fly_to(target, elapsed)
 	if(here == target)
 		arrive_autopilot()

@@ -650,6 +650,14 @@ GLOBAL_LIST_EMPTY(admin_objective_list)
 
 /datum/objective/hijack/check_completion()
 	var/obj/docking_port/mobile/emergency/evac = SSshuttle.emergency
+	if(station_is_ship())
+		if(evac?.mode != SHUTTLE_ENDGAME || !evac.is_hijacked())
+			return FALSE
+		for(var/datum/mind/player in get_owners())
+			var/turf/spot = get_turf(player.current)
+			if(!spot || player.current.stat != CONSCIOUS || issilicon(player.current) || !is_station_level(spot.z))
+				return FALSE
+		return TRUE
 	if(evac?.getDockedId() != "emergency_syndicate")
 		return FALSE
 

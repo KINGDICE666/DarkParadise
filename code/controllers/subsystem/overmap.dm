@@ -157,7 +157,8 @@ SUBSYSTEM_DEF(overmap)
 		spawn_turf = local_sector.get_turf_near(dock, OVERMAP_STATION_MIN_SEPARATION, OVERMAP_STATION_MAX_SEPARATION, lavaland_planet)
 	if(!spawn_turf)
 		spawn_turf = local_sector.get_random_open_turf()
-	station_entity = new /obj/overmap/entity/station(spawn_turf)
+	var/station_type = station_is_ship() ? /obj/overmap/entity/station/ship : /obj/overmap/entity/station
+	station_entity = new station_type(spawn_turf)
 	station_entity.status = OVERMAP_STATUS_OVERMAP
 	station_entity.apply_overmap_identity(station_name(), COLOR_WHITE, "station", FALSE, TRUE, null, TRUE)
 	local_sector.add_object(station_entity, spawn_turf)

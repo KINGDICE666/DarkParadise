@@ -157,8 +157,11 @@
 			return relay
 	return null
 
+/obj/overmap/entity/proc/can_use_hyperrelays()
+	return overmap_kind == OVERMAP_KIND_SHUTTLE
+
 /obj/overmap/entity/proc/can_hyperrelay_jump()
-	if(overmap_kind != OVERMAP_KIND_SHUTTLE)
+	if(!can_use_hyperrelays())
 		return FALSE
 	if(is_overmap_jammed())
 		return FALSE
@@ -174,7 +177,7 @@
 /obj/overmap/entity/proc/begin_hyperrelay_jump(forced = FALSE)
 	var/obj/overmap/entity/hyperrelay/relay = hyperrelay_on_tile()
 	if(forced)
-		if(overmap_kind != OVERMAP_KIND_SHUTTLE || is_overmap_jammed())
+		if(!can_use_hyperrelays() || is_overmap_jammed())
 			return "Прыжок недоступен."
 		if(!OVERMAP_SPEED_STOPPED(get_speed()))
 			return "Прыжок недоступен."

@@ -136,7 +136,7 @@
 		if(SHUTTLE_RECALL, SHUTTLE_IDLE, SHUTTLE_CALL)
 			mode = SHUTTLE_CALL
 			overmap_leg_started = FALSE
-			setTimer(max(call_time, overmap_programmed_lead_time("emergency_home")))
+			setTimer(station_is_ship() ? call_time : max(call_time, overmap_programmed_lead_time("emergency_home")))
 		else
 			return
 
@@ -144,7 +144,14 @@
 		SSshuttle.emergencyLastCallLoc = signalOrigin
 	else
 		SSshuttle.emergencyLastCallLoc = null
-	if(canRecall)
+	if(station_is_ship())
+		GLOB.major_announcement.announce(
+			"[station_name()] получил приказ вернуться к Центральному командованию. [redAlert ? "Красный уровень угрозы подтверждён: прыжок ускорен. " : "" ]Подготовка гипердвигателя займёт [timeLeft(600)] минут.[reason][SSshuttle.emergencyLastCallLoc ? "\n\nВызов отслежен. Результаты можно посмотреть на любой консоли связи." : "" ]",
+			new_title = ANNOUNCE_PRIORITY_RU,
+			new_sound = ANNOUNCER_SHUTTLECALLED,
+			color_override = "orange"
+		)
+	else if(canRecall)
 		GLOB.major_announcement.announce(
 			"Был вызван эвакуационный шаттл. [redAlert ? "Красный уровень угрозы подтверждён: отправлен приоритетный шаттл. " : "" ]Он прибудет в течение [timeLeft(600)] минут.[reason][SSshuttle.emergencyLastCallLoc ? "\n\nВызов шаттла отслежен. Результаты можно посмотреть на любой консоли связи." : "" ]",
 			new_title = ANNOUNCE_PRIORITY_RU,
@@ -188,7 +195,7 @@
 	else
 		SSshuttle.emergencyLastCallLoc = null
 	GLOB.major_announcement.announce(
-		"Эвакуационный шаттл был отозван.[SSshuttle.emergencyLastCallLoc ? " Отзыв шаттла отслежен. Результаты можно посмотреть на любой консоли связи." : "" ]",
+		"[station_is_ship() ? "Возвращение [station_name()] к Центральному командованию отменено." : "Эвакуационный шаттл был отозван."][SSshuttle.emergencyLastCallLoc ? " Отзыв шаттла отслежен. Результаты можно посмотреть на любой консоли связи." : "" ]",
 		new_title = ANNOUNCE_PRIORITY_RU,
 		new_sound = ANNOUNCER_SHUTTLERECALLED,
 		color_override = "orange"
@@ -228,7 +235,8 @@
 			if(special_role != SPECIAL_ROLE_EVENTMISC && special_role != SPECIAL_ROLE_ERT && special_role != SPECIAL_ROLE_DEATHSQUAD)
 				continue
 
-		if(get_area(player) == areaInstance)
+		var/turf/spot = get_turf(player)
+		if(station_is_ship() ? (spot && is_station_level(spot.z)) : get_area(player) == areaInstance)
 			return FALSE
 
 	return TRUE
@@ -243,7 +251,7 @@
 
 	// The emergency shuttle doesn't work like others so this
 	// ripple check is slightly different
-	if(!length(ripples) && !overmap_leg_started && (time_left <= SHUTTLE_RIPPLE_TIME) && ((mode == SHUTTLE_CALL) || (mode == SHUTTLE_ESCAPE)))
+	if(!length(ripples) && !overmap_leg_started && !station_is_ship() && (time_left <= SHUTTLE_RIPPLE_TIME) && ((mode == SHUTTLE_CALL) || (mode == SHUTTLE_ESCAPE)))
 		var/destination
 		if(mode == SHUTTLE_CALL)
 			destination = SSshuttle.getDock("emergency_home")
@@ -257,6 +265,17 @@
 				mode = SHUTTLE_IDLE
 				timer = 0
 		if(SHUTTLE_CALL)
+			if(station_is_ship())
+				if(time_left <= 0)
+					mode = SHUTTLE_DOCKED
+					setTimer(SSshuttle.emergencyDockTime)
+					GLOB.major_announcement.announce(
+						"Гипердвигатель [station_name()] выходит на полную мощность. До прыжка к Центральному командованию осталось [timeLeft(600)] минуты.",
+						new_title = ANNOUNCE_PRIORITY_RU,
+						new_sound = ANNOUNCER_SHUTTLEDOCK,
+						color_override = "orange"
+					)
+				return
 			if(overmap_leg_started || time_left <= overmap_programmed_lead_time("emergency_home"))
 				var/overmap_result = overmap_follow_programmed_leg("emergency_home")
 				if(isnull(overmap_result))
@@ -306,7 +325,8 @@
 			if(time_left <= 100) // 9 seconds left - start requesting transit zones for emergency and pods
 				for(var/obj/docking_port/mobile/pod/M in SSshuttle.mobile)
 					M.check_transit_zone() // yeah, we even check for pods that aren't at station. just for safety
-				check_transit_zone()
+				if(!station_is_ship())
+					check_transit_zone()
 
 			if(time_left <= 50 && !sound_played) //4 seconds left - should sync up with the launch
 				sound_played = TRUE
@@ -314,7 +334,18 @@
 				for(var/area/shuttle/escape/E in GLOB.areas)
 					SEND_SOUND(E, hyperspace_sound)
 
-			if(time_left <= 0 && !(SSshuttle.emergencyNoEscape || length(SSshuttle.hostile_environment)))
+			if(time_left <= 0 && !(SSshuttle.emergencyNoEscape || length(SSshuttle.hostile_environment)) && station_is_ship())
+				overmap_launch_escape_pods()
+				mode = SHUTTLE_ESCAPE
+				setTimer(SSshuttle.emergencyEscapeTime)
+				var/obj/overmap/entity/station/ship/station_ship = SSovermap.station_entity
+				station_ship.begin_centcom_jump()
+				GLOB.major_announcement.announce(
+					"[station_name()] ушёл в гиперпрыжок. До прибытия к Центральному командованию осталось [timeLeft(600)] минуты.",
+					new_title = ANNOUNCE_PRIORITY_RU,
+					color_override = "orange"
+				)
+			else if(time_left <= 0 && !(SSshuttle.emergencyNoEscape || length(SSshuttle.hostile_environment)))
 				overmap_launch_escape_pods()
 				var/hyperspace_progress_sound = sound('sound/effects/hyperspace_progress.ogg')
 				for(var/area/shuttle/escape/E in world)
@@ -334,6 +365,14 @@
 				)
 
 		if(SHUTTLE_ESCAPE)
+			if(station_is_ship())
+				if(time_left <= 0)
+					mode = SHUTTLE_ENDGAME
+					timer = 0
+					var/hijacked = is_hijacked() || force_hijacked || devil_on_shuttle
+					var/obj/overmap/entity/station/ship/station_ship = SSovermap.station_entity
+					station_ship.finish_centcom_jump(hijacked)
+				return
 			if(overmap_leg_started || time_left <= 0)
 				overmap_launch_escape_pods()
 				var/destination_dock = overmap_escape_dock || "emergency_away"

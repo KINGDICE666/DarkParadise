@@ -62,7 +62,8 @@
 	process_encounters(flying, elapsed, watched, eyes)
 	var/drifting_bubble = FALSE
 	for(var/datum/overmap_bubble/bubble as anything in bubbles)
-		if(bubble.speed_x || bubble.speed_y)
+		var/list/velocity = bubble.drift_velocity()
+		if(velocity[1] || velocity[2])
 			drifting_bubble = TRUE
 			break
 	if(!length(flying_areas) && !drifting_bubble && !length(drifting_viewers))
@@ -77,11 +78,12 @@
 			continue
 		var/turf/eye_turf = get_turf(viewer.eye)
 		var/obj/overmap/entity/vessel = flying_areas[eye_turf?.loc]
-		var/datum/overmap_bubble/bubble = bubbles_by_reservation[SSmapping.used_turfs[eye_turf]]
+		var/datum/overmap_bubble/bubble = bubble_for_turf(eye_turf)
+		var/list/velocity = bubble?.drift_velocity()
 		if(vessel)
 			drift_viewer(viewer, vessel.speed[1], vessel.speed[2], vessel.get_facing(), elapsed)
-		else if(bubble && (bubble.speed_x || bubble.speed_y))
-			drift_viewer(viewer, bubble.speed_x, bubble.speed_y, 0, elapsed)
+		else if(velocity && (velocity[1] || velocity[2]))
+			drift_viewer(viewer, velocity[1], velocity[2], 0, elapsed)
 		else if(viewer in drifting_viewers)
 			stop_drifting(viewer)
 
@@ -152,7 +154,7 @@
 	jump_start_time = 0
 	jump_origin = null
 	jump_target = null
-	local_space = SSovermap.local_space_at(sector, get_world_x(), get_world_y())
+	local_space = SSovermap.local_space_at(sector, get_world_x(), get_world_y(), src)
 	status = OVERMAP_STATUS_OVERMAP
 	play_shuttle_sound('sound/effects/hyperspace_end.ogg')
 	shake_shuttle(3, 2)
