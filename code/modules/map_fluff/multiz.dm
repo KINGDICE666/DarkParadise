@@ -7,7 +7,6 @@
 		list(STATION_LEVEL = "Third Floor", STATION_CONTACT, REACHABLE, AI_OK, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
 	)
 	linkage = SELFLOOPING
-	space_ruins_levels = 3
 	station_name = "Multiz Debug Station"
 	station_short = "Multiz"
 	dock_name = "THE multiz"
