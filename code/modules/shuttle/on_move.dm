@@ -68,6 +68,27 @@
 	if(!S1.lock_shuttle_doors && (id_tag == "s_docking_airlock" || istype(src, /obj/machinery/door/airlock/external/docking)))
 		INVOKE_ASYNC(src, PROC_REF(unlock))
 
+/obj/machinery/atmospherics/postDock(obj/docking_port/S1)
+	. = ..()
+	if(pipe_vision_img)
+		pipe_vision_img.loc = loc
+	var/nodes_cut = FALSE
+	for(var/obj/machinery/atmospherics/node in pipeline_expansion())
+		var/connected = FALSE
+		for(var/direction in GLOB.cardinals_multiz)
+			if(node in get_step_multiz(src, direction))
+				connected = TRUE
+				break
+		if(connected)
+			continue
+		qdel(returnPipenet(node))
+		node.disconnect(src)
+		disconnect(node)
+		node.defer_build_network()
+		nodes_cut = TRUE
+	if(nodes_cut)
+		defer_build_network()
+
 /obj/structure/ladder/onShuttleMove()
 	if(resistance_flags & INDESTRUCTIBLE)
 		// simply don't be moved
