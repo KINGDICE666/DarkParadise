@@ -136,6 +136,9 @@
 	force_icon = 'icons/mob/sprite_accessories/resomi/resomi_tail.dmi'
 	icon_name = "resomitail_s"
 
+/obj/item/organ/external/tail/resomi/get_healthdoll_state()
+	return "resomitail"
+
 /obj/item/organ/external/tail/resomi/get_ru_names()
 	return alist(
 		NOMINATIVE = "хвост резоми",

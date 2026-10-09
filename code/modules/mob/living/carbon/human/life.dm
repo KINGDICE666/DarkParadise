@@ -748,8 +748,9 @@
 				healthdoll.icon_state = "healthdoll_DEAD"
 				healthdoll.cut_overlays()
 				var/obj/item/organ/external/tail/bodypart_tail = get_organ(BODY_ZONE_TAIL)
-				if(bodypart_tail?.dna?.species?.tail)
-					healthdoll.add_overlay("[bodypart_tail.dna.species.tail]_DEAD")
+				var/doll_tail = bodypart_tail?.get_healthdoll_state()
+				if(doll_tail)
+					healthdoll.add_overlay("[doll_tail]_DEAD")
 			else
 				var/list/new_overlays = list()
 				var/list/cached_overlays = healthdoll.cached_healthdoll_overlays
@@ -771,10 +772,12 @@
 					if(damage > (comparison*4))
 						icon_num = 5
 					var/exists_bleeding = bodypart.bleeding_amount > 0 && bodypart.bleeding_amount > bodypart.bleedsuppress
-					if(istype(bodypart, /obj/item/organ/external/tail) && bodypart.dna?.species.tail)
-						new_overlays += "[bodypart.dna.species.tail][icon_num]"
+					var/obj/item/organ/external/tail/bodypart_tail = bodypart
+					var/doll_tail = istype(bodypart_tail) && bodypart_tail.get_healthdoll_state()
+					if(doll_tail)
+						new_overlays += "[doll_tail][icon_num]"
 						if(exists_bleeding)
-							new_overlays += "[bodypart.dna.species.tail]_b"
+							new_overlays += "[doll_tail]_b"
 
 					if(istype(bodypart, /obj/item/organ/external/wing) && bodypart.dna?.species.tail)
 						new_overlays += "[bodypart.dna.species.wing][icon_num]"

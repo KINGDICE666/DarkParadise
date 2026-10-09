@@ -69,8 +69,10 @@
 		// Use the dead health doll as the base, since we have proper "healthy" overlays now
 		for(var/obj/item/organ/external/bodypart as anything in source.bodyparts)
 			var/icon_num = override_prefix
-			if(istype(bodypart, /obj/item/organ/external/tail) && bodypart.dna?.species.tail)
-				new_overlays |= "[bodypart.dna.species.tail][icon_num]"
+			var/obj/item/organ/external/tail/bodypart_tail = bodypart
+			var/doll_tail = istype(bodypart_tail) && bodypart_tail.get_healthdoll_state()
+			if(doll_tail)
+				new_overlays |= "[doll_tail][icon_num]"
 			if(istype(bodypart, /obj/item/organ/external/wing) && bodypart.dna?.species.tail)
 				new_overlays |= "[bodypart.dna.species.wing][icon_num]"
 			else if(!only_species)

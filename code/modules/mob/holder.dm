@@ -85,6 +85,11 @@
 /obj/item/holder/allow_click()
 	return TRUE
 
+/obj/item/holder/drop_location()
+	. = ..()
+	if(isstorage(.))
+		return get_turf(src)
+
 /obj/item/holder/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
 	. = ..()
 	if(length(contents) && isturf(loc) && !throwing)
@@ -254,12 +259,6 @@
 	desc = "Маленький гуманоид, свернувшийся так, чтобы его было удобно нести."
 	slot_flags = NONE
 	slot_flags_2 = ITEM_FLAG_POCKET_DENY
-
-/obj/item/holder/humanoid/can_enter_storage(obj/item/storage/target, mob/user)
-	if(target.w_class < WEIGHT_CLASS_BULKY)
-		user?.balloon_alert(user, "слишком тесно!")
-		return FALSE
-	return TRUE
 
 /obj/item/holder/mouse
 	name = "mouse"
