@@ -871,6 +871,11 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
  * You can easily overriride it for different behavior on other items.
  */
 /obj/item/proc/run_drop_held_item(mob/user)
+	var/mob/living/hider = user
+	var/obj/item/storage/hiding_place = isliving(hider) && hider.is_hiding_in_storage() ? hider.loc.loc : null
+	if(hiding_place?.can_be_inserted(src, stop_messages = TRUE))
+		hiding_place.handle_item_insertion(src)
+		return
 	user.drop_from_active_hand()
 
 /**

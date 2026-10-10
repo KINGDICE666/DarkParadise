@@ -224,15 +224,12 @@
 /atom/movable/screen/fullscreen/lighting_backdrop/unlit
 	layer = BACKGROUND_LAYER+20
 
-/atom/movable/screen/fullscreen/darksight
-	icon = 'icons/mob/screen_darksight.dmi'
-	icon_state = "darksight"
+/atom/movable/screen/fullscreen/see_through_darkness
+	icon_state = "nightvision"
 	plane = LIGHTING_PLANE
 	layer = LIGHTING_ABOVE_ALL
 	blend_mode = BLEND_ADD
-
-/atom/movable/screen/fullscreen/darksight/update_for_view(client_view)
-	view = client_view
+	show_when_dead = TRUE
 
 /atom/movable/screen/fullscreen/fog
 	icon = 'icons/mob/screen_fog.dmi'

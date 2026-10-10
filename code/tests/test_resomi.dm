@@ -136,7 +136,12 @@
 	TEST_ASSERT(HAS_TRAIT(resomi, TRAIT_GOOD_HEARING), "resomi ears do not give good hearing")
 	var/obj/item/organ/internal/eyes/eyes = resomi.get_int_organ(/obj/item/organ/internal/eyes)
 	TEST_ASSERT_EQUAL(eyes.see_in_dark, 5, "resomi night vision is not five tiles")
-	TEST_ASSERT(eyes.has_darksight, "resomi eyes give no darksight")
+	resomi.overlay_fullscreen("see_through_darkness", /atom/movable/screen/fullscreen/see_through_darkness)
+	resomi.dna.species.update_sight(resomi)
+	resomi.sync_nightvision_screen()
+	var/atom/movable/screen/fullscreen/darkness_screen = resomi.screens["see_through_darkness"]
+	TEST_ASSERT_EQUAL(darkness_screen.icon_state, "nightvision_5", "resomi do not see five tiles into the darkness")
+	TEST_ASSERT(icon_exists(darkness_screen.icon, darkness_screen.icon_state), "there is no night vision sprite for resomi")
 	TEST_ASSERT_EQUAL(resomi.blood_volume, BLOOD_VOLUME_NORMAL * 0.6, "resomi blood volume is not 40% lower")
 	TEST_ASSERT_EQUAL(resomi.max_blood, BLOOD_VOLUME_NORMAL * 0.6, "resomi blood vessel still holds human blood volume")
 	resomi.setBlood((BLOOD_VOLUME_BAD - 10) * 0.6)
@@ -173,7 +178,11 @@
 	neighbour.attack_hand(resomi)
 	TEST_ASSERT(neighbour.loc == resomi, "resomi cannot take an item lying next to them in the backpack")
 	TEST_ASSERT_NOT(bag.IsReachableBy(resomi), "resomi can grab the backpack they sit in")
-	resomi.drop_transfer_item_to_loc(neighbour, bag, silent = TRUE)
+	usr = resomi
+	neighbour.run_drop_held_item(resomi)
+	usr = null
+	TEST_ASSERT(neighbour.loc == bag, "an item dropped by a resomi hiding in a backpack fell out of it")
+	TEST_ASSERT_NULL(resomi.get_active_hand(), "an item dropped by a resomi into the backpack stayed in their hand")
 	var/contents_before_drop = length(bag.contents)
 	var/obj/item/crowbar/large/dropped = new(resomi)
 	resomi.put_in_hands(dropped)

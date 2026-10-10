@@ -1215,11 +1215,6 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 		human.lighting_cutoff = initial(human.lighting_cutoff)
 		human.lighting_color_cutoffs = list(human.lighting_cutoff_red, human.lighting_cutoff_green, human.lighting_cutoff_blue)
 
-	if(eyes?.has_darksight && get_turf(human.client?.eye) == get_turf(human))
-		human.overlay_fullscreen("darksight", /atom/movable/screen/fullscreen/darksight)
-	else
-		human.clear_fullscreen("darksight", animated = FALSE)
-
 	if(human.client && human.client.eye != human)
 		var/atom/atom = human.client.eye
 		if(atom && atom.update_remote_sight(human)) //returns 1 if we override all other sight updates.

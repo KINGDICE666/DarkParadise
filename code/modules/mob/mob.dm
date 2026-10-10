@@ -1218,6 +1218,19 @@ GAME_VERB(/mob/dead/observer, respawn, "Стать животным", VERB_CATEG
 		return
 	for(var/atom/movable/screen/plane_master/rendering_plate/lighting/light_plane as anything in hud_used.get_true_plane_masters(RENDER_PLANE_LIGHTING))
 		light_plane.set_light_cutoff(lighting_cutoff, lighting_color_cutoffs)
+	sync_nightvision_screen()
+
+/mob/proc/sync_nightvision_screen()
+	var/atom/movable/screen/fullscreen/see_through_darkness/darkness_screen = screens["see_through_darkness"]
+	if(!darkness_screen)
+		return
+	var/suffix = ""
+	switch(nightvision)
+		if(3 to 8)
+			suffix = "_[nightvision]"
+		if(8 to INFINITY)
+			suffix = "_8"
+	darkness_screen.icon_state = "[darkness_screen::icon_state][suffix]"
 
 ///Adjust the nutrition of a mob
 /mob/proc/adjust_nutrition(change, forced)
