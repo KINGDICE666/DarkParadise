@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import {
   Box,
   Button,
   ByondUi,
+  FitText,
   Floating,
+  Icon,
   Input,
   LabeledList,
   NoticeBox,
@@ -21,8 +23,16 @@ import {
   type PreferencesMenuData,
 } from '../types';
 import { useServerPrefs } from '../useServerPrefs';
+import { DeleteCharacterPopup } from './DeleteCharacterPopup';
 
-const CELL_SIZE = 48;
+const CLOTHING_CELL_SIZE = 48;
+const CLOTHING_SIDEBAR_ROWS = 9;
+
+const CLOTHING_SELECTION_CELL_SIZE = 48;
+const CLOTHING_SELECTION_WIDTH = 5.4;
+const CLOTHING_SELECTION_MULTIPLIER = 5.2;
+
+const PREVIEW_REFRESH_DELAY = 300;
 
 const SUPPLEMENTAL: Record<string, string[]> = {
   hair_style_name: ['hair_colour', 'secondary_hair_colour'],
@@ -35,11 +45,109 @@ const SUPPLEMENTAL: Record<string, string[]> = {
   undershirt: ['undershirt_color'],
 };
 
-const GENDER_ICONS: Record<string, string> = {
-  male: 'mars',
-  female: 'venus',
-  plural: 'genderless',
+const GENDERS: Record<string, { icon: string; text: string }> = {
+  male: { icon: 'mars', text: 'Мужской' },
+  female: { icon: 'venus', text: 'Женский' },
+  plural: { icon: 'transgender', text: 'Множественный' },
+  neuter: { icon: 'neuter', text: 'Средний' },
 };
+
+type CharacterControlsProps = {
+  handleRotate: () => void;
+  handleOpenSpecies: () => void;
+  gender: string;
+  genders: string[];
+  setGender: (gender: string) => void;
+  canDeleteCharacter: boolean;
+  handleDeleteCharacter: () => void;
+};
+
+function CharacterControls(props: CharacterControlsProps) {
+  return (
+    <Stack>
+      <Stack.Item>
+        <Button
+          onClick={props.handleRotate}
+          fontSize="22px"
+          icon="undo"
+          tooltip="Повернуть"
+          tooltipPosition="top"
+        />
+      </Stack.Item>
+
+      <Stack.Item>
+        <Button
+          onClick={props.handleOpenSpecies}
+          fontSize="22px"
+          icon="paw"
+          tooltip="Раса"
+          tooltipPosition="top"
+        />
+      </Stack.Item>
+
+      {props.genders.length > 1 && (
+        <Stack.Item>
+          <GenderButton
+            gender={props.gender}
+            genders={props.genders}
+            handleSetGender={props.setGender}
+          />
+        </Stack.Item>
+      )}
+
+      <Stack.Item>
+        <Button
+          onClick={props.handleDeleteCharacter}
+          fontSize="22px"
+          icon="trash"
+          color="red"
+          tooltip="Удалить персонажа"
+          tooltipPosition="top"
+          disabled={!props.canDeleteCharacter}
+        />
+      </Stack.Item>
+    </Stack>
+  );
+}
+
+type GenderButtonProps = {
+  gender: string;
+  genders: string[];
+  handleSetGender: (gender: string) => void;
+};
+
+function GenderButton(props: GenderButtonProps) {
+  return (
+    <Floating
+      placement="right"
+      content={
+        <Stack backgroundColor="white" p={0.3}>
+          {props.genders.map((gender) => (
+            <Stack.Item key={gender}>
+              <Button
+                selected={gender === props.gender}
+                onClick={() => props.handleSetGender(gender)}
+                fontSize="22px"
+                icon={GENDERS[gender]?.icon || 'question'}
+                tooltip={GENDERS[gender]?.text || gender}
+                tooltipPosition="top"
+              />
+            </Stack.Item>
+          ))}
+        </Stack>
+      }
+    >
+      <div>
+        <Button
+          fontSize="22px"
+          icon={GENDERS[props.gender]?.icon || 'question'}
+          tooltip="Пол"
+          tooltipPosition="top"
+        />
+      </div>
+    </Floating>
+  );
+}
 
 function SupplementalColors(props: { featureId: string }) {
   const { data } = useBackend<PreferencesMenuData>();
@@ -60,70 +168,6 @@ function SupplementalColors(props: { featureId: string }) {
         </Stack.Item>
       ))}
     </Stack>
-  );
-}
-
-type AccessorySelectionProps = {
-  featureId: string;
-  catalog: ChoicedServerData;
-  selected: string;
-  onSelect: (value: string) => void;
-};
-
-function AccessorySelection(props: AccessorySelectionProps) {
-  const { data } = useBackend<PreferencesMenuData>();
-  const { featureId, catalog } = props;
-  const [searchText, setSearchText] = useState('');
-  const choices = (data.character_preferences.valid_choices?.[featureId] ||
-    catalog.choices) as string[];
-  const search = createSearch(searchText, (choice: string) => choice);
-
-  return (
-    <Box
-      className="ChoicedSelection"
-      style={{
-        height: `${CELL_SIZE * 6}px`,
-        width: `${CELL_SIZE * 6.2}px`,
-      }}
-    >
-      <Stack fill vertical g={0}>
-        <Stack.Item>
-          <Section
-            fill
-            title={features[featureId]?.name || catalog.name}
-            buttons={<SupplementalColors featureId={featureId} />}
-          >
-            <Input
-              autoFocus
-              fluid
-              placeholder="Поиск..."
-              onChange={setSearchText}
-            />
-          </Section>
-        </Stack.Item>
-        <Stack.Item grow>
-          <Section fill scrollable noTopPadding>
-            <Stack wrap>
-              {choices.filter(search).map((choice) => (
-                <Button
-                  key={choice}
-                  onClick={() => props.onSelect(choice)}
-                  selected={choice === props.selected}
-                  tooltip={choice}
-                  tooltipPosition="right"
-                  style={{
-                    height: `${CELL_SIZE}px`,
-                    width: `${CELL_SIZE}px`,
-                  }}
-                >
-                  <AccessoryIcon catalog={catalog} value={choice} scale={1} />
-                </Button>
-              ))}
-            </Stack>
-          </Section>
-        </Stack.Item>
-      </Stack>
-    </Box>
   );
 }
 
@@ -158,6 +202,73 @@ function AccessoryIcon(props: {
   );
 }
 
+type ChoicedSelectionProps = {
+  featureId: string;
+  name: string;
+  catalog: ChoicedServerData;
+  selected: string;
+  onSelect: (value: string) => void;
+};
+
+function ChoicedSelection(props: ChoicedSelectionProps) {
+  const { data } = useBackend<PreferencesMenuData>();
+  const { featureId, catalog } = props;
+  const [searchText, setSearchText] = useState('');
+  const choices = (data.character_preferences.valid_choices?.[featureId] ||
+    catalog.choices) as string[];
+  const search = createSearch(searchText, (choice: string) => choice);
+
+  return (
+    <Box
+      className="ChoicedSelection"
+      style={{
+        height: `${
+          CLOTHING_SELECTION_CELL_SIZE * CLOTHING_SELECTION_MULTIPLIER
+        }px`,
+        width: `${CLOTHING_SELECTION_CELL_SIZE * CLOTHING_SELECTION_WIDTH}px`,
+      }}
+    >
+      <Stack fill vertical g={0}>
+        <Stack.Item>
+          <Section
+            fill
+            title={`Выбор: ${props.name.toLowerCase()}`}
+            buttons={<SupplementalColors featureId={featureId} />}
+          >
+            <Input
+              autoFocus
+              fluid
+              placeholder="Поиск..."
+              onChange={setSearchText}
+            />
+          </Section>
+        </Stack.Item>
+        <Stack.Item grow>
+          <Section fill scrollable noTopPadding>
+            <Stack wrap>
+              {choices.filter(search).map((choice) => (
+                <Button
+                  key={choice}
+                  onClick={() => props.onSelect(choice)}
+                  selected={choice === props.selected}
+                  tooltip={choice}
+                  tooltipPosition="right"
+                  style={{
+                    height: `${CLOTHING_SELECTION_CELL_SIZE}px`,
+                    width: `${CLOTHING_SELECTION_CELL_SIZE}px`,
+                  }}
+                >
+                  <AccessoryIcon catalog={catalog} value={choice} scale={0.8} />
+                </Button>
+              ))}
+            </Stack>
+          </Section>
+        </Stack.Item>
+      </Stack>
+    </Box>
+  );
+}
+
 function MainFeature(props: { featureId: string; value: string }) {
   const { act } = useBackend<PreferencesMenuData>();
   const catalog = useServerPrefs()?.[props.featureId] as
@@ -165,61 +276,56 @@ function MainFeature(props: { featureId: string; value: string }) {
     | undefined;
 
   if (!catalog) {
-    return (
-      <Button height={`${CELL_SIZE}px`} width={`${CELL_SIZE}px`} disabled />
-    );
+    return <Button height={4} width={4} disabled />;
   }
 
   return (
-    <Stack vertical g={0.3} align="center">
-      <Stack.Item>
-        <Floating
-          stopChildPropagation
-          placement="right-start"
-          content={
-            <AccessorySelection
-              featureId={props.featureId}
-              catalog={catalog}
-              selected={props.value}
-              onSelect={createSetPreference(act, props.featureId)}
-            />
-          }
-        >
-          <Button
-            tooltip={`${features[props.featureId]?.name}: ${props.value}`}
-            tooltipPosition="right"
-            position="relative"
-            style={{
-              height: `${CELL_SIZE}px`,
-              width: `${CELL_SIZE}px`,
-            }}
-          >
-            <AccessoryIcon catalog={catalog} value={props.value} scale={1.3} />
-          </Button>
-        </Floating>
-      </Stack.Item>
-      <Stack.Item>
-        <SupplementalColors featureId={props.featureId} />
-      </Stack.Item>
-    </Stack>
+    <Floating
+      stopChildPropagation
+      placement="right-start"
+      content={
+        <ChoicedSelection
+          featureId={props.featureId}
+          name={features[props.featureId]?.name || catalog.name || ''}
+          catalog={catalog}
+          selected={props.value}
+          onSelect={createSetPreference(act, props.featureId)}
+        />
+      }
+    >
+      <Button
+        style={{
+          height: `${CLOTHING_CELL_SIZE}px`,
+          width: `${CLOTHING_CELL_SIZE}px`,
+        }}
+        position="relative"
+      >
+        <AccessoryIcon catalog={catalog} value={props.value} scale={1.3} />
+      </Button>
+    </Floating>
   );
 }
 
-function PreferenceList(props: { preferences: Record<string, unknown> }) {
+type PreferenceListProps = {
+  preferences: Record<string, unknown>;
+  children?: ReactNode;
+};
+
+function PreferenceList(props: PreferenceListProps) {
   const entries = Object.entries(props.preferences)
     .filter(([featureId]) => features[featureId])
     .sort(([a], [b]) => features[a].name.localeCompare(features[b].name));
 
-  if (!entries.length) {
-    return null;
-  }
-
   return (
-    <Box
+    <Stack.Item
+      basis="50%"
+      grow
       style={{
         background: 'rgba(0, 0, 0, 0.5)',
         padding: '4px',
       }}
+      overflowX="hidden"
+      overflowY="auto"
     >
       <LabeledList>
         {entries.map(([featureId, value]) => (
@@ -233,285 +339,221 @@ function PreferenceList(props: { preferences: Record<string, unknown> }) {
               <Stack.Item grow>
                 <FeatureValueInput featureId={featureId} value={value} />
               </Stack.Item>
-              <RandomizeButton featureId={featureId} />
             </Stack>
           </LabeledList.Item>
         ))}
+        {props.children}
       </LabeledList>
-    </Box>
-  );
-}
-
-function RandomizeButton(props: { featureId: string }) {
-  const { act } = useBackend<PreferencesMenuData>();
-  const kind = features[props.featureId]?.kind;
-  if (kind === 'toggle' || kind === 'textarea') {
-    return null;
-  }
-
-  return (
-    <Stack.Item>
-      <Button
-        icon="dice"
-        tooltip="Случайно"
-        onClick={() =>
-          act('randomize_preference', { preference: props.featureId })
-        }
-      />
     </Stack.Item>
   );
 }
 
-function SpeciesSelection(props: { current: string }) {
-  const { act, data } = useBackend<PreferencesMenuData>();
-  const species = useServerPrefs()?.species || {};
-  const choices = (data.character_preferences.valid_choices?.species ||
-    Object.keys(species)) as string[];
+type NameInputProps = {
+  name: string;
+  handleUpdateName: (name: string) => void;
+};
 
-  return (
-    <Box
-      className="ChoicedSelection"
-      style={{ width: '360px', maxHeight: '420px' }}
-    >
-      <Section title="Раса" scrollable fill>
-        {choices.map((speciesName) => (
-          <Button
-            key={speciesName}
-            fluid
-            selected={speciesName === props.current}
-            tooltip={species[speciesName]?.desc}
-            tooltipPosition="right"
-            onClick={() =>
-              act('set_preference', {
-                preference: 'species',
-                value: speciesName,
-              })
-            }
-          >
-            {species[speciesName]?.name || speciesName}
-          </Button>
-        ))}
-      </Section>
-    </Box>
+function NameInput(props: NameInputProps) {
+  const [lastNameBeforeEdit, setLastNameBeforeEdit] = useState<string | null>(
+    null,
   );
-}
+  const editing = lastNameBeforeEdit === props.name;
 
-function GenderButtons(props: { gender: string }) {
-  const { act, data } = useBackend<PreferencesMenuData>();
-  const choices = (data.character_preferences.valid_choices?.gender || [
-    'male',
-    'female',
-  ]) as string[];
+  function updateName(value: string) {
+    setLastNameBeforeEdit(null);
+    props.handleUpdateName(value);
+  }
 
   return (
-    <Stack g={0.5}>
-      {choices.map((gender) => (
-        <Stack.Item key={gender}>
-          <Button
-            fontSize="18px"
-            icon={GENDER_ICONS[gender] || 'question'}
-            selected={gender === props.gender}
-            tooltip={
-              gender === 'male'
-                ? 'Мужской'
-                : gender === 'female'
-                  ? 'Женский'
-                  : 'Бесполый'
-            }
-            onClick={() =>
-              act('set_preference', { preference: 'gender', value: gender })
-            }
+    <Button
+      captureKeys={!editing}
+      onClick={() => setLastNameBeforeEdit(props.name)}
+      textAlign="center"
+      width="100%"
+      height="28px"
+    >
+      <Stack align="center" fill>
+        <Stack.Item>
+          <Icon
+            style={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: '17px',
+            }}
+            name="edit"
           />
         </Stack.Item>
-      ))}
-    </Stack>
-  );
-}
 
-function NameInput() {
-  const { act, data } = useBackend<PreferencesMenuData>();
-  const [editing, setEditing] = useState(false);
-  const name = data.character_preferences.names.real_name;
-  const alwaysRandom =
-    data.character_preferences.manually_rendered_features.name_is_always_random;
-
-  return (
-    <Stack vertical g={0.5}>
-      <Stack.Item>
-        <Stack>
-          <Stack.Item grow>
-            {editing ? (
-              <Input
-                autoFocus
-                fluid
-                value={name}
-                onBlur={(value) => {
-                  setEditing(false);
-                  act('set_preference', { preference: 'real_name', value });
-                }}
-              />
-            ) : (
-              <Button
-                fluid
-                icon="edit"
-                textAlign="center"
-                fontSize="1.2em"
-                onClick={() => setEditing(true)}
-              >
-                {name}
-              </Button>
-            )}
-          </Stack.Item>
-          <Stack.Item>
-            <Button
-              icon="dice"
-              fontSize="1.2em"
-              tooltip="Случайное имя"
-              onClick={() =>
-                act('randomize_preference', { preference: 'real_name' })
-              }
+        <Stack.Item grow position="relative">
+          {editing ? (
+            <Input
+              autoSelect
+              onBlur={updateName}
+              onEscape={() => setLastNameBeforeEdit(null)}
+              value={props.name}
             />
-          </Stack.Item>
-        </Stack>
-      </Stack.Item>
-      <Stack.Item>
-        <Button.Checkbox
-          checked={!!alwaysRandom}
-          onClick={() =>
-            act('set_preference', {
-              preference: 'name_is_always_random',
-              value: !alwaysRandom,
-            })
-          }
-        >
-          Каждый раунд случайное имя
-        </Button.Checkbox>
-      </Stack.Item>
-    </Stack>
+          ) : (
+            <FitText maxFontSize={16} maxWidth={130}>
+              {props.name}
+            </FitText>
+          )}
+
+          <Box
+            style={{
+              borderBottom: '2px dotted rgba(255, 255, 255, 0.8)',
+              right: '50%',
+              transform: 'translateX(50%)',
+              position: 'absolute',
+              width: '90%',
+              bottom: '-1px',
+            }}
+          />
+        </Stack.Item>
+      </Stack>
+    </Button>
   );
 }
 
-export function MainPage(props: { visible: boolean }) {
+export function MainPage(props: { visible: boolean; openSpecies: () => void }) {
   const { act, data } = useBackend<PreferencesMenuData>();
+  const [deleteCharacterPopupOpen, setDeleteCharacterPopupOpen] =
+    useState(false);
   const prefs = data.character_preferences;
-  const species = useServerPrefs()?.species || {};
   const ready = !!prefs.manually_rendered_features;
-  const currentSpecies = prefs.manually_rendered_features?.species as string;
   const mainFeatures = [
-    ...Object.entries(prefs.features || {}),
     ...Object.entries(prefs.clothing || {}),
+    ...Object.entries(prefs.features || {}),
   ];
 
   useEffect(() => {
     Byond.winset(data.character_preview_view, { 'is-visible': props.visible });
-    if (props.visible) {
-      globalEvents.emit('window-geometry-finished');
-      act('show_preview');
+    if (!props.visible) {
+      return;
     }
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    const refreshPreview = () => {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(
+        () => act('show_preview'),
+        PREVIEW_REFRESH_DELAY,
+      );
+    };
+    globalEvents.on('window-geometry-finished', refreshPreview);
+    globalEvents.emit('window-geometry-finished');
+    return () => {
+      clearTimeout(refreshTimer);
+      globalEvents.off('window-geometry-finished', refreshPreview);
+    };
   }, [props.visible]);
 
+  const nonContextualPreferences = ready
+    ? {
+        ...prefs.non_contextual,
+        name_is_always_random:
+          prefs.manually_rendered_features.name_is_always_random,
+      }
+    : {};
+
   return (
-    <Stack fill>
-      <Stack.Item>
-        <Stack vertical fill>
-          <Stack.Item>
-            {ready && (
-              <Stack>
-                <Stack.Item>
-                  <Button
-                    icon="undo"
-                    fontSize="18px"
-                    tooltip="Повернуть"
-                    onClick={() => act('rotate')}
-                  />
-                </Stack.Item>
-                <Stack.Item>
-                  <Floating
-                    placement="right-start"
-                    content={<SpeciesSelection current={currentSpecies} />}
-                  >
-                    <Button
-                      icon="paw"
-                      fontSize="18px"
-                      tooltip={`Раса: ${species[currentSpecies]?.name || currentSpecies}`}
-                    />
-                  </Floating>
-                </Stack.Item>
-                <Stack.Item>
-                  <GenderButtons
-                    gender={prefs.manually_rendered_features.gender as string}
-                  />
-                </Stack.Item>
-                <Stack.Item>
-                  <Button
-                    icon="shirt"
-                    fontSize="18px"
-                    tooltip="Одежда профессии"
-                    onClick={() => act('toggle_job_clothes')}
-                  />
-                </Stack.Item>
-                <Stack.Item>
-                  <Button.Confirm
-                    icon="random"
-                    fontSize="18px"
-                    tooltip="Случайная внешность"
-                    confirmContent={null}
-                    confirmIcon="check"
-                    disabled={!!data.appearance_banned}
-                    onClick={() => act('randomize_character')}
-                  />
-                </Stack.Item>
-              </Stack>
-            )}
-          </Stack.Item>
-          <Stack.Item grow>
-            <ByondUi
-              width="220px"
-              height="100%"
-              params={{ id: data.character_preview_view, type: 'map' }}
-            />
-          </Stack.Item>
-          <Stack.Item width="220px">{ready && <NameInput />}</Stack.Item>
-        </Stack>
-      </Stack.Item>
+    <>
+      {deleteCharacterPopupOpen && (
+        <DeleteCharacterPopup
+          close={() => setDeleteCharacterPopupOpen(false)}
+        />
+      )}
 
-      <Stack.Item>
-        <Stack vertical wrap fill>
-          {ready &&
-            mainFeatures.map(([featureId, value]) => (
-              <Stack.Item key={featureId}>
-                <MainFeature featureId={featureId} value={value} />
-              </Stack.Item>
-            ))}
-        </Stack>
-      </Stack.Item>
-
-      <Stack.Item grow basis={0}>
-        {ready && (
+      <Stack height={`${CLOTHING_SIDEBAR_ROWS * CLOTHING_CELL_SIZE}px`}>
+        <Stack.Item>
           <Stack vertical fill>
-            {!!data.appearance_banned && (
-              <Stack.Item>
-                <NoticeBox danger>
-                  Вам запрещено изменять внешность. После присоединения к раунду
-                  персонаж будет сгенерирован случайно.
-                </NoticeBox>
-              </Stack.Item>
-            )}
             <Stack.Item>
-              <Section title={species[currentSpecies]?.name || currentSpecies}>
-                <PreferenceList preferences={prefs.secondary_features || {}} />
-              </Section>
+              {ready && (
+                <CharacterControls
+                  gender={prefs.manually_rendered_features.gender as string}
+                  genders={
+                    (prefs.valid_choices?.gender as string[]) || [
+                      'male',
+                      'female',
+                    ]
+                  }
+                  handleOpenSpecies={props.openSpecies}
+                  handleRotate={() => act('rotate')}
+                  setGender={createSetPreference(act, 'gender')}
+                  canDeleteCharacter={!!data.saved}
+                  handleDeleteCharacter={() =>
+                    setDeleteCharacterPopupOpen(true)
+                  }
+                />
+              )}
             </Stack.Item>
+
             <Stack.Item grow>
-              <Section title="Персонаж" fill scrollable>
-                <PreferenceList preferences={prefs.non_contextual || {}} />
-                <VoiceAndSound />
-              </Section>
+              <ByondUi
+                width="220px"
+                height="100%"
+                params={{ id: data.character_preview_view, type: 'map' }}
+              />
+            </Stack.Item>
+
+            <Stack.Item position="relative">
+              {ready && (
+                <NameInput
+                  name={prefs.names.real_name}
+                  handleUpdateName={createSetPreference(act, 'real_name')}
+                />
+              )}
             </Stack.Item>
           </Stack>
-        )}
-      </Stack.Item>
-    </Stack>
+        </Stack.Item>
+
+        <Stack.Item>
+          <Stack fill vertical wrap>
+            {ready &&
+              mainFeatures.map(([featureId, value]) => (
+                <Stack.Item key={featureId}>
+                  <MainFeature featureId={featureId} value={value} />
+                </Stack.Item>
+              ))}
+          </Stack>
+        </Stack.Item>
+
+        <Stack.Item grow basis={0}>
+          {ready && (
+            <Stack vertical fill>
+              <PreferenceList preferences={prefs.secondary_features || {}} />
+
+              <PreferenceList preferences={nonContextualPreferences}>
+                <LabeledList.Item label="Случайная внешность">
+                  <Button.Confirm
+                    icon="dice"
+                    confirmContent="Уверены?"
+                    disabled={!!data.appearance_banned}
+                    onClick={() => act('randomize_character')}
+                  >
+                    Сгенерировать
+                  </Button.Confirm>
+                </LabeledList.Item>
+                <LabeledList.Item label="Одежда профессии на превью">
+                  <Button
+                    icon="shirt"
+                    onClick={() => act('toggle_job_clothes')}
+                  >
+                    Переключить
+                  </Button>
+                </LabeledList.Item>
+                <VoiceAndSound />
+                {!!data.appearance_banned && (
+                  <LabeledList.Item>
+                    <NoticeBox danger>
+                      Вам запрещено изменять внешность. После присоединения к
+                      раунду персонаж будет сгенерирован случайно.
+                    </NoticeBox>
+                  </LabeledList.Item>
+                )}
+              </PreferenceList>
+            </Stack>
+          )}
+        </Stack.Item>
+      </Stack>
+    </>
   );
 }
 
@@ -524,28 +566,26 @@ function VoiceAndSound() {
     .species as string;
 
   return (
-    <Box mt={1}>
-      <LabeledList>
-        {!!data.tts_enabled && (
-          <LabeledList.Item label="Голос">
-            <Button icon="microphone" onClick={() => act('open_tts_explorer')}>
-              {data.tts_seed || 'Не выбран'}
-            </Button>
-          </LabeledList.Item>
-        )}
-        <LabeledList.Item label="Громкость">
-          <Button icon="volume-up" onClick={() => act('open_volume_mixer')}>
-            Микшер громкости
+    <>
+      {!!data.tts_enabled && (
+        <LabeledList.Item label="Голос">
+          <Button icon="microphone" onClick={() => act('open_tts_explorer')}>
+            {data.tts_seed || 'Не выбран'}
           </Button>
         </LabeledList.Item>
-        {speciesLabels?.[currentSpecies] &&
-          data.character_preferences.non_contextual.speciesprefs !==
-            undefined && (
-            <LabeledList.Item label="Расовая особенность">
-              {speciesLabels[currentSpecies]}
-            </LabeledList.Item>
-          )}
-      </LabeledList>
-    </Box>
+      )}
+      <LabeledList.Item label="Громкость">
+        <Button icon="volume-up" onClick={() => act('open_volume_mixer')}>
+          Микшер громкости
+        </Button>
+      </LabeledList.Item>
+      {speciesLabels?.[currentSpecies] &&
+        data.character_preferences.non_contextual.speciesprefs !==
+          undefined && (
+          <LabeledList.Item label="Расовая особенность">
+            {speciesLabels[currentSpecies]}
+          </LabeledList.Item>
+        )}
+    </>
   );
 }

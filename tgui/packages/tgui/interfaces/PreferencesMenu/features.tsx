@@ -180,13 +180,32 @@ function useChoices(featureId: string) {
 function DropdownInput(props: FeatureInputProps & { onSet: (v) => void }) {
   const options = useChoices(props.featureId);
   const selected = options.find((option) => option.value === props.value);
+  const serverData = useServerPrefs()?.[props.featureId] as
+    | ChoicedServerData
+    | undefined;
+  const icons = serverData?.icons;
 
   return (
     <Dropdown
       width="100%"
-      selected={selected?.displayText ?? String(props.value)}
+      buttons={!!icons}
+      menuWidth={icons ? 'max-content' : undefined}
+      selected={String(props.value)}
+      displayText={selected?.displayText ?? String(props.value)}
       options={options.map((option) => ({
-        displayText: option.displayText,
+        displayText: icons?.[option.value] ? (
+          <Stack>
+            <Stack.Item>
+              <Box
+                className={`${serverData?.icon_sheet} ${icons[option.value]}`}
+                style={{ transform: 'scale(0.8)' }}
+              />
+            </Stack.Item>
+            <Stack.Item grow>{option.displayText}</Stack.Item>
+          </Stack>
+        ) : (
+          option.displayText
+        ),
         value: String(option.value),
       }))}
       onSelected={(value) => {

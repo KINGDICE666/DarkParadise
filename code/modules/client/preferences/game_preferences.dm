@@ -150,7 +150,7 @@
 	return list(SQUARE_VIEWPORT_SIZE, WIDESCREEN_PARTIAL_VIEWPORT_SIZE, WIDESCREEN_VIEWPORT_SIZE)
 
 /datum/preference/choiced/view_range/create_default_value()
-	return WIDESCREEN_PARTIAL_VIEWPORT_SIZE
+	return WIDESCREEN_VIEWPORT_SIZE
 
 /datum/preference/choiced/view_range/apply_to_client_updated(client/client, value)
 	client.view_size?.setDefault(VIEWPORT_USE_PREF)

@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import { Box, Button, Dropdown, Stack } from 'tgui-core/components';
+import { Box, Dropdown, Stack } from 'tgui-core/components';
 
 import { useBackend } from '../../../backend';
 import { ModuleBackendContext } from '../../common/ModuleBackend';
@@ -10,55 +10,39 @@ import type { PreferencesMenuData } from '../types';
 import { AntagsPage } from './AntagsPage';
 import { BodyPage } from './BodyPage';
 import { MainPage } from './MainPage';
+import { SpeciesPage } from './SpeciesPage';
+
+const PROFILES_VISIBLE_UNLOCKED = 3;
+const PROFILES_VISIBLE_LOCKED = 4;
 
 enum Page {
   Main,
+  Species,
   Loadout,
   Jobs,
   Antags,
   Body,
 }
 
-function CharacterSlots() {
+function CharacterProfiles() {
   const { act, data } = useBackend<PreferencesMenuData>();
-  const profiles = data.character_profiles || [];
-  const options = profiles.map((profile, index) => ({
+  const options = (data.character_profiles || []).map((profile, index) => ({
     displayText: `${index + 1}. ${profile ?? 'Новый персонаж'}`,
     value: String(index + 1),
   }));
 
   return (
-    <Stack align="center">
-      <Stack.Item grow>
-        <Dropdown
-          width="100%"
-          selected={options[data.active_slot - 1]?.displayText}
-          options={options}
-          onSelected={(slot) => act('change_slot', { slot: Number(slot) })}
-        />
-      </Stack.Item>
-      <Stack.Item>
-        <Button icon="save" onClick={() => act('save')}>
-          Сохранить
-        </Button>
-      </Stack.Item>
-      <Stack.Item>
-        <Button icon="sync" onClick={() => act('reload')}>
-          Отменить изменения
-        </Button>
-      </Stack.Item>
-      <Stack.Item>
-        <Button.Confirm
-          icon="trash"
-          color="bad"
-          disabled={!data.saved}
-          confirmContent="Удалить персонажа?"
-          onClick={() => act('remove_current_slot')}
-        >
-          Удалить
-        </Button.Confirm>
-      </Stack.Item>
-    </Stack>
+    <Dropdown
+      width="100%"
+      maxItems={
+        data.content_unlocked
+          ? PROFILES_VISIBLE_UNLOCKED
+          : PROFILES_VISIBLE_LOCKED
+      }
+      selected={options[data.active_slot - 1]?.displayText}
+      options={options}
+      onSelected={(slot) => act('change_slot', { slot: Number(slot) })}
+    />
   );
 }
 
@@ -88,6 +72,11 @@ export function CharacterPreferenceWindow(props: { visible: boolean }) {
 
   let pageContents;
   switch (currentPage) {
+    case Page.Species:
+      pageContents = (
+        <SpeciesPage closeSpecies={() => setCurrentPage(Page.Main)} />
+      );
+      break;
     case Page.Loadout:
       pageContents = (
         <EmbeddedModule
@@ -116,13 +105,11 @@ export function CharacterPreferenceWindow(props: { visible: boolean }) {
   return (
     <Stack vertical fill>
       <Stack.Item>
-        <CharacterSlots />
+        <CharacterProfiles />
       </Stack.Item>
       {!data.content_unlocked && (
         <Stack.Item align="center">
-          <Box color="label">
-            Купите BYOND premium, чтобы получить больше слотов!
-          </Box>
+          Купите BYOND premium, чтобы получить больше слотов!
         </Stack.Item>
       )}
       <Stack.Divider />
@@ -133,6 +120,7 @@ export function CharacterPreferenceWindow(props: { visible: boolean }) {
               currentPage={currentPage}
               page={Page.Main}
               setPage={setCurrentPage}
+              otherActivePages={[Page.Species]}
             >
               Персонаж
             </PageButton>
@@ -176,12 +164,15 @@ export function CharacterPreferenceWindow(props: { visible: boolean }) {
         </Stack>
       </Stack.Item>
       <Stack.Divider />
-      <Stack.Item grow position="relative" overflowX="auto" overflowY="auto">
+      <Stack.Item grow position="relative" overflowX="hidden" overflowY="auto">
         <Box
           height="100%"
           style={{ display: currentPage === Page.Main ? undefined : 'none' }}
         >
-          <MainPage visible={props.visible && currentPage === Page.Main} />
+          <MainPage
+            visible={props.visible && currentPage === Page.Main}
+            openSpecies={() => setCurrentPage(Page.Species)}
+          />
         </Box>
         {props.visible && pageContents}
       </Stack.Item>

@@ -62,7 +62,7 @@
 /datum/view_data/proc/getScreenSize()
 	if(chief.prefs.read_preference(/datum/preference/choiced/view_range))
 		return chief.prefs.read_preference(/datum/preference/choiced/view_range)
-	return WIDESCREEN_PARTIAL_VIEWPORT_SIZE
+	return WIDESCREEN_VIEWPORT_SIZE
 
 /datum/view_data/proc/resetToDefault()
 	width = 0

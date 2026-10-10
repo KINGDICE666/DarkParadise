@@ -1,3 +1,5 @@
+#define PREVIEW_REDISPLAY_DELAY (2 TICKS)
+
 /datum/preferences/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(ui)
@@ -47,6 +49,7 @@
 /datum/preferences/ui_assets(mob/user)
 	var/list/assets = list(
 		get_asset_datum(/datum/asset/spritesheet_batched/sprite_accessories),
+		get_asset_datum(/datum/asset/spritesheet_batched/species),
 		get_asset_datum(/datum/asset/json/preferences),
 	)
 
@@ -80,7 +83,7 @@
 			return TRUE
 		if("show_preview")
 			character_preview_view.hide_from(usr)
-			character_preview_view.display_to(usr)
+			addtimer(CALLBACK(character_preview_view, TYPE_PROC_REF(/atom/movable/screen/map_view, display_to), usr), PREVIEW_REDISPLAY_DELAY)
 			return FALSE
 		if("rotate")
 			character_preview_view.dir = turn(character_preview_view.dir, -90)
@@ -337,3 +340,5 @@
 	QDEL_NULL(body)
 	body = new
 	appearance = preferences.render_new_preview_appearance(body, show_job_clothes)
+
+#undef PREVIEW_REDISPLAY_DELAY

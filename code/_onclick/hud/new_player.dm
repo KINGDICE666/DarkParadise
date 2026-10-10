@@ -52,7 +52,7 @@
 		var/y_offset = LINK_BUTTON_ROW_Y - (row_start - 1) / LINK_BUTTONS_PER_ROW * LINK_BUTTON_STEP
 		for(var/atom/movable/screen/lobby/button/bottom/link/button as anything in row)
 			button.screen_loc = "EAST-3:[x_offset],CENTER:[y_offset]"
-			button.maptext_x = min(button.maptext_x, -x_offset)
+			button.maptext_x = NEW_PLAYER_INFO_BODY_CENTER - x_offset - button.maptext_width / 2
 			x_offset += LINK_BUTTON_STEP
 
 #undef LINK_BUTTON_ROW_Y

@@ -66,7 +66,7 @@
 		return
 	return ..()
 
-/mob/dead/new_player/add_to_current_dead_players()
+/mob/new_player/add_to_current_dead_players()
 	return
 
 ///Removes the mob reference from either the list of dead player-mobs or from the list of observers, depending on how they joined the game.
