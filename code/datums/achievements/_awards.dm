@@ -136,7 +136,7 @@
 	. = ..()
 	to_chat(user, span_greenannounce(span_bold("Получено достижение: [name]!")))
 
-	var/sound/sound_to_send = LAZYACCESS(GLOB.achievement_sounds, user.client.prefs.read_preference(/datum/preference/choiced/achievement_sound))
+	var/sound/sound_to_send = LAZYACCESS(GLOB.achievement_sounds, user.client.prefs.achivements_sound)
 	if(sound_to_send)
 		SEND_SOUND(user, sound_to_send)
 

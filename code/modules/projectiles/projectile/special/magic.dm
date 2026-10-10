@@ -461,9 +461,8 @@
 				new_mob = new /mob/living/carbon/human(M.loc)
 				var/mob/living/carbon/human/H = new_mob
 				var/datum/preferences/A = new()	//Randomize appearance for the human
-				A.write_preference(GLOB.preference_entries[/datum/preference/choiced/species], get_random_species(TRUE))
-				A.randomise_appearance_prefs()
-				A.apply_prefs_to(new_mob)
+				A.species = get_random_species(TRUE)
+				A.copy_to(new_mob)
 				randomize = H.dna.species.name
 				if(ishuman(M))
 					briefing_msg = "Вы тот же самый гуманоид, с тем же сознанием и той же памятью, \

@@ -37,7 +37,6 @@
 #include "test_painted_mask.dm"
 #include "test_paintings.dm"
 #include "test_portagrav.dm"
-#include "test_preferences.dm"
 #include "test_plane_double_transform.dm"
 #include "test_plane_dupe_detector.dm"
 #include "test_reagent_id_typos.dm"

@@ -650,10 +650,10 @@
 
 	if(!active_overlay)
 		active_overlay = mutable_appearance(icon, "hand_active")
-		prev_ui_style = user.client?.prefs?.read_preference(/datum/preference/choiced/ui_style)
-	else if(user.client?.prefs && user.client.prefs.read_preference(/datum/preference/choiced/ui_style) != prev_ui_style)
-		active_overlay.icon = ui_style2icon(user.client.prefs.read_preference(/datum/preference/choiced/ui_style))
-		prev_ui_style = user.client.prefs.read_preference(/datum/preference/choiced/ui_style)
+		prev_ui_style = user.client?.prefs?.UI_style
+	else if(user.client?.prefs && user.client.prefs.UI_style != prev_ui_style)
+		active_overlay.icon = ui_style2icon(user.client.prefs.UI_style)
+		prev_ui_style = user.client.prefs.UI_style
 
 	var/hand_blocked = FALSE
 	var/left_hand = (slot_id == ITEM_SLOT_HAND_LEFT)

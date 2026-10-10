@@ -72,12 +72,12 @@ GLOBAL_VAR_INIT(sent_clownsequritysquad, 0)
 
 	var/datum/preferences/A = new()//Randomize appearance for the commando.
 	if(honk_leader_selected)
-		A.write_preference(GLOB.preference_entries[/datum/preference/numeric/age], rand(35,45))
-		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[honksquad_leader_rank] [honksquad_name]")
+		A.age = rand(35,45)
+		A.real_name = "[honksquad_leader_rank] [honksquad_name]"
 	else
-		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[honksquad_rank] [honksquad_name]")
+		A.real_name = "[honksquad_rank] [honksquad_name]"
 	var/rankName = honk_leader_selected ? honksquad_leader_rank : honksquad_rank
-	A.apply_prefs_to(new_honksquad)
+	A.copy_to(new_honksquad)
 
 	new_honksquad.dna.ready_dna(new_honksquad)//Creates DNA.
 

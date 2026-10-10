@@ -86,7 +86,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 
 		P.alert_buttons += A
 
-		A.icon = ui_style2icon(M.client?.prefs.read_preference(/datum/preference/choiced/ui_style))
+		A.icon = ui_style2icon(M.client?.prefs.UI_style)
 		A.name = "Поиск кандидатов"
 		A.desc = "[question]\n\n(истекает через [poll_time / 10] секунд[DECL_SEC_MIN(poll_time / 10)])"
 		A.show_time_left = TRUE

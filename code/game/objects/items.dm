@@ -1189,7 +1189,7 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 /obj/item/proc/apply_outline(mob/user, outline_color = null)
 	if(!(item_flags & (IN_INVENTORY|IN_STORAGE)) || QDELETED(src) || isobserver(user)) //cancel if the item isn't in an inventory, is being deleted, or if the person hovering is a ghost (so that people spectating you don't randomly make your items glow)
 		return
-	var/theme = user.client.prefs.read_preference(/datum/preference/choiced/ui_style)
+	var/theme = user.client.prefs.UI_style
 	if(!outline_color) //if we weren't provided with a color, take the theme's color
 		switch(theme) //yeah it kinda has to be this way
 			if(UI_THEME_MIDNIGHT)

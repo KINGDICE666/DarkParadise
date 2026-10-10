@@ -14,7 +14,8 @@
 	. = ..()
 	var/mob/user = ui.user
 	if(action == "open_keybindings")
-		user.client.prefs.open_window(user, PREFERENCE_TAB_KEYBINDINGS)
+		user.client.prefs.current_tab = TAB_KEYS
+		user.client.prefs.ShowChoices(user)
 		user.client.uiclose(ui.window.id)
 		return TRUE
 

@@ -8,8 +8,8 @@ import {
   Tooltip,
 } from 'tgui-core/components';
 import { classes } from 'tgui-core/react';
+import { useBackend } from '../backend';
 import { Window } from '../layouts';
-import { useModuleBackend } from './common/ModuleBackend';
 
 enum JobPriority {
   High = 1,
@@ -102,7 +102,7 @@ type PriorityButtonsProps = {
 };
 
 function PriorityButtons(props: PriorityButtonsProps) {
-  const { act } = useModuleBackend<Data>();
+  const { act } = useBackend<Data>();
   const { job } = props;
 
   const setPriority = (level: JobPriority) => () =>
@@ -161,7 +161,7 @@ type JobRowProps = {
 };
 
 function JobRow(props: JobRowProps) {
-  const { act } = useModuleBackend<Data>();
+  const { act } = useBackend<Data>();
   const { job } = props;
 
   let name: ReactNode = job.name;
@@ -227,7 +227,7 @@ function Department(props: DepartmentProps) {
 }
 
 function AlternateOptionDropdown() {
-  const { act, data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
 
   const options = [
     {
@@ -269,17 +269,7 @@ function groupByDepartment(jobs: Job[]) {
 }
 
 export function JobPreferences() {
-  return (
-    <Window width={1400} height={520}>
-      <Window.Content>
-        <JobPreferencesContent />
-      </Window.Content>
-    </Window>
-  );
-}
-
-export function JobPreferencesContent() {
-  const { act, data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
   const departments = groupByDepartment(data.jobs);
 
   const knownDepartments = COLUMNS.flat();
@@ -291,62 +281,66 @@ export function JobPreferencesContent() {
   }
 
   return (
-    <Stack vertical fill>
-      <Stack.Item>
-        <Stack align="center">
+    <Window width={1400} height={520}>
+      <Window.Content>
+        <Stack vertical fill>
           <Stack.Item>
-            <Button icon="save" onClick={() => act('save')}>
-              Сохранить
-            </Button>
+            <Stack align="center">
+              <Stack.Item>
+                <Button icon="save" onClick={() => act('save')}>
+                  Сохранить
+                </Button>
+              </Stack.Item>
+              <Stack.Item>
+                <Button.Confirm
+                  icon="undo"
+                  confirmContent="Сбросить все?"
+                  onClick={() => act('reset')}
+                >
+                  Сброс
+                </Button.Confirm>
+              </Stack.Item>
+              {!!data.wiki && (
+                <Stack.Item>
+                  <Button icon="question" onClick={() => act('wiki')}>
+                    Узнать о выборе должности
+                  </Button>
+                </Stack.Item>
+              )}
+              <Stack.Item grow />
+              <Stack.Item width="30%">
+                <AlternateOptionDropdown />
+              </Stack.Item>
+            </Stack>
           </Stack.Item>
-          <Stack.Item>
-            <Button.Confirm
-              icon="undo"
-              confirmContent="Сбросить все?"
-              onClick={() => act('reset')}
-            >
-              Сброс
-            </Button.Confirm>
-          </Stack.Item>
-          {!!data.wiki && (
+          {data.jobs.length === 0 && (
             <Stack.Item>
-              <Button icon="question" onClick={() => act('wiki')}>
-                Узнать о выборе должности
-              </Button>
+              <NoticeBox>
+                Подсистема должностей ещё не успела создать должности,
+                пожалуйста, повторите попытку позже.
+              </NoticeBox>
             </Stack.Item>
           )}
-          <Stack.Item grow />
-          <Stack.Item width="30%">
-            <AlternateOptionDropdown />
+          <Stack.Item grow>
+            <Stack fill className="JobPreferences">
+              {columns.map((column) => (
+                <Stack.Item key={column[0]} className="JobPreferences__column">
+                  <PriorityHeaders />
+                  {column
+                    .filter((department) => departments[department])
+                    .map((department) => (
+                      <Department
+                        key={department}
+                        department={department}
+                        jobs={departments[department]}
+                      />
+                    ))}
+                </Stack.Item>
+              ))}
+            </Stack>
           </Stack.Item>
         </Stack>
-      </Stack.Item>
-      {data.jobs.length === 0 && (
-        <Stack.Item>
-          <NoticeBox>
-            Подсистема должностей ещё не успела создать должности, пожалуйста,
-            повторите попытку позже.
-          </NoticeBox>
-        </Stack.Item>
-      )}
-      <Stack.Item grow>
-        <Stack fill className="JobPreferences">
-          {columns.map((column) => (
-            <Stack.Item key={column[0]} className="JobPreferences__column">
-              <PriorityHeaders />
-              {column
-                .filter((department) => departments[department])
-                .map((department) => (
-                  <Department
-                    key={department}
-                    department={department}
-                    jobs={departments[department]}
-                  />
-                ))}
-            </Stack.Item>
-          ))}
-        </Stack>
-      </Stack.Item>
-    </Stack>
+      </Window.Content>
+    </Window>
   );
 }

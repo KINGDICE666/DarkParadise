@@ -142,7 +142,7 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 		user.mind.AddSpell(new spell)
 
 	QDEL_NULL(user.hud_used)
-	user.set_hud_used(new /datum/hud/human(user, ui_style2icon(user.client.prefs.read_preference(/datum/preference/choiced/ui_style)), user.client.prefs.read_preference(/datum/preference/color/ui_style_color), user.client.prefs.read_preference(/datum/preference/numeric/ui_style_alpha)))
+	user.set_hud_used(new /datum/hud/human(user, ui_style2icon(user.client.prefs.UI_style), user.client.prefs.UI_style_color, user.client.prefs.UI_style_alpha))
 	user.hud_used.show_hud(user.hud_used.hud_version)
 	user.RemoveSpell(src)
 

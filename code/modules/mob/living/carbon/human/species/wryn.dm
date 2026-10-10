@@ -102,7 +102,7 @@
 	wryn_sting?.Remove(H)
 
 /datum/species/wryn/after_equip_job(datum/job/J, mob/living/carbon/human/H)
-	var/comb_deafness = H.client.prefs.read_preference(/datum/preference/toggle/species_preference)
+	var/comb_deafness = H.client.prefs.speciesprefs
 
 	if(comb_deafness)
 		var/obj/item/organ/internal/wryn/hivenode/node = H.get_int_organ(/obj/item/organ/internal/wryn/hivenode)

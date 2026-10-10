@@ -78,7 +78,7 @@
 	SHOULD_CALL_PARENT(TRUE)
 	if(candidate.special_role || candidate.offstation_role)
 		return FALSE
-	if(length(protected_species) && (candidate.current.client?.prefs.read_preference(/datum/preference/choiced/species) in protected_species))
+	if(length(protected_species) && (candidate.current.client?.prefs.species in protected_species))
 		return FALSE
 	if(candidate.assigned_role in get_blacklisted_roles())
 		return FALSE

@@ -37,8 +37,8 @@
 		if(source)
 			var/atom/movable/screen/alert/notify_action/A = O.throw_alert("[source.UID()]_notify_action", /atom/movable/screen/alert/notify_action)
 			if(A)
-				if(O.client.prefs && O.client.prefs.read_preference(/datum/preference/choiced/ui_style))
-					A.icon = ui_style2icon(O.client.prefs.read_preference(/datum/preference/choiced/ui_style))
+				if(O.client.prefs && O.client.prefs.UI_style)
+					A.icon = ui_style2icon(O.client.prefs.UI_style)
 				if(title)
 					A.name = title
 				A.desc = message

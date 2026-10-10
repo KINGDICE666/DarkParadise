@@ -40,7 +40,7 @@
 		))
 
 	data["jobs"] = jobs
-	data["alternate_option"] = prefs.read_preference(/datum/preference/choiced/alternate_option)
+	data["alternate_option"] = prefs.alternate_option
 	data["wiki"] = !!CONFIG_GET(string/wikiurl)
 	return data
 
@@ -83,7 +83,7 @@
 			var/option = params["option"]
 			if(!(option in list(GET_RANDOM_JOB, BE_ASSISTANT, RETURN_TO_LOBBY)))
 				return
-			prefs.write_preference(GLOB.preference_entries[/datum/preference/choiced/alternate_option], option)
+			prefs.alternate_option = option
 			return TRUE
 
 		if("reset")
@@ -100,7 +100,7 @@
 
 		if("save")
 			SStgui.close_uis(src)
-			prefs.save_character(user.client)
+			prefs.ShowChoices(user)
 
 /datum/ui_module/job_preferences/proc/is_exclusive_job(datum/job/job)
 	return job.title in list(JOB_TITLE_CIVILIAN, JOB_TITLE_PRISONER, JOB_TITLE_INVESTOR)
@@ -124,7 +124,7 @@
 		var/available_in_days = job.available_in_days(user_client)
 		return "Через [available_in_days] [declension_ru(available_in_days, "день", "дня", "дней")]"
 	if(!job.character_old_enough(user_client))
-		var/age_limit = get_age_limits(GLOB.all_species[user_client.prefs.read_preference(/datum/preference/choiced/species)], job.min_age_type)
+		var/age_limit = get_age_limits(GLOB.all_species[user_client.prefs.species], job.min_age_type)
 		return "Возраст от [age_limit] [declension_ru(age_limit, "года", "лет", "лет")]"
 	if(!job.check_custom_requirements(user_client))
 		return "Нужно достижение"

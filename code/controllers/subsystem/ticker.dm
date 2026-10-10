@@ -250,7 +250,7 @@ SUBSYSTEM_DEF(ticker)
 		if(!P.ready)
 			continue
 		// Not set to return if nothing available
-		if(P.client.prefs.read_preference(/datum/preference/choiced/alternate_option) != RETURN_TO_LOBBY)
+		if(P.client.prefs.alternate_option != RETURN_TO_LOBBY)
 			continue
 
 		var/has_antags = (length(P.client.prefs.be_special) > 0)
@@ -401,6 +401,10 @@ SUBSYSTEM_DEF(ticker)
 
 	// Sets the auto shuttle vote to happen after the config duration
 	next_autotransfer = world.time + CONFIG_GET(number/vote_autotransfer_initial)
+
+	for(var/mob/new_player/N in GLOB.mob_list)
+		if(N.client)
+			SStitle.show_title_screen_to(N.client) // New Title Screen
 
 	#ifdef TEST_RUNNER
 	GLOB.test_runner.RunAll()

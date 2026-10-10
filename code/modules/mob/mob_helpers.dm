@@ -505,8 +505,8 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 					type = /atom/movable/screen/alert/notify_action,
 				)
 				if(toast)
-					if(ghost.client.prefs && ghost.client.prefs.read_preference(/datum/preference/choiced/ui_style))
-						toast.icon = ui_style2icon(ghost.client.prefs.read_preference(/datum/preference/choiced/ui_style))
+					if(ghost.client.prefs && ghost.client.prefs.UI_style)
+						toast.icon = ui_style2icon(ghost.client.prefs.UI_style)
 					if(title)
 						toast.name = title
 					toast.desc = message
@@ -824,7 +824,7 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 /mob/proc/has_valid_preferences()
 	if(!client)
 		return FALSE //Not sure how this would get run without the mob having a client, but let's just be safe.
-	if(client.prefs.read_preference(/datum/preference/choiced/alternate_option) != RETURN_TO_LOBBY)
+	if(client.prefs.alternate_option != RETURN_TO_LOBBY)
 		return TRUE
 	// If they have antags enabled, they're potentially doing this on purpose instead of by accident. Notify admins if so.
 	var/has_antags = FALSE

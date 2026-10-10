@@ -528,6 +528,9 @@ REQUEST_INTERNET_ALLOWED youtube\.com\/watch,youtu\.be\/,soundcloud\.com\/,bandc
 ## Loads only space without anything in station sector. Still makes landmarks for spawnpoints, though.
 #LOAD_NO_STATION
 
+## Enables loading titlescreen only after master has been loaded. Recommended to be used on local server for faster loading.
+#ENABLE_TITLESCREEN_LATELOAD
+
 ## Override server map by specified, uncomment to apply
 # OVERRIDE_MAP /datum/map/delta
 

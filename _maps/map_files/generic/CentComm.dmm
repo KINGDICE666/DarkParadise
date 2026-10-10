@@ -7318,7 +7318,7 @@
 /turf/simulated/floor/shuttle,
 /area/shuttle/administration)
 "dEd" = (
-/obj/effect/landmark/newplayer_start,
+/obj/effect/landmark/start,
 /turf/simulated/wall/indestructible/splashscreen,
 /area/misc/start)
 "dEr" = (

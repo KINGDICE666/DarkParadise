@@ -140,7 +140,7 @@
 		H.drop_item_ground(H.wear_mask)
 
 	H.equip_or_collect(new /obj/item/clothing/mask/breath/vox(H), ITEM_SLOT_MASK)
-	var/tank_pref = H.client && H.client.prefs ? H.client.prefs.read_preference(/datum/preference/toggle/species_preference) : null
+	var/tank_pref = H.client && H.client.prefs ? H.client.prefs.speciesprefs : null
 	var/obj/item/tank/internals/internal_tank
 	if(tank_pref)//Diseasel, here you go
 		internal_tank = new /obj/item/tank/internals/nitrogen(H)

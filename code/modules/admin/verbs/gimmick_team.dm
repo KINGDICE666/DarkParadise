@@ -62,8 +62,8 @@ ADMIN_VERB(gimmick_team, R_EVENT, "Отправить \"Гиммик комма�
 		var/mob/living/carbon/human/H = new /mob/living/carbon/human(T)
 		H.name = random_name(pick(MALE,FEMALE))
 		var/datum/preferences/A = new() //Randomize appearance
-		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], H.name)
-		A.apply_prefs_to(H)
+		A.real_name = H.name
+		A.copy_to(H)
 		H.dna.ready_dna(H)
 
 		if(force_species)

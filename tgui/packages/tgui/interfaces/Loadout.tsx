@@ -14,9 +14,9 @@ import {
   Tabs,
 } from 'tgui-core/components';
 import { createSearch } from 'tgui-core/string';
+import { useBackend } from '../backend';
 import { JOBS_RU } from '../constants';
 import { Window } from '../layouts';
-import { useModuleBackend } from './common/ModuleBackend';
 
 type Data = {
   user_tier: number;
@@ -52,54 +52,46 @@ const sortTypes = {
 };
 
 export const Loadout = (props: unknown) => {
-  return (
-    <Window width={975} height={650}>
-      <Window.Content scrollable>
-        <LoadoutContent />
-      </Window.Content>
-    </Window>
-  );
-};
-
-export const LoadoutContent = (props: unknown) => {
-  const { data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
   const [search, setSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [category, setCategory] = useState(Object.keys(data.gears)[0]);
   const [tweakedGear, setTweakedGear] = useState('');
 
   return (
-    <>
+    <Window width={975} height={650}>
       {tweakedGear && (
         <GearTweak tweakedGear={tweakedGear} setTweakedGear={setTweakedGear} />
       )}
-      <Stack fill vertical>
-        <Stack.Item>
-          <LoadoutCategories category={category} setCategory={setCategory} />
-        </Stack.Item>
-        <Stack.Item grow>
-          <Stack fill>
-            <Stack.Item basis="25%">
-              <LoadoutEquipped setTweakedGear={setTweakedGear} />
-            </Stack.Item>
-            <Stack.Item basis="75%">
-              <LoadoutGears
-                category={category}
-                search={search}
-                setSearch={setSearch}
-                searchText={searchText}
-                setSearchText={setSearchText}
-              />
-            </Stack.Item>
-          </Stack>
-        </Stack.Item>
-      </Stack>
-    </>
+      <Window.Content scrollable>
+        <Stack fill vertical>
+          <Stack.Item>
+            <LoadoutCategories category={category} setCategory={setCategory} />
+          </Stack.Item>
+          <Stack.Item grow>
+            <Stack fill>
+              <Stack.Item basis="25%">
+                <LoadoutEquipped setTweakedGear={setTweakedGear} />
+              </Stack.Item>
+              <Stack.Item basis="75%">
+                <LoadoutGears
+                  category={category}
+                  search={search}
+                  setSearch={setSearch}
+                  searchText={searchText}
+                  setSearchText={setSearchText}
+                />
+              </Stack.Item>
+            </Stack>
+          </Stack.Item>
+        </Stack>
+      </Window.Content>
+    </Window>
   );
 };
 
 const LoadoutCategories = (props) => {
-  const { data } = useModuleBackend<Data>();
+  const { data } = useBackend<Data>();
   const { category, setCategory } = props;
   return (
     <Tabs fluid textAlign="center" style={{ flexWrap: 'wrap-reverse' }}>
@@ -120,7 +112,7 @@ const LoadoutCategories = (props) => {
 };
 
 const LoadoutGears = (props) => {
-  const { act, data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
   const { user_tier, gear_slots, max_gear_slots } = data;
   const { category, search, setSearch, searchText, setSearchText } = props;
 
@@ -308,7 +300,7 @@ const LoadoutGears = (props) => {
 };
 
 const LoadoutEquipped = (props) => {
-  const { act, data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
   const { setTweakedGear } = props;
   const selectedGears = Object.entries(data.gears).reduce<
     (Gear & { key: string })[]
@@ -398,7 +390,7 @@ const LoadoutEquipped = (props) => {
 };
 
 const GearTweak = (props) => {
-  const { act, data } = useModuleBackend<Data>();
+  const { act, data } = useBackend<Data>();
   const { tweakedGear, setTweakedGear } = props;
 
   return (

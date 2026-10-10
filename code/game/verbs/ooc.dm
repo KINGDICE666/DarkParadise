@@ -76,7 +76,7 @@ GAME_VERB(/client, ooc, VERB_OOC, VERB_CATEGORY_OOC)
 			display_colour = GLOB.moderator_ooc_colour
 		else if(check_rights(R_ADMIN, FALSE))
 			if(CONFIG_GET(flag/allow_admin_ooccolor))
-				display_colour = src.prefs.read_preference(/datum/preference/color/ooc_color)
+				display_colour = src.prefs.ooccolor
 			else
 				display_colour = GLOB.admin_ooc_colour
 		else if(check_rights(R_VIEWRUNTIMES, FALSE))

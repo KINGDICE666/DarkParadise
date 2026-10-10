@@ -1,6 +1,7 @@
 /mob/new_player/Login()
-	if(!client)
-		return
+	client.view_size?.resetToDefault() // Resets the client.view in case it was changed.
+	client?.persistent_client?.set_mob(src)
+	update_Login_details()	//handles setting lastKnownIP and computer_id for use by the ban systems as well as checking for multikeying
 
 	//Overflow rerouting, if set, forces players to be moved to a different server once a player cap is reached. Less rough than a pure kick.
 	if(CONFIG_GET(number/player_reroute_cap) && CONFIG_GET(string/overflow_server_url))
@@ -8,6 +9,14 @@
 			if(CONFIG_GET(number/player_reroute_cap) == 1 || length(GLOB.clients) > CONFIG_GET(number/player_reroute_cap))
 				close_window(src, "privacy_consent")
 				src << link(CONFIG_GET(string/overflow_server_url))
+
+	if(GLOB.join_motd)
+		// Strip source newlines so to_chat() does not turn HTML indentation into <br>.
+		var/motd_html = replacetext(GLOB.join_motd, "\n", "")
+		to_chat(src, span_infoplain("<div class=\"motd\">[motd_html]</div>"))
+
+	if(GLOB.admin_notice)
+		to_chat(src, span_notice("<b>Admin Notice:</b>\n \t [GLOB.admin_notice]"))
 
 	if(!mind)
 		mind = new /datum/mind(key)
@@ -21,22 +30,28 @@
 
 	lastarea = loc
 
-	. = ..()
-	if(!. || !client)
-		return FALSE
-
-	if(GLOB.join_motd)
-		// Strip source newlines so to_chat() does not turn HTML indentation into <br>.
-		var/motd_html = replacetext(GLOB.join_motd, "\n", "")
-		to_chat(src, span_infoplain("<div class=\"motd\">[motd_html]</div>"))
-
-	if(GLOB.admin_notice)
-		to_chat(src, span_notice("<b>Admin Notice:</b>\n \t [GLOB.admin_notice]"))
+	client.clear_screen() // Remove HUD items just in case.
+	client.images = list()
+	if(!hud_used)
+		create_mob_hud()	 // creating a hud will add it to the client's screen, which can process a disconnect
+		if(!client)
+			return FALSE
+	if(hud_used)
+		hud_used.show_hud(hud_used.hud_version)	// see above, this can process a disconnect
+		if(!client)
+			return FALSE
 
 	add_sight(SEE_TURFS)
+	GLOB.player_list |= src
 	GLOB.new_player_mobs |= src
 
-	client.playtitlemusic()
+	if((ckey in GLOB.de_admins) || (ckey in GLOB.de_mentors) || (ckey in GLOB.de_devs))
+		ASSIGN_GAME_VERB(src, /client, readmin)
+	. = TRUE
+
+	SStitle.show_title_screen_to(client)
+
+	client?.playtitlemusic()
 
 /mob/new_player/proc/whitelist_check()
 	// Admins are immune to overflow rerouting

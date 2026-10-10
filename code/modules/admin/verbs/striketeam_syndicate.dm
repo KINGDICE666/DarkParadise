@@ -92,13 +92,12 @@ ADMIN_VERB(syndicate_strike_team, R_EVENT, "Отправить Ударный О
 	var/syndicate_commando_name = pick(GLOB.last_names_male)
 
 	var/datum/preferences/A = new()//Randomize appearance for the commando.
-	var/commando_surname = A.read_preference(/datum/preference/choiced/gender) == FEMALE ? pick(GLOB.last_names_female) : syndicate_commando_name
 	if(is_leader)
-		A.write_preference(GLOB.preference_entries[/datum/preference/numeric/age], rand(35,45))
-		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[syndicate_commando_leader_rank] [commando_surname]")
+		A.age = rand(35,45)
+		A.real_name = "[syndicate_commando_leader_rank] [A.gender==FEMALE ? pick(GLOB.last_names_female) : syndicate_commando_name]"
 	else
-		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[syndicate_commando_rank] [commando_surname]")
-	A.apply_prefs_to(new_syndicate_commando)
+		A.real_name = "[syndicate_commando_rank] [A.gender==FEMALE ? pick(GLOB.last_names_female) : syndicate_commando_name]"
+	A.copy_to(new_syndicate_commando)
 
 	new_syndicate_commando.dna.ready_dna(new_syndicate_commando)//Creates DNA.
 

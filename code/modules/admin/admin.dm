@@ -13,7 +13,7 @@ GLOBAL_VAR_INIT(nologevent, 0)
 	if(!GLOB.nologevent)
 		var/rendered = "<span class=\"admin_attack\"><span class=\"prefix\">ATTACK:</span> <span class=\"message\">[text]</span></span>"
 		for(var/client/C in GLOB.admins)
-			if((C.holder.rights & R_ADMIN) && (C.prefs?.read_preference(/datum/preference/choiced/attack_log_level) <= loglevel))
+			if((C.holder.rights & R_ADMIN) && (C.prefs?.atklog <= loglevel))
 				to_chat(C, rendered, MESSAGE_TYPE_ATTACKLOG, confidential = TRUE)
 
 /**
@@ -931,3 +931,19 @@ ADMIN_VERB(change_title_screen_notice, R_EVENT, "Title Screen: Set Notice", "Set
 	for(var/mob/new_player/new_player in GLOB.player_list)
 		SEND_SOUND(new_player,  sound('sound/items/bikehorn.ogg'))
 	BLACKBOX_LOG_ADMIN_VERB("Change Title Screen Notice")
+
+ADMIN_VERB(change_title_screen_html, R_DEBUG, "Title Screen: Set HTML", "An admin debug command that enables you to change the HTML on the go.", ADMIN_CATEGORY_FUN)
+	log_admin("[key_name(user)] is setting the title screen HTML.")
+	message_admins("[key_name_admin(user)] is setting the title screen HTML.")
+
+	var/new_html = tgui_input_text(user, "Введите нужный HTML (ВНИМАНИЕ: ВЫ СКОРЕЕ ВСЕГО ЧТО-ТО СЛОМАЕТЕ!!!)", "РИСКОВАННО: ИЗМЕНЕНИЕ HTML ЛОББИ", max_length = 99999, multiline = TRUE, encode = FALSE)
+	if(isnull(new_html))
+		return
+
+	if(tgui_alert(user, "Всё ли верно? Нигде не ошиблись? Возврата нет!", "Одумайся...", list("Рискнём", "Пожалуй нет...")) != "Рискнём")
+		return
+
+	SStitle.set_title_html(new_html)
+
+	message_admins("[key_name_admin(user)] has changed the title screen HTML.")
+	BLACKBOX_LOG_ADMIN_VERB("Change Title Screen HTML")

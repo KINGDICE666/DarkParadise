@@ -145,7 +145,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	if(!client)
 		return
 	UnregisterSignal(src, COMSIG_MOB_HUD_CREATED)
-	lighting_cutoff = client.prefs.read_preference(/datum/preference/choiced/ghost_lighting) //Remembers ghost lighting pref
+	lighting_cutoff = client.prefs.ghost_darkness_level //Remembers ghost lighting pref
 	lighting_color_cutoffs = null
 	update_sight()
 
@@ -371,8 +371,8 @@ GAME_VERB(/mob/dead/observer, reenter_corpse, "Вернуться в тело", 
 		if(source)
 			var/atom/movable/screen/alert/A = throw_alert("[source.UID()]_notify_cloning", /atom/movable/screen/alert/notify_cloning)
 			if(A)
-				if(client?.prefs && client.prefs.read_preference(/datum/preference/choiced/ui_style))
-					A.icon = ui_style2icon(client.prefs.read_preference(/datum/preference/choiced/ui_style))
+				if(client?.prefs && client.prefs.UI_style)
+					A.icon = ui_style2icon(client.prefs.UI_style)
 				A.desc = message
 				var/old_layer = source.layer
 				var/old_plane = source.plane
@@ -705,7 +705,7 @@ GAME_VERB(/mob/dead/observer, view_manifest, "Манифест экипажа", 
 	cleanup_observe()
 
 	hud_used?.plane_master_controllers[PLANE_MASTERS_GAME].remove_filter("eye_blur")
-	lighting_cutoff = client?.prefs.read_preference(/datum/preference/choiced/ghost_lighting)
+	lighting_cutoff = client?.prefs.ghost_darkness_level
 	lighting_color_cutoffs = null
 	update_sight()
 
@@ -764,9 +764,9 @@ GAME_VERB_DESC(/mob/dead/observer, pick_darkness, "Освещённость", "C
 		return
 	if(!client)
 		return
-	client.prefs.write_preference(GLOB.preference_entries[/datum/preference/choiced/ghost_lighting], GLOB.ghost_lightings[desired_dark])
+	client.prefs.ghost_darkness_level = GLOB.ghost_lightings[desired_dark]
 	client.prefs.save_preferences(client)
-	lighting_cutoff = client.prefs.read_preference(/datum/preference/choiced/ghost_lighting)
+	lighting_cutoff = client.prefs.ghost_darkness_level
 	update_sight()
 
 /mob/dead/observer/update_sight()
@@ -856,7 +856,7 @@ GAME_VERB_DESC(/mob/dead/observer, pick_darkness, "Освещённость", "C
 		return
 
 	var/mob/living/carbon/human/new_char = new(get_turf(src))
-	client.prefs.apply_prefs_to(new_char)
+	client.prefs.copy_to(new_char)
 	if(mind && use_old_mind)
 		mind.active = TRUE
 		mind.transfer_to(new_char)

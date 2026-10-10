@@ -35,7 +35,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	if(M.stat || !M.mind || M.mind.special_role || M.mind.offstation_role)
 		return FALSE
 	if(temp)
-		if((M.mind.assigned_role in temp.get_restricted_roles()) || (M.client.prefs.read_preference(/datum/preference/choiced/species) in temp.protected_species))
+		if((M.mind.assigned_role in temp.get_restricted_roles()) || (M.client.prefs.species in temp.protected_species))
 			return FALSE
 	if(role) // Don't even bother evaluating if there's no role
 		if(player_old_enough_antag(M.client,role) && (role in M.client.prefs.be_special) && !M.client.prefs?.skip_antag && (!jobban_isbanned(M, role)))
@@ -323,7 +323,8 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	//First we spawn a dude.
 	var/mob/living/carbon/human/new_character = new(pick(GLOB.latejoin))//The mob being spawned.
 
-	G_found.client.prefs.apply_prefs_to(new_character)
+	var/datum/preferences/A = new(G_found.client)
+	A.copy_to(new_character)
 
 	new_character.dna.ready_dna(new_character)
 	new_character.possess_by_player(G_found.key)
@@ -424,7 +425,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 				var/mob/living/carbon/human/newMember = new(L.loc)
 
-				A.apply_prefs_to(newMember)
+				A.copy_to(newMember)
 
 				newMember.dna.ready_dna(newMember)
 
@@ -446,7 +447,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 				var/mob/living/carbon/human/newMember = new(L.loc)
 
-				A.apply_prefs_to(newMember)
+				A.copy_to(newMember)
 
 				newMember.dna.ready_dna(newMember)
 

@@ -920,7 +920,7 @@
 		var/atom/movable/screen/alert/alert = alerts[alerts[i]]
 		if(alert.icon_state == "template")
 			if(!icon_pref)
-				icon_pref = ui_style2icon(mymob.client?.prefs?.read_preference(/datum/preference/choiced/ui_style))
+				icon_pref = ui_style2icon(mymob.client?.prefs?.UI_style)
 			alert.icon = icon_pref
 		alert.screen_loc = get_ui_alert_placement(i)
 		screenmob.client.screen |= alert

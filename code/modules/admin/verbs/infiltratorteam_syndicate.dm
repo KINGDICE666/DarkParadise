@@ -88,8 +88,8 @@ ADMIN_VERB(syndicate_infiltration_team, R_ADMIN, "Отправить Дивер�
 	var/syndicate_infiltrator_name = random_name(pick(MALE,FEMALE))
 
 	var/datum/preferences/A = new() //Randomize appearance
-	A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], syndicate_infiltrator_name)
-	A.apply_prefs_to(new_syndicate_infiltrator)
+	A.real_name = syndicate_infiltrator_name
+	A.copy_to(new_syndicate_infiltrator)
 	new_syndicate_infiltrator.dna.ready_dna(new_syndicate_infiltrator)
 
 	//Creates mind stuff.

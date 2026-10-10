@@ -69,7 +69,7 @@
 	var/datum/outfit/contractor_partner/partner_outfit = new()
 	//randomizing appearance
 	var/datum/preferences/A = new()
-	A.apply_prefs_to(partner)
+	A.copy_to(partner)
 	partner.dna.ready_dna(partner)
 
 	partner_outfit.equip(partner)

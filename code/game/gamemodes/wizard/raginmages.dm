@@ -146,7 +146,7 @@
 	if(!G || !G.key)
 		return // Let's not steal someone's soul here
 	var/mob/living/carbon/human/new_character = new(pick(GLOB.latejoin))
-	G.client.prefs.apply_prefs_to(new_character)
+	G.client.prefs.copy_to(new_character)
 	new_character.possess_by_player(G.key)
 	return new_character
 

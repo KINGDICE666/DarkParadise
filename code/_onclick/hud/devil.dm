@@ -7,9 +7,9 @@
 	var/atom/movable/screen/using
 	var/atom/movable/screen/inventory/inv_box
 	var/client/client = owner.client
-	var/ui_style = ui_style2icon(client.prefs.read_preference(/datum/preference/choiced/ui_style))
-	var/ui_color = client.prefs.read_preference(/datum/preference/color/ui_style_color)
-	var/ui_alpha = client.prefs.read_preference(/datum/preference/numeric/ui_style_alpha)
+	var/ui_style = ui_style2icon(client.prefs.UI_style)
+	var/ui_color = client.prefs.UI_style_color
+	var/ui_alpha = client.prefs.UI_style_alpha
 
 	using = new /atom/movable/screen/language_menu(null, src)
 	using.icon = ui_style

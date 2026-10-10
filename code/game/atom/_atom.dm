@@ -19,7 +19,7 @@
 	if(!active_hud)
 		return
 
-	var/screentips_enabled = user.client.prefs.read_preference(/datum/preference/numeric/screentip_size)
+	var/screentips_enabled = user.client.prefs.screentip_mode
 	if(screentips_enabled == 0 || flags & NO_SCREENTIPS)
 		active_hud.screentip_text.maptext = ""
 		return
@@ -107,7 +107,7 @@
 		new_maptext = ""
 	else
 		//We inline a MAPTEXT() here, because there's no good way to statically add to a string like this
-		new_maptext = "<span class='context' style='text-align: center; color: [user.client.prefs.read_preference(/datum/preference/color/screentip_color)]'>[used_name][extra_context]</span>"
+		new_maptext = "<span class='context' style='text-align: center; color: [user.client.prefs.screentip_color]'>[used_name][extra_context]</span>"
 
 	if(length(used_name) * 10 > active_hud.screentip_text.maptext_width)
 		INVOKE_ASYNC(src, PROC_REF(set_hover_maptext), client, active_hud, new_maptext)

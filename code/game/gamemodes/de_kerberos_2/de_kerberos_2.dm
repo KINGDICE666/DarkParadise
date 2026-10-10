@@ -101,6 +101,7 @@
 		team = possible_team
 	if(!team)
 		return FALSE
+	SStitle.hide_title_screen_from(player.client)
 	team.add_member(player.mind)
 	qdel(player)
 	return TRUE
