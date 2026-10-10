@@ -554,7 +554,7 @@ SUBSYSTEM_DEF(mapping)
 
 /datum/controller/subsystem/mapping/proc/add_ruin_space_zlevel(noisy = FALSE)
 	num_of_res_levels++
-	var/new_res_z = GLOB.space_manager.add_new_zlevel("Ruin Space #[num_of_res_levels]", linkage = UNAFFECTED, traits = list(BLOCK_TELEPORT, RESERVED_LEVEL, RUIN_SPACE_LEVEL))
+	var/new_res_z = GLOB.space_manager.add_new_zlevel("Ruin Space #[num_of_res_levels]", linkage = UNAFFECTED, traits = list(RESERVED_LEVEL, RUIN_SPACE_LEVEL))
 	initialize_reserved_level(new_res_z, noisy, 2)
 	return new_res_z
 

@@ -23,6 +23,7 @@
 	var/map_view_min_y
 	var/helm_tab = "flight"
 	var/list/atom/movable/screen/overmap_dock_ghost/dock_preview_ghosts
+	var/atom/movable/screen/overmap_dock_backdrop/dock_backdrop
 
 /obj/machinery/computer/helm/get_ru_names()
 	return alist(
@@ -44,6 +45,8 @@
 	nav_blip = new
 	nav_blip.assigned_map = map_name
 	nav_blip.del_on_map_removal = FALSE
+	dock_backdrop = new
+	dock_backdrop.assigned_map = map_name
 	sensor_blips = list()
 	radar_blips = list()
 	dock_picker = new(src)
@@ -60,6 +63,7 @@
 	QDEL_NULL(dock_picker)
 	QDEL_NULL(cam_screen)
 	QDEL_NULL(nav_blip)
+	QDEL_NULL(dock_backdrop)
 	QDEL_LIST(sensor_blips)
 	QDEL_LIST(radar_blips)
 	clear_dock_preview_ghosts()
@@ -139,13 +143,15 @@
 		overmap_hide_blip(ghost)
 		qdel(ghost)
 	dock_preview_ghosts = null
+	if(dock_backdrop)
+		dock_backdrop.screen_loc = null
 
 /obj/machinery/computer/helm/proc/update_dock_preview()
 	hide_overmap_overlays()
 	if(!map_camera || !cam_screen)
 		return
 	var/obj/docking_port/stationary/pad
-	if(vessel?.selected_dock_id)
+	if(vessel?.selected_dock_id && vessel.selected_dock_id != OVERMAP_DOCK_ID_CUSTOM)
 		pad = SSshuttle.getDock(vessel.selected_dock_id)
 		if(istype(pad, /obj/docking_port/stationary/transit))
 			pad = null
@@ -155,7 +161,9 @@
 		clear_dock_preview_ghosts()
 		map_camera.clear()
 		return
-	var/list/hull_new = vessel.shuttle.overmap_preview_turfs(pad)
+	var/list/move_data = vessel.shuttle.collect_move_pairs(pad)
+	var/list/hull_old = move_data["old_turfs"]
+	var/list/hull_new = move_data["new_turfs"]
 	var/min_x = pad.x
 	var/min_y = pad.y
 	var/max_x = pad.x
@@ -181,8 +189,6 @@
 		min_y = clamp(center_y - round((tiles - 1) / 2), 1, world.maxy - tiles + 1)
 		max_x = min_x + tiles - 1
 		max_y = min_y + tiles - 1
-	var/list/visible = block(locate(min_x, min_y, pad.z), locate(min_x + tiles - 1, min_y + tiles - 1, pad.z))
-	cam_screen.show_camera(visible, tiles, tiles)
 	map_view_min_x = min_x
 	map_view_min_y = min_y
 	map_camera.last_center = locate(min_x + round((tiles - 1) / 2), min_y + round((tiles - 1) / 2), pad.z)
@@ -190,16 +196,31 @@
 	map_camera.last_size_y = tiles
 	clear_dock_preview_ghosts()
 	dock_preview_ghosts = list()
-	for(var/turf/spot as anything in hull_new)
-		if(!spot || spot.x < min_x || spot.x > max_x || spot.y < min_y || spot.y > max_y)
+	var/matrix/turned = matrix()
+	turned.Turn(move_data["rotation"])
+	var/list/covered = list()
+	for(var/index in 1 to length(hull_old))
+		var/turf/hull_turf = hull_old[index]
+		var/turf/spot = hull_new[index]
+		if(!spot || spot.x < min_x || spot.x > max_x || spot.y < min_y || spot.y > max_y || !vessel.shuttle.overmap_is_hull_turf(hull_turf))
 			continue
 		var/atom/movable/screen/overmap_dock_ghost/ghost = new
 		ghost.assigned_map = cam_screen.assigned_map
-		ghost.del_on_map_removal = FALSE
-		ghost.icon_state = vessel.shuttle.overmap_dest_tile_blocked(spot, pad) ? "red" : "green"
+		ghost.vis_contents += hull_turf
+		ghost.transform = turned
+		if(vessel.shuttle.overmap_dest_tile_blocked(spot, pad))
+			ghost.icon_state = "red"
+		else
+			covered[spot] = TRUE
 		ghost.set_position(spot.x - min_x + 1, spot.y - min_y + 1)
 		dock_preview_ghosts += ghost
-	overmap_register_map_screens(dock_preview_ghosts, cam_screen.assigned_map, open_uis)
+	var/list/visible = list()
+	for(var/turf/shown as anything in block(locate(min_x, min_y, pad.z), locate(min_x + tiles - 1, min_y + tiles - 1, pad.z)))
+		if(!covered[shown])
+			visible += shown
+	cam_screen.show_camera(visible, tiles, tiles)
+	dock_backdrop.set_position(1, 1)
+	overmap_register_map_screens(dock_preview_ghosts + dock_backdrop, cam_screen.assigned_map, open_uis)
 
 /obj/machinery/computer/helm/proc/open_custom_dock_picker(mob/user)
 	if(!vessel?.shuttle)

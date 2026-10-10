@@ -24,6 +24,7 @@
 #define OVERMAP_BOARD_DOOR_BIAS 0.5
 #define OVERMAP_HULL_SIGHT_SECTORS 8
 #define OVERMAP_HULL_SIGHT_DISTANCE 6
+#define OVERMAP_HULL_SIGHT_NEAR_RANGE 10
 #define OVERMAP_HULL_SIGHT_REFRESH (3 SECONDS)
 #define OVERMAP_CLING_SPEED 5
 #define OVERMAP_CLING_SPEED_MAGBOOTS 10
@@ -406,23 +407,29 @@
 	var/turf/hull_turf = locate(FLOOR(spot[1] + 0.5, 1), FLOOR(spot[2] + 0.5, 1), hull_z)
 	return hull_turfs[hull_turf] ? hull_turf : null
 
-/obj/overmap/entity/proc/hull_sight_toward(world_x, world_y)
+/obj/overmap/entity/proc/hull_sight_toward(world_x, world_y, exact = FALSE)
 	var/list/hull_point = world_to_hull(world_x, world_y)
+	var/distance = hull_radius + OVERMAP_HULL_SIGHT_DISTANCE
+	if(exact && sqrt((hull_point[1] - hull_center_x) ** 2 + (hull_point[2] - hull_center_y) ** 2) <= distance)
+		var/turf/viewer = locate(clamp(FLOOR(hull_point[1] + 0.5, 1), flight_bounds[1], flight_bounds[3]), clamp(FLOOR(hull_point[2] + 0.5, 1), flight_bounds[2], flight_bounds[4]), hull_z)
+		return hull_seen_from(viewer, OVERMAP_HULL_SIGHT_NEAR_RANGE)
 	var/sector = round(SIMPLIFY_DEGREES(delta_to_angle(hull_point[1] - hull_center_x, hull_point[2] - hull_center_y) + 360) / (360 / OVERMAP_HULL_SIGHT_SECTORS)) % OVERMAP_HULL_SIGHT_SECTORS
 	LAZYINITLIST(hull_sight_cache)
 	var/list/cached = hull_sight_cache["[sector]"]
 	if(cached && world.time < cached[1])
 		return cached[2]
 	var/angle = sector * (360 / OVERMAP_HULL_SIGHT_SECTORS)
-	var/distance = hull_radius + OVERMAP_HULL_SIGHT_DISTANCE
 	var/turf/eye = locate(clamp(round(hull_center_x + distance * sin(angle), 1), flight_bounds[1], flight_bounds[3]), clamp(round(hull_center_y + distance * cos(angle), 1), flight_bounds[2], flight_bounds[4]), hull_z)
-	var/list/turf/sighted = list()
-	FOR_DVIEW(var/turf/seen, CEILING(distance + hull_radius, 1), eye, 0)
-		if(hull_turfs[seen])
-			sighted[seen] = TRUE
-	FOR_DVIEW_END
+	var/list/turf/sighted = hull_seen_from(eye, CEILING(distance + hull_radius, 1))
 	hull_sight_cache["[sector]"] = list(world.time + OVERMAP_HULL_SIGHT_REFRESH, sighted)
 	return sighted
+
+/obj/overmap/entity/proc/hull_seen_from(turf/eye, range)
+	. = list()
+	FOR_DVIEW(var/turf/seen, range, eye, 0)
+		if(hull_turfs[seen])
+			.[seen] = TRUE
+	FOR_DVIEW_END
 
 /obj/overmap/entity/proc/quarter_turns()
 	return round(get_facing() / 90, 1) * 90
@@ -703,7 +710,7 @@
 		for(var/turf/eye as anything in eyes)
 			if(eye.z == bubble_z && abs(eye.x - spot[1]) <= reach && abs(eye.y - spot[2]) <= reach)
 				viewer_points += list(to_world(eye.x, eye.y))
-		proxy.refresh_sight(viewer_points)
+		proxy.refresh_sight(viewer_points, TRUE)
 	for(var/obj/overmap/entity/vessel as anything in ship_proxies)
 		if(!drawn[vessel])
 			qdel(ship_proxies[vessel])
@@ -1170,6 +1177,7 @@
 #undef OVERMAP_BOARD_DOOR_BIAS
 #undef OVERMAP_HULL_SIGHT_SECTORS
 #undef OVERMAP_HULL_SIGHT_DISTANCE
+#undef OVERMAP_HULL_SIGHT_NEAR_RANGE
 #undef OVERMAP_HULL_SIGHT_REFRESH
 #undef OVERMAP_CLING_SPEED
 #undef OVERMAP_CLING_SPEED_MAGBOOTS

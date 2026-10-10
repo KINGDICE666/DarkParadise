@@ -252,9 +252,9 @@
 			return FALSE
 	return TRUE
 
-/datum/controller/subsystem/overmap/proc/local_space_at(datum/overmap_sector/sector, world_x, world_y, obj/overmap/entity/asker)
+/datum/controller/subsystem/overmap/proc/local_space_at(datum/overmap_sector/sector, world_x, world_y, obj/overmap/entity/asker, margin = 0)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles_by_z)
-		if(bubble?.sector == sector && (!bubble.anchor || bubble.anchor != asker) && bubble.covers(bubble.to_bubble(world_x, world_y), 0))
+		if(bubble?.sector == sector && (!bubble.anchor || bubble.anchor != asker) && bubble.covers(bubble.to_bubble(world_x, world_y), margin))
 			return bubble
 
 /datum/controller/subsystem/overmap/proc/create_local_spaces()

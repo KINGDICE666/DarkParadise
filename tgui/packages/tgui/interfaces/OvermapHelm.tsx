@@ -277,7 +277,7 @@ export const OvermapHelm = () => {
         >
           <div className="OvermapHelm__view">
             {landingMode ? (
-              <LandingView />
+              <LandingView covered={systems || !!programmed_locked} />
             ) : (
               <FlightView screen={screen} onScreen={setScreen} />
             )}
@@ -753,7 +753,7 @@ const Destinations = () => {
   );
 };
 
-const LandingView = () => {
+const LandingView = (props: { covered: boolean }) => {
   const { data } = useBackend<OvermapHelmData>();
   const { mapRef, map_revision = 0, selected_dock } = data;
   return (
@@ -763,16 +763,18 @@ const LandingView = () => {
           {selected_dock ? `Место посадки: ${selected_dock}` : 'Место посадки'}
         </Box>
         <Box className="OvermapHelm__viewHint">
-          зелёное — корабль встанет, красное — мешает
+          красным — то, что мешает посадке
         </Box>
       </div>
       <div className="OvermapHelm__screen OvermapMinimap">
-        <ByondUi
-          key={`${mapRef}-${map_revision}-dock`}
-          height="100%"
-          width="100%"
-          params={{ id: mapRef, type: 'map' }}
-        />
+        {!props.covered && (
+          <ByondUi
+            key={`${mapRef}-${map_revision}-dock`}
+            height="100%"
+            width="100%"
+            params={{ id: mapRef, type: 'map' }}
+          />
+        )}
       </div>
     </>
   );

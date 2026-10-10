@@ -252,25 +252,6 @@
 		old_turfs += oldT
 		new_turfs += newT
 
-/obj/docking_port/mobile/proc/overmap_preview_turfs(obj/docking_port/stationary/S)
-	. = list()
-	if(!S)
-		return
-	overmap_restore_mapped_bounds()
-	var/list/origin = overmap_origin()
-	var/turf/origin_turf = origin[1]
-	var/origin_dir = origin[2]
-	var/turf/dest = overmap_dest_turf(S)
-	if(!origin_turf || !dest)
-		return
-	var/dest_dir = overmap_dest_dir(S, origin_dir)
-	for(var/turf/oldT as anything in return_turfs())
-		if(!oldT || is_turf_blacklisted_for_transit(oldT))
-			continue
-		var/turf/newT = overmap_project_turf(oldT, origin_turf, origin_dir, dest, dest_dir)
-		if(newT)
-			. += newT
-
 /obj/docking_port/mobile/proc/overmap_hull_blocked(obj/docking_port/stationary/S)
 	if(!S || istype(S, /obj/docking_port/stationary/transit))
 		return FALSE

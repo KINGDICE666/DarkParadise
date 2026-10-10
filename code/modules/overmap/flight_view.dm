@@ -1,7 +1,9 @@
 #define OVERMAP_PARALLAX_SCROLL 1000
 
 /obj/overmap/entity/proc/in_free_flight()
-	return shuttle && status == OVERMAP_STATUS_OVERMAP && isturf(loc) && !is_physically_docked()
+	if(!shuttle || status != OVERMAP_STATUS_OVERMAP || !isturf(loc) || is_physically_docked())
+		return FALSE
+	return !programmed_mission || !SSovermap.local_space_at(sector, get_world_x(), get_world_y(), src, hull_radius)
 
 /obj/overmap/entity/proc/set_free_flight_view(enabled)
 	free_flight_view = enabled
