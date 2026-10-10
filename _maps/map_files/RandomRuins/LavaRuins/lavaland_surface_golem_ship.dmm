@@ -54,6 +54,11 @@
 "cI" = (
 /turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
+"cQ" = (
+/obj/structure/table/reinforced,
+/obj/machinery/overmap_intercom/directional/south,
+/turf/simulated/floor/carpet/black,
+/area/shuttle/freegolem)
 "cU" = (
 /obj/structure/table/reinforced,
 /obj/item/stack/sheet/metal{
@@ -142,7 +147,7 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "gR" = (
-/obj/structure/shuttle/engine/huge{
+/obj/machinery/ship_engine/huge{
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark/lavaland_air,
@@ -331,7 +336,9 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "oY" = (
-/obj/structure/computerframe,
+/obj/structure/computerframe{
+	dir = 4
+	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "pz" = (
@@ -388,6 +395,12 @@
 "ub" = (
 /obj/machinery/door/airlock/survival_pod/glass,
 /turf/simulated/floor/pod,
+/area/shuttle/freegolem)
+"us" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "uO" = (
 /turf/simulated/floor/pod,
@@ -458,6 +471,11 @@
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"ym" = (
+/obj/structure/table/reinforced,
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
 "yw" = (
 /obj/structure/window/reinforced/survival_pod{
@@ -642,6 +660,12 @@
 	},
 /turf/simulated/floor/pod/dark/lavaland_air,
 /area/shuttle/freegolem)
+"KL" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "KY" = (
 /obj/machinery/light{
 	dir = 8;
@@ -718,10 +742,6 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"NV" = (
-/obj/structure/table/reinforced,
-/turf/simulated/floor/carpet/black,
-/area/shuttle/freegolem)
 "Oc" = (
 /obj/effect/turf_decal/number/number_2{
 	dir = 1
@@ -786,6 +806,16 @@
 	},
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
+"RR" = (
+/obj/machinery/sensor_array/short_range,
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"RT" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "SD" = (
 /obj/machinery/autolathe,
 /turf/simulated/floor/pod/dark,
@@ -800,6 +830,12 @@
 	},
 /obj/structure/rack,
 /obj/item/resonator,
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Tg" = (
+/obj/machinery/computer/sensors{
+	dir = 4
+	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "TQ" = (
@@ -928,7 +964,7 @@ OM
 yB
 "}
 (3,1,1) = {"
-cI
+us
 cI
 cI
 cI
@@ -946,7 +982,7 @@ cI
 cI
 cI
 cI
-cI
+KL
 "}
 (4,1,1) = {"
 zc
@@ -1247,7 +1283,7 @@ yB
 yB
 cI
 me
-yf
+RR
 DS
 cI
 cI
@@ -1396,13 +1432,13 @@ yB
 yB
 yB
 cI
-NV
+ym
 FH
 Oc
 eU
 Gu
 BN
-NV
+cQ
 cI
 yB
 yB
@@ -1416,7 +1452,7 @@ yB
 yB
 yB
 yB
-cI
+us
 kO
 Qt
 Qt
@@ -1424,7 +1460,7 @@ pJ
 Qt
 Qt
 xI
-cI
+KL
 yB
 yB
 yB
@@ -1484,7 +1520,7 @@ cI
 Xe
 WZ
 oY
-nZ
+Tg
 Xe
 cI
 yB
@@ -1502,11 +1538,11 @@ yB
 yB
 yB
 yB
-cI
+RT
 Xe
 dT
 Xe
-cI
+RT
 yB
 yB
 yB
