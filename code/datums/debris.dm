@@ -32,7 +32,7 @@
 	var/position_offset = rand(-6, 6)
 
 	// Removing the effect of disabler or taser hits.
-	if(proj.nodamage || proj.damage_type == STAMINA)
+	if(proj.nodamage || proj.damage_type == STAMINA || SSatoms.initialized == INITIALIZATION_INSSATOMS)
 		return
 
 	smoke_visuals = new(source, /particles/impact_smoke)

@@ -530,20 +530,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/mine/laborcamp)
-"bO" = (
-/obj/docking_port/stationary{
-	area_type = /area/lavaland/surface/outdoors;
-	dir = 8;
-	dwidth = 2;
-	height = 5;
-	id = "laborcamp_away";
-	name = "labor camp";
-	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
-	width = 9
-	},
-/obj/effect/mapping_helpers/no_lava,
-/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors/explored)
 "bQ" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
@@ -767,6 +753,13 @@
 	icon_state = "0-8"
 	},
 /turf/simulated/floor/plating,
+/area/mine/laborcamp)
+"cD" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
+	},
+/turf/simulated/floor/plasteel,
 /area/mine/laborcamp)
 "cE" = (
 /obj/item/stack/ore/gold,
@@ -1765,12 +1758,12 @@
 	},
 /area/mine/living_quarters)
 "gu" = (
-/obj/machinery/door/airlock/external{
-	id_tag = "laborcamp_away";
-	name = "Labor Camp Airlock";
-	req_access = list(2)
-	},
 /obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "laborcamp_away";
+	dock_name = "Каторга";
+	dir = 8
+	},
 /turf/simulated/floor/plasteel,
 /area/mine/laborcamp)
 "gw" = (
@@ -2027,9 +2020,8 @@
 	},
 /area/mine/eva)
 "hQ" = (
-/obj/machinery/door/airlock/external{
-	id_tag = "laborcamp_away";
-	name = "Labor Camp Airlock"
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
 	},
 /obj/structure/fans/tiny,
 /turf/simulated/floor/plasteel,
@@ -3604,6 +3596,7 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
+/obj/machinery/overmap_intercom/directional/north,
 /turf/simulated/floor/bluegrid,
 /area/mine/maintenance)
 "qp" = (
@@ -3740,12 +3733,10 @@
 "rf" = (
 /obj/effect/turf_decal/delivery/hollow,
 /obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external{
-	glass = 1;
+/obj/machinery/door/airlock/external/docking/glass{
 	id_tag = "mining_away";
-	name = "Mining Shuttle Airlock";
-	opacity = 0;
-	req_access = list(48)
+	dock_name = "Док шахтёрского шаттла";
+	dir = 8
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/production)
@@ -4518,6 +4509,13 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"wv" = (
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/bluegrid,
+/area/mine/maintenance)
 "wA" = (
 /obj/structure/sign/restroom,
 /turf/simulated/wall,
@@ -5708,20 +5706,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/production)
-"EN" = (
-/obj/docking_port/stationary{
-	area_type = /area/lavaland/surface/outdoors;
-	dir = 8;
-	dwidth = 3;
-	height = 5;
-	id = "mining_away";
-	name = "lavaland mine";
-	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
-	width = 7
-	},
-/obj/effect/mapping_helpers/no_lava,
-/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors)
 "EQ" = (
 /obj/structure/stone_tile/block/cracked,
 /obj/structure/stone_tile/block/cracked{
@@ -5995,12 +5979,8 @@
 /area/lavaland/surface/outdoors/necropolis)
 "Gt" = (
 /obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external{
-	glass = 1;
-	id_tag = "mining_away";
-	name = "Mining Shuttle Airlock";
-	opacity = 0;
-	req_access = list(48)
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/living_quarters)
@@ -6693,6 +6673,14 @@
 /obj/structure/disposalpipe/segment,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
+/area/mine/production)
+"KB" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/turf/simulated/floor/plasteel,
 /area/mine/production)
 "KE" = (
 /obj/effect/decal/cleanable/dirt,
@@ -13411,7 +13399,7 @@ No
 No
 No
 No
-bO
+No
 No
 No
 xL
@@ -14178,7 +14166,7 @@ aq
 sP
 aQ
 aq
-gu
+cD
 aq
 aq
 hQ
@@ -21384,7 +21372,7 @@ fw
 fw
 fw
 La
-qk
+wv
 bQ
 UJ
 La
@@ -23457,7 +23445,7 @@ fw
 fw
 fw
 fw
-EN
+fw
 fw
 fw
 fw
@@ -24228,7 +24216,7 @@ aj
 aR
 lC
 lC
-rf
+KB
 lC
 lC
 fw
