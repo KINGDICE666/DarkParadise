@@ -296,10 +296,17 @@ Pipelines + Other Objects -> Pipe network
 /obj/machinery/atmospherics/proc/initialize_atmos_network()
 	atmos_init()
 	var/list/nodes = pipeline_expansion()
+	var/list/orphaned_nodes = list()
 	for(var/obj/machinery/atmospherics/A in nodes)
 		A.atmos_init()
+		if(!A.returnPipenet(src))
+			orphaned_nodes += A
+			continue
 		A.addMember(src)
 	build_network()
+	for(var/obj/machinery/atmospherics/A in orphaned_nodes)
+		if(!A.returnPipenet(src))
+			addMember(A)
 
 /**
  * Find a connecting /obj/machinery/atmospherics in specified direction, called by relaymove()
