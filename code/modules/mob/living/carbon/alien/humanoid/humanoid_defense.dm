@@ -4,7 +4,7 @@
 			if(INTENT_HARM)
 				var/damage = rand(1, 9)
 				if(prob(90))
-					playsound(loc, SFX_PUNCH, 25, TRUE, -1)
+					playsound(loc, M.dna.species.unarmed.attack_sound, 25, TRUE, -1)
 					visible_message(
 						span_danger("[M] ударил[GEND_A_O_I(M)] [src.name]!"),
 						span_userdanger("[M] ударил[GEND_A_O_I(M)] [src.name]!")

@@ -53,7 +53,7 @@
 	// Reduces duration of stuns/etc (master220: AdjustImmobilized is the closest single equivalent of tg's AdjustAllImmobility)
 	source.AdjustImmobilized((-0.5 SECONDS) * delta_time)
 	// Heals blood loss
-	if(source.blood_volume < BLOOD_VOLUME_NORMAL)
+	if(source.blood_volume < source.max_blood)
 		source.blood_volume += 2.5 * delta_time
 	// Slowly regulates your body temp
 	var/normaltemp = BODYTEMP_NORMAL

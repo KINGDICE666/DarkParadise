@@ -91,6 +91,7 @@
 		internal = null
 		update_action_buttons_icon()
 	if(forced || \
+		get_species_fit(dna.species.fit_profile)?.headwear_hides_hair || \
 		(check_item.flags_inv & HIDE_ALL_HAIR) || \
 		(initial(check_item.flags_inv) & HIDE_ALL_HAIR) || \
 		(check_item.visor_flags_inv & HIDE_ALL_HAIR) || \
@@ -321,6 +322,9 @@
 	update_equipment_speed_mods()
 
 /mob/living/carbon/human/can_equip(obj/item/I, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE, bypass_obscured = FALSE, bypass_incapacitated = FALSE)
+	if(HAS_TRAIT(src, TRAIT_SMALL_MOB))
+		if((istype(I, /obj/item/holder) && (I.holder_flags & HUMAN_HOLDER)) || I.contains_pickupable_humanoid_holder())
+			return FALSE
 	return dna.species.can_equip(I, slot, src, disable_warning, bypass_equip_delay_self, bypass_obscured, bypass_incapacitated)
 
 /**

@@ -156,7 +156,7 @@
 		return
 
 	var/mob/living/carbon/human/carbie = owner
-	if(!carbie.getBruteLoss() && !carbie.getFireLoss() && carbie.blood_volume >= BLOOD_VOLUME_NORMAL)
+	if(!carbie.getBruteLoss() && !carbie.getFireLoss() && carbie.blood_volume >= carbie.max_blood)
 		return
 
 	var/wound_heal = 0
@@ -172,9 +172,9 @@
 
 	carbie.heal_overall_damage((MARSHAL_PASSIVE_HEAL + wound_heal) * seconds_between_ticks, MARSHAL_PASSIVE_HEAL * seconds_between_ticks)
 
-	if(wound_heal && carbie.blood_volume < BLOOD_VOLUME_NORMAL)
+	if(wound_heal && carbie.blood_volume < carbie.max_blood)
 		var/blood_to_restore = wound_heal * MARSHAL_BLOOD_PER_HEAL * seconds_between_ticks
-		carbie.AdjustBlood(min(blood_to_restore, BLOOD_VOLUME_NORMAL - carbie.blood_volume))
+		carbie.AdjustBlood(min(blood_to_restore, carbie.max_blood - carbie.blood_volume))
 
 #undef MARSHAL_PASSIVE_HEAL
 #undef MARSHAL_WOUND_HEAL

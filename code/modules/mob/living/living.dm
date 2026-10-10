@@ -955,7 +955,7 @@ GAME_VERB_SRC(/mob/living, Examine_OOC, view(), "Мета-инфа (OOC)", VERB_
 	if(!trail_type)
 		return
 
-	if(blood_volume < 0.5 * BLOOD_VOLUME_SURVIVE) // don't leave trail if blood volume below a threshold
+	if(get_blood_volume(apply_modifiers = TRUE) < 0.5 * BLOOD_VOLUME_SURVIVE) // don't leave trail if blood volume below a threshold
 		return
 
 	apply_blood_trail_bleeding()
@@ -1449,6 +1449,9 @@ GAME_VERB(/mob/living, resist, "Сопротивляться", VERB_CATEGORY_IC)
 	gib()
 
 /mob/living/proc/can_use_guns(obj/item/gun/gun)
+	if(is_hiding_in_storage())
+		to_chat(src, span_warning("Слишком тесно для стрельбы!"))
+		return FALSE
 	if(gun.trigger_guard != TRIGGER_GUARD_ALLOW_ALL && !IsAdvancedToolUser() && !is_monkeybasic(src))
 		to_chat(src, span_warning("У вас недостаточно ловкости для этого!"))
 		return FALSE

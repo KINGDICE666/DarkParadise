@@ -180,7 +180,7 @@
 		need_mob_update += drinker.adjustOxyLoss(-2 * REM, updating_health = FALSE)
 		need_mob_update += drinker.adjustBruteLoss(-2 * REM, updating_health = FALSE)
 		need_mob_update += drinker.adjustFireLoss(-2 * REM)
-		if(drinker.blood_volume < BLOOD_VOLUME_NORMAL)
+		if(drinker.blood_volume < drinker.max_blood)
 			drinker.blood_volume += 3 * REM
 		return
 

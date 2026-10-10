@@ -236,7 +236,9 @@
 		"Drask" = "Драск",
 		"Grey" = "Грей",
 		"Kidan" = "Кидан",
+		"Resomi" = "Резоми",
 		"Tajaran" = "Таяран",
+		"Trottine" = "Троттин",
 		"Vulpkanin" = "Вульпканин",
 		"Skrell" = "Скрелл",
 		"Unathi" = "Унати",
@@ -270,7 +272,7 @@
 
 /obj/item/reagent_containers/iv_bag/blood/random/Initialize(mapload)
 	blood_type = pick("A+", "A-", "B+", "B-", "O+", "O-")
-	blood_species = pick("Human", "Diona", "Drask", "Grey", "Kidan", "Tajaran", "Vulpkanin", "Skrell", "Unathi", "Nian", "Vox", "Wryn")
+	blood_species = pick("Human", "Diona", "Drask", "Grey", "Kidan", "Tajaran", "Vulpkanin", "Skrell", "Unathi", "Nian", "Vox", "Wryn", "Resomi", "Trottine")
 	. = ..()
 
 /obj/item/reagent_containers/iv_bag/blood/ABPlus
@@ -325,6 +327,12 @@
 
 /obj/item/reagent_containers/iv_bag/blood/vox
 	blood_species = "Vox"
+
+/obj/item/reagent_containers/iv_bag/blood/resomi
+	blood_species = "Resomi"
+
+/obj/item/reagent_containers/iv_bag/blood/trottine
+	blood_species = "Trottine"
 
 /obj/item/reagent_containers/iv_bag/bloodsynthetic
 	var/blood_type = "Synthetic"

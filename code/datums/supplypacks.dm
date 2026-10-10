@@ -2954,6 +2954,8 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/reagent_containers/iv_bag/blood/diona,
 		/obj/item/reagent_containers/iv_bag/blood/wryn,
 		/obj/item/reagent_containers/iv_bag/blood/nian,
+		/obj/item/reagent_containers/iv_bag/blood/resomi,
+		/obj/item/reagent_containers/iv_bag/blood/trottine,
 	)
 	cost = 65
 	containertype = /obj/structure/closet/crate/secure/blood/xeno
@@ -3025,6 +3027,8 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/reagent_containers/iv_bag/blood/diona,
 		/obj/item/reagent_containers/iv_bag/blood/wryn,
 		/obj/item/reagent_containers/iv_bag/blood/nian,
+		/obj/item/reagent_containers/iv_bag/blood/resomi,
+		/obj/item/reagent_containers/iv_bag/blood/trottine,
 	)
 	credits_cost = 3000
 	containertype = /obj/structure/closet/crate/freezer

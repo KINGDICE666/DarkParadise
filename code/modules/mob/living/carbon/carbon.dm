@@ -618,7 +618,7 @@
 
 	throw_mode_off()
 
-	if(!target || !isturf(loc) || is_screen_atom(target))
+	if(!target || !(isturf(loc) || is_hiding_in_storage()) || is_screen_atom(target))
 		return FALSE
 
 	var/atom/movable/thrown_thing
