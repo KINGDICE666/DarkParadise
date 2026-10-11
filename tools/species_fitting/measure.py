@@ -38,12 +38,13 @@ def read_profiles():
         if header:
             section = None
             name = header.group(1)
-            profiles[name] = {"target": None, "bare_parts": (), "max_squash": 0, "pixel_map": None, "manual_sheets": {}, "blocked_sheets": []}
+            profiles[name] = {"target": None, "bare_parts": (), "max_squash": 0, "pixel_map": None, "manual_sheets": {}, "blocked_sheets": [], "sheet_pixel_maps": {}, "cover_parts": False}
             continue
         if not name:
             continue
-        if line in ("\tmanual_sheets = list(", "\tblocked_sheets = list("):
-            section = "manual_sheets" if "manual_sheets" in line else "blocked_sheets"
+        section_header = re.match(r"\t(manual_sheets|blocked_sheets|sheet_pixel_maps) = list\($", line)
+        if section_header:
+            section = section_header.group(1)
             continue
         if section:
             if line == "\t)":
@@ -51,11 +52,13 @@ def read_profiles():
                 continue
             entries = re.findall(r"'([^']+)'|(DEFAULT_ICON_\w+)", line)
             paths = [literal or defines[constant] for literal, constant in entries]
-            if section == "manual_sheets" and len(paths) == 2:
+            if section in ("manual_sheets", "sheet_pixel_maps") and len(paths) == 2:
                 profiles[name][section][paths[0]] = paths[1]
             elif section == "blocked_sheets":
                 profiles[name][section].extend(paths)
             continue
+        if "/datum/fit_step/cover_parts" in line:
+            profiles[name]["cover_parts"] = True
         target = re.match(r"	target_sheet = '([^']+)'", line)
         if target:
             profiles[name]["target"] = target.group(1)
@@ -150,11 +153,12 @@ def _unlike(candidate, manual):
 
 
 def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="shrink", remap="auto",
-                  max_squash=0, head_trim=True, head_warp=True, bare_parts=(), pixel_map=None):
+                  max_squash=0, head_trim=True, head_warp=True, bare_parts=(), pixel_map=None,
+                  sheet_pixel_maps=None, cover_parts=False):
     reference_sheet, width, height = read_dmi(REFERENCE)
     target_sheet, _, _ = read_dmi(target_path, target_git_ref)
     fitter = SpeciesFit(reference_sheet, target_sheet, width, height, trim, remap, max_squash, head_trim,
-                        head_warp, bare_parts, pixel_map)
+                        head_warp, bare_parts, pixel_map, sheet_pixel_maps, cover_parts)
     visible = {index: _visible_body(target_sheet, index, width, height) for index in range(4)}
     reference_head = {index: _head_mask(reference_sheet, index, width, height) for index in range(4)}
     target_head = {index: _head_mask(target_sheet, index, width, height) for index in range(4)}
@@ -183,7 +187,8 @@ def _state_scores(target_path, pairs, git_ref=None, target_git_ref=None, trim="s
                 manual_frame = frame_for_dir(manual_sheet, state, dir_index)
                 vanilla = _frame_pixels(vanilla_frame, width, height)
                 manual = _frame_pixels(manual_frame, width, height)
-                generated, _ = fitter.fit_frame(vanilla_frame, dir_index, dresses_head, dressed_parts, warps_head)
+                generated, _ = fitter.fit_frame(vanilla_frame, dir_index, dresses_head, dressed_parts, warps_head,
+                                                vanilla_path)
                 skin = visible[dir_index]
                 stats["frames"] += 1
                 stats["vanilla_bare"] += sum(1 for key in skin if vanilla[key] is None)
@@ -221,14 +226,14 @@ def replaceable(stats, tolerance=0):
 
 
 def score(target_path, pairs, git_ref=None, target_git_ref=None, trim="shrink", remap="auto", max_squash=0,
-          head_trim=True, head_warp=True, bare_parts=(), pixel_map=None):
+          head_trim=True, head_warp=True, bare_parts=(), pixel_map=None, sheet_pixel_maps=None, cover_parts=False):
     totals = {"frames": 0, "generated_bare": 0, "vanilla_bare": 0, "manual_bare": 0,
               "generated_erased": 0, "manual_erased": 0, "exact": 0, "untouched_by_hand": 0,
               "vanilla_off_body": 0, "generated_off_body": 0, "manual_off_body": 0,
               "vanilla_head_cloth": 0, "generated_head_cloth": 0, "manual_head_cloth": 0,
               "generated_unlike_hand": 0, "vanilla_unlike_hand": 0}
     for _, _, _, stats in _state_scores(target_path, pairs, git_ref, target_git_ref, trim, remap, max_squash,
-                                        head_trim, head_warp, bare_parts, pixel_map):
+                                        head_trim, head_warp, bare_parts, pixel_map, sheet_pixel_maps, cover_parts):
         for key in totals:
             totals[key] += stats[key]
     return totals
@@ -249,7 +254,8 @@ def bench(holdout, worst):
         if not pairs:
             continue
         totals = score(profile["target"], pairs, git_ref, None, "shrink", "auto",
-                       profile["max_squash"], True, True, profile["bare_parts"], profile["pixel_map"])
+                       profile["max_squash"], True, True, profile["bare_parts"], profile["pixel_map"],
+                       profile["sheet_pixel_maps"], profile["cover_parts"])
         was, now = totals["vanilla_unlike_hand"], totals["generated_unlike_hand"]
         gain = (was - now) / was * 100 if was else 0
         print(f"{name:10s} {len(pairs):7d} {totals['frames']:7d} {was:10d} {now:10d} {gain:9.1f}%")
@@ -269,7 +275,8 @@ def worst_states(name, profile, pairs, git_ref, count):
     rows = []
     for _, manual_path, state, stats in _state_scores(
             profile["target"], pairs, git_ref, None, "shrink", "auto",
-            profile["max_squash"], True, True, profile["bare_parts"], profile["pixel_map"]):
+            profile["max_squash"], True, True, profile["bare_parts"], profile["pixel_map"],
+            profile["sheet_pixel_maps"], profile["cover_parts"]):
         if stats["untouched_by_hand"] == stats["frames"]:
             continue
         rows.append((stats["generated_unlike_hand"] - stats["vanilla_unlike_hand"],

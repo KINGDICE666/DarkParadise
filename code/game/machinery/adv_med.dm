@@ -306,7 +306,7 @@ GAME_VERB_SRC(/obj/machinery/bodyscanner, eject, oview(1), "Извлечь па�
 		if(!HAS_TRAIT(occupant, TRAIT_NO_BLOOD))
 			bloodData["hasBlood"] = TRUE
 			bloodData["volume"] = occupant.blood_volume
-			bloodData["percent"] = round(((occupant.blood_volume / BLOOD_VOLUME_NORMAL)*100))
+			bloodData["percent"] = round(((occupant.get_blood_volume(apply_modifiers = TRUE) / BLOOD_VOLUME_NORMAL)*100))
 			bloodData["pulse"] = occupant.get_pulse(GETPULSE_TOOL)
 			bloodData["bloodLevel"] = occupant.blood_volume
 			bloodData["bloodMax"] = occupant.max_blood
@@ -485,10 +485,9 @@ GAME_VERB_SRC(/obj/machinery/bodyscanner, eject, oview(1), "Извлечь па�
 		if(occupant.borer?.controlling)
 			dat += "В лобной доле обнаружено крупное образование, возможно, злокачественное. Рекомендуется хирургическое удаление."
 
-		var/blood_percent =  round((occupant.blood_volume / BLOOD_VOLUME_NORMAL))
-		blood_percent *= 100
+		var/blood_percent =  round(occupant.get_blood_volume(apply_modifiers = TRUE) / BLOOD_VOLUME_NORMAL * 100)
 
-		extra_font = (occupant.blood_volume > 448 ? "<font color='blue'>" : "<font color='red'>")
+		extra_font = (occupant.get_blood_volume(apply_modifiers = TRUE) > BLOOD_VOLUME_PALE ? "<font color='blue'>" : "<font color='red'>")
 		dat += "[extra_font]\tУровень крови: [blood_percent] ([occupant.blood_volume] u)</font><br>"
 
 		if(occupant.reagents)

@@ -196,7 +196,8 @@
 /datum/dna/gene/basic/grant_spell/remotetalk/deactivate(mob/living/mutant, flags)
 	. = ..()
 	var/datum/atom_hud/thoughts/hud = GLOB.huds[THOUGHTS_HUD]
-	mutant.RemoveSpell(/datum/action/cooldown/spell/list_target/mindscan)
+	for(var/datum/action/cooldown/spell/list_target/mindscan/spell in mutant.actions)
+		spell.Remove(mutant)
 	hud.manage_hud(mutant, THOUGHTS_HUD_DISPERSE)
 
 /datum/action/cooldown/spell/list_target/remotetalk

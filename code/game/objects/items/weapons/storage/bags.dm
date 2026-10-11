@@ -31,9 +31,9 @@
 	slot_flags_2 = ITEM_FLAG_POCKET_LARGE
 	max_w_class = WEIGHT_CLASS_NORMAL
 	w_class = WEIGHT_CLASS_SMALL
-	pickup_sound = 'sound/items/handling/pickup/backpack_pickup.ogg'
-	equip_sound = 'sound/items/handling/equip/backpack_equip.ogg'
-	drop_sound = 'sound/items/handling/drop/backpack_drop.ogg'
+	pickup_sound = 'sound/items/handling/backpack/backpack_pickup1.ogg'
+	equip_sound = 'sound/items/equip/backpack_equip.ogg'
+	drop_sound = 'sound/items/handling/backpack/backpack_drop1.ogg'
 	dynamic_storage_size = TRUE
 
 
@@ -721,6 +721,7 @@ GAME_VERB_SRC(/obj/item/storage/bag/plants/portaseeder, dissolve_contents, usr, 
 	flags = CONDUCT
 	materials = list(MAT_METAL=3000)
 	cant_hold = list(/obj/item/disk/nuclear) // Prevents some cheesing
+	sound_vary = TRUE
 	pickup_sound = SFX_TRAY_PICKUP
 	drop_sound = SFX_TRAY_DROP
 

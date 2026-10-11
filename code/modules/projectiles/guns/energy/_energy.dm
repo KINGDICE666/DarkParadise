@@ -8,6 +8,7 @@
 	ammo_x_offset = 2
 	attachable_allowed = GUN_MODULE_CLASS_ENERGY_WEAPON
 	weapon_weight = WEAPON_MEDIUM
+	sound_vary = TRUE
 
 	/// What type of power cell this uses
 	var/obj/item/stock_parts/cell/cell

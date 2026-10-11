@@ -103,6 +103,11 @@
 		return .
 	blood_reagent.reaction_turf(loc, amt * EXOTIC_BLEED_MULTIPLIER, dna.species.blood_color)
 
+/mob/living/proc/get_blood_volume(apply_modifiers = FALSE)
+	if(!apply_modifiers)
+		return blood_volume
+	return blood_volume * BLOOD_VOLUME_NORMAL / max_blood
+
 /mob/living/proc/AdjustBlood(amount = 0)
 	if(HAS_TRAIT(src, TRAIT_NO_BLOOD))
 		return FALSE
@@ -137,7 +142,7 @@
 	setBlood(initial(blood_volume))
 
 /mob/living/carbon/human/restore_blood()
-	setBlood(BLOOD_VOLUME_NORMAL)
+	setBlood(max_blood)
 	bleed_rate = 0
 
 /****************************************************
@@ -148,7 +153,7 @@
 /mob/living/proc/transfer_blood_to(atom/movable/AM, amount, forced, ignore_incompatibility = FALSE)
 	if(!blood_volume || !AM.reagents)
 		return 0
-	if(blood_volume < BLOOD_VOLUME_BAD && !forced)
+	if(get_blood_volume(apply_modifiers = TRUE) < BLOOD_VOLUME_BAD && !forced)
 		return 0
 
 	if(blood_volume < amount)
@@ -175,7 +180,7 @@
 					C.reagents.add_reagent("toxin", amount * 0.5)
 					return 1
 
-			C.setBlood(min(C.blood_volume + round(amount, 0.1), BLOOD_VOLUME_NORMAL))
+			C.setBlood(min(C.blood_volume + round(amount, 0.1), C.max_blood))
 			return 1
 
 	AM.reagents.add_reagent(blood_id, amount, blood_data, bodytemperature)

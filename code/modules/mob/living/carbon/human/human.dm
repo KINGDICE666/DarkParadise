@@ -213,6 +213,9 @@
 /mob/living/carbon/human/wryn/Initialize(mapload)
 	. = ..(mapload, /datum/species/wryn)
 
+/mob/living/carbon/human/resomi/Initialize(mapload)
+	. = ..(mapload, /datum/species/resomi)
+
 /mob/living/carbon/human/nucleation/Initialize(mapload)
 	. = ..(mapload, /datum/species/nucleation)
 
@@ -1720,6 +1723,10 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 		balloon_alert(src, "слишком толстые пальцы!")
 		return FALSE
 
+	if(check_gun.weapon_weight >= WEAPON_HEAVY && HAS_TRAIT(src, TRAIT_SMALL_MOB))
+		balloon_alert(src, "слишком тяжёлое!")
+		return FALSE
+
 	if(mind?.martial_art && mind.martial_art.no_guns) //great dishonor to famiry
 		to_chat(src, "[mind.martial_art.no_guns_message]")
 		return FALSE
@@ -2068,6 +2075,8 @@ GAME_VERB_DESC(/mob/living/carbon/human, set_flavor, "Описание внеш�
 /mob/living/carbon/human/mouse_buckle_handling(mob/living/M, mob/living/user)
 	if(pulling != M || grab_state != GRAB_AGGRESSIVE || stat != CONSCIOUS)
 		return FALSE
+	if(try_pick_up_grabbed_mob(M))
+		return TRUE
 	//If you dragged them to you and you're aggressively grabbing try to fireman carry them
 	if(can_be_firemanned(M))
 		var/active_hand_available = can_pull(hand, supress_message = TRUE)

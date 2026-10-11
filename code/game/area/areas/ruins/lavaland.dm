@@ -56,6 +56,7 @@
 	ambience_index = AMBIENCE_DANGER
 	report_alerts = FALSE
 	hide_attacklogs = TRUE
+	always_unpowered = FALSE
 
 /area/ruin/unpowered/syndicate_lava_base/engineering
 	name = "Syndicate Lavaland Engineering"

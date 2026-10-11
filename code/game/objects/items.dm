@@ -71,6 +71,8 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	var/pickup_sound
 	/// Sound used when dropping the item. May contain a list of sounds to pick from instead of a single path.
 	var/drop_sound
+	var/throw_drop_sound
+	var/sound_vary = FALSE
 	/// Whether or not we use stealthy audio levels for this item's attack sounds
 	var/stealthy_audio = FALSE
 	var/w_class = WEIGHT_CLASS_NORMAL
@@ -733,7 +735,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 		var/chosen_sound = drop_sound
 		if(islist(drop_sound) && length(drop_sound))
 			chosen_sound = pick(drop_sound)
-		playsound(src, chosen_sound, DROP_SOUND_VOLUME, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
+		playsound(src, chosen_sound, DROP_SOUND_VOLUME, sound_vary, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
 	return TRUE
 
 /**
@@ -815,14 +817,14 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 			var/chosen_sound = equip_sound
 			if(islist(equip_sound) && length(equip_sound))
 				chosen_sound = pick(equip_sound)
-			playsound(src, chosen_sound, EQUIP_SOUND_VOLUME, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
+			playsound(src, chosen_sound, EQUIP_SOUND_VOLUME, sound_vary, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
 		else if(slot & ITEM_SLOT_POCKETS)
 			playsound(src, 'sound/items/handling/equip/generic_equip3.ogg', EQUIP_SOUND_VOLUME, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
 		else if(pickup_sound && (slot & ITEM_SLOT_HANDS))
 			var/chosen_sound = pickup_sound
 			if(islist(pickup_sound) && length(pickup_sound))
 				chosen_sound = pick(pickup_sound)
-			playsound(src, chosen_sound, PICKUP_SOUND_VOLUME, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
+			playsound(src, chosen_sound, PICKUP_SOUND_VOLUME, sound_vary, channel = CHANNEL_INTERACTION_SOUNDS, ignore_walls = FALSE)
 
 	user.update_equipment_speed_mods()
 	SEND_SIGNAL(src, COMSIG_ITEM_EQUIPPED, user, slot)
@@ -871,6 +873,11 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
  * You can easily overriride it for different behavior on other items.
  */
 /obj/item/proc/run_drop_held_item(mob/user)
+	var/mob/living/hider = user
+	var/obj/item/storage/hiding_place = isliving(hider) && hider.is_hiding_in_storage() ? hider.loc.loc : null
+	if(hiding_place?.can_be_inserted(src, stop_messages = TRUE))
+		hiding_place.handle_item_insertion(src)
+		return
 	user.drop_from_active_hand()
 
 /**
@@ -942,6 +949,12 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 			to_chat(user, span_warning("Неведомая сила не позволяет Вам надеть [declent_ru(ACCUSATIVE)]."))
 		return FALSE
 	return TRUE
+
+/obj/item/proc/contains_pickupable_humanoid_holder()
+	for(var/obj/item/holder/holder in get_all_contents())
+		if(holder.held_mob && HAS_TRAIT(holder.held_mob, TRAIT_SMALL_MOB))
+			return TRUE
+	return FALSE
 
 /**
  * Mob 'M' is attempting to equip this item into the slot passed through as 'slot'. Return `TRUE` if it can do this and `FALSE` if it can't.
@@ -1097,7 +1110,7 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 			playsound(living, 'sound/weapons/throwtap.ogg', volume, TRUE, -1)
 
 	else
-		playsound(src, get_drop_sound(), YEET_SOUND_VOLUME, ignore_walls = FALSE)
+		playsound(src, throw_drop_sound || get_drop_sound(), YEET_SOUND_VOLUME, sound_vary, ignore_walls = FALSE)
 
 /obj/item/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, diagonals_first = FALSE, datum/callback/callback, force, dodgeable)
 	thrownby = thrower?.UID()
@@ -1350,25 +1363,27 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 /obj/item/proc/is_on_user(mob/living/user)
 	return user = get(src, /mob/living)
 
-/obj/item/proc/do_pickup_animation(atom/target)
+/obj/item/proc/do_pickup_animation(atom/target, turf/source)
 	if(!CONFIG_GET(flag/item_animations_enabled))
 		return
 
-	if(!isturf(loc) || !target)
+	if(!target)
 		return
 
-	if(get_turf(src) == get_turf(target))	// No need for pickup animation if item is on user or on the same turf
-		return
+	if(!source)
+		if(!isturf(loc))
+			return
+		source = loc
 
 	SEND_SIGNAL(src, COMSIG_ITEM_BEFORE_PICKUP_ANIMATION)
 	var/image/transfer_animation = image(icon = src, layer = ABOVE_MOB_LAYER)
-	SET_PLANE(transfer_animation, GAME_PLANE, loc)
+	SET_PLANE(transfer_animation, GAME_PLANE, source)
 	transfer_animation.transform.Scale(0.75)
 	transfer_animation.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
 
-	var/target_x = target.pixel_x
-	var/target_y = target.pixel_y
-	var/direction = get_dir(get_turf(src), target)
+	var/target_x = target.base_pixel_x + target.base_pixel_w
+	var/target_y = target.base_pixel_y + target.base_pixel_z
+	var/direction = get_dir(source, target)
 
 	if(direction & NORTH)
 		target_y += 32
@@ -1382,7 +1397,7 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 		target_y += 10
 		transfer_animation.pixel_w += 6 * (prob(50) ? 1 : -1)
 
-	var/atom/movable/flick_visual/pickup = src.loc.flick_overlay_view(transfer_animation, 0.4 SECONDS)
+	var/atom/movable/flick_visual/pickup = source.flick_overlay_view(transfer_animation, 0.4 SECONDS)
 	var/matrix/animation_matrix = new(pickup.transform)
 	animation_matrix.Turn(pick(-30, 30))
 	animation_matrix.Scale(0.65)
@@ -1399,8 +1414,8 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 		return
 
 	SEND_SIGNAL(src, COMSIG_ITEM_BEFORE_DROP_ANIMATION)
-	var/from_x = moving_from.pixel_x
-	var/from_y = moving_from.pixel_y
+	var/from_x = moving_from.base_pixel_x
+	var/from_y = moving_from.base_pixel_y
 	var/direction = get_dir(moving_from, get_turf(src))
 
 	if(direction & NORTH)
@@ -1462,7 +1477,11 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 /obj/item/proc/on_thrown(mob/living/carbon/user, atom/target)
 	if((item_flags & ABSTRACT) || HAS_TRAIT(src, TRAIT_NODROP))
 		return
-	user.drop_item_ground(src, silent = TRUE)
+	if(user.is_hiding_in_storage())
+		if(!user.drop_transfer_item_to_loc(src, get_turf(user), silent = TRUE))
+			return
+	else
+		user.drop_item_ground(src, silent = TRUE)
 	if(throwforce && HAS_TRAIT(user, TRAIT_PACIFISM))
 		to_chat(src, span_notice("Вы осторожно опускаете [declent_ru(ACCUSATIVE)] на землю."))
 		return

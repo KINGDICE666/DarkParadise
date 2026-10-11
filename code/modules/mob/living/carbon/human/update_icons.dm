@@ -368,6 +368,8 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	//masks and helmets can obscure our hair, unless we're a synthetic
 	if((head && (head.flags_inv & (HIDEHAIR|HIDEHEADHAIR))) || (wear_mask && (wear_mask.flags_inv & (HIDEHAIR|HIDEHEADHAIR))))
 		return
+	if(head && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
+		return
 
 	var/datum/sprite_accessory/hair/hair = GLOB.hair_styles_full_list[head_organ.h_style]
 	if(!hair || !((hair.species_allowed && (head_organ.dna.species.name in hair.species_allowed)) || (head_organ.dna.species.bodyflags & ALL_RPARTS)))
@@ -980,12 +982,18 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 		tail_marking_icon.Blend(bodypart_tail.m_colours["tail"], ICON_ADD)
 
 	if(bodypart_tail.body_accessory)
-		if(bodypart_tail.body_accessory.try_restrictions(src))
+		var/datum/species_fit/species_fit = get_species_fit(bodypart_tail.dna.species.fit_profile)
+		var/suit_tail_color
+		if(species_fit?.paints_covered_tail && wear_suit && (wear_suit.flags_inv & HIDETAIL))
+			suit_tail_color = species_fit.covered_tail_color(wear_suit)
+		if(suit_tail_color || bodypart_tail.body_accessory.try_restrictions(src))
 			var/icon/accessory_s = new/icon("icon" = bodypart_tail.body_accessory.icon, "icon_state" = bodypart_tail.body_accessory.icon_state)
-			if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
+			if(suit_tail_color)
+				accessory_s.Blend(suit_tail_color, ICON_ADD)
+			else if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
 				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
 					accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
-			if(tail_marking_icon && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
+			if(tail_marking_icon && !suit_tail_color && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 				accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
@@ -1404,6 +1412,12 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 		standing = draw_target
 
 	standing = center_image(standing, isinhands ? inhand_x_dimension : worn_x_dimension, isinhands ? inhand_y_dimension : worn_y_dimension)
+
+	if(isinhands && ishuman(wearer))
+		var/datum/species/wearer_species = wearer.dna.species
+		standing.pixel_z += wearer_species.inhand_offset_y
+		if(wearer_species.inhand_scale != 1)
+			standing.transform = matrix().Scale(wearer_species.inhand_scale)
 
 	standing.alpha = alpha
 	standing.color = color

@@ -29,6 +29,9 @@
 	attack_verb = list("атаковал", "уколол", "ткнул")
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 30)
+	sound_vary = TRUE
+	pickup_sound = SFX_CUTLERY_PICKUP
+	drop_sound = SFX_CUTLERY_DROP
 	var/max_contents = 1
 
 /obj/item/kitchen/utensil/Initialize(mapload)
@@ -89,6 +92,8 @@
 	name = "plastic fork"
 	desc = "Yay, no washing up to do."
 	icon_state = "pfork"
+	pickup_sound = null
+	drop_sound = null
 
 /obj/item/kitchen/utensil/spoon
 	name = "spoon"
@@ -103,6 +108,8 @@
 	desc = "It's a plastic spoon. How dull."
 	icon_state = "pspoon"
 	attack_verb = list("атаковал", "ткнул")
+	pickup_sound = null
+	drop_sound = null
 
 /obj/item/kitchen/utensil/spork
 	name = "spork"
@@ -115,6 +122,8 @@
 	desc = "It's a plastic spork. It's the fork side of the spoon!"
 	icon_state = "pspork"
 	attack_verb = list("атаковал", "ткнул")
+	pickup_sound = null
+	drop_sound = null
 
 /*
  * Knives
@@ -128,8 +137,8 @@
 	w_class = WEIGHT_CLASS_SMALL
 	throwforce = 10
 	hitsound = 'sound/weapons/bladeslice.ogg'
-	pickup_sound = 'sound/items/handling/pickup/knife_pickup.ogg'
-	drop_sound = 'sound/items/handling/drop/knife_drop.ogg'
+	pickup_sound = SFX_KNIFE_PICKUP
+	drop_sound = SFX_KNIFE_DROP
 	throw_speed = 3
 	throw_range = 6
 	materials = list(MAT_METAL=12000)
@@ -137,6 +146,7 @@
 	sharp = TRUE
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	embedded_ignore_throwspeed_threshold = TRUE
+	sound_vary = TRUE
 	/// Can this item be attached as a bayonet to the gun?
 	var/bayonet_suitable = FALSE
 	/// Used in combination with throwing martial art, to avoid sharpening checks overhead
@@ -231,8 +241,8 @@
 	if(head && !head.has_arterial_bleeding())
 		head.arterial_bleeding()
 
-	if(defender.blood_volume > BLOOD_VOLUME_SURVIVE)
-		defender.blood_volume = max(0, defender.blood_volume - 0.25 * (BLOOD_VOLUME_NORMAL - BLOOD_VOLUME_SURVIVE)) //-25% of max blood volume
+	if(defender.get_blood_volume(apply_modifiers = TRUE) > BLOOD_VOLUME_SURVIVE)
+		defender.blood_volume = max(0, defender.blood_volume - 0.25 * (BLOOD_VOLUME_NORMAL - BLOOD_VOLUME_SURVIVE) * defender.max_blood / BLOOD_VOLUME_NORMAL) //-25% of max blood volume
 
 		for(var/i in 1 to 2)
 			var/obj/effect/decal/cleanable/blood/blood_decal = new(defender.loc)
@@ -534,6 +544,9 @@
 	throwforce = 10.0
 	throw_speed = 3
 	attack_verb = list("ударил", "огрел")
+	sound_vary = TRUE
+	pickup_sound = SFX_ROLLING_PIN_PICKUP
+	drop_sound = SFX_ROLLING_PIN_DROP
 
 /* Trays moved to /obj/item/storage/bag */
 

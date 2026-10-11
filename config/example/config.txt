@@ -206,7 +206,7 @@ SOCKET_TALK 0
 GATEWAY_DELAY 6000
 
 ## Remove the # to enable assistant limiting.
-ASSISTANT_LIMIT
+#ASSISTANT_LIMIT
 
 ## If you enabled assistant limiting set the ratio of assistants to security members default is 2 assistants to 1 officer
 ASSISTANT_RATIO 2
@@ -234,6 +234,7 @@ PLAYABLE_SPECIES Kidan
 PLAYABLE_SPECIES Machine
 PLAYABLE_SPECIES Nucleation
 PLAYABLE_SPECIES Plasmaman
+PLAYABLE_SPECIES Resomi
 PLAYABLE_SPECIES Slime People
 PLAYABLE_SPECIES Trottine
 PLAYABLE_SPECIES Vox
@@ -432,8 +433,8 @@ TOPIC_FILTERING_WHITELIST 127.0.0.1
 ## Example valid values: "0-3" or "1,4-7"
 #FFMPEG_CPUAFFINITY 0-3
 
-## Enable animations on item pickup and drop down
-# ITEM_ANIMATIONS_ENABLED
+## Animations on item pickup and drop down. Set to 0 to disable
+# ITEM_ANIMATIONS_ENABLED 0
 
 ## If the number of players is more or same than this, then we apply the highpop jobs config.
 JOBS_HIGH_POP_MODE_AMOUNT 80

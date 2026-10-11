@@ -8,6 +8,7 @@
 #define TRAIT_BEING_SHOCKED "being_shocked" // Used together with WAS_SHOCKED instead of flag SHOCKED_2 from the Official Paradise.
 /// Trait that determines, if object under floor.
 #define TRAIT_UNDERFLOOR "underfloor"
+#define TRAIT_LOGISTICS_COMPATIBLE "logistics_compatible"
 
 /// Weather immunities, also protect mobs inside them.
 #define TRAIT_LAVA_IMMUNE "lava_immune" //Used by lava turfs and The Floor Is Lava.
@@ -319,6 +320,8 @@
 #define TRAIT_NOSOFTCRIT "nosoftcrit"
 /// This mob is not knocked out by the damage it took past the crit threshold
 #define TRAIT_NOHARDCRIT "nohardcrit"
+#define TRAIT_SMALL_MOB "small_mob"
+#define TRAIT_GOOD_HEARING "good_hearing"
 /// Another biotype thing
 #define TRAIT_PLANT_ORIGIN "plant_origin"
 /// Another damn biotype
@@ -425,6 +428,7 @@
 #define TRAIT_PARALYSIS_R_ARM "paralysis_r_arm"
 #define TRAIT_PARALYSIS_L_LEG "paralysis_l_leg"
 #define TRAIT_PARALYSIS_R_LEG "paralysis_r_leg"
+#define TRAIT_PASSTABLE "passtable"
 
 #define TRAIT_ANTIMAGIC "antimagic"
 

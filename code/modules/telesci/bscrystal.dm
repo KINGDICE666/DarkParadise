@@ -51,6 +51,8 @@
 	name = "refined bluespace crystal"
 	points = 0
 	refined_type = null
+	pickup_sound = null
+	drop_sound = null
 
 // Artifical bluespace crystal, doesn't give you much research.
 /obj/item/stack/ore/bluespace_crystal/artificial
@@ -61,6 +63,8 @@
 	blink_range = 4 // Not as good as the organic stuff!
 	points = 0 // nice try
 	refined_type = null
+	pickup_sound = null
+	drop_sound = null
 
 // Polycrystals, aka stacks
 

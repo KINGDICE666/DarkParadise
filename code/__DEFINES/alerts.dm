@@ -28,6 +28,7 @@
 #define ALERT_IRRADIATED "irradiated"
 #define ALERT_LEGCUFFED "legcuffed"
 #define ALERT_NUTRITION "nutrition"
+#define ALERT_PICKUPABLE_CONTAINER "pickupable_container"
 #define ALERT_UNPOSSESS_OBJECT "unpossess_object"
 
 /** Silicon related */

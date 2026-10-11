@@ -279,6 +279,7 @@
 		SPECIES_MACHINEPERSON,
 		SPECIES_NUCLEATION,
 		SPECIES_PLASMAMAN,
+		SPECIES_RESOMI,
 		SPECIES_SLIMEPERSON,
 		SPECIES_SWINE,
 		SPECIES_VOX,
@@ -711,6 +712,7 @@
 	default = null
 
 /datum/config_entry/flag/item_animations_enabled
+	default = TRUE
 
 /datum/config_entry/flag/disable_taipan
 

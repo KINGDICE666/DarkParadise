@@ -9,6 +9,9 @@
 	origin_tech = "magnets=1;programming=3"
 	item_flags = NOBLUDGEON
 	toolbox_radial_menu_compatibility = TRUE
+	sound_vary = TRUE
+	pickup_sound = SFX_GENERIC_DEVICE_PICKUP
+	drop_sound = SFX_GENERIC_DEVICE_DROP
 	var/list/signs = list()
 	var/max_signs = 10
 	var/creation_time = 0 //time to create a holosign in deciseconds.
@@ -147,7 +150,7 @@
 	icon_state = "signmaker_engi"
 	item_state = "signmaker_engi"
 	holosign_type = /obj/structure/holosign/barrier/atmos
-	max_signs = 3
+	max_signs = 6
 
 /obj/item/holosign_creator/atmos/get_ru_names()
 	return alist(

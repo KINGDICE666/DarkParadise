@@ -28,8 +28,8 @@
 	pilot.adjustToxLoss(-healing, updating_health = FALSE)
 	pilot.updatehealth()
 
-	if(pilot.blood_volume < BLOOD_VOLUME_NORMAL)
-		pilot.blood_volume = min(pilot.blood_volume + healing, BLOOD_VOLUME_NORMAL)
+	if(pilot.blood_volume < pilot.max_blood)
+		pilot.blood_volume = min(pilot.blood_volume + healing, pilot.max_blood)
 
 /datum/component/netpod_healing/proc/on_remove(datum/source)
 	SIGNAL_HANDLER

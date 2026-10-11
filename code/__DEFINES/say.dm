@@ -5,6 +5,8 @@
 #define MAX_BOOK_MESSAGE_LEN 9216
 #define MAX_NAME_LEN 50 // diona names can get loooooooong
 
+#define GOOD_HEARING_WHISPER_RANGE 3
+
 // A link given to ghost alice to follow bob
 #define FOLLOW_LINK(alice, bob) "<a href=byond://?src=[alice.UID()];follow=[bob.UID()]>(F)</a>"
 #define FOLLOW_LINK_WITH_DISPLAY(alice, bob, display) "<a href=byond://?src=[alice.UID()];follow=[bob.UID()]>[display]</a>"

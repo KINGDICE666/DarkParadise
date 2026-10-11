@@ -43,7 +43,7 @@
 			if(GLOB.pacifism_after_gt || HAS_TRAIT(user, TRAIT_PACIFISM))
 				to_chat(user, span_warning("Вы не хотите вредить [declent_ru(DATIVE)]."))
 				return
-			user.do_attack_animation(src, ATTACK_EFFECT_PUNCH)
+			user.do_attack_animation(src, user.dna.species.unarmed.animation_type)
 			visible_message(span_danger("[user] [response_harm_continuous] [declent_ru(ACCUSATIVE)]!"), \
 				span_userdanger("[user] [response_harm_continuous] вас!"))
 			//to_chat(user, span_danger("Вы [response_harm_simple] [declent_ru(ACCUSATIVE)]!"))

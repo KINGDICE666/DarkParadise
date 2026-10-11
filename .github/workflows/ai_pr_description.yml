@@ -12,6 +12,7 @@ concurrency:
 jobs:
   ai_pr_description:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     if: github.event.action == 'opened' || github.event.label.name == 'AI описание'
     steps:
       - name: Checkout
@@ -24,4 +25,4 @@ jobs:
         with:
           script: |
             const { fillPullRequestDescription } = await import('${{ github.workspace }}/tools/pull_request_hooks/aiDescription.js')
-            await fillPullRequestDescription({ github, context })
+            await fillPullRequestDescription({ github, context, core })

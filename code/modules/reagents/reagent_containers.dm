@@ -1,3 +1,5 @@
+#define LIQUID_SLOSH_MIN_FILL 0.2
+
 /obj/item/reagent_containers
 	abstract_type = /obj/item/reagent_containers
 	name = "Container"
@@ -5,6 +7,7 @@
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = null
 	w_class = WEIGHT_CLASS_TINY
+	sound_vary = TRUE
 	var/amount_per_transfer_from_this = 5
 	var/visible_transfer_rate = TRUE
 	/// Does this container allow changing transfer amounts at all, the container can still have only one possible transfer value in `possible_transfer_amounts` at some point even if this is true
@@ -38,6 +41,7 @@
 	var/adjust_color_contrast = FALSE
 	var/temperature_min = 0 // To limit the temperature of a reagent container can atain when exposed to heat/cold
 	var/temperature_max = 10000
+	var/reagent_container_liquid_sound
 	/// Pass open check in empty verb
 	var/pass_open_check = FALSE
 	var/chem_master_made = FALSE
@@ -206,6 +210,8 @@ GAME_PROC_SRC(/obj/item/reagent_containers, empty, usr, "Вылить содер
 
 /obj/item/reagent_containers/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum, do_splash = TRUE)
 	. = ..()
+	if(!ismob(loc))
+		play_liquid_slosh()
 	if(do_splash)
 		splash_reagents(hit_atom, throwingdatum?.get_thrower(), was_thrown = TRUE, allow_closed_splash = FALSE)
 
@@ -321,3 +327,22 @@ GAME_PROC_SRC(/obj/item/reagent_containers, empty, usr, "Вылить содер
 	filling.color = reagent_color_and_contrast_matrix
 
 	. += filling
+
+/obj/item/reagent_containers/proc/play_liquid_slosh()
+	if(!reagent_container_liquid_sound || QDELETED(src))
+		return
+	if(reagents.total_volume <= round(reagents.maximum_volume * LIQUID_SLOSH_MIN_FILL, 1))
+		return
+	playsound(src, reagent_container_liquid_sound, LIQUID_SLOSHING_SOUND_VOLUME, TRUE, ignore_walls = FALSE)
+
+/obj/item/reagent_containers/dropped(mob/user, slot, silent = FALSE)
+	. = ..()
+	if(!silent)
+		play_liquid_slosh()
+
+/obj/item/reagent_containers/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	if(!initial)
+		play_liquid_slosh()
+
+#undef LIQUID_SLOSH_MIN_FILL

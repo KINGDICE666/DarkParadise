@@ -693,6 +693,9 @@
 	var/list/m_colours = list("tail" = "#000000")
 	s_col = "#000000"
 
+/obj/item/organ/external/tail/proc/get_healthdoll_state()
+	return dna?.species.tail
+
 /obj/item/organ/external/tail/get_ru_names()
 	return alist(
 		NOMINATIVE = "хвост",

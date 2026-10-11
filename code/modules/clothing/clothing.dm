@@ -369,6 +369,8 @@
 	attack_verb = list("на дуэль вызвал")
 	clothing_flags = FINGERS_COVERED
 	abstract_type = /obj/item/clothing/gloves
+	pickup_sound = 'sound/items/handling/glove_pick_up.ogg'
+	drop_sound = 'sound/items/handling/glove_drop.ogg'
 	var/transfer_prints = FALSE
 	var/pickpocket = FALSE //Master pickpocket?
 	var/clipped = FALSE
@@ -743,13 +745,15 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 	desc = "Comfortable-looking shoes."
 	abstract_type = /obj/item/clothing/shoes
 	gender = PLURAL //Carn: for grammatically correct text-parsing
+	sound_vary = TRUE
+	equip_sound = 'sound/items/equip/sneakers_equip1.ogg'
 	//var/chained = 0
 	var/can_cut_open = FALSE
 	var/cut_open = FALSE
 	body_parts_covered = FEET
 	slot_flags = ITEM_SLOT_FEET
-	pickup_sound = 'sound/items/handling/pickup/shoes_pickup.ogg'
-	drop_sound = 'sound/items/handling/drop/shoes_drop.ogg'
+	pickup_sound = 'sound/items/handling/shoes/sneakers_pickup1.ogg'
+	drop_sound = 'sound/items/handling/shoes/sneakers_drop1.ogg'
 
 	var/silence_steps = 0
 	var/blood_state = BLOOD_STATE_NOT_BLOODY
@@ -861,28 +865,26 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 		return
 
 	var/mob/user = loc
-	var/is_mob = istype(user)
+	var/blood_state = "shoes"
+	if(istype(user) && !user.has_both_feet())
+		if(user.has_left_foot())
+			blood_state = "shoe_l"
+		else if(user.has_right_foot())
+			blood_state = "shoe_r"
+		else
+			return
 
-	var/blood_overlay
-
-	// We don't want overlays to lay one on another, so we separate conditions with two and one feet
-	if(!is_mob || is_mob && user.has_both_feet())
-		blood_overlay = get_blood_overlay("shoes")
-		if(blood_overlay)
-			. += blood_overlay
+	var/mutable_appearance/blood_overlay = get_blood_overlay(blood_state)
+	if(!blood_overlay)
 		return
-
-	if(user.has_left_foot())
-		blood_overlay = get_blood_overlay("shoe_l")
-		if(blood_overlay)
-			. += blood_overlay
-		return
-
-	if(user.has_right_foot())
-		blood_overlay = get_blood_overlay("shoe_r")
-		if(blood_overlay)
-			. += blood_overlay
-		return
+	if(!draw_target.icon_state && istype(user) && blood_overlay.icon == 'icons/mob/human_races/masks/blood_human.dmi')
+		var/icon/fitted = get_fitted_worn_icon(user.dna?.species, src, blood_overlay.icon, blood_overlay.icon_state)
+		if(fitted)
+			var/icon/clipped = new /icon(fitted)
+			clipped.AddAlphaMask(icon(draw_target.icon, draw_target.icon_state))
+			blood_overlay.icon = clipped
+			blood_overlay.icon_state = ""
+	. += blood_overlay
 
 //Suit
 /obj/item/clothing/suit
@@ -893,8 +895,8 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 	var/fire_resist = T0C+100
 	allowed = list(/obj/item/tank/internals/emergency_oxygen)
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
-	drop_sound = 'sound/items/handling/drop/cloth_drop.ogg'
-	pickup_sound = 'sound/items/handling/pickup/cloth_pickup.ogg'
+	drop_sound = 'sound/items/handling/cloth/cloth_drop1.ogg'
+	pickup_sound = 'sound/items/handling/cloth/cloth_pickup1.ogg'
 	slot_flags = ITEM_SLOT_CLOTH_OUTER
 	var/blood_overlay_type = "suit"
 	/// Whether suit is currently adjusted, example: shirt is buttoned.
@@ -1152,9 +1154,9 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 	permeability_coefficient = 0.90
 	slot_flags = ITEM_SLOT_CLOTH_INNER
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
-	equip_sound = 'sound/items/handling/equip/jumpsuit_equip.ogg'
-	drop_sound = 'sound/items/handling/drop/cloth_drop.ogg'
-	pickup_sound =  'sound/items/handling/pickup/cloth_pickup.ogg'
+	equip_sound = 'sound/items/equip/jumpsuit_equip.ogg'
+	drop_sound = 'sound/items/handling/cloth/cloth_drop1.ogg'
+	pickup_sound =  'sound/items/handling/cloth/cloth_pickup1.ogg'
 	abstract_type = /obj/item/clothing/under
 
 	sprite_sheets = list(

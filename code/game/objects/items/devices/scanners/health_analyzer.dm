@@ -18,6 +18,9 @@
 	materials = list(MAT_METAL=200)
 	origin_tech = "magnets=1;biotech=1"
 	custom_price = PAYCHECK_LOWER
+	sound_vary = TRUE
+	pickup_sound = SFX_GENERIC_DEVICE_PICKUP
+	drop_sound = SFX_GENERIC_DEVICE_DROP
 	var/mode = 1
 	var/advanced = FALSE
 	var/theme
@@ -106,6 +109,7 @@
 	if(scan_data["bloodData"])
 		var/blood_percent = scan_data["bloodData"]["blood_percent"]
 		var/blood_volume = scan_data["bloodData"]["blood_volume"]
+		var/blood_level = scan_data["bloodData"]["blood_level"]
 		var/blood_type = scan_data["bloodData"]["blood_type"]
 		var/blood_species = scan_data["bloodData"]["blood_species"]
 		var/ru_blood_species = list(
@@ -113,7 +117,9 @@
 			"Drask" = "Драск",
 			"Grey" = "Грей",
 			"Human" = "Человек",
+			"Resomi" = "Резоми",
 			"Tajaran" = "Таяран",
+			"Trottine" = "Троттин",
 			"Vulpkanin" = "Вульпканин",
 			"Skrell" = "Скрелл",
 			"Nian" = "Ниан",
@@ -127,9 +133,9 @@
 		if(ru_blood_species[blood_species])
 			blood_species_text = ", кровь расы: [ru_blood_species[blood_species]]"
 
-		if(blood_volume <= BLOOD_VOLUME_SAFE && blood_percent > BLOOD_VOLUME_OKAY)
+		if(blood_level <= BLOOD_VOLUME_SAFE && blood_level > BLOOD_VOLUME_OKAY)
 			P.header += "Уровень крови: [span_color("НИЗКИЙ", "red")] - [blood_percent] %, [blood_volume] u, тип: [blood_type][blood_species_text].<br>"
-		else if(blood_volume <= BLOOD_VOLUME_OKAY)
+		else if(blood_level <= BLOOD_VOLUME_OKAY)
 			P.header += "Уровень крови: [span_color("КРИТИЧЕСКИЙ", "red")] - [blood_percent] %, [blood_volume] u, тип: [blood_type][blood_species_text].<br>"
 		else
 			P.header += "Уровень крови: [blood_percent] %, [blood_volume] u, тип: [blood_type][blood_species_text]."
@@ -401,7 +407,7 @@
 		if(H.bleed_rate)
 			data["bleed"] = TRUE
 
-		var/blood_percent =  round((H.blood_volume / BLOOD_VOLUME_NORMAL)*100)
+		var/blood_percent =  round((H.get_blood_volume(apply_modifiers = TRUE) / BLOOD_VOLUME_NORMAL)*100)
 		var/blood_type = H.dna.blood_type
 		var/blood_species = H.dna.species.blood_species
 
@@ -415,6 +421,7 @@
 		data["bloodData"] = list(
 			blood_percent = blood_percent,
 			blood_volume = H.blood_volume,
+			blood_level = H.get_blood_volume(apply_modifiers = TRUE),
 			blood_type = "[blood_type]",
 			blood_species = "[blood_species]"
 		)
@@ -725,7 +732,7 @@
 	if(blood_id)
 		if(H.bleed_rate)
 			scan_data += span_danger("Обнаружено кровотечение.")
-		var/blood_percent =  round((H.blood_volume / BLOOD_VOLUME_NORMAL)*100)
+		var/blood_percent =  round((H.get_blood_volume(apply_modifiers = TRUE) / BLOOD_VOLUME_NORMAL)*100)
 		var/blood_type = H.dna.blood_type
 		var/blood_species = H.dna.species.blood_species
 		var/ru_blood_species = list(
@@ -733,7 +740,9 @@
 			"Drask" = "Драск",
 			"Grey" = "Грей",
 			"Human" = "Человек",
+			"Resomi" = "Резоми",
 			"Tajaran" = "Таяран",
+			"Trottine" = "Троттин",
 			"Vulpkanin" = "Вульпканин",
 			"Skrell" = "Скрелл",
 			"Nian" = "Ниан",
@@ -753,9 +762,10 @@
 			else
 				blood_type = blood_id
 
-		if(H.blood_volume <= BLOOD_VOLUME_SAFE && H.blood_volume > BLOOD_VOLUME_OKAY)
+		var/blood_level = H.get_blood_volume(apply_modifiers = TRUE)
+		if(blood_level <= BLOOD_VOLUME_SAFE && blood_level > BLOOD_VOLUME_OKAY)
 			scan_data += "Уровень крови: [span_danger("НИЗКИЙ")] - [blood_percent] %, [H.blood_volume] u, тип: [blood_type][blood_species_text]."
-		else if(H.blood_volume <= BLOOD_VOLUME_OKAY)
+		else if(blood_level <= BLOOD_VOLUME_OKAY)
 			scan_data += "Уровень крови: [span_danger("<b>КРИТИЧЕСКИЙ</b>")] - [blood_percent] %, [H.blood_volume] u, тип: [blood_type][blood_species_text]."
 		else
 			scan_data += "Уровень крови: [blood_percent] %, [H.blood_volume] u, тип: [blood_type][blood_species_text]."
