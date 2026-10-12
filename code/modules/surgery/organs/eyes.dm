@@ -82,6 +82,7 @@
 		//If we're here, that means the mob acquired the colourblindness gene while they didn't have eyes. Better handle it.
 		target.update_client_colour()
 	RegisterSignal(target, COMSIG_COMPONENT_CLEAN_FACE_ACT, PROC_REF(on_face_wash))
+	target.update_sight()
 
 /obj/item/organ/internal/eyes/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	//If special is set, that means these eyes are getting deleted (i.e. during set_species())
@@ -89,7 +90,8 @@
 		LAZYOR(dependent_disabilities, TRAIT_COLORBLIND)
 		target.force_gene_block(GLOB.colourblindblock, FALSE)
 	UnregisterSignal(target, COMSIG_COMPONENT_CLEAN_FACE_ACT)
-	return ..()
+	. = ..()
+	target.update_sight()
 
 /// When our owner washes their face. The idea that spessmen wash their eyeballs is highly disturbing but this is the easiest way to get rid of cursed crayon eye coloring
 /obj/item/organ/internal/eyes/proc/on_face_wash()

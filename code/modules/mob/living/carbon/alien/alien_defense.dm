@@ -53,7 +53,7 @@
 		if(INTENT_GRAB)
 			grabbedby(M)
 		if(INTENT_HARM)
-			M.do_attack_animation(src, ATTACK_EFFECT_PUNCH)
+			M.do_attack_animation(src, M.dna.species.unarmed.animation_type)
 		if(INTENT_DISARM)
 			M.do_attack_animation(src, ATTACK_EFFECT_DISARM)
 			return 1

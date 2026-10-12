@@ -323,7 +323,7 @@
 	else if(nutrition >= NUTRITION_LEVEL_FAT)
 		msg += span_warning("[GEND_HE_SHE_CAP(src)] выгляд[PLUR_IT_YAT(src)] довольно полн[GEND_YM_OI_YM_YMI(src)].\n")
 
-	if(dna.species.can_be_pale && blood_volume < BLOOD_VOLUME_PALE && ((get_covered_bodyparts() & FULL_BODY) != FULL_BODY))
+	if(dna.species.can_be_pale && get_blood_volume(apply_modifiers = TRUE) < BLOOD_VOLUME_PALE && ((get_covered_bodyparts() & FULL_BODY) != FULL_BODY))
 		msg += span_warning("У н[GEND_HIS_HER(src)] бледная кожа.\n")
 
 	var/datum/antagonist/vampire/vampire_datum = mind?.has_antag_datum(/datum/antagonist/vampire)
@@ -360,9 +360,10 @@
 
 	if(hasHUD(user, EXAMINE_HUD_MEDICAL) && !HAS_TRAIT(src, TRAIT_NO_BLOOD) && blood_volume < max_blood)
 		var/blood_volume_text
-		if(blood_volume >= BLOOD_VOLUME_PALE)
+		var/blood_level = get_blood_volume(apply_modifiers = TRUE)
+		if(blood_level >= BLOOD_VOLUME_PALE)
 			blood_volume_text = span_warning("Пониженный уровень крови.")
-		else if(blood_volume >= BLOOD_VOLUME_BAD)
+		else if(blood_level >= BLOOD_VOLUME_BAD)
 			blood_volume_text = span_warning("Низкий уровень крови.")
 		else
 			blood_volume_text = span_warning("Критический уровень крови!")

@@ -148,6 +148,8 @@
 	var/bodyflags = 0
 	var/list/worn_sheets
 	var/fit_profile
+	var/inhand_offset_y = 0
+	var/inhand_scale = 1
 
 	var/blood_color = BLOOD_COLOR_RED
 	var/flesh_color = "#d1aa2e" //Gold.
@@ -380,6 +382,7 @@
 
 	if(blood_volume_mod != 1)
 		target.setBlood(target.blood_volume * blood_volume_mod)
+		target.max_blood = BLOOD_VOLUME_NORMAL * blood_volume_mod
 
 	if(toolspeedmod)
 		target.add_or_update_variable_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod, multiplicative_slowdown = toolspeedmod)
@@ -448,6 +451,7 @@
 
 	if(blood_volume_mod != 1)
 		human.setBlood(human.blood_volume / blood_volume_mod)
+		human.max_blood = BLOOD_VOLUME_NORMAL
 
 	if(toolspeedmod)
 		human.remove_actionspeed_modifier(/datum/actionspeed_modifier/species_tool_mod)
@@ -489,7 +493,7 @@
 		regenerate = FALSE
 		H.adjustBruteLoss(1)
 
-	if(regenerate && (H.blood_volume > BLOOD_VOLUME_REGENERATION) && HAS_TRAIT(H, TRAIT_HAS_REGENERATION) && (H.getBruteLoss() || H.getFireLoss()))
+	if(regenerate && (H.get_blood_volume(apply_modifiers = TRUE) > BLOOD_VOLUME_REGENERATION) && HAS_TRAIT(H, TRAIT_HAS_REGENERATION) && (H.getBruteLoss() || H.getFireLoss()))
 		H.heal_overall_damage(0.1, 0.1)
 
 /**

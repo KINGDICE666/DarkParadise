@@ -1010,9 +1010,9 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, toggle_camera_light, "Подсвет
 	if(!camera_light_on)
 		to_chat(src, "Camera lights deactivated.")
 
-		for(var/obj/machinery/camera/C in lit_cameras)
-			C.set_light(l_on = FALSE)
-			lit_cameras = list()
+		for(var/obj/machinery/camera/C in lit_cameras.Copy())
+			lit_cameras -= C
+			C.Togglelight(FALSE)
 
 		return
 

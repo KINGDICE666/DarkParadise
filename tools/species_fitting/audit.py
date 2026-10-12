@@ -55,12 +55,13 @@ def _covered(pixels, mask):
 
 
 class Auditor:
-    def __init__(self, target_path, target_git_ref=None, max_squash=0, bare_parts=(), pixel_map=None):
+    def __init__(self, target_path, target_git_ref=None, max_squash=0, bare_parts=(), pixel_map=None,
+                 sheet_pixel_maps=None, cover_parts=False):
         self.reference_sheet, self.width, self.height = read_dmi(REFERENCE)
         self.target_sheet, _, _ = read_dmi(target_path, target_git_ref)
         self.fitter = SpeciesFit(self.reference_sheet, self.target_sheet,
                                  self.width, self.height, "shrink", "auto", max_squash, True, True,
-                                 bare_parts, pixel_map)
+                                 bare_parts, pixel_map, sheet_pixel_maps, cover_parts)
         self.bare_parts = tuple(bare_parts)
         self.target_body, self.reference_head, self.target_head, self.visible = {}, {}, {}, {}
         self.reference_tiers, self.target_tiers = {}, {}
@@ -81,9 +82,9 @@ class Auditor:
                 body_mask(self.target_sheet, states, dir_index, self.width, self.height)
                 for states in TIER_STATES]
 
-    def frame_scores(self, frame, dir_index, dresses_head, dressed_parts, warps_head):
+    def frame_scores(self, frame, dir_index, dresses_head, dressed_parts, warps_head, sheet=None):
         vanilla = _pixels(frame, self.width, self.height)
-        fitted, _ = self.fitter.fit_frame(frame, dir_index, dresses_head, dressed_parts, warps_head)
+        fitted, _ = self.fitter.fit_frame(frame, dir_index, dresses_head, dressed_parts, warps_head, sheet)
         scores = dict.fromkeys(AXES, 0)
         for tier in range(len(TIER_STATES)):
             reference_mask = self.reference_tiers[dir_index][tier]
@@ -120,7 +121,7 @@ class Auditor:
                 for dir_index in range(4):
                     for axis, value in self.frame_scores(
                             frame_for_dir(sheet, state, dir_index), dir_index, dresses_head,
-                            dressed_parts, warps_head).items():
+                            dressed_parts, warps_head, sheet_path.replace("\\", "/")).items():
                         totals[axis] += value
                 yield sheet_path, state, totals
 
@@ -180,7 +181,8 @@ def audit_all(sheets):
         covered = hand_drawn_states(name)
         for vanilla_path, manual_path in profile["manual_sheets"].items():
             covered.update((Path(vanilla_path).name, state) for state in read_dmi(manual_path)[0])
-        auditor = Auditor(profile["target"], None, profile["max_squash"], profile["bare_parts"], profile["pixel_map"])
+        auditor = Auditor(profile["target"], None, profile["max_squash"], profile["bare_parts"], profile["pixel_map"],
+                          profile["sheet_pixel_maps"], profile["cover_parts"])
         totals = dict.fromkeys(AXES, 0)
         states = 0
         active_sheets = [sheet for sheet in sheets if sheet.replace("\\", "/") not in profile["blocked_sheets"]]

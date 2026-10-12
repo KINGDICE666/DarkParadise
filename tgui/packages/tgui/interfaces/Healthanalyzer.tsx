@@ -39,6 +39,8 @@ const BLOOD_TYPE_MAP = new Map([
   ['Kidan', 'Кидан'],
   ['Wryn', 'Врин'],
   ['Vox', 'Вокс'],
+  ['Resomi', 'Резоми'],
+  ['Trottine', 'Троттин'],
 ]);
 
 type HealthanalyzerData = {
@@ -103,6 +105,7 @@ type DamageLevels = {
 
 type BloodData = {
   blood_volume: number;
+  blood_level: number;
   blood_percent: number;
   blood_type: string;
   blood_species: string;
@@ -296,13 +299,13 @@ export const Healthanalyzer = (props: unknown) => {
 
                     {scan_data.bloodData && (
                       <LabeledList.Item label="Уровень крови">
-                        {scan_data.bloodData.blood_volume <= 501 &&
-                          scan_data.bloodData.blood_volume > 346 && (
+                        {scan_data.bloodData.blood_level <= 501 &&
+                          scan_data.bloodData.blood_level > 346 && (
                             <span style={{ color: 'red', fontWeight: 'bold' }}>
                               НИЗКИЙ{' '}
                             </span>
                           )}
-                        {scan_data.bloodData.blood_volume < 346 && (
+                        {scan_data.bloodData.blood_level < 346 && (
                           <span style={{ color: 'red', fontWeight: 'bold' }}>
                             КРИТИЧЕСКИЙ{' '}
                           </span>

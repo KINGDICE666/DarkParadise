@@ -201,8 +201,8 @@
 	var/icon/puzzle_icon
 
 /obj/structure/puzzle_element/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
-	if(!isturf(newloc) ||  moving_diagonally || get_dist(get_step(src,dir),get_turf(source)) > 1)
-		return 0
+	if(!isturf(newloc) || moving_diagonally || get_dist(newloc, get_turf(source)) > 1)
+		return FALSE
 
 	. = ..()
 

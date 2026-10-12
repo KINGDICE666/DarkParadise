@@ -792,7 +792,7 @@ GAME_VERB(/mob, cancel_camera, "Сбросить позицию камеры", V
 /mob/mouse_drop_dragged(atom/over_object, mob/living/user, src_location, over_location, params)
 	if(user == src || over_object != user || !HAS_TRAIT(user, TRAIT_CAN_STRIP))
 		return
-	if(!user.can_strip || isliving(user) && user.mob_size <= MOB_SIZE_SMALL)
+	if(!user.can_strip || isliving(user) && user.mob_size <= MOB_SIZE_SMALL && !HAS_TRAIT(user, TRAIT_SMALL_MOB))
 		return // Stops pAI drones and small mobs (borers, parrots, crabs) from stripping people. --DZD
 	if(IsFrozen(src) && !is_admin(user))
 		to_chat(user, span_boldnotice("Interacting with admin-frozen players is not permitted."))
@@ -1218,6 +1218,19 @@ GAME_VERB(/mob/dead/observer, respawn, "Стать животным", VERB_CATEG
 		return
 	for(var/atom/movable/screen/plane_master/rendering_plate/lighting/light_plane as anything in hud_used.get_true_plane_masters(RENDER_PLANE_LIGHTING))
 		light_plane.set_light_cutoff(lighting_cutoff, lighting_color_cutoffs)
+	sync_nightvision_screen()
+
+/mob/proc/sync_nightvision_screen()
+	var/atom/movable/screen/fullscreen/see_through_darkness/darkness_screen = screens["see_through_darkness"]
+	if(!darkness_screen)
+		return
+	var/suffix = ""
+	switch(nightvision)
+		if(3 to 8)
+			suffix = "_[nightvision]"
+		if(8 to INFINITY)
+			suffix = "_8"
+	darkness_screen.icon_state = "[darkness_screen::icon_state][suffix]"
 
 ///Adjust the nutrition of a mob
 /mob/proc/adjust_nutrition(change, forced)

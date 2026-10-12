@@ -16,7 +16,7 @@
 	inherent_traits = list(
 		TRAIT_HAS_REGENERATION,
 	)
-	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT
+	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	bodyflags = HAS_HEAD_ACCESSORY | HAS_HEAD_MARKINGS | HAS_BODY_MARKINGS | HAS_WING | HAS_SKIN_COLOR
 	reagent_tag = ORGANIC
 	tox_mod = 1.5

@@ -516,13 +516,7 @@ world
 		if(appearance.alpha < 255)
 			flat.Blend(rgb(255, 255, 255, appearance.alpha), ICON_MULTIPLY)
 
-		if(no_anim)
-			//Clean up repeated frames
-			var/icon/cleaned = new /icon()
-			cleaned.Insert(flat, "", SOUTH, 1, 0)
-			return cleaned
-		else
-			return icon(flat, "", SOUTH)
+		return icon(flat, "", SOUTH, no_anim ? TRUE : null)
 	else if(render_icon) // There's no overlays.
 		var/icon/final_icon = icon(icon(curicon, curstate, base_icon_dir), "", SOUTH, no_anim ? TRUE : null)
 

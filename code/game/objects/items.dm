@@ -873,6 +873,11 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
  * You can easily overriride it for different behavior on other items.
  */
 /obj/item/proc/run_drop_held_item(mob/user)
+	var/mob/living/hider = user
+	var/obj/item/storage/hiding_place = isliving(hider) && hider.is_hiding_in_storage() ? hider.loc.loc : null
+	if(hiding_place?.can_be_inserted(src, stop_messages = TRUE))
+		hiding_place.handle_item_insertion(src)
+		return
 	user.drop_from_active_hand()
 
 /**
@@ -944,6 +949,12 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 			to_chat(user, span_warning("Неведомая сила не позволяет Вам надеть [declent_ru(ACCUSATIVE)]."))
 		return FALSE
 	return TRUE
+
+/obj/item/proc/contains_pickupable_humanoid_holder()
+	for(var/obj/item/holder/holder in get_all_contents())
+		if(holder.held_mob && HAS_TRAIT(holder.held_mob, TRAIT_SMALL_MOB))
+			return TRUE
+	return FALSE
 
 /**
  * Mob 'M' is attempting to equip this item into the slot passed through as 'slot'. Return `TRUE` if it can do this and `FALSE` if it can't.
@@ -1466,7 +1477,11 @@ GAME_VERB_SRC(/obj/item, verb_pickup, oview(1), "Pick up", VERB_CATEGORY_HIDDEN)
 /obj/item/proc/on_thrown(mob/living/carbon/user, atom/target)
 	if((item_flags & ABSTRACT) || HAS_TRAIT(src, TRAIT_NODROP))
 		return
-	user.drop_item_ground(src, silent = TRUE)
+	if(user.is_hiding_in_storage())
+		if(!user.drop_transfer_item_to_loc(src, get_turf(user), silent = TRUE))
+			return
+	else
+		user.drop_item_ground(src, silent = TRUE)
 	if(throwforce && HAS_TRAIT(user, TRAIT_PACIFISM))
 		to_chat(src, span_notice("Вы осторожно опускаете [declent_ru(ACCUSATIVE)] на землю."))
 		return

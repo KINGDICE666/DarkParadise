@@ -310,7 +310,7 @@
 	if(!status)
 		return
 
-	var/lit_state = "[base_state]_[light_range ? "in_use" : "on"]"
+	var/lit_state = "[base_state]_[light_on && light_range ? "in_use" : "on"]"
 	. += lit_state
 	. += emissive_appearance(icon, lit_state, src, alpha = alpha)
 
@@ -440,7 +440,7 @@
 	if(on)
 		set_light(AI_CAMERA_LUMINOSITY, l_on = TRUE)
 	else
-		set_light(0)
+		set_light(0, l_on = FALSE)
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/camera/proc/nano_structure()
