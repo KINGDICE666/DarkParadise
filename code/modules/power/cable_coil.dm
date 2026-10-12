@@ -1,5 +1,10 @@
 #define HEALPERCABLE 3
 #define MAXCABLEPERHEAL 8
+#define CABLE_CRAFT_RESTRAINS "cable restraints (15)"
+#define CABLE_CRAFT_TOURNIQUET "самодельный жгут (20)"
+#define CABLE_CRAFT_CABLE_HUB "мост для проводов"
+#define CABLE_CRAFT_MULTIZ_CABLE_HUB "multi z cable hub (10)"
+#define CABLE_CRAFT_RECOLOUR_CABLE "сменить цвет"
 /obj/item/stack/cable_coil
 	name = "cable coil"
 	singular_name = "cable"
@@ -24,6 +29,17 @@
 	attack_verb = list("хлестнул", "стегнул", "проучил", "выпорол")
 	usesound = 'sound/items/deconstruct.ogg'
 	toolbox_radial_menu_compatibility = TRUE
+	var/obj/structure/cable/target_type = /obj/structure/cable
+	var/target_layer = CABLE_LAYER_2
+	var/list/craft_choices = list(
+		CABLE_CRAFT_RESTRAINS,
+		CABLE_CRAFT_TOURNIQUET,
+		CABLE_LAYER_1_NAME,
+		CABLE_LAYER_2_NAME,
+		CABLE_LAYER_3_NAME,
+		CABLE_CRAFT_CABLE_HUB,
+		CABLE_CRAFT_MULTIZ_CABLE_HUB,
+	)
 
 	var/static/list/wire_colors = list(
 		CABLE_HEX_COLOR_BLUE = "blue",
@@ -77,6 +93,8 @@
 
 /obj/item/stack/cable_coil/examine(mob/user)
 	. = ..()
+	var/mode_name = ispath(target_type, /obj/structure/cable/multilayer) ? CABLE_CRAFT_CABLE_HUB : cable_layer_name(target_layer)
+	. += span_notice("Режим прокладки: [mode_name]. Используйте в руке, чтобы сменить слой.")
 	if(is_cyborg || !in_range(user, src))
 		return
 	if(get_amount() == 1)
@@ -93,29 +111,50 @@
 		user.visible_message(span_suicide("[user] is strangling [user.p_them()]self with the [name]! It looks like [user.p_theyre()] trying to commit suicide."))
 	return OXYLOSS
 
-
-#define CABLE_CRAFT_RESTRAINS "cable restraints (15)"
-#define CABLE_CRAFT_TOURNIQUET "самодельный жгут (20)"
-#define CABLE_CRAFT_MULTIZ_CABLE_HUB "multi z cable hub (10)"
-
 ///////////////////////////////////
 // General procedures
 ///////////////////////////////////
 /obj/item/stack/cable_coil/attack_self(mob/user)
-	var/image/restraints_icon = image(icon = 'icons/obj/items.dmi', icon_state = "cuff_white")
-	var/image/tourniquet_icon = image(icon = 'icons/obj/medicine/packs.dmi', icon_state = "makeshift_tourniquet")
-	var/image/multiz_icon = image(icon = 'icons/obj/engines_and_power/power.dmi', icon_state = "cable_bridge")
-	var/choices = list(
-		CABLE_CRAFT_RESTRAINS = restraints_icon,
-		CABLE_CRAFT_TOURNIQUET = tourniquet_icon,
-		CABLE_CRAFT_MULTIZ_CABLE_HUB = multiz_icon,
+	var/static/list/all_choices = list(
+		CABLE_CRAFT_RESTRAINS = image(icon = 'icons/obj/items.dmi', icon_state = "cuff_white"),
+		CABLE_CRAFT_TOURNIQUET = image(icon = 'icons/obj/medicine/packs.dmi', icon_state = "makeshift_tourniquet"),
+		CABLE_LAYER_1_NAME = image(icon = 'icons/hud/radial.dmi', icon_state = "coil-yellow"),
+		CABLE_LAYER_2_NAME = image(icon = 'icons/hud/radial.dmi', icon_state = "coil-red"),
+		CABLE_LAYER_3_NAME = image(icon = 'icons/hud/radial.dmi', icon_state = "coil-blue"),
+		CABLE_CRAFT_CABLE_HUB = image(icon = 'icons/obj/engines_and_power/power.dmi', icon_state = "cable_bridge"),
+		CABLE_CRAFT_MULTIZ_CABLE_HUB = image(icon = 'icons/obj/engines_and_power/power.dmi', icon_state = "cable_bridge"),
+		CABLE_CRAFT_RECOLOUR_CABLE = image(icon = 'icons/obj/items.dmi', icon_state = "paint_green"),
 	)
+	var/list/choices = list()
+	for(var/choice_name in craft_choices)
+		choices[choice_name] = all_choices[choice_name]
 	var/choice = show_radial_menu(user, src, choices, custom_check = CALLBACK(src, PROC_REF(check_menu), user))
 	if(!check_menu(user))
 		return
 
 	var/turf/T = get_turf(src)
 	switch(choice)
+		if(CABLE_LAYER_1_NAME)
+			select_layer(user, /obj/structure/cable/layer1, CABLE_LAYER_1, CABLE_HEX_COLOR_YELLOW)
+
+		if(CABLE_LAYER_2_NAME)
+			select_layer(user, /obj/structure/cable, CABLE_LAYER_2, CABLE_HEX_COLOR_RED)
+
+		if(CABLE_LAYER_3_NAME)
+			select_layer(user, /obj/structure/cable/layer3, CABLE_LAYER_3, CABLE_HEX_COLOR_BLUE)
+
+		if(CABLE_CRAFT_CABLE_HUB)
+			target_type = /obj/structure/cable/multilayer
+			target_layer = CABLE_LAYER_2
+			balloon_alert(user, "режим моста")
+
+		if(CABLE_CRAFT_RECOLOUR_CABLE)
+			var/cablecolor = tgui_input_list(user, "Pick a cable color.", "Cable Color", list("red", "yellow", "green", "blue", "pink", "orange", "cyan", "white"))
+			if(!cablecolor)
+				return
+			cable_color(cablecolor)
+			update_icon()
+
 		if(CABLE_CRAFT_RESTRAINS)
 			if(get_amount() < 15)
 				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
@@ -170,16 +209,19 @@
 				var/obj/structure/cable/multiz/multicable = new(T)
 				multicable.cable_color(color)
 
+/obj/item/stack/cable_coil/proc/select_layer(mob/user, new_type, new_layer, new_color)
+	target_type = new_type
+	target_layer = new_layer
+	cable_color(new_color)
+	update_icon()
+	balloon_alert(user, cable_layer_name(new_layer))
+
 /obj/item/stack/cable_coil/proc/check_menu(mob/living/user)
 	if(!istype(user))
 		return FALSE
 	if(user.incapacitated() || user.get_active_hand() != src)
 		return FALSE
 	return TRUE
-
-#undef CABLE_CRAFT_RESTRAINS
-#undef CABLE_CRAFT_TOURNIQUET
-#undef CABLE_CRAFT_MULTIZ_CABLE_HUB
 
 //you can use wires to heal robotics
 /obj/item/stack/cable_coil/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
@@ -259,7 +301,7 @@
 //////////////////////////////////////////////
 
 /obj/item/stack/cable_coil/proc/get_new_cable(location)
-	var/obj/structure/cable/C = new(location)
+	var/obj/structure/cable/C = new target_type(location)
 	C.cable_color(color)
 
 	return C
@@ -268,6 +310,9 @@
 /obj/item/stack/cable_coil/proc/place_turf(turf/T, mob/user, dirnew)
 	if(!isturf(user.loc))
 		return
+
+	if(ispath(target_type, /obj/structure/cable/multilayer))
+		return place_hub(T, user)
 
 	if(!isturf(T) || !T.can_lay_cable())
 		to_chat(user, span_warning("You can only lay cables on catwalks and plating!"))
@@ -291,7 +336,7 @@
 		dirn = dirnew
 
 	for(var/obj/structure/cable/LC in T)
-		if(LC.d2 == dirn && LC.d1 == 0)
+		if(LC.d2 == dirn && LC.d1 == 0 && (LC.cable_layer & target_layer))
 			to_chat(user, span_warning("There's already a cable at that position!"))
 			return
 
@@ -323,6 +368,97 @@
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_CABLE_UPDATED, T)
 	return C
 
+/obj/item/stack/cable_coil/interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
+	if(!isturf(interacting_with) && !istype(interacting_with, /obj/structure/cable))
+		return NONE
+	if(istype(interacting_with, /obj/structure/cable/multiz))
+		return NONE
+	if(ispath(target_type, /obj/structure/cable/multilayer))
+		place_hub(get_turf(interacting_with), user)
+		return ITEM_INTERACT_SUCCESS
+	place_straight(get_turf(interacting_with), user)
+	return ITEM_INTERACT_SUCCESS
+
+/obj/item/stack/cable_coil/proc/place_hub(turf/target_turf, mob/user)
+	if(!isturf(user.loc) || get_dist(target_turf, user) > 1)
+		return
+	if(!target_turf.can_lay_cable())
+		balloon_alert(user, "нужно снять плитку!")
+		return
+	if(locate(/obj/structure/cable/multilayer) in target_turf)
+		balloon_alert(user, "тут уже есть мост!")
+		return
+	if(!use(1))
+		balloon_alert(user, "недостаточно кабеля!")
+		return
+	var/obj/structure/cable/multilayer/hub = new(target_turf)
+	var/datum/powernet/new_powernet = new()
+	new_powernet.add_cable(hub)
+	hub.mergeConnectedNetworksOnTurf()
+	hub.add_fingerprint(user)
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_CABLE_UPDATED, target_turf)
+	return hub
+
+/obj/item/stack/cable_coil/proc/place_straight(turf/target_turf, mob/user)
+	if(!isturf(user.loc))
+		return
+	if(!target_turf.can_lay_cable())
+		balloon_alert(user, "нужно снять плитку!")
+		return
+	if(get_dist(target_turf, user) > 1)
+		balloon_alert(user, "слишком далеко!")
+		return
+
+	var/axis = target_turf == user.loc ? user.dir : get_dir(user, target_turf)
+	var/end_one = min(axis, REVERSE_DIR(axis))
+	var/end_two = max(axis, REVERSE_DIR(axis))
+
+	var/obj/structure/cable/stub
+	for(var/obj/structure/cable/turf_cable in target_turf)
+		if(!(turf_cable.cable_layer & target_layer))
+			continue
+		if(turf_cable.d1 == end_one && turf_cable.d2 == end_two)
+			balloon_alert(user, "тут уже есть кабель!")
+			return
+		if(!stub && !turf_cable.d1 && (turf_cable.d2 == end_one || turf_cable.d2 == end_two) && !istype(turf_cable, /obj/structure/cable/multiz))
+			stub = turf_cable
+
+	var/cost = stub ? 1 : 2
+	if(get_amount() < cost)
+		balloon_alert(user, "недостаточно кабеля!")
+		return
+
+	var/obj/structure/cable/new_cable = stub
+	if(stub)
+		stub.cable_color(color)
+	else
+		new_cable = get_new_cable(target_turf)
+		var/datum/powernet/new_powernet = new()
+		new_powernet.add_cable(new_cable)
+
+	new_cable.d1 = end_one
+	new_cable.d2 = end_two
+	new_cable.add_fingerprint(user)
+	new_cable.update_icon(UPDATE_ICON_STATE)
+
+	new_cable.mergeConnectedNetworks(end_one)
+	new_cable.mergeConnectedNetworks(end_two)
+	new_cable.mergeConnectedNetworksOnTurf()
+	if(end_one & (end_one - 1))
+		new_cable.mergeDiagonalsNetworks(end_one)
+	if(end_two & (end_two - 1))
+		new_cable.mergeDiagonalsNetworks(end_two)
+
+	use(cost)
+
+	if(new_cable.shock(user, 50) && prob(50))
+		new_cable.deconstruct()
+		return
+
+	if(stub)
+		new_cable.denode()
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_CABLE_UPDATED, target_turf)
+
 // called when cable_coil is click on an installed obj/cable
 // or click on a turf that already contains a "node" cable
 /obj/item/stack/cable_coil/proc/cable_join(obj/structure/cable/C, mob/user)
@@ -341,7 +477,7 @@
 		to_chat(user, span_warning("You can't lay cable at a place that far away!"))
 		return
 
-	if(U == T) //if clicked on the turf we're standing on, try to put a cable in the direction we're facing
+	if(U == T || ispath(target_type, /obj/structure/cable/multilayer) || istype(C, /obj/structure/cable/multilayer) || !(C.cable_layer & target_layer)) //if clicked on the turf we're standing on, try to put a cable in the direction we're facing
 		place_turf(T,user)
 		return
 
@@ -359,7 +495,7 @@
 		var/fdirn = turn(dirn, 180)		// the opposite direction
 
 		for(var/obj/structure/cable/LC in U)		// check to make sure there's not a cable there already
-			if(LC.d1 == fdirn || LC.d2 == fdirn)
+			if((LC.d1 == fdirn || LC.d2 == fdirn) && (LC.cable_layer & target_layer))
 				to_chat(user, span_warning("There's already a cable at that position!"))
 				return
 
@@ -399,6 +535,8 @@
 
 		for(var/obj/structure/cable/LC in T)		// check to make sure there's no matching cable
 			if(LC == C)			// skip the cable we're interacting with
+				continue
+			if(!(LC.cable_layer & target_layer))
 				continue
 			if((LC.d1 == nd1 && LC.d2 == nd2) || (LC.d1 == nd2 && LC.d2 == nd1))	// make sure no cable matches either direction
 				to_chat(user, span_warning("There's already a cable at that position!"))
@@ -485,11 +623,19 @@
 	name = "cyborg cable coil"
 	is_cyborg = TRUE
 	energy_type = /datum/robot_energy_storage/wire
-
-/obj/item/stack/cable_coil/cyborg/attack_self(mob/user)
-	var/cablecolor = tgui_input_list(user, "Pick a cable color.", "Cable Color", list("red", "yellow", "green", "blue", "pink", "orange", "cyan", "white"))
-	color = cablecolor
-	update_icon()
+	craft_choices = list(
+		CABLE_LAYER_1_NAME,
+		CABLE_LAYER_2_NAME,
+		CABLE_LAYER_3_NAME,
+		CABLE_CRAFT_CABLE_HUB,
+		CABLE_CRAFT_MULTIZ_CABLE_HUB,
+		CABLE_CRAFT_RECOLOUR_CABLE,
+	)
 
 #undef MAXCABLEPERHEAL
 #undef HEALPERCABLE
+#undef CABLE_CRAFT_RESTRAINS
+#undef CABLE_CRAFT_TOURNIQUET
+#undef CABLE_CRAFT_CABLE_HUB
+#undef CABLE_CRAFT_MULTIZ_CABLE_HUB
+#undef CABLE_CRAFT_RECOLOUR_CABLE

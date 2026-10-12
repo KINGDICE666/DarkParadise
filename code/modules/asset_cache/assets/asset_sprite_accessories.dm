@@ -12,39 +12,39 @@
 	var/list/preview_keys = list()
 
 /datum/asset/spritesheet_batched/sprite_accessories/create_spritesheets()
-	for(var/style in GLOB.hair_styles_full_list)
-		insert_preview(ACCESSORY_CATEGORY_HAIR, style, build_head_preview(GLOB.hair_styles_full_list[style]))
+	for(var/style in SSaccessories.hairstyles_list)
+		insert_preview(ACCESSORY_CATEGORY_HAIR, style, build_head_preview(SSaccessories.hairstyles_list[style]))
 
-	for(var/style in GLOB.facial_hair_styles_list)
-		insert_preview(ACCESSORY_CATEGORY_FACIAL_HAIR, style, build_head_preview(GLOB.facial_hair_styles_list[style]))
+	for(var/style in SSaccessories.facial_hairstyles_list)
+		insert_preview(ACCESSORY_CATEGORY_FACIAL_HAIR, style, build_head_preview(SSaccessories.facial_hairstyles_list[style]))
 
-	for(var/style in GLOB.head_accessory_styles_list)
-		insert_preview(ACCESSORY_CATEGORY_HEAD_ACCESSORY, style, build_head_preview(GLOB.head_accessory_styles_list[style]))
+	for(var/style in SSaccessories.head_accessory_list)
+		insert_preview(ACCESSORY_CATEGORY_HEAD_ACCESSORY, style, build_head_preview(SSaccessories.head_accessory_list[style]))
 
-	for(var/style in GLOB.hair_gradients_list)
-		insert_preview(ACCESSORY_CATEGORY_HAIR_GRADIENT, style, build_gradient_preview(GLOB.hair_gradients_list[style]))
+	for(var/style in SSaccessories.hair_gradients_list)
+		insert_preview(ACCESSORY_CATEGORY_HAIR_GRADIENT, style, build_gradient_preview(SSaccessories.hair_gradients_list[style]))
 
-	for(var/style in GLOB.marking_styles_list)
-		var/datum/sprite_accessory/body_markings/marking = GLOB.marking_styles_list[style]
+	for(var/style in SSaccessories.body_markings_list)
+		var/datum/sprite_accessory/body_markings/marking = SSaccessories.body_markings_list[style]
 		if(marking.marking_location == "head")
 			insert_preview(ACCESSORY_CATEGORY_MARKING, style, build_head_preview(marking))
 		else
 			insert_preview(ACCESSORY_CATEGORY_MARKING, style, build_body_preview(marking))
 
-	for(var/style in GLOB.alt_heads_list)
-		insert_preview(ACCESSORY_CATEGORY_ALT_HEAD, style, build_alt_head_preview(GLOB.alt_heads_list[style]))
+	for(var/style in SSaccessories.alt_heads_list)
+		insert_preview(ACCESSORY_CATEGORY_ALT_HEAD, style, build_alt_head_preview(SSaccessories.alt_heads_list[style]))
 
 	for(var/style in GLOB.body_accessory_by_name)
 		insert_preview(ACCESSORY_CATEGORY_BODY_ACCESSORY, style, build_body_accessory_preview(GLOB.body_accessory_by_name[style]))
 
-	for(var/style in GLOB.underwear_list)
-		insert_preview(ACCESSORY_CATEGORY_UNDERWEAR, style, build_undergarment_preview(GLOB.underwear_list[style], "uw"))
+	for(var/style in SSaccessories.underwear_list)
+		insert_preview(ACCESSORY_CATEGORY_UNDERWEAR, style, build_undergarment_preview(SSaccessories.underwear_list[style], "uw"))
 
-	for(var/style in GLOB.undershirt_list)
-		insert_preview(ACCESSORY_CATEGORY_UNDERSHIRT, style, build_undergarment_preview(GLOB.undershirt_list[style], "us"))
+	for(var/style in SSaccessories.undershirt_list)
+		insert_preview(ACCESSORY_CATEGORY_UNDERSHIRT, style, build_undergarment_preview(SSaccessories.undershirt_list[style], "us"))
 
-	for(var/style in GLOB.socks_list)
-		insert_preview(ACCESSORY_CATEGORY_SOCKS, style, build_undergarment_preview(GLOB.socks_list[style], "sk"))
+	for(var/style in SSaccessories.socks_list)
+		insert_preview(ACCESSORY_CATEGORY_SOCKS, style, build_undergarment_preview(SSaccessories.socks_list[style], "sk"))
 
 /datum/asset/spritesheet_batched/sprite_accessories/proc/get_preview_key(category, style_name)
 	var/list/category_keys = preview_keys[category]
@@ -68,8 +68,8 @@
 		preview.blend_icon(layer, ICON_OVERLAY)
 	return crop_to_head(preview)
 
-/datum/asset/spritesheet_batched/sprite_accessories/proc/build_gradient_preview(datum/sprite_accessory/hair_gradient/gradient)
-	var/datum/sprite_accessory/hair/reference = GLOB.hair_styles_public_list[ACCESSORY_PREVIEW_GRADIENT_HAIR]
+/datum/asset/spritesheet_batched/sprite_accessories/proc/build_gradient_preview(datum/sprite_accessory/gradient/gradient)
+	var/datum/sprite_accessory/hair/reference = SSaccessories.hairstyles_list[ACCESSORY_PREVIEW_GRADIENT_HAIR]
 	var/datum/universal_icon/preview = build_species_head(list(SPECIES_HUMAN))
 	var/datum/universal_icon/hair = build_accessory_layer(reference)
 	if(!hair)

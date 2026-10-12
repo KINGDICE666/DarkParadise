@@ -583,7 +583,7 @@
 	name = "unathi meat steak"
 	icon_state = "meatstake_unathi"
 	list_reagents = list("nutriment" = 3, "vitamin" = 3, "protein" = 3)
-	tastes = list("unathi meat odor" = 1, "tomato" = 2, "harebell" = 1, "black pepper" = 2, "salt" = 2, "chiken" = 1)
+	tastes = list("unathi meat odor" = 1, "tomato" = 2, "harebell" = 1, "black pepper" = 2, "sodiumchloride" = 2, "chiken" = 1)
 
 /obj/item/reagent_containers/food/snacks/meatsteak/drask
 	name = "drask meat steak"
@@ -596,7 +596,7 @@
 	name = "grey meat steak"
 	icon_state = "meatstake_grey"
 	list_reagents = list("nutriment" = 3, "vitamin" = 3, "protein" = 3)
-	tastes = list("grey meat odor" = 1, "garlic" = 1, "cabbage" = 1, "tomato" = 2, "salt" = 2)
+	tastes = list("grey meat odor" = 1, "garlic" = 1, "cabbage" = 1, "tomato" = 2, "sodiumchloride" = 2)
 
 /obj/item/reagent_containers/food/snacks/meatsteak/skrell
 	name = "skrell meat steak"
@@ -615,7 +615,7 @@
 	desc = "A piece of hot spicy jelly."
 	icon_state = "meatstake_slime"
 	list_reagents = list("nutriment" = 3, "vitamin" = 3, "protein" = 3)
-	tastes = list("slime meat odor" = 1, "garlic" = 1, "sugar" = 1, "herbs" = 1, "lemon" = 1, "ambrosia" = 1, "salt" = 2)
+	tastes = list("slime meat odor" = 1, "garlic" = 1, "sugar" = 1, "herbs" = 1, "lemon" = 1, "ambrosia" = 1, "sodiumchloride" = 2)
 
 /obj/item/reagent_containers/food/snacks/meatsteak/wryn
 	name = "wryn meat steak"
@@ -627,7 +627,7 @@
 	name = "kidan meat steak"
 	icon_state = "meatstake_kidan"
 	list_reagents = list("nutriment" = 3, "vitamin" = 3, "protein" = 3)
-	tastes = list("kidan meat odor" = 1, "bug odor" = 1, "herbs" = 2, "olives" = 2, "salt" = 2)
+	tastes = list("kidan meat odor" = 1, "bug odor" = 1, "herbs" = 2, "olives" = 2, "sodiumchloride" = 2)
 
 /obj/item/reagent_containers/food/snacks/meatsteak/nian
 	name = "nian meat steak"
@@ -641,14 +641,14 @@
 	filling_color = "#548100"
 	icon_state = "meatstake_diona"
 	list_reagents = list("plantmatter" = 4, "vitamin" = 5)
-	tastes = list("diona odor" = 1, "salt" = 2, "herbs" = 1, "garlic" = 1, "lemon" = 1)
+	tastes = list("diona odor" = 1, "sodiumchloride" = 2, "herbs" = 1, "garlic" = 1, "lemon" = 1)
 	foodtype = VEGETABLES
 
 /obj/item/reagent_containers/food/snacks/meatsteak/monkey
 	name = "monkey meat steak"
 	icon_state = "meatstake_monkey"
 	list_reagents = list("nutriment" = 3, "vitamin" = 3, "protein" = 3)
-	tastes = list("monkey meat odor" = 1, "salt" = 2, "herbs" = 1, "lemon" = 1, "chili" = 2)
+	tastes = list("monkey meat odor" = 1, "sodiumchloride" = 2, "herbs" = 1, "lemon" = 1, "chili" = 2)
 
 /obj/item/reagent_containers/food/snacks/meatsteak/farwa
 	name = "farwa meat steak"
@@ -999,10 +999,10 @@
 	desc = "An egg! It looks weird..."
 
 /obj/item/reagent_containers/food/snacks/egg/gland/Initialize(mapload)
+	. = ..()
 	reagents.add_reagent(get_random_reagent_id(), 15)
 
 	color = mix_color_from_reagents(reagents.reagent_list)
-	. = ..()
 
 /obj/item/reagent_containers/food/snacks/friedegg
 	name = "fried egg"
@@ -1012,7 +1012,7 @@
 	filling_color = "#FFDF78"
 	bitesize = 1
 	list_reagents = list("nutriment" = 3, "egg" = 5)
-	tastes = list("egg" = 1, "salt" = 1, "pepper" = 1)
+	tastes = list("egg" = 1, "sodiumchloride" = 1, "pepper" = 1)
 	foodtype = EGG
 
 /obj/item/reagent_containers/food/snacks/boiledegg

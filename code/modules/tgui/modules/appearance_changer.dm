@@ -96,7 +96,7 @@
 
 		if("hair_gradient")
 			if(can_change(APPEARANCE_HAIR) && length(valid_hairstyles))
-				var/new_style = tgui_input_accessory(usr, "Please select gradient style", "Hair Gradient", GLOB.hair_gradients_list, head_organ.h_grad_style, ACCESSORY_CATEGORY_HAIR_GRADIENT)
+				var/new_style = tgui_input_accessory(usr, "Please select gradient style", "Hair Gradient", SSaccessories.hair_gradients_list, head_organ.h_grad_style, ACCESSORY_CATEGORY_HAIR_GRADIENT)
 				if(new_style)
 					owner.change_hair_gradient(style = new_style)
 

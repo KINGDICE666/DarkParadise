@@ -61,12 +61,12 @@
 	if(!ui)
 		ui = new(user, src, "EmotePanel")
 		ui.set_autoupdate(FALSE)
-		ui.open()
+		ui.open(user.client.emote_panel)
 
 /datum/emote_panel/ui_state(mob/user)
 	return GLOB.always_state
 
-GAME_VERB(/mob, emote_panel, "Панель эмоций", VERB_CATEGORY_IC)
-	if(!GLOB.emote_panel)
-		GLOB.emote_panel = new
-	GLOB.emote_panel.ui_interact(usr)
+/datum/emote_panel/ui_close(mob/user)
+	if(user.canon_client)
+		winset(user.canon_client, "statwindow.statemotes", "is-visible=false")
+	return ..()

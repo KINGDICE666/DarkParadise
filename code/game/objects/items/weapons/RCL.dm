@@ -18,6 +18,9 @@
 		add_fingerprint(user)
 		var/obj/item/stack/cable_coil/coil = I
 		if(!loaded)
+			if(ispath(coil.target_type, /obj/structure/cable/multilayer))
+				balloon_alert(user, "выберите слой на катушке!")
+				return ATTACK_CHAIN_PROCEED
 			if(!user.drop_transfer_item_to_loc(coil, src))
 				return ..()
 			loaded = coil

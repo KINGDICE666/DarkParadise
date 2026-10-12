@@ -714,21 +714,60 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	)
 
 /datum/supply_packs/security/laser
-	name = "Лазерные карабины"
+	name = "Лазерные карабины класса «Страж»"
 	contains = list(
-		/obj/item/gun/energy/laser,
-		/obj/item/gun/energy/laser,
-		/obj/item/gun/energy/laser,
+		/obj/item/gun/energy/laser/hitscan/carbine,
+		/obj/item/gun/energy/laser/hitscan/carbine,
+		/obj/item/gun/energy/laser/hitscan/carbine,
 	)
 	cost = 20
-	containername = "ящик лазерных карабинов"
+	containername = "ящик лазерных карабинов класса «Страж»"
 	container_ru_names = alist(
-		NOMINATIVE = "ящик лазерных карабинов",
-		GENITIVE = "ящика лазерных карабинов",
-		DATIVE = "ящику лазерных карабинов",
-		ACCUSATIVE = "ящик лазерных карабинов",
-		INSTRUMENTAL = "ящиком лазерных карабинов",
-		PREPOSITIONAL = "ящике лазерных карабинов",
+		NOMINATIVE = "ящик лазерных карабинов класса «Страж»",
+		GENITIVE = "ящика лазерных карабинов класса «Страж»",
+		DATIVE = "ящику лазерных карабинов класса «Страж»",
+		ACCUSATIVE = "ящик лазерных карабинов класса «Страж»",
+		INSTRUMENTAL = "ящиком лазерных карабинов класса «Страж»",
+		PREPOSITIONAL = "ящике лазерных карабинов класса «Страж»",
+	)
+
+/datum/supply_packs/security/energy_accum_laser
+	name = "Аккумуляторные карабины класса «Скорпион»"
+	contains = list(
+		/obj/item/gun/energy/accumulator/energy_carbine,
+		/obj/item/gun/energy/accumulator/energy_carbine,
+		/obj/item/gun/energy/accumulator/energy_carbine,
+		/obj/item/weapon_cell/energy_gun,
+		/obj/item/weapon_cell/energy_gun,
+		/obj/item/weapon_cell/energy_gun,
+	)
+	cost = 40
+	containername = "ящик аккумуляторных карабинов класса «Скорпион»"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик аккумуляторных карабинов класса «Скорпион»",
+		GENITIVE = "ящика аккумуляторных карабинов класса «Скорпион»",
+		DATIVE = "ящику аккумуляторных карабинов класса «Скорпион»",
+		ACCUSATIVE = "ящик аккумуляторных карабинов класса «Скорпион»",
+		INSTRUMENTAL = "ящиком аккумуляторных карабинов класса «Скорпион»",
+		PREPOSITIONAL = "ящике аккумуляторных карабинов класса «Скорпион»",
+	)
+
+/datum/supply_packs/security/automatic_laser
+	name = "Автоматические лазерные карабины класса «Гроза»"
+	contains = list(
+		/obj/item/gun/energy/laser/automatic/carbine,
+		/obj/item/gun/energy/laser/automatic/carbine,
+		/obj/item/gun/energy/laser/automatic/carbine,
+	)
+	cost = 30
+	containername = "ящик автоматических лазерных карабинов класса «Гроза»"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик автоматических лазерных карабинов класса «Гроза»",
+		GENITIVE = "ящика автоматических лазерных карабинов класса «Гроза»",
+		DATIVE = "ящику автоматических лазерных карабинов класса «Гроза»",
+		ACCUSATIVE = "ящик автоматических лазерных карабинов класса «Гроза»",
+		INSTRUMENTAL = "ящиком автоматических лазерных карабинов класса «Гроза»",
+		PREPOSITIONAL = "ящике автоматических лазерных карабинов класса «Гроза»",
 	)
 
 /datum/supply_packs/security/taser
@@ -1078,6 +1117,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		PREPOSITIONAL = "ящике ружейных пуль",
 	)
 
+/*
 /datum/supply_packs/security/armory/expenergy
 	name = "Энергетические карабины"
 	contains = list(
@@ -1096,6 +1136,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		INSTRUMENTAL = "ящиком энергетических карабинов",
 		PREPOSITIONAL = "ящике энергетических карабинов",
 	)
+*/
 
 /datum/supply_packs/security/armory/epistol // costs 3/5ths of the normal e-guns for 3/4ths the total ammo, making it cheaper to arm more people, but less convient for any one person
 	name = "Энергетические пистолеты"
@@ -1333,23 +1374,51 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	)
 
 /datum/supply_packs/security/armory/sparkle_a12
-	name = "Пистолет-пулемёты A9 \"Искра\""
+	name = "Пистолет-пулемёты  А-12 \"Искра\""
 	contains = list(
 		/obj/item/gun/projectile/automatic/smg/sparkle_a12,
 		/obj/item/gun/projectile/automatic/smg/sparkle_a12,
 		/obj/item/gun/projectile/automatic/smg/sparkle_a12,
 	)
 	cost = 50
-	containername = "ящик A9 \"Искра\""
+	containername = "ящик A12 \"Искра\""
 	container_ru_names = alist(
-		NOMINATIVE = "ящик A9 \"Искра\"",
-		GENITIVE = "ящика A9 \"Искра\"",
-		DATIVE = "ящику A9 \"Искра\"",
-		ACCUSATIVE = "ящик A9 \"Искра\"",
-		INSTRUMENTAL = "ящиком A9 \"Искра\"",
-		PREPOSITIONAL = "ящике A9 \"Искра\"",
+		NOMINATIVE = "ящик A12 \"Искра\"",
+		GENITIVE = "ящика A12 \"Искра\"",
+		DATIVE = "ящику A12 \"Искра\"",
+		ACCUSATIVE = "ящик A12 \"Искра\"",
+		INSTRUMENTAL = "ящиком A12 \"Искра\"",
+		PREPOSITIONAL = "ящике A12 \"Искра\"",
 	)
 
+/datum/supply_packs/security/armory/sparkle_a12_ammo
+	name = "Боеприпасы для пистолета-пулемёта А-12 \"Искра\""
+	contains = list(
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/magazine/sparkle_a12,
+		/obj/item/ammo_box/c9mm,
+		/obj/item/ammo_box/c9mm,
+		/obj/item/ammo_box/c9mm,
+		/obj/item/ammo_box/c9mm,
+		/obj/item/ammo_box/c9mm,
+		/obj/item/ammo_box/c9mm,
+	)
+	cost = 100
+	containername = "ящик боеприпасов для пистолета-пулемёта А-12 \"Искра\""
+	container_ru_names = alist(
+		NOMINATIVE = "ящик боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+		GENITIVE = "ящика боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+		DATIVE = "ящику боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+		ACCUSATIVE = "ящик боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+		INSTRUMENTAL = "ящиком боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+		PREPOSITIONAL = "ящике боеприпасов для пистолета-пулемёта А-12 \"Искра\"",
+	)
 /////// Implants & etc
 
 /datum/supply_packs/security/armory/mindshield
@@ -2323,6 +2392,25 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		ACCUSATIVE = "ящик продвинутых мультиметров",
 		INSTRUMENTAL = "ящиком продвинутых мультиметров",
 		PREPOSITIONAL = "ящике продвинутых мультиметров",
+	)
+
+/datum/supply_packs/engineering/atm_holosign
+	name = "Атмосферные голобарьеры"
+	containername = "ящик проекторов атмосферных голографических барьеров"
+	contains = list(
+		/obj/item/holosign_creator/atmos,
+		/obj/item/holosign_creator/atmos,
+		/obj/item/holosign_creator/atmos,
+	)
+	cost = 60
+	containername = "ящик проекторов атмосферных голографических барьеров"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик проекторов атмосферных голографических барьеров",
+		GENITIVE = "ящика проекторов атмосферных голографических барьеров",
+		DATIVE = "ящику проекторов атмосферных голографических барьеров",
+		ACCUSATIVE = "ящик проекторов атмосферных голографических барьеров",
+		INSTRUMENTAL = "ящиком проекторов атмосферных голографических барьеров",
+		PREPOSITIONAL = "ящике проекторов атмосферных голографических барьеров",
 	)
 
 ///////////// Station Goals
@@ -5556,7 +5644,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	)
 
 /datum/supply_packs/misc/randomised/New()
-	manifest += "Содержит [num_contained] люб[declension_ru(num_contained, "ой предмет", "ых предмета", "ых предметов")] из списка:"
+	manifest += "Содержит [num_contained] люб[DECL_OJ_YH_YH(num_contained)] предмет[DECL_0_A_OV(num_contained)] из списка:"
 	..()
 
 /datum/supply_packs/misc/foamforce
@@ -6527,7 +6615,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	)
 
 /datum/supply_packs/contraband/randomised/contraband/New()
-	manifest += "Содержит [num_contained] люб[declension_ru(num_contained, "ой предмет", "ых предмета", "ых предметов")] из списка:"
+	manifest += "Содержит [num_contained] люб[DECL_OJ_YH_YH(num_contained)] предмет[DECL_0_A_OV(num_contained)] из списка:"
 	..()
 
 /datum/supply_packs/contraband/foamforce/bonus

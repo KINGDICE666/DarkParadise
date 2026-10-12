@@ -206,9 +206,9 @@
 		to_chat(user, span_notice("The demons do not respond to your summon. Perhaps you should try again later."))
 
 /obj/item/antag_spawner/slaughter_demon/spawn_antag(client/C, turf/T, type = "", mob/user)
-	var/obj/effect/dummy/phased_mob/blood/holder = new /obj/effect/dummy/phased_mob/blood(T)
-	var/mob/living/simple_animal/demon/demon = new demon_type(holder)
-	demon.holder = holder
+	var/mob/living/simple_animal/demon/demon = new demon_type(T)
+	var/datum/action/cooldown/spell/jaunt/bloodcrawl/slaughter_demon/jaunt = locate() in demon.mob_spell_list
+	jaunt.enter_jaunt(demon)
 	demon.possess_by_player(C.key)
 	demon.mind.assigned_role = ROLE_DEMON
 	var/datum/antagonist/demon/demon_datum = new demon_datum_type

@@ -246,7 +246,7 @@
 	preview_icon.Blend(new /icon(icobase, "groin_[gender_suffix]"), ICON_OVERLAY)
 	var/head = "head"
 	if(alt_head && current_species.bodyflags & HAS_ALT_HEADS)
-		var/datum/sprite_accessory/alt_heads/H = GLOB.alt_heads_list[alt_head]
+		var/datum/sprite_accessory/alt_heads/H = SSaccessories.alt_heads_list[alt_head]
 		if(H.icon_state)
 			head = H.icon_state
 	preview_icon.Blend(new /icon(icobase, "[head]_[gender_suffix]"), ICON_OVERLAY)
@@ -304,8 +304,6 @@
 				icon = BA.icon
 				icon_state = BA.icon_state
 				blend_mode = BA.blend_mode || blend_mode
-				offset_x = BA.pixel_x_offset
-				offset_y = BA.pixel_y_offset
 				// If the body accessory has an underlay, account for it.
 				if(BA.has_behind)
 					underlay = new(icon, "[icon_state]_BEHIND")
@@ -322,7 +320,7 @@
 				temp.Blend(s_colour, blend_mode)
 			if(current_species.bodyflags & HAS_TAIL_MARKINGS)
 				var/tail_marking = m_styles["tail"]
-				var/datum/sprite_accessory/body_markings/BM = GLOB.marking_styles_list[tail_marking]
+				var/datum/sprite_accessory/body_markings/BM = SSaccessories.body_markings_list[tail_marking]
 				if(BM)
 					var/icon/t_marking_s = new(BM.icon, "[BM.icon_state]_s")
 					t_marking_s.Blend(m_colours["tail"], ICON_ADD)
@@ -340,14 +338,14 @@
 	if(current_species && ((current_species.bodyflags & HAS_HEAD_MARKINGS) || (current_species.bodyflags & HAS_BODY_MARKINGS)))
 		if(current_species.bodyflags & HAS_BODY_MARKINGS) //Body markings.
 			var/body_marking = m_styles["body"]
-			var/datum/sprite_accessory/body_marking_style = GLOB.marking_styles_list[body_marking]
+			var/datum/sprite_accessory/body_marking_style = SSaccessories.body_markings_list[body_marking]
 			if(body_marking_style?.species_allowed)
 				var/icon/b_marking_s = new/icon("icon" = body_marking_style.icon, "icon_state" = "[body_marking_style.icon_state]_s")
 				b_marking_s.Blend(m_colours["body"], ICON_ADD)
 				preview_icon.Blend(b_marking_s, ICON_OVERLAY)
 		if(current_species.bodyflags & HAS_HEAD_MARKINGS) //Head markings.
 			var/head_marking = m_styles["head"]
-			var/datum/sprite_accessory/head_marking_style = GLOB.marking_styles_list[head_marking]
+			var/datum/sprite_accessory/head_marking_style = SSaccessories.body_markings_list[head_marking]
 			if(head_marking_style?.species_allowed)
 				var/icon/h_marking_s = new/icon("icon" = head_marking_style.icon, "icon_state" = "[head_marking_style.icon_state]_s")
 				h_marking_s.Blend(m_colours["head"], ICON_ADD)
@@ -359,7 +357,7 @@
 		eyes_s.Blend(e_colour, ICON_ADD)
 		face_s.Blend(eyes_s, ICON_OVERLAY)
 
-	var/datum/sprite_accessory/hair_style = GLOB.hair_styles_full_list[h_style]
+	var/datum/sprite_accessory/hair_style = SSaccessories.hairstyles_list[h_style]
 	if(hair_style)
 		var/icon/hair_s = new/icon("icon" = hair_style.icon, "icon_state" = "[hair_style.icon_state]_s")
 		if(current_species.name == SPECIES_SLIMEPERSON) // whee I am part of the problem
@@ -367,7 +365,7 @@
 		else if(hair_style.do_colouration)
 			hair_s.Blend(h_colour, ICON_ADD)
 
-		var/datum/sprite_accessory/hair_gradient/gradient = GLOB.hair_gradients_list[h_grad_style]
+		var/datum/sprite_accessory/gradient/gradient = SSaccessories.hair_gradients_list[h_grad_style]
 		if(gradient)
 			var/icon/grad_s = new/icon("icon" = gradient.icon, "icon_state" = gradient.icon_state)
 			if(h_grad_offset_x)
@@ -389,13 +387,13 @@
 
 	//Head Accessory
 	if(current_species && (current_species.bodyflags & HAS_HEAD_ACCESSORY))
-		var/datum/sprite_accessory/head_accessory_style = GLOB.head_accessory_styles_list[ha_style]
+		var/datum/sprite_accessory/head_accessory_style = SSaccessories.head_accessory_list[ha_style]
 		if(head_accessory_style?.species_allowed)
 			var/icon/head_accessory_s = new/icon("icon" = head_accessory_style.icon, "icon_state" = "[head_accessory_style.icon_state]_s")
 			head_accessory_s.Blend(hacc_colour, ICON_ADD)
 			face_s.Blend(head_accessory_s, ICON_OVERLAY)
 
-	var/datum/sprite_accessory/facial_hair_style = GLOB.facial_hair_styles_list[f_style]
+	var/datum/sprite_accessory/facial_hair_style = SSaccessories.facial_hairstyles_list[f_style]
 	if(facial_hair_style?.species_allowed)
 		var/icon/facial_s = new/icon("icon" = facial_hair_style.icon, "icon_state" = "[facial_hair_style.icon_state]_s")
 		if(current_species.name == SPECIES_SLIMEPERSON) // whee I am part of the problem
@@ -413,7 +411,7 @@
 
 	var/icon/underwear_s = null
 	if(underwear && (current_species.clothing_flags & HAS_UNDERWEAR))
-		var/datum/sprite_accessory/underwear/U = GLOB.underwear_list[underwear]
+		var/datum/sprite_accessory/underwear/U = SSaccessories.underwear_list[underwear]
 		if(U)
 			underwear_s = fitted_underwear_icon(current_species, U, "uw_[U.icon_state]_s") //Species-fit the undergarment.
 			if(U.allow_change_color)
@@ -421,7 +419,7 @@
 
 	var/icon/undershirt_s = null
 	if(undershirt && (current_species.clothing_flags & HAS_UNDERSHIRT))
-		var/datum/sprite_accessory/undershirt/U2 = GLOB.undershirt_list[undershirt]
+		var/datum/sprite_accessory/undershirt/U2 = SSaccessories.undershirt_list[undershirt]
 		if(U2)
 			undershirt_s = fitted_underwear_icon(current_species, U2, "us_[U2.icon_state]_s")
 			if(U2.allow_change_color)
@@ -429,7 +427,7 @@
 
 	var/icon/socks_s = null
 	if(socks && (current_species.clothing_flags & HAS_SOCKS))
-		var/datum/sprite_accessory/socks/U3 = GLOB.socks_list[socks]
+		var/datum/sprite_accessory/socks/U3 = SSaccessories.socks_list[socks]
 		if(U3)
 			socks_s = fitted_underwear_icon(current_species, U3, "sk_[U3.icon_state]_s")
 
@@ -769,6 +767,19 @@
 				clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_OUTER_SUIT, "labcoat_open"), ICON_OVERLAY)
 				if(prob(1))
 					clothes_s.Blend(new /icon('icons/mob/inhands/items_righthand.dmi', "toolbox_blue"), ICON_OVERLAY)
+				switch(backbag)
+					if(2)
+						clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_BACK, "backpack"), ICON_OVERLAY)
+					if(3)
+						clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_BACK, "satchel-norm"), ICON_OVERLAY)
+					if(4)
+						clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_BACK, "satchel"), ICON_OVERLAY)
+
+			if(JOB_FLAG_EXPLORER)
+				clothes_s = worn_preview_icon(current_species, DEFAULT_ICON_JUMPSUIT, "explorer_s")
+				clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_SHOES, "black"), ICON_UNDERLAY)
+				clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_OUTER_SUIT, "armor"), ICON_OVERLAY)
+				clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_HEAD, "beret_black"), ICON_OVERLAY)
 				switch(backbag)
 					if(2)
 						clothes_s.Blend(worn_preview_icon(current_species, DEFAULT_ICON_BACK, "backpack"), ICON_OVERLAY)

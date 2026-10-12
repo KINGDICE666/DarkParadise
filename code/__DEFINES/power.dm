@@ -1,3 +1,12 @@
+#define CABLE_LAYER_ALL ALL
+#define CABLE_LAYER_1 (1<<0)
+	#define CABLE_LAYER_1_NAME "проводка двигателя"
+#define CABLE_LAYER_2 (1<<1)
+	#define CABLE_LAYER_2_NAME "проводка станции"
+#define CABLE_LAYER_3 (1<<2)
+	#define CABLE_LAYER_3_NAME "проводка отдела"
+#define CABLE_LAYER_OFFSET 4
+
 #define SOLAR_MAX_DIST 40
 
 #define TRACKER_OFF 0

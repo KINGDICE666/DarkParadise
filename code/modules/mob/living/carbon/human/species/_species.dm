@@ -5,6 +5,10 @@
 	var/name_plural
 	/// the "a" or "an" in "a Vulpkanin" or "an Abductor", use with singular version
 	var/a = "a"
+	/// Russian name of the species in the genitive case.
+	/// Appended to bodypart names, so a severed limb reads "левая нога человека" rather
+	/// than a bare "левая нога".
+	var/ru_genitive
 
 	/// Normal icon set.
 	var/icobase = 'icons/mob/human_races/r_human.dmi'
@@ -288,6 +292,12 @@
 
 	var/bonus_skill_free_points = 0
 
+	/**
+	 * Was on_species_gain ever actually called?
+	 * Species code is really odd...
+	 **/
+	var/properly_gained = FALSE
+
 /datum/species/New()
 	unarmed = new unarmed_type()
 
@@ -297,6 +307,20 @@
 
 /datum/species/proc/is_allowed_hair_style(mob/living/carbon/human/human, datum/robolimb/robohead, datum/sprite_accessory/style)
 	return TRUE
+
+/**
+ * Returns the species name in the genitive case, ready to be appended to a bodypart name.
+ *
+ * The result is already spaced, so it can be passed straight into
+ * [/atom/proc/set_ru_names_suffix].
+ *
+ * Returns:
+ * * `string` - " человека", or null if the species shouldn't be named in bodypart names.
+ */
+/datum/species/proc/get_bodypart_name_suffix()
+	if(!ru_genitive)
+		return null
+	return " [ru_genitive]"
 
 /proc/get_age_limits(datum/species/species, list/tags)
 	if(!islist(tags))
@@ -439,6 +463,8 @@
 	target.hud_used?.update_locked_slots()
 	gain_muscles(target, STRENGTH_LEVEL_DEFAULT, STRENGTH_LEVEL_MAXDEFAULT, TRUE)
 	target.update_body(TRUE)
+
+	properly_gained = TRUE
 
 /datum/species/proc/gain_muscles(mob/living/carbon/human/target, default, max_level, can_become_stronger = TRUE)
 	target.AddComponent(/datum/component/muscles, max_level, default, can_become_stronger)
@@ -1441,3 +1467,9 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 	head_organ.h_style = "Bald"
 	target.update_hair()
 	target.update_fhair()
+
+/datum/species/dump_harddel_info()
+	if(harddel_deets_dumped)
+		return
+	harddel_deets_dumped = TRUE
+	return "Gained / Owned: [properly_gained ? "Yes" : "No"]"
