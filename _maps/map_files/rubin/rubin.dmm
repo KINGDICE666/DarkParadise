@@ -1545,10 +1545,6 @@
 	icon_state = "bcircuitoff"
 	},
 /area/station/service/bar)
-"dG" = (
-/obj/structure/lattice/catwalk,
-/turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/maintenance/starboard)
 "dH" = (
 /obj/structure/bed,
 /obj/item/bedsheet/clown,
@@ -7598,9 +7594,6 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 6
 	},
-/obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 6
-	},
 /turf/simulated/floor/wood/fancy/light,
 /area/station/command/office/captain)
 "rY" = (
@@ -11708,10 +11701,7 @@
 /turf/simulated/floor/carpet,
 /area/station/cargo/storage)
 "Bx" = (
-/obj/structure/extinguisher_cabinet/directional/east{
-	pixel_y = 5;
-	pixel_x = 25
-	},
+/obj/structure/extinguisher_cabinet/directional/east,
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
@@ -12357,11 +12347,6 @@
 	icon_state = "Dark"
 	},
 /area/station/hallway/primary/port/south)
-"CS" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/railing/corner,
-/turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/maintenance/starboard)
 "CT" = (
 /obj/structure/disposalpipe/segment,
 /obj/item/wrench,
@@ -13735,7 +13720,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/visible/supply,
+/obj/machinery/atmospherics/pipe/simple/visible/universal,
 /turf/simulated/floor/plating,
 /area/station/engineering/atmos)
 "FY" = (
@@ -15226,9 +15211,7 @@
 	},
 /area/station/command/office/cmo)
 "IX" = (
-/obj/machinery/power/apc/directional/north{
-	pixel_x = 6
-	},
+/obj/machinery/power/apc/directional/north,
 /obj/structure/cable{
 	icon_state = "0-8"
 	},
@@ -15305,10 +15288,7 @@
 /obj/machinery/vending/medical{
 	req_access = list(3,5,19)
 	},
-/obj/machinery/alarm/directional/east{
-	pixel_x = 31;
-	pixel_y = 4
-	},
+/obj/machinery/alarm/directional/east,
 /turf/simulated/floor/plasteel{
 	icon_state = "Dark"
 	},
@@ -17694,13 +17674,6 @@
 	},
 /turf/simulated/floor/engine,
 /area/station/engineering/engine/reactor)
-"OE" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/railing{
-	dir = 6
-	},
-/turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/maintenance/starboard)
 "OF" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -18993,10 +18966,7 @@
 	},
 /area/station/hallway/primary/central)
 "RF" = (
-/obj/machinery/power/apc/directional/south{
-	pixel_y = -23;
-	pixel_x = 7
-	},
+/obj/machinery/power/apc/directional/south,
 /obj/structure/cable{
 	icon_state = "0-1"
 	},
@@ -19907,18 +19877,6 @@
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/carpet,
 /area/station/cargo/storage)
-"TI" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/railing{
-	dir = 4
-	},
-/turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/maintenance/starboard)
-"TJ" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/railing,
-/turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/maintenance/starboard)
 "TK" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -57315,12 +57273,12 @@ Xb
 Xb
 Xb
 Xb
-dG
-dG
-dG
-dG
-dG
-TJ
+Xb
+Xb
+Xb
+Xb
+Xb
+Xb
 Al
 Al
 Al
@@ -57571,13 +57529,13 @@ Xb
 Xb
 Xb
 Xb
-dG
-CS
-TI
-TI
-TI
-TI
-OE
+Xb
+Xb
+Xb
+Xb
+Xb
+Xb
+Xb
 Al
 Al
 Al
