@@ -4669,6 +4669,18 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/bar)
+"eIo" = (
+/obj/effect/turf_decal/tile/red{
+	dir = 1
+	},
+/obj/effect/turf_decal/tile/red{
+	dir = 4
+	},
+/obj/machinery/computer/sensors,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/syndicate/unpowered/syndicate_space_base/telecomms)
 "eIK" = (
 /obj/structure/flora/ausbushes/ywflowers,
 /obj/structure/flora/ausbushes/leafybush,
@@ -6089,6 +6101,22 @@
 	icon_state = "wood-broken3"
 	},
 /area/syndicate/unpowered/syndicate_space_base/maintenance/south)
+"gei" = (
+/obj/machinery/flasher_button{
+	id = "syndie_cells";
+	layer = 4;
+	name = "Prison Flasher";
+	pixel_y = -20
+	},
+/obj/machinery/atmospherics/unary/vent_scrubber/on{
+	dir = 1
+	},
+/obj/machinery/computer/cryopod{
+	pixel_y = -32;
+	req_access = list(150)
+	},
+/turf/simulated/floor/carpet/black,
+/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "geu" = (
 /obj/effect/turf_decal/tile/blue{
 	dir = 8
@@ -7545,6 +7573,22 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/bar)
+"htX" = (
+/obj/structure/table/reinforced,
+/obj/item/card/id/syndicate/comms_officer{
+	name = "Spare Comms Agent card";
+	pixel_y = 3
+	},
+/obj/item/coin/antagtoken/syndicate{
+	pixel_x = -6;
+	pixel_y = 6
+	},
+/obj/item/lighter/zippo/contractor{
+	name = "Comms Officer Zippo Lighter"
+	},
+/obj/machinery/transponder/taipan/directional/north,
+/turf/simulated/floor/carpet/black,
+/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "huf" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -8631,17 +8675,6 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/engineering)
-"iAI" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 4
-	},
-/obj/structure/cable{
-	icon_state = "4-8"
-	},
-/obj/machinery/sensor_array/long_range,
-/turf/simulated/floor/plating,
-/area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "iAV" = (
 /obj/machinery/atmospherics/pipe/simple/visible/yellow{
 	desc = "Труба хранит в себе набор газов для смешивания";
@@ -10051,6 +10084,23 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/engineering)
+"jQd" = (
+/obj/item/reagent_containers/food/snacks/syndicake{
+	pixel_x = 4;
+	pixel_y = -5
+	},
+/obj/structure/table/reinforced,
+/obj/machinery/turretid/lethal{
+	control_area = "Syndicate Space Turrets";
+	faction = "syndicate";
+	name = "External turrets control panel";
+	pixel_y = 6;
+	req_access = list(154);
+	syndicate = 1
+	},
+/obj/machinery/overmap_intercom/directional/south,
+/turf/simulated/floor/carpet/black,
+/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "jQX" = (
 /obj/structure/grille,
 /obj/structure/window/plastitanium,
@@ -10387,22 +10437,6 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/main/west_arrivals)
-"kkT" = (
-/obj/machinery/flasher_button{
-	id = "syndie_cells";
-	layer = 4;
-	name = "Prison Flasher";
-	pixel_y = -20
-	},
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 1
-	},
-/obj/machinery/computer/cryopod{
-	pixel_y = -32;
-	req_access = list(150)
-	},
-/turf/simulated/floor/carpet/black,
-/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "klF" = (
 /obj/effect/turf_decal/tile/neutral{
 	dir = 8
@@ -11152,6 +11186,16 @@
 /obj/structure/closet/secure_closet/syndicate/research_director,
 /turf/simulated/floor/carpet/black,
 /area/syndicate/unpowered/syndicate_space_base/rnd/rd_office)
+"kVk" = (
+/obj/structure/table/reinforced,
+/obj/item/paper_bin,
+/obj/item/pen/fountain,
+/obj/structure/window/plasmareinforced{
+	color = "#d70000";
+	dir = 4
+	},
+/turf/simulated/floor/carpet/black,
+/area/syndicate/unpowered/syndicate_space_base/teleporter/arrivals)
 "kVL" = (
 /obj/machinery/atmospherics/pipe/simple/visible/cyan{
 	desc = "Труба содержит дыхательную смесь для подачи на станцию";
@@ -12845,6 +12889,10 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/medbay/virology)
+"mqW" = (
+/obj/machinery/sensor_array/short_range,
+/turf/simulated/floor/plating,
+/area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "mrp" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -14728,22 +14776,6 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/torture_room)
-"nYK" = (
-/obj/structure/table/reinforced,
-/obj/item/card/id/syndicate/comms_officer{
-	name = "Spare Comms Agent card";
-	pixel_y = 3
-	},
-/obj/item/coin/antagtoken/syndicate{
-	pixel_x = -6;
-	pixel_y = 6
-	},
-/obj/item/lighter/zippo/contractor{
-	name = "Comms Officer Zippo Lighter"
-	},
-/obj/machinery/transponder/taipan/directional/north,
-/turf/simulated/floor/carpet/black,
-/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "nYZ" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -16913,10 +16945,6 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/rnd/restroom)
-"pOc" = (
-/obj/machinery/sensor_array/short_range,
-/turf/simulated/floor/plating,
-/area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "pOt" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -18296,18 +18324,6 @@
 	icon_state = "dark"
 	},
 /area/syndicate/unpowered/syndicate_space_base/main/north)
-"qNn" = (
-/obj/effect/turf_decal/tile/red{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/red{
-	dir = 4
-	},
-/obj/machinery/computer/sensors,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/syndicate/unpowered/syndicate_space_base/telecomms)
 "qNw" = (
 /obj/effect/decal/syndie_logo{
 	icon_state = "logo9"
@@ -18595,23 +18611,17 @@
 "raF" = (
 /turf/simulated/wall/mineral/plastitanium/nodiagonal,
 /area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
-"rbf" = (
-/obj/item/reagent_containers/food/snacks/syndicake{
-	pixel_x = 4;
-	pixel_y = -5
+"rcg" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/machinery/atmospherics/pipe/simple/hidden/supply{
+	dir = 4
 	},
-/obj/structure/table/reinforced,
-/obj/machinery/turretid/lethal{
-	control_area = "Syndicate Space Turrets";
-	faction = "syndicate";
-	name = "External turrets control panel";
-	pixel_y = 6;
-	req_access = list(154);
-	syndicate = 1
+/obj/structure/cable{
+	icon_state = "4-8"
 	},
-/obj/machinery/overmap_intercom/directional/south,
-/turf/simulated/floor/carpet/black,
-/area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
+/obj/machinery/sensor_array/long_range,
+/turf/simulated/floor/plating,
+/area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "rch" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -26206,16 +26216,6 @@
 "xiM" = (
 /turf/simulated/mineral/silver,
 /area/ruin/unpowered)
-"xiR" = (
-/obj/structure/table/reinforced,
-/obj/item/paper_bin,
-/obj/item/pen/fountain,
-/obj/structure/window/plasmareinforced{
-	color = "#d70000";
-	dir = 4
-	},
-/turf/simulated/floor/carpet/black,
-/area/syndicate/unpowered/syndicate_space_base/teleporter/arrivals)
 "xjz" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 4;
@@ -51987,7 +51987,7 @@ pfa
 lCl
 man
 dpC
-xiR
+kVk
 fkf
 dpC
 jkZ
@@ -52776,9 +52776,9 @@ oay
 pXX
 oay
 raF
-nYK
+htX
 snU
-rbf
+jQd
 ycD
 qiO
 sbj
@@ -53799,14 +53799,14 @@ mbS
 jsp
 nkP
 obu
-qNn
+eIo
 rRg
 qaB
 qEo
 rch
 rNx
 ssU
-kkT
+gei
 raF
 aWZ
 rpt
@@ -55086,8 +55086,8 @@ nqL
 odN
 oEw
 ppa
-pOc
-iAI
+mqW
+rcg
 ppt
 rQy
 syk
