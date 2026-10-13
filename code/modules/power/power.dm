@@ -212,6 +212,7 @@
 // if unmarked==1, only return those with no powernet
 /proc/power_list(turf/T, source, d, unmarked=0, cable_only = 0)
 	. = list()
+	var/obj/structure/cable/source_cable = istype(source, /obj/structure/cable) ? source : null
 
 	for(var/AM in T)
 		if(AM == source)
@@ -228,6 +229,8 @@
 
 		else if(istype(AM, /obj/structure/cable))
 			var/obj/structure/cable/C = AM
+			if(source_cable && !(source_cable.cable_layer & C.cable_layer))
+				continue
 
 			if(!unmarked || !C.powernet)
 				if(C.d1 == d || C.d2 == d)

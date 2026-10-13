@@ -311,7 +311,7 @@
 		components += part
 		to_chat(user, span_notice("[part.declent_ru(NOMINATIVE)] вставлен[GEND_A_O_Y(part)]."))
 		break
-	balloon_alert(user, "вставлен[declension_ru(count, "а", "о", "о")] [count] детал[declension_ru(count, "ь", "и", "ей")]")
+	balloon_alert(user, "вставлен[DECL_A_O_O(count)] [count] детал[DECL_0_I_YEJ(count)]")
 	return TRUE
 
 #undef STATE_EMPTY

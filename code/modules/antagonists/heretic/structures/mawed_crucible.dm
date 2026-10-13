@@ -77,7 +77,7 @@
 
 	if(current_mass < max_mass)
 		var/to_fill = max_mass - current_mass
-		. += span_notice("[DECLENT_RU_CAP(src, DATIVE)] необходимо еще <b>[to_fill]</b> орган[DECL_CREDIT(to_fill)] или част[declension_ru(to_fill, "ь", "и", "ей")] тела.")
+		. += span_notice("[DECLENT_RU_CAP(src, DATIVE)] необходимо еще <b>[to_fill]</b> орган[DECL_0_A_OV(to_fill)] или част[declension_ru(to_fill, "ь", "и", "ей")] тела.")
 	else
 		. += span_boldnotice("[DECLENT_RU_CAP(src, NOMINATIVE)] наполнен вязкой субстанцией и готов к использованию.")
 

@@ -464,7 +464,7 @@
 	wearer.undershirt = null
 	wearer.socks = null
 	wearer.color_underwear = "#5577aa"
-	var/datum/sprite_accessory/accessory = GLOB.underwear_list[wearer.underwear]
+	var/datum/sprite_accessory/accessory = SSaccessories.underwear_list[wearer.underwear]
 	TEST_ASSERT_NULL(accessory.sprite_sheets[SPECIES_SWINE], "the swine still uses a pre-fitted underwear sheet")
 	var/datum/species_fit/fit = get_species_fit(wearer.dna.species.fit_profile)
 	var/icon/cached = fit.fit_worn_icon(null, accessory.icon, "uw_[accessory.icon_state]_s")

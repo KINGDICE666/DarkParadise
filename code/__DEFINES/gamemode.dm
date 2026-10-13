@@ -79,7 +79,6 @@
 #define SPECIAL_ROLE_DEMON "Demon"
 #define SPECIAL_ROLE_SLAUGHTER_HARBINGER "Harbinger of the Slaughter"
 #define SPECIAL_ROLE_SUPER "Super"
-#define SPECIAL_ROLE_SWARMER "Swarmer"
 #define SPECIAL_ROLE_SYNDICATE_DEATHSQUAD "Syndicate Commando"
 #define SPECIAL_ROLE_SYNDICATE_INFILTRATOR "Syndicate Infiltrator"
 #define SPECIAL_ROLE_TRAITOR "Traitor"
@@ -123,3 +122,4 @@
 #define SPECIAL_ROLE_BINGLE_LORD "Bingle Lord"
 #define SPECIAL_ROLE_BINGLE "Bingle"
 #define SPECIAL_ROLE_SERVANT "Servant"
+#define SPECIAL_ROLE_SWARMER "Swarmer"

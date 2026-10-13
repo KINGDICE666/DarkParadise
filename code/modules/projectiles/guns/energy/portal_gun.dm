@@ -232,6 +232,9 @@
 	item_state = "portal_gun_canister_empty"
 
 /obj/item/gun/portal_gun/can_shoot(mob/user)
+	. = ..()
+	if(!.)
+		return
 	if(!fluid_canister)
 		return FALSE
 	if(portal_mode == PORTAL_GUN_MODE_LOCATION && !selected_location)

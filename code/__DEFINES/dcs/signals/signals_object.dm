@@ -46,6 +46,8 @@
 ///from base of obj/item/hit_reaction(): (list/args)
 #define COMSIG_ITEM_HIT_REACT "item_hit_react"
 	#define COMPONENT_BLOCK_SUCCESSFUL (1 << 0)
+/// Called when attempting to recall an item using force recall
+#define COMSIG_ITEM_RECALL "item_recall"
 ///called on item when crossed by something (): (/atom/movable, mob/living/crossed)
 #define COMSIG_ITEM_WEARERCROSSED "wearer_crossed"
 ///from base of item/sharpener/attackby(): (amount, max)

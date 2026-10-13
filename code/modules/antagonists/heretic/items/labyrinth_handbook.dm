@@ -89,7 +89,7 @@
 		return
 
 	. += span_purple("Создаёт барьер на любой плитке в поле зрения, через который можете пройти только вы. Действует 15 секунд.")
-	. += span_purple("Остал[declension_ru(charges, "ся", "ось", "ось")] <b>[charges]</b> заряд[DECL_CREDIT(charges)]. Заряды восстанавливаются со временем.")
+	. += span_purple("Остал[declension_ru(charges, "ся", "ось", "ось")] <b>[charges]</b> заряд[DECL_0_A_OV(charges)]. Заряды восстанавливаются со временем.")
 
 
 /obj/item/heretic_labyrinth_handbook/interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)

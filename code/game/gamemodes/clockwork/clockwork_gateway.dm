@@ -28,9 +28,6 @@
 		countdown.start()
 
 /obj/structure/clockwork/functional/celestial_gateway/Destroy()
-	if(QDELETED(src))
-		return ..()
-
 	STOP_PROCESSING(SSprocessing, src)
 
 	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()

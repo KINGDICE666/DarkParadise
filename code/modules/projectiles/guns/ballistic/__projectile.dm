@@ -116,9 +116,9 @@
 	return
 
 /obj/item/gun/projectile/can_shoot(mob/user)
-	if(!magazine || !magazine.ammo_count(FALSE))
+	if(!chambered && (!magazine || !magazine.ammo_count(FALSE)))
 		return FALSE
-	return TRUE
+	return ..()
 
 /obj/item/gun/projectile/proc/can_reload()
 	return !magazine
@@ -186,35 +186,42 @@
 
 	unload_act(user)
 
+/obj/item/gun/projectile/get_display_ammo_count()
+	return get_ammo()
+
 /obj/item/gun/projectile/proc/unload_act(mob/user)
-	var/obj/item/ammo_casing/AC = chambered //Find chambered round
 	if(magazine)
 		magazine.forceMove(drop_location())
 		user.put_in_hands(magazine, silent = TRUE)
 		magazine.update_appearance()
 		magazine = null
 		update_weight()
-		balloon_alert(user, "магазин извлечён")
 		playsound(loc, magout_sound, 50, TRUE)
-	else if(chambered)
-		AC.forceMove(drop_location())
-		AC.pixel_x = rand(-10, 10)
-		AC.pixel_y = rand(-10, 10)
-		AC.setDir(pick(GLOB.alldirs))
-		AC.update_appearance()
-		AC.SpinAnimation(10, 1)
-		chambered = null
-		balloon_alert(user, "патрон извлечён")
-		playsound(loc, 'sound/weapons/gun_interactions/remove_bullet.ogg', 50, TRUE)
-		playsound(AC.loc, AC.casing_drop_sound, 50, TRUE)
-	else
+		update_icon()
+		balloon_alert(user, "магазин извлечён")
+		return
+
+	if(!chambered)
 		balloon_alert(user, "уже разряжено!")
+		return
+
+	var/obj/item/ammo_casing/AC = chambered //Find chambered round
+	AC.forceMove(drop_location())
+	AC.pixel_x = rand(-10, 10)
+	AC.pixel_y = rand(-10, 10)
+	AC.setDir(pick(GLOB.alldirs))
+	AC.update_appearance()
+	AC.SpinAnimation(10, 1)
+	chambered = null
+	balloon_alert(user, "патрон извлечён")
+	playsound(loc, 'sound/weapons/gun_interactions/remove_bullet.ogg', 50, TRUE)
+	playsound(AC.loc, AC.casing_drop_sound, 50, TRUE)
 	update_icon()
 
 /obj/item/gun/projectile/examine(mob/user)
 	. = ..()
 	var/ammo_num = get_ammo()
-	. += span_notice("Остал[declension_ru(ammo_num, "ся", "ось", "ось")] [ammo_num] патрон[DECL_CREDIT(ammo_num)].")
+	. += span_notice("Остал[DECL_SYA_OS_OS(ammo_num)] [ammo_num] патрон[DECL_0_A_OV(ammo_num)].")
 
 /obj/item/gun/projectile/proc/get_ammo(countchambered = TRUE, countempties = TRUE)
 	var/boolets = 0 //mature var names for mature people
