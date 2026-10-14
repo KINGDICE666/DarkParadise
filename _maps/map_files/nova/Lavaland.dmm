@@ -225,6 +225,13 @@
 /obj/structure/stone_tile/slab,
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"bA" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/obj/effect/turf_decal/delivery/hollow,
+/turf/simulated/floor/plasteel,
+/area/mine/lobby)
 "bB" = (
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -8007,13 +8014,6 @@
 /obj/structure/stone_tile/center/cracked,
 /turf/simulated/floor/lava/lava_land_surface/lava_only,
 /area/lavaland/surface/outdoors)
-"Vg" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "mining_away"
-	},
-/obj/effect/turf_decal/delivery/hollow,
-/turf/simulated/floor/plasteel,
-/area/mine/lobby)
 "Vi" = (
 /obj/structure/stone_tile/block/cracked{
 	dir = 8
@@ -27107,7 +27107,7 @@ VD
 VD
 VD
 zt
-Vg
+bA
 zt
 VD
 Ne

@@ -54,11 +54,6 @@
 "cI" = (
 /turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
-"cQ" = (
-/obj/structure/table/reinforced,
-/obj/machinery/overmap_intercom/directional/south,
-/turf/simulated/floor/carpet/black,
-/area/shuttle/freegolem)
 "cU" = (
 /obj/structure/table/reinforced,
 /obj/item/stack/sheet/metal{
@@ -396,12 +391,6 @@
 /obj/machinery/door/airlock/survival_pod/glass,
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
-"us" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 1
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "uO" = (
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
@@ -425,6 +414,10 @@
 "wG" = (
 /obj/structure/sign/mining/survival,
 /turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
+"wQ" = (
+/obj/machinery/sensor_array/short_range,
+/turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "xd" = (
 /obj/structure/shuttle/engine/heater{
@@ -472,10 +465,11 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"ym" = (
-/obj/structure/table/reinforced,
-/obj/machinery/transponder/directional/north,
-/turf/simulated/floor/carpet/black,
+"yj" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "yw" = (
 /obj/structure/window/reinforced/survival_pod{
@@ -572,6 +566,12 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
+"Dy" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "DN" = (
 /obj/machinery/mineral/equipment_vendor/golem,
 /turf/simulated/floor/pod/dark,
@@ -613,6 +613,12 @@
 /obj/item/resonator,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"EP" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "Fq" = (
 /obj/structure/table/reinforced,
 /obj/item/storage/firstaid/adv,
@@ -650,6 +656,17 @@
 /obj/machinery/door/airlock/survival_pod,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"IN" = (
+/obj/machinery/computer/sensors{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Kc" = (
+/obj/structure/table/reinforced,
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/carpet/black,
+/area/shuttle/freegolem)
 "Ku" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 8;
@@ -659,12 +676,6 @@
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark/lavaland_air,
-/area/shuttle/freegolem)
-"KL" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 2
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "KY" = (
 /obj/machinery/light{
@@ -742,6 +753,11 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"NV" = (
+/obj/structure/table/reinforced,
+/obj/machinery/overmap_intercom/directional/south,
+/turf/simulated/floor/carpet/black,
+/area/shuttle/freegolem)
 "Oc" = (
 /obj/effect/turf_decal/number/number_2{
 	dir = 1
@@ -806,16 +822,6 @@
 	},
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
-"RR" = (
-/obj/machinery/sensor_array/short_range,
-/turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
-"RT" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 4
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "SD" = (
 /obj/machinery/autolathe,
 /turf/simulated/floor/pod/dark,
@@ -830,12 +836,6 @@
 	},
 /obj/structure/rack,
 /obj/item/resonator,
-/turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
-"Tg" = (
-/obj/machinery/computer/sensors{
-	dir = 4
-	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "TQ" = (
@@ -964,7 +964,7 @@ OM
 yB
 "}
 (3,1,1) = {"
-us
+yj
 cI
 cI
 cI
@@ -982,7 +982,7 @@ cI
 cI
 cI
 cI
-KL
+EP
 "}
 (4,1,1) = {"
 zc
@@ -1283,7 +1283,7 @@ yB
 yB
 cI
 me
-RR
+wQ
 DS
 cI
 cI
@@ -1432,13 +1432,13 @@ yB
 yB
 yB
 cI
-ym
+Kc
 FH
 Oc
 eU
 Gu
 BN
-cQ
+NV
 cI
 yB
 yB
@@ -1452,7 +1452,7 @@ yB
 yB
 yB
 yB
-us
+yj
 kO
 Qt
 Qt
@@ -1460,7 +1460,7 @@ pJ
 Qt
 Qt
 xI
-KL
+EP
 yB
 yB
 yB
@@ -1520,7 +1520,7 @@ cI
 Xe
 WZ
 oY
-Tg
+IN
 Xe
 cI
 yB
@@ -1538,11 +1538,11 @@ yB
 yB
 yB
 yB
-RT
+Dy
 Xe
 dT
 Xe
-RT
+Dy
 yB
 yB
 yB

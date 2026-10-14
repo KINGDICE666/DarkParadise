@@ -754,13 +754,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/mine/laborcamp)
-"cD" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/laborcamp)
 "cE" = (
 /obj/item/stack/ore/gold,
 /obj/effect/mapping_helpers/no_lava,
@@ -4499,6 +4492,13 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"wq" = (
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/bluegrid,
+/area/mine/maintenance)
 "wt" = (
 /obj/structure/stone_tile/block{
 	dir = 1
@@ -4509,13 +4509,6 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
-"wv" = (
-/obj/machinery/light/small{
-	dir = 1
-	},
-/obj/machinery/transponder/directional/north,
-/turf/simulated/floor/bluegrid,
-/area/mine/maintenance)
 "wA" = (
 /obj/structure/sign/restroom,
 /turf/simulated/wall,
@@ -6674,14 +6667,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/mine/production)
-"KB" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "mining_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/production)
 "KE" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/white,
@@ -6869,6 +6854,14 @@
 	icon_state = "brown"
 	},
 /area/mine/living_quarters)
+"LV" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/production)
 "LY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -7322,6 +7315,13 @@
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors/necropolis)
+"PE" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/laborcamp)
 "PF" = (
 /obj/item/stack/rods/fireproof/twentyfive,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -14166,7 +14166,7 @@ aq
 sP
 aQ
 aq
-cD
+PE
 aq
 aq
 hQ
@@ -21372,7 +21372,7 @@ fw
 fw
 fw
 La
-wv
+wq
 bQ
 UJ
 La
@@ -24216,7 +24216,7 @@ aj
 aR
 lC
 lC
-KB
+LV
 lC
 lC
 fw
