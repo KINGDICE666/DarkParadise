@@ -754,13 +754,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/mine/laborcamp)
-"cD" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/laborcamp)
 "cE" = (
 /obj/item/stack/ore/gold,
 /obj/effect/mapping_helpers/no_lava,
@@ -4143,6 +4136,14 @@
 /obj/effect/decal/cleanable/fungus,
 /turf/simulated/wall,
 /area/mine/laborcamp)
+"ua" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/production)
 "ub" = (
 /obj/structure/stone_tile/cracked{
 	dir = 8
@@ -4509,13 +4510,6 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
-"wv" = (
-/obj/machinery/light/small{
-	dir = 1
-	},
-/obj/machinery/transponder/directional/north,
-/turf/simulated/floor/bluegrid,
-/area/mine/maintenance)
 "wA" = (
 /obj/structure/sign/restroom,
 /turf/simulated/wall,
@@ -6349,6 +6343,13 @@
 	icon_state = "brown"
 	},
 /area/mine/production)
+"IF" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/laborcamp)
 "IH" = (
 /obj/structure/stone_tile/slab,
 /obj/item/storage/toolbox/brass,
@@ -6673,14 +6674,6 @@
 /obj/structure/disposalpipe/segment,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
-/area/mine/production)
-"KB" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "mining_away"
-	},
-/turf/simulated/floor/plasteel,
 /area/mine/production)
 "KE" = (
 /obj/effect/decal/cleanable/dirt,
@@ -7463,6 +7456,13 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/living_quarters)
+"Qx" = (
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/bluegrid,
+/area/mine/maintenance)
 "QD" = (
 /obj/machinery/atmospherics/pipe/simple/visible/universal{
 	dir = 4
@@ -14166,7 +14166,7 @@ aq
 sP
 aQ
 aq
-cD
+IF
 aq
 aq
 hQ
@@ -21372,7 +21372,7 @@ fw
 fw
 fw
 La
-wv
+Qx
 bQ
 UJ
 La
@@ -24216,7 +24216,7 @@ aj
 aR
 lC
 lC
-KB
+ua
 lC
 lC
 fw
