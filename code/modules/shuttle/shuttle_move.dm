@@ -122,7 +122,7 @@
 		if(!use_hull)
 			for(var/turf/oldT in old_turfs)
 				if(oldT)
-					fallback_area.contents += oldT
+					oldT.change_area(get_area(oldT), fallback_area)
 
 	for(var/i in 1 to length(old_turfs))
 		var/turf/oldT = old_turfs[i]
@@ -142,7 +142,7 @@
 			if(areaInstance && new_place != areaInstance)
 				newT.change_area(new_place, areaInstance)
 		else if(areaInstance)
-			areaInstance.contents += newT
+			newT.change_area(get_area(newT), areaInstance)
 
 		var/should_transit = !is_turf_blacklisted_for_transit(oldT)
 		if(should_transit)
