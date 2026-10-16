@@ -23926,7 +23926,7 @@
 /turf/simulated/floor/wood/dark,
 /area/station/command/office/ce)
 "cbj" = (
-/turf/simulated/wall/r_wall,
+/turf/simulated/wall/r_wall/coated,
 /area/station/science/storage)
 "cbk" = (
 /obj/effect/spawner/window/reinforced,
@@ -25582,6 +25582,10 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
+/obj/machinery/door/airlock/research/glass{
+	name = "Experimentor";
+	req_access = list(47)
+	},
 /turf/simulated/floor/engine,
 /area/station/science/explab/chamber)
 "chI" = (
@@ -25942,6 +25946,9 @@
 /area/station/maintenance/genetics)
 "ciZ" = (
 /obj/structure/closet/radiation,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	dir = 9;
 	icon_state = "whitepurple"
@@ -26480,7 +26487,7 @@
 	},
 /area/station/maintenance/genetics)
 "clm" = (
-/turf/simulated/wall/r_wall,
+/turf/simulated/wall/r_wall/coated,
 /area/station/science/explab/chamber)
 "clo" = (
 /obj/structure/window/reinforced,
@@ -27110,12 +27117,12 @@
 /turf/simulated/wall/r_wall,
 /area/station/command/office/cmo)
 "cov" = (
-/obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/preopen{
 	id_tag = "telescienceblast";
 	name = "test chamber blast doors"
 	},
 /obj/machinery/door/firedoor,
+/obj/effect/spawner/window/reinforced/plasma,
 /turf/simulated/floor/engine,
 /area/station/science/explab)
 "coz" = (
@@ -27230,6 +27237,9 @@
 /obj/structure/table,
 /obj/item/clipboard,
 /obj/item/book/manual/experimentor,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "whitepurple"
@@ -32021,8 +32031,8 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/solars/starboard/aft)
 "cLi" = (
-/turf/simulated/wall,
-/area/station/maintenance/engineering)
+/turf/simulated/wall/r_wall/coated,
+/area/station/science/server)
 "cLk" = (
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/engine,
@@ -51340,7 +51350,7 @@
 /turf/simulated/floor/plasteel,
 /area/station/command/teleporter)
 "hYc" = (
-/turf/simulated/wall/r_wall,
+/turf/simulated/wall/r_wall/coated,
 /area/station/science/explab)
 "hYp" = (
 /obj/machinery/door/firedoor,
@@ -78742,9 +78752,12 @@
 /turf/simulated/floor/plating,
 /area/station/hallway/primary/port)
 "tcn" = (
-/obj/effect/spawner/random_spawners/fungus_30,
-/turf/simulated/wall,
-/area/station/maintenance/engineering)
+/obj/machinery/chem_dispenser/botanical,
+/obj/effect/turf_decal/delivery/green,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/hydroponics)
 "tcv" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -88470,11 +88483,9 @@
 /turf/simulated/floor/plasteel,
 /area/station/security/prison/perma)
 "wSx" = (
-/obj/structure/sign/poster/random{
-	pixel_y = -32
+/obj/machinery/door/airlock/multi_tile/glass{
+	name = "Restaurant"
 	},
-/obj/effect/turf_decal/siding/wood,
-/obj/effect/spawner/new_year/garland/south,
 /turf/simulated/floor/wood/fancy/cherry,
 /area/station/service/bar/atrium)
 "wSK" = (
@@ -89557,6 +89568,9 @@
 /area/station/command/office/hop)
 "xnR" = (
 /obj/machinery/computer/rdconsole/experiment,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "whitepurple"
@@ -112325,9 +112339,9 @@ qhC
 czB
 fzw
 cNS
-cLi
-cLi
-cLi
+xNF
+xNF
+xNF
 uTI
 uTI
 uTI
@@ -112584,7 +112598,7 @@ czB
 cNS
 oTu
 kBI
-cLi
+xNF
 uTI
 uTI
 uTI
@@ -113102,7 +113116,7 @@ lNQ
 uTI
 uTI
 uTI
-cLi
+xNF
 dNL
 dNL
 vEW
@@ -113355,7 +113369,7 @@ tpP
 cNS
 iVU
 tPz
-cLi
+xNF
 uTI
 uTI
 gMt
@@ -113879,9 +113893,9 @@ ffC
 uCC
 opH
 dTG
-cLi
+xNF
 dNL
-cLi
+xNF
 cWf
 lNQ
 lTl
@@ -114126,7 +114140,7 @@ cNS
 eFR
 whV
 eFR
-cLi
+xNF
 uTI
 uTI
 lNQ
@@ -114382,8 +114396,8 @@ nDl
 cNS
 fHl
 mCP
-cLi
-cLi
+xNF
+xNF
 uTI
 uTI
 lNQ
@@ -114393,7 +114407,7 @@ nEB
 cvE
 jjP
 cOc
-cLi
+xNF
 ubJ
 qth
 ihR
@@ -114639,7 +114653,7 @@ bAH
 cNS
 fHl
 gfk
-cLi
+xNF
 uTI
 uTI
 uTI
@@ -114907,12 +114921,12 @@ aaX
 gWI
 pIn
 fHl
-tcn
+dQn
 ruX
 olv
 cBm
 qch
-cLi
+xNF
 lTl
 uTI
 dkV
@@ -115158,13 +115172,13 @@ uTI
 uTI
 uTI
 uTI
-cLi
+xNF
 ttt
 dQn
 xNF
 jJp
 cOc
-cLi
+xNF
 fLj
 eNP
 fLj
@@ -115410,7 +115424,7 @@ uLz
 cNS
 fHl
 cUu
-cLi
+xNF
 uTI
 uTI
 uTI
@@ -115665,15 +115679,15 @@ koe
 nkO
 nSy
 cNS
-cLi
+xNF
 nWH
-cLi
-cLi
+xNF
+xNF
 lWP
 jTp
 jTp
 lWP
-cLi
+xNF
 fHl
 cAX
 ghh
@@ -116174,7 +116188,7 @@ jDY
 siw
 tQN
 tGv
-cLi
+xNF
 amY
 qYf
 cCI
@@ -116439,7 +116453,7 @@ fHl
 sbo
 rvS
 icp
-cLi
+xNF
 hpT
 ocw
 ocw
@@ -116688,7 +116702,7 @@ jDY
 cOG
 rhY
 sZE
-cLi
+xNF
 uCC
 cNB
 dar
@@ -116701,7 +116715,7 @@ dar
 dsU
 dsU
 dsU
-cLi
+xNF
 vzN
 uIU
 haC
@@ -116945,7 +116959,7 @@ aux
 cOG
 rhY
 fYr
-cLi
+xNF
 wQq
 pTr
 dar
@@ -117202,8 +117216,8 @@ jDY
 iGL
 hqq
 cPL
-cLi
-tcn
+xNF
+dQn
 cLz
 dar
 kRi
@@ -117459,7 +117473,7 @@ jDY
 cOG
 qgJ
 cOs
-cLi
+xNF
 eFR
 fHl
 dar
@@ -117716,7 +117730,7 @@ jDY
 cOG
 qgJ
 pAd
-cLi
+xNF
 fHl
 vdz
 dar
@@ -117973,7 +117987,7 @@ jDY
 cOG
 msw
 dHi
-cLi
+xNF
 feC
 cNB
 dar
@@ -118230,7 +118244,7 @@ vio
 rKG
 ggZ
 cJx
-cLi
+xNF
 fHl
 gWQ
 dar
@@ -118487,7 +118501,7 @@ jDY
 cOG
 ggZ
 cLy
-cLi
+xNF
 nEB
 pfQ
 dar
@@ -118744,7 +118758,7 @@ jDY
 qSy
 vfy
 cPL
-cLi
+xNF
 dWF
 cLu
 dar
@@ -119001,7 +119015,7 @@ dHL
 cOG
 qgJ
 aDY
-cLi
+xNF
 nTT
 sbu
 cSU
@@ -119515,7 +119529,7 @@ jDY
 iGL
 qgJ
 jpm
-cLi
+xNF
 slH
 ekI
 hxO
@@ -119772,7 +119786,7 @@ gmc
 ctT
 qgJ
 hEO
-cLi
+xNF
 dKm
 ktz
 gpb
@@ -120029,7 +120043,7 @@ eys
 eys
 whu
 cLy
-cLi
+xNF
 wTG
 rfG
 cSU
@@ -125897,8 +125911,8 @@ oIZ
 dnt
 dnu
 dnt
-nxj
-hjl
+oIZ
+wSx
 uwX
 rgv
 gNq
@@ -126154,8 +126168,8 @@ oIZ
 dnu
 ixP
 dnu
-wSx
-qJd
+oIZ
+oIZ
 uwX
 rgv
 tVf
@@ -131544,7 +131558,7 @@ kqU
 bhY
 pBC
 hqw
-vbu
+tcn
 imN
 vbu
 vbu
@@ -133115,7 +133129,7 @@ cbf
 cbf
 cbf
 cbf
-cbf
+cLi
 xoA
 ceo
 cga
@@ -133372,7 +133386,7 @@ cbf
 cdn
 bXW
 kak
-cbf
+cLi
 iph
 jRg
 fDn
@@ -133629,7 +133643,7 @@ cbf
 vec
 bXQ
 vec
-cbf
+cLi
 clU
 clU
 fVD
@@ -133886,7 +133900,7 @@ cbf
 nxJ
 bYk
 yfD
-cbf
+cLi
 nRX
 clp
 cnt
@@ -134143,7 +134157,7 @@ cbf
 uuQ
 rYb
 pMy
-cbf
+cLi
 gpu
 clT
 cnt
@@ -134400,7 +134414,7 @@ bWc
 iWh
 ccT
 pFI
-cbf
+cLi
 clU
 clU
 aqg
@@ -134657,7 +134671,7 @@ cbf
 mgn
 cjH
 cgT
-cbf
+cLi
 clU
 rDK
 wgv
@@ -134914,7 +134928,7 @@ cbf
 tMP
 qlM
 chb
-cbf
+cLi
 clm
 clm
 clm
@@ -135167,11 +135181,11 @@ bVA
 bIa
 jQS
 rKT
-cbf
-cbf
-cbf
-cbf
-cbf
+cLi
+cLi
+cLi
+cLi
+cLi
 cbj
 cbj
 cbj
@@ -136662,15 +136676,15 @@ bqw
 aGX
 kKR
 kKR
-cLi
-cLi
+xNF
+xNF
 gSe
-cLi
+xNF
 aMl
-cLi
-cLi
-cLi
-cLi
+xNF
+xNF
+xNF
+xNF
 aGX
 gUz
 rRt
@@ -136919,7 +136933,7 @@ yig
 yig
 yig
 vbP
-cLi
+xNF
 fEz
 bGy
 fXg
@@ -136927,7 +136941,7 @@ haC
 cNB
 bYq
 ccz
-cLi
+xNF
 aHb
 aRK
 baz
@@ -137176,7 +137190,7 @@ bqB
 aGX
 aGY
 kKR
-cLi
+xNF
 bBK
 fXg
 aQL
@@ -137184,7 +137198,7 @@ bPn
 lEx
 sfW
 wNp
-cLi
+xNF
 sJv
 aRK
 baz
@@ -137433,7 +137447,7 @@ yev
 yig
 kKR
 kKR
-cLi
+xNF
 bBO
 fXg
 qKL
@@ -137441,7 +137455,7 @@ bPp
 aMc
 bYz
 wNp
-cLi
+xNF
 kKR
 aRK
 baz
@@ -137690,15 +137704,15 @@ bqH
 yig
 sJv
 kKR
-cLi
-cLi
-cLi
+xNF
+xNF
+xNF
 iuD
 ekT
 cNB
 bYR
 ccR
-cLi
+xNF
 kKR
 gUz
 baz
@@ -137947,7 +137961,7 @@ jTk
 aMz
 yig
 kKR
-cLi
+xNF
 cNB
 iSo
 oKp
@@ -137955,7 +137969,7 @@ bPO
 oaR
 bYS
 ykx
-cLi
+xNF
 kKR
 gUz
 baz
@@ -138461,7 +138475,7 @@ fbm
 aGX
 kKR
 aGY
-cLi
+xNF
 bCn
 pBT
 cNB
@@ -138469,7 +138483,7 @@ fWW
 aQr
 sJg
 aLf
-cLi
+xNF
 kKR
 gUz
 uuV
@@ -138718,15 +138732,15 @@ tCE
 aGX
 aGY
 aHb
-cLi
+xNF
 bCx
 sWA
 bKH
-cLi
-cLi
+xNF
+xNF
 bYV
-cLi
-cLi
+xNF
+xNF
 kKR
 gUz
 uuV
@@ -138975,11 +138989,11 @@ kfc
 aGX
 eyX
 aGX
-cLi
-cLi
-cLi
-cLi
-cLi
+xNF
+xNF
+xNF
+xNF
+xNF
 ooS
 rkC
 yig
