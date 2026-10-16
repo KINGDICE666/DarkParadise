@@ -123,6 +123,7 @@
 	R.add_language(LANGUAGE_DRASK, FALSE)
 	R.add_language(LANGUAGE_CLOWN, FALSE)
 	R.add_language(LANGUAGE_MOTH, FALSE)
+	R.add_language(LANGUAGE_RESOMI, FALSE)
 
 /obj/item/robot_module/proc/add_subsystems_and_actions(mob/living/silicon/robot/R)
 	for(var/verb in subsystems)
@@ -740,6 +741,7 @@
 	R.add_language(LANGUAGE_DRASK, 1)
 	R.add_language(LANGUAGE_CLOWN,1)
 	R.add_language(LANGUAGE_MOTH, 1)
+	R.add_language(LANGUAGE_RESOMI, 1)
 
 /obj/item/robot_module/butler/handle_death(mob/living/silicon/robot/R, gibbed)
 	var/obj/item/storage/bag/tray/T = locate() in modules

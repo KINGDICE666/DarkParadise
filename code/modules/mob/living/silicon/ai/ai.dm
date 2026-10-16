@@ -238,6 +238,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	add_language(LANGUAGE_SLIME, 1)
 	add_language(LANGUAGE_CLOWN, 1)
 	add_language(LANGUAGE_MOTH, 1)
+	add_language(LANGUAGE_RESOMI, 1)
 
 	if(!safety)
 		if(B?.brainmob?.mind)

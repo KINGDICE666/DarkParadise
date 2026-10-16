@@ -507,3 +507,59 @@
 /atom/movable/screen/alert/status_effect/washing_regen/hotspring/hater
 	desc = "Waaater... FUCK THIS HOT WATER!!"
 	icon_state = "hotspring_regen_catgirl"
+
+#define RESOMI_LISTEN_MIN_VOLUME 10
+#define RESOMI_LISTEN_REFRESH_TIME (0.5 SECONDS)
+
+/datum/status_effect/resomi_listening
+	id = "resomi_listening"
+	tick_interval = STATUS_EFFECT_NO_TICK
+	alert_type = null
+	var/list/seen_turfs
+	var/list/heard_turfs
+	COOLDOWN_DECLARE(sight_refresh)
+
+/datum/status_effect/resomi_listening/on_apply()
+	RegisterSignal(owner, COMSIG_MOB_HEARD_SOUND, PROC_REF(on_heard_sound))
+	RegisterSignal(owner, SIGNAL_ADDTRAIT(TRAIT_DEAF), PROC_REF(stop_listening))
+	RegisterSignal(owner, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
+	owner.add_movespeed_modifier(/datum/movespeed_modifier/status_effect/resomi_listening)
+	to_chat(owner, span_notice("Вы замираете и вслушиваетесь в окружение."))
+	return TRUE
+
+/datum/status_effect/resomi_listening/on_remove()
+	UnregisterSignal(owner, list(COMSIG_MOB_HEARD_SOUND, SIGNAL_ADDTRAIT(TRAIT_DEAF), COMSIG_MOB_STATCHANGE))
+	owner.remove_movespeed_modifier(/datum/movespeed_modifier/status_effect/resomi_listening)
+	to_chat(owner, span_notice("Вы перестаёте прислушиваться."))
+	seen_turfs = null
+	heard_turfs = null
+
+/datum/status_effect/resomi_listening/proc/stop_listening(datum/source)
+	SIGNAL_HANDLER
+	qdel(src)
+
+/datum/status_effect/resomi_listening/proc/on_stat_change(datum/source, new_stat)
+	SIGNAL_HANDLER
+	if(new_stat != CONSCIOUS)
+		qdel(src)
+
+/datum/status_effect/resomi_listening/proc/on_heard_sound(datum/source, turf/turf_source, sound/heard_sound)
+	SIGNAL_HANDLER
+	if(heard_sound.volume < RESOMI_LISTEN_MIN_VOLUME)
+		return
+	var/turf/owner_turf = get_turf(owner)
+	if(turf_source == owner_turf || turf_source.z != owner_turf.z)
+		return
+	if(COOLDOWN_FINISHED(src, sight_refresh))
+		COOLDOWN_START(src, sight_refresh, RESOMI_LISTEN_REFRESH_TIME)
+		seen_turfs = list()
+		heard_turfs = list()
+		for(var/turf/seen_turf in view(owner.client.view, owner))
+			seen_turfs[seen_turf] = TRUE
+	if(seen_turfs[turf_source] || heard_turfs[turf_source])
+		return
+	heard_turfs[turf_source] = TRUE
+	new /obj/effect/temp_visual/sonar_ping/sound(owner_turf, owner, turf_source)
+
+#undef RESOMI_LISTEN_MIN_VOLUME
+#undef RESOMI_LISTEN_REFRESH_TIME

@@ -627,7 +627,7 @@
 		STATION_DEPARTMENT_RU_SUPPLY = list(jobs = list(), titles = GLOB.supply_positions, color = "#ead4ae"),
 	)
 	for(var/datum/job/job in SSjobs.occupations)
-		if(job && IsJobAvailable(job.title) && !job.barred_by_disability(client))
+		if(job && IsJobAvailable(job.title) && !job.barred_by_disability(client) && job.check_custom_requirements(client))
 			num_jobs_available++
 			activePlayers[job] = 0
 			var/categorized = 0

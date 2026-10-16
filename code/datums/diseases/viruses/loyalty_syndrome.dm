@@ -44,6 +44,7 @@
 	GLOB.active_diseases += copy
 	copy.carrier = is_carrier
 	copy.affected_mob.med_hud_set_status()
+	copy.register_disease_signals()
 	return copy
 
 /datum/disease/virus/loyalty/stage_act()

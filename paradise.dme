@@ -2129,6 +2129,7 @@
 #include "code\game\objects\structures\racks\racks.dm"
 #include "code\game\objects\structures\transit_tubes\station.dm"
 #include "code\game\objects\structures\transit_tubes\transit_tube.dm"
+#include "code\game\objects\structures\transit_tubes\transit_tube_construction.dm"
 #include "code\game\objects\structures\transit_tubes\transit_tube_pod.dm"
 #include "code\game\sound\sound.dm"
 #include "code\game\sound\sound_keys\sound_keys.dm"

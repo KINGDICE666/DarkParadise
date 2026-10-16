@@ -878,7 +878,12 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 	<div id='focus' style="outline: 0;" tabindex=0>Действие: [KB.name]<br><br><b>Нажмите на любую клавишу для привязки<br>Нажмите на ESC для отмены</b></div>
 	<script>
 	var deedDone = false;
-	document.onkeyup = function(e) {
+	document.onkeydown = function(e) {
+		if(e.key == 'Shift' || e.key == 'Control' || e.key == 'Alt'){ return; }
+		sendKey(e);
+	}
+	document.onkeyup = sendKey;
+	function sendKey(e) {
 		if(deedDone){ return; }
 		var alt = e.altKey ? 1 : 0;
 		var ctrl = e.ctrlKey ? 1 : 0;

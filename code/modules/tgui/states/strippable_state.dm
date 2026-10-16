@@ -16,7 +16,7 @@ GLOBAL_DATUM_INIT(strippable_state, /datum/ui_state/strippable_state, new)
 		. = min(., UI_DISABLED)
 	else
 		var/mob/living/user_living = user
-		if(user_living?.mob_size <= MOB_SIZE_SMALL)
+		if(isliving(user) && user_living.too_small_to_strip(src_object))
 			. = min(., UI_DISABLED)
 	var/mob/M = src_object
 	if(!isturf(M.loc))

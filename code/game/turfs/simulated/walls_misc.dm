@@ -73,18 +73,18 @@
 	new sheet_type(get_turf(src), sheet_amount)
 
 /turf/simulated/wall/rust
-	name = "rusted wall"
-	desc = "A rusted metal wall."
-	icon = 'icons/turf/walls/rusty_wall.dmi'
-	icon_state = "rusty_wall-0"
-	base_icon_state = "rusty_wall"
+	WHEN_MAP(color = COLOR_ORANGE_BROWN)
+
+/turf/simulated/wall/rust/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/rust)
 
 /turf/simulated/wall/r_wall/rust
-	name = "rusted reinforced wall"
-	desc = "A huge chunk of rusted reinforced metal."
-	icon = 'icons/turf/walls/rusty_reinforced_wall.dmi'
-	icon_state = "rusty_reinforced_wall-0"
-	base_icon_state = "rusty_reinforced_wall"
+	WHEN_MAP(color = COLOR_ORANGE_BROWN)
+
+/turf/simulated/wall/r_wall/rust/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/rust)
 
 /turf/simulated/wall/r_wall/coated			//Coated for heat resistance
 	name = "coated reinforced wall"
