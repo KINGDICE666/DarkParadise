@@ -38,6 +38,7 @@
 #define NO_HITSCAN_TURRET_TRAIT "no-hitscan-in-turret"
 #define ABSTRACT_ITEM_TRAIT "abstract-item"
 #define ABDUCTOR_VEST_TRAIT "abductor-vest"
+#define HYPERSPACE_TRAIT "hyperspace"
 #define CYBORG_ITEM_TRAIT "cyborg-item"
 #define MECHA_EQUIPMENT_TRAIT "mecha-equip"
 #define HIS_GRACE_TRAIT "his-grace"
