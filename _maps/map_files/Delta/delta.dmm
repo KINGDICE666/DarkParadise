@@ -9315,6 +9315,14 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/commons/locker)
+"bSs" = (
+/obj/machinery/door/airlock/external/docking/support{
+	req_access = list(31);
+	id_tag = "supply_home"
+	},
+/obj/structure/fans/tiny,
+/turf/simulated/floor/plasteel,
+/area/station/cargo/storage)
 "bSv" = (
 /obj/structure/table,
 /obj/machinery/newscaster/directional/west,
@@ -11885,6 +11893,15 @@
 	icon_state = "green"
 	},
 /area/station/hallway/secondary/exit)
+"crr" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking{
+	dir = 4;
+	id_tag = "emergency_home";
+	dock_name = "Док эвакуационного шаттла"
+	},
+/turf/simulated/floor/plating,
+/area/station/hallway/secondary/exit)
 "crD" = (
 /obj/structure/table,
 /obj/item/flashlight/lamp{
@@ -13402,6 +13419,17 @@
 /obj/machinery/recharge_station,
 /turf/simulated/floor/plasteel,
 /area/station/engineering/engine)
+"cHz" = (
+/obj/machinery/door/firedoor,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/glass{
+	dir = 4;
+	id_tag = "mining_home";
+	req_access = list(48);
+	dock_name = "Док шахтёрского шаттла"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/cargo/miningdock)
 "cHK" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -22984,6 +23012,19 @@
 /obj/machinery/constructable_frame/machine_frame,
 /turf/simulated/floor/plating,
 /area/station/maintenance/fore)
+"eAB" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/poddoor/preopen{
+	id_tag = "Brig_lockdown";
+	name = "Brig Lockdown"
+	},
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "laborcamp_home";
+	dir = 4;
+	dock_name = "Док шаттла каторги"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/prisoner_shuttle)
 "eAD" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -35011,15 +35052,6 @@
 	icon_state = "white"
 	},
 /area/station/medical/sleeper)
-"gIp" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking{
-	dir = 4;
-	id_tag = "emergency_home";
-	dock_name = "Док эвакуационного шаттла"
-	},
-/turf/simulated/floor/plating,
-/area/station/hallway/secondary/exit)
 "gIv" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
@@ -35311,19 +35343,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/reception)
-"gLO" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/poddoor/preopen{
-	id_tag = "Brig_lockdown";
-	name = "Brig Lockdown"
-	},
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "laborcamp_home";
-	dir = 4;
-	dock_name = "Док шаттла каторги"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/prisoner_shuttle)
 "gLS" = (
 /obj/effect/landmark/spawner/carp,
 /obj/structure/lattice,
@@ -54309,14 +54328,6 @@
 	icon_state = "dark"
 	},
 /area/station/engineering/mechanic_workshop/hangar)
-"knb" = (
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "ferry_home";
-	dock_name = "Паромный док";
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry)
 "kne" = (
 /obj/machinery/recharge_station,
 /obj/effect/turf_decal/delivery/hollow,
@@ -61987,17 +61998,6 @@
 	name = "Comemmorative Plaque"
 	},
 /area/station/hallway/primary/fore)
-"lHJ" = (
-/obj/machinery/door/firedoor,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/glass{
-	dir = 4;
-	id_tag = "mining_home";
-	req_access = list(48);
-	dock_name = "Док шахтёрского шаттла"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/cargo/miningdock)
 "lHL" = (
 /obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/secure_closet/roboticist,
@@ -80333,14 +80333,6 @@
 	icon_state = "purple"
 	},
 /area/station/science/sm_chamber)
-"pdt" = (
-/obj/machinery/door/airlock/external/docking/support{
-	req_access = list(31);
-	id_tag = "supply_home"
-	},
-/obj/structure/fans/tiny,
-/turf/simulated/floor/plasteel,
-/area/station/cargo/storage)
 "pdy" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -97768,6 +97760,14 @@
 	icon_state = "white"
 	},
 /area/station/service/kitchen)
+"siG" = (
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "ferry_home";
+	dock_name = "Паромный док";
+	dir = 1
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry)
 "siL" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 1
@@ -163169,7 +163169,7 @@ aaq
 aaq
 aaq
 aaq
-knb
+siG
 tfS
 fuX
 igF
@@ -169482,7 +169482,7 @@ hqK
 lXX
 uhB
 tvC
-gIp
+crr
 tvC
 aaq
 aaq
@@ -175016,7 +175016,7 @@ aaq
 coE
 dRD
 euG
-pdt
+bSs
 bjQ
 bja
 fgS
@@ -175806,7 +175806,7 @@ coE
 aaq
 ntU
 ntU
-lHJ
+cHz
 ntU
 ntU
 aaq
@@ -191245,7 +191245,7 @@ aaq
 coE
 coE
 seB
-gLO
+eAB
 seB
 aaq
 seB

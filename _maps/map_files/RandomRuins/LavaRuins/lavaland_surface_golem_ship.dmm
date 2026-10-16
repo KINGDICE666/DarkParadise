@@ -97,6 +97,11 @@
 /obj/effect/turf_decal/delivery/partial,
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
+"ep" = (
+/obj/structure/table/reinforced,
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/carpet/black,
+/area/shuttle/freegolem)
 "eG" = (
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -358,6 +363,12 @@
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"ra" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "rq" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/spray/cleaner,
@@ -415,10 +426,6 @@
 /obj/structure/sign/mining/survival,
 /turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
-"wQ" = (
-/obj/machinery/sensor_array/short_range,
-/turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
 "xd" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 8;
@@ -465,12 +472,6 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"yj" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 1
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "yw" = (
 /obj/structure/window/reinforced/survival_pod{
 	density = 0;
@@ -515,6 +516,12 @@
 	pixel_y = 3
 	},
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Bp" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "BF" = (
 /obj/machinery/mineral/ore_redemption/golem,
@@ -566,12 +573,6 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
-"Dy" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 4
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "DN" = (
 /obj/machinery/mineral/equipment_vendor/golem,
 /turf/simulated/floor/pod/dark,
@@ -613,12 +614,6 @@
 /obj/item/resonator,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"EP" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 2
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "Fq" = (
 /obj/structure/table/reinforced,
 /obj/item/storage/firstaid/adv,
@@ -640,6 +635,12 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
+"FS" = (
+/obj/machinery/computer/sensors{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
 "Gs" = (
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -656,16 +657,9 @@
 /obj/machinery/door/airlock/survival_pod,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"IN" = (
-/obj/machinery/computer/sensors{
-	dir = 4
-	},
+"Km" = (
+/obj/machinery/sensor_array/short_range,
 /turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
-"Kc" = (
-/obj/structure/table/reinforced,
-/obj/machinery/transponder/directional/north,
-/turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
 "Ku" = (
 /obj/structure/shuttle/engine/heater{
@@ -816,6 +810,12 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"Ri" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "RQ" = (
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -964,7 +964,7 @@ OM
 yB
 "}
 (3,1,1) = {"
-yj
+Bp
 cI
 cI
 cI
@@ -982,7 +982,7 @@ cI
 cI
 cI
 cI
-EP
+Ri
 "}
 (4,1,1) = {"
 zc
@@ -1283,7 +1283,7 @@ yB
 yB
 cI
 me
-wQ
+Km
 DS
 cI
 cI
@@ -1432,7 +1432,7 @@ yB
 yB
 yB
 cI
-Kc
+ep
 FH
 Oc
 eU
@@ -1452,7 +1452,7 @@ yB
 yB
 yB
 yB
-yj
+Bp
 kO
 Qt
 Qt
@@ -1460,7 +1460,7 @@ pJ
 Qt
 Qt
 xI
-EP
+Ri
 yB
 yB
 yB
@@ -1520,7 +1520,7 @@ cI
 Xe
 WZ
 oY
-IN
+FS
 Xe
 cI
 yB
@@ -1538,11 +1538,11 @@ yB
 yB
 yB
 yB
-Dy
+ra
 Xe
 dT
 Xe
-Dy
+ra
 yB
 yB
 yB
