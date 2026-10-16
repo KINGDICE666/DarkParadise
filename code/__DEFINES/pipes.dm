@@ -65,6 +65,7 @@
 #define RPD_FLIP_MODE 4
 #define RPD_DELETE_MODE 5
 #define RPD_LOGISTICS_MODE 6
+#define RPD_TRANSIT_MODE 7
 
 #define RPD_ATMOS_PIPING 1
 #define RPD_SUPPLY_PIPING 2
@@ -75,6 +76,7 @@
 #define PIPETYPE_ATMOS 1
 #define PIPETYPE_DISPOSAL 2
 #define PIPETYPE_LOGISTICS 3
+#define PIPETYPE_TRANSIT 4
 
 // Connection types
 #define CONNECT_TYPE_NORMAL 1

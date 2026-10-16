@@ -172,6 +172,10 @@
 	. = ..()
 	if(prob(50))
 		icon_state = "stickyweb2"
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 /obj/structure/spider/terrorweb/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
@@ -189,19 +193,26 @@
 		var/mob/living/living_mover = mover
 		if(living_mover.body_position == LYING_DOWN)
 			return TRUE
-
-		if(prob(80))
-			to_chat(mover, span_danger("Вы на мгновение застреваете в [declent_ru(PREPOSITIONAL)]."))
-			living_mover.Weaken(2 SECONDS) // 2 seconds, wow
-			living_mover.Slowed(10 SECONDS)
-			if(iscarbon(mover))
-				web_special_ability(mover)
-			return TRUE
-
-		return FALSE
+		return prob(80)
 
 	if(isprojectile(mover))
 		return prob(20)
+
+/obj/structure/spider/terrorweb/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!isliving(arrived) || checkpass(arrived) || isterrorspider(arrived) || istype(arrived, /mob/living/simple_animal/hostile/poison/giant_spider))
+		return
+
+	var/mob/living/victim = arrived
+	if(victim.body_position == LYING_DOWN)
+		return
+
+	to_chat(victim, span_danger("Вы на мгновение застреваете в [declent_ru(PREPOSITIONAL)]."))
+	victim.Weaken(2 SECONDS) // 2 seconds, wow
+	victim.Slowed(10 SECONDS)
+	if(iscarbon(victim))
+		web_special_ability(victim)
 
 /obj/structure/spider/terrorweb/bullet_act(obj/projectile/Proj)
 	if(Proj.damage_type != BRUTE && Proj.damage_type != BURN)

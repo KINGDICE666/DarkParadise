@@ -482,15 +482,15 @@
 
 /turf/simulated/wall/defile()
 	..()
-	if(prob(15))
+	if(prob(15) && !HAS_TRAIT(src, TRAIT_RUSTY))
 		new/obj/effect/temp_visual/revenant(loc)
-		ChangeTurf(/turf/simulated/wall/rust)
+		AddElement(/datum/element/rust)
 
 /turf/simulated/wall/r_wall/defile()
 	..()
-	if(prob(15))
+	if(prob(15) && !HAS_TRAIT(src, TRAIT_RUSTY))
 		new/obj/effect/temp_visual/revenant(loc)
-		ChangeTurf(/turf/simulated/wall/r_wall/rust)
+		AddElement(/datum/element/rust)
 
 /obj/structure/window/defile()
 	take_damage(rand(30,80))
@@ -512,13 +512,7 @@
 /atom/proc/defile()
 	return
 
-/turf/simulated/wall/r_wall/rust/defile()
-	return
-
 /turf/simulated/wall/shuttle/defile()
-	return
-
-/turf/simulated/wall/rust/defile()
 	return
 
 /turf/simulated/wall/r_wall/defile()

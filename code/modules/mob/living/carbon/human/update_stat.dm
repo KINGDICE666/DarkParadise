@@ -32,5 +32,13 @@
 		return dna.species.has_vision(src, information_only)
 	return ..()
 
+/mob/living/carbon/human/can_feel_around()
+	if(stat != CONSCIOUS)
+		return FALSE
+	if(HAS_TRAIT(src, TRAIT_BLIND))
+		return TRUE
+	var/obj/item/organ/vision = dna?.species?.get_vision_organ(src)
+	return vision != NO_VISION_ORGAN && (!vision || vision.is_traumatized())
+
 /mob/living/carbon/human/check_death_method()
 	return dna.species.dies_at_threshold

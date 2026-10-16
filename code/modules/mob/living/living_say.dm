@@ -458,6 +458,8 @@ GLOBAL_LIST_EMPTY(channel_to_radio_key)
 
 // for weird circumstances where you're inside an atom that is also you, like pai's
 /mob/living/proc/get_whisper_loc()
+	if(istype(loc, /obj/item/holder))
+		return get_atom_on_turf(src)
 	return src
 
 /mob/living/proc/whisper_say(list/message_pieces, verb = "шепч%(ет,ут)%")

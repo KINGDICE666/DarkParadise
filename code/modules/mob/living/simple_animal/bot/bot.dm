@@ -259,6 +259,7 @@
 	add_language(LANGUAGE_SLIME, TRUE)
 	add_language(LANGUAGE_CLOWN, TRUE)
 	add_language(LANGUAGE_MOTH, TRUE)
+	add_language(LANGUAGE_RESOMI, TRUE)
 
 	if(!HAS_TRAIT(SSstation, STATION_TRAIT_BOTS_GLITCHED))
 		default_language = GLOB.all_languages[LANGUAGE_GALACTIC_COMMON]

@@ -51,7 +51,7 @@
 	if(!user.can_strip)
 		return
 	var/mob/living/user_living = user
-	if(user_living?.mob_size <= MOB_SIZE_SMALL)
+	if(isliving(user) && user_living.too_small_to_strip(source))
 		return
 
 	if(!isnull(should_strip_proc_path) && !call(source, should_strip_proc_path)(user))
@@ -413,7 +413,7 @@
 	if(!isliving(ui.user) || !HAS_TRAIT(user, TRAIT_CAN_STRIP))
 		return
 
-	if(!user.can_strip || user.mob_size <= MOB_SIZE_SMALL)
+	if(!user.can_strip || user.too_small_to_strip(owner))
 		return
 
 	. = TRUE

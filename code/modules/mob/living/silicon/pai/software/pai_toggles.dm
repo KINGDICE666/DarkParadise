@@ -60,6 +60,7 @@
 		user.add_language(LANGUAGE_CLOWN)
 		user.add_language(LANGUAGE_NEO_RUSSIAN)
 		user.add_language(LANGUAGE_MOTH)
+		user.add_language(LANGUAGE_RESOMI)
 	else
 		user.remove_language(LANGUAGE_UNATHI)
 		user.remove_language(LANGUAGE_TAJARAN)
@@ -73,6 +74,7 @@
 		user.remove_language(LANGUAGE_CLOWN)
 		user.remove_language(LANGUAGE_NEO_RUSSIAN)
 		user.remove_language(LANGUAGE_MOTH)
+		user.remove_language(LANGUAGE_RESOMI)
 
 /datum/pai_software/translator/is_active(mob/living/silicon/pai/user)
 	return user.translator_on

@@ -467,26 +467,39 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/g = "m"
 	if(gender == FEMALE)
 		g = "f"
+	var/list/underlay_states = list()
 	// DNA2 - Drawing underlays.
 	for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
 		if(gene.is_active(src))
 			var/underlay = gene.OnDrawUnderlays(src, g)
 			if(underlay)
-				standing.underlays += underlay
+				underlay_states += underlay
 				add_image = TRUE
 
 	if(HAS_TRAIT_FROM(src, TRAIT_RESIST_COLD, DNA_TRAIT) && HAS_TRAIT_FROM(src, TRAIT_RESIST_HEAT, DNA_TRAIT))
-		standing.underlays -= "cold_s"
-		standing.underlays -= "fire_s"
-		standing.underlays += "coldfire_s"
+		underlay_states -= "cold_s"
+		underlay_states -= "fire_s"
+		underlay_states += "coldfire_s"
+
+	for(var/underlay_state in underlay_states)
+		standing.underlays += fitted_mutation_appearance(underlay_state)
 
 	if(HAS_TRAIT(src, TRAIT_LASEREYES))
-		standing.overlays += "lasereyes_s"
+		standing.overlays += fitted_mutation_appearance("lasereyes_s")
 		add_image = TRUE
 
 	if(add_image)
 		overlays_standing[MUTATIONS_LAYER] = standing
 	apply_overlay(MUTATIONS_LAYER)
+
+/mob/living/carbon/human/proc/fitted_mutation_appearance(state)
+	if(is_monkeybasic(src))
+		return state
+	var/datum/species_fit/fit = get_species_fit(dna.species.fit_profile)
+	if(!fit?.has_pixel_map('icons/effects/genetics.dmi'))
+		return state
+	var/icon/fitted = fit.fit_worn_icon(null, 'icons/effects/genetics.dmi', state)
+	return fitted ? mutable_appearance(fitted, "") : state
 
 /mob/living/carbon/human/proc/update_mutant_ears()
 	remove_overlay(MUTANT_EARS_LAYER)

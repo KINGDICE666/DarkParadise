@@ -217,6 +217,11 @@
 /mob/living/proc/is_hiding_in_storage()
 	return HAS_TRAIT(src, TRAIT_SMALL_MOB) && istype(loc, /obj/item/holder) && isstorage(loc.loc)
 
+/mob/living/proc/too_small_to_strip(atom/target)
+	if(mob_size > MOB_SIZE_SMALL)
+		return FALSE
+	return !HAS_TRAIT(src, TRAIT_SMALL_MOB) || !HAS_TRAIT(target, TRAIT_SMALL_MOB)
+
 /mob/living/proc/can_be_picked_up(mob/living/carbon/human/picker)
 	if(!picker || !holder_type || !HAS_TRAIT(src, TRAIT_SMALL_MOB))
 		return FALSE

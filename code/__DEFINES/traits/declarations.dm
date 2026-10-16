@@ -104,6 +104,7 @@
 
 /// Not a genetic obesity but just a mob who overate
 #define	TRAIT_FAT "trait_fat"
+#define TRAIT_FEELING_AROUND "feeling_around"
 #define TRAIT_HUSK "husk"
 #define TRAIT_SKELETON "skeleton"
 #define TRAIT_NO_CLONE "no_clone"

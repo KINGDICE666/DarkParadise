@@ -894,6 +894,11 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 * * 'silent' - set to `TRUE` if you want no warning messages on fail.
 */
 /obj/item/proc/equip_to_best_slot(mob/user, force = FALSE, drop_on_fail = FALSE, qdel_on_fail = FALSE, silent = FALSE)
+	var/static/list/wallet_items = typecacheof(list(/obj/item/card, /obj/item/stack/spacecash, /obj/item/coin))
+	if(is_type_in_typecache(src, wallet_items))
+		var/obj/item/storage/wallet/wallet = user.get_item_by_slot(ITEM_SLOT_ID)
+		if(istype(wallet) && wallet.can_be_inserted(src, TRUE))
+			return wallet.handle_item_insertion(src)
 
 	if(user.equip_to_appropriate_slot(src, force, silent = TRUE))
 		return TRUE
