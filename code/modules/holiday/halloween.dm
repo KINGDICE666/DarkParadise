@@ -23,7 +23,6 @@
 /obj/item/twohanded/required/kokochalloween/chimera
 	name = "тыква-химера"
 	icon_state = "pumpkin_alien"
-	w_class = WEIGHT_CLASS_NORMAL
 
 /obj/item/twohanded/required/kokochalloween/chimera/Initialize(mapload)
 	. = ..()
