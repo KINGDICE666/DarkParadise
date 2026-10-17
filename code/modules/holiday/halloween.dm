@@ -145,7 +145,7 @@
 		list(/obj/structure/spider/spiderling, 75),
 		list(/obj/structure/spider/spiderling, 75),
 	)
-	
+
 /obj/item/twohanded/required/kokochalloween/chimera/bluespace
 	icon_state = "pumpkin_bluespace"
 	s_colour = "#0000FF"
@@ -175,14 +175,10 @@
 	del(src)
 
 /obj/item/twohanded/required/kokochalloween/proc/get_loot()
-	world.log << (1)
 	if(loot)
-		world.log << (1)
 		for(var/list/loot_entry in loot)
-			world.log << (1)
 			var/gift = loot_entry[1]
 			if(prob(loot_entry[2]))
-				world.log << (1)
 				new gift(loc)
 
 /obj/item/twohanded/required/kokochalloween/chimera/bluespace/get_loot()
