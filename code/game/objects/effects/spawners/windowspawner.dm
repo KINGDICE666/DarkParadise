@@ -55,6 +55,8 @@
 	. = ..()
 	if(GLOB.new_year_celebration && is_station_level(z))
 		new /obj/structure/garland(loc)
+	new /obj/structure/halloween_decorations(loc)
+
 
 /obj/effect/spawner/window/reinforced/polarized
 	name = "polarized reinforced window spawner"

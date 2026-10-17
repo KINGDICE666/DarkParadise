@@ -504,6 +504,9 @@
 
 	character.lastarea = get_area(loc)
 	character = character.spawn_equip(rank)
+	if(ishuman(character))
+		var/obj/item/storage/halloween/bucket = new /obj/item/storage/halloween
+		character.put_in_l_hand(bucket, force = TRUE)
 	SSticker.mode.latespawn(character)
 
 	if(character.mind.assigned_role == JOB_TITLE_CYBORG)
@@ -774,4 +777,3 @@
 
 /mob/new_player/mob_negates_gravity()
 	return TRUE //no need to calculate if they have gravity.
-
