@@ -4,7 +4,6 @@
 	icon = 'icons/obj/halloween/pumpkins_and_decorations.dmi'
 	icon_state = "pumpkin_1"
 	item_state = "h_pumpkin"
-	item_flags = NONE
 	layer = BELOW_MOB_LAYER
 	force = 5
 	force_wielded = 5
@@ -40,9 +39,9 @@
 		if(/obj/item/twohanded/required/kokochalloween/chimera/heart)
 			desc = "Походит на сердечко! Доля радости сегодня. [span_red("Ты не один.")]"
 		if(/obj/item/twohanded/required/kokochalloween/chimera/kokoc)
-			desc = "Кокосовая тыква! В простанородье - кототыква, за счёт внешнего вида. [span_yellow("Твой лучший друг! Неужели он заслуживает этого?")]"
+			desc = "Кокосовая тыква! В простанородье — кототыква, за счёт внешнего вида. [span_yellow("Твой лучший друг! Неужели он заслуживает этого?")]"
 		if(/obj/item/twohanded/required/kokochalloween/chimera/spider)
-			desc = "Арахнотыква. Восемь лап - и столько же глаз. Обожает чай и всё, что с ним сввязано. [span_green("К сожалению, люди слишком большие для неё.")]"
+			desc = "Арахнотыква. Восемь лап — и столько же глаз. Обожает чай и всё, что с ним сввязано. [span_green("К сожалению, люди слишком большие для неё.")]"
 		if(/obj/item/twohanded/required/kokochalloween/chimera/bluespace)
 			desc = "Тыква синего пространства. Твой билет к счастью, либо к несчастью. Третьего не дано. [span_blue("По крайней мере, за пределами синего пространства.")]"
 
