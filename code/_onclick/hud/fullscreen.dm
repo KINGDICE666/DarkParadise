@@ -144,6 +144,9 @@
 	icon_state = "blackimageoverlay"
 	layer = BLIND_LAYER
 
+/atom/movable/screen/fullscreen/blind/touch
+	icon_state = "blindtouch"
+
 /atom/movable/screen/fullscreen/impaired
 	icon_state = "impairedoverlay"
 

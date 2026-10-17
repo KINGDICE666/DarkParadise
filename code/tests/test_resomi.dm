@@ -200,3 +200,29 @@
 	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_LAYER], "a suit covering the tail leaves the resomi tailless")
 	TEST_ASSERT_NOTNULL(resomi.overlays_standing[TAIL_UNDERLIMBS_LAYER], "a suit covering the tail leaves the resomi tailless from the front")
 	qdel(resomi.wear_suit)
+
+/datum/unit_test/room_test/resomi_hearing
+
+/datum/unit_test/room_test/resomi_hearing/Run()
+	var/mob/living/carbon/human/resomi = allocate(/mob/living/carbon/human)
+	resomi.set_species(/datum/species/resomi)
+	var/obj/item/organ/internal/ears/resomi_ears = resomi.get_int_organ(/obj/item/organ/internal/ears)
+	TEST_ASSERT(locate(/datum/action/item_action/organ_action/resomi_listen) in resomi.actions, "resomi ears give no listen in button")
+	resomi_ears.ui_action_click(resomi)
+	TEST_ASSERT(resomi.has_status_effect(STATUS_EFFECT_RESOMI_LISTENING), "resomi cannot start listening in")
+	resomi_ears.ui_action_click(resomi)
+	TEST_ASSERT_NOT(resomi.has_status_effect(STATUS_EFFECT_RESOMI_LISTENING), "resomi cannot stop listening in")
+
+	var/mob/living/carbon/human/bystander = allocate(/mob/living/carbon/human)
+	var/mob/living/carbon/human/vox = allocate(/mob/living/carbon/human, get_step(run_loc_floor_bottom_left, NORTH))
+	vox.set_species(/datum/species/vox)
+	vox.emote("scream", intentional = TRUE)
+	TEST_ASSERT(HAS_TRAIT(resomi, TRAIT_DEAF), "a vox shriek next to a resomi does not deafen them")
+	TEST_ASSERT_NOT(HAS_TRAIT(bystander, TRAIT_DEAF), "a vox shriek deafens a human")
+	TEST_ASSERT_EQUAL(resomi_ears.damage, 0, "a vox shriek damages resomi ears")
+
+	resomi.SetDeaf(0)
+	bang(run_loc_floor_bottom_left, run_loc_floor_bottom_left)
+	var/obj/item/organ/internal/ears/human_ears = bystander.get_int_organ(/obj/item/organ/internal/ears)
+	TEST_ASSERT(resomi_ears.damage >= 15, "a flashbang barely hurts resomi ears")
+	TEST_ASSERT(resomi_ears.damage > human_ears.damage, "a flashbang hurts resomi ears no more than human ones")

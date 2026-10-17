@@ -247,6 +247,9 @@
 				return
 			our_rpd.create_logistics_pipe(user, src)
 
+		if(RPD_TRANSIT_MODE)
+			our_rpd.create_transit_tube(user, src)
+
 		if(RPD_ROTATE_MODE)
 			our_rpd.rotate_all_pipes(user, src)
 

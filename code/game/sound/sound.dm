@@ -173,6 +173,8 @@ GLOBAL_LIST_EMPTY(cached_songs)
 			sound_to_use.echo[3] = -10000
 			sound_to_use.echo[4] = -10000
 
+		SEND_SIGNAL(src, COMSIG_MOB_HEARD_SOUND, turf_source, sound_to_use)
+
 	sound_to_use.volume *= USER_VOLUME(src, CHANNEL_GENERAL)
 	if(channel)
 		sound_to_use.volume *= USER_VOLUME(src, channel)

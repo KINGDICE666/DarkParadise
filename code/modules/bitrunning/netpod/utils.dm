@@ -5,7 +5,7 @@
 	if(server)
 		return server
 
-	server = locate(/obj/machinery/quantum_server) in oview(4, src)
+	server = locate(/obj/machinery/quantum_server) in oview(12, src)
 	if(isnull(server))
 		return
 

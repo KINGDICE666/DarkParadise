@@ -85,6 +85,17 @@
 		screen_loc_parts += ":[pixel_y]"
 	return jointext(screen_loc_parts, "")
 
+/proc/shift_screen_loc(screen_loc, shift_x, shift_y)
+	var/static/regex/vertical_regex = regex(@"NORTH|SOUTH|TOP|BOTTOM")
+	var/static/regex/horizontal_regex = regex(@"EAST|WEST|LEFT|RIGHT")
+	var/list/parts = splittext(screen_loc, ",")
+	var/list/shifts = (vertical_regex.Find(parts[1]) || horizontal_regex.Find(parts[2])) ? list(shift_y, shift_x) : list(shift_x, shift_y)
+	for(var/index in 1 to 2)
+		var/list/components = splittext(parts[index], ":")
+		var/pixel = (length(components) > 1 ? text2num(components[2]) : 0) + shifts[index]
+		parts[index] = pixel ? "[components[1]]:[pixel]" : components[1]
+	return jointext(parts, ",")
+
 /**
  * Returns a valid location to place a screen object without overflowing the viewport
  *

@@ -41,7 +41,7 @@ const testHubStorage = testGeneric(
   () => window.hubStorage && !!window.hubStorage.getItem,
 );
 
-const STORAGE_CDN_TIMEOUT = 5000;
+const STORAGE_CDN_TIMEOUT = 15000;
 const persistedStorageKeys = ['panel-settings', 'chat-state', 'chat-messages'];
 const legacyHubMigrationKeys = ['panel-settings'];
 
@@ -151,7 +151,7 @@ export class IFrameIndexedDbBackend implements StorageBackend {
   }
 
   async get(key: string): Promise<any> {
-    const promise = new Promise((resolve) => {
+    const promise = new Promise((resolve, reject) => {
       const listener = (message: MessageEvent) => {
         if (
           message.source === this.iframeWindow &&
@@ -165,7 +165,7 @@ export class IFrameIndexedDbBackend implements StorageBackend {
       };
       const timeout = setTimeout(() => {
         window.removeEventListener('message', listener);
-        resolve(undefined);
+        reject(new Error(`Iframe storage timed out reading '${key}'`));
       }, STORAGE_CDN_TIMEOUT);
 
       window.addEventListener('message', listener);
@@ -200,11 +200,19 @@ export class IFrameIndexedDbBackend implements StorageBackend {
 
   async getChatMessages(): Promise<any> {
     const promise = new Promise((resolve) => {
-      window.addEventListener('message', (message) => {
-        if (message.data.messages) {
+      const listener = (message: MessageEvent) => {
+        if (message.source === this.iframeWindow && message.data.messages) {
+          clearTimeout(timeout);
+          window.removeEventListener('message', listener);
           resolve(message.data.messages);
         }
-      });
+      };
+      const timeout = setTimeout(() => {
+        window.removeEventListener('message', listener);
+        resolve(undefined);
+      }, STORAGE_CDN_TIMEOUT);
+
+      window.addEventListener('message', listener);
     });
 
     this.iframeWindow.postMessage({ type: 'getChatMessages' }, '*');
@@ -225,6 +233,8 @@ class StorageProxy implements StorageBackend {
 
   public diagnostics: StorageDiagnostic[] = [];
 
+  private unreadKeys = new Set<string>();
+
   private log(level: StorageDiagnostic['level'], message: string) {
     this.diagnostics.push({ level, message });
   }
@@ -239,13 +249,23 @@ class StorageProxy implements StorageBackend {
 
         if ((await iframe.ready()) === true) {
           this.log('info', `Using iframe storage (${Byond.storageCdn})`);
-          if (await iframe.get('byondstorage-migrated')) return iframe;
 
-          const iframeHasPersistedStorage = (
-            await Promise.all(
-              persistedStorageKeys.map((setting) => iframe.get(setting)),
-            )
-          ).some((settings) => settings !== undefined);
+          let iframeHasPersistedStorage: boolean;
+          try {
+            if (await iframe.get('byondstorage-migrated')) return iframe;
+
+            iframeHasPersistedStorage = (
+              await Promise.all(
+                persistedStorageKeys.map((setting) => iframe.get(setting)),
+              )
+            ).some((settings) => settings !== undefined);
+          } catch {
+            this.log(
+              'warn',
+              'Iframe storage is too slow, skipping byondstorage migration',
+            );
+            return iframe;
+          }
 
           if (!iframeHasPersistedStorage) {
             this.log(
@@ -335,11 +355,22 @@ class StorageProxy implements StorageBackend {
 
   async get(key: string): Promise<any> {
     const backend = await this.backendPromise;
-    return backend.get(key);
+    try {
+      const value = await backend.get(key);
+      this.unreadKeys.delete(key);
+      return value;
+    } catch {
+      this.unreadKeys.add(key);
+      this.log('warn', `Failed to read '${key}', keeping saved value intact`);
+      return undefined;
+    }
   }
 
   async set(key: string, value: any): Promise<void> {
     const backend = await this.backendPromise;
+    if (this.unreadKeys.has(key)) {
+      return;
+    }
     return backend.set(key, value);
   }
 

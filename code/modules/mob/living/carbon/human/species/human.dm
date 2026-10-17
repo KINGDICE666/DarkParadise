@@ -13,11 +13,18 @@
 	bodyflags = HAS_SKIN_TONE | HAS_BODY_MARKINGS | HAS_HAIR
 	blood_species = "Human"
 	can_be_pale = TRUE
-	blurb = "Humanity originated in the Sol system, and over the last five centuries has spread \
-	colonies across a wide swathe of space. They hold a wide range of forms and creeds.<br/><br/> \
-	While the central Sol government maintains control of its far-flung people, powerful corporate \
-	interests, rampant cyber and bio-augmentation and secretive factions make life on most human \
-	worlds tumultous at best."
+	blurb = "Люди — мягкокожие гуманоиды с Земли и самый распространённый вид на станциях Nanotrasen. Выдающихся сильных \
+	сторон у них нет, как нет и заметных слабостей, а почти всё снаряжение корпорации шьётся именно под \
+	людей.<br/><br/>Родина человечества — Земля в Солнечной системе. Века тяжёлой промышленности превратили её в \
+	отравленную пустошь с токсичными водоёмами и почти непригодным для дыхания воздухом, и лишь в 26-м веке \
+	правительство Солнечной системы вложило огромные средства в восстановление её атмосферы и биосферы. За пять \
+	столетий люди расселились по множеству колоний и станций глубокого космоса.<br/><br/>Люди ценят \
+	индивидуальность, свободу и равноправие и с детства привыкают мыслить масштабно. Их общесолнечный язык \
+	сложился в начале 2100-х из смеси китайского, английского и других земных языков, а человеческая культура \
+	проникла почти во все уголки освоенной галактики: банку космической колы можно найти где угодно, от Могеса до \
+	Аурума.<br/><br/>Транс-Солнечная Федерация удерживает власть над разбросанными колониями, но могущественные \
+	корпорации, повальная кибер- и биоаугментация и тайные организации делают жизнь в большинстве человеческих \
+	миров по меньшей мере беспокойной."
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/human
 

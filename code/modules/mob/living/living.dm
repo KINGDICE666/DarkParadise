@@ -889,7 +889,7 @@ GAME_VERB_SRC(/mob/living, Examine_OOC, view(), "Мета-инфа (OOC)", VERB_
 
 	if(CONFIG_GET(flag/allow_metadata))
 		if(client)
-			to_chat(usr, "[src]'s Metainfo:<br>[client.prefs.metadata]")
+			to_chat(usr, "[src]'s Metainfo:<br>[client.prefs.read_preference(/datum/preference/text/record/ooc_notes)]")
 		else
 			to_chat(usr, "[src] does not have any stored infomation!")
 	else

@@ -371,43 +371,10 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	if(head && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
 		return
 
-	var/datum/sprite_accessory/hair/hair = SSaccessories.hairstyles_list[head_organ.h_style]
-	if(!hair || !((hair.species_allowed && (head_organ.dna.species.name in hair.species_allowed)) || (head_organ.dna.species.bodyflags & ALL_RPARTS)))
+	var/mutable_appearance/MA = head_organ.build_hair_appearance()
+	if(!MA)
 		return
-
-	//base icons
-	var/mutable_appearance/MA = new()
-	MA.appearance_flags = KEEP_TOGETHER
 	MA.layer = -HAIR_LAYER
-
-	// Base hair
-	var/mutable_appearance/img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
-	if(head_organ.dna.species.name == SPECIES_SLIMEPERSON)
-		img_hair.color = COLOR_MATRIX_OVERLAY("[skin_colour]A0")
-	else if(hair.do_colouration)
-		img_hair.color = COLOR_MATRIX_ADD(head_organ.hair_colour)
-	MA.overlays += img_hair
-
-	// Gradient
-	var/datum/sprite_accessory/gradient/gradient = SSaccessories.hair_gradients_list[head_organ.h_grad_style]
-	if(gradient)
-		var/icon/icn_alpha_mask = icon(gradient.icon, gradient.icon_state)
-		var/icon/icn_gradient = icon(gradient.icon, "full")
-		var/list/icn_color = rgb2num(head_organ.h_grad_colour)
-		icn_gradient.MapColors(rgb(icn_color[1], 0, 0), rgb(0, icn_color[2], 0), rgb(0, 0, icn_color[3]))
-		icn_gradient.ChangeOpacity(head_organ.h_grad_alpha / 200)
-		icn_gradient.AddAlphaMask(icn_alpha_mask)
-		icn_gradient.Shift(EAST, head_organ.h_grad_offset_x)
-		icn_gradient.Shift(NORTH, head_organ.h_grad_offset_y)
-		icn_gradient.AddAlphaMask(icon(hair.icon, "[hair.icon_state]_s"))
-		MA.overlays += icn_gradient
-
-	// Secondary style
-	if(hair.secondary_theme)
-		var/mutable_appearance/img_secondary = mutable_appearance(hair.icon, "[hair.icon_state]_[hair.secondary_theme]_s")
-		if(!hair.no_sec_colour)
-			img_secondary.color = COLOR_MATRIX_ADD(head_organ.sec_hair_colour)
-		MA.overlays += img_secondary
 
 	update_mutant_ears()
 	overlays_standing[HAIR_LAYER] = MA
@@ -467,26 +434,39 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/g = "m"
 	if(gender == FEMALE)
 		g = "f"
+	var/list/underlay_states = list()
 	// DNA2 - Drawing underlays.
 	for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
 		if(gene.is_active(src))
 			var/underlay = gene.OnDrawUnderlays(src, g)
 			if(underlay)
-				standing.underlays += underlay
+				underlay_states += underlay
 				add_image = TRUE
 
 	if(HAS_TRAIT_FROM(src, TRAIT_RESIST_COLD, DNA_TRAIT) && HAS_TRAIT_FROM(src, TRAIT_RESIST_HEAT, DNA_TRAIT))
-		standing.underlays -= "cold_s"
-		standing.underlays -= "fire_s"
-		standing.underlays += "coldfire_s"
+		underlay_states -= "cold_s"
+		underlay_states -= "fire_s"
+		underlay_states += "coldfire_s"
+
+	for(var/underlay_state in underlay_states)
+		standing.underlays += fitted_mutation_appearance(underlay_state)
 
 	if(HAS_TRAIT(src, TRAIT_LASEREYES))
-		standing.overlays += "lasereyes_s"
+		standing.overlays += fitted_mutation_appearance("lasereyes_s")
 		add_image = TRUE
 
 	if(add_image)
 		overlays_standing[MUTATIONS_LAYER] = standing
 	apply_overlay(MUTATIONS_LAYER)
+
+/mob/living/carbon/human/proc/fitted_mutation_appearance(state)
+	if(is_monkeybasic(src))
+		return state
+	var/datum/species_fit/fit = get_species_fit(dna.species.fit_profile)
+	if(!fit?.has_pixel_map('icons/effects/genetics.dmi'))
+		return state
+	var/icon/fitted = fit.fit_worn_icon(null, 'icons/effects/genetics.dmi', state)
+	return fitted ? mutable_appearance(fitted, "") : state
 
 /mob/living/carbon/human/proc/update_mutant_ears()
 	remove_overlay(MUTANT_EARS_LAYER)

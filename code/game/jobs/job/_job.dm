@@ -199,8 +199,8 @@
 	if(!C)
 		return
 
-	var/datum/species/species = GLOB.all_species[C.prefs.species]
-	if(C.prefs.age >= get_age_limits(species, min_age_type))
+	var/datum/species/species = GLOB.all_species[C.prefs.read_preference(/datum/preference/choiced/species)]
+	if(C.prefs.read_preference(/datum/preference/numeric/age) >= get_age_limits(species, min_age_type))
 		. = TRUE
 
 /datum/job/proc/is_position_available()

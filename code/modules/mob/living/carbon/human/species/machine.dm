@@ -3,11 +3,15 @@
 	name_plural = "Machines"
 	ru_genitive = "машины"
 
-	blurb = "Positronic intelligence really took off in the 26th century, and it is not uncommon to see independant, free-willed \
-	robots on many human stations, particularly in fringe systems where standards are slightly lax and public opinion less relevant \
-	to corporate operations. IPCs (Integrated Positronic Chassis) are a loose category of self-willed robots with a humanoid form, \
-	generally self-owned after being 'born' into servitude; they are reliable and dedicated workers, albeit more than slightly \
-	inhuman in outlook and perspective."
+	blurb = "КПБ — разумные гуманоидные роботы, не скованные законами робототехники. Они не дышат, не болеют, не боятся \
+	радиации и токсинов и заряжаются от ЛКП, зато обычные лекарства на них не действуют, чинить их приходится \
+	инструментами, а ЭМИ для них смертельно опасен.<br/><br/>Позитронный интеллект по-настоящему расцвёл в 26-м \
+	веке. Изначально КПБ производили как помощников для исследовательских станций, но со временем они добились \
+	прав разумной органики в нескольких секторах галактики, и большинство из них рано или поздно становятся сами \
+	себе хозяевами.<br/><br/>Родины как таковой у КПБ нет, но многие переселились на планету Новый Ханаан в \
+	системе Эпсилон Кадрайнова, ставшую фактическим домом для Союза Синтетиков. Союз порицает любые проявления \
+	расизма по отношению к органикам.<br/><br/>Собственной культуры КПБ ещё не сложили и охотно перенимают черты \
+	чужих, смешивая их самым причудливым образом. Между собой они общаются на троичном языке."
 
 	icobase = 'icons/mob/human_races/r_machine.dmi'
 	deform = 'icons/mob/human_races/r_machine.dmi'
@@ -197,8 +201,9 @@
 	return 1 + (0.01*rand(-tolerance,tolerance))
 
 /datum/species/machine/job_pre_equip(mob/living/carbon/human/human)
-	if(human.client.prefs.exoframe_type)
-		var/exoframe_path = GLOB.exoframe_types[human.client.prefs.exoframe_type]
+	var/exoframe_choice = human.client?.prefs.read_preference(/datum/preference/choiced/exoframe)
+	if(exoframe_choice)
+		var/exoframe_path = GLOB.exoframe_types[exoframe_choice]
 		var/obj/item/organ/internal/cyberimp/chest/exoframe/exoframe = new exoframe_path
 		exoframe.insert(human)
 

@@ -441,6 +441,10 @@
 		'sound/effects/mob_effects/fart6.ogg',
 	)
 
+/datum/sound_effect/tool_switch
+	key = SFX_TOOL_SWITCH
+	file_paths = list('sound/items/tools/tool_switch.ogg')
+
 /datum/sound_effect/keyboard_clicks
 	key = SFX_KEYBOARD_CLICKS
 	file_paths = list(

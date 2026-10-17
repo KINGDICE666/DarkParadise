@@ -29,7 +29,7 @@
 /datum/ui_module/tts_seeds_explorer/ui_data(mob/user)
 	var/list/data = list()
 
-	data["selected_seed"] = user.client.prefs.tts_seed
+	data["selected_seed"] = user.client.prefs.read_preference(/datum/preference/tts_seed)
 
 	data["donator_level"] = usr.client.donator_level
 
@@ -89,7 +89,8 @@
 			if(usr.client.donator_level < seed.donator_level)
 				return
 
-			usr.client.prefs.tts_seed = seed_name
+			usr.client.prefs.write_preference(GLOB.preference_entries[/datum/preference/tts_seed], seed_name)
+			SStgui.update_uis(usr.client.prefs)
 		else
 			return FALSE
 

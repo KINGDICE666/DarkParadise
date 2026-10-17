@@ -36,7 +36,9 @@
 #include "test_orphaned_genturf.dm"
 #include "test_painted_mask.dm"
 #include "test_paintings.dm"
+#include "test_pipe_dispenser.dm"
 #include "test_portagrav.dm"
+#include "test_preferences.dm"
 #include "test_plane_double_transform.dm"
 #include "test_plane_dupe_detector.dm"
 #include "test_reagent_id_typos.dm"
@@ -54,6 +56,7 @@
 #include "test_subsystem_metric_sanity.dm"
 #include "test_tgui_create_message.dm"
 #include "test_timer_sanity.dm"
+#include "test_transit_tubes.dm"
 #include "test_washing.dm"
 #endif
 

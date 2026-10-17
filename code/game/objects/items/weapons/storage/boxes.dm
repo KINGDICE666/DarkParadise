@@ -298,6 +298,7 @@
 	desc = "<b>Инструкция:</b> <i>Разогрейте в микроволновой печи. Если продукт не употреблять в течение семи минут, он остынет.</i>"
 	icon_state = "donkpocket_box"
 	item_state = "donks"
+	cant_hold = list(/obj/item/holder)
 
 /obj/item/storage/box/donkpockets/get_ru_names()
 	return alist(
@@ -318,6 +319,7 @@
 	desc = "Коробка с уже разогретыми Донк-покетами. Ням-ням!"
 	icon_state = "donkpocket_box"
 	item_state = "donks"
+	cant_hold = list(/obj/item/holder)
 
 /obj/item/storage/box/warmdonkpockets/get_ru_names()
 	return alist(
@@ -339,6 +341,7 @@
 	desc = "Эта коробка кажется немного тёплой на ощупь."
 	icon_state = "donkpocket_box"
 	item_state = "donks"
+	cant_hold = list(/obj/item/holder)
 
 /obj/item/storage/box/syndidonkpockets/get_ru_names()
 	return alist(

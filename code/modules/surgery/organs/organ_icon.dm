@@ -146,6 +146,46 @@ GLOBAL_LIST_EMPTY(limb_icon_cache)
 
 	return mob_icon //Don't need to blend the above into this as it's handled in human/update_icons(). The overlays are for rendering stuff on disembodied heads.
 
+/obj/item/organ/external/head/proc/build_hair_appearance(gradient_style = h_grad_style)
+	var/datum/sprite_accessory/hair/hair = SSaccessories.hairstyles_list[h_style]
+	if(!hair || !((hair.species_allowed && (dna.species.name in hair.species_allowed)) || (dna.species.bodyflags & ALL_RPARTS)))
+		return
+
+	//base icons
+	var/mutable_appearance/MA = new()
+	MA.appearance_flags = KEEP_TOGETHER
+
+	// Base hair
+	var/mutable_appearance/img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
+	if(dna.species.name == SPECIES_SLIMEPERSON)
+		img_hair.color = COLOR_MATRIX_OVERLAY("[owner.skin_colour]A0")
+	else if(hair.do_colouration)
+		img_hair.color = COLOR_MATRIX_ADD(hair_colour)
+	MA.overlays += img_hair
+
+	// Gradient
+	var/datum/sprite_accessory/gradient/gradient = SSaccessories.hair_gradients_list[gradient_style]
+	if(gradient)
+		var/icon/icn_alpha_mask = icon(gradient.icon, gradient.icon_state)
+		var/icon/icn_gradient = icon(gradient.icon, "full")
+		var/list/icn_color = rgb2num(h_grad_colour)
+		icn_gradient.MapColors(rgb(icn_color[1], 0, 0), rgb(0, icn_color[2], 0), rgb(0, 0, icn_color[3]))
+		icn_gradient.ChangeOpacity(h_grad_alpha / 200)
+		icn_gradient.AddAlphaMask(icn_alpha_mask)
+		icn_gradient.Shift(EAST, h_grad_offset_x)
+		icn_gradient.Shift(NORTH, h_grad_offset_y)
+		icn_gradient.AddAlphaMask(icon(hair.icon, "[hair.icon_state]_s"))
+		MA.overlays += mutable_appearance(icn_gradient)
+
+	// Secondary style
+	if(hair.secondary_theme)
+		var/mutable_appearance/img_secondary = mutable_appearance(hair.icon, "[hair.icon_state]_[hair.secondary_theme]_s")
+		if(!hair.no_sec_colour)
+			img_secondary.color = COLOR_MATRIX_ADD(sec_hair_colour)
+		MA.overlays += img_secondary
+
+	return MA
+
 /obj/item/organ/external/proc/get_normal_icon_state()
 	var/new_icon_state = "[icon_name][(!dna || !gendered_icon) ? "" : (dna.GetUITriState(DNA_UI_GENDER) == DNA_GENDER_MALE ? "_m" : "_f")]"
 	var/list/icon_state_additions = list()
