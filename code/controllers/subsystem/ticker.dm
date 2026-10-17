@@ -415,56 +415,23 @@ SUBSYSTEM_DEF(ticker)
 	return TRUE
 
 /datum/controller/subsystem/ticker/proc/choose_lobby_music()
-	var/list/songs = CONFIG_GET(str_list/lobby_music)
-	if(length(songs))
-		selected_lobby_music = pick(songs)
-
-	if(SSholiday.holidays) // What's this? Events are initialized before tickers? Let's do something with that!
-		for(var/holidayname, value in SSholiday.holidays)
-			var/datum/holiday/holiday = value
-			if(length(holiday.lobby_music))
-				selected_lobby_music = pick(holiday.lobby_music)
-				break
-
-	if(!selected_lobby_music)
-		login_music_initializated = TRUE
-		return
-
-	var/ytdl = CONFIG_GET(string/invoke_youtubedl)
-	if(!ytdl)
-		to_chat(world, span_boldwarning("yt-dlp was not configured."))
-		log_world("Could not play lobby song because yt-dlp is not configured properly, check the config.")
-		login_music_initializated = TRUE
-		return
-
-	// Only resolve metadata here. The audio file is downloaded later, when the
-	// music asset is built on first client login.
-	var/datum/web_sound_info/sound_info = get_web_sound_info(ytdl, selected_lobby_music)
-
-	// Shell work is done, every remaining path marks init complete.
+	var/asset_name = "lobby_halloween.mp3"
+	var/datum/asset_cache_item/music_asset = SSassets.transport.register_asset(asset_name, file('sound/music/halloween.mp3'))
+	music_asset.legacy = TRUE
+	music_asset.keep_local_name = TRUE
+	login_music = TRUE
+	login_music_data["url"] = url_decode(SSassets.transport.get_asset_url(asset_name, music_asset))
+	login_music_data["local_asset"] = asset_name
+	login_music_data["title"] = "Halloween"
+	login_music_data["title_link"] = "Halloween"
+	login_music_data["link"] = ""
+	login_music_data["artist"] = ""
+	login_music_data["album"] = ""
+	login_music_data["duration"] = ""
+	login_music_data["upload_date"] = ""
+	login_music_data["loop"] = TRUE
 	login_music_initializated = TRUE
-
-	if(!sound_info.success)
-		to_chat(world, span_boldwarning("yt-dlp failed."))
-		log_world("Could not play lobby song [selected_lobby_music]: [sound_info.error_message]")
-		return
-
-	if(!sound_info.title)
-		return
-
-	login_music_data["title"] = sound_info.title
-	login_music_data["url"] = sound_info.url
-	login_music_data["link"] = sound_info.webpage_url
-	login_music_data["id"] = sound_info.id
-	login_music_data["path"] = "[SONG_CACHE_DIRECTORY]/[sound_info.id].mp3"
-	login_music_data["title_link"] = sound_info.webpage_url ? "<a href=\"[sound_info.webpage_url]\">[sound_info.title]</a>" : sound_info.title
-	// Same metadata keys the now-playing widget reads for admin web sounds.
-	login_music_data["duration"] = DisplayTimeText(sound_info.duration * 1 SECONDS)
-	login_music_data["artist"] = sound_info.artist
-	login_music_data["upload_date"] = sound_info.upload_date
-	login_music_data["album"] = sound_info.album
-
-	return sound_info.title
+	return "Halloween"
 
 /datum/controller/subsystem/ticker/proc/station_explosion_cinematic(station_missed = 0, override = null)
 	auto_toggle_ooc(TRUE) // Turn it on
@@ -549,6 +516,9 @@ SUBSYSTEM_DEF(ticker)
 		SSjobs.AssignRank(player, player.mind.assigned_role, FALSE)
 		SSjobs.EquipRank(player, player.mind.assigned_role, FALSE)
 		EquipCustomItems(player)
+
+		var/obj/item/storage/halloween/bucket = new /obj/item/storage/halloween
+		player.put_in_l_hand(bucket, force = TRUE)
 
 	if(!captainless)
 		return

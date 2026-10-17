@@ -355,3 +355,4 @@ GLOBAL_LIST_EMPTY(sfx_datum_by_key)
 #define SFX_KNIFE_DROP "knife_drop"
 #define SFX_POTTED_PLANT_PICKUP "potted_plant_pickup"
 #define SFX_POTTED_PLANT_DROP "potted_plant_drop"
+#define SFX_PUMPKIN_CRASH "pumpkin_crash"

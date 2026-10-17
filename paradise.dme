@@ -3361,6 +3361,7 @@
 #include "code\modules\games\unum.dm"
 #include "code\modules\hallucination\_hallucination.dm"
 #include "code\modules\holiday\christmas.dm"
+#include "code\modules\holiday\halloween.dm"
 #include "code\modules\holiday\holiday.dm"
 #include "code\modules\holiday\new_year.dm"
 #include "code\modules\holomaps\datum.dm"

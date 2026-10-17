@@ -1070,3 +1070,11 @@
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh4.ogg',
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh5.ogg',
 	)
+
+/datum/sound_effect/pumpkin_crash
+	key = SFX_PUMPKIN_CRASH
+	file_paths = list(
+		'sound/items/halloween/pumpkin_crash1.ogg',
+		'sound/items/halloween/pumpkin_crash2.ogg',
+		'sound/items/halloween/pumpkin_crash3.ogg',
+	)
