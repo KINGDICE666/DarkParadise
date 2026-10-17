@@ -13,3 +13,25 @@
 	starsys_name = "Эпсилон Лукуста"
 	webmap_url = "https://webmap.wiki-ss13.space/coldcolony/"
 	planetary = TRUE
+
+/datum/map/Backrooms
+	name = "Backrooms"
+	map_path = "_maps/map_files/event/Station/fallout.dmm"
+	lavaland_path = "_maps/map_files/coldcolony/Lavaland.dmm"
+	linkage = UNAFFECTED
+	traits = list(
+		list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "Lower Floor", REACHABLE, AI_OK, ZTRAIT_UP, ZTRAIT_BASETURF = /turf/simulated/floor/plating/asteroid),
+		list(STATION_CONTACT, STATION_LEVEL = "Second Floor", REACHABLE, AI_OK, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, STATION_LEVEL = "Third Floor", REACHABLE, AI_OK, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, STATION_LEVEL = "Upper Floor", REACHABLE, AI_OK, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+	)
+
+	station_name = "Backrooms"
+	english_station_name = "Backrooms"
+	station_short = "Backrooms"
+	dock_name = "Backrooms"
+	company_name = "\"Нанотрейзен\""
+	company_short = "НТ"
+	starsys_name = "Epsilon Lucusta"
+	webmap_url = "https://webmap.wiki-ss13.space/coldcolony/"
+	planetary = TRUE
