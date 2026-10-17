@@ -27,6 +27,7 @@
 	icon_state = "closed_station0"
 	base_icon_state = "station0"
 	enter_delay = 2
+	tube_construction = /obj/structure/c_transit_tube/station
 	var/pod_moving = FALSE
 	var/launch_cooldown = 0
 	var/reverse_launch = FALSE
@@ -109,6 +110,16 @@
 			Bumped(target)
 		break
 
+/obj/structure/transit_tube/station/mouse_drop_receive(obj/structure/c_transit_tube_pod/dropped, mob/user, params)
+	if(!istype(dropped) || (locate(/obj/structure/transit_tube_pod) in loc))
+		return
+	var/obj/structure/transit_tube_pod/pod = new(loc)
+	dropped.transfer_fingerprints_to(pod)
+	pod.add_fingerprint(user)
+	pod.setDir(turn(dir, -90))
+	user.visible_message(span_notice("[user] вставля[PLUR_ET_YUT(user)] [dropped.declent_ru(ACCUSATIVE)]."), span_notice("Вы вставляете [dropped.declent_ru(ACCUSATIVE)]."))
+	qdel(dropped)
+
 /obj/structure/transit_tube/station/proc/open_hatch()
 	if(hatch_state == TRANSIT_TUBE_CLOSED)
 		icon_state = "opening_[base_icon_state]"
@@ -184,6 +195,7 @@
 /obj/structure/transit_tube/station/flipped
 	icon_state = "closed_station1"
 	base_icon_state = "station1"
+	tube_construction = /obj/structure/c_transit_tube/station/flipped
 
 /obj/structure/transit_tube/station/flipped/init_tube_dirs()
 	..()
@@ -193,6 +205,7 @@
 /obj/structure/transit_tube/station/reverse
 	icon_state = "closed_terminus0"
 	base_icon_state = "terminus0"
+	tube_construction = /obj/structure/c_transit_tube/station/reverse
 	reverse_launch = TRUE
 
 /obj/structure/transit_tube/station/reverse/init_tube_dirs()
@@ -202,6 +215,7 @@
 /obj/structure/transit_tube/station/reverse/flipped
 	icon_state = "closed_terminus1"
 	base_icon_state = "terminus1"
+	tube_construction = /obj/structure/c_transit_tube/station/reverse/flipped
 
 /obj/structure/transit_tube/station/reverse/flipped/init_tube_dirs()
 	..()
@@ -216,6 +230,7 @@
 	enter_delay = 1
 	base_icon_state = "dispenser0"
 	hatch_state = TRANSIT_TUBE_OPEN
+	tube_construction = /obj/structure/c_transit_tube/station/dispenser
 	COOLDOWN_DECLARE(freight_output)
 	COOLDOWN_DECLARE(freight_message)
 
@@ -261,6 +276,7 @@
 /obj/structure/transit_tube/station/dispenser/flipped
 	icon_state = "open_dispenser1"
 	base_icon_state = "dispenser1"
+	tube_construction = /obj/structure/c_transit_tube/station/dispenser/flipped
 
 /obj/structure/transit_tube/station/dispenser/flipped/init_tube_dirs()
 	..()
@@ -269,6 +285,7 @@
 	reverse_launch = TRUE
 	icon_state = "open_terminusdispenser0"
 	base_icon_state = "terminusdispenser0"
+	tube_construction = /obj/structure/c_transit_tube/station/dispenser/reverse
 
 /obj/structure/transit_tube/station/dispenser/reverse/init_tube_dirs()
 	tube_dirs = list(turn(dir, -90))
@@ -277,6 +294,7 @@
 /obj/structure/transit_tube/station/dispenser/reverse/flipped
 	icon_state = "open_terminusdispenser1"
 	base_icon_state = "terminusdispenser1"
+	tube_construction = /obj/structure/c_transit_tube/station/dispenser/reverse/flipped
 
 /obj/structure/transit_tube/station/dispenser/reverse/flipped/init_tube_dirs()
 	..()

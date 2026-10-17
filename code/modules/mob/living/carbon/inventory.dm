@@ -281,6 +281,7 @@
 				/obj/item/storage/backpack,
 				/obj/item/storage/belt,
 				/obj/item/twohanded/shockpaddles,
+				/obj/item/tk_grab,
 			))
 			if(!is_type_in_typecache(item, bulky_exceptions))
 				return FALSE

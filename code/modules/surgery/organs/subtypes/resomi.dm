@@ -33,15 +33,26 @@
 	species_type = /datum/species/resomi
 	name = "resomi ears"
 	desc = "Слуховой аппарат резоми, управляющий всеми четырьмя внешними ушными раковинами."
+	actions_types = list(/datum/action/item_action/organ_action/resomi_listen)
 
 /obj/item/organ/internal/ears/resomi/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(.)
-		ADD_TRAIT(target, TRAIT_GOOD_HEARING, UNIQUE_TRAIT_SOURCE(src))
+		target.add_traits(list(TRAIT_GOOD_HEARING, TRAIT_WEAK_EARS), UNIQUE_TRAIT_SOURCE(src))
 
 /obj/item/organ/internal/ears/resomi/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
-	REMOVE_TRAIT(target, TRAIT_GOOD_HEARING, UNIQUE_TRAIT_SOURCE(src))
+	target.remove_traits(list(TRAIT_GOOD_HEARING, TRAIT_WEAK_EARS), UNIQUE_TRAIT_SOURCE(src))
+	target.remove_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
 	return ..()
+
+/obj/item/organ/internal/ears/resomi/ui_action_click(mob/user, datum/action/action, leftclick)
+	if(owner.has_status_effect(STATUS_EFFECT_RESOMI_LISTENING))
+		owner.remove_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
+		return
+	if(HAS_TRAIT(owner, TRAIT_DEAF))
+		owner.balloon_alert(owner, "вы ничего не слышите!")
+		return
+	owner.apply_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
 
 /obj/item/organ/internal/ears/resomi/get_ru_names()
 	return alist(
@@ -147,3 +158,8 @@
 		INSTRUMENTAL = "хвостом резоми",
 		PREPOSITIONAL = "хвосте резоми",
 	)
+
+/datum/action/item_action/organ_action/resomi_listen
+	name = "Прислушаться"
+	desc = "Замедлиться и вслушаться в окружение: шаги, упавшие предметы и прочие звуки за стенами отмечаются на экране."
+	button_icon_state = "resomi_listen"

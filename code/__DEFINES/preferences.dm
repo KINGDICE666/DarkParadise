@@ -62,7 +62,6 @@
 #define PREFTOGGLE_2_LARGE_INPUT_BUTTONS (1<<16) // 65536
 #define PREFTOGGLE_2_BIG_STRIP_MENU (1<<17) // 131072
 #define PREFTOGGLE_2_ENABLE_TGUI_SAY_LIGHT_MODE (1<<18) // 262144
-#define PREFTOGGLE_2_PIXELATED_MENU (1<<19) // 524288
 #define PREFTOGGLE_2_HIDE_ITEM_TOOLTIPS (1<<20) // 1048576
 #define PREFTOGGLE_2_GIB_WITHOUT_OBJECTIVE (1<<21) // 2097152
 #define PREFTOGGLE_2_SPLIT_ADMIN_TABS (1<<22) // 4194304
@@ -209,6 +208,7 @@
 #define PREF_ORGANSTATUS_CYBORG_ENG "cyborg"
 #define PREF_ORGANSTATUS_AMPUTATED_ENG "amputated"
 #define PREF_ORGANSTATUS_CYBERNETIC_ENG "cybernetic"
+#define PREF_ORGANSTATUS_ORGANIC "organic"
 
 // Organ statuses (Russian)
 #define PREF_ORGANSTATUS_ORGANIC_RUS "Органика"
@@ -237,15 +237,61 @@
 #define BE_ASSISTANT 1
 #define RETURN_TO_LOBBY 2
 
-#define TAB_CHAR 0
-#define TAB_GAME 1
-#define TAB_SPEC 2
-#define TAB_KEYS 3
-#define TAB_TOGGLES 4
-
 #define SCALING_METHOD_NORMAL "normal"
 #define SCALING_METHOD_DISTORT "distort"
 #define SCALING_METHOD_BLUR "blur"
+
+#define PREFERENCE_PRIORITY_DEFAULT 1
+#define PREFERENCE_PRIORITY_SPECIES 2
+#define PREFERENCE_PRIORITY_GENDER 3
+#define PREFERENCE_PRIORITY_BODYPARTS 4
+#define PREFERENCE_PRIORITY_APPEARANCE 5
+#define PREFERENCE_PRIORITY_NAMES 6
+#define MAX_PREFERENCE_PRIORITY PREFERENCE_PRIORITY_NAMES
+
+#define CHOICED_PREFERENCE_DISPLAY_NAMES "display_names"
+#define SUPPLEMENTAL_FEATURE_KEY "supplemental_feature"
+
+#define PREFERENCE_CHARACTER "character"
+#define PREFERENCE_PLAYER "player"
+
+#define PREFERENCE_TAB_CHARACTER_PREFERENCES 0
+#define PREFERENCE_TAB_GAME_PREFERENCES 1
+#define PREFERENCE_TAB_KEYBINDINGS 2
+
+#define PREFERENCE_PAGE_JOBS "jobs"
+
+#define LOBBY_LAYOUT_DEFAULT "default"
+#define LOBBY_LAYOUT_CORNERS "corners"
+#define LOBBY_LAYOUT_MENU_LEFT "menu_left"
+#define LOBBY_LAYOUT_MENU_RIGHT "menu_right"
+#define LOBBY_LAYOUT_CUSTOM "custom"
+
+#define LOBBY_GROUP_MENU "menu"
+#define LOBBY_GROUP_INFO "info"
+#define LOBBY_GROUP_LINKS "links"
+#define LOBBY_GROUP_PHRASE "phrase"
+#define LOBBY_GROUP_NOTICE "notice"
+
+#define PREFERENCE_CATEGORY_FEATURES "features"
+#define PREFERENCE_CATEGORY_CLOTHING "clothing"
+#define PREFERENCE_CATEGORY_NON_CONTEXTUAL "non_contextual"
+#define PREFERENCE_CATEGORY_GAME_PREFERENCES "game_preferences"
+#define PREFERENCE_CATEGORY_SECONDARY_FEATURES "secondary_features"
+#define PREFERENCE_CATEGORY_SUPPLEMENTAL_FEATURES "supplemental_features"
+#define PREFERENCE_CATEGORY_MANUALLY_RENDERED "manually_rendered_features"
+
+#define RANDOM_ANTAG_ONLY 1
+#define RANDOM_DISABLED 2
+#define RANDOM_ENABLED 3
+
+#define JP_LOW 1
+#define JP_MEDIUM 2
+#define JP_HIGH 3
+
+#define DEFAULT_CYBORG_NAME "Стандартное имя"
+#define DEFAULT_RELIGION_NAME "Christianity"
+#define DEFAULT_DEITY_NAME "Space Jesus"
 
 /// The key used for sprite accessories that should never actually be applied to the player.
 #define SPRITE_ACCESSORY_NONE "None"

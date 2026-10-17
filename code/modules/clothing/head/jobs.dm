@@ -109,6 +109,22 @@
 		PREPOSITIONAL = "капитанском берете",
 	)
 
+/obj/item/clothing/head/caphat/bicorne
+	name = "captain's bicorne"
+	desc = "Зачем быть королём, когда можно стать императором?"
+	icon_state = "capbicorne"
+	dog_fashion = null
+
+/obj/item/clothing/head/caphat/bicorne/get_ru_names()
+	return alist(
+		NOMINATIVE = "капитанская двууголка",
+		GENITIVE = "капитанской двууголки",
+		DATIVE = "капитанской двууголке",
+		ACCUSATIVE = "капитанскую двууголку",
+		INSTRUMENTAL = "капитанской двууголкой",
+		PREPOSITIONAL = "капитанской двууголке",
+	)
+
 //Head of Personnel
 /obj/item/clothing/head/hopcap
 	name = "head of personnel's cap"

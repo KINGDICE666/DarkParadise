@@ -201,6 +201,15 @@
 /obj/effect/temp_visual/sonar_ping/proc/remove_mind(mob/living/looker)
 	looker?.client?.images -= modsuit_image
 
+/obj/effect/temp_visual/sonar_ping/sound
+	duration = 1 SECONDS
+
+/obj/effect/temp_visual/sonar_ping/sound/Initialize(mapload, mob/living/looker, turf/heard_turf)
+	. = ..()
+	if(. == INITIALIZE_HINT_QDEL)
+		return
+	animate(modsuit_image, alpha = 0, time = duration)
+
 // MARK: Firewall
 /// Firewall. Deployable dropwall that lights projectiles on fire.
 /obj/item/mod/module/anomaly_locked/firewall

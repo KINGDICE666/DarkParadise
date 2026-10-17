@@ -12,12 +12,16 @@
 	speech_chance = 20
 	unarmed_type = /datum/unarmed_attack/claws	//I dont think it will hurt to give vox claws too.
 
-	blurb = "The Vox are the broken remnants of a once-proud race, now reduced to little more than \
-	scavenging vermin who prey on isolated stations, ships or planets to keep their own ancient arkships \
-	alive. They are four to five feet tall, reptillian, beaked, tailed and quilled; human crews often \
-	refer to them as 'shitbirds' for their violent and offensive nature, as well as their horrible \
-	smell.<br/><br/>Most humans will never meet a Vox raider, instead learning of this insular species through \
-	dealing with their traders and merchants; those that do rarely enjoy the experience."
+	blurb = "Воксы — скрытные птицеподобные существа с огромных кораблей-ковчегов. Они дышат только азотом, а кислород для \
+	них ядовит. Воксы дерутся когтями и могут переварить почти что угодно, но кости у них хрупкие, а клонировать \
+	вокса невозможно.<br/><br/>Родного мира у воксов нет: они живут на ковчегах — огромных шарообразных кораблях, \
+	сваренных из чего попало, которые служат им одновременно домом и складом ресурсов. Большинство обитателей \
+	космоса знает об этой расе очень мало.<br/><br/>Станционные воксы относятся к подвиду прималис. Их создают в \
+	мастерских истинных воксов — ауралис: мозговой стек получает базовую «прошивку», а сам вокс проходит долгий \
+	цикл перерождений. Жизнью ковчега правит Нерушимый кодекс: убивайте как можно меньше, тратьте как можно \
+	меньше, оберегайте ковчеги и материалы, приспосабливайтесь к любым обстоятельствам.<br/><br/>Воксы одинаково \
+	недолюбливают все прочие расы и общаются с ними лишь по необходимости. Между собой они говорят на \
+	вокс-пиджине, а их рейдеры славятся умением незаметно вынести со станции всё самое ценное."
 
 	bonefragility = 1.2 //20% more chance to break bones. Fragile bird bones.
 
@@ -141,7 +145,7 @@
 		H.drop_item_ground(H.wear_mask)
 
 	H.equip_or_collect(new /obj/item/clothing/mask/breath/vox(H), ITEM_SLOT_MASK)
-	var/tank_pref = H.client && H.client.prefs ? H.client.prefs.speciesprefs : null
+	var/tank_pref = H.client && H.client.prefs ? H.client.prefs.read_preference(/datum/preference/toggle/species_preference) : null
 	var/obj/item/tank/internals/internal_tank
 	if(tank_pref)//Diseasel, here you go
 		internal_tank = new /obj/item/tank/internals/nitrogen(H)
@@ -206,6 +210,8 @@
 /datum/species/vox/armalis
 	name = SPECIES_VOX_ARMALIS
 	name_plural = "Vox Armalis"
+	blurb = "Армалис — огромный боевой подвид воксов, созданный ауралис для тяжёлой работы и войны. Они гораздо крупнее и \
+	сильнее обычных воксов-прималис и почти никогда не покидают ковчеги."
 	icobase = 'icons/mob/human_races/r_armalis.dmi'
 	deform = 'icons/mob/human_races/r_armalis.dmi'
 	fit_profile = null

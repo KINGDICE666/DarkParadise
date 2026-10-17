@@ -81,29 +81,6 @@
 			stack_trace("Loadout - Missing path definition: [gear_type]")
 			continue
 		gear_type = new gear_type
-		var/obj/gear_item = gear_type.path
-		var/list/gear_tweaks = list()
-		for(var/datum/gear_tweak/tweak_type as anything in gear_type.gear_tweaks)
-			gear_tweaks[tweak_type.type] += list(list(
-				"name" = tweak_type.display_type,
-				"icon" = tweak_type.fa_icon,
-				"tooltip" = tweak_type.info,
-			))
-
-		GLOB.gear_tgui_info[gear_type.sort_category] += list(
-			"[gear_type]" = list(
-				"name" = gear_type.get_display_name(),
-				"index_name" = gear_type.index_name,
-				"desc" = gear_type.description,
-				"icon" = gear_item.icon,
-				"icon_state" = gear_item.icon_state,
-				"cost" = gear_type.cost,
-				"gear_tier" = gear_type.donator_tier,
-				"allowed_roles" = gear_type.allowed_roles,
-				"tweaks" = gear_tweaks,
-			)
-		)
-
 		GLOB.gear_datums[gear_type.index_name] = gear_type
 
 	// Setup a list of robolimbs

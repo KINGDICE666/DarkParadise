@@ -3,7 +3,8 @@
 	name_plural = "Skeletons"
 	ru_genitive = "скелета"
 
-	blurb = "Spoopy and scary."
+	blurb = "Оживлённые скелеты — нежить, поднятая магией. Им не нужны воздух, еда и кровь, их не берут радиация, болезни и \
+	жар, а шприцы и осколки в них не застревают."
 
 	icobase = 'icons/mob/human_races/r_skeleton.dmi'
 	deform = 'icons/mob/human_races/r_skeleton.dmi'

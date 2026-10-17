@@ -159,12 +159,13 @@ GLOBAL_VAR_INIT(sent_strike_team, FALSE)
 	var/commando_name = pick(GLOB.last_names_male)
 
 	var/datum/preferences/A = new()//Randomize appearance for the commando.
+	var/commando_surname = A.read_preference(/datum/preference/choiced/gender) == FEMALE ? pick(GLOB.last_names_female) : commando_name
 	if(is_leader)
-		A.age = rand(35,45)
-		A.real_name = "[commando_leader_rank] [A.gender==FEMALE ? pick(GLOB.last_names_female) : commando_name]"
+		A.write_preference(GLOB.preference_entries[/datum/preference/numeric/age], rand(35,45))
+		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[commando_leader_rank] [commando_surname]")
 	else
-		A.real_name = "[commando_rank] [A.gender==FEMALE ? pick(GLOB.last_names_female) : commando_name]"
-	A.copy_to(new_commando)
+		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[commando_rank] [commando_surname]")
+	A.apply_prefs_to(new_commando)
 
 	new_commando.dna.ready_dna(new_commando)//Creates DNA.
 

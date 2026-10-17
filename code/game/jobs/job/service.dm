@@ -522,11 +522,7 @@
 	bible.customisable = TRUE // Only the initial bible is customisable
 	user.put_in_l_hand(bible)
 
-	var/religion_name = "Christianity"
-	var/new_religion = tgui_input_text(user, "You are the Chaplain. What name do you give your beliefs? Default is Christianity.", "Name change", religion_name, max_length = MAX_NAME_LEN)
-
-	if(!new_religion)
-		new_religion = religion_name
+	var/new_religion = user.client?.prefs.read_preference(/datum/preference/name/religion) || DEFAULT_RELIGION_NAME
 
 	switch(lowertext(new_religion))
 		if("christianity")
@@ -551,11 +547,7 @@
 			bible.name = "The Holy Book of [new_religion]"
 	SSblackbox.record_feedback("text", "religion_name", 1, "[new_religion]", 1)
 
-	var/deity_name = "Space Jesus"
-	var/new_deity = tgui_input_text(user, "Who or what do you worship? Default is Space Jesus.", "Name change", deity_name, max_length = MAX_NAME_LEN)
-
-	if(!length(new_deity) || (new_deity == "Space Jesus"))
-		new_deity = deity_name
+	var/new_deity = user.client?.prefs.read_preference(/datum/preference/name/deity) || DEFAULT_DEITY_NAME
 	bible.deity_name = new_deity
 	SSblackbox.record_feedback("text", "religion_deity", 1, "[new_deity]", 1)
 	var/datum/action/cooldown/spell/pointed/bless/b_action = new()

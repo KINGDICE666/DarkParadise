@@ -2,7 +2,8 @@
 	name = SPECIES_MONKEY
 	name_plural = "Monkeys"
 	ru_genitive = "обезьяны"
-	blurb = "Ook."
+	blurb = "Примитивные предки разумных видов: обезьяны у людей, фарвы у таяран, вольпины у вульпканинов, неары у скреллов \
+	и стоки у унатхов. Чаще всего их держат для генетических и медицинских опытов."
 
 	icobase = 'icons/mob/human_races/monkeys/r_monkey.dmi'
 	deform = 'icons/mob/human_races/monkeys/r_monkey.dmi'

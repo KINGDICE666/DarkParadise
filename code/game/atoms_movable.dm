@@ -1098,6 +1098,8 @@
 
 ///Clears the clients channel of this mob
 /mob/proc/clear_important_client_contents()
+	if(!LAZYACCESS(important_recursive_contents, RECURSIVE_CONTENTS_CLIENT_MOBS))
+		return
 	var/turf/our_turf = get_turf(src)
 	SSspatial_grid.remove_grid_membership(src, our_turf, SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)
 

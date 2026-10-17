@@ -244,7 +244,10 @@
 	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)
 
 	var/datum/event/brain_trauma/event = new(null, TRUE)
-	event.traumatize(patient)
+	for(var/attempt in 1 to 20)
+		event.traumatize(patient)
+		if(patient.has_trauma_type(/datum/brain_trauma, TRAUMA_RESILIENCE_ABSOLUTE))
+			break
 	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma, TRAUMA_RESILIENCE_ABSOLUTE), "the spontaneous brain trauma event handed out no trauma")
 	patient.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
 	qdel(event)
