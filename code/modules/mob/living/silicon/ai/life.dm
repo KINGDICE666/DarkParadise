@@ -19,6 +19,13 @@
 	if(machine)
 		machine.check_eye(src)
 
+	if(enhanced_tracking && tracked_mob && !tracker_alert_cooldown)
+		var/area/A = get_area(tracked_mob)
+		if(A && can_see(tracked_mob))
+			addtimer(CALLBACK(src, PROC_REF(raise_tracking_alert), A, tracked_mob), enhanced_tracking_delay)
+			tracker_alert_cooldown = TRUE
+			addtimer(CALLBACK(src, PROC_REF(reset_tracker_cooldown)), tracking_alert_interval)
+
 	if(malfhack?.aidisabled)
 		to_chat(src, span_danger("ERROR: APC access disabled, hack attempt canceled."))
 		deltimer(malfhacking)

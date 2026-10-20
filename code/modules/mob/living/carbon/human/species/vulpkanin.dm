@@ -10,11 +10,14 @@
 	skinned_type = /obj/item/stack/sheet/fur
 	unarmed_type = /datum/unarmed_attack/claws
 
-	blurb = "Vulpkanin are a species of sharp-witted canine-pideds residing on the planet Altam just barely within the \
-	dual-star Vazzend system. Their politically de-centralized society and independent natures have led them to become a species and \
-	culture both feared and respected for their scientific breakthroughs. Discovery, loyalty, and utilitarianism dominates their lifestyles \
-	to the degree it can cause conflict with more rigorous and strict authorities. They speak a guttural language known as 'Canilunzt' \
-	which has a heavy emphasis on utilizing tail positioning and ear twitches to communicate intent."
+	blurb = "Вульпканины — гуманоиды, похожие на земных лис и псов, с планеты Алтам. Они отлично видят в темноте, дерутся \
+	когтями и обожают мясо, но плохо усваивают овощи, фрукты и злаки.<br/><br/>Родина вульпканинов — планета Алтам \
+	в двойной звёздной системе Ваззенда. Пережив Войну огня и выйдя в космос, их общество раскололось на три \
+	фракции: Карискрон, Хиррсарри и Аикхаль.<br/><br/>Карискроном, которому принадлежат Ваззенда и Алтам, правит \
+	Архонт, и фракция охотно сотрудничает с мафией, пиратами и революционерами. Хиррсарри — замкнутая и \
+	воинственная технократическая империя, а Аикхаль — президентская республика со столицей на станции Хайос \
+	Прайм.<br/><br/>Вульпканины ценят открытия, преданность и практичность — порой настолько, что это приводит к \
+	стычкам со строгим начальством. Говорят они на гортанном канилунце."
 
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,

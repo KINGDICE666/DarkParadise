@@ -185,6 +185,13 @@
 	build_path = /obj/item/clothing/ears/earmuffs
 	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_MISC)
 
+/datum/design/holodisk
+	id = "holodisk"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = SMALL_MATERIAL_AMOUNT, MAT_GLASS = SMALL_MATERIAL_AMOUNT)
+	build_path = /obj/item/disk/holodisk
+	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_MISC)
+
 /datum/design/pipe_painter
 	id = "pipe_painter"
 	build_type = AUTOLATHE

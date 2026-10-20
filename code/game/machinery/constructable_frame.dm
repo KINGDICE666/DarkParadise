@@ -805,6 +805,19 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stock_parts/capacitor = 1,
 	)
+	var/secure = FALSE
+
+/obj/item/circuitboard/holopad/multitool_act(mob/living/user, obj/item/tool)
+	. = TRUE
+	secure = !secure
+	build_path = secure ? /obj/machinery/hologram/holopad/secure : /obj/machinery/hologram/holopad
+	to_chat(user, span_notice("Вы [secure ? "включаете" : "отключаете"] защищённый режим на [declent_ru(PREPOSITIONAL)]."))
+
+/obj/item/circuitboard/holopad/examine(mob/user)
+	. = ..()
+	. += span_notice("На плате есть порт, который можно <b>импульсом</b> переключить в защищённый режим.")
+	if(secure)
+		. += span_notice("Рядом со словом \"secure\" мигает красный огонёк.")
 
 /obj/item/circuitboard/chem_dispenser
 	board_name = "Chem Dispenser"
@@ -982,6 +995,53 @@ to destroy them and players will be able to make replacements.
 	req_components = list(
 		/obj/item/stack/cable_coil = 2,
 		/obj/item/stock_parts/scanning_module = 1,
+	)
+
+/obj/item/circuitboard/processing_node
+	board_name = "Processing Node"
+	build_path = /obj/machinery/ai_node/processing_node
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_SCIENCE
+	origin_tech = "programming=4"
+	req_components = list(
+		/obj/item/stock_parts/capacitor = 2,
+		/obj/item/stack/sheet/mineral/gold = 1,
+		/obj/item/stack/sheet/mineral/silver = 1,
+		/obj/item/stack/sheet/mineral/diamond = 1,
+		/obj/item/stack/cable_coil = 5,
+	)
+
+/obj/item/circuitboard/processing_node/get_ru_names()
+	return alist(
+		NOMINATIVE = "плата вычислительного узла",
+		GENITIVE = "платы вычислительного узла",
+		DATIVE = "плате вычислительного узла",
+		ACCUSATIVE = "плату вычислительного узла",
+		INSTRUMENTAL = "платой вычислительного узла",
+		PREPOSITIONAL = "плате вычислительного узла",
+	)
+
+/obj/item/circuitboard/network_node
+	board_name = "Network Node"
+	build_path = /obj/machinery/ai_node/network_node
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_SCIENCE
+	origin_tech = "programming=4"
+	req_components = list(
+		/obj/item/stock_parts/capacitor = 2,
+		/obj/item/stack/sheet/mineral/gold = 1,
+		/obj/item/stack/sheet/mineral/silver = 1,
+		/obj/item/stack/cable_coil = 5,
+	)
+
+/obj/item/circuitboard/network_node/get_ru_names()
+	return alist(
+		NOMINATIVE = "плата сетевого узла",
+		GENITIVE = "платы сетевого узла",
+		DATIVE = "плате сетевого узла",
+		ACCUSATIVE = "плату сетевого узла",
+		INSTRUMENTAL = "платой сетевого узла",
+		PREPOSITIONAL = "плате сетевого узла",
 	)
 
 /obj/item/circuitboard/mechfab

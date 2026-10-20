@@ -1,7 +1,8 @@
 #define CAN_HEAR_MASTERS (1<<0)
 #define CAN_HEAR_ACTIVE_HOLOCALLS (1<<1)
 #define CAN_HEAR_RECORD_MODE (1<<2)
-#define CAN_HEAR_ALL_FLAGS (CAN_HEAR_MASTERS|CAN_HEAR_ACTIVE_HOLOCALLS|CAN_HEAR_RECORD_MODE)
+#define CAN_HEAR_HOLOCALL_USER (1<<3)
+#define CAN_HEAR_ALL_FLAGS (CAN_HEAR_MASTERS|CAN_HEAR_ACTIVE_HOLOCALLS|CAN_HEAR_RECORD_MODE|CAN_HEAR_HOLOCALL_USER)
 
 /mob/camera/aiEye/remote/holo/setLoc(turf/destination, force_update = FALSE)
 	. = ..()
@@ -22,13 +23,15 @@
 	var/datum/action/innate/end_holocall/hangup //hangup action
 
 	var/call_start_time
+	var/head_call = FALSE
 
 //creates a holocall made by `requester` from `calling_pad` to `callees`
-/datum/holocall/New(mob/living/requester, obj/machinery/hologram/holopad/calling_pad, list/callees)
+/datum/holocall/New(mob/living/requester, obj/machinery/hologram/holopad/calling_pad, list/callees, elevated_access = FALSE)
 	call_start_time = world.time
 	user = requester
 	calling_pad.outgoing_call = src
 	calling_holopad = calling_pad
+	head_call = elevated_access
 	dialed_holopads = list()
 
 	for(var/obj/machinery/hologram/holopad/connected_holopad as anything in callees)
@@ -36,7 +39,13 @@
 			dialed_holopads += connected_holopad
 			var/area/area = get_area(connected_holopad)
 			connected_holopad.set_holocall(src)
-			connected_holopad.atom_say("[area] голопад звонит: входящий вызов от [requester]!")
+			if(!head_call)
+				connected_holopad.atom_say("[area] голопад звонит: входящий вызов от [requester]!")
+			else if(connected_holopad.secure)
+				calling_pad.atom_say("Автоподключение отклонено, обычный вызов.")
+				connected_holopad.atom_say("[area] голопад звонит: входящий вызов от [requester]!")
+			else
+				connected_holopad.atom_say("Входящее подключение от [requester].")
 
 	if(!length(dialed_holopads))
 		calling_holopad.atom_say("Сбой соединения.")
@@ -72,7 +81,7 @@
 	dialed_holopads.Cut()
 
 	if(calling_holopad)//if the call is answered, then calling_holopad wont be in dialed_holopads and thus wont have set_holocall(src, FALSE) called
-		calling_holopad.outgoing_call = null
+		calling_holopad.callee_hung_up()
 		calling_holopad.SetLightsAndPower()
 		calling_holopad = null
 	if(connected_holopad)
@@ -135,6 +144,7 @@
 	if(!Check())
 		return
 
+	calling_holopad.callee_picked_up()
 	hologram = answering_holopad.activate_holo(user)
 	hologram.HC = src
 
@@ -170,7 +180,6 @@
 			. = world.time < (call_start_time + HOLOPAD_MAX_DIAL_TIME)
 			if(!.)
 				calling_holopad.atom_say("Ответ не получен.")
-				calling_holopad.temp = ""
 
 	else if(!.)
 		qdel(src)
@@ -187,7 +196,56 @@
 /datum/action/innate/end_holocall/Activate()
 	hcall.Disconnect(hcall.calling_holopad)
 
+/datum/holorecord
+	var/caller_name = "Unknown"
+	var/image/caller_image
+	var/list/entries = list()
+
+/datum/holorecord/proc/set_caller_image(mob/user)
+	var/old_dir = user.dir
+	user.setDir(SOUTH)
+	caller_image = image(user)
+	user.setDir(old_dir)
+
+/obj/item/disk/holodisk
+	name = "holorecord disk"
+	desc = "Диск для записи голографических сообщений."
+	icon_state = "holodisk"
+	materials = list(MAT_METAL = SMALL_MATERIAL_AMOUNT, MAT_GLASS = SMALL_MATERIAL_AMOUNT)
+	var/datum/holorecord/record
+
+/obj/item/disk/holodisk/get_ru_names()
+	return alist(
+		NOMINATIVE = "голодиск",
+		GENITIVE = "голодиска",
+		DATIVE = "голодиску",
+		ACCUSATIVE = "голодиск",
+		INSTRUMENTAL = "голодиском",
+		PREPOSITIONAL = "голодиске",
+	)
+
+/obj/item/disk/holodisk/Destroy()
+	QDEL_NULL(record)
+	return ..()
+
+/obj/item/disk/holodisk/attackby(obj/item/I, mob/user, params)
+	if(!istype(I, /obj/item/disk/holodisk))
+		return ..()
+	var/obj/item/disk/holodisk/source_disk = I
+	if(!source_disk.record)
+		to_chat(user, span_warning("На [source_disk.declent_ru(PREPOSITIONAL)] нет записи!"))
+		return ATTACK_CHAIN_PROCEED
+	if(!record)
+		record = new
+	record.caller_name = source_disk.record.caller_name
+	record.caller_image = source_disk.record.caller_image
+	record.entries = source_disk.record.entries.Copy()
+	name = source_disk.name
+	to_chat(user, span_notice("Вы соединяете порты и копируете запись с [source_disk.declent_ru(GENITIVE)] на [declent_ru(ACCUSATIVE)]."))
+	return ATTACK_CHAIN_PROCEED_SUCCESS
+
 #undef CAN_HEAR_MASTERS
 #undef CAN_HEAR_ACTIVE_HOLOCALLS
 #undef CAN_HEAR_RECORD_MODE
+#undef CAN_HEAR_HOLOCALL_USER
 #undef CAN_HEAR_ALL_FLAGS

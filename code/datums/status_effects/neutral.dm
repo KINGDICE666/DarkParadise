@@ -510,13 +510,15 @@
 
 #define RESOMI_LISTEN_MIN_VOLUME 10
 #define RESOMI_LISTEN_REFRESH_TIME (0.5 SECONDS)
+#define RESOMI_LISTEN_MOVEMENT_RANGE 9
 
 /datum/status_effect/resomi_listening
 	id = "resomi_listening"
-	tick_interval = STATUS_EFFECT_NO_TICK
+	tick_interval = RESOMI_LISTEN_REFRESH_TIME
 	alert_type = null
 	var/list/seen_turfs
 	var/list/heard_turfs
+	var/list/creature_turfs
 	COOLDOWN_DECLARE(sight_refresh)
 
 /datum/status_effect/resomi_listening/on_apply()
@@ -524,6 +526,7 @@
 	RegisterSignal(owner, SIGNAL_ADDTRAIT(TRAIT_DEAF), PROC_REF(stop_listening))
 	RegisterSignal(owner, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
 	owner.add_movespeed_modifier(/datum/movespeed_modifier/status_effect/resomi_listening)
+	new /obj/effect/temp_visual/sonar_ping/listen_wave(get_turf(owner), owner, owner)
 	to_chat(owner, span_notice("Вы замираете и вслушиваетесь в окружение."))
 	return TRUE
 
@@ -533,6 +536,39 @@
 	to_chat(owner, span_notice("Вы перестаёте прислушиваться."))
 	seen_turfs = null
 	heard_turfs = null
+	creature_turfs = null
+
+/datum/status_effect/resomi_listening/tick(seconds_between_ticks)
+	var/turf/owner_turf = get_turf(owner)
+	if(!owner_turf)
+		return
+	refresh_seen_turfs()
+	var/list/new_creature_turfs = list()
+	for(var/mob/living/creature in range(RESOMI_LISTEN_MOVEMENT_RANGE, owner_turf))
+		if(creature == owner || creature.stat == DEAD)
+			continue
+		var/turf/creature_turf = get_turf(creature)
+		new_creature_turfs[creature] = creature_turf
+		if(!creature_turfs || !creature_turfs[creature] || creature_turfs[creature] == creature_turf)
+			continue
+		ping_turf(owner_turf, creature_turf)
+	creature_turfs = new_creature_turfs
+
+/datum/status_effect/resomi_listening/proc/refresh_seen_turfs()
+	if(!COOLDOWN_FINISHED(src, sight_refresh))
+		return
+	COOLDOWN_START(src, sight_refresh, RESOMI_LISTEN_REFRESH_TIME)
+	seen_turfs = list()
+	heard_turfs = list()
+	for(var/turf/seen_turf in view(owner.client?.view || world.view, owner))
+		if(seen_turf.get_lumcount() > LIGHTING_TILE_IS_DARK || get_dist(seen_turf, owner) <= 1)
+			seen_turfs[seen_turf] = TRUE
+
+/datum/status_effect/resomi_listening/proc/ping_turf(turf/owner_turf, turf/heard_turf)
+	if(seen_turfs[heard_turf] || heard_turfs[heard_turf])
+		return
+	heard_turfs[heard_turf] = TRUE
+	new /obj/effect/temp_visual/sonar_ping/sound(owner_turf, owner, heard_turf)
 
 /datum/status_effect/resomi_listening/proc/stop_listening(datum/source)
 	SIGNAL_HANDLER
@@ -550,16 +586,9 @@
 	var/turf/owner_turf = get_turf(owner)
 	if(turf_source == owner_turf || turf_source.z != owner_turf.z)
 		return
-	if(COOLDOWN_FINISHED(src, sight_refresh))
-		COOLDOWN_START(src, sight_refresh, RESOMI_LISTEN_REFRESH_TIME)
-		seen_turfs = list()
-		heard_turfs = list()
-		for(var/turf/seen_turf in view(owner.client.view, owner))
-			seen_turfs[seen_turf] = TRUE
-	if(seen_turfs[turf_source] || heard_turfs[turf_source])
-		return
-	heard_turfs[turf_source] = TRUE
-	new /obj/effect/temp_visual/sonar_ping/sound(owner_turf, owner, turf_source)
+	refresh_seen_turfs()
+	ping_turf(owner_turf, turf_source)
 
 #undef RESOMI_LISTEN_MIN_VOLUME
 #undef RESOMI_LISTEN_REFRESH_TIME
+#undef RESOMI_LISTEN_MOVEMENT_RANGE

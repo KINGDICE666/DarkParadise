@@ -82,7 +82,7 @@
 
 	current_movement_target = thrown_thing
 	blackboard[BB_FETCH_TARGET] = thrown_thing
-	blackboard[BB_FETCH_DELIVER_TO] = throwing_datum.thrower
+	blackboard[BB_FETCH_DELIVER_TO] = throwing_datum.get_thrower()
 	queue_behavior(/datum/ai_behavior/fetch)
 
 /// Someone's interacting with us by hand, see if they're being nice or mean

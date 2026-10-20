@@ -544,3 +544,21 @@
 /obj/effect/temp_visual/shadowling_phase/Initialize(mapload)
 	. = ..()
 	animate(src, alpha = 0, time = 2 SECONDS)
+
+/obj/effect/temp_visual/ai_pointer
+	duration = 4 SECONDS
+	randomdir = FALSE
+	icon = 'icons/mob/telegraphing/telegraph_holographic.dmi'
+	icon_state = "target_circle"
+
+/obj/effect/temp_visual/ai_sealant
+	duration = 10 SECONDS
+	randomdir = FALSE
+	icon = 'icons/mob/telegraphing/telegraph_holographic.dmi'
+	icon_state = "target_box"
+
+/obj/effect/temp_visual/rcd_effect
+	icon = 'icons/effects/effects_rcd.dmi'
+	icon_state = "rcd"
+	duration = 5 SECONDS
+	layer = ABOVE_ALL_MOB_LAYER

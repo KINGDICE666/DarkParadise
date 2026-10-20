@@ -46,8 +46,8 @@
 			span_danger("[user] скормил[GEND_A_O_I(user)] [target.declent_ru(ACCUSATIVE)] содержимое [declent_ru(GENITIVE)]!"),
 			span_userdanger("[user] скормил[GEND_A_O_I(user)] вам содержимое [declent_ru(GENITIVE)]!"),
 		)
+	reagents.reaction(target, REAGENT_INGEST, min(CONSUME_AMOUNT / reagents.total_volume, 1))
 	reagents.trans_to(target, CONSUME_AMOUNT)
-	reagents.reaction(target, REAGENT_INGEST)
 	playsound(target, 'sound/items/drink.ogg', rand(10, 50), TRUE)
 	return ITEM_INTERACT_SUCCESS
 

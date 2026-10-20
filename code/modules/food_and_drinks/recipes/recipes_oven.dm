@@ -97,6 +97,16 @@
 	)
 	result = /obj/item/reagent_containers/food/snacks/sliceable/plaincake
 
+/datum/recipe/oven/napoleoncake
+	reagents = list("milk" = 5, "cream" = 5, "sugar" = 15)
+	items = list(
+		/obj/item/reagent_containers/food/snacks/dough,
+		/obj/item/reagent_containers/food/snacks/dough,
+		/obj/item/reagent_containers/food/snacks/dough,
+		/obj/item/reagent_containers/food/snacks/egg,
+	)
+	result = /obj/item/reagent_containers/food/snacks/sliceable/napoleoncake
+
 /datum/recipe/oven/meatpie
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,

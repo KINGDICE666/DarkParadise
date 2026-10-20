@@ -512,7 +512,7 @@
 			return projectile_allow_through(mover, border_dir)
 		return TRUE
 	if(mover.throwing)
-		return body_position == LYING_DOWN || mover.throwing.thrower == src
+		return body_position == LYING_DOWN || mover.throwing.get_thrower() == src
 	if(pulling && pulling == mover && grab_state >= GRAB_NECK)	// pulled mob can step through us
 		return TRUE
 	if(buckled == mover)
@@ -889,7 +889,7 @@ GAME_VERB_SRC(/mob/living, Examine_OOC, view(), "Мета-инфа (OOC)", VERB_
 
 	if(CONFIG_GET(flag/allow_metadata))
 		if(client)
-			to_chat(usr, "[src]'s Metainfo:<br>[client.prefs.metadata]")
+			to_chat(usr, "[src]'s Metainfo:<br>[client.prefs.read_preference(/datum/preference/text/record/ooc_notes)]")
 		else
 			to_chat(usr, "[src] does not have any stored infomation!")
 	else

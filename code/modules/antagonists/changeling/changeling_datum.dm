@@ -378,8 +378,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	var/list/ignored_languages = list()
 
 	// Check if user is actually that player's character or just someone they transformed into.
-	if(user.client?.prefs.real_name == user.real_name)
-		ignored_languages += user.client.prefs.language
+	if(user.client?.prefs.read_preference(/datum/preference/name/real_name) == user.real_name)
+		ignored_languages += user.client.prefs.read_preference(/datum/preference/choiced/language)
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user

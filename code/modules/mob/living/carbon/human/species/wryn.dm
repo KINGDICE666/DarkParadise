@@ -11,11 +11,16 @@
 	punchdamagehigh = 1
 	warning_low_pressure = -300
 	hazard_low_pressure = 1
-	blurb = "The wryn (r-in, singular r-in) are a humanoid race that possess many bee-like features. Originating from Alveare they \
-	have adapted extremely well to cold environments though have lost most of their muscles over generations.\
-	In order to communicate and work with multi-species crew Wryn were forced to take on names. Wryn have tended towards using only \
-	first names, these names are generally simplistic and easy to pronounce. Wryn have rarely had to communicate using their mouths, \
-	so in order to integrate with the multi-species crew they have been taught broken sol?."
+	blurb = "Врины — пчелоподобные гуманоиды с ледяной планеты Альвеер. Они не дышат, связаны с сородичами сотовой связью, \
+	защищаются жалом и легко таскают тяжести, но слабы в рукопашной, не переносят жару и не могут быть \
+	клонированы.<br/><br/>Альвеер — холодная гористая планета со средней температурой около −34 °C и свирепыми \
+	снежными бурями, поэтому почти вся жизнь на ней скрыта под землёй. На планете около двухсот тысяч ульев, и \
+	после эпохи феодальных войн они объединились под властью Верховного Совета Вринов, куда королевы назначают \
+	своих представителей.<br/><br/>Культура вринов построена на коллективизме: врин никогда не бросит сородича в \
+	беде и не предаст его. Денег у вринов нет — вместо них действует система контрактных обменов услугами. \
+	Отступников, порвавших с ульем, называют тринами.<br/><br/>К другим расам врины относятся по сложившимся \
+	стереотипам: людей, например, они считают безответственными из-за их неупорядоченности, а агрессию унатхов \
+	просто не понимают."
 
 	cold_level_1 = 200 //Default 260 - Lower is better
 	cold_level_2 = 150 //Default 200
@@ -103,7 +108,7 @@
 	wryn_sting?.Remove(H)
 
 /datum/species/wryn/after_equip_job(datum/job/J, mob/living/carbon/human/H)
-	var/comb_deafness = H.client.prefs.speciesprefs
+	var/comb_deafness = H.client.prefs.read_preference(/datum/preference/toggle/species_preference)
 
 	if(comb_deafness)
 		var/obj/item/organ/internal/wryn/hivenode/node = H.get_int_organ(/obj/item/organ/internal/wryn/hivenode)

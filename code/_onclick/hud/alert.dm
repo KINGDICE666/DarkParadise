@@ -487,6 +487,12 @@
 	icon_state = "newlaw"
 	timeout = 30 SECONDS
 
+/atom/movable/screen/alert/programs_reset
+	name = "Сброс программ"
+	desc = "Ваши программы сброшены диском сброса программ!"
+	icon_state = "silicon_generic_alert"
+	timeout = 30 SECONDS
+
 /atom/movable/screen/alert/hackingapc
 	name = "Взлом ЛКП"
 	desc = "Идёт взлом контроллера питания. После завершения вы получите над ним полный контроль и дополнительные возможности."
@@ -924,7 +930,7 @@
 		var/atom/movable/screen/alert/alert = alerts[alerts[i]]
 		if(alert.icon_state == "template")
 			if(!icon_pref)
-				icon_pref = ui_style2icon(mymob.client?.prefs?.UI_style)
+				icon_pref = ui_style2icon(mymob.client?.prefs?.read_preference(/datum/preference/choiced/ui_style))
 			alert.icon = icon_pref
 		alert.screen_loc = get_ui_alert_placement(i)
 		screenmob.client.screen |= alert

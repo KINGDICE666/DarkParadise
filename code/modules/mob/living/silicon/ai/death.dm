@@ -11,6 +11,7 @@
 
 	GLOB.shuttle_caller_list -= src
 	SSshuttle.autoEvac()
+	SSshuttle.refresh_supply_prices()
 
 	if(mind?.has_antag_datum(/datum/antagonist/malf_ai))
 		GLOB.disable_robotics_consoles = FALSE

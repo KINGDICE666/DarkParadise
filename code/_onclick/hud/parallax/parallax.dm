@@ -30,7 +30,7 @@
 	//	return
 
 	// Default to HIGH
-	var/parallax_selection = displaying_client.prefs?.parallax || PARALLAX_HIGH
+	var/parallax_selection = displaying_client.prefs?.read_preference(/datum/preference/choiced/parallax) || PARALLAX_HIGH
 
 	switch(parallax_selection)
 		if(PARALLAX_INSANE)

@@ -14,13 +14,15 @@
 	heatmod = 1.5
 	var/pod = FALSE //did they come from a pod? If so, they're stronger than normal Diona.
 
-	blurb = "Commonly referred to (erroneously) as 'plant people', the Dionaea are a strange space-dwelling collective \
-	species hailing from Epsilon Ursae Minoris. Each 'diona' is a cluster of numerous cat-sized organisms called nymphs; \
-	there is no effective upper limit to the number that can fuse in gestalt, and reports exist	of the Epsilon Ursae \
-	Minoris primary being ringed with a cloud of singing space-station-sized entities.<br/><br/>The Dionaea coexist peacefully with \
-	all known species, especially the Skrell. Their communal mind makes them slow to react, and they have difficulty understanding \
-	even the simplest concepts of other minds. Their alien physiology allows them survive happily off a diet of nothing but light, \
-	water and other radiation."
+	blurb = "Дионы — растительные существа, каждое из которых представляет собой гештальт из множества нимф. На свету они \
+	питаются и залечивают раны, но в темноте голодают, плохо переносят жар и огонь и не принимают ни протезов, ни \
+	имплантов.<br/><br/>Каждая диона — скопление множества мелких организмов-нимф. Гештальт может принимать самые \
+	разные формы, пытаясь вписаться в общество других разумных видов, а его размер ничем не ограничен: от \
+	насекомого до планетоида.<br/><br/>Впервые дионы упоминаются в 2204 году, когда на них наткнулся скреллианский \
+	исследовательский корабль. Родного мира и государства у дион нет: они кочуют между обществами других видов или \
+	мирно проживают свой цикл на «лунах», где всегда рады гостям. Особенно тёплые отношения у них сложились со \
+	скреллами.<br/><br/>Главная цель дион — собирать знания и заботиться о сородичах, а их философия не одобряет \
+	бесцельного насилия. Между собой они общаются на Песни корней."
 
 	inherent_traits = list(
 		TRAIT_NO_BLOOD_RESTORE,

@@ -312,6 +312,10 @@
 		/obj/item/t_scanner/science = 50,
 		/obj/item/mod/construction/plating/research = 25,
 		/obj/item/t_scanner/experimental = 5,
+		/obj/item/ai_upgrade/expanded_storage = 10,
+		/obj/item/ai_upgrade/expanded_network = 10,
+		/obj/item/ai_upgrade/expanded_tank = 10,
+		/obj/item/ai_upgrade/expanded_fabricator = 10,
 	)
 
 /obj/effect/spawner/lootdrop/trade_sol/med

@@ -659,3 +659,19 @@
 	materials = list(MAT_GLASS = 1000)
 	build_path = /obj/item/circuitboard/electrolyzer
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_ENGINEERING)
+
+/datum/design/processing_node
+	id = "processing_node"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 5)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000, MAT_GOLD = 250)
+	build_path = /obj/item/circuitboard/processing_node
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
+
+/datum/design/network_node
+	id = "network_node"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 5)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000, MAT_GOLD = 250)
+	build_path = /obj/item/circuitboard/network_node
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)

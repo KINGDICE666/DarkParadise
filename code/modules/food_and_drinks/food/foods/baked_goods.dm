@@ -95,6 +95,53 @@
 	tastes = list("cake" = 5, "vanilla" = 1, "sweetness" = 2)
 	foodtype = SUGAR | GRAIN
 
+/obj/item/reagent_containers/food/snacks/sliceable/napoleoncake
+	name = "Napoleon cake"
+	desc = "Торт из тонких слоёных коржей с заварным кремом, посыпанный золотистой крошкой."
+	gender = MALE
+	icon = 'icons/obj/food/napoleon.dmi'
+	icon_state = "napoleoncake"
+	w_class = WEIGHT_CLASS_NORMAL
+	slice_path = /obj/item/reagent_containers/food/snacks/napoleoncakeslice
+	slices_num = 5
+	bitesize = 3
+	filling_color = "#F7EDD5"
+	list_reagents = list("nutriment" = 20, "vitamin" = 5)
+	tastes = list("слоёного теста" = 3, "заварного крема" = 2)
+	foodtype = SUGAR | GRAIN | DAIRY | EGG
+
+/obj/item/reagent_containers/food/snacks/sliceable/napoleoncake/get_ru_names()
+	return alist(
+		NOMINATIVE = "торт \"Наполеон\"",
+		GENITIVE = "торта \"Наполеон\"",
+		DATIVE = "торту \"Наполеон\"",
+		ACCUSATIVE = "торт \"Наполеон\"",
+		INSTRUMENTAL = "тортом \"Наполеон\"",
+		PREPOSITIONAL = "торте \"Наполеон\"",
+	)
+
+/obj/item/reagent_containers/food/snacks/napoleoncakeslice
+	name = "Napoleon cake slice"
+	desc = "Кусочек слоёного торта с заварным кремом и золотистой крошкой."
+	gender = MALE
+	icon = 'icons/obj/food/napoleon.dmi'
+	icon_state = "napoleoncake_slice"
+	w_class = WEIGHT_CLASS_SMALL
+	trash = /obj/item/trash/plate
+	filling_color = "#F7EDD5"
+	tastes = list("слоёного теста" = 3, "заварного крема" = 2)
+	foodtype = SUGAR | GRAIN | DAIRY | EGG
+
+/obj/item/reagent_containers/food/snacks/napoleoncakeslice/get_ru_names()
+	return alist(
+		NOMINATIVE = "кусочек торта \"Наполеон\"",
+		GENITIVE = "кусочка торта \"Наполеон\"",
+		DATIVE = "кусочку торта \"Наполеон\"",
+		ACCUSATIVE = "кусочек торта \"Наполеон\"",
+		INSTRUMENTAL = "кусочком торта \"Наполеон\"",
+		PREPOSITIONAL = "кусочке торта \"Наполеон\"",
+	)
+
 /obj/item/reagent_containers/food/snacks/sliceable/orangecake
 	name = "orange cake"
 	desc = "A cake with added orange."

@@ -329,3 +329,11 @@
 	materials = list(MAT_GLASS = 2000)
 	build_path = /obj/item/circuitboard/HONKputer
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
+/datum/design/ai_resource_console
+	id = "ai_resource_console"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 5)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/ai_resource_console
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)

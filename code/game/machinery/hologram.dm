@@ -1,7 +1,8 @@
 #define CAN_HEAR_MASTERS (1<<0)
 #define CAN_HEAR_ACTIVE_HOLOCALLS (1<<1)
 #define CAN_HEAR_RECORD_MODE (1<<2)
-#define CAN_HEAR_ALL_FLAGS (CAN_HEAR_MASTERS|CAN_HEAR_ACTIVE_HOLOCALLS|CAN_HEAR_RECORD_MODE)
+#define CAN_HEAR_HOLOCALL_USER (1<<3)
+#define CAN_HEAR_ALL_FLAGS (CAN_HEAR_MASTERS|CAN_HEAR_ACTIVE_HOLOCALLS|CAN_HEAR_RECORD_MODE|CAN_HEAR_HOLOCALL_USER)
 /* holograms!
  * Contains:
  *		Holopad
@@ -49,11 +50,11 @@ GLOBAL_LIST_EMPTY(holopads)
 	armor = list(melee = 50, bullet = 20, laser = 20, energy = 20, bomb = 0, bio = 0, fire = 50, acid = 0)
 	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_IGNORE_MOBILITY
 	interaction_flags_click = ALLOW_SILICON_REACH
+	req_access = list(ACCESS_KEYCARD_AUTH)
 	var/list/masters //List of living mobs that use the holopad
 	var/list/holorays //Holoray-mob link.
 	var/last_request = 0 //to prevent request spam. ~Carn
 	var/holo_range = 5 // Change to change how far the AI can move away from the holopad before deactivating.
-	var/temp = ""
 	/// Array of /datum/holocalls that are calling US. this is only filled for holopads answering calls from another holopad
 	var/list/holo_calls
 	/// Currently outgoing holocall, cannot call any other holopads unless this is null.
@@ -63,6 +64,18 @@ GLOBAL_LIST_EMPTY(holopads)
 	var/obj/effect/overlay/holoray/ray
 	var/ringing = FALSE
 	var/dialling_input = FALSE //The user is currently selecting where to send their call
+	var/secure = FALSE
+	var/calling = FALSE
+	var/pointing = FALSE
+	var/obj/item/disk/holodisk/disk
+	var/replay_mode = FALSE
+	var/loop_mode = FALSE
+	var/record_mode = FALSE
+	var/record_start = 0
+	var/mob/living/record_user
+	var/obj/effect/overlay/holo_pad_hologram/replay_holo
+	var/replay_timer
+	var/offset = 0
 	///bitfield. used to turn on and off hearing sensitivity depending on if we can act on Hear() at all - meant for lowering the number of unessesary hearable atoms
 	var/can_hear_flags = NONE
 
@@ -70,7 +83,11 @@ GLOBAL_LIST_EMPTY(holopads)
 	. = ..()
 	GLOB.holopads += src
 	component_parts = list()
-	component_parts += new /obj/item/circuitboard/holopad(null)
+	var/obj/item/circuitboard/holopad/board = new(null)
+	if(secure)
+		board.secure = TRUE
+		board.build_path = /obj/machinery/hologram/holopad/secure
+	component_parts += board
 	component_parts += new /obj/item/stock_parts/capacitor(null)
 	RefreshParts()
 	become_hearing_sensitive()
@@ -82,8 +99,13 @@ GLOBAL_LIST_EMPTY(holopads)
 	for(var/datum/holocall/holocall_to_disconnect as anything in holo_calls)
 		holocall_to_disconnect.ConnectionFailure(src)
 
+	replay_stop()
+	record_stop()
+
 	for(var/I in masters)
 		clear_holo(I)
+
+	QDEL_NULL(disk)
 
 	QDEL_LIST_ASSOC(holorays)
 	QDEL_LIST(holo_calls)
@@ -93,12 +115,29 @@ GLOBAL_LIST_EMPTY(holopads)
 	GLOB.holopads -= src
 	return ..()
 
+/obj/machinery/hologram/holopad/secure
+	name = "secure holopad"
+	desc = "Напольный проектор голографических изображений. Этот не принимает входящие подключения автоматически."
+	secure = TRUE
+
+/obj/machinery/hologram/holopad/secure/get_ru_names()
+	return alist(
+		NOMINATIVE = "защищённый голопад",
+		GENITIVE = "защищённого голопада",
+		DATIVE = "защищённому голопаду",
+		ACCUSATIVE = "защищённый голопад",
+		INSTRUMENTAL = "защищённым голопадом",
+		PREPOSITIONAL = "защищённом голопаде",
+	)
+
 /obj/machinery/hologram/holopad/power_change(forced = FALSE)
 	if(!..())
 		return
 	if(stat & NOPOWER)
 		if(outgoing_call)
 			outgoing_call.ConnectionFailure(src)
+		replay_stop()
+		record_stop()
 		set_light_on(FALSE)
 	update_icon(UPDATE_OVERLAYS)
 
@@ -108,7 +147,7 @@ GLOBAL_LIST_EMPTY(holopads)
 		return
 	else if(ringing)
 		icon_state = "holopad_ringing"
-	else if(total_users)
+	else if(total_users || pointing)
 		icon_state = "holopad1"
 	else
 		icon_state = "holopad0"
@@ -122,7 +161,14 @@ GLOBAL_LIST_EMPTY(holopads)
 	var/total_users = LAZYLEN(masters) + LAZYLEN(holo_calls)
 	if(ringing)
 		. += emissive_appearance(icon, "holopad_ringing_lightmask", src)
-	else if(total_users)
+	else if(total_users || pointing)
+		for(var/mob/living/silicon/ai/master in masters)
+			if(!master.ai_holocolor)
+				continue
+			var/mutable_appearance/hololine_overlay = mutable_appearance(icon, "holopad1_mask")
+			hololine_overlay.color = master.ai_holocolor
+			. += hololine_overlay
+			break
 		. += emissive_appearance(icon, "holopad1_lightmask", src)
 
 /obj/machinery/hologram/holopad/obj_break()
@@ -139,9 +185,28 @@ GLOBAL_LIST_EMPTY(holopads)
 /obj/machinery/hologram/holopad/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
+	if(istype(I, /obj/item/disk/holodisk))
+		add_fingerprint(user)
+		if(disk)
+			to_chat(user, span_warning("В [declent_ru(PREPOSITIONAL)] уже есть диск!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("Вы вставляете [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."))
+		disk = I
+		SStgui.update_uis(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
+/obj/machinery/hologram/holopad/Exited(atom/movable/gone, direction)
+	. = ..()
+	if(gone == disk)
+		disk = null
+
+/obj/machinery/hologram/holopad/on_deconstruction()
+	disk?.forceMove(drop_location())
 
 /obj/machinery/hologram/holopad/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -159,11 +224,7 @@ GLOBAL_LIST_EMPTY(holopads)
 	if(..())
 		return
 
-	if(outgoing_call)
-		return
-
-	user.set_machine(src)
-	interact(user)
+	ui_interact(user)
 
 /obj/machinery/hologram/holopad/click_alt(mob/living/carbon/human/user)
 	if(isAI(user))
@@ -220,110 +281,135 @@ GLOBAL_LIST_EMPTY(holopads)
 	for(var/datum/holocall/holocall_to_disconnect as anything in holo_calls)
 		holocall_to_disconnect.Disconnect(src)
 
-/obj/machinery/hologram/holopad/interact(mob/living/carbon/human/user) //Carn: hologram requests.
-	if(!istype(user))
-		return
-	if(!anchored)
-		return
+/obj/machinery/hologram/holopad/ui_status(mob/user, datum/ui_state/state)
+	if(!is_operational() || !anchored)
+		return UI_CLOSE
+	if(outgoing_call && !calling)
+		return UI_CLOSE
+	return ..()
 
-	var/dat = {"<!DOCTYPE html><meta charset="UTF-8">"}
-	if(temp)
-		dat += temp
-	else
-		dat += "<a href='byond://?src=[UID()];AIrequest=1'>Request an AI's presence.</a><br>"
-		dat += "<a href='byond://?src=[UID()];Holocall=1'>Call another holopad.</a><br>"
+/obj/machinery/hologram/holopad/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Holopad", name)
+		ui.open()
 
-		if(LAZYLEN(holo_calls))
-			dat += "=====================================================<br>"
+/obj/machinery/hologram/holopad/ui_data(mob/user)
+	var/list/data = list()
+	data["calling"] = calling
+	data["on_cooldown"] = last_request + 20 SECONDS > world.time
+	data["allowed"] = allowed(user)
+	data["disk"] = !!disk
+	data["disk_record"] = !!disk?.record
+	data["replay_mode"] = replay_mode
+	data["loop_mode"] = loop_mode
+	data["record_mode"] = record_mode
+	data["holo_calls"] = list()
+	for(var/datum/holocall/holocall as anything in holo_calls)
+		data["holo_calls"] += list(list(
+			"caller" = "[holocall.user]",
+			"connected" = holocall.connected_holopad == src,
+			"ref" = holocall.UID(),
+		))
+	return data
 
-		var/one_answered_call = FALSE
-		var/one_unanswered_call = FALSE
-		for(var/I in holo_calls)
-			var/datum/holocall/HC = I
-			if(HC.connected_holopad != src)
-				dat += "<a href='byond://?src=[UID()];connectcall=[HC.UID()]'>Answer call from [get_area(HC.calling_holopad)].</a><br>"
-				one_unanswered_call = TRUE
-			else
-				one_answered_call = TRUE
-
-		if(one_answered_call && one_unanswered_call)
-			dat += "=====================================================<br>"
-		//we loop twice for formatting
-		for(var/I in holo_calls)
-			var/datum/holocall/HC = I
-			if(HC.connected_holopad == src)
-				dat += "<a href='byond://?src=[UID()];disconnectcall=[HC.UID()] '>Disconnect call from [HC.user].</a><br>"
-
-	var/area/area = get_area(src)
-	var/datum/browser/popup = new(user, "holopad", "[area] holopad", 400, 300)
-	popup.set_content(dat)
-	popup.open()
-
-/obj/machinery/hologram/holopad/Topic(href, href_list)
+/obj/machinery/hologram/holopad/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..() || isAI(usr))
 		return
 	add_fingerprint(usr)
-	if(stat & NOPOWER)
-		return
-	if(href_list["AIrequest"])
-		if(last_request + 200 < world.time)
+	switch(action)
+		if("AIrequest")
+			if(last_request + 20 SECONDS > world.time)
+				to_chat(usr, span_warning("Запрос присутствия ИИ уже был отправлен недавно."))
+				return
 			last_request = world.time
-			temp = "You requested an AI's presence.<br>"
-			temp += "<a href='byond://?src=[UID()];mainmenu=1'>Main Menu</a>"
+			to_chat(usr, span_notice("Вы запросили присутствие ИИ."))
 			var/area/area = get_area(src)
 			for(var/mob/living/silicon/ai/AI in GLOB.ai_list)
 				if(!AI.client)
 					continue
 				to_chat(AI, span_notice("Your presence is requested at <a href='byond://?src=[AI.UID()];jumptoholopad=[UID()]'>\the [area]</a>."))
-		else
-			temp = "A request for AI presence was already sent recently.<br>"
-			temp += "<a href='byond://?src=[UID()];mainmenu=1'>Main Menu</a>"
-
-	else if(href_list["Holocall"])
-		if(outgoing_call)
-			return
-		if(dialling_input)
-			to_chat(usr, span_notice("Finish dialling first!"))
-			return
-		temp = "You must stand on the holopad to make a call!<br>"
-		temp += "<a href='byond://?src=[UID()];mainmenu=1'>Main Menu</a>"
-		if(usr.loc == loc)
-			var/list/callnames = list()
-			for(var/I in GLOB.holopads)
-				var/area/A = get_area(I)
-				if(A)
-					LAZYADD(callnames[A], I)
-			callnames -= get_area(src)
-			var/list/sorted_callnames = sortAtom(callnames)
-			dialling_input = TRUE
-			var/result = tgui_input_list(usr, "Choose an area to call", "Holocall", sorted_callnames)
-			dialling_input = FALSE
-			if(QDELETED(usr) || !result || outgoing_call)
+			return TRUE
+		if("holocall")
+			if(outgoing_call || dialling_input)
 				return
+			if(usr.loc != loc)
+				to_chat(usr, span_warning("Чтобы позвонить, нужно стоять на голопаде!"))
+				return
+			var/list/callnames = list()
+			for(var/obj/machinery/hologram/holopad/pad as anything in GLOB.holopads)
+				var/area/pad_area = get_area(pad)
+				if(pad_area)
+					LAZYADD(callnames[pad_area], pad)
+			callnames -= get_area(src)
+			dialling_input = TRUE
+			var/result = tgui_input_list(usr, "Выберите зону для звонка", "Голозвонок", sortAtom(callnames))
+			dialling_input = FALSE
+			if(isnull(result) || QDELETED(usr) || outgoing_call || usr.loc != loc)
+				return
+			var/datum/holocall/holocall = new(usr, src, callnames[result], params["headcall"] && allowed(usr))
+			if(QDELETED(holocall))
+				return
+			calling = TRUE
+			return TRUE
+		if("connectcall")
+			var/datum/holocall/call_to_connect = locateUID(params["holopad"])
+			if(!QDELETED(call_to_connect) && (call_to_connect in holo_calls))
+				call_to_connect.Answer(src)
+				return TRUE
+		if("disconnectcall")
+			var/datum/holocall/call_to_disconnect = locateUID(params["holopad"])
+			if(!QDELETED(call_to_disconnect) && (call_to_disconnect in holo_calls))
+				call_to_disconnect.Disconnect(src)
+				return TRUE
+		if("rejectall")
+			for(var/datum/holocall/call_to_reject as anything in holo_calls)
+				if(call_to_reject.connected_holopad == src)
+					continue
+				call_to_reject.Disconnect(src)
+			return TRUE
+		if("hang_up")
+			if(outgoing_call)
+				outgoing_call.Disconnect(src)
+				return TRUE
+		if("disk_eject")
+			if(disk && !replay_mode && !record_mode)
+				usr.put_in_hands(disk)
+				return TRUE
+		if("replay_mode")
+			if(replay_mode)
+				replay_stop()
+			else
+				replay_start()
+			return TRUE
+		if("loop_mode")
+			loop_mode = !loop_mode
+			return TRUE
+		if("record_mode")
+			if(record_mode)
+				record_stop()
+			else
+				record_start(usr)
+			return TRUE
+		if("record_clear")
+			record_clear()
+			return TRUE
+		if("offset")
+			if(!replay_mode)
+				return
+			offset = (offset + 1) % (length(GLOB.cardinal) + 1)
+			if(!move_hologram(disk.record, offset ? get_step(src, GLOB.cardinal[offset]) : get_turf(src)))
+				replay_stop()
+			return TRUE
 
-			if(usr.loc == loc)
-				temp = "Dialing...<br>"
-				temp += "<a href='byond://?src=[UID()];mainmenu=1'>Main Menu</a>"
-				new /datum/holocall(usr, src, callnames[result])
+/obj/machinery/hologram/holopad/proc/callee_picked_up()
+	calling = FALSE
+	set_can_hear_flags(CAN_HEAR_HOLOCALL_USER)
 
-	else if(href_list["connectcall"])
-		var/datum/holocall/call_to_connect = locateUID(href_list["connectcall"])
-		if(!QDELETED(call_to_connect) && (call_to_connect in holo_calls))
-			call_to_connect.Answer(src)
-		temp = ""
-
-	else if(href_list["disconnectcall"])
-		var/datum/holocall/call_to_disconnect = locateUID(href_list["disconnectcall"])
-		if(!QDELETED(call_to_disconnect))
-			call_to_disconnect.Disconnect(src)
-		temp = ""
-
-	else if(href_list["mainmenu"])
-		temp = ""
-		if(outgoing_call)
-			outgoing_call.Disconnect()
-
-	updateDialog()
+/obj/machinery/hologram/holopad/proc/callee_hung_up()
+	set_can_hear_flags(CAN_HEAR_HOLOCALL_USER, set_flag = FALSE)
+	calling = FALSE
+	outgoing_call = null
 
 //do not allow AIs to answer calls or people will use it to meta the AI satellite
 /obj/machinery/hologram/holopad/attack_ai(mob/living/silicon/ai/user)
@@ -363,6 +449,9 @@ GLOBAL_LIST_EMPTY(holopads)
 			if(force_answer_call && world.time > (HC.call_start_time + (HOLOPAD_MAX_DIAL_TIME / 2)))
 				HC.Answer(src)
 				break
+			if(HC.head_call && !secure)
+				HC.Answer(src)
+				break
 			if(outgoing_call)
 				HC.Disconnect(src)//can't answer calls while calling
 			else
@@ -386,8 +475,13 @@ GLOBAL_LIST_EMPTY(holopads)
 			return TRUE
 	return FALSE
 
-/obj/machinery/hologram/holopad/proc/validate_user(mob/living/user)
-	if(QDELETED(user) || user.incapacitated() || !user.client)
+/obj/machinery/hologram/holopad/proc/validate_user(datum/owner)
+	if(QDELETED(owner))
+		return FALSE
+	if(!isliving(owner))
+		return TRUE
+	var/mob/living/user = owner
+	if(user.incapacitated() || !user.client)
 		return FALSE
 
 	if(isAI(user))
@@ -471,14 +565,17 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 		if(holocall_to_update.connected_holopad == src && speaker != holocall_to_update.hologram)
 			holocall_to_update.user.hear_say(message_pieces, verb, speaker = speaker)
 
-	if(outgoing_call && speaker == outgoing_call.user)
+	if(outgoing_call?.hologram && speaker == outgoing_call.user)
 		outgoing_call.hologram.atom_say(multilingual_to_message(message_pieces))
+
+	if(record_mode && speaker == record_user)
+		record_message(speaker, multilingual_to_message(message_pieces))
 
 /obj/machinery/hologram/holopad/proc/SetLightsAndPower()
 	var/total_users = LAZYLEN(masters) + LAZYLEN(holo_calls)
 	use_power = total_users > 0 ? ACTIVE_POWER_USE : IDLE_POWER_USE
 	active_power_usage = HOLOPAD_PASSIVE_POWER_USAGE + (HOLOGRAM_POWER_USAGE * total_users)
-	if(total_users)
+	if(total_users || pointing)
 		set_light_on(TRUE)
 	else
 		set_light_on(FALSE)
@@ -490,6 +587,9 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 	var/mob/living/silicon/ai/AI = user
 	if(istype(AI))
 		AI.current = src
+		if(AI.ai_holocolor)
+			var/obj/effect/overlay/holoray/ray = holorays[user]
+			ray.color = AI.ai_holocolor
 	SetLightsAndPower()
 	update_holoray(user, get_turf(loc))
 	return TRUE
@@ -536,7 +636,137 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 	else
 		ray.transform = turn(M.Scale(1, sqrt(distx*distx+disty*disty)), newangle)
 
+/obj/machinery/hologram/holopad/proc/holo_point(atom/target, invisibility = 0)
+	if(pointing)
+		return
+	var/turf/pad_turf = get_turf(src)
+	var/turf/target_turf = get_turf(target)
+	if(!pad_turf || !target_turf)
+		return
+	pointing = TRUE
+	var/obj/effect/temp_visual/point/holo/visual = new(pad_turf, invisibility)
+	var/obj/effect/overlay/holoray/point_ray = new(pad_turf)
+	var/disty = target_turf.y - pad_turf.y
+	var/distx = target_turf.x - pad_turf.x
+	var/angle
+	if(!disty)
+		angle = distx >= 0 ? 90 : 270
+	else
+		angle = arctan(distx / disty)
+		if(disty < 0)
+			angle += 180
+		else if(distx < 0)
+			angle += 360
+	var/matrix/ray_matrix = matrix()
+	point_ray.transform = turn(ray_matrix.Scale(1, sqrt(distx * distx + disty * disty)), angle)
+	animate(visual, pixel_x = distx * ICON_SIZE_X + target.pixel_x, pixel_y = disty * ICON_SIZE_Y + target.pixel_y, time = 1.7, easing = EASE_OUT)
+	SetLightsAndPower()
+	addtimer(CALLBACK(src, PROC_REF(clear_holo_point), point_ray), 2.5 SECONDS)
+	return visual
+
+/obj/machinery/hologram/holopad/proc/clear_holo_point(obj/effect/overlay/holoray/point_ray)
+	qdel(point_ray)
+	pointing = FALSE
+	SetLightsAndPower()
+
+/obj/machinery/hologram/holopad/proc/setup_replay_holo(datum/holorecord/record)
+	var/obj/effect/overlay/holo_pad_hologram/hologram = new(loc)
+	var/image/work_off = record.caller_image
+	hologram.icon = work_off.icon
+	hologram.icon_state = work_off.icon_state
+	hologram.copy_overlays(work_off, TRUE)
+	hologram.makeHologram()
+	hologram.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	hologram.layer = FLY_LAYER
+	SET_PLANE_EXPLICIT(hologram, ABOVE_GAME_PLANE, src)
+	hologram.set_anchored(TRUE)
+	hologram.name = "[record.caller_name] (hologram)"
+	set_holo(record, hologram)
+	visible_message(span_notice("Перед вами вспыхивает голографическое изображение: [record.caller_name]!"))
+	return hologram
+
+/obj/machinery/hologram/holopad/proc/replay_start()
+	if(!disk)
+		atom_say("Вставьте диск для воспроизведения записи.")
+		return
+	if(!disk.record)
+		atom_say("На диске нет записи.")
+		return
+	if(replay_mode)
+		return
+	replay_mode = TRUE
+	replay_holo = setup_replay_holo(disk.record)
+	replay_entry(1)
+
+/obj/machinery/hologram/holopad/proc/replay_stop()
+	if(!replay_mode)
+		return
+	replay_mode = FALSE
+	offset = 0
+	deltimer(replay_timer)
+	replay_timer = null
+	clear_holo(disk.record)
+	replay_holo = null
+
+/obj/machinery/hologram/holopad/proc/record_start(mob/living/user)
+	if(!istype(user) || !disk || disk.record)
+		return
+	disk.record = new
+	record_mode = TRUE
+	set_can_hear_flags(CAN_HEAR_RECORD_MODE)
+	record_start = world.time
+	record_user = user
+	disk.record.set_caller_image(user)
+
+/obj/machinery/hologram/holopad/proc/record_message(mob/living/speaker, message)
+	if(!record_mode)
+		return
+	if(disk.record.caller_name == "Unknown")
+		disk.record.caller_name = speaker.name
+	var/current_delay = 0
+	for(var/list/entry as anything in disk.record.entries)
+		if(entry[1] == HOLORECORD_DELAY)
+			current_delay += entry[2]
+	var/time_delta = world.time - record_start - current_delay
+	if(time_delta >= 1)
+		disk.record.entries += list(list(HOLORECORD_DELAY, time_delta))
+	disk.record.entries += list(list(HOLORECORD_SAY, message))
+	if(length(disk.record.entries) >= HOLORECORD_MAX_LENGTH)
+		record_stop()
+
+/obj/machinery/hologram/holopad/proc/replay_entry(entry_number)
+	replay_timer = null
+	if(!replay_mode || !length(disk.record.entries))
+		return
+	if(length(disk.record.entries) < entry_number)
+		if(!loop_mode)
+			replay_stop()
+			return
+		replay_timer = addtimer(CALLBACK(src, PROC_REF(replay_entry), 1), HOLORECORD_LOOP_DELAY, TIMER_STOPPABLE)
+		return
+	var/list/entry = disk.record.entries[entry_number]
+	switch(entry[1])
+		if(HOLORECORD_SAY)
+			replay_holo.atom_say(entry[2])
+		if(HOLORECORD_DELAY)
+			replay_timer = addtimer(CALLBACK(src, PROC_REF(replay_entry), entry_number + 1), entry[2], TIMER_STOPPABLE)
+			return
+	replay_entry(entry_number + 1)
+
+/obj/machinery/hologram/holopad/proc/record_stop()
+	if(!record_mode)
+		return
+	record_mode = FALSE
+	record_user = null
+	set_can_hear_flags(CAN_HEAR_RECORD_MODE, FALSE)
+
+/obj/machinery/hologram/holopad/proc/record_clear()
+	if(!disk?.record || replay_mode || record_mode)
+		return
+	QDEL_NULL(disk.record)
+
 /obj/effect/overlay/holo_pad_hologram
+	appearance_flags = TILE_BOUND|PIXEL_SCALE|LONG_GLIDE|KEEP_TOGETHER
 	var/mob/living/Impersonation
 	var/datum/holocall/HC
 
@@ -570,4 +800,5 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 #undef CAN_HEAR_MASTERS
 #undef CAN_HEAR_ACTIVE_HOLOCALLS
 #undef CAN_HEAR_RECORD_MODE
+#undef CAN_HEAR_HOLOCALL_USER
 #undef CAN_HEAR_ALL_FLAGS

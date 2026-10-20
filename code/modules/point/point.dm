@@ -105,6 +105,13 @@
 	. = ..()
 	invisibility = set_invis
 
+/obj/effect/temp_visual/point/holo
+	icon_state = "arrow_large_white"
+
+/obj/effect/temp_visual/point/holo/Initialize(mapload, set_invis = 0)
+	. = ..()
+	makeHologram()
+
 /**
  * Point at an atom
  *

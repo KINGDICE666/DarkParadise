@@ -8,6 +8,9 @@ PROCESSING_SUBSYSTEM_DEF(greyscale)
 	ss_flags = SS_BACKGROUND
 	wait = 3 SECONDS
 	init_stage = INITSTAGE_EARLY
+	dependencies = list(
+		/datum/controller/subsystem/server_maint,
+	)
 
 	var/list/datum/greyscale_config/configurations = list()
 	var/list/datum/greyscale_layer/layer_types = list()

@@ -15,15 +15,20 @@
 	. = ..()
 
 	if(isliving(target) && user.a_intent == INTENT_HARM && is_glass)
-		context[SCREENTIP_CONTEXT_RMB] = "Разбить бутылку о цель"
+		context[SCREENTIP_CONTEXT_LMB] = "Разбить бутылку о цель"
 		return CONTEXTUAL_SCREENTIP_SET
+
+/obj/item/reagent_containers/cup/glass/bottle/interact_with_atom(atom/target, mob/living/user, list/modifiers)
+	if(user.a_intent == INTENT_HARM && is_glass && isliving(target))
+		return NONE
+	return ..()
 
 /obj/item/reagent_containers/cup/glass/bottle/interact_with_atom_secondary(atom/target, mob/living/user, list/modifiers)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 
 /obj/item/reagent_containers/cup/glass/bottle/afterattack(atom/target, mob/user, proximity_flag, list/modifiers)
-	if(!LAZYACCESS(modifiers, RIGHT_CLICK) || user.a_intent != INTENT_HARM || !is_glass || !proximity_flag)
+	if(LAZYACCESS(modifiers, RIGHT_CLICK) || user.a_intent != INTENT_HARM || !is_glass || !proximity_flag || !isliving(target))
 		return
 
 	if(HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
