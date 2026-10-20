@@ -11,3 +11,7 @@
 	company_short = "НТ"
 	starsys_name = "Эпсилон Лукуста"
 	station_ship = TRUE
+	shuttle_overrides = list(
+		"supply" = LAZY_TEMPLATE_KEY_SHUTTLE_SUPPLY_RUBIN,
+		"mining" = LAZY_TEMPLATE_KEY_SHUTTLE_MINING_RUBIN,
+	)

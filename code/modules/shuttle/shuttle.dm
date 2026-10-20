@@ -575,7 +575,7 @@
 		if(S0.area_type)
 			area_type = S0.area_type
 
-	var/list/L0 = return_ordered_turfs(x, y, z, dir, areaInstance)
+	var/list/L0 = uses_hull_fit() ? overmap_collect_hull(get_turf(src)) : return_ordered_turfs(x, y, z, dir, areaInstance)
 
 	//remove area surrounding docking port
 	if(length(areaInstance.contents))
@@ -583,7 +583,7 @@
 		if(!A0)
 			A0 = new area_type(null)
 		for(var/turf/T0 in L0)
-			A0.contents += T0
+			T0.change_area(T0.loc, A0)
 
 	for(var/i in L0)
 		var/turf/T0 = i

@@ -40,3 +40,4 @@
 	/// Boolean that tells us if this is a planetary station. (like Malta)
 	var/planetary = FALSE
 	var/station_ship = FALSE
+	var/list/shuttle_overrides

@@ -76,6 +76,7 @@ SUBSYSTEM_DEF(shuttle)
 		message_admins("There's no emergency docking ports on the map! The game will be unresolvable. To resolve this problem load emergency shuttle template manually, and call register() on the mobile docking port.")
 
 	initial_load()
+	load_map_shuttles()
 
 	for(var/typepath in subtypesof(/datum/supply_packs))
 		var/datum/supply_packs/P = new typepath()
@@ -99,6 +100,26 @@ SUBSYSTEM_DEF(shuttle)
 	for(var/obj/docking_port/D in world)
 		D.register()
 		CHECK_TICK
+
+/datum/controller/subsystem/shuttle/proc/load_map_shuttles()
+	var/list/overrides = SSmapping.map_datum?.shuttle_overrides
+	for(var/shuttle_id in overrides)
+		replace_shuttle(shuttle_id, overrides[shuttle_id])
+
+/datum/controller/subsystem/shuttle/proc/replace_shuttle(shuttle_id, template_key)
+	var/datum/turf_reservation/reservation = SSmapping.lazy_load_template(template_key)
+	if(!reservation)
+		CRASH("Failed to load shuttle template [template_key] for [shuttle_id]")
+	var/obj/docking_port/mobile/new_port
+	for(var/turf/tile as anything in block(reservation.bottom_left_turfs[1], reservation.top_right_turfs[1]))
+		new_port = locate() in tile
+		if(new_port)
+			break
+	if(new_port?.id != shuttle_id)
+		CRASH("Shuttle template [template_key] has no mobile docking port with id [shuttle_id]")
+	var/obj/docking_port/mobile/old_port = getShuttle(shuttle_id)
+	old_port?.jumpToNullSpace()
+	new_port.register()
 
 /datum/controller/subsystem/shuttle/fire(resumed = FALSE)
 	points += points_per_decisecond * wait

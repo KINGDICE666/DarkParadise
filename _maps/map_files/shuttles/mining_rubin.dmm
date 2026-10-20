@@ -1,0 +1,308 @@
+//MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"a" = (
+/turf/simulated/wall/shuttle,
+/area/shuttle/mining)
+"e" = (
+/obj/structure/window/full/shuttle,
+/obj/structure/grille,
+/turf/simulated/floor/mineral/titanium,
+/area/shuttle/mining)
+"f" = (
+/obj/effect/turf_decal{
+	dir = 8
+	},
+/obj/machinery/door/window/brigdoor/northleft{
+	name = "Access Desk";
+	req_access = list(10,70,71);
+	dir = 8
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "plastitanium"
+	},
+/area/shuttle/mining)
+"g" = (
+/obj/machinery/computer/helm,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"k" = (
+/obj/machinery/ship_engine{
+	dir = 4
+	},
+/turf/simulated/floor/shuttle/plating,
+/area/shuttle/mining)
+"n" = (
+/obj/structure/window/plasmareinforced{
+	dir = 4
+	},
+/obj/structure/window/plasmareinforced{
+	dir = 8
+	},
+/obj/structure/shuttle/engine/heater{
+	dir = 4
+	},
+/turf/simulated/floor/shuttle/plating,
+/area/shuttle/mining)
+"p" = (
+/obj/machinery/light/spot{
+	dir = 1
+	},
+/obj/effect/turf_decal{
+	dir = 8
+	},
+/obj/structure/window/reinforced{
+	dir = 8
+	},
+/obj/machinery/suit_storage_unit/standard_unit,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"r" = (
+/obj/effect/turf_decal{
+	dir = 8
+	},
+/obj/structure/window/reinforced{
+	dir = 8
+	},
+/obj/machinery/suit_storage_unit/standard_unit,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"s" = (
+/obj/machinery/door/airlock/external/docking/glass{
+	dir = 8;
+	dock_name = "Основной шлюз";
+	icon = 'icons/obj/doors/airlocks/station/freezer.dmi';
+	note_overlay_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
+	overlays_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
+	overmap_collar_id = "mining_west";
+	req_access = list(10,70,71)
+	},
+/obj/structure/fans/tiny,
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 3;
+	height = 11;
+	id = "mining";
+	name = "mining shuttle";
+	port_direction = 4;
+	rebuildable = 1;
+	roundstart_move = "mining_home";
+	timid = 1;
+	width = 7
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+"v" = (
+/obj/effect/turf_decal/delivery,
+/obj/effect/turf_decal{
+	dir = 8
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+"w" = (
+/obj/machinery/sensor_array/short_range,
+/turf/simulated/wall/shuttle,
+/area/shuttle/mining)
+"y" = (
+/obj/machinery/light/spot,
+/obj/effect/turf_decal/delivery,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+"B" = (
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "plastitanium"
+	},
+/area/shuttle/mining)
+"D" = (
+/obj/effect/turf_decal/delivery,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+"F" = (
+/obj/structure/closet/crate,
+/obj/item/storage/firstaid/regular,
+/obj/item/storage/firstaid/regular,
+/obj/item/storage/toolbox/mechanical,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+"G" = (
+/obj/machinery/sensor_array/long_range,
+/turf/simulated/wall/shuttle,
+/area/shuttle/mining)
+"H" = (
+/obj/structure/chair/comfy/shuttle/dark{
+	dir = 4
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"I" = (
+/obj/structure/chair/comfy/shuttle/dark{
+	dir = 8
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"J" = (
+/turf/space,
+/area/space)
+"N" = (
+/obj/structure/chair/comfy/shuttle/dark{
+	dir = 4
+	},
+/obj/machinery/transponder/directional/west,
+/obj/machinery/overmap_intercom/directional/south{
+	pixel_y = -19
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"P" = (
+/obj/effect/turf_decal{
+	dir = 8
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "plastitanium"
+	},
+/area/shuttle/mining)
+"Q" = (
+/obj/structure/chair/comfy/shuttle/dark{
+	dir = 8
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "plastitanium"
+	},
+/area/shuttle/mining)
+"V" = (
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"X" = (
+/obj/machinery/computer/sensors/long_range,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/mining)
+"Z" = (
+/obj/machinery/autolathe,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/mining)
+
+(1,1,1) = {"
+J
+a
+e
+s
+e
+a
+J
+"}
+(2,1,1) = {"
+J
+a
+v
+P
+v
+a
+J
+"}
+(3,1,1) = {"
+J
+a
+D
+B
+y
+a
+J
+"}
+(4,1,1) = {"
+J
+a
+D
+B
+D
+a
+J
+"}
+(5,1,1) = {"
+J
+a
+Z
+B
+F
+a
+J
+"}
+(6,1,1) = {"
+a
+a
+p
+f
+r
+a
+a
+"}
+(7,1,1) = {"
+a
+H
+V
+B
+V
+N
+a
+"}
+(8,1,1) = {"
+a
+X
+V
+B
+V
+g
+a
+"}
+(9,1,1) = {"
+a
+a
+I
+Q
+I
+a
+a
+"}
+(10,1,1) = {"
+J
+G
+n
+n
+n
+w
+J
+"}
+(11,1,1) = {"
+J
+k
+k
+k
+k
+k
+J
+"}
