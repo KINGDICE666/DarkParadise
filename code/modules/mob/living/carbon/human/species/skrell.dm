@@ -8,11 +8,16 @@
 	language = LANGUAGE_SKRELL
 	primitive_form = /datum/species/monkey/skrell
 
-	blurb = "An amphibious species, Skrell come from the star system known as Qerr'Vallis, which translates to 'Star of \
-	the royals' or 'Light of the Crown'.<br/><br/>Skrell are a highly advanced and logical race who live under the rule \
-	of the Qerr'Katish, a caste within their society which keeps the empire of the Skrell running smoothly. Skrell are \
-	herbivores on the whole and tend to be co-operative with the other species of the galaxy, although they rarely reveal \
-	the secrets of their empire to their allies."
+	blurb = "Скреллы — растительноядные амфибии со склизкой кожей и тремя хвостообразными придатками на голове. Они \
+	устойчивы к токсинам, дышат под водой и не полнеют, но плохо переносят жару, а алкоголь для них крайне \
+	опасен.<br/><br/>Родина скреллов — планета Кверрбалак в системе Кверр’Валис, что переводится как «Свет \
+	короны». Скреллы создали Империю Квэррин — федеративную выборную монархию с двумя правящими монархами, где \
+	общество разделено на касты: от направляющей Кверр-Кэтиш до касты воителей Раскинта-Кэтиш.<br/><br/>В \
+	галактике скреллы известны профессионализмом, любознательностью и выдающимися дипломатическими способностями. \
+	Главный союзник Империи — Транс-Солнечная Федерация: их связывают тесные экономические и военные отношения, а \
+	культуры двух видов сильно повлияли друг на друга. И всё же своими секретами Империя неохотно делится даже с \
+	союзниками.<br/><br/>Живут скреллы долго — от 80 до 500 лет. Между собой они говорят на скреллианском языке, \
+	мелодичном и почти недоступном для чужого горла."
 
 	tox_mod = 0.75
 	bonefragility = 0.8

@@ -601,6 +601,22 @@
 	build_path = /obj/machinery/computer/aifixer
 	origin_tech = "programming=2;biotech=2"
 
+/obj/item/circuitboard/ai_resource_console
+	board_name = "AI Resource Management Console"
+	greyscale_colors = CIRCUIT_COLOR_SCIENCE
+	build_path = /obj/machinery/computer/ai_resource
+	origin_tech = "programming=4"
+
+/obj/item/circuitboard/ai_resource_console/get_ru_names()
+	return alist(
+		NOMINATIVE = "плата консоли управления ресурсами ИИ",
+		GENITIVE = "платы консоли управления ресурсами ИИ",
+		DATIVE = "плате консоли управления ресурсами ИИ",
+		ACCUSATIVE = "плату консоли управления ресурсами ИИ",
+		INSTRUMENTAL = "платой консоли управления ресурсами ИИ",
+		PREPOSITIONAL = "плате консоли управления ресурсами ИИ",
+	)
+
 /obj/item/circuitboard/telesci_console
 	board_name = "Telepad Control Console"
 	greyscale_colors = CIRCUIT_COLOR_SCIENCE

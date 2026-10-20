@@ -61,6 +61,20 @@
 	mask_cover.mask_host = src
 	sector.add_object(mask_cover, here)
 
+/obj/overmap/entity/taipan_site/proc/accept_drifter(atom/movable/thing, outward)
+	var/mob/living/drifter = thing
+	var/is_crew = isliving(drifter) && (drifter.mind in GLOB.taipan_players_active)
+	if(!is_crew && length(GLOB.taipan_players_active) < TAIPAN_PLAYER_LIMIT)
+		return FALSE
+	var/list/taipan_levels = levels_by_trait(TAIPAN)
+	if(!length(taipan_levels))
+		return FALSE
+	if(isliving(drifter))
+		to_chat(drifter, is_crew ? span_notice("Вы вернулись в ваш родной скрытый от чужих глаз сектор...") : span_warning("Вы попадаете в загадочный сектор полный астероидов... Тут стоит быть осторожнее..."))
+	thing.setDir((outward & (EAST|WEST)) || outward)
+	dump_to_linked_space_edge(thing, taipan_levels[1])
+	return TRUE
+
 /obj/machinery/transponder/taipan
 	name = "masked transponder"
 	desc = "Транспондер с прошитой маскировкой. На сенсорах объект выглядит как пояс астероидов."

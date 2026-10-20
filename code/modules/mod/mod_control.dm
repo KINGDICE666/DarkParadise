@@ -213,6 +213,12 @@
 			carbon_mob.put_in_any_hand_if_possible(src, TRUE)
 		return
 
+	if(bag && isstorage(over_object))
+		var/obj/item/storage = over_object
+		if(!(storage.item_flags & IN_STORAGE))
+			bag.dump_storage(user, over_object)
+		return
+
 	if(bag)
 		bag.forceMove(user)
 		bag.show_to(user)

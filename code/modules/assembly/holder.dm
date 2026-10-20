@@ -170,10 +170,7 @@
 
 /obj/item/assembly_holder/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum) // called when a throw stops
 	..()
-	var/triggered
-	if(throwing?.thrower)
-		triggered = throwing.thrower
-	process_movement(triggered)
+	process_movement(throwing?.get_thrower())
 
 /obj/item/assembly_holder/attack_hand(mob/user)//Perhapse this should be a holder_pickup proc instead, can add if needbe I guess
 	if(a_left && a_right)

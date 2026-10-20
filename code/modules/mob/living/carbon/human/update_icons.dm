@@ -98,6 +98,7 @@ Please contact me on #coderbus IRC. ~Carn x
 */
 
 GLOBAL_LIST_EMPTY(damage_icon_parts)
+GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 
 //DAMAGE OVERLAYS
 //constructs damage icon for each organ from mask * damage field and saves it in our overlays_ lists
@@ -368,46 +369,13 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	//masks and helmets can obscure our hair, unless we're a synthetic
 	if((head && (head.flags_inv & (HIDEHAIR|HIDEHEADHAIR))) || (wear_mask && (wear_mask.flags_inv & (HIDEHAIR|HIDEHEADHAIR))))
 		return
-	if(head && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
+	if(isclothing(head) && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
 		return
 
-	var/datum/sprite_accessory/hair/hair = SSaccessories.hairstyles_list[head_organ.h_style]
-	if(!hair || !((hair.species_allowed && (head_organ.dna.species.name in hair.species_allowed)) || (head_organ.dna.species.bodyflags & ALL_RPARTS)))
+	var/mutable_appearance/MA = head_organ.build_hair_appearance()
+	if(!MA)
 		return
-
-	//base icons
-	var/mutable_appearance/MA = new()
-	MA.appearance_flags = KEEP_TOGETHER
 	MA.layer = -HAIR_LAYER
-
-	// Base hair
-	var/mutable_appearance/img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
-	if(head_organ.dna.species.name == SPECIES_SLIMEPERSON)
-		img_hair.color = COLOR_MATRIX_OVERLAY("[skin_colour]A0")
-	else if(hair.do_colouration)
-		img_hair.color = COLOR_MATRIX_ADD(head_organ.hair_colour)
-	MA.overlays += img_hair
-
-	// Gradient
-	var/datum/sprite_accessory/gradient/gradient = SSaccessories.hair_gradients_list[head_organ.h_grad_style]
-	if(gradient)
-		var/icon/icn_alpha_mask = icon(gradient.icon, gradient.icon_state)
-		var/icon/icn_gradient = icon(gradient.icon, "full")
-		var/list/icn_color = rgb2num(head_organ.h_grad_colour)
-		icn_gradient.MapColors(rgb(icn_color[1], 0, 0), rgb(0, icn_color[2], 0), rgb(0, 0, icn_color[3]))
-		icn_gradient.ChangeOpacity(head_organ.h_grad_alpha / 200)
-		icn_gradient.AddAlphaMask(icn_alpha_mask)
-		icn_gradient.Shift(EAST, head_organ.h_grad_offset_x)
-		icn_gradient.Shift(NORTH, head_organ.h_grad_offset_y)
-		icn_gradient.AddAlphaMask(icon(hair.icon, "[hair.icon_state]_s"))
-		MA.overlays += icn_gradient
-
-	// Secondary style
-	if(hair.secondary_theme)
-		var/mutable_appearance/img_secondary = mutable_appearance(hair.icon, "[hair.icon_state]_[hair.secondary_theme]_s")
-		if(!hair.no_sec_colour)
-			img_secondary.color = COLOR_MATRIX_ADD(head_organ.sec_hair_colour)
-		MA.overlays += img_secondary
 
 	update_mutant_ears()
 	overlays_standing[HAIR_LAYER] = MA
@@ -1383,6 +1351,10 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 		var/datum/species/wearer_species = wearer.dna?.species
 		fitted_icon = get_fitted_worn_icon(wearer_species, src, file2use, t_state)
 		file2use = wearer_species?.worn_sheets?[file2use] || file2use
+	if(!isinhands && ishuman(wearer))
+		var/mob/living/carbon/human/human_wearer = wearer
+		if(src == human_wearer.w_uniform || src == human_wearer.wear_suit)
+			fitted_icon = human_wearer.fill_missing_hand_gaps(fitted_icon || file2use, fitted_icon ? "" : t_state) || fitted_icon
 	//Find a valid layer from variables+arguments
 	var/layer2use = default_layer
 
@@ -1420,6 +1392,62 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	standing.color = color
 
 	return standing
+
+#define HAND_GAP_FILL_DISTANCE 4
+
+/mob/living/carbon/human/proc/fill_missing_hand_gaps(worn_icon_file, worn_state)
+	var/list/missing_hands = list()
+	for(var/hand_zone in list(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND))
+		if(!get_organ(hand_zone) && (hand_zone in dna.species.has_limbs))
+			missing_hands += hand_zone
+	if(!length(missing_hands))
+		return
+
+	var/cache_key = "[isicon(worn_icon_file) ? "\ref[worn_icon_file]" : worn_icon_file]|[worn_state]|[dna.species.icobase]|[jointext(missing_hands, ",")]"
+	var/icon/filled_icon = GLOB.hand_gap_filled_icons[cache_key]
+	if(filled_icon)
+		return filled_icon
+
+	filled_icon = icon(worn_icon_file, worn_state)
+	if(filled_icon.Width() != ICON_SIZE_X || filled_icon.Height() != ICON_SIZE_Y)
+		return
+	var/icon/fabric_from_west
+	var/icon/fabric_from_east
+	for(var/distance in 1 to HAND_GAP_FILL_DISTANCE)
+		var/icon/shifted_east = icon(filled_icon)
+		shifted_east.Shift(EAST, distance)
+		var/icon/shifted_west = icon(filled_icon)
+		shifted_west.Shift(WEST, distance)
+		if(fabric_from_west)
+			fabric_from_west.Blend(shifted_east, ICON_UNDERLAY)
+			fabric_from_east.Blend(shifted_west, ICON_UNDERLAY)
+		else
+			fabric_from_west = shifted_east
+			fabric_from_east = shifted_west
+
+	var/icon/hand_mask = icon(filled_icon)
+	hand_mask.MapColors(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	for(var/side_dir in list(EAST, WEST))
+		var/icon/side_hands
+		for(var/hand_zone in missing_hands)
+			var/icon/hand_icon = icon(dna.species.icobase, hand_zone, side_dir)
+			if(side_hands)
+				side_hands.Blend(hand_icon, ICON_OVERLAY)
+			else
+				side_hands = hand_icon
+		hand_mask.Insert(side_hands, dir = side_dir)
+	var/icon/gap_mask = icon(fabric_from_west)
+	gap_mask.Blend(fabric_from_east, ICON_MULTIPLY)
+	gap_mask.Blend(hand_mask, ICON_MULTIPLY)
+	gap_mask.MapColors(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0)
+
+	fabric_from_east.Insert(icon(fabric_from_west, dir = WEST), dir = WEST)
+	fabric_from_east.Blend(gap_mask, ICON_MULTIPLY)
+	filled_icon.Blend(fabric_from_east, ICON_UNDERLAY)
+	GLOB.hand_gap_filled_icons[cache_key] = filled_icon
+	return filled_icon
+
+#undef HAND_GAP_FILL_DISTANCE
 
 // Wide organs or bodyparts shouldn't offset human HUD directly
 /mob/living/carbon/human/get_hud_x_offset()

@@ -5,6 +5,16 @@
 	name = SPECIES_GREY
 	name_plural = "Greys"
 	ru_genitive = "серого"
+	blurb = "Серые — невысокие гуманоиды с огромным черепом и псионическими способностями. Они рождаются телепатами, \
+	говорят через имплант-переводчик, вдвое быстрее работают с инструментами и не боятся кислот, но хрупки, быстро \
+	выдыхаются, а вода обжигает их кожу.<br/><br/>Прошлое серых теряется за пределами Млечного Пути: их предки \
+	веками скитались по космосу в поисках нового дома, и именно долгая жизнь на изолированных кораблях \
+	сформировала современный вид. В конце концов серые осели на планете Мауна-Б в системе Омикрон \
+	Цетуса.<br/><br/>Серыми правит Технократия — научный совет, определяющий развитие их цивилизации. Их \
+	технологии в области блюспейса и искусственного интеллекта — самые передовые в галактике, поэтому корпорации \
+	охотно нанимают серых в научные отделы, а те в обмен изучают культуру других видов.<br/><br/>Мировоззрение \
+	серых целиком строится на науке: религии у них нет, а понятие семьи им незнакомо. Между собой они общаются \
+	телепатически — устного языка у серых нет вовсе."
 	icobase = 'icons/mob/human_races/r_grey.dmi'
 	deform = 'icons/mob/human_races/r_def_grey.dmi'
 	language = LANGUAGE_GREY
@@ -113,7 +123,7 @@
 	var/obj/item/organ/internal/cyberimp/mouth/translator/grey_retraslator/retranslator = new
 	retranslator.insert(H)
 
-	var/translator_pref = H.client.prefs.speciesprefs
+	var/translator_pref = H.client.prefs.read_preference(/datum/preference/toggle/species_preference)
 
 	if(!HAS_TRAIT(H, TRAIT_WINGDINGS))
 		return handle_loadout_chip(H, retranslator)

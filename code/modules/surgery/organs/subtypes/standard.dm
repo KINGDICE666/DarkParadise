@@ -466,6 +466,8 @@
 	owner.set_num_hands(owner.num_hands + 1)
 	if(is_usable())
 		owner.set_usable_hands(owner.usable_hands + 1, special, limb_zone)
+	owner.update_worn_undersuit()
+	owner.update_worn_oversuit()
 
 /obj/item/organ/external/hand/remove(mob/living/carbon/human/user, special = ORGAN_MANIPULATION_DEFAULT, ignore_children = FALSE)
 	var/was_usable = is_usable()
@@ -476,6 +478,8 @@
 	if(special == ORGAN_MANIPULATION_DEFAULT)
 		user.drop_item_ground(user.gloves, force = TRUE)
 		user.drop_item_ground(limb_zone == BODY_ZONE_PRECISE_L_HAND ? user.l_hand : user.r_hand, force = TRUE)
+	user.update_worn_undersuit()
+	user.update_worn_oversuit()
 
 /obj/item/organ/external/hand/necrotize(silent = FALSE)
 	. = ..()

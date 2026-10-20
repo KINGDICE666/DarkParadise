@@ -351,7 +351,7 @@
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
 	slip.erroneous = errors
-	slip.points = object.cost
+	slip.points = object.get_cost()
 	slip.ordernumber = ordernum
 
 	var/stationName = (errors & MANIFEST_ERROR_NAME) ? new_station_name() : station_name()
@@ -550,13 +550,13 @@
 
 	for(var/set_name in SSshuttle.supply_packs)
 		var/datum/supply_packs/pack = SSshuttle.supply_packs[set_name]
-		var/has_sale = pack.cost < initial(pack.cost)
+		var/has_sale = pack.get_cost() < initial(pack.cost)
 		var/is_enough_techs = TRUE
 		for(var/tech_id in pack.required_tech)
 			if(!SSshuttle.techLevels[tech_id] || pack.required_tech[tech_id] > SSshuttle.techLevels[tech_id])
 				is_enough_techs = FALSE
 		if((pack.hidden && hacked) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
-			packs_list.Add(list(list("name" = pack.name, "cost" = pack.cost, "creditsCost" = pack.credits_cost, "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
+			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "creditsCost" = pack.credits_cost, "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
 
 	data["supply_packs"] = packs_list
 
@@ -685,7 +685,7 @@
 						to_chat(usr, span_warning("[P.name] is out of stock, and can no longer be ordered."))	*/
 					if(P.can_approve(usr))
 						SSshuttle.requestlist.Cut(i,i+1)
-						SSshuttle.points -= P.cost
+						SSshuttle.points -= P.get_cost()
 						if(P.credits_cost)
 							SSshuttle.cargo_money_account.money -= P.credits_cost
 						SSshuttle.shoppinglist += O

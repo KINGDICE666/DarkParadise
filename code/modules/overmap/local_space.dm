@@ -7,6 +7,7 @@
 #define OVERMAP_RADAR_EXPIRY 4
 #define OVERMAP_TERRAIN_VIEW_RANGE 14
 #define OVERMAP_LOCAL_ARRIVAL_MARGIN 12
+#define OVERMAP_LOCAL_REENTRY_MARGIN 4
 #define OVERMAP_LOCAL_ARRIVAL_TURN_STEP 15
 #define OVERMAP_LOCAL_ARRIVAL_TURNS 12
 #define OVERMAP_TERRAIN_SEAM_SCALE 1.03
@@ -192,28 +193,17 @@
 	if(programmed_mission)
 		local_space = null
 		return
-	var/list/spot = local_space.to_bubble(get_world_x(), get_world_y())
-	if(local_space.anchor)
-		if(local_space.sector != sector || !local_space.covers(spot, -hull_radius))
-			local_space = null
+	if(local_space.anchor && local_space.sector != sector)
+		local_space = null
 		return
-	var/list/bounds = local_space.bounds
-	var/clamped_x = clamp(spot[1], bounds[1] + hull_radius, bounds[3] - hull_radius)
-	var/clamped_y = clamp(spot[2], bounds[2] + hull_radius, bounds[4] - hull_radius)
-	if(clamped_x == spot[1] && clamped_y == spot[2])
-		return
-	if(clamped_x != spot[1])
-		speed[1] = 0
-	if(clamped_y != spot[2])
-		speed[2] = 0
-	var/list/inside = local_space.to_world(clamped_x, clamped_y)
-	set_world_position(inside[1], inside[2])
+	if(!local_space.covers(local_space.to_bubble(get_world_x(), get_world_y()), -hull_radius))
+		local_space = null
 
 /obj/overmap/entity/proc/enter_local_space()
 	if(programmed_mission || is_jumping())
 		return
 	var/datum/overmap_bubble/entered = SSovermap.local_space_at(sector, get_world_x(), get_world_y(), src)
-	if(!entered || !entered.covers(entered.to_bubble(get_world_x(), get_world_y()), -hull_radius))
+	if(!entered || !entered.covers(entered.to_bubble(get_world_x(), get_world_y()), -hull_radius - OVERMAP_LOCAL_REENTRY_MARGIN))
 		return
 	local_space = entered
 	var/list/goal = flight?.autopilot_goal
@@ -369,6 +359,7 @@
 #undef OVERMAP_RADAR_EXPIRY
 #undef OVERMAP_TERRAIN_VIEW_RANGE
 #undef OVERMAP_LOCAL_ARRIVAL_MARGIN
+#undef OVERMAP_LOCAL_REENTRY_MARGIN
 #undef OVERMAP_LOCAL_ARRIVAL_TURN_STEP
 #undef OVERMAP_LOCAL_ARRIVAL_TURNS
 #undef OVERMAP_TERRAIN_SEAM_SCALE

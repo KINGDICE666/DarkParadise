@@ -267,6 +267,19 @@
 
 	update_equipment_speed_mods()
 
+/mob/living/carbon/proc/is_too_bulky_to_hold(obj/item/item)
+	if(!HAS_TRAIT(src, TRAIT_SMALL_MOB) || item.w_class < WEIGHT_CLASS_BULKY)
+		return FALSE
+	var/static/list/bulky_exceptions = typecacheof(list(
+		/obj/item/storage/bag/bio,
+		/obj/item/storage/bag/chemistry,
+		/obj/item/storage/backpack,
+		/obj/item/storage/belt,
+		/obj/item/twohanded/shockpaddles,
+		/obj/item/tk_grab,
+	))
+	return !is_type_in_typecache(item, bulky_exceptions)
+
 /**
  * All the necessary checks for carbon to put an item in hand
  */
@@ -276,15 +289,8 @@
 	if(HAS_TRAIT(src, TRAIT_SMALL_MOB))
 		if((istype(item, /obj/item/holder) && (item.holder_flags & HUMAN_HOLDER)) || item.contains_pickupable_humanoid_holder())
 			return FALSE
-		if(item.w_class >= WEIGHT_CLASS_BULKY)
-			var/static/list/bulky_exceptions = typecacheof(list(
-				/obj/item/storage/backpack,
-				/obj/item/storage/belt,
-				/obj/item/twohanded/shockpaddles,
-				/obj/item/tk_grab,
-			))
-			if(!is_type_in_typecache(item, bulky_exceptions))
-				return FALSE
+	if(is_too_bulky_to_hold(item))
+		return FALSE
 
 	if(SEND_SIGNAL(src, COMSIG_CARBON_TRY_PUT_IN_HAND, item, hand_id) & COMPONENT_CARBON_CANT_PUT_IN_HAND)
 		return FALSE

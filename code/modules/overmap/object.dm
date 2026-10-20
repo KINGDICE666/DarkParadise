@@ -166,6 +166,8 @@
 	var/min_y = sector.origin_y + 1
 	var/max_y = sector.origin_y + sector.size - 2
 	if(new_x < min_x || new_x > max_x || new_y < min_y || new_y > max_y)
+		if(cross_sector_edge(new_x, new_y))
+			return
 		if(wraparound && sector.wraparound)
 			handle_wraparound(new_x, new_y)
 		else
@@ -181,6 +183,9 @@
 		on_overmap_loc_changed()
 		return
 	update_overmap_pixel()
+
+/obj/overmap/proc/cross_sector_edge(new_x, new_y)
+	return FALSE
 
 /obj/overmap/proc/handle_wraparound(new_x, new_y)
 	if(!sector)

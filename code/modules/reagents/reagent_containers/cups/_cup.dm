@@ -155,8 +155,8 @@
 
 	SEND_SIGNAL(src, COMSIG_GLASS_DRANK, target_mob, user)
 	var/fraction = min(gulp_size / reagents.total_volume, 1)
-	reagents.trans_to(target_mob, gulp_size)
 	reagents.reaction(target_mob, reagent_consumption_method, fraction)
+	reagents.trans_to(target_mob, gulp_size)
 	checkLiked(fraction, target_mob)
 	playsound(target_mob, consumption_sound, rand(10, 50), TRUE)
 

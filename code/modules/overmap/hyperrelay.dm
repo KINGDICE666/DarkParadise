@@ -214,22 +214,61 @@
 		refresh_sensor_displays()
 		return
 	var/turf/dest = dest_relay.get_overmap_turf()
-	if(!dest)
+	if(!dest || !dest_relay.sector)
 		refresh_sensor_displays()
 		return
-	sector?.remove_object(src)
-	dest_relay.sector?.add_object(src, dest)
 	position = list(0, 0)
-	update_overmap_pixel()
-	set_autopilot(FALSE)
-	refresh_sensor_displays()
-	for(var/obj/machinery/computer/helm/helm as anything in helms)
-		if(!QDELETED(helm))
-			helm.update_map_view(TRUE)
+	move_to_sector(dest_relay.sector, dest)
 	play_shuttle_sound('sound/effects/hyperspace_end.ogg')
 	shake_shuttle(8, 2)
 	shuttle_visible_message(span_warning("Корпус дёргается и снова становится неподвижным."))
 	programmed_mission?.try_fly()
+
+/obj/overmap/entity/proc/move_to_sector(datum/overmap_sector/destination, turf/target)
+	sector?.remove_object(src)
+	destination.add_object(src, target)
+	for(var/obj/overmap/entity/guest as anything in docked_guests)
+		guest.sector?.remove_object(guest)
+		destination.add_object(guest, target)
+	local_space = null
+	update_overmap_pixel()
+	set_autopilot(FALSE)
+	if(flight)
+		flight.autopilot_x = null
+		flight.autopilot_y = null
+	refresh_sensor_displays()
+	for(var/obj/machinery/computer/helm/helm as anything in helms)
+		if(QDELETED(helm))
+			continue
+		helm.waypoints.Cut()
+		helm.update_nav_marker()
+		helm.update_map_view(TRUE)
+
+/obj/overmap/entity/cross_sector_edge(new_x, new_y)
+	if(!sector || programmed_mission || is_jumping() || docked_ship)
+		return FALSE
+	if(overmap_kind != OVERMAP_KIND_SHUTTLE && overmap_kind != OVERMAP_KIND_POD)
+		return FALSE
+	var/low_x = sector.origin_x + 1
+	var/high_x = sector.origin_x + sector.size - 2
+	var/low_y = sector.origin_y + 1
+	var/high_y = sector.origin_y + sector.size - 2
+	var/exit_dir
+	var/fraction
+	if(new_x < low_x || new_x > high_x)
+		exit_dir = new_x < low_x ? WEST : EAST
+		fraction = (clamp(new_y, low_y, high_y) - low_y) / max(high_y - low_y, 1)
+	else
+		exit_dir = new_y < low_y ? SOUTH : NORTH
+		fraction = (clamp(new_x, low_x, high_x) - low_x) / max(high_x - low_x, 1)
+	var/datum/overmap_sector/neighbor = sector.neighbors["[exit_dir]"]
+	if(!neighbor)
+		return FALSE
+	var/datum/overmap_sector/old_sector = sector
+	move_to_sector(neighbor, neighbor.edge_entry_turf(REVERSE_DIR(exit_dir), fraction))
+	shuttle_visible_message(span_notice("Корабль пересекает границу сектора «[old_sector.name]» и входит в «[neighbor.name]»."))
+	announce_sensor_event("[get_overmap_display_name()] входит в сектор «[neighbor.name]»", "info")
+	return TRUE
 
 /obj/overmap/entity/proc/play_shuttle_sound(soundfile, volume = 100)
 	if(!soundfile || !shuttle)

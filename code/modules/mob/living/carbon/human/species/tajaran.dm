@@ -9,11 +9,16 @@
 	skinned_type = /obj/item/stack/sheet/fur
 	unarmed_type = /datum/unarmed_attack/claws
 
-	blurb = "The Tajaran race is a species of feline-like bipeds hailing from the planet of Ahdomai in the \
-	S'randarr system. They have been brought up into the space age by the Humans and Skrell, and have been \
-	influenced heavily by their long history of Slavemaster rule. They have a structured, clan-influenced way \
-	of family and politics. They prefer colder environments, and speak a variety of languages, mostly Siik'Maas, \
-	using unique inflections their mouths form."
+	blurb = "Таяраны — гуманоиды, похожие на земных кошачьих, с планеты Адомай. Они отлично видят в темноте, дерутся \
+	когтями и легко переносят холод, но плохо выносят жару и терпеть не могут воду.<br/><br/>Адомай — планета с \
+	разнообразным климатом и скудными запасами воды, одна из двух землеподобных планет у пары звёзд С’рандарр и \
+	Месса. Сотни лет таяраны были рабами технологически развитых пришельцев, которых они называют Рабовладельцами, \
+	и добывали для них ресурсы в многочисленных шахтах.<br/><br/>Освободившись в войне за свободу, таяраны вышли в \
+	космос при поддержке людей и скреллов. Их общество держится на кланах и великих домах, каждый из которых взял \
+	на себя свою роль во внутренней и внешней политике. Долгое время почти все таяраны были неграмотны, поэтому \
+	историю и чувства они передавали в песнях, и музыка до сих пор занимает важное место в их \
+	культуре.<br/><br/>Говорят таяраны на сик’таире, с характерным раскатистым «р». Живут они недолго — в среднем \
+	около 46 лет."
 
 	cold_level_1 = 240
 	cold_level_2 = 180

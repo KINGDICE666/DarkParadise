@@ -5,6 +5,10 @@
 #define OVERMAP_BUBBLE_MARGIN 16
 #define OVERMAP_BUBBLE_TIMEOUT (1 MINUTES)
 #define OVERMAP_EJECT_CLEARANCE 3
+#define OVERMAP_HANDOFF_STEP 2
+#define OVERMAP_HANDOFF_INSET 8
+#define OVERMAP_HANDOFF_EDGE_DEPTH 0.45
+#define OVERMAP_HANDOFF_LANDING_RANGE 3
 #define OVERMAP_SHIP_DOCK_RANGE 3
 #define OVERMAP_SHIP_DOCK_ALIGN 20
 #define OVERMAP_SHIP_DOCK_SPEED (2 / (1 SECONDS))
@@ -590,6 +594,7 @@
 	var/list/radar_chunks = list()
 	var/list/clingers = list()
 	var/obj/overmap/entity/anchor
+	var/list/gravity_warned = list()
 
 /datum/overmap_bubble/New(datum/overmap_sector/sector, origin_x, origin_y, speed_x, speed_y)
 	src.sector = sector
@@ -745,6 +750,7 @@
 
 /datum/overmap_bubble/proc/remove_drifter(atom/movable/drifter)
 	drifters -= drifter
+	gravity_warned -= drifter
 	UnregisterSignal(drifter, list(COMSIG_MOVABLE_SPACEMOVE, COMSIG_QDELETING))
 
 /datum/overmap_bubble/proc/on_drifter_deleted(atom/movable/drifter)
@@ -1104,14 +1110,97 @@
 
 /datum/controller/subsystem/overmap/proc/create_bubble(datum/overmap_sector/sector, world_x, world_y, speed_x, speed_y)
 	if(!spare_bubble_space)
+		prepare_bubble_space()
 		return null
 	var/datum/overmap_bubble/bubble = new(sector, world_x, world_y, speed_x, speed_y)
 	bubble.fill_reservation(spare_bubble_space)
 	spare_bubble_space = null
+	prepare_bubble_space()
 	return bubble
 
+/datum/controller/subsystem/overmap/proc/send_drifting(atom/movable/thing, datum/overmap_sector/sector, list/spot, outward, speed_x, speed_y)
+	var/list/edges = sector.world_bounds()
+	var/exit_dir = NONE
+	if(spot[1] < edges[1])
+		exit_dir = WEST
+	else if(spot[1] > edges[3])
+		exit_dir = EAST
+	else if(spot[2] < edges[2])
+		exit_dir = SOUTH
+	else if(spot[2] > edges[4])
+		exit_dir = NORTH
+	var/datum/overmap_sector/neighbor = exit_dir && sector.neighbors["[exit_dir]"]
+	if(neighbor)
+		var/fraction = (exit_dir & (EAST|WEST)) ? (spot[2] - edges[2]) / (edges[4] - edges[2]) : (spot[1] - edges[1]) / (edges[3] - edges[1])
+		var/turf/entry = neighbor.edge_entry_turf(REVERSE_DIR(exit_dir), fraction)
+		var/neighbor_span = OVERMAP_TILE_SPAN * neighbor.tile_travel
+		var/list/exit_step = dir2offset(exit_dir)
+		spot = list((entry.x - exit_step[1] * OVERMAP_HANDOFF_EDGE_DEPTH) * neighbor_span, (entry.y - exit_step[2] * OVERMAP_HANDOFF_EDGE_DEPTH) * neighbor_span)
+		sector = neighbor
+		if(ismob(thing))
+			to_chat(thing, span_notice("Вы пересекаете границу сектора и попадаете в «[neighbor.name]»."))
+	else if(exit_dir)
+		spot = list(
+			spot[1] < edges[1] ? spot[1] + edges[3] - edges[1] : (spot[1] > edges[3] ? spot[1] - edges[3] + edges[1] : spot[1]),
+			spot[2] < edges[2] ? spot[2] + edges[4] - edges[2] : (spot[2] > edges[4] ? spot[2] - edges[4] + edges[2] : spot[2]),
+		)
+	if(lavaland_planet?.sector == sector && lavaland_planet.covers_world(spot[1], spot[2]))
+		lavaland_planet.drop_onto_surface(thing)
+		return TRUE
+	if(taipan_entity?.sector == sector && taipan_entity.get_overmap_turf() == sector.turf_at_world(spot[1], spot[2]) && taipan_entity.accept_drifter(thing, outward))
+		return TRUE
+	var/datum/overmap_bubble/station_space = local_space_at(sector, spot[1], spot[2])
+	var/turf/landing = station_space?.turf_at(spot[1], spot[2])
+	if(landing?.is_blocked_turf(exclude_mobs = TRUE))
+		var/turf/blocked = landing
+		landing = null
+		for(var/turf/candidate as anything in RANGE_TURFS(OVERMAP_HANDOFF_LANDING_RANGE, blocked))
+			if(isspaceturf(candidate) && station_space.covers(list(candidate.x, candidate.y), 0) && !candidate.is_blocked_turf(exclude_mobs = TRUE))
+				landing = candidate
+				break
+		if(!landing)
+			return FALSE
+	if(!landing)
+		var/list/outward_step = dir2offset(outward)
+		var/half_size = OVERMAP_BUBBLE_SIZE / 2 - OVERMAP_HANDOFF_INSET
+		var/datum/overmap_bubble/bubble = find_bubble(sector, spot[1], spot[2]) || create_bubble(sector, spot[1] + outward_step[1] * half_size, spot[2] + outward_step[2] * half_size, speed_x, speed_y)
+		landing = bubble?.turf_at(spot[1], spot[2])
+	if(!landing)
+		return FALSE
+	var/datum/component/drift/drift = thing.GetComponent(/datum/component/drift)
+	var/drift_dir = drift?.drifting_loop?.direction || outward
+	cross_frame_with_pull(thing, landing)
+	thing.newtonian_move(drift_dir)
+	return TRUE
+
+/datum/overmap_bubble/proc/outward_dir(turf/spot)
+	. = NONE
+	if(spot.x <= bounds[1])
+		. |= WEST
+	else if(spot.x >= bounds[3])
+		. |= EAST
+	if(spot.y <= bounds[2])
+		. |= SOUTH
+	else if(spot.y >= bounds[4])
+		. |= NORTH
+
+/proc/carries_mind(atom/movable/thing)
+	for(var/mob/living/body as anything in thing.get_all_contents_type(/mob/living))
+		if(body.mind)
+			return TRUE
+	return FALSE
+
+/datum/overmap_bubble/proc/drift_beyond(atom/movable/thing)
+	var/turf/spot = get_turf(thing)
+	var/outward = outward_dir(spot)
+	if(!outward)
+		return FALSE
+	var/list/outward_step = dir2offset(outward)
+	var/list/target = to_world(spot.x + outward_step[1] * OVERMAP_HANDOFF_STEP, spot.y + outward_step[2] * OVERMAP_HANDOFF_STEP)
+	return SSovermap.send_drifting(thing, sector, target, outward, speed_x, speed_y)
+
 /datum/controller/subsystem/overmap/proc/prepare_bubble_space()
-	if(spare_bubble_space || preparing_bubble_space || !length(flying_vessels))
+	if(spare_bubble_space || preparing_bubble_space)
 		return
 	preparing_bubble_space = TRUE
 	INVOKE_ASYNC(src, PROC_REF(reserve_bubble_space))
@@ -1158,6 +1247,10 @@
 #undef OVERMAP_BUBBLE_MARGIN
 #undef OVERMAP_BUBBLE_TIMEOUT
 #undef OVERMAP_EJECT_CLEARANCE
+#undef OVERMAP_HANDOFF_STEP
+#undef OVERMAP_HANDOFF_INSET
+#undef OVERMAP_HANDOFF_EDGE_DEPTH
+#undef OVERMAP_HANDOFF_LANDING_RANGE
 #undef OVERMAP_SHIP_DOCK_RANGE
 #undef OVERMAP_SHIP_DOCK_ALIGN
 #undef OVERMAP_SHIP_DOCK_SPEED

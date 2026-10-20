@@ -45,7 +45,7 @@ GLOBAL_LIST_INIT(freon_color_matrix, list("#2E5E69", "#60A2A8", "#A1AFB1", rgb(0
 /datum/element/frozen/proc/shatter_on_landed(datum/target, datum/thrownthing/throwingdatum)
 	SIGNAL_HANDLER
 	var/obj/obj_target = target
-	add_attack_logs(throwingdatum?.thrower, obj_target, "shattered by throwing it while frozen")
+	add_attack_logs(throwingdatum?.get_thrower(), obj_target, "shattered by throwing it while frozen")
 	obj_target.visible_message(span_danger("[obj_target.declent_ru(NOMINATIVE)] разлетается на миллион осколков!"))
 	obj_target.deconstruct(FALSE)
 

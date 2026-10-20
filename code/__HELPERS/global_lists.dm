@@ -45,7 +45,9 @@
 	for(var/nuke_path in typesof(/obj/machinery/nuclearbomb))
 		GLOB.nuke_codes[nuke_path] = rand(10000, 99999)
 
-	init_subtypes(/datum/crafting_recipe, GLOB.crafting_recipes)
+	for(var/recipe_path in valid_subtypesof(/datum/crafting_recipe))
+		GLOB.crafting_recipes += new recipe_path()
+	init_crafting_recipes_atoms()
 
 	// Pipe list building
 	init_subtypes(/datum/pipes, GLOB.construction_pipe_list)
@@ -81,29 +83,6 @@
 			stack_trace("Loadout - Missing path definition: [gear_type]")
 			continue
 		gear_type = new gear_type
-		var/obj/gear_item = gear_type.path
-		var/list/gear_tweaks = list()
-		for(var/datum/gear_tweak/tweak_type as anything in gear_type.gear_tweaks)
-			gear_tweaks[tweak_type.type] += list(list(
-				"name" = tweak_type.display_type,
-				"icon" = tweak_type.fa_icon,
-				"tooltip" = tweak_type.info,
-			))
-
-		GLOB.gear_tgui_info[gear_type.sort_category] += list(
-			"[gear_type]" = list(
-				"name" = gear_type.get_display_name(),
-				"index_name" = gear_type.index_name,
-				"desc" = gear_type.description,
-				"icon" = gear_item.icon,
-				"icon_state" = gear_item.icon_state,
-				"cost" = gear_type.cost,
-				"gear_tier" = gear_type.donator_tier,
-				"allowed_roles" = gear_type.allowed_roles,
-				"tweaks" = gear_tweaks,
-			)
-		)
-
 		GLOB.gear_datums[gear_type.index_name] = gear_type
 
 	// Setup a list of robolimbs
@@ -200,6 +179,13 @@
 
 	init_dice_rolls()
 
+
+/proc/init_crafting_recipes_atoms()
+	for(var/datum/crafting_recipe/recipe as anything in GLOB.crafting_recipes)
+		GLOB.crafting_recipes_datums |= recipe.result
+		GLOB.crafting_recipes_datums |= recipe.reqs
+		GLOB.crafting_recipes_datums |= recipe.chem_catalysts
+		GLOB.crafting_recipes_datums |= recipe.pathtools
 
 /**
  * Creates every subtype of a given prototype (excluding the prototype itself) and adds them to a list

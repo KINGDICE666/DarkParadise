@@ -130,6 +130,7 @@
 #define COLOR_BLUE_VERY_LIGHT "#ccecff"
 #define COLOR_NAVY "#000080"
 #define COLOR_BLUE_GRAY "#75a2bb"
+#define COLOR_AI_HOLOGRAM_BLUE "#7db4e1"
 #define COLOR_MEDIUM_TURQUOISE "#48d1cc"
 
 // MARK: Pink

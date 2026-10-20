@@ -136,8 +136,8 @@
 		window_flash(player_client)
 
 		var/atom/movable/screen/alert/notify_soulstone/A = player_mob.throw_alert("[UID()]_soulstone_thingy", /atom/movable/screen/alert/notify_soulstone)
-		if(player_client.prefs && player_client.prefs.UI_style)
-			A.icon = ui_style2icon(player_client.prefs.UI_style)
+		if(player_client.prefs && player_client.prefs.read_preference(/datum/preference/choiced/ui_style))
+			A.icon = ui_style2icon(player_client.prefs.read_preference(/datum/preference/choiced/ui_style))
 
 		// Pass the stuff to the alert itself
 		A.stone = src

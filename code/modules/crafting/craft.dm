@@ -1,35 +1,5 @@
 /datum/personal_crafting
 	var/busy
-	var/viewing_category = 1 //typical powergamer starting on the Weapons tab
-	var/viewing_subcategory = 1
-	var/list/categories = list(
-				CAT_WEAPONRY,
-				CAT_ROBOT,
-				CAT_MISC,
-				CAT_PRIMAL,
-				CAT_FOOD,
-				CAT_DECORATIONS,
-				CAT_CLOTHING)
-	var/list/subcategories = list(
-						list(//Weapon subcategories
-							CAT_WEAPON,
-							CAT_AMMO),
-						CAT_NONE, //Robot subcategories
-						CAT_NONE, //Misc subcategories
-						list(//Tribal subcategories
-							CAT_ARMOR,
-							CAT_WEAPONS,
-							CAT_MISC2),
-						list(//Food subcategories
-							CAT_CAKE,
-							CAT_SUSHI,
-							CAT_SANDWICH,
-							CAT_MISCFOOD),
-						list(//Decoration subcategories
-							CAT_DECORATION,
-							CAT_HOLIDAY,
-							CAT_LARGE_DECORATIONS),
-						CAT_CLOTHING) //Clothing subcategories
 	var/display_craftable_only = FALSE
 	var/display_compact = TRUE
 
@@ -290,7 +260,7 @@
 /datum/personal_crafting/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "PersonalCrafting", "Crafting Menu")
+		ui = new(user, src, "PersonalCrafting", "Крафт")
 		ui.open()
 
 /datum/personal_crafting/proc/close(mob/user)
@@ -298,46 +268,84 @@
 	if(ui)
 		ui.close()
 
+/datum/personal_crafting/ui_assets(mob/user)
+	return list(
+		get_asset_datum(/datum/asset/spritesheet_batched/crafting),
+	)
+
 /datum/personal_crafting/ui_data(mob/user)
 	var/list/data = list()
-	var/list/subs = list()
-	var/cur_subcategory = CAT_NONE
-
-	var/cur_category = categories[viewing_category]
-	if(islist(subcategories[viewing_category]))
-		subs = subcategories[viewing_category]
-		cur_subcategory = subs[viewing_subcategory]
-
 	data["busy"] = busy
-	data["prev_cat"] = categories[prev_cat()]
-	data["prev_subcat"] = subs[prev_subcat()]
-	data["category"] = cur_category
-	data["subcategory"] = cur_subcategory
-	data["next_cat"] = categories[next_cat()]
-	data["next_subcat"] = subs[next_subcat()]
 	data["display_craftable_only"] = display_craftable_only
 	data["display_compact"] = display_compact
 
 	var/list/surroundings = get_surroundings(user)
-	var/list/can_craft = list()
-	var/list/cant_craft = list()
+	var/list/craftability = list()
+	for(var/datum/crafting_recipe/recipe as anything in get_visible_recipes(user))
+		if(check_contents(recipe.reqs, recipe.chem_catalysts, recipe.blacklist, surroundings))
+			craftability[recipe.UID()] = TRUE
 
-	for(var/rec in GLOB.crafting_recipes)
-		var/datum/crafting_recipe/R = rec
-
-		if(!R.always_availible && !(R.type in user?.mind?.learned_recipes)) //User doesn't actually know how to make this.
-			continue
-
-		if((R.category != cur_category) || (R.subcategory != cur_subcategory))
-			continue
-		if(check_contents(R.reqs, R.chem_catalysts, R.blacklist, surroundings))
-			can_craft += list(build_recipe_data(R))
-		else
-			cant_craft += list(build_recipe_data(R))
-
-	data["can_craft"] = can_craft
-	data["cant_craft"] = cant_craft
+	data["craftability"] = craftability
 	return data
+
+/datum/personal_crafting/ui_static_data(mob/user)
+	var/list/data = list()
+	var/list/material_occurences = list()
+
+	data["recipes"] = list()
+	data["categories"] = list()
+
+	for(var/datum/crafting_recipe/recipe as anything in get_visible_recipes(user))
+		if(recipe.category)
+			data["categories"] |= recipe.category
+
+		for(var/req in recipe.reqs)
+			material_occurences[req] += 1
+		for(var/req in recipe.chem_catalysts)
+			material_occurences[req] += 1
+
+		data["recipes"] += list(build_recipe_data(recipe))
+
+	var/list/datums = GLOB.crafting_recipes_datums
+	var/datum/asset/spritesheet_batched/sheet = get_asset_datum(/datum/asset/spritesheet_batched/crafting)
+
+	data["atom_data"] = list()
+	data["icon_data"] = list()
+	for(var/atom_id in 1 to length(datums))
+		var/datum_path = datums[atom_id]
+		var/atom_name = ""
+		if(ispath(datum_path, /atom))
+			var/atom/atom_path = datum_path
+			atom_name = atom_path::name
+		else if(ispath(datum_path, /datum/reagent))
+			var/datum/reagent/reagent_path = datum_path
+			atom_name = reagent_path::name
+
+		data["atom_data"] += list(list(
+			"name" = atom_name,
+			"is_reagent" = ispath(datum_path, /datum/reagent),
+		))
+
+		var/icon_size = sheet.icon_size_id("a[atom_id]")
+		if(icon_size && !endswith(icon_size, "32x32"))
+			data["icon_data"]["[atom_id]"] = "[icon_size] a[atom_id]"
+
+	data["material_occurences"] = list()
+	for(var/material in material_occurences)
+		if(material_occurences[material] == 1)
+			continue
+		data["material_occurences"] += list(list(
+			"atom_id" = "[datums.Find(material)]",
+			"occurences" = material_occurences[material],
+		))
+
+	return data
+
+/datum/personal_crafting/proc/get_visible_recipes(mob/user)
+	. = list()
+	for(var/datum/crafting_recipe/recipe as anything in GLOB.crafting_recipes)
+		if(recipe.always_availible || (recipe.type in user.mind?.learned_recipes))
+			. += recipe
 
 /datum/personal_crafting/ui_act(action, list/params)
 	if(..())
@@ -347,32 +355,22 @@
 
 	switch(action)
 		if("make")
-			var/datum/crafting_recipe/TR = locateUID(params["make"])
-			if(!istype(TR))
+			if(busy)
+				return
+			var/datum/crafting_recipe/recipe = locateUID(params["recipe"])
+			if(!istype(recipe) || !(recipe in get_visible_recipes(usr)))
 				return
 			busy = TRUE
 			SStgui.update_uis(src)
-			var/fail_msg = construct_item(usr, TR)
+			var/fail_msg = construct_item(usr, recipe)
 			if(!fail_msg)
-				to_chat(usr, span_notice("[TR.name] constructed."))
-				if(TR.alert_admins_on_craft)
-					message_admins("[key_name_admin(usr)] has created a [TR.name] at [ADMIN_COORDJMP(usr)]")
+				to_chat(usr, span_notice("[recipe.name] constructed."))
+				if(recipe.alert_admins_on_craft)
+					message_admins("[key_name_admin(usr)] has created a [recipe.name] at [ADMIN_COORDJMP(usr)]")
 			else
 				to_chat(usr, span_warning("Construction failed[fail_msg]"))
 			busy = FALSE
 			SStgui.update_uis(src)
-
-		if("forwardCat")
-			viewing_category = next_cat(FALSE)
-
-		if("backwardCat")
-			viewing_category = prev_cat(FALSE)
-
-		if("forwardSubCat")
-			viewing_subcategory = next_subcat()
-
-		if("backwardSubCat")
-			viewing_subcategory = prev_subcat()
 
 		if("toggle_recipes")
 			display_craftable_only = !display_craftable_only
@@ -380,73 +378,37 @@
 		if("toggle_compact")
 			display_compact = !display_compact
 
-//Next works nicely with modular arithmetic
-/datum/personal_crafting/proc/next_cat(readonly = TRUE)
-	if(!readonly)
-		viewing_subcategory = 1
-	. = viewing_category % length(categories) + 1
-
-/datum/personal_crafting/proc/next_subcat()
-	if(islist(subcategories[viewing_category]))
-		var/list/subs = subcategories[viewing_category]
-		. = viewing_subcategory % length(subs) + 1
-
-//Previous can go fuck itself
-/datum/personal_crafting/proc/prev_cat(readonly = TRUE)
-	if(!readonly)
-		viewing_subcategory = 1
-	if(viewing_category == length(categories))
-		. = viewing_category-1
-	else
-		. = viewing_category % length(categories) - 1
-	if(. <= 0)
-		. = categories.len
-
-/datum/personal_crafting/proc/prev_subcat()
-	if(islist(subcategories[viewing_category]))
-		var/list/subs = subcategories[viewing_category]
-		if(viewing_subcategory == length(subs))
-			. = viewing_subcategory-1
-		else
-			. = viewing_subcategory % length(subs) - 1
-		if(. <= 0)
-			. = subs.len
-	else
-		. = null
-
-/datum/personal_crafting/proc/build_recipe_data(datum/crafting_recipe/R)
+/datum/personal_crafting/proc/build_recipe_data(datum/crafting_recipe/recipe)
 	var/list/data = list()
-	data["name"] = R.name
-	data["ref"] = R.UID()
-	var/req_text = ""
-	var/tool_text = ""
-	var/catalyst_text = ""
+	var/list/datums = GLOB.crafting_recipes_datums
 
-	for(var/a in R.reqs)
-		//We just need the name, so cheat-typecast to /atom for speed (even tho Reagents are /datum they DO have a "name" var)
-		//Also these are typepaths so sadly we can't just do "[a]"
-		var/atom/A = a
-		req_text += " [R.reqs[A]] [initial(A.name)],"
-	req_text = replacetext(req_text, ",", "", -1)
-	data["req_text"] = req_text
+	var/list/results = islist(recipe.result) ? recipe.result : list(recipe.result)
+	var/atom/result_path = results[1]
 
-	for(var/a in R.chem_catalysts)
-		var/atom/A = a //cheat-typecast
-		catalyst_text += " [R.chem_catalysts[A]] [initial(A.name)],"
-	catalyst_text = replacetext(catalyst_text, ",", "", -1)
-	data["catalyst_text"] = catalyst_text
+	data["ref"] = recipe.UID()
+	data["id"] = datums.Find(result_path)
+	data["category"] = recipe.category
+	data["subcategory"] = recipe.subcategory
+	data["name"] = length(results) > 1 ? "[recipe.name] [length(results)]x" : recipe.name
 
-	for(var/a in R.pathtools)
-		if(ispath(a, /obj/item))
-			var/obj/item/b = a
-			tool_text += " [initial(b.name)],"
-		else
-			tool_text += " [a],"
-	for(var/a in R.tools)
-		var/b = a
-		tool_text += " [b],"
-	tool_text = replacetext(tool_text, ",", "", -1)
-	data["tool_text"] = tool_text
+	if(ispath(result_path, /atom))
+		data["desc"] = result_path::desc
+
+	if(length(recipe.tools))
+		data["tool_behaviors"] = recipe.tools
+	if(length(recipe.pathtools))
+		data["tool_paths"] = list()
+		for(var/req_atom in recipe.pathtools)
+			data["tool_paths"] += datums.Find(req_atom)
+
+	data["reqs"] = list()
+	for(var/req_atom in recipe.reqs)
+		data["reqs"]["[datums.Find(req_atom)]"] = recipe.reqs[req_atom]
+
+	if(length(recipe.chem_catalysts))
+		data["chem_catalysts"] = list()
+		for(var/req_atom in recipe.chem_catalysts)
+			data["chem_catalysts"]["[datums.Find(req_atom)]"] = recipe.chem_catalysts[req_atom]
 
 	return data
 

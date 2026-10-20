@@ -1,0 +1,390 @@
+@use 'sass:color';
+@use 'sass:map';
+@use '../colors.scss';
+@use '../base.scss';
+
+$department_map: (
+  'Civilian': var(--color-gray),
+  'Command': colors.fg(var(--color-blue)),
+  'Supply': var(--color-brown),
+  'Legal': var(--color-violet),
+  'Security': var(--color-red),
+  'Engineering': hsl(from var(--color-orange) h s calc(l + 7.5)),
+  'Medical': var(--color-teal),
+  'Science': colors.fg(var(--color-purple)),
+  'Service': var(--color-green),
+  'Silicon': var(--color-pink),
+);
+
+.ChoicedSelection {
+  padding: var(--space-m);
+  background-color: var(--color-base);
+  box-shadow: 0 0.5em 1em hsla(0, 0%, 0%, 0.5);
+}
+
+.PreferencesMenu {
+  &__profiles {
+    transition-property: clip-path;
+    transition-timing-function: ease-out;
+
+    &[data-transition='initial'],
+    &[data-transition='close'] {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    &[data-transition='open'] {
+      clip-path: inset(0);
+    }
+  }
+
+  &__slider.Slider {
+    --progress-bar-color: var(--color-primary);
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius-medium);
+    background-color: hsla(0, 0%, 100%, 0.08);
+
+    .ProgressBar__fill {
+      background-color: hsl(from var(--color-primary) h s l / 0.55);
+      transition: background-color var(--transition-time-fast) ease-out;
+    }
+
+    .ProgressBar__content {
+      text-align: center;
+      font-weight: bold;
+      text-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.8);
+    }
+
+    .Slider__cursor {
+      inset: 0;
+      left: unset;
+      border-left: var(--border-thickness-small) solid hsla(0, 0%, 100%, 0.9);
+      border-radius: 0;
+
+      &::before {
+        display: none;
+      }
+    }
+
+    .Slider__popupValue {
+      display: none;
+    }
+
+    &:hover .ProgressBar__fill {
+      background-color: hsl(from var(--color-primary) h s l / 0.8);
+    }
+  }
+
+  &__HairGradient {
+    &__option {
+      display: block;
+      image-rendering: pixelated;
+      width: 36px;
+      height: 36px;
+      margin: 5px auto;
+    }
+
+    &__preview {
+      cursor: move;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--border-radius-medium);
+      background-color: hsla(0, 0%, 0%, 0.45);
+      box-shadow: inset 0 0 0 var(--border-thickness-tiny)
+        hsl(from var(--color-primary) h s l / 0.5);
+
+      img {
+        image-rendering: pixelated;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      &--dragging {
+        box-shadow: inset 0 0 0 var(--border-thickness-small)
+          var(--color-primary);
+      }
+
+      &--disabled {
+        cursor: default;
+      }
+    }
+
+    &__offset {
+      position: absolute;
+      bottom: var(--space-s);
+      left: var(--space-s);
+      padding: 0 var(--space-s);
+      border-radius: var(--border-radius-small);
+      background-color: hsla(0, 0%, 0%, 0.6);
+      font-size: 0.9em;
+    }
+  }
+
+  &__Antags {
+    &__antagSelection {
+      gap: var(--space-l);
+
+      @mixin animate-hover {
+        .antagonist-icon-parent .antagonist-icon {
+          &:hover {
+            transform: scale(1.3);
+            transition: transform var(--transition-time-fast) ease-out;
+          }
+        }
+      }
+
+      &__antagonist {
+        .antagonist-icon-parent {
+          cursor: var(--cursor-pointer);
+          border-style: solid;
+          border-radius: var(--border-radius-circular);
+          border-width: var(--border-thickness-large);
+          box-sizing: content-box;
+          overflow: hidden;
+          position: relative;
+
+          height: 96px;
+          width: 96px;
+
+          .antagonist-icon {
+            image-rendering: pixelated;
+            border-radius: var(--border-radius-circular);
+            overflow: hidden;
+            transition: transform var(--transition-time-fast) ease-in;
+          }
+        }
+
+        &--off {
+          @include animate-hover;
+
+          .antagonist-icon-parent {
+            border-color: var(--color-red);
+
+            .antagonist-icon {
+              opacity: 0.5;
+
+              &:hover {
+                opacity: 1;
+              }
+            }
+          }
+        }
+
+        &--on {
+          @include animate-hover;
+
+          .antagonist-icon-parent {
+            border-color: var(--color-green);
+          }
+        }
+
+        &--banned {
+          .antagonist-icon-parent {
+            border-color: var(--color-grey);
+          }
+
+          .antagonist-icon {
+            opacity: 0.5;
+          }
+        }
+
+        .antagonist-banned-slash {
+          background: var(--color-grey);
+
+          width: 100%;
+          height: 3px;
+
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translateY(-50%) translateX(-50%) rotate(35deg);
+
+          opacity: 0.8;
+        }
+
+        .antagonist-days-left {
+          text-align: center;
+          text-shadow: 1px 1px 1px hsl(0, 0%, 13.3%);
+
+          width: 100%;
+
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translateY(-50%) translateX(-50%);
+        }
+      }
+    }
+  }
+
+  &__Jobs {
+    > * {
+      flex: 1;
+    }
+
+    &__departments {
+      @each $department-name, $color-value in $department_map {
+        &--#{$department-name} {
+          &.head {
+            background: $color-value;
+
+            .job-name {
+              font-weight: bold;
+            }
+          }
+
+          background: colors.fg($color-value);
+          border: var(--border-thickness-small) outset colors.fg($color-value);
+          color: black;
+
+          > * {
+            height: calc(100% + 0.2em);
+            padding-bottom: 0.2em;
+          }
+
+          .options {
+            margin-right: var(--space-xxs);
+            background: hsla(0, 0%, 0%, 0.2);
+            height: 100%;
+          }
+
+          &.muted .job-name {
+            opacity: 0.55;
+          }
+
+          .alt-titles {
+            cursor: var(--cursor-pointer);
+            text-decoration: underline dotted;
+          }
+        }
+
+        &--Command {
+          border: var(--border-thickness-medium)
+            outset
+            hsla(60, 100%, 39.2%, 1);
+
+          &:first-child {
+            border-top: var(--border-thickness-medium)
+              outset
+              hsla(60, 100%, 39.2%, 1);
+          }
+
+          &.head .job-name {
+            font-size: 17px;
+          }
+        }
+      }
+
+      &__priority {
+        border: var(--border-thickness-tiny) solid hsla(0, 0%, 0%, 0.3);
+
+        &--off::after {
+          content: '';
+
+          background: hsla(0, 0%, 0%, 0.2);
+          display: block;
+          height: 80%;
+          left: 50%;
+          position: relative;
+          top: 50%;
+          transform: translateX(-50%) translateY(-50%) rotate(40deg);
+          width: 2px;
+        }
+      }
+    }
+
+    &__PriorityHeader {
+      font-weight: bold;
+      transform: translateX(-4px) translateY(-8px) rotate(315deg);
+      white-space: nowrap;
+      width: 19px;
+    }
+  }
+
+  &__Quirks {
+    &__QuirkList {
+      scrollbar-color: var(--color-grey) transparent;
+      background-color: var(--color-light-grey);
+      width: 100%;
+      overflow-x: hidden;
+      overflow-y: scroll;
+
+      &__quirk {
+        cursor: var(--cursor-pointer);
+        background-color: var(--color-white);
+        border-bottom: var(--border-thickness-tiny) solid var(--color-black);
+        color: hsl(0, 0%, 6.7%);
+        transition: background-color var(--transition-time-fast) ease-in;
+
+        $quality_map: (
+          'positive': var(--color-green),
+          'neutral': var(--color-white),
+          'negative': var(--color-red),
+        );
+
+        @each $quality, $color-value in $quality_map {
+          &--#{$quality} {
+            background-color: $color-value;
+            transition: background-color var(--transition-time-fast) ease-in;
+          }
+        }
+
+        &:hover {
+          background-color: var(--color-grey);
+          transition: background-color var(--transition-time-fast) ease-out;
+
+          @each $quality, $color-value in $quality_map {
+            .PreferencesMenu__Quirks__QuirkList__quirk--#{$quality} {
+              background-color: hsl(from $color-value h s calc(l - 10));
+              transition: background-color var(--transition-time-fast) ease-out;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+body:has(.PreferencesMenu) .Dropdown__menu--wrapper {
+  --dropdown-menu-background: hsl(from var(--color-base) h s calc(l - 4));
+  --dropdown-menu-border: var(--border-thickness-tiny) solid
+    hsl(from var(--color-primary) h s l / 0.6);
+  --dropdown-entry-background-hover: hsl(
+    from var(--color-primary) h s l / 0.35
+  );
+  --dropdown-entry-background-active: hsl(
+    from var(--color-primary) h s l / 0.5
+  );
+  --dropdown-entry-background-selected: var(--color-primary);
+  backdrop-filter: none;
+  box-shadow: 0 0.4em 1em hsla(0, 0%, 0%, 0.6);
+
+  .Dropdown__menu--entry {
+    padding: var(--space-s) var(--space-m);
+  }
+
+  &.Floating--animated {
+    &[data-transition] {
+      opacity: 1;
+      transform: none;
+      transition-property: clip-path;
+    }
+
+    &[data-transition='initial'],
+    &[data-transition='close'] {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    &[data-position^='top'][data-transition='initial'],
+    &[data-position^='top'][data-transition='close'] {
+      clip-path: inset(100% 0 0 0);
+    }
+
+    &[data-transition='open'] {
+      clip-path: inset(0);
+    }
+  }
+}

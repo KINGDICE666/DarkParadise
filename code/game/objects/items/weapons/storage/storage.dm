@@ -147,6 +147,12 @@
 			dump_storage(user, over_object)
 			return
 
+	if(ismodcontrol(over_object))
+		var/obj/item/mod/control/mod = over_object
+		if(mod.bag && !(mod.item_flags & IN_STORAGE))
+			dump_storage(user, mod.bag)
+		return
+
 	if(istype(src, /obj/item/storage/lockbox) || (!istable(over_object) && !isfloorturf(over_object)) \
 		|| !length(contents) || loc != user || user.incapacitated() || !over_object.IsReachableBy(user))
 		return
@@ -378,8 +384,8 @@
 		var/ui_color
 		if(user.client && user.client.prefs)
 			var/datum/preferences/prefs = user.client.prefs
-			ui_style = !(prefs.toggles3 & PREFTOGGLE_3_STORAGE_NEUTRAL) && prefs.UI_style
-			ui_color = (prefs.toggles3 & PREFTOGGLE_3_STORAGE_COLORFY) && prefs.UI_style_color
+			ui_style = !(prefs.toggles3 & PREFTOGGLE_3_STORAGE_NEUTRAL) && prefs.read_preference(/datum/preference/choiced/ui_style)
+			ui_color = (prefs.toggles3 & PREFTOGGLE_3_STORAGE_COLORFY) && prefs.read_preference(/datum/preference/color/ui_style_color)
 		storage_boxes[user].modify(line_width, lines_num, ui_style, ui_color, first_time)
 		first_time = FALSE
 

@@ -308,7 +308,7 @@ GLOBAL_LIST_EMPTY(heretic_arenas)
 	if(!isitem(throwingdatum.thrownthing))
 		return
 
-	var/thrown_by = throwingdatum.thrower
+	var/thrown_by = throwingdatum.get_thrower()
 	if(ismob(thrown_by))
 		last_attacker = WEAKREF(thrown_by)
 

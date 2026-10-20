@@ -17,11 +17,15 @@
 	coldmod = 1.2
 	hunger_drain_mod = 1.3
 
-	blurb = "A heavily reptillian species, Unathi (or 'Sinta as they call themselves) hail from the \
-	Uuosa-Eso system, which roughly translates to 'burning mother'.<br/><br/>Coming from a harsh, radioactive \
-	desert planet, they mostly hold ideals of honesty, virtue, martial combat and bravery above all \
-	else, frequently even their own lives. They prefer warmer temperatures than most species and \
-	their native tongue is a heavy hissing laungage called Sinta'Unathi."
+	blurb = "Унатхи — крупные чешуйчатые гуманоиды с планеты Могес. Толстая шкура защищает их от уколов, когти делают \
+	опасными в рукопашной, а особый реагент в крови понемногу залечивает раны. Зато унатхи плохо переносят холод, \
+	быстрее голодают, а сладкое и злаки для них ядовиты.<br/><br/>Могес — жаркая тропическая планета в системе \
+	Узулу. Ею правит монархия «Великая Империя Кхси’Ра» во главе с Императрицей: титул передаётся по роду \
+	основательницы, а после смерти правительницы её дочери борются за власть, сдавая сложные экзамены и участвуя в \
+	спортивных состязаниях.<br/><br/>Культура унатхов во многом зависит от клана, но почти всем им свойственны \
+	религиозность, верность клановым обычаям, вспыльчивость и почтение к чести, доблести и воинскому мастерству. \
+	Официально Могес соблюдает нейтралитет, хотя империю нередко обвиняют в покровительстве \
+	рейдерам.<br/><br/>Родной язык унатхов — шипящий синта’унати, а сами себя они нередко зовут синта."
 
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,
@@ -268,6 +272,8 @@ They're basically just lizards with all-around marginally better stats and fire 
 /datum/species/unathi/draconid
 	name = SPECIES_DRACONOID
 	name_plural = "Draconids"
+	blurb = "Драконоиды — унатхи, изменённые силой некрополя Лазиса. Драконья чешуя защищает их лучше обычной, они \
+	двигаются чуть быстрее сородичей и умеют поджигать врагов."
 	flesh_color = "#A02720"
 	base_color = "#110101"
 	brute_mod = 0.8 //something something dragon scales

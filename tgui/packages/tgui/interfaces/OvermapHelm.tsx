@@ -97,6 +97,7 @@ type OvermapHelmData = {
   y: number;
   sector_name: string;
   sector_size: number;
+  sector_neighbors?: Record<string, string>;
   self_pos?: number[];
   view_range?: number;
   speed: number;
@@ -349,6 +350,7 @@ const FlightView = (props: {
         ) : (
           <OvermapSectorMap
             size={data.sector_size || 20}
+            neighbors={data.sector_neighbors}
             objects={data.objects || []}
             self={data.self_pos}
             facing={radar_enabled ? data.facing : data.heading}

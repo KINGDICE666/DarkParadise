@@ -181,6 +181,11 @@ GLOBAL_LIST_EMPTY(starlight)
 		return ..()
 
 	if(destination_z && destination_x && destination_y)
+		var/datum/overmap_bubble/local_space = SSovermap.bubble_for_turf(src)
+		if(local_space?.static_level && carries_mind(arrived))
+			if(!local_space.drift_beyond(arrived))
+				arrived.loc = old_loc
+			return ..()
 		destination_z = check_taipan_availability(arrived, destination_z)
 		if(!arrived.zMove(null, locate(destination_x, destination_y, destination_z), ZMOVE_ALLOW_BUCKLED|ZMOVE_WITH_DELAY))
 			arrived.loc = old_loc

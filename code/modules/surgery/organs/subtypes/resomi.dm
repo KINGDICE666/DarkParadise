@@ -161,5 +161,26 @@
 
 /datum/action/item_action/organ_action/resomi_listen
 	name = "Прислушаться"
-	desc = "Замедлиться и вслушаться в окружение: шаги, упавшие предметы и прочие звуки за стенами отмечаются на экране."
+	desc = "Замедлиться и вслушаться в окружение: движение существ, упавшие предметы и прочие звуки за стенами и в темноте отмечаются на экране."
 	button_icon_state = "resomi_listen"
+
+#define RESOMI_LISTEN_WAVE_START_SCALE 0.1
+#define RESOMI_LISTEN_WAVE_END_SCALE 5
+
+/obj/effect/temp_visual/sonar_ping/listen_wave
+	real_icon_state = "circle_wave"
+	duration = 1 SECONDS
+
+/obj/effect/temp_visual/sonar_ping/listen_wave/Initialize(mapload, mob/living/looker, atom/center)
+	. = ..()
+	if(. == INITIALIZE_HINT_QDEL)
+		return
+	modsuit_image.icon = 'icons/effects/64x64.dmi'
+	modsuit_image.pixel_w = -(ICON_SIZE_X / 2)
+	modsuit_image.pixel_z = -(ICON_SIZE_Y / 2)
+	modsuit_image.color = COLOR_CYAN
+	modsuit_image.transform = matrix().Scale(RESOMI_LISTEN_WAVE_START_SCALE)
+	animate(modsuit_image, transform = matrix().Scale(RESOMI_LISTEN_WAVE_END_SCALE), alpha = 0, time = duration, easing = SINE_EASING | EASE_OUT)
+
+#undef RESOMI_LISTEN_WAVE_START_SCALE
+#undef RESOMI_LISTEN_WAVE_END_SCALE
