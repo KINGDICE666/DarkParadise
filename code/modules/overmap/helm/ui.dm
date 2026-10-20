@@ -51,6 +51,11 @@
 	data["y"] = vessel.sector && here ? vessel.sector.coord_y(here) : here?.y
 	data["sector_name"] = vessel.sector?.name
 	data["sector_size"] = vessel.sector?.size || OVERMAP_DEFAULT_SIZE
+	var/list/neighbor_names = list()
+	for(var/side in vessel.sector?.neighbors)
+		var/datum/overmap_sector/neighbor = vessel.sector.neighbors[side]
+		neighbor_names[dir2text(text2num(side))] = neighbor.name
+	data["sector_neighbors"] = neighbor_names
 	if(vessel.sector && here)
 		data["self_pos"] = list(vessel.sector.coord_x(here) + vessel.position[1], vessel.sector.coord_y(here) + vessel.position[2])
 	var/speed = vessel.get_speed()

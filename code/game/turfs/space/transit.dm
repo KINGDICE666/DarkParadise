@@ -76,6 +76,10 @@
 		expose_to_hyperspace(dumpee)
 		return
 
+	var/datum/overmap_bubble/bubble = SSovermap.bubble_for_turf(origin)
+	if(bubble && carries_mind(dumpee))
+		bubble.drift_beyond(dumpee)
+		return
 	dump_to_linked_space_edge(dumpee)
 
 /proc/hyperspace_reservation_bounds(datum/turf_reservation/reservation)

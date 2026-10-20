@@ -78,6 +78,7 @@ SUBSYSTEM_DEF(overmap)
 	spawn_station()
 	spawn_service_sector()
 	spawn_wilderness()
+	link_neighbor_sectors()
 	spawn_hyperrelays()
 	register_roundstart_shuttles()
 	register_roundstart_pods()
@@ -138,6 +139,7 @@ SUBSYSTEM_DEF(overmap)
 		if(QDELETED(hazard))
 			continue
 		hazard.process_tick(elapsed)
+	lavaland_planet?.pull_drifters()
 	expire_bubbles()
 
 /datum/controller/subsystem/overmap/proc/create_typed_sector(sector_type)
@@ -455,6 +457,20 @@ SUBSYSTEM_DEF(overmap)
 	log_world("Overmap: wilderness sector '[wilderness_sector.name]' created ([wilderness_sector.size]x[wilderness_sector.size]).")
 	spawn_station_wilderness_relays()
 	wilderness_sector.populate_roundstart()
+
+/datum/controller/subsystem/overmap/proc/link_neighbor_sectors()
+	if(!station_sector)
+		return
+	var/list/free_sides = GLOB.cardinal.Copy()
+	for(var/sector_id in sectors)
+		var/datum/overmap_sector/neighbor = sectors[sector_id]
+		if(neighbor.sector_kind != OVERMAP_SECTOR_KIND_WILDERNESS || length(neighbor.neighbors))
+			continue
+		if(!length(free_sides))
+			return
+		var/side = pick_n_take(free_sides)
+		station_sector.link_neighbor(neighbor, side)
+		log_world("Overmap: sector '[neighbor.name]' linked [dir2text(side)] of '[station_sector.name]'.")
 
 /datum/controller/subsystem/overmap/proc/register_service_site(obj/overmap/entity/service_site/site)
 	if(!site?.site_id)

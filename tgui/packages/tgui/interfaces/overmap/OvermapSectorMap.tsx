@@ -102,6 +102,7 @@ const Glyph = (props: { object: SectorObject; radius: number }) => {
 
 export const OvermapSectorMap = (props: {
   size: number;
+  neighbors?: Record<string, string>;
   objects: SectorObject[];
   self?: number[];
   facing: number;
@@ -110,8 +111,17 @@ export const OvermapSectorMap = (props: {
   destName?: string;
   onPick: (x: number, y: number, name?: string) => void;
 }) => {
-  const { size, objects, self, facing, viewRange, dest, destName, onPick } =
-    props;
+  const {
+    size,
+    neighbors,
+    objects,
+    self,
+    facing,
+    viewRange,
+    dest,
+    destName,
+    onPick,
+  } = props;
   const [hover, setHover] = useState<string>();
   const toU = (x: number) => x - 0.5;
   const toV = (y: number) => size - (y - 0.5);
@@ -196,6 +206,51 @@ export const OvermapSectorMap = (props: {
           )}
         </g>
       ))}
+      {!!neighbors?.north && (
+        <text
+          className="OvermapSector__label OvermapSector__label--neighbor"
+          x={size / 2}
+          y={font * 1.2}
+          fontSize={font}
+          textAnchor="middle"
+        >
+          {`▲ ${neighbors.north}`}
+        </text>
+      )}
+      {!!neighbors?.south && (
+        <text
+          className="OvermapSector__label OvermapSector__label--neighbor"
+          x={size / 2}
+          y={size - font * 0.5}
+          fontSize={font}
+          textAnchor="middle"
+        >
+          {`▼ ${neighbors.south}`}
+        </text>
+      )}
+      {!!neighbors?.west && (
+        <text
+          className="OvermapSector__label OvermapSector__label--neighbor"
+          x={font * 0.4}
+          y={size / 2}
+          fontSize={font}
+          dominantBaseline="central"
+        >
+          {`◀ ${neighbors.west}`}
+        </text>
+      )}
+      {!!neighbors?.east && (
+        <text
+          className="OvermapSector__label OvermapSector__label--neighbor"
+          x={size - font * 0.4}
+          y={size / 2}
+          fontSize={font}
+          textAnchor="end"
+          dominantBaseline="central"
+        >
+          {`${neighbors.east} ▶`}
+        </text>
+      )}
       {hazards.map((hazard) => (
         <rect
           key={`${hazard.x}-${hazard.y}`}

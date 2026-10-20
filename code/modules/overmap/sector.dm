@@ -18,6 +18,7 @@
 
 	var/wraparound = TRUE
 	var/tile_travel = 1
+	var/list/datum/overmap_sector/neighbors = list()
 
 	var/list/datum/overmap_sector_message/comms_messages = list()
 
@@ -33,6 +34,10 @@
 	build_map()
 
 /datum/overmap_sector/Destroy()
+	for(var/side in neighbors)
+		var/datum/overmap_sector/neighbor = neighbors[side]
+		neighbor.neighbors -= "[REVERSE_DIR(text2num(side))]"
+	neighbors.Cut()
 	for(var/obj/overmap/overmap_object as anything in objects)
 		qdel(overmap_object)
 	objects.Cut()
@@ -247,6 +252,32 @@
 	objects -= overmap_object
 	if(overmap_object.sector == src)
 		overmap_object.sector = null
+
+/datum/overmap_sector/proc/link_neighbor(datum/overmap_sector/neighbor, side)
+	neighbors["[side]"] = neighbor
+	neighbor.neighbors["[REVERSE_DIR(side)]"] = src
+
+/datum/overmap_sector/proc/edge_entry_turf(side, fraction)
+	var/low = 2
+	var/high = size - 1
+	var/along = low + round(clamp(fraction, 0, 1) * (high - low))
+	switch(side)
+		if(NORTH)
+			return locate_local(along, high)
+		if(SOUTH)
+			return locate_local(along, low)
+		if(EAST)
+			return locate_local(high, along)
+		if(WEST)
+			return locate_local(low, along)
+
+/datum/overmap_sector/proc/world_bounds()
+	var/span = OVERMAP_TILE_SPAN * tile_travel
+	return list((origin_x + OVERMAP_TILE_EDGE) * span, (origin_y + OVERMAP_TILE_EDGE) * span, (origin_x + size - 2 + OVERMAP_TILE_EDGE) * span, (origin_y + size - 2 + OVERMAP_TILE_EDGE) * span)
+
+/datum/overmap_sector/proc/turf_at_world(world_x, world_y)
+	var/span = OVERMAP_TILE_SPAN * tile_travel
+	return locate(round(world_x / span, 1), round(world_y / span, 1), z_level)
 
 /datum/overmap_sector/proc/get_map_turfs()
 	return block(locate_local(1, 1), locate_local(size, size))
