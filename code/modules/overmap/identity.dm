@@ -49,6 +49,10 @@ GLOBAL_LIST_INIT(overmap_shuttle_profiles, build_overmap_shuttle_profiles())
 	shuttle_id = "mining"
 	identity_name = "Шахтёрский транспортный шаттл"
 
+/datum/overmap_shuttle_profile/explorer
+	shuttle_id = "explorer"
+	identity_name = "Исследовательский шаттл"
+
 /datum/overmap_shuttle_profile/laborcamp
 	shuttle_id = "laborcamp"
 	identity_name = "Тюремный транспортный шаттл"

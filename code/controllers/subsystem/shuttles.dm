@@ -102,11 +102,11 @@ SUBSYSTEM_DEF(shuttle)
 		CHECK_TICK
 
 /datum/controller/subsystem/shuttle/proc/load_map_shuttles()
-	var/list/overrides = SSmapping.map_datum?.shuttle_overrides
-	for(var/shuttle_id in overrides)
-		replace_shuttle(shuttle_id, overrides[shuttle_id])
+	var/list/map_shuttles = SSmapping.map_datum?.map_shuttles
+	for(var/shuttle_id in map_shuttles)
+		load_map_shuttle(shuttle_id, map_shuttles[shuttle_id])
 
-/datum/controller/subsystem/shuttle/proc/replace_shuttle(shuttle_id, template_key)
+/datum/controller/subsystem/shuttle/proc/load_map_shuttle(shuttle_id, template_key)
 	var/datum/turf_reservation/reservation = SSmapping.lazy_load_template(template_key)
 	if(!reservation)
 		CRASH("Failed to load shuttle template [template_key] for [shuttle_id]")
@@ -117,7 +117,7 @@ SUBSYSTEM_DEF(shuttle)
 			break
 	if(new_port?.id != shuttle_id)
 		CRASH("Shuttle template [template_key] has no mobile docking port with id [shuttle_id]")
-	var/obj/docking_port/mobile/old_port = getShuttle(shuttle_id)
+	var/obj/docking_port/mobile/old_port = assoc_mobile[shuttle_id]
 	old_port?.jumpToNullSpace()
 	new_port.register()
 

@@ -125,6 +125,6 @@
 	key = LAZY_TEMPLATE_KEY_SHUTTLE_SUPPLY_RUBIN
 	map_name = "cargo_rubin"
 
-/datum/lazy_template/map_shuttle/mining_rubin
-	key = LAZY_TEMPLATE_KEY_SHUTTLE_MINING_RUBIN
-	map_name = "mining_rubin"
+/datum/lazy_template/map_shuttle/explorer_rubin
+	key = LAZY_TEMPLATE_KEY_SHUTTLE_EXPLORER_RUBIN
+	map_name = "explorer_rubin"
