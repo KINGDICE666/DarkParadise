@@ -7,6 +7,8 @@
 // See initialization order in /code/game/world.dm
 GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 
+#define FAILSAFE_TIMER_STALL_TIME (30 SECONDS)
+
 /datum/controller/failsafe // This thing pretty much just keeps poking the master controller
 	name = "Failsafe"
 
@@ -116,6 +118,7 @@ GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 				else
 					defcon = min(defcon + 1, 5)
 					master_iteration = Master.iteration
+					check_timer_subsystem()
 			if(defcon <= 1)
 				sleep(processing_interval * 2)
 			else
@@ -123,6 +126,22 @@ GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 		else
 			defcon = 5
 			sleep(initial(processing_interval))
+
+/datum/controller/failsafe/proc/check_timer_subsystem()
+	var/datum/controller/subsystem/timer/timer_ss = SStimer
+	if(!timer_ss || timer_ss.can_fire <= 0 || (timer_ss.ss_flags & SS_NO_FIRE))
+		return
+	var/stalled_for = world.time - timer_ss.last_fire
+	if(stalled_for < FAILSAFE_TIMER_STALL_TIME)
+		return
+	var/message = "Timer subsystem has not fired for [stalled_for / 10] seconds (state [timer_ss.state], next_fire [timer_ss.next_fire], world.time [world.time], head_offset [timer_ss.head_offset], practical_offset [timer_ss.practical_offset], bucket_count [timer_ss.bucket_count], second_queue [length(timer_ss.second_queue)]). Restarting it."
+	log_world(message)
+	log_game(message)
+	message_admins(message)
+	timer_ss.dequeue()
+	timer_ss.state = SS_IDLE
+	timer_ss.next_fire = world.time
+	timer_ss.last_fire = world.time
 
 /// Emergency loop used when Master got deleted or the main loop exited while Defcon == 0
 /// Loop is driven externally so runtimes only cancel the current recovery attempt
@@ -181,3 +200,4 @@ GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 /datum/controller/failsafe/stat_entry(msg)
 	msg += "Defcon: [defcon_pretty()] (Interval: [Failsafe.processing_interval] | Iteration: [Failsafe.master_iteration])"
 	return ..()
+#undef FAILSAFE_TIMER_STALL_TIME

@@ -10,9 +10,10 @@
 #define OVERMAP_LOCAL_REENTRY_MARGIN 4
 #define OVERMAP_LOCAL_ARRIVAL_TURN_STEP 15
 #define OVERMAP_LOCAL_ARRIVAL_TURNS 12
-#define OVERMAP_TERRAIN_SEAM_SCALE 1.03
+#define OVERMAP_TERRAIN_SEAM_SCALE 1.08
 #define OVERMAP_TERRAIN_SPARE_TILES 32
-#define OVERMAP_TERRAIN_SIGHT_STEP 2
+#define OVERMAP_TERRAIN_SIGHT_STEP 1
+#define OVERMAP_TERRAIN_SIGHT_MIN_GAP (0.4 SECONDS)
 
 /datum/terrain_view
 	var/obj/overmap/entity/vessel
@@ -29,6 +30,7 @@
 	var/turf/sight_eye
 	var/list/turf/in_sight
 	var/next_sight_refresh = 0
+	var/last_sight_refresh = 0
 
 /datum/terrain_view/New(obj/overmap/entity/vessel, datum/overmap_bubble/local_space)
 	src.vessel = vessel
@@ -74,8 +76,9 @@
 	var/center_y = round(spot[2], 1)
 	var/hull_reach = (vessel.hull_radius + 1) ** 2
 	var/turf/eye = locate(center_x, center_y, local_space.bubble_z)
-	if(world.time >= next_sight_refresh || !eye || !sight_eye || get_dist(eye, sight_eye) >= OVERMAP_TERRAIN_SIGHT_STEP)
+	if(world.time >= next_sight_refresh || !eye || !sight_eye || (get_dist(eye, sight_eye) >= OVERMAP_TERRAIN_SIGHT_STEP && world.time >= last_sight_refresh + OVERMAP_TERRAIN_SIGHT_MIN_GAP))
 		sight_eye = eye
+		last_sight_refresh = world.time
 		next_sight_refresh = world.time + OVERMAP_SLOW_TICK
 		in_sight = null
 		if(eye)
@@ -140,7 +143,7 @@
 			qdel(carrier)
 	for(var/turf/shown as anything in fresh)
 		var/obj/effect/abstract/hull_proxy_tile/tile = add_tile(shown)
-		tile.set_occluded(fresh[shown])
+		tile.set_occluded(fresh[shown], TRUE)
 		tile.shift(tile.base_x * cos_facing - tile.base_y * sin_facing, tile.base_x * sin_facing + tile.base_y * cos_facing, turned, 0)
 	for(var/key in carriers)
 		var/obj/effect/abstract/hull_proxy_tile/carrier/carrier = carriers[key]
@@ -164,14 +167,13 @@
 	var/obj/effect/abstract/hull_proxy_tile/tile = pop(spare_tiles)
 	if(tile)
 		animate(tile)
-		tile.set_occluded(FALSE)
 		tile.vis_contents.Cut()
 	else
 		tile = new(null)
 	tile.base_x = (shown.x - chunk_x) * ICON_SIZE_X
 	tile.base_y = (shown.y - chunk_y) * ICON_SIZE_Y
-	tile.hull_turf = shown
-	tile.vis_contents += shown
+	tile.show_turf(shown)
+	tile.set_occluded(FALSE, TRUE)
 	tile.setup_shading(viewer_turf)
 	tiles[shown] = tile
 	carrier.add_member(tile)
@@ -358,3 +360,4 @@
 #undef OVERMAP_TERRAIN_SEAM_SCALE
 #undef OVERMAP_TERRAIN_SPARE_TILES
 #undef OVERMAP_TERRAIN_SIGHT_STEP
+#undef OVERMAP_TERRAIN_SIGHT_MIN_GAP

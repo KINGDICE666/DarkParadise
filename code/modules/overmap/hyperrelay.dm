@@ -197,8 +197,15 @@
 		if(!QDELETED(sensor))
 			sensor.update_map_view(TRUE)
 	start_hyperrelay_transit_fx()
-	addtimer(CALLBACK(src, PROC_REF(finish_hyperrelay_jump), relay), OVERMAP_HYPERRELAY_JUMP_TIME)
+	hyperrelay_jump_from = relay
 	return TRUE
+
+/obj/overmap/entity/proc/check_hyperrelay_jump()
+	if(!hyperrelay_jump_from || world.time < overmap_jammed_until)
+		return
+	var/obj/overmap/entity/hyperrelay/from_relay = hyperrelay_jump_from
+	hyperrelay_jump_from = null
+	finish_hyperrelay_jump(from_relay)
 
 /obj/overmap/entity/proc/finish_hyperrelay_jump(obj/overmap/entity/hyperrelay/from_relay)
 	overmap_jammed_until = 0

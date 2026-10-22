@@ -194,7 +194,7 @@
 
 /obj/machinery/computer/shuttle/process()
 	. = ..()
-	if(!uses_overmap_remote_ui())
+	if(!length(open_uis) || !uses_overmap_remote_ui())
 		return
 	if(shuttle_vessel())
 		update_overmap_request_map()

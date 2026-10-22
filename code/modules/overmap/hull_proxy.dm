@@ -1,4 +1,4 @@
-#define HULL_PROXY_SEAM_SCALE 1.03
+#define HULL_PROXY_SEAM_SCALE 1.08
 #define HULL_PROXY_SHADING_SCALE 1.3
 #define HULL_PROXY_LIGHT_COPY_INTERVAL (1 SECONDS)
 #define HULL_PROXY_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 1)
@@ -8,6 +8,7 @@
 #define HULL_PROXY_GLOW_POWER 0.6
 #define HULL_PROXY_GLOW_COLOR "#cfe0ff"
 #define HULL_PROXY_SIGHT_INTERVAL (0.5 SECONDS)
+#define HULL_PROXY_FADE_TIME (0.25 SECONDS)
 
 /datum/hull_proxy
 	var/obj/overmap/entity/vessel
@@ -32,6 +33,8 @@
 	var/obj/effect/abstract/hull_proxy_tile/carrier/carrier
 	var/obj/effect/abstract/hull_proxy_light/light_mask
 	var/obj/effect/abstract/hull_proxy_shade/shade
+	var/obj/effect/abstract/hull_proxy_view/view
+	var/obj/effect/abstract/hull_proxy_dark/dark
 	var/copied_light_state
 	var/list/copied_light_color
 	var/corner_mask
@@ -58,6 +61,27 @@
 	simulated = FALSE
 	light_color = HULL_PROXY_GLOW_COLOR
 	light_power = HULL_PROXY_GLOW_POWER
+
+/obj/effect/abstract/hull_proxy_view
+	name = "hull proxy view"
+	invisibility = 0
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
+
+/obj/effect/abstract/hull_proxy_view/Destroy()
+	vis_contents.Cut()
+	return ..()
+
+/obj/effect/abstract/hull_proxy_dark
+	name = "hull proxy dark"
+	icon = 'icons/effects/alphacolors.dmi'
+	icon_state = "white"
+	color = COLOR_BLACK
+	alpha = 0
+	invisibility = 0
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	simulated = FALSE
+	appearance_flags = RESET_ALPHA
 
 /obj/effect/abstract/hull_proxy_shade
 	name = "hull proxy shade"
@@ -90,8 +114,7 @@
 		var/obj/effect/abstract/hull_proxy_tile/tile = new(null)
 		tile.base_x = (hull_turf.x - chunk_x) * ICON_SIZE_X
 		tile.base_y = (hull_turf.y - chunk_y) * ICON_SIZE_Y
-		tile.hull_turf = hull_turf
-		tile.vis_contents += hull_turf
+		tile.show_turf(hull_turf)
 		tile.setup_shading(viewer_turf)
 		carrier.add_member(tile)
 	RegisterSignal(vessel, COMSIG_QDELETING, PROC_REF(on_vessel_deleted))
@@ -121,6 +144,8 @@
 	vis_contents.Cut()
 	QDEL_NULL(light_mask)
 	QDEL_NULL(shade)
+	QDEL_NULL(view)
+	QDEL_NULL(dark)
 	hull_turf = null
 	carrier = null
 	copied_light_color = null
@@ -224,23 +249,33 @@
 	copy_light()
 	vis_contents += light_mask
 
-/obj/effect/abstract/hull_proxy_tile/proc/set_occluded(new_occluded)
-	if(occluded == !!new_occluded)
+/obj/effect/abstract/hull_proxy_tile/proc/show_turf(turf/shown)
+	hull_turf = shown
+	if(!view)
+		view = new(src)
+	view.vis_contents.Cut()
+	view.vis_contents += shown
+	vis_contents |= view
+	if(!dark)
+		dark = new(src)
+	vis_contents |= dark
+
+/obj/effect/abstract/hull_proxy_tile/proc/set_occluded(new_occluded, instant = FALSE)
+	if(occluded == !!new_occluded && !instant)
 		return
 	occluded = !!new_occluded
-	if(occluded)
-		vis_contents -= hull_turf
-		vis_contents -= light_mask
-		icon = 'icons/effects/alphacolors.dmi'
-		icon_state = "white"
-		color = COLOR_BLACK
+	if(!view || !dark)
 		return
-	icon = null
-	icon_state = null
-	color = null
-	vis_contents += hull_turf
-	if(light_mask)
-		vis_contents += light_mask
+	var/view_alpha = occluded ? 0 : 255
+	var/dark_alpha = occluded ? 255 : 0
+	if(instant)
+		animate(view)
+		animate(dark)
+		view.alpha = view_alpha
+		dark.alpha = dark_alpha
+		return
+	animate(view, alpha = view_alpha, time = HULL_PROXY_FADE_TIME)
+	animate(dark, alpha = dark_alpha, time = HULL_PROXY_FADE_TIME)
 
 /obj/effect/abstract/hull_proxy_tile/proc/copy_light()
 	var/atom/movable/lighting_object/source_light = hull_turf.lighting_object
@@ -289,3 +324,4 @@
 #undef HULL_PROXY_GLOW_POWER
 #undef HULL_PROXY_GLOW_COLOR
 #undef HULL_PROXY_SIGHT_INTERVAL
+#undef HULL_PROXY_FADE_TIME

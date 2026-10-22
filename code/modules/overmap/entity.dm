@@ -46,6 +46,7 @@
 	var/datum/component/overmap_sensors/sensor_pack
 	var/list/datum/overmap_iff_channel/virtual_iff_channels
 	var/overmap_jammed_until = 0
+	var/obj/overmap/entity/hyperrelay/hyperrelay_jump_from
 	var/overmap_jam_was_halted = FALSE
 	var/next_overmap_hazard_carp = 0
 	var/next_overmap_hazard_hit = 0
@@ -162,6 +163,7 @@
 
 /obj/overmap/entity/Destroy()
 	SSovermap.vessels -= src
+	hyperrelay_jump_from = null
 	for(var/obj/machinery/ship_engine/engine as anything in engines)
 		if(engine.vessel == src)
 			engine.vessel = null
@@ -213,7 +215,7 @@
 	return identity_broadcasting
 
 /obj/overmap/entity/proc/is_overmap_jammed()
-	return world.time < overmap_jammed_until
+	return world.time < overmap_jammed_until || !!hyperrelay_jump_from
 
 /obj/overmap/entity/proc/get_iff_channels()
 	if(transponder)
