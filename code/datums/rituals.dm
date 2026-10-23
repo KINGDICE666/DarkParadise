@@ -1024,7 +1024,7 @@
 
 	var/mob/mob = pick(candidates)
 	animal.possess_by_player(mob.ckey)
-	animal.universal_speak = 1
+	animal.grant_all_languages()
 	animal.sentience_act()
 	animal.can_collar = 1
 	animal.maxHealth = max(animal.maxHealth, 200)

@@ -16,7 +16,7 @@
 	на хитиновом языке."
 	icobase = 'icons/mob/human_races/r_kidan.dmi'
 	deform = 'icons/mob/human_races/r_def_kidan.dmi'
-	language = LANGUAGE_KIDAN
+	species_language_holder = /datum/language_holder/kidan
 	unarmed_type = /datum/unarmed_attack/claws
 
 	inherent_traits = list(
@@ -119,7 +119,7 @@
 		"s" = list("z", "zs", "zzz", "zzsz"),
 		"с" = list("з", "зс", "ззз", "ззсз"),
 	)
-	autohiss_exempt = list("Хитин")
+	autohiss_exempt = list(/datum/language/kidan)
 
 /datum/species/kidan/get_species_runechat_color(mob/living/carbon/human/H)
 	var/obj/item/organ/internal/eyes/E = H.get_int_organ(/obj/item/organ/internal/eyes)

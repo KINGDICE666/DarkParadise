@@ -70,7 +70,7 @@
 	force_threshold = 6 // Prevents people using punches to bypass eshield
 	robust_searching = 1 // Together with stat_attack, ensures dionae/etc that regen are killed properly
 	stat_attack = UNCONSCIOUS
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	icon_state = "syndicate_swordonly"
 	icon_living = "syndicate_swordonly"
 	melee_block_chance = 0

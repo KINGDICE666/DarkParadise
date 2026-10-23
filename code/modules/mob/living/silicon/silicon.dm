@@ -4,6 +4,7 @@
 	has_unlimited_silicon_privilege = TRUE
 	weather_immunities = list(TRAIT_WEATHER_IMMUNE)
 	abstract_type = /mob/living/silicon
+	initial_language_holder = /datum/language_holder/atom_basic
 	looting_icon_mode = LOOT_ICON_FLAT_ICON_TYPE_CACHABLE
 	examine_cursor_icon = null
 	var/syndicate = 0
@@ -16,7 +17,6 @@
 	var/list/alarm_types_show = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 	var/list/alarm_types_clear = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 	var/list/alarms_listend_for = list("Motion", "Fire", "Atmosphere", "Power", "Camera")
-	var/list/speech_synthesizer_langs = list()	//which languages can be vocalized by the speech synthesizer
 	var/designation = ""
 	var/obj/item/camera/siliconcam/aiCamera = null //photography
 //Used in say.dm, allows for pAIs to have different say flavor text, as well as silicons, although the latter is not implemented.
@@ -85,8 +85,6 @@
 /mob/living/silicon/Initialize(mapload)
 	. = ..()
 	GLOB.silicon_mob_list |= src
-
-	add_language(LANGUAGE_GALACTIC_COMMON)
 
 	init_subsystems()
 
@@ -294,40 +292,6 @@
 	var/list/status_tab_data = ..()
 	. = status_tab_data
 	status_tab_data[++status_tab_data.len] = show_system_integrity()
-
-//Silicon mob language procs
-
-/mob/living/silicon/can_speak_language(datum/language/speaking)
-	return universal_speak || (speaking in speech_synthesizer_langs)	//need speech synthesizer support to vocalize a language
-
-/mob/living/silicon/add_language(language, can_speak = TRUE)
-	if(..(language) && can_speak)
-		speech_synthesizer_langs.Add(GLOB.all_languages[language])
-		return TRUE
-
-/mob/living/silicon/remove_language(language_name)
-	..(language_name)
-
-	for(var/datum/language/language in speech_synthesizer_langs)
-		if(language.name == language_name)
-			speech_synthesizer_langs -= language
-
-/mob/living/silicon/check_lang_data()
-	. = list()
-
-	if(default_language)
-		. += "Current default language: [default_language] - <a href='byond://?src=[UID()];default_lang=reset'>reset</a><br><br>"
-
-	for(var/datum/language/language in languages)
-		if(!(language.flags & NONGLOBAL))
-			var/default_str
-			if(language == default_language)
-				default_str = " - default - <a href='byond://?src=[UID()];default_lang=reset'>reset</a>"
-			else
-				default_str = " - <a href=\"byond://?src=[UID()];default_lang=[language]\">set default</a>"
-
-			var/synth = (language in speech_synthesizer_langs)
-			. += "<b>[language.name] (:[language.key])</b>[synth ? default_str : null]<br>Speech Synthesizer: <i>[synth ? "YES" : "NOT SUPPORTED"]</i><br>[language.desc]<br><br>"
 
 // this function displays the stations manifest in a separate window
 /mob/living/silicon/proc/show_station_manifest()

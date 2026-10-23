@@ -1,3 +1,4 @@
+use crate::paths::game_path;
 use dmi::{
     error::DmiError,
     icon::{Icon, Looping},
@@ -89,9 +90,11 @@ fn strip_metadata(path: &str) -> ByondResult<()> {
 }
 
 fn read_png(path: &str) -> ByondResult<(Reader<BufReader<File>>, OutputInfo, Vec<u8>)> {
-    let mut reader = Decoder::new(BufReader::new(File::open(path).map_err(ByondError::boxed)?))
-        .read_info()
-        .map_err(ByondError::boxed)?;
+    let mut reader = Decoder::new(BufReader::new(
+        File::open(game_path(path)).map_err(ByondError::boxed)?,
+    ))
+    .read_info()
+    .map_err(ByondError::boxed)?;
     let buffer_size = reader.output_buffer_size().ok_or_else(|| {
         ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(
             "Failed to determine output buffer size",
@@ -112,7 +115,7 @@ fn write_png(
 ) -> ByondResult<()> {
     let reader_info = reader.info();
     let mut encoder = Encoder::new(
-        File::create(path).map_err(ByondError::boxed)?,
+        File::create(game_path(path)).map_err(ByondError::boxed)?,
         info.width,
         info.height,
     );
@@ -167,14 +170,15 @@ fn create_png(path: &str, width: &str, height: &str, data: &str) -> ByondResult<
         }
     }
 
-    if let Some(fdir) = Path::new(path).parent() {
+    let path = game_path(path);
+    if let Some(fdir) = path.parent() {
         if !fdir.is_dir() {
             create_dir_all(fdir).map_err(ByondError::boxed)?;
         }
     }
 
     let mut encoder = Encoder::new(
-        File::create(path).map_err(ByondError::boxed)?,
+        File::create(&path).map_err(ByondError::boxed)?,
         width,
         height,
     );
@@ -195,12 +199,13 @@ fn resize_png<P: AsRef<Path>>(
     let width = width.parse::<u32>().map_err(ByondError::boxed)?;
     let height = height.parse::<u32>().map_err(ByondError::boxed)?;
 
-    let img = image::open(path.as_ref()).map_err(ByondError::boxed)?;
+    let path = game_path(path);
+    let img = image::open(&path).map_err(ByondError::boxed)?;
 
     let newimg = img.resize(width, height, resizetype);
 
     Ok(newimg
-        .save_with_format(path.as_ref(), image::ImageFormat::Png)
+        .save_with_format(&path, image::ImageFormat::Png)
         .map_err(ByondError::boxed)?)
 }
 
@@ -208,7 +213,7 @@ fn resize_png<P: AsRef<Path>>(
 ///
 /// Erroring at any point will produce an empty string
 fn read_states(path: &str) -> ByondResult<ByondValue> {
-    let file = File::open(path)
+    let file = File::open(game_path(path))
         .map(BufReader::new)
         .map_err(ByondError::boxed)?;
     let decoder = png::Decoder::new(file);
@@ -279,7 +284,7 @@ struct DmiMetadata {
 
 fn read_metadata(path: &str) -> ByondResult<String> {
     let dmi = Icon::load_meta(
-        File::open(path)
+        File::open(game_path(path))
             .map(BufReader::new)
             .map_err(ByondError::boxed)?,
     )
@@ -316,7 +321,8 @@ fn read_metadata(path: &str) -> ByondResult<String> {
 }
 
 fn inject_metadata(path: &str, metadata: &str) -> ByondResult<()> {
-    let read_file = File::open(path)
+    let path = game_path(path);
+    let read_file = File::open(&path)
         .map(BufReader::new)
         .map_err(ByondError::boxed)?;
     let decoder = png::Decoder::new(read_file);
@@ -394,7 +400,7 @@ fn inject_metadata(path: &str, metadata: &str) -> ByondResult<()> {
     while let Some(row) = reader.next_row().map_err(ByondError::boxed)? {
         raw_image_data.append(&mut row.data().to_vec());
     }
-    let encoder = png::Encoder::with_info(File::create(path).map_err(ByondError::boxed)?, info)
+    let encoder = png::Encoder::with_info(File::create(&path).map_err(ByondError::boxed)?, info)
         .map_err(ByondError::boxed)?;
     encoder
         .write_header()
@@ -412,7 +418,9 @@ fn create_qr_code_png(path: ByondValue, data: ByondValue) -> ByondResult<ByondVa
     let code = QrCode::new(data_str.as_bytes()).map_err(ByondError::boxed)?;
     let image = code.render::<Rgba<u8>>().build();
 
-    image.save(&path_str).map_err(ByondError::boxed)?;
+    image
+        .save(game_path(&path_str))
+        .map_err(ByondError::boxed)?;
     Ok(path)
 }
 

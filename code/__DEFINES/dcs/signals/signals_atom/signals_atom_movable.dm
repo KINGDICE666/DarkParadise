@@ -43,13 +43,15 @@
 #define COMSIG_MOVABLE_SECLUDED_LOCATION "movable_secluded"
 ///from base of atom/movable/Hear(): (proc args list(message, atom/movable/speaker, message_language, raw_message, radio_freq, list/spans, message_mode))
 #define COMSIG_MOVABLE_HEAR "movable_hear"
-	#define HEARING_MESSAGE 1
-	#define HEARING_SPEAKER 2
-//	#define HEARING_LANGUAGE 3
-	#define HEARING_RAW_MESSAGE 4
-	/* #define HEARING_RADIO_FREQ 5
-	#define HEARING_SPANS 6
-	#define HEARING_MESSAGE_MODE 7 */
+	#define HEARING_SPEAKER 1
+	#define HEARING_LANGUAGE 2
+	#define HEARING_RAW_MESSAGE 3
+	#define HEARING_RADIO_FREQ 4
+	#define HEARING_RADIO_FREQ_NAME 5
+	#define HEARING_RADIO_FREQ_COLOR 6
+	#define HEARING_SPANS 7
+	#define HEARING_MESSAGE_MODE 8
+	#define HEARING_RANGE 9
 ///called when the movable sucessfully has it's anchored var changed, from base atom/movable/set_anchored(): (value)
 #define COMSIG_MOVABLE_SET_ANCHORED "movable_set_anchored"
 ///from base of atom/movable/setGrabState(): (newstate)

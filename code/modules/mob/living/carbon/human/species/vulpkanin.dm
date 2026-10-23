@@ -4,7 +4,7 @@
 	ru_genitive = "вульпканина"
 	icobase = 'icons/mob/human_races/r_vulpkanin.dmi'
 	deform = 'icons/mob/human_races/r_vulpkanin.dmi'
-	language = LANGUAGE_VULPKANIN
+	species_language_holder = /datum/language_holder/vulpkanin
 	primitive_form = /datum/species/monkey/vulpkanin
 	tail = "vulptail"
 	skinned_type = /obj/item/stack/sheet/fur
@@ -88,7 +88,7 @@
 		"r" = list("r", "rr", "rrr"),
 		"р" = list("р", "рр", "ррр"),
 	)
-	autohiss_exempt = list("Канилунц")
+	autohiss_exempt = list(/datum/language/vulpkanin)
 
 
 /datum/species/vulpkanin/handle_death(gibbed, mob/living/carbon/human/H)

@@ -31,7 +31,7 @@
 	var/info_links	//A different version of the paper which includes html links at fields and EOF
 	var/stamps		//The (text for the) stamps on the paper.
 	var/fields = 0		//Amount of user created fields
-	var/language = LANGUAGE_GALACTIC_COMMON //The language of paper. For now using only in case of Thetta
+	var/datum/language/language = /datum/language/common //The language of paper. For now using only in case of Thetta
 	var/list/stamped
 	///Prevents stamp overflow
 	var/stamp_limit = 20
@@ -95,7 +95,7 @@
 	assets.send(user)
 
 	var/data
-	var/stars = (!user.say_understands(null, GLOB.all_languages[language]) && !forceshow) || forcestars || !user.is_literate()
+	var/stars = (user.stat != DEAD && !user.has_language(language) && !forceshow) || forcestars || !user.is_literate()
 	if(stars) //assuming all paper is written in common is better than hardcoded type checks
 		data = "[header][stars(info)][footer][stamps]"
 	else
@@ -703,7 +703,7 @@
 /obj/item/paper/ussp
 	header = "<p><img style='display: block; margin-left: auto; margin-right: auto;' src='ussplogo.png' width='220' height='135' /></p><hr />"
 	info =  ""
-	language = LANGUAGE_NEO_RUSSIAN
+	language = /datum/language/com_srus
 
 /obj/item/paper/solgov
 	header = "<p><img style='display: block; margin-left: auto; margin-right: auto;' src='solgovlogo.png' width='220' height='135' /></p><hr />"
@@ -711,7 +711,7 @@
 
 /obj/item/paper/human
 	info =  ""
-	language = LANGUAGE_SOL_COMMON
+	language = /datum/language/human
 
 /obj/item/paper/central_command
 	name = "Директива Центрального командования"

@@ -826,3 +826,31 @@
 /proc/sanitize_css_class_name(name)
 	var/static/regex/regex = new(@"[^a-zA-Z0-9]","g")
 	return replacetext(name, regex, "")
+
+#define STRIPPED_PUNCTUATION (REGEX_QUOTE("!?.~;:,|+_`-"))
+
+/proc/strip_outer_punctuation(input)
+	var/static/regex/pre_word_regex = new("^(?:\[[STRIPPED_PUNCTUATION]\]{0,3})(.*)", "m")
+	if(pre_word_regex.Find(input))
+		input = pre_word_regex.group[1]
+
+	var/static/regex/post_word_regex = new("^(.*?)(?:\[[STRIPPED_PUNCTUATION]\]{0,3})$", "m")
+	if(post_word_regex.Find(input))
+		return trim(post_word_regex.group[1])
+
+	return trim(input)
+
+#undef STRIPPED_PUNCTUATION
+
+/proc/find_last_punctuation(input)
+	var/static/regex/punctuation_regex = new(@"([!?.~;:,-]{1,3})[|+_\s]*$", "m")
+	if(punctuation_regex.Find(input))
+		return punctuation_regex.group[1]
+
+	return ""
+
+/proc/is_uppercase(input)
+	var/static/regex/lowercase_regex = new(@"[a-zа-яё]", "g")
+	if(lowercase_regex.Find(input))
+		return FALSE
+	return TRUE

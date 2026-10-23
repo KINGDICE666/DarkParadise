@@ -162,7 +162,7 @@
 	ninja_dna_record.id = copytext(md5(ninja_brain.dna.real_name), 2, 6)
 	ninja_dna_record.name = ninja_brain.dna.real_name
 	ninja_dna_record.types = DNA2_BUF_UI|DNA2_BUF_UE|DNA2_BUF_SE
-	ninja_dna_record.languages = subject.languages
+	ninja_dna_record.languages = subject.get_language_holder().get_mind_languages()
 	//Add an implant if needed
 	var/obj/item/implant/health/imp = locate(/obj/item/implant/health, subject)
 	if(!imp)

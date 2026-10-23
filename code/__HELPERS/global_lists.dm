@@ -20,21 +20,9 @@
 
 	init_datum_subtypes(/datum/job, GLOB.joblist, list(/datum/job/ai, /datum/job/cyborg), "title")
 	init_datum_subtypes(/datum/superheroes, GLOB.all_superheroes, null, "name")
-	init_datum_subtypes(/datum/language, GLOB.all_languages, null, "name")
 	init_datum_subtypes(/datum/secspear_mode, GLOB.secspear_modes, null, "name")
 
 	init_datum_subtypes(/datum/devil_contract, GLOB.devil_contracts, list(/datum/devil_contract), "contract_type")
-
-	// Setup languages
-	for(var/language_name in GLOB.all_languages)
-		var/datum/language/language = GLOB.all_languages[language_name]
-		if(!(language.flags & NONGLOBAL))
-			GLOB.language_keys[":[lowertext(language.key)]"] = language
-			GLOB.language_keys[".[lowertext(language.key)]"] = language
-			GLOB.language_keys["#[lowertext(language.key)]"] = language
-			GLOB.language_keys[":[sanitize_english_string_to_russian(language.key)]"] = language
-			GLOB.language_keys[".[sanitize_english_string_to_russian(language.key)]"] = language
-			GLOB.language_keys["#[sanitize_english_string_to_russian(language.key)]"] = language
 
 	var/race_key_counter = 0
 	for(var/species_path in subtypesof(/datum/species))

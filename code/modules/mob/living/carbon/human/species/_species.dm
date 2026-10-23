@@ -186,9 +186,8 @@
 		"задерживает дыхание!")
 
 	// Language/culture vars.
-	var/default_language = LANGUAGE_GALACTIC_COMMON //! Default language is used when 'say' is used without modifiers.
-	var/language = LANGUAGE_GALACTIC_COMMON //! Default racial language, if any.
-	var/secondary_langs = list() //! The keys of secondary languages that are available to this species.
+	var/species_language_holder = /datum/language_holder/human_basic
+	var/datum/saymode/default_saymode
 	var/list/speech_sounds //! A list of sounds to potentially play when speaking.
 	var/list/speech_chance //! The likelihood of a speech sound playing.
 	var/scream_verb = "крич%(ит,ат)%" //! Special symbols used to apply correct gender. See [/proc/genderize_decode] for more info.
@@ -302,8 +301,14 @@
 	unarmed = new unarmed_type()
 
 /datum/species/proc/get_random_name(gender)
-	var/datum/language/species_language = GLOB.all_languages[language]
-	return species_language.get_random_name(gender)
+	var/datum/language_holder/holder = GLOB.prototype_language_holders[species_language_holder]
+	var/list/languages_to_pick_from = assoc_to_keys(holder.spoken_languages)
+	if(length(languages_to_pick_from) >= 2)
+		languages_to_pick_from -= /datum/language/common
+	if(!length(languages_to_pick_from))
+		languages_to_pick_from += /datum/language/common
+	var/datum/language/picked = GLOB.language_datum_instances[pick(languages_to_pick_from)]
+	return picked.get_random_name(gender)
 
 /datum/species/proc/is_allowed_hair_style(mob/living/carbon/human/human, datum/robolimb/robohead, datum/sprite_accessory/style)
 	return TRUE
@@ -417,6 +422,18 @@
 	if(length(inherent_traits))
 		target.add_traits(inherent_traits, SPECIES_TRAIT)
 
+	var/datum/language_holder/gaining_holder = GLOB.prototype_language_holders[species_language_holder]
+	for(var/language in gaining_holder.understood_languages)
+		target.grant_language(language, UNDERSTOOD_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in gaining_holder.spoken_languages)
+		target.grant_language(language, SPOKEN_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in gaining_holder.blocked_speaking)
+		target.add_blocked_language(language, SPOKEN_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in gaining_holder.blocked_understanding)
+		target.add_blocked_language(language, UNDERSTOOD_LANGUAGE, LANGUAGE_SPECIES)
+	if(gaining_holder.selected_language)
+		target.set_active_language(gaining_holder.selected_language)
+
 	if(inherent_factions)
 		for(var/i in inherent_factions)
 			target.faction += i //Using +=/-= for this in case you also gain the faction from a different source.
@@ -487,6 +504,16 @@
 
 	if(length(inherent_traits))
 		human.remove_traits(inherent_traits, SPECIES_TRAIT)
+
+	var/datum/language_holder/losing_holder = GLOB.prototype_language_holders[species_language_holder]
+	for(var/language in losing_holder.understood_languages)
+		human.remove_language(language, UNDERSTOOD_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in losing_holder.spoken_languages)
+		human.remove_language(language, SPOKEN_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in losing_holder.blocked_speaking)
+		human.remove_blocked_language(language, SPOKEN_LANGUAGE, LANGUAGE_SPECIES)
+	for(var/language in losing_holder.blocked_understanding)
+		human.remove_blocked_language(language, UNDERSTOOD_LANGUAGE, LANGUAGE_SPECIES)
 
 	human.meatleft = initial(human.meatleft)
 
@@ -901,9 +928,6 @@
 	return
 
 /datum/species/proc/after_equip_job(datum/job/J, mob/living/carbon/human/H, visualsOnly = FALSE)
-	return
-
-/datum/species/proc/can_understand(mob/other)
 	return
 
 // Called in life() when the mob has no client.

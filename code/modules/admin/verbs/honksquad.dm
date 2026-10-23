@@ -84,7 +84,7 @@ GLOBAL_VAR_INIT(sent_clownsequritysquad, 0)
 	//Creates mind stuff.
 	new_honksquad.mind_initialize()
 	new_honksquad.mind.assigned_role = SPECIAL_ROLE_HONKSQUAD
-	new_honksquad.add_language(LANGUAGE_CLOWN)
+	new_honksquad.grant_language(/datum/language/clown)
 	new_honksquad.change_voice()
 	new_honksquad.equip_honksquad(honk_leader_selected, rankName)
 	return new_honksquad

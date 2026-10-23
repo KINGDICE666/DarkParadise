@@ -76,7 +76,7 @@ Made by Xhuis
 /datum/game_mode/proc/greet_shadow(datum/mind/shadow)
 	var/list/messages = list()
 	messages.Add("<b>В настоящее время ты замаскирован под члена экипажа [station_name()].</b>")
-	messages.Add("<b>В твоём текущем состоянии у тебя есть две способности: Раскрытие и Телепатическая сеть тенелингов. '[get_language_prefix(LANGUAGE_HIVE_SHADOWLING)]'.</b>")
+	messages.Add("<b>В твоём текущем состоянии у тебя есть две способности: Раскрытие и Телепатическая сеть тенелингов. ':[/datum/saymode/hivemind/shadowling::key]'.</b>")
 	messages.Add("<b>Любые другие тенелинги — твои союзники. Ты должен помогать им, как и они будут помогать тебе..</b>")
 	return messages
 
@@ -95,7 +95,7 @@ Made by Xhuis
 
 /datum/game_mode/proc/finalize_shadowling(datum/mind/shadow_mind)
 	shadow_mind.AddSpell(new /datum/action/cooldown/spell/shadowling_hatch)
-	shadow_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
+	ADD_TRAIT(shadow_mind.current, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 
 /datum/game_mode/proc/add_thrall(datum/mind/new_thrall_mind)
 	if(!istype(new_thrall_mind) || new_thrall_mind.has_antag_datum(/datum/antagonist/shadowling_thrall))

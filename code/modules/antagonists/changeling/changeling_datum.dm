@@ -120,7 +120,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	if(ishuman(user))
 		START_PROCESSING(SSobj, src)
 
-	add_new_languages(user.languages) // Absorb the languages of the new body.
+	add_new_languages(user.get_language_holder().spoken_languages) // Absorb the languages of the new body.
 	update_languages() // But also, give the changeling the languages they've already absorbed before this.
 
 	// If there's a mob_override, this is a body transfer, and therefore we should give them back their powers they had while in the old body.
@@ -352,19 +352,16 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
  * * list/new_languages - a list of [/datum/language] to be added
  */
 /datum/antagonist/changeling/proc/add_new_languages(list/new_languages)
-	for(var/datum/language/language in new_languages)
-		if(is_type_in_UID_list(language, absorbed_languages))
-			continue
-		owner.current.add_language(language.name)
-		absorbed_languages += language.UID()
+	for(var/language in new_languages)
+		absorbed_languages |= language
+	update_languages()
 
 /**
  * Teach the changeling every language in the `absorbed_language` list. Already known languages will be ignored.
  */
 /datum/antagonist/changeling/proc/update_languages()
-	for(var/lang_UID in absorbed_languages)
-		var/datum/language/language = locateUID(lang_UID)
-		owner.current.add_language(language.name)
+	for(var/language in absorbed_languages)
+		owner.current.grant_language(language, source = LANGUAGE_ABSORB)
 
 /**
  * Removes all the languages the mob `user` has absorbed throughout their life as a changeling and should no longer have.
@@ -375,23 +372,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
  * * mob/living/user - the changeling mob to remove languages from
  */
 /datum/antagonist/changeling/proc/remove_unnatural_languages(mob/living/user)
-	var/list/ignored_languages = list()
-
-	// Check if user is actually that player's character or just someone they transformed into.
-	if(user.client?.prefs.read_preference(/datum/preference/name/real_name) == user.real_name)
-		ignored_languages += user.client.prefs.read_preference(/datum/preference/choiced/language)
-
-	if(ishuman(user))
-		var/mob/living/carbon/human/human_user = user
-		ignored_languages += human_user.dna.species.default_language
-		ignored_languages += human_user.dna.species.language
-		ignored_languages += human_user.dna.species.secondary_langs
-
-	for(var/lang_UID in absorbed_languages)
-		var/datum/language/language = locateUID(lang_UID)
-		if(language.name in ignored_languages)
-			continue
-		user.remove_language(language.name)
+	user.remove_all_languages(LANGUAGE_ABSORB)
 
 /**
  * Absorb the the target's DNA and their languages.
@@ -402,7 +383,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 /datum/antagonist/changeling/proc/absorb_dna(mob/living/carbon/user)
 	user.dna.real_name = user.real_name
 	store_dna(user.dna.Clone())
-	add_new_languages(user.languages)
+	add_new_languages(user.get_language_holder().spoken_languages)
 	absorbed_count++
 
 /**

@@ -22,6 +22,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 		<a href='byond://?src=[UID()];makeAntag=14'>Make Aliens</a><br>
 		<a href='byond://?src=[UID()];makeAntag=15'>Make Nuke Team</a><br>
 		<a href='byond://?src=[UID()];makeAntag=16'>Make Heretics</a><br>
+		<a href='byond://?src=[UID()];makeAntag=17'>Создать отряд клоунов-оперативников (нужны призраки)</a><br>
 		"}
 	var/datum/browser/popup = new(usr, "oneclickantag", "One-click Antagonist", 400, 400)
 	popup.set_content(dat)
@@ -225,30 +226,34 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 		return TRUE
 	return FALSE
 
-/datum/admins/proc/makeNukeTeam()
+/datum/admins/proc/makeNukeTeam(clown_ops = FALSE)
 
 	var/list/mob/candidates = list()
 
-	var/antnum = tgui_input_number(owner, "Сколько ядерных оперативников вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
+	var/team_name = clown_ops ? "клоунов-оперативников" : "ядерных оперативников"
+	var/antnum = tgui_input_number(owner, "Сколько [team_name] вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
 
 	if(!antnum || antnum <= 0)
 		return FALSE
 
-	log_admin("[key_name(owner)] tried making a [antnum] person Nuke Op Team with One-Click-Antag")
-	message_admins("[key_name_admin(owner)] tried making a [antnum] person Nuke Op Team with One-Click-Antag")
+	log_admin("[key_name(owner)] tried making a [antnum] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
+	message_admins("[key_name_admin(owner)] tried making a [antnum] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
 
-	candidates = SSghost_spawns.poll_candidates("Вы хотите стать ядерным оперативником?", ROLE_OPERATIVE, TRUE, 1 MINUTES, role_cleanname = "Ядерного оперативника", source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"))
+	var/role_name = clown_ops ? "клоуном-оперативником" : "ядерным оперативником"
+	candidates = SSghost_spawns.poll_candidates("Вы хотите стать [role_name]?", ROLE_OPERATIVE, TRUE, 1 MINUTES, role_cleanname = clown_ops ? "Клоуна-оперативника" : "Ядерного оперативника", source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"))
 
 	if(!length(candidates))
 		return FALSE
 
-	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[/datum/team/nuclear_team]
+	var/team_type = clown_ops ? /datum/team/nuclear_team/clown_ops : /datum/team/nuclear_team
+	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[team_type]
 	var/has_team = !!team
 
 	if(!has_team)
-		team = new
+		team = new team_type
 
-	for(var/i = 1, i <= antnum, i++)
+	var/operatives_to_spawn = min(antnum, length(candidates))
+	for(var/i = 1, i <= operatives_to_spawn, i++)
 		var/spawnpos = i
 
 		if(spawnpos > length(GLOB.nukespawn))

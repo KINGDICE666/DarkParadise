@@ -1147,10 +1147,10 @@
 
 //For debugging purposes
 /client/proc/list_all_languages()
-	for(var/L in GLOB.all_languages)
-		var/datum/language/lang = GLOB.all_languages[L]
+	for(var/language_type in GLOB.all_languages)
+		var/datum/language/lang = GLOB.language_datum_instances[language_type]
 		var/message = "[lang.name] : [lang.type]"
-		if(lang.flags & RESTRICTED)
+		if(lang.flags & LANGUAGE_RESTRICTED)
 			message += " (RESTRICTED)"
 		to_chat(world, "[message]", confidential = TRUE)
 

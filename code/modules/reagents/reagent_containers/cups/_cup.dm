@@ -320,11 +320,6 @@ GAME_VERB_SRC(/obj/item/reagent_containers/cup/beaker, remove_assembly, usr, "О
 	if(assembly)
 		assembly.on_found(finder)
 
-/obj/item/reagent_containers/cup/beaker/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
-	if(assembly)
-		assembly.hear_talk(M, message_pieces)
-
 /obj/item/reagent_containers/cup/beaker/hear_message(mob/living/M, msg)
 	if(assembly)
 		assembly.hear_message(M, msg)

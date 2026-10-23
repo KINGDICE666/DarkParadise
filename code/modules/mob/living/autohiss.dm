@@ -1,10 +1,10 @@
-/mob/proc/handle_autohiss(message, datum/language/L)
+/mob/proc/handle_autohiss(message, datum/language/language)
 	return message // no autohiss at this level
 
-/mob/living/carbon/human/handle_autohiss(message, datum/language/L)
+/mob/living/carbon/human/handle_autohiss(message, datum/language/language)
 	if(!client || client.prefs.read_preference(/datum/preference/choiced/autohiss) == AUTOHISS_OFF) // no need to process if there's no client or they have autohiss off
 		return message
-	return dna.species.handle_autohiss(message, L, client.prefs.read_preference(/datum/preference/choiced/autohiss))
+	return dna.species.handle_autohiss(message, language, client.prefs.read_preference(/datum/preference/choiced/autohiss))
 
 GAME_VERB_DESC(/client, toggle_autohiss, "Авто-акцент", "Переключает автоматический акцент вашей расы при общении.", VERB_CATEGORY_OOC)
 
@@ -21,10 +21,10 @@ GAME_VERB_DESC(/client, toggle_autohiss, "Авто-акцент", "Перекл�
 			prefs.write_preference(autohiss, AUTOHISS_OFF)
 			to_chat(src, "Авто-акцент: Выключен.")
 
-/datum/species/proc/handle_autohiss(message, datum/language/lang, mode)
+/datum/species/proc/handle_autohiss(message, datum/language/language, mode)
 	if(!autohiss_basic_map)
 		return message
-	if(autohiss_exempt && (lang && (lang.name in autohiss_exempt)))
+	if(language in autohiss_exempt)
 		return message
 
 	var/map = autohiss_basic_map.Copy()

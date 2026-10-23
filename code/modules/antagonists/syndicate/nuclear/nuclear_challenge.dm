@@ -12,6 +12,7 @@
 	var/declaring_war = FALSE
 	var/total_tc = 0 //Total amount of telecrystals shared between nuke ops
 	var/creation_time
+	var/announcement_sound = 'sound/effects/siren.ogg'
 
 /obj/item/nuclear_challenge/Initialize(mapload)
 	. = ..()
@@ -53,7 +54,7 @@
 		message = war_declaration,
 		new_title = ANNOUNCE_DECLAREWAR_RU,
 		msg_sanitized = TRUE,
-		new_sound = 'sound/effects/siren.ogg',
+		new_sound = announcement_sound,
 		color_override = "crimson"
 	)
 	addtimer(CALLBACK(SSsecurity_level, TYPE_PROC_REF(/datum/controller/subsystem/security_level, set_level), SEC_LEVEL_GAMMA), 30 SECONDS)
@@ -66,13 +67,18 @@
 		S.challenge_start_time = creation_time
 
 	// No. of player - Min. Player to dec, divided by player per bonus, then multipled by TC per bonus. Rounded.
-	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[/datum/team/nuclear_team]
+	var/datum/antagonist/nuclear_operative/operative = user.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
+	var/datum/team/nuclear_team/team = operative.nuclear_team
 	team.scale_challange()
 	team.share_telecrystals()
 	CONFIG_SET(number/shuttle_refuel_delay, CHALLENGE_SHUTTLE_DELAY)
 	qdel(src)
 
 /obj/item/nuclear_challenge/proc/check_allowed(mob/living/user)
+	var/datum/antagonist/nuclear_operative/operative = user.mind?.has_antag_datum(/datum/antagonist/nuclear_operative)
+	if(!operative?.nuclear_team)
+		balloon_alert(user, "нет доступа!")
+		return FALSE
 	if(declaring_war)
 		to_chat(user, "You are already in the process of declaring war! Make your mind up.")
 		return FALSE

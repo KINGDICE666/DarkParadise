@@ -150,13 +150,11 @@
 #define VV_HK_GIVE_AI_SPEECH "give_ai_speech"
 #define VV_HK_GIVE_ACCESS "give_access"
 #define VV_HK_MAKE_SKELETON "make_skeleton"
-#define VV_HK_ADD_LANGUAGE "addlanguage"
-#define VV_HK_REMOVE_LANGUAGE "remlanguage"
+#define VV_HK_LANGUAGE_MENU "languagemenu"
 #define VV_HK_ADD_ORGAN "addorgan"
 #define VV_HK_REMOVE_ORGAN "remorgan"
 #define VV_HK_ADD_VERB "addverb"
 #define VV_HK_REMOVE_VERB "remverb"
-#define VV_HK_GRANT_ALL_LANGUAGE "grantalllanguage"
 #define VV_HK_CHANGE_VOICE "changevoice"
 
 // /mob/living

@@ -496,7 +496,7 @@
 		R.name = R.dna.real_name
 
 	R.types=DNA2_BUF_UI|DNA2_BUF_UE|DNA2_BUF_SE
-	R.languages=subject.languages
+	R.languages = subject.get_language_holder().get_mind_languages()
 	//Add an implant if needed
 	var/obj/item/implant/health/imp = locate(/obj/item/implant/health, subject)
 	if(!imp)

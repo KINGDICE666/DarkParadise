@@ -115,9 +115,6 @@
 #define COMSIG_ORGAN_IMPLANTED "organ_implanted"
 ///from [/obj/item/organ/internal/remove]:
 #define COMSIG_ORGAN_REMOVED "organ_removed"
-///from [/obj/item/organ/internal/cyberimp/mouth/translator/check_lang]
-#define COMSIG_LANG_PRE_ACT "check_language"
-	#define COMSIG_LANG_SECURED (1<<0)
 
 // /datum/mind signals
 
@@ -146,10 +143,6 @@
 
 /// From /mob/living/proc/stop_leaning()
 #define COMSIG_LIVING_STOPPED_LEANING "living_stopped_leaning"
-
-/// Source: /mob/living/say (message, verb, ignore_speech_problems, ignore_atmospherics, ignore_languages, datum/multilingual_say_piece)
-#define COMSIG_LIVING_EARLY_SAY "living_early_say"
-	#define COMPONENT_PREVENT_SPEAKING (1<<0)
 
 /// Source: /mob/living/UnarmedAttack (atom/atom, proximity_flag)
 #define COMSIG_LIVING_UNARMED_ATTACK "living_unarmed_attack"

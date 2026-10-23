@@ -236,7 +236,7 @@ GAME_VERB(/mob/living/simple_animal/pet/cat, sit, "Сесть", VERB_CATEGORY_IC
 
 /mob/living/simple_animal/pet/cat/Syndi/Initialize(mapload)
 	. = ..()
-	add_language(LANGUAGE_GALACTIC_COMMON)
+	grant_language(/datum/language/common)
 	ADD_TRAIT(src, TRAIT_NO_BREATH, INNATE_TRAIT)
 
 /mob/living/simple_animal/pet/cat/Syndi/ComponentInitialize()

@@ -1120,12 +1120,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 	var/datum/species/oldspecies = dna.species
 
 	if(oldspecies)
-		if(oldspecies.language)
-			remove_language(oldspecies.language)
-
-		if(oldspecies.default_language)
-			remove_language(oldspecies.default_language)
-
 		if(gender == PLURAL && oldspecies.has_gender)
 			change_gender(pick(MALE, FEMALE))
 
@@ -1141,12 +1135,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 
 	maxHealth = dna.species.total_health
 	max_stamina = dna.species.total_stamina
-
-	if(dna.species.language)
-		add_language(dna.species.language)
-
-	if(dna.species.default_language)
-		add_language(dna.species.default_language)
 
 	digestion_ratio = dna.species.digestion_ratio
 
@@ -1337,14 +1325,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 		AddElement(/datum/element/nutrition_effects)
 
 	return species_check
-
-/mob/living/carbon/human/get_default_language()
-	if(default_language)
-		return default_language
-
-	if(!dna.species)
-		return null
-	return dna.species.default_language ? GLOB.all_languages[dna.species.default_language] : null
 
 GAME_VERB_PROC_DESC(/mob/living/carbon/human, bloody_doodle, "Рисовать кровью", "Используйте кровь на ваших руках, чтобы рисовать ею на полу и на стенах.", VERB_CATEGORY_IC)
 

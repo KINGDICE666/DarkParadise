@@ -1,8 +1,21 @@
-
 #define ILLEGAL_CHARACTERS_LIST list("<" = "", ">" = "", \
 	"\[" = "", "]" = "", "{" = "", "}" = "")
 
-/mob/proc/say(message, verb = "говор%(ит,ят)%", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
+#define MESSAGE_MODS_LENGTH 6
+
+/mob/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	return
 
 GAME_VERB(/mob, whisper_verb, VERB_WHISPER, VERB_CATEGORY_IC)
@@ -13,8 +26,10 @@ GAME_VERB(/mob, whisper_verb, VERB_WHISPER, VERB_CATEGORY_IC)
 
 	QUEUE_OR_CALL_VERB_FOR(VERB_CALLBACK(src, TYPE_PROC_REF(/mob, whisper), message), SSspeech_controller)
 
-/mob/proc/whisper(message)
-	return
+/mob/proc/whisper(message, bubble_type, list/spans = list(), sanitize = TRUE, datum/language/language, ignore_spam = FALSE, forced, filterproof)
+	if(!message)
+		return
+	say(message, language = language)
 
 GAME_VERB(/mob, say_verb, VERB_SAY, VERB_CATEGORY_IC)
 	VERB_ARG(message, VERB_ARG_TYPE_TEXT, VERB_ARG_SOURCE_INPUT)
@@ -25,7 +40,7 @@ GAME_VERB(/mob, say_verb, VERB_SAY, VERB_CATEGORY_IC)
 	if(!message)
 		return
 
-	QUEUE_OR_CALL_VERB_FOR(VERB_CALLBACK(src, TYPE_PROC_REF(/mob, say), message), SSspeech_controller)
+	QUEUE_OR_CALL_VERB_FOR(VERB_CALLBACK(src, TYPE_PROC_REF(/atom/movable, say), message), SSspeech_controller)
 
 GAME_VERB(/mob, me_verb, VERB_ME, VERB_CATEGORY_IC)
 	VERB_ARG(message, VERB_ARG_TYPE_TEXT, VERB_ARG_SOURCE_INPUT)
@@ -73,57 +88,6 @@ GAME_VERB(/mob, me_verb, VERB_ME, VERB_CATEGORY_IC)
 	say_dead_direct("[pick("жалуется", "стонет", "хнычет", "причитает", "рыдает", "ноет")], \"[span_message(message)]\"", src, runechat_message)
 	add_deadchat_logs(src, message)
 
-/**
- * Checks if the mob can understand the other speaker
- *
- * If it return FALSE, then the message will have some letters replaced with stars from the heard message
-*/
-/mob/proc/say_understands(atom/movable/other, datum/language/speaking = null)
-	if(stat == DEAD)
-		return TRUE
-
-	//Universal speak makes everything understandable, for obvious reasons.
-	if(universal_speak || universal_understand)
-		return TRUE
-
-	var/mob/living/simple_animal/hostile/gorilla/gorilla = other
-	if(istype(gorilla) && gorilla.check_enlighten()) // BANANA POWER
-		return TRUE
-
-	//Languages are handled after.
-	if(!speaking)
-		if(!other || !ismob(other))
-			return TRUE
-		var/mob/other_mob = other
-		if(other_mob.universal_speak)
-			return TRUE
-		if(isAI(src) && ispAI(other_mob))
-			return TRUE
-		if(istype(other_mob, src.type) || istype(src, other_mob.type))
-			return TRUE
-		return FALSE
-
-	if(speaking.flags & INNATE)
-		return TRUE
-
-	//Language check.
-	if(speaking in languages)
-		return TRUE
-
-	return FALSE
-
-/mob/proc/say_quote(message, datum/language/speaking = null)
-	var/ending = copytext_char(message, -1)
-	if(speaking)
-		return genderize_decode(src, speaking.get_spoken_verb(ending))
-	else if(ending == "!")
-		return get_verb(verb_exclaim)
-	else if(ending == "?")
-		return get_verb(verb_ask)
-	else if(copytext_char(message, -2) == "!!")
-		return get_verb(verb_yell)
-	return get_verb(verb_say)
-
 /mob/proc/get_verb(list/verbs)
 	if(!verbs)
 		return ""
@@ -132,109 +96,51 @@ GAME_VERB(/mob, me_verb, VERB_ME, VERB_CATEGORY_IC)
 	return pick(verbs)
 
 /mob/proc/get_ear()
-	// returns an atom representing a location on the map from which this
-	// mob can hear things
-
-	// should be overloaded for all mobs whose "ear" is separate from their "mob"
-
 	return get_turf(src)
 
-/proc/say_test(text)
-	var/ending = copytext(text, length(text))
-	if(ending == "?")
-		return "1"
-	else if(ending == "!")
-		return "2"
-	return "0"
+/mob/proc/check_emote(message, forced)
+	if(copytext(message, 1, 2) == "*")
+		emote(copytext(message, 2), intentional = !forced)
+		return TRUE
 
-//parses the message mode code (e.g. :h, :w) from text, such as that supplied to say.
-//returns the message mode string or null for no message mode.
-//standard mode is the mode returned for the special ';' radio code.
-/mob/proc/parse_message_mode(message, standard_mode = HEADSET_MODE)
-	if(length(message) >= 1 && copytext(message, 1, 2) == ";")
-		return list(standard_mode, copytext(message, 2))
+/mob/proc/hivecheck()
+	return FALSE
 
-	if(length(message) >= 2)
-		var/list/parts = splittext(message, " ")
-		var/channel_prefix = parts[1]
-		if(length(parts) > 1 && GLOB.department_radio_keys[channel_prefix])
-			return list(GLOB.department_radio_keys[channel_prefix], replacetext(message, channel_prefix, ""))
+/mob/proc/get_message_mods(message, list/mods)
+	for(var/iteration in 1 to MESSAGE_MODS_LENGTH)
+		if(!length(message))
+			return message
 
-	return null
+		var/first_char = copytext_char(message, 1, 2)
+		if(first_char == ";" && !mods[MODE_HEADSET] && !mods[RADIO_EXTENSION])
+			mods[MODE_HEADSET] = TRUE
+			message = trim_left(copytext_char(message, 2))
+			continue
 
-/datum/multilingual_say_piece
-	var/datum/language/speaking = null
-	var/message = ""
+		if(!(first_char in GLOB.say_prefixes))
+			return message
 
-/datum/multilingual_say_piece/New(datum/language/new_speaking, new_message)
-	. = ..()
-	speaking = new_speaking
-	if(new_message)
-		message = new_message
-
-/mob/proc/find_valid_prefixes(message)
-	var/list/prefixes = list() // [["Common", start, end], ["Gutter", start, end]]
-	for(var/i in 1 to length_char(message))
-		var/selection = trim_right(lowertext(copytext_char(message, i, i + 3)))
-		var/datum/language/L = GLOB.language_keys[selection]
-		if(L != null && can_speak_language(L)) // What the fuck... remove the L != null check if you ever find out what the fuck is adding `null` to the languages list on absolutely random mobs... seriously what the hell...
-			prefixes[++prefixes.len] = list(L, i, i + length_char(selection))
-		else if(!L && i == 1)
-			prefixes[++prefixes.len] = list(get_default_language(), i, i)
-
-	return prefixes
-
-/proc/strip_prefixes(message)
-	. = ""
-	var/last_index = 1
-	for(var/i in 1 to length_char(message))
-		var/selection = trim_right(lowertext(copytext_char(message, i, i + 3)))
-		var/datum/language/L = GLOB.language_keys[selection]
-		if(L)
-			. += copytext_char(message, last_index, i)
-			last_index = i + 3
-		if(i + 1 > length_char(message))
-			. += copytext_char(message, last_index)
-
-// this returns a structured message with language sections
-// list(/datum/multilingual_say_piece(common, "hi"), /datum/multilingual_say_piece(farwa, "squik"), /datum/multilingual_say_piece(common, "meow!"))
-/mob/proc/parse_languages(message)
-	. = list()
-
-	// Noise language is a snowflake
-	if(copytext(message, 1, 2) == "!" && length(message) > 1)
-		return list(new /datum/multilingual_say_piece(GLOB.all_languages[LANGUAGE_NOISE], trim(strip_prefixes(copytext(message, 2)))))
-
-	// Scan the message for prefixes
-	var/list/prefix_locations = find_valid_prefixes(message)
-	if(!LAZYLEN(prefix_locations)) // There are no prefixes... or at least, no _valid_ prefixes.
-		. += new /datum/multilingual_say_piece(get_default_language(), trim(strip_prefixes(message))) // So we'll just strip those pesky things and still make the message.
-
-	for(var/i in 1 to length(prefix_locations))
-		var/current = prefix_locations[i] // ["Common", keypos]
-
-		// There are a few things that will make us want to ignore all other languages in - namely, HIVEMIND languages.
-		var/datum/language/L = current[1]
-		if(L && L.flags & HIVEMIND)
-			return list(new /datum/multilingual_say_piece(L, trim(strip_prefixes(message))))
-
-		if(i + 1 > length(prefix_locations)) // We are out of lookaheads, that means the rest of the message is in cur lang
-			var/spoke_message = trim(copytext_char(message, current[3]))
-			. += new /datum/multilingual_say_piece(current[1], spoke_message)
+		var/list/words = splittext(message, " ")
+		var/token = words[1]
+		var/key = lowertext(copytext_char(token, 2))
+		if(!mods[RADIO_EXTENSION] && !mods[WHISPER_MODE] && GLOB.department_radio_keys[token])
+			var/radio_mode = GLOB.department_radio_keys[token]
+			if(radio_mode == WHISPER_CHANNEL)
+				mods[WHISPER_MODE] = MODE_WHISPER
+			else
+				mods[RADIO_EXTENSION] = radio_mode
+				mods[RADIO_KEY] = key
+		else if(!mods[RADIO_KEY] && SSradio.saymodes[key])
+			mods[RADIO_KEY] = key
+		else if(!mods[LANGUAGE_EXTENSION] && GLOB.language_keys[lowertext(token)])
+			var/datum/language/language = GLOB.language_keys[lowertext(token)]
+			if(can_speak_language(language))
+				mods[LANGUAGE_EXTENSION] = language
 		else
-			var/next = prefix_locations[i + 1] // We look ahead at the next message to see where we need to stop.
-			var/spoke_message = trim(copytext_char(message, current[3], next[2]))
-			. += new /datum/multilingual_say_piece(current[1], spoke_message)
+			return message
 
-/* These are here purely because it would be hell to try to convert everything over to using the multi-lingual system at once */
-/proc/message_to_multilingual(message, datum/language/speaking = null)
-	. = list(new /datum/multilingual_say_piece(speaking, message))
+		message = trim_left(copytext_char(message, length_char(token) + 1))
+	return message
 
-/proc/multilingual_to_message(list/message_pieces)
-	. = ""
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		. += S.message + " "
-	. = trim_right(.)
-
+#undef MESSAGE_MODS_LENGTH
 #undef ILLEGAL_CHARACTERS_LIST
-

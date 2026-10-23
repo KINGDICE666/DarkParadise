@@ -3,7 +3,7 @@
 	name_plural = "Humans"
 	ru_genitive = "человека"
 	primitive_form = /datum/species/monkey
-	language = LANGUAGE_SOL_COMMON
+	species_language_holder = /datum/language_holder/human
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,
 		TRAIT_HAS_REGENERATION,

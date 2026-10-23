@@ -309,11 +309,6 @@
 		for(var/obj/item/mecha_parts/mecha_equipment/ME in equipment)
 			. += span_notice("[icon2html(ME, user)] [ME]")
 
-/obj/mecha/hear_talk(mob/M, list/message_pieces)
-	. = ..()
-	if(M == occupant && radio.get_broadcasting())
-		radio.talk_into(M, message_pieces)
-
 /obj/mecha/proc/click_action(atom/target, mob/user, list/modifiers)
 	if(!occupant || occupant != user)
 		return

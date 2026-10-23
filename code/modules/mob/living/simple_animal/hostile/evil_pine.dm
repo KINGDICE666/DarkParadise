@@ -15,7 +15,7 @@
 	melee_damage_upper = 28
 	move_to_delay = 6
 	del_on_death = TRUE
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	loot = list(
 		/obj/structure/flora/tree/pine/xmas,
 		/obj/item/reagent_containers/food/snacks/gingercookie/ball,

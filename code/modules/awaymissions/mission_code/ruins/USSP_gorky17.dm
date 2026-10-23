@@ -336,7 +336,7 @@ GAME_VERB_SRC(/obj/machinery/computer/id_upgrader/ussp, set_name, oview(1), "В�
 /////////////////// Paper notes
 
 /obj/item/paper/gorky17
-	language = LANGUAGE_NEO_RUSSIAN
+	language = /datum/language/com_srus
 
 /obj/item/paper/gorky17/talisman
 	name = "Проклятый талисман"

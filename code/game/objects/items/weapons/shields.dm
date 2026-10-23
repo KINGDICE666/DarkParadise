@@ -121,6 +121,7 @@
 	origin_tech = "materials=4;magnets=5;syndicate=6"
 	attack_verb = list("долбанул", "ударил")
 	var/active = 0
+	var/can_clumsy_use = FALSE
 
 /obj/item/shield/energy/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(isprojectile(hitby))
@@ -137,7 +138,7 @@
 	toggle(user, FALSE)
 
 /obj/item/shield/energy/proc/toggle(mob/living/carbon/human/user, forced)
-	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50) && !forced)
+	if(!can_clumsy_use && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50) && !forced)
 		to_chat(user, span_warning("You beat yourself in the head with [src]."))
 		user.take_organ_damage(5)
 	active = !active

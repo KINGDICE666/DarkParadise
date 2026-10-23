@@ -10,7 +10,7 @@
 	var/uncapped = FALSE
 
 /datum/brain_trauma/mild/hallucinations/on_gain()
-	owner.add_language(LANGUAGE_APHASIA)
+	owner.grant_language(/datum/language/aphasia, source = UID())
 	return ..()
 
 /datum/brain_trauma/mild/hallucinations/on_life()
@@ -20,8 +20,8 @@
 
 /datum/brain_trauma/mild/hallucinations/on_lose(silent)
 	owner.SetHallucinate(0)
-	if(!owner.has_trauma_type(/datum/brain_trauma/severe/aphasia))
-		owner.remove_language(LANGUAGE_APHASIA)
+	if(!QDELING(owner))
+		owner.remove_language(/datum/language/aphasia, source = UID())
 	return ..()
 
 /datum/brain_trauma/mild/stuttering
@@ -59,7 +59,7 @@
 	if(prob(3))
 		owner.emote("drool")
 	else if(owner.stat == CONSCIOUS && prob(3))
-		owner.say(pick_list_replacements(BRAIN_DAMAGE_FILE, "brain_damage"), ignore_emotes = TRUE)
+		owner.say(pick_list_replacements(BRAIN_DAMAGE_FILE, "brain_damage"), forced = "brain damage")
 
 /datum/brain_trauma/mild/speech_impediment
 	name = "Speech Impediment"
@@ -230,25 +230,25 @@
 	var/list/heard_echoes = list()
 	var/list/spoken_echoes = list()
 
-/datum/brain_trauma/mild/mind_echo/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+/datum/brain_trauma/mild/mind_echo/handle_hearing(datum/source, list/hearing_args)
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
 		return
 
-	var/datum/multilingual_say_piece/piece = message_pieces[1]
-	if(!piece?.message)
+	var/message = hearing_args[HEARING_RAW_MESSAGE]
+	if(!message)
 		return
 
 	if(length(heard_echoes) >= 5 && prob(25))
-		piece.message = pick_n_take(heard_echoes)
+		hearing_args[HEARING_RAW_MESSAGE] = pick_n_take(heard_echoes)
 		return
 
 	if(length(heard_echoes) >= 15)
 		if(prob(50))
 			popleft(heard_echoes)
-			heard_echoes += piece.message
+			heard_echoes += message
 		return
 
-	heard_echoes += piece.message
+	heard_echoes += message
 
 /datum/brain_trauma/mild/mind_echo/handle_speech(datum/source, list/speech_args)
 	var/message = speech_args[SPEECH_MESSAGE]

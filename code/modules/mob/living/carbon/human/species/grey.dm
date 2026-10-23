@@ -17,7 +17,6 @@
 	телепатически — устного языка у серых нет вовсе."
 	icobase = 'icons/mob/human_races/r_grey.dmi'
 	deform = 'icons/mob/human_races/r_def_grey.dmi'
-	language = LANGUAGE_GREY
 	eyes = "grey_eyes_s"
 	butt_sprite = "grey"
 

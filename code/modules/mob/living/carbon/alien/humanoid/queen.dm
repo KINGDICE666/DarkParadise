@@ -31,7 +31,7 @@
 			break
 
 	real_name = src.name
-	grant_all_babel_languages()
+	grant_all_babel_languages(source = LANGUAGE_ATOM)
 	. = ..()
 
 /mob/living/carbon/alien/humanoid/queen/get_caste_organs()

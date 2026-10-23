@@ -231,7 +231,8 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 
 	user.mind.transfer_to(ascendant)
 	ascendant.name = user.real_name
-	ascendant.languages = user.languages
+	ascendant.copy_languages(user)
+	ADD_TRAIT(ascendant, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 	for(var/spell_to_add in ascendant_spells)
 		ascendant.mind.AddSpell(new spell_to_add)
 
@@ -266,7 +267,7 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	undershirt = "None"
 	socks = "None"
 	faction |= "faithless"
-	add_language(LANGUAGE_HIVE_SHADOWLING)
+	ADD_TRAIT(src, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 	set_species(/datum/species/shadow/ling)
 	to_chat(src, span_shadowling("<b><i>Ваши силы пробудились. Теперь вы заживёте в полную меру. Помните свои цели. Сотрудничайте со своими союзниками и рабами.</b></i>"))
 

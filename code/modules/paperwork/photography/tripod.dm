@@ -225,10 +225,6 @@
 	SIGNAL_HANDLER
 	update_appearance()
 
-/obj/item/tripod/hear_talk(mob/speaker, list/message_pieces)
-	. = ..()
-	camera?.hear_talk(speaker, message_pieces)
-
 /obj/item/tripod/update_name(updates = ALL)
 	. = ..()
 	if(camera)
@@ -376,10 +372,6 @@
 		set_anchored(FALSE)
 		WRENCH_UNANCHOR_MESSAGE
 	playsound(src, 'sound/items/deconstruct.ogg', 50, TRUE)
-
-/obj/structure/tripod/hear_talk(mob/speaker, list/message_pieces)
-	. = ..()
-	tripod_item.hear_talk(speaker, message_pieces)
 
 /obj/structure/tripod/update_name(updates = ALL)
 	. = ..()

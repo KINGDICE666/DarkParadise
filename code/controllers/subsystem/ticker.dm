@@ -468,6 +468,15 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/proc/station_explosion_cinematic(station_missed = 0, override = null)
 	auto_toggle_ooc(TRUE) // Turn it on
+	if(override == CLOWN_NUKE)
+		switch(station_missed)
+			if(1)
+				play_cinematic(/datum/cinematic/nuke/ops_miss, world)
+			if(2)
+				play_cinematic(/datum/cinematic/nuke/fake, world)
+			else
+				play_cinematic(/datum/cinematic/nuke/clown, world)
+		return
 
 	if(!station_missed)	//nuke kills everyone on z-level 1 to prevent "hurr-durr I survived"
 		for(var/mob/M in GLOB.mob_list)

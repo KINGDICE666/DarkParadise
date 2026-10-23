@@ -34,6 +34,7 @@
 	return ..()
 
 /mob/living/simple_animal/hostile/venus_human_trap
+	initial_language_holder = /datum/language_holder/venus
 	name = "venus human trap"
 	desc = "Now you know how the fly feels."
 	icon_state = "venus_human_trap"

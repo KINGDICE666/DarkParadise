@@ -812,7 +812,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 	if(person) //Basic talk
 		var/image/speech_overlay = image('icons/mob/talk.dmi', person, "h0", layer = ABOVE_MOB_LAYER)
 		SET_PLANE_EXPLICIT(speech_overlay, ABOVE_GAME_PLANE, src)
-		target.hear_say(message_to_multilingual(pick(speak_messages), safepick(person.languages)), speaker = person, is_whisper = TRUE)
+		target.Hear(person, person.get_selected_language(), pick(speak_messages), null, null, null, list(), list(WHISPER_MODE = MODE_WHISPER), INFINITY)
 		if(target.client)
 			target.client.images |= speech_overlay
 			sleep(30)
@@ -824,7 +824,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 			if(H.stat != DEAD)
 				humans += H
 		person = pick(humans)
-		target.hear_radio(message_to_multilingual(pick(radio_messages), safepick(person.languages)), speaker = person, part_a = "<span class='[SSradio.frequency_span_class(PUB_FREQ)]'><b>\[[get_frequency_name(PUB_FREQ)]\]</b> <span class='name'>", part_b = "</span> <span class='message'>")
+		target.Hear(person, person.get_selected_language(), pick(radio_messages), PUB_FREQ, null, null, list(), list(), INFINITY)
 	qdel(src)
 
 /obj/effect/hallucination/message

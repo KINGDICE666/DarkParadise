@@ -4,7 +4,6 @@
 	ru_genitive = "врина"
 	icobase = 'icons/mob/human_races/r_wryn.dmi'
 	deform = 'icons/mob/human_races/r_wryn.dmi'
-	language = LANGUAGE_WRYN
 	blacklisted = TRUE
 	tail = "wryntail"
 	eyes = "wryn_eyes_s"
@@ -62,6 +61,7 @@
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,
 		TRAIT_HAS_REGENERATION,
+		TRAIT_WRYN_HIVEMIND,
 		TRAIT_NO_BREATH,
 		TRAIT_NO_SCAN,
 		TRAIT_TEMPERATURE_MOVEMENT,

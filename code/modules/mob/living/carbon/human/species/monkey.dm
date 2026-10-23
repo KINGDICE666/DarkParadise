@@ -10,7 +10,7 @@
 	damage_overlays = 'icons/mob/human_races/masks/dam_monkey.dmi'
 	damage_mask = 'icons/mob/human_races/masks/dam_mask_monkey.dmi'
 	blood_mask = 'icons/mob/human_races/masks/blood_monkey.dmi'
-	default_language = LANGUAGE_MONKEY_HUMAN
+	species_language_holder = /datum/language_holder/monkey
 	inherent_traits = list(
 		TRAIT_HAS_REGENERATION,
 		TRAIT_NO_SPECIES_EXAMINE,
@@ -92,9 +92,6 @@
 	. = ..()
 	H.force_gene_block(GLOB.monkeyblock, !remove)
 
-/datum/species/monkey/can_understand(mob/other)
-	return istype(other, /mob/living/simple_animal/hostile/gorilla)
-
 /datum/species/monkey/tajaran
 	name = SPECIES_FARWA
 	name_plural = "Farwa"
@@ -104,7 +101,7 @@
 	deform = 'icons/mob/human_races/monkeys/r_farwa.dmi'
 
 	greater_form = /datum/species/tajaran
-	default_language = LANGUAGE_MONKEY_TAJARAN
+	species_language_holder = /datum/language_holder/monkey/tajaran
 	blood_species = "Tajaran"
 	flesh_color = "#AFA59E"
 	base_color = "#000000"
@@ -139,9 +136,6 @@
 		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail/monkey/tajaran),
 	)
 
-/datum/species/monkey/tajaran/can_understand(mob/other)
-	return
-
 /datum/species/monkey/vulpkanin
 	name = SPECIES_WOLPIN
 	name_plural = "Wolpin"
@@ -151,7 +145,7 @@
 	deform = 'icons/mob/human_races/monkeys/r_wolpin.dmi'
 
 	greater_form = /datum/species/vulpkanin
-	default_language = LANGUAGE_MONKEY_VULPKANIN
+	species_language_holder = /datum/language_holder/monkey/vulpkanin
 	blood_species = "Vulpkanin"
 	flesh_color = "#966464"
 	base_color = "#000000"
@@ -186,9 +180,6 @@
 		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail/monkey/vulpkanin),
 	)
 
-/datum/species/monkey/vulpkanin/can_understand(mob/other)
-	return
-
 /datum/species/monkey/skrell
 	name = SPECIES_NEARA
 	name_plural = "Neara"
@@ -198,7 +189,7 @@
 	deform = 'icons/mob/human_races/monkeys/r_neara.dmi'
 
 	greater_form = /datum/species/skrell
-	default_language = LANGUAGE_MONKEY_SKRELL
+	species_language_holder = /datum/language_holder/monkey/skrell
 	blood_species = "Skrell"
 	flesh_color = "#8CD7A3"
 	blood_color = BLOOD_COLOR_SKRELL
@@ -239,9 +230,6 @@
 		BODY_ZONE_PRECISE_R_FOOT = list("path" = /obj/item/organ/external/foot/right),
 	)
 
-/datum/species/monkey/skrell/can_understand(mob/other)
-	return
-
 /datum/species/monkey/unathi
 	name = SPECIES_STOK
 	name_plural = "Stok"
@@ -252,7 +240,7 @@
 
 	tail = "stoktail"
 	greater_form = /datum/species/unathi
-	default_language = LANGUAGE_MONKEY_UNATHI
+	species_language_holder = /datum/language_holder/monkey/unathi
 	blood_species = "Unathi"
 	flesh_color = "#34AF10"
 	base_color = "#000000"
@@ -285,7 +273,4 @@
 		BODY_ZONE_PRECISE_R_FOOT = list("path" = /obj/item/organ/external/foot/right),
 		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail/monkey/unathi),
 	)
-
-/datum/species/monkey/unathi/can_understand(mob/other)
-	return
 

@@ -22,7 +22,7 @@
 	stop_automated_movement = TRUE
 	status_flags = 0
 	pull_force = 0
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	faction = list("cult")
 	loot = list(/obj/item/reagent_containers/food/snacks/ectoplasm)
 	del_on_death = TRUE

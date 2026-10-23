@@ -46,7 +46,7 @@ Difficulty: Very Hard
 	pixel_x = -32
 	base_pixel_x = -32
 	del_on_death = TRUE
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	tts_seed = null
 	achievement_type = /datum/award/achievement/boss/colossus_kill
 	crusher_achievement_type = /datum/award/achievement/boss/colossus_crusher
@@ -114,8 +114,23 @@ Difficulty: Very Hard
 	chosen_message = span_colossus_alt("Вы стреляете в чередующихся кардинальных направлениях.")
 	chosen_attack_num = 4
 
-/mob/living/simple_animal/hostile/megafauna/colossus/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE, bubble_type, list/spans = list(), datum/language/language = null, ignore_spam = FALSE, forced = null, filterproof = null)
-	. = ..((span_colossus("<b>[uppertext(message)]</b>")), sanitize = FALSE, ignore_speech_problems = TRUE, ignore_atmospherics = TRUE)
+/mob/living/simple_animal/hostile/megafauna/colossus/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
+	spans |= list(SPAN_COLOSSUS, SPAN_YELL)
+	message_mods[MODE_IGNORE_SPEECH_PROBLEMS] = TRUE
+	message_mods[MODE_IGNORE_ATMOSPHERICS] = TRUE
+	return ..(uppertext(message), bubble_type, spans, sanitize, language, ignore_spam, forced, filterproof, message_range, saymode, message_mods)
 
 /mob/living/simple_animal/hostile/megafauna/colossus/enrage()
 	. = ..()

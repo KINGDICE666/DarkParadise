@@ -234,7 +234,7 @@
 				return
 
 			SM.mind.madeby_sentience_potion = TRUE
-			SM.universal_speak = TRUE
+			SM.grant_all_languages()
 			SM.faction = user.faction
 			SM.master_commander = user
 			SM.set_can_collar(TRUE)
@@ -283,7 +283,7 @@
 		if(length(candidates))
 			var/mob/C = pick(candidates)
 			SM.possess_by_player(C.ckey)
-			SM.universal_speak = TRUE
+			SM.grant_all_languages()
 			SM.faction = user.faction
 			SM.master_commander = user
 			SM.sentience_act()
@@ -418,7 +418,7 @@
 	to_chat(user, span_notice("Вы выпиваете зелье, а затем кладете свои руки на [SM.declent_ru(ACCUSATIVE)]..."))
 	add_attack_logs(user, SM, "mind transference potion")
 	user.mind.transfer_to(SM)
-	SM.universal_speak = TRUE
+	SM.grant_all_languages()
 	SM.faction = user.faction
 	SM.sentience_act() //Same deal here as with sentience
 	SM.set_can_collar(TRUE)

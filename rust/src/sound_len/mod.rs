@@ -1,6 +1,7 @@
 use meowtonin::{byond_fn, ByondError, ByondResult, ByondValue, ToByond};
 use std::error::Error;
 
+use crate::paths::game_path;
 use core::f32;
 use std::{fs::File, time::Duration};
 use symphonia::{
@@ -47,7 +48,7 @@ fn get_sound_length(sound_path: &str) -> ByondResult<f32> {
 }
 
 fn get_sound_length_inner(sound_path: &str) -> ByondResult<f32> {
-    let sound_src = match File::open(sound_path) {
+    let sound_src = match File::open(game_path(sound_path)) {
         Ok(r) => r,
         Err(e) => {
             return Err(ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(

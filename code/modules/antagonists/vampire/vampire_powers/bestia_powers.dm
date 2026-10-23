@@ -1720,7 +1720,7 @@
 	sentience_type = SENTIENCE_OTHER
 	speed = 0
 	harm_intent_damage = 5	// punching transformed vampire is pretty useless
-	universal_speak = TRUE	// and speak to anyone too
+	initial_language_holder = /datum/language_holder/universal
 	mob_size = MOB_SIZE_LARGE
 	nightvision = 8	// full night vision
 	atmos_requirements = list("min_oxy" = 5, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)	// we need oxygen only

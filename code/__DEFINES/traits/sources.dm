@@ -27,6 +27,7 @@
 // unique trait sources
 #define PULSEDEMON_TRAIT "pulse_demon"
 #define CHANGELING_TRAIT "changeling"
+#define SHADOWLING_TRAIT "shadowling"
 #define VAMPIRE_TRAIT "vampire"
 #define NINJA_TRAIT "space-ninja"
 #define REVENANT_TRAIT "revenant"

@@ -183,10 +183,6 @@
 /proc/stars(text, probability = 25)
 	return RUSTLIB_CALL(random_replace, text, probability, "*")
 
-/proc/stars_all(list/message_pieces, probability = 25)
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		piece.message = stars(trim_strip_html_properly(piece.message), probability)
-
 /proc/slur(phrase, list/slurletters = ("'"))//use a different list as an input if you want to make robots slur with $#@%! characters
 	phrase = html_decode(phrase)
 	var/leng=length_char(phrase)
@@ -291,10 +287,6 @@
 
 	return returntext
 
-/proc/Gibberish_all(list/message_pieces, p)
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		S.message = Gibberish(S.message, p)
-
 /proc/muffledspeech(phrase)
 	phrase = html_decode(phrase)
 	var/leng=length_char(phrase)
@@ -314,10 +306,6 @@
 		newphrase += "[newletter]"
 		counter -= 1
 	return newphrase
-
-/proc/muffledspeech_all(list/message_pieces)
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		S.message = muffledspeech(S.message)
 
 #define TILES_PER_SECOND 0.7
 ///Shake the camera of the person viewing the mob SO REAL!

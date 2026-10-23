@@ -244,11 +244,6 @@
 	if(rig)
 		rig.assembly_crossed(arrived, old_loc)
 
-/obj/structure/reagent_dispensers/fueltank/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
-	if(rig)
-		rig.hear_talk(M, message_pieces)
-
 /obj/structure/reagent_dispensers/fueltank/hear_message(mob/living/M, msg)
 	. = ..()
 	if(rig)

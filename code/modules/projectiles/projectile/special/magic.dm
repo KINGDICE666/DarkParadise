@@ -422,15 +422,14 @@
 					new_mob = new /mob/living/simple_animal/hostile/poison/terror_spider/reaper(M.loc)
 				if("destroyer")
 					new_mob = new /mob/living/simple_animal/hostile/poison/terror_spider/destroyer(M.loc)
-			new_mob.universal_speak = TRUE
+			new_mob.grant_all_languages()
 		if("КСЕНОМОРФ")
 			is_new_mind = TRUE
 			if(prob(50))
 				new_mob = new /mob/living/carbon/alien/humanoid/hunter(M.loc)
 			else
 				new_mob = new /mob/living/carbon/alien/humanoid/sentinel(M.loc)
-			new_mob.universal_speak = TRUE
-
+			new_mob.grant_all_languages()
 			briefing_msg = "Вам разрешается убивать нексеноморфов среди вас. Прежде всего вам лучше обнаружить других себеподобных и подготовить место для улья.."
 		if("ЖИВОТНОЕ")
 			is_new_mind = TRUE
@@ -455,7 +454,7 @@
 					new_mob = new /mob/living/simple_animal/hostile/retaliate/syndirat(M.loc)
 			briefing_msg = "Вы агрессивное животное, питаемое жаждой голода, вы можете совершать убийства, \
 			сбиваться в стаи или следовать своему пути одиночки, но цель всегда будет одна — утолить свой голод."
-			new_mob.universal_speak = TRUE
+			new_mob.grant_all_languages()
 		if("ЧЕЛОВЕК")
 			if(prob(50))
 				new_mob = new /mob/living/carbon/human(M.loc)

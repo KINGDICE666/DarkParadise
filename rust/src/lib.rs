@@ -8,6 +8,7 @@ mod jobs;
 mod logging;
 mod mapmanip;
 mod milla;
+mod paths;
 mod rand_replace;
 mod sound_len;
 mod uuid;

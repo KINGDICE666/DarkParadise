@@ -191,8 +191,6 @@
 	/// Was this mob spawned by xenobiology magic? Used for mobcapping.
 	var/xenobiology_spawned = FALSE
 
-	var/datum/language/default_language
-
 	var/last_taste_time
 	var/last_taste_text
 

@@ -28,8 +28,6 @@ GLOBAL_LIST_INIT(strippable_alien_humanoid_items, create_strippable_list(list(
 	if(name == "alien")
 		name = text("alien ([rand(1, 1000)])")
 	real_name = name
-	add_language(LANGUAGE_XENOS)
-	add_language(LANGUAGE_HIVE_XENOS)
 	. = ..()
 	AddSpell(new /datum/action/cooldown/spell/regurgitate)
 	AddElement(/datum/element/footstep, FOOTSTEP_MOB_CLAW, 0.5, -11)

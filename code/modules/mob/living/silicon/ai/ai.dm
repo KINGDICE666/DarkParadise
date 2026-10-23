@@ -38,6 +38,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 
 /mob/living/silicon/ai
 	name = "AI"
+	initial_language_holder = /datum/language_holder/synthetic
 	icon = 'icons/mob/ai.dmi'
 	icon_state = "ai-core"
 	move_resist = MOVE_FORCE_NORMAL
@@ -234,7 +235,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	aiMulti = new(src)
 	aiRadio = new(src)
 	aiRadio.myAi = src
-	additional_law_channels["Binary"] = get_language_prefix(LANGUAGE_BINARY)
+	additional_law_channels["Binary"] = ":[MODE_KEY_BINARY] "
 	additional_law_channels["Holopad"] = ":h"
 
 	aiCamera = new/obj/item/camera/siliconcam/ai_camera(src)
@@ -242,26 +243,6 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	if(isturf(loc))
 		add_ai_verbs(src)
 
-	//Languages
-	add_language(LANGUAGE_BINARY, 1)
-	add_language(LANGUAGE_GALACTIC_COMMON, 1)
-	add_language(LANGUAGE_SOL_COMMON, 1)
-	add_language(LANGUAGE_TRADER, 1)
-	add_language(LANGUAGE_NEO_RUSSIAN, 1)
-	add_language(LANGUAGE_GUTTER, 1)
-	add_language(LANGUAGE_UNATHI, 1)
-	add_language(LANGUAGE_TAJARAN, 1)
-	add_language(LANGUAGE_VULPKANIN, 1)
-	add_language(LANGUAGE_SKRELL, 1)
-	add_language(LANGUAGE_VOX, 1)
-	add_language(LANGUAGE_DRASK, 1)
-	add_language(LANGUAGE_DIONA, 1)
-	add_language(LANGUAGE_TRINARY, 1)
-	add_language(LANGUAGE_KIDAN, 1)
-	add_language(LANGUAGE_SLIME, 1)
-	add_language(LANGUAGE_CLOWN, 1)
-	add_language(LANGUAGE_MOTH, 1)
-	add_language(LANGUAGE_RESOMI, 1)
 
 	if(!safety)
 		if(B?.brainmob?.mind)
@@ -318,7 +299,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	announcement += "<b>To look at other parts of the station, click on yourself to get a camera menu.</b>"
 	announcement += "<b>While observing through a camera, you can use most (networked) devices which you can see, such as computers, APCs, intercoms, doors, etc.</b>"
 	announcement += "To use something, simply click on it."
-	announcement += "Use say '[get_language_prefix(LANGUAGE_BINARY)]' to speak to your cyborgs through binary. Use say ':h ' to speak from an active holopad."
+	announcement += "Use say ':[MODE_KEY_BINARY] ' to speak to your cyborgs through binary. Use say ':h ' to speak from an active holopad."
 	announcement += "For department channels, use the following say commands:"
 
 	var/list/radio_channels = aiRadio.channels
@@ -1262,17 +1243,13 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, control_integrated_radio, "Наст�
 /mob/living/silicon/ai/try_get_ai()
 	return src
 
-/mob/living/silicon/ai/proc/relay_speech(mob/living/M, list/message_pieces, verb)
-	var/message_clean = combine_message(message_pieces, M)
-	message_clean = replace_characters(message_clean, list("+"))
-
-	var/message = verb_message(message_pieces, message_clean, M, genderize_decode(M, verb))
-
-	var/name_used = M.GetVoice()
+/mob/living/silicon/ai/proc/relay_speech(atom/movable/speaker, datum/language/message_language, raw_message, list/spans, list/message_mods)
+	raw_message = translate_language(speaker, message_language, raw_message, spans, message_mods)
+	var/message_clean = replace_characters(apply_message_emphasis(capitalize(raw_message)), list("+"))
 	//This communication is imperfect because the holopad "filters" voices and is only designed to connect to the master only.
-	var/rendered = span_gamesay("<i>Relayed Speech: [span_name("[name_used]")] [message]</i>")
+	var/rendered = span_gamesay("<i>Relayed Speech: [span_name("[speaker.GetVoice()]")] [speaker.generate_messagepart(raw_message, spans, message_mods)]</i>")
 	if(client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
-		create_chat_message(M, message_clean, list("radio"))
+		create_chat_message(speaker, message_clean, list("radio"))
 	show_message(rendered, 2)
 
 /mob/living/silicon/ai/proc/malfhacked(obj/machinery/power/apc/apc)

@@ -62,11 +62,11 @@
 	custom_emote(EMOTE_VISIBLE, "раздражённо смотр%(ит,ят)% на банан.", intentional = TRUE)
 	return ..()
 
-/mob/living/simple_animal/hostile/gorilla/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = FALSE, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
-	if(client || !can_befriend || !ishuman(speaker) || speaker == src || incapacitated() || is_on_cooldown())
+/mob/living/simple_animal/hostile/gorilla/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
+	if(client || radio_freq || !can_befriend || !ishuman(speaker) || speaker == src || incapacitated() || is_on_cooldown())
 		return ..()
 
-	var/full_message = lowertext(multilingual_to_message(message_pieces))
+	var/full_message = lowertext(raw_message)
 	var/name_found = find_phrase(full_message, get_names())
 
 	if(!master)

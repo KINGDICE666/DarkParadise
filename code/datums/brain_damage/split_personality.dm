@@ -168,13 +168,25 @@
 /mob/living/split_personality/be_suicidal(forced = FALSE)
 	to_chat(src, span_warning("Вы не можете покончить с собой — телом управляет ваше второе «я»!"))
 
-/mob/living/split_personality/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/split_personality/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	to_chat(src, span_warning("Вы не можете говорить, вашим телом управляет ваше второе «я»!"))
 
-/mob/living/split_personality/say_understands(atom/movable/other, datum/language/speaking = null)
+/mob/living/split_personality/has_language(language, flags_to_check)
 	if(!body)
 		return ..()
-	return body.say_understands(other, speaking)
+	return body.has_language(language, flags_to_check)
 
 /mob/living/split_personality/emote(emote_key, type_override = null, message = null, intentional = FALSE, force_silence = FALSE, ignore_cooldowns = FALSE)
 	return FALSE
@@ -230,19 +242,14 @@
 /datum/brain_trauma/severe/split_personality/brainwashing/on_life()
 	return
 
-/datum/brain_trauma/severe/split_personality/brainwashing/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+/datum/brain_trauma/severe/split_personality/brainwashing/handle_hearing(datum/source, list/hearing_args)
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
 		return
 
-	var/triggered = FALSE
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		if(!findtext(piece.message, codeword) || !owner.say_understands(speaker, piece.speaking))
-			continue
-		piece.message = replacetext(piece.message, codeword, span_warning("[codeword]"))
-		triggered = TRUE
-
-	if(triggered)
-		addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/brain_trauma/severe/split_personality, switch_personalities)), 1 SECONDS, TIMER_DELETE_ME)
+	if(!findtext(hearing_args[HEARING_RAW_MESSAGE], codeword) || !owner.has_language(hearing_args[HEARING_LANGUAGE]))
+		return
+	hearing_args[HEARING_RAW_MESSAGE] = replacetext(hearing_args[HEARING_RAW_MESSAGE], codeword, span_warning("[codeword]"))
+	addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/brain_trauma/severe/split_personality, switch_personalities)), 1 SECONDS, TIMER_DELETE_ME)
 
 /datum/brain_trauma/severe/split_personality/brainwashing/handle_speech(datum/source, list/speech_args)
 	if(findtext(speech_args[SPEECH_MESSAGE], codeword))

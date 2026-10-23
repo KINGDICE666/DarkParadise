@@ -13,6 +13,7 @@
 	light_on = FALSE
 	heat = T3500K
 	var/active = 0
+	var/can_clumsy_use = FALSE
 	var/force_on = 30 //force when active
 	var/throwforce_on = 20
 	var/faction_bonus_force = 0 //Bonus force dealt against certain factions
@@ -66,7 +67,7 @@
 	update_equipped_item(update_speedmods = FALSE)
 
 /obj/item/melee/energy/attack_self(mob/living/carbon/user)
-	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
+	if(!can_clumsy_use && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
 		to_chat(user, span_warning("You accidentally cut yourself with [src], like a doofus!"))
 		user.take_organ_damage(5,5)
 	active = !active
@@ -161,7 +162,7 @@
 /obj/item/melee/energy/sword/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	. = ..()
 
-	if(!active || !throwingdatum || !ishuman(hit_atom))
+	if(!active || !throwforce || !throwingdatum || !ishuman(hit_atom))
 		return
 
 	var/mob/living/carbon/human/victim = hit_atom

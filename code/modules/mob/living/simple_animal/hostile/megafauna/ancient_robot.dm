@@ -56,7 +56,7 @@ Difficulty: Very Hard
 	icon_living = "ancient_robot"
 	friendly = "пристально смотрит"
 	speak_emote = list("жужжит")
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	armour_penetration = 40
 	melee_damage_lower = 20
 	melee_damage_upper = 20

@@ -8,4 +8,4 @@ TTS_TARGET_DONATION 40500
 BOOSTY_URL "https://boosty.to/king_dice"
 
 ## Link to a Discord channel with detailed information
-DISCORD_URL "https://discord.gg/nGDfQuScM7"
+DISCORD_URL "https://discord.gg/5N55TJgTa9"

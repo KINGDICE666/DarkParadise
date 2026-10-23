@@ -923,11 +923,6 @@ GAME_PROC_SRC(/obj/item/storage, toggle_gathering_mode, usr, "Режим сбо�
 		var/atom/A = i
 		A.emp_act(severity)
 
-/obj/item/storage/hear_talk(mob/living/M, list/message_pieces)
-	..()
-	for(var/obj/O in contents)
-		O.hear_talk(M, message_pieces)
-
 /obj/item/storage/hear_message(mob/living/M, msg)
 	..()
 	for(var/obj/O in contents)
