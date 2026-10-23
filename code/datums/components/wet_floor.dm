@@ -81,7 +81,7 @@
 		current_overlay = intended
 
 /datum/component/wet_floor/proc/AfterSlip(mob/living/slipped)
-	if(highest_strength != TURF_WET_LUBE)
+	if(highest_strength != TURF_WET_LUBE && highest_strength != TURF_WET_SUPERLUBE)
 		return
 
 	slipped.Confused(8 SECONDS)
@@ -95,6 +95,9 @@
 			lube_flags |= NO_SLIP_WHEN_WALKING
 		if(TURF_WET_LUBE)
 			intensity = SLIPPERY_TIME_LUBE
+			lube_flags |= (SLIDE|SLIP_IGNORE_NO_SLIP_WATER|SLIP_WHEN_LYING)
+		if(TURF_WET_SUPERLUBE)
+			intensity = SLIPPERY_TIME_LUBE * 2
 			lube_flags |= (SLIDE|SLIP_IGNORE_NO_SLIP_WATER|SLIP_WHEN_LYING)
 		if(TURF_WET_ICE)
 			intensity = SLIPPERY_TIME_ICE
@@ -174,7 +177,7 @@
 	//NB it's possible we get deleted after this, due to inherit
 
 /datum/component/wet_floor/proc/add_wet(type, duration_minimum = 0, duration_add = 0, duration_maximum = MAXIMUM_WET_TIME, _permanent = FALSE, _should_display_overlay = TRUE)
-	var/static/list/allowed_types = list(TURF_WET_WATER, TURF_WET_LUBE, TURF_WET_ICE, TURF_WET_PERMAFROST)
+	var/static/list/allowed_types = list(TURF_WET_WATER, TURF_WET_LUBE, TURF_WET_SUPERLUBE, TURF_WET_ICE, TURF_WET_PERMAFROST)
 	if(duration_minimum <= 0 || !type)
 		return FALSE
 	if(type in allowed_types)

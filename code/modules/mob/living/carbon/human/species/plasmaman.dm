@@ -14,7 +14,7 @@
 	icobase = 'icons/mob/human_races/r_plasmaman_sb.dmi'
 	deform = 'icons/mob/human_races/r_plasmaman_pb.dmi'  // TODO: Need deform.
 	dangerous_existence = TRUE //So so much
-	//language = "Clatter"
+	species_language_holder = /datum/language_holder/skeleton
 
 	inherent_traits = list(
 		TRAIT_NO_BLOOD,

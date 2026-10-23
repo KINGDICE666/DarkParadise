@@ -4,7 +4,7 @@
 	ru_genitive = "дионы"
 	icobase = 'icons/mob/human_races/r_diona.dmi'
 	deform = 'icons/mob/human_races/r_def_plant.dmi'
-	language = LANGUAGE_DIONA
+	species_language_holder = /datum/language_holder/diona
 	speech_sounds = list('sound/voice/dionatalk1.ogg') //Credit https://www.youtube.com/watch?v=ufnvlRjsOTI [0:13 - 0:16]
 	speech_chance = 20
 	unarmed_type = /datum/unarmed_attack/diona
@@ -91,12 +91,6 @@
 		JOB_MIN_AGE_COMMAND = 26,
 	)
 
-
-/datum/species/diona/can_understand(mob/other)
-	if(isnymph(other))
-		return TRUE
-
-	return FALSE
 
 /datum/species/diona/on_species_gain(mob/living/carbon/human/H)
 	. = ..()

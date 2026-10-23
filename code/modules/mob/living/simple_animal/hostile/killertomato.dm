@@ -1,4 +1,5 @@
 /mob/living/simple_animal/hostile/killertomato
+	initial_language_holder = /datum/language_holder/venus
 	name = "Killer Tomato"
 	desc = "Это чудовищно огромный мясной помидор, да ещё и с дополнительным запасом мякоти!"
 	icon_state = "tomato"

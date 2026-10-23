@@ -1,4 +1,5 @@
 use super::universal_icon::{UniversalIcon, UniversalIconData};
+use crate::paths::game_path;
 use dashmap::DashMap;
 use dmi::{
     dirs::{Dirs, ALL_DIRS, CARDINAL_DIRS},
@@ -7,7 +8,7 @@ use dmi::{
 use image::RgbaImage;
 use once_cell::sync::{Lazy, OnceCell};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::{fs::File, hash::BuildHasherDefault, io::BufReader, path::PathBuf, sync::Arc};
+use std::{fs::File, hash::BuildHasherDefault, io::BufReader, sync::Arc};
 use tracy_full::zone;
 use twox_hash::XxHash64;
 
@@ -214,19 +215,17 @@ pub fn icon_cache_clear() {
     ICON_FILES.clear();
 }
 
-pub static ICON_ROOT: Lazy<PathBuf> = Lazy::new(|| std::env::current_dir().unwrap());
-
 /// Given a DMI filepath, returns a DMI Icon structure and caches it.
 pub fn filepath_to_dmi(icon_path: &str) -> ByondResult<Arc<Icon>> {
     zone!("filepath_to_dmi");
 
-    let full_path = ICON_ROOT.join(icon_path);
+    let full_path = game_path(icon_path);
 
     let cell = ICON_FILES.entry(icon_path.to_owned()).or_default();
 
     cell.get_or_try_init(|| {
         zone!("open_dmi_file");
-        let icon_file = match File::open(icon_path) {
+        let icon_file = match File::open(&full_path) {
             Ok(icon_file) => icon_file,
             Err(err) => {
                 return Err(ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(

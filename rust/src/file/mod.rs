@@ -3,6 +3,7 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Read, Write},
 };
 
+use crate::paths::game_path;
 use meowtonin::{byond_fn, ByondError, ByondResult, ByondValue, ToByond};
 use std::error::Error;
 
@@ -55,7 +56,7 @@ fn file_seek_line(path: ByondValue, line: ByondValue) -> ByondResult<ByondValue>
 }
 
 fn read(path: &str) -> ByondResult<String> {
-    let file = File::open(path).map_err(ByondError::boxed)?;
+    let file = File::open(game_path(path)).map_err(ByondError::boxed)?;
     let metadata = file.metadata().map_err(ByondError::boxed)?;
     let mut file = BufReader::new(file);
 
@@ -68,17 +69,16 @@ fn read(path: &str) -> ByondResult<String> {
 }
 
 fn exists(path: &str) -> String {
-    let path = std::path::Path::new(path);
-    path.exists().to_string()
+    game_path(path).exists().to_string()
 }
 
 fn write(data: &str, path: &str) -> ByondResult<usize> {
-    let path: &std::path::Path = path.as_ref();
+    let path = game_path(path);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).map_err(ByondError::boxed)?;
     }
 
-    let mut file = BufWriter::new(File::create(path).map_err(ByondError::boxed)?);
+    let mut file = BufWriter::new(File::create(&path).map_err(ByondError::boxed)?);
     let written = file.write(data.as_bytes()).map_err(ByondError::boxed)?;
 
     file.flush().map_err(ByondError::boxed)?;
@@ -97,7 +97,7 @@ fn write(data: &str, path: &str) -> ByondResult<usize> {
 }
 
 fn append(data: &str, path: &str) -> ByondResult<usize> {
-    let path: &std::path::Path = path.as_ref();
+    let path = game_path(path);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).map_err(ByondError::boxed)?;
     }
@@ -106,7 +106,7 @@ fn append(data: &str, path: &str) -> ByondResult<usize> {
         OpenOptions::new()
             .append(true)
             .create(true)
-            .open(path)
+            .open(&path)
             .map_err(ByondError::boxed)?,
     );
     let written = file.write(data.as_bytes()).map_err(ByondError::boxed)?;
@@ -127,12 +127,12 @@ fn append(data: &str, path: &str) -> ByondResult<usize> {
 }
 
 fn get_line_count(path: &str) -> ByondResult<u32> {
-    let file = BufReader::new(File::open(path).map_err(ByondError::boxed)?);
+    let file = BufReader::new(File::open(game_path(path)).map_err(ByondError::boxed)?);
     Ok(file.lines().count() as u32)
 }
 
 fn seek_line(path: &str, line: usize) -> Option<String> {
-    let file = File::open(path).ok()?;
+    let file = File::open(game_path(path)).ok()?;
     let reader = BufReader::new(file);
     reader.lines().nth(line).and_then(Result::ok)
 }

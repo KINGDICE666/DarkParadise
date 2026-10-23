@@ -315,13 +315,13 @@
 /obj/item/organ/internal/xenos/hivenode/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	M.faction |= "alien"
-	M.add_language(LANGUAGE_XENOS)
-	M.add_language(LANGUAGE_HIVE_XENOS)
+	M.grant_language(/datum/language/xenocommon, source = UID())
+	ADD_TRAIT(M, TRAIT_XENO_HIVEMIND, UID())
 
 /obj/item/organ/internal/xenos/hivenode/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	M.faction -= "alien"
-	M.remove_language(LANGUAGE_XENOS)
-	M.remove_language(LANGUAGE_HIVE_XENOS)
+	M.remove_language(/datum/language/xenocommon, source = UID())
+	REMOVE_TRAIT(M, TRAIT_XENO_HIVEMIND, UID())
 	. = ..()
 
 /obj/item/organ/internal/xenos/neurotoxin

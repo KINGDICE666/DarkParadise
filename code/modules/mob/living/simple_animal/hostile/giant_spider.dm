@@ -1,5 +1,6 @@
 //basic spider mob, these generally guard nests
 /mob/living/simple_animal/hostile/poison/giant_spider
+	initial_language_holder = /datum/language_holder/spider
 	name = "giant spider"
 	desc = "Furry and dark brown, it makes you shudder to look at it. This one has deep red eyes."
 	icon_state = "guard"

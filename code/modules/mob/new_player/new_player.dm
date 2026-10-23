@@ -3,7 +3,7 @@
 	var/spawning = 0	//Referenced when you want to delete the new_player later on in the code.
 	var/totalPlayers = 0		 //Player counts for the Lobby tab
 	var/totalPlayersReady = 0
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 
 	invisibility = INVISIBILITY_ABSTRACT
 	hud_type = /datum/hud/new_player
@@ -473,7 +473,7 @@
 			if(character.mind)
 				if(character.mind.assigned_role != character.mind.special_role)
 					var/arrivalmessage = "Новый [rank ? "[rank]" : "турист" ] [join_message ? join_message : "прибыл на станцию"]."
-					announcer.say(";[arrivalmessage]", ignore_languages = TRUE)
+					announcer.say(";[arrivalmessage]", language = /datum/language/common)
 		else
 			if(character.mind)
 				if(character.mind.assigned_role != character.mind.special_role)

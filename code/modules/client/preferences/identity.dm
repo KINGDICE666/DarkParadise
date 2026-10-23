@@ -1,3 +1,5 @@
+#define PREFERENCE_LANGUAGE_NONE "Нет"
+
 /datum/preference/choiced/language
 	savefile_identifier = PREFERENCE_CHARACTER
 	savefile_key = "language"
@@ -6,33 +8,22 @@
 	can_randomize = FALSE
 
 /datum/preference/choiced/language/init_possible_values()
-	var/list/values = list(LANGUAGE_NONE)
-	for(var/language_name in GLOB.all_languages)
-		var/datum/language/language = GLOB.all_languages[language_name]
-		if((language.flags & UNIQUE) || !(language.flags & RESTRICTED))
-			values |= language_name
-	return values
-
-/datum/preference/choiced/language/get_valid_choices(datum/preferences/preferences)
-	var/datum/species/species = preferences.get_species_prototype()
-	var/list/values = list(LANGUAGE_NONE)
-	for(var/language_name in GLOB.all_languages)
-		var/datum/language/language = GLOB.all_languages[language_name]
-		if(language.flags & UNIQUE)
-			if(language_name in species.secondary_langs)
-				values |= language_name
-		else if(!(language.flags & RESTRICTED))
-			values |= language_name
+	var/list/values = list(PREFERENCE_LANGUAGE_NONE)
+	for(var/datum/language/language as anything in GLOB.all_languages)
+		if(!(language::flags & LANGUAGE_RESTRICTED))
+			values |= language::name
 	return values
 
 /datum/preference/choiced/language/has_relevant_feature(datum/preferences/preferences)
 	return preferences.read_preference(/datum/preference/choiced/species) != SPECIES_GREY
 
 /datum/preference/choiced/language/create_default_value()
-	return LANGUAGE_NONE
+	return PREFERENCE_LANGUAGE_NONE
 
 /datum/preference/choiced/language/apply_to_human(mob/living/carbon/human/target, value, datum/preferences/preferences)
-	target.add_language(value)
+	var/datum/language/language = GLOB.language_types_by_name[value]
+	if(language)
+		target.grant_language(language, source = LANGUAGE_MIND)
 
 /datum/preference/choiced/autohiss
 	savefile_identifier = PREFERENCE_CHARACTER
@@ -215,3 +206,5 @@
 /datum/preference/tts_seed/apply_to_human(mob/living/carbon/human/target, value, datum/preferences/preferences)
 	target.tts_seed = value || null
 	target.dna.tts_seed_dna = value || null
+
+#undef PREFERENCE_LANGUAGE_NONE

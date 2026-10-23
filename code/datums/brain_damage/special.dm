@@ -38,10 +38,7 @@
 	if(!message)
 		return
 
-	var/datum/language/previous_default = owner.default_language
-	owner.default_language = GLOB.all_languages[LANGUAGE_ANGEL]
-	owner.say(uppertext(message), ignore_speech_problems = TRUE, ignore_atmospherics = TRUE)
-	owner.default_language = previous_default
+	owner.say(uppertext(message), spans = get_divine_spans(owner), forced = "godwoken", message_mods = list(MODE_IGNORE_SPEECH_PROBLEMS = TRUE, MODE_IGNORE_ATMOSPHERICS = TRUE))
 	voice_of_god(message, owner, power_multiplier = 2.5, include_speaker = include_owner)
 
 /datum/brain_trauma/special/bluespace_prophet
@@ -497,7 +494,7 @@
 /datum/brain_trauma/special/primal_instincts/proc/go_feral()
 	feral = TRUE
 	aggressive = prob(75)
-	owner.add_language(LANGUAGE_MONKEY_HUMAN)
+	owner.grant_language(/datum/language/human/monkey, source = UID())
 	drop_tools()
 	to_chat(owner, span_warning("Вас захлёстывает желание поддаться первобытным инстинктам..."))
 	add_game_logs("became controlled by primal instincts ([aggressive ? "aggressive" : "docile"])", owner)
@@ -506,7 +503,7 @@
 /datum/brain_trauma/special/primal_instincts/proc/calm_down()
 	feral = FALSE
 	aggressive = FALSE
-	owner.remove_language(LANGUAGE_MONKEY_HUMAN)
+	owner.remove_language(/datum/language/human/monkey, source = UID())
 	to_chat(owner, span_green("Позыв отступает."))
 
 /datum/brain_trauma/special/primal_instincts/proc/drop_tools()

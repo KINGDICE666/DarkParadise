@@ -166,6 +166,21 @@
 	item_state = "pirate"
 	dog_fashion = /datum/dog_fashion/head/pirate
 
+/obj/item/clothing/head/pirate/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	if(!(slot_flags & slot) || isdrone(user))
+		return
+	user.grant_language(/datum/language/piratespeak, source = LANGUAGE_HAT)
+	to_chat(user, span_boldnotice("Вы вдруг понимаете, как говорить по-пиратски!"))
+
+/obj/item/clothing/head/pirate/dropped(mob/user, slot, silent = FALSE)
+	. = ..()
+	var/datum/language_holder/holder = user.get_language_holder()
+	if(!(LANGUAGE_HAT in LAZYACCESS(holder.spoken_languages, /datum/language/piratespeak)))
+		return
+	user.remove_language(/datum/language/piratespeak, source = LANGUAGE_HAT)
+	to_chat(user, span_boldnotice("Вы больше не можете говорить по-пиратски."))
+
 /obj/item/clothing/head/hgpiratecap
 	name = "pirate hat"
 	desc = "Yarr."

@@ -247,6 +247,7 @@
 /obj/item/mmi/robotic_brain/Initialize(mapload)
 	. = ..()
 	brainmob = new(src)
+	brainmob.grant_language(/datum/language/machine, source = LANGUAGE_ATOM)
 	brainmob.name = "[pick(list("PBU", "HIU", "SINA", "ARMA", "OSI"))]-[rand(100, 999)]"
 	brainmob.real_name = brainmob.name
 	brainmob.container = src

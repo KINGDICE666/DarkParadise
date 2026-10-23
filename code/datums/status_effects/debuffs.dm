@@ -1156,9 +1156,12 @@
 	if(!.)
 		return
 	owner.update_druggy_effects()
+	owner.grant_language(/datum/language/beachbum, source = LANGUAGE_STONER)
 
 /datum/status_effect/transient/drugged/on_remove()
 	owner.update_druggy_effects()
+	if(!QDELING(owner))
+		owner.remove_language(/datum/language/beachbum, source = LANGUAGE_STONER)
 
 // MARK: Disgust
 /datum/status_effect/transient/disgust
@@ -1737,13 +1740,14 @@
 	owner.SetDizzy(0)
 	to_chat(owner, span_warning("Вы приходите в себя!"))
 
-/datum/status_effect/trance/proc/hypnotize(datum/source, mob/speaker, list/message_pieces)
+/datum/status_effect/trance/proc/hypnotize(datum/source, list/hearing_args)
 	SIGNAL_HANDLER
 
-	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+	var/mob/speaker = hearing_args[HEARING_SPEAKER]
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker || !ismob(speaker))
 		return
 
-	var/phrase = multilingual_to_message(message_pieces)
+	var/phrase = hearing_args[HEARING_RAW_MESSAGE]
 	if(!phrase)
 		return
 

@@ -21,3 +21,46 @@
 #define VERB_OOC "OOC"
 #define VERB_LOOC "LOOC"
 #define VERB_PRAY "Молиться"
+
+#define RADIO_EXTENSION "department specific"
+#define RADIO_KEY "department specific key"
+#define RADIO_TRANSMITTED_FREQS "radio transmitted frequencies"
+#define LANGUAGE_EXTENSION "language specific"
+#define LANGUAGE_MUTUAL_BONUS "language mutual bonus"
+#define SAY_MOD_VERB "say_mod_verb"
+#define MODE_IGNORE_SPEECH_PROBLEMS "ignore speech problems"
+#define MODE_IGNORE_ATMOSPHERICS "ignore atmospherics"
+#define MODE_NO_TTS "no tts"
+#define MODE_RADIO_GARBLED "radio garbled"
+
+#define HEAR_HEARD (1<<0)
+#define HEAR_UNDERSTOOD (1<<1)
+
+#define MODE_HEADSET "headset"
+#define WHISPER_MODE "the type of whisper"
+#define MODE_WHISPER "whisper"
+#define MODE_SPEAKER_NAME_OVERRIDE "speaker_name_override"
+
+#define SPAN_ROBOT "robot"
+#define SPAN_YELL "yell"
+#define SPAN_ITALICS "italics"
+#define SPAN_SANS "sans"
+#define SPAN_COLOSSUS "colossus"
+#define SPAN_SMALL_VOICE "small"
+
+#define ITALICS (1<<0)
+#define REDUCE_RANGE (1<<1)
+#define NOPASS (1<<2)
+
+#define MESSAGE_RANGE 7
+#define WHISPER_RANGE 1
+#define EAVESDROP_RANGE 1
+#define MODE_RANGE_INTERCOM 1
+
+#define MODE_BINARY "binary"
+#define MODE_KEY_BINARY "b"
+#define MODE_KEY_DRONE "d"
+#define MODE_ALIEN "alientalk"
+#define MODE_CHANGELING "changeling"
+
+#define SAYMODE_MESSAGE_HANDLED (1<<0)

@@ -5,7 +5,7 @@
 	icobase = 'icons/mob/human_races/r_skrell.dmi'
 	deform = 'icons/mob/human_races/r_def_skrell.dmi'
 	fit_profile = /datum/species_fit/skrell
-	language = LANGUAGE_SKRELL
+	species_language_holder = /datum/language_holder/skrell
 	primitive_form = /datum/species/monkey/skrell
 
 	blurb = "Скреллы — растительноядные амфибии со склизкой кожей и тремя хвостообразными придатками на голове. Они \

@@ -1,5 +1,6 @@
 /mob/living/silicon/pai
 	name = "pAI"
+	initial_language_holder = /datum/language_holder/synthetic/pai
 	desc = "Вам бы хотелось его погладить."
 	icon = 'icons/mob/pai.dmi'
 	icon_state = "repairbot"
@@ -125,13 +126,6 @@
 		radio = card.radio
 
 	radio_name = name
-
-	//Default languages without universal translator software
-	add_language(LANGUAGE_GALACTIC_COMMON, 1)
-	add_language(LANGUAGE_SOL_COMMON, 1)
-	add_language(LANGUAGE_TRADER, 1)
-	add_language(LANGUAGE_GUTTER, 1)
-	add_language(LANGUAGE_TRINARY, 1)
 
 	//Verbs for pAI mobile form, chassis and Say flavor text
 	ASSIGN_GAME_VERB(src, /mob/living/silicon/pai, choose_verbs)

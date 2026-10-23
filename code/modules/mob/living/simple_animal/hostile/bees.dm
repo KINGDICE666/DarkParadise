@@ -16,6 +16,7 @@
 #define BEE_POLLINATE_POTENCY_CHANCE 50
 
 /mob/living/simple_animal/hostile/poison/bees
+	initial_language_holder = /datum/language_holder/spider
 	name = "bee"
 	desc = "Buzzy buzzy bee, stingy sti- Ouch!"
 	icon_state = "bee"

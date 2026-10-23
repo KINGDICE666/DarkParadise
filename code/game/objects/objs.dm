@@ -217,13 +217,14 @@
 	if(istype(M) && M.client && M.machine == src)
 		src.attack_self(M)
 
-/obj/proc/hear_talk(mob/speaker, list/message_pieces)
-	SHOULD_CALL_PARENT(TRUE)
-	SEND_SIGNAL(src, COMSIG_MOVABLE_HEAR, speaker, message_pieces)
-	return
-
 /obj/proc/hear_message(mob/M, text)
 	return
+
+/obj/GetVoice()
+	return DECLENT_RU_CAP(src, NOMINATIVE)
+
+/obj/say_mod(input, list/message_mods = list(), datum/language/language)
+	return pick(atom_say_verb)
 
 /obj/proc/default_welder_repair(mob/user, obj/item/I) //Returns TRUE if the object was successfully repaired. Fully repairs an object (setting BROKEN to FALSE), default repair time = 40
 	add_fingerprint(user)

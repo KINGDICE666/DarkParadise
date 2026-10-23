@@ -14,7 +14,7 @@
 	с прокажёнными.<br/><br/>Большинство нуклеатов сохраняют прежние привычки и стараются удержаться на прежней \
 	работе, хотя из-за болезни нередко теряют и её, и семью. Ходят слухи, что на чёрном рынке их кристаллы — \
 	ценный товар."
-	language = LANGUAGE_SOL_COMMON
+	species_language_holder = /datum/language_holder/human
 	blood_color = BLOOD_COLOR_NUCLEATION
 	burn_mod = 4 // holy shite, poor guys wont survive half a second cooking smores
 	brute_mod = 2 // damn, double wham, double dam

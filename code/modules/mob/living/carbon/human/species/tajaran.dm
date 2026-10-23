@@ -4,7 +4,7 @@
 	ru_genitive = "таярана"
 	icobase = 'icons/mob/human_races/r_tajaran.dmi'
 	deform = 'icons/mob/human_races/r_def_tajaran.dmi'
-	language = LANGUAGE_TAJARAN
+	species_language_holder = /datum/language_holder/tajaran
 	tail = "tajtail"
 	skinned_type = /obj/item/stack/sheet/fur
 	unarmed_type = /datum/unarmed_attack/claws
@@ -98,7 +98,7 @@
 		"r" = list("rr", "rrr", "rrrr"),
 		"р" = list("рр", "ррр", "рррр"),
 	)
-	autohiss_exempt = list("Сик'таир")
+	autohiss_exempt = list(/datum/language/tajaran)
 
 
 /datum/species/tajaran/handle_death(gibbed, mob/living/carbon/human/H)

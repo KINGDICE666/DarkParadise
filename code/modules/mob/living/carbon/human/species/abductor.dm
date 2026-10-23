@@ -11,8 +11,8 @@
 	icobase = 'icons/mob/human_races/r_abductor.dmi'
 	deform = 'icons/mob/human_races/r_abductor.dmi'
 	fit_profile = /datum/species_fit/abductor
-	language = LANGUAGE_HIVE_ABDUCTOR
-	default_language = LANGUAGE_HIVE_ABDUCTOR
+	species_language_holder = /datum/language_holder/understand_all
+	default_saymode = /datum/saymode/hivemind/abductor
 	eyes = "blank_eyes"
 	has_organ = list(
 		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/grey/abductor,
@@ -26,6 +26,8 @@
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/grey
 
 	inherent_traits = list(
+		TRAIT_ABDUCTOR_HIVEMIND,
+		TRAIT_GREY_TELEPATHY,
 		TRAIT_NO_BLOOD,
 		TRAIT_NO_BREATH,
 		TRAIT_NO_GUNS,
@@ -50,15 +52,9 @@
 	toxic_food = NONE
 	disliked_food = NONE
 
-/datum/species/abductor/can_understand(mob/other) //Abductors can understand everyone, but they can only speak over their mindlink to another team-member
-	return TRUE
-
 /datum/species/abductor/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
 	H.gender = NEUTER
-	LAZYREINITLIST(H.languages) //Under no condition should you be able to speak any language
-	H.add_language(LANGUAGE_HIVE_ABDUCTOR) //other than over the abductor's own mindlink
-	H.add_language(LANGUAGE_GREY) // still grey enouhg to speak in psi link
 	var/datum/atom_hud/abductor_hud = GLOB.huds[DATA_HUD_ABDUCTOR]
 	abductor_hud.show_to(H)
 

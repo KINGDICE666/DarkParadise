@@ -23,7 +23,7 @@ GAME_VERB_DESC(/mob/living/simple_animal/hostile/guardian/punch, Battlecry, "Б�
 		if(length_char(battlecry) > 8)//no more then 8 letters in a battle cry.
 			visible_message(span_danger("[src] бьёт [target.declent_ru(ACCUSATIVE )]!"))
 		else
-			say("[battlecry]", TRUE)
+			say("[battlecry]")
 		playsound(loc, attack_sound, 50, TRUE, 1)
 		playsound(loc, attack_sound, 50, TRUE, 1)
 		playsound(loc, attack_sound, 50, TRUE, 1)

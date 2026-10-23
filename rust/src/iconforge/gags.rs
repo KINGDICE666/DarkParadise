@@ -1,4 +1,5 @@
 use super::{blending, icon_operations, image_cache::filepath_to_dmi};
+use crate::paths::game_path;
 use dashmap::DashMap;
 use dmi::icon::{DmiVersion, Icon, IconState};
 use image::RgbaImage;
@@ -191,9 +192,9 @@ pub fn gags(config_path: &str, colors: &str, output_dmi_path: &str) -> ByondResu
 
     {
         zone!("gags_write_dmi");
-        let path = std::path::Path::new(output_dmi_path);
+        let path = game_path(output_dmi_path);
         std::fs::create_dir_all(path.parent().unwrap()).map_err(ByondError::boxed)?;
-        let mut output_file = File::create(path).map_err(ByondError::boxed)?;
+        let mut output_file = File::create(&path).map_err(ByondError::boxed)?;
 
         if let Err(err) = (Icon {
             version: DmiVersion::default(),

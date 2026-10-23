@@ -4,7 +4,7 @@
 	icobase = 'icons/mob/human_races/r_resomi.dmi'
 	deform = 'icons/mob/human_races/r_def_resomi.dmi'
 	damage_mask = 'icons/mob/human_races/masks/dam_mask_resomi.dmi'
-	language = LANGUAGE_RESOMI
+	species_language_holder = /datum/language_holder/resomi
 	unarmed_type = /datum/unarmed_attack/claws
 	blurb = "Резоми — маленькие пернатые рапторы с четырьмя ушами родом с заснеженной планеты Сай. Они шустрее других, \
 	быстрее работают с инструментами, легко переносят холод, дерутся когтями и бегают по столам, а самих резоми \

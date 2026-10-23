@@ -105,7 +105,7 @@
 	set_colour(new_colour)
 	. = ..()
 	set_nutrition(new_set_nutrition)
-	add_language(LANGUAGE_SLIME)
+	grant_language(/datum/language/slime)
 
 /mob/living/simple_animal/slime/Destroy(force)
 	walk(src, NONE)

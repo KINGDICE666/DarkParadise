@@ -7,7 +7,7 @@
 	icobase = 'icons/mob/human_races/r_drask.dmi'
 	deform = 'icons/mob/human_races/r_drask.dmi'
 	fit_profile = /datum/species_fit/drask
-	language = LANGUAGE_DRASK
+	species_language_holder = /datum/language_holder/drask
 	eyes = "drask_eyes_s"
 
 	speech_sounds = list('sound/voice/drasktalk.ogg')
@@ -102,7 +102,7 @@
 		"m" = list ("mm", "mmm"),
 		"м" = list ("мм", "ммм"),
 	)
-	autohiss_exempt = list("Орлуум")
+	autohiss_exempt = list(/datum/language/drask)
 
 
 /datum/species/drask/get_species_runechat_color(mob/living/carbon/human/H)

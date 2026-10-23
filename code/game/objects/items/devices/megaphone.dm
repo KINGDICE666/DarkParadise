@@ -45,9 +45,9 @@
 	if(!message)
 		return
 	message = capitalize(message)
-	var/list/message_pieces = message_to_multilingual(message)
-	user.handle_speech_problems(message_pieces)
-	message = multilingual_to_message(message_pieces)
+	message = user.treat_message(message, list(), list())
+	if(!message)
+		return
 	if((loc == user && !user.incapacitated()))
 		if(emagged)
 			if(insults)
@@ -69,8 +69,10 @@
 	var/message_tts = message
 	message = replace_characters(message, list("+"))
 	audible_message(span_gamesay("[span_name("[user.GetVoice()]")] [user.GetAltName()] broadcasts, [span_reallybig("\"[message]\"")]"), hearing_distance = 14)
-	for(var/obj/O in range(14, get_turf(src)))
-		O.hear_talk(user, message_to_multilingual(span_reallybig("[message]")))
+	var/list/message_mods = list(SAY_MOD_VERB = "вещает")
+	for(var/atom/movable/hearer as anything in get_hearers_in_range(14, src))
+		if(!ismob(hearer))
+			hearer.Hear(user, user.get_selected_language(), message, null, null, null, list("reallybig"), message_mods, 14)
 
 	for(var/mob/M in get_hearers_in_view(7, src))
 		if((M.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT) && !HAS_TRAIT(M, TRAIT_DEAF) && M.stat != UNCONSCIOUS)

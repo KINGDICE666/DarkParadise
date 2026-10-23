@@ -1,5 +1,16 @@
-//TODO: Convert this over for languages.
-/mob/living/carbon/brain/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE, datum/language/speaking = null)
+/mob/living/carbon/brain/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(stat == DEAD)
 		return ..()
 	if(!can_speak(warning = TRUE))
@@ -11,13 +22,7 @@
 
 		message = Gibberish(message, (emp_damage*6))//scrambles the message, gets worse when emp_damage is higher
 
-	..(message)
-
-/mob/living/carbon/brain/whisper(message)
-	if(!can_speak(warning = TRUE))
-		return
-
-	..()
+	return ..()
 
 /mob/living/carbon/brain/can_speak(warning = FALSE)
 	. = ..()
@@ -31,33 +36,14 @@
 				to_chat(usr, span_warning("You cannot speak, as your internal speaker is turned off."))
 			. = FALSE
 
-/mob/living/carbon/brain/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	switch(message_mode)
-		if(HEADSET_MODE)
-			var/radio_worked = 0 // If any of the radios our brainmob could use functioned, this is set true so that we don't use any others
-			// I'm doing it this way so that if the mecha radio fails for some reason, a radio MMI still has the built-in fallback
-			if(container && is_mmi(container))
-				var/obj/item/mmi/c = container
-				if(!radio_worked && c.mecha)
-					var/obj/mecha/metalgear = c.mecha
-					if(metalgear.radio)
-						radio_worked = metalgear.radio.talk_into(src, message_pieces, message_mode, verb)
-
-				else if(!radio_worked && c.radio)
-					radio_worked = c.radio.talk_into(src, message_pieces, message_mode, verb)
-			return radio_worked
-		if(WHISPER_CHANNEL)
-			whisper_say(message_pieces)
-			return TRUE
-		else
-			return FALSE
-
-/mob/living/carbon/brain/say_understands(mob/other, datum/language/speaking = null)	//Goddamn is this hackish, but this say code is so odd
-	if(isAI(other) || istype(other, /mob/living/silicon/decoy) || ispAI(other) || isrobot(other))
-		return is_mmi(container)
-
-	if(ishuman(other) || isslime(other))
-		return TRUE
-
-	return ..()
-
+/mob/living/carbon/brain/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	if(!message_mods[MODE_HEADSET] || !is_mmi(container))
+		return .
+	var/obj/item/mmi/brain_container = container
+	if(brain_container.mecha?.radio)
+		if(brain_container.mecha.radio.talk_into(src, message, null, spans, language, message_mods))
+			return NOPASS
+	else if(brain_container.radio?.talk_into(src, message, null, spans, language, message_mods))
+		return NOPASS
+	return .

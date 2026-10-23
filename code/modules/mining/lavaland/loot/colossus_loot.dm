@@ -70,9 +70,9 @@
 	activation_method = pick("touch","laser","bullet","energy","bomb","mob_bump","weapon","speech")
 	become_hearing_sensitive(trait_source = ROUNDSTART_TRAIT)
 
-/obj/machinery/anomalous_crystal/hear_talk(mob/speaker, list/message_pieces)
-	..()
-	if(isliving(speaker) && LAZYLEN(message_pieces))
+/obj/machinery/anomalous_crystal/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
+	. = ..()
+	if(isliving(speaker) && raw_message && !radio_freq)
 		ActivationReaction(speaker, "speech")
 
 /obj/machinery/anomalous_crystal/attack_hand(mob/user)

@@ -17,7 +17,7 @@ GLOBAL_LIST_EMPTY(hivemind_bank)
 	if(!..())
 		return FALSE
 
-	var/language_key = cling.evented ? get_language_prefix(LANGUAGE_HIVE_EVENTLING) : get_language_prefix(LANGUAGE_HIVE_CHANGELING)
+	var/language_key = cling.evented ? ":[/datum/saymode/hivemind/eventling::key] " : ":[/datum/saymode/hivemind/changeling::key] "
 	desc = "Позволяет обмениваться ДНК на расстоянии. С помощью [language_key]можно говорить с собратьями."
 	to_chat(user, span_changeling("Используйте [language_key]для общения с другими генокрадми."))
 	return TRUE
@@ -26,10 +26,7 @@ GLOBAL_LIST_EMPTY(hivemind_bank)
 	if(!..() || QDELETED(user) || !cling)
 		return
 
-	if(cling.evented)
-		user.add_language(LANGUAGE_HIVE_EVENTLING)
-	else
-		user.add_language(LANGUAGE_HIVE_CHANGELING)
+	ADD_TRAIT(user, cling.evented ? TRAIT_EVENTLING_HIVEMIND : TRAIT_CHANGELING_HIVEMIND, CHANGELING_TRAIT)
 
 /datum/action/changeling/hivemind_pick/Remove(mob/user)
 	if(QDELETED(user))
@@ -37,14 +34,12 @@ GLOBAL_LIST_EMPTY(hivemind_bank)
 
 	to_chat(user, span_changeling("Мы чувствуем пустоту, потеряв связь с ульем."))
 
-	user.remove_language(LANGUAGE_HIVE_CHANGELING)
-	user.remove_language(LANGUAGE_HIVE_EVENTLING)
+	user.remove_traits(list(TRAIT_CHANGELING_HIVEMIND, TRAIT_EVENTLING_HIVEMIND), CHANGELING_TRAIT)
 
 	..()
 
 /datum/action/changeling/hivemind_pick/Destroy(force)
-	owner?.remove_language(LANGUAGE_HIVE_CHANGELING)
-	owner?.remove_language(LANGUAGE_HIVE_EVENTLING)
+	owner?.remove_traits(list(TRAIT_CHANGELING_HIVEMIND, TRAIT_EVENTLING_HIVEMIND), CHANGELING_TRAIT)
 	return ..()
 
 /datum/action/changeling/hivemind_pick/sting_action(mob/user)

@@ -107,12 +107,8 @@
 		dna.species = new species_type
 
 	if(randomize)
-		if(dna.species.language)
-			var/datum/language/species_language = GLOB.all_languages[dna.species.language]
-			if(species_language)
-				dna.real_name = species_language.get_random_name(MALE)
-			else
-				dna.real_name = "Неизвестный-[rand(999)]"
+		if(dna.species)
+			dna.real_name = dna.species.get_random_name(MALE)
 		else
 			dna.real_name = "Неизвестный-[rand(999)]"
 

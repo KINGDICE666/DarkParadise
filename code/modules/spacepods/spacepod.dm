@@ -675,10 +675,6 @@
 	SPE.my_atom = null
 	equipment_system.vars[slot] = null
 
-/obj/spacepod/hear_talk(mob/M, list/message_pieces)
-	cargo_hold.hear_talk(M, message_pieces)
-	..()
-
 /obj/spacepod/hear_message(mob/M, msg)
 	cargo_hold.hear_message(M, msg)
 	..()

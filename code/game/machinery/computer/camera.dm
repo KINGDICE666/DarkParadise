@@ -320,14 +320,15 @@ GLOBAL_LIST_EMPTY(camera_console_watchers)
 	RegisterSignal(active_camera, COMSIG_MOVABLE_HEAR, PROC_REF(on_camera_hear), override = TRUE)
 
 /// Signal proc called on chosen camera hear. Broadcasts heard speech to src
-/obj/machinery/computer/security/telescreen/entertainment/proc/on_camera_hear(datum/source, mob/speaker, list/message_pieces)
+/obj/machinery/computer/security/telescreen/entertainment/proc/on_camera_hear(datum/source, list/hearing_args)
 	SIGNAL_HANDLER
 
 	if(!length(concurrent_users) || !active_camera) // Active camera is null if the ui got closed, most likely.
 		UnregisterSignal(source, COMSIG_MOVABLE_HEAR)
 		return
 
-	var/msg = "[speaker.name] говор[PLUR_IT_YAT(speaker)]: \"[multilingual_to_message(message_pieces)]\""
+	var/atom/movable/speaker = hearing_args[HEARING_SPEAKER]
+	var/msg = "[speaker.GetVoice()] говор[PLUR_IT_YAT(speaker)]: \"[hearing_args[HEARING_RAW_MESSAGE]]\""
 	atom_say(msg)
 
 /// Signal proc called of cameranet camera updates

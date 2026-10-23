@@ -37,16 +37,21 @@
 	if(!friend.client && friend_initialized)
 		addtimer(CALLBACK(src, PROC_REF(reroll_friend)), 1 MINUTES, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
 
-/datum/brain_trauma/special/imaginary_friend/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(QDELETED(friend) || speaker == friend)
+/datum/brain_trauma/special/imaginary_friend/handle_hearing(datum/source, list/hearing_args)
+	if(QDELETED(friend) || hearing_args[HEARING_SPEAKER] == friend)
 		return
-	INVOKE_ASYNC(src, PROC_REF(relay_hearing), speaker, message_pieces)
+	INVOKE_ASYNC(src, PROC_REF(relay_hearing), hearing_args.Copy())
 
-/datum/brain_trauma/special/imaginary_friend/proc/relay_hearing(mob/speaker, list/message_pieces)
+/datum/brain_trauma/special/imaginary_friend/proc/relay_hearing(list/hearing_args)
 	if(QDELETED(friend))
 		return
+	var/list/original_mods = hearing_args[HEARING_MESSAGE_MODE]
+	var/list/relayed_mods = LAZYCOPY(original_mods)
+	relayed_mods[MODE_IGNORE_ATMOSPHERICS] = TRUE
+	hearing_args[HEARING_MESSAGE_MODE] = relayed_mods
+	hearing_args[HEARING_RANGE] = INFINITY
 	friend.relaying_hearing = TRUE
-	friend.hear_say(message_pieces, speaker = speaker)
+	friend.Hear(arglist(hearing_args))
 	friend.relaying_hearing = FALSE
 
 /datum/brain_trauma/special/imaginary_friend/proc/reroll_friend()
@@ -198,14 +203,19 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 
 	client.images |= current_image
 
-/mob/camera/imaginary_friend/say_understands(atom/movable/other, datum/language/speaking = null)
+/mob/camera/imaginary_friend/has_language(language, flags_to_check)
 	if(!host)
 		return ..()
-	return host.say_understands(other, speaking)
+	return host.has_language(language, flags_to_check)
 
-/mob/camera/imaginary_friend/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = FALSE, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
+/mob/camera/imaginary_friend/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
 	if(!relaying_hearing)
-		return
+		return FALSE
+	return ..()
+
+/mob/camera/imaginary_friend/translate_language(atom/movable/speaker, datum/language/language, raw_message, list/spans, list/message_mods)
+	if(relaying_hearing)
+		return raw_message
 	return ..()
 
 /mob/camera/imaginary_friend/setDir(newdir)
@@ -269,7 +279,19 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 		return FALSE
 	abstract_move(host)
 
-/mob/camera/imaginary_friend/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
+/mob/camera/imaginary_friend/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(!message || !host)
 		return FALSE
 
@@ -292,7 +314,7 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 
 /mob/camera/imaginary_friend/proc/friend_talk(message)
 	add_say_logs(src, message)
-	var/rendered = span_gamesay("[span_name("[name]")] [say_quote(message)], «[message]»")
+	var/rendered = span_gamesay("[span_name("[name]")] [genderize_decode(src, say_mod(message))], «[message]»")
 	for(var/mob/listener as anything in host.imaginary_group)
 		to_chat(listener, rendered)
 		if(listener.client?.prefs?.toggles2 & PREFTOGGLE_2_RUNECHAT)
@@ -301,7 +323,7 @@ GAME_VERB_HIDDEN(/mob/camera/imaginary_friend, suicide, "suicide")
 
 	speech_bubble("[bubble_icon][say_test(message)]", src, group_clients())
 
-	var/dead_rendered = span_gamesay("[span_name("[name]")] (воображаемый друг [host]) [say_quote(message)], «[message]»")
+	var/dead_rendered = span_gamesay("[span_name("[name]")] (воображаемый друг [host]) [genderize_decode(src, say_mod(message))], «[message]»")
 	for(var/mob/dead/observer/ghost in GLOB.dead_mob_list)
 		to_chat(ghost, "[FOLLOW_LINK(ghost, host)] [dead_rendered]")
 

@@ -93,12 +93,6 @@
 			to_chat(user, span_notice("You unlock \the [src]."))
 		origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
 
-/obj/item/storage/lockbox/hear_talk(mob/living/M, list/message_pieces)
-	if(locked)
-		return
-
-	..()
-
 /obj/item/storage/lockbox/hear_message(mob/living/M, msg)
 	return
 

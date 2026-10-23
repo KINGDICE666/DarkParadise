@@ -186,11 +186,9 @@
 	vox.age = rand(12, 20)
 	vox.set_species(/datum/species/vox)
 	vox.s_tone = rand(1, 6)
-	LAZYREINITLIST(vox.languages)
+	vox.remove_all_languages(LANGUAGE_MIND)
 	vox.flavor_text = ""
-	vox.add_language(LANGUAGE_VOX)
-	vox.add_language(LANGUAGE_GALACTIC_COMMON)
-	vox.add_language(LANGUAGE_TRADER)
+	vox.grant_language(/datum/language/trader)
 	head_organ.h_style = "Short Vox Quills"
 	head_organ.f_style = "Shaved"
 	vox.change_hair_color(97, 79, 25)

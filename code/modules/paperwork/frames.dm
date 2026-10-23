@@ -319,11 +319,6 @@
 	toggle_tilt(usr)
 	return CLICK_ACTION_SUCCESS
 
-/obj/structure/sign/picture_frame/hear_talk(mob/living/M as mob, list/message_pieces)
-	..()
-	for(var/obj/O in contents)
-		O.hear_talk(M, message_pieces)
-
 /obj/structure/sign/picture_frame/hear_message(mob/living/M as mob, msg)
 	..()
 	for(var/obj/O in contents)

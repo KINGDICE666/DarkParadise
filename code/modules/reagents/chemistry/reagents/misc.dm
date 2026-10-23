@@ -696,7 +696,7 @@
 
 /datum/reagent/monkeylanguage/on_mob_life(mob/living/target_mob)
 	if(volume > 4)
-		target_mob.add_language(LANGUAGE_MONKEY_HUMAN)
+		target_mob.grant_language(/datum/language/human/monkey)
 	return ..()
 
 /datum/reagent/bugmilk

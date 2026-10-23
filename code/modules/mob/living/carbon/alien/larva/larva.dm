@@ -28,8 +28,6 @@
 		name = "alien larva ([rand(1, 1000)])"
 	real_name = name
 	regenerate_icons()
-	add_language(LANGUAGE_XENOS)
-	add_language(LANGUAGE_HIVE_XENOS)
 	hide_action = new
 	hide_action.Grant(src)
 	AddSpell(new /datum/action/cooldown/spell/evolve/larva)

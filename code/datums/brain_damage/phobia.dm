@@ -89,19 +89,17 @@
 
 	return FALSE
 
-/datum/brain_trauma/mild/phobia/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(speaker == owner || owner.stat >= UNCONSCIOUS || HAS_TRAIT(owner, TRAIT_DEAF))
+/datum/brain_trauma/mild/phobia/handle_hearing(datum/source, list/hearing_args)
+	if(hearing_args[HEARING_SPEAKER] == owner || owner.stat >= UNCONSCIOUS || HAS_TRAIT(owner, TRAIT_DEAF))
 		return
 
-	for(var/datum/multilingual_say_piece/piece as anything in message_pieces)
-		if(!owner.say_understands(speaker, piece.speaking) || !trigger_regex.Find(piece.message))
-			continue
-
-		var/scary_word = "[trigger_regex.group[2]][trigger_regex.group[3]]"
-		piece.message = trigger_regex.Replace(piece.message, "$1[span_phobia("$2$3")]")
-		if(COOLDOWN_FINISHED(src, scare_cooldown))
-			addtimer(CALLBACK(src, PROC_REF(freak_out), scary_word), 1 SECONDS, TIMER_DELETE_ME)
+	if(!owner.has_language(hearing_args[HEARING_LANGUAGE]) || !trigger_regex.Find(hearing_args[HEARING_RAW_MESSAGE]))
 		return
+
+	var/scary_word = "[trigger_regex.group[2]][trigger_regex.group[3]]"
+	hearing_args[HEARING_RAW_MESSAGE] = trigger_regex.Replace(hearing_args[HEARING_RAW_MESSAGE], "$1[span_phobia("$2$3")]")
+	if(COOLDOWN_FINISHED(src, scare_cooldown))
+		addtimer(CALLBACK(src, PROC_REF(freak_out), scary_word), 1 SECONDS, TIMER_DELETE_ME)
 
 /datum/brain_trauma/mild/phobia/handle_speech(datum/source, list/speech_args)
 	if(owner.stat >= UNCONSCIOUS || !prob(50))

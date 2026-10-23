@@ -34,6 +34,7 @@ GLOBAL_LIST_EMPTY(active_entertainment_cameras)
 /obj/item/broadcast_camera/Initialize(mapload)
 	. = ..()
 	soundloop = new(src, FALSE)
+	become_hearing_sensitive(ROUNDSTART_TRAIT)
 
 /obj/item/broadcast_camera/get_ru_names()
 	return alist(
@@ -186,12 +187,12 @@ GLOBAL_LIST_EMPTY(active_entertainment_cameras)
 
 	camera.toggle_cam(null, FALSE)
 
-/obj/item/broadcast_camera/hear_talk(mob/speaker, list/message_pieces)
+/obj/item/broadcast_camera/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
 	. = ..()
-	if(!camera || !active)
+	if(!camera || !active || radio_freq)
 		return
 
-	camera.hear_talk(speaker, message_pieces)
+	camera.Hear(speaker, message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, spans, message_mods, message_range)
 
 /obj/item/broadcast_camera/update_icon_state()
 	if(active)

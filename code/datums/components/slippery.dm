@@ -23,6 +23,8 @@
 	var/slip_tiles
 	/// Flags for how slippery the parent is. See [__DEFINES/mobs.dm]
 	var/lube_flags
+	var/force_drop_items = FALSE
+	var/slip_on_damage = FALSE
 	/// Optional callback allowing you to define custom conditions for slipping
 	var/datum/callback/can_slip_callback
 	/// Optional call back that is called when a mob slips on this component
@@ -49,12 +51,19 @@
 	lube_flags = NONE,
 	datum/callback/on_slip_callback,
 	datum/callback/can_slip_callback,
+	force_drop = FALSE,
+	slip_on_damage = FALSE,
 )
 	src.knockdown_time = max(knockdown, 0)
 	src.slip_tiles = max(0, slip_tiles)
 	src.lube_flags = lube_flags
 	src.can_slip_callback = can_slip_callback
 	src.on_slip_callback = on_slip_callback
+	src.force_drop_items = force_drop
+	src.slip_on_damage = slip_on_damage
+	if(isitem(parent))
+		RegisterSignal(parent, COMSIG_ITEM_AFTERATTACK, PROC_REF(slip_on_afterattack))
+		RegisterSignal(parent, COMSIG_MOVABLE_IMPACT, PROC_REF(slip_on_throw_impact))
 
 	if(ismovable(parent))
 		AddComponent(/datum/component/connect_loc_behalf, parent, default_connections)
@@ -62,6 +71,7 @@
 		RegisterSignal(parent, COMSIG_ATOM_ENTERED, PROC_REF(Slip))
 
 /datum/component/slippery/UnregisterFromParent()
+	UnregisterSignal(parent, list(COMSIG_ITEM_AFTERATTACK, COMSIG_MOVABLE_IMPACT))
 	if(ismovable(parent))
 		qdel(GetComponent(/datum/component/connect_loc_behalf))
 	else
@@ -80,19 +90,25 @@
 	lube_flags = NONE,
 	datum/callback/on_slip_callback,
 	datum/callback/can_slip_callback,
+	force_drop = FALSE,
+	slip_on_damage = FALSE,
 )
 	if(component)
 		knockdown = component.knockdown_time
 		slip_tiles = component.slip_tiles
 		lube_flags = component.lube_flags
 		on_slip_callback = component.on_slip_callback
-		can_slip_callback = component.on_slip_callback
+		can_slip_callback = component.can_slip_callback
+		force_drop = component.force_drop_items
+		slip_on_damage = component.slip_on_damage
 
 	src.knockdown_time = max(knockdown, 0)
 	src.slip_tiles = max(slip_tiles, 0)
 	src.lube_flags = lube_flags
 	src.on_slip_callback = on_slip_callback
 	src.can_slip_callback = can_slip_callback
+	src.force_drop_items = force_drop
+	src.slip_on_damage = slip_on_damage
 
 /**
  * The proc that does the sliping. Invokes the slip callback we have set.
@@ -115,4 +131,16 @@
 	if(can_slip_callback && !can_slip_callback.Invoke(parent, victim))
 		return
 	if(victim.slip(knockdown_time, parent, lube_flags, slip_tiles))
+		if(force_drop_items)
+			victim.drop_all_held_items()
 		on_slip_callback?.Invoke(victim)
+
+/datum/component/slippery/proc/slip_on_afterattack(datum/source, atom/target, mob/user, proximity_flag)
+	SIGNAL_HANDLER
+	if(slip_on_damage && proximity_flag && isliving(target))
+		Slip(source, target)
+
+/datum/component/slippery/proc/slip_on_throw_impact(datum/source, atom/hit_atom, datum/thrownthing/throwing_datum)
+	SIGNAL_HANDLER
+	if(slip_on_damage && isliving(hit_atom))
+		Slip(source, hit_atom)

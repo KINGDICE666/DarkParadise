@@ -1,5 +1,6 @@
 /datum/species/skeleton
 	name = SPECIES_SKELETON
+	species_language_holder = /datum/language_holder/skeleton
 	name_plural = "Skeletons"
 	ru_genitive = "скелета"
 

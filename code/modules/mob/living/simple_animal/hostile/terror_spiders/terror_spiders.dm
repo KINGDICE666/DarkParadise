@@ -145,13 +145,12 @@ GLOBAL_LIST_EMPTY(ts_spiderling_list)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NEGATES_GRAVITY, INNATE_TRAIT)
 	GLOB.ts_spiderlist += src
-	add_language(LANGUAGE_HIVE_TERRORSPIDER)
+	ADD_TRAIT(src, TRAIT_TERRORSPIDER_HIVEMIND, INNATE_TRAIT)
 	for(var/spell in special_abillity)
 		AddSpell(new spell)
 
 	if(spider_tier >= TS_TIER_2)
-		add_language(LANGUAGE_GALACTIC_COMMON)
-	default_language = GLOB.all_languages[LANGUAGE_HIVE_TERRORSPIDER]
+		grant_language(/datum/language/common)
 
 	if(web_type)
 		var/datum/action/innate/terrorspider/web/web_act = new
@@ -439,3 +438,6 @@ GLOBAL_LIST_EMPTY(ts_spiderling_list)
 /mob/living/simple_animal/hostile/poison/terror_spider/experience_pressure_difference(pressure_difference, direction)
 	if(!HAS_TRAIT(src, TRAIT_NEGATES_GRAVITY))
 		return ..()
+
+/mob/living/simple_animal/hostile/poison/terror_spider/get_default_saymode()
+	return SSradio.get_say_mode(/datum/saymode/hivemind/terror_spider)

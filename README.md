@@ -17,11 +17,11 @@
 | ------------------- | ---------------------------------------------------------------------------------------------------- |
 | Code                | https://github.com/KINGDICE666/DarkParadise                                                          |
 | Codedocs            | https://kingdice666.github.io/DarkParadise/                                                          |
-| Discord             | https://discord.gg/nGDfQuScM7                                                                        |
+| Discord             | https://discord.gg/5N55TJgTa9                                                                        |
 | Boosty              | https://boosty.to/king_dice                                                                          |
 
 > [!TIP]
-> Обсуждение разработки и помощь по коду — на нашем [Discord-сервере](https://discord.gg/nGDfQuScM7).<br>
+> Обсуждение разработки и помощь по коду — на нашем [Discord-сервере](https://discord.gg/5N55TJgTa9).<br>
 
 # Полезная документация
 

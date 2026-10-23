@@ -191,12 +191,6 @@
 		to_chat(usr, span_notice("[src] is locked!"))
 	return FALSE
 
-/obj/item/storage/secure/hear_talk(mob/living/M, list/message_pieces)
-	if(locked)
-		return
-
-	..()
-
 /obj/item/storage/secure/hear_message(mob/living/M, msg)
 	return
 

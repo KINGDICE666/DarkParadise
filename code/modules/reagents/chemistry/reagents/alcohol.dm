@@ -2095,7 +2095,7 @@
 /datum/reagent/consumable/ethanol/codelibre/on_mob_life(mob/living/M)
 	. = ..()
 	if(prob(10))
-		M.say("[get_language_prefix(LANGUAGE_TRINARY)] Вива ла Синтетика!")
+		M.say("[get_language_prefix(/datum/language/trinary)] Вива ла Синтетика!")
 
 /datum/reagent/consumable/ethanol/blackicp
 	name = "Чёрный КПБ"
@@ -2202,22 +2202,12 @@
 
 /datum/reagent/consumable/ethanol/trans_siberian_express/on_mob_life(mob/living/M)
 	. = ..()
-	var/datum/language/rus_lang = GLOB.all_languages[LANGUAGE_NEO_RUSSIAN]
-	if(LAZYIN(M.languages, rus_lang) && !LAZYIN(M.temporary_languages, rus_lang))
-		if(M.default_language != rus_lang)
-			M.default_language = rus_lang
-		if(volume < 0.4)
-			M.default_language = null //reset language we were speaking
+	if(volume < 0.4)
+		M.remove_language(/datum/language/com_srus, source = LANGUAGE_DRINK)
+		M.set_active_language(null)
 		return
-	else
-		if(!LAZYIN(M.languages, rus_lang))
-			LAZYADD(M.temporary_languages, rus_lang)
-			LAZYADD(M.languages, rus_lang)
-			M.default_language = rus_lang
-		if(volume < 0.4)
-			M.languages ^= M.temporary_languages
-			LAZYREMOVE(M.temporary_languages, rus_lang)
-			M.default_language = null
+	M.grant_language(/datum/language/com_srus, source = LANGUAGE_DRINK)
+	M.set_active_language(/datum/language/com_srus)
 
 /datum/reagent/consumable/ethanol/sun
 	name = "Солнце"

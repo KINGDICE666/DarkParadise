@@ -122,7 +122,7 @@
 	var/toggle_command_bold = FALSE
 
 	/* Strings */
-	var/setting_language = LANGUAGE_NONE
+	var/setting_language = "--ВЫКЛЮЧЕНО--"
 	var/job_indicator_type = null
 
 	// This tells the datum what is safe to serialize and what's not. It also applies to deserialization.
@@ -166,11 +166,10 @@
 	job_indicator_type = initial(job_indicator_type)
 
 /datum/nttc_configuration/proc/update_languages()
-	for(var/language_name in GLOB.all_languages)
-		var/datum/language/language = GLOB.all_languages[language_name]
-		if(language.flags & (HIVEMIND|NONGLOBAL))
+	for(var/datum/language/language as anything in GLOB.all_languages)
+		if(!language::key)
 			continue
-		valid_languages[language] = TRUE
+		valid_languages[language::name] = TRUE
 
 // I'd use serialize() but it's used by another system. This converts the configuration into a JSON string.
 /datum/nttc_configuration/proc/nttc_serialize()
@@ -237,7 +236,6 @@
 	if(toggle_name_color)
 		var/new_name = "<span class=\"[job_class]\">[tcm.sender_name]</span>"
 		tcm.sender_name = new_name
-		tcm.vname = new_name // this is required because the broadcaster uses this directly if the speaker doesn't have a voice changer on
 
 	if(toggle_jobs)
 		var/new_name = ""
@@ -268,9 +266,6 @@
 		// Only change the name if they have a job tag set, otherwise everyone becomes unknown, and thats bad
 		if(new_name != "")
 			tcm.sender_name = new_name
-			tcm.vname = new_name // this is required because the broadcaster uses this directly if the speaker doesn't have a voice changer on
-	// This is hacky stuff for multilingual messages...
-	var/list/message_pieces = tcm.message_pieces
 
 	// Makes heads of staff bold
 	if(toggle_command_bold)
@@ -281,22 +276,13 @@
 			realjob = rank
 
 		if((realjob in ert_jobs) || (realjob in heads) || (realjob in cc_jobs) || (realjob in tsf_jobs))
-			for(var/I in 1 to length(message_pieces))
-				var/datum/multilingual_say_piece/S = message_pieces[I]
-				if(!S.message)
-					continue
-				if(I == 1 && S.speaking != GLOB.all_languages[LANGUAGE_NOISE]) // Capitalise the first section only, unless it's an emote.
-					S.message = "[capitalize(S.message)]"
-				S.message = "<b>[S.message]</b>" // Make everything bolded
+			tcm.message = capitalize(tcm.message)
+			tcm.spans |= "bold"
 
 	// Language Conversion
-	if(setting_language && valid_languages[setting_language])
-		if(setting_language == "--ВЫКЛЮЧЕНО--")
-			setting_language = LANGUAGE_NONE
-		else
-			for(var/datum/multilingual_say_piece/S in message_pieces)
-				if(S.speaking != GLOB.all_languages[LANGUAGE_NOISE]) // check if they are emoting, these do not need to be translated
-					S.speaking = setting_language
+	var/datum/language/conversion_language = GLOB.language_types_by_name[setting_language]
+	if(conversion_language && valid_languages[setting_language])
+		tcm.language = conversion_language
 
 	return tcm
 

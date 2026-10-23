@@ -68,11 +68,6 @@
 		return
 	attached_device.HasProximity(AM)
 
-/obj/item/transfer_valve/hear_talk(mob/living/M, list/message_pieces)
-	..()
-	for(var/obj/O in contents)
-		O.hear_talk(M, message_pieces)
-
 /obj/item/transfer_valve/hear_message(mob/living/M, msg)
 	..()
 	for(var/obj/O in contents)

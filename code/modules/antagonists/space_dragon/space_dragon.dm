@@ -21,6 +21,7 @@
  * - Can tear through any type of wall.  This takes 4 seconds for most walls, and 12 seconds for reinforced walls.
  */
 /mob/living/simple_animal/hostile/space_dragon
+	initial_language_holder = /datum/language_holder/carp/dragon
 	name = "Space Dragon"
 	desc = "Ужасное существо, схожее с классом левиафан, которое летает самым неестественным способом. Схож внешне с космическим карпом."
 	gender = NEUTER

@@ -5,6 +5,7 @@
 //Mob defines.
 /mob/living/simple_animal/diona
 	name = "diona nymph"
+	initial_language_holder = /datum/language_holder/diona/nymph
 	icon = 'icons/mob/monkey.dmi'
 	icon_state = "nymph"
 	icon_living = "nymph"
@@ -97,7 +98,6 @@
 	if(name == initial(name)) //To stop Pun-Pun becoming generic.
 		name = "[name] ([rand(1, 1000)])"
 		real_name = name
-	add_language(LANGUAGE_DIONA)
 	merge_action.Grant(src)
 	evolve_action.Grant(src)
 	steal_blood_action.Grant(src)
@@ -245,8 +245,7 @@
 		forceMove(L.loc)
 		qdel(L)
 
-	for(var/datum/language/L in languages)
-		adult.add_language(L.name)
+	adult.copy_languages(src, LANGUAGE_ATOM)
 	adult.regenerate_icons()
 
 	if(random_name)
@@ -308,9 +307,8 @@
 
 	visible_message(span_danger("[src] выпускает щупальце и забирает образец крови [M]."),span_danger("Вы выпускаете щупальце и забираете образец крови [M]."))
 	donors += M.real_name
-	for(var/datum/language/L in M.languages)
-		if(!(L.flags & HIVEMIND))
-			languages |= L
+	for(var/language in M.get_language_holder().spoken_languages)
+		grant_language(language, source = LANGUAGE_ATOM)
 
 	spawn(25)
 		update_progression()
@@ -322,7 +320,7 @@
 	if(length(donors) == evolve_donors)
 		to_chat(src, span_noticealien("Вы готовы к следующей стадии роста."))
 	else if(length(donors) == awareness_donors)
-		universal_understand = 1
+		grant_all_languages(UNDERSTOOD_LANGUAGE, grant_omnitongue = FALSE, source = LANGUAGE_ATOM)
 		to_chat(src, span_noticealien("Ваше сознание расширяется — теперь вы понимаете окружающих."))
 	else
 		to_chat(src, span_noticealien("Кровь проникает в вас, принося воспоминания и черты личности."))

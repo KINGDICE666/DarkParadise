@@ -20,7 +20,7 @@
 	впечатления, и предубеждение отчасти живо до сих пор.<br/><br/>Ниан почитают три древних божества: Того, Кто \
 	Направляет Ветра, Ту, Что Переплетает Судьбы, и Бестию. Между собой они общаются не только на ткачьем языке, \
 	но и прерывистыми жестами усиков, крыльев и челюстей."
-	language = LANGUAGE_MOTH
+	species_language_holder = /datum/language_holder/moth
 	icobase = 'icons/mob/human_races/r_moth.dmi'
 	deform = 'icons/mob/human_races/r_moth.dmi'
 	inherent_factions = list("moth")

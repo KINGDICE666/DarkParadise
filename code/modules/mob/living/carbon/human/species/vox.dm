@@ -6,7 +6,7 @@
 	deform = 'icons/mob/human_races/vox/r_def_vox.dmi'
 	fit_profile = /datum/species_fit/vox
 	dangerous_existence = TRUE
-	language = LANGUAGE_VOX
+	species_language_holder = /datum/language_holder/vox
 	tail = "voxtail"
 	speech_sounds = list('sound/voice/shriek1.ogg')
 	speech_chance = 20
@@ -123,7 +123,7 @@
 		"ч" = list("ч", "чч", "чич"),
 		"к" = list("к", "кк", "кик"),
 	)
-	autohiss_exempt = list("Вокс-пиджин")
+	autohiss_exempt = list(/datum/language/vox)
 
 
 /datum/species/vox/handle_death(gibbed, mob/living/carbon/human/H)

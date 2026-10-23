@@ -711,7 +711,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 /obj/item/proc/refill(mob/user, atom/A, amount)
 	return FALSE
 
-/obj/item/proc/talk_into(mob/M, text, channel=null)
+/obj/item/proc/talk_into(atom/movable/talking_movable, message, channel, list/spans, datum/language/language, list/message_mods)
 	return
 
 /**

@@ -123,6 +123,15 @@
 	/// Last location of the atom for demo recording purposes
 	var/atom/demo_last_loc
 
+	var/initial_language_holder = /datum/language_holder/atom_basic
+	var/verb_say = "говор%(ит,ят)%"
+	var/verb_ask = "спрашива%(ет,ют)%"
+	var/verb_exclaim = "восклица%(ет,ют)%"
+	var/verb_whisper = "шепч%(ет,ут)%"
+	var/verb_yell = "крич%(ит,ат)%"
+	var/speech_span
+	VAR_PRIVATE/datum/language_holder/language_holder
+
 /mutable_appearance/emissive_blocker
 
 /mutable_appearance/emissive_blocker/New()
@@ -197,6 +206,7 @@
 /atom/movable/Destroy(force)
 	unbuckle_all_mobs(force = TRUE)
 	QDEL_NULL(em_block)
+	QDEL_NULL(language_holder)
 
 	if(opacity)
 		RemoveElement(/datum/element/light_blocking)
@@ -1727,3 +1737,82 @@
 /// Called when a mob resists while inside a container that is itself inside something.
 /atom/movable/proc/relay_container_resist_act(mob/living/user, obj/container)
 	return
+
+/atom/movable/proc/get_language_holder()
+	RETURN_TYPE(/datum/language_holder)
+	if(QDELING(src))
+		CRASH("get_language_holder() called on a QDELing atom, this will try to re-instantiate the language holder that's about to be deleted, which is bad.")
+
+	if(!language_holder)
+		language_holder = new initial_language_holder(src)
+	return language_holder
+
+/atom/movable/proc/grant_language(language, language_flags = ALL, source = LANGUAGE_ATOM)
+	return get_language_holder().grant_language(language, language_flags, source)
+
+/atom/movable/proc/grant_all_languages(language_flags = ALL, grant_omnitongue = TRUE, source = LANGUAGE_MIND)
+	return get_language_holder().grant_all_languages(language_flags, grant_omnitongue, source)
+
+/atom/movable/proc/grant_all_babel_languages(language_flags = ALL, source = LANGUAGE_MIND)
+	return get_language_holder().grant_all_babel_languages(language_flags, source)
+
+/atom/movable/proc/grant_partial_language(language, amount = 50, source = LANGUAGE_ATOM)
+	return get_language_holder().grant_partial_language(language, amount, source)
+
+/atom/movable/proc/remove_language(language, language_flags = ALL, source = LANGUAGE_ALL)
+	return get_language_holder().remove_language(language, language_flags, source)
+
+/atom/movable/proc/remove_all_languages(source = LANGUAGE_ALL, remove_omnitongue = FALSE)
+	return get_language_holder().remove_all_languages(source, remove_omnitongue)
+
+/atom/movable/proc/remove_partial_language(language, source = LANGUAGE_ALL)
+	return get_language_holder().remove_partial_language(language, source)
+
+/atom/movable/proc/remove_all_partial_languages(source = LANGUAGE_ALL)
+	return get_language_holder().remove_all_partial_languages(source)
+
+/atom/movable/proc/add_blocked_language(language, language_flags = ALL, source = LANGUAGE_ATOM)
+	return get_language_holder().add_blocked_language(language, language_flags, source)
+
+/atom/movable/proc/remove_blocked_language(language, language_flags = ALL, source = LANGUAGE_ATOM)
+	return get_language_holder().remove_blocked_language(language, language_flags, source)
+
+/atom/movable/proc/has_language(language, flags_to_check)
+	return get_language_holder().has_language(language, flags_to_check)
+
+/atom/movable/proc/has_partial_language(language)
+	return get_language_holder().has_partial_language(language)
+
+/atom/movable/proc/can_speak_language(language)
+	return get_language_holder().can_speak_language(language)
+
+/atom/movable/proc/could_speak_language(datum/language/language_path)
+	return TRUE
+
+/atom/movable/proc/get_selected_language()
+	return get_language_holder().get_selected_language()
+
+/atom/movable/proc/get_random_understood_language()
+	return get_language_holder().get_random_understood_language()
+
+/atom/movable/proc/get_partially_understood_languages() as /list
+	return get_language_holder().best_mutual_languages
+
+/atom/movable/proc/get_random_spoken_language()
+	return get_language_holder().get_random_spoken_language()
+
+/atom/movable/proc/get_understood_languages() as /list
+	return get_language_holder().get_understood_languages() || list()
+
+/atom/movable/proc/copy_languages(datum/language_holder/from_holder, source_override)
+	if(ismovable(from_holder))
+		var/atom/movable/thing = from_holder
+		from_holder = thing.get_language_holder()
+
+	return get_language_holder().copy_languages(from_holder, source_override)
+
+/atom/movable/proc/set_active_language(language_path)
+	var/datum/language_holder/our_holder = get_language_holder()
+	our_holder.selected_language = language_path
+
+	return our_holder.get_selected_language()

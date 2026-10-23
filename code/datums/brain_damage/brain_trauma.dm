@@ -44,6 +44,6 @@
 	SIGNAL_HANDLER
 	UnregisterSignal(owner, COMSIG_MOB_SAY)
 
-/datum/brain_trauma/proc/handle_hearing(datum/source, mob/speaker, list/message_pieces)
+/datum/brain_trauma/proc/handle_hearing(datum/source, list/hearing_args)
 	SIGNAL_HANDLER
 	UnregisterSignal(owner, COMSIG_MOVABLE_HEAR)

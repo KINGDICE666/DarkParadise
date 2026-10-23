@@ -229,7 +229,7 @@
 
 	H.force_gene_block(GLOB.clumsyblock, TRUE, TRUE)
 	H.force_gene_block(GLOB.comicblock, TRUE, TRUE)
-	H.add_language(LANGUAGE_CLOWN)
+	H.grant_language(/datum/language/clown)
 	H.grant_mimicking()
 
 /mob/living/carbon/human/proc/grant_mimicking()

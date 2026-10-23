@@ -1,26 +1,6 @@
-/*
-/mob/living/carbon/human/say(message, verb = "говор%(ит,ят)%", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
-	..(message, sanitize = sanitize, ignore_speech_problems = ignore_speech_problems, ignore_atmospherics = ignore_atmospherics)	//ohgod we should really be passing a datum here.
-*/
-
 /mob/living/carbon/human/GetAltName()
 	if(name != GetVoice())
 		return " (как [get_id_name(UNKNOWN_NAME_RUS)])"
-	return ..()
-
-/mob/living/carbon/human/say_understands(atom/movable/other, datum/language/speaking = null)
-	if(dna?.species?.can_understand(other))
-		return TRUE
-
-	// These only pertain to common. Languages are handled by mob/say_understands()
-	if(!speaking && ismob(other))
-		if(isnymph(other))
-			var/mob/nymph = other
-			if(length(nymph.languages) >= 2) // They've sucked down some blood and can speak common now.
-				return TRUE
-		if(issilicon(other) || isbot(other) || isbrain(other) || isslime(other))
-			return TRUE
-
 	return ..()
 
 /mob/living/carbon/human/proc/HasVoiceChanger()
@@ -128,131 +108,104 @@
 /mob/living/carbon/human/proc/GetSpecialTTSVoice()
 	return special_tts_voice
 
-/mob/living/carbon/human/handle_speech_problems(list/message_pieces, verb)
-	var/span = ""
+/mob/living/carbon/human/treat_message(message, list/message_mods, list/spans, datum/language/language)
 	var/check_mute = TRUE
 	var/check_wingdings = TRUE
 
 	var/obj/item/organ/internal/cyberimp/mouth/translator/translator = get_organ_slot(INTERNAL_ORGAN_SPEECH_TRANSLATOR)
-	if(translator?.active) // Yes, we can speak even muted, unless being EMPed
+	if(translator?.active)
 		check_mute = FALSE
 
-		if(translator.can_wingdings) // Active wingdings chip allowed us to speak normally
+		if(translator.can_wingdings)
 			check_wingdings = FALSE
 
 	if(HAS_TRAIT(src, TRAIT_COMIC) \
 		|| (locate(/obj/item/organ/internal/cyberimp/brain/clown_voice) in internal_organs) \
 		|| HAS_TRAIT(src, TRAIT_JESTER))
-		span = "sans"
+		spans |= SPAN_SANS
 
 	if(check_wingdings && HAS_TRAIT(src, TRAIT_WINGDINGS))
-		span = "wingdings"
+		spans |= "wingdings"
 
-	var/list/parent = ..()
-	verb = parent["verb"]
+	message = ..()
 
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		if(S.speaking?.flags & NO_STUTTER)
-			continue
+	if(check_mute && HAS_TRAIT(src, TRAIT_MUTE))
+		return ""
 
-		if(check_mute && (HAS_TRAIT(src, TRAIT_MUTE)))
-			S.message = ""
-			continue
+	if(istype(wear_mask, /obj/item/clothing/mask/horsehead))
+		var/obj/item/clothing/mask/horsehead/hoers = wear_mask
+		if(hoers.voicechange)
+			message = pick("NEEIIGGGHHHH!", "NEEEIIIIGHH!", "NEIIIGGHH!", "HAAWWWWW!", "HAAAWWW!")
 
-		if(istype(wear_mask, /obj/item/clothing/mask/horsehead))
-			var/obj/item/clothing/mask/horsehead/hoers = wear_mask
-			if(hoers.voicechange)
-				S.message = pick("NEEIIGGGHHHH!", "NEEEIIIIGHH!", "NEIIIGGHH!", "HAAWWWWW!", "HAAAWWW!")
-
-		if(dna)
-			for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
-				if(gene.is_active(src))
-					if(!check_wingdings && istype(gene, /datum/dna/gene/disability/wingdings))
-						continue
-
-					S.message = gene.OnSay(src, S.message)
-
-			if(check_mute && (TRAIT_NO_VOCAL_CORDS in dna.species.inherent_traits)) // Species neither have vocal cords nor translator
-				S.message = ""
+	if(dna)
+		for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
+			if(!gene.is_active(src))
 				continue
+			if(!check_wingdings && istype(gene, /datum/dna/gene/disability/wingdings))
+				continue
+			message = gene.OnSay(src, message)
 
-		var/braindam = getBrainLoss()
-		if(braindam >= 60)
-			if(prob(braindam / 4))
-				S.message = stutter(S.message)
-				verb = "gibbers"
+		if(check_mute && (TRAIT_NO_VOCAL_CORDS in dna.species.inherent_traits))
+			return ""
 
-			if(prob(braindam))
-				S.message = uppertext(S.message)
-				verb = "yells loudly"
+	var/braindam = getBrainLoss()
+	if(braindam >= 60)
+		if(prob(braindam / 4))
+			message = stutter(message)
+			message_mods[SAY_MOD_VERB] = "бормоч[PLUR_ET_UT(src)]"
 
-		if(span && (length(S.message)))
-			S.message = "<span class='[span]'>[S.message]</span>"
+		if(prob(braindam))
+			message = uppertext(message)
+			message_mods[SAY_MOD_VERB] = "громко крич[PLUR_IT_AT(src)]"
 
 	if(wear_mask)
 		var/speech_verb_when_masked = wear_mask.change_speech_verb()
 		if(speech_verb_when_masked)
-			verb = speech_verb_when_masked
+			message_mods[SAY_MOD_VERB] = speech_verb_when_masked
 
-	return list("verb" = verb)
+	return message
 
-/mob/living/carbon/human/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	switch(message_mode)
-		if(INTERCOM_MODE)
-			for(var/obj/item/radio/intercom/I in view(1, src))
-				spawn(0)
-					I.talk_into(src, message_pieces, null, verb)
-				used_radios += I
+/mob/living/carbon/human/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	if(. & NOPASS)
+		return .
 
-		if(HEADSET_MODE)
-			var/obj/item/radio/R = null
-			if(isradio(l_ear))
-				R = l_ear
-				used_radios += R
-				if(R.talk_into(src, message_pieces, null, verb))
-					return FALSE
+	var/obj/item/radio/used_radio
+	var/channel = message_mods[RADIO_EXTENSION]
+	if(message_mods[MODE_HEADSET])
+		for(var/obj/item/radio/ear_radio in list(l_ear, r_ear))
+			used_radio = ear_radio
+			if(ear_radio.talk_into(src, message, null, spans, language, message_mods))
+				break
+	else
+		switch(channel)
+			if(null)
+				return .
+			if(INTERCOM_MODE)
+				for(var/obj/item/radio/intercom/intercom in view(MODE_RANGE_INTERCOM, src))
+					used_radio = intercom
+					intercom.talk_into(src, message, null, spans, language, message_mods)
+			if(R_EAR_MODE)
+				used_radio = isradio(r_hand) ? r_hand : (isradio(r_ear) ? r_ear : null)
+				used_radio?.talk_into(src, message, null, spans, language, message_mods)
+			if(L_EAR_MODE)
+				used_radio = isradio(l_hand) ? l_hand : (isradio(l_ear) ? l_ear : null)
+				used_radio?.talk_into(src, message, null, spans, language, message_mods)
+			else
+				for(var/obj/item/radio/ear_radio in list(l_ear, r_ear))
+					used_radio = ear_radio
+					if(ear_radio.talk_into(src, message, channel, spans, language, message_mods))
+						break
 
-			if(isradio(r_ear))
-				R = r_ear
-				used_radios += R
-				if(R.talk_into(src, message_pieces, null, verb))
-					return FALSE
+	if(!used_radio)
+		return .
+	announce_radio_use(used_radio, message_mods)
+	return . | ITALICS | REDUCE_RANGE
 
-		if(R_EAR_MODE)
-			var/obj/item/radio/R
-			if(isradio(r_hand))
-				R = r_hand
-			else if(isradio(r_ear))
-				R = r_ear
-			if(R)
-				used_radios += R
-				R.talk_into(src, message_pieces, null, verb)
-
-		if(L_EAR_MODE)
-			var/obj/item/radio/R
-			if(isradio(l_hand))
-				R = l_hand
-			else if(isradio(l_ear))
-				R = l_ear
-			if(R)
-				used_radios += R
-				R.talk_into(src, message_pieces, null, verb)
-
-		if(WHISPER_CHANNEL)
-			whisper_say(message_pieces)
-			return TRUE
-
-		else
-			if(message_mode)
-				if(isradio(l_ear))
-					used_radios += l_ear
-					if(l_ear.talk_into(src, message_pieces, message_mode, verb))
-						return FALSE
-
-				if(isradio(r_ear))
-					used_radios += r_ear
-					if(r_ear.talk_into(src, message_pieces, message_mode, verb))
-						return FALSE
+/mob/living/carbon/human/get_default_saymode()
+	if(dna?.species?.default_saymode)
+		return SSradio.get_say_mode(dna.species.default_saymode)
+	return ..()
 
 /mob/living/carbon/human/handle_speech_sound()
 	var/list/returns[3]

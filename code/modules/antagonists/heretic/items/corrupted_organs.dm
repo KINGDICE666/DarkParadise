@@ -80,20 +80,20 @@
 
 /obj/item/organ/internal/vocal_cords/corrupt/insert(mob/living/carbon/organ_owner, special, movement_flags)
 	. = ..()
-	RegisterSignal(organ_owner, COMSIG_LIVING_EARLY_SAY, PROC_REF(on_spoken))
+	RegisterSignal(organ_owner, COMSIG_MOB_SAY, PROC_REF(on_spoken))
 
 
 /obj/item/organ/internal/vocal_cords/corrupt/remove(mob/living/carbon/organ_owner, special, movement_flags)
 	. = ..()
-	UnregisterSignal(organ_owner, COMSIG_LIVING_EARLY_SAY)
+	UnregisterSignal(organ_owner, COMSIG_MOB_SAY)
 
 
-/obj/item/organ/internal/vocal_cords/corrupt/proc/on_spoken(mob/living/organ_owner, message)
+/obj/item/organ/internal/vocal_cords/corrupt/proc/on_spoken(mob/living/organ_owner, list/speech_args)
 	SIGNAL_HANDLER
 	if(organ_owner.reagents?.has_reagent("holywater") || prob(60))
 		return
 
-	message = slur(message)
+	speech_args[SPEECH_MESSAGE] = slur(speech_args[SPEECH_MESSAGE])
 
 
 /// Randomly secretes alcohol or hallucinogens when you're drinking something

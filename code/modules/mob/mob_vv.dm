@@ -2,9 +2,7 @@
 	. = ..()
 	VV_DROPDOWN_OPTION("", "--- /mob ---")
 	VV_DROPDOWN_OPTION(VV_HK_PLAYER_PANEL, "Show player panel")
-	VV_DROPDOWN_OPTION(VV_HK_ADD_LANGUAGE, "Add Language")
-	VV_DROPDOWN_OPTION(VV_HK_REMOVE_LANGUAGE, "Remove Language")
-	VV_DROPDOWN_OPTION(VV_HK_GRANT_ALL_LANGUAGE, "Grant All Language")
+	VV_DROPDOWN_OPTION(VV_HK_LANGUAGE_MENU, "Language Menu")
 	VV_DROPDOWN_OPTION(VV_HK_ADD_VERB, "Add Verb")
 	VV_DROPDOWN_OPTION(VV_HK_REMOVE_VERB, "Remove Verb")
 	VV_DROPDOWN_OPTION(VV_HK_BUILDMODE, "Toggle Buildmode")
@@ -24,55 +22,11 @@
 	if(!.)
 		return
 
-	if(href_list[VV_HK_ADD_LANGUAGE])
+	if(href_list[VV_HK_LANGUAGE_MENU])
 		if(!check_rights(R_SPAWN))
 			return
 
-		var/new_language = tgui_input_list(usr, "Please choose a language to add.", "Language", GLOB.all_languages)
-		if(!new_language)
-			return
-
-		if(QDELETED(src))
-			to_chat(usr, "Mob doesn't exist anymore", confidential = TRUE)
-			return
-
-		if(add_language(new_language))
-			to_chat(usr, "Added [new_language] to [src].", confidential = TRUE)
-			message_admins(span_adminnotice("[key_name_admin(usr)] has given [key_name_admin(src)] the language [new_language]"))
-			log_admin("[key_name(usr)] has given [key_name(src)] the language [new_language]")
-		else
-			to_chat(usr, "Mob already knows that language.", confidential = TRUE)
-
-	if(href_list[VV_HK_REMOVE_LANGUAGE])
-		if(!check_rights(R_SPAWN))
-			return
-
-		if(!length(languages))
-			to_chat(usr, "This mob knows no languages (Perhaps because he was stricken with Babylonian Fewer).", confidential = TRUE)
-			return
-
-		var/datum/language/rem_language = tgui_input_list(usr, "Please choose a language to remove.", "Language", languages)
-		if(!rem_language)
-			return
-
-		if(QDELETED(src))
-			to_chat(usr, "Mob doesn't exist anymore", confidential = TRUE)
-			return
-
-		if(remove_language(rem_language.name))
-			to_chat(usr, "Removed [rem_language] from [src].", confidential = TRUE)
-			message_admins(span_adminnotice("[key_name_admin(usr)] has removed language [rem_language] from [key_name_admin(src)]"))
-			log_admin("[key_name(usr)] has removed language [rem_language] from [key_name(src)]")
-		else
-			to_chat(usr, "Mob doesn't know that language.", confidential = TRUE)
-
-	if(href_list[VV_HK_GRANT_ALL_LANGUAGE])
-		if(!check_rights(R_SPAWN))
-			return
-
-		grant_all_languages()
-		to_chat(usr, "Added all languages to [src].", confidential = TRUE)
-		log_and_message_admins("has given [key_name(src)] all languages.")
+		get_language_holder().open_language_menu(usr)
 
 	if(href_list[VV_HK_CHANGE_VOICE])
 		if(!check_rights(R_SPAWN))

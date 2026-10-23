@@ -136,7 +136,7 @@
 /obj/item/organ/internal/heart/gland/slime/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	..()
 	owner.faction |= "slime"
-	owner.add_language(LANGUAGE_SLIME)
+	owner.grant_language(/datum/language/slime)
 
 /obj/item/organ/internal/heart/gland/slime/activate()
 	to_chat(owner, span_warning("Вас тошнит!"))

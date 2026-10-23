@@ -25,7 +25,7 @@ GLOBAL_LIST_EMPTY(slime_actions)
 	племена. Почти все их верования пронизаны идеей цикличности, а каждый слаймомен, как считается, носит в себе \
 	духов предков.<br/><br/>С помощью Nanotrasen слаймомены нашли работу на станциях рабочими и учёными и \
 	постепенно становятся заметной силой на галактической арене. Говорят они на пузырчатом языке."
-	language = LANGUAGE_SLIME
+	species_language_holder = /datum/language_holder/slime
 	icobase = 'icons/mob/human_races/r_slime.dmi'
 	deform = 'icons/mob/human_races/r_slime.dmi'
 	fit_profile = /datum/species_fit/slime

@@ -112,6 +112,10 @@
 				log_admin("[key_name(usr)] has spawned heretics.")
 				if(!makeHeretics())
 					to_chat(usr, span_warning("К сожалению, желающих было слишком мало."), confidential = TRUE)
+			if("17")
+				log_admin("[key_name(usr)] has spawned a clown operative team.")
+				if(!makeNukeTeam(clown_ops = TRUE))
+					to_chat(usr, span_warning("К сожалению, желающих было слишком мало."), confidential = TRUE)
 
 	else if(href_list["dbsearchckey"] || href_list["dbsearchadmin"] || href_list["dbsearchip"] || href_list["dbsearchcid"] || href_list["dbsearchbantype"])
 		var/adminckey = href_list["dbsearchadmin"]

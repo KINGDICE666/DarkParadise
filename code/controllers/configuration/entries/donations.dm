@@ -16,4 +16,4 @@
 
 /datum/config_entry/string/discord_url
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
-	default = "https://discord.gg/nGDfQuScM7"
+	default = "https://discord.gg/5N55TJgTa9"

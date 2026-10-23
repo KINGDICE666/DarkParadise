@@ -27,24 +27,16 @@
 	scan_desc = "обширное повреждение языкового центра мозга"
 	gain_text = span_warning_alt("Слова перестают складываться у вас в голове...")
 	lose_text = span_notice_alt("Вы внезапно вспоминаете, как устроены языки.")
-	var/list/datum/language/known_languages
-	var/datum/language/previous_default
 
 /datum/brain_trauma/severe/aphasia/on_gain()
-	known_languages = owner.languages?.Copy()
-	previous_default = owner.default_language
-	owner.languages = null
-	owner.add_language(LANGUAGE_APHASIA)
-	owner.default_language = GLOB.all_languages[LANGUAGE_APHASIA]
+	owner.add_blocked_language(GLOB.all_languages - /datum/language/aphasia, source = LANGUAGE_APHASIA)
+	owner.grant_language(/datum/language/aphasia, source = LANGUAGE_APHASIA)
 	return ..()
 
 /datum/brain_trauma/severe/aphasia/on_lose(silent)
-	owner.remove_language(LANGUAGE_APHASIA)
-	for(var/datum/language/language as anything in known_languages)
-		owner.add_language(language.name)
-	owner.default_language = previous_default
-	known_languages = null
-	previous_default = null
+	if(!QDELING(owner))
+		owner.remove_blocked_language(GLOB.all_languages, source = LANGUAGE_APHASIA)
+		owner.remove_language(/datum/language/aphasia, source = LANGUAGE_APHASIA)
 	return ..()
 
 /datum/brain_trauma/severe/blindness
@@ -353,19 +345,14 @@
 	owner.remove_status_effect(/datum/status_effect/trance)
 	return ..()
 
-/datum/brain_trauma/severe/hypnotic_trigger/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+/datum/brain_trauma/severe/hypnotic_trigger/handle_hearing(datum/source, list/hearing_args)
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
 		return
 
-	var/triggered = FALSE
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		if(!findtext(piece.message, target_phrase))
-			continue
-		piece.message = target_phrase.Replace(piece.message, span_hypnophrase("*********"))
-		triggered = TRUE
-
-	if(triggered)
-		addtimer(CALLBACK(src, PROC_REF(hypnotrigger)), 1 SECONDS, TIMER_DELETE_ME)
+	if(!findtext(hearing_args[HEARING_RAW_MESSAGE], target_phrase))
+		return
+	hearing_args[HEARING_RAW_MESSAGE] = target_phrase.Replace(hearing_args[HEARING_RAW_MESSAGE], span_hypnophrase("*********"))
+	addtimer(CALLBACK(src, PROC_REF(hypnotrigger)), 1 SECONDS, TIMER_DELETE_ME)
 
 /datum/brain_trauma/severe/hypnotic_trigger/proc/hypnotrigger()
 	to_chat(owner, span_warning("Эти слова задевают что-то глубоко внутри вас, и вы чувствуете, как сознание ускользает..."))
@@ -523,18 +510,18 @@
 /datum/brain_trauma/severe/italian_tumor/on_life()
 	refresh_delusions()
 
-/datum/brain_trauma/severe/italian_tumor/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+/datum/brain_trauma/severe/italian_tumor/handle_hearing(datum/source, list/hearing_args)
+	if(HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
 		return
 
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		if(!piece.message)
-			continue
-		var/list/words = splittext(piece.message, " ")
-		var/list/babble = list()
-		for(var/spoken in 1 to min(length(words), ITALIAN_TUMOR_MAX_NAMES))
-			babble += pick(beasts)
-		piece.message = jointext(babble, ", ")
+	var/message = hearing_args[HEARING_RAW_MESSAGE]
+	if(!message)
+		return
+	var/list/words = splittext(message, " ")
+	var/list/babble = list()
+	for(var/spoken in 1 to min(length(words), ITALIAN_TUMOR_MAX_NAMES))
+		babble += pick(beasts)
+	hearing_args[HEARING_RAW_MESSAGE] = jointext(babble, ", ")
 
 /datum/brain_trauma/severe/italian_tumor/proc/refresh_delusions()
 	if(!owner.client)

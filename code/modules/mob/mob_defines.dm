@@ -117,16 +117,9 @@
 	var/sec_record = ""
 	var/gen_record = ""
 	var/exploit_record = ""
-	/// For speaking/listening.
-	var/list/datum/language/languages
-	/// For reagents that grant language knowlege.
-	var/list/temporary_languages
+	initial_language_holder = /datum/language_holder/empty
 	/// Verb used when speaking phrases (e.g. "states", "chirps", "beeps"). Appears before speak messages. Defaults to 'say' if speak_emote is null.
 	var/list/speak_emote = list()
-	var/verb_say = "говорит"
-	var/verb_ask = "спрашивает"
-	var/verb_exclaim = list("восклицает", "выкрикивает")
-	var/verb_yell = "кричит"
 	/// Define emote default type, EMOTE_VISIBLE for seen emotes, EMOTE_AUDIBLE for heard emotes.
 	var/emote_type = EMOTE_VISIBLE
 	var/gunshot_residue
@@ -241,11 +234,6 @@
 	/// Calls relaymove() to whatever it is
 	var/atom/movable/remote_control
 
-	//Whether or not mobs can understand other mobtypes. These stay in /mob so that ghosts can hear everything.
-	/// Set to 1 to enable the mob to speak to everyone -- TLE
-	var/universal_speak = 0
-	/// Set to 1 to enable the mob to understand everyone, not necessarily speak
-	var/universal_understand = 0
 
 	/// Whether this mob have any limbs he can move with
 	var/has_limbs = TRUE

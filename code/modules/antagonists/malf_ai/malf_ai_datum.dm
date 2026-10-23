@@ -33,6 +33,7 @@
 		qdel(malf_laws)
 		malf.show_laws()
 		malf.remove_malf_abilities()
+		malf.remove_language(/datum/language/codespeak, source = LANGUAGE_MALF)
 		QDEL_NULL(malf.malf_picker)
 	return ..()
 
@@ -42,6 +43,7 @@
 
 /datum/antagonist/malf_ai/finalize_antag()
 	add_malf_tools()
+	owner.current.grant_language(/datum/language/codespeak, source = LANGUAGE_MALF)
 	var/list/messages = list()
 	owner.current.playsound_local(get_turf(owner.current), 'sound/ambience/antag/malf.ogg', 100, FALSE, pressure_affected = FALSE, use_reverb = FALSE)
 	var/mob/living/silicon/ai/shodan = owner.current

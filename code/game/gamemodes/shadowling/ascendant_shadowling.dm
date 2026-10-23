@@ -15,7 +15,7 @@
 	nightvision = 8
 	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 
 	response_help   = "stares at"
 	response_disarm = "flails at"
@@ -63,7 +63,6 @@
 /mob/living/simple_animal/ascendant_shadowling/proc/announce(text, size = 4, new_sound = null)
 	var/message = "<font size=[size]>[span_shadowling("<b>\"[text]\"</font>")]"
 	for(var/mob/M in GLOB.player_list)
-		M.hear_say(speaker = src)
 		if(!isnewplayer(M) && M.client)
 			to_chat(M, message)
 			if(new_sound)

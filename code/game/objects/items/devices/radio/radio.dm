@@ -454,7 +454,7 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	)
 
 // Interprets the message mode when talking into a radio, possibly returning a connection datum
-/obj/item/radio/proc/handle_message_mode(mob/living/M, list/message_pieces, message_mode)
+/obj/item/radio/proc/handle_message_mode(atom/movable/talking_movable, message, message_mode)
 	// Otherwise, if a channel is specified, look for it.
 	// If a channel isn't specified, send to common.
 	if(!message_mode || message_mode == HEADSET_MODE)
@@ -470,34 +470,33 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	// If we were to send to a channel we don't have, drop it.
 	return RADIO_CONNECTION_FAIL
 
-/obj/item/radio/talk_into(mob/living/M, list/message_pieces, channel, verbage = "говор%(ит,ят)%")
+/obj/item/radio/talk_into(atom/movable/talking_movable, message, channel, list/spans, datum/language/language, list/message_mods)
 	if(!on)
 		return FALSE // the device has to be on
-	//  Fix for permacell radios, but kinda eh about actually fixing them.
-	if(!M || !message_pieces)
+	if(!talking_movable || !message)
 		return FALSE
 
-	//  Uncommenting this. To the above comment:
-	//	The permacell radios aren't suppose to be able to transmit, this isn't a bug and this "fix" is just making radio wires useless. -Giacom
 	if(wires.is_cut(WIRE_RADIO_TRANSMIT)) // The device has to have all its wires and shit intact
 		return FALSE
 
-	if(!M.IsVocal()  || M.cannot_speak_loudly())
-		return FALSE
-
-	if(M.is_muzzled())
-		var/obj/item/organ/internal/cyberimp/mouth/translator/translator = M.get_organ_slot(INTERNAL_ORGAN_SPEECH_TRANSLATOR)
-		if(translator) // you can't speak in radio with translator and gag
+	if(isliving(talking_movable))
+		var/mob/living/talking_mob = talking_movable
+		if(!talking_mob.IsVocal() || talking_mob.cannot_speak_loudly())
 			return FALSE
 
-		var/obj/item/clothing/mask/muzzle/muzzle = M.wear_mask
-		if(muzzle.radio_mute)
-			return FALSE
+		if(talking_mob.is_muzzled())
+			var/obj/item/organ/internal/cyberimp/mouth/translator/translator = talking_mob.get_organ_slot(INTERNAL_ORGAN_SPEECH_TRANSLATOR)
+			if(translator) // you can't speak in radio with translator and gag
+				return FALSE
+
+			var/obj/item/clothing/mask/muzzle/muzzle = talking_mob.wear_mask
+			if(muzzle.radio_mute)
+				return FALSE
 
 	var/turf/position = get_turf(src)
 	var/jammed = is_within_radio_jammer_range(src)
 
-	var/message_mode = handle_message_mode(M, message_pieces, channel)
+	var/message_mode = handle_message_mode(talking_movable, message, channel)
 	switch(message_mode) //special cases
 		// This is if the connection fails
 		if(RADIO_CONNECTION_FAIL)
@@ -510,57 +509,40 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 		return
 
 	var/datum/radio_frequency/connection = message_mode
+	if(message_mods)
+		if(connection.frequency in message_mods[RADIO_TRANSMITTED_FREQS])
+			return TRUE
+		LAZYADD(message_mods[RADIO_TRANSMITTED_FREQS], connection.frequency)
 
 	// ||-- The mob's name identity --||
-	var/displayname = M.name	// grab the display name (name you get when you hover over someone's icon)
-	var/voicemask = 0 // the speaker is wearing a voice mask
+	var/displayname = talking_movable.GetVoice()
+	var/voicemask = FALSE
 	var/jobname // the mob's "job"
 	var/rankname // the formatting to be used for the mob's job
 
 	if(jammed)
-		Gibberish_all(message_pieces, 100)
+		message = Gibberish(message, 100)
 
-	// --- Human: use their actual job ---
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		jobname = H.get_assignment()
-		rankname = H.get_authentification_rank()
-
-	// --- Carbon Nonhuman ---
-	else if(iscarbon(M)) // Nonhuman carbon mob
+	if(ishuman(talking_movable))
+		var/mob/living/carbon/human/human_speaker = talking_movable
+		jobname = human_speaker.get_assignment()
+		rankname = human_speaker.get_authentification_rank()
+		displayname = human_speaker.voice
+		if(human_speaker.voice != human_speaker.real_name)
+			voicemask = TRUE
+	else if(iscarbon(talking_movable))
 		jobname = "Без ID"
-
-	// --- AI ---
-	else if(isAI(M))
+	else if(isAI(talking_movable))
 		jobname = JOB_TITLE_AI
-
-	// --- Cyborg ---
-	else if(isrobot(M))
-		var/mob/living/silicon/robot/R = M
-		jobname = R.mind.role_alt_title ? R.mind.role_alt_title : get_job_title_ru(JOB_TITLE_CYBORG)
-
-	// --- Personal AI (pAI) ---
-	else if(ispAI(M))
-		var/mob/living/silicon/pai/pai = M
-		displayname = pai.radio_name
-		jobname = pai.radio_rank
-
-	// --- Cogscarab ---
-	else if(iscogscarab(M))
-		jobname = UNKNOWN_STATUS_RUS
-
-	// --- Unidentifiable mob ---
+	else if(isrobot(talking_movable))
+		var/mob/living/silicon/robot/robot_speaker = talking_movable
+		jobname = robot_speaker.mind?.role_alt_title || get_job_title_ru(JOB_TITLE_CYBORG)
+	else if(ispAI(talking_movable))
+		var/mob/living/silicon/pai/pai_speaker = talking_movable
+		displayname = pai_speaker.radio_name
+		jobname = pai_speaker.radio_rank
 	else
 		jobname = UNKNOWN_STATUS_RUS
-
-	// --- Modifications to the mob's identity ---
-
-	// The mob is disguising their identity:
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		displayname = H.voice
-		if(H.voice != M.real_name)
-			voicemask = TRUE
 
 	if(syndiekey?.change_voice && connection.frequency == SYND_FREQ)
 		displayname = syndiekey.fake_name
@@ -568,25 +550,20 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 		rankname = UNKNOWN_STATUS_RUS
 		voicemask = TRUE
 
-	// Copy the message pieces so we can safely edit comms line without affecting the actual line
-	var/list/message_pieces_copy = list()
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		message_pieces_copy += new /datum/multilingual_say_piece(S.speaking, S.message)
-
-	// Make us a message datum!
 	var/datum/tcomms_message/tcm = new
 	tcm.sender_name = displayname
 	tcm.sender_job = jobname
 	tcm.sender_rank = rankname
-	tcm.message_pieces = message_pieces_copy
+	tcm.message = message
+	tcm.language = language || talking_movable.get_selected_language()
+	tcm.spans = spans ? spans.Copy() : list()
+	tcm.message_mods = list(SAY_MOD_VERB = message_mods?[SAY_MOD_VERB])
 	tcm.source_level = SSovermap.radio_level(position)
 	tcm.freq = connection.frequency
 	tcm.vmask = voicemask
 	tcm.needs_tcomms = requires_tcomms
 	tcm.connection = connection
-	tcm.vname = M.voice_name
-	tcm.sender = M
-	tcm.verbage = verbage
+	tcm.sender = talking_movable
 	// Now put that through the stuff
 	var/handled = FALSE
 	if(connection)
@@ -614,15 +591,18 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	qdel(tcm) // Delete the message datum
 	return FALSE
 
-/obj/item/radio/hear_talk(mob/M as mob, list/message_pieces, verb = "говор%(ит,ят)%")
+/obj/item/radio/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
 	. = ..()
-	if(!broadcasting)
+	if(radio_freq || !broadcasting || speaker == src)
 		return
 
-	if(get_dist(src, M) > canhear_range)
+	if(get_dist(src, speaker) > canhear_range)
 		return
 
-	talk_into(M, message_pieces, null, genderize_decode(M, verb))
+	if((message_mods[RADIO_EXTENSION] || message_mods[MODE_HEADSET]) && get(loc, /mob) == speaker)
+		return
+
+	talk_into(speaker, raw_message, null, spans, message_language, message_mods)
 
 // To the person who asks "Why is this in a callback?"
 // You see, if you use QDEL_IN on the tcm and on broadcast_message()

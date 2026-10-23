@@ -1,5 +1,6 @@
 /mob/living/silicon/robot/drone
 	name = "drone"
+	initial_language_holder = /datum/language_holder/drone
 	real_name = "drone"
 	desc = "Крошечный ремонтный дрон. На корпусе выбит логотип НТ и надпись: \"Системы рекурсивного ремонта \"Нанотрейзен\": Решаем проблемы завтрашнего дня уже сегодня!\"."
 	icon_state = "repairbot"
@@ -79,10 +80,7 @@
 /mob/living/silicon/robot/drone/Initialize(mapload)
 	. = ..()
 
-	remove_language(LANGUAGE_BINARY)
-	remove_language(LANGUAGE_GALACTIC_COMMON)
-	add_language(LANGUAGE_DRONE_BINARY, TRUE)
-	add_language(LANGUAGE_DRONE, TRUE)
+	ADD_TRAIT(src, TRAIT_DRONE_BINARY, INNATE_TRAIT)
 
 	// Disable the microphone wire on Drones
 	if(radio)
@@ -151,7 +149,7 @@
 	set_connected_ai(null)
 
 	aiCamera = new /obj/item/camera/siliconcam/drone_camera(src)
-	additional_law_channels["Drone"] = get_language_prefix(LANGUAGE_DRONE_BINARY)
+	additional_law_channels["Drone"] = ":[MODE_KEY_DRONE] "
 
 	playsound(loc, 'sound/machines/twobeep.ogg', 50, FALSE)
 
@@ -390,7 +388,7 @@
 	full_law_reset()
 	to_chat(src, "<br><b>Вы — сервисный дрон, компактный ремонтный модуль</b>.")
 	to_chat(src, "У вас нет индивидуальной воли, личности, желаний или побуждений, кроме ваших законов.")
-	to_chat(src, "Для связи с другими дронами используйте <b>'[get_language_prefix(LANGUAGE_DRONE_BINARY)]'</b>. Вы так-же можете тихо говорить на языке, понятном только вашим собратьям.")
+	to_chat(src, "Для связи с другими дронами используйте <b>':[MODE_KEY_DRONE] '</b>. Вы так-же можете тихо говорить на языке, понятном только вашим собратьям.")
 	to_chat(src, "Помните, вам <b>запрещено вмешиваться в дела экипажа</b>. Также помните, <b>вы НЕ подчиняетесь приказам ИИ.</b>")
 	to_chat(src, "<b>Не вторгайтесь на их рабочие места, не крадите их ресурсы. Не рассказывайте им о генокраде в туалетах!</b>")
 	to_chat(src, "<b>Убедитесь, что члены экипажа не замечают вас.</b>")

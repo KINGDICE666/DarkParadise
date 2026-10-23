@@ -286,8 +286,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(bless, R_EVENT, "Bless", /mob/living)
 				theghost = pick(candidates)
 				P.possess_by_player(theghost.key)
 				P.master_commander = H
-				P.universal_speak = TRUE
-				P.universal_understand = TRUE
+				P.grant_all_languages()
 				P.set_can_collar(TRUE)
 				P.faction = list("neutral")
 				var/obj/item/clothing/accessory/petcollar/C = new

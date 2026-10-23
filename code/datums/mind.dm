@@ -186,6 +186,15 @@
 	if(new_character.mind) // remove any mind currently in our new body's mind variable
 		new_character.mind.current = null
 
+	if(old_current && !QDELETED(old_current) && !isnewplayer(old_current))
+		var/datum/language_holder/empty/temp_holder = new()
+		var/datum/language_holder/old_holder = old_current.get_language_holder()
+		var/datum/language_holder/new_holder = new_character.get_language_holder()
+		new_holder.transfer_mind_languages(temp_holder)
+		old_holder.transfer_mind_languages(new_holder)
+		temp_holder.transfer_mind_languages(old_holder)
+		qdel(temp_holder)
+
 	current = new_character // link ourself to our new body
 	new_character.mind = src // and link our new body to ourself
 
