@@ -15,6 +15,7 @@ import { createSearch } from 'tgui-core/string';
 import { useBackend, useSharedState } from '../backend';
 import { Window } from '../layouts';
 import type { CataloguePaneProps, ContentsModalProps } from './CargoConsole';
+import { CreditPrice } from './common/CreditPrice';
 
 export const SyndieCargoConsole = (_props: unknown) => {
   const [contentsModal, setContentsModal] = useState<string[]>([]);
@@ -227,7 +228,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
           {cratesToShow.map((c) => (
             <Table.Row key={c.name}>
               <Table.Cell bold>
-                {c.name} ({c.cost} Credits)
+                {c.name} (<CreditPrice value={c.cost} /> Credits)
               </Table.Cell>
               <Table.Cell textAlign="right" pr={1}>
                 <Button

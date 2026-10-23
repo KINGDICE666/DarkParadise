@@ -9,6 +9,7 @@ import {
 } from 'tgui-core/components';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
+import { CreditPrice } from './common/CreditPrice';
 
 type CustomatRowProps = {
   product: Product;
@@ -29,15 +30,7 @@ const CustomatRow = (props: CustomatRowProps) => {
   const { product } = props;
   const { userMoney, vend_ready } = data;
   const free = product.price === 0;
-  let buttonText = 'ERROR!';
-  let rowIcon = '';
-  if (free) {
-    buttonText = 'БЕСПЛАТНО';
-    rowIcon = 'arrow-circle-down';
-  } else {
-    buttonText = product.price.toString();
-    rowIcon = 'shopping-cart';
-  }
+  const rowIcon = free ? 'arrow-circle-down' : 'shopping-cart';
   const buttonDisabled =
     !vend_ready || product.stock === 0 || (!free && product.price > userMoney);
   return (
@@ -72,7 +65,7 @@ const CustomatRow = (props: CustomatRowProps) => {
             })
           }
         >
-          {buttonText}
+          <CreditPrice value={product.price} freeLabel="БЕСПЛАТНО" />
         </Button>
       </Table.Cell>
     </Table.Row>

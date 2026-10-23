@@ -16,6 +16,7 @@ import { flow } from 'tgui-core/fp';
 import { createSearch } from 'tgui-core/string';
 import { useBackend, useSharedState } from '../backend';
 import { Window } from '../layouts';
+import { CreditPrice } from './common/CreditPrice';
 
 export const CargoConsole = (_props: unknown) => {
   const [contentsModal, setContentsModal] = useState<string[]>([]);
@@ -230,11 +231,13 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       ? `${c.cost} очк${declension_ru(c.cost, 'о', 'а', 'ов')}`
                       : ''}
                     {c.creditsCost && c.cost ? ' ' : ''}
-                    {c.creditsCost
-                      ? c.creditsCost +
-                        ' Кредит' +
-                        declension_ru(c.creditsCost, '', 'а', 'ов')
-                      : ''}
+                    {c.creditsCost ? (
+                      <>
+                        <CreditPrice value={c.creditsCost} /> кр.
+                      </>
+                    ) : (
+                      ''
+                    )}
                     )
                   </Box>
                 </Table.Cell>
