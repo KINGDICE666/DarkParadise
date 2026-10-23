@@ -23,6 +23,7 @@ GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 	// Track the MC iteration to make sure its still on track.
 	var/master_iteration = 0
 	var/running = TRUE
+	var/timer_watch_start = 0
 
 /datum/controller/failsafe/New()
 	// Ensure usr is null, to prevent any potential weirdness resulting from the failsafe having a usr if it's manually restarted.
@@ -131,7 +132,14 @@ GLOBAL_REAL(Failsafe, /datum/controller/failsafe)
 	var/datum/controller/subsystem/timer/timer_ss = SStimer
 	if(!timer_ss || timer_ss.can_fire <= 0 || (timer_ss.ss_flags & SS_NO_FIRE))
 		return
-	var/stalled_for = world.time - timer_ss.last_fire
+	var/last_fire = timer_ss.last_fire
+	if(last_fire)
+		timer_watch_start = 0
+	else
+		if(!timer_watch_start)
+			timer_watch_start = world.time
+		last_fire = timer_watch_start
+	var/stalled_for = world.time - last_fire
 	if(stalled_for < FAILSAFE_TIMER_STALL_TIME)
 		return
 	var/message = "Timer subsystem has not fired for [stalled_for / 10] seconds (state [timer_ss.state], next_fire [timer_ss.next_fire], world.time [world.time], head_offset [timer_ss.head_offset], practical_offset [timer_ss.practical_offset], bucket_count [timer_ss.bucket_count], second_queue [length(timer_ss.second_queue)]). Restarting it."
