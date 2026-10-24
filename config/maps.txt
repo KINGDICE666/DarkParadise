@@ -20,12 +20,6 @@ DEFAULT_MAP /datum/map/delta
 ## Override away mission map. Spawns it even if it is not mentioned in away_mission_config.txt
 # OVERRIDE_AWAY_MISSION _maps/map_files/RandomZLevels/academy.dmm
 
-## Minimum number of space ruins levels to generate
-EXTRA_SPACE_RUIN_LEVELS_MIN 4
-
-## Maximum number of space ruins levels to generate
-EXTRA_SPACE_RUIN_LEVELS_MAX 8
-
 ## Lavaland "Budget"
 # Lavaland ruin spawning has an imaginary budget to spend on ruins, where
 # a less lootfilled or smaller or less round effecting ruin costs less to

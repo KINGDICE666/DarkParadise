@@ -179,16 +179,19 @@ type RecallOptions = Partial<{
 export async function recallWindowGeometry(
   options: RecallOptions = {},
 ): Promise<void> {
-  const geometry = await storage.get(windowKey);
-  if (geometry) {
-    logger.log('recalled geometry:', geometry);
-  }
-  // options.pos is assumed to already be in display-pixels
-  let pos = geometry?.pos || options.pos;
   let size = options.size;
   // Convert size from css-pixels to display-pixels
   if (options.scale && size) {
     size = [size[0] * pixelRatio, size[1] * pixelRatio];
+  }
+  // The size does not depend on the stored geometry, apply it right away
+  if (size) {
+    const areaAvailable = getScreenSize();
+    size = [
+      Math.min(areaAvailable[0], size[0]),
+      Math.min(areaAvailable[1], size[1]),
+    ];
+    setWindowSize(size);
   }
 
   if (!options.scale) {
@@ -202,18 +205,15 @@ export async function recallWindowGeometry(
     document.documentElement.style.setProperty('--scaling-amount', null);
   }
 
+  const geometry = await storage.get(windowKey);
+  if (geometry) {
+    logger.log('recalled geometry:', geometry);
+  }
+  // options.pos is assumed to already be in display-pixels
+  let pos = geometry?.pos || options.pos;
   // Wait until screen offset gets resolved
   await screenOffsetPromise;
   const areaAvailable = getScreenSize();
-  // Set window size
-  if (size) {
-    // Constraint size to not exceed available screen area
-    size = [
-      Math.min(areaAvailable[0], size[0]),
-      Math.min(areaAvailable[1], size[1]),
-    ];
-    setWindowSize(size);
-  }
   // Set window position
   if (pos) {
     // Constraint window position if monitor lock was set in preferences.
