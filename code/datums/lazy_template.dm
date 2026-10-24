@@ -116,3 +116,15 @@
 /datum/lazy_template/bingle_pit
 	key = LAZY_TEMPLATE_KEY_BINGLE_PIT
 	map_name = "bingle_pit"
+
+/datum/lazy_template/map_shuttle
+	map_dir = "_maps/map_files/shuttles"
+	key = "Map Shuttle"
+
+/datum/lazy_template/map_shuttle/supply_rubin
+	key = LAZY_TEMPLATE_KEY_SHUTTLE_SUPPLY_RUBIN
+	map_name = "cargo_rubin"
+
+/datum/lazy_template/map_shuttle/explorer_rubin
+	key = LAZY_TEMPLATE_KEY_SHUTTLE_EXPLORER_RUBIN
+	map_name = "explorer_rubin"
