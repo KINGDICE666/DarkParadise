@@ -360,6 +360,7 @@
 
 /obj/item/twohanded/required/kirbyplants/Initialize(mapload)
 	. = ..()
+	/*
 	if(prob(1))
 		icon_state = "plant-36"
 		return
@@ -375,6 +376,10 @@
 		l_power_init = 0.6
 		set_light_range_power_color(l_range_init, l_power_init, LIGHT_COLOR_BRIGHT_YELLOW)
 		set_light_on(TRUE)
+	*/
+	new /obj/effect/decal/cleanable/pumpkin_field(loc)
+	new /obj/item/twohanded/required/kokochalloween(loc)
+	del(src)
 
 /obj/item/twohanded/required/kirbyplants/Destroy()
 	if(datum_flags & DF_ISPROCESSING)
