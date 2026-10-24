@@ -29,6 +29,7 @@ type User = {
 };
 
 export type Config = {
+  credit_price_override?: number | null;
   client: Client;
   interface: IFace;
   refreshing: BinaryIO;

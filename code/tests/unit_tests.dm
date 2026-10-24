@@ -32,6 +32,7 @@
 #include "test_languages.dm"
 #include "test_logistics.dm"
 #include "test_map_templates.dm"
+#include "test_marmeladych.dm"
 #include "test_modsuit.dm"
 #include "test_missing_icons.dm"
 #include "test_ntnet.dm"
