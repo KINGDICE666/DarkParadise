@@ -276,14 +276,21 @@ server.on('upgrade', (req, socket, head) => {
     if (head && head.length) upstream.write(head);
     socket.pipe(upstream).pipe(socket);
   });
-  const close = () => {
+  const opened = Date.now();
+  let closed = false;
+  const close = (side, error) => {
+    if (!closed) {
+      closed = true;
+      const seconds = Math.round((Date.now() - opened) / 1000);
+      console.log(`[ws] closed by ${side} after ${seconds}s, in ${socket.bytesRead} out ${socket.bytesWritten}${error ? ': ' + error.message : ''}`);
+    }
     socket.destroy();
     upstream.destroy();
   };
-  upstream.on('error', close);
-  socket.on('error', close);
-  upstream.on('close', close);
-  socket.on('close', close);
+  upstream.on('error', (error) => close('dd', error));
+  socket.on('error', (error) => close('client', error));
+  upstream.on('close', () => close('dd'));
+  socket.on('close', () => close('client'));
 });
 
 server.listen(config.listenPort, config.listenHost, () => {
