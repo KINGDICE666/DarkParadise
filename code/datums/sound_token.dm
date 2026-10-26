@@ -148,8 +148,7 @@
 
 	listeners -= listener_mob
 
-	if(listener_mob.client)
-		listener_mob.client.sound_tokens -= src
+	listener_mob.canon_client?.sound_tokens -= src
 
 	// Don't strip COMSIG_QDELETING from the source, or we'd wipe its source_deleted handler.
 	var/list/signals_to_remove = list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF))
