@@ -676,6 +676,7 @@ function make_verb_onclick(command) {
 		run_after_focus(function () {
 			Byond.command(command);
 		});
+		return false;
 	};
 }
 
@@ -836,6 +837,11 @@ function add_verb_list(payload) {
 		}
 	}
 }
+
+window.set_theme = set_theme;
+window.set_font_size = set_font_size;
+window.set_font_style = set_font_style;
+window.set_tabs_style = set_tabs_style;
 
 document.addEventListener('mouseup', restoreFocus);
 document.addEventListener('keyup', restoreFocus);
