@@ -59,7 +59,7 @@ const STATUS_RULES = [
   {
     name: 'provide browser DPI and URL to native winget calls',
     pattern: /\$\.\$get\$ByondJS_skin\(\)\.winget\$2\(ctrlName, obj\);/g,
-    replace: 'var dpDpiRequested = obj.hasProperty$1("dpi"), dpUrlRequested = obj.hasProperty$1("url"); $.$get$ByondJS_skin().winget$2(ctrlName, obj); if (!ctrlName) { if (dpDpiRequested) obj.$indexSet(0, "dpi", String(96 * (window.devicePixelRatio || 1))); if (dpUrlRequested) obj.$indexSet(0, "url", window.location.href); }',
+    replace: 'var dpDpiRequested = obj.hasProperty$1("dpi"), dpUrlRequested = obj.hasProperty$1("url"); if (typeof ctrlName === "string" && ctrlName.indexOf(";") >= 0) { var dpIds = ctrlName.split(";"), dpProps = P.List_List$from(N.ByondJS_keys(obj), true, null), dpAll = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpI = 0; dpI < dpIds.length; ++dpI) { var dpId = dpIds[dpI].trim(); if (!dpId) continue; var dpOne = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpJ = 0; dpJ < dpProps.length; ++dpJ) dpOne.$indexSet(0, dpProps[dpJ], ""); $.$get$ByondJS_skin().winget$2(dpId, dpOne); var dpKeys = P.List_List$from(N.ByondJS_keys(dpOne), true, null); for (var dpK = 0; dpK < dpKeys.length; ++dpK) dpAll.$indexSet(0, dpId + "." + dpKeys[dpK], dpOne.$index(0, dpKeys[dpK])); } obj = dpAll; } else { $.$get$ByondJS_skin().winget$2(ctrlName, obj); if (!ctrlName) { if (dpDpiRequested) obj.$indexSet(0, "dpi", String(96 * (window.devicePixelRatio || 1))); if (dpUrlRequested) obj.$indexSet(0, "url", window.location.href); } }',
     min: 1,
   },
   {
@@ -105,9 +105,33 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'load gameplay resources on demand',
+    name: 'load gameplay resources on demand except map fonts',
     pattern: /this\.cacheQueue\.add\$1\(0, new N\.CacheItem\(url, C\.JSInt_methods\.toString\$0\(val\), type, val0, 0, 0, false\)\);/g,
-    replace: '',
+    replace: 'if (type === ".ttf" || type === ".otf") this.cacheQueue.add$1(0, new N.CacheItem(url, C.JSInt_methods.toString$0(val), type, val0, 0, 0, false));',
+    min: 1,
+  },
+  {
+    name: 'accept BYOND 515 screen edge keywords',
+    pattern: /(ScreenCorner: \{\s*"\^": "[^"]*",\s*Parse\$1: function\(str\) \{\s*var [^;]+;)/g,
+    replace: '$1 str = window.__dpScreenLoc(str);',
+    min: 1,
+  },
+  {
+    name: 'apply map style classes to maptext',
+    pattern: /(HtmlField\$2: function\(str, map\) \{\s*var [^;]+;)/g,
+    replace: '$1 str = window.__dpMaptextHtml(str);',
+    min: 1,
+  },
+  {
+    name: 'anchor maptext overlays to the bottom of their icon',
+    pattern: /tic\.pixel_z = t1\.maptextY;/g,
+    replace: 'tic.pixel_z = t1.maptextY + t1.maptextHeight - (ic.icon._height || t1.maptextHeight);',
+    min: 1,
+  },
+  {
+    name: 'trim maptext inline style values',
+    pattern: /map\.\$indexSet\(0, J\.toLowerCase\$0\$s\(J\.trim\$0\$s\(L2\[0\]\)\), L2\[1\]\);/g,
+    replace: 'map.$indexSet(0, J.toLowerCase$0$s(J.trim$0$s(L2[0])), J.trim$0$s(L2[1]));',
     min: 1,
   },
   {

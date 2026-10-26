@@ -204,8 +204,9 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 			return
 	//we couldn't load character data so just randomize the character appearance + name
 	randomise_appearance_prefs()
+	if(!length(keybindings))
+		init_keybindings()
 	if(!SSdbcore.IsConnected())
-		init_keybindings() //we want default keybinds, even if DB is not connected
 		return
 	if(istype(C))
 		if(!loaded_preferences_successfully)

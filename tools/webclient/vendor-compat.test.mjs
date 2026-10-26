@@ -50,15 +50,18 @@ test('real vendor Topic messages contain one query prefix', { skip: !patched }, 
 test('real vendor winget reports BROWSER and preserves requested global properties', { skip: !patched }, () => {
   function check(control, requested) {
     const transport = protocol();
-    const object = {
+    const create = () => ({
       values: {}, $index(_, key) { return this.values[key]; }, $indexSet(_, key, value) { this.values[key] = value; },
       hasProperty$1(key) { return Object.hasOwn(this.values, key); },
-    };
+    });
+    const sizes = { 'mainwindow.split': '1280x720', mapwindow: '900x720' };
     const get = method('processWingetMessage$1', 'sendStats$0', {
       N: { ...transport.N, ByondJS_keys(obj) { return Object.keys(obj.values); } },
-      P: { JsObject_JsObject$jsify() { return object; }, LinkedHashMap__makeEmpty() {}, List_List$from(values) { return values; } },
+      P: { JsObject_JsObject$jsify: create, LinkedHashMap__makeEmpty() {}, List_List$from(values) { return [...values]; } },
       $: { $get$ByondJS_skin() { return { winget$2(id, obj) {
-        if (id) obj.values.type = 'browser'; else obj.values = {};
+        if (sizes[id]) obj.values.size = sizes[id];
+        else if (id) obj.values.type = 'browser';
+        else obj.values = {};
       } }; } },
       J: { toString$0$(value) { return String(value); } },
       window: { devicePixelRatio: 1.5, location: { href: 'https://game.example/game/' } },
@@ -73,6 +76,8 @@ test('real vendor winget reports BROWSER and preserves requested global properti
   }
   assert.deepEqual(check('statbrowser', ['type']), [7, 1, 'type', 'BROWSER']);
   assert.deepEqual(check('', ['dpi', 'url']), [7, 2, 'dpi', '144', 'url', 'https://game.example/game/']);
+  assert.deepEqual(check('mainwindow.split;mapwindow', ['size']),
+    [7, 2, 'mainwindow.split.size', '1280x720', 'mapwindow.size', '900x720']);
 });
 
 test('real vendor input expands map placeholders and runs output locally', { skip: !patched }, () => {

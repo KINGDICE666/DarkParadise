@@ -485,6 +485,8 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	var/spotlit = FALSE
 
 /atom/movable/screen/lobby/button/bottom/link/discord_link/is_available(client/viewer)
+	if(is_guest_key(viewer.key) && !viewer.is_launcher_client())
+		return FALSE
 	var/discord_id = viewer.prefs?.discord_id
 	return !discord_id || length(discord_id) == DISCORD_TOKEN_LENGTH
 

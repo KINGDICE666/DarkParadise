@@ -1388,6 +1388,8 @@ GAME_VERB_HIDDEN(/client, fitviewport, "")// wrapper for mainwindow
 		return FALSE
 	if(is_launcher_client())
 		return TRUE
+	if(is_guest_key(key))
+		return FALSE
 	return CONFIG_GET(number/minimum_byondacc_age) && byondacc_age <= CONFIG_GET(number/minimum_byondacc_age)
 
 GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Привязать аккаунт Discord для удобного просмотра игровой статистики на нашем Discord-сервере.", VERB_CATEGORY_SPECIALVERBS)
