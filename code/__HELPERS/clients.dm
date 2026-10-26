@@ -8,12 +8,11 @@
 	if(findtext(player_key, "Guest-", 1, 7) != 1) //was findtextEx
 		return FALSE
 
-	var/current_position
-	var/current_character
 	var/key_length = length(player_key)
+	var/first_digit = (key_length > 7 && copytext(player_key, 7, 8) == "W") ? 8 : 7
 
-	for(current_position = 7, current_position <= key_length, ++current_position) //we know the first 6 chars are Guest-
-		current_character = text2ascii(player_key, current_position)
+	for(var/current_position in first_digit to key_length) //we know the first 6 chars are Guest-
+		var/current_character = text2ascii(player_key, current_position)
 		if(current_character < 48 || current_character > 57) //0-9
 			return FALSE
 	return TRUE
