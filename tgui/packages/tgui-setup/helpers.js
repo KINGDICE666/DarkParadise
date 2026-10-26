@@ -42,7 +42,14 @@
   })();
 
   // Basic checks to detect whether this page runs in BYOND
-  var isByond =
+  var webClient = null;
+  try {
+    if (window.parent !== window && window.parent.location.origin === location.origin) {
+      webClient = window.parent.byond;
+      if (!webClient || !webClient.skin) webClient = null;
+    }
+  } catch (error) {}
+  var isByond = Boolean(webClient) ||
     (Byond.BLINK !== null || window.cef_to_byond) &&
     location.hostname === '127.0.0.1' &&
     location.search !== '?external';
@@ -71,6 +78,48 @@
   Byond.call = function (path, params) {
     // Not running in BYOND, abort.
     if (!isByond) {
+      return;
+    }
+    if (webClient) {
+      if (!path) {
+        var query = [];
+        for (var name in params) {
+          if (hasOwn.call(params, name)) {
+            query.push(encodeURIComponent(name) + '=' + encodeURIComponent(params[name] == null ? '' : params[name]));
+          }
+        }
+        window.byond.topic(query.join('&'));
+        return;
+      }
+      var controlId = params.id || '';
+      var camel = function (name) {
+        return name.replace(/-([a-z])/g, function (_, letter) { return letter.toUpperCase(); });
+      };
+      if (path === 'winset') {
+        var settings = {};
+        for (var property in params) {
+          if (hasOwn.call(params, property) && property !== 'id') settings[camel(property)] = params[property];
+        }
+        if ('visible' in settings) {
+          settings.isVisible = settings.visible;
+          delete settings.visible;
+        }
+        webClient.skin.winset(controlId, settings);
+      } else if (path === 'winget') {
+        var callback = /^Byond\.__callbacks__\[(\d+)\]$/.exec(params.callback || '');
+        if (!callback) return;
+        var values = {};
+        (params.property || '*').split(',').forEach(function (property) {
+          var request = {};
+          request[camel(property)] = '';
+          var response = webClient.skin.winget(controlId, request);
+          var value = response && response[camel(property)];
+          while (value && typeof value === 'object' && camel(property) in value) value = value[camel(property)];
+          if (property === 'dpi') value = window.devicePixelRatio || 1;
+          values[property] = value == null ? '' : value;
+        });
+        Byond.__callbacks__[Number(callback[1])](values);
+      }
       return;
     }
     // Build the URL

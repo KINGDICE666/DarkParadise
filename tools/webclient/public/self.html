@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dark Paradise в браузере</title>
+<style>
+html,body{margin:0;height:100%;background:#0d0f14;color:#e6e8ee;font:14px/1.4 system-ui,sans-serif}
+body{display:flex;flex-direction:column}
+header{display:flex;gap:12px;align-items:center;padding:6px 16px}
+header b{font-size:16px}
+#status{opacity:.7}
+iframe{flex:1;width:100%;border:0;background:#000}
+#error{position:fixed;inset:44px 0 0;display:grid;place-content:center;text-align:center;background:#0d0f14}
+#error[hidden]{display:none}
+button{padding:10px 18px;background:#304c72;color:white;border:0;border-radius:5px;cursor:pointer}
+</style></head>
+<body>
+<header><b>Dark Paradise</b><span id="status">Подключаюсь…</span></header>
+<iframe id="game" allow="fullscreen; autoplay; clipboard-read; clipboard-write" allowfullscreen></iframe>
+<section id="error" hidden><p id="error-message"></p><button id="retry">Подключиться снова</button></section>
+<script>
+const frame = document.getElementById('game');
+const status = document.getElementById('status');
+const errorPanel = document.getElementById('error');
+const base = location.pathname.replace(/\/(?:index\.html)?$/, '');
+let deadline;
+let failed = false;
+let authenticated = false;
+let ready = false;
+let loadedBytes = -1;
+function fail(message) {
+  if (failed) return;
+  failed = true;
+  clearTimeout(deadline);
+  status.textContent = 'Нет подключения';
+  document.getElementById('error-message').textContent = message;
+  errorPanel.hidden = false;
+  frame.removeAttribute('src');
+}
+function armTimeout(milliseconds, message) {
+  clearTimeout(deadline);
+  deadline = setTimeout(() => fail(message), milliseconds);
+}
+document.getElementById('retry').addEventListener('click', () => location.reload());
+window.addEventListener('message', async (e) => {
+  if (e.source !== frame.contentWindow || e.origin !== location.origin) return;
+  if (failed) return;
+  if (e.data === 'key') {
+    try {
+      const r = await fetch(base + '/auth/key', { cache: 'no-store', signal: AbortSignal.timeout(10_000) });
+      if (!r.ok) throw new Error('ticket unavailable');
+      const { key } = await r.json();
+      if (!/^dpweb-v1:[0-9a-f]{32}$/.test(key)) throw new Error('invalid ticket');
+      if (failed) return;
+      frame.contentWindow.postMessage('key:' + key, location.origin);
+      status.textContent = 'Вход…';
+      armTimeout(20_000, 'Сервер не подтвердил вход. Попробуйте подключиться снова.');
+    } catch {
+      fail('Не удалось получить билет гостя. Попробуйте подключиться снова.');
+    }
+  } else if (e.data === 'scripts:end') {
+    status.textContent = 'Загрузка клиента…';
+  } else if (e.data === 'ready') {
+    ready = true;
+    clearTimeout(deadline);
+    status.textContent = 'В игре';
+  } else if (typeof e.data === 'string' && /^progress:\d+\/\d+$/.test(e.data) && !ready) {
+    const [loaded, total] = e.data.slice(9).split('/').map(Number);
+    status.textContent = `Загрузка мира: ${(loaded / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} МБ`;
+    if (authenticated && loaded > loadedBytes) {
+      armTimeout(120_000, 'Загрузка мира остановилась. Попробуйте подключиться снова.');
+    }
+    loadedBytes = Math.max(loadedBytes, loaded);
+  } else if (e.data?.type === 'dp-client') {
+    if (e.data.stage === 'authenticated') {
+      authenticated = true;
+      status.textContent = 'Загрузка мира…';
+      armTimeout(120_000, 'Загрузка мира заняла слишком много времени. Попробуйте подключиться снова.');
+    } else if (e.data.stage === 'quit') {
+      fail(e.data.code === 9 ? 'Сервер не подтвердил вход. Попробуйте подключиться снова.' : 'Сервер завершил подключение. Попробуйте подключиться снова.');
+    } else if (e.data.stage === 'closed') {
+      fail(ready ? 'Соединение с сервером потеряно.' : 'Соединение прервано во время загрузки.');
+    }
+  }
+});
+armTimeout(30_000, 'Сервер не отвечает. Попробуйте подключиться снова.');
+fetch(base + '/query', { signal: AbortSignal.timeout(15_000) }).then((r) => {
+  if (!r.ok) throw new Error('query unavailable');
+  return r.json();
+}).then((q) => {
+  if (failed) return;
+  if (q.fail) {
+    fail(q.fail);
+    return;
+  }
+  status.textContent = 'Загрузка клиента…';
+  frame.src = base + '/play';
+}).catch(() => {
+  fail('Сервер недоступен. Попробуйте подключиться снова.');
+});
+</script>
+</body></html>

@@ -943,6 +943,10 @@
 	protection = CONFIG_ENTRY_LOCKED
 
 /datum/config_entry/flag/launcher_required
+
+/datum/config_entry/flag/web_guest_login
+	protection = CONFIG_ENTRY_LOCKED
+
 /// allow votes to change map
 /datum/config_entry/flag/allow_vote_map
 	default = TRUE
