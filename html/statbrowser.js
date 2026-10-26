@@ -846,6 +846,7 @@ if (!current_tab) {
 }
 
 window.onload = function () {
+	set_byond_tab(current_tab);
 	Byond.sendMessage('Update-Verbs');
 };
 

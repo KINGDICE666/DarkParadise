@@ -170,3 +170,30 @@ test('chat logs can be saved without the file picker', () => {
   assert.ok(link.clicked);
   assert.deepEqual(urls, ['blob:log', 'revoked blob:log']);
 });
+
+test('web client panels keep settings in browser storage without waiting for BYOND', async () => {
+  const items = new Map();
+  const localStorage = {
+    getItem: key => items.get(key) ?? null,
+    setItem(key, value) { if (value.length > 64) throw new Error('QuotaExceededError'); items.set(key, value); },
+    removeItem: key => items.delete(key), clear: () => items.clear(),
+  };
+  const winsets = [];
+  const window = { localStorage, parent: { location: { origin: 'https://game.example' }, byond: { skin: {} } } };
+  Object.assign(globalThis, {
+    window, location: { origin: 'https://game.example' }, document: {},
+    Byond: { storageCdn: 'https://cdn.example/storage.html', winset(...args) { winsets.push(args); } },
+  });
+  try {
+    const { storage } = await import(`../../tgui/packages/common/storage.ts?web=${Date.now()}`);
+    await storage.set('panel-settings', { theme: 'dark' });
+    assert.deepEqual(await storage.get('panel-settings'), { theme: 'dark' });
+    assert.equal(items.get('paradise-panel-settings'), '{"theme":"dark"}');
+    await storage.processChatMessages([{ html: 'x'.repeat(100) }]);
+    assert.equal(await storage.getChatMessages(), undefined);
+    assert.deepEqual(storage.diagnostics.map(d => d.level), ['info']);
+    assert.deepEqual(winsets, []);
+  } finally {
+    for (const key of ['window', 'location', 'document', 'Byond']) delete globalThis[key];
+  }
+});

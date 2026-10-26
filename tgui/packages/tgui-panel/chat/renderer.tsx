@@ -202,11 +202,11 @@ class ChatRenderer {
 
   tryFlushQueue() {
     if (this.isReady() && this.queue.length > 0) {
-      this.processBatch(this.queue, {
+      const queue = this.queue;
+      this.queue = [];
+      this.processBatch(queue, {
         suppressHighlightSound: true,
       });
-      this.processBatch(this.queue);
-      this.queue = [];
     }
   }
 

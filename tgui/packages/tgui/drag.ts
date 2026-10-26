@@ -5,7 +5,7 @@
  */
 
 import { createLogger } from 'common/logging';
-import { storage } from 'common/storage';
+import { isWebClient, storage } from 'common/storage';
 import type { BooleanLike } from 'tgui-core/react';
 import { vecAdd, vecMultiply, vecScale, vecSubtract } from 'tgui-core/vector';
 
@@ -16,7 +16,8 @@ type GeometryPayload = Partial<{
 }>;
 
 const logger = createLogger('drag');
-const pixelRatio = window.devicePixelRatio ?? 1;
+const webClient = isWebClient() && !!window.frameElement;
+const pixelRatio = webClient ? 1 : (window.devicePixelRatio ?? 1);
 let windowKey = Byond.windowId;
 let dragging = false;
 let resizing = false;
@@ -73,6 +74,10 @@ export function setWindowKey(key: string): void {
 
 // Get window position
 export function getWindowPosition(): Point {
+  if (webClient) {
+    const rect = window.frameElement!.getBoundingClientRect();
+    return [rect.left, rect.top];
+  }
   return [window.screenLeft * pixelRatio, window.screenTop * pixelRatio];
 }
 
@@ -81,29 +86,50 @@ export function getWindowSize(): Point {
   return [window.innerWidth * pixelRatio, window.innerHeight * pixelRatio];
 }
 
+function getPointerPosition(event: MouseEvent): Point {
+  if (!webClient) {
+    return [event.screenX * pixelRatio, event.screenY * pixelRatio];
+  }
+  if (event.view !== window) {
+    return [event.clientX, event.clientY];
+  }
+  const rect = window.frameElement!.getBoundingClientRect();
+  return [rect.left + event.clientX, rect.top + event.clientY];
+}
+
+function getPointerDocuments(): Document[] {
+  return webClient ? [document, window.parent.document] : [document];
+}
+
+function formatPosition(vec: Point): string {
+  return `${Math.round(vec[0])},${Math.round(vec[1])}`;
+}
+
+function formatSize(vec: Point): string {
+  return `${Math.round(vec[0])}x${Math.round(vec[1])}`;
+}
+
 // Set window position
 export function setWindowPosition(vec: Point): void {
-  const byondPos = vecAdd(vec, screenOffset);
   Byond.winset(Byond.windowId, {
-    pos: `${byondPos[0]},${byondPos[1]}`,
+    pos: formatPosition(vecAdd(vec, screenOffset) as Point),
   });
 }
 
 function setWindowPositionBatched(vec: Point): void {
-  const byondPos = vecAdd(vec, screenOffset);
-  pendingWinset.pos = `${byondPos[0]},${byondPos[1]}`;
+  pendingWinset.pos = formatPosition(vecAdd(vec, screenOffset) as Point);
   scheduleWinset();
 }
 
 // Set window size
 function setWindowSize(vec: Point): void {
   Byond.winset(Byond.windowId, {
-    size: `${vec[0]}x${vec[1]}`,
+    size: formatSize(vec),
   });
 }
 
 function setWindowSizeBatched(vec: Point): void {
-  pendingWinset.size = `${vec[0]}x${vec[1]}`;
+  pendingWinset.size = formatSize(vec);
   scheduleWinset();
 }
 
@@ -114,6 +140,9 @@ function getScreenPosition(): Point {
 
 // Get screen size
 function getScreenSize(): Point {
+  if (webClient) {
+    return [window.parent.innerWidth, window.parent.innerHeight];
+  }
   return [
     window.screen.availWidth * pixelRatio,
     window.screen.availHeight * pixelRatio,
@@ -191,7 +220,7 @@ export async function recallWindowGeometry(
     size = [size[0] * pixelRatio, size[1] * pixelRatio];
   }
 
-  if (!options.scale) {
+  if (!options.scale && !webClient) {
     document.body.style.zoom = `${100 / window.devicePixelRatio}%`;
     document.documentElement.style.setProperty(
       '--scaling-amount',
@@ -237,10 +266,11 @@ export async function setupDrag(): Promise<void> {
   // Calculate screen offset caused by the windows taskbar
   const windowPosition = getWindowPosition();
 
-  screenOffsetPromise = Byond.winget(Byond.windowId, 'pos').then((pos) => [
-    pos.x - windowPosition[0],
-    pos.y - windowPosition[1],
-  ]);
+  screenOffsetPromise = Byond.winget(Byond.windowId, 'pos').then((pos) =>
+    Number.isFinite(pos?.x) && Number.isFinite(pos?.y)
+      ? [pos.x - windowPosition[0], pos.y - windowPosition[1]]
+      : [0, 0],
+  );
   screenOffset = await screenOffsetPromise;
   logger.debug('screen offset', screenOffset);
 }
@@ -274,13 +304,15 @@ export function dragStartHandler(event): void {
   logger.log('drag start');
   dragging = true;
   dragPointOffset = vecSubtract(
-    [event.screenX * pixelRatio, event.screenY * pixelRatio],
+    getPointerPosition(event),
     getWindowPosition(),
   ) as Point;
   // Focus click target
   (event.target as HTMLElement)?.focus();
-  document.addEventListener('mousemove', dragMoveHandler);
-  document.addEventListener('mouseup', dragEndHandler);
+  for (const target of getPointerDocuments()) {
+    target.addEventListener('mousemove', dragMoveHandler);
+    target.addEventListener('mouseup', dragEndHandler);
+  }
   dragMoveHandler(event);
 }
 
@@ -289,8 +321,10 @@ function dragEndHandler(event): void {
   logger.log('drag end');
   dragMoveHandler(event);
   flushWinsetNow();
-  document.removeEventListener('mousemove', dragMoveHandler);
-  document.removeEventListener('mouseup', dragEndHandler);
+  for (const target of getPointerDocuments()) {
+    target.removeEventListener('mousemove', dragMoveHandler);
+    target.removeEventListener('mouseup', dragEndHandler);
+  }
   dragging = false;
   storeWindowGeometry();
 }
@@ -303,7 +337,7 @@ function dragMoveHandler(event: MouseEvent): void {
   event.preventDefault();
   setWindowPositionBatched(
     vecSubtract(
-      [event.screenX * pixelRatio, event.screenY * pixelRatio],
+      getPointerPosition(event),
       dragPointOffset,
     ) as Point,
   );
@@ -317,14 +351,16 @@ export const resizeStartHandler =
     logger.log('resize start', resizeMatrix);
     resizing = true;
     dragPointOffset = vecSubtract(
-      [event.screenX * pixelRatio, event.screenY * pixelRatio],
+      getPointerPosition(event),
       getWindowPosition(),
     ) as Point;
     initialSize = getWindowSize();
     // Focus click target
     (event.target as HTMLElement)?.focus();
-    document.addEventListener('mousemove', resizeMoveHandler);
-    document.addEventListener('mouseup', resizeEndHandler);
+    for (const target of getPointerDocuments()) {
+      target.addEventListener('mousemove', resizeMoveHandler);
+      target.addEventListener('mouseup', resizeEndHandler);
+    }
     resizeMoveHandler(event);
   };
 
@@ -333,8 +369,10 @@ function resizeEndHandler(event: MouseEvent): void {
   logger.log('resize end', size);
   resizeMoveHandler(event);
   flushWinsetNow();
-  document.removeEventListener('mousemove', resizeMoveHandler);
-  document.removeEventListener('mouseup', resizeEndHandler);
+  for (const target of getPointerDocuments()) {
+    target.removeEventListener('mousemove', resizeMoveHandler);
+    target.removeEventListener('mouseup', resizeEndHandler);
+  }
   resizing = false;
   storeWindowGeometry();
 }
@@ -346,7 +384,7 @@ function resizeMoveHandler(event: MouseEvent): void {
   }
   event.preventDefault();
   const currentOffset = vecSubtract(
-    [event.screenX * pixelRatio, event.screenY * pixelRatio],
+    getPointerPosition(event),
     getWindowPosition(),
   );
   const delta = vecSubtract(currentOffset, dragPointOffset);

@@ -41,6 +41,14 @@ const testHubStorage = testGeneric(
   () => window.hubStorage && !!window.hubStorage.getItem,
 );
 
+export const isWebClient = testGeneric(
+  () =>
+    window.parent !== window &&
+    window.parent.location.origin === location.origin &&
+    !!(window.parent as any).byond?.skin &&
+    !!window.localStorage,
+);
+
 const STORAGE_CDN_TIMEOUT = 15000;
 const persistedStorageKeys = ['panel-settings', 'chat-state', 'chat-messages'];
 const legacyHubMigrationKeys = ['panel-settings'];
@@ -48,12 +56,27 @@ const legacyHubMigrationKeys = ['panel-settings'];
 class HubStorageBackend implements StorageBackend {
   public impl: StorageImplementation;
 
-  constructor() {
+  private storeOverride?: Storage;
+
+  constructor(store?: Storage) {
     this.impl = IMPL_HUB_STORAGE;
+    this.storeOverride = store;
+  }
+
+  private get store(): Storage {
+    return this.storeOverride || window.hubStorage;
+  }
+
+  private write(key: string, value: string): void {
+    try {
+      this.store.setItem(key, value);
+    } catch (error) {
+      console.warn(`Failed to save '${key}':`, error);
+    }
   }
 
   async get(key: string): Promise<any> {
-    const value = await window.hubStorage.getItem(`paradise-${key}`);
+    const value = await this.store.getItem(`paradise-${key}`);
     if (typeof value === 'string') {
       return JSON.parse(value);
     }
@@ -61,26 +84,23 @@ class HubStorageBackend implements StorageBackend {
   }
 
   async set(key: string, value: any): Promise<void> {
-    window.hubStorage.setItem(`paradise-${key}`, JSON.stringify(value));
+    this.write(`paradise-${key}`, JSON.stringify(value));
   }
 
   async remove(key: string): Promise<void> {
-    window.hubStorage.removeItem(`paradise-${key}`);
+    this.store.removeItem(`paradise-${key}`);
   }
 
   async clear(): Promise<void> {
-    window.hubStorage.clear();
+    this.store.clear();
   }
 
   async processChatMessages(messages): Promise<void> {
-    window.hubStorage.setItem(
-      'paradise-chat-messages',
-      JSON.stringify(messages),
-    );
+    this.write('paradise-chat-messages', JSON.stringify(messages));
   }
 
   async getChatMessages(): Promise<any> {
-    const value = window.hubStorage.getItem('paradise-chat-messages');
+    const value = this.store.getItem('paradise-chat-messages');
     if (typeof value === 'string') {
       return JSON.parse(value);
     } else {
@@ -241,6 +261,11 @@ class StorageProxy implements StorageBackend {
 
   constructor() {
     this.backendPromise = (async () => {
+      if (isWebClient()) {
+        this.log('info', 'Using browser storage (web client)');
+        return new HubStorageBackend(window.localStorage);
+      }
+
       // Prefer the configured iframe storage when available. hubStorage may
       // already be enabled by another window/server, but the iframe origin is
       // the server-configured storage boundary.
