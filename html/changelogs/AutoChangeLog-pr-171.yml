@@ -1,0 +1,9 @@
+author: "KINGDICE666"
+delete-after: True
+changes:
+  - bugfix: "Fixed null sequence number handling in chat payload generation to prevent errors. (PR #171)"
+  - config: "Added new configuration flag for web guest login support. (PR #171)"
+  - qol: "Set default white background and black text for statbrowser interface. (PR #171)"
+  - qol: "Implemented storage load timeout to prevent chat history delays. (PR #171)"
+  - qol: "Added web client detection to display scaling routine. (PR #171)"
+  - experiment: "Patched TGUI bridge to support Topic, winset, and winget operations in web client context. (PR #171)"
