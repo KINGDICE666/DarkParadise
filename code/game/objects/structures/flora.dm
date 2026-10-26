@@ -379,7 +379,7 @@
 	*/
 	new /obj/effect/decal/cleanable/pumpkin_field(loc)
 	new /obj/item/twohanded/required/kokochalloween(loc)
-	del(src)
+	return INITIALIZE_HINT_QDEL
 
 /obj/item/twohanded/required/kirbyplants/Destroy()
 	if(datum_flags & DF_ISPROCESSING)

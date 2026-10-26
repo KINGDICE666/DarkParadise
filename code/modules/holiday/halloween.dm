@@ -158,7 +158,7 @@
 		if(prob(20.26))
 			var/chosen = pick(subtypesof(/obj/item/twohanded/required/kokochalloween/chimera))
 			new chosen(loc)
-			del(src)
+			return INITIALIZE_HINT_QDEL
 
 /obj/item/twohanded/required/kokochalloween/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	if(..())
@@ -170,7 +170,7 @@
 		smash.icon_state = "pumpkin_smash_gs"
 		smash.color = s_colour
 	get_loot()
-	del(src)
+	qdel(src)
 
 /obj/item/twohanded/required/kokochalloween/proc/get_loot()
 	if(loot)
