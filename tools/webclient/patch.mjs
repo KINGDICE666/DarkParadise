@@ -83,7 +83,7 @@ const STATUS_RULES = [
   {
     name: 'browse into an existing window browser control',
     pattern: /if \(control != null && !N\.ByondJS_toBool\(J\.\$index\$asx\(J\.\$index\$asx\(control, "config"\), "acceptBrowse"\), false\)\)\s*control = null;/g,
-    replace: 'if (control != null && !N.ByondJS_toBool(J.$index$asx(J.$index$asx(control, "config"), "acceptBrowse"), false)) control = this.find$2(0, id + ".browser", "browser");',
+    replace: 'if (control != null && !N.ByondJS_toBool(J.$index$asx(J.$index$asx(control, "config"), "acceptBrowse"), false)) { control = this.find$2(0, id + ".browser", "browser"); var dpOptions = obj.$index(0, "options"); if (control != null && dpOptions != null && J.$index$asx(dpOptions, "titlebar") != null) this.winset$2(id, P.JsObject_JsObject$jsify(P.LinkedHashMap__makeLiteral(["titlebar", J.$index$asx(dpOptions, "titlebar")]))); }',
     min: 1,
   },
   {
