@@ -135,6 +135,9 @@ function setWindowSizeBatched(vec: Point): void {
 
 // Get screen position
 function getScreenPosition(): Point {
+  if (webClient) {
+    return [0, 0];
+  }
   return [0 - screenOffset[0], 0 - screenOffset[1]];
 }
 
@@ -233,6 +236,9 @@ export async function recallWindowGeometry(
 
   // Wait until screen offset gets resolved
   await screenOffsetPromise;
+  if (webClient) {
+    screenOffset = await measureScreenOffset();
+  }
   const areaAvailable = getScreenSize();
   // Set window size
   if (size) {
@@ -246,31 +252,42 @@ export async function recallWindowGeometry(
   // Set window position
   if (pos) {
     // Constraint window position if monitor lock was set in preferences.
-    if (size && options.locked) {
+    if (size && (options.locked || webClient)) {
       pos = constraintPosition(pos, size)[1];
     }
     setWindowPosition(pos);
     // Set window position at the center of the screen.
   } else if (size) {
     pos = vecAdd(
+      getScreenPosition(),
       vecScale(areaAvailable, 0.5),
       vecScale(size, -0.5),
-      vecScale(screenOffset, -1.0),
     );
     setWindowPosition(pos);
   }
 }
 
+function isFrameRendered(): boolean {
+  const rect = window.frameElement!.getBoundingClientRect();
+  return rect.width > 0 || rect.height > 0;
+}
+
+function measureScreenOffset(): Promise<Point> {
+  if (webClient && !isFrameRendered()) {
+    return Promise.resolve(screenOffset);
+  }
+  const windowPosition = getWindowPosition();
+  return Byond.winget(Byond.windowId, 'pos').then((pos) =>
+    Number.isFinite(pos?.x) && Number.isFinite(pos?.y)
+      ? [pos.x - windowPosition[0], pos.y - windowPosition[1]]
+      : screenOffset,
+  );
+}
+
 // Setup draggable window
 export async function setupDrag(): Promise<void> {
   // Calculate screen offset caused by the windows taskbar
-  const windowPosition = getWindowPosition();
-
-  screenOffsetPromise = Byond.winget(Byond.windowId, 'pos').then((pos) =>
-    Number.isFinite(pos?.x) && Number.isFinite(pos?.y)
-      ? [pos.x - windowPosition[0], pos.y - windowPosition[1]]
-      : [0, 0],
-  );
+  screenOffsetPromise = measureScreenOffset();
   screenOffset = await screenOffsetPromise;
   logger.debug('screen offset', screenOffset);
 }

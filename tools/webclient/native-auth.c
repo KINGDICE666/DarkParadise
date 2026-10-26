@@ -26,6 +26,7 @@ static void (*original_key_message)(void *, void *);
 static void *(*find_connection)(unsigned short);
 static void (*complete_login)(signed char, const char *, unsigned short);
 static void (*close_connection)(unsigned short, int, int);
+static unsigned char (*connection_guard)(void *, int);
 static char *(*copy_string)(const char *);
 static void *(*lookup_string)(uint32_t);
 static __thread const char *active_guest_seed;
@@ -137,9 +138,15 @@ static void key_message(void *client, void *message) {
         close_connection(id, 9, 0);
         return;
     }
+    if (!connection_guard(connection, 0)) {
+        fprintf(stderr, "[web-auth] connection state integrity check failed\n");
+        close_connection(id, 8, 0);
+        return;
+    }
     *(char **)(connection + 0x38) = copy_string(guest);
     *(char **)(connection + 0x2f8) = copy_string(token);
     *(unsigned short *)(connection + 0x34) = 6;
+    connection_guard(connection, 1);
     fprintf(stderr, "[web-auth] guest ticket accepted\n");
     fflush(stderr);
     active_guest_seed = guest;
@@ -170,6 +177,7 @@ static const char *install_adapter(const char *socket_path) {
     find_connection = (void *)(engine_base + 0x405c60);
     complete_login = (void *)(engine_base + 0x3f1e90);
     close_connection = (void *)(engine_base + 0x3412d0);
+    connection_guard = (void *)(engine_base + 0x407e10);
     copy_string = (void *)(engine_base + 0x4aa440);
     lookup_string = (void *)(engine_base + 0x2e2aa0);
     long page_size = sysconf(_SC_PAGESIZE);

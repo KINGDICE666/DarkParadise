@@ -92,7 +92,15 @@ class HubStorageBackend implements StorageBackend {
   }
 
   async clear(): Promise<void> {
-    this.store.clear();
+    if (!this.storeOverride) {
+      this.store.clear();
+      return;
+    }
+    for (const key of Object.keys(this.store)) {
+      if (key.startsWith('paradise-')) {
+        this.store.removeItem(key);
+      }
+    }
   }
 
   async processChatMessages(messages): Promise<void> {

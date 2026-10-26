@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { patchWebclient } from './patch.mjs';
 import { createTicketAuthority, listenForTicketChecks } from './tickets.mjs';
+import { createAssetIndex, createWebrootReader } from './assets.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -25,6 +26,8 @@ const config = {
 };
 
 const tickets = createTicketAuthority();
+const assets = createAssetIndex(JSON.parse(process.env.ASSET_ROOTS || '[]'));
+const webroot = createWebrootReader(process.env.ASSET_WEBROOT);
 if (config.keyMode === 'self' && !config.authSocket) {
   throw new Error('KEY_MODE=self requires AUTH_SOCKET and the DD native guest adapter');
 }
@@ -162,7 +165,6 @@ async function proxyToDD(req, res, target) {
     if (target.startsWith('/html/') && upstream.headers['content-type']?.includes('text/html')) {
       let html = (await readBody(upstream)).toString('utf8').replace(/<base\s+href="[^"]*"\s*\/?\s*>/i, `<base href="${config.basePath}/">`);
       html = html.replace('window.byond.topic(query.join("&"))', 'webClient.fn.topic(query.join("&"))');
-      html = html.replace('<head>', `<head><script>addEventListener('DOMContentLoaded',function(){var x={page:location.pathname};try{x.isByond=!!(window.Byond&&Byond.IS_BYOND);x.hasSkin=!!(parent.byond&&parent.byond.skin);x.parentOrigin=parent.location.origin;}catch(e){x.error=String(e);}navigator.sendBeacon(${JSON.stringify(config.basePath + '/diag')},JSON.stringify(x));});addEventListener('error',function(e){navigator.sendBeacon(${JSON.stringify(config.basePath + '/diag')},'browser-error '+e.message);});</script>`);
       return send(res, upstream.statusCode, html, MIME['.html']);
     }
     const out = { 'Access-Control-Allow-Origin': '*' };
@@ -182,15 +184,17 @@ async function handle(req, res) {
   if (config.basePath && (url.pathname === config.basePath || url.pathname.startsWith(config.basePath + '/'))) {
     url.pathname = url.pathname.slice(config.basePath.length) || '/';
   }
-  if (req.method === 'POST' && url.pathname === '/diag') {
-    const body = (await readBody(req)).toString('utf8').slice(0, 300).replace(/[^\x20-\x7e]/g, '?');
-    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-    console.log(`[diag] ${ip} ${body}`);
-    return send(res, 204, '');
-  }
   if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'method not allowed');
   const p = url.pathname;
   const cors = { 'Access-Control-Allow-Origin': '*' };
+
+  if (p.startsWith('/assets/')) {
+    const exported = await webroot.get(p);
+    if (!exported) return send(res, 404, 'asset not found');
+    return send(res, 200, exported.bytes, exported.type, { ...cors, 'Cache-Control': 'public, max-age=31536000, immutable' });
+  }
+  const asset = await assets.get(p);
+  if (asset) return send(res, 200, asset.bytes, asset.type, { ...cors, 'Cache-Control': 'public, max-age=31536000, immutable' });
 
   if (p === '/query') {
     try {

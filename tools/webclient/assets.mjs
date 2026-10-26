@@ -7,6 +7,8 @@ const types = {
   '.png': 'image/png', '.svg': 'image/svg+xml', '.gif': 'image/gif', '.ico': 'image/x-icon',
   '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
 };
+const exportedTypes = { ...types, '.json': 'application/json; charset=utf-8', '.html': 'text/html; charset=utf-8',
+  '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.otf': 'font/otf' };
 
 export function createAssetIndex(roots) {
   if (!Array.isArray(roots) || roots.some(root => typeof root !== 'string' || !root.trim())) {
@@ -57,6 +59,26 @@ export function createAssetIndex(roots) {
         await scanning;
       }
       return assets.get(name) || null;
+    },
+  };
+}
+
+export function createWebrootReader(root) {
+  return {
+    async get(requestPath) {
+      if (!root || !/^\/assets\/(?:[a-f0-9]{2}\/asset\.[a-f0-9]{32}\.[a-z0-9]+|namespaces\/[a-f0-9]{2}\/[a-f0-9]{32}\/[\w.-]+)$/.test(requestPath)) return null;
+      try {
+        const base = await fs.realpath(root);
+        const filename = await fs.realpath(path.join(base, requestPath.slice('/assets/'.length)));
+        const relative = path.relative(base, filename);
+        if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) return null;
+        const stat = await fs.stat(filename);
+        if (!stat.isFile() || stat.size > 32 * 1024 * 1024) return null;
+        return { bytes: await fs.readFile(filename), type: exportedTypes[path.extname(filename)] || 'application/octet-stream' };
+      } catch (error) {
+        if (['ENOENT', 'ENOTDIR', 'EACCES', 'ELOOP'].includes(error.code)) return null;
+        throw error;
+      }
     },
   };
 }

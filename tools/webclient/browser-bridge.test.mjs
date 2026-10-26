@@ -193,6 +193,11 @@ test('web client panels keep settings in browser storage without waiting for BYO
     assert.equal(await storage.getChatMessages(), undefined);
     assert.deepEqual(storage.diagnostics.map(d => d.level), ['info']);
     assert.deepEqual(winsets, []);
+    items.set('webclient-session', 'keep');
+    Object.assign(localStorage, Object.fromEntries(items));
+    await storage.clear();
+    assert.equal(items.get('webclient-session'), 'keep');
+    assert.equal(items.has('paradise-panel-settings'), false);
   } finally {
     for (const key of ['window', 'location', 'document', 'Byond']) delete globalThis[key];
   }

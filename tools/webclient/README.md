@@ -49,6 +49,15 @@ GATEWAY_HOST=127.0.0.1 GATEWAY_PORT=8090 \
 node gateway.mjs
 ```
 
+Set `ASSET_ROOTS` to a JSON array containing only the public resource directories
+of the deployed game, for example `ASSET_ROOTS='["/srv/paradise/tgui/public"]'`.
+Paradise loads TGUI bundles through `asset.<md5>.js` and `.css` URLs that DD does
+not serve by name. The gateway indexes the actual file bytes and serves those
+hashes with their correct MIME types. Files must match the running compiled
+world; bundles from a different checkout can have different hashes. Symlinks,
+private file extensions, and files larger than 32 MiB are excluded. Never set
+this to a general repository, configuration, or home directory.
+
 For a minimal standalone test world, alternatively load the adapter at startup:
 
 ```sh
@@ -80,6 +89,22 @@ reach the game's lobby, not just an open WebSocket or a completed download.
 
 The TGUI bridge forwards Topic, winset, and winget through the native browser
 client. Protocol strings are decoded and encoded as UTF-8 for BYOND 516.
+Topic queries retain their leading `?`; control types returned to DM use the
+DreamSeeker uppercase spelling. Loaded browser frames keep their browsing
+context when controls move or their popup is hidden. Initial repeated stat tab
+notifications are coalesced to avoid flooding the world's Topic rate limit.
+
+For local frontend development, `dev-proxy.mjs` binds to `127.0.0.1:8179` and
+forwards requests to `DEV_UPSTREAM_HOST` / `DEV_UPSTREAM_PORT`. Supply the exact
+stock JavaScript through `DEV_VENDOR_FILE`, a snapshot of deployed public
+bundles through `DEV_ASSET_DIR`, and optionally the old/new helper files through
+`DEV_LEGACY_HELPERS` / `DEV_TGUI_HELPERS`. This changes no remote files or services,
+but a browser connection still joins the upstream game as a test guest. The
+proxy logs bounded packet metadata and local frame errors, never ticket values.
+
+Run `node --test tools/webclient/*.test.mjs` from the repository root. Setting
+`BYOND_WEBCLIENT_JS` to the stock vendor file enables compatibility tests against
+the real patched functions. Unix socket tests are skipped on Windows.
 
 The page displays download progress and reports failed authentication,
 disconnection, and a stalled download with a retry button. The vendor cache queue

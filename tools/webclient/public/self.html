@@ -61,7 +61,7 @@ window.addEventListener('message', async (e) => {
   } else if (e.data === 'ready') {
     ready = true;
     clearTimeout(deadline);
-    status.textContent = 'В игре';
+    status.textContent = 'Подключено';
   } else if (typeof e.data === 'string' && /^progress:\d+\/\d+$/.test(e.data) && !ready) {
     const [loaded, total] = e.data.slice(9).split('/').map(Number);
     status.textContent = `Загрузка мира: ${(loaded / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} МБ`;

@@ -45,9 +45,45 @@ const SELF_KEY_RULES = [
 
 const STATUS_RULES = [
   {
-    name: 'temporary Topic diagnostics',
+    name: 'keep loaded browser windows alive when hidden or moved',
+    pattern: /\$\.\$get\$ByondJS_skin\(\)\.defineClass\$4\(\$name, js,/g,
+    replace: '$.$get$ByondJS_skin().defineClass$4($name, window.__dpPatchSkin($name, js),',
+    min: 1,
+  },
+  {
+    name: 'preserve loaded frames when moving controls backstage',
+    pattern: /N\.ByondJS_backstage\(\)\.appendChild\((e|\$top)\)/g,
+    replace: 'window.__dpMoveControl(N.ByondJS_backstage(), $1)',
+    min: 3,
+  },
+  {
+    name: 'provide browser DPI and URL to native winget calls',
+    pattern: /\$\.\$get\$ByondJS_skin\(\)\.winget\$2\(ctrlName, obj\);/g,
+    replace: 'var dpDpiRequested = obj.hasProperty$1("dpi"), dpUrlRequested = obj.hasProperty$1("url"); $.$get$ByondJS_skin().winget$2(ctrlName, obj); if (!ctrlName) { if (dpDpiRequested) obj.$indexSet(0, "dpi", String(96 * (window.devicePixelRatio || 1))); if (dpUrlRequested) obj.$indexSet(0, "url", window.location.href); }',
+    min: 1,
+  },
+  {
+    name: 'coalesce initial stat tab notifications',
+    pattern: /msg = N\.ByondMessage\$\(129\);/g,
+    replace: 'if (window.__dpScheduleTopic(this, topic)) return; msg = N.ByondMessage$(129);',
+    min: 1,
+  },
+  {
+    name: 'report DreamSeeker control types for winexists',
+    pattern: /value = obj\.\$index\(0, property\);/g,
+    replace: 'value = obj.$index(0, property); if (property === "type" && typeof value === "string") value = value.toUpperCase();',
+    min: 1,
+  },
+  {
+    name: 'browse into an existing window browser control',
+    pattern: /if \(control != null && !N\.ByondJS_toBool\(J\.\$index\$asx\(J\.\$index\$asx\(control, "config"\), "acceptBrowse"\), false\)\)\s*control = null;/g,
+    replace: 'if (control != null && !N.ByondJS_toBool(J.$index$asx(J.$index$asx(control, "config"), "acceptBrowse"), false)) control = this.find$2(0, id + ".browser", "browser");',
+    min: 1,
+  },
+  {
+    name: 'send a complete Topic query to Dream Daemon',
     pattern: /sendTopicMessage\$1: function\(topic\) \{/g,
-    replace: 'sendTopicMessage$1: function(topic) { P.print("Browser Topic queued");',
+    replace: 'sendTopicMessage$1: function(topic) { if (topic.charAt(0) !== "?") topic = "?" + topic;',
     min: 1,
   },
   {
