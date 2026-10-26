@@ -81,6 +81,12 @@ const STATUS_RULES = [
     min: 1,
   },
   {
+    name: 'run client-side output and expand map placeholders before sending input',
+    pattern: /call\$1: \[function\(s\) \{\s*var m, t1, idx, exception;\s*t1 = s;/g,
+    replace: 'call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s); if (s == null) return; t1 = s;',
+    min: 1,
+  },
+  {
     name: 'send a complete Topic query to Dream Daemon',
     pattern: /sendTopicMessage\$1: function\(topic\) \{/g,
     replace: 'sendTopicMessage$1: function(topic) { if (topic.charAt(0) !== "?") topic = "?" + topic;',

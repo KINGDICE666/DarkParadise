@@ -202,3 +202,16 @@ test('web client panels keep settings in browser storage without waiting for BYO
     for (const key of ['window', 'location', 'document', 'Byond']) delete globalThis[key];
   }
 });
+
+test('key macros receive the pointer position relative to the map', () => {
+  let move;
+  const document = { addEventListener(type, listener) { if (type === 'mousemove') move = listener; } };
+  const map = { getBoundingClientRect() { return { left: 10, top: 20, width: 640, height: 480 }; } };
+  const window = { byond: { skin: { find: id => (id === 'mapwindow.map' ? { elem: map } : null) } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document, TextEncoder });
+  move({ clientX: 330, clientY: 260 });
+  assert.equal(window.__dpExpandCommand('KeyDown "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "W" 320 240 640 480');
+  move({ clientX: 2000, clientY: -5 });
+  assert.equal(window.__dpExpandCommand('KeyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyUp "W" 640 0 640 480');
+  assert.equal(window.__dpExpandCommand('say "[[not a placeholder]]"'), 'say "[[not a placeholder]]"');
+});

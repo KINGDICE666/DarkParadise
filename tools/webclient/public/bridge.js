@@ -54,6 +54,44 @@
     return true;
   };
 
+  const pointer = { x: 0, y: 0 };
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('mousemove', function (event) {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+    }, true);
+  }
+  function controlRect(id) {
+    try {
+      const control = window.byond.skin.find(id);
+      const element = control && (typeof control.content === 'function' ? control.content() : control.elem);
+      const rect = element && element.getBoundingClientRect();
+      if (rect && rect.width > 0 && rect.height > 0) return rect;
+    } catch (_) {}
+    return null;
+  }
+  function embeddedValue(id, property) {
+    const rect = controlRect(id);
+    if (!rect) return '0 0';
+    if (property === 'size') return Math.round(rect.width) + ' ' + Math.round(rect.height);
+    const x = Math.min(Math.max(pointer.x - rect.left, 0), rect.width);
+    const y = Math.min(Math.max(pointer.y - rect.top, 0), rect.height);
+    return Math.round(x) + ' ' + Math.round(y);
+  }
+  window.__dpExpandCommand = function (command) {
+    if (typeof command !== 'string' || command.indexOf('\n') >= 0) return command;
+    const output = /^\.output\s+(\S+)\s*([\s\S]*)$/i.exec(command);
+    if (output) {
+      let text = output[2];
+      if (text.length > 1 && text.charAt(0) === '"' && text.charAt(text.length - 1) === '"') text = text.slice(1, -1);
+      try { window.byond.skin.output(output[1], { text: text }); } catch (_) {}
+      return null;
+    }
+    return command.replace(/\[\[([\w-]+(?:\.[\w-]+)*)\.(mouse-pos|size)\]\]/g, function (_, id, property) {
+      return embeddedValue(id, property);
+    });
+  };
+
   window.__dpEncodeMessage = function (message) {
     for (const item of message._elems) {
       const prefixed = item.func._target === message._putUTFString$1;

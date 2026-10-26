@@ -74,3 +74,45 @@ test('real vendor winget reports BROWSER and preserves requested global properti
   assert.deepEqual(check('statbrowser', ['type']), [7, 1, 'type', 'BROWSER']);
   assert.deepEqual(check('', ['dpi', 'url']), [7, 2, 'dpi', '144', 'url', 'https://game.example/game/']);
 });
+
+test('real vendor input expands map placeholders and runs output locally', { skip: !patched }, () => {
+  const start = patched.indexOf('call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s);');
+  assert.notEqual(start, -1);
+  const end = patched.indexOf(', null, null, 2, 0, null, 9, "call"]', start);
+  const sent = [];
+  const outputs = [];
+  const winsets = [];
+  const window = { byond: { skin: {
+    find(id) {
+      return id === 'map' ? { content() { return { getBoundingClientRect() { return { left: 10, top: 20, width: 640, height: 480 }; } }; } } : null;
+    },
+    output(id, params) { outputs.push([id, params.text]); },
+  } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, TextEncoder, URLSearchParams });
+  const context = {
+    window,
+    J: {
+      indexOf$1$asx: (s, x) => s.indexOf(x), substring$1$s: (s, a) => s.substring(a), substring$2$s: (s, a, b) => s.substring(a, b),
+      $eq$: (a, b) => a === b, $index$asx: (s, i) => s[i], startsWith$1$s: (s, x) => s.startsWith(x), endsWith$1$s: (s, x) => s.endsWith(x),
+      get$length$asx: s => s.length, $sub$n: (a, b) => a - b,
+    },
+    P: { RegExp_RegExp: source => ({ matchAsPrefix$2(_, s, at) {
+      const match = new RegExp(source, 'iy');
+      match.lastIndex = at;
+      const found = match.exec(s);
+      return found ? { get$_match: () => found } : null;
+    } }) },
+    N: { ByondJS_builtinCommands: () => ({ $index: (_, name) => name === 'winset' ? { call$1: value => winsets.push(value) } : null }) },
+    C: { JSString_methods: { trim$0: s => s.trim() } },
+    H: { unwrapException: error => error },
+    $: { me: { sendCommandMessage$1: command => sent.push(command) }, $get$ByondJS_skin: () => ({ doInput$1: line => input(line) }) },
+  };
+  const input = vm.runInNewContext('(' + patched.slice(start + 'call$1: ['.length, end) + ')', context);
+  input('KeyDown "T" [[map.mouse-pos]] [[map.size]]');
+  input('KeyUp "T" [[missing.mouse-pos]] [[missing.size]]');
+  input('.output statbrowser:set_theme dark');
+  input('.output output_browser.browseroutput:update {"type":"x"}\n.winset "input.text=\\"\\""');
+  assert.deepEqual(sent, ['KeyDown "T" 0 0 640 480', 'KeyUp "T" 0 0 0 0']);
+  assert.deepEqual(outputs, [['statbrowser:set_theme', 'dark'], ['output_browser.browseroutput:update', '{"type":"x"}']]);
+  assert.deepEqual(winsets, ['input.text=\\"\\"']);
+});
