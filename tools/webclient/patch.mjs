@@ -59,7 +59,13 @@ const STATUS_RULES = [
   {
     name: 'provide browser DPI and URL to native winget calls',
     pattern: /\$\.\$get\$ByondJS_skin\(\)\.winget\$2\(ctrlName, obj\);/g,
-    replace: 'var dpDpiRequested = obj.hasProperty$1("dpi"), dpUrlRequested = obj.hasProperty$1("url"); if (typeof ctrlName === "string" && ctrlName.indexOf(";") >= 0) { var dpIds = ctrlName.split(";"), dpProps = P.List_List$from(N.ByondJS_keys(obj), true, null), dpAll = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpI = 0; dpI < dpIds.length; ++dpI) { var dpId = dpIds[dpI].trim(); if (!dpId) continue; var dpOne = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpJ = 0; dpJ < dpProps.length; ++dpJ) dpOne.$indexSet(0, dpProps[dpJ], ""); $.$get$ByondJS_skin().winget$2(dpId, dpOne); var dpKeys = P.List_List$from(N.ByondJS_keys(dpOne), true, null); for (var dpK = 0; dpK < dpKeys.length; ++dpK) dpAll.$indexSet(0, dpId + "." + dpKeys[dpK], dpOne.$index(0, dpKeys[dpK])); } obj = dpAll; } else { $.$get$ByondJS_skin().winget$2(ctrlName, obj); if (!ctrlName) { if (dpDpiRequested) obj.$indexSet(0, "dpi", String(96 * (window.devicePixelRatio || 1))); if (dpUrlRequested) obj.$indexSet(0, "url", window.location.href); } }',
+    replace: 'var dpDpiRequested = obj.hasProperty$1("dpi"), dpUrlRequested = obj.hasProperty$1("url"); if (typeof ctrlName === "string" && ctrlName.indexOf(";") >= 0) { var dpIds = ctrlName.split(";"), dpProps = P.List_List$from(N.ByondJS_keys(obj), true, null), dpAll = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpI = 0; dpI < dpIds.length; ++dpI) { var dpId = dpIds[dpI].trim(); if (!dpId) continue; var dpOne = P.JsObject_JsObject$jsify(P.LinkedHashMap__makeEmpty()); for (var dpJ = 0; dpJ < dpProps.length; ++dpJ) dpOne.$indexSet(0, dpProps[dpJ], ""); $.$get$ByondJS_skin().winget$2(dpId, dpOne); var dpKeys = P.List_List$from(N.ByondJS_keys(dpOne), true, null); for (var dpK = 0; dpK < dpKeys.length; ++dpK) dpAll.$indexSet(0, dpId + "." + dpKeys[dpK], dpOne.$index(0, dpKeys[dpK])); } obj = dpAll; } else { $.$get$ByondJS_skin().winget$2(ctrlName, obj); if (!ctrlName) { if (dpDpiRequested) obj.$indexSet(0, "dpi", "1"); if (dpUrlRequested) obj.$indexSet(0, "url", window.location.href); } }',
+    min: 1,
+  },
+  {
+    name: 'show and hide the popup that holds a browser window',
+    pattern: /N\.ByondJS_css\(\[e, "display", vis \? "" : "none"\]\);/g,
+    replace: 'N.ByondJS_css([e, "display", vis ? "" : "none"]); if (b == null || b === "") { var dpPop = c.callMethod$2("_pop", []); if (dpPop != null) N.ByondJS_css([J.$index$asx(dpPop, "top"), "display", vis ? "" : "none"]); }',
     min: 1,
   },
   {
@@ -77,7 +83,7 @@ const STATUS_RULES = [
   {
     name: 'browse into an existing window browser control',
     pattern: /if \(control != null && !N\.ByondJS_toBool\(J\.\$index\$asx\(J\.\$index\$asx\(control, "config"\), "acceptBrowse"\), false\)\)\s*control = null;/g,
-    replace: 'if (control != null && !N.ByondJS_toBool(J.$index$asx(J.$index$asx(control, "config"), "acceptBrowse"), false)) control = this.find$2(0, id + ".browser", "browser");',
+    replace: 'if (control != null && !N.ByondJS_toBool(J.$index$asx(J.$index$asx(control, "config"), "acceptBrowse"), false)) { control = this.find$2(0, id + ".browser", "browser"); var dpOptions = obj.$index(0, "options"); if (control != null && dpOptions != null && J.$index$asx(dpOptions, "titlebar") != null) this.winset$2(id, P.JsObject_JsObject$jsify(P.LinkedHashMap__makeLiteral(["titlebar", J.$index$asx(dpOptions, "titlebar")]))); }',
     min: 1,
   },
   {

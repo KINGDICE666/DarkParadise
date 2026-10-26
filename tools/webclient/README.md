@@ -90,7 +90,12 @@ reach the game's lobby, not just an open WebSocket or a completed download.
 The TGUI bridge forwards Topic, winset, and winget through the native browser
 client. Protocol strings are decoded and encoded as UTF-8 for BYOND 516.
 Topic queries retain their leading `?`; control types returned to DM use the
-DreamSeeker uppercase spelling. Loaded browser frames keep their browsing
+DreamSeeker uppercase spelling. `winget(null, "dpi")` reports `1`: popup sizes
+and page content are both CSS pixels, so DM must not zoom browse windows out.
+Showing or hiding a control also shows or hides the popup that holds it, and
+`titlebar=0` from `browse()` reaches existing and new windows. DD parses web
+client commands as text, so an unquoted text argument swallows the rest of the
+line; the key name in `KeyDown`/`KeyUp` macros is quoted before sending. Loaded browser frames keep their browsing
 context when controls move or their popup is hidden. Initial repeated stat tab
 notifications are coalesced, and all Topic messages are held to 8 per second so
 the startup burst stays under the world's per-second Topic limit.

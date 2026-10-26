@@ -20,6 +20,7 @@
     }
     if (['pane', 'pop'].includes(name)) source = source.replaceAll('byond.backstage().appendChild(t.top)', 'window.__dpMoveControl(byond.backstage(), t.top)');
     if (name === 'pop') {
+      source = source.replace('if(opts) t.winset(opts);', 'if(opts && opts.titlebar != null && opts.showTitle == null) opts.showTitle = opts.titlebar; if(opts) t.winset(opts);');
       source = source.replaceAll('t.ui.contents.appendChild(e)', 'window.__dpMoveControl(t.ui.contents, e)');
       source = source.replaceAll('document.body.appendChild(t.top)', 'window.__dpMoveControl(document.body, t.top)');
     }
@@ -151,6 +152,8 @@
     }
     return command.replace(/\[\[([\w-]+(?:\.[\w-]+)*)\.(mouse-pos|size)\]\]/g, function (_, id, property) {
       return embeddedValue(id, property);
+    }).replace(/^(KeyDown|KeyUp)\s+([^\s"]+)/i, function (_, verb, key) {
+      return verb + ' "' + key.replace(/\\/g, '\\\\') + '"';
     });
   };
 
