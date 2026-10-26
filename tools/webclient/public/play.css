@@ -1,0 +1,29 @@
+* {box-sizing: border-box;}
+html body .byond_pop_resize {
+	background-color: #1c1f25;
+	border-color: #0a0b0d;
+}
+html body .byond_pop_noresize {
+	background-color: #1c1f25;
+	border-color: #0a0b0d;
+}
+html body .byond_pop_header {
+	background-color: #262a32;
+	border-color: #0a0b0d;
+	color: #c9ced8;
+}
+html body .byond_pop_title span {
+	font: 12px/1.4 Verdana, sans-serif;
+}
+html body .byond_pop_close {
+	background-color: #262a32;
+	border-color: #0a0b0d;
+	color: #c9ced8;
+}
+html body .byond_pop_close:hover {
+	background-color: #8f2a2a;
+	color: #fff;
+}
+html body .byond_map:focus {
+	outline: none;
+}
