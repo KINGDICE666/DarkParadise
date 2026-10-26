@@ -86,6 +86,11 @@ GUEST_JOBBAN
 ## Uncomment this to stop people connecting to your server without a registered ckey. (i.e. guest-* are all blocked from connecting)
 GUEST_BAN
 
+## Allow browser guests through the local ticket gateway. Requires -webclient,
+## libdpwebauth.so in the world directory, and a gateway socket at data/web-auth.sock.
+## GUEST_BAN must be disabled. DreamSeeker guests still require the launcher.
+#WEB_GUEST_LOGIN
+
 ## above this player count threshold, never-before-seen players are blocked from connecting
 PANIC_BUNKER_THRESHOLD 150
 
