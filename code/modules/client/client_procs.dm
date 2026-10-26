@@ -495,6 +495,20 @@
 		return TRUE
 	return FALSE
 
+#define WEB_TEXT_CHAR_WIDTH 6
+#define WEB_TEXT_LINE_HEIGHT 11
+
+/client/MeasureText(text, style, width)
+	if(connection != "web")
+		return ..()
+	var/text_width = length_char(STRIP_HTML_FULL(text, length(text) + 1)) * WEB_TEXT_CHAR_WIDTH
+	if(!width || text_width <= width)
+		return "[max(text_width, 1)]x[WEB_TEXT_LINE_HEIGHT]"
+	return "[width]x[ceil(text_width / width) * WEB_TEXT_LINE_HEIGHT]"
+
+#undef WEB_TEXT_CHAR_WIDTH
+#undef WEB_TEXT_LINE_HEIGHT
+
 //////////////
 //DISCONNECT//
 //////////////

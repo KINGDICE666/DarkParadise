@@ -269,7 +269,13 @@ export async function recallWindowGeometry(
 
 function isFrameRendered(): boolean {
   const rect = window.frameElement!.getBoundingClientRect();
-  return rect.width > 0 || rect.height > 0;
+  return (
+    (rect.width > 0 || rect.height > 0) &&
+    rect.right > 0 &&
+    rect.bottom > 0 &&
+    rect.left < window.parent.innerWidth &&
+    rect.top < window.parent.innerHeight
+  );
 }
 
 function measureScreenOffset(): Promise<Point> {

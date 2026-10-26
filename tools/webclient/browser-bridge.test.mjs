@@ -121,6 +121,20 @@ test('browser links with a literal percent sign still decode', () => {
   assert.deepEqual(decoded, ['При вет', '100% готово']);
 });
 
+test('lighting and emissive planes are skipped on every z offset', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  assert.deepEqual([10, 13, 22, 10 - 107, 13 - 214, -21, -21 - 107].map(window.__dpSkipPlane), [true, true, true, true, true, true, true]);
+  assert.deepEqual([-8, -4, 9, 23, 40, -4 - 107, -32767, undefined].map(window.__dpSkipPlane), [false, false, false, false, false, false, false, false]);
+});
+
+test('gamepad polling reads the pad list instead of an undefined pad', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const source = window.__dpPatchSkin('gamepad', 'wa = pi.active; pi.active = !!(pad = pad[stick]);');
+  assert.equal(source, 'wa = pi.active; pi.active = !!(pad = pads[stick]);');
+});
+
 test('browse windows opened without a titlebar hide the popup title', () => {
   const window = {};
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });

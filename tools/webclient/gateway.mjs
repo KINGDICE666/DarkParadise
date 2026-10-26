@@ -131,7 +131,7 @@ function playPage() {
 <script src="${base}/res/ext.js"></script>
 <script src="${base}/res/webclient.dart.js"></script>
 <script>try{window.parent.postMessage('scripts:end','*');}catch(_){}</script>
-<style type="text/css">* {box-sizing:border-box;}</style></head>
+<link rel="stylesheet" href="${base}/static/play.css"></head>
 <body style="width:100%;height:100%;margin:0;overflow:hidden;"><div id=skin style="width:100%;height:100%;"></div></body></html>`;
 }
 
@@ -276,14 +276,21 @@ server.on('upgrade', (req, socket, head) => {
     if (head && head.length) upstream.write(head);
     socket.pipe(upstream).pipe(socket);
   });
-  const close = () => {
+  const opened = Date.now();
+  let closed = false;
+  const close = (side, error) => {
+    if (!closed) {
+      closed = true;
+      const seconds = Math.round((Date.now() - opened) / 1000);
+      console.log(`[ws] closed by ${side} after ${seconds}s, in ${socket.bytesRead} out ${socket.bytesWritten}${error ? ': ' + error.message : ''}`);
+    }
     socket.destroy();
     upstream.destroy();
   };
-  upstream.on('error', close);
-  socket.on('error', close);
-  upstream.on('close', close);
-  socket.on('close', close);
+  upstream.on('error', (error) => close('dd', error));
+  socket.on('error', (error) => close('client', error));
+  upstream.on('close', () => close('dd'));
+  socket.on('close', () => close('client'));
 });
 
 server.listen(config.listenPort, config.listenHost, () => {
