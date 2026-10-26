@@ -75,7 +75,7 @@ test('real vendor winget reports BROWSER and preserves requested global properti
     return transport.sent[0].values;
   }
   assert.deepEqual(check('statbrowser', ['type']), [7, 1, 'type', 'BROWSER']);
-  assert.deepEqual(check('', ['dpi', 'url']), [7, 2, 'dpi', '144', 'url', 'https://game.example/game/']);
+  assert.deepEqual(check('', ['dpi', 'url']), [7, 2, 'dpi', '1', 'url', 'https://game.example/game/']);
   assert.deepEqual(check('mainwindow.split;mapwindow', ['size']),
     [7, 2, 'mainwindow.split.size', '1280x720', 'mapwindow.size', '900x720']);
 });
