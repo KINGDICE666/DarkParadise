@@ -88,7 +88,7 @@
             query.push(encodeURIComponent(name) + '=' + encodeURIComponent(params[name] == null ? '' : params[name]));
           }
         }
-        window.byond.topic(query.join('&'));
+        webClient.fn.topic(query.join('&'));
         return;
       }
       var controlId = params.id || '';
@@ -113,9 +113,17 @@
           var request = {};
           request[camel(property)] = '';
           var response = webClient.skin.winget(controlId, request);
+          if (property === '*') {
+            assign(values, response);
+            return;
+          }
           var value = response && response[camel(property)];
           while (value && typeof value === 'object' && camel(property) in value) value = value[camel(property)];
-          if (property === 'dpi') value = window.devicePixelRatio || 1;
+          if (property === 'dpi') value = 96 * (window.devicePixelRatio || 1);
+          if (property === 'pos' && typeof value === 'string') {
+            var position = /^\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*$/.exec(value);
+            if (position) value = { x: Number(position[1]), y: Number(position[2]) };
+          }
           values[property] = value == null ? '' : value;
         });
         Byond.__callbacks__[Number(callback[1])](values);
@@ -316,7 +324,7 @@
           "' after several attempts.";
         if (type === 'css') {
           errorMessage +=
-            +'\nStylesheet was either not found, ' +
+            '\nStylesheet was either not found, ' +
             "or you're trying to load an empty stylesheet " +
             'that has no CSS rules in it.';
         }
@@ -325,7 +333,7 @@
       setTimeout(
         function () {
           loadedAssetByUrl[url] = null;
-          options.attempt += 1;
+          options.attempt = attempt + 1;
           loadAsset(options);
         },
         RETRY_WAIT_INITIAL + attempt * RETRY_WAIT_INCREMENT
@@ -396,6 +404,20 @@
     loadAsset({ url: url, sync: sync, type: 'css' });
   };
 
+  var downloadBlob = function (blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  };
+
   Byond.saveBlob = function (blob, filename, ext) {
     if (window.navigator.msSaveBlob) {
       window.navigator.msSaveBlob(blob, filename);
@@ -423,7 +445,13 @@
             return file.close();
           });
         })
-        .catch(function () {});
+        .catch(function (error) {
+          if (!error || error.name !== 'AbortError') {
+            downloadBlob(blob, filename);
+          }
+        });
+    } else if (window.URL && URL.createObjectURL) {
+      downloadBlob(blob, filename);
     }
   };
 
