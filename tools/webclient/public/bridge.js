@@ -184,9 +184,22 @@
     mapClassRules = rules;
     return rules;
   }
-  const clearColor = /(^|;)\s*color\s*:\s*rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*0*\.?0*\s*\)\s*(?=;|$)/gi;
+  window.__dpTextOutline = function (format, value) {
+    if (typeof value !== 'string') return;
+    let width = 0;
+    const color = [];
+    for (const part of value.trim().split(/\s+/)) {
+      const size = /^([\d.]+)(px)?$/i.exec(part);
+      if (size && !width) width = parseFloat(size[1]);
+      else if (!/^(sharp|square|round)$/i.test(part)) color.push(part);
+    }
+    format.strokeWidth = width;
+    if (width > 0) format.strokeColor = color.join(' ') || 'black';
+  };
+
+  const clearColor =/(^|;)\s*color\s*:\s*rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*0*\.?0*\s*\)\s*(?=;|$)/gi;
   window.__dpMaptextHtml = function (html) {
-    if (typeof html !== 'string' || (html.indexOf('class') < 0 && html.indexOf('rgba(') < 0)) return html;
+    if (typeof html !== 'string' || !html) return html;
     const rules = mapStyleRules();
     const template = document.createElement('template');
     template.innerHTML = html;
@@ -197,7 +210,9 @@
       if (style) element.setAttribute('style', style);
       else element.removeAttribute('style');
     }
-    return template.innerHTML;
+    const base = rules.get('maptext');
+    if (!base || /<font\b[^>]*\bface\s*=/i.test(html)) return template.innerHTML;
+    return '<span style="' + base.replace(/"/g, '&quot;') + '">' + template.innerHTML + '</span>';
   };
 
   window.__dpEncodeMessage = function (message) {
