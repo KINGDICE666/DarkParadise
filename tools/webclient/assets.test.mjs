@@ -24,6 +24,8 @@ test('DD exported assets retain namespaces and cannot escape the public director
     await fs.writeFile(path.join(directory, 'secret.css'), 'private');
     const reader = createWebrootReader(root);
     assert.equal((await reader.get('/assets/aa/' + name)).type, 'text/css; charset=utf-8');
+    assert.equal((await reader.get('/assets/d7/' + name)).bytes.toString(), 'body { color: white }');
+    assert.equal(await reader.get('/assets/d7/asset.' + 'd'.repeat(32) + '.css'), null);
     assert.equal((await reader.get('/assets/' + namespace + '/font.woff2')).bytes.toString(), 'font bytes');
     assert.equal(await reader.get('/assets/../secret.css'), null);
     assert.equal(await reader.get('/assets/%2e%2e/secret.css'), null);
