@@ -1,0 +1,5 @@
+author: "Qwzar21-max"
+delete-after: True
+changes:
+  - bugfix: "Реджув теперь лечит мозговые травмы. (PR #180)"
+  - bugfix: "Фиксит баг отсутствия КД у заклинания битранера (PR #180)"
