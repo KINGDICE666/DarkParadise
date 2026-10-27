@@ -102943,6 +102943,13 @@
 /obj/structure/filingcabinet/chestdrawer,
 /turf/simulated/floor/carpet,
 /area/station/security/detectives_office)
+"tfO" = (
+/obj/machinery/bioprinter,
+/turf/simulated/floor/plasteel{
+	dir = 9;
+	icon_state = "whiteblue"
+	},
+/area/station/medical/sleeper)
 "tfR" = (
 /obj/machinery/door/airlock/security/glass{
 	id_tag = "Perma11";
@@ -170168,7 +170175,7 @@ kKO
 hhw
 cWw
 tJJ
-qUQ
+tfO
 oBk
 vFJ
 bNi
