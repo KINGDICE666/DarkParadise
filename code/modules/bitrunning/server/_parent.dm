@@ -16,6 +16,8 @@
 	var/datum/turf_reservation/domain_reservation
 	var/domain_complete = FALSE
 	var/domain_randomized = FALSE
+	var/hardcore = FALSE
+	var/domain_entered = FALSE
 	var/is_ready = TRUE
 	var/list/datum/weakref/avatar_connection_refs = list()
 	var/multiplayer_bonus = 1.1

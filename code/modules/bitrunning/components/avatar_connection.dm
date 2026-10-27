@@ -7,6 +7,7 @@
 	var/datum/weakref/old_mind_ref
 	var/datum/weakref/server_ref
 	var/nohit = TRUE
+	var/hardcore = FALSE
 	var/obj/machinery/camera/portable/no_ai/bodycam
 
 /datum/component/avatar_connection/Initialize(mob/living/old_body, obj/machinery/quantum_server/server, obj/machinery/netpod/pod)
@@ -23,6 +24,8 @@
 	old_mind_ref = WEAKREF(old_body.mind)
 	server_ref = WEAKREF(server)
 	server.avatar_connection_refs += WEAKREF(src)
+	server.domain_entered = TRUE
+	hardcore = server.hardcore
 
 	ADD_TRAIT(old_body, TRAIT_MIND_TEMPORARILY_GONE, NETPOD_TRAIT)
 	avatar.possess_by_player(old_body.key)
@@ -53,6 +56,8 @@
 	avatar.playsound_local(get_turf(avatar), 'sound/effects/phasein.ogg', 25, TRUE)
 	avatar.EyeBlind(1 SECONDS)
 	to_chat(avatar, span_notice("Соединение установлено. [server.generated_domain.help_text]"))
+	if(hardcore)
+		to_chat(avatar, span_userdanger("HRDM: смерть аватара мгновенно убьёт ваше тело в капсуле!"))
 
 /datum/component/avatar_connection/Destroy(force)
 	var/mob/living/old_body = old_body_ref?.resolve()
@@ -89,7 +94,8 @@
 /datum/component/avatar_connection/RegisterWithParent()
 	ADD_TRAIT(parent, TRAIT_TEMPORARY_BODY, NETPOD_TRAIT)
 	RegisterSignals(parent, list(COMSIG_BITRUNNER_ALERT_SEVER, COMSIG_BITRUNNER_CACHE_SEVER, COMSIG_BITRUNNER_LADDER_SEVER), PROC_REF(on_safe_disconnect))
-	RegisterSignals(parent, list(COMSIG_LIVING_DEATH, COMSIG_QDELETING), PROC_REF(on_sever_connection))
+	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_avatar_death))
+	RegisterSignal(parent, COMSIG_QDELETING, PROC_REF(on_sever_connection))
 	RegisterSignal(parent, COMSIG_MOB_APPLY_DAMAGE, PROC_REF(on_linked_damage))
 	RegisterSignal(parent, COMSIG_LIVING_PILL_CONSUMED, PROC_REF(disconnect_if_red_pill))
 
@@ -137,6 +143,11 @@
 
 /datum/component/avatar_connection/proc/on_linked_damage(datum/source, damage, damagetype, def_zone, blocked, sharp, used_weapon, spread_damage, forced)
 	SIGNAL_HANDLER
+
+	if(hardcore)
+		if(damage > 0 && damagetype != STAMINA)
+			nohit = FALSE
+		return
 
 	var/mob/living/old_body = old_body_ref?.resolve()
 	if(isnull(old_body) || damagetype == STAMINA || damagetype == OXY)
@@ -252,6 +263,15 @@
 	SIGNAL_HANDLER
 
 	full_avatar_disconnect(cause_damage = TRUE)
+
+/datum/component/avatar_connection/proc/on_avatar_death(datum/source)
+	SIGNAL_HANDLER
+
+	var/mob/living/old_body = old_body_ref?.resolve()
+	var/kill_pilot = hardcore
+	full_avatar_disconnect(cause_damage = !kill_pilot)
+	if(kill_pilot)
+		old_body?.death()
 
 /datum/component/avatar_connection/proc/on_mind_transfer(datum/mind/source, mob/living/new_character)
 	SIGNAL_HANDLER

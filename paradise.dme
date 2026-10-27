@@ -3013,6 +3013,7 @@
 #include "code\modules\bitrunning\objects\quantum_console.dm"
 #include "code\modules\bitrunning\orders\_orders.dm"
 #include "code\modules\bitrunning\server\_parent.dm"
+#include "code\modules\bitrunning\server\hardcore.dm"
 #include "code\modules\bitrunning\server\loot.dm"
 #include "code\modules\bitrunning\server\map_handling.dm"
 #include "code\modules\bitrunning\server\signal_handlers.dm"
