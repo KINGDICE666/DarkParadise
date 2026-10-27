@@ -174,6 +174,8 @@
 	SIGNAL_HANDLER
 	remove_traits(list(TRAIT_UI_BLOCKED, TRAIT_PULL_BLOCKED), TRAIT_INCAPACITATED)
 	//update_appearance()
+	if(get_up_checks_callback())
+		get_up()
 
 /// Called when [TRAIT_RESTRAINED] is added to the mob.
 /mob/living/proc/on_restrained_trait_gain(datum/source)
