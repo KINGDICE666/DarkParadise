@@ -79,7 +79,7 @@
 	icon_state = "pumpkin_ghost"
 	s_colour = "#FFFFFF"
 	loot = list(
-		list(/obj/item/scrying, 100),
+		list(/obj/item/scrying, 25),
 		list(/obj/item/reagent_containers/food/snacks/ectoplasm, 95),
 		list(/obj/item/reagent_containers/food/snacks/ectoplasm, 95),
 		list(/obj/item/reagent_containers/food/snacks/ectoplasm, 95),
@@ -120,14 +120,14 @@
 	loot = list(
 		list(/obj/item/organ/internal/heart, 100),
 		list(/obj/item/reagent_containers/condiment/saltshaker, 100),
-		list(/obj/item/organ/internal/heart/demon/slaughter, 20),
+		list(/obj/item/organ/internal/heart/demon/slaughter, 13),
 		)
 
 /obj/item/twohanded/required/kokochalloween/chimera/kokoc
 	icon_state = "pumpkin_kokoc"
 	loot = list(
 		list(/mob/living/simple_animal/pet/cat, 100),
-		list(/obj/item/spellbook/oneuse/random, 100),
+		list(/obj/item/spellbook/oneuse/random, 13),
 		list(/obj/item/reagent_containers/food/snacks/candy/taffy, 75),
 		list(/obj/item/reagent_containers/food/snacks/candy/taffy, 75),
 		list(/obj/item/reagent_containers/food/snacks/candy/taffy, 75),
