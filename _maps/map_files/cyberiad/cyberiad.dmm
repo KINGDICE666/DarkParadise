@@ -75262,7 +75262,6 @@
 /area/station/hallway/secondary/entry/south)
 "rIH" = (
 /obj/machinery/light_switch/directional/south,
-/obj/machinery/bioprinter,
 /turf/simulated/floor/plasteel{
 	icon_state = "whiteblue"
 	},

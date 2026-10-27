@@ -14,7 +14,6 @@
 #include "test_admin_verb_unique_names.dm"
 #include "test_announcements.dm"
 #include "test_asset_smart_cache.dm"
-#include "test_bioprinter.dm"
 #include "test_bitrunning.dm"
 #include "test_brain_traumas.dm"
 #include "test_circuit_import.dm"

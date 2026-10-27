@@ -58,8 +58,6 @@
 	return length(req_items)
 
 /datum/cargo_quest/thing/check_required_item(atom/movable/check_item)
-	if(HAS_TRAIT(check_item, TRAIT_BIOPRINTED_ORGAN))
-		return FALSE
 	if(check_item.type in current_list)
 		current_list.Remove(check_item.type)
 		return TRUE

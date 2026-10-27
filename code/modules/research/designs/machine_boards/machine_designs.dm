@@ -186,14 +186,6 @@
 	build_path = /obj/item/circuitboard/chem_dispenser/botanical
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_HYDROPONICS)
 
-/datum/design/bioprinter
-	id = "bioprinter"
-	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_BIOTECH = 3, RESEARCH_TREE_MATERIALS = 3)
-	build_type = IMPRINTER
-	materials = list(MAT_GLASS = 1000)
-	build_path = /obj/item/circuitboard/bioprinter
-	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
-
 /datum/design/biogenerator
 	id = "biogenerator"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_BIOTECH = 3, RESEARCH_TREE_MATERIALS = 3)

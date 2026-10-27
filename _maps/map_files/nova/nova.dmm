@@ -83943,13 +83943,6 @@
 	icon_state = "white"
 	},
 /area/station/science/research/lobby)
-"mSU" = (
-/obj/machinery/bioprinter,
-/turf/simulated/floor/plasteel{
-	dir = 8;
-	icon_state = "whiteblue"
-	},
-/area/station/medical/cryo)
 "mTg" = (
 /obj/item/radio/intercom/directional/north,
 /obj/effect/landmark/start/hangover,
@@ -184244,7 +184237,7 @@ aMf
 mOs
 rTj
 mOs
-mSU
+mOs
 tWZ
 gHQ
 hoW
