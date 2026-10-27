@@ -559,6 +559,20 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stock_parts/micro_laser = 1,
 	)
 
+/obj/item/circuitboard/bioprinter
+	board_name = "Organ Bioprinter"
+	build_path = /obj/machinery/bioprinter
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_MEDICAL
+	origin_tech = "programming=3;biotech=3;materials=3"
+	req_components = list(
+		/obj/item/stock_parts/matter_bin = 1,
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stack/cable_coil = 2,
+		/obj/item/stack/sheet/glass = 1,
+	)
+
 /obj/item/circuitboard/biogenerator
 	board_name = "Biogenerator"
 	build_path = /obj/machinery/biogenerator
