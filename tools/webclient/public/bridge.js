@@ -24,8 +24,23 @@
       source = source.replace('if(opts) t.winset(opts);', 'if(opts && opts.titlebar != null && opts.showTitle == null) opts.showTitle = opts.titlebar; if(opts) t.winset(opts);');
       source = source.replaceAll('t.ui.contents.appendChild(e)', 'window.__dpMoveControl(t.ui.contents, e)');
       source = source.replaceAll('document.body.appendChild(t.top)', 'window.__dpMoveControl(document.body, t.top)');
+      source = source.replace("byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'});", "c._dpPlaced = true; byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'}); window.__dpFitPop(p, false);");
+      source = source.replace("byond.css(s, {width:v.x+'px', height:v.y+'px'});", "byond.css(s, {width:v.x+'px', height:v.y+'px'}); if (p.isConnected) window.__dpFitPop(p, false);");
+      source = source.replace(/byond\.css\(t\.top,\{\s*left: \(window\.innerWidth-sz\.x\)\/2-cp\.x\+'px',\s*top: \(window\.innerHeight-sz\.y\)\/2-cp\.y\+'px'\s*\}\);/, 'if (!c._dpPlaced) byond.css(t.top, {left: "0px", top: "0px"});');
+      source = source.replace(/t\._checkZ\(\);\s*if\(h\) h\.onshow\(\);/, 't._checkZ(); window.__dpFitPop(t.top, !c._dpPlaced); if(h) h.onshow();');
     }
     return source;
+  };
+  window.__dpFitPop = function (pop, center) {
+    const view = pop.ownerDocument.defaultView;
+    const width = pop.offsetWidth;
+    const height = pop.offsetHeight;
+    let left = center ? (view.innerWidth - width) / 2 : pop.offsetLeft;
+    let top = center ? (view.innerHeight - height) / 2 : pop.offsetTop;
+    left = Math.max(0, Math.min(left, view.innerWidth - width));
+    top = Math.max(0, Math.min(top, view.innerHeight - height));
+    if (left !== pop.offsetLeft) pop.style.left = Math.round(left) + 'px';
+    if (top !== pop.offsetTop) pop.style.top = Math.round(top) + 'px';
   };
   const topicLimit = 6;
   const topicWindow = 1000;

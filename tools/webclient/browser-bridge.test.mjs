@@ -163,6 +163,37 @@ test('browse windows opened without a titlebar hide the popup title', () => {
   assert.equal(applied.showTitle, '0');
 });
 
+test('popups keep the position TGUI gave them and stay on screen', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const source = window.__dpPatchSkin('pop', [
+    "var fn={pos:function(v){byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'});},",
+    "size:function(v){byond.css(s, {width:v.x+'px', height:v.y+'px'});},",
+    "show:function(){var t=this;byond.css(t.top,{\n\t\t\t\tleft: (window.innerWidth-sz.x)/2-cp.x+'px',\n\t\t\t\ttop: (window.innerHeight-sz.y)/2-cp.y+'px'\n\t\t\t});",
+    "t._checkZ();\n\t\t\tif(h) h.onshow();}};",
+  ].join(''));
+  const view = { innerWidth: 1600, innerHeight: 1000 };
+  const p = { ownerDocument: { defaultView: view }, isConnected: false, offsetLeft: 0, offsetTop: 0, offsetWidth: 0, offsetHeight: 0, style: {} };
+  const apply = styles => {
+    if (styles.width) { p.offsetWidth = parseInt(styles.width, 10); p.offsetHeight = parseInt(styles.height, 10); }
+    if (styles.left) { p.offsetLeft = parseInt(styles.left, 10); p.offsetTop = parseInt(styles.top, 10); p.style.left = styles.left; p.style.top = styles.top; }
+  };
+  const context = { window, byond: { css(element, styles) { apply(styles); } }, p, s: {}, c: {}, cp: { x: 0, y: 0 }, sz: { x: 0, y: 0 }, h: null };
+  const fn = vm.runInNewContext(`${source}; fn`, context);
+  const pop = { top: p, _checkZ() {} };
+  fn.size({ x: 1000, y: 600 });
+  fn.show.call(pop);
+  assert.deepEqual([p.style.left, p.style.top], ['300px', '200px']);
+  const placed = { ...context, c: {} };
+  const fn2 = vm.runInNewContext(`${source}; fn`, placed);
+  p.isConnected = true;
+  fn2.pos({ x: 294, y: 150 });
+  fn2.show.call(pop);
+  assert.deepEqual([p.style.left, p.style.top], ['294px', '150px']);
+  fn2.pos({ x: 1400, y: 900 });
+  assert.deepEqual([p.style.left, p.style.top], ['600px', '400px']);
+});
+
 function loadHelpers(context) {
   const elements = [];
   context.window = Object.assign({ parent: null, setTimeout: context.setTimeout }, context.window);

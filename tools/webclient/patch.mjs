@@ -111,6 +111,12 @@ const STATUS_RULES = [
     min: 1,
   },
   {
+    name: 'measure click icon coordinates on the clicked atom, not its plane master',
+    pattern: /if \(!\(t1 && main\._parent instanceof N\.MapAtom\)\)/g,
+    replace: 'if (!(t1 && main._parent instanceof N.MapAtom && main._parent.info === main.info))',
+    min: 1,
+  },
+  {
     name: 'coalesce initial stat tab notifications',
     pattern: /msg = N\.ByondMessage\$\(129\);/g,
     replace: 'if (window.__dpScheduleTopic(this, topic)) return; msg = N.ByondMessage$(129);',
