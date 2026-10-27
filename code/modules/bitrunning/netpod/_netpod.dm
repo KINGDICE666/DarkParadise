@@ -13,6 +13,7 @@
 	var/mob/living/carbon/occupant
 	var/state_open = TRUE
 	var/connected = FALSE
+	var/connection_attempt = 0
 	var/copy_body = FALSE
 	var/datum/outfit/netsuit = /datum/outfit/bit_avatar
 	var/datum/weakref/avatar_ref
@@ -284,6 +285,7 @@
 
 	target.forceMove(src)
 	occupant = target
+	connection_attempt += 1
 	state_open = FALSE
 	set_density(TRUE)
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
@@ -296,6 +298,7 @@
 	if(state_open)
 		return
 
+	connection_attempt += 1
 	state_open = TRUE
 	set_density(FALSE)
 	playsound(src, 'sound/machines/podopen.ogg', 60, TRUE)

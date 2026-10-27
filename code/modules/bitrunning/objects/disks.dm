@@ -46,6 +46,35 @@
 /obj/item/disk/bitrunning/proc/load_onto_avatar(mob/living/carbon/human/pilot, mob/living/carbon/human/avatar, domain_flags)
 	return NONE
 
+/obj/item/disk/bitrunning_hardcore
+	name = "HRDM domain disk"
+	desc = "Одноразовый диск усиления домена. Используйте на квантовой консоли до первого входа в домен. Удваивает награды и здоровье врагов, усиливает их атаки и вызывает подкрепления. Смерть аватара мгновенно убивает оператора в капсуле."
+	icon_state = "datadisk2"
+
+/obj/item/disk/bitrunning_hardcore/get_ru_names()
+	return alist(
+		NOMINATIVE = "диск HRDM",
+		GENITIVE = "диска HRDM",
+		DATIVE = "диску HRDM",
+		ACCUSATIVE = "диск HRDM",
+		INSTRUMENTAL = "диском HRDM",
+		PREPOSITIONAL = "диске HRDM",
+	)
+
+/obj/item/disk/tech_disk/bitrunning_abductor
+	var/datum/tech/abductor/alien_tech
+
+/obj/item/disk/tech_disk/bitrunning_abductor/Initialize(mapload)
+	. = ..()
+	alien_tech = new
+	alien_tech.level = 1
+	load_tech(alien_tech)
+
+/obj/item/disk/tech_disk/bitrunning_abductor/Destroy()
+	stored = null
+	QDEL_NULL(alien_tech)
+	return ..()
+
 /obj/item/disk/bitrunning/item
 	abstract_type = /obj/item/disk/bitrunning/item
 	desc = "Диск с исходным кодом. Подгружает предмет в виртуальный домен."
