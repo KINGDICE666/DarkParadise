@@ -187,7 +187,7 @@ window "infobuttons"
 		background-color = none
 		saved-params = "is-checked"
 		text = "Toggle Stat Panel"
-		command = "toggle-stat-panel"
+		command = "Toggle-Stat-Panel"
 
 window "infowindow"
 	elem "infowindow"
