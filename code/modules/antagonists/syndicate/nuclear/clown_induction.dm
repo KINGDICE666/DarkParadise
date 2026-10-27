@@ -6,14 +6,36 @@
 
 /obj/item/implanter/induction_implant/clown
 	name = "bio-chip implanter (syndicate circus)"
+	gender = MALE
 	desc = "Инъектор для регистрации участника цирка \"Синдиката\". Не является устройством промывания мозгов."
 	imp = /obj/item/implant/nuclear_operative/clown
 
+/obj/item/implanter/induction_implant/clown/get_ru_names()
+	return alist(
+		NOMINATIVE = "инъектор био-чипа цирка Синдиката",
+		GENITIVE = "инъектора био-чипа цирка Синдиката",
+		DATIVE = "инъектору био-чипа цирка Синдиката",
+		ACCUSATIVE = "инъектор био-чипа цирка Синдиката",
+		INSTRUMENTAL = "инъектором био-чипа цирка Синдиката",
+		PREPOSITIONAL = "инъекторе био-чипа цирка Синдиката",
+	)
+
 /obj/item/implant/nuclear_operative/clown
 	name = "syndicate circus bio-chip"
+	gender = MALE
 	desc = "Регистрирует владельца как участника отряда клоунов-оперативников."
 	actions_types = null
 	var/datum/weakref/operative_ref
+
+/obj/item/implant/nuclear_operative/clown/get_ru_names()
+	return alist(
+		NOMINATIVE = "био-чип цирка Синдиката",
+		GENITIVE = "био-чипа цирка Синдиката",
+		DATIVE = "био-чипу цирка Синдиката",
+		ACCUSATIVE = "био-чип цирка Синдиката",
+		INSTRUMENTAL = "био-чипом цирка Синдиката",
+		PREPOSITIONAL = "био-чипе цирка Синдиката",
+	)
 
 /obj/item/implant/nuclear_operative/clown/implant(mob/living/carbon/human/target, mob/user, force = FALSE)
 	if(!target.mind || target.mind.has_antag_datum(/datum/antagonist/nuclear_operative))
@@ -23,7 +45,7 @@
 		return
 	var/datum/antagonist/nuclear_operative/clownop/inducted/operative = target.mind.add_antag_datum(/datum/antagonist/nuclear_operative/clownop/inducted)
 	operative_ref = WEAKREF(operative)
-	to_chat(target, span_userdanger("Этот био-чип НЕ промывает мозги. Если вы были обычным членом экипажа, добровольная или принудительная имплантация не разрешает вам помогать оперативникам."))
+	to_chat(target, span_userdanger("Этот био-чип НЕ промывает мозги. Если Вы были обычным членом экипажа, добровольная или принудительная имплантация не разрешает Вам помогать оперативникам."))
 
 /obj/item/implant/nuclear_operative/clown/removed(mob/living/carbon/human/source)
 	var/datum/antagonist/operative = operative_ref?.resolve()
@@ -37,6 +59,16 @@
 	desc = "Снаряжение и регистрационный био-чип для нового участника цирка. Био-чип не промывает мозги."
 	max_combined_w_class = 60
 	storage_slots = 20
+
+/obj/item/storage/box/syndie_kit/induction_kit/clown/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор вступления в цирк",
+		GENITIVE = "набора вступления в цирк",
+		DATIVE = "набору вступления в цирк",
+		ACCUSATIVE = "набор вступления в цирк",
+		INSTRUMENTAL = "набором вступления в цирк",
+		PREPOSITIONAL = "наборе вступления в цирк",
+	)
 
 /obj/item/storage/box/syndie_kit/induction_kit/clown/populate_contents()
 	var/obj/item/gun/gun = new /obj/item/gun/projectile/automatic/toy/pistol/riot/clandestine(src)
@@ -56,7 +88,18 @@
 
 /obj/item/implanter/tacmap/nuclear
 	name = "bio-chip implanter (operative minimap)"
+	gender = MALE
 	imp = /obj/item/implant/tacmap/nuclear
+
+/obj/item/implanter/tacmap/nuclear/get_ru_names()
+	return alist(
+		NOMINATIVE = "инъектор био-чипа тактической карты",
+		GENITIVE = "инъектора био-чипа тактической карты",
+		DATIVE = "инъектору био-чипа тактической карты",
+		ACCUSATIVE = "инъектор био-чипа тактической карты",
+		INSTRUMENTAL = "инъектором био-чипа тактической карты",
+		PREPOSITIONAL = "инъекторе био-чипа тактической карты",
+	)
 
 /obj/item/implant/explosive/macro/fake
 	heavy = /obj/item/implant/explosive::heavy

@@ -554,6 +554,10 @@ GLOBAL_LIST_EMPTY(multiverse)
 		to_chat(user, span_warning("There is no soul connected to this body..."))
 		return .
 
+	if(target.mind.has_antag_datum(/datum/antagonist/mindslave/necromancy))
+		to_chat(user, span_warning("This one is already under another artifact's influence!"))
+		return .
+
 	check_spooky()//clean out/refresh the list
 
 	if(length(spooky_scaries) >= 3 && !unlimited)
@@ -669,6 +673,107 @@ GLOBAL_LIST_EMPTY(multiverse)
 	icon_state = "nyacrostone"
 	heresy = 1
 	unlimited = 1
+
+/////////////////////////////////////////Plague Talisman///////////////////
+
+/obj/item/plague_talisman
+	name = "plague talisman"
+	desc = "Мерзкая руна, способная поднять мертвеца как разносчика чумы и разрушения. Края усеяны острыми крючками."
+	icon = 'icons/obj/wizard.dmi'
+	icon_state = "plague_talisman"
+	origin_tech = "bluespace=4;materials=4"
+	w_class = WEIGHT_CLASS_TINY
+
+/obj/item/plague_talisman/get_ru_names()
+	return alist(
+		NOMINATIVE = "чумной талисман",
+		GENITIVE = "чумного талисмана",
+		DATIVE = "чумному талисману",
+		ACCUSATIVE = "чумной талисман",
+		INSTRUMENTAL = "чумным талисманом",
+		PREPOSITIONAL = "чумном талисмане",
+	)
+
+/obj/item/plague_talisman/attack(mob/living/carbon/human/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
+	if(!istype(target) || !istype(user))
+		return ..()
+
+	. = ATTACK_CHAIN_PROCEED
+
+	if(target.stat != DEAD)
+		to_chat(user, span_warning("Этот артефакт действует только на мёртвых!"))
+		return .
+
+	if(ismachineperson(target))
+		to_chat(user, span_warning("Эта чумная магия не действует на [target.declent_ru(ACCUSATIVE)]."))
+		return .
+
+	if((!target.mind || !target.client) && !target.grab_ghost())
+		to_chat(user, span_warning("С этим телом не связана ни одна душа..."))
+		return .
+
+	if(target.mind.has_antag_datum(/datum/antagonist/mindslave/necromancy))
+		to_chat(user, span_warning("Это тело уже под влиянием артефакта! Дайте ему время."))
+		return .
+
+	. |= ATTACK_CHAIN_SUCCESS
+	raise_victim(target, user)
+
+/obj/item/plague_talisman/proc/raise_victim(mob/living/carbon/human/victim, mob/living/carbon/human/necromancer)
+	var/datum/disease/chosen_plague = pick_disease()
+
+	victim.grab_ghost()
+	victim.visible_message(span_danger("[necromancer] прикладыва[PLUR_ET_YUT(necromancer)] мерзкую руну ко лбу безжизненного тела [victim]. Руна впивается в плоть, тело [victim] с неестественной скоростью гниёт и разлагается, а затем поднимается чудовищной нежитью!"))
+
+	var/static/list/plague_traits = list(TRAIT_NON_INFECTIOUS_ZOMBIE, TRAIT_PLAGUE_ZOMBIE)
+	for(var/trait in plague_traits)
+		ADD_TRAIT(victim, trait, ZOMBIE_TRAIT)
+
+	var/datum/disease/virus/zombie/wizard/plague_virus = new(chosen_plague, TRUE)
+	plague_virus.Contract(victim)
+	for(var/datum/disease/disease as anything in victim.diseases)
+		if(istype(disease, /datum/disease/virus/zombie))
+			disease.stage = 8
+		else
+			disease.cure(need_immunity = FALSE)
+
+	ADD_TRAIT(necromancer, TRAIT_VIRUSIMMUNE, MAGIC_TRAIT)
+	ADD_TRAIT(victim, TRAIT_VIRUSIMMUNE, MAGIC_TRAIT)
+	necromancer.grant_language(/datum/language/zombie, source = LANGUAGE_MIND)
+
+	playsound(victim, 'sound/magic/mutate.ogg', 50)
+	addtimer(CALLBACK(src, PROC_REF(finish_convert), victim, necromancer, chosen_plague), 5 SECONDS)
+
+/obj/item/plague_talisman/proc/finish_convert(mob/living/carbon/human/victim, mob/living/carbon/human/necromancer, datum/disease/chosen_plague)
+	if(QDELETED(victim) || !victim.mind || QDELETED(necromancer) || !necromancer.mind)
+		return
+	var/greet_text = "Вас поднял[GEND_A_O_I(necromancer)] к нежизни <b>[necromancer.real_name]</b>!<br> \
+		Теперь [GEND_HE_SHE(necromancer)] ваш хозяин, помогайте [GEND_HIM_HER(necromancer)] любой ценой — теперь вы выше смерти!<br> \
+		Вы наделены следующей чумой: <br> \
+		[initial(chosen_plague.name)]!"
+	victim.mind.add_antag_datum(new /datum/antagonist/mindslave/necromancy(necromancer.mind, greet_text))
+
+	victim.maxHealth = 200
+	victim.health = 200
+	victim.rejuvenate()
+	qdel(src)
+
+/obj/item/plague_talisman/proc/pick_disease()
+	var/static/list/possible_diseases = list(
+		/datum/disease/virus/beesease/wizard_variant,
+		/datum/disease/virus/fluspanish/wizard_variant,
+		/datum/disease/virus/kingstons_advanced/wizard_variant,
+		/datum/disease/virus/dna_retrovirus/wizard_variant,
+		/datum/disease/virus/tuberculosis/wizard_variant,
+		/datum/disease/virus/anxiety/wizard_variant,
+		/datum/disease/virus/wizarditis/wizard_variant,
+		/datum/disease/berserker,
+		/datum/disease/appendicitis,
+		/datum/disease/virus/grut_gut/wizard_variant,
+		/datum/disease/virus/wand_rot/wizard_variant,
+		/datum/disease/virus/mystic_malaise/wizard_variant,
+	)
+	return pick(possible_diseases)
 
 /////////////////////////////////////////Voodoo///////////////////
 

@@ -589,6 +589,29 @@
 		new /obj/item/soulstone(src)
 	update_icon()
 
+/obj/item/storage/belt/plague_talisman
+	name = "runic belt"
+	desc = "Пояс для безопасного хранения чумных талисманов. Остаётся надеяться, что с него ничего не закапает..."
+	icon_state = "soulstonebelt"
+	item_state = "soulstonebelt"
+	storage_slots = 5
+	can_hold = list(/obj/item/plague_talisman)
+
+/obj/item/storage/belt/plague_talisman/get_ru_names()
+	return alist(
+		NOMINATIVE = "рунический пояс",
+		GENITIVE = "рунического пояса",
+		DATIVE = "руническому поясу",
+		ACCUSATIVE = "рунический пояс",
+		INSTRUMENTAL = "руническим поясом",
+		PREPOSITIONAL = "руническом поясе",
+	)
+
+/obj/item/storage/belt/plague_talisman/populate_contents()
+	for(var/count in 1 to storage_slots)
+		new /obj/item/plague_talisman(src)
+	update_icon()
+
 /obj/item/storage/belt/champion
 	name = "championship belt"
 	desc = "Proves to the world that you are the strongest!"

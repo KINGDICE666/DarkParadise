@@ -99,7 +99,6 @@
 	name = "Napoleon cake"
 	desc = "Торт из тонких слоёных коржей с заварным кремом, посыпанный золотистой крошкой."
 	gender = MALE
-	icon = 'icons/obj/food/napoleon.dmi'
 	icon_state = "napoleoncake"
 	w_class = WEIGHT_CLASS_NORMAL
 	slice_path = /obj/item/reagent_containers/food/snacks/napoleoncakeslice
@@ -124,7 +123,6 @@
 	name = "Napoleon cake slice"
 	desc = "Кусочек слоёного торта с заварным кремом и золотистой крошкой."
 	gender = MALE
-	icon = 'icons/obj/food/napoleon.dmi'
 	icon_state = "napoleoncake_slice"
 	w_class = WEIGHT_CLASS_SMALL
 	trash = /obj/item/trash/plate

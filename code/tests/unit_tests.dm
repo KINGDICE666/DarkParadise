@@ -14,12 +14,14 @@
 #include "test_admin_verb_unique_names.dm"
 #include "test_announcements.dm"
 #include "test_asset_smart_cache.dm"
+#include "test_bioprinter.dm"
 #include "test_bitrunning.dm"
 #include "test_brain_traumas.dm"
 #include "test_circuit_import.dm"
 #include "test_cliffs.dm"
 #include "test_components.dm"
 #include "test_detect_room.dm"
+#include "test_dna_genes.dm"
 #include "test_elements.dm"
 #include "test_emotes.dm"
 #include "test_get_turf_pixel.dm"
@@ -27,6 +29,7 @@
 #include "test_headphone_case.dm"
 #include "test_heretic_knowledge.dm"
 #include "test_heretic_rituals.dm"
+#include "test_holomaps.dm"
 #include "test_init_sanity.dm"
 #include "test_languages.dm"
 #include "test_logistics.dm"
@@ -59,6 +62,7 @@
 #include "test_timer_sanity.dm"
 #include "test_transit_tubes.dm"
 #include "test_washing.dm"
+#include "test_zombies.dm"
 #endif
 
 #ifdef REFERENCE_TRACKING_DEBUG //Don't try and parse this file if ref tracking isn't turned on. IE: don't parse ref tracking please mr linter

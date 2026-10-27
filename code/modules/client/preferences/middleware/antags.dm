@@ -39,6 +39,7 @@ GLOBAL_LIST_INIT(antag_preference_icons, list(
 	ROLE_WIZARD = /obj/item/clothing/head/wizard,
 	ROLE_ALIEN = /mob/living/carbon/alien/humanoid/hunter,
 	ROLE_BINGLE = /mob/living/simple_animal/hostile/bingle,
+	ROLE_ZOMBIE = /mob/living/simple_animal/hostile/zombie,
 ))
 
 GLOBAL_LIST_INIT(antag_preference_species, list(

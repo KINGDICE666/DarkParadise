@@ -936,6 +936,9 @@
 		if(!((method == REAGENT_INGEST || (method == REAGENT_TOUCH && prob(25))) && mob.stat == DEAD))
 			return ..()
 		if(mob.getBruteLoss() + mob.getFireLoss() + mob.getCloneLoss() >= 150)
+			if(HAS_TRAIT(mob, TRAIT_I_WANT_BRAINS))
+				mob.visible_message(span_warning("[mob] слегка вздрагива[PLUR_ET_YUT(mob)], но ничего не происходит."))
+				return
 			add_attack_logs(mob, mob, "delay gib by [name]")
 			mob.delayed_gib()
 			return
@@ -1558,6 +1561,8 @@
 						H.AdjustBlood(30)
 					for(var/datum/disease/critical/heart_failure/HF in H.diseases)
 						HF.cure() //Won't fix a stopped heart, but it will sure fix a critical one. Shock is not fixed as healing will fix it
+					for(var/datum/disease/virus/zombie/zombie_virus in H.diseases)
+						zombie_virus.cure()
 				if(M.health < 40)
 					update_flags |= M.adjustOxyLoss(-6, FALSE)
 					update_flags |= M.adjustToxLoss(-2, FALSE)
@@ -1810,3 +1815,43 @@
 	user.adjustBruteLoss(6)
 	user.set_bloody_screen(6 SECONDS)
 
+
+/datum/reagent/zombie_cure
+	name = "Античумная последовательность Альфа"
+	id = "zombiecure1"
+	description = "Первый шаг к лекарству от зомби. Предотвращает простое заражение через царапины."
+	reagent_state = LIQUID
+	metabolization_rate = 0.1
+	color = "#003602"
+	taste_description = "надежды"
+	var/cure_level = 1
+
+/datum/reagent/zombie_cure/second
+	name = "Античумная последовательность Бета"
+	id = "zombiecure2"
+	description = "Излечивает лёгкие стадии заражения. Ослабляет зомби, если находится в их организме."
+	color = "#006238"
+	cure_level = 2
+
+/datum/reagent/zombie_cure/third
+	name = "Античумная последовательность Гамма"
+	id = "zombiecure3"
+	description = "Не даёт зомби восставать, но не мешает им лечиться. Устраняет умеренные стадии заражения."
+	color = "#029779"
+	cure_level = 3
+
+/datum/reagent/zombie_cure/fourth
+	name = "Античумная последовательность Омега"
+	id = "zombiecure4"
+	description = "Излечивает все случаи некротической чумы. Не даёт зомби восставать."
+	color = "#001d4d"
+	cure_level = 4
+
+/datum/reagent/zombie_cure/fourth/on_mob_life(mob/living/M)
+	var/mob/living/carbon/human/human = M
+	if(istype(human) && prob(20))
+		for(var/obj/item/organ/external/limb as anything in human.bodyparts)
+			if(limb.is_dead() && !limb.is_robotic())
+				limb.unnecrotize()
+				break
+	return ..()

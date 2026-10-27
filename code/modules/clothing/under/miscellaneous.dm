@@ -1433,6 +1433,106 @@
 		PREPOSITIONAL = "сарафане",
 	)
 
+/obj/item/clothing/under/kimono
+	name = "sakura kimono"
+	desc = "Сливовое шёлковое кимоно с цветами сакуры и коралловым поясом оби."
+	gender = NEUTER
+	icon_state = "kimono_sakura"
+	item_state = "p_suit"
+	can_adjust = FALSE
+
+/obj/item/clothing/under/kimono/get_ru_names()
+	return alist(
+		NOMINATIVE = "кимоно с сакурой",
+		GENITIVE = "кимоно с сакурой",
+		DATIVE = "кимоно с сакурой",
+		ACCUSATIVE = "кимоно с сакурой",
+		INSTRUMENTAL = "кимоно с сакурой",
+		PREPOSITIONAL = "кимоно с сакурой",
+	)
+
+/obj/item/clothing/under/kimono/crane
+	name = "crane kimono"
+	desc = "Тёмно-синее шёлковое кимоно с журавлями на подоле и золотистым поясом оби."
+	icon_state = "kimono_crane"
+	item_state = "b_suit"
+
+/obj/item/clothing/under/kimono/crane/get_ru_names()
+	return alist(
+		NOMINATIVE = "кимоно с журавлями",
+		GENITIVE = "кимоно с журавлями",
+		DATIVE = "кимоно с журавлями",
+		ACCUSATIVE = "кимоно с журавлями",
+		INSTRUMENTAL = "кимоно с журавлями",
+		PREPOSITIONAL = "кимоно с журавлями",
+	)
+
+/obj/item/clothing/under/kimono/chrysanthemum
+	name = "chrysanthemum kimono"
+	desc = "Красное шёлковое кимоно с золотистыми хризантемами и чёрным поясом оби."
+	icon_state = "kimono_chrysanthemum"
+	item_state = "r_suit"
+
+/obj/item/clothing/under/kimono/chrysanthemum/get_ru_names()
+	return alist(
+		NOMINATIVE = "кимоно с хризантемами",
+		GENITIVE = "кимоно с хризантемами",
+		DATIVE = "кимоно с хризантемами",
+		ACCUSATIVE = "кимоно с хризантемами",
+		INSTRUMENTAL = "кимоно с хризантемами",
+		PREPOSITIONAL = "кимоно с хризантемами",
+	)
+
+/obj/item/clothing/under/yukata
+	name = "wave yukata"
+	desc = "Лёгкая хлопковая юката с узором из волн и светлым поясом оби."
+	gender = FEMALE
+	icon_state = "yukata_wave"
+	item_state = "b_suit"
+	can_adjust = FALSE
+
+/obj/item/clothing/under/yukata/get_ru_names()
+	return alist(
+		NOMINATIVE = "юката с волнами",
+		GENITIVE = "юкаты с волнами",
+		DATIVE = "юкате с волнами",
+		ACCUSATIVE = "юкату с волнами",
+		INSTRUMENTAL = "юкатой с волнами",
+		PREPOSITIONAL = "юкате с волнами",
+	)
+
+/obj/item/clothing/under/yukata/bamboo
+	name = "bamboo yukata"
+	desc = "Светлая хлопковая юката с листьями бамбука и зелёным поясом оби."
+	icon_state = "yukata_leaf"
+	item_state = "scratch"
+
+/obj/item/clothing/under/yukata/bamboo/get_ru_names()
+	return alist(
+		NOMINATIVE = "юката с бамбуком",
+		GENITIVE = "юкаты с бамбуком",
+		DATIVE = "юкате с бамбуком",
+		ACCUSATIVE = "юкату с бамбуком",
+		INSTRUMENTAL = "юкатой с бамбуком",
+		PREPOSITIONAL = "юкате с бамбуком",
+	)
+
+/obj/item/clothing/under/yukata/dragonfly
+	name = "dragonfly yukata"
+	desc = "Сиреневая хлопковая юката со стрекозами и коралловым поясом оби."
+	icon_state = "yukata_dragonfly"
+	item_state = "p_suit"
+
+/obj/item/clothing/under/yukata/dragonfly/get_ru_names()
+	return alist(
+		NOMINATIVE = "юката со стрекозами",
+		GENITIVE = "юкаты со стрекозами",
+		DATIVE = "юкате со стрекозами",
+		ACCUSATIVE = "юкату со стрекозами",
+		INSTRUMENTAL = "юкатой со стрекозами",
+		PREPOSITIONAL = "юкате со стрекозами",
+	)
+
 /obj/item/clothing/under/captainparade
 	name = "captain's parade uniform"
 	desc = "Капитанская роскошная одежда, для особых случаев."

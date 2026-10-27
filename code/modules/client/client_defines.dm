@@ -167,7 +167,7 @@
 	var/datum/view_data/view_size
 
 	/// our current tab
-	var/stat_tab
+	var/stat_tab = STATPANEL_STATUS
 
 	/// List of all tabs
 	var/list/panel_tabs = list()

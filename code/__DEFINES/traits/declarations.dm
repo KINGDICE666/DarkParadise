@@ -247,6 +247,7 @@
 #define TRAIT_ADVANCED_SURGICAL "advanced_surgical"
 /// This trait makes it so that an item literally cannot be removed at all, or at least that's how it should be. Only deleted.
 #define TRAIT_NODROP "nodrop"
+#define TRAIT_BIOPRINTED_ORGAN "bioprinted_organ"
 /// Applied with attachment to the cyberimplant when it is inserted in mob with TRAIT_ADVANCED_CYBERIMPLANTS
 #define TRAIT_CYBERIMP_IMPROVED "cyberimp_improved"
 /// This item will not be cloned in the experimentator
@@ -359,6 +360,14 @@
 #define TRAIT_NO_DECAY "no_decay"
 /// This human mob will not be affected by piercing, such as caltrops, prickles, needles etc.
 #define TRAIT_PIERCEIMMUNE "pierce_immunity"
+#define TRAIT_HYPERMETABOLIC_BLOOD "hypermetabolic_blood"
+#define TRAIT_HIGH_PAIN_THRESHOLD "high_pain_threshold"
+#define TRAIT_I_WANT_BRAINS "mob_zombie"
+#define TRAIT_NON_INFECTIOUS_ZOMBIE "non_infectious_zombie"
+#define TRAIT_PLAGUE_ZOMBIE "plague_zombie"
+#define TRAIT_NPC_ZOMBIE "npc_zombie"
+#define TRAIT_I_WANT_BRAINS_ORGAN "zombie_organ"
+#define TRAIT_ABSTRACT_HANDS "abstract_hands"
 /// This human mob will not be affected by embedding of the thrown items
 #define TRAIT_EMBEDIMMUNE "embed_immunity"
 /// This human mob will not be affected by fracture effects

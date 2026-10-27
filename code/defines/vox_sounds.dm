@@ -1274,6 +1274,7 @@ GLOBAL_LIST_INIT(vox_sounds, list(
 "yourself" = 'sound/vox_fem/yourself.ogg',
 "z" = 'sound/vox_fem/z.ogg',
 "zero" = 'sound/vox_fem/zero.ogg',
+"zombie" = 'sound/vox_fem/zombie.ogg',
 "zone" = 'sound/vox_fem/zone.ogg',
 "zulu" = 'sound/vox_fem/zulu.ogg'
 ))

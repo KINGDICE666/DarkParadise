@@ -573,7 +573,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	//	return
 
 	if(loc == user)
-		if(!allow_attack_hand_drop(user))
+		if(HAS_TRAIT(user, TRAIT_I_WANT_BRAINS) || !allow_attack_hand_drop(user))
 			return
 
 		// inventory unequip delay

@@ -173,6 +173,7 @@
 	mymob = null
 	QDEL_NULL(screentip_text)
 
+	QDEL_NULL(holomap)
 	QDEL_NULL(mini_holomap)
 	return ..()
 

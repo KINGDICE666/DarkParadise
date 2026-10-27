@@ -1,7 +1,7 @@
 /obj/machinery/nuclearbomb/syndicate/bananium
 	name = "bananium fission explosive"
+	gender = FEMALE
 	desc = "Бананиевая боеголовка. Похоже, обратный отсчёт ведётся до начала представления."
-	icon = 'icons/obj/machines/bananium_nuke.dmi'
 	icon_state = "bananiumbomb_base"
 	cinematic_type = CLOWN_NUKE
 
@@ -32,7 +32,7 @@
 		safety = TRUE
 		update_appearance()
 		playsound(src, 'sound/misc/sadtrombone.ogg', 100, TRUE)
-		visible_message(span_notice("[declent_ru(NOMINATIVE)] издаёт печальный тромбонный звук: ядро отсутствует."))
+		visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] издаёт печальный тромбонный звук: ядро отсутствует."))
 		return
 	return ..()
 
@@ -44,8 +44,8 @@
 
 /obj/machinery/nuclearbomb/syndicate/bananium/get_detonation_message(off_station)
 	if(off_station)
-		return "<b>Вдали раздался оглушительный ХОНК. Представление прошло мимо станции!</b>"
-	return "<b>Станция превращена в цирк бананиевой боеголовкой! ХОНК!</b>"
+		return span_bold("Вдали раздался оглушительный ХОНК. Представление прошло мимо станции!")
+	return span_bold("Станция превращена в цирк бананиевой боеголовкой! ХОНК!")
 
 /proc/make_into_clown(mob/living/carbon/human/victim)
 	if(!istype(victim))

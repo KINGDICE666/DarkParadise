@@ -106,6 +106,13 @@
 	user.get_up(instant = TRUE)
 	to_chat(user, span_notice("Вы наполняете свое тело чистой кровью и снимаете все обездвиживающие эффекты."))
 	var/datum/antagonist/vampire/vampire_datum = user.mind.has_antag_datum(/datum/antagonist/vampire)
+	for(var/datum/disease/virus/zombie/zombie_infection in user.diseases)
+		zombie_infection.stage = min(zombie_infection.stage, round(7 - (vampire_datum.bloodtotal / 100)))
+		if(zombie_infection.stage <= 0)
+			zombie_infection.cure()
+			to_chat(user, span_notice("Вы очищаете свой организм от чумы."))
+		else
+			to_chat(user, span_warning("Вы ослабляете чуму в своём организме, но крови недостаточно, чтобы полностью от неё избавиться."))
 	var/rejuv_bonus = vampire_datum.get_rejuv_bonus()
 	if(rejuv_bonus)
 		INVOKE_ASYNC(src, PROC_REF(heal), user, rejuv_bonus)

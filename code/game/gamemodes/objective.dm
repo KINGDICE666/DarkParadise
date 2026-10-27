@@ -1691,6 +1691,12 @@ GLOBAL_LIST_EMPTY(admin_objective_list)
 /datum/objective/supermatter_cascade/on_remove_objective(datum/mind)
 	REMOVE_TRAIT(mind, TRAIT_HIJACK, UNIQUE_TRAIT_SOURCE(src))
 
+/datum/objective/zombie
+	antag_menu_name = "Распространить чуму"
+	explanation_text = "Внутри нас растёт голод, нам нужно полакомиться мозгами незаражённых. Царапайте, кусайте и распространяйте чуму."
+	needs_target = FALSE
+	completed = TRUE
+
 /// Main goal of swarmers, completed on mega-swarmer spawn
 /datum/objective/swarmer_goal
 	antag_menu_name = "Создать Мега-Свармера"

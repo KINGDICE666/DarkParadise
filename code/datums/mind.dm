@@ -477,6 +477,16 @@
 		. += "<a href='byond://?src=[UID()];vampire=goonvampire'>goon vampire</a>|<b>NO</b>"
 
 	. += _memory_edit_role_enabled(ROLE_VAMPIRE)
+
+/datum/mind/proc/memory_edit_zombie(mob/living/carbon/human/H)
+	. = _memory_edit_header("zombie", list())
+	if(has_antag_datum(/datum/antagonist/zombie))
+		. += "<a href='byond://?src=[UID()];zombie=clear'>no</a>|<b><font color='red'>ZOMBIE</font></b>"
+		return
+	if(current.HasDisease(/datum/disease/virus/zombie))
+		. += "<b>NO</b>|<a href='byond://?src=[UID()];zombie=zombie'>zombie</a>|<a href='byond://?src=[UID()];zombie=zombievirusno'><font color='red'>dis-infect</font></a>"
+	else
+		. += "<b>NO</b>|<a href='byond://?src=[UID()];zombie=zombie'>zombie</a>|<a href='byond://?src=[UID()];zombie=zombievirus'>infect</a>"
 	/** Enthralled ***/
 	. += "<br><b><i>enthralled</i></b>: "
 	if(has_antag_datum(/datum/antagonist/mindslave/thrall))
@@ -790,6 +800,8 @@
 		sections["changeling"] = memory_edit_changeling(H)
 		/** VAMPIRE ***/
 		sections["vampire"] = memory_edit_vampire(H)
+		/** ZOMBIE ***/
+		sections["zombie"] = memory_edit_zombie(H)
 		/** HERETIC ***/
 		sections["heretic"] = memory_edit_heretic(H)
 		/** NUCLEAR ***/
@@ -1600,6 +1612,33 @@
 					to_chat(usr, span_notice("The objectives for wizard apprentice [key] have been generated. You can edit them and announce manually."))
 					log_admin("[key_name(usr)] has automatically forged wizard apprentice objectives for [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has automatically forged wizard apprentice objectives for [key_name_admin(current)]")
+
+	else if(href_list["zombie"])
+		switch(href_list["zombie"])
+			if("clear")
+				if(!has_antag_datum(/datum/antagonist/zombie))
+					return
+				remove_antag_datum(/datum/antagonist/zombie)
+				for(var/datum/disease/virus/zombie/zombie_virus in current.diseases)
+					zombie_virus.cure()
+				log_and_message_admins("has de-zombied [key_name(current)].")
+			if("zombie")
+				if(has_antag_datum(/datum/antagonist/zombie))
+					return
+				add_antag_datum(/datum/antagonist/zombie)
+				log_and_message_admins("has zombied [key_name(current)].")
+			if("zombievirus")
+				if(has_antag_datum(/datum/antagonist/zombie) || !ishuman(current))
+					return
+				var/datum/disease/virus/zombie/zombie_virus = new
+				zombie_virus.Contract(current)
+				log_and_message_admins("has given a zombie virus to [key_name(current)].")
+			if("zombievirusno")
+				if(has_antag_datum(/datum/antagonist/zombie))
+					return
+				for(var/datum/disease/virus/zombie/zombie_virus in current.diseases)
+					zombie_virus.cure()
+				log_and_message_admins("has removed the zombie virus from [key_name(current)].")
 
 	else if(href_list["heretic"])
 		switch(href_list["heretic"])

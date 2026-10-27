@@ -70,6 +70,9 @@
 
 	/// A list of all the nuclear operatives' minds
 	var/list/datum/mind/syndicates = list()
+	var/list/datum/mind/zombies = list()
+	var/list/datum/mind/zombie_patient_zeros = list()
+	var/list/mob/living/zombie_infected = list()
 
 	var/datum/mind/exchange_red
 	var/datum/mind/exchange_blue

@@ -10,7 +10,7 @@
 	var/list/possible_appearances = list("Assistant", "Clown", "Mime",
 		"Traitor", "Nuke Op", "Cultist", "Clockwork Cultist", "Revolutionary", "Wizard", "Shadowling", "Xenomorph", "Swarmer",
 		"Deathsquad Officer", "Ian", "Slaughter Demon",
-		"Laughter Demon", "Xenomorph Maid", "Security Officer", "Terror Spider")
+		"Laughter Demon", "Xenomorph Maid", "Security Officer", "Terror Spider", "Zombie")
 	var/pushed_over = FALSE //If the cutout is pushed over and has to be righted
 	var/deceptive = FALSE //If the cutout actually appears as what it portray and not a discolored version
 	var/lastattacker = null
@@ -198,6 +198,10 @@
 			name = "Gray Terror Spider"
 			desc = "A cardboard cutout of a terror spider."
 			icon_state = "cutout_terror"
+		if("Zombie")
+			name = "[pick(GLOB.first_names_male)] [pick(GLOB.last_names_male)]"
+			desc = "A cardboard cutout of a zombie."
+			icon_state = "cutout_zombie"
 
 	return 1
 

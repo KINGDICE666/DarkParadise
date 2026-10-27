@@ -1,3 +1,5 @@
+import { isWebClient } from 'common/storage';
+
 // This is the elements from the skin.dmf that we need to adjust the fontsize of
 const ELEMENTS_TO_ADJUST = [
   'infobuttons.options',
@@ -16,7 +18,7 @@ const ELEMENTS_TO_ADJUST = [
 const DEFAULT_BUTTON_FONT_SIZE = 4;
 
 export async function setDisplayScaling() {
-  if (window.devicePixelRatio === 1) {
+  if (window.devicePixelRatio === 1 || isWebClient()) {
     return;
   }
 

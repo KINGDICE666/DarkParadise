@@ -1412,3 +1412,67 @@
 		INSTRUMENTAL = "бутылкой для сиропа (Калуа)",
 		PREPOSITIONAL = "бутылке для сиропа (Калуа)"
 	)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure1
+	name = "Anti-Plague Sequence Alpha bottle"
+	desc = "Небольшая бутылочка с 50 единицами Античумной последовательности Альфа. Предотвращает заражение, излечивает первую стадию."
+	volume = 50
+	list_reagents = list("zombiecure1" = 50)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure1/get_ru_names()
+	return alist(
+		NOMINATIVE = "бутылка (Античумная последовательность Альфа)",
+		GENITIVE = "бутылки (Античумная последовательность Альфа)",
+		DATIVE = "бутылке (Античумная последовательность Альфа)",
+		ACCUSATIVE = "бутылку (Античумная последовательность Альфа)",
+		INSTRUMENTAL = "бутылкой (Античумная последовательность Альфа)",
+		PREPOSITIONAL = "бутылке (Античумная последовательность Альфа)",
+	)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure2
+	name = "Anti-Plague Sequence Beta bottle"
+	desc = "Небольшая бутылочка с 50 единицами Античумной последовательности Бета. Ослабляет зомби, излечивает лёгкие стадии заражения."
+	volume = 50
+	list_reagents = list("zombiecure2" = 50)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure2/get_ru_names()
+	return alist(
+		NOMINATIVE = "бутылка (Античумная последовательность Бета)",
+		GENITIVE = "бутылки (Античумная последовательность Бета)",
+		DATIVE = "бутылке (Античумная последовательность Бета)",
+		ACCUSATIVE = "бутылку (Античумная последовательность Бета)",
+		INSTRUMENTAL = "бутылкой (Античумная последовательность Бета)",
+		PREPOSITIONAL = "бутылке (Античумная последовательность Бета)",
+	)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure3
+	name = "Anti-Plague Sequence Gamma bottle"
+	desc = "Небольшая бутылочка с 50 единицами Античумной последовательности Гамма. Замедляет лечение зомби, излечивает пятую стадию и сдерживает шестую."
+	volume = 50
+	list_reagents = list("zombiecure3" = 50)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure3/get_ru_names()
+	return alist(
+		NOMINATIVE = "бутылка (Античумная последовательность Гамма)",
+		GENITIVE = "бутылки (Античумная последовательность Гамма)",
+		DATIVE = "бутылке (Античумная последовательность Гамма)",
+		ACCUSATIVE = "бутылку (Античумная последовательность Гамма)",
+		INSTRUMENTAL = "бутылкой (Античумная последовательность Гамма)",
+		PREPOSITIONAL = "бутылке (Античумная последовательность Гамма)",
+	)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure4
+	name = "Anti-Plague Sequence Omega bottle"
+	desc = "Небольшая бутылочка с 50 единицами Античумной последовательности Омега. Излечивает все случаи некротической чумы и оживляет отмершие конечности."
+	volume = 50
+	list_reagents = list("zombiecure4" = 50)
+
+/obj/item/reagent_containers/cup/bottle/zombiecure4/get_ru_names()
+	return alist(
+		NOMINATIVE = "бутылка (Античумная последовательность Омега)",
+		GENITIVE = "бутылки (Античумная последовательность Омега)",
+		DATIVE = "бутылке (Античумная последовательность Омега)",
+		ACCUSATIVE = "бутылку (Античумная последовательность Омега)",
+		INSTRUMENTAL = "бутылкой (Античумная последовательность Омега)",
+		PREPOSITIONAL = "бутылке (Античумная последовательность Омега)",
+	)

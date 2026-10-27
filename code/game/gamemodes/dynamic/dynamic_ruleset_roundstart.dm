@@ -69,6 +69,20 @@
 /datum/dynamic_ruleset/roundstart/heretic/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/heretic)
 
+/datum/dynamic_ruleset/roundstart/zombie
+	name = "Patient Zero"
+	config_tag = "roundstart zombie"
+	antag_role = ROLE_ZOMBIE
+	special_role = SPECIAL_ROLE_ZOMBIE_PATIENT_ZERO
+	protected_species = SPECIES_BLOCKED_FOR_ZOMBIE
+	ruleset_flags = RULESET_HIGH_IMPACT
+	weight = 3
+	min_pop = 25
+	max_antag_cap = list("denominator" = 30)
+
+/datum/dynamic_ruleset/roundstart/zombie/assign_role(datum/mind/candidate)
+	candidate.add_antag_datum(/datum/antagonist/zombie_patient_zero)
+
 /datum/dynamic_ruleset/roundstart/hijacker
 	name = "Hijacker"
 	config_tag = "roundstart hijacker"

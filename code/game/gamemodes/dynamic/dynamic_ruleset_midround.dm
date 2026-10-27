@@ -91,6 +91,28 @@
 /datum/dynamic_ruleset/midround/heretic/assign_role(datum/mind/candidate)
 	candidate.add_antag_datum(/datum/antagonist/heretic)
 
+/datum/dynamic_ruleset/midround/zombie
+	name = "Patient Zero"
+	config_tag = "midround zombie"
+	antag_role = ROLE_ZOMBIE
+	special_role = SPECIAL_ROLE_ZOMBIE_PATIENT_ZERO
+	protected_species = SPECIES_BLOCKED_FOR_ZOMBIE
+	ruleset_flags = RULESET_HIGH_IMPACT
+	weight = 3
+	min_pop = 25
+	min_round_time = alist(
+		DYNAMIC_TIER_GREEN = 60 MINUTES,
+		DYNAMIC_TIER_LOW = 60 MINUTES,
+		DYNAMIC_TIER_LOWMEDIUM = 60 MINUTES,
+		DYNAMIC_TIER_MEDIUMHIGH = 60 MINUTES,
+		DYNAMIC_TIER_HIGH = 30 MINUTES,
+	)
+	max_antag_cap = 1
+	repeatable = FALSE
+
+/datum/dynamic_ruleset/midround/zombie/assign_role(datum/mind/candidate)
+	candidate.add_antag_datum(/datum/antagonist/zombie_patient_zero)
+
 /datum/dynamic_ruleset/midround/malf_ai
 	name = "Malfunctioning AI"
 	config_tag = "midround malf ai"

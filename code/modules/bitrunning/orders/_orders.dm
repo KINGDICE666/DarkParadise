@@ -23,6 +23,7 @@ GLOBAL_LIST_INIT(bitrunner_order_items, list(
 		BITRUNNER_ORDER("Personal AI Device", /obj/item/paicard, 1500),
 	),
 	BITRUNNER_ORDER_TECH = list(
+		BITRUNNER_ORDER("Диск HRDM", /obj/item/disk/bitrunning_hardcore, 2500),
 		BITRUNNER_ORDER("Simple Gear Program", /obj/item/disk/bitrunning/item/tier1, 750),
 		BITRUNNER_ORDER("Complex Gear Program", /obj/item/disk/bitrunning/item/tier2, 1250),
 		BITRUNNER_ORDER("Advanced Gear Program", /obj/item/disk/bitrunning/item/tier3, 2000),

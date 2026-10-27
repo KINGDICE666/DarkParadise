@@ -286,6 +286,8 @@
 /mob/living/carbon/put_in_hand_check(obj/item/item, hand_id)
 	if(!istype(item))
 		return FALSE
+	if(HAS_TRAIT(src, TRAIT_ABSTRACT_HANDS) && !(item.item_flags & ABSTRACT))
+		return FALSE
 	if(HAS_TRAIT(src, TRAIT_SMALL_MOB))
 		if((istype(item, /obj/item/holder) && (item.holder_flags & HUMAN_HOLDER)) || item.contains_pickupable_humanoid_holder())
 			return FALSE

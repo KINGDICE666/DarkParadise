@@ -139,7 +139,7 @@
 	owner.adjust_nutrition(-nutrition_cost)
 	return TRUE
 
-/obj/item/organ/proc/necrotize(silent = FALSE)
+/obj/item/organ/proc/necrotize(silent = FALSE, ignore_vital_death = FALSE)
 	if(status & (ORGAN_ROBOT|ORGAN_DEAD))
 		return FALSE
 

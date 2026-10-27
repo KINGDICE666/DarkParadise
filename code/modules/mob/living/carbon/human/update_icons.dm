@@ -342,6 +342,7 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 	var/icon/head_accessory_s = icon(head_accessory.icon, "[head_accessory.icon_state]_s")
 	if(head_accessory.do_colouration)
 		head_accessory_s.Blend(head_organ.headacc_colour, ICON_ADD)
+	apply_zombie_tone(head_accessory_s)
 	//head_accessory_standing.Blend(head_accessory_s, ICON_OVERLAY)
 	//Having it this way preserves animations. Useful for animated antennae.
 	head_accessory_standing = head_accessory_s
@@ -921,11 +922,22 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 			return
 		bodypart_wing.body_accessory = GLOB.body_accessory_by_name[dna.species.default_bodyacc]
 
+	var/zombified = HAS_TRAIT(src, TRAIT_I_WANT_BRAINS)
 	var/mutable_appearance/wings = mutable_appearance(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state, layer = -WING_LAYER)
+	if(zombified)
+		var/icon/wings_icon = icon(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state)
+		apply_zombie_tone(wings_icon)
+		wings.icon = wings_icon
+		wings.icon_state = null
 	overlays_standing[WING_LAYER] = wings
 
 	if(bodypart_wing.body_accessory.has_behind)
 		var/mutable_appearance/under_wing = mutable_appearance(bodypart_wing.body_accessory.icon, "[bodypart_wing.body_accessory.icon_state]_BEHIND", layer = -WING_UNDERLIMBS_LAYER)
+		if(zombified)
+			var/icon/under_wing_icon = icon(bodypart_wing.body_accessory.icon, "[bodypart_wing.body_accessory.icon_state]_BEHIND")
+			apply_zombie_tone(under_wing_icon)
+			under_wing.icon = under_wing_icon
+			under_wing.icon_state = null
 		overlays_standing[WING_UNDERLIMBS_LAYER] = under_wing
 
 		var/icon/accessory_s = icon(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state)
@@ -938,6 +950,13 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 	bodypart_wing.get_icon()
 	apply_overlay(WING_UNDERLIMBS_LAYER)
 	apply_overlay(WING_LAYER)
+
+/mob/living/carbon/human/proc/apply_zombie_tone(icon/target_icon)
+	if(!HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
+		return FALSE
+	target_icon.ColorTone(COLORTONE_DEAD_EXT_ORGAN)
+	target_icon.SetIntensity(0.7)
+	return TRUE
 
 /mob/living/carbon/human/proc/update_tail_layer()
 	remove_overlay(TAIL_UNDERLIMBS_LAYER) // SEW direction icons, overlayed by LIMBS_LAYER.
@@ -965,12 +984,13 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 			suit_tail_color = species_fit.covered_tail_color(wear_suit)
 		if(suit_tail_color || bodypart_tail.body_accessory.try_restrictions(src))
 			var/icon/accessory_s = new/icon("icon" = bodypart_tail.body_accessory.icon, "icon_state" = bodypart_tail.body_accessory.icon_state)
+			var/zombified = !suit_tail_color && apply_zombie_tone(accessory_s)
 			if(suit_tail_color)
 				accessory_s.Blend(suit_tail_color, ICON_ADD)
-			else if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
+			else if(!zombified && (bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR))
 				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
 					accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
-			if(tail_marking_icon && !suit_tail_color && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
+			if(tail_marking_icon && !suit_tail_color && !zombified && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 				accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
@@ -1015,11 +1035,12 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 					tail_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[bodypart_tail.dna.species.tail]_dgrn_s")
 				else  //Default behaviour
 					tail_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[bodypart_tail.dna.species.tail]_s")
-			if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
-				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
-					tail_s.Blend(bodypart_tail.s_col, ICON_ADD)
-			if(tail_marking_icon && !tail_marking_style.tails_allowed)
-				tail_s.Blend(tail_marking_icon, ICON_OVERLAY)
+			if(!apply_zombie_tone(tail_s))
+				if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
+					if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
+						tail_s.Blend(bodypart_tail.s_col, ICON_ADD)
+				if(tail_marking_icon && !tail_marking_style.tails_allowed)
+					tail_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 				var/icon/under = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "blank")

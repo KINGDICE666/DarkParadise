@@ -32,6 +32,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 	ROLE_ABDUCTOR = 30,
 	ROLE_DEVIL = 14,
 	ROLE_BINGLE = 14,
+	ROLE_ZOMBIE = 14,
 ))
 
 GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближайшего соседа", SCALING_METHOD_BLUR = "Билейная интерполяция", SCALING_METHOD_NORMAL = "Поточечная выборка"))
@@ -203,8 +204,9 @@ GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближ�
 			return
 	//we couldn't load character data so just randomize the character appearance + name
 	randomise_appearance_prefs()
+	if(!length(keybindings))
+		init_keybindings()
 	if(!SSdbcore.IsConnected())
-		init_keybindings() //we want default keybinds, even if DB is not connected
 		return
 	if(istype(C))
 		if(!loaded_preferences_successfully)

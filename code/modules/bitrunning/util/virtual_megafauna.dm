@@ -19,6 +19,21 @@
 /mob/living/simple_animal/hostile/megafauna/bubblegum/virtual_domain
 	true_spawn = FALSE
 
+/mob/living/simple_animal/hostile/megafauna/bubblegum/virtual_domain/enrage()
+	. = ..()
+	if(!.)
+		return
+
+	loot = list(/obj/structure/closet/crate/secure/bitrunning/encrypted)
+	crusher_loot = null
+
+/mob/living/simple_animal/hostile/megafauna/bubblegum/virtual_domain/death(gibbed)
+	if(!can_die())
+		return FALSE
+
+	enraged = FALSE
+	return ..()
+
 /mob/living/simple_animal/hostile/megafauna/colossus/virtual_domain
 	true_spawn = FALSE
 

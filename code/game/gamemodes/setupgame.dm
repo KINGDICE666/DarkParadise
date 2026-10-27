@@ -41,10 +41,6 @@
 	GLOB.nervousblock			= getAssignedBlock("NERVOUS", numsToAssign)
 	GLOB.wingdingsblock			= getAssignedBlock("WINGDINGS", numsToAssign)
 
-	// fake empty genes
-	GLOB.fakeblock1				= getAssignedBlock("", numsToAssign)
-	GLOB.fakeblock2				= getAssignedBlock("", numsToAssign)
-
 	// Bay muts
 	GLOB.breathlessblock		= getAssignedBlock("BREATHLESS", numsToAssign,		DNA_HARD_BOUNDS,		good = TRUE)
 	GLOB.remoteviewblock		= getAssignedBlock("REMOTEVIEW", numsToAssign,		DNA_HARDER_BOUNDS,		good = TRUE)
@@ -57,6 +53,9 @@
 	GLOB.noprintsblock			= getAssignedBlock("NOPRINTS", numsToAssign,		DNA_HARD_BOUNDS,		good = TRUE)
 	GLOB.shockimmunityblock		= getAssignedBlock("SHOCKIMMUNITY", numsToAssign,							good = TRUE)
 	GLOB.smallsizeblock			= getAssignedBlock("SMALLSIZE", numsToAssign,		DNA_HARD_BOUNDS,		good = TRUE)
+	GLOB.immunityblock			= getAssignedBlock("IMMUNITY", numsToAssign,								good = TRUE)
+	GLOB.hypermetabolicbloodblock	= getAssignedBlock("HYPERMETABOLICBLOOD", numsToAssign,	DNA_HARD_BOUNDS,	good = TRUE)
+	GLOB.painthresholdblock		= getAssignedBlock("PAINTHRESHOLD", numsToAssign,	DNA_HARD_BOUNDS,		good = TRUE)
 
 	//
 	// Goon muts

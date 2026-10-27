@@ -3,6 +3,8 @@
 
 	RegisterSignals(src, list(SIGNAL_ADDTRAIT(TRAIT_FAT), SIGNAL_REMOVETRAIT(TRAIT_FAT)), PROC_REF(on_fat))
 
+	RegisterSignals(src, list(SIGNAL_ADDTRAIT(TRAIT_SMALL_MOB), SIGNAL_REMOVETRAIT(TRAIT_SMALL_MOB)), PROC_REF(on_small_mob))
+
 	RegisterSignal(src, SIGNAL_ADDTRAIT(TRAIT_NO_DNA), PROC_REF(on_no_dna_trait_gain))
 
 	RegisterSignal(src, SIGNAL_ADDTRAIT(TRAIT_VIRUSIMMUNE), PROC_REF(on_virusimmune_trait_gain))
@@ -24,6 +26,16 @@
 		to_chat(src, span_notice("Вы снова чувствуете себя в форме!"))
 		remove_movespeed_modifier(/datum/movespeed_modifier/obesity)
 		remove_movespeed_modifier(/datum/movespeed_modifier/obesity_flying)
+
+/mob/living/carbon/human/proc/on_small_mob(datum/source)
+	SIGNAL_HANDLER
+
+	if(HAS_TRAIT(src, TRAIT_SMALL_MOB))
+		mob_size = MOB_SIZE_SMALL
+		holder_type = /obj/item/holder/humanoid
+		return
+	mob_size = initial(mob_size)
+	holder_type = initial(holder_type)
 
 /// Called when [TRAIT_NO_DNA] is gained
 /mob/living/carbon/human/proc/on_no_dna_trait_gain(datum/source)

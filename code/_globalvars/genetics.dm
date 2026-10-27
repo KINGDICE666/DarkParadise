@@ -30,6 +30,9 @@ GLOBAL_VAR_INIT(hallucinationblock, 0)
 GLOBAL_VAR_INIT(noprintsblock, 0)
 GLOBAL_VAR_INIT(shockimmunityblock, 0)
 GLOBAL_VAR_INIT(smallsizeblock, 0)
+GLOBAL_VAR_INIT(immunityblock, 0)
+GLOBAL_VAR_INIT(hypermetabolicbloodblock, 0)
+GLOBAL_VAR_INIT(painthresholdblock, 0)
 
 ///////////////////////////////
 // Goon Stuff
@@ -71,7 +74,3 @@ GLOBAL_VAR_INIT(dizzyblock, 0)
 
 GLOBAL_LIST_EMPTY(reg_dna)
 GLOBAL_LIST_EMPTY(global_mutations)
-
-// Currently empty blocks, you can use these for your own powers
-GLOBAL_VAR_INIT(fakeblock1, 0)
-GLOBAL_VAR_INIT(fakeblock2, 0)

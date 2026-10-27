@@ -2153,6 +2153,12 @@ GAME_VERB_DESC(/mob/living/carbon/human, set_flavor, "Описание внеш�
 	if(update)
 		update_body() // lips is done as a body layer
 
+/mob/living/carbon/human/proc/get_unarmed_attack()
+	var/datum/antagonist/zombie/zombie = mind?.has_antag_datum(/datum/antagonist/zombie)
+	if(!istype(zombie))
+		return dna.species.unarmed
+	return zombie.claw_attack
+
 /**
  * Wash the hands, cleaning either the gloves if equipped and not obscured, otherwise the hands themselves if they're not obscured.
  *
