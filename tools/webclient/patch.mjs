@@ -75,9 +75,39 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'skip lighting and emissive planes that need render relays',
+    name: 'fold lighting planes into one multiplied lighting layer',
     pattern: /icons\.push\(ic\);/g,
-    replace: 'if (!window.__dpSkipPlane(ic.plane)) icons.push(ic);',
+    replace: 'if (window.__dpMapIcon(ic, base, inf, C.List_eLp)) icons.push(ic);',
+    min: 1,
+  },
+  {
+    name: 'keep lighting fields when map atoms are reused',
+    pattern: /this\._blendMode = o\._blendMode;/g,
+    replace: 'this._blendMode = o._blendMode; this.blendModeNum = o.blendModeNum; this.__dpLight = o.__dpLight; this.__dpEmissive = o.__dpEmissive;',
+    min: 1,
+  },
+  {
+    name: 'draw turf lighting from the raw corner weights',
+    pattern: /t1\.bitmapData = hasIcon \? this\.icon\.get\$bitmapData\(\) : null;/g,
+    replace: 't1.bitmapData = hasIcon ? this.icon.get$bitmapData() : null; var dpLit = this.__dpLight === true && window.__dpApplyLight(this, A.BitmapData_BitmapData);',
+    min: 1,
+  },
+  {
+    name: 'turn emissives into light',
+    pattern: /t1 = this\.color;(\s*if \(t1 != null && !t1\.get\$isWhite\(\)\) \{\s*t1 = this\.color;\s*t2 = t1\.matrix;)/g,
+    replace: 'if (this.__dpEmissive) this._filters.push(D.ColorMatrixFilter$([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [255, 255, 255, 0])); t1 = dpLit || this.__dpEmissive ? null : this.color;$1',
+    min: 1,
+  },
+  {
+    name: 'keep idle background tabs connected',
+    pattern: /this\.activityTimer = P\.Timer_Timer\$periodic\(P\.Duration\$\(0, 0, 0, 0, 0, 120\), this\.get\$handleTimer\(\)\);/g,
+    replace: 'this.activityTimer = P.Timer_Timer$periodic(P.Duration$(0, 0, 0, 0, 0, 30), this.get$handleTimer()); window.__dpKeepAlive(this);',
+    min: 1,
+  },
+  {
+    name: 'skip empty plane masters instead of flattening zero-size planes',
+    pattern: /--i;\s*m\.UpdateChildren\$1\(subs\);\s*continue;/g,
+    replace: '--i; m.UpdateChildren$1(subs); if (subs.length === 0) { m._visible = false; m.__dpEmpty = true; } else if (m.__dpEmpty) { m._visible = true; m.__dpEmpty = false; } continue;',
     min: 1,
   },
   {
@@ -101,7 +131,7 @@ const STATUS_RULES = [
   {
     name: 'run client-side output and expand map placeholders before sending input',
     pattern: /call\$1: \[function\(s\) \{\s*var m, t1, idx, exception;\s*t1 = s;/g,
-    replace: 'call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s); if (s == null) return; t1 = s;',
+    replace: 'call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s, $.me); if (s == null) return; t1 = s;',
     min: 1,
   },
   {

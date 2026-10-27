@@ -81,7 +81,7 @@ test('real vendor winget reports BROWSER and preserves requested global properti
 });
 
 test('real vendor input expands map placeholders and runs output locally', { skip: !patched }, () => {
-  const start = patched.indexOf('call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s);');
+  const start = patched.indexOf('call$1: [function(s) { var m, t1, idx, exception; s = window.__dpExpandCommand(s, $.me);');
   assert.notEqual(start, -1);
   const end = patched.indexOf(', null, null, 2, 0, null, 9, "call"]', start);
   const sent = [];

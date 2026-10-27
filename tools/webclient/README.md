@@ -95,14 +95,16 @@ and page content are both CSS pixels, so DM must not zoom browse windows out.
 Showing or hiding a control also shows or hides the popup that holds it, and
 `titlebar=0` from `browse()` reaches existing and new windows. DD parses web
 client commands as text, so an unquoted text argument swallows the rest of the
-line; the key name in `keyDown`/`keyUp` macros is quoted before sending. The
-verb name must match exactly: DD 516.1682 corrupts memory while resolving a
-web client command whose verb name differs only in case (`KeyDown` for
-`keyDown`), and after a few hundred such commands it either drops the client
-with `Unexpected message 246` or crashes in `strdup`. The bridge rewrites key
-macros to the exact names. Loaded browser frames keep their browsing
+line. Key macros never reach that parser: DD 516.1682 corrupts memory while
+resolving web client commands and either drops the client with `Unexpected
+message 246` or crashes in `strdup`. A mismatched verb case (`KeyDown` for
+`keyDown`) makes it happen within a few hundred commands, and bursts of
+correctly spelled key commands still crashed production. The bridge sends
+`keyDown`/`keyUp` as immediate `?dp_key=` Topics instead, outside the Topic rate
+queue, and `/client/Topic` hands them to the key verbs before rate limiting and
+href logging. Deploy the game code before a bridge that sends them. Loaded browser frames keep their browsing
 context when controls move or their popup is hidden. Initial repeated stat tab
-notifications are coalesced, and all Topic messages are held to 8 per second so
+notifications are coalesced, and all Topic messages are held to 6 per second so
 the startup burst stays under the world's per-second Topic limit.
 
 The stock web client predates BYOND 515: `TOP`, `BOTTOM`, `LEFT` and `RIGHT` in
@@ -147,3 +149,16 @@ To revert, disable `WEB_GUEST_LOGIN`, remove `-webclient` if desired, and restar
 DD normally. `KEY_MODE=byond` restores the BYOND embed page and does not run a
 ticket authority. No BYOND hub protocol implementation or hub impersonation is
 included.
+
+DD 516.1682 sends no `vis_contents` to web clients, so Paradise's turf lighting
+objects never reach the browser. `SSweb_lighting` mirrors each lighting object
+near a web client's eye into `client.images` and adds the mob's lighting cutoff
+as a full-screen additive overlay. The bridge folds the overlay lighting and
+emissive planes into the lighting plane with additive blending, multiplies that
+plane over the world, and draws each turf lighting matrix from the raw corner
+weights of `lighting_object.dmi`: the browser premultiplies the alpha weight
+channel when decoding the icon. The full-screen lighting backdrops, render
+plates and space plane are not drawn. Empty plane masters are hidden instead of
+being flattened into zero-size framebuffers. The activity ping runs every 30
+seconds and is also driven from a worker, because DD drops web clients whose
+background tab has throttled timers.

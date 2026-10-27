@@ -121,11 +121,31 @@ test('browser links with a literal percent sign still decode', () => {
   assert.deepEqual(decoded, ['При вет', '100% готово']);
 });
 
-test('lighting and emissive planes are skipped on every z offset', () => {
+test('lighting planes fold into one multiplied layer on every z offset', () => {
   const window = {};
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
-  assert.deepEqual([10, 13, 22, 10 - 107, 13 - 214, -21, -21 - 107].map(window.__dpSkipPlane), [true, true, true, true, true, true, true]);
-  assert.deepEqual([-8, -4, 9, 23, 40, -4 - 107, -32767, undefined].map(window.__dpSkipPlane), [false, false, false, false, false, false, false, false]);
+  const blends = ['normal', 'overlay', 'add', 'subtract', 'multiply'];
+  const icon = (plane, extra) => Object.assign({ plane, flags: 0, subplane: 0 }, extra);
+  const keep = plane => window.__dpMapIcon(icon(plane), {}, null, blends);
+  assert.deepEqual([12, 14, 22, 12 - 107, 20 - 214, -21, -21 - 107].map(keep), [false, false, false, false, false, false, false]);
+  assert.deepEqual([-8, -4, 9, 10, 23, 40, -4 - 107, -32767, undefined].map(keep), [true, true, true, true, true, true, true, true, true]);
+  const master = icon(10 - 107, { flags: 256 });
+  assert.equal(window.__dpMapIcon(master, {}, null, blends), true);
+  assert.equal(master._blendMode, 'multiply');
+  const overlayLight = icon(11 - 107);
+  assert.equal(window.__dpMapIcon(overlayLight, {}, null, blends), true);
+  assert.deepEqual([overlayLight.plane, overlayLight._blendMode], [10 - 107, 'add']);
+  assert.equal(window.__dpMapIcon(icon(11, { flags: 256 }), {}, null, blends), false);
+  const matrix = new Array(20).fill(0);
+  matrix[16] = 1;
+  matrix[15] = 1;
+  const emissive = icon(13, { color: { matrix: { matrix } } });
+  assert.equal(window.__dpMapIcon(emissive, {}, null, blends), true);
+  assert.equal(emissive.__dpEmissive, true);
+  assert.equal(window.__dpMapIcon(icon(13, { color: { red: 0 } }), {}, null, blends), false);
+  const backdrop = icon(10, { info: { onScreen: true } });
+  assert.equal(window.__dpMapIcon(backdrop, { iconState: 'flash', blendMode: 1 }, null, blends), false);
+  assert.equal(window.__dpMapIcon(icon(10, { info: { onScreen: true } }), { iconState: 'flash', blendMode: 2 }, null, blends), true);
 });
 
 test('gamepad polling reads the pad list instead of an undefined pad', () => {
@@ -249,6 +269,21 @@ test('key macros use the exact verb name', () => {
   assert.equal(window.__dpExpandCommand('keyboard 1'), 'keyboard 1');
 });
 
+test('key macros bypass the command parser as immediate topics', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams, Date });
+  const sent = [];
+  const client = { sendTopicMessage$1(topic) { if (!window.__dpScheduleTopic(client, topic)) sent.push(topic); } };
+  for (let index = 0; index < 10; index++) assert.equal(window.__dpExpandCommand('KeyDown "W" 1 2 3 4', client), null);
+  assert.equal(window.__dpExpandCommand('keyUp Shift 5 -6 7 8', client), null);
+  assert.equal(window.__dpExpandCommand('KeyDown "\\"" 1 2 3 4', client), null);
+  assert.equal(sent.length, 12);
+  assert.equal(sent[0], '?dp_key=W&x=1&y=2&w=3&h=4');
+  assert.equal(sent[10], '?dp_key=Shift&x=5&y=-6&w=7&h=8&dp_up=1');
+  assert.equal(new URLSearchParams(sent[11].slice(1)).get('dp_key'), '"');
+  assert.equal(window.__dpExpandCommand('say "hi"', client), 'say "hi"');
+});
+
 test('topics beyond the server rate limit wait in order', () => {
   let clock = 0;
   const timers = [];
@@ -261,7 +296,7 @@ test('topics beyond the server rate limit wait in order', () => {
   const client = { sendTopicMessage$1(topic) { if (!window.__dpScheduleTopic(client, topic)) delivered.push(topic); } };
   const topics = Array.from({ length: 11 }, (_, index) => `?tgui=1&window_id=browseroutput&type=font&index=${index}`);
   for (const topic of topics) client.sendTopicMessage$1(topic);
-  assert.deepEqual(delivered, topics.slice(0, 8));
+  assert.deepEqual(delivered, topics.slice(0, 6));
   while (timers.length) {
     const next = timers.shift();
     clock = Math.max(clock, next.at);

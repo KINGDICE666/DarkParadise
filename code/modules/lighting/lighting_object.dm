@@ -16,6 +16,7 @@
 
 	///the turf that our light is applied to
 	var/turf/affected_turf
+	var/image/web_image
 
 /atom/movable/lighting_object/Initialize(mapload, turf/affected_turf)
 	if(!isnull(loc))
@@ -67,6 +68,9 @@
 		affected_turf.vis_contents -= src
 		affected_turf.lighting_object = null
 		affected_turf.luminosity = 1
+	if(web_image)
+		SSweb_lighting.forget(src)
+		web_image = null
 	affected_turf = null
 	return ..()
 
@@ -112,6 +116,14 @@
 		)
 
 	luminosity = set_luminosity
+	if(web_image)
+		web_image.appearance = appearance
+
+/atom/movable/lighting_object/proc/get_web_image()
+	if(!web_image)
+		web_image = image(loc = affected_turf)
+		web_image.appearance = appearance
+	return web_image
 
 // Variety of overrides so the overlays don't get affected by weird things.
 /atom/movable/lighting_object/ex_act(severity, target)
