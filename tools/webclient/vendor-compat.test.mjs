@@ -113,11 +113,11 @@ test('real vendor input expands map placeholders and runs output locally', { ski
     $: { me: { sendCommandMessage$1: command => sent.push(command) }, $get$ByondJS_skin: () => ({ doInput$1: line => input(line) }) },
   };
   const input = vm.runInNewContext('(' + patched.slice(start + 'call$1: ['.length, end) + ')', context);
-  input('KeyDown "T" [[map.mouse-pos]] [[map.size]]');
-  input('KeyUp "T" [[missing.mouse-pos]] [[missing.size]]');
+  input('keyDown "T" [[map.mouse-pos]] [[map.size]]');
+  input('keyUp "T" [[missing.mouse-pos]] [[missing.size]]');
   input('.output statbrowser:set_theme dark');
   input('.output output_browser.browseroutput:update {"type":"x"}\n.winset "input.text=\\"\\""');
-  assert.deepEqual(sent, ['KeyDown "T" 0 0 640 480', 'KeyUp "T" 0 0 0 0']);
+  assert.deepEqual(sent, ['keyDown "T" 0 0 640 480', 'keyUp "T" 0 0 0 0']);
   assert.deepEqual(outputs, [['statbrowser:set_theme', 'dark'], ['output_browser.browseroutput:update', '{"type":"x"}']]);
   assert.deepEqual(winsets, ['input.text=\\"\\"']);
 });

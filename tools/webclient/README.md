@@ -95,7 +95,12 @@ and page content are both CSS pixels, so DM must not zoom browse windows out.
 Showing or hiding a control also shows or hides the popup that holds it, and
 `titlebar=0` from `browse()` reaches existing and new windows. DD parses web
 client commands as text, so an unquoted text argument swallows the rest of the
-line; the key name in `KeyDown`/`KeyUp` macros is quoted before sending. Loaded browser frames keep their browsing
+line; the key name in `keyDown`/`keyUp` macros is quoted before sending. The
+verb name must match exactly: DD 516.1682 corrupts memory while resolving a
+web client command whose verb name differs only in case (`KeyDown` for
+`keyDown`), and after a few hundred such commands it either drops the client
+with `Unexpected message 246` or crashes in `strdup`. The bridge rewrites key
+macros to the exact names. Loaded browser frames keep their browsing
 context when controls move or their popup is hidden. Initial repeated stat tab
 notifications are coalesced, and all Topic messages are held to 8 per second so
 the startup burst stays under the world's per-second Topic limit.

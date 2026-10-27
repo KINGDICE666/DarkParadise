@@ -232,12 +232,21 @@ test('key macros receive the pointer position relative to the map', () => {
   const window = { byond: { skin: { find: id => (id === 'mapwindow.map' ? { elem: map } : null) } } };
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document, TextEncoder });
   move({ clientX: 330, clientY: 260 });
-  assert.equal(window.__dpExpandCommand('KeyDown "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "W" 320 240 640 480');
+  assert.equal(window.__dpExpandCommand('keyDown "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyDown "W" 320 240 640 480');
   move({ clientX: 2000, clientY: -5 });
-  assert.equal(window.__dpExpandCommand('KeyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyUp "W" 640 0 640 480');
+  assert.equal(window.__dpExpandCommand('keyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyUp "W" 640 0 640 480');
   assert.equal(window.__dpExpandCommand('say "[[not a placeholder]]"'), 'say "[[not a placeholder]]"');
-  assert.equal(window.__dpExpandCommand('KeyDown O [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "O" 640 0 640 480');
-  assert.equal(window.__dpExpandCommand('KeyUp Shift 1 2 3 4'), 'KeyUp "Shift" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('keyDown O [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyDown "O" 640 0 640 480');
+  assert.equal(window.__dpExpandCommand('keyUp Shift 1 2 3 4'), 'keyUp "Shift" 1 2 3 4');
+});
+
+test('key macros use the exact verb name', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, TextEncoder });
+  assert.equal(window.__dpExpandCommand('KeyDown "W" 1 2 3 4'), 'keyDown "W" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('KEYUP Shift 1 2 3 4'), 'keyUp "Shift" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('KeyDown " 1 2 3 4'), 'keyDown "\\"" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('keyboard 1'), 'keyboard 1');
 });
 
 test('topics beyond the server rate limit wait in order', () => {

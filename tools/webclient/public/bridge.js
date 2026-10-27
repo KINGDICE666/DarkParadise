@@ -153,8 +153,10 @@
     }
     return command.replace(/\[\[([\w-]+(?:\.[\w-]+)*)\.(mouse-pos|size)\]\]/g, function (_, id, property) {
       return embeddedValue(id, property);
-    }).replace(/^(KeyDown|KeyUp)\s+([^\s"]+)/i, function (_, verb, key) {
-      return verb + ' "' + key.replace(/\\/g, '\\\\') + '"';
+    }).replace(/^key(down|up)\s+(\S+)/i, function (_, direction, key) {
+      const verb = direction.toLowerCase() === 'down' ? 'keyDown' : 'keyUp';
+      if (key.length > 1 && key.charAt(0) === '"' && key.charAt(key.length - 1) === '"') return verb + ' ' + key;
+      return verb + ' "' + key.replace(/[\\"]/g, '\\$&') + '"';
     });
   };
 
