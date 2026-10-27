@@ -127,7 +127,8 @@ test('lighting planes fold into one multiplied layer on every z offset', () => {
   const blends = ['normal', 'overlay', 'add', 'subtract', 'multiply'];
   const icon = (plane, extra) => Object.assign({ plane, flags: 0, subplane: 0 }, extra);
   const keep = plane => window.__dpMapIcon(icon(plane), {}, null, blends);
-  assert.deepEqual([12, 14, 22, 12 - 107, 20 - 214, -21, -21 - 107].map(keep), [false, false, false, false, false, false, false]);
+  assert.deepEqual([12, 14, 22, 12 - 107, 20 - 214].map(keep), [false, false, false, false, false]);
+  assert.deepEqual([-21, -21 - 107].map(keep), [true, true]);
   assert.deepEqual([-8, -4, 9, 10, 23, 40, -4 - 107, -32767, undefined].map(keep), [true, true, true, true, true, true, true, true, true]);
   const master = icon(10 - 107, { flags: 256 });
   assert.equal(window.__dpMapIcon(master, {}, null, blends), true);
@@ -146,6 +147,72 @@ test('lighting planes fold into one multiplied layer on every z offset', () => {
   const backdrop = icon(10, { info: { onScreen: true } });
   assert.equal(window.__dpMapIcon(backdrop, { iconState: 'flash', blendMode: 1 }, null, blends), false);
   assert.equal(window.__dpMapIcon(icon(10, { info: { onScreen: true } }), { iconState: 'flash', blendMode: 2 }, null, blends), true);
+});
+
+test('native parallax layers rebuild only when their appearance or motion changes', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const core = (plane, iconId) => ({ plane, iconId, pixel_w: 0, pixel_z: 0,
+    get$planeMaster: () => false, set$keepApart() {} });
+  const layer = { id: 2, locId: 0, pixel_w: 12, pixel_z: -8, _appearance: { core: core(-20, 7) },
+    get$currentAppearance() { return this._appearance; } };
+  const holder = { id: 4, onScreen: true, screenLoc: {}, _appearance: { core: core(-20, 65535) } };
+  const ordinary = { locId: 0, _appearance: { core: core(-4, 7) } };
+  const atoms = new Map([[2, layer], [3, ordinary], [4, holder]]);
+  const map = { movs: [2, 3], screen: [4] };
+  const client = { mapInfo: map, currentMs: 100, infoMap: { $index: (_, id) => atoms.get(id) } };
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true);
+  holder.icons_dirty = false;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, false);
+  const clone = a => ({ ...a, core: { ...a.core } });
+  const appearance = window.__dpParallaxAppearance(holder, holder._appearance, client, clone);
+  assert.equal(appearance.overlays.length, 1);
+  assert.deepEqual([appearance.overlays[0].core.pixel_w, appearance.overlays[0].core.pixel_z], [12, -8]);
+  assert.equal(layer._appearance.core.pixel_w, 0, 'never mutate cached server appearances');
+  layer.pixel_w++;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true);
+  holder.icons_dirty = false;
+  layer._animation = { total_end: 150 };
+  client.currentMs = 125;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true, 'animate active layers');
+  holder.icons_dirty = false;
+  client.currentMs = 160;
+  window.__dpPrepareParallax(map, client);
+  holder.icons_dirty = false;
+  client.currentMs = 180;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, false, 'expired off-map animation does not rebuild forever');
+  map.movs = [3];
+  map.__dpMovableGeneration = 1;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(map.__dpParallax.roots.length, 0);
+  assert.equal(holder.icons_dirty, true, 'remove layers on the next world packet');
+});
+
+test('DMI frame reuse preserves moving flicked and layered appearances', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const first = {}, next = {};
+  let frame = first;
+  const client = { currentTime: 4, iconInfoMap: { $index: () => ({ IconAt$4: () => frame }) } };
+  const atom = { _appearance: { core: { iconId: 7, iconState: 'blink', dir: 2 } }, creationTime: 0,
+    _mapicons: [{ icon: first }], get$moving: () => false };
+  assert.equal(window.__dpDmiFrameChanged(atom, client), false);
+  frame = next;
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  frame = first;
+  atom.flick = {};
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  atom.flick = null;
+  atom._appearance.overlays = [{}];
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  atom._appearance.overlays = null;
+  atom.get$moving = () => true;
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
 });
 
 test('gamepad polling reads the pad list instead of an undefined pad', () => {
@@ -396,6 +463,20 @@ test('maptext outlines follow the DreamSeeker outline style', () => {
   assert.deepEqual(format, { strokeWidth: 2, strokeColor: 'rgb(0, 0, 0)' });
   window.__dpTextOutline(format, undefined);
   assert.equal(format.strokeWidth, 2);
+});
+
+test('maptext line breaks survive the text-only renderer without doubling newlines', () => {
+  const window = {};
+  const document = { querySelector: () => null,
+    createElement: () => ({ innerHTML: '', content: { querySelectorAll: () => [] } }) };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document });
+  assert.equal(window.__dpMaptextHtml('ВРЕМЯ<br>12:34'), 'ВРЕМЯ\n12:34');
+  assert.equal(window.__dpMaptextHtml('ВРЕМЯ<br/>\n12:34'), 'ВРЕМЯ\n12:34');
+  assert.equal(window.__dpMaptextHtml('A<BR /><br>B'), 'A\n\nB');
+  assert.equal(window.__dpMaptextSize('8px', 12, 4 / 3), 8);
+  assert.equal(window.__dpMaptextSize('6pt', 12, 4 / 3), 8);
+  assert.equal(window.__dpMaptextSize('50%', 30, 4 / 3), 6.67);
+  assert.equal(window.__dpMaptextSize('invalid', 12, 4 / 3), 12);
 });
 
 test('stat panel theme commands apply when its functions are not global', () => {

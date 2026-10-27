@@ -39,8 +39,10 @@ SUBSYSTEM_DEF(web_lighting)
 /datum/web_lighting_view/New(client/owner)
 	src.owner = owner
 	cutoff_screen = new
+	RegisterSignal(owner, COMSIG_CLIENT_MOB_LOGIN, PROC_REF(on_mob_login))
 
 /datum/web_lighting_view/Destroy()
+	UnregisterSignal(owner, COMSIG_CLIENT_MOB_LOGIN)
 	for(var/atom/movable/lighting_object/light as anything in shown)
 		owner.images -= light.web_image
 	owner.screen -= cutoff_screen
@@ -48,6 +50,10 @@ SUBSYSTEM_DEF(web_lighting)
 	shown = null
 	owner = null
 	return ..()
+
+/datum/web_lighting_view/proc/on_mob_login(datum/source, mob/new_mob)
+	SIGNAL_HANDLER
+	shown.Cut()
 
 /datum/web_lighting_view/proc/refresh()
 	var/turf/center = get_turf(owner.eye)

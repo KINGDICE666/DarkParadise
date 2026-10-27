@@ -1,10 +1,22 @@
 # Browser guest gateway
 
-This is an experimental native guest adapter for **Linux x86 BYOND 516.1682**,
-ELF build ID `e9cdd7c77f6ceac5c3ac42b6f5574f388a969bde`. It modifies two engine
-instruction sites in memory. It is not a documented BYOND setting or an official
+This is an experimental native guest and map adapter for **Linux x86 BYOND
+516.1682** (ELF build ID `e9cdd7c77f6ceac5c3ac42b6f5574f388a969bde`) and
+**516.1688** (`a30a79441d3f7176e8fe23b5f2897fc61972b4aa`). It modifies four engine
+instruction sites in memory, plus a narrowly scoped late Hub reply guard on
+516.1682. It is not a documented BYOND setting or an official
 authentication provider. Engine files on disk are unchanged. An unsupported build
 is rejected before installing hooks; do not reuse offsets for another build.
+
+Deploy the adapter and gateway JavaScript together, then restart the test DD and
+reload its browser clients. The adapter repairs the world movable serializer:
+upstream reserves one flag byte but backpatches two, overwriting the low byte of
+the following atom reference. Different objects consequently share IDs and
+overwrite each other. Both updates and removals now reserve two bytes. The client
+reads the uint16 world flags and the bit-256 `vis_contents` list; HUD flags remain
+one byte. A cached atom is also added back to the active list when it reenters
+the view. The TCP/WebSocket gateway still forwards bytes unchanged. This repair
+does not require a DreamSeeker-to-WebSocket transcoder.
 
 The gateway issues a random 128-bit, single-use ticket, valid for 60 seconds.
 The DD adapter consumes it through a mode-0600 Unix socket and completes the
@@ -13,6 +25,13 @@ interface. Other key formats and DreamSeeker authentication use the original
 engine code. Guest IDs are salted per ticket so clients behind the gateway do
 not share the engine's default IP-derived guest key and CID.
 
+On 516.1682 a late Hub reply can otherwise disconnect an admitted local guest
+with quit code 1 after several minutes. The close guard applies only to the
+verified Hub return address, that quit reason, and an intact web connection
+whose stored token came from the local ticket admission path. Other tokens,
+callers and disconnect reasons retain the original behavior. The guard's engine
+instructions are checked before installation, like the other hooks.
+
 ## Build and start
 
 Build in an environment with 32-bit glibc development files:
@@ -20,6 +39,8 @@ Build in an environment with 32-bit glibc development files:
 ```sh
 gcc -m32 -shared -fPIC -O2 -Wall -Wextra -Werror \
   -o libdpwebauth.so native-auth.c -ldl
+gcc -m32 -O2 -Wall -Wextra -Werror -o native-auth-test native-auth.test.c -ldl
+./native-auth-test
 node --test tickets.test.mjs
 ```
 
@@ -129,6 +150,9 @@ bundles through `DEV_ASSET_DIR`, and optionally the old/new helper files through
 `DEV_LEGACY_HELPERS` / `DEV_TGUI_HELPERS`. This changes no remote files or services,
 but a browser connection still joins the upstream game as a test guest. The
 proxy logs bounded packet metadata and local frame errors, never ticket values.
+Set `DEV_COMPLETE_MAP=1` only when its upstream DD has the repaired native
+adapter. The development proxy defaults to the old byte-flag format so it can
+inspect an existing server before that server is upgraded.
 
 Run `node --test tools/webclient/*.test.mjs` from the repository root. Setting
 `BYOND_WEBCLIENT_JS` to the stock vendor file enables compatibility tests against
@@ -154,15 +178,39 @@ DD normally. `KEY_MODE=byond` restores the BYOND embed page and does not run a
 ticket authority. No BYOND hub protocol implementation or hub impersonation is
 included.
 
-DD 516.1682 sends no `vis_contents` to web clients, so Paradise's turf lighting
-objects never reach the browser. `SSweb_lighting` mirrors each lighting object
+The repaired stream preserves `vis_contents`, but the stock browser compositor
+still lacks native vis inheritance and render targets. Keep the existing lighting
+bridge: `SSweb_lighting` mirrors each lighting object
 near a web client's eye into `client.images` and adds the mob's lighting cutoff
 as a full-screen additive overlay. The bridge folds the overlay lighting and
 emissive planes into the lighting plane with additive blending, multiplies that
 plane over the world, and draws each turf lighting matrix from the raw corner
 weights of `lighting_object.dmi`: the browser premultiplies the alpha weight
-channel when decoding the icon. The full-screen lighting backdrops, render
-plates and space plane are not drawn. Empty plane masters are hidden instead of
+channel when decoding the icon. The lighting view resets its sent-image cache on
+`COMSIG_CLIENT_MOB_LOGIN`, because mob login clears `client.images` even if the
+eye stays on the same turf. This restores lighting after ghosting or changing
+bodies. The full-screen lighting backdrops, render
+plates are not drawn. Empty plane masters are hidden instead of
 being flattened into zero-size framebuffers. The activity ping runs every 30
 seconds and is also driven from a worker, because DD drops web clients whose
 background tab has throttled timers.
+
+World rendering respects `invisibility` even with `SEE_TURFS`, `SEE_OBJS` or
+`SEE_MOBS`; those sight flags do not reveal abstract editor landmarks.
+The `SEE_TURFS` transition also clears cached darkness masks from the living
+view so becoming a ghost does not leave the floor black. Grouped
+overlays and underlays share their parent's bottom edge, including 64px speech
+bubbles and maptext on smaller displays. Maptext keeps HTML line breaks and
+distinguishes pixel font sizes from point sizes.
+
+The space and parallax planes are retained. HUD packets omit the parallax
+holder's visual children, so the bridge projects the server's active off-map
+parallax layers onto that holder. Layer candidates are indexed on world packets;
+stationary layers reuse their geometry. Additive tiled layers do not need a
+large flattened framebuffer. This covers the game's parallax holder rather than
+implementing arbitrary native `vis_flags` inheritance or render targets.
+
+Hidden atoms stop ticking once their persistent glide finishes. Simple DMI
+animations keep their timers but rebuild their icons only when the frame changes;
+flicks, moving atoms, client images and layered appearances retain the original
+update behavior. Rendering validation for these changes uses BYOND **516.1682**.

@@ -43,7 +43,82 @@ const SELF_KEY_RULES = [
   },
 ];
 
+const COMPLETE_MAP_RULES = [
+  {
+    name: 'read complete world movable flags (HUD retains byte flags)',
+    pattern: /flags = msg\._webclient\$_data\.getUint8\(msg\._pos\+\+\);(\s*val = msg\._webclient\$_data\.getUint32\(msg\._pos, true\);)/g,
+    replace: 'flags = isScreen ? msg._webclient$_data.getUint8(msg._pos++) : msg.getUint16$0(0);$1',
+    min: 1,
+  },
+  {
+    name: 'consume world vis_contents without shifting subsequent records',
+    pattern: /(atom\.order = msg\._webclient\$_data\.getUint8\(msg\._pos\+\+\);)/g,
+    replace: '$1 if ((flags & 256) !== 0) { atom.__dpVisContents = []; for (var dpVisCount = msg.getUint16$0(0); dpVisCount > 0; --dpVisCount) atom.__dpVisContents.push(msg.getUint32$0(0)); atom.icons_dirty = true; }',
+    min: 1,
+  },
+];
+
 const STATUS_RULES = [
+  {
+    name: 'invalidate parallax candidates on world packets instead of scanning every frame',
+    pattern: /if \(ret > 0\) \{(\s*t1 = this\.movs;)/g,
+    replace: 'if (ret > 0) { if (!isScreen) this.__dpMovableGeneration = (this.__dpMovableGeneration || 0) + 1;$1',
+    min: 1,
+  },
+  {
+    name: 'stop ticking hidden atoms after their persistent glide has finished',
+    pattern: /atom\.tickIndex >= 0 && atom\.glide == null/g,
+    replace: 'atom.tickIndex >= 0 && (atom.glide == null || atom.glide.moving === 0)',
+    min: 1,
+  },
+  {
+    name: 'retain animation ticks without rebuilding unchanged DMI frames',
+    pattern: /if \(!this\.icons_dirty && this\.get\$animating\(\)\)\s*this\.icons_dirty = true;\s*t1 = this\.icons_dirty;/g,
+    replace: 'var dpAnimating = this.get$animating(); if (!this.icons_dirty && dpAnimating) this.icons_dirty = window.__dpDmiFrameChanged(this, $.me); t1 = this.icons_dirty || dpAnimating;',
+    min: 1,
+  },
+  {
+    name: 'refresh the screen parallax holder when its world layers change',
+    pattern: /P\.runZoned\(this\.get\$drawMap\(\), new N\.MapInfo_mapTick_closure0\(\), null, null\);/g,
+    replace: 'window.__dpPrepareParallax(this, $.me); P.runZoned(this.get$drawMap(), new N.MapInfo_mapTick_closure0(), null, null);',
+    min: 1,
+  },
+  {
+    name: 'project the native parallax layers onto their screen holder',
+    pattern: /a = composite \? a : this\.get\$currentAppearance\(\);/g,
+    replace: 'a = composite ? a : this.get$currentAppearance(); a = window.__dpParallaxAppearance(this, a, $.me, N.Appearance$_clone);',
+    min: 1,
+  },
+  {
+    name: 'seeing all turfs objects or mobs still respects invisibility',
+    pattern: /if \(!atom\._isVisible\) \{\s*atom\.icons_dirty = true;\s*atom\._isVisible = true;\s*\}(\s*if \(!atom\._normalVis\))/g,
+    replace: (_match, normalVisibility) => 'var dpVisible = this.atomIsVisibleDefault$2(atom, 1); if (atom._isVisible !== dpVisible) { atom.icons_dirty = true; atom._isVisible = dpVisible; }' + normalVisibility,
+    min: 3,
+  },
+  {
+    name: 'clear cached darkness masks when sight changes to SEE_TURFS',
+    pattern: /if \(\(t1 & 16\) !== 0\) \{/g,
+    replace: 'if ((t1 & 16) !== 0) { atom.set$drawDark(false);',
+    min: 1,
+  },
+  {
+    name: 'index active movable membership once per packet',
+    pattern: /glide = !isScreen;/g,
+    replace: 'glide = !isScreen; var dpActiveIds = new Set(myList);',
+    min: 1,
+  },
+  {
+    name: 'restore cached movables when they reenter the view',
+    pattern: /if \(isNew\) \{\s*C\.JSArray_methods\.remove\$1\(myList, val\);\s*myList\.push\(val\);\s*\}/g,
+    replace: 'if (!dpActiveIds.has(val)) { dpActiveIds.add(val); myList.push(val); atom.icons_dirty = true; atom.position_dirty = true; if ($.me.stage != null) $.me.stage.resort = true; } if (isScreen) atom.onScreen = true;',
+    min: 1,
+  },
+  {
+    name: 'remove departed movable membership before later records',
+    pattern: /C\.JSArray_methods\.remove\$1\(myList, val\);(\s*continue;)/g,
+    replace: (_match, continuation) => 'C.JSArray_methods.remove$1(myList, val); dpActiveIds.delete(val);' + continuation,
+    min: 1,
+  },
   {
     name: 'keep loaded browser windows alive when hidden or moved',
     pattern: /\$\.\$get\$ByondJS_skin\(\)\.defineClass\$4\(\$name, js,/g,
@@ -177,10 +252,10 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'place maptext overlays from the bottom-left of their icon',
-    pattern: /this\.overlays\[i0\]\.copyPos\$2\(0, 0\);/g,
-    replace: '{ this.overlays[i0].copyPos$2(0, 0); var dpText = this.overlays[i0]; if (dpText.icon != null && dpText.icon._text != null) { dpText.baseX = dpText.iconOffsetX != null ? dpText.iconOffsetX : dpText.pixel_w; dpText.baseY = (dpText.iconOffsetY != null ? dpText.iconOffsetY : -dpText.pixel_z) + (this.icon != null ? this.icon._height : $.me.iconHeight) - dpText.icon._height; } }',
-    min: 1,
+    name: 'anchor grouped overlays and underlays at the parent bottom edge',
+    pattern: /this\.(overlays|underlays)\[i0\]\.copyPos\$2\(0, 0\);/g,
+    replace: (_match, children) => `this.${children}[i0].copyPos$2(0, (this.icon != null ? this.icon._height : $.me.iconHeight) - (this.${children}[i0].icon != null ? this.${children}[i0].icon._height : $.me.iconHeight));`,
+    min: 2,
   },
   {
     name: 'read the maptext outline style',
@@ -201,9 +276,9 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'maptext percent font sizes are relative to 10pt like DD output',
-    pattern: /return C\.JSNumber_methods\.round\$0\(this\._textFormats\[0\]\.size \* val\) \/ 100;/g,
-    replace: 'return C.JSNumber_methods.round$0(N.ByondJS_toPx("pt") * 10 * val) / 100;',
+    name: 'maptext respects pixel units and BYOND default percentage sizes',
+    pattern: /_parseSize\$2: function\(size, fallback\) \{[\s\S]*?\n      \},/g,
+    replace: '_parseSize$2: function(size, fallback) { return window.__dpMaptextSize(size, fallback, N.ByondJS_toPx("pt")); },',
     min: 1,
   },
   {
@@ -244,9 +319,9 @@ const STATUS_RULES = [
   },
 ];
 
-export function patchWebclient(source, { selfKey = false } = {}) {
+export function patchWebclient(source, { selfKey = false, completeMap = selfKey } = {}) {
   let out = source;
-  for (const rule of RULES.concat(selfKey ? SELF_KEY_RULES : [], STATUS_RULES)) {
+  for (const rule of RULES.concat(selfKey ? SELF_KEY_RULES : [], completeMap ? COMPLETE_MAP_RULES : [], STATUS_RULES)) {
     const count = (out.match(rule.pattern) || []).length;
     if (count < rule.min) {
       throw new Error(`webclient patch "${rule.name}" matched ${count} times, expected at least ${rule.min}`);

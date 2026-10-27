@@ -9,7 +9,7 @@ const upstreamHost = process.env.DEV_UPSTREAM_HOST || '92.63.189.21';
 const upstreamPort = Number(process.env.DEV_UPSTREAM_PORT || 7779);
 const port = Number(process.env.DEV_PORT || 8179);
 const vendor = process.env.DEV_VENDOR_FILE;
-const source = vendor ? patchWebclient(await fs.readFile(vendor, 'utf8'), { selfKey: true }).replace('$.me = N.ByondClient$();', '$.me = N.ByondClient$(); window.__dpMe = $.me;') : null;
+const source = vendor ? patchWebclient(await fs.readFile(vendor, 'utf8'), { selfKey: true, completeMap: process.env.DEV_COMPLETE_MAP === '1' }).replace('$.me = N.ByondClient$();', '$.me = N.ByondClient$(); window.__dpMe = $.me;') : null;
 const assets = createAssetIndex(process.env.DEV_ASSET_DIR ? [process.env.DEV_ASSET_DIR] : []);
 const legacyHelpers = process.env.DEV_LEGACY_HELPERS ? (await fs.readFile(process.env.DEV_LEGACY_HELPERS, 'utf8')).trim().replace('window.byond.topic(query.join("&"))', 'webClient.fn.topic(query.join("&"))') : null;
 const newHelpers = process.env.DEV_TGUI_HELPERS ? (await fs.readFile(process.env.DEV_TGUI_HELPERS, 'utf8')).trim() : null;

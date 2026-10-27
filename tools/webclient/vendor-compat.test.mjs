@@ -32,6 +32,60 @@ function protocol() {
 
 test('the patched vendor remains valid JavaScript', { skip: !patched }, () => {
   new vm.Script(patched);
+  const appearanceFlags = patched.slice(patched.indexOf('Appearance$fromMsg$1: function'), patched.indexOf('Appearance$fromMsg$1: function') + 2500);
+  assert.ok(!appearanceFlags.includes('isScreen'), 'appearance flags keep their separate original format');
+});
+
+test('world packets preserve adjacent full references, vis_contents and reentry; HUD stays byte-sized', { skip: !patched }, () => {
+  const atoms = new Map();
+  const me = { stage: {}, infoMap: {
+    $index: (_, id) => atoms.get(id), $indexSet: (_, id, atom) => atoms.set(id, atom),
+  } };
+  const arrays = {
+    remove$1(list, id) { const i = list.indexOf(id); if (i >= 0) list.splice(i, 1); },
+    contains$1: (list, id) => list.includes(id), add$1: (list, id) => list.push(id),
+  };
+  const read = method('readMovableChanges$3$isScreen', 'readMovableChanges$2', {
+    $: { me }, C: { JSArray_methods: arrays },
+    N: { AtomInfo$(id) { return { id, addPendingImages$0() {}, prepareTick$1() {} }; } },
+    P: { List_List$from: list => [...list] },
+  });
+  const state = { movs: [], screen: [], viewChanged: true };
+  function packet(records, screen = false) {
+    const bytes = [];
+    const u16 = n => bytes.push(n & 255, (n >>> 8) & 255);
+    const u32 = n => { u16(n); u16(n >>> 16); };
+    u16(records.length);
+    for (const record of records) {
+      if (screen) bytes.push(record.flags); else u16(record.flags);
+      u32(record.id);
+      if (record.flags & 256) { u16(record.children.length); record.children.forEach(u32); }
+    }
+    const data = new DataView(Uint8Array.from(bytes).buffer);
+    const msg = { _pos: 0, _webclient$_data: data,
+      getUint16$0() { const n = data.getUint16(this._pos, true); this._pos += 2; return n; },
+      getUint32$0() { const n = data.getUint32(this._pos, true); this._pos += 4; return n; },
+    };
+    read.call(state, msg, screen ? state.screen : state.movs, screen);
+    assert.equal(msg._pos, data.byteLength, 'consume exactly the complete packet');
+  }
+  const first = 0x0200b9d4, second = first + 1, child = 0x0200ba99;
+  packet([{ flags: 258, id: first, children: [child] }, { flags: 2, id: second }]);
+  assert.deepEqual(state.movs, [first, second]);
+  assert.deepEqual(Array.from(atoms.get(first).__dpVisContents), [child]);
+  packet([{ flags: 0, id: first }]);
+  assert.deepEqual(state.movs, [second]);
+  packet([{ flags: 258, id: first, children: [] }, { flags: 2, id: first }]);
+  assert.deepEqual(state.movs, [second, first], 'restore a cached atom once');
+  assert.deepEqual(Array.from(atoms.get(first).__dpVisContents), [], 'clear removed children');
+  packet([{ flags: 0, id: first }, { flags: 2, id: first }]);
+  assert.deepEqual(state.movs, [second, first], 'remove then reenter within one packet');
+  packet([{ flags: 2, id: 0x04000123 }], true);
+  assert.deepEqual(state.screen, [0x04000123]);
+  packet([{ flags: 0, id: 0x04000123 }], true);
+  assert.deepEqual(state.screen, []);
+  packet([{ flags: 2, id: 0x04000123 }], true);
+  assert.equal(atoms.get(0x04000123).onScreen, true, 'show cached HUD atoms again');
 });
 
 test('real vendor Topic messages contain one query prefix', { skip: !patched }, () => {
@@ -124,11 +178,68 @@ test('real vendor input expands map placeholders and runs output locally', { ski
 
 test('real vendor places maptext overlays from the bottom-left of their icon', { skip: !patched }, () => {
   const copyPos = method('copyPos$2', 'updateScreen$0', { $: { me: { iconHeight: 32 } } });
-  const text = { icon: { _height: 75, _text: 'Delta' }, iconOffsetX: null, iconOffsetY: null, pixel_w: 12, pixel_z: 5, copyPos$2: copyPos };
+  const text = { icon: { _height: 75, _text: 'Delta' }, iconOffsetX: 12, iconOffsetY: -5, pixel_w: 12, pixel_z: 5, copyPos$2: copyPos };
   const plain = { icon: { _height: 32, _text: null }, iconOffsetX: 3, iconOffsetY: -4, copyPos$2: copyPos };
   const tv = { icon: { _height: 96 }, iconOffsetX: 0, iconOffsetY: -96, overlays: [plain, text], copyPos$2: copyPos };
   tv.copyPos$2(10, 200);
   assert.deepEqual([tv.baseX, tv.baseY], [10, 104]);
   assert.deepEqual([text.baseX, text.baseY], [12, 16]);
-  assert.deepEqual([plain.baseX, plain.baseY], [3, -4]);
+  assert.deepEqual([plain.baseX, plain.baseY], [3, 60]);
+});
+
+test('grouped 64px speech bubbles and 32px underlays share their parent bottom edge', { skip: !patched }, () => {
+  const copyPos = method('copyPos$2', 'updateScreen$0', { $: { me: { iconHeight: 32 } } });
+  const bubble = { icon: { _height: 64 }, iconOffsetX: 0, iconOffsetY: 0, copyPos$2: copyPos };
+  const marking = { icon: { _height: 32 }, iconOffsetX: 0, iconOffsetY: 3, copyPos$2: copyPos };
+  const mob = { icon: { _height: 32 }, iconOffsetX: 0, iconOffsetY: -32, overlays: [bubble], underlays: [marking], copyPos$2: copyPos };
+  mob.copyPos$2(0, 100);
+  assert.equal(mob.baseY + bubble.baseY + 64, 100);
+  assert.equal(marking.baseY, 3);
+});
+
+test('SEE_TURFS SEE_OBJS and SEE_MOBS do not expose abstract landmarks or hidden mobs', { skip: !patched }, () => {
+  const me = { mapHomeZ: 0 };
+  const visible = method('atomIsVisible$2', 'atomIsVisibleDefault$3', {
+    $: { me }, C: { JSInt_methods: { _shrOtherPositive$1: (id, bits) => id >>> bits } },
+  });
+  const defaultVisible = method('atomIsVisibleDefault$3', 'atomIsVisibleDefault$2', { $: { me } });
+  for (const [type, sight] of [[1, 16], [2, 8], [3, 4]]) {
+    const state = { sight, seeInvisible: 60, atomIsVisibleDefault$2(atom, vis) { return defaultVisible.call(this, atom, vis, 0); } };
+    for (const [invisibility, expected] of [[0, true], [60, true], [61, false], [101, false]]) {
+      const atom = { id: (type << 24) + 7, x: 0, z: 0, _isVisible: true, _normalVis: true,
+        set$drawDark() {},
+        get$currentAppearance() { return { core: { invisibility } }; } };
+      visible.call(state, atom.id, atom);
+      assert.equal(atom._isVisible, expected, `type ${type}, invisibility ${invisibility}`);
+    }
+  }
+});
+
+test('SEE_TURFS removes cached darkness masks after leaving a living body', { skip: !patched }, () => {
+  const C = { JSInt_methods: { _shrOtherPositive$1: (id, bits) => id >>> bits },
+    JSArray_methods: { remove$1(list, value) { list.splice(list.indexOf(value), 1); } } };
+  const visible = method('atomIsVisible$2', 'atomIsVisibleDefault$3', { $: { me: { mapHomeZ: 2 } }, C });
+  const drawDark = method('set$drawDark', 'alwaysGlide$0', { C });
+  const blackness = {};
+  const atom = { id: 0x01000007, x: 5, z: 2, _isVisible: true, _normalVis: true,
+    _drawDark: true, icons_dirty: false, _blackness: blackness, _mapicons: [blackness], set$drawDark: drawDark };
+  visible.call({ sight: 16, atomIsVisibleDefault$2: () => true }, atom.id, atom);
+  assert.equal(atom._drawDark, false);
+  assert.equal(atom._mapicons.length, 0);
+  assert.equal(atom.position_dirty, true);
+});
+
+test('an unchanged DMI frame stays scheduled for future animation ticks', { skip: !patched }, () => {
+  let changed = false;
+  const tick = method('tick$0', 'beginGlide$0', { $: { me: {} }, window: { __dpDmiFrameChanged: () => changed } });
+  const scheduled = [];
+  const atom = { glide: null, icons_dirty: false, cantick: true, get$animating: () => true,
+    prepareTick$1(value) { scheduled.push(value); } };
+  tick.call(atom);
+  assert.equal(atom.icons_dirty, false);
+  assert.equal(atom.inert, false);
+  assert.deepEqual(scheduled, [true]);
+  changed = true;
+  tick.call(atom);
+  assert.equal(atom.icons_dirty, true);
 });
