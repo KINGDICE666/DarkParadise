@@ -853,7 +853,14 @@
 			human_mob.decaylevel = 0
 			human_mob.remove_all_embedded_objects()
 			human_mob.remove_all_parasites()
-	SEND_SIGNAL(src, COMSIG_LIVING_AHEAL)
+		SEND_SIGNAL(src, COMSIG_LIVING_AHEAL)
+
+	if(iscarbon(src))
+		var/mob/living/carbon/C = src
+		var/obj/item/organ/internal/brain/B = C.get_organ_slot(INTERNAL_ORGAN_BRAIN)
+		if(B)
+			B.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
+
 	restore_all_organs()
 	surgeries.Cut() //End all surgeries.
 	if(stat == DEAD)
