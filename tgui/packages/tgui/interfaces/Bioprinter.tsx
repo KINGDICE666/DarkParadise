@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  DmIcon,
   Dropdown,
   NoticeBox,
   ProgressBar,
@@ -15,16 +16,22 @@ type BioprinterData = {
   capacity: number;
   selected_species: string;
   species: { id: string; name: string }[];
-  products: { slot: string; name: string; cost: number }[];
-  printing: boolean;
+  products: {
+    slot: string;
+    name: string;
+    cost: number;
+    icon: string;
+    icon_state: string;
+  }[];
+  printing: boolean | 0 | 1;
   remaining: number;
   available: boolean;
 };
 
 export const Bioprinter = () => {
   const { act, data } = useBackend<BioprinterData>();
-  const { biomass, capacity, selected_species, species, products, printing } =
-    data;
+  const { biomass, capacity, selected_species, species, products } = data;
+  const printing = !!data.printing;
   return (
     <Window width={510} height={620}>
       <Window.Content scrollable>
@@ -57,6 +64,9 @@ export const Bioprinter = () => {
           <Dropdown
             width="100%"
             selected={selected_species}
+            displayText={
+              species.find((entry) => entry.id === selected_species)?.name
+            }
             disabled={printing}
             options={species.map((entry) => ({
               value: entry.id,
@@ -70,6 +80,14 @@ export const Bioprinter = () => {
             {products.map((product) => (
               <Stack.Item key={product.slot}>
                 <Stack align="center">
+                  <Stack.Item>
+                    <DmIcon
+                      icon={product.icon}
+                      icon_state={product.icon_state}
+                      width="32px"
+                      height="32px"
+                    />
+                  </Stack.Item>
                   <Stack.Item grow>{product.name}</Stack.Item>
                   <Stack.Item>
                     <Button

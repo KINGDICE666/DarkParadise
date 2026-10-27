@@ -2,6 +2,10 @@
 	var/obj/machinery/bioprinter/printer = allocate(/obj/machinery/bioprinter)
 	printer.stat = NONE
 	printer.biomass = 100
+	var/list/available_species = list(SPECIES_HUMAN) | CONFIG_GET(str_list/playable_species)
+	TEST_ASSERT(SPECIES_HUMAN in printer.organ_catalog, "Human organs are missing from the catalog.")
+	for(var/species_name in printer.organ_catalog)
+		TEST_ASSERT(species_name in available_species, "[species_name] is not available in normal character creation.")
 	TEST_ASSERT_EQUAL(printer.organ_catalog[SPECIES_HUMAN][INTERNAL_ORGAN_HEART]["cost"], 30, "Heart price depends on the immediate-death vital flag.")
 	TEST_ASSERT_EQUAL(printer.organ_catalog[SPECIES_HUMAN][INTERNAL_ORGAN_KIDNEYS]["cost"], 20, "Ordinary organ price changed.")
 	TEST_ASSERT_NOT(printer.start_printing(INTERNAL_ORGAN_BRAIN), "Bioprinter accepted a brain recipe.")
@@ -61,6 +65,10 @@
 		TEST_ASSERT_NOT(INTERNAL_ORGAN_BRAIN in recipes, "[species_name] has a printable brain.")
 		for(var/slot in recipes)
 			TEST_ASSERT(ispath(species.has_organ[slot], /obj/item/organ/internal), "[species_name] has an invalid organ recipe.")
+	var/list/heart_recipe = printer.organ_catalog[SPECIES_HUMAN][INTERNAL_ORGAN_HEART]
+	var/obj/item/organ/internal/heart/human_heart = allocate(/obj/item/organ/internal/heart)
+	TEST_ASSERT_EQUAL(heart_recipe["icon"], human_heart.icon, "Human heart preview uses the wrong icon file.")
+	TEST_ASSERT_EQUAL(heart_recipe["icon_state"], human_heart.icon_state, "Human heart preview uses the wrong icon state.")
 	printer.selected_species = SPECIES_VOX
 	printer.biomass = 100
 	TEST_ASSERT(printer.start_printing(INTERNAL_ORGAN_LUNGS), "Vox lungs are not printable.")
@@ -68,6 +76,9 @@
 	var/obj/item/organ/internal/lungs/vox/vox_lungs = locate() in get_turf(printer)
 	TEST_ASSERT_NOTNULL(vox_lungs, "Printer lost the species-specific organ subtype.")
 	TEST_ASSERT_EQUAL(vox_lungs.dna.species.type, /datum/species/vox, "Printed organ has incorrect species DNA.")
+	var/list/vox_lung_recipe = printer.organ_catalog[SPECIES_VOX][INTERNAL_ORGAN_LUNGS]
+	TEST_ASSERT_EQUAL(vox_lung_recipe["icon"], vox_lungs.icon, "Vox lung preview uses the wrong icon file.")
+	TEST_ASSERT_EQUAL(vox_lung_recipe["icon_state"], vox_lungs.icon_state, "Vox lung preview uses the wrong icon state.")
 	qdel(vox_lungs)
 	printer.biomass = 0
 	var/obj/item/reagent_containers/food/snacks/meat/meat = allocate(/obj/item/reagent_containers/food/snacks/meat)

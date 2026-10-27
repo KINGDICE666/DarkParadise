@@ -46,7 +46,9 @@
 	RefreshParts()
 	if(length(organ_catalog))
 		return
-	for(var/species_name in GLOB.all_species)
+	var/list/available_species = assoc_to_keys(GLOB.all_species) & (list(SPECIES_HUMAN) | CONFIG_GET(str_list/playable_species))
+	available_species.Swap(1, available_species.Find(SPECIES_HUMAN))
+	for(var/species_name in available_species)
 		var/datum/species/species = GLOB.all_species[species_name]
 		var/list/recipes = list()
 		for(var/slot in species.has_organ)
@@ -58,6 +60,8 @@
 				"slot" = slot,
 				"name" = DECLENT_RU_CAP(organ, NOMINATIVE),
 				"cost" = slot == INTERNAL_ORGAN_HEART ? BIOPRINTER_HEART_COST : BIOPRINTER_ORGAN_COST,
+				"icon" = organ.icon,
+				"icon_state" = organ.icon_state,
 			)
 			qdel(organ)
 		if(length(recipes))
