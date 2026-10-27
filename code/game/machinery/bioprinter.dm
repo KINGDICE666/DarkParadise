@@ -47,6 +47,7 @@
 	if(length(organ_catalog))
 		return
 	var/list/available_species = assoc_to_keys(GLOB.all_species) & (list(SPECIES_HUMAN) | CONFIG_GET(str_list/playable_species))
+	available_species -= SPECIES_MACHINEPERSON
 	available_species.Swap(1, available_species.Find(SPECIES_HUMAN))
 	for(var/species_name in available_species)
 		var/datum/species/species = GLOB.all_species[species_name]
