@@ -102,7 +102,11 @@ message 246` or crashes in `strdup`. A mismatched verb case (`KeyDown` for
 correctly spelled key commands still crashed production. The bridge sends
 `keyDown`/`keyUp` as immediate `?dp_key=` Topics instead, outside the Topic rate
 queue, and `/client/Topic` hands them to the key verbs before rate limiting and
-href logging. Deploy the game code before a bridge that sends them. Loaded browser frames keep their browsing
+href logging. Deploy the game code before a bridge that sends them. Other
+commands get the exact spelling of a verb the client knows: the first word of
+each line is matched against the verb list DD sent, so `ooc "..."` from the skin
+input reaches DD as `OOC "..."`. Hidden verbs are not in that list and must be
+spelled exactly in the skin and in DM. Loaded browser frames keep their browsing
 context when controls move or their popup is hidden. Initial repeated stat tab
 notifications are coalesced, and all Topic messages are held to 6 per second so
 the startup burst stays under the world's per-second Topic limit.

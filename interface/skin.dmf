@@ -352,7 +352,7 @@ window "inputbuttons"
 		border = line
 		saved-params = "is-checked"
 		text = "OOC"
-		command = ".winset \"oocbutton.is-checked=true ? input.command=\"!ooc \\\"\" : input.command=\"\"oocbutton.is-checked=true ? mebutton.is-checked=false\"\"oocbutton.is-checked=true ? saybutton.is-checked=false\"\"oocbutton.is-checked=true ? whisperbutton.is-checked=false\""
+		command = ".winset \"oocbutton.is-checked=true ? input.command=\"!OOC \\\"\" : input.command=\"\"oocbutton.is-checked=true ? mebutton.is-checked=false\"\"oocbutton.is-checked=true ? saybutton.is-checked=false\"\"oocbutton.is-checked=true ? whisperbutton.is-checked=false\""
 		is-flat = true
 		button-type = pushbox
 

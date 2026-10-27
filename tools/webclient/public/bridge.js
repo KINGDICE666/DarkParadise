@@ -158,8 +158,28 @@
     finally { directTopic = false; }
     return true;
   }
+  function exactVerbName(client, word) {
+    const wanted = word.replace(/-/g, ' ').toLowerCase();
+    let found = null;
+    for (let cell = client && client.verbs && client.verbs._first; cell; cell = cell._next) {
+      const name = cell.hashMapCellValue && cell.hashMapCellValue._webclient$_name;
+      if (typeof name !== 'string' || name.toLowerCase() !== wanted) continue;
+      const dashed = name.replace(/ /g, '-');
+      if (word === name || word === dashed) return word;
+      found = found || dashed;
+    }
+    return found || word;
+  }
+  function exactVerbCommand(client, command) {
+    return command.split('\n').map(function (line) {
+      const match = /^(\s*)([^\s".][^\s"]*)([\s\S]*)$/.exec(line);
+      return match ? match[1] + exactVerbName(client, match[2]) + match[3] : line;
+    }).join('\n');
+  }
   window.__dpExpandCommand = function (command, client) {
-    if (typeof command !== 'string' || command.indexOf('\n') >= 0) return command;
+    if (typeof command !== 'string') return command;
+    command = exactVerbCommand(client, command);
+    if (command.indexOf('\n') >= 0) return command;
     const output = /^\.output\s+(\S+)\s*([\s\S]*)$/i.exec(command);
     if (output) {
       let text = output[2];

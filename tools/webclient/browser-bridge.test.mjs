@@ -284,6 +284,23 @@ test('key macros bypass the command parser as immediate topics', () => {
   assert.equal(window.__dpExpandCommand('say "hi"', client), 'say "hi"');
 });
 
+test('typed commands use the exact spelling of a known verb', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams, Date });
+  const cells = ['OOC', 'Сказать', 'Полный экран', 'Cast', 'cast'].map(name => ({ hashMapCellValue: { _webclient$_name: name } }));
+  cells.forEach((cell, index) => { cell._next = cells[index + 1]; });
+  const client = { verbs: { _first: cells[0] }, sendTopicMessage$1() {} };
+  assert.equal(window.__dpExpandCommand('ooc "hi there"', client), 'OOC "hi there"');
+  assert.equal(window.__dpExpandCommand('сказать "привет"', client), 'Сказать "привет"');
+  assert.equal(window.__dpExpandCommand('полный-ЭКРАН', client), 'Полный-экран');
+  assert.equal(window.__dpExpandCommand('Полный экран', client), 'Полный экран');
+  assert.equal(window.__dpExpandCommand('cast', client), 'cast');
+  assert.equal(window.__dpExpandCommand('CAST', client), 'Cast');
+  assert.equal(window.__dpExpandCommand('.winset "a=1"\nooc "x"', client), '.winset "a=1"\nOOC "x"');
+  assert.equal(window.__dpExpandCommand('Hotkeys-Help', client), 'Hotkeys-Help');
+  assert.equal(window.__dpExpandCommand('ooc "x"'), 'ooc "x"');
+});
+
 test('topics beyond the server rate limit wait in order', () => {
   let clock = 0;
   const timers = [];
