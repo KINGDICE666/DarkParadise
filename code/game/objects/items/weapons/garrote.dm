@@ -14,9 +14,26 @@
 	COOLDOWN_DECLARE(garrote_cooldown)
 
 /obj/item/twohanded/garrote/Destroy()
-	STOP_PROCESSING(SSobj, src)
-	strangling = null
+	stop_strangling()
 	return ..()
+
+/obj/item/twohanded/garrote/proc/stop_strangling()
+	SIGNAL_HANDLER
+	STOP_PROCESSING(SSobj, src)
+	if(!strangling)
+		return
+	UnregisterSignal(strangling, list(COMSIG_ATOM_NO_LONGER_PULLED, COMSIG_QDELETING))
+	REMOVE_TRAIT(strangling, TRAIT_HANDS_BLOCKED, UNIQUE_TRAIT_SOURCE(src))
+	strangling = null
+	update_icon(UPDATE_ICON_STATE)
+
+/obj/item/twohanded/garrote/proc/on_grab_lost(datum/source, mob/living/carbon/human/strangler)
+	SIGNAL_HANDLER
+	strangler.visible_message(
+		span_warning("[DECLENT_RU_CAP(strangler, NOMINATIVE)] теря[PLUR_ET_YUT(strangler)] хватку на шее [strangling.declent_ru(GENITIVE)]."),
+		span_warning("Вы теряете хватку на шее [strangling.declent_ru(GENITIVE)]."),
+	)
+	stop_strangling()
 
 /obj/item/twohanded/garrote/update_icon_state()
 	if(strangling) // If we're strangling someone we want our icon to stay wielded
@@ -42,9 +59,7 @@
 			span_warning("[user] removes [name] from [strangling]'s neck."),
 			span_warning("You remove [name] from [strangling]'s neck."),
 		)
-		strangling = null
-		update_icon(UPDATE_ICON_STATE)
-		STOP_PROCESSING(SSobj, src)
+		stop_strangling()
 
 /obj/item/twohanded/garrote/attack(mob/living/carbon/human/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ATTACK_CHAIN_PROCEED
@@ -97,7 +112,9 @@
 	COOLDOWN_START(src, garrote_cooldown, 1 SECONDS)
 	START_PROCESSING(SSobj, src)
 	strangling = target
-	strangling = target
+	RegisterSignal(strangling, COMSIG_ATOM_NO_LONGER_PULLED, PROC_REF(on_grab_lost))
+	RegisterSignal(strangling, COMSIG_QDELETING, PROC_REF(stop_strangling))
+	ADD_TRAIT(strangling, TRAIT_HANDS_BLOCKED, UNIQUE_TRAIT_SOURCE(src))
 	update_icon(UPDATE_ICON_STATE)
 
 	playsound(loc, 'sound/weapons/cablecuff.ogg', 15, TRUE, -1)
@@ -111,22 +128,16 @@
 /obj/item/twohanded/garrote/process()
 	if(QDELETED(strangling))
 		// Our mark got gibbed or similar
-		update_icon(UPDATE_ICON_STATE)
+		stop_strangling()
 		return PROCESS_KILL
 
 	var/mob/living/carbon/human/strangler = loc
 	if(!ishuman(strangler))
-		strangling = null
-		update_icon(UPDATE_ICON_STATE)
+		stop_strangling()
 		return PROCESS_KILL
 
 	if(!strangler.pulling || strangler.pulling != strangling)
-		strangler.visible_message(
-			span_warning("[strangler] loses [strangler.p_their()] grip on [strangling]'s neck."),
-			span_warning("You lose your grip on [strangling]'s neck."),
-		)
-		strangling = null
-		update_icon(UPDATE_ICON_STATE)
+		on_grab_lost(strangling, strangler)
 		return PROCESS_KILL
 
 	if(improvised)
