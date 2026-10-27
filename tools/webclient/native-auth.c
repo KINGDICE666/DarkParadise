@@ -14,13 +14,39 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-/* Linux x86 adapter, pinned to the upstream 516.1682 ELF build below. */
-static const unsigned char expected_build[] = {
-    0xe9, 0xcd, 0xd7, 0xc7, 0x7f, 0x6c, 0xea, 0xc5, 0xc3, 0xac,
-    0x42, 0xb6, 0xf5, 0x57, 0x4f, 0x38, 0x8a, 0x96, 0x9b, 0xde
+/* Linux x86 adapter, pinned to the upstream ELF builds below. */
+struct engine_build {
+    const char *version;
+    unsigned char id[20];
+    uintptr_t key_message;
+    uintptr_t seed_call;
+    unsigned char seed_bytes[5];
+    uintptr_t find_connection;
+    uintptr_t complete_login;
+    uintptr_t close_connection;
+    uintptr_t connection_guard;
+    uintptr_t copy_string;
+    uintptr_t lookup_string;
+    unsigned token_offset;
+};
+static const struct engine_build builds[] = {
+    {
+        "516.1682",
+        {0xe9, 0xcd, 0xd7, 0xc7, 0x7f, 0x6c, 0xea, 0xc5, 0xc3, 0xac,
+         0x42, 0xb6, 0xf5, 0x57, 0x4f, 0x38, 0x8a, 0x96, 0x9b, 0xde},
+        0x3f2b80, 0x3f2101, {0xe8, 0x9a, 0x09, 0xef, 0xff},
+        0x405c60, 0x3f1e90, 0x3412d0, 0x407e10, 0x4aa440, 0x2e2aa0, 0x2f8,
+    },
+    {
+        "516.1688",
+        {0xa3, 0x0a, 0x79, 0x44, 0x1d, 0x3f, 0x71, 0x76, 0xe8, 0xfe,
+         0x23, 0xb5, 0xf2, 0x89, 0x7f, 0xc6, 0x19, 0x72, 0xb4, 0xaa},
+        0x3f3580, 0x3f2b01, {0xe8, 0xba, 0x00, 0xef, 0xff},
+        0x406690, 0x3f2890, 0x341a20, 0x408840, 0x4ab1a0, 0x2e2bc0, 0x300,
+    },
 };
 static uintptr_t engine_base;
-static int build_matches;
+static const struct engine_build *build;
 static const char *auth_socket;
 static void (*original_key_message)(void *, void *);
 static void *(*find_connection)(unsigned short);
@@ -55,10 +81,11 @@ static int find_engine(struct dl_phdr_info *info, size_t size, void *data) {
             size_t descs = (note->n_descsz + 3u) & ~3u;
             if (sizeof(*note) + names + descs > (size_t)(end - cursor)) break;
             if (note->n_type == NT_GNU_BUILD_ID && note->n_namesz == 4 &&
-                note->n_descsz == sizeof(expected_build) &&
-                !memcmp(cursor + sizeof(*note), "GNU", 4) &&
-                !memcmp(cursor + sizeof(*note) + names, expected_build, sizeof(expected_build))) {
-                build_matches = 1;
+                note->n_descsz == sizeof(builds[0].id) &&
+                !memcmp(cursor + sizeof(*note), "GNU", 4)) {
+                for (unsigned b = 0; b < sizeof(builds) / sizeof(builds[0]); ++b) {
+                    if (!memcmp(cursor + sizeof(*note) + names, builds[b].id, sizeof(builds[b].id))) build = &builds[b];
+                }
             }
             cursor += sizeof(*note) + names + descs;
         }
@@ -144,7 +171,7 @@ static void key_message(void *client, void *message) {
         return;
     }
     *(char **)(connection + 0x38) = copy_string(guest);
-    *(char **)(connection + 0x2f8) = copy_string(token);
+    *(char **)(connection + build->token_offset) = copy_string(token);
     *(unsigned short *)(connection + 0x34) = 6;
     connection_guard(connection, 1);
     fprintf(stderr, "[web-auth] guest ticket accepted\n");
@@ -159,11 +186,13 @@ static const char *install_adapter(const char *socket_path) {
     if (!socket_path || !*socket_path || strlen(socket_path) >= sizeof(((struct sockaddr_un *)0)->sun_path)) return "invalid auth socket path";
     dl_iterate_phdr(find_engine, NULL);
     const unsigned char preamble[] = {0x55, 0x89, 0xe5, 0x57, 0x56};
-    const unsigned char seed_call[] = {0xe8, 0x9a, 0x09, 0xef, 0xff};
-    unsigned char *target = (void *)(engine_base + 0x3f2b80);
-    unsigned char *seed_target = (void *)(engine_base + 0x3f2101);
-    if (sizeof(void *) != 4 || !engine_base || !build_matches || memcmp(target, preamble, 5) || memcmp(seed_target, seed_call, 5)) {
-        return "unsupported BYOND binary (requires Linux x86 516.1682, build e9cdd7c77f6ceac5c3ac42b6f5574f388a969bde)";
+    if (sizeof(void *) != 4 || !engine_base || !build) {
+        return "unsupported BYOND binary (requires Linux x86 516.1682 or 516.1688)";
+    }
+    unsigned char *target = (void *)(engine_base + build->key_message);
+    unsigned char *seed_target = (void *)(engine_base + build->seed_call);
+    if (memcmp(target, preamble, 5) || memcmp(seed_target, build->seed_bytes, 5)) {
+        return "unexpected BYOND code at the adapter hook sites";
     }
     unsigned char *trampoline = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (trampoline == MAP_FAILED) return "cannot allocate adapter trampoline";
@@ -174,15 +203,18 @@ static const char *install_adapter(const char *socket_path) {
         munmap(trampoline, 4096);
         return "cannot protect adapter trampoline";
     }
-    find_connection = (void *)(engine_base + 0x405c60);
-    complete_login = (void *)(engine_base + 0x3f1e90);
-    close_connection = (void *)(engine_base + 0x3412d0);
-    connection_guard = (void *)(engine_base + 0x407e10);
-    copy_string = (void *)(engine_base + 0x4aa440);
-    lookup_string = (void *)(engine_base + 0x2e2aa0);
+    find_connection = (void *)(engine_base + build->find_connection);
+    complete_login = (void *)(engine_base + build->complete_login);
+    close_connection = (void *)(engine_base + build->close_connection);
+    connection_guard = (void *)(engine_base + build->connection_guard);
+    copy_string = (void *)(engine_base + build->copy_string);
+    lookup_string = (void *)(engine_base + build->lookup_string);
     long page_size = sysconf(_SC_PAGESIZE);
-    void *page = (void *)((uintptr_t)target & ~((uintptr_t)page_size - 1));
-    if (mprotect(page, page_size, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+    uintptr_t first = (uintptr_t)(target < seed_target ? target : seed_target);
+    uintptr_t last = (uintptr_t)(target < seed_target ? seed_target : target) + 5;
+    void *page = (void *)(first & ~((uintptr_t)page_size - 1));
+    size_t span = last - (uintptr_t)page;
+    if (mprotect(page, span, PROT_READ | PROT_WRITE | PROT_EXEC)) {
         munmap(trampoline, 4096);
         return "cannot install native guest adapter";
     }
@@ -193,8 +225,8 @@ static const char *install_adapter(const char *socket_path) {
     *(int32_t *)(target + 1) = (intptr_t)key_message - (intptr_t)(target + 5);
     seed_target[0] = 0xe8;
     *(int32_t *)(seed_target + 1) = (intptr_t)guest_seed - (intptr_t)(seed_target + 5);
-    if (mprotect(page, page_size, PROT_READ | PROT_EXEC)) _exit(78);
-    fprintf(stderr, "[web-auth] local guest adapter enabled for BYOND 516.1682\n");
+    if (mprotect(page, span, PROT_READ | PROT_EXEC)) _exit(78);
+    fprintf(stderr, "[web-auth] local guest adapter enabled for BYOND %s\n", build->version);
     return "ok";
 }
 
