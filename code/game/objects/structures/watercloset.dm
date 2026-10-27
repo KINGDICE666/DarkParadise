@@ -402,23 +402,6 @@ MAPPING_DIRECTIONAL_HELPERS_CUSTOM(/obj/structure/toilet/captain_toilet, SHIFTIN
 #define SHOWER_SPRAY_VOLUME 5
 /// How much the volume of the shower's spay reagents are amplified by when it sprays something.
 #define SHOWER_EXPOSURE_MULTIPLIER 2 // Showers effectively double exposed reagents
-/// How long we run in TIMED mode
-#define SHOWER_TIMED_LENGTH (15 SECONDS)
-
-/// Run the shower until we run out of reagents.
-#define SHOWER_MODE_UNTIL_EMPTY 0
-/// Run the shower for SHOWER_TIMED_LENGTH time, or until we run out of reagents.
-#define SHOWER_MODE_TIMED 1
-/// Run the shower forever, pausing when we run out of liquid, and then resuming later.
-#define SHOWER_MODE_FOREVER 2
-/// Number of modes to cycle through
-#define SHOWER_MODE_COUNT 3
-
-GLOBAL_ALIST_INIT(shower_mode_descriptions, alist(
-	SHOWER_MODE_UNTIL_EMPT = "run until empty",
-	SHOWER_MODE_TIMED = "run for 15 seconds or until empty",
-	SHOWER_MODE_FOREVER = "keep running forever and auto turn back on",
-))
 
 /obj/machinery/shower
 	name = "shower"
@@ -429,25 +412,13 @@ GLOBAL_ALIST_INIT(shower_mode_descriptions, alist(
 	dir = EAST
 	layer = OBJ_LAYER
 	use_power = NO_POWER_USE
-	/// Does the user want the shower on or off?
-	var/intended_on = FALSE
-	/// Is the shower actually spitting out water currently
-	var/actually_on = FALSE
+	var/on = FALSE
 	/// What temperature the shower reagents are set to.
 	var/current_temperature = SHOWER_NORMAL
 	/// What sound will be played on loop when the shower is on and pouring water.
 	var/datum/looping_sound/showering/soundloop
-	COOLDOWN_DECLARE(wash_cooldown)
 	/// What reagent should the shower be filled with when initially built.
 	var/reagent_id = /datum/reagent/water
-	/// How much reagent capacity should the shower begin with when built.
-	var/reagent_capacity = 200
-	/// How many units the shower refills every second.
-	var/refill_rate = 0.5
-	/// Does the shower have a water recycler to recollect its water supply?
-	var/has_water_reclaimer = TRUE
-	/// Which mode the shower is operating in.
-	var/mode = SHOWER_MODE_UNTIL_EMPTY
 	/// How far to shift the sprite when placing.
 	var/pixel_shift = SHIFTING_SHOWER
 
@@ -470,9 +441,8 @@ GLOBAL_ALIST_INIT(shower_mode_descriptions, alist(
 		if(WEST)
 			pixel_x = -pixel_shift
 			pixel_y = 0
-	create_reagents(reagent_capacity)
-	if(src.has_water_reclaimer)
-		reagents.add_reagent(reagent_id, reagent_capacity)
+	create_reagents(SHOWER_SPRAY_VOLUME)
+	reagents.add_reagent(reagent_id, SHOWER_SPRAY_VOLUME)
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 		COMSIG_ATOM_EXITED = PROC_REF(on_exited),
@@ -490,10 +460,6 @@ GLOBAL_ALIST_INIT(shower_mode_descriptions, alist(
 /obj/machinery/shower/examine(mob/user)
 	. = ..()
 	. += span_notice("It looks like the thermostat has an adjustment screw.")
-	if(has_water_reclaimer)
-		. += span_notice("A water recycler is installed. It looks like you could pry it out.")
-	. += span_notice("The auto shut-off is programmed to [GLOB.shower_mode_descriptions[mode]].")
-	. += span_notice("[reagents.total_volume]/[reagents.maximum_volume] liquids remaining.")
 
 MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 
@@ -511,12 +477,21 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 	if(.)
 		return
 
-	intended_on = !intended_on
-	if(!update_actually_on(intended_on))
-		balloon_alert(user, "[src] is dry!")
-		return FALSE
-
-	balloon_alert(user, "turned [intended_on ? "on" : "off"]")
+	on = !on
+	update_appearance()
+	handle_mist()
+	add_fingerprint(user)
+	if(on)
+		begin_processing()
+		process()
+		soundloop.start()
+	else
+		soundloop.stop()
+		var/turf/simulated/tile = loc
+		if(istype(tile) && !tile.density)
+			tile.MakeSlippery(TURF_WET_WATER, min_wet_time = 5 SECONDS, wet_time_to_add = 1 SECONDS)
+		for(var/mob/living/carbon/showerer in loc)
+			showerer.remove_status_effect(/datum/status_effect/washing_regen)
 	return TRUE
 
 /obj/machinery/shower/attackby(obj/item/I, mob/user, params)
@@ -547,7 +522,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 
 /obj/machinery/shower/welder_act(mob/user, obj/item/I)
 	. = TRUE
-	if(actually_on)
+	if(on)
 		to_chat(user, span_warning("Turn [src] off before you attempt to cut it loose."))
 		return
 	if(!I.tool_use_check(user, 0))
@@ -566,20 +541,9 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 		transfer_prints_to(shower, TRUE)
 		qdel(src)
 
-/obj/machinery/shower/multitool_act(mob/living/user, obj/item/tool)
-	. = ..()
-	if(.)
-		return
-
-	tool.play_tool_sound(src)
-	mode = (mode + 1) % SHOWER_MODE_COUNT
-	begin_processing()
-	to_chat(user, span_notice("You change the shower's auto shut-off mode to [GLOB.shower_mode_descriptions[mode]]."))
-	return TRUE
-
 /obj/machinery/shower/update_overlays()
 	. = ..()
-	if(!actually_on)
+	if(!on)
 		return
 	var/mutable_appearance/water_falling = mutable_appearance(icon, "water", ABOVE_MOB_LAYER, appearance_flags = KEEP_APART)
 	water_falling.color = mix_color_from_reagents(reagents.reagent_list)
@@ -605,27 +569,27 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 	// If there is no mist, and the shower was turned on (on a non-freezing temp): make mist in 5 seconds
 	// If there was already mist, and the shower was turned off (or made cold): remove the existing mist in 25 sec
 	var/obj/effect/mist/mist = locate() in loc
-	if(!mist && actually_on && current_temperature != SHOWER_FREEZING)
+	if(!mist && on && current_temperature != SHOWER_FREEZING)
 		addtimer(CALLBACK(src, PROC_REF(make_mist)), 5 SECONDS)
 
-	if(mist && (!actually_on || current_temperature == SHOWER_FREEZING))
+	if(mist && (!on || current_temperature == SHOWER_FREEZING))
 		addtimer(CALLBACK(src, PROC_REF(clear_mist)), 25 SECONDS)
 
 /obj/machinery/shower/proc/make_mist()
 	var/obj/effect/mist/mist = locate() in loc
-	if(!mist && actually_on && current_temperature != SHOWER_FREEZING)
+	if(!mist && on && current_temperature != SHOWER_FREEZING)
 		var/obj/effect/mist/new_mist = new /obj/effect/mist(loc)
 		new_mist.color = mix_color_from_reagents(reagents.reagent_list)
 
 /obj/machinery/shower/proc/clear_mist()
 	var/obj/effect/mist/mist = locate() in loc
-	if(mist && (!actually_on || current_temperature == SHOWER_FREEZING))
+	if(mist && (!on || current_temperature == SHOWER_FREEZING))
 		qdel(mist)
 
 /obj/machinery/shower/proc/on_entered(datum/source, atom/movable/enterer)
 	SIGNAL_HANDLER
 
-	if(actually_on && reagents.total_volume)
+	if(on && reagents.total_volume)
 		expose_to_reagents(enterer)
 
 /obj/machinery/shower/proc/on_exited(datum/source, atom/movable/exiter)
@@ -667,64 +631,9 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 		if(SHOWER_FREEZING)
 			return SHOWER_FREEZING_TEMP
 
-/**
- * Toggle whether shower is actually on and outputting water.
- * May not match what user asked to happen by clicking.
- * Returns TRUE if the state was changed.
- *
- * Arguments:
- * * new_on_state - new state
- */
-/obj/machinery/shower/proc/update_actually_on(new_on_state)
-	if(new_on_state == actually_on)
-		return FALSE
-
-	// Check if we have enough reagents to actually turn on.
-	if(new_on_state && reagents.total_volume < SHOWER_SPRAY_VOLUME)
-		return FALSE
-
-	actually_on = new_on_state
-
-	update_appearance()
-	handle_mist()
-	if(new_on_state)
-		begin_processing()
-		soundloop.start()
-		COOLDOWN_START(src, wash_cooldown, SHOWER_TIMED_LENGTH)
-	else
-		soundloop.stop()
-		var/turf/simulated/tile = loc
-		if(istype(tile) && tile.density)
-			tile.MakeSlippery(TURF_WET_WATER, min_wet_time = 5 SECONDS, wet_time_to_add = 1 SECONDS)
-		for(var/mob/living/carbon/showerer in loc)
-			showerer.remove_status_effect(/datum/status_effect/washing_regen)
-	return TRUE
-
 /obj/machinery/shower/process(seconds_per_tick)
-	// the TIMED mode cutoff feature. User has to manually reactivate.
-	if(intended_on && mode == SHOWER_MODE_TIMED && COOLDOWN_FINISHED(src, wash_cooldown))
-		// the TIMED mode cutoff feature. User has to manually reactivate.
-		intended_on = FALSE
-
-	// Out of water.
-	if(actually_on && reagents.total_volume < SHOWER_SPRAY_VOLUME)
-		update_actually_on(FALSE)
-
-		// Don't turn back on.
-		if(mode != SHOWER_MODE_FOREVER)
-			intended_on = FALSE
-	else
-		// Cycle: update_actually_on() will only change state if appropriate.
-		update_actually_on(intended_on)
-
-	// Reclaim water
-	if(!actually_on)
-		if(has_water_reclaimer && reagents.total_volume < reagents.maximum_volume)
-			reagents.add_reagent(reagent_id, refill_rate * seconds_per_tick)
-			return 0
-
-		// FOREVER mode stays processing so it can cycle back on.
-		return mode == SHOWER_MODE_FOREVER ? 0 : PROCESS_KILL
+	if(!on)
+		return PROCESS_KILL
 	// Assemble cleaning flags
 	var/purity_volume = reagents.total_volume * 0.70 	// need 70% of total reagents
 	var/datum/reagent/water/clean_shower = reagents.has_reagent(/datum/reagent/water, amount=purity_volume)
@@ -749,7 +658,6 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 	expose_to_reagents(loc)
 	for(var/atom/movable/movable_content as anything in loc)
 		expose_to_reagents(movable_content) // Wash the items on the turf (=expose them to the shower reagent)
-	reagents.remove_all(SHOWER_SPRAY_VOLUME)
 
 /obj/machinery/shower/proc/check_heat(mob/M)
 	if(current_temperature == SHOWER_NORMAL)
@@ -772,11 +680,6 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 #undef SHOWER_BOILING_TEMP
 #undef SHOWER_SPRAY_VOLUME
 #undef SHOWER_EXPOSURE_MULTIPLIER
-#undef SHOWER_TIMED_LENGTH
-#undef SHOWER_MODE_UNTIL_EMPTY
-#undef SHOWER_MODE_TIMED
-#undef SHOWER_MODE_FOREVER
-#undef SHOWER_MODE_COUNT
 
 
 /obj/item/bikehorn/rubberducky
@@ -794,6 +697,8 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 	icon_state = "captain_rubberducky"
 	item_state = "captain_rubberducky"
 
+#define SINK_WASH_VOLUME 5
+
 /obj/structure/sink
 	name = "sink"
 	icon = 'icons/obj/watercloset.dmi'
@@ -803,29 +708,16 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/shower, (16), (16))
 	var/busy = 0	//Something's being washed at the moment
 	var/can_move = 1	//if the sink can be disconnected and moved
 	var/can_rotate = 1	//if the sink can be rotated to face alternate directions
-	///Capacity of this sink
-	var/capacity = 100
 	///What kind of reagent is produced by this sink by default? (We now have actual plumbing, Arcane, August 2020)
 	var/dispensedreagent = /datum/reagent/water
-	///Does the sink have a water recycler to recollect its water supply?
-	var/has_water_reclaimer = TRUE
-	///Units of water to reclaim per second
-	var/reclaim_rate = 0.5
 
 MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink, (SHIFTING_SINK), (SHIFTING_SINK))
 
 /obj/structure/sink/Initialize(mapload)
 	. = ..()
-	create_reagents(capacity)
-	if(has_water_reclaimer)
-		reagents.add_reagent(dispensedreagent, capacity)
+	create_reagents(SINK_WASH_VOLUME)
+	reagents.add_reagent(dispensedreagent, SINK_WASH_VOLUME)
 	register_context()
-
-/obj/structure/sink/examine(mob/user)
-	. = ..()
-	if(has_water_reclaimer)
-		. += span_notice("A water recycler is installed. It looks like you could pry it out.")
-	. += span_notice("[reagents.total_volume]/[reagents.maximum_volume] liquids remaining.")
 
 /obj/structure/sink/add_context(atom/source, list/context, obj/item/held_item, mob/living/user)
 	. = NONE
@@ -882,9 +774,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink, (SHIFTING_SINK), (SHIFTING_SINK
 
 	busy = FALSE
 
-	reagents.reaction(user, REAGENT_TOUCH, 5 / max(reagents.total_volume, 5))
-	reagents.remove_all(5)
-	START_PROCESSING(SSobj, src)
+	reagents.reaction(user, REAGENT_TOUCH, SINK_WASH_VOLUME / max(reagents.total_volume, SINK_WASH_VOLUME))
 
 	user.visible_message(span_notice("[user] помыл[GEND_A_O_I(user)] [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."), \
 						span_notice("Вы помыли [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."))
@@ -927,24 +817,16 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink, (SHIFTING_SINK), (SHIFTING_SINK
 
 	if(is_reagent_container(I))
 		var/obj/item/reagent_containers/container = I
-		if(!reagents.total_volume)
-			to_chat(user, span_notice("\The [src] is dry."))
-			return ATTACK_CHAIN_PROCEED
 		if(container.is_refillable())
 			if(!container.reagents.holder_full())
-				reagents.trans_to(container, container.amount_per_transfer_from_this)
-				START_PROCESSING(SSobj, src)
+				container.reagents.add_reagent(dispensedreagent, container.amount_per_transfer_from_this)
 				to_chat(user, span_notice("You fill [container] from [src]."))
 				return ATTACK_CHAIN_PROCEED_SUCCESS
 			to_chat(user, span_notice("\The [container] is full."))
 			return ATTACK_CHAIN_PROCEED
 
 	if(istype(I, /obj/item/mop) || astype(I, /obj/item/rag)?.blood_level == 0)
-		if(!reagents.total_volume)
-			to_chat(user, span_notice("\The [src] is dry."))
-			return ATTACK_CHAIN_PROCEED
-		reagents.trans_to(I, 5)
-		START_PROCESSING(SSobj, src)
+		I.reagents.add_reagent(dispensedreagent, SINK_WASH_VOLUME)
 		to_chat(user, span_notice("You wet [I] in [src]."))
 		playsound(loc, 'sound/effects/slosh.ogg', 25, TRUE)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
@@ -958,9 +840,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink, (SHIFTING_SINK), (SHIFTING_SINK
 
 	var/wateract = I.wash_tg(CLEAN_WASH)
 	busy = FALSE
-	reagents.reaction(I, REAGENT_TOUCH, 5 / max(reagents.total_volume, 5))
-	reagents.remove_all(5)
-	START_PROCESSING(SSobj, src)
+	reagents.reaction(I, REAGENT_TOUCH, SINK_WASH_VOLUME / max(reagents.total_volume, SINK_WASH_VOLUME))
 	if(wateract)
 		I.water_act(20, COLD_WATER_TEMPERATURE, src)
 
@@ -1031,13 +911,6 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink, (SHIFTING_SINK), (SHIFTING_SINK
 		pixel_y = 0
 		layer = OBJ_LAYER
 
-/obj/structure/sink/process(seconds_per_tick)
-	// Water reclamation complete?
-	if(!has_water_reclaimer || reagents.holder_full())
-		return PROCESS_KILL
-
-	reagents.add_reagent(dispensedreagent, reclaim_rate * seconds_per_tick)
-
 /obj/structure/sink/kitchen
 	name = "kitchen sink"
 	icon_state = "sink_alt"
@@ -1058,7 +931,6 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink/kitchen, (SHIFTING_SINK_KITCHEN)
 	can_move = 0
 	can_rotate = 0
 	resistance_flags = UNACIDABLE
-	has_water_reclaimer = FALSE
 
 /obj/structure/sink/puddle/get_ru_names()
 	return alist(
@@ -1072,8 +944,6 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink/kitchen, (SHIFTING_SINK_KITCHEN)
 
 /obj/structure/sink/puddle/Initialize(mapload)
 	. = ..()
-	if(!has_water_reclaimer)
-		reagents.add_reagent(dispensedreagent, capacity)
 	var/static/list/loc_connections = list(
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
@@ -1122,6 +992,8 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sink/kitchen, (SHIFTING_SINK_KITCHEN)
 		to_chat(l_target, span_warning("Вы насквозь промокли!"))
 
 	target.wash_tg(CLEAN_WASH)
+
+#undef SINK_WASH_VOLUME
 
 //////////////////////////////////
 //		Bathroom Fixture Items	//

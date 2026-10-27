@@ -43,8 +43,8 @@
 			context[SCREENTIP_CONTEXT_ALT_LMB] = "[has_lid ? "Снять" : "Надеть"] крышку"
 			. = CONTEXTUAL_SCREENTIP_SET
 		if(has_variable_transfer_amount)
-			context[SCREENTIP_CONTEXT_LMB] = "Перемещать больше"
-			context[SCREENTIP_CONTEXT_RMB] = "Перемещать меньше"
+			context[SCREENTIP_CONTEXT_LMB] = "Выбрать объём перемещения"
+			context[SCREENTIP_CONTEXT_RMB] = "Выбрать объём перемещения"
 			. = CONTEXTUAL_SCREENTIP_SET
 
 /obj/item/reagent_containers/cup/add_item_context(obj/item/source, list/context, atom/target, mob/living/user)
