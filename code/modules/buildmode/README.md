@@ -76,6 +76,17 @@ Existing varieties:
 
 		Delete the object.
 
++ Builder (Build Panel)
+
+	Select **Панель строительства** in the mode selector to open the categorized TGUI browser. Search matches names and type paths in the current category; results are paginated. Right click the mode selector to reopen the panel.
+
+	+ *Left click a location*: place the selected type.
+	+ *Alt+Left click an atom*: select its type without copying its edited variables.
+	+ *Right click*: clear the selection.
+	+ *Alt+Right click an object*: delete it.
+
+	The translucent preview follows the cursor. Direction can be changed through the panel or the HUD direction selector. Pixel positioning is available for objects and mobs; in this mode Alt+click opens a list of targets on the selected tile.
+
 + Fill
 
 	**Description**:
