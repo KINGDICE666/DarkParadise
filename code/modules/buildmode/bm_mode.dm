@@ -5,6 +5,8 @@
 
 /datum/buildmode_mode
 	var/key = "oops"
+	var/button_icon_state
+	var/button_name
 
 	var/datum/click_intercept/buildmode/BM
 
@@ -30,7 +32,7 @@
 	return
 
 /datum/buildmode_mode/proc/get_button_iconstate()
-	return "buildmode_[key]"
+	return button_icon_state || "buildmode_[key]"
 
 /datum/buildmode_mode/proc/show_help(mob/user)
 	CRASH("No help defined, yell at a coder")

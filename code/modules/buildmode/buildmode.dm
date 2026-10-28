@@ -145,6 +145,7 @@
 	build_dir = newdir
 	close_dirswitch()
 	dirbutton.update_icon()
+	SEND_SIGNAL(src, COMSIG_BUILDMODE_DIRECTION_CHANGED)
 	return TRUE
 
 /datum/click_intercept/buildmode/InterceptClickOn(user, params, atom/object)

@@ -15,6 +15,7 @@
 #define COMSIG_QDELETING "parent_qdeleting"
 /// generic topic handler (usr, href_list)
 #define COMSIG_TOPIC "handle_topic"
+#define COMSIG_BUILDMODE_DIRECTION_CHANGED "buildmode_direction_changed"
 /// handler for vv_do_topic (usr, href_list)
 #define COMSIG_VV_TOPIC "vv_topic"
 	#define COMPONENT_VV_HANDLED (1<<0)

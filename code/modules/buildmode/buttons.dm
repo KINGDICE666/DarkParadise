@@ -58,8 +58,8 @@
 
 /atom/movable/screen/buildmode/modeswitch/New(bld, mt)
 	modetype = mt
-	icon_state = "buildmode_[initial(modetype.key)]"
-	name = initial(modetype.key)
+	icon_state = initial(modetype.button_icon_state) || "buildmode_[initial(modetype.key)]"
+	name = initial(modetype.button_name) || initial(modetype.key)
 	return ..(bld)
 
 /atom/movable/screen/buildmode/modeswitch/Click()
