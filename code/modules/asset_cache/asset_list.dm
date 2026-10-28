@@ -33,6 +33,7 @@ GLOBAL_LIST_EMPTY(asset_datums)
 
 	/// Whether or not this asset should be loaded in the "early assets" SS
 	var/early = FALSE
+	var/load_on_demand = FALSE
 
 	/// Whether or not this asset can be cached across rounds of the same commit under the `CACHE_ASSETS` config.
 	/// This is not a *guarantee* the asset will be cached. Not all asset subtypes respect this field, and the

@@ -39,6 +39,8 @@ SUBSYSTEM_DEF(assets)
 
 /datum/controller/subsystem/assets/proc/load_assets()
 	for(var/datum/asset/asset_type as anything in valid_subtypesof(/datum/asset))
+		if(asset_type::load_on_demand)
+			continue
 		load_asset_datum(asset_type)
 
 	transport.Initialize(cache)

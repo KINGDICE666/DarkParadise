@@ -65,6 +65,7 @@ GLOBAL_LIST_EMPTY(buildmode_items)
 
 /datum/asset/spritesheet_batched/buildmode
 	name = "buildmode"
+	load_on_demand = TRUE
 	ignore_dir_errors = TRUE
 
 /datum/asset/spritesheet_batched/buildmode/create_spritesheets()

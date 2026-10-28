@@ -1,12 +1,16 @@
 /datum/unit_test/buildmode_catalog
+	priority = TEST_PRE
 
 /datum/unit_test/buildmode_catalog/Run()
+	TEST_ASSERT_NULL(GLOB.asset_datums[/datum/asset/spritesheet_batched/buildmode], "Buildmode previews were loaded before opening the catalog.")
+	TEST_ASSERT(!length(GLOB.buildmode_items), "Buildmode catalog was populated during startup.")
 	var/list/categories = get_buildmode_categories()
 	TEST_ASSERT(length(categories), "Buildmode catalog is empty.")
 	TEST_ASSERT(categories == get_buildmode_categories(), "Buildmode catalog is rebuilt on every request.")
 	var/datum/asset/spritesheet_batched/buildmode/sheet = get_asset_datum(/datum/asset/spritesheet_batched/buildmode)
 	sheet.ensure_ready()
 	TEST_ASSERT(sheet.fully_generated, "Buildmode spritesheet generation did not finish.")
+	TEST_ASSERT(sheet == get_asset_datum(/datum/asset/spritesheet_batched/buildmode), "Buildmode previews are rebuilt on repeated requests.")
 	var/list/icon_paths = list()
 	for(var/list/category as anything in categories)
 		TEST_ASSERT(length(category["items"]), "Empty buildmode category: [category["name"]].")
