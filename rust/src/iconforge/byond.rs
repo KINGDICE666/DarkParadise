@@ -1,7 +1,19 @@
-use super::{gags, image_cache, spritesheet};
+use super::{gags, image_cache, previews, spritesheet};
 use crate::{error::catch_panic, jobs};
 use meowtonin::{byond_fn, ByondResult, ByondValue, ToByond};
 use tracy_full::frame;
+
+#[byond_fn]
+fn iconforge_previews_async(sprites: ByondValue) -> ByondResult<ByondValue> {
+    let sprites = sprites.get_string()?;
+    (jobs::start(
+        move || match catch_panic(|| previews::generate_previews(&sprites)) {
+            Ok(result) => result,
+            Err(error) => error.to_string(),
+        },
+    ) as f32)
+        .to_byond()
+}
 
 #[byond_fn]
 fn iconforge_generate(
