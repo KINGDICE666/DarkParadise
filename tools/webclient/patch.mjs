@@ -246,6 +246,12 @@ const STATUS_RULES = [
     min: 1,
   },
   {
+    name: 'screen objects extend the map by their screen_loc only, not their icon size',
+    pattern: /ofx = P\.max\(C\.JSDouble_methods\.ceil\$0\(t4\._width \/ \$\.me\.iconWidth\) - 1, 0\);\s*ofy = P\.max\(C\.JSDouble_methods\.ceil\$0\(t4\._height \/ \$\.me\.iconHeight\) - 1, 0\);/g,
+    replace: 'ofx = 0; ofy = 0;',
+    min: 1,
+  },
+  {
     name: 'apply map style classes to maptext',
     pattern: /(HtmlField\$2: function\(str, map\) \{\s*var [^;]+;)/g,
     replace: '$1 str = window.__dpMaptextHtml(str);',

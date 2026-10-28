@@ -133,7 +133,15 @@ notifications are coalesced, and all Topic messages are held to 6 per second so
 the startup burst stays under the world's per-second Topic limit.
 
 The stock web client predates BYOND 515: `TOP`, `BOTTOM`, `LEFT` and `RIGHT` in
-`screen_loc` are translated to compass keywords. DD 516 flattens maptext styles
+`screen_loc` are translated to compass keywords, and a bare `CENTER` becomes
+`CENTER,CENTER` (the stock parser leaves it at 0,0, which grew the map by a tile).
+Like DreamSeeker, screen objects extend the map by their `screen_loc` alone; their
+icon size no longer adds empty tiles around the view.
+
+TGUI's `DmIcon` requests `[0xc…]?state=&dir=&frame=&movement=`, which DreamSeeker
+answers itself. DD only redirects such a ref to its internal `/cache/<crc>` with the
+whole DMI. The gateway resolves the ref through DD, cuts the requested frame with
+`dmi.mjs` and returns a PNG; decoded sheets and frames are cached. DD 516 flattens maptext styles
 for the web client and drops classes and `-dm-text-outline`, so the map style's
 `.maptext` rule is applied as the base of every maptext except legacy `<font
 face>` text; fully transparent colors fall back to that rule. A span with only

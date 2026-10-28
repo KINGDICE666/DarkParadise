@@ -428,6 +428,9 @@ test('screen edges from BYOND 515 map to the web client compass keywords', () =>
   assert.equal(window.__dpScreenLoc('BOTTOMLEFT to TOPRIGHT'), 'SOUTHWEST to NORTHEAST');
   assert.equal(window.__dpScreenLoc('map2:LEFT+1,BOTTOM'), 'map2:WEST+1,SOUTH');
   assert.equal(window.__dpScreenLoc('EAST-3,CENTER:140'), 'EAST-3,CENTER:140');
+  assert.equal(window.__dpScreenLoc('CENTER'), 'CENTER,CENTER');
+  assert.equal(window.__dpScreenLoc('map2:CENTER'), 'map2:CENTER,CENTER');
+  assert.equal(window.__dpScreenLoc('CENTER:5'), 'CENTER:5');
 });
 
 test('maptext uses the map style classes and ignores transparent colors', () => {

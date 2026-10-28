@@ -374,6 +374,7 @@
   const screenEdges = { TOPLEFT: 'NORTHWEST', TOPRIGHT: 'NORTHEAST', BOTTOMLEFT: 'SOUTHWEST', BOTTOMRIGHT: 'SOUTHEAST', TOP: 'NORTH', BOTTOM: 'SOUTH', LEFT: 'WEST', RIGHT: 'EAST' };
   window.__dpScreenLoc = function (loc) {
     if (typeof loc !== 'string') return loc;
+    loc = loc.replace(/^(\s*(?:[^:,]+:)?\s*)CENTER\s*$/, '$1CENTER,CENTER');
     return loc.replace(/\b(TOPLEFT|TOPRIGHT|BOTTOMLEFT|BOTTOMRIGHT|TOP|BOTTOM|LEFT|RIGHT)\b/g, function (word) { return screenEdges[word]; });
   };
 
