@@ -136,7 +136,9 @@ The stock web client predates BYOND 515: `TOP`, `BOTTOM`, `LEFT` and `RIGHT` in
 `screen_loc` are translated to compass keywords. DD 516 flattens maptext styles
 for the web client and drops classes and `-dm-text-outline`, so the map style's
 `.maptext` rule is applied as the base of every maptext except legacy `<font
-face>` text; fully transparent colors fall back to it, percent sizes are taken
+face>` text; fully transparent colors fall back to that rule. A span with only
+a class arrives without its styles, so maptext alignment must be an inline
+`text-align` (runechat keeps `center` inline for this reason). Percent sizes are taken
 from 10pt as DD writes them, outlines are stroked, and lines are spaced by the
 font height. Maptext overlays are placed from the bottom-left of their icon with
 `maptext_x/y`. Font resources are still preloaded so maptext fonts register. Stat panel
