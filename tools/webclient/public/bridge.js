@@ -157,6 +157,20 @@
     else frame.addEventListener('load', apply, { once: true });
     return true;
   }
+  const physicalKeyCodes = { Backquote: 192, Minus: 189, Equal: 187, BracketLeft: 219, BracketRight: 221, Backslash: 220, Semicolon: 186, Quote: 222, Comma: 188, Period: 190, Slash: 191, IntlBackslash: 226 };
+  window.__dpLatinKeyCode = function (event) {
+    if (typeof event.key !== 'string' || event.key.length !== 1 || event.key.charCodeAt(0) < 128) return;
+    const code = typeof event.code === 'string' ? event.code : '';
+    const keyCode = /^Key[A-Z]$/.test(code) ? code.charCodeAt(3) : /^Digit\d$/.test(code) ? code.charCodeAt(5) : physicalKeyCodes[code];
+    if (!keyCode || event.keyCode === keyCode) return;
+    Object.defineProperty(event, 'keyCode', { value: keyCode });
+    Object.defineProperty(event, 'which', { value: keyCode });
+  };
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('keydown', window.__dpLatinKeyCode, true);
+    window.addEventListener('keyup', window.__dpLatinKeyCode, true);
+  }
+
   let directTopic = false;
   const keyCommand = /^key(down|up)\s+("(?:[^"\\]|\\.)*"|\S+)((?:\s+-?\d+){0,4})\s*$/i;
   function sendKeyTopic(client, command) {

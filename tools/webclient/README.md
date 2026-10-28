@@ -26,8 +26,10 @@ engine code. Guest IDs are salted per ticket so clients behind the gateway do
 not share the engine's default IP-derived guest key and CID.
 
 On 516.1682 a late Hub reply can otherwise disconnect an admitted local guest
-with quit code 1 after several minutes. The close guard applies only to the
-verified Hub return address, that quit reason, and an intact web connection
+with quit code 1 after several minutes. The engine closes it from the Hub request
+callback dispatcher (`call *%eax` returning to `+0x46eea9`), not from the Hub reply
+handler that calls the dispatcher. The close guard applies only to that
+verified return address, that quit reason, and an intact web connection
 whose stored token came from the local ticket admission path. Other tokens,
 callers and disconnect reasons retain the original behavior. The guard's engine
 instructions are checked before installation, like the other hooks.

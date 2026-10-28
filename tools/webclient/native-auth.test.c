@@ -32,14 +32,14 @@ int main(void) {
     connection_data[0x26] = 4;
     *(const char **)(connection_data + test_build.token_offset) = "dpweb-v1:0123456789abcdef0123456789abcdef";
 
-    unsigned char code[] = {0x6a, 0, 0x6a, 1, 0x6a, 0, 0xe8, 0, 0, 0, 0, 0x83, 0xc4, 12, 0xc3};
+    unsigned char code[] = {0x6a, 0, 0x6a, 1, 0x6a, 0, 0xb8, 0, 0, 0, 0, 0xff, 0xd0, 0x83, 0xc4, 12, 0xc3};
     unsigned char *hub = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     assert(hub != MAP_FAILED);
     memcpy(hub, code, sizeof(code));
-    int32_t relative = (intptr_t)hub_close_connection - (intptr_t)(hub + 11);
-    memcpy(hub + 7, &relative, sizeof(relative));
+    uint32_t callback = (uintptr_t)hub_close_connection;
+    memcpy(hub + 7, &callback, sizeof(callback));
     assert(mprotect(hub, 4096, PROT_READ | PROT_EXEC) == 0);
-    test_build.hub_reply_return = (uintptr_t)(hub + 11);
+    test_build.hub_reply_return = (uintptr_t)(hub + 13);
     void (*reply)(void) = (void *)hub;
 
     reply();

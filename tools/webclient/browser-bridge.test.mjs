@@ -434,6 +434,22 @@ test('screen edges from BYOND 515 map to the web client compass keywords', () =>
   assert.equal(window.__dpScreenLoc('CENTER: 16,SOUTH+1:5'), 'CENTER:16,SOUTH+1:5');
 });
 
+test('non-Latin layouts send the key code of the physical key', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams });
+  const press = (key, code, keyCode) => {
+    const event = { key, code, keyCode, which: keyCode };
+    window.__dpLatinKeyCode(event);
+    return [event.keyCode, event.which];
+  };
+  assert.deepEqual(press('ф', 'KeyA', 0), [65, 65]);
+  assert.deepEqual(press('ц', 'KeyW', 1062), [87, 87]);
+  assert.deepEqual(press('б', 'Comma', 0), [188, 188]);
+  assert.deepEqual(press('"', 'Digit2', 50), [50, 50]);
+  assert.deepEqual(press('a', 'KeyA', 65), [65, 65]);
+  assert.deepEqual(press('Enter', 'Enter', 13), [13, 13]);
+});
+
 test('maptext uses the map style classes and ignores transparent colors', () => {
   const span = () => ({
     classList: ['maptext'], attributes: { class: 'maptext', style: 'color:rgba(0,0,0,0.000);text-align:center' },

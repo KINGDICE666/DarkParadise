@@ -42,7 +42,7 @@ static const struct engine_build builds[] = {
         0x3f2b80, 0x3f2101, {0xe8, 0x9a, 0x09, 0xef, 0xff},
         0x405c60, 0x3f1e90, 0x3412d0, 0x407e10, 0x4aa440, 0x2e2aa0, 0x2f8,
         0x45f5f9, 0x45f6d6, 0x480450, 0x480530,
-        0x46f119,
+        0x46eea9,
     },
     {
         "516.1688",
@@ -69,15 +69,18 @@ static __thread struct { const char *text; } guest_seed_entry;
 
 static void hub_close_connection(unsigned short id, int reason, int extra) {
     uintptr_t caller = (uintptr_t)__builtin_return_address(0);
-    if (reason == 1 && caller == engine_base + build->hub_reply_return) {
+    if (reason == 1) {
         unsigned char *connection = find_connection(id);
-        if (connection && (connection[0x26] & 4) && connection_guard(connection, 0)) {
-            const char *token = *(const char **)(connection + build->token_offset);
-            if (token && !strncmp(token, "dpweb-v1:", 9)) {
-                fprintf(stderr, "[web-auth] ignored late hub reply for admitted local guest\n");
-                return;
-            }
+        const char *token = connection && (connection[0x26] & 4) && connection_guard(connection, 0)
+            ? *(const char **)(connection + build->token_offset) : NULL;
+        int local_guest = token && !strncmp(token, "dpweb-v1:", 9);
+        if (local_guest && caller == engine_base + build->hub_reply_return) {
+            fprintf(stderr, "[web-auth] ignored late hub reply for admitted local guest\n");
+            return;
         }
+        fprintf(stderr, "[web-auth] connection closed with reason 1 from +0x%lx%s\n",
+            (unsigned long)(caller - engine_base), local_guest ? " (local guest)" : "");
+        fflush(stderr);
     }
     close_connection(id, reason, extra);
 }
@@ -269,7 +272,7 @@ static const char *install_adapter(const char *socket_path) {
     unsigned char *target = (void *)(engine_base + build->key_message);
     unsigned char *seed_target = (void *)(engine_base + build->seed_call);
     unsigned char *close_target = (void *)(engine_base + build->close_connection);
-    const unsigned char hub_call[] = {0xe8, 0x27, 0xfd, 0xff, 0xff, 0x83, 0xc4, 0x10};
+    const unsigned char hub_call[] = {0x8b, 0x45, 0xd0, 0xff, 0xd0, 0x83, 0xc4, 0x10};
     if (memcmp(target, preamble, 5) || memcmp(seed_target, build->seed_bytes, 5) ||
         (build->hub_reply_return && (memcmp(close_target, preamble, 5) ||
             memcmp((void *)(engine_base + build->hub_reply_return - 5), hub_call, sizeof(hub_call)))) ||
