@@ -176,10 +176,28 @@
 	begin_sound = 'sound/surgery/organ2.ogg'
 	fail_sound = 'sound/effects/meatslap.ogg'
 	allowed_tools = list(/obj/item/organ/external = 100)
+	accept_any_item = TRUE
 
 	time = 3.2 SECONDS
 
+/datum/surgery_step/limb/attach/tool_check(mob/user, obj/item/tool)
+	return isexternalorgan(tool) || !(tool.item_flags & ABSTRACT) && user.can_unEquip(tool)
+
 /datum/surgery_step/limb/attach/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	if(!isexternalorgan(tool))
+		if(!(target_zone in list(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND)))
+			user.balloon_alert(user, "предмет только вместо кисти!")
+			return SURGERY_BEGINSTEP_ABORT
+		var/arm_zone = target_zone == BODY_ZONE_PRECISE_L_HAND ? BODY_ZONE_L_ARM : BODY_ZONE_R_ARM
+		if(target.get_organ(target_zone) || !target.get_organ(arm_zone) || !target.dna.species.has_limbs[target_zone])
+			user.balloon_alert(user, "некуда пришивать!")
+			return SURGERY_BEGINSTEP_ABORT
+		user.visible_message(
+			span_notice("[user] начина[PLUR_ET_YUT(user)] пришивать [tool.declent_ru(ACCUSATIVE)] вместо [GLOB.body_zone[target_zone][GENITIVE]] [target]."),
+			span_notice("Вы начинаете пришивать [tool.declent_ru(ACCUSATIVE)] вместо [GLOB.body_zone[target_zone][GENITIVE]] [target]."),
+			chat_message_type = MESSAGE_TYPE_COMBAT
+		)
+		return ..()
 	var/obj/item/organ/external/bodypart = tool
 	if(target.get_organ(bodypart.limb_zone))
 		// This catches attaching an arm to a missing hand while the arm is still there
@@ -211,6 +229,28 @@
 	return ..()
 
 /datum/surgery_step/limb/attach/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	if(!isexternalorgan(tool))
+		var/arm_zone = target_zone == BODY_ZONE_PRECISE_L_HAND ? BODY_ZONE_L_ARM : BODY_ZONE_R_ARM
+		var/hand_slot = target_zone == BODY_ZONE_PRECISE_L_HAND ? ITEM_SLOT_HAND_LEFT : ITEM_SLOT_HAND_RIGHT
+		if(target.get_organ(target_zone) || !target.get_organ(arm_zone) || target.get_item_by_slot(hand_slot))
+			user.balloon_alert(user, "некуда пришивать!")
+			return SURGERY_STEP_INCOMPLETE
+		if(!user.temporarily_remove_item_from_inventory(tool))
+			return SURGERY_STEP_INCOMPLETE
+		var/hand_type = target_zone == BODY_ZONE_PRECISE_L_HAND ? /obj/item/organ/external/hand/item : /obj/item/organ/external/hand/item/right
+		var/obj/item/organ/external/hand/item/hand = new hand_type(target, special = ORGAN_MANIPULATION_DEFAULT, attached_item = tool)
+		if(QDELETED(hand))
+			return SURGERY_STEP_INCOMPLETE
+		hand.properly_attached = FALSE
+		user.visible_message(
+			span_notice("[user] пришива[PLUR_ET_YUT(user)] [tool.declent_ru(ACCUSATIVE)] вместо [GLOB.body_zone[target_zone][GENITIVE]] [target]."),
+			span_notice("Вы пришиваете [tool.declent_ru(ACCUSATIVE)] вместо [GLOB.body_zone[target_zone][GENITIVE]] [target]."),
+			chat_message_type = MESSAGE_TYPE_COMBAT
+		)
+		target.update_body()
+		target.updatehealth()
+		target.UpdateDamageIcon()
+		return SURGERY_STEP_CONTINUE
 	var/obj/item/organ/external/bodypart = tool
 	user.visible_message(
 		span_notice("[user] присоединя[PLUR_ET_YUT(user)] присоединять [bodypart.declent_ru(ACCUSATIVE)] к [bodypart.amputation_point] [target]."),
@@ -222,9 +262,10 @@
 
 /datum/surgery_step/limb/attach/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/bodypart = tool
+	var/amputation_point = isexternalorgan(bodypart) ? bodypart.amputation_point : GLOB.body_zone[target_zone][ACCUSATIVE]
 	user.visible_message(
-		span_warning("[user] дёрга[PLUR_ET_YUT(user)] рукой, повреждая [bodypart.amputation_point] [target]!"),
-		span_warning("Вы дёргаете рукой, повреждая [bodypart.amputation_point] [target]!"),
+		span_warning("[user] дёрга[PLUR_ET_YUT(user)] рукой, повреждая [amputation_point] [target]!"),
+		span_warning("Вы дёргаете рукой, повреждая [amputation_point] [target]!"),
 		chat_message_type = MESSAGE_TYPE_COMBAT
 	)
 	target.apply_damage(10, BRUTE, null, sharp = TRUE)
@@ -250,6 +291,7 @@
 // THIS IS DISTINCT FROM USING A CYBORG LIMB TO CREATE A NEW LIMB ORGAN
 /datum/surgery_step/limb/attach/robo
 	name = "присоединить робо-конечность"
+	accept_any_item = FALSE
 
 /datum/surgery_step/limb/attach/robo/ipc_self
 	name = "самоприсоединение робо-конечности"
@@ -287,6 +329,9 @@
 
 /datum/surgery_step/limb/connect/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/bodypart = target.get_organ(target_zone)
+	if(!bodypart)
+		user.balloon_alert(user, "нечего присоединять!")
+		return SURGERY_BEGINSTEP_SKIP
 	user.visible_message(
 		span_notice("[user] начина[PLUR_ET_YUT(user)] соединять связки и мышцы в [bodypart.amputation_point] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы начинаете соединять связки и мышцы в [bodypart.amputation_point] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
@@ -296,6 +341,8 @@
 
 /datum/surgery_step/limb/connect/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/bodypart = target.get_organ(target_zone)
+	if(!bodypart)
+		return SURGERY_STEP_CONTINUE
 	user.visible_message(
 		span_notice("[user] соединя[PLUR_ET_YUT(user)] связки и мышцы в [bodypart.amputation_point] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
 		span_notice("Вы соединяете связки и мышцы в [bodypart.amputation_point] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
@@ -309,6 +356,8 @@
 
 /datum/surgery_step/limb/connect/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/bodypart = target.get_organ(target_zone)
+	if(!bodypart)
+		return SURGERY_STEP_CONTINUE
 	user.visible_message(
 		span_warning("[user] дёрга[PLUR_ET_YUT(user)] рукой, повреждая [bodypart.amputation_point] [target]!"),
 		span_warning("Вы дёргаете рукой, повреждая [bodypart.amputation_point] [target]!"),

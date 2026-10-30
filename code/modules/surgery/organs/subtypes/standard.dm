@@ -545,6 +545,110 @@
 		PREPOSITIONAL = "правой кисти",
 	)
 
+/obj/item/organ/external/hand/item
+	desc = "Место крепления предмета, пришитого вместо кисти."
+	cannot_break = TRUE
+	sterile = TRUE
+	max_bleeding_amount = 0
+	var/obj/item/attached_item
+
+/obj/item/organ/external/hand/item/Initialize(mapload, special = ORGAN_MANIPULATION_NOEFFECT, obj/item/attached_item)
+	. = ..()
+	src.attached_item = attached_item
+	if(!owner || !attached_item)
+		return INITIALIZE_HINT_QDEL
+	ADD_TRAIT(attached_item, TRAIT_NODROP, UID())
+	RegisterSignal(attached_item, COMSIG_QDELETING, PROC_REF(on_item_lost))
+	RegisterSignal(attached_item, COMSIG_MOVABLE_MOVED, PROC_REF(on_item_moved))
+	RegisterSignal(attached_item, COMSIG_ITEM_PRE_UNEQUIP, PROC_REF(on_item_unequipping))
+	RegisterSignal(owner, COMSIG_HUMAN_EQUIPPING_ITEM, PROC_REF(on_equipping_item))
+	RegisterSignal(owner, COMSIG_GET_ICON_RENDER_KEY_INFO, PROC_REF(get_icon_render_key_info))
+	RegisterSignal(owner, COMSIG_ATOM_EXAMINE, PROC_REF(on_owner_examine))
+	var/equipped = limb_zone == BODY_ZONE_PRECISE_L_HAND ? owner.put_in_l_hand(attached_item, force = TRUE) : owner.put_in_r_hand(attached_item, force = TRUE)
+	if(!equipped)
+		return INITIALIZE_HINT_QDEL
+
+/obj/item/organ/external/hand/item/Destroy()
+	. = ..()
+	attached_item = null
+	return .
+
+/obj/item/organ/external/hand/item/get_icon(skeletal)
+	mob_icon = icon('icons/mob/human.dmi', "blank")
+	icon = mob_icon
+	return mob_icon
+
+/obj/item/organ/external/hand/item/remove(mob/living/carbon/human/user, special = ORGAN_MANIPULATION_DEFAULT, ignore_children = FALSE)
+	if(!owner)
+		return
+	UnregisterSignal(owner, list(COMSIG_HUMAN_EQUIPPING_ITEM, COMSIG_GET_ICON_RENDER_KEY_INFO, COMSIG_ATOM_EXAMINE))
+	var/obj/item/removed_item = attached_item
+	if(removed_item)
+		UnregisterSignal(removed_item, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED, COMSIG_ITEM_PRE_UNEQUIP))
+		REMOVE_TRAIT(removed_item, TRAIT_NODROP, UID())
+		attached_item = null
+	. = ..()
+	if(!QDELING(user))
+		user.recalculate_limbs_status()
+	if(!QDELETED(removed_item))
+		if(user.is_in_hands(removed_item))
+			user.drop_item_ground(removed_item, force = TRUE)
+		. = removed_item
+	if(!QDELING(src))
+		QDEL_IN(src, 0)
+
+/obj/item/organ/external/hand/item/proc/on_item_unequipping(obj/item/source)
+	SIGNAL_HANDLER
+	if(!QDELING(source))
+		return COMPONENT_ITEM_BLOCK_UNEQUIP_FORCE
+
+/obj/item/organ/external/hand/item/proc/on_item_moved(obj/item/source)
+	SIGNAL_HANDLER
+	if(source.loc != owner)
+		on_item_lost(source)
+
+/obj/item/organ/external/hand/item/proc/on_item_lost(obj/item/source)
+	SIGNAL_HANDLER
+	if(!owner)
+		return
+	var/mob/living/carbon/human/previous_owner = owner
+	remove(previous_owner, ORGAN_MANIPULATION_NOEFFECT)
+	previous_owner.update_body()
+	previous_owner.updatehealth()
+	previous_owner.UpdateDamageIcon()
+
+/obj/item/organ/external/hand/item/proc/on_equipping_item(mob/living/carbon/human/source, obj/item/equip_target, slot)
+	SIGNAL_HANDLER
+	if(equip_target == attached_item)
+		return COMPONENT_BLOCK_EQUIP
+
+/obj/item/organ/external/hand/item/proc/get_icon_render_key_info(mob/living/carbon/human/source, list/info)
+	SIGNAL_HANDLER
+	info += "item_hand_[limb_zone]"
+
+/obj/item/organ/external/hand/item/proc/on_owner_examine(mob/living/carbon/human/source, mob/user, list/examine_list)
+	SIGNAL_HANDLER
+	examine_list += span_notice("Вместо [GLOB.body_zone[limb_zone][GENITIVE]] у [source] пришит предмет: [attached_item.declent_ru(NOMINATIVE)].")
+
+/obj/item/organ/external/hand/item/right
+	name = "right hand"
+	icon_name = "r_hand"
+	limb_zone = BODY_ZONE_PRECISE_R_HAND
+	limb_body_flag = HAND_RIGHT
+	parent_organ_zone = BODY_ZONE_R_ARM
+	amputation_point = "правое запястье"
+	paralysis_trait = TRAIT_PARALYSIS_R_ARM
+
+/obj/item/organ/external/hand/item/right/get_ru_names()
+	return alist(
+		NOMINATIVE = "правая кисть",
+		GENITIVE = "правой кисти",
+		DATIVE = "правой кисти",
+		ACCUSATIVE = "правую кисть",
+		INSTRUMENTAL = "правой кистью",
+		PREPOSITIONAL = "правой кисти",
+	)
+
 /obj/item/organ/external/head
 	name = "head"
 	desc = "Голова."
