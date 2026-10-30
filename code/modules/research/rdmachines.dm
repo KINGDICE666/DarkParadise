@@ -8,6 +8,7 @@
 	density = TRUE
 	anchored = TRUE
 	var/busy = 0
+	var/build_timer
 	var/hacked = 0
 	var/disabled = 0
 	var/shocked = 0
@@ -26,6 +27,10 @@
 	r_n_d_machine_wires = new wires_type(src)
 
 /obj/machinery/r_n_d/Destroy()
+	if(build_timer)
+		stop_building()
+		if(!QDELETED(linked_console))
+			linked_console.clear_wait_message()
 	if(loaded_item)
 		loaded_item.forceMove(get_turf(src))
 		loaded_item = null
@@ -33,6 +38,13 @@
 	materials = null
 	QDEL_NULL(r_n_d_machine_wires)
 	return ..()
+
+/obj/machinery/r_n_d/proc/stop_building()
+	if(!build_timer)
+		return
+	deltimer(build_timer)
+	build_timer = null
+	busy = FALSE
 
 /obj/machinery/r_n_d/multitool_act(mob/living/user, obj/item/tool)
 	if(panel_open)

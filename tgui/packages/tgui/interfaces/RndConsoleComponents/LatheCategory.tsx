@@ -70,6 +70,17 @@ export const LatheCategory = (properties) => {
                     </Button>
                   ) : null}
                 </Table.Cell>
+                <Table.Cell collapsing>
+                  {lathe && (
+                    <Button
+                      disabled={can_build < 1}
+                      tooltip={`Указать количество (максимум: ${can_build})`}
+                      onClick={() => act(action, { id, amount: 'custom' })}
+                    >
+                      Custom
+                    </Button>
+                  )}
+                </Table.Cell>
                 <Table.Cell>
                   {materials.map(({ name, amount, is_red }) => (
                     <>

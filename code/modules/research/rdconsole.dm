@@ -198,12 +198,15 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	LAZYCLEARLIST(matching_designs)
 	if(linked_destroy)
 		linked_destroy.linked_console = null
+		linked_destroy.stop_processing()
 		linked_destroy = null
 	if(linked_lathe)
 		linked_lathe.linked_console = null
+		linked_lathe.stop_building()
 		linked_lathe = null
 	if(linked_imprinter)
 		linked_imprinter.linked_console = null
+		linked_imprinter.stop_building()
 		linked_imprinter = null
 
 	if(wait_message_timer)
@@ -344,25 +347,41 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		to_chat(user, span_danger("[DECLENT_RU_CAP(linked_destroy, NOMINATIVE)] пуст!"))
 		return
 
-	var/list/temp_tech = linked_destroy.ConvertReqString2List(linked_destroy.loaded_item.origin_tech)
-	var/pointless = FALSE
-
-	for(var/T in temp_tech)
-		if(files.IsTechHigher(T, temp_tech[T]))
-			pointless = TRUE
+	var/loaded_item_uid = linked_destroy.loaded_item.UID()
+	var/has_new_tech = FALSE
+	for(var/obj/item/queued_item as anything in linked_destroy.item_queue)
+		var/list/item_tech = linked_destroy.ConvertReqString2List(queued_item.origin_tech)
+		for(var/tech_id in item_tech)
+			if(files.IsTechHigher(tech_id, item_tech[tech_id]))
+				has_new_tech = TRUE
+				break
+		if(has_new_tech)
 			break
 
-	if(!pointless)
-		var/choice = tgui_alert(usr, "Этот объект обладает нулевым технологическим потенциалом. Вы точно хотите его разобрать?", , list("Разобрать", "Отмена"))
-		if(choice == "Отмена" || !linked_destroy)
+	if(!has_new_tech)
+		var/choice = tgui_alert(user, "Предметы в очереди не дадут новых технологий. Вы точно хотите их разобрать?", , list("Разобрать", "Отмена"))
+		if(choice != "Разобрать")
 			return
 
-	linked_destroy.busy = TRUE
+	if(!linked_destroy || linked_destroy.busy || linked_destroy.loaded_item?.UID() != loaded_item_uid)
+		return
+	linked_destroy.processing_queue = linked_destroy.item_queue.Copy()
+	begin_destroyer_step(user, linked_destroy)
+
+/obj/machinery/computer/rdconsole/proc/begin_destroyer_step(mob/user, obj/machinery/r_n_d/destructive_analyzer/destroyer)
+	if(QDELETED(destroyer))
+		return
+	if(destroyer != linked_destroy || destroyer.linked_console != src || !is_operational() || !destroyer.is_operational() || destroyer.disabled || !length(destroyer.processing_queue))
+		destroyer.stop_processing()
+		return
+	destroyer.update_loaded_item()
+	var/list/temp_tech = destroyer.ConvertReqString2List(destroyer.loaded_item.origin_tech)
+	destroyer.busy = TRUE
 	var/deconstruct_delay = DECONSTRUCT_DELAY
-	flick("[linked_destroy.base_icon_state]_process", linked_destroy)
+	flick("[destroyer.base_icon_state]_process", destroyer)
 	add_wait_message("Разборка объекта и обновление базы данных...", deconstruct_delay)
 	playsound(loc, 'sound/machines/rnd_machines/destructor_scanning.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1, use_reverb = TRUE)
-	addtimer(CALLBACK(src, PROC_REF(finish_destroyer), temp_tech, user), deconstruct_delay)
+	destroyer.processing_timer = addtimer(CALLBACK(src, PROC_REF(finish_destroyer), temp_tech, WEAKREF(user), destroyer, destroyer.loaded_item.UID()), deconstruct_delay, TIMER_STOPPABLE)
 
 // Sends salvaged materials to a linked protolathe, if any.
 /obj/machinery/computer/rdconsole/proc/send_mats()
@@ -378,9 +397,17 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		var/can_insert = min(space, salvageable, available)
 		linked_lathe.materials.insert_amount(can_insert, material)
 
-/obj/machinery/computer/rdconsole/proc/finish_destroyer(list/temp_tech, mob/user)
+/obj/machinery/computer/rdconsole/proc/finish_destroyer(list/temp_tech, datum/weakref/user_ref, obj/machinery/r_n_d/destructive_analyzer/destroyer, loaded_item_uid)
 	clear_wait_message()
-	if(!linked_destroy || !temp_tech)
+	if(QDELETED(destroyer))
+		return
+	var/mob/user = user_ref?.resolve()
+	destroyer.processing_timer = null
+	if(destroyer != linked_destroy || destroyer.linked_console != src || !is_operational() || !destroyer.is_operational() || destroyer.disabled)
+		destroyer.stop_processing()
+		return
+	if(destroyer.loaded_item?.UID() != loaded_item_uid)
+		begin_destroyer_step(user, destroyer)
 		return
 
 	var/success = prob(100)
@@ -399,28 +426,38 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			linked_destroy.add_shared_particles(/particles/smoke)
 			addtimer(CALLBACK(linked_destroy, TYPE_PROC_REF(/atom/movable, remove_shared_particles), /particles/smoke), 3 SECONDS)
 		send_mats()
-		linked_destroy.loaded_item = null
 
-	for(var/obj/I in linked_destroy.contents)
-		for(var/mob/M in I.contents)
+	var/obj/item/loaded_item = linked_destroy.loaded_item
+	destroyer.processing_queue -= loaded_item
+	if(!QDELETED(loaded_item))
+		for(var/mob/M in loaded_item.contents)
 			M.death()
-		if(istype(I, /obj/item/stack/sheet))//Only deconstructs one sheet at a time instead of the entire stack
-			var/obj/item/stack/sheet/S = I
-			if(S.amount > 1)
-				S.amount--
-				linked_destroy.loaded_item = S
-			else
-				qdel(S)
-		else if(!(I in linked_destroy.component_parts))
-			qdel(I)
+		if(isstack(loaded_item))
+			var/obj/item/stack/loaded_stack = loaded_item
+			loaded_stack.use(1)
+		else
+			qdel(loaded_item)
 
-	linked_destroy.loaded_item = null
-	linked_destroy.busy = FALSE
-	linked_destroy.update_icon(UPDATE_ICON_STATE)
+	destroyer.busy = FALSE
+	destroyer.update_loaded_item()
 	use_power(DECONSTRUCT_POWER)
-	menu = MENU_MAIN
+	menu = MENU_DESTROY
 	submenu = SUBMENU_MAIN
+	if(length(destroyer.processing_queue))
+		begin_destroyer_step(user, destroyer)
 	SStgui.update_uis(src)
+
+/obj/machinery/computer/rdconsole/proc/get_max_build_amount(obj/machinery/r_n_d/machine, datum/design/design)
+	var/max_amount = istype(machine, /obj/machinery/r_n_d/circuit_imprinter) ? 1 : INFINITY
+	for(var/material in design.materials)
+		var/required_amount = design.materials[material] * machine.efficiency_coeff
+		if(required_amount > 0)
+			max_amount = min(max_amount, round(machine.materials.amount(material) / required_amount))
+	for(var/reagent in design.reagents_list)
+		var/required_amount = design.reagents_list[reagent] * machine.efficiency_coeff
+		if(required_amount > 0)
+			max_amount = min(max_amount, round(machine.reagents.get_reagent_amount(reagent) / required_amount))
+	return max_amount == INFINITY ? 1 : max(0, max_amount)
 
 /obj/machinery/computer/rdconsole/proc/start_machine(obj/machinery/r_n_d/machine, design_id, amount)
 	if(!machine)
@@ -462,8 +499,15 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	if(length(being_built.make_reagents)) // build_type should equal BIOGENERATOR though..
 		return
 
-	var/max_amount = is_lathe ? 10 : 1
-	amount = max(1, min(max_amount, amount))
+	var/max_amount = get_max_build_amount(machine, being_built)
+	if(max_amount < 1)
+		balloon_alert(usr, "недостаточно ресурсов!")
+		return
+	if(!isnum(amount))
+		amount = text2num(amount)
+	if(!isnum(amount) || amount < 1)
+		return
+	amount = min(max_amount, round(amount))
 	var/power = BUILD_POWER
 	for(var/M in being_built.materials)
 		power += round(being_built.materials[M] * amount / 5)
@@ -500,16 +544,16 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		enough_materials = FALSE
 	else
 		for(var/R in being_built.reagents_list)
-			if(!machine.reagents.has_reagent(R, being_built.reagents_list[R]) * coeff)
+			if(!machine.reagents.has_reagent(R, being_built.reagents_list[R] * coeff * amount))
 				balloon_alert_to_viewers("недостаточно реагентов для печати!")
 				enough_materials = FALSE
 
 	if(enough_materials)
 		machine.materials.use_amount(efficient_mats, amount)
 		for(var/R in being_built.reagents_list)
-			machine.reagents.remove_reagent(R, being_built.reagents_list[R] * coeff)
+			machine.reagents.remove_reagent(R, being_built.reagents_list[R] * coeff * amount)
 
-	addtimer(CALLBACK(src, PROC_REF(finish_machine), usr, amount, enough_materials, machine, being_built, coeff), time_to_construct)
+	machine.build_timer = addtimer(CALLBACK(src, PROC_REF(finish_machine), key_name_log(usr), amount, enough_materials, machine, being_built, coeff), time_to_construct, TIMER_STOPPABLE)
 
 	for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 		if(S.disabled)
@@ -519,16 +563,20 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if(istype(S, /obj/machinery/r_n_d/server/core) || istype(S, /obj/machinery/r_n_d/server/centcom))
 			S.add_usage_log(usr, being_built, machine)
 
-/obj/machinery/computer/rdconsole/proc/finish_machine(mob/user, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff)
-	if(machine)
+/obj/machinery/computer/rdconsole/proc/finish_machine(user_log, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff)
+	if(!QDELETED(machine))
+		machine.build_timer = null
 		if(enough_materials && being_built)
-			investigate_log("[key_name_log(user)] built [amount] of [being_built.build_path] via [machine].", INVESTIGATE_RESEARCH)
+			investigate_log("[user_log] built [amount] of [being_built.build_path] via [machine].", INVESTIGATE_RESEARCH)
 
 			var/locked = being_built.locked && !is_taipan(z)
 			for(var/i in 1 to amount)
+				CHECK_TICK
+				if(QDELETED(src) || QDELETED(machine))
+					break
 				var/obj/new_item = new being_built.build_path(src)
 				if(istype(new_item, /obj/item/storage/backpack/holding))
-					new_item.investigate_log("built by [key_name_log(user)]", INVESTIGATE_ENGINE)
+					new_item.investigate_log("built by [user_log]", INVESTIGATE_ENGINE)
 
 				if(isitem(new_item) && !istype(new_item, /obj/item/stack/sheet)) // To avoid materials dupe glitches
 					var/obj/item/new_item_item = new_item
@@ -559,12 +607,14 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				else
 					new_item.loc = machine.loc
 
-		machine.busy = FALSE
-	if(istype(machine, /obj/machinery/r_n_d/protolathe))
+		if(!QDELETED(machine))
+			machine.busy = FALSE
+	if(!QDELETED(machine) && istype(machine, /obj/machinery/r_n_d/protolathe))
 		playsound(machine.loc, 'sound/machines/rnd_machines/lathe_print.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1, use_reverb = TRUE)
 
-	clear_wait_message()
-	SStgui.update_uis(src)
+	if(!QDELETED(src))
+		clear_wait_message()
+		SStgui.update_uis(src)
 
 /obj/machinery/computer/rdconsole/ui_act(action, list/params)
 	if(..())
@@ -694,8 +744,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 				else if(linked_destroy.loaded_item)
 					linked_destroy.loaded_item.forceMove(linked_destroy.loc)
-					linked_destroy.loaded_item = null
-					linked_destroy.update_icon(UPDATE_ICON_STATE)
 					menu = MENU_DESTROY
 
 		if("maxresearch")
@@ -725,7 +773,20 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			sync = !sync
 
 		if("build") //Causes the Protolathe to build something.
-			start_machine(linked_lathe, params["id"], text2num(params["amount"]))
+			var/build_amount = params["amount"]
+			if(build_amount == "custom")
+				var/datum/design/design = files.known_designs[params["id"]]
+				if(!linked_lathe || linked_lathe.busy || !design)
+					return
+				var/max_amount = get_max_build_amount(linked_lathe, design)
+				if(max_amount < 1)
+					return
+				build_amount = tgui_input_number(usr, "Сколько предметов напечатать?", "Количество предметов", 1, max_value = max_amount, min_value = 1)
+				if(isnull(build_amount) || QDELETED(src) || ui_status(usr, ui_state(usr)) != UI_INTERACTIVE)
+					return
+				if(!allowed(usr) && !isobserver(usr))
+					return
+			start_machine(linked_lathe, params["id"], build_amount)
 
 		if("imprint") //Causes the Circuit Imprinter to build something.
 			start_machine(linked_imprinter, params["id"], text2num(params["amount"]))
@@ -761,14 +822,21 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				if("destroy")
 					if(linked_destroy)
 						linked_destroy.linked_console = null
+						linked_destroy.stop_processing()
 						linked_destroy = null
 				if("lathe")
 					if(linked_lathe)
+						if(linked_lathe.build_timer)
+							clear_wait_message()
 						linked_lathe.linked_console = null
+						linked_lathe.stop_building()
 						linked_lathe = null
 				if("imprinter")
 					if(linked_imprinter)
+						if(linked_imprinter.build_timer)
+							clear_wait_message()
 						linked_imprinter.linked_console = null
+						linked_imprinter.stop_building()
 						linked_imprinter = null
 
 		if("reset") //Reset the R&D console's database.
@@ -856,7 +924,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			design_list["desc"] = D.build_object_desc
 			design_list["icon"] = created_object.icon
 			design_list["icon_state"] = created_object.icon_state
-			var/can_build = is_imprinter ? 1 : 50
+			var/can_build = get_max_build_amount(machine, D)
 
 			for(var/M in D.materials)
 				var/list/material_list = list()
@@ -865,7 +933,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				material_list["amount"] = D.materials[M] * coeff
 				var/t = machine.check_mat(D, M)
 				material_list["is_red"] = t < 1
-				can_build = min(can_build, t)
 
 			for(var/R in D.reagents_list)
 				var/list/material_list = list()
@@ -874,7 +941,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				material_list["amount"] = D.reagents_list[R] * coeff
 				var/t = machine.check_mat(D, R)
 				material_list["is_red"] = t < 1
-				can_build = min(can_build, t)
 
 			design_list["can_build"] = can_build
 
@@ -937,6 +1003,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	data["disk_type"] = d_disk ? "design" : (t_disk ? "tech" : null)
 	data["disk_data"] = null
 	data["loaded_item"] = null
+	data["destroy_queue"] = list()
+	data["destroy_busy"] = linked_destroy?.busy
 	data["category"] = selected_category
 
 	if(menu == MENU_MAIN || menu == MENU_LEVELS)
@@ -1009,9 +1077,21 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				item["name"] = D.build_object_name
 				item["id"] = D.id
 	else if(menu == MENU_DESTROY && linked_destroy?.loaded_item)
+		var/list/visible_queue = length(linked_destroy.processing_queue) ? linked_destroy.processing_queue : linked_destroy.item_queue
+		var/list/queue_data = list()
+		data["destroy_queue"] = queue_data
+		for(var/obj/item/queued_item as anything in visible_queue)
+			var/item_name = capitalize(queued_item.declent_ru(NOMINATIVE))
+			if(isstack(queued_item))
+				var/obj/item/stack/queued_stack = queued_item
+				item_name += " ×[queued_stack.get_amount()]"
+			queue_data += list(list("id" = queued_item.UID(), "name" = item_name))
 		var/list/loaded_item_list = list()
 		data["loaded_item"] = loaded_item_list
 		loaded_item_list["name"] = capitalize(linked_destroy.loaded_item.declent_ru(NOMINATIVE))
+		if(isstack(linked_destroy.loaded_item))
+			var/obj/item/stack/loaded_stack = linked_destroy.loaded_item
+			loaded_item_list["name"] += " ×[loaded_stack.get_amount()]"
 		loaded_item_list["icon"] = initial(linked_destroy.loaded_item.icon)
 		loaded_item_list["icon_state"] = initial(linked_destroy.loaded_item.icon_state)
 		var/list/temp_tech = linked_destroy.ConvertReqString2List(linked_destroy.loaded_item.origin_tech)

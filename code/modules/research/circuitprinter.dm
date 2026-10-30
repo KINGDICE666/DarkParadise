@@ -523,6 +523,9 @@ using metal and glass, it uses glass and reagents (usually sulfuric acis).
 	. = default_deconstruction_screwdriver(user, "[base_icon_state]_unscrewed", base_icon_state, tool)
 
 	if(. && linked_console)
+		if(build_timer)
+			linked_console.clear_wait_message()
+		stop_building()
 		linked_console.linked_imprinter = null
 		linked_console = null
 

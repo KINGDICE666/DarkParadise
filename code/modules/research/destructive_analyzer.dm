@@ -12,6 +12,9 @@ Note: Must be placed within 3 tiles of the R&D Console
 	icon_state = "d_analyzer"
 	base_icon_state = "d_analyzer"
 	var/decon_mod = 0
+	var/list/item_queue = list()
+	var/list/processing_queue = list()
+	var/processing_timer
 
 /obj/machinery/r_n_d/destructive_analyzer/get_ru_names()
 	return alist(
@@ -46,6 +49,14 @@ Note: Must be placed within 3 tiles of the R&D Console
 	component_parts += new /obj/item/stock_parts/micro_laser/ultra(null)
 
 /obj/machinery/r_n_d/destructive_analyzer/Destroy(force)
+	deltimer(processing_timer)
+	processing_timer = null
+	loaded_item = null
+	for(var/obj/item/queued_item as anything in item_queue)
+		UnregisterSignal(queued_item, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED))
+		queued_item.forceMove(drop_location())
+	item_queue.Cut()
+	processing_queue.Cut()
 	if(linked_console)
 		linked_console.linked_destroy = null
 	return ..()
@@ -83,9 +94,6 @@ Note: Must be placed within 3 tiles of the R&D Console
 	if(busy)
 		balloon_alert(user, "в процессе разборки!")
 		return ATTACK_CHAIN_PROCEED
-	if(loaded_item)
-		balloon_alert(user, "камера разборки занята!")
-		return ATTACK_CHAIN_PROCEED
 	// anomaly cores are only disassembed in the upgraded machine.
 	// 3x4(femto-manipulator,quad-ultra micro-laser,triphasic scanning module)
 	if(iscore(I) && (decon_mod < 12))
@@ -102,9 +110,11 @@ Note: Must be placed within 3 tiles of the R&D Console
 		return ..()
 	busy = TRUE
 	flick("[base_icon_state]_insert", src)
-	loaded_item = I
+	item_queue += I
+	RegisterSignal(I, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), PROC_REF(on_queued_item_removed))
+	update_loaded_item()
 	balloon_alert(user, "помещено в камеру разбора")
-	addtimer(CALLBACK(src, PROC_REF(reset_processing)), 1 SECONDS)
+	processing_timer = addtimer(CALLBACK(src, PROC_REF(reset_processing)), 1 SECONDS, TIMER_STOPPABLE)
 	return ATTACK_CHAIN_BLOCKED_ALL
 
 /obj/machinery/r_n_d/destructive_analyzer/screwdriver_act_secondary(mob/living/user, obj/item/tool)
@@ -115,6 +125,7 @@ Note: Must be placed within 3 tiles of the R&D Console
 	if(. && linked_console)
 		linked_console.linked_destroy = null
 		linked_console = null
+		stop_processing()
 
 /obj/machinery/r_n_d/destructive_analyzer/crowbar_act_secondary(mob/living/user, obj/item/tool)
 	if(shocked && shock(user, 50))
@@ -123,8 +134,29 @@ Note: Must be placed within 3 tiles of the R&D Console
 	return default_deconstruction_crowbar(user, tool)
 
 /obj/machinery/r_n_d/destructive_analyzer/proc/reset_processing()
+	processing_timer = null
 	busy = FALSE
+	update_loaded_item()
+
+/obj/machinery/r_n_d/destructive_analyzer/proc/stop_processing()
+	deltimer(processing_timer)
+	processing_queue.Cut()
+	reset_processing()
+
+/obj/machinery/r_n_d/destructive_analyzer/proc/update_loaded_item()
+	loaded_item = length(processing_queue) ? processing_queue[1] : (length(item_queue) ? item_queue[1] : null)
 	update_icon(UPDATE_ICON_STATE)
+	if(linked_console)
+		SStgui.update_uis(linked_console)
+
+/obj/machinery/r_n_d/destructive_analyzer/proc/on_queued_item_removed(obj/item/source)
+	SIGNAL_HANDLER
+	if(!QDELING(source) && source.loc == src)
+		return
+	UnregisterSignal(source, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED))
+	item_queue -= source
+	processing_queue -= source
+	update_loaded_item()
 
 /obj/machinery/r_n_d/destructive_analyzer/update_icon_state()
 	if(loaded_item)
