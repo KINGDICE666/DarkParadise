@@ -2,16 +2,12 @@
 	priority = TEST_PRE
 
 /datum/unit_test/buildmode_catalog/Run()
-	TEST_ASSERT_NULL(GLOB.asset_datums[/datum/asset/spritesheet_batched/buildmode], "Buildmode previews were loaded before opening the catalog.")
+	TEST_ASSERT(!length(GLOB.buildmode_previews), "Buildmode previews were loaded before opening the catalog.")
 	TEST_ASSERT(!length(GLOB.buildmode_items), "Buildmode catalog was populated during startup.")
 	var/list/categories = get_buildmode_categories()
 	TEST_ASSERT(length(categories), "Buildmode catalog is empty.")
 	TEST_ASSERT(categories == get_buildmode_categories(), "Buildmode catalog is rebuilt on every request.")
-	var/datum/asset/spritesheet_batched/buildmode/sheet = get_asset_datum(/datum/asset/spritesheet_batched/buildmode)
-	sheet.ensure_ready()
-	TEST_ASSERT(sheet.fully_generated, "Buildmode spritesheet generation did not finish.")
-	TEST_ASSERT(sheet == get_asset_datum(/datum/asset/spritesheet_batched/buildmode), "Buildmode previews are rebuilt on repeated requests.")
-	var/list/icon_paths = list()
+	TEST_ASSERT(!length(GLOB.buildmode_previews), "Reading the catalog must not generate previews.")
 	for(var/list/category as anything in categories)
 		TEST_ASSERT(length(category["items"]), "Empty buildmode category: [category["name"]].")
 		for(var/list/item as anything in category["items"])
@@ -21,11 +17,32 @@
 			TEST_ASSERT(!(item_path in get_abstract_types()), "Abstract type in buildmode catalog: [path_text].")
 			TEST_ASSERT(!ispath(item_path, /mob/dead), "Dead mob in buildmode catalog: [path_text].")
 			TEST_ASSERT(GLOB.buildmode_items[path_text] == item, "Catalog entry differs between categories: [path_text].")
-			var/sprite_name = item["icon"]
-			TEST_ASSERT(sheet.sprites[sprite_name], "Missing generated buildmode sprite: [sprite_name] for [path_text].")
-			TEST_ASSERT(!icon_paths[sprite_name] || icon_paths[sprite_name] == path_text, "Buildmode sprite [sprite_name] is shared by different types.")
-			icon_paths[sprite_name] = path_text
 	TEST_ASSERT(GLOB.buildmode_items["[/obj/machinery/portable_atmospherics/canister/air]"], "Air canister is missing from buildmode catalog.")
+
+/datum/unit_test/buildmode_previews
+
+/datum/unit_test/buildmode_previews/Run()
+	var/list/paths = list("[/obj/item/pen]", "[/obj/machinery/portable_atmospherics/canister]", "[/obj/structure/chair/sofa/bench]", "[/obj/item/encryptionkey]")
+	var/list/previews = get_buildmode_previews(paths)
+	TEST_ASSERT_EQUAL(length(previews), length(paths), "Preview generation must return only requested types.")
+	for(var/path_text in paths)
+		TEST_ASSERT(length(previews[path_text]), "Missing buildmode preview for [path_text].")
+		TEST_ASSERT_EQUAL(previews[path_text], GLOB.buildmode_previews[path_text], "Generated previews must be cached.")
+	var/list/repeated = get_buildmode_previews(paths)
+	TEST_ASSERT_EQUAL(json_encode(previews), json_encode(repeated), "Repeated preview requests must reuse the cache.")
+	var/list/catalog_paths = list()
+	for(var/path_text in GLOB.buildmode_items)
+		catalog_paths += path_text
+		if(length(catalog_paths) >= 480)
+			break
+	for(var/page_start in 1 to length(catalog_paths) step 96)
+		get_buildmode_previews(catalog_paths.Copy(page_start, min(page_start + 96, length(catalog_paths) + 1)))
+		TEST_ASSERT(length(GLOB.buildmode_previews) <= 384, "Paging must not grow the preview cache without a limit.")
+	var/evicted_path = paths[1]
+	TEST_ASSERT_NULL(GLOB.buildmode_previews[evicted_path], "Old previews must be evicted from the cache.")
+	repeated = get_buildmode_previews(list(evicted_path))
+	TEST_ASSERT_EQUAL(repeated[evicted_path], previews[evicted_path], "Evicted previews must regenerate identically.")
+	GLOB.buildmode_previews.Cut()
 
 /datum/unit_test/buildmode_greyscale_state
 

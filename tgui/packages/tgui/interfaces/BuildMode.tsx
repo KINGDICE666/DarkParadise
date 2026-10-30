@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -17,7 +17,6 @@ import { Window } from '../layouts';
 type BuildModeItem = {
   path: string;
   name: string;
-  icon: string;
 };
 
 type BuildModeData = {
@@ -25,6 +24,7 @@ type BuildModeData = {
   selected_item: string | null;
   pixel_positioning: boolean;
   build_dir: number;
+  preview_icons: Record<string, string>;
 };
 
 const PAGE_SIZE = 96;
@@ -41,7 +41,13 @@ const DIRECTIONS = [
 
 export function BuildMode() {
   const { act, data } = useBackend<BuildModeData>();
-  const { categories, selected_item, pixel_positioning, build_dir } = data;
+  const {
+    categories,
+    selected_item,
+    pixel_positioning,
+    build_dir,
+    preview_icons = {},
+  } = data;
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [page, setPage] = useState(0);
   const currentItems = categories[categoryIndex]?.items || [];
@@ -60,6 +66,19 @@ export function BuildMode() {
   const displayItems = query ? results : currentItems;
   const pageCount = Math.max(1, Math.ceil(displayItems.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
+  const visibleItems = displayItems.slice(
+    currentPage * PAGE_SIZE,
+    (currentPage + 1) * PAGE_SIZE,
+  );
+  const previewPaths = visibleItems.map((item) => item.path).join(',');
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      act('request_previews', {
+        paths: previewPaths ? previewPaths.split(',') : [],
+      });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [act, previewPaths, selected_item]);
   const pixelAvailable = selected_item && !selected_item.startsWith('/turf');
 
   return (
@@ -126,7 +145,11 @@ export function BuildMode() {
                         key={direction}
                         selected={build_dir === direction}
                         tooltip={title}
-                        onClick={() => act('set_direction', { direction })}
+                        onClick={() =>
+                          act('set_direction', {
+                            direction,
+                          })
+                        }
                       >
                         {label}
                       </Button>
@@ -138,10 +161,10 @@ export function BuildMode() {
                 <Section>
                   {selected_item ? (
                     <Stack align="center">
-                      {selectedItem && (
+                      {preview_icons[selected_item] && (
                         <Stack.Item>
                           <ImageButton
-                            asset={['buildmode32x32', selectedItem.icon]}
+                            base64={preview_icons[selected_item]}
                             imageSize={32}
                             selected
                           />
@@ -167,36 +190,33 @@ export function BuildMode() {
                     <NoticeBox>Ничего не найдено.</NoticeBox>
                   ) : (
                     <Stack wrap>
-                      {displayItems
-                        .slice(
-                          currentPage * PAGE_SIZE,
-                          (currentPage + 1) * PAGE_SIZE,
-                        )
-                        .map((item) => (
-                          <Stack.Item key={item.path} mb={1}>
-                            <Box width="72px" textAlign="center">
-                              <ImageButton
-                                asset={['buildmode32x32', item.icon]}
-                                imageSize={32}
-                                selected={selected_item === item.path}
-                                tooltip={`${item.name} (${item.path})`}
-                                onClick={() =>
-                                  act('select_item', { path: item.path })
-                                }
-                              />
-                              <Box
-                                fontSize="10px"
-                                style={{
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {item.name}
-                              </Box>
+                      {visibleItems.map((item) => (
+                        <Stack.Item key={item.path} mb={1}>
+                          <Box width="72px" textAlign="center">
+                            <ImageButton
+                              base64={preview_icons[item.path]}
+                              imageSize={32}
+                              selected={selected_item === item.path}
+                              tooltip={`${item.name} (${item.path})`}
+                              onClick={() =>
+                                act('select_item', {
+                                  path: item.path,
+                                })
+                              }
+                            />
+                            <Box
+                              fontSize="10px"
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {item.name}
                             </Box>
-                          </Stack.Item>
-                        ))}
+                          </Box>
+                        </Stack.Item>
+                      ))}
                     </Stack>
                   )}
                 </Section>

@@ -1,4 +1,5 @@
 #define BUILDMODE_PREVIEW_ALPHA 150
+#define BUILDMODE_PAGE_SIZE 96
 
 /datum/buildmode_mode/builder
 	key = "panel"
@@ -13,6 +14,10 @@
 	var/atom/movable/screen/buildmode_pixel_tracker/pixel_tracker
 	var/datum/weakref/preview_eye_ref
 	var/last_mouse_params
+	var/list/preview_paths
+	var/list/preview_icons = list()
+	var/preview_revision = 0
+	var/previews_loading = FALSE
 
 /datum/buildmode_mode/builder/enter_mode(datum/click_intercept/buildmode/BM)
 	RegisterSignal(BM, COMSIG_BUILDMODE_DIRECTION_CHANGED, PROC_REF(on_direction_changed))
@@ -24,6 +29,9 @@
 
 /datum/buildmode_mode/builder/exit_mode(datum/click_intercept/buildmode/BM)
 	SStgui.close_uis(src)
+	preview_paths = null
+	preview_icons = list()
+	preview_revision++
 	UnregisterSignal(BM, COMSIG_BUILDMODE_DIRECTION_CHANGED)
 	UnregisterSignal(BM.holder, list(COMSIG_CLIENT_MOB_LOGIN, COMSIG_QDELETING, COMSIG_CLIENT_SET_EYE, COMSIG_VIEW_SET))
 	set_preview_eye(null)
@@ -114,10 +122,13 @@
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "BuildMode", "Панель строительства")
+		ui.set_autoupdate(FALSE)
 		ui.open()
 
-/datum/buildmode_mode/builder/ui_assets(mob/user)
-	return list(get_asset_datum(/datum/asset/spritesheet_batched/buildmode))
+/datum/buildmode_mode/builder/ui_close(mob/user)
+	preview_paths = null
+	preview_icons = list()
+	preview_revision++
 
 /datum/buildmode_mode/builder/ui_static_data(mob/user)
 	return list("categories" = get_buildmode_categories())
@@ -127,6 +138,7 @@
 		"selected_item" = selected_item ? "[selected_item]" : null,
 		"pixel_positioning" = pixel_positioning,
 		"build_dir" = BM.build_dir,
+		"preview_icons" = preview_icons,
 	)
 
 /datum/buildmode_mode/builder/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -135,6 +147,18 @@
 	if(ui.user != BM.holder.mob || BM.mode != src)
 		return
 	switch(action)
+		if("request_previews")
+			var/list/paths = params["paths"]
+			if(!islist(paths) || length(paths) > BUILDMODE_PAGE_SIZE)
+				return
+			preview_paths = list()
+			preview_icons = list()
+			for(var/path_text in paths)
+				if(istext(path_text) && GLOB.buildmode_items[path_text])
+					preview_paths |= path_text
+			preview_revision++
+			if(!previews_loading)
+				INVOKE_ASYNC(src, PROC_REF(load_previews))
 		if("select_item")
 			if(!GLOB.buildmode_items[params["path"]])
 				return
@@ -153,6 +177,23 @@
 		else
 			return
 	return TRUE
+
+/datum/buildmode_mode/builder/proc/load_previews()
+	previews_loading = TRUE
+	while(!QDELETED(src) && BM?.mode == src && !isnull(preview_paths))
+		var/revision = preview_revision
+		var/list/paths = preview_paths.Copy()
+		if(selected_item)
+			paths |= "[selected_item]"
+		var/list/icons = get_buildmode_previews(paths)
+		if(QDELETED(src) || BM?.mode != src)
+			break
+		if(revision != preview_revision)
+			continue
+		preview_icons = icons
+		SStgui.update_uis(src)
+		break
+	previews_loading = FALSE
 
 /datum/buildmode_mode/builder/proc/select_item(atom/item_path)
 	if(!(ispath(item_path, /turf) || ispath(item_path, /obj) || ispath(item_path, /mob)))
@@ -321,3 +362,4 @@
 	build_mode.handle_click(usr, params, selected)
 
 #undef BUILDMODE_PREVIEW_ALPHA
+#undef BUILDMODE_PAGE_SIZE

@@ -152,6 +152,7 @@
 #define rustlib_iconforge_generate(file_path, spritesheet_name, sprites, hash_icons, generate_dmi, flatten) RUSTLIB_CALL(iconforge_generate, file_path, spritesheet_name, sprites, hash_icons, generate_dmi, flatten)
 /// Returns a job_id for use with rustlib_iconforge_check()
 #define rustlib_iconforge_generate_async(file_path, spritesheet_name, sprites, hash_icons, generate_dmi, flatten) RUSTLIB_CALL(iconforge_generate_async, file_path, spritesheet_name, sprites, hash_icons, generate_dmi, flatten)
+#define rustlib_iconforge_previews_async(sprites) RUSTLIB_CALL(iconforge_previews_async, sprites)
 /// Returns the status of an async job_id, or its result if it is completed. See RUSTG_JOB DEFINEs.
 #define rustlib_iconforge_check(job_id) RUSTLIB_CALL(iconforge_check, job_id)
 /// Clears all cached DMIs and images, freeing up memory.

@@ -71,6 +71,16 @@ impl UniversalIcon {
             }
         }
         let dmi = filepath_to_dmi(&self.icon_file)?;
+        self.get_image_data_from_dmi(sprite_name, flatten, &dmi)
+            .map(|data| (data, false))
+    }
+
+    pub fn get_image_data_from_dmi(
+        &self,
+        sprite_name: &str,
+        flatten: bool,
+        dmi: &Icon,
+    ) -> ByondResult<Arc<UniversalIconData>> {
         let mut matched_state: Option<&IconState> = None;
         {
             zone!("match_icon_state");
@@ -193,7 +203,7 @@ impl UniversalIcon {
         });
 
         // Don't insert into the cache here, because the cache should only contain transformed images.
-        Ok((result, false))
+        Ok(result)
     }
 }
 
@@ -219,35 +229,35 @@ pub fn icon_cache_clear() {
 pub fn filepath_to_dmi(icon_path: &str) -> ByondResult<Arc<Icon>> {
     zone!("filepath_to_dmi");
 
-    let full_path = game_path(icon_path);
-
     let cell = ICON_FILES.entry(icon_path.to_owned()).or_default();
 
-    cell.get_or_try_init(|| {
-        zone!("open_dmi_file");
-        let icon_file = match File::open(&full_path) {
-            Ok(icon_file) => icon_file,
-            Err(err) => {
-                return Err(ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(
-                    format!(
-                        "Failed to open DMI '{}' (resolved to '{}') - {}",
-                        icon_path,
-                        full_path.display(),
-                        err
-                    ),
-                )));
-            }
-        };
+    cell.get_or_try_init(|| load_dmi(icon_path)).cloned()
+}
 
-        let reader = BufReader::new(icon_file);
+pub fn load_dmi(icon_path: &str) -> ByondResult<Arc<Icon>> {
+    let full_path = game_path(icon_path);
+    zone!("open_dmi_file");
+    let icon_file = match File::open(&full_path) {
+        Ok(icon_file) => icon_file,
+        Err(err) => {
+            return Err(ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(
+                format!(
+                    "Failed to open DMI '{}' (resolved to '{}') - {}",
+                    icon_path,
+                    full_path.display(),
+                    err
+                ),
+            )));
+        }
+    };
 
-        zone!("parse_dmi");
-        Ok(Arc::new(Icon::load(reader).map_err(|err| {
-            ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(format!(
-                "DMI '{}' failed to parse - {}",
-                icon_path, err
-            )))
-        })?))
-    })
-    .cloned()
+    let reader = BufReader::new(icon_file);
+
+    zone!("parse_dmi");
+    Ok(Arc::new(Icon::load(reader).map_err(|err| {
+        ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(format!(
+            "DMI '{}' failed to parse - {}",
+            icon_path, err
+        )))
+    })?))
 }
