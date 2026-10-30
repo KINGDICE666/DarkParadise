@@ -3,7 +3,7 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ac" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/radio/phone/ussp,
@@ -17,19 +17,35 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"aj" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "an" = (
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ao" = (
-/obj/structure/table/wood/fancy/black,
-/obj/item/lighter/zippo/black,
-/obj/item/lighter/zippo/black,
-/turf/simulated/floor/wood/fancy/oak,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille/broken,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
+"aE" = (
+/obj/vehicle/ridden/lavaboat,
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "aG" = (
 /obj/effect/turf_decal/siding/dark/inner_corner{
 	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -38,13 +54,27 @@
 	icon_state = "corpse_soviet"
 	},
 /obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 5
+	},
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "aK" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"aW" = (
+/obj/structure/cable{
+	icon_state = "4-5"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "aX" = (
 /obj/structure/closet/crate{
 	name = "Оператор"
@@ -60,6 +90,8 @@
 /obj/item/ammo_box/magazine/aks74u,
 /obj/item/reagent_containers/food/snacks/candy/mre,
 /obj/item/clothing/neck/cloak/commander_cape,
+/obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/geiger_counter,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "ba" = (
@@ -69,7 +101,13 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"bd" = (
+/obj/structure/girder,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "bi" = (
 /obj/effect/mine/stun,
 /obj/effect/decal/cleanable/dust,
@@ -81,7 +119,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "bj" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -89,27 +127,42 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "bk" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "br" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/soup/bloodsoup,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "bu" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "bw" = (
 /obj/machinery/firealarm/directional/east,
 /turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"bB" = (
+/obj/structure/cable{
+	icon_state = "1-2"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/structure/closet/crate/trashcart/gibs,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/obj/item/trash/candle,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "bI" = (
 /obj/effect/decal/cleanable/dust,
@@ -119,13 +172,24 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"bK" = (
+/obj/structure/cable{
+	icon_state = "5-10"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "bM" = (
 /mob/living/simple_animal/hostile/scarybat,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "bN" = (
 /obj/effect/turf_decal/siding/dark{
+	dir = 4
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -134,18 +198,40 @@
 /obj/structure/cult/pylon,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"bU" = (
+/obj/structure/cable{
+	icon_state = "1-8"
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "bV" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cb" = (
 /obj/item/tripod,
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"cl" = (
+/obj/effect/spawner/lootdrop/maintenance/double,
+/obj/effect/decal/cleanable/dust,
+/obj/structure/rack{
+	dir = 8;
+	layer = 2.9
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"cp" = (
+/obj/structure/cable{
+	icon_state = "4-5"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "ct" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -164,13 +250,13 @@
 /obj/structure/curtain,
 /mob/living/simple_animal/hostile/scarybat,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cz" = (
 /obj/effect/decal/cleanable/blood/xeno,
 /obj/effect/decal/cleanable/glass,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cA" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -189,20 +275,20 @@
 /obj/machinery/door/airlock/vault{
 	name = "Лифт"
 	},
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "cI" = (
 /obj/structure/rack/wooden,
 /obj/item/melee/cultblade,
 /obj/item/immortality_talisman,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cJ" = (
-/obj/machinery/shower{
-	dir = 1;
-	pixel_y = 20
-	},
+/obj/structure/table/reinforced,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
 "cM" = (
@@ -224,7 +310,7 @@
 /obj/structure/grille,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cT" = (
 /obj/effect/mine/gas/n2o,
 /obj/effect/decal/cleanable/dust,
@@ -236,7 +322,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "cU" = (
 /obj/structure/rack,
 /obj/item/camera,
@@ -250,26 +336,47 @@
 "cX" = (
 /obj/structure/rack/wooden,
 /obj/item/storage/box/mousetraps,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "dd" = (
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dust,
 /obj/item/reagent_containers/food/snacks/meatbun,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "de" = (
 /obj/effect/mine/stun,
 /turf/simulated/floor/indestructible/stone_floor,
 /area/centcom/central_command_areas/zone/one)
+"dh" = (
+/obj/structure/cable{
+	icon_state = "2-10"
+	},
+/obj/structure/girder,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "di" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"dl" = (
+/obj/structure/cable{
+	icon_state = "8-10"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "dm" = (
 /obj/effect/turf_decal/siding/dark{
+	dir = 8
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark,
@@ -277,26 +384,25 @@
 "do" = (
 /obj/effect/rune,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "dq" = (
 /obj/structure/fence,
 /obj/effect/turf_decal/siding/dark{
 	dir = 1
 	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "ds" = (
-/obj/structure/chair{
-	dir = 8
-	},
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/vault,
-/area/centcom/trader_station/sol)
+/turf/simulated/wall/mineral/titanium/nosmooth,
+/area/moonoutpost19/mo19research)
 "dw" = (
 /obj/effect/decal/cleanable/blood,
 /mob/living/simple_animal/hostile/scarybat,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "dK" = (
 /obj/structure/closet/crate/plastic,
 /obj/effect/decal/cleanable/dust,
@@ -317,7 +423,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "dU" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -332,40 +438,47 @@
 	},
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "eb" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"ej" = (
+/obj/structure/railing/corner{
+	dir = 4
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "el" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "et" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ev" = (
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ew" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ey" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/meatpie/human,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "eA" = (
 /turf/simulated/floor/mineral/plastitanium/red,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "eC" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 5
@@ -375,45 +488,57 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "eG" = (
 /obj/structure/mineral_door/wood,
 /turf/simulated/floor/mineral/plastitanium/red,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"eI" = (
+/obj/structure/table/wood/fancy/black,
+/obj/item/lighter/zippo/black,
+/obj/item/lighter/zippo/black,
+/obj/item/lighter/zippo/black,
+/turf/simulated/floor/wood/fancy/oak,
+/area/centcom/trader_station/sol)
 "eN" = (
 /obj/structure/bookcase,
 /obj/item/codex_cicatrix/morbus,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"eQ" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "eV" = (
 /turf/simulated/wall/indestructible/cult,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "eY" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fg" = (
 /obj/structure/closet,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fn" = (
 /obj/effect/decal/cleanable/glass,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fq" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fr" = (
 /obj/bfl_crack,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ft" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fy" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet2"
@@ -421,15 +546,15 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fH" = (
 /obj/effect/mine/explosive,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fJ" = (
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fL" = (
 /obj/structure/closet/crate{
 	name = "Лидер"
@@ -447,37 +572,64 @@
 /obj/item/reagent_containers/food/snacks/candy/mre,
 /obj/item/storage/belt/mining,
 /obj/item/clothing/neck/cloak/commander_cape,
+/obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/geiger_counter,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "fO" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/decal/cleanable/glass,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"fP" = (
+/obj/structure/cable{
+	icon_state = "1-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"fR" = (
+/obj/structure/cable{
+	icon_state = "1-8"
+	},
+/obj/structure/girder,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "fS" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/chair/wood{
 	dir = 8
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fV" = (
 /obj/structure/rack/wooden,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fW" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/turf_decal,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "fY" = (
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "gh" = (
 /obj/machinery/computer/crew,
 /turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"gj" = (
+/obj/structure/railing{
+	dir = 4
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "ramptop"
+	},
 /area/centcom/trader_station/sol)
 "gt" = (
 /obj/structure/bookcase,
@@ -500,18 +652,28 @@
 "gA" = (
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"gD" = (
+/turf/simulated/wall/indestructible/iron,
+/area/moonoutpost19/mo19research)
 "gM" = (
 /obj/effect/decal/snow/sand/edge,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "gP" = (
 /obj/structure/chair/office/dark{
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
+"hc" = (
+/obj/structure/mineral_door/iron,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "hd" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -524,34 +686,43 @@
 	icon_state = "corpse_soviet_lying_down"
 	},
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"hk" = (
+/obj/structure/table/wood/fancy/black,
+/obj/item/reagent_containers/cup/glass/bottle/holywater,
+/obj/item/reagent_containers/cup/glass/bottle/holywater,
+/turf/simulated/floor/carpet/black,
+/area/centcom/trader_station/sol)
 "hm" = (
 /obj/effect/turf_decal/siding/dark/inner_corner,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "ho" = (
 /obj/structure/cult/pylon,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "hq" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 6
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "hA" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/rail_way,
 /obj/effect/turf_decal,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "hE" = (
 /obj/item/clothing/accessory/stethoscope,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "hJ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -570,7 +741,7 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "hV" = (
 /obj/machinery/iv_drip,
 /obj/item/stack/cable_coil/random,
@@ -580,17 +751,15 @@
 /area/centcom/trader_station/sol)
 "hW" = (
 /obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "ia" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/snacks/soup/beetsoup,
 /obj/effect/decal/cleanable/dust,
 /obj/item/reagent_containers/food/snacks/meatbun,
-/obj/item/kitchen/utensil/pspoon,
-/obj/item/kitchen/utensil/pspoon,
-/obj/item/kitchen/utensil/pspoon,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "ib" = (
@@ -602,10 +771,17 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"ij" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 4
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "ip" = (
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ix" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -617,11 +793,11 @@
 "iB" = (
 /obj/structure/fans/tiny/invisible,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "iJ" = (
 /obj/item/tripod,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "iV" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/wood/fancy/light,
@@ -630,36 +806,81 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "jc" = (
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner{
 	loot = list(/obj/item/melee/energy/cleaving_saw,/obj/item/gem/phoron)
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "jk" = (
 /obj/structure/chair/sofa/corp/left,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
+"jl" = (
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/wall/indestructible/cult,
+/area/moonoutpost19/mo19research)
 "jx" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/reagent_containers/food/snacks/applepie,
 /turf/simulated/floor/carpet/black,
 /area/centcom/trader_station/sol)
+"jI" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 5
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "jK" = (
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
 /obj/structure/fans/tiny/invisible,
 /obj/structure/trap,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"jL" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 6
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
+"jP" = (
+/obj/structure/rack/wooden,
+/obj/item/clothing/mask/madness_mask,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "jR" = (
 /obj/effect/landmark/spawner/late/crew,
 /obj/effect/landmark/spawner/late/prisoner,
 /obj/effect/landmark/spawner/late,
-/turf/simulated/floor/vault,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/turf/simulated/floor/vault{
+	name = "Скиньте все свои вещи на пол, чтобы попасть дальее"
+	},
+/area/moonoutpost19/mo19research)
+"jV" = (
+/obj/structure/cable{
+	icon_state = "5-10"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"kb" = (
+/obj/structure/cable{
+	icon_state = "5-10"
+	},
+/obj/structure/closet/crate,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "kd" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -673,12 +894,12 @@
 /obj/item/warp_cube,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ks" = (
 /obj/structure/ladder,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ku" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -689,7 +910,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "kz" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/message_monitor/laptop,
@@ -699,11 +920,10 @@
 /turf/simulated/wall/r_wall/rust,
 /area/centcom/central_command_areas/zone/one)
 "kF" = (
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/structure/cable{
+	icon_state = "5-8"
+	},
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "kG" = (
 /obj/structure/table/reinforced,
@@ -712,7 +932,7 @@
 /obj/item/reagent_containers/food/snacks/meatbun,
 /obj/item/kitchen/utensil/pspoon,
 /obj/item/kitchen/utensil/pspoon,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "kJ" = (
@@ -721,16 +941,23 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "kL" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "kN" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"kO" = (
+/obj/structure/statue/angel{
+	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
+	},
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "kP" = (
 /obj/structure/rack,
 /obj/item/broadcast_camera,
@@ -751,11 +978,17 @@
 /obj/item/tape,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
+"kU" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/tray,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "lb" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
-	info = "Исследователи, цель миссии — Исследование сети пещер и сбор утерянных документов. Цель 13 папок.";
-	info_links = "Исследователи, цель миссии — Исследование сети пещер и сбор утерянных документов. Цель 13 папок."
+	info = "Исследователи, цель миссии Исследование сети пещер и сбор утерянных документов. Цель 13 папок.";
+	info_links = "Исследователи, цель миссии Исследование сети пещер и сбор утерянных документов. Цель 13 папок."
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -766,11 +999,14 @@
 "ll" = (
 /turf/simulated/floor/carpet/black,
 /area/centcom/trader_station/sol)
+"lm" = (
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "lp" = (
 /obj/effect/rune/narsie,
 /obj/item/documents/ussp,
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "lw" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -778,7 +1014,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "lB" = (
 /obj/structure/chair/wood{
 	dir = 4
@@ -788,19 +1024,23 @@
 "lH" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/wall/indestructible/iron,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"lI" = (
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "lU" = (
 /obj/structure/ladder,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ma" = (
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool/wall/ladder,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "mf" = (
 /turf/simulated/wall/r_wall,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ml" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/mineral/plastitanium,
@@ -813,10 +1053,24 @@
 /obj/effect/decal/cleanable/confetti,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"mt" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 10
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
+"mw" = (
+/obj/effect/overlay/turf/zauker,
+/obj/structure/decorative_structures/corpse{
+	icon_state = "corpse_soviet2"
+	},
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "mx" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "my" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
@@ -833,19 +1087,32 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "mL" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/chair/wood{
 	dir = 1
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"mM" = (
+/obj/structure/cable{
+	icon_state = "4-6"
+	},
+/obj/structure/railing/corner{
+	dir = 1
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "mO" = (
 /obj/structure/rack/wooden,
 /obj/item/melee/cultblade,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "mU" = (
 /obj/machinery/blackbox_recorder,
 /turf/simulated/floor/mineral/plastitanium,
@@ -864,11 +1131,11 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "na" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/cult,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "nj" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -876,14 +1143,15 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "nn" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "nq" = (
 /obj/effect/turf_decal/number/number_2{
-	dir = 1
+	dir = 1;
+	pixel_x = 9
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -894,6 +1162,13 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"nt" = (
+/obj/structure/cable{
+	icon_state = "1-4"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "nx" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -902,7 +1177,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "nA" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -914,7 +1189,7 @@
 /obj/effect/decal/rail_way,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "nO" = (
 /obj/structure/chair/wood{
 	dir = 8
@@ -922,9 +1197,8 @@
 /turf/simulated/floor/carpet/black,
 /area/centcom/trader_station/sol)
 "nX" = (
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/effect/turf_decal/stripes,
+/turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "nY" = (
 /obj/structure/chair/office/dark{
@@ -935,7 +1209,7 @@
 "nZ" = (
 /obj/structure/spirit_board,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "oi" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -949,7 +1223,7 @@
 /obj/structure/lattice,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "on" = (
 /obj/structure/table/reinforced,
 /obj/item/sensor_device,
@@ -978,14 +1252,25 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"oH" = (
+/obj/machinery/door/airlock/vault{
+	locked = 1;
+	name = "Неизвестно"
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "oJ" = (
 /obj/structure/decorative_structures/corpse{
 	dir = 4
 	},
 /obj/effect/rune,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"oK" = (
+/obj/structure/grille,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "oP" = (
 /obj/effect/turf_decal/arrows/white{
 	dir = 1
@@ -998,6 +1283,9 @@
 /obj/effect/turf_decal/siding/dark{
 	dir = 8
 	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "oY" = (
@@ -1005,13 +1293,19 @@
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "pa" = (
 /obj/structure/sign/poster/contraband/communist_state{
 	pixel_x = -34
 	},
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"pc" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "py" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1023,39 +1317,43 @@
 "pG" = (
 /mob/living/simple_animal/hostile/netherworld,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "pI" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/r_wall,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "pL" = (
 /obj/vehicle/ridden/lavaboat,
 /obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "pQ" = (
 /obj/item/clothing/neck/eldritch_amulet,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "pT" = (
 /obj/item/broken_device,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qd" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/meatpie/human,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qi" = (
 /obj/structure/rack/wooden,
 /obj/item/clothing/shoes/cult,
 /obj/item/clothing/suit/hooded/cultrobes/alt,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qk" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1073,7 +1371,7 @@
 "qn" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qt" = (
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
@@ -1082,7 +1380,7 @@
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qy" = (
 /obj/structure/decorative_structures/corpse{
 	dir = 4
@@ -1093,18 +1391,20 @@
 	},
 /obj/effect/rune,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qA" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress/dirty,
 /obj/structure/curtain,
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qH" = (
-/obj/machinery/power/apc/directional/north,
-/obj/item/storage/toolbox/electrical,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "qQ" = (
 /obj/structure/safe,
@@ -1112,12 +1412,12 @@
 /obj/item/documents/ussp,
 /obj/item/documents/ussp,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "qS" = (
 /obj/machinery/door/airlock/vault{
 	name = "Брифинг"
 	},
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "qZ" = (
@@ -1132,13 +1432,23 @@
 /obj/effect/rune/malformed,
 /turf/simulated/floor/indestructible/stone_floor,
 /area/centcom/central_command_areas/zone/one)
+"rj" = (
+/obj/structure/cable{
+	icon_state = "2-8"
+	},
+/obj/machinery/light{
+	dir = 1;
+	in_use = 1
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "rl" = (
 /obj/structure/bonfire,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "rp" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/storage/firstaid/doctor,
@@ -1146,13 +1456,14 @@
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "rq" = (
-/obj/machinery/power/port_gen/pacman/mrs/upgraded,
-/obj/item/stack/sheet/mineral/plasma/fifty,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/structure/closet/crate,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/spawner/lootdrop/maintenance/double,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "rr" = (
 /turf/simulated/wall/r_wall/coated,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "rs" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/library/public,
@@ -1179,6 +1490,8 @@
 /obj/item/reagent_containers/food/snacks/candy/mre,
 /obj/item/storage/belt/mining/alt,
 /obj/item/clothing/neck/cloak/civil_cape,
+/obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/geiger_counter,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "rw" = (
@@ -1186,14 +1499,17 @@
 /obj/structure/table/wood,
 /obj/structure/decorative_structures/flammable/lava_land_display,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "rB" = (
 /obj/structure/rack/wooden,
 /obj/item/paper{
 	info = "За тобою."
 	},
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "rC" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1203,6 +1519,13 @@
 /obj/structure/closet/cardboard,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"rI" = (
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "rM" = (
 /obj/machinery/computer/arcade/battle/pc_frame,
 /turf/simulated/floor/pod/dark,
@@ -1215,20 +1538,28 @@
 	pixel_y = 39
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "rV" = (
 /obj/structure/necropolis_gate{
 	name = "Gate"
 	},
 /obj/structure/fans/tiny/invisible,
+/obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "sa" = (
 /obj/structure/tripod,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"se" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 9
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "sg" = (
 /obj/effect/decal/cleanable/glass,
 /obj/effect/decal/cleanable/dust,
@@ -1236,7 +1567,14 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"sr" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/structure/grille,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "ss" = (
 /obj/structure/safe/floor/random_documents,
 /turf/simulated/floor/pod/dark,
@@ -1246,13 +1584,18 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "sx" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/rail_way,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"sA" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/healingfountain,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "sG" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1266,14 +1609,19 @@
 /mob/living/simple_animal/hostile/netherworld/blankbody,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"sR" = (
+/obj/item/storage/toolbox/surgery,
+/obj/structure/table/reinforced,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "sU" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 6
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "sZ" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -1289,7 +1637,7 @@
 /area/centcom/trader_station/sol)
 "tc" = (
 /obj/effect/decal/cleanable/dust,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "tf" = (
@@ -1298,7 +1646,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "tl" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/vault,
@@ -1309,7 +1657,7 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "tq" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -1317,12 +1665,18 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ts" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"tx" = (
+/obj/structure/chair{
+	dir = 4
+	},
+/turf/simulated/floor/vault,
+/area/centcom/trader_station/sol)
 "ty" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/mineral/plastitanium,
@@ -1334,7 +1688,7 @@
 	dir = 4
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "tB" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/cobweb,
@@ -1343,12 +1697,17 @@
 "tF" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/indestructible/carpet,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"tI" = (
+/obj/item/storage/toolbox/electrical,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "tQ" = (
 /obj/structure/fans/tiny/invisible,
-/obj/machinery/door/firedoor/heavy,
 /obj/machinery/door/poddoor/shutters/radiation/preopen,
 /obj/effect/turf_decal/delivery/white,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "tS" = (
@@ -1363,14 +1722,25 @@
 /obj/item/tripod,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "tZ" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"ua" = (
+/obj/machinery/light{
+	dir = 1;
+	in_use = 1
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"ud" = (
+/obj/machinery/bodyscanner,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "ue" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress,
@@ -1383,31 +1753,31 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ui" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/r_wall,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uj" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "up" = (
 /obj/item/broken_bottle,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ur" = (
 /obj/structure/bed/old,
 /obj/structure/bed/cardboard,
 /obj/structure/curtain,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uw" = (
 /turf/simulated/floor/chasm/straight_down/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ux" = (
 /obj/effect/mine/stun,
 /obj/effect/rune,
@@ -1420,12 +1790,12 @@
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uE" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uH" = (
 /obj/structure/table/wood/fancy/black,
 /turf/simulated/floor/carpet/black,
@@ -1434,7 +1804,7 @@
 /obj/structure/cult/pylon,
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uL" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
@@ -1451,13 +1821,14 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "uU" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet2"
 	},
+/obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "vb" = (
 /obj/item/radio/intercom/locked/prison/directional/north,
 /obj/structure/chair/office/dark{
@@ -1465,13 +1836,18 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
+"vd" = (
+/obj/effect/overlay/turf/miasma,
+/obj/item/primitive_saw,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "vf" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_half"
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "vg" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
@@ -1485,30 +1861,45 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "vt" = (
 /obj/structure/curtain,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "vG" = (
 /obj/structure/filingcabinet,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"vJ" = (
+/obj/structure/closet/crate/trashcart/gibs,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "vL" = (
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "vN" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/reinforced/rusted,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "vQ" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"vR" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "vU" = (
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
@@ -1516,23 +1907,45 @@
 /obj/effect/decal/cleanable/greenglow/radioactive,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "wb" = (
 /obj/structure/decorative_structures/corpse,
-/turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
-"wx" = (
-/obj/structure/decorative_structures/corpse,
 /obj/effect/overlay/turf/zauker,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"wp" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/overlay/turf/zauker,
+/obj/structure/flora/rock/basalt3,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"wr" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
+/obj/effect/turf_decal/stripes,
+/turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"wx" = (
+/obj/structure/decorative_structures/corpse{
+	icon_state = "corpse_soviet_half"
+	},
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "wy" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"wz" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "wG" = (
 /obj/effect/turf_decal,
+/obj/effect/turf_decal/stripes,
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "wO" = (
@@ -1543,7 +1956,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "xg" = (
 /obj/effect/rune,
 /obj/structure/decorative_structures/corpse{
@@ -1551,7 +1964,7 @@
 	},
 /obj/effect/decal/cleanable/greenglow/radioactive,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "xq" = (
 /obj/structure/sink/directional/north,
 /obj/structure/mirror{
@@ -1562,7 +1975,7 @@
 "xt" = (
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dust,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "xu" = (
@@ -1573,7 +1986,7 @@
 "xz" = (
 /obj/structure/cult/altar,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "xA" = (
 /obj/structure/closet/crate{
 	name = "Медик"
@@ -1592,6 +2005,9 @@
 /obj/item/storage/belt/medical/surgery/loaded,
 /obj/item/bodyanalyzer/advanced,
 /obj/item/clothing/neck/cloak/civil_cape,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/geiger_counter,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "xC" = (
@@ -1600,12 +2016,22 @@
 	pixel_x = 11;
 	pixel_y = 21
 	},
+/obj/item/phone,
 /turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"xF" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "xJ" = (
 /obj/structure/closet/crate/trashcart/gibs,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
+/obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "xK" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1618,36 +2044,64 @@
 /mob/living/simple_animal/hostile/scarybat,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "xY" = (
 /obj/structure/wooden_sign{
 	name = "Табличка";
 	desc = "И изгнал он их во тьму навеки..."
 	},
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "yb" = (
 /obj/effect/rune/malformed,
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/central_command_areas/zone/one)
+"ye" = (
+/obj/structure/railing/corner{
+	dir = 8
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "yf" = (
 /obj/item/jammer{
 	active = 1;
 	range = 60
 	},
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"yn" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "yq" = (
-/obj/structure/closet/cardboard,
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"yr" = (
+/obj/structure/chair{
+	dir = 1
+	},
+/turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
 "yt" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"yv" = (
+/obj/structure/cable{
+	icon_state = "4-10"
+	},
+/obj/item/trash/snack_bowl,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "yK" = (
 /obj/effect/decal/cleanable/dust,
@@ -1657,6 +2111,13 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"yN" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "zf" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress,
@@ -1669,14 +2130,19 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "zm" = (
 /obj/structure/reagent_dispensers/oil,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
 "zn" = (
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"zo" = (
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/pistachios,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "zu" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_lying_half1";
@@ -1685,13 +2151,12 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "zx" = (
 /obj/structure/dispenser,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "zy" = (
-/obj/structure/closet/crate,
 /obj/item/storage/backpack/duffel/durathread,
 /obj/item/clothing/under/misc/durathread,
 /obj/item/clothing/suit/armor/vest/security,
@@ -1707,6 +2172,11 @@
 /obj/item/storage/belt/utility/full/multitool,
 /obj/item/clothing/head/welding/bigbrother,
 /obj/item/clothing/neck/cloak/civil_cape,
+/obj/structure/closet/crate{
+	name = "Исследователь"
+	},
+/obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/geiger_counter,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
 "zB" = (
@@ -1715,7 +2185,7 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach/lethal,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "zD" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1725,16 +2195,22 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"zE" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/overlay/turf/zauker,
+/obj/structure/flora/rock/basalt4,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "zF" = (
 /obj/item/tripod,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "zG" = (
 /obj/item/tripod,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "zH" = (
 /obj/machinery/anomalous_crystal/dark_reprise,
 /turf/simulated/floor/indestructible/stone_floor,
@@ -1742,6 +2218,27 @@
 "zI" = (
 /obj/structure/closet/crate/can,
 /turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"zO" = (
+/obj/structure/cable{
+	icon_state = "9-10"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"zQ" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"zV" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "zX" = (
 /obj/effect/decal/cleanable/dust,
@@ -1752,6 +2249,15 @@
 "Aa" = (
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/central_command_areas/zone/one)
+"Ad" = (
+/obj/structure/cable{
+	icon_state = "1-2"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plasteel{
+	icon_state = "ramptop"
+	},
+/area/centcom/trader_station/sol)
 "Af" = (
 /obj/effect/bump_teleporter{
 	density = 0;
@@ -1759,13 +2265,19 @@
 	},
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ag" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /obj/structure/closet/cardboard,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Ah" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/overlay/turf/zauker,
+/obj/structure/ladder,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "Aj" = (
 /obj/structure/sign/poster/contraband/communist_state{
 	pixel_y = 32
@@ -1782,17 +2294,30 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Au" = (
 /obj/effect/decal/remains/human,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"AB" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"AF" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 10
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "AH" = (
 /obj/structure/closet/crate/secure/loot,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "AJ" = (
 /obj/structure/rack/gunrack,
 /obj/item/reagent_containers/cup/beaker/waterbottle,
@@ -1802,8 +2327,23 @@
 /obj/item/reagent_containers/cup/beaker/waterbottle,
 /obj/item/reagent_containers/cup/beaker/waterbottle,
 /obj/item/reagent_containers/cup/beaker/waterbottle,
+/obj/item/flashlight,
+/obj/item/flashlight,
+/obj/item/flashlight,
+/obj/item/flashlight,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
+"AP" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/overlay/turf/zauker,
+/obj/structure/flora/rock/basalt1,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
+"AV" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/wall/indestructible/cult,
+/area/moonoutpost19/mo19research)
 "AW" = (
 /obj/effect/decal/cleanable/cobweb2,
 /obj/item/flag/ussp,
@@ -1812,11 +2352,11 @@
 "Bc" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Bf" = (
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool/wall/filter,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Bg" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1827,13 +2367,13 @@
 "Bo" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Bv" = (
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
 /obj/structure/fans/tiny/invisible,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "BA" = (
 /obj/machinery/firealarm/directional/south,
 /turf/simulated/floor/mineral/plastitanium,
@@ -1841,6 +2381,12 @@
 "BS" = (
 /turf/simulated/wall/r_wall,
 /area/centcom/central_command_areas/zone/one)
+"BW" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/wall/indestructible/cult,
+/area/moonoutpost19/mo19research)
 "BZ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -1863,7 +2409,7 @@
 /area/centcom/trader_station/sol)
 "Ck" = (
 /turf/simulated/wall/r_wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Cm" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/reagent_containers/food/snacks/appletart,
@@ -1879,18 +2425,26 @@
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"CC" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "CF" = (
 /obj/effect/decal/cleanable/dust,
 /mob/living/simple_animal/hostile/scarybat,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "CG" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "CL" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
@@ -1898,13 +2452,46 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"CP" = (
+/obj/effect/turf_decal/arrows/white{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "CX" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"CY" = (
+/obj/machinery/door_control{
+	pixel_y = 26;
+	pixel_x = 9;
+	name = "СТОП"
+	},
+/obj/machinery/door_control{
+	pixel_y = 34;
+	pixel_x = 9;
+	name = "Внизl"
+	},
+/obj/machinery/door_control{
+	pixel_y = 42;
+	pixel_x = 9;
+	name = "Вверх"
+	},
+/obj/item/mounted/frame/door_control{
+	pixel_y = 26;
+	pixel_x = -9;
+	name = "Сломанная кнопка";
+	desc = "ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ"
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "CZ" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_lying_down"
@@ -1912,25 +2499,26 @@
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Da" = (
-/obj/structure/closet/cardboard,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/structure/cable{
+	icon_state = "2-4"
+	},
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "Dd" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Dg" = (
 /obj/machinery/door/poddoor/impassable/preopen,
 /obj/effect/turf_decal/delivery,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "Dj" = (
@@ -1938,14 +2526,14 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/mineral/plastitanium/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Dl" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 4
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Dn" = (
 /obj/effect/decal/cleanable/cobweb,
 /obj/effect/decal/cleanable/dust,
@@ -1955,23 +2543,23 @@
 "Dr" = (
 /obj/effect/decal/cleanable/blood/old,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Dz" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "DA" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "DB" = (
 /obj/structure/decorative_structures/cult_crystal,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "DJ" = (
 /obj/structure/table/reinforced,
 /obj/item/camera_film,
@@ -1983,16 +2571,20 @@
 /obj/machinery/anomalous_crystal/refresher,
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/central_command_areas/zone/one)
+"Eg" = (
+/obj/effect/turf_decal/stripes/corner,
+/turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
 "Eo" = (
 /obj/structure/decorative_structures/corpse,
 /obj/effect/decal/cleanable/greenglow/radioactive,
 /obj/effect/rune,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ev" = (
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/openspace,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "EF" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2010,11 +2602,11 @@
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "EP" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "EW" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2023,11 +2615,16 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Fc" = (
+/obj/machinery/optable,
+/obj/machinery/light/floor,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "Fd" = (
 /obj/structure/closet/crate/secure/unknownchemicals,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Fh" = (
 /obj/item/twohanded/fireaxe{
 	pixel_y = -2;
@@ -2041,17 +2638,23 @@
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Fj" = (
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Fm" = (
 /obj/structure/mineral_door/iron,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Fr" = (
-/obj/effect/overlay/turf/zauker,
-/turf/simulated/floor/plasteel{
-	icon_state = "rampbottom"
+/obj/effect/decal/cleanable/dust,
+/obj/structure/stairs{
+	dir = 1
 	},
-/area/lavaland/surface/outdoors/unexplored/danger)
+/obj/effect/overlay/turf/zauker,
+/turf/space,
+/area/moonoutpost19/mo19research)
 "Ft" = (
 /obj/effect/decal/cleanable/fungus,
 /turf/simulated/wall/r_wall/coated,
@@ -2060,53 +2663,61 @@
 /obj/structure/chair/stool/wooden,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FM" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_half";
 	pixel_y = 32
 	},
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FO" = (
 /obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FQ" = (
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/chasm/straight_down/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FV" = (
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FW" = (
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach/lethal,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "FX" = (
 /obj/effect/mine/gas/n2o,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Gc" = (
 /obj/structure/showcase/horrific_experiment,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Gd" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/soup/bloodsoup,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Gk" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille/broken,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Gl" = (
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Go" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2120,10 +2731,10 @@
 /obj/effect/decal/cleanable/blood/old,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Gs" = (
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Gw" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/ants,
@@ -2135,7 +2746,13 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"GF" = (
+/obj/structure/table/reinforced,
+/obj/item/reagent_containers/food/snacks/soup/beetsoup,
+/obj/item/kitchen/utensil/pspoon,
+/turf/simulated/floor/vault,
+/area/centcom/trader_station/sol)
 "GI" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2145,17 +2762,35 @@
 /obj/structure/spacevine,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"GM" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/snack_bowl,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "GV" = (
 /obj/effect/turf_decal/number/number_6{
-	dir = 1
+	dir = 1;
+	pixel_x = -9
 	},
 /turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"GW" = (
+/obj/structure/railing{
+	dir = 8
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plasteel{
+	icon_state = "ramptop"
+	},
 /area/centcom/trader_station/sol)
 "GZ" = (
 /obj/structure/fans/tiny/invisible,
 /obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Hn" = (
 /obj/machinery/iv_drip,
 /obj/effect/decal/cleanable/dust,
@@ -2184,6 +2819,20 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Ic" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
+/obj/effect/turf_decal/stripes,
+/turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"Ie" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 9
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "If" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2193,18 +2842,23 @@
 /area/centcom/trader_station/sol)
 "Ih" = (
 /turf/simulated/wall/indestructible/reinforced/rusted,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ik" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
 	},
 /obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Il" = (
 /obj/effect/mine/stun,
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/central_command_areas/zone/one)
+"Iw" = (
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/snack_bowl,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "IB" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2215,11 +2869,11 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "IK" = (
 /obj/structure/bookcase,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "IR" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2240,32 +2894,32 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Jd" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 5
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Jm" = (
 /obj/structure/cult/pylon,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Jq" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "JI" = (
 /obj/structure/statue/angel{
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "JL" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/security/telescreen/entertainment,
@@ -2296,7 +2950,22 @@
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"JT" = (
+/obj/item/tripod,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"JY" = (
+/obj/structure/cable{
+	icon_state = "1-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "JZ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2312,10 +2981,10 @@
 "Ka" = (
 /mob/living/simple_animal/hostile/netherworld/blankbody,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Kf" = (
 /obj/structure/table/reinforced,
-/obj/item/reagent_containers/food/snacks/birthdaycakeslice,
+/obj/item/phone,
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "Kh" = (
@@ -2323,7 +2992,16 @@
 /obj/effect/decal/remains/human,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Kk" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/structure/closet/crate,
+/obj/effect/spawner/lootdrop/maintenance/double,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Kv" = (
 /obj/effect/turf_decal,
 /turf/simulated/floor/mineral/plastitanium,
@@ -2331,16 +3009,19 @@
 "Kw" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "KA" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/soup/bloodsoup,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "KB" = (
 /obj/effect/turf_decal/siding/dark/inner_corner{
 	dir = 8
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -2348,13 +3029,13 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/closet/crate/secure/loot,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "KM" = (
 /obj/machinery/door/airlock/vault{
 	locked = 1;
 	name = "Туалет"
 	},
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "KP" = (
@@ -2363,14 +3044,18 @@
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
-"KV" = (
-/obj/structure/chair{
-	dir = 4
+/area/moonoutpost19/mo19research)
+"KS" = (
+/obj/structure/stairs{
+	dir = 1
 	},
 /obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/vault,
-/area/centcom/trader_station/sol)
+/obj/effect/overlay/turf/zauker,
+/turf/space,
+/area/moonoutpost19/mo19research)
+"KV" = (
+/turf/simulated/wall/indestructible/fakeglass,
+/area/moonoutpost19/mo19research)
 "KY" = (
 /obj/machinery/anomalous_crystal/theme_warp,
 /turf/simulated/floor/indestructible/stone_floor,
@@ -2378,7 +3063,7 @@
 "Le" = (
 /obj/structure/cult/pylon,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Lm" = (
 /obj/effect/rune/manifest,
 /turf/simulated/floor/indestructible/stone_floor,
@@ -2386,26 +3071,25 @@
 "Lw" = (
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "LA" = (
 /obj/structure/curtain,
 /obj/effect/decal/cleanable/blood/tracks,
 /obj/structure/trap,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "LC" = (
 /obj/effect/turf_decal/siding/dark/inner_corner{
 	dir = 4
 	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "LD" = (
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/turf/simulated/floor/mineral/plastitanium,
+/obj/structure/girder,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "LG" = (
 /obj/effect/decal/cleanable/dust,
@@ -2428,7 +3112,7 @@
 /area/centcom/central_command_areas/zone/one)
 "LT" = (
 /turf/simulated/floor/lava/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "LY" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2441,28 +3125,38 @@
 "Ma" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Mc" = (
 /obj/structure/decorative_structures/cult_crystal,
 /obj/item/twohanded/cult_spear,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Mf" = (
+/obj/structure/cable{
+	icon_state = "1-5"
+	},
+/obj/structure/cable{
+	icon_state = "2-4"
+	},
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Mi" = (
 /obj/effect/rune,
 /mob/living/simple_animal/hostile/netherworld/blankbody,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Mr" = (
 /obj/structure/cult/pylon,
 /obj/effect/rune/narsie,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Mw" = (
 /obj/effect/decal/cleanable/blood/drip,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "MB" = (
 /obj/item/flag/ussp,
 /turf/simulated/floor/pod/dark,
@@ -2472,18 +3166,41 @@
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "MH" = (
 /obj/structure/mineral_door/iron,
 /obj/effect/decal/cleanable/blood,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"MJ" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/spawner/lootdrop/maintenance/double,
+/obj/structure/rack{
+	dir = 8;
+	layer = 2.9
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
+"ML" = (
+/obj/machinery/chem_heater,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"MN" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 5
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "MS" = (
 /obj/structure/rack/wooden,
 /obj/item/documents/ussp,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "MU" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/stack/spacecash/ussp/c100,
@@ -2492,25 +3209,39 @@
 /obj/item/stack/spacecash/ussp/c100,
 /turf/simulated/floor/carpet/black,
 /area/centcom/trader_station/sol)
+"MV" = (
+/obj/structure/showcase/horrific_experiment,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"Ng" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/mineral/ancient,
+/area/moonoutpost19/mo19research)
 "Nh" = (
 /obj/effect/decal/snow/sand/edge{
 	dir = 5
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach/lethal,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Nm" = (
 /obj/item/documents/ussp,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ns" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/meatpie/human,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ny" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2520,13 +3251,40 @@
 /obj/structure/closet/cardboard,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"NH" = (
+/obj/structure/chair{
+	dir = 8
+	},
+/turf/simulated/floor/vault,
+/area/centcom/trader_station/sol)
 "NP" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_lying_half1"
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"NT" = (
+/obj/effect/decal/cleanable/blood,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 6
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"NU" = (
+/obj/structure/statue/angel{
+	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
+	},
+/obj/effect/decal/cleanable/cobweb,
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
+"Oa" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Od" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2541,10 +3299,15 @@
 /obj/structure/spacevine,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Oh" = (
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Oi" = (
 /obj/item/soulstone/anybody,
 /turf/simulated/floor/redgrid,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ok" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2556,7 +3319,18 @@
 /area/centcom/trader_station/sol)
 "Om" = (
 /obj/effect/turf_decal/caution/stand_clear/white,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"Oo" = (
+/obj/effect/decal/cleanable/dust,
+/obj/machinery/light{
+	dir = 1;
+	in_use = 1
+	},
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "Oq" = (
 /obj/effect/decal/cleanable/dust,
@@ -2564,17 +3338,35 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Ov" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "Ox" = (
 /obj/structure/window/plastitanium,
 /obj/structure/fans/tiny/invisible,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/vault,
+/area/centcom/trader_station/sol)
+"OI" = (
+/obj/effect/turf_decal/stripes/corner{
+	dir = 8
+	},
+/turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "ON" = (
 /obj/item/documents/ussp,
 /turf/simulated/floor/indestructible/stone_floor,
 /area/centcom/central_command_areas/zone/one)
+"OO" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 8
+	},
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "OT" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
@@ -2583,22 +3375,73 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"OW" = (
+/obj/structure/closet/crate/radiation,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/reagent_containers/syringe/charcoal,
+/obj/item/storage/pill_bottle/charcoal,
+/obj/item/storage/pill_bottle/charcoal,
+/obj/item/storage/pill_bottle/charcoal,
+/obj/item/storage/pill_bottle/charcoal,
+/obj/item/storage/pill_bottle/charcoal,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "OX" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Pf" = (
+/obj/effect/decal/cleanable/dust,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/item/kitchen/utensil/pspoon,
+/obj/structure/closet/crate/plastic,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/obj/item/reagent_containers/cup/glass/drinkingglass,
+/turf/simulated/floor/wood/fancy/light,
+/area/centcom/trader_station/sol)
 "Pg" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Pj" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/wall/indestructible/cult,
+/area/moonoutpost19/mo19research)
 "Pl" = (
 /obj/item/tripod,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Pm" = (
 /turf/simulated/floor/redgrid,
 /area/centcom/central_command_areas/zone/one)
@@ -2609,7 +3452,11 @@
 /obj/structure/closet/crate/wooden,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Ps" = (
+/obj/structure/railing/corner,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Px" = (
 /obj/effect/mine/stun,
 /obj/effect/decal/cleanable/dust,
@@ -2618,20 +3465,26 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Pz" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/folder/ussp,
 /turf/simulated/floor/carpet/black,
 /area/centcom/trader_station/sol)
+"PC" = (
+/obj/structure/cable{
+	icon_state = "2-5"
+	},
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "PG" = (
 /obj/bfl_crack,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "PH" = (
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "PI" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2645,22 +3498,32 @@
 /obj/bfl_crack,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"PO" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 1
+	},
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "Qa" = (
 /obj/structure/bed/old,
 /obj/structure/bed/mattress/dirty,
 /obj/structure/curtain,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Qb" = (
 /mob/living/simple_animal/hostile/illusion/cult,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Qd" = (
 /obj/structure/cult/forge,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Qi" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/overlay/turf/water_vapor,
@@ -2669,7 +3532,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Qj" = (
 /obj/structure/table/reinforced,
 /obj/item/paper_bin/ussp,
@@ -2681,7 +3544,7 @@
 /obj/effect/decal/cleanable/dust,
 /mob/living/simple_animal/hostile/scarybat,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Qq" = (
 /obj/structure/table/reinforced,
 /obj/item/toy/desk/fan,
@@ -2704,6 +3567,14 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"QC" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/structure/girder,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "QM" = (
 /obj/machinery/firealarm/directional/east,
 /turf/simulated/floor/vault,
@@ -2712,26 +3583,44 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "QS" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/item/tripod,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Rh" = (
+/obj/machinery/light{
+	dir = 1;
+	in_use = 1
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Rj" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Rk" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Rn" = (
 /obj/structure/mineral_door/wood,
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ro" = (
 /obj/vehicle/ridden/lavaboat,
 /obj/effect/decal/cleanable/blood,
 /obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 6
+	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Rp" = (
 /obj/effect/turf_decal/box/red,
 /obj/machinery/jukebox/no_access,
@@ -2740,7 +3629,7 @@
 "Rv" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/chasm/straight_down/lava_land_surface,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "RH" = (
 /obj/effect/rune,
 /turf/simulated/floor/indestructible/stone_floor,
@@ -2753,13 +3642,19 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "RU" = (
 /obj/effect/rune/narsie,
 /obj/item/melee/rune_carver,
 /obj/item/documents/ussp,
 /turf/simulated/floor/indestructible/stone_floor,
 /area/centcom/central_command_areas/zone/one)
+"RX" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/overlay/turf/zauker,
+/obj/effect/overlay/turf/zauker,
+/turf/simulated/floor/plating/asteroid/basalt,
+/area/moonoutpost19/mo19research)
 "Se" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2772,10 +3667,16 @@
 	},
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Sh" = (
+/obj/item/storage/toolbox/surgery,
+/obj/structure/table/reinforced,
+/obj/item/implant/health,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "Si" = (
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Sn" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -2790,11 +3691,11 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach/lethal,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ss" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Su" = (
 /obj/machinery/door/airlock/vault{
 	locked = 1;
@@ -2802,8 +3703,13 @@
 	},
 /obj/effect/decal/cleanable/dust,
 /obj/structure/barricade/wooden/crude,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/plating/asteroid/basalt,
+/area/centcom/trader_station/sol)
+"SD" = (
+/obj/effect/decal/cleanable/dust,
+/obj/structure/grille/broken,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "SG" = (
 /obj/effect/decal/snow/sand/edge{
@@ -2811,9 +3717,16 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"SH" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/wall/indestructible/reinforced/rusted,
+/area/moonoutpost19/mo19research)
 "SJ" = (
 /obj/effect/turf_decal/siding/dark,
+/obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
 "SZ" = (
@@ -2826,18 +3739,35 @@
 "Tg" = (
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Tj" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/pistachios,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Tk" = (
-/obj/structure/closet/cardboard,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/dust,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/item/reagent_containers/cup/bottle/morphine,
+/obj/structure/table/reinforced,
+/obj/item/healthanalyzer,
 /turf/simulated/floor/mineral/plastitanium,
 /area/centcom/trader_station/sol)
 "Tt" = (
 /obj/structure/closet/crate/can,
+/obj/item/trash/pistachios,
+/obj/item/trash/pistachios,
+/obj/item/reagent_containers/food/snacks/meat/humanoid,
+/obj/item/reagent_containers/food/snacks/meat/humanoid,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Tw" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge,
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "Tz" = (
 /obj/structure/table/wood/fancy/black,
 /obj/machinery/photocopier/faxmachine/longrange/ussp,
@@ -2855,8 +3785,21 @@
 /obj/structure/closet/cardboard,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"TD" = (
+/obj/machinery/power/apc/directional/north,
+/obj/structure/cable{
+	icon_state = "0-2"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "TE" = (
 /obj/effect/turf_decal/siding/dark{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -2864,6 +3807,10 @@
 "TN" = (
 /obj/structure/chair/sofa/corp,
 /turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"Ua" = (
+/obj/structure/chair,
+/turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
 "Ug" = (
 /obj/effect/decal/snow/sand/edge{
@@ -2874,7 +3821,13 @@
 	},
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/water/deep_beach,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Ui" = (
+/obj/structure/sign/radiation/rad_area{
+	pixel_y = 32
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "Un" = (
 /obj/structure/mineral_door/wood,
 /turf/simulated/floor/mineral/plastitanium/red,
@@ -2883,16 +3836,27 @@
 /obj/structure/bed/wicker,
 /obj/structure/curtain,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Uu" = (
 /obj/structure/curtain/black,
-/obj/machinery/door/firedoor/heavy,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
 "Uz" = (
 /obj/machinery/door/poddoor/impassable/preopen,
 /obj/effect/turf_decal/delivery,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/pod/dark,
+/area/centcom/trader_station/sol)
+"UD" = (
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/spawner/lootdrop/maintenance/double,
+/obj/structure/rack{
+	dir = 8;
+	layer = 2.9
+	},
+/obj/item/mop,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "UK" = (
 /obj/effect/rune,
@@ -2902,17 +3866,17 @@
 /obj/item/warp_cube/red,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "UR" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/barricade/wooden/crude,
 /obj/structure/barricade/wooden,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "US" = (
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "UX" = (
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
@@ -2920,11 +3884,14 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/mineral/ancient,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Vh" = (
 /obj/structure/window/full/shuttle/gray,
 /obj/structure/curtain/black,
 /obj/effect/turf_decal/siding/dark{
+	dir = 4
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 4
 	},
 /turf/simulated/floor/pod/dark,
@@ -2939,16 +3906,21 @@
 /obj/item/candle,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Vn" = (
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/wall/indestructible/reinforced/rusted,
+/area/moonoutpost19/mo19research)
 "Vp" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/wood,
 /obj/item/documents/ussp,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Vr" = (
 /obj/machinery/kitchen_machine/oven,
 /obj/effect/decal/cleanable/dust,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "Vu" = (
@@ -2976,19 +3948,27 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "VQ" = (
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "VX" = (
 /obj/machinery/door/airlock/vault{
 	name = "Кухня"
 	},
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/oak,
+/area/centcom/trader_station/sol)
+"Wh" = (
+/obj/machinery/power/port_gen/pacman/mrs/upgraded,
+/obj/item/stack/sheet/mineral/plasma/fifty,
+/obj/structure/cable{
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "Wm" = (
 /obj/machinery/firealarm/directional/east,
@@ -2999,11 +3979,25 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/rust,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Wt" = (
+/obj/structure/table/reinforced,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/beaker,
+/obj/item/reagent_containers/cup/bottle/reagent/acid,
+/obj/item/reagent_containers/cup/bottle/reagent/acid,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "Wu" = (
 /obj/structure/fence/corner,
 /obj/structure/curtain/black,
 /obj/effect/turf_decal/siding/dark{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -3012,7 +4006,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "WC" = (
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/wall/r_wall/coated,
@@ -3023,7 +4017,7 @@
 	dir = 4
 	},
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "WP" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/ants,
@@ -3033,7 +4027,7 @@
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/snacks/soup/beetsoup,
 /obj/effect/decal/cleanable/dust,
-/obj/machinery/door/firedoor/heavy,
+/obj/machinery/door/firedoor,
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/trader_station/sol)
 "WR" = (
@@ -3051,7 +4045,7 @@
 /obj/structure/barricade/wooden/crude,
 /obj/structure/barricade/wooden,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Xd" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/med_data/laptop,
@@ -3062,7 +4056,7 @@
 /obj/effect/warp_effect,
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Xf" = (
 /obj/structure/closet/coffin,
 /obj/effect/decal/cleanable/dust,
@@ -3084,13 +4078,20 @@
 /obj/structure/table/wood,
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Xm" = (
 /obj/structure/table/wood/fancy/black,
 /obj/item/ammo_box/magazine/aks74u,
 /obj/item/ammo_box/magazine/aks74u,
 /turf/simulated/floor/wood/fancy/oak,
 /area/centcom/trader_station/sol)
+"Xo" = (
+/mob/living/simple_animal/hostile/netherworld/blankbody,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Xp" = (
 /obj/structure/reagent_dispensers/water_cooler,
 /turf/simulated/floor/mineral/plastitanium,
@@ -3101,7 +4102,7 @@
 /obj/structure/curtain,
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "XF" = (
 /obj/structure/mineral_door/wood,
 /turf/simulated/floor/indestructible/stone_floor,
@@ -3112,7 +4113,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/cliff/snowrock,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "XJ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -3131,7 +4132,16 @@
 /obj/effect/overlay/turf/zauker,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/wall/indestructible/rock/dark,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"XR" = (
+/obj/structure/cable{
+	icon_state = "1-2"
+	},
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "XZ" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/wood/fancy/oak,
@@ -3154,6 +4164,11 @@
 /obj/structure/closet/cardboard,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Yj" = (
+/obj/effect/decal/cleanable/dust,
+/obj/item/trash/tray,
+/turf/simulated/floor/plating,
+/area/centcom/trader_station/sol)
 "Yk" = (
 /obj/structure/chair/sofa/corp/right,
 /turf/simulated/floor/mineral/plastitanium,
@@ -3162,8 +4177,23 @@
 /obj/structure/toilet{
 	dir = 2
 	},
+/obj/machinery/shower{
+	pixel_x = 17
+	},
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"Yr" = (
+/obj/machinery/door/airlock/vault{
+	name = "Хирургия"
+	},
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
+"Yt" = (
+/obj/structure/closet/crate/secure/loot,
+/obj/effect/overlay/turf/water_vapor,
+/obj/effect/overlay/turf/water_vapor,
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Yu" = (
 /obj/effect/mine/stun,
 /obj/effect/decal/cleanable/dust,
@@ -3173,7 +4203,7 @@
 /obj/effect/overlay/turf/water_vapor,
 /obj/effect/overlay/turf/water_vapor,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Yv" = (
 /obj/effect/turf_decal/box/red,
 /obj/structure/ore_box,
@@ -3181,9 +4211,13 @@
 /area/centcom/trader_station/sol)
 "Yw" = (
 /obj/structure/filingcabinet,
-/obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"YD" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/surround,
+/turf/simulated/floor/lava/lava_land_surface,
+/area/moonoutpost19/mo19research)
 "YE" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -3195,25 +4229,32 @@
 /obj/structure/spacevine,
 /turf/simulated/floor/vault,
 /area/centcom/trader_station/sol)
+"YL" = (
+/obj/machinery/chem_dispenser,
+/turf/simulated/floor/mineral/plastitanium,
+/area/centcom/trader_station/sol)
 "YO" = (
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/tritium,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "YP" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "YS" = (
 /obj/structure/fence/corner{
 	dir = 10
 	},
 /obj/structure/curtain/black,
 /obj/effect/turf_decal/siding/dark{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
 	dir = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -3225,12 +4266,14 @@
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /obj/item/reagent_containers/food/snacks/monstermeat/rotten,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "YV" = (
 /obj/structure/table/reinforced,
 /obj/item/paper{
-	info = "Уточняем размер комплекса для: 5 комнатный бункер с улучшенной системой фильтрации кислорода. Выдерживает давление в 102 атмосферы. Лифт в холле заработает только после окончания миссии. Запросы осуществляются по телефону или факсу.";
-	info_links = "Уточняем размер комплекса для: 5 комнатный бункер с улучшенной системой фильтрации кислорода. Выдерживает давление в 102 атмосферы. Лифт в холле заработает только после окончания миссии. Запросы осуществляются по телефону или факсу."
+	info = "Уточняем размер комплекса для: 7 комнатный бункер с улучшенной системой фильтрации кислорода. Выдерживает давление в 102 атмосферы. Лифт в холле заработает только после окончания миссии. Запросы осуществляются по телефону или факсу.";
+	info_links = "Уточняем размер комплекса для: 7 комнатный бункер с улучшенной системой фильтрации кислорода. Выдерживает давление в 102 атмосферы. Лифт в холле заработает только после окончания миссии. Запросы осуществляются по телефону или факсу.";
+	pixel_y = 4;
+	pixel_x = 6
 	},
 /turf/simulated/floor/pod/dark,
 /area/centcom/trader_station/sol)
@@ -3243,7 +4286,7 @@
 /obj/structure/barricade/wooden/crude,
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Ze" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dust,
@@ -3257,23 +4300,30 @@
 	desc = "Мраморная ангельская статуя. Возраст определить крайне трудно. Но они выглядят довольно целыми."
 	},
 /turf/simulated/floor/indestructible/stone_floor,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Zh" = (
 /obj/structure/cult/archives,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Zj" = (
 /obj/structure/decorative_structures/corpse{
 	icon_state = "corpse_soviet_lying_half2"
 	},
 /obj/effect/overlay/turf/zauker,
 /turf/simulated/floor/plating/asteroid/basalt,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "Zn" = (
 /obj/item/documents/syndicate/mining,
 /obj/effect/overlay/turf/miasma,
 /turf/simulated/floor/indestructible/carpet,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
+"Zu" = (
+/obj/effect/overlay/turf/zauker,
+/obj/effect/decal/snow/sand/edge{
+	dir = 6
+	},
+/turf/simulated/floor/engine/cult/lavaland_air,
+/area/moonoutpost19/mo19research)
 "Zy" = (
 /obj/structure/reagent_dispensers/holywatertank,
 /turf/simulated/floor/mineral/plastitanium,
@@ -3281,13 +4331,13 @@
 "Zz" = (
 /obj/effect/overlay/turf/tritium,
 /turf/simulated/floor/plasteel/reactor_pool/wall,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ZB" = (
 /obj/structure/barricade/wooden,
 /obj/structure/barricade/wooden/crude,
 /obj/structure/fans/tiny/invisible,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ZL" = (
 /obj/structure/closet/fireaxecabinet{
 	pixel_y = -31
@@ -3297,7 +4347,7 @@
 "ZP" = (
 /obj/structure/closet/crate/secure/loot,
 /turf/simulated/floor/engine/cult/lavaland_air,
-/area/lavaland/surface/outdoors/unexplored/danger)
+/area/moonoutpost19/mo19research)
 "ZU" = (
 /obj/machinery/light/floor,
 /obj/effect/decal/cleanable/dust,
@@ -3305,6 +4355,11 @@
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/vault,
+/area/centcom/trader_station/sol)
+"ZV" = (
+/obj/structure/girder,
+/obj/effect/decal/cleanable/dust,
+/turf/simulated/floor/plating,
 /area/centcom/trader_station/sol)
 "ZZ" = (
 /obj/effect/decal/cleanable/dust,
@@ -4555,27 +5610,27 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
 ip
 ip
 ip
@@ -4812,7 +5867,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -4832,7 +5887,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -5069,7 +6124,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -5089,7 +6144,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -5326,7 +6381,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -5346,7 +6401,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -5583,7 +6638,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -5603,7 +6658,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -5840,7 +6895,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -5860,7 +6915,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -6097,7 +7152,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -6117,7 +7172,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -6354,7 +7409,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -6374,7 +7429,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -6611,27 +7666,27 @@ ip
 ip
 ip
 ip
-ip
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-jR
-ip
+ds
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+KV
+ds
 ip
 ip
 ip
@@ -6868,7 +7923,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -6888,7 +7943,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -7125,7 +8180,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -7145,7 +8200,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -7382,7 +8437,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -7402,7 +8457,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -7639,7 +8694,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -7659,7 +8714,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -7896,7 +8951,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -7916,7 +8971,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -8153,7 +9208,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -8173,7 +9228,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -8410,7 +9465,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -8430,7 +9485,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -8667,7 +9722,7 @@ ip
 ip
 ip
 ip
-ip
+ds
 jR
 jR
 jR
@@ -8687,7 +9742,7 @@ jR
 jR
 jR
 jR
-ip
+ds
 ip
 ip
 ip
@@ -8924,27 +9979,27 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
+ds
 ip
 ip
 ip
@@ -13907,9 +14962,9 @@ fq
 fq
 fq
 fq
-Rj
-Rj
-Rj
+ew
+ew
+ew
 Rj
 uE
 fq
@@ -14163,12 +15218,12 @@ fq
 fq
 fq
 fq
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
+ew
+ew
+ew
+ew
+ew
+ew
 fq
 fq
 fq
@@ -14334,10 +15389,10 @@ XM
 nn
 qt
 mA
-qt
+eI
 Xm
 cO
-ao
+qt
 aX
 aX
 XM
@@ -14419,14 +15474,14 @@ fq
 fq
 fq
 fq
-kN
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-kN
+mt
+zQ
+ew
+ew
+ew
+ij
+Zu
+Ie
 kN
 fq
 fq
@@ -14579,12 +15634,12 @@ ip
 ip
 ip
 XM
-iV
+Pf
 iV
 xt
-KV
-vU
-vU
+tl
+tx
+tx
 mr
 vU
 VX
@@ -14676,13 +15731,13 @@ fq
 fq
 fq
 kN
-kN
-wy
+Tw
+CC
 ew
 ew
-ew
-kN
-kN
+Oa
+Ie
+OO
 kN
 kN
 fq
@@ -14840,8 +15895,8 @@ dK
 iV
 ia
 LG
-vU
-vU
+GF
+cJ
 vU
 vU
 XM
@@ -14933,12 +15988,12 @@ fq
 fq
 fq
 kN
-kN
+jL
+zQ
 ew
 ew
-ew
-ew
-kN
+Oa
+vR
 kN
 kN
 kN
@@ -15097,8 +16152,8 @@ iV
 WP
 WQ
 vU
-vU
-vU
+cJ
+GF
 vU
 Rp
 XM
@@ -15189,13 +16244,13 @@ fq
 fq
 fq
 fq
-kN
+Tw
+se
 ew
 ew
 ew
-ew
-wy
-kN
+pc
+MN
 kN
 kN
 kN
@@ -15354,8 +16409,8 @@ tc
 kG
 dd
 cM
-vU
-vU
+NH
+NH
 vU
 vU
 XM
@@ -15446,14 +16501,14 @@ fq
 fq
 fq
 fq
-kN
-ew
+Tw
+zQ
 CZ
 ew
 wy
 fy
-wy
-kN
+AF
+vR
 kN
 kN
 fq
@@ -15609,7 +16664,7 @@ ip
 XM
 tl
 tl
-ds
+tl
 vU
 mr
 vU
@@ -15703,14 +16758,14 @@ fq
 fq
 fq
 kN
-kN
-ew
+Tw
+zQ
 ew
 ew
 ew
 wy
 pL
-kN
+vR
 kN
 kN
 fq
@@ -15864,10 +16919,10 @@ ip
 ip
 ip
 XM
-vU
-vU
-vU
-vU
+Ua
+cJ
+GF
+yr
 vU
 vU
 vU
@@ -15960,14 +17015,14 @@ fq
 fq
 fq
 kN
-kN
-ew
+Tw
+jI
 wy
 ew
 jc
 ew
 pL
-kN
+vR
 kN
 kN
 fq
@@ -16122,8 +17177,8 @@ ip
 ip
 XM
 mr
-vU
-vU
+GF
+cJ
 vU
 vU
 vU
@@ -16218,13 +17273,13 @@ fq
 fq
 kN
 kN
-kN
-ew
+YD
+zQ
 ew
 ew
 wy
 pL
-kN
+vR
 kN
 kN
 kN
@@ -16379,7 +17434,7 @@ ip
 ip
 XM
 AW
-vU
+NH
 vU
 vU
 QM
@@ -16390,10 +17445,10 @@ XM
 ue
 Wm
 ql
-qt
+JN
 rp
 Cj
-JN
+qt
 ru
 ru
 XM
@@ -16474,14 +17529,14 @@ fq
 fq
 fq
 kN
-kN
-ew
+Tw
+se
 ew
 pQ
 zG
 wy
-Ro
-kN
+aE
+vR
 kN
 kN
 fq
@@ -16731,14 +17786,14 @@ fq
 fq
 fq
 kN
-kN
-ew
+Tw
+zQ
 Nm
 ew
 wy
 zu
 Ro
-kN
+vR
 kN
 kN
 fq
@@ -16872,7 +17927,6 @@ Pg
 Pg
 Pg
 XM
-qH
 Hx
 Hx
 Hx
@@ -16883,29 +17937,30 @@ Hx
 Hx
 Hx
 Hx
-ty
-XM
-ip
-ip
-ip
-ip
-ip
-ip
-XM
-XM
-XM
-ty
 Hx
 ty
 XM
+ip
+ip
+ip
+ip
+ip
+ip
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ty
+Hx
+ty
+XM
+XM
+XM
+XM
+YL
+ML
+Hx
+Sh
+XM
 ip
 ip
 ip
@@ -16988,13 +18043,13 @@ fq
 fq
 fq
 kN
-kN
+Tw
 aJ
 wy
 ew
-ew
-wy
-kN
+ij
+NT
+Ie
 kN
 kN
 kN
@@ -17129,7 +18184,7 @@ Pg
 Pg
 Pg
 XM
-rq
+Hx
 Hx
 Hx
 Hx
@@ -17158,11 +18213,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ml
+Wt
+Hx
+Fc
+XM
 ip
 ip
 ip
@@ -17246,11 +18301,11 @@ fq
 fq
 kN
 kN
-kN
-ew
-ew
-kN
-kN
+mt
+jI
+Zu
+Ie
+OO
 kN
 kN
 kN
@@ -17411,15 +18466,15 @@ Hx
 Hx
 Hx
 Hx
-hW
-Tk
-yq
+Hx
+Hx
+Hx
 XM
-ip
-ip
-ip
-ip
-ip
+Hx
+Hx
+Hx
+Tk
+XM
 ip
 ip
 ip
@@ -17504,8 +18559,8 @@ fq
 kN
 kN
 kN
-kN
-kN
+OO
+OO
 kN
 kN
 kN
@@ -17668,15 +18723,15 @@ Hx
 Hx
 ml
 Hx
-hW
-kF
-Da
+Hx
+Hx
+Hx
+Yr
+Hx
+Hx
+Hx
+Tk
 XM
-ip
-ip
-ip
-ip
-ip
 ip
 ip
 ip
@@ -17923,17 +18978,17 @@ XM
 zI
 Hx
 Hx
+ll
+ll
 Hx
 Hx
-hW
-LD
-Tk
+Hx
 XM
-ip
-ip
-ip
-ip
-ip
+ml
+Hx
+Hx
+Fc
+XM
 ip
 ip
 ip
@@ -18179,18 +19234,18 @@ XM
 XM
 Aj
 Hx
+ll
+ll
+ll
+ll
 Hx
 Hx
-Hx
-hW
-nX
-hW
 XM
-ip
-ip
-ip
-ip
-ip
+ud
+Hx
+Hx
+sR
+XM
 ip
 ip
 ip
@@ -18414,7 +19469,7 @@ mZ
 mZ
 fW
 tQ
-oP
+CP
 oP
 dq
 Xd
@@ -18447,7 +19502,7 @@ XM
 XM
 XM
 XM
-ip
+XM
 ip
 ip
 ip
@@ -18605,15 +19660,15 @@ Pg
 II
 II
 II
-II
+zE
 Pg
 Pg
-II
+AP
 Pg
 Pg
 Pg
 Pg
-Fr
+KS
 II
 II
 II
@@ -18680,8 +19735,8 @@ ss
 vL
 vL
 vL
-vL
-vL
+OI
+Ic
 wG
 Uz
 Ct
@@ -18928,7 +19983,7 @@ nC
 nC
 hA
 tQ
-Hx
+aj
 ml
 dq
 YV
@@ -18938,7 +19993,7 @@ kz
 Hp
 vL
 vL
-vL
+nX
 wG
 Uz
 vL
@@ -18957,7 +20012,7 @@ MU
 ow
 Hx
 XM
-Hx
+CY
 Hx
 Hx
 XM
@@ -19120,7 +20175,7 @@ II
 II
 II
 Pg
-II
+wp
 II
 Pg
 Pg
@@ -19129,7 +20184,7 @@ Pg
 Pg
 Fr
 II
-II
+Rj
 II
 II
 II
@@ -19195,7 +20250,7 @@ vL
 vL
 vL
 vL
-vL
+nX
 wG
 Uz
 vL
@@ -19386,7 +20441,7 @@ Pg
 Pg
 Pg
 Pg
-Pg
+RX
 Pg
 Pg
 Pg
@@ -19442,7 +20497,7 @@ II
 mZ
 fW
 tQ
-oP
+CP
 oP
 dq
 rM
@@ -19451,8 +20506,8 @@ vL
 nY
 vL
 vL
-vL
-vL
+Eg
+wr
 wG
 Uz
 Ct
@@ -19639,11 +20694,11 @@ Pg
 Pg
 Pg
 Pg
-Pg
-Pg
-Pg
-Pg
-Pg
+II
+II
+II
+II
+II
 Pg
 Pg
 Pg
@@ -19699,7 +20754,7 @@ ab
 ab
 ab
 pz
-Hx
+Ui
 Hx
 dq
 rs
@@ -19723,7 +20778,7 @@ Hx
 ll
 jx
 Cm
-uH
+hk
 uH
 ll
 Hx
@@ -19896,8 +20951,8 @@ Pg
 Pg
 Pg
 Pg
-Pg
-Pg
+II
+Ah
 Pg
 Pg
 Pg
@@ -19956,7 +21011,7 @@ Pg
 ab
 ab
 pz
-Hx
+OW
 Hx
 Wu
 vL
@@ -19989,8 +21044,8 @@ XM
 XM
 XM
 XM
-ip
-ip
+XM
+XM
 ip
 ip
 ip
@@ -20235,19 +21290,19 @@ Ft
 XM
 Xp
 Hx
-Hx
-Hx
-Hx
-Hx
+ll
+ll
+ll
+ll
 Hx
 Hx
 XM
-ip
-ip
-ip
-ip
-ip
-ip
+lm
+lm
+Wh
+Wh
+Wh
+XM
 ip
 ip
 ip
@@ -20493,18 +21548,18 @@ XM
 jk
 Hx
 Hx
+ll
+ll
 Hx
 Hx
 Hx
-Hx
-Hx
+oH
+lm
+lm
+Da
+bU
+bU
 XM
-ip
-ip
-ip
-ip
-ip
-ip
 ip
 ip
 ip
@@ -20756,12 +21811,12 @@ Hx
 Hx
 Hx
 XM
-ip
-ip
-ip
-ip
-ip
-ip
+lm
+lm
+wz
+lm
+LD
+XM
 ip
 ip
 ip
@@ -21013,12 +22068,12 @@ bw
 Zy
 IS
 XM
-ip
-ip
-ip
-ip
-ip
-ip
+lm
+lI
+qH
+LD
+LD
+XM
 ip
 ip
 ip
@@ -21270,12 +22325,12 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
-ip
+lm
+PC
+fR
+LD
+LD
+XM
 ip
 ip
 ip
@@ -21527,12 +22582,12 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
-ip
+yv
+hW
+lI
+ZV
+WC
+XM
 ip
 ip
 ip
@@ -21784,11 +22839,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+rj
+Mf
+nt
+lI
+WC
 ip
 ip
 ip
@@ -22041,11 +23096,11 @@ vU
 xu
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+dh
+JY
+qH
+lI
+XM
 ip
 ip
 ip
@@ -22298,11 +23353,11 @@ vU
 vU
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+LD
+ZV
+GM
+lI
+XM
 ip
 ip
 ip
@@ -22555,11 +23610,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+Oh
+hW
+Tj
+lI
+XM
 ip
 ip
 ip
@@ -22812,11 +23867,11 @@ Uu
 Yq
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+Oh
+ao
+Gk
+Iw
+XM
 ip
 ip
 ip
@@ -23069,11 +24124,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+MJ
+hW
+qH
+SD
+XM
 ip
 ip
 ip
@@ -23326,11 +24381,11 @@ Uu
 Yq
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+lI
+hW
+QC
+ZV
+XM
 ip
 ip
 ip
@@ -23583,11 +24638,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+zo
+hW
+QC
+UD
+XM
 ip
 ip
 ip
@@ -23840,11 +24895,11 @@ Uu
 Yq
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+Yj
+hW
+yq
+kU
+XM
 ip
 ip
 ip
@@ -24097,11 +25152,11 @@ XM
 XM
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+bd
+hW
+qH
+lI
+XM
 ip
 ip
 ip
@@ -24354,11 +25409,11 @@ Uu
 Yq
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ZV
+xF
+yn
+bd
+XM
 ip
 ip
 ip
@@ -24611,11 +25666,11 @@ XM
 WC
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+Oo
+hW
+yq
+bd
+XM
 ip
 ip
 ip
@@ -24868,11 +25923,11 @@ XJ
 ix
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+lI
+hW
+yq
+hW
+XM
 ip
 ip
 ip
@@ -25125,11 +26180,11 @@ xK
 zX
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+rq
+rq
+qH
+lm
+XM
 ip
 ip
 ip
@@ -25382,11 +26437,11 @@ sG
 dU
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+rq
+lI
+qH
+lm
+XM
 ip
 ip
 ip
@@ -25639,11 +26694,11 @@ PI
 oi
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+LD
+LD
+wz
+oK
+XM
 ip
 ip
 ip
@@ -25896,11 +26951,11 @@ py
 sZ
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ZV
+bd
+sr
+oK
+XM
 ip
 ip
 ip
@@ -26153,11 +27208,11 @@ py
 IB
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ZV
+lI
+qH
+hW
+XM
 ip
 ip
 ip
@@ -26410,11 +27465,11 @@ SZ
 Yw
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+cl
+lI
+qH
+hW
+XM
 ip
 ip
 ip
@@ -26667,11 +27722,11 @@ ZZ
 vG
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+lI
+lI
+qH
+lm
+XM
 ip
 ip
 ip
@@ -26924,11 +27979,11 @@ qZ
 nA
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+lI
+hW
+Kk
+LD
+XM
 ip
 ip
 ip
@@ -27181,11 +28236,11 @@ yK
 uL
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+ua
+lI
+kF
+LD
+XM
 ip
 ip
 ip
@@ -27286,13 +28341,13 @@ ip
 ip
 ip
 ip
-ip
-kN
-kN
-kN
-kN
-kN
 fq
+di
+di
+di
+di
+di
+aK
 fq
 fq
 fq
@@ -27438,11 +28493,11 @@ HS
 ta
 XM
 XM
-ip
-ip
-ip
-ip
-ip
+lI
+kb
+LD
+LD
+XM
 ip
 ip
 ip
@@ -27543,13 +28598,13 @@ ip
 ip
 ip
 ip
-ip
-kN
-kN
-kN
-kN
-kN
 fq
+di
+di
+di
+di
+di
+aK
 fq
 fq
 fq
@@ -27684,7 +28739,7 @@ ip
 ip
 ip
 ip
-ip
+rr
 XM
 XM
 XM
@@ -27694,12 +28749,12 @@ XM
 XM
 XM
 XM
+WC
+bK
+ZV
+LD
 XM
-ip
-ip
-ip
-ip
-ip
+XM
 ip
 ip
 ip
@@ -27800,13 +28855,13 @@ ip
 ip
 ip
 ip
-ip
 fq
-kN
-kN
-kN
-kN
-kN
+aK
+di
+di
+di
+di
+di
 fq
 fq
 fq
@@ -27941,21 +28996,21 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+rr
+hW
+tI
+ye
+GW
+GW
+mM
+lI
+cp
+aW
+jV
+zV
+LD
+LD
+rr
 ip
 ip
 ip
@@ -28198,21 +29253,21 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+rr
+TD
+XR
+bB
+Ad
+Ad
+fP
+zO
+dl
+dl
+hW
+lI
+LD
+LD
+rr
 ip
 ip
 ip
@@ -28455,21 +29510,21 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+rr
+Rh
+lI
+Ps
+gj
+gj
+ej
+lI
+hW
+lI
+lm
+LD
+LD
+LD
+rr
 ip
 ip
 ip
@@ -28712,21 +29767,21 @@ ip
 ip
 ip
 ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
-ip
+rr
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+XM
+rr
 ip
 ip
 ip
@@ -30388,11 +31443,11 @@ fq
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -30645,11 +31700,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -30902,11 +31957,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -31159,11 +32214,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -31416,11 +32471,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -31673,11 +32728,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+rI
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -31930,11 +32985,11 @@ kN
 kN
 kN
 kN
-kN
+Tw
+PO
 Rj
-Rj
-Rj
-kN
+Ov
+vR
 kN
 kN
 kN
@@ -34475,11 +35530,11 @@ ip
 ip
 ip
 ip
-eV
-eV
-eV
-Ih
-Ih
+na
+na
+na
+vN
+vN
 vN
 na
 fq
@@ -34488,10 +35543,10 @@ fq
 fq
 vN
 vN
-fq
-fq
-fq
-fq
+aK
+aK
+vh
+vh
 fq
 fq
 fq
@@ -34732,10 +35787,10 @@ eV
 eV
 eV
 eV
-eV
-Ik
-Gs
-Gs
+na
+NU
+ew
+ew
 wb
 ew
 ew
@@ -34745,16 +35800,16 @@ Rj
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-fq
-fq
-fq
-fq
-fq
-fq
+OX
+OX
+Jq
+Jq
+aK
+aK
+aK
+aK
+aK
+aK
 fq
 fq
 fq
@@ -34989,29 +36044,29 @@ uJ
 Ss
 Sg
 eV
-Ih
-Gs
-ev
-Gs
-Gs
+vN
+ew
+wy
+ew
+ew
 ew
 wy
 Rj
 Rj
 Rj
-wx
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-fq
-fq
-fq
-fq
-fq
-fq
+OX
+OX
+Jq
+Jq
+Ng
+Ng
+Ng
+vh
+vh
+aK
 fq
 fq
 Rj
@@ -35226,7 +36281,7 @@ ip
 ip
 ip
 eV
-Ma
+sA
 Ma
 Ma
 Ma
@@ -35246,29 +36301,29 @@ Ss
 Ss
 CF
 eY
-eV
-Gs
-Gs
-ev
-Gs
+na
+ew
+ew
+wy
 ew
 ew
 ew
+ew
 Rj
 Rj
+mw
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
+OX
+OX
+Jq
+Jq
+DA
+DA
+DA
+Jq
+Jq
+OX
 Rj
 Rj
 Rj
@@ -35504,10 +36559,10 @@ Ql
 Ss
 Ss
 rV
-Gs
+ew
 uU
-Gs
-Gs
+ew
+ew
 zG
 ew
 Rj
@@ -35516,16 +36571,16 @@ Rj
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
+OX
+OX
+Jq
+Jq
+DA
+DA
+DA
+Jq
+Jq
+OX
 Rj
 Rj
 Rj
@@ -35740,7 +36795,7 @@ ip
 ip
 ip
 eV
-Ma
+sA
 Ma
 Ma
 uj
@@ -35760,11 +36815,11 @@ CF
 Ss
 Ss
 CF
-eV
-Gs
-Gs
-Gs
-Gs
+na
+ew
+ew
+ew
+ew
 ew
 ew
 Rj
@@ -35773,16 +36828,16 @@ Rj
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
-Rj
+OX
+OX
+Jq
+Jq
+DA
+DA
+DA
+Jq
+Jq
+OX
 fq
 fq
 fq
@@ -36017,11 +37072,11 @@ uJ
 Ss
 Sg
 eV
-Ih
-Gs
-ev
-Gs
-ev
+vN
+ew
+wy
+ew
+wy
 ew
 Rj
 wx
@@ -36030,16 +37085,16 @@ Rj
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-fq
-fq
-fq
-fq
-fq
-fq
+OX
+OX
+Jq
+Jq
+Ng
+Ng
+Ng
+vh
+vh
+aK
 fq
 fq
 fq
@@ -36274,11 +37329,11 @@ eV
 eV
 eV
 eV
-Ih
-MC
-Gs
-Gs
-Gs
+vN
+kO
+ew
+ew
+ew
 ew
 Rj
 Rj
@@ -36287,16 +37342,16 @@ Rj
 Rj
 Rj
 Rj
-Rj
-Rj
-Rj
-Rj
-fq
-fq
-fq
-fq
-fq
-fq
+OX
+OX
+Jq
+Jq
+aK
+aK
+aK
+aK
+aK
+aK
 fq
 fq
 fq
@@ -36531,11 +37586,11 @@ ip
 ip
 ip
 ip
-Ih
-Ih
-eV
-Ih
-eV
+vN
+vN
+na
+vN
+na
 fq
 fq
 fq
@@ -36544,10 +37599,10 @@ vN
 vN
 fq
 fq
-fq
-fq
-fq
-fq
+aK
+aK
+vh
+vh
 fq
 fq
 fq
@@ -39107,8 +40162,8 @@ Gs
 ev
 Gc
 eV
-eV
-fq
+na
+aK
 na
 fq
 na
@@ -39364,8 +40419,8 @@ Gs
 Gs
 Gs
 ZB
-Gs
-Rj
+ew
+OX
 ew
 Rj
 Rj
@@ -39621,8 +40676,8 @@ Gs
 pG
 Gs
 ZB
-zn
 Rj
+OX
 Rj
 na
 Rj
@@ -39878,8 +40933,8 @@ Gs
 Gs
 Gs
 eV
-eV
 na
+AV
 na
 na
 fq
@@ -40902,7 +41957,7 @@ Gs
 ev
 Gs
 Gs
-xJ
+vJ
 ev
 Gs
 eV
@@ -42432,8 +43487,8 @@ ip
 ip
 ip
 ip
-eV
-Gs
+jl
+Fj
 Gs
 Gs
 eV
@@ -42689,11 +43744,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
+jl
+Fj
 Gs
 ev
-eV
+jl
 ip
 ip
 ip
@@ -42946,11 +44001,11 @@ ip
 ip
 ip
 ip
-eV
+jl
+Fj
 Gs
-Gs
-Gs
-eV
+Fj
+jl
 ip
 ip
 ip
@@ -43203,11 +44258,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-eV
+jl
+Fj
+Fj
+Fj
+jl
 ip
 ip
 ip
@@ -43460,11 +44515,11 @@ ip
 ip
 ip
 ip
-eV
-ev
-Gs
-Gs
-eV
+jl
+AB
+Fj
+Fj
+jl
 ip
 ip
 ip
@@ -43717,11 +44772,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-eV
+Pj
+eQ
+eQ
+eQ
+Pj
 ip
 ip
 ip
@@ -43974,11 +45029,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-eV
+Pj
+eQ
+eQ
+eQ
+Pj
 ip
 ip
 ip
@@ -44231,11 +45286,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-ZP
-eV
+Pj
+eQ
+eQ
+Yt
+Pj
 ip
 ip
 ip
@@ -44488,11 +45543,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-eV
+Pj
+eQ
+eQ
+eQ
+Pj
 ip
 ip
 ip
@@ -44745,11 +45800,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-eV
+Pj
+eQ
+eQ
+eQ
+Pj
 ip
 ip
 ip
@@ -45002,11 +46057,11 @@ ip
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -45259,11 +46314,11 @@ Ih
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -45516,11 +46571,11 @@ Ih
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -45773,11 +46828,11 @@ Ih
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -46030,11 +47085,11 @@ Ih
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -46287,11 +47342,11 @@ Ih
 ip
 ip
 ip
-eV
-Gs
-Gs
-Gs
-Ih
+Pj
+eQ
+eQ
+eQ
+Vn
 ip
 ip
 ip
@@ -46542,15 +47597,15 @@ eN
 Gs
 eV
 ip
-Ih
-Ih
-eV
-Fm
-Fm
-Fm
-Ih
-Ih
-Ih
+SH
+SH
+BW
+hc
+hc
+hc
+SH
+SH
+SH
 ip
 ip
 ip
@@ -46799,15 +47854,15 @@ Gs
 Gs
 eV
 ip
-Ih
+SH
 Qd
-Gs
-Gs
-Gs
-Gs
-Gs
+Rk
+Rk
+Rk
+Rk
+Rk
 Qd
-eV
+BW
 ip
 ip
 ip
@@ -47056,15 +48111,15 @@ IK
 Zh
 eV
 ip
-Ih
-Gs
-Gs
-Gs
-Gs
-zF
-Gs
-ev
-eV
+SH
+Rk
+Rk
+Rk
+Rk
+JT
+Rk
+yN
+BW
 ip
 ip
 ip
@@ -47313,15 +48368,15 @@ eV
 eV
 eV
 ip
-Ih
-Gs
-ev
-Ka
-Gs
-Gs
-Gs
-Gs
-eV
+SH
+Rk
+yN
+Xo
+Rk
+Rk
+Rk
+Rk
+BW
 ip
 ip
 ip
@@ -47570,15 +48625,15 @@ ip
 ip
 ip
 ip
-Ih
-Gs
-Gs
-Gs
-Gs
-Ka
-Gs
-Gs
-eV
+SH
+Rk
+Rk
+Rk
+Rk
+Xo
+Rk
+Rk
+BW
 ip
 ip
 ip
@@ -47827,15 +48882,15 @@ ip
 ip
 ip
 ip
-eV
-ev
-Gs
-Gs
-Gs
-ev
-Gs
-Gs
-eV
+BW
+yN
+Rk
+Rk
+Rk
+yN
+Rk
+Rk
+BW
 ip
 ip
 ip
@@ -48084,15 +49139,15 @@ ip
 ip
 ip
 ip
-eV
-Gc
-Gs
-Gc
-Gs
-Gc
-Gs
-Gc
-Ih
+BW
+MV
+Rk
+MV
+Rk
+MV
+Rk
+MV
+SH
 ip
 ip
 ip
@@ -48341,15 +49396,15 @@ ip
 ip
 ip
 ip
-eV
+BW
 mO
-Gs
+Rk
 qi
-Gs
+Rk
 cX
-Gs
+Rk
 qi
-Ih
+SH
 ip
 ip
 ip
@@ -48598,15 +49653,15 @@ ip
 ip
 ip
 ip
-eV
+BW
 MS
-Gs
+Rk
 fV
-Gs
+Rk
 fV
-Gs
+Rk
 mO
-Ih
+SH
 ip
 ip
 ip
@@ -48855,15 +49910,15 @@ ip
 ip
 ip
 ip
-Ih
+SH
 qi
-Gs
+Rk
 cI
-Gs
+Rk
 rB
-Gs
-fV
-Ih
+Rk
+jP
+SH
 ip
 ip
 ip
@@ -49112,15 +50167,15 @@ ip
 ip
 ip
 ip
-Ih
-Ih
-Ih
-Ih
-eV
-eV
-eV
-Ih
-Ih
+SH
+SH
+SH
+SH
+BW
+BW
+BW
+SH
+SH
 ip
 ip
 ip
@@ -84918,7 +85973,7 @@ Bc
 Bc
 Bc
 Bc
-Bc
+qn
 Bc
 Bc
 Bc
@@ -85175,8 +86230,8 @@ Bc
 Bc
 Bc
 Bc
-Bc
-Bc
+qn
+qn
 Bc
 Bc
 Bc
@@ -85432,8 +86487,8 @@ Bc
 Bc
 Bc
 Bc
-Bc
-Bc
+qn
+lU
 Bc
 Bc
 Bc
@@ -90042,7 +91097,7 @@ Bc
 Bc
 qn
 qn
-qn
+vd
 qn
 qn
 xb
@@ -99253,11 +100308,11 @@ lH
 lH
 lH
 lH
+gD
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -99511,10 +100566,10 @@ lH
 lH
 lH
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -99768,10 +100823,10 @@ lH
 lH
 lH
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -100025,10 +101080,10 @@ lH
 lH
 lH
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -100282,10 +101337,10 @@ lH
 lH
 lH
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -100539,10 +101594,10 @@ lH
 lH
 lH
 lH
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -100798,8 +101853,8 @@ Ev
 Ev
 Ev
 Ev
-Bc
-Bc
+lH
+lH
 Bc
 Bc
 Bc
@@ -101055,8 +102110,8 @@ Ev
 Ev
 Ev
 Ev
-Bc
-Bc
+lH
+lH
 Bc
 Bc
 Bc
@@ -101312,8 +102367,8 @@ Ev
 Ev
 Ev
 Ev
-Bc
-Bc
+lH
+lH
 Bc
 Bc
 Bc
@@ -101569,8 +102624,8 @@ Ev
 Ev
 Ev
 Ev
-Bc
-Bc
+lH
+lH
 Bc
 Bc
 Bc
@@ -101826,8 +102881,8 @@ Ev
 Ev
 Ev
 Ev
-Bc
-Bc
+lH
+lH
 Bc
 Bc
 Bc
@@ -102065,26 +103120,26 @@ qn
 qn
 qn
 qn
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -102322,26 +103377,26 @@ qn
 qn
 qn
 qn
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
@@ -102579,26 +103634,26 @@ qn
 qn
 qn
 qn
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
-Bc
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
+lH
 Bc
 Bc
 Bc
