@@ -1081,14 +1081,14 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		var/list/queue_data = list()
 		data["destroy_queue"] = queue_data
 		for(var/obj/item/queued_item as anything in visible_queue)
-			var/item_name = capitalize(queued_item.declent_ru(NOMINATIVE))
+			var/item_name = DECLENT_RU_CAP(queued_item, NOMINATIVE)
 			if(isstack(queued_item))
 				var/obj/item/stack/queued_stack = queued_item
 				item_name += " ×[queued_stack.get_amount()]"
 			queue_data += list(list("id" = queued_item.UID(), "name" = item_name))
 		var/list/loaded_item_list = list()
 		data["loaded_item"] = loaded_item_list
-		loaded_item_list["name"] = capitalize(linked_destroy.loaded_item.declent_ru(NOMINATIVE))
+		loaded_item_list["name"] = DECLENT_RU_CAP(linked_destroy.loaded_item, NOMINATIVE)
 		if(isstack(linked_destroy.loaded_item))
 			var/obj/item/stack/loaded_stack = linked_destroy.loaded_item
 			loaded_item_list["name"] += " ×[loaded_stack.get_amount()]"
