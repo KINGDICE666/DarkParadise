@@ -57,6 +57,7 @@
 		var/list/bounds = GLOB.maploader.load_map(get_file(), min_x, min_y, placement.z, shouldCropMap = TRUE)
 		if(!bounds)
 			return 0
+		require_area_resort()
 		if(bot_left == null || top_right == null)
 			stack_trace("One of the late setup corners is bust")
 		if(ST_bot_left == null || ST_top_right == null)

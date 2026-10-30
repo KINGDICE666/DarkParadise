@@ -144,6 +144,7 @@ SUBSYSTEM_DEF(explosions)
 
 	var/datum/explosion_data/data = new(get_turf(epicenter), devastation_range, heavy_impact_range, light_impact_range, flash_range, ignorecap, flame_range, breach, multiz_explosions, protect_epicenter, explosion_direction, explosion_arc)
 	INVOKE_ASYNC(src, PROC_REF(start_explosion), data, adminlog, cause, smoke, silent)
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_EXPLOSION, get_turf(epicenter), devastation_range, heavy_impact_range, light_impact_range, flash_range, flame_range)
 
 	return TRUE
 

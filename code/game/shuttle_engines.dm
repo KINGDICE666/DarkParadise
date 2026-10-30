@@ -22,7 +22,7 @@
 // Это временное решение, дабы движки были освещены. Я хотел сделать анимацию с перекрасом цветов света в синий при полёте, но не сделал. Надеюсь кто-то сделает.
 /obj/structure/shuttle/engine/Initialize(mapload)
 	. = ..()
-	set_light_range_power_color(2)
+	set_light(2)
 
 /obj/structure/shuttle/engine/Destroy(force)
 	QDEL_LIST(fillers)
