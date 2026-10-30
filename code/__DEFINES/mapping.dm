@@ -5,8 +5,6 @@
 #define Z_LEVEL_DOWN 2
 #define LARGEST_Z_LEVEL_INDEX Z_LEVEL_DOWN
 
-#define SPACE_RUINS_NUMBER rand(CONFIG_GET(number/extra_space_ruin_levels_min), CONFIG_GET(number/extra_space_ruin_levels_max))
-
 GLOBAL_LIST_EMPTY(lazis_primary_turfs)
 
 #define DISABLE_LAVALAND (1<<0)
