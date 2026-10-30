@@ -331,8 +331,8 @@ GAME_VERB_HIDDEN(/mob, quick_equip, "quick-equip")
 		hand_item = l_hand
 	else if(hand_id == ITEM_SLOT_HAND_RIGHT)
 		hand_item = r_hand
-	if(hand_item)
-		drop_item_ground(hand_item, force = TRUE, silent = silent)
+	if(hand_item && !drop_item_ground(hand_item, force = TRUE, silent = silent))
+		return FALSE
 
 	I.pulledby?.stop_pulling()
 	I.forceMove(src)
@@ -612,7 +612,8 @@ GAME_VERB_HIDDEN(/mob, quick_equip, "quick-equip")
 		return FALSE
 
 	//Possible component blocking
-	if((SEND_SIGNAL(I, COMSIG_ITEM_PRE_UNEQUIP, force, newloc, no_move, invdrop, silent) & COMPONENT_ITEM_BLOCK_UNEQUIP) && !force)
+	var/unequip_result = SEND_SIGNAL(I, COMSIG_ITEM_PRE_UNEQUIP, force, newloc, no_move, invdrop, silent)
+	if(unequip_result & COMPONENT_ITEM_BLOCK_UNEQUIP_FORCE || (unequip_result & COMPONENT_ITEM_BLOCK_UNEQUIP && !force))
 		return FALSE
 
 	return TRUE
