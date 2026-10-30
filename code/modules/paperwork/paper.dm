@@ -289,7 +289,7 @@
 	info_links = info
 	for(var/i in 1 to fields)
 		var/write_1 = "<font face=\"[deffont]\"><a href='byond://?src=[UID()];write=[i]'>write</a></font>"
-		var/write_2 = "<font face=\"[deffont]\"><a href='byond://?src=[UID()];auto_write=[i]'><span style=\"color: #409F47; font-size: 10px\">\[a\]</span></a></font>"
+		var/write_2 = "<font face=\"[deffont]\"><a href='byond://?src=[UID()];auto_write=[i]' oncontextmenu=\"window.location.href=this.href+';quick_write=1';return false;\" title='ЛКМ: выбор текста. ПКМ: заполнить по названию поля.'><span style=\"color: #409F47; font-size: 10px\">\[a\]</span></a></font>"
 		addtofield(i, "[write_1][write_2]", 1)
 	info_links = info_links + "<font face=\"[deffont]\"><a href='byond://?src=[UID()];write=end'>write</a></font>" + "<font face=\"[deffont]\"><a href='byond://?src=[UID()];auto_write=end'><span style=\"color: #409F47; font-size: 10px\">\[A\]</span></a></font>"
 
@@ -300,6 +300,51 @@
 	LAZYNULL(stamp_overlays)
 	updateinfolinks()
 	update_icon()
+
+/obj/item/paper/proc/get_quick_write_text(mob/user, field_id)
+	if(field_id < 1 || field_id > fields || field_id != round(field_id))
+		return
+	var/field_start = 0
+	var/context_start = 1
+	for(var/index in 1 to field_id)
+		field_start = findtext(info, "<span class=\"paper_field\">", context_start)
+		if(!field_start)
+			return
+		if(index == field_id)
+			break
+		context_start = findtext(info, "</span>", field_start) + length("</span>")
+
+	var/context = copytext(info, context_start, field_start)
+	var/label_end = findlasttext(context, ":")
+	if(!label_end)
+		return
+	context = lowertext(trim_strip_html_properly(copytext(context, 1, label_end), max_length = 0))
+
+	var/static/regex/name_label = regex("(имя( заявителя)?|фио|фамилия, имя, отчество)$")
+	var/static/regex/job_label = regex("(текущая должность|должность( заявителя| уполномоченного лица)?)$")
+	var/static/regex/account_label = regex("номер (аккаунта|сч\[её]та)( заявителя)?$")
+	var/static/regex/signature_label = regex("подпись\[^:]*$")
+	var/static/regex/datetime_label = regex("дата и время$")
+	var/static/regex/time_label = regex("время( \[^:]*)?$")
+	var/static/regex/date_label = regex("дата$")
+	var/static/regex/station_label = regex("название станции$")
+	if(name_label.Find(context))
+		return user.real_name
+	if(job_label.Find(context))
+		return user.job ? get_job_title_ru(user.job) : null
+	if(account_label.Find(context))
+		var/account_number = user.mind?.initial_account?.account_number
+		return account_number ? account_number : null
+	if(signature_label.Find(context))
+		return "\[sign\]"
+	if(datetime_label.Find(context))
+		return "\[date\] \[time\]"
+	if(time_label.Find(context))
+		return "\[time\]"
+	if(date_label.Find(context))
+		return "\[date\]"
+	if(station_label.Find(context))
+		return "\[station\]"
 
 /obj/item/paper/proc/parsepencode(t, obj/item/pen/P, mob/user as mob)
 	t = pencode_to_html(html_encode(t), usr, P, TRUE, TRUE, TRUE, deffont, signfont, crayonfont)
@@ -374,6 +419,11 @@
 
 	if(href_list["auto_write"])
 		var/id = href_list["auto_write"]
+		if(href_list["quick_write"])
+			var/quick_text = get_quick_write_text(usr, text2num(id))
+			if(!isnull(quick_text))
+				topic_href_write(usr, id, quick_text)
+				return
 
 		var/const/sign_text = "\[Поставить подпись\]"
 		var/const/account_text = "\[Написать номер аккаунта\]"
