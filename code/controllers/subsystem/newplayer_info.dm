@@ -51,7 +51,7 @@ SUBSYSTEM_DEF(new_player_info)
 	if(is_admin)
 		return "Старт через [time_remaining_str()]<br>Игроков: [players]<br>Готовы: [total_players_ready]"
 
-	return "<span style='font-size: 18px'>[time_remaining_str()]</span><br>Игроков: [players]"
+	return "<span style='font-size: 13.5pt'>[time_remaining_str()]</span><br>Игроков: [players]"
 
 #undef LOBBY_WAIT_TIME
 #undef PLAYIND_WAIT_TIME

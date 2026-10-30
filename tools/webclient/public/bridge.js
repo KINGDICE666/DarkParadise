@@ -24,10 +24,25 @@
       source = source.replace('if(opts) t.winset(opts);', 'if(opts && opts.titlebar != null && opts.showTitle == null) opts.showTitle = opts.titlebar; if(opts) t.winset(opts);');
       source = source.replaceAll('t.ui.contents.appendChild(e)', 'window.__dpMoveControl(t.ui.contents, e)');
       source = source.replaceAll('document.body.appendChild(t.top)', 'window.__dpMoveControl(document.body, t.top)');
+      source = source.replace("byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'});", "c._dpPlaced = true; byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'}); window.__dpFitPop(p, false);");
+      source = source.replace("byond.css(s, {width:v.x+'px', height:v.y+'px'});", "byond.css(s, {width:v.x+'px', height:v.y+'px'}); if (p.isConnected) window.__dpFitPop(p, false);");
+      source = source.replace(/byond\.css\(t\.top,\{\s*left: \(window\.innerWidth-sz\.x\)\/2-cp\.x\+'px',\s*top: \(window\.innerHeight-sz\.y\)\/2-cp\.y\+'px'\s*\}\);/, 'if (!c._dpPlaced) byond.css(t.top, {left: "0px", top: "0px"});');
+      source = source.replace(/t\._checkZ\(\);\s*if\(h\) h\.onshow\(\);/, 't._checkZ(); window.__dpFitPop(t.top, !c._dpPlaced); if(h) h.onshow();');
     }
     return source;
   };
-  const topicLimit = 8;
+  window.__dpFitPop = function (pop, center) {
+    const view = pop.ownerDocument.defaultView;
+    const width = pop.offsetWidth;
+    const height = pop.offsetHeight;
+    let left = center ? (view.innerWidth - width) / 2 : pop.offsetLeft;
+    let top = center ? (view.innerHeight - height) / 2 : pop.offsetTop;
+    left = Math.max(0, Math.min(left, view.innerWidth - width));
+    top = Math.max(0, Math.min(top, view.innerHeight - height));
+    if (left !== pop.offsetLeft) pop.style.left = Math.round(left) + 'px';
+    if (top !== pop.offsetTop) pop.style.top = Math.round(top) + 'px';
+  };
+  const topicLimit = 6;
   const topicWindow = 1000;
   const sentTopics = [];
   const queuedTopics = [];
@@ -57,6 +72,7 @@
     }
   }
   window.__dpScheduleTopic = function (client, topic) {
+    if (directTopic) return false;
     const now = Date.now();
     if (dispatching) { sentTopics.push(now); return false; }
     const query = new URLSearchParams(topic.replace(/^\?/, ''));
@@ -141,8 +157,58 @@
     else frame.addEventListener('load', apply, { once: true });
     return true;
   }
-  window.__dpExpandCommand = function (command) {
-    if (typeof command !== 'string' || command.indexOf('\n') >= 0) return command;
+  const physicalKeyCodes = { Backquote: 192, Minus: 189, Equal: 187, BracketLeft: 219, BracketRight: 221, Backslash: 220, Semicolon: 186, Quote: 222, Comma: 188, Period: 190, Slash: 191, IntlBackslash: 226 };
+  window.__dpLatinKeyCode = function (event) {
+    if (typeof event.key !== 'string' || event.key.length !== 1 || event.key.charCodeAt(0) < 128) return;
+    const code = typeof event.code === 'string' ? event.code : '';
+    const keyCode = /^Key[A-Z]$/.test(code) ? code.charCodeAt(3) : /^Digit\d$/.test(code) ? code.charCodeAt(5) : physicalKeyCodes[code];
+    if (!keyCode || event.keyCode === keyCode) return;
+    Object.defineProperty(event, 'keyCode', { value: keyCode });
+    Object.defineProperty(event, 'which', { value: keyCode });
+  };
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('keydown', window.__dpLatinKeyCode, true);
+    window.addEventListener('keyup', window.__dpLatinKeyCode, true);
+  }
+
+  let directTopic = false;
+  const keyCommand = /^key(down|up)\s+("(?:[^"\\]|\\.)*"|\S+)((?:\s+-?\d+){0,4})\s*$/i;
+  function sendKeyTopic(client, command) {
+    const match = keyCommand.exec(command);
+    if (!match) return false;
+    let key = match[2];
+    if (key.length > 1 && key.charAt(0) === '"' && key.charAt(key.length - 1) === '"') key = key.slice(1, -1).replace(/\\(.)/g, '$1');
+    const numbers = match[3].trim() ? match[3].trim().split(/\s+/) : [];
+    const query = new URLSearchParams({ dp_key: key });
+    ['x', 'y', 'w', 'h'].forEach(function (name, index) { if (numbers[index] != null) query.set(name, numbers[index]); });
+    if (match[1].toLowerCase() === 'up') query.set('dp_up', '1');
+    directTopic = true;
+    try { client.sendTopicMessage$1('?' + query.toString()); }
+    finally { directTopic = false; }
+    return true;
+  }
+  function exactVerbName(client, word) {
+    const wanted = word.replace(/-/g, ' ').toLowerCase();
+    let found = null;
+    for (let cell = client && client.verbs && client.verbs._first; cell; cell = cell._next) {
+      const name = cell.hashMapCellValue && cell.hashMapCellValue._webclient$_name;
+      if (typeof name !== 'string' || name.toLowerCase() !== wanted) continue;
+      const dashed = name.replace(/ /g, '-');
+      if (word === name || word === dashed) return word;
+      found = found || dashed;
+    }
+    return found || word;
+  }
+  function exactVerbCommand(client, command) {
+    return command.split('\n').map(function (line) {
+      const match = /^(\s*)([^\s".][^\s"]*)([\s\S]*)$/.exec(line);
+      return match ? match[1] + exactVerbName(client, match[2]) + match[3] : line;
+    }).join('\n');
+  }
+  window.__dpExpandCommand = function (command, client) {
+    if (typeof command !== 'string') return command;
+    command = exactVerbCommand(client, command);
+    if (command.indexOf('\n') >= 0) return command;
     const output = /^\.output\s+(\S+)\s*([\s\S]*)$/i.exec(command);
     if (output) {
       let text = output[2];
@@ -151,27 +217,178 @@
       try { window.byond.skin.output(output[1], { text: text }); } catch (_) {}
       return null;
     }
-    return command.replace(/\[\[([\w-]+(?:\.[\w-]+)*)\.(mouse-pos|size)\]\]/g, function (_, id, property) {
+    const expanded = command.replace(/\[\[([\w-]+(?:\.[\w-]+)*)\.(mouse-pos|size)\]\]/g, function (_, id, property) {
       return embeddedValue(id, property);
-    }).replace(/^(KeyDown|KeyUp)\s+([^\s"]+)/i, function (_, verb, key) {
-      return verb + ' "' + key.replace(/\\/g, '\\\\') + '"';
+    });
+    if (client && typeof client.sendTopicMessage$1 === 'function' && sendKeyTopic(client, expanded)) return null;
+    return expanded.replace(/^key(down|up)\s+(\S+)/i, function (_, direction, key) {
+      const verb = direction.toLowerCase() === 'down' ? 'keyDown' : 'keyUp';
+      if (key.length > 1 && key.charAt(0) === '"' && key.charAt(key.length - 1) === '"') return verb + ' ' + key;
+      return verb + ' "' + key.replace(/[\\"]/g, '\\$&') + '"';
     });
   };
 
   const lowestPlane = -50;
   const planeRange = 107;
   const spacePlane = -21;
-  const firstLightingPlane = 10;
-  const lastLightingPlane = 22;
-  window.__dpSkipPlane = function (plane) {
-    if (typeof plane !== 'number' || plane < -10000) return false;
-    const truePlane = ((plane - lowestPlane) % planeRange + planeRange) % planeRange + lowestPlane;
-    return truePlane === spacePlane || (truePlane >= firstLightingPlane && truePlane <= lastLightingPlane);
+  const parallaxPlane = -20;
+  const lightingPlane = 10;
+  const overlayLightingPlane = 11;
+  const emissivePlane = 13;
+  const firstRenderPlate = 12;
+  const lastRenderPlate = 22;
+  const multiplyBlend = 4;
+  const addBlend = 2;
+  const mergedLightSubplane = 8;
+  const keepTogetherAppearance = 67108864;
+  function truePlaneOf(plane) {
+    return ((plane - lowestPlane) % planeRange + planeRange) % planeRange + lowestPlane;
+  }
+  function isParallaxHolder(atom) {
+    const core = atom && atom._appearance && atom._appearance.core;
+    return Boolean(atom && atom.onScreen && atom.screenLoc && core &&
+      core.plane === parallaxPlane && core.iconId === 65535 && !core.get$planeMaster());
+  }
+  window.__dpPrepareParallax = function (map, client) {
+    let candidates = map.__dpParallaxCandidates;
+    if (!candidates || candidates.generation !== map.__dpMovableGeneration) {
+      const roots = [];
+      for (const id of map.movs) {
+        const atom = client.infoMap.$index(0, id);
+        const core = atom && atom._appearance && atom._appearance.core;
+        if (core && !atom.onScreen && atom.locId === 0 && core.plane === parallaxPlane) roots.push(atom);
+      }
+      candidates = map.__dpParallaxCandidates = { roots, generation: map.__dpMovableGeneration };
+    }
+    const roots = candidates.roots;
+    const signature = [];
+    for (const atom of roots) {
+      const animation = atom._animation;
+      const animating = animation && (animation.total_end == null || animation.total_end > client.currentMs);
+      signature.push(atom.id, atom._appearance, atom.pixel_w, atom.pixel_z,
+        animating ? client.currentMs : 0);
+    }
+    signature.push(client.iconInfoMap?._collection$_length);
+    const old = map.__dpParallax;
+    if (old && old.signature.length === signature.length && signature.every((value, i) => value === old.signature[i])) return;
+    map.__dpParallax = { roots, signature };
+    for (const id of map.screen) {
+      const holder = client.infoMap.$index(0, id);
+      if (!isParallaxHolder(holder)) continue;
+      holder.icons_dirty = true;
+      holder.inert = false;
+      if (holder.cantick && holder.tickIndex < 0) holder.prepareTick$1(true);
+    }
+  };
+  window.__dpParallaxAppearance = function (atom, appearance, client, clone) {
+    if (!isParallaxHolder(atom)) return appearance;
+    const roots = client.mapInfo.__dpParallax && client.mapInfo.__dpParallax.roots;
+    if (!roots || !roots.length) return appearance;
+    const result = clone(appearance, true);
+    result.overlays = (result.overlays || []).concat(roots.map(function (root) {
+      const layer = clone(root.get$currentAppearance(), true);
+      layer.core.pixel_w += root.pixel_w || 0;
+      layer.core.pixel_z += root.pixel_z || 0;
+      layer.core.bits = (layer.core.bits & ~keepTogetherAppearance) >>> 0;
+      layer.core.set$keepApart(true);
+      return layer;
+    }));
+    return result;
+  };
+  window.__dpDmiFrameChanged = function (atom, client) {
+    const appearance = atom._appearance;
+    if (!appearance || appearance.overlays || appearance.underlays || atom.images?.length ||
+      atom._animation || atom.flick || atom.get$moving() || atom._mapicons?.length !== 1) return true;
+    const core = appearance.core;
+    const sheet = client.iconInfoMap.$index(0, core.iconId);
+    if (!sheet) return true;
+    const frame = sheet.IconAt$4(core.iconState, false, core.dir, client.currentTime - atom.creationTime);
+    return frame !== atom._mapicons[0].icon;
+  };
+  function setBlend(icon, mode, blends) {
+    icon.blendModeNum = mode;
+    icon._blendMode = blends[mode];
+  }
+  function isEmissiveColor(color) {
+    const matrix = color && color.matrix && color.matrix.matrix;
+    return Boolean(matrix) && (matrix[16] > 0 || matrix[17] > 0);
+  }
+  window.__dpMapIcon = function (icon, base, info, blends) {
+    const plane = icon.plane;
+    if (typeof plane !== 'number' || plane < -10000) return true;
+    const truePlane = truePlaneOf(plane);
+    const master = (icon.flags & 256) !== 0;
+    const lighting = plane - truePlane + lightingPlane;
+    if (truePlane === spacePlane) return true;
+    if (truePlane === lightingPlane) {
+      if (master) setBlend(icon, multiplyBlend, blends);
+      else if (icon.info && icon.info.onScreen && base && base.iconState === 'flash' && base.blendMode !== addBlend) return false;
+      else if (base && base.iconState === '' && icon.color && icon.color.matrix && info && info.still && info.still.$index(0, 'dark_lighting_object') != null) icon.__dpLight = true;
+      return true;
+    }
+    if (truePlane === overlayLightingPlane || truePlane === emissivePlane) {
+      if (master) return false;
+      if (truePlane === emissivePlane) {
+        if (!isEmissiveColor(icon.color)) return false;
+        icon.__dpEmissive = true;
+      }
+      icon.plane = lighting;
+      icon.subplane = (icon.subplane || 0) + mergedLightSubplane;
+      setBlend(icon, addBlend, blends);
+      return true;
+    }
+    return truePlane < firstRenderPlate || truePlane > lastRenderPlate;
+  };
+
+  const lightBasisText = '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';
+  let lightBasis;
+  const lightSize = 32;
+  const lightCacheLimit = 4096;
+  const lightBitmaps = new Map();
+  function lightPixels(matrix) {
+    if (!lightBasis) lightBasis = Uint8Array.from(atob(lightBasisText), function (c) { return c.charCodeAt(0); });
+    const pixels = new Uint8ClampedArray(lightBasis.length);
+    for (let i = 0; i < lightBasis.length; i += 4) {
+      for (let channel = 0; channel < 3; channel++) {
+        const row = channel * 4;
+        pixels[i + channel] = lightBasis[i] * matrix[row] + lightBasis[i + 1] * matrix[row + 1] + lightBasis[i + 2] * matrix[row + 2] + lightBasis[i + 3] * matrix[row + 3] + 255 * matrix[16 + channel];
+      }
+      pixels[i + 3] = 255;
+    }
+    return pixels;
+  }
+  window.__dpApplyLight = function (mapAtom, makeBitmap) {
+    const matrix = mapAtom.color && mapAtom.color.matrix && mapAtom.color.matrix.matrix;
+    if (!matrix || matrix.length < 20 || !mapAtom.bitmap) return false;
+    const key = Array.prototype.join.call(matrix, ',');
+    let bitmap = lightBitmaps.get(key);
+    if (bitmap) lightBitmaps.delete(key);
+    else {
+      bitmap = makeBitmap(lightSize, lightSize, 0, 1);
+      const texture = bitmap.renderTextureQuad.renderTexture;
+      texture.get$canvas().getContext('2d').putImageData(new ImageData(lightPixels(matrix), lightSize, lightSize), 0, 0);
+      texture.update$0();
+      if (lightBitmaps.size >= lightCacheLimit) lightBitmaps.delete(lightBitmaps.keys().next().value);
+    }
+    lightBitmaps.set(key, bitmap);
+    mapAtom.bitmap.bitmapData = bitmap;
+    return true;
+  };
+
+  const keepAliveInterval = 30000;
+  window.__dpKeepAlive = function (client) {
+    if (typeof Worker !== 'function' || typeof Blob !== 'function') return;
+    try {
+      const source = 'setInterval(function () { postMessage(0); }, ' + keepAliveInterval + ');';
+      const worker = new Worker(URL.createObjectURL(new Blob([source], { type: 'text/javascript' })));
+      worker.onmessage = function () { client.handleTimer$1(null); };
+    } catch (_) {}
   };
 
   const screenEdges = { TOPLEFT: 'NORTHWEST', TOPRIGHT: 'NORTHEAST', BOTTOMLEFT: 'SOUTHWEST', BOTTOMRIGHT: 'SOUTHEAST', TOP: 'NORTH', BOTTOM: 'SOUTH', LEFT: 'WEST', RIGHT: 'EAST' };
   window.__dpScreenLoc = function (loc) {
     if (typeof loc !== 'string') return loc;
+    loc = loc.replace(/:\s+/g, ':').replace(/^(\s*(?:[^:,]+:)?\s*)CENTER\s*$/, '$1CENTER,CENTER');
     return loc.replace(/\b(TOPLEFT|TOPRIGHT|BOTTOMLEFT|BOTTOMRIGHT|TOP|BOTTOM|LEFT|RIGHT)\b/g, function (word) { return screenEdges[word]; });
   };
 
@@ -213,11 +430,19 @@
   };
 
   const clearColor =/(^|;)\s*color\s*:\s*rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*0*\.?0*\s*\)\s*(?=;|$)/gi;
+  window.__dpMaptextSize = function (size, fallback, pointSize) {
+    const match = /^\s*(\d+(?:\.\d*)?|\.\d+)\s*(px|pt|%)?\s*$/i.exec(size);
+    if (!match) return fallback;
+    const value = Number(match[1]);
+    const unit = (match[2] || 'pt').toLowerCase();
+    if (unit === '%') return Math.round(pointSize * 10 * value) / 100;
+    return value > 0 ? value * (unit === 'px' ? 1 : pointSize) : fallback;
+  };
   window.__dpMaptextHtml = function (html) {
     if (typeof html !== 'string' || !html) return html;
     const rules = mapStyleRules();
     const template = document.createElement('template');
-    template.innerHTML = html;
+    template.innerHTML = html.replace(/<br\b[^>]*>[ \t]*(?:\r?\n)?/gi, '\n');
     for (const element of template.content.querySelectorAll('[class], [style]')) {
       let style = '';
       for (const name of element.classList) if (rules.has(name)) style += rules.get(name);

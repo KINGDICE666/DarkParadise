@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { patchWebclient } from './patch.mjs';
 import { createTicketAuthority, listenForTicketChecks } from './tickets.mjs';
 import { createAssetIndex, createWebrootReader } from './assets.mjs';
+import { dmiFrame, loadDmi } from './dmi.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -48,6 +49,25 @@ const MIME = {
 const PASSTHROUGH_HEADERS = ['content-type', 'content-length', 'content-disposition', 'content-range', 'accept-ranges'];
 
 let patchedCache = null;
+
+const ICON_REF = /^\/(?:\[|%5B)(0x[0-9a-f]+)(?:\]|%5D)$/i;
+const ICON_REF_TTL = 5 * 60 * 1000;
+const iconRefs = new Map();
+const iconSheets = new Map();
+const iconFrames = new Map();
+
+function remember(cache, key, value, limit) {
+  cache.delete(key);
+  cache.set(key, value);
+  while (cache.size > limit) cache.delete(cache.keys().next().value);
+  return value;
+}
+
+function recall(cache, key) {
+  const value = cache.get(key);
+  if (value !== undefined) remember(cache, key, value, Infinity);
+  return value;
+}
 
 function ddRequestOnce(pathname, headers) {
   return new Promise((resolve, reject) => {
@@ -179,6 +199,66 @@ async function proxyToDD(req, res, target) {
   }
 }
 
+async function iconCachePath(ref) {
+  const known = iconRefs.get(ref);
+  if (known && known.expires > Date.now()) return known.path;
+  const res = await ddRequest(`/%5B${ref}%5D`);
+  res.resume();
+  const location = res.headers.location;
+  if (res.statusCode < 300 || res.statusCode >= 400 || !location) return null;
+  const cachePath = new URL(location, 'http://dd').pathname;
+  if (!/^\/cache\/\d+$/.test(cachePath)) return null;
+  remember(iconRefs, ref, { path: cachePath, expires: Date.now() + ICON_REF_TTL }, 4096);
+  return cachePath;
+}
+
+async function iconSheetBytes(cachePath) {
+  const res = await ddRequest(cachePath);
+  if (res.statusCode !== 200) {
+    res.resume();
+    return null;
+  }
+  return readBody(res);
+}
+
+async function iconFrame(cachePath, params) {
+  const options = {
+    state: params.get('state') || '',
+    dir: Number(params.get('dir')) || 2,
+    frame: Number(params.get('frame')) || 1,
+    movement: params.get('movement') === 'true' || params.get('movement') === '1',
+  };
+  const key = `${cachePath}|${options.state}|${options.dir}|${options.frame}|${options.movement}`;
+  const cached = recall(iconFrames, key);
+  if (cached !== undefined) return cached;
+  let sheet = recall(iconSheets, cachePath);
+  if (!sheet) {
+    sheet = iconSheetBytes(cachePath).then(bytes => bytes && loadDmi(bytes));
+    remember(iconSheets, cachePath, sheet, 8);
+    sheet.catch(() => iconSheets.delete(cachePath));
+  }
+  const dmi = await sheet;
+  if (!dmi) {
+    iconSheets.delete(cachePath);
+    return null;
+  }
+  return remember(iconFrames, key, dmiFrame(dmi, options), 4096);
+}
+
+async function serveIconRef(res, ref, params) {
+  const headers = { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=300' };
+  try {
+    const cachePath = await iconCachePath(ref.toLowerCase());
+    if (!cachePath) return send(res, 404, 'icon not found');
+    const png = params.has('state') ? await iconFrame(cachePath, params) : await iconSheetBytes(cachePath);
+    if (!png) return send(res, 404, 'icon state not found');
+    return send(res, 200, png, MIME['.png'], headers);
+  } catch (error) {
+    console.error(`[gateway] icon ${ref}: ${error.message}`);
+    return send(res, 502, 'icon unavailable');
+  }
+}
+
 async function handle(req, res) {
   const url = new URL(req.url, 'http://gateway');
   if (config.basePath && (url.pathname === config.basePath || url.pathname.startsWith(config.basePath + '/'))) {
@@ -243,6 +323,9 @@ async function handle(req, res) {
 
   if (p === '/' || p === '/index.html') return serveStatic(res, config.keyMode === 'self' ? 'self.html' : 'index.html');
   if (p.startsWith('/static/')) return serveStatic(res, p.slice('/static/'.length));
+
+  const iconRef = ICON_REF.exec(p);
+  if (iconRef) return serveIconRef(res, iconRef[1], url.searchParams);
 
   return proxyToDD(req, res, p + url.search);
 }

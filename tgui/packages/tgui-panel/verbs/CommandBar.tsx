@@ -428,13 +428,13 @@ export function CommandBar() {
   const forwardKeyDown = (key: string) => {
     if (heldKeysRef.current.has(key)) return;
     heldKeysRef.current.add(key);
-    Byond.command(`KeyDown "${key}" 0 0 0 0`);
+    Byond.command(`keyDown "${key}" 0 0 0 0`);
   };
 
   const forwardKeyUp = (key: string) => {
     if (!heldKeysRef.current.has(key)) return;
     heldKeysRef.current.delete(key);
-    Byond.command(`KeyUp "${key}" 0 0 0 0`);
+    Byond.command(`keyUp "${key}" 0 0 0 0`);
   };
 
   const blurToMap = () => {

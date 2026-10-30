@@ -121,11 +121,98 @@ test('browser links with a literal percent sign still decode', () => {
   assert.deepEqual(decoded, ['При вет', '100% готово']);
 });
 
-test('lighting and emissive planes are skipped on every z offset', () => {
+test('lighting planes fold into one multiplied layer on every z offset', () => {
   const window = {};
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
-  assert.deepEqual([10, 13, 22, 10 - 107, 13 - 214, -21, -21 - 107].map(window.__dpSkipPlane), [true, true, true, true, true, true, true]);
-  assert.deepEqual([-8, -4, 9, 23, 40, -4 - 107, -32767, undefined].map(window.__dpSkipPlane), [false, false, false, false, false, false, false, false]);
+  const blends = ['normal', 'overlay', 'add', 'subtract', 'multiply'];
+  const icon = (plane, extra) => Object.assign({ plane, flags: 0, subplane: 0 }, extra);
+  const keep = plane => window.__dpMapIcon(icon(plane), {}, null, blends);
+  assert.deepEqual([12, 14, 22, 12 - 107, 20 - 214].map(keep), [false, false, false, false, false]);
+  assert.deepEqual([-21, -21 - 107].map(keep), [true, true]);
+  assert.deepEqual([-8, -4, 9, 10, 23, 40, -4 - 107, -32767, undefined].map(keep), [true, true, true, true, true, true, true, true, true]);
+  const master = icon(10 - 107, { flags: 256 });
+  assert.equal(window.__dpMapIcon(master, {}, null, blends), true);
+  assert.equal(master._blendMode, 'multiply');
+  const overlayLight = icon(11 - 107);
+  assert.equal(window.__dpMapIcon(overlayLight, {}, null, blends), true);
+  assert.deepEqual([overlayLight.plane, overlayLight._blendMode], [10 - 107, 'add']);
+  assert.equal(window.__dpMapIcon(icon(11, { flags: 256 }), {}, null, blends), false);
+  const matrix = new Array(20).fill(0);
+  matrix[16] = 1;
+  matrix[15] = 1;
+  const emissive = icon(13, { color: { matrix: { matrix } } });
+  assert.equal(window.__dpMapIcon(emissive, {}, null, blends), true);
+  assert.equal(emissive.__dpEmissive, true);
+  assert.equal(window.__dpMapIcon(icon(13, { color: { red: 0 } }), {}, null, blends), false);
+  const backdrop = icon(10, { info: { onScreen: true } });
+  assert.equal(window.__dpMapIcon(backdrop, { iconState: 'flash', blendMode: 1 }, null, blends), false);
+  assert.equal(window.__dpMapIcon(icon(10, { info: { onScreen: true } }), { iconState: 'flash', blendMode: 2 }, null, blends), true);
+});
+
+test('native parallax layers rebuild only when their appearance or motion changes', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const core = (plane, iconId) => ({ plane, iconId, pixel_w: 0, pixel_z: 0,
+    get$planeMaster: () => false, set$keepApart() {} });
+  const layer = { id: 2, locId: 0, pixel_w: 12, pixel_z: -8, _appearance: { core: core(-20, 7) },
+    get$currentAppearance() { return this._appearance; } };
+  const holder = { id: 4, onScreen: true, screenLoc: {}, _appearance: { core: core(-20, 65535) } };
+  const ordinary = { locId: 0, _appearance: { core: core(-4, 7) } };
+  const atoms = new Map([[2, layer], [3, ordinary], [4, holder]]);
+  const map = { movs: [2, 3], screen: [4] };
+  const client = { mapInfo: map, currentMs: 100, infoMap: { $index: (_, id) => atoms.get(id) } };
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true);
+  holder.icons_dirty = false;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, false);
+  const clone = a => ({ ...a, core: { ...a.core } });
+  const appearance = window.__dpParallaxAppearance(holder, holder._appearance, client, clone);
+  assert.equal(appearance.overlays.length, 1);
+  assert.deepEqual([appearance.overlays[0].core.pixel_w, appearance.overlays[0].core.pixel_z], [12, -8]);
+  assert.equal(layer._appearance.core.pixel_w, 0, 'never mutate cached server appearances');
+  layer.pixel_w++;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true);
+  holder.icons_dirty = false;
+  layer._animation = { total_end: 150 };
+  client.currentMs = 125;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, true, 'animate active layers');
+  holder.icons_dirty = false;
+  client.currentMs = 160;
+  window.__dpPrepareParallax(map, client);
+  holder.icons_dirty = false;
+  client.currentMs = 180;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(holder.icons_dirty, false, 'expired off-map animation does not rebuild forever');
+  map.movs = [3];
+  map.__dpMovableGeneration = 1;
+  window.__dpPrepareParallax(map, client);
+  assert.equal(map.__dpParallax.roots.length, 0);
+  assert.equal(holder.icons_dirty, true, 'remove layers on the next world packet');
+});
+
+test('DMI frame reuse preserves moving flicked and layered appearances', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const first = {}, next = {};
+  let frame = first;
+  const client = { currentTime: 4, iconInfoMap: { $index: () => ({ IconAt$4: () => frame }) } };
+  const atom = { _appearance: { core: { iconId: 7, iconState: 'blink', dir: 2 } }, creationTime: 0,
+    _mapicons: [{ icon: first }], get$moving: () => false };
+  assert.equal(window.__dpDmiFrameChanged(atom, client), false);
+  frame = next;
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  frame = first;
+  atom.flick = {};
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  atom.flick = null;
+  atom._appearance.overlays = [{}];
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
+  atom._appearance.overlays = null;
+  atom.get$moving = () => true;
+  assert.equal(window.__dpDmiFrameChanged(atom, client), true);
 });
 
 test('gamepad polling reads the pad list instead of an undefined pad', () => {
@@ -141,6 +228,37 @@ test('browse windows opened without a titlebar hide the popup title', () => {
   const source = window.__dpPatchSkin('pop', 'var t={winset(o){applied=o;}}; if(opts) t.winset(opts);');
   const applied = vm.runInNewContext(`var applied; ${source}; applied`, { opts: { titlebar: '0', canResize: '0' } });
   assert.equal(applied.showTitle, '0');
+});
+
+test('popups keep the position TGUI gave them and stay on screen', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
+  const source = window.__dpPatchSkin('pop', [
+    "var fn={pos:function(v){byond.css(p, {left:v.x-cp.x+'px', top:v.y-cp.y+'px'});},",
+    "size:function(v){byond.css(s, {width:v.x+'px', height:v.y+'px'});},",
+    "show:function(){var t=this;byond.css(t.top,{\n\t\t\t\tleft: (window.innerWidth-sz.x)/2-cp.x+'px',\n\t\t\t\ttop: (window.innerHeight-sz.y)/2-cp.y+'px'\n\t\t\t});",
+    "t._checkZ();\n\t\t\tif(h) h.onshow();}};",
+  ].join(''));
+  const view = { innerWidth: 1600, innerHeight: 1000 };
+  const p = { ownerDocument: { defaultView: view }, isConnected: false, offsetLeft: 0, offsetTop: 0, offsetWidth: 0, offsetHeight: 0, style: {} };
+  const apply = styles => {
+    if (styles.width) { p.offsetWidth = parseInt(styles.width, 10); p.offsetHeight = parseInt(styles.height, 10); }
+    if (styles.left) { p.offsetLeft = parseInt(styles.left, 10); p.offsetTop = parseInt(styles.top, 10); p.style.left = styles.left; p.style.top = styles.top; }
+  };
+  const context = { window, byond: { css(element, styles) { apply(styles); } }, p, s: {}, c: {}, cp: { x: 0, y: 0 }, sz: { x: 0, y: 0 }, h: null };
+  const fn = vm.runInNewContext(`${source}; fn`, context);
+  const pop = { top: p, _checkZ() {} };
+  fn.size({ x: 1000, y: 600 });
+  fn.show.call(pop);
+  assert.deepEqual([p.style.left, p.style.top], ['300px', '200px']);
+  const placed = { ...context, c: {} };
+  const fn2 = vm.runInNewContext(`${source}; fn`, placed);
+  p.isConnected = true;
+  fn2.pos({ x: 294, y: 150 });
+  fn2.show.call(pop);
+  assert.deepEqual([p.style.left, p.style.top], ['294px', '150px']);
+  fn2.pos({ x: 1400, y: 900 });
+  assert.deepEqual([p.style.left, p.style.top], ['600px', '400px']);
 });
 
 function loadHelpers(context) {
@@ -232,12 +350,53 @@ test('key macros receive the pointer position relative to the map', () => {
   const window = { byond: { skin: { find: id => (id === 'mapwindow.map' ? { elem: map } : null) } } };
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document, TextEncoder });
   move({ clientX: 330, clientY: 260 });
-  assert.equal(window.__dpExpandCommand('KeyDown "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "W" 320 240 640 480');
+  assert.equal(window.__dpExpandCommand('keyDown "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyDown "W" 320 240 640 480');
   move({ clientX: 2000, clientY: -5 });
-  assert.equal(window.__dpExpandCommand('KeyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyUp "W" 640 0 640 480');
+  assert.equal(window.__dpExpandCommand('keyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyUp "W" 640 0 640 480');
   assert.equal(window.__dpExpandCommand('say "[[not a placeholder]]"'), 'say "[[not a placeholder]]"');
-  assert.equal(window.__dpExpandCommand('KeyDown O [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "O" 640 0 640 480');
-  assert.equal(window.__dpExpandCommand('KeyUp Shift 1 2 3 4'), 'KeyUp "Shift" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('keyDown O [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'keyDown "O" 640 0 640 480');
+  assert.equal(window.__dpExpandCommand('keyUp Shift 1 2 3 4'), 'keyUp "Shift" 1 2 3 4');
+});
+
+test('key macros use the exact verb name', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, TextEncoder });
+  assert.equal(window.__dpExpandCommand('KeyDown "W" 1 2 3 4'), 'keyDown "W" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('KEYUP Shift 1 2 3 4'), 'keyUp "Shift" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('KeyDown " 1 2 3 4'), 'keyDown "\\"" 1 2 3 4');
+  assert.equal(window.__dpExpandCommand('keyboard 1'), 'keyboard 1');
+});
+
+test('key macros bypass the command parser as immediate topics', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams, Date });
+  const sent = [];
+  const client = { sendTopicMessage$1(topic) { if (!window.__dpScheduleTopic(client, topic)) sent.push(topic); } };
+  for (let index = 0; index < 10; index++) assert.equal(window.__dpExpandCommand('KeyDown "W" 1 2 3 4', client), null);
+  assert.equal(window.__dpExpandCommand('keyUp Shift 5 -6 7 8', client), null);
+  assert.equal(window.__dpExpandCommand('KeyDown "\\"" 1 2 3 4', client), null);
+  assert.equal(sent.length, 12);
+  assert.equal(sent[0], '?dp_key=W&x=1&y=2&w=3&h=4');
+  assert.equal(sent[10], '?dp_key=Shift&x=5&y=-6&w=7&h=8&dp_up=1');
+  assert.equal(new URLSearchParams(sent[11].slice(1)).get('dp_key'), '"');
+  assert.equal(window.__dpExpandCommand('say "hi"', client), 'say "hi"');
+});
+
+test('typed commands use the exact spelling of a known verb', () => {
+  const window = { byond: { skin: { find: () => null } } };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams, Date });
+  const cells = ['OOC', 'Сказать', 'Полный экран', 'Cast', 'cast'].map(name => ({ hashMapCellValue: { _webclient$_name: name } }));
+  cells.forEach((cell, index) => { cell._next = cells[index + 1]; });
+  const client = { verbs: { _first: cells[0] }, sendTopicMessage$1() {} };
+  assert.equal(window.__dpExpandCommand('ooc "hi there"', client), 'OOC "hi there"');
+  assert.equal(window.__dpExpandCommand('сказать "привет"', client), 'Сказать "привет"');
+  assert.equal(window.__dpExpandCommand('полный-ЭКРАН', client), 'Полный-экран');
+  assert.equal(window.__dpExpandCommand('Полный экран', client), 'Полный экран');
+  assert.equal(window.__dpExpandCommand('cast', client), 'cast');
+  assert.equal(window.__dpExpandCommand('CAST', client), 'Cast');
+  assert.equal(window.__dpExpandCommand('.winset "a=1"\nooc "x"', client), '.winset "a=1"\nOOC "x"');
+  assert.equal(window.__dpExpandCommand('Hotkeys-Help', client), 'Hotkeys-Help');
+  assert.equal(window.__dpExpandCommand('ooc "x"'), 'ooc "x"');
 });
 
 test('topics beyond the server rate limit wait in order', () => {
@@ -252,7 +411,7 @@ test('topics beyond the server rate limit wait in order', () => {
   const client = { sendTopicMessage$1(topic) { if (!window.__dpScheduleTopic(client, topic)) delivered.push(topic); } };
   const topics = Array.from({ length: 11 }, (_, index) => `?tgui=1&window_id=browseroutput&type=font&index=${index}`);
   for (const topic of topics) client.sendTopicMessage$1(topic);
-  assert.deepEqual(delivered, topics.slice(0, 8));
+  assert.deepEqual(delivered, topics.slice(0, 6));
   while (timers.length) {
     const next = timers.shift();
     clock = Math.max(clock, next.at);
@@ -269,6 +428,26 @@ test('screen edges from BYOND 515 map to the web client compass keywords', () =>
   assert.equal(window.__dpScreenLoc('BOTTOMLEFT to TOPRIGHT'), 'SOUTHWEST to NORTHEAST');
   assert.equal(window.__dpScreenLoc('map2:LEFT+1,BOTTOM'), 'map2:WEST+1,SOUTH');
   assert.equal(window.__dpScreenLoc('EAST-3,CENTER:140'), 'EAST-3,CENTER:140');
+  assert.equal(window.__dpScreenLoc('CENTER'), 'CENTER,CENTER');
+  assert.equal(window.__dpScreenLoc('map2:CENTER'), 'map2:CENTER,CENTER');
+  assert.equal(window.__dpScreenLoc('CENTER:5'), 'CENTER:5');
+  assert.equal(window.__dpScreenLoc('CENTER: 16,SOUTH+1:5'), 'CENTER:16,SOUTH+1:5');
+});
+
+test('non-Latin layouts send the key code of the physical key', () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, URLSearchParams });
+  const press = (key, code, keyCode) => {
+    const event = { key, code, keyCode, which: keyCode };
+    window.__dpLatinKeyCode(event);
+    return [event.keyCode, event.which];
+  };
+  assert.deepEqual(press('ф', 'KeyA', 0), [65, 65]);
+  assert.deepEqual(press('ц', 'KeyW', 1062), [87, 87]);
+  assert.deepEqual(press('б', 'Comma', 0), [188, 188]);
+  assert.deepEqual(press('"', 'Digit2', 50), [50, 50]);
+  assert.deepEqual(press('a', 'KeyA', 65), [65, 65]);
+  assert.deepEqual(press('Enter', 'Enter', 13), [13, 13]);
 });
 
 test('maptext uses the map style classes and ignores transparent colors', () => {
@@ -304,6 +483,20 @@ test('maptext outlines follow the DreamSeeker outline style', () => {
   assert.deepEqual(format, { strokeWidth: 2, strokeColor: 'rgb(0, 0, 0)' });
   window.__dpTextOutline(format, undefined);
   assert.equal(format.strokeWidth, 2);
+});
+
+test('maptext line breaks survive the text-only renderer without doubling newlines', () => {
+  const window = {};
+  const document = { querySelector: () => null,
+    createElement: () => ({ innerHTML: '', content: { querySelectorAll: () => [] } }) };
+  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document });
+  assert.equal(window.__dpMaptextHtml('ВРЕМЯ<br>12:34'), 'ВРЕМЯ\n12:34');
+  assert.equal(window.__dpMaptextHtml('ВРЕМЯ<br/>\n12:34'), 'ВРЕМЯ\n12:34');
+  assert.equal(window.__dpMaptextHtml('A<BR /><br>B'), 'A\n\nB');
+  assert.equal(window.__dpMaptextSize('8px', 12, 4 / 3), 8);
+  assert.equal(window.__dpMaptextSize('6pt', 12, 4 / 3), 8);
+  assert.equal(window.__dpMaptextSize('50%', 30, 4 / 3), 6.67);
+  assert.equal(window.__dpMaptextSize('invalid', 12, 4 / 3), 12);
 });
 
 test('stat panel theme commands apply when its functions are not global', () => {

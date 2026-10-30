@@ -177,7 +177,7 @@
 	var/tgt_color = emote_message || LAZYIN(extra_classes, "italics") ? target.chat_color_darkened : target.chat_color
 
 	// Approximate text height
-	var/complete_text = "<span style='color: [tgt_color]'><span class='center [extra_classes?.Join(" ")]'>[text]</span></span>"
+	var/complete_text = "<span style='color: [tgt_color]; text-align: center'><span class='center [extra_classes?.Join(" ")]'>[text]</span></span>"
 
 	var/mheight
 	WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH), mheight)

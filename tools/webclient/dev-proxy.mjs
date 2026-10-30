@@ -9,7 +9,7 @@ const upstreamHost = process.env.DEV_UPSTREAM_HOST || '92.63.189.21';
 const upstreamPort = Number(process.env.DEV_UPSTREAM_PORT || 7779);
 const port = Number(process.env.DEV_PORT || 8179);
 const vendor = process.env.DEV_VENDOR_FILE;
-const source = vendor ? patchWebclient(await fs.readFile(vendor, 'utf8'), { selfKey: true }) : null;
+const source = vendor ? patchWebclient(await fs.readFile(vendor, 'utf8'), { selfKey: true, completeMap: process.env.DEV_COMPLETE_MAP === '1' }).replace('$.me = N.ByondClient$();', '$.me = N.ByondClient$(); window.__dpMe = $.me;') : null;
 const assets = createAssetIndex(process.env.DEV_ASSET_DIR ? [process.env.DEV_ASSET_DIR] : []);
 const legacyHelpers = process.env.DEV_LEGACY_HELPERS ? (await fs.readFile(process.env.DEV_LEGACY_HELPERS, 'utf8')).trim().replace('window.byond.topic(query.join("&"))', 'webClient.fn.topic(query.join("&"))') : null;
 const newHelpers = process.env.DEV_TGUI_HELPERS ? (await fs.readFile(process.env.DEV_TGUI_HELPERS, 'utf8')).trim() : null;
@@ -44,11 +44,12 @@ function observeFrames(label) {
       if (opcode !== 2 || length < 2) continue;
       const type = payload.readUInt16BE(0);
       if (label === 'server' && ![0, 26, 39, 143, 144, 225].includes(type)) continue;
-      if (remaining <= 0 && ![0, 26, 143, 144, 225].includes(type)) continue;
+      if (remaining <= 0 && ![0, 26, 129, 143, 144, 209, 214, 215, 225].includes(type)) continue;
       let detail = '';
       if (type === 129) {
-        const query = new URLSearchParams(payload.subarray(2).toString('utf8').replace(/\0$/, ''));
-        detail = ` window=${(query.get('window_id') || '').replace(/[^\w-]/g, '')} event=${(query.get('type') || '').replace(/[^\w/-]/g, '')}`;
+        const query = new URLSearchParams(payload.subarray(2).toString('utf8').replace(/\0$/, '').replace(/^\?/, '').replace(/;/g, '&'));
+        const keys = [...query.keys()].filter(key => /^[\w-]{1,32}$/.test(key)).slice(0, 6).join(',');
+        detail = ` window=${(query.get('window_id') || '').replace(/[^\w-]/g, '')} event=${(query.get('type') || '').replace(/[^\w/-]/g, '')} keys=${keys}`;
       } else if (label === 'server' && type === 0 && length > 2) detail = ` quit=${payload.readUInt16LE(2)}`;
       else if (label === 'server' && type === 39) {
         const end = payload.indexOf(0, 2);

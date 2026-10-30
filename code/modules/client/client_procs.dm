@@ -36,6 +36,10 @@
 	if(!usr || usr != mob)	//stops us calling Topic for somebody else's client. Also helps prevent usr=null
 		return
 
+	if(href_list["dp_key"] && connection == "web")
+		web_key_event(href_list)
+		return
+
 	// src should always be a UID; if it isn't, warn instead of failing entirely
 	if(href_list["src"])
 		hsrc = locateUID(href_list["src"])
@@ -367,6 +371,9 @@
 	if(SSinput.initialized)
 		set_macros()
 
+	if(connection == "web")
+		SSweb_lighting.add_viewer(src)
+
 	// Initialize tgui panel
 	tgui_panel.initialize()
 	// Initialize stat panel
@@ -495,6 +502,17 @@
 		return TRUE
 	return FALSE
 
+/client/proc/web_key_event(list/href_list)
+	var/key = href_list["dp_key"]
+	var/mouse_x = text2num(href_list["x"])
+	var/mouse_y = text2num(href_list["y"])
+	var/size_x = text2num(href_list["w"])
+	var/size_y = text2num(href_list["h"])
+	if(href_list["dp_up"])
+		keyUp(key, mouse_x, mouse_y, size_x, size_y)
+		return
+	keyDown(key, mouse_x, mouse_y, size_x, size_y)
+
 #define WEB_TEXT_CHAR_WIDTH 6
 #define WEB_TEXT_LINE_HEIGHT 11
 
@@ -555,6 +573,7 @@
 	sound_tokens = null
 
 	SSambience.remove_ambience_client(src)
+	SSweb_lighting.remove_viewer(src)
 	SSmouse_entered.hovers -= src
 	SSping.currentrun -= src
 	SSsound_tokens.clients_needing_update -= src
