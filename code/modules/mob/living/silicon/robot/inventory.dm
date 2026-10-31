@@ -157,9 +157,9 @@
 		return 0
 
 /mob/living/silicon/robot/drop_from_active_hand(force = FALSE)
-	var/obj/item/gripper/G = module_active
-	if(istype(G))
-		G.drop_gripped_item(silent = TRUE)
+	if(isrobotgripper(module_active))
+		var/obj/item/gripper/gripper = module_active
+		gripper.drop_gripped_item(silent = TRUE)
 		return TRUE // The gripper is special because it has a normal item inside that we can drop.
 	return FALSE // All robot inventory items have NODROP trait, so they should return FALSE.
 
