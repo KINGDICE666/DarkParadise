@@ -45,7 +45,7 @@
 		var/list/possible_icons = list()
 
 		for(var/obj/item/I in owner.contents)
-			if(isrobotgripper(item)) // cogs gripper
+			if(isrobotgripper(I)) // cogs gripper
 				var/obj/item/gripper/gripper = I
 
 				if(!gripper.gripped_item)

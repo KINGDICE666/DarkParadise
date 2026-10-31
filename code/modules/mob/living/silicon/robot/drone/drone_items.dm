@@ -1,3 +1,5 @@
+#define GRIPPER_MAX_HIT_FORCE 5
+
 //Simple borg hand.
 //Limited use.
 /obj/item/gripper
@@ -5,6 +7,12 @@
 	desc = "Простой захватывающий инструмент."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "gripper"
+
+	var/list/forbidden_items = list(
+		/obj/item/gun,
+		/obj/item/grenade,
+		/obj/item/disk/nuclear,
+	)
 
 	//Item currently being held.
 	var/obj/item/gripped_item = null
@@ -110,6 +118,10 @@
 	name = "Nuclear gripper"
 	desc = "Создан для всех ваших ядерных нужд."
 	icon_state = "diskgripper"
+	forbidden_items = list(
+		/obj/item/gun,
+		/obj/item/grenade,
+	)
 
 /obj/item/gripper/nuclear/get_ru_names()
 	return alist(
@@ -120,6 +132,10 @@
 		INSTRUMENTAL = "ядерным захватом",
 		PREPOSITIONAL = "ядерном захвате",
 	)
+
+/obj/item/gripper/Initialize(mapload)
+	. = ..()
+	forbidden_items = typecacheof(forbidden_items)
 
 /obj/item/gripper/attack_self(mob/user)
 	if(gripped_item)
@@ -153,11 +169,11 @@
 	if(QDELETED(gripped_item)) // if item was dissasembled we need to clear the pointer
 		drop_gripped_item(TRUE) // silent = TRUE to prevent "You drop X" message from appearing without actually dropping anything
 
-/obj/item/gripper/proc/drop_gripped_item(silent = FALSE, forced = FALSE)
+/obj/item/gripper/proc/drop_gripped_item(silent = FALSE)
 	if(!gripped_item)
 		return
 	if(!silent)
-		balloon_alert(loc, "[forced ? "предмет выбит из клешни!" : "предмет выброшен"]")
+		balloon_alert(loc, "предмет выброшен")
 	gripped_item.forceMove(get_turf(src))
 	set_gripper_item(null)
 
@@ -180,6 +196,9 @@
 	. = ATTACK_CHAIN_PROCEED
 
 	if(gripped_item) //Already have an item.
+		if(isliving(target) && gripped_item.force > GRIPPER_MAX_HIT_FORCE)
+			balloon_alert(user, "слишком опасно!")
+			return .
 		//Pass the attack on to the target. This might delete/relocate gripped_item.
 		. |= target.attackby(gripped_item, user, modifiers)
 		if((. & ATTACK_CHAIN_NO_AFTERATTACK) || QDELETED(src) || QDELETED(gripped_item) || QDELETED(target) || QDELETED(user))
@@ -195,6 +214,9 @@
 
 	else if(isitem(target)) //Check that we're not pocketing a mob.
 		var/obj/item/I = target
+		if(is_type_in_typecache(I, forbidden_items))
+			balloon_alert(user, "невозможно взять!")
+			return .
 		. |= ATTACK_CHAIN_SUCCESS
 		balloon_alert(user, "подобрано")
 		I.forceMove(src)
@@ -203,7 +225,6 @@
 		update_icon(UPDATE_OVERLAYS)
 		RegisterSignals(I, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(handle_item_moving))
 		RegisterSignals(I, list(COMSIG_ATOM_UPDATED_ICON), PROC_REF(handle_item_icon_update))
-		balloon_alert(user, "невозможно взять!")
 
 	else //We are empty and trying to attack something else
 		target.attack_hand(user)
@@ -369,3 +390,5 @@
 
 			stack.add(1)
 			decompiler.stored_comms[type]--
+
+#undef GRIPPER_MAX_HIT_FORCE
