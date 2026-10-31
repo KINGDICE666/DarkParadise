@@ -550,8 +550,13 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	if(enough_materials)
 		machine.materials.use_amount(efficient_mats, amount)
+		machine.build_materials = list()
+		for(var/material in efficient_mats)
+			machine.build_materials[material] = efficient_mats[material] * amount
+		machine.build_reagents = list()
 		for(var/R in being_built.reagents_list)
 			machine.reagents.remove_reagent(R, being_built.reagents_list[R] * coeff * amount)
+			machine.build_reagents[R] = being_built.reagents_list[R] * coeff * amount
 
 	machine.build_timer = addtimer(CALLBACK(src, PROC_REF(finish_machine), key_name_log(usr), amount, enough_materials, machine, being_built, coeff), time_to_construct, TIMER_STOPPABLE)
 
@@ -566,6 +571,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 /obj/machinery/computer/rdconsole/proc/finish_machine(user_log, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff)
 	if(!QDELETED(machine))
 		machine.build_timer = null
+		machine.build_materials = null
+		machine.build_reagents = null
 		if(enough_materials && being_built)
 			investigate_log("[user_log] built [amount] of [being_built.build_path] via [machine].", INVESTIGATE_RESEARCH)
 

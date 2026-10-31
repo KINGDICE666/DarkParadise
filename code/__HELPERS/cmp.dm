@@ -153,6 +153,9 @@
 /proc/cmp_camera_ctag_asc(obj/machinery/camera/a, obj/machinery/camera/b)
 	return sorttext(b.c_tag, a.c_tag)
 
+/proc/cmp_universal_icon_file(list/a, list/b)
+	return sorttext(b["icon_file"], a["icon_file"])
+
 /proc/cmp_sheet_list(list/a, list/b)
 	return a["value"] - b["value"]
 
