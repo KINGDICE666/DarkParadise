@@ -84,6 +84,8 @@
 	update_map_view()
 
 /obj/machinery/computer/helm/proc/can_pilot(mob/user)
+	if(isAI(user))
+		return isturf(user.loc)
 	return user.Adjacent(src)
 
 /obj/machinery/computer/helm/proc/on_overmap_moved()
