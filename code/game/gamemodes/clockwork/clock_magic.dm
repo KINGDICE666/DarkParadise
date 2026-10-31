@@ -34,7 +34,7 @@
 	var/do_midas = FALSE
 	var/do_heart = FALSE
 	var/obj/item/item = owner.get_active_hand()
-	if(istype(item, /obj/item/gripper)) // cogs gripper
+	if(isrobotgripper(item)) // cogs gripper
 		var/obj/item/gripper/G = item
 		item = G.gripped_item
 	// If we having something in hand. Check if it can be enchanted. Else skip.
@@ -45,7 +45,7 @@
 		var/list/possible_icons = list()
 
 		for(var/obj/item/I in owner.contents)
-			if(istype(I, /obj/item/gripper)) // cogs gripper
+			if(isrobotgripper(item)) // cogs gripper
 				var/obj/item/gripper/gripper = I
 
 				if(!gripper.gripped_item)
