@@ -25,6 +25,13 @@
 	if(!O)
 		return 0
 
+	if(isrobotgripper(O))
+		var/obj/item/gripper/gripper = O
+		if(gripper.gripped_item?.w_class > WEIGHT_CLASS_TINY)
+			balloon_alert(src, "предмет слишком большой!")
+			SEND_SOUND(src, 'sound/machines/buzz-two.ogg')
+			return
+
 	O.dropped(src)
 	O.mouse_opacity = MOUSE_OPACITY_OPAQUE
 
