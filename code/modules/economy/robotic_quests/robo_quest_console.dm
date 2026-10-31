@@ -213,7 +213,7 @@
 	data["canSend"] = canSend
 	data["checkMessage"] = checkMessage
 	data["style"] = style
-	data["cooldown"] = currentID?.bounty_penalty ? time2text((currentID.bounty_penalty-world.time), "mm:ss") : FALSE
+	data["cooldown"] = currentID?.bounty_penalty > world.time ? time2text((currentID.bounty_penalty-world.time), "mm:ss") : FALSE
 	data["instant_teleport"] = can_instant_teleport()
 	data["hasAccess"] = currentID ? (ACCESS_ROBOTICS in currentID.access) : FALSE
 	return data
@@ -237,6 +237,8 @@
 			if(!currentID || !(ACCESS_ROBOTICS in currentID.access))
 				to_chat(usr, span_warning("Доступ запрещён. Требуется доступ робототехники."))
 				return
+			if(currentID.bounty_penalty > world.time)
+				return
 			var/list/mecha_types = list("Working Mech" = WORKING_CLASS, "Medical Mech" = MEDICAL_CLASS, "Combat Mech" = COMBAT_CLASS, "Random Mech" = RANDOM_CLASS)
 			var/mecha_type = tgui_input_list(usr, "Select event type.", "Select", mecha_types)
 			if(!mecha_type || !currentID || currentID.robo_bounty)
@@ -244,7 +246,6 @@
 			pick_mecha(mecha_types[mecha_type])
 		if("RemoveTask")
 			currentID.robo_bounty = null
-			addtimer(CALLBACK(src, PROC_REF(cooldown_end), currentID), ROBOQUEST_REMOVE_COOLDOWN)
 			currentID.bounty_penalty = world.time + ROBOQUEST_REMOVE_COOLDOWN
 		if("Check")
 			if(!pad)
@@ -356,9 +357,6 @@
 	paper.stamp(stamp)
 	paper.update_icon()
 	paper.name = "NT-CC-RND-[rand(10, 51)] \"Mecha request form\" "
-
-/obj/machinery/computer/roboquest/proc/cooldown_end(obj/item/card/id/penaltycard)
-	penaltycard.bounty_penalty = null
 
 /obj/machinery/computer/roboquest/proc/pick_mecha(mecha_type)
 	currentID.robo_bounty = new /datum/roboquest(mecha_type)

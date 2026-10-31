@@ -73,6 +73,8 @@
 	if(cached_current_area)
 		cached_current_area.air_scrubs -= src
 		current_area = null
+		for(var/obj/machinery/atmospherics/unary/vent_scrubber/scrubber as anything in cached_current_area.air_scrubs)
+			scrubber.update_appearance(UPDATE_NAME)
 
 	if(!area)
 		return
