@@ -1,12 +1,35 @@
+#define FILTER_JITTER_STEPS 6
+#define FILTER_JITTER_STEP_TIME (0.5 SECONDS)
+
 /datum/filter_editor
 	var/atom/target
+	var/list/jitter_radii = list()
 
 /datum/filter_editor/New(atom/target)
 	src.target = target
 
 /datum/filter_editor/Destroy()
 	target = null
+	jitter_radii = null
 	return ..()
+
+/datum/filter_editor/proc/apply_jitters()
+	for(var/filter_name in jitter_radii)
+		var/list/filter_info = target.get_filter_data(filter_name)
+		var/filter = target.get_filter(filter_name)
+		if(!filter_info || !filter)
+			jitter_radii -= filter_name
+			continue
+		var/list/radii = jitter_radii[filter_name]
+		animate(filter)
+		for(var/field in radii)
+			var/base_value = filter_info[field]
+			if(!isnum(base_value))
+				continue
+			var/radius = radii[field]
+			animate(filter, list("[field]" = base_value + (rand() * 2 - 1) * radius), time = FILTER_JITTER_STEP_TIME, loop = -1, flags = ANIMATION_PARALLEL)
+			for(var/step in 2 to FILTER_JITTER_STEPS)
+				animate(list("[field]" = base_value + (rand() * 2 - 1) * radius), time = FILTER_JITTER_STEP_TIME)
 
 /datum/filter_editor/ui_state(mob/user)
 	return ADMIN_STATE(R_VAREDIT)
@@ -33,6 +56,7 @@
 			filter_info["transform"] = list("a" = filter_transform.a, "b" = filter_transform.b, "c" = filter_transform.c, "d" = filter_transform.d, "e" = filter_transform.e, "f" = filter_transform.f)
 		target_filter_data += list(filter_info)
 	data["target_filter_data"] = target_filter_data
+	data["jitter_radii"] = jitter_radii
 	return data
 
 /datum/filter_editor/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -49,11 +73,33 @@
 			. = TRUE
 		if("remove_filter")
 			target.remove_filter(params["name"])
+			jitter_radii -= params["name"]
 			. = TRUE
 		if("rename_filter")
 			var/list/filter_info = target.get_filter_data(params["name"])
 			target.remove_filter(params["name"])
-			target.add_filter(params["new_name"], filter_data["priority"], filter_info)
+			target.add_filter(params["new_name"], filter_info["priority"], filter_info)
+			if(jitter_radii[params["name"]])
+				jitter_radii[params["new_name"]] = jitter_radii[params["name"]]
+				jitter_radii -= params["name"]
+			. = TRUE
+		if("jitter_filter_value")
+			var/filter_name = params["name"]
+			var/radius = params["radius"]
+			var/filter = target.get_filter(filter_name)
+			if(!filter || !isnum(radius))
+				return
+			var/list/radii = jitter_radii[filter_name] || list()
+			if(radius > 0)
+				radii[params["field"]] = radius
+			else
+				radii -= params["field"]
+			if(length(radii))
+				jitter_radii[filter_name] = radii
+			else
+				jitter_radii -= filter_name
+			animate(filter)
+			target.modify_filter(filter_name, list())
 			. = TRUE
 		if("edit_filter")
 			target.remove_filter(params["name"])
@@ -106,3 +152,9 @@
 				count += 1
 			message_admins("LOCAL CLOWN [usr.ckey] JUST MASS FILTER EDITED [count] WITH PATH OF [params["path"]]!")
 			log_admin("LOCAL CLOWN [usr.ckey] JUST MASS FILTER EDITED [count] WITH PATH OF [params["path"]]!")
+
+	if(.)
+		apply_jitters()
+
+#undef FILTER_JITTER_STEPS
+#undef FILTER_JITTER_STEP_TIME

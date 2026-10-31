@@ -268,7 +268,7 @@
 	update_equipment_speed_mods()
 
 /mob/living/carbon/proc/is_too_bulky_to_hold(obj/item/item)
-	if(!HAS_TRAIT(src, TRAIT_SMALL_MOB) || item.w_class < WEIGHT_CLASS_BULKY)
+	if(!HAS_TRAIT(src, TRAIT_SMALL_MOB) || item.w_class < WEIGHT_CLASS_BULKY || (item.item_flags & ABSTRACT))
 		return FALSE
 	var/static/list/bulky_exceptions = typecacheof(list(
 		/obj/item/storage/bag/bio,

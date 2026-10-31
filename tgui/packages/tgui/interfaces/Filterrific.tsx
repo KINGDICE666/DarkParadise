@@ -16,26 +16,58 @@ import { numberOfDecimalDigits, toFixed } from 'tgui-core/math';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
+const FilterJitterEntry = (props) => {
+  const { name, filterName } = props;
+  const { act, data } = useBackend();
+  const radius = data.jitter_radii?.[filterName]?.[name] || 0;
+  return (
+    <>
+      <Box inline ml={2} mr={1}>
+        Random ±
+      </Box>
+      <NumberInput
+        value={radius}
+        minValue={0}
+        maxValue={500}
+        step={0.1}
+        stepPixelSize={4}
+        format={(value) => toFixed(value, 1)}
+        width="50px"
+        onChange={(value) =>
+          act('jitter_filter_value', {
+            name: filterName,
+            field: name,
+            radius: value,
+          })
+        }
+      />
+    </>
+  );
+};
+
 const FilterIntegerEntry = (props) => {
   const { value, name, filterName } = props;
   const { act } = useBackend();
   return (
-    <NumberInput
-      value={value || 0}
-      minValue={-500}
-      maxValue={500}
-      step={1}
-      stepPixelSize={5}
-      width="39px"
-      onChange={(value) =>
-        act('modify_filter_value', {
-          name: filterName,
-          new_data: {
-            [name]: value,
-          },
-        })
-      }
-    />
+    <>
+      <NumberInput
+        value={value || 0}
+        minValue={-500}
+        maxValue={500}
+        step={1}
+        stepPixelSize={5}
+        width="39px"
+        onChange={(value) =>
+          act('modify_filter_value', {
+            name: filterName,
+            new_data: {
+              [name]: value,
+            },
+          })
+        }
+      />
+      <FilterJitterEntry name={name} filterName={filterName} />
+    </>
   );
 };
 
@@ -73,6 +105,7 @@ const FilterFloatEntry = (props) => {
         width="70px"
         onChange={(value) => setStep(value)}
       />
+      <FilterJitterEntry name={name} filterName={filterName} />
     </>
   );
 };
@@ -153,7 +186,7 @@ const FilterFlagsEntry = (props) => {
 
   const filterInfo = data.filter_info;
   const flags = filterInfo[filterType].flags;
-  return flags.map((bitField, flagName) => (
+  return Object.entries<number>(flags).map(([flagName, bitField]) => (
     <Button.Checkbox
       checked={value & bitField}
       onClick={() =>

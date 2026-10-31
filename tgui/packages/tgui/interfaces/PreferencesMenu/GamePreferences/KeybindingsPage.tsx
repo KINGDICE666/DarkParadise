@@ -104,7 +104,9 @@ function formatKeyboardEvent(event: KeyboardEvent): string {
   }
 
   if (isStandardKey(event)) {
-    const key = event.key.toUpperCase();
+    const key = (
+      /^(?:Key|Digit)(.)$/.exec(event.code)?.[1] ?? event.key
+    ).toUpperCase();
     text += KEY_CODE_TO_BYOND[key] || key;
   }
 

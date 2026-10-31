@@ -94,7 +94,7 @@
 			"name" = program.program_name,
 			"UID" = program.UID(),
 			"description" = program.description,
-			"memory_cost" = program.cost,
+			"memory_cost" = program.installed ? 1 : program.cost,
 			"installed" = program.installed,
 			"upgrade_level" = program.upgrade_level,
 			"is_passive" = program.upgrade
