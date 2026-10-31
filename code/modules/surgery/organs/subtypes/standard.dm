@@ -590,10 +590,8 @@
 	. = ..()
 	if(!QDELING(user))
 		user.recalculate_limbs_status()
-	if(!QDELETED(removed_item))
-		if(user.is_in_hands(removed_item))
-			user.drop_item_ground(removed_item, force = TRUE)
-		. = removed_item
+	if(!QDELETED(removed_item) && user.is_in_hands(removed_item))
+		user.drop_item_ground(removed_item, force = TRUE)
 	if(!QDELING(src))
 		QDEL_IN(src, 0)
 

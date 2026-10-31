@@ -181,7 +181,7 @@
 	time = 3.2 SECONDS
 
 /datum/surgery_step/limb/attach/tool_check(mob/user, obj/item/tool)
-	return isexternalorgan(tool) || !(tool.item_flags & ABSTRACT) && user.can_unEquip(tool)
+	return isexternalorgan(tool) || !(tool.item_flags & (ABSTRACT|DROPDEL)) && !HAS_TRAIT(tool, TRAIT_SURGICAL) && user.can_unEquip(tool)
 
 /datum/surgery_step/limb/attach/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	if(!isexternalorgan(tool))
@@ -238,8 +238,9 @@
 		if(!user.temporarily_remove_item_from_inventory(tool))
 			return SURGERY_STEP_INCOMPLETE
 		var/hand_type = target_zone == BODY_ZONE_PRECISE_L_HAND ? /obj/item/organ/external/hand/item : /obj/item/organ/external/hand/item/right
-		var/obj/item/organ/external/hand/item/hand = new hand_type(target, special = ORGAN_MANIPULATION_DEFAULT, attached_item = tool)
+		var/obj/item/organ/external/hand/item/hand = new hand_type(target, ORGAN_MANIPULATION_DEFAULT, tool)
 		if(QDELETED(hand))
+			user.put_in_hands(tool)
 			return SURGERY_STEP_INCOMPLETE
 		hand.properly_attached = FALSE
 		user.visible_message(

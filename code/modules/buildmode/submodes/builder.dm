@@ -15,7 +15,6 @@
 	var/datum/weakref/preview_eye_ref
 	var/last_mouse_params
 	var/list/preview_paths
-	var/list/preview_icons = list()
 	var/preview_revision = 0
 	var/previews_loading = FALSE
 
@@ -30,7 +29,6 @@
 /datum/buildmode_mode/builder/exit_mode(datum/click_intercept/buildmode/BM)
 	SStgui.close_uis(src)
 	preview_paths = null
-	preview_icons = list()
 	preview_revision++
 	UnregisterSignal(BM, COMSIG_BUILDMODE_DIRECTION_CHANGED)
 	UnregisterSignal(BM.holder, list(COMSIG_CLIENT_MOB_LOGIN, COMSIG_QDELETING, COMSIG_CLIENT_SET_EYE, COMSIG_VIEW_SET))
@@ -127,7 +125,6 @@
 
 /datum/buildmode_mode/builder/ui_close(mob/user)
 	preview_paths = null
-	preview_icons = list()
 	preview_revision++
 
 /datum/buildmode_mode/builder/ui_static_data(mob/user)
@@ -138,7 +135,6 @@
 		"selected_item" = selected_item ? "[selected_item]" : null,
 		"pixel_positioning" = pixel_positioning,
 		"build_dir" = BM.build_dir,
-		"preview_icons" = preview_icons,
 	)
 
 /datum/buildmode_mode/builder/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -152,13 +148,13 @@
 			if(!islist(paths) || length(paths) > BUILDMODE_PAGE_SIZE)
 				return
 			preview_paths = list()
-			preview_icons = list()
 			for(var/path_text in paths)
 				if(istext(path_text) && GLOB.buildmode_items[path_text])
 					preview_paths |= path_text
 			preview_revision++
 			if(!previews_loading)
 				INVOKE_ASYNC(src, PROC_REF(load_previews))
+			return
 		if("select_item")
 			if(!GLOB.buildmode_items[params["path"]])
 				return
@@ -183,15 +179,15 @@
 	while(!QDELETED(src) && BM?.mode == src && !isnull(preview_paths))
 		var/revision = preview_revision
 		var/list/paths = preview_paths.Copy()
-		if(selected_item)
+		if(GLOB.buildmode_items["[selected_item]"])
 			paths |= "[selected_item]"
 		var/list/icons = get_buildmode_previews(paths)
 		if(QDELETED(src) || BM?.mode != src)
 			break
 		if(revision != preview_revision)
 			continue
-		preview_icons = icons
-		SStgui.update_uis(src)
+		var/datum/tgui/ui = SStgui.get_open_ui(BM.holder.mob, src)
+		ui?.send_update(list("preview_icons" = icons))
 		break
 	previews_loading = FALSE
 
