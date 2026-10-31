@@ -515,9 +515,15 @@
 	if(QDELETED(src)) //deleted on last move
 		return
 	if(!hitscanning && !forcemoved)
-		pixel_x = trajectory.return_px() - trajectory.mpx * trajectory_multiplier * SSprojectiles.global_iterations_per_move
-		pixel_y = trajectory.return_py() - trajectory.mpy * trajectory_multiplier * SSprojectiles.global_iterations_per_move
-		animate(src, pixel_x = trajectory.return_px(), pixel_y = trajectory.return_py(), time = 1, flags = ANIMATION_END_NOW)
+		var/move_pixels = trajectory_multiplier * SSprojectiles.global_iterations_per_move
+		if(speed > world.tick_lag)
+			pixel_x = trajectory.return_px()
+			pixel_y = trajectory.return_py()
+			animate(src, pixel_x = pixel_x + trajectory.mpx * move_pixels, pixel_y = pixel_y + trajectory.mpy * move_pixels, time = speed, flags = ANIMATION_END_NOW)
+		else
+			pixel_x = trajectory.return_px() - trajectory.mpx * move_pixels
+			pixel_y = trajectory.return_py() - trajectory.mpy * move_pixels
+			animate(src, pixel_x = trajectory.return_px(), pixel_y = trajectory.return_py(), time = 1, flags = ANIMATION_END_NOW)
 	Range()
 
 /obj/projectile/proc/fire(setAngle)
