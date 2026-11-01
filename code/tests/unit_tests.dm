@@ -43,6 +43,7 @@
 #include "test_pipe_dispenser.dm"
 #include "test_portagrav.dm"
 #include "test_preferences.dm"
+#include "test_pve_survival.dm"
 #include "test_plane_double_transform.dm"
 #include "test_plane_dupe_detector.dm"
 #include "test_reagent_id_typos.dm"
