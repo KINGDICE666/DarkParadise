@@ -42,14 +42,7 @@
   })();
 
   // Basic checks to detect whether this page runs in BYOND
-  var webClient = null;
-  try {
-    if (window.parent !== window && window.parent.location.origin === location.origin) {
-      webClient = window.parent.byond;
-      if (!webClient || !webClient.skin) webClient = null;
-    }
-  } catch (error) {}
-  var isByond = Boolean(webClient) ||
+  var isByond =
     (Byond.BLINK !== null || window.cef_to_byond) &&
     location.hostname === '127.0.0.1' &&
     location.search !== '?external';
@@ -78,56 +71,6 @@
   Byond.call = function (path, params) {
     // Not running in BYOND, abort.
     if (!isByond) {
-      return;
-    }
-    if (webClient) {
-      if (!path) {
-        var query = [];
-        for (var name in params) {
-          if (hasOwn.call(params, name)) {
-            query.push(encodeURIComponent(name) + '=' + encodeURIComponent(params[name] == null ? '' : params[name]));
-          }
-        }
-        webClient.fn.topic(query.join('&'));
-        return;
-      }
-      var controlId = params.id || '';
-      var camel = function (name) {
-        return name.replace(/-([a-z])/g, function (_, letter) { return letter.toUpperCase(); });
-      };
-      if (path === 'winset') {
-        var settings = {};
-        for (var property in params) {
-          if (hasOwn.call(params, property) && property !== 'id') settings[camel(property)] = params[property];
-        }
-        if ('visible' in settings) {
-          settings.isVisible = settings.visible;
-          delete settings.visible;
-        }
-        webClient.skin.winset(controlId, settings);
-      } else if (path === 'winget') {
-        var callback = /^Byond\.__callbacks__\[(\d+)\]$/.exec(params.callback || '');
-        if (!callback) return;
-        var values = {};
-        (params.property || '*').split(',').forEach(function (property) {
-          var request = {};
-          request[camel(property)] = '';
-          var response = webClient.skin.winget(controlId, request);
-          if (property === '*') {
-            assign(values, response);
-            return;
-          }
-          var value = response && response[camel(property)];
-          while (value && typeof value === 'object' && camel(property) in value) value = value[camel(property)];
-          if (property === 'dpi') value = 96 * (window.devicePixelRatio || 1);
-          if (property === 'pos' && typeof value === 'string') {
-            var position = /^\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*$/.exec(value);
-            if (position) value = { x: Number(position[1]), y: Number(position[2]) };
-          }
-          values[property] = value == null ? '' : value;
-        });
-        Byond.__callbacks__[Number(callback[1])](values);
-      }
       return;
     }
     // Build the URL
@@ -324,7 +267,7 @@
           "' after several attempts.";
         if (type === 'css') {
           errorMessage +=
-            '\nStylesheet was either not found, ' +
+            +'\nStylesheet was either not found, ' +
             "or you're trying to load an empty stylesheet " +
             'that has no CSS rules in it.';
         }
@@ -333,7 +276,7 @@
       setTimeout(
         function () {
           loadedAssetByUrl[url] = null;
-          options.attempt = attempt + 1;
+          options.attempt += 1;
           loadAsset(options);
         },
         RETRY_WAIT_INITIAL + attempt * RETRY_WAIT_INCREMENT
@@ -404,20 +347,6 @@
     loadAsset({ url: url, sync: sync, type: 'css' });
   };
 
-  var downloadBlob = function (blob, filename) {
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(function () {
-      URL.revokeObjectURL(url);
-    }, 1000);
-  };
-
   Byond.saveBlob = function (blob, filename, ext) {
     if (window.navigator.msSaveBlob) {
       window.navigator.msSaveBlob(blob, filename);
@@ -445,13 +374,7 @@
             return file.close();
           });
         })
-        .catch(function (error) {
-          if (!error || error.name !== 'AbortError') {
-            downloadBlob(blob, filename);
-          }
-        });
-    } else if (window.URL && URL.createObjectURL) {
-      downloadBlob(blob, filename);
+        .catch(function () {});
     }
   };
 

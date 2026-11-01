@@ -260,7 +260,7 @@
 
 	set_right_click_menu_mode(TRUE)
 
-	if(connection != "seeker" && !(connection == "web" && CONFIG_GET(flag/web_guest_login))) //Invalid connection type.
+	if(connection != "seeker") //Invalid connection type.
 		return null
 
 	if(byond_version < MIN_CLIENT_VERSION) // Too out of date to play at all. Unfortunately, we can't send them a message here.
@@ -488,8 +488,6 @@
 	give_award(/datum/award/achievement/donations/project_pillar, mob)
 
 /client/proc/is_connecting_from_localhost()
-	if(connection == "web")
-		return FALSE
 	var/localhost_addresses = list("127.0.0.1", "::1", "0.0.0.0") // Adresses
 	if(!isnull(address) && (address in localhost_addresses) || !address)
 		return TRUE
