@@ -24,6 +24,7 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 		enable_debugging()
 
 	load_configuration()
+	initialize_seeker_auth()
 	// Right off the bat, load up the DB
 	SSdbcore.CheckSchemaVersion() // This doesnt just check the schema version, it also connects to the db! This needs to happen super early! I cannot stress this enough!
 	SSdbcore.SetRoundID() // Set the round ID here

@@ -243,6 +243,28 @@
 	var/tdata = TopicData //save this for later use
 	TopicData = null //Prevent calls to client.Topic from connect
 	setup_account_ckey(tdata)
+	var/list/connection_params = params2list(tdata)
+	if(connection_params["seeker"] && !seeker_client)
+		DIRECT_OUTPUT(src, "Проверка браузерного входа истекла. Обновите страницу и войдите снова.")
+		return null
+	if(seeker_client)
+		tdata = null
+		if(!MC_RUNNING())
+			DIRECT_OUTPUT(src, "Игровой сервер ещё загружается. Повторите вход немного позже.")
+			return null
+		if(!has_persistent_identity() && !CONFIG_GET(flag/seeker_allow_guests))
+			DIRECT_OUTPUT(src, "Гостевой вход через браузер закрыт. Войдите с аккаунтом BYOND.")
+			return null
+		var/ban_key = has_persistent_identity() ? account_ckey : key
+		var/list/ban = world.IsBanned(ban_key, address, computer_id, connection)
+		if(QDELETED(src))
+			return null
+		if(ban)
+			DIRECT_OUTPUT(src, "Вход отклонён: [ban["desc"]]")
+			return null
+		if(GLOB.directory[account_ckey])
+			DIRECT_OUTPUT(src, "Этот аккаунт уже в игре. Сначала завершите предыдущую сессию.")
+			return null
 
 	stat_panel = new(src, "statbrowser")
 	stat_panel.subscribe(src, PROC_REF(on_stat_panel_message))
@@ -488,6 +510,8 @@
 	give_award(/datum/award/achievement/donations/project_pillar, mob)
 
 /client/proc/is_connecting_from_localhost()
+	if(seeker_client)
+		return FALSE
 	var/localhost_addresses = list("127.0.0.1", "::1", "0.0.0.0") // Adresses
 	if(!isnull(address) && (address in localhost_addresses) || !address)
 		return TRUE
@@ -981,6 +1005,8 @@
 /client/proc/check_randomizer(topic)
 	set waitfor = FALSE // Yes I know this is already called from an async proc but someone may change that without thinking properly
 	. = FALSE
+	if(seeker_client)
+		return
 	if(connection != "seeker")					//Invalid connection type.
 		return null
 	topic = params2list(topic)
@@ -1382,9 +1408,11 @@ GAME_VERB_HIDDEN(/client, fitviewport, "")// wrapper for mainwindow
 	fit_viewport()
 
 /client/proc/needs_discord_link()
+	if(seeker_client && !has_persistent_identity())
+		return FALSE
 	if(prefs?.discord_id && length(prefs.discord_id) < DISCORD_TOKEN_LENGTH)
 		return FALSE
-	if(is_launcher_client())
+	if(is_launcher_client() && !seeker_client)
 		return TRUE
 	return CONFIG_GET(number/minimum_byondacc_age) && byondacc_age <= CONFIG_GET(number/minimum_byondacc_age)
 
@@ -1442,7 +1470,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
  */
 /client/proc/retrieve_byondacc_data()
 	// Do not refactor this to use SShttp, because that requires the subsystem to be firing for requests to be made, and this will be triggered before the MC has finished loading
-	var/list/http[] = world.Export("http://www.byond.com/members/[ckey]?format=text")
+	var/list/http[] = world.Export("https://www.byond.com/members/[account_ckey]?format=text")
 	if(http)
 		var/status = text2num(http["STATUS"])
 
@@ -1494,12 +1522,12 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
  * * notify - Do we notify admins of this new accounts date
  */
 /client/proc/get_byond_account_date(notify = FALSE)
-	if(is_launcher_client())
+	if(!has_persistent_identity() || (is_launcher_client() && !seeker_client))
 		return
 
 	// First we see if the client has a saved date in the DB
 	var/datum/db_query/query_date = SSdbcore.NewQuery("SELECT byond_date, DATEDIFF(Now(), byond_date) FROM [format_table_name("player")] WHERE ckey=:ckey", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_date.warn_execute())
 		qdel(query_date)
@@ -1526,7 +1554,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 	// Now save it
 	var/datum/db_query/query_update = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET byond_date=:date WHERE ckey=:ckey", list(
 		"date" = byondacc_date,
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_update.warn_execute())
 		qdel(query_update)
@@ -1535,7 +1563,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 
 	// Now retrieve the age again because BYOND doesnt have native methods for this
 	var/datum/db_query/query_age = SSdbcore.NewQuery("SELECT DATEDIFF(Now(), byond_date) FROM [format_table_name("player")] WHERE ckey=:ckey", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_age.warn_execute())
 		qdel(query_age)
