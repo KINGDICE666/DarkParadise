@@ -20,6 +20,7 @@ type PlayPayload = {
   pitch: number;
   start: number;
   end: number;
+  loop?: boolean;
 } & Meta;
 
 export function playMusic(payload: PlayPayload): void {
