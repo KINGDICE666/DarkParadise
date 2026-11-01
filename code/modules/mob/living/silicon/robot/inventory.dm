@@ -3,7 +3,7 @@
 
 //Returns the thing in our active hand (whatever is in our active module-slot, in this case)
 /mob/living/silicon/robot/get_active_hand()
-	if(istype(module_active, /obj/item/gripper))
+	if(isrobotgripper(module_active))
 		var/obj/item/gripper/gripper = module_active
 		return gripper.gripped_item == null ? module_active : gripper.gripped_item
 	return module_active
@@ -24,6 +24,13 @@
 /mob/living/silicon/robot/proc/uneq_module(obj/item/O)
 	if(!O)
 		return 0
+
+	if(isrobotgripper(O))
+		var/obj/item/gripper/gripper = O
+		if(gripper.gripped_item?.w_class > WEIGHT_CLASS_TINY)
+			balloon_alert(src, "предмет слишком большой!")
+			SEND_SOUND(src, 'sound/machines/buzz-two.ogg')
+			return
 
 	O.dropped(src)
 	O.mouse_opacity = MOUSE_OPACITY_OPAQUE
@@ -150,9 +157,9 @@
 		return 0
 
 /mob/living/silicon/robot/drop_from_active_hand(force = FALSE)
-	var/obj/item/gripper/G = module_active
-	if(istype(G))
-		G.drop_gripped_item(silent = TRUE)
+	if(isrobotgripper(module_active))
+		var/obj/item/gripper/gripper = module_active
+		gripper.drop_gripped_item(silent = TRUE)
 		return TRUE // The gripper is special because it has a normal item inside that we can drop.
 	return FALSE // All robot inventory items have NODROP trait, so they should return FALSE.
 

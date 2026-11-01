@@ -209,7 +209,7 @@
 
 		filling.color = get_color_matrix_from_reagents(reagents.reagent_list)
 		. += filling
-	if(ismob(loc) || istype(loc, /obj/item/gripper))
+	if(ismob(loc) || isrobotgripper(loc))
 		switch(mode)
 			if(IV_DRAW)
 				. += "draw"

@@ -50,6 +50,21 @@
 /mob/living/silicon/robot/attack_hand(mob/living/carbon/human/user)
 	add_fingerprint(user)
 
+	if(user.a_intent == INTENT_DISARM)
+		var/obj/item/gripper/gripper
+
+		if(isrobotgripper(module_state_1))
+			gripper = module_state_1
+		if(isrobotgripper(module_state_2))
+			gripper = module_state_2
+		if(isrobotgripper(module_state_3))
+			gripper = module_state_3
+		if(gripper.gripped_item)
+			var/obj/item/gripped_item = gripper.gripped_item
+			gripper.drop_gripped_item(forced = TRUE)
+			user.do_attack_animation(src)
+			user.put_in_any_hand_if_possible(gripped_item)
+
 	if(opened && !wiresexposed && !issilicon(user))
 		if(cell)
 			cell.update_icon()
