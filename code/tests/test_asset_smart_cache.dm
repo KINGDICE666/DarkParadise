@@ -51,11 +51,13 @@
 	sheet.cache_data = null
 	sheet.cache_job_id = null
 	sheet.fully_generated = FALSE
+	rustlib_file_write("stale", "data/spritesheets/spritesheet_test.css")
 
 	sheet.register()
 	TEST_ASSERT(sheet.fully_generated, "Spritesheet did not load from smart cache properly!")
 	// Check for CACHE_VALID
 	TEST_ASSERT(!sheet.cache_result, "Spritesheet did not load from smart cache, it was invalid despite having the same input data!")
+	TEST_ASSERT(findtext(rustlib_file_read("data/spritesheets/spritesheet_test.css"), SSassets.transport.get_asset_url("test_128x64.png")), "Spritesheet CSS loaded from smart cache does not point at the current asset URLs!")
 	// Cleanup files.
 	fdel("[ASSET_CROSS_ROUND_SMART_CACHE_DIRECTORY]/spritesheet_cache.test.json")
 	fdel("data/spritesheets/spritesheet_test.css")

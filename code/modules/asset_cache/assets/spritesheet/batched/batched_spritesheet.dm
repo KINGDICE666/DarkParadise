@@ -280,7 +280,6 @@
 /datum/asset/spritesheet_batched/proc/read_from_cache()
 	if(!CONFIG_GET(flag/smart_cache_assets) && !force_cache)
 		return FALSE
-	// this is already guaranteed to exist.
 	var/css_name = "spritesheet_[name].css"
 	var/css_file_directory = "data/spritesheets/[css_name]"
 
@@ -290,12 +289,16 @@
 		if(!fexists(fname))
 			return FALSE
 
-	var/css_hash = rustlib_hash_file(RUSTLIB_HASH_MD5, css_file_directory)
-	SSassets.transport.register_asset(css_name, fcopy_rsc(css_file_directory), file_hash=css_hash)
 	for(var/size_id in sizes)
 		var/fname = "data/spritesheets/[name]_[size_id].png"
 		var/hash = rustlib_hash_file(RUSTLIB_HASH_MD5, fname)
 		SSassets.transport.register_asset("[name]_[size_id].png", fcopy_rsc(fname), file_hash=hash)
+
+	fdel(css_file_directory)
+	var/css = generate_css()
+	rustlib_file_write(css, css_file_directory)
+	var/css_hash = rustlib_hash_string(RUSTLIB_HASH_MD5, css)
+	SSassets.transport.register_asset(css_name, fcopy_rsc(css_file_directory), file_hash=css_hash)
 
 	if(CONFIG_GET(flag/save_spritesheets))
 		save_to_logs(file_name = css_name, file_location = css_file_directory)
