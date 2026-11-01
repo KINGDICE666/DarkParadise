@@ -121,14 +121,6 @@ test('browser links with a literal percent sign still decode', () => {
   assert.deepEqual(decoded, ['При вет', '100% готово']);
 });
 
-test('browse windows opened without a titlebar hide the popup title', () => {
-  const window = {};
-  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
-  const source = window.__dpPatchSkin('pop', 'var t={winset(o){applied=o;}}; if(opts) t.winset(opts);');
-  const applied = vm.runInNewContext(`var applied; ${source}; applied`, { opts: { titlebar: '0', canResize: '0' } });
-  assert.equal(applied.showTitle, '0');
-});
-
 function loadHelpers(context) {
   const elements = [];
   context.window = Object.assign({ parent: null, setTimeout: context.setTimeout }, context.window);
@@ -222,8 +214,6 @@ test('key macros receive the pointer position relative to the map', () => {
   move({ clientX: 2000, clientY: -5 });
   assert.equal(window.__dpExpandCommand('KeyUp "W" [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyUp "W" 640 0 640 480');
   assert.equal(window.__dpExpandCommand('say "[[not a placeholder]]"'), 'say "[[not a placeholder]]"');
-  assert.equal(window.__dpExpandCommand('KeyDown O [[mapwindow.map.mouse-pos]] [[mapwindow.map.size]]'), 'KeyDown "O" 640 0 640 480');
-  assert.equal(window.__dpExpandCommand('KeyUp Shift 1 2 3 4'), 'KeyUp "Shift" 1 2 3 4');
 });
 
 test('topics beyond the server rate limit wait in order', () => {

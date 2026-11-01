@@ -119,7 +119,7 @@
           }
           var value = response && response[camel(property)];
           while (value && typeof value === 'object' && camel(property) in value) value = value[camel(property)];
-          if (property === 'dpi') value = 1;
+          if (property === 'dpi') value = 96 * (window.devicePixelRatio || 1);
           if (property === 'pos' && typeof value === 'string') {
             var position = /^\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*$/.exec(value);
             if (position) value = { x: Number(position[1]), y: Number(position[2]) };
