@@ -260,7 +260,7 @@
 
 	set_right_click_menu_mode(TRUE)
 
-	if(connection != "seeker" && !(connection == "web" && CONFIG_GET(flag/web_guest_login))) //Invalid connection type.
+	if(connection != "seeker") //Invalid connection type.
 		return null
 
 	if(byond_version < MIN_CLIENT_VERSION) // Too out of date to play at all. Unfortunately, we can't send them a message here.
@@ -488,26 +488,10 @@
 	give_award(/datum/award/achievement/donations/project_pillar, mob)
 
 /client/proc/is_connecting_from_localhost()
-	if(connection == "web")
-		return FALSE
 	var/localhost_addresses = list("127.0.0.1", "::1", "0.0.0.0") // Adresses
 	if(!isnull(address) && (address in localhost_addresses) || !address)
 		return TRUE
 	return FALSE
-
-#define WEB_TEXT_CHAR_WIDTH 6
-#define WEB_TEXT_LINE_HEIGHT 11
-
-/client/MeasureText(text, style, width)
-	if(connection != "web")
-		return ..()
-	var/text_width = length_char(STRIP_HTML_FULL(text, length(text) + 1)) * WEB_TEXT_CHAR_WIDTH
-	if(!width || text_width <= width)
-		return "[max(text_width, 1)]x[WEB_TEXT_LINE_HEIGHT]"
-	return "[width]x[ceil(text_width / width) * WEB_TEXT_LINE_HEIGHT]"
-
-#undef WEB_TEXT_CHAR_WIDTH
-#undef WEB_TEXT_LINE_HEIGHT
 
 //////////////
 //DISCONNECT//
@@ -1402,8 +1386,6 @@ GAME_VERB_HIDDEN(/client, fitviewport, "")// wrapper for mainwindow
 		return FALSE
 	if(is_launcher_client())
 		return TRUE
-	if(is_guest_key(key))
-		return FALSE
 	return CONFIG_GET(number/minimum_byondacc_age) && byondacc_age <= CONFIG_GET(number/minimum_byondacc_age)
 
 GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Привязать аккаунт Discord для удобного просмотра игровой статистики на нашем Discord-сервере.", VERB_CATEGORY_SPECIALVERBS)

@@ -24,16 +24,6 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 		enable_debugging()
 
 	load_configuration()
-	if(CONFIG_GET(flag/web_guest_login))
-		var/web_auth_result = "native adapter is missing"
-		if(fexists("./libdpwebauth.so"))
-			try
-				web_auth_result = CALL_EXT("./libdpwebauth.so", "initialize")("data/web-auth.sock")
-			catch(var/exception/error)
-				web_auth_result = error.name
-		if(web_auth_result != "ok")
-			CONFIG_SET(flag/web_guest_login, FALSE)
-			log_world("Web guest login disabled: [web_auth_result]")
 	// Right off the bat, load up the DB
 	SSdbcore.CheckSchemaVersion() // This doesnt just check the schema version, it also connects to the db! This needs to happen super early! I cannot stress this enough!
 	SSdbcore.SetRoundID() // Set the round ID here

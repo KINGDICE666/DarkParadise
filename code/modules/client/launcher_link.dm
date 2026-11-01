@@ -373,7 +373,5 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 	if(!is_guest_key(key))
 		return
-	if(connection == "web" && CONFIG_GET(flag/web_guest_login))
-		return
 
 	reject_launcher_client("Вход без лаунчера здесь закрыт.")
