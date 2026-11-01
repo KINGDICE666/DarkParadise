@@ -67,11 +67,9 @@ export function createWebrootReader(root) {
   return {
     async get(requestPath) {
       if (!root || !/^\/assets\/(?:[a-f0-9]{2}\/asset\.[a-f0-9]{32}\.[a-z0-9]+|namespaces\/[a-f0-9]{2}\/[a-f0-9]{32}\/[\w.-]+)$/.test(requestPath)) return null;
-      const hashed = /^\/assets\/[a-f0-9]{2}\/(asset\.([a-f0-9]{32})\.[a-z0-9]+)$/.exec(requestPath);
-      const relativePath = hashed ? hashed[2].slice(0, 2) + '/' + hashed[1] : requestPath.slice('/assets/'.length);
       try {
         const base = await fs.realpath(root);
-        const filename = await fs.realpath(path.join(base, relativePath));
+        const filename = await fs.realpath(path.join(base, requestPath.slice('/assets/'.length)));
         const relative = path.relative(base, filename);
         if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) return null;
         const stat = await fs.stat(filename);

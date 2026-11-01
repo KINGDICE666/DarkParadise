@@ -92,16 +92,7 @@ client. Protocol strings are decoded and encoded as UTF-8 for BYOND 516.
 Topic queries retain their leading `?`; control types returned to DM use the
 DreamSeeker uppercase spelling. Loaded browser frames keep their browsing
 context when controls move or their popup is hidden. Initial repeated stat tab
-notifications are coalesced, and all Topic messages are held to 8 per second so
-the startup burst stays under the world's per-second Topic limit.
-
-The stock web client predates BYOND 515: `TOP`, `BOTTOM`, `LEFT` and `RIGHT` in
-`screen_loc` are translated to compass keywords, maptext receives the map
-control's style classes, fully transparent maptext colors from DD 516 fall back
-to the map text color, and maptext overlays are anchored to the bottom of their
-icon. Font resources are still preloaded so maptext fonts register. Stat panel
-theme, font and tab style commands are applied directly while `statbrowser.js`
-functions are not global in the strict inline script.
+notifications are coalesced to avoid flooding the world's Topic rate limit.
 
 For local frontend development, `dev-proxy.mjs` binds to `127.0.0.1:8179` and
 forwards requests to `DEV_UPSTREAM_HOST` / `DEV_UPSTREAM_PORT`. Supply the exact
