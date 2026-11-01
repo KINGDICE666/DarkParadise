@@ -60,6 +60,7 @@
 
 // mob cooldowns
 #define COOLDOWN_YAWN_PROPAGATION "yawn_propagation_cooldown"
+#define COOLDOWN_OVERMAP_HULL_SHOVE "overmap_hull_shove"
 
 // Shared cooldowns for actions
 #define MOB_SHARED_COOLDOWN_1 (1<<0)

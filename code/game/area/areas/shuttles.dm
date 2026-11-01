@@ -104,6 +104,10 @@
 	name = "Mining Shuttle"
 	icon_state = "shuttle"
 
+/area/shuttle/explorer
+	name = "Explorer Shuttle"
+	icon_state = "shuttle"
+
 /area/shuttle/transport
 	icon_state = "shuttle"
 

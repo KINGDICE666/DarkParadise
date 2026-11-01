@@ -97,6 +97,11 @@
 /obj/effect/turf_decal/delivery/partial,
 /turf/simulated/floor/pod,
 /area/shuttle/freegolem)
+"ep" = (
+/obj/structure/table/reinforced,
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/carpet/black,
+/area/shuttle/freegolem)
 "eG" = (
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -142,7 +147,7 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "gR" = (
-/obj/structure/shuttle/engine/huge{
+/obj/machinery/ship_engine/huge{
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark/lavaland_air,
@@ -331,7 +336,9 @@
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "oY" = (
-/obj/structure/computerframe,
+/obj/structure/computerframe{
+	dir = 4
+	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "pz" = (
@@ -355,6 +362,12 @@
 "qD" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"ra" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 4
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "rq" = (
 /obj/structure/table/reinforced,
@@ -504,6 +517,12 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
+"Bp" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 1
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
+/area/shuttle/freegolem)
 "BF" = (
 /obj/machinery/mineral/ore_redemption/golem,
 /obj/machinery/light{
@@ -616,6 +635,12 @@
 	},
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
+"FS" = (
+/obj/machinery/computer/sensors{
+	dir = 4
+	},
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
 "Gs" = (
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -630,6 +655,10 @@
 /area/shuttle/freegolem)
 "GE" = (
 /obj/machinery/door/airlock/survival_pod,
+/turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Km" = (
+/obj/machinery/sensor_array/short_range,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
 "Ku" = (
@@ -720,6 +749,7 @@
 /area/shuttle/freegolem)
 "NV" = (
 /obj/structure/table/reinforced,
+/obj/machinery/overmap_intercom/directional/south,
 /turf/simulated/floor/carpet/black,
 /area/shuttle/freegolem)
 "Oc" = (
@@ -779,6 +809,12 @@
 	dir = 8
 	},
 /turf/simulated/floor/pod/dark,
+/area/shuttle/freegolem)
+"Ri" = (
+/obj/machinery/ship_engine/thruster{
+	dir = 2
+	},
+/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "RQ" = (
 /obj/effect/turf_decal/delivery/partial{
@@ -928,7 +964,7 @@ OM
 yB
 "}
 (3,1,1) = {"
-cI
+Bp
 cI
 cI
 cI
@@ -946,7 +982,7 @@ cI
 cI
 cI
 cI
-cI
+Ri
 "}
 (4,1,1) = {"
 zc
@@ -1247,7 +1283,7 @@ yB
 yB
 cI
 me
-yf
+Km
 DS
 cI
 cI
@@ -1396,7 +1432,7 @@ yB
 yB
 yB
 cI
-NV
+ep
 FH
 Oc
 eU
@@ -1416,7 +1452,7 @@ yB
 yB
 yB
 yB
-cI
+Bp
 kO
 Qt
 Qt
@@ -1424,7 +1460,7 @@ pJ
 Qt
 Qt
 xI
-cI
+Ri
 yB
 yB
 yB
@@ -1484,7 +1520,7 @@ cI
 Xe
 WZ
 oY
-nZ
+FS
 Xe
 cI
 yB
@@ -1502,11 +1538,11 @@ yB
 yB
 yB
 yB
-cI
+ra
 Xe
 dT
 Xe
-cI
+ra
 yB
 yB
 yB
