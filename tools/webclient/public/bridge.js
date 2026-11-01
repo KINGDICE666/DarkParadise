@@ -14,7 +14,6 @@
     catch (_) { return unescape(value); }
   };
   window.__dpPatchSkin = function (name, source) {
-    if (name === 'gamepad') source = source.replace('pi.active = !!(pad = pad[stick])', 'pi.active = !!(pad = pads[stick])');
     if (name === 'browser') source = source.replace("unescape(a[i].replace(/\\+/g,' '))", "window.__dpDecodeParam(a[i].replace(/\\+/g,' '))");
     if (name === 'pane') {
       source = source.replace('if(!this.loading) {if(v) this.popup(); else this.popdown();}', 'this.config.isVisible = v; if (!this.loading) { var existingPopup = this._pop(); if (existingPopup) existingPopup.top.style.display = v ? "" : "none"; else if (v) this.popup(); }');
@@ -156,17 +155,6 @@
     }).replace(/^(KeyDown|KeyUp)\s+([^\s"]+)/i, function (_, verb, key) {
       return verb + ' "' + key.replace(/\\/g, '\\\\') + '"';
     });
-  };
-
-  const lowestPlane = -50;
-  const planeRange = 107;
-  const spacePlane = -21;
-  const firstLightingPlane = 10;
-  const lastLightingPlane = 22;
-  window.__dpSkipPlane = function (plane) {
-    if (typeof plane !== 'number' || plane < -10000) return false;
-    const truePlane = ((plane - lowestPlane) % planeRange + planeRange) % planeRange + lowestPlane;
-    return truePlane === spacePlane || (truePlane >= firstLightingPlane && truePlane <= lastLightingPlane);
   };
 
   const screenEdges = { TOPLEFT: 'NORTHWEST', TOPRIGHT: 'NORTHEAST', BOTTOMLEFT: 'SOUTHWEST', BOTTOMRIGHT: 'SOUTHEAST', TOP: 'NORTH', BOTTOM: 'SOUTH', LEFT: 'WEST', RIGHT: 'EAST' };

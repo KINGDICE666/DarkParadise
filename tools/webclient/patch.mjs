@@ -69,18 +69,6 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'do not glide atoms whose appearance has not arrived yet',
-    pattern: /(t2\.name = t1 != null \? t1\.name : "";)(\s*c = t1\.core;)/g,
-    replace: '$1 if (t1 == null) return;$2',
-    min: 1,
-  },
-  {
-    name: 'skip lighting and emissive planes that need render relays',
-    pattern: /icons\.push\(ic\);/g,
-    replace: 'if (!window.__dpSkipPlane(ic.plane)) icons.push(ic);',
-    min: 1,
-  },
-  {
     name: 'coalesce initial stat tab notifications',
     pattern: /msg = N\.ByondMessage\$\(129\);/g,
     replace: 'if (window.__dpScheduleTopic(this, topic)) return; msg = N.ByondMessage$(129);',

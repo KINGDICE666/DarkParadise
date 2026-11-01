@@ -7,31 +7,18 @@ body{display:flex;flex-direction:column}
 header{display:flex;gap:12px;align-items:center;padding:6px 16px}
 header b{font-size:16px}
 #status{opacity:.7}
-main{flex:1;position:relative;display:flex}
 iframe{flex:1;width:100%;border:0;background:#000}
-#loading{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:14px;background:#0d0f14;transition:opacity .4s}
-#loading.done{opacity:0;pointer-events:none}
-#loading b{font-size:22px;letter-spacing:.04em}
-#loading-text{opacity:.7}
-#bar{width:min(320px,70vw);height:4px;border-radius:2px;background:#1e2430;overflow:hidden}
-#bar i{display:block;height:100%;width:0;background:#4f7cba;transition:width .3s}
 #error{position:fixed;inset:44px 0 0;display:grid;place-content:center;text-align:center;background:#0d0f14}
 #error[hidden]{display:none}
 button{padding:10px 18px;background:#304c72;color:white;border:0;border-radius:5px;cursor:pointer}
 </style></head>
 <body>
 <header><b>Dark Paradise</b><span id="status">Подключаюсь…</span></header>
-<main>
 <iframe id="game" allow="fullscreen; autoplay; clipboard-read; clipboard-write" allowfullscreen></iframe>
-<section id="loading"><b>Dark Paradise</b><span id="loading-text">Подключаюсь…</span><div id="bar"><i></i></div></section>
-</main>
 <section id="error" hidden><p id="error-message"></p><button id="retry">Подключиться снова</button></section>
 <script>
 const frame = document.getElementById('game');
 const status = document.getElementById('status');
-const loading = document.getElementById('loading');
-const loadingText = document.getElementById('loading-text');
-const bar = document.querySelector('#bar i');
 const errorPanel = document.getElementById('error');
 const base = location.pathname.replace(/\/(?:index\.html)?$/, '');
 let deadline;
@@ -39,38 +26,10 @@ let failed = false;
 let authenticated = false;
 let ready = false;
 let loadedBytes = -1;
-let revealTimer;
-function setStatus(text) {
-  status.textContent = text;
-  loadingText.textContent = text;
-}
-function setProgress(fraction) {
-  bar.style.width = Math.round(Math.min(Math.max(fraction, 0), 1) * 100) + '%';
-}
-function clientShown() {
-  try {
-    const legacy = frame.contentDocument.getElementById('output_legacy');
-    return Boolean(legacy) && getComputedStyle(legacy).display === 'none';
-  } catch {
-    return false;
-  }
-}
-function reveal() {
-  clearInterval(revealTimer);
-  setProgress(1);
-  setTimeout(() => loading.classList.add('done'), 800);
-}
-function waitForClient() {
-  const started = Date.now();
-  revealTimer = setInterval(() => {
-    if (clientShown() || Date.now() - started > 20_000) reveal();
-  }, 200);
-}
 function fail(message) {
   if (failed) return;
   failed = true;
   clearTimeout(deadline);
-  clearInterval(revealTimer);
   status.textContent = 'Нет подключения';
   document.getElementById('error-message').textContent = message;
   errorPanel.hidden = false;
@@ -92,25 +51,20 @@ window.addEventListener('message', async (e) => {
       if (!/^dpweb-v1:[0-9a-f]{32}$/.test(key)) throw new Error('invalid ticket');
       if (failed) return;
       frame.contentWindow.postMessage('key:' + key, location.origin);
-      setStatus('Вход…');
-      setProgress(0.1);
+      status.textContent = 'Вход…';
       armTimeout(20_000, 'Сервер не подтвердил вход. Попробуйте подключиться снова.');
     } catch {
       fail('Не удалось получить билет гостя. Попробуйте подключиться снова.');
     }
   } else if (e.data === 'scripts:end') {
-    setStatus('Загрузка клиента…');
+    status.textContent = 'Загрузка клиента…';
   } else if (e.data === 'ready') {
     ready = true;
     clearTimeout(deadline);
-    setStatus('Подключено');
-    loadingText.textContent = 'Подготовка интерфейса…';
-    setProgress(0.95);
-    waitForClient();
+    status.textContent = 'Подключено';
   } else if (typeof e.data === 'string' && /^progress:\d+\/\d+$/.test(e.data) && !ready) {
     const [loaded, total] = e.data.slice(9).split('/').map(Number);
-    setStatus(`Загрузка мира: ${(loaded / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} МБ`);
-    if (total > 0) setProgress(0.2 + 0.7 * loaded / total);
+    status.textContent = `Загрузка мира: ${(loaded / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} МБ`;
     if (authenticated && loaded > loadedBytes) {
       armTimeout(120_000, 'Загрузка мира остановилась. Попробуйте подключиться снова.');
     }
@@ -118,8 +72,7 @@ window.addEventListener('message', async (e) => {
   } else if (e.data?.type === 'dp-client') {
     if (e.data.stage === 'authenticated') {
       authenticated = true;
-      setStatus('Загрузка мира…');
-      setProgress(0.2);
+      status.textContent = 'Загрузка мира…';
       armTimeout(120_000, 'Загрузка мира заняла слишком много времени. Попробуйте подключиться снова.');
     } else if (e.data.stage === 'quit') {
       fail(e.data.code === 9 ? 'Сервер не подтвердил вход. Попробуйте подключиться снова.' : 'Сервер завершил подключение. Попробуйте подключиться снова.');
@@ -138,7 +91,7 @@ fetch(base + '/query', { signal: AbortSignal.timeout(15_000) }).then((r) => {
     fail(q.fail);
     return;
   }
-  setStatus('Загрузка клиента…');
+  status.textContent = 'Загрузка клиента…';
   frame.src = base + '/play';
 }).catch(() => {
   fail('Сервер недоступен. Попробуйте подключиться снова.');
