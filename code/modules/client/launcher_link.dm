@@ -35,7 +35,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/request_launcher_link()
 	launcher_link_target = null
-	if(!is_launcher_client() || !SSdbcore.IsConnected())
+	if(seeker_client || !is_launcher_client() || !SSdbcore.IsConnected())
 		return LAUNCHER_LINK_NONE
 	if(GLOB.launcher_account_aliases[launcher_claimed_ckey])
 		return LAUNCHER_LINK_NONE
@@ -164,6 +164,14 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/setup_account_ckey(connectiontopic)
 	account_ckey = ckey
+	var/list/connection_params = params2list(connectiontopic)
+	var/list/seeker_identity = get_seeker_identity(key, address, computer_id, connection_params["seeker"])
+	if(length(seeker_identity))
+		seeker_client = TRUE
+		if(seeker_identity["ckey"])
+			account_ckey = seeker_identity["ckey"]
+			launcher_state = LAUNCHER_VERIFIED
+		return
 
 	var/client/squatter = GLOB.directory[ckey]
 	if(squatter && squatter != src && squatter.is_launcher_client())
@@ -172,7 +180,6 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	if(!CONFIG_GET(string/launcher_api_url))
 		return
 
-	var/list/connection_params = params2list(connectiontopic)
 	if(!connection_params["launcher_token"])
 		return
 
@@ -202,6 +209,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/check_launcher_link(connectiontopic)
 	set waitfor = FALSE
+	if(seeker_client)
+		return
 	var/api_url = CONFIG_GET(string/launcher_api_url)
 	if(!api_url)
 		return

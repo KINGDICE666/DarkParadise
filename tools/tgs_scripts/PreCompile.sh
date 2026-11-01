@@ -14,3 +14,8 @@ if [ -x "$HOME/.bun/bin/bun" ]; then
 fi
 
 env TG_BOOTSTRAP_CACHE="$original_dir" CBT_BUILD_MODE="TGS" tools/bootstrap/javascript.sh tools/build/build.ts
+
+if [ "${SEEKER_BUILD_AUTH:-0}" = "1" ]; then
+	gcc -m32 -shared -fPIC -O2 -Wall -Wextra -Werror \
+		-o libseekerauth.so tools/seeker-auth/native-auth.c -ldl
+fi

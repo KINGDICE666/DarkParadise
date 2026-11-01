@@ -125,6 +125,7 @@
 	var/datum/geoip_data/geoip = null
 
 	var/account_ckey
+	var/seeker_client = FALSE
 	var/launcher_claimed_ckey
 	var/launcher_link_target
 	var/steam_id = null
