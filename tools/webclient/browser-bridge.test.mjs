@@ -248,38 +248,23 @@ test('screen edges from BYOND 515 map to the web client compass keywords', () =>
 });
 
 test('maptext uses the map style classes and ignores transparent colors', () => {
-  const span = () => ({
+  const span = {
     classList: ['maptext'], attributes: { class: 'maptext', style: 'color:rgba(0,0,0,0.000);text-align:center' },
     getAttribute(name) { return this.attributes[name] ?? null; },
     setAttribute(name, value) { this.attributes[name] = value; },
     removeAttribute(name) { delete this.attributes[name]; },
-  });
+  };
   const map = { getAttribute() { return 'pos=0,0;style=".maptext { font-family: \'Grand9K Pixel\'; color: white; } .other, .maptext { font-size: 6pt }";zoom=0'; } };
   const document = {
     querySelector() { return map; },
     createElement() {
-      const element = span();
-      return { content: { querySelectorAll() { return [element]; } }, set innerHTML(value) { this.source = value; }, get innerHTML() { return element.attributes.style; } };
+      return { content: { querySelectorAll() { return [span]; } }, set innerHTML(value) { this.source = value; }, get innerHTML() { return span.attributes.style; } };
     },
   };
   const window = {};
   vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window, document });
-  const base = "font-family:'Grand9K Pixel';color:white;font-size:6pt;";
-  assert.equal(window.__dpMaptextHtml('<span class="maptext">x</span>'), `<span style="${base}">${base}text-align:center</span>`);
-  assert.equal(window.__dpMaptextHtml("<font face='Small Fonts'>2</font>"), `${base}text-align:center`);
-  assert.equal(window.__dpMaptextHtml(''), '');
-});
-
-test('maptext outlines follow the DreamSeeker outline style', () => {
-  const window = {};
-  vm.runInNewContext(fs.readFileSync(new URL('./public/bridge.js', import.meta.url), 'utf8'), { window });
-  const format = { strokeWidth: 0, strokeColor: 0 };
-  window.__dpTextOutline(format, '1px black');
-  assert.deepEqual(format, { strokeWidth: 1, strokeColor: 'black' });
-  window.__dpTextOutline(format, '2px sharp rgb(0, 0, 0)');
-  assert.deepEqual(format, { strokeWidth: 2, strokeColor: 'rgb(0, 0, 0)' });
-  window.__dpTextOutline(format, undefined);
-  assert.equal(format.strokeWidth, 2);
+  assert.equal(window.__dpMaptextHtml('<span class="maptext">x</span>'), "font-family:'Grand9K Pixel';color:white;font-size:6pt;text-align:center");
+  assert.equal(window.__dpMaptextHtml('plain'), 'plain');
 });
 
 test('stat panel theme commands apply when its functions are not global', () => {

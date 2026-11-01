@@ -121,14 +121,3 @@ test('real vendor input expands map placeholders and runs output locally', { ski
   assert.deepEqual(outputs, [['statbrowser:set_theme', 'dark'], ['output_browser.browseroutput:update', '{"type":"x"}']]);
   assert.deepEqual(winsets, ['input.text=\\"\\"']);
 });
-
-test('real vendor places maptext overlays from the bottom-left of their icon', { skip: !patched }, () => {
-  const copyPos = method('copyPos$2', 'updateScreen$0', { $: { me: { iconHeight: 32 } } });
-  const text = { icon: { _height: 75, _text: 'Delta' }, iconOffsetX: null, iconOffsetY: null, pixel_w: 12, pixel_z: 5, copyPos$2: copyPos };
-  const plain = { icon: { _height: 32, _text: null }, iconOffsetX: 3, iconOffsetY: -4, copyPos$2: copyPos };
-  const tv = { icon: { _height: 96 }, iconOffsetX: 0, iconOffsetY: -96, overlays: [plain, text], copyPos$2: copyPos };
-  tv.copyPos$2(10, 200);
-  assert.deepEqual([tv.baseX, tv.baseY], [10, 104]);
-  assert.deepEqual([text.baseX, text.baseY], [12, 16]);
-  assert.deepEqual([plain.baseX, plain.baseY], [3, -4]);
-});

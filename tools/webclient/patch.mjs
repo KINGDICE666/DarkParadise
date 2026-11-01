@@ -123,33 +123,9 @@ const STATUS_RULES = [
     min: 1,
   },
   {
-    name: 'place maptext overlays from the bottom-left of their icon',
-    pattern: /this\.overlays\[i0\]\.copyPos\$2\(0, 0\);/g,
-    replace: '{ this.overlays[i0].copyPos$2(0, 0); var dpText = this.overlays[i0]; if (dpText.icon != null && dpText.icon._text != null) { dpText.baseX = dpText.iconOffsetX != null ? dpText.iconOffsetX : dpText.pixel_w; dpText.baseY = (dpText.iconOffsetY != null ? dpText.iconOffsetY : -dpText.pixel_z) + (this.icon != null ? this.icon._height : $.me.iconHeight) - dpText.icon._height; } }',
-    min: 1,
-  },
-  {
-    name: 'read the maptext outline style',
-    pattern: /(value = style\.\$index\(0, "vertical-align"\);\s*if \(value != null\) \{\s*this\._valign = value;\s*this\._refreshPending \|= 3;\s*\})/g,
-    replace: '$1 window.__dpTextOutline(fmt, style.$index(0, "-dm-text-outline"));',
-    min: 1,
-  },
-  {
-    name: 'stroke each maptext span once at its own position',
-    pattern: /for \(t2 = t1\.length, _i = 0; _i < t1\.length; t1\.length === t2 \|\| \(0, H\.throwConcurrentModificationError\)\(t1\), \+\+_i\) \{\s*lm0 = t1\[_i\];\s*context\.strokeText\(text, lm0\._x, lm0\._y \+ offsetY\);\s*\}/g,
-    replace: 'context.lineJoin = "round"; context.strokeText(text, lm._x + offsetX, lm._y + offsetY);',
-    min: 1,
-  },
-  {
-    name: 'space maptext lines by the font height like DreamSeeker',
-    pattern: /C\.JSNumber_methods\.round\$0\(fontStyleMetricsAscent \* this\.lineSpacing\)/g,
-    replace: 'C.JSNumber_methods.round$0(fontStyleMetricsAscent + fontStyleMetricsDescent)',
-    min: 1,
-  },
-  {
-    name: 'maptext percent font sizes are relative to 10pt like DD output',
-    pattern: /return C\.JSNumber_methods\.round\$0\(this\._textFormats\[0\]\.size \* val\) \/ 100;/g,
-    replace: 'return C.JSNumber_methods.round$0(N.ByondJS_toPx("pt") * 10 * val) / 100;',
+    name: 'anchor maptext overlays to the bottom of their icon',
+    pattern: /tic\.pixel_z = t1\.maptextY;/g,
+    replace: 'tic.pixel_z = t1.maptextY + t1.maptextHeight - (ic.icon._height || t1.maptextHeight);',
     min: 1,
   },
   {

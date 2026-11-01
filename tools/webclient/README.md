@@ -96,13 +96,10 @@ notifications are coalesced, and all Topic messages are held to 8 per second so
 the startup burst stays under the world's per-second Topic limit.
 
 The stock web client predates BYOND 515: `TOP`, `BOTTOM`, `LEFT` and `RIGHT` in
-`screen_loc` are translated to compass keywords. DD 516 flattens maptext styles
-for the web client and drops classes and `-dm-text-outline`, so the map style's
-`.maptext` rule is applied as the base of every maptext except legacy `<font
-face>` text; fully transparent colors fall back to it, percent sizes are taken
-from 10pt as DD writes them, outlines are stroked, and lines are spaced by the
-font height. Maptext overlays are placed from the bottom-left of their icon with
-`maptext_x/y`. Font resources are still preloaded so maptext fonts register. Stat panel
+`screen_loc` are translated to compass keywords, maptext receives the map
+control's style classes, fully transparent maptext colors from DD 516 fall back
+to the map text color, and maptext overlays are anchored to the bottom of their
+icon. Font resources are still preloaded so maptext fonts register. Stat panel
 theme, font and tab style commands are applied directly while `statbrowser.js`
 functions are not global in the strict inline script.
 
