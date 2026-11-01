@@ -13,6 +13,7 @@ import {
 import { createSearch } from 'tgui-core/string';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
+import { CreditPrice } from './common/CreditPrice';
 import { getLayoutState, LAYOUT, LayoutToggle } from './common/LayoutToggle';
 
 type VendingData = {
@@ -392,7 +393,10 @@ const ProductPrice = (props) => {
 
   return (
     <Stack.Item color={free ? 'green' : 'gold'}>
-      <b>{standardPrice}</b> кр.
+      <b>
+        <CreditPrice value={Number(standardPrice)} />
+      </b>{' '}
+      кр.
     </Stack.Item>
   );
 };

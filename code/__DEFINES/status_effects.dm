@@ -23,6 +23,10 @@
 ///This is slower and better for more intensive status effects - 1s between ticks
 #define STATUS_EFFECT_NORMAL_PROCESS 1
 
+#define STATUS_EFFECT_MARMELADYCH_WIDE /datum/status_effect/marmeladych/wide
+#define STATUS_EFFECT_MARMELADYCH_TOILET /datum/status_effect/marmeladych/toilet
+#define STATUS_EFFECT_MARMELADYCH_INFLATION /datum/status_effect/marmeladych/inflation
+
 #define STATUS_EFFECT_NECROPOLIS_CURSE /datum/status_effect/necropolis_curse
 //several flags for the Necropolis curse status effect
 ///makes the edges of the target's screen obscured

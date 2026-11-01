@@ -11,8 +11,8 @@ import {
   TextArea,
 } from 'tgui-core/components';
 import { useBackend } from '../../backend';
-
 import { Window } from '../../layouts';
+import { CreditPrice } from '../common/CreditPrice';
 
 const DEFAULT_PURPOSE = 'Перевод через RIB';
 
@@ -553,7 +553,7 @@ const UUSubscriptionsMenuPage = ({ setPage, data }: PageProps) => {
                   <Box className="subscription-meta-item">
                     Стоимость:{' '}
                     <Box as="span" className="value">
-                      {e.cost} кредитов
+                      <CreditPrice value={e.cost} /> кредитов
                     </Box>
                   </Box>
                 </Box>
@@ -646,7 +646,7 @@ const UUSubscriptionsMenuPage = ({ setPage, data }: PageProps) => {
                 <Box className="subscription-meta-item">
                   Цена:{' '}
                   <Box as="span" className="value">
-                    {e.cost} кредитов
+                    <CreditPrice value={e.cost} /> кредитов
                   </Box>
                 </Box>
                 <Box className="subscription-meta-item">

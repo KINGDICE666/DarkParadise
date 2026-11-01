@@ -26,6 +26,7 @@
 	default_premium_price = PAYCHECK_LOWER * 0.5
 
 	products = list(
+		/obj/item/storage/box/marmeladych = 3,
 		/obj/item/reagent_containers/food/snacks/candy/candybar = 6,
 		/obj/item/reagent_containers/cup/glass/dry_ramen = 6,
 		/obj/item/reagent_containers/food/snacks/doshik = 6,
