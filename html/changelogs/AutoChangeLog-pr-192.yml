@@ -1,4 +1,0 @@
-author: "KINGDICE666"
-delete-after: True
-changes:
-  - tweak: "Увеличен предел загрузки клиентов до 20 МБ. (PR #192)"
