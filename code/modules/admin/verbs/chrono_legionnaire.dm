@@ -1,5 +1,8 @@
 #define CHRONO_ARRIVAL_RANDOM "Случайное место на станции"
 #define CHRONO_ARRIVAL_ADMIN "Моё местоположение"
+#define CHRONO_TARGET_PICK "Выбрать"
+#define CHRONO_TARGET_RANDOM "Случайная"
+#define CHRONO_TARGET_NONE "Без цели"
 
 /client/proc/send_chrono_legionnaire()
 	if(!SSticker)
@@ -16,6 +19,23 @@
 	var/mission = tgui_input_text(src, "Укажите миссию хронолегионера.", "Укажите миссию", "Сотрите из временного потока тех, кто угрожает ходу истории.", encode = FALSE)
 	if(!mission)
 		return
+
+	var/target_choice = tgui_alert(src, "Кого хронолегионер должен стереть из временного потока? Покинуть реальность он сможет только после этого.", "Цель", list(CHRONO_TARGET_PICK, CHRONO_TARGET_RANDOM, CHRONO_TARGET_NONE))
+	if(!target_choice)
+		return
+
+	var/datum/mind/erase_target
+	if(target_choice == CHRONO_TARGET_PICK)
+		var/list/targets = list()
+		for(var/datum/mind/crew_mind as anything in SSticker.minds)
+			if(ishuman(crew_mind.current) && crew_mind.current.stat != DEAD && !crew_mind.offstation_role)
+				targets["[crew_mind.current.real_name] ([crew_mind.assigned_role])"] = crew_mind
+		if(!length(targets))
+			to_chat(src, span_warning("Подходящих целей нет."))
+			return
+		erase_target = targets[tgui_input_list(src, "Выберите цель.", "Цель", targets)]
+		if(!erase_target)
+			return
 
 	var/list/candidates = pick_candidates_all_types(src, 1, "Вы хотите сыграть за хронолегионера?", role_cleanname = "хронолегионер", reason = mission)
 	if(!length(candidates))
@@ -37,13 +57,16 @@
 	legionnaire.mind_initialize()
 	legionnaire.mind.assigned_role = SPECIAL_ROLE_EVENTMISC
 	legionnaire.mind.offstation_role = TRUE
-	legionnaire.mind.add_antag_datum(/datum/antagonist/eventmisc)
 	legionnaire.possess_by_player(candidate.key)
 	legionnaire.equipOutfit(/datum/outfit/admin/chrono)
 
-	to_chat(legionnaire, "<br>[span_danger("<b>[mission]</b>")]")
-	legionnaire.mind.store_memory("<b>[mission]</b><br><br>")
+	var/datum/antagonist/chrono_legionnaire/legionnaire_datum = new
+	legionnaire_datum.mission = mission
+	legionnaire_datum.erase_target = erase_target
+	legionnaire_datum.random_erase_target = target_choice == CHRONO_TARGET_RANDOM
+	legionnaire.mind.add_antag_datum(legionnaire_datum)
 
+	new /obj/effect/temp_visual/chronophase/arrival(arrival_turf)
 	new /obj/effect/temp_visual/circle_wave/chrono(arrival_turf)
 	playsound(arrival_turf, 'sound/magic/teleport_app.ogg', 50, TRUE)
 
@@ -52,3 +75,6 @@
 
 #undef CHRONO_ARRIVAL_RANDOM
 #undef CHRONO_ARRIVAL_ADMIN
+#undef CHRONO_TARGET_PICK
+#undef CHRONO_TARGET_RANDOM
+#undef CHRONO_TARGET_NONE

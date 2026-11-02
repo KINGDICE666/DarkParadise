@@ -2428,6 +2428,7 @@
 #include "code\modules\antagonists\changeling\powers\swap_form.dm"
 #include "code\modules\antagonists\changeling\powers\tiny_prick.dm"
 #include "code\modules\antagonists\changeling\powers\transform.dm"
+#include "code\modules\antagonists\chrono_legionnaire\chrono_legionnaire.dm"
 #include "code\modules\antagonists\clockwork\clockwork_datum.dm"
 #include "code\modules\antagonists\clockwork\clockwork_team.dm"
 #include "code\modules\antagonists\contracted_agent\contracted_agent_datum.dm"

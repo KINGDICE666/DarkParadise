@@ -1,3 +1,4 @@
+GLOBAL_LIST_EMPTY(chrono_erased_minds)
 
 /obj/item/chrono_eraser
 	name = "Timestream Eradication Device"
@@ -10,7 +11,6 @@
 	slowdown = 1
 	actions_types = list(/datum/action/item_action/equip_unequip_TED_Gun)
 	var/obj/item/gun/energy/chrono_gun/projector
-	var/list/erased_minds = list() //a collection of minds from the dead
 
 /obj/item/chrono_eraser/get_ru_names()
 	return alist(
@@ -21,9 +21,6 @@
 		INSTRUMENTAL = "устройством T.E.D.",
 		PREPOSITIONAL = "устройстве T.E.D.",
 	)
-
-/obj/item/chrono_eraser/proc/pass_mind(datum/mind/erased_mind)
-	erased_minds += erased_mind
 
 /obj/item/chrono_eraser/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
@@ -58,7 +55,6 @@
 	move_resist = INFINITY
 	blend_mode = BLEND_ADD
 	var/mob/living/captured
-	var/datum/weakref/eraser_ref
 	var/erase_started
 	var/current_frame
 	var/mutable_appearance/mob_underlay
@@ -73,12 +69,11 @@
 		PREPOSITIONAL = "поле стирания",
 	)
 
-/obj/structure/chrono_field/Initialize(mapload, mob/living/captured, obj/item/chrono_eraser/eraser)
+/obj/structure/chrono_field/Initialize(mapload, mob/living/captured)
 	. = ..()
 	if(!istype(captured))
 		return INITIALIZE_HINT_QDEL
 	src.captured = captured
-	eraser_ref = WEAKREF(eraser)
 	RegisterSignal(captured, COMSIG_QDELETING, PROC_REF(on_captured_deleted))
 	captured.forceMove(src)
 	captured.Paralyse(CHRONO_ERASE_TIME + 1 SECONDS)
@@ -140,8 +135,7 @@
 	if(victim.mind)
 		if(ghost)
 			ghost.mind = null
-		var/obj/item/chrono_eraser/eraser = eraser_ref?.resolve()
-		eraser?.pass_mind(victim.mind)
+		GLOB.chrono_erased_minds |= victim.mind
 	new /obj/effect/temp_visual/circle_wave/chrono(loc)
 	playsound(src, 'sound/effects/phasein.ogg', 60, TRUE)
 	qdel(victim)
@@ -191,3 +185,21 @@
 /obj/effect/temp_visual/circle_wave/chrono
 	color = COLOR_CYAN
 	duration = 0.6 SECONDS
+
+/obj/effect/temp_visual/chronophase
+	icon = 'icons/mob/mob.dmi'
+	icon_state = "chronophase"
+	layer = FLY_LAYER
+	duration = 0.7 SECONDS
+	randomdir = FALSE
+
+/obj/effect/temp_visual/chronophase/arrival
+	icon_state = "chronounphase"
+
+/obj/effect/temp_visual/decoy/fading/chrono_trail
+	duration = 0.6 SECONDS
+
+/obj/effect/temp_visual/decoy/fading/chrono_trail/Initialize(mapload, atom/mimiced_atom)
+	. = ..()
+	color = COLOR_CYAN
+	blend_mode = BLEND_ADD

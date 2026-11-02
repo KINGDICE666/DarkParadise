@@ -409,17 +409,17 @@
 // MARK: Chrono gun
 /obj/item/gun/energy/chrono_gun
 	name = "T.E.D. Projection Apparatus"
-	desc = "Проектор устройства T.E.D. Пока спуск зажат, оружие копит заряд, а полностью заряженный выстрел стирает цель из временного потока."
+	desc = "Проектор устройства T.E.D. Пока спуск зажат, оружие копит заряд. Полностью заряженный выстрел стирает цель из временного потока, а неполный заключает её в стазис."
 	icon = 'icons/obj/chronos.dmi'
 	icon_state = "chronogun"
 	item_state = "chronogun"
 	item_flags = DROPDEL
 	ammo_type = list(/obj/item/ammo_casing/energy/chrono_beam)
 	can_charge = FALSE
-	fire_delay = 1 SECONDS
 	accuracy = GUN_ACCURACY_SNIPER
 	var/obj/item/chrono_eraser/eraser
 	var/charge_started
+	var/full_charge = FALSE
 	var/datum/sound_token/charge_sound
 
 /obj/item/gun/energy/chrono_gun/get_ru_names()
@@ -464,7 +464,10 @@
 	update_icon(UPDATE_OVERLAYS)
 
 /obj/item/gun/energy/chrono_gun/stop_fire()
-	stop_charging()
+	if(charge_started && world.time - charge_started >= CHRONO_GUN_MIN_CHARGE_TIME)
+		INVOKE_ASYNC(src, PROC_REF(release_charge), FALSE)
+	else
+		stop_charging()
 	return ..()
 
 /obj/item/gun/energy/chrono_gun/process(seconds_per_tick)
@@ -474,9 +477,19 @@
 	if(world.time - charge_started < CHRONO_GUN_CHARGE_TIME)
 		update_icon(UPDATE_OVERLAYS)
 		return
-	stop_charging()
-	process_fire()
+	release_charge(TRUE)
 	reset_fire()
+
+/obj/item/gun/energy/chrono_gun/on_pre_process_fire(mob/living/user, atom/target)
+	var/obj/projectile/energy/chrono_beam/beam = chambered.BB
+	beam.full_charge = full_charge
+	if(!full_charge)
+		beam.color = COLOR_CYAN
+
+/obj/item/gun/energy/chrono_gun/proc/release_charge(full_charge)
+	stop_charging()
+	src.full_charge = full_charge
+	process_fire()
 
 /obj/item/gun/energy/chrono_gun/proc/stop_charging()
 	if(!charge_started)

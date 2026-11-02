@@ -2,8 +2,8 @@
 #define CHRONOSUIT_DEACTIVATION_COOLDOWN (3 SECONDS)
 #define CHRONOSUIT_PHASE_TIME (0.7 SECONDS)
 #define CHRONOSUIT_DASH_COOLDOWN (8 SECONDS)
-#define CHRONOSUIT_DASH_RANGE 4
-#define CHRONOSUIT_DASH_SPEED 3
+#define CHRONOSUIT_DASH_RANGE 5
+#define CHRONOSUIT_DASH_STEP_DELAY (0.1 SECONDS)
 #define CHRONOSUIT_DASH_HEIGHT 12
 #define CHRONOSUIT_REPULSE_RANGE 2
 #define CHRONOSUIT_REPULSE_THROW_RANGE 7
@@ -81,15 +81,16 @@
 	else
 		activate(user)
 
-/obj/item/clothing/suit/space/chronos/dropped(mob/user, slot, silent = FALSE)
+/obj/item/clothing/suit/space/chronos/dropped(mob/living/user, slot, silent = FALSE)
 	deactivate()
-	if(isliving(user))
-		var/mob/living/living_user = user
-		living_user.remove_status_effect(/datum/status_effect/chrono_shield)
+	user.remove_status_effect(/datum/status_effect/chrono_aura/shield)
 	return ..()
 
 /obj/item/clothing/suit/space/chronos/Destroy()
 	deactivate()
+	if(isliving(loc))
+		var/mob/living/user = loc
+		user.remove_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
 	return ..()
 
 /obj/item/clothing/suit/space/chronos/emp_act(severity)
@@ -97,7 +98,7 @@
 	if(!ishuman(loc))
 		return
 	var/mob/living/carbon/human/user = loc
-	user.remove_status_effect(/datum/status_effect/chrono_shield)
+	user.remove_status_effect(/datum/status_effect/chrono_aura/shield)
 	if(severity != EMP_HEAVY || !activated)
 		return
 	to_chat(user, span_userdanger("Обнаружен электромагнитный импульс, системы отключаются для сохранения целостности..."))
@@ -114,6 +115,7 @@
 		return
 	wearer.ExtinguishMob()
 	phase = new(from_turf, wearer)
+	wearer.reset_perspective(camera)
 	flick("chronophase", phase)
 	playsound(from_turf, 'sound/magic/teleport_diss.ogg', 30, TRUE)
 	addtimer(CALLBACK(src, PROC_REF(chronowalk_arrive)), CHRONOSUIT_PHASE_TIME)
@@ -132,7 +134,7 @@
 
 /obj/item/clothing/suit/space/chronos/proc/chronowalk_finish()
 	QDEL_NULL(phase)
-	wearer?.client?.set_eye(camera || wearer)
+	wearer?.reset_perspective(camera)
 
 /obj/item/clothing/suit/space/chronos/process(seconds_per_tick)
 	if(wearer.wear_suit != src)
@@ -193,10 +195,10 @@
 	wearer = null
 
 /obj/item/clothing/suit/space/chronos/proc/toggle_shield(mob/living/carbon/human/user)
-	if(user.has_status_effect(/datum/status_effect/chrono_shield))
-		user.remove_status_effect(/datum/status_effect/chrono_shield)
+	if(user.has_status_effect(/datum/status_effect/chrono_aura/shield))
+		user.remove_status_effect(/datum/status_effect/chrono_aura/shield)
 		return
-	user.apply_status_effect(/datum/status_effect/chrono_shield)
+	user.apply_status_effect(/datum/status_effect/chrono_aura/shield)
 
 /obj/item/clothing/suit/space/chronos/proc/dash(mob/living/carbon/human/user)
 	if(activated)
@@ -205,23 +207,43 @@
 	if(!COOLDOWN_FINISHED(src, dash_cooldown))
 		balloon_alert(user, "перезарядка!")
 		return
-	if(user.buckled || user.throwing || !isturf(user.loc))
+	if(user.buckled || !isturf(user.loc))
 		return
-	var/turf/start_turf = user.loc
-	var/turf/target_turf = get_ranged_target_turf(user, user.dir, CHRONOSUIT_DASH_RANGE)
-	user.apply_status_effect(STATUS_EFFECT_IMPACT_IMMUNE)
-	animate(user, 0.2 SECONDS, pixel_z = CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_OUT)
-	if(!user.throw_at(target_turf, CHRONOSUIT_DASH_RANGE, CHRONOSUIT_DASH_SPEED, user, spin = FALSE, callback = CALLBACK(src, PROC_REF(dash_landed), user)))
-		animate(user, 0.2 SECONDS, pixel_z = -CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_IN)
-		user.remove_status_effect(STATUS_EFFECT_IMPACT_IMMUNE)
+	var/list/path = list()
+	var/landing_step = 0
+	var/turf/next_turf = user.loc
+	for(var/step in 1 to CHRONOSUIT_DASH_RANGE)
+		next_turf = get_step(next_turf, user.dir)
+		if(!next_turf)
+			break
+		path += next_turf
+		if(!next_turf.is_blocked_turf(exclude_mobs = TRUE))
+			landing_step = step
+	if(!landing_step)
+		balloon_alert(user, "некуда прыгнуть!")
 		return
+	path.Cut(landing_step + 1)
 	COOLDOWN_START(src, dash_cooldown, CHRONOSUIT_DASH_COOLDOWN)
-	new /obj/effect/temp_visual/decoy/fading/halfsecond(start_turf, user)
-	playsound(start_turf, 'sound/effects/whoosh.ogg', 50, TRUE)
+	user.stop_pulling()
+	user.add_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
+	new /obj/effect/temp_visual/circle_wave/chrono(user.loc)
+	animate(user, CHRONOSUIT_DASH_STEP_DELAY * 2, pixel_z = CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_OUT)
+	playsound(user, 'sound/effects/whoosh.ogg', 50, TRUE)
+	dash_step(user, path)
+
+/obj/item/clothing/suit/space/chronos/proc/dash_step(mob/living/carbon/human/user, list/path)
+	if(!length(path))
+		dash_landed(user)
+		return
+	var/turf/next_turf = popleft(path)
+	new /obj/effect/temp_visual/decoy/fading/chrono_trail(user.loc, user)
+	if(!user.Move(next_turf, get_dir(user, next_turf), DELAY_TO_GLIDE_SIZE(CHRONOSUIT_DASH_STEP_DELAY)))
+		user.forceMove(next_turf)
+	addtimer(CALLBACK(src, PROC_REF(dash_step), user, path), CHRONOSUIT_DASH_STEP_DELAY)
 
 /obj/item/clothing/suit/space/chronos/proc/dash_landed(mob/living/carbon/human/user)
-	animate(user, 0.2 SECONDS, pixel_z = -CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_IN)
-	user.remove_status_effect(STATUS_EFFECT_IMPACT_IMMUNE)
+	user.remove_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
+	animate(user, CHRONOSUIT_DASH_STEP_DELAY * 2, pixel_z = -CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_IN)
 	var/turf/landing_turf = get_turf(user)
 	playsound(landing_turf, 'sound/magic/repulse.ogg', 60, TRUE)
 	new /obj/effect/temp_visual/shockwave(landing_turf, CHRONOSUIT_REPULSE_RANGE)
@@ -238,32 +260,48 @@
 			add_attack_logs(user, victim, "repulsed with [src]")
 		thing.throw_at(get_edge_target_turf(thing, throw_dir), CHRONOSUIT_REPULSE_THROW_RANGE, CHRONOSUIT_REPULSE_THROW_SPEED, user)
 
-/datum/status_effect/chrono_shield
-	id = "chrono_shield"
+/datum/status_effect/chrono_aura
+	id = "chrono_aura"
 	tick_interval = STATUS_EFFECT_NO_TICK
 	alert_type = null
-	var/mutable_appearance/shield_overlay
+	var/aura_state
+	var/aura_blend_mode = BLEND_DEFAULT
+	var/aura_sound
+	var/mutable_appearance/aura_overlay
 
-/datum/status_effect/chrono_shield/on_apply()
-	shield_overlay = mutable_appearance('icons/effects/effects.dmi', "shield-grey", MOB_LAYER + 0.01)
-	RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(deflect_projectile))
-	RegisterSignal(owner, COMSIG_HUMAN_REGENERATE_ICONS, PROC_REF(apply_shield_overlay))
-	apply_shield_overlay()
-	playsound(owner, 'sound/magic/charge.ogg', 40, TRUE)
+/datum/status_effect/chrono_aura/on_apply()
+	aura_overlay = mutable_appearance('icons/effects/effects.dmi', aura_state, MOB_LAYER + 0.01)
+	aura_overlay.blend_mode = aura_blend_mode
+	RegisterSignal(owner, COMSIG_HUMAN_REGENERATE_ICONS, PROC_REF(apply_aura_overlay))
+	apply_aura_overlay()
+	playsound(owner, aura_sound, 40, TRUE)
 	return TRUE
 
-/datum/status_effect/chrono_shield/on_remove()
-	UnregisterSignal(owner, list(COMSIG_HUMAN_TRY_DEFLECT_BULLET, COMSIG_HUMAN_REGENERATE_ICONS))
-	owner.cut_overlay(shield_overlay)
-	shield_overlay = null
-	playsound(owner, 'sound/magic/charge.ogg', 40, TRUE, frequency = -1)
+/datum/status_effect/chrono_aura/on_remove()
+	UnregisterSignal(owner, COMSIG_HUMAN_REGENERATE_ICONS)
+	owner.cut_overlay(aura_overlay)
+	aura_overlay = null
 
-/datum/status_effect/chrono_shield/proc/apply_shield_overlay()
+/datum/status_effect/chrono_aura/proc/apply_aura_overlay()
 	SIGNAL_HANDLER
-	owner.cut_overlay(shield_overlay)
-	owner.add_overlay(shield_overlay)
+	owner.cut_overlay(aura_overlay)
+	owner.add_overlay(aura_overlay)
 
-/datum/status_effect/chrono_shield/proc/deflect_projectile(mob/living/carbon/human/source, obj/projectile/hitting_projectile, def_zone)
+/datum/status_effect/chrono_aura/shield
+	id = "chrono_shield"
+	aura_state = "shield-grey"
+	aura_sound = 'sound/magic/charge.ogg'
+
+/datum/status_effect/chrono_aura/shield/on_apply()
+	. = ..()
+	RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(deflect_projectile))
+
+/datum/status_effect/chrono_aura/shield/on_remove()
+	. = ..()
+	UnregisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET)
+	playsound(owner, aura_sound, 40, TRUE, frequency = -1)
+
+/datum/status_effect/chrono_aura/shield/proc/deflect_projectile(mob/living/carbon/human/source, obj/projectile/hitting_projectile, def_zone)
 	SIGNAL_HANDLER
 	if(hitting_projectile.reflectability == REFLECTABILITY_NEVER)
 		return NONE
@@ -317,9 +355,8 @@
 		return
 	if(user != holder)
 		return
-	if(user.client && user.client.eye != src)
-		abstract_move(get_turf(user))
-		user.client.set_eye(src)
+	if(user.client?.eye != src)
+		user.reset_perspective(src)
 	var/turf/step = get_step(src, direction)
 	if(step)
 		abstract_move(step)
@@ -328,8 +365,8 @@
 	if(holder)
 		if(holder.remote_control == src)
 			holder.remote_control = null
-		if(holder.client && (holder.client.eye == src))
-			holder.client.set_eye(holder)
+		if(holder.client?.eye == src)
+			holder.reset_perspective()
 		holder = null
 	return ..()
 
@@ -338,7 +375,7 @@
 #undef CHRONOSUIT_PHASE_TIME
 #undef CHRONOSUIT_DASH_COOLDOWN
 #undef CHRONOSUIT_DASH_RANGE
-#undef CHRONOSUIT_DASH_SPEED
+#undef CHRONOSUIT_DASH_STEP_DELAY
 #undef CHRONOSUIT_DASH_HEIGHT
 #undef CHRONOSUIT_REPULSE_RANGE
 #undef CHRONOSUIT_REPULSE_THROW_RANGE

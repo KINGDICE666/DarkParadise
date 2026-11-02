@@ -106,7 +106,7 @@
 
 /datum/action/item_action/chrono_dash
 	name = "Рывок"
-	desc = "Прыжок вперёд, отбрасывающий всё вокруг места приземления."
+	desc = "Совершить скачок в пространстве сквозь любые преграды. Всё вокруг места приземления отбрасывается."
 	button_icon_state = "repulse"
 
 /datum/action/item_action/toggle_paddles
