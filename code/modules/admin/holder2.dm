@@ -28,6 +28,8 @@ GLOBAL_PROTECT(href_token)
 
 	var/datum/filter_editor/filterrific
 	var/datum/particle_editor/particle_test
+	var/list/copied_filters
+	var/particles/copied_particles
 	var/datum/colorblind_tester/color_test
 	var/datum/plane_master_debug/plane_debug
 	var/datum/appearance_debugger/appearance_debug

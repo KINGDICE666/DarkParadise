@@ -205,11 +205,11 @@ export const EntryGeneratorNumbersList = (
               minValue={-Infinity}
               maxValue={Infinity}
               step={1}
-              value={input[0]}
+              value={input[0] ?? 0}
               onChange={(value) =>
                 act('edit', {
                   var: var_name,
-                  new_value: [value, input![1], input![2]],
+                  new_value: [value, input[1] ?? 0, input[2] ?? 0],
                 })
               }
             />
@@ -219,11 +219,11 @@ export const EntryGeneratorNumbersList = (
               minValue={-Infinity}
               maxValue={Infinity}
               step={1}
-              value={input[1]}
+              value={input[1] ?? 0}
               onChange={(value) =>
                 act('edit', {
                   var: var_name,
-                  new_value: [input![0], value, input![2]],
+                  new_value: [input[0] ?? 0, value, input[2] ?? 0],
                 })
               }
             />
@@ -234,11 +234,11 @@ export const EntryGeneratorNumbersList = (
                 minValue={-Infinity}
                 maxValue={Infinity}
                 step={1}
-                value={input[2]}
+                value={input[2] ?? 0}
                 onChange={(value) =>
                   act('edit', {
                     var: var_name,
-                    new_value: [input![0], input![1], value],
+                    new_value: [input[0] ?? 0, input[1] ?? 0, value],
                   })
                 }
               />
