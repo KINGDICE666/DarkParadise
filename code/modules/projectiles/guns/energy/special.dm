@@ -456,7 +456,7 @@
 	. += mutable_appearance('icons/effects/progressbar.dmi', "prog_bar_[round(progress * 100, 5)]")
 
 /obj/item/gun/energy/chrono_gun/do_semiauto_fire()
-	if(charge_started)
+	if(charge_started || !target)
 		return
 	charge_started = world.time
 	charge_sound = playsoundtoken(src, 'sound/weapons/laser_charge_up.ogg', 60, 7, sound_length = CHRONO_GUN_CHARGE_TIME, frequency = CHRONO_GUN_CHARGE_SOUND_FREQUENCY)
