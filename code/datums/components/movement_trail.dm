@@ -3,7 +3,6 @@
 #define TRAIL_DEFAULT_ALPHA 150
 
 /datum/component/movement_trail
-	dupe_mode = COMPONENT_DUPE_HIGHLANDER
 	var/trail_type
 	var/duration
 	var/trail_color
