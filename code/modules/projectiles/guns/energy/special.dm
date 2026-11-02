@@ -409,79 +409,82 @@
 // MARK: Chrono gun
 /obj/item/gun/energy/chrono_gun
 	name = "T.E.D. Projection Apparatus"
-	desc = "It's as if they never existed in the first place."
+	desc = "Проектор устройства T.E.D. Пока спуск зажат, оружие копит заряд, а полностью заряженный выстрел стирает цель из временного потока."
 	icon = 'icons/obj/chronos.dmi'
 	icon_state = "chronogun"
 	item_state = "chronogun"
 	item_flags = DROPDEL
 	ammo_type = list(/obj/item/ammo_casing/energy/chrono_beam)
 	can_charge = FALSE
-	fire_delay = 5 SECONDS
-	var/obj/item/chrono_eraser/TED = null
-	var/obj/structure/chrono_field/field = null
-	var/turf/startpos = null
+	fire_delay = 1 SECONDS
+	accuracy = GUN_ACCURACY_SNIPER
+	var/obj/item/chrono_eraser/eraser
+	var/charge_started
+	var/datum/sound_token/charge_sound
 
-/obj/item/gun/energy/chrono_gun/Initialize(mapload, obj/item/chrono_eraser/T)
+/obj/item/gun/energy/chrono_gun/get_ru_names()
+	return alist(
+		NOMINATIVE = "проектор T.E.D.",
+		GENITIVE = "проектора T.E.D.",
+		DATIVE = "проектору T.E.D.",
+		ACCUSATIVE = "проектор T.E.D.",
+		INSTRUMENTAL = "проектором T.E.D.",
+		PREPOSITIONAL = "проекторе T.E.D.",
+	)
+
+/obj/item/gun/energy/chrono_gun/Initialize(mapload, obj/item/chrono_eraser/eraser)
 	. = ..()
-	if(istype(T))
-		TED = T
-		ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
-	else //admin must have spawned it
-		TED = new(src.loc)
-		qdel(src)
-
-/obj/item/gun/energy/chrono_gun/update_overlays()
-	return list()
-
-/obj/item/gun/energy/chrono_gun/process_fire(zone_override, secondary_fire = FALSE)
-	if(field)
-		field_disconnect(field)
-	return ..()
+	if(!istype(eraser))
+		new /obj/item/chrono_eraser(drop_location())
+		return INITIALIZE_HINT_QDEL
+	src.eraser = eraser
+	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
 
 /obj/item/gun/energy/chrono_gun/Destroy()
-	if(TED)
-		TED.PA = null
-		TED = null
-	if(field)
-		field_disconnect(field)
+	STOP_PROCESSING(SSfastprocess, src)
+	QDEL_NULL(charge_sound)
+	if(eraser)
+		eraser.projector = null
+		eraser = null
 	return ..()
 
-/obj/item/gun/energy/chrono_gun/proc/field_connect(obj/structure/chrono_field/F)
-	var/mob/living/user = src.loc
-	if(F.gun)
-		if(isliving(user) && F.captured)
-			to_chat(user, span_alert("<b>FAIL: <i>[F.captured]</i> already has an existing connection.</b>"))
-		src.field_disconnect(F)
-	else
-		startpos = get_turf(src)
-		field = F
-		F.gun = src
-		if(isliving(user) && F.captured)
-			to_chat(user, span_notice("Connection established with target: <b>[F.captured]</b>"))
+/obj/item/gun/energy/chrono_gun/update_overlays()
+	. = list()
+	if(!charge_started)
+		return
+	var/progress = clamp((world.time - charge_started) / CHRONO_GUN_CHARGE_TIME, 0, 1)
+	. += mutable_appearance('icons/effects/progressbar.dmi', "prog_bar_[round(progress * 100, 5)]")
 
-/obj/item/gun/energy/chrono_gun/proc/field_disconnect(obj/structure/chrono_field/F)
-	if(F && field == F)
-		var/mob/living/user = src.loc
-		if(F.gun == src)
-			F.gun = null
-		if(isliving(user) && F.captured)
-			to_chat(user, span_alert("Disconnected from target: <b>[F.captured]</b>"))
-	field = null
-	startpos = null
+/obj/item/gun/energy/chrono_gun/do_semiauto_fire()
+	if(charge_started)
+		return
+	charge_started = world.time
+	charge_sound = playsoundtoken(src, 'sound/weapons/laser_charge_up.ogg', 60, 7, sound_length = CHRONO_GUN_CHARGE_TIME, frequency = CHRONO_GUN_CHARGE_SOUND_FREQUENCY)
+	START_PROCESSING(SSfastprocess, src)
+	update_icon(UPDATE_OVERLAYS)
 
-/obj/item/gun/energy/chrono_gun/proc/field_check(obj/structure/chrono_field/F)
-	if(F)
-		if(field == F)
-			var/turf/currentpos = get_turf(src)
-			var/mob/living/user = src.loc
-			if((currentpos == startpos) && (field in view(CHRONO_BEAM_RANGE, currentpos)) && !user.incapacitated())
-				return 1
-		field_disconnect(F)
-		return 0
+/obj/item/gun/energy/chrono_gun/stop_fire()
+	stop_charging()
+	return ..()
 
-/obj/item/gun/energy/chrono_gun/proc/pass_mind(datum/mind/M)
-	if(TED)
-		TED.pass_mind(M)
+/obj/item/gun/energy/chrono_gun/process(seconds_per_tick)
+	if(!gun_user || gun_user.get_active_hand() != src || gun_user.incapacitated())
+		stop_charging()
+		return
+	if(world.time - charge_started < CHRONO_GUN_CHARGE_TIME)
+		update_icon(UPDATE_OVERLAYS)
+		return
+	stop_charging()
+	process_fire()
+	reset_fire()
+
+/obj/item/gun/energy/chrono_gun/proc/stop_charging()
+	if(!charge_started)
+		return
+	charge_started = null
+	QDEL_NULL(charge_sound)
+	STOP_PROCESSING(SSfastprocess, src)
+	update_icon(UPDATE_OVERLAYS)
 
 // MARK: Shuriken emitter
 /obj/item/gun/energy/shuriken_emitter

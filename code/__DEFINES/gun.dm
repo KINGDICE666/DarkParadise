@@ -201,8 +201,13 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 #define GUN_ACCURACY_BOW_MASTER new /datum/gun_accuracy/bow/master()
 
 // Chrono beam stuff
-#define CHRONO_BEAM_RANGE 3
+#define CHRONO_BEAM_RANGE 9
 #define CHRONO_FRAME_COUNT 22
+#define CHRONO_GUN_CHARGE_TIME (2 SECONDS)
+#define CHRONO_GUN_CHARGE_SOUND_FREQUENCY 0.65
+#define CHRONO_ERASE_TIME (3 SECONDS)
+#define CHRONO_BLAST_RADIUS 1
+#define CHRONO_BLAST_DAMAGE 60
 
 // MARK: Firemodes
 #define GUN_FIREMODE_SEMIAUTO "semi-auto fire mode"
