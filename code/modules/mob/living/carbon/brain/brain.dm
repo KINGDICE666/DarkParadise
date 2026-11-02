@@ -8,7 +8,7 @@
 
 /mob/living/carbon/brain/Initialize(mapload)
 	. = ..()
-	add_language(LANGUAGE_GALACTIC_COMMON)
+	grant_language(/datum/language/common)
 
 /mob/living/carbon/brain/Destroy()
 	if(key)				//If there is a mob connected to this thing. Have to check key twice to avoid false death reporting.

@@ -8,6 +8,7 @@ GLOBAL_DATUM_INIT(alarm_manager, /datum/alarm_manager, new())
 		"Power" = list(),
 		"Camera" = list(),
 		"Burglar" = list(),
+		"Tracking" = list(),
 	)
 
 /datum/alarm_manager/proc/trigger_alarm(alarm_type, area/source_area, list/alarm_data, obj/alarm_source)

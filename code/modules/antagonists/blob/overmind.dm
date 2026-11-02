@@ -165,7 +165,15 @@ GLOBAL_LIST_EMPTY(overminds)
 /mob/camera/blob/say(
 	message,
 	bubble_type,
+	list/spans = list(),
 	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
 )
 	if(!message)
 		return
@@ -191,7 +199,7 @@ GLOBAL_LIST_EMPTY(overminds)
 
 	add_say_logs(src, message, language = "BLOB")
 
-	var/message_a = say_quote(message)
+	var/message_a = genderize_decode(src, say_mod(message))
 	var/rendered = span_big(span_blob("<b>\[Blob Telepathy\] [span_name(name)](<font color=\"[blobstrain.color]\">[blobstrain.name]</font>)</b> [message_a], [message]"))
 	relay_to_list_and_observers(rendered, GLOB.blob_telepathy_mobs, src)
 

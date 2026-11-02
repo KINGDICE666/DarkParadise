@@ -185,6 +185,12 @@
 	icon_state = "shuttle"
 	icon = 'icons/turf/walls/shuttle/shuttle_wall.dmi'
 
+#define TITLE_SCREEN_WIDTH 608
+#define TITLE_SCREEN_HEIGHT 480
+#define TITLE_SCREEN_BACKDROP_SCALE 128
+#define TITLE_SCREEN_FILL_BLUR 4
+#define TITLE_SCREEN_FILL_COLOR "#606060"
+
 /turf/simulated/wall/indestructible/splashscreen
 	name = "Splash Screen"
 	icon = 'config/title_screens/images/blank.png'
@@ -195,8 +201,43 @@
 	/// Pixel shifts below are needed to centrally position the black icon within the start area at compile-time. This icon used as a background for title screens with smaller resolutions than required.
 	pixel_x = -288
 	pixel_y = -224
-	/// Currently used screen. Defined in SStitle.
-	var/obj/effect/abstract/current_screen
+
+/turf/simulated/wall/indestructible/splashscreen/Initialize(mapload)
+	. = ..()
+	SStitle.splash_turf = src
+	update_title_icon()
+
+/turf/simulated/wall/indestructible/splashscreen/proc/update_title_icon()
+	if(!SStitle.icon)
+		return
+	var/width = SStitle.icon.Width()
+	var/height = SStitle.icon.Height()
+	icon = SStitle.icon
+	pixel_x = (ICON_SIZE_X - width) / 2
+	pixel_y = (ICON_SIZE_Y - height) / 2
+	var/scale = min(TITLE_SCREEN_WIDTH / width, TITLE_SCREEN_HEIGHT / height)
+	if(scale >= 1)
+		scale = round(scale)
+		appearance_flags |= PIXEL_SCALE
+	else
+		appearance_flags &= ~PIXEL_SCALE
+	transform = matrix(scale, scale, MATRIX_SCALE)
+	var/mutable_appearance/backdrop = mutable_appearance('icons/mob/screen_gen.dmi', "flash")
+	backdrop.color = COLOR_BLACK
+	backdrop.layer = FLOAT_LAYER - 1
+	backdrop.transform = matrix(TITLE_SCREEN_BACKDROP_SCALE / scale, TITLE_SCREEN_BACKDROP_SCALE / scale, MATRIX_SCALE)
+	var/fill_scale = max(TITLE_SCREEN_WIDTH / width, TITLE_SCREEN_HEIGHT / height) / scale
+	var/mutable_appearance/fill = mutable_appearance(icon)
+	fill.color = TITLE_SCREEN_FILL_COLOR
+	fill.filters = filter(type = "blur", size = TITLE_SCREEN_FILL_BLUR)
+	fill.transform = matrix(fill_scale, fill_scale, MATRIX_SCALE)
+	underlays = list(backdrop, fill)
+
+#undef TITLE_SCREEN_WIDTH
+#undef TITLE_SCREEN_HEIGHT
+#undef TITLE_SCREEN_BACKDROP_SCALE
+#undef TITLE_SCREEN_FILL_BLUR
+#undef TITLE_SCREEN_FILL_COLOR
 
 /turf/simulated/wall/indestructible/snow
 	name = "snow wall"

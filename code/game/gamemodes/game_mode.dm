@@ -70,6 +70,9 @@
 
 	/// A list of all the nuclear operatives' minds
 	var/list/datum/mind/syndicates = list()
+	var/list/datum/mind/zombies = list()
+	var/list/datum/mind/zombie_patient_zeros = list()
+	var/list/mob/living/zombie_infected = list()
 
 	var/datum/mind/exchange_red
 	var/datum/mind/exchange_blue
@@ -372,14 +375,14 @@
 	// Get a list of all the people who want to be the antagonist for this round, except those with incompatible species
 	var/list/restricted_roles = get_restricted_roles()
 	for(var/mob/new_player/player in players)
-		if(length(protected_species) && (player.client.prefs.species in protected_species))
+		if(length(protected_species) && (player.client.prefs.read_preference(/datum/preference/choiced/species) in protected_species))
 			continue
 		if(player.mind.assigned_role in restricted_roles)
 			continue
 		player_draft_log += "[player.key] had [role] enabled, so we are drafting them."
 		candidates += player.mind
 		if(length(prefered_species))
-			var/prefered_species_mod = prefered_species[player.client.prefs.species]
+			var/prefered_species_mod = prefered_species[player.client.prefs.read_preference(/datum/preference/choiced/species)]
 			if(isnum(prefered_species_mod))
 				for(var/i in 1 to prefered_species_mod)	//prefered mod
 					candidates += player.mind
@@ -412,7 +415,7 @@
 	// Get a list of all the people who want to be the antagonist for this round, except those with incompatible species
 	var/list/restricted_roles = get_restricted_roles()
 	for(var/mob/living/carbon/human/player in players)
-		if(length(protected_species) && (player.client.prefs.species in protected_species))
+		if(length(protected_species) && (player.client.prefs.read_preference(/datum/preference/choiced/species) in protected_species))
 			continue
 		if(player.mind.assigned_role in restricted_roles)
 			continue
@@ -422,7 +425,7 @@
 		player_draft_log += "[player.key] had [role] enabled, so we are drafting them."
 		candidates += player.mind
 		if(length(preferred_species))
-			var/prefered_species_mod = preferred_species[player.client.prefs.species]
+			var/prefered_species_mod = preferred_species[player.client.prefs.read_preference(/datum/preference/choiced/species)]
 			if(isnum(prefered_species_mod))
 				for(var/i in 1 to prefered_species_mod)	//prefered mod
 					candidates += player.mind

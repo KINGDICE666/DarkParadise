@@ -171,7 +171,7 @@
 					var/datum/mind/vampire = pick_n_take(antag_possibilities[ROLE_VAMPIRE])
 					if(!vampire)
 						continue
-					if(vampire.current.client.prefs.species in antag_protected_species[ROLE_VAMPIRE])
+					if(vampire.current.client.prefs.read_preference(/datum/preference/choiced/species) in antag_protected_species[ROLE_VAMPIRE])
 						continue
 					if(vampire.special_role)
 						continue
@@ -182,7 +182,7 @@
 					var/datum/mind/changeling = pick_n_take(antag_possibilities[ROLE_CHANGELING])
 					if(!changeling)
 						continue
-					if(changeling.current.client.prefs.species in antag_protected_species[ROLE_CHANGELING])
+					if(changeling.current.client.prefs.read_preference(/datum/preference/choiced/species) in antag_protected_species[ROLE_CHANGELING])
 						continue
 					if(changeling.special_role)
 						continue
@@ -240,7 +240,7 @@
 			if(second_role == ROLE_VAMPIRE && \
 				!jobban_isbanned(antag.current, second_role) && \
 				player_old_enough_antag(antag.current.client, second_role) && \
-				!(antag.current.client.prefs.species in antag_protected_species[ROLE_VAMPIRE]))
+				!(antag.current.client.prefs.read_preference(/datum/preference/choiced/species) in antag_protected_species[ROLE_VAMPIRE]))
 
 				antag.restricted_roles |= vampire_restricted_jobs
 				pre_double_antags[antag] = ROLE_VAMPIRE
@@ -249,7 +249,7 @@
 			if(second_role == ROLE_CHANGELING && \
 				!jobban_isbanned(antag.current, second_role) && \
 				player_old_enough_antag(antag.current.client, second_role) && \
-				!(antag.current.client.prefs.species in antag_protected_species[ROLE_CHANGELING]))
+				!(antag.current.client.prefs.read_preference(/datum/preference/choiced/species) in antag_protected_species[ROLE_CHANGELING]))
 
 				pre_double_antags[antag] = ROLE_CHANGELING
 				break

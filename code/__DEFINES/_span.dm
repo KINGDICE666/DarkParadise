@@ -188,6 +188,11 @@
 #define span_swarmerbold(str) ("<span class='swarmerbold'>" + str + "</span>")
 #define span_swarmeritalic(str) ("<span class='swarmeritalic'>" + str + "</span>")
 #define span_swarmerboldlarge(str) ("<span class='swarmerboldlarge'>" + str + "</span>")
+#define span_zombie(str) ("<span class='zombie'>[str]</span>")
+#define span_zombielarge(str) ("<span class='zombielarge'>[str]</span>")
+#define span_zombie_warning(str) ("<span class='warning zombie'>[str]</span>")
+#define span_zombie_danger(str) ("<span class='danger zombie'>[str]</span>")
+#define span_zombie_userdanger(str) ("<span class='userdanger zombie'>[str]</span>")
 
 /**
  * MARK: Cults
@@ -258,3 +263,4 @@
 // Spans that use embedded tgui components:
 // Sorted alphabetically
 #define span_tooltip(tip, main_text) ("<span data-component=\"Tooltip\" data-content=\"" + tip + "\" class=\"tooltip\">" + main_text + "</span>")
+#define span_tooltip_subtle(tip, main_text) ("<span data-component=\"Tooltip\" data-content=\"" + tip + "\" class=\"tooltip_subtle\">" + main_text + "</span>")

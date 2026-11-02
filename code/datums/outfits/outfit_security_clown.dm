@@ -103,7 +103,7 @@
 		implant.insert(H)
 
 	H.force_gene_block(GLOB.comicblock, TRUE, TRUE)
-	H.add_language(LANGUAGE_CLOWN)
+	H.grant_language(/datum/language/clown)
 
 	var/clownsecurity_rank = pick("Офицер", "Кадет", "Новобранец", "Рядовой", "Ефрейтор", "Сержант", "Детектив", "Оперуполномоченный", "Расследователь", "Охранник", "Полевой офицер")
 	if(is_physician)

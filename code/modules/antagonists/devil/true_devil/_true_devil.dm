@@ -49,7 +49,7 @@
 		dna = dna_source.dna.Clone()
 	else
 		dna = new
-	grant_all_babel_languages()
+	grant_all_babel_languages(source = LANGUAGE_ATOM)
 	prepare_huds()
 	new /obj/item/organ/internal/brain(src)
 	new /obj/item/organ/internal/eyes(src)

@@ -67,7 +67,7 @@ GLOBAL_LIST_EMPTY(swarmers)
 	spark_system = new
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
-	add_language(LANGUAGE_HIVE_SWARMER)
+	ADD_TRAIT(src, TRAIT_SWARMER_HIVEMIND, INNATE_TRAIT)
 	ADD_TRAIT(src, TRAIT_NEGATES_GRAVITY, INNATE_TRAIT)
 	updatename()
 

@@ -37,6 +37,27 @@ SUBSYSTEM_DEF(radio)
 	var/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FREQ, PRS_FREQ, SCI_FREQ, SRV_FREQ, SUP_FREQ, PROC_FREQ, T1_FREQ, T2_FREQ, T3_FREQ)
 	var/list/syndicate_blacklist = list(SPY_SPIDER_FREQ, EVENT_ALPHA_FREQ, EVENT_BETA_FREQ, EVENT_GAMMA_FREQ, SYND_TAIPAN_FREQ)	//list of frequencies syndicate headset can't hear
 	var/list/datum/radio_frequency/frequencies = list()
+	var/list/saymodes = list()
+
+/datum/controller/subsystem/radio/PreInit()
+	for(var/datum/saymode/saymode_type as anything in valid_subtypesof(/datum/saymode))
+		var/datum/saymode/saymode = new saymode_type()
+		LAZYADD(saymodes[saymode.key], saymode)
+		var/russian_key = sanitize_english_string_to_russian(saymode.key)
+		if(russian_key != saymode.key)
+			LAZYADD(saymodes[russian_key], saymode)
+	return ..()
+
+/datum/controller/subsystem/radio/proc/get_available_say_mode(mob/living/user, key)
+	for(var/datum/saymode/saymode as anything in saymodes[key])
+		if(saymode.can_be_used_by(user))
+			return saymode
+
+/datum/controller/subsystem/radio/proc/get_say_mode(saymode_type)
+	for(var/key in saymodes)
+		for(var/datum/saymode/saymode as anything in saymodes[key])
+			if(saymode.type == saymode_type)
+				return saymode
 
 // This is a disgusting hack to stop this tripping CI when this thing needs to FUCKING DIE
 /datum/controller/subsystem/radio/Initialize()

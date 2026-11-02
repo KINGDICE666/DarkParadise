@@ -49,6 +49,12 @@
 		return
 	storage.w_class = expanded_size
 
+	var/mob/living/carbon/holder = storage.loc
+	if(!iscarbon(holder) || !holder.is_in_hands(storage) || !holder.is_too_bulky_to_hold(storage))
+		return
+	holder.drop_item_ground(storage)
+	holder.balloon_alert(holder, "слишком тяжело!")
+
 /// Checks some item inserting possible blocking conditions.
 /datum/component/differentiate_storage_size/proc/check_insertion_possibility_before_update(datum/source, user)
 	SIGNAL_HANDLER

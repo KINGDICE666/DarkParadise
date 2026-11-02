@@ -1,3 +1,4 @@
+use crate::paths::game_path;
 use base64::Engine;
 use meowtonin::{byond_fn, ByondError, ByondResult, ByondValue, ToByond};
 use std::error::Error;
@@ -67,7 +68,7 @@ thread_local!( static FILE_HASH_BUFFER: RefCell<[u8; BUFFER_SIZE]> = const { Ref
 
 pub fn file_hash(algorithm: &str, path: &str) -> ByondResult<String> {
     let mut hasher = HashDispatcher::new(algorithm)?;
-    let mut file = File::open(path).map_err(ByondError::boxed)?;
+    let mut file = File::open(game_path(path)).map_err(ByondError::boxed)?;
 
     FILE_HASH_BUFFER.with_borrow_mut(|buffer| {
         loop {

@@ -104,13 +104,6 @@
 
 	bombassembly.on_found(finder)
 
-/obj/item/onetankbomb/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
-	if(!bombassembly)
-		return
-
-	bombassembly.hear_talk(M, message_pieces)
-
 /obj/item/onetankbomb/hear_message(mob/living/M, msg)
 	if(!bombassembly)
 		return

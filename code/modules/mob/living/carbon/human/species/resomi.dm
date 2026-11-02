@@ -4,9 +4,21 @@
 	icobase = 'icons/mob/human_races/r_resomi.dmi'
 	deform = 'icons/mob/human_races/r_def_resomi.dmi'
 	damage_mask = 'icons/mob/human_races/masks/dam_mask_resomi.dmi'
-	language = LANGUAGE_RESOMI
+	species_language_holder = /datum/language_holder/resomi
 	unarmed_type = /datum/unarmed_attack/claws
-	blurb = "Резоми — небольшие пернатые рапторы, приспособленные к жизни в холоде. Они быстро передвигаются, обладают ускоренным метаболизмом и настолько легки, что их можно переносить на руках."
+	blurb = "Резоми — маленькие пернатые рапторы с четырьмя ушами родом с заснеженной планеты Сай. Они шустрее других, \
+	быстрее работают с инструментами, легко переносят холод, дерутся когтями и бегают по столам, а самих резоми \
+	можно даже взять на руки. Зато любой урон бьёт по ним на треть сильнее, крови у них меньше, голодают они вдвое \
+	быстрее, растительная пища для них ядовита, а ни протезов, ни имплантов они не принимают.<br/><br/>Сай — тундровый заснеженный \
+	мир чуть меньше Земли. Резоми ростом около метра и весом 21–32 килограмма покрыты пуховыми перьями, а две пары \
+	длинных жёстких ушей дают им очень острый слух. Живут они в среднем около 64 лет, хотя медицина резоми \
+	способна продлевать жизнь почти бесконечно.<br/><br/>Сегодня резоми расселены в сотнях систем на территории \
+	огромного объединения, которое называют Государством. Их нынешняя эпоха — Полдень — началась с открытия \
+	туннелей «точка-точка», самого триумфального изобретения в их истории, и с тех пор к Государству подключаются \
+	всё новые системы.<br/><br/>Культура резоми обращена внутрь себя, а Государство держится изоляционистской \
+	политики. Резоми живут по строгому кодексу чести и с подозрением относятся к чужакам — тем более что почти все \
+	прочие разумные расы крупнее, сильнее и выносливее их. Фамилий у резоми нет, только имя, порой частично \
+	унаследованное от родителей."
 	fit_profile = /datum/species_fit/resomi
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	speed_mod = -0.2
@@ -41,6 +53,7 @@
 		TRAIT_HAS_REGENERATION,
 		TRAIT_DWARF,
 		TRAIT_NO_ROBOPARTS,
+		TRAIT_NO_CYBERIMPLANTS,
 		TRAIT_SMALL_MOB,
 	)
 	blood_species = "Resomi"
@@ -89,14 +102,10 @@
 
 /datum/species/resomi/on_species_gain(mob/living/carbon/human/target)
 	. = ..()
-	target.mob_size = MOB_SIZE_SMALL
-	target.holder_type = /obj/item/holder/humanoid
 	passtable_on(target, SPECIES_TRAIT)
 
 /datum/species/resomi/on_species_loss(mob/living/carbon/human/target)
 	. = ..()
-	target.mob_size = initial(target.mob_size)
-	target.holder_type = initial(target.holder_type)
 	passtable_off(target, SPECIES_TRAIT)
 
 /datum/species/resomi/gain_muscles(mob/living/target, default, max_level, can_become_stronger)

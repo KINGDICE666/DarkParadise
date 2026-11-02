@@ -75,6 +75,14 @@
 		I.play_tool_sound(src)
 		user.visible_message(span_notice("[user] pries [src] open."))
 		empty_pod()
+		return
+
+	I.play_tool_sound(src)
+	var/obj/structure/c_transit_tube_pod/construct = new(loc)
+	transfer_fingerprints_to(construct)
+	construct.setDir(dir)
+	qdel(src)
+	return TRUE
 
 /obj/structure/transit_tube_pod/process()
 	..()

@@ -180,7 +180,7 @@ export const EntryGradient = (props: EntryGradientProps) => {
         </Stack.Item>
         <Stack.Item>
           {gradient?.map((entry, index) =>
-            entry === 'loop' || entry === 'space' ? null : (
+            entry === 'loop' || isColorSpaceObject(entry) ? null : (
               <>
                 {typeof entry === 'string' ? (
                   <ColorBox mr={0.4} color={entry} />
@@ -188,7 +188,7 @@ export const EntryGradient = (props: EntryGradientProps) => {
                 <Input
                   key={index}
                   maxWidth={'70px'}
-                  value={entry.toString()}
+                  value={entry?.toString() ?? ''}
                   onBlur={(value) =>
                     act('edit', {
                       var: var_name,

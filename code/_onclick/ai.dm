@@ -316,6 +316,8 @@
 
 /mob/living/silicon/ai/MiddleShiftClickOn(atom/A)
 	if(!ismalfAI(mind))
+		if(can_see(A))
+			point_at(A)
 		return
 	var/turf/turf = get_turf(A)
 	if(!turf)

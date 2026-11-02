@@ -286,13 +286,12 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(bless, R_EVENT, "Bless", /mob/living)
 				theghost = pick(candidates)
 				P.possess_by_player(theghost.key)
 				P.master_commander = H
-				P.universal_speak = TRUE
-				P.universal_understand = TRUE
+				P.grant_all_languages()
 				P.set_can_collar(TRUE)
 				P.faction = list("neutral")
 				var/obj/item/clothing/accessory/petcollar/C = new
 				P.add_collar(C)
-				var/obj/item/card/id/I = H.wear_id
+				var/obj/item/card/id/I = H.wear_id?.GetID()
 				if(I)
 					var/obj/item/card/id/D = new /obj/item/card/id(C)
 					D.access = I.access
@@ -313,7 +312,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(bless, R_EVENT, "Bless", /mob/living)
 			user.create_eventmob_for(H, 0)
 			logmsg = "syndie protector."
 		if("All Access")
-			var/obj/item/card/id/I = H.wear_id
+			var/obj/item/card/id/I = H.wear_id?.GetID()
 			if(I)
 				var/list/access_to_give = get_all_accesses()
 				for(var/this_access in access_to_give)

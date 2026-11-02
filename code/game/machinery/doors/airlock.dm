@@ -708,10 +708,14 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 
 /obj/machinery/door/airlock/proc/hack(mob/user)
 	set waitfor = 0
+	var/hack_speed = 1
+	if(isAI(user))
+		var/mob/living/silicon/ai/ai = user
+		hack_speed = ai.airlock_hack_modifier
 	if(!aiHacking)
 		aiHacking = TRUE
 		to_chat(user, "Airlock AI control has been blocked. Beginning fault-detection.")
-		sleep(50)
+		sleep(50 * hack_speed)
 		if(canAIControl())
 			to_chat(user, "Alert cancelled. Airlock control has been restored without our assistance.")
 			aiHacking = FALSE
@@ -721,9 +725,9 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 			aiHacking = FALSE
 			return
 		to_chat(user, "Fault confirmed: airlock control wire disabled or cut.")
-		sleep(20)
+		sleep(20 * hack_speed)
 		to_chat(user, "Attempting to hack into airlock. This may take some time.")
-		sleep(200)
+		sleep(200 * hack_speed)
 		if(canAIControl())
 			to_chat(user, "Alert cancelled. Airlock control has been restored without our assistance.")
 			aiHacking = FALSE
@@ -733,7 +737,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 			aiHacking = FALSE
 			return
 		to_chat(user, "Upload access confirmed. Loading control program into airlock software.")
-		sleep(170)
+		sleep(170 * hack_speed)
 		if(canAIControl())
 			to_chat(user, "Alert cancelled. Airlock control has been restored without our assistance.")
 			aiHacking = FALSE
@@ -743,11 +747,11 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 			aiHacking = FALSE
 			return
 		to_chat(user, "Transfer complete. Forcing airlock to execute program.")
-		sleep(50)
+		sleep(50 * hack_speed)
 		//disable blocked control
 		aiControlDisabled = AICONTROLDISABLED_BYPASS
 		to_chat(user, "Receiving control information from airlock.")
-		sleep(10)
+		sleep(10 * hack_speed)
 		//bring up airlock dialog
 		aiHacking = FALSE
 		if(user)

@@ -124,6 +124,34 @@
 	index_name = "red evening gown"
 	path = /obj/item/clothing/under/redeveninggown
 
+/datum/gear/uniform/kimono
+	index_name = "kimono, select"
+	display_name = "Кимоно"
+	path = /obj/item/clothing/under/kimono
+
+/datum/gear/uniform/kimono/New()
+	..()
+	var/list/kimonos = list(
+		/obj/item/clothing/under/kimono,
+		/obj/item/clothing/under/kimono/crane,
+		/obj/item/clothing/under/kimono/chrysanthemum,
+	)
+	gear_tweaks += new /datum/gear_tweak/path(kimonos, src, TRUE)
+
+/datum/gear/uniform/yukata
+	index_name = "yukata, select"
+	display_name = "Юката"
+	path = /obj/item/clothing/under/yukata
+
+/datum/gear/uniform/yukata/New()
+	..()
+	var/list/yukatas = list(
+		/obj/item/clothing/under/yukata,
+		/obj/item/clothing/under/yukata/bamboo,
+		/obj/item/clothing/under/yukata/dragonfly,
+	)
+	gear_tweaks += new /datum/gear_tweak/path(yukatas, src, TRUE)
+
 /datum/gear/uniform/skirt/black
 	index_name = "skirt, black"
 	path = /obj/item/clothing/under/blackskirt

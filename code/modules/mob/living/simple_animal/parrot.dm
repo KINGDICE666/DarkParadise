@@ -56,7 +56,7 @@
 	response_disarm = "аккуратно отодвигает"
 	response_harm = "бьёт крылом"
 	stop_automated_movement = TRUE
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	mob_size = MOB_SIZE_SMALL
 	holder_type = /obj/item/holder/parrot
 
@@ -864,20 +864,17 @@ GAME_VERB_PROC_DESC(/mob/living/simple_animal/parrot, perch_player, "Присе�
 		"Опасность! Разрушение активной зоны реактора в процессе! Целостность: 79.47%"
 	)
 
-/mob/living/simple_animal/parrot/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	if(message_mode && istype(ears))
-		ears.talk_into(src, message_pieces, message_mode, verb)
-		used_radios += ears
+/mob/living/simple_animal/parrot/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	var/channel = message_mods[RADIO_EXTENSION]
+	if((channel || message_mods[MODE_HEADSET]) && istype(ears))
+		ears.talk_into(src, message, channel, spans, language, message_mods)
+		return . | ITALICS | REDUCE_RANGE
 
-/mob/living/simple_animal/parrot/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = 0, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
-	if(speaker != src && prob(50))
-		parrot_hear(html_decode(multilingual_to_message(message_pieces)))
-	..()
-
-/mob/living/simple_animal/parrot/hear_radio(list/message_pieces, verb = "говор%(ит,ят)%", part_a, part_b, mob/speaker = null, hard_to_hear = 0, atom/follow_target, check_name_against)
-	if(speaker != src && prob(50))
-		parrot_hear(html_decode(multilingual_to_message(message_pieces)))
-	..()
+/mob/living/simple_animal/parrot/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
+	if((speaker.GetSource() || speaker) != src && prob(50))
+		parrot_hear(html_decode(raw_message))
+	return ..()
 
 /mob/living/simple_animal/parrot/proc/parrot_hear(message)
 	if(!message || stat)

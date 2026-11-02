@@ -37,6 +37,7 @@
 	var/mob/living/user = ..()
 	user.faction |= "cult"
 	ADD_TRAIT(user, TRAIT_HEALS_FROM_CULT_PYLONS, CULT_TRAIT)
+	user.grant_language(/datum/language/narsie, source = LANGUAGE_CULTIST)
 	if(iscarbon(user))
 		user.AddElement(/datum/element/halo_attach, GLOB.halo_overlays["cult"], GLOB.halo_callbacks["cult"])
 	var/datum/team/blood_cult/cult_team = get_blood_cult_team()
@@ -62,6 +63,7 @@
 	var/mob/living/user = ..()
 	user.faction -= "cult"
 	REMOVE_TRAIT(user, TRAIT_HEALS_FROM_CULT_PYLONS, CULT_TRAIT)
+	user.remove_language(/datum/language/narsie, source = LANGUAGE_CULTIST)
 	user.RemoveElement(/datum/element/halo_attach, GLOB.halo_overlays["cult"], GLOB.halo_callbacks["cult"])
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user

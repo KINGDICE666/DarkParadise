@@ -1,50 +1,57 @@
-/mob/living/silicon/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	add_say_logs(src, multilingual_to_message(message_pieces))
-	if(..())
-		return TRUE
+/mob/living/silicon/robot/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	if(. & NOPASS)
+		return .
+	var/channel = message_mods[RADIO_EXTENSION]
+	if(!channel && !message_mods[MODE_HEADSET])
+		return .
+	if(!is_component_functioning("radio"))
+		to_chat(src, span_warning("Your radio isn't functional at this time."))
+		return .
+	if(channel == PUB_FREQ_NAME)
+		channel = null
+	if(radio.talk_into(src, message, channel, spans, language, message_mods))
+		return NOPASS
+	return .
 
-/mob/living/silicon/robot/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	if(..())
-		return TRUE
-	if(message_mode)
-		used_radios += radio
-		if(!is_component_functioning("radio"))
-			to_chat(src, span_warning("Your radio isn't functional at this time."))
-			return FALSE
-		if(message_mode == PUB_FREQ_NAME)
-			message_mode = null
-		return radio.talk_into(src,message_pieces,message_mode,verb)
+/mob/living/silicon/ai/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	if(. & NOPASS)
+		return .
+	var/channel = message_mods[RADIO_EXTENSION]
+	if(channel == DEPARTMENT_FREQ_NAME)
+		if(holopad_talk(message, spans, language, message_mods))
+			return NOPASS
+		return .
+	if(!channel && !message_mods[MODE_HEADSET])
+		return .
+	if(aiRadio.disabledAi || aiRestorePowerRoutine || stat)
+		to_chat(src, span_warning("System Error - Transceiver Disabled."))
+		return .
+	if(channel == PUB_FREQ_NAME)
+		channel = null
+	if(aiRadio.talk_into(src, message, channel, spans, language, message_mods))
+		return NOPASS
+	return .
 
-/mob/living/silicon/ai/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	if(..())
-		return TRUE
-	if(message_mode == DEPARTMENT_FREQ_NAME)
-		used_radios += aiRadio
-		return holopad_talk(message_pieces, verb)
-	else if(message_mode)
-		used_radios += aiRadio
-		if(aiRadio.disabledAi || aiRestorePowerRoutine || stat)
-			to_chat(src, span_warning("System Error - Transceiver Disabled."))
-			return FALSE
-		if(message_mode == PUB_FREQ_NAME)
-			message_mode = null
-		return aiRadio.talk_into(src, message_pieces, message_mode, verb)
+/mob/living/silicon/pai/radio(message, list/message_mods = list(), list/spans, language)
+	. = ..()
+	if(. & NOPASS)
+		return .
+	var/channel = message_mods[RADIO_EXTENSION]
+	if(!channel && !message_mods[MODE_HEADSET])
+		return .
+	if(channel == PUB_FREQ_NAME)
+		channel = null
+	if(radio.talk_into(src, message, channel, spans, language, message_mods))
+		return NOPASS
+	return .
 
-/mob/living/silicon/pai/handle_message_mode(message_mode, list/message_pieces, verb, used_radios)
-	if(..())
-		return TRUE
-	else if(message_mode == WHISPER_CHANNEL)
-		whisper_say(message_pieces)
-		return TRUE
-	else if(message_mode)
-		if(message_mode == PUB_FREQ_NAME)
-			message_mode = null
-		used_radios += radio
-		return radio.talk_into(src, message_pieces, message_mode, verb)
+/mob/living/silicon/say_mod(input, list/message_mods = list(), datum/language/language)
+	if(message_mods[WHISPER_MODE])
+		return ..()
 
-/mob/living/silicon/say_quote(text)
-	var/ending = copytext(text, length(text))
-
+	var/ending = copytext_char(input, -1)
 	if(ending == "?")
 		return speak_query
 	else if(ending == "!")
@@ -52,36 +59,17 @@
 
 	return speak_statement
 
-/mob/living/silicon/say_understands(mob/other, datum/language/speaking = null)
-	//These only pertain to common. Languages are handled by mob/say_understands()
-	if(!speaking && ismob(other))
-		if(iscarbon(other) || issilicon(other) || isbot(other) || isbrain(other))
-			return TRUE
-	return ..()
-
-//For holopads only. Usable by AI.
-/mob/living/silicon/ai/proc/holopad_talk(list/message_pieces, verb)
-	add_say_logs(src, multilingual_to_message(message_pieces), language = "HPAD")
+/mob/living/silicon/ai/proc/holopad_talk(message, list/spans, language, list/message_mods)
+	add_say_logs(src, message, language = "HPAD")
 
 	var/obj/machinery/hologram/holopad/T = current
-	if(istype(T) && T.masters[src])
-		var/obj/effect/overlay/holo_pad_hologram/H = T.masters[src]
-		var/message_clean = combine_message(message_pieces, src)
-		message_clean = replace_characters(message_clean, list("+"))
-
-		var/message = verb_message(message_pieces, message_clean, src, genderize_decode(src, verb))
-		var/message_tts = combine_message_tts(message_pieces, src)
-
-		if((client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT) && !HAS_TRAIT(src, TRAIT_DEAF))
-			create_chat_message(H, message_clean, list("radio"))
-		INVOKE_ASYNC(GLOBAL_PROC, /proc/tts_cast, H, src, message_tts, tts_seed, FALSE, SOUND_EFFECT_NONE)
-		log_debug("holopad_talk(): [message_clean]")
-		for(var/mob/M in hearers(T.loc))//The location is the object, default distance.
-			M.hear_holopad_talk(message_pieces, genderize_decode(src, verb), src, H)
-		to_chat(src, span_gamesay("<i>Holopad transmitted, [span_name(real_name)] [span_message(message)]</i>"))
-	else
+	if(!istype(T) || !T.masters[src])
 		to_chat(src, "No holopad connected.")
-		return
+		return FALSE
+
+	var/obj/effect/overlay/holo_pad_hologram/hologram = T.masters[src]
+	hologram.say(message, spans = spans, sanitize = FALSE, language = language, message_mods = list(SAY_MOD_VERB = message_mods[SAY_MOD_VERB]))
+	to_chat(src, span_gamesay("<i>Holopad transmitted, [span_name(real_name)] [span_message("[genderize_decode(src, message_mods[SAY_MOD_VERB])]: \"[message]\"")]</i>"))
 	return TRUE
 
 /mob/living/silicon/ai/proc/holopad_emote(message) //This is called when the AI uses the 'me' verb while using a holopad.
@@ -110,4 +98,3 @@
 		holopad_emote(message)
 	else //Emote normally, then.
 		..()
-

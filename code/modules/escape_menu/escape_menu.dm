@@ -211,11 +211,9 @@ GAME_VERB_HIDDEN(/client, reset_held_keys_verb, "Reset Held Keys")
 		if("closed")
 			STOP_PROCESSING(SSescape_menu, src)
 		if("character")
-			client.prefs.current_tab = TAB_CHAR
-			client.prefs.ShowChoices(client.mob)
+			client.prefs.open_window(client.mob, PREFERENCE_TAB_CHARACTER_PREFERENCES)
 		if("settings")
-			client.prefs.current_tab = TAB_GAME
-			client.prefs.ShowChoices(client.mob)
+			client.prefs.open_window(client.mob, PREFERENCE_TAB_GAME_PREFERENCES)
 		if("create_ticket")
 			if(!(/client/verb/adminhelp in client?.verbs))
 				return TRUE

@@ -471,6 +471,8 @@
 		return
 
 	dna.species.update_sight(src)
+	if(HAS_TRAIT(src, TRAIT_FEELING_AROUND))
+		lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
 	sync_lighting_plane_cutoff()
 
@@ -1118,12 +1120,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 	var/datum/species/oldspecies = dna.species
 
 	if(oldspecies)
-		if(oldspecies.language)
-			remove_language(oldspecies.language)
-
-		if(oldspecies.default_language)
-			remove_language(oldspecies.default_language)
-
 		if(gender == PLURAL && oldspecies.has_gender)
 			change_gender(pick(MALE, FEMALE))
 
@@ -1139,12 +1135,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 
 	maxHealth = dna.species.total_health
 	max_stamina = dna.species.total_stamina
-
-	if(dna.species.language)
-		add_language(dna.species.language)
-
-	if(dna.species.default_language)
-		add_language(dna.species.default_language)
 
 	digestion_ratio = dna.species.digestion_ratio
 
@@ -1335,14 +1325,6 @@ GAME_VERB_SRC(/mob/living/carbon/human, check_pulse, view(1), "Проверит�
 		AddElement(/datum/element/nutrition_effects)
 
 	return species_check
-
-/mob/living/carbon/human/get_default_language()
-	if(default_language)
-		return default_language
-
-	if(!dna.species)
-		return null
-	return dna.species.default_language ? GLOB.all_languages[dna.species.default_language] : null
 
 GAME_VERB_PROC_DESC(/mob/living/carbon/human, bloody_doodle, "Рисовать кровью", "Используйте кровь на ваших руках, чтобы рисовать ею на полу и на стенах.", VERB_CATEGORY_IC)
 
@@ -2170,6 +2152,12 @@ GAME_VERB_DESC(/mob/living/carbon/human, set_flavor, "Описание внеш�
 
 	if(update)
 		update_body() // lips is done as a body layer
+
+/mob/living/carbon/human/proc/get_unarmed_attack()
+	var/datum/antagonist/zombie/zombie = mind?.has_antag_datum(/datum/antagonist/zombie)
+	if(!istype(zombie))
+		return dna.species.unarmed
+	return zombie.claw_attack
 
 /**
  * Wash the hands, cleaning either the gloves if equipped and not obscured, otherwise the hands themselves if they're not obscured.

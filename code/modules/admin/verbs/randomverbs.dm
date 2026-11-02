@@ -380,8 +380,8 @@ ADMIN_VERB(respawn_character, R_SPAWN, "Respawn Character", "Respawn a player th
 	else
 		new_character.change_gender(pick(MALE,FEMALE))
 		var/datum/preferences/A = new()
-		A.real_name = G_found.real_name
-		A.copy_to(new_character)
+		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], G_found.real_name)
+		A.apply_prefs_to(new_character)
 
 	if(!new_character.real_name)
 		new_character.real_name = random_name(new_character.gender)

@@ -14,6 +14,7 @@ type Data =
       broadcasting_on_cd: BooleanLike;
       connected: 1;
       generated_domain: string | null;
+      hardcore: BooleanLike;
       occupants: number;
       points: number;
       randomized: BooleanLike;
@@ -94,6 +95,7 @@ const AccessView = (_properties) => {
     broadcasting,
     broadcasting_on_cd,
     generated_domain,
+    hardcore,
     occupants,
     points,
     randomized,
@@ -115,6 +117,13 @@ const AccessView = (_properties) => {
 
   return (
     <Stack fill vertical>
+      {!!hardcore && (
+        <Stack.Item>
+          <NoticeBox danger>
+            HRDM: награды ×2. Смерть аватара мгновенно убивает тело в капсуле!
+          </NoticeBox>
+        </Stack.Item>
+      )}
       <Stack.Item grow>
         <Section
           buttons={

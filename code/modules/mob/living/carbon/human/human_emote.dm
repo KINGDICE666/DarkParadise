@@ -276,6 +276,8 @@
 		return ..()
 
 /datum/emote/living/carbon/human/scream/get_sound(mob/living/carbon/human/user)
+	if(HAS_TRAIT(user, TRAIT_I_WANT_BRAINS))
+		return 'sound/voice/zombie_scream.ogg'
 	if(user.dna?.species)
 		if(user.gender == FEMALE)
 			. = safepick(user.dna.species.female_scream_sound)
@@ -283,6 +285,22 @@
 			. = safepick(user.dna.species.male_scream_sound)
 	if(!.)
 		return ..()
+
+#define VOX_SHRIEK_DEAFEN_RANGE 3
+#define VOX_SHRIEK_DEAFEN_TIME (10 SECONDS)
+
+/datum/emote/living/carbon/human/scream/play_sound_effect(mob/user, intentional, sound_path, sound_volume)
+	. = ..()
+	if(!isvox(user))
+		return
+	for(var/mob/living/carbon/listener in get_hearers_in_view(VOX_SHRIEK_DEAFEN_RANGE, user))
+		if(listener == user || !HAS_TRAIT(listener, TRAIT_GOOD_HEARING) || listener.check_ear_prot())
+			continue
+		listener.Deaf(VOX_SHRIEK_DEAFEN_TIME)
+		to_chat(listener, span_warning("Пронзительный визг [user.declent_ru(GENITIVE)] оглушает вас!"))
+
+#undef VOX_SHRIEK_DEAFEN_RANGE
+#undef VOX_SHRIEK_DEAFEN_TIME
 
 /datum/emote/living/carbon/human/gasp
 	name = "Задыхаться"

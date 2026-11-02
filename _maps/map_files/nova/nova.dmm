@@ -10942,7 +10942,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /mob/living/simple_animal/bot/secbot/pingsky{
 	desc = "Worse than nothing";
 	name = "AI Defender"
@@ -15983,6 +15983,7 @@
 	dir = 8
 	},
 /obj/item/radio/intercom/directional/north,
+/obj/machinery/ai_node/network_node,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkpurple"
@@ -23405,7 +23406,7 @@
 	icon_state = "2-8"
 	},
 /obj/item/beacon,
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -43871,6 +43872,7 @@
 	pixel_x = 2;
 	pixel_y = 2
 	},
+/obj/item/ai_upgrade/ai_program_reset,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -45411,6 +45413,7 @@
 "haO" = (
 /obj/effect/turf_decal/delivery/hollow,
 /obj/structure/extinguisher_cabinet/directional/south,
+/obj/machinery/ai_node/processing_node,
 /turf/simulated/floor/plasteel,
 /area/station/science/storage)
 "haP" = (
@@ -67166,7 +67169,7 @@
 	},
 /area/station/hallway/secondary/entry/commercial)
 "kuE" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/wood/fancy/light{
 	color = "orange"
 	},
@@ -83940,6 +83943,13 @@
 	icon_state = "white"
 	},
 /area/station/science/research/lobby)
+"mSU" = (
+/obj/machinery/bioprinter,
+/turf/simulated/floor/plasteel{
+	dir = 8;
+	icon_state = "whiteblue"
+	},
+/area/station/medical/cryo)
 "mTg" = (
 /obj/item/radio/intercom/directional/north,
 /obj/effect/landmark/start/hangover,
@@ -125263,12 +125273,14 @@
 /turf/simulated/wall/r_wall,
 /area/station/medical/surgery/south)
 "teo" = (
-/obj/item/twohanded/required/kirbyplants,
 /obj/machinery/light{
 	dir = 4
 	},
 /obj/machinery/door_control/gateway{
 	pixel_x = 36
+	},
+/obj/machinery/computer/ai_resource{
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	dir = 6;
@@ -184232,7 +184244,7 @@ aMf
 mOs
 rTj
 mOs
-mOs
+mSU
 tWZ
 gHQ
 hoW

@@ -183,10 +183,6 @@
 /proc/stars(text, probability = 25)
 	return RUSTLIB_CALL(random_replace, text, probability, "*")
 
-/proc/stars_all(list/message_pieces, probability = 25)
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		piece.message = stars(trim_strip_html_properly(piece.message), probability)
-
 /proc/slur(phrase, list/slurletters = ("'"))//use a different list as an input if you want to make robots slur with $#@%! characters
 	phrase = html_decode(phrase)
 	var/leng=length_char(phrase)
@@ -291,10 +287,6 @@
 
 	return returntext
 
-/proc/Gibberish_all(list/message_pieces, p)
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		S.message = Gibberish(S.message, p)
-
 /proc/muffledspeech(phrase)
 	phrase = html_decode(phrase)
 	var/leng=length_char(phrase)
@@ -314,10 +306,6 @@
 		newphrase += "[newletter]"
 		counter -= 1
 	return newphrase
-
-/proc/muffledspeech_all(list/message_pieces)
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		S.message = muffledspeech(S.message)
 
 #define TILES_PER_SECOND 0.7
 ///Shake the camera of the person viewing the mob SO REAL!
@@ -505,8 +493,8 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 					type = /atom/movable/screen/alert/notify_action,
 				)
 				if(toast)
-					if(ghost.client.prefs && ghost.client.prefs.UI_style)
-						toast.icon = ui_style2icon(ghost.client.prefs.UI_style)
+					if(ghost.client.prefs && ghost.client.prefs.read_preference(/datum/preference/choiced/ui_style))
+						toast.icon = ui_style2icon(ghost.client.prefs.read_preference(/datum/preference/choiced/ui_style))
 					if(title)
 						toast.name = title
 					toast.desc = message
@@ -824,7 +812,7 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 /mob/proc/has_valid_preferences()
 	if(!client)
 		return FALSE //Not sure how this would get run without the mob having a client, but let's just be safe.
-	if(client.prefs.alternate_option != RETURN_TO_LOBBY)
+	if(client.prefs.read_preference(/datum/preference/choiced/alternate_option) != RETURN_TO_LOBBY)
 		return TRUE
 	// If they have antags enabled, they're potentially doing this on purpose instead of by accident. Notify admins if so.
 	var/has_antags = FALSE

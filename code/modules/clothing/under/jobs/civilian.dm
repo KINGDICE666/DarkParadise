@@ -18,6 +18,23 @@
 	item_state = "caparmor"
 	item_color = "captain"
 
+/obj/item/clothing/under/rank/captain/royal
+	name = "captain's royal uniform"
+	desc = "Королевская униформа капитана. Самое то, чтобы командовать офицерами посреди ядерного вторжения."
+	gender = FEMALE
+	icon_state = "caproyal"
+	item_color = "caproyal"
+
+/obj/item/clothing/under/rank/captain/royal/get_ru_names()
+	return alist(
+		NOMINATIVE = "королевская униформа капитана",
+		GENITIVE = "королевской униформы капитана",
+		DATIVE = "королевской униформе капитана",
+		ACCUSATIVE = "королевскую униформу капитана",
+		INSTRUMENTAL = "королевской униформой капитана",
+		PREPOSITIONAL = "королевской униформе капитана",
+	)
+
 /obj/item/clothing/under/rank/cargo
 	name = "quartermaster's jumpsuit"
 	desc = "It's a jumpsuit worn by the quartermaster. It's specially designed to prevent back injuries caused by pushing paper."

@@ -22,6 +22,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 		<a href='byond://?src=[UID()];makeAntag=14'>Make Aliens</a><br>
 		<a href='byond://?src=[UID()];makeAntag=15'>Make Nuke Team</a><br>
 		<a href='byond://?src=[UID()];makeAntag=16'>Make Heretics</a><br>
+		<a href='byond://?src=[UID()];makeAntag=17'>Make Clown Op Team (Requires Ghosts)</a><br>
 		"}
 	var/datum/browser/popup = new(usr, "oneclickantag", "One-click Antagonist", 400, 400)
 	popup.set_content(dat)
@@ -35,7 +36,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	if(M.stat || !M.mind || M.mind.special_role || M.mind.offstation_role)
 		return FALSE
 	if(temp)
-		if((M.mind.assigned_role in temp.get_restricted_roles()) || (M.client.prefs.species in temp.protected_species))
+		if((M.mind.assigned_role in temp.get_restricted_roles()) || (M.client.prefs.read_preference(/datum/preference/choiced/species) in temp.protected_species))
 			return FALSE
 	if(role) // Don't even bother evaluating if there's no role
 		if(player_old_enough_antag(M.client,role) && (role in M.client.prefs.be_special) && !M.client.prefs?.skip_antag && (!jobban_isbanned(M, role)))
@@ -225,42 +226,53 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 		return TRUE
 	return FALSE
 
-/datum/admins/proc/makeNukeTeam()
+/datum/admins/proc/makeNukeTeam(clown_ops = FALSE)
 
 	var/list/mob/candidates = list()
 
-	var/antnum = tgui_input_number(owner, "Сколько ядерных оперативников вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
+	var/team_name = clown_ops ? "клоунов-оперативников" : "ядерных оперативников"
+	var/operative_count = tgui_input_number(owner, "Сколько [team_name] Вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
 
-	if(!antnum || antnum <= 0)
+	if(!operative_count || operative_count <= 0)
 		return FALSE
 
-	log_admin("[key_name(owner)] tried making a [antnum] person Nuke Op Team with One-Click-Antag")
-	message_admins("[key_name_admin(owner)] tried making a [antnum] person Nuke Op Team with One-Click-Antag")
+	log_admin("[key_name(owner)] tried making a [operative_count] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
+	message_admins("[key_name_admin(owner)] tried making a [operative_count] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
 
-	candidates = SSghost_spawns.poll_candidates("Вы хотите стать ядерным оперативником?", ROLE_OPERATIVE, TRUE, 1 MINUTES, role_cleanname = "Ядерного оперативника", source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"))
+	var/role_name = clown_ops ? "клоуном-оперативником" : "ядерным оперативником"
+	candidates = SSghost_spawns.poll_candidates(
+		"Вы хотите стать [role_name]?",
+		ROLE_OPERATIVE,
+		TRUE,
+		1 MINUTES,
+		role_cleanname = clown_ops ? "Клоуна-оперативника" : "Ядерного оперативника",
+		source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"),
+	)
 
 	if(!length(candidates))
 		return FALSE
 
-	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[/datum/team/nuclear_team]
+	var/team_type = clown_ops ? /datum/team/nuclear_team/clown_ops : /datum/team/nuclear_team
+	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[team_type]
 	var/has_team = !!team
 
 	if(!has_team)
-		team = new
+		team = new team_type
 
-	for(var/i = 1, i <= antnum, i++)
-		var/spawnpos = i
+	var/operatives_to_spawn = min(operative_count, length(candidates))
+	for(var/index in 1 to operatives_to_spawn)
+		var/spawn_index = index
 
-		if(spawnpos > length(GLOB.nukespawn))
-			spawnpos = 2
+		if(spawn_index > length(GLOB.nukespawn))
+			spawn_index = 2
 
-		var/mob/mob = pick_n_take(candidates)
-		var/mob/living/carbon/human/human = new /mob/living/carbon/human(GLOB.nukespawn[spawnpos])
-		human.possess_by_player(mob.key)
+		var/mob/candidate = pick_n_take(candidates)
+		var/mob/living/carbon/human/human = new(GLOB.nukespawn[spawn_index])
+		human.possess_by_player(candidate.key)
 		create_syndicate(human.mind)
 		team.add_member(human.mind)
-		var/datum/antagonist/nuclear_operative/datum = human.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
-		datum.equip()
+		var/datum/antagonist/nuclear_operative/operative = human.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
+		operative.equip()
 
 	if(has_team)
 		return TRUE
@@ -323,8 +335,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	//First we spawn a dude.
 	var/mob/living/carbon/human/new_character = new(pick(GLOB.latejoin))//The mob being spawned.
 
-	var/datum/preferences/A = new(G_found.client)
-	A.copy_to(new_character)
+	G_found.client.prefs.apply_prefs_to(new_character)
 
 	new_character.dna.ready_dna(new_character)
 	new_character.possess_by_player(G_found.key)
@@ -425,7 +436,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 				var/mob/living/carbon/human/newMember = new(L.loc)
 
-				A.copy_to(newMember)
+				A.apply_prefs_to(newMember)
 
 				newMember.dna.ready_dna(newMember)
 
@@ -447,7 +458,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 
 				var/mob/living/carbon/human/newMember = new(L.loc)
 
-				A.copy_to(newMember)
+				A.apply_prefs_to(newMember)
 
 				newMember.dna.ready_dna(newMember)
 

@@ -193,8 +193,10 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	var/sender_job = "Ошибка"
 	/// What rank are they (this is used for formatting)
 	var/sender_rank = "Ошибка"
-	/// Pieces of the message
-	var/list/message_pieces = list()
+	var/message
+	var/datum/language/language
+	var/list/spans = list()
+	var/list/message_mods = list()
 	/// Source Z-level
 	var/source_level = 0
 	/// What frequency the message is sent on
@@ -209,14 +211,10 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	var/atom/movable/sender
 	/// The signal data (See defines/radio.dm)
 	var/data
-	/// Verbage used
-	var/verbage = "говор%(ит,ят)%"
 	/// Follow target for AI use
 	var/atom/follow_target = null
 	/// Is this signal meant to be rejected
 	var/reject = FALSE
-	/// Voice name if the person doesnt have a name (diona, alien, etc)
-	var/vname
 	/// sender_name before modify_message modifies it, because it introduces html tags.
 	var/pre_modify_name
 	/// List of all channels this can be sent or received on
@@ -330,98 +328,23 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 
 	// Get a list of mobs who can hear from the radios we collected.
 	var/list/receive = get_hearers_in_radio_ranges(radios) | GLOB.permanent_radio_listeners
+	if(!length(receive))
+		return TRUE
 
-	/* ###### Organize the receivers into categories for displaying the message ###### */
+	SSblackbox.LogBroadcast(display_freq)
 
-	// Understood the message:
-	var/list/heard_masked	= list() // masked name or no real name
-	var/list/heard_normal	= list() // normal message
-
-	// Did not understand the message:
-	var/list/heard_voice	= list() // voice message	(ie "chimpers")
-	var/list/heard_garbled	= list() // garbled message (ie "f*c* **u, **i*er!")
-	var/list/heard_gibberish= list() // completely screwed over message (ie "F%! (O*# *#!<>&**%!")
-
-	for(var/mob/R in receive)
-
-		/* --- Loop through the receivers and categorize them --- */
-
-		if(is_admin(R) && !R.get_preference(PREFTOGGLE_CHAT_RADIO)) //Adminning with 80 people on can be fun when you're trying to talk and all you can hear is radios.
+	var/atom/movable/virtualspeaker/virtual_speaker = new(null, tcm.sender, null, tcm.sender_name, tcm.sender_job, tcm.follow_target)
+	virtual_speaker.check_name = tcm.pre_modify_name
+	for(var/mob/receiver in receive)
+		if(is_admin(receiver) && !receiver.get_preference(PREFTOGGLE_CHAT_RADIO)) //Adminning with 80 people on can be fun when you're trying to talk and all you can hear is radios.
 			continue
 
-		if(isnewplayer(R)) // we don't want new players to hear messages. rare but generates runtimes.
+		if(isnewplayer(receiver)) // we don't want new players to hear messages. rare but generates runtimes.
 			continue
 
-		// --- Can understand the speech ---
-		if(!tcm.sender || R.say_understands(tcm.sender))
+		receiver.Hear(virtual_speaker, tcm.language, tcm.message, display_freq, null, null, tcm.spans, tcm.message_mods, INFINITY)
 
-			// - Not human or wearing a voice mask -
-			if(!tcm.sender || !ishuman(tcm.sender) || tcm.vmask)
-				heard_masked += R
-
-			// - Human and not wearing voice mask -
-			else
-				heard_normal += R
-
-		// --- Can't understand the speech ---
-
-		else
-			// - Just display a garbled message -
-			heard_garbled += R
-
-	/* ###### Begin formatting and sending the message ###### */
-	if(length(heard_masked) || length(heard_normal) || length(heard_voice) || length(heard_garbled) || length(heard_gibberish))
-
-		/* --- Some miscellaneous variables to format the string output --- */
-		var/freq_text = get_frequency_name(display_freq)
-
-		var/part_a = "<span class='[SSradio.frequency_span_class(display_freq)]'><b>\[[freq_text]\]</b> <span class='name'>" // goes in the actual output
-
-		// --- Some more pre-message formatting ---
-		var/part_b = "</span> <span class='message'>" // Tweaked for security headsets -- TLE
-
-		// --- This following recording is intended for research and feedback in the use of department radio channels ---
-
-		SSblackbox.LogBroadcast(display_freq)
-
-	/* ###### Send the message ###### */
-
-		/* --- Process all the mobs that heard a masked voice (understood) --- */
-
-		if(length(heard_masked))
-			for(var/M in heard_masked)
-				var/mob/R = M
-				R.hear_radio(tcm.message_pieces, tcm.verbage, part_a, part_b, tcm.sender, FALSE, tcm.sender_name, follow_target=tcm.follow_target, check_name_against = tcm.pre_modify_name)
-
-		/* --- Process all the mobs that heard the voice normally (understood) --- */
-
-		if(length(heard_normal))
-			for(var/M in heard_normal)
-				var/mob/R = M
-				R.hear_radio(tcm.message_pieces, tcm.verbage, part_a, part_b, tcm.sender, FALSE, tcm.sender_name, follow_target=tcm.follow_target, check_name_against = tcm.pre_modify_name)
-
-		/* --- Process all the mobs that heard the voice normally (did not understand) --- */
-
-		if(length(heard_voice))
-			for(var/M in heard_voice)
-				var/mob/R = M
-				R.hear_radio(tcm.message_pieces, tcm.verbage, part_a, part_b, tcm.sender, FALSE, tcm.vname, follow_target=tcm.follow_target, check_name_against = tcm.pre_modify_name)
-
-		/* --- Process all the mobs that heard a garbled voice (did not understand) --- */
-			// Displays garbled message (ie "f*c* **u, **i*er!")
-
-		if(length(heard_garbled))
-			for(var/M in heard_garbled)
-				var/mob/R = M
-				R.hear_radio(tcm.message_pieces, tcm.verbage, part_a, part_b, tcm.sender, TRUE, tcm.vname, follow_target=tcm.follow_target, check_name_against = tcm.pre_modify_name)
-
-		/* --- Complete gibberish. Usually happens when there's a compressed message --- */
-
-		if(length(heard_gibberish))
-			for(var/M in heard_gibberish)
-				var/mob/R = M
-				R.hear_radio(tcm.message_pieces, tcm.verbage, part_a, part_b, tcm.sender, TRUE, follow_target=tcm.follow_target, check_name_against = tcm.pre_modify_name)
-
+	qdel(virtual_speaker)
 	return TRUE
 
 /**

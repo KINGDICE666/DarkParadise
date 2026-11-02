@@ -916,6 +916,7 @@
 	pixel_x = -7;
 	pixel_y = -10
 	},
+/obj/machinery/ai_node/processing_node,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/research)
 "apX" = (
@@ -11909,7 +11910,7 @@
 	},
 /area/coldcolony/malta/security/securearmory)
 "euO" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkblue"
@@ -18664,7 +18665,7 @@
 	},
 /area/coldcolony/ruin/abandoned_banya)
 "gTh" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/wood/fancy/light,
 /area/coldcolony/malta/bridge/captain)
 "gTl" = (
@@ -22999,7 +23000,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/plasteel{
@@ -23348,7 +23349,7 @@
 	},
 /area/coldcolony/malta/security/main)
 "iKD" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "darkblue"
@@ -23380,6 +23381,7 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
+/obj/machinery/ai_node/network_node,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/research/server)
 "iLh" = (
@@ -24782,7 +24784,7 @@
 	},
 /area/coldcolony/malta/quartermaster/miningeva)
 "joH" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "darkblue"
@@ -25007,6 +25009,7 @@
 /area/coldcolony/malta/resid_serv/bar/atrium)
 "jrZ" = (
 /obj/structure/table/reinforced,
+/obj/item/ai_upgrade/ai_program_reset,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -33745,7 +33748,7 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/carpet/royalblack,
 /area/coldcolony/malta/bridge)
 "mFN" = (
@@ -34759,7 +34762,7 @@
 	},
 /area/coldcolony/malta/security/permabrig)
 "nah" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -56957,13 +56960,9 @@
 /turf/simulated/floor/plasteel,
 /area/shuttle/pirate_corvette)
 "vtr" = (
-/obj/structure/table,
 /obj/effect/turf_decal/delivery/hollow,
-/obj/item/clothing/head/cone{
-	desc = "Старый дорожный конус. Говорят он увеличивает интеллект носителя.";
-	name = "Символ Разумизма";
-	pixel_x = -4;
-	pixel_y = 7
+/obj/machinery/computer/ai_resource{
+	dir = 8
 	},
 /turf/simulated/floor/plasteel{
 	dir = 6;
@@ -57706,7 +57705,7 @@
 	},
 /area/coldcolony/malta/medical/virology)
 "vGl" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

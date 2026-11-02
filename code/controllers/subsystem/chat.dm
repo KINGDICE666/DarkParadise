@@ -20,8 +20,8 @@ SUBSYSTEM_DEF(chat)
 	var/list/client_to_sequence_number = list()
 
 /datum/controller/subsystem/chat/proc/generate_payload(client/target, message_data)
-	var/sequence = client_to_sequence_number[target.ckey]
-	client_to_sequence_number[target.ckey] += 1
+	var/sequence = client_to_sequence_number[target.ckey] || 0
+	client_to_sequence_number[target.ckey] = sequence + 1
 
 	var/datum/chat_payload/payload = new
 	payload.sequence = sequence

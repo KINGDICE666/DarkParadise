@@ -4,6 +4,7 @@
 	desc = "Возьмите на абордаж корабль абдукторов и заберите всё, что плохо лежит."
 	difficulty = BITRUNNER_DIFFICULTY_MEDIUM
 	completion_loot = list(/obj/item/toy/plushie/greyplushie = 1)
+	hardcore_loot = list(/obj/item/disk/tech_disk/bitrunning_abductor = 1)
 	forced_outfit = /datum/outfit/virtual_domain_bitductor
 	help_text = "Материнский корабль абдукторов по незнанию залетел во враждебные края. Сейчас они собирают снаряжение и добычу, включая ящик, чтобы убраться отсюда. Осторожнее: их оружие славится не просто так."
 	is_modular = TRUE

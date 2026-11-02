@@ -41,6 +41,7 @@
 	fade_in_time = src.fade_in_time,
 	fade_out_time = src.fade_out_time,
 	echo_icon,
+	focus_selectable = TRUE,
 )
 	. = ..()
 	var/mob/living/echolocator = parent
@@ -76,7 +77,11 @@
 	planes = list(ABOVE_GAME_PLANE, FLOOR_PLANE, GAME_PLANE, WALL_PLANE)
 
 	focus = new(src)
-	focus.Grant(parent)
+	if(focus_selectable)
+		focus.Grant(parent)
+	else
+		focus.selected_options = assoc_to_keys(focus.options)
+		focus.update_echocomp()
 
 	src.echo_range = echo_range
 	src.image_expiry_time = image_expiry_time
@@ -86,7 +91,6 @@
 	ADD_TRAIT(echolocator, TRAIT_ECHOLOCATOR, ECHOLOCATION_TRAIT)
 	deafness_check()
 	RegisterSignals(echolocator, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)), PROC_REF(deafness_check))
-	echolocator.become_blind(ECHOLOCATION_TRAIT)
 	echolocator.overlay_fullscreen(ECHOLOCATION_TRAIT, /atom/movable/screen/fullscreen/echo, echo_icon)
 	//echolocator.apply_status_effect(/datum/status_effect/grouped/see_no_names, ECHOLOCATION_TRAIT)
 	START_PROCESSING(SSfastprocess, src)
@@ -103,7 +107,6 @@
 	REMOVE_TRAIT(echolocator, TRAIT_ECHOLOCATOR, ECHOLOCATION_TRAIT)
 	REMOVE_TRAIT(echolocator, TRAIT_SIGHT_BYPASS, ECHOLOCATION_TRAIT)
 	UnregisterSignal(echolocator, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)))
-	echolocator.cure_blind(ECHOLOCATION_TRAIT)
 	echolocator.clear_fullscreen(ECHOLOCATION_TRAIT)
 	//echolocator.remove_status_effect(/datum/status_effect/grouped/see_no_names, ECHOLOCATION_TRAIT)
 	QDEL_NULL(focus)
@@ -301,8 +304,8 @@
 
 
 /datum/action/echolocation_focus
-	name = "Echolocation Focus"
-	desc = "Focus your echolocation to reveal more details or ignore certain objects."
+	name = "Фокус ощупывания"
+	desc = "Выбрать, что выделять при ощупывании окружения."
 
 	/// Assoc list of option name to typecache list
 	var/static/list/options

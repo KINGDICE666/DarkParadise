@@ -11,6 +11,7 @@
 #define COMSIG_MOB_GHOSTIZE "mob_ghostize"
 ///from base of mob/set_stat(): (new_stat)
 #define COMSIG_MOB_STATCHANGE "mob_statchange"
+#define COMSIG_MOB_HEARD_SOUND "mob_heard_sound"
 ///from base of mob/clickon(): (atom/A, params)
 #define COMSIG_MOB_CLICKON "mob_clickon"
 ///from base of mob/MiddleClickOn(): (atom/A)
@@ -134,12 +135,16 @@
 	#define COMPONENT_SMALL_SPEECH (1<<1)
 	// used to access COMSIG_MOB_SAY argslist
 	#define SPEECH_MESSAGE 1
-	// #define SPEECH_BUBBLE_TYPE 2
+	#define SPEECH_BUBBLE_TYPE 2
 	#define SPEECH_SPANS 3
-	/* #define SPEECH_SANITIZE 4
+	#define SPEECH_SANITIZE 4
 	#define SPEECH_LANGUAGE 5
 	#define SPEECH_IGNORE_SPAM 6
-	#define SPEECH_FORCED 7 */
+	#define SPEECH_FORCED 7
+	#define SPEECH_FILTERPROOF 8
+	#define SPEECH_RANGE 9
+	#define SPEECH_SAYMODE 10
+	#define SPEECH_MODS 11
 ////from mob/living/adjust_fire_stacks()
 #define COMSIG_MOB_ADJUST_FIRE "mob_adjust_fire"
 /// from base of /mob/living/attack_alien(): (user)
@@ -154,8 +159,6 @@
 
 #define COMSIG_MOB_MOVE_INTENT_TOGGLED "mob_move_intent_toggled"
 
-/// from /mob/proc/combine_message (&msg)
-#define COMSIG_COMBINE_MESSAGE_FOR_HEARER "combine_message_for_hearer"
 
 ///from /mob/say_dead(): (mob/speaker, message)
 #define COMSIG_MOB_DEADSAY "mob_deadsay"
@@ -215,15 +218,13 @@
 #define COMSIG_MOB_BATONED "mob_batoned"
 /// A mob has just equipped an item. Called on [/mob] from base of [/obj/item/equipped()]: (/obj/item/equipped_item, slot)
 #define COMSIG_MOB_EQUIPPED_ITEM "mob_equipped_item"
+#define COMSIG_HUMAN_EQUIPPING_ITEM "mob_equipping_item"
+	#define COMPONENT_BLOCK_EQUIP (1<<0)
 /// A mob has just unequipped an item.
 #define COMSIG_MOB_UNEQUIPPED_ITEM "mob_unequipped_item"
 /// From base of /mob/proc/update_held_items
 #define COMSIG_MOB_UPDATE_HELD_ITEMS "mob_update_held_items"
 
-/// From /mob/add_language() (language_name)
-#define COMSIG_MOB_LANGUAGE_ADD "mob_language_add"
-/// From /mob/remove_language() (language_name)
-#define COMSIG_MOB_LANGUAGE_REMOVE "mob_language_remove"
 
 /// Sent from /proc/do_after if someone starts a do_after action bar.
 #define COMSIG_DO_AFTER_BEGAN "mob_do_after_began"

@@ -52,15 +52,15 @@
 	if(jammed)
 		message = Gibberish(message, 100)
 
-	var/list/message_pieces = message_to_multilingual(message)
 	// Make us a message datum!
 	var/datum/tcomms_message/tcm = new
 	tcm.connection = connection
 	tcm.sender = sender
 	tcm.sender_name = from
-	tcm.message_pieces = message_pieces
+	tcm.message = message
+	tcm.language = /datum/language/common
+	tcm.message_mods = list(SAY_MOD_VERB = "говор%(ит,ят)%")
 	tcm.sender_job = "Автоматическое оповещение"
-	tcm.vname = "синтезированный голос"
 	tcm.data = SIGNALTYPE_AINOTRACK
 	// Datum radios dont have a location (obviously)
 	tcm.source_level = sender_loc?.z || levels_by_trait(MAIN_STATION)[1] // For anyone that reads this: This used to pull from a LIST from the CONFIG DATUM. WHYYYYYYYYY!!!!!!!! -aa

@@ -31,6 +31,10 @@
 	multiplicative_slowdown = 0.5
 	movetypes = FLYING
 
+/datum/movespeed_modifier/zombie
+	multiplicative_slowdown = 1
+	blacklisted_movetypes = (FLOATING|FLYING)
+
 /datum/movespeed_modifier/hunger
 	variable = TRUE
 	blacklisted_movetypes = (FLOATING|FLYING)

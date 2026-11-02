@@ -26,7 +26,7 @@
 	stat_attack = UNCONSCIOUS
 	layer = LARGE_MOB_LAYER
 	has_laser_resist = FALSE
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	sentience_type = SENTIENCE_BOSS
 	AI_delay_max = 0 SECONDS
 	var/scale_with_time = TRUE

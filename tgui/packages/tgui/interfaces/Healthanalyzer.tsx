@@ -23,6 +23,7 @@ const DAMAGE_LOCALIZATION_MAP = new Map([
   ['vulpkanin tail', 'Хвост вульпканина'],
   ['vox tail', 'Хвост вокса'],
   ['wryn tail', 'Хвост врина'],
+  ['resomi tail', 'Хвост резоми'],
   ['luam wings', 'Крылья луам'],
 ]);
 
@@ -402,7 +403,10 @@ export const Healthanalyzer = (props: unknown) => {
                           {scan_data.damageLocalization.map((local, index) => (
                             <LabeledList.Item
                               key={index}
-                              label={DAMAGE_LOCALIZATION_MAP.get(local.name)}
+                              label={
+                                DAMAGE_LOCALIZATION_MAP.get(local.name) ??
+                                local.name
+                              }
                             >
                               <Box>
                                 <span style={{ color: '#FF8000' }}>

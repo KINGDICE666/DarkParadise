@@ -45,7 +45,11 @@
 
 	O.add_ai_verbs()
 
-	O.rename_self(JOB_TITLE_AI,1)
+	var/ai_name = O.client?.prefs.read_preference(/datum/preference/name/ai)
+	if(ai_name)
+		O.rename_character(O.real_name, ai_name)
+	else
+		O.rename_self(JOB_TITLE_AI, TRUE)
 
 	O.tts_seed = tts_seed
 
@@ -115,6 +119,9 @@
 		QDEL_NULL(O.mmi)
 		O.mmi = new_mmi
 
+	var/cyborg_name = O.client?.prefs.read_preference(/datum/preference/name/cyborg)
+	if(cyborg_name && cyborg_name != DEFAULT_CYBORG_NAME)
+		O.rename_character(O.real_name, cyborg_name)
 	O.Namepick()
 
 	O.tts_seed = tts_seed

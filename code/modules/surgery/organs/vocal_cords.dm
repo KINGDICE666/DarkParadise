@@ -63,8 +63,8 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 /obj/item/organ/internal/vocal_cords/proc/speak_with(message) //do what the organ does
 	return
 
-/obj/item/organ/internal/vocal_cords/proc/handle_speech(list/message_pieces) //change the message
-	return message_pieces
+/obj/item/organ/internal/vocal_cords/proc/handle_speech(message, list/spans) //change the message
+	return message
 
 /obj/item/organ/internal/adamantine_resonator
 	name = "adamantine resonator"
@@ -103,10 +103,10 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 	var/message = tgui_input_text(owner, "Отправить резонирующее сообщение всем ближайшим големам.", "Резонанс")
 	if(QDELETED(src) || QDELETED(owner) || !message)
 		return
-	owner.say(".~[message]")
+	owner.say(".~ [message]")
 
-/obj/item/organ/internal/vocal_cords/adamantine/handle_speech(list/message_pieces)
-	var/msg = span_resonate(span_name(owner.real_name) + span_message(" резонирует: \"[capitalize(multilingual_to_message(message_pieces))]\""))
+/obj/item/organ/internal/vocal_cords/adamantine/handle_speech(message, list/spans)
+	var/msg = span_resonate(span_name(owner.real_name) + span_message(" резонирует: \"[capitalize(message)]\""))
 	for(var/m in GLOB.player_list)
 		if(iscarbon(m))
 			var/mob/living/carbon/C = m
@@ -181,8 +181,14 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 		return FALSE
 	return TRUE
 
-/obj/item/organ/internal/vocal_cords/colossus/handle_speech(list/message_pieces)
-	return ..(message_to_multilingual(uppertext(multilingual_to_message(message_pieces)), GLOB.all_languages[LANGUAGE_ANGEL]))
+/obj/item/organ/internal/vocal_cords/colossus/handle_speech(message, list/spans)
+	spans |= get_divine_spans(owner)
+	return uppertext(message)
+
+/proc/get_divine_spans(mob/speaker)
+	. = list(SPAN_COLOSSUS, SPAN_YELL)
+	if(iscultist(speaker))
+		. += "narsiesmall"
 
 /proc/voice_of_god(message, mob/living/carbon/speaker, power_multiplier = 1, include_speaker = FALSE)
 	var/log_message = uppertext(message)

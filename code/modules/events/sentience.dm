@@ -52,7 +52,7 @@
 	else
 		var/mob/living/simple_animal/SA = pick(potential)
 		SA.possess_by_player(SG.key)
-		SA.universal_speak = 1
+		SA.grant_all_languages()
 		SA.sentience_act()
 		SA.can_collar = 1
 		SA.maxHealth = max(SA.maxHealth, 200)

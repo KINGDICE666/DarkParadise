@@ -1,97 +1,102 @@
+#define PIPE_DISPENSER_COOLDOWN (0.4 SECONDS)
+
 /obj/machinery/pipedispenser
 	name = "pipe dispenser"
 	icon_state = "pipe_d"
 	density = TRUE
 	anchored = TRUE
+	interact_offline = TRUE
 	interaction_flags_mouse_drop = NEED_DEXTERITY
-	var/wait = 0
+	COOLDOWN_DECLARE(dispense_cooldown)
 
 /obj/machinery/pipedispenser/attack_hand(mob/user)
 	if(..())
-		return 1
+		return TRUE
 
-	interact(user)
+	ui_interact(user)
 
 /obj/machinery/pipedispenser/attack_ghost(mob/user)
-	interact(user)
+	ui_interact(user)
 
-/obj/machinery/pipedispenser/interact(mob/user)
-	var/dat = {"<b>Regular pipes:</b><br>
-<a href='byond://?src=[UID()];make=0;dir=1'>Pipe</a><br>
-<a href='byond://?src=[UID()];make=1;dir=5'>Bent Pipe</a><br>
-<a href='byond://?src=[UID()];make=5;dir=1'>Manifold</a><br>
-<a href='byond://?src=[UID()];make=8;dir=1'>Manual Valve</a><br>
-<a href='byond://?src=[UID()];make=35;dir=1'>Digital Valve</a><br>
-<a href='byond://?src=[UID()];make=20;dir=1'>Pipe Cap</a><br>
-<a href='byond://?src=[UID()];make=19;dir=1'>4-Way Manifold</a><br>
-<a href='byond://?src=[UID()];make=18;dir=1'>Manual T-Valve</a><br>
-<a href='byond://?src=[UID()];make=38;dir=1'>Digital T-Valve</a><br>
-<b>Supply pipes:</b><br>
-<a href='byond://?src=[UID()];make=24;dir=1'>Pipe</a><br>
-<a href='byond://?src=[UID()];make=25;dir=5'>Bent Pipe</a><br>
-<a href='byond://?src=[UID()];make=28;dir=1'>Manifold</a><br>
-<a href='byond://?src=[UID()];make=32;dir=1'>Pipe Cap</a><br>
-<a href='byond://?src=[UID()];make=30;dir=1'>4-Way Manifold</a><br>
-<b>Scrubbers pipes:</b><br>
-<a href='byond://?src=[UID()];make=26;dir=1'>Pipe</a><br>
-<a href='byond://?src=[UID()];make=27;dir=5'>Bent Pipe</a><br>
-<a href='byond://?src=[UID()];make=29;dir=1'>Manifold</a><br>
-<a href='byond://?src=[UID()];make=33;dir=1'>Pipe Cap</a><br>
-<a href='byond://?src=[UID()];make=31;dir=1'>4-Way Manifold</a><br>
-<b>Devices:</b><br>
-<a href='byond://?src=[UID()];make=23;dir=1'>Universal Pipe Adapter</a><br>
-<a href='byond://?src=[UID()];make=4;dir=1'>Connector</a><br>
-<a href='byond://?src=[UID()];make=7;dir=1'>Unary Vent</a><br>
-<a href='byond://?src=[UID()];make=9;dir=1'>Gas Pump</a><br>
-<a href='byond://?src=[UID()];make=15;dir=1'>Passive Gate</a><br>
-<a href='byond://?src=[UID()];make=16;dir=1'>Volume Pump</a><br>
-<a href='byond://?src=[UID()];make=10;dir=1'>Scrubber</a><br>
-<a href='byond://?src=[UID()];makemeter=1'>Meter</a><br>
-<a href='byond://?src=[UID()];makegsensor=1'>Gas Sensor</a><br>
-<a href='byond://?src=[UID()];make=13;dir=1'>Gas Filter</a><br>
-<a href='byond://?src=[UID()];make=14;dir=1'>Gas Mixer</a><br>
-<a href='byond://?src=[UID()];make=34;dir=1'>Air Injector</a><br>
-<a href='byond://?src=[UID()];make=36;dir=1'>Dual-Port Vent Pump</a><br>
-<a href='byond://?src=[UID()];make=37;dir=1'>Passive Vent</a><br>
-<b>Heat exchange:</b><br>
-<a href='byond://?src=[UID()];make=2;dir=1'>Pipe</a><br>
-<a href='byond://?src=[UID()];make=3;dir=5'>Bent Pipe</a><br>
-<a href='byond://?src=[UID()];make=6;dir=1'>Junction</a><br>
-<a href='byond://?src=[UID()];make=17;dir=1'>Heat Exchanger</a><br>
-<b>Insulated pipes:</b><br>
-<a href='byond://?src=[UID()];make=11;dir=1'>Pipe</a><br>
-<a href='byond://?src=[UID()];make=12;dir=5'>Bent Pipe</a><br>
+/obj/machinery/pipedispenser/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "PipeDispenser", name)
+		ui.open()
 
-"}
-//What number the make points to is in the define # at the top of construction.dm in same folder
-//which for some reason couldn't just be left defined, so it could be used here, top kek
+/obj/machinery/pipedispenser/ui_static_data(mob/user)
+	var/list/recipes_by_category = list()
+	for(var/datum/pipes/pipe as anything in GLOB.construction_pipe_list)
+		var/category_name = get_recipe_category(pipe)
+		if(!category_name)
+			continue
+		LAZYADDASSOCLIST(recipes_by_category, category_name, list(
+			"pipe_name" = capitalize(pipe.pipe_name),
+			"pipe_id" = pipe.pipe_id,
+			"icon" = pipe.pipe_icon_file,
+			"icon_state" = pipe.pipe_icon,
+			"dir" = get_dispense_dir(pipe),
+		))
 
-	var/datum/browser/popup = new(user, "pipedispenser", name, 400, 400)
-	popup.set_content(dat)
-	popup.open(0)
-	onclose(user, "pipedispenser")
+	var/list/categories = list()
+	for(var/category_name in recipes_by_category)
+		categories += list(list("cat_name" = category_name, "recipes" = recipes_by_category[category_name]))
+	return list("categories" = categories)
 
-/obj/machinery/pipedispenser/Topic(href, href_list)
+/obj/machinery/pipedispenser/ui_act(action, list/params)
 	if(..() || !anchored)
 		return
 
-	usr.set_machine(src)
-	add_fingerprint(usr)
-
-	if(world.time < wait + 4)
+	if(action != "dispense" || !COOLDOWN_FINISHED(src, dispense_cooldown))
 		return
-	wait = world.time
-	if(href_list["make"])
-		var/p_type = text2num(href_list["make"])
-		var/p_dir = text2num(href_list["dir"])
-		var/obj/item/pipe/P = new (loc, p_type, p_dir)
-		P.update()
-		P.add_fingerprint(usr)
-	if(href_list["makemeter"])
-		new /obj/item/pipe_meter(loc)
-	if(href_list["makegsensor"])
-		new /obj/item/pipe_gsensor(loc)
-	return TRUE
+
+	var/pipe_id = params["pipe_id"]
+	for(var/datum/pipes/pipe as anything in GLOB.construction_pipe_list)
+		if(pipe.pipe_id != pipe_id || !get_recipe_category(pipe))
+			continue
+		COOLDOWN_START(src, dispense_cooldown, PIPE_DISPENSER_COOLDOWN)
+		var/atom/movable/dispensed = dispense(pipe)
+		dispensed.add_fingerprint(usr)
+		add_fingerprint(usr)
+		return TRUE
+
+/obj/machinery/pipedispenser/proc/get_recipe_category(datum/pipes/pipe)
+	if(pipe.pipe_type != PIPETYPE_ATMOS)
+		return
+	if(istype(pipe, /datum/pipes/atmospheric/insulated))
+		return "Insulated"
+	if(!pipe.rpd_dispensable)
+		return
+	switch(pipe.pipe_category)
+		if(RPD_ATMOS_PIPING)
+			return "Pipes"
+		if(RPD_SUPPLY_PIPING)
+			return "Supply"
+		if(RPD_SCRUBBERS_PIPING)
+			return "Scrubbers"
+		if(RPD_DEVICES)
+			return "Devices"
+		if(RPD_HEAT_PIPING)
+			return "Heat Exchange"
+
+/obj/machinery/pipedispenser/proc/get_dispense_dir(datum/pipes/pipe)
+	if(pipe.pipe_type != PIPETYPE_ATMOS)
+		return SOUTH
+	return pipe.bendy ? NORTHEAST : NORTH
+
+/obj/machinery/pipedispenser/proc/dispense(datum/pipes/pipe)
+	switch(pipe.pipe_type)
+		if(PIPETYPE_DISPOSAL)
+			return new /obj/structure/disposalconstruct(loc, pipe.pipe_id)
+		if(PIPETYPE_TRANSIT)
+			var/datum/pipes/transit/tube = pipe
+			return new tube.construct_type(loc)
+	switch(pipe.pipe_id)
+		if(PIPE_METER)
+			return new /obj/item/pipe_meter(loc)
+		if(PIPE_GAS_SENSOR)
+			return new /obj/item/pipe_gsensor(loc)
+	return new /obj/item/pipe(loc, pipe.pipe_id, get_dispense_dir(pipe))
 
 /obj/machinery/pipedispenser/wrench_act(mob/living/user, obj/item/I)
 	. = TRUE
@@ -132,12 +137,15 @@
 /obj/machinery/pipedispenser/disposal
 	name = "Disposal Pipe Dispenser"
 
-//Allow you to drag-drop disposal pipes into it
-/obj/machinery/pipedispenser/disposal/mouse_drop_receive(obj/structure/disposalconstruct/pipe, mob/user, params)
+//Allow you to drag-drop disposal pipes and transit tubes into it
+/obj/machinery/pipedispenser/disposal/mouse_drop_receive(obj/structure/pipe, mob/user, params)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
-	if(!istype(pipe) || get_dist(user, src) > 1 || get_dist(src, pipe) > 1)
+	if(!istype(pipe, /obj/structure/disposalconstruct) && !istype(pipe, /obj/structure/c_transit_tube) && !istype(pipe, /obj/structure/c_transit_tube_pod))
+		return
+
+	if(get_dist(user, src) > 1 || get_dist(src, pipe) > 1)
 		return
 
 	if(pipe.anchored)
@@ -145,38 +153,13 @@
 
 	qdel(pipe)
 
-/obj/machinery/pipedispenser/disposal/attack_hand(mob/user)
-	if(..())
+/obj/machinery/pipedispenser/disposal/get_recipe_category(datum/pipes/pipe)
+	if(!pipe.rpd_dispensable)
 		return
+	switch(pipe.pipe_type)
+		if(PIPETYPE_DISPOSAL)
+			return "Disposals"
+		if(PIPETYPE_TRANSIT)
+			return "Transit Tubes"
 
-	interact(user)
-
-/obj/machinery/pipedispenser/disposal/attack_ghost(mob/user)
-	interact(user)
-
-/obj/machinery/pipedispenser/disposal/interact(mob/user)
-	var/dat = {"<meta charset="UTF-8"><b>Disposal Pipes</b><br><br>
-<a href='byond://?src=[UID()];dmake=100'>Pipe</a><br>
-<a href='byond://?src=[UID()];dmake=101'>Bent Pipe</a><br>
-<a href='byond://?src=[UID()];dmake=102'>Junction</a><br>
-<a href='byond://?src=[UID()];dmake=104'>Y-Junction</a><br>
-<a href='byond://?src=[UID()];dmake=105'>Trunk</a><br>
-<a href='byond://?src=[UID()];dmake=106'>Bin</a><br>
-<a href='byond://?src=[UID()];dmake=107'>Outlet</a><br>
-<a href='byond://?src=[UID()];dmake=108'>Chute</a><br>
-<a href='byond://?src=[UID()];dmake=113'>Rotator</a><br>
-<a href='byond://?src=[UID()];dmake=111'>Multi-Z Up</a><br>
-<a href='byond://?src=[UID()];dmake=112'>Multi-Z Down</a><br>
-"}
-
-	var/datum/browser/popup = new(user, "pipedispenser", name, 400, 400)
-	popup.set_content(dat)
-	popup.open()
-
-/obj/machinery/pipedispenser/disposal/Topic(href, href_list)
-	if(!..())
-		return
-	if(href_list["dmake"])
-		var/obj/structure/disposalconstruct/construct = new(loc, text2num(href_list["dmake"]))
-		to_chat(usr, span_notice("[src] dispenses the [construct.pipename]!"))
-
+#undef PIPE_DISPENSER_COOLDOWN

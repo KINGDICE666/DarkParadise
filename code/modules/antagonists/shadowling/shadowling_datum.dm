@@ -16,7 +16,7 @@
 	if(owner?.current)
 		for(var/datum/action/cooldown/spell/spell as anything in owner.spell_list.Copy())
 			owner.RemoveSpell(spell)
-		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
+		REMOVE_TRAIT(owner.current, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 	return ..()
 
 /datum/antagonist/shadowling/give_objectives()
@@ -47,7 +47,7 @@
 	if(owner?.current)
 		owner.RemoveSpell(/datum/action/cooldown/spell/shadowling_guise)
 		owner.RemoveSpell(/datum/action/cooldown/spell/shadowling_vision/thrall)
-		owner.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
+		REMOVE_TRAIT(owner.current, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 	return ..()
 
 /datum/antagonist/shadowling_thrall/greet()
@@ -57,13 +57,13 @@
 	messages += span_shadowling("Ты не должен причинять вред другим рабам или тенелингам. Однако ты не должен подчиняться другим рабам.")
 	messages += span_shadowling("Твоё тело необратимо изменилось. Внимательный может это увидеть — ты можешь скрыть это, надев маску.")
 	messages += span_shadowling("Хотя ты и не так силён, как твои хозяева, но ты обладаешь некоторыми способностями.")
-	messages += span_shadowling("Ты можешь общаться со своими союзниками, используя Телепатическую сеть тенелингов. '[get_language_prefix(LANGUAGE_HIVE_SHADOWLING)]'.")
+	messages += span_shadowling("Ты можешь общаться со своими союзниками, используя Телепатическую сеть тенелингов. ':[/datum/saymode/hivemind/shadowling::key]'.")
 	return messages
 
 /datum/antagonist/shadowling_thrall/finalize_antag()
 	owner.AddSpell(new /datum/action/cooldown/spell/shadowling_guise)
 	owner.AddSpell(new /datum/action/cooldown/spell/shadowling_vision/thrall)
-	owner.current.add_language(LANGUAGE_HIVE_SHADOWLING)
+	ADD_TRAIT(owner.current, TRAIT_SHADOWLING_HIVEMIND, SHADOWLING_TRAIT)
 
 /proc/is_shadow(mob/living/user)
 	return istype(user) && user.mind?.has_antag_datum(/datum/antagonist/shadowling)

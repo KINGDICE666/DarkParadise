@@ -4,7 +4,19 @@
 	tts_seed = "Gman"
 	var/host_resisting = FALSE
 
-/mob/living/captive_brain/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/captive_brain/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(client)
 		if(check_mute(client.account_ckey, MUTE_IC))
 			to_chat(src, span_warning("Вы не можете говорить в IC (muted)."))
@@ -30,14 +42,11 @@
 			if(M.mind && isobserver(M))
 				to_chat(M, "<i>Thought-speech, <b>[src]</b> -> <b>[B.truename]:</b> [message]</i>")
 
-/mob/living/captive_brain/say_understands(mob/other, datum/language/speaking = null)
-	var/mob/living/simple_animal/borer/B = loc
-
-	if(!istype(B))
-		. = FALSE
-		CRASH("Trapped mind found without a borer!")
-
-	return B.host.say_understands(other, speaking)
+/mob/living/captive_brain/has_language(language, flags_to_check)
+	var/mob/living/simple_animal/borer/borer = loc
+	if(!istype(borer) || !borer.host)
+		return ..()
+	return borer.host.has_language(language, flags_to_check)
 
 /mob/living/captive_brain/resist()
 	var/mob/living/simple_animal/borer/B = loc
@@ -152,7 +161,7 @@
 	. = ..()
 	remove_from_all_data_huds()
 	generation = gen
-	add_language(LANGUAGE_HIVE_BORER)
+	ADD_TRAIT(src, TRAIT_BORER_HIVEMIND, INNATE_TRAIT)
 	notify_ghosts("Мозговой червь появился в [get_area(src)]!", enter_link = "<a href=byond://?src=[UID()];ghostjoin=1>(Click to enter)</a>", source = src, action = NOTIFY_ATTACK)
 	real_name = "Мозговой червь [rand(1000,9999)]"
 	truename = "[borer_names[min(generation, length(borer_names))]] [rand(1000,9999)]"
@@ -214,11 +223,23 @@
 	status_tab_data[++status_tab_data.len] = list("Rank", antag_datum.borer_rank?.rankname)
 	status_tab_data[++status_tab_data.len] = list("Evolution points", antag_datum.evo_points)
 
-/mob/living/simple_animal/borer/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
-	var/list/message_pieces = parse_languages(message)
-
-	for(var/datum/multilingual_say_piece/S in message_pieces)
-		if(S.speaking != GLOB.all_languages[LANGUAGE_HIVE_BORER] && loc == host && !talk_inside_host)
+/mob/living/simple_animal/borer/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
+	if(loc == host && !talk_inside_host)
+		var/list/prefix_mods = list()
+		get_message_mods(message, prefix_mods)
+		if(!istype(SSradio.get_available_say_mode(src, prefix_mods[RADIO_KEY]), /datum/saymode/hivemind/borer))
 			Communicate(message)
 			return
 

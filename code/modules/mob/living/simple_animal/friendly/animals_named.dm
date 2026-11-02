@@ -265,7 +265,7 @@
 	gold_core_spawnable = NO_SPAWN
 	maxHealth = 20
 	health = 20
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	resting = TRUE
 
 /mob/living/simple_animal/mouse/rat/white/Brain/get_ru_names()

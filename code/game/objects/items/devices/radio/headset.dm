@@ -81,15 +81,15 @@
 		. += span_notice("<b>Доступные частоты:</b>")
 		. += span_notice("[radio_desc]")
 
-/obj/item/radio/headset/handle_message_mode(mob/living/M, list/message_pieces, channel)
+/obj/item/radio/headset/handle_message_mode(atom/movable/talking_movable, message, channel)
 	if(channel == SPEC_FREQ_NAME)
 		if(translate_binary)
-			var/datum/language/binary = GLOB.all_languages[LANGUAGE_BINARY]
-			binary.broadcast(M, strip_prefixes(multilingual_to_message(message_pieces)))
+			var/datum/saymode/binary = SSradio.get_say_mode(/datum/saymode/binary)
+			binary.handle_message(talking_movable, message)
 			return RADIO_CONNECTION_NON_SUBSPACE
 		if(translate_hive)
-			var/datum/language/hivemind = GLOB.all_languages[LANGUAGE_HIVE_XENOS]
-			hivemind.broadcast(M, strip_prefixes(multilingual_to_message(message_pieces)))
+			var/datum/saymode/xeno_hive = SSradio.get_say_mode(/datum/saymode/hivemind/xeno)
+			xeno_hive.handle_message(talking_movable, message)
 			return RADIO_CONNECTION_NON_SUBSPACE
 		return RADIO_CONNECTION_FAIL
 

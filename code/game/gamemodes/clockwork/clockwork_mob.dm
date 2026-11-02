@@ -21,7 +21,7 @@
 	nightvision = 8
 	pass_flags = PASSTABLE
 	AIStatus = AI_OFF // Usually someone WILL play for him but i don't know about this on chief.
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	loot = list(/obj/item/clockwork/fallen_armor)
 	del_on_death = TRUE
 	deathmessage = "shatters as the flames goes out."
@@ -127,7 +127,7 @@
 	icon = 'icons/mob/clockwork_mobs.dmi'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	pressure_resistance = 100
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	gold_core_spawnable = NO_SPAWN
 	tts_seed = "Earth"
 

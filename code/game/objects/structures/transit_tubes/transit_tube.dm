@@ -12,7 +12,8 @@
 	layer = LOW_ITEM_LAYER
 	anchored = TRUE
 	pass_flags_self = PASSGLASS
-	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF //indestructible until i make this createble
+	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
+	var/tube_construction = /obj/structure/c_transit_tube
 	var/list/tube_dirs = null
 	var/exit_delay = 1
 	var/enter_delay = 0
@@ -37,6 +38,21 @@
 	for(var/obj/structure/transit_tube_pod/P in loc)
 		P.empty_pod()
 	return ..()
+
+/obj/structure/transit_tube/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(locate(/obj/structure/transit_tube_pod) in loc)
+		to_chat(user, span_warning("Сначала уберите капсулу!"))
+		return
+	user.visible_message(span_notice("[user] начина[PLUR_ET_YUT(user)] откреплять [declent_ru(ACCUSATIVE)]."), span_notice("Вы начинаете откреплять [declent_ru(ACCUSATIVE)]..."))
+	if(!I.use_tool(src, user, TRANSIT_TUBE_WRENCH_TIME, volume = I.tool_volume))
+		return
+	to_chat(user, span_notice("Вы открепляете [declent_ru(ACCUSATIVE)]."))
+	var/obj/structure/c_transit_tube/construct = new tube_construction(loc)
+	construct.setDir(dir)
+	transfer_fingerprints_to(construct)
+	construct.add_fingerprint(user)
+	qdel(src)
 
 // When destroyed by explosions, properly handle contents.
 /obj/structure/transit_tube/ex_act(severity, target)
@@ -167,6 +183,7 @@
 
 /obj/structure/transit_tube/diagonal
 	icon_state = "diagonal"
+	tube_construction = /obj/structure/c_transit_tube/diagonal
 
 /obj/structure/transit_tube/diagonal/init_tube_dirs()
 	switch(dir)
@@ -186,6 +203,7 @@
 /obj/structure/transit_tube/diagonal/crossing
 	density = FALSE
 	icon_state = "diagonal_crossing"
+	tube_construction = /obj/structure/c_transit_tube/diagonal/crossing
 
 //mostly for mapping use
 /obj/structure/transit_tube/diagonal/crossing/topleft
@@ -193,6 +211,7 @@
 
 /obj/structure/transit_tube/curved
 	icon_state = "curved0"
+	tube_construction = /obj/structure/c_transit_tube/curved
 
 /obj/structure/transit_tube/curved/init_tube_dirs()
 	switch(dir)
@@ -207,6 +226,7 @@
 
 /obj/structure/transit_tube/curved/flipped
 	icon_state = "curved1"
+	tube_construction = /obj/structure/c_transit_tube/curved/flipped
 
 /obj/structure/transit_tube/curved/flipped/init_tube_dirs()
 	switch(dir)
@@ -221,6 +241,7 @@
 
 /obj/structure/transit_tube/junction
 	icon_state = "junction0"
+	tube_construction = /obj/structure/c_transit_tube/junction
 
 /obj/structure/transit_tube/junction/init_tube_dirs()
 	switch(dir)
@@ -235,6 +256,7 @@
 
 /obj/structure/transit_tube/junction/flipped
 	icon_state = "junction1"
+	tube_construction = /obj/structure/c_transit_tube/junction/flipped
 
 /obj/structure/transit_tube/junction/flipped/init_tube_dirs()
 	switch(dir)
@@ -249,6 +271,7 @@
 
 /obj/structure/transit_tube/crossing
 	icon_state = "crossing"
+	tube_construction = /obj/structure/c_transit_tube/crossing
 	density = FALSE
 
 //mostly for mapping use

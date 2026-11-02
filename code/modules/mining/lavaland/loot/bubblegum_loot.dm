@@ -299,9 +299,9 @@
 		return
 
 	soul.possess_by_player(ghost.ckey)
-	LAZYOR(soul.languages, master.languages) //Make sure the sword can understand and communicate with the master.
+	soul.copy_languages(master, LANGUAGE_MASTER) //Make sure the sword can understand and communicate with the master.
 	soul.faction = list(PERSONAL_FACTION(master))
-	soul.default_language = master.get_default_language()
+	soul.set_active_language(master.get_selected_language())
 	balloon_alert(master, "коса светится")
 	add_overlay("soulscythe_gem")
 	density = TRUE

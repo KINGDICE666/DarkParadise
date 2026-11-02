@@ -15,7 +15,7 @@
 	var/list/datum/mind/possible_vampires = get_players_for_role(ROLE_VAMPIRE)
 
 	for(var/mob/new_player/player in GLOB.player_list)
-		if((player.mind in possible_vampires) && (player.client.prefs.species in protected_species_vampire))
+		if((player.mind in possible_vampires) && (player.client.prefs.read_preference(/datum/preference/choiced/species) in protected_species_vampire))
 			possible_vampires -= player.mind
 
 	if(length(possible_vampires))

@@ -128,8 +128,7 @@
 	tcm.zlevels = reachable_zlevels
 	tcm.zlevels |= tcm.source_level
 
-	// Now check if they actually have pieces, if so, broadcast
-	if(tcm.message_pieces)
+	if(tcm.message)
 		broadcast_message(tcm)
 		return TRUE
 
@@ -305,7 +304,7 @@
 			if(!new_language)
 				return
 			if(new_language == "--ВЫКЛЮЧЕНО--")
-				nttc.setting_language = LANGUAGE_NONE
+				nttc.setting_language = "--ВЫКЛЮЧЕНО--"
 				to_chat(usr, span_notice("Перевод сообщений выключен."))
 			else
 				nttc.setting_language = new_language

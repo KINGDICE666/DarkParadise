@@ -1,42 +1,17 @@
+#define GRIPPER_MAX_HIT_FORCE 5
+
 //Simple borg hand.
 //Limited use.
 /obj/item/gripper
 	name = "magnetic gripper"
-	desc = "Простой захватывающий инструмент для синтетических материалов."
+	desc = "Простой захватывающий инструмент."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "gripper"
 
-	//Has a list of items that it can hold.
-	var/list/can_hold = list(
-		/obj/item/firealarm_electronics,
-		/obj/item/airalarm_electronics,
-		/obj/item/airlock_electronics,
-		/obj/item/firelock_electronics,
-		/obj/item/intercom_electronics,
-		/obj/item/apc_electronics,
-		/obj/item/access_control,
-		/obj/item/tracker_electronics,
-		/obj/item/stock_parts,
-		/obj/item/vending_refill,
-		/obj/item/mounted/frame/light_fixture,
-		/obj/item/mounted/frame/apc_frame,
-		/obj/item/mounted/frame/alarm_frame,
-		/obj/item/mounted/frame/firealarm,
-		/obj/item/mounted/frame/newscaster_frame,
-		/obj/item/mounted/frame/intercom,
-		/obj/item/mounted/frame/extinguisher,
-		/obj/item/mounted/frame/light_switch,
-		/obj/item/mounted/frame/door_control,
-		/obj/item/assembly/control,
-		/obj/item/rack_parts,
-		/obj/item/camera_assembly,
-		/obj/item/tank,
-		/obj/item/circuitboard,
-		/obj/item/assembly/igniter,
-		/obj/item/stack/tile/light,
-		/obj/item/stack/ore/bluespace_crystal,
-		/obj/item/stack/sheet/plasteel,
-		/obj/item/stack/tile/wood,
+	var/list/forbidden_items = list(
+		/obj/item/gun,
+		/obj/item/grenade,
+		/obj/item/disk/nuclear,
 	)
 
 	//Item currently being held.
@@ -55,19 +30,6 @@
 /obj/item/gripper/medical
 	name = "medical gripper"
 	desc = "Захватывающий инструмент, используемый для удержания органов и помощи пациентам после завершения операции."
-	can_hold = list(
-		/obj/item/organ,
-		/obj/item/reagent_containers/iv_bag,
-		/obj/item/robot_parts/head,
-		/obj/item/robot_parts/l_arm,
-		/obj/item/robot_parts/r_arm,
-		/obj/item/robot_parts/l_leg,
-		/obj/item/robot_parts/r_leg,
-		/obj/item/robot_parts/chest,
-		/obj/item/stack/sheet/mineral/plasma,
-		/obj/item/reagent_containers/food/snacks/monkeycube,
-		/obj/item/bodybag,
-	) //for repair plasmamans
 
 /obj/item/gripper/medical/get_ru_names()
 	return alist(
@@ -107,16 +69,6 @@
 /obj/item/gripper/service
 	name = "Card gripper"
 	desc = "Захватывающий инструмент, используемый для изъятия ID-карт, для уплаты налогов, и пробуждения пьяных членов экипажа."
-	can_hold = list(
-		/obj/item/card,
-		/obj/item/camera_film,
-		/obj/item/paper,
-		/obj/item/photo,
-		/obj/item/toy/plushie,
-		/obj/item/reagent_containers/food,
-		/obj/item/seeds,
-		/obj/item/disk/plantgene,
-	)
 
 /obj/item/gripper/service/get_ru_names()
 	return alist(
@@ -147,66 +99,10 @@
 		PREPOSITIONAL = "древнем захвате",
 	)
 
-/obj/item/gripper/cogscarab/Initialize(mapload)
-	. = ..()
-	//Has a list of items that it can hold.
-	can_hold += list(
-		/obj/item/clockwork/integration_cog,
-		/obj/item/clockwork/shard,
-		/obj/item/stack/sheet,
-		/obj/item/mmi/robotic_brain/clockwork
-	)
-
 /obj/item/gripper/universal
 	name = "Universal gripper"
 	desc = "Универсальный захватывающий инструмент, используемый для выполнения сверх секретных заданий клана паука."
 	icon_state = "diskgripper"
-	can_hold = list(
-		/obj/item/firealarm_electronics,
-		/obj/item/airalarm_electronics,
-		/obj/item/airlock_electronics,
-		/obj/item/firelock_electronics,
-		/obj/item/intercom_electronics,
-		/obj/item/apc_electronics,
-		/obj/item/access_control,
-		/obj/item/tracker_electronics,
-		/obj/item/stock_parts,
-		/obj/item/vending_refill,
-		/obj/item/mounted/frame/light_fixture,
-		/obj/item/mounted/frame/apc_frame,
-		/obj/item/mounted/frame/alarm_frame,
-		/obj/item/mounted/frame/firealarm,
-		/obj/item/mounted/frame/newscaster_frame,
-		/obj/item/mounted/frame/intercom,
-		/obj/item/mounted/frame/extinguisher,
-		/obj/item/mounted/frame/light_switch,
-		/obj/item/mounted/frame/door_control,
-		/obj/item/assembly/control,
-		/obj/item/rack_parts,
-		/obj/item/camera_assembly,
-		/obj/item/tank,
-		/obj/item/circuitboard,
-		/obj/item/assembly/igniter,
-		/obj/item/stack/tile/light,
-		/obj/item/stack/ore/bluespace_crystal,
-		/obj/item/organ,
-		/obj/item/reagent_containers/iv_bag,
-		/obj/item/robot_parts/head,
-		/obj/item/robot_parts/l_arm,
-		/obj/item/robot_parts/r_arm,
-		/obj/item/robot_parts/l_leg,
-		/obj/item/robot_parts/r_leg,
-		/obj/item/robot_parts/chest,
-		/obj/item/stack/sheet/mineral/plasma,
-		/obj/item/card,
-		/obj/item/camera_film,
-		/obj/item/paper,
-		/obj/item/photo,
-		/obj/item/toy/plushie,
-		/obj/item/reagent_containers/food,
-		/obj/item/seeds,
-		/obj/item/disk/plantgene,
-	)
 
 /obj/item/gripper/universal/get_ru_names()
 	return alist(
@@ -222,7 +118,10 @@
 	name = "Nuclear gripper"
 	desc = "Создан для всех ваших ядерных нужд."
 	icon_state = "diskgripper"
-	can_hold = list(/obj/item/disk/nuclear)
+	forbidden_items = list(
+		/obj/item/gun,
+		/obj/item/grenade,
+	)
 
 /obj/item/gripper/nuclear/get_ru_names()
 	return alist(
@@ -236,7 +135,7 @@
 
 /obj/item/gripper/Initialize(mapload)
 	. = ..()
-	can_hold = typecacheof(can_hold)
+	forbidden_items = typecacheof(forbidden_items)
 
 /obj/item/gripper/attack_self(mob/user)
 	if(gripped_item)
@@ -297,6 +196,9 @@
 	. = ATTACK_CHAIN_PROCEED
 
 	if(gripped_item) //Already have an item.
+		if(isliving(target) && gripped_item.force > GRIPPER_MAX_HIT_FORCE)
+			balloon_alert(user, "слишком опасно!")
+			return .
 		//Pass the attack on to the target. This might delete/relocate gripped_item.
 		. |= target.attackby(gripped_item, user, modifiers)
 		if((. & ATTACK_CHAIN_NO_AFTERATTACK) || QDELETED(src) || QDELETED(gripped_item) || QDELETED(target) || QDELETED(user))
@@ -312,17 +214,17 @@
 
 	else if(isitem(target)) //Check that we're not pocketing a mob.
 		var/obj/item/I = target
-		if(is_type_in_typecache(I, can_hold)) // Make sure the item is something the gripper can hold
-			. |= ATTACK_CHAIN_SUCCESS
-			balloon_alert(user, "подобрано")
-			I.forceMove(src)
-			set_gripper_item(I)
-			I.update_icon(UPDATE_OVERLAYS) //Some items change their appearance upon being pulled (IV drip as an example)
-			update_icon(UPDATE_OVERLAYS)
-			RegisterSignals(I, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(handle_item_moving))
-			RegisterSignals(I, list(COMSIG_ATOM_UPDATED_ICON), PROC_REF(handle_item_icon_update))
-		else
+		if(is_type_in_typecache(I, forbidden_items))
 			balloon_alert(user, "невозможно взять!")
+			return .
+		. |= ATTACK_CHAIN_SUCCESS
+		balloon_alert(user, "подобрано")
+		I.forceMove(src)
+		set_gripper_item(I)
+		I.update_icon(UPDATE_OVERLAYS) //Some items change their appearance upon being pulled (IV drip as an example)
+		update_icon(UPDATE_OVERLAYS)
+		RegisterSignals(I, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(handle_item_moving))
+		RegisterSignals(I, list(COMSIG_ATOM_UPDATED_ICON), PROC_REF(handle_item_icon_update))
 
 	else //We are empty and trying to attack something else
 		target.attack_hand(user)
@@ -488,3 +390,5 @@
 
 			stack.add(1)
 			decompiler.stored_comms[type]--
+
+#undef GRIPPER_MAX_HIT_FORCE

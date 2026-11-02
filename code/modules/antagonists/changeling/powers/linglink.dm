@@ -75,16 +75,16 @@
 
 	user.balloon_alert(user, "связь создана")
 	target.balloon_alert(target, "вы чувствуете связь")
-	to_chat(target, "[span_changeling("Вы часть коллективной связи улья, общайтесь в ней с помощью [get_language_prefix(LANGUAGE_HIVE_CHANGELING)].")]")
+	to_chat(target, "[span_changeling("Вы часть коллективной связи улья, общайтесь в ней с помощью :[/datum/saymode/hivemind/changeling::key].")]")
 
 	for(var/mob/ling in GLOB.mob_list)
-		if(LAZYIN(ling.languages, GLOB.all_languages[LANGUAGE_HIVE_CHANGELING]))
+		if(HAS_TRAIT(ling, TRAIT_CHANGELING_HIVEMIND))
 			ling.balloon_alert(ling, "чужак в сети!")
 			to_chat(ling, span_changeling("Мы чувствуем разум [target.real_name] в нашей сети улья"))
 
 	cling?.is_linking = FALSE
-	target.add_language(LANGUAGE_HIVE_CHANGELING)
-	target.say("'[get_language_prefix(LANGUAGE_HIVE_CHANGELING)]'АААААААААААА!!")
+	ADD_TRAIT(target, TRAIT_CHANGELING_HIVEMIND, UID())
+	target.say(":[/datum/saymode/hivemind/changeling::key] АААААААААААА!!")
 	target.reagents.add_reagent("salbutamol", 40) // So they don't choke to death while you interrogate them
 
 	addtimer(CALLBACK(src, PROC_REF(remove_language), target, user), time MINUTES, TIMER_UNIQUE | TIMER_NO_HASH_WAIT | TIMER_OVERRIDE)
@@ -97,7 +97,7 @@
 	if(QDELETED(target))
 		return
 
-	target.remove_language(LANGUAGE_HIVE_CHANGELING)
+	REMOVE_TRAIT(target, TRAIT_CHANGELING_HIVEMIND, UID())
 	target.balloon_alert(target, "связь улья слабеет")
 
 	if(!QDELETED(user))

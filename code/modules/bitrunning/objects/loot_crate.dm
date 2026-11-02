@@ -47,6 +47,7 @@
 	name = "decrypted cache"
 	desc = "Скомпилирован из виртуального домена. Награда удачливого битраннера."
 	locked = FALSE
+	var/loot_multiplier = 1
 
 /obj/structure/closet/crate/secure/bitrunning/decrypted/get_ru_names()
 	return alist(
@@ -94,6 +95,7 @@
 	desc = "Скомпилирована из виртуального домена. Побочная добыча битраннера."
 	locked = FALSE
 	var/datum/lazy_template/virtual_domain/source_domain
+	var/loot_multiplier = 1
 
 /obj/item/storage/lockbox/bitrunning/decrypted/get_ru_names()
 	return alist(
@@ -105,8 +107,9 @@
 		PREPOSITIONAL = "расшифрованной диковине",
 	)
 
-/obj/item/storage/lockbox/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain)
+/obj/item/storage/lockbox/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain, loot_multiplier = 1)
 	source_domain = completed_domain
+	src.loot_multiplier = loot_multiplier
 	. = ..()
 	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
 
@@ -115,10 +118,16 @@
 	if(isnull(path))
 		return
 
-	new path(src)
+	for(var/count in 1 to loot_multiplier)
+		new path(src)
 
-/obj/structure/closet/crate/secure/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain, rewards_multiplier = 1)
+/obj/item/storage/lockbox/bitrunning/decrypted/Destroy()
+	source_domain = null
+	return ..()
+
+/obj/structure/closet/crate/secure/bitrunning/decrypted/Initialize(mapload, datum/lazy_template/virtual_domain/completed_domain, rewards_multiplier = 1, loot_multiplier = 1)
 	. = ..()
+	src.loot_multiplier = loot_multiplier
 	playsound(src, 'sound/effects/phasein.ogg', 50, TRUE)
 
 	if(isnull(completed_domain))
@@ -130,7 +139,7 @@
 	var/reward_points = completed_domain.reward_points
 
 	for(var/path in completed_domain.completion_loot)
-		for(var/count in 1 to completed_domain.completion_loot[path])
+		for(var/count in 1 to completed_domain.completion_loot[path] * loot_multiplier)
 			new path(src)
 
 	new /obj/item/stack/ore/iron(src, calculate_ore_amount(reward_points, rewards_multiplier, ORE_MULTIPLIER_IRON))
@@ -152,7 +161,7 @@
 /obj/structure/closet/crate/secure/bitrunning/decrypted/proc/calculate_ore_amount(reward_points, rewards_multiplier, ore_multiplier)
 	var/base = rewards_multiplier + reward_points
 	var/random_sum = (rand() + 0.5) * base
-	return max(ROUND_UP(random_sum * ore_multiplier), 1)
+	return max(ROUND_UP(random_sum * ore_multiplier), 1) * loot_multiplier
 
 #undef ORE_MULTIPLIER_IRON
 #undef ORE_MULTIPLIER_GLASS

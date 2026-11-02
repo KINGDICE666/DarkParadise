@@ -75,10 +75,8 @@
 
 /mob/living/simple_animal/hostile/facehugger/Initialize(mapload)
 	. = ..()
-	add_language(LANGUAGE_HIVE_XENOS)
-	add_language(LANGUAGE_XENOS)
+	ADD_TRAIT(src, TRAIT_XENO_HIVEMIND, INNATE_TRAIT)
 	ranged_distance = jumpdistance - 1
-	default_language = GLOB.all_languages[LANGUAGE_HIVE_XENOS]
 	GLOB.aliens_list |= src
 
 /mob/living/simple_animal/hostile/facehugger/Destroy()
@@ -290,10 +288,8 @@
 /mob/living/simple_animal/hostile/facehugger/get_blood_dna_list()
 	return list("UNKNOWN DNA" = "X*")
 
-/mob/living/simple_animal/hostile/facehugger/get_default_language()
-	if(default_language)
-		return default_language
-	return GLOB.all_languages[LANGUAGE_HIVE_XENOS]
+/mob/living/simple_animal/hostile/facehugger/get_default_saymode()
+	return SSradio.get_say_mode(/datum/saymode/hivemind/xeno)
 
 /mob/living/simple_animal/hostile/facehugger/attack_alien(mob/living/carbon/alien/humanoid/M)
 	. = ..()

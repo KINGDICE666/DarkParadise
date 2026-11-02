@@ -25,12 +25,11 @@
 	else
 		. += span_notice("It is deactivated.")
 
-/obj/item/assembly/voice/hear_talk(mob/living/M, list/message_pieces)
-	if(only_noice)
-		return
-
+/obj/item/assembly/voice/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
 	. = ..()
-	hear_input(M, multilingual_to_message(message_pieces), 0)
+	if(only_noice || radio_freq)
+		return
+	hear_input(speaker, raw_message, 0)
 
 /obj/item/assembly/voice/hear_message(mob/living/M, msg)
 	hear_input(M, msg, 1)

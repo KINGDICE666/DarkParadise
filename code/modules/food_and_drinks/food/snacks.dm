@@ -322,4 +322,7 @@
 	list_reagents = list("nutriment" = 3)
 	foodtype = FRIED | JUNKFOOD | GROSS
 
+/obj/item/reagent_containers/food/snacks/deepfryholder/update_icon_state()
+	return
+
 #undef MAX_WEIGHT_CLASS

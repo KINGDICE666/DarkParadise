@@ -2,11 +2,32 @@
 	if(has_vision(information_only = TRUE))
 		clear_fullscreen("blind")
 		clear_alert("blind")
+		set_feeling_around(FALSE)
 		return FALSE
 
-	overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
+	var/feeling_around = can_feel_around()
+	overlay_fullscreen("blind", feeling_around ? /atom/movable/screen/fullscreen/blind/touch : /atom/movable/screen/fullscreen/blind)
 	throw_alert("blind", /atom/movable/screen/alert/blind)
+	set_feeling_around(feeling_around)
 	return TRUE
+
+/mob/living/proc/can_feel_around()
+	return FALSE
+
+#define FEELING_AROUND_RANGE 1
+
+/mob/living/proc/set_feeling_around(feeling_around)
+	if(feeling_around == HAS_TRAIT(src, TRAIT_FEELING_AROUND))
+		return
+	if(feeling_around)
+		ADD_TRAIT(src, TRAIT_FEELING_AROUND, EYE_DAMAGE)
+		AddComponent(/datum/component/echolocation, echo_range = FEELING_AROUND_RANGE, focus_selectable = FALSE)
+	else
+		REMOVE_TRAIT(src, TRAIT_FEELING_AROUND, EYE_DAMAGE)
+		qdel(GetComponent(/datum/component/echolocation))
+	update_sight()
+
+#undef FEELING_AROUND_RANGE
 
 /mob/living/update_blurry_effects()
 	var/atom/movable/plane_master_controller/game_plane_master_controller = hud_used?.plane_master_controllers[PLANE_MASTERS_GAME]

@@ -58,8 +58,8 @@
 		return
 
 	H.rename_character(null, "[pick("Полковник", "Генерал майор", "Генерал лейтенант", "Генерал полковник")] [H.real_name]")
-	H.add_language(LANGUAGE_NEO_RUSSIAN)
-	H.set_default_language(GLOB.all_languages[LANGUAGE_NEO_RUSSIAN])
+	H.grant_language(/datum/language/com_srus)
+	H.set_active_language(/datum/language/com_srus)
 	var/obj/item/card/id/I = H.wear_id
 	if(istype(I))
 		H.sec_hud_set_ID()
@@ -108,9 +108,9 @@
 		return
 
 	H.rename_character(null, "[pick("Старший сержант", "Старшина", "Прапорщик", "Старший прапорщик")] [H.real_name]")
-	H.add_language(LANGUAGE_NEO_RUSSIAN)
-	H.remove_language(LANGUAGE_GALACTIC_COMMON)
-	H.set_default_language(GLOB.all_languages[LANGUAGE_NEO_RUSSIAN])
+	H.grant_language(/datum/language/com_srus)
+	H.remove_language(/datum/language/common)
+	H.set_active_language(/datum/language/com_srus)
 	var/obj/item/card/id/I = H.wear_id
 	if(istype(I))
 		H.sec_hud_set_ID()
@@ -160,9 +160,9 @@
 		return
 
 	H.rename_character(null, "[pick("Сержант", "Старший сержант", "Младший лейтенант")] [H.real_name]")
-	H.add_language(LANGUAGE_NEO_RUSSIAN)
-	H.remove_language(LANGUAGE_GALACTIC_COMMON)
-	H.set_default_language(GLOB.all_languages[LANGUAGE_NEO_RUSSIAN])
+	H.grant_language(/datum/language/com_srus)
+	H.remove_language(/datum/language/common)
+	H.set_active_language(/datum/language/com_srus)
 	var/obj/item/card/id/I = H.wear_id
 	if(istype(I))
 		H.sec_hud_set_ID()
@@ -199,9 +199,9 @@
 		return
 
 	H.rename_character(null, "[pick("Прапорщик", "Старший прапорщик", "Младший лейтенант", "Лейтенант")] [H.real_name]")
-	H.add_language(LANGUAGE_NEO_RUSSIAN)
-	H.remove_language(LANGUAGE_GALACTIC_COMMON)
-	H.set_default_language(GLOB.all_languages[LANGUAGE_NEO_RUSSIAN])
+	H.grant_language(/datum/language/com_srus)
+	H.remove_language(/datum/language/common)
+	H.set_active_language(/datum/language/com_srus)
 	var/obj/item/card/id/I = H.wear_id
 	if(istype(I))
 		H.sec_hud_set_ID()

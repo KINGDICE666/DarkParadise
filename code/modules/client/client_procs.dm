@@ -2,7 +2,7 @@
 	//SECURITY//
 	////////////
 
-#define UPLOAD_LIMIT 10485760 //Restricts client uploads to the server to 10MB //Boosted this thing. What's the worst that can happen?
+#define UPLOAD_LIMIT 20971520 //Restricts client uploads to the server to 20MB //Boosted this thing. What's the worst that can happen?
 #define MIN_CLIENT_VERSION 516 // Minimum byond major version required to play.
 									//I would just like the code ready should it ever need to be used.
 #define SUGGESTED_CLIENT_VERSION 516 // only integers (e.g: 513, 514) are useful here. This is the part BEFORE the ".", IE 513 out of 513.1536
@@ -122,7 +122,6 @@
 	switch(href_list["_src_"])
 		if("holder")	hsrc = holder
 		if("usr")		hsrc = mob
-		if("prefs")		return prefs.process_link(usr,href_list)
 		if("vars")		return view_var_Topic(href,href_list,hsrc)
 
 	if(href_list["ssdwarning"])
@@ -244,6 +243,28 @@
 	var/tdata = TopicData //save this for later use
 	TopicData = null //Prevent calls to client.Topic from connect
 	setup_account_ckey(tdata)
+	var/list/connection_params = params2list(tdata)
+	if(connection_params["seeker"] && !seeker_client)
+		DIRECT_OUTPUT(src, "Проверка браузерного входа истекла. Обновите страницу и войдите снова.")
+		return null
+	if(seeker_client)
+		tdata = null
+		if(!MC_RUNNING())
+			DIRECT_OUTPUT(src, "Игровой сервер ещё загружается. Повторите вход немного позже.")
+			return null
+		if(!has_persistent_identity() && !CONFIG_GET(flag/seeker_allow_guests))
+			DIRECT_OUTPUT(src, "Гостевой вход через браузер закрыт. Войдите с аккаунтом BYOND.")
+			return null
+		var/ban_key = has_persistent_identity() ? account_ckey : key
+		var/list/ban = world.IsBanned(ban_key, address, computer_id, connection)
+		if(QDELETED(src))
+			return null
+		if(ban)
+			DIRECT_OUTPUT(src, "Вход отклонён: [ban["desc"]]")
+			return null
+		if(GLOB.directory[account_ckey])
+			DIRECT_OUTPUT(src, "Этот аккаунт уже в игре. Сначала завершите предыдущую сессию.")
+			return null
 
 	stat_panel = new(src, "statbrowser")
 	stat_panel.subscribe(src, PROC_REF(on_stat_panel_message))
@@ -489,6 +510,8 @@
 	give_award(/datum/award/achievement/donations/project_pillar, mob)
 
 /client/proc/is_connecting_from_localhost()
+	if(seeker_client)
+		return FALSE
 	var/localhost_addresses = list("127.0.0.1", "::1", "0.0.0.0") // Adresses
 	if(!isnull(address) && (address in localhost_addresses) || !address)
 		return TRUE
@@ -558,8 +581,8 @@
 	prefs.init_keybindings(prefs.keybindings_overrides) //The earliest sane place to do it where prefs are not null, if they are null you can't do crap at lobby
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning
-	if(prefs.clientfps)
-		fps = prefs.clientfps
+	if(prefs.read_preference(/datum/preference/numeric/fps))
+		fps = prefs.read_preference(/datum/preference/numeric/fps)
 	else
 		fps = CONFIG_GET(number/clientfps)
 
@@ -982,6 +1005,8 @@
 /client/proc/check_randomizer(topic)
 	set waitfor = FALSE // Yes I know this is already called from an async proc but someone may change that without thinking properly
 	. = FALSE
+	if(seeker_client)
+		return
 	if(connection != "seeker")					//Invalid connection type.
 		return null
 	topic = params2list(topic)
@@ -1148,10 +1173,10 @@
 
 //For debugging purposes
 /client/proc/list_all_languages()
-	for(var/L in GLOB.all_languages)
-		var/datum/language/lang = GLOB.all_languages[L]
+	for(var/language_type in GLOB.all_languages)
+		var/datum/language/lang = GLOB.language_datum_instances[language_type]
 		var/message = "[lang.name] : [lang.type]"
-		if(lang.flags & RESTRICTED)
+		if(lang.flags & LANGUAGE_RESTRICTED)
 			message += " (RESTRICTED)"
 		to_chat(world, "[message]", confidential = TRUE)
 
@@ -1379,22 +1404,15 @@ GAME_VERB_DESC(/client, fit_viewport, "Подгонка области види�
 GAME_VERB_HIDDEN(/client, fix_stat_panel, "Fix Stat Panel")
 	init_verbs()
 
-/**
- * Reloads the titlescreen if it is bugged for someone.
- */
-GAME_VERB_DESC(/client, fix_title_screen, "Починить меню лобби", "Lobbyscreen broke? Press this.", VERB_CATEGORY_SPECIALVERBS)
-	if(isnewplayer(mob))
-		SStitle.show_title_screen_to(src)
-	else
-		SStitle.hide_title_screen_from(src)
-
 GAME_VERB_HIDDEN(/client, fitviewport, "")// wrapper for mainwindow
 	fit_viewport()
 
 /client/proc/needs_discord_link()
+	if(seeker_client && !has_persistent_identity())
+		return FALSE
 	if(prefs?.discord_id && length(prefs.discord_id) < DISCORD_TOKEN_LENGTH)
 		return FALSE
-	if(is_launcher_client())
+	if(is_launcher_client() && !seeker_client)
 		return TRUE
 	return CONFIG_GET(number/minimum_byondacc_age) && byondacc_age <= CONFIG_GET(number/minimum_byondacc_age)
 
@@ -1452,7 +1470,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
  */
 /client/proc/retrieve_byondacc_data()
 	// Do not refactor this to use SShttp, because that requires the subsystem to be firing for requests to be made, and this will be triggered before the MC has finished loading
-	var/list/http[] = world.Export("http://www.byond.com/members/[ckey]?format=text")
+	var/list/http[] = world.Export("https://www.byond.com/members/[account_ckey]?format=text")
 	if(http)
 		var/status = text2num(http["STATUS"])
 
@@ -1504,12 +1522,12 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
  * * notify - Do we notify admins of this new accounts date
  */
 /client/proc/get_byond_account_date(notify = FALSE)
-	if(is_launcher_client())
+	if(!has_persistent_identity() || (is_launcher_client() && !seeker_client))
 		return
 
 	// First we see if the client has a saved date in the DB
 	var/datum/db_query/query_date = SSdbcore.NewQuery("SELECT byond_date, DATEDIFF(Now(), byond_date) FROM [format_table_name("player")] WHERE ckey=:ckey", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_date.warn_execute())
 		qdel(query_date)
@@ -1536,7 +1554,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 	// Now save it
 	var/datum/db_query/query_update = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET byond_date=:date WHERE ckey=:ckey", list(
 		"date" = byondacc_date,
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_update.warn_execute())
 		qdel(query_update)
@@ -1545,7 +1563,7 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 
 	// Now retrieve the age again because BYOND doesnt have native methods for this
 	var/datum/db_query/query_age = SSdbcore.NewQuery("SELECT DATEDIFF(Now(), byond_date) FROM [format_table_name("player")] WHERE ckey=:ckey", list(
-		"ckey" = ckey
+		"ckey" = account_ckey
 	))
 	if(!query_age.warn_execute())
 		qdel(query_age)

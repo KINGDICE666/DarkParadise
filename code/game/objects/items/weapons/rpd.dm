@@ -4,6 +4,7 @@
 
 #define RPD_COOLDOWN_TIME 4 //How long should we have to wait between dispensing pipes?
 #define RPD_DISPOSAL_PIPE_CONSTRUCT_DELAY (2 SECONDS)
+#define RPD_TRANSIT_TUBE_CONSTRUCT_DELAY (0.5 SECONDS)
 #define RPD_WALLBUILD_TIME 40 //How long should drilling into a wall take?
 #define RPD_MENU_ROTATE "Rotate pipes" //Stuff for radial menu
 #define RPD_MENU_FLIP "Flip pipes" //Stuff for radial menu
@@ -38,6 +39,7 @@
 	var/whatpipe = PIPE_SIMPLE_STRAIGHT //What kind of atmos pipe is it?
 	var/whatdpipe = PIPE_DISPOSALS_STRAIGHT //What kind of disposals pipe is it?
 	var/whatlpipe = PIPE_LOGISTICS_STRAIGHT
+	var/whattpipe = PIPE_TRANSIT_STRAIGHT
 	var/spawndelay = RPD_COOLDOWN_TIME
 	var/walldelay = RPD_WALLBUILD_TIME
 	var/ranged = FALSE
@@ -51,6 +53,7 @@
 		list("category" = "Atmospherics", "mode" = RPD_ATMOS_MODE, "icon" = "wrench"),
 		list("category" = "Disposals", "mode" = RPD_DISPOSALS_MODE, "icon" = "recycle"),
 		list("category" = "Logistics", "mode" = RPD_LOGISTICS_MODE, "icon" = "boxes"),
+		list("category" = "Transit", "mode" = RPD_TRANSIT_MODE, "icon" = "subway"),
 		list("category" = "Rotate", "mode" = RPD_ROTATE_MODE, "icon" = "sync-alt"),
 		list("category" = "Flip", "mode" = RPD_FLIP_MODE, "icon" = "arrows-alt-h"),
 		list("category" = "Recycle", "mode" = RPD_DELETE_MODE, "icon" = "trash"))
@@ -165,6 +168,31 @@
 		construct.wrench_act(user, inactive_hand_item)
 	activate_rpd(TRUE)
 
+/obj/item/rpd/proc/create_transit_tube(mob/user, turf/T)
+	if(!can_dispense_pipe(whattpipe, PIPETYPE_TRANSIT))
+		CRASH("Failed to spawn [get_pipe_name(whattpipe, PIPETYPE_TRANSIT)] - possible tampering detected")
+	if(T.is_blocked_turf(exclude_mobs = TRUE))
+		user.balloon_alert(user, "что-то мешает!")
+		return
+	var/rotate_dir = iconrotation ? iconrotation : user.dir
+	var/construct_type = get_transit_tube_construct(whattpipe)
+	if(!do_after(user, RPD_TRANSIT_TUBE_CONSTRUCT_DELAY, T, category = DA_CAT_TOOL, max_interact_count = 1))
+		return
+	if(QDELETED(src))
+		return
+	var/obj/structure/construct = new construct_type(T)
+	construct.setDir(rotate_dir)
+	construct.add_fingerprint(user)
+	to_chat(user, span_notice("[src] rapidly dispenses [construct]!"))
+	activate_rpd(TRUE)
+	if(!istype(construct, /obj/structure/c_transit_tube))
+		return
+	var/obj/item/inactive_hand_item = user.get_inactive_hand()
+	if(auto_wrench)
+		construct.wrench_act(user, integrated_wrench)
+	else if(iswrench(inactive_hand_item) && (construct.IsReachableBy(user, inactive_hand_item.reach)))
+		construct.wrench_act(user, inactive_hand_item)
+
 /obj/item/rpd/proc/rotate_all_pipes(mob/user, turf/T) //Rotate all pipes on a turf
 	for(var/obj/item/pipe/P in T)
 		P.rotate()
@@ -172,6 +200,8 @@
 		D.rotate()
 	for(var/obj/structure/logistics_construct/L in T)
 		L.rotate()
+	for(var/obj/structure/c_transit_tube/tube in T)
+		tube.rotate()
 
 /obj/item/rpd/proc/flip_all_pipes(mob/user, turf/T) //Flip all pipes on a turf
 	for(var/obj/item/pipe/P in T)
@@ -180,6 +210,8 @@
 		D.flip()
 	for(var/obj/structure/logistics_construct/L in T)
 		L.flip()
+	for(var/obj/structure/c_transit_tube/tube in T)
+		tube.flip()
 
 /obj/item/rpd/proc/delete_all_pipes(mob/user, turf/T) //Delete all pipes on a turf
 	var/eaten
@@ -200,6 +232,12 @@
 		if(!L.anchored)
 			QDEL_NULL(L)
 			eaten = TRUE
+	for(var/obj/structure/c_transit_tube/tube in T)
+		QDEL_NULL(tube)
+		eaten = TRUE
+	for(var/obj/structure/c_transit_tube_pod/pod in T)
+		QDEL_NULL(pod)
+		eaten = TRUE
 	if(eaten)
 		to_chat(user, "<span class='notice'>[src] sucks up the loose pipes on [T].")
 		activate_rpd()
@@ -240,6 +278,7 @@
 	data["pipe_category"] = pipe_category
 	data["whatdpipe"] = whatdpipe
 	data["whatlpipe"] = whatlpipe
+	data["whattpipe"] = whattpipe
 	data["whatpipe"] = whatpipe
 	data["auto_wrench"] = auto_wrench
 	return data
@@ -249,6 +288,7 @@
 		return
 
 	. = TRUE
+	playsound(src, SFX_TOOL_SWITCH, 20, TRUE)
 
 	switch(action)
 		if("iconrotation")
@@ -263,6 +303,9 @@
 		if("whatlpipe")
 			if(isnum(params["whatlpipe"]))
 				whatlpipe = params["whatlpipe"]
+		if("whattpipe")
+			if(isnum(params["whattpipe"]))
+				whattpipe = params["whattpipe"]
 		if("pipe_category")
 			if(isnum(params["pipe_category"]))
 				pipe_category = params["pipe_category"]
@@ -395,6 +438,7 @@
 
 #undef RPD_COOLDOWN_TIME
 #undef RPD_DISPOSAL_PIPE_CONSTRUCT_DELAY
+#undef RPD_TRANSIT_TUBE_CONSTRUCT_DELAY
 #undef RPD_WALLBUILD_TIME
 #undef RPD_MENU_ROTATE
 #undef RPD_MENU_FLIP

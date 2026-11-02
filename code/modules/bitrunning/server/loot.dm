@@ -44,22 +44,33 @@
 	return total
 
 /obj/machinery/quantum_server/proc/generate_loot(obj/cache, obj/machinery/byteforge/chosen_forge)
+	if(domain_complete)
+		return
+
+	domain_complete = TRUE
 	for(var/mob/living/person in cache.contents)
 		SEND_SIGNAL(person, COMSIG_BITRUNNER_CACHE_SEVER)
 
 	spark_at_location(cache)
 	qdel(cache)
 
-	SEND_SIGNAL(src, COMSIG_BITRUNNER_DOMAIN_COMPLETE, chosen_forge, generated_domain.reward_points)
+	var/reward_multiplier = hardcore ? BITRUNNER_HARDCORE_REWARD_MULTIPLIER : 1
+	var/reward_points = generated_domain.reward_points * reward_multiplier
+	SEND_SIGNAL(src, COMSIG_BITRUNNER_DOMAIN_COMPLETE, chosen_forge, reward_points)
 
-	points += generated_domain.reward_points
+	points += reward_points
 	playsound(src, 'sound/machines/terminal_success.ogg', 30, TRUE)
 
 	var/bonus = calculate_rewards()
 	var/completion_time = world.time - generated_domain.start_time
 	var/grade = grade_completion(completion_time)
 
-	var/obj/structure/closet/crate/secure/bitrunning/decrypted/reward_cache = new(src, generated_domain, bonus)
+	var/obj/structure/closet/crate/secure/bitrunning/decrypted/reward_cache = new(src, generated_domain, bonus, reward_multiplier)
+
+	if(hardcore)
+		for(var/path in generated_domain.hardcore_loot)
+			for(var/count in 1 to generated_domain.hardcore_loot[path])
+				new path(reward_cache)
 
 	var/obj/item/paper/certificate = new(reward_cache)
 	certificate.name = "сертификат о прохождении домена"
@@ -69,16 +80,16 @@
 		generated_domain.disk_reward_spawned = TRUE
 		var/disk_path = pick(subtypesof(/obj/item/disk/tech_disk/loaded))
 		new disk_path(reward_cache)
+		if(hardcore)
+			new disk_path(reward_cache)
 
 	chosen_forge.start_to_spawn(reward_cache)
-
-	domain_complete = TRUE
 
 /obj/machinery/quantum_server/proc/generate_secondary_loot(obj/curiosity, obj/machinery/byteforge/chosen_forge)
 	spark_at_location(curiosity)
 	qdel(curiosity)
 
-	chosen_forge.start_to_spawn(new /obj/item/storage/lockbox/bitrunning/decrypted(src, generated_domain))
+	chosen_forge.start_to_spawn(new /obj/item/storage/lockbox/bitrunning/decrypted(src, generated_domain, hardcore ? BITRUNNER_HARDCORE_REWARD_MULTIPLIER : 1))
 
 /obj/machinery/quantum_server/proc/can_generate_tech_disk(grade)
 	if(generated_domain.disk_reward_spawned)
@@ -94,6 +105,8 @@
 	text += "<b>Домен:</b> [generated_domain.name][domain_randomized ? " (случайный выбор)" : ""]<br>"
 	text += "<b>Сложность:</b> [generated_domain.difficulty]<br>"
 	text += "<b>Базовая награда:</b> [generated_domain.reward_points]<br>"
+	if(hardcore)
+		text += "<b>HRDM:</b> награды ×[BITRUNNER_HARDCORE_REWARD_MULTIPLIER], смерть аватара смертельна для оператора.<br>"
 	text += "<b>Множитель:</b> [bonus]x<br>"
 	text += "<b>Время прохождения:</b> [DisplayTimeText(completion_time)]<br><hr>"
 

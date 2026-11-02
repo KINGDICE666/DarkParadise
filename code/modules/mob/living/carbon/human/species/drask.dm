@@ -7,7 +7,7 @@
 	icobase = 'icons/mob/human_races/r_drask.dmi'
 	deform = 'icons/mob/human_races/r_drask.dmi'
 	fit_profile = /datum/species_fit/drask
-	language = LANGUAGE_DRASK
+	species_language_holder = /datum/language_holder/drask
 	eyes = "drask_eyes_s"
 
 	speech_sounds = list('sound/voice/drasktalk.ogg')
@@ -31,12 +31,16 @@
 	punchstunthreshold = 12
 	obj_damage = 10
 
-	blurb = "Hailing from Hoorlm, planet outside what is usually considered a habitable \
-	orbit, the Drask evolved to live in extreme cold. Their strange bodies seem \
-	to operate better the colder their surroundings are, and can regenerate rapidly \
-	when breathing supercooled gas. <br/><br/> On their homeworld, the Drask live long lives \
-	in their labyrinthine settlements, carved out beneath Hoorlm's icy surface, where the air \
-	is of breathable density."
+	blurb = "Драски — огромные хладнокровные гуманоиды с ледяной планеты Урлум. Вместо крови у них течёт криоксадон, \
+	поэтому холод их не ранит, а лечит. Кулаки драсков бьют сильнее обычного, но жар, ожоги и удушье для них куда \
+	опаснее, чем для других, а с инструментами они работают медленнее.<br/><br/>Урлум — скалистая планета, \
+	покрытая тонкой коркой льда, со средней температурой около −80 °C. Жизнь на ней, по-видимому, зародилась у \
+	гидротермальных источников древнего подлёдного океана, а разум драски обрели около шести тысяч лет \
+	назад.<br/><br/>Из-за сурового климата общество драсков складывалось из изолированных сообществ, рассеянных по \
+	всей планете, и до сих пор остаётся одним из самых децентрализованных в галактике: единого планетарного \
+	правительства у них нет.<br/><br/>В галактическое сообщество драски вошли сравнительно недавно и пока не \
+	играют на его арене заметной роли. Рост драска — от двух до трёх метров, вес — до 160 килограммов, а говорят \
+	они на орлууме."
 
 	suicide_messages = list(
 		"трёт себя до возгорания!",
@@ -98,7 +102,7 @@
 		"m" = list ("mm", "mmm"),
 		"м" = list ("мм", "ммм"),
 	)
-	autohiss_exempt = list("Орлуум")
+	autohiss_exempt = list(/datum/language/drask)
 
 
 /datum/species/drask/get_species_runechat_color(mob/living/carbon/human/H)

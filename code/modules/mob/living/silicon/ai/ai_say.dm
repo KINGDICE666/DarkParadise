@@ -1,7 +1,11 @@
 // MARK: AI Saycode
-/mob/living/silicon/ai/handle_track(message, verb = "говор%(ит,ят)%", atom/movable/speaker = null, speaker_name, atom/follow_target, hard_to_hear)
-	if(hard_to_hear)
-		return
+/mob/living/silicon/ai/compose_track_href(atom/movable/speaker, speaker_name, radio_freq, list/message_mods)
+	if(!radio_freq || message_mods[MODE_RADIO_GARBLED])
+		return ""
+
+	var/atom/movable/virtualspeaker/virtual_speaker = speaker
+	var/atom/follow_target = istype(virtual_speaker) ? (virtual_speaker.follow_target || virtual_speaker.source) : speaker
+	speaker = speaker.GetSource() || speaker
 
 	var/jobname // the mob's "job"
 	var/mob/living/carbon/human/impersonating //The crewmember being impersonated, if any.

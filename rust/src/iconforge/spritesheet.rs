@@ -3,6 +3,7 @@ use super::{
     universal_icon::{Transform, UniversalIcon, UniversalIconData},
 };
 use crate::hash::{file_hash, string_hash};
+use crate::paths::game_path;
 use dashmap::{DashMap, DashSet};
 use dmi::icon::{DmiVersion, Icon, IconState};
 use image::RgbaImage;
@@ -72,7 +73,7 @@ pub fn generate_spritesheet(
     flatten: bool,
 ) -> ByondResult<String> {
     zone!("generate_spritesheet");
-    let base_path = image_cache::ICON_ROOT.join(file_path);
+    let base_path = game_path(file_path);
     // PNGs cannot be non-flat
     let flatten: bool = !generate_dmi || flatten;
     let error = Arc::new(Mutex::new(Vec::<String>::new()));

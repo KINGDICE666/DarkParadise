@@ -44,7 +44,7 @@
 	desc = "Необычный инопланетный имплант с маленьким экранчиком. Судя по всему, создан специально для греев."
 	icon = 'icons/obj/voice_translator.dmi'
 	icon_state = "pvr_implant"
-	given_languages = list(LANGUAGE_GALACTIC_COMMON)
+	given_languages = list(/datum/language/common)
 	given_languages_rus = list("Общегалактический")
 	upgrade_with = list(/obj/item/translator_upgrade/grey_retraslator)
 	origin_tech = "materials=2;biotech=3;engineering=3;programming=3;abductor=2"
@@ -59,23 +59,6 @@
 		INSTRUMENTAL = "ретранслятором псионического голоса",
 		PREPOSITIONAL = "ретрансляторе псионического голоса",
 	)
-
-/obj/item/organ/internal/cyberimp/mouth/translator/Initialize(mapload)
-	. = ..()
-
-	if(!length(given_languages))
-		return
-
-	var/list/datum/language/resolved_languages = list()
-	for(var/language_name in given_languages)
-		var/datum/language/resolved = GLOB.all_languages[language_name]
-		if(!resolved)
-			stack_trace("[type] declared unknown language [language_name] in given_languages")
-			continue
-
-		resolved_languages += resolved
-
-	given_languages = resolved_languages
 
 /obj/item/organ/internal/cyberimp/mouth/translator/examine(mob/user)
 	. = ..()
@@ -101,28 +84,17 @@
 /obj/item/organ/internal/cyberimp/mouth/translator/insert(mob/living/carbon/target, special)
 	. = ..()
 
-	RegisterSignal(target, COMSIG_LANG_PRE_ACT, PROC_REF(check_language))
-
-	for(var/datum/language/lang as anything in given_languages)
-		target.add_language(lang.name)
+	for(var/language in given_languages)
+		target.grant_language(language, source = LANGUAGE_TRANSLATOR)
 
 /obj/item/organ/internal/cyberimp/mouth/translator/remove(mob/living/carbon/target, special)
 	if(!istype(target))
 		return
 
-	UnregisterSignal(target, COMSIG_LANG_PRE_ACT)
-
-	for(var/datum/language/lang as anything in given_languages)
-		target.remove_language(lang.name)
+	for(var/language in given_languages)
+		target.remove_language(language, source = LANGUAGE_TRANSLATOR)
 
 	. = ..()
-
-/obj/item/organ/internal/cyberimp/mouth/translator/proc/check_language(mob/living/carbon/C, language_name)
-	SIGNAL_HANDLER
-
-	for(var/datum/language/lang as anything in given_languages)
-		if(language_name == lang.name)
-			return COMSIG_LANG_SECURED
 
 /obj/item/organ/internal/cyberimp/mouth/translator/update_desc(updates)
 	. = ..()
@@ -194,7 +166,7 @@
 		return FALSE
 
 	if(owner && chip.stored_language) //if translator inside someone
-		owner.remove_language(chip.stored_language.name)
+		owner.remove_language(chip.stored_language, source = LANGUAGE_TRANSLATOR)
 
 	user.put_in_hands(chip)
 	LAZYREMOVE(stored_chips, chip)
@@ -245,7 +217,7 @@
 	LAZYADD(given_languages_rus, chip.stored_language_rus)
 
 	if(owner && chip.stored_language)
-		owner.add_language(chip.stored_language.name)
+		owner.grant_language(chip.stored_language, source = LANGUAGE_TRANSLATOR)
 
 	chip.on_install(owner, src)
 
@@ -303,8 +275,8 @@
 		return
 
 	to_chat(owner, span_notice("<font color=green>[DECLENT_RU_CAP(src, NOMINATIVE)] снова работает!</font>"))
-	for(var/datum/language/lang as anything in given_languages)
-		owner.add_language(lang.name)
+	for(var/language in given_languages)
+		owner.grant_language(language, source = LANGUAGE_TRANSLATOR)
 
 	decoder.update_button_state()
 
@@ -313,8 +285,8 @@
 	can_wingdings = FALSE
 	to_chat(owner, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] временно вышел из строя из-за воздействия ЭМИ!"))
 	do_sparks(3, FALSE, owner)
-	for(var/datum/language/lang as anything in given_languages)
-		owner.remove_language(lang.name)
+	for(var/language in given_languages)
+		owner.remove_language(language, source = LANGUAGE_TRANSLATOR)
 
 	decoder.update_button_state()
 
@@ -428,11 +400,6 @@
 		PREPOSITIONAL = "языковом чипе",
 	)
 
-/obj/item/translator_chip/Initialize(mapload)
-	. = ..()
-	if(stored_language)
-		stored_language = GLOB.all_languages[stored_language]
-
 /obj/item/translator_chip/proc/on_install(mob/living/carbon/human/H, obj/item/organ/internal/cyberimp/mouth/translator/translator)
 	return TRUE
 
@@ -481,72 +448,72 @@
 
 /obj/item/translator_chip/sol
 	icon_state = "chip_solcom"
-	stored_language = LANGUAGE_SOL_COMMON
+	stored_language = /datum/language/human
 	stored_language_rus = "Общесолнечный"
 
 /obj/item/translator_chip/neorus
 	icon_state = "chip_neorus"
-	stored_language = LANGUAGE_NEO_RUSSIAN
+	stored_language = /datum/language/com_srus
 	stored_language_rus = "Неорусский"
 
 /obj/item/translator_chip/gutter
 	icon_state = "chip_gutter"
-	stored_language = LANGUAGE_GUTTER
+	stored_language = /datum/language/gutter
 	stored_language_rus = "Гангстерский"
 
 /obj/item/translator_chip/clownish
 	icon_state = "chip_clownish"
-	stored_language = LANGUAGE_CLOWN
+	stored_language = /datum/language/clown
 	stored_language_rus = "Клоунский"
 
 /obj/item/translator_chip/tradeband
 	icon_state = "chip_tradeband"
-	stored_language = LANGUAGE_TRADER
+	stored_language = /datum/language/trader
 	stored_language_rus = "Торговый"
 
 /obj/item/translator_chip/canilunzt
 	icon_state = "chip_canilunzt"
-	stored_language = LANGUAGE_VULPKANIN
+	stored_language = /datum/language/vulpkanin
 	stored_language_rus = "Канилунц"
 
 /obj/item/translator_chip/sintaunathi
 	icon_state = "chip_sintaunathi"
-	stored_language = LANGUAGE_UNATHI
+	stored_language = /datum/language/unathi
 	stored_language_rus = "Синта'Унати"
 
 /obj/item/translator_chip/siiktajr
 	icon_state = "chip_siiktajr"
-	stored_language = LANGUAGE_TAJARAN
+	stored_language = /datum/language/tajaran
 	stored_language_rus = "Сик'тайр"
 
 /obj/item/translator_chip/skrellian
 	icon_state = "chip_skrellian"
-	stored_language = LANGUAGE_SKRELL
+	stored_language = /datum/language/skrell
 	stored_language_rus = "Скреллианский"
 
 /obj/item/translator_chip/bubblish
 	icon_state = "chip_bubblish"
-	stored_language = LANGUAGE_SLIME
+	stored_language = /datum/language/slime
 	stored_language_rus = "Пузырчатый"
 
 /obj/item/translator_chip/voxpidgin
 	icon_state = "chip_voxpidgin"
-	stored_language = LANGUAGE_VOX
+	stored_language = /datum/language/vox
 	stored_language_rus = "Вокс-пиджин"
 
 /obj/item/translator_chip/chittin
 	icon_state = "chip_chittin"
-	stored_language = LANGUAGE_KIDAN
+	stored_language = /datum/language/kidan
 	stored_language_rus = "Хитин"
 
 /obj/item/translator_chip/tkachi
 	icon_state = "chip_tkachi"
-	stored_language = LANGUAGE_MOTH
+	stored_language = /datum/language/moth
 	stored_language_rus = "Ткачий"
 
 /obj/item/translator_chip/orluum
 	icon_state = "chip_orluum"
-	stored_language = LANGUAGE_DRASK
+	stored_language = /datum/language/drask
 	stored_language_rus = "Орлуум"
 
 /obj/item/translator_chip/wingdings

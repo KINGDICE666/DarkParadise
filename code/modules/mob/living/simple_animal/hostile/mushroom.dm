@@ -1,4 +1,5 @@
 /mob/living/simple_animal/hostile/mushroom
+	initial_language_holder = /datum/language_holder/mushroom/simple
 	name = "walking mushroom"
 	desc = "It's a massive mushroom... with legs?"
 	icon_state = "mushroom_color"

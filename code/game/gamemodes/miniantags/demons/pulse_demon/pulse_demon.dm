@@ -42,7 +42,7 @@
 	has_unlimited_silicon_privilege = TRUE
 	can_buckle_to = FALSE
 	// this makes the demon able to speak through holopads, due to the overriden say, PD cannot speak normally regardless
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	loot = list(/obj/item/organ/internal/heart/demon/pulse)
 
 	/// List of sounds that is picked from when the demon speaks.
@@ -526,7 +526,19 @@
 	for(var/i = 1 to 10)
 		. += pick("!", "@", "#", "$", "%", "^", "&", "*")
 
-/mob/living/simple_animal/demon/pulse_demon/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/simple_animal/demon/pulse_demon/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(check_mute(get_account_ckey(), MUTE_IC))
 		to_chat(src, span_danger("You cannot speak in IC (Muted)."))
 		return FALSE
@@ -545,34 +557,18 @@
 		log_admin("[key_name_admin(src)] made [key_name_admin(current_robot)] say: [message]")
 		message_admins(span_notice("[key_name_admin(src)] made [key_name_admin(current_robot)] say: [message]"))
 		// don't sanitize again
-		current_robot.say(message, null, FALSE, ignore_speech_problems, ignore_atmospherics, ignore_languages)
+		current_robot.say(message, sanitize = FALSE, language = language, message_mods = message_mods)
 		return TRUE
 
-	var/message_mode = parse_message_mode(message, HEADSET_MODE)
+	message = get_message_mods(message, message_mods)
+	var/message_mode = message_mods[RADIO_EXTENSION]
 
-	if(message_mode)
-		if(message_mode == HEADSET_MODE)
-			message = copytext(message, 2)
-		else
-			message = copytext(message, 3)
-
-	message = trim_left(message)
-
-	var/list/message_pieces = list()
-	if(ignore_languages)
-		message_pieces = message_to_multilingual(message)
-	else
-		message_pieces = parse_languages(message)
-
-	// hivemind languages
-	if(istype(message_pieces, /datum/multilingual_say_piece))
-		var/datum/multilingual_say_piece/S = message_pieces
-		S.speaking.broadcast(src, S.message)
+	saymode = SSradio.get_available_say_mode(src, message_mods[RADIO_KEY])
+	if(saymode && (saymode.handle_message(src, message, spans, language, message_mods) & SAYMODE_MESSAGE_HANDLED))
 		return TRUE
 
-	if(!LAZYLEN(message_pieces))
-		. = FALSE
-		CRASH("Message failed to generate pieces. [message] - [json_encode(message_pieces)]")
+	language ||= message_mods[LANGUAGE_EXTENSION] || get_selected_language()
+	message_mods[SAY_MOD_VERB] ||= say_mod(message, message_mods, language)
 
 	create_log(SAY_LOG, "[message_mode ? "([message_mode])" : ""] '[message]'")
 
@@ -580,14 +576,14 @@
 	if(isradio(loc))
 		var/obj/item/radio/R = loc
 		name = gen_speech_name()
-		R.talk_into(src, message_pieces, message_mode, verb)
+		R.talk_into(src, message, message_mode, spans, language, message_mods)
 		name = real_name
 		return TRUE
 	else if(istype(loc, /obj/machinery/hologram/holopad))
 		var/obj/machinery/hologram/holopad/H = loc
 		name = "[H]"
 		for(var/mob/M in get_hearers_in_view(7, H))
-			M.hear_say(message_pieces, verb, FALSE, src)
+			M.Hear(src, language, message, null, null, null, spans, message_mods, 7)
 		name = real_name
 		return TRUE
 

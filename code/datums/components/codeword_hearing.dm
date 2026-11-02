@@ -1,7 +1,7 @@
 /**
  * Component that allows for highlighting of words or phrases in chat based on regular expressions.
  *
- * Hooks into /mob/proc/combine_message to wrap every regex match in the message
+ * Hooks into /mob/Hear to wrap every regex match in the message
  * between <span class=''></span> tags with the provided span class. This modifies the output that
  * is sent to the parent's chat window.
  *
@@ -31,25 +31,25 @@
 /datum/component/codeword_hearing/RegisterWithParent()
 	. = ..()
 
-	RegisterSignal(parent, COMSIG_COMBINE_MESSAGE_FOR_HEARER, PROC_REF(handle_hearing))
+	RegisterSignal(parent, COMSIG_MOVABLE_HEAR, PROC_REF(handle_hearing))
 
 /datum/component/codeword_hearing/UnregisterFromParent()
 	. = ..()
 
-	UnregisterSignal(parent, COMSIG_COMBINE_MESSAGE_FOR_HEARER)
+	UnregisterSignal(parent, COMSIG_MOVABLE_HEAR)
 
 /datum/component/codeword_hearing/Destroy(force)
 	replace_regex = null
 	return ..()
 
-/datum/component/codeword_hearing/proc/handle_hearing(mob/source, message)
+/datum/component/codeword_hearing/proc/handle_hearing(mob/source, list/hearing_args)
 	SIGNAL_HANDLER
 
 	// don't skip codewords when source speaks
 	if(HAS_TRAIT(source, TRAIT_DEAF))
 		return
 
-	*message = replace_regex.Replace(*message, "<span class='[span_class]'>$1</span>")
+	hearing_args[HEARING_RAW_MESSAGE] = replace_regex.Replace(hearing_args[HEARING_RAW_MESSAGE], "<span class='[span_class]'>$1</span>")
 
 /// Since a parent can have multiple of these components on them simultaneously, this allows a datum to delete components from a specific source.
 /datum/component/codeword_hearing/proc/delete_if_from_source(component_source)

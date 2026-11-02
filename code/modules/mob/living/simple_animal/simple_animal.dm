@@ -5,7 +5,7 @@
 	maxHealth = 20
 	gender = MALE // Placeholder.
 
-	universal_understand = 1
+	initial_language_holder = /datum/language_holder/understand_all
 	status_flags = CANPUSH
 
 	hud_type = /datum/hud/simple_animal
@@ -421,8 +421,8 @@
 		pcollar = null
 	..()
 
-/mob/living/simple_animal/say_quote(message)
-	if(length(speak_emote))
+/mob/living/simple_animal/say_mod(input, list/message_mods = list(), datum/language/language)
+	if(!message_mods[WHISPER_MODE] && length(speak_emote))
 		return get_verb(speak_emote)
 	return ..()
 
@@ -741,7 +741,19 @@
 	. = ..()
 	toggle_ai(AI_ON)
 
-/mob/living/simple_animal/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/simple_animal/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	. = ..()
 	if(. && length(talk_sound))
 		playsound(src, pick(talk_sound), 75, TRUE)

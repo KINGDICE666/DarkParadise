@@ -270,6 +270,7 @@
 	subcategory = CAT_SUSHI
 
 /datum/crafting_recipe/food
+	abstract_type = /datum/crafting_recipe/food
 
 /datum/crafting_recipe/food/New()
 	parts |= reqs

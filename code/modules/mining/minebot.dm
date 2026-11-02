@@ -201,7 +201,7 @@
 /mob/living/simple_animal/hostile/mining_drone/OpenFire(atom/A)
 	if(CheckFriendlyFire(A))
 		return
-	stored_gun.afterattack(A, src) //of the possible options to allow minebots to have KA mods, would you believe this is the best?
+	stored_gun.fast_fire(A, src)
 
 /mob/living/simple_animal/hostile/mining_drone/proc/CollectOre()
 	for(var/obj/item/stack/ore/O in range(1, src))

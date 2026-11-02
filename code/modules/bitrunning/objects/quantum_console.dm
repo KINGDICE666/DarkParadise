@@ -29,6 +29,8 @@
 
 	if(server.generated_domain)
 		. += span_notice("Запущен домен: [server.generated_domain.name].")
+		if(server.hardcore)
+			. += span_userdanger("HRDM: награды удвоены. Смерть аватара убивает оператора в капсуле!")
 		. += span_notice("Подключено битраннеров: [length(server.avatar_connection_refs)].")
 		. += span_notice("Осталось выходов: [length(server.exit_turfs) - server.retries_spent].")
 		return
@@ -53,6 +55,68 @@
 		ui = new(user, src, "QuantumConsole", name)
 		ui.open()
 
+/obj/machinery/computer/quantum_console/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
+	if(!istype(tool, /obj/item/disk/bitrunning_hardcore))
+		return ..()
+
+	if(!allowed(user) || !is_operational())
+		balloon_alert(user, "доступ запрещён!")
+		return ITEM_INTERACT_SUCCESS
+
+	var/obj/machinery/quantum_server/server = find_server()
+	if(isnull(server) || !server.is_operational() || !server.is_ready)
+		balloon_alert(user, "сервер недоступен!")
+		return ITEM_INTERACT_SUCCESS
+
+	if(server.hardcore || server.domain_entered || server.domain_complete || length(server.avatar_connection_refs))
+		to_chat(user, span_warning("HRDM можно включить только один раз, до первого входа в домен."))
+		return ITEM_INTERACT_SUCCESS
+
+	var/datum/lazy_template/virtual_domain/chosen_domain = server.generated_domain
+	if(isnull(chosen_domain))
+		var/list/available = list()
+		for(var/datum/lazy_template/virtual_domain/domain as anything in get_virtual_domains())
+			if(domain.difficulty == BITRUNNER_DIFFICULTY_NONE || domain.cost > server.points)
+				continue
+			var/domain_name = domain.can_view_name(server.scanner_tier, server.points) ? domain.name : "Неизвестный домен [length(available) + 1]"
+			available["[domain_name] ([domain.cost] очк.)"] = domain
+
+		if(!length(available))
+			to_chat(user, span_warning("У сервера недостаточно очков для загрузки боевого домена."))
+			return ITEM_INTERACT_SUCCESS
+
+		var/choice = tgui_input_list(user, "Выберите домен HRDM. Награды удвоены; смерть аватара убивает оператора в капсуле!", "Диск HRDM", available)
+		chosen_domain = available[choice]
+		if(isnull(chosen_domain))
+			return ITEM_INTERACT_SUCCESS
+	else if(chosen_domain.difficulty == BITRUNNER_DIFFICULTY_NONE)
+		to_chat(user, span_warning("В мирном домене нельзя включить HRDM."))
+		return ITEM_INTERACT_SUCCESS
+	else if(tgui_alert(user, "Включить HRDM для домена «[chosen_domain.name]»? Награды удвоены; смерть аватара убивает оператора в капсуле!", "Диск HRDM", list("Включить", "Отмена")) != "Включить")
+		return ITEM_INTERACT_SUCCESS
+
+	if(QDELETED(src) || QDELETED(server) || QDELETED(tool) || !user.Adjacent(src) || !user.is_in_hands(tool) || user.incapacitated() || !allowed(user) || !is_operational())
+		return ITEM_INTERACT_SUCCESS
+	if(find_server() != server || !server.is_operational() || !server.is_ready || server.hardcore || server.domain_entered || server.domain_complete || length(server.avatar_connection_refs))
+		return ITEM_INTERACT_SUCCESS
+	if(server.generated_domain && server.generated_domain != chosen_domain)
+		return ITEM_INTERACT_SUCCESS
+	if(!user.drop_transfer_item_to_loc(tool, src))
+		return ITEM_INTERACT_SUCCESS
+
+	var/activated = server.generated_domain ? server.enable_hardcore() : server.cold_boot_map(chosen_domain.key, hardcore = TRUE)
+	if(!activated)
+		tool.forceMove(get_turf(src))
+		user.put_in_hands(tool)
+		return ITEM_INTERACT_SUCCESS
+
+	qdel(tool)
+	add_fingerprint(user)
+	playsound(src, 'sound/machines/terminal_alert.ogg', 50, TRUE)
+	to_chat(user, span_userdanger("HRDM активирован. Награды удвоены. Смерть аватара убивает оператора в капсуле!"))
+	SStgui.update_uis(src)
+	return ITEM_INTERACT_SUCCESS
+
 /obj/machinery/computer/quantum_console/ui_data(mob/user)
 	var/list/data = list()
 
@@ -67,6 +131,7 @@
 	data["broadcasting_on_cd"] = !COOLDOWN_FINISHED(server, broadcast_toggle_cd)
 	data["avatars"] = server.get_avatar_data()
 	data["generated_domain"] = server.generated_domain?.key
+	data["hardcore"] = server.hardcore
 	data["occupants"] = length(server.avatar_connection_refs)
 	data["points"] = server.points
 	data["randomized"] = server.domain_randomized

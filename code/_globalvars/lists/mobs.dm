@@ -1,7 +1,5 @@
 //Languages/species/whitelist. //Languages and species fit with mobs right
 GLOBAL_LIST_EMPTY(all_species)
-GLOBAL_LIST_EMPTY(all_languages)
-GLOBAL_LIST_EMPTY(language_keys)					// Table of say codes for all languages
 GLOBAL_LIST_EMPTY(all_superheroes)
 
 GLOBAL_LIST_EMPTY(clients)							//list of all clients

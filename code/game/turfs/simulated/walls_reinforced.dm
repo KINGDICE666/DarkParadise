@@ -248,6 +248,13 @@
 			dismantle_wall()
 		return TRUE
 
+	if(istype(I, /obj/item/twohanded/required/zombie_claw))
+		to_chat(user, span_notice("Вы начинаете раздирать стену когтями."))
+		if(do_after(user, 2 MINUTES * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))
+			to_chat(user, span_notice("Ваши [I.declent_ru(NOMINATIVE)] разрывают укреплённую обшивку."))
+			dismantle_wall()
+		return TRUE
+
 /turf/simulated/wall/r_wall/wall_singularity_pull(current_size)
 	if(current_size >= STAGE_FIVE)
 		if(prob(30))

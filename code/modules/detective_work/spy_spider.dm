@@ -66,10 +66,6 @@
 	. = ..()
 	spy_spider_attached?.emp_act(severity)
 
-/obj/item/clothing/hear_talk(mob/M, list/message_pieces)
-	. = ..()
-	spy_spider_attached?.hear_talk(M, message_pieces)
-
 GAME_PROC_SRC(/obj/item/clothing, remove_spy_spider, range(1, usr), "Снять жучок", VERB_CATEGORY_HIDDEN)
 
 	if(!ishuman(usr))

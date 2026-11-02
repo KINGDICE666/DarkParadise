@@ -11,6 +11,7 @@ pub mod gags;
 pub mod icon_operations;
 /// Caching for DMI and UniversalIcon image data
 pub mod image_cache;
+pub mod previews;
 /// Spritesheet generation and cache validation functions
 pub mod spritesheet;
 /// UniversalIcon data structure and utilities

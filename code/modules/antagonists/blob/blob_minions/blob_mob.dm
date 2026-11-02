@@ -16,7 +16,7 @@
 	nightvision = 8
 	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	can_buckle_to = FALSE
-	universal_speak = TRUE // So mobs can understand them when a blob uses Blob Broadcast
+	initial_language_holder = /datum/language_holder/universal
 	sentience_type = SENTIENCE_OTHER
 	can_be_on_fire = TRUE
 	fire_damage = 3

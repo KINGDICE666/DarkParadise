@@ -72,19 +72,19 @@ GLOBAL_VAR_INIT(sent_clownsequritysquad, 0)
 
 	var/datum/preferences/A = new()//Randomize appearance for the commando.
 	if(honk_leader_selected)
-		A.age = rand(35,45)
-		A.real_name = "[honksquad_leader_rank] [honksquad_name]"
+		A.write_preference(GLOB.preference_entries[/datum/preference/numeric/age], rand(35,45))
+		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[honksquad_leader_rank] [honksquad_name]")
 	else
-		A.real_name = "[honksquad_rank] [honksquad_name]"
+		A.write_preference(GLOB.preference_entries[/datum/preference/name/real_name], "[honksquad_rank] [honksquad_name]")
 	var/rankName = honk_leader_selected ? honksquad_leader_rank : honksquad_rank
-	A.copy_to(new_honksquad)
+	A.apply_prefs_to(new_honksquad)
 
 	new_honksquad.dna.ready_dna(new_honksquad)//Creates DNA.
 
 	//Creates mind stuff.
 	new_honksquad.mind_initialize()
 	new_honksquad.mind.assigned_role = SPECIAL_ROLE_HONKSQUAD
-	new_honksquad.add_language(LANGUAGE_CLOWN)
+	new_honksquad.grant_language(/datum/language/clown)
 	new_honksquad.change_voice()
 	new_honksquad.equip_honksquad(honk_leader_selected, rankName)
 	return new_honksquad

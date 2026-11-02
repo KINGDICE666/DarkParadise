@@ -39,8 +39,7 @@
 	display_icon_override = "ai-magma"
 
 /mob/living/silicon/decoy/syndicate/depot
-	universal_speak = TRUE
-	universal_understand = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	var/raised_alert = FALSE
 
 /mob/living/silicon/decoy/syndicate/depot/proc/raise_alert()

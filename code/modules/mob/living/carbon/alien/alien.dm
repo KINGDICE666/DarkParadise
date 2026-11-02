@@ -12,6 +12,7 @@
 	dna = null
 	ventcrawler_trait = TRAIT_VENTCRAWLER_ALIEN
 	abstract_type = /mob/living/carbon/alien
+	initial_language_holder = /datum/language_holder/alien
 	blocks_emissive = EMISSIVE_BLOCK_UNIQUE
 	var/nightvision_enabled = FALSE
 	nightvision = 4
@@ -75,6 +76,7 @@
 
 /mob/living/carbon/alien/Initialize(mapload)
 	. = ..()
+	ADD_TRAIT(src, TRAIT_XENO_HIVEMIND, INNATE_TRAIT)
 	GLOB.aliens_list += src
 
 /mob/living/carbon/alien/Destroy()
@@ -111,19 +113,6 @@
 	status_tab_data[++status_tab_data.len] = list("Режим передвижения:", "[m_intent]")
 	if(can_evolve)
 		status_tab_data[++status_tab_data.len] = list("Evolution progress:", "[evolution_points]/[max_evolution_points]")
-
-/mob/living/carbon/alien/get_default_language()
-	if(default_language)
-		return default_language
-	return GLOB.all_languages[LANGUAGE_XENOS]
-
-/mob/living/carbon/alien/say_quote(message, datum/language/speaking = null)
-	var/ending = copytext(message, length(message))
-
-	if(speaking && (speaking.name != "Galactic Common"))						//this is so adminbooze xenos speaking common have their custom verbs,
-		return genderize_decode(src, speaking.get_spoken_verb(ending))          //and use normal verbs for their own languages and non-common languages
-	else
-		return ..()
 
 /mob/living/carbon/alien/adjustToxLoss(
 	amount = 0,

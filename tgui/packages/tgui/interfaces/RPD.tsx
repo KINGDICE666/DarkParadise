@@ -26,6 +26,8 @@ const decideTab = (index: number | string) => {
       return <BinPipeContent />;
     case 6:
       return <PipeCategoryContent pipeType={3} selectedKey="whatlpipe" />;
+    case 7:
+      return <PipeCategoryContent pipeType={4} selectedKey="whattpipe" />;
     default:
       return "WE SHOULDN'T BE HERE!";
   }
@@ -41,6 +43,7 @@ type RPDData = {
   whatpipe: string;
   whatdpipe: string;
   whatlpipe: string;
+  whattpipe: string;
   iconrotation: number;
 };
 
@@ -336,7 +339,7 @@ const AtmosPipeContent = (_props: unknown) => {
 
 const PipeCategoryContent = (props: {
   pipeType: number;
-  selectedKey: 'whatdpipe' | 'whatlpipe';
+  selectedKey: 'whatdpipe' | 'whatlpipe' | 'whattpipe';
 }) => {
   const { pipeType, selectedKey } = props;
   const { act, data } = useBackend<RPDData>();

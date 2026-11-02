@@ -141,7 +141,7 @@
 /mob/proc/generate_name()
 	return name
 
-/mob/proc/GetAltName()
+/atom/movable/proc/GetAltName()
 	return ""
 
 /**
@@ -1155,7 +1155,7 @@ GAME_VERB(/mob/dead/observer, respawn, "Стать животным", VERB_CATEG
 		spintime -= speed
 
 /mob/proc/is_literate()
-	return universal_speak
+	return get_language_holder().omnitongue
 
 /mob/proc/faction_check_mob(mob/target, exact_match)
 	if(exact_match) //if we need an exact match, we need to do some bullfuckery.

@@ -14,6 +14,10 @@
 	var/datum/mind/leader
 	var/leader_prefix
 	var/syndicate_name
+	var/leader_antag_type = /datum/antagonist/nuclear_operative/leader
+	var/reinforcement_antag_type = /datum/antagonist/nuclear_operative/reinf
+	var/nuke_type = /obj/machinery/nuclearbomb/syndicate
+	var/list/tactical_annotations = list()
 
 /datum/team/nuclear_team/New(list/starting_members)
 	. = ..()
@@ -24,10 +28,10 @@
 	objectives += team_objective
 	syndicate_name = create_syndicate_name()
 	var/obj/effect/landmark/nuke_spawn = locate(/obj/effect/landmark/spawner/nuclear_bomb)
-	nuke_code = GLOB.nuke_codes[/obj/machinery/nuclearbomb/syndicate]
+	nuke_code = GLOB.nuke_codes[nuke_type]
 	if(!nuke_spawn)
 		return
-	new /obj/machinery/nuclearbomb/syndicate(nuke_spawn.loc)
+	new nuke_type(nuke_spawn.loc)
 
 /datum/team/nuclear_team/proc/scale_telecrystals()
 	var/danger = GLOB.player_list.len
@@ -42,7 +46,7 @@
 	if(!leader)
 		leader = new_member
 		new_member.remove_antag_datum(antag_datum_type)
-		new_member.add_antag_datum(/datum/antagonist/nuclear_operative/leader, src)
+		new_member.add_antag_datum(leader_antag_type, src)
 	. = ..()
 
 /datum/team/nuclear_team/remove_member(datum/mind/member)

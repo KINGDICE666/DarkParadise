@@ -237,7 +237,7 @@
 		return
 
 	if(!prob(BAD_EFFECT_CHANCE))
-		INVOKE_ASYNC(target, TYPE_PROC_REF(/mob, say), "[info.truename]")
+		INVOKE_ASYNC(target, TYPE_PROC_REF(/atom/movable, say), "[info.truename]")
 		return SAY_NAME_BLOCK
 
 	sender.adjust_fire_stacks(10)

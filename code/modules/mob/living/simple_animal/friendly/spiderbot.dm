@@ -6,7 +6,7 @@
 	icon_living = "spiderbot-chassis"
 	icon_dead = "spiderbot-smashed"
 	wander = 0
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	health = 40
 	maxHealth = 40
 	pass_flags = PASSTABLE

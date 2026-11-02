@@ -134,11 +134,12 @@ GAME_VERB_PROC(/mob/living/silicon/ai, core, "К ядру ИИ", VERB_CATEGORY_A
 	cameraFollow = null
 	unset_machine()
 
-	if(src.eyeobj && src.loc)
-		src.eyeobj.loc = src.loc
-	else
+	if(QDELETED(eyeobj))
 		to_chat(src, "ERROR: Eyeobj not found. Creating new eye...")
+		eyeobj = null
 		create_eye()
+	else if(loc)
+		eyeobj.loc = loc
 
 	eyeobj.setLoc(loc)
 
@@ -166,13 +167,13 @@ GAME_VERB_PROC(/mob/living/silicon/ai, toggle_acceleration, "Ускорение 
 	if(eyeobj.zMove(DOWN, z_move_flags = ZMOVE_FEEDBACK))
 		to_chat(src, span_notice("You move down."))
 
-/mob/camera/aiEye/hear_say(list/message_pieces, verb = "говор%(ит,ят)%", italics = 0, mob/speaker = null, sound/speech_sound, sound_vol, sound_frequency, use_voice = TRUE, is_whisper = FALSE)
-	if(!relay_speech)
-		return
+/mob/camera/aiEye/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
+	if(!relay_speech || radio_freq)
+		return FALSE
 
 	if(istype(ai))
-		ai.relay_speech(speaker, message_pieces, verb)
-		return
+		ai.relay_speech(speaker, message_language, raw_message, spans, message_mods)
+		return HEAR_HEARD
 
-	ai.hear_say(message_pieces, verb, italics, speaker, speech_sound, sound_vol, sound_frequency)
+	return ai.Hear(arglist(args))
 

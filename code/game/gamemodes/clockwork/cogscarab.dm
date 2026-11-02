@@ -64,8 +64,7 @@
 
 /mob/living/silicon/robot/cogscarab/Initialize(mapload)
 	. = ..()
-	remove_language(LANGUAGE_BINARY)
-	add_language(LANGUAGE_DRONE_BINARY, 1)
+	ADD_TRAIT(src, TRAIT_DRONE_BINARY, INNATE_TRAIT)
 	if(radio)
 		radio.wires.cut(WIRE_RADIO_TRANSMIT)
 
@@ -104,7 +103,7 @@
 	set_connected_ai(null)
 
 	aiCamera = new/obj/item/camera/siliconcam/drone_camera(src)
-	additional_law_channels["Drone"] = get_language_prefix(LANGUAGE_DRONE_BINARY)
+	additional_law_channels["Drone"] = ":[MODE_KEY_DRONE] "
 
 	playsound(loc, 'sound/machines/twobeep.ogg', 50, FALSE)
 

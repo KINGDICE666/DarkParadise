@@ -93,6 +93,8 @@
 	name = "jaunt tunnel"
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "bhole3"
+	base_icon_state = "bhole3"
+	fail_icon = null
 	desc = "Стабильная дыра во вселенной, созданная генератором червоточин. Слово \"турбулентный\" не передаёт, насколько жёстким может быть прохождение через неё, но по крайней мере она всегда доставит вас куда-то рядом с маяком."
 	failchance = 0
 	light_on = FALSE

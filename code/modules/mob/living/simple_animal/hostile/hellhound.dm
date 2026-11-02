@@ -121,7 +121,7 @@
 	maxHealth = 400
 	health = 400
 	force_threshold = 5 // no punching
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	smoke_freq = 200
 	life_regen_cycle_trigger = 5
 	melee_damage_lower = 20

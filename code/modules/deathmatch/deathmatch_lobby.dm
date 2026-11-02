@@ -143,7 +143,7 @@
 		loadout = loadouts[1]
 
 	var/mob/living/carbon/human/new_player = new(loc)
-	observer.client?.prefs.copy_to(new_player)
+	observer.client?.prefs.apply_prefs_to(new_player)
 	new_player.UpdateAppearance()
 	new_player.add_traits(list(TRAIT_TEMPORARY_BODY), INNATE_TRAIT)
 	if(observer.mind)

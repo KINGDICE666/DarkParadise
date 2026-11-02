@@ -42,16 +42,16 @@
 /obj/item/circuit_component/hear/unregister_shell(atom/movable/shell)
 	UnregisterSignal(shell, COMSIG_MOVABLE_HEAR)
 
-/obj/item/circuit_component/hear/proc/on_shell_hear(datum/source, mob/speaker, list/message_pieces)
+/obj/item/circuit_component/hear/proc/on_shell_hear(datum/source, list/arguments)
 	SIGNAL_HANDLER
-	return Hear(speaker, message_pieces)
+	return Hear(arglist(arguments))
 
-/obj/item/circuit_component/hear/proc/Hear(mob/speaker, list/message_pieces)
+/obj/item/circuit_component/hear/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
 	if(!on.value)
 		return FALSE
 	if(speaker == parent?.shell)
 		return FALSE
-	message_port.set_output(multilingual_to_message(message_pieces))
+	message_port.set_output(raw_message)
 	speaker_port.set_output(speaker)
 	speaker_name.set_output(speaker.GetVoice())
 	trigger_port.set_output(COMPONENT_SIGNAL)

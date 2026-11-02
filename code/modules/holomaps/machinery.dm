@@ -30,6 +30,7 @@
 	var/auto_update_timeout = 1 SECONDS
 	/// Auto update timer id
 	var/auto_update_timer_id = null
+	var/close_map_timer_id
 
 	/// zLevel which the map is a map for. Change this to have mapload holomaps look at other zlevels.
 	var/current_z_level
@@ -48,6 +49,7 @@
 	)
 
 /obj/machinery/station_map/Initialize(mapload)
+	. = ..()
 	if(!current_z_level)
 		current_z_level = loc.z
 	SSholomaps.station_holomaps += src
@@ -56,7 +58,6 @@
 	floor_markings.pixel_w = -src.pixel_x
 	floor_markings.pixel_z = -src.pixel_y
 	add_overlay(floor_markings)
-	..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/machine/station_map(null)
 	component_parts += new /obj/item/stock_parts/scanning_module(null)
@@ -76,7 +77,7 @@
 
 /obj/machinery/station_map/Destroy()
 	SSholomaps.station_holomaps -= src
-	close_map()
+	close_map(animate_close = FALSE)
 	QDEL_NULL(holomap_datum)
 	. = ..()
 
@@ -90,7 +91,7 @@
 
 /obj/machinery/station_map/attack_hand(mob/user)
 	if(user == watching_mob)
-		close_map(user)
+		close_map()
 		return
 
 	if(watching_mob && watching_mob != user)
@@ -170,33 +171,50 @@
 	if(!moved_mob || !IsReachableBy(moved_mob))
 		close_map()
 
-/obj/machinery/station_map/proc/close_map()
-	if(!watching_mob)
-		return
+/obj/machinery/station_map/proc/on_map_click(mob/user, icon_x, icon_y, list/modifiers)
+	return FALSE
 
+/obj/machinery/station_map/proc/close_map(animate_close = TRUE)
+	if(auto_update_timer_id)
+		deltimer(auto_update_timer_id)
+		auto_update_timer_id = null
 	if(moving_mob)
 		UnregisterSignal(moving_mob, COMSIG_AI_EYE_MOVED)
+		moving_mob = null
+
+	if(close_map_timer_id)
+		if(animate_close)
+			return
+		deltimer(close_map_timer_id)
+		close_map_timer_id = null
+		finish_close_map()
+		return
+
+	if(!watching_mob)
+		return
 
 	UnregisterSignal(watching_mob, COMSIG_MOVABLE_MOVED)
 	playsound(src, 'sound/effects/holomap_close.ogg', 125)
 	icon_state = initial(icon_state)
 
-	if(auto_update_timer_id)
-		deltimer(auto_update_timer_id)
-		auto_update_timer_id = null
+	use_power = initial(use_power)
+	if(animate_close && watching_mob.client)
+		animate(holomap_datum.base_map, alpha = 0, time = 0.5 SECONDS, easing = LINEAR_EASING)
+		close_map_timer_id = addtimer(CALLBACK(src, PROC_REF(finish_close_map)), 0.5 SECONDS, TIMER_STOPPABLE)
+		return
+	finish_close_map()
 
-	if(watching_mob?.client)
-		animate(holomap_datum.base_map, alpha = 0, time = 5, easing = LINEAR_EASING)
-		spawn(5)
-			if(watching_mob?.client)
-				watching_mob.client.screen -= watching_mob.hud_used.holomap
-				watching_mob.client.images -= holomap_datum.base_map
-				watching_mob.hud_used.holomap.used_station_map = null
-				watching_mob.hud_used.holomap.used_base_map = null
-			watching_mob = null
-			set_light(HOLOMAP_LOW_LIGHT)
-
-	use_power = IDLE_POWER_USE
+/obj/machinery/station_map/proc/finish_close_map()
+	close_map_timer_id = null
+	var/atom/movable/screen/holomap/map_screen = watching_mob.hud_used?.holomap
+	if(watching_mob.client)
+		watching_mob.client.screen -= map_screen
+		watching_mob.client.images -= holomap_datum.base_map
+	if(map_screen?.used_station_map == src)
+		map_screen.used_station_map = null
+		map_screen.used_base_map = null
+	watching_mob = null
+	set_light(HOLOMAP_LOW_LIGHT)
 	holomap_datum.reset_map()
 
 /obj/machinery/station_map/power_change()

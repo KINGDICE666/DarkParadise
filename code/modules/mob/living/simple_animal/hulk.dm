@@ -23,7 +23,7 @@
 	sentience_type = SENTIENCE_OTHER
 	a_intent = INTENT_HARM
 	stop_automated_movement = 1
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	attack_sound = list('sound/weapons/punch1.ogg')
 	var/hulk_powers = list()
 	var/mob/living/original_body

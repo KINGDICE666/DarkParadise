@@ -107,12 +107,9 @@
 
 /datum/devil_rank/blood_lizard/apply_rank()
 	var/mob/living/carbon/human/human = devil.owner.current
-	var/list/language_temp = LAZYLEN(human.languages) ? human.languages.Copy() : null
 	human.RemoveElement(/datum/element/devil_regeneration) // Species change call organ removing
 	human.set_species(/datum/species/unathi)
 	human.AddElement(/datum/element/devil_regeneration)
-	if(language_temp)
-		human.languages |= language_temp
 
 	human.underwear = "Nude"
 	human.undershirt = "Nude"

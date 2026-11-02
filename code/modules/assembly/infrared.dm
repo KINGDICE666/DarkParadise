@@ -122,11 +122,8 @@
 	if(!secured || !on || !COOLDOWN_FINISHED(src, cooldown))
 		return FALSE
 
-	var/mob/triggered
-	if(AM.throwing?.thrower)
-		triggered = AM.throwing.thrower
-
-	else if(ismob(AM))
+	var/mob/triggered = AM.throwing?.get_thrower()
+	if(!triggered && ismob(AM))
 		triggered = AM
 
 	COOLDOWN_START(src, cooldown, cooldown_time)

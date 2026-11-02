@@ -51,3 +51,35 @@
 		animate(transform = matrices[i], time = speed)
 		//doesn't have an object argument because this is "Stacking" with the animate call above
 		//3 billion% intentional
+
+/atom/proc/makeHologram(opacity = 0.5, color_override)
+	var/color_value
+	if(islist(color_override))
+		color_value = color_override
+	else
+		var/list/rgb_list = rgb2num(color_override || COLOR_AI_HOLOGRAM_BLUE)
+		color_value = rgb(rgb_list[1], rgb_list[2], rgb_list[3], opacity * 255)
+	add_filter("HOLO: Color and Transparent", 1, color_matrix_filter(color_value))
+	var/atom/movable/scanline = new(null)
+	scanline.icon = 'icons/effects/effects.dmi'
+	scanline.icon_state = "scanline"
+	scanline.appearance_flags |= RESET_TRANSFORM
+	var/static/uid_scan = 0
+	scanline.render_target = "*HoloScanline [uid_scan]"
+	uid_scan++
+	add_filter("HOLO: Scanline", 2, alpha_mask_filter(render_source = scanline.render_target))
+	add_overlay(scanline)
+	qdel(scanline)
+	if(!render_target)
+		var/static/uid = 0
+		render_target = "HOLOGRAM [uid]"
+		uid++
+	var/static/atom/movable/render_step/emissive/glow
+	if(!glow)
+		glow = new(null)
+	glow.render_source = render_target
+	SET_PLANE_EXPLICIT(glow, initial(glow.plane), src)
+	var/mutable_appearance/glow_appearance = new(glow)
+	add_overlay(glow_appearance)
+	LAZYADD(update_overlays_on_z, glow_appearance)
+	return glow_appearance

@@ -27,7 +27,7 @@
 
 
 /obj/effect/forcefield/wizard/heretic/CanAllowThrough(atom/movable/mover, border_dir)
-	var/atom/thrower = mover.throwing?.thrower
+	var/atom/thrower = mover.throwing?.get_thrower()
 	if(istype(thrower, /obj/effect/forcefield/wizard/heretic))
 		return TRUE
 

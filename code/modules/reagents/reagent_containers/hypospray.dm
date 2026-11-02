@@ -638,6 +638,74 @@
 	if(ATTACK_CHAIN_SUCCESS_CHECK(.))
 		playsound(loc, 'sound/weapons/smg_empty_alarm.ogg', 20, TRUE)
 
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure
+	name = "Anti-Plague Sequence Alpha autoinjector"
+	desc = "Маленький автоинъектор с 15 единицами Античумной последовательности Альфа. Предотвращает заражение, излечивает первую стадию."
+	icon_state = "zombiepen"
+	amount_per_transfer_from_this = 15
+	volume = 15
+	container_type = NONE
+	list_reagents = list("zombiecure1" = 15)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/get_ru_names()
+	return alist(
+		NOMINATIVE = "автоинъектор (Античумная последовательность Альфа)",
+		GENITIVE = "автоинъектора (Античумная последовательность Альфа)",
+		DATIVE = "автоинъектору (Античумная последовательность Альфа)",
+		ACCUSATIVE = "автоинъектор (Античумная последовательность Альфа)",
+		INSTRUMENTAL = "автоинъектором (Античумная последовательность Альфа)",
+		PREPOSITIONAL = "автоинъекторе (Античумная последовательность Альфа)",
+	)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/attack(mob/living/carbon/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	. = ..()
+	if(ATTACK_CHAIN_SUCCESS_CHECK(.))
+		playsound(loc, 'sound/weapons/smg_empty_alarm.ogg', 20, TRUE)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure2
+	name = "Anti-Plague Sequence Beta autoinjector"
+	desc = "Маленький автоинъектор с 15 единицами Античумной последовательности Бета. Ослабляет зомби, излечивает лёгкие стадии заражения."
+	list_reagents = list("zombiecure2" = 15)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure2/get_ru_names()
+	return alist(
+		NOMINATIVE = "автоинъектор (Античумная последовательность Бета)",
+		GENITIVE = "автоинъектора (Античумная последовательность Бета)",
+		DATIVE = "автоинъектору (Античумная последовательность Бета)",
+		ACCUSATIVE = "автоинъектор (Античумная последовательность Бета)",
+		INSTRUMENTAL = "автоинъектором (Античумная последовательность Бета)",
+		PREPOSITIONAL = "автоинъекторе (Античумная последовательность Бета)",
+	)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure3
+	name = "Anti-Plague Sequence Gamma autoinjector"
+	desc = "Маленький автоинъектор с 15 единицами Античумной последовательности Гамма. Замедляет лечение зомби, излечивает пятую стадию и сдерживает шестую."
+	list_reagents = list("zombiecure3" = 15)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure3/get_ru_names()
+	return alist(
+		NOMINATIVE = "автоинъектор (Античумная последовательность Гамма)",
+		GENITIVE = "автоинъектора (Античумная последовательность Гамма)",
+		DATIVE = "автоинъектору (Античумная последовательность Гамма)",
+		ACCUSATIVE = "автоинъектор (Античумная последовательность Гамма)",
+		INSTRUMENTAL = "автоинъектором (Античумная последовательность Гамма)",
+		PREPOSITIONAL = "автоинъекторе (Античумная последовательность Гамма)",
+	)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure4
+	name = "Anti-Plague Sequence Omega autoinjector"
+	desc = "Маленький автоинъектор с 15 единицами Античумной последовательности Омега. Излечивает все случаи некротической чумы и оживляет отмершие конечности."
+	list_reagents = list("zombiecure4" = 15)
+
+/obj/item/reagent_containers/hypospray/autoinjector/zombiecure/zombiecure4/get_ru_names()
+	return alist(
+		NOMINATIVE = "автоинъектор (Античумная последовательность Омега)",
+		GENITIVE = "автоинъектора (Античумная последовательность Омега)",
+		DATIVE = "автоинъектору (Античумная последовательность Омега)",
+		ACCUSATIVE = "автоинъектор (Античумная последовательность Омега)",
+		INSTRUMENTAL = "автоинъектором (Античумная последовательность Омега)",
+		PREPOSITIONAL = "автоинъекторе (Античумная последовательность Омега)",
+	)
 /obj/item/reagent_containers/hypospray/autoinjector/selfmade
 	name = "autoinjector"
 	desc = "Кустарно произведённая копия автоинъектора. Из-за особенностей конструкции его невозможно использовать на ком-то, кроме себя."

@@ -112,6 +112,7 @@
 #define TURF_WET_ICE (1<<2)
 /// Turf has lube on the floor and mobs will slip
 #define TURF_WET_LUBE (1<<3)
+#define TURF_WET_SUPERLUBE (1<<4)
 #define TURF_WET_ALL ALL
 
 /**

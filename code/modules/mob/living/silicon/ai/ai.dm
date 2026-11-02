@@ -38,6 +38,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 
 /mob/living/silicon/ai
 	name = "AI"
+	initial_language_holder = /datum/language_holder/synthetic
 	icon = 'icons/mob/ai.dmi'
 	icon_state = "ai-core"
 	move_resist = MOVE_FORCE_NORMAL
@@ -60,6 +61,8 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	alarms_listend_for = list("Motion", "Fire", "Atmosphere", "Power", "Camera", "Burglar")
 	var/viewalerts = 0
 	var/icon/holo_icon//Default // is assigned when AI is created.
+	var/icon/holo_icon_base
+	var/ai_holocolor
 	var/obj/mecha/controlled_mech //For controlled_mech a mech, to determine whether to relaymove or use the AI eye.
 	var/obj/item/pda/silicon/ai/aiPDA = null
 	var/obj/item/multitool/aiMulti = null
@@ -70,6 +73,26 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	var/require_power = TRUE
 
 	var/obj/item/radio/headset/heads/ai_integrated/aiRadio = null
+
+	var/datum/program_picker/program_picker
+	var/datum/action/innate/ai/choose_program/program_action
+	var/nanite_regen = 1
+	var/universal_adapter = FALSE
+	var/adapter_efficiency = 0.5
+	var/market_price_modifier = 1
+	var/airlock_hack_modifier = 1
+	var/bluespace_miner = FALSE
+	var/bluespace_miner_rate = 100
+	var/next_payout = 10 MINUTES
+	var/research_subsystem = FALSE
+	var/research_level = 0
+	var/research_time = 10 MINUTES
+	var/last_research_time
+	var/enhanced_tracking = FALSE
+	var/mob/tracked_mob
+	var/enhanced_tracking_delay = 10 SECONDS
+	var/tracking_alert_interval = 30 SECONDS
+	var/tracker_alert_cooldown = FALSE
 
 	//AI SHELL CONTROL
 	var/mob/living/silicon/robot/deployed_shell = null
@@ -194,7 +217,8 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	set_anchored(TRUE)
 	set_density(TRUE)
 
-	holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo1"))
+	holo_icon_base = icon('icons/mob/ai.dmi',"holo1")
+	holo_icon = getHologramIcon(holo_icon_base, FALSE)
 
 	if(B?.clock)
 		INVOKE_ASYNC(src, TYPE_PROC_REF(/atom, ratvar_act))
@@ -211,7 +235,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	aiMulti = new(src)
 	aiRadio = new(src)
 	aiRadio.myAi = src
-	additional_law_channels["Binary"] = get_language_prefix(LANGUAGE_BINARY)
+	additional_law_channels["Binary"] = ":[MODE_KEY_BINARY] "
 	additional_law_channels["Holopad"] = ":h"
 
 	aiCamera = new/obj/item/camera/siliconcam/ai_camera(src)
@@ -219,26 +243,6 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	if(isturf(loc))
 		add_ai_verbs(src)
 
-	//Languages
-	add_language(LANGUAGE_BINARY, 1)
-	add_language(LANGUAGE_GALACTIC_COMMON, 1)
-	add_language(LANGUAGE_SOL_COMMON, 1)
-	add_language(LANGUAGE_TRADER, 1)
-	add_language(LANGUAGE_NEO_RUSSIAN, 1)
-	add_language(LANGUAGE_GUTTER, 1)
-	add_language(LANGUAGE_UNATHI, 1)
-	add_language(LANGUAGE_TAJARAN, 1)
-	add_language(LANGUAGE_VULPKANIN, 1)
-	add_language(LANGUAGE_SKRELL, 1)
-	add_language(LANGUAGE_VOX, 1)
-	add_language(LANGUAGE_DRASK, 1)
-	add_language(LANGUAGE_DIONA, 1)
-	add_language(LANGUAGE_TRINARY, 1)
-	add_language(LANGUAGE_KIDAN, 1)
-	add_language(LANGUAGE_SLIME, 1)
-	add_language(LANGUAGE_CLOWN, 1)
-	add_language(LANGUAGE_MOTH, 1)
-	add_language(LANGUAGE_RESOMI, 1)
 
 	if(!safety)
 		if(B?.brainmob?.mind)
@@ -255,6 +259,8 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 
 	GLOB.ai_list += src
 	GLOB.shuttle_caller_list += src
+
+	add_program_picker()
 
 	AddElement(/datum/element/high_value_item)
 	update_appearance()
@@ -275,6 +281,13 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	QDEL_NULL(aiRadio)
 	QDEL_NULL(builtInCamera)
 	QDEL_NULL(core_display_picker)
+	set_tracked_mob(null)
+	for(var/obj/machinery/ai_node/node as anything in GLOB.ai_nodes)
+		if(node.assigned_ai == src)
+			node.refresh_ai()
+	program_picker?.reset_programs()
+	QDEL_NULL(program_action)
+	QDEL_NULL(program_picker)
 	return ..()
 
 /mob/living/silicon/ai/get_radio()
@@ -286,7 +299,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	announcement += "<b>To look at other parts of the station, click on yourself to get a camera menu.</b>"
 	announcement += "<b>While observing through a camera, you can use most (networked) devices which you can see, such as computers, APCs, intercoms, doors, etc.</b>"
 	announcement += "To use something, simply click on it."
-	announcement += "Use say '[get_language_prefix(LANGUAGE_BINARY)]' to speak to your cyborgs through binary. Use say ':h ' to speak from an active holopad."
+	announcement += "Use say ':[MODE_KEY_BINARY] ' to speak to your cyborgs through binary. Use say ':h ' to speak from an active holopad."
 	announcement += "For department channels, use the following say commands:"
 
 	var/list/radio_channels = aiRadio.channels
@@ -308,6 +321,8 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 /mob/living/silicon/ai/get_status_tab_items()
 	var/list/status_tab_data = ..()
 	. = status_tab_data
+	status_tab_data[++status_tab_data.len] = list("Наниты:", "[program_picker.nanites] / [program_picker.max_nanites]")
+	status_tab_data[++status_tab_data.len] = list("Производство нанитов:", "[(nanite_regen + 0.5 * program_picker.bandwidth)]")
 	if(stat)
 		status_tab_data[++status_tab_data.len] = list("System status:", "Nonfunctional")
 		return
@@ -422,6 +437,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	use_power = ACTIVE_POWER_USE
 	var/mob/living/silicon/ai/powered_ai = null
 	invisibility = INVISIBILITY_ABSTRACT
+	var/bluespace_miner_power = 0
 
 /obj/machinery/ai_powersupply/Initialize(mapload, mob/living/silicon/ai/ai)
 	. = ..()
@@ -433,14 +449,70 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	use_power(1) // Just incase we need to wake up the power system.
 
 /obj/machinery/ai_powersupply/process()
-	if(!powered_ai || powered_ai.stat & DEAD)
+	if(QDELETED(powered_ai))
 		qdel(src)
 		return
+	if(powered_ai.stat == DEAD)
+		use_power = NO_POWER_USE
+		return
+	powered_ai.program_picker.nanites = min(powered_ai.program_picker.max_nanites, powered_ai.program_picker.nanites + (powered_ai.nanite_regen + 0.5 * powered_ai.program_picker.bandwidth))
 	if(!powered_ai.anchored)
 		loc = powered_ai.loc
 		use_power = NO_POWER_USE
 	if(powered_ai.anchored)
 		use_power = ACTIVE_POWER_USE
+	if(powered_ai.research_subsystem && powered_ai.last_research_time + powered_ai.research_time <= world.time)
+		powered_ai.do_research()
+	if(powered_ai.bluespace_miner && powered_ai.next_payout <= world.time)
+		powered_ai.next_payout = 10 MINUTES + world.time
+		var/datum/money_account/science_account = GLOB.department_accounts[STATION_DEPARTMENT_SCIENCE]
+		science_account?.credit(powered_ai.bluespace_miner_rate, "Доход блюспейс-майнера.", "Блюспейс-майнер ИИ", science_account.owner_name)
+	var/miner_power = powered_ai.bluespace_miner ? powered_ai.bluespace_miner_rate * 2.5 : 0
+	if(bluespace_miner_power != miner_power)
+		bluespace_miner_power = miner_power
+		active_power_usage = initial(active_power_usage) + bluespace_miner_power
+
+/mob/living/silicon/ai/proc/do_research()
+	last_research_time = world.time
+	var/obj/machinery/r_n_d/server/core/station_server
+	for(var/obj/machinery/r_n_d/server/core/server in SSmachines.get_by_type(/obj/machinery/r_n_d/server/core))
+		if(server.disabled || server.syndicate || !is_station_level(server.z))
+			continue
+		station_server = server
+		break
+	if(!station_server)
+		to_chat(src, span_warning("Исследовательский сервер не найден!"))
+		return
+
+	var/upgraded = FALSE
+	var/datum/research/files = station_server.files
+	if(!files)
+		to_chat(src, span_warning("Исследовательский сервер не найден!"))
+		return
+	var/list/possible_tech = list()
+	for(var/datum/tech/T in files.possible_tech)
+		possible_tech += T
+	while(!upgraded)
+		var/datum/tech/tech_to_upgrade = pick_n_take(possible_tech)
+		if(!tech_to_upgrade)
+			to_chat(src, span_notice("Текущие исследования больше нельзя продвинуть."))
+			research_subsystem = FALSE
+			return
+		if(research_level < 10 && istype(tech_to_upgrade, /datum/tech/syndicate))
+			continue
+		if(istype(tech_to_upgrade, /datum/tech/abductor))
+			continue
+		var/datum/tech/current = files.find_possible_tech_with_id(tech_to_upgrade.id)
+		if(!current)
+			continue
+		if(current.level >= 7 && research_level < 5)
+			continue
+		if(current.level >= 8)
+			continue
+		files.UpdateTech(tech_to_upgrade.id, current.level + 1)
+		files.RefreshResearch()
+		radio_announce("Сделанные открытия продвинули исследования в области: [current]!", name, SCI_FREQ, src)
+		upgraded = TRUE
 
 GAME_VERB_PROC_DESC(/mob/living/silicon/ai, pick_icon, "Поменять дисплей", "Choose what appears on your AI core display", VERB_CATEGORY_AICOMMANDS)
 
@@ -768,7 +840,7 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, botcall, "Диспетчер роб�
 	if(QDELETED(C) || stat == DEAD) //C.can_use())
 		return FALSE
 
-	if(!eyeobj)
+	if(QDELETED(eyeobj))
 		view_core()
 		return
 	// ok, we're alive, camera is good and in our network...
@@ -878,6 +950,12 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, ai_hologram_change, "Сменить 
 			if(Entry[2] == ckey) //Custom holograms
 				custom_hologram = 1  // option is given in hologram menu
 
+	ai_holocolor = tgui_input_color(usr, "Выберите цвет голограммы", "Цвет голограммы", ai_holocolor || COLOR_AI_HOLOGRAM_BLUE)
+	if(ai_holocolor)
+		var/list/holo_hsv = rgb2hsv(COLOR_AI_HOLOGRAM_BLUE)
+		holo_hsv[1] = rgb2hsv(ai_holocolor)[1]
+		ai_holocolor = hsv2rgb(holo_hsv)
+
 	var/input
 	switch(tgui_alert(usr, "Would you like to select a hologram based on a crew member, an animal, or switch to a unique avatar?", "Change Hologram", list("Crew Member", "Unique", "Animal")))
 		if("Crew Member")
@@ -890,8 +968,7 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, ai_hologram_change, "Сменить 
 				input = tgui_input_list(usr, "Select a crew member", "Change Hologram", personnel_list)
 				var/icon/character_icon = personnel_list[input]
 				if(character_icon)
-					qdel(holo_icon)//Clear old icon so we're not storing it in memory.
-					holo_icon = getHologramIcon(icon(character_icon))
+					holo_icon_base = icon(character_icon)
 			else
 				alert("No suitable records found. Aborting.")
 
@@ -919,44 +996,43 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, ai_hologram_change, "Сменить 
 
 			input = tgui_input_list(usr, "Please select a hologram", "Change Hologram", icon_list)
 			if(input)
-				qdel(holo_icon)
 				switch(input)
 					if("Bear")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"bear"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"bear")
 					if("Carp")
-						holo_icon = getHologramIcon(icon('icons/mob/carp.dmi',"carp"))
+						holo_icon_base = icon('icons/mob/carp.dmi',"carp")
 					if("Chicken")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"chicken_brown"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"chicken_brown")
 					if("Corgi")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"corgi"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"corgi")
 					if("Cow")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"cow"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"cow")
 					if("Crab")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"crab"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"crab")
 					if("Deer")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"deer"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"deer")
 					if("Fox")
-						holo_icon = getHologramIcon(icon('icons/mob/pets.dmi',"fox"))
+						holo_icon_base = icon('icons/mob/pets.dmi',"fox")
 					if("Goat")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"goat"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"goat")
 					if("Goose")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"goose"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"goose")
 					if("Kitten")
-						holo_icon = getHologramIcon(icon('icons/mob/pets.dmi',"cat"))
+						holo_icon_base = icon('icons/mob/pets.dmi',"cat")
 					if("Kitten2")
-						holo_icon = getHologramIcon(icon('icons/mob/pets.dmi',"cat2"))
+						holo_icon_base = icon('icons/mob/pets.dmi',"cat2")
 					if("Pig")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"pig"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"pig")
 					if("Poly")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"parrot_fly"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"parrot_fly")
 					if("Pug")
-						holo_icon = getHologramIcon(icon('icons/mob/pets.dmi',"pug"))
+						holo_icon_base = icon('icons/mob/pets.dmi',"pug")
 					if("Seal")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"seal"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"seal")
 					if("Spider")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"guard"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"guard")
 					if("Turkey")
-						holo_icon = getHologramIcon(icon('icons/mob/animal.dmi',"turkey"))
+						holo_icon_base = icon('icons/mob/animal.dmi',"turkey")
 
 		else
 			var/icon_list[] = list(
@@ -974,33 +1050,32 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, ai_hologram_change, "Сменить 
 
 			input = tgui_input_list(usr, "Please select a hologram", "Change Hologram", icon_list)
 			if(input)
-				qdel(holo_icon)
 				switch(input)
 					if("default")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo1"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo1")
 					if("floating face")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo2"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo2")
 					if("xeno queen")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo3"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo3")
 					if("eldritch")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo4"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo4")
 					if("AUTO")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo5"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo5")
 					if("beach ball")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo6"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo6")
 					if("pair of bees")
-						holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo7"))
+						holo_icon_base = icon('icons/mob/ai.dmi',"holo7")
 					if("ancient machine")
-						holo_icon = getHologramIcon(icon('icons/mob/ancient_machine.dmi', "ancient_machine"))
+						holo_icon_base = icon('icons/mob/ancient_machine.dmi', "ancient_machine")
 					if("custom")
 						if(icon_exists('icons/mob/custom_synthetic/custom-synthetic.dmi', "[ckey]-ai-holo"))
-							holo_icon = getHologramIcon(icon('icons/mob/custom_synthetic/custom-synthetic.dmi', "[ckey]-ai-holo"))
+							holo_icon_base = icon('icons/mob/custom_synthetic/custom-synthetic.dmi', "[ckey]-ai-holo")
 						else if(icon_exists('icons/mob/custom_synthetic/custom-synthetic64.dmi', "[ckey]-ai-holo"))
-							holo_icon = getHologramIcon(icon('icons/mob/custom_synthetic/custom-synthetic64.dmi', "[ckey]-ai-holo"))
+							holo_icon_base = icon('icons/mob/custom_synthetic/custom-synthetic64.dmi', "[ckey]-ai-holo")
 						else
-							holo_icon = getHologramIcon(icon('icons/mob/ai.dmi',"holo1"))
+							holo_icon_base = icon('icons/mob/ai.dmi',"holo1")
 
-	return
+	holo_icon = getHologramIcon(holo_icon_base, FALSE, holo_color = ai_holocolor)
 
 //Toggles the luminosity and applies it by re-entereing the camera.
 GAME_VERB_PROC_DESC(/mob/living/silicon/ai, toggle_camera_light, "Подсветка камер", "Toggles the lights on the cameras throughout the station.", VERB_CATEGORY_AICOMMANDS)
@@ -1134,6 +1209,7 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, control_integrated_radio, "Наст�
 		aiRadio.disabledAi = TRUE	//No talking on the built-in radio for you either!
 		if(deployed_shell)
 			disconnect_shell()
+		program_picker?.reset_programs()
 		forceMove(card) //Throw AI into the card.
 		to_chat(src, "You have been downloaded to a mobile storage device. Remote device connection severed.")
 		to_chat(user, "[span_boldnotice("Transfer successful")]: [name] ([rand(1000,9999)].exe) removed from host terminal and stored within local memory.")
@@ -1167,17 +1243,13 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, control_integrated_radio, "Наст�
 /mob/living/silicon/ai/try_get_ai()
 	return src
 
-/mob/living/silicon/ai/proc/relay_speech(mob/living/M, list/message_pieces, verb)
-	var/message_clean = combine_message(message_pieces, M)
-	message_clean = replace_characters(message_clean, list("+"))
-
-	var/message = verb_message(message_pieces, message_clean, M, genderize_decode(M, verb))
-
-	var/name_used = M.GetVoice()
+/mob/living/silicon/ai/proc/relay_speech(atom/movable/speaker, datum/language/message_language, raw_message, list/spans, list/message_mods)
+	raw_message = translate_language(speaker, message_language, raw_message, spans, message_mods)
+	var/message_clean = replace_characters(apply_message_emphasis(capitalize(raw_message)), list("+"))
 	//This communication is imperfect because the holopad "filters" voices and is only designed to connect to the master only.
-	var/rendered = span_gamesay("<i>Relayed Speech: [span_name("[name_used]")] [message]</i>")
+	var/rendered = span_gamesay("<i>Relayed Speech: [span_name("[speaker.GetVoice()]")] [speaker.generate_messagepart(raw_message, spans, message_mods)]</i>")
 	if(client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
-		create_chat_message(M, message_clean, list("radio"))
+		create_chat_message(speaker, message_clean, list("radio"))
 	show_message(rendered, 2)
 
 /mob/living/silicon/ai/proc/malfhacked(obj/machinery/power/apc/apc)
@@ -1209,6 +1281,23 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, control_integrated_radio, "Наст�
 	malf_picker = new /datum/module_picker
 	modules_action = new(malf_picker)
 	modules_action.Grant(src)
+
+/mob/living/silicon/ai/proc/reset_programs()
+	if(!program_picker)
+		return
+	program_picker.reset_programs()
+	to_chat(src, span_notice("Ваши программы сброшены до заводских настроек!"))
+	throw_alert("programsreset", /atom/movable/screen/alert/programs_reset)
+
+/mob/living/silicon/ai/proc/add_program_picker()
+	view_core()
+	program_picker = new /datum/program_picker(src)
+	program_action = new(program_picker)
+	program_action.Grant(src)
+
+/mob/living/silicon/ai/proc/play_sound_remote(target, sound, volume)
+	playsound_local(src, sound, volume, FALSE, use_reverb = FALSE)
+	playsound(target, sound, volume, FALSE, use_reverb = FALSE)
 
 ///Removes all malfunction-related /datum/action's from the target AI.
 /mob/living/silicon/ai/proc/remove_malf_abilities()
@@ -1465,3 +1554,26 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, control_integrated_radio, "Наст�
 
 /mob/living/silicon/ai/get_lootpanel_cache_key()
 	return "[display_icon_override] [portrait_appearance?.icon] [portrait_appearance?.icon_state]"
+
+/mob/living/silicon/ai/point_at(atom/pointed_atom)
+	if(pointed_atom in src)
+		return FALSE
+	var/turf/target_turf = get_turf(pointed_atom)
+	if(!target_turf)
+		return FALSE
+	var/obj/machinery/hologram/holopad/best_pad
+	for(var/obj/machinery/hologram/holopad/pad as anything in GLOB.holopads)
+		if(!pad.is_operational() || pad.pointing || !pad.validate_location(target_turf))
+			continue
+		var/turf/pad_turf = get_turf(pad)
+		if(!GLOB.cameranet.checkTurfVis(pad_turf))
+			continue
+		if(!best_pad || get_dist(pad_turf, target_turf) < get_dist(get_turf(best_pad), target_turf))
+			best_pad = pad
+	if(!best_pad)
+		return FALSE
+	if(!best_pad.holo_point(pointed_atom, invisibility))
+		return FALSE
+	SEND_SIGNAL(src, COMSIG_MOB_POINTED, pointed_atom)
+	log_emote("points at [pointed_atom] using holopad", src)
+	return TRUE

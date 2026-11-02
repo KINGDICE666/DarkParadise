@@ -90,6 +90,8 @@
 #define JOB_TITLE_SYNDICATE_OFFICER "Syndicate Officer"
 #define JOB_TITLE_SYNDICATE_OPERATIVE "Syndicate Operative"
 #define JOB_TITLE_SYNDICATE_OPERATIVE_LEADER "Syndicate Operative Leader"
+#define JOB_TITLE_CLOWN_OPERATIVE "Syndicate Entertainment Operative"
+#define JOB_TITLE_CLOWN_OPERATIVE_LEADER "Syndicate Entertainment Operative Leader"
 #define JOB_TITLE_SYNDICATE_AGENT "Syndicate Agent"
 #define JOB_TITLE_SYNDICATE_COMMANDO "Syndicate Commando"
 

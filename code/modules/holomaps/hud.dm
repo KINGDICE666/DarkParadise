@@ -30,6 +30,8 @@
 	var/list/modifiers = params2list(params)
 	var/icon_x = text2num(LAZYACCESS(modifiers, "icon-x"))
 	var/icon_y = text2num(LAZYACCESS(modifiers, "icon-y"))
+	if(used_station_map.on_map_click(usr, icon_x, icon_y, modifiers))
+		return
 
 	if(icon_x < HOLOMAP_LEGEND_X || icon_x > HOLOMAP_LEGEND_X + HOLOMAP_LEGEND_WIDTH || icon_y < HOLOMAP_LEGEND_Y || icon_y > used_station_map.holomap_datum.total_legend_y)
 		return

@@ -68,12 +68,14 @@
 		checking = FALSE
 		to_chat(user, span_warning("Unable to connect to Syndicate command. Please wait and try again later or use the teleporter on your uplink to get your points refunded."))
 
-/obj/item/antag_spawner/nuke_ops/spawn_antag(client/C, turf/T, kind, datum/mind/user)
+/obj/item/antag_spawner/nuke_ops/spawn_antag(client/C, turf/T, datum/mind/user)
 	var/mob/living/carbon/human/M = new/mob/living/carbon/human(T)
 
 	M.possess_by_player(C.key)
 	create_syndicate(M.mind)
-	var/datum/antagonist/nuclear_operative/datum = M.mind.add_antag_datum(/datum/antagonist/nuclear_operative/reinf, /datum/team/nuclear_team)
+	var/datum/antagonist/nuclear_operative/summoner = user.has_antag_datum(/datum/antagonist/nuclear_operative)
+	var/datum/team/nuclear_team/team = summoner.nuclear_team || create_antag_team(/datum/team/nuclear_team)
+	var/datum/antagonist/nuclear_operative/datum = M.mind.add_antag_datum(team.reinforcement_antag_type, team)
 	datum.equip()
 
 //////SYNDICATE BORG
@@ -143,7 +145,8 @@
 		brainfirstname = pick(GLOB.first_names_female)
 		brainopslastname = pick(GLOB.last_names_female)
 
-	var/datum/team/nuclear_team/team = GLOB.antagonist_teams[/datum/team/nuclear_team]
+	var/datum/antagonist/nuclear_operative/summoner = user.has_antag_datum(/datum/antagonist/nuclear_operative)
+	var/datum/team/nuclear_team/team = summoner.nuclear_team || create_antag_team(/datum/team/nuclear_team)
 	if(team?.syndicate_name)  //the brain inside the syndiborg has the same last name as the other ops.
 		brainopslastname = team.syndicate_name
 	var/brainopsname = "[brainfirstname] [brainopslastname]"
@@ -158,7 +161,7 @@
 		var/mob/living/L = user.current
 		R.possess_by_player(user.current.client.key)
 		L.possess_by_player(C.key)
-	R.mind.add_antag_datum(/datum/antagonist/nuclear_operative/cyborg, /datum/team/nuclear_team)
+	R.mind.add_antag_datum(/datum/antagonist/nuclear_operative/cyborg, team)
 
 ///////////SLAUGHTER DEMON
 

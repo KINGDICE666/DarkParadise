@@ -147,7 +147,7 @@
 		var/mob/living/carbon/human/humanoid_glitch = new(mutation_target.loc)
 		humanoid_glitch.faction = mutation_target.faction.Copy()
 		humanoid_glitch.faction |= ROLE_GLITCH
-		ghost.client?.prefs.copy_to(humanoid_glitch)
+		ghost.client?.prefs.apply_prefs_to(humanoid_glitch)
 		humanoid_glitch.UpdateAppearance()
 		glitch = humanoid_glitch
 

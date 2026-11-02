@@ -7664,6 +7664,7 @@
 /obj/machinery/vending/wallmed{
 	pixel_x = 26
 	},
+/obj/machinery/ai_node/processing_node,
 /turf/simulated/floor/plasteel,
 /area/station/science/storage)
 "bAe" = (
@@ -8713,7 +8714,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/plasteel{
@@ -8807,7 +8808,7 @@
 /turf/simulated/floor/greengrid,
 /area/station/engineering/supermatter/room)
 "bMf" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -15084,7 +15085,7 @@
 	icon_state = "2-4"
 	},
 /obj/structure/window/reinforced,
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 1
 	},
@@ -20887,7 +20888,7 @@
 /turf/simulated/floor/engine,
 /area/station/science/chem_lab)
 "egx" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkblue"
@@ -22343,7 +22344,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/wood/fancy/light,
 /area/station/command/office/captain)
 "euv" = (
@@ -24635,6 +24636,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
 	},
+/obj/machinery/ai_node/network_node,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -34015,6 +34017,7 @@
 /obj/structure/table/reinforced,
 /obj/item/folder/blue,
 /obj/item/pen,
+/obj/item/ai_upgrade/ai_program_reset,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -43133,7 +43136,7 @@
 	},
 /area/station/medical/virology)
 "ijf" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "darkblue"
@@ -45040,7 +45043,7 @@
 /turf/simulated/floor/carpet/red,
 /area/station/service/bar/atrium)
 "iBc" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "darkblue"
@@ -59938,7 +59941,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/alarm/directional/east,
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "darkblue"
@@ -87274,7 +87277,7 @@
 /obj/effect/turf_decal/stripes/line{
 	dir = 4
 	},
-/obj/item/twohanded/required/kirbyplants,
+/obj/machinery/computer/ai_resource,
 /turf/simulated/floor/plasteel,
 /area/station/command/office/rd)
 "qnE" = (
@@ -97577,7 +97580,7 @@
 	},
 /area/station/maintenance/asmaint)
 "sfj" = (
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -102940,6 +102943,13 @@
 /obj/structure/filingcabinet/chestdrawer,
 /turf/simulated/floor/carpet,
 /area/station/security/detectives_office)
+"tfO" = (
+/obj/machinery/bioprinter,
+/turf/simulated/floor/plasteel{
+	dir = 9;
+	icon_state = "whiteblue"
+	},
+/area/station/medical/sleeper)
 "tfR" = (
 /obj/machinery/door/airlock/security/glass{
 	id_tag = "Perma11";
@@ -111990,7 +112000,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/alarm/directional/west,
-/obj/machinery/hologram/holopad,
+/obj/machinery/hologram/holopad/secure,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "darkblue"
@@ -170165,7 +170175,7 @@ kKO
 hhw
 cWw
 tJJ
-qUQ
+tfO
 oBk
 vFJ
 bNi

@@ -37,6 +37,7 @@
 #define COMSIG_ITEM_PRE_UNEQUIP "item_pre_unequip"
 	///only the pre unequip can be cancelled
 	#define COMPONENT_ITEM_BLOCK_UNEQUIP (1<<0)
+	#define COMPONENT_ITEM_BLOCK_UNEQUIP_FORCE (1<<1)
 ///called on [/obj/item] AFTER unequip from base of [mob/proc/do_unEquip]: (force, atom/newloc, no_move, invdrop, silent)
 #define COMSIG_ITEM_POST_UNEQUIP "item_post_unequip"
 ///from base of obj/item/dropped(): (mob/user)

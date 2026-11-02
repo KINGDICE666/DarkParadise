@@ -237,7 +237,19 @@
 	real_name = "sleeping mind"
 
 
-/mob/living/captive_brain/dreamer/say(message, verb, sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/captive_brain/dreamer/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(client?.handle_spam_prevention(message, MUTE_IC))
 		return
 
@@ -256,11 +268,11 @@
 			to_chat(observer, "<i>Thought-speech, <b>[src]</b>: [message]</i>")
 
 
-/mob/living/captive_brain/dreamer/say_understands(mob/other, datum/language/speaking = null)
+/mob/living/captive_brain/dreamer/has_language(language, flags_to_check)
 	var/mob/living/ridden = loc
 	if(!isliving(ridden))
 		return FALSE
-	return ridden.say_understands(other, speaking)
+	return ridden.has_language(language, flags_to_check)
 
 
 /mob/living/captive_brain/dreamer/resist()

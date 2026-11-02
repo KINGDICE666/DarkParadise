@@ -222,7 +222,8 @@ GLOBAL_LIST_EMPTY(rpd_pipe_list) //Some pipes we don't want to be dispensable by
 	pipe_name = "gas sensor"
 	pipe_id = PIPE_GAS_SENSOR
 	orientations = 1
-	pipe_icon = "sensor"
+	pipe_icon = "gsensor0"
+	pipe_icon_file = 'icons/obj/stationobjs.dmi'
 	pipe_category = RPD_DEVICES
 	rpd_dispensable = TRUE
 
@@ -389,6 +390,7 @@ GLOBAL_LIST_EMPTY(rpd_pipe_list) //Some pipes we don't want to be dispensable by
 /datum/pipes/atmospheric/insulated/bent
 	pipe_name = "bent insulated pipe"
 	pipe_id = PIPE_INSULATED_BENT
+	bendy = TRUE
 
 /datum/pipes/disposal/left_sortjunction
 	pipe_name = "disposals sort junction left"
@@ -453,11 +455,114 @@ GLOBAL_LIST_EMPTY(rpd_pipe_list) //Some pipes we don't want to be dispensable by
 	pipe_category = RPD_DEVICES
 	rpd_dispensable = TRUE
 
+/datum/pipes/transit
+	pipe_type = PIPETYPE_TRANSIT
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube.dmi'
+	var/construct_type
+
+/datum/pipes/transit/straight
+	pipe_name = "straight transit tube"
+	pipe_id = PIPE_TRANSIT_STRAIGHT
+	orientations = 2
+	pipe_icon = "straight"
+	construct_type = /obj/structure/c_transit_tube
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/crossing
+	pipe_name = "straight transit tube with crossing"
+	pipe_id = PIPE_TRANSIT_CROSSING
+	orientations = 2
+	pipe_icon = "crossing"
+	construct_type = /obj/structure/c_transit_tube/crossing
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/curved
+	pipe_name = "curved transit tube"
+	pipe_id = PIPE_TRANSIT_CURVED
+	orientations = 4
+	pipe_icon = "curved0"
+	construct_type = /obj/structure/c_transit_tube/curved
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/diagonal
+	pipe_name = "diagonal transit tube"
+	pipe_id = PIPE_TRANSIT_DIAGONAL
+	orientations = 2
+	pipe_icon = "diagonal"
+	construct_type = /obj/structure/c_transit_tube/diagonal
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/diagonal_crossing
+	pipe_name = "diagonal transit tube with crossing"
+	pipe_id = PIPE_TRANSIT_DIAGONAL_CROSSING
+	orientations = 2
+	pipe_icon = "diagonal_crossing"
+	construct_type = /obj/structure/c_transit_tube/diagonal/crossing
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/junction
+	pipe_name = "transit tube junction"
+	pipe_id = PIPE_TRANSIT_JUNCTION
+	orientations = 4
+	pipe_icon = "junction0"
+	construct_type = /obj/structure/c_transit_tube/junction
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/station
+	pipe_name = "through tube station"
+	pipe_id = PIPE_TRANSIT_STATION
+	orientations = 4
+	pipe_icon = "closed_station0"
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube_station.dmi'
+	construct_type = /obj/structure/c_transit_tube/station
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/terminus
+	pipe_name = "terminus tube station"
+	pipe_id = PIPE_TRANSIT_TERMINUS
+	orientations = 4
+	pipe_icon = "closed_terminus0"
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube_station.dmi'
+	construct_type = /obj/structure/c_transit_tube/station/reverse
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/dispenser_station
+	pipe_name = "through tube dispenser station"
+	pipe_id = PIPE_TRANSIT_DISPENSER_STATION
+	orientations = 4
+	pipe_icon = "open_dispenser0"
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube_station.dmi'
+	construct_type = /obj/structure/c_transit_tube/station/dispenser
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/dispenser_terminus
+	pipe_name = "terminus tube dispenser station"
+	pipe_id = PIPE_TRANSIT_DISPENSER_TERMINUS
+	orientations = 4
+	pipe_icon = "open_terminusdispenser0"
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube_station.dmi'
+	construct_type = /obj/structure/c_transit_tube/station/dispenser/reverse
+	rpd_dispensable = TRUE
+
+/datum/pipes/transit/pod
+	pipe_name = "transit tube pod"
+	pipe_id = PIPE_TRANSIT_POD
+	orientations = 1
+	pipe_icon = "pod"
+	pipe_icon_file = 'icons/obj/pipes_and_stuff/not_atmos/transit_tube_pod.dmi'
+	construct_type = /obj/structure/c_transit_tube_pod
+	rpd_dispensable = TRUE
+
 /proc/get_pipe_name(pipe_id, pipe_type)
 	for(var/datum/pipes/P in GLOB.construction_pipe_list)
 		if(P.pipe_id == pipe_id && P.pipe_type == pipe_type)
 			return P.pipe_name
 	return "unknown pipe"
+
+/proc/get_transit_tube_construct(pipe_id)
+	for(var/datum/pipes/transit/tube in GLOB.construction_pipe_list)
+		if(tube.pipe_id == pipe_id)
+			return tube.construct_type
 
 /proc/get_pipe_icon(pipe_id)
 	for(var/datum/pipes/P in GLOB.construction_pipe_list)

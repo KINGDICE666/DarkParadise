@@ -75,8 +75,11 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		ui_manifest += "[content_name]"
 	manifest += "</ul>"
 
+/datum/supply_packs/proc/get_cost()
+	return round(cost * SSshuttle.get_pack_price_modifier(), 1)
+
 /datum/supply_packs/proc/can_approve(mob/user)
-	if(SSshuttle.points < cost)
+	if(SSshuttle.points < get_cost())
 		to_chat(user, span_warning("Недостаточно очков снабжения для заказа."))
 		return FALSE
 	if(credits_cost && SSshuttle.cargo_money_account.money < credits_cost)
@@ -2695,6 +2698,20 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	group = SUPPLY_MEDICAL
 	announce_beacons = list("Medbay" = list("Medbay", "Chief Medical Officer's Desk"), "Security" = list("Brig Medbay"))
 
+
+/datum/supply_packs/medical/bioprinter
+	name = "Биопринтер органов"
+	contains = list(/obj/machinery/bioprinter)
+	cost = 150
+	containername = "ящик с биопринтером органов"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик с биопринтером органов",
+		GENITIVE = "ящика с биопринтером органов",
+		DATIVE = "ящику с биопринтером органов",
+		ACCUSATIVE = "ящик с биопринтером органов",
+		INSTRUMENTAL = "ящиком с биопринтером органов",
+		PREPOSITIONAL = "ящике с биопринтером органов",
+	)
 
 /datum/supply_packs/medical/modsuit
 	name = "Медицинские МЭК"

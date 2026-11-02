@@ -422,15 +422,14 @@
 					new_mob = new /mob/living/simple_animal/hostile/poison/terror_spider/reaper(M.loc)
 				if("destroyer")
 					new_mob = new /mob/living/simple_animal/hostile/poison/terror_spider/destroyer(M.loc)
-			new_mob.universal_speak = TRUE
+			new_mob.grant_all_languages()
 		if("КСЕНОМОРФ")
 			is_new_mind = TRUE
 			if(prob(50))
 				new_mob = new /mob/living/carbon/alien/humanoid/hunter(M.loc)
 			else
 				new_mob = new /mob/living/carbon/alien/humanoid/sentinel(M.loc)
-			new_mob.universal_speak = TRUE
-
+			new_mob.grant_all_languages()
 			briefing_msg = "Вам разрешается убивать нексеноморфов среди вас. Прежде всего вам лучше обнаружить других себеподобных и подготовить место для улья.."
 		if("ЖИВОТНОЕ")
 			is_new_mind = TRUE
@@ -455,14 +454,15 @@
 					new_mob = new /mob/living/simple_animal/hostile/retaliate/syndirat(M.loc)
 			briefing_msg = "Вы агрессивное животное, питаемое жаждой голода, вы можете совершать убийства, \
 			сбиваться в стаи или следовать своему пути одиночки, но цель всегда будет одна — утолить свой голод."
-			new_mob.universal_speak = TRUE
+			new_mob.grant_all_languages()
 		if("ЧЕЛОВЕК")
 			if(prob(50))
 				new_mob = new /mob/living/carbon/human(M.loc)
 				var/mob/living/carbon/human/H = new_mob
 				var/datum/preferences/A = new()	//Randomize appearance for the human
-				A.species = get_random_species(TRUE)
-				A.copy_to(new_mob)
+				A.write_preference(GLOB.preference_entries[/datum/preference/choiced/species], get_random_species(TRUE))
+				A.randomise_appearance_prefs()
+				A.apply_prefs_to(new_mob)
 				randomize = H.dna.species.name
 				if(ishuman(M))
 					briefing_msg = "Вы тот же самый гуманоид, с тем же сознанием и той же памятью, \

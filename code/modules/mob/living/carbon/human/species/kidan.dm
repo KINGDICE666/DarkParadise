@@ -5,9 +5,18 @@
 	name = SPECIES_KIDAN
 	name_plural = "Kidan"
 	ru_genitive = "кидана"
+	blurb = "Киданы — муравьиноподобные гуманоиды с крепким экзоскелетом и когтями. Они умеют светиться, оставлять \
+	сородичам метки-феромоны и, клацая мандибулами, нащупывать залежи руды поблизости.<br/><br/>Родина киданов — \
+	Аурум, некогда богатый жизнью мир, который промышленность и хищническая добыча ископаемых превратили в \
+	пустынную истощённую пустошь с бесплодными грязевыми равнинами.<br/><br/>Киданы живут в семьях, похожих на \
+	человеческие, но иметь больше двух детей у них считается позором — это память о пережитом голоде. Общество \
+	разделено на касты, от которых во многом зависят образование и воспитание.<br/><br/>Несмотря на плохое первое \
+	впечатление, правительство киданов, которым фактически управляет клика дворян и олигархов, поддерживает ровные \
+	отношения с остальной галактикой и нехотя соблюдает наложенные на него ограничения и санкции. Говорят киданы \
+	на хитиновом языке."
 	icobase = 'icons/mob/human_races/r_kidan.dmi'
 	deform = 'icons/mob/human_races/r_def_kidan.dmi'
-	language = LANGUAGE_KIDAN
+	species_language_holder = /datum/language_holder/kidan
 	unarmed_type = /datum/unarmed_attack/claws
 
 	inherent_traits = list(
@@ -110,7 +119,7 @@
 		"s" = list("z", "zs", "zzz", "zzsz"),
 		"с" = list("з", "зс", "ззз", "ззсз"),
 	)
-	autohiss_exempt = list("Хитин")
+	autohiss_exempt = list(/datum/language/kidan)
 
 /datum/species/kidan/get_species_runechat_color(mob/living/carbon/human/H)
 	var/obj/item/organ/internal/eyes/E = H.get_int_organ(/obj/item/organ/internal/eyes)

@@ -142,6 +142,10 @@
 #define TIMER_DEBUG
 #endif
 
+#if defined(MAP_TESTS) && !defined(DO_NOT_DEFER_ASSETS)
+#define DO_NOT_DEFER_ASSETS
+#endif
+
 #if defined(TGS_V3_API)
 // TGS performs its own build of dm.exe, but includes a prepended TGS define.
 #define CBT

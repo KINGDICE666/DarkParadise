@@ -15,7 +15,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	icon = 'icons/mob/robots.dmi'
 	icon_state = "robot"
 	bubble_icon = "robot"
-	universal_understand = TRUE
+	initial_language_holder = /datum/language_holder/synthetic/robot
 	deathgasp_on_death = TRUE
 
 	blocks_emissive = EMISSIVE_BLOCK_UNIQUE
@@ -169,8 +169,6 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
 
-	add_language(LANGUAGE_BINARY, TRUE)
-
 	ADD_TRAIT(src, TRAIT_FORCED_STANDING, INNATE_TRAIT)
 
 	wires = new(src)
@@ -301,7 +299,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 /mob/living/silicon/robot/proc/init(alien, connect_to_AI = TRUE, mob/living/silicon/ai/ai_to_sync_to = null)
 	aiCamera = new/obj/item/camera/siliconcam/robot_camera(src)
 	make_laws()
-	additional_law_channels["Binary"] = get_language_prefix(LANGUAGE_BINARY)
+	additional_law_channels["Binary"] = ":[MODE_KEY_BINARY] "
 	if(!connect_to_AI)
 		return
 
@@ -562,15 +560,13 @@ GAME_VERB_DESC(/mob/living/silicon/robot, Change_Voice, "Сменить голо
 
 	camera?.network.Remove(list("Engineering", "Medical", "Mining Outpost"))
 	rename_character(real_name, get_default_name("Default"))
-	LAZYREINITLIST(languages)
-	speech_synthesizer_langs = list()
+	remove_all_languages(LANGUAGE_MODULE)
 
 	update_icons()
 	update_headlamp()
 	robot_module_hat_offset(icon_state)
 	drop_hat()
 
-	add_language(LANGUAGE_BINARY, TRUE)
 	status_flags |= CANPUSH
 
 //for borg hotkeys, here module refers to borg inv slot, not core module
@@ -1962,7 +1958,7 @@ GAME_VERB_DESC(/mob/living/silicon/robot, toggle_own_cover, "Блокировк�
 
 /mob/living/silicon/robot/destroyer/init(alien = FALSE, connect_to_AI = TRUE, mob/living/silicon/ai/ai_to_sync_to = null)
 	aiCamera = new/obj/item/camera/siliconcam/robot_camera(src)
-	additional_law_channels["Binary"] = get_language_prefix(LANGUAGE_BINARY)
+	additional_law_channels["Binary"] = ":[MODE_KEY_BINARY] "
 	laws = new /datum/ai_laws/deathsquad
 	module = new /obj/item/robot_module/destroyer(src)
 	module.add_languages(src)

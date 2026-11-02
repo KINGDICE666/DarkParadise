@@ -74,8 +74,8 @@
 	if(dragged && button_clicked != dragged)
 		return
 
-	if(IsFrozen(A) && !is_admin(usr))
-		to_chat(usr, span_boldannounceooc("Interacting with admin-frozen players is not permitted."))
+	if(IsFrozen(A) && !is_admin(src))
+		to_chat(src, span_boldannounceooc("Interacting with admin-frozen players is not permitted."))
 		return
 
 	if(SEND_SIGNAL(src, COMSIG_MOB_CLICKON, A, modifiers) & COMSIG_MOB_CANCEL_CLICKON)
@@ -118,7 +118,7 @@
 	if(incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB))
 		return
 
-	if(is_ventcrawling(usr) && isitem(A)) // stops inventory actions in vents
+	if(is_ventcrawling(src) && isitem(A)) // stops inventory actions in vents
 		var/obj/item/item = A
 		if(item.item_flags & (IN_INVENTORY|IN_STORAGE))
 			return

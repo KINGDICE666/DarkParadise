@@ -49,6 +49,8 @@
 	desc = "It looks highly unstable; It could close at any moment."
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "anom"
+	base_icon_state = "anom"
+	fail_icon = null
 	failchance = 0
 	var/list/linked_portals
 	light_on = FALSE

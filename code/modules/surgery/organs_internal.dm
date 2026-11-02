@@ -725,6 +725,8 @@
 		extracting = organs[I]
 		if(!extracting)
 			return SURGERY_BEGINSTEP_SKIP
+		if(istype(extracting, /obj/item/organ/internal/zombietumor))
+			time = 40 SECONDS
 		user.visible_message(
 			span_notice("[user] начина[PLUR_ET_YUT(user)] извлекать [extracting.declent_ru(ACCUSATIVE)][affected ? " из [affected.declent_ru(GENITIVE)]" : ""] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
 			span_notice("Вы начинаете извлекать [extracting.declent_ru(ACCUSATIVE)][affected ? " из [affected.declent_ru(GENITIVE)]" : ""] [target], используя [tool.declent_ru(ACCUSATIVE)]."),

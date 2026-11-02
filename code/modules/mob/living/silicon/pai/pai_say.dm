@@ -1,10 +1,22 @@
-/mob/living/silicon/pai/say(message, verb = "говор[PLUR_IT_YAT(src)]", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE, ignore_emotes = FALSE)
+/mob/living/silicon/pai/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	if(QDELETED(src) || stat == DEAD)
 		return
 	if(silence_time)
 		to_chat(src, span_warning("Коммуникационные цепи всё ещё перегружены!"))
 		return
-	return ..(message)
+	return ..()
 
 /mob/living/silicon/pai/get_whisper_loc()
 	if(loc == card)			// currently in its card?

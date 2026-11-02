@@ -30,14 +30,14 @@
 
 /obj/item/organ/internal/wryn/hivenode/insert(mob/living/carbon/human/human, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
-	human.add_language(LANGUAGE_WRYN)
+	ADD_TRAIT(human, TRAIT_WRYN_HIVEMIND, UID())
 	var/obj/item/organ/external/head/head_organ = human.get_organ(BODY_ZONE_HEAD)
 
 	head_organ.h_style = hair_style
 	human.update_hair()
 
 /obj/item/organ/internal/wryn/hivenode/remove(mob/living/carbon/human/human, special = ORGAN_MANIPULATION_DEFAULT)
-	human.remove_language(LANGUAGE_WRYN)
+	REMOVE_TRAIT(human, TRAIT_WRYN_HIVEMIND, UID())
 	var/obj/item/organ/external/head/head_organ = human.get_organ(BODY_ZONE_HEAD)
 
 	head_organ.h_style = "Bald"

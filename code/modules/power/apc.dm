@@ -1047,7 +1047,7 @@
 
 	add_fingerprint(user)
 
-	if(usr == user && opened && (!issilicon(user) || istype(user.get_active_hand(), /obj/item/gripper)))
+	if(usr == user && opened && (!issilicon(user) || isrobotgripper(user.get_active_hand())))
 		if(cell)
 			user.visible_message(
 				span_warning("[user.name] removes [cell] from [src]!"),

@@ -6,10 +6,16 @@
 	icobase = 'icons/mob/human_races/r_swine.dmi'
 	deform = 'icons/mob/human_races/r_swine.dmi'
 
-	blurb = "Human-pig hybrids, Trottines were initially created for organ-harvesting \
-	operations by a long-gone corporation, before bioprinting became such a wide-spread technology. \
-	They found success in their attempt to merge human DNA with that of a pig - to make easier transplantable \
-	organs such as hearts and lungs - creating a more humanlike being than anticipated."
+	blurb = "Троттины — свиноподобные гуманоиды, которых люди вывели как доноров органов. Они крепче людей, легче переносят \
+	жару, холод и перепады давления, сильнее бьют оружием ближнего боя и почти не замедляются от тяжёлого \
+	снаряжения, но ходят медленнее, втрое быстрее голодают и неуклюже карабкаются.<br/><br/>В конце XXIV века \
+	корпорация, чьё название в документах вымарано, пыталась вывести из домашней свиньи организм, органы которого \
+	можно безопасно пересаживать людям. Эксперимент пошёл не по плану: вместо неразумных доноров получились \
+	существа, анатомически и интеллектуально близкие к людям.<br/><br/>Когда сведения о проекте всплыли, \
+	правозащитники добились признания троттинов полноценными личностями. Тем не менее многие корпорации до сих пор \
+	видят в них дешёвую и выносливую рабочую силу.<br/><br/>Единого родного мира, государства или языка у \
+	троттинов нет: их сообщества рассеяны по человеческому космосу. Больше всего они ценят кулинарию — умение \
+	накормить большую общину приносит уважение не меньше, чем богатство или должность."
 
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,

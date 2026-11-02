@@ -280,11 +280,13 @@
 
 	stop(playback_override = TRUE)
 
-/obj/item/taperecorder/hear_talk(mob/living/M, list/message_pieces)
+/obj/item/taperecorder/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range)
 	. = ..()
-	var/msg = multilingual_to_message(message_pieces)
-	if(!mytape || !recording)
+	if(!mytape || !recording || !isliving(speaker))
 		return
+
+	var/mob/living/M = speaker
+	var/msg = raw_message
 
 	var/ending = copytext(msg, length(msg))
 	mytape.timestamp += mytape.used_capacity

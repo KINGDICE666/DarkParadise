@@ -18,7 +18,7 @@ GLOBAL_LIST_EMPTY(parasites)
 	speed = 0
 	can_change_intents = 0
 	stop_automated_movement = 1
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	attack_sound = 'sound/weapons/punch1.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	attacktext = "бьёт"

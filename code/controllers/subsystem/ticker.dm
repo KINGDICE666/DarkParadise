@@ -250,7 +250,7 @@ SUBSYSTEM_DEF(ticker)
 		if(!P.ready)
 			continue
 		// Not set to return if nothing available
-		if(P.client.prefs.alternate_option != RETURN_TO_LOBBY)
+		if(P.client.prefs.read_preference(/datum/preference/choiced/alternate_option) != RETURN_TO_LOBBY)
 			continue
 
 		var/has_antags = (length(P.client.prefs.be_special) > 0)
@@ -404,10 +404,6 @@ SUBSYSTEM_DEF(ticker)
 	// Sets the auto shuttle vote to happen after the config duration
 	next_autotransfer = world.time + CONFIG_GET(number/vote_autotransfer_initial)
 
-	for(var/mob/new_player/N in GLOB.mob_list)
-		if(N.client)
-			SStitle.show_title_screen_to(N.client) // New Title Screen
-
 	#ifdef TEST_RUNNER
 	GLOB.test_runner.RunAll()
 	#endif
@@ -472,6 +468,15 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/proc/station_explosion_cinematic(station_missed = 0, override = null)
 	auto_toggle_ooc(TRUE) // Turn it on
+	if(override == CLOWN_NUKE)
+		switch(station_missed)
+			if(1)
+				play_cinematic(/datum/cinematic/nuke/ops_miss, world)
+			if(2)
+				play_cinematic(/datum/cinematic/nuke/fake, world)
+			else
+				play_cinematic(/datum/cinematic/nuke/clown, world)
+		return
 
 	if(!station_missed)	//nuke kills everyone on z-level 1 to prevent "hurr-durr I survived"
 		for(var/mob/M in GLOB.mob_list)

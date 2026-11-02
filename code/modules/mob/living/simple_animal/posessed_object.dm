@@ -10,7 +10,7 @@
 	healable = FALSE			// Animated with SPACE NECROMANCY, mere mortal medicines cannot heal such an object.
 	wander = 0				// These things probably ought to never be AI controlled, but in the event they are probably shouldn't wander.
 
-	universal_speak = 1		// Tell the humans spooky things about the afterlife
+	initial_language_holder = /datum/language_holder/universal
 	speak_emote = list("бормочет", "стонет", "шепчет", "визжит")
 	tts_seed = "Sylvanas"
 

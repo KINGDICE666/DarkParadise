@@ -58,12 +58,11 @@
 	if(prob(2))
 		to_chat(owner, span_hypnophrase("<i>...[lowertext(hypnotic_phrase)]...</i>"))
 
-/datum/brain_trauma/hypnosis/handle_hearing(datum/source, mob/speaker, list/message_pieces)
-	if(!target_phrase || HAS_TRAIT(owner, TRAIT_DEAF) || owner == speaker)
+/datum/brain_trauma/hypnosis/handle_hearing(datum/source, list/hearing_args)
+	if(!target_phrase || HAS_TRAIT(owner, TRAIT_DEAF) || owner == hearing_args[HEARING_SPEAKER])
 		return
 
-	for(var/datum/multilingual_say_piece/piece in message_pieces)
-		piece.message = target_phrase.Replace(piece.message, span_hypnophrase("$1"))
+	hearing_args[HEARING_RAW_MESSAGE] = target_phrase.Replace(hearing_args[HEARING_RAW_MESSAGE], span_hypnophrase("$1"))
 
 /atom/movable/screen/alert/hypnosis
 	name = "Гипноз"

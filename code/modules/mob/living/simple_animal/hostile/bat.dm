@@ -59,5 +59,5 @@
 	health = 300
 	melee_damage_upper = 30
 	pass_flags = PASSTABLE
-	universal_speak = 1
+	initial_language_holder = /datum/language_holder/universal
 	gold_core_spawnable = NO_SPAWN //badmin only

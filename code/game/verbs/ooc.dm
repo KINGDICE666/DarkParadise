@@ -6,7 +6,7 @@ GLOBAL_VAR_INIT(moderator_ooc_colour, "#184880")
 GLOBAL_VAR_INIT(admin_ooc_colour, "#b82e00")
 GLOBAL_VAR_INIT(discord_ooc_colour, "#7289DA")
 
-GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/nGDfQuScM7", "github.com/KINGDICE666", "boosty.to/king_dice"))
+GLOBAL_LIST_INIT(ooc_allowed_links, list("discord.gg/5N55TJgTa9", "discord.com/invite/5N55TJgTa9", "github.com/KINGDICE666", "boosty.to/king_dice"))
 
 /proc/has_allowed_ooc_link(msg)
 	for(var/allowed_link in GLOB.ooc_allowed_links)
@@ -76,7 +76,7 @@ GAME_VERB(/client, ooc, VERB_OOC, VERB_CATEGORY_OOC)
 			display_colour = GLOB.moderator_ooc_colour
 		else if(check_rights(R_ADMIN, FALSE))
 			if(CONFIG_GET(flag/allow_admin_ooccolor))
-				display_colour = src.prefs.ooccolor
+				display_colour = src.prefs.read_preference(/datum/preference/color/ooc_color)
 			else
 				display_colour = GLOB.admin_ooc_colour
 		else if(check_rights(R_VIEWRUNTIMES, FALSE))

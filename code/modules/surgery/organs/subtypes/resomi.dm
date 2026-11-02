@@ -33,15 +33,26 @@
 	species_type = /datum/species/resomi
 	name = "resomi ears"
 	desc = "Слуховой аппарат резоми, управляющий всеми четырьмя внешними ушными раковинами."
+	actions_types = list(/datum/action/item_action/organ_action/resomi_listen)
 
 /obj/item/organ/internal/ears/resomi/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(.)
-		ADD_TRAIT(target, TRAIT_GOOD_HEARING, UNIQUE_TRAIT_SOURCE(src))
+		target.add_traits(list(TRAIT_GOOD_HEARING, TRAIT_WEAK_EARS), UNIQUE_TRAIT_SOURCE(src))
 
 /obj/item/organ/internal/ears/resomi/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
-	REMOVE_TRAIT(target, TRAIT_GOOD_HEARING, UNIQUE_TRAIT_SOURCE(src))
+	target.remove_traits(list(TRAIT_GOOD_HEARING, TRAIT_WEAK_EARS), UNIQUE_TRAIT_SOURCE(src))
+	target.remove_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
 	return ..()
+
+/obj/item/organ/internal/ears/resomi/ui_action_click(mob/user, datum/action/action, leftclick)
+	if(owner.has_status_effect(STATUS_EFFECT_RESOMI_LISTENING))
+		owner.remove_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
+		return
+	if(HAS_TRAIT(owner, TRAIT_DEAF))
+		owner.balloon_alert(owner, "вы ничего не слышите!")
+		return
+	owner.apply_status_effect(STATUS_EFFECT_RESOMI_LISTENING)
 
 /obj/item/organ/internal/ears/resomi/get_ru_names()
 	return alist(
@@ -147,3 +158,29 @@
 		INSTRUMENTAL = "хвостом резоми",
 		PREPOSITIONAL = "хвосте резоми",
 	)
+
+/datum/action/item_action/organ_action/resomi_listen
+	name = "Прислушаться"
+	desc = "Замедлиться и вслушаться в окружение: движение существ, упавшие предметы и прочие звуки за стенами и в темноте отмечаются на экране."
+	button_icon_state = "resomi_listen"
+
+#define RESOMI_LISTEN_WAVE_START_SCALE 0.1
+#define RESOMI_LISTEN_WAVE_END_SCALE 5
+
+/obj/effect/temp_visual/sonar_ping/listen_wave
+	real_icon_state = "circle_wave"
+	duration = 1 SECONDS
+
+/obj/effect/temp_visual/sonar_ping/listen_wave/Initialize(mapload, mob/living/looker, atom/center)
+	. = ..()
+	if(. == INITIALIZE_HINT_QDEL)
+		return
+	modsuit_image.icon = 'icons/effects/64x64.dmi'
+	modsuit_image.pixel_w = -(ICON_SIZE_X / 2)
+	modsuit_image.pixel_z = -(ICON_SIZE_Y / 2)
+	modsuit_image.color = COLOR_CYAN
+	modsuit_image.transform = matrix().Scale(RESOMI_LISTEN_WAVE_START_SCALE)
+	animate(modsuit_image, transform = matrix().Scale(RESOMI_LISTEN_WAVE_END_SCALE), alpha = 0, time = duration, easing = SINE_EASING | EASE_OUT)
+
+#undef RESOMI_LISTEN_WAVE_START_SCALE
+#undef RESOMI_LISTEN_WAVE_END_SCALE

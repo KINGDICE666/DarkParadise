@@ -144,7 +144,7 @@
 		return
 
 	to_chat(user, "Вы упоённо пролистываете страницы книги, впитывая в себя знания всех существующих языков во Вселенной. К сожалению, [declent_ru(NOMINATIVE)] не выдерживает такого напора и рассыпается в прах. Ой...")
-	user.grant_all_babel_languages()
+	user.grant_all_babel_languages(source = LANGUAGE_BABEL)
 	new /obj/effect/decal/cleanable/ash(get_turf(user))
 	user.temporarily_remove_item_from_inventory(src)
 	qdel(src)

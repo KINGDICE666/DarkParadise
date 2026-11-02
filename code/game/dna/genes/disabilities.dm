@@ -104,7 +104,7 @@
 			if(1)
 				H.emote("twitch")
 			if(2 to 3)
-				INVOKE_ASYNC(H, TYPE_PROC_REF(/mob, say), "[prob(50) ? ";" : ""][pick("ГОВНО", "МОЧА", "БЛЯТЬ", "ПИЗДА", "ХУЕСОС", "ВЫБЛЯДОК", "ХУЙ", "ХОС ХУЕСОС", "СУКА", "ПОШЁЛ НАХУЙ", "ХЕРНЯ", "КОКПИТАН", "ДОЛБАЁБ", "ЕБЛЯ", "НАМ ПИЗДА")]")
+				INVOKE_ASYNC(H, TYPE_PROC_REF(/atom/movable, say), "[prob(50) ? ";" : ""][pick("ГОВНО", "МОЧА", "БЛЯТЬ", "ПИЗДА", "ХУЕСОС", "ВЫБЛЯДОК", "ХУЙ", "ХОС ХУЕСОС", "СУКА", "ПОШЁЛ НАХУЙ", "ХЕРНЯ", "КОКПИТАН", "ДОЛБАЁБ", "ЕБЛЯ", "НАМ ПИЗДА")]")
 		var/x_offset_old = H.pixel_x
 		var/y_offset_old = H.pixel_y
 		var/x_offset = H.pixel_x + rand(-2, 2)
@@ -324,32 +324,11 @@
 
 /datum/dna/gene/disability/aphasia/activate(mob/living/carbon/human/human, flags)
 	. = ..()
-	RegisterSignal(human, COMSIG_LIVING_EARLY_SAY, PROC_REF(check_speaking))
+	human.add_blocked_language(blacklisted_languages_types, SPOKEN_LANGUAGE, LANGUAGE_DNA)
 
 /datum/dna/gene/disability/aphasia/deactivate(mob/living/carbon/human/human, flags)
 	. = ..()
-	UnregisterSignal(human, COMSIG_LIVING_EARLY_SAY)
-
-/datum/dna/gene/disability/aphasia/proc/check_speaking(
-	mob/living/carbon/human/source,
-	message,
-	verb,
-	ignore_speech_problems,
-	ignore_atmospherics,
-	ignore_languages,
-	datum/multilingual_say_piece/lang_piece,
-)
-	SIGNAL_HANDLER
-
-	if(!lang_piece?.speaking)
-		return
-
-	if(!is_type_in_list(lang_piece.speaking, blacklisted_languages_types))
-		return
-
-	to_chat(source, span_notice("Вы пытаетесь что-то сказать, но не можете произнести ни слова на этом языке."))
-
-	return COMPONENT_PREVENT_SPEAKING
+	human.remove_blocked_language(blacklisted_languages_types, SPOKEN_LANGUAGE, LANGUAGE_DNA)
 
 /datum/dna/gene/disability/catears
 	name = "Кошачьи уши"

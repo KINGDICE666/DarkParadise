@@ -5,7 +5,12 @@ GLOBAL_LIST_EMPTY(cached_heal_materials)
 
 /datum/species/golem
 	name = SPECIES_GOLEM_BASIC
+	species_language_holder = /datum/language_holder/golem
 	name_plural = "Golems"
+	blurb = "Големы — живые статуи из минералов. Они очень прочны, не дышат, не чувствуют боли и не боятся радиации, но \
+	медлительны и не могут стрелять. Остальные свойства голема зависят от материала, из которого он \
+	создан.<br/><br/>Оболочки големов находят и оживляют шахтёры, а сам голем при пробуждении обычно служит своему \
+	создателю. Свободные големы нередко объединяются в поселения и посвящают себя исследованиям."
 
 	icobase = 'icons/mob/human_races/r_golem.dmi'
 	deform = 'icons/mob/human_races/r_golem.dmi'
@@ -629,8 +634,8 @@ GLOBAL_LIST_EMPTY(cached_heal_materials)
 	name = SPECIES_GOLEM_ALLOY
 	golem_colour = rgb(51, 51, 51)
 	skinned_type = /obj/item/stack/sheet/mineral/abductor
-	language = LANGUAGE_HIVE_GOLEM
-	default_language = LANGUAGE_HIVE_GOLEM
+	species_language_holder = /datum/language_holder/understand_all
+	default_saymode = /datum/saymode/hivemind/golem
 	speed_mod = 1 // Faster
 	prefix = "Инопланетн"
 	special_names = list(
@@ -658,14 +663,13 @@ GLOBAL_LIST_EMPTY(cached_heal_materials)
 	if(update)
 		human.updatehealth()
 
-/datum/species/golem/alloy/can_understand(mob/other) // Can understand everyone, but they can only speak over their mindlink
-	return TRUE
-
 /datum/species/golem/alloy/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
-	LAZYREINITLIST(H.languages)
-	H.add_language(LANGUAGE_HIVE_GOLEM)
-	H.add_language(LANGUAGE_GREY) // Still grey enouhg to speak in psi link
+	H.add_traits(list(TRAIT_GOLEM_HIVEMIND, TRAIT_GREY_TELEPATHY), SPECIES_TRAIT)
+
+/datum/species/golem/alloy/on_species_loss(mob/living/carbon/human/H)
+	. = ..()
+	H.remove_traits(list(TRAIT_GOLEM_HIVEMIND, TRAIT_GREY_TELEPATHY), SPECIES_TRAIT)
 
 /datum/species/golem/alloy/get_heal_material_types()
 	return list(
@@ -1293,7 +1297,7 @@ GLOBAL_LIST_EMPTY(cached_heal_materials)
 
 /datum/species/golem/clockwork/on_species_gain(mob/living/carbon/human/H)
 	. = ..()
-	if(!isclocker(H))
+	if(H.mind && !isclocker(H))
 		SSticker.mode.add_clocker(H.mind)
 
 /datum/species/golem/clockwork/handle_death(gibbed, mob/living/carbon/human/H)

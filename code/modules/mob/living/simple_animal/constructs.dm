@@ -19,7 +19,7 @@
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	faction = list("cult")
 	pressure_resistance = 100
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	AIStatus = AI_OFF //normal constructs don't have AI
 	loot = list(/obj/item/reagent_containers/food/snacks/ectoplasm)
 	del_on_death = TRUE

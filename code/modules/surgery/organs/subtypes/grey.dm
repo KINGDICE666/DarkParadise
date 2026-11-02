@@ -36,10 +36,10 @@
 
 /obj/item/organ/internal/brain/grey/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
-	M.add_language(LANGUAGE_GREY)
+	ADD_TRAIT(M, TRAIT_GREY_TELEPATHY, UID())
 
 /obj/item/organ/internal/brain/grey/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
-	M.remove_language(LANGUAGE_GREY)
+	REMOVE_TRAIT(M, TRAIT_GREY_TELEPATHY, UID())
 	. = ..()
 
 /obj/item/organ/internal/eyes/grey

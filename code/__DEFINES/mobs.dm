@@ -473,9 +473,6 @@ GLOBAL_LIST_INIT(ru_species, list(
 #define TOX_VOMIT_THRESHOLD_REACHED(mob, toxloss) (mob.getToxLoss() >= toxloss)
 #define TOX_VOMIT_REQUIRED_TOXLOSS 45
 
-/// For babylon fever disease.
-#define DISEASE_MOB_LANGUAGE_PROCESSED (1<<0)
-
 /// Eyes examine time mod
 #define EXAMINE_INSTANT 0 // 0 seconds
 

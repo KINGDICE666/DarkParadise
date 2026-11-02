@@ -1,6 +1,7 @@
 #define REGENERATION_DELAY 20  // After taking damage, how long it takes for automatic regeneration to begin for megacarps (ty robustin!)
 
 /mob/living/simple_animal/hostile/carp
+	initial_language_holder = /datum/language_holder/carp
 	name = "space carp"
 	desc = "Свирепое, клыкастое существо, похожее на рыбу."
 	icon = 'icons/mob/carp.dmi'
@@ -138,6 +139,7 @@
 	)
 
 /mob/living/simple_animal/hostile/carp/megacarp
+	initial_language_holder = /datum/language_holder/carp/hear_common
 	name = "Mega Space Carp"
 	desc = "Свирепое, клыкастое существо, напоминающее акулу. Похоже, оно особенно озлоблено."
 	icon = 'icons/mob/alienqueen.dmi'

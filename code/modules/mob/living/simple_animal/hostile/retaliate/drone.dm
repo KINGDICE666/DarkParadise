@@ -6,7 +6,7 @@
 	icon_state = "drone3"
 	icon_living = "drone3"
 	icon_dead = "drone_dead"
-	universal_speak = TRUE
+	initial_language_holder = /datum/language_holder/universal
 	ranged = 1
 	rapid = 3
 	retreat_distance = 3

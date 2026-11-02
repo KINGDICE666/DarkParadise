@@ -23,7 +23,7 @@ GLOBAL_LIST_INIT(random_color_list, list("#00aedb","#a200ff","#f47835","#d41243"
 		vol_counter += vol_temp
 
 		if(isnull(color))
-			color = reagent.color
+			color = reagent_color
 		else if(length(color) >= length(reagent_color))
 			color = BlendRGB(color, reagent_color, vol_temp/vol_counter)
 		else

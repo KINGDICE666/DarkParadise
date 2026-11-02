@@ -284,7 +284,7 @@
 		return FALSE
 
 	var/mob/living/carbon/human/traitor_mob = owner.current
-	var/uplink_pref = traitor_mob.client?.prefs?.uplink_pref
+	var/uplink_pref = traitor_mob.client?.prefs?.read_preference(/datum/preference/choiced/uplink_location)
 	if(!uplink_pref)
 		uplink_pref = PREF_UPLINK_PDA
 

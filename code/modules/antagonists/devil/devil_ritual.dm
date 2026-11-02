@@ -50,7 +50,7 @@
 /datum/ritual/devil/imp/proc/improve_imp(mob/living/simple_animal/imp/imp, mob/living/carbon/invoker)
 	var/datum/antagonist/devil/devil = invoker.mind?.has_antag_datum(/datum/antagonist/devil)
 
-	imp.universal_speak = TRUE
+	imp.grant_all_languages()
 	imp.sentience_act()
 
 	imp.mind.store_memory("Я подчиняюсь призывателю [imp.master_commander.name], также известному как [devil.info.truename].")

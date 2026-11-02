@@ -1006,7 +1006,7 @@
 		examine(user)
 
 /obj/machinery/hydroponics/attack_hand(mob/user)
-	if(issilicon(user) && !istype(user.get_active_hand(), /obj/item/gripper))
+	if(issilicon(user) && !isrobotgripper(user.get_active_hand()))
 		return
 
 	attempt_harvest(user)

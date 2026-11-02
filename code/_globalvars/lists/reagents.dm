@@ -47,6 +47,7 @@ GLOBAL_LIST_INIT(blocked_chems, list( \
 	"envenomed_filaments", "lexorin_jelly", "kinetic",
 	"cryogenic_liquid", "dark_matter", "b_sorium",
 	"reagent", "life","dragonsbreath", "nanocalcium", "bungotoxin", "fruit_wine",
+	"zombiecure1", "zombiecure2", "zombiecure3", "zombiecure4",
 ))
 
 GLOBAL_LIST_INIT(safe_chem_list, list( \

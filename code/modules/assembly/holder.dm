@@ -135,14 +135,6 @@
 	if(a_right)
 		a_right.on_found(finder)
 
-/obj/item/assembly_holder/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
-
-	if(a_left)
-		a_left.hear_talk(M, message_pieces)
-	if(a_right)
-		a_right.hear_talk(M, message_pieces)
-
 /obj/item/assembly_holder/hear_message(mob/living/M, msg)
 	if(a_left)
 		a_left.hear_message(M, msg)
@@ -170,10 +162,7 @@
 
 /obj/item/assembly_holder/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum) // called when a throw stops
 	..()
-	var/triggered
-	if(throwing?.thrower)
-		triggered = throwing.thrower
-	process_movement(triggered)
+	process_movement(throwing?.get_thrower())
 
 /obj/item/assembly_holder/attack_hand(mob/user)//Perhapse this should be a holder_pickup proc instead, can add if needbe I guess
 	if(a_left && a_right)

@@ -1,4 +1,16 @@
-/mob/dead/observer/say(message)
+/mob/dead/observer/say(
+	message,
+	bubble_type,
+	list/spans = list(),
+	sanitize = TRUE,
+	datum/language/language,
+	ignore_spam = FALSE,
+	forced,
+	filterproof = FALSE,
+	message_range = 7,
+	datum/saymode/saymode,
+	list/message_mods = list(),
+)
 	message = sanitize(copytext_char(message, 1, MAX_MESSAGE_LEN))
 
 	if(!message)
@@ -7,18 +19,18 @@
 	client?.check_say_flood(5)
 	return say_dead(message)
 
-/mob/dead/observer/handle_track(message, verb = "говор%(ит,ят)%", atom/movable/speaker = null, speaker_name, atom/follow_target, hard_to_hear)
+/mob/dead/observer/compose_track_href(atom/movable/speaker, speaker_name, radio_freq, list/message_mods)
+	var/atom/movable/virtualspeaker/virtual_speaker = speaker
+	var/atom/follow_target = istype(virtual_speaker) ? (virtual_speaker.follow_target || virtual_speaker.source) : speaker
 	return "([ghost_follow_link(follow_target, ghost = src)])"
 
-/mob/dead/observer/handle_speaker_name(atom/movable/speaker = null, vname, hard_to_hear, check_name_against)
+/mob/dead/observer/compose_name(atom/movable/speaker, radio_freq, list/message_mods)
 	var/speaker_name = ..()
-	if(!speaker || !ismob(speaker))
+	var/mob/speaker_mob = speaker.GetSource() || speaker
+	if(!istype(speaker_mob) || isAI(speaker_mob))
 		return speaker_name
-	var/mob/speaker_mob = speaker
-	if(isAI(speaker_mob))
-		//AI's can't pretend to be other mobs.
+	var/atom/movable/virtualspeaker/virtual_speaker = speaker
+	var/shown_name = istype(virtual_speaker) ? (virtual_speaker.check_name || speaker_name) : speaker_name
+	if(!speaker_mob.real_name || shown_name == speaker_mob.real_name)
 		return speaker_name
-	if(!check_name_against || check_name_against == speaker_mob.real_name)
-		return speaker_name
-	speaker_name = "[speaker_mob.real_name] ([speaker_name])"
-	return speaker_name
+	return "[speaker_mob.real_name] ([speaker_name])"

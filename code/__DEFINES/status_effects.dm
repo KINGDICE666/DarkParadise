@@ -212,6 +212,8 @@
 
 #define STATUS_EFFECT_DROPNROLL /datum/status_effect/stop_drop_roll
 
+#define STATUS_EFFECT_RESOMI_LISTENING /datum/status_effect/resomi_listening
+
 #define STATUS_EFFECT_HELD_UP /datum/status_effect/grouped/heldup
 #define STATUS_EFFECT_HOLDUP /datum/status_effect/holdup
 

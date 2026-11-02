@@ -1,5 +1,6 @@
 /// Natural blood regeneration size (units per 2 sec)
 #define BLOOD_REGENERATION 0.1
+#define HYPERMETABOLIC_BLOOD_DOUBLE_REGEN_PROB 50
 
 // Blood level damage constants
 /// Damage for blood volume from BLOOD_VOLUME_PALE to BLOOD_VOLUME_SAFE
@@ -84,6 +85,8 @@ SUBSYSTEM_DEF(blood)
 	if(target.get_blood_volume(apply_modifiers = TRUE) >= BLOOD_VOLUME_NORMAL)
 		return // already max blood in body
 	var/regen_mod = calculate_reagents_regen_mod(target)
+	if(HAS_TRAIT(target, TRAIT_HYPERMETABOLIC_BLOOD) && prob(HYPERMETABOLIC_BLOOD_DOUBLE_REGEN_PROB))
+		regen_mod *= 2
 	target.AdjustBlood(BLOOD_REGENERATION * regen_mod)
 
 /datum/controller/subsystem/blood/proc/calculate_reagents_regen_mod(mob/living/carbon/human/target)
@@ -260,6 +263,7 @@ SUBSYSTEM_DEF(blood)
 	new /obj/effect/temp_visual/dir_setting/bloodsplatter(get_turf(target), rand(0, 360), splatter_color)
 
 #undef BLOOD_REGENERATION
+#undef HYPERMETABOLIC_BLOOD_DOUBLE_REGEN_PROB
 #undef BLOOD_PALE_DAMAGE
 #undef BLOOD_OKAY_DAMAGE
 #undef BLOOD_BAD_DAMAGE

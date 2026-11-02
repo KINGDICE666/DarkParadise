@@ -39,7 +39,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 	var/datum/announcement_configuration/config
 	/// The name used to sign off on announcements.
 	var/author
-	var/language = LANGUAGE_GALACTIC_COMMON
+	var/datum/language/language = /datum/language/common
 
 /datum/announcer/New(config_type = null)
 	config = config_type ? new config_type : new
@@ -72,7 +72,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 	if(!msg_sanitized)
 		message = html_encode(message)
 
-	var/datum/language/message_language = GLOB.all_languages[msg_language ? msg_language : language]
+	var/datum/language/message_language = GLOB.language_datum_instances[msg_language || language]
 
 	var/list/combined_receivers = get_receivers(message_language)
 	var/list/receivers = combined_receivers[1]
@@ -80,9 +80,9 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 
 	var/formatted_message = format(message, title, subtitle, color_override)
 	var/garbled_formatted_message = format(
-		message_language.scramble(message),
-		message_language.scramble(title),
-		message_language.scramble(subtitle),
+		message_language.scramble_paragraph(message),
+		message_language.scramble_paragraph(title),
+		subtitle && message_language.scramble_paragraph(subtitle),
 		color_override
 	)
 
@@ -109,7 +109,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 		for(var/mob/mob as anything in GLOB.player_list)
 			if(!isnewplayer(mob) && mob.client)
 				receivers |= mob
-			if(!mob.say_understands(null, message_language))
+			if(mob.stat != DEAD && !mob.has_language(message_language.type))
 				receivers -= mob
 				garbled_receivers |= mob
 	else
@@ -119,7 +119,7 @@ GLOBAL_DATUM_INIT(major_announcement, /datum/announcer, new(config_type = /datum
 			if(!istype(mob) || !mob.client || mob.stat || HAS_TRAIT(mob, TRAIT_DEAF))
 				receivers -= mob
 				continue
-			if(!mob.say_understands(null, message_language))
+			if(!mob.has_language(message_language.type))
 				receivers -= mob
 				garbled_receivers |= mob
 		for(var/mob/mob as anything in GLOB.dead_mob_list)

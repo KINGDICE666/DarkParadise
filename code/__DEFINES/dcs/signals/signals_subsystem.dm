@@ -6,5 +6,7 @@
 
 #define COMSIG_TICKER_GAME_STATE_CHANGED "ticker_game_state_changed"
 
+#define COMSIG_TITLE_NOTICE_CHANGED "title_notice_changed"
+
 /// Called when the round has started, but before GAME_STATE_PLAYING.
 #define COMSIG_TICKER_ROUND_STARTING "comsig_ticker_round_starting"

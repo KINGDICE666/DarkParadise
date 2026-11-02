@@ -490,7 +490,7 @@
 	return list("Soviet Tourist","Soviet Conscript","Soviet Soldier","Soviet Officer","Soviet Marine","Soviet Marine Captain","Soviet Admiral","Soviet General","Soviet Engineer","Soviet Scientist","Soviet Medic")
 
 /proc/get_all_special_jobs()
-	return list("Special Reaction Team Member", "HONKsquad", "Clown Security")
+	return list("Special Reaction Team Member", "HONKsquad", "Clown Security", JOB_TITLE_CLOWN_OPERATIVE, JOB_TITLE_CLOWN_OPERATIVE_LEADER)
 
 /proc/GetIdCard(mob/living/carbon/human/H)
 	if(H.wear_id)
@@ -542,6 +542,8 @@
 				return "honksquad"
 			if("Clown Security")
 				return "clownsecurity"
+			if(JOB_TITLE_CLOWN_OPERATIVE, JOB_TITLE_CLOWN_OPERATIVE_LEADER)
+				return "clownop"
 		return rankName
 
 	if(rankName in job_icons) //Check if the job has a hud icon

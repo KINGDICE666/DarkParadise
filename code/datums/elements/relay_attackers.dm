@@ -88,7 +88,7 @@
 	if(!hit_item.throwforce)
 		return
 
-	var/mob/thrown_by = throwingdatum?.thrower
+	var/mob/thrown_by = throwingdatum?.get_thrower()
 	if(!ismob(thrown_by))
 		return
 

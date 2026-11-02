@@ -100,6 +100,10 @@
 	slaved.leave_serv_hud(owner)
 	owner.som = null
 
+/datum/antagonist/mindslave/necromancy
+	name = "Necromancy-risen Thrall"
+	master_hud_icon = "wizard"
+
 // Helper proc that determines if a mob is a mindslave.
 /proc/ismindslave(mob/living/carbon/human/slave)
 	return istype(slave) && slave.mind?.has_antag_datum(/datum/antagonist/mindslave, FALSE)

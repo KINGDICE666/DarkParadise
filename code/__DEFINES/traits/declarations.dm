@@ -103,6 +103,7 @@
 
 /// Not a genetic obesity but just a mob who overate
 #define	TRAIT_FAT "trait_fat"
+#define TRAIT_FEELING_AROUND "feeling_around"
 #define TRAIT_HUSK "husk"
 #define TRAIT_SKELETON "skeleton"
 #define TRAIT_NO_CLONE "no_clone"
@@ -245,6 +246,7 @@
 #define TRAIT_ADVANCED_SURGICAL "advanced_surgical"
 /// This trait makes it so that an item literally cannot be removed at all, or at least that's how it should be. Only deleted.
 #define TRAIT_NODROP "nodrop"
+#define TRAIT_BIOPRINTED_ORGAN "bioprinted_organ"
 /// Applied with attachment to the cyberimplant when it is inserted in mob with TRAIT_ADVANCED_CYBERIMPLANTS
 #define TRAIT_CYBERIMP_IMPROVED "cyberimp_improved"
 /// This item will not be cloned in the experimentator
@@ -277,6 +279,7 @@
 #define TRAIT_XRAY "xray"
 #define TRAIT_HULK "hulk"
 #define TRAIT_CLUMSY "clumsy"
+#define TRAIT_NAIVE "naive"
 #define TRAIT_OBESITY "obesity"
 #define TRAIT_NO_BREATH "no_breath"
 #define TRAIT_WINGDINGS "wingdings"
@@ -324,6 +327,18 @@
 #define TRAIT_NOHARDCRIT "nohardcrit"
 #define TRAIT_SMALL_MOB "small_mob"
 #define TRAIT_GOOD_HEARING "good_hearing"
+#define TRAIT_ABDUCTOR_HIVEMIND "abductor_hivemind"
+#define TRAIT_BORER_HIVEMIND "borer_hivemind"
+#define TRAIT_CHANGELING_HIVEMIND "changeling_hivemind"
+#define TRAIT_DRONE_BINARY "drone_binary"
+#define TRAIT_EVENTLING_HIVEMIND "eventling_hivemind"
+#define TRAIT_GOLEM_HIVEMIND "golem_hivemind"
+#define TRAIT_GREY_TELEPATHY "grey_telepathy"
+#define TRAIT_SHADOWLING_HIVEMIND "shadowling_hivemind"
+#define TRAIT_SWARMER_HIVEMIND "swarmer_hivemind"
+#define TRAIT_TERRORSPIDER_HIVEMIND "terrorspider_hivemind"
+#define TRAIT_WRYN_HIVEMIND "wryn_hivemind"
+#define TRAIT_XENO_HIVEMIND "xeno_hivemind"
 /// Another biotype thing
 #define TRAIT_PLANT_ORIGIN "plant_origin"
 /// Another damn biotype
@@ -344,6 +359,14 @@
 #define TRAIT_NO_DECAY "no_decay"
 /// This human mob will not be affected by piercing, such as caltrops, prickles, needles etc.
 #define TRAIT_PIERCEIMMUNE "pierce_immunity"
+#define TRAIT_HYPERMETABOLIC_BLOOD "hypermetabolic_blood"
+#define TRAIT_HIGH_PAIN_THRESHOLD "high_pain_threshold"
+#define TRAIT_I_WANT_BRAINS "mob_zombie"
+#define TRAIT_NON_INFECTIOUS_ZOMBIE "non_infectious_zombie"
+#define TRAIT_PLAGUE_ZOMBIE "plague_zombie"
+#define TRAIT_NPC_ZOMBIE "npc_zombie"
+#define TRAIT_I_WANT_BRAINS_ORGAN "zombie_organ"
+#define TRAIT_ABSTRACT_HANDS "abstract_hands"
 /// This human mob will not be affected by embedding of the thrown items
 #define TRAIT_EMBEDIMMUNE "embed_immunity"
 /// This human mob will not be affected by fracture effects

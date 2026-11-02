@@ -98,6 +98,7 @@ Please contact me on #coderbus IRC. ~Carn x
 */
 
 GLOBAL_LIST_EMPTY(damage_icon_parts)
+GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 
 //DAMAGE OVERLAYS
 //constructs damage icon for each organ from mask * damage field and saves it in our overlays_ lists
@@ -341,6 +342,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/icon/head_accessory_s = icon(head_accessory.icon, "[head_accessory.icon_state]_s")
 	if(head_accessory.do_colouration)
 		head_accessory_s.Blend(head_organ.headacc_colour, ICON_ADD)
+	apply_zombie_tone(head_accessory_s)
 	//head_accessory_standing.Blend(head_accessory_s, ICON_OVERLAY)
 	//Having it this way preserves animations. Useful for animated antennae.
 	head_accessory_standing = head_accessory_s
@@ -368,46 +370,13 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	//masks and helmets can obscure our hair, unless we're a synthetic
 	if((head && (head.flags_inv & (HIDEHAIR|HIDEHEADHAIR))) || (wear_mask && (wear_mask.flags_inv & (HIDEHAIR|HIDEHEADHAIR))))
 		return
-	if(head && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
+	if(isclothing(head) && get_species_fit(dna.species.fit_profile)?.hides_hair(head.onmob_sheets[ITEM_SLOT_HEAD_STRING], head.icon_state))
 		return
 
-	var/datum/sprite_accessory/hair/hair = SSaccessories.hairstyles_list[head_organ.h_style]
-	if(!hair || !((hair.species_allowed && (head_organ.dna.species.name in hair.species_allowed)) || (head_organ.dna.species.bodyflags & ALL_RPARTS)))
+	var/mutable_appearance/MA = head_organ.build_hair_appearance()
+	if(!MA)
 		return
-
-	//base icons
-	var/mutable_appearance/MA = new()
-	MA.appearance_flags = KEEP_TOGETHER
 	MA.layer = -HAIR_LAYER
-
-	// Base hair
-	var/mutable_appearance/img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
-	if(head_organ.dna.species.name == SPECIES_SLIMEPERSON)
-		img_hair.color = COLOR_MATRIX_OVERLAY("[skin_colour]A0")
-	else if(hair.do_colouration)
-		img_hair.color = COLOR_MATRIX_ADD(head_organ.hair_colour)
-	MA.overlays += img_hair
-
-	// Gradient
-	var/datum/sprite_accessory/gradient/gradient = SSaccessories.hair_gradients_list[head_organ.h_grad_style]
-	if(gradient)
-		var/icon/icn_alpha_mask = icon(gradient.icon, gradient.icon_state)
-		var/icon/icn_gradient = icon(gradient.icon, "full")
-		var/list/icn_color = rgb2num(head_organ.h_grad_colour)
-		icn_gradient.MapColors(rgb(icn_color[1], 0, 0), rgb(0, icn_color[2], 0), rgb(0, 0, icn_color[3]))
-		icn_gradient.ChangeOpacity(head_organ.h_grad_alpha / 200)
-		icn_gradient.AddAlphaMask(icn_alpha_mask)
-		icn_gradient.Shift(EAST, head_organ.h_grad_offset_x)
-		icn_gradient.Shift(NORTH, head_organ.h_grad_offset_y)
-		icn_gradient.AddAlphaMask(icon(hair.icon, "[hair.icon_state]_s"))
-		MA.overlays += icn_gradient
-
-	// Secondary style
-	if(hair.secondary_theme)
-		var/mutable_appearance/img_secondary = mutable_appearance(hair.icon, "[hair.icon_state]_[hair.secondary_theme]_s")
-		if(!hair.no_sec_colour)
-			img_secondary.color = COLOR_MATRIX_ADD(head_organ.sec_hair_colour)
-		MA.overlays += img_secondary
 
 	update_mutant_ears()
 	overlays_standing[HAIR_LAYER] = MA
@@ -467,26 +436,39 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/g = "m"
 	if(gender == FEMALE)
 		g = "f"
+	var/list/underlay_states = list()
 	// DNA2 - Drawing underlays.
 	for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
 		if(gene.is_active(src))
 			var/underlay = gene.OnDrawUnderlays(src, g)
 			if(underlay)
-				standing.underlays += underlay
+				underlay_states += underlay
 				add_image = TRUE
 
 	if(HAS_TRAIT_FROM(src, TRAIT_RESIST_COLD, DNA_TRAIT) && HAS_TRAIT_FROM(src, TRAIT_RESIST_HEAT, DNA_TRAIT))
-		standing.underlays -= "cold_s"
-		standing.underlays -= "fire_s"
-		standing.underlays += "coldfire_s"
+		underlay_states -= "cold_s"
+		underlay_states -= "fire_s"
+		underlay_states += "coldfire_s"
+
+	for(var/underlay_state in underlay_states)
+		standing.underlays += fitted_mutation_appearance(underlay_state)
 
 	if(HAS_TRAIT(src, TRAIT_LASEREYES))
-		standing.overlays += "lasereyes_s"
+		standing.overlays += fitted_mutation_appearance("lasereyes_s")
 		add_image = TRUE
 
 	if(add_image)
 		overlays_standing[MUTATIONS_LAYER] = standing
 	apply_overlay(MUTATIONS_LAYER)
+
+/mob/living/carbon/human/proc/fitted_mutation_appearance(state)
+	if(is_monkeybasic(src))
+		return state
+	var/datum/species_fit/fit = get_species_fit(dna.species.fit_profile)
+	if(!fit?.has_pixel_map('icons/effects/genetics.dmi'))
+		return state
+	var/icon/fitted = fit.fit_worn_icon(null, 'icons/effects/genetics.dmi', state)
+	return fitted ? mutable_appearance(fitted, "") : state
 
 /mob/living/carbon/human/proc/update_mutant_ears()
 	remove_overlay(MUTANT_EARS_LAYER)
@@ -940,11 +922,22 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 			return
 		bodypart_wing.body_accessory = GLOB.body_accessory_by_name[dna.species.default_bodyacc]
 
+	var/zombified = HAS_TRAIT(src, TRAIT_I_WANT_BRAINS)
 	var/mutable_appearance/wings = mutable_appearance(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state, layer = -WING_LAYER)
+	if(zombified)
+		var/icon/wings_icon = icon(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state)
+		apply_zombie_tone(wings_icon)
+		wings.icon = wings_icon
+		wings.icon_state = null
 	overlays_standing[WING_LAYER] = wings
 
 	if(bodypart_wing.body_accessory.has_behind)
 		var/mutable_appearance/under_wing = mutable_appearance(bodypart_wing.body_accessory.icon, "[bodypart_wing.body_accessory.icon_state]_BEHIND", layer = -WING_UNDERLIMBS_LAYER)
+		if(zombified)
+			var/icon/under_wing_icon = icon(bodypart_wing.body_accessory.icon, "[bodypart_wing.body_accessory.icon_state]_BEHIND")
+			apply_zombie_tone(under_wing_icon)
+			under_wing.icon = under_wing_icon
+			under_wing.icon_state = null
 		overlays_standing[WING_UNDERLIMBS_LAYER] = under_wing
 
 		var/icon/accessory_s = icon(bodypart_wing.body_accessory.icon, bodypart_wing.body_accessory.icon_state)
@@ -957,6 +950,13 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	bodypart_wing.get_icon()
 	apply_overlay(WING_UNDERLIMBS_LAYER)
 	apply_overlay(WING_LAYER)
+
+/mob/living/carbon/human/proc/apply_zombie_tone(icon/target_icon)
+	if(!HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
+		return FALSE
+	target_icon.ColorTone(COLORTONE_DEAD_EXT_ORGAN)
+	target_icon.SetIntensity(0.7)
+	return TRUE
 
 /mob/living/carbon/human/proc/update_tail_layer()
 	remove_overlay(TAIL_UNDERLIMBS_LAYER) // SEW direction icons, overlayed by LIMBS_LAYER.
@@ -984,12 +984,13 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 			suit_tail_color = species_fit.covered_tail_color(wear_suit)
 		if(suit_tail_color || bodypart_tail.body_accessory.try_restrictions(src))
 			var/icon/accessory_s = new/icon("icon" = bodypart_tail.body_accessory.icon, "icon_state" = bodypart_tail.body_accessory.icon_state)
+			var/zombified = !suit_tail_color && apply_zombie_tone(accessory_s)
 			if(suit_tail_color)
 				accessory_s.Blend(suit_tail_color, ICON_ADD)
-			else if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
+			else if(!zombified && (bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR))
 				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
 					accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
-			if(tail_marking_icon && !suit_tail_color && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
+			if(tail_marking_icon && !suit_tail_color && !zombified && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 				accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
@@ -1034,11 +1035,12 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 					tail_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[bodypart_tail.dna.species.tail]_dgrn_s")
 				else  //Default behaviour
 					tail_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[bodypart_tail.dna.species.tail]_s")
-			if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
-				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
-					tail_s.Blend(bodypart_tail.s_col, ICON_ADD)
-			if(tail_marking_icon && !tail_marking_style.tails_allowed)
-				tail_s.Blend(tail_marking_icon, ICON_OVERLAY)
+			if(!apply_zombie_tone(tail_s))
+				if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
+					if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
+						tail_s.Blend(bodypart_tail.s_col, ICON_ADD)
+				if(tail_marking_icon && !tail_marking_style.tails_allowed)
+					tail_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 				var/icon/under = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "blank")
@@ -1370,6 +1372,10 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 		var/datum/species/wearer_species = wearer.dna?.species
 		fitted_icon = get_fitted_worn_icon(wearer_species, src, file2use, t_state)
 		file2use = wearer_species?.worn_sheets?[file2use] || file2use
+	if(!isinhands && ishuman(wearer))
+		var/mob/living/carbon/human/human_wearer = wearer
+		if(src == human_wearer.w_uniform || src == human_wearer.wear_suit)
+			fitted_icon = human_wearer.fill_missing_hand_gaps(fitted_icon || file2use, fitted_icon ? "" : t_state) || fitted_icon
 	//Find a valid layer from variables+arguments
 	var/layer2use = default_layer
 
@@ -1407,6 +1413,62 @@ use_item_state: SS1984 legacy var, used to fix fact, that item_state randomly us
 	standing.color = color
 
 	return standing
+
+#define HAND_GAP_FILL_DISTANCE 4
+
+/mob/living/carbon/human/proc/fill_missing_hand_gaps(worn_icon_file, worn_state)
+	var/list/missing_hands = list()
+	for(var/hand_zone in list(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND))
+		if(!get_organ(hand_zone) && (hand_zone in dna.species.has_limbs))
+			missing_hands += hand_zone
+	if(!length(missing_hands))
+		return
+
+	var/cache_key = "[isicon(worn_icon_file) ? "\ref[worn_icon_file]" : worn_icon_file]|[worn_state]|[dna.species.icobase]|[jointext(missing_hands, ",")]"
+	var/icon/filled_icon = GLOB.hand_gap_filled_icons[cache_key]
+	if(filled_icon)
+		return filled_icon
+
+	filled_icon = icon(worn_icon_file, worn_state)
+	if(filled_icon.Width() != ICON_SIZE_X || filled_icon.Height() != ICON_SIZE_Y)
+		return
+	var/icon/fabric_from_west
+	var/icon/fabric_from_east
+	for(var/distance in 1 to HAND_GAP_FILL_DISTANCE)
+		var/icon/shifted_east = icon(filled_icon)
+		shifted_east.Shift(EAST, distance)
+		var/icon/shifted_west = icon(filled_icon)
+		shifted_west.Shift(WEST, distance)
+		if(fabric_from_west)
+			fabric_from_west.Blend(shifted_east, ICON_UNDERLAY)
+			fabric_from_east.Blend(shifted_west, ICON_UNDERLAY)
+		else
+			fabric_from_west = shifted_east
+			fabric_from_east = shifted_west
+
+	var/icon/hand_mask = icon(filled_icon)
+	hand_mask.MapColors(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	for(var/side_dir in list(EAST, WEST))
+		var/icon/side_hands
+		for(var/hand_zone in missing_hands)
+			var/icon/hand_icon = icon(dna.species.icobase, hand_zone, side_dir)
+			if(side_hands)
+				side_hands.Blend(hand_icon, ICON_OVERLAY)
+			else
+				side_hands = hand_icon
+		hand_mask.Insert(side_hands, dir = side_dir)
+	var/icon/gap_mask = icon(fabric_from_west)
+	gap_mask.Blend(fabric_from_east, ICON_MULTIPLY)
+	gap_mask.Blend(hand_mask, ICON_MULTIPLY)
+	gap_mask.MapColors(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0)
+
+	fabric_from_east.Insert(icon(fabric_from_west, dir = WEST), dir = WEST)
+	fabric_from_east.Blend(gap_mask, ICON_MULTIPLY)
+	filled_icon.Blend(fabric_from_east, ICON_UNDERLAY)
+	GLOB.hand_gap_filled_icons[cache_key] = filled_icon
+	return filled_icon
+
+#undef HAND_GAP_FILL_DISTANCE
 
 // Wide organs or bodyparts shouldn't offset human HUD directly
 /mob/living/carbon/human/get_hud_x_offset()

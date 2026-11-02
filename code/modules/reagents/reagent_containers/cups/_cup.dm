@@ -43,8 +43,8 @@
 			context[SCREENTIP_CONTEXT_ALT_LMB] = "[has_lid ? "Снять" : "Надеть"] крышку"
 			. = CONTEXTUAL_SCREENTIP_SET
 		if(has_variable_transfer_amount)
-			context[SCREENTIP_CONTEXT_LMB] = "Перемещать больше"
-			context[SCREENTIP_CONTEXT_RMB] = "Перемещать меньше"
+			context[SCREENTIP_CONTEXT_LMB] = "Выбрать объём перемещения"
+			context[SCREENTIP_CONTEXT_RMB] = "Выбрать объём перемещения"
 			. = CONTEXTUAL_SCREENTIP_SET
 
 /obj/item/reagent_containers/cup/add_item_context(obj/item/source, list/context, atom/target, mob/living/user)
@@ -155,8 +155,8 @@
 
 	SEND_SIGNAL(src, COMSIG_GLASS_DRANK, target_mob, user)
 	var/fraction = min(gulp_size / reagents.total_volume, 1)
-	reagents.trans_to(target_mob, gulp_size)
 	reagents.reaction(target_mob, reagent_consumption_method, fraction)
+	reagents.trans_to(target_mob, gulp_size)
 	checkLiked(fraction, target_mob)
 	playsound(target_mob, consumption_sound, rand(10, 50), TRUE)
 
@@ -319,11 +319,6 @@ GAME_VERB_SRC(/obj/item/reagent_containers/cup/beaker, remove_assembly, usr, "О
 /obj/item/reagent_containers/cup/beaker/on_found(mob/finder) //for mousetraps
 	if(assembly)
 		assembly.on_found(finder)
-
-/obj/item/reagent_containers/cup/beaker/hear_talk(mob/living/M, list/message_pieces)
-	. = ..()
-	if(assembly)
-		assembly.hear_talk(M, message_pieces)
 
 /obj/item/reagent_containers/cup/beaker/hear_message(mob/living/M, msg)
 	if(assembly)

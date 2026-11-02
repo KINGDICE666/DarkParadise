@@ -133,7 +133,7 @@
 
 /mob/living/simple_animal/pet/dog/fox/Syndifox/Initialize(mapload)
 	. = ..()
-	add_language(LANGUAGE_GALACTIC_COMMON)
+	grant_language(/datum/language/common)
 	ADD_TRAIT(src, TRAIT_NO_BREATH, INNATE_TRAIT)
 
 //Central Command Fox

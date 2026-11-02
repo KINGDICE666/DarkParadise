@@ -11,6 +11,7 @@ GLOBAL_LIST_EMPTY(airlocks)												//list of all airlocks
 GLOBAL_LIST_EMPTY_TYPED(singularities, /datum/component/singularity) //list of all singularities on the station
 GLOBAL_LIST_EMPTY(janitorial_equipment)									//list of janitorial equipment
 GLOBAL_LIST_EMPTY(crafting_recipes)										//list of all crafting recipes
+GLOBAL_LIST_EMPTY(crafting_recipes_datums)
 GLOBAL_LIST_EMPTY(slime_potions)										//list of all slime potions
 GLOBAL_LIST_EMPTY(prisoncomputer_list)
 GLOBAL_LIST_EMPTY(celltimers_list)										// list of all cell timers

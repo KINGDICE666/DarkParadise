@@ -83,6 +83,122 @@
 	TEST_ASSERT_NULL(console.ui_data(pilot)["generated_domain"], "the console still reported a loaded domain after scrubbing")
 	TEST_ASSERT(!length(get_glitch_ready_servers()), "the glitch event still offered a server with no domain loaded")
 
+/datum/unit_test/room_test/bitrunning_abductor_reward/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	var/obj/machinery/byteforge/forge = allocate(/obj/machinery/byteforge, get_step(anchor, EAST))
+	server.points = BITRUNNER_COST_MEDIUM
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_ABDUCTOR_SHIP), "the abductor domain failed to load")
+	TEST_ASSERT_EQUAL(server.generated_domain.difficulty, BITRUNNER_DIFFICULTY_MEDIUM, "the abductor domain was not medium difficulty")
+	var/obj/structure/closet/crate/secure/bitrunning/encrypted/cache = allocate(/obj/structure/closet/crate/secure/bitrunning/encrypted, anchor)
+	cache.forceMove(pick(server.goal_turfs))
+	sleep(2 SECONDS)
+	var/obj/structure/closet/crate/secure/bitrunning/decrypted/reward = locate() in get_turf(forge)
+	TEST_ASSERT_NOTNULL(reward, "the normal abductor domain did not deliver a reward crate")
+	TEST_ASSERT_NULL(locate(/obj/item/disk/tech_disk/bitrunning_abductor) in reward, "the normal abductor domain awarded the HRDM alien disk")
+	server.scrub_vdom()
+
+/datum/unit_test/room_test/bitrunning_hardcore/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	var/obj/machinery/byteforge/forge = allocate(/obj/machinery/byteforge, get_step(anchor, EAST))
+	server.points = BITRUNNER_COST_MEDIUM
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_ABDUCTOR_SHIP), "the abductor domain failed to load")
+
+	var/turf/enemy_turf
+	for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
+		var/area/domain_area = get_area(tile)
+		if(!(domain_area.area_flags & VIRTUAL_SAFE_AREA) && !tile.is_blocked_turf() && length(get_adjacent_open_turfs(tile)))
+			enemy_turf = tile
+			break
+	TEST_ASSERT_NOTNULL(enemy_turf, "the domain had no open turf for reinforcements")
+	var/mob/living/simple_animal/hostile/abductor/ranged/enemy = allocate(/mob/living/simple_animal/hostile/abductor/ranged, enemy_turf)
+	var/health_before = enemy.maxHealth
+	var/candidates_before = length(server.mutation_candidate_refs)
+	server.domain_entered = TRUE
+	TEST_ASSERT(!server.enable_hardcore(), "HRDM was allowed after entry")
+	server.domain_entered = FALSE
+	TEST_ASSERT(server.enable_hardcore(), "HRDM failed to activate before entry")
+	TEST_ASSERT_EQUAL(enemy.maxHealth, health_before * BITRUNNER_HARDCORE_HEALTH_MULTIPLIER, "HRDM did not increase enemy health")
+	TEST_ASSERT_EQUAL(enemy.projectiletype, /obj/projectile/beam/laser/heavylaser, "HRDM did not upgrade the ranged weapon")
+	TEST_ASSERT_NULL(enemy.casingtype, "the old ammunition casing still overrides the HRDM weapon")
+	TEST_ASSERT(length(server.mutation_candidate_refs) > candidates_before, "HRDM spawned no reinforcements")
+	TEST_ASSERT(!server.enable_hardcore(), "HRDM could be applied twice")
+	TEST_ASSERT_EQUAL(enemy.maxHealth, health_before * BITRUNNER_HARDCORE_HEALTH_MULTIPLIER, "a second activation stacked the health bonus")
+
+	var/reward_points = server.generated_domain.reward_points
+	var/obj/structure/closet/crate/secure/bitrunning/encrypted/cache = allocate(/obj/structure/closet/crate/secure/bitrunning/encrypted, anchor)
+	cache.forceMove(pick(server.goal_turfs))
+	TEST_ASSERT_EQUAL(server.points, reward_points * BITRUNNER_HARDCORE_REWARD_MULTIPLIER, "HRDM did not double server points")
+	sleep(2 SECONDS)
+	var/obj/structure/closet/crate/secure/bitrunning/decrypted/reward = locate() in get_turf(forge)
+	TEST_ASSERT_NOTNULL(reward, "HRDM did not deliver a reward crate")
+	var/alien_disks = 0
+	for(var/obj/item/disk/tech_disk/bitrunning_abductor/disk in reward)
+		alien_disks += 1
+		TEST_ASSERT_EQUAL(disk.stored.id, RESEARCH_TREE_ALIEN, "the guaranteed disk held the wrong technology")
+		TEST_ASSERT_EQUAL(disk.stored.level, 1, "the guaranteed alien disk was not level one")
+	TEST_ASSERT_EQUAL(alien_disks, 1, "the HRDM abductor domain did not award exactly one alien disk")
+	var/points_before_duplicate = server.points
+	var/obj/structure/closet/crate/secure/bitrunning/encrypted/duplicate_cache = allocate(/obj/structure/closet/crate/secure/bitrunning/encrypted, anchor)
+	server.generate_loot(duplicate_cache, forge)
+	TEST_ASSERT_EQUAL(server.points, points_before_duplicate, "a second cache awarded the domain rewards again")
+	TEST_ASSERT(!QDELETED(duplicate_cache), "a rejected duplicate cache was consumed")
+	var/obj/item/stack/ore/iron/ore = locate() in reward
+	TEST_ASSERT_NOTNULL(ore, "HRDM delivered no ore")
+	TEST_ASSERT_EQUAL(ore.amount % BITRUNNER_HARDCORE_REWARD_MULTIPLIER, 0, "the ore amount was not doubled after rounding")
+	server.scrub_vdom()
+	TEST_ASSERT(!server.hardcore && !server.domain_entered, "HRDM state survived domain cleanup")
+	TEST_ASSERT(!server.domain_complete && !server.retries_spent, "domain progress survived cleanup")
+	server.points = BITRUNNER_COST_LOW
+	TEST_ASSERT(server.cold_boot_map(LAZY_TEMPLATE_KEY_BITRUNNING_XENO_NEST, hardcore = TRUE), "HRDM failed to load after cleaning up a completed domain")
+	TEST_ASSERT(server.hardcore, "cold boot reported success without enabling HRDM")
+	server.scrub_vdom()
+
+/datum/unit_test/room_test/bitrunning_hardcore_bosses/Run()
+	var/turf/anchor = run_loc_floor_bottom_left
+	var/obj/machinery/quantum_server/server = allocate(/obj/machinery/quantum_server, anchor)
+	for(var/domain_key in list(LAZY_TEMPLATE_KEY_BITRUNNING_BUBBLEGUM, LAZY_TEMPLATE_KEY_BITRUNNING_BLOOD_DRUNK_MINER))
+		server.points = BITRUNNER_COST_HIGH
+		TEST_ASSERT(server.cold_boot_map(domain_key), "the boss domain failed to load")
+		var/mob/living/simple_animal/hostile/megafauna/boss
+		for(var/turf/tile as anything in server.domain_reservation.reserved_turfs)
+			boss ||= locate(/mob/living/simple_animal/hostile/megafauna) in tile
+		TEST_ASSERT_NOTNULL(boss, "the boss domain had no boss")
+		var/max_health = boss.maxHealth
+		TEST_ASSERT(server.enable_hardcore(), "HRDM failed to activate for the boss domain")
+		TEST_ASSERT(boss.enraged, "HRDM did not enrage the boss")
+		TEST_ASSERT_EQUAL(boss.maxHealth, max_health * BITRUNNER_HARDCORE_HEALTH_MULTIPLIER, "native enrage changed the HRDM health multiplier")
+		TEST_ASSERT(/obj/structure/closet/crate/secure/bitrunning/encrypted in boss.loot, "native enrage removed the domain reward")
+		var/turf/death_turf = get_turf(boss)
+		boss.health = 0
+		boss.death()
+		TEST_ASSERT(locate(/obj/structure/closet/crate/secure/bitrunning/encrypted) in death_turf, "the HRDM boss did not drop the domain cache")
+		TEST_ASSERT_NULL(locate(/obj/structure/closet/crate/necropolis/bubblegum/bait) in death_turf, "virtual Bubblegum spawned a real second-phase trigger")
+		TEST_ASSERT_NULL(locate(/obj/effect/landmark/spawner/bubblegum_exit) in death_turf, "virtual Bubblegum spawned an exit outside the domain")
+		server.scrub_vdom()
+
+/datum/component/avatar_connection/bitrunning_test/Initialize(mob/living/old_body, hardcore = FALSE)
+	old_body_ref = WEAKREF(old_body)
+	old_mind_ref = WEAKREF(old_body.mind)
+	src.hardcore = hardcore
+
+/datum/unit_test/room_test/bitrunning_hardcore_death/Run()
+	for(var/hardcore in list(FALSE, TRUE))
+		var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+		var/mob/living/carbon/human/avatar = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+		pilot.mind_initialize()
+		avatar.AddComponent(/datum/component/avatar_connection/bitrunning_test, pilot, hardcore)
+		avatar.death()
+		TEST_ASSERT_EQUAL(pilot.stat == DEAD, hardcore, "avatar death did not respect the HRDM flag")
+
+	var/mob/living/carbon/human/pilot = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+	var/mob/living/carbon/human/avatar = allocate(/mob/living/carbon/human, run_loc_floor_bottom_left)
+	pilot.mind_initialize()
+	avatar.AddComponent(/datum/component/avatar_connection/bitrunning_test, pilot, hardcore = TRUE)
+	qdel(avatar)
+	TEST_ASSERT(pilot.stat != DEAD, "deleting an HRDM avatar was treated as a combat death")
+
 /datum/unit_test/room_test/bitrunning_escape
 
 /datum/unit_test/room_test/bitrunning_escape/Run()

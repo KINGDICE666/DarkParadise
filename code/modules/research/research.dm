@@ -144,6 +144,11 @@ research holder datum.
 			return KT.level
 	return null
 
+/datum/research/proc/find_possible_tech_with_id(id)
+	for(var/datum/tech/T in possible_tech)
+		if(T.id == id)
+			return T
+
 /// Checks if the origin level can raise current tech levels
 /// Input: Tech's ID and Level; Output: TRUE for yes, FALSE for no
 /datum/research/proc/IsTechHigher(ID, level)
