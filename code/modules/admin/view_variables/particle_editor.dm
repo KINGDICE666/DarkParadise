@@ -5,6 +5,10 @@
 /datum/particle_editor/New(atom/target)
 	src.target = target
 
+/datum/particle_editor/Destroy()
+	target = null
+	return ..()
+
 /datum/particle_editor/ui_state(mob/user)
 	return ADMIN_STATE(R_VAREDIT)
 
@@ -97,12 +101,26 @@
 		data["drift"] = drift
 	return data
 
+/particles/proc/clone()
+	var/static/list/particle_vars = list(
+		"width", "height", "count", "spawning", "bound1", "bound2", "gravity", "gradient", "transform",
+		"icon", "icon_state", "lifespan", "fade", "fadein", "color", "color_change", "position",
+		"velocity", "scale", "grow", "rotation", "spin", "friction", "drift",
+	)
+	var/particles/copy = new type
+	for(var/var_name in particle_vars)
+		var/value = vars[var_name]
+		copy.vars[var_name] = islist(value) ? deep_copy_list(value) : value
+	return copy
+
 /datum/particle_editor/ui_data(mob/user)
 	var/list/data = list()
 	data["target_name"] = target.name
 	if(!target.particles)
 		target.particles = new /particles
 	data["particle_data"] = target.particles.return_ui_representation(user)
+	data["has_clipboard"] = !!user.client?.holder?.copied_particles
+	data["has_trail"] = !!target.GetComponent(/datum/component/movement_trail)
 	return data
 
 /datum/particle_editor/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -122,6 +140,24 @@
 				return FALSE
 			target.particles = new new_type
 			target.particles.datum_flags |= DF_VAR_EDITED
+			. = TRUE
+		if("copy")
+			usr.client.holder.copied_particles = target.particles.clone()
+			to_chat(usr, span_notice("Частицы [target] скопированы."))
+			. = TRUE
+		if("paste")
+			var/particles/copied_particles = usr.client.holder.copied_particles
+			if(!copied_particles)
+				return FALSE
+			target.particles = copied_particles.clone()
+			target.particles.datum_flags |= DF_VAR_EDITED
+			. = TRUE
+		if("make_trail")
+			usr.client.configure_movement_trail(target, target.particles.clone())
+			. = TRUE
+		if("remove_trail")
+			qdel(target.GetComponent(/datum/component/movement_trail))
+			log_and_message_admins("removed the movement trail from [target].")
 			. = TRUE
 		if("transform_size")
 			var/list/values = list("Simple Matrix" = 6, "Complex Matrix" = 12, "Projection Matrix" = 16)

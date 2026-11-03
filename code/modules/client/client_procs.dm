@@ -1807,7 +1807,8 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 
 /client/proc/open_filter_editor(atom/in_atom)
 	if(holder)
-		holder.filterrific = new /datum/filter_editor(in_atom)
+		if(holder.filterrific?.target != in_atom)
+			holder.filterrific = new /datum/filter_editor(in_atom)
 		holder.filterrific.ui_interact(mob)
 
 ///opens the particle editor UI for the in_atom object for this client
