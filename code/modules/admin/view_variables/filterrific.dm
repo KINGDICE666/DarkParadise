@@ -133,7 +133,6 @@
 			target.modify_filter(filter_name, list())
 			. = TRUE
 		if("edit_filter")
-			stop_animating_fields(params["name"], params["new_filter"])
 			target.remove_filter(params["name"])
 			target.add_filter(params["name"], params["priority"], params["new_filter"])
 			. = TRUE
@@ -142,17 +141,14 @@
 			target.change_filter_priority(params["name"], new_priority)
 			. = TRUE
 		if("transition_filter_value")
-			stop_animating_fields(params["name"], params["new_data"])
 			target.transition_filter(params["name"], params["new_data"], 4)
 			. = TRUE
 		if("modify_filter_value")
-			stop_animating_fields(params["name"], params["new_data"])
 			target.modify_filter(params["name"], params["new_data"])
 			. = TRUE
 		if("modify_color_value")
 			var/new_color = tgui_input_color(usr, "Pick new filter color", "Filterrific Colors!")
 			if(new_color)
-				stop_animating_fields(params["name"], list("color"))
 				target.transition_filter(params["name"], list("color" = new_color), 4)
 				. = TRUE
 		if("modify_icon_value")
@@ -213,22 +209,14 @@
 	if(.)
 		restart_animations()
 
-/datum/filter_editor/proc/unique_filter_name(filter_name, atom/receiver = target)
-	while(receiver.get_filter(filter_name))
+/datum/filter_editor/proc/unique_filter_name(filter_name)
+	while(target.get_filter(filter_name))
 		filter_name = "[filter_name]-dupe"
 	return filter_name
 
 /datum/filter_editor/proc/paste_filters(atom/receiver, list/filters_to_paste)
 	for(var/list/filter_info as anything in filters_to_paste)
-		receiver.add_filter(unique_filter_name(filter_info["name"], receiver), filter_info["priority"], filter_info)
-
-/datum/filter_editor/proc/stop_animating_fields(filter_name, list/fields)
-	for(var/list/chain_step as anything in LAZYACCESS(animations, filter_name))
-		for(var/field in chain_step["params"])
-			if(!(field in fields))
-				continue
-			LAZYREMOVE(animations, filter_name)
-			return
+		receiver.add_filter(filter_info["name"], filter_info["priority"], filter_info)
 
 /datum/filter_editor/proc/restart_animations()
 	for(var/filter_name in animations)
