@@ -5,7 +5,7 @@
 #define CHRONO_TARGET_NONE "Без цели"
 
 /client/proc/send_chrono_legionnaire()
-	if(SSticker.current_state < GAME_STATE_PLAYING)
+	if(!SSticker)
 		tgui_alert(src, "Игра ещё не началась!")
 		return
 

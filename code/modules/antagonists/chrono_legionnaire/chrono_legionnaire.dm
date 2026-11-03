@@ -91,7 +91,7 @@
 
 /datum/antagonist/chrono_legionnaire/proc/leave_reality()
 	var/mob/living/legionnaire = owner.current
-	if(legionnaire.stat != CONSCIOUS || legionnaire.incapacitated() || legionnaire.buckled || !can_leave())
+	if(legionnaire.stat != CONSCIOUS || !can_leave())
 		return
 	var/turf/exit_turf = get_turf(legionnaire)
 	legionnaire.visible_message(
