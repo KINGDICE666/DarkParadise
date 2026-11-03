@@ -37,7 +37,7 @@
 	return FALSE
 
 /datum/export/manifest_error_denied/get_base_cost(obj/item/paper/manifest/paper)
-	return cost + paper.points
+	return cost + paper.cost
 
 
 // Erroneously approved manifest.
@@ -60,7 +60,7 @@
 	return FALSE
 
 /datum/export/manifest_error/get_base_cost(obj/item/paper/manifest/paper)
-	return cost - paper.points
+	return cost - paper.cost
 
 // Erroneously denied manifest.
 // Subtracts package cost.
@@ -82,4 +82,4 @@
 	return FALSE
 
 /datum/export/manifest_correct_denied/get_base_cost(obj/item/paper/manifest/paper)
-	return cost - paper.points
+	return cost - paper.cost

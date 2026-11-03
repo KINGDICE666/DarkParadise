@@ -10,8 +10,7 @@
 /// Paygrade for Captain and some high-tier VIPs.
 #define PAYCHECK_MAX 750
 
-/// start-up capital
-#define EXTRA_MONEY 10000
+#define DEPARTMENT_GRANT 2500
 
 
 /// The name for the default type of money used in the code.

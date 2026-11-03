@@ -48,7 +48,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
 	slip.erroneous = errors
-	slip.points = object.cost
+	slip.cost = object.cost
 	slip.ordernumber = ordernum
 
 	var/stationName = (errors & MANIFEST_ERROR_NAME) ? new_station_name() : "Syndicate RaMSS 'Taipan' Supply Mannifest"

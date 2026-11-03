@@ -1,8 +1,3 @@
-#define SSCAPITALISM_STAGE_IDLE 0
-#define SSCAPITALISM_STAGE_BUILD_RUN 1
-#define SSCAPITALISM_STAGE_PAY 2
-#define SSCAPITALISM_STAGE_GOALS 3
-
 SUBSYSTEM_DEF(capitalism)
 	name = "Capitalism"
 	dependencies = list(
@@ -17,7 +12,7 @@ SUBSYSTEM_DEF(capitalism)
 
 	/// Account that receives money for orders, vending machines and station goal bounties.
 	var/datum/money_account/base_account
-	/// Account from which salaries are deducted.
+	/// Account from which salaries of jobs without a department budget are deducted.
 	var/datum/money_account/payment_account
 
 	// Statistics for the round-end report.
@@ -34,59 +29,20 @@ SUBSYSTEM_DEF(capitalism)
 
 	/// Station goals that have already paid out so we don't double-pay them.
 	var/list/completed_goals = list()
-	/// TRUE while the station can't make payroll. Other systems may key off this (e.g. cargo modifiers).
-	var/default_status = FALSE
-
-	/// Current stage of the resumable fire().
-	var/fire_stage = SSCAPITALISM_STAGE_IDLE
-	/// Snapshot of accounts queued for payout this fire. Drained as we process.
-	var/list/currentrun = list()
-	/// Sum of paychecks for everyone in `currentrun`, computed during the build stage.
-	var/pending_salary_total = 0
 
 /datum/controller/subsystem/capitalism/Initialize()
 	accounts_init()
 	salary_account_init()
 	return SS_INIT_SUCCESS
 
-/datum/controller/subsystem/capitalism/get_stat_details()
-	return "Default:[default_status ? "Y" : "N"] | Stage:[fire_stage] | Run:[length(currentrun)]"
-
 /datum/controller/subsystem/capitalism/fire(resumed = FALSE)
-	if(!resumed)
-		fire_stage = SSCAPITALISM_STAGE_BUILD_RUN
+	pay_department_grants()
+	process_station_goals()
 
-	if(fire_stage == SSCAPITALISM_STAGE_BUILD_RUN)
-		build_payment_run()
-		if(MC_TICK_CHECK)
-			return
-		fire_stage = SSCAPITALISM_STAGE_GOALS
-
-	if(fire_stage == SSCAPITALISM_STAGE_GOALS)
-		process_station_goals()
-
-	fire_stage = SSCAPITALISM_STAGE_IDLE
-
-/// Snapshots all accounts that should receive a salary this cycle and sums their paychecks.
-/// Also resolves the default-status transition before any money is moved, so we don't half-pay.
-/// If a previous fire() was interrupted mid-payout (charge failed), `currentrun` will still
-/// hold the unpaid accounts — we resume that queue instead of rebuilding to avoid double-paying
-/// anyone who already got their salary in the prior cycle.
-/datum/controller/subsystem/capitalism/proc/build_payment_run()
-	// Hysteresis: exiting default requires an EXTRA_MONEY buffer so we don't re-default next cycle.
-	if(default_status && payment_account.money >= EXTRA_MONEY)
-		default_status = FALSE
-		default_announce()
-		return
-
-	if(default_status)
-		return
-
-	if(payment_account.money >= EXTRA_MONEY)
-		return
-
-	default_status = TRUE
-	default_announce()
+/datum/controller/subsystem/capitalism/proc/pay_department_grants()
+	for(var/department in GLOB.department_accounts)
+		var/datum/money_account/department_account = GLOB.department_accounts[department]
+		department_account.credit(DEPARTMENT_GRANT, "Плановое финансирование отдела.", "Отдел финансов \"Нанотрейзен\"", department_account.owner_name)
 
 /// Walks the current gamemode's station goals, paying out any that completed since the last fire.
 /datum/controller/subsystem/capitalism/proc/process_station_goals()
@@ -108,20 +64,6 @@ SUBSYSTEM_DEF(capitalism)
 	if(total_station_goal_bounty)
 		base_account.credit(total_station_goal_bounty, "Начисление награды за выполнение цели.", "Отдел развития \"Нанотрейзен\"", base_account.owner_name)
 		smart_job_payment(extra_personal_bounty)
-
-/datum/controller/subsystem/capitalism/proc/default_announce()
-	if(default_status)
-		GLOB.minor_announcement.announce(
-			message = "На счёте станции зафиксировано отсутствие финансовых средств. В связи с этим выплаты заработной платы были приостановлены. Руководству станции необходимо незамедлительно принять меры для разрешения сложившейся ситуации.",
-			new_title = ANNOUNCE_CAPITAL_DEFOLT_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound()
-		)
-	else
-		GLOB.minor_announcement.announce(
-			message = "На счёте станции имеется достаточное количество средств для осуществления выплат. Заработная плата сотрудникам выплачивается в полном объёме.",
-			new_title = ANNOUNCE_CAPITAL_REPAY_RU,
-			new_sound = SSstation.announcer.get_rand_report_sound()
-		)
 
 /datum/controller/subsystem/capitalism/proc/accounts_init()
 	if(!GLOB.CC_account)
@@ -206,8 +148,3 @@ SUBSYSTEM_DEF(capitalism)
 		list_payment_accounts.len--
 		account.credit(bounty, "Начисление награды за выполнение заказа.", "Терминал Бизель №[rand(111,333)]", account.owner_name)
 	return TRUE
-
-#undef SSCAPITALISM_STAGE_IDLE
-#undef SSCAPITALISM_STAGE_BUILD_RUN
-#undef SSCAPITALISM_STAGE_PAY
-#undef SSCAPITALISM_STAGE_GOALS

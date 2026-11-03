@@ -1,7 +1,7 @@
 /obj/item/paper/manifest
 	name = "supply manifest"
 	var/erroneous = 0
-	var/points = 0
+	var/cost = 0
 	var/ordernumber = 0
 
 /obj/item/paper/manifest/get_ru_names()
@@ -151,7 +151,8 @@
 	var/quest_reward
 
 	var/list/msg = list("<center>---[station_time_timestamp()]---</center><br>")
-	var/pointsEarned
+	var/credits_earned
+	var/total_credits = 0
 
 	var/datum/export_report/report = new
 
@@ -187,19 +188,19 @@
 							if(slip.stamped[i] == /obj/item/stamp/denied)
 								denied = TRUE
 						if(slip.erroneous && denied) // Caught a mistake by Centcom (IDEA: maybe Centcom rarely gets offended by this)
-							pointsEarned = slip.points - SSshuttle.points_per_crate
-							SSshuttle.points += pointsEarned // For now, give a full refund for paying attention (minus the crate cost)
-							msg += "[span_good("+[pointsEarned]")]: Объект корректно отклонил груз [slip.ordernumber]: "
+							credits_earned = slip.cost - SSshuttle.credits_per_crate
+							total_credits += credits_earned // For now, give a full refund for paying attention (minus the crate cost)
+							msg += "[span_good("+[credits_earned]")]: Объект корректно отклонил груз [slip.ordernumber]: "
 							if(slip.erroneous & MANIFEST_ERROR_NAME)
 								msg += "Некорректный пункт назначения. "
 							else if(slip.erroneous & MANIFEST_ERROR_COUNT)
 								msg += "Ошибочный подсчёт грузов. "
 							else if(slip.erroneous & MANIFEST_ERROR_ITEM)
 								msg += "Недокомплектованный груз. "
-							msg += "Очки возвращены.<br>"
-						else if(!slip.erroneous && !denied) // Approving a proper order awards the relatively tiny points_per_slip
-							SSshuttle.points += SSshuttle.points_per_slip
-							msg += "[span_good("+[SSshuttle.points_per_slip]")]: Груз [slip.ordernumber] обозначен корректно.<br>"
+							msg += "Средства возвращены.<br>"
+						else if(!slip.erroneous && !denied) // Approving a proper order awards the relatively tiny credits_per_slip
+							total_credits += SSshuttle.credits_per_slip
+							msg += "[span_good("+[SSshuttle.credits_per_slip]")]: Груз [slip.ordernumber] обозначен корректно.<br>"
 						else // You done goofed.
 							if(slip.erroneous)
 								msg += "[span_good("+0")]: Груз [slip.ordernumber] одобрен, несмотря на ошибку: "
@@ -211,9 +212,9 @@
 									msg += "Обнаружены незафиксированные грузы."
 								msg += "  Будьте внимательнее.<br>"
 							else
-								pointsEarned = round(SSshuttle.points_per_crate - slip.points)
-								SSshuttle.points += pointsEarned
-								msg += "[span_bad("[pointsEarned]")]: Объект отклонил груз [slip.ordernumber]. Отчёты показывают, что ошибка не на нашей стороне.<br>"
+								credits_earned = round(SSshuttle.credits_per_crate - slip.cost)
+								total_credits += credits_earned
+								msg += "[span_bad("[credits_earned]")]: Объект отклонил груз [slip.ordernumber]. Отчёты показывают, что ошибка не на нашей стороне.<br>"
 						find_slip = FALSE
 					continue
 
@@ -221,9 +222,9 @@
 				if(istype(thing, /obj/item/documents))
 					var/obj/item/documents/docs = thing
 					if(INTEREST_NANOTRASEN & docs.sell_interest)
-						pointsEarned = round(SSshuttle.points_per_intel * docs.sell_multiplier)
-						SSshuttle.points += pointsEarned
-						msg += "[span_good("+[pointsEarned]")]: Получены важные разведданые.<br>"
+						credits_earned = round(SSshuttle.credits_per_intel * docs.sell_multiplier)
+						total_credits += credits_earned
+						msg += "[span_good("+[credits_earned]")]: Получены важные разведданые.<br>"
 
 				// Send tech levels
 				if(istype(thing, /obj/item/disk/tech_disk))
@@ -251,15 +252,15 @@
 					if(crate.quest.reward[category] < 0)
 						crate.quest.reward[category] = 0
 					crate.console.points[category] += crate.quest.reward[category]
-				pointsEarned = crate.quest.reward["robo"] * 30
-				SSshuttle.points += pointsEarned
+				credits_earned = crate.quest.reward["robo"] * ROBOQUEST_CREDITS_PER_POINT
+				total_credits += credits_earned
 				if(crate.quest.id)
 					var/datum/money_account/A = get_money_account(crate.quest.id.associated_account_number)
 					if(A)
 						A.money += crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
 				SSshuttle.cargo_money_account.money += crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
 				crate.console.on_quest_complete()
-				msg += "[span_good("+[pointsEarned]")]: Получен запрошенный экзоскелет: [crate.quest.name].<br>"
+				msg += "[span_good("+[credits_earned]")]: Получен запрошенный экзоскелет: [crate.quest.name].<br>"
 				crate.quest.id.robo_bounty = null
 				crate.quest = null
 
@@ -269,15 +270,17 @@
 		SSshuttle.sold_atoms += "."
 
 	if(quest_reward > 0)
-		msg += "[span_good("+[quest_reward]")]: Получены очки за заказы.<br>"
-		SSshuttle.points += quest_reward
+		msg += "[span_good("+[quest_reward]")]: Получена оплата за заказы.<br>"
+		total_credits += quest_reward
 
 	if(crate_count > 0)
-		pointsEarned = round(crate_count * SSshuttle.points_per_crate)
-		msg += "[span_good("+[pointsEarned]")]: Получен[DECL_0_Y_O(crate_count)] [crate_count] ящик[DECL_0_A_OV(crate_count)].<br>"
-		SSshuttle.points += pointsEarned
+		credits_earned = round(crate_count * SSshuttle.credits_per_crate)
+		msg += "[span_good("+[credits_earned]")]: Получен[DECL_0_Y_O(crate_count)] [crate_count] ящик[DECL_0_A_OV(crate_count)].<br>"
+		total_credits += credits_earned
 
 	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
+	if(total_credits)
+		cargo_money_account.credit(total_credits, "Расчёт за рейс шаттла снабжения", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 
 	for(var/datum/export/exported_datum in report.total_amount)
 		var/export_text = exported_datum.total_printout(report)
@@ -352,7 +355,7 @@
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
 	slip.erroneous = errors
-	slip.points = object.get_cost()
+	slip.cost = object.get_cost()
 	slip.ordernumber = ordernum
 
 	var/stationName = (errors & MANIFEST_ERROR_NAME) ? new_station_name() : station_name()
@@ -535,7 +538,6 @@
 	data["is_public"] = is_public
 
 	data["canapprove"] = (SSshuttle.supply.getDockedId() == "supply_away") && !(SSshuttle.supply.mode != SHUTTLE_IDLE) && !is_public
-	data["points"] = round(SSshuttle.points)
 	data["credits"] = SSshuttle.cargo_money_account.money
 
 	data["moving"] = SSshuttle.supply.mode != SHUTTLE_IDLE
@@ -557,7 +559,7 @@
 			if(!SSshuttle.techLevels[tech_id] || pack.required_tech[tech_id] > SSshuttle.techLevels[tech_id])
 				is_enough_techs = FALSE
 		if((pack.hidden && hacked) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
-			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "creditsCost" = pack.credits_cost, "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
+			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
 
 	data["supply_packs"] = packs_list
 
@@ -603,7 +605,7 @@
 				to_chat(usr, span_warning("По соображениям безопасности шаттл снабжения не может перемещать живые организмы, ядерное оружие или маячки перемещния."))
 			else if(SSshuttle.supply.getDockedId() == "supply_home")
 				SSshuttle.toggleShuttle("supply", "supply_home", "supply_away", 1)
-				investigate_log("[key_name_log(usr)] has sent the supply shuttle away. Remaining points: [SSshuttle.points]. Shuttle contents: [SSshuttle.sold_atoms]", INVESTIGATE_CARGO)
+				investigate_log("[key_name_log(usr)] has sent the supply shuttle away. Cargo budget: [SSshuttle.cargo_money_account.money]. Shuttle contents: [SSshuttle.sold_atoms]", INVESTIGATE_CARGO)
 			else if(!SSshuttle.supply.request(SSshuttle.getDock("supply_home")))
 				if(LAZYLEN(SSshuttle.shoppinglist) && prob(10))
 					var/datum/supply_order/O = new /datum/supply_order()
@@ -648,7 +650,7 @@
 			else if(issilicon(usr))
 				idname = usr.real_name
 
-			investigate_log("[key_name_log(usr)] made an order for [P.name] with amount [amount]. Points: [SSshuttle.points].", INVESTIGATE_CARGO)
+			investigate_log("[key_name_log(usr)] made an order for [P.name] with amount [amount]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
 			//make our supply_order datums
 			for(var/i = 1; i <= amount; i++)
 				var/datum/supply_order/O = SSshuttle.generateSupplyOrder(params["crate"], idname, idrank, reason, amount)
@@ -674,14 +676,11 @@
 					P = O.object
 /*					if(P.times_ordered >= P.order_limit && P.order_limit != -1) //If this order would put it over the limit, deny it. Unused for now (Crate limit #3056).
 						to_chat(usr, span_warning("[P.name] is out of stock, and can no longer be ordered."))	*/
-					if(P.can_approve(usr))
+					if(P.can_approve(usr) && SSshuttle.cargo_money_account.charge(P.get_cost(), null, "Заказ: [P.name]", "Консоль снабжения", "Центральное командование"))
 						SSshuttle.requestlist.Cut(i,i+1)
-						SSshuttle.points -= P.get_cost()
-						if(P.credits_cost)
-							SSshuttle.cargo_money_account.money -= P.credits_cost
 						SSshuttle.shoppinglist += O
 						P.times_ordered += 1
-						investigate_log("[key_name_log(usr)] has authorized an order for [P.name]. Remaining points: [SSshuttle.points].", INVESTIGATE_CARGO)
+						investigate_log("[key_name_log(usr)] has authorized an order for [P.name]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
 					break
 
 		if("deny")

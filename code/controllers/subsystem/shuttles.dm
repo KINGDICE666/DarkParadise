@@ -40,11 +40,9 @@ SUBSYSTEM_DEF(shuttle)
 		//supply shuttle stuff
 	var/obj/docking_port/mobile/supply/supply
 	var/ordernum = 1					//order number given to next order
-	var/points = 50						//number of trade-points we have
-	var/points_per_decisecond = 0.0025	//points gained every decisecond
-	var/points_per_slip = 2				//points gained per slip returned
-	var/points_per_crate = 5			//points gained per crate returned
-	var/points_per_intel = 250			//points gained per intel returned
+	var/credits_per_slip = 50
+	var/credits_per_crate = 125
+	var/credits_per_intel = 6250
 	var/centcom_message = null			//Remarks from Centcom on how well you checked the last order.
 	var/datum/money_account/cargo_money_account
 	var/list/techLevels = list()
@@ -99,7 +97,6 @@ SUBSYSTEM_DEF(shuttle)
 		CHECK_TICK
 
 /datum/controller/subsystem/shuttle/fire(resumed = FALSE)
-	points += points_per_decisecond * wait
 	for(var/thing in mobile)
 		if(!thing)
 			mobile.Remove(thing)
@@ -496,7 +493,7 @@ SUBSYSTEM_DEF(shuttle)
 
 	QDEL_LIST(remove_images)
 
-#define CRYOPOD_POINTS 50
+#define CRYOPOD_CREDITS 1250
 
 /datum/controller/subsystem/shuttle/proc/on_cryopod_despawn(datum/source, obj/machinery/cryopod/pod, mob/living/occupant)
 	SIGNAL_HANDLER
@@ -515,11 +512,11 @@ SUBSYSTEM_DEF(shuttle)
 	if(!is_station_level(pod.z) && !istype(get_area(pod), /area/mine))
 		return
 
-	points += CRYOPOD_POINTS
+	cargo_money_account.credit(CRYOPOD_CREDITS, "Компенсация за уход члена экипажа в крио", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 	centcom_message += "<center>---[station_time_timestamp()]---</center><br>"
-	centcom_message += "[span_good("+50")]: Компенсация за уход члена экипажа в крио при критической угрозе объекту.<hr>"
+	centcom_message += "[span_good("+[CRYOPOD_CREDITS]")]: Компенсация за уход члена экипажа в крио при критической угрозе объекту.<hr>"
 
-#undef CRYOPOD_POINTS
+#undef CRYOPOD_CREDITS
 
 /datum/controller/subsystem/shuttle/proc/block_recall(lockout_timer)
 	if(isnull(lockout_timer))

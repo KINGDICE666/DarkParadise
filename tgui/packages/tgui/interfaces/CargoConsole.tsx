@@ -94,7 +94,6 @@ const ContentsModal = (properties: ContentsModalProps) => {
 
 type StatusPaneData = {
   is_public: boolean;
-  points: number;
   credits: number;
   timeleft: number;
   moving: boolean;
@@ -103,7 +102,7 @@ type StatusPaneData = {
 
 const StatusPane = (_properties) => {
   const { act, data } = useBackend<StatusPaneData>();
-  const { is_public, points, credits, timeleft, moving, at_station } = data;
+  const { is_public, credits, timeleft, moving, at_station } = data;
 
   // Shuttle status text
   let statusText: string = '';
@@ -123,8 +122,9 @@ const StatusPane = (_properties) => {
     <Stack.Item>
       <Section title="Статус">
         <LabeledList>
-          <LabeledList.Item label="Очки снабжения">{points}</LabeledList.Item>
-          <LabeledList.Item label="Кредиты">{credits}</LabeledList.Item>
+          <LabeledList.Item label="Бюджет снабжения">
+            {credits} кредит{declension_ru(credits, '', 'а', 'ов')}
+          </LabeledList.Item>
           <LabeledList.Item label="Статус шаттла">
             {statusText}
           </LabeledList.Item>
@@ -225,17 +225,8 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                           : 'default'
                     }
                   >
-                    {c.name} (
-                    {c.cost
-                      ? `${c.cost} очк${declension_ru(c.cost, 'о', 'а', 'ов')}`
-                      : ''}
-                    {c.creditsCost && c.cost ? ' ' : ''}
-                    {c.creditsCost
-                      ? c.creditsCost +
-                        ' Кредит' +
-                        declension_ru(c.creditsCost, '', 'а', 'ов')
-                      : ''}
-                    )
+                    {c.name} ({c.cost} кредит
+                    {declension_ru(c.cost, '', 'а', 'ов')})
                   </Box>
                 </Table.Cell>
                 <Table.Cell textAlign="right" pr={1}>

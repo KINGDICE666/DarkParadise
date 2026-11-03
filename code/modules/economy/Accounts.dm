@@ -80,7 +80,7 @@ GLOBAL_DATUM(CC_account, /datum/money_account)
 	M.linked_job = link_job
 	M.salary_payment_active = salary_active
 	if(salary_active)
-		M.payment_process = new(SScapitalism.payment_account, M)
+		M.payment_process = new(M)
 
 	//create an entry in the account transaction log for when it was created
 	var/datum/transaction/T = new()
