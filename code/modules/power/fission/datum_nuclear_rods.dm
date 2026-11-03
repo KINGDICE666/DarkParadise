@@ -30,7 +30,7 @@
 
 	// Temp object lets us read in materials and adjacent requirements because you can't initial() a list
 	var/obj/item/nuclear_rod/temp_rod = new path()
-	metadata["name"] = capitalize(temp_rod.declent_ru(NOMINATIVE))
+	metadata["name"] = DECLENT_RU_CAP(temp_rod, NOMINATIVE)
 	var/list/raw_materials = temp_rod.materials
 	var/list/requirements = temp_rod.adjacent_requirements
 	qdel(temp_rod)

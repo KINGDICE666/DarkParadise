@@ -172,6 +172,7 @@
 	data["venting"] = active.venting
 	data["vent_lockout"] = active.vent_lockout
 	data["scram_active"] = active.scram_active
+	data["scram_hold"] = active.scram_hold
 	data["scram_lock"] = round(COOLDOWN_TIMELEFT(active, scram_cooldown) / (1 SECONDS))
 	data["history"] = active.history
 	data["gases"] = gas_ui_data(air.get_interesting(), GLOB.reactor_coolant_effects)
@@ -195,7 +196,7 @@
 			var/list/requirement_names = list()
 			for(var/requirement in rod.adjacent_requirements)
 				requirement_names += nuclear_rod_ru_name(requirement)
-			chamber_data["rod"] = capitalize(rod.declent_ru(NOMINATIVE))
+			chamber_data["rod"] = DECLENT_RU_CAP(rod, NOMINATIVE)
 			chamber_data["rod_class"] = rod.get_rod_class()
 			chamber_data["durability"] = rod.max_durability == INFINITY ? 100 : round(rod.durability / rod.max_durability * 100, 0.1)
 			chamber_data["power"] = chamber.operational ? round(chamber.power_total * durability_mod / (1 KILO WATTS), 0.1) : 0
@@ -238,6 +239,8 @@
 			var/new_power = 100 - clamp(round(throttle), 0, 100)
 			if(!new_power && active.desired_power)
 				active.investigate_log("[key_name(usr)] fully inserted the control rods at [active.operating_power]% operating power.", INVESTIGATE_REACTOR)
+			if(new_power)
+				active.scram_hold = FALSE
 			active.desired_power = new_power
 			return TRUE
 

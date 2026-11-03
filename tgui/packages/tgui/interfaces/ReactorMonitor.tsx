@@ -125,6 +125,7 @@ type Data = {
   venting: BooleanLike;
   vent_lockout: BooleanLike;
   scram_active: BooleanLike;
+  scram_hold: BooleanLike;
   scram_lock: number;
   history: History;
   gases: Gas[];
@@ -342,6 +343,7 @@ const ReactorControls = (props) => {
     venting,
     vent_lockout,
     scram_active,
+    scram_hold,
     scram_lock,
     control_lockout,
     offline,
@@ -419,10 +421,18 @@ const ReactorControls = (props) => {
         >
           {scram_active ? 'SCRAM выполняется...' : 'Аварийная остановка'}
         </Button.Confirm>
-        {scram_lock > 0 && (
+        {scram_lock > 0 ? (
           <Box mt={1} textAlign="center" color="average">
             Перезапуск заблокирован: {formatTime(scram_lock)}
           </Box>
+        ) : (
+          !!scram_hold &&
+          !scram_active && (
+            <Box mt={1} textAlign="center" color="label">
+              Стержни удержаны после SCRAM. Уменьшите погружение, чтобы
+              запустить реактор.
+            </Box>
+          )
         )}
       </Box>
       <Box mt={2}>

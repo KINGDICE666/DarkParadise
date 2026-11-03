@@ -157,6 +157,7 @@
 	var/pressure_damage_rate = 2
 	var/active_meltdown = FALSE
 	var/scram_active = FALSE
+	var/scram_hold = FALSE
 	var/list/last_moderator_gases = list()
 	var/list/history = list("power" = list(), "temperature" = list(), "integrity" = list())
 
@@ -568,7 +569,7 @@
 
 	var/minimum_power = 100 * (1 - (control_rods_remaining / TOTAL_CONTROL_RODS))
 	var/effective_control = 1 + gas_control_mod
-	if(scram_active || !COOLDOWN_FINISHED(src, scram_cooldown))
+	if(scram_hold)
 		if(operating_power > 0)
 			operating_power = max(0, operating_power - SCRAM_ROD_SPEED)
 			update_appearance(UPDATE_OVERLAYS)
@@ -1129,6 +1130,7 @@
 	if(scram_active || offline || control_lockout || safety_override)
 		return FALSE
 	scram_active = TRUE
+	scram_hold = TRUE
 	desired_power = 0
 	investigate_log("[key_name(user)] initiated an emergency SCRAM at [operating_power]% operating power.", INVESTIGATE_REACTOR)
 	var/lock_minutes = SCRAM_RESTART_DELAY / (1 MINUTES)

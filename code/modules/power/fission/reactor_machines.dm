@@ -160,7 +160,7 @@
 /obj/machinery/nuclear_centrifuge/proc/finish_enrichment()
 	playsound(src, 'sound/machines/ping.ogg', 30, TRUE)
 	update_use_power(IDLE_POWER_USE)
-	var/new_rod = new rod_result(contents)
+	var/new_rod = new rod_result(src)
 	rod_result = null
 	QDEL_NULL(held_rod)
 	held_rod = new_rod

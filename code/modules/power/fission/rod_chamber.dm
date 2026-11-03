@@ -571,7 +571,7 @@
 
 /// Validates that all rod requirements are being met
 /obj/machinery/atmospherics/reactor_chamber/proc/check_status()
-	if(!held_rod)
+	if(!held_rod || held_rod.durability <= 0)
 		return FALSE
 	if(!length(held_rod.adjacent_requirements))
 		return TRUE
@@ -602,6 +602,9 @@
 		return
 	if(!held_rod)
 		return
+	if(linked_reactor.safety_override && !linked_reactor.control_lockout) // we only remove control lockout when the others are ready
+		if(chamber_state == CHAMBER_OVERLOAD_IDLE && istype(held_rod, /obj/item/nuclear_rod/fuel))
+			set_active_overload() // For latejoiners
 	if(chamber_state != CHAMBER_DOWN) // We should only process reactor info when down
 		return
 	durability_level = held_rod.get_durability_level()
@@ -610,12 +613,12 @@
 		update_icon(UPDATE_OVERLAYS)
 	if(!linked_reactor.offline)
 		held_rod.calc_stat_decrease() // Only need to re-calc durability loss when the chamber is down and reactor is online
-	if(linked_reactor && linked_reactor.safety_override && !linked_reactor.control_lockout) // we only remove control lockout when the others are ready
-		if(chamber_state == CHAMBER_OVERLOAD_IDLE && istype(held_rod, /obj/item/nuclear_rod/fuel))
-			set_active_overload() // For latejoiners
-	if(operational && held_rod.durability <= 0)
-		requirements_met = FALSE
-		update_icon(UPDATE_OVERLAYS)
+	if(held_rod.durability <= 0)
+		if(operational || requirements_met)
+			operational = FALSE
+			requirements_met = FALSE
+			enriching = FALSE
+			update_icon(UPDATE_OVERLAYS)
 		return
 	if(!requirements_met && !operational)
 		if(check_status())
