@@ -232,6 +232,8 @@
 	dash_step(user, path)
 
 /obj/item/clothing/suit/space/chronos/proc/dash_step(mob/living/carbon/human/user, list/path)
+	if(QDELETED(user))
+		return
 	if(!length(path))
 		dash_landed(user)
 		return
