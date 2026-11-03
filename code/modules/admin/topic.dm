@@ -2961,6 +2961,9 @@
 			if("gimmickteam")
 				if(usr.client.gimmick_team())
 					SSblackbox.record_feedback("tally", "admin_secrets_fun_used", 1, "Send Team - Gimmick Team")
+			if("chronolegionnaire")
+				if(usr.client.send_chrono_legionnaire())
+					SSblackbox.record_feedback("tally", "admin_secrets_fun_used", 1, "Send Team - Chrono Legionnaire")
 			if("customportal")
 				if(!check_rights(R_EVENT))
 					return
