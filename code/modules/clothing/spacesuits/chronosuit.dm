@@ -51,6 +51,7 @@
 	var/obj/effect/chrono_phase/phase
 	var/mob/living/carbon/human/wearer
 	var/activated = FALSE
+	var/static/list/dash_traits = list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED, TRAIT_IGNORE_ELEVATION)
 	COOLDOWN_DECLARE(dash_cooldown)
 
 /obj/item/clothing/suit/space/chronos/get_ru_names()
@@ -89,8 +90,7 @@
 /obj/item/clothing/suit/space/chronos/Destroy()
 	deactivate()
 	if(isliving(loc))
-		var/mob/living/user = loc
-		user.remove_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
+		end_dash(loc)
 	return ..()
 
 /obj/item/clothing/suit/space/chronos/emp_act(severity)
@@ -225,9 +225,9 @@
 	path.Cut(landing_step + 1)
 	COOLDOWN_START(src, dash_cooldown, CHRONOSUIT_DASH_COOLDOWN)
 	user.stop_pulling()
-	user.add_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
+	user.add_traits(dash_traits, CHRONOSUIT_TRAIT)
+	user.add_offsets(CHRONOSUIT_TRAIT, z_add = CHRONOSUIT_DASH_HEIGHT)
 	new /obj/effect/temp_visual/circle_wave/chrono(user.loc)
-	animate(user, CHRONOSUIT_DASH_STEP_DELAY * 2, pixel_z = CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_OUT)
 	playsound(user, 'sound/effects/whoosh.ogg', 50, TRUE)
 	dash_step(user, path)
 
@@ -241,9 +241,12 @@
 		user.forceMove(next_turf)
 	addtimer(CALLBACK(src, PROC_REF(dash_step), user, path), CHRONOSUIT_DASH_STEP_DELAY)
 
+/obj/item/clothing/suit/space/chronos/proc/end_dash(mob/living/user)
+	user.remove_traits(dash_traits, CHRONOSUIT_TRAIT)
+	user.remove_offsets(CHRONOSUIT_TRAIT)
+
 /obj/item/clothing/suit/space/chronos/proc/dash_landed(mob/living/carbon/human/user)
-	user.remove_traits(list(TRAIT_MOVE_PHASING, TRAIT_IMMOBILIZED), CHRONOSUIT_TRAIT)
-	animate(user, CHRONOSUIT_DASH_STEP_DELAY * 2, pixel_z = -CHRONOSUIT_DASH_HEIGHT, flags = ANIMATION_RELATIVE, easing = SINE_EASING|EASE_IN)
+	end_dash(user)
 	var/turf/landing_turf = get_turf(user)
 	playsound(landing_turf, 'sound/magic/repulse.ogg', 60, TRUE)
 	new /obj/effect/temp_visual/shockwave(landing_turf, CHRONOSUIT_REPULSE_RANGE)
