@@ -9,6 +9,7 @@
 	var/trail_alpha
 	var/emit_time = 0.3 SECONDS
 	var/particles/particle_template
+	COOLDOWN_DECLARE(emit_cooldown)
 
 /datum/component/movement_trail/Initialize(trail_type = TRAIL_AFTERIMAGE, duration = 0.5 SECONDS, trail_color, trail_alpha = TRAIL_DEFAULT_ALPHA, particles/particle_template)
 	if(!ismovable(parent))
@@ -42,6 +43,9 @@
 		if(TRAIL_AFTERIMAGE)
 			new /obj/effect/temp_visual/trail_afterimage(old_loc, source, duration, trail_color, trail_alpha)
 		if(TRAIL_PARTICLES)
+			if(!COOLDOWN_FINISHED(src, emit_cooldown))
+				return
+			COOLDOWN_START(src, emit_cooldown, emit_time)
 			new /obj/effect/temp_visual/trail_particles(old_loc, particle_template, duration, emit_time)
 
 /obj/effect/temp_visual/trail_afterimage
@@ -51,6 +55,8 @@
 	src.duration = duration
 	. = ..()
 	appearance = copied.appearance
+	opacity = FALSE
+	render_target = null
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	particles = null
 	if(trail_color)
@@ -96,7 +102,13 @@
 				return
 			particle_template = new particle_path
 
-	var/default_duration = trail_type == TRAIL_PARTICLES ? 2 : 0.5
+	var/default_duration = 0.5
+	if(trail_type == TRAIL_PARTICLES)
+		var/lifespan = particle_template.lifespan
+		if(isgenerator(lifespan))
+			var/list/generator_args = return_generator_args(lifespan)
+			lifespan = max(text2num(generator_args[2]), text2num(generator_args[3]))
+		default_duration = min((/datum/component/movement_trail::emit_time + lifespan) / (1 SECONDS), TRAIL_MAX_DURATION_SECONDS)
 	var/duration = tgui_input_number(mob, "Сколько секунд живёт каждый след?", "Шлейф", default_duration, TRAIL_MAX_DURATION_SECONDS, 0.1, round_value = FALSE)
 	if(!duration)
 		return
