@@ -206,3 +206,10 @@
 	description = "У нас нашествие моли. Отправьте огнемёт, чтобы разобраться с ситуацией."
 	reward = CARGO_CRATE_VALUE * 4
 	wanted_types = list(/obj/item/flamethrower = TRUE)
+
+/datum/bounty/item/assistant/fish
+	name = "Рыба"
+	description = "Нам нужна рыба, чтобы заселить аквариумы. Отправьте несколько штук."
+	reward = CARGO_CRATE_VALUE * 9.5
+	required_count = 4
+	wanted_types = list(/obj/item/fish = TRUE)

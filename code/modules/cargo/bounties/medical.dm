@@ -61,6 +61,18 @@
 		/obj/item/organ/internal/eyes/optical_sensor = FALSE,
 	)
 
+/datum/bounty/item/medical/lizard_tail
+	name = "Хвост унатха"
+	description = "Федерация волшебников увела у \"Нанотрейзен\" весь запас хвостов унатхов. Пока ЦК разбирается с волшебниками, не найдётся ли на станции лишнего хвоста?"
+	reward = CARGO_CRATE_VALUE * 6
+	wanted_types = list(/obj/item/organ/external/tail/unathi = TRUE)
+
+/datum/bounty/item/medical/cat_tail
+	name = "Хвост таяры"
+	description = "На Центральном командовании кончились ёршики для труб повышенной прочности. Не отправите хвост таяры?"
+	reward = CARGO_CRATE_VALUE * 6
+	wanted_types = list(/obj/item/organ/external/tail/tajaran = TRUE)
+
 /datum/bounty/item/medical/chainsaw
 	name = "Бензопила"
 	description = "Главврач на ЦК не может оперировать големов. Она просит одну бензопилу, пожалуйста."

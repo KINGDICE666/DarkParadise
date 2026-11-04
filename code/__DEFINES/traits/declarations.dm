@@ -770,3 +770,5 @@
 /// Trait given to objects with the wallmounted component
 #define TRAIT_WALLMOUNTED "wallmounted"
 
+#define TRAIT_MECHA_DIAGNOSTIC_CREATED "trait_mecha_diagnostic_created"
+

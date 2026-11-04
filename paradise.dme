@@ -1621,6 +1621,7 @@
 #include "code\game\mecha\mecha_actions.dm"
 #include "code\game\mecha\mecha_construction_paths.dm"
 #include "code\game\mecha\mecha_control_console.dm"
+#include "code\game\mecha\mecha_diagnostic.dm"
 #include "code\game\mecha\mecha_modkit.dm"
 #include "code\game\mecha\mecha_parts.dm"
 #include "code\game\mecha\mecha_ui.dm"

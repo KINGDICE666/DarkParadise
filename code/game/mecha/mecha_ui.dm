@@ -56,6 +56,7 @@
 	var/list/data = list()
 	var/isoperator = user == occupant //maintenance mode outside of mech
 	data["isoperator"] = isoperator
+	data["diagnostic_status"] = HAS_TRAIT(src, TRAIT_MECHA_DIAGNOSTIC_CREATED)
 	data["cell"] = cell?.name
 	ui_view.appearance = appearance
 	data["name"] = name
@@ -192,6 +193,12 @@
 			else
 				alert(occupant, "nope.avi")
 			return
+		if("diagnostic")
+			if(HAS_TRAIT(src, TRAIT_MECHA_DIAGNOSTIC_CREATED))
+				return FALSE
+			new /obj/item/mecha_diagnostic(get_turf(src), src)
+			ADD_TRAIT(src, TRAIT_MECHA_DIAGNOSTIC_CREATED, UNIQUE_TRAIT_SOURCE(src))
+			return TRUE
 		if("dna_lock")
 			var/mob/living/carbon/user = usr
 			if(!istype(user) || !user.dna)
