@@ -1,0 +1,1097 @@
+$fax-border: #24405f;
+$fax-panel: #0f1e33;
+$fax-panel-header: #13263f;
+$fax-field: #0c1a2d;
+$fax-field-border: #2b4a6e;
+$fax-accent: #2f6fb7;
+$fax-accent-bright: #4a90e2;
+$fax-green: #2f9e4a;
+$fax-text: #e6edf6;
+$fax-muted: #93a7c0;
+
+.FaxConstructor {
+  display: grid;
+  grid-template-columns: 276px minmax(0, 1fr) 404px;
+  gap: 8px;
+  position: relative;
+  height: 100%;
+  padding: 8px;
+  color: $fax-text;
+  font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+  font-size: 13px;
+
+  button {
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+
+  .Input,
+  .Dropdown__control {
+    width: 100%;
+    min-height: 30px;
+    background-color: $fax-field;
+    border: 1px solid $fax-field-border;
+    border-radius: 4px;
+    color: $fax-text;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .Input {
+    line-height: 28px;
+  }
+
+  .Dropdown__control {
+    display: flex;
+    align-items: center;
+    line-height: normal;
+  }
+
+  .Input:focus {
+    border-color: $fax-accent-bright;
+  }
+
+  .Dropdown__control:hover {
+    background-color: #12243c;
+  }
+}
+
+.FaxConstructor__panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background-color: $fax-panel;
+  border: 1px solid $fax-border;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.FaxConstructor__panelHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 16px;
+  background-color: $fax-panel-header;
+  border-bottom: 1px solid $fax-border;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.FaxConstructor__panelHeaderIcon {
+  font-size: 20px;
+  color: #d5e0ee;
+}
+
+.FaxConstructor__brand {
+  min-height: 82px;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.FaxConstructor__brandIcon {
+  font-size: 38px;
+  color: #d5e0ee;
+}
+
+.FaxConstructor__headerTools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.FaxConstructor__zoomLabel {
+  min-width: 44px;
+  color: $fax-muted;
+  text-align: center;
+}
+
+.FaxConstructor__toolSeparator {
+  width: 1px;
+  height: 22px;
+  margin: 0 6px;
+  background-color: $fax-border;
+}
+
+.FaxConstructor__iconButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 13px;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: $fax-field-border;
+  }
+}
+
+.FaxConstructor__iconButton--danger:hover:not(:disabled) {
+  background-color: rgba(218, 54, 51, 0.3);
+  border-color: #da3633;
+}
+
+.FaxConstructor__iconButton--armed {
+  background-color: #da3633;
+}
+
+.FaxConstructor__nav {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.FaxConstructor__navItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 50px;
+  margin-bottom: 4px;
+  padding: 0 14px;
+  background-color: transparent;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  font-size: 15px;
+  text-align: left;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.FaxConstructor__navIcon {
+  flex-shrink: 0;
+  width: 24px;
+  font-size: 19px;
+  color: #c6d3e4;
+  text-align: center;
+}
+
+.FaxConstructor__navLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.FaxConstructor__navItem--active {
+  background: linear-gradient(90deg, #2a62a6, #2f6fb7);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  &:hover {
+    background: linear-gradient(90deg, #2a62a6, #2f6fb7);
+  }
+
+  .FaxConstructor__navIcon {
+    color: #fff;
+  }
+}
+
+.FaxConstructor__navItem--block {
+  cursor: grab;
+}
+
+.FaxConstructor__navItem--selected {
+  background-color: rgba(74, 144, 226, 0.14);
+  border-left-color: $fax-accent-bright;
+
+  &:hover {
+    background-color: rgba(74, 144, 226, 0.2);
+  }
+}
+
+.FaxConstructor__navItem--dropBefore {
+  box-shadow: 0 -2px 0 $fax-accent-bright;
+}
+
+.FaxConstructor__navItem--dropAfter {
+  box-shadow: 0 2px 0 $fax-accent-bright;
+}
+
+.FaxConstructor__navItem--dragging {
+  opacity: 0.45;
+}
+
+.FaxConstructor__navDivider {
+  height: 1px;
+  margin: 8px 6px;
+  background-color: $fax-border;
+}
+
+.FaxConstructor__addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  background-color: #182d49;
+  border: 1px solid $fax-field-border;
+  border-radius: 5px;
+  font-size: 14px;
+
+  &:hover:not(:disabled) {
+    background-color: #1f3859;
+  }
+}
+
+.FaxConstructor__addMenu {
+  margin-top: 6px;
+  padding: 4px;
+  background-color: $fax-field;
+  border: 1px solid $fax-field-border;
+  border-radius: 5px;
+}
+
+.FaxConstructor__addEntry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 8px;
+  background-color: transparent;
+  border: 0;
+  border-radius: 3px;
+  text-align: left;
+
+  &:hover {
+    background-color: rgba(74, 144, 226, 0.2);
+  }
+}
+
+.FaxConstructor__addHint {
+  display: block;
+  color: $fax-muted;
+  font-size: 11px;
+}
+
+.FaxConstructor__stage {
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  background-color: #1b2c44;
+  overflow: auto;
+}
+
+.FaxConstructor__paper {
+  width: 620px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 18px 20px;
+  background-color: #fff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+  color: #000;
+  font-family: Verdana, sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  user-select: none;
+}
+
+.FaxConstructor__paperBody {
+  position: relative;
+}
+
+.FaxConstructor__paperContent {
+  a {
+    color: #00e;
+  }
+
+  hr {
+    display: block;
+    height: 0;
+    margin: 0.6em 0;
+    border: 0;
+    border-top: 1px solid #555;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 2px;
+  }
+
+  td {
+    padding: 1px;
+  }
+
+  .paper_field {
+    display: inline-block;
+    min-width: 140px;
+    min-height: 1em;
+    border-bottom: 1px dotted #6f8bab;
+  }
+
+  [data-section] {
+    cursor: pointer;
+    outline: 1px dashed transparent;
+    outline-offset: 2px;
+  }
+
+  [data-section]:hover {
+    outline-color: rgba(47, 111, 183, 0.6);
+  }
+}
+
+.FaxConstructor__selection {
+  position: absolute;
+  border: 1.5px solid #3b82f6;
+  pointer-events: none;
+}
+
+.FaxConstructor__handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: 1.5px solid #3b82f6;
+}
+
+.FaxConstructor__blockTools {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  background-color: $fax-panel-header;
+  border: 1px solid $fax-accent;
+  border-radius: 4px 4px 0 0;
+  color: $fax-text;
+  pointer-events: auto;
+
+  .FaxConstructor__iconButton {
+    width: 26px;
+    height: 24px;
+    font-size: 11px;
+  }
+}
+
+.FaxConstructor__actions {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid $fax-border;
+}
+
+.FaxConstructor__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  background-color: #1b3250;
+  border: 1px solid $fax-field-border;
+  border-radius: 5px;
+  font-size: 15px;
+
+  &:hover {
+    background-color: #234166;
+  }
+}
+
+.FaxConstructor__action--primary {
+  background: linear-gradient(180deg, #33a851, #2a8c44);
+  border-color: #3bb35b;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(180deg, #3ab85a, #2f9e4a);
+  }
+}
+
+.FaxConstructor__properties {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 16px 16px;
+  overflow-y: auto;
+}
+
+.FaxConstructor__group {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid $fax-border;
+
+  &:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+
+.FaxConstructor__groupTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.FaxConstructor__field {
+  margin-bottom: 10px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.FaxConstructor__fieldLabel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: #c9d5e5;
+  font-size: 13px;
+}
+
+.FaxConstructor__counter {
+  color: $fax-muted;
+  font-size: 11px;
+}
+
+.FaxConstructor__fieldRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.FaxConstructor__logoRow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.FaxConstructor__logoFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 112px;
+  padding: 6px;
+  background-color: $fax-field;
+  border: 1px dashed #54779f;
+  border-radius: 3px;
+  color: $fax-muted;
+  text-align: center;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+.FaxConstructor__upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  margin-bottom: 8px;
+  background-color: #1f3b5e;
+  border: 1px solid #3a6290;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #274a75;
+  }
+}
+
+.FaxConstructor__radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 6px;
+}
+
+.FaxConstructor__radio {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0;
+  background-color: transparent;
+  border: 0;
+  font-size: 13px;
+  text-align: left;
+}
+
+.FaxConstructor__radioMark {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  background-color: $fax-field;
+  border: 1.5px solid #5d7fa8;
+  border-radius: 50%;
+}
+
+.FaxConstructor__radio--checked .FaxConstructor__radioMark {
+  border: 2px solid $fax-accent-bright;
+  background: radial-gradient(circle, #fff 0 3.5px, $fax-field 4px);
+}
+
+.FaxConstructor__segments {
+  display: flex;
+  gap: 2px;
+}
+
+.FaxConstructor__segment {
+  flex: 1;
+  min-height: 34px;
+  padding: 0;
+  background-color: #182d49;
+  border: 1px solid $fax-border;
+  font-size: 14px;
+
+  &:first-child {
+    border-radius: 4px 0 0 4px;
+  }
+
+  &:last-child {
+    border-radius: 0 4px 4px 0;
+  }
+
+  &:hover {
+    background-color: #203a5c;
+  }
+}
+
+.FaxConstructor__segment--active {
+  background-color: $fax-accent;
+  border-color: $fax-accent-bright;
+
+  &:hover {
+    background-color: $fax-accent;
+  }
+}
+
+.FaxConstructor__stepper {
+  display: flex;
+  height: 30px;
+  background-color: $fax-field;
+  border: 1px solid $fax-field-border;
+  border-radius: 4px;
+  overflow: hidden;
+
+  input {
+    flex: 1;
+    width: 0;
+    padding: 0 8px;
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    color: $fax-text;
+    font-family: inherit;
+    font-size: 13px;
+  }
+}
+
+.FaxConstructor__stepperButtons {
+  display: flex;
+  flex-direction: column;
+  width: 22px;
+  border-left: 1px solid $fax-field-border;
+
+  button {
+    flex: 1;
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    font-size: 8px;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.FaxConstructor__styleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.FaxConstructor__decorations {
+  display: flex;
+  gap: 2px;
+
+  button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background-color: #182d49;
+    border: 1px solid $fax-border;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #203a5c;
+    }
+  }
+}
+
+.FaxConstructor__decoration--active {
+  background-color: $fax-accent !important;
+  border-color: $fax-accent-bright !important;
+}
+
+.FaxConstructor__styleSeparator {
+  width: 1px;
+  height: 26px;
+  background-color: $fax-border;
+}
+
+.FaxConstructor__swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+
+  &:hover {
+    border-color: #fff;
+  }
+}
+
+.FaxConstructor__swatch--selected {
+  box-shadow:
+    0 0 0 2px $fax-panel,
+    0 0 0 4px $fax-accent-bright;
+}
+
+.FaxConstructor__customColor {
+  width: 84px;
+  margin-top: 8px;
+}
+
+.FaxConstructor__details {
+  margin-top: 4px;
+
+  summary {
+    padding: 6px 0;
+    color: #c9d5e5;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.FaxConstructor__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  border: 0;
+  font-size: 13px;
+  text-align: left;
+}
+
+.FaxConstructor__checkMark {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background-color: $fax-field;
+  border: 1.5px solid #5d7fa8;
+  border-radius: 3px;
+  font-size: 9px;
+}
+
+.FaxConstructor__check--checked .FaxConstructor__checkMark {
+  background-color: $fax-accent;
+  border-color: $fax-accent-bright;
+}
+
+.FaxConstructor__ghostButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  background-color: #182d49;
+  border: 1px solid $fax-border;
+  border-radius: 4px;
+  font-size: 13px;
+
+  &:hover:not(:disabled) {
+    background-color: #203a5c;
+  }
+}
+
+.FaxConstructor__editorTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px;
+  background-color: #14263e;
+  border: 1px solid $fax-field-border;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+
+  button {
+    min-width: 26px;
+    height: 24px;
+    padding: 0 5px;
+    background-color: transparent;
+    border: 0;
+    border-radius: 3px;
+    font-size: 11px;
+
+    &:hover {
+      background-color: rgba(74, 144, 226, 0.28);
+    }
+  }
+}
+
+.FaxConstructor__editor {
+  display: block;
+  width: 100%;
+  height: 190px;
+  padding: 8px;
+  background-color: $fax-field;
+  border: 1px solid $fax-field-border;
+  border-radius: 0 0 4px 4px;
+  outline: 0;
+  color: $fax-text;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.35;
+  resize: vertical;
+
+  &:focus {
+    border-color: $fax-accent-bright;
+  }
+}
+
+.FaxConstructor__hint {
+  margin-top: 6px;
+  color: $fax-muted;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.FaxConstructor__rowCard {
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.025);
+  border: 1px solid $fax-border;
+  border-radius: 4px;
+}
+
+.FaxConstructor__rowCard--dropBefore {
+  box-shadow: 0 -2px 0 $fax-accent-bright;
+}
+
+.FaxConstructor__rowCard--dropAfter {
+  box-shadow: 0 2px 0 $fax-accent-bright;
+}
+
+.FaxConstructor__rowHead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.FaxConstructor__rowGrip {
+  flex-shrink: 0;
+  width: 16px;
+  color: $fax-muted;
+  text-align: center;
+  cursor: grab;
+}
+
+.FaxConstructor__rowBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.FaxConstructor__stamps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.FaxConstructor__stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 88px;
+  padding: 6px 4px;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  color: #17263a !important;
+  font-size: 10.5px;
+  line-height: 1.15;
+
+  img {
+    max-width: 100%;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  &:hover {
+    border-color: $fax-accent-bright;
+  }
+}
+
+.FaxConstructor__stamp--selected {
+  background-color: #cfe3fb;
+  border-color: $fax-accent;
+  box-shadow: 0 0 0 1px $fax-accent-bright;
+}
+
+.FaxConstructor__gallery {
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  background-color: #1b2c44;
+  overflow-y: auto;
+}
+
+.FaxConstructor__galleryBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.FaxConstructor__gallerySearch {
+  flex: 1;
+  min-width: 180px;
+}
+
+.FaxConstructor__chip {
+  padding: 5px 11px;
+  background-color: #14263e;
+  border: 1px solid $fax-field-border;
+  border-radius: 14px;
+  font-size: 12px;
+
+  &:hover {
+    background-color: #203a5c;
+  }
+}
+
+.FaxConstructor__chip--active {
+  background-color: $fax-accent;
+  border-color: $fax-accent-bright;
+
+  &:hover {
+    background-color: $fax-accent;
+  }
+}
+
+.FaxConstructor__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.FaxConstructor__card {
+  position: relative;
+  padding: 0;
+  background-color: $fax-panel;
+  border: 1px solid $fax-border;
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: left;
+
+  &:hover {
+    border-color: $fax-accent-bright;
+    box-shadow: 0 0 0 1px $fax-accent-bright;
+  }
+}
+
+.FaxConstructor__cardOpen {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  text-align: left;
+}
+
+.FaxConstructor__thumb {
+  height: 214px;
+  background-color: #fff;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.FaxConstructor__thumbInner {
+  width: 620px;
+  padding: 16px;
+  color: #000;
+  font-family: Verdana, sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  transform: scale(0.31);
+  transform-origin: top left;
+
+  hr {
+    display: block;
+    height: 0;
+    margin: 0.6em 0;
+    border: 0;
+    border-top: 1px solid #555;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 2px;
+  }
+}
+
+.FaxConstructor__cardName {
+  padding: 8px 10px 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.FaxConstructor__cardMeta {
+  padding: 0 10px 8px;
+  color: $fax-muted;
+  font-size: 11px;
+}
+
+.FaxConstructor__cardDelete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: rgba(15, 30, 51, 0.92);
+}
+
+.FaxConstructor__empty {
+  padding: 28px 12px;
+  color: $fax-muted;
+  text-align: center;
+}
+
+.FaxConstructor__modalBackdrop {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(4, 10, 20, 0.72);
+}
+
+.FaxConstructor__modal {
+  display: flex;
+  flex-direction: column;
+  width: 520px;
+  max-height: 86%;
+  background-color: $fax-panel;
+  border: 1px solid $fax-field-border;
+  border-radius: 7px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.FaxConstructor__modalBody {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+.FaxConstructor__summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background-color: $fax-field;
+  border: 1px solid $fax-border;
+  border-radius: 4px;
+
+  dt {
+    color: $fax-muted;
+  }
+
+  dd {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.FaxConstructor__warning {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background-color: rgba(218, 54, 51, 0.18);
+  border: 1px solid #da3633;
+  border-radius: 4px;
+}
+
+.FaxConstructor__departments {
+  max-height: 210px;
+  margin-top: 6px;
+  border: 1px solid $fax-border;
+  border-radius: 4px;
+  overflow-y: auto;
+}
+
+.FaxConstructor__department {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  background-color: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(36, 64, 95, 0.5);
+  text-align: left;
+
+  &:hover {
+    background-color: rgba(74, 144, 226, 0.16);
+  }
+}
+
+.FaxConstructor__department--selected {
+  background-color: $fax-accent;
+
+  &:hover {
+    background-color: $fax-accent;
+  }
+}
+
+.FaxConstructor__modalActions {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: auto 1fr 1.2fr;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid $fax-border;
+}

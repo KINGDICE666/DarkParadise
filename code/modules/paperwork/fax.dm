@@ -29,6 +29,7 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 /datum/admins/proc/fax_panel(mob/living/user)
 	var/html = "<a align='right' href='byond://?src=[UID()];refreshfaxpanel=1'>Refresh</a>"
 	html += "<a align='right' href='byond://?src=[UID()];AdminFaxCreate=1;faxtype=Administrator'>Create Fax</a>"
+	html += "<a align='right' href='byond://?src=[UID()];AdminFaxConstructor=1;faxtype=Administrator'>Конструктор бланков</a>"
 
 	html += "<div class='block'>"
 	html += "<h2>Admin Faxes</h2>"
@@ -51,6 +52,7 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 				html += "<td>N/A</td>"
 			else
 				html += "<td><a align='right' href='byond://?src=[UID()];AdminFaxCreate=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Reply</a>"
+				html += "<br><a align='right' href='byond://?src=[UID()];AdminFaxConstructor=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Конструктор</a>"
 				if(A.sent_by)
 					html += "<br><a align='right' href='byond://?src=[UID()];AdminFaxNotify=[UID_of(A.sent_by)]'>Notify</a>"
 				html += "</td>"
@@ -85,3 +87,42 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 	var/datum/browser/popup = new(user, "fax_panel", "Fax Panel", 950, 450)
 	popup.set_content(html)
 	popup.open()
+
+/datum/admins/proc/transmit_admin_fax(obj/item/paper/paper, destination, obj/machinery/photocopier/faxmachine/fax, faxtype, reply_to, mob/sender, notify)
+	if(destination != "All Departments")
+		if(!fax?.receivefax(paper))
+			to_chat(owner, span_warning("Message transmission failed."), confidential = TRUE)
+			qdel(paper)
+			return FALSE
+	else
+		for(var/obj/machinery/photocopier/faxmachine/department_fax in GLOB.allfaxes)
+			if(is_station_level(department_fax.z))
+				INVOKE_ASYNC(src, PROC_REF(deliver_admin_fax), department_fax, paper)
+
+	var/datum/fax/admin/admin_fax = new /datum/fax/admin()
+	admin_fax.name = paper.name
+	admin_fax.from_department = faxtype
+	admin_fax.to_department = destination == "All Departments" ? "All Departments" : fax.department
+	admin_fax.origin = "Administrator"
+	admin_fax.message = paper
+	admin_fax.reply_to = reply_to
+	admin_fax.sent_by = usr
+	admin_fax.sent_at = world.time
+
+	to_chat(owner, span_notice("Message transmitted successfully."), confidential = TRUE)
+	if(notify)
+		var/mob/living/carbon/human/human_sender = sender
+		if(istype(human_sender) && human_sender.stat == CONSCIOUS && (istype(human_sender.l_ear, /obj/item/radio/headset) || istype(human_sender.r_ear, /obj/item/radio/headset)))
+			to_chat(sender, span_specialnotice("Ваша гарнитура издает звук, сигнализирующий о том, что пришёл ответ на ваш факс."), confidential = TRUE)
+			sender.playsound_local(sender, 'sound/items/new_fax_message.ogg', 50, FALSE, use_reverb = FALSE)
+	if(sender)
+		log_admin("[key_name(owner)] replied to a fax message from [key_name(sender)]: [paper.info]")
+		message_admins("[key_name_admin(owner)] replied to a fax message from [key_name_admin(sender)] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
+	else
+		log_admin("[key_name(owner)] sent a fax message to [destination]: [paper.info]")
+		message_admins("[key_name_admin(owner)] sent a fax message to [destination] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
+	return TRUE
+
+/datum/admins/proc/deliver_admin_fax(obj/machinery/photocopier/faxmachine/fax, obj/item/paper/paper)
+	if(!fax.receivefax(paper))
+		to_chat(owner, span_warning("Message transmission to [fax.department] failed."), confidential = TRUE)
