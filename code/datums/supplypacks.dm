@@ -5067,6 +5067,22 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		PREPOSITIONAL = "ящике с планшетом Квартирмейстера",
 	)
 
+/datum/supply_packs/misc/civilian_bounty
+	name = "Маяк гражданских баунти"
+	contains = list(
+		/obj/item/civ_bounty_beacon,
+	)
+	cost = 1000
+	containername = "ящик с маяком гражданских баунти"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик с маяком гражданских баунти",
+		GENITIVE = "ящика с маяком гражданских баунти",
+		DATIVE = "ящику с маяком гражданских баунти",
+		ACCUSATIVE = "ящик с маяком гражданских баунти",
+		INSTRUMENTAL = "ящиком с маяком гражданских баунти",
+		PREPOSITIONAL = "ящике с маяком гражданских баунти",
+	)
+
 /datum/supply_packs/misc/watertank
 	name = "Бак воды"
 	contains = list(

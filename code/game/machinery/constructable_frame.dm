@@ -1199,6 +1199,18 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stack/sheet/glass = 1,
 	)
 
+/obj/item/circuitboard/civilian_bounty_pad
+	board_name = "Civilian Bounty Pad"
+	build_path = /obj/machinery/civilian_bounty_pad
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=2;bluespace=2"
+	req_components = list(
+		/obj/item/stack/ore/bluespace_crystal = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/micro_laser = 1,
+	)
+
 /obj/item/circuitboard/quantumpad
 	board_name = "Quantum Pad"
 	build_path = /obj/machinery/quantumpad

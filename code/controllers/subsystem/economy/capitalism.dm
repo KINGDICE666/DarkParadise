@@ -31,6 +31,7 @@ SUBSYSTEM_DEF(capitalism)
 	var/list/completed_goals = list()
 	var/list/boosted_exports = list()
 	var/list/audit_log = list()
+	var/civ_bounty_tracker = 0
 
 /datum/controller/subsystem/capitalism/Initialize()
 	accounts_init()

@@ -483,6 +483,12 @@
 	build_path = /obj/machinery/computer/supplyquest
 	origin_tech = "programming=3"
 
+/obj/item/circuitboard/civilian_bounty
+	board_name = "Civilian Bounty Control Terminal"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	build_path = /obj/machinery/computer/civilian_bounty
+	origin_tech = "programming=2"
+
 /obj/item/circuitboard/questcons
 	board_name = "Supply Quest Monitor"
 	greyscale_colors = CIRCUIT_COLOR_SUPPLY
