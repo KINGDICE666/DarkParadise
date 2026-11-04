@@ -1,0 +1,300 @@
+.theme-cyberdeck:root,
+.theme-cyberdeck_black:root {
+  --base-gradient-spread: 1;
+  --border-radius-unit: 0;
+
+  .Layout__content {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        var(--deck-scanline) 0 1px,
+        transparent 1px 4px
+      ),
+      linear-gradient(180deg, var(--deck-glow) 0%, transparent 28%);
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: auto;
+  }
+
+  .TitleBar {
+    background-color: var(--deck-panel);
+    border-bottom: 1px solid var(--deck-accent);
+  }
+
+  .TitleBar__title {
+    color: var(--deck-accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .Tab--selected {
+    background-color: var(--deck-glow);
+    color: var(--deck-accent);
+  }
+}
+
+.theme-cyberdeck:root {
+  --color-base: hsl(165, 30%, 5%);
+  --color-primary: hsl(166, 55%, 26%);
+  --deck-accent: hsl(166, 72%, 60%);
+  --deck-dim: hsla(166, 72%, 60%, 0.28);
+  --deck-glow: hsla(166, 72%, 60%, 0.11);
+  --deck-panel: hsla(166, 45%, 14%, 0.55);
+  --deck-scanline: hsla(166, 72%, 60%, 0.025);
+}
+
+.theme-cyberdeck_black:root {
+  --color-base: hsl(0, 22%, 4%);
+  --color-primary: hsl(354, 60%, 28%);
+  --deck-accent: hsl(354, 88%, 66%);
+  --deck-dim: hsla(354, 88%, 66%, 0.3);
+  --deck-glow: hsla(354, 88%, 66%, 0.11);
+  --deck-panel: hsla(354, 40%, 13%, 0.55);
+  --deck-scanline: hsla(354, 88%, 66%, 0.025);
+}
+
+.Cyberdeck__mono {
+  font-family: Consolas, 'Lucida Console', 'Courier New', monospace;
+}
+
+.Cyberdeck__header {
+  background-color: var(--deck-panel);
+  border: 1px solid var(--deck-dim);
+  border-left: 3px solid var(--deck-accent);
+  padding: 0.5em 0.65em;
+}
+
+.Cyberdeck__deckName {
+  color: var(--deck-accent);
+  font-size: 1.2em;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+}
+
+.Cyberdeck__led {
+  background-color: var(--deck-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--deck-accent);
+  display: inline-block;
+  height: 0.55em;
+  margin-right: 0.45em;
+  vertical-align: middle;
+  width: 0.55em;
+}
+
+.Cyberdeck__led--off {
+  background-color: hsl(0, 0%, 35%);
+  box-shadow: none;
+}
+
+.Cyberdeck__led--bad {
+  background-color: hsl(0, 90%, 58%);
+  box-shadow: 0 0 6px hsl(0, 90%, 58%);
+}
+
+.Cyberdeck__gauges {
+  display: flex;
+  gap: 1em;
+  margin-top: 0.5em;
+}
+
+.Cyberdeck__gauge {
+  min-width: 0;
+}
+
+.Cyberdeck__gauge--wide {
+  flex: 1;
+}
+
+.Cyberdeck__gaugeLabel {
+  font-size: 0.8em;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+  text-transform: uppercase;
+}
+
+.Cyberdeck__gaugeValue {
+  font-size: 1.1em;
+  font-weight: bold;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.Cyberdeck__pips {
+  display: flex;
+  gap: 2px;
+  height: 0.9em;
+  margin-top: 0.3em;
+}
+
+.Cyberdeck__pip {
+  background-color: var(--deck-glow);
+  border: 1px solid var(--deck-dim);
+  flex: 1;
+  min-width: 0.6em;
+}
+
+.Cyberdeck__pip--on {
+  background-color: var(--deck-accent);
+  border-color: var(--deck-accent);
+}
+
+.Cyberdeck__bar {
+  background-color: var(--deck-glow);
+  border: 1px solid var(--deck-dim);
+  height: 0.9em;
+  margin-top: 0.3em;
+  overflow: hidden;
+}
+
+.Cyberdeck__barFill {
+  background-color: var(--deck-accent);
+  height: 100%;
+  transition: width 0.4s linear;
+}
+
+.Cyberdeck__linkMode {
+  background-color: var(--deck-glow);
+  border: 1px dashed var(--deck-accent);
+  margin-top: 0.5em;
+  padding: 0.3em 0.5em;
+}
+
+.Cyberdeck__groupTitle {
+  border-bottom: 1px solid var(--deck-dim);
+  color: var(--deck-accent);
+  font-size: 0.85em;
+  letter-spacing: 0.12em;
+  margin: 0.8em 0 0.35em;
+  padding-bottom: 0.15em;
+  text-transform: uppercase;
+}
+
+.Cyberdeck__groupTitle:first-child {
+  margin-top: 0;
+}
+
+.Cyberdeck__card {
+  background-color: var(--deck-panel);
+  border: 1px solid var(--deck-dim);
+  margin-bottom: 0.4em;
+  padding: 0.4em 0.5em;
+}
+
+.Cyberdeck__card--lost {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.Cyberdeck__cardHead {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5em;
+  justify-content: space-between;
+}
+
+.Cyberdeck__cardName {
+  font-weight: bold;
+}
+
+.Cyberdeck__cardMeta {
+  flex-shrink: 0;
+  font-size: 0.85em;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.Cyberdeck__tags {
+  margin-top: 0.2em;
+}
+
+.Cyberdeck__tag {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  display: inline-block;
+  font-size: 0.82em;
+  margin: 0.1em 0.25em 0.1em 0;
+  padding: 0 0.35em;
+  white-space: nowrap;
+}
+
+.Cyberdeck__tag--good {
+  border-color: hsla(140, 70%, 55%, 0.6);
+  color: hsl(140, 70%, 68%);
+}
+
+.Cyberdeck__tag--warn {
+  border-color: hsla(40, 90%, 55%, 0.6);
+  color: hsl(40, 90%, 68%);
+}
+
+.Cyberdeck__tag--bad {
+  border-color: hsla(0, 85%, 60%, 0.65);
+  color: hsl(0, 90%, 72%);
+}
+
+.Cyberdeck__actions {
+  margin-top: 0.3em;
+}
+
+.Cyberdeck__cost {
+  font-weight: bold;
+  margin-left: 0.45em;
+  opacity: 0.75;
+}
+
+.Cyberdeck__slots {
+  display: grid;
+  gap: 0.4em;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.Cyberdeck__slot {
+  background-color: var(--deck-panel);
+  border: 1px solid var(--deck-dim);
+  min-height: 3.6em;
+  padding: 0.35em 0.5em;
+}
+
+.Cyberdeck__slot--empty {
+  background-color: transparent;
+  border-style: dashed;
+  opacity: 0.55;
+}
+
+.Cyberdeck__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+}
+
+.Cyberdeck__kind {
+  border: 1px solid var(--deck-dim);
+  font-size: 0.9em;
+  opacity: 0.38;
+  padding: 0.1em 0.45em;
+}
+
+.Cyberdeck__kind--on {
+  background-color: var(--deck-glow);
+  border-color: var(--deck-accent);
+  opacity: 1;
+}
+
+.Cyberdeck__log {
+  background-color: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--deck-dim);
+  font-size: 0.88em;
+  height: 6.6em;
+  overflow: hidden;
+  padding: 0.25em 0.5em;
+}
+
+.Cyberdeck__logTime {
+  margin-right: 0.5em;
+  opacity: 0.5;
+}
+
+.Cyberdeck__logLine--bad {
+  color: hsl(0, 90%, 72%);
+}

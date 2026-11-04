@@ -11,6 +11,9 @@
 	if(.)
 		return .
 
+	if(HAS_TRAIT(src, TRAIT_FORENSIC_SCAN))
+		return MATRIX_FORENSIC_SCAN
+
 	var/obj/item/clothing/glasses/worn_glasses = glasses
 	var/obj/item/organ/internal/eyes/eyes = get_int_organ(/obj/item/organ/internal/eyes)
 	if(istype(worn_glasses) && worn_glasses.color_view) //Check to see if they got those magic glasses and they're augmenting the colour of what the wearer sees. If they're not, color_view should be null.

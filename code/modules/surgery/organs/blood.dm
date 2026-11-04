@@ -401,13 +401,13 @@
  * * splatter_strength: How many tiles it can go, and how many items it can pass over and dirty
  * * damage_dealt: The final damage dealt to the mob (after armor), used to determine blood effects
  */
-/mob/living/proc/spray_blood(splatter_direction, splatter_strength = 3, damage_dealt = 0)
+/mob/living/proc/spray_blood(splatter_direction, splatter_strength = 3, damage_dealt = 0, splatter_type = /obj/effect/decal/cleanable/blood/hitsplatter)
 	if(!isturf(loc))
 		return
 	var/splatter_color = get_blood_color()
 	if(!splatter_color)
 		return
-	var/obj/effect/decal/cleanable/blood/hitsplatter/our_splatter = new(loc, splatter_strength)
+	var/obj/effect/decal/cleanable/blood/hitsplatter/our_splatter = new splatter_type(loc, splatter_strength)
 
 	our_splatter.blood_dna_info = get_blood_dna_list()
 	our_splatter.transfer_mob_blood_dna(src)

@@ -36,6 +36,7 @@
 	var/engraving //engraving on the wall
 	var/engraving_quality
 	var/list/dent_decals
+	var/list/bullet_traces
 	var/sheet_type = /obj/item/stack/sheet/metal
 	var/sheet_amount = 2
 	var/girder_type = /obj/structure/girder
@@ -464,6 +465,7 @@
 			WELDER_REPAIR_SUCCESS_MESSAGE
 			cut_overlay(dent_decals)
 			dent_decals?.Cut()
+			bullet_traces = null
 			take_damage(-damage)
 
 /turf/simulated/wall/proc/try_rot(obj/item/I, mob/user, params)

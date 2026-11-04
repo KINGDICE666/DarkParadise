@@ -22,6 +22,11 @@
 	0, 0.44, 0.52,\
 	0.05, 0.49, 0.48)
 
+#define MATRIX_FORENSIC_SCAN list(\
+	0.16, 0.25, 0.3,\
+	0.32, 0.5, 0.59,\
+	0.07, 0.1, 0.11)
+
 /// Red colorblindness. Vulpkanins/Wolpins have this.
 #define PROTANOPIA_COLOR_REPLACE list( \
 	"red" = "darkolivegreen", \

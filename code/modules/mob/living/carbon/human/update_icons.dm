@@ -958,6 +958,11 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 	target_icon.SetIntensity(0.7)
 	return TRUE
 
+/mob/living/carbon/human/proc/apply_plating_tone(icon/target_icon)
+	if(!HAS_TRAIT(src, TRAIT_SUBDERMAL_PLATING))
+		return
+	target_icon.MapColors(0.64, 0.15, 0.16, 0.27, 0.79, 0.31, 0.05, 0.05, 0.56, 0.02, 0.02, 0.03)
+
 /mob/living/carbon/human/proc/update_tail_layer()
 	remove_overlay(TAIL_UNDERLIMBS_LAYER) // SEW direction icons, overlayed by LIMBS_LAYER.
 	remove_overlay(TAIL_LAYER) /* This will be one of two things:
@@ -990,6 +995,8 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 			else if(!zombified && (bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR))
 				if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
 					accessory_s.Blend(bodypart_tail.s_col, bodypart_tail.body_accessory.blend_mode)
+			if(!suit_tail_color && !zombified)
+				apply_plating_tone(accessory_s)
 			if(tail_marking_icon && !suit_tail_color && !zombified && (bodypart_tail.body_accessory.name in tail_marking_style.tails_allowed))
 				accessory_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
@@ -1039,6 +1046,7 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 				if(bodypart_tail.dna.species.bodyflags & HAS_SKIN_COLOR)
 					if(!(bodypart_tail.dna.species.bodyflags & HAS_ICON_SKIN_TONE))
 						tail_s.Blend(bodypart_tail.s_col, ICON_ADD)
+				apply_plating_tone(tail_s)
 				if(tail_marking_icon && !tail_marking_style.tails_allowed)
 					tail_s.Blend(tail_marking_icon, ICON_OVERLAY)
 			if(istype(bodypart_tail.body_accessory, /datum/body_accessory/tail) && bodypart_tail.dna.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs... (having a non-tail body accessory like the snake body will override this)
@@ -1278,7 +1286,7 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 	for(var/info in bonus_info)
 		result += "[info]"
 
-	return "[result.Join("")][!!husk][!!hulk][!!skeleton]"
+	return "[result.Join("")][!!husk][!!hulk][!!skeleton][!!HAS_TRAIT(src, TRAIT_SUBDERMAL_PLATING)]"
 
 /mob/living/carbon/human/update_ssd_overlay()
 	if(!isnull(player_logged))

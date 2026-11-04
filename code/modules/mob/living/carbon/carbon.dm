@@ -1003,7 +1003,7 @@ so that different stomachs can handle things in different ways VB*/
 	..()
 
 /mob/living/carbon/proc/shock_reduction()
-	var/shock_reduction = HAS_TRAIT(src, TRAIT_HIGH_PAIN_THRESHOLD) ? /datum/reagent/medicine/sal_acid::shock_reduction : 0
+	var/shock_reduction = implant_shock_reduction + (HAS_TRAIT(src, TRAIT_HIGH_PAIN_THRESHOLD) ? /datum/reagent/medicine/sal_acid::shock_reduction : 0)
 	if(reagents)
 		for(var/datum/reagent/R in reagents.reagent_list)
 			if(R.shock_reduction)

@@ -51,6 +51,12 @@
 		return null
 	return job.implant_variant
 
+/datum/gear/implant/forensic
+	index_name = "Detective Scanner Implant"
+	cost = 3
+	path = /obj/item/organ/internal/cyberimp/eyes/forensic
+	allowed_roles = list(JOB_TITLE_DETECTIVE)
+
 /datum/gear/implant/map_implant
 	index_name = "Minimap implant"
 	path = /obj/item/organ/internal/cyberimp/eyes/map

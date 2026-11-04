@@ -14,6 +14,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 	var/can_see_food = FALSE
 	/// Empty list == all species allowed
 	var/list/species_restrictions
+	var/ignore_cybernetic_restrictions = FALSE
 	light_system = OVERLAY_LIGHT
 	light_on = FALSE
 
