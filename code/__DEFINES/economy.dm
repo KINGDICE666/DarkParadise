@@ -12,6 +12,10 @@
 
 #define DEPARTMENT_GRANT 2500
 
+#define EXPORT_BOOST_MIN_AMOUNT 2
+#define EXPORT_BOOST_MAX_AMOUNT 4
+#define EXPORT_BOOST_MULT 3
+
 
 /// The name for the default type of money used in the code.
 #define MONEY_NAME "credits"

@@ -97,6 +97,7 @@ Then the player gets the profit from selling his own wasted time.
 
 	/// Unit name. Only used in "Received [total_amount] [name]s [message]."
 	var/unit_name = ""
+	var/report_name
 	/// Message appended to the sale report
 	var/message = ""
 
@@ -171,6 +172,8 @@ Then the player gets the profit from selling his own wasted time.
 	var/total = get_base_cost(exported_item) * get_amount(exported_item)
 	if(apply_elastic && initial(k_elasticity) > 0)
 		total *= k_elasticity
+	if(type in SScapitalism.boosted_exports)
+		total *= EXPORT_BOOST_MULT
 	return ROUND_UP(total)
 
 /// Checks if the item is fit for export datum.

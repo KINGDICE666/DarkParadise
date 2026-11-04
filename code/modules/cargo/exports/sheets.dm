@@ -14,6 +14,7 @@
 	amount_report_multiplier = SHEET_MATERIAL_AMOUNT
 	cost = CARGO_CRATE_VALUE * 0.8
 	message = "cm3 of Hot Ice"
+	report_name = "горячий лёд"
 	//material_id = /datum/material/hot_ice
 	export_types = list(/obj/item/stack/sheet/hot_ice)
 	//use_shared_exports = FALSE
@@ -24,6 +25,7 @@
 	k_recovery_time = 8 MINUTES
 	amount_report_multiplier = SHEET_MATERIAL_AMOUNT
 	message = "cm3 of metallic hydrogen"
+	report_name = "металлический водород"
 	//material_id = /datum/material/metalhydrogen
 	export_types = list(/obj/item/stack/sheet/mineral/metal_hydrogen)
 	//use_shared_exports = FALSE
@@ -31,6 +33,7 @@
 /datum/export/stack/ammonia_crystals
 	cost = CARGO_CRATE_VALUE * 0.125
 	unit_name = "of ammonia crystal"
+	report_name = "кристаллы аммиака"
 	export_types = list(/obj/item/stack/ammonia_crystals)
 
 //Only for Syndicate for now, NT has quests

@@ -29,6 +29,7 @@ SUBSYSTEM_DEF(capitalism)
 
 	/// Station goals that have already paid out so we don't double-pay them.
 	var/list/completed_goals = list()
+	var/list/boosted_exports = list()
 
 /datum/controller/subsystem/capitalism/Initialize()
 	accounts_init()
@@ -38,6 +39,36 @@ SUBSYSTEM_DEF(capitalism)
 /datum/controller/subsystem/capitalism/fire(resumed = FALSE)
 	pay_department_grants()
 	process_station_goals()
+	update_boosted_exports()
+
+/datum/controller/subsystem/capitalism/proc/update_boosted_exports()
+	boosted_exports.Cut()
+#ifndef UNIT_TESTS
+	var/list/valid_exports = list()
+	for(var/datum/export/export as anything in GLOB.exports_list)
+		if(export.sales_market == EXPORT_MARKET_STATION && export.report_name)
+			valid_exports += export
+	for(var/i in 1 to min(rand(EXPORT_BOOST_MIN_AMOUNT, EXPORT_BOOST_MAX_AMOUNT), length(valid_exports)))
+		var/datum/export/export = pick_n_take(valid_exports)
+		boosted_exports += export.type
+	announce_boosted_exports()
+#endif
+
+/datum/controller/subsystem/capitalism/proc/announce_boosted_exports()
+	var/list/names = list()
+	for(var/datum/export/export as anything in GLOB.exports_list)
+		if(export.type in boosted_exports)
+			names += export.report_name
+	if(!length(names))
+		return
+
+	var/datum/feed_message/report = new
+	report.author = EDITOR_NYX
+	report.admin_locked = TRUE
+	report.body = "Экономическая сводка сектора. Центральное командование сообщает о повышенном спросе: до следующей сводки за [english_list(names, and_text = " и ")] платят втрое больше обычного."
+	GLOB.news_network.get_channel_by_name(NEWS_CHANNEL_NYX)?.add_message(report)
+	for(var/obj/machinery/newscaster/newscaster as anything in GLOB.allNewscasters)
+		newscaster.alert_news(NEWS_CHANNEL_NYX)
 
 /datum/controller/subsystem/capitalism/proc/pay_department_grants()
 	for(var/department in GLOB.department_accounts)

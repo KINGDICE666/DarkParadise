@@ -5,6 +5,7 @@
 /datum/export/gas_canister
 	cost = CARGO_CRATE_VALUE * 0.05 //Base cost of canister. You get more for nice gases inside.
 	unit_name = "Gas Canister"
+	report_name = "газовые канистры"
 	export_types = list(/obj/machinery/portable_atmospherics/canister)
 
 /datum/export/gas_canister/get_base_cost(obj/machinery/portable_atmospherics/canister/canister)
