@@ -10,7 +10,7 @@
 /// Paygrade for Captain and some high-tier VIPs.
 #define PAYCHECK_MAX 750
 
-#define DEPARTMENT_GRANT 2500
+#define DEPARTMENT_GRANT 1500
 
 #define EXPORT_BOOST_MIN_AMOUNT 2
 #define EXPORT_BOOST_MAX_AMOUNT 4
@@ -34,6 +34,7 @@
 #define MAXIMUM_BOUNTY_JOBS 14
 
 #define BOUNTY_CUT_STANDARD 0.3
+#define CIV_BOUNTY_REWARD_MULTIPLIER 3
 #define CIV_BOUNTY_BASELINE 5
 
 

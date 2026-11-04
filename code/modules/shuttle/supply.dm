@@ -424,7 +424,7 @@
 	if(payment_type == CARGO_PAYMENT_PERSONAL && iscloset(Crate))
 		Crate.AddComponent(/datum/component/locked_to_account, paying_account)
 	if(payment_type == CARGO_PAYMENT_DEPARTMENT_ORDER && iscloset(Crate))
-		Crate.AddElement(/datum/element/deliver_first, payer_department, object.get_cost())
+		Crate.AddElement(/datum/element/deliver_first, payer_department, object.get_department_order_reward())
 
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()

@@ -51,6 +51,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	var/special = FALSE
 	var/special_enabled = FALSE
 	var/goody = FALSE
+	var/departmental = TRUE
 
 	// The number of times one can order a cargo crate, before it becomes restricted. -1 for infinite
 	// var/order_limit = -1 // Unused for now (Crate limit #3056).
@@ -79,6 +80,13 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 
 /datum/supply_packs/proc/get_cost()
 	return round(cost * SSshuttle.get_pack_price_modifier(), 1)
+
+/datum/supply_packs/proc/get_department_order_cooldown()
+	return DEPARTMENT_ORDER_COOLDOWN_COEFFICIENT * (log(10, max(get_cost(), 10)) ** DEPARTMENT_ORDER_COOLDOWN_EXPONENT) * (1 SECONDS)
+
+/datum/supply_packs/proc/get_department_order_reward()
+	var/pack_cost = get_cost()
+	return min(pack_cost, round(DEPARTMENT_ORDER_REWARD_COEFFICIENT * (log(10, max(pack_cost, 10)) ** DEPARTMENT_ORDER_REWARD_EXPONENT)))
 
 /datum/supply_packs/proc/has_required_tech()
 	for(var/tech_id in required_tech)
@@ -857,6 +865,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/security/armory
 	containertype = /obj/structure/closet/crate/secure/weapon
 	access = ACCESS_ARMORY
+	departmental = FALSE
 	announce_beacons = list("Security" = list("Warden", "Head of Security's Desk"))
 
 ///// Armor: Specialist

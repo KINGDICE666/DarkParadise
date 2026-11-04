@@ -32,7 +32,7 @@ GLOBAL_LIST_EMPTY(shared_crew_bounties)
 
 /datum/bounty/proc/get_bounty_reward()
 	var/high_priority_mult = high_priority ? 1.5 : 1
-	return reward * high_priority_mult
+	return reward * high_priority_mult * CIV_BOUNTY_REWARD_MULTIPLIER
 
 /datum/bounty/proc/on_selected(obj/item/card/id/id_card)
 	return

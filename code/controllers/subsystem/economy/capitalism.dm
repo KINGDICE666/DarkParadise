@@ -81,9 +81,16 @@ SUBSYSTEM_DEF(capitalism)
 		newscaster.alert_news(NEWS_CHANNEL_NYX)
 
 /datum/controller/subsystem/capitalism/proc/pay_department_grants()
+	var/list/payrolls = list()
+	for(var/datum/money_account/account as anything in GLOB.all_money_accounts)
+		var/datum/job/job = account.linked_job
+		if(!account.payment_process || !istype(job) || !job.department)
+			continue
+		payrolls[job.department] += job.paycheck * account.payment_process.modifier
+
 	for(var/department in GLOB.department_accounts)
 		var/datum/money_account/department_account = GLOB.department_accounts[department]
-		department_account.credit(DEPARTMENT_GRANT, "Плановое финансирование отдела.", "Отдел финансов \"Нанотрейзен\"", department_account.owner_name)
+		department_account.credit(DEPARTMENT_GRANT + payrolls[department], "Плановое финансирование отдела.", "Отдел финансов \"Нанотрейзен\"", department_account.owner_name)
 
 /// Walks the current gamemode's station goals, paying out any that completed since the last fire.
 /datum/controller/subsystem/capitalism/proc/process_station_goals()

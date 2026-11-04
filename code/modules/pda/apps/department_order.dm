@@ -30,7 +30,9 @@ GLOBAL_LIST_INIT(department_order_groups, list(
 /datum/data/pda/app/department_order/proc/can_order_pack(datum/supply_packs/pack, department)
 	if(!(pack.group in GLOB.department_order_groups[department]))
 		return FALSE
-	if(pack.hidden || pack.contraband || pack.goody || (pack.special && !pack.special_enabled))
+	if(!pack.departmental || pack.hidden || pack.contraband || pack.goody || (pack.special && !pack.special_enabled))
+		return FALSE
+	if(pack.get_cost() > DEPARTMENT_ORDER_MAX_COST)
 		return FALSE
 	return pack.has_required_tech()
 
@@ -94,7 +96,7 @@ GLOBAL_LIST_INIT(department_order_groups, list(
 			if(!order)
 				return
 			pending_orders[department] = order
-			department_cooldowns[department] = world.time + DEPARTMENT_ORDER_COOLDOWN_COEFFICIENT * (log(10, pack.get_cost()) ** DEPARTMENT_ORDER_COOLDOWN_EXPONENT) * (1 SECONDS)
+			department_cooldowns[department] = world.time + pack.get_department_order_cooldown()
 			pda.investigate_log("[key_name_log(usr)] placed a free department order for [pack.name] ([department]).", INVESTIGATE_CARGO)
 			pda.balloon_alert(usr, "заказ оформлен")
 
