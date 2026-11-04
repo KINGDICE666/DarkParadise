@@ -39,13 +39,24 @@ GLOBAL_LIST_INIT(department_order_groups, list(
 
 /datum/data/pda/app/department_order/update_ui(mob/user, list/data)
 	var/datum/money_account/account = get_account()
+	var/datum/job/job = account?.linked_job
+	if(istype(job) && job.head_position && GLOB.department_accounts[job.department])
+		var/datum/money_account/department_account = GLOB.department_accounts[job.department]
+		var/list/transactions = list()
+		for(var/datum/transaction/transaction as anything in department_account.transaction_log)
+			transactions.Insert(1, list(transaction.get_ui_data()))
+		data["statement"] = list(
+			"department" = GLOB.station_departments_ru[job.department],
+			"balance" = department_account.money,
+			"transactions" = transactions,
+		)
+
 	var/department = account?.get_order_department()
 	data["department_name"] = department ? GLOB.station_departments_ru[department] : null
 	data["can_order"] = !!GLOB.department_order_groups[department]
 	if(!data["can_order"])
 		return
 
-	var/datum/job/job = account.linked_job
 	var/datum/supply_order/pending_order = pending_orders[department]
 	if(!(pending_order in SSshuttle.shoppinglist))
 		pending_orders -= department

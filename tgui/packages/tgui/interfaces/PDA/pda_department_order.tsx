@@ -10,7 +10,22 @@ type DepartmentPack = {
   ref: string;
 };
 
+type Statement = {
+  department: string;
+  balance: number;
+  transactions: StatementTransaction[];
+};
+
+type StatementTransaction = {
+  date: string;
+  time: string;
+  target_name: string;
+  purpose: string;
+  amount: string;
+};
+
 type DepartmentOrderData = {
+  statement?: Statement;
   department_name: string | null;
   can_order: boolean;
   pending_order: string | null;
@@ -19,7 +34,52 @@ type DepartmentOrderData = {
   packs: DepartmentPack[];
 };
 
+const DepartmentStatement = (props: { statement: Statement }) => {
+  const { department, balance, transactions } = props.statement;
+
+  return (
+    <Section title={`Выписка: бюджет отдела «${department}»`}>
+      <LabeledList>
+        <LabeledList.Item label="Баланс">
+          {balance} кредит{declension_ru(balance, '', 'а', 'ов')}
+        </LabeledList.Item>
+      </LabeledList>
+      <Table mt={1}>
+        <Table.Row header>
+          <Table.Cell>Время</Table.Cell>
+          <Table.Cell>Назначение</Table.Cell>
+          <Table.Cell textAlign="right">Сумма</Table.Cell>
+        </Table.Row>
+        {transactions.map((transaction, index) => (
+          <Table.Row key={index}>
+            <Table.Cell collapsing>{transaction.time}</Table.Cell>
+            <Table.Cell>
+              {transaction.purpose}
+              <Box color="label">{transaction.target_name}</Box>
+            </Table.Cell>
+            <Table.Cell collapsing textAlign="right">
+              {transaction.amount}
+            </Table.Cell>
+          </Table.Row>
+        ))}
+      </Table>
+    </Section>
+  );
+};
+
 export const pda_department_order = (props: unknown) => {
+  const { data } = useBackend<DepartmentOrderData>();
+  const { statement } = data;
+
+  return (
+    <>
+      <DepartmentOrders />
+      {statement && <DepartmentStatement statement={statement} />}
+    </>
+  );
+};
+
+const DepartmentOrders = () => {
   const { act, data } = useBackend<DepartmentOrderData>();
   const {
     department_name,
@@ -32,7 +92,7 @@ export const pda_department_order = (props: unknown) => {
 
   if (!department_name || !can_order) {
     return (
-      <Box color="average">
+      <Box color="average" mb={1}>
         {department_name
           ? `Отдел «${department_name}» не может делать бесплатные заказы.`
           : 'Вставьте ID-карту со счётом, привязанным к отделу.'}

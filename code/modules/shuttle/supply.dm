@@ -173,6 +173,7 @@
 		container = new /obj/structure/closet/crate(destination)
 		container.AddComponent(/datum/component/locked_to_account, buyer)
 		if(buyer.charge(CARGO_GOODY_CRATE_FEE, SSshuttle.cargo_money_account, "Доставка личных покупок ящиком", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name, "Доставка личных покупок ящиком", buyer.owner_name))
+			SScapitalism.add_audit_entry(buyer, CARGO_GOODY_CRATE_FEE, "Отдел снабжения: доставка ящиком")
 			buyer.notify_pda_owner("<b>Оплата доставки </b>\"Личных покупок больше [CARGO_GOODY_FREE_SHIPPING_MAX], они доставлены в ящике. С вашего счёта списано [CARGO_GOODY_CRATE_FEE] кредит[DECL_0_A_OV(CARGO_GOODY_CRATE_FEE)] за доставку.\" (Невозможно Ответить)")
 	else
 		container = new /obj/item/storage/lockbox/order(destination, buyer)
@@ -778,6 +779,7 @@
 					return
 				if(!orderer_account.charge(total_price, null, "Заказ: [P.name] ×[amount]", "Консоль снабжения", "Отдел снабжения"))
 					return
+				SScapitalism.add_audit_entry(orderer_account, total_price, "Отдел снабжения: [P.name] ×[amount]")
 				orderer_account.notify_pda_owner("<b>Оплата заказа </b>\"С вашего счёта списано [total_price] кредит[DECL_0_A_OV(total_price)] за заказ: [P.name] ×[amount]. Груз прибудет ближайшим рейсом шаттла снабжения.\" (Невозможно Ответить)")
 
 			var/idname = "*Не указано*"

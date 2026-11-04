@@ -30,6 +30,7 @@ SUBSYSTEM_DEF(capitalism)
 	/// Station goals that have already paid out so we don't double-pay them.
 	var/list/completed_goals = list()
 	var/list/boosted_exports = list()
+	var/list/audit_log = list()
 
 /datum/controller/subsystem/capitalism/Initialize()
 	accounts_init()
@@ -40,6 +41,14 @@ SUBSYSTEM_DEF(capitalism)
 	pay_department_grants()
 	process_station_goals()
 	update_boosted_exports()
+
+/datum/controller/subsystem/capitalism/proc/add_audit_entry(datum/money_account/account, price, vendor)
+	audit_log += list(list(
+		"account" = account.owner_name,
+		"cost" = price,
+		"vendor" = "[vendor]",
+		"time" = station_time_timestamp("hh:mm"),
+	))
 
 /datum/controller/subsystem/capitalism/proc/update_boosted_exports()
 	boosted_exports.Cut()
