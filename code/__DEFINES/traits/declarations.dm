@@ -665,6 +665,8 @@
 /// Climbable trait, given and taken by the climbable element when added or removed. Exists to be easily checked via HAS_TRAIT().
 #define TRAIT_CLIMBABLE "trait_climbable"
 
+#define TRAIT_BANNED_FROM_CARGO_SHUTTLE "banned_from_cargo_shuttle"
+
 /// Trait which lets you clamber over a barrier
 #define TRAIT_FENCE_CLIMBER "can_climb_fences"
 

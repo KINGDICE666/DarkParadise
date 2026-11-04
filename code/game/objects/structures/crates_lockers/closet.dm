@@ -281,6 +281,7 @@ GLOBAL_LIST_EMPTY(closets)
 	dump_contents()
 	update_appearance()
 	after_open(user, force)
+	SEND_SIGNAL(src, COMSIG_CLOSET_POST_OPEN, user, force)
 	return TRUE
 
 /obj/structure/closet/set_opened()

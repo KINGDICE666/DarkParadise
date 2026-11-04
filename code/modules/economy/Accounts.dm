@@ -195,6 +195,12 @@ GLOBAL_DATUM(CC_account, /datum/money_account)
 		PM.notify(text, noti)
 		. = TRUE
 
+/datum/money_account/proc/get_order_department()
+	var/datum/job/job = linked_job
+	if(!istype(job) || job.department == STATION_DEPARTMENT_SUPPLY || !GLOB.department_accounts[job.department])
+		return
+	return job.department
+
 /datum/money_account/proc/set_suspended(suspended_actual_status)
 	suspended = suspended_actual_status
 	if(suspended)

@@ -446,10 +446,10 @@ SUBSYSTEM_DEF(shuttle)
 			O.paying_account = orderer_account
 		if(CARGO_PAYMENT_DEPARTMENT)
 			O.paying_account = GLOB.department_accounts[payer_department]
-		else
+		if(CARGO_PAYMENT_SUPPLY)
 			O.paying_account = cargo_money_account
 
-	if(payment_type == CARGO_PAYMENT_PERSONAL)
+	if(payment_type == CARGO_PAYMENT_PERSONAL || payment_type == CARGO_PAYMENT_DEPARTMENT_ORDER)
 		shoppinglist += O
 	else
 		requestlist += O

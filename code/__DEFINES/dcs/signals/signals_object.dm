@@ -398,3 +398,5 @@
 ///From open: (forced)
 #define COMSIG_CLOSET_PRE_OPEN "closet_pre_open"
 	#define BLOCK_OPEN (1<<0)
+///From open: (forced)
+#define COMSIG_CLOSET_POST_OPEN "closet_post_open"

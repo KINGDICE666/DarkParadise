@@ -58,7 +58,7 @@
 			var/mob/living/living = A
 			if(living.client) //You cannot get out of the capsule and you will be destroyed. Saving clients
 				return TRUE
-		if(is_type_in_list(A, cargo_blacklist))
+		if(is_type_in_list(A, cargo_blacklist) || HAS_TRAIT(A, TRAIT_BANNED_FROM_CARGO_SHUTTLE))
 			return TRUE
 		for(var/thing in A)
 			if(.(thing))
@@ -353,6 +353,8 @@
 			return paying_account.owner_name
 		if(CARGO_PAYMENT_DEPARTMENT)
 			return "бюджет отдела «[GLOB.station_departments_ru[payer_department]]»"
+		if(CARGO_PAYMENT_DEPARTMENT_ORDER)
+			return "заказ отдела «[GLOB.station_departments_ru[payer_department]]»"
 	return "бюджет снабжения"
 
 /datum/supply_order/proc/refund()
@@ -419,6 +421,8 @@
 
 	if(payment_type == CARGO_PAYMENT_PERSONAL && iscloset(Crate))
 		Crate.AddComponent(/datum/component/locked_to_account, paying_account)
+	if(payment_type == CARGO_PAYMENT_DEPARTMENT_ORDER && iscloset(Crate))
+		Crate.AddElement(/datum/element/deliver_first, payer_department, object.get_cost())
 
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
@@ -584,7 +588,7 @@
 /obj/machinery/computer/supplycomp/ui_data(mob/user)
 	var/list/data = list()
 	var/datum/money_account/user_account = get_user_account(user)
-	var/user_department = get_account_department(user_account)
+	var/user_department = user_account?.get_order_department()
 
 	var/list/requests_list = list()
 	for(var/set_name in SSshuttle.requestlist)
@@ -603,7 +607,7 @@
 	for(var/set_name in SSshuttle.shoppinglist)
 		var/datum/supply_order/SO = set_name
 		if(SO)
-			var/can_cancel = !is_public || (SO.payment_type == CARGO_PAYMENT_PERSONAL && SO.orderer_account == user_account)
+			var/can_cancel = SO.payment_type != CARGO_PAYMENT_DEPARTMENT_ORDER && (!is_public || (SO.payment_type == CARGO_PAYMENT_PERSONAL && SO.orderer_account == user_account))
 			orders_list.Add(list(list("ordernum" = SO.ordernum, "supply_type" = SO.object.name, "orderedby" = SO.orderedby, "comment" = SO.comment, "payer" = SO.get_payer_name(), "can_cancel" = can_cancel)))
 	data["orders"] = orders_list
 
@@ -659,12 +663,6 @@
 /obj/machinery/computer/supplycomp/proc/get_user_account(mob/user)
 	if(!issilicon(user))
 		return get_card_account(user)
-
-/obj/machinery/computer/supplycomp/proc/get_account_department(datum/money_account/account)
-	var/datum/job/job = account?.linked_job
-	if(!istype(job) || job.department == STATION_DEPARTMENT_SUPPLY || !GLOB.department_accounts[job.department])
-		return
-	return job.department
 
 /obj/machinery/computer/supplycomp/proc/can_pay_with(mob/user, datum/money_account/account, datum/supply_packs/pack)
 	if(!account)
@@ -750,7 +748,7 @@
 				if(!can_pay_with(ui.user, orderer_account, P))
 					return
 				if(payment_type == CARGO_PAYMENT_DEPARTMENT)
-					payer_department = get_account_department(orderer_account)
+					payer_department = orderer_account.get_order_department()
 					if(!payer_department)
 						balloon_alert(ui.user, "нет бюджета отдела!")
 						return
@@ -854,6 +852,8 @@
 			for(var/datum/supply_order/order as anything in SSshuttle.shoppinglist)
 				if(order.ordernum != ordernum)
 					continue
+				if(order.payment_type == CARGO_PAYMENT_DEPARTMENT_ORDER)
+					return
 				if(is_public && (order.payment_type != CARGO_PAYMENT_PERSONAL || order.orderer_account != user_account))
 					return
 				SSshuttle.shoppinglist -= order
