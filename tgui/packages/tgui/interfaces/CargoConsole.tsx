@@ -237,8 +237,10 @@ const CataloguePane = (
   const { act, data } = useBackend<CataloguePaneData & PaymentData>();
   const { categories, supply_packs, personal_markup } = data;
   const payment = useAvailablePayment(properties.payment);
-  const getPrice = (cost: number) =>
-    payment === 'personal' ? Math.round(cost * personal_markup) : cost;
+  const getPrice = (pack: SupplyPack & { cost: number; goody: boolean }) =>
+    payment === 'personal' && !pack.goody
+      ? Math.round(pack.cost * personal_markup)
+      : pack.cost;
 
   const [category, setCategory] = useSharedState(
     'category',
@@ -312,13 +314,19 @@ const CataloguePane = (
                           : 'default'
                     }
                   >
-                    {c.name} ({getPrice(c.cost)} кредит
-                    {declension_ru(getPrice(c.cost), '', 'а', 'ов')})
+                    {c.name} ({getPrice(c)} кредит
+                    {declension_ru(getPrice(c), '', 'а', 'ов')})
                   </Box>
                 </Table.Cell>
                 <Table.Cell textAlign="right" pr={1}>
                   <Button
                     icon="shopping-cart"
+                    disabled={c.goody && payment !== 'personal'}
+                    tooltip={
+                      c.goody && payment !== 'personal'
+                        ? 'Только за личный счёт'
+                        : undefined
+                    }
                     onClick={() =>
                       act('order', {
                         crate: c.ref,
@@ -331,6 +339,7 @@ const CataloguePane = (
                   </Button>
                   <Button
                     icon="cart-plus"
+                    disabled={c.goody && payment !== 'personal'}
                     onClick={() =>
                       act('order', {
                         crate: c.ref,

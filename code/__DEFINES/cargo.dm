@@ -10,6 +10,7 @@
 #define SUPPLY_VEND 9
 // Shit from a moron, delete and redo the Cut()
 #define SUPPLY_CONTRABAND 10
+#define SUPPLY_GOODIES 11
 
 #define STYLE_STANDARD 1
 #define STYLE_BLUESPACE 2
@@ -79,5 +80,8 @@
 #define CARGO_PAYMENT_PERSONAL "personal"
 
 #define CARGO_PERSONAL_ORDER_MARKUP 1.1
+
+#define CARGO_GOODY_FREE_SHIPPING_MAX 5
+#define CARGO_GOODY_CRATE_FEE 500
 
 #define SYNDICATE_CRATE_VALUE 50

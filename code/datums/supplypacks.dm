@@ -5,7 +5,7 @@
 //BIG NOTE: Don't add living things to crates, that's bad, it will break the shuttle.
 //NEW NOTE: Do NOT set the price of any crates below 7 points. Doing so allows infinite points.
 
-GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY_ENGINEER,SUPPLY_MEDICAL,SUPPLY_SCIENCE,SUPPLY_ORGANIC,SUPPLY_MATERIALS,SUPPLY_MISC,SUPPLY_VEND, SUPPLY_CONTRABAND))
+GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY_ENGINEER,SUPPLY_MEDICAL,SUPPLY_SCIENCE,SUPPLY_ORGANIC,SUPPLY_MATERIALS,SUPPLY_MISC,SUPPLY_VEND, SUPPLY_GOODIES, SUPPLY_CONTRABAND))
 
 /proc/get_supply_group_name(cat)
 	switch(cat)
@@ -29,6 +29,8 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 			return "Торговля"
 		if(SUPPLY_CONTRABAND)
 			return "Контрабанда"
+		if(SUPPLY_GOODIES)
+			return "Личные покупки"
 
 /datum/supply_packs
 	var/name = null
@@ -48,6 +50,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	/// Event/Station Goals/Admin enabled packs
 	var/special = FALSE
 	var/special_enabled = FALSE
+	var/goody = FALSE
 
 	// The number of times one can order a cargo crate, before it becomes restricted. -1 for infinite
 	// var/order_limit = -1 // Unused for now (Crate limit #3056).
@@ -6878,4 +6881,209 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		ACCUSATIVE = "ящик с пистолетом пулеметом \"Узи\"",
 		INSTRUMENTAL = "ящиком с пистолетом пулеметом \"Узи\"",
 		PREPOSITIONAL = "ящике с пистолетом пулеметом \"Узи\"",
+	)
+
+// MARK: Goodies
+/datum/supply_packs/goody
+	name = "HEADER"
+	group = SUPPLY_GOODIES
+	goody = TRUE
+
+/datum/supply_packs/goody/speedloader_c38
+	name = "Спидлоадер .38"
+	cost = PAYCHECK_CREW * 2
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/ammo_box/speedloader/c38,
+	)
+
+/datum/supply_packs/goody/speedloader_c38_hp
+	name = "Спидлоадер .38 с экспансивными пулями"
+	cost = PAYCHECK_CREW * 2
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/ammo_box/speedloader/c38/hp,
+	)
+
+/datum/supply_packs/goody/detective_revolver
+	name = "Револьвер детектива"
+	cost = PAYCHECK_CREW * 40
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/projectile/revolver/detective,
+	)
+
+/datum/supply_packs/goody/flashbang
+	name = "Светошумовая граната"
+	cost = PAYCHECK_COMMAND * 2.5
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/grenade/flashbang,
+	)
+
+/datum/supply_packs/goody/survival_knife
+	name = "Нож выживальщика"
+	cost = PAYCHECK_COMMAND * 1.75
+	contains = list(
+		/obj/item/kitchen/knife/combat/survival,
+	)
+
+/datum/supply_packs/goody/combat_shotgun
+	name = "Боевой дробовик"
+	cost = PAYCHECK_COMMAND * 15
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/projectile/shotgun/automatic/combat,
+	)
+
+/datum/supply_packs/goody/double_barrel
+	name = "Двуствольное ружьё"
+	cost = PAYCHECK_COMMAND * 18
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/projectile/revolver/doublebarrel,
+	)
+
+/datum/supply_packs/goody/disabler
+	name = "Дизейблер"
+	cost = PAYCHECK_COMMAND * 3
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/energy/disabler,
+	)
+
+/datum/supply_packs/goody/energy_gun
+	name = "Энергетический карабин"
+	cost = PAYCHECK_COMMAND * 12
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/energy/gun,
+	)
+
+/datum/supply_packs/goody/energy_pistol
+	name = "Энергетический пистолет"
+	cost = PAYCHECK_COMMAND * 2
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/energy/gun/mini,
+	)
+
+/datum/supply_packs/goody/laser
+	name = "Лазерная винтовка"
+	cost = PAYCHECK_COMMAND * 6
+	access = ACCESS_WEAPONS
+	contains = list(
+		/obj/item/gun/energy/laser,
+	)
+
+/datum/supply_packs/goody/syringe_gun
+	name = "Шприцемёт"
+	cost = PAYCHECK_CREW * 10
+	contains = list(
+		/obj/item/gun/syringe,
+	)
+
+/datum/supply_packs/goody/insulated_gloves
+	name = "Изолированные перчатки"
+	cost = PAYCHECK_CREW * 8
+	contains = list(
+		/obj/item/clothing/gloves/color/yellow,
+	)
+
+/datum/supply_packs/goody/combat_gloves
+	name = "Боевые перчатки"
+	cost = PAYCHECK_COMMAND * 6
+	contains = list(
+		/obj/item/clothing/gloves/combat,
+	)
+
+/datum/supply_packs/goody/firstaid_brute
+	name = "Аптечка от травм"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/storage/firstaid/brute,
+	)
+
+/datum/supply_packs/goody/firstaid_fire
+	name = "Аптечка от ожогов"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/storage/firstaid/fire,
+	)
+
+/datum/supply_packs/goody/firstaid_regular
+	name = "Обычная аптечка"
+	cost = PAYCHECK_CREW * 3
+	contains = list(
+		/obj/item/storage/firstaid/regular,
+	)
+
+/datum/supply_packs/goody/firstaid_o2
+	name = "Аптечка от удушья"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/storage/firstaid/o2,
+	)
+
+/datum/supply_packs/goody/firstaid_toxin
+	name = "Аптечка от токсинов"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/storage/firstaid/toxin,
+	)
+
+/datum/supply_packs/goody/mechanical_toolbox
+	name = "Механический ящик для инструментов"
+	cost = PAYCHECK_CREW * 3
+	contains = list(
+		/obj/item/storage/toolbox/mechanical,
+	)
+
+/datum/supply_packs/goody/electrical_toolbox
+	name = "Электрический ящик для инструментов"
+	cost = PAYCHECK_CREW * 3
+	contains = list(
+		/obj/item/storage/toolbox/electrical,
+	)
+
+/datum/supply_packs/goody/autolathe_board
+	name = "Плата автолата"
+	cost = PAYCHECK_CREW * 2
+	contains = list(
+		/obj/item/circuitboard/autolathe,
+	)
+
+/datum/supply_packs/goody/crew_monitor
+	name = "Портативный монитор экипажа"
+	cost = PAYCHECK_CREW * 6
+	contains = list(
+		/obj/item/sensor_device,
+	)
+
+/datum/supply_packs/goody/donk_pockets
+	name = "Коробка донк-покетов"
+	cost = PAYCHECK_CREW * 2
+	contains = list(
+		/obj/item/storage/box/donkpockets,
+	)
+
+/datum/supply_packs/goody/blahaj
+	name = "Плюшевая акула"
+	cost = PAYCHECK_CREW * 5
+	contains = list(
+		/obj/item/toy/plushie/blahaj,
+	)
+
+/datum/supply_packs/goody/corgi_plushie
+	name = "Плюшевый корги"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/toy/plushie/corgi,
+	)
+
+/datum/supply_packs/goody/carp_plushie
+	name = "Плюшевый карп"
+	cost = PAYCHECK_CREW * 4
+	contains = list(
+		/obj/item/toy/plushie/carp,
 	)

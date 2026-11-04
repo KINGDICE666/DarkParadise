@@ -121,10 +121,15 @@
 
 	var/list/processed_orders = list()
 	var/list/delivered_by_account = list()
+	var/list/goodies_by_account = list()
 	for(var/datum/supply_order/SO in SSshuttle.shoppinglist)
 		if(!SO.object)
 			stack_trace("Supply Order [SO] has no object associated with it.")
 			processed_orders += SO
+			continue
+
+		if(SO.object.goody)
+			LAZYADD(goodies_by_account[SO.paying_account], SO)
 			continue
 
 		var/turf/T = pick_n_take(emptyTurfs)		//turf we will place it in
@@ -148,9 +153,33 @@
 		if(SO.payment_type != CARGO_PAYMENT_SUPPLY)
 			LAZYADD(delivered_by_account[SO.orderer_account], "№[SO.ordernum] ([SO.object.name])")
 
+	for(var/datum/money_account/buyer as anything in goodies_by_account)
+		var/turf/T = pick_n_take(emptyTurfs)
+		if(!T)
+			break
+		var/list/buyer_orders = goodies_by_account[buyer]
+		pack_goodies(T, buyer, buyer_orders)
+		processed_orders += buyer_orders
+		for(var/datum/supply_order/order as anything in buyer_orders)
+			LAZYADD(delivered_by_account[buyer], "№[order.ordernum] ([order.object.name])")
+
 	SSshuttle.shoppinglist -= processed_orders
 	for(var/datum/money_account/account as anything in delivered_by_account)
 		account.notify_pda_owner("<b>Доставка груза </b>\"Шаттл снабжения доставил ваши заказы: [jointext(delivered_by_account[account], ", ")].\" (Невозможно Ответить)")
+
+/obj/docking_port/mobile/supply/proc/pack_goodies(turf/destination, datum/money_account/buyer, list/orders)
+	var/atom/container
+	if(length(orders) > CARGO_GOODY_FREE_SHIPPING_MAX)
+		container = new /obj/structure/closet/crate(destination)
+		container.AddComponent(/datum/component/locked_to_account, buyer)
+		if(buyer.charge(CARGO_GOODY_CRATE_FEE, SSshuttle.cargo_money_account, "Доставка личных покупок ящиком", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name, "Доставка личных покупок ящиком", buyer.owner_name))
+			buyer.notify_pda_owner("<b>Оплата доставки </b>\"Личных покупок больше [CARGO_GOODY_FREE_SHIPPING_MAX], они доставлены в ящике. С вашего счёта списано [CARGO_GOODY_CRATE_FEE] кредит[DECL_0_A_OV(CARGO_GOODY_CRATE_FEE)] за доставку.\" (Невозможно Ответить)")
+	else
+		container = new /obj/item/storage/lockbox/order(destination, buyer)
+	for(var/datum/supply_order/order as anything in orders)
+		for(var/path in order.object.contains)
+			new path(container)
+	container.update_appearance()
 
 /obj/docking_port/mobile/supply/proc/sell(obj/docking_port/stationary/destination)
 	if(destination.z != level_name_to_num(CENTCOMM))		//we only sell when we are -at- centcomm
@@ -604,16 +633,16 @@
 			if(!SSshuttle.techLevels[tech_id] || pack.required_tech[tech_id] > SSshuttle.techLevels[tech_id])
 				is_enough_techs = FALSE
 		if((pack.hidden && hacked) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
-			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
+			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs, "goody" = pack.goody)))
 
 	data["supply_packs"] = packs_list
 	data["personal_markup"] = CARGO_PERSONAL_ORDER_MARKUP
 
 	var/list/categories = list() // meow
 	for(var/category in GLOB.all_supply_groups)
+		if(category == SUPPLY_CONTRABAND && !can_order_contraband)
+			continue
 		categories.Add(list(list("name" = get_supply_group_name(category), "category" = category)))
-	if(!(src.can_order_contraband))
-		categories.Cut(SUPPLY_CONTRABAND) //cutting contraband category
 	data["categories"] = categories
 
 	return data
@@ -712,6 +741,10 @@
 
 			var/datum/money_account/orderer_account
 			var/payer_department
+			if(P.goody && payment_type != CARGO_PAYMENT_PERSONAL)
+				balloon_alert(ui.user, "только за личный счёт!")
+				return
+
 			if(payment_type != CARGO_PAYMENT_SUPPLY)
 				orderer_account = get_user_account(ui.user)
 				if(!can_pay_with(ui.user, orderer_account, P))
@@ -739,7 +772,7 @@
 			if(orderer_account && (!authorize_account(ui.user, orderer_account) || ..()))
 				return
 
-			var/personal_price = round(P.get_cost() * CARGO_PERSONAL_ORDER_MARKUP)
+			var/personal_price = P.goody ? P.get_cost() : round(P.get_cost() * CARGO_PERSONAL_ORDER_MARKUP)
 			if(payment_type == CARGO_PAYMENT_PERSONAL)
 				var/total_price = personal_price * amount
 				if(orderer_account.money < total_price)
