@@ -32,10 +32,7 @@ GLOBAL_LIST_INIT(department_order_groups, list(
 		return FALSE
 	if(pack.hidden || pack.contraband || pack.goody || (pack.special && !pack.special_enabled))
 		return FALSE
-	for(var/tech_id in pack.required_tech)
-		if(SSshuttle.techLevels[tech_id] < pack.required_tech[tech_id])
-			return FALSE
-	return TRUE
+	return pack.has_required_tech()
 
 /datum/data/pda/app/department_order/update_ui(mob/user, list/data)
 	var/datum/money_account/account = get_account()
@@ -43,8 +40,10 @@ GLOBAL_LIST_INIT(department_order_groups, list(
 	if(istype(job) && job.head_position && GLOB.department_accounts[job.department])
 		var/datum/money_account/department_account = GLOB.department_accounts[job.department]
 		var/list/transactions = list()
-		for(var/datum/transaction/transaction as anything in department_account.transaction_log)
-			transactions.Insert(1, list(transaction.get_ui_data()))
+		var/list/transaction_log = department_account.transaction_log
+		for(var/index in length(transaction_log) to 1 step -1)
+			var/datum/transaction/transaction = transaction_log[index]
+			transactions += list(transaction.get_ui_data())
 		data["statement"] = list(
 			"department" = GLOB.station_departments_ru[job.department],
 			"balance" = department_account.money,

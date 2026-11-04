@@ -80,16 +80,19 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/proc/get_cost()
 	return round(cost * SSshuttle.get_pack_price_modifier(), 1)
 
+/datum/supply_packs/proc/has_required_tech()
+	for(var/tech_id in required_tech)
+		if(!SSshuttle.techLevels[tech_id] || required_tech[tech_id] > SSshuttle.techLevels[tech_id])
+			return FALSE
+	return TRUE
+
 /datum/supply_packs/proc/can_approve(mob/user, datum/money_account/paying_account)
 	if(paying_account.money < get_cost())
 		to_chat(user, span_warning("Недостаточно средств на счёте плательщика."))
 		return FALSE
-	if(!length(required_tech))
-		return TRUE
-	for(var/tech_id in required_tech)
-		if(!SSshuttle.techLevels[tech_id] || required_tech[tech_id] > SSshuttle.techLevels[tech_id])
-			to_chat(user, span_warning("Недостаточный уровень технологий для заказа."))
-			return FALSE
+	if(!has_required_tech())
+		to_chat(user, span_warning("Недостаточный уровень технологий для заказа."))
+		return FALSE
 	return TRUE
 
 ////// Use the sections to keep things tidy please /Malkevin

@@ -315,6 +315,7 @@
 	var/datum/bounty/picked = id_account.bounties[choice]
 	id_account.bounties -= picked
 	QDEL_LIST(id_account.bounties)
+	id_account.bounties = null
 	id_account.set_bounty(picked, inserted_scan_id)
 	return picked
 

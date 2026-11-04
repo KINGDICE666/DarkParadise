@@ -128,7 +128,7 @@
 			processed_orders += SO
 			continue
 
-		if(SO.object.goody)
+		if(SO.object.goody && SO.paying_account)
 			LAZYADD(goodies_by_account[SO.paying_account], SO)
 			continue
 
@@ -137,15 +137,16 @@
 			break
 
 		var/errors = 0
-		if(prob(5))
-			errors |= MANIFEST_ERROR_COUNT
-			investigate_log("Supply order #[SO] generated a manifest with packages incorrectly counted.", INVESTIGATE_CARGO)
-		if(prob(5))
-			errors |= MANIFEST_ERROR_NAME
-			investigate_log("Supply order #[SO] generated a manifest with destination station incorrect.", INVESTIGATE_CARGO)
-		if(prob(5))
-			errors |= MANIFEST_ERROR_ITEM
-			investigate_log("Supply order #[SO] generated a manifest with package incomplete.", INVESTIGATE_CARGO)
+		if(SO.payment_type == CARGO_PAYMENT_SUPPLY)
+			if(prob(5))
+				errors |= MANIFEST_ERROR_COUNT
+				investigate_log("Supply order #[SO] generated a manifest with packages incorrectly counted.", INVESTIGATE_CARGO)
+			if(prob(5))
+				errors |= MANIFEST_ERROR_NAME
+				investigate_log("Supply order #[SO] generated a manifest with destination station incorrect.", INVESTIGATE_CARGO)
+			if(prob(5))
+				errors |= MANIFEST_ERROR_ITEM
+				investigate_log("Supply order #[SO] generated a manifest with package incomplete.", INVESTIGATE_CARGO)
 		SO.createObject(T, errors)
 		processed_orders += SO
 		if(SO.handling_fee)
@@ -172,7 +173,7 @@
 	if(length(orders) > CARGO_GOODY_FREE_SHIPPING_MAX)
 		container = new /obj/structure/closet/crate(destination)
 		container.AddComponent(/datum/component/locked_to_account, buyer)
-		if(buyer.charge(CARGO_GOODY_CRATE_FEE, SSshuttle.cargo_money_account, "Доставка личных покупок ящиком", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name, "Доставка личных покупок ящиком", buyer.owner_name))
+		if(buyer.money >= CARGO_GOODY_CRATE_FEE && buyer.charge(CARGO_GOODY_CRATE_FEE, SSshuttle.cargo_money_account, "Доставка личных покупок ящиком", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name, "Доставка личных покупок ящиком", buyer.owner_name))
 			SScapitalism.add_audit_entry(buyer, CARGO_GOODY_CRATE_FEE, "Отдел снабжения: доставка ящиком")
 			buyer.notify_pda_owner("<b>Оплата доставки </b>\"Личных покупок больше [CARGO_GOODY_FREE_SHIPPING_MAX], они доставлены в ящике. С вашего счёта списано [CARGO_GOODY_CRATE_FEE] кредит[DECL_0_A_OV(CARGO_GOODY_CRATE_FEE)] за доставку.\" (Невозможно Ответить)")
 	else
@@ -633,10 +634,7 @@
 	for(var/set_name in SSshuttle.supply_packs)
 		var/datum/supply_packs/pack = SSshuttle.supply_packs[set_name]
 		var/has_sale = pack.get_cost() < initial(pack.cost)
-		var/is_enough_techs = TRUE
-		for(var/tech_id in pack.required_tech)
-			if(!SSshuttle.techLevels[tech_id] || pack.required_tech[tech_id] > SSshuttle.techLevels[tech_id])
-				is_enough_techs = FALSE
+		var/is_enough_techs = pack.has_required_tech()
 		if((pack.hidden && hacked) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
 			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs, "goody" = pack.goody)))
 
@@ -742,6 +740,10 @@
 			var/payer_department
 			if(P.goody && payment_type != CARGO_PAYMENT_PERSONAL)
 				balloon_alert(ui.user, "только за личный счёт!")
+				return
+
+			if(payment_type == CARGO_PAYMENT_PERSONAL && !P.has_required_tech())
+				balloon_alert(ui.user, "мало тех. уровней!")
 				return
 
 			if(payment_type != CARGO_PAYMENT_SUPPLY)
