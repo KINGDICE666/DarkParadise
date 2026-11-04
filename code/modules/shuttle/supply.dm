@@ -119,15 +119,17 @@
 
 		emptyTurfs += T
 
+	var/list/processed_orders = list()
+	var/list/delivered_by_account = list()
 	for(var/datum/supply_order/SO in SSshuttle.shoppinglist)
 		if(!SO.object)
 			stack_trace("Supply Order [SO] has no object associated with it.")
+			processed_orders += SO
 			continue
 
 		var/turf/T = pick_n_take(emptyTurfs)		//turf we will place it in
 		if(!T)
-			SSshuttle.shoppinglist.Cut(1, SSshuttle.shoppinglist.Find(SO))
-			return
+			break
 
 		var/errors = 0
 		if(prob(5))
@@ -140,8 +142,15 @@
 			errors |= MANIFEST_ERROR_ITEM
 			investigate_log("Supply order #[SO] generated a manifest with package incomplete.", INVESTIGATE_CARGO)
 		SO.createObject(T, errors)
+		processed_orders += SO
+		if(SO.handling_fee)
+			SSshuttle.cargo_money_account.credit(SO.handling_fee, "Наценка за личный заказ №[SO.ordernum]", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name)
+		if(SO.payment_type != CARGO_PAYMENT_SUPPLY)
+			LAZYADD(delivered_by_account[SO.orderer_account], "№[SO.ordernum] ([SO.object.name])")
 
-	SSshuttle.shoppinglist.Cut()
+	SSshuttle.shoppinglist -= processed_orders
+	for(var/datum/money_account/account as anything in delivered_by_account)
+		account.notify_pda_owner("<b>Доставка груза </b>\"Шаттл снабжения доставил ваши заказы: [jointext(delivered_by_account[account], ", ")].\" (Невозможно Ответить)")
 
 /obj/docking_port/mobile/supply/proc/sell(obj/docking_port/stationary/destination)
 	if(destination.z != level_name_to_num(CENTCOMM))		//we only sell when we are -at- centcomm
@@ -302,6 +311,27 @@
 	var/orderedbyRank
 	var/comment = null
 	var/crates
+	var/payment_type = CARGO_PAYMENT_SUPPLY
+	var/datum/money_account/paying_account
+	var/datum/money_account/orderer_account
+	var/payer_department
+	var/paid_amount = 0
+	var/handling_fee = 0
+
+/datum/supply_order/proc/get_payer_name()
+	switch(payment_type)
+		if(CARGO_PAYMENT_PERSONAL)
+			return paying_account.owner_name
+		if(CARGO_PAYMENT_DEPARTMENT)
+			return "бюджет отдела «[GLOB.station_departments_ru[payer_department]]»"
+	return "бюджет снабжения"
+
+/datum/supply_order/proc/refund()
+	if(!paid_amount)
+		return
+	paying_account.credit(paid_amount, "Возврат средств за отменённый заказ №[ordernum]", "Консоль снабжения", paying_account.owner_name)
+	if(payment_type != CARGO_PAYMENT_SUPPLY)
+		orderer_account.notify_pda_owner("<b>Возврат средств </b>\"Заказ №[ordernum] ([object.name]) отменён. Возврат [paid_amount] кредит[DECL_0_A_OV(paid_amount)]: [get_payer_name()].\" (Невозможно Ответить)")
 
 /datum/supply_order/proc/generateRequisition(atom/_loc)
 	if(!object)
@@ -323,6 +353,7 @@
 	reqform.info += "ИНДЕКС: №[SSshuttle.ordernum]<br>"
 	reqform.info += "ЗАПРОСИВШИЙ: [orderedby]<br>"
 	reqform.info += "ПРИОРИТЕТ: [orderedbyRank]<br>"
+	reqform.info += "ОПЛАТА: [capitalize(get_payer_name())]<br>"
 	reqform.info += "ПРИЧИНА: [comment]<br>"
 	reqform.info += "ТИП ГРУЗА: [object.name]<br>"
 	reqform.info += "КОЛИЧЕСТВО ЯЩИКОВ: [crates]<br>"
@@ -341,7 +372,12 @@
 		return
 	//create the crate
 	var/atom/Crate = new object.containertype(_loc)
-	var/comment_suffix = comment ? " ([comment])" : ""
+	var/list/suffix_parts = list()
+	if(comment)
+		suffix_parts += comment
+	if(payment_type != CARGO_PAYMENT_SUPPLY)
+		suffix_parts += "оплата: [get_payer_name()]"
+	var/comment_suffix = length(suffix_parts) ? " ([suffix_parts.Join(", ")])" : ""
 	Crate.name = "[object.containername][comment_suffix]"
 	var/alist/base_names = object.container_ru_names
 	Crate.ru_names = alist()
@@ -351,6 +387,9 @@
 
 	if(object.access)
 		Crate:req_access = list(text2num(object.access))
+
+	if(payment_type == CARGO_PAYMENT_PERSONAL && iscloset(Crate))
+		Crate.AddComponent(/datum/component/locked_to_account, paying_account)
 
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
@@ -376,6 +415,7 @@
 	slip.info +="Пункт назначения: [stationName]<br>"
 	slip.info +="Запросивший: [orderedby]<br>"
 	slip.info +="Приоритет: [orderedbyRank]<br>"
+	slip.info +="Оплата: [capitalize(get_payer_name())]<br>"
 	slip.info +="Причина: [comment]<br>"
 	slip.info +="Тип груза: [object.name]<br>"
 	slip.info +="Требования к доступу: [object.access ? get_access_desc(object.access) : "Нет"]<br>"
@@ -514,6 +554,8 @@
 
 /obj/machinery/computer/supplycomp/ui_data(mob/user)
 	var/list/data = list()
+	var/datum/money_account/user_account = get_user_account(user)
+	var/user_department = get_account_department(user_account)
 
 	var/list/requests_list = list()
 	for(var/set_name in SSshuttle.requestlist)
@@ -525,17 +567,20 @@
 			if(length(SO.object.required_tech))
 				for(var/tech_id in SO.object.required_tech)
 					pack_techs += "[CallTechName(tech_id)]: [SO.object.required_tech[tech_id]];  "
-			requests_list.Add(list(list("ordernum" = SO.ordernum, "supply_type" = SO.object.name, "orderedby" = SO.orderedby, "comment" = SO.comment, "command1" = list("confirmorder" = SO.ordernum), "command2" = list("rreq" = SO.ordernum), "pack_techs" = pack_techs.Join(""))))
+			requests_list.Add(list(list("ordernum" = SO.ordernum, "supply_type" = SO.object.name, "orderedby" = SO.orderedby, "comment" = SO.comment, "payer" = SO.get_payer_name(), "cost" = SO.object.get_cost(), "command1" = list("confirmorder" = SO.ordernum), "command2" = list("rreq" = SO.ordernum), "pack_techs" = pack_techs.Join(""))))
 	data["requests"] = requests_list
 
 	var/list/orders_list = list()
 	for(var/set_name in SSshuttle.shoppinglist)
 		var/datum/supply_order/SO = set_name
 		if(SO)
-			orders_list.Add(list(list("ordernum" = SO.ordernum, "supply_type" = SO.object.name, "orderedby" = SO.orderedby, "comment" = SO.comment)))
+			var/can_cancel = !is_public || (SO.payment_type == CARGO_PAYMENT_PERSONAL && SO.orderer_account == user_account)
+			orders_list.Add(list(list("ordernum" = SO.ordernum, "supply_type" = SO.object.name, "orderedby" = SO.orderedby, "comment" = SO.comment, "payer" = SO.get_payer_name(), "can_cancel" = can_cancel)))
 	data["orders"] = orders_list
 
 	data["is_public"] = is_public
+	data["has_account"] = !isnull(user_account)
+	data["department_name"] = user_department ? GLOB.station_departments_ru[user_department] : null
 
 	data["canapprove"] = (SSshuttle.supply.getDockedId() == "supply_away") && !(SSshuttle.supply.mode != SHUTTLE_IDLE) && !is_public
 	data["credits"] = SSshuttle.cargo_money_account.money
@@ -562,6 +607,7 @@
 			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs)))
 
 	data["supply_packs"] = packs_list
+	data["personal_markup"] = CARGO_PERSONAL_ORDER_MARKUP
 
 	var/list/categories = list() // meow
 	for(var/category in GLOB.all_supply_groups)
@@ -579,6 +625,40 @@
 	if(user.can_admin_interact())
 		return TRUE
 
+	return FALSE
+
+/obj/machinery/computer/supplycomp/proc/get_user_account(mob/user)
+	if(!issilicon(user))
+		return get_card_account(user)
+
+/obj/machinery/computer/supplycomp/proc/get_account_department(datum/money_account/account)
+	var/datum/job/job = account?.linked_job
+	if(!istype(job) || job.department == STATION_DEPARTMENT_SUPPLY || !GLOB.department_accounts[job.department])
+		return
+	return job.department
+
+/obj/machinery/computer/supplycomp/proc/can_pay_with(mob/user, datum/money_account/account, datum/supply_packs/pack)
+	if(!account)
+		balloon_alert(user, "нет привязанного счёта!")
+		return FALSE
+	if(account.suspended)
+		balloon_alert(user, "счёт заблокирован!")
+		return FALSE
+	var/obj/item/card/id/id_card = user.get_id_card()
+	if(pack.access && !(pack.access in id_card.GetAccess()))
+		balloon_alert(user, "нет доступа к грузу!")
+		return FALSE
+	return TRUE
+
+/obj/machinery/computer/supplycomp/proc/authorize_account(mob/user, datum/money_account/account)
+	if(!account.security_level)
+		return TRUE
+	var/attempt_pin = tgui_input_number(user, "Введите PIN-код счёта", "Оплата заказа", max_value = 999999, min_value = 100000)
+	if(isnull(attempt_pin))
+		return FALSE
+	if(attempt_account_access(account.account_number, attempt_pin, 2))
+		return TRUE
+	balloon_alert(user, "неверный PIN-код!")
 	return FALSE
 
 /obj/machinery/computer/supplycomp/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -626,6 +706,22 @@
 				to_chat(usr, span_warning("[P.name] is out of stock, and can no longer be ordered."))	// Unused for now (Crate limit #3056).
 				return	*/
 
+			var/payment_type = params["payment"]
+			if(!(payment_type in list(CARGO_PAYMENT_SUPPLY, CARGO_PAYMENT_DEPARTMENT, CARGO_PAYMENT_PERSONAL)))
+				return
+
+			var/datum/money_account/orderer_account
+			var/payer_department
+			if(payment_type != CARGO_PAYMENT_SUPPLY)
+				orderer_account = get_user_account(ui.user)
+				if(!can_pay_with(ui.user, orderer_account, P))
+					return
+				if(payment_type == CARGO_PAYMENT_DEPARTMENT)
+					payer_department = get_account_department(orderer_account)
+					if(!payer_department)
+						balloon_alert(ui.user, "нет бюджета отдела!")
+						return
+
 			var/amount = 1
 			if(params["multiple"])
 				var/num_input = tgui_input_number(ui.user, "Объём заказа", "Укажите количество ящиков", max_value = 20, min_value = 1)
@@ -640,6 +736,19 @@
 				return
 			reason = sanitize(copytext_char(reason, 1, 100)) //Preventing tgui overflow
 
+			if(orderer_account && (!authorize_account(ui.user, orderer_account) || ..()))
+				return
+
+			var/personal_price = round(P.get_cost() * CARGO_PERSONAL_ORDER_MARKUP)
+			if(payment_type == CARGO_PAYMENT_PERSONAL)
+				var/total_price = personal_price * amount
+				if(orderer_account.money < total_price)
+					balloon_alert(ui.user, "недостаточно средств!")
+					return
+				if(!orderer_account.charge(total_price, null, "Заказ: [P.name] ×[amount]", "Консоль снабжения", "Отдел снабжения"))
+					return
+				orderer_account.notify_pda_owner("<b>Оплата заказа </b>\"С вашего счёта списано [total_price] кредит[DECL_0_A_OV(total_price)] за заказ: [P.name] ×[amount]. Груз прибудет ближайшим рейсом шаттла снабжения.\" (Невозможно Ответить)")
+
 			var/idname = "*Не указано*"
 			var/idrank = "*Не указано*"
 
@@ -650,13 +759,17 @@
 			else if(issilicon(usr))
 				idname = usr.real_name
 
-			investigate_log("[key_name_log(usr)] made an order for [P.name] with amount [amount]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
+			investigate_log("[key_name_log(usr)] made an order for [P.name] with amount [amount], payment: [payment_type][payer_department ? " ([payer_department])" : ""]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
 			//make our supply_order datums
 			for(var/i = 1; i <= amount; i++)
-				var/datum/supply_order/O = SSshuttle.generateSupplyOrder(params["crate"], idname, idrank, reason, amount)
+				var/datum/supply_order/O = SSshuttle.generateSupplyOrder(params["crate"], idname, idrank, reason, amount, payment_type, orderer_account, payer_department)
 				if(!O)
 					return
-				if(i == 1)
+				if(payment_type == CARGO_PAYMENT_PERSONAL)
+					O.paid_amount = personal_price
+					O.handling_fee = personal_price - P.get_cost()
+					P.times_ordered += 1
+				else if(i == 1)
 					O.generateRequisition(loc)
 
 		if("approve")
@@ -676,11 +789,14 @@
 					P = O.object
 /*					if(P.times_ordered >= P.order_limit && P.order_limit != -1) //If this order would put it over the limit, deny it. Unused for now (Crate limit #3056).
 						to_chat(usr, span_warning("[P.name] is out of stock, and can no longer be ordered."))	*/
-					if(P.can_approve(usr) && SSshuttle.cargo_money_account.charge(P.get_cost(), null, "Заказ: [P.name]", "Консоль снабжения", "Центральное командование"))
+					if(P.can_approve(usr, O.paying_account) && O.paying_account.charge(P.get_cost(), null, "Заказ: [P.name]", "Консоль снабжения", "Центральное командование"))
+						O.paid_amount = P.get_cost()
 						SSshuttle.requestlist.Cut(i,i+1)
 						SSshuttle.shoppinglist += O
 						P.times_ordered += 1
-						investigate_log("[key_name_log(usr)] has authorized an order for [P.name]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
+						if(O.payment_type == CARGO_PAYMENT_DEPARTMENT)
+							O.orderer_account.notify_pda_owner("<b>Оплата заказа </b>\"Запрос №[O.ordernum] ([P.name]) одобрен, с бюджета вашего отдела списано [O.paid_amount] кредит[DECL_0_A_OV(O.paid_amount)].\" (Невозможно Ответить)")
+						investigate_log("[key_name_log(usr)] has authorized an order for [P.name], paid by [O.paying_account.owner_name]. Cargo budget: [SSshuttle.cargo_money_account.money].", INVESTIGATE_CARGO)
 					break
 
 		if("deny")
@@ -698,6 +814,19 @@
 					else
 						SSshuttle.requestlist.Cut(i,i+1)
 						break
+
+		if("cancel")
+			var/ordernum = text2num(params["ordernum"])
+			var/datum/money_account/user_account = get_user_account(usr)
+			for(var/datum/supply_order/order as anything in SSshuttle.shoppinglist)
+				if(order.ordernum != ordernum)
+					continue
+				if(is_public && (order.payment_type != CARGO_PAYMENT_PERSONAL || order.orderer_account != user_account))
+					return
+				SSshuttle.shoppinglist -= order
+				investigate_log("[key_name_log(usr)] has cancelled an order for [order.object.name], refunding [order.paid_amount] to [order.paying_account?.owner_name].", INVESTIGATE_CARGO)
+				order.refund()
+				break
 
 		// Popup to show CC message logs. Its easier this way to avoid box-spam in TGUI
 		if("showMessages")

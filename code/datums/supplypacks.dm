@@ -77,9 +77,9 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/proc/get_cost()
 	return round(cost * SSshuttle.get_pack_price_modifier(), 1)
 
-/datum/supply_packs/proc/can_approve(mob/user)
-	if(SSshuttle.cargo_money_account.money < get_cost())
-		to_chat(user, span_warning("Недостаточно средств на счёте отдела снабжения."))
+/datum/supply_packs/proc/can_approve(mob/user, datum/money_account/paying_account)
+	if(paying_account.money < get_cost())
+		to_chat(user, span_warning("Недостаточно средств на счёте плательщика."))
 		return FALSE
 	if(!length(required_tech))
 		return TRUE

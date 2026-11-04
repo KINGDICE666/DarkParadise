@@ -17,9 +17,46 @@ import { createSearch } from 'tgui-core/string';
 import { useBackend, useSharedState } from '../backend';
 import { Window } from '../layouts';
 
+type Payment = 'supply' | 'department' | 'personal';
+
+type PaymentProps = {
+  payment: Payment;
+  setPayment: React.Dispatch<React.SetStateAction<Payment>>;
+};
+
+type PaymentData = {
+  has_account: boolean;
+  department_name: string | null;
+  personal_markup: number;
+};
+
+type PaidCargoRequest = CargoRequest & {
+  payer: string;
+  cost: number;
+  can_cancel: boolean;
+};
+
+type CargoDetailsData = {
+  canapprove: boolean;
+  requests: PaidCargoRequest[];
+  orders: PaidCargoRequest[];
+};
+
+const useAvailablePayment = (payment: Payment): Payment => {
+  const { data } = useBackend<PaymentData>();
+  if (payment === 'department' && !data.department_name) {
+    return 'supply';
+  }
+  if (payment === 'personal' && !data.has_account) {
+    return 'supply';
+  }
+  return payment;
+};
+
 export const CargoConsole = (_props: unknown) => {
   const [contentsModal, setContentsModal] = useState<string[]>([]);
   const [contentsModalTitle, setContentsModalTitle] = useState<string>('');
+  const [payment, setPayment] = useState<Payment>('supply');
 
   return (
     <Window width={1000} height={800} theme="cargo">
@@ -31,10 +68,11 @@ export const CargoConsole = (_props: unknown) => {
             contentsModalTitle={contentsModalTitle}
             setContentsModalTitle={setContentsModalTitle}
           />
-          <StatusPane />
+          <StatusPane payment={payment} setPayment={setPayment} />
           <CataloguePane
             setContentsModal={setContentsModal}
             setContentsModalTitle={setContentsModalTitle}
+            payment={payment}
           />
           <DetailsPane />
         </Stack>
@@ -100,9 +138,21 @@ type StatusPaneData = {
   at_station: boolean;
 };
 
-const StatusPane = (_properties) => {
-  const { act, data } = useBackend<StatusPaneData>();
-  const { is_public, credits, timeleft, moving, at_station } = data;
+const StatusPane = (properties: PaymentProps) => {
+  const { act, data } = useBackend<StatusPaneData & PaymentData>();
+  const {
+    is_public,
+    credits,
+    timeleft,
+    moving,
+    at_station,
+    has_account,
+    department_name,
+    personal_markup,
+  } = data;
+  const { setPayment } = properties;
+  const payment = useAvailablePayment(properties.payment);
+  const markupPercent = Math.round((personal_markup - 1) * 100);
 
   // Shuttle status text
   let statusText: string = '';
@@ -128,6 +178,38 @@ const StatusPane = (_properties) => {
           <LabeledList.Item label="Статус шаттла">
             {statusText}
           </LabeledList.Item>
+          <LabeledList.Item label="Оплата">
+            <Button
+              selected={payment === 'supply'}
+              onClick={() => setPayment('supply')}
+            >
+              Бюджет снабжения
+            </Button>
+            <Button
+              selected={payment === 'department'}
+              disabled={!department_name}
+              tooltip={
+                department_name
+                  ? 'Запрос одобряет снабжение, оплата с бюджета вашего отдела'
+                  : 'Ваш счёт не привязан к отделу'
+              }
+              onClick={() => setPayment('department')}
+            >
+              Бюджет отдела{department_name ? ` (${department_name})` : ''}
+            </Button>
+            <Button
+              selected={payment === 'personal'}
+              disabled={!has_account}
+              tooltip={
+                has_account
+                  ? `Без одобрения снабжения, наценка ${markupPercent}%`
+                  : 'Нет ID-карты с привязанным счётом'
+              }
+              onClick={() => setPayment('personal')}
+            >
+              Личный счёт (+{markupPercent}%)
+            </Button>
+          </LabeledList.Item>
           {!is_public && (
             <LabeledList.Item label="Управление">
               <Button disabled={moving} onClick={() => act('moveShuttle')}>
@@ -149,9 +231,14 @@ export type CataloguePaneProps = {
   setContentsModalTitle: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const CataloguePane = (properties: CataloguePaneProps) => {
-  const { act, data } = useBackend<CataloguePaneData>();
-  const { categories, supply_packs } = data;
+const CataloguePane = (
+  properties: CataloguePaneProps & { payment: Payment },
+) => {
+  const { act, data } = useBackend<CataloguePaneData & PaymentData>();
+  const { categories, supply_packs, personal_markup } = data;
+  const payment = useAvailablePayment(properties.payment);
+  const getPrice = (cost: number) =>
+    payment === 'personal' ? Math.round(cost * personal_markup) : cost;
 
   const [category, setCategory] = useSharedState(
     'category',
@@ -225,8 +312,8 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                           : 'default'
                     }
                   >
-                    {c.name} ({c.cost} кредит
-                    {declension_ru(c.cost, '', 'а', 'ов')})
+                    {c.name} ({getPrice(c.cost)} кредит
+                    {declension_ru(getPrice(c.cost), '', 'а', 'ов')})
                   </Box>
                 </Table.Cell>
                 <Table.Cell textAlign="right" pr={1}>
@@ -236,6 +323,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       act('order', {
                         crate: c.ref,
                         multiple: 0,
+                        payment,
                       })
                     }
                   >
@@ -247,6 +335,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
                       act('order', {
                         crate: c.ref,
                         multiple: 1,
+                        payment,
                       })
                     }
                   >
@@ -272,7 +361,7 @@ const CataloguePane = (properties: CataloguePaneProps) => {
 };
 
 const DetailsPane = (_properties) => {
-  const { act, data } = useBackend<DetailsPaneData>();
+  const { act, data } = useBackend<CargoDetailsData>();
   const { requests, canapprove, orders } = data;
   return (
     <Section fill scrollable title="Details">
@@ -285,6 +374,10 @@ const DetailsPane = (_properties) => {
                 - №{r.ordernum}: {r.supply_type} для <b>{r.orderedby}</b>
               </Box>
               <Box italic>Причина: {r.comment}</Box>
+              <Box italic>
+                Оплата: {r.payer}, {r.cost} кредит
+                {declension_ru(r.cost, '', 'а', 'ов')}
+              </Box>
               <Box italic>Требуемые тех. уровни: {r.pack_techs}</Box>
             </Table.Cell>
             <Stack.Item textAlign="right">
@@ -322,6 +415,21 @@ const DetailsPane = (_properties) => {
                 - №{r.ordernum}: {r.supply_type} для <b>{r.orderedby}</b>
               </Box>
               <Box italic>Причина: {r.comment}</Box>
+              <Box italic>Оплата: {r.payer}</Box>
+            </Table.Cell>
+            <Table.Cell textAlign="right">
+              {r.can_cancel && (
+                <Button
+                  color="red"
+                  onClick={() =>
+                    act('cancel', {
+                      ordernum: r.ordernum,
+                    })
+                  }
+                >
+                  Отменить
+                </Button>
+              )}
             </Table.Cell>
           </Table.Row>
         ))}

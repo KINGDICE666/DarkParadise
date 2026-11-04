@@ -424,7 +424,7 @@ SUBSYSTEM_DEF(shuttle)
 			continue
 		M.dockRoundstart()
 
-/datum/controller/subsystem/shuttle/proc/generateSupplyOrder(packId, _orderedby, _orderedbyRank, _comment, _crates)
+/datum/controller/subsystem/shuttle/proc/generateSupplyOrder(packId, _orderedby, _orderedbyRank, _comment, _crates, payment_type = CARGO_PAYMENT_SUPPLY, datum/money_account/orderer_account, payer_department)
 	if(!packId)
 		return
 	var/datum/supply_packs/P = locateUID(packId)
@@ -438,8 +438,21 @@ SUBSYSTEM_DEF(shuttle)
 	O.orderedbyRank = _orderedbyRank
 	O.comment = _comment
 	O.crates = _crates
+	O.payment_type = payment_type
+	O.orderer_account = orderer_account
+	O.payer_department = payer_department
+	switch(payment_type)
+		if(CARGO_PAYMENT_PERSONAL)
+			O.paying_account = orderer_account
+		if(CARGO_PAYMENT_DEPARTMENT)
+			O.paying_account = GLOB.department_accounts[payer_department]
+		else
+			O.paying_account = cargo_money_account
 
-	requestlist += O
+	if(payment_type == CARGO_PAYMENT_PERSONAL)
+		shoppinglist += O
+	else
+		requestlist += O
 
 	return O
 
