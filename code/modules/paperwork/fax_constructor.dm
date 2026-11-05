@@ -32,7 +32,8 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		return GLOB.fax_custom_presets
 	var/presets_text = file2text(FAX_PRESETS_FILE)
 	if(!rustg_json_is_valid(presets_text))
-		stack_trace("[FAX_PRESETS_FILE] contains invalid JSON, custom fax presets were not loaded")
+		fcopy(FAX_PRESETS_FILE, "[FAX_PRESETS_FILE].corrupted")
+		stack_trace("[FAX_PRESETS_FILE] contains invalid JSON, custom fax presets were not loaded, the file was copied to [FAX_PRESETS_FILE].corrupted")
 		return GLOB.fax_custom_presets
 	var/list/loaded_presets = json_decode(presets_text)
 	for(var/preset_name in loaded_presets)
@@ -54,6 +55,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	var/destination
 	var/notify_sender = TRUE
 	var/sending = FALSE
+	var/dialog_open = FALSE
 	var/list/undo_history = list()
 	var/list/redo_history = list()
 	var/last_edit_key
@@ -193,6 +195,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	.["faxtype"] = faxtype
 	.["reply_department"] = origin_fax?.department
 	.["reply_sender"] = sender?.name
+	.["reply_lost"] = !!origin_fax_uid && !origin_fax
 	.["sending"] = sending
 	.["can_undo"] = length(undo_history) > 0
 	.["can_redo"] = length(redo_history) > 0
@@ -204,23 +207,27 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	if(!check_rights(R_ADMIN))
 		return
 
-	return handle_action(action, params, ui, usr)
+	return handle_action(action, params, usr)
 
-/datum/fax_constructor/proc/handle_action(action, list/params, datum/tgui/ui, mob/user)
+/datum/fax_constructor/proc/handle_action(action, list/params, mob/user)
 	switch(action)
 		if("set_draft")
+			if(draft[params["key"]] == params["value"])
+				return FALSE
 			remember_draft("draft:[params["key"]]")
 			draft[params["key"]] = params["value"]
 			draft = normalize_draft(draft)
 			return TRUE
 		if("toggle_stamp")
-			remember_draft()
 			var/list/stamps = draft["stamps"]
-			if(params["stamp"] in stamps)
-				stamps -= params["stamp"]
+			var/stamp = params["stamp"]
+			if(!(stamp in stamp_types) || (!(stamp in stamps) && length(stamps) >= FAX_MAX_STAMPS))
+				return FALSE
+			remember_draft()
+			if(stamp in stamps)
+				stamps -= stamp
 			else
-				stamps += params["stamp"]
-			draft = normalize_draft(draft)
+				stamps += stamp
 			return TRUE
 		if("add_section")
 			var/list/sections = draft["sections"]
@@ -233,7 +240,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			return TRUE
 		if("set_section")
 			var/list/section = find_section(params["id"])
-			if(!section)
+			if(!section || section[params["key"]] == params["value"])
 				return FALSE
 			remember_draft("section:[params["id"]]:[params["key"]]")
 			section[params["key"]] = params["value"]
@@ -271,14 +278,12 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			var/list/section = find_section(params["id"])
 			if(!section)
 				return FALSE
-			remember_draft()
 			var/list/sections = draft["sections"]
 			return swap_with_neighbour(sections, sections.Find(section), params["direction"])
 		if("reorder_section")
 			var/list/section = find_section(params["id"])
 			if(!section)
 				return FALSE
-			remember_draft()
 			var/list/sections = draft["sections"]
 			return move_within(sections, sections.Find(section), params["index"])
 		if("add_row")
@@ -293,7 +298,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			return TRUE
 		if("set_row")
 			var/list/row = find_row(find_section(params["id"]), params["index"])
-			if(!row)
+			if(!row || row[params["key"]] == params["value"])
 				return FALSE
 			remember_draft("row:[params["id"]]:[params["index"]]:[params["key"]]")
 			row[params["key"]] = params["value"]
@@ -311,7 +316,6 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			var/list/section = find_section(params["id"])
 			if(!find_row(section, params["index"]))
 				return FALSE
-			remember_draft()
 			return move_within(section["rows"], params["index"], params["target"])
 		if("undo")
 			return step_history(undo_history, redo_history)
@@ -329,6 +333,9 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			notify_sender = !notify_sender
 			return TRUE
 		if("load_preset")
+			var/list/available_presets = params["builtin"] ? builtin_presets() : get_fax_custom_presets()
+			if(!available_presets[params["id"]])
+				return FALSE
 			remember_draft()
 			var/old_logo = custom_logo
 			if(params["builtin"])
@@ -336,11 +343,16 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			else
 				load_custom_preset(params["id"])
 			if(custom_logo != old_logo)
-				ui?.send_update(list("custom_logo" = custom_logo))
+				update_static_data_for_all_viewers()
 			return TRUE
 		if("save_preset")
-			if(save_preset(user))
-				ui?.send_update(list("custom_presets" = custom_presets_for_ui()))
+			if(dialog_open)
+				return FALSE
+			dialog_open = TRUE
+			var/preset_saved = save_preset(user)
+			dialog_open = FALSE
+			if(preset_saved)
+				update_static_data_for_all_viewers()
 			return TRUE
 		if("delete_preset")
 			var/list/presets = get_fax_custom_presets()
@@ -350,11 +362,16 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			save_fax_custom_presets()
 			log_admin("[key_name(user)] deleted the fax preset '[params["id"]]'")
 			message_admins("[key_name_admin(user)] deleted the fax preset '[html_encode(params["id"])]'")
-			ui?.send_update(list("custom_presets" = custom_presets_for_ui()))
+			update_static_data_for_all_viewers()
 			return TRUE
 		if("upload_logo")
-			if(upload_logo(user))
-				ui?.send_update(list("custom_logo" = custom_logo))
+			if(dialog_open)
+				return FALSE
+			dialog_open = TRUE
+			var/logo_uploaded = upload_logo(user)
+			dialog_open = FALSE
+			if(logo_uploaded)
+				update_static_data_for_all_viewers()
 			return TRUE
 		if("preview")
 			var/obj/item/paper/preview_paper = build_paper()
@@ -375,7 +392,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	if(edit_key && edit_key == last_edit_key)
 		return
 	last_edit_key = edit_key
-	undo_history += list(normalize_draft(draft))
+	undo_history += list(list("draft" = normalize_draft(draft), "custom_logo" = custom_logo))
 	if(length(undo_history) > FAX_MAX_UNDO_STEPS)
 		undo_history.Cut(1, 2)
 	redo_history.Cut()
@@ -384,14 +401,19 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	if(!length(from_history))
 		return FALSE
 	last_edit_key = null
-	to_history += list(draft)
-	draft = from_history[length(from_history)]
+	to_history += list(list("draft" = draft, "custom_logo" = custom_logo))
+	var/list/restored = from_history[length(from_history)]
 	from_history.len--
+	draft = restored["draft"]
+	if(custom_logo != restored["custom_logo"])
+		custom_logo = restored["custom_logo"]
+		update_static_data_for_all_viewers()
 	return TRUE
 
 /datum/fax_constructor/proc/move_within(list/target_list, index, target_index)
 	if(!isnum(target_index) || target_index < 1 || target_index > length(target_list) || target_index == index)
 		return FALSE
+	remember_draft()
 	var/moved_entry = target_list[index]
 	target_list.Cut(index, index + 1)
 	target_list.Insert(target_index, list(moved_entry))
@@ -451,6 +473,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	var/neighbour = index + (direction == "up" ? -1 : 1)
 	if(neighbour < 1 || neighbour > length(target_list))
 		return FALSE
+	remember_draft()
 	target_list.Swap(index, neighbour)
 	return TRUE
 
@@ -522,7 +545,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	.["rows"] = rows
 
 /datum/fax_constructor/proc/pencode(text)
-	return admin_pencode_to_html(html_encode(text), null, null, TRUE, TRUE, TRUE, PEN_FONT, SIGNFONT, CRAYON_FONT, TRUE)
+	return admin_pencode_to_html(html_encode(text), null, null, TRUE, TRUE, TRUE, PEN_FONT, SIGNFONT, CRAYON_FONT, TRUE, 0)
 
 /datum/fax_constructor/proc/base_style(list/style, align)
 	return "font-family:[style["font"]];color:[style["color"]];text-align:[align]"
@@ -679,6 +702,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	if(!encoded_logo)
 		to_chat(user, span_warning("Не удалось прочитать изображение."), confidential = TRUE)
 		return FALSE
+	remember_draft()
 	custom_logo = encoded_logo
 	draft["logo"] = "custom"
 	log_admin("[key_name(user)] uploaded a custom fax logo ([uploaded])")
@@ -715,7 +739,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		custom_logo = preset["custom_logo"]
 
 /datum/fax_constructor/proc/save_preset(mob/user)
-	var/preset_name = tgui_input_text(user, "Название шаблона:", "Сохранить шаблон", draft["title"], max_length = FAX_MAX_PRESET_NAME_LEN, encode = FALSE)
+	var/preset_name = tgui_input_text(user, "Название шаблона:", "Сохранить шаблон", copytext_char(draft["title"], 1, FAX_MAX_PRESET_NAME_LEN + 1), max_length = FAX_MAX_PRESET_NAME_LEN, encode = FALSE)
 	preset_name = trim(preset_name)
 	if(!preset_name || QDELETED(src))
 		return

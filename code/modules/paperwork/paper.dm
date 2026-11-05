@@ -96,7 +96,7 @@
 	var/data
 	var/stars = (user.stat != DEAD && !user.has_language(language) && !forceshow) || forcestars || !user.is_literate()
 	if(stars) //assuming all paper is written in common is better than hardcoded type checks
-		data = "[header][stars(info)][footer][stamps]"
+		data = "[header][stars_outside_markup(info)][footer][stamps]"
 	else
 		data = "[header]<div id='markdown'>[infolinks ? info_links : info]</div>[footer][stamps]"
 	if(CONFIG_GET(flag/twitch_censor))
@@ -117,6 +117,15 @@
 		popup.add_head_content("<title>[name]</title>")
 		popup.open()
 	return data
+
+/obj/item/paper/proc/stars_outside_markup(text)
+	var/static/regex/markup_regex = regex(@"<[^>]*>|&#?\w+;", "g")
+	. = ""
+	var/position = 1
+	while(markup_regex.Find(text, position))
+		. += "[stars(copytext(text, position, markup_regex.index))][markup_regex.match]"
+		position = markup_regex.next
+	. += stars(copytext(text, position))
 
 /obj/item/paper/click_alt(mob/living/carbon/human/user)
 	if(is_pen(user.get_active_hand()))
@@ -314,11 +323,11 @@
 			break
 		context_start = findtext(info, "</span>", field_start) + length("</span>")
 
-	var/context = copytext(info, context_start, field_start)
+	var/context = trim_strip_html_properly(copytext(info, context_start, field_start), max_length = 0)
 	var/label_end = findlasttext(context, ":")
 	if(!label_end)
 		return
-	context = lowertext(trim_strip_html_properly(copytext(context, 1, label_end), max_length = 0))
+	context = lowertext(trim(copytext(context, 1, label_end)))
 
 	var/static/regex/name_label = regex("(имя( заявителя)?|фио|фамилия, имя, отчество)$")
 	var/static/regex/job_label = regex("(текущая должность|должность( заявителя| уполномоченного лица)?)$")

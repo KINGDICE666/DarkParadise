@@ -682,6 +682,11 @@ $fax-muted: #93a7c0;
 .FaxConstructor__customColor {
   width: 84px;
   margin-top: 8px;
+
+  input {
+    padding: 0 6px;
+    outline: 0;
+  }
 }
 
 .FaxConstructor__details {

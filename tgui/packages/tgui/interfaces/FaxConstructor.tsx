@@ -1,5 +1,6 @@
 import {
   type DragEvent,
+  type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
   useEffect,
@@ -89,6 +90,7 @@ type FaxConstructorData = {
   faxtype: string;
   reply_department: string | null;
   reply_sender: string | null;
+  reply_lost: boolean | number;
   sending: boolean | number;
   can_undo: boolean | number;
   can_redo: boolean | number;
@@ -236,6 +238,8 @@ const PENCODE_TOOLS: {
 const ZOOM_STEPS = [0.5, 0.65, 0.8, 1, 1.15, 1.3, 1.5];
 const DEFAULT_ZOOM_STEP = 3;
 const TEXT_COMMIT_DELAY_MS = 250;
+const SAVE_AFTER_TYPING_DELAY_MS = 300;
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const TRANSPARENT_PIXEL =
   'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 const HANDLE_POSITIONS = [
@@ -421,8 +425,14 @@ const SizeStepper = ({ value, min, max, onChange }: SizeStepperProps) => {
   const [text, setText] = useState(String(value));
   useEffect(() => setText(String(value)), [value]);
   const commit = (next: number) => {
-    if (Number.isFinite(next)) {
-      onChange(Math.min(max, Math.max(min, next)));
+    if (!Number.isFinite(next)) {
+      setText(String(value));
+      return;
+    }
+    const clamped = Math.min(max, Math.max(min, Math.round(next)));
+    setText(String(clamped));
+    if (clamped !== value) {
+      onChange(clamped);
     }
   };
   return (
@@ -455,6 +465,32 @@ const SizeStepper = ({ value, min, max, onChange }: SizeStepperProps) => {
         </button>
       </div>
     </div>
+  );
+};
+
+type ColorInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+const ColorInput = ({ value, onChange }: ColorInputProps) => {
+  const [text, setText] = useState(value);
+  useEffect(() => setText(value), [value]);
+  return (
+    <input
+      aria-label="Свой цвет"
+      className="Input Input--monospace"
+      maxLength={7}
+      value={text}
+      onChange={(event) => {
+        const next = event.currentTarget.value;
+        setText(next);
+        if (HEX_COLOR.test(next)) {
+          onChange(next.toLowerCase());
+        }
+      }}
+      onBlur={() => setText(value)}
+    />
   );
 };
 
@@ -533,11 +569,7 @@ const StyleEditor = ({ style, sizeLabel, onChange }: StyleEditorProps) => {
         </div>
         {customColor && (
           <div className="FaxConstructor__customColor">
-            <Input
-              fluid
-              monospace
-              expensive
-              maxLength={7}
+            <ColorInput
               value={style.color}
               onChange={(color) => onChange('color', color)}
             />
@@ -812,6 +844,10 @@ const StampsPanel = () => {
               key={stamp.value}
               type="button"
               className={`FaxConstructor__stamp${draft.stamps.includes(stamp.value) ? ' FaxConstructor__stamp--selected' : ''}`}
+              disabled={
+                !draft.stamps.includes(stamp.value) &&
+                draft.stamps.length >= max_stamps
+              }
               onClick={() => act('toggle_stamp', { stamp: stamp.value })}
             >
               <img
@@ -839,13 +875,14 @@ type RowCardProps = {
   index: number;
   dropMark: DropMark | null;
   onDragStart: (index: number) => void;
+  onDragEnd: () => void;
   onDragOverRow: (mark: DropMark) => void;
   onDropRow: () => void;
 };
 
 const RowCard = (props: RowCardProps) => {
   const { section, row, index, dropMark } = props;
-  const { onDragStart, onDragOverRow, onDropRow } = props;
+  const { onDragStart, onDragEnd, onDragOverRow, onDropRow } = props;
   const { act, data } = useBackend<FaxConstructorData>();
   const { id } = section;
   const position = index + 1;
@@ -875,6 +912,7 @@ const RowCard = (props: RowCardProps) => {
           draggable
           title="Перетащите, чтобы изменить порядок"
           onDragStart={() => onDragStart(index)}
+          onDragEnd={onDragEnd}
         >
           <Icon name="grip-vertical" />
         </span>
@@ -943,6 +981,10 @@ const SectionPanel = ({ section }: SectionPanelProps) => {
   const [rowMark, setRowMark] = useState<DropMark | null>(null);
   const setSection = (key: string, value: unknown) =>
     act('set_section', { id, key, value });
+  const finishRowDrag = () => {
+    setDraggedRow(null);
+    setRowMark(null);
+  };
   const dropRow = () => {
     if (draggedRow !== null && rowMark) {
       act('reorder_row', {
@@ -951,8 +993,7 @@ const SectionPanel = ({ section }: SectionPanelProps) => {
         target: dropTargetIndex(draggedRow, rowMark) + 1,
       });
     }
-    setDraggedRow(null);
-    setRowMark(null);
+    finishRowDrag();
   };
   return (
     <>
@@ -1037,6 +1078,7 @@ const SectionPanel = ({ section }: SectionPanelProps) => {
               index={index}
               dropMark={rowMark}
               onDragStart={setDraggedRow}
+              onDragEnd={finishRowDrag}
               onDragOverRow={setRowMark}
               onDropRow={dropRow}
             />
@@ -1506,6 +1548,7 @@ const CreateModal = ({ onClose }: CreateModalProps) => {
     destination,
     reply_department,
     reply_sender,
+    reply_lost,
     notify_sender,
     field_count,
     max_fields,
@@ -1513,7 +1556,8 @@ const CreateModal = ({ onClose }: CreateModalProps) => {
   } = data;
   const [search, setSearch] = useState('');
   const query = search.trim().toLowerCase();
-  const canSend = !sending && (!!reply_department || !!destination);
+  const canSend =
+    !sending && !reply_lost && (!!reply_department || !!destination);
   const departmentName = (department: string) =>
     department === 'All Departments' ? 'Все отделы станции' : department;
   return (
@@ -1550,14 +1594,21 @@ const CreateModal = ({ onClose }: CreateModalProps) => {
               {field_count}.
             </div>
           )}
-          {reply_department ? (
+          {!!reply_lost && (
+            <div className="FaxConstructor__warning">
+              Факс отправителя уничтожен, ответить на него нельзя. Бланк можно
+              положить рядом с собой.
+            </div>
+          )}
+          {!!reply_department && (
             <dl className="FaxConstructor__summary">
               <dt>Ответ в отдел</dt>
               <dd>{reply_department}</dd>
               {!!reply_sender && <dt>Отправитель</dt>}
               {!!reply_sender && <dd>{reply_sender}</dd>}
             </dl>
-          ) : (
+          )}
+          {!reply_department && !reply_lost && (
             <Field label="Получатель">
               <Input
                 fluid
@@ -1663,18 +1714,15 @@ export const FaxConstructor = () => {
           return;
         }
         const combo = String(key);
-        const element = document.activeElement?.tagName;
-        const typing = element === 'INPUT' || element === 'TEXTAREA';
         if (combo === 'Ctrl+S') {
           key.event.preventDefault();
-          latestAct.current('save_preset');
-        } else if (combo === 'Ctrl+Z' && !typing) {
+          if (!key.repeat) {
+            latestAct.current('save_preset');
+          }
+        } else if (combo === 'Ctrl+Z') {
           key.event.preventDefault();
           latestAct.current('undo');
-        } else if (
-          (combo === 'Ctrl+Y' || combo === 'Ctrl+Shift+Z') &&
-          !typing
-        ) {
+        } else if (combo === 'Ctrl+Y' || combo === 'Ctrl+Shift+Z') {
           key.event.preventDefault();
           latestAct.current('redo');
         } else if (key.code === KEY_ESCAPE) {
@@ -1697,10 +1745,33 @@ export const FaxConstructor = () => {
     setGalleryOpen(false);
   };
 
+  const saveFromTextField = (event: KeyboardEvent<HTMLDivElement>) => {
+    const tag = (event.target as HTMLElement).tagName;
+    if (
+      !event.ctrlKey ||
+      event.shiftKey ||
+      event.code !== 'KeyS' ||
+      (tag !== 'INPUT' && tag !== 'TEXTAREA')
+    ) {
+      return;
+    }
+    event.preventDefault();
+    if (!event.repeat) {
+      setTimeout(
+        () => latestAct.current('save_preset'),
+        SAVE_AFTER_TYPING_DELAY_MS,
+      );
+    }
+  };
+
   return (
     <Window theme="faxconstructor" width={1400} height={860}>
       <Window.Content>
-        <div className="FaxConstructor">
+        <div
+          className="FaxConstructor"
+          role="presentation"
+          onKeyDown={saveFromTextField}
+        >
           <Sidebar
             selection={effectiveSelection}
             galleryOpen={galleryOpen}

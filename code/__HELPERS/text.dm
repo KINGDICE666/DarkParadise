@@ -445,8 +445,9 @@
  * * signature_font - The font to use for signatures
  * * crayon_font - The font to use for crayons
  * * disable_font - Whether to disable font styling entirely
+ * * max_length - Обрезать результат до этой длины в байтах, 0 отключает обрезку
  */
-/proc/pencode_to_html(input_text, mob/user_mob, obj/item/pen/pen_item = null, enable_formatting = TRUE, enable_signature = TRUE, enable_fields = TRUE, default_font = PEN_FONT, signature_font = SIGNFONT, crayon_font = CRAYON_FONT, disable_font = FALSE)
+/proc/pencode_to_html(input_text, mob/user_mob, obj/item/pen/pen_item = null, enable_formatting = TRUE, enable_signature = TRUE, enable_fields = TRUE, default_font = PEN_FONT, signature_font = SIGNFONT, crayon_font = CRAYON_FONT, disable_font = FALSE, max_length = MAX_PAPER_MESSAGE_LEN)
 	input_text = replacetext(input_text, "\[b\]", "<b>")
 	input_text = replacetext(input_text, "\[/b\]", "</b>")
 	input_text = replacetext(input_text, "\[i\]", "<i>")
@@ -532,7 +533,8 @@
 			else
 				input_text = "<font face=\"[default_font]\">[input_text]</font>"
 
-	input_text = copytext(input_text, 1, MAX_PAPER_MESSAGE_LEN)
+	if(max_length)
+		input_text = copytext(input_text, 1, max_length)
 	return input_text
 
 /**

@@ -110,7 +110,7 @@
 	TEST_ASSERT("cent" in constructor.draft["stamps"], "toggle_stamp did not add the stamp")
 	TEST_ASSERT(constructor.handle_action("toggle_stamp", list("stamp" = "cent")), "toggle_stamp failed")
 	TEST_ASSERT_NOT("cent" in constructor.draft["stamps"], "toggle_stamp did not remove the stamp")
-	TEST_ASSERT(constructor.handle_action("toggle_stamp", list("stamp" = "evil")), "toggle_stamp failed")
+	TEST_ASSERT_NOT(constructor.handle_action("toggle_stamp", list("stamp" = "evil")), "toggle_stamp accepted an unknown stamp")
 	TEST_ASSERT_NOT("evil" in constructor.draft["stamps"], "toggle_stamp accepted an unknown stamp")
 	TEST_ASSERT(constructor.handle_action("set_destination", list("destination" = "not a department")), "set_destination failed")
 	TEST_ASSERT_NULL(constructor.destination, "set_destination accepted an unknown department")
@@ -155,3 +155,52 @@
 	TEST_ASSERT_EQUAL(reopened.draft["title"], "Черновик", "The draft was not restored after closing the window")
 	GLOB.fax_constructor_drafts -= "faxtestadmin"
 	admin.ckey = null
+
+	reopened.undo_history.Cut()
+	reopened.redo_history.Cut()
+	reopened.handle_action("toggle_stamp", list("stamp" = "ok"))
+	reopened.handle_action("undo", list())
+	var/list/noop_sections = reopened.draft["sections"]
+	TEST_ASSERT_NOT(reopened.handle_action("reorder_section", list("id" = noop_sections[1]["id"], "index" = 1)), "Dropping a block onto itself counted as a change")
+	TEST_ASSERT_NOT(reopened.handle_action("move_section", list("id" = noop_sections[1]["id"], "direction" = "up")), "Moving the first block up counted as a change")
+	TEST_ASSERT_NOT(reopened.handle_action("set_draft", list("key" = "title", "value" = reopened.draft["title"])), "Setting the same title counted as a change")
+	TEST_ASSERT_NOT(reopened.handle_action("load_preset", list("id" = "missing preset")), "A missing preset counted as a change")
+	TEST_ASSERT_EQUAL(length(reopened.undo_history), 0, "An action that changed nothing added an undo step")
+	TEST_ASSERT_EQUAL(length(reopened.redo_history), 1, "An action that changed nothing cleared the redo history")
+
+	reopened.undo_history.Cut()
+	reopened.redo_history.Cut()
+	reopened.custom_logo = encoded_logo
+	reopened.handle_action("set_draft", list("key" = "logo", "value" = "custom"))
+	reopened.custom_logo = "AAAA"
+	reopened.handle_action("undo", list())
+	TEST_ASSERT_EQUAL(reopened.custom_logo, encoded_logo, "undo did not restore the custom logo")
+	reopened.handle_action("redo", list())
+	TEST_ASSERT_EQUAL(reopened.custom_logo, "AAAA", "redo did not restore the custom logo")
+
+	var/mob/living/carbon/human/reader = allocate(/mob/living/carbon/human)
+	reader.real_name = "Quick Writer"
+	reader.job = "Assistant"
+	reopened.load_builtin_preset("nt_blank")
+	var/obj/item/paper/quick_paper = reopened.build_paper()
+	TEST_ASSERT_EQUAL(quick_paper.get_quick_write_text(reader, 1), "Quick Writer", "Quick write did not fill the name field")
+	TEST_ASSERT_NULL(quick_paper.get_quick_write_text(reader, 4), "Quick write filled the free text field")
+	TEST_ASSERT_EQUAL(quick_paper.get_quick_write_text(reader, 5), "\[time\]", "Quick write did not fill the time field")
+	TEST_ASSERT_EQUAL(quick_paper.get_quick_write_text(reader, 6), "\[sign\]", "Quick write did not fill the signature field")
+	var/obj/item/paper/form/NT_BLANK/old_form = allocate(/obj/item/paper/form/NT_BLANK)
+	TEST_ASSERT_EQUAL(old_form.get_quick_write_text(reader, 1), "Quick Writer", "Quick write broke on an old form")
+	TEST_ASSERT_EQUAL(old_form.get_quick_write_text(reader, 6), "\[sign\]", "Quick write broke on an old form")
+
+	var/starred_html = quick_paper.stars_outside_markup("<td style='font-family:Verdana'>текст &#34;текст&#34;</td>")
+	for(var/kept_markup in list("<td style='font-family:Verdana'>", "&#34;", "</td>"))
+		TEST_ASSERT_SUBSTRING(starred_html, kept_markup)
+	qdel(quick_paper)
+
+	var/long_text = ""
+	for(var/line_index in 1 to 300)
+		long_text += "абвгд\n"
+	var/field_text = ""
+	for(var/field_tag in 1 to 130)
+		field_text += "\[field\]"
+	TEST_ASSERT_EQUAL(copytext(reopened.pencode(long_text), -4), "<br>", "Long text was cut off by the pencode limit")
+	TEST_ASSERT_EQUAL(length(splittext(reopened.pencode(field_text), "<span class=\"paper_field\">")) - 1, 130, "Fields were cut off by the pencode limit")
