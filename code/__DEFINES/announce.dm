@@ -44,8 +44,6 @@
 #define ANNOUNCE_NUCLEARCODES_RU "Запрошены коды активации ядерной боеголовки."
 #define ANNOUNCE_CCMSG_RU "Сообщение Центрального командования."
 #define ANNOUNCE_SYSERROR_RU "Системный сбой."
-#define ANNOUNCE_CAPITAL_DEFOLT_RU "Дефолт станции."
-#define ANNOUNCE_CAPITAL_REPAY_RU "Возобновление выплат."
 #define ANNOUNCE_SOLAR_FLARE_RU "Солнечная вспышка."
 #define ANNOUNCE_SECRETMSG_RU "Входящее засекреченное сообщение."
 #define ANNOUNCE_APC_CRIT_RU "Критический сбой системы питания."

@@ -10,8 +10,39 @@
 /// Paygrade for Captain and some high-tier VIPs.
 #define PAYCHECK_MAX 750
 
-/// start-up capital
-#define EXTRA_MONEY 10000
+#define DEPARTMENT_GRANT 1500
+
+#define EXPORT_BOOST_MIN_AMOUNT 2
+#define EXPORT_BOOST_MAX_AMOUNT 4
+#define EXPORT_BOOST_MULT 3
+
+#define MARKET_TREND_UPWARD 1
+#define MARKET_TREND_DOWNWARD -1
+#define MARKET_TREND_STABLE 0
+#define MARKET_EVENT_PROBABILITY 1
+#define MARKET_PRICE_MIN_MULT 0.5
+#define MARKET_PRICE_MAX_MULT 3
+
+#define CIV_JOB_BASIC 1
+#define CIV_JOB_ROBO 2
+#define CIV_JOB_CHEF 3
+#define CIV_JOB_SEC 4
+#define CIV_JOB_DRINK 5
+#define CIV_JOB_CHEM 6
+#define CIV_JOB_MED_VIRO 7
+#define CIV_JOB_SCI 8
+#define CIV_JOB_ENG 9
+#define CIV_JOB_MINE 10
+#define CIV_JOB_MED 11
+#define CIV_JOB_GROW 12
+#define CIV_JOB_ATMOS 13
+#define CIV_JOB_BITRUN 14
+#define CIV_JOB_RANDOM 15
+#define MAXIMUM_BOUNTY_JOBS 14
+
+#define BOUNTY_CUT_STANDARD 0.3
+#define CIV_BOUNTY_REWARD_MULTIPLIER 3
+#define CIV_BOUNTY_BASELINE 5
 
 
 /// The name for the default type of money used in the code.

@@ -36397,6 +36397,14 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/engineering/atmos)
+"gVI" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/machinery/materials_market,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "gVW" = (
 /obj/machinery/door/poddoor{
 	id_tag = "ToxinsVenting";
@@ -41581,13 +41589,6 @@
 	icon_state = "dark"
 	},
 /area/station/security/processing)
-"hSb" = (
-/obj/effect/turf_decal/delivery/hollow,
-/turf/simulated/floor/plasteel{
-	dir = 1;
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "hSe" = (
 /obj/structure/sign/poster/official/random{
 	pixel_y = 32
@@ -65063,6 +65064,21 @@
 	icon_state = "neutralfull"
 	},
 /area/station/commons/locker)
+"mog" = (
+/obj/effect/turf_decal/arrows/black{
+	dir = 1
+	},
+/obj/effect/turf_decal/delivery/partial{
+	dir = 1
+	},
+/obj/machinery/computer/civilian_bounty{
+	dir = 8
+	},
+/turf/simulated/floor/plasteel{
+	dir = 4;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "moq" = (
 /obj/effect/turf_decal/delivery/hollow,
 /obj/effect/turf_decal/stripes/line{
@@ -122542,6 +122558,12 @@
 /obj/machinery/atmospherics/binary/pump,
 /turf/simulated/floor/plating,
 /area/station/commons/locker)
+"xbv" = (
+/obj/machinery/civilian_bounty_pad,
+/turf/simulated/floor/plasteel{
+	icon_state = "neutralfull"
+	},
+/area/station/cargo/office)
 "xbx" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -126823,18 +126845,6 @@
 	icon_state = "darkred"
 	},
 /area/station/security/interrogation)
-"xOH" = (
-/obj/effect/turf_decal/arrows/black{
-	dir = 1
-	},
-/obj/effect/turf_decal/delivery/partial{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel{
-	dir = 4;
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "xOI" = (
 /obj/structure/table/wood/poker,
 /obj/item/deck/cards,
@@ -169176,7 +169186,7 @@ sEN
 hxR
 lpI
 sGL
-hSb
+gVI
 oEP
 oEP
 weH
@@ -169435,7 +169445,7 @@ qrJ
 uqE
 wVF
 xgR
-xgR
+xbv
 sEr
 xgR
 vsI
@@ -169692,7 +169702,7 @@ xkN
 oey
 xId
 yfx
-xOH
+mog
 qlG
 wvT
 icO

@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/cmo
+	bounty_types = CIV_JOB_MED_VIRO
 	title = JOB_TITLE_CMO
 	flag = JOB_FLAG_CMO
 	department = STATION_DEPARTMENT_MEDICAL
@@ -50,6 +51,7 @@
 	paycheck = PAYCHECK_CREW
 
 /datum/job/medical/doctor
+	bounty_types = CIV_JOB_MED_VIRO
 	title = JOB_TITLE_DOCTOR
 	flag = JOB_FLAG_DOCTOR
 	total_positions = 5
@@ -124,6 +126,7 @@
 		uniform = /obj/item/clothing/under/rank/medical/intern/skirt
 
 /datum/job/medical/coroner
+	bounty_types = CIV_JOB_MED
 	title = JOB_TITLE_CORONER
 	flag = JOB_FLAG_CORONER
 	total_positions = 1
@@ -162,6 +165,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/medical
 
 /datum/job/medical/chemist
+	bounty_types = CIV_JOB_CHEM
 	title = JOB_TITLE_CHEMIST
 	flag = JOB_FLAG_CHEMIST
 	total_positions = 2
@@ -192,6 +196,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/medical
 
 /datum/job/medical/geneticist
+	bounty_types = CIV_JOB_SCI
 	title = JOB_TITLE_GENETICIST
 	flag = JOB_FLAG_GENETICIST
 	total_positions = 2
@@ -226,6 +231,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/medical
 
 /datum/job/medical/virologist
+	bounty_types = CIV_JOB_MED_VIRO
 	title = JOB_TITLE_VIROLOGIST
 	flag = JOB_FLAG_VIROLOGIST
 	total_positions = 1
@@ -298,6 +304,7 @@
 				uniform = /obj/item/clothing/under/rank/medical
 
 /datum/job/medical/paramedic
+	bounty_types = CIV_JOB_MED
 	title = JOB_TITLE_PARAMEDIC
 	flag = JOB_FLAG_PARAMEDIC
 	total_positions = 1

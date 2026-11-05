@@ -450,7 +450,7 @@
 			if(quest.reward[category] < 0)
 				quest.reward[category] = 0
 			console.points[category] += quest.reward[category]
-		SSshuttle.points += quest.reward["robo"] * 30
+		SSshuttle.cargo_money_account.credit(quest.reward["robo"] * ROBOQUEST_CREDITS_PER_POINT, "Выполнение заказа на экзоскелет", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 		if(quest.id)
 			var/datum/money_account/A = get_money_account(quest.id.associated_account_number)
 			if(A)

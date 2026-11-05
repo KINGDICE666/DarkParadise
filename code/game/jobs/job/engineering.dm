@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/chief_engineer
+	bounty_types = CIV_JOB_ENG
 	title = JOB_TITLE_CHIEF_ENGINEER
 	flag = JOB_FLAG_CHIEF
 	department_flag = JOBCAT_ENGSEC
@@ -60,6 +61,7 @@
 	liver_traits = list(TRAIT_ENGINEER_METABOLISM)
 
 /datum/job/engineering/engineer
+	bounty_types = CIV_JOB_ENG
 	title = JOB_TITLE_ENGINEER
 	flag = JOB_FLAG_ENGINEER
 	total_positions = 5
@@ -95,6 +97,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/meson
 
 /datum/job/engineering/atmos
+	bounty_types = CIV_JOB_ATMOS
 	title = JOB_TITLE_ATMOSTECH
 	flag = JOB_FLAG_ATMOSTECH
 	total_positions = 3

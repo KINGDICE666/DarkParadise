@@ -394,3 +394,7 @@
 	#define COMPONENT_STOP_EXPORT_REPORT (1<<0)
 
 #define COMSIG_GRIPPED_ITEM_CHANGE "gripped_item_change"
+
+#define COMSIG_CLOSET_PRE_OPEN "closet_pre_open"
+	#define BLOCK_OPEN (1<<0)
+#define COMSIG_CLOSET_POST_OPEN "closet_post_open"

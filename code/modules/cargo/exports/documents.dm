@@ -1,10 +1,10 @@
 
 //Enemy intelligence is valuable, believe it or not
 /datum/export/documents
-	cost = CARGO_CRATE_VALUE * 1.25
+	cost = CARGO_INTEL_VALUE
 	k_elasticity = 0
-	sales_market = EXPORT_NONE
-	unit_name = "enemy intelligence"
+	unit_name = "разведданные противника"
+	scannable = FALSE
 	export_types = list(/obj/item/documents)
 	var/needed_interest = INTEREST_NANOTRASEN
 

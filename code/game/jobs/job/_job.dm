@@ -88,6 +88,7 @@
 
 	/// The department the job belongs to.
 	var/department = null
+	var/bounty_types = CIV_JOB_BASIC
 
 	/// Whether this is a head position
 	var/head_position = FALSE

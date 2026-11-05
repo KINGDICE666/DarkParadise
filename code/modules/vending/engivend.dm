@@ -1,4 +1,5 @@
 /obj/machinery/vending/engivend
+	payment_department = STATION_DEPARTMENT_ENGINEERING
 	name = "Engi-Vend"
 	desc = "Автомат с запасными инструментами. Что? Вы ожидали какого-нибудь остроумного описания?"
 	icon_state = "engivend_off"

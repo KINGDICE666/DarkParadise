@@ -46817,6 +46817,13 @@
 /obj/effect/landmark/start/hangover,
 /turf/simulated/floor/plasteel,
 /area/station/engineering/storage)
+"gip" = (
+/obj/machinery/computer/civilian_bounty,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "giT" = (
 /obj/structure/falsewall,
 /obj/structure/safe/floor,
@@ -51038,6 +51045,16 @@
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel,
 /area/station/hallway/primary/central/se)
+"hRE" = (
+/obj/machinery/status_display/supply_display{
+	pixel_y = 32
+	},
+/obj/machinery/materials_market,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "hRT" = (
 /obj/machinery/light/small{
 	dir = 4
@@ -65628,6 +65645,13 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/solars/port/aft)
+"nNG" = (
+/obj/machinery/civilian_bounty_pad,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "nNR" = (
 /obj/structure/table/wood,
 /obj/item/reagent_containers/condiment/peppermill{
@@ -71347,15 +71371,6 @@
 	icon_state = "vault"
 	},
 /area/station/ai/satellite/interior)
-"qdi" = (
-/obj/machinery/status_display/supply_display{
-	pixel_y = 32
-	},
-/turf/simulated/floor/plasteel{
-	dir = 1;
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "qdq" = (
 /obj/machinery/light/small{
 	dir = 8
@@ -113848,7 +113863,7 @@ bqD
 bsi
 aIb
 cam
-qdi
+hRE
 vFj
 vla
 lVH
@@ -114362,7 +114377,7 @@ sFh
 ieE
 qoU
 mRU
-vsK
+gip
 adL
 lhl
 xxA
@@ -114619,7 +114634,7 @@ dkA
 bsm
 gwg
 bCj
-vsK
+nNG
 psC
 bVs
 bJi

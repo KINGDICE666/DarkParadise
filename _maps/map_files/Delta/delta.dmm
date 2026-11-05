@@ -17257,6 +17257,13 @@
 	icon_state = "yellow"
 	},
 /area/station/engineering/storage)
+"dwL" = (
+/obj/machinery/civilian_bounty_pad,
+/turf/simulated/floor/plasteel{
+	dir = 8;
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "dwO" = (
 /turf/simulated/floor/plasteel{
 	dir = 4;
@@ -123055,6 +123062,14 @@
 	icon_state = "redcorner"
 	},
 /area/station/security/brig)
+"wUp" = (
+/obj/machinery/computer/civilian_bounty{
+	dir = 1
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "wUv" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
@@ -123182,6 +123197,12 @@
 	icon_state = "darkred"
 	},
 /area/station/hallway/secondary/entry/commercial)
+"wVl" = (
+/obj/machinery/materials_market,
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "wVq" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -168572,7 +168593,7 @@ kUs
 vkB
 vkB
 sVu
-vkB
+dwL
 hFi
 yjZ
 xDN
@@ -168830,7 +168851,7 @@ leb
 sAJ
 kdW
 leb
-cUa
+wUp
 yjZ
 xDN
 vBZ
@@ -170372,7 +170393,7 @@ leb
 sAJ
 ygW
 leb
-cUa
+wVl
 yjZ
 xDN
 vBZ

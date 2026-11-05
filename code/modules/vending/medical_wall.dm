@@ -1,4 +1,5 @@
 /obj/machinery/vending/wallmed
+	payment_department = STATION_DEPARTMENT_MEDICAL
 	name = "NanoMed"
 	desc = "Настенный раздатчик медикаментов."
 	slogan_list = list(

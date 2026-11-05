@@ -80,7 +80,7 @@ GLOBAL_DATUM(CC_account, /datum/money_account)
 	M.linked_job = link_job
 	M.salary_payment_active = salary_active
 	if(salary_active)
-		M.payment_process = new(SScapitalism.payment_account, M)
+		M.payment_process = new(M)
 
 	//create an entry in the account transaction log for when it was created
 	var/datum/transaction/T = new()
@@ -156,12 +156,17 @@ GLOBAL_DATUM(CC_account, /datum/money_account)
 	var/list/subscriptions = list()
 	var/list/possible_resubscriptions = list()
 	var/datum/economy_process/payment/payment_process
+	var/datum/bounty/civilian_bounty
+	var/list/datum/bounty/bounties
+	COOLDOWN_DECLARE(bounty_timer)
 
 /datum/money_account/New()
 	set_photo()
 
 /datum/money_account/Destroy(force)
 	QDEL_NULL(payment_process)
+	QDEL_NULL(civilian_bounty)
+	QDEL_LIST(bounties)
 	return ..()
 
 /datum/money_account/proc/set_photo()
@@ -194,6 +199,27 @@ GLOBAL_DATUM(CC_account, /datum/money_account)
 			continue
 		PM.notify(text, noti)
 		. = TRUE
+
+/datum/money_account/proc/bounty_num()
+	return civilian_bounty?.print_required() || "Н/Д"
+
+/datum/money_account/proc/set_bounty(datum/bounty/new_bounty, obj/item/card/id/id_card)
+	if(civilian_bounty)
+		reset_bounty(id_card)
+	civilian_bounty = new_bounty
+	civilian_bounty.on_selected(id_card)
+
+/datum/money_account/proc/reset_bounty(obj/item/card/id/id_card)
+	if(civilian_bounty)
+		civilian_bounty.on_reset(id_card)
+		civilian_bounty = null
+	COOLDOWN_RESET(src, bounty_timer)
+
+/datum/money_account/proc/get_order_department()
+	var/datum/job/job = linked_job
+	if(!istype(job) || job.department == STATION_DEPARTMENT_SUPPLY || !GLOB.department_accounts[job.department])
+		return
+	return job.department
 
 /datum/money_account/proc/set_suspended(suspended_actual_status)
 	suspended = suspended_actual_status
