@@ -49,6 +49,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/security
+	payment_department = STATION_DEPARTMENT_SECURITY
 	name = "Departament Security ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Службы безопасности."
 	icon_state = "clothes-dep-sec_off"
@@ -162,6 +163,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/medical
+	payment_department = STATION_DEPARTMENT_MEDICAL
 	name = "Departament Medical ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Медицинского отдела."
 	icon_state = "clothes-dep-med_off"
@@ -295,6 +297,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/engineering
+	payment_department = STATION_DEPARTMENT_ENGINEERING
 	name = "Departament Engineering ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Инженерного отдела."
 	icon_state = "clothes-dep-eng_off"
@@ -391,6 +394,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/science
+	payment_department = STATION_DEPARTMENT_SCIENCE
 	name = "Departament Science ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Научного отдела."
 	icon_state = "clothes-dep-sci_off"
@@ -479,6 +483,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/cargo
+	payment_department = STATION_DEPARTMENT_SUPPLY
 	name = "Departament Cargo ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Отд+ела снабжения."
 	icon_state = "clothes-dep-car_off"
@@ -572,6 +577,7 @@
 	)
 
 /obj/machinery/vending/department_clothesmate/law
+	payment_department = STATION_DEPARTMENT_LEGAL
 	name = "Departament Law ClothesMate"
 	desc = "Автомат-помощник по выдаче одежды Юридического отдела."
 	icon_state = "clothes-dep-sec_off"
