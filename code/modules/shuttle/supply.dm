@@ -608,7 +608,7 @@
 				if(route_result != TRUE)
 					to_chat(usr, span_warning("[route_result]"))
 					return
-				investigate_log("[key_name_log(usr)] has sent the supply shuttle via overmap. Remaining points: [SSshuttle.points]. Shuttle contents: [SSshuttle.sold_atoms]", INVESTIGATE_CARGO)
+				investigate_log("[key_name_log(usr)] has sent the supply shuttle via overmap. Cargo budget: [SSshuttle.cargo_money_account.money]. Shuttle contents: [SSshuttle.sold_atoms]", INVESTIGATE_CARGO)
 				return
 			if(SSshuttle.supply.getDockedId() == "supply_home")
 				SSshuttle.toggleShuttle("supply", "supply_home", "supply_away", 1)
