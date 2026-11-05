@@ -251,8 +251,10 @@
 			"observer" = isobserver(user),
 		),
 		"map" = SSmapping.map_datum.name,
+		"credit_price_override" = null,
 		"ref" = "[src.UID()]"
 	)
+	SEND_SIGNAL(user, COMSIG_MOB_TGUI_CONFIG, json_data["config"])
 	var/data = custom_data || with_data && src_object.ui_data(user)
 	if(data)
 		json_data["data"] = data

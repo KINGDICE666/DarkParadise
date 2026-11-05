@@ -7,6 +7,7 @@ import {
 } from 'tgui-core/components';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
+import { CreditPrice } from './common/CreditPrice';
 
 type SlotMachineData = {
   money: number;
@@ -44,7 +45,13 @@ export const SlotMachine = (_props: unknown) => {
               <LabeledList.Item label="Кредитов доступно">
                 <AnimatedNumber value={data.money} />
               </LabeledList.Item>
-              <LabeledList.Item label="50 кредитов для игры">
+              <LabeledList.Item
+                label={
+                  <>
+                    <CreditPrice value={50} /> кредитов для игры
+                  </>
+                }
+              >
                 <Button
                   icon="coins"
                   disabled={data.working}
