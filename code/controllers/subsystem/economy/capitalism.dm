@@ -56,7 +56,7 @@ SUBSYSTEM_DEF(capitalism)
 #ifndef UNIT_TESTS
 	var/list/valid_exports = list()
 	for(var/datum/export/export as anything in GLOB.exports_list)
-		if(export.sales_market == EXPORT_MARKET_STATION && export.report_name)
+		if(export.sales_market == EXPORT_MARKET_STATION && export.scannable && initial(export.k_elasticity) > 0)
 			valid_exports += export
 	for(var/i in 1 to min(rand(EXPORT_BOOST_MIN_AMOUNT, EXPORT_BOOST_MAX_AMOUNT), length(valid_exports)))
 		var/datum/export/export = pick_n_take(valid_exports)
@@ -68,14 +68,14 @@ SUBSYSTEM_DEF(capitalism)
 	var/list/names = list()
 	for(var/datum/export/export as anything in GLOB.exports_list)
 		if(export.type in boosted_exports)
-			names += export.report_name
+			names += export.unit_name
 	if(!length(names))
 		return
 
 	var/datum/feed_message/report = new
 	report.author = EDITOR_NYX
 	report.admin_locked = TRUE
-	report.body = "Экономическая сводка сектора. Центральное командование сообщает о повышенном спросе: до следующей сводки за [english_list(names, and_text = " и ")] платят втрое больше обычного."
+	report.body = "Экономическая сводка сектора. Центральное командование сообщает о повышенном спросе. До следующей сводки втрое дороже обычного принимаются: [english_list(names, and_text = " и ")]."
 	GLOB.news_network.get_channel_by_name(NEWS_CHANNEL_NYX)?.add_message(report)
 	for(var/obj/machinery/newscaster/newscaster as anything in GLOB.allNewscasters)
 		newscaster.alert_news(NEWS_CHANNEL_NYX)

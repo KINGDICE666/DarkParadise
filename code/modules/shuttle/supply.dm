@@ -94,7 +94,7 @@
 	if(!is_station_level(destination.z))
 		return 1
 
-	if(!length(SSshuttle.shoppinglist))
+	if(!length(SSshuttle.shoppinglist) && !length(SSshuttle.material_orders))
 		return 2
 
 	var/list/emptyTurfs = list()
@@ -164,6 +164,14 @@
 		for(var/datum/supply_order/order as anything in buyer_orders)
 			LAZYADD(delivered_by_account[buyer], "№[order.ordernum] ([order.object.name])")
 
+	for(var/datum/material_market_order/material_order as anything in SSshuttle.material_orders)
+		var/turf/T = pick_n_take(emptyTurfs)
+		if(!T)
+			break
+		material_order.deliver(T)
+		SSshuttle.material_orders -= material_order
+		qdel(material_order)
+
 	SSshuttle.shoppinglist -= processed_orders
 	for(var/datum/money_account/account as anything in delivered_by_account)
 		account.notify_pda_owner("<b>Доставка груза </b>\"Шаттл снабжения доставил ваши заказы: [jointext(delivered_by_account[account], ", ")].\" (Невозможно Ответить)")
@@ -184,153 +192,97 @@
 	container.update_appearance()
 
 /obj/docking_port/mobile/supply/proc/sell(obj/docking_port/stationary/destination)
-	if(destination.z != level_name_to_num(CENTCOMM))		//we only sell when we are -at- centcomm
+	if(destination.z != level_name_to_num(CENTCOMM))
 		return TRUE
 
-	var/crate_count = 0
-	var/quest_reward
-
-	var/list/msg = list("<center>---[station_time_timestamp()]---</center><br>")
-	var/credits_earned
+	var/quest_reward = 0
 	var/total_credits = 0
-
+	var/list/msg = list("<center>---[station_time_timestamp()]---</center><br>")
 	var/datum/export_report/report = new
 
-	for(var/atom/movable/MA in areaInstance)
-		if(MA.anchored)
+	for(var/atom/movable/sold_atom in areaInstance)
+		if(sold_atom.anchored || isdead(sold_atom) || isobserver(sold_atom))
 			continue
-		if(isdead(MA))
-			continue
-		SSshuttle.sold_atoms += " [MA.declent_ru(NOMINATIVE)]"
+		SSshuttle.sold_atoms += " [sold_atom.declent_ru(NOMINATIVE)]"
 
-		if(istype(MA, /obj/structure/bigDelivery))
-			quest_reward += SScargo_quests.check_delivery(MA)
+		if(istype(sold_atom, /obj/structure/bigDelivery))
+			var/delivery_reward = SScargo_quests.check_delivery(sold_atom)
+			if(delivery_reward)
+				quest_reward += delivery_reward
+				qdel(sold_atom, force = TRUE)
+				continue
 
-		// Must be in a crate (or a critter crate)!
-		if(is_crate(MA) || istype(MA, /obj/structure/closet/crate/critter))
-			SSshuttle.sold_atoms += ":"
-			if(!length(MA.contents))
-				SSshuttle.sold_atoms += " (пусто)"
-			++crate_count
+		for(var/obj/item/disk/tech_disk/disk in sold_atom.get_all_contents())
+			sell_tech_disk(disk, msg)
 
-			var/find_slip = TRUE
-			for(var/obj/item/thing in MA)
-				// Sell manifests
-				SSshuttle.sold_atoms += " [thing.declent_ru(NOMINATIVE)]"
-				if(find_slip && istype(thing,/obj/item/paper/manifest))
-					var/obj/item/paper/manifest/slip = thing
-					// TODO: Check for a signature, too.
-					var/slip_stamped_len = LAZYLEN(slip.stamped)
-					if(slip_stamped_len) //yes, the clown stamp will work. clown is the highest authority on the station, it makes sense
-						// Did they mark it as erroneous?
-						var/denied = FALSE
-						for(var/i in 1 to slip_stamped_len)
-							if(slip.stamped[i] == /obj/item/stamp/denied)
-								denied = TRUE
-						if(slip.erroneous && denied) // Caught a mistake by Centcom (IDEA: maybe Centcom rarely gets offended by this)
-							credits_earned = slip.cost - SSshuttle.credits_per_crate
-							total_credits += credits_earned // For now, give a full refund for paying attention (minus the crate cost)
-							msg += "[span_good("+[credits_earned]")]: Объект корректно отклонил груз [slip.ordernumber]: "
-							if(slip.erroneous & MANIFEST_ERROR_NAME)
-								msg += "Некорректный пункт назначения. "
-							else if(slip.erroneous & MANIFEST_ERROR_COUNT)
-								msg += "Ошибочный подсчёт грузов. "
-							else if(slip.erroneous & MANIFEST_ERROR_ITEM)
-								msg += "Недокомплектованный груз. "
-							msg += "Средства возвращены.<br>"
-						else if(!slip.erroneous && !denied) // Approving a proper order awards the relatively tiny credits_per_slip
-							total_credits += SSshuttle.credits_per_slip
-							msg += "[span_good("+[SSshuttle.credits_per_slip]")]: Груз [slip.ordernumber] обозначен корректно.<br>"
-						else // You done goofed.
-							if(slip.erroneous)
-								msg += "[span_good("+0")]: Груз [slip.ordernumber] одобрен, несмотря на ошибку: "
-								if(slip.erroneous & MANIFEST_ERROR_NAME)
-									msg += "Некорректный пункт назначения."
-								else if(slip.erroneous & MANIFEST_ERROR_COUNT)
-									msg += "Ошибочный подсчёт грузов."
-								else if(slip.erroneous & MANIFEST_ERROR_ITEM)
-									msg += "Обнаружены незафиксированные грузы."
-								msg += "  Будьте внимательнее.<br>"
-							else
-								credits_earned = round(SSshuttle.credits_per_crate - slip.cost)
-								total_credits += credits_earned
-								msg += "[span_bad("[credits_earned]")]: Объект отклонил груз [slip.ordernumber]. Отчёты показывают, что ошибка не на нашей стороне.<br>"
-						find_slip = FALSE
-					continue
+		if(istype(sold_atom, /obj/structure/closet/crate/critter/mecha))
+			var/obj/structure/closet/crate/critter/mecha/mecha_crate = sold_atom
+			if(mecha_crate.console && mecha_crate.quest)
+				total_credits += sell_roboquest_mecha(mecha_crate, msg)
+				qdel(mecha_crate, force = TRUE)
+				continue
 
-				// Sell intel
-				if(istype(thing, /obj/item/documents))
-					var/obj/item/documents/docs = thing
-					if(INTEREST_NANOTRASEN & docs.sell_interest)
-						credits_earned = round(SSshuttle.credits_per_intel * docs.sell_multiplier)
-						total_credits += credits_earned
-						msg += "[span_good("+[credits_earned]")]: Получены важные разведданые.<br>"
-
-				// Send tech levels
-				if(istype(thing, /obj/item/disk/tech_disk))
-					var/obj/item/disk/tech_disk/disk = thing
-					if(!disk.stored) continue
-					var/datum/tech/tech = disk.stored
-
-					var/cost = tech.getCost(SSshuttle.techLevels[tech.id])
-					if(tech.level >= 7)
-						SScapitalism.base_account.credit(7000, "Благодарность за вклад в науку.", "Терминал Института \"Нанотрейзен\" №[rand(111,333)]", "Институт \"Нанотрейзен\"")
-					if(cost)
-						SSshuttle.techLevels[tech.id] = tech.level
-						for(var/mob/mob in GLOB.player_list)
-							if(!mob.mind)
-								continue
-							for(var/datum/job_objective/further_research/objective in mob.mind.job_objectives)
-								objective.unit_completed(round(cost / 3))
-						msg += "[tech.name] — новые данные.<br>"
-
-		if(istype(MA, /obj/structure/closet/crate/critter/mecha))
-			var/obj/structure/closet/crate/critter/mecha/crate = MA
-			if(crate.console && crate.quest)
-				for(var/category in crate.quest.reward)
-					crate.quest.reward[category] -= crate.penalty
-					if(crate.quest.reward[category] < 0)
-						crate.quest.reward[category] = 0
-					crate.console.points[category] += crate.quest.reward[category]
-				credits_earned = crate.quest.reward["robo"] * ROBOQUEST_CREDITS_PER_POINT
-				total_credits += credits_earned
-				if(crate.quest.id)
-					var/datum/money_account/A = get_money_account(crate.quest.id.associated_account_number)
-					if(A)
-						A.money += crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
-				SSshuttle.cargo_money_account.money += crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
-				crate.console.on_quest_complete()
-				msg += "[span_good("+[credits_earned]")]: Получен запрошенный экзоскелет: [crate.quest.name].<br>"
-				crate.quest.id.robo_bounty = null
-				crate.quest = null
-
-		export_item_and_contents(MA, apply_elastic = TRUE, dry_run = FALSE, external_report = report)
-
-		qdel(MA, force = TRUE)
-		SSshuttle.sold_atoms += "."
+		export_item_and_contents(sold_atom, apply_elastic = TRUE, dry_run = FALSE, external_report = report)
+		if(!QDELETED(sold_atom))
+			qdel(sold_atom, force = TRUE)
 
 	if(quest_reward > 0)
-		msg += "[span_good("+[quest_reward]")]: Получена оплата за заказы.<br>"
+		msg += "[span_good("+[quest_reward] кр.")]: Получена оплата за заказы.<br>"
 		total_credits += quest_reward
-
-	if(crate_count > 0)
-		credits_earned = round(crate_count * SSshuttle.credits_per_crate)
-		msg += "[span_good("+[credits_earned]")]: Получен[DECL_0_Y_O(crate_count)] [crate_count] ящик[DECL_0_A_OV(crate_count)].<br>"
-		total_credits += credits_earned
 
 	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
 	if(total_credits)
 		cargo_money_account.credit(total_credits, "Расчёт за рейс шаттла снабжения", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 
+	var/export_total = 0
 	for(var/datum/export/exported_datum in report.total_amount)
 		var/export_text = exported_datum.total_printout(report)
 		if(!export_text)
 			continue
-
 		msg += export_text + "<br>"
-		cargo_money_account.credit(report.total_value[exported_datum], "Экспорт ценных ресурсов", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
+		export_total += report.total_value[exported_datum]
+
+	if(export_total > 0)
+		cargo_money_account.credit(export_total, "Экспорт грузов", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
+	else if(export_total < 0)
+		cargo_money_account.charge(min(-export_total, cargo_money_account.money), null, "Штраф за ошибки в манифестах", "Терминал Бизель №[rand(111,333)]", "Центральное командование")
 
 	SSshuttle.centcom_message += "[msg.Join("")]<hr>"
+	if(length(report.exported_atoms))
+		investigate_log("contents sold for [total_credits + export_total] credits. Contents: [report.exported_atoms.Join(", ")].", INVESTIGATE_CARGO)
+
+/obj/docking_port/mobile/supply/proc/sell_tech_disk(obj/item/disk/tech_disk/disk, list/msg)
+	var/datum/tech/tech = disk.stored
+	if(!tech)
+		return
+	var/cost = tech.getCost(SSshuttle.techLevels[tech.id])
+	if(!cost)
+		return
+	if(tech.level >= 7)
+		SScapitalism.base_account.credit(7000, "Благодарность за вклад в науку.", "Терминал Института \"Нанотрейзен\" №[rand(111,333)]", "Институт \"Нанотрейзен\"")
+	SSshuttle.techLevels[tech.id] = tech.level
+	for(var/mob/mob in GLOB.player_list)
+		if(!mob.mind)
+			continue
+		for(var/datum/job_objective/further_research/objective in mob.mind.job_objectives)
+			objective.unit_completed(round(cost / 3))
+	msg += "[tech.name] — новые данные.<br>"
+
+/obj/docking_port/mobile/supply/proc/sell_roboquest_mecha(obj/structure/closet/crate/critter/mecha/crate, list/msg)
+	for(var/category in crate.quest.reward)
+		crate.quest.reward[category] = max(crate.quest.reward[category] - crate.penalty, 0)
+		crate.console.points[category] += crate.quest.reward[category]
+	var/credits_earned = crate.quest.reward["robo"] * ROBOQUEST_CREDITS_PER_POINT
+	var/cash_reward = crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
+	if(crate.quest.id)
+		var/datum/money_account/account = get_money_account(crate.quest.id.associated_account_number)
+		account?.credit(cash_reward, "Награда за экзоскелет", "Терминал Бизель №[rand(111,333)]", account.owner_name)
+		crate.quest.id.robo_bounty = null
+	SSshuttle.cargo_money_account.credit(cash_reward, "Награда за экзоскелет", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name)
+	crate.console.on_quest_complete()
+	msg += "[span_good("+[credits_earned] кр.")]: Получен запрошенный экзоскелет: [crate.quest.name].<br>"
+	crate.quest = null
+	return credits_earned
 
 /********************
 	SUPPLY ORDER

@@ -40,13 +40,11 @@ SUBSYSTEM_DEF(shuttle)
 		//supply shuttle stuff
 	var/obj/docking_port/mobile/supply/supply
 	var/ordernum = 1					//order number given to next order
-	var/credits_per_slip = 50
-	var/credits_per_crate = 125
-	var/credits_per_intel = 6250
 	var/centcom_message = null			//Remarks from Centcom on how well you checked the last order.
 	var/datum/money_account/cargo_money_account
 	var/list/techLevels = list()
 	var/list/shoppinglist = list()
+	var/list/material_orders = list()
 	var/list/requestlist = list()
 	var/list/supply_packs = list()
 	var/datum/round_event/shuttle_loan/shuttle_loan

@@ -1,7 +1,6 @@
 /datum/export/bounty_box
-	cost = 1
 	k_elasticity = 0
-	unit_name = "completed bounty cube"
+	unit_name = "кубы гражданских баунти"
 	export_types = list(/obj/item/bounty_cube)
 
 /datum/export/bounty_box/get_base_cost(obj/item/bounty_cube/cube)

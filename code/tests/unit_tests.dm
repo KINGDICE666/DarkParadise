@@ -17,6 +17,7 @@
 #include "test_bitrunning.dm"
 #include "test_brain_traumas.dm"
 #include "test_buildmode.dm"
+#include "test_cargo_exports.dm"
 #include "test_circuit_import.dm"
 #include "test_cliffs.dm"
 #include "test_components.dm"

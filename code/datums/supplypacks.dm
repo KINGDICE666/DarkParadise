@@ -2644,7 +2644,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 ///////////// High-Tech Disks
 
 /datum/supply_packs/misc/htdisk
-	cost = 25
+	cost = 250
 	special = TRUE
 	containername = "ящик с дискетой технологий"
 	container_ru_names = alist(
@@ -5093,6 +5093,23 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		ACCUSATIVE = "ящик с маяком гражданских баунти",
 		INSTRUMENTAL = "ящиком с маяком гражданских баунти",
 		PREPOSITIONAL = "ящике с маяком гражданских баунти",
+	)
+
+/datum/supply_packs/misc/materials_market
+	name = "Терминал галактической биржи материалов"
+	contains = list(
+		/obj/machinery/materials_market,
+	)
+	cost = 1500
+	containertype = /obj/structure/closet/crate/large
+	containername = "ящик с терминалом биржи материалов"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик с терминалом биржи материалов",
+		GENITIVE = "ящика с терминалом биржи материалов",
+		DATIVE = "ящику с терминалом биржи материалов",
+		ACCUSATIVE = "ящик с терминалом биржи материалов",
+		INSTRUMENTAL = "ящиком с терминалом биржи материалов",
+		PREPOSITIONAL = "ящике с терминалом биржи материалов",
 	)
 
 /datum/supply_packs/misc/watertank

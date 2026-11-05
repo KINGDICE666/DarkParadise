@@ -97,9 +97,6 @@ Then the player gets the profit from selling his own wasted time.
 
 	/// Unit name. Only used in "Received [total_amount] [name]s [message]."
 	var/unit_name = ""
-	var/report_name
-	/// Message appended to the sale report
-	var/message = ""
 
 	///Price per unit of an exported item
 	var/cost = 1
@@ -238,19 +235,5 @@ Then the player gets the profit from selling his own wasted time.
 		return ""
 
 	var/total_value = ex.total_value[src]
-	var/total_amount = ex.total_amount[src]
-
-	var/msg = "[(total_value > 0)? "[span_good("+ [total_value] [MONEY_NAME]")]" : "[total_value] [MONEY_NAME]" ]: Received [total_amount] "
-
-	if(unit_name)
-		msg += unit_name
-		if(total_amount > 1)
-			msg += plural_s(unit_name)
-		if(message)
-			msg += " "
-
-	if(message)
-		msg += message
-
-	msg += "."
-	return msg
+	var/value_text = "[total_value] кр."
+	return "[total_value > 0 ? span_good("+[value_text]") : span_bad(value_text)]: [unit_name] — [round(ex.total_amount[src], 0.1)] шт."

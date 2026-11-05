@@ -1,85 +1,79 @@
+#define MANIFEST_HANDLING_RATE 0.12
+#define MANIFEST_CORRECT_RATE (MANIFEST_HANDLING_RATE * 2)
+#define MANIFEST_ERRONEOUS_RATE (MANIFEST_HANDLING_RATE * 4)
+#define MAX_HANDLING_CHARGE (CARGO_CRATE_VALUE * 0.6)
+#define MAX_CORRECT_CHARGE (MAX_HANDLING_CHARGE * 2)
+#define MAX_ERRONEOUS_CHARGE (MAX_HANDLING_CHARGE * 4)
 
-// Correctly stamped manifest.
-// Gives half of crate value
 /datum/export/manifest_correct
-	unit_name = "returned manifest"
-	cost = CARGO_CRATE_VALUE / 2
-	sales_market = EXPORT_NONE
 	k_elasticity = 0
+	unit_name = "одобренные манифесты"
 	export_types = list(/obj/item/paper/manifest)
+	scannable = FALSE
 
 /datum/export/manifest_correct/applies_to(obj/exported_item, apply_elastic, export_markets)
 	if(!..())
 		return FALSE
 
 	var/obj/item/paper/manifest/paper = exported_item
-	if(paper.is_approved() && !paper.erroneous)
-		return TRUE
-	return FALSE
+	return paper.is_approved() && !paper.erroneous
 
+/datum/export/manifest_correct/get_base_cost(obj/item/paper/manifest/paper)
+	return min(paper.cost * MANIFEST_HANDLING_RATE, MAX_HANDLING_CHARGE)
 
-// Correctly denied manifest.
-// Refunds package cost minus the value of the crate.
 /datum/export/manifest_error_denied
-	unit_name = "correctly denied manifest"
-	cost = -CARGO_CRATE_VALUE
-	sales_market = EXPORT_NONE
 	k_elasticity = 0
+	unit_name = "верно отклонённые манифесты"
 	export_types = list(/obj/item/paper/manifest)
+	scannable = FALSE
 
 /datum/export/manifest_error_denied/applies_to(obj/exported_item, apply_elastic, export_markets)
 	if(!..())
 		return FALSE
 
 	var/obj/item/paper/manifest/paper = exported_item
-	if(paper.is_denied() && paper.erroneous)
-		return TRUE
-	return FALSE
+	return paper.is_denied() && paper.erroneous
 
 /datum/export/manifest_error_denied/get_base_cost(obj/item/paper/manifest/paper)
-	return cost + paper.cost
+	return paper.cost + min(paper.cost * MANIFEST_CORRECT_RATE, MAX_CORRECT_CHARGE)
 
-
-// Erroneously approved manifest.
-// Subtracts package cost.
 /datum/export/manifest_error
-	unit_name = "erroneously approved manifest"
-	cost = -CARGO_CRATE_VALUE
-	sales_market = EXPORT_NONE
 	k_elasticity = 0
+	unit_name = "ошибочно одобренные манифесты"
 	export_types = list(/obj/item/paper/manifest)
 	allow_negative_cost = TRUE
+	scannable = FALSE
 
 /datum/export/manifest_error/applies_to(obj/exported_item, apply_elastic, export_markets)
 	if(!..())
 		return FALSE
 
 	var/obj/item/paper/manifest/paper = exported_item
-	if(paper.is_approved() && paper.erroneous)
-		return TRUE
-	return FALSE
+	return paper.is_approved() && paper.erroneous
 
 /datum/export/manifest_error/get_base_cost(obj/item/paper/manifest/paper)
-	return cost - paper.cost
+	return -min(paper.cost * MANIFEST_ERRONEOUS_RATE, MAX_ERRONEOUS_CHARGE)
 
-// Erroneously denied manifest.
-// Subtracts package cost.
 /datum/export/manifest_correct_denied
-	unit_name = "erroneously denied manifest"
-	cost = -CARGO_CRATE_VALUE
-	sales_market = EXPORT_NONE
 	k_elasticity = 0
+	unit_name = "ошибочно отклонённые манифесты"
 	export_types = list(/obj/item/paper/manifest)
 	allow_negative_cost = TRUE
+	scannable = FALSE
 
 /datum/export/manifest_correct_denied/applies_to(obj/exported_item, apply_elastic, export_markets)
 	if(!..())
 		return FALSE
 
 	var/obj/item/paper/manifest/paper = exported_item
-	if(paper.is_denied() && !paper.erroneous)
-		return TRUE
-	return FALSE
+	return paper.is_denied() && !paper.erroneous
 
 /datum/export/manifest_correct_denied/get_base_cost(obj/item/paper/manifest/paper)
-	return cost - paper.cost
+	return -min(paper.cost * MANIFEST_ERRONEOUS_RATE, MAX_ERRONEOUS_CHARGE)
+
+#undef MANIFEST_HANDLING_RATE
+#undef MANIFEST_CORRECT_RATE
+#undef MANIFEST_ERRONEOUS_RATE
+#undef MAX_HANDLING_CHARGE
+#undef MAX_CORRECT_CHARGE
+#undef MAX_ERRONEOUS_CHARGE
