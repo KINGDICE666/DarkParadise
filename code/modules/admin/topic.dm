@@ -2627,42 +2627,15 @@
 		else if(stamptype == "text")
 			P.stamp(/obj/item/stamp, special_stamped = "<i>[stampvalue]</i>", special_icon_state = "stamp-[stampvalue]")
 
-		if(destination != "All Departments")
-			if(!fax.receivefax(P))
-				to_chat(src.owner, span_warning("Message transmission failed."), confidential = TRUE)
-				return
-		else
-			for(var/obj/machinery/photocopier/faxmachine/F in GLOB.allfaxes)
-				if(is_station_level(F.z))
-					spawn(0)
-						if(!F.receivefax(P))
-							to_chat(src.owner, span_warning("Message transmission to [F.department] failed."), confidential = TRUE)
+		transmit_admin_fax(P, destination, fax, faxtype, reply_to, sender, notify == "Yes")
+		return
 
-		var/datum/fax/admin/A = new /datum/fax/admin()
-		A.name = P.name
-		A.from_department = faxtype
-		if(destination != "All Departments")
-			A.to_department = fax.department
-		else
-			A.to_department = "All Departments"
-		A.origin = "Administrator"
-		A.message = P
-		A.reply_to = reply_to
-		A.sent_by = usr
-		A.sent_at = world.time
+	else if(href_list["AdminFaxConstructor"])
+		if(!check_rights(R_ADMIN))
+			return
 
-		to_chat(src.owner, span_notice("Message transmitted successfully."), confidential = TRUE)
-		if(notify == "Yes")
-			var/mob/living/carbon/human/H = sender
-			if(istype(H) && H.stat == CONSCIOUS && (istype(H.l_ear, /obj/item/radio/headset) || istype(H.r_ear, /obj/item/radio/headset)))
-				to_chat(sender, span_specialnotice("Ваша гарнитура издает звук, сигнализирующий о том, что пришёл ответ на ваш факс."), confidential = TRUE)
-				sender.playsound_local(sender, 'sound/items/new_fax_message.ogg', 50, FALSE, use_reverb = FALSE)
-		if(sender)
-			log_admin("[key_name(src.owner)] replied to a fax message from [key_name(sender)]: [input]")
-			message_admins("[key_name_admin(src.owner)] replied to a fax message from [key_name_admin(sender)] (<a href='byond://?_src_=holder;AdminFaxView=[P.UID()]'>VIEW</a>).")
-		else
-			log_admin("[key_name(src.owner)] sent a fax message to [destination]: [input]")
-			message_admins("[key_name_admin(src.owner)] sent a fax message to [destination] (<a href='byond://?_src_=holder;AdminFaxView=[P.UID()]'>VIEW</a>).")
+		var/datum/fax_constructor/constructor = new(usr, locateUID(href_list["AdminFaxConstructor"]), locateUID(href_list["originfax"]), href_list["faxtype"], locateUID(href_list["replyto"]))
+		constructor.ui_interact(usr)
 		return
 
 	else if(href_list["AdminFaxNotify"])
