@@ -3082,6 +3082,7 @@
 #include "code\modules\cargo\exports.dm"
 #include "code\modules\cargo\materials_market.dm"
 #include "code\modules\cargo\supplypod.dm"
+#include "code\modules\cargo\universal_scanner.dm"
 #include "code\modules\cargo\bounties\assistant.dm"
 #include "code\modules\cargo\bounties\atmos.dm"
 #include "code\modules\cargo\bounties\bitrunning.dm"

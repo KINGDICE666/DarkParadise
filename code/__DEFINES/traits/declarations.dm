@@ -666,6 +666,7 @@
 #define TRAIT_CLIMBABLE "trait_climbable"
 
 #define TRAIT_BANNED_FROM_CARGO_SHUTTLE "banned_from_cargo_shuttle"
+#define TRAIT_HAS_BARCODE "has_barcode"
 
 /// Trait which lets you clamber over a barrier
 #define TRAIT_FENCE_CLIMBER "can_climb_fences"

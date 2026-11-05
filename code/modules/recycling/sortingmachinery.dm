@@ -42,9 +42,14 @@
 		. += span_notice("The package will be addressed to the [GLOB.TAGGERLOCATIONS[sortTag]] on [station_name()].")
 	if(cc_tag)
 		. += span_notice("The package will be addressed to the [cc_tag] on Centomm.")
+	if(HAS_TRAIT(src, TRAIT_HAS_BARCODE))
+		. += span_notice("На посылке наклеен штрихкод: часть выручки с её продажи уйдёт владельцу счёта.")
 
 /obj/structure/bigDelivery/attack_hand(mob/user)
 	var/turf/our_turf = get_turf(src)
+	if(HAS_TRAIT(src, TRAIT_HAS_BARCODE))
+		for(var/atom/movable/thing as anything in get_all_contents() - src)
+			SEND_SIGNAL(thing, COMSIG_ITEM_UNWRAPPED)
 	playsound(our_turf, 'sound/items/poster_ripped.ogg', 50, TRUE)
 	if(wrapped)
 		wrapped.forceMove(our_turf)
@@ -170,6 +175,9 @@
 		thing.emp_act(severity)
 
 /obj/item/smallDelivery/attack_self(mob/user)
+	if(HAS_TRAIT(src, TRAIT_HAS_BARCODE))
+		for(var/atom/movable/thing as anything in get_all_contents() - src)
+			SEND_SIGNAL(thing, COMSIG_ITEM_UNWRAPPED)
 	if(wrapped) //sometimes items can disappear. For example, bombs. --rastaf0
 		wrapped.forceMove(drop_location())
 		user.put_in_hands(wrapped)
