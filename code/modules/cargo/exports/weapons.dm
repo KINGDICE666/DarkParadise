@@ -39,21 +39,6 @@
 	unit_name = "энергетические пистолеты"
 	export_types = list(/obj/item/gun/energy/gun/mini)
 
-/datum/export/weapon/ion_rifle
-	cost = CARGO_CRATE_VALUE * 2
-	unit_name = "ионные винтовки"
-	export_types = list(/obj/item/gun/energy/ionrifle, /obj/item/gun/energy/ionrifle/carbine)
-
-/datum/export/weapon/xray
-	cost = CARGO_CRATE_VALUE * 3
-	unit_name = "рентгеновские лазеры"
-	export_types = list(/obj/item/gun/energy/xray)
-
-/datum/export/weapon/lasercannon
-	cost = CARGO_CRATE_VALUE * 3
-	unit_name = "лазерные пушки"
-	export_types = list(/obj/item/gun/energy/lasercannon)
-
 /datum/export/weapon/shotgun
 	cost = CARGO_CRATE_VALUE * 1.5
 	unit_name = "боевые дробовики"

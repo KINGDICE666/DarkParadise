@@ -192,7 +192,7 @@
 	container.update_appearance()
 
 /obj/docking_port/mobile/supply/proc/sell(obj/docking_port/stationary/destination)
-	if(destination.z != level_name_to_num(CENTCOMM))
+	if(destination.z != level_name_to_num(CENTCOMM))		//we only sell when we are -at- centcomm
 		return TRUE
 
 	var/quest_reward = 0
@@ -225,6 +225,7 @@
 		export_item_and_contents(sold_atom, apply_elastic = TRUE, dry_run = FALSE, external_report = report)
 		if(!QDELETED(sold_atom))
 			qdel(sold_atom, force = TRUE)
+		SSshuttle.sold_atoms += "."
 
 	if(quest_reward > 0)
 		msg += "[span_good("+[quest_reward] кр.")]: Получена оплата за заказы.<br>"
@@ -276,7 +277,8 @@
 	var/cash_reward = crate.quest.maximum_cash - round(crate.quest.maximum_cash * crate.penalty / 4)
 	if(crate.quest.id)
 		var/datum/money_account/account = get_money_account(crate.quest.id.associated_account_number)
-		account?.credit(cash_reward, "Награда за экзоскелет", "Терминал Бизель №[rand(111,333)]", account.owner_name)
+		if(account)
+			account.credit(cash_reward, "Награда за экзоскелет", "Терминал Бизель №[rand(111,333)]", account.owner_name)
 		crate.quest.id.robo_bounty = null
 	SSshuttle.cargo_money_account.credit(cash_reward, "Награда за экзоскелет", "Терминал Бизель №[rand(111,333)]", SSshuttle.cargo_money_account.owner_name)
 	crate.console.on_quest_complete()

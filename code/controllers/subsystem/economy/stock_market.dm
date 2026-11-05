@@ -143,8 +143,6 @@ SUBSYSTEM_DEF(stock_market)
 	report.body = "Галактическая биржа материалов. [jointext(pending_news, " ")]"
 	pending_news.Cut()
 	GLOB.news_network.get_channel_by_name(NEWS_CHANNEL_NYX)?.add_message(report)
-	for(var/obj/machinery/newscaster/newscaster as anything in GLOB.allNewscasters)
-		newscaster.alert_news(NEWS_CHANNEL_NYX)
 
 /datum/controller/subsystem/stock_market/proc/get_material_name(material_id)
 	var/static/list/material_names

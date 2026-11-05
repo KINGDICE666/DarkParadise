@@ -29,6 +29,14 @@
 /datum/material_market_order/proc/deliver(turf/destination)
 	var/obj/structure/closet/crate/crate = new(destination)
 	crate.name = "material order ([orderer_name])"
+	crate.ru_names = alist(
+		NOMINATIVE = "ящик с биржевым заказом ([orderer_name])",
+		GENITIVE = "ящика с биржевым заказом ([orderer_name])",
+		DATIVE = "ящику с биржевым заказом ([orderer_name])",
+		ACCUSATIVE = "ящик с биржевым заказом ([orderer_name])",
+		INSTRUMENTAL = "ящиком с биржевым заказом ([orderer_name])",
+		PREPOSITIONAL = "ящике с биржевым заказом ([orderer_name])",
+	)
 	if(private)
 		crate.AddComponent(/datum/component/locked_to_account, paying_account)
 	for(var/sheet_type in sheets)
@@ -81,9 +89,10 @@
 		return
 	icon_state = "mat_market"
 
-/obj/machinery/materials_market/power_change()
+/obj/machinery/materials_market/power_change(forced = FALSE)
 	. = ..()
-	update_icon(UPDATE_ICON_STATE)
+	if(.)
+		update_icon(UPDATE_ICON_STATE)
 
 /obj/machinery/materials_market/wrench_act(mob/living/user, obj/item/tool)
 	. = TRUE
@@ -110,8 +119,8 @@
 /obj/machinery/materials_market/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
 	if(!isstack(tool))
 		return ..()
-	if(stat & (NOPOWER|BROKEN))
-		balloon_alert(user, "нет питания!")
+	if((stat & (NOPOWER|BROKEN)) || !anchored)
+		balloon_alert(user, "терминал не работает!")
 		return ITEM_INTERACT_BLOCKING
 	var/obj/item/stack/stack = tool
 	if(length(stack.materials) != 1)
@@ -189,6 +198,7 @@
 	data["orderingPrivate"] = buyer ? buyer["private"] : TRUE
 	data["canOrderCargo"] = buyer ? buyer["cargo"] : FALSE
 	data["privateMarkup"] = MATERIAL_MARKET_PRIVATE_MARKUP
+	data["crateFee"] = CARGO_CRATE_REFUND
 	data["updateTime"] = max(SSstock_market.next_fire - world.time, 0)
 	return data
 
@@ -241,7 +251,7 @@
 			var/cost = base_cost + markup
 			if(!order)
 				cost += CARGO_CRATE_REFUND
-			if(account.money < cost || !account.charge(cost, null, "Покупка на галактической бирже материалов", name, "Галактическая биржа материалов"))
+			if(account.money < cost || !account.charge(cost, null, "Покупка на галактической бирже материалов", "Галактическая биржа материалов", "Галактическая биржа материалов"))
 				atom_say("Недостаточно средств.")
 				return
 			SScapitalism.add_audit_entry(account, cost, "Галактическая биржа материалов")
@@ -279,6 +289,7 @@
 	var/material_id
 	var/sheets = 0
 	var/export_value = 0
+	var/warned = FALSE
 	var/fluid = FALSE
 
 /obj/item/stock_block/get_ru_names()
@@ -307,17 +318,24 @@
 		. += span_notice("Цена блока пока <b>зафиксирована</b>. Продайте его, пока она не стала плавающей!")
 	. += span_notice("Стоимость: [round(get_value())] кр. за [round(sheets, 0.1)] лист. ([SSstock_market.get_material_name(material_id)]).")
 
+/obj/item/stock_block/update_icon_state()
+	if(fluid)
+		icon_state = "stock_block_liquid"
+	else if(warned)
+		icon_state = "stock_block_fluid"
+	else
+		icon_state = initial(icon_state)
+
 /obj/item/stock_block/proc/get_value()
 	return sheets * (fluid ? SSstock_market.get_price(material_id) : export_value)
 
 /obj/item/stock_block/proc/value_warning()
-	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает терять фиксированную цену!"))
-	icon_state = "stock_block_fluid"
+	warned = TRUE
 	update_icon(UPDATE_ICON_STATE)
+	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] начинает терять фиксированную цену!"))
 
 /obj/item/stock_block/proc/become_liquid()
 	fluid = TRUE
-	icon_state = "stock_block_liquid"
 	update_icon(UPDATE_ICON_STATE)
 	visible_message(span_warning("Цена [declent_ru(GENITIVE)] стала плавающей!"))
 

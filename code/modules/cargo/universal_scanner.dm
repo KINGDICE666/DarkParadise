@@ -43,10 +43,12 @@
 	if(!choice || choice == scanning_mode)
 		return
 	scanning_mode = choice
-	icon_state = choice
-	update_icon()
+	update_icon(UPDATE_ICON_STATE)
 	playsound(src, 'sound/machines/click.ogg', 40, TRUE)
 	balloon_alert(user, choice == SCAN_EXPORTS ? "режим сканера экспорта" : "режим долевых наклеек")
+
+/obj/item/universal_scanner/update_icon_state()
+	icon_state = scanning_mode
 
 /obj/item/universal_scanner/proc/check_menu(mob/living/user)
 	return istype(user) && !user.incapacitated() && loc == user

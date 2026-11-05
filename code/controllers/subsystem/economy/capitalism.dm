@@ -12,7 +12,7 @@ SUBSYSTEM_DEF(capitalism)
 
 	/// Account that receives money for orders, vending machines and station goal bounties.
 	var/datum/money_account/base_account
-	/// Account from which salaries of jobs without a department budget are deducted.
+	/// Account from which salaries are deducted.
 	var/datum/money_account/payment_account
 
 	// Statistics for the round-end report.

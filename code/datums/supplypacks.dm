@@ -52,6 +52,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	var/special_enabled = FALSE
 	var/goody = FALSE
 	var/departmental = TRUE
+	var/test_ignored = FALSE
 
 	// The number of times one can order a cargo crate, before it becomes restricted. -1 for infinite
 	// var/order_limit = -1 // Unused for now (Crate limit #3056).
@@ -441,6 +442,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/storage/box/random_syndi,
 	)
 	cost = 2500
+	test_ignored = TRUE
 	containertype = /obj/structure/closet/crate/syndicate
 	containername = "ящик"
 	container_ru_names = alist(

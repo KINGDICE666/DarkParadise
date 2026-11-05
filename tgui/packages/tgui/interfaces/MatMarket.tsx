@@ -33,11 +33,11 @@ type Data = {
   orderingPrivate: BooleanLike;
   canOrderCargo: BooleanLike;
   privateMarkup: number;
+  crateFee: number;
   updateTime: number;
 };
 
 const BUY_AMOUNTS = [1, 5, 10, 25, 50];
-const CRATE_REFUND = 125;
 
 const trendText = (trend: number) => {
   if (trend > 0) {
@@ -69,11 +69,12 @@ export const MatMarket = (props) => {
     orderingPrivate,
     canOrderCargo,
     privateMarkup,
+    crateFee,
     updateTime,
   } = data;
 
   const multiplier = orderingPrivate ? privateMarkup : 1;
-  const crateFee = orderBalance ? 0 : CRATE_REFUND;
+  const orderCrateFee = orderBalance ? 0 : crateFee;
   const sorted = [...materials].sort((a, b) => a.base_price - b.base_price);
 
   return (
@@ -170,7 +171,7 @@ export const MatMarket = (props) => {
                   {BUY_AMOUNTS.map((amount) => {
                     const cost =
                       Math.ceil(material.price * amount * multiplier) +
-                      crateFee;
+                      orderCrateFee;
                     return (
                       <Button
                         key={amount}
