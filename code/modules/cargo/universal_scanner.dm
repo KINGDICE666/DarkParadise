@@ -4,7 +4,7 @@
 
 /obj/item/universal_scanner
 	name = "universal scanner"
-	desc = "Прибор для сверки предметов с экспортной базой Нанотрейзен. В режиме долевой наклейки печатает штрихкоды, которые отдают часть выручки с продажи посылки владельцу счёта."
+	desc = "Прибор для сверки предметов с экспортной базой \"Нанотрейзен\". В режиме долевой наклейки печатает штрихкоды, которые отдают часть выручки с продажи посылки владельцу счёта."
 	icon = 'icons/obj/device.dmi'
 	icon_state = SCAN_EXPORTS
 	item_state = "electronic"
@@ -190,7 +190,7 @@
 	ADD_TRAIT(parcel, TRAIT_HAS_BARCODE, UID())
 	for(var/obj/wrapped_item in parcel.get_all_contents() - parcel - src)
 		wrapped_item.AddComponent(/datum/component/pricetag, list(payments_account), cut_multiplier)
-	user.visible_message(span_notice("[user] наклеива[pluralize_ru(user.gender, "ет", "ют")] штрихкод на [parcel.declent_ru(ACCUSATIVE)]."), span_notice("Вы наклеиваете штрихкод на [parcel.declent_ru(ACCUSATIVE)]."))
+	user.visible_message(span_notice("[user] наклеива[PLUR_ET_YUT(user)] штрихкод на [parcel.declent_ru(ACCUSATIVE)]."), span_notice("Вы наклеиваете штрихкод на [parcel.declent_ru(ACCUSATIVE)]."))
 	return TRUE
 
 #undef SCAN_EXPORTS

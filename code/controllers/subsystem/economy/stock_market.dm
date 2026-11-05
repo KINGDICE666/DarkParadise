@@ -45,7 +45,7 @@ SUBSYSTEM_DEF(stock_market)
 		materials_trends[material_id] = rand(MARKET_TREND_DOWNWARD, MARKET_TREND_UPWARD)
 		materials_trend_life[material_id] = rand(1, 3)
 		var/base_quantity = base_quantities[material_id]
-		materials_quantity[material_id] = round(base_quantity + rand(-base_quantity * 0.5, base_quantity * 0.5))
+		materials_quantity[material_id] = round(base_quantity * randfloat(0.5, 1.5))
 	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/stock_market/fire(resumed)
