@@ -44,6 +44,7 @@
 	var/encoded_logo = constructor.encode_logo(file("icons/misc/paper_icons/ntlogo.png"))
 	TEST_ASSERT(findtextEx(encoded_logo, "iVBORw0KGgo") == 1, "PNG upload was not encoded as a PNG")
 	TEST_ASSERT_NULL(constructor.encode_logo(file("code/__DEFINES/say.dm")), "A non-image upload was accepted as a logo")
+	TEST_ASSERT_NULL(constructor.encode_logo(file("icons/misc/chess_pieces/sprites.png")), "An oversized image was accepted as a logo")
 	TEST_ASSERT_NOT(constructor.is_valid_logo("'><script>"), "A logo with markup passed validation")
 
 	constructor.custom_logo = encoded_logo

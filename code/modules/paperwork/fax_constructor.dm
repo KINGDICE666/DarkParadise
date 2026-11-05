@@ -8,6 +8,9 @@
 #define FAX_MAX_TEXT_LEN 1800
 #define FAX_MAX_PRESET_NAME_LEN 64
 #define FAX_MAX_LOGO_BYTES (96 * 1024)
+#define FAX_MAX_LOGO_SIDE 1024
+#define FAX_PNG_IHDR_BASE64 "iVBORw0KGgoAAAANSUhE"
+#define FAX_PNG_HEADER_CHARS 32
 #define FAX_MIN_FONT_SIZE 8
 #define FAX_MAX_FONT_SIZE 36
 #define FAX_DEFAULT_TEXT_SIZE 14
@@ -346,14 +349,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 				update_static_data_for_all_viewers()
 			return TRUE
 		if("save_preset")
-			if(dialog_open)
-				return FALSE
-			dialog_open = TRUE
-			var/preset_saved = save_preset(user)
-			dialog_open = FALSE
-			if(preset_saved)
-				update_static_data_for_all_viewers()
-			return TRUE
+			return run_dialog(PROC_REF(save_preset), user)
 		if("delete_preset")
 			var/list/presets = get_fax_custom_presets()
 			if(!presets[params["id"]])
@@ -365,14 +361,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			update_static_data_for_all_viewers()
 			return TRUE
 		if("upload_logo")
-			if(dialog_open)
-				return FALSE
-			dialog_open = TRUE
-			var/logo_uploaded = upload_logo(user)
-			dialog_open = FALSE
-			if(logo_uploaded)
-				update_static_data_for_all_viewers()
-			return TRUE
+			return run_dialog(PROC_REF(upload_logo), user)
 		if("preview")
 			var/obj/item/paper/preview_paper = build_paper()
 			preview_paper.show_content(user, forceshow = TRUE)
@@ -381,12 +370,27 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		if("create")
 			var/obj/item/paper/created_paper = build_paper()
 			created_paper.forceMove(get_turf(user))
-			log_admin("[key_name(user)] created a paper form '[created_paper.name]' at [AREACOORD(user)]: [created_paper.info]")
+			log_admin("[key_name(user)] created a paper form '[created_paper.name]' at [AREACOORD(user)]: [strip_html_properly(created_paper.info)]")
 			message_admins("[key_name_admin(user)] created a paper form '[created_paper.name]' at [ADMIN_COORDJMP(user)] (<a href='byond://?_src_=holder;AdminFaxView=[created_paper.UID()]'>VIEW</a>).")
 			return FALSE
 		if("send")
 			send_fax(user)
 			return TRUE
+
+/datum/fax_constructor/proc/run_dialog(dialog_proc, mob/user)
+	if(dialog_open)
+		return FALSE
+	dialog_open = TRUE
+	var/changed
+	try
+		changed = call(src, dialog_proc)(user)
+	catch(var/exception/error)
+		dialog_open = FALSE
+		throw error
+	dialog_open = FALSE
+	if(changed)
+		update_static_data_for_all_viewers()
+	return TRUE
 
 /datum/fax_constructor/proc/remember_draft(edit_key)
 	if(edit_key && edit_key == last_edit_key)
@@ -667,7 +671,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	for(var/stamp in draft["stamps"])
 		paper.stamp(/obj/item/stamp/centcom, special_stamped = "<img src='large_stamp-[stamp].png'>", special_icon_state = "stamp-[stamp]")
 	if(draft["stamp_text"])
-		paper.stamp(/obj/item/stamp, special_stamped = "<i>[html_encode(draft["stamp_text"])]</i>", special_icon_state = "stamp-text")
+		paper.stamp(/obj/item/stamp, special_stamped = "<i>[html_encode(draft["stamp_text"])]</i>", special_icon_state = "stamp-dots")
 	return paper
 
 /datum/fax_constructor/proc/send_fax(mob/user)
@@ -688,7 +692,11 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 				fax = department_fax
 
 	var/mob/sender = locateUID(sender_uid)
-	user.client.holder.transmit_admin_fax(build_paper(), origin_fax_uid ? null : destination, fax, faxtype, locateUID(reply_to_uid), sender, notify_sender)
+	try
+		user.client.holder.transmit_admin_fax(build_paper(), origin_fax_uid ? null : destination, fax, faxtype, locateUID(reply_to_uid), sender, notify_sender)
+	catch(var/exception/error)
+		sending = FALSE
+		throw error
 	sending = FALSE
 
 /datum/fax_constructor/proc/upload_logo(mob/user)
@@ -700,7 +708,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		return FALSE
 	var/encoded_logo = encode_logo(uploaded)
 	if(!encoded_logo)
-		to_chat(user, span_warning("Не удалось прочитать изображение."), confidential = TRUE)
+		to_chat(user, span_warning("Не удалось прочитать изображение. Нужен PNG не больше [FAX_MAX_LOGO_SIDE]×[FAX_MAX_LOGO_SIDE] пикселей."), confidential = TRUE)
 		return FALSE
 	remember_draft()
 	custom_logo = encoded_logo
@@ -709,15 +717,35 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	return TRUE
 
 /datum/fax_constructor/proc/encode_logo(logo_file)
-	var/icon/logo_icon
+	var/savefile/dummy_save = get_dummy_savefile()
+	WRITE_FILE(dummy_save["dummy"], logo_file)
+	var/list/partial = splittext(dummy_save.ExportText("dummy"), "{")
+	if(length(partial) < 2)
+		return null
+	var/encoded_logo = replacetext(copytext_char(partial[2], 3, -5), "\n", "")
+	if(!is_valid_logo(encoded_logo) || !logo_fits(encoded_logo))
+		return null
 	try
-		logo_icon = icon(logo_file)
+		var/icon/logo_icon = icon(logo_file)
+		if(!logo_icon.Width())
+			return null
 	catch
 		return null
-	if(!isicon(logo_icon) || !logo_icon.Width())
-		return null
-	var/encoded_logo = icon2base64(logo_icon)
-	return is_valid_logo(encoded_logo) ? encoded_logo : null
+	return encoded_logo
+
+/datum/fax_constructor/proc/logo_fits(encoded_logo)
+	var/static/base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+	if(length(encoded_logo) < FAX_PNG_HEADER_CHARS || findtextEx(encoded_logo, FAX_PNG_IHDR_BASE64) != 1)
+		return FALSE
+	var/list/header_bytes = list()
+	for(var/position in 1 to FAX_PNG_HEADER_CHARS step 4)
+		var/bits = 0
+		for(var/offset in 0 to 3)
+			bits = bits * 64 + findtextEx(base64_alphabet, encoded_logo[position + offset]) - 1
+		header_bytes += list(bits >> 16, (bits >> 8) & 255, bits & 255)
+	var/width = ((header_bytes[17] * 256 + header_bytes[18]) * 256 + header_bytes[19]) * 256 + header_bytes[20]
+	var/height = ((header_bytes[21] * 256 + header_bytes[22]) * 256 + header_bytes[23]) * 256 + header_bytes[24]
+	return width && height && max(width, height) <= FAX_MAX_LOGO_SIDE
 
 /datum/fax_constructor/proc/is_valid_logo(encoded_logo)
 	var/static/regex/base64_regex = regex(@"^[A-Za-z0-9+/=]+$")
@@ -952,6 +980,9 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 #undef FAX_MAX_TEXT_LEN
 #undef FAX_MAX_PRESET_NAME_LEN
 #undef FAX_MAX_LOGO_BYTES
+#undef FAX_MAX_LOGO_SIDE
+#undef FAX_PNG_IHDR_BASE64
+#undef FAX_PNG_HEADER_CHARS
 #undef FAX_MIN_FONT_SIZE
 #undef FAX_MAX_FONT_SIZE
 #undef FAX_DEFAULT_TEXT_SIZE
