@@ -9,7 +9,6 @@
 
 	var/obj/item/nuclear_rod/rod_path = path
 
-	metadata["name"] = initial(rod_path.name)
 	metadata["desc"] = initial(rod_path.desc)
 	metadata["icon"] = initial(rod_path.icon)
 	metadata["icon_state"] = initial(rod_path.icon_state)
@@ -31,6 +30,7 @@
 
 	// Temp object lets us read in materials and adjacent requirements because you can't initial() a list
 	var/obj/item/nuclear_rod/temp_rod = new path()
+	metadata["name"] = DECLENT_RU_CAP(temp_rod, NOMINATIVE)
 	var/list/raw_materials = temp_rod.materials
 	var/list/requirements = temp_rod.adjacent_requirements
 	qdel(temp_rod)
@@ -53,16 +53,14 @@
 
 		// Get enrichment result names
 		if(initial(fuel_rod_path.power_enrich_result))
-			var/obj/item/nuclear_rod/power_result = initial(fuel_rod_path.power_enrich_result)
-			metadata["power_enrichment"] = initial(power_result.name)
+			metadata["power_enrichment"] = nuclear_rod_ru_name(initial(fuel_rod_path.power_enrich_result))
 			metadata["power_enrichment_requirement"] = initial(fuel_rod_path.power_enrich_threshold)
 		else
 			metadata["power_enrichment"] = null
 			metadata["power_enrichment_requirement"] = null
 
 		if(initial(fuel_rod_path.heat_enrich_result))
-			var/obj/item/nuclear_rod/heat_result = initial(fuel_rod_path.heat_enrich_result)
-			metadata["heat_enrichment"] = initial(heat_result.name)
+			metadata["heat_enrichment"] = nuclear_rod_ru_name(initial(fuel_rod_path.heat_enrich_result))
 			metadata["heat_enrichment_requirement"] = initial(fuel_rod_path.heat_enrich_threshold)
 		else
 			metadata["heat_enrichment"] = null
@@ -82,8 +80,7 @@
 
 		// Count occurrences of each requirement type
 		for(var/req_path in requirements)
-			var/obj/item/nuclear_rod/req = req_path
-			var/req_name = initial(req.name)
+			var/req_name = nuclear_rod_ru_name(req_path)
 			if(req_counts[req_name])
 				req_counts[req_name]++
 			else
@@ -92,12 +89,12 @@
 		// Format the requirements with counts
 		for(var/req_name in req_counts)
 			var/count = req_counts[req_name]
-			temp_reqs += "[count]x [req_name]"
+			temp_reqs += "[count] × [req_name]"
 
 		metadata["neighbor_requirements"] = temp_reqs
 		metadata["adjacent_requirements_display"] = english_list(temp_reqs, and_text = ", ")
 	else
 		metadata["neighbor_requirements"] = list()
-		metadata["adjacent_requirements_display"] = "None"
+		metadata["adjacent_requirements_display"] = "Нет"
 
 	return TRUE

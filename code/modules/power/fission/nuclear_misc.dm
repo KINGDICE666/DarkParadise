@@ -2,12 +2,22 @@
 
 /obj/machinery/power/reactor_power
 	name = "reactor output terminal"
-	desc = "A bundle of heavy watt power cables for managing power output from the reactor."
+	desc = "Пучок силовых кабелей, через который выработка реактора уходит в энергосеть."
 	icon_state = "term"
 	plane = FLOOR_PLANE
 	layer = WIRE_TERMINAL_LAYER // A bit above wires
 	resistance_flags = INDESTRUCTIBLE
 	var/obj/machinery/atmospherics/fission_reactor/linked_reactor
+
+/obj/machinery/power/reactor_power/get_ru_names()
+	return alist(
+		NOMINATIVE = "силовой терминал реактора",
+		GENITIVE = "силового терминала реактора",
+		DATIVE = "силовому терминалу реактора",
+		ACCUSATIVE = "силовой терминал реактора",
+		INSTRUMENTAL = "силовым терминалом реактора",
+		PREPOSITIONAL = "силовом терминале реактора",
+	)
 
 /obj/machinery/power/reactor_power/Initialize(mapload)
 	. = ..()
@@ -26,7 +36,7 @@
 
 /obj/machinery/computer/fission_monitor
 	name = "NGCR monitoring console"
-	desc = "Used to monitor the Nanotrasen Gas Cooled Fission Reactor."
+	desc = "Пульт управления реактором NGCR: положение стержней, аварийная остановка, карта камер и журнал параметров. Управлять можно, только если реактор в прямой видимости."
 	icon_keyboard = "power_key"
 	icon_screen = "smmon_0"
 	circuit = /obj/item/circuitboard/fission_monitor
@@ -37,6 +47,16 @@
 	var/obj/machinery/atmospherics/fission_reactor/active
 	/// Is this monitor a controller? Affected by visibility from the reactor
 	var/controller = TRUE
+
+/obj/machinery/computer/fission_monitor/get_ru_names()
+	return alist(
+		NOMINATIVE = "пульт управления реактором",
+		GENITIVE = "пульта управления реактором",
+		DATIVE = "пульту управления реактором",
+		ACCUSATIVE = "пульт управления реактором",
+		INSTRUMENTAL = "пультом управления реактором",
+		PREPOSITIONAL = "пульте управления реактором",
+	)
 
 /obj/machinery/computer/fission_monitor/Initialize(mapload)
 	. = ..()
@@ -96,7 +116,8 @@
 	var/obj/item/multitool/multitool = I
 	if(istype(multitool.buffer, /obj/machinery/atmospherics/fission_reactor))
 		active = multitool.buffer
-		to_chat(user, span_notice("You load the buffer's linking data to [src]."))
+		determine_control()
+		to_chat(user, span_notice("Вы загружаете данные привязки в [declent_ru(ACCUSATIVE)]."))
 
 /obj/machinery/computer/fission_monitor/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -106,52 +127,91 @@
 
 	return TRUE
 
+/obj/machinery/computer/fission_monitor/proc/gas_ui_data(list/gases, list/effects)
+	var/list/result = list()
+	var/total_moles = 0
+	for(var/gas, amount in gases)
+		total_moles += amount
+	if(!total_moles)
+		return result
+	for(var/gas, amount in gases)
+		var/datum/reactor_gas_effect/effect = effects[gas]
+		result += list(list(
+			"name" = gas,
+			"amount" = amount,
+			"portion" = round(100 * amount / total_moles, 0.01),
+			"desc" = effect?.desc,
+		))
+	return result
+
 /obj/machinery/computer/fission_monitor/ui_data(mob/user)
 	var/list/data = list()
-	// If we somehow dont have an engine anymore, handle it here.
-	if(!active)
-		return
-	if(active.stat & BROKEN)
+	if(active?.stat & BROKEN)
 		active = null
-		return
+	data["connected"] = !!active
+	if(!active)
+		return data
 
 	var/datum/gas_mixture/air = active.air_contents
-	var/power_kilowatts = round((active.final_power / 1000), 1)
-
-	data["venting"] = active.venting
-	data["NGCR_integrity"] = active.get_reactor_integrity()
-	data["NGCR_power"] = power_kilowatts
-	data["NGCR_ambienttemp"] = air.temperature()
-	data["NGCR_ambientpressure"] = air.return_pressure()
-	data["NGCR_coefficient"] = active.reactivity_multiplier
-	if(active.control_lockout)
-		data["NGCR_throttle"] = 0
-	else
-		data["NGCR_throttle"] = 100 - active.desired_power
-	data["NGCR_operatingpower"] = 100 - active.operating_power
-	var/list/gasdata = list()
-	var/max_moles = air.total_moles()
-	var/list/datum/reactor_gas_effect/gas_data = GLOB.reactor_coolant_effects
-	for(var/gas, amount in air.get_interesting())
-		var/list/gas_info = list()
-		gas_info["name"] = gas
-		gas_info["amount"] = amount
-		gas_info["portion"] = round(100 * amount / max_moles, 0.01)
-		gas_info["desc"] = gas_data[gas]?.desc
-		gasdata.Add(list(gas_info))
-	data["gases"] = gasdata
-	gasdata = list()
-	max_moles = active.moderator_gas.total_moles()
-	gas_data = GLOB.reactor_moderator_effects
-	for(var/gas, amount in active.moderator_gas.get_interesting())
-		var/list/gas_info = list()
-		gas_info["name"] = gas
-		gas_info["amount"] = amount
-		gas_info["portion"] = round(100 * amount / max_moles, 0.01)
-		gas_info["desc"] = gas_data[gas]?.desc
-		gasdata.Add(list(gas_info))
-	data["moderator_gasses"] = gasdata
 	data["controlling"] = controller
+	data["status"] = active.get_status()
+	data["offline"] = active.offline
+	data["starting_up"] = active.starting_up
+	data["meltdown"] = active.final_countdown
+	data["control_lockout"] = active.control_lockout
+	data["integrity"] = active.get_reactor_integrity()
+	data["power"] = round(active.final_power / (1 KILO WATTS), 1)
+	data["temperature"] = round(air.temperature(), 0.1)
+	data["pressure"] = round(air.return_pressure(), 0.1)
+	data["coefficient"] = round(active.reactivity_multiplier, 0.01)
+	data["heat_threshold"] = round(active.heat_damage_threshold)
+	data["minimum_temp"] = active.minimum_operating_temp
+	data["throttle"] = active.control_lockout ? 0 : 100 - active.desired_power
+	data["rod_insertion"] = 100 - active.operating_power
+	data["control_rods"] = active.control_rods_remaining
+	data["venting"] = active.venting
+	data["vent_lockout"] = active.vent_lockout
+	data["scram_active"] = active.scram_active
+	data["scram_hold"] = active.scram_hold
+	data["scram_lock"] = round(COOLDOWN_TIMELEFT(active, scram_cooldown) / (1 SECONDS))
+	data["history"] = active.history
+	data["gases"] = gas_ui_data(air.get_interesting(), GLOB.reactor_coolant_effects)
+	var/list/moderator_gases = (active.offline || active.starting_up) ? active.moderator_gas.get_interesting() : active.last_moderator_gases
+	data["moderator_gases"] = gas_ui_data(moderator_gases, GLOB.reactor_moderator_effects)
+
+	var/list/chambers = list()
+	for(var/obj/machinery/atmospherics/reactor_chamber/chamber in active.connected_chambers)
+		var/list/chamber_data = list(
+			"x" = chamber.x - active.x,
+			"y" = chamber.y - active.y,
+			"state" = chamber.chamber_state,
+			"welded" = chamber.welded,
+			"operational" = chamber.operational,
+			"requirements_met" = chamber.requirements_met,
+			"enriching" = chamber.enriching,
+		)
+		var/obj/item/nuclear_rod/rod = chamber.held_rod
+		if(rod)
+			var/durability_mod = rod.get_durability_mod()
+			var/list/requirement_names = list()
+			for(var/requirement in rod.adjacent_requirements)
+				requirement_names += nuclear_rod_ru_name(requirement)
+			chamber_data["rod"] = DECLENT_RU_CAP(rod, NOMINATIVE)
+			chamber_data["rod_class"] = rod.get_rod_class()
+			chamber_data["durability"] = rod.max_durability == INFINITY ? 100 : round(rod.durability / rod.max_durability * 100, 0.1)
+			chamber_data["power"] = chamber.operational ? round(chamber.power_total * durability_mod / (1 KILO WATTS), 0.1) : 0
+			chamber_data["heat"] = round(chamber.heat_total * durability_mod, 0.1)
+			chamber_data["power_mod"] = round(chamber.power_mod_total, 0.01)
+			chamber_data["heat_mod"] = round(chamber.heat_mod_total, 0.01)
+			chamber_data["requirements"] = requirement_names
+			if(istype(rod, /obj/item/nuclear_rod/fuel))
+				var/obj/item/nuclear_rod/fuel/fuel_rod = rod
+				if(fuel_rod.power_enrich_result)
+					chamber_data["power_enrich"] = round(fuel_rod.power_enrich_progress / fuel_rod.enrichment_cycles * 100)
+				if(fuel_rod.heat_enrich_result)
+					chamber_data["heat_enrich"] = round(fuel_rod.heat_enrich_progress / fuel_rod.enrichment_cycles * 100)
+		chambers += list(chamber_data)
+	data["chambers"] = chambers
 
 	return data
 
@@ -159,39 +219,63 @@
 	if(..())
 		return
 
-	if(stat & (BROKEN|NOPOWER))
+	if((stat & (BROKEN|NOPOWER)) || !active)
 		return
 
-	if(action == "set_throttle")
-		if(!controller)
-			visible_message(span_warning("Error: Reactor is out of sight from laser guidance control."))
-			playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
-			return
-		var/temp_number = text2num(params["NGCR_throttle"])
-		active.desired_power = 100 - temp_number
+	if(!controller)
+		visible_message(span_warning("Ошибка: реактор вне зоны лазерного наведения."))
+		playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
+		return
 
-	if(action == "toggle_vent")
-		if(!controller)
-			visible_message(span_warning("Error: Reactor is out of sight from laser guidance control."))
-			playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
-			return
-		if(active.vent_lockout)
-			playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
-			visible_message(span_warning("ERROR: Vent servos unresponsive. Manual closure required."))
-		else
+	switch(action)
+		if("set_throttle")
+			var/throttle = text2num(params["throttle"])
+			if(isnull(throttle))
+				return
+			if(active.scram_active || !COOLDOWN_FINISHED(active, scram_cooldown))
+				visible_message(span_warning("Ошибка: стержни заблокированы после аварийной остановки."))
+				playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
+				return
+			var/new_power = 100 - clamp(round(throttle), 0, 100)
+			if(!new_power && active.desired_power)
+				active.investigate_log("[key_name(usr)] fully inserted the control rods at [active.operating_power]% operating power.", INVESTIGATE_REACTOR)
+			if(new_power)
+				active.scram_hold = FALSE
+			active.desired_power = new_power
+			return TRUE
+
+		if("toggle_vent")
+			if(active.vent_lockout)
+				visible_message(span_warning("Ошибка: приводы клапана не отвечают. Закройте его вручную."))
+				playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE)
+				return
 			active.venting = !active.venting
+			return TRUE
+
+		if("scram")
+			return active.emergency_scram(usr)
 
 // MARK: Slag
 
 /obj/item/slag
 	name = "corium slag"
-	desc = "A large clump of active nuclear fuel fused with structural reactor metals."
+	desc = "Глыба активного топлива, сплавленного с конструкциями реактора. Сильно фонит, держать подальше от людей."
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "big_molten"
 	move_resist = MOVE_FORCE_STRONG // Massive chunk of metal slag, shouldnt be moving it without carrying.
 	w_class = WEIGHT_CLASS_HUGE
 	force = 15
 	throwforce = 10
+
+/obj/item/slag/get_ru_names()
+	return alist(
+		NOMINATIVE = "кориумный шлак",
+		GENITIVE = "кориумного шлака",
+		DATIVE = "кориумному шлаку",
+		ACCUSATIVE = "кориумный шлак",
+		INSTRUMENTAL = "кориумным шлаком",
+		PREPOSITIONAL = "кориумном шлаке",
+	)
 
 /obj/item/slag/Initialize(mapload)
 	. = ..()
@@ -207,7 +291,17 @@
 
 /obj/item/grenade/nuclear_starter
 	name = "Neutronic Agitator"
-	desc = "A throwable device capable of inducing an artificial startup in rod chambers. Won't do anything for chambers not positioned correctly, or chambers without any rods inserted."
+	desc = "Нейтронная граната для принудительного запуска камер в радиусе трёх метров. Действует только на опущенные камеры со стержнями."
+
+/obj/item/grenade/nuclear_starter/get_ru_names()
+	return alist(
+		NOMINATIVE = "нейтронный активатор",
+		GENITIVE = "нейтронного активатора",
+		DATIVE = "нейтронному активатору",
+		ACCUSATIVE = "нейтронный активатор",
+		INSTRUMENTAL = "нейтронным активатором",
+		PREPOSITIONAL = "нейтронном активаторе",
+	)
 
 /obj/item/grenade/nuclear_starter/deconstruct(disassembled)
 	qdel(src)
@@ -247,6 +341,7 @@
 
 /turf/simulated/floor/plasteel/reactor_pool
 	name = "holding pool"
+	desc = "Бассейн выдержки для стержней. Вода гасит их излучение и смывает радиацию с того, кто в неё зашёл."
 	icon = 'icons/obj/fission/pool.dmi'
 	icon_state = "pool_round"
 	footstep = FOOTSTEP_WATER
@@ -259,6 +354,16 @@
 	var/obj/item/effect/pool_overlay/effect
 	/// Whether the immerse element has been added yet or not
 	var/immerse_added = FALSE
+
+/turf/simulated/floor/plasteel/reactor_pool/get_ru_names()
+	return alist(
+		NOMINATIVE = "бассейн выдержки",
+		GENITIVE = "бассейна выдержки",
+		DATIVE = "бассейну выдержки",
+		ACCUSATIVE = "бассейн выдержки",
+		INSTRUMENTAL = "бассейном выдержки",
+		PREPOSITIONAL = "бассейне выдержки",
+	)
 
 /turf/simulated/floor/plasteel/reactor_pool/Initialize(mapload)
 	. = ..()
@@ -405,11 +510,21 @@
 
 /obj/item/rod_fabricator_upgrade
 	name = "Nuclear Fabricator Upgrade"
-	desc = "A design disk containing a dizzying amount of designs and improvements for nuclear rod fabrication."
+	desc = "Диск с продвинутыми чертежами стержней. Вставляется в фабрикатор ядерных стержней и открывает высокоуровневые разработки."
 	icon = 'icons/obj/module.dmi'
 	icon_state = "datadisk5"
 	drop_sound = 'sound/items/handling/disk_drop.ogg'
 	pickup_sound =  'sound/items/handling/disk_pickup.ogg'
+
+/obj/item/rod_fabricator_upgrade/get_ru_names()
+	return alist(
+		NOMINATIVE = "диск улучшения фабрикатора стержней",
+		GENITIVE = "диска улучшения фабрикатора стержней",
+		DATIVE = "диску улучшения фабрикатора стержней",
+		ACCUSATIVE = "диск улучшения фабрикатора стержней",
+		INSTRUMENTAL = "диском улучшения фабрикатора стержней",
+		PREPOSITIONAL = "диске улучшения фабрикатора стержней",
+	)
 
 // MARK: Chamber Doors
 

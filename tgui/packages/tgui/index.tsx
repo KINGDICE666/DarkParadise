@@ -24,6 +24,7 @@ import './styles/themes/spider_clan.scss';
 import './styles/themes/brg.scss';
 import './styles/themes/biomonitor.scss';
 import './styles/themes/cyberdeck.scss';
+import './styles/themes/faxconstructor.scss';
 
 import { setupGlobalEvents } from 'tgui-core/events';
 import { setupHotKeys } from 'tgui-core/hotkeys';

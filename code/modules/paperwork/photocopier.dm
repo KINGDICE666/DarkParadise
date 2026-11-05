@@ -177,6 +177,8 @@
 	c.fields = copy.fields
 	c.stamps = copy.stamps
 	c.language = copy.language
+	c.paper_width = copy.paper_width
+	c.paper_height = copy.paper_height
 	c.stamped = LAZYLISTDUPLICATE(copy.stamped)
 	if(LAZYLEN(copy.stamp_overlays))
 		for(var/mutable_appearance/overlay as anything in copy.stamp_overlays)	//gray overlay onto the copy
