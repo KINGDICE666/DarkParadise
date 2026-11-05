@@ -14,3 +14,7 @@
 #define CHAMBER_OVERLOAD_ACTIVE 5
 
 #define HEAT_MODIFIER 450 //! A flat multiplier for all reactor heat. Higher = more heat production.
+
+#define ROD_CLASS_FUEL "fuel"
+#define ROD_CLASS_MODERATOR "moderator"
+#define ROD_CLASS_COOLANT "coolant"
