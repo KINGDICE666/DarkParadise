@@ -31145,6 +31145,12 @@
 	icon_state = "white"
 	},
 /area/station/science/chem_lab)
+"eWy" = (
+/obj/machinery/materials_market,
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "eWF" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -106596,6 +106602,12 @@
 	color = "orange"
 	},
 /area/station/command/office/captain)
+"qsn" = (
+/obj/machinery/civilian_bounty_pad,
+/turf/simulated/floor/plasteel{
+	dir = 1
+	},
+/area/station/cargo/office)
 "qsr" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -111770,12 +111782,6 @@
 /obj/effect/spawner/random_spawners/rodent,
 /turf/simulated/floor/plating,
 /area/station/maintenance/disposal)
-"rec" = (
-/obj/effect/turf_decal/delivery/hollow,
-/turf/simulated/floor/plasteel{
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "ref" = (
 /obj/item/radio/intercom/directional/west,
 /obj/machinery/light{
@@ -114670,6 +114676,15 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/plating,
 /area/station/maintenance/apmaint)
+"rAe" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/machinery/computer/civilian_bounty{
+	dir = 1
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "rAf" = (
 /obj/machinery/alarm/directional/north,
 /turf/simulated/floor/plasteel{
@@ -266015,7 +266030,7 @@ fnl
 vwS
 eUW
 aMR
-xzb
+eWy
 kDP
 qcr
 kEk
@@ -266529,7 +266544,7 @@ mUL
 dNz
 jag
 edb
-rec
+rAe
 kDP
 ndA
 kEk
@@ -266785,7 +266800,7 @@ pyB
 kEk
 wNL
 eUW
-kEk
+qsn
 kjM
 pby
 gPE
