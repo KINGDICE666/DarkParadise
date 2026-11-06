@@ -331,6 +331,11 @@ SUBSYSTEM_DEF(jobs)
 *  This proc must not have any side effect besides of modifying "assigned_role".
 **/
 /datum/controller/subsystem/jobs/proc/DivideOccupations()
+	if(SSticker.mode?.forced_job)
+		for(var/mob/new_player/player in GLOB.player_list)
+			if(player.ready && player.mind)
+				AssignRole(player, SSticker.mode.forced_job)
+		return TRUE
 	// Lets roughly time this
 	var/watch = start_watch()
 	//Setup new player list and get the jobs list
