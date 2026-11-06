@@ -44,6 +44,7 @@
 	var/obj/item/restraints/handcuffs/handcuffed = null
 	///used to track how many times the mob has tried breaking away from their handcuffs since being cuffed. Reset to zero in update_handcuffed()
 	var/cuff_breakout_attempts = 0
+	var/implant_shock_reduction = 0
 
 	var/last_pain_message = ""
 	COOLDOWN_DECLARE(pain_cd)

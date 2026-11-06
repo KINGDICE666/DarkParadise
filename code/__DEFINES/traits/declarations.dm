@@ -528,6 +528,12 @@
 
 #define TRAIT_PRESSURE_VISION "pressure_vision"
 
+/// Tints the client while the forensic eye implant scans the area
+#define TRAIT_FORENSIC_SCAN "forensic_scan"
+#define TRAIT_COGNITIVE_STABILIZED "cognitive_stabilized"
+#define TRAIT_NO_FOOTPRINTS "no_footprints"
+#define TRAIT_SUBDERMAL_PLATING "subdermal_plating"
+
 /// GLOB trait, applied whenever something in the world wants to use the distortion plane
 /// Distortion is an expensive effect, so it's worthwhile to keep it off until we care
 #define TRAIT_DISTORTION_IN_USE(z_layer) "distortion_in_use_#[z_layer]"

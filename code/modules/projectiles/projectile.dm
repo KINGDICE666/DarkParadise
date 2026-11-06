@@ -202,6 +202,8 @@
 		finalize_hitscan_and_generate_tracers()
 	STOP_PROCESSING(SSprojectiles, src)
 	if(ammo_casing)
+		if(!QDELETED(ammo_casing))
+			ammo_casing.record_impact(get_turf(src))
 		if(ammo_casing.BB == src)
 			ammo_casing.BB = null
 		ammo_casing =  null
@@ -237,6 +239,8 @@
 	return TRUE
 
 /obj/projectile/proc/on_hit(atom/target, blocked = 0, hit_zone)
+	if(ammo_casing && !QDELETED(ammo_casing) && !isturf(target))
+		ammo_casing.impact_target_name = DECLENT_RU_CAP(target, NOMINATIVE)
 	var/turf/target_loca = get_turf(target)
 	var/hitx
 	var/hity
@@ -258,6 +262,7 @@
 			new impact_effect_type(target_loca, hitx, hity)
 
 		W.add_dent(WALL_DENT_SHOT, hitx, hity)
+		W.record_bullet_trace(src)
 		return FALSE
 
 	if(!isliving(target))
@@ -773,3 +778,8 @@
 #undef MOVES_HITSCAN
 #undef MUZZLE_EFFECT_PIXEL_INCREMENT
 #undef DAMAGE_TO_BLOODSPLATTER
+
+/obj/projectile/proc/get_autopsy_name()
+	. = declent_ru(NOMINATIVE)
+	if(isgun(firer_source_atom))
+		. += " ([firer_source_atom.declent_ru(NOMINATIVE)])"

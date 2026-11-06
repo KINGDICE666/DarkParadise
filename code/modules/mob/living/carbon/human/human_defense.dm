@@ -80,7 +80,7 @@ emp_act
 			return -1
 		return bullet_act(P, BODY_ZONE_CHEST) //act on chest instead
 
-	organ.add_autopsy_data(P.declent_ru(NOMINATIVE), P.damage) // Add the bullet's name to the autopsy data
+	record_forensic_bullet_hit(P)
 	SEND_SIGNAL(src, COMSIG_ATOM_BULLET_ACT, P, def_zone)
 	return (..(P , def_zone))
 
@@ -434,6 +434,9 @@ emp_act
 
 /mob/living/carbon/human/emag_act(mob/user, obj/item/organ/external/affecting)
 	if(!istype(affecting))
+		var/obj/item/organ/internal/heart/cybernetic/quantum/regulator = get_organ_slot(INTERNAL_ORGAN_HEART)
+		if(istype(regulator) && user?.zone_selected == BODY_ZONE_CHEST)
+			regulator.emag_act(user)
 		return
 	if(!affecting.is_robotic())
 		balloon_alert(user, "конечность не синтетическая!")

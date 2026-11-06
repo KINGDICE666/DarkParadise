@@ -1,5 +1,7 @@
 // Internal organs
 
+#define SUBDERMAL_PLATING_HEAL_MOD 0.6
+
 #define INTERNAL_ORGAN_HEART "heart"
 #define INTERNAL_ORGAN_LUNGS "lungs"
 #define INTERNAL_ORGAN_LIVER "liver"
@@ -32,6 +34,9 @@
 #define INTERNAL_ORGAN_EYE_HUD_DEVICE "eye_hud"
 #define INTERNAL_ORGAN_EYE_SHIELD_DEVICE "eye_shield"
 #define INTERNAL_ORGAN_EYE_LING "eye_ling"
+#define INTERNAL_ORGAN_EYE_FORENSIC "eye_forensic"
+#define INTERNAL_ORGAN_EYE_TACTICAL "eye_tactical"
+#define INTERNAL_ORGAN_FINGERPRINT_SYNTH "fingerprint_synth"
 #define INTERNAL_ORGAN_BREATHING_TUBE "breathing_tube"
 #define INTERNAL_ORGAN_SPEECH_TRANSLATOR "voice_translator"
 #define INTERNAL_ORGAN_STOMACH "stomach"
@@ -39,9 +44,15 @@
 #define INTERNAL_ORGAN_BRAIN_ANTIDROP "brain_antidrop"
 #define INTERNAL_ORGAN_BRAIN_ANTISTUN "brain_antistun"
 #define INTERNAL_ORGAN_BRAIN_ANTISLEEP "brain_antisleep"
+#define INTERNAL_ORGAN_BRAIN_BIOMONITOR "brain_biomonitor"
+#define INTERNAL_ORGAN_BRAIN_COGNITIVE "brain_cognitive"
+#define INTERNAL_ORGAN_BRAIN_NEURO "brain_neuro"
+#define INTERNAL_ORGAN_BRAIN_PAIN "brain_pain"
 #define INTERNAL_ORGAN_BRAIN_CLOWNVOICE "brain_clownvoice"
 #define INTERNAL_ORGAN_BRAIN_SPEECHTRANSLATOR "brain_speechtranslator"
+#define INTERNAL_ORGAN_CHEST_ADRENALINE "chest_adrenaline"
 #define INTERNAL_ORGAN_CHEST_EXOFRAME "exoframe"
+#define INTERNAL_ORGAN_CHEST_PLATING "chest_plating"
 #define INTERNAL_ORGAN_CHEST_SPIT "chest_spit"
 #define INTERNAL_ORGAN_BRAIN_COMPUTER_INTERFACE "brain_computer_interface"
 

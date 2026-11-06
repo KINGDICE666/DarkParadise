@@ -24,6 +24,7 @@
 	var/drying_time = DRYING_TIME
 	var/dryname = "dried blood"
 	var/drydesc = "Оно сухое и засохшее. Кто-то явно халтурит."
+	var/created_at
 
 #undef DRYING_TIME
 
@@ -54,6 +55,8 @@
 
 /obj/effect/decal/cleanable/blood/Initialize(mapload)
 	. = ..()
+	if(!mapload)
+		created_at = world.time
 	update_icon()
 	if(type == /obj/effect/decal/cleanable/blood/gibs)
 		return
@@ -447,6 +450,11 @@
 	fly_trail.basecolor = basecolor
 	//fly_trail.adjust_bloodiness(fly_trail.bloodiness * -0.66)
 	fly_trail.update_appearance(UPDATE_ICON)
+	if(!length(blood_dna_info))
+		return
+	for(var/obj/effect/decal/cleanable/blood/stain in loc)
+		if(!istype(stain, /obj/effect/decal/cleanable/blood/hitsplatter))
+			stain.blood_DNA |= blood_dna_info
 
 /obj/effect/decal/cleanable/blood/hitsplatter/proc/loop_done(datum/source)
 	SIGNAL_HANDLER

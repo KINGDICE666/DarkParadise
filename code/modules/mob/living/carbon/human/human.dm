@@ -1634,6 +1634,8 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	return protection
 
 /mob/living/carbon/human/proc/get_full_print()
+	if(implant_fingerprint)
+		return implant_fingerprint
 	if(!dna || !dna.uni_identity)
 		return
 	return md5(dna.uni_identity)

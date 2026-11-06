@@ -2466,6 +2466,20 @@
 	cost = 33
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
+/datum/uplink_item/cyber_implants/fingerprint_synth
+	name = "Синтезатор отпечатков"
+	desc = "Имплант, который меняет отпечатки пальцев на случайные или снятые с человека рядом. Поставляется в самоуничтожающемся автоимплантере. ЭМИ сбрасывает узор на настоящий."
+	item = /obj/item/autoimplanter/oneuse/fingerprint_synth
+	cost = 12
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/black_cyberdeck
+	name = "Чёрный кибердек"
+	desc = "Нейроинтерфейс в автоимплантере и кибердек со встроенным взломщиком. Вскрывает шлюзы и пускает по ним ток, снимает замки с АПЦ и датчиков воздуха, гасит и перегружает освещение отсеков, отключает турели и вентиляцию, показывает изображение с камер и отключает их, разряжает оружие на полу, срывает протоколы ботов, опрокидывает автоматы и перегружает те, что с едой и напитками. Сложные команды расходуют буфер кибердека, который восстанавливается со временем."
+	item = /obj/item/storage/box/syndie_kit/black_cyberdeck
+	cost = 50
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
 /datum/uplink_item/cyber_implants/autoimplanter
 	name = "Автоимплантер"
 	desc = "Устройство, позволяющее устанавливать кибернетический имплант в полевых условиях без необходимости хирургического вмешательства."

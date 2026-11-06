@@ -41,7 +41,7 @@
 		to_chat(user, span_warning("Отсутствует требуемая часть тела!"))
 		return FALSE
 
-	if(!storedorgan.can_insert(target = user) || HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS)) //make it silent
+	if(!storedorgan.can_insert(target = user) || (!storedorgan.ignore_cybernetic_restrictions && HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS))) //make it silent
 		to_chat(user, span_warning("Ваш вид не подходит для установки этого киберимпланта!"))
 		return FALSE
 
@@ -116,6 +116,14 @@
 /obj/item/autoimplanter/oneuse/meson
 	name = "autoimplanter(meson scanner implant)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/eyes/meson
+
+/obj/item/autoimplanter/oneuse/fingerprint_synth
+	name = "autoimplanter (fingerprint synthesizer)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/fingerprint_synth
+
+/obj/item/autoimplanter/oneuse/neuro_interface
+	name = "autoimplanter (neuro-interface)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/neuro_interface
 
 /obj/item/autoimplanter/oneuse/mantisblade
 	name = "autoimplanter (mantis blade right)"

@@ -79,6 +79,8 @@ GLOBAL_LIST_EMPTY(limb_icon_cache)
 			else if(s_col)
 				mob_icon.Blend(s_col, ICON_ADD)
 
+			owner?.apply_plating_tone(mob_icon)
+
 	if(owner) //Maintains overlays on disembodied parts.
 		cut_overlays()
 

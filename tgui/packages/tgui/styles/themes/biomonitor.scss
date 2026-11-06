@@ -1,0 +1,192 @@
+.theme-biomonitor:root {
+  --color-base: hsl(196, 80%, 6%);
+  --color-primary: hsl(187, 100%, 28%);
+  --base-gradient-spread: 2;
+  --border-radius-unit: 0.1;
+  --progress-bar-background: rgba(0, 229, 255, 0.08);
+
+  .Layout__content {
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: auto;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 229, 255, 0.035) 0 1px,
+        transparent 1px 3px
+      ),
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(0, 229, 255, 0.14) 0%,
+        transparent 65%
+      );
+  }
+
+  .TitleBar {
+    background-color: rgba(0, 229, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+  }
+
+  .TitleBar__title {
+    color: hsl(187, 100%, 75%);
+    letter-spacing: 0.08em;
+  }
+
+  .Section {
+    background-color: rgba(0, 229, 255, 0.045);
+    border: 1px solid rgba(0, 229, 255, 0.22);
+    box-shadow: inset 0 0 14px rgba(0, 229, 255, 0.06);
+  }
+
+  .Section__title {
+    border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+  }
+
+  .Section__titleText {
+    color: hsl(187, 100%, 72%);
+    font-size: 0.9em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .ProgressBar {
+    border: 1px solid rgba(0, 229, 255, 0.35);
+  }
+}
+
+.BioMonitor__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5em;
+}
+
+.BioMonitor__species {
+  color: hsl(187, 100%, 75%);
+  font-size: 1.5em;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
+}
+
+.BioMonitor__name {
+  opacity: 0.7;
+}
+
+.BioMonitor__damage {
+  display: flex;
+  gap: 0.35em;
+  margin-top: 0.5em;
+}
+
+.BioMonitor__damageCell {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  flex: 1;
+  padding: 0.25em;
+  text-align: center;
+}
+
+.BioMonitor__damageValue {
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+.BioMonitor__damageLabel {
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.BioMonitor__row {
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25em 0;
+}
+
+.BioMonitor__row:last-child {
+  border-bottom: 0;
+}
+
+.BioMonitor__kind {
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+.BioMonitor__tag {
+  background-color: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  display: inline-block;
+  font-size: 0.85em;
+  margin: 0.1em 0.2em 0.1em 0;
+  padding: 0 0.4em;
+  white-space: nowrap;
+}
+
+.BioMonitor__tag--bad {
+  background-color: rgba(255, 60, 60, 0.15);
+  border-color: rgba(255, 60, 60, 0.55);
+  color: hsl(0, 100%, 75%);
+}
+
+.BioMonitor__tag--good {
+  background-color: rgba(60, 255, 140, 0.12);
+  border-color: rgba(60, 255, 140, 0.5);
+  color: hsl(145, 100%, 72%);
+}
+
+.BioMonitor__problem {
+  color: hsl(30, 100%, 65%);
+  padding: 0.1em 0;
+}
+
+.BioMonitor__problem--critical {
+  color: hsl(0, 100%, 68%);
+  font-weight: bold;
+}
+
+.BioMonitor__charts {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.5em;
+}
+
+.BioMonitor__chartBox {
+  flex: 1;
+  min-width: 0;
+}
+
+.BioMonitor__chartHeader {
+  display: flex;
+  font-size: 0.85em;
+  justify-content: space-between;
+  margin-bottom: 0.2em;
+}
+
+.BioMonitor__chart {
+  background-color: rgba(0, 0, 0, 0.35);
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
+  background-size: 1.5em 1.5em;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  height: 4.5em;
+  overflow: hidden;
+  position: relative;
+}
+
+.BioMonitor__chartEmpty {
+  font-size: 0.85em;
+  opacity: 0.6;
+  padding-top: 1.8em;
+  text-align: center;
+}
+
+.BioMonitor__chartCaption {
+  font-size: 0.8em;
+  margin-top: 0.2em;
+  opacity: 0.55;
+  text-align: right;
+}
