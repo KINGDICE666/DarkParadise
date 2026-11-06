@@ -4,11 +4,11 @@
 #define CORPSE_METHOD_UTILIZATION "утилизация тела"
 
 #define CREDITS_BY_CREMATION 5000
-#define CARGOPOINTS_BY_CREMATION 30
+#define CARGO_CREDITS_BY_CREMATION 750
 #define CREDITS_BY_SPACE 8000
-#define CARGOPOINTS_BY_SPACE 45
+#define CARGO_CREDITS_BY_SPACE 1125
 #define CREDITS_BY_UTILIZATION 2000
-#define CARGOPOINTS_BY_UTILIZATION 25
+#define CARGO_CREDITS_BY_UTILIZATION 625
 
 ////////////////////////////////////////
 // MARK:	Goal datum
@@ -30,7 +30,7 @@
 /datum/addition_goal/funeral/spawn_shuttle_contain(list/turf/shuttle_turfs)
 	spawner = new /obj/effect/mob_spawn/human/addition_goal/funeral(shuttle_turfs[1])
 	reward_credits = 0
-	reward_cargopoints = 0
+	reward_cargo_credits = 0
 	for(var/i = 0; i < corpse_count; i++)
 		var/turf/random_turf = pick(shuttle_turfs)
 		shuttle_turfs -= random_turf
@@ -80,13 +80,13 @@
 	switch(data.preffered_method)
 		if(CORPSE_METHOD_CREMATION)
 			reward_credits += CREDITS_BY_CREMATION
-			reward_cargopoints += CARGOPOINTS_BY_CREMATION
+			reward_cargo_credits += CARGO_CREDITS_BY_CREMATION
 		if(CORPSE_METHOD_SPACE)
 			reward_credits += CREDITS_BY_SPACE
-			reward_cargopoints += CARGOPOINTS_BY_SPACE
+			reward_cargo_credits += CARGO_CREDITS_BY_SPACE
 		if(CORPSE_METHOD_UTILIZATION)
 			reward_credits += CREDITS_BY_UTILIZATION
-			reward_cargopoints += CARGOPOINTS_BY_UTILIZATION
+			reward_cargo_credits += CARGO_CREDITS_BY_UTILIZATION
 
 /datum/addition_goal/funeral/format_accept_report(mob/user)
 	var/text = {"В ваш адрес направлены [corpse_count] тел[DECL_O_A_0(corpse_count)] для организации процедуры захоронения.<br>
@@ -145,14 +145,14 @@
 	report_text += "<b>Общий прогресс запроса</b>: [progress]%<br>"
 	report_text += "<b>Ваша награда</b>:<br>"
 	reward_credits = reward_credits * (progress / 100)
-	reward_cargopoints = reward_cargopoints * (progress / 100)
+	reward_cargo_credits = reward_cargo_credits * (progress / 100)
 	var/reward_number = 1
 	if(reward_credits > 0)
 		report_text += "[reward_number]. [reward_credits] кредитов на счет станции.<br>"
 		reward_number++
-	if(reward_cargopoints > 0)
-		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
-	system.add_reward(reward_credits, reward_cargopoints)
+	if(reward_cargo_credits > 0)
+		report_text += "[reward_number]. [reward_cargo_credits] кредитов на счёт отдела снабжения.<br>"
+	system.add_reward(reward_credits, reward_cargo_credits)
 	var/paper_content = system.create_paper_content("Отчет о проведении погребения №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
 
@@ -174,8 +174,8 @@
 #undef CORPSE_METHOD_SPACE
 #undef CORPSE_METHOD_UTILIZATION
 #undef CREDITS_BY_CREMATION
-#undef CARGOPOINTS_BY_CREMATION
+#undef CARGO_CREDITS_BY_CREMATION
 #undef CREDITS_BY_SPACE
-#undef CARGOPOINTS_BY_SPACE
+#undef CARGO_CREDITS_BY_SPACE
 #undef CREDITS_BY_UTILIZATION
-#undef CARGOPOINTS_BY_UTILIZATION
+#undef CARGO_CREDITS_BY_UTILIZATION

@@ -1,4 +1,5 @@
 /obj/machinery/vending/security
+	payment_department = STATION_DEPARTMENT_SECURITY
 	name = "SecTech"
 	desc = "Раздатчик снаряжения службы безопасности."
 	slogan_list = list(

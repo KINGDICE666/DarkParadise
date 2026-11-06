@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/qm
+	bounty_types = CIV_JOB_RANDOM
 	title = JOB_TITLE_QUARTERMASTER
 	flag = JOB_FLAG_QUARTERMASTER
 	department_flag = JOBCAT_SUPPORT
@@ -54,6 +55,7 @@
 	paycheck = PAYCHECK_CREW
 
 /datum/job/supply/cargo_tech
+	bounty_types = CIV_JOB_RANDOM
 	title = JOB_TITLE_CARGOTECH
 	flag = JOB_FLAG_CARGOTECH
 	total_positions = 3
@@ -76,6 +78,7 @@
 	backpack = /obj/item/storage/backpack/cargo
 
 /datum/job/supply/bitrunner
+	bounty_types = CIV_JOB_BITRUN
 	title = JOB_TITLE_BITRUNNER
 	flag = JOB_FLAG_BITRUNNER
 	total_positions = 3
@@ -99,6 +102,7 @@
 	backpack = /obj/item/storage/backpack/cargo
 
 /datum/job/supply/mining
+	bounty_types = CIV_JOB_MINE
 	title = JOB_TITLE_MINER
 	flag = JOB_FLAG_MINER
 	total_positions = 6

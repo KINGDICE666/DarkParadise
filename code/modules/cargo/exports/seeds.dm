@@ -1,10 +1,8 @@
 
-// Only for Syndicate for now, NT has quests
 /datum/export/seed
-	cost = CARGO_CRATE_VALUE * 0.25 // Gets multiplied by potency
+	cost = CARGO_CRATE_VALUE * 0.4 // Gets multiplied by potency
 	k_elasticity = 0 //price inelastic/quantity elastic, only need to export a few samples
-	sales_market = EXPORT_NONE
-	unit_name = "new plant species sample"
+	unit_name = "образцы новых видов растений"
 	export_types = list(/obj/item/seeds)
 	/// Only for undiscovered species
 	var/needs_discovery = FALSE
@@ -25,7 +23,7 @@
 		return 0
 	if(needs_discovery && !discovered)
 		return 0
-	return ..() * (seed.rarity + seed.potency)
+	return ..() * (seed.rarity / highest_rarity)
 
 /datum/export/seed/sell_object(obj/item/seeds/seed, datum/export_report/report, dry_run, apply_elastic)
 	. = ..()
@@ -34,7 +32,7 @@
 
 /datum/export/seed/potency
 	cost = CARGO_CRATE_VALUE * 0.0125 // Gets multiplied by potency and rarity.
-	unit_name = "improved plant sample"
+	unit_name = "образцы улучшенных растений"
 	needs_discovery = TRUE // Only for already discovered species
 
 /datum/export/seed/potency/get_base_cost(obj/item/seeds/seed)

@@ -671,6 +671,9 @@
 /// Climbable trait, given and taken by the climbable element when added or removed. Exists to be easily checked via HAS_TRAIT().
 #define TRAIT_CLIMBABLE "trait_climbable"
 
+#define TRAIT_BANNED_FROM_CARGO_SHUTTLE "banned_from_cargo_shuttle"
+#define TRAIT_HAS_BARCODE "has_barcode"
+
 /// Trait which lets you clamber over a barrier
 #define TRAIT_FENCE_CLIMBER "can_climb_fences"
 
@@ -773,4 +776,6 @@
 
 /// Trait given to objects with the wallmounted component
 #define TRAIT_WALLMOUNTED "wallmounted"
+
+#define TRAIT_MECHA_DIAGNOSTIC_CREATED "trait_mecha_diagnostic_created"
 

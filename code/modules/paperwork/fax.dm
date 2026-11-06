@@ -116,11 +116,11 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 			to_chat(sender, span_specialnotice("Ваша гарнитура издает звук, сигнализирующий о том, что пришёл ответ на ваш факс."), confidential = TRUE)
 			sender.playsound_local(sender, 'sound/items/new_fax_message.ogg', 50, FALSE, use_reverb = FALSE)
 	if(sender)
-		log_admin("[key_name(owner)] replied to a fax message from [key_name(sender)]: [paper.info]")
+		log_admin("[key_name(owner)] replied to a fax message from [key_name(sender)]: [strip_html_properly(paper.info)]")
 		message_admins("[key_name_admin(owner)] replied to a fax message from [key_name_admin(sender)] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
 	else
-		log_admin("[key_name(owner)] sent a fax message to [destination]: [paper.info]")
-		message_admins("[key_name_admin(owner)] sent a fax message to [destination] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
+		log_admin("[key_name(owner)] sent a fax message to [destination || fax.department]: [strip_html_properly(paper.info)]")
+		message_admins("[key_name_admin(owner)] sent a fax message to [destination || fax.department] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
 	return TRUE
 
 /datum/admins/proc/deliver_admin_fax(obj/machinery/photocopier/faxmachine/fax, obj/item/paper/paper)

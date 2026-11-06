@@ -1,4 +1,5 @@
 /obj/machinery/vending/plasmaresearch
+	payment_department = STATION_DEPARTMENT_SCIENCE
 	name = "Toximate 3000"
 	desc = "Всё, что вам нужно, в одном удобном месте!"
 

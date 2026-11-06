@@ -53,6 +53,7 @@
 #define INTERNAL_ORGAN_CHEST_ADRENALINE "chest_adrenaline"
 #define INTERNAL_ORGAN_CHEST_EXOFRAME "exoframe"
 #define INTERNAL_ORGAN_CHEST_PLATING "chest_plating"
+#define INTERNAL_ORGAN_CHEST_SPIT "chest_spit"
 #define INTERNAL_ORGAN_BRAIN_COMPUTER_INTERFACE "brain_computer_interface"
 
 #define INTERNAL_ORGAN_VOCALCORDS "vocal_cords"

@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/rd
+	bounty_types = CIV_JOB_SCI
 	title = JOB_TITLE_RD
 	flag = JOB_FLAG_RD
 	department = STATION_DEPARTMENT_SCIENCE
@@ -62,6 +63,7 @@
 	)
 
 /datum/job/science/scientist
+	bounty_types = CIV_JOB_SCI
 	title = JOB_TITLE_SCIENTIST
 	flag = JOB_FLAG_SCIENTIST
 	total_positions = 6
@@ -129,6 +131,7 @@
 					uniform = /obj/item/clothing/under/rank/scientist/student/assistant/skirt
 
 /datum/job/science/roboticist
+	bounty_types = CIV_JOB_ROBO
 	title = JOB_TITLE_ROBOTICIST
 	flag = JOB_FLAG_ROBOTICIST
 	total_positions = 2
@@ -154,6 +157,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/diagnostic
 
 /datum/job/science/mechanic
+	bounty_types = CIV_JOB_ROBO
 	title = JOB_TITLE_SPACEPOD_TECHNICIAN
 	flag = JOB_FLAG_MECHANIC
 	department_flag = JOBCAT_KARMA
