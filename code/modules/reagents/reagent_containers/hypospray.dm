@@ -767,20 +767,20 @@
 
 /obj/item/reagent_containers/hypospray/autoinjector/charcoal
 	name = "Charcoal autoinjector"
-	desc = "Маленький инъектор в форме ручки, содержащий внутри дозу активированного угля для экстренной помощи при отравлениях."
+	desc = "Маленький инъектор в форме ручки с активированным углём от отравлений и йодидом калия от радиации."
 	icon_state = "greeninjector"
-	amount_per_transfer_from_this = 20
-	volume = 20
-	list_reagents = list("charcoal" = 20)
+	amount_per_transfer_from_this = 30
+	volume = 30
+	list_reagents = list("charcoal" = 20, "potass_iodide" = 10)
 
 /obj/item/reagent_containers/hypospray/autoinjector/charcoal/get_ru_names()
 	return alist(
-		NOMINATIVE = "автоинъектор (Активированный уголь)",
-		GENITIVE = "автоинъектора (Активированный уголь)",
-		DATIVE = "автоинъектору (Активированный уголь)",
-		ACCUSATIVE = "автоинъектор (Активированный уголь)",
-		INSTRUMENTAL = "автоинъектором (Активированный уголь)",
-		PREPOSITIONAL = "автоинъекторе (Активированный уголь)",
+		NOMINATIVE = "автоинъектор (Уголь и йодид калия)",
+		GENITIVE = "автоинъектора (Уголь и йодид калия)",
+		DATIVE = "автоинъектору (Уголь и йодид калия)",
+		ACCUSATIVE = "автоинъектор (Уголь и йодид калия)",
+		INSTRUMENTAL = "автоинъектором (Уголь и йодид калия)",
+		PREPOSITIONAL = "автоинъекторе (Уголь и йодид калия)",
 	)
 
 /obj/item/reagent_containers/hypospray/autoinjector/sanguinius

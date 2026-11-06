@@ -38,7 +38,10 @@
 	var/negative_mutation_chance = 90
 	/// Chance we mutate
 	var/mutate_chance = 40
-	var/radiation_treshhold = RAD_MEDIUM_INSULATION
+	/// Доза за каждое попадание шторма
+	var/storm_dose = 15
+	/// Радиоактивная пыль, которая оседает при каждом попадании шторма
+	var/storm_surface_contamination = 3
 
 /datum/weather/rad_storm/endless
 	weather_duration_upper = 10 HOURS
@@ -71,7 +74,8 @@
 	if(SSradiation.wearing_rad_protected_clothing(human))
 		return
 
-	radiation_pulse(get_turf(human), 1, radiation_treshhold, chance = 30)
+	SSradiation.irradiate(human, storm_dose)
+	human.adjust_surface_contamination(storm_surface_contamination)
 
 	randmuti(human)
 

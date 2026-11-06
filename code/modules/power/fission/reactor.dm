@@ -1,3 +1,5 @@
+#define REACTOR_MAXIMUM_RADS 300
+
 // The steps for repairing the reactor
 #define REACTOR_NEEDS_DIGGING 1
 #define REACTOR_NEEDS_CROWBAR 2
@@ -539,7 +541,7 @@
 
 /obj/machinery/atmospherics/fission_reactor/process()
 	if(stat & BROKEN)
-		radiation_pulse(src, 6, chance = 50)
+		radiation_pulse(src, 40)
 		return
 
 	if(admin_intervention)
@@ -705,7 +707,7 @@
 	temp_gas.set_temperature(air_contents.temperature())
 	air_contents.merge(temp_gas)
 	var/radiation_multiplier = reactivity_multiplier * gas_radiation_mod
-	radiation_pulse(src, max_range = 6 * radiation_multiplier, threshold = 1.2 / radiation_multiplier, chance = 10 * radiation_multiplier)
+	radiation_pulse(src, min(2 * radiation_multiplier ** 2, REACTOR_MAXIMUM_RADS))
 
 	// Begin heating the air based off heat produced
 	var/heat_capacity = air_contents.heat_capacity()
@@ -1108,7 +1110,7 @@
 	switch(rand(1, 10))
 		if(1 to 5)
 			visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] вспыхивает ослепительным голубым светом!"))
-			radiation_pulse(src, 8, chance = 100)
+			radiation_pulse(src, 300)
 		if(6 to 8)
 			playsound(src, 'sound/effects/empulse.ogg', 70, TRUE)
 			empulse(get_turf(src), 1, 4)
@@ -1120,7 +1122,7 @@
 	if(venting)
 		return
 	var/datum/effect_system/fluid_spread/smoke/bad/smoke = new()
-	radiation_pulse(loc, 4, chance = 50)
+	radiation_pulse(src, 60)
 	smoke.set_up(amount = 3, location = loc)
 	smoke.start()
 	venting = TRUE
@@ -1257,7 +1259,7 @@
 	STOP_PROCESSING(SSmachines, src)
 	active_meltdown = TRUE
 	update_appearance(UPDATE_ICON_STATE)
-	radiation_pulse(src, 10, threshold = RAD_EXTREME_INSULATION, chance = 100)
+	radiation_pulse(src, 600)
 	var/obj/effect/landmark/nuclear_waste_spawner/waste = new /obj/effect/landmark/nuclear_waste_spawner/strong(get_turf(src))
 	relay('sound/machines/fission/meltdown.ogg', span_userdanger("Вы слышите жуткое металлическое шипение."))
 	waste.fire() //This will take out engineering for a decent amount of time as they have to clean up the sludge.
@@ -1364,11 +1366,14 @@
 	. = ..()
 	if(isliving(arrived))
 		playsound(loc, 'sound/effects/footstep/gib_step.ogg', 50, 1)
-	radiation_pulse(loc, 5, chance = 50) //MORE RADS
+	if(isliving(arrived))
+		var/mob/living/walker = arrived
+		walker.adjust_surface_contamination(RAD_PULSE_NUCLEAR_WASTE)
+	radiation_pulse(src, RAD_PULSE_NUCLEAR_WASTE) //MORE RADS
 
 /obj/effect/decal/nuclear_waste/attackby(obj/item/tool, mob/user)
 	if(istype(tool, /obj/item/shovel))
-		radiation_pulse(src, 5, 90) //MORE RADS
+		radiation_pulse(src, RAD_PULSE_NUCLEAR_WASTE * 2) //MORE RADS
 		to_chat(user, span_notice("Вы начинаете убирать [declent_ru(ACCUSATIVE)]..."))
 		if(tool.use_tool(src, user, 50, volume = 100))
 			to_chat(user, span_notice("Вы убираете [declent_ru(ACCUSATIVE)]."))
@@ -1392,8 +1397,10 @@
 		/area/shuttle,
 	)
 	end_message = span_notice_alt("Пепел перестаёт падать.")
-	radiation_treshhold = RAD_HEAVY_INSULATION
+	storm_dose = 25
+	storm_surface_contamination = 10
 
+#undef REACTOR_MAXIMUM_RADS
 #undef REACTOR_NEEDS_DIGGING
 #undef REACTOR_NEEDS_CROWBAR
 #undef REACTOR_NEEDS_PLASTITANIUM

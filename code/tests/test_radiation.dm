@@ -1,0 +1,360 @@
+/datum/unit_test/room_test/radiation
+	var/turf/base
+	var/turf/next_turf
+	var/turf/far_turf
+
+/datum/unit_test/room_test/radiation/proc/make_human(turf/where)
+	return allocate(/mob/living/carbon/human, where)
+
+/datum/unit_test/room_test/radiation/Run()
+	base = run_loc_floor_bottom_left
+	next_turf = locate(base.x + 1, base.y, base.z)
+	far_turf = locate(base.x + 2, base.y, base.z)
+
+	check_insulation()
+	check_falloff()
+	check_containers()
+	check_protection()
+	check_sickness()
+	check_contamination()
+	check_reagents()
+	check_green_injector()
+	check_listeners()
+	check_nucleation()
+	check_wall_mode()
+	check_scrubber()
+
+/datum/unit_test/room_test/radiation/proc/check_insulation()
+	TEST_ASSERT_EQUAL(next_turf.rad_insulation, RAD_NO_INSULATION, "Floors shouldn't stop radiation")
+	TEST_ASSERT(/turf/simulated/wall::rad_insulation < RAD_MEDIUM_INSULATION, "Walls should stop more than airlocks")
+	TEST_ASSERT(/turf/simulated/wall/r_wall::rad_insulation < /turf/simulated/wall::rad_insulation, "Reinforced walls should stop more than walls")
+
+	var/list/cache = list()
+	var/open_dose = SSradiation.get_dose_at(base, next_turf, 100, cache)
+	TEST_ASSERT_EQUAL(open_dose, 100, "Nothing was in the way of the pulse")
+	TEST_ASSERT_EQUAL(SSradiation.get_dose_at(base, far_turf, 100, cache), 25, "The dose should fall with the square of the distance")
+
+	var/obj/machinery/door/poddoor/shutters/radiation/shutter = allocate(/obj/machinery/door/poddoor/shutters/radiation, next_turf)
+	TEST_ASSERT_EQUAL(shutter.rad_insulation, RAD_EXTREME_INSULATION, "Closed radiation shutters should insulate")
+	TEST_ASSERT_EQUAL(SSradiation.get_dose_at(base, far_turf, 100, list()), 2.5, "Closed shutters should stop the pulse")
+	qdel(shutter)
+
+	var/obj/machinery/door/poddoor/shutters/radiation/preopen/open_shutter = allocate(/obj/machinery/door/poddoor/shutters/radiation/preopen, next_turf)
+	TEST_ASSERT_EQUAL(open_shutter.rad_insulation, RAD_NO_INSULATION, "Open shutters shouldn't insulate")
+	qdel(open_shutter)
+
+/datum/unit_test/room_test/radiation/proc/check_falloff()
+	var/mob/living/carbon/human/near = make_human(next_turf)
+	var/mob/living/carbon/human/far = make_human(far_turf)
+	SSradiation.pulse(base, 40)
+	TEST_ASSERT_EQUAL(near.get_radiation_dose(), 40, "The neighbouring human should take the whole pulse")
+	TEST_ASSERT_EQUAL(far.get_radiation_dose(), 10, "The human further away should take a quarter of it")
+	qdel(near)
+	qdel(far)
+
+/datum/unit_test/room_test/radiation/proc/check_containers()
+	var/mob/living/carbon/human/holder = make_human(base)
+	var/obj/item/geiger_counter/held_source = allocate(/obj/item/geiger_counter, base)
+	holder.put_in_active_hand(held_source)
+
+	radiation_pulse(held_source, 20)
+	TEST_ASSERT_EQUAL(SSradiation.processing[base], 20, "A carried source should still pulse")
+	SSradiation.processing.Cut()
+	SSradiation.source_names.Cut()
+
+	ADD_TRAIT(held_source, TRAIT_BLOCK_RADIATION, UNIQUE_TRAIT_SOURCE(src))
+	TEST_ASSERT_NOT(radiation_pulse(held_source, 20), "A blocked source shouldn't pulse")
+	qdel(held_source)
+	qdel(holder)
+
+	var/obj/structure/closet/crate/radiation/crate = allocate(/obj/structure/closet/crate/radiation, base)
+	var/obj/item/geiger_counter/crated_source = allocate(/obj/item/geiger_counter, crate)
+	radiation_pulse(crated_source, 20)
+	TEST_ASSERT_EQUAL(SSradiation.processing[base], 20 * RAD_EXTREME_INSULATION, "A crate should shield what is inside of it")
+	SSradiation.processing.Cut()
+	SSradiation.source_names.Cut()
+	qdel(crated_source)
+	qdel(crate)
+
+	var/mob/living/carbon/human/hider = make_human(base)
+	var/obj/structure/closet/closet = allocate(/obj/structure/closet, base)
+	hider.forceMove(closet)
+	SSradiation.pulse(next_turf, 40)
+	var/closet_dose = hider.get_radiation_dose()
+	qdel(hider)
+	qdel(closet)
+	TEST_ASSERT(closet_dose > 0, "A closet shouldn't protect completely")
+	TEST_ASSERT(closet_dose < 40, "A closet should protect somewhat")
+
+/datum/unit_test/room_test/radiation/proc/check_protection()
+	var/mob/living/carbon/human/worker = make_human(next_turf)
+	worker.equip_to_slot_or_del(new /obj/item/clothing/suit/radiation(worker), ITEM_SLOT_CLOTH_OUTER)
+	var/suit_only = worker.get_radiation_protection()
+	TEST_ASSERT(suit_only > 0, "A suit alone should protect somewhat")
+	TEST_ASSERT(suit_only < RAD_PROTECTION_SEALED, "A suit without a hood shouldn't seal the wearer")
+	TEST_ASSERT_EQUAL(worker.wear_suit.slowdown, 0, "Radiation suits shouldn't slow down")
+
+	worker.equip_to_slot_or_del(new /obj/item/clothing/head/radiation(worker), ITEM_SLOT_HEAD)
+	TEST_ASSERT(SSradiation.wearing_rad_protected_clothing(worker), "A suit with a hood should seal the wearer")
+
+	SSradiation.pulse(base, 100)
+	TEST_ASSERT(worker.get_radiation_dose() <= 100 * (1 - RAD_PROTECTION_SEALED), "The suit should stop most of the dose")
+	TEST_ASSERT(HAS_TRAIT(worker.wear_suit, TRAIT_IRRADIATED), "What the suit stops should end up on the suit")
+	qdel(worker)
+
+	var/mob/living/carbon/human/immune = make_human(next_turf)
+	immune.set_species(/datum/species/plasmaman)
+	SSradiation.pulse(base, 100)
+	TEST_ASSERT_EQUAL(immune.get_radiation_dose(), 0, "Radiation immune species shouldn't absorb anything")
+	qdel(immune)
+
+/datum/unit_test/room_test/radiation/proc/check_sickness()
+	var/mob/living/carbon/human/patient = make_human(base)
+	var/tox_before = patient.getToxLoss()
+	patient.adjust_radiation_dose(RADIATION_DOSE_MODERATE)
+	var/datum/component/radiation_sickness/sickness = patient.GetComponent(/datum/component/radiation_sickness)
+	TEST_ASSERT_NOTNULL(sickness, "A dose should cause sickness")
+	TEST_ASSERT_EQUAL(sickness.stage, RADIATION_STAGE_MODERATE, "Wrong stage for the dose")
+	TEST_ASSERT_EQUAL(sickness.manifested_stage, RADIATION_STAGE_NONE, "Symptoms should wait for the latent period")
+	TEST_ASSERT_EQUAL(patient.getToxLoss(), tox_before, "Radiation shouldn't deal toxin damage anymore")
+	TEST_ASSERT(HAS_TRAIT(patient, TRAIT_IRRADIATED), "The patient should count as irradiated")
+	TEST_ASSERT_NOT(sickness.glowing, "Only high stages should glow")
+
+	COOLDOWN_RESET(sickness, latent_period)
+	sickness.update_manifested_stage()
+	TEST_ASSERT_EQUAL(sickness.manifested_stage, RADIATION_STAGE_MILD, "Symptoms should move up one stage at a time")
+
+	patient.adjust_radiation_dose(RADIATION_DOSE_SEVERE)
+	while(sickness.manifested_stage < sickness.stage)
+		COOLDOWN_RESET(sickness, latent_period)
+		sickness.update_manifested_stage()
+	TEST_ASSERT(sickness.glowing, "Severe radiation sickness should glow")
+	TEST_ASSERT_NOTNULL(patient.get_filter("rad_glow"), "The glow filter is missing")
+
+	for(var/iteration in 1 to 50)
+		patient.dna.species.handle_radiation(patient, RADIATION_STAGE_FATAL, 2)
+	TEST_ASSERT_EQUAL(patient.getToxLoss(), tox_before, "Symptoms shouldn't deal toxin damage")
+
+	patient.adjust_radiation_dose(-RADIATION_DOSE_MAXIMUM)
+	sickness.update_manifested_stage()
+	TEST_ASSERT_EQUAL(sickness.stage, RADIATION_STAGE_NONE, "Purging the dose should end the stage")
+	TEST_ASSERT_NOT(sickness.glowing, "The glow should go away along with the stage")
+	TEST_ASSERT_NOT(HAS_TRAIT(patient, TRAIT_IRRADIATED), "The patient should stop counting as irradiated")
+
+	sickness.process(2)
+	TEST_ASSERT(QDELETED(sickness), "The sickness should be gone at zero dose")
+
+	patient.adjust_surface_contamination(50)
+	sickness = patient.GetComponent(/datum/component/radiation_sickness)
+	TEST_ASSERT_EQUAL(sickness.surface_contamination, 50, "Dust should stay on the skin")
+	sickness.process(2)
+	TEST_ASSERT(sickness.dose > 0, "Dust should add to the dose")
+	patient.wash_tg(CLEAN_RAD)
+	TEST_ASSERT_EQUAL(sickness.surface_contamination, 0, "Washing should remove the dust")
+
+	patient.adjust_radiation_dose(RADIATION_DOSE_FATAL)
+	patient.cure_radiation()
+	TEST_ASSERT_NULL(patient.GetComponent(/datum/component/radiation_sickness), "cure_radiation should cure")
+	qdel(patient)
+
+/datum/unit_test/room_test/radiation/proc/check_contamination()
+	var/obj/item/geiger_counter/item = allocate(/obj/item/geiger_counter, base)
+	SSradiation.pulse(next_turf, RAD_ITEM_MINIMUM_DOSE / 2)
+	TEST_ASSERT_NOT(HAS_TRAIT(item, TRAIT_IRRADIATED), "A weak pulse shouldn't contaminate")
+
+	SSradiation.pulse(next_turf, RAD_ITEM_MINIMUM_DOSE * 2)
+	TEST_ASSERT(HAS_TRAIT(item, TRAIT_IRRADIATED), "A strong pulse should contaminate")
+	var/datum/component/irradiated/contamination = item.GetComponent(/datum/component/irradiated)
+	TEST_ASSERT_NOT(contamination.glowing, "A little contamination shouldn't glow")
+
+	contamination.adjust_contamination(RAD_ITEM_GLOW_LEVEL)
+	TEST_ASSERT(contamination.glowing, "A lot of contamination should glow")
+
+	var/mob/living/carbon/human/holder = make_human(base)
+	holder.put_in_active_hand(item)
+	contamination.process(2)
+	TEST_ASSERT(holder.get_radiation_dose() > 0, "A hot item should irradiate its holder")
+
+	item.wash_tg(CLEAN_RAD)
+	TEST_ASSERT_NOT(HAS_TRAIT(item, TRAIT_IRRADIATED), "Washing should clean the item")
+	qdel(holder)
+	qdel(item)
+
+/datum/unit_test/room_test/radiation/proc/check_reagents()
+	var/mob/living/carbon/human/patient = make_human(base)
+	patient.reagents.add_reagent("radium", 5)
+	var/tox_before = patient.getToxLoss()
+	var/datum/reagent/radium/radium = patient.reagents.get_reagent_by_id("radium")
+	radium.radioactive_life(patient, radium.rad_power)
+	TEST_ASSERT_EQUAL(patient.get_radiation_dose(), radium.rad_power ** 2, "Radium inside should add to the dose")
+	TEST_ASSERT_EQUAL(patient.getToxLoss(), tox_before, "Radium shouldn't deal toxin damage anymore")
+
+	radium.reaction_turf(next_turf, 1)
+	TEST_ASSERT_NOTNULL(locate(/obj/effect/decal/cleanable/greenglow) in next_turf, "A small spill should glow")
+	TEST_ASSERT_NULL(locate(/obj/effect/decal/cleanable/greenglow/radioactive) in next_turf, "A small spill shouldn't keep on pulsing")
+	radium.reaction_turf(far_turf, 30)
+	TEST_ASSERT_NOTNULL(locate(/obj/effect/decal/cleanable/greenglow/radioactive) in far_turf, "A large spill should keep on pulsing")
+	SSradiation.processing.Cut()
+	SSradiation.source_names.Cut()
+
+	patient.reagents.clear_reagents()
+	patient.adjust_radiation_dose(100)
+	var/dose_before = patient.get_radiation_dose()
+	var/datum/reagent/medicine/pen_acid/pen_acid = new
+	pen_acid.holder = patient.reagents
+	pen_acid.on_mob_life(patient)
+	TEST_ASSERT(patient.get_radiation_dose() < dose_before, "Pentetic acid should purge the dose")
+	qdel(pen_acid)
+	qdel(patient)
+	qdel(locate(/obj/effect/decal/cleanable/greenglow) in next_turf)
+	qdel(locate(/obj/effect/decal/cleanable/greenglow/radioactive) in far_turf)
+
+/datum/unit_test/room_test/radiation/proc/check_listeners()
+	var/mob/living/carbon/human/holder = make_human(base)
+	var/obj/item/geiger_counter/geiger = allocate(/obj/item/geiger_counter, base)
+	holder.put_in_active_hand(geiger)
+	TEST_ASSERT_NOT(geiger in SSradiation.listeners, "A switched off geiger counter shouldn't listen")
+	geiger.set_scanning(TRUE)
+	TEST_ASSERT(geiger in SSradiation.listeners, "A switched on geiger counter should listen")
+
+	SSradiation.pulse(next_turf, 100)
+	TEST_ASSERT_EQUAL(geiger.last_perceived_radiation_danger, PERCEIVED_RADIATION_DANGER_EXTREME, "The geiger counter should hear a strong pulse")
+	TEST_ASSERT_EQUAL(geiger.total_rads, 100, "The geiger counter should add up what it takes")
+
+	holder.adjust_radiation_dose(RADIATION_DOSE_FATAL)
+	geiger.last_perceived_radiation_danger = null
+	SSradiation.pulse(next_turf, 100)
+	TEST_ASSERT_NOTNULL(geiger.last_perceived_radiation_danger, "The geiger counter should keep working for an irradiated holder")
+
+	var/list/data = geiger.ui_data(holder)
+	TEST_ASSERT_EQUAL(data["total"], 200, "The interface should show the total dose")
+	var/list/entry = geiger.get_monitor_entry()
+	TEST_ASSERT_EQUAL(entry["x"], base.x, "A carried geiger counter should report where its holder is")
+	TEST_ASSERT_NOTNULL(entry["holder"], "A carried geiger counter should report its holder")
+
+	geiger.set_scanning(FALSE)
+	TEST_ASSERT_NOT(geiger in SSradiation.listeners, "A switched off geiger counter should stop listening")
+	qdel(geiger)
+	qdel(holder)
+
+	var/mob/living/carbon/human/plasmaman = make_human(base)
+	plasmaman.set_species(/datum/species/plasmaman)
+	var/obj/item/geiger_counter/plasma_geiger = allocate(/obj/item/geiger_counter, base)
+	plasmaman.put_in_active_hand(plasma_geiger)
+	plasma_geiger.set_scanning(TRUE)
+	SSradiation.pulse(next_turf, 100)
+	TEST_ASSERT_NOTNULL(plasma_geiger.last_perceived_radiation_danger, "The geiger counter should work for a radiation immune holder")
+	qdel(plasma_geiger)
+	TEST_ASSERT_NOT(plasma_geiger in SSradiation.listeners, "Deleted listeners should be forgotten")
+	TEST_ASSERT_NOT(plasma_geiger in GLOB.geiger_counters, "Deleted geiger counters should be forgotten")
+	qdel(plasmaman)
+
+/datum/unit_test/room_test/radiation/proc/check_nucleation()
+	var/mob/living/carbon/human/nucleation = make_human(base)
+	nucleation.set_species(/datum/species/nucleation)
+	nucleation.apply_damage(30, BRUTE, BODY_ZONE_CHEST)
+	nucleation.adjust_radiation_dose(RADIATION_DOSE_MODERATE)
+	var/brute_before = nucleation.getBruteLoss()
+	var/datum/component/radiation_sickness/sickness = nucleation.GetComponent(/datum/component/radiation_sickness)
+	sickness.process(2)
+	TEST_ASSERT(nucleation.getBruteLoss() < brute_before, "Nucleations should heal from radiation")
+	TEST_ASSERT(sickness.dose < RADIATION_DOSE_MODERATE, "Healing should use up the dose")
+	TEST_ASSERT_EQUAL(sickness.manifested_stage, RADIATION_STAGE_NONE, "Nucleations shouldn't get sick")
+	qdel(nucleation)
+
+/datum/unit_test/room_test/radiation/proc/check_wall_mode()
+	var/obj/item/geiger_counter/mounted/meter = allocate(/obj/item/geiger_counter/mounted, next_turf)
+	TEST_ASSERT(meter.mounted, "The mapped variant should start on the wall")
+	TEST_ASSERT(meter.anchored, "A mounted geiger counter shouldn't be moved")
+	TEST_ASSERT(meter.scanning, "A mounted geiger counter should be on")
+	TEST_ASSERT_EQUAL(meter.icon_state, "geiger_wall", "A mounted geiger counter should use the wall sprite")
+
+	var/turf/north_turf = locate(next_turf.x, next_turf.y + 2, next_turf.z)
+	SSradiation.pulse(north_turf, 1000)
+	TEST_ASSERT(meter.pending_rads > 0, "The geiger counter should have measured the pulse")
+	meter.process(2)
+	TEST_ASSERT(meter.rads_per_minute > 0, "The geiger counter should report a rate")
+	TEST_ASSERT_EQUAL(meter.bearing, 0, "The source to the north should be at a bearing of zero")
+
+	meter.beep_level = 1
+	COOLDOWN_RESET(meter, beep_cooldown)
+	SSradiation.pulse(north_turf, 1000)
+	meter.process(2)
+	TEST_ASSERT_NOT(COOLDOWN_FINISHED(meter, beep_cooldown), "The geiger counter should beep above the chosen level")
+
+	meter.set_mounted(FALSE)
+	TEST_ASSERT_NOT(meter.anchored, "A dismounted geiger counter should be free")
+	TEST_ASSERT_EQUAL(meter.w_class, WEIGHT_CLASS_SMALL, "A dismounted geiger counter should fit in a pocket again")
+
+	meter.emagged = TRUE
+	var/total_before = meter.total_rads
+	SSradiation.pulse(north_turf, 1000)
+	TEST_ASSERT_EQUAL(meter.total_rads, total_before, "A sabotaged geiger counter should read nothing")
+	meter.emagged = FALSE
+
+	var/obj/machinery/computer/radiation_monitor/console = allocate(/obj/machinery/computer/radiation_monitor, base)
+	var/mob/living/carbon/human/engineer = make_human(base)
+	var/list/static_data = console.ui_static_data(engineer)
+	TEST_ASSERT_EQUAL(length(static_data["departments"]), length(GLOB.radiation_departments), "The console should list every department")
+	TEST_ASSERT_EQUAL(get_radiation_department_by_type(/area/station/engineering/engine/reactor), "engineering", "Engineering areas should belong to engineering")
+	TEST_ASSERT_NULL(get_radiation_department_by_type(/area/space), "Space should not belong to any department")
+	var/list/span = get_radiation_span(5 * 65536 + 10 * 256 + 20, 5 * 65536 + 10 * 256 + 24)
+	TEST_ASSERT_EQUAL(span[1], 20, "Spans should keep their x")
+	TEST_ASSERT_EQUAL(span[2], 10, "Spans should keep their y")
+	TEST_ASSERT_EQUAL(span[3], 5, "Spans should keep their width")
+	TEST_ASSERT_EQUAL(span[4], 5, "Spans should keep their z")
+	qdel(engineer)
+	qdel(console)
+	qdel(meter)
+
+/datum/unit_test/room_test/radiation/proc/check_scrubber()
+	var/obj/machinery/radiation_scrubber/scrubber = allocate(/obj/machinery/radiation_scrubber, base)
+	var/mob/living/carbon/human/patient = make_human(next_turf)
+	patient.adjust_radiation_dose(RADIATION_DOSE_SEVERE)
+	var/blood_before = patient.blood_volume
+
+	scrubber.attach_patient(patient)
+	scrubber.set_active(TRUE)
+	scrubber.run_pump(2)
+	TEST_ASSERT(patient.get_radiation_dose() < RADIATION_DOSE_SEVERE, "The pump should purge the dose")
+	TEST_ASSERT(scrubber.filter.saturation > 0, "What was purged should end up in the filter")
+	TEST_ASSERT(patient.blood_volume < blood_before, "The pump should cost blood")
+
+	var/list/data = scrubber.ui_data(patient)
+	TEST_ASSERT_NOTNULL(data["patient"], "The interface should show the patient")
+
+	scrubber.flow_rate = 5
+	scrubber.stress = 100
+	scrubber.update_stress(2)
+	TEST_ASSERT_NOT(scrubber.active, "The safety should stop the pump before the heart gives out")
+	TEST_ASSERT_EQUAL(scrubber.flow_rate, 3, "The safety should lower the flow")
+
+	var/dose_before = patient.get_radiation_dose()
+	scrubber.emagged = TRUE
+	scrubber.set_active(TRUE)
+	scrubber.filter.adjust_saturation(100)
+	scrubber.run_pump(2)
+	TEST_ASSERT(patient.get_radiation_dose() > dose_before, "A sabotaged pump should pump the filter back")
+	TEST_ASSERT(scrubber.get_displayed_dose() < patient.get_radiation_dose(), "A sabotaged pump should hide it")
+	scrubber.emagged = FALSE
+
+	patient.forceMove(locate(next_turf.x + 2, next_turf.y, next_turf.z))
+	TEST_ASSERT_NULL(scrubber.patient, "Walking away should rip the tube out")
+	TEST_ASSERT(patient.getBruteLoss() > 0, "Ripping the tube out should hurt")
+
+	var/obj/item/radiation_filter/hot_filter = scrubber.filter
+	hot_filter.adjust_saturation(hot_filter.capacity)
+	TEST_ASSERT(hot_filter.is_hot(), "A full filter should be hot")
+	TEST_ASSERT(hot_filter.datum_flags & DF_ISPROCESSING, "A saturated filter should process")
+	hot_filter.wash_tg(CLEAN_RAD)
+	TEST_ASSERT(hot_filter.is_hot(), "Washing shouldn't help a filter")
+	qdel(patient)
+	qdel(scrubber)
+	SSradiation.processing.Cut()
+	SSradiation.source_names.Cut()
+
+/datum/unit_test/room_test/radiation/proc/check_green_injector()
+	var/obj/item/reagent_containers/hypospray/autoinjector/charcoal/injector = allocate(/obj/item/reagent_containers/hypospray/autoinjector/charcoal, base)
+	TEST_ASSERT_EQUAL(injector.reagents.get_reagent_amount("potass_iodide"), 10, "The green injector should hold potassium iodide")
+	TEST_ASSERT_EQUAL(injector.reagents.get_reagent_amount("charcoal"), 20, "The green injector should still hold its charcoal")
+	qdel(injector)

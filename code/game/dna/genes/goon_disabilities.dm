@@ -48,11 +48,7 @@
 		return
 
 	COOLDOWN_START(src, last_radioactive_pulse, 5 SECONDS)
-	radiation_pulse(
-		owner,
-		max_range = 3,
-		threshold = RAD_MEDIUM_INSULATION,
-	)
+	radiation_pulse(owner, 3)
 
 /datum/dna/gene/disability/radioactive/OnDrawUnderlays(mob/M, g)
 	return "rads_s"

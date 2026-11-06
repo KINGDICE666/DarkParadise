@@ -223,6 +223,38 @@
 	update_flags |= M.adjustToxLoss(0.5, FALSE)
 	return ..() | update_flags
 
+#define RADIOACTIVE_HEAL -3
+/// Такая сильная лужа излучает, пока её не уберут
+#define RAD_MINIMUM_SPILL_FOR_GOO 15
+
+/// Действие радиоактивного реагента в теле: лечит тех, кто питается радиацией, остальных облучает.
+/datum/reagent/proc/radioactive_life(mob/living/affected_mob, rad_power)
+	if(!HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
+		affected_mob.adjust_radiation_dose(rad_power * rad_power * REM)
+		return STATUS_UPDATE_NONE
+
+	. = STATUS_UPDATE_NONE
+	. |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
+	. |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
+
+/// Лужа радиоактивного реагента: светится, даёт импульс, а если её много, излучает, пока не уберут.
+/datum/reagent/proc/radioactive_spill(turf/reaction_turf, volume, rad_power)
+	if(isspaceturf(reaction_turf))
+		return
+
+	var/rads = min(volume * rad_power, RAD_PULSE_SPILL_MAXIMUM)
+	if(rads >= RAD_MINIMUM_SPILL_FOR_GOO)
+		if(!(locate(/obj/effect/decal/cleanable/greenglow/radioactive) in reaction_turf))
+			new /obj/effect/decal/cleanable/greenglow/radioactive(reaction_turf)
+	else if(!(locate(/obj/effect/decal/cleanable/greenglow) in reaction_turf))
+		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
+
+	radiation_pulse(reaction_turf, rads)
+
+/datum/reagent/proc/radioactive_item_spill(obj/target, volume, rad_power)
+	if(isitem(target))
+		SSradiation.contaminate(target, volume * rad_power * 5)
+
 /datum/reagent/radium
 	name = "Радий"
 	id = "radium"
@@ -234,33 +266,19 @@
 	/// How radioactive is this reagent
 	var/rad_power = 2
 
-#define RADIOACTIVE_HEAL -3
-
 /datum/reagent/radium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(1 * REM, updating_health = FALSE)
-	return ..() | update_flags
+	return ..() | radioactive_life(affected_mob, rad_power)
+
+/datum/reagent/radium/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE)
+	. = ..()
+	if(method == REAGENT_TOUCH)
+		M.adjust_surface_contamination(volume * rad_power)
+
+/datum/reagent/radium/reaction_obj(obj/O, volume)
+	radioactive_item_spill(O, volume, rad_power)
 
 /datum/reagent/radium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
-
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
+	radioactive_spill(reaction_turf, volume, rad_power)
 
 /datum/reagent/polonium
 	name = "Полоний"
@@ -276,30 +294,18 @@
 	var/rad_power = 3
 
 /datum/reagent/polonium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(1 * REM, updating_health = FALSE)
-	return ..() | update_flags
+	return ..() | radioactive_life(affected_mob, rad_power)
+
+/datum/reagent/polonium/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE)
+	. = ..()
+	if(method == REAGENT_TOUCH)
+		M.adjust_surface_contamination(volume * rad_power)
+
+/datum/reagent/polonium/reaction_obj(obj/O, volume)
+	radioactive_item_spill(O, volume, rad_power)
 
 /datum/reagent/polonium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
-
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
+	radioactive_spill(reaction_turf, volume, rad_power)
 
 /datum/reagent/mutagen
 	name = "Нестабильный мутаген"
@@ -372,38 +378,25 @@
 	color = "#5E9964"
 	taste_mult = 0
 	taste_description = "атомной энергии"
-	/// How much tox damage to deal per tick
-	var/tox_damage = 0.5
 	/// How radioactive is this reagent
 	var/rad_power = 1
 
 /datum/reagent/uranium/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_RAD_HEAL))
-		update_flags |= affected_mob.adjustBruteLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		update_flags |= affected_mob.adjustFireLoss(RADIOACTIVE_HEAL * REM, updating_health = FALSE)
-		return ..() | update_flags
-	if(!HAS_TRAIT(affected_mob, TRAIT_IRRADIATED) && SSradiation.can_irradiate_basic(affected_mob))
-		var/chance = min(volume / (20 - rad_power * 5), rad_power)
-		if(prob(chance))
-			affected_mob.AddComponent(/datum/component/irradiated)
-	update_flags |= affected_mob.adjustToxLoss(tox_damage * REM, updating_health = FALSE)
-	return ..() | update_flags
+	return ..() | radioactive_life(affected_mob, rad_power)
+
+/datum/reagent/uranium/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE)
+	. = ..()
+	if(method == REAGENT_TOUCH)
+		M.adjust_surface_contamination(volume * rad_power)
+
+/datum/reagent/uranium/reaction_obj(obj/O, volume)
+	radioactive_item_spill(O, volume, rad_power)
 
 /datum/reagent/uranium/reaction_turf(turf/reaction_turf, volume)
-	if(!SSradiation.can_irradiate_basic(reaction_turf))
-		return
-
-	if(!isspaceturf(reaction_turf))
-		new /obj/effect/decal/cleanable/greenglow(reaction_turf)
-		radiation_pulse(
-			source = reaction_turf,
-			max_range = 0,
-			threshold = RAD_VERY_LIGHT_INSULATION,
-			chance = (min(volume * rad_power, CALCULATE_RAD_MAX_CHANCE(rad_power))),
-		)
+	radioactive_spill(reaction_turf, volume, rad_power)
 
 #undef RADIOACTIVE_HEAL
+#undef RAD_MINIMUM_SPILL_FOR_GOO
 
 /datum/reagent/lexorin
 	name = "Лексорин"

@@ -82,6 +82,7 @@
 	desc = "A crate with a radiation sign on it."
 	name = "radioactive gear crate"
 	icon_state = "radiation"
+	rad_insulation = RAD_EXTREME_INSULATION
 
 /obj/structure/closet/crate/radiation/populate_contents()
 	new /obj/item/clothing/suit/radiation(src)

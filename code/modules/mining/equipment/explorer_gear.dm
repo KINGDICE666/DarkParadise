@@ -82,6 +82,7 @@
 	)
 
 /obj/item/clothing/suit/space/hostile_environment
+	rad_protection = RAD_PROTECTION_LIGHT
 	name = "H.E.C.K. suit"
 	desc = "Экспериментальный Кинетический Защитный Обшитый Костюм: костюм, специально созданный для защиты от широкого спектра опасностей Лазиса. Прошлому его владельцу этого, видимо, не хватило."
 	icon_state = "hostile_env"
@@ -144,6 +145,7 @@
 	armor = getArmor(melee = 70, bullet = 50, laser = 50, energy = 50, bomb = 50, bio = 100, fire = 100, acid = 100)
 
 /obj/item/clothing/head/helmet/space/hostile_environment
+	rad_protection = RAD_PROTECTION_LIGHT
 	name = "H.E.C.K. helmet"
 	desc = "Экспериментальный Кинетический Защитный Обшитый Шлем: шлем, специально созданный для защиты от широкого спектра опасностей Лазиса. Прошлому его владельцу этого, видимо, не хватило."
 	icon_state = "hostile_env"

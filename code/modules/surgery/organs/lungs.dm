@@ -45,8 +45,8 @@
 
 	var/tritium_irradiation_moles_min = 1
 	var/tritium_irradiation_moles_max = 15
-	var/tritium_irradiation_probability_min = 10
-	var/tritium_irradiation_probability_max = 60
+	var/tritium_dose_min = 2
+	var/tritium_dose_max = 20
 
 	var/cold_message = ", что ваши дыхательные пути замораживаются"
 	var/cold_level_1_threshold = 260
@@ -467,11 +467,9 @@
 		var/ratio = gas_breathed * 15
 		breather.adjustToxLoss(clamp(ratio, MIN_TOXIC_GAS_DAMAGE, MAX_TOXIC_GAS_DAMAGE))
 	// If you're breathing in half an atmosphere of radioactive gas, you fucked up.
-	if((trit_pp > tritium_irradiation_moles_min) && SSradiation.can_irradiate_basic(breather))
+	if(trit_pp > tritium_irradiation_moles_min)
 		var/lerp_scale = min(tritium_irradiation_moles_max, trit_pp - tritium_irradiation_moles_min) / (tritium_irradiation_moles_max - tritium_irradiation_moles_min)
-		var/chance = LERP(tritium_irradiation_probability_min, tritium_irradiation_probability_max, lerp_scale)
-		if(prob(chance))
-			breather.AddComponent(/datum/component/irradiated)
+		breather.adjust_radiation_dose(LERP(tritium_dose_min, tritium_dose_max, lerp_scale))
 
 /// Really toxic stuff, very much trying to kill you
 /obj/item/organ/internal/lungs/proc/too_much_zauker(mob/living/carbon/breather, datum/gas_mixture/breath, zauker_pp)

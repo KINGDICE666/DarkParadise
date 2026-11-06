@@ -790,7 +790,7 @@ GLOBAL_LIST_EMPTY(cached_heal_materials)
 	if(!COOLDOWN_FINISHED(src, radiation_emission_cooldown))
 		return
 
-	radiation_pulse(user, max_range = 1, threshold = RAD_VERY_LIGHT_INSULATION, chance = 3)
+	radiation_pulse(user, RAD_PULSE_URANIUM_ITEM)
 	COOLDOWN_START(src, radiation_emission_cooldown, 2 SECONDS)
 
 /datum/species/golem/uranium/handle_life(mob/living/carbon/human/user)

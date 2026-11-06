@@ -432,12 +432,7 @@
 	RefreshParts()
 
 /obj/machinery/power/port_gen/pacman/super/explode()
-	radiation_pulse(
-		source = src,
-		max_range = 10,
-		threshold = 0.1,
-		chance = 80,
-	)
+	radiation_pulse(src, 300)
 	explosion(loc, devastation_range = 3, heavy_impact_range = 3, light_impact_range = 5, flash_range = 3, cause = src)
 	qdel(src)
 

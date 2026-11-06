@@ -2,116 +2,151 @@ SUBSYSTEM_DEF(radiation)
 	name = "Radiation"
 	ss_flags = SS_BACKGROUND | SS_NO_INIT
 	wait = 0.5 SECONDS
-	/// A list of radiation sources (/datum/radiation_pulse_information) that have yet to process.
+	/// Тайлы с необработанным импульсом и его сила. Импульсы с одного тайла складываются.
 	/// Do not interact with this directly, use `radiation_pulse` instead.
-	var/list/datum/radiation_pulse_information/processing = list()
+	var/list/processing = list()
+	/// Что дало последний импульс тайла в очереди, для логов
+	var/list/source_names = list()
+	/// Атомы, которые узнают о каждом дошедшем импульсе, см. [/datum/controller/subsystem/radiation/proc/add_listener]
+	var/list/atom/listeners = list()
 
 /datum/controller/subsystem/radiation/fire(resumed)
 	while(length(processing))
-		var/datum/radiation_pulse_information/pulse_information = processing[1]
+		var/turf/source_turf = processing[length(processing)]
+		var/rads = processing[source_turf]
+		var/source_name = source_names[source_turf]
+		processing.len--
+		source_names -= source_turf
 
-		var/datum/weakref/source_ref = pulse_information.source_ref
-		var/atom/source = source_ref.resolve()
-		if(isnull(source))
-			processing.Cut(1, 2)
-			continue
-
-		pulse(source, pulse_information)
+		pulse(source_turf, rads, source_name)
 
 		if(MC_TICK_CHECK)
 			return
 
-		processing.Cut(1, 2)
-
 /datum/controller/subsystem/radiation/stat_entry(msg)
-	msg = "Pulses:[length(processing)]"
+	msg = "Pulses:[length(processing)]|Listeners:[length(listeners)]"
 	return ..()
 
-/datum/controller/subsystem/radiation/proc/pulse(atom/source, datum/radiation_pulse_information/pulse_information)
-	var/list/cached_rad_insulations = list()
-	var/list/cached_turfs_to_process = pulse_information.turfs_to_process
-	var/turfs_iterated = 0
-	for(var/turf/turf_to_irradiate as anything in cached_turfs_to_process)
-		turfs_iterated += 1
-		for(var/atom/movable/target in turf_to_irradiate)
-			if(!can_irradiate_basic(target))
-				continue
+/// Атом начинает получать COMSIG_RADIATION_DETECTED, что бы это ни было и где бы ни находилось.
+/datum/controller/subsystem/radiation/proc/add_listener(atom/listener)
+	listeners |= listener
+	RegisterSignal(listener, COMSIG_QDELETING, PROC_REF(remove_listener), override = TRUE)
 
-			var/current_insulation = 1
+/datum/controller/subsystem/radiation/proc/remove_listener(atom/listener)
+	SIGNAL_HANDLER
 
-			for(var/turf/turf_in_between in get_line(source, target) - get_turf(source))
-				var/insulation = cached_rad_insulations[turf_in_between]
-				if(isnull(insulation))
-					insulation = turf_in_between.rad_insulation
-					for(var/atom/on_turf as anything in turf_in_between.contents)
-						insulation *= on_turf.rad_insulation
-					cached_rad_insulations[turf_in_between] = insulation
+	listeners -= listener
+	UnregisterSignal(listener, COMSIG_QDELETING)
 
-				current_insulation *= insulation
+/datum/controller/subsystem/radiation/proc/pulse(turf/source_turf, rads, source_name)
+	var/list/insulation_cache = list()
+	var/source_x = source_turf.x
+	var/source_y = source_turf.y
+	var/source_z = source_turf.z
+	var/max_range = min(CEILING(sqrt(rads / RAD_MINIMUM_DOSE), 1), RAD_MAXIMUM_RANGE)
 
-				if(current_insulation <= pulse_information.threshold)
-					break
+	for(var/mob/living/carbon/human/human as anything in GLOB.human_list)
+		var/turf/target_turf = get_turf(human)
+		if(target_turf?.z != source_z || abs(target_turf.x - source_x) > max_range || abs(target_turf.y - source_y) > max_range)
+			continue
 
-			SEND_SIGNAL(target, COMSIG_IN_RANGE_OF_IRRADIATION, pulse_information, current_insulation)
+		if(human.stat == DEAD || HAS_TRAIT(human, TRAIT_RADIMMUNE))
+			continue
 
-			// Check a second time, because of TRAIT_BYPASS_EARLY_IRRADIATED_CHECK
-			if(HAS_TRAIT(target, TRAIT_IRRADIATED))
-				continue
+		var/dose = get_dose_at(source_turf, target_turf, rads, insulation_cache)
+		if(human.loc != target_turf)
+			dose *= get_containment_insulation(human)
 
-			if(current_insulation <= pulse_information.threshold)
-				continue
+		if(dose >= RAD_MINIMUM_DOSE)
+			expose(human, dose, source_name)
 
-			/// Perceived chance of target getting irradiated.
-			var/perceived_chance
-			/// Intensity variable which will describe the radiation pulse.
-			/// It is used by perceived intensity, which diminishes over range. The chance of the target getting irradiated is determined by perceived_intensity.
-			/// Intensity is calculated so that the chance of getting irradiated at half of the max range is the same as the chance parameter.
-			var/intensity
-			/// Diminishes over range. Used by perceived chance, which is the actual chance to get irradiated.
-			var/perceived_intensity
+	for(var/atom/listener as anything in listeners)
+		var/turf/listener_turf = get_turf(listener)
+		if(listener_turf?.z != source_z || abs(listener_turf.x - source_x) > max_range || abs(listener_turf.y - source_y) > max_range)
+			continue
 
-			if(pulse_information.chance < 100) // Prevents log(0) runtime if chance is 100%
-				intensity = -log(1 - pulse_information.chance / 100) * (1 + pulse_information.max_range / 2) ** 2
-				perceived_intensity = intensity * INVERSE((1 + get_dist_euclidean(source, target)) ** 2) // Diminishes over range.
-				perceived_intensity *= (current_insulation - pulse_information.threshold) * INVERSE(1 - pulse_information.threshold) // Perceived intensity decreases as objects that absorb radiation block its trajectory.
-				perceived_chance = 100 * (1 - NUM_E ** -perceived_intensity)
-			else
-				perceived_chance = 100
+		var/dose = get_dose_at(source_turf, listener_turf, rads, insulation_cache) * get_containment_insulation(listener)
+		if(dose >= RAD_MINIMUM_DOSE)
+			SEND_SIGNAL(listener, COMSIG_RADIATION_DETECTED, dose, source_turf)
 
-			var/irradiation_result = SEND_SIGNAL(target, COMSIG_IN_THRESHOLD_OF_IRRADIATION, pulse_information)
-			if(irradiation_result & CANCEL_IRRADIATION)
-				continue
+	if(rads >= RAD_ITEM_MINIMUM_DOSE)
+		contaminate_items(source_turf, rads, insulation_cache)
 
-			if(pulse_information.minimum_exposure_time && !(irradiation_result & SKIP_MINIMUM_EXPOSURE_TIME_CHECK))
-				target.AddComponent(/datum/component/radiation_countdown, pulse_information.minimum_exposure_time)
-				continue
+/// Загрязняет только сильный импульс и только вблизи. Поэтому не приходится перебирать все предметы в комнате.
+/datum/controller/subsystem/radiation/proc/contaminate_items(turf/source_turf, rads, list/insulation_cache)
+	var/item_range = min(CEILING(sqrt(rads / RAD_ITEM_MINIMUM_DOSE), 1), RAD_ITEM_MAXIMUM_RANGE)
+	for(var/turf/item_turf as anything in RANGE_TURFS(item_range, source_turf))
+		var/dose = -1
+		for(var/obj/item/item in item_turf)
+			if(dose < 0)
+				dose = get_dose_at(source_turf, item_turf, rads, insulation_cache)
+			if(dose < RAD_ITEM_MINIMUM_DOSE)
+				break
+			contaminate(item, dose)
 
-			if(!prob(perceived_chance))
-				continue
+/// Возвращает то, что осталось от импульса на целевом тайле
+/datum/controller/subsystem/radiation/proc/get_dose_at(turf/source_turf, turf/target_turf, rads, list/insulation_cache)
+	var/source_x = source_turf.x
+	var/source_y = source_turf.y
+	var/delta_x = target_turf.x - source_x
+	var/delta_y = target_turf.y - source_y
 
-			if(irradiate_after_basic_checks(target))
-				target.investigate_log("was irradiated by [source].", INVESTIGATE_RADIATION)
+	. = rads / max(delta_x * delta_x + delta_y * delta_y, 1)
+	if(. < RAD_MINIMUM_DOSE)
+		return 0
 
-		if(MC_TICK_CHECK)
-			break
+	var/steps = max(abs(delta_x), abs(delta_y))
+	var/x_step = steps ? delta_x / steps : 0
+	var/y_step = steps ? delta_y / steps : 0
+	for(var/step in 1 to steps)
+		var/turf/turf_in_between = locate(round(source_x + x_step * step + 0.5), round(source_y + y_step * step + 0.5), source_turf.z)
+		var/insulation = insulation_cache[turf_in_between]
+		if(isnull(insulation))
+			insulation = turf_in_between.rad_insulation
+			for(var/atom/on_turf as anything in turf_in_between.contents)
+				insulation *= on_turf.rad_insulation
+			insulation_cache[turf_in_between] = insulation
 
-	cached_turfs_to_process.Cut(1, turfs_iterated + 1)
+		. *= insulation
+		if(. < RAD_MINIMUM_DOSE)
+			return 0
 
-/// Will attempt to irradiate the given target, limited through IC means, such as radiation protected clothing.
-/datum/controller/subsystem/radiation/proc/irradiate(atom/target)
+/// Выдаёт человеку внешнюю дозу с учётом одежды. Всё, что одежда остановила, остаётся на ней.
+/datum/controller/subsystem/radiation/proc/expose(mob/living/carbon/human/human, dose, source_name)
+	var/protection = human.get_radiation_protection()
+	if(protection && dose * protection >= RAD_ITEM_MINIMUM_DOSE)
+		contaminate(human.wear_suit, dose * protection)
+		contaminate(human.head, dose * protection)
+
+	dose *= 1 - protection
+	if(HAS_TRAIT(human, TRAIT_RADIATION_RESISTANT))
+		dose *= RAD_RESISTANCE_FACTOR
+
+	if(dose < RAD_MINIMUM_DOSE)
+		return
+
+	var/was_sick = HAS_TRAIT(human, TRAIT_IRRADIATED)
+	human.adjust_radiation_dose(dose)
+	if(source_name && !was_sick && HAS_TRAIT(human, TRAIT_IRRADIATED))
+		human.investigate_log("was irradiated by [source_name].", INVESTIGATE_RADIATION)
+
+/datum/controller/subsystem/radiation/proc/contaminate(obj/item/item, dose)
+	if(!istype(item))
+		return
+
+	var/datum/component/irradiated/contamination = item.GetComponent(/datum/component/irradiated) || item.AddComponent(/datum/component/irradiated)
+	contamination.adjust_contamination(dose)
+
+/// Пытается облучить цель без учёта расстояния и стен. Ограничена только внутриигровыми средствами вроде защитной одежды.
+/datum/controller/subsystem/radiation/proc/irradiate(atom/target, dose)
 	if(!can_irradiate_basic(target))
 		return FALSE
 
-	irradiate_after_basic_checks(target)
-	return TRUE
+	if(ishuman(target))
+		expose(target, dose)
+	else
+		contaminate(target, dose)
 
-/datum/controller/subsystem/radiation/proc/irradiate_after_basic_checks(atom/target)
-	PRIVATE_PROC(TRUE)
-
-	if(ishuman(target) && wearing_rad_protected_clothing(target))
-		return FALSE
-
-	target.AddComponent(/datum/component/irradiated)
 	return TRUE
 
 /// Returns whether or not the target can be irradiated by any means.
@@ -120,25 +155,11 @@ SUBSYSTEM_DEF(radiation)
 	if(!CAN_IRRADIATE(target))
 		return FALSE
 
-	if(HAS_TRAIT(target, TRAIT_IRRADIATED) && !HAS_TRAIT(target, TRAIT_BYPASS_EARLY_IRRADIATED_CHECK))
-		return FALSE
-
 	if(HAS_TRAIT(target, TRAIT_RADIMMUNE))
 		return FALSE
 
 	return TRUE
 
-/// Returns whether or not the human is covered head to toe in rad-protected clothing.
+/// Возвращает, полностью ли человек укрыт защитной одеждой.
 /datum/controller/subsystem/radiation/proc/wearing_rad_protected_clothing(mob/living/carbon/human/human)
-	for(var/obj/item/organ/external/limb as anything in human.bodyparts)
-		var/protected = FALSE
-
-		for(var/obj/item/clothing as anything in human.get_clothing_on_part(limb))
-			if(HAS_TRAIT(clothing, TRAIT_RADIATION_PROTECTED_CLOTHING))
-				protected = TRUE
-				break
-
-		if(!protected)
-			return FALSE
-
-	return TRUE
+	return human.get_radiation_protection() >= RAD_PROTECTION_SEALED

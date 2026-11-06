@@ -99,13 +99,7 @@
 		return
 
 	active = TRUE
-	radiation_pulse(
-		src,
-		max_range = 3,
-		threshold = RAD_LIGHT_INSULATION,
-		chance = URANIUM_IRRADIATION_CHANCE,
-		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
-	)
+	radiation_pulse(src, RAD_PULSE_URANIUM_STRUCTURE)
 	propagate_radiation_pulse()
 	last_event = world.time
 	active = FALSE

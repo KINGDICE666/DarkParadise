@@ -308,8 +308,6 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 #define DONT_PASS_OUTPUT_PRESURE_MAX (1<<2)
 
 
-/// The threshold of the tritium combustion's radiation. Lower values means it will be able to penetrate through more structures.
-#define ATMOS_RADIATION_THRESHOLD 0.3
 
 /// Maximum range a radiation pulse is allowed to be from a gas reaction.
 #define GAS_REACTION_MAXIMUM_RADIATION_PULSE_RANGE 20

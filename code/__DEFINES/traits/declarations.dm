@@ -571,10 +571,8 @@
 /// This clothing protects the user from radiation.
 /// This should not be used on clothing_traits, but should be applied to the clothing itself.
 #define TRAIT_RADIATION_PROTECTED_CLOTHING "radiation_protected_clothing"
-/// Whether or not this item will allow the radiation SS to go through standard
-/// radiation processing as if this wasn't already irradiated.
-/// Basically, without this, COMSIG_IN_RANGE_OF_IRRADIATION won't fire once the object is irradiated.
-#define TRAIT_BYPASS_EARLY_IRRADIATED_CHECK "radiation_bypass_early_irradiated_check"
+/// Пока трейт активен, внешние дозы слабее. Его дают радиопротекторы.
+#define TRAIT_RADIATION_RESISTANT "radiation_resistant"
 
 // MARK: Metabolism
 // Various jobs on the station have historically had better reactions

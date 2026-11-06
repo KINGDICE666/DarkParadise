@@ -226,6 +226,14 @@
 	build_path = /obj/item/circuitboard/solar_control
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
 
+/datum/design/radiation_monitor
+	id = "radiation_monitor"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_POWERSTORAGE = 2)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/radiation_monitor
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
 /datum/design/sm_monitor
 	id = "sm_monitor"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_POWERSTORAGE = 2)

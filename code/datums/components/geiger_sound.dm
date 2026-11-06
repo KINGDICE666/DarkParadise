@@ -2,68 +2,30 @@
 /datum/component/geiger_sound
 	var/datum/looping_sound/geiger/sound
 
-	var/last_parent = null
-
 /datum/component/geiger_sound/Initialize(...)
 	if(!isatom(parent))
 		return COMPONENT_INCOMPATIBLE
 
 /datum/component/geiger_sound/Destroy(force)
 	QDEL_NULL(sound)
-
-	if(!isnull(last_parent))
-		UnregisterSignal(last_parent, COMSIG_IN_RANGE_OF_IRRADIATION)
-
-	last_parent = null
-
 	return ..()
 
 /datum/component/geiger_sound/RegisterWithParent()
 	sound = new(parent)
-
-	RegisterSignal(parent, COMSIG_IN_RANGE_OF_IRRADIATION, PROC_REF(on_pre_potential_irradiation))
-
-	ADD_TRAIT(parent, TRAIT_BYPASS_EARLY_IRRADIATED_CHECK, UNIQUE_TRAIT_SOURCE(src))
-
-	if(!isitem(parent))
-		return
-
-	var/atom/atom_parent = parent
-	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(on_moved))
-	register_to_loc(atom_parent.loc)
+	RegisterSignal(parent, COMSIG_RADIATION_DETECTED, PROC_REF(on_radiation_detected))
+	SSradiation.add_listener(parent)
 
 /datum/component/geiger_sound/UnregisterFromParent()
-	UnregisterSignal(parent, list(
-		COMSIG_MOVABLE_MOVED,
-		COMSIG_IN_RANGE_OF_IRRADIATION,
-	))
+	UnregisterSignal(parent, COMSIG_RADIATION_DETECTED)
+	SSradiation.remove_listener(parent)
 
-	REMOVE_TRAIT(parent, TRAIT_BYPASS_EARLY_IRRADIATED_CHECK, UNIQUE_TRAIT_SOURCE(src))
-
-/datum/component/geiger_sound/proc/on_pre_potential_irradiation(datum/source, datum/radiation_pulse_information/pulse_information, insulation_to_target)
+/datum/component/geiger_sound/proc/on_radiation_detected(datum/source, rads, turf/source_turf)
 	SIGNAL_HANDLER
 
-	sound.last_insulation_to_target = insulation_to_target
-	sound.last_radiation_pulse = pulse_information
+	sound.last_danger = get_perceived_radiation_danger(rads)
 	sound.start()
 
 	addtimer(CALLBACK(sound, TYPE_PROC_REF(/datum/looping_sound, stop)), TIME_WITHOUT_RADIATION_BEFORE_RESET, TIMER_UNIQUE | TIMER_OVERRIDE)
-
-/datum/component/geiger_sound/proc/on_moved(atom/source)
-	SIGNAL_HANDLER
-	register_to_loc(source.loc)
-
-/datum/component/geiger_sound/proc/register_to_loc(new_loc)
-	if(last_parent == new_loc)
-		return
-
-	if(!isnull(last_parent))
-		UnregisterSignal(last_parent, COMSIG_IN_RANGE_OF_IRRADIATION)
-
-	last_parent = new_loc
-
-	if(!isnull(new_loc))
-		RegisterSignal(new_loc, COMSIG_IN_RANGE_OF_IRRADIATION, PROC_REF(on_pre_potential_irradiation))
 
 /datum/looping_sound/geiger
 	mid_sounds = list(
@@ -75,20 +37,15 @@
 	mid_length = 2
 	volume = 25
 
-	var/datum/radiation_pulse_information/last_radiation_pulse
-	var/last_insulation_to_target
-
-/datum/looping_sound/geiger/Destroy()
-	last_radiation_pulse = null
-	return ..()
+	var/last_danger
 
 /datum/looping_sound/geiger/get_sound()
-	if(isnull(last_radiation_pulse))
+	if(isnull(last_danger))
 		return null
 
-	return ..(mid_sounds[get_perceived_radiation_danger(last_radiation_pulse, last_insulation_to_target)])
+	return ..(mid_sounds[last_danger])
 
 /datum/looping_sound/geiger/stop(null_parent = FALSE)
 	. = ..()
 
-	last_radiation_pulse = null
+	last_danger = null

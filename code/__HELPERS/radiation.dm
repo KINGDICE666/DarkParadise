@@ -1,75 +1,42 @@
 /// Whether or not it's possible for this atom to be irradiated
 #define CAN_IRRADIATE(atom) (ishuman(##atom) || isitem(##atom))
 
-/// Calculates the max chance for a radiation_pulse via a radioactive reagent
-#define CALCULATE_RAD_MAX_CHANCE(rad_power) (20 + (15 * (rad_power - 1)))
+/// Посылает импульс радиации с тайла источника.
+/// rads это доза, которую незащищённый человек получает на соседнем тайле. Она падает с квадратом расстояния
+/// и умножается на rad_insulation всего, что на пути.
+/// Источник внутри чего-либо экранируется тем, в чём лежит.
+/proc/radiation_pulse(atom/source, rads)
+	if(!SSradiation.can_fire || rads <= 0 || HAS_TRAIT(source, TRAIT_BLOCK_RADIATION))
+		return FALSE
 
-/// Sends out a pulse of radiation, eminating from the source.
-/// Radiation is performed by collecting all radiatables within the max range (0 means source only, 1 means adjacent, etc),
-/// then makes their way towards them. A number, starting at 1, is multiplied
-/// by the insulation amounts of whatever is in the way (for example, walls lowering it down).
-/// If this number hits equal or below the threshold, then the target can no longer be irradiated.
-/// If the number is above the threshold, then the chance is the chance that the target will be irradiated.
-/// As a consumer, this means that max_range going up usually means you want to lower the threshold too,
-/// as well as the other way around.
-/// If max_range is high, but threshold is too high, then it usually won't reach the source at the max range in time.
-/// If max_range is low, but threshold is too low, then it basically guarantees everyone nearby, even if there's walls
-/// and such in the way, can be irradiated.
-/// You can also pass in a minimum exposure time. If this is set, then this radiation pulse
-/// will not irradiate the source unless they have been around *any* radioactive source for that
-/// period of time.
-/// The chance to get irradiated diminishes over range, and from objects that block radiation.
-/// Assuming there is nothing in the way, the chance will determine what the chance is to get irradiated from half of max_range.
-/// Example: If chance is equal to 30%, and max_range is equal to 8,
-/// then the chance for a thing to get irradiated is 30% if they are 4 turfs away from the pulse source.
-/proc/radiation_pulse(
-	atom/source,
-	max_range,
-	threshold,
-	chance = DEFAULT_RADIATION_CHANCE,
-	minimum_exposure_time = 0,
-)
-	if(!SSradiation.can_fire)
-		return
+	var/turf/source_turf = get_turf(source)
+	if(isnull(source_turf))
+		return FALSE
 
-	var/datum/radiation_pulse_information/pulse_information = new
-	pulse_information.source_ref = WEAKREF(source)
-	pulse_information.max_range = max_range
-	pulse_information.threshold = threshold
-	pulse_information.chance = chance
-	pulse_information.minimum_exposure_time = minimum_exposure_time
-	pulse_information.turfs_to_process = RANGE_TURFS(max_range, source)
+	rads *= get_containment_insulation(source)
+	if(rads < RAD_MINIMUM_DOSE)
+		return FALSE
 
-	SSradiation.processing += pulse_information
-
+	SSradiation.processing[source_turf] += rads
+	SSradiation.source_names[source_turf] = source.name
 	return TRUE
 
-/datum/radiation_pulse_information
-	var/datum/weakref/source_ref
-	var/max_range
-	var/threshold
-	var/chance
-	var/minimum_exposure_time
-	var/list/turfs_to_process
+/// Перемножает изоляцию всего, внутри чего лежит атом
+/proc/get_containment_insulation(atom/thing)
+	. = RAD_NO_INSULATION
+	for(var/atom/container = thing.loc; container && !isturf(container); container = container.loc)
+		. *= container.rad_insulation
 
-#define MEDIUM_RADIATION_THRESHOLD_RANGE 0.5
-#define EXTREME_RADIATION_CHANCE 30
-
-/// Gets the perceived "danger" of radiation pulse, given the threshold to the target.
-/// Returns a RADIATION_DANGER_* define, see [code/__DEFINES/radiation.dm]
-/proc/get_perceived_radiation_danger(datum/radiation_pulse_information/pulse_information, insulation_to_target)
-	if(insulation_to_target > pulse_information.threshold)
-		// We could get irradiated! The only thing stopping us now is chance, so scale based on that.
-		if(pulse_information.chance >= EXTREME_RADIATION_CHANCE)
-			return PERCEIVED_RADIATION_DANGER_EXTREME
-		else
-			return PERCEIVED_RADIATION_DANGER_HIGH
-	else
-		// We're out of the threshold from being irradiated, but by how much?
-		if(insulation_to_target / pulse_information.threshold <= MEDIUM_RADIATION_THRESHOLD_RANGE)
-			return PERCEIVED_RADIATION_DANGER_MEDIUM
-		else
-			return PERCEIVED_RADIATION_DANGER_LOW
+/// Возвращает воспринимаемую "опасность" дозы от одного импульса.
+/// Возвращает дефайн PERCEIVED_RADIATION_DANGER_*, см. [code/__DEFINES/radiation.dm]
+/proc/get_perceived_radiation_danger(rads)
+	if(rads >= RAD_DANGER_DOSE_EXTREME)
+		return PERCEIVED_RADIATION_DANGER_EXTREME
+	if(rads >= RAD_DANGER_DOSE_HIGH)
+		return PERCEIVED_RADIATION_DANGER_HIGH
+	if(rads >= RAD_DANGER_DOSE_MEDIUM)
+		return PERCEIVED_RADIATION_DANGER_MEDIUM
+	return PERCEIVED_RADIATION_DANGER_LOW
 
 /// A common proc used to send COMSIG_ATOM_PROPAGATE_RAD_PULSE to adjacent atoms
 /// Only used for uranium (false/tram)walls to spread their radiation pulses
@@ -77,5 +44,72 @@
 	for(var/atom/atom in orange(1, src))
 		SEND_SIGNAL(atom, COMSIG_ATOM_PROPAGATE_RAD_PULSE, src)
 
-#undef MEDIUM_RADIATION_THRESHOLD_RANGE
-#undef EXTREME_RADIATION_CHANCE
+/// Добавляет к поглощённой дозе без учёта защиты от внешнего излучения. Для того, что уже попало внутрь.
+/mob/living/proc/adjust_radiation_dose(amount)
+	return
+
+/mob/living/carbon/human/adjust_radiation_dose(amount)
+	if(HAS_TRAIT(src, TRAIT_RADIMMUNE))
+		return
+
+	var/datum/component/radiation_sickness/sickness = GetComponent(/datum/component/radiation_sickness)
+	if(isnull(sickness))
+		if(amount <= 0)
+			return
+		sickness = AddComponent(/datum/component/radiation_sickness)
+
+	sickness.adjust_dose(amount)
+
+/// Покрывает кожу радиоактивной пылью, которая добавляет дозу, пока её не смоют.
+/mob/living/proc/adjust_surface_contamination(amount)
+	return
+
+/mob/living/carbon/human/adjust_surface_contamination(amount)
+	if(HAS_TRAIT(src, TRAIT_RADIMMUNE))
+		return
+
+	amount *= 1 - get_radiation_protection()
+	if(amount < RAD_MINIMUM_DOSE)
+		return
+
+	var/datum/component/radiation_sickness/sickness = GetComponent(/datum/component/radiation_sickness) || AddComponent(/datum/component/radiation_sickness)
+	sickness.adjust_surface(amount)
+
+/// Возвращает поглощённую дозу
+/mob/living/proc/get_radiation_dose()
+	return 0
+
+/mob/living/carbon/human/get_radiation_dose()
+	var/datum/component/radiation_sickness/sickness = GetComponent(/datum/component/radiation_sickness)
+	return sickness ? sickness.dose : 0
+
+/// Возвращает долю внешнего излучения, которую останавливает одежда, с весами по закрытым частям тела.
+/mob/living/carbon/human/proc/get_radiation_protection()
+	var/static/list/limb_weights = list(
+		BODY_ZONE_HEAD = 0.25,
+		BODY_ZONE_CHEST = 0.25,
+		BODY_ZONE_PRECISE_GROIN = 0.1,
+	)
+
+	var/list/protective_clothing
+	for(var/obj/item/clothing/worn in list(head, wear_mask, wear_suit, w_uniform, gloves, shoes))
+		if(HAS_TRAIT(worn, TRAIT_RADIATION_PROTECTED_CLOTHING))
+			LAZYADD(protective_clothing, worn)
+
+	if(!protective_clothing)
+		return 0
+
+	var/total_weight = 0
+	var/protected_weight = 0
+	for(var/obj/item/organ/external/limb as anything in bodyparts)
+		var/limb_weight = limb_weights[limb.limb_zone] || 0.05
+		total_weight += limb_weight
+
+		var/limb_protection = 0
+		for(var/obj/item/clothing/worn as anything in protective_clothing)
+			if(worn.body_parts_covered & limb.limb_body_flag)
+				limb_protection = max(limb_protection, worn.rad_protection)
+
+		protected_weight += limb_weight * limb_protection
+
+	return total_weight ? protected_weight / total_weight : 0
