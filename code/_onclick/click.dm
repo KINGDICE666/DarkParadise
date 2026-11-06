@@ -123,7 +123,8 @@
 		if(item.item_flags & (IN_INVENTORY|IN_STORAGE))
 			return
 
-	face_atom(A)
+	var/atom/aim_target = SSovermap.mirror_target(A, src)
+	face_atom(aim_target)
 
 	if(next_move > world.time) // in the year 2000...
 		return
@@ -143,7 +144,7 @@
 		return
 
 	if(in_throw_mode)
-		if(throw_item(A))
+		if(throw_item(aim_target))
 			changeNext_move(CLICK_CD_THROW)
 		return
 
@@ -185,6 +186,7 @@
 				changeNext_move(CLICK_CD_MELEE)
 			UnarmedAttack(A, TRUE, modifiers)
 	else // non-adjacent click
+		A = aim_target
 		beforeRangedClick(A, modifiers)
 		if(W)
 			A.base_ranged_item_interaction(src, W, modifiers)
