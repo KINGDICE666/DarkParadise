@@ -139,7 +139,7 @@
 	if(new_turf == source)
 		return
 	Detach(source)
-	new_turf.AddElement(/datum/element/decal, pic.icon, pic.icon_state, directional, cleanable, pic.color, pic.layer, description, pic.alpha)
+	new_turf.AddElement(/datum/element/decal, pic.icon, pic.icon_state, pic.dir, PLANE_TO_TRUE(pic.plane), pic.layer, pic.alpha, pic.color, cleanable, description)
 
 /datum/element/decal/proc/shuttle_rotate(datum/source, list/datum/element/decal/rotating)
 	SIGNAL_HANDLER
