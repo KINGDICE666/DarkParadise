@@ -806,6 +806,7 @@ const SectorLayer = (props: {
   rotation: number;
   offset: [number, number];
   dest?: number[];
+  neighbors?: Record<string, string>;
 }) => {
   const {
     sectorSize,
@@ -816,6 +817,7 @@ const SectorLayer = (props: {
     rotation,
     offset,
     dest,
+    neighbors,
   } = props;
   const step = radius > cellSpan * 7 ? 5 : 1;
   const grid = useMemo(() => {
@@ -882,8 +884,40 @@ const SectorLayer = (props: {
         );
       }
     }
+    if (neighbors) {
+      const middleX = (sectorSize / 2 - self[0]) * cellSpan;
+      const middleY = (sectorSize / 2 - self[1]) * cellSpan;
+      const gap = labelSize * 2;
+      const edges: Record<string, [number, number, string]> = {
+        '1': [middleX, highY + gap, '↑'],
+        '2': [middleX, lowY - gap, '↓'],
+        '4': [highX + gap, middleY, '→'],
+        '8': [lowX - gap, middleY, '←'],
+      };
+      for (const side of Object.keys(neighbors)) {
+        const edge = edges[side];
+        if (!edge) {
+          continue;
+        }
+        built.push(
+          <g
+            key={`n${side}`}
+            transform={`translate(${edge[0]} ${edge[1]}) scale(1 -1)`}
+          >
+            <text
+              className="OvermapRadar__cellLabel OvermapRadar__neighborLabel"
+              fontSize={labelSize * 1.4}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {`${edge[2]} ${neighbors[side]}`}
+            </text>
+          </g>,
+        );
+      }
+    }
     return built;
-  }, [self, sectorSize, cellSpan, radius, step]);
+  }, [self, sectorSize, cellSpan, radius, step, neighbors]);
   if (opacity <= 0.01 || !self || sectorSize <= 0) {
     return null;
   }
@@ -1507,7 +1541,7 @@ export const OvermapRadar = (props: {
   objects?: RadarObject[];
   self?: number[];
   sectorSize?: number;
-
+  sectorNeighbors?: Record<string, string>;
   cellSpan?: number;
   sectorId?: string;
   galaxy?: GalaxyMap | null;
@@ -1547,6 +1581,7 @@ export const OvermapRadar = (props: {
     objects: rawObjects,
     self: rawSelf,
     sectorSize = 0,
+    sectorNeighbors,
     cellSpan = RADAR_TILE_SPAN,
     sectorId,
     galaxy,
@@ -2040,6 +2075,7 @@ export const OvermapRadar = (props: {
                 rotation={rotation}
                 offset={chartOffset}
                 dest={dest}
+                neighbors={sectorNeighbors}
               />
             </>
           )}

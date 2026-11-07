@@ -99,6 +99,7 @@ type OvermapHelmData = {
   sector_name: string;
   sector_id?: string;
   sector_size: number;
+  sector_neighbors?: Record<string, string>;
   cell_span?: number;
   self_pos?: number[];
   view_range?: number;
@@ -764,6 +765,7 @@ const RadarPanel = (props: {
             objects={data.objects}
             self={data.self_pos}
             sectorSize={data.sector_size}
+            sectorNeighbors={data.sector_neighbors}
             cellSpan={data.cell_span}
             sectorId={data.sector_id}
             galaxy={data.galaxy}
