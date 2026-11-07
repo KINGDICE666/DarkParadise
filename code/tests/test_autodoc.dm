@@ -4,11 +4,11 @@
 /obj/machinery/autodoc/unit_test/get_failure_chance(datum/autodoc_procedure/procedure)
 	return forced_failure_chance
 
-/datum/unit_test/autodoc
+/datum/unit_test/room_test/autodoc
 	var/obj/machinery/autodoc/unit_test/machine
 	var/mob/living/carbon/human/patient
 
-/datum/unit_test/autodoc/Run()
+/datum/unit_test/room_test/autodoc/Run()
 	machine = allocate(/obj/machinery/autodoc/unit_test)
 	machine.stat &= ~NOPOWER
 	machine.installed_modules += new /obj/item/disk/autodoc_module/organs(machine)
@@ -29,17 +29,17 @@
 	check_compatibility()
 	check_organ_preservation()
 
-/datum/unit_test/autodoc/proc/load_patient(obj/machinery/autodoc/into = machine)
+/datum/unit_test/room_test/autodoc/proc/load_patient(obj/machinery/autodoc/into = machine)
 	into.accept_patient(patient)
 
-/datum/unit_test/autodoc/proc/run_program()
+/datum/unit_test/room_test/autodoc/proc/run_program()
 	machine.start_program(patient)
 	for(var/tick in 1 to 500)
 		if(!machine.running)
 			return
 		machine.process(2)
 
-/datum/unit_test/autodoc/proc/check_refill()
+/datum/unit_test/room_test/autodoc/proc/check_refill()
 	var/mob/living/carbon/human/operator = allocate(/mob/living/carbon/human)
 	var/obj/item/reagent_containers/cup/beaker/large/beaker = allocate(/obj/item/reagent_containers/cup/beaker/large)
 	beaker.reagents.add_reagent("water", 10)
@@ -51,7 +51,7 @@
 	TEST_ASSERT_EQUAL(machine.reagents.total_volume, 90, "something besides synthflesh got into the tank")
 	TEST_ASSERT_EQUAL(beaker.reagents.get_reagent_amount("water"), 10, "water left the beaker")
 
-/datum/unit_test/autodoc/proc/check_treatment()
+/datum/unit_test/room_test/autodoc/proc/check_treatment()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	var/obj/item/organ/external/arm = patient.get_organ(BODY_ZONE_R_ARM)
 	var/obj/item/organ/internal/heart = patient.get_organ_slot(INTERNAL_ORGAN_HEART)
@@ -81,7 +81,7 @@
 	TEST_ASSERT(patient.reagents.get_reagent_amount("hydrocodone") > 0, "no painkiller was injected")
 	TEST_ASSERT(machine.get_fuel() < fuel_before, "the treatment was free")
 
-/datum/unit_test/autodoc/proc/check_failure()
+/datum/unit_test/room_test/autodoc/proc/check_failure()
 	var/obj/item/organ/internal/liver = patient.get_organ_slot(INTERNAL_ORGAN_LIVER)
 	liver.internal_receive_damage(10, silent = TRUE)
 	machine.reagents.add_reagent("synthflesh", 90)
@@ -96,7 +96,7 @@
 	run_program()
 	TEST_ASSERT_EQUAL(liver.damage, 0, "the organ was not repaired after the failure")
 
-/datum/unit_test/autodoc/proc/check_out_of_fuel()
+/datum/unit_test/room_test/autodoc/proc/check_out_of_fuel()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	leg.fracture(silent = TRUE)
 	machine.reagents.clear_reagents()
@@ -106,7 +106,7 @@
 	TEST_ASSERT_EQUAL(length(machine.queue), 1, "the order was lost when the tank ran dry")
 	machine.clear_queue()
 
-/datum/unit_test/autodoc/proc/check_interruption()
+/datum/unit_test/room_test/autodoc/proc/check_interruption()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	machine.reagents.add_reagent("synthflesh", 90)
 	machine.add_all_orders()
@@ -121,7 +121,7 @@
 	TEST_ASSERT(leg.brute_dam > brute_before, "aborting a paid surgery did not hurt the patient")
 	leg.mend_fracture()
 
-/datum/unit_test/autodoc/proc/check_organs()
+/datum/unit_test/room_test/autodoc/proc/check_organs()
 	load_patient()
 	machine.reagents.add_reagent("synthflesh", 90)
 	var/obj/item/organ/internal/old_liver = patient.get_organ_slot(INTERNAL_ORGAN_LIVER)
@@ -147,7 +147,7 @@
 	run_program()
 	TEST_ASSERT_EQUAL(patient.get_organ_slot(INTERNAL_ORGAN_LIVER), old_liver, "the old organ was not returned")
 
-/datum/unit_test/autodoc/proc/check_modules()
+/datum/unit_test/room_test/autodoc/proc/check_modules()
 	var/obj/item/organ/internal/liver = patient.get_organ_slot(INTERNAL_ORGAN_LIVER)
 	var/obj/item/organ/internal/brain/brain = patient.get_organ_slot(INTERNAL_ORGAN_BRAIN)
 	var/datum/autodoc_procedure/organ_procedure = GLOB.autodoc_procedures["organ_damage"]
@@ -202,7 +202,7 @@
 	machine.clear_queue()
 	machine.go_out()
 
-/datum/unit_test/autodoc/proc/check_failure_chances()
+/datum/unit_test/room_test/autodoc/proc/check_failure_chances()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	var/datum/autodoc_procedure/organ_procedure = GLOB.autodoc_procedures["organ_damage"]
 	var/datum/autodoc_procedure/safe_procedure = GLOB.autodoc_procedures["regeneration"]
@@ -218,7 +218,7 @@
 	real.mode = AUTODOC_MODE_FAST
 	TEST_ASSERT_EQUAL(round(real.get_failure_chance(), 1), 75, "the fast mode should raise the risk")
 
-/datum/unit_test/autodoc/proc/check_emag()
+/datum/unit_test/room_test/autodoc/proc/check_emag()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	real.stat &= ~NOPOWER
 	real.reagents.add_reagent("synthflesh", 100)
@@ -245,7 +245,7 @@
 	real.relaymove(patient)
 	TEST_ASSERT_EQUAL(patient.loc, real.loc, "the patient could not leave once the machine ran dry")
 
-/datum/unit_test/autodoc/proc/check_access()
+/datum/unit_test/room_test/autodoc/proc/check_access()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	var/mob/living/carbon/human/stranger = allocate(/mob/living/carbon/human)
 	TEST_ASSERT_NOT(real.allowed(stranger), "a stranger without an ID got access")
@@ -256,7 +256,7 @@
 	stranger.put_in_active_hand(card)
 	TEST_ASSERT(real.allowed(stranger), "a medical ID did not grant access")
 
-/datum/unit_test/autodoc/proc/check_compatibility()
+/datum/unit_test/room_test/autodoc/proc/check_compatibility()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	var/mob/living/carbon/human/candidate = allocate(/mob/living/carbon/human)
 	TEST_ASSERT(real.can_accept(candidate, candidate), "a human was rejected")
@@ -264,7 +264,7 @@
 		candidate.set_species(species_type)
 		TEST_ASSERT_NOT(real.can_accept(candidate, candidate), "[species_type] was accepted")
 
-/datum/unit_test/autodoc/proc/check_organ_preservation()
+/datum/unit_test/room_test/autodoc/proc/check_organ_preservation()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	var/obj/item/organ/internal/liver/stored = allocate(/obj/item/organ/internal/liver)
 	var/obj/item/organ/internal/liver/loose = allocate(/obj/item/organ/internal/liver)
@@ -276,7 +276,7 @@
 		loose.process()
 	TEST_ASSERT(stored.germ_level < loose.germ_level / 2, "the tray did not slow the organ decay: [stored.germ_level] vs [loose.germ_level]")
 
-/datum/unit_test/autodoc/proc/check_stale_order_data()
+/datum/unit_test/room_test/autodoc/proc/check_stale_order_data()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	load_patient()
 	leg.fracture(silent = TRUE)
@@ -287,7 +287,7 @@
 	TEST_ASSERT_EQUAL(order_data["duration"], 0, "a stale order reported a duration")
 	machine.clear_queue()
 
-/datum/unit_test/autodoc/proc/check_order_keeps_risk()
+/datum/unit_test/room_test/autodoc/proc/check_order_keeps_risk()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	leg.fracture(silent = TRUE)
 	machine.reagents.add_reagent("synthflesh", 90)

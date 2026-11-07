@@ -224,6 +224,14 @@
 /obj/machinery/autodoc/proc/get_install_procedure(obj/item/organ/internal/organ)
 	return GLOB.autodoc_procedures[istype(organ, /obj/item/organ/internal/cyberimp) ? "implant_install" : "organ_install"]
 
+/obj/machinery/autodoc/proc/is_operating()
+	if(running)
+		return TRUE
+	if(!length(queue))
+		return FALSE
+	var/datum/autodoc_order/first_order = queue[1]
+	return first_order.paid
+
 /obj/machinery/autodoc/proc/is_locked()
 	return emagged && running && !(stat & (NOPOWER|BROKEN))
 
@@ -259,6 +267,7 @@
 	var/obj/item/organ/organ = order.get_organ(occupant)
 	if(!organ || !can_perform(order.procedure, organ))
 		remove_order(order)
+		stop_if_queue_empty()
 		return
 	if(emagged && prob(AUTODOC_WORK_SOUND_CHANCE))
 		play_operation_sound('sound/weapons/circsawhit.ogg', 50)
@@ -708,6 +717,7 @@
 		"autoEject" = auto_eject,
 		"emagged" = emagged,
 		"locked" = is_locked(),
+		"operating" = is_operating(),
 		"hasAccess" = emagged || allowed(user),
 		"controlsLocked" = emagged || !allowed(user),
 		"mode" = mode,
@@ -898,7 +908,7 @@
 		playsound(loc, 'sound/machines/buzz-two.ogg', 40, TRUE)
 		balloon_alert(usr, "управление заблокировано!")
 		return
-	if(!emagged && (action != "eject" || running) && !allowed(usr))
+	if(!emagged && (action != "eject" || is_operating()) && !allowed(usr))
 		playsound(loc, 'sound/machines/buzz-two.ogg', 40, TRUE)
 		balloon_alert(usr, "доступ запрещён!")
 		return

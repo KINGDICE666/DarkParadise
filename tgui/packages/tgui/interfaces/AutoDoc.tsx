@@ -85,6 +85,7 @@ type AutoDocData = {
   hasAccess: boolean;
   controlsLocked: boolean;
   locked: boolean;
+  operating: boolean;
   mode: string;
   speedMod: number;
   costMod: number;
@@ -203,6 +204,7 @@ const Header = () => {
     hasAccess,
     controlsLocked,
     locked,
+    operating,
     mode,
   } = data;
 
@@ -282,11 +284,11 @@ const Header = () => {
       <button
         type="button"
         className="AutoDoc__button AutoDoc__button--danger"
-        disabled={!occupant || locked || (running && !hasAccess)}
+        disabled={!occupant || locked || (operating && !hasAccess)}
         title={
           locked
             ? 'Крышка заблокирована'
-            : running && !hasAccess
+            : operating && !hasAccess
               ? 'Во время операции нужен медицинский доступ'
               : 'Прерывание операции травмирует пациента'
         }
