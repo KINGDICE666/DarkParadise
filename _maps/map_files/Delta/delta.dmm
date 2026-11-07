@@ -9124,6 +9124,12 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/hallway/primary/central/south)
+"bQB" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "emergency_home"
+	},
+/turf/space,
+/area/space)
 "bQG" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/cable{
@@ -18609,6 +18615,14 @@
 /obj/item/reagent_containers/spray/waterflower,
 /turf/simulated/floor/plating,
 /area/station/maintenance/tourist)
+"dLS" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "supply_home";
+	nav_order = 2;
+	dir = 4
+	},
+/turf/space,
+/area/space)
 "dLV" = (
 /obj/structure/dispenser/oxygen,
 /obj/machinery/camera{
@@ -31473,6 +31487,13 @@
 	icon_state = "white"
 	},
 /area/station/science/rnd)
+"gbj" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "mining_home";
+	nav_order = 3
+	},
+/turf/space,
+/area/space)
 "gbn" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -36357,6 +36378,13 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/cargo/storage)
+"gWA" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "laborcamp_home";
+	dir = 8
+	},
+/turf/space,
+/area/space)
 "gWH" = (
 /obj/machinery/chem_master,
 /obj/effect/turf_decal/delivery,
@@ -44999,6 +45027,13 @@
 	icon_state = "darkred"
 	},
 /area/station/commons/fitness)
+"iBI" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "supply_home";
+	dir = 4
+	},
+/turf/space,
+/area/space)
 "iBN" = (
 /obj/machinery/vending/coffee,
 /obj/machinery/light{
@@ -59868,6 +59903,14 @@
 	icon_state = "white"
 	},
 /area/station/science/robotics)
+"loz" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "supply_home";
+	nav_order = 3;
+	dir = 4
+	},
+/turf/space,
+/area/space)
 "loA" = (
 /obj/structure/logistics_pipe/segment{
 	dir = 8
@@ -69746,6 +69789,13 @@
 	icon_state = "darkred"
 	},
 /area/station/security/prison/perma)
+"nbR" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "laborcamp_home";
+	nav_order = 3
+	},
+/turf/space,
+/area/space)
 "nbU" = (
 /obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
@@ -105625,6 +105675,13 @@
 	icon_state = "darkredfull"
 	},
 /area/station/security/evidence)
+"tIb" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "mining_home";
+	nav_order = 4
+	},
+/turf/space,
+/area/space)
 "tId" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 10
@@ -108569,6 +108626,13 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/hallway/primary/central/east)
+"uoe" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "laborcamp_home";
+	nav_order = 2
+	},
+/turf/space,
+/area/space)
 "uoh" = (
 /obj/machinery/atmospherics/pipe/simple/visible/cyan{
 	desc = "Труба содержит дыхательную смесь для подачи на станцию";
@@ -116043,6 +116107,13 @@
 "vHw" = (
 /turf/simulated/wall/r_wall,
 /area/station/security/hallway/reception)
+"vHH" = (
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "mining_home";
+	nav_order = 2
+	},
+/turf/space,
+/area/space)
 "vHO" = (
 /obj/effect/decal/cleanable/ash,
 /obj/structure/railing{
@@ -117248,6 +117319,13 @@
 	icon_state = "chapel"
 	},
 /area/station/maintenance/asmaint4)
+"vTQ" = (
+/obj/structure/lattice,
+/obj/effect/landmark/overmap_navigation_beacon{
+	dock_id = "mining_home"
+	},
+/turf/space,
+/area/space)
 "vTU" = (
 /obj/machinery/newscaster/directional/west,
 /obj/item/twohanded/required/kirbyplants,
@@ -172364,7 +172442,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+bQB
 aaq
 aaq
 aaq
@@ -176569,7 +176647,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+gbj
 aaq
 aaq
 aaq
@@ -176839,7 +176917,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+tIb
 coE
 aaq
 aaq
@@ -177083,7 +177161,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+loz
 aaq
 aaq
 aaq
@@ -179909,7 +179987,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+vHH
 aaq
 aaq
 aaq
@@ -180418,7 +180496,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+dLS
 aaq
 aaq
 aaq
@@ -181170,7 +181248,7 @@ aaq
 dZq
 aaq
 aaq
-coE
+vTQ
 coE
 coE
 aaq
@@ -181428,7 +181506,7 @@ dZq
 dZq
 dZq
 coE
-aaq
+iBI
 coE
 coE
 dZq
@@ -192285,7 +192363,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+nbR
 aaq
 aaq
 aaq
@@ -192301,7 +192379,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+uoe
 aaq
 aaq
 aaq
@@ -194871,7 +194949,7 @@ aaq
 aaq
 aaq
 aaq
-aaq
+gWA
 aaq
 aaq
 aaq
