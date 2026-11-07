@@ -1303,6 +1303,22 @@ to destroy them and players will be able to make replacements.
 	board_name = "Sleeper - Survival Pod"
 	build_path = /obj/machinery/sleeper/survival_pod
 
+/obj/item/circuitboard/autodoc
+	board_name = "AutoDOCtor 3000"
+	build_path = /obj/machinery/autodoc
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_MEDICAL
+	origin_tech = "programming=6;biotech=6;engineering=6"
+	req_components = list(
+		/obj/item/stock_parts/matter_bin = 2,
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/micro_laser = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stack/sheet/glass = 2,
+		/obj/item/stack/sheet/plasteel = 2,
+		/obj/item/stack/cable_coil = 2,
+	)
+
 /obj/item/circuitboard/bodyscanner
 	board_name = "Body Scanner"
 	build_path = /obj/machinery/bodyscanner

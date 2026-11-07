@@ -194,6 +194,14 @@
 	build_path = /obj/item/circuitboard/sleeper
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
 
+/datum/design/autodoc
+	id = "autodoc"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_ENGINEERING = 6)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/autodoc
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
+
 /datum/design/botanical_dispenser
 	id = "botanical_dispenser"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 5, RESEARCH_TREE_BIOTECH = 3, RESEARCH_TREE_MATERIALS = 4, RESEARCH_TREE_PLASMA = 4)
