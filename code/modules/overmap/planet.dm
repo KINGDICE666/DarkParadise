@@ -7,6 +7,7 @@
 	plane = FLOOR_PLANE
 	layer = ABOVE_OPEN_TURF_LAYER
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	visible_without_scanner = TRUE
 	overmap_kind = OVERMAP_KIND_PLANET
 	hidden_from_contacts = TRUE
 	scannable = FALSE
@@ -94,7 +95,6 @@
 	name = "Лазис Ардакс"
 	desc = "Одно из крупнейших тел в секторе. Вулканистая поверхность богата ресурсами и сочится плазмой."
 	map_color = "#c45c2a"
-	visible_without_scanner = TRUE
 
 /obj/overmap/planet/lavaland/get_ru_names()
 	return alist(
@@ -107,6 +107,7 @@
 	)
 
 /obj/overmap/entity/planet_station
+	project_terrain = FALSE
 	name = "planetary outpost"
 	movable = FALSE
 	halted = TRUE

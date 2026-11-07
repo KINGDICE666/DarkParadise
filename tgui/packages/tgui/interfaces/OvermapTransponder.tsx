@@ -16,12 +16,12 @@ import {
   OvermapStats,
 } from './overmap/OvermapChrome';
 
-type ColorChoice = {
+export type ColorChoice = {
   name: string;
   color: string;
 };
 
-type IffChannel = {
+export type IffChannel = {
   id: string;
   label: string;
   permanent: BooleanLike;
@@ -40,6 +40,11 @@ export type TransponderState = {
   colors?: ColorChoice[];
   channels?: IffChannel[];
 };
+
+type TransponderAct = (
+  action: string,
+  params?: Record<string, unknown>,
+) => void;
 
 type OvermapTransponderData = TransponderState & {
   linked: BooleanLike;
@@ -78,13 +83,15 @@ const IffSwitch = (props: {
 
 export const TransponderPanel = (props: {
   data: TransponderState;
-  act: (action: string, params?: Record<string, unknown>) => void;
+  act: TransponderAct;
 }) => {
-  const { data, act } = props;
+  const { act, data } = props;
   const {
     broadcast_name,
     broadcast_color,
     identity_locked,
+    transmitting,
+    distress,
     colors = [],
     channels = [],
   } = data;
@@ -95,7 +102,21 @@ export const TransponderPanel = (props: {
 
   return (
     <>
-      <Box mb={0.4} className="OvermapStat__label">
+      <OvermapStats>
+        <OvermapStat
+          hero
+          label="статус"
+          value={transmitting ? 'в эфире' : 'скрыт'}
+          tone={transmitting ? 'good' : 'warn'}
+        />
+        <OvermapStat
+          hero
+          label="бедствие"
+          value={distress ? 'да' : 'нет'}
+          tone={distress ? 'bad' : undefined}
+        />
+      </OvermapStats>
+      <Box mt={1} mb={0.4} className="OvermapStat__label">
         Имя
       </Box>
       {identity_locked ? (
@@ -155,20 +176,14 @@ export const TransponderPanel = (props: {
                 label="Приём"
                 on={channel.receive}
                 onClick={() =>
-                  act('toggle_channel', {
-                    id: channel.id,
-                    side: 'receive',
-                  })
+                  act('toggle_channel', { id: channel.id, side: 'receive' })
                 }
               />
               <IffSwitch
                 label="Эфир"
                 on={channel.transmit}
                 onClick={() =>
-                  act('toggle_channel', {
-                    id: channel.id,
-                    side: 'transmit',
-                  })
+                  act('toggle_channel', { id: channel.id, side: 'transmit' })
                 }
               />
             </div>
@@ -237,23 +252,7 @@ export const OvermapTransponder = () => {
       }
     >
       <div className="OvermapPanel">
-        <OvermapStats>
-          <OvermapStat
-            hero
-            label="статус"
-            value={transmitting ? 'в эфире' : 'скрыт'}
-            tone={transmitting ? 'good' : 'warn'}
-          />
-          <OvermapStat
-            hero
-            label="бедствие"
-            value={distress ? 'да' : 'нет'}
-            tone={distress ? 'bad' : undefined}
-          />
-        </OvermapStats>
-        <Box mt={1}>
-          <TransponderPanel data={data} act={act} />
-        </Box>
+        <TransponderPanel data={data} act={act} />
       </div>
     </OvermapFrame>
   );

@@ -312,6 +312,7 @@
 	var/obj/docking_port/stationary/previous
 	var/obj/docking_port/stationary/transit/assigned_transit
 	var/overmap_force_dock = FALSE
+	var/overmap_hull_rotation = 0
 	var/obj/machinery/door/airlock/external/docking/overmap_collar
 	var/mapped_width
 	var/mapped_height
@@ -338,6 +339,8 @@
 	highlight("#0f0")
 	#endif
 
+	if(SSovermap?.is_loading_admin_shuttle(src))
+		timid = TRUE
 	if(!timid)
 		register()
 	shuttle_areas = list()
@@ -375,7 +378,7 @@
 	if(!SSshuttle)
 		CRASH("Docking port [src] could not initialize. SSshuttle doesnt exist!")
 
-	SSshuttle.mobile += src
+	SSshuttle.mobile |= src
 	if(!id)
 		id = "[length(SSshuttle.mobile)]"
 	if(SSshuttle.assoc_mobile[id] && SSshuttle.assoc_mobile[id] != src)
@@ -407,9 +410,12 @@
 	return !has_collar_guests()
 
 /obj/docking_port/mobile/proc/has_collar_guests()
+	if(length(SSovermap?.shuttle_vessels[src]?.docked_guests))
+		return TRUE
 	for(var/area/place as anything in shuttle_areas)
 		for(var/obj/machinery/door/airlock/external/docking/collar in place)
-			if(collar.owns_overmap_pad && collar.overmap_pad?.get_docked())
+			var/obj/docking_port/mobile/guest = collar.owns_overmap_pad ? collar.overmap_pad?.get_docked() : null
+			if(guest && guest != src)
 				return TRUE
 	return FALSE
 
@@ -462,6 +468,11 @@
 /obj/docking_port/mobile/proc/overmap_dest_tile_blocked(turf/newT, obj/docking_port/stationary/S)
 	if(!newT || newT.x <= 1 || newT.y <= 1 || newT.x >= world.maxx || newT.y >= world.maxy)
 		return TRUE
+	var/obj/docking_port/stationary/overmap/landing/landing = S
+	if(istype(landing) && landing.landing_bounds)
+		var/list/bounds = landing.landing_bounds
+		if(newT.x < bounds[1] || newT.y < bounds[2] || newT.x > bounds[3] || newT.y > bounds[4])
+			return TRUE
 	if(shuttle_areas && shuttle_areas[newT.loc])
 		return FALSE
 	if(istype(S, /obj/docking_port/stationary/overmap/landing) && overmap_lavaland_landing_blocked(newT))
@@ -852,11 +863,6 @@
 	var/max_connect_range = 7
 	var/moved = FALSE	//workaround for nukie shuttle, hope I find a better way to do this...
 	var/overmap_request_console = FALSE
-	var/atom/movable/screen/map_view/camera/overmap_cam_screen
-	var/datum/overmap_map_view/overmap_map_camera
-	var/turf/overmap_last_map_turf
-	var/overmap_map_zoom = 1
-	var/list/atom/movable/screen/overmap_sensor_blip/overmap_contact_blips
 	var/obj/overmap/entity/overmap_bound_vessel
 
 /obj/machinery/computer/shuttle/Initialize(mapload, obj/item/circuitboard/shuttle/C)
@@ -879,16 +885,9 @@
 	GLOB.overmap_request_consoles -= src
 	UnregisterSignal(SSdcs, COMSIG_GLOB_OVERMAP_VESSEL_REGISTERED)
 	if(overmap_bound_vessel)
-		UnregisterSignal(overmap_bound_vessel, list(COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_MOVED, COMSIG_OVERMAP_DISPLAY_CHANGED))
+		UnregisterSignal(overmap_bound_vessel, list(COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
 		overmap_bound_vessel = null
-	QDEL_LIST(overmap_contact_blips)
-	QDEL_NULL(overmap_map_camera)
-	QDEL_NULL(overmap_cam_screen)
 	return ..()
-
-/obj/machinery/computer/shuttle/ui_close(mob/user)
-	. = ..()
-	overmap_cam_screen?.hide_from(user)
 
 /obj/machinery/computer/shuttle/proc/connect()
 	var/obj/docking_port/mobile/mobile_docking_port

@@ -173,6 +173,10 @@
 		creature.ExtinguishMob()
 	linkedcontroller.mobinpool += arrived
 
+/turf/simulated/floor/beach/water/Destroy()
+	UnregisterSignal(src, COMSIG_ATOM_INITIALIZED_ON)
+	return ..()
+
 /turf/simulated/floor/beach/water/Exited(atom/movable/gone, direction)
 	. = ..()
 	if(!linkedcontroller || !ismob(gone))

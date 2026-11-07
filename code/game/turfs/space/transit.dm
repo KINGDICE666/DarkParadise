@@ -56,7 +56,7 @@
 
 /proc/dump_in_space(atom/movable/dumpee)
 	var/turf/origin = get_turf(dumpee)
-	if(istype(origin, /turf/space/transit))
+	if(is_hyperspace_turf(origin))
 		var/obj/spacepod/craft = dumpee
 		if(isspacepod(craft) && craft.overmap_vessel?.overmap_pod)
 			craft.overmap_vessel.overmap_pod.rescue_from_transit()
@@ -67,7 +67,7 @@
 			return
 		var/obj/docking_port/mobile/shuttle = get_shuttle_for_transit_reservation(reservation)
 		var/turf/shuttle_turf = shuttle && get_turf(shuttle)
-		if(shuttle_turf && !istype(shuttle_turf, /turf/space/transit))
+		if(shuttle_turf && !is_hyperspace_turf(shuttle_turf))
 			dump_near_shuttle_in_real_space(dumpee, shuttle)
 			return
 		if(hyperspace_too_close_to_border(origin))
@@ -86,7 +86,7 @@
 	return list(bottom_left.x, bottom_left.y, top_right.x, top_right.y)
 
 /proc/hyperspace_too_close_to_border(turf/spot)
-	if(!istype(spot, /turf/space/transit))
+	if(!is_hyperspace_turf(spot))
 		return FALSE
 	var/datum/turf_reservation/reservation = SSmapping.used_turfs[spot]
 	var/list/bounds = hyperspace_reservation_bounds(reservation)
@@ -107,11 +107,11 @@
 /proc/nearest_real_space_turf(turf/origin)
 	if(!origin)
 		return null
-	if(isspaceturf(origin) && !istype(origin, /turf/space/transit))
+	if(isspaceturf(origin) && !is_hyperspace_turf(origin))
 		return origin
 	for(var/range_out in 1 to 24)
 		for(var/turf/candidate in range(range_out, origin))
-			if(isspaceturf(candidate) && !istype(candidate, /turf/space/transit))
+			if(isspaceturf(candidate) && !is_hyperspace_turf(candidate))
 				return candidate
 	return null
 
@@ -141,7 +141,7 @@
 			clamp(origin.y + rand(-16, 16), TRANSITIONEDGE + 1, world.maxy - TRANSITIONEDGE - 1),
 			origin.z,
 		)
-		if(isspaceturf(candidate) && !istype(candidate, /turf/space/transit))
+		if(isspaceturf(candidate) && !is_hyperspace_turf(candidate))
 			dumpee.forceMove(candidate)
 			dumpee.newtonian_move(dumpee.dir)
 			return
@@ -171,10 +171,10 @@
 		if(!length(levels_available))
 			return
 		target_z = pick(levels_available)
-	var/turf/T = locate(_x, _y, target_z)
-	if(!T)
+	var/turf/target_turf = locate(_x, _y, target_z)
+	if(!target_turf)
 		return
-	dumpee.forceMove(T)
+	dumpee.forceMove(target_turf)
 	dumpee.newtonian_move(dumpee.dir)
 
 /turf/space/transit/rpd_act(mob/user, obj/item/rpd/our_rpd, mode)

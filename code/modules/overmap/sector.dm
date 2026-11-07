@@ -12,6 +12,7 @@
 
 	var/ruin_spawn_weight = 0
 
+	var/list/hazard_clusters
 	var/hazard_spawn_weight = 0
 	var/list/obj/overmap/objects = list()
 	var/area/overmap/map_area
@@ -20,6 +21,7 @@
 	var/tile_travel = 1
 
 	var/list/datum/overmap_sector_message/comms_messages = list()
+	var/list/hazard_shapes
 
 /datum/overmap_sector/New(sector_id, sector_name, sector_size, sector_access)
 	if(sector_id)
@@ -94,6 +96,7 @@
 		if(in_map && istype(new_turf, /turf/simulated/floor/indestructible/overmap))
 			var/turf/simulated/floor/indestructible/overmap/map_turf = new_turf
 			map_turf.add_edge_numbers()
+		CHECK_TICK
 
 /datum/overmap_sector/proc/locate_local(local_x, local_y)
 	return locate(origin_x + local_x - 1, origin_y + local_y - 1, z_level)
@@ -140,21 +143,6 @@
 		if(istype(planet) && planet.covers_turf(open_turf))
 			return TRUE
 	return FALSE
-
-/datum/overmap_sector/proc/chebyshev_to_rect(turf/spot, min_x, min_y, max_x, max_y)
-	if(!spot)
-		return INFINITY
-	var/dx = 0
-	var/dy = 0
-	if(spot.x < min_x)
-		dx = min_x - spot.x
-	else if(spot.x > max_x)
-		dx = spot.x - max_x
-	if(spot.y < min_y)
-		dy = min_y - spot.y
-	else if(spot.y > max_y)
-		dy = spot.y - max_y
-	return max(dx, dy)
 
 /datum/overmap_sector/proc/get_centered_footprint_origin(footprint)
 	var/local_x = 1 + round((size - footprint) / 2)
@@ -238,12 +226,21 @@
 	return best || start
 
 /datum/overmap_sector/proc/add_object(obj/overmap/overmap_object, turf/target)
+	if(istype(overmap_object, /obj/overmap/feature/hazard))
+		hazard_clusters = null
+		hazard_shapes = null
 	overmap_object.sector = src
 	objects |= overmap_object
 	if(target)
 		overmap_object.forceMove(target)
+	if(istype(overmap_object, /obj/overmap/entity))
+		var/obj/overmap/entity/token = overmap_object
+		SSovermap?.ensure_host_space(token)
 
 /datum/overmap_sector/proc/remove_object(obj/overmap/overmap_object)
+	if(istype(overmap_object, /obj/overmap/feature/hazard))
+		hazard_clusters = null
+		hazard_shapes = null
 	objects -= overmap_object
 	if(overmap_object.sector == src)
 		overmap_object.sector = null
@@ -267,7 +264,8 @@
 	name = "Эпсилон Лукусты"
 	ruin_spawn_weight = 0.7
 	hazard_spawn_weight = 0.3
-	tile_travel = 2
+
+	tile_travel = OVERMAP_STATION_CELL_TILES / OVERMAP_TILE_SPAN
 
 /datum/overmap_sector/service
 	id = OVERMAP_SECTOR_ID_SERVICE

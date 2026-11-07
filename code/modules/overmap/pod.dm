@@ -37,7 +37,6 @@
 		vessel.helms -= src
 	vessel = craft.overmap_vessel
 	vessel.helms |= src
-	update_map_view()
 
 /obj/machinery/computer/helm/pod/ui_status(mob/user, datum/ui_state/state)
 	if(!overmap_pod_user_ok(user, loc))
@@ -45,7 +44,8 @@
 	return UI_INTERACTIVE
 
 /obj/machinery/computer/helm/pod/can_pilot(mob/user)
-	return overmap_pod_user_ok(user, loc)
+	var/obj/spacepod/craft = loc
+	return overmap_pod_user_ok(user, craft) && craft.pilot == user
 
 /obj/machinery/computer/helm/pod/ui_interact(mob/user, datum/tgui/ui = null)
 	if(!vessel)
@@ -90,7 +90,6 @@
 	stat &= ~NOPOWER
 	return ..()
 
-
 /obj/machinery/overmap_intercom/pod
 	name = "pod sector intercom"
 	use_power = NO_POWER_USE
@@ -126,9 +125,7 @@
 
 /obj/machinery/ship_engine/pod
 	name = "pod overmap drive"
-	generated_thrust = OVERMAP_POD_THRUST
-	omnidirectional = TRUE
-	use_power = NO_POWER_USE
+	generated_thrust = OVERMAP_POD_THRUST * 4
 	idle_power_usage = 0
 	active_power_usage = 0
 	density = FALSE
@@ -157,17 +154,48 @@
 	if(!on || (stat & BROKEN))
 		return FALSE
 	var/obj/spacepod/craft = loc
-	if(!isspacepod(craft) || !craft.battery)
+	if(!isspacepod(craft) || !craft.battery || craft.health <= 0 || !COOLDOWN_FINISHED(craft, cooldown_emp))
 		return FALSE
-	return craft.battery.charge >= burn_cost()
+	return craft.battery.charge > 0
 
-/obj/machinery/ship_engine/pod/apply_thrust()
+/obj/machinery/ship_engine/pod/resource_fraction(elapsed)
+	var/obj/spacepod/craft = loc
+	if(!isspacepod(craft) || !craft.battery)
+		return 0
+	var/cost = burn_cost() * thrust_limit * elapsed / (1 SECONDS)
+	return clamp(craft.battery.charge / max(cost, 0.001), 0, 1)
+
+/obj/machinery/ship_engine/pod/apply_thrust(elapsed = 1 SECONDS)
 	if(!can_burn())
 		return 0
 	var/obj/spacepod/craft = loc
-	if(!craft.battery.use(burn_cost()))
+	var/fraction = resource_fraction(elapsed)
+	var/cost = min(craft.battery.charge, burn_cost() * thrust_limit * elapsed / (1 SECONDS) * fraction)
+	if(!craft.battery.use(cost))
 		return 0
-	return get_thrust()
+	return generated_thrust * thrust_limit * 4 * fraction
+
+/obj/machinery/ship_engine/pod/get_status()
+	if(!on || (stat & BROKEN))
+		return ..()
+	var/obj/spacepod/craft = loc
+	if(!isspacepod(craft) || !craft.battery)
+		return "Нет аккумулятора"
+	if(craft.health <= 0)
+		return "Под повреждён"
+	if(!COOLDOWN_FINISHED(craft, cooldown_emp))
+		return "Отключён ЭМИ"
+	if(craft.battery.charge <= 0)
+		return "Аккумулятор разряжен"
+	return ..()
+
+/obj/overmap/entity/pod/ship_power_report()
+	. = ..()
+	var/obj/item/stock_parts/cell/battery = pod?.battery
+	.["cell_power"] = TRUE
+	.["cell_charge"] = battery?.charge || 0
+	.["cell_max"] = battery?.maxcharge || 0
+	.["sources"] = !!battery
 
 /proc/overmap_pod_user_ok(mob/user, obj/spacepod/craft)
 	if(!user || !isspacepod(craft))

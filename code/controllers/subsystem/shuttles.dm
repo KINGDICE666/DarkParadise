@@ -150,7 +150,7 @@ SUBSYSTEM_DEF(shuttle)
 			return M
 	WARNING("couldn't find shuttle with id: [id]")
 
-/datum/controller/subsystem/shuttle/proc/getDock(id)
+/datum/controller/subsystem/shuttle/proc/getDock(id, warn = TRUE)
 	. = assoc_stationary[id]
 	if(.)
 		return
@@ -158,7 +158,8 @@ SUBSYSTEM_DEF(shuttle)
 		if(S.id == id)
 			assoc_stationary[id] = S
 			return S
-	WARNING("couldn't find dock with id: [id]")
+	if(warn)
+		WARNING("couldn't find dock with id: [id]")
 
 /datum/controller/subsystem/shuttle/proc/secondsToRefuel()
 	var/elapsed = world.time - SSticker.round_start_time
@@ -284,6 +285,25 @@ SUBSYSTEM_DEF(shuttle)
 			message_admins("All the communications consoles were destroyed and all AIs are inactive. Shuttle called.")
 
 //try to move/request to dockHome if possible, otherwise dockAway. Mainly used for admin buttons
+/obj/docking_port/mobile/proc/overmap_try_programmed_move(dock_id)
+	if(!SSovermap?.initialized)
+		return null
+	var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
+	if(!vessel)
+		vessel = SSovermap.get_or_register_shuttle(src)
+	if(!vessel?.programmed)
+		return null
+	if(vessel.is_programmed_emagged())
+		return 2
+	if(getDockedId() == dock_id)
+		vessel.snap_physical_redock()
+		return 0
+	if(id == "supply" && !canMove())
+		return 2
+	if(vessel.start_programmed_route(dock_id, TRUE, TRUE) == TRUE)
+		return 0
+	return 2
+
 /datum/controller/subsystem/shuttle/proc/toggleShuttle(shuttleId, dockHome, dockAway, timed)
 	var/obj/docking_port/mobile/M = getShuttle(shuttleId)
 	if(!M)
@@ -337,7 +357,7 @@ SUBSYSTEM_DEF(shuttle)
 		if(!(M in transit_requesters))
 			transit_requesters += M
 
-/datum/controller/subsystem/shuttle/proc/generate_transit_dock(obj/docking_port/mobile/M)
+/datum/controller/subsystem/shuttle/proc/generate_transit_dock(obj/docking_port/mobile/M, max_z_level = null)
 	if(!istype(M))
 		return FALSE
 	if(M.assigned_transit && !QDELETED(M.assigned_transit))
@@ -347,13 +367,15 @@ SUBSYSTEM_DEF(shuttle)
 	var/travel_dir = M.preferred_direction
 	// Remember, the direction is the direction we appear to be
 	// coming from
+	// Add 180, because ports point inwards, rather than outwards
 	var/dock_angle = dir2angle(M.preferred_direction) + dir2angle(M.port_direction) + 180
 	var/dock_dir = angle2dir(dock_angle)
-	if(M.overmap_uses_area_hull())
+	var/overmap_reservation = M.overmap_uses_area_hull()
+	if(overmap_reservation)
 		M.overmap_sync_bounds(TRUE)
 		var/list/om_origin = M.overmap_origin()
 		if(om_origin[2])
-			dock_dir = om_origin[2]
+			dock_dir = M.overmap_transit_dir(om_origin[2])
 
 	var/transit_width = SHUTTLE_TRANSIT_BORDER * 2
 	var/transit_height = SHUTTLE_TRANSIT_BORDER * 2
@@ -383,8 +405,9 @@ SUBSYSTEM_DEF(shuttle)
 		transit_width,
 		transit_height,
 		z_size = 1, //if this is changed the turf uncontain code below has to be updated to support multiple zs
-		reservation_type = /datum/turf_reservation/transit,
-		turf_type_override = transit_path,
+		reservation_type = overmap_reservation ? /datum/turf_reservation/transit/overmap : /datum/turf_reservation/transit,
+		turf_type_override = overmap_reservation ? /turf/space : transit_path,
+		max_z_level = max_z_level,
 	)
 
 	if(!istype(proposal))
@@ -430,6 +453,8 @@ SUBSYSTEM_DEF(shuttle)
 	new_area.turfs_by_zlevel[bottomleft.z] = proposal.reserved_turfs
 	var/obj/docking_port/stationary/transit/new_transit_dock = new(midpoint)
 	new_transit_dock.reserved_area = proposal
+	if(overmap_reservation)
+		new_transit_dock.turf_type = /turf/space
 	new_transit_dock.name = M.name
 	new_transit_dock.owner = M
 	new_transit_dock.assigned_area = new_area

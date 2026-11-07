@@ -59,6 +59,30 @@
 	pixel_y = round(position[2] * world.icon_size)
 	sync_inspect_follow()
 
+/obj/overmap/proc/sector_obstacle_box(span)
+	return null
+
+/obj/overmap/planet/sector_obstacle_box(span)
+	return null
+
+/obj/overmap/entity/sector_obstacle_box(span)
+	if(!project_terrain || dock_host?.planet_landing || physical_space)
+		return null
+	if(!istype(src, /obj/overmap/entity/station) \
+		&& !istype(src, /obj/overmap/entity/service_site) \
+		&& !istype(src, /obj/overmap/entity/taipan_site) \
+		&& !istype(src, /obj/overmap/entity/planet_station) \
+		&& !istype(src, /obj/overmap/entity/feature/ruin))
+		return null
+	var/center_x = (x + position[1]) * span
+	var/center_y = (y + position[2]) * span
+	return list(
+		center_x - span * 0.35,
+		center_y - span * 0.35,
+		center_x + span * 0.35,
+		center_y + span * 0.35,
+	)
+
 /obj/overmap/proc/sync_inspect_follow()
 	return
 
@@ -79,22 +103,6 @@
 
 /obj/overmap/proc/shows_overmap_map_signature()
 	return isturf(loc)
-
-/obj/overmap/proc/adjust_speed(n_x, n_y)
-	n_x = OVERMAP_SANITIZE_SPEED(n_x, max_speed)
-	n_y = OVERMAP_SANITIZE_SPEED(n_y, max_speed)
-
-	if(abs(speed[1] + n_x) < min_speed)
-		speed[1] = 0
-	else
-		speed[1] = OVERMAP_SANITIZE_SPEED((speed[1] + n_x) / (1 + speed[1] * n_x / (max_speed ** 2)), max_speed)
-
-	if(abs(speed[2] + n_y) < min_speed)
-		speed[2] = 0
-	else
-		speed[2] = OVERMAP_SANITIZE_SPEED((speed[2] + n_y) / (1 + speed[2] * n_y / (max_speed ** 2)), max_speed)
-
-	refresh_heading_overlay()
 
 /obj/overmap/proc/get_speed()
 	return round(sqrt(speed[1] ** 2 + speed[2] ** 2), OVERMAP_MOVE_RESOLUTION)
@@ -185,6 +193,8 @@
 /obj/overmap/proc/handle_wraparound(new_x, new_y)
 	if(!sector)
 		return
+	var/unwrapped_x = new_x
+	var/unwrapped_y = new_y
 	var/low_x = sector.origin_x + 1
 	var/high_x = sector.origin_x + sector.size - 2
 	var/low_y = sector.origin_y + 1
@@ -200,9 +210,13 @@
 	var/turf/wrapped = locate(new_x, new_y, z)
 	if(wrapped)
 		forceMove(wrapped)
+		on_sector_wrap(new_x - unwrapped_x, new_y - unwrapped_y)
 		setDir(SOUTH)
 		update_overmap_pixel()
 		on_overmap_loc_changed()
+
+/obj/overmap/proc/on_sector_wrap(delta_x, delta_y)
+	return
 
 /obj/overmap/update_overlays()
 	. = ..()
@@ -215,9 +229,6 @@
 	. += arrow
 
 /obj/overmap/Click(location, control, params)
-	var/obj/machinery/computer/helm/helm = overmap_open_helm(usr, control)
-	if(helm?.mark_atom(usr, src))
-		return
 	var/obj/machinery/computer/sensors/sensors = overmap_open_sensor_console(usr)
 	if(!istype(sensors))
 		sensors = usr?.machine
