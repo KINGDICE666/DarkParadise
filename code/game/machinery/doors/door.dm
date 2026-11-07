@@ -16,6 +16,8 @@
 	interaction_flags_atom = INTERACT_ATOM_UI_INTERACT
 	blocks_emissive = EMISSIVE_BLOCK_UNIQUE
 
+	/// Изоляция двери от радиации в закрытом состоянии
+	var/closed_rad_insulation = RAD_NO_INSULATION
 	var/closingLayer = CLOSED_DOOR_LAYER
 	var/visible = 1
 	/// Is it currently in the process of opening, closing or being tampered
@@ -53,6 +55,7 @@
 
 /obj/machinery/door/Initialize(mapload)
 	. = ..()
+	rad_insulation = density ? closed_rad_insulation : RAD_NO_INSULATION
 	set_init_door_layer()
 	update_dir()
 	update_freelook_sight()
@@ -408,6 +411,10 @@
 		if("deny")
 			if(!stat)
 				flick("door_deny", src)
+
+/obj/machinery/door/set_density(new_density)
+	. = ..()
+	rad_insulation = density ? closed_rad_insulation : RAD_NO_INSULATION
 
 /obj/machinery/door/proc/open()
 	if(!density)

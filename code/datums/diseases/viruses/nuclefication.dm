@@ -86,12 +86,8 @@
 
 /datum/disease/virus/nuclefication/proc/radiate(mob/living/carbon/human)
 	if(prob(IRRADIATION_PROB))
-		SSradiation.irradiate(human)
-	radiation_pulse(
-		source = human,
-		max_range = 1,
-		chance = IRRADIATION_PROB,
-	)
+		SSradiation.irradiate(human, 20)
+	radiation_pulse(human, 5)
 
 
 /datum/disease/virus/nuclefication/proc/destiny(mob/living/carbon/H, silenced = FALSE)

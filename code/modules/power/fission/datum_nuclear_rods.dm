@@ -20,9 +20,7 @@
 	metadata["heat_amp_mod"] = initial(rod_path.heat_amp_mod)
 	metadata["power_amount"] = initial(rod_path.power_amount)
 	metadata["power_amp_mod"] = initial(rod_path.power_amp_mod)
-	metadata["radiation_range"] = initial(rod_path.radiation_range)
-	metadata["radiation_treshhold"] = initial(rod_path.radiation_treshhold)
-	metadata["radiation_chance"] = initial(rod_path.radiation_chance)
+	metadata["radiation_rads"] = initial(rod_path.radiation_rads)
 	metadata["minimum_temp_modifier"] = initial(rod_path.minimum_temp_modifier)
 	metadata["upgrade_required"] = initial(rod_path.upgrade_required)
 

@@ -77,10 +77,9 @@
 
 /obj/effect/mine/dnascramble
 	name = "Radiation Mine"
-	var/radiation_amount
 
 /obj/effect/mine/dnascramble/mineEffect(mob/living/victim)
-	SSradiation.irradiate(victim)
+	SSradiation.irradiate(victim, 300)
 	if(HAS_TRAIT(victim, TRAIT_NO_DNA))
 		return
 	randmutb(victim)

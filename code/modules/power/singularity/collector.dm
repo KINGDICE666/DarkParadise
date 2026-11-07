@@ -2,6 +2,8 @@
 #define RAD_COLLECTOR_THRESHOLD 80
 /// Amount of joules created for each rad point over RAD_COLLECTOR_THRESHOLD
 #define RAD_COLLECTOR_COEFFICIENT 1200
+/// Сколько джоулей даёт каждый рад из импульса радиации
+#define RAD_COLLECTOR_PULSE_COEFFICIENT 15000
 /// Toxin moles in a fully filled plasma tank divided by 100; used to display fuel as a percentage.
 #define RAD_COLLECTOR_FUEL_PERCENT_DIVISOR 0.3
 
@@ -44,6 +46,7 @@ GLOBAL_LIST_EMPTY(rad_collectors)
 /obj/machinery/power/energy_accumulator/rad_collector/Initialize(mapload)
 	. = ..()
 	GLOB.rad_collectors += src
+	RegisterSignal(src, COMSIG_RADIATION_DETECTED, PROC_REF(on_radiation_detected))
 
 /obj/machinery/power/energy_accumulator/rad_collector/Destroy()
 	GLOB.rad_collectors -= src
@@ -182,6 +185,11 @@ GLOBAL_LIST_EMPTY(rad_collectors)
 	var/rads_above_threshold = pulse_strength - RAD_COLLECTOR_THRESHOLD
 	stored_energy += energy_to_power(rads_above_threshold * RAD_COLLECTOR_COEFFICIENT * last_drain_efficiency)
 
+/obj/machinery/power/energy_accumulator/rad_collector/proc/on_radiation_detected(datum/source, rads, turf/source_turf)
+	SIGNAL_HANDLER
+
+	stored_energy += energy_to_power(rads * RAD_COLLECTOR_PULSE_COEFFICIENT * last_drain_efficiency)
+
 /obj/machinery/power/energy_accumulator/rad_collector/proc/eject(mob/user)
 	locked = FALSE
 	if(!loaded_tank)
@@ -214,11 +222,14 @@ GLOBAL_LIST_EMPTY(rad_collectors)
 	active = !active
 	if(active)
 		flick("ca_active", src)
+		SSradiation.add_listener(src)
 	else
 		flick("ca_deactive", src)
+		SSradiation.remove_listener(src)
 
 	update_icon()
 
 #undef RAD_COLLECTOR_THRESHOLD
 #undef RAD_COLLECTOR_COEFFICIENT
+#undef RAD_COLLECTOR_PULSE_COEFFICIENT
 #undef RAD_COLLECTOR_FUEL_PERCENT_DIVISOR

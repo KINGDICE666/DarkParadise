@@ -1532,35 +1532,71 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 /datum/species/proc/compressor_grind(location)
 	return
 
+#define RADIATION_BURN_SPLOTCH_DAMAGE 11
+
 /**
  * Species based handling for irradiation
  *
  * Arguments:
  * - [source][/mob/living/carbon/human]: The mob requesting handling
- * - time_since_irradiated: The amount of time since the mob was first irradiated
+ * - stage: The radiation sickness stage the symptoms have reached
  * - seconds_per_tick: The amount of time that has passed since the last tick
  */
-/datum/species/proc/handle_radiation(mob/living/carbon/human/source, time_since_irradiated, seconds_per_tick)
-	if(time_since_irradiated > RAD_MOB_KNOCKDOWN && SPT_PROB(RAD_MOB_KNOCKDOWN_PROB, seconds_per_tick))
+/datum/species/proc/handle_radiation(mob/living/carbon/human/source, stage, seconds_per_tick)
+	if(stage < RADIATION_STAGE_MILD)
+		return
+
+	if(SPT_PROB(2, seconds_per_tick))
+		to_chat(source, span_warning(pick("Вас мутит.", "Во рту стоит привкус металла.", "Кружится голова.")))
+		source.AdjustDizzy(5 SECONDS, bound_upper = 20 SECONDS)
+
+	if(SPT_PROB(stage >= RADIATION_STAGE_SEVERE ? 1 : 0.5, seconds_per_tick))
+		source.vomit(lost_nutrition = 10, mode = stage >= RADIATION_STAGE_SEVERE ? VOMIT_BLOOD : NONE, stun = 2 SECONDS)
+
+	if(stage < RADIATION_STAGE_MODERATE)
+		return
+
+	if(SPT_PROB(3, seconds_per_tick))
+		to_chat(source, span_danger("Вы чувствуете слабость."))
+		source.adjustStaminaLoss(20)
+
+	if(SPT_PROB(5, seconds_per_tick))
+		var/obj/item/organ/external/head/head = source.get_bodypart(BODY_ZONE_HEAD)
+		if(head && head.h_style != "Bald")
+			to_chat(source, span_danger("Волосы начинают выпадать клочьями..."))
+			addtimer(CALLBACK(src, PROC_REF(go_bald), source), 5 SECONDS)
+
+	if(stage < RADIATION_STAGE_SEVERE)
+		return
+
+	var/is_fatal = stage >= RADIATION_STAGE_FATAL
+	if(SPT_PROB(is_fatal ? 6 : 3, seconds_per_tick))
+		var/obj/item/organ/external/affected_limb = source.get_bodypart(source.get_random_valid_zone())
+		source.visible_message(
+			span_boldwarning("[DECLENT_RU_CAP(affected_limb, NOMINATIVE)] [source.declent_ru(GENITIVE)] покрывается волдырями!"),
+			span_boldwarning("[DECLENT_RU_CAP(affected_limb, NOMINATIVE)] пузырится и покрывается волдырями!"),
+		)
+		source.apply_damage(RADIATION_BURN_SPLOTCH_DAMAGE, BURN, affected_limb)
+		playsound(source, SFX_SIZZLE, 50, vary = TRUE)
+
+	if(SPT_PROB(is_fatal ? 10 : 5, seconds_per_tick))
+		source.bleed(is_fatal ? 10 : 5)
+
+	if(SPT_PROB(is_fatal ? 1 : 0.5, seconds_per_tick))
 		if(!source.IsParalyzed())
 			source.emote("collapse")
-		source.Paralyse(RAD_MOB_KNOCKDOWN_AMOUNT)
-		to_chat(source, span_danger("You feel weak."))
+		source.Paralyse(2 SECONDS)
 
-	if(time_since_irradiated > RAD_MOB_VOMIT && SPT_PROB(RAD_MOB_VOMIT_PROB, seconds_per_tick))
-		source.vomit(VOMIT_BLOOD, lost_nutrition = 10)
-
-	if(time_since_irradiated > RAD_MOB_MUTATE && SPT_PROB(RAD_MOB_MUTATE_PROB, seconds_per_tick))
-		to_chat(source, span_danger("You mutate!"))
+	if(SPT_PROB(0.5, seconds_per_tick))
+		to_chat(source, span_danger("Что-то меняется внутри вас!"))
 		randmutb(source)
 		source.emote("gasp")
 		source.check_genes()
 
-	if(time_since_irradiated > RAD_MOB_HAIRLOSS && SPT_PROB(RAD_MOB_HAIRLOSS_PROB, seconds_per_tick))
-		var/obj/item/organ/external/head/head = source.get_bodypart(BODY_ZONE_HEAD)
-		if(!(head.h_style == "Bald")) // && (head?.head_flags & (HEAD_HAIR|HEAD_FACIAL_HAIR)))
-			to_chat(source, span_danger("Your hair starts to fall out in clumps..."))
-			addtimer(CALLBACK(src, PROC_REF(go_bald), source), 5 SECONDS)
+	if(is_fatal && SPT_PROB(5, seconds_per_tick) && length(source.internal_organs))
+		var/obj/item/organ/internal/organ = pick(source.internal_organs)
+		if(!organ.is_robotic())
+			organ.internal_receive_damage(5)
 
 /datum/species/proc/go_bald(mob/living/carbon/human/target)
 	if(QDELETED(target))	//may be called from a timer
@@ -1573,6 +1609,8 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 	head_organ.f_style = "Shaved"
 	head_organ.h_style = "Bald"
 	target.update_hair()
+
+#undef RADIATION_BURN_SPLOTCH_DAMAGE
 	target.update_fhair()
 
 /datum/species/dump_harddel_info()

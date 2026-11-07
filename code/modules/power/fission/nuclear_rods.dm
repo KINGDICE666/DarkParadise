@@ -35,9 +35,8 @@
 	var/power_amp_mod = 1
 	/// Holds the current power mod after durability loss
 	var/current_power_mod
-	var/radiation_range = 0
-	var/radiation_treshhold = 0
-	var/radiation_chance = 0
+	/// Рад за импульс вне камеры и бассейна
+	var/radiation_rads = 0
 	/// How much Gamma Rad is emitted by this rod
 	var/gamma_rad = 0
 	/// What items need to be adjacent to this rod for it to function properly
@@ -99,7 +98,7 @@
 	current_heat_mod = (heat_amp_mod * durability_stat) + (1 - durability_stat)
 
 /obj/item/nuclear_rod/proc/start_rads(power_modifier = 1)
-	rad_component = AddComponent(/datum/component/radioactive_emitter, range = radiation_range * power_modifier, threshold = radiation_treshhold * power_modifier, chance = radiation_chance * power_modifier)
+	rad_component = AddComponent(/datum/component/radioactive_emitter, rads = radiation_rads * power_modifier)
 
 /obj/item/nuclear_rod/proc/stop_rads()
 	if(!rad_component)
@@ -128,8 +127,7 @@
 
 /obj/item/nuclear_rod/fuel
 	name = "any fuel rod"
-	radiation_range = 1
-	radiation_chance = 40
+	radiation_rads = 3
 	abstract_type = /obj/item/nuclear_rod/fuel
 
 	/// the amount of cycles needed to complete enrichment. 30 = ~1 minute
@@ -183,8 +181,7 @@
 	power_amount = 20 KILO WATTS
 	heat_amp_mod = 1.8
 	power_amp_mod = 1.1
-	radiation_range = 4
-	radiation_chance = 80
+	radiation_rads = 15
 	heat_enrich_threshold = 10 // all uranium rods surrounding: 1.8 x 1.8 x 1.8 x 1.8
 	power_enrich_threshold = 6.4 // all graphite rods surrounding: 1.6 x 1.6 x 1.6 x 1.6
 	heat_enrich_result = /obj/item/nuclear_rod/fuel/weak_thorium
@@ -212,8 +209,7 @@
 	heat_amp_mod = 1.6
 	power_amp_mod = 1.1
 	max_durability = 5000
-	radiation_range = 2
-	radiation_chance = 60
+	radiation_rads = 6
 	power_enrich_threshold = 8
 	power_enrich_result = /obj/item/nuclear_rod/fuel/uranium_235
 	adjacent_requirements = list(
@@ -240,8 +236,6 @@
 	heat_amp_mod = 1.6
 	power_amp_mod = 1.1
 	max_durability = 3500
-	radiation_treshhold = RAD_VERY_LIGHT_INSULATION
-	radiation_chance = 50
 	heat_enrich_threshold = 14
 	heat_enrich_result = /obj/item/nuclear_rod/fuel/uranium_235
 	adjacent_requirements = list(
@@ -269,8 +263,7 @@
 	heat_amp_mod = 2.2
 	power_amp_mod = 1.3
 	max_durability = 5000
-	radiation_range = 3
-	radiation_chance = 70
+	radiation_rads = 10
 	heat_enrich_threshold = 25
 	power_enrich_threshold = 18
 	heat_enrich_result = /obj/item/nuclear_rod/fuel/thorium_salts
@@ -304,8 +297,7 @@
 	heat_amp_mod = 2.2
 	power_amp_mod = 1.3
 	max_durability = 15000
-	radiation_range = 4
-	radiation_chance = 80
+	radiation_rads = 15
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/moderator,
 		/obj/item/nuclear_rod/fuel/uranium_235,
@@ -331,8 +323,7 @@
 	heat_amp_mod = 4
 	power_amp_mod = 1.6
 	max_durability = 5000
-	radiation_range = 4
-	radiation_chance = 80
+	radiation_rads = 15
 	power_enrich_threshold = 25
 	power_enrich_result = /obj/item/nuclear_rod/fuel/americium
 	adjacent_requirements = list(
@@ -359,8 +350,6 @@
 	heat_amp_mod = 8
 	power_amp_mod = 0.1
 	max_durability = INFINITY
-	radiation_treshhold = RAD_MEDIUM_INSULATION
-	radiation_chance = 50
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/coolant/steam_hammerjet,
 		/obj/item/nuclear_rod/fuel,
@@ -386,8 +375,6 @@
 	heat_amp_mod = 6
 	power_amp_mod = 3
 	max_durability = 4000
-	radiation_treshhold = RAD_MEDIUM_INSULATION
-	radiation_chance = 50
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/fuel,
 		/obj/item/nuclear_rod/fuel,
@@ -407,8 +394,6 @@
 	name = "bananium fuel rod"
 	desc = "Топливо без постоянных свойств: ресурс, мощность и тепло у каждого экземпляра свои."
 	icon_state = "fuel_clown"
-	radiation_treshhold = RAD_MEDIUM_INSULATION
-	radiation_chance = 50
 	craftable = TRUE
 	upgrade_required = TRUE
 	materials = list(MAT_TITANIUM = 2000, MAT_BANANIUM = 2000)
@@ -439,8 +424,7 @@
 	max_durability = INFINITY
 	minimum_temp_modifier = 4000 // BIG hot
 	reactor_overheat_modifier = -400
-	radiation_range = 5
-	radiation_chance = 80
+	radiation_rads = 20
 	var/disguise_class
 
 /obj/item/nuclear_rod/fuel/meltdown/Initialize(mapload)
