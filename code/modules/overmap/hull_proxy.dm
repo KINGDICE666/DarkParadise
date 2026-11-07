@@ -2,6 +2,7 @@
 #define HULL_PROXY_SHADING_SCALE 1.3
 #define HULL_PROXY_LIGHT_COPY_INTERVAL (1 SECONDS)
 #define HULL_PROXY_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 1)
+#define HULL_PROXY_SHIP_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 3)
 #define HULL_PROXY_SHADE_LAYER (FLOOR_EMISSIVE_START_LAYER - 0.01)
 #define HULL_PROXY_GLOW_MIN_RANGE 3
 #define HULL_PROXY_GLOW_MAX_RANGE 8
@@ -115,7 +116,7 @@
 		tile.base_x = (hull_turf.x - chunk_x) * ICON_SIZE_X
 		tile.base_y = (hull_turf.y - chunk_y) * ICON_SIZE_Y
 		tile.show_turf(hull_turf)
-		tile.setup_shading(viewer_turf)
+		tile.setup_shading(viewer_turf, HULL_PROXY_SHIP_LIGHT_LAYER)
 		carrier.add_member(tile)
 	RegisterSignal(vessel, COMSIG_QDELETING, PROC_REF(on_vessel_deleted))
 	addtimer(CALLBACK(src, PROC_REF(refresh_light_copies)), HULL_PROXY_LIGHT_COPY_INTERVAL, TIMER_LOOP|TIMER_DELETE_ME)
@@ -224,7 +225,7 @@
 		return
 	animate(src, pixel_x = offset_x, pixel_y = offset_y, time = time)
 
-/obj/effect/abstract/hull_proxy_tile/proc/setup_shading(turf/viewer_turf)
+/obj/effect/abstract/hull_proxy_tile/proc/setup_shading(turf/viewer_turf, light_layer = HULL_PROXY_LIGHT_LAYER)
 	var/matrix/shading_scale = matrix()
 	shading_scale.Scale(HULL_PROXY_SHADING_SCALE)
 	corner_mask = null
@@ -244,6 +245,7 @@
 		light_mask = new(src)
 		SET_PLANE_EXPLICIT(light_mask, LIGHTING_PLANE, viewer_turf)
 		light_mask.transform = shading_scale
+	light_mask.layer = light_layer
 	copied_light_state = null
 	copied_light_color = null
 	copy_light()
@@ -288,7 +290,7 @@
 	copied_light_color = light_color
 	var/mutable_appearance/light_copy = new(source_light)
 	light_copy.plane = light_mask.plane
-	light_copy.layer = HULL_PROXY_LIGHT_LAYER
+	light_copy.layer = light_mask.layer
 	light_copy.appearance_flags = RESET_COLOR | RESET_ALPHA
 	light_copy.invisibility = 0
 	light_copy.transform = light_mask.transform
@@ -318,6 +320,7 @@
 #undef HULL_PROXY_SHADING_SCALE
 #undef HULL_PROXY_LIGHT_COPY_INTERVAL
 #undef HULL_PROXY_LIGHT_LAYER
+#undef HULL_PROXY_SHIP_LIGHT_LAYER
 #undef HULL_PROXY_SHADE_LAYER
 #undef HULL_PROXY_GLOW_MIN_RANGE
 #undef HULL_PROXY_GLOW_MAX_RANGE

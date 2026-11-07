@@ -33,6 +33,7 @@
 #define OVERMAP_CLING_SPEED 5
 #define OVERMAP_CLING_SPEED_MAGBOOTS 10
 #define OVERMAP_RADAR_DOCK_RANGE 64
+#define OVERMAP_HULL_LIGHT_LAYER (LIGHTING_PRIMARY_LAYER + 2)
 
 /obj/overmap/entity/proc/map_hull(keep_center = FALSE)
 	unwatch_hull()
@@ -52,6 +53,8 @@
 		if(isspaceturf(hull_turf))
 			continue
 		hull_turfs[hull_turf] = TRUE
+		if(free_flight_view && hull_turf.lighting_object)
+			hull_turf.lighting_object.layer = OVERMAP_HULL_LIGHT_LAYER
 		min_x = min(min_x, hull_turf.x)
 		max_x = max(max_x, hull_turf.x)
 		min_y = min(min_y, hull_turf.y)
@@ -1259,3 +1262,4 @@
 #undef OVERMAP_CLING_SPEED
 #undef OVERMAP_CLING_SPEED_MAGBOOTS
 #undef OVERMAP_RADAR_DOCK_RANGE
+#undef OVERMAP_HULL_LIGHT_LAYER

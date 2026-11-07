@@ -186,7 +186,9 @@
 	qdel(O)
 
 /turf/simulated/floor/shuttle/transparent_floor/copyTurf(turf/T)
+	var/below = T.appearance
 	. = ..()
+	T.underlays = list(below)
 	T.transform = transform
 
 //Оно даже не наследовалось от стандартного пола... Какой ужас...
