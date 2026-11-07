@@ -134,11 +134,12 @@ GAME_VERB_PROC(/mob/living/silicon/ai, core, "К ядру ИИ", VERB_CATEGORY_A
 	cameraFollow = null
 	unset_machine()
 
-	if(src.eyeobj && src.loc)
-		src.eyeobj.loc = src.loc
-	else
+	if(QDELETED(eyeobj))
 		to_chat(src, "ERROR: Eyeobj not found. Creating new eye...")
+		eyeobj = null
 		create_eye()
+	else if(loc)
+		eyeobj.loc = loc
 
 	eyeobj.setLoc(loc)
 

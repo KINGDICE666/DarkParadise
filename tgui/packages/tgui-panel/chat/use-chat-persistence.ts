@@ -2,10 +2,9 @@ import { type StorageDiagnostic, storage } from 'common/storage';
 import DOMPurify from 'dompurify';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
-import { store } from '../events/store';
 import { settingsLoadedAtom } from '../settings/atoms';
-import { chatLoadedAtom, currentPageAtom, versionAtom } from './atom';
-import { MESSAGE_SAVE_INTERVAL, STORAGE_LOAD_TIMEOUT } from './constants';
+import { chatLoadedAtom, versionAtom } from './atom';
+import { MESSAGE_SAVE_INTERVAL } from './constants';
 import { saveChatToStorage } from './helpers';
 import { startChatStateMigration } from './migration';
 import { createMessage } from './model';
@@ -31,10 +30,6 @@ export function useChatPersistence() {
         console.log('Initializing chat');
         await loadChatFromStorage();
 
-        if (!chatRenderer.page) {
-          chatRenderer.changePage(store.get(currentPageAtom));
-        }
-
         setLoaded(true);
         chatRenderer.onStateLoaded();
       }
@@ -55,19 +50,10 @@ export function useChatPersistence() {
   }, [loaded]);
 
   async function loadChatFromStorage(): Promise<void> {
-    const restored = await Promise.race([
-      Promise.all([storage.get('chat-state'), storage.getChatMessages()]),
-      new Promise<null>((resolve) =>
-        setTimeout(() => resolve(null), STORAGE_LOAD_TIMEOUT),
-      ),
+    const [state, messages] = await Promise.all([
+      storage.get('chat-state'),
+      storage.getChatMessages(),
     ]);
-
-    if (!restored) {
-      console.warn('Chat storage did not respond, starting without history');
-      return;
-    }
-
-    const [state, messages] = restored;
 
     surfaceStorageDiagnostics(storage.diagnostics);
 

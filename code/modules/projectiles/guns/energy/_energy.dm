@@ -88,6 +88,8 @@
 
 /obj/item/gun/energy/get_display_ammo_count()
 	var/obj/item/ammo_casing/energy/shot = ammo_type[select]
+	if(!shot.e_cost)
+		return
 	var/current_fires = floor(cell.charge / shot.e_cost)
 	return current_fires
 

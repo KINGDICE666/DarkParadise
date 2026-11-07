@@ -1199,6 +1199,18 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stack/sheet/glass = 1,
 	)
 
+/obj/item/circuitboard/civilian_bounty_pad
+	board_name = "Civilian Bounty Pad"
+	build_path = /obj/machinery/civilian_bounty_pad
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=2;bluespace=2"
+	req_components = list(
+		/obj/item/stack/ore/bluespace_crystal = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/micro_laser = 1,
+	)
+
 /obj/item/circuitboard/quantumpad
 	board_name = "Quantum Pad"
 	build_path = /obj/machinery/quantumpad
@@ -1290,6 +1302,22 @@ to destroy them and players will be able to make replacements.
 /obj/item/circuitboard/sleeper/survival
 	board_name = "Sleeper - Survival Pod"
 	build_path = /obj/machinery/sleeper/survival_pod
+
+/obj/item/circuitboard/autodoc
+	board_name = "AutoDOCtor 3000"
+	build_path = /obj/machinery/autodoc
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_MEDICAL
+	origin_tech = "programming=6;biotech=6;engineering=6"
+	req_components = list(
+		/obj/item/stock_parts/matter_bin = 2,
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/micro_laser = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stack/sheet/glass = 2,
+		/obj/item/stack/sheet/plasteel = 2,
+		/obj/item/stack/cable_coil = 2,
+	)
 
 /obj/item/circuitboard/bodyscanner
 	board_name = "Body Scanner"

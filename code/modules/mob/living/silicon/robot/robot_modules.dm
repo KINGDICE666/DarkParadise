@@ -153,7 +153,10 @@
 	return FALSE
 
 /obj/item/robot_module/proc/handle_death(mob/living/silicon/robot/R, gibbed)
-	return
+	SHOULD_CALL_PARENT(TRUE)
+	var/obj/item/gripper/gripper = locate() in modules
+	if(gripper)
+		gripper.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/standard
 	// if station is fine, assist with constructing station goal room, cleaning, and repairing cables chewed by rats
@@ -219,6 +222,7 @@
 	modules += new /obj/item/stack/rods/cyborg(src)
 	modules += new /obj/item/stack/tile/plasteel(src)
 	modules += new /obj/item/instrument/piano_synth(src) // added for minimal service part
+	modules += new /obj/item/gripper(src)
 
 	emag = new /obj/item/melee/energy/sword/cyborg(src)
 
@@ -438,11 +442,6 @@
 /obj/item/robot_module/engineering/add_default_robot_items()
 	return
 
-/obj/item/robot_module/engineering/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/G = locate(/obj/item/gripper) in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
-
 /obj/item/robot_module/engineering/ert
 	name = "Combat Engineering"
 
@@ -525,6 +524,7 @@
 	modules += new /obj/item/clothing/mask/gas/sechailer/cyborg(src)
 	modules += new /obj/item/extinguisher/mini(src)
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/gun/energy/laser/cyborg(src)
 
 	fix_modules()
@@ -589,6 +589,7 @@
 	modules += new /obj/item/extinguisher/mini(src)
 	modules += new /obj/item/reagent_containers/spray/pestspray(src) //kill all kidans!
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/reagent_containers/spray(src)
 
 	emag.reagents.add_reagent("lube", 250)
@@ -728,14 +729,11 @@
 	R.grant_language(/datum/language/resomi, SPOKEN_LANGUAGE, LANGUAGE_MODULE)
 
 /obj/item/robot_module/butler/handle_death(mob/living/silicon/robot/R, gibbed)
+	. = ..()
 	var/obj/item/storage/bag/tray/T = locate() in modules
 
 	if(istype(T))
 		T.drop_inventory(R)
-
-	var/obj/item/gripper/service/G = locate() in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/miner
 	name = "Miner"
@@ -792,6 +790,7 @@
 	modules += new /obj/item/t_scanner/adv_mining_scanner/cyborg(src)
 	modules += new /obj/item/gun/energy/kinetic_accelerator/cyborg(src)
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/storage/bag/kaboom/cyborg(src)
 
 	fix_modules()
@@ -1102,6 +1101,7 @@
 	modules += new /obj/item/flash/cyborg/alien(src)
 	modules += new /obj/item/reagent_containers/spray/alien/smoke(src)
 	modules += new /obj/item/reagent_containers/spray/alien/stun(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/reagent_containers/spray/alien/acid(src)
 	fix_modules()
 
@@ -1165,11 +1165,6 @@
 	cleaner.reagents.add_reagent(/datum/reagent/space_cleaner, 3)
 	return ..()
 
-/obj/item/robot_module/drone/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/G = locate(/obj/item/gripper) in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
-
 /obj/item/robot_module/cogscarab
 	name = "Cogscarab"
 	module_type = "Cogscarab"
@@ -1203,10 +1198,6 @@
 
 /obj/item/robot_module/cogscarab/respawn_consumable(mob/living/silicon/robot/R)
 	return
-
-/obj/item/robot_module/cogscarab/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/cogscarab/G = locate(/obj/item/gripper/cogscarab) in modules
-	G?.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/clockwork
 	name = "Clockwork"
@@ -1251,10 +1242,6 @@
 
 /obj/item/robot_module/clockwork/respawn_consumable(mob/living/silicon/robot/R)
 	return
-
-/obj/item/robot_module/clockwork/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/cogscarab/G = locate() in modules
-	G?.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/ninja
 	name = "Ninja"

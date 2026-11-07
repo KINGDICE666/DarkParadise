@@ -1,0 +1,25 @@
+.theme-faxconstructor:root {
+  --color-base: hsl(214, 52%, 9%);
+  --color-primary: hsl(212, 58%, 44%);
+  --border-radius-unit: 0.3;
+  --tooltip-background-lightness: 16;
+
+  .TitleBar {
+    background-color: hsl(214, 52%, 11%);
+    border-bottom: 1px solid hsl(212, 40%, 20%);
+  }
+
+  .Layout__content {
+    background-image: none;
+  }
+
+  .Dropdown__menu,
+  .Dropdown__menu-scroll {
+    background-color: hsl(214, 48%, 13%);
+    border: 1px solid hsl(212, 40%, 28%);
+  }
+
+  .Dropdown__menuentry:hover {
+    background-color: hsl(212, 58%, 34%);
+  }
+}

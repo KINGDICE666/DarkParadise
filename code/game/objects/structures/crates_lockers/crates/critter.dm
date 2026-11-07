@@ -44,7 +44,7 @@
 	return !welded
 
 /obj/structure/closet/crate/critter/open(mob/living/user, force = FALSE)
-	if(!can_open())
+	if(!can_open() || (SEND_SIGNAL(src, COMSIG_CLOSET_PRE_OPEN, user, force) & BLOCK_OPEN))
 		return FALSE
 	if(already_opened || isnull(content_mob))
 		already_opened = TRUE

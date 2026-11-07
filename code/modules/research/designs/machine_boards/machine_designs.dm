@@ -66,6 +66,22 @@
 	build_path = /obj/item/circuitboard/power_turbine
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_ENGINEERING)
 
+/datum/design/civilian_bounty_pad
+	id = "civilian_bounty_pad"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_BLUESPACE = 2)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/civilian_bounty_pad
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_TELEPORTATION)
+
+/datum/design/materials_market
+	id = "materials_market"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_MATERIALS = 2)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/materials_market
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
+
 /datum/design/quantumpad
 	id = "quantumpad"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 4, RESEARCH_TREE_BLUESPACE = 4, RESEARCH_TREE_PLASMA = 3, RESEARCH_TREE_ENGINEERING = 4)
@@ -176,6 +192,14 @@
 	build_type = IMPRINTER
 	materials = list(MAT_GLASS = 1000)
 	build_path = /obj/item/circuitboard/sleeper
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
+
+/datum/design/autodoc
+	id = "autodoc"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_ENGINEERING = 6)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/autodoc
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
 
 /datum/design/botanical_dispenser

@@ -38,6 +38,7 @@ export const Content = (props) => {
     one_access,
     regions,
     ui_honked,
+    diagnostic_status,
   } = data;
   const honk = useHonk(ui_honked ? 0.4 : 0);
 
@@ -50,12 +51,23 @@ export const Content = (props) => {
               fill
               title={name}
               buttons={
-                <Button
-                  icon="edit"
-                  tooltip="Переименовать"
-                  tooltipPosition="left"
-                  onClick={() => act('changename')}
-                />
+                <>
+                  <Button
+                    icon="edit"
+                    tooltip="Переименовать"
+                    tooltipPosition="left"
+                    onClick={() => act('changename')}
+                  />
+                  {!diagnostic_status && (
+                    <Button
+                      icon="tachograph-digital"
+                      color="violet"
+                      tooltip="Голодиагностика"
+                      tooltipPosition="left"
+                      onClick={() => act('diagnostic')}
+                    />
+                  )}
+                </>
               }
             >
               <Stack fill vertical>

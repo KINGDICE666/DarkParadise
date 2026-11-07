@@ -962,6 +962,7 @@
 	glasses = /obj/item/clothing/glasses/night
 	id = /obj/item/card/id/syndicate
 	suit_store = /obj/item/tank/internals/emergency_oxygen/double
+	internals_slot = ITEM_SLOT_SUITSTORE
 
 /datum/outfit/admin/chrono/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	. = ..()

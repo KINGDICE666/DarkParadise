@@ -233,6 +233,7 @@
 	var/aggressive = FALSE
 	/// How many credits does this vending machine have? 20% of all sales go to this pool, and are given freely when the machine is restocked, or successfully tilted. Lost on deconstruction.
 	var/credits_contained = 0
+	var/payment_department = STATION_DEPARTMENT_SERVICE
 	/**
 	  * Is this item on station or not
 	  *
@@ -1223,15 +1224,16 @@
 
 	currently_vending = product_record
 	var/paid = FALSE
+	var/datum/money_account/revenue_account = GLOB.department_accounts[payment_department] || GLOB.vendor_account
 
 	if(is_cash(usr.get_active_hand()))
 		var/obj/item/stack/spacecash/cash = usr.get_active_hand()
-		paid = pay_with_cash(cash, usr, currently_vending.price, currently_vending.name)
+		paid = pay_with_cash(cash, usr, currently_vending.price, currently_vending.name, revenue_account)
 	else if(get_card_account(usr))
 		// Because this uses H.get_id_card(), it will attempt to use:
 		// active hand, inactive hand, wear_id, pda, and then w_uniform ID in that order
 		// this is important because it lets people buy stuff with someone else's ID by holding it while using the vendor
-		paid = pay_with_card(usr, currently_vending.price, currently_vending.name)
+		paid = pay_with_card(usr, currently_vending.price, currently_vending.name, revenue_account)
 	else if(usr.can_advanced_admin_interact())
 		to_chat(usr, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] выдаёт товар в результате вмешательства администратора."))
 		paid = TRUE

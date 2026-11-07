@@ -42,15 +42,11 @@ SUBSYSTEM_DEF(shuttle)
 		//supply shuttle stuff
 	var/obj/docking_port/mobile/supply/supply
 	var/ordernum = 1					//order number given to next order
-	var/points = 50						//number of trade-points we have
-	var/points_per_decisecond = 0.0025	//points gained every decisecond
-	var/points_per_slip = 2				//points gained per slip returned
-	var/points_per_crate = 5			//points gained per crate returned
-	var/points_per_intel = 250			//points gained per intel returned
 	var/centcom_message = null			//Remarks from Centcom on how well you checked the last order.
 	var/datum/money_account/cargo_money_account
 	var/list/techLevels = list()
 	var/list/shoppinglist = list()
+	var/list/material_orders = list()
 	var/list/requestlist = list()
 	var/list/supply_packs = list()
 	var/datum/round_event/shuttle_loan/shuttle_loan
@@ -101,7 +97,6 @@ SUBSYSTEM_DEF(shuttle)
 		CHECK_TICK
 
 /datum/controller/subsystem/shuttle/fire(resumed = FALSE)
-	points += points_per_decisecond * wait
 	for(var/thing in mobile)
 		if(!thing)
 			mobile.Remove(thing)
@@ -480,7 +475,7 @@ SUBSYSTEM_DEF(shuttle)
 			continue
 		M.dockRoundstart()
 
-/datum/controller/subsystem/shuttle/proc/generateSupplyOrder(packId, _orderedby, _orderedbyRank, _comment, _crates)
+/datum/controller/subsystem/shuttle/proc/generateSupplyOrder(packId, _orderedby, _orderedbyRank, _comment, _crates, payment_type = CARGO_PAYMENT_SUPPLY, datum/money_account/orderer_account, payer_department)
 	if(!packId)
 		return
 	var/datum/supply_packs/P = locateUID(packId)
@@ -494,8 +489,21 @@ SUBSYSTEM_DEF(shuttle)
 	O.orderedbyRank = _orderedbyRank
 	O.comment = _comment
 	O.crates = _crates
+	O.payment_type = payment_type
+	O.orderer_account = orderer_account
+	O.payer_department = payer_department
+	switch(payment_type)
+		if(CARGO_PAYMENT_PERSONAL)
+			O.paying_account = orderer_account
+		if(CARGO_PAYMENT_DEPARTMENT)
+			O.paying_account = GLOB.department_accounts[payer_department]
+		if(CARGO_PAYMENT_SUPPLY)
+			O.paying_account = cargo_money_account
 
-	requestlist += O
+	if(payment_type == CARGO_PAYMENT_PERSONAL || payment_type == CARGO_PAYMENT_DEPARTMENT_ORDER)
+		shoppinglist += O
+	else
+		requestlist += O
 
 	return O
 
@@ -549,7 +557,7 @@ SUBSYSTEM_DEF(shuttle)
 
 	QDEL_LIST(remove_images)
 
-#define CRYOPOD_POINTS 50
+#define CRYOPOD_CREDITS 1250
 
 /datum/controller/subsystem/shuttle/proc/on_cryopod_despawn(datum/source, obj/machinery/cryopod/pod, mob/living/occupant)
 	SIGNAL_HANDLER
@@ -568,11 +576,11 @@ SUBSYSTEM_DEF(shuttle)
 	if(!is_station_level(pod.z) && !istype(get_area(pod), /area/mine))
 		return
 
-	points += CRYOPOD_POINTS
+	cargo_money_account.credit(CRYOPOD_CREDITS, "Компенсация за уход члена экипажа в крио", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 	centcom_message += "<center>---[station_time_timestamp()]---</center><br>"
-	centcom_message += "[span_good("+50")]: Компенсация за уход члена экипажа в крио при критической угрозе объекту.<hr>"
+	centcom_message += "[span_good("+[CRYOPOD_CREDITS]")]: Компенсация за уход члена экипажа в крио при критической угрозе объекту.<hr>"
 
-#undef CRYOPOD_POINTS
+#undef CRYOPOD_CREDITS
 
 /datum/controller/subsystem/shuttle/proc/block_recall(lockout_timer)
 	if(isnull(lockout_timer))

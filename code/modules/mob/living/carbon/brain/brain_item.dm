@@ -200,6 +200,19 @@
 	trauma.brain = null
 	traumas -= trauma
 
+/// Лоботомия задела что-то важное: мозг получает новую стойкую травму
+/obj/item/organ/internal/brain/proc/gain_lobotomy_side_effect()
+	switch(rand(1, 3))
+		if(1)
+			gain_trauma_type(BRAIN_TRAUMA_MILD, TRAUMA_RESILIENCE_MAGIC)
+		if(2)
+			if(HAS_TRAIT(src, TRAIT_SPECIAL_TRAUMA_BOOST) && prob(50))
+				gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
+			else
+				gain_trauma_type(BRAIN_TRAUMA_SEVERE, TRAUMA_RESILIENCE_MAGIC)
+		if(3)
+			gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
+
 /obj/item/organ/internal/brain/proc/gain_trauma_type(brain_trauma_type = /datum/brain_trauma, resilience, natural_gain = FALSE)
 	var/list/possible_traumas = list()
 	for(var/datum/brain_trauma/trauma as anything in subtypesof(brain_trauma_type))

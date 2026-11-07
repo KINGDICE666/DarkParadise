@@ -222,6 +222,10 @@
 			handle_germs()
 		return TRUE
 
+/// Шанс, что орган внутри этого атома пропустит такт порчи
+/atom/proc/get_organ_preservation_chance()
+	return 0
+
 /obj/item/organ/proc/is_preserved()
 	var/static/list/preserved_holders = list(
 		/obj/machinery/smartfridge/secure/medbay/organ,
@@ -243,6 +247,10 @@
 	if(istype(loc, /mob/living/simple_animal/hostile/headslug) || istype(loc, /obj/item/organ/internal/body_egg/changeling_egg))
 		germ_level = 0 // weird stuff might happen, best to be safe
 		return TRUE
+
+	var/preservation_chance = loc?.get_organ_preservation_chance()
+	if(preservation_chance)
+		return prob(preservation_chance)
 
 	if(isturf(loc))
 		var/is_in_freezer = FALSE

@@ -63,6 +63,9 @@
 		name = initial(name)
 
 /obj/item/mmi/robotic_brain/attack_self(mob/user)
+	if(issilicon(user))
+		to_chat(user, span_warning("Ошибка. Отпечаток пальца не распознан."))
+		return
 	if(isgolem(user))
 		to_chat(user, span_warning("Your golem fingers are too large to press the switch on [src]."))
 		return

@@ -4,6 +4,7 @@
 	VV_DROPDOWN_OPTION(VV_HK_OBSERVE_FOLLOW, "Observe Follow")
 	VV_DROPDOWN_OPTION(VV_HK_GET_MOVABLE, "Get Movable")
 	VV_DROPDOWN_OPTION(VV_HK_EDIT_PARTICLES, "Edit Particles")
+	VV_DROPDOWN_OPTION(VV_HK_MOVEMENT_TRAIL, "Add/Remove Trail")
 	VV_DROPDOWN_OPTION(VV_HK_DEADCHAT_PLAYS, "Start/Stop Deadchat Plays")
 
 /atom/movable/vv_do_topic(list/href_list)
@@ -28,6 +29,11 @@
 		if(!check_rights(R_VAREDIT))
 			return
 		usr.client?.open_particle_editor(src)
+
+	if(href_list[VV_HK_MOVEMENT_TRAIL])
+		if(!check_rights(R_VAREDIT))
+			return
+		usr.client?.configure_movement_trail(src)
 
 	if(href_list[VV_HK_DEADCHAT_PLAYS])
 		if(!check_rights(R_EVENT))

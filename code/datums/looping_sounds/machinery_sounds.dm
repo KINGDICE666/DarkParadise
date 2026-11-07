@@ -156,3 +156,10 @@
 	extra_range = 6
 	pressure_affected = FALSE
 	use_sound_tokens = TRUE
+
+/datum/looping_sound/autodoc_scan
+	mid_sounds = list('sound/machines/autodoc_scan.ogg' = 1)
+	mid_length = 35 SECONDS
+	volume = 35
+	extra_range = SHORT_RANGE_SOUND_EXTRARANGE
+	use_sound_tokens = TRUE

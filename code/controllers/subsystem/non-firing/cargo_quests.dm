@@ -150,8 +150,6 @@ SUBSYSTEM_DEF(cargo_quests)
 				failed_quest_length++
 
 		var/reward = storage.check_quest_completion(delivery, failed_quest_length, extra_items, req_quantity)
-		if(storage.customer in corporations)
-			reward = round(reward/10)
 
 		if(reward > max_reward)
 			max_reward = reward
@@ -162,9 +160,6 @@ SUBSYSTEM_DEF(cargo_quests)
 
 	for(var/datum/cargo_quest/quest in target_storage.current_quests)
 		quest.completed_quest()
-
-	if(target_storage.customer in corporations)
-		max_reward = max_reward * 10
 
 	remove_quest(target_storage.UID(), complete = TRUE, modificators = target_storage.modificators, new_reward = max_reward)
 	if(target_storage.customer.send_reward(max_reward, copmpleted_quests))

@@ -125,6 +125,7 @@
 	var/datum/geoip_data/geoip = null
 
 	var/account_ckey
+	var/seeker_client = FALSE
 	var/launcher_claimed_ckey
 	var/launcher_link_target
 	var/steam_id = null
@@ -167,7 +168,7 @@
 	var/datum/view_data/view_size
 
 	/// our current tab
-	var/stat_tab = STATPANEL_STATUS
+	var/stat_tab
 
 	/// List of all tabs
 	var/list/panel_tabs = list()

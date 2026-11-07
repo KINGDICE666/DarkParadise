@@ -202,11 +202,11 @@ class ChatRenderer {
 
   tryFlushQueue() {
     if (this.isReady() && this.queue.length > 0) {
-      const queue = this.queue;
-      this.queue = [];
-      this.processBatch(queue, {
+      this.processBatch(this.queue, {
         suppressHighlightSound: true,
       });
+      this.processBatch(this.queue);
+      this.queue = [];
     }
   }
 
@@ -700,12 +700,7 @@ class ChatRenderer {
     let cssText = '';
     const styleSheets = document.styleSheets;
     for (let i = 0; i < styleSheets.length; i++) {
-      let cssRules: CSSRuleList;
-      try {
-        cssRules = styleSheets[i].cssRules;
-      } catch {
-        continue;
-      }
+      const cssRules = styleSheets[i].cssRules;
       for (let i = 0; i < cssRules.length; i++) {
         const rule = cssRules[i];
         if (rule && typeof rule.cssText === 'string') {
@@ -727,7 +722,6 @@ class ChatRenderer {
       '<!doctype html>\n' +
       '<html>\n' +
       '<head>\n' +
-      '<meta charset="utf-8">\n' +
       '<title>SS13 Chat Log</title>\n' +
       '<style>\n' +
       cssText +

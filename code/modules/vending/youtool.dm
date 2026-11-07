@@ -1,4 +1,5 @@
 /obj/machinery/vending/tool
+	payment_department = STATION_DEPARTMENT_ENGINEERING
 	name = "YouTool"
 	desc = "Инструменты для инструментов."
 	icon_state = "tool_off"

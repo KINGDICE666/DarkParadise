@@ -1,3 +1,11 @@
+/proc/nuclear_rod_ru_name(rod_type)
+	var/static/list/names_by_type = list()
+	if(!names_by_type[rod_type])
+		var/obj/item/nuclear_rod/rod = new rod_type
+		names_by_type[rod_type] = rod.declent_ru(NOMINATIVE)
+		qdel(rod)
+	return names_by_type[rod_type]
+
 /obj/item/nuclear_rod
 	name = "Nuclear Control Rod"
 	abstract_type = /obj/item/nuclear_rod
@@ -46,25 +54,43 @@
 	var/upgrade_required = FALSE
 	var/radioactive
 
+/obj/item/nuclear_rod/get_ru_names()
+	return alist(
+		NOMINATIVE = "ядерный стержень",
+		GENITIVE = "ядерного стержня",
+		DATIVE = "ядерному стержню",
+		ACCUSATIVE = "ядерный стержень",
+		INSTRUMENTAL = "ядерным стержнем",
+		PREPOSITIONAL = "ядерном стержне",
+	)
+
 /obj/item/nuclear_rod/Initialize(mapload)
 	. = ..()
 	durability = max_durability
+	calc_stat_decrease()
 
 /obj/item/nuclear_rod/examine(mob/user)
 	. = ..()
-	if(length(adjacent_requirements))
-		var/list/templist = list()
-		for(var/obj/item/nuclear_rod/requirement as anything in adjacent_requirements)
-			templist += initial(requirement.name)
-		var/requirement_list = english_list(templist, and_text = ", ")
-		. += "This rod has the following neighbor requirements: [requirement_list]"
-	else
-		. += "This rod has no neighbor requirements."
+	if(!length(adjacent_requirements))
+		. += span_notice("Требований к соседям нет.")
+		return
+	var/list/requirement_names = list()
+	for(var/requirement in adjacent_requirements)
+		requirement_names += nuclear_rod_ru_name(requirement)
+	. += span_notice("Требуемые соседи: [english_list(requirement_names, and_text = ", ")].")
+
+/obj/item/nuclear_rod/proc/get_rod_class()
+	return ROD_CLASS_FUEL
 
 /obj/item/nuclear_rod/proc/get_durability_mod()
-	var/temp_mod
-	temp_mod = clamp(1.5 * (durability / max_durability) - 0.25, 0.25, 1)
-	return temp_mod
+	if(max_durability == INFINITY)
+		return 1
+	return clamp(1.5 * (durability / max_durability) - 0.25, 0.25, 1)
+
+/obj/item/nuclear_rod/proc/get_durability_level()
+	if(max_durability == INFINITY)
+		return 5
+	return clamp(ROUND_UP(((durability / max_durability) * 5) - 0.8), 0, 5)
 
 /obj/item/nuclear_rod/proc/calc_stat_decrease()
 	// Formula: y = (x * A) + (1 - A)
@@ -121,6 +147,16 @@
 	/// What heat enrichment results in
 	var/heat_enrich_result
 
+/obj/item/nuclear_rod/fuel/get_ru_names()
+	return alist(
+		NOMINATIVE = "топливный стержень",
+		GENITIVE = "топливного стержня",
+		DATIVE = "топливному стержню",
+		ACCUSATIVE = "топливный стержень",
+		INSTRUMENTAL = "топливным стержнем",
+		PREPOSITIONAL = "топливном стержне",
+	)
+
 /obj/item/nuclear_rod/fuel/Initialize(mapload)
 	. = ..()
 	if(!is_crate(loc))
@@ -142,7 +178,7 @@
 
 /obj/item/nuclear_rod/fuel/uranium_238
 	name = "uranium 238 fuel rod"
-	desc = "A standard fuel rod for most NGCR reactors. Has just barely enough Uranium 235 to be useful."
+	desc = "Стандартное топливо NGCR. Урана-235 в нём ровно столько, чтобы реакция вообще шла."
 	heat_amount = 5
 	power_amount = 20 KILO WATTS
 	heat_amp_mod = 1.8
@@ -157,9 +193,19 @@
 	craftable = TRUE
 	materials = list(MAT_METAL = 2000, MAT_URANIUM = 1000)
 
+/obj/item/nuclear_rod/fuel/uranium_238/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень урана-238",
+		GENITIVE = "стержня урана-238",
+		DATIVE = "стержню урана-238",
+		ACCUSATIVE = "стержень урана-238",
+		INSTRUMENTAL = "стержнем урана-238",
+		PREPOSITIONAL = "стержне урана-238",
+	)
+
 /obj/item/nuclear_rod/fuel/weak_thorium
 	name = "weak thorium fuel rod"
-	desc = "A specialized fuel rod refined from uranium 238. This rod will last longer than normal, and won't generate as much heat."
+	desc = "Переработанный уран-238. Служит дольше обычного топлива и греется слабее."
 	icon_state = "fuel_weakthor"
 	heat_amount = 5
 	power_amount = 20 KILO WATTS
@@ -175,9 +221,19 @@
 		/obj/item/nuclear_rod/coolant,
 	)
 
+/obj/item/nuclear_rod/fuel/weak_thorium/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень обеднённого тория",
+		GENITIVE = "стержня обеднённого тория",
+		DATIVE = "стержню обеднённого тория",
+		ACCUSATIVE = "стержень обеднённого тория",
+		INSTRUMENTAL = "стержнем обеднённого тория",
+		PREPOSITIONAL = "стержне обеднённого тория",
+	)
+
 /obj/item/nuclear_rod/fuel/weak_plutonium
 	name = "weak plutonium fuel rod"
-	desc = "A specialized fuel rod refined from uranium 238. This rod produces twice as much power as standard uranium 238 fuel, but has higher operating requirements."
+	desc = "Переработанный уран-238. Даёт вдвое больше энергии, чем исходник, но требует больше соседей."
 	icon_state = "fuel_weakplut"
 	heat_amount = 10
 	power_amount = 40 KILO WATTS
@@ -194,9 +250,19 @@
 		/obj/item/nuclear_rod/coolant,
 	)
 
+/obj/item/nuclear_rod/fuel/weak_plutonium/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень обеднённого плутония",
+		GENITIVE = "стержня обеднённого плутония",
+		DATIVE = "стержню обеднённого плутония",
+		ACCUSATIVE = "стержень обеднённого плутония",
+		INSTRUMENTAL = "стержнем обеднённого плутония",
+		PREPOSITIONAL = "стержне обеднённого плутония",
+	)
+
 /obj/item/nuclear_rod/fuel/uranium_235
 	name = "uranium 235 fuel rod"
-	desc = "An advanced fuel rod for most NGCR reactors, formed from high-density uranium 235 isotopes."
+	desc = "Высокоплотное урановое топливо. Основа мощных конфигураций NGCR."
 	icon_state = "fuel_235"
 	heat_amount = 20
 	power_amount = 50 KILO WATTS
@@ -219,9 +285,19 @@
 	)
 	materials = list(MAT_METAL = 4000, MAT_URANIUM = 4000)
 
+/obj/item/nuclear_rod/fuel/uranium_235/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень урана-235",
+		GENITIVE = "стержня урана-235",
+		DATIVE = "стержню урана-235",
+		ACCUSATIVE = "стержень урана-235",
+		INSTRUMENTAL = "стержнем урана-235",
+		PREPOSITIONAL = "стержне урана-235",
+	)
+
 /obj/item/nuclear_rod/fuel/thorium_salts
 	name = "thorium salts fuel rod"
-	desc = "A specialized fuel rod refined from uranium 235. While this rod doesn't have any notable power boosts, its amazingly large integrity makes it virtually impossible to deplete in a single shift, if one can manage its heat."
+	desc = "Продукт обогащения урана-235. Мощность скромная, зато ресурса хватит на всю смену, если удастся удержать тепло."
 	icon_state = "fuel_richthor"
 	heat_amount = 40
 	power_amount = 35 KILO WATTS
@@ -236,9 +312,19 @@
 		/obj/item/nuclear_rod/fuel,
 	)
 
+/obj/item/nuclear_rod/fuel/thorium_salts/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень ториевых солей",
+		GENITIVE = "стержня ториевых солей",
+		DATIVE = "стержню ториевых солей",
+		ACCUSATIVE = "стержень ториевых солей",
+		INSTRUMENTAL = "стержнем ториевых солей",
+		PREPOSITIONAL = "стержне ториевых солей",
+	)
+
 /obj/item/nuclear_rod/fuel/enriched_plutonium
 	name = "enriched plutonium fuel rod"
-	desc = "A specialized fuel rod refined from uranium 235. This rod is extremely powerful, boasting high power outputs and moderate durability. However, its heat presents an exceptional danger."
+	desc = "Продукт обогащения урана-235. Высокая мощность при умеренном ресурсе, но тепловыделение по-настоящему опасно."
 	icon_state = "fuel_richplut"
 	heat_amount = 60
 	power_amount = 75 KILO WATTS
@@ -254,9 +340,19 @@
 		/obj/item/nuclear_rod/fuel/thorium_salts,
 	)
 
+/obj/item/nuclear_rod/fuel/enriched_plutonium/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень обогащённого плутония",
+		GENITIVE = "стержня обогащённого плутония",
+		DATIVE = "стержню обогащённого плутония",
+		ACCUSATIVE = "стержень обогащённого плутония",
+		INSTRUMENTAL = "стержнем обогащённого плутония",
+		PREPOSITIONAL = "стержне обогащённого плутония",
+	)
+
 /obj/item/nuclear_rod/fuel/supermatter
 	name = "supermatter fuel rod"
-	desc = "A dangerous fuel rod made entirely of supermatter, contained safely in a specialized housing case. Due to its unusual properties, it completely neutralizes any potential power from nearby rods."
+	desc = "Суперматерия в защитном корпусе. Греет за десятерых и почти полностью гасит мощность соседних стержней."
 	icon_state = "fuel_sm"
 	heat_amount = 1200
 	power_amount = 800 KILO WATTS
@@ -271,9 +367,19 @@
 		/obj/item/nuclear_rod/moderator,
 	)
 
+/obj/item/nuclear_rod/fuel/supermatter/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень суперматерии",
+		GENITIVE = "стержня суперматерии",
+		DATIVE = "стержню суперматерии",
+		ACCUSATIVE = "стержень суперматерии",
+		INSTRUMENTAL = "стержнем суперматерии",
+		PREPOSITIONAL = "стержне суперматерии",
+	)
+
 /obj/item/nuclear_rod/fuel/americium
 	name = "americium fuel rod"
-	desc = "A specialized fuel rod refined from enriched plutonium. A pinnacle of power generation, this rod's power generation is nearly unmatched if one can tame its vicious heat output."
+	desc = "Продукт обогащения плутония. Почти непревзойдённая мощность, если справиться с чудовищным теплом."
 	icon_state = "fuel_americium"
 	heat_amount = 100
 	power_amount = 200 KILO WATTS
@@ -287,15 +393,35 @@
 		/obj/item/nuclear_rod/fuel,
 	)
 
+/obj/item/nuclear_rod/fuel/americium/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень америция",
+		GENITIVE = "стержня америция",
+		DATIVE = "стержню америция",
+		ACCUSATIVE = "стержень америция",
+		INSTRUMENTAL = "стержнем америция",
+		PREPOSITIONAL = "стержне америция",
+	)
+
 /obj/item/nuclear_rod/fuel/bananium
 	name = "bananium fuel rod"
-	desc = "The funniest of all fuel rods with no solidified properties. Who knows what you might get out of it!"
+	desc = "Топливо без постоянных свойств: ресурс, мощность и тепло у каждого экземпляра свои."
 	icon_state = "fuel_clown"
 	radiation_treshhold = RAD_MEDIUM_INSULATION
 	radiation_chance = 50
 	craftable = TRUE
 	upgrade_required = TRUE
 	materials = list(MAT_TITANIUM = 2000, MAT_BANANIUM = 2000)
+
+/obj/item/nuclear_rod/fuel/bananium/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень бананиума",
+		GENITIVE = "стержня бананиума",
+		DATIVE = "стержню бананиума",
+		ACCUSATIVE = "стержень бананиума",
+		INSTRUMENTAL = "стержнем бананиума",
+		PREPOSITIONAL = "стержне бананиума",
+	)
 
 /obj/item/nuclear_rod/fuel/bananium/Initialize(mapload)
 	max_durability = rand(1000, 10000)
@@ -307,7 +433,7 @@
 
 /obj/item/nuclear_rod/fuel/meltdown
 	name = "meltdown rod"
-	desc = "A Syndicate-crafted rod capable of generating massive amounts of heat, leading to an eventual meltdown."
+	desc = "Изделие Синдиката. Выделяет столько тепла и так снижает порог перегрева, что расплав становится вопросом времени."
 	icon_state = "fuel_syndie"
 	heat_amount = 2000
 	max_durability = INFINITY
@@ -315,6 +441,32 @@
 	reactor_overheat_modifier = -400
 	radiation_range = 5
 	radiation_chance = 80
+	var/disguise_class
+
+/obj/item/nuclear_rod/fuel/meltdown/Initialize(mapload)
+	. = ..()
+	var/disguise_type = pick(valid_subtypesof(/obj/item/nuclear_rod) - type)
+	var/obj/item/nuclear_rod/disguise = new disguise_type
+	name = disguise.name
+	desc = disguise.desc
+	icon_state = disguise.icon_state
+	ru_names = disguise.get_ru_names_cached().Copy()
+	adjacent_requirements = disguise.adjacent_requirements.Copy()
+	disguise_class = disguise.get_rod_class()
+	qdel(disguise)
+
+/obj/item/nuclear_rod/fuel/meltdown/get_rod_class()
+	return disguise_class
+
+/obj/item/nuclear_rod/fuel/meltdown/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень расплава",
+		GENITIVE = "стержня расплава",
+		DATIVE = "стержню расплава",
+		ACCUSATIVE = "стержень расплава",
+		INSTRUMENTAL = "стержнем расплава",
+		PREPOSITIONAL = "стержне расплава",
+	)
 
 // MARK: Moderator Rods
 
@@ -323,17 +475,40 @@
 	abstract_type = /obj/item/nuclear_rod/moderator
 	icon_state = "mod_water"
 
+/obj/item/nuclear_rod/moderator/get_rod_class()
+	return ROD_CLASS_MODERATOR
+
+/obj/item/nuclear_rod/moderator/get_ru_names()
+	return alist(
+		NOMINATIVE = "замедлитель",
+		GENITIVE = "замедлителя",
+		DATIVE = "замедлителю",
+		ACCUSATIVE = "замедлитель",
+		INSTRUMENTAL = "замедлителем",
+		PREPOSITIONAL = "замедлителе",
+	)
+
 /obj/item/nuclear_rod/moderator/heavy_water
 	name = "heavy water moderator"
-	desc = "A basic moderation rod filled with a variant of water comprised of deuterium instead of hydrogen atoms."
+	desc = "Простейший замедлитель на дейтериевой воде. Умеренно усиливает мощность соседнего топлива."
 	heat_amp_mod = 1.1
 	power_amp_mod = 1.4
 	craftable = TRUE
 	materials = list(MAT_METAL = 2000, MAT_GLASS = 1000)
 
+/obj/item/nuclear_rod/moderator/heavy_water/get_ru_names()
+	return alist(
+		NOMINATIVE = "замедлитель на тяжёлой воде",
+		GENITIVE = "замедлителя на тяжёлой воде",
+		DATIVE = "замедлителю на тяжёлой воде",
+		ACCUSATIVE = "замедлитель на тяжёлой воде",
+		INSTRUMENTAL = "замедлителем на тяжёлой воде",
+		PREPOSITIONAL = "замедлителе на тяжёлой воде",
+	)
+
 /obj/item/nuclear_rod/moderator/graphite
 	name = "graphite moderator"
-	desc = "A nuclear moderation rod comprised primarily of layered graphite. A staple of fission reactor operation through the ages."
+	desc = "Слоистый графит, классика реакторостроения. Сильнее тяжёлой воды, но без охладителя рядом не работает."
 	icon_state = "mod_graphite"
 	heat_amp_mod = 1.3
 	power_amp_mod = 1.6
@@ -341,9 +516,19 @@
 	materials = list(MAT_METAL = 4000, MAT_PLASMA = 2000)
 	adjacent_requirements = list(/obj/item/nuclear_rod/coolant)
 
+/obj/item/nuclear_rod/moderator/graphite/get_ru_names()
+	return alist(
+		NOMINATIVE = "графитовый замедлитель",
+		GENITIVE = "графитового замедлителя",
+		DATIVE = "графитовому замедлителю",
+		ACCUSATIVE = "графитовый замедлитель",
+		INSTRUMENTAL = "графитовым замедлителем",
+		PREPOSITIONAL = "графитовом замедлителе",
+	)
+
 /obj/item/nuclear_rod/moderator/titanium
 	name = "titanium moderator"
-	desc = "A nuclear moderation rod comprised primarily of cast titanium. For what it lacks in power amplification, it makes up for in versatility and durability."
+	desc = "Литой титан. Неплохо усиливает мощность, при этом охлаждает соседей и служит очень долго."
 	icon_state = "mod_titanium"
 	max_durability = 5500
 	heat_amp_mod = 0.7
@@ -351,9 +536,19 @@
 	craftable = TRUE
 	materials = list(MAT_METAL = 2000, MAT_TITANIUM = 2000)
 
+/obj/item/nuclear_rod/moderator/titanium/get_ru_names()
+	return alist(
+		NOMINATIVE = "титановый замедлитель",
+		GENITIVE = "титанового замедлителя",
+		DATIVE = "титановому замедлителю",
+		ACCUSATIVE = "титановый замедлитель",
+		INSTRUMENTAL = "титановым замедлителем",
+		PREPOSITIONAL = "титановом замедлителе",
+	)
+
 /obj/item/nuclear_rod/moderator/plasma_agitator
 	name = "plasma agitator"
-	desc = "A specialized moderator rod capable of inducing higher fission rates in fuel rods through a series of micro-burns. It doesn't last long."
+	desc = "Разгоняет деление в соседнем топливе серией плазменных микровспышек. Изнашивается быстро."
 	icon_state = "mod_plasma"
 	max_durability = 2250
 	heat_amount = 20
@@ -365,9 +560,19 @@
 		/obj/item/nuclear_rod/moderator,
 	)
 
+/obj/item/nuclear_rod/moderator/plasma_agitator/get_ru_names()
+	return alist(
+		NOMINATIVE = "плазменный активатор",
+		GENITIVE = "плазменного активатора",
+		DATIVE = "плазменному активатору",
+		ACCUSATIVE = "плазменный активатор",
+		INSTRUMENTAL = "плазменным активатором",
+		PREPOSITIONAL = "плазменном активаторе",
+	)
+
 /obj/item/nuclear_rod/moderator/aluminum_reflector
 	name = "liquid aluminum plate reflector"
-	desc = "A specialized moderator rod for amplifying the power output of nearby fuel rods. However, the temperature of the liquid aluminum will force the reactor to run hot."
+	desc = "Жидкий алюминий сильно усиливает соседнее топливо, но держит реактор горячим и сам потребляет энергию."
 	icon_state = "mod_aluminium"
 	max_durability = 6000
 	power_amount = -15 KILO WATTS
@@ -380,9 +585,19 @@
 		/obj/item/nuclear_rod/moderator,
 	)
 
+/obj/item/nuclear_rod/moderator/aluminum_reflector/get_ru_names()
+	return alist(
+		NOMINATIVE = "алюминиевый отражатель",
+		GENITIVE = "алюминиевого отражателя",
+		DATIVE = "алюминиевому отражателю",
+		ACCUSATIVE = "алюминиевый отражатель",
+		INSTRUMENTAL = "алюминиевым отражателем",
+		PREPOSITIONAL = "алюминиевом отражателе",
+	)
+
 /obj/item/nuclear_rod/moderator/bluespace_agitator
 	name = "bluespace crystal agitator"
-	desc = "An advanced moderator rod that will pull extra neutrons out of bluespace to bombard local fuel rods. The result is a massive increase of power and heat generation. It is exceptionally versatile; however, its power requirements limit its uses."
+	desc = "Вытягивает нейтроны из блюспейса и обстреливает ими соседнее топливо. Огромный прирост мощности и тепла ценой собственного энергопотребления."
 	icon_state = "mod_bluespace"
 	max_durability = 4000
 	power_amount = -30 KILO WATTS
@@ -392,9 +607,19 @@
 	craftable = TRUE
 	materials = list(MAT_METAL = 2000, MAT_TITANIUM = 1000, MAT_BLUESPACE = 1000)
 
+/obj/item/nuclear_rod/moderator/bluespace_agitator/get_ru_names()
+	return alist(
+		NOMINATIVE = "блюспейс-активатор",
+		GENITIVE = "блюспейс-активатора",
+		DATIVE = "блюспейс-активатору",
+		ACCUSATIVE = "блюспейс-активатор",
+		INSTRUMENTAL = "блюспейс-активатором",
+		PREPOSITIONAL = "блюспейс-активаторе",
+	)
+
 /obj/item/nuclear_rod/moderator/diamond_plate
 	name = "diamond reflector plates"
-	desc = "An advanced moderator rod that can reflect nearly all neutrons back to their point of origin. Simple, stable, reliable."
+	desc = "Алмазные пластины отражают почти все нейтроны обратно в топливо. Стабильный и надёжный усилитель."
 	icon_state = "mod_diamond"
 	max_durability = 6000
 	heat_amp_mod = 6.5
@@ -409,15 +634,35 @@
 		/obj/item/nuclear_rod/fuel,
 	)
 
+/obj/item/nuclear_rod/moderator/diamond_plate/get_ru_names()
+	return alist(
+		NOMINATIVE = "алмазный отражатель",
+		GENITIVE = "алмазного отражателя",
+		DATIVE = "алмазному отражателю",
+		ACCUSATIVE = "алмазный отражатель",
+		INSTRUMENTAL = "алмазным отражателем",
+		PREPOSITIONAL = "алмазном отражателе",
+	)
+
 /obj/item/nuclear_rod/moderator/platinum_plating
 	name = "platinum reflector plating"
-	desc = "An advanced moderator similar to diamond plates, but improved with precious space metals."
+	desc = "Платиновое покрытие поверх алмазных пластин. Сильнее алмазного отражателя и повышает порог перегрева."
 	icon_state = "mod_platinum"
 	max_durability = 8000
 	heat_amp_mod = 8
 	power_amp_mod = 3.9
 	reactor_overheat_modifier = 300
 	adjacent_requirements = list(/obj/item/nuclear_rod/fuel/americium)
+
+/obj/item/nuclear_rod/moderator/platinum_plating/get_ru_names()
+	return alist(
+		NOMINATIVE = "платиновый отражатель",
+		GENITIVE = "платинового отражателя",
+		DATIVE = "платиновому отражателю",
+		ACCUSATIVE = "платиновый отражатель",
+		INSTRUMENTAL = "платиновым отражателем",
+		PREPOSITIONAL = "платиновом отражателе",
+	)
 
 /// MARK: Coolant Rods
 
@@ -426,9 +671,22 @@
 	abstract_type = /obj/item/nuclear_rod/coolant
 	icon_state = "coolant_water"
 
+/obj/item/nuclear_rod/coolant/get_rod_class()
+	return ROD_CLASS_COOLANT
+
+/obj/item/nuclear_rod/coolant/get_ru_names()
+	return alist(
+		NOMINATIVE = "охладитель",
+		GENITIVE = "охладителя",
+		DATIVE = "охладителю",
+		ACCUSATIVE = "охладитель",
+		INSTRUMENTAL = "охладителем",
+		PREPOSITIONAL = "охладителе",
+	)
+
 /obj/item/nuclear_rod/coolant/light_water
 	name = "light water circulator"
-	desc = "A basic coolant rod that circulates distilled water through critical reactor components."
+	desc = "Базовый охладитель: прокачивает дистиллированную воду через активную зону и немного поднимает порог перегрева."
 	heat_amount = -10
 	power_amount = -10 KILO WATTS
 	reactor_overheat_modifier = 25
@@ -436,9 +694,19 @@
 	adjacent_requirements = list(/obj/item/nuclear_rod/moderator)
 	materials = list(MAT_METAL = 2000, MAT_GLASS = 1000)
 
+/obj/item/nuclear_rod/coolant/light_water/get_ru_names()
+	return alist(
+		NOMINATIVE = "водяной циркулятор",
+		GENITIVE = "водяного циркулятора",
+		DATIVE = "водяному циркулятору",
+		ACCUSATIVE = "водяной циркулятор",
+		INSTRUMENTAL = "водяным циркулятором",
+		PREPOSITIONAL = "водяном циркуляторе",
+	)
+
 /obj/item/nuclear_rod/coolant/co2_regulator
 	name = "carbon dioxide regulator"
-	desc = "A specialized coolant rod filled with carbon dioxide gas, capable of regulating temperature spikes in fuel rods. However, it's very energy inefficient."
+	desc = "Сглаживает тепловые всплески в соседнем топливе за счёт углекислого газа. Крайне прожорлив по энергии."
 	icon_state = "coolant_carbon"
 	heat_amount = -4
 	heat_amp_mod = 0.6
@@ -447,9 +715,19 @@
 	adjacent_requirements = list(/obj/item/nuclear_rod/moderator)
 	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_GLASS = 1000)
 
+/obj/item/nuclear_rod/coolant/co2_regulator/get_ru_names()
+	return alist(
+		NOMINATIVE = "углекислотный регулятор",
+		GENITIVE = "углекислотного регулятора",
+		DATIVE = "углекислотному регулятору",
+		ACCUSATIVE = "углекислотный регулятор",
+		INSTRUMENTAL = "углекислотным регулятором",
+		PREPOSITIONAL = "углекислотном регуляторе",
+	)
+
 /obj/item/nuclear_rod/coolant/plasma_injector
 	name = "plasma injector"
-	desc = "A specialized coolant rod filled with gaseous plasma. By taking advantage of plasma's unique heat-absorbent properties, small amounts injected around fuel rods neutralize excess heat. However, the tank runs out quickly this way."
+	desc = "Впрыскивает плазму вокруг топлива: гасит лишнее тепло и заодно усиливает мощность. Баллон кончается быстро."
 	icon_state = "coolant_plasma"
 	max_durability = 1900
 	heat_amp_mod = 0.5
@@ -458,9 +736,19 @@
 	adjacent_requirements = list(/obj/item/nuclear_rod/coolant)
 	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_GLASS = 1000)
 
+/obj/item/nuclear_rod/coolant/plasma_injector/get_ru_names()
+	return alist(
+		NOMINATIVE = "плазменный инжектор",
+		GENITIVE = "плазменного инжектора",
+		DATIVE = "плазменному инжектору",
+		ACCUSATIVE = "плазменный инжектор",
+		INSTRUMENTAL = "плазменным инжектором",
+		PREPOSITIONAL = "плазменном инжекторе",
+	)
+
 /obj/item/nuclear_rod/coolant/nitrogen_circulator
 	name = "nitrogen circulator"
-	desc = "A specialized coolant rod filled with nitrogen gas. While not as powerful as similar alternatives, this rod is exceptionally stable and will last longer."
+	desc = "Азотный охладитель. Не самый мощный, зато не требует соседей и служит дольше аналогов."
 	icon_state = "coolant_nitrogen"
 	max_durability = 3500
 	heat_amount = -10
@@ -471,9 +759,19 @@
 	power_amount = -5 KILO WATTS
 	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_GLASS = 1000)
 
+/obj/item/nuclear_rod/coolant/nitrogen_circulator/get_ru_names()
+	return alist(
+		NOMINATIVE = "азотный циркулятор",
+		GENITIVE = "азотного циркулятора",
+		DATIVE = "азотному циркулятору",
+		ACCUSATIVE = "азотный циркулятор",
+		INSTRUMENTAL = "азотным циркулятором",
+		PREPOSITIONAL = "азотном циркуляторе",
+	)
+
 /obj/item/nuclear_rod/coolant/molten_salt
 	name = "molten salt circulator"
-	desc = "A specialized coolant rod that circulates molten salts through the core of the reactor. Despite forcing the reactor to run exceptionally hot, this rod provides top-notch cooling potential above its resting temperature."
+	desc = "Гонит расплав солей через активную зону. Не даёт реактору остыть ниже 750 K, но выше этой температуры охлаждает превосходно."
 	icon_state = "coolant_salt"
 	power_amount = -20 KILO WATTS
 	heat_amount = -60
@@ -489,9 +787,19 @@
 		/obj/item/nuclear_rod/fuel,
 	)
 
+/obj/item/nuclear_rod/coolant/molten_salt/get_ru_names()
+	return alist(
+		NOMINATIVE = "солевой циркулятор",
+		GENITIVE = "солевого циркулятора",
+		DATIVE = "солевому циркулятору",
+		ACCUSATIVE = "солевой циркулятор",
+		INSTRUMENTAL = "солевым циркулятором",
+		PREPOSITIONAL = "солевом циркуляторе",
+	)
+
 /obj/item/nuclear_rod/coolant/steam_hammerjet
 	name = "steam hammerjet"
-	desc = "A specialized coolant rod that injects distilled steam throughout the reactor's critical components. Although it makes the reactor run warm, it's very good at suppressing heat buildup."
+	desc = "Впрыскивает пар в активную зону. Держит реактор не ниже 450 K, зато очень хорошо подавляет нагрев соседей."
 	icon_state = "coolant_steam"
 	power_amount = -10 KILO WATTS
 	heat_amount = -40
@@ -504,9 +812,19 @@
 		/obj/item/nuclear_rod/coolant/light_water,
 	)
 
+/obj/item/nuclear_rod/coolant/steam_hammerjet/get_ru_names()
+	return alist(
+		NOMINATIVE = "паровой инжектор",
+		GENITIVE = "парового инжектора",
+		DATIVE = "паровому инжектору",
+		ACCUSATIVE = "паровой инжектор",
+		INSTRUMENTAL = "паровым инжектором",
+		PREPOSITIONAL = "паровом инжекторе",
+	)
+
 /obj/item/nuclear_rod/coolant/bluespace_displacer
 	name = "bluespace heat displacer"
-	desc = "An advanced coolant rod capable of pulling heat directly out of neighboring rods and sending it... somewhere."
+	desc = "Вытягивает тепло из соседних стержней и отправляет его куда-то через блюспейс. Не изнашивается, но работает только рядом с блюспейс-активатором."
 	icon_state = "coolant_bluespace"
 	power_amount = -40 KILO WATTS
 	heat_amount = -100
@@ -519,9 +837,19 @@
 	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_BLUESPACE = 1000)
 	adjacent_requirements = list(/obj/item/nuclear_rod/moderator/bluespace_agitator)
 
+/obj/item/nuclear_rod/coolant/bluespace_displacer/get_ru_names()
+	return alist(
+		NOMINATIVE = "блюспейс-теплоотвод",
+		GENITIVE = "блюспейс-теплоотвода",
+		DATIVE = "блюспейс-теплоотводу",
+		ACCUSATIVE = "блюспейс-теплоотвод",
+		INSTRUMENTAL = "блюспейс-теплоотводом",
+		PREPOSITIONAL = "блюспейс-теплоотводе",
+	)
+
 /obj/item/nuclear_rod/coolant/iridium_conductor
 	name = "iridium conductor coolant rod"
-	desc = "A dazzlingly beautiful rod with exceptionally powerful thermal conductivity. A highly sought after piece of equipment for its simplicity and potency."
+	desc = "Иридиевый стержень с исключительной теплопроводностью. Почти полностью гасит нагрев соседей и сильно поднимает порог перегрева."
 	icon_state = "coolant_iridium"
 	heat_amp_mod = 0.1
 	max_durability = 10000
@@ -531,9 +859,19 @@
 		/obj/item/nuclear_rod/fuel/uranium_235,
 	)
 
+/obj/item/nuclear_rod/coolant/iridium_conductor/get_ru_names()
+	return alist(
+		NOMINATIVE = "иридиевый проводник",
+		GENITIVE = "иридиевого проводника",
+		DATIVE = "иридиевому проводнику",
+		ACCUSATIVE = "иридиевый проводник",
+		INSTRUMENTAL = "иридиевым проводником",
+		PREPOSITIONAL = "иридиевом проводнике",
+	)
+
 /obj/item/nuclear_rod/coolant/condensed_spacematter
 	name = "condensed spacematter coolant rod"
-	desc = "While it's unknown quite what the rod is filled with, there's no questioning its heat-suppressing efficiency. However, it violently disintegrates in contact with anything that isn't its housing."
+	desc = "Чем он заполнен, неизвестно, но тепло он гасит как ничто другое. Разрушается от контакта с чем угодно, кроме своей камеры."
 	icon_state = "coolant_spacematter"
 	heat_amount = -1500
 	heat_amp_mod = 0.2
@@ -543,4 +881,14 @@
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/fuel/enriched_plutonium,
 		/obj/item/nuclear_rod/fuel/thorium_salts,
+	)
+
+/obj/item/nuclear_rod/coolant/condensed_spacematter/get_ru_names()
+	return alist(
+		NOMINATIVE = "стержень космоматерии",
+		GENITIVE = "стержня космоматерии",
+		DATIVE = "стержню космоматерии",
+		ACCUSATIVE = "стержень космоматерии",
+		INSTRUMENTAL = "стержнем космоматерии",
+		PREPOSITIONAL = "стержне космоматерии",
 	)

@@ -938,7 +938,11 @@
 
 /datum/config_entry/flag/launcher_required
 
-/datum/config_entry/flag/web_guest_login
+/datum/config_entry/string/seeker_auth_socket
+	default = null
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/flag/seeker_allow_guests
 	protection = CONFIG_ENTRY_LOCKED
 
 /// allow votes to change map

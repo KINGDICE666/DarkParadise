@@ -175,7 +175,7 @@
 
 /obj/item/reagent_containers/syringe/update_overlays()
 	. = ..()
-	if(ismob(loc) || istype(loc, /obj/item/gripper))
+	if(ismob(loc) || isrobotgripper(loc))
 		var/injoverlay
 		switch(mode)
 			if(SYRINGE_DRAW)

@@ -86,11 +86,6 @@ GUEST_JOBBAN
 ## Uncomment this to stop people connecting to your server without a registered ckey. (i.e. guest-* are all blocked from connecting)
 GUEST_BAN
 
-## Allow browser guests through the local ticket gateway. Requires -webclient,
-## libdpwebauth.so in the world directory, and a gateway socket at data/web-auth.sock.
-## GUEST_BAN must be disabled. DreamSeeker guests still require the launcher.
-#WEB_GUEST_LOGIN
-
 ## above this player count threshold, never-before-seen players are blocked from connecting
 PANIC_BUNKER_THRESHOLD 150
 
@@ -129,6 +124,15 @@ PANIC_BUNKER_THRESHOLD 150
 ## Refuse any guest connection that did not come from the launcher.
 ## Enable this whenever GUEST_BAN is off, otherwise anyone can join as a plain guest and dodge bans.
 #LAUNCHER_REQUIRED
+
+## Private Unix socket shared with Seeker. Requires libseekerauth.so (Linux BYOND 516.1682, OpenSSL 3 x86).
+## Leave undefined to disable Seeker logins. The adapter verifies one-use tickets before creating clients.
+## GUEST_BAN must stay disabled: BYOND checks every browser login as a guest key before the account is known.
+#SEEKER_AUTH_SOCKET data/seeker-auth/verify.sock
+
+## Uncomment to let Seeker players join as guests without a verified BYOND account.
+## Web guests skip LAUNCHER_REQUIRED and the Discord link requirement, so account bans only hold by IP.
+#SEEKER_ALLOW_GUESTS
 
 ## Comment to disable checking for the cid randomizer dll. (disabled if database isn't enabled or connected)
 CHECK_RANDOMIZER

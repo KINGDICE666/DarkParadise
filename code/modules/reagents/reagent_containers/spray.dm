@@ -85,7 +85,7 @@
 /obj/item/reagent_containers/spray/proc/spray(mob/user, atom/target)
 	var/obj/effect/decal/chempuff/puff_decal = new /obj/effect/decal/chempuff(get_turf(src))
 	puff_decal.create_reagents(amount_per_transfer_from_this)
-	var/spray_currentrange = close_clean_mode ? 1 : max(1, round(spray_maxrange_mod, 1))
+	var/spray_currentrange = close_clean_mode ? 1 : max(1, round(spray_maxrange * spray_maxrange_mod, 1))
 	reagents.trans_to(puff_decal, amount_per_transfer_from_this, 1/spray_currentrange)
 	puff_decal.color = mix_color_from_reagents(puff_decal.reagents.reagent_list)
 	var/turf/target_turf = get_turf(target)
