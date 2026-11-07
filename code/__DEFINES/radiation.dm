@@ -10,6 +10,10 @@
 #define RAD_MINIMUM_DOSE 0.1
 /// Дальше этого не дойдёт ни один импульс, какой бы он ни был сильный
 #define RAD_MAXIMUM_RANGE 24
+/// Такую дозу за раз человек чувствует сразу, ещё до симптомов
+#define RAD_NOTICEABLE_DOSE 10
+/// Как часто человеку напоминают о сильном облучении
+#define RAD_EXPOSURE_NOTICE_COOLDOWN (20 SECONDS)
 
 #define RAD_NO_INSULATION 1.0 //! For things that shouldn't become irradiated for whatever reason
 #define RAD_VERY_LIGHT_INSULATION 0.9 //! Как у балок

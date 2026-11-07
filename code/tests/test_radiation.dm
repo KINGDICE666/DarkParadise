@@ -19,6 +19,8 @@
 	check_contamination()
 	check_reagents()
 	check_green_injector()
+	check_review_fixes()
+	check_fallout()
 	check_listeners()
 	check_nucleation()
 	check_wall_mode()
@@ -286,7 +288,9 @@
 	TEST_ASSERT_NOT(meter.anchored, "A dismounted geiger counter should be free")
 	TEST_ASSERT_EQUAL(meter.w_class, WEIGHT_CLASS_SMALL, "A dismounted geiger counter should fit in a pocket again")
 
-	meter.emagged = TRUE
+	var/mob/living/carbon/human/saboteur = make_human(base)
+	meter.emag_act(saboteur)
+	qdel(saboteur)
 	var/total_before = meter.total_rads
 	SSradiation.pulse(north_turf, 1000)
 	TEST_ASSERT_EQUAL(meter.total_rads, total_before, "A sabotaged geiger counter should read nothing")
@@ -358,3 +362,75 @@
 	TEST_ASSERT_EQUAL(injector.reagents.get_reagent_amount("potass_iodide"), 10, "The green injector should hold potassium iodide")
 	TEST_ASSERT_EQUAL(injector.reagents.get_reagent_amount("charcoal"), 20, "The green injector should still hold its charcoal")
 	qdel(injector)
+
+/datum/unit_test/room_test/radiation/proc/check_review_fixes()
+	var/obj/effect/decal/nuclear_waste/waste = allocate(/obj/effect/decal/nuclear_waste, far_turf)
+	TEST_ASSERT_NOTNULL(waste.GetComponent(/datum/component/radioactive_emitter), "Nuclear waste should keep on pulsing")
+	qdel(waste)
+
+	var/obj/machinery/door/airlock/airlock = allocate(/obj/machinery/door/airlock, far_turf)
+	TEST_ASSERT_EQUAL(airlock.rad_insulation, RAD_MEDIUM_INSULATION, "A closed airlock should insulate")
+	airlock.set_density(FALSE)
+	TEST_ASSERT_EQUAL(airlock.rad_insulation, RAD_NO_INSULATION, "An open airlock shouldn't insulate")
+	airlock.set_density(TRUE)
+	TEST_ASSERT_EQUAL(airlock.rad_insulation, RAD_MEDIUM_INSULATION, "An airlock should insulate again once closed")
+	qdel(airlock)
+
+	var/mob/living/carbon/human/user = make_human(base)
+	var/obj/item/storage/backpack/backpack = allocate(/obj/item/storage/backpack, base)
+	var/obj/item/geiger_counter/stored = allocate(/obj/item/geiger_counter, base)
+	user.put_in_active_hand(stored)
+	TEST_ASSERT_EQUAL(stored.interact_with_atom(backpack, user), NONE, "A geiger counter shouldn't take over clicks on items")
+	qdel(backpack)
+	qdel(stored)
+
+	var/obj/item/geiger_counter/mounted/wall_meter = allocate(/obj/item/geiger_counter/mounted, base)
+	wall_meter.pixel_x = 26
+	wall_meter.set_mounted(FALSE)
+	TEST_ASSERT_EQUAL(wall_meter.icon, /obj/item/geiger_counter::icon, "A dismounted geiger counter should go back to its own sprites")
+	wall_meter.emag_act(user)
+	TEST_ASSERT_NULL(wall_meter.GetComponent(/datum/component/geiger_sound), "A sabotaged geiger counter shouldn't click")
+	wall_meter.set_scanning(FALSE)
+	wall_meter.set_scanning(TRUE)
+	TEST_ASSERT_NULL(wall_meter.GetComponent(/datum/component/geiger_sound), "A sabotaged geiger counter shouldn't start clicking again")
+	qdel(wall_meter)
+	qdel(user)
+
+	var/obj/item/geiger_counter/source_item = allocate(/obj/item/geiger_counter, base)
+	radiation_pulse(source_item, RAD_ITEM_MINIMUM_DOSE * 4)
+	SSradiation.processing.Cut()
+	SSradiation.source_names.Cut()
+	SSradiation.pulse(base, RAD_ITEM_MINIMUM_DOSE * 4)
+	TEST_ASSERT_NOT(HAS_TRAIT(source_item, TRAIT_IRRADIATED), "A source shouldn't contaminate itself")
+	qdel(source_item)
+
+	var/obj/machinery/radiation_scrubber/scrubber = allocate(/obj/machinery/radiation_scrubber, base)
+	var/obj/item/radiation_filter/filter = scrubber.filter
+	filter.forceMove(next_turf)
+	TEST_ASSERT_NULL(scrubber.filter, "The scrubber should forget a filter which left it")
+	qdel(filter)
+	qdel(scrubber)
+
+/datum/unit_test/room_test/radiation/proc/check_fallout()
+	var/datum/weather/rad_storm/nuclear_fallout/storm = new(list(base.z))
+	storm.mutate_chance = 100
+	var/mob/living/carbon/human/victim = make_human(base)
+	storm.weather_act(victim)
+	TEST_ASSERT_EQUAL(victim.get_radiation_dose(), storm.storm_dose + 0, "The fallout should irradiate")
+	var/datum/component/radiation_sickness/sickness = victim.GetComponent(/datum/component/radiation_sickness)
+	TEST_ASSERT(sickness.surface_contamination > 0, "The fallout should leave dust")
+	TEST_ASSERT_NOT(COOLDOWN_FINISHED(sickness, exposure_notice), "A strong dose should be felt right away")
+
+	var/obj/item/geiger_counter/geiger = allocate(/obj/item/geiger_counter, base)
+	geiger.set_scanning(TRUE)
+	storm.impacted_areas = list(get_area(base))
+	storm.fire()
+	TEST_ASSERT(geiger.total_rads > 0, "Geiger counters should measure a storm")
+
+	storm.impacted_areas = list()
+	var/total_before = geiger.total_rads
+	storm.fire()
+	TEST_ASSERT_EQUAL(geiger.total_rads, total_before, "Geiger counters in a shelter should stay quiet")
+	qdel(geiger)
+	qdel(victim)
+	qdel(storm)

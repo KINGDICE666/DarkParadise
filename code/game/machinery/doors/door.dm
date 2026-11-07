@@ -412,6 +412,10 @@
 			if(!stat)
 				flick("door_deny", src)
 
+/obj/machinery/door/set_density(new_density)
+	. = ..()
+	rad_insulation = density ? closed_rad_insulation : RAD_NO_INSULATION
+
 /obj/machinery/door/proc/open()
 	if(!density)
 		return TRUE
@@ -423,7 +427,6 @@
 	set_opacity(FALSE)
 	sleep(0.5 SECONDS)
 	set_density(FALSE)
-	rad_insulation = RAD_NO_INSULATION
 	sleep(0.5 SECONDS)
 	layer = initial(layer)
 	update_icon()
@@ -452,7 +455,6 @@
 	layer = closingLayer
 	sleep(0.5 SECONDS)
 	set_density(TRUE)
-	rad_insulation = closed_rad_insulation
 	sleep(0.5 SECONDS)
 	update_icon()
 	if(visible && !glass)

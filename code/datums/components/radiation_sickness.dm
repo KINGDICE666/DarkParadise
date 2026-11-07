@@ -16,6 +16,7 @@
 	var/manifested_stage = RADIATION_STAGE_NONE
 	var/glowing = FALSE
 	COOLDOWN_DECLARE(latent_period)
+	COOLDOWN_DECLARE(exposure_notice)
 
 /datum/component/radiation_sickness/Initialize()
 	if(!ishuman(parent) || HAS_TRAIT(parent, TRAIT_RADIMMUNE))
@@ -61,6 +62,13 @@
 		human.investigate_log("reached radiation sickness stage [stage] with [round(dose)] rads.", INVESTIGATE_RADIATION)
 		if(manifested_stage == old_stage)
 			COOLDOWN_START(src, latent_period, RADIATION_LATENT_PERIOD / (stage - manifested_stage))
+
+/datum/component/radiation_sickness/proc/notify_exposure()
+	if(!COOLDOWN_FINISHED(src, exposure_notice))
+		return
+
+	COOLDOWN_START(src, exposure_notice, RAD_EXPOSURE_NOTICE_COOLDOWN)
+	to_chat(parent, span_danger("Кожу обдаёт жаром, а во рту появляется привкус металла. Вас облучает!"))
 
 /datum/component/radiation_sickness/proc/adjust_surface(amount)
 	surface_contamination = clamp(surface_contamination + amount, 0, RAD_SURFACE_MAXIMUM)

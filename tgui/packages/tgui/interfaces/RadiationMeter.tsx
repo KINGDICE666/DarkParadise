@@ -32,14 +32,11 @@ type Data = {
 
 const MILD_STAGE_DOSE = 100;
 
-const formatSafeTime = (rate: number, total: number) => {
-  if (total >= MILD_STAGE_DOSE) {
-    return 'уже превышено';
-  }
+const formatSafeTime = (rate: number) => {
   if (rate < 0.1) {
     return 'без ограничений';
   }
-  const minutes = (MILD_STAGE_DOSE - total) / rate;
+  const minutes = MILD_STAGE_DOSE / rate;
   if (minutes >= 60) {
     return `${(minutes / 60).toFixed(1)} ч`;
   }
@@ -122,9 +119,9 @@ export const RadiationMeter = () => {
                 </span>
               </div>
               <div className="RadScope__row">
-                <span className="RadScope__muted">До лёгкой стадии</span>
+                <span className="RadScope__muted">Без защиты до лёгкой стадии</span>
                 <span className={statusClass(status)}>
-                  {formatSafeTime(rate, total)}
+                  {formatSafeTime(rate)}
                 </span>
               </div>
             </div>

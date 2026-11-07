@@ -9,6 +9,9 @@ SUBSYSTEM_DEF(radiation)
 	var/list/source_names = list()
 	/// Атомы, которые узнают о каждом дошедшем импульсе, см. [/datum/controller/subsystem/radiation/proc/add_listener]
 	var/list/atom/listeners = list()
+	/// Отделы, в которых сейчас объявлена эвакуация
+	var/list/evacuating = list()
+	COOLDOWN_DECLARE(evacuation_cooldown)
 
 /datum/controller/subsystem/radiation/fire(resumed)
 	while(length(processing))
@@ -127,11 +130,15 @@ SUBSYSTEM_DEF(radiation)
 
 	var/was_sick = HAS_TRAIT(human, TRAIT_IRRADIATED)
 	human.adjust_radiation_dose(dose)
+	if(dose >= RAD_NOTICEABLE_DOSE)
+		var/datum/component/radiation_sickness/sickness = human.GetComponent(/datum/component/radiation_sickness)
+		sickness?.notify_exposure()
+
 	if(source_name && !was_sick && HAS_TRAIT(human, TRAIT_IRRADIATED))
 		human.investigate_log("was irradiated by [source_name].", INVESTIGATE_RADIATION)
 
 /datum/controller/subsystem/radiation/proc/contaminate(obj/item/item, dose)
-	if(!istype(item))
+	if(!istype(item) || HAS_TRAIT(item, TRAIT_RADIATION_EMITTER))
 		return
 
 	var/datum/component/irradiated/contamination = item.GetComponent(/datum/component/irradiated) || item.AddComponent(/datum/component/irradiated)

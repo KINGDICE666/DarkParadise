@@ -307,8 +307,6 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 #define DONT_PASS_INPUT_PRESURE_MIN (1<<1)
 #define DONT_PASS_OUTPUT_PRESURE_MAX (1<<2)
 
-
-
 /// Maximum range a radiation pulse is allowed to be from a gas reaction.
 #define GAS_REACTION_MAXIMUM_RADIATION_PULSE_RANGE 20
 

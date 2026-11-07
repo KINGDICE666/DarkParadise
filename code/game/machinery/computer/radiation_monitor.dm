@@ -118,9 +118,6 @@ GLOBAL_LIST_EMPTY(radiation_department_spans)
 	circuit = /obj/item/circuitboard/radiation_monitor
 	light_color = LIGHT_COLOR_GREEN
 	req_access = list(ACCESS_ENGINE_EQUIP)
-	/// Отделы, в которых сейчас объявлена эвакуация
-	var/list/evacuating = list()
-	COOLDOWN_DECLARE(announce_cooldown)
 
 /obj/machinery/computer/radiation_monitor/get_ru_names()
 	return alist(
@@ -198,9 +195,9 @@ GLOBAL_LIST_EMPTY(radiation_department_spans)
 		if(meter_turf && is_station_level(meter_turf.z))
 			meters += list(meter.get_monitor_entry())
 	data["meters"] = meters
-	data["evacuating"] = evacuating
+	data["evacuating"] = SSradiation.evacuating
 	data["authorized"] = emagged || allowed(user)
-	data["announce_ready"] = COOLDOWN_FINISHED(src, announce_cooldown)
+	data["announce_ready"] = COOLDOWN_FINISHED(SSradiation, evacuation_cooldown)
 	return data
 
 /obj/machinery/computer/radiation_monitor/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -216,11 +213,11 @@ GLOBAL_LIST_EMPTY(radiation_department_spans)
 		if("evacuate")
 			var/department = params["department"]
 			var/list/info = GLOB.radiation_departments[department]
-			if(!info || (department in evacuating) || !COOLDOWN_FINISHED(src, announce_cooldown))
+			if(!info || (department in SSradiation.evacuating) || !COOLDOWN_FINISHED(SSradiation, evacuation_cooldown))
 				return
 
-			COOLDOWN_START(src, announce_cooldown, RAD_MONITOR_ANNOUNCE_COOLDOWN)
-			evacuating += department
+			COOLDOWN_START(SSradiation, evacuation_cooldown, RAD_MONITOR_ANNOUNCE_COOLDOWN)
+			SSradiation.evacuating += department
 			GLOB.major_announcement.announce(
 				message = "Радиационная опасность: [info["name"]]. Всему персоналу немедленно покинуть отсеки!",
 				new_title = ANNOUNCE_ANOMALY_RU,
@@ -230,10 +227,10 @@ GLOBAL_LIST_EMPTY(radiation_department_spans)
 		if("cancel_evacuation")
 			var/department = params["department"]
 			var/list/info = GLOB.radiation_departments[department]
-			if(!info || !(department in evacuating))
+			if(!info || !(department in SSradiation.evacuating))
 				return
 
-			evacuating -= department
+			SSradiation.evacuating -= department
 			GLOB.minor_announcement.announce(
 				message = "Радиационная опасность миновала: [info["name"]]. Персонал может вернуться на рабочие места.",
 				new_title = ANNOUNCE_ANOMALY_RU,

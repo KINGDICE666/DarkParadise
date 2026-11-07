@@ -89,7 +89,7 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 		icon_state = "geiger_wall"
 		return ..()
 
-	icon = initial(icon)
+	icon = /obj/item/geiger_counter::icon
 	if(!scanning)
 		icon_state = "geiger_off"
 		return ..()
@@ -125,19 +125,24 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 	if(. & ITEM_INTERACT_ANY_BLOCKER)
 		return .
 
-	if(iswallturf(interacting_with))
-		mount_on_wall(interacting_with, user)
-		return ITEM_INTERACT_SUCCESS
-
-	if(!CAN_IRRADIATE(interacting_with))
+	if(!iswallturf(interacting_with))
 		return NONE
 
-	user.visible_message(
-		span_notice("[DECLENT_RU_CAP(user, NOMINATIVE)] проверя[PLUR_ET_YUT(user)] [interacting_with.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]."),
-		span_notice("Вы проверяете [interacting_with.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]..."),
-	)
-	addtimer(CALLBACK(src, PROC_REF(scan), interacting_with, user), 2 SECONDS, TIMER_UNIQUE)
+	mount_on_wall(interacting_with, user)
 	return ITEM_INTERACT_SUCCESS
+
+/obj/item/geiger_counter/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
+	. = ..()
+	. |= COMPONENT_AFTERATTACK_PROCESSED_ITEM
+
+	if(!proximity_flag || !CAN_IRRADIATE(target))
+		return
+
+	user.visible_message(
+		span_notice("[DECLENT_RU_CAP(user, NOMINATIVE)] проверя[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]."),
+		span_notice("Вы проверяете [target.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]..."),
+	)
+	addtimer(CALLBACK(src, PROC_REF(scan), target, user), 2 SECONDS, TIMER_UNIQUE)
 
 /obj/item/geiger_counter/proc/scan(atom/target, mob/user)
 	if(QDELETED(target) || QDELETED(user))
@@ -163,6 +168,8 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 		return
 
 	setDir(direction)
+	pixel_x = 0
+	pixel_y = 0
 	set_pixel_offsets_from_dir(GEIGER_WALL_OFFSET, -GEIGER_WALL_OFFSET, GEIGER_WALL_OFFSET, -GEIGER_WALL_OFFSET)
 	set_mounted(TRUE)
 	set_scanning(TRUE)
@@ -183,7 +190,8 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 		return
 
 	setDir(SOUTH)
-	set_pixel_offsets_from_dir()
+	pixel_x = 0
+	pixel_y = 0
 	set_mounted(FALSE)
 	user.put_in_hands(src, ignore_anim = FALSE)
 	balloon_alert(user, "снят")
@@ -194,7 +202,8 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 
 	scanning = new_scanning
 	if(scanning)
-		AddComponent(/datum/component/geiger_sound)
+		if(!emagged)
+			AddComponent(/datum/component/geiger_sound)
 		START_PROCESSING(SSobj, src)
 	else
 		qdel(GetComponent(/datum/component/geiger_sound))
@@ -210,9 +219,6 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 
 /obj/item/geiger_counter/proc/on_radiation_detected(datum/source, rads, turf/source_turf)
 	SIGNAL_HANDLER
-
-	if(emagged)
-		return
 
 	total_rads += rads
 	pending_rads += rads
@@ -259,6 +265,7 @@ GLOBAL_LIST_EMPTY(geiger_counters)
 		return FALSE
 
 	emagged = TRUE
+	qdel(GetComponent(/datum/component/geiger_sound))
 	rads_per_minute = 0
 	pending_rads = 0
 	bearing = null

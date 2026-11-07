@@ -573,6 +573,8 @@
 #define TRAIT_RADIATION_PROTECTED_CLOTHING "radiation_protected_clothing"
 /// Пока трейт активен, внешние дозы слабее. Его дают радиопротекторы.
 #define TRAIT_RADIATION_RESISTANT "radiation_resistant"
+/// Предмет сам излучает, поэтому собственные импульсы его не загрязняют
+#define TRAIT_RADIATION_EMITTER "radiation_emitter"
 
 // MARK: Metabolism
 // Various jobs on the station have historically had better reactions

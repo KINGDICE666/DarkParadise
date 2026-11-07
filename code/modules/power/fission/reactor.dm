@@ -1330,8 +1330,7 @@
 	AddComponent(
 		/datum/component/radioactive_emitter, \
 		cooldown_time = 5 SECONDS, \
-		range = 4, \
-		threshold = RAD_MEDIUM_INSULATION, \
+		rads = RAD_PULSE_RADIOACTIVE_GOO, \
 	)
 
 /obj/effect/decal/nuclear_waste/epicenter

@@ -75,6 +75,14 @@
 	QDEL_NULL(beaker)
 	return ..()
 
+/obj/machinery/radiation_scrubber/Exited(atom/movable/gone, direction)
+	. = ..()
+	if(gone == filter)
+		filter = null
+		set_active(FALSE)
+	else if(gone == beaker)
+		beaker = null
+
 /obj/machinery/radiation_scrubber/RefreshParts()
 	var/manipulator_rating = 0
 	var/manipulators = 0
@@ -85,9 +93,7 @@
 
 /obj/machinery/radiation_scrubber/on_deconstruction()
 	filter?.forceMove(loc)
-	filter = null
 	beaker?.forceMove(loc)
-	beaker = null
 	return ..()
 
 /obj/machinery/radiation_scrubber/update_icon_state()
@@ -416,17 +422,15 @@
 		if("eject_filter")
 			if(!filter)
 				return
-			set_active(FALSE)
-			filter.forceMove(loc)
-			ui.user.put_in_hands(filter, ignore_anim = FALSE)
-			filter = null
-			update_appearance(UPDATE_OVERLAYS)
+			var/obj/item/radiation_filter/ejected_filter = filter
+			ejected_filter.forceMove(loc)
+			ui.user.put_in_hands(ejected_filter, ignore_anim = FALSE)
 		if("eject_beaker")
 			if(!beaker)
 				return
-			beaker.forceMove(loc)
-			ui.user.put_in_hands(beaker, ignore_anim = FALSE)
-			beaker = null
+			var/obj/item/reagent_containers/ejected_beaker = beaker
+			ejected_beaker.forceMove(loc)
+			ui.user.put_in_hands(ejected_beaker, ignore_anim = FALSE)
 		else
 			return
 

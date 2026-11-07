@@ -8,6 +8,7 @@ import {
   RadBar,
   RadTrace,
   STAGE_COLORS,
+  STAGE_DOSES,
   STAGE_NAMES,
 } from './common/RadiationInstruments';
 
@@ -47,8 +48,6 @@ type Data = {
   filter: { saturation: number; capacity: number } | null;
   beaker: { volume: number; maximum: number; contents: Reagent[] } | null;
 };
-
-const STAGE_DOSES = [0, 100, 300, 600, 1000];
 
 const formatTime = (seconds: number) => {
   if (seconds >= 60) {

@@ -17,6 +17,9 @@
 	if(rads < RAD_MINIMUM_DOSE)
 		return FALSE
 
+	if(isitem(source) && !HAS_TRAIT(source, TRAIT_RADIATION_EMITTER))
+		ADD_TRAIT(source, TRAIT_RADIATION_EMITTER, INNATE_TRAIT)
+
 	SSradiation.processing[source_turf] += rads
 	SSradiation.source_names[source_turf] = source.name
 	return TRUE
