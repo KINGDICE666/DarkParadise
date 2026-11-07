@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  ByondUi,
   Input,
   NoticeBox,
   ProgressBar,
@@ -22,6 +21,20 @@ import {
   OvermapStats,
   overmapKindLabel,
 } from './overmap/OvermapChrome';
+import {
+  type GalaxyMap,
+  type HazardField,
+  OvermapRadar,
+  type RadarContact,
+  type RadarEngine,
+  type RadarObject,
+  type RadarPeel,
+  type RadarProjectile,
+  type RadarScatterChunk,
+  type RadarShape,
+  type RadarTerrain,
+} from './overmap/OvermapRadar';
+import { RadarViewport } from './overmap/RadarViewport';
 
 type SensorContact = {
   ref: string;
@@ -65,8 +78,25 @@ type ScanInfo = {
 };
 
 type OvermapSensorsData = {
+  radar_shapes?: Record<string, RadarShape>;
+  radar?: RadarContact[];
+  radar_drifters?: number[][];
+  radar_projectiles?: RadarProjectile[];
+  radar_engines?: RadarEngine[];
+  radar_terrain?: RadarTerrain;
+  radar_world?: number[];
+  objects?: RadarObject[];
+  self_pos?: number[];
+  sector_size?: number;
+  cell_span?: number;
+  sector_id?: string;
+  galaxy?: GalaxyMap;
+  facing?: number;
+  hazard_fields?: HazardField[];
+  scan_radar?: BooleanLike;
+  radar_peels?: RadarPeel[];
+  radar_scatter?: RadarScatterChunk[];
   linked: BooleanLike;
-  mapRef: string;
   view_mode: string;
   has_long: BooleanLike;
   has_short: BooleanLike;
@@ -85,8 +115,6 @@ type OvermapSensorsData = {
   known_count?: number;
   scan_progress?: number;
   selected?: string;
-  map_zoom: number;
-  map_revision?: number;
   journal: JournalEntry[];
   contacts: SensorContact[];
   vessel_name: string;
@@ -95,15 +123,20 @@ type OvermapSensorsData = {
   sector_name: string;
   alerts?: { id: string; label: string; on: BooleanLike }[];
   map_jammed?: BooleanLike;
+  radar_locked?: BooleanLike;
+  radar_tick?: number;
+  radar_epoch?: number;
 };
 
 export const OvermapSensors = () => {
   const { act, data } = useBackend<OvermapSensorsData>();
   const [tab, setTab] = useLocalState<'map' | 'log'>('sensorPane', 'map');
+  const [radius, setRadius] = useLocalState('sensorRadarRadius', 1500);
+  const [follow, setFollow] = useLocalState('sensorRadarFollow', false);
+  const [band, setBand] = useLocalState('sensorRadarBand', 'sector');
   const [query, setQuery] = useLocalState('sensorJournalQuery', '');
   const {
     linked,
-    mapRef,
     view_mode,
     has_long,
     has_short,
@@ -122,8 +155,6 @@ export const OvermapSensors = () => {
     known_count = 0,
     scan_progress = 0,
     selected,
-    map_zoom,
-    map_revision = 0,
     journal = [],
     contacts = [],
     vessel_name,
@@ -134,8 +165,6 @@ export const OvermapSensors = () => {
     map_jammed,
   } = data;
 
-  const mapHeight = scanning ? 280 : long_range ? 360 : 220;
-  const windowHeight = scanning ? 860 : long_range ? 880 : 760;
   const needle = query.trim().toLowerCase();
   const filteredJournal = needle
     ? journal.filter((entry) =>
@@ -148,8 +177,8 @@ export const OvermapSensors = () => {
   return (
     <OvermapFrame
       title="Sensors"
-      width={900}
-      height={windowHeight}
+      width={1180}
+      height={820}
       linked={linked}
       onRelink={() => act('relink')}
       rail={
@@ -158,7 +187,7 @@ export const OvermapSensors = () => {
           sector={sector_name}
           xy={linked ? `${x}:${y}` : undefined}
           lamps={[
-            { label: long_range ? '15×15' : '5×5', on: !!linked },
+            { label: long_range ? 'дальний' : 'ближний', on: !!linked },
             { label: 'сканер', on: !!active },
             { label: 'скан', on: !!scanning },
           ]}
@@ -290,36 +319,56 @@ export const OvermapSensors = () => {
           </Stack.Item>
         </Stack>
       ) : (
-        <Stack fill vertical>
-          <Stack.Item height={`${mapHeight}px`} shrink={0}>
+        <Stack fill className="OvermapSensorWorkspace">
+          <Stack.Item grow minWidth={0} minHeight={0}>
             <Section
               fill
               fitted
-              className="OvermapMapSection"
+              className="OvermapMapSection OvermapScopePanel"
               title={
-                map_jammed
-                  ? 'Помехи гипертранслятора'
-                  : scanning
-                    ? 'Сканирование корпуса'
-                    : `${sector_name || 'Сектор'} — ${long_range ? '15×15' : '5×5'}`
+                data.radar_locked
+                  ? 'Межсекторный переход'
+                  : map_jammed
+                    ? 'Помехи гипертранслятора'
+                    : scanning
+                      ? 'Сканирование корпуса'
+                      : `${sector_name || 'Сектор'} — ${long_range ? 'дальний' : 'ближний'}`
               }
             >
-              <div className="OvermapMinimap">
-                {map_jammed ? (
+              <RadarViewport>
+                {map_jammed && !data.radar_locked ? (
                   <NoticeBox danger>Связь потеряна.</NoticeBox>
                 ) : (
-                  <ByondUi
-                    key={`${mapRef}-${map_revision}-${view_mode}-${scanning ? 'scan' : 'nav'}`}
-                    height="100%"
-                    width="100%"
-                    params={{
-                      id: mapRef,
-                      type: 'map',
-                      zoom: map_zoom ?? 1,
-                    }}
+                  <OvermapRadar
+                    locked={!!data.radar_locked}
+                    tick={data.radar_tick}
+                    epoch={data.radar_epoch}
+                    peels={data.radar_peels}
+                    scatter={data.radar_scatter}
+                    shapes={data.radar_shapes || {}}
+                    contacts={data.radar || []}
+                    drifters={data.radar_drifters || []}
+                    projectiles={data.radar_projectiles || []}
+                    engines={data.radar_engines || []}
+                    facing={data.facing || 0}
+                    terrain={data.radar_terrain}
+                    world={data.radar_world}
+                    objects={data.objects || []}
+                    self={data.self_pos}
+                    sectorSize={data.sector_size}
+                    cellSpan={data.cell_span}
+                    sectorId={data.sector_id}
+                    galaxy={data.galaxy}
+                    hazardFields={data.hazard_fields || []}
+                    radius={data.scan_radar ? 64 : radius}
+                    onZoom={setRadius}
+                    followHeading={follow}
+                    onToggleFollow={() => setFollow(!follow)}
+                    onSelectObject={(ref) => act('scan', { ref })}
+                    onSelectPoint={(x, y) => act('scan_point', { x, y })}
                   />
                 )}
-              </div>
+              </RadarViewport>
             </Section>
           </Stack.Item>
           {!!scanning && (

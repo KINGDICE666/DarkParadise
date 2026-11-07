@@ -38,6 +38,7 @@
 #include "test_missing_icons.dm"
 #include "test_ntnet.dm"
 #include "test_orphaned_genturf.dm"
+#include "test_overmap.dm"
 #include "test_painted_mask.dm"
 #include "test_paintings.dm"
 #include "test_pipe_dispenser.dm"

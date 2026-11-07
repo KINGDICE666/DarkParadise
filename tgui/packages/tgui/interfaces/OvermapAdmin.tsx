@@ -63,6 +63,7 @@ type Token = {
   status?: string;
   sensors_on?: BooleanLike;
   has_flight?: BooleanLike;
+  virtual_engine?: BooleanLike;
 };
 
 type Console = {
@@ -465,6 +466,14 @@ const ControlTab = () => {
                 </Button>
               </LabeledList.Item>
               <LabeledList.Item label="Флаги">
+                {!!selected.is_entity && (
+                  <FlagButton
+                    uid={selected.uid}
+                    field="virtual_engine"
+                    value={selected.virtual_engine}
+                    label="Тестовый двигатель"
+                  />
+                )}
                 <FlagButton
                   uid={selected.uid}
                   field="movable"
@@ -556,6 +565,7 @@ const ControlTab = () => {
 };
 
 const SpawnTab = () => {
+  const [virtual, setVirtual] = useState(false);
   const { act, data } = useBackend<Data>();
   const sectors = asList(data.sectors);
   const spawnTypes = asList(data.spawn_types);
@@ -634,7 +644,7 @@ const SpawnTab = () => {
             Портал
           </Button>
           <Button selected={kind === 'ruin'} onClick={() => setKind('ruin')}>
-            Руина
+            Руины
           </Button>
           <Button
             selected={kind === 'shuttle'}
@@ -736,6 +746,11 @@ const SpawnTab = () => {
           </LabeledList.Item>
         )}
         <LabeledList.Item label="Флаги">
+          {(kind === 'ruin' || kind === 'shuttle') && (
+            <Button selected={virtual} onClick={() => setVirtual(!virtual)}>
+              Мнимый
+            </Button>
+          )}
           <Button selected={movable} onClick={() => setMovable(!movable)}>
             Движение
           </Button>
@@ -828,6 +843,7 @@ const SpawnTab = () => {
               spawn_type: spawnType,
               template_id: templateId,
               template_kind: useUpload ? 'upload' : templateKind,
+              virtual,
               large,
               name: spawnName,
               icon_state: iconState,

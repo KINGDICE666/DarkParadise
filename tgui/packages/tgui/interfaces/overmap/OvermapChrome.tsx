@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { Button, NoticeBox, Stack } from 'tgui-core/components';
 import { type BooleanLike, classes } from 'tgui-core/react';
 
@@ -134,10 +134,10 @@ export const OvermapSeg = <T extends string>(props: {
 
 export const OvermapStats = (props: {
   children: ReactNode;
-  grid?: boolean;
+  stack?: boolean;
 }) => (
   <div
-    className={classes(['OvermapStats', props.grid && 'OvermapStats--grid'])}
+    className={classes(['OvermapStats', props.stack && 'OvermapStats--stack'])}
   >
     {props.children}
   </div>
@@ -190,7 +190,7 @@ export const overmapKindLabel = (kind?: string) => {
     case 'portal':
       return 'портал';
     case 'ruin':
-      return 'руина';
+      return 'руины';
     case 'hazard':
       return 'угроза';
     case 'relay':
@@ -202,6 +202,41 @@ export const overmapKindLabel = (kind?: string) => {
   }
 };
 
+export const overmapKindIcon = (kind?: string) => {
+  switch (kind) {
+    case 'station':
+      return 'building';
+    case 'shuttle':
+      return 'shuttle-space';
+    case 'pod':
+      return 'rocket';
+    case 'planet':
+      return 'globe';
+    case 'portal':
+      return 'circle-half-stroke';
+    case 'ruin':
+      return 'mound';
+    case 'hazard':
+      return 'triangle-exclamation';
+    case 'relay':
+      return 'satellite-dish';
+    default:
+      return 'circle-question';
+  }
+};
+
+export const OVERMAP_KIND_ORDER = [
+  'station',
+  'shuttle',
+  'pod',
+  'relay',
+  'ruin',
+  'portal',
+  'planet',
+  'hazard',
+  'unknown',
+] as const;
+
 export const OvermapList = (props: { children: ReactNode }) => (
   <div className="OvermapList">{props.children}</div>
 );
@@ -209,7 +244,7 @@ export const OvermapList = (props: { children: ReactNode }) => (
 export const OvermapRow = (props: {
   title: ReactNode;
   meta?: ReactNode;
-  tag?: string;
+  tag?: ReactNode;
   selected?: BooleanLike;
   muted?: BooleanLike;
   bad?: BooleanLike;
@@ -237,6 +272,124 @@ export const OvermapRow = (props: {
         {!!meta && <div className="OvermapRow__meta">{meta}</div>}
       </div>
       {!!children && <div className="OvermapRow__act">{children}</div>}
+    </div>
+  );
+};
+
+const STICK_DEAD = 0.2;
+
+export const OvermapStick = (props: {
+  x: number;
+  y: number;
+  power?: number;
+  heading?: number;
+  speedRatio?: number;
+  disabled?: BooleanLike;
+  onChange: (x: number, y: number, power: number) => void;
+}) => {
+  const {
+    x,
+    y,
+    power = 0,
+    heading = 0,
+    speedRatio = 0,
+    disabled,
+    onChange,
+  } = props;
+  const ref = useRef<HTMLDivElement>(null);
+  const lastSent = useRef(0);
+  const [drag, setDrag] = useState<{
+    x: number;
+    y: number;
+    mag: number;
+  } | null>(null);
+  const displayX = drag ? drag.x : x;
+  const displayY = drag ? drag.y : y;
+  const mag = drag
+    ? drag.mag
+    : power <= 0
+      ? 0
+      : STICK_DEAD + power * (1 - STICK_DEAD);
+  const arrow = 6 + Math.max(0, Math.min(1, speedRatio)) * 16;
+
+  const send = (nx: number, ny: number, stickPower: number, force = false) => {
+    const now = Date.now();
+    if (!force && now - lastSent.current < 50) {
+      return;
+    }
+    lastSent.current = now;
+    onChange(nx, ny, stickPower);
+  };
+
+  const applyEvent = (
+    event: { clientX: number; clientY: number },
+    force = false,
+  ) => {
+    const node = ref.current;
+    if (!node || disabled) {
+      return;
+    }
+    const rect = node.getBoundingClientRect();
+    const nx =
+      (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+    const ny = (rect.top + rect.height / 2 - event.clientY) / (rect.height / 2);
+    const length = Math.hypot(nx, ny);
+    const cx = length > 1 ? nx / length : nx;
+    const cy = length > 1 ? ny / length : ny;
+    const clamped = Math.min(length, 1);
+    if (clamped <= STICK_DEAD) {
+      setDrag({ x: 0, y: 0, mag: 0 });
+      send(0, 0, 0, force);
+      return;
+    }
+    setDrag({ x: cx, y: cy, mag: clamped });
+    send(cx, cy, (clamped - STICK_DEAD) / (1 - STICK_DEAD), force);
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={classes(['OvermapStick', disabled && 'OvermapStick--off'])}
+      onMouseDown={(event) => {
+        if (disabled) {
+          return;
+        }
+        event.preventDefault();
+        applyEvent(event, true);
+        const move = (ev: MouseEvent) => applyEvent(ev);
+        const up = () => {
+          window.removeEventListener('mousemove', move);
+          window.removeEventListener('mouseup', up);
+          setDrag(null);
+          send(0, 0, 0, true);
+        };
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+      }}
+    >
+      {speedRatio > 0.02 && (
+        <div
+          className="OvermapStick__headingWrap"
+          style={{ transform: `rotate(${heading}deg)` }}
+        >
+          <div
+            className="OvermapStick__heading"
+            style={{
+              borderLeftWidth: `${arrow}px`,
+              borderRightWidth: `${arrow}px`,
+            }}
+          />
+        </div>
+      )}
+      <div className="OvermapStick__ring" />
+      <div className="OvermapStick__dead" />
+      <div
+        className="OvermapStick__knob"
+        style={{
+          left: `${50 + displayX * mag * 42}%`,
+          top: `${50 - displayY * mag * 42}%`,
+        }}
+      />
     </div>
   );
 };

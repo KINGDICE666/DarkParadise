@@ -17,7 +17,9 @@
 
 /datum/overmap_admin_panel/Destroy()
 	selected = null
-	open_helms = null
+	for(var/obj/machinery/computer/helm/admin/helm as anything in open_helms)
+		UnregisterSignal(helm, COMSIG_QDELETING)
+	QDEL_LIST(open_helms)
 	dump_uids = null
 	QDEL_NULL(uploaded_template)
 	return ..()
@@ -160,6 +162,7 @@
 	data["status"] = istype(vessel) ? vessel.status : null
 	data["sensors_on"] = istype(vessel) && (vessel.long_sensors_on || vessel.short_sensors_on)
 	data["has_flight"] = istype(vessel) && !!vessel.flight
+	data["virtual_engine"] = istype(vessel) && vessel.admin_virtual_engine
 	return data
 
 /datum/overmap_admin_panel/proc/serialize_dump_list()
@@ -210,13 +213,13 @@
 
 /datum/overmap_admin_panel/proc/serialize_templates()
 	. = list()
-	for(var/template_name in GLOB.map_templates)
-		var/datum/map_template/template = GLOB.map_templates[template_name]
+	for(var/template_name, template_entry in GLOB.map_templates)
+		var/datum/map_template/template = template_entry
 		if(!template)
 			continue
 		. += list(list("id" = template_name, "name" = template.name, "width" = template.width, "height" = template.height, "kind" = "map"))
-	for(var/shuttle_id in GLOB.shuttle_templates)
-		var/datum/map_template/shuttle/template = GLOB.shuttle_templates[shuttle_id]
+	for(var/shuttle_id, template_entry in GLOB.shuttle_templates)
+		var/datum/map_template/shuttle/template = template_entry
 		if(!template)
 			continue
 		. += list(list("id" = shuttle_id, "name" = template.name || shuttle_id, "width" = template.width, "height" = template.height, "kind" = "shuttle"))
@@ -452,7 +455,7 @@
 			if(!body)
 				return TRUE
 			var/key = trim(params["key"])
-			sector.add_comms_message(new /datum/overmap_sector_message(body, key, params["sender"] || "Админ", sector.id))
+			sector.add_comms_message(new /datum/overmap_sector_message(body, key, params["sender"] || "Центральное коммандование", sector.id))
 			log_admin("[key_name(user)] sent overmap comms to [sector.id].")
 			return TRUE
 		if("comms_delete")
@@ -503,6 +506,17 @@
 			token.hidden_from_contacts = truthy(value)
 		if("wraparound")
 			token.wraparound = truthy(value)
+		if("virtual_engine")
+			if(!istype(vessel))
+				return
+			vessel.admin_virtual_engine = truthy(value)
+			if(vessel.admin_virtual_engine)
+				if(!vessel.flight)
+					vessel.AddComponent(/datum/component/overmap_flight)
+				vessel.ensure_virtual_engine()
+			else if(!vessel.programmed && !vessel.programmed_mission && !vessel.overmap_pod)
+				QDEL_NULL(vessel.virtual_engine)
+			vessel.flight?.refresh_thrust()
 		if("speed_x")
 			token.speed[1] = text2num(value) || 0
 			token.refresh_heading_overlay()
@@ -550,6 +564,7 @@
 		shell.bind_slave(token)
 	if(!vessel.flight)
 		vessel.AddComponent(/datum/component/overmap_flight)
+	vessel.admin_virtual_engine = TRUE
 	vessel.ensure_virtual_engine()
 	if(!vessel.sensor_pack)
 		vessel.AddComponent(/datum/component/overmap_sensors)
@@ -562,9 +577,14 @@
 			vessel.status = OVERMAP_STATUS_OVERMAP
 	var/obj/machinery/computer/helm/admin/helm = new(null)
 	helm.bind_target(vessel)
+	RegisterSignal(helm, COMSIG_QDELETING, PROC_REF(on_helm_deleted))
 	open_helms |= helm
 	helm.ui_interact(user)
 	log_admin("[key_name(user)] opened admin helm on [token].")
+
+/datum/overmap_admin_panel/proc/on_helm_deleted(obj/machinery/computer/helm/admin/helm)
+	SIGNAL_HANDLER
+	open_helms -= helm
 
 /datum/overmap_admin_panel/proc/apply_dump_to_console(obj/machinery/computer/sensors/console, mob/user)
 	console.link_vessel()
@@ -658,6 +678,24 @@
 			selected = token
 			log_admin("[key_name(user)] spawned overmap [spawn_path] at [sector.id] [coord_x]:[coord_y].")
 		if("ruin", "shuttle")
+			if(truthy(params["virtual"]))
+				var/datum/map_template/virtual_template = resolve_template(params["template_id"], params["template_kind"])
+				var/obj/overmap/entity/virtual_structure/structure = new(spot)
+				if(!structure.load_template(virtual_template, kind == "shuttle"))
+					qdel(structure)
+					to_chat(user, span_warning("Не удалось прочитать геометрию DMM. Выберите шаблон размером не более 256×256."), confidential = TRUE)
+					return
+				sector.add_object(structure, spot)
+				apply_spawn_look(structure, params)
+				selected = structure
+				log_admin("[key_name(user)] spawned virtual overmap [kind] [structure.name] at [sector.id] [coord_x]:[coord_y].")
+				return
+			if(kind == "shuttle")
+				var/datum/map_template/shuttle_template = resolve_template(params["template_id"], params["template_kind"])
+				selected = spawn_shuttle_in_hyperspace(shuttle_template, sector, spot, user)
+				if(selected)
+					apply_spawn_look(selected, params)
+				return
 			var/large = truthy(params["large"])
 			var/region_size = large ? SSovermap.large_region_size() : OVERMAP_RUIN_REGION_SIZE
 			var/datum/map_template/template = resolve_template(params["template_id"], params["template_kind"])
@@ -670,7 +708,7 @@
 			site.region_size = region_size
 			if(!site.spawn_on(sector, coord_x, coord_y))
 				qdel(site)
-				to_chat(user, span_warning("Не удалось разместить объект."), confidential = TRUE)
+				to_chat(user, span_warning("Не удалось разместить объект: нет свободной области в пределах лимита [OVERMAP_SPAWN_MAX_Z_LEVEL] z-уровней."), confidential = TRUE)
 				return
 			var/datum/overmap_space_region/cell = site.cells[1]
 			var/turf/load_at
@@ -687,10 +725,6 @@
 			var/obj/overmap/entity/feature/ruin/ruin_token = site.tokens[1]
 			selected = ruin_token
 			apply_spawn_look(ruin_token, params)
-			if(kind == "shuttle")
-				bind_spawned_shuttle(site, ruin_token, sector, spot, user, template, load_at)
-				if(selected)
-					apply_spawn_look(selected, params)
 			log_admin("[key_name(user)] spawned overmap [kind] ([template?.name || "empty"]) at [sector.id] [coord_x]:[coord_y].")
 		else
 			to_chat(user, span_warning("Неизвестный тип спавна."), confidential = TRUE)
@@ -703,33 +737,6 @@
 	if(template_kind == "shuttle")
 		return GLOB.shuttle_templates[template_id]
 	return GLOB.map_templates[template_id] || GLOB.shuttle_templates[template_id]
-
-/datum/overmap_admin_panel/proc/bind_spawned_shuttle(datum/overmap_feature/ruin/site, obj/overmap/entity/feature/ruin/host, datum/overmap_sector/sector, turf/spot, mob/user, datum/map_template/template, turf/load_at)
-	var/datum/overmap_space_region/cell = host.landing_region
-	var/obj/docking_port/mobile/port = find_loaded_mobile_port(cell, template, load_at)
-	if(!port)
-		port = make_mobile_port_for_loaded_map(cell, template, load_at, user)
-	if(!port)
-		to_chat(user, span_warning("Не удалось найти или создать docking port /mobile - оставлен как руина."), confidential = TRUE)
-		return
-	register_spawned_mobile_port(port)
-	var/obj/overmap/entity/vessel = SSovermap.get_or_register_shuttle(port)
-	if(!vessel)
-		to_chat(user, span_warning("Токен шаттла не создан."), confidential = TRUE)
-		return
-	var/moved = move_spawned_shuttle_to_transit(port, user)
-	if(!moved)
-		to_chat(user, span_warning("Корпус остался в зарезервированной ячейке: гиперпространство недоступно."), confidential = TRUE)
-	if(vessel.docked_to)
-		vessel.release_to_overmap(spot)
-	else
-		sector.add_object(vessel, spot)
-	vessel.status = OVERMAP_STATUS_OVERMAP
-	vessel.halted = FALSE
-	vessel.selected_dock_id = null
-	selected = vessel
-	if(moved)
-		qdel(site)
 
 /datum/overmap_admin_panel/proc/find_loaded_mobile_port(datum/overmap_space_region/cell, datum/map_template/template, turf/load_at)
 	var/list/turfs
@@ -766,10 +773,9 @@
 			continue
 		areas[place] = TRUE
 		var/obj/machinery/door/airlock/external/docking/door = locate() in tile
-		if(door && !door.overmap_is_support)
+		if(!collar && door && !door.overmap_is_support)
 			collar = door
 			anchor = tile
-			break
 		if(!anchor)
 			anchor = tile
 	if(!anchor)
@@ -798,23 +804,11 @@
 		port.register()
 	SSovermap.area_shuttle_cache_ready = FALSE
 
-/datum/overmap_admin_panel/proc/move_spawned_shuttle_to_transit(obj/docking_port/mobile/port, mob/user)
-	if(!port)
-		return FALSE
-	port.overmap_sync_bounds(TRUE)
-	var/obj/docking_port/stationary/transit/pad = SSshuttle.generate_transit_dock(port)
-	if(!pad)
-		return FALSE
-	port.overmap_force_dock = TRUE
-	var/failed = port.dock(pad, force = TRUE, transit = TRUE)
-	port.overmap_force_dock = FALSE
-	if(failed)
-		return FALSE
-	to_chat(user, span_notice("Шаттл выведен в гиперпространство."), confidential = TRUE)
-	return TRUE
-
 /datum/overmap_admin_panel/proc/admin_jump_to_token(obj/overmap/token, mob/user)
 	if(!token || !user)
+		return
+	if(istype(token, /obj/overmap/entity/virtual_structure))
+		to_chat(user, span_notice("У мнимого объекта нет внутреннего уровня. Используйте Helm или управление переменными."), confidential = TRUE)
 		return
 	var/turf/dest
 	var/obj/overmap/entity/vessel = token
@@ -921,11 +915,24 @@
 	use_power = NO_POWER_USE
 	resistance_flags = INDESTRUCTIBLE
 
+/obj/machinery/computer/helm/admin/Destroy()
+	var/obj/overmap/entity/admin_shell/shell = vessel
+	if(vessel?.flight?.pilot_helm == src)
+		vessel.flight.release_pilot()
+	. = ..()
+	if(istype(shell) && !length(shell.helms))
+		qdel(shell)
+
+/obj/machinery/computer/helm/admin/ui_close(mob/user)
+	. = ..()
+	if(!QDELING(src))
+		qdel(src)
+
 /obj/machinery/computer/helm/admin/Initialize(mapload)
 	. = ..()
 	stat &= ~NOPOWER
 	if(vessel)
-		UnregisterSignal(vessel, list(COMSIG_OVERMAP_MOVED, COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
+		UnregisterSignal(vessel, list(COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
 		vessel.helms -= src
 		vessel = null
 
@@ -934,6 +941,9 @@
 
 /obj/machinery/computer/helm/admin/powered(chan)
 	return TRUE
+
+/obj/machinery/computer/helm/admin/can_pilot(mob/user)
+	return user?.client && check_rights_for(user.client, R_ADMIN | R_EVENT)
 
 /obj/machinery/computer/helm/admin/ui_state(mob/user)
 	return ADMIN_STATE(R_ADMIN | R_EVENT)
@@ -947,14 +957,12 @@
 	if(!target)
 		return
 	if(vessel && vessel != target)
-		UnregisterSignal(vessel, list(COMSIG_OVERMAP_MOVED, COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
+		UnregisterSignal(vessel, list(COMSIG_OVERMAP_NOTICE, COMSIG_OVERMAP_DISPLAY_CHANGED))
 		vessel.helms -= src
 	vessel = target
 	target.helms |= src
-	RegisterSignal(target, COMSIG_OVERMAP_MOVED, PROC_REF(on_overmap_moved), override = TRUE)
 	RegisterSignal(target, COMSIG_OVERMAP_NOTICE, PROC_REF(on_overmap_notice), override = TRUE)
 	RegisterSignal(target, COMSIG_OVERMAP_DISPLAY_CHANGED, PROC_REF(on_overmap_display_changed), override = TRUE)
-	update_map_view()
 
 /datum/overmap_admin_panel/ui_close(mob/user)
 	if(!QDELING(src))

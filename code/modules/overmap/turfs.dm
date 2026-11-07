@@ -71,9 +71,6 @@
 		add_overlay(number_overlay)
 
 /turf/simulated/floor/indestructible/overmap/Click(location, control, params)
-	var/obj/machinery/computer/helm/helm = overmap_open_helm(usr, control)
-	if(helm?.mark_atom(usr, src))
-		return
 	var/obj/machinery/computer/sensors/sensors = overmap_open_sensor_console(usr)
 	if(!istype(sensors))
 		sensors = usr?.machine
@@ -96,7 +93,7 @@
 	name = "map void"
 	desc = null
 	opacity = TRUE
-	color = "#000000"
+	color = COLOR_BLACK
 	space_lit = FALSE
 	luminosity = 0
 
@@ -104,7 +101,7 @@
 	. = ..()
 	icon = OVERMAP_ICON_FILE
 	icon_state = "map"
-	color = "#000000"
+	color = COLOR_BLACK
 	name = "map void"
 
 /turf/simulated/floor/indestructible/hyperspace
@@ -129,7 +126,10 @@
 /proc/overmap_seal_block_with_hyperspace(turf/bottom_left, turf/top_right)
 	if(!bottom_left || !top_right || bottom_left.z != top_right.z)
 		return
-	for(var/turf/spot as anything in block(bottom_left, top_right))
-		if(spot.x != bottom_left.x && spot.x != top_right.x && spot.y != bottom_left.y && spot.y != top_right.y)
-			continue
+	var/width = top_right.x - bottom_left.x + 1
+	var/height = top_right.y - bottom_left.y + 1
+	var/turf/inner_corner = locate(bottom_left.x + 1, bottom_left.y + 1, bottom_left.z)
+	var/list/edges = (width <= 2 || height <= 2) ? block(bottom_left, top_right) : CORNER_OUTLINE(inner_corner, width - 2, height - 2)
+	for(var/turf/spot as anything in edges)
 		spot.ChangeTurf(/turf/simulated/floor/indestructible/hyperspace, FALSE, FALSE, CHANGETURF_IGNORE_AIR)
+		CHECK_TICK

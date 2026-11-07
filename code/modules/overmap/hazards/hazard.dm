@@ -28,6 +28,15 @@
 
 	var/moving_hazard = FALSE
 
+	var/hazard_density = 3
+	var/list/scatter_points
+	var/list/scatter_chunks
+	var/list/scatter_radar_chunks
+	var/list/scatter_hit_chunks
+
+/obj/overmap/feature/hazard/proc/roll_density()
+	return rand(2, 4)
+
 /obj/overmap/feature/hazard/Initialize(mapload)
 	. = ..()
 	SSovermap?.hazards |= src
@@ -42,11 +51,68 @@
 /obj/overmap/feature/hazard/proc/process_tick(elapsed)
 	if(movable)
 		process_movement(elapsed)
-	var/turf/here = loc
-	if(!isturf(here))
+	return
+
+/proc/overmap_hazard_clusters(datum/overmap_sector/sector)
+	. = list()
+	if(!sector)
 		return
-	for(var/obj/overmap/entity/vessel in here)
-		try_affect(vessel)
+	if(sector.hazard_clusters)
+		return sector.hazard_clusters
+	var/list/all = list()
+	var/list/by_cell = list()
+	for(var/obj/overmap/feature/hazard/hazard in sector.objects)
+		var/turf/spot = hazard.loc
+		if(!isturf(spot))
+			continue
+		all += hazard
+		var/cell_key = "[spot.x],[spot.y]"
+		var/list/bucket = by_cell[cell_key]
+		if(!bucket)
+			bucket = list()
+			by_cell[cell_key] = bucket
+		bucket += hazard
+	var/list/taken = list()
+	for(var/obj/overmap/feature/hazard/seed as anything in all)
+		if(taken[seed])
+			continue
+		taken[seed] = TRUE
+		var/list/group = list(seed)
+		var/index = 1
+		while(index <= length(group))
+			var/obj/overmap/feature/hazard/current = group[index]
+			index++
+			var/turf/here = current.loc
+			if(!isturf(here))
+				continue
+			for(var/offset_x in -1 to 1)
+				for(var/offset_y in -1 to 1)
+					var/list/bucket = by_cell["[here.x + offset_x],[here.y + offset_y]"]
+					if(!bucket)
+						continue
+					for(var/obj/overmap/feature/hazard/other as anything in bucket)
+						if(taken[other] || other.icon_state != seed.icon_state)
+							continue
+						taken[other] = TRUE
+						group += other
+		. += list(group)
+	sector.hazard_clusters = .
+
+/proc/overmap_hazard_cluster_density(list/group)
+	if(!length(group))
+		return 0
+	var/total = 0
+	for(var/obj/overmap/feature/hazard/point as anything in group)
+		total += point.hazard_density
+	return round(total / length(group))
+
+/proc/overmap_hazard_cluster_of(datum/overmap_sector/sector, obj/overmap/feature/hazard/hazard)
+	if(!sector || !hazard)
+		return list()
+	for(var/list/group as anything in overmap_hazard_clusters(sector))
+		if(hazard in group)
+			return group
+	return list()
 
 /obj/overmap/feature/hazard/proc/try_affect(obj/overmap/entity/vessel)
 	if(!vessel || QDELETED(vessel) || vessel.overmap_hazard_immune)
@@ -85,6 +151,8 @@
 	return isspaceturf(spot)
 
 /obj/overmap/feature/hazard/proc/collect_ship_turfs(obj/overmap/entity/vessel)
+	if(vessel.overmap_pod)
+		return list(get_turf(vessel.overmap_pod.pod()))
 	. = list()
 	if(vessel.shuttle)
 		for(var/area/place as anything in vessel.shuttle.shuttle_areas)
@@ -200,6 +268,9 @@
 	map_color = "#8a7a68"
 	color = null
 
+/obj/overmap/feature/hazard/asteroid/roll_density()
+	return text2num(pickweight(list("1" = 16, "2" = 26, "3" = 24, "4" = 16, "5" = 9, "6" = 5, "7" = 3, "8" = 1)))
+
 /obj/overmap/feature/hazard/asteroid/get_ru_names()
 	return alist(
 		NOMINATIVE = "пояс астероидов",
@@ -238,6 +309,9 @@
 	map_color = "#6ec4ff"
 	color = null
 
+/obj/overmap/feature/hazard/emp/roll_density()
+	return rand(2, 5)
+
 /obj/overmap/feature/hazard/emp/get_ru_names()
 	return alist(
 		NOMINATIVE = "ЭМИ-шторм",
@@ -249,8 +323,6 @@
 	)
 
 /obj/overmap/feature/hazard/emp/affect_vessel(obj/overmap/entity/vessel)
-	if(!should_strike_moving(vessel))
-		return
 	INVOKE_ASYNC(src, PROC_REF(do_emp_strike), vessel)
 
 /obj/overmap/feature/hazard/emp/proc/do_emp_strike(obj/overmap/entity/vessel)
@@ -267,7 +339,6 @@
 
 /obj/overmap/feature/hazard/emp/proc/strike_lightning(turf/epicenter, obj/overmap/entity/vessel)
 	tesla_zap(source = epicenter, zap_range = rand(4, 8), power = 8e3, cutoff = 1e3, zap_flags = ZAP_MOB_DAMAGE | ZAP_OBJ_DAMAGE | ZAP_MOB_STUN)
-	spawn_meteor_at(vessel)
 	var/turf/cursor = epicenter
 	for(var/step_i in 1 to rand(2, 4))
 		cursor = get_step(cursor, pick(GLOB.cardinal))
@@ -281,6 +352,9 @@
 	icon_state = OVERMAP_HAZARD_ICON_CARP
 	map_color = "#3cb89a"
 	color = null
+
+/obj/overmap/feature/hazard/carp/roll_density()
+	return rand(1, 4)
 
 /obj/overmap/feature/hazard/carp/get_ru_names()
 	return alist(
@@ -363,22 +437,32 @@
 	if(overmap_hazard_spawn_blocked(sector, spot))
 		return null
 	var/obj/overmap/feature/hazard/hazard = new hazard_type(spot)
+	hazard.hazard_density = overmap_hazard_cluster_fill(spot, hazard)
 	sector.add_object(hazard, spot)
 	return hazard
 
+/proc/overmap_hazard_cluster_fill(turf/spot, obj/overmap/feature/hazard/hazard)
+	for(var/turf/neighbour in orange(1, spot))
+		if(neighbour.z != spot.z)
+			continue
+		for(var/obj/overmap/feature/hazard/other in neighbour)
+			if(other.icon_state == hazard.icon_state)
+				return other.hazard_density
+	return hazard.roll_density()
+
 /proc/overmap_hazard_paint_line(hazard_type, datum/overmap_sector/sector, turf/start, length, dir, wobble = FALSE)
-	. = 0
+	var/placed_count = 0
 	var/turf/cursor = start
 	for(var/i in 1 to length)
 		if(!cursor)
 			break
 		if(overmap_hazard_place(hazard_type, sector, cursor))
-			.++
+			placed_count++
 		if(wobble && prob(35))
 			var/turf/side = get_step(cursor, turn(dir, pick(-90, 90)))
 			if(side && !overmap_hazard_spawn_blocked(sector, side))
 				overmap_hazard_place(hazard_type, sector, side)
-				.++
+				placed_count++
 		cursor = get_step(cursor, dir)
 		if(!cursor || cursor.z != sector.z_level)
 			break
@@ -386,18 +470,19 @@
 			break
 		if(cursor.y < sector.origin_y + OVERMAP_EDGE || cursor.y > sector.origin_y + sector.size - OVERMAP_EDGE - 1)
 			break
+	return placed_count
 
 /proc/overmap_hazard_paint_blob(hazard_type, datum/overmap_sector/sector, turf/start, size)
-	. = 0
+	var/placed_count = 0
 	var/list/open = list(start)
 	var/list/seen = list()
-	while(length(open) && . < size)
+	while(length(open) && placed_count < size)
 		var/turf/cursor = pick_n_take(open)
 		if(seen[cursor])
 			continue
 		seen[cursor] = TRUE
 		if(overmap_hazard_place(hazard_type, sector, cursor))
-			.++
+			placed_count++
 		for(var/dir in GLOB.cardinal)
 			var/turf/next = get_step(cursor, dir)
 			if(!next || seen[next] || overmap_hazard_spawn_blocked(sector, next))
@@ -407,16 +492,17 @@
 			if(next.y < sector.origin_y + OVERMAP_EDGE || next.y > sector.origin_y + sector.size - OVERMAP_EDGE - 1)
 				continue
 			open += next
+	return placed_count
 
 /proc/overmap_hazard_paint_arc(hazard_type, datum/overmap_sector/sector, turf/start, length, dir)
-	. = 0
+	var/placed_count = 0
 	var/turf/cursor = start
 	var/heading = dir
 	for(var/i in 1 to length)
 		if(!cursor)
 			break
 		if(overmap_hazard_place(hazard_type, sector, cursor))
-			.++
+			placed_count++
 		if(prob(40))
 			heading = turn(heading, pick(-45, 45))
 			if(!heading)
@@ -428,11 +514,12 @@
 			break
 		if(cursor.y < sector.origin_y + OVERMAP_EDGE || cursor.y > sector.origin_y + sector.size - OVERMAP_EDGE - 1)
 			break
+	return placed_count
 
 /proc/overmap_hazard_paint_ring(hazard_type, datum/overmap_sector/sector, turf/start, radius, count)
-	. = 0
+	var/placed_count = 0
 	if(!start)
-		return
+		return placed_count
 	var/list/ring = list()
 	for(var/turf/spot in orange(radius, start))
 		if(get_dist(start, spot) != radius)
@@ -449,12 +536,13 @@
 	for(var/i in 1 to min(count, length(ring)))
 		var/turf/spot = pick_n_take(ring)
 		if(overmap_hazard_place(hazard_type, sector, spot))
-			.++
+			placed_count++
+	return placed_count
 
 /proc/overmap_hazard_paint_scatter(hazard_type, datum/overmap_sector/sector, turf/start, count, spread)
-	. = 0
+	var/placed_count = 0
 	if(!start)
-		return
+		return placed_count
 	var/list/pool = list(start)
 	for(var/turf/spot in orange(spread, start))
 		if(spot.z != sector.z_level)
@@ -469,16 +557,18 @@
 			break
 		var/turf/spot = pick_n_take(pool)
 		if(overmap_hazard_place(hazard_type, sector, spot))
-			.++
+			placed_count++
+	return placed_count
 
 /proc/overmap_hazard_paint_elbow(hazard_type, datum/overmap_sector/sector, turf/start, length, dir)
-	. = overmap_hazard_paint_line(hazard_type, sector, start, max(2, round(length / 2)), dir, FALSE)
+	var/placed_count = overmap_hazard_paint_line(hazard_type, sector, start, max(2, round(length / 2)), dir, FALSE)
 	var/turf/corner = start
 	for(var/i in 1 to max(1, round(length / 2)))
 		corner = get_step(corner, dir)
 		if(!corner)
-			return
-	. += overmap_hazard_paint_line(hazard_type, sector, corner, max(2, length - round(length / 2)), turn(dir, pick(-90, 90)), TRUE)
+			return placed_count
+	placed_count += overmap_hazard_paint_line(hazard_type, sector, corner, max(2, length - round(length / 2)), turn(dir, pick(-90, 90)), TRUE)
+	return placed_count
 
 /proc/overmap_hazard_paint_random(hazard_type, datum/overmap_sector/sector, turf/start)
 	if(!start)
@@ -507,7 +597,6 @@
 	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/asteroid, max(1, round(rand(2, 3) * scale)))
 	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/emp, max(1, round(rand(1, 2) * scale)))
 	scatter_overmap_hazard_type(sector, /obj/overmap/feature/hazard/carp, max(1, round(rand(1, 2) * scale)))
-	log_world("Overmap: static hazards placed on sector [sector.id].")
 
 /proc/scatter_overmap_hazard_type(datum/overmap_sector/sector, hazard_type, amount)
 	for(var/i in 1 to amount)
