@@ -363,12 +363,6 @@
 /obj/machinery/portable_atmospherics/canister/oxygen,
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"ra" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 4
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "rq" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/spray/cleaner,
@@ -516,12 +510,6 @@
 	pixel_y = 3
 	},
 /turf/simulated/floor/pod/dark,
-/area/shuttle/freegolem)
-"Bp" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 1
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
 /area/shuttle/freegolem)
 "BF" = (
 /obj/machinery/mineral/ore_redemption/golem,
@@ -810,12 +798,6 @@
 	},
 /turf/simulated/floor/pod/dark,
 /area/shuttle/freegolem)
-"Ri" = (
-/obj/machinery/ship_engine/thruster{
-	dir = 2
-	},
-/turf/simulated/wall/mineral/titanium/survival/pod,
-/area/shuttle/freegolem)
 "RQ" = (
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -964,11 +946,11 @@ OM
 yB
 "}
 (3,1,1) = {"
-Bp
 cI
 cI
 cI
 cI
+cI
 yB
 yB
 yB
@@ -982,7 +964,7 @@ cI
 cI
 cI
 cI
-Ri
+cI
 "}
 (4,1,1) = {"
 zc
@@ -1452,7 +1434,7 @@ yB
 yB
 yB
 yB
-Bp
+cI
 kO
 Qt
 Qt
@@ -1460,7 +1442,7 @@ pJ
 Qt
 Qt
 xI
-Ri
+cI
 yB
 yB
 yB
@@ -1538,11 +1520,11 @@ yB
 yB
 yB
 yB
-ra
+cI
 Xe
 dT
 Xe
-ra
+cI
 yB
 yB
 yB

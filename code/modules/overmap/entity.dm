@@ -254,8 +254,7 @@
 
 /obj/overmap/entity/proc/unregister_engine(obj/machinery/ship_engine/engine)
 	engines -= engine
-	flight?.engine_torques -= engine
-	flight?.engine_vectors -= engine
+	flight?.thrusting_engines -= engine
 	if(engine.vessel == src)
 		engine.vessel = null
 
@@ -532,6 +531,13 @@
 			.["smes_charge"] += battery.charge
 			.["smes_max"] += battery.capacity
 
+/obj/overmap/entity/proc/charge_shore_power(elapsed)
+	if(!programmed_profile()?.powered_engines || !is_physically_docked() || !is_station_level(shuttle.z))
+		return
+	for(var/area/place as anything in shuttle.shuttle_areas)
+		for(var/obj/machinery/power/apc/unit as anything in place.apc)
+			unit.cell?.give(OVERMAP_SHORE_POWER_RATE * elapsed / (1 SECONDS))
+
 /obj/overmap/entity/proc/autopilot_eta()
 	var/datum/component/overmap_flight/nav = flight
 	if(!nav || !nav.autopilot || isnull(nav.autopilot_x) || isnull(nav.autopilot_y) || !sector)
@@ -576,8 +582,11 @@
 		if(dead)
 			return "двигатели без питания или повреждены"
 		return "двигатели не дают тяги"
-	if(!nav.omni_thrust && !nav.strongest_thrust())
-		return "двигатели не дают тяги ни в одну сторону"
+	if(!overmap_pod && !nav.engine_thrust)
+		return "двигателям не хватает энергии или топлива"
+	for(var/obj/machinery/ship_engine/engine as anything in engines)
+		if(engine.on && engine.on_reserve_power())
+			return "APC разряжен или отключён, двигатели на аварийной тяге"
 	return ""
 
 /obj/overmap/entity/proc/get_dock_host()

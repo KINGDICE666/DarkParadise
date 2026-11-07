@@ -90,7 +90,6 @@
 	data["radar"] = radar_contacts()
 	data["radar_drifters"] = radar_drifters()
 	data["radar_projectiles"] = radar_projectiles()
-	data["radar_engines"] = radar_engines()
 	data["radar_terrain"] = radar_terrain(reach)
 	data["radar_docks"] = free_flight_view ? radar_dock_targets() : list()
 	data["dock_preview"] = null

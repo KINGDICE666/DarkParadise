@@ -156,7 +156,3 @@
 	extra_range = 6
 	pressure_affected = FALSE
 	use_sound_tokens = TRUE
-
-/datum/looping_sound/ship_engine/thruster
-	volume = 12
-	extra_range = 2

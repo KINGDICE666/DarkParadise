@@ -1,8 +1,6 @@
-#define THRUSTER_OVERHANG 8
-
 /obj/machinery/ship_engine
-	name = "small advanced engine"
-	desc = "Компактный двигатель. Даёт небольшую тягу, которой достаточно для комфортного передвижения на малых судах."
+	name = "small ion engine"
+	desc = "Компактный ионный двигатель. Питается от APC корабля и толкает судно в любую сторону."
 	icon = 'icons/turf/shuttle/misc.dmi'
 	icon_state = "propulsion"
 	anchored = TRUE
@@ -22,14 +20,10 @@
 	var/on = TRUE
 	var/thrust_limit = 1
 	var/generated_thrust = OVERMAP_ENGINE_SMALL_THRUST
-	var/requires_apc = FALSE
-	var/side_thrust_fraction = 0.08
-	var/wall_mounted = FALSE
+	var/requires_apc = TRUE
 	var/obj/machinery/power/apc/power_apc
 	var/active_pushes = NONE
-	var/engine_board
-
-	var/omnidirectional = TRUE
+	var/engine_board = /obj/item/circuitboard/ship_engine_ion
 	var/firing = FALSE
 	var/engine_size = 1
 	var/burn_icon = 'icons/obj/machines/ship_engine.dmi'
@@ -40,12 +34,12 @@
 
 /obj/machinery/ship_engine/get_ru_names()
 	return alist(
-		NOMINATIVE = "[omnidirectional ? "продвинутый " : ""]двигатель корабля",
-		GENITIVE = "[omnidirectional ? "продвинутого " : ""]двигателя корабля",
-		DATIVE = "[omnidirectional ? "продвинутому " : ""]двигателю корабля",
-		ACCUSATIVE = "[omnidirectional ? "продвинутый " : ""]двигатель корабля",
-		INSTRUMENTAL = "[omnidirectional ? "продвинутым " : ""]двигателем корабля",
-		PREPOSITIONAL = "[omnidirectional ? "продвинутом " : ""]двигателе корабля",
+		NOMINATIVE = "ионный двигатель корабля",
+		GENITIVE = "ионного двигателя корабля",
+		DATIVE = "ионному двигателю корабля",
+		ACCUSATIVE = "ионный двигатель корабля",
+		INSTRUMENTAL = "ионным двигателем корабля",
+		PREPOSITIONAL = "ионном двигателе корабля",
 	)
 
 /obj/machinery/ship_engine/Initialize(mapload)
@@ -80,9 +74,7 @@
 	resolved.register_engine(src)
 
 /obj/machinery/ship_engine/proc/can_burn()
-	if(!on || (stat & BROKEN) || (wall_mounted && !valid_wall_mount()))
-		return FALSE
-	if(requires_apc_power() && !get_power_apc()?.can_supply_equipment())
+	if(!on || (stat & BROKEN))
 		return FALSE
 	return fuel_available()
 
@@ -96,8 +88,9 @@
 		return 0
 	var/thrust = get_thrust()
 	var/fraction = resource_fraction(elapsed)
-	if(requires_apc_power() && !get_power_apc()?.cell?.use(active_power_usage * thrust_limit * elapsed / (1 SECONDS) * GLOB.CELLRATE * fraction))
-		return 0
+	if(requires_apc_power() && !on_reserve_power())
+		var/obj/item/stock_parts/cell/cell = get_power_apc().cell
+		cell.use(min(cell.charge, burn_power_cost(elapsed) * fraction))
 	if(!consume_fuel(elapsed * fraction))
 		return 0
 	return thrust
@@ -128,14 +121,12 @@
 		return "Повреждён"
 	if(!on)
 		return "Выключен"
-	if(wall_mounted && !valid_wall_mount())
-		return "Нужна внешняя стена"
 	if(requires_apc_power())
 		var/obj/machinery/power/apc/apc = get_power_apc()
 		if(!apc)
-			return "Нет APC на шаттле"
+			return "Нет APC на шаттле, аварийная тяга"
 		if(!apc.can_supply_equipment())
-			return "APC отключён или разряжен"
+			return "APC отключён или разряжен, аварийная тяга"
 	if(!fuel_available())
 		return "Нет подачи плазмы"
 	return "Готов"
@@ -175,8 +166,8 @@
 /obj/machinery/ship_engine/small
 
 /obj/machinery/ship_engine/large
-	name = "large advanced engine"
-	desc = "Тяжёлый двигатель. Даёт большое количество тяги для перелётов на самых больших судах."
+	name = "large ion engine"
+	desc = "Тяжёлый ионный двигатель. Питается от APC корабля и даёт большую тягу для самых больших судов."
 	icon = 'icons/obj/2x2.dmi'
 	icon_state = "large_engine"
 	appearance_flags = LONG_GLIDE | KEEP_TOGETHER
@@ -186,16 +177,16 @@
 	idle_power_usage = 1500
 	active_power_usage = 6000
 	engine_size = 2
-	side_thrust_fraction = 0
+	engine_board = /obj/item/circuitboard/ship_engine_ion/large
 
 /obj/machinery/ship_engine/large/get_ru_names()
 	return alist(
-		NOMINATIVE = "большой продвинутый двигатель корабля",
-		GENITIVE = "большого продвинутого двигателя корабля",
-		DATIVE = "большому продвинутому двигателю корабля",
-		ACCUSATIVE = "большой продвинутый двигатель корабля",
-		INSTRUMENTAL = "большим продвинутым двигателем корабля",
-		PREPOSITIONAL = "большом продвинутом двигателе корабля",
+		NOMINATIVE = "большой ионный двигатель корабля",
+		GENITIVE = "большого ионного двигателя корабля",
+		DATIVE = "большому ионному двигателю корабля",
+		ACCUSATIVE = "большой ионный двигатель корабля",
+		INSTRUMENTAL = "большим ионным двигателем корабля",
+		PREPOSITIONAL = "большом ионном двигателе корабля",
 	)
 
 /obj/machinery/ship_engine/huge
@@ -212,7 +203,7 @@
 	idle_power_usage = 1500
 	active_power_usage = 6000
 	engine_size = 3
-	side_thrust_fraction = 0
+	engine_board = null
 
 /obj/machinery/ship_engine/huge/get_ru_names()
 	return alist(
@@ -236,6 +227,8 @@
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	light_power = 0
 	burn_light_power = 0
+	requires_apc = FALSE
+	engine_board = null
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 
 /obj/machinery/ship_engine/virtual/Initialize(mapload)
@@ -251,51 +244,6 @@
 /obj/machinery/ship_engine/virtual/can_burn()
 	return on && !(stat & BROKEN)
 
-/obj/machinery/ship_engine/thruster
-	omnidirectional = FALSE
-	requires_apc = TRUE
-	wall_mounted = TRUE
-	side_thrust_fraction = 0
-	obj_flags = NODECONSTRUCT
-	name = "maneuvering thruster"
-	desc = "Маленькое сопло на внешней обшивке. Слабо толкает корабль в свою сторону и помогает ему поворачивать."
-	icon = 'icons/obj/machines/ship_thruster.dmi'
-	icon_state = "thruster"
-	layer = ABOVE_WINDOW_LAYER
-	density = FALSE
-	opacity = FALSE
-	smoothing_groups = null
-	light_power = 0
-	burn_light_power = 0
-	idle_power_usage = 50
-	active_power_usage = 400
-	generated_thrust = OVERMAP_ENGINE_THRUSTER_THRUST
-	burn_icon = 'icons/obj/machines/ship_thruster.dmi'
-	burn_state = "thruster_burn"
-	burn_sound_type = /datum/looping_sound/ship_engine/thruster
-
-/obj/machinery/ship_engine/thruster/get_ru_names()
-	return alist(
-		NOMINATIVE = "маневровый двигатель",
-		GENITIVE = "маневрового двигателя",
-		DATIVE = "маневровому двигателю",
-		ACCUSATIVE = "маневровый двигатель",
-		INSTRUMENTAL = "маневровым двигателем",
-		PREPOSITIONAL = "маневровом двигателе",
-	)
-
-/obj/machinery/ship_engine/thruster/Initialize(mapload)
-	. = ..()
-	stick_out()
-
-/obj/machinery/ship_engine/thruster/setDir(newdir)
-	. = ..()
-	stick_out()
-
-/obj/machinery/ship_engine/thruster/proc/stick_out()
-	pixel_x = (!!(dir & EAST) - !!(dir & WEST)) * THRUSTER_OVERHANG
-	pixel_y = (!!(dir & NORTH) - !!(dir & SOUTH)) * THRUSTER_OVERHANG
-
 /obj/machinery/ship_engine/proc/create_engine_parts()
 	if(!engine_board)
 		return
@@ -308,5 +256,3 @@
 		else
 			for(var/index in 1 to count)
 				component_parts += new part_type(src)
-
-#undef THRUSTER_OVERHANG

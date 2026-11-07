@@ -27,7 +27,6 @@ import {
   type HazardField,
   OvermapRadar,
   type RadarContact,
-  type RadarEngine,
   type RadarObject,
   type RadarPeel,
   type RadarProjectile,
@@ -49,7 +48,6 @@ type EngineInfo = {
   thrust: number;
   limit: number;
   status: string;
-  push?: number | null;
 };
 
 type ProgrammedRoute = {
@@ -121,7 +119,6 @@ type OvermapHelmData = {
   radar_projectiles?: RadarProjectile[];
   radar_terrain?: RadarTerrain | null;
   radar_world?: number[];
-  radar_engines?: RadarEngine[];
   weapons?: {
     id: string;
     name: string;
@@ -154,10 +151,9 @@ type OvermapHelmData = {
   autopilot_status?: string;
   avoiding?: BooleanLike;
   eta?: number;
-  thrust_sides?: number[];
+  thrust_accel?: number;
   turn_accel?: number;
   top_speed?: number;
-  omni_thrust?: BooleanLike;
   thrust: number;
   mass: number;
   thrust_limit: number;
@@ -515,29 +511,14 @@ const ShipPanel = () => {
 
 const ThrustPanel = () => {
   const { act, data } = useBackend<OvermapHelmData>();
-  const sides = data.thrust_sides || [0, 0, 0, 0];
   const engines = data.engines || [];
   const offline = engines.filter((engine) => !engine.on);
   const [limit, setLimit] = useSlider(data.thrust_limit, (next) =>
     act('set_thrust_limit', { value: next }),
   );
-  const labels: Record<string, string> = {
-    front: 'вперёд',
-    right: 'вправо',
-    back: 'назад',
-    left: 'влево',
-  };
-  const slot = (index: number, key: string) => (
-    <div className={`OvermapThrust__slot OvermapThrust__slot--${key}`}>
-      <span>{labels[key]}</span>
-      <em>{sides[index] || 0} м/с²</em>
-    </div>
-  );
   return (
     <Section title="Тяга" className="OvermapHelmBox">
       <div className="OvermapThrust">
-        {slot(0, 'front')}
-        {slot(3, 'left')}
         <div className="OvermapThrust__slot OvermapThrust__slot--center">
           <input
             type="range"
@@ -550,8 +531,10 @@ const ThrustPanel = () => {
           />
           <span className="OvermapThrust__percent">{limit}%</span>
         </div>
-        {slot(1, 'right')}
-        {slot(2, 'back')}
+        <div className="OvermapThrust__slot">
+          <span>ускорение</span>
+          <em>{data.thrust_accel || 0} м/с²</em>
+        </div>
       </div>
       <div className="OvermapThrust__foot">
         <span>
@@ -761,7 +744,6 @@ const RadarPanel = (props: {
             facing={data.facing || 0}
             terrain={data.radar_terrain}
             world={data.radar_world}
-            engines={data.radar_engines || []}
             objects={data.objects}
             self={data.self_pos}
             sectorSize={data.sector_size}

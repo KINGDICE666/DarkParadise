@@ -424,16 +424,6 @@
 		var/obj/effect/abstract/hull_proxy_tile/mirror = mirror_entry
 		. += list(list(round(mirror.x + mirror.pixel_x / ICON_SIZE_X - hull_center_x, 0.1), round(mirror.y + mirror.pixel_y / ICON_SIZE_Y - hull_center_y, 0.1), isliving(drifter) && drifter:stat != DEAD))
 
-/obj/overmap/entity/proc/radar_engines()
-	. = list()
-	for(var/obj/machinery/ship_engine/engine as anything in engines)
-		if(engine.omnidirectional || engine.z != hull_z)
-			continue
-		var/list/directions = engine.push_directions()
-		for(var/key in directions)
-			var/push = text2num(key)
-			. += list(list(engine.thrust_origin_x() - hull_center_x, engine.thrust_origin_y() - hull_center_y, REVERSE_DIR(push), engine.firing && (engine.active_pushes & push)))
-
 /obj/overmap/entity/proc/radar_shapes()
 	. = list()
 	if(radar_shape)
@@ -450,7 +440,7 @@
 	if(!length(radar_uis) || !sector)
 		return
 	var/list/scatter = radar_scatter_data()
-	var/list/data = list("radar_tick" = SSovermap.radar_frame_time * 100, "radar_epoch" = radar_epoch, "radar_locked" = !!relay_jump_from, "self_pos" = radar_sector_position(), "radar_docks" = radar_dock_targets(), "dock_ready" = docking_approach?.ready(), "dock_in_range" = docking_approach?.in_alignment_range(), "dock_aligning" = docking_approach?.aligning, "radar" = radar_contacts(), "radar_drifters" = radar_drifters(), "radar_engines" = radar_engines(), "facing" = free_flight_view ? get_facing() : 0, "radar_world" = radar_world_origin())
+	var/list/data = list("radar_tick" = SSovermap.radar_frame_time * 100, "radar_epoch" = radar_epoch, "radar_locked" = !!relay_jump_from, "self_pos" = radar_sector_position(), "radar_docks" = radar_dock_targets(), "dock_ready" = docking_approach?.ready(), "dock_in_range" = docking_approach?.in_alignment_range(), "dock_aligning" = docking_approach?.aligning, "radar" = radar_contacts(), "radar_drifters" = radar_drifters(), "facing" = free_flight_view ? get_facing() : 0, "radar_world" = radar_world_origin())
 	if(scatter != pushed_scatter)
 		data["radar_scatter"] = scatter
 		pushed_scatter = scatter

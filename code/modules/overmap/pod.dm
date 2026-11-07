@@ -128,6 +128,8 @@
 	generated_thrust = OVERMAP_POD_THRUST * 4
 	idle_power_usage = 0
 	active_power_usage = 0
+	requires_apc = FALSE
+	engine_board = null
 	density = FALSE
 	opacity = FALSE
 	invisibility = INVISIBILITY_ABSTRACT

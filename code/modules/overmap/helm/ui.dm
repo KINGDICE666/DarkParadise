@@ -79,15 +79,9 @@
 		data["dampeners"] = nav.dampeners
 		data["angular_dampeners"] = nav.angular_dampeners
 
-		data["thrust_sides"] = list(
-			nav.side_accel(nav.side_thrust(NORTH)),
-			nav.side_accel(nav.side_thrust(EAST)),
-			nav.side_accel(nav.side_thrust(SOUTH)),
-			nav.side_accel(nav.side_thrust(WEST)),
-		)
-		data["turn_accel"] = round(nav.angular_accel(min(nav.torque_left, nav.torque_right)) * (1 SECONDS) * (1 SECONDS), 0.1)
+		data["thrust_accel"] = nav.side_accel(nav.engine_thrust)
+		data["turn_accel"] = round(nav.angular_accel(nav.engine_torque) * (1 SECONDS) * (1 SECONDS), 0.1)
 		data["top_speed"] = round(OVERMAP_DISPLAY_SPEED(nav.top_speed()), 0.1)
-		data["omni_thrust"] = nav.omni_thrust
 		data["autopilot_status"] = nav.autopilot ? nav.autopilot_status : ""
 		data["avoid_obstacles"] = nav.avoid_obstacles
 		data["avoiding"] = length(nav.navigation?.path) > 1
@@ -480,7 +474,6 @@
 			"thrust" = engine.get_thrust(),
 			"limit" = round(engine.thrust_limit * 100),
 			"status" = engine.get_status(),
-			"push" = engine.omnidirectional ? null : REVERSE_DIR(engine.dir),
 		))
 	return engines
 

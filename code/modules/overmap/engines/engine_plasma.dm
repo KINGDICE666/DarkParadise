@@ -1,16 +1,26 @@
 /obj/machinery/ship_engine/plasma
-	omnidirectional = FALSE
 	name = "small plasma engine"
-	desc = "Малый плазменный двигатель. Подключите трубу к стороне, противоположной выхлопу. Восемь процентов основной тяги доступны боковым соплам."
+	desc = "Малый плазменный двигатель. Толкает судно в любую сторону на плазме из трубы, подключённой с тыльной стороны."
 	icon = 'icons/obj/machines/ship_engine.dmi'
 	icon_state = "nozzle"
 	color = "#ffb677"
 	opacity = FALSE
 	generated_thrust = OVERMAP_ENGINE_SMALL_THRUST * 3
 	active_power_usage = 0
+	requires_apc = FALSE
 	var/fuel_rate = 1
 	var/obj/machinery/atmospherics/unary/ship_engine_feed/fuel_port
 	engine_board = /obj/item/circuitboard/ship_engine_plasma
+
+/obj/machinery/ship_engine/plasma/get_ru_names()
+	return alist(
+		NOMINATIVE = "плазменный двигатель корабля",
+		GENITIVE = "плазменного двигателя корабля",
+		DATIVE = "плазменному двигателю корабля",
+		ACCUSATIVE = "плазменный двигатель корабля",
+		INSTRUMENTAL = "плазменным двигателем корабля",
+		PREPOSITIONAL = "плазменном двигателе корабля",
+	)
 
 /obj/machinery/ship_engine/plasma/Initialize(mapload)
 	. = ..()
@@ -44,15 +54,24 @@
 
 /obj/machinery/ship_engine/plasma/large
 	name = "large plasma engine"
-	desc = "Большой плазменный двигатель. Трубная подача плазмы с противоположной от выхлопа стороны."
+	desc = "Большой плазменный двигатель. Трубная подача плазмы с тыльной стороны."
 	icon = 'icons/obj/2x2.dmi'
 	icon_state = "large_engine"
 	engine_size = 2
 	max_integrity = 800
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST * 3
 	fuel_rate = 3
-	side_thrust_fraction = 0
 	engine_board = /obj/item/circuitboard/ship_engine_plasma/large
+
+/obj/machinery/ship_engine/plasma/large/get_ru_names()
+	return alist(
+		NOMINATIVE = "большой плазменный двигатель корабля",
+		GENITIVE = "большого плазменного двигателя корабля",
+		DATIVE = "большому плазменному двигателю корабля",
+		ACCUSATIVE = "большой плазменный двигатель корабля",
+		INSTRUMENTAL = "большим плазменным двигателем корабля",
+		PREPOSITIONAL = "большом плазменном двигателе корабля",
+	)
 
 /obj/machinery/atmospherics/unary/ship_engine_feed
 	name = "engine plasma inlet"

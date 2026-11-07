@@ -26,7 +26,6 @@ import {
   type HazardField,
   OvermapRadar,
   type RadarContact,
-  type RadarEngine,
   type RadarObject,
   type RadarPeel,
   type RadarProjectile,
@@ -82,7 +81,6 @@ type OvermapSensorsData = {
   radar?: RadarContact[];
   radar_drifters?: number[][];
   radar_projectiles?: RadarProjectile[];
-  radar_engines?: RadarEngine[];
   radar_terrain?: RadarTerrain;
   radar_world?: number[];
   objects?: RadarObject[];
@@ -349,7 +347,6 @@ export const OvermapSensors = () => {
                     contacts={data.radar || []}
                     drifters={data.radar_drifters || []}
                     projectiles={data.radar_projectiles || []}
-                    engines={data.radar_engines || []}
                     facing={data.facing || 0}
                     terrain={data.radar_terrain}
                     world={data.radar_world}

@@ -14,15 +14,9 @@
 	var/mob/pilot
 	var/obj/machinery/computer/helm/pilot_helm
 	var/pilot_turn = 0
-	var/thrust_north = 0
-	var/thrust_east = 0
-	var/thrust_south = 0
-	var/thrust_west = 0
-	var/torque_left = 0
-	var/torque_right = 0
-	var/omni_thrust = FALSE
-	var/list/engine_torques = list()
-	var/list/engine_vectors = list()
+	var/engine_thrust = 0
+	var/engine_torque = 0
+	var/list/thrusting_engines = list()
 	var/burn_sides = NONE
 	var/burn_turn = 0
 	var/was_burning = FALSE
@@ -111,7 +105,7 @@
 	if(autopilot && needs_physics() && !(matching_velocity && (manual_drive || pilot_turn)))
 		aim = process_autopilot(elapsed)
 	if(!isnull(aim))
-		steer_towards(aim - main_axis_angle(), elapsed)
+		steer_towards(aim, elapsed)
 	else if(pilot_turn)
 		change_spin(pilot_turn * OVERMAP_TURN_RATE_MAX, elapsed)
 	else
@@ -120,7 +114,7 @@
 	if(needs_physics())
 		if(held_brake || (dampeners && !manual_drive && !autopilot && (vessel.shuttle || vessel.overmap_pod)))
 			brake(elapsed)
-		if(navigation_speed_limited() && (!vessel.overmap_pod || (engines_state && strongest_thrust())))
+		if(navigation_speed_limited() && (!vessel.overmap_pod || (engines_state && engine_thrust)))
 			enforce_cruise_speed(elapsed)
 			var/current = vessel.get_speed()
 			var/limit = OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE)
@@ -132,7 +126,7 @@
 
 /datum/component/overmap_flight/proc/apply_drag(elapsed)
 	var/obj/overmap/entity/vessel = parent
-	if(vessel.overmap_pod && (!engines_state || !strongest_thrust()))
+	if(vessel.overmap_pod && (!engines_state || !engine_thrust))
 		return
 
 	var/steady = held_brake || (autopilot && !matching_velocity)
@@ -155,76 +149,18 @@
 
 /datum/component/overmap_flight/proc/refresh_thrust()
 	var/obj/overmap/entity/vessel = parent
-	thrust_north = 0
-	thrust_east = 0
-	thrust_south = 0
-	thrust_west = 0
-	torque_left = 0
-	torque_right = 0
-	engine_torques.Cut()
-	engine_vectors.Cut()
-	omni_thrust = !!vessel.overmap_pod
+	engine_thrust = 0
+	engine_torque = 0
+	thrusting_engines.Cut()
 	for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
 		if(engine == vessel.virtual_engine && !vessel.admin_virtual_engine)
 			continue
 		var/thrust = engine.get_thrust()
 		if(!thrust)
 			continue
-		var/list/directions = engine.push_directions()
-		if(omni_thrust)
-			directions = list("[NORTH]" = 1, "[SOUTH]" = 1, "[EAST]" = 1, "[WEST]" = 1)
-		var/list/forces = list()
-		var/list/torques = list()
-		var/arm_x = engine.thrust_origin_x() - vessel.hull_center_x
-		var/arm_y = engine.thrust_origin_y() - vessel.hull_center_y
-		for(var/key, direction_fraction in directions)
-			var/push = text2num(key)
-			var/force = thrust * direction_fraction
-			forces[key] = force
-			switch(push)
-				if(NORTH)
-					thrust_north += force
-				if(SOUTH)
-					thrust_south += force
-				if(EAST)
-					thrust_east += force
-				if(WEST)
-					thrust_west += force
-			var/torque = force * (arm_x * (!!(push & NORTH) - !!(push & SOUTH)) - arm_y * (!!(push & EAST) - !!(push & WEST)))
-			if(omni_thrust || engine.omnidirectional)
-				torque_left += force * max(vessel.hull_radius / 2, 1) / 4
-				torque_right += force * max(vessel.hull_radius / 2, 1) / 4
-			else if(torque > 0)
-				torque_left += torque
-			else
-				torque_right -= torque
-			torques[key] = torque
-		engine_vectors[engine] = forces
-		engine_torques[engine] = torques
-/datum/component/overmap_flight/proc/strongest_thrust()
-	return max(thrust_north, thrust_east, thrust_south, thrust_west)
-
-/datum/component/overmap_flight/proc/main_axis_angle()
-	var/strongest = strongest_thrust()
-	if(thrust_north == strongest)
-		return 0
-	if(thrust_east == strongest)
-		return 90
-	if(thrust_south == strongest)
-		return 180
-	return 270
-
-/datum/component/overmap_flight/proc/side_thrust(side)
-	switch(side)
-		if(NORTH)
-			return thrust_north
-		if(EAST)
-			return thrust_east
-		if(SOUTH)
-			return thrust_south
-		if(WEST)
-			return thrust_west
-	return 0
+		engine_thrust += thrust
+		engine_torque += thrust * max(vessel.hull_radius / 2, 1)
+		thrusting_engines += engine
 
 /datum/component/overmap_flight/proc/side_accel(thrust)
 	return round(OVERMAP_DISPLAY_SPEED(thrust / inertial_mass()), 0.01)
@@ -232,12 +168,6 @@
 /datum/component/overmap_flight/proc/angular_accel(torque)
 	var/obj/overmap/entity/vessel = parent
 	return torque * OVERMAP_TORQUE_SCALE / (max(vessel.total_mass(), 1) * vessel.hull_inertia)
-
-/datum/component/overmap_flight/proc/flip_time()
-	var/accel = angular_accel(min(torque_left, torque_right))
-	if(!accel)
-		return 0
-	return max(2 * sqrt(180 / accel), 180 / OVERMAP_TURN_RATE_MAX)
 
 /datum/component/overmap_flight/proc/set_facing(new_facing)
 	facing = SIMPLIFY_DEGREES(new_facing)
@@ -249,7 +179,7 @@
 		return
 	if(wanted != angular_velocity && engines_state && can_steer())
 		var/turning = wanted > angular_velocity ? 1 : -1
-		var/spin_step = angular_accel(turning > 0 ? torque_right : torque_left) * elapsed
+		var/spin_step = angular_accel(engine_torque) * elapsed
 		if(spin_step > 0)
 			burn_turn = turning
 			if(turning > 0)
@@ -261,7 +191,7 @@
 
 /datum/component/overmap_flight/proc/steer_towards(target_angle, elapsed)
 	var/difference = closer_angle_difference(facing, target_angle)
-	var/braking = angular_accel(min(torque_left, torque_right)) || angular_accel(max(torque_left, torque_right))
+	var/braking = angular_accel(engine_torque)
 	var/wanted = 0
 	if(abs(difference) >= 1)
 		wanted = sign(difference) * min(OVERMAP_TURN_RATE_MAX, sqrt(2 * braking * abs(difference)))
@@ -333,37 +263,26 @@
 	return TRUE
 
 /datum/component/overmap_flight/proc/thrust_step(elapsed)
-	return strongest_thrust() / inertial_mass() / burn_delay * elapsed
+	return engine_thrust / inertial_mass() / burn_delay * elapsed
 
-/datum/component/overmap_flight/proc/push(direction_x, direction_y, elapsed, apply_torque = TRUE)
-	push_local(direction_x * cos(facing) - direction_y * sin(facing), direction_x * sin(facing) + direction_y * cos(facing), elapsed, apply_torque)
+/datum/component/overmap_flight/proc/push(direction_x, direction_y, elapsed)
+	push_local(direction_x * cos(facing) - direction_y * sin(facing), direction_x * sin(facing) + direction_y * cos(facing), elapsed)
 
-/datum/component/overmap_flight/proc/push_local(local_x, local_y, elapsed, apply_torque = TRUE)
+/datum/component/overmap_flight/proc/push_local(local_x, local_y, elapsed)
 	var/obj/overmap/entity/vessel = parent
 	if(!engines_state || !can_steer())
 		return
 	var/side_x = local_x > 0 ? EAST : WEST
 	var/side_y = local_y > 0 ? NORTH : SOUTH
 	var/scale = elapsed / inertial_mass() / burn_delay
-	var/accel_x = local_x * side_thrust(side_x) * scale
-	var/accel_y = local_y * side_thrust(side_y) * scale
+	var/accel_x = local_x * engine_thrust * scale
+	var/accel_y = local_y * engine_thrust * scale
 	if(accel_x)
 		burn_sides |= side_x
 	if(accel_y)
 		burn_sides |= side_y
 	if(!accel_x && !accel_y)
 		return
-	if(!omni_thrust && apply_torque)
-		var/torque = 0
-		for(var/obj/machinery/ship_engine/engine as anything in engine_torques)
-			if(engine.omnidirectional)
-				continue
-			var/list/torques = engine_torques[engine]
-			for(var/key in torques)
-				var/push = text2num(key)
-				var/fraction = max((push & EAST) ? max(local_x, 0) : ((push & WEST) ? max(-local_x, 0) : 0), (push & NORTH) ? max(local_y, 0) : ((push & SOUTH) ? max(-local_y, 0) : 0))
-				torque += torques[key] * fraction
-		angular_velocity = clamp(angular_velocity - angular_accel(torque) * elapsed, -OVERMAP_TURN_RATE_MAX, OVERMAP_TURN_RATE_MAX)
 	var/before = sqrt(vessel.speed[1] ** 2 + vessel.speed[2] ** 2)
 	vessel.speed[1] += accel_x * cos(facing) + accel_y * sin(facing)
 	vessel.speed[2] += accel_y * cos(facing) - accel_x * sin(facing)
@@ -377,9 +296,9 @@
 
 /datum/component/overmap_flight/proc/top_speed()
 	var/obj/overmap/entity/vessel = parent
-	if(!vessel.shuttle || omni_thrust)
+	if(!vessel.shuttle || vessel.overmap_pod)
 		return vessel.max_speed
-	return clamp(strongest_thrust() / inertial_mass() / burn_delay * OVERMAP_TOP_SPEED_TIME, OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MIN), OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MAX))
+	return clamp(engine_thrust / inertial_mass() / burn_delay * OVERMAP_TOP_SPEED_TIME, OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MIN), OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MAX))
 
 /datum/component/overmap_flight/proc/brake(elapsed)
 	var/obj/overmap/entity/vessel = parent
@@ -390,8 +309,8 @@
 	var/scale = OVERMAP_BRAKE_COEFFICIENT * elapsed / inertial_mass() / burn_delay
 	var/side_x = local_x > 0 ? WEST : EAST
 	var/side_y = local_y > 0 ? SOUTH : NORTH
-	var/slow_x = min(abs(local_x), side_thrust(side_x) * scale)
-	var/slow_y = min(abs(local_y), side_thrust(side_y) * scale)
+	var/slow_x = min(abs(local_x), engine_thrust * scale)
+	var/slow_y = min(abs(local_y), engine_thrust * scale)
 	if(slow_x)
 		burn_sides |= side_x
 		local_x -= sign(local_x) * slow_x
@@ -418,7 +337,7 @@
 
 /datum/component/overmap_flight/proc/jolt_crew()
 	var/obj/overmap/entity/vessel = parent
-	if(!vessel.shuttle || world.time < next_jolt || side_accel(strongest_thrust()) < OVERMAP_JOLT_ACCEL)
+	if(!vessel.shuttle || world.time < next_jolt || side_accel(engine_thrust) < OVERMAP_JOLT_ACCEL)
 		return
 	next_jolt = world.time + OVERMAP_JOLT_COOLDOWN
 	for(var/area/place as anything in vessel.shuttle.shuttle_areas)
@@ -430,16 +349,9 @@
 	return !!engine_pushes(engine)
 
 /datum/component/overmap_flight/proc/engine_pushes(obj/machinery/ship_engine/engine)
-	if(!burn_sides && !burn_turn)
+	if(!(engine in thrusting_engines))
 		return NONE
-	var/list/forces = engine_vectors[engine]
-	var/list/torques = engine_torques[engine]
-	var/pushes = NONE
-	for(var/key in forces)
-		var/push = text2num(key)
-		if((push & burn_sides) || (burn_turn && (omni_thrust || engine.omnidirectional || torques[key] * burn_turn < 0)))
-			pushes |= push
-	return pushes
+	return burn_turn ? ALL_CARDINALS : burn_sides
 
 /datum/component/overmap_flight/proc/stop_burn()
 	var/obj/overmap/entity/vessel = parent
@@ -462,7 +374,7 @@
 	return max(vessel.total_mass(), 1) * OVERMAP_MASS_INERTIA
 
 /datum/component/overmap_flight/proc/get_acceleration()
-	return round(strongest_thrust() / inertial_mass(), OVERMAP_MOVE_RESOLUTION)
+	return round(engine_thrust / inertial_mass(), OVERMAP_MOVE_RESOLUTION)
 
 /datum/component/overmap_flight/proc/has_working_engines()
 	var/obj/overmap/entity/vessel = parent

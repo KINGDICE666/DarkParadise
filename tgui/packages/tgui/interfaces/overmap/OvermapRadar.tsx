@@ -54,8 +54,6 @@ export type RadarContact = {
   docked?: boolean;
 };
 
-export type RadarEngine = [number, number, number, number];
-
 export type RadarProjectile = {
   id: string;
   x: number;
@@ -114,13 +112,6 @@ export type GalaxyMap = {
     remaining: number;
     own: boolean | number;
   }[];
-};
-
-const NOZZLE_VECTORS: Record<number, number[]> = {
-  1: [0, 1],
-  2: [0, -1],
-  4: [1, 0],
-  8: [-1, 0],
 };
 
 export const RADAR_TILE_SPAN = 100;
@@ -238,37 +229,6 @@ const worldFrameFraction = (
   return [screenX / radius, screenY / radius];
 };
 
-const RadarEngines = (props: { engines: RadarEngine[] }) => (
-  <>
-    {props.engines.map(([x, y, dir, firing], index) => {
-      const [dx, dy] = NOZZLE_VECTORS[dir] || [0, -1];
-      return (
-        <g key={index}>
-          {!!firing && (
-            <line
-              className="OvermapRadar__burn"
-              x1={x + dx * 0.6}
-              y1={y + dy * 0.6}
-              x2={x + dx * 2.6}
-              y2={y + dy * 2.6}
-            />
-          )}
-          <circle
-            className={
-              firing
-                ? 'OvermapRadar__engine OvermapRadar__engine--firing'
-                : 'OvermapRadar__engine'
-            }
-            cx={x + dx * 0.5}
-            cy={y + dy * 0.5}
-            r={0.35}
-          />
-        </g>
-      );
-    })}
-  </>
-);
-
 export type RadarScatterChunk = {
   x: number;
   y: number;
@@ -317,7 +277,6 @@ const GeometryLayer = (props: {
   facing: number;
   followHeading: boolean;
   drifters: number[][];
-  engines: RadarEngine[];
   opacity: number;
   activeDock?: RadarDock;
 }) => {
@@ -329,7 +288,6 @@ const GeometryLayer = (props: {
     facing,
     followHeading,
     drifters,
-    engines,
     opacity,
     activeDock,
   } = props;
@@ -453,7 +411,6 @@ const GeometryLayer = (props: {
             </g>
           );
         })}
-        <RadarEngines engines={engines} />
       </g>
     </g>
   );
@@ -1537,7 +1494,6 @@ export const OvermapRadar = (props: {
   facing: number;
   terrain?: RadarTerrain | null;
   world?: number[];
-  engines: RadarEngine[];
   objects?: RadarObject[];
   self?: number[];
   sectorSize?: number;
@@ -1577,7 +1533,6 @@ export const OvermapRadar = (props: {
     facing: rawFacing,
     terrain,
     world: rawWorld,
-    engines,
     objects: rawObjects,
     self: rawSelf,
     sectorSize = 0,
@@ -1981,7 +1936,6 @@ export const OvermapRadar = (props: {
                 facing={facing}
                 followHeading={followHeading}
                 drifters={drifters}
-                engines={engines}
                 opacity={geometry}
                 activeDock={dockTargets?.find(
                   (dock) => dock.own && dock.selected,
