@@ -1332,8 +1332,7 @@
 /datum/controller/subsystem/overmap/proc/expire_bubbles()
 
 	if(spare_bubble_space && !length(flying_vessels))
-		spare_bubble_space.Release()
-		spare_bubble_space = null
+		QDEL_NULL(spare_bubble_space)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles)
 		if(!bubble.static_level && !length(bubble.ships) && !length(bubble.drifters) && world.time > bubble.last_occupied + OVERMAP_BUBBLE_TIMEOUT)
 			qdel(bubble)

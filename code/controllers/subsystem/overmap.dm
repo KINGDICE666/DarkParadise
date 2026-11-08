@@ -713,7 +713,8 @@ SUBSYSTEM_DEF(overmap)
 		if(!QDELETED(structure) && structure.sector && isturf(structure.loc))
 			flying += structure
 	flying_vessels = flying
-	prepare_bubble_space()
+	if(length(flying))
+		prepare_bubble_space()
 	var/list/watched = list()
 	var/list/eyes = list()
 
