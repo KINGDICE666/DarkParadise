@@ -125,6 +125,26 @@
 	name = "autoimplanter (neuro-interface)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/brain/neuro_interface
 
+/obj/item/autoimplanter/oneuse/militech_optics
+	name = "autoimplanter (Militech optics)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/eyes/optics/militech
+
+/obj/item/autoimplanter/oneuse/militech_blood_pump
+	name = "autoimplanter (Militech blood pump)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/chest/blood_pump/militech
+
+/obj/item/autoimplanter/oneuse/militech_gorilla
+	name = "autoimplanter (Militech gorilla arm right)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/gorilla/militech
+
+/obj/item/autoimplanter/oneuse/militech_gorilla/l
+	name = "autoimplanter (Militech gorilla arm left)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/gorilla/militech/l
+
+/obj/item/autoimplanter/oneuse/militech_monowire
+	name = "autoimplanter (Militech monowire)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/monowire/militech
+
 /obj/item/autoimplanter/oneuse/mantisblade
 	name = "autoimplanter (mantis blade right)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex

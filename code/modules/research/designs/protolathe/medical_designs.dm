@@ -520,6 +520,51 @@
 	build_path = /obj/item/organ/internal/cyberimp/brain/pain_regulator
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
+/datum/design/cyberimp_skeleton
+	id = "ci-skeleton"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_COMBAT = 3)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 60
+	materials = list(MAT_METAL = 4000, MAT_SILVER = 1000, MAT_TITANIUM = 2000)
+	build_path = /obj/item/organ/internal/cyberimp/chest/reinforced_skeleton
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_blood_pump
+	id = "ci-bloodpump"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_PROGRAMMING = 4)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 60
+	materials = list(MAT_METAL = 1000, MAT_GLASS = 1000, MAT_SILVER = 500, MAT_GOLD = 500, MAT_PLASMA = 500)
+	build_path = /obj/item/organ/internal/cyberimp/chest/blood_pump
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_optics
+	id = "ci-optics"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 4, RESEARCH_TREE_PROGRAMMING = 4, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_COMBAT = 3)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 50
+	materials = list(MAT_METAL = 600, MAT_GLASS = 1500, MAT_SILVER = 500, MAT_GOLD = 500)
+	build_path = /obj/item/organ/internal/cyberimp/eyes/optics
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_gorilla
+	id = "ci-gorilla"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_COMBAT = 5)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 5000, MAT_SILVER = 1500, MAT_TITANIUM = 1500)
+	build_path = /obj/item/organ/internal/cyberimp/arm/gorilla
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_monowire
+	id = "ci-monowire"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_COMBAT = 5)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 3000, MAT_GLASS = 500, MAT_SILVER = 1000, MAT_DIAMOND = 500)
+	build_path = /obj/item/organ/internal/cyberimp/arm/monowire
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
 /datum/design/cyberimp_magnetic_palm
 	id = "ci-magnetpalm"
 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_MAGNETS = 4, RESEARCH_TREE_BIOTECH = 3)

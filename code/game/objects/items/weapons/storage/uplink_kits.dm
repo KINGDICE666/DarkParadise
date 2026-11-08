@@ -47,6 +47,13 @@
 	new /obj/item/autoimplanter/oneuse/mantisblade(src)
 	new /obj/item/autoimplanter/oneuse/mantisblade/l(src)
 
+/obj/item/storage/box/syndie_kit/militech_gorilla
+	name = "boxed Militech gorilla arms"
+
+/obj/item/storage/box/syndie_kit/militech_gorilla/populate_contents()
+	new /obj/item/autoimplanter/oneuse/militech_gorilla(src)
+	new /obj/item/autoimplanter/oneuse/militech_gorilla/l(src)
+
 /obj/item/storage/box/syndie_kit/black_cyberdeck
 	name = "boxed black cyberdeck"
 

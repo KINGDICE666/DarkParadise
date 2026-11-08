@@ -36,6 +36,7 @@
 #define INTERNAL_ORGAN_EYE_LING "eye_ling"
 #define INTERNAL_ORGAN_EYE_FORENSIC "eye_forensic"
 #define INTERNAL_ORGAN_EYE_TACTICAL "eye_tactical"
+#define INTERNAL_ORGAN_EYE_OPTICS "eye_optics"
 #define INTERNAL_ORGAN_FINGERPRINT_SYNTH "fingerprint_synth"
 #define INTERNAL_ORGAN_BREATHING_TUBE "breathing_tube"
 #define INTERNAL_ORGAN_SPEECH_TRANSLATOR "voice_translator"
@@ -53,6 +54,7 @@
 #define INTERNAL_ORGAN_CHEST_ADRENALINE "chest_adrenaline"
 #define INTERNAL_ORGAN_CHEST_EXOFRAME "exoframe"
 #define INTERNAL_ORGAN_CHEST_PLATING "chest_plating"
+#define INTERNAL_ORGAN_CHEST_SKELETON "chest_skeleton"
 #define INTERNAL_ORGAN_CHEST_SPIT "chest_spit"
 #define INTERNAL_ORGAN_BRAIN_COMPUTER_INTERFACE "brain_computer_interface"
 
