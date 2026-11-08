@@ -40,6 +40,9 @@
 	speak_emote = list("транслирует")
 	bubble_icon = "machine"
 	var/list/body_overlays = list()
+	var/obj/item/radio/intercom/tapped_intercom
+	var/tap_timer
+	var/obj/effect/overlay/net_hologram/projection
 	COOLDOWN_DECLARE(conduit_cooldown)
 
 /mob/living/basic/net_avatar/Initialize(mapload)
@@ -53,6 +56,8 @@
 	animate(get_filter("net_glitch"), offset = 32, time = 4 SECONDS, loop = -1)
 
 /mob/living/basic/net_avatar/Destroy()
+	stop_tap()
+	stop_projection()
 	QDEL_NULL(particles)
 	body_overlays.Cut()
 	return ..()
@@ -115,6 +120,7 @@
 			bubble_recipients += listener.client
 	if(length(bubble_recipients))
 		speech_bubble("[bubble_type][say_test(message)]", src, bubble_recipients)
+	projection?.atom_say(message)
 
 /mob/living/basic/net_avatar/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
 	if(!isnetavatar(speaker))
@@ -143,12 +149,28 @@
 /mob/living/basic/net_avatar/OnUnarmedAttack(atom/target, proximity_flag, list/modifiers)
 	if(isnetavatar(target))
 		return melee_attack(target)
-	net_interact(target)
+	net_interact(target, modifiers)
+
+/mob/living/basic/net_avatar/RangedAttack(atom/target, list/modifiers)
+	net_interact(target, modifiers)
 
 /mob/living/basic/net_avatar/Bump(atom/bumped)
-	if(net_interact(bumped))
+	if(is_net_door(bumped))
+		INVOKE_ASYNC(src, PROC_REF(net_toggle_door), bumped)
 		return
 	return ..()
+
+/mob/living/basic/net_avatar/get_access()
+	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)
+	return connection?.body?.get_access() || list()
+
+/mob/living/basic/net_avatar/default_can_use_topic(src_object)
+	. = shared_ui_interaction(src_object)
+	if(. < UI_INTERACTIVE)
+		return
+	if(ismovable(src_object) && can_reach_node(src_object))
+		return UI_INTERACTIVE
+	return UI_CLOSE
 
 /atom/movable/screen/fullscreen/net_grid
 	icon = 'icons/effects/netrunning.dmi'

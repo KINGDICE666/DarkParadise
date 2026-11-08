@@ -396,6 +396,7 @@
 	var/link_mode = FALSE
 	var/list/image/link_markers = list()
 	var/obj/machinery/camera/viewed_camera
+	var/mob/living/net_operator
 	var/buffer_charge = 0
 	var/buffer_updated = 0
 	var/list/event_log = list()
@@ -476,11 +477,11 @@
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(crit_fail)
-		owner.balloon_alert(owner, "нейропорт перезагружается!")
+		notify_operator("нейропорт перезагружается!")
 		return
 	if(istype(action, /datum/action/item_action/organ_action/augment/neuro_link))
 		set_link_mode(!link_mode)
-		owner.balloon_alert(owner, link_mode ? "режим подключения" : "режим подключения выключен")
+		notify_operator(link_mode ? "режим подключения" : "режим подключения выключен")
 		return
 	var/datum/tgui/open_ui = SStgui.get_open_ui(user, src)
 	if(open_ui)
@@ -494,8 +495,21 @@
 		event_log.Cut(1, 2)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/neuro_alert(text)
-	owner.balloon_alert(owner, text)
+	notify_operator(text)
 	log_event(text, bad = TRUE)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_operator()
+	return net_operator || owner
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/notify_operator(text)
+	var/mob/living/operator = get_operator()
+	operator.balloon_alert(operator, text)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/set_net_operator(mob/living/new_operator)
+	stop_camera_view()
+	SStgui.close_uis(src)
+	net_operator = new_operator
+	refresh_markers()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_link_limit()
 	. = NEURO_BASE_LINKS
@@ -570,6 +584,8 @@
 	return null
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/kind_available(kind)
+	if(net_operator)
+		return TRUE
 	switch(kind)
 		if(NEURO_KIND_DOOR, NEURO_KIND_CONSOLE)
 			return TRUE
@@ -586,7 +602,7 @@
 	return FALSE
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/in_signal_range(atom/device)
-	var/turf/here = get_turf(owner)
+	var/turf/here = get_turf(get_operator())
 	var/turf/there = get_turf(device)
 	return !crit_fail && here && there && here.z == there.z && get_dist(here, there) <= get_link_range()
 
@@ -620,7 +636,7 @@
 	if(!in_signal_range(device))
 		neuro_alert("слишком далеко!")
 		return FALSE
-	if(!has_feature(NEURO_FEATURE_SCANNER) && !(device in view(get_link_range(), owner)))
+	if(!has_feature(NEURO_FEATURE_SCANNER) && !(device in view(get_link_range(), get_operator())))
 		neuro_alert("нет прямой видимости!")
 		return FALSE
 	if(kind == NEURO_KIND_BOT)
@@ -634,7 +650,8 @@
 	COOLDOWN_RESET(src, scan_cooldown)
 	refresh_markers()
 	log_event("Подключено: [DECLENT_RU_CAP(device, NOMINATIVE)]")
-	owner.playsound_local(get_turf(owner), 'sound/machines/twobeep.ogg', 40, FALSE)
+	var/mob/living/operator = get_operator()
+	operator.playsound_local(get_turf(operator), 'sound/machines/twobeep.ogg', 40, FALSE)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/start_hack(atom/movable/target, duration)
 	running_hacks[target] = list("start" = world.time, "end" = world.time + duration)
@@ -645,7 +662,7 @@
 		return FALSE
 	start_hack(bot, NEURO_BOT_HACK_TIME)
 	RegisterSignal(bot, COMSIG_QDELETING, PROC_REF(on_device_deleted), override = TRUE)
-	owner.balloon_alert(owner, "взлом начат")
+	notify_operator("взлом начат")
 	addtimer(CALLBACK(src, PROC_REF(finish_bot_hack), bot), NEURO_BOT_HACK_TIME)
 	return FALSE
 
@@ -662,7 +679,7 @@
 		return
 	add_misc_logs(owner, "Hacked [bot] with [src]")
 	add_link(bot)
-	owner.balloon_alert(owner, "бот взломан")
+	notify_operator("бот взломан")
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/unlink_device(atom/movable/device)
 	UnregisterSignal(device, COMSIG_QDELETING)
@@ -732,9 +749,10 @@
 		action.UpdateButtonIcon()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/refresh_markers()
-	owner.client?.images -= link_markers
+	var/mob/living/operator = get_operator()
+	operator.client?.images -= link_markers
 	link_markers.Cut()
-	if(!link_mode || !owner.client)
+	if(!link_mode || !operator.client)
 		return
 	for(var/atom/movable/device as anything in linked_devices)
 		var/image/marker = image('icons/hud/forensic_scan.dmi', device, "marker_active")
@@ -743,7 +761,7 @@
 		marker.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 		marker.color = implant_color
 		link_markers += marker
-	owner.client.images += link_markers
+	operator.client.images += link_markers
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/resolve_device(atom/target)
 	if(get_device_kind(target))
@@ -851,7 +869,7 @@
 			neuro_alert("дверь заварена!")
 			return FALSE
 	start_hack(door, NEURO_BREACH_TIME)
-	owner.balloon_alert(owner, "взлом шлюза...")
+	notify_operator("взлом шлюза...")
 	addtimer(CALLBACK(src, PROC_REF(finish_breach), door), NEURO_BREACH_TIME)
 	return TRUE
 
@@ -1016,7 +1034,7 @@
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/call_bot(mob/living/simple_animal/bot/bot)
-	bot.call_bot(owner, get_turf(owner), FALSE)
+	bot.call_bot(owner, get_turf(get_operator()), FALSE)
 	if(bot.calling_ai == owner)
 		return TRUE
 	neuro_alert("нет маршрута!")
@@ -1047,9 +1065,10 @@
 		return FALSE
 	stop_camera_view()
 	viewed_camera = camera
-	owner.reset_perspective(camera)
-	RegisterSignal(owner, COMSIG_MOVABLE_MOVED, PROC_REF(on_viewer_moved))
-	RegisterSignal(owner, COMSIG_MOB_STATCHANGE, PROC_REF(on_viewer_stat_change))
+	var/mob/living/operator = get_operator()
+	operator.reset_perspective(camera)
+	RegisterSignal(operator, COMSIG_MOVABLE_MOVED, PROC_REF(on_viewer_moved))
+	RegisterSignal(operator, COMSIG_MOB_STATCHANGE, PROC_REF(on_viewer_stat_change))
 	addtimer(CALLBACK(src, PROC_REF(check_camera_view), camera), NEURO_CAMERA_CHECK_TIME)
 	return TRUE
 
@@ -1057,15 +1076,17 @@
 	if(!viewed_camera)
 		return
 	viewed_camera = null
-	if(!owner)
+	var/mob/living/operator = get_operator()
+	if(!operator)
 		return
-	UnregisterSignal(owner, list(COMSIG_MOVABLE_MOVED, COMSIG_MOB_STATCHANGE))
-	owner.reset_perspective(null)
+	UnregisterSignal(operator, list(COMSIG_MOVABLE_MOVED, COMSIG_MOB_STATCHANGE))
+	operator.reset_perspective(null)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/check_camera_view(obj/machinery/camera/camera)
 	if(viewed_camera != camera)
 		return
-	if(QDELETED(camera) || !owner?.client || !camera.can_use() || !in_signal_range(camera) || owner.client.eye != camera)
+	var/mob/living/operator = get_operator()
+	if(QDELETED(camera) || !operator?.client || !camera.can_use() || !in_signal_range(camera) || operator.client.eye != camera)
 		stop_camera_view()
 		return
 	addtimer(CALLBACK(src, PROC_REF(check_camera_view), camera), NEURO_CAMERA_CHECK_TIME)
@@ -1190,9 +1211,10 @@
 		if(machine.stat & (NOPOWER|BROKEN))
 			neuro_alert("устройство отключено!")
 			return FALSE
-	device.ui_interact(owner)
-	if(!SStgui.get_open_ui(owner, device))
-		device.attack_hand(owner)
+	var/mob/living/operator = get_operator()
+	device.ui_interact(operator)
+	if(!SStgui.get_open_ui(operator, device))
+		device.attack_hand(operator)
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_state(mob/user)
@@ -1422,9 +1444,9 @@
 		"name" = DECLENT_RU_CAP(device, NOMINATIVE),
 		"kind" = kind,
 		"tags" = device_tags(device, kind),
-		"distance" = max(get_dist(get_turf(owner), device), 0),
+		"distance" = max(get_dist(get_turf(get_operator()), device), 0),
 		"reachable" = in_signal_range(device),
-		"direction" = dir2rustext(get_dir(get_turf(owner), device)),
+		"direction" = dir2rustext(get_dir(get_turf(get_operator()), device)),
 		"buttons" = device_buttons(device, kind),
 	)
 
@@ -1436,7 +1458,7 @@
 	COOLDOWN_START(src, scan_cooldown, NEURO_SCAN_REFRESH)
 	cached_scan = list()
 	var/static/list/hidden_kinds = list(NEURO_KIND_LIGHT, NEURO_KIND_CAMERA, NEURO_KIND_WEAPON)
-	for(var/atom/movable/device in range(min(get_link_range(), NEURO_SCAN_RADIUS), get_turf(owner)))
+	for(var/atom/movable/device in range(min(get_link_range(), NEURO_SCAN_RADIUS), get_turf(get_operator())))
 		var/kind = get_device_kind(device)
 		if(!kind || (kind in hidden_kinds) || !kind_available(kind) || (device in linked_devices))
 			continue
@@ -1444,8 +1466,8 @@
 			"uid" = device.UID(),
 			"name" = DECLENT_RU_CAP(device, NOMINATIVE),
 			"kind" = kind,
-			"distance" = max(get_dist(get_turf(owner), device), 0),
-			"direction" = dir2rustext(get_dir(get_turf(owner), device)),
+			"distance" = max(get_dist(get_turf(get_operator()), device), 0),
+			"direction" = dir2rustext(get_dir(get_turf(get_operator()), device)),
 		))
 		if(length(cached_scan) >= NEURO_SCAN_LIMIT)
 			break

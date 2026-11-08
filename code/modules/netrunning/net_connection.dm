@@ -1,8 +1,10 @@
 /datum/component/net_connection
 	var/mob/living/carbon/human/body
 	var/obj/machinery/netpod/pod
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro
 	var/lost = FALSE
 	var/datum/action/innate/net_jack_out/jack_out_action
+	var/datum/action/innate/net_neuro_panel/panel_action
 
 /datum/component/net_connection/Initialize(mob/living/carbon/human/body, obj/machinery/netpod/pod)
 	if(!isnetavatar(parent) || !ishuman(body) || isnull(body.mind))
@@ -26,6 +28,13 @@
 	jack_out_action = new(avatar)
 	jack_out_action.Grant(avatar)
 
+	neuro = body.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	if(neuro)
+		neuro.set_net_operator(avatar)
+		RegisterSignals(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING), PROC_REF(lose_connection))
+		panel_action = new(neuro)
+		panel_action.Grant(avatar)
+
 	avatar.playsound_local(get_turf(avatar), 'sound/effects/phasein.ogg', 25, TRUE)
 	to_chat(avatar, span_notice("Вы погружаетесь в Сеть. Здесь нет людей — только машины, узлы и другие нетраннеры."))
 	to_chat(avatar, span_warning("Смерть в Сети убьёт ваше тело. Если тело вынут из капсулы, вы останетесь здесь навсегда."))
@@ -37,6 +46,11 @@
 	return ..()
 
 /datum/component/net_connection/proc/release_body()
+	if(neuro)
+		UnregisterSignal(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING))
+		neuro.set_net_operator(null)
+		neuro = null
+	QDEL_NULL(panel_action)
 	if(body)
 		REMOVE_TRAIT(body, TRAIT_MIND_TEMPORARILY_GONE, NETRUNNING_TRAIT)
 		UnregisterSignal(body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING))
@@ -130,3 +144,13 @@
 /datum/action/innate/net_jack_out/Activate()
 	var/datum/component/net_connection/connection = owner.GetComponent(/datum/component/net_connection)
 	INVOKE_ASYNC(connection, TYPE_PROC_REF(/datum/component/net_connection, try_jack_out))
+
+/datum/action/innate/net_neuro_panel
+	name = "Панель нейроинтерфейса"
+	desc = "Кибердек, буфер и подключённые узлы."
+	button_icon = 'icons/hud/augment_actions.dmi'
+	button_icon_state = "neuro_panel"
+
+/datum/action/innate/net_neuro_panel/Activate()
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = target
+	neuro.ui_interact(owner)

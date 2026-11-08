@@ -30,7 +30,7 @@ GLOBAL_DATUM_INIT(net_vision, /datum/net_vision, new)
 	masks.Cut()
 
 /datum/net_vision/proc/add_mask(mob/target)
-	if(isnetavatar(target) || masks[target])
+	if(isnetavatar(target) || isbot(target) || masks[target])
 		return
 	var/image/mask = image(loc = target)
 	mask.override = TRUE
