@@ -711,8 +711,7 @@
 	terrain_chunks.Cut()
 	for(var/atom/movable/drifter as anything in drifters)
 		remove_drifter(drifter)
-	reservation?.Release()
-	reservation = null
+	QDEL_NULL(reservation)
 	bubble_area = null
 	if(host?.physical_space == src)
 		host.physical_space = null

@@ -49,7 +49,7 @@
 			world_area.contents += pocket.reserved_turfs
 			world_area.turfs_by_zlevel[first.z] |= pocket.reserved_turfs
 			pocket_area.turfs_by_zlevel[first.z] -= pocket.reserved_turfs
-		pocket.Release()
+		qdel(pocket)
 		SSovermap.flight_reservations -= pocket
 	pocket = null
 	QDEL_NULL(pocket_area)
