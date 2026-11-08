@@ -40,6 +40,7 @@
 	speak_emote = list("транслирует")
 	bubble_icon = "machine"
 	var/list/body_overlays = list()
+	var/area/home_area
 	var/obj/item/radio/intercom/tapped_intercom
 	var/tap_timer
 	var/obj/effect/overlay/net_hologram/projection
@@ -191,8 +192,15 @@
 /mob/living/basic/net_avatar/Bump(atom/bumped)
 	if(is_net_door(bumped))
 		INVOKE_ASYNC(src, PROC_REF(net_toggle_door), bumped)
-		return
-	return ..()
+
+/mob/living/basic/net_avatar/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
+	return FALSE
+
+/mob/living/basic/net_avatar/emote(emote_key, type_override = null, message = null, intentional = FALSE, force_silence = FALSE, ignore_cooldowns = FALSE)
+	return FALSE
+
+/mob/living/basic/net_avatar/add_splatter_floor(turf/splatter_turf, small_drip, shift_x, shift_y, amt)
+	return
 
 /mob/living/basic/net_avatar/get_access()
 	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)

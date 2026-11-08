@@ -15,6 +15,7 @@
 	src.pod = pod
 
 	avatar.copy_body(body)
+	avatar.home_area = get_area(pod)
 	ADD_TRAIT(body, TRAIT_MIND_TEMPORARILY_GONE, NETRUNNING_TRAIT)
 	body.mind.transfer_to(avatar)
 

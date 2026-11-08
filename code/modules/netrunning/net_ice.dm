@@ -22,7 +22,7 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 	return GLOB.net_ice_areas[zone.type] || NET_ICE_NONE
 
 /mob/living/basic/net_avatar/proc/is_ice_blocked(area/zone)
-	if(!get_net_ice(zone))
+	if(!get_net_ice(zone) || zone == home_area)
 		return FALSE
 	return !(breached_areas[zone] > world.time)
 
