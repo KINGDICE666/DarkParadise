@@ -537,6 +537,11 @@
 			return TRUE
 	return FALSE
 
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_breach_buffer_bonus()
+	if(!deck)
+		return 0
+	return has_feature(NEURO_FEATURE_BREACH) ? NET_BREACH_BUFFER_BLACK_DECK : NET_BREACH_BUFFER_DECK
+
 // Буфер восстанавливается лениво: заряд считается по прошедшему времени, поэтому имплант не висит в обработке
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_buffer()
 	if(!deck)
@@ -1524,6 +1529,11 @@
 
 // Панель предлагает только то, что доступно прямо сейчас: сверка с кнопками не даёт поддельному запросу запустить чужое действие
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/run_device_action(atom/movable/device, action_id)
+	if(isnetavatar(net_operator))
+		var/mob/living/basic/net_avatar/avatar = net_operator
+		if(avatar.is_ice_blocked(get_area(device)))
+			neuro_alert("узел закрыт льдом!")
+			return FALSE
 	var/list/chosen
 	for(var/list/button as anything in device_buttons(device, get_device_kind(device)))
 		if(button["id"] == action_id)

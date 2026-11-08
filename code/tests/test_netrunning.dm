@@ -20,6 +20,34 @@
 	pod.start_net_session(runner)
 	return runner_mind.current
 
+/datum/unit_test/room_test/netrunning/proc/solve_breach(datum/net_breach/breach, list/sequence, list/picks, list/buffer, axis_row, line)
+	if(buffer_contains(buffer, sequence))
+		return picks
+	if(length(buffer) >= breach.buffer_size)
+		return null
+	for(var/index in 1 to length(breach.grid))
+		var/row = axis_row ? line : index
+		var/column = axis_row ? index : line
+		var/key = "[row]-[column]"
+		if(key in picks)
+			continue
+		var/list/grid_line = breach.grid[row]
+		var/list/result = solve_breach(breach, sequence, picks + key, buffer + grid_line[column], !axis_row, axis_row ? column : row)
+		if(result)
+			return result
+	return null
+
+/datum/unit_test/room_test/netrunning/proc/buffer_contains(list/buffer, list/sequence)
+	for(var/offset in 0 to length(buffer) - length(sequence))
+		var/matched = TRUE
+		for(var/index in 1 to length(sequence))
+			if(buffer[offset + index] != sequence[index])
+				matched = FALSE
+				break
+		if(matched)
+			return TRUE
+	return FALSE
+
 /datum/unit_test/room_test/netrunning/Run()
 	var/obj/machinery/netpod/pod = new_pod(0)
 	var/mob/living/carbon/human/runner = new_runner(run_loc_floor_top_right)
@@ -55,6 +83,34 @@
 	var/obj/effect/overlay/net_hologram/hologram = avatar.projection
 	avatar.toggle_projection(pad)
 	TEST_ASSERT(QDELETED(hologram), "the hologram outlived its projection")
+
+	TEST_ASSERT_EQUAL(GLOB.net_ice_areas[/area/station/command/vault], NET_ICE_BLACK, "the vault is not guarded by black ICE")
+	TEST_ASSERT_EQUAL(GLOB.net_ice_areas[/area/station/security/lobby], NET_ICE_NONE, "the security lobby is guarded by ICE")
+	TEST_ASSERT_EQUAL(GLOB.net_ice_areas[/area/station/command/bridge], NET_ICE_STANDARD, "the bridge is not guarded by ICE")
+
+	var/area/test_area = get_area(avatar)
+	var/datum/net_breach/breach = new(avatar, test_area, NET_ICE_STANDARD, NET_BREACH_BASE_BUFFER)
+	avatar.active_breach = breach
+	var/list/ice_daemon = breach.daemons[1]
+	var/list/picks = solve_breach(breach, ice_daemon["sequence"], list(), list(), TRUE, 1)
+	TEST_ASSERT(length(picks), "the breach generator built a matrix without a solution")
+	for(var/key in picks)
+		var/list/cell = splittext(key, "-")
+		breach.select_cell(text2num(cell[1]), text2num(cell[2]))
+	breach.finish()
+	TEST_ASSERT(avatar.breached_areas[test_area] > world.time, "solving the breach protocol did not open the ICE")
+	TEST_ASSERT(QDELETED(breach), "the breach protocol outlived its result")
+
+	var/health_before = avatar.health
+	var/trace_before = avatar.get_trace()
+	breach = new(avatar, test_area, NET_ICE_BLACK, NET_BREACH_BASE_BUFFER)
+	avatar.active_breach = breach
+	breach.finish()
+	TEST_ASSERT(avatar.health < health_before, "failing against black ICE did not burn the avatar")
+	TEST_ASSERT(avatar.get_trace() > trace_before, "failing the breach protocol did not raise the trace")
+
+	avatar.add_trace(NET_TRACE_MAX)
+	TEST_ASSERT_EQUAL(avatar.get_trace(), 0, "a completed trace did not reset")
 
 	connection.jack_out()
 	TEST_ASSERT_NULL(neuro.net_operator, "the neuro-interface kept the avatar as its operator after jacking out")

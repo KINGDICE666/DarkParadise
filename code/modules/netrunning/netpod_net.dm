@@ -1,6 +1,3 @@
-/obj/machinery/netpod
-	var/net_mode = FALSE
-
 /obj/machinery/netpod/update_overlays()
 	. = ..()
 	if(!net_mode || !is_operational())

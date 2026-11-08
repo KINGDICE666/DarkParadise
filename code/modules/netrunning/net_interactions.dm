@@ -3,6 +3,13 @@
 	return connection?.neuro
 
 /mob/living/basic/net_avatar/proc/net_interact(atom/target, list/modifiers)
+	var/area/target_area = get_area(target)
+	if(is_ice_blocked(target_area))
+		if(get_dist(src, target) > NET_HACK_RANGE)
+			balloon_alert(src, "лёд слишком далеко!")
+			return TRUE
+		start_breach(target_area)
+		return TRUE
 	if(!LAZYACCESS(modifiers, RIGHT_CLICK) && is_net_door(target) && Adjacent(target))
 		INVOKE_ASYNC(src, PROC_REF(net_toggle_door), target)
 		return TRUE
@@ -58,6 +65,7 @@
 		return
 	if(neuro?.run_device_action(node, action_id))
 		new /obj/effect/temp_visual/net_glitch(get_turf(node))
+		add_trace(get_net_ice(get_area(node)) ? NET_TRACE_ICE_ACTION : NET_TRACE_ACTION)
 
 /mob/living/basic/net_avatar/proc/get_native_actions(atom/movable/node)
 	. = list()
@@ -95,12 +103,21 @@
 		if(airlock.locked || airlock.welded)
 			balloon_alert(src, "заблокировано!")
 			return
+	if(is_ice_blocked(get_area(door)))
+		balloon_alert(src, "дверь закрыта льдом!")
+		return
+	var/hacked = FALSE
 	if(!door.allowed(src))
 		balloon_alert(src, "взлом доступа...")
 		if(!do_after(src, NET_DOOR_HACK_TIME, door, interaction_key = door))
 			return
 		if(QDELETED(door) || door.operating)
 			return
+		hacked = TRUE
+	if(get_net_ice(get_area(door)))
+		add_trace(NET_TRACE_ICE_ACTION)
+	else if(hacked)
+		add_trace(NET_TRACE_ACTION)
 	new /obj/effect/temp_visual/net_glitch(get_turf(door))
 	door.add_hiddenprint(src)
 	if(door.density)
@@ -131,6 +148,7 @@
 	playsound_local(get_turf(src), 'sound/effects/phasein.ogg', 25, TRUE)
 	forceMove(get_turf(exit))
 	new /obj/effect/temp_visual/net_glitch(loc)
+	add_trace(NET_TRACE_ACTION)
 
 /mob/living/basic/net_avatar/proc/get_conduit_destinations(obj/machinery/power/apc/entrance)
 	. = list()
@@ -139,7 +157,7 @@
 		return
 	for(var/obj/machinery/power/terminal/terminal in grid.nodes)
 		var/obj/machinery/power/apc/exit = terminal.master
-		if(!isapc(exit) || exit == entrance || exit.z != entrance.z)
+		if(!isapc(exit) || exit == entrance || exit.z != entrance.z || is_ice_blocked(get_area(exit)))
 			continue
 		.["[get_area_name(exit, TRUE)] ([exit.x], [exit.y])"] = exit
 
@@ -148,6 +166,7 @@
 	if(!message || QDELETED(intercom) || stat != CONSCIOUS || !can_reach_node(intercom))
 		return
 	intercom.atom_say(message)
+	add_trace(NET_TRACE_ACTION)
 	add_say_logs(src, "через [intercom] из Сети: [message]")
 
 /mob/living/basic/net_avatar/proc/toggle_tap(obj/item/radio/intercom/intercom)
@@ -160,6 +179,7 @@
 	RegisterSignal(intercom, COMSIG_MOVABLE_HEAR, PROC_REF(on_tap_hear))
 	RegisterSignal(intercom, COMSIG_QDELETING, PROC_REF(stop_tap))
 	tap_timer = addtimer(CALLBACK(src, PROC_REF(stop_tap)), NET_EAVESDROP_TIME, TIMER_STOPPABLE)
+	add_trace(NET_TRACE_ACTION)
 	balloon_alert(src, "прослушка на минуту")
 
 /mob/living/basic/net_avatar/proc/stop_tap()
@@ -190,20 +210,20 @@
 		balloon_alert(src, "подойдите к голопаду!")
 		return
 	projection = new(get_turf(src), src, pad)
-	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_projector_moved))
 	RegisterSignal(pad, COMSIG_QDELETING, PROC_REF(stop_projection))
+	add_trace(NET_TRACE_ACTION)
 	add_game_logs("projected a hologram through [pad] from the Net", src)
 
 /mob/living/basic/net_avatar/proc/stop_projection()
 	SIGNAL_HANDLER
 	if(!projection)
 		return
-	UnregisterSignal(src, COMSIG_MOVABLE_MOVED)
 	UnregisterSignal(projection.pad, COMSIG_QDELETING)
 	QDEL_NULL(projection)
 
-/mob/living/basic/net_avatar/proc/on_projector_moved(datum/source)
-	SIGNAL_HANDLER
+/mob/living/basic/net_avatar/proc/follow_projection()
+	if(!projection)
+		return
 	var/obj/machinery/hologram/holopad/pad = projection.pad
 	if(!pad.is_operational() || pad.z != z || get_dist(src, pad) > NET_HOLO_RANGE)
 		stop_projection()
@@ -221,6 +241,7 @@
 	display.update()
 	addtimer(CALLBACK(display, TYPE_PROC_REF(/obj/machinery/status_display, release_net_message)), NET_DISPLAY_TIME, TIMER_UNIQUE|TIMER_OVERRIDE)
 	new /obj/effect/temp_visual/net_glitch(get_turf(display))
+	add_trace(NET_TRACE_ACTION)
 	add_game_logs("put [text] on [display] from the Net", src)
 
 /obj/machinery/status_display/proc/release_net_message()

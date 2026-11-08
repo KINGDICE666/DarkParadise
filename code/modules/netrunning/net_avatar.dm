@@ -43,7 +43,13 @@
 	var/obj/item/radio/intercom/tapped_intercom
 	var/tap_timer
 	var/obj/effect/overlay/net_hologram/projection
+	var/datum/net_breach/active_breach
+	var/list/breached_areas = list()
+	var/list/image/ice_images = list()
+	var/trace = 0
+	var/trace_updated = 0
 	COOLDOWN_DECLARE(conduit_cooldown)
+	COOLDOWN_DECLARE(ice_notice)
 
 /mob/living/basic/net_avatar/Initialize(mapload)
 	. = ..()
@@ -54,10 +60,15 @@
 	add_filter("net_glow", 2, outline_filter(1, NET_AVATAR_GLOW))
 	add_filter("net_glitch", 3, wave_filter(x = 1, size = 1))
 	animate(get_filter("net_glitch"), offset = 32, time = 4 SECONDS, loop = -1)
+	RegisterSignal(src, COMSIG_MOVABLE_PRE_MOVE, PROC_REF(on_pre_move))
+	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_moved))
 
 /mob/living/basic/net_avatar/Destroy()
+	QDEL_NULL(active_breach)
 	stop_tap()
 	stop_projection()
+	breached_areas.Cut()
+	ice_images.Cut()
 	QDEL_NULL(particles)
 	body_overlays.Cut()
 	return ..()
@@ -79,13 +90,19 @@
 	GLOB.net_vision.show_to(client)
 	overlay_fullscreen(NET_GRID_SCREEN, /atom/movable/screen/fullscreen/net_grid)
 	update_client_colour(0)
+	refresh_ice()
 
 /mob/living/basic/net_avatar/Logout()
 	if(canon_client)
 		GLOB.net_vision.hide_from(canon_client)
 		canon_client.colour_transition(null, 0)
+		canon_client.images -= ice_images
 	clear_fullscreen(NET_GRID_SCREEN, FALSE)
 	return ..()
+
+/mob/living/basic/net_avatar/Life(delta_time, times_fired)
+	. = ..()
+	update_trace_alert()
 
 /mob/living/basic/net_avatar/get_screen_colour()
 	return MATRIX_NET_VISION
@@ -168,7 +185,7 @@
 	. = shared_ui_interaction(src_object)
 	if(. < UI_INTERACTIVE)
 		return
-	if(ismovable(src_object) && can_reach_node(src_object))
+	if(ismovable(src_object) && can_reach_node(src_object) && !is_ice_blocked(get_area(src_object)))
 		return UI_INTERACTIVE
 	return UI_CLOSE
 

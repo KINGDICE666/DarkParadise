@@ -15,6 +15,7 @@
 	var/connected = FALSE
 	var/connection_attempt = 0
 	var/copy_body = FALSE
+	var/net_mode = FALSE
 	var/datum/outfit/netsuit = /datum/outfit/bit_avatar
 	var/datum/weakref/avatar_ref
 	var/datum/weakref/server_ref
