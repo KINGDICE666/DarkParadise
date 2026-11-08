@@ -81,7 +81,7 @@
 	avatar.AddComponent(/datum/component/avatar_connection, pilot, server, src)
 
 	connected = TRUE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/netpod/proc/add_healing(mob/living/carbon/target)
 	if(target != occupant)
@@ -108,7 +108,7 @@
 
 /obj/machinery/netpod/proc/disconnect_occupant(cause_damage = FALSE)
 	connected = FALSE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 	var/mob/living/carbon/pilot = occupant
 	if(isnull(pilot) || pilot.stat == DEAD)

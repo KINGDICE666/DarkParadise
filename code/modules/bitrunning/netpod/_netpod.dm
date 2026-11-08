@@ -31,7 +31,7 @@
 	find_server()
 	register_context()
 	RegisterSignal(src, COMSIG_OBJ_INTEGRITY_CHANGED, PROC_REF(on_integrity_changed))
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/netpod/Destroy()
 	sever_connection()
@@ -60,12 +60,23 @@
 		context[SCREENTIP_CONTEXT_LMB] = panel_open ? "Закрыть панель" : "Открыть панель"
 		return CONTEXTUAL_SCREENTIP_SET
 
+	if(held_item.tool_behaviour == TOOL_MULTITOOL && isnull(occupant))
+		context[SCREENTIP_CONTEXT_LMB] = net_mode ? "Режим доменов" : "Режим Сети"
+		return CONTEXTUAL_SCREENTIP_SET
+
 	if(held_item.tool_behaviour == TOOL_CROWBAR)
 		context[SCREENTIP_CONTEXT_LMB] = isnull(occupant) ? "Открыть крышку" : "Вскрыть"
 		return CONTEXTUAL_SCREENTIP_SET
 
 /obj/machinery/netpod/examine(mob/user)
 	. = ..()
+	. += span_notice("Мультитул переключает режим: [net_mode ? "сейчас капсула выводит в Сеть станции" : "сейчас капсула подключает к доменам квантового сервера"].")
+	if(net_mode)
+		. += span_warning("Для выхода в Сеть нужен нейроинтерфейс. Смерть в Сети убивает тело, а вынутый из капсулы нетраннер остаётся в Сети навсегда.")
+		if(occupant)
+			. += span_notice("Внутри находится [occupant][connected ? ", на экране мигает «В СЕТИ»" : ""].")
+		return
+
 	if(isnull(server_ref?.resolve()))
 		. += span_warning("Капсула ни с чем не соединена. Нетпод должен стоять не дальше четырёх плиток от сервера.")
 		return
@@ -222,7 +233,7 @@
 /obj/machinery/netpod/power_change(forced = FALSE)
 	..()
 	if(is_operational())
-		update_icon(UPDATE_ICON_STATE)
+		update_icon()
 		return
 
 	sever_connection()
@@ -243,7 +254,7 @@
 		return ITEM_INTERACT_BLOCKING
 
 	if(default_deconstruction_screwdriver(user, "[base_icon_state]_panel", "[base_icon_state]_closed", tool))
-		update_icon(UPDATE_ICON_STATE)
+		update_icon()
 		return ITEM_INTERACT_SUCCESS
 
 /obj/machinery/netpod/crowbar_act(mob/living/user, obj/item/tool)
@@ -277,7 +288,7 @@
 	state_open = FALSE
 	set_density(TRUE)
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/netpod/proc/close_machine(mob/living/carbon/target)
 	if(!state_open || panel_open || !is_operational() || !iscarbon(target))
@@ -290,9 +301,9 @@
 	set_density(TRUE)
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
 	update_use_power(ACTIVE_POWER_USE)
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
-	INVOKE_ASYNC(src, PROC_REF(enter_matrix))
+	INVOKE_ASYNC(src, net_mode ? PROC_REF(enter_net) : PROC_REF(enter_matrix))
 
 /obj/machinery/netpod/proc/open_machine()
 	if(state_open)
@@ -309,7 +320,7 @@
 	leaving?.forceMove(loc)
 
 	update_use_power(IDLE_POWER_USE)
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/netpod/click_alt(mob/user)
 	if(!COOLDOWN_FINISHED(src, scanning_cooldown))

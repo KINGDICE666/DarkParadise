@@ -38,6 +38,7 @@
 #include "test_map_templates.dm"
 #include "test_modsuit.dm"
 #include "test_missing_icons.dm"
+#include "test_netrunning.dm"
 #include "test_ntnet.dm"
 #include "test_orphaned_genturf.dm"
 #include "test_painted_mask.dm"
