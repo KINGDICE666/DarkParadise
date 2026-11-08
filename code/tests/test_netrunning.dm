@@ -112,6 +112,25 @@
 	avatar.add_trace(NET_TRACE_MAX)
 	TEST_ASSERT_EQUAL(avatar.get_trace(), 0, "a completed trace did not reset")
 
+	avatar.rejuvenate()
+	avatar.receive_hack(NET_HACK_SHORT_CIRCUIT)
+	TEST_ASSERT_EQUAL(avatar.health, avatar.maxHealth - NET_SHORT_CIRCUIT_DAMAGE, "a short circuit did not burn the avatar")
+	avatar.receive_hack(NET_HACK_OVERHEAT)
+	TEST_ASSERT(avatar.has_status_effect(/datum/status_effect/net_overheat), "overheat did not stick to the avatar")
+	avatar.receive_hack(NET_HACK_OPTICS)
+	TEST_ASSERT(avatar.has_status_effect(/datum/status_effect/net_optics_glitch), "the optics glitch did not blind the avatar")
+	avatar.receive_hack(NET_HACK_REBOOT)
+	TEST_ASSERT(avatar.IsStunned(), "a forced reboot did not stun the avatar")
+	avatar.remove_status_effect(/datum/status_effect/net_overheat)
+	avatar.remove_status_effect(/datum/status_effect/net_optics_glitch)
+	TEST_ASSERT_NULL(avatar.screens["net_optics"], "the optics glitch left its overlay behind")
+
+	var/hurt_health = avatar.health
+	avatar.last_health = hurt_health
+	avatar.last_hurt = world.time - NET_DEFRAG_DELAY - 1
+	avatar.defragment()
+	TEST_ASSERT(avatar.health > hurt_health, "the avatar did not defragment after a quiet spell")
+
 	connection.jack_out()
 	TEST_ASSERT_NULL(neuro.net_operator, "the neuro-interface kept the avatar as its operator after jacking out")
 	TEST_ASSERT_EQUAL(runner.mind, runner_mind, "jacking out did not return the mind to the body")

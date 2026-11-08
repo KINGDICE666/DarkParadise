@@ -48,6 +48,15 @@
 	var/list/image/ice_images = list()
 	var/trace = 0
 	var/trace_updated = 0
+	var/last_health = 0
+	var/last_hurt = 0
+	var/static/list/combat_hacks = list(
+		NET_HACK_SHORT_CIRCUIT = list("name" = "Короткое замыкание", "cost" = 10, "upload" = 1 SECONDS, "black" = FALSE),
+		NET_HACK_OVERHEAT = list("name" = "Перегрев", "cost" = 15, "upload" = 1.5 SECONDS, "black" = FALSE),
+		NET_HACK_OPTICS = list("name" = "Сбой оптики", "cost" = 10, "upload" = 1 SECONDS, "black" = FALSE),
+		NET_HACK_REBOOT = list("name" = "Перезагрузка системы", "cost" = 20, "upload" = 2 SECONDS, "black" = FALSE),
+		NET_HACK_SYNAPSE = list("name" = "Синапсовый выжигатель", "cost" = 30, "upload" = 3 SECONDS, "black" = TRUE),
+	)
 	COOLDOWN_DECLARE(conduit_cooldown)
 	COOLDOWN_DECLARE(ice_notice)
 
@@ -103,6 +112,7 @@
 /mob/living/basic/net_avatar/Life(delta_time, times_fired)
 	. = ..()
 	update_trace_alert()
+	defragment()
 
 /mob/living/basic/net_avatar/get_screen_colour()
 	return MATRIX_NET_VISION
@@ -164,7 +174,7 @@
 	return ..()
 
 /mob/living/basic/net_avatar/OnUnarmedAttack(atom/target, proximity_flag, list/modifiers)
-	if(isnetavatar(target))
+	if(isnetavatar(target) && !LAZYACCESS(modifiers, RIGHT_CLICK))
 		return melee_attack(target)
 	net_interact(target, modifiers)
 

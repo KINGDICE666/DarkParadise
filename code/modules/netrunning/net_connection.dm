@@ -31,6 +31,9 @@
 	neuro = body.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
 	if(neuro)
 		neuro.set_net_operator(avatar)
+		avatar.maxHealth += neuro.get_avatar_integrity_bonus()
+		avatar.updatehealth("net deck integrity")
+		avatar.last_health = avatar.health
 		RegisterSignals(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING), PROC_REF(lose_connection))
 		panel_action = new(neuro)
 		panel_action.Grant(avatar)

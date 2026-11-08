@@ -542,6 +542,17 @@
 		return 0
 	return has_feature(NEURO_FEATURE_BREACH) ? NET_BREACH_BUFFER_BLACK_DECK : NET_BREACH_BUFFER_DECK
 
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/has_black_deck()
+	return has_feature(NEURO_FEATURE_BREACH)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/has_firewall()
+	return has_feature(NEURO_FEATURE_FIREWALL)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_avatar_integrity_bonus()
+	if(!deck)
+		return 0
+	return has_black_deck() ? NET_INTEGRITY_BLACK_DECK : NET_INTEGRITY_DECK
+
 // Буфер восстанавливается лениво: заряд считается по прошедшему времени, поэтому имплант не висит в обработке
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_buffer()
 	if(!deck)
