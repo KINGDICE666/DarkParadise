@@ -159,6 +159,28 @@
 		new /obj/item/storage/firstaid/regular(bag)
 		new /obj/item/flashlight(bag)
 
+	var/datum/species/species = avatar.dna.species
+	var/tank_type
+	var/mask_type = /obj/item/clothing/mask/breath
+	switch(species.breathid)
+		if("n2")
+			tank_type = /obj/item/tank/internals/emergency_oxygen/double/vox
+			mask_type = /obj/item/clothing/mask/breath/vox
+		if("tox")
+			tank_type = /obj/item/tank/internals/plasmaman/belt/full
+
+	if(tank_type)
+		var/obj/item/tank/internals/tank = new tank_type(avatar)
+		if(!avatar.equip_to_appropriate_slot(tank, force = TRUE, silent = TRUE))
+			avatar.put_in_any_hand_if_possible(tank)
+
+		if(!istype(avatar.wear_mask, mask_type))
+			qdel(avatar.wear_mask)
+			avatar.equip_to_slot_or_del(new mask_type(avatar), ITEM_SLOT_MASK)
+
+		avatar.internal = tank
+		avatar.update_action_buttons_icon()
+
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
 	return avatar

@@ -41,6 +41,13 @@
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
 
+	var/mob/living/carbon/human/vox_pilot = allocate(/mob/living/carbon/human, anchor)
+	vox_pilot.set_species(/datum/species/vox)
+	var/mob/living/carbon/human/vox_avatar = server.generate_avatar(get_turf(avatar), vox_pilot, TRUE)
+	TEST_ASSERT_NOTNULL(vox_avatar, "server failed to build a copied Vox avatar")
+	TEST_ASSERT(istype(vox_avatar.internal, /obj/item/tank/internals/emergency_oxygen/double/vox), "the copied Vox avatar did not receive nitrogen internals")
+	TEST_ASSERT(istype(vox_avatar.wear_mask, /obj/item/clothing/mask/breath/vox), "the copied Vox avatar did not receive a Vox breathing mask")
+
 	var/mob/living/carbon/human/crewman = allocate(/mob/living/carbon/human, anchor)
 	crewman.equipOutfit(/datum/outfit/job/cargo_tech)
 	var/obj/item/radio/headset/crew_headset = crewman.l_ear
