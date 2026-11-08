@@ -464,6 +464,9 @@
 	. = ..()
 	if(!.)
 		return
+	force_reboot()
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/force_reboot()
 	crit_fail = TRUE
 	set_link_mode(FALSE)
 	clear_links()

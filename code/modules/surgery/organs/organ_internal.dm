@@ -104,6 +104,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 		target.update_stat("Vital organ inserted")
 
 	SEND_SIGNAL(src, COMSIG_ORGAN_IMPLANTED, target)
+	SEND_SIGNAL(target, COMSIG_CARBON_GAIN_ORGAN, src)
 
 	STOP_PROCESSING(SSobj, src)
 

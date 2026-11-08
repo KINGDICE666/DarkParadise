@@ -57,6 +57,16 @@
 #define NET_SYNAPSE_DAMAGE 45
 #define NET_FIREWALL_MODIFIER 0.5
 
+#define NET_WARE_OPTICS "ware_optics"
+#define NET_WARE_ARM "ware_arm"
+#define NET_WARE_OVERHEAT "ware_overheat"
+#define NET_WARE_SYNAPSE "ware_synapse"
+#define NET_WARE_NEURO "ware_neuro"
+
+#define NET_WARE_BLIND_TIME (5 SECONDS)
+#define NET_WARE_OVERHEAT_DAMAGE 15
+#define NET_WARE_CONFUSION_TIME (10 SECONDS)
+
 #define NET_DEFRAG_DELAY (10 SECONDS)
 #define NET_DEFRAG_HEAL 2
 #define NET_INTEGRITY_DECK 25

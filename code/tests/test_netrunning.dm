@@ -125,6 +125,26 @@
 	avatar.remove_status_effect(/datum/status_effect/net_optics_glitch)
 	TEST_ASSERT_NULL(avatar.screens["net_optics"], "the optics glitch left its overlay behind")
 
+	var/mob/living/carbon/human/bystander = allocate(/mob/living/carbon/human, locate(anchor.x + 2, anchor.y + 1, anchor.z))
+	TEST_ASSERT(!has_net_cyberware(bystander), "a human without implants showed up as a Net echo")
+	GLOB.net_vision.add_mask(bystander)
+	var/image/bystander_mask = GLOB.net_vision.masks[bystander]
+	TEST_ASSERT_NULL(bystander_mask.icon_state, "a human without implants got an echo instead of an empty mask")
+	var/obj/item/organ/internal/cyberimp/arm/toolset/toolset = allocate(/obj/item/organ/internal/cyberimp/arm/toolset)
+	toolset.insert(bystander)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/bystander_neuro = allocate(/obj/item/organ/internal/cyberimp/brain/neuro_interface)
+	bystander_neuro.insert(bystander)
+	TEST_ASSERT(has_net_cyberware(bystander), "an augmented human did not show up as a Net echo")
+	GLOB.net_vision.update_echo(bystander)
+	TEST_ASSERT_EQUAL(bystander_mask.icon_state, "echo", "an augmented human kept an empty mask")
+	GLOB.net_vision.stop_tracking()
+
+	avatar.apply_cyberware_hack(bystander, NET_WARE_OVERHEAT)
+	TEST_ASSERT(bystander.getFireLoss() > 0, "overheating an implant did not burn its owner")
+	avatar.apply_cyberware_hack(bystander, NET_WARE_ARM)
+	avatar.apply_cyberware_hack(bystander, NET_WARE_NEURO)
+	TEST_ASSERT(bystander_neuro.crit_fail, "the neuro-interface hack did not force a reboot")
+
 	var/hurt_health = avatar.health
 	avatar.last_health = hurt_health
 	avatar.last_hurt = world.time - NET_DEFRAG_DELAY - 1

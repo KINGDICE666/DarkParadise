@@ -26,7 +26,7 @@ GLOBAL_DATUM_INIT(net_vision, /datum/net_vision, new)
 /datum/net_vision/proc/stop_tracking()
 	UnregisterSignal(SSdcs, COMSIG_GLOB_MOB_CREATED)
 	for(var/mob/masked as anything in masks)
-		UnregisterSignal(masked, COMSIG_QDELETING)
+		UnregisterSignal(masked, list(COMSIG_QDELETING, COMSIG_CARBON_GAIN_ORGAN, COMSIG_CARBON_LOSE_ORGAN))
 	masks.Cut()
 
 /datum/net_vision/proc/add_mask(mob/target)
@@ -34,10 +34,26 @@ GLOBAL_DATUM_INIT(net_vision, /datum/net_vision, new)
 		return
 	var/image/mask = image(loc = target)
 	mask.override = TRUE
+	mask.appearance_flags = RESET_COLOR|NO_CLIENT_COLOR
 	masks[target] = mask
+	update_echo(target)
 	RegisterSignal(target, COMSIG_QDELETING, PROC_REF(on_masked_deleted))
+	if(iscarbon(target))
+		RegisterSignals(target, list(COMSIG_CARBON_GAIN_ORGAN, COMSIG_CARBON_LOSE_ORGAN), PROC_REF(on_organs_changed))
 	for(var/client/viewer as anything in viewers)
 		viewer.images += mask
+
+/datum/net_vision/proc/update_echo(mob/target)
+	var/image/mask = masks[target]
+	if(!mask)
+		return
+	var/has_echo = has_net_cyberware(target)
+	mask.icon = has_echo ? 'icons/effects/netrunning.dmi' : null
+	mask.icon_state = has_echo ? "echo" : null
+
+/datum/net_vision/proc/on_organs_changed(mob/living/carbon/source, obj/item/organ/organ)
+	SIGNAL_HANDLER
+	addtimer(CALLBACK(src, PROC_REF(update_echo), source), 0)
 
 /datum/net_vision/proc/on_mob_created(datum/source, mob/created)
 	SIGNAL_HANDLER

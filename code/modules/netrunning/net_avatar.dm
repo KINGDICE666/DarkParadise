@@ -57,6 +57,13 @@
 		NET_HACK_REBOOT = list("name" = "Перезагрузка системы", "cost" = 20, "upload" = 2 SECONDS, "black" = FALSE),
 		NET_HACK_SYNAPSE = list("name" = "Синапсовый выжигатель", "cost" = 30, "upload" = 3 SECONDS, "black" = TRUE),
 	)
+	var/static/list/cyberware_hacks = list(
+		NET_WARE_OPTICS = list("name" = "Погасить кибер-глаза", "cost" = 10, "upload" = 1.5 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/eyes),
+		NET_WARE_ARM = list("name" = "Отказ ручного импланта", "cost" = 15, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/arm),
+		NET_WARE_OVERHEAT = list("name" = "Перегрев импланта", "cost" = 15, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp),
+		NET_WARE_SYNAPSE = list("name" = "Помехи в нейропорту", "cost" = 20, "upload" = 2.5 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/brain),
+		NET_WARE_NEURO = list("name" = "Обнулить нейроинтерфейс", "cost" = 20, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/brain/neuro_interface),
+	)
 	COOLDOWN_DECLARE(conduit_cooldown)
 	COOLDOWN_DECLARE(ice_notice)
 

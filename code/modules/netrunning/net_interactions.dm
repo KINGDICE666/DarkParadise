@@ -13,6 +13,9 @@
 	if(isnetavatar(target) && target != src)
 		INVOKE_ASYNC(src, PROC_REF(open_combat_hacks), target)
 		return TRUE
+	if(has_net_cyberware(target))
+		INVOKE_ASYNC(src, PROC_REF(open_cyberware_hacks), target)
+		return TRUE
 	if(!LAZYACCESS(modifiers, RIGHT_CLICK) && is_net_door(target) && Adjacent(target))
 		INVOKE_ASYNC(src, PROC_REF(net_toggle_door), target)
 		return TRUE
