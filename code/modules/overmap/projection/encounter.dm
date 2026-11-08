@@ -711,8 +711,7 @@
 	terrain_chunks.Cut()
 	for(var/atom/movable/drifter as anything in drifters)
 		remove_drifter(drifter)
-	reservation?.Release()
-	reservation = null
+	QDEL_NULL(reservation)
 	bubble_area = null
 	if(host?.physical_space == src)
 		host.physical_space = null
@@ -1338,8 +1337,7 @@
 /datum/controller/subsystem/overmap/proc/expire_bubbles()
 
 	if(spare_bubble_space && !length(flying_vessels))
-		spare_bubble_space.Release()
-		spare_bubble_space = null
+		QDEL_NULL(spare_bubble_space)
 	for(var/datum/overmap_bubble/bubble as anything in bubbles)
 		if(!bubble.static_level && !length(bubble.ships) && !length(bubble.drifters) && world.time > bubble.last_occupied + OVERMAP_BUBBLE_TIMEOUT)
 			qdel(bubble)
