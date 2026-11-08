@@ -60,6 +60,7 @@
 	TEST_ASSERT_NULL(runner.mind, "the body kept its mind while jacked in")
 	TEST_ASSERT(pod.connected, "the pod did not register the Net connection")
 	TEST_ASSERT(length(avatar.body_overlays), "the avatar did not copy the body's appearance")
+	TEST_ASSERT(length(avatar.get_language_holder().spoken_languages), "the avatar cannot speak any language")
 	TEST_ASSERT_EQUAL(avatar.invisibility, INVISIBILITY_NETRUNNER, "the avatar is visible to the crew")
 
 	var/datum/component/net_connection/connection = avatar.GetComponent(/datum/component/net_connection)

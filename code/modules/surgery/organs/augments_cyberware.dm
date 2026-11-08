@@ -36,11 +36,18 @@
 		return
 	target.maxHealth += SKELETON_HEALTH_BONUS
 	target.updatehealth("reinforced skeleton inserted")
+	RegisterSignal(target, COMSIG_HUMAN_SPECIES_CHANGED, PROC_REF(on_species_changed))
 
 /obj/item/organ/internal/cyberimp/chest/reinforced_skeleton/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
+	UnregisterSignal(target, COMSIG_HUMAN_SPECIES_CHANGED)
 	target.maxHealth -= SKELETON_HEALTH_BONUS
 	target.updatehealth("reinforced skeleton removed")
 	return ..()
+
+/obj/item/organ/internal/cyberimp/chest/reinforced_skeleton/proc/on_species_changed(mob/living/carbon/human/source, datum/species/old_species)
+	SIGNAL_HANDLER
+	source.maxHealth += SKELETON_HEALTH_BONUS
+	source.updatehealth("reinforced skeleton kept through a species change")
 
 /obj/item/organ/internal/cyberimp/chest/blood_pump
 	name = "blood pump implant"
@@ -151,14 +158,25 @@
 	zoomed = new_state
 	if(zoomed)
 		RegisterSignal(owner, COMSIG_ATOM_DIR_CHANGE, PROC_REF(on_dir_change))
+		RegisterSignal(owner, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
+		RegisterSignal(owner, COMSIG_MOB_LOGOUT, PROC_REF(drop_zoom))
 		owner.client?.view_size.zoomOut(offset = OPTICS_ZOOM_DISTANCE, direction = owner.dir)
 	else
-		UnregisterSignal(owner, COMSIG_ATOM_DIR_CHANGE)
+		UnregisterSignal(owner, list(COMSIG_ATOM_DIR_CHANGE, COMSIG_MOB_STATCHANGE, COMSIG_MOB_LOGOUT))
 		owner.client?.view_size.zoomIn()
 
 /obj/item/organ/internal/cyberimp/eyes/optics/proc/on_dir_change(datum/source, old_dir, new_dir)
 	SIGNAL_HANDLER
 	owner.client?.view_size.zoomOut(offset = OPTICS_ZOOM_DISTANCE, direction = new_dir)
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/on_stat_change(datum/source, new_stat)
+	SIGNAL_HANDLER
+	if(new_stat != CONSCIOUS)
+		set_zoom(FALSE)
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/drop_zoom(datum/source)
+	SIGNAL_HANDLER
+	set_zoom(FALSE)
 
 /obj/item/organ/internal/cyberimp/eyes/optics/militech
 	name = "Militech optical suite"
@@ -365,8 +383,7 @@
 	)
 
 /obj/item/melee/monowire/attack(mob/living/target, mob/living/user, list/modifiers, def_zone, skip_attack_anim = FALSE)
-	if(user.a_intent == INTENT_GRAB && can_choke(target, user))
-		choke(target, user)
+	if(user.a_intent == INTENT_GRAB && can_choke(target, user) && choke(target, user))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	. = ..()
 	if(ATTACK_CHAIN_SUCCESS_CHECK(.) && prob(shock_chance))
@@ -378,8 +395,12 @@
 	return IS_HORIZONTAL(target) || target.dir == user.dir
 
 /obj/item/melee/monowire/proc/choke(mob/living/carbon/human/target, mob/living/user)
-	if(!target.grabbedby(user, supress_message = TRUE))
-		return
+	var/wire_hand = user.hand
+	var/grabbed = target.grabbedby(user, supress_message = TRUE)
+	if(user.hand != wire_hand)
+		user.swap_hand()
+	if(!grabbed)
+		return FALSE
 	target.grippedby(user, grab_state_override = GRAB_NECK)
 	target.AdjustSilence(2 SECONDS)
 	playsound(target, 'sound/weapons/cablecuff.ogg', 15, TRUE, -1)
@@ -389,6 +410,7 @@
 		span_italics("Слышна возня и скрип натянутой проволоки!"),
 	)
 	add_attack_logs(user, target, "neck grabbed with [src]")
+	return TRUE
 
 /obj/item/melee/monowire/proc/shock(mob/living/target, mob/living/user)
 	target.Weaken(MONOWIRE_SHOCK_TIME)

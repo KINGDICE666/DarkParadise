@@ -242,16 +242,29 @@
 	if(!text || QDELETED(display) || stat != CONSCIOUS || !can_reach_node(display))
 		return
 	var/list/lines = splittext(text, "/")
-	display.set_mode(STATUS_DISPLAY_MESSAGE)
-	display.set_message(lines[1], length(lines) > 1 ? lines[2] : null)
-	display.update()
-	addtimer(CALLBACK(display, TYPE_PROC_REF(/obj/machinery/status_display, release_net_message)), NET_DISPLAY_TIME, TIMER_UNIQUE|TIMER_OVERRIDE)
+	display.show_net_message(lines[1], length(lines) > 1 ? lines[2] : null)
 	new /obj/effect/temp_visual/net_glitch(get_turf(display))
 	add_trace(NET_TRACE_ACTION)
 	add_game_logs("put [text] on [display] from the Net", src)
 
-/obj/machinery/status_display/proc/release_net_message()
-	set_mode(STATUS_DISPLAY_TRANSFER_SHUTTLE_TIME)
+/obj/machinery/status_display/proc/show_net_message(line1, line2)
+	var/previous_mode = mode
+	var/previous_picture = picture_state
+	var/previous_line1 = message1
+	var/previous_line2 = message2
+	set_mode(STATUS_DISPLAY_MESSAGE)
+	set_message(line1, line2)
+	update()
+	addtimer(CALLBACK(src, PROC_REF(release_net_message), line1, previous_mode, previous_picture, previous_line1, previous_line2), NET_DISPLAY_TIME)
+
+/obj/machinery/status_display/proc/release_net_message(net_line, previous_mode, previous_picture, previous_line1, previous_line2)
+	if(mode != STATUS_DISPLAY_MESSAGE || message1 != net_line)
+		return
+	set_mode(previous_mode)
+	if(previous_mode == STATUS_DISPLAY_ALERT)
+		set_picture(previous_picture)
+	else
+		set_message(previous_line1, previous_line2)
 	update()
 
 /obj/effect/overlay/net_hologram

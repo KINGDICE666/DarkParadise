@@ -133,6 +133,7 @@
 	name = body.real_name
 	real_name = body.real_name
 	gender = body.gender
+	copy_languages(body, LANGUAGE_ATOM)
 	icon = null
 	body_overlays = body.overlays.Copy()
 	var/mutable_appearance/smear = new

@@ -511,6 +511,8 @@
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/set_net_operator(mob/living/new_operator)
 	stop_camera_view()
 	SStgui.close_uis(src)
+	var/mob/living/old_operator = get_operator()
+	old_operator?.client?.images -= link_markers
 	net_operator = new_operator
 	refresh_markers()
 
