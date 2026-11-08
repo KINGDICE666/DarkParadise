@@ -108,7 +108,6 @@
 	var/overmap_leg_started = FALSE
 	var/overmap_escape_dock
 	var/nav_emag_paused_left
-	var/nav_emag_paused_dock
 
 /obj/docking_port/mobile/emergency/register()
 	if(!..())
@@ -242,7 +241,7 @@
 	return TRUE
 
 /obj/docking_port/mobile/emergency/check()
-	if(is_nav_emagged())
+	if(is_nav_emagged() && mode != SHUTTLE_DOCKED)
 		return
 	if(!timer)
 		return
@@ -354,6 +353,13 @@
 				overmap_escape_dock = destination_dock
 				mode = SHUTTLE_ESCAPE
 				overmap_leg_started = TRUE
+				if(is_nav_emagged())
+					var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
+					vessel.programmed_emag_resume_dock = destination_dock
+					var/undock_result = vessel.begin_physical_undock(TRUE)
+					if(undock_result != TRUE)
+						vessel.announce_programmed("[undock_result]")
+					return
 				var/overmap_result = overmap_follow_programmed_leg(destination_dock)
 				if(overmap_result == FALSE)
 					enterTransit()
@@ -481,18 +487,22 @@
 	return getDockedId() == home_id
 
 /obj/docking_port/mobile/emergency/proc/on_nav_emag()
+	if(mode == SHUTTLE_DOCKED)
+		nav_emag_paused_left = 0
+		setTimer(min(timeLeft(1), 10 SECONDS))
+		GLOB.minor_announcement.announce(
+			message = "Запуск эвакуационного шаттла через 10 секунд",
+			new_title = "СИСТЕМНАЯ ОШИБКА:",
+			color_override = "red"
+		)
+		return
 	nav_emag_paused_left = timer ? timeLeft(1) : 0
-	nav_emag_paused_dock = getDockedId()
 	timer = world.time + 24 HOURS
 
 /obj/docking_port/mobile/emergency/proc/on_nav_emag_end()
 	var/left = nav_emag_paused_left
-	var/dock = nav_emag_paused_dock
 	nav_emag_paused_left = 0
-	nav_emag_paused_dock = null
 	if(left <= 0)
-		return
-	if(getDockedId() != dock)
 		return
 	if(mode != SHUTTLE_CALL && mode != SHUTTLE_RECALL && mode != SHUTTLE_DOCKED)
 		return

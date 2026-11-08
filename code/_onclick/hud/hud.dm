@@ -173,6 +173,7 @@
 	mymob = null
 	QDEL_NULL(screentip_text)
 
+	QDEL_NULL(holomap)
 	QDEL_NULL(mini_holomap)
 	return ..()
 
@@ -431,6 +432,7 @@
 	create_mob_hud()
 	update_action_buttons(TRUE)
 	if(hud_used)
+		hud_used.client_refresh()
 		hud_used.show_hud(hud_used.hud_version)
 
 /mob/proc/update_action_buttons_icon()

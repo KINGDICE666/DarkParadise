@@ -519,6 +519,15 @@
 			visible_message(span_warning("[user] плавит [declent_ru(ACCUSATIVE)]!"), span_italics("Слышно шипение пара."))
 			return TRUE
 
+	else if(istype(I, /obj/item/twohanded/required/zombie_claw))
+		to_chat(user, span_notice("Вы начинаете раздирать стену когтями."))
+		var/delay = isdiamond ? 2 MINUTES : 1 MINUTES
+		if(do_after(user, delay * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))
+			to_chat(user, span_notice("Ваши [I.declent_ru(NOMINATIVE)] разрывают обшивку."))
+			dismantle_wall()
+			visible_message(span_warning("[user] прорыва[PLUR_ET_YUT(user)]ся сквозь [declent_ru(ACCUSATIVE)]!"), span_italics("Слышен скрежет металла и кости."))
+		return TRUE
+
 	return FALSE
 
 /turf/simulated/wall/proc/try_wallmount(obj/item/I, mob/user, params)

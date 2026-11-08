@@ -267,7 +267,7 @@ GLOBAL_LIST_EMPTY(closets)
 	if(opened || !can_open(user, force))
 		return FALSE
 
-	if(!before_open(user, force))
+	if(!before_open(user, force) || (SEND_SIGNAL(src, COMSIG_CLOSET_PRE_OPEN, user, force) & BLOCK_OPEN))
 		return FALSE
 	welded = FALSE
 	unlock()
@@ -281,6 +281,7 @@ GLOBAL_LIST_EMPTY(closets)
 	dump_contents()
 	update_appearance()
 	after_open(user, force)
+	SEND_SIGNAL(src, COMSIG_CLOSET_POST_OPEN, user, force)
 	return TRUE
 
 /obj/structure/closet/set_opened()

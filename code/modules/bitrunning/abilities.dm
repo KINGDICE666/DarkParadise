@@ -39,6 +39,7 @@
 /datum/action/cooldown/spell/bitrunner_heal
 	name = "Lesser Heal"
 	desc = "Исцеляет по 10 единиц физических повреждений и ожогов заклинателя."
+	cooldown_time = 10 SECONDS
 	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC
 	invocation = "Victus sano!"
 	invocation_type = INVOCATION_WHISPER

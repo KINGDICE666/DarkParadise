@@ -1,12 +1,35 @@
 /obj/item/antag_spawner/nuke_ops/clown
 	name = "clown operative beacon"
+	gender = MALE
 	desc = "Одноразовый маяк подкрепления клоунов-оперативников."
 	rolename = "клоуна-оперативника"
 
+/obj/item/antag_spawner/nuke_ops/clown/get_ru_names()
+	return alist(
+		NOMINATIVE = "маяк клоунского подкрепления",
+		GENITIVE = "маяка клоунского подкрепления",
+		DATIVE = "маяку клоунского подкрепления",
+		ACCUSATIVE = "маяк клоунского подкрепления",
+		INSTRUMENTAL = "маяком клоунского подкрепления",
+		PREPOSITIONAL = "маяке клоунского подкрепления",
+	)
+
 /obj/item/antag_spawner/nuke_ops/monkey
 	name = "monkey agent beacon"
-	desc = "Одноразовый маяк вызова специально обученной обезьяны-агента. Она понимает Общий, но разговаривает только на обезьяньем языке."
+	gender = MALE
+	desc = "Одноразовый маяк вызова специально обученной обезьяны-агента. Она понимает Общий, но разговаривает только \
+		на обезьяньем языке."
 	rolename = "обезьяну-агента"
+
+/obj/item/antag_spawner/nuke_ops/monkey/get_ru_names()
+	return alist(
+		NOMINATIVE = "маяк обезьяны-агента",
+		GENITIVE = "маяка обезьяны-агента",
+		DATIVE = "маяку обезьяны-агента",
+		ACCUSATIVE = "маяк обезьяны-агента",
+		INSTRUMENTAL = "маяком обезьяны-агента",
+		PREPOSITIONAL = "маяке обезьяны-агента",
+	)
 
 /obj/item/antag_spawner/nuke_ops/monkey/spawn_antag(client/player, turf/location, datum/mind/summoner)
 	var/mob/living/carbon/human/agent = new(location)
@@ -73,7 +96,7 @@
 /datum/antagonist/syndicate_monkey/proc/on_species_changed(mob/living/agent)
 	SIGNAL_HANDLER
 	if(!is_monkeybasic(agent))
-		agent.visible_message(span_bolddanger("[agent] стремительно раздува[PLUR_ET_YUT(agent)]тся от аллергической реакции!"))
+		agent.visible_message(span_bolddanger("[agent.declent_ru(NOMINATIVE)] стремительно раздува[PLUR_ET_YUT(agent)]ся от аллергической реакции!"))
 		addtimer(CALLBACK(agent, TYPE_PROC_REF(/mob/living, gib)), 5 SECONDS)
 
 /datum/outfit/syndicate_monkey
@@ -92,6 +115,16 @@
 	var/paw_locked = TRUE
 	max_combined_w_class = 60
 	storage_slots = 12
+
+/obj/item/storage/box/syndie_kit/monkeycase/get_ru_names()
+	return alist(
+		NOMINATIVE = "оружейный кейс обезьяны-агента",
+		GENITIVE = "оружейного кейса обезьяны-агента",
+		DATIVE = "оружейному кейсу обезьяны-агента",
+		ACCUSATIVE = "оружейный кейс обезьяны-агента",
+		INSTRUMENTAL = "оружейным кейсом обезьяны-агента",
+		PREPOSITIONAL = "оружейном кейсе обезьяны-агента",
+	)
 
 /obj/item/storage/box/syndie_kit/monkeycase/check_uplink_validity()
 	return paw_locked && ..()
@@ -149,8 +182,8 @@
 
 /obj/mecha/combat/honker/dark
 	name = "Dark H.O.N.K"
-	desc = "Боевая модель HONK, окрашенная в чёрный для максимального веселья."
-	icon = 'icons/obj/mecha/dark_honker.dmi'
+	gender = MALE
+	desc = "Боевая модель экзокостюма \"Dark H.O.N.K.\" с усиленной бронёй и клоунским вооружением."
 	icon_state = "darkhonker"
 	initial_icon = "darkhonker"
 	ui_theme = "syndicate"
@@ -159,6 +192,16 @@
 	max_temperature = 35000
 	operation_req_access = list(ACCESS_SYNDICATE)
 	wreckage = /obj/structure/mecha_wreckage/honker/dark
+
+/obj/mecha/combat/honker/dark/get_ru_names()
+	return alist(
+		NOMINATIVE = "боевой экзокостюм \"Dark H.O.N.K.\"",
+		GENITIVE = "боевого экзокостюма \"Dark H.O.N.K.\"",
+		DATIVE = "боевому экзокостюму \"Dark H.O.N.K.\"",
+		ACCUSATIVE = "боевой экзокостюм \"Dark H.O.N.K.\"",
+		INSTRUMENTAL = "боевым экзокостюмом \"Dark H.O.N.K.\"",
+		PREPOSITIONAL = "боевом экзокостюме \"Dark H.O.N.K.\"",
+	)
 
 /obj/mecha/combat/honker/dark/loaded/Initialize(mapload)
 	. = ..()
@@ -173,37 +216,115 @@
 
 /obj/structure/mecha_wreckage/honker/dark
 	name = "Dark H.O.N.K wreckage"
-	icon = 'icons/obj/mecha/dark_honker.dmi'
+	gender = PLURAL
 	icon_state = "darkhonker-broken"
+
+/obj/structure/mecha_wreckage/honker/dark/get_ru_names()
+	return alist(
+		NOMINATIVE = "обломки экзокостюма \"Dark H.O.N.K.\"",
+		GENITIVE = "обломков экзокостюма \"Dark H.O.N.K.\"",
+		DATIVE = "обломкам экзокостюма \"Dark H.O.N.K.\"",
+		ACCUSATIVE = "обломки экзокостюма \"Dark H.O.N.K.\"",
+		INSTRUMENTAL = "обломками экзокостюма \"Dark H.O.N.K.\"",
+		PREPOSITIONAL = "обломках экзокостюма \"Dark H.O.N.K.\"",
+	)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/banana_mortar/bombanana
 	name = "bombanana mortar"
-	desc = "Меховая пусковая установка взрывных банановых кожурок."
+	gender = FEMALE
+	desc = "Установка для стрельбы взрывными банановыми кожурками. Монтируется на экзокостюм."
 	projectile = /obj/item/grown/bananapeel/bombanana
+
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/banana_mortar/bombanana/get_ru_names()
+	return alist(
+		NOMINATIVE = "бомбанановая мортира",
+		GENITIVE = "бомбанановой мортиры",
+		DATIVE = "бомбанановой мортире",
+		ACCUSATIVE = "бомбанановую мортиру",
+		INSTRUMENTAL = "бомбанановой мортирой",
+		PREPOSITIONAL = "бомбанановой мортире",
+	)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang/tearstache
 	name = "tear-stache launcher"
-	desc = "Меховая пусковая установка газовых гранат с липкими усами."
+	gender = MALE
+	desc = "Установка для стрельбы газовыми гранатами с липкими усами. Монтируется на экзокостюм."
 	projectile = /obj/item/grenade/chem_grenade/teargas/moustache
 	module_type = MECH_EQUIPMENT_CLOWN
 
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang/tearstache/get_ru_names()
+	return alist(
+		NOMINATIVE = "усатый гранатомёт",
+		GENITIVE = "усатого гранатомёта",
+		DATIVE = "усатому гранатомёту",
+		ACCUSATIVE = "усатый гранатомёт",
+		INSTRUMENTAL = "усатым гранатомётом",
+		PREPOSITIONAL = "усатом гранатомёте",
+	)
+
 /obj/item/beacon/syndicate/bomb/clown
 	name = "clown bomb beacon"
+	gender = MALE
 	desc = "Одноразовый маяк доставки клоунской бомбы."
 	bomb = /obj/machinery/syndicatebomb/badmin/clown/operative
 
+/obj/item/beacon/syndicate/bomb/clown/get_ru_names()
+	return alist(
+		NOMINATIVE = "маяк клоунской бомбы",
+		GENITIVE = "маяка клоунской бомбы",
+		DATIVE = "маяку клоунской бомбы",
+		ACCUSATIVE = "маяк клоунской бомбы",
+		INSTRUMENTAL = "маяком клоунской бомбы",
+		PREPOSITIONAL = "маяке клоунской бомбы",
+	)
+
 /obj/machinery/syndicatebomb/badmin/clown/operative
+	gender = FEMALE
+	desc = "Клоунская бомба с таймером. Изнутри доносятся подозрительные хонки."
 	payload = /obj/item/bombcore/badmin/summon/clown/operative
 
+/obj/machinery/syndicatebomb/badmin/clown/operative/get_ru_names()
+	return alist(
+		NOMINATIVE = "клоунская бомба",
+		GENITIVE = "клоунской бомбы",
+		DATIVE = "клоунской бомбе",
+		ACCUSATIVE = "клоунскую бомбу",
+		INSTRUMENTAL = "клоунской бомбой",
+		PREPOSITIONAL = "клоунской бомбе",
+	)
+
 /obj/item/bombcore/badmin/summon/clown/operative
+	name = "clown bomb payload"
+	gender = MALE
+	desc = "Заряд для клоунской бомбы. Внутри что-то шевелится."
 	amt_summon = 50
+
+/obj/item/bombcore/badmin/summon/clown/operative/get_ru_names()
+	return alist(
+		NOMINATIVE = "заряд клоунской бомбы",
+		GENITIVE = "заряда клоунской бомбы",
+		DATIVE = "заряду клоунской бомбы",
+		ACCUSATIVE = "заряд клоунской бомбы",
+		INSTRUMENTAL = "зарядом клоунской бомбы",
+		PREPOSITIONAL = "заряде клоунской бомбы",
+	)
 
 /obj/item/reagent_containers/food/snacks/grown/banana/bunch/monkeybomb
 	name = "banana bunch"
+	gender = FEMALE
 	desc = "Гроздь бананов. Обезьяна знает, как устроить с её помощью громкую шутку."
-	icon = 'icons/obj/clown_ops.dmi'
 	icon_state = "banana_bunch"
 	var/ripening = FALSE
+
+/obj/item/reagent_containers/food/snacks/grown/banana/bunch/monkeybomb/get_ru_names()
+	return alist(
+		NOMINATIVE = "гроздь бананов",
+		GENITIVE = "грозди бананов",
+		DATIVE = "грозди бананов",
+		ACCUSATIVE = "гроздь бананов",
+		INSTRUMENTAL = "гроздью бананов",
+		PREPOSITIONAL = "грозди бананов",
+	)
 
 /obj/item/reagent_containers/food/snacks/grown/banana/bunch/monkeybomb/attack_self(mob/user)
 	if(ripening)
@@ -229,6 +350,16 @@
 	desc = "Разработано обезьянами Синдиката для обезьян Синдиката. Использует патроны 9 мм."
 	damage_mod = 0.4
 
+/obj/item/gun/projectile/automatic/smg/mini_uzi/chimpgun/get_ru_names()
+	return alist(
+		NOMINATIVE = "пистолет-пулемёт MONK-10",
+		GENITIVE = "пистолета-пулемёта MONK-10",
+		DATIVE = "пистолету-пулемёту MONK-10",
+		ACCUSATIVE = "пистолет-пулемёт MONK-10",
+		INSTRUMENTAL = "пистолетом-пулемётом MONK-10",
+		PREPOSITIONAL = "пистолете-пулемёте MONK-10",
+	)
+
 /obj/item/gun/projectile/automatic/smg/mini_uzi/chimpgun/Initialize(mapload)
 	. = ..()
 	var/obj/item/firing_pin/monkey/pin = new
@@ -236,8 +367,19 @@
 
 /obj/item/gun/projectile/automatic/tommygun/chimpgun
 	name = "Typewriter"
+	gender = MALE
 	desc = "Было лучшее время, было ХУДШЕСТЬ времён! Ты глупая обезьяна!"
 	damage_mod = 0.4
+
+/obj/item/gun/projectile/automatic/tommygun/chimpgun/get_ru_names()
+	return alist(
+		NOMINATIVE = "пистолет-пулемёт \"Печатная машинка\"",
+		GENITIVE = "пистолета-пулемёта \"Печатная машинка\"",
+		DATIVE = "пистолету-пулемёту \"Печатная машинка\"",
+		ACCUSATIVE = "пистолет-пулемёт \"Печатная машинка\"",
+		INSTRUMENTAL = "пистолетом-пулемётом \"Печатная машинка\"",
+		PREPOSITIONAL = "пистолете-пулемёте \"Печатная машинка\"",
+	)
 
 /obj/item/gun/projectile/automatic/tommygun/chimpgun/Initialize(mapload)
 	. = ..()
@@ -248,6 +390,16 @@
 	name = "CH1M911"
 	desc = "Для обезьяньего мафиози. Использует патроны .45 и отчётливо пахнет бананами."
 	damage_mod = 0.5
+
+/obj/item/gun/projectile/automatic/pistol/m1911/chimpgun/get_ru_names()
+	return alist(
+		NOMINATIVE = "пистолет CH1M911",
+		GENITIVE = "пистолета CH1M911",
+		DATIVE = "пистолету CH1M911",
+		ACCUSATIVE = "пистолет CH1M911",
+		INSTRUMENTAL = "пистолетом CH1M911",
+		PREPOSITIONAL = "пистолете CH1M911",
+	)
 
 /obj/item/gun/projectile/automatic/pistol/m1911/chimpgun/Initialize(mapload)
 	. = ..()

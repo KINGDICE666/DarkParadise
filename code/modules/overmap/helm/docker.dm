@@ -67,7 +67,7 @@
 			if(!landing_z_allowed(num_level))
 				continue
 			if(is_mining_level(num_level))
-				var/obj/docking_port/stationary/mining_pad = SSshuttle.getDock("mining_away")
+				var/obj/docking_port/stationary/mining_pad = SSshuttle.getDock("mining_away", warn = FALSE)
 				if(mining_pad && mining_pad.z == num_level)
 					start = get_turf(mining_pad)
 					break
@@ -170,49 +170,3 @@
 	helm.vessel.custom_docks[bound_host.UID()] = my_port
 	helm.vessel.selected_dock_id = my_port.id
 	helm.vessel.overmap_shuttle?.owned_docks_dirty = TRUE
-
-/atom/movable/screen/overmap_dock_ghost
-	name = "shuttle footprint"
-	icon = 'icons/effects/alphacolors.dmi'
-	icon_state = "transparent"
-	layer = ABOVE_HUD_LAYER
-	plane = GAME_PLANE
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	del_on_map_removal = FALSE
-	appearance_flags = RESET_COLOR | RESET_TRANSFORM | KEEP_APART
-
-/atom/movable/screen/overmap_dock_backdrop
-	name = "space"
-	icon = 'icons/effects/parallax.dmi'
-	plane = PLANE_SPACE_PARALLAX
-	blend_mode = BLEND_ADD
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	del_on_map_removal = FALSE
-	appearance_flags = APPEARANCE_UI | KEEP_TOGETHER
-
-/atom/movable/screen/overmap_dock_backdrop/Initialize(mapload, datum/hud/hud_owner)
-	. = ..()
-	update_appearance(UPDATE_OVERLAYS)
-
-/atom/movable/screen/overmap_dock_backdrop/update_overlays()
-	. = ..()
-	var/repeats = CEILING(OVERMAP_DOCK_PREVIEW_MAX * ICON_SIZE_ALL / PARALLAX_TILE_SIZE, 1)
-	for(var/tile_x in 0 to repeats - 1)
-		for(var/tile_y in 0 to repeats - 1)
-			for(var/star_layer in list("layer1", "layer2"))
-				var/mutable_appearance/stars = mutable_appearance(icon, star_layer)
-				stars.pixel_w = tile_x * PARALLAX_TILE_SIZE
-				stars.pixel_z = tile_y * PARALLAX_TILE_SIZE
-				. += stars
-
-/atom/movable/screen/overmap_nav_blip
-	name = "nav mark"
-	icon = OVERMAP_ICON_FILE
-	icon_state = OVERMAP_NAV_MARKER_STATE
-	alpha = 0
-	layer = ABOVE_HUD_LAYER
-	plane = GAME_PLANE
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	del_on_map_removal = FALSE
-	appearance_flags = RESET_COLOR | RESET_TRANSFORM | KEEP_APART
-	color = "#5ad1ff"

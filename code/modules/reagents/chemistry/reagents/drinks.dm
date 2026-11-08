@@ -172,7 +172,7 @@
 /datum/reagent/consumable/drink/banana/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 	var/obj/item/organ/internal/liver/liver = M.get_organ_slot(INTERNAL_ORGAN_LIVER)
-	if(HAS_TRAIT(M, TRAIT_COMIC) || HAS_TRAIT(liver, TRAIT_COMEDY_METABOLISM) || is_monkeybasic(M))
+	if(HAS_TRAIT(M, TRAIT_COMIC) || (liver && HAS_TRAIT(liver, TRAIT_COMEDY_METABOLISM)) || is_monkeybasic(M))
 		update_flags |= M.adjustBruteLoss(-1, FALSE, affect_robotic = FALSE)
 		update_flags |= M.adjustFireLoss(-1, FALSE, affect_robotic = FALSE)
 	return ..() | update_flags
@@ -429,7 +429,7 @@
 /datum/reagent/consumable/drink/bananahonk/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 	var/obj/item/organ/internal/liver/liver = M.get_organ_slot(INTERNAL_ORGAN_LIVER)
-	if(HAS_TRAIT(M, TRAIT_COMIC) || HAS_TRAIT(liver, TRAIT_COMEDY_METABOLISM) || is_monkeybasic(M))
+	if(HAS_TRAIT(M, TRAIT_COMIC) || (liver && HAS_TRAIT(liver, TRAIT_COMEDY_METABOLISM)) || is_monkeybasic(M))
 		update_flags |= M.adjustBruteLoss(-1, FALSE, affect_robotic = FALSE)
 		update_flags |= M.adjustFireLoss(-1, FALSE, affect_robotic = FALSE)
 	return ..() | update_flags

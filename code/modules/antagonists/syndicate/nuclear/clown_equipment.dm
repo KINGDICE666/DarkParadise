@@ -1,3 +1,7 @@
+#define PIE_CANNON_CAPACITY 20
+#define PINATA_MIN_DAMAGE 10
+#define PINATA_LOOT_CHANCE 40
+#define PINATA_DESTRUCTION_LOOT 2
 #define BANANA_SHOES_MAX_CHARGE 3000
 #define BANANA_SHOES_COST 100
 #define BANANA_SHOES_RECHARGE 17
@@ -5,21 +9,41 @@
 /obj/item/clothing/shoes/clown_shoes/banana_shoes/combat
 	parent_type = /obj/item/clothing/shoes/clown_shoes/combat
 	name = "mk-honk combat shoes"
-	desc = "Боевые клоунские ботинки оставляют за собой банановую кожуру. Постепенно восстанавливают заряд и принимают бананиум для быстрой зарядки."
-	icon = 'icons/obj/clown_ops.dmi'
+	desc = "Боевые клоунские ботинки оставляют за собой банановую кожуру. Постепенно восстанавливают заряд и принимают \
+		бананиум для быстрой зарядки."
 	icon_state = "clown_prototype_off"
-	onmob_sheets = list(ITEM_SLOT_FEET_STRING = 'icons/mob/clothing/clown_ops_feet.dmi')
 	sprite_sheets = null
 	armor = list(MELEE = 25, BULLET = 25, LASER = 25, ENERGY = 25, BOMB = 50, BIO = 50, FIRE = 90, ACID = 50)
 	actions_types = list(/datum/action/item_action/toggle_banana_shoes)
 	var/on = FALSE
 	var/datum/component/material_container/bananium
 
+/obj/item/clothing/shoes/clown_shoes/banana_shoes/combat/get_ru_names()
+	return alist(
+		NOMINATIVE = "боевые банановые ботинки",
+		GENITIVE = "боевых банановых ботинок",
+		DATIVE = "боевым банановым ботинкам",
+		ACCUSATIVE = "боевые банановые ботинки",
+		INSTRUMENTAL = "боевыми банановыми ботинками",
+		PREPOSITIONAL = "боевых банановых ботинках",
+	)
+
 /obj/item/clothing/shoes/clown_shoes/banana_shoes/combat/Initialize(mapload)
 	. = ..()
-	bananium = AddComponent(/datum/component/material_container, list(MAT_BANANIUM), 100 * MINERAL_MATERIAL_AMOUNT, TRUE, /obj/item/stack)
+	bananium = AddComponent(
+		/datum/component/material_container, \
+		mat_list = list(MAT_BANANIUM), \
+		max_amt = 100 * MINERAL_MATERIAL_AMOUNT, \
+		_show_on_examine = TRUE, \
+		allowed_types = /obj/item/stack, \
+	)
 	bananium.insert_amount(BANANA_SHOES_MAX_CHARGE, MAT_BANANIUM)
-	AddComponent(/datum/component/squeak, list('sound/items/bikehorn.ogg' = 1), 75, falloff_exponent = 20)
+	AddComponent(
+		/datum/component/squeak, \
+		custom_sounds = list('sound/items/bikehorn.ogg' = 1), \
+		volume_override = 75, \
+		falloff_exponent = 20, \
+	)
 	RegisterSignal(src, COMSIG_SHOES_STEP_ACTION, PROC_REF(on_step))
 	START_PROCESSING(SSobj, src)
 
@@ -69,20 +93,33 @@
 
 /obj/item/pneumatic_cannon/pie/selfcharge
 	name = "banana cream pie cannon"
+	gender = MALE
 	desc = "Пирогомёт с генератором банановых кремовых пирогов. Вмещает двадцать пирогов и создаёт новый каждые две секунды."
-	icon = 'icons/obj/clown_ops.dmi'
 	icon_state = "piecannon"
 	force = 10
-	maxWeightClass = 20 * /obj/item/reagent_containers/food/snacks/pie::w_class
+	maxWeightClass = PIE_CANNON_CAPACITY * /obj/item/reagent_containers/food/snacks/pie::w_class
+	needs_air = FALSE
 	var/mob/living/cannon_user
 	var/datum/weakref/target_ref
 
 /obj/item/pneumatic_cannon/pie/selfcharge/get_ru_names()
-	return alist(NOMINATIVE = "банановый пирогомёт", GENITIVE = "бананового пирогомёта", DATIVE = "банановому пирогомёту", ACCUSATIVE = "банановый пирогомёт", INSTRUMENTAL = "банановым пирогомётом", PREPOSITIONAL = "банановом пирогомёте")
+	return alist(
+		NOMINATIVE = "банановый пирогомёт",
+		GENITIVE = "бананового пирогомёта",
+		DATIVE = "банановому пирогомёту",
+		ACCUSATIVE = "банановый пирогомёт",
+		INSTRUMENTAL = "банановым пирогомётом",
+		PREPOSITIONAL = "банановом пирогомёте",
+	)
 
 /obj/item/pneumatic_cannon/pie/selfcharge/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/automatedfire/autofire, auto_fire_shot_delay = CLICK_CD_RANGE, fire_mode = GUN_FIREMODE_AUTOMATIC, callback_fire = CALLBACK(src, PROC_REF(fire_pie)))
+	AddComponent(
+		/datum/component/automatedfire/autofire, \
+		auto_fire_shot_delay = CLICK_CD_RANGE, \
+		fire_mode = GUN_FIREMODE_AUTOMATIC, \
+		callback_fire = CALLBACK(src, PROC_REF(fire_pie)), \
+	)
 	START_PROCESSING(SSobj, src)
 
 /obj/item/pneumatic_cannon/pie/selfcharge/Destroy()
@@ -142,13 +179,11 @@
 	return
 
 /obj/item/pneumatic_cannon/pie/selfcharge/examine(mob/user)
-	. = list(desc, span_notice("Заряжено пирогов: [length(loadedItems)] из 20. Удерживайте левую кнопку мыши для стрельбы."))
-
-/obj/item/pneumatic_cannon/pie/selfcharge/wrench_act(mob/living/user, obj/item/tool)
-	return FALSE
+	. = ..()
+	. += span_notice("Заряжено пирогов: [length(loadedItems)] из [PIE_CANNON_CAPACITY]. Удерживайте левую кнопку мыши для стрельбы.")
 
 /obj/item/pneumatic_cannon/pie/selfcharge/process()
-	if(length(loadedItems) >= 20)
+	if(length(loadedItems) >= PIE_CANNON_CAPACITY)
 		return
 	var/obj/item/reagent_containers/food/snacks/pie/pie = new(src)
 	loadedItems += pie
@@ -173,9 +208,20 @@
 
 /obj/item/pinata/syndie
 	name = "weapons grade pinata assembly kit"
+	gender = MALE
 	desc = "Набор для установки пиньяты, полной конфет и взрывчатки. Используйте в руке, чтобы установить."
-	icon = 'icons/obj/clown_ops.dmi'
+	icon = 'icons/obj/toy.dmi'
 	icon_state = "pinata_syndie"
+
+/obj/item/pinata/syndie/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор для сборки боевой пиньяты",
+		GENITIVE = "набора для сборки боевой пиньяты",
+		DATIVE = "набору для сборки боевой пиньяты",
+		ACCUSATIVE = "набор для сборки боевой пиньяты",
+		INSTRUMENTAL = "набором для сборки боевой пиньяты",
+		PREPOSITIONAL = "наборе для сборки боевой пиньяты",
+	)
 
 /obj/item/pinata/syndie/attack_self(mob/user)
 	if(!do_after(user, 4 SECONDS, get_turf(user)))
@@ -185,8 +231,9 @@
 
 /obj/structure/pinata/syndie
 	name = "syndicate corgi pinata"
-	desc = "Пиньята в форме корги. Лупите оружием с уроном не меньше десяти, чтобы получить угощение."
-	icon = 'icons/obj/clown_ops.dmi'
+	gender = FEMALE
+	desc = "Пиньята в форме корги. Содержимое выпадает от ударов оружием с уроном не меньше 10."
+	icon = 'icons/obj/toy.dmi'
 	icon_state = "pinata_syndie_placed"
 	anchored = TRUE
 	var/list/candy_options = list(
@@ -202,14 +249,24 @@
 		/obj/item/grenade/syndieminibomb,
 	)
 
+/obj/structure/pinata/syndie/get_ru_names()
+	return alist(
+		NOMINATIVE = "боевая пиньята",
+		GENITIVE = "боевой пиньяты",
+		DATIVE = "боевой пиньяте",
+		ACCUSATIVE = "боевую пиньяту",
+		INSTRUMENTAL = "боевой пиньятой",
+		PREPOSITIONAL = "боевой пиньяте",
+	)
+
 /obj/structure/pinata/syndie/take_damage(damage_amount, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
-	if(damage_amount >= 10 && damage_type == BRUTE && prob(40 + damage_amount))
+	if(damage_amount >= PINATA_MIN_DAMAGE && damage_type == BRUTE && prob(PINATA_LOOT_CHANCE + damage_amount))
 		var/candy_type = pick(candy_options)
 		new candy_type(get_turf(src))
 	return ..()
 
 /obj/structure/pinata/syndie/obj_destruction(damage_flag)
-	for(var/index in 1 to 2)
+	for(var/index in 1 to PINATA_DESTRUCTION_LOOT)
 		var/candy_type = pick(candy_options)
 		new candy_type(get_turf(src))
 	return ..()
@@ -217,6 +274,16 @@
 /obj/item/storage/box/syndie_kit/pinata
 	name = "weapons grade pinata kit"
 	desc = "Боевая пиньята и два пояса для её содержимого."
+
+/obj/item/storage/box/syndie_kit/pinata/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор боевой пиньяты",
+		GENITIVE = "набора боевой пиньяты",
+		DATIVE = "набору боевой пиньяты",
+		ACCUSATIVE = "набор боевой пиньяты",
+		INSTRUMENTAL = "набором боевой пиньяты",
+		PREPOSITIONAL = "наборе боевой пиньяты",
+	)
 
 /obj/item/storage/box/syndie_kit/pinata/populate_contents()
 	new /obj/item/pinata/syndie(src)
@@ -228,8 +295,32 @@
 	desc = "Кассетная граната с мылом Синдиката."
 	payload = /obj/item/grenade/spawnergrenade/syndiesoap
 
+/obj/item/grenade/clusterbuster/soap/get_ru_names()
+	return alist(
+		NOMINATIVE = "кассетная граната \"Скользопокалипсис\"",
+		GENITIVE = "кассетной гранаты \"Скользопокалипсис\"",
+		DATIVE = "кассетной гранате \"Скользопокалипсис\"",
+		ACCUSATIVE = "кассетную гранату \"Скользопокалипсис\"",
+		INSTRUMENTAL = "кассетной гранатой \"Скользопокалипсис\"",
+		PREPOSITIONAL = "кассетной гранате \"Скользопокалипсис\"",
+	)
+
 /obj/item/grenade/spawnergrenade/syndiesoap
 	name = "soap delivery grenade"
 	desc = "Доставляет особо скользкое мыло."
 	spawner_type = /obj/item/soap/syndie
 	deliveryamt = 5
+
+#undef PIE_CANNON_CAPACITY
+#undef PINATA_MIN_DAMAGE
+#undef PINATA_LOOT_CHANCE
+#undef PINATA_DESTRUCTION_LOOT
+/obj/item/grenade/spawnergrenade/syndiesoap/get_ru_names()
+	return alist(
+		NOMINATIVE = "мыльная граната",
+		GENITIVE = "мыльной гранаты",
+		DATIVE = "мыльной гранате",
+		ACCUSATIVE = "мыльную гранату",
+		INSTRUMENTAL = "мыльной гранатой",
+		PREPOSITIONAL = "мыльной гранате",
+	)

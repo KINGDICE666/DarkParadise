@@ -74,6 +74,8 @@
 	icon = 'icons/obj/weapons/guns/projectiles.dmi'
 	icon_state = "chronobolt"
 	e_cost = 0
+	delay = 1 SECONDS
+	fire_sound = 'sound/weapons/pulse3.ogg'
 
 // MARK: Tentacle
 /obj/item/ammo_casing/magic/tentacle

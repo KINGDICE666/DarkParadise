@@ -29,11 +29,17 @@ import {
   storeWindowGeometry,
 } from '../drag';
 import { suspendStart } from '../events/handlers/suspense';
+import { store, windowShownAtom } from '../events/store';
 import { Layout } from './Layout';
 import { TitleBar } from './TitleBar';
 
 const logger = createLogger('Window');
 const DEFAULT_SIZE: [number, number] = [400, 600];
+const GEOMETRY_WAIT_LIMIT = 700;
+const REVEAL_DELAY = 30;
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 type Props = Partial<{
   buttons: ReactNode;
@@ -72,39 +78,50 @@ export function Window(props: Props) {
   const { scale } = config?.window || false;
 
   useEffect(() => {
-    if (!suspended && isReadyToRender) {
-      const updateGeometry = () => {
-        const options = {
-          ...config.window,
-          size: DEFAULT_SIZE,
-        };
+    if (suspended || !isReadyToRender) {
+      return;
+    }
+    let cancelled = false;
+    const options = {
+      ...config.window,
+      size: DEFAULT_SIZE,
+    };
+    if (width && height) {
+      options.size = [width, height];
+    }
+    if (config.window?.key) {
+      setWindowKey(config.window.key);
+    }
 
-        if (width && height) {
-          options.size = [width, height];
+    Byond.winset(Byond.windowId, {
+      'can-close': Boolean(canClose),
+    });
+    logger.log('mounting');
+
+    // Reveal the window only after it got its final size and position,
+    // so it never shows up at the previous geometry and then stretches.
+    const placed = recallWindowGeometry(options);
+    placed.then(() => globalEvents.emit('window-geometry-finished'));
+    Promise.race([placed, wait(GEOMETRY_WAIT_LIMIT)])
+      .then(() => wait(REVEAL_DELAY))
+      .then(() => {
+        if (cancelled) {
+          return;
         }
-        if (config.window?.key) {
-          setWindowKey(config.window.key);
-        }
-        recallWindowGeometry(options);
         Byond.winset(Byond.windowId, {
           'is-visible': true,
         });
+        store.set(windowShownAtom, true);
         Byond.sendMessage('visible');
         globalEvents.emit('window-geometry-finished');
-
         logger.log('set to visible');
-      };
-
-      Byond.winset(Byond.windowId, {
-        'can-close': Boolean(canClose),
       });
-      logger.log('mounting');
-      updateGeometry();
-    }
+
     return () => {
+      cancelled = true;
       logger.log('unmounting');
     };
-  }, [isReadyToRender, width, height, scale]);
+  }, [suspended, isReadyToRender, width, height, scale]);
 
   // Determine when to show dimmer
   const showDimmer =

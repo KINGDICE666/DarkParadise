@@ -1,6 +1,6 @@
 use super::{
     blending, image_cache,
-    universal_icon::{Transform, UniversalIconData},
+    universal_icon::{Transform, UniversalIcon, UniversalIconData},
 };
 use dmi::{dirs::Dirs, icon::IconState};
 use image::{imageops, Rgba, RgbaImage};
@@ -762,6 +762,26 @@ impl Transform {
         image_data: Arc<UniversalIconData>,
         flatten: bool,
     ) -> ByondResult<UniversalIconData> {
+        self.apply_with_loader(image_data, &mut |icon| {
+            let (mut data, cached) = icon.get_image_data(
+                &format!("Transform blend_icon {icon}"),
+                true,
+                false,
+                flatten,
+            )?;
+            if !cached {
+                data = apply_all_transforms(data, &icon.transform, flatten)?;
+            }
+            image_cache::cache_transformed_images(icon, data.clone());
+            Ok(data)
+        })
+    }
+
+    pub fn apply_with_loader(
+        &self,
+        image_data: Arc<UniversalIconData>,
+        load_icon: &mut dyn FnMut(&UniversalIcon) -> ByondResult<Arc<UniversalIconData>>,
+    ) -> ByondResult<UniversalIconData> {
         zone!("transform_apply");
         let images: Vec<RgbaImage>;
         let mut frames = image_data.frames;
@@ -782,17 +802,7 @@ impl Transform {
                 y,
             } => {
                 zone!("blend_icon");
-                let (mut other_image_data, cached) = icon.get_image_data(
-                    &format!("Transform blend_icon {icon}"),
-                    true,
-                    false,
-                    flatten,
-                )?;
-
-                if !cached {
-                    other_image_data =
-                        apply_all_transforms(other_image_data, &icon.transform, flatten)?;
-                };
+                let other_image_data = load_icon(icon)?;
                 let position = Some((x.unwrap_or(1), y.unwrap_or(1)));
                 let new_out = blend_images_other_universal(
                     image_data,
@@ -804,7 +814,6 @@ impl Transform {
                 frames = new_out.frames;
                 dirs = new_out.dirs;
                 delay = new_out.delay;
-                image_cache::cache_transformed_images(icon, other_image_data);
             }
             Transform::Scale { width, height } => {
                 images = image_data.map_cloned_images(|image| scale(image, *width, *height));

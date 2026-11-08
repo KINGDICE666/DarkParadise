@@ -840,7 +840,7 @@ GAME_VERB_PROC_DESC(/mob/living/silicon/ai, botcall, "Диспетчер роб�
 	if(QDELETED(C) || stat == DEAD) //C.can_use())
 		return FALSE
 
-	if(!eyeobj)
+	if(QDELETED(eyeobj))
 		view_core()
 		return
 	// ok, we're alive, camera is good and in our network...

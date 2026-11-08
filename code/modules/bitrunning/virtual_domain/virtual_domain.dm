@@ -12,6 +12,7 @@
 	var/start_time
 	var/datum/outfit/forced_outfit
 	var/list/completion_loot
+	var/list/hardcore_loot
 	var/list/secondary_loot = list()
 	var/secondary_loot_generated = 0
 	var/disk_reward_spawned = FALSE

@@ -144,7 +144,7 @@ SUBSYSTEM_DEF(ticker)
 
 			declare_completion()
 
-			addtimer(CALLBACK(src, PROC_REF(call_reboot)), 5 SECONDS)
+			INVOKE_ASYNC(src, PROC_REF(call_reboot))
 
 			if(!SSmapping.next_map) //Next map already selected by admin
 				var/list/all_maps = subtypesof(/datum/map)

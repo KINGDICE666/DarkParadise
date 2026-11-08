@@ -15,9 +15,11 @@
 		skipface |= wear_mask.flags_inv & HIDENAME
 
 	if(skipjumpsuit && (skipface || HAS_TRAIT(src, TRAIT_NO_SPECIES_EXAMINE))) //either obscured or on the nospecies list
-		return ..() //omit the species when examining
+		. = ..() //omit the species when examining
 	else
-		return "[..()],<b><font color='[examine_color]'> [GET_RU_SPECIES_NAME(displayed_species)]</font></b>"
+		. = "[..()],<b><font color='[examine_color]'> [GET_RU_SPECIES_NAME(displayed_species)]</font></b>"
+	if(HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
+		. = "[span_warning("ковыляющий труп")] [.]"
 
 /mob/living/carbon/human/examine(mob/user)
 	var/skipgloves = 0
@@ -371,6 +373,9 @@
 
 	if(reagents.has_reagent("teslium"))
 		msg += span_warning("[GEND_HE_SHE_CAP(src)] излуча[PLUR_ET_YUT(src)] мягкое голубое свечение!\n")
+
+	if(HAS_TRAIT(src, TRAIT_PLAGUE_ZOMBIE))
+		msg += span_warning("[GEND_HE_SHE_CAP(src)] источа[PLUR_ET_YUT(src)] смрад гнили и смерти!\n")
 
 	if(!appears_dead)
 		if(stat == UNCONSCIOUS)

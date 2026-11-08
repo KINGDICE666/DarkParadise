@@ -1,5 +1,5 @@
 /obj/overmap/entity/proc/ensure_virtual_engine()
-	if(length(engines))
+	if(!admin_virtual_engine)
 		return
 	if(virtual_engine && !QDELETED(virtual_engine))
 		return
@@ -42,7 +42,7 @@
 /obj/overmap/entity/proc/seed_helm_waypoint_from_dock(dock_id)
 	if(!dock_id)
 		return
-	var/obj/docking_port/stationary/pad = SSshuttle.getDock(dock_id)
+	var/obj/docking_port/stationary/pad = SSshuttle.getDock(dock_id, warn = FALSE)
 	if(!pad)
 		return
 	var/obj/overmap/entity/host = SSovermap?.host_for_pad(pad, shuttle)
@@ -58,25 +58,6 @@
 		if(!helm.preset_waypoints)
 			helm.preset_waypoints = list()
 		helm.preset_waypoints[label] = list("x" = mark_x, "y" = mark_y)
-
-/obj/docking_port/mobile/proc/overmap_try_programmed_move(dock_id)
-	if(!SSovermap?.initialized)
-		return null
-	var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
-	if(!vessel)
-		vessel = SSovermap.get_or_register_shuttle(src)
-	if(!vessel?.programmed)
-		return null
-	if(vessel.is_programmed_emagged())
-		return 2
-	if(getDockedId() == dock_id)
-		vessel.snap_physical_redock()
-		return 0
-	if(id == "supply" && !canMove())
-		return 2
-	if(vessel.start_programmed_route(dock_id, TRUE, TRUE) == TRUE)
-		return 0
-	return 2
 
 /obj/docking_port/mobile/proc/overmap_follow_programmed_leg(dock_id)
 	if(!SSovermap?.initialized)
@@ -121,5 +102,13 @@
 	for(var/obj/docking_port/mobile/pod/pod as anything in SSshuttle.mobile)
 		if(!istype(pod) || !is_station_level(pod.z))
 			continue
-		if(pod.overmap_follow_programmed_leg("[pod.id]_away") == FALSE)
-			pod.enterTransit()
+		INVOKE_ASYNC(pod, TYPE_PROC_REF(/obj/docking_port/mobile/pod, launch_overmap_escape))
+
+/obj/docking_port/mobile/pod/proc/launch_overmap_escape()
+	if(!is_station_level(z))
+		return
+	if(overmap_follow_programmed_leg("[id]_away") == FALSE)
+		enterTransit()
+		return
+	var/obj/overmap/entity/vessel = SSovermap.shuttle_vessels[src]
+	vessel?.programmed_mission?.process_mission()

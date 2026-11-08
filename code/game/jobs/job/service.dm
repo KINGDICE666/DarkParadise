@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/hop
+	bounty_types = CIV_JOB_RANDOM
 	title = JOB_TITLE_HOP
 	flag = JOB_FLAG_HOP
 	department = STATION_DEPARTMENT_SERVICE
@@ -60,6 +61,7 @@
 	paycheck = PAYCHECK_CREW
 
 /datum/job/service/bartender
+	bounty_types = CIV_JOB_DRINK
 	title = JOB_TITLE_BARTENDER
 	flag = JOB_FLAG_BARTENDER
 	total_positions = 1
@@ -93,6 +95,7 @@
 	H.force_gene_block(GLOB.soberblock, TRUE, TRUE)
 
 /datum/job/service/chef
+	bounty_types = CIV_JOB_CHEF
 	title = JOB_TITLE_CHEF
 	flag = JOB_FLAG_CHEF
 	total_positions = 1
@@ -138,6 +141,7 @@
 				suit = /obj/item/clothing/suit/storage/chefbluza
 
 /datum/job/service/botanist
+	bounty_types = CIV_JOB_GROW
 	title = JOB_TITLE_BOTANIST
 	flag = JOB_FLAG_BOTANIST
 	total_positions = 2

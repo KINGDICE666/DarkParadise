@@ -1,6 +1,6 @@
 #define POLLING_COOLDOWN_TIME 2 MINUTES
 
-/obj/machinery/quantum_server/proc/cold_boot_map(map_key, was_random_selection = FALSE)
+/obj/machinery/quantum_server/proc/cold_boot_map(map_key, was_random_selection = FALSE, hardcore = FALSE)
 	if(!is_ready)
 		return FALSE
 
@@ -19,7 +19,7 @@
 	is_ready = FALSE
 	playsound(src, 'sound/machines/terminal_processing.ogg', 30, TRUE)
 
-	if(!load_domain(map_key) || !load_map_items() || !load_mob_segments())
+	if(!load_domain(map_key) || !load_map_items() || !load_mob_segments() || (hardcore && !enable_hardcore()))
 		balloon_alert_to_viewers("сбой инициализации!")
 		scrub_vdom()
 		is_ready = TRUE
@@ -196,7 +196,7 @@
 	return TRUE
 
 /obj/machinery/quantum_server/proc/begin_shutdown(mob/living/user)
-	if(isnull(generated_domain))
+	if(!is_ready || isnull(generated_domain))
 		return
 
 	if(!length(avatar_connection_refs))
@@ -269,6 +269,11 @@
 	goal_turfs.Cut()
 	polled_ghosts = null
 	generated_domain = null
+	domain_complete = FALSE
+	domain_randomized = FALSE
+	retries_spent = 0
+	hardcore = FALSE
+	domain_entered = FALSE
 
 	update_use_power(IDLE_POWER_USE)
 	update_appearance()

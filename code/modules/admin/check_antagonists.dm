@@ -246,7 +246,15 @@
 			"Greyshirts" = get_antag_minds(/datum/antagonist/greyshirt),
 			"Event Roles" = get_antag_minds(/datum/antagonist/eventmisc),
 			"ERT" = get_antag_minds(/datum/antagonist/ert),
+			"Zombies" = get_antag_minds(/datum/antagonist/zombie),
+			"Patient Zero" = get_antag_minds(/datum/antagonist/zombie_patient_zero),
 		))
+
+		if(length(SSticker.mode.zombie_infected))
+			dat += "<br><table cellspacing=5><tr><td><b>Pre-zombie infected</b></td><td></td></tr>"
+			for(var/mob/living/infected as anything in SSticker.mode.zombie_infected)
+				dat += check_role_table_row(infected, FALSE)
+			dat += "</table>"
 
 		//list active security force count, so admins know how bad things are
 		var/list/sec_list = check_active_security_force()

@@ -216,7 +216,7 @@
 		return "Заблокировано"
 	if(!job.player_old_enough(client))
 		return "Аккаунт слишком новый"
-	if(job.admin_only && !check_rights(R_ADMIN, FALSE))
+	if(job.admin_only && !has_admin_rights())
 		return "Только для администрации"
 	if(job.available_in_playtime(client))
 		return "Недостаточно наигранного времени"

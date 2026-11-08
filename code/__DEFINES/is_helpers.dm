@@ -473,6 +473,8 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define is_money_account(A) (istype(A, /datum/money_account))
 #define isorgan(A) (istype(A, /obj/item/organ))
 
+#define isrobotgripper(A) (istype(A, /obj/item/gripper))
+
 #define isaccessory(A) (istype(A, /obj/item/clothing/accessory))
 
 #define is_cargo_shelf(A) (istype(A, /obj/structure/cargo_shelf))

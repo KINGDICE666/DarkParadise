@@ -1047,7 +1047,7 @@
 
 	add_fingerprint(user)
 
-	if(usr == user && opened && (!issilicon(user) || istype(user.get_active_hand(), /obj/item/gripper)))
+	if(usr == user && opened && (!issilicon(user) || isrobotgripper(user.get_active_hand())))
 		if(cell)
 			user.visible_message(
 				span_warning("[user.name] removes [cell] from [src]!"),
@@ -1851,6 +1851,9 @@
 #undef APC_MALF_HACKED
 #undef APC_MALF_SHUNTED_HERE
 #undef APC_MALF_SHUNTED_OTHER
+
+/obj/machinery/power/apc/proc/can_supply_equipment()
+	return operating && !shorted && !(stat & BROKEN) && equipment_channel >= CHANNEL_SETTING_ON && cell?.charge > 0
 
 #undef CHANNEL_SETTING_OFF
 #undef CHANNEL_SETTING_AUTO_OFF

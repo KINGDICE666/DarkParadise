@@ -72,8 +72,7 @@
 /datum/station_trait/galactic_grant/on_round_start()
 	. = ..()
 	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
-	cargo_money_account.phantom_credit(rand(5000, 10000))
-	SSshuttle.points += rand(50, 100)
+	cargo_money_account.phantom_credit(rand(6250, 12500))
 
 /datum/station_trait/premium_internals_box
 	name = "Премиальные экстренные коробки"

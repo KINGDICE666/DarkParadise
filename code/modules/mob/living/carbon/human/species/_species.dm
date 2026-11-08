@@ -655,6 +655,9 @@
 		to_chat(user, span_warning("Вы не хотите навредить [target.declent_ru(DATIVE)]!"))
 		return FALSE
 
+	if(target != user && handle_zombie_harm(user, target))
+		return FALSE
+
 	//Vampire code
 	var/datum/antagonist/vampire/vamp = user?.mind?.has_antag_datum(/datum/antagonist/vampire)
 	if(vamp && !vamp.draining && user.zone_selected == BODY_ZONE_HEAD && target != user)
@@ -688,12 +691,12 @@
 	if(attacker_style && attacker_style.harm_act(user, target) == TRUE)
 		return TRUE
 	else
-		var/datum/unarmed_attack/attack = user.dna.species.unarmed
+		var/datum/unarmed_attack/attack = user.get_unarmed_attack()
 		var/attack_species = pick(attack.attack_verb)
 
 		//вносим проверку что это не диона, ведь у дионы свои атаки
 		//вносим проверку на тип атаки, иначе рвущие атаки будут рвать кулаками, а дионы хлестать кулаками.
-		switch(user.dna.species.unarmed_type)
+		switch(attack.type)
 			if(/datum/unarmed_attack/diona) attack_species += ""
 			if(/datum/unarmed_attack/claws) attack_species += "[GEND_A_O_I(user)] когтями"
 			if(/datum/unarmed_attack) attack_species += "[GEND_A_O_I(user)] кулаком"
@@ -933,6 +936,86 @@
 // Called in life() when the mob has no client.
 /datum/species/proc/handle_npc(mob/living/carbon/human/H)
 	return
+
+/datum/species/proc/handle_zombie_harm(mob/living/carbon/human/user, mob/living/carbon/human/target)
+	if(!istype(target) || !HAS_TRAIT(user, TRAIT_I_WANT_BRAINS))
+		return FALSE
+	if(user.pulling == target)
+		if(ismachineperson(target))
+			to_chat(user, span_zombie_warning("Мы не чуем мозгов в [target.declent_ru(PREPOSITIONAL)]."))
+			return FALSE
+		if(user.grab_state < GRAB_AGGRESSIVE)
+			to_chat(user, span_zombie_warning("Нужно схватить [target.declent_ru(ACCUSATIVE)] крепче, чтобы укусить!"))
+			return TRUE
+
+		if(HAS_TRAIT(target, TRAIT_PIERCEIMMUNE))
+			to_chat(user, span_zombie_warning("Наш укус не может прокусить [target.declent_ru(ACCUSATIVE)]!"))
+			return FALSE
+
+		user.visible_message(span_danger("[user] яростно куса[PLUR_ET_YUT(user)] [target.declent_ru(ACCUSATIVE)]!"))
+		playsound(user.loc, 'sound/weapons/bite.ogg', 20, TRUE)
+		playsound(user.loc, 'sound/misc/moist_impact.ogg', 50, TRUE)
+		user.do_attack_animation(target, ATTACK_EFFECT_BITE)
+		target.apply_damage(20, BRUTE, user.zone_selected)
+		if(!HAS_TRAIT(user, TRAIT_NON_INFECTIOUS_ZOMBIE))
+			if(!target.HasDisease(/datum/disease/virus/zombie))
+				var/datum/disease/virus/zombie/zombie_virus = new
+				if(zombie_virus.Contract(target))
+					target.Dizzy(10 SECONDS)
+					target.Confused(10 SECONDS)
+
+			for(var/datum/disease/virus/zombie/zombie_virus in target.diseases)
+				zombie_virus.stage = max(rand(3, 4), zombie_virus.stage)
+
+		user.stop_pulling()
+		return TRUE
+
+	if(HAS_TRAIT(target, TRAIT_I_WANT_BRAINS))
+		to_chat(user, span_zombie_warning("Мы не чуем свежих мозгов в [target.declent_ru(PREPOSITIONAL)]."))
+		return FALSE
+
+	var/obj/item/organ/internal/brain/eat_brain = target.get_organ_slot(INTERNAL_ORGAN_BRAIN)
+	if(!eat_brain || ismachineperson(target))
+		to_chat(user, span_zombie_warning("Мы не чуем мозгов в [target.declent_ru(PREPOSITIONAL)]."))
+		return FALSE
+	var/obj/item/organ/external/brain_house = target.get_organ(eat_brain.parent_organ_zone)
+	if(!brain_house)
+		to_chat(user, span_zombie_warning("Мы не чуем мозгов в [target.declent_ru(PREPOSITIONAL)]."))
+		return FALSE
+	if(brain_house.limb_zone != user.zone_selected || !brain_house.open)
+		return FALSE
+	if(target.getarmor(brain_house, MELEE) > 0)
+		to_chat(user, span_zombie_warning("Мозги [target.declent_ru(GENITIVE)] защищены."))
+		return FALSE
+
+	if(target.getBrainLoss() >= 120)
+		to_chat(user, span_zombie_warning("Мозгов больше не осталось..."))
+		return TRUE
+
+	target.custom_pain("О БОЖЕ!!! ОНИ ЕДЯТ МОЙ [uppertext(eat_brain.declent_ru(ACCUSATIVE))]!!")
+	user.visible_message(span_danger("[user] впива[PLUR_ET_YUT(user)]ся когтями в [brain_house.declent_ru(ACCUSATIVE)] [target.declent_ru(GENITIVE)], поедая [eat_brain.declent_ru(ACCUSATIVE)]!"), span_zombie_danger("Мы пируем мозгами [target.declent_ru(GENITIVE)]."))
+	if(!HAS_TRAIT(user, TRAIT_NON_INFECTIOUS_ZOMBIE))
+		if(!target.HasDisease(/datum/disease/virus/zombie))
+			var/datum/disease/virus/zombie/zombie_virus = new
+			zombie_virus.Contract(target)
+
+		for(var/datum/disease/virus/zombie/zombie_virus in target.diseases)
+			zombie_virus.stage = max(5, zombie_virus.stage)
+
+	if(!do_after(user, 1 SECONDS, target))
+		return TRUE
+
+	playsound(user.loc, 'sound/items/eatfood.ogg', 20, TRUE)
+	playsound(user.loc, 'sound/misc/moist_impact.ogg', 50, TRUE)
+	user.do_attack_animation(target, ATTACK_EFFECT_BITE)
+	target.adjustBrainLoss(5)
+	if(target.stat == CONSCIOUS && prob(33))
+		target.emote("scream")
+
+	if(user.nutrition < NUTRITION_LEVEL_FULL - 10)
+		user.set_nutrition(user.nutrition + 10)
+	user.heal_overall_damage(2, 2)
+	return TRUE
 
 //Species unarmed attacks
 

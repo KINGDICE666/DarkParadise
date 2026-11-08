@@ -32,6 +32,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 	ROLE_ABDUCTOR = 30,
 	ROLE_DEVIL = 14,
 	ROLE_BINGLE = 14,
+	ROLE_ZOMBIE = 14,
 ))
 
 GLOBAL_LIST_INIT(zoom_modes, list(SCALING_METHOD_DISTORT = "Метод ближайшего соседа", SCALING_METHOD_BLUR = "Билейная интерполяция", SCALING_METHOD_NORMAL = "Поточечная выборка"))

@@ -106,7 +106,7 @@
 /mob/living/proc/handle_hyperspace_exposure()
 	var/turf/spot = get_turf(src)
 	var/area/here = get_area(src)
-	if(isspacepod(loc) || !istype(spot, /turf/space/transit) || (is_area_shuttle(here) && !istype(here, /area/shuttle/transit)))
+	if(isspacepod(loc) || !is_hyperspace_turf(spot) || (is_area_shuttle(here) && !istype(here, /area/shuttle/transit)))
 		var/atom/movable/screen/alert/pressure_alert = LAZYACCESS(alerts, "pressure")
 		if(istype(pressure_alert, /atom/movable/screen/alert/highpressure/hyperspace))
 			clear_alert("pressure", clear_override = TRUE)
@@ -123,7 +123,7 @@
 			apply_damage(OVERMAP_HYPERSPACE_LIMB_BRUTE, BRUTE, part, forced = TRUE, silent = TRUE, updating_health = FALSE)
 		updatehealth("hyperspace")
 		return
-	apply_damage(OVERMAP_HYPERSPACE_MOB_BRUTE, BRUTE, forced = TRUE, silent = TRUE)
+	apply_damage(OVERMAP_HYPERSPACE_LIMB_BRUTE * 6, BRUTE, forced = TRUE, silent = TRUE)
 
 //this updates all special effects: mainly stamina
 /mob/living/proc/handle_status_effects() // We check for the status effect in this proc as opposed to the procs below to avoid excessive proc call overhead

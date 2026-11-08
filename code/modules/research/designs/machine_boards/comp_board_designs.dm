@@ -266,6 +266,14 @@
 	build_path = /obj/item/circuitboard/supplycomp
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
 
+/datum/design/civilian_bounty
+	id = "civilian_bounty"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/civilian_bounty
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
 /datum/design/supplyquest
 	id = "supplyquest"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3)

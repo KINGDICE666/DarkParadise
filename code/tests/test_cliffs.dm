@@ -19,6 +19,7 @@
 	var/turf/bottom = locate(anchor.x, anchor.y, anchor.z)
 
 	var/mob/living/carbon/human/climber = allocate(/mob/living/carbon/human)
+	climber.move_resist = INFINITY
 	climber.forceMove(top)
 	TEST_ASSERT(climber in SScliff_falling.cliff_grinders, "standing on a cliff did not start a fall")
 

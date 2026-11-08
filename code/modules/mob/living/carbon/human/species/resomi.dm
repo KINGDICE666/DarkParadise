@@ -102,14 +102,10 @@
 
 /datum/species/resomi/on_species_gain(mob/living/carbon/human/target)
 	. = ..()
-	target.mob_size = MOB_SIZE_SMALL
-	target.holder_type = /obj/item/holder/humanoid
 	passtable_on(target, SPECIES_TRAIT)
 
 /datum/species/resomi/on_species_loss(mob/living/carbon/human/target)
 	. = ..()
-	target.mob_size = initial(target.mob_size)
-	target.holder_type = initial(target.holder_type)
 	passtable_off(target, SPECIES_TRAIT)
 
 /datum/species/resomi/gain_muscles(mob/living/target, default, max_level, can_become_stronger)

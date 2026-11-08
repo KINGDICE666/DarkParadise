@@ -110,7 +110,7 @@
 	activation_messages = list("Теперь все вокруг кажется больше...")
 	deactivation_messages = list("Кажется, что все вокруг уменьшается...")
 	instability = GENE_INSTABILITY_MINOR
-	traits_to_add = list(TRAIT_DWARF)
+	traits_to_add = list(TRAIT_DWARF, TRAIT_SMALL_MOB)
 
 /datum/dna/gene/basic/midget/New()
 	..()
@@ -125,6 +125,39 @@
 	. = ..()
 	passtable_off(mutant, DNA_TRAIT)
 	mutant.update_transform(1.25)
+
+/datum/dna/gene/basic/immunity
+	name = "Повышенный иммунитет"
+	activation_messages = list("Вы чувствуете себя здоровее, чем когда-либо.")
+	deactivation_messages = list("Вы чувствуете, что ваш организм стал уязвимее.")
+	instability = GENE_INSTABILITY_MINOR
+	traits_to_add = list(TRAIT_VIRUSIMMUNE)
+
+/datum/dna/gene/basic/immunity/New()
+	..()
+	block = GLOB.immunityblock
+
+/datum/dna/gene/basic/hypermetabolic_blood
+	name = "Гиперметаболическая кровь"
+	activation_messages = list("Вы чувствуете, как кровь быстрее бежит по венам.")
+	deactivation_messages = list("Ваш пульс замедляется.")
+	instability = GENE_INSTABILITY_MODERATE
+	traits_to_add = list(TRAIT_HYPERMETABOLIC_BLOOD)
+
+/datum/dna/gene/basic/hypermetabolic_blood/New()
+	..()
+	block = GLOB.hypermetabolicbloodblock
+
+/datum/dna/gene/basic/pain_threshold
+	name = "Повышенный болевой порог"
+	activation_messages = list("Вы почти перестаёте ощущать мелкую боль.")
+	deactivation_messages = list("Вы снова остро чувствуете боль.")
+	instability = GENE_INSTABILITY_MODERATE
+	traits_to_add = list(TRAIT_HIGH_PAIN_THRESHOLD)
+
+/datum/dna/gene/basic/pain_threshold/New()
+	..()
+	block = GLOB.painthresholdblock
 
 // OLD HULK BEHAVIOR
 /datum/dna/gene/basic/hulk

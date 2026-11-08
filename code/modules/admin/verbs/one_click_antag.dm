@@ -22,7 +22,7 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 		<a href='byond://?src=[UID()];makeAntag=14'>Make Aliens</a><br>
 		<a href='byond://?src=[UID()];makeAntag=15'>Make Nuke Team</a><br>
 		<a href='byond://?src=[UID()];makeAntag=16'>Make Heretics</a><br>
-		<a href='byond://?src=[UID()];makeAntag=17'>Создать отряд клоунов-оперативников (нужны призраки)</a><br>
+		<a href='byond://?src=[UID()];makeAntag=17'>Make Clown Op Team (Requires Ghosts)</a><br>
 		"}
 	var/datum/browser/popup = new(usr, "oneclickantag", "One-click Antagonist", 400, 400)
 	popup.set_content(dat)
@@ -231,16 +231,23 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	var/list/mob/candidates = list()
 
 	var/team_name = clown_ops ? "клоунов-оперативников" : "ядерных оперативников"
-	var/antnum = tgui_input_number(owner, "Сколько [team_name] вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
+	var/operative_count = tgui_input_number(owner, "Сколько [team_name] Вы хотите создать? Введите 0 для отмены.", "Количество:", 0)
 
-	if(!antnum || antnum <= 0)
+	if(!operative_count || operative_count <= 0)
 		return FALSE
 
-	log_admin("[key_name(owner)] tried making a [antnum] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
-	message_admins("[key_name_admin(owner)] tried making a [antnum] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
+	log_admin("[key_name(owner)] tried making a [operative_count] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
+	message_admins("[key_name_admin(owner)] tried making a [operative_count] person [clown_ops ? "Clown" : "Nuke"] Op Team with One-Click-Antag")
 
 	var/role_name = clown_ops ? "клоуном-оперативником" : "ядерным оперативником"
-	candidates = SSghost_spawns.poll_candidates("Вы хотите стать [role_name]?", ROLE_OPERATIVE, TRUE, 1 MINUTES, role_cleanname = clown_ops ? "Клоуна-оперативника" : "Ядерного оперативника", source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"))
+	candidates = SSghost_spawns.poll_candidates(
+		"Вы хотите стать [role_name]?",
+		ROLE_OPERATIVE,
+		TRUE,
+		1 MINUTES,
+		role_cleanname = clown_ops ? "Клоуна-оперативника" : "Ядерного оперативника",
+		source = image('icons/mob/simple_human.dmi', "syndicate_space_sword"),
+	)
 
 	if(!length(candidates))
 		return FALSE
@@ -252,20 +259,20 @@ ADMIN_VERB(one_click_antag, R_SERVER|R_EVENT, "Create Antagonist", "Auto-create 
 	if(!has_team)
 		team = new team_type
 
-	var/operatives_to_spawn = min(antnum, length(candidates))
-	for(var/i = 1, i <= operatives_to_spawn, i++)
-		var/spawnpos = i
+	var/operatives_to_spawn = min(operative_count, length(candidates))
+	for(var/index in 1 to operatives_to_spawn)
+		var/spawn_index = index
 
-		if(spawnpos > length(GLOB.nukespawn))
-			spawnpos = 2
+		if(spawn_index > length(GLOB.nukespawn))
+			spawn_index = 2
 
-		var/mob/mob = pick_n_take(candidates)
-		var/mob/living/carbon/human/human = new /mob/living/carbon/human(GLOB.nukespawn[spawnpos])
-		human.possess_by_player(mob.key)
+		var/mob/candidate = pick_n_take(candidates)
+		var/mob/living/carbon/human/human = new(GLOB.nukespawn[spawn_index])
+		human.possess_by_player(candidate.key)
 		create_syndicate(human.mind)
 		team.add_member(human.mind)
-		var/datum/antagonist/nuclear_operative/datum = human.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
-		datum.equip()
+		var/datum/antagonist/nuclear_operative/operative = human.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
+		operative.equip()
 
 	if(has_team)
 		return TRUE

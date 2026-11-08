@@ -268,7 +268,7 @@
 	update_equipment_speed_mods()
 
 /mob/living/carbon/proc/is_too_bulky_to_hold(obj/item/item)
-	if(!HAS_TRAIT(src, TRAIT_SMALL_MOB) || item.w_class < WEIGHT_CLASS_BULKY)
+	if(!HAS_TRAIT(src, TRAIT_SMALL_MOB) || item.w_class < WEIGHT_CLASS_BULKY || (item.item_flags & ABSTRACT))
 		return FALSE
 	var/static/list/bulky_exceptions = typecacheof(list(
 		/obj/item/storage/bag/bio,
@@ -285,6 +285,8 @@
  */
 /mob/living/carbon/put_in_hand_check(obj/item/item, hand_id)
 	if(!istype(item))
+		return FALSE
+	if(HAS_TRAIT(src, TRAIT_ABSTRACT_HANDS) && !(item.item_flags & ABSTRACT))
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_SMALL_MOB))
 		if((istype(item, /obj/item/holder) && (item.holder_flags & HUMAN_HOLDER)) || item.contains_pickupable_humanoid_holder())

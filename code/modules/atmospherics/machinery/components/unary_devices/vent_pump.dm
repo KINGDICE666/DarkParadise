@@ -75,6 +75,8 @@
 	if(cached_current_area)
 		cached_current_area.air_vents -= src
 		current_area = null
+		for(var/obj/machinery/vent as anything in cached_current_area.air_vents)
+			vent.update_appearance(UPDATE_NAME)
 
 	if(!area)
 		return

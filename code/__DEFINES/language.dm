@@ -37,6 +37,7 @@
 #define LANGUAGE_CHANGELING "changeling"
 #define LANGUAGE_MALF "malf"
 #define LANGUAGE_STONER "stoner"
+#define LANGUAGE_ZOMBIE "zombie"
 
 #define SPOKEN_LANGUAGE (1<<0)
 #define UNDERSTOOD_LANGUAGE (1<<1)

@@ -1,7 +1,7 @@
 /datum/antagonist/nuclear_operative/clownop
 	name = "Клоун-оперативник"
 	antag_menu_name = "Клоун-оперативник"
-	greet_name = "Клоун-оперативник"
+	greet_name = "клоун-оперативник"
 	default_team_type = /datum/team/nuclear_team/clown_ops
 	race_equipment = list(SPECIES_OTHER = /datum/outfit/admin/syndicate/operative/nuclear/clownop)
 
@@ -20,7 +20,7 @@
 	INVOKE_ASYNC(src, PROC_REF(suicide_cry), source)
 
 /datum/antagonist/nuclear_operative/clownop/proc/suicide_cry(mob/living/operative)
-	operative.say("С ДНЁМ РОЖДЕНИЯ!!")
+	operative.say("С ДНЁМ РОЖДЕНИЯ!")
 
 /datum/antagonist/nuclear_operative/clownop/equip()
 	. = ..()
@@ -181,16 +181,39 @@
 	stamina_mod = 1.4
 
 /obj/item/mod/skin_applier/honkerative
+	name = "Honkerative MOD skin applier"
+	gender = MALE
 	desc = "Одноразовый комплект для перекраски модульного экзокостюма \"Синдиката\" в цвета клоунов-оперативников."
 	skin = MOD_VARIANT_HONKERATIVE
 	compatible_theme = /datum/mod_theme/syndicate
+
+/obj/item/mod/skin_applier/honkerative/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор покраски МЭК \"Honkerative\"",
+		GENITIVE = "набора покраски МЭК \"Honkerative\"",
+		DATIVE = "набору покраски МЭК \"Honkerative\"",
+		ACCUSATIVE = "набор покраски МЭК \"Honkerative\"",
+		INSTRUMENTAL = "набором покраски МЭК \"Honkerative\"",
+		PREPOSITIONAL = "наборе покраски МЭК \"Honkerative\"",
+	)
 
 /obj/item/radio/uplink/nuclear/clownop/choose_uplink()
 	return UPLINK_TYPE_CLOWN_OPS
 
 /obj/item/nuclear_challenge/clownops
-	desc = "Объявление войны клоунов-оперативников. Предупреждает станцию о представлении и привлекает дополнительное финансирование для клоунского аплинка."
+	desc = "Объявление войны клоунов-оперативников. Предупреждает станцию о представлении и привлекает дополнительное \
+		финансирование для клоунского аплинка."
 	announcement_sound = 'sound/announcer/clownops.ogg'
+
+/obj/item/nuclear_challenge/clownops/get_ru_names()
+	return alist(
+		NOMINATIVE = "объявление войны клоунов",
+		GENITIVE = "объявления войны клоунов",
+		DATIVE = "объявлению войны клоунов",
+		ACCUSATIVE = "объявление войны клоунов",
+		INSTRUMENTAL = "объявлением войны клоунов",
+		PREPOSITIONAL = "объявлении войны клоунов",
+	)
 
 /obj/item/reagent_containers/spray/waterflower/lube/super
 	list_reagents = list("superlube" = 30)

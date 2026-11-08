@@ -75,7 +75,6 @@
 		data["purchased_techs"] = purchased_techs
 	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
 	data["cargo_money"] = cargo_money_account.money
-	data["points"] = round(SSshuttle.points)
 	return data
 
 #undef BASE_HIGHTECH_COST

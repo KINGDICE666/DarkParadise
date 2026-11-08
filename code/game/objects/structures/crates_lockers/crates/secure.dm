@@ -50,6 +50,7 @@
 
 
 /obj/structure/closet/crate/secure/emag_act(mob/user)
+	. = ..()
 	if(!locked)
 		return
 	add_attack_logs(user, src, "emagged")

@@ -19,6 +19,13 @@ SUBSYSTEM_DEF(overmap)
 	)
 
 	var/list/datum/overmap_sector/sectors = list()
+
+	var/list/datum/overmap_sector/sector_order = list()
+
+	var/galaxy_revision = 0
+	var/list/galaxy_positions
+
+	var/list/galaxy_unknown
 	var/datum/overmap_sector/local_sector
 	var/datum/overmap_sector/station_sector
 	var/datum/overmap_sector/service_sector
@@ -35,18 +42,21 @@ SUBSYSTEM_DEF(overmap)
 	var/list/obj/overmap/feature/hazard/hazards = list()
 	var/list/datum/overmap_feature/ruin_sites = list()
 	var/list/ruin_space_zs = list()
+	var/list/ruin_lighting_turfs = list()
+	var/scatter_revision = 0
 	var/list/datum/overmap_space_region/pooled_medium_cells = list()
 	var/list/datum/overmap_space_region/pooled_large_cells = list()
 	var/list/transit_space_zs = list()
 	var/list/datum/component/overmap_flight/flights = list()
 	var/list/client/drifting_viewers = list()
+
+	var/list/client_eyes = list()
 	var/list/datum/overmap_bubble/bubbles = list()
 	var/list/obj/overmap/entity/flying_vessels = list()
 	var/list/obj/overmap/entity/flight_reservations = list()
 	var/datum/turf_reservation/spare_bubble_space
 	var/mirroring_explosion = FALSE
 	var/preparing_bubble_space = FALSE
-	var/station_radio_level
 	var/list/datum/overmap_bubble/bubbles_by_reservation = list()
 	var/list/datum/overmap_bubble/bubbles_by_z = list()
 	var/list/datum/component/overmap_dock_host/dock_hosts = list()
@@ -56,6 +66,19 @@ SUBSYSTEM_DEF(overmap)
 	var/slow_elapsed = 0
 	var/iff_key_centcom
 	var/iff_key_syndicate
+	var/list/admin_shuttle_spawns = list()
+	var/list/obj/item/overmap_hull_grip/hull_grips = list()
+	var/obj/overmap/entity/station_docking_zone/station_docking_zone
+	var/list/proxy_hud_tiles = list()
+	var/list/proxy_hud_views = list()
+	var/list/radar_vessels = list()
+	var/radar_frame_time = 0
+	var/list/obj/overmap/entity/pod/flying_pods = list()
+	var/weapon_targets_until = 0
+	var/list/weapon_targets = list()
+	var/projectile_snapshot_tick = -1
+	var/list/projectile_snapshots = list()
+	var/list/datum/overmap_projectile/sector_projectiles = list()
 
 /proc/generate_overmap_iff_key()
 	var/alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -65,7 +88,6 @@ SUBSYSTEM_DEF(overmap)
 		. += copytext(alphabet, index, index + 1)
 
 /datum/controller/subsystem/overmap/Initialize()
-	log_world("Overmap: initializing (lighting initialized: [SSlighting.initialized], maxz: [world.maxz]).")
 	iff_key_centcom = generate_overmap_iff_key()
 	iff_key_syndicate = generate_overmap_iff_key()
 	while(iff_key_syndicate == iff_key_centcom)
@@ -73,6 +95,7 @@ SUBSYSTEM_DEF(overmap)
 	station_sector = new /datum/overmap_sector/station
 	local_sector = station_sector
 	sectors[station_sector.id] = station_sector
+	sector_order |= station_sector
 	seed_reserved_space()
 	spawn_lavaland()
 	spawn_station()
@@ -86,7 +109,15 @@ SUBSYSTEM_DEF(overmap)
 	relink_hardware()
 	ensure_station_transponder()
 	station_sector?.populate_roundstart()
+	for(var/datum/overmap_sector/sector as anything in sector_order)
+		for(var/list/group as anything in overmap_hazard_clusters(sector))
+			build_overmap_hazard_contours(sector, group)
+			for(var/obj/overmap/feature/hazard/field as anything in group)
+				field.generate_scatter()
+			CHECK_TICK
+	register_roundstart_pods()
 	create_local_spaces()
+	create_station_docking_zone()
 	spawn_taipan()
 	start_programmed_roundstart_routes()
 	snap_roundstart_docks()
@@ -99,10 +130,15 @@ SUBSYSTEM_DEF(overmap)
 /datum/controller/subsystem/overmap/proc/refresh_ruin_space_lighting()
 	if(!SSlighting?.initialized)
 		return
-	for(var/z_level in ruin_space_zs)
-		for(var/turf/spot as anything in Z_TURFS(z_level))
-			if(spot.space_lit)
-				continue
+	var/list/pending = ruin_lighting_turfs
+	ruin_lighting_turfs = list()
+	for(var/turf/spot as anything in pending)
+		for(var/atom/movable/source as anything in spot)
+			if(!source.light && source.light_system == COMPLEX_LIGHT && source.light_on && source.light_range && source.light_power)
+				source.update_light()
+			if(source.light)
+				source.light.force_update()
+		if(!spot.space_lit)
 			var/atom/movable/lighting_object/object = spot.lighting_object
 			if(object)
 				if(!object.needs_update)
@@ -110,7 +146,7 @@ SUBSYSTEM_DEF(overmap)
 					SSlighting.objects_queue += object
 			else
 				new /atom/movable/lighting_object(null, spot)
-			CHECK_TICK
+		CHECK_TICK
 
 /datum/controller/subsystem/overmap/fire(resumed)
 	var/elapsed = world.time - last_fire_time
@@ -126,6 +162,10 @@ SUBSYSTEM_DEF(overmap)
 			continue
 		flight.process_tick(elapsed)
 	process_flight_views(elapsed)
+	update_proxy_huds()
+	process_sector_projectiles(elapsed)
+	draw_sector_projectiles(elapsed)
+	push_radars()
 
 /datum/controller/subsystem/overmap/proc/process_slow_tick(elapsed)
 	for(var/obj/overmap/entity/vessel as anything in vessels)
@@ -134,6 +174,8 @@ SUBSYSTEM_DEF(overmap)
 		if(vessel.identity_distress)
 			vessel.process_transponder_fx()
 		vessel.process_sensors()
+		vessel.check_hyperrelay_jump()
+		vessel.charge_shore_power(elapsed)
 		vessel.programmed_mission?.process_mission()
 	for(var/obj/overmap/feature/hazard/hazard as anything in hazards)
 		if(QDELETED(hazard))
@@ -148,6 +190,8 @@ SUBSYSTEM_DEF(overmap)
 		qdel(sector)
 		return sectors[sector.id]
 	sectors[sector.id] = sector
+	sector_order |= sector
+	bump_galaxy()
 	return sector
 
 /datum/controller/subsystem/overmap/proc/spawn_station()
@@ -164,7 +208,6 @@ SUBSYSTEM_DEF(overmap)
 	station_entity.status = OVERMAP_STATUS_OVERMAP
 	station_entity.apply_overmap_identity(station_name(), COLOR_WHITE, "station", FALSE, TRUE, null, TRUE)
 	local_sector.add_object(station_entity, spawn_turf)
-	log_world("Overmap: station token spawned at [spawn_turf.x],[spawn_turf.y] on sector [local_sector.id].")
 
 /datum/controller/subsystem/overmap/proc/lavaland_enabled()
 	if(CONFIG_GET(flag/disable_lavaland))
@@ -193,7 +236,6 @@ SUBSYSTEM_DEF(overmap)
 	lavaland_entity.movable = FALSE
 	lavaland_entity.halted = TRUE
 	local_sector.add_object(lavaland_entity, outpost_turf)
-	log_world("Overmap: Lavaland centered at [origin.x],[origin.y] 4×4, mining station at [outpost_turf.x],[outpost_turf.y].")
 
 /datum/controller/subsystem/overmap/proc/rebuild_area_shuttle_cache()
 	area_shuttles = list()
@@ -258,7 +300,7 @@ SUBSYSTEM_DEF(overmap)
 /datum/controller/subsystem/overmap/proc/register_roundstart_pods()
 	for(var/obj/spacepod/craft as anything in GLOB.spacepods_list)
 		if(!QDELETED(craft))
-			get_or_register_pod(craft)
+			attach_pod_to_host(get_or_register_pod(craft))
 
 /datum/controller/subsystem/overmap/proc/get_or_register_pod(obj/spacepod/craft)
 	if(!craft)
@@ -270,6 +312,7 @@ SUBSYSTEM_DEF(overmap)
 	vessel.pod = craft
 	vessel.name = craft.name || "spacepod"
 	craft.overmap_vessel = vessel
+	craft.anchored = TRUE
 	pod_vessels[craft] = vessel
 	var/list/pod_iff
 	var/pod_broadcast = TRUE
@@ -297,6 +340,9 @@ SUBSYSTEM_DEF(overmap)
 	var/turf/spot = get_turf(craft)
 	if(!spot)
 		return null
+	var/datum/overmap_space_region/region = get_space_region(spot)
+	if(region?.token)
+		return region.token
 	if(is_station_level(spot.z))
 		return station_entity
 	if(is_mining_level(spot.z))
@@ -310,10 +356,9 @@ SUBSYSTEM_DEF(overmap)
 		return
 	var/obj/overmap/entity/host = resolve_pod_host(vessel.pod)
 	if(!host || host == vessel)
-		if(local_sector && !isturf(vessel.loc))
-			var/turf/fallback = local_sector.get_random_open_turf()
-			local_sector.add_object(vessel, fallback)
-			vessel.status = OVERMAP_STATUS_OVERMAP
+		vessel.sector?.remove_object(vessel)
+		vessel.moveToNullspace()
+		vessel.status = OVERMAP_STATUS_DOCKED
 		return
 	vessel.nest_inside(host)
 	if(host.sector)
@@ -341,8 +386,8 @@ SUBSYSTEM_DEF(overmap)
 /datum/controller/subsystem/overmap/proc/sector_for_turf(turf/spot)
 	if(!spot)
 		return null
-	for(var/sector_id in sectors)
-		var/datum/overmap_sector/candidate = sectors[sector_id]
+	for(var/sector_id, candidate_entry in sectors)
+		var/datum/overmap_sector/candidate = candidate_entry
 		if(candidate?.contains_turf(spot))
 			return candidate
 	return null
@@ -391,6 +436,9 @@ SUBSYSTEM_DEF(overmap)
 		return null
 	if(is_admin_level(spot.z))
 		return get_host_by_key(GLOB.overmap_shuttle_admin_hosts[shuttle.id])
+	var/datum/overmap_space_region/region = get_space_region(spot)
+	if(region?.token)
+		return region.token
 	if(is_station_level(spot.z))
 		return station_entity
 	if(is_mining_level(spot.z))
@@ -400,8 +448,8 @@ SUBSYSTEM_DEF(overmap)
 	return get_service_site(shuttle)
 
 /datum/controller/subsystem/overmap/proc/start_programmed_roundstart_routes()
-	for(var/shuttle_id in GLOB.overmap_programmed_profiles)
-		var/datum/overmap_programmed_profile/profile = GLOB.overmap_programmed_profiles[shuttle_id]
+	for(var/shuttle_id, profile_entry in GLOB.overmap_programmed_profiles)
+		var/datum/overmap_programmed_profile/profile = profile_entry
 		if(!profile?.autostart_dock_id)
 			continue
 		var/obj/docking_port/mobile/shuttle = SSshuttle.getShuttle(shuttle_id)
@@ -434,19 +482,15 @@ SUBSYSTEM_DEF(overmap)
 	service_sector = create_typed_sector(/datum/overmap_sector/service)
 	if(!service_sector)
 		return
-	var/list/site_paths = subtypesof(/obj/overmap/entity/service_site)
+	var/list/site_paths = valid_subtypesof(/obj/overmap/entity/service_site)
 	shuffle_inplace(site_paths)
 	for(var/site_path in site_paths)
-		var/obj/overmap/entity/service_site/site_type = site_path
-		if(initial(site_type.abstract_type) == site_path)
-			continue
 		var/turf/spot = service_sector.get_random_open_turf()
 		if(!spot)
 			log_world("Overmap: no turf for service site [site_path].")
 			continue
 		var/obj/overmap/entity/service_site/site = new site_path(spot)
 		service_sector.add_object(site, spot)
-		log_world("Overmap: service site [site.site_id] at [spot.x],[spot.y] on sector [service_sector.id].")
 
 /datum/controller/subsystem/overmap/proc/spawn_wilderness()
 	if(sectors[OVERMAP_SECTOR_ID_WILDERNESS_A])
@@ -455,7 +499,6 @@ SUBSYSTEM_DEF(overmap)
 	if(!wilderness_sector)
 		log_world("Overmap: failed to create wilderness sector.")
 		return
-	log_world("Overmap: wilderness sector '[wilderness_sector.name]' created ([wilderness_sector.size]x[wilderness_sector.size]).")
 	spawn_station_wilderness_relays()
 	wilderness_sector.populate_roundstart()
 
@@ -591,7 +634,7 @@ SUBSYSTEM_DEF(overmap)
 	local_sector.add_object(taipan_entity, spawn_turf)
 	stamp_pad_hosts()
 	relink_hardware()
-	log_world("Overmap: Taipan token spawned at [spawn_turf.x],[spawn_turf.y] on sector [local_sector.id].")
+	clear_scatter_for_host(taipan_entity)
 
 /datum/controller/subsystem/overmap/proc/overmap_coord_label(obj/overmap/token)
 	if(!token)
@@ -636,3 +679,106 @@ SUBSYSTEM_DEF(overmap)
 	<b>Координаты:</b><br>\
 	Гипертранслятор: СТАНЦИОННЫЙ СЕКТОР: [overmap_coord_label(station_relay)], ДАЛЬНИЙ КОСМОС: [overmap_coord_label(service_relay)]<br>\
 	Точка реквизиции: [overmap_coord_label(scc)]"
+
+#define OVERMAP_PARALLAX_SCROLL 1000
+
+/datum/controller/subsystem/overmap/proc/process_flight_views(elapsed)
+	var/list/flying = list()
+	flying_pods = list()
+	var/list/flying_areas = list()
+	for(var/obj/docking_port/mobile/port as anything in shuttle_vessels)
+		var/obj/overmap/entity/vessel = shuttle_vessels[port]
+		if(QDELETED(vessel) || QDELETED(port))
+			continue
+		var/in_flight = vessel.in_free_flight()
+		if(in_flight != vessel.free_flight_view)
+			vessel.set_free_flight_view(in_flight)
+		if(!in_flight)
+			continue
+		flying += vessel
+		for(var/area/place as anything in port.shuttle_areas)
+			flying_areas[place] = vessel.docked_ship || vessel
+	for(var/obj/spacepod/craft as anything in pod_vessels)
+		var/obj/overmap/entity/pod/pod_vessel = pod_vessels[craft]
+		if(QDELETED(pod_vessel) || QDELETED(craft))
+			continue
+		var/in_flight = pod_vessel.in_free_flight()
+		if(in_flight != pod_vessel.free_flight_view)
+			pod_vessel.set_free_flight_view(in_flight)
+		if(in_flight)
+			flying += pod_vessel
+			flying_pods += pod_vessel
+		if(pod_vessel.overmap_pod.is_in_own_pocket())
+			flying_areas[pod_vessel.overmap_pod.pocket_area] = pod_vessel
+	for(var/obj/overmap/entity/virtual_structure/structure as anything in GLOB.overmap_virtual_structures)
+		if(!QDELETED(structure) && structure.sector && isturf(structure.loc))
+			flying += structure
+	flying_vessels = flying
+	prepare_bubble_space()
+	var/list/watched = list()
+	var/list/eyes = list()
+
+	client_eyes = list()
+	if(length(flying) || length(bubbles))
+		for(var/client/viewer as anything in GLOB.clients)
+			var/turf/eye_turf = get_turf(viewer.eye || viewer.mob)
+			if(!eye_turf)
+				continue
+			eyes += eye_turf
+			var/list/spots = list(eye_turf)
+
+			var/obj/overmap/entity/inside_vessel = flying_areas[eye_turf.loc]
+			if(inside_vessel?.local_space)
+				var/list/virtual_eye_world = inside_vessel.hull_to_world(eye_turf.x, eye_turf.y)
+				var/turf/virtual_eye = inside_vessel.local_space.turf_at(virtual_eye_world[1], virtual_eye_world[2])
+				if(virtual_eye)
+					eyes += virtual_eye
+					spots += virtual_eye
+			client_eyes[viewer] = spots
+			var/datum/eye_frame = frame_owner(eye_turf)
+			if(eye_frame)
+				watched[eye_frame] = TRUE
+	process_encounters(flying, elapsed, watched, eyes)
+	var/drifting_bubble = FALSE
+	for(var/datum/overmap_bubble/bubble as anything in bubbles)
+		var/list/velocity = bubble.drift_velocity()
+		if(velocity[1] || velocity[2])
+			drifting_bubble = TRUE
+			break
+	if(!length(flying_areas) && !drifting_bubble && !length(drifting_viewers))
+		return
+	for(var/client/viewer as anything in drifting_viewers)
+		if(QDELETED(viewer))
+			drifting_viewers -= viewer
+	for(var/client/viewer as anything in GLOB.clients)
+		if(!viewer.parallax_rock?.displaying_layers)
+			if(viewer in drifting_viewers)
+				stop_drifting(viewer)
+			continue
+		var/turf/eye_turf = get_turf(viewer.eye)
+		var/obj/overmap/entity/vessel = flying_areas[eye_turf?.loc]
+		var/datum/overmap_bubble/bubble = bubble_for_turf(eye_turf)
+		var/list/velocity = bubble?.drift_velocity()
+		if(vessel)
+			drift_viewer(viewer, vessel.speed[1], vessel.speed[2], vessel.get_facing(), elapsed)
+		else if(velocity && (velocity[1] || velocity[2]))
+			drift_viewer(viewer, velocity[1], velocity[2], 0, elapsed)
+		else if(viewer in drifting_viewers)
+			stop_drifting(viewer)
+
+/datum/controller/subsystem/overmap/proc/drift_viewer(client/viewer, speed_x, speed_y, facing, elapsed)
+	drifting_viewers |= viewer
+	var/scroll = OVERMAP_PARALLAX_SCROLL * elapsed
+	for(var/atom/movable/screen/parallax_layer/layer as anything in viewer.parallax_rock.parallax_layers)
+		if(!layer.absolute)
+			layer.set_ship_drift(speed_x * scroll, speed_y * scroll, facing, elapsed)
+
+/datum/controller/subsystem/overmap/proc/stop_drifting(client/viewer)
+	drifting_viewers -= viewer
+	for(var/atom/movable/screen/parallax_layer/layer as anything in viewer.parallax_rock?.parallax_layers)
+		layer.clear_ship_drift()
+	viewer.parallax_movedir = NONE
+	if(viewer.parallax_rock?.displaying_layers)
+		viewer.mob?.hud_used?.update_parallax()
+
+#undef OVERMAP_PARALLAX_SCROLL

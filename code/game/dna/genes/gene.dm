@@ -142,18 +142,3 @@
 	if(length(deactivation_messages))
 		var/msg = pick(deactivation_messages)
 		to_chat(mutant, span_warning("[msg]"))
-
-// placeholders for empty FAKE genes
-// you can remake these into your own powers
-
-/datum/dna/gene/basic/fake
-	name = "Ordinary Gene"
-	desc = "Just another link in the DNA strand."
-
-/datum/dna/gene/basic/fake/fake1/New()
-	..()
-	block = GLOB.fakeblock1
-
-/datum/dna/gene/basic/fake/fake2/New()
-	..()
-	block = GLOB.fakeblock2

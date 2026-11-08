@@ -275,6 +275,9 @@
 		var/mob/living/carbon/human/human_user = user
 		frequency = human_user.get_age_pitch()
 
+	if(HAS_TRAIT(user, TRAIT_I_WANT_BRAINS))
+		frequency = (frequency || 1) * 0.7
+
 	if(use_sound_tokens)
 		// Tokens don't randomise pitch on their own, so roll the vary frequency here if we don't already have an age-based one.
 		if(isnull(frequency) && vary)

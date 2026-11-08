@@ -73,7 +73,8 @@
 					<a href='byond://?src=[UID()];secretsfun=striketeam_syndicate'>Send in a Syndie Strike Team</a>&nbsp;&nbsp;
 					<br><a href='byond://?src=[UID()];secretsfun=striketeam'>Send in the Deathsquad</a>&nbsp;&nbsp;
 					<a href='byond://?src=[UID()];secretsfun=honksquad'>Send in a HONKsquad</a><br>
-					<a href='byond://?src=[UID()];secretsfun=gimmickteam'>Send in a Gimmick Team</a><br>
+					<a href='byond://?src=[UID()];secretsfun=gimmickteam'>Send in a Gimmick Team</a>&nbsp;&nbsp;
+					<a href='byond://?src=[UID()];secretsfun=chronolegionnaire'>Send in a Chrono Legionnaire</a><br>
 					<b>Change Security Level</b><br>
 					[security_levels_data]<br>
 					<b>Create Weather</b><br>

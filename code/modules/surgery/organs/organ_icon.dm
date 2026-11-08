@@ -156,11 +156,20 @@ GLOBAL_LIST_EMPTY(limb_icon_cache)
 	MA.appearance_flags = KEEP_TOGETHER
 
 	// Base hair
-	var/mutable_appearance/img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
-	if(dna.species.name == SPECIES_SLIMEPERSON)
-		img_hair.color = COLOR_MATRIX_OVERLAY("[owner.skin_colour]A0")
-	else if(hair.do_colouration)
-		img_hair.color = COLOR_MATRIX_ADD(hair_colour)
+	var/zombified = owner && HAS_TRAIT(owner, TRAIT_I_WANT_BRAINS)
+	var/mutable_appearance/img_hair
+	if(zombified)
+		var/icon/hair_icon = icon(hair.icon, "[hair.icon_state]_s")
+		hair_icon.ColorTone(COLORTONE_DEAD_EXT_ORGAN)
+		hair_icon.SetIntensity(0.7)
+		img_hair = mutable_appearance(hair_icon)
+	else
+		img_hair = mutable_appearance(hair.icon, "[hair.icon_state]_s")
+	if(!zombified || !(dna.species.name in list(SPECIES_SLIMEPERSON, SPECIES_SKRELL)))
+		if(dna.species.name == SPECIES_SLIMEPERSON)
+			img_hair.color = COLOR_MATRIX_OVERLAY("[owner.skin_colour]A0")
+		else if(hair.do_colouration)
+			img_hair.color = COLOR_MATRIX_ADD(hair_colour)
 	MA.overlays += img_hair
 
 	// Gradient

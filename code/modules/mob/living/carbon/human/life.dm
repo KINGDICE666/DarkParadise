@@ -949,7 +949,7 @@
 /mob/living/carbon/human/proc/can_heartattack()
 	if(HAS_TRAIT(src, TRAIT_NO_BLOOD) && !dna.species.forced_heartattack)
 		return FALSE
-	if(HAS_TRAIT(src, TRAIT_NO_INTORGANS))
+	if(HAS_TRAIT(src, TRAIT_NO_INTORGANS) || HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
 		return FALSE
 	return TRUE
 

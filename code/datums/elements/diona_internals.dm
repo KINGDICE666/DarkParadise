@@ -15,6 +15,8 @@
 
 /datum/element/diona_internals/proc/transform_organ(obj/item/organ/internal/internal, mob/owner)
 	SIGNAL_HANDLER
+	if(HAS_TRAIT(internal, TRAIT_BIOPRINTED_ORGAN))
+		return
 
 	var/mob/living/simple_animal/diona/nymph = new /mob/living/simple_animal/diona(get_turf(owner))
 	nymph.setHealth(round(clamp(1 - (internal.damage / internal.min_broken_damage), 0, 1) * nymph.maxHealth))

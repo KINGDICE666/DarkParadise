@@ -33,16 +33,31 @@
 		open_machine()
 		return
 
+	var/datum/lazy_template/virtual_domain/selected_domain = server.generated_domain
+	var/hardcore = server.hardcore
+	var/attempt_number = connection_attempt
+	if(hardcore)
+		var/choice = tgui_alert(pilot, "Домен работает в режиме HRDM. Смерть аватара мгновенно убьёт ваше тело в капсуле. Подключиться?", "HRDM: смертельный риск", list("Подключиться", "Отмена"))
+		if(QDELETED(src) || connection_attempt != attempt_number || occupant != pilot || state_open)
+			return
+		if(choice != "Подключиться" || QDELETED(server) || !is_operational() || server.generated_domain != selected_domain || !server.is_ready)
+			open_machine()
+			return
+
 	balloon_alert(pilot, "устанавливаем соединение...")
-	ADD_TRAIT(pilot, TRAIT_HANDS_BLOCKED, NETPOD_TRAIT)
+	var/trait_source = "[UNIQUE_TRAIT_SOURCE(src)]_[attempt_number]"
+	ADD_TRAIT(pilot, TRAIT_HANDS_BLOCKED, trait_source)
 	var/connection_established = do_after(pilot, 2 SECONDS, src)
-	REMOVE_TRAIT(pilot, TRAIT_HANDS_BLOCKED, NETPOD_TRAIT)
+	REMOVE_TRAIT(pilot, TRAIT_HANDS_BLOCKED, trait_source)
+
+	if(QDELETED(src) || connection_attempt != attempt_number || occupant != pilot || state_open)
+		return
 
 	if(!connection_established)
 		open_machine()
 		return
 
-	if(isnull(server.generated_domain) || !server.is_ready)
+	if(QDELETED(server) || server.generated_domain != selected_domain || server.hardcore != hardcore || !server.is_ready)
 		balloon_alert(pilot, "домен не загружен!")
 		open_machine()
 		return

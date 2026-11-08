@@ -483,6 +483,11 @@
 	build_path = /obj/machinery/computer/supplyquest
 	origin_tech = "programming=3"
 
+/obj/item/circuitboard/civilian_bounty
+	board_name = "Civilian Bounty Control Terminal"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	build_path = /obj/machinery/computer/civilian_bounty
+
 /obj/item/circuitboard/questcons
 	board_name = "Supply Quest Monitor"
 	greyscale_colors = CIRCUIT_COLOR_SUPPLY
@@ -540,6 +545,12 @@
 	greyscale_colors = CIRCUIT_COLOR_COMMAND
 	build_path = /obj/machinery/computer/helm
 	origin_tech = "programming=3;magnets=2"
+
+/obj/item/circuitboard/engines
+	board_name = "Engines Control Console"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/computer/engines
+	origin_tech = "programming=3;engineering=3"
 
 /obj/item/circuitboard/sensors
 	board_name = "Sensor Control Console"

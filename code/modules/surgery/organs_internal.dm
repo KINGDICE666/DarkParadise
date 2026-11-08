@@ -633,18 +633,6 @@
 		/obj/item/shard = 45,
 	)
 
-/datum/surgery_step/internal/manipulate_organs/lobotomy/proc/cut_off_something_important(obj/item/organ/internal/brain/brain)
-	switch(rand(1, 3))
-		if(1)
-			brain.gain_trauma_type(BRAIN_TRAUMA_MILD, TRAUMA_RESILIENCE_MAGIC)
-		if(2)
-			if(HAS_TRAIT(brain, TRAIT_SPECIAL_TRAUMA_BOOST) && prob(50))
-				brain.gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
-			else
-				brain.gain_trauma_type(BRAIN_TRAUMA_SEVERE, TRAUMA_RESILIENCE_MAGIC)
-		if(3)
-			brain.gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
-
 /datum/surgery_step/internal/manipulate_organs/lobotomy/begin_step(mob/living/user, mob/living/carbon/target, target_zone, obj/item/tool, datum/surgery/surgery)
 	if(!get_operated_brain(target_zone, target))
 		user.balloon_alert(user, "мозг отсутствует!")
@@ -669,7 +657,7 @@
 	to_chat(target, span_warning("Ваша голова на мгновение полностью немеет!"))
 	brain.cure_all_traumas(TRAUMA_RESILIENCE_LOBOTOMY)
 	if(prob(75))
-		cut_off_something_important(brain)
+		brain.gain_lobotomy_side_effect()
 
 	return SURGERY_STEP_CONTINUE
 
@@ -683,7 +671,7 @@
 		span_warning("Вы вырезаете не ту часть мозга, нанося ещё больше вреда!"),
 	)
 	target.apply_damage(80, BRAIN)
-	cut_off_something_important(brain)
+	brain.gain_lobotomy_side_effect()
 
 	return SURGERY_STEP_RETRY
 
@@ -725,6 +713,8 @@
 		extracting = organs[I]
 		if(!extracting)
 			return SURGERY_BEGINSTEP_SKIP
+		if(istype(extracting, /obj/item/organ/internal/zombietumor))
+			time = 40 SECONDS
 		user.visible_message(
 			span_notice("[user] начина[PLUR_ET_YUT(user)] извлекать [extracting.declent_ru(ACCUSATIVE)][affected ? " из [affected.declent_ru(GENITIVE)]" : ""] [target], используя [tool.declent_ru(ACCUSATIVE)]."),
 			span_notice("Вы начинаете извлекать [extracting.declent_ru(ACCUSATIVE)][affected ? " из [affected.declent_ru(GENITIVE)]" : ""] [target], используя [tool.declent_ru(ACCUSATIVE)]."),

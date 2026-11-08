@@ -36,29 +36,16 @@
 	return TRUE
 
 /datum/preference_middleware/jobs/get_constant_data()
-	var/static/list/department_names = list(
-		STATION_DEPARTMENT_COMMAND = STATION_DEPARTMENT_RU_COMMAND,
-		STATION_DEPARTMENT_MEDICAL = STATION_DEPARTMENT_RU_MEDICAL,
-		STATION_DEPARTMENT_ENGINEERING = STATION_DEPARTMENT_RU_ENGINEERING,
-		STATION_DEPARTMENT_SCIENCE = STATION_DEPARTMENT_RU_SCIENCE,
-		STATION_DEPARTMENT_SECURITY = STATION_DEPARTMENT_RU_SECURITY,
-		STATION_DEPARTMENT_SUPPLY = STATION_DEPARTMENT_RU_SUPPLY,
-		STATION_DEPARTMENT_SERVICE = STATION_DEPARTMENT_RU_SERVICE,
-		STATION_DEPARTMENT_LEGAL = STATION_DEPARTMENT_RU_LEGAL,
-		STATION_DEPARTMENT_SILICON = STATION_DEPARTMENT_RU_SILICON,
-		STATION_DEPARTMENT_CIVILIAN = STATION_DEPARTMENT_RU_CIVILIAN,
-	)
-
 	var/list/departments = list()
 	var/list/jobs = list()
 
 	for(var/datum/job/job as anything in SSjobs.occupations)
-		if(!is_selectable(job) || !(job.department in department_names))
+		if(!is_selectable(job) || !(job.department in GLOB.station_departments_ru))
 			continue
 
 		if(isnull(departments[job.department]))
 			departments[job.department] = list(
-				"name" = department_names[job.department],
+				"name" = GLOB.station_departments_ru[job.department],
 				"head" = null,
 			)
 

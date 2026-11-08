@@ -7,12 +7,8 @@
 	wraparound = FALSE
 	vessel_mass = OVERMAP_MASS_STATION
 	max_speed = OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MAX)
-	var/datum/overmap_bubble/home_space
 
 /obj/overmap/entity/station/ship/Destroy()
-	if(home_space?.anchor == src)
-		home_space.anchor = null
-	home_space = null
 	if(SSovermap.station_entity == src)
 		SSovermap.station_entity = null
 	return ..()
@@ -34,16 +30,16 @@
 	if(EMERGENCY_ESCAPED_OR_ENDGAMED)
 		return
 	. = ..()
-	home_space?.sector = sector
+	physical_space?.sector = sector
 
 /obj/overmap/entity/station/ship/proc/begin_centcom_jump()
 	flight.release_pilot()
 	flight.set_autopilot(FALSE)
 	flight.stop_burn()
-	jump_spool_end = 0
-	jump_start_time = 0
-	jump_origin = null
-	jump_target = null
+	relay_jump_from = null
+	relay_jump_started = 0
+	relay_jump_ends = 0
+	hyperrelay_jump_from = null
 	speed[1] = 0
 	speed[2] = 0
 	halted = TRUE
@@ -58,7 +54,7 @@
 	sector.remove_object(src)
 	destination.sector.add_object(src, arrival)
 	position = list(0, 0)
-	home_space.sector = sector
+	physical_space?.sector = sector
 	status = OVERMAP_STATUS_OVERMAP
 	update_overmap_pixel()
 	stop_hyperrelay_transit_fx()

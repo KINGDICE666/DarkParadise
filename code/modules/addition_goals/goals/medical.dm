@@ -6,8 +6,8 @@
 
 #define AGS_MIN_CREDITS_PER_PATIEN 5000
 #define AGS_MAX_CREDITS_PER_PATIEN 8000
-#define AGS_MIN_CARGOPOINTS_PER_PATIEN 20
-#define AGS_MAX_CARGOPOINTS_PER_PATIEN 30
+#define AGS_MIN_CARGO_CREDITS_PER_PATIEN 500
+#define AGS_MAX_CARGO_CREDITS_PER_PATIEN 750
 
 ////////////////////////////////////////
 // MARK:	Goal datum
@@ -36,7 +36,7 @@
 /datum/addition_goal/medical_patients/spawn_shuttle_contain(list/turf/shuttle_turfs)
 	spawner = new /obj/effect/mob_spawn/human/addition_goal/medical_patients(shuttle_turfs[1])
 	reward_credits = 0
-	reward_cargopoints = 0
+	reward_cargo_credits = 0
 	for(var/i = 0; i < patiens_count; i++)
 		var/turf/random_turf = pick(shuttle_turfs)
 		shuttle_turfs -= random_turf
@@ -75,7 +75,7 @@
 		var/zone = pick(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND, BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT, BODY_ZONE_R_ARM, BODY_ZONE_L_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 		patient.adjustBruteLoss(100, TRUE, zone, FALSE, TRUE, null, TRUE, TRUE)
 	reward_credits += AGS_MIN_CREDITS_PER_PATIEN + round(reward_progress * (AGS_MAX_CREDITS_PER_PATIEN - AGS_MIN_CREDITS_PER_PATIEN))
-	reward_cargopoints += AGS_MIN_CARGOPOINTS_PER_PATIEN + round(reward_progress * (AGS_MAX_CARGOPOINTS_PER_PATIEN - AGS_MIN_CARGOPOINTS_PER_PATIEN))
+	reward_cargo_credits += AGS_MIN_CARGO_CREDITS_PER_PATIEN + round(reward_progress * (AGS_MAX_CARGO_CREDITS_PER_PATIEN - AGS_MIN_CARGO_CREDITS_PER_PATIEN))
 
 /datum/addition_goal/medical_patients/proc/switch_ai_to_angry_mode(mob/living/patient)
 	patient.ai_controller = /datum/ai_controller/monkey/angry
@@ -114,14 +114,14 @@
 	report_text += "<b>Общий прогресс запроса</b>: [progress]%<br>"
 	report_text += "<b>Ваша награда</b>:<br>"
 	reward_credits = reward_credits * (progress / 100)
-	reward_cargopoints = reward_cargopoints * (progress / 100)
+	reward_cargo_credits = reward_cargo_credits * (progress / 100)
 	var/reward_number = 1
 	if(reward_credits > 0)
 		report_text += "[reward_number]. [reward_credits] кредитов на счет станции.<br>"
 		reward_number++
-	if(reward_cargopoints > 0)
-		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
-	system.add_reward(reward_credits, reward_cargopoints)
+	if(reward_cargo_credits > 0)
+		report_text += "[reward_number]. [reward_cargo_credits] кредитов на счёт отдела снабжения.<br>"
+	system.add_reward(reward_credits, reward_cargo_credits)
 	var/paper_content = system.create_paper_content("Отчет о медицинской помощи №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
 
@@ -140,5 +140,5 @@
 #undef AGS_DIFFICULTY_HARD
 #undef AGS_MIN_CREDITS_PER_PATIEN
 #undef AGS_MAX_CREDITS_PER_PATIEN
-#undef AGS_MIN_CARGOPOINTS_PER_PATIEN
-#undef AGS_MAX_CARGOPOINTS_PER_PATIEN
+#undef AGS_MIN_CARGO_CREDITS_PER_PATIEN
+#undef AGS_MAX_CARGO_CREDITS_PER_PATIEN
