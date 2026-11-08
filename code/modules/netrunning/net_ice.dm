@@ -120,10 +120,11 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 
 /mob/living/basic/net_avatar/proc/complete_trace()
 	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)
-	var/location = get_area_name(connection?.pod || src, TRUE)
+	var/atom/signal_source = connection?.pod || src
+	var/location = get_area_name(signal_source, TRUE)
 	for(var/mob/living/silicon/ai/station_ai as anything in GLOB.ai_list)
 		to_chat(station_ai, span_danger("Трассировка завершена: в Сети станции нетраннер. Источник сигнала — [location]."))
-	radio_announce("Обнаружено вторжение в Сеть станции. Источник сигнала: [location].", "Мониторинг сети", SEC_FREQ)
+	radio_announce("Обнаружено вторжение в Сеть станции. Источник сигнала: [location].", "Мониторинг сети", SEC_FREQ, signal_source)
 	playsound_local(get_turf(src), 'sound/machines/twobeep.ogg', 60, TRUE)
 	to_chat(src, span_userdanger("Трассировка завершена! Служба безопасности знает, где лежит ваше тело."))
 	add_game_logs("was traced in the Net, source revealed as [location]", src)
