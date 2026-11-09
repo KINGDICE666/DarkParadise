@@ -11,7 +11,6 @@
 
 	var/list/preset_waypoints = list()
 	var/obj/machinery/computer/camera_advanced/shuttle_docker/overmap/dock_picker
-	var/helm_tab = "flight"
 
 	var/radar_reach = OVERMAP_RADAR_TERRAIN_RANGE
 	var/list/selected_weapons = list()
@@ -58,6 +57,16 @@
 	if(isAI(user))
 		return isturf(user.loc)
 	return isliving(user) && user.Adjacent(src)
+
+/obj/machinery/computer/helm/proc/claim_pilot(mob/user)
+	var/datum/component/overmap_flight/nav = vessel.flight
+	if(!nav || nav.pilot || vessel.overmap_pod || vessel.docked_ship || vessel.docking_approach?.aligning || vessel.is_jumping())
+		return
+	if(vessel.is_programmed_locked() || vessel.is_overmap_jammed() || !vessel.can_steer())
+		return
+	if((stat & (NOPOWER|BROKEN)) || !user.client || (isliving(user) && user.incapacitated()) || !can_pilot(user))
+		return
+	nav.take_pilot(user, src)
 
 /obj/machinery/computer/helm/proc/on_overmap_notice(datum/source, text)
 	SIGNAL_HANDLER

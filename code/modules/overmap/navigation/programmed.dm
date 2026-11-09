@@ -494,7 +494,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	SIGNAL_HANDLER
 	INVOKE_ASYNC(src, PROC_REF(navigation_arrived))
 
-/datum/overmap_programmed_mission/proc/navigate_to(world_x, world_y, heading, obj/overmap/entity/host)
+/datum/overmap_programmed_mission/proc/navigate_to(world_x, world_y, heading, obj/overmap/entity/host, pass_through = FALSE)
+	if(pass_through)
+		vessel.flight.navigate_world(world_x, world_y, null, host, arrival_range = OVERMAP_AUTOPILOT_PASS_RANGE, ignore_collisions = TRUE, known_obstacles_only = FALSE, entry_box = navigation_entry_box, pass_through = TRUE)
+		return
 	vessel.flight.navigate_world(world_x, world_y, heading, host, arrival_range = 1, ignore_collisions = TRUE, known_obstacles_only = FALSE, entry_box = navigation_entry_box)
 
 /datum/overmap_programmed_mission/proc/eta_string()
@@ -729,7 +732,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	if(speed <= 0)
 		speed = OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE)
 	var/travel = on_sector?.tile_travel || 1
-	return CEILING((dist * travel) / speed, 1)
+	. = CEILING((dist * travel) / speed, 1)
+	var/thrust = flight?.get_total_thrust()
+	if(thrust)
+		. += CEILING(speed * flight.inertial_mass() * flight.burn_delay / thrust, 1)
 
 /obj/overmap/entity/proc/estimate_programmed_trip(dock_id, datum/overmap_programmed_mission/mission)
 	var/trip_time = 0
@@ -764,10 +770,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		var/turf/other_relay = relay?.paired?.get_overmap_turf()
 		if(dest && other_relay)
 			trip_time += estimate_overmap_leg(other_relay, dest, host.sector)
-		trip_time += 8 SECONDS
+		trip_time += OVERMAP_PROGRAMMED_APPROACH_TIME
 		return trip_time
 	var/turf/dest = host.get_overmap_turf()
 	if(dest && here != dest)
 		trip_time += estimate_overmap_leg(here, dest, sector || host.sector)
-	trip_time += 8 SECONDS
+	trip_time += OVERMAP_PROGRAMMED_APPROACH_TIME
 	return trip_time

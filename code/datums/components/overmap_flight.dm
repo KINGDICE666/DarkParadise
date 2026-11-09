@@ -3,8 +3,6 @@
 	var/burn_delay = 1 SECONDS
 	var/engines_state = TRUE
 	var/held_brake = FALSE
-	var/pilot_braking = FALSE
-	var/dampeners = FALSE
 	var/thrust_limit = 1
 	var/autopilot = FALSE
 	var/autopilot_x
@@ -23,10 +21,6 @@
 	var/next_jolt = 0
 	var/fixed_facing = FALSE
 
-	var/angular_dampeners = FALSE
-
-	var/avoid_obstacles = TRUE
-
 	var/autopilot_status = ""
 	var/cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_CRUISE_DEFAULT)
 	var/datum/overmap_navigation/navigation
@@ -39,7 +33,7 @@
 	var/navigation_ignore_collisions = FALSE
 	var/navigation_known_obstacles_only = TRUE
 	var/list/navigation_entry_box
-	var/matching_velocity = FALSE
+	var/navigation_pass_through = FALSE
 
 /datum/component/overmap_flight/Initialize(fixed_facing = FALSE)
 	if(!istype(parent, /obj/overmap/entity))
@@ -99,22 +93,22 @@
 	refresh_thrust()
 	burn_sides = NONE
 	burn_turn = 0
-	pilot_braking = FALSE
 	var/manual_drive = FALSE
 	if(pilot)
 		manual_drive = process_pilot(elapsed)
 	var/aim
-	if(autopilot && needs_physics() && !(matching_velocity && (manual_drive || pilot_turn)))
+	if(autopilot && needs_physics())
 		aim = process_autopilot(elapsed)
 	if(!isnull(aim))
 		steer_towards(aim, elapsed)
 	else if(pilot_turn)
 		change_spin(pilot_turn * OVERMAP_TURN_RATE_MAX, elapsed)
 	else
-		change_spin((held_brake || pilot_braking || dampeners || angular_dampeners) ? 0 : angular_velocity, elapsed)
-	apply_drag(elapsed)
+		change_spin(0, elapsed)
+	if(!autopilot && !manual_drive)
+		apply_drag(elapsed)
 	if(needs_physics())
-		if(held_brake || (dampeners && !manual_drive && !autopilot && (vessel.shuttle || vessel.overmap_pod || fixed_facing)))
+		if(held_brake || (!manual_drive && !autopilot && (vessel.shuttle || vessel.overmap_pod || fixed_facing)))
 			brake(elapsed)
 		if(navigation_speed_limited() && (!vessel.overmap_pod || (engines_state && engine_thrust)))
 			enforce_cruise_speed(elapsed)
@@ -131,17 +125,11 @@
 	if(vessel.overmap_pod && (!engines_state || !engine_thrust))
 		return
 
-	var/steady = held_brake || (autopilot && !matching_velocity)
-	var/damp_linear = !matching_velocity && (dampeners || steady)
-	var/damp_angular = angular_dampeners || dampeners || steady
-	if(!damp_linear && !damp_angular)
-		return
 	var/drag = 1 / (1 + OVERMAP_DRIFT_DAMPING * elapsed)
-	if(damp_angular)
-		angular_velocity *= drag
-		if(abs(angular_velocity) < OVERMAP_SPIN_EPSILON)
-			angular_velocity = 0
-	if(!damp_linear || !vessel.is_moving())
+	angular_velocity *= drag
+	if(abs(angular_velocity) < OVERMAP_SPIN_EPSILON)
+		angular_velocity = 0
+	if(!vessel.is_moving())
 		return
 	vessel.speed[1] *= drag
 	vessel.speed[2] *= drag
@@ -203,12 +191,6 @@
 	release_pilot()
 	pilot = new_pilot
 	pilot_helm = helm
-	if(!matching_velocity)
-		autopilot = FALSE
-		clear_navigation()
-	held_brake = FALSE
-	engines_state = TRUE
-	SEND_SIGNAL(parent, COMSIG_OVERMAP_MANUAL_CONTROL)
 	RegisterSignals(pilot, list(COMSIG_MOB_CLIENT_PRE_LIVING_MOVE, COMSIG_MOB_CLIENT_PRE_NON_LIVING_MOVE), PROC_REF(block_pilot_walk))
 	RegisterSignals(pilot, list(COMSIG_KB_MOB_DROPITEM_DOWN, COMSIG_KB_HUMAN_QUICKEQUIP_DOWN), PROC_REF(block_pilot_hotkey))
 	RegisterSignal(pilot, COMSIG_QDELETING, PROC_REF(release_pilot))
@@ -248,14 +230,18 @@
 		release_pilot()
 		return FALSE
 	var/list/keys = pilot.client.keys_held
-	pilot_turn = !!keys["E"] - !!keys["Q"]
-	if(keys["Space"])
-		pilot_braking = TRUE
-		brake(elapsed)
-		return TRUE
-
 	var/forward = !!keys["W"] - !!keys["S"]
 	var/sideways = !!keys["D"] - !!keys["A"]
+	pilot_turn = !!keys["E"] - !!keys["Q"]
+	if(!forward && !sideways && !pilot_turn && !keys["Space"])
+		return FALSE
+	if(autopilot)
+		set_autopilot(FALSE)
+	held_brake = FALSE
+	engines_state = TRUE
+	if(keys["Space"])
+		brake(elapsed)
+		return TRUE
 	if(!forward && !sideways)
 		return FALSE
 	if(forward && sideways)
@@ -295,12 +281,6 @@
 		vessel.speed[1] *= limit / current
 		vessel.speed[2] *= limit / current
 	vessel.refresh_heading_overlay()
-
-/datum/component/overmap_flight/proc/top_speed()
-	var/obj/overmap/entity/vessel = parent
-	if(!vessel.shuttle || vessel.overmap_pod)
-		return vessel.max_speed
-	return clamp(engine_thrust / inertial_mass() / burn_delay * OVERMAP_TOP_SPEED_TIME, OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MIN), OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MAX))
 
 /datum/component/overmap_flight/proc/brake(elapsed)
 	var/obj/overmap/entity/vessel = parent
@@ -390,24 +370,6 @@
 	if(vessel.overmap_pod && !has_working_engines())
 		return FALSE
 	return (vessel.status == OVERMAP_STATUS_OVERMAP || vessel.status == OVERMAP_STATUS_TRANSIT) && !vessel.halted && isturf(vessel.loc)
-
-/datum/component/overmap_flight/proc/set_held_brake(enabled)
-	if(!can_steer())
-		return FALSE
-	autopilot = FALSE
-	clear_navigation()
-	if(enabled)
-		SEND_SIGNAL(parent, COMSIG_OVERMAP_MANUAL_CONTROL)
-		engines_state = TRUE
-		held_brake = TRUE
-	else
-		held_brake = FALSE
-	return TRUE
-
-/datum/component/overmap_flight/proc/cut_engines()
-	held_brake = FALSE
-	engines_state = !engines_state
-	return TRUE
 
 /datum/component/overmap_flight/proc/enforce_cruise_speed(elapsed)
 	var/obj/overmap/entity/vessel = parent

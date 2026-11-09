@@ -6,7 +6,7 @@
 	halted = FALSE
 	wraparound = FALSE
 	vessel_mass = OVERMAP_MASS_STATION
-	max_speed = OVERMAP_FROM_DISPLAY(OVERMAP_TOP_SPEED_MAX)
+	max_speed = OVERMAP_FROM_DISPLAY(OVERMAP_CRUISE_DEFAULT)
 
 /obj/overmap/entity/station/ship/Destroy()
 	if(SSovermap.station_entity == src)

@@ -10,6 +10,7 @@
 	var/obj/docking_port/stationary/pad
 	var/datum/overmap_bubble/space
 	var/aligning = FALSE
+	var/auto_align = FALSE
 	var/deadline = 0
 	var/target_x
 	var/target_y
@@ -127,6 +128,8 @@
 		qdel(src)
 		return
 	if(!aligning)
+		if(auto_align && ready())
+			start_alignment()
 		return
 	if(!available())
 		qdel(src)
@@ -272,6 +275,7 @@
 		return FALSE
 	QDEL_NULL(docking_approach)
 	docking_approach = candidate
+	candidate.auto_align = TRUE
 	radar_docks_until = 0
 	return TRUE
 
@@ -324,6 +328,7 @@
 			approach.space = local_space
 			approach.target_facing = stop_facing
 			approach.owns_pad = TRUE
+			approach.auto_align = TRUE
 			return approach.update_target()
 	qdel(pad, TRUE)
 	return FALSE
@@ -338,6 +343,7 @@
 	var/datum/overmap_docking_approach/approach = new(src)
 	approach.pad = pad
 	approach.space = host.physical_space
+	approach.auto_align = TRUE
 	var/list/origin = shuttle.overmap_origin()
 	approach.target_facing = shuttle.overmap_dir_rotation(origin[2], shuttle.overmap_dest_dir(pad, origin[2]))
 	approach.target_x = get_world_x()
