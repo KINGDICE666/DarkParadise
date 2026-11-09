@@ -11,15 +11,14 @@
 	navigation_ignore_collisions = FALSE
 	navigation_known_obstacles_only = TRUE
 	navigation_entry_box = null
-	matching_velocity = FALSE
+	navigation_pass_through = FALSE
 
-/datum/component/overmap_flight/proc/navigate_world(world_x, world_y, heading, obj/overmap/entity/host, arrival_range = OVERMAP_AUTOPILOT_ARRIVE_RANGE, ignore_collisions = FALSE, known_obstacles_only = TRUE, list/entry_box)
+/datum/component/overmap_flight/proc/navigate_world(world_x, world_y, heading, obj/overmap/entity/host, arrival_range = OVERMAP_AUTOPILOT_ARRIVE_RANGE, ignore_collisions = FALSE, known_obstacles_only = TRUE, list/entry_box, pass_through = FALSE)
 	if(!autopilot)
 		release_pilot()
 		held_brake = FALSE
 		engines_state = TRUE
 		autopilot = TRUE
-	matching_velocity = FALSE
 	navigation_world_x = world_x
 	navigation_world_y = world_y
 	navigation_facing = heading
@@ -28,36 +27,16 @@
 	navigation_ignore_collisions = ignore_collisions
 	navigation_known_obstacles_only = known_obstacles_only
 	navigation_entry_box = entry_box
+	navigation_pass_through = pass_through
 	var/obj/overmap/entity/vessel = parent
 	if(vessel.sector)
 		var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
 		autopilot_x = world_x / span - vessel.sector.origin_x + 1
 		autopilot_y = world_y / span - vessel.sector.origin_y + 1
 
-/datum/component/overmap_flight/proc/toggle_velocity_matching()
-	var/obj/overmap/entity/vessel = parent
-	if(matching_velocity)
-		set_autopilot(FALSE)
-		return TRUE
-	if(QDELETED(navigation_target) || navigation_target.sector != vessel.sector || !isturf(navigation_target.loc) || !can_steer())
-		return FALSE
-	set_autopilot(FALSE)
-	matching_velocity = TRUE
-	autopilot = TRUE
-	held_brake = FALSE
-	engines_state = TRUE
-	return TRUE
-
 /datum/component/overmap_flight/proc/process_navigation(elapsed)
 	var/obj/overmap/entity/vessel = parent
 	if(held_brake || !can_steer() || !vessel.sector)
-		return
-	if(matching_velocity)
-		if(QDELETED(navigation_target) || navigation_target.sector != vessel.sector || !isturf(navigation_target.loc))
-			set_autopilot(FALSE)
-			return
-		autopilot_status = "Сближение: [navigation_target.get_overmap_display_name()]"
-		match_navigation_velocity(navigation_target.speed[1] * OVERMAP_TILE_SPAN, navigation_target.speed[2] * OVERMAP_TILE_SPAN, elapsed)
 		return
 	var/goal_x = navigation_world_x
 	var/goal_y = navigation_world_y
@@ -76,13 +55,14 @@
 				goal_y = clamp(vessel.get_world_y(), extent[2] - margin, extent[4] + margin)
 		else
 			if(isnull(autopilot_x) || isnull(autopilot_y))
+				brake(elapsed)
 				return
 			var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
 			goal_x = (vessel.sector.origin_x + autopilot_x - 1) * span
 			goal_y = (vessel.sector.origin_y + autopilot_y - 1) * span
 	if(!navigation)
 		navigation = new(src)
-	var/list/waypoint = (avoid_obstacles || vessel.navigation_collision_disabled()) ? navigation.waypoint(goal_x, goal_y, navigation_host) : list(goal_x, goal_y)
+	var/list/waypoint = navigation.waypoint(goal_x, goal_y, navigation_host)
 	if(!waypoint)
 		autopilot_status = navigation.planning ? "Прокладывает маршрут" : "Проход перекрыт: ожидание"
 		brake(elapsed)
@@ -92,6 +72,14 @@
 	var/distance = sqrt(dx ** 2 + dy ** 2)
 	var/final_leg = abs(waypoint[1] - goal_x) + abs(waypoint[2] - goal_y) < 0.1
 	var/arrival_range = navigation_arrival_range
+	if(final_leg && navigation_pass_through && distance <= arrival_range)
+		navigation_world_x = null
+		navigation_world_y = null
+		autopilot_x = null
+		autopilot_y = null
+		navigation.reset()
+		notify_arrival()
+		return
 	if(final_leg && distance <= arrival_range && vessel.get_speed() * OVERMAP_TILE_SPAN <= OVERMAP_AUTOPILOT_ARRIVE_SPEED)
 		if(!isnull(navigation_facing) && abs(closer_angle_difference(facing, navigation_facing)) > 2)
 			brake(elapsed)
@@ -107,7 +95,8 @@
 		notify_arrival()
 		return
 	var/accel = engine_thrust / inertial_mass() / burn_delay * OVERMAP_TILE_SPAN * OVERMAP_AUTOPILOT_ACCEL_MARGIN
-	var/safe_speed = sqrt(2 * accel * max(distance - 0.5, 0))
+	var/carry = final_leg ? (navigation_pass_through ? OVERMAP_AUTOPILOT_PASS_CARRY : 0) : navigation.corner_carry(list(vessel.get_world_x(), vessel.get_world_y()))
+	var/safe_speed = sqrt(2 * accel * (max(distance - 0.5, 0) + carry))
 	var/wanted_speed = min(get_effective_cruise() * OVERMAP_TILE_SPAN, safe_speed)
 	var/hold_orientation = !isnull(navigation_facing) && distance <= max(64, vessel.hull_radius * 4)
 	var/list/host_region = navigation_host?.physical_space?.region

@@ -15,7 +15,7 @@
 
 /obj/overmap/entity/hyperrelay/proc/get_link_distance()
 	if(!link_distance)
-		link_distance = paired?.link_distance || rand(300, 1800)
+		link_distance = paired?.link_distance || rand(300, 700)
 	if(paired)
 		paired.link_distance = link_distance
 	return max(1, link_distance)

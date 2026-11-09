@@ -392,19 +392,6 @@
 		return TRUE
 	return FALSE
 
-/datum/component/overmap_shuttle/proc/build_collar_list()
-	. = list()
-	var/obj/overmap/entity/vessel = parent
-	ensure_default_collar()
-	var/selected = vessel.shuttle?.overmap_collar
-	for(var/obj/machinery/door/airlock/external/docking/door as anything in shuttle_collars())
-		. += list(list(
-			"id" = door.UID(),
-			"name" = door.get_helm_label(),
-			"selected" = door == selected,
-			"dir" = dir2text(door.dir),
-		))
-
 /datum/component/overmap_shuttle/proc/begin_physical_undock(instant = FALSE)
 	if(preparing_undock)
 		return "Гиперпространство ещё готовится."

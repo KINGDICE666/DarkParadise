@@ -296,41 +296,6 @@
   width: 7.2em;
 }
 
-.OvermapHelmBar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: stretch;
-  gap: 0.5em;
-}
-
-.OvermapHelmBar__left {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  .OvermapStats--stack {
-    width: 9.5em;
-  }
-}
-
-.OvermapHelmBar__center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.OvermapHelmBar__right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-
-  .OvermapStats--stack {
-    width: 9.5em;
-  }
-}
-
 .OvermapMapSection {
   .Section__content {
     padding: 0;
@@ -613,21 +578,6 @@
   height: 100%;
 }
 
-.OvermapGauge {
-  width: 100%;
-  min-width: 8em;
-  height: 7px;
-  margin-top: 0.25em;
-  background: #061016;
-  border: 1px solid rgba(122, 208, 196, 0.35);
-}
-
-.OvermapGauge__fill {
-  height: 100%;
-  background: #7ad0c4;
-  box-shadow: 0 0 8px rgba(122, 208, 196, 0.45);
-}
-
 .OvermapIffGrid {
   display: flex;
   flex-direction: column;
@@ -770,58 +720,6 @@
   text-transform: uppercase;
 }
 
-.OvermapHelmLockHost {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.OvermapHelmLockHost__dim {
-  filter: grayscale(0.7) brightness(0.7);
-  opacity: 0.42;
-  pointer-events: none;
-  flex: 1;
-  min-height: 0;
-}
-
-.OvermapHelmLockOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 4;
-  pointer-events: none;
-  background: rgba(4, 10, 12, 0.28);
-}
-
-.OvermapHelmLockOverlay__card {
-  pointer-events: auto;
-  width: min(420px, 90%);
-  padding: 1.2em 1.4em;
-  border: 1px solid rgba(180, 210, 220, 0.45);
-  background: rgba(8, 16, 20, 0.92);
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
-}
-
-.OvermapHelmLockOverlay__title {
-  font-size: 0.95em;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e8f7fb;
-}
-
-.OvermapHelmLockOverlay__sub {
-  margin-top: 0.45em;
-  font-size: 0.8em;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #8ec8d6;
-}
-
 .OvermapCommsLamp {
   display: inline-flex;
   align-items: center;
@@ -895,202 +793,6 @@
   font-family: Consolas, 'Courier New', monospace;
   letter-spacing: 0.12em;
   color: #e8f7fb;
-}
-
-.OvermapHelmLockHost__body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.OvermapHelmSystemsBtn {
-  flex-shrink: 0;
-}
-
-.OvermapFlight {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 0.5em;
-  height: 100%;
-  min-height: 0;
-}
-
-.OvermapFlight__view {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  border: 1px solid rgba(110, 190, 210, 0.22);
-  background: rgba(4, 12, 16, 0.72);
-}
-
-.OvermapFlight__bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.3em 0.45em;
-  background: linear-gradient(180deg, #132228 0%, #0a1519 100%);
-  border-bottom: 1px solid rgba(110, 190, 210, 0.22);
-
-  .OvermapSeg {
-    flex: 0 0 auto;
-    border-bottom: 0;
-  }
-}
-
-.OvermapFlight__title {
-  font-size: 0.8em;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #8ec8d6;
-}
-
-.OvermapFlight__hint {
-  margin-left: auto;
-  font-size: 0.72em;
-  color: #7aa3ad;
-}
-
-.OvermapFlight__screen {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-}
-
-.OvermapFlight__jam {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 1em;
-}
-
-.OvermapFlight__side {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.OvermapFlight__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-  padding: 0.4em;
-  background: #0a161b;
-  border: 1px solid rgba(110, 190, 210, 0.22);
-}
-
-.OvermapStatus {
-  padding: 0.45em 0.55em;
-  background: linear-gradient(180deg, #0e1f25 0%, #08141a 100%);
-  border: 1px solid rgba(110, 190, 210, 0.22);
-  border-left: 3px solid #7ad0c4;
-}
-
-.OvermapStatus__title {
-  font-size: 0.95em;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e8f7fb;
-}
-
-.OvermapStatus__hint {
-  margin: 0.25em 0 0.4em;
-  font-size: 0.75em;
-  line-height: 1.35;
-  color: #7aa3ad;
-}
-
-.OvermapTarget {
-  padding: 0.45em 0.55em;
-  background: #08141a;
-  border: 1px dashed rgba(122, 208, 196, 0.35);
-}
-
-.OvermapTarget__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5em;
-  margin-bottom: 0.4em;
-}
-
-.OvermapTarget__name {
-  font-size: 0.95em;
-  font-weight: bold;
-  letter-spacing: 0.06em;
-  color: #e8f7fb;
-}
-
-.OvermapPlaces {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-  min-height: 0;
-}
-
-.OvermapPlaces__list {
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.OvermapKeys {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.15em 0.5em;
-  padding: 0.35em 0.45em;
-  background: rgba(8, 20, 24, 0.6);
-  border: 1px solid rgba(110, 190, 210, 0.18);
-}
-
-.OvermapKeys span:nth-child(odd) {
-  font-family: Consolas, 'Courier New', monospace;
-  letter-spacing: 0.12em;
-  color: #7ad0c4;
-}
-
-.OvermapKeys span:nth-child(even) {
-  font-size: 0.82em;
-  color: #7aa3ad;
-}
-
-.OvermapOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(4, 10, 12, 0.72);
-}
-
-.OvermapOverlay__card {
-  display: flex;
-  flex-direction: column;
-  width: min(640px, 94%);
-  max-height: 92%;
-  background: rgba(8, 16, 20, 0.97);
-  border: 1px solid rgba(140, 220, 230, 0.35);
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
-}
-
-.OvermapOverlay__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5em;
-  padding: 0.45em 0.55em;
-  background: linear-gradient(180deg, #132228 0%, #0a1519 100%);
-  border-bottom: 1px solid rgba(110, 190, 210, 0.22);
-}
-
-.OvermapOverlay__body {
-  padding: 0.6em;
-  overflow-y: auto;
 }
 
 .OvermapRadar {
@@ -1340,371 +1042,6 @@
   color: #a8d4ff;
 }
 
-.OvermapSector {
-  width: 100%;
-  height: 100%;
-}
-
-.OvermapSector__svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.OvermapSector__space {
-  fill: #04121a;
-}
-
-.OvermapSector__grid {
-  stroke: rgba(110, 190, 210, 0.1);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__grid--major {
-  stroke: rgba(110, 190, 210, 0.24);
-}
-
-.OvermapSector__coord {
-  fill: #6e9098;
-  font-family: Consolas, 'Courier New', monospace;
-}
-
-.OvermapSector__hazard {
-  fill: rgba(255, 122, 122, 0.16);
-  stroke: rgba(255, 122, 122, 0.4);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__sensors {
-  fill: none;
-  stroke: rgba(122, 208, 196, 0.35);
-  stroke-width: 1px;
-  stroke-dasharray: 2 4;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__planet {
-  fill: rgba(63, 127, 134, 0.85);
-  stroke: rgba(140, 220, 230, 0.5);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__label {
-  fill: #8ec8d6;
-  font-family: Consolas, 'Courier New', monospace;
-}
-
-.OvermapSector__label--planet {
-  fill: #9fd8e2;
-}
-
-.OvermapSector__label--neighbor {
-  fill: #8fd3ff;
-  font-weight: bold;
-}
-
-.OvermapSector__label--sos {
-  fill: #ff7a7a;
-  font-weight: bold;
-}
-
-.OvermapSector__route {
-  stroke: rgba(122, 208, 196, 0.5);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__marker {
-  cursor: pointer;
-}
-
-.OvermapSector__hit {
-  fill: transparent;
-}
-
-.OvermapSector__hoverRing {
-  fill: none;
-  stroke: #7ad0c4;
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__glyph--hollow {
-  fill: none;
-  stroke-width: 1.5px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__unknown {
-  fill: #e8f7fb;
-  font-family: Consolas, 'Courier New', monospace;
-}
-
-.OvermapSector__dest {
-  fill: none;
-  stroke: #ffcc66;
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__destLabel {
-  fill: #ffcc66;
-  font-family: Consolas, 'Courier New', monospace;
-  letter-spacing: 0.1em;
-}
-
-.OvermapSector__self polygon {
-  fill: #7ad0c4;
-}
-
-.OvermapSector__selfHalo {
-  fill: rgba(122, 208, 196, 0.12);
-  stroke: rgba(122, 208, 196, 0.4);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
-.OvermapSector__selfLabel {
-  fill: #c6f3ea;
-  font-family: Consolas, 'Courier New', monospace;
-  letter-spacing: 0.14em;
-}
-
-.OvermapHelmShell {
-  display: grid;
-  grid-template-columns: 378px minmax(0, 1fr) 300px;
-  gap: 0.5em;
-  height: 100%;
-  min-height: 0;
-}
-
-.OvermapHelmShell__column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 2px;
-}
-
-.OvermapHelmShell__center {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.OvermapHelmBox {
-  flex: 0 0 auto;
-
-  .Section__content {
-    padding: 0.45em 0.5em;
-  }
-}
-
-.OvermapRadarSection {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-
-  .Section__content {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 0.35em;
-  }
-
-  .OvermapRadar {
-    flex: 0 0 auto;
-  }
-}
-
-.OvermapRadarJam {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 1em;
-}
-
-.OvermapShipName {
-  margin-bottom: 0.35em;
-  font-size: 1em;
-  font-weight: bold;
-  letter-spacing: 0.06em;
-  color: #e8f7fb;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.OvermapHelmHint {
-  font-size: 0.72em;
-  line-height: 1.35;
-  color: #7aa3ad;
-}
-
-.OvermapTouch {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.1em;
-  min-width: 64px;
-  padding: 0.35em 0.5em;
-  background: rgba(10, 28, 44, 0.85);
-  border: 1px solid rgba(96, 170, 255, 0.35);
-  box-shadow: inset 0 0 12px rgba(74, 163, 255, 0.12);
-  color: #a8d4ff;
-  font-size: 0.66em;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-
-  .Icon {
-    font-size: 1.5em;
-  }
-}
-
-.OvermapTouch:hover:not(:disabled) {
-  border-color: #5db2ff;
-  color: #fff;
-  box-shadow:
-    inset 0 0 16px rgba(74, 163, 255, 0.25),
-    0 0 8px rgba(74, 163, 255, 0.35);
-}
-
-.OvermapTouch:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.OvermapTouch--on {
-  border-color: #63e0c8;
-  color: #d8fff8;
-  box-shadow:
-    inset 0 0 16px rgba(99, 224, 200, 0.3),
-    0 0 8px rgba(99, 224, 200, 0.4);
-}
-
-.OvermapTouch--good {
-  border-color: #63e0c8;
-  color: #d8fff8;
-}
-
-.OvermapTouch--bad {
-  border-color: #ff6a6a;
-  color: #ffd8d8;
-  box-shadow: inset 0 0 16px rgba(255, 106, 106, 0.3);
-}
-
-.OvermapTouch--wide {
-  min-width: 148px;
-}
-
-.OvermapTouch--inline {
-  flex-direction: row;
-  min-width: 0;
-  padding: 0.15em 0.4em;
-  font-size: 0.62em;
-}
-
-.OvermapTouch--slider {
-  flex-direction: row;
-  gap: 0.35em;
-  min-width: 156px;
-
-  input[type='range'] {
-    width: 88px;
-    accent-color: #5db2ff;
-  }
-}
-
-.OvermapThrust {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.25em;
-  align-items: stretch;
-}
-
-.OvermapThrust__slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.2em 0.3em;
-  background: #08141a;
-  border: 1px solid rgba(96, 170, 255, 0.25);
-
-  span {
-    font-size: 0.62em;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #6e9098;
-  }
-
-  em {
-    font-style: normal;
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.78em;
-    color: #c6f3ea;
-  }
-}
-
-.OvermapThrust__slot--center {
-  border-color: rgba(99, 224, 200, 0.45);
-  background: #0a1a22;
-}
-
-.OvermapThrust__slider {
-  width: 104px;
-  accent-color: #63e0c8;
-}
-
-.OvermapThrust__percent {
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 0.72em;
-  color: #d8fff8;
-}
-
-.OvermapThrust__foot {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  margin-top: 0.4em;
-  font-size: 0.7em;
-  color: #7aa3ad;
-}
-
-.OvermapRadarBottom {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-  flex: 1 1 auto;
-  min-height: 0;
-  padding-top: 0.3em;
-}
-
-.OvermapRadarBottom__buttons {
-  display: flex;
-  flex: 1 1 auto;
-  gap: 0.3em;
-  min-height: 40px;
-}
-
-.OvermapTouch--onScope {
-  flex: 1 1 0;
-  min-width: 0;
-  background: rgba(8, 22, 36, 0.88);
-  border-color: rgba(120, 200, 255, 0.5);
-}
 .OvermapRadar__galaxyEmpty {
   position: absolute;
   left: 50%;
@@ -1720,50 +1057,6 @@
   color: #ffd9a8;
   font-size: 0.72em;
   line-height: 1.35;
-}
-
-.OvermapInertiaPanel {
-  display: flex;
-  gap: 0.35em;
-}
-
-.OvermapSpeedRow {
-  display: flex;
-  align-items: center;
-  gap: 0.45em;
-  margin-top: 0.5em;
-  padding: 0.3em 0.45em;
-  background: rgba(8, 20, 28, 0.7);
-  border: 1px solid rgba(96, 170, 255, 0.25);
-  color: #7fb6e8;
-  font-size: 0.68em;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-
-  input[type='range'] {
-    flex: 1;
-    accent-color: #5db2ff;
-  }
-
-  em {
-    font-style: normal;
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 1.1em;
-    color: #d8ecff;
-  }
-}
-
-.OvermapThrust__warning {
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-  margin-top: 0.4em;
-  padding: 0.3em 0.4em;
-  background: rgba(60, 40, 10, 0.5);
-  border: 1px solid rgba(255, 179, 71, 0.5);
-  color: #ffd9a8;
-  font-size: 0.68em;
-  line-height: 1.3;
 }
 
 .OvermapRadar__scope {
@@ -1886,68 +1179,6 @@
 .OvermapRadar__sectorMeta {
   fill: #9fd0ff;
   font-family: Consolas, 'Courier New', monospace;
-}
-
-.OvermapKindFilter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  margin-bottom: 0.4em;
-}
-
-.OvermapKindFilter__item {
-  min-width: 26px;
-  padding: 0.2em 0.35em;
-  background: #08141a;
-  border: 1px solid rgba(110, 190, 210, 0.22);
-  color: #7aa3ad;
-  font-size: 0.7em;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.OvermapKindFilter__item:hover {
-  color: #d7f3f8;
-  border-color: rgba(140, 220, 230, 0.45);
-}
-
-.OvermapKindFilter__item--on {
-  background: #7ad0c4;
-  border-color: #7ad0c4;
-  color: #081014;
-  font-weight: bold;
-}
-
-.OvermapObjectList {
-  max-height: 31vh;
-  overflow-y: auto;
-}
-
-.OvermapGaugeRow {
-  margin-bottom: 0.45em;
-}
-
-.OvermapGaugeRow__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.68em;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6e9098;
-}
-
-.OvermapGaugeRow__head span:last-child {
-  font-family: Consolas, 'Courier New', monospace;
-  color: #c6f3ea;
-}
-
-.OvermapGaugeRow__meta {
-  margin-top: 0.15em;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 0.7em;
-  color: #7aa3ad;
 }
 
 .OvermapRadar__cellLabel {
@@ -2300,93 +1531,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.OvermapLandingPicker {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  padding: 58px 24px 24px;
-  background: #091420;
-  color: #b9cbd7;
-  cursor: default;
-}
-.OvermapLandingPicker__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.OvermapLandingPicker__head h2 {
-  margin: 8px 0 0;
-  color: #e1edf4;
-  font-size: 22px;
-  font-weight: 500;
-}
-.OvermapLandingPicker__head small {
-  color: #6c95ad;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-}
-.OvermapLandingPicker__head button {
-  border: 1px solid #304958;
-  color: #b9cbd7;
-  background: #112635;
-  padding: 10px;
-  cursor: pointer;
-}
-.OvermapLandingPicker > p {
-  margin: 16px 0 24px;
-  color: #7c98ab;
-}
-.OvermapLandingPicker__list {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.OvermapLandingPicker__list > button {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 12px;
-  text-align: left;
-  color: #c8dce9;
-  background: #102330;
-  border: 1px solid #294456;
-  cursor: pointer;
-  &:hover {
-    border-color: #5dacc4;
-    background: #163343;
-  }
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-  strong {
-    display: block;
-    font-weight: 500;
-  }
-  small {
-    display: block;
-    color: #7296ac;
-    margin-top: 5px;
-  }
-  > .Icon {
-    margin-left: auto;
-  }
-}
-.OvermapLandingPicker__number {
-  font:
-    18px Consolas,
-    monospace;
-  color: #5f859e;
-}
-.OvermapLandingPicker__empty {
-  padding: 36px 8px;
-  text-align: center;
-  color: #7594a7;
-}
-
 .OvermapGalaxy__route--uncertain {
   stroke-dasharray: 5 6;
   stroke-opacity: 0.25;
@@ -2407,51 +1551,378 @@
   cursor: default;
 }
 
-.OvermapWeapons {
-  padding: 12px;
-  h3 {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin: 0 0 10px;
+$helm-back: #071015;
+$helm-panel: rgba(4, 12, 16, 0.72);
+$helm-line: rgba(110, 190, 210, 0.22);
+$helm-row: rgba(8, 22, 28, 0.9);
+$helm-row-hover: rgba(18, 42, 50, 0.95);
+$helm-title: #8ec8d6;
+$helm-text: #d7eef3;
+$helm-muted: #7aa3ad;
+$helm-accent: #7ad0c4;
+$helm-button: #a8d4ff;
+$helm-good: #63e0c8;
+$helm-bad: #ff6a6a;
+$helm-warn: #ffb347;
+
+.OvermapHelm {
+  position: relative;
+  height: 100%;
+  background: $helm-back;
+  color: $helm-text;
+}
+
+.OvermapHelm__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 0.5em;
+  height: 100%;
+  padding: 0.5em;
+}
+
+.OvermapHelm__body--locked {
+  filter: grayscale(0.7) brightness(0.7);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.OvermapHelm__radar {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+
+  .OvermapRadar {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
   }
-  h3 small {
-    margin-left: auto;
-    font-size: 10px;
-    opacity: 0.6;
+}
+
+.OvermapHelm__jam {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid $helm-line;
+  background: $helm-panel;
+  color: $helm-muted;
+}
+
+.OvermapHelm__side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 0.4em 0.5em;
+  border: 1px solid $helm-line;
+  background: $helm-panel;
+}
+
+.OvermapHelm__stripe {
+  margin: 0.6em -0.4em 0.4em;
+  padding: 0.3em 0.5em;
+  border-top: 1px solid $helm-line;
+  border-bottom: 1px solid $helm-line;
+  background: linear-gradient(180deg, #132228 0%, #0a1519 100%);
+  color: $helm-title;
+  font-size: 0.75em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  &:first-child {
+    margin-top: 0;
+    border-top: 0;
   }
-  > div {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 6px;
+}
+
+.OvermapHelm__stripe--toggle {
+  cursor: pointer;
+
+  &:hover {
+    color: #e8f7fb;
   }
-  button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    border: 1px solid #37495a;
-    background: #14202a;
-    color: #b7c7d7;
-    cursor: pointer;
+}
+
+.OvermapHelm__note {
+  margin: 0.2em 0 0.4em;
+  color: $helm-muted;
+  font-size: 0.85em;
+  line-height: 1.35;
+}
+
+.OvermapHelm__warning {
+  margin: 0.4em 0;
+  padding: 0.3em 0.4em;
+  border: 1px solid rgba($helm-warn, 0.5);
+  background: rgba(60, 40, 10, 0.5);
+  color: #ffd9a8;
+  font-size: 0.85em;
+  line-height: 1.3;
+
+  &::first-letter {
+    text-transform: uppercase;
   }
-  button:first-child {
-    flex: 1;
-    text-align: left;
+}
+
+.OvermapHelm__readouts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+
+.OvermapHelm__readout {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5em;
+
+  span:first-child {
+    color: $helm-muted;
   }
-  button.is-active {
-    border-color: #d78c49;
-    background: #3a2c20;
-    color: #ffcc91;
+
+  span:last-child {
+    color: #c6f3ea;
+    font-family: Consolas, 'Courier New', monospace;
+    text-align: right;
   }
-  button small {
-    display: block;
-    margin-top: 3px;
-    font-size: 10px;
-    opacity: 0.6;
+}
+
+.OvermapHelm__keys {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25em 0.5em;
+  margin-top: 0.5em;
+  padding: 0.35em 0.45em;
+  border: 1px solid rgba(110, 190, 210, 0.18);
+  background: rgba(8, 20, 24, 0.6);
+  color: $helm-muted;
+  font-size: 0.85em;
+
+  kbd {
+    color: $helm-accent;
+    font-family: Consolas, 'Courier New', monospace;
+    letter-spacing: 0.1em;
   }
-  p {
-    font-size: 11px;
-    opacity: 0.6;
+}
+
+.OvermapHelm__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.OvermapHelm__stack--gap {
+  margin-top: 0.6em;
+}
+
+.OvermapHelm__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.OvermapHelm__list--gap {
+  margin: 0.4em 0;
+}
+
+.OvermapHelm__row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.3em;
+}
+
+.OvermapHelm__pair {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 0.3em;
+}
+
+.OvermapHelm__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2em;
+  min-width: 4em;
+  padding: 0.25em 0.6em;
+  border: 1px solid rgba(96, 170, 255, 0.35);
+  background: rgba(10, 28, 44, 0.85);
+  box-shadow: inset 0 0 12px rgba(74, 163, 255, 0.12);
+  color: $helm-button;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: #5db2ff;
+    color: #fff;
+    box-shadow:
+      inset 0 0 16px rgba(74, 163, 255, 0.25),
+      0 0 8px rgba(74, 163, 255, 0.35);
   }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.OvermapHelm__button--good {
+  border-color: $helm-good;
+  color: #d8fff8;
+  box-shadow: inset 0 0 16px rgba(99, 224, 200, 0.3);
+
+  &:hover:not(:disabled) {
+    border-color: $helm-good;
+    box-shadow:
+      inset 0 0 16px rgba(99, 224, 200, 0.4),
+      0 0 8px rgba(99, 224, 200, 0.4);
+  }
+}
+
+.OvermapHelm__button--danger {
+  border-color: $helm-bad;
+  color: #ffd8d8;
+  box-shadow: inset 0 0 16px rgba(255, 106, 106, 0.3);
+
+  &:hover:not(:disabled) {
+    border-color: $helm-bad;
+    box-shadow:
+      inset 0 0 16px rgba(255, 106, 106, 0.4),
+      0 0 8px rgba(255, 106, 106, 0.35);
+  }
+}
+
+.OvermapHelm__plate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  padding: 0.45em 0.55em;
+  border: 1px dashed rgba(122, 208, 196, 0.35);
+  background: #08141a;
+}
+
+.OvermapHelm__plate--dock {
+  border: 1px solid rgba(93, 178, 255, 0.6);
+}
+
+.OvermapHelm__plateName {
+  color: #e8f7fb;
+  font-weight: bold;
+}
+
+.OvermapHelm__plateMeta {
+  color: $helm-muted;
+  font-size: 0.85em;
+}
+
+.OvermapHelm__entry {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5em;
+  min-width: 0;
+  padding: 0.28em 0.45em;
+  border: 0;
+  border-left: 3px solid #2a4a52;
+  background: $helm-row;
+  color: $helm-text;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: $helm-row-hover;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+}
+
+.OvermapHelm__entry--selected {
+  border-left-color: $helm-accent;
+  background: rgba(40, 90, 88, 0.35);
+}
+
+.OvermapHelm__entryIcon {
+  width: 1em;
+  color: $helm-muted;
+  text-align: center;
+}
+
+.OvermapHelm__entryBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.OvermapHelm__row > .OvermapHelm__entryBody {
+  padding: 0.28em 0.45em;
+  border-left: 3px solid #2a4a52;
+  background: $helm-row;
+}
+
+.OvermapHelm__entryName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.OvermapHelm__entryMeta {
+  overflow: hidden;
+  color: $helm-muted;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.75em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.OvermapHelm__entryAside {
+  flex-shrink: 0;
+  color: $helm-muted;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.85em;
+}
+
+.OvermapHelm__power {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin: 0.3em 0;
+}
+
+.OvermapHelm__powerTrack {
+  height: 7px;
+  border: 1px solid rgba(122, 208, 196, 0.35);
+  background: #061016;
+}
+
+.OvermapHelm__powerFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3aa89a, $helm-accent);
+}
+
+.OvermapHelm__powerFill--low {
+  background: $helm-warn;
+}
+
+.OvermapHelm__lock {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 10, 12, 0.28);
+}
+
+.OvermapHelm__lockPanel {
+  width: min(420px, 90%);
+  padding: 0 0.6em 0.8em;
+  border: 1px solid rgba(180, 210, 220, 0.45);
+  background: rgba(8, 16, 20, 0.92);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
 }

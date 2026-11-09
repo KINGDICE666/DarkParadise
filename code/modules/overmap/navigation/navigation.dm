@@ -212,7 +212,7 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 		corridor_host = host
 	if(!length(path) && isnull(blocked_since))
 		blocked_since = world.time
-	if(!isnull(blocked_since) && world.time >= blocked_since + (15 SECONDS) && vessel.navigation_collision_disabled())
+	if(!isnull(blocked_since) && (blocked || world.time >= blocked_since + (15 SECONDS)) && vessel.navigation_collision_disabled())
 		revision++
 		planning = FALSE
 		force_passage = TRUE
@@ -231,6 +231,27 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 			break
 		path.Cut(1, 2)
 	return length(path) == 1 ? list(world_x, world_y) : path[1]
+
+/datum/overmap_navigation/proc/corner_carry(list/from)
+	if(length(path) < 2)
+		return 0
+	var/list/corner = path[1]
+	var/list/next = path[2]
+	var/in_x = corner[1] - from[1]
+	var/in_y = corner[2] - from[2]
+	var/out_x = next[1] - corner[1]
+	var/out_y = next[2] - corner[2]
+	var/in_length = sqrt(in_x ** 2 + in_y ** 2)
+	var/out_length = sqrt(out_x ** 2 + out_y ** 2)
+	var/remaining = 0
+	for(var/index in 1 to length(path) - 1)
+		var/list/point = path[index]
+		var/list/following = path[index + 1]
+		remaining += sqrt((following[1] - point[1]) ** 2 + (following[2] - point[2]) ** 2)
+	if(!in_length || !out_length)
+		return remaining
+	var/cosine = (in_x * out_x + in_y * out_y) / (in_length * out_length)
+	return remaining * (1 + cosine) / 2
 
 /datum/overmap_navigation/proc/plan(version, list/start, list/finish, obj/overmap/entity/host)
 	set waitfor = FALSE

@@ -498,16 +498,6 @@
 		return overmap_pod.is_landed() && overmap_pod.can_undock_here()
 	return overmap_shuttle && !overmap_shuttle.preparing_undock && !shuttle?.transfer_busy && is_physically_docked()
 
-/obj/overmap/entity/proc/can_helm_physical_dock()
-	if(overmap_pod)
-		return overmap_pod.can_physical_dock()
-	if(!overmap_shuttle || is_physically_docked() || !isturf(loc) || !get_dock_host())
-		return FALSE
-	return OVERMAP_SPEED_STOPPED(get_speed())
-
-/obj/overmap/entity/proc/can_helm_edge_dock()
-	return overmap_pod?.can_edge_dock() && overmap_pod.can_physical_dock()
-
 /obj/overmap/entity/proc/ship_power_report()
 	. = list(
 		"apc_charge" = 0,
@@ -635,15 +625,6 @@
 
 /obj/overmap/entity/proc/can_steer()
 	return !!flight?.can_steer()
-
-/obj/overmap/entity/proc/set_held_brake(enabled)
-	return flight?.set_held_brake(enabled)
-
-/obj/overmap/entity/proc/cut_engines()
-	return flight?.cut_engines()
-
-/obj/overmap/entity/proc/get_effective_acceleration()
-	return get_acceleration()
 
 /obj/overmap/entity/proc/get_brake_distance()
 	return flight ? flight.get_brake_distance() : 0
@@ -868,9 +849,6 @@
 
 /obj/overmap/entity/proc/select_collar_by_key(key)
 	return overmap_shuttle?.select_collar_by_key(key)
-
-/obj/overmap/entity/proc/build_collar_list()
-	return overmap_shuttle ? overmap_shuttle.build_collar_list() : list()
 
 /obj/overmap/entity/proc/dock_fail_text(status)
 	return overmap_shuttle ? overmap_shuttle.dock_fail_text(status) : "Стыковка невозможна."
