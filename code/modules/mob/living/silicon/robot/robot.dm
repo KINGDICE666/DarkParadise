@@ -362,11 +362,14 @@ GAME_VERB(/mob/living/silicon/robot, Namepick, "Сменить имя", VERB_CAT
 		balloon_alert(src, "имя уже было сменено!")
 		return FALSE
 
-	var/old_name = real_name
-	rename_self(braintype, 1)
+	INVOKE_ASYNC(src, PROC_REF(namepick))
 
-	if(real_name != old_name)
-		rename_used = TRUE
+/mob/living/silicon/robot/proc/namepick()
+	rename_used = TRUE
+	var/old_name = real_name
+	prompt_rename(braintype, TRUE)
+	if(real_name == old_name)
+		rename_used = FALSE
 
 GAME_VERB_DESC(/mob/living/silicon/robot, Change_Voice, "Сменить голос", "Express yourself!", VERB_CATEGORY_ROBOTCOMMANDS)
 	change_voice()

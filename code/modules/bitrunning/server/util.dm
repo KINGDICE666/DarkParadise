@@ -143,6 +143,16 @@
 	to_wear.r_pocket = null
 	to_wear.suit = null
 	to_wear.suit_store = null
+	var/internals_type
+	switch(avatar.dna.species.breathid)
+		if("n2")
+			to_wear.mask = /obj/item/clothing/mask/breath/vox
+			internals_type = /obj/item/tank/internals/emergency_oxygen/double/vox
+		if("tox")
+			to_wear.uniform = /obj/item/clothing/under/plasmaman/cargo
+			to_wear.head = /obj/item/clothing/head/helmet/space/plasmaman/cargo
+			to_wear.mask = /obj/item/clothing/mask/breath
+			internals_type = /obj/item/tank/internals/plasmaman/belt/full
 	avatar.equipOutfit(to_wear, visualsOnly = TRUE)
 
 	var/obj/item/clothing/under/jumpsuit = avatar.w_uniform
@@ -159,27 +169,13 @@
 		new /obj/item/storage/firstaid/regular(bag)
 		new /obj/item/flashlight(bag)
 
-	var/datum/species/species = avatar.dna.species
-	var/tank_type
-	var/mask_type = /obj/item/clothing/mask/breath
-	switch(species.breathid)
-		if("n2")
-			tank_type = /obj/item/tank/internals/emergency_oxygen/double/vox
-			mask_type = /obj/item/clothing/mask/breath/vox
-		if("tox")
-			tank_type = /obj/item/tank/internals/plasmaman/belt/full
-
-	if(tank_type)
-		var/obj/item/tank/internals/tank = new tank_type(avatar)
-		if(!avatar.equip_to_appropriate_slot(tank, force = TRUE, silent = TRUE))
-			avatar.put_in_any_hand_if_possible(tank)
-
-		if(!istype(avatar.wear_mask, mask_type))
-			qdel(avatar.wear_mask)
-			avatar.equip_to_slot_or_del(new mask_type(avatar), ITEM_SLOT_MASK)
-
-		avatar.internal = tank
-		avatar.update_action_buttons_icon()
+	if(internals_type)
+		var/obj/item/tank/internals/tank = new internals_type(avatar)
+		if(!avatar.equip_to_appropriate_slot(tank, silent = TRUE))
+			avatar.put_in_any_hand_if_possible(tank, drop_on_fail = TRUE)
+		if(tank.loc == avatar)
+			avatar.internal = tank
+			avatar.update_action_buttons_icon()
 
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
