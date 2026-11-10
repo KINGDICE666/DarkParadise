@@ -35,6 +35,7 @@ GLOBAL_DATUM_INIT(net_vision, /datum/net_vision, new)
 	var/image/mask = image(loc = target)
 	mask.override = TRUE
 	mask.appearance_flags = RESET_COLOR|NO_CLIENT_COLOR
+	SET_PLANE_EXPLICIT(mask, ABOVE_GAME_PLANE, target)
 	masks[target] = mask
 	update_echo(target)
 	RegisterSignal(target, COMSIG_QDELETING, PROC_REF(on_masked_deleted))
@@ -65,3 +66,51 @@ GLOBAL_DATUM_INIT(net_vision, /datum/net_vision, new)
 	masks -= source
 	for(var/client/viewer as anything in viewers)
 		viewer.images -= mask
+
+/mob/living/basic/net_avatar/proc/apply_net_sight()
+	var/static/list/plane_looks = list(
+		list(FLOOR_PLANE, MATRIX_NET_FLOOR, FALSE),
+		list(WALL_PLANE, MATRIX_NET_WALL, TRUE),
+		list(BELOW_GAME_PLANE, MATRIX_NET_OBJECT, TRUE),
+		list(GAME_PLANE, MATRIX_NET_OBJECT, TRUE),
+	)
+	for(var/list/look as anything in plane_looks)
+		for(var/atom/movable/screen/plane_master/master as anything in hud_used?.get_true_plane_masters(look[1]))
+			master.add_filter(NET_VISION_FILTER, 1, color_matrix_filter(look[2]))
+			if(look[3])
+				master.add_filter(NET_VISION_EDGE_FILTER, 2, outline_filter(1, NET_EDGE_COLOR))
+
+/mob/living/basic/net_avatar/proc/refresh_marks()
+	if(!client)
+		return
+	var/list/seen = list()
+	for(var/obj/thing in view(NET_MARK_RANGE, src))
+		var/is_door = is_net_door(thing)
+		if(!is_door && !is_net_node(thing))
+			continue
+		seen[thing] = TRUE
+		if(node_marks[thing])
+			continue
+		var/image/mark = image('icons/effects/netrunning.dmi', thing, "node_mark")
+		mark.color = is_door ? NET_DOOR_MARK_COLOR : NET_NODE_MARK_COLOR
+		mark.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM|KEEP_APART
+		mark.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+		SET_PLANE_EXPLICIT(mark, ABOVE_GAME_PLANE, thing)
+		node_marks[thing] = mark
+		client.images += mark
+		RegisterSignal(thing, COMSIG_QDELETING, PROC_REF(drop_mark))
+	for(var/obj/marked as anything in node_marks)
+		if(!seen[marked])
+			drop_mark(marked)
+
+/mob/living/basic/net_avatar/proc/drop_mark(obj/marked)
+	SIGNAL_HANDLER
+	client?.images -= node_marks[marked]
+	node_marks -= marked
+	UnregisterSignal(marked, COMSIG_QDELETING)
+
+/mob/living/basic/net_avatar/proc/clear_marks()
+	for(var/obj/marked as anything in node_marks)
+		canon_client?.images -= node_marks[marked]
+		UnregisterSignal(marked, COMSIG_QDELETING)
+	node_marks.Cut()

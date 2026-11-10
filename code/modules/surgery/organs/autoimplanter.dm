@@ -145,6 +145,18 @@
 	name = "autoimplanter (Militech monowire)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/arm/monowire/militech
 
+/obj/item/autoimplanter/oneuse/cybersun_sandevistan
+	name = "autoimplanter (Cybersun Sandevistan)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun
+
+/obj/item/autoimplanter/oneuse/militech_berserker
+	name = "autoimplanter (Militech Berserker)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/berserker/militech
+
+/obj/item/autoimplanter/oneuse/militech_hand_cannon
+	name = "autoimplanter (Militech hand cannon)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/hand_cannon/militech
+
 /obj/item/autoimplanter/oneuse/mantisblade
 	name = "autoimplanter (mantis blade right)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex

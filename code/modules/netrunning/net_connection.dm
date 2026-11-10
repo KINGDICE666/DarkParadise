@@ -21,6 +21,7 @@
 
 	RegisterSignal(avatar, COMSIG_LIVING_DEATH, PROC_REF(on_avatar_death))
 	RegisterSignal(body, COMSIG_LIVING_DEATH, PROC_REF(on_body_death))
+	RegisterSignal(body, COMSIG_ATOM_EXAMINE, PROC_REF(on_body_examine))
 	RegisterSignals(body, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(lose_connection))
 	RegisterSignals(pod, list(COMSIG_BITRUNNER_NETPOD_SEVER, COMSIG_QDELETING), PROC_REF(lose_connection))
 	RegisterSignal(pod, COMSIG_BITRUNNER_CROWBAR_ALERT, PROC_REF(on_pod_pried))
@@ -57,7 +58,7 @@
 	QDEL_NULL(panel_action)
 	if(body)
 		REMOVE_TRAIT(body, TRAIT_MIND_TEMPORARILY_GONE, NETRUNNING_TRAIT)
-		UnregisterSignal(body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING))
+		UnregisterSignal(body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING, COMSIG_ATOM_EXAMINE))
 		body = null
 	if(pod)
 		UnregisterSignal(pod, list(COMSIG_BITRUNNER_NETPOD_SEVER, COMSIG_QDELETING, COMSIG_BITRUNNER_CROWBAR_ALERT, COMSIG_BITRUNNER_NETPOD_INTEGRITY))
@@ -99,6 +100,7 @@
 		return
 	var/mob/living/basic/net_avatar/avatar = parent
 	lost = TRUE
+	body?.AddElement(/datum/element/net_severed)
 	release_body()
 	QDEL_NULL(jack_out_action)
 	avatar.playsound_local(get_turf(avatar), 'sound/effects/empulse.ogg', 40, TRUE)
@@ -127,6 +129,10 @@
 	var/mob/living/basic/net_avatar/avatar = parent
 	to_chat(avatar, span_userdanger("Ваше тело в капсуле умирает. Поток данных гаснет..."))
 	avatar.death()
+
+/datum/component/net_connection/proc/on_body_examine(mob/living/carbon/human/source, mob/user, list/examine_list)
+	SIGNAL_HANDLER
+	examine_list += span_notice("Нейропорт на виске часто мерцает, а глаза бегают под сомкнутыми веками: сознание погружено в Сеть.")
 
 /datum/component/net_connection/proc/on_pod_pried(datum/source, mob/living/intruder)
 	SIGNAL_HANDLER

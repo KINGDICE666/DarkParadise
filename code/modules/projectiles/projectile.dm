@@ -112,6 +112,8 @@
 	var/ricochets = 0
 	var/ricochets_max = 2
 	var/ricochet_chance = 30
+	var/ricochet_auto_aim_range = 0
+	var/ricochet_auto_aim_angle = 30
 	/// If our projectile can ricochet from any walls
 	var/can_ricochet_from_everything = FALSE
 
@@ -556,6 +558,8 @@
 	original_angle = Angle
 	if(spread)
 		Angle += (rand() - 0.5) * spread
+	if(firer)
+		SEND_SIGNAL(firer, COMSIG_PROJECTILE_BEFORE_FIRE, src, original)
 	if(firer && ismob(firer))
 		if(firer.a_intent != INTENT_HELP || firer.IsLying())
 			hit_crawling_mobs_chance =  100
@@ -606,7 +610,20 @@
 	fire()
 
 /obj/projectile/proc/on_ricochet(atom/A)
-	return
+	if(!ricochet_auto_aim_angle || !ricochet_auto_aim_range)
+		return
+	var/mob/living/unlucky_sob
+	var/best_angle = ricochet_auto_aim_angle
+	for(var/mob/living/potential_target in range(ricochet_auto_aim_range, loc))
+		if(potential_target.stat == DEAD || potential_target == firer || !is_in_sight(src, potential_target))
+			continue
+		var/our_angle = abs(closer_angle_difference(Angle, get_angle(loc, potential_target.loc)))
+		if(our_angle < best_angle)
+			best_angle = our_angle
+			unlucky_sob = potential_target
+	if(unlucky_sob)
+		set_angle(get_angle(src, unlucky_sob.loc))
+		original = unlucky_sob
 
 /obj/projectile/proc/check_ricochet(atom/A)
 	if(prob(ricochet_chance))

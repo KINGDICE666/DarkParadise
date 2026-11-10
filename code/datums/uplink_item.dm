@@ -2501,6 +2501,27 @@
 	cost = 35
 	uplinktypes = list(UPLINK_TYPE_TRAITOR)
 
+/datum/uplink_item/cyber_implants/cybersun_sandevistan
+	name = "Сандевистан Cybersun"
+	desc = "Военный нейроускоритель. На шесть секунд разгоняет нервную систему: вы двигаетесь быстрее и не выдыхаетесь. Выдерживает четыре разгона подряд, пятый убивает. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/cybersun_sandevistan
+	cost = 50
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_berserker
+	name = "Берсерк Militech"
+	desc = "Мозговой имплант боевого безумия. На 35 секунд даёт сильную защиту от ударов, пуль и лазеров и вдвое ускоряет удары, но запрещает стрельбу. Занимает место Сандевистана. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_berserker
+	cost = 45
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_hand_cannon
+	name = "Ручная пушка Militech"
+	desc = "Разрывной пусковик в правой руке. После короткой зарядки выпускает очередь из трёх малых зарядов и перезаряжается десять секунд. Отвёрткой переставляется на левую руку. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_hand_cannon
+	cost = 45
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
 /datum/uplink_item/cyber_implants/black_cyberdeck
 	name = "Чёрный кибердек"
 	desc = "Нейроинтерфейс в автоимплантере и кибердек со встроенным взломщиком. Вскрывает шлюзы и пускает по ним ток, снимает замки с АПЦ и датчиков воздуха, гасит и перегружает освещение отсеков, отключает турели и вентиляцию, показывает изображение с камер и отключает их, разряжает оружие на полу, срывает протоколы ботов, опрокидывает автоматы и перегружает те, что с едой и напитками. Сложные команды расходуют буфер кибердека, который восстанавливается со временем."

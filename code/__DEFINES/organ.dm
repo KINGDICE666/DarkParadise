@@ -49,6 +49,7 @@
 #define INTERNAL_ORGAN_BRAIN_COGNITIVE "brain_cognitive"
 #define INTERNAL_ORGAN_BRAIN_NEURO "brain_neuro"
 #define INTERNAL_ORGAN_BRAIN_PAIN "brain_pain"
+#define INTERNAL_ORGAN_BRAIN_SANDEVISTAN "brain_sandevistan"
 #define INTERNAL_ORGAN_BRAIN_CLOWNVOICE "brain_clownvoice"
 #define INTERNAL_ORGAN_BRAIN_SPEECHTRANSLATOR "brain_speechtranslator"
 #define INTERNAL_ORGAN_CHEST_ADRENALINE "chest_adrenaline"

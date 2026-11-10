@@ -72,17 +72,39 @@
 #define NET_INTEGRITY_DECK 25
 #define NET_INTEGRITY_BLACK_DECK 50
 
-#define NET_GRID_SCREEN "net_grid"
+#define NET_VISION_FILTER "net_vision"
+#define NET_VISION_EDGE_FILTER "net_vision_edge"
+#define NET_MARK_RANGE 7
+
+#define NET_TAMPER_DURATION (2 MINUTES)
+#define NET_TAMPER_BLINK_INTERVAL (8 SECONDS)
 
 #define NET_AVATAR_GLOW "#FF2A6D"
 #define NET_PARTICLE_COLOR "#FF4F8B"
 #define NET_HOLOGRAM_GLOW "#05D9E8"
+#define NET_EDGE_COLOR "#05D9E8"
+#define NET_DOOR_MARK_COLOR "#FFB000"
+#define NET_NODE_MARK_COLOR "#FF2AD4"
 
-#define MATRIX_NET_VISION list(\
-	0.015, 0.21, 0.24, \
-	0.03, 0.41, 0.47, \
-	0.006, 0.08, 0.09, \
-	0, 0.02, 0.04 \
+#define MATRIX_NET_FLOOR list(\
+	0.002, 0.089, 0.096, \
+	0.004, 0.176, 0.188, \
+	0.001, 0.033, 0.035, \
+	0, 0.01, 0.015 \
+)
+
+#define MATRIX_NET_WALL list(\
+	0.001, 0.056, 0.06, \
+	0.003, 0.11, 0.118, \
+	0, 0.021, 0.022, \
+	0, 0, 0 \
+)
+
+#define MATRIX_NET_OBJECT list(\
+	0.004, 0.153, 0.164, \
+	0.007, 0.301, 0.322, \
+	0.001, 0.056, 0.06, \
+	0, 0.02, 0.03 \
 )
 
 #define MATRIX_NET_AVATAR list(\

@@ -534,6 +534,7 @@
 #define TRAIT_NO_FOOTPRINTS "no_footprints"
 #define TRAIT_SUBDERMAL_PLATING "subdermal_plating"
 #define TRAIT_NO_RECOIL "no_recoil"
+#define TRAIT_EMP_IMMUNE "emp_immune"
 
 /// GLOB trait, applied whenever something in the world wants to use the distortion plane
 /// Distortion is an expensive effect, so it's worthwhile to keep it off until we care

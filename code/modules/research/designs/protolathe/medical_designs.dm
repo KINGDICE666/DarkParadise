@@ -565,6 +565,42 @@
 	build_path = /obj/item/organ/internal/cyberimp/arm/monowire
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
+/datum/design/cyberimp_sandevistan
+	id = "ci-sandevistan"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_COMBAT = 5)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 3000, MAT_GLASS = 2000, MAT_SILVER = 1500, MAT_GOLD = 1000)
+	build_path = /obj/item/organ/internal/cyberimp/brain/sandevistan
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_berserker
+	id = "ci-berserker"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_PROGRAMMING = 5, RESEARCH_TREE_COMBAT = 5)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 2500, MAT_GLASS = 1500, MAT_SILVER = 1000)
+	build_path = /obj/item/organ/internal/cyberimp/brain/berserker
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_ballistic_processor
+	id = "ci-ballistic"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_COMBAT = 6)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 3000, MAT_GLASS = 2000, MAT_SILVER = 2000, MAT_GOLD = 1000)
+	build_path = /obj/item/organ/internal/cyberimp/arm/ballistic_processor
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cyberimp_hand_cannon
+	id = "ci-handcannon"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_COMBAT = 6, RESEARCH_TREE_POWERSTORAGE = 4)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 80
+	materials = list(MAT_METAL = 3000, MAT_GLASS = 1500, MAT_SILVER = 1500, MAT_GOLD = 1000, MAT_PLASMA = 1000)
+	build_path = /obj/item/organ/internal/cyberimp/arm/hand_cannon
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
 /datum/design/cyberimp_magnetic_palm
 	id = "ci-magnetpalm"
 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_MAGNETS = 4, RESEARCH_TREE_BIOTECH = 3)
@@ -959,6 +995,15 @@
 	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500)
 	construction_time = 60
 	build_path = /obj/item/organ/internal/heart/cybernetic/upgraded
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_heart_anomalock
+	id = "cybernetic_heart_anomalock"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_POWERSTORAGE = 6)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_TITANIUM = 500, MAT_DIAMOND = 100)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/heart/cybernetic/anomalock
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
 /datum/design/quantum_cardioregulator

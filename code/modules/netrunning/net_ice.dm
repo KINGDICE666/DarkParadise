@@ -39,6 +39,7 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 /mob/living/basic/net_avatar/proc/on_moved(datum/source)
 	SIGNAL_HANDLER
 	refresh_ice()
+	refresh_marks()
 	follow_projection()
 
 /mob/living/basic/net_avatar/proc/refresh_ice()

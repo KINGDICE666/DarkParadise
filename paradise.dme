@@ -4185,6 +4185,7 @@
 #include "code\modules\netrunning\net_cyberware.dm"
 #include "code\modules\netrunning\net_ice.dm"
 #include "code\modules\netrunning\net_interactions.dm"
+#include "code\modules\netrunning\net_tamper.dm"
 #include "code\modules\netrunning\net_vision.dm"
 #include "code\modules\netrunning\netpod_net.dm"
 #include "code\modules\newscaster\datums.dm"

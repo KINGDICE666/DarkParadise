@@ -71,6 +71,7 @@
 		return
 	if(neuro?.run_device_action(node, action_id))
 		new /obj/effect/temp_visual/net_glitch(get_turf(node))
+		node.AddComponent(/datum/component/net_tamper)
 		add_trace(get_net_ice(get_area(node)) ? NET_TRACE_ICE_ACTION : NET_TRACE_ACTION)
 
 /mob/living/basic/net_avatar/proc/get_native_actions(atom/movable/node)
@@ -126,6 +127,7 @@
 		add_trace(NET_TRACE_ACTION)
 	new /obj/effect/temp_visual/net_glitch(get_turf(door))
 	door.add_hiddenprint(src)
+	door.AddComponent(/datum/component/net_tamper)
 	if(door.density)
 		door.open()
 	else
@@ -150,6 +152,8 @@
 		balloon_alert(src, "канал разорван!")
 		return
 	COOLDOWN_START(src, conduit_cooldown, NET_CONDUIT_COOLDOWN)
+	apc.AddComponent(/datum/component/net_tamper)
+	exit.AddComponent(/datum/component/net_tamper)
 	new /obj/effect/temp_visual/net_dissolve(loc, src)
 	playsound_local(get_turf(src), 'sound/effects/phasein.ogg', 25, TRUE)
 	forceMove(get_turf(exit))
@@ -172,6 +176,7 @@
 	if(!message || QDELETED(intercom) || stat != CONSCIOUS || !can_reach_node(intercom))
 		return
 	intercom.atom_say(message)
+	intercom.AddComponent(/datum/component/net_tamper)
 	add_trace(NET_TRACE_ACTION)
 	add_say_logs(src, "через [intercom] из Сети: [message]")
 
@@ -185,6 +190,7 @@
 	RegisterSignal(intercom, COMSIG_MOVABLE_HEAR, PROC_REF(on_tap_hear))
 	RegisterSignal(intercom, COMSIG_QDELETING, PROC_REF(stop_tap))
 	tap_timer = addtimer(CALLBACK(src, PROC_REF(stop_tap)), NET_EAVESDROP_TIME, TIMER_STOPPABLE)
+	intercom.AddComponent(/datum/component/net_tamper)
 	add_trace(NET_TRACE_ACTION)
 	balloon_alert(src, "прослушка на минуту")
 
@@ -217,6 +223,7 @@
 		return
 	projection = new(get_turf(src), src, pad)
 	RegisterSignal(pad, COMSIG_QDELETING, PROC_REF(stop_projection))
+	pad.AddComponent(/datum/component/net_tamper)
 	add_trace(NET_TRACE_ACTION)
 	add_game_logs("projected a hologram through [pad] from the Net", src)
 
@@ -244,6 +251,7 @@
 	var/list/lines = splittext(text, "/")
 	display.show_net_message(lines[1], length(lines) > 1 ? lines[2] : null)
 	new /obj/effect/temp_visual/net_glitch(get_turf(display))
+	display.AddComponent(/datum/component/net_tamper)
 	add_trace(NET_TRACE_ACTION)
 	add_game_logs("put [text] on [display] from the Net", src)
 

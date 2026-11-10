@@ -19,6 +19,7 @@
 	icon = 'icons/effects/netrunning.dmi'
 	icon_state = "avatar"
 	icon_living = "avatar"
+	plane = ABOVE_GAME_PLANE
 	invisibility = INVISIBILITY_NETRUNNER
 	see_invisible = SEE_INVISIBLE_NETRUNNER
 	lighting_cutoff = LIGHTING_CUTOFF_HIGH
@@ -47,6 +48,7 @@
 	var/datum/net_breach/active_breach
 	var/list/breached_areas = list()
 	var/list/image/ice_images = list()
+	var/list/image/node_marks = list()
 	var/trace = 0
 	var/trace_updated = 0
 	var/last_health = 0
@@ -86,6 +88,7 @@
 	stop_projection()
 	breached_areas.Cut()
 	ice_images.Cut()
+	clear_marks()
 	QDEL_NULL(particles)
 	body_overlays.Cut()
 	return ..()
@@ -105,25 +108,21 @@
 	if(!client)
 		return
 	GLOB.net_vision.show_to(client)
-	overlay_fullscreen(NET_GRID_SCREEN, /atom/movable/screen/fullscreen/net_grid)
-	update_client_colour(0)
+	apply_net_sight()
 	refresh_ice()
+	refresh_marks()
 
 /mob/living/basic/net_avatar/Logout()
 	if(canon_client)
 		GLOB.net_vision.hide_from(canon_client)
-		canon_client.colour_transition(null, 0)
 		canon_client.images -= ice_images
-	clear_fullscreen(NET_GRID_SCREEN, FALSE)
+	clear_marks()
 	return ..()
 
 /mob/living/basic/net_avatar/Life(delta_time, times_fired)
 	. = ..()
 	update_trace_alert()
 	defragment()
-
-/mob/living/basic/net_avatar/get_screen_colour()
-	return MATRIX_NET_VISION
 
 /mob/living/basic/net_avatar/update_overlays()
 	. = ..()
@@ -214,11 +213,6 @@
 	if(ismovable(src_object) && can_reach_node(src_object) && !is_ice_blocked(get_area(src_object)))
 		return UI_INTERACTIVE
 	return UI_CLOSE
-
-/atom/movable/screen/fullscreen/net_grid
-	icon = 'icons/effects/netrunning.dmi'
-	icon_state = "net_grid"
-	screen_loc = "WEST,SOUTH to EAST,NORTH"
 
 /obj/effect/temp_visual/net_dissolve
 	randomdir = FALSE

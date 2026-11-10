@@ -783,6 +783,8 @@
 
 /mob/living/carbon/emp_act(severity)
 	..()
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
 	for(var/obj/item/organ/internal/organ as anything in internal_organs)
 		organ.emp_act(severity)
 
