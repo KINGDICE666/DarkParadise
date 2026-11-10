@@ -930,6 +930,7 @@
 /datum/overmap_bubble/proc/sweep_hull(obj/overmap/entity/vessel)
 	var/steps = max(1, CEILING(vessel.pose_travel() / 0.35, 1))
 	var/list/struck = list()
+	var/ghosting = vessel.navigation_collision_disabled()
 	for(var/step in 0 to steps)
 		var/list/pose = vessel.pose_at(step / steps)
 		for(var/turf/hull_turf as anything in vessel.hull_edge)
@@ -937,7 +938,7 @@
 				continue
 			var/list/spot_world = vessel.hull_to_world(hull_turf.x, hull_turf.y, pose[1], pose[2], pose[3])
 			var/turf/spot = turf_at(spot_world[1], spot_world[2])
-			if(!spot)
+			if(!spot || (ghosting && !isspaceturf(spot)))
 				continue
 			for(var/atom/movable/thing in spot)
 				if(thing.anchored || !thing.simulated || isobserver(thing) || struck[thing])

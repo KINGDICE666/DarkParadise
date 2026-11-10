@@ -151,6 +151,9 @@
 	vessel.set_world_position(carried_x + (target_x - carried_x) * fraction, carried_y + (target_y - carried_y) * fraction)
 	if((distance() > 0.15 || abs(angle) > 0.5) && world.time < deadline)
 		return
+	finish()
+
+/datum/overmap_docking_approach/proc/finish()
 	vessel.flight.set_facing(target_facing)
 	vessel.set_world_position(target_x, target_y)
 	owns_pad = FALSE
