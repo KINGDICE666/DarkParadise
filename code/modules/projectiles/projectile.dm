@@ -537,6 +537,9 @@
 	if(setAngle)
 		Angle = setAngle
 
+	if(firer)
+		SEND_SIGNAL(firer, COMSIG_PROJECTILE_BEFORE_FIRE, src, original)
+
 	if(!log_override && firer && original)
 		fire_log_text += "Projectile: <small>'[type]'</small> | Harm: [nodamage ? "<small>NO DAMAGE</small>" : "<small>[uppertext(damage_type)] = </small>[damage]"]"
 		if(reagents?.reagent_list)
@@ -558,8 +561,6 @@
 	original_angle = Angle
 	if(spread)
 		Angle += (rand() - 0.5) * spread
-	if(firer)
-		SEND_SIGNAL(firer, COMSIG_PROJECTILE_BEFORE_FIRE, src, original)
 	if(firer && ismob(firer))
 		if(firer.a_intent != INTENT_HELP || firer.IsLying())
 			hit_crawling_mobs_chance =  100
