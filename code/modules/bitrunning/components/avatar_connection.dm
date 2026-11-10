@@ -26,7 +26,6 @@
 	server_ref = WEAKREF(server)
 	server.avatar_connection_refs += WEAKREF(src)
 	server.domain_entered = TRUE
-
 	hardcore = server.hardcore
 
 	ADD_TRAIT(old_body, TRAIT_MIND_TEMPORARILY_GONE, NETPOD_TRAIT)
@@ -354,7 +353,6 @@
 	return "HRDM: смерть аватара мгновенно уничтожит ядро ИИ!"
 
 /datum/component/avatar_connection/ai/on_linked_damage(datum/source, damage, damagetype, def_zone, blocked, sharp, used_weapon, spread_damage, forced)
-
 	if(hardcore)
 		return ..()
 

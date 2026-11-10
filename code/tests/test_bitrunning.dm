@@ -481,6 +481,13 @@
 	TEST_ASSERT(!QDELETED(projectile), "the passthrough projectile was consumed by a teammate")
 	TEST_ASSERT(teammate in projectile.permutated, "the passthrough projectile did not skip the teammate")
 
+/// These clientless fixtures exercise shell control, not player verb registration.
+/mob/living/silicon/robot/bitrunning_test/add_robot_verbs()
+	return
+
+/mob/living/silicon/robot/bitrunning_test/shell
+	shell = TRUE
+
 /// Exercise the production pilot signals without requiring a connected client or loaded domain.
 /datum/component/avatar_connection/ai/bitrunning_test
 	var/datum/weakref/returned_body_ref
@@ -508,9 +515,11 @@
 	var/turf/anchor = run_loc_floor_bottom_left
 	var/obj/machinery/netpod/pod = allocate(/obj/machinery/netpod, anchor)
 	var/mob/living/carbon/human/human = allocate(/mob/living/carbon/human, anchor)
-	var/mob/living/silicon/robot/ordinary_robot = allocate(/mob/living/silicon/robot, anchor)
-	var/mob/living/silicon/robot/shell/robot = allocate(/mob/living/silicon/robot/shell, anchor)
+	var/mob/living/silicon/robot/ordinary_robot = allocate(/mob/living/silicon/robot/bitrunning_test, anchor)
+	var/mob/living/silicon/robot/robot = allocate(/mob/living/silicon/robot/bitrunning_test/shell, anchor)
 	var/mob/living/silicon/ai/core = allocate(/mob/living/silicon/ai, anchor, null, null, TRUE)
+	// AI initialization defers its power supply spawn; keep the core on a turf until it finishes.
+	sleep(1 SECONDS)
 	TEST_ASSERT(pod.can_enter(human), "netpods stopped accepting humans")
 	TEST_ASSERT(!pod.can_enter(ordinary_robot), "netpod accepted an ordinary cyborg")
 	TEST_ASSERT(!pod.can_enter(core), "AI could bypass the shell and enter a netpod remotely")
@@ -563,10 +572,12 @@
 
 	for(var/hardcore in list(FALSE, TRUE))
 		var/mob/living/silicon/ai/next_core = allocate(/mob/living/silicon/ai, anchor, null, null, TRUE)
-		var/mob/living/silicon/robot/shell/next_shell = allocate(/mob/living/silicon/robot/shell, anchor)
+		sleep(1 SECONDS)
+		var/mob/living/silicon/robot/next_shell = allocate(/mob/living/silicon/robot/bitrunning_test/shell, anchor)
 		deploy_shell(next_core, next_shell)
 		var/mob/living/carbon/human/next_avatar = allocate(/mob/living/carbon/human, anchor)
 		next_avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, next_shell, hardcore)
 		next_avatar.death()
 		TEST_ASSERT_EQUAL(next_core.stat == DEAD, hardcore, "AI core death did not respect HRDM")
 		TEST_ASSERT(next_shell.stat != DEAD, "HRDM killed the AI shell instead of its core")
+		next_shell.undeploy()
