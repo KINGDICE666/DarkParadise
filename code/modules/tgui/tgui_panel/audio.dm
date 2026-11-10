@@ -16,13 +16,16 @@
  * - start: the start time of the sound
  * - end: when the musics stops playing
  *
- * required url string Must be an https URL.
+ * required url string Must be an https URL or a registered local asset.
  * optional extra_data list Optional settings.
  */
 /datum/tgui_panel/proc/play_music(url, extra_data)
 	if(!is_ready())
 		return
-	if(!findtext(url, GLOB.is_http_protocol))
+	var/local_asset = extra_data?["local_asset"]
+	var/is_http_url = findtext(url, GLOB.is_http_protocol)
+	var/is_registered_local_asset = local_asset && url == local_asset && SSassets.cache[local_asset]?.legacy
+	if(!is_http_url && !is_registered_local_asset)
 		return
 	var/list/payload = list()
 	if(length(extra_data) > 0)

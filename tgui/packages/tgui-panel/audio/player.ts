@@ -12,6 +12,7 @@ type AudioOptions = {
   pitch?: number;
   start?: number;
   end?: number;
+  loop?: boolean;
 };
 
 function isProtectedError(error: ErrorEvent): boolean {
@@ -58,6 +59,7 @@ export class AudioPlayer {
 
     audio.volume = this.volume;
     audio.playbackRate = this.options.pitch || 1;
+    audio.loop = this.options.loop || false;
 
     logger.log('playing', url, options);
 

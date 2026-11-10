@@ -212,7 +212,7 @@ GLOBAL_LIST_EMPTY(cached_songs)
 /client/proc/playtitlemusic()
 	set waitfor = FALSE
 
-	if(!SSticker || CONFIG_GET(flag/disable_lobby_music) || !CONFIG_GET(string/invoke_youtubedl))
+	if(!SSticker || CONFIG_GET(flag/disable_lobby_music))
 		return
 
 	UNTIL(SSticker.login_music_initializated) //wait for SSticker init to set the login music
@@ -223,18 +223,23 @@ GLOBAL_LIST_EMPTY(cached_songs)
 		return
 
 	var/url = SSticker.login_music_data["url"]
-	switch(CONFIG_GET(string/asset_transport))
-		if(ASSET_TRANSPORT_WEBROOT)
-			var/filepath = SSticker.login_music_data["path"]
-			var/datum/asset/music/music_asset = GLOB.cached_songs[filepath]
-			if(!music_asset)
-				var/ytdl = CONFIG_GET(string/invoke_youtubedl)
-				music_asset = new /datum/asset/music(ytdl, SSticker.selected_lobby_music, SSticker.login_music_data["id"])
-				if(!music_asset.item_filename)
-					return
-				GLOB.cached_songs[filepath] = music_asset
+	if(SSticker.login_music_data["local_asset"])
+		var/local_asset = SSticker.login_music_data["local_asset"]
+		SSassets.transport.send_assets(src, local_asset)
+		url = url_decode(SSassets.transport.get_asset_url(local_asset))
+	else
+		switch(CONFIG_GET(string/asset_transport))
+			if(ASSET_TRANSPORT_WEBROOT)
+				var/filepath = SSticker.login_music_data["path"]
+				var/datum/asset/music/music_asset = GLOB.cached_songs[filepath]
+				if(!music_asset)
+					var/ytdl = CONFIG_GET(string/invoke_youtubedl)
+					music_asset = new /datum/asset/music(ytdl, SSticker.selected_lobby_music, SSticker.login_music_data["id"])
+					if(!music_asset.item_filename)
+						return
+					GLOB.cached_songs[filepath] = music_asset
 
-			url = music_asset.get_url()
+				url = music_asset.get_url()
 
 	if(prefs.sound & SOUND_LOBBY)
 		tgui_panel?.play_music(url, SSticker.login_music_data)
