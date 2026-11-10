@@ -588,36 +588,38 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 	return 1
 
 /mob/proc/rename_self(role, allow_numbers = FALSE, force = FALSE)
-	spawn(0)
-		var/oldname = real_name
+	INVOKE_ASYNC(src, PROC_REF(prompt_rename), role, allow_numbers, force)
 
-		var/time_passed = world.time
-		var/newname
+/mob/proc/prompt_rename(role, allow_numbers = FALSE, force = FALSE)
+	var/oldname = real_name
 
-		for(var/i=1,i<=3,i++)	//we get 3 attempts to pick a suitable name.
-			if(force)
-				newname = tgui_input_text(src, "Выберите новое имя.", "Смена имени", oldname)
-			else
-				newname = tgui_input_text(src, "Вы [role]. Не хотите поменять своё имя на другое? У вас есть 3 минуты для выбора нового имени.", "Смена имени", oldname, timeout = 3 MINUTES)
-			if(((world.time - time_passed) > 1800) && !force)
-				tgui_alert(src, "К сожалению, время для выбора имени кончилось. Если вы киборг, используйте команду «Namepick»; иначе — «Adminhelp».", "Смена имени")
-				return	//took too long
-			newname = reject_bad_name(newname,allow_numbers)	//returns null if the name doesn't meet some basic requirements. Tidies up a few other things like bad-characters.
+	var/time_passed = world.time
+	var/newname
 
-			for(var/mob/living/M in GLOB.player_list)
-				if(M == src)
-					continue
-				if(!newname || M.real_name == newname)
-					newname = null
-					break
-			if(newname)
-				break	//That's a suitable name!
-			to_chat(src, "Извините, но это имя не подходит для роли «[role]». Возможно, оно слишком длинное или короткое, содержит неподходящие символы, либо уже занято.")
+	for(var/i=1,i<=3,i++)	//we get 3 attempts to pick a suitable name.
+		if(force)
+			newname = tgui_input_text(src, "Выберите новое имя.", "Смена имени", oldname)
+		else
+			newname = tgui_input_text(src, "Вы [role]. Не хотите поменять своё имя на другое? У вас есть 3 минуты для выбора нового имени.", "Смена имени", oldname, timeout = 3 MINUTES)
+		if(((world.time - time_passed) > 1800) && !force)
+			tgui_alert(src, "К сожалению, время для выбора имени кончилось. Если вы киборг, используйте команду «Namepick»; иначе — «Adminhelp».", "Смена имени")
+			return	//took too long
+		newname = reject_bad_name(newname,allow_numbers)	//returns null if the name doesn't meet some basic requirements. Tidies up a few other things like bad-characters.
 
-		if(!newname)	//we'll stick with the oldname then
-			return
+		for(var/mob/living/M in GLOB.player_list)
+			if(M == src)
+				continue
+			if(!newname || M.real_name == newname)
+				newname = null
+				break
+		if(newname)
+			break	//That's a suitable name!
+		to_chat(src, "Извините, но это имя не подходит для роли «[role]». Возможно, оно слишком длинное или короткое, содержит неподходящие символы, либо уже занято.")
 
-		rename_character(oldname, newname)
+	if(!newname)	//we'll stick with the oldname then
+		return
+
+	rename_character(oldname, newname)
 
 /proc/cultslur(n) // Inflicted on victims of a stun talisman
 	var/phrase = html_decode(n)
