@@ -80,7 +80,7 @@
 			if(new_poll)
 				qdel(poll)
 		return
-	to_chat(usr, span_notice("all clear"))
+	to_chat(usr, span_notice("all clear"), confidential = TRUE)
 	if(submit_ready)
 		var/db = poll.edit_ready //if the poll is new it will need its options inserted for the first time
 		poll.save_poll_data(clear_votes)
@@ -163,7 +163,7 @@
 		else
 			to_chat(usr, span_danger("Not all edits were applied because the following errors were present:\n[error_state.Join("\n")]"), confidential = TRUE)
 		return
-	to_chat(usr, span_notice("all clear"))
+	to_chat(usr, span_notice("all clear"), confidential = TRUE)
 	if(new_option)
 		poll.options += option
 		option.parent_poll = poll

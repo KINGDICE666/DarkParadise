@@ -143,7 +143,7 @@
 			. = TRUE
 		if("copy")
 			usr.client.holder.copied_particles = target.particles.clone()
-			to_chat(usr, span_notice("Частицы [target] скопированы."))
+			to_chat(usr, span_notice("Частицы [target] скопированы."), confidential = TRUE)
 			. = TRUE
 		if("paste")
 			var/particles/copied_particles = usr.client.holder.copied_particles

@@ -364,12 +364,15 @@
  * * spans - Additional classes to be added to the message
  * * language - The language that the message is said in
  */
-/mob/proc/create_chat_message(atom/movable/speaker, raw_message, list/spans, datum/language/language)
+/mob/proc/create_chat_message(atom/movable/speaker, raw_message, list/spans, datum/language/language, in_character = TRUE)
 	if(!SStimer.can_fire || !SSrunechat.can_fire)
 		return
 
 	// Ensure the list we are using, if present, is a copy so we don't modify the list provided to us
 	spans = spans ? spans.Copy() : null
+
+	if(in_character)
+		raw_message = distort_perceived_text(raw_message)
 
 	// Display visual above source
 	new /datum/chatmessage(raw_message, speaker, src, language, spans)

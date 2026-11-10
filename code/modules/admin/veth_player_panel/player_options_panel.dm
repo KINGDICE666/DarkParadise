@@ -119,7 +119,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(vuap_personal, R_ADMIN|R_MOD, "Open TGUI PP", /mob)
 			return
 		if("ban")
 			if(!ui.user.client.selectedPlayerCkey)
-				to_chat(usr, "No client inside!")
+				to_chat(usr, "No client inside!", confidential = TRUE)
 				return
 			if(!check_rights(R_BAN))
 				return
@@ -127,7 +127,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(vuap_personal, R_ADMIN|R_MOD, "Open TGUI PP", /mob)
 			return
 		if("jobban")
 			if(!ui.user.client.selectedPlayerCkey)
-				to_chat(usr, "No client inside!")
+				to_chat(usr, "No client inside!", confidential = TRUE)
 				return
 			if(!check_rights(R_BAN))
 				return
@@ -135,7 +135,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(vuap_personal, R_ADMIN|R_MOD, "Open TGUI PP", /mob)
 			return
 		if("appban")
 			if(!ui.user.client.selectedPlayerCkey)
-				to_chat(usr, "No client inside!")
+				to_chat(usr, "No client inside!", confidential = TRUE)
 				return
 			if(!check_rights(R_BAN))
 				return
@@ -143,7 +143,7 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(vuap_personal, R_ADMIN|R_MOD, "Open TGUI PP", /mob)
 			return
 		if("watchlist")
 			if(!ui.user.client.selectedPlayerCkey)
-				to_chat(usr, "No client inside!")
+				to_chat(usr, "No client inside!", confidential = TRUE)
 				return
 			usr.client.watchlist_add(ui.user.client.selectedPlayerCkey)
 			return

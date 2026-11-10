@@ -225,14 +225,14 @@
 	if(is_already_whitelisted)
 		var/confirm = tgui_alert(usr, "[target_ckey] is already whitelisted. Remove them?", "Confirm Removal", list("No", "Yes"))
 		if(!confirm || confirm != "Yes")
-			to_chat(usr, "VPN whitelist alteration cancelled.")
+			to_chat(usr, "VPN whitelist alteration cancelled.", confidential = TRUE)
 			return
 		else if(vpn_whitelist_remove(target_ckey))
-			to_chat(usr, "[target_ckey] was removed from the VPN whitelist.")
+			to_chat(usr, "[target_ckey] was removed from the VPN whitelist.", confidential = TRUE)
 		else
-			to_chat(usr, "VPN whitelist unchanged.")
+			to_chat(usr, "VPN whitelist unchanged.", confidential = TRUE)
 	else
 		if(vpn_whitelist_add(target_ckey))
-			to_chat(usr, "[target_ckey] was added to the VPN whitelist.")
+			to_chat(usr, "[target_ckey] was added to the VPN whitelist.", confidential = TRUE)
 		else
-			to_chat(usr, "VPN whitelist unchanged.")
+			to_chat(usr, "VPN whitelist unchanged.", confidential = TRUE)
