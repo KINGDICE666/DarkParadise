@@ -16,8 +16,8 @@
 	return server
 
 /obj/machinery/netpod/proc/enter_matrix()
-	var/mob/living/carbon/human/pilot = occupant
-	if(!ishuman(pilot) || pilot.stat == DEAD || isnull(pilot.mind))
+	var/mob/living/pilot = occupant
+	if(!can_enter(pilot) || pilot.stat != CONSCIOUS || isnull(pilot.mind))
 		balloon_alert(pilot, "неподходящий пользователь")
 		open_machine()
 		return
@@ -37,7 +37,7 @@
 	var/hardcore = server.hardcore
 	var/attempt_number = connection_attempt
 	if(hardcore)
-		var/choice = tgui_alert(pilot, "Домен работает в режиме HRDM. Смерть аватара мгновенно убьёт ваше тело в капсуле. Подключиться?", "HRDM: смертельный риск", list("Подключиться", "Отмена"))
+		var/choice = tgui_alert(pilot, "Домен работает в режиме HRDM. Смерть аватара мгновенно [isrobot(pilot) ? "уничтожит ядро ИИ" : "убьёт ваше тело в капсуле"]. Подключиться?", "HRDM: смертельный риск", list("Подключиться", "Отмена"))
 		if(QDELETED(src) || connection_attempt != attempt_number || occupant != pilot || state_open)
 			return
 		if(choice != "Подключиться" || QDELETED(server) || !is_operational() || server.generated_domain != selected_domain || !server.is_ready)
@@ -83,8 +83,8 @@
 	connected = TRUE
 	update_icon(UPDATE_ICON_STATE)
 
-/obj/machinery/netpod/proc/add_healing(mob/living/carbon/target)
-	if(target != occupant)
+/obj/machinery/netpod/proc/add_healing(mob/living/target)
+	if(target != occupant || !iscarbon(target))
 		return
 
 	target.AddComponent(/datum/component/netpod_healing, src)
@@ -95,7 +95,7 @@
 	if(QDELETED(pilot) || QDELETED(avatar) || QDELETED(src) || !is_operational())
 		return FALSE
 
-	if(occupant != pilot || isnull(pilot.mind) || pilot.stat != CONSCIOUS || avatar.stat == DEAD)
+	if(occupant != pilot || !can_enter(pilot) || isnull(pilot.mind) || pilot.stat != CONSCIOUS || avatar.stat == DEAD)
 		return FALSE
 
 	return TRUE
@@ -110,7 +110,7 @@
 	connected = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
-	var/mob/living/carbon/pilot = occupant
+	var/mob/living/pilot = occupant
 	if(isnull(pilot) || pilot.stat == DEAD)
 		open_machine()
 		return
@@ -132,8 +132,15 @@
 	var/obj/machinery/quantum_server/server = find_server()
 	var/damage = BASE_DISCONNECT_DAMAGE * (1 - (server ? server.servo_bonus : 0))
 
+	if(isrobot(pilot))
+		var/mob/living/silicon/robot/robot = pilot
+		robot.mainframe?.adjustBruteLoss(damage)
+		to_chat(pilot, span_userdanger("Аварийное отключение от домена повредило ядро ИИ!"))
+		return
+
+	var/mob/living/carbon/carbon_pilot = pilot
 	pilot.flash_eyes(visual = TRUE)
-	pilot.adjust_organ_loss(INTERNAL_ORGAN_BRAIN, damage, BASE_DISCONNECT_DAMAGE)
+	carbon_pilot.adjust_organ_loss(INTERNAL_ORGAN_BRAIN, damage, BASE_DISCONNECT_DAMAGE)
 	INVOKE_ASYNC(pilot, TYPE_PROC_REF(/mob/living, emote), "scream")
 	to_chat(pilot, span_userdanger("Вас насильно отключили от аватара! Мысли путаются!"))
 

@@ -10,7 +10,7 @@
 	max_integrity = 300
 	idle_power_usage = 100
 	active_power_usage = 500
-	var/mob/living/carbon/occupant
+	var/mob/living/occupant
 	var/state_open = TRUE
 	var/connected = FALSE
 	var/connection_attempt = 0
@@ -75,6 +75,7 @@
 		return
 
 	. += span_notice("Затащите себя в капсулу, чтобы установить связь.")
+	. += span_notice("ИИ может подключиться через управляемую оболочку борга. Урон аватара повреждает ядро ИИ.")
 	. += span_notice("Капсула поддерживает тело в стазисе и понемногу лечит его.")
 	. += span_notice("Сканер внешности [copy_body ? "включён: аватар будет копировать ваше тело" : "выключен: аватар получит случайное тело"]. Alt-клик переключает.")
 	. += span_notice("Нажмите на открытую капсулу, чтобы выбрать облик снаряжения аватара.")
@@ -102,7 +103,7 @@
 	icon_state = "[base_icon_state]_closed[occupant ? "_active" : ""]"
 
 /obj/machinery/netpod/mouse_drop_receive(atom/dropped, mob/user, params)
-	if(!iscarbon(dropped) || dropped != user)
+	if(!can_enter(dropped) || dropped != user)
 		return
 
 	if(!state_open || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
@@ -279,8 +280,18 @@
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
 	update_icon(UPDATE_ICON_STATE)
 
-/obj/machinery/netpod/proc/close_machine(mob/living/carbon/target)
-	if(!state_open || panel_open || !is_operational() || !iscarbon(target))
+/// Only crew and actively piloted AI shells can occupy a netpod.
+/obj/machinery/netpod/proc/can_enter(mob/target)
+	if(ishuman(target))
+		return TRUE
+	if(!isrobot(target))
+		return FALSE
+
+	var/mob/living/silicon/robot/robot = target
+	return robot.shell && robot.deployed && !QDELETED(robot.mainframe) && robot.mainframe.stat == CONSCIOUS
+
+/obj/machinery/netpod/proc/close_machine(mob/living/target)
+	if(!state_open || panel_open || !is_operational() || !can_enter(target))
 		return
 
 	target.forceMove(src)
@@ -304,7 +315,7 @@
 	playsound(src, 'sound/machines/podopen.ogg', 60, TRUE)
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_NETPOD_OPENED)
 
-	var/mob/living/carbon/leaving = occupant
+	var/mob/living/leaving = occupant
 	occupant = null
 	leaving?.forceMove(loc)
 
