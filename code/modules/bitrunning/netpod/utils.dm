@@ -62,6 +62,10 @@
 		open_machine()
 		return
 
+	if(!can_enter(pilot) || pilot.stat != CONSCIOUS || isnull(pilot.mind) || isnull(pilot.key))
+		open_machine()
+		return
+
 	var/mob/living/carbon/human/avatar = avatar_ref?.resolve()
 	if(isnull(avatar) || avatar.stat != CONSCIOUS)
 		avatar = server.start_new_connection(pilot, copy_body, netsuit)
@@ -78,7 +82,8 @@
 		return
 
 	avatar_ref = WEAKREF(avatar)
-	avatar.AddComponent(/datum/component/avatar_connection, pilot, server, src)
+	var/connection_type = isrobot(pilot) ? /datum/component/avatar_connection/ai : /datum/component/avatar_connection
+	avatar.AddComponent(connection_type, pilot, server, src)
 
 	connected = TRUE
 	update_icon(UPDATE_ICON_STATE)
@@ -106,7 +111,7 @@
 
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_NETPOD_SEVER)
 
-/obj/machinery/netpod/proc/disconnect_occupant(cause_damage = FALSE)
+/obj/machinery/netpod/proc/disconnect_occupant(cause_damage = FALSE, mob/living/damage_body)
 	connected = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
@@ -126,19 +131,19 @@
 	var/heal_time = pilot.health < pilot.maxHealth ? 30 SECONDS : 2 SECONDS
 	addtimer(CALLBACK(src, PROC_REF(auto_disconnect)), heal_time, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
 
-	if(!cause_damage)
+	if(!cause_damage || QDELETED(damage_body))
 		return
 
 	var/obj/machinery/quantum_server/server = find_server()
 	var/damage = BASE_DISCONNECT_DAMAGE * (1 - (server ? server.servo_bonus : 0))
 
-	if(isrobot(pilot))
-		var/mob/living/silicon/robot/robot = pilot
-		robot.mainframe?.adjustBruteLoss(damage)
+	// The connection supplies its damage target: a human body or the remote AI core.
+	if(!iscarbon(damage_body))
+		damage_body?.adjustBruteLoss(damage)
 		to_chat(pilot, span_userdanger("Аварийное отключение от домена повредило ядро ИИ!"))
 		return
 
-	var/mob/living/carbon/carbon_pilot = pilot
+	var/mob/living/carbon/carbon_pilot = damage_body
 	pilot.flash_eyes(visual = TRUE)
 	carbon_pilot.adjust_organ_loss(INTERNAL_ORGAN_BRAIN, damage, BASE_DISCONNECT_DAMAGE)
 	INVOKE_ASYNC(pilot, TYPE_PROC_REF(/mob/living, emote), "scream")

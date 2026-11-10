@@ -6,15 +6,13 @@
 	var/datum/weakref/old_body_ref
 	var/datum/weakref/old_mind_ref
 	var/datum/weakref/server_ref
-	/// Core taking damage when the pilot is an AI shell.
-	var/datum/weakref/ai_core_ref
 	var/disconnecting = FALSE
 	var/nohit = TRUE
 	var/hardcore = FALSE
 	var/obj/machinery/camera/portable/no_ai/bodycam
 
 /datum/component/avatar_connection/Initialize(mob/living/old_body, obj/machinery/quantum_server/server, obj/machinery/netpod/pod)
-	if(!isliving(parent) || !isliving(old_body) || isnull(old_body.key))
+	if(!isliving(parent) || !isliving(old_body) || isnull(old_body.key) || isnull(old_body.mind))
 		return COMPONENT_INCOMPATIBLE
 
 	if(!server.is_operational() || !pod.is_operational())
@@ -28,8 +26,6 @@
 	server_ref = WEAKREF(server)
 	server.avatar_connection_refs += WEAKREF(src)
 	server.domain_entered = TRUE
-	if(isrobot(old_body))
-		connect_ai_shell(old_body)
 
 	hardcore = server.hardcore
 
@@ -38,8 +34,7 @@
 	if(isnull(avatar.mind))
 		avatar.mind_initialize()
 
-	RegisterSignals(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(on_sever_connection))
-	RegisterSignal(old_body, COMSIG_MOB_STATCHANGE, PROC_REF(on_pilot_stat_change))
+	register_pilot_signals(old_body)
 	RegisterSignal(pod, COMSIG_BITRUNNER_CROWBAR_ALERT, PROC_REF(on_netpod_crowbar))
 	RegisterSignal(pod, COMSIG_BITRUNNER_NETPOD_INTEGRITY, PROC_REF(on_netpod_damaged))
 	RegisterSignal(pod, COMSIG_BITRUNNER_NETPOD_SEVER, PROC_REF(on_sever_connection))
@@ -63,19 +58,27 @@
 	avatar.EyeBlind(1 SECONDS)
 	to_chat(avatar, span_notice("Соединение установлено. [server.generated_domain.help_text]"))
 	if(hardcore)
-		to_chat(avatar, span_userdanger("HRDM: смерть аватара мгновенно [ai_core_ref ? "уничтожит ядро ИИ" : "убьёт ваше тело в капсуле"]!"))
+		to_chat(avatar, span_userdanger(get_death_warning()))
 
-/// Track the core separately from the shell physically occupying the pod.
-/datum/component/avatar_connection/proc/connect_ai_shell(mob/living/silicon/robot/robot)
-	ai_core_ref = WEAKREF(robot.mainframe)
-	RegisterSignal(robot.mainframe, COMSIG_QDELETING, PROC_REF(on_sever_connection))
-	RegisterSignal(robot.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_shell_recalled))
+/// Disconnect before deletion starts, while weakrefs and the pilot's mind are still usable.
+/datum/component/avatar_connection/proc/register_pilot_signals(mob/living/pilot)
+	RegisterSignals(pilot, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_PREQDELETED), PROC_REF(on_sever_connection))
+	RegisterSignal(pilot, COMSIG_MOB_STATCHANGE, PROC_REF(on_pilot_stat_change))
+
+/datum/component/avatar_connection/proc/get_damage_body()
+	return old_body_ref?.resolve()
+
+/datum/component/avatar_connection/proc/get_return_body()
+	return old_body_ref?.resolve()
+
+/datum/component/avatar_connection/proc/get_death_warning()
+	return "HRDM: смерть аватара мгновенно убьёт ваше тело в капсуле!"
 
 /datum/component/avatar_connection/Destroy(force)
 	var/mob/living/old_body = old_body_ref?.resolve()
 	if(old_body)
 		REMOVE_TRAIT(old_body, TRAIT_MIND_TEMPORARILY_GONE, NETPOD_TRAIT)
-		UnregisterSignal(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING, COMSIG_MOB_STATCHANGE))
+		UnregisterSignal(old_body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_PREQDELETED, COMSIG_MOB_STATCHANGE))
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
 	if(pod)
@@ -85,13 +88,6 @@
 	if(server)
 		UnregisterSignal(server, list(COMSIG_BITRUNNER_DOMAIN_COMPLETE, COMSIG_BITRUNNER_QSRV_SEVER, COMSIG_BITRUNNER_SHUTDOWN_ALERT, COMSIG_BITRUNNER_THREAT_CREATED, COMSIG_BITRUNNER_BROADCAST_TOGGLED))
 
-	var/mob/living/silicon/ai/core = ai_core_ref?.resolve()
-	if(core)
-		UnregisterSignal(core, COMSIG_QDELETING)
-	var/datum/mind/old_mind = old_mind_ref?.resolve()
-	if(old_mind && ai_core_ref)
-		UnregisterSignal(old_mind, COMSIG_MIND_TRANSER_TO)
-	ai_core_ref = null
 	stop_broadcast()
 
 	netpod_ref = null
@@ -134,10 +130,11 @@
 	if(disconnecting)
 		return
 	disconnecting = TRUE
+	var/mob/living/damage_body = get_damage_body()
 	return_to_old_body()
 
 	var/obj/machinery/netpod/pod = netpod_ref?.resolve()
-	pod?.disconnect_occupant(cause_damage)
+	pod?.disconnect_occupant(cause_damage, damage_body)
 
 	var/obj/machinery/quantum_server/server = server_ref?.resolve()
 	if(server)
@@ -147,7 +144,7 @@
 
 /datum/component/avatar_connection/proc/return_to_old_body()
 	var/mob/living/avatar = parent
-	var/mob/living/old_body = old_body_ref?.resolve()
+	var/mob/living/old_body = get_return_body()
 	var/datum/mind/old_mind = old_mind_ref?.resolve()
 
 	if(isnull(old_body) || isnull(old_mind))
@@ -161,24 +158,10 @@
 		ghost.mind = old_mind
 		player_key = ghost.key
 
-	if(ai_core_ref && old_mind.current)
-		old_body = old_mind.current
 	old_body.possess_by_player(player_key)
 
 /datum/component/avatar_connection/proc/on_linked_damage(datum/source, damage, damagetype, def_zone, blocked, sharp, used_weapon, spread_damage, forced)
 	SIGNAL_HANDLER
-
-	if(ai_core_ref && !hardcore)
-		var/mob/living/silicon/ai/core = ai_core_ref.resolve()
-		if(isnull(core))
-			full_avatar_disconnect()
-			return
-		if(damage <= 0 || damagetype == STAMINA || damagetype == OXY)
-			return
-		nohit = FALSE
-		// Organic damage types must also reduce core integrity; AI cores ignore toxins.
-		core.apply_damage(damage, damagetype == BURN ? BURN : BRUTE, blocked = blocked, forced = TRUE)
-		return
 
 	if(hardcore)
 		if(damage > 0 && damagetype != STAMINA)
@@ -303,10 +286,8 @@
 /datum/component/avatar_connection/proc/on_avatar_death(datum/source)
 	SIGNAL_HANDLER
 
-	var/mob/living/old_body = old_body_ref?.resolve()
+	var/mob/living/old_body = get_damage_body()
 	var/kill_pilot = hardcore
-	if(ai_core_ref)
-		old_body = ai_core_ref.resolve()
 	full_avatar_disconnect(cause_damage = !kill_pilot)
 	if(kill_pilot)
 		old_body?.death()
@@ -325,11 +306,6 @@
 
 	new_character.TakeComponent(src)
 
-/datum/component/avatar_connection/proc/on_shell_recalled(datum/mind/source, mob/living/new_character)
-	SIGNAL_HANDLER
-
-	full_avatar_disconnect()
-
 /datum/component/avatar_connection/proc/on_pilot_stat_change(datum/source, new_stat, old_stat)
 	SIGNAL_HANDLER
 
@@ -340,3 +316,65 @@
 
 #undef SCREAM_DAMAGE_THRESHOLD
 #undef SCREAM_PROBABILITY
+
+/// An AI still occupies the pod through its shell, but risks its remote core.
+/datum/component/avatar_connection/ai
+	var/datum/weakref/ai_core_ref
+
+/datum/component/avatar_connection/ai/Initialize(mob/living/silicon/robot/old_body, obj/machinery/quantum_server/server, obj/machinery/netpod/pod)
+	if(!isrobot(old_body) || !old_body.shell || !old_body.deployed || QDELETED(old_body.mainframe))
+		return COMPONENT_INCOMPATIBLE
+
+	ai_core_ref = WEAKREF(old_body.mainframe)
+	return ..()
+
+/datum/component/avatar_connection/ai/register_pilot_signals(mob/living/pilot)
+	..()
+	RegisterSignal(ai_core_ref.resolve(), COMSIG_PREQDELETED, PROC_REF(on_sever_connection))
+	RegisterSignal(pilot.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_shell_recalled))
+
+/datum/component/avatar_connection/ai/Destroy(force)
+	var/mob/living/silicon/ai/core = ai_core_ref?.resolve()
+	if(core)
+		UnregisterSignal(core, COMSIG_PREQDELETED)
+	var/datum/mind/old_mind = old_mind_ref?.resolve()
+	if(old_mind)
+		UnregisterSignal(old_mind, COMSIG_MIND_TRANSER_TO)
+	ai_core_ref = null
+	return ..()
+
+/datum/component/avatar_connection/ai/get_damage_body()
+	return ai_core_ref?.resolve()
+
+/datum/component/avatar_connection/ai/get_return_body()
+	var/datum/mind/old_mind = old_mind_ref?.resolve()
+	return old_mind?.current
+
+/datum/component/avatar_connection/ai/get_death_warning()
+	return "HRDM: смерть аватара мгновенно уничтожит ядро ИИ!"
+
+/datum/component/avatar_connection/ai/on_linked_damage(datum/source, damage, damagetype, def_zone, blocked, sharp, used_weapon, spread_damage, forced)
+
+	if(hardcore)
+		return ..()
+
+	if(damage <= 0 || damagetype == STAMINA || damagetype == OXY)
+		return
+
+	var/mob/living/silicon/ai/core = get_damage_body()
+	if(isnull(core))
+		full_avatar_disconnect()
+		return
+
+	var/linked_damage = forced ? damage : damage * ((100 - clamp(blocked, 0, 100)) / 100)
+	if(linked_damage <= 0)
+		return
+
+	nohit = FALSE
+	// Organic damage types must also reduce core integrity; AI cores ignore toxins.
+	core.apply_damage(linked_damage, damagetype == BURN ? BURN : BRUTE, forced = TRUE)
+
+/datum/component/avatar_connection/ai/proc/on_shell_recalled(datum/mind/source, mob/living/new_character)
+	SIGNAL_HANDLER
+
+	full_avatar_disconnect()

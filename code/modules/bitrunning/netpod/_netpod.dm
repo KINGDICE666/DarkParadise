@@ -288,7 +288,7 @@
 		return FALSE
 
 	var/mob/living/silicon/robot/robot = target
-	return robot.shell && robot.deployed && !QDELETED(robot.mainframe) && robot.mainframe.stat == CONSCIOUS
+	return robot.shell && robot.deployed && !QDELETED(robot.mainframe) && robot.mainframe.stat == CONSCIOUS && robot.mainframe.deployed_shell == robot
 
 /obj/machinery/netpod/proc/close_machine(mob/living/target)
 	if(!state_open || panel_open || !is_operational() || !can_enter(target))

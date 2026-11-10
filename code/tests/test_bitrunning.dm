@@ -197,8 +197,6 @@
 	old_body_ref = WEAKREF(old_body)
 	old_mind_ref = WEAKREF(old_body.mind)
 	src.hardcore = hardcore
-	if(isrobot(old_body))
-		connect_ai_shell(old_body)
 
 /datum/unit_test/room_test/bitrunning_hardcore_death/Run()
 	for(var/hardcore in list(FALSE, TRUE))
@@ -483,29 +481,51 @@
 	TEST_ASSERT(!QDELETED(projectile), "the passthrough projectile was consumed by a teammate")
 	TEST_ASSERT(teammate in projectile.permutated, "the passthrough projectile did not skip the teammate")
 
+/// Exercise the production pilot signals without requiring a connected client or loaded domain.
+/datum/component/avatar_connection/ai/bitrunning_test
+	var/datum/weakref/returned_body_ref
+	var/returned_before_deletion = FALSE
+
+/datum/component/avatar_connection/ai/bitrunning_test/Initialize(mob/living/silicon/robot/old_body, hardcore = FALSE)
+	old_body_ref = WEAKREF(old_body)
+	old_mind_ref = WEAKREF(old_body.mind)
+	ai_core_ref = WEAKREF(old_body.mainframe)
+	src.hardcore = hardcore
+	register_pilot_signals(old_body)
+
+/datum/component/avatar_connection/ai/bitrunning_test/return_to_old_body()
+	var/mob/living/return_body = get_return_body()
+	returned_before_deletion = !QDELETED(return_body)
+	returned_body_ref = WEAKREF(return_body)
+
+/datum/unit_test/room_test/bitrunning_ai_shell/proc/deploy_shell(mob/living/silicon/ai/core, mob/living/silicon/robot/robot)
+	core.mind_initialize()
+	core.deployed_shell = robot
+	robot.deploy_init(core)
+	core.mind.transfer_to(robot)
+
 /datum/unit_test/room_test/bitrunning_ai_shell/Run()
 	var/turf/anchor = run_loc_floor_bottom_left
 	var/obj/machinery/netpod/pod = allocate(/obj/machinery/netpod, anchor)
 	var/mob/living/carbon/human/human = allocate(/mob/living/carbon/human, anchor)
-	var/mob/living/silicon/robot/robot = allocate(/mob/living/silicon/robot, anchor)
+	var/mob/living/silicon/robot/ordinary_robot = allocate(/mob/living/silicon/robot, anchor)
+	var/mob/living/silicon/robot/shell/robot = allocate(/mob/living/silicon/robot/shell, anchor)
 	var/mob/living/silicon/ai/core = allocate(/mob/living/silicon/ai, anchor, null, null, TRUE)
 	TEST_ASSERT(pod.can_enter(human), "netpods stopped accepting humans")
-	TEST_ASSERT(!pod.can_enter(robot), "netpod accepted an ordinary cyborg")
+	TEST_ASSERT(!pod.can_enter(ordinary_robot), "netpod accepted an ordinary cyborg")
 	TEST_ASSERT(!pod.can_enter(core), "AI could bypass the shell and enter a netpod remotely")
-
-	robot.shell = TRUE
 	TEST_ASSERT(!pod.can_enter(robot), "netpod accepted an unpiloted shell")
-	robot.mainframe = core
-	robot.deployed = TRUE
-	core.deployed_shell = robot
-	robot.mind_initialize()
-	TEST_ASSERT(pod.can_enter(robot), "netpod rejected an AI-piloted shell")
 
+	deploy_shell(core, robot)
+	TEST_ASSERT(pod.can_enter(robot), "netpod rejected an AI-piloted shell")
 	var/mob/living/carbon/human/avatar = allocate(/mob/living/carbon/human, anchor)
-	var/datum/component/avatar_connection/connection = avatar.AddComponent(/datum/component/avatar_connection/bitrunning_test, robot)
+	var/datum/component/avatar_connection/ai/bitrunning_test/connection = avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, robot)
 	var/core_brute = core.getBruteLoss()
 	var/core_burn = core.getFireLoss()
-	avatar.apply_damage(10, BRUTE)
+	avatar.apply_damage(20, BRUTE, blocked = 100)
+	TEST_ASSERT_EQUAL(core.getBruteLoss(), core_brute, "a fully blocked hit injured the AI core")
+	TEST_ASSERT(connection.nohit, "a fully blocked hit invalidated the no-hit bonus")
+	avatar.apply_damage(20, BRUTE, blocked = 50)
 	avatar.apply_damage(5, BURN)
 	avatar.apply_damage(3, TOX)
 	TEST_ASSERT_EQUAL(core.getBruteLoss(), core_brute + 13, "avatar brute and toxin damage did not reach the AI core")
@@ -518,17 +538,35 @@
 
 	robot.undeploy()
 	TEST_ASSERT(QDELETED(connection), "recalling the AI shell left its avatar connected")
+	TEST_ASSERT_EQUAL(connection.returned_body_ref?.resolve(), core, "recalling the shell did not return control to the core")
 	TEST_ASSERT_EQUAL(core.mind.current, core, "recalling the shell lost the AI mind")
 
+	deploy_shell(core, robot)
+	connection = avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, robot)
+	SEND_SIGNAL(avatar, COMSIG_BITRUNNER_LADDER_SEVER)
+	TEST_ASSERT(QDELETED(connection), "leaving through a hololadder left the connection active")
+	TEST_ASSERT_EQUAL(connection.returned_body_ref?.resolve(), robot, "a safe exit did not return control to the shell")
+
+	connection = avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, robot)
+	// Signal the core's deletion before Destroy; avoid unrelated AI shutdown side effects.
+	SEND_SIGNAL(core, COMSIG_PREQDELETED)
+	TEST_ASSERT(QDELETED(connection), "removing the core left its avatar connected")
+	TEST_ASSERT_EQUAL(connection.returned_body_ref?.resolve(), robot, "core removal did not release control to the shell")
+
+	connection = avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, robot)
+	var/datum/mind/ai_mind = robot.mind
+	qdel(robot)
+	TEST_ASSERT(QDELETED(connection), "deleting the shell left its avatar connected")
+	TEST_ASSERT_EQUAL(ai_mind.current, core, "shell deletion failed to evacuate the AI mind")
+	TEST_ASSERT(connection.returned_before_deletion, "shell deletion disconnected too late to return player control")
+	TEST_ASSERT_NULL(connection.returned_body_ref?.resolve(), "the connection kept a deleted shell alive")
+
 	for(var/hardcore in list(FALSE, TRUE))
-		robot.mainframe = core
-		robot.deployed = TRUE
-		core.deployed_shell = robot
-		core.mind.transfer_to(robot)
+		var/mob/living/silicon/ai/next_core = allocate(/mob/living/silicon/ai, anchor, null, null, TRUE)
+		var/mob/living/silicon/robot/shell/next_shell = allocate(/mob/living/silicon/robot/shell, anchor)
+		deploy_shell(next_core, next_shell)
 		var/mob/living/carbon/human/next_avatar = allocate(/mob/living/carbon/human, anchor)
-		next_avatar.AddComponent(/datum/component/avatar_connection/bitrunning_test, robot, hardcore)
+		next_avatar.AddComponent(/datum/component/avatar_connection/ai/bitrunning_test, next_shell, hardcore)
 		next_avatar.death()
-		TEST_ASSERT_EQUAL(core.stat == DEAD, hardcore, "AI core death did not respect HRDM")
-		TEST_ASSERT(robot.stat != DEAD, "HRDM killed the AI shell instead of its core")
-		if(!hardcore)
-			robot.undeploy()
+		TEST_ASSERT_EQUAL(next_core.stat == DEAD, hardcore, "AI core death did not respect HRDM")
+		TEST_ASSERT(next_shell.stat != DEAD, "HRDM killed the AI shell instead of its core")
