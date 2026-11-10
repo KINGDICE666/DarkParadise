@@ -1,9 +1,9 @@
 /datum/unit_test/garble_html/Run()
-	var/html = "<span class='warning'>Ничто не остановит &amp; тебя</span><br><a href='?src=1'>ссылка</a>"
+	var/html = "<span class='warning'>Ничто не остановит &amp; тебя</span><br><a href='byond://?src=1'>ссылка</a>"
 	TEST_ASSERT_EQUAL(garble_html(html, 0), html, "garble_html() changed the text at zero probability")
 
 	var/garbled = garble_html(html, 100)
-	for(var/markup in list("<span class='warning'>", "&amp;", "</span><br><a href='?src=1'>", "</a>"))
+	for(var/markup in list("<span class='warning'>", "&amp;", "</span><br><a href='byond://?src=1'>", "</a>"))
 		TEST_ASSERT_SUBSTRING(garbled, markup)
 
 	var/static/regex/markup_regex = regex(@"<[^>]*>|&#?\w+;", "g")
@@ -28,7 +28,7 @@
 	TEST_ASSERT_NOTEQUAL(scramble_words(repeat_string(10, "[sentence] "), 100), repeat_string(10, "[sentence] "), "scramble_words() left the text untouched at full probability")
 
 	var/word_garbled = garble_html(html, 0, 100)
-	for(var/markup in list("<span class='warning'>", "&amp;", "</span><br><a href='?src=1'>", "</a>"))
+	for(var/markup in list("<span class='warning'>", "&amp;", "</span><br><a href='byond://?src=1'>", "</a>"))
 		TEST_ASSERT_SUBSTRING(word_garbled, markup)
 	var/long_html = "<b>[repeat_string(10, "[sentence] ")]</b>"
 	TEST_ASSERT_NOTEQUAL(garble_html(long_html, 0, 100), long_html, "garble_html() did not pass word distortion through")

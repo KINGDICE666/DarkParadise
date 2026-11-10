@@ -65,7 +65,7 @@ I'm using this for Stat to give it a more nifty interface to work with
 
 /mob/living/carbon/brain/proc/get_held_brain()
 	var/obj/item/mmi/mmi = container
-	return istype(loc, /obj/item/organ/internal/brain) ? loc : mmi?.held_brain
+	return is_internal_organ_brain(loc) ? loc : mmi?.held_brain
 
 /mob/living/carbon/brain/get_perception_distortion()
 	var/obj/item/organ/internal/brain/brain = get_held_brain()
