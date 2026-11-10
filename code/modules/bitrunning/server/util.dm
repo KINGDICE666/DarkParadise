@@ -115,17 +115,18 @@
 	var/datum/antagonist/bitrunning_glitch/antag_datum = person.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch)
 	antag_datum?.convert_agent()
 
-/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
+/obj/machinery/quantum_server/proc/start_new_connection(mob/living/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/obj/structure/hololadder/entry_point = get_avatar_destination()
 	if(isnull(entry_point))
 		return
 
 	return generate_avatar(get_turf(entry_point), pilot, copy_body, netsuit)
 
-/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
+/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/mob/living/carbon/human/avatar = new(destination)
-	if(copy_body)
-		pilot.dna.transfer_identity(avatar)
+	if(copy_body && ishuman(pilot))
+		var/mob/living/carbon/human/human_pilot = pilot
+		human_pilot.dna.transfer_identity(avatar)
 	else
 		avatar.scramble_appearance()
 
@@ -181,7 +182,7 @@
 	stock_gear(avatar, pilot)
 	return avatar
 
-/obj/machinery/quantum_server/proc/stock_gear(mob/living/carbon/human/avatar, mob/living/carbon/human/pilot)
+/obj/machinery/quantum_server/proc/stock_gear(mob/living/carbon/human/avatar, mob/living/pilot)
 	var/domain_flags = generated_domain.domain_flags
 	var/list/forbidden = list()
 	if(domain_flags & DOMAIN_FORBIDS_ITEMS)
