@@ -1,5 +1,6 @@
 /obj/item/organ/internal/cyberimp/leg
 	name = "leg implant"
+	cyber_cost = 12
 	desc = "You shouldn't see this! Adminhelp and report this as an issue on github!"
 	parent_organ_zone = BODY_ZONE_R_LEG
 	icon_state = "implant-leg"
@@ -95,6 +96,7 @@
 //------------dash boots implant
 /obj/item/organ/internal/cyberimp/leg/jumpboots
 	name = "jumpboots implant"
+	cyber_cost = 15
 	desc = "An implant with a specialized propulsion system for rapid foward movement."
 	implant_type = "jumpboots"
 	var/datum/action/bhop/implant_ability

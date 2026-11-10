@@ -20,6 +20,7 @@ const WINDOW_WIDTH = 480;
 const WINDOW_DEFAULT_HEIGHT = 680;
 const WINDOW_MIN_HEIGHT = 240;
 const WINDOW_RESIZE_THRESHOLD = 4;
+const CAPACITY_CELL = 5;
 
 type Disease = {
   form: string;
@@ -79,6 +80,13 @@ type Implant = {
   kind: string;
   status: string;
   failed: BooleanLike;
+  cost?: number;
+};
+
+type Cyber = {
+  capacity: number;
+  load: number;
+  max: number;
 };
 
 type Data = {
@@ -89,6 +97,7 @@ type Data = {
   nutrition: Nutrition;
   diet: DietNote[];
   implants: Implant[];
+  cyber: Cyber;
   health_history: number[];
   pulse_history: number[];
   history_length: number;
@@ -254,22 +263,22 @@ const VitalsSection = (props: {
         <DamageCell
           label="Мех."
           value={scan.damageLevels.brute}
-          color="#ff4040"
+          color="#ff5d58"
         />
         <DamageCell
           label="Терм."
           value={scan.damageLevels.burn}
-          color="#ff8000"
+          color="#ff9f1c"
         />
         <DamageCell
           label="Токс."
           value={scan.damageLevels.tox}
-          color="#3cff8c"
+          color="#7dff6a"
         />
         <DamageCell
           label="Удушье"
           value={scan.damageLevels.oxy}
-          color="#40a0ff"
+          color="#5ef6ff"
         />
       </div>
       <Box mt={1}>
@@ -289,8 +298,8 @@ const VitalsSection = (props: {
           history={healthHistory}
           capacity={historyLength}
           maxValue={HEALTH_CHART_MAX}
-          stroke="#3CFF8C"
-          fill="rgba(60, 255, 140, 0.15)"
+          stroke="#F3E600"
+          fill="rgba(243, 230, 0, 0.15)"
         />
         {!!scan.pulse_status && (
           <HistoryChart
@@ -299,8 +308,8 @@ const VitalsSection = (props: {
             history={pulseHistory}
             capacity={historyLength}
             maxValue={PULSE_CHART_MAX}
-            stroke="#FF6E8A"
-            fill="rgba(255, 110, 138, 0.15)"
+            stroke="#5EF6FF"
+            fill="rgba(94, 246, 255, 0.15)"
           />
         )}
       </div>
@@ -393,17 +402,51 @@ const ProblemsSection = (props: { scan: Scan }) => {
   );
 };
 
-const ImplantsSection = (props: { implants: Implant[] }) => {
-  const { implants } = props;
+const CapacityBar = (props: { cyber: Cyber }) => {
+  const { capacity, load, max } = props.cyber;
+  const cells = Math.ceil(max / CAPACITY_CELL);
+
+  return (
+    <div className="BioMonitor__capacity">
+      <div className="BioMonitor__capacityBar">
+        {Array.from({ length: cells }, (_, index) => {
+          const from = index * CAPACITY_CELL;
+          let state = '';
+          if (from < load) {
+            state = from < capacity ? 'used' : 'over';
+          } else if (from < capacity) {
+            state = 'free';
+          }
+          return (
+            <div
+              key={index}
+              className={`BioMonitor__capacityCell ${state ? `BioMonitor__capacityCell--${state}` : ''}`}
+            />
+          );
+        })}
+      </div>
+      <span className="BioMonitor__capacityValue">
+        {load} / {capacity}
+      </span>
+    </div>
+  );
+};
+
+const ImplantsSection = (props: { implants: Implant[]; cyber: Cyber }) => {
+  const { implants, cyber } = props;
 
   return (
     <Section title="Импланты">
+      <CapacityBar cyber={cyber} />
       {implants.map((implant, index) => (
         <div className="BioMonitor__row" key={index}>
           <div>
             <div>{implant.name}</div>
             <div className="BioMonitor__kind">{implant.kind}</div>
           </div>
+          {implant.cost !== undefined && (
+            <span className="BioMonitor__cost">{implant.cost}</span>
+          )}
           <span
             className={`BioMonitor__tag BioMonitor__tag--${implant.failed ? 'bad' : 'good'}`}
           >
@@ -467,7 +510,7 @@ export const BioMonitor = () => {
             <BloodSection scan={scan} exotic={exotic_blood} />
             <NutritionSection nutrition={nutrition} diet={diet} />
             <ProblemsSection scan={scan} />
-            <ImplantsSection implants={implants} />
+            <ImplantsSection implants={implants} cyber={data.cyber} />
           </div>
         )}
       </Window.Content>

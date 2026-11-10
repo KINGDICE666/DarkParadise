@@ -27,6 +27,14 @@
 	. = ..()
 	H.job = ert_job
 
+/datum/outfit/job/centcom/response_team/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	. = ..()
+	if(visualsOnly)
+		return
+	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = new
+	adapter.sensor_mode = SUIT_SENSOR_TRACKING
+	adapter.insert(H, ORGAN_MANIPULATION_NOEFFECT)
+
 //////////////////// COMMANDER ///////////////////
 /datum/outfit/job/centcom/response_team/commander
 	name = "Командир ОБР"

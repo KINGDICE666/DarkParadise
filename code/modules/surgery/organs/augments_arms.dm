@@ -3,6 +3,7 @@
 	desc = "You shouldn't see this! Adminhelp and report this as an issue on github!"
 	parent_organ_zone = BODY_ZONE_R_ARM
 	slot = INTERNAL_ORGAN_R_ARM_DEVICE
+	cyber_cost = 15
 	icon_state = "implant-toolkit"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
@@ -213,6 +214,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gun/laser
 	name = "arm-mounted laser implant"
+	cyber_cost = 30
 	desc = "A variant of the arm cannon implant that fires lethal laser beams. The cannon emerges from the subject's arm and remains inside when not in use."
 	icon_state = "arm_laser"
 	origin_tech = "materials=4;combat=4;biotech=4;powerstorage=4"
@@ -223,6 +225,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gun/taser
 	name = "arm-mounted taser implant"
+	cyber_cost = 22
 	desc = "A variant of the arm cannon implant that fires electrodes and disabler shots. The cannon emerges from the subject's arm and remains inside when not in use."
 	icon_state = "arm_taser"
 	origin_tech = "materials=5;combat=5;biotech=4;powerstorage=4"
@@ -266,6 +269,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/hacking
 	name = "hacking arm implant"
+	cyber_cost = 18
 	desc = "A small arm implant containing an advanced screwdriver, wirecutters, and multitool designed for engineers and on-the-field machine modification. Actually legal, despite what the name may make you think."
 	origin_tech = "materials=3;engineering=4;biotech=3;powerstorage=4;abductor=3"
 	contents = newlist(/obj/item/screwdriver/cyborg, /obj/item/wirecutters/cyborg, /obj/item/multitool/abductor)
@@ -277,12 +281,14 @@
 
 /obj/item/organ/internal/cyberimp/arm/esword
 	name = "arm-mounted energy blade"
+	cyber_cost = 35
 	desc = "An illegal, and highly dangerous cybernetic implant that can project a deadly blade of concentrated enregy."
 	contents = newlist(/obj/item/melee/energy/blade/hardlight)
 	origin_tech = "materials=4;combat=5;biotech=3;powerstorage=2;syndicate=5"
 
 /obj/item/organ/internal/cyberimp/arm/medibeam
 	name = "integrated medical beamgun"
+	cyber_cost = 20
 	desc = "A cybernetic implant that allows the user to project a healing beam from their hand."
 	contents = newlist(/obj/item/gun/medbeam)
 	origin_tech = "materials=5;combat=2;biotech=5;powerstorage=4;syndicate=1"
@@ -291,6 +297,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/flash
 	name = "integrated high-intensity photon projector" //Why not
+	cyber_cost = 12
 	desc = "An integrated projector mounted onto a user's arm, that is able to be used as a powerful flash."
 	contents = newlist(/obj/item/flash/armimplant)
 	origin_tech = "materials=4;combat=3;biotech=4;magnets=4;powerstorage=3"
@@ -316,12 +323,14 @@
 
 /obj/item/organ/internal/cyberimp/arm/baton
 	name = "arm electrification implant"
+	cyber_cost = 20
 	desc = "An illegal combat implant that allows the user to administer disabling shocks from their arm."
 	contents = newlist(/obj/item/borg/stun)
 	origin_tech = "materials=3;combat=5;biotech=4;powerstorage=4;syndicate=3"
 
 /obj/item/organ/internal/cyberimp/arm/combat
 	name = "combat cybernetics implant"
+	cyber_cost = 40
 	desc = "A powerful cybernetic implant that contains combat modules built into the user's arm"
 	contents = newlist(/obj/item/melee/energy/blade/hardlight, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/flash/armimplant)
 	origin_tech = "materials=5;combat=7;biotech=5;powerstorage=5;syndicate=6;programming=5"
@@ -341,6 +350,7 @@
 	emp_proof = 1
 
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade
+	cyber_cost = 30
 	sound_on = 'sound/weapons/wristblades_on.ogg'
 	sound_off = 'sound/weapons/wristblades_off.ogg'
 
@@ -532,6 +542,7 @@
 /obj/item/organ/internal/cyberimp/arm/power_cord
 	species_type = /datum/species/machine
 	name = "APC-compatible power adapter implant"
+	cyber_cost = 4
 	desc = "An implant commonly installed inside IPCs in order to allow them to easily collect energy from their environment"
 	origin_tech = "materials=3;biotech=2;powerstorage=3"
 	contents = newlist(/obj/item/apc_powercord)
@@ -611,6 +622,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/telebaton
 	name = "telebaton implant"
+	cyber_cost = 18
 	desc = "Telescopic baton implant. Does what it says on the tin" // A better description
 
 	contents = newlist(/obj/item/melee/baton)

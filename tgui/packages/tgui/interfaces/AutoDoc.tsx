@@ -15,6 +15,9 @@ type Occupant = {
   oxy: number;
   failureChance: number;
   organFailureChance: number;
+  cyberCapacity: number;
+  cyberLoad: number;
+  hasNeuroadapter: boolean;
 };
 
 type Diagnosis = {
@@ -55,12 +58,16 @@ type OrganBase = {
 
 type PatientOrgan = OrganBase & {
   zone: string;
+  cyberCost: number | null;
   canExtract: boolean;
   canLobotomy: boolean;
   lobotomyQueued: boolean;
 };
 
 type TrayOrgan = OrganBase & {
+  cyberCost: number | null;
+  cyberFreed: number;
+  overCapacity: boolean;
   canInstall: boolean;
   needsModule: boolean;
   replaces: string | null;
@@ -76,6 +83,9 @@ type Module = {
 type AutoDocData = {
   bodyIcons: Record<string, string>;
   trayMax: number;
+  cyberMax: number;
+  cyberBase: number;
+  cyberChipBonus: number;
   fuel: number;
   maxFuel: number;
   running: boolean;
@@ -127,8 +137,11 @@ const MODES = [
 const TABS = [
   { id: 'diagnosis', label: 'Диагностика', icon: 'stethoscope' },
   { id: 'organs', label: 'Органы', icon: 'heart-pulse' },
+  { id: 'cyber', label: 'Кибер', icon: 'microchip' },
   { id: 'modules', label: 'Модули', icon: 'floppy-disk' },
 ];
+
+const CYBER_SEGMENT = 10;
 
 const formatTime = (seconds: number) => {
   const total = Math.max(0, Math.ceil(seconds));
@@ -592,9 +605,11 @@ const OrgansTab = () => {
               <div className="AutoDoc__rowOrgan">
                 {organ.needsModule
                   ? 'нужен модуль установки имплантов'
-                  : organ.replaces
-                    ? `заменит: ${organ.replaces}`
-                    : 'свободное место'}
+                  : organ.overCapacity
+                    ? 'не хватает киберсовместимости'
+                    : organ.replaces
+                      ? `заменит: ${organ.replaces}`
+                      : 'свободное место'}
               </div>
               <OrganHealth organ={organ} />
             </div>
@@ -702,6 +717,253 @@ const ModulesTab = () => {
   );
 };
 
+type CyberPreview = {
+  cost: number;
+  freed: number;
+};
+
+const segmentState = (
+  from: number,
+  capacity: number,
+  load: number,
+  preview: CyberPreview | null,
+) => {
+  const baseLoad = preview ? load - preview.freed : load;
+  if (from < baseLoad) {
+    return 'used';
+  }
+  if (preview && from < baseLoad + preview.cost) {
+    return from < capacity ? 'preview' : 'overload';
+  }
+  return from < capacity ? 'free' : 'locked';
+};
+
+const CapacityGauge = (props: {
+  capacity: number;
+  load: number;
+  max: number;
+  preview: CyberPreview | null;
+}) => {
+  const { capacity, load, max, preview } = props;
+  const segments = Math.ceil(max / CYBER_SEGMENT);
+  const free = capacity - load;
+  const delta = preview ? preview.freed - preview.cost : 0;
+  const top = load - delta;
+  const position = (value: number) =>
+    `${(Math.min(Math.max(value, 0), max) / max) * 100}%`;
+
+  return (
+    <div className="AutoDoc__gauge">
+      <div className="AutoDoc__gaugeIcon">
+        <Icon name="microchip" />
+      </div>
+      <div className="AutoDoc__gaugeBody">
+        <div className="AutoDoc__gaugeBar">
+          {Array.from({ length: segments }, (_, index) => {
+            const from = (segments - 1 - index) * CYBER_SEGMENT;
+            const state = segmentState(from, capacity, load, preview);
+            return (
+              <div
+                key={index}
+                className={`AutoDoc__segment AutoDoc__segment--${state}`}
+              />
+            );
+          })}
+        </div>
+        <div
+          className="AutoDoc__gaugeCap"
+          style={{ bottom: position(capacity) }}
+        >
+          {capacity}
+        </div>
+        <div
+          className="AutoDoc__gaugeFree"
+          style={{ bottom: position(top) }}
+        >
+          <span
+            className={classes([
+              'AutoDoc__gaugeValue',
+              free + delta < 0 && 'AutoDoc__gaugeValue--bad',
+            ])}
+          >
+            {free + delta}
+          </span>
+          {!!preview && (
+            <span
+              className={classes([
+                'AutoDoc__gaugeDelta',
+                delta > 0 && 'AutoDoc__gaugeDelta--plus',
+              ])}
+            >
+              {delta > 0 ? `+${delta}` : delta}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CyberTab = () => {
+  const { act, data } = useBackend<AutoDocData>();
+  const {
+    occupant,
+    organs,
+    tray,
+    cyberMax,
+    cyberBase,
+    cyberChipBonus,
+    controlsLocked,
+  } = data;
+  const [preview, setPreview] = useState<CyberPreview | null>(null);
+
+  if (!occupant) {
+    return (
+      <div className="AutoDoc__cyber AutoDoc__cyber--empty">
+        <Icon name="microchip" size={2} />
+        <div>НЕТ ПОДКЛЮЧЕНИЯ</div>
+        <small>Поместите пациента в капсулу для чтения нейроадаптера.</small>
+      </div>
+    );
+  }
+
+  const { cyberCapacity, cyberLoad, hasNeuroadapter } = occupant;
+  const implants = organs.filter((organ) => organ.cyberCost !== null);
+  const trayImplants = tray.filter((organ) => organ.cyberCost !== null);
+  const chips = Math.max(
+    0,
+    Math.floor((cyberCapacity - cyberBase) / cyberChipBonus),
+  );
+  const maxChips = Math.ceil((cyberMax - cyberBase) / cyberChipBonus);
+
+  return (
+    <div className="AutoDoc__cyber">
+      <div className="AutoDoc__cyberHead">
+        <span className="AutoDoc__cyberTitle">Киберсовместимость</span>
+        <span
+          className={classes([
+            'AutoDoc__cyberLink',
+            !hasNeuroadapter && 'AutoDoc__cyberLink--off',
+          ])}
+        >
+          {hasNeuroadapter ? 'нейроадаптер: онлайн' : 'нейроадаптер: нет'}
+        </span>
+      </div>
+      <div className="AutoDoc__cyberBody">
+        <CapacityGauge
+          capacity={cyberCapacity}
+          load={cyberLoad}
+          max={cyberMax}
+          preview={preview}
+        />
+        <div className="AutoDoc__cyberInfo">
+          <div className="AutoDoc__cyberStats">
+            <div>
+              <small>Ёмкость</small>
+              <b>
+                {cyberCapacity}
+                <i>/{cyberMax}</i>
+              </b>
+            </div>
+            <div>
+              <small>Нагрузка</small>
+              <b>{cyberLoad}</b>
+            </div>
+            <div>
+              <small>Свободно</small>
+              <b
+                className={
+                  cyberCapacity < cyberLoad ? 'AutoDoc__cyberBad' : undefined
+                }
+              >
+                {cyberCapacity - cyberLoad}
+              </b>
+            </div>
+            <div>
+              <small>Чипы</small>
+              <b>
+                {chips}
+                <i>/{maxChips}</i>
+              </b>
+            </div>
+          </div>
+          <div className="AutoDoc__cyberGroup">Установлено</div>
+          {!implants.length && (
+            <div className="AutoDoc__cyberNote">Импланты не обнаружены.</div>
+          )}
+          {implants.map((organ) => (
+            <div key={organ.uid} className="AutoDoc__cyberRow">
+              <div className="AutoDoc__cyberName">
+                {organ.name}
+                <small>{ZONE_NAMES[organ.zone] || 'Прочее'}</small>
+              </div>
+              <span className="AutoDoc__cyberCost">{organ.cyberCost}</span>
+              <button
+                type="button"
+                className="AutoDoc__cyberButton AutoDoc__cyberButton--red"
+                disabled={!organ.canExtract || organ.queued || controlsLocked}
+                title={organ.queued ? 'Уже в очереди' : 'Извлечь в лоток'}
+                onClick={() => act('extract_organ', { uid: organ.uid })}
+              >
+                <Icon name={organ.queued ? 'check' : 'eject'} />
+              </button>
+            </div>
+          ))}
+          <div className="AutoDoc__cyberGroup">В лотке</div>
+          {!trayImplants.length && (
+            <div className="AutoDoc__cyberNote">
+              Положите имплант в лоток, чтобы оценить нагрузку.
+            </div>
+          )}
+          {trayImplants.map((organ) => (
+            <div
+              key={organ.uid}
+              className={classes([
+                'AutoDoc__cyberRow',
+                organ.overCapacity && 'AutoDoc__cyberRow--bad',
+              ])}
+              onMouseEnter={() =>
+                setPreview({
+                  cost: organ.cyberCost || 0,
+                  freed: organ.cyberFreed,
+                })
+              }
+              onMouseLeave={() => setPreview(null)}
+            >
+              <div className="AutoDoc__cyberName">
+                {organ.name}
+                <small>
+                  {organ.overCapacity
+                    ? 'не хватает совместимости'
+                    : organ.replaces
+                      ? `заменит: ${organ.replaces}`
+                      : 'свободный слот'}
+                </small>
+              </div>
+              <span className="AutoDoc__cyberCost">-{organ.cyberCost}</span>
+              <button
+                type="button"
+                className="AutoDoc__cyberButton"
+                disabled={!organ.canInstall || organ.queued || controlsLocked}
+                title={
+                  organ.canInstall
+                    ? 'Установить пациенту'
+                    : 'Нельзя установить этому пациенту'
+                }
+                onClick={() => act('install_organ', { uid: organ.uid })}
+              >
+                <Icon
+                  name={organ.queued ? 'check' : 'arrow-right-to-bracket'}
+                />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MainPanel = (props: { activeZone: string | null }) => {
   const { act, data } = useBackend<AutoDocData>();
   const { diagnosis, controlsLocked } = data;
@@ -709,7 +971,13 @@ const MainPanel = (props: { activeZone: string | null }) => {
   const pending = diagnosis.filter((entry) => !entry.queued);
 
   return (
-    <div className="AutoDoc__panel AutoDoc__main">
+    <div
+      className={classes([
+        'AutoDoc__panel',
+        'AutoDoc__main',
+        tab === 'cyber' && 'AutoDoc__main--tall',
+      ])}
+    >
       <div className="AutoDoc__panelTitle AutoDoc__panelTitle--tabs">
         {TABS.map((entry) => (
           <button
@@ -742,6 +1010,7 @@ const MainPanel = (props: { activeZone: string | null }) => {
         {tab === 'diagnosis' && <DiagnosisTab activeZone={props.activeZone} />}
         {tab === 'organs' && <OrgansTab />}
         {tab === 'modules' && <ModulesTab />}
+        {tab === 'cyber' && <CyberTab />}
       </div>
     </div>
   );

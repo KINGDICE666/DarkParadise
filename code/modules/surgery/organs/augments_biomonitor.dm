@@ -6,6 +6,7 @@
 	desc = "Нейроинтерфейс, выводящий на сетчатку полный отчёт о состоянии организма: расу, диету, голод, кровь, проблемы со здоровьем и установленные импланты."
 	implant_color = "#00E5FF"
 	slot = INTERNAL_ORGAN_BRAIN_BIOMONITOR
+	cyber_cost = 6
 	origin_tech = "materials=3;programming=4;biotech=4"
 	actions_types = list(/datum/action/item_action/organ_action/biomonitor)
 	ignore_cybernetic_restrictions = TRUE
@@ -104,6 +105,11 @@
 		"nutrition" = get_nutrition_data(),
 		"diet" = get_diet_summary(species),
 		"implants" = get_implants_data(),
+		"cyber" = list(
+			"capacity" = owner.cyber_capacity,
+			"load" = owner.get_cyber_load(),
+			"max" = CYBER_CAPACITY_MAX,
+		),
 		"health_history" = health_history,
 		"pulse_history" = pulse_history,
 		"history_length" = BIOMONITOR_HISTORY_LENGTH,
@@ -174,6 +180,7 @@
 			"kind" = "Кибернетика",
 			"status" = implant.crit_fail ? "Сбой" : "В норме",
 			"failed" = !!implant.crit_fail,
+			"cost" = implant.cyber_cost,
 		))
 
 	for(var/obj/item/implant/chip in owner.contents)

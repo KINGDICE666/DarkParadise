@@ -4,6 +4,7 @@
 	status = ORGAN_ROBOT
 	var/implant_color = "#FFFFFF"
 	var/implant_overlay
+	var/cyber_cost = 10
 	tough = TRUE // Immune to damage
 	pickup_sound = 'sound/items/handling/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/component_drop.ogg'
@@ -25,11 +26,20 @@
 
 /obj/item/organ/internal/cyberimp/can_insert(mob/living/user, mob/living/carbon/target, fail_message = "Данное устройство не предусмотрено для существ с подобной анатомией.")
 	. = ..()
+	if(!. || !iscarbon(target))
+		return
+	var/free_capacity = target.get_free_cyber_capacity(slot)
+	if(cyber_cost <= free_capacity)
+		return
+	if(user && fail_message)
+		to_chat(user, span_warning("Не хватает киберсовместимости: [DECLENT_RU_CAP(src, NOMINATIVE)] требует [cyber_cost], свободно [max(free_capacity, 0)]."))
+	return FALSE
 
 //[[[[BRAIN]]]]
 
 /obj/item/organ/internal/cyberimp/brain
 	name = "cybernetic brain implant"
+	cyber_cost = 12
 	desc = "injectors of extra sub-routines for the brain."
 	icon_state = "brain_implant"
 	implant_overlay = "brain_implant_overlay"
@@ -55,6 +65,7 @@
 	var/obj/item/r_hand_obj = null
 	implant_color = "#DE7E00"
 	slot = INTERNAL_ORGAN_BRAIN_ANTIDROP
+	cyber_cost = 15
 	origin_tech = "materials=4;programming=5;biotech=4"
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 
@@ -172,6 +183,7 @@
 	desc = "This implant will automatically give you back control over your central nervous system, reducing downtime when stunned. Incompatible with the Neural Jumpstarter."
 	implant_color = "#FFFF00"
 	slot = INTERNAL_ORGAN_BRAIN_ANTISTUN
+	cyber_cost = 30
 	origin_tech = "materials=5;programming=4;biotech=5"
 
 /obj/item/organ/internal/cyberimp/brain/anti_stun/hardened
@@ -208,6 +220,7 @@
 	desc = "This implant will automatically attempt to jolt you awake when it detects you have fallen unconscious. Has a short cooldown, incompatible with the CNS Rebooter."
 	implant_color = "#0356fc"
 	slot = INTERNAL_ORGAN_BRAIN_ANTISTUN //one or the other not both.
+	cyber_cost = 20
 	origin_tech = "materials=5;programming=4;biotech=5"
 	var/cooldown = FALSE
 
@@ -256,10 +269,12 @@
 	desc = span_sans_alt("Uh oh.")
 	implant_color = "#DEDE00"
 	slot = INTERNAL_ORGAN_BRAIN_CLOWNVOICE
+	cyber_cost = 2
 	origin_tech = "materials=2;biotech=2"
 
 //[[[[MOUTH]]]]
 /obj/item/organ/internal/cyberimp/mouth
+	cyber_cost = 5
 	parent_organ_zone = BODY_ZONE_PRECISE_MOUTH
 
 /obj/item/organ/internal/cyberimp/mouth/breathing_tube
@@ -282,6 +297,7 @@
 //[[[[CHEST]]]]
 /obj/item/organ/internal/cyberimp/chest
 	name = "cybernetic torso implant"
+	cyber_cost = 12
 	desc = "implants for the organs in your torso."
 	icon_state = "chest_implant"
 	implant_overlay = "chest_implant_overlay"
@@ -294,6 +310,7 @@
 	var/hunger_modificator = 0.7
 	var/poison_amount = 5
 	slot = INTERNAL_ORGAN_STOMACH
+	cyber_cost = 6
 	origin_tech = "materials=2;powerstorage=2;biotech=2"
 
 /obj/item/organ/internal/cyberimp/chest/nutriment/insert(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
@@ -316,6 +333,7 @@
 
 /obj/item/organ/internal/cyberimp/chest/nutriment/plus
 	name = "Nutriment pump implant PLUS"
+	cyber_cost = 8
 	desc = "This implant will synthesize a small amount of nutriment and pumps it directly into your bloodstream when you are hungry."
 	implant_color = "#006607"
 	hunger_modificator = 0.5
@@ -344,6 +362,7 @@
 	var/synthesizing = 0
 	var/poison_amount = 5
 	slot = INTERNAL_ORGAN_STOMACH
+	cyber_cost = 6
 	origin_tech = "materials=2;powerstorage=2;biotech=2"
 
 /obj/item/organ/internal/cyberimp/chest/nutriment_old/on_life()
@@ -376,6 +395,7 @@
 
 /obj/item/organ/internal/cyberimp/chest/nutriment_old/plus
 	name = "Nutriment pump implant PLUS"
+	cyber_cost = 8
 	desc = "This implant will synthesize and pump into your bloodstream a small amount of nutriment when you are hungry."
 	implant_color = "#006607"
 	hunger_threshold = NUTRITION_LEVEL_HUNGRY
@@ -391,6 +411,7 @@
 	implant_color = "#AD0000"
 	origin_tech = "materials=5;programming=4;biotech=4"
 	slot = INTERNAL_ORGAN_HEART_DRIVE
+	cyber_cost = 25
 	var/revive_cost = 0
 	var/reviving = FALSE
 	var/cooldown = 0
@@ -467,6 +488,7 @@
 	implant_overlay = null
 	origin_tech = "materials=3;engineering=4"
 	slot = INTERNAL_ORGAN_CHEST_EXOFRAME
+	cyber_cost = 30
 	species_restrictions = list(SPECIES_MACHINEPERSON)
 	var/id = "EXO_DEFAULT"
 	var/given_health = 0
@@ -600,6 +622,7 @@
 
 /obj/item/organ/internal/cyberimp/chest/exoframe/combat
 	name = "Combat exoframe"
+	cyber_cost = 40
 	desc = "Несущая опора, выполняющая роль \"скелета\" в конструкции гуманоидных роботов. Облегченная модель из пластитанового сплава с повышенной прочностью конструкции."
 	id = "EXO_COMBAT"
 	icon_state = "exoframe_combat"

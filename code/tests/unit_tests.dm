@@ -22,6 +22,7 @@
 #include "test_circuit_import.dm"
 #include "test_cliffs.dm"
 #include "test_components.dm"
+#include "test_cyber_capacity.dm"
 #include "test_detect_room.dm"
 #include "test_dna_genes.dm"
 #include "test_elements.dm"

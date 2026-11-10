@@ -80,18 +80,14 @@
 	return 0
 
 /proc/hassensorlevel(A, level)
-	var/mob/living/carbon/human/H = A
-	if(istype(H) && istype(H.w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/U = H.w_uniform
-		return U.sensor_mode >= level
-	return 0
+	return getsensorlevel(A) >= level
 
 /proc/getsensorlevel(A)
 	var/mob/living/carbon/human/H = A
-	if(istype(H) && istype(H.w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/U = H.w_uniform
-		return U.sensor_mode
-	return SUIT_SENSOR_OFF
+	if(!istype(H))
+		return SUIT_SENSOR_OFF
+	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER)
+	return adapter ? adapter.sensor_mode : SUIT_SENSOR_OFF
 
 /proc/offer_control(mob/offer_mob, hours, hide_role)
 	if(HAS_TRAIT(offer_mob, TRAIT_BEING_OFFERED))

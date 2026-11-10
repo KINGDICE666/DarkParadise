@@ -487,65 +487,6 @@
 		transfer_blood = 0
 		. |= COMPONENT_CLEANED|COMPONENT_CLEANED_GAIN_XP
 
-/obj/item/clothing/under/proc/set_sensors(mob/living/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		return
-	if(user.pulledby && user.pulledby.grab_state >= GRAB_NECK)
-		balloon_alert(user, "не добраться!")
-		return
-	if(has_sensor >= SENSOR_VITALS)
-		balloon_alert(user, "датчики заблокированы!")
-		return
-	if(has_sensor <= SENSOR_OFF)
-		balloon_alert(user, "датчики отсутствуют!")
-		return
-
-	if(!(user.mobility_flags & MOBILITY_USE) || !IsReachableBy(user))
-		return FALSE
-
-	var/list/modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
-	var/new_mode = tgui_input_list(user, "Выберите режим работы датчиков:", "Режим работы датчиков костюма", modes, modes[sensor_mode+1])
-	if(isnull(new_mode) || !(user.mobility_flags & MOBILITY_USE) || !IsReachableBy(user))
-		return
-	sensor_mode = modes.Find(new_mode) - 1
-
-	if(src.loc == user)
-		switch(sensor_mode)
-			if(SENSOR_OFF)
-				to_chat(user, "Вы отключаете датчики вашего костюма.")
-			if(SENSOR_LIVING)
-				to_chat(user, "Теперь датчики вашего костюма будут отслеживать, живы вы или мертвы.")
-			if(SENSOR_VITALS)
-				to_chat(user, "Теперь датчики вашего костюма будут отслеживать ваши жизненные показатели.")
-			if(SENSOR_COORDS)
-				to_chat(user, "Теперь датчики вашего костюма будут отслеживать ваши жизненные показатели и местоположение.")
-		if(ishuman(user))
-			var/mob/living/carbon/human/H = user
-			if(H.w_uniform == src)
-				H.update_suit_sensors()
-
-	else if(ismob(src.loc))
-		switch(sensor_mode)
-			if(0)
-				for(var/mob/V in viewers(1, user))
-					V.show_message(span_warning("[user] отключа[PLUR_ET_YUT(user)] датчики [src.loc]."), 1)
-			if(1)
-				for(var/mob/V in viewers(1, user))
-					V.show_message("[user] устанавлива[PLUR_ET_YUT(user)] датчики [src.loc] в бинарный режим.", 1)
-			if(2)
-				for(var/mob/V in viewers(1, user))
-					V.show_message("[user] устанавлива[PLUR_ET_YUT(user)] датчики [src.loc] в режим мониторинга жизненных показателей.", 1)
-			if(3)
-				for(var/mob/V in viewers(1, user))
-					V.show_message("[user] устанавлива[PLUR_ET_YUT(user)] датчики [src.loc] в режим мониторинга жизненных показателей и текущего местоположения.", 1)
-		if(ishuman(src))
-			var/mob/living/carbon/human/H = src
-			if(H.w_uniform == src)
-				H.update_suit_sensors()
-
-GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костюма", VERB_CATEGORY_HIDDEN)
-	set_sensors(usr)
-
 /obj/item/clothing/under/GetID()
 	for(var/obj/item/clothing/accessory/accessory as anything in accessories)
 		var/accessory_id = accessory.GetID()
@@ -1174,15 +1115,6 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/uniform.dmi',
 	)
 
-	var/has_sensor = TRUE//For the crew computer 2 = unable to change mode
-	var/sensor_mode = SENSOR_OFF
-		/*
-		SENSOR_OFF		= Report nothing
-		SENSOR_LIVING	= Report living/dead
-		SENSOR_VITALS	= Report detailed damages
-		SENSOR_COORDS	= Report location
-		*/
-	var/random_sensor = TRUE
 	var/displays_id = TRUE
 	var/over_shoes = FALSE
 	/// Lazylist of all accessories on the suit.
@@ -1194,16 +1126,6 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 
 /obj/item/clothing/under/rank
 	dying_key = DYE_REGISTRY_UNDER
-
-/obj/item/clothing/under/rank/Initialize(mapload)
-	. = ..()
-	if(random_sensor)
-		sensor_mode = pick(SENSOR_OFF, SENSOR_LIVING, SENSOR_VITALS, SENSOR_COORDS)
-
-
-/obj/item/clothing/under/ComponentInitialize()
-	. = ..()
-	AddElement(/datum/element/contextual_screentip_bare_hands, rmb_text = "Настроить датчики")
 
 /obj/item/clothing/under/Destroy()
 	QDEL_LIST(accessories)
@@ -1284,18 +1206,6 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 
 	return ..()
 
-/obj/item/clothing/under/attack_hand_secondary(mob/user, list/modifiers)
-	. = ..()
-	if(. == SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN)
-		return
-
-	set_sensors(user)
-	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
-
-/obj/item/clothing/under/attack_self_secondary(mob/user, list/modifiers)
-	set_sensors(user)
-	return TRUE
-
 /obj/item/clothing/under/proc/attach_accessory(obj/item/clothing/accessory/accessory, mob/user, unequip = FALSE)
 	if(!can_attach_accessory(accessory, user))
 		if(user)
@@ -1335,17 +1245,6 @@ GAME_VERB_SRC(/obj/item/clothing/under, toggle, usr, "Датчики костю�
 
 /obj/item/clothing/under/examine(mob/user)
 	. = ..()
-	if(has_sensor)
-		switch(sensor_mode)
-			if(0)
-				. += span_notice("Датчики отключены.")
-			if(1)
-				. += span_notice("Датчики работают в бинарном режиме.")
-			if(2)
-				. += span_notice("Датчики работают в режиме мониторинга жизненных показателей.")
-			if(3)
-				. += span_notice("Датчики работают в режиме мониторинга жизненных показателей и текущего местоположения.")
-
 	for(var/obj/item/clothing/accessory/accessory as anything in accessories)
 		. += accessory.attached_examine(user, src)
 

@@ -4,6 +4,7 @@
 	desc = "You shoudn't see this! Immediately report to a coder."
 	parent_organ_zone = BODY_ZONE_TAIL
 	slot = INTERNAL_ORGAN_TAIL_DEVICE
+	cyber_cost = 12
 	icon_state = "implant-toolkit"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
@@ -14,6 +15,7 @@
 // Syndi tail razorblade
 /obj/item/organ/internal/cyberimp/tail/blade
 	name = "tail razorblade implant"
+	cyber_cost = 25
 	desc = "Razor sharp blade designed to be hidden inside the tail. Traditional design of House Eshie'Ssharahss, sold at every corner of the Empire."
 	var/datum/action/innate/tail_cut/implant_ability = new
 	var/biological = FALSE								// Used in examine

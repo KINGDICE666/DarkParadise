@@ -384,6 +384,7 @@
 	desc = "Нейропорт, который связывает мозг с дверями и консолями по беспроводному каналу. Подключение идёт только в особом режиме и не мешает обычным действиям, а управление вынесено на отдельную панель. Кибердек добавляет новые типы устройств и буфер для сложных команд, а его модули расширяют возможности."
 	implant_color = "#4FE3C1"
 	slot = INTERNAL_ORGAN_BRAIN_NEURO
+	cyber_cost = 35
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
 	actions_types = list(
 		/datum/action/item_action/organ_action/augment/neuro_panel,

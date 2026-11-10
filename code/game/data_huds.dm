@@ -22,11 +22,7 @@
 /datum/atom_hud/data/human/medical/basic
 
 /datum/atom_hud/data/human/medical/basic/proc/check_sensors(mob/living/carbon/human/H)
-	if(!istype(H)) return 0
-	var/obj/item/clothing/under/U = H.w_uniform
-	if(!istype(U)) return 0
-	if(U.sensor_mode <= 2) return 0
-	return 1
+	return hassensorlevel(H, SUIT_SENSOR_TRACKING)
 
 /datum/atom_hud/data/human/medical/basic/add_atom_to_single_mob_hud(mob/M, mob/living/carbon/H)
 	if(check_sensors(H) || isobserver(M))

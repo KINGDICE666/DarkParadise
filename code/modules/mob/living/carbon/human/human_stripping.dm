@@ -60,8 +60,6 @@ GLOBAL_LIST_INIT(strippable_human_items, create_strippable_list(list(
 	var/obj/item/clothing/under/jumpsuit = get_item(source)
 	if(!istype(jumpsuit))
 		return null
-	if(jumpsuit.has_sensor)
-		multiple_options |= "suit_sensors"
 	if(LAZYLEN(jumpsuit.accessories))
 		multiple_options |= "remove_accessory"
 	return multiple_options
@@ -72,10 +70,6 @@ GLOBAL_LIST_INIT(strippable_human_items, create_strippable_list(list(
 	var/obj/item/clothing/under/jumpsuit = get_item(source)
 	if(!istype(jumpsuit))
 		return
-	if(action_key == "suit_sensors")
-		jumpsuit.set_sensors(user)
-		return
-
 	if(action_key != "remove_accessory")
 		return
 

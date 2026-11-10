@@ -4,6 +4,7 @@
 	icon_state = "eye_implant"
 	implant_overlay = "eye_implant_overlay"
 	slot = INTERNAL_ORGAN_EYE_SIGHT_DEVICE
+	cyber_cost = 8
 	parent_organ_zone = BODY_ZONE_PRECISE_EYES
 	w_class = WEIGHT_CLASS_TINY
 
@@ -58,6 +59,7 @@
 
 /obj/item/organ/internal/cyberimp/eyes/meson
 	name = "meson scanner implant"
+	cyber_cost = 6
 	desc = "These cybernetic eyes will allow you to see the structural layout of the station, and, well, everything else."
 	eye_colour = "#199900"
 	icon_state = "mesonhud_implant"
@@ -76,6 +78,7 @@
 
 /obj/item/organ/internal/cyberimp/eyes/xray
 	name = "X-ray implant"
+	cyber_cost = 25
 	desc = "These cybernetic eye implants will give you X-ray vision. Blinking is futile."
 	implant_color = "#000000"
 	origin_tech = "materials=4;programming=4;biotech=7;magnets=4"
@@ -85,6 +88,7 @@
 
 /obj/item/organ/internal/cyberimp/eyes/thermals
 	name = "Thermals implant"
+	cyber_cost = 20
 	desc = "These cybernetic eye implants will give you Thermal vision. Vertical slit pupil included."
 	icon_state = "thermal_implant"
 	eye_colour = "#FFCC00"
@@ -104,6 +108,7 @@
 	name = "HUD implant"
 	desc = "These cybernetic eyes will display a HUD over everything you see. Maybe."
 	slot = INTERNAL_ORGAN_EYE_HUD_DEVICE
+	cyber_cost = 6
 	var/HUDType = 0
 	/// A list of extension kinds added to the examine text. Things like medical or security records.
 	var/examine_extensions = EXAMINE_HUD_NONE
@@ -167,6 +172,7 @@
 	desc = "These reactive micro-shields will protect you from welders and flashes without obscuring your vision."
 	icon_state = "welding_implant"
 	slot = INTERNAL_ORGAN_EYE_SHIELD_DEVICE
+	cyber_cost = 10
 	origin_tech = "materials=4;biotech=3;engineering=4;plasmatech=3"
 	flash_protect = FLASH_PROTECTION_WELDER
 	// Welding with thermals will still hurt your eyes a bit.
@@ -199,6 +205,7 @@
 	icon_state = "citizen_map_implant"
 	eye_colour = "#4255e6"
 	slot = INTERNAL_ORGAN_EYE_HUD_DEVICE
+	cyber_cost = 4
 	origin_tech = "materials=4;biotech=3;engineering=4;plasmatech=3"
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 	var/active = FALSE

@@ -55,6 +55,11 @@
 #define INTERNAL_ORGAN_CHEST_PLATING "chest_plating"
 #define INTERNAL_ORGAN_CHEST_SPIT "chest_spit"
 #define INTERNAL_ORGAN_BRAIN_COMPUTER_INTERFACE "brain_computer_interface"
+#define INTERNAL_ORGAN_BRAIN_NEUROADAPTER "brain_neuroadapter"
+
+#define CYBER_CAPACITY_BASE 80
+#define CYBER_CAPACITY_MAX 305
+#define CYBER_CAPACITY_CHIP_BONUS 45
 
 #define INTERNAL_ORGAN_VOCALCORDS "vocal_cords"
 #define INTERNAL_ORGAN_HIVECORE "hivecore"
