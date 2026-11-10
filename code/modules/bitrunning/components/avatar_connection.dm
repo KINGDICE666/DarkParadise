@@ -59,7 +59,6 @@
 	if(hardcore)
 		to_chat(avatar, span_userdanger(get_death_warning()))
 
-/// Disconnect before deletion starts, while weakrefs and the pilot's mind are still usable.
 /datum/component/avatar_connection/proc/register_pilot_signals(mob/living/pilot)
 	RegisterSignals(pilot, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_PREQDELETED), PROC_REF(on_sever_connection))
 	RegisterSignal(pilot, COMSIG_MOB_STATCHANGE, PROC_REF(on_pilot_stat_change))
@@ -316,9 +315,9 @@
 #undef SCREAM_DAMAGE_THRESHOLD
 #undef SCREAM_PROBABILITY
 
-/// An AI still occupies the pod through its shell, but risks its remote core.
 /datum/component/avatar_connection/ai
 	var/datum/weakref/ai_core_ref
+	var/transferring_damage = FALSE
 
 /datum/component/avatar_connection/ai/Initialize(mob/living/silicon/robot/old_body, obj/machinery/quantum_server/server, obj/machinery/netpod/pod)
 	if(!isrobot(old_body) || !old_body.shell || !old_body.deployed || QDELETED(old_body.mainframe))
@@ -329,13 +328,15 @@
 
 /datum/component/avatar_connection/ai/register_pilot_signals(mob/living/pilot)
 	..()
-	RegisterSignal(ai_core_ref.resolve(), COMSIG_PREQDELETED, PROC_REF(on_sever_connection))
+	var/mob/living/silicon/ai/core = ai_core_ref.resolve()
+	RegisterSignal(core, COMSIG_PREQDELETED, PROC_REF(on_sever_connection))
+	RegisterSignals(core, list(COMSIG_LIVING_ADJUST_BRUTE_DAMAGE, COMSIG_LIVING_ADJUST_BURN_DAMAGE), PROC_REF(on_core_damaged))
 	RegisterSignal(pilot.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_shell_recalled))
 
 /datum/component/avatar_connection/ai/Destroy(force)
 	var/mob/living/silicon/ai/core = ai_core_ref?.resolve()
 	if(core)
-		UnregisterSignal(core, COMSIG_PREQDELETED)
+		UnregisterSignal(core, list(COMSIG_PREQDELETED, COMSIG_LIVING_ADJUST_BRUTE_DAMAGE, COMSIG_LIVING_ADJUST_BURN_DAMAGE))
 	var/datum/mind/old_mind = old_mind_ref?.resolve()
 	if(old_mind)
 		UnregisterSignal(old_mind, COMSIG_MIND_TRANSER_TO)
@@ -369,8 +370,21 @@
 		return
 
 	nohit = FALSE
-	// Organic damage types must also reduce core integrity; AI cores ignore toxins.
+	if(core.health - linked_damage <= HEALTH_THRESHOLD_CRIT)
+		full_avatar_disconnect(cause_damage = TRUE)
+		return
+
+	transferring_damage = TRUE
 	core.apply_damage(linked_damage, damagetype == BURN ? BURN : BRUTE, forced = TRUE)
+	transferring_damage = FALSE
+
+/datum/component/avatar_connection/ai/proc/on_core_damaged(datum/source, damagetype, amount, forced)
+	SIGNAL_HANDLER
+
+	if(amount <= 0 || transferring_damage)
+		return
+
+	full_avatar_disconnect()
 
 /datum/component/avatar_connection/ai/proc/on_shell_recalled(datum/mind/source, mob/living/new_character)
 	SIGNAL_HANDLER

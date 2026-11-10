@@ -280,7 +280,6 @@
 	playsound(src, 'sound/machines/podclose.ogg', 60, TRUE)
 	update_icon(UPDATE_ICON_STATE)
 
-/// Only crew and actively piloted AI shells can occupy a netpod.
 /obj/machinery/netpod/proc/can_enter(mob/target)
 	if(ishuman(target))
 		return TRUE

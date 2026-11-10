@@ -137,7 +137,6 @@
 	var/obj/machinery/quantum_server/server = find_server()
 	var/damage = BASE_DISCONNECT_DAMAGE * (1 - (server ? server.servo_bonus : 0))
 
-	// The connection supplies its damage target: a human body or the remote AI core.
 	if(!iscarbon(damage_body))
 		damage_body?.adjustBruteLoss(damage)
 		to_chat(pilot, span_userdanger("Аварийное отключение от домена повредило ядро ИИ!"))
