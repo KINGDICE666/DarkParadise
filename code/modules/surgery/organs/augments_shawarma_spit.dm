@@ -7,6 +7,7 @@
 	icon_state = "shawarma_spit"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_CHEST_SPIT
+	cyber_cost = 8
 	origin_tech = "materials=2;biotech=3;powerstorage=2"
 	actions_types = list(/datum/action/item_action/organ_action/shawarma_spit)
 	var/obj/item/reagent_containers/food/snacks/mounted_food

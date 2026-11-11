@@ -181,8 +181,6 @@
 	name = "old prison jumpsuit"
 	desc = "Старая одежда заключенных из \"Нанотрейзен\". Датчики костюма заблокированы в максимальном режиме отслеживания."
 	icon_state = "/obj/item/clothing/under/color/orange/prison"
-	has_sensor = 2
-	sensor_mode = 3
 	greyscale_colors = "#ff8300"
 	greyscale_config = /datum/greyscale_config/jumpsuit_prison
 	greyscale_config_inhand_left = /datum/greyscale_config/jumpsuit_prison_inhand_left
@@ -221,8 +219,6 @@
 	icon_state = "prison"
 	item_state = "prison"
 	item_color = "prison"
-	has_sensor = 2
-	sensor_mode = 3
 	flags = parent_type::flags | NO_NEW_GAGS_PREVIEW
 
 /obj/item/clothing/under/prison/get_ru_names()
@@ -382,8 +378,6 @@
 	)
 
 /obj/item/clothing/under/color/purple/sensor	//for jani ert
-	sensor_mode = SENSOR_COORDS
-	random_sensor = FALSE
 	flags = parent_type::flags | NO_NEW_GAGS_PREVIEW
 
 /obj/item/clothing/under/color/lightpurple

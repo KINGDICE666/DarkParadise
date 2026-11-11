@@ -826,6 +826,15 @@
 	build_path = /obj/item/organ/internal/cyberimp/brain/biomonitor
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
+/datum/design/cyber_capacity_chip
+	id = "ci-capacity-chip"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_MATERIALS = 5)
+	build_type = PROTOLATHE
+	construction_time = 150
+	materials = list(MAT_GLASS = 8000, MAT_SILVER = 6000, MAT_GOLD = 6000, MAT_URANIUM = 4000, MAT_DIAMOND = 4000, MAT_BLUESPACE = 3000)
+	build_path = /obj/item/cyber_capacity_chip
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
 /datum/design/cyberimp_shawarma_spit
 	id = "ci-shawarma-spit"
 	req_tech = list(RESEARCH_TREE_MATERIALS = 2, RESEARCH_TREE_POWERSTORAGE = 2, RESEARCH_TREE_BIOTECH = 3)
@@ -1143,4 +1152,28 @@
 	build_type = PROTOLATHE
 	materials = list(MAT_METAL = 1000, MAT_GLASS = 6000)
 	build_path = /obj/item/bonegel
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/autodoc_module_organs
+	id = "autodoc_module_organs"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_ENGINEERING = 6)
+	build_type = PROTOLATHE
+	materials = list(MAT_METAL = 300, MAT_GLASS = 300, MAT_GOLD = 500)
+	build_path = /obj/item/disk/autodoc_module/organs
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/autodoc_module_lobotomy
+	id = "autodoc_module_lobotomy"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_ENGINEERING = 6)
+	build_type = PROTOLATHE
+	materials = list(MAT_METAL = 300, MAT_GLASS = 300, MAT_GOLD = 500)
+	build_path = /obj/item/disk/autodoc_module/lobotomy
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/autodoc_module_implants
+	id = "autodoc_module_implants"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_ENGINEERING = 6)
+	build_type = PROTOLATHE
+	materials = list(MAT_METAL = 300, MAT_GLASS = 300, MAT_GOLD = 500)
+	build_path = /obj/item/disk/autodoc_module/implants
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)

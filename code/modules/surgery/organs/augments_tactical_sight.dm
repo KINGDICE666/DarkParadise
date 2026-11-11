@@ -16,6 +16,7 @@
 	implant_color = "#FF5A4F"
 	eye_colour = "#FF6A5F"
 	slot = INTERNAL_ORGAN_EYE_TACTICAL
+	cyber_cost = 18
 	origin_tech = "materials=4;programming=5;biotech=4;combat=4"
 	aug_message = "В центре зрения на мгновение вспыхивает прицельная сетка..."
 	actions_types = list(/datum/action/item_action/organ_action/augment/tactical_sight)

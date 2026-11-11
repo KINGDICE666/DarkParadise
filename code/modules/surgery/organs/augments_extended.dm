@@ -49,6 +49,7 @@
 	desc = "Железа экстренного выброса стимуляторов. Вдвое сокращает текущее оглушение и на четыре секунды ускоряет носителя, но через минуту организм расплачивается за рывок."
 	implant_color = "#FF5A36"
 	slot = INTERNAL_ORGAN_CHEST_ADRENALINE
+	cyber_cost = 25
 	origin_tech = "materials=5;biotech=5;programming=4"
 	actions_types = list(/datum/action/item_action/organ_action/augment/adrenaline)
 	var/surge_pending = FALSE
@@ -140,6 +141,7 @@
 	icon_state = "subdermal_plating"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_CHEST_PLATING
+	cyber_cost = 25
 	origin_tech = "materials=5;biotech=4;combat=4"
 	actions_types = list(/datum/action/item_action/organ_action/augment/subdermal_plating)
 	var/plating_active = FALSE
@@ -269,6 +271,7 @@
 	desc = "Фильтрует ложные сигналы в коре мозга: подавляет галлюцинации, психоактивные вещества и лёгкие психические расстройства. При ЭМИ на время отключается и сам вызывает видения."
 	implant_color = "#B48CFF"
 	slot = INTERNAL_ORGAN_BRAIN_COGNITIVE
+	cyber_cost = 15
 	origin_tech = "materials=4;biotech=5;programming=5"
 
 /obj/item/organ/internal/cyberimp/brain/cognitive_stabilizer/get_ru_names()
@@ -324,6 +327,7 @@
 	desc = "Перехватывает болевые сигналы и позволяет вручную задать чувствительность. На полной блокировке вы перестаёте понимать, насколько серьёзно ранены. ЭМИ сбрасывает настройку и вызывает болевой шок."
 	implant_color = "#FF4FA3"
 	slot = INTERNAL_ORGAN_BRAIN_PAIN
+	cyber_cost = 18
 	origin_tech = "materials=5;biotech=6;programming=5"
 	actions_types = list(/datum/action/item_action/organ_action/augment/pain_regulator)
 	var/pain_level = PAIN_LEVEL_NORMAL
@@ -389,6 +393,7 @@
 	icon_state = "fingerprint_synth"
 	parent_organ_zone = BODY_ZONE_R_ARM
 	slot = INTERNAL_ORGAN_FINGERPRINT_SYNTH
+	cyber_cost = 5
 	w_class = WEIGHT_CLASS_TINY
 	origin_tech = "materials=4;biotech=5;programming=4;syndicate=2"
 	actions_types = list(/datum/action/item_action/organ_action/augment/fingerprint_synth)

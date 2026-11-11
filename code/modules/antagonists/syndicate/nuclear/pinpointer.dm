@@ -444,13 +444,11 @@
 		. += span_notice("You can <b>Alt-Click</b> to choose whom to track.")
 
 /obj/item/pinpointer/crew/proc/is_trackable(mob/living/carbon/human/pin_target)
-	if(pin_target && istype(pin_target.w_uniform, /obj/item/clothing/under))
+	if(pin_target)
 		source_turf = get_turf(src)
 		if(!source_turf)
 			return FALSE
-		var/obj/item/clothing/under/uniform = pin_target.w_uniform
-		// Suit sensors must be on maximum.
-		if(!uniform.has_sensor || uniform.sensor_mode < 3)
+		if(!hassensorlevel(pin_target, SUIT_SENSOR_TRACKING))
 			return FALSE
 		target_turf = get_turf(pin_target)
 		return target_turf && source_turf.z == target_turf.z

@@ -23279,7 +23279,7 @@
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/garden)
 "iJw" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/machinery/light,
 /obj/effect/landmark/start/hangover,
 /turf/simulated/floor/plasteel,

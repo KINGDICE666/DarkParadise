@@ -82,6 +82,7 @@
 	else
 		if(heldname == "Default Name")
 			robot.custom_name = "" //allows usage of Namepick
+			robot.rename_used = FALSE
 			robot.rename_character(robot.name, robot.get_default_name())
 		else
 			robot.rename_character(robot.name, heldname)

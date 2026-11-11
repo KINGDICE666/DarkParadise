@@ -1,77 +1,128 @@
+$vita-bg: #0c0b10;
+$vita-panel: rgba(21, 18, 26, 0.92);
+$vita-red: #ff5d58;
+$vita-red-dim: rgba(255, 93, 88, 0.35);
+$vita-red-faint: rgba(255, 93, 88, 0.12);
+$vita-yellow: #f3e600;
+$vita-yellow-dim: rgba(243, 230, 0, 0.3);
+$vita-cyan: #5ef6ff;
+$vita-text: #ffd6d4;
+$vita-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
+
 .theme-biomonitor:root {
-  --color-base: hsl(196, 80%, 6%);
-  --color-primary: hsl(187, 100%, 28%);
-  --base-gradient-spread: 2;
-  --border-radius-unit: 0.1;
-  --progress-bar-background: rgba(0, 229, 255, 0.08);
+  --color-base: #{$vita-bg};
+  --color-primary: hsl(2, 70%, 32%);
+  --base-gradient-spread: 0;
+  --border-radius-unit: 0;
+  --progress-bar-background: rgba(255, 93, 88, 0.08);
+  --color-good: hsl(185, 80%, 42%);
+  --color-average: hsl(55, 95%, 45%);
+  --color-bad: hsl(2, 85%, 58%);
 
   .Layout__content {
+    color: $vita-text;
+    font-family: $vita-mono;
     background-position: 0 0;
     background-repeat: repeat;
     background-size: auto;
     background-image:
       repeating-linear-gradient(
         0deg,
-        rgba(0, 229, 255, 0.035) 0 1px,
+        rgba(255, 93, 88, 0.04) 0 1px,
         transparent 1px 3px
       ),
-      radial-gradient(
-        circle at 50% 0%,
-        rgba(0, 229, 255, 0.14) 0%,
-        transparent 65%
-      );
+      linear-gradient(135deg, rgba(255, 93, 88, 0.16) 0%, transparent 35%),
+      linear-gradient(315deg, rgba(94, 246, 255, 0.07) 0%, transparent 30%);
   }
 
   .TitleBar {
-    background-color: rgba(0, 229, 255, 0.1);
-    border-bottom: 1px solid rgba(0, 229, 255, 0.5);
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+    background-color: $vita-bg;
+    border-bottom: 1px solid $vita-red;
+    box-shadow: 0 1px 10px rgba(255, 93, 88, 0.35);
   }
 
   .TitleBar__title {
-    color: hsl(187, 100%, 75%);
-    letter-spacing: 0.08em;
+    color: $vita-yellow;
+    font-family: $vita-mono;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px rgba(243, 230, 0, 0.5);
   }
 
   .Section {
-    background-color: rgba(0, 229, 255, 0.045);
-    border: 1px solid rgba(0, 229, 255, 0.22);
-    box-shadow: inset 0 0 14px rgba(0, 229, 255, 0.06);
+    background-color: $vita-panel;
+    border: 1px solid $vita-red-dim;
+    border-left: 2px solid $vita-red;
+    box-shadow: none;
+    clip-path: polygon(
+      0 0,
+      calc(100% - 12px) 0,
+      100% 12px,
+      100% 100%,
+      0 100%
+    );
   }
 
   .Section__title {
-    border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+    border-bottom: 1px solid $vita-red-dim;
   }
 
   .Section__titleText {
-    color: hsl(187, 100%, 72%);
+    color: $vita-red;
     font-size: 0.9em;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.22em;
+    text-shadow: 0 0 6px rgba(255, 93, 88, 0.5);
     text-transform: uppercase;
+
+    &::before {
+      display: inline-block;
+      width: 0.45em;
+      height: 0.45em;
+      margin-right: 0.5em;
+      vertical-align: middle;
+      background-color: $vita-yellow;
+      box-shadow: 0 0 5px $vita-yellow;
+      content: '';
+    }
+  }
+
+  .LabeledList__label {
+    color: rgba(255, 93, 88, 0.75);
   }
 
   .ProgressBar {
-    border: 1px solid rgba(0, 229, 255, 0.35);
+    border: 1px solid $vita-red-dim;
+  }
+
+  .ProgressBar__content {
+    font-weight: bold;
+    letter-spacing: 0.06em;
   }
 }
 
 .BioMonitor__header {
-  align-items: center;
+  align-items: flex-end;
+  border-bottom: 1px solid $vita-red-dim;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
+  padding-bottom: 0.35em;
 }
 
 .BioMonitor__species {
-  color: hsl(187, 100%, 75%);
+  color: $vita-yellow;
   font-size: 1.5em;
   font-weight: bold;
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 8px rgba(243, 230, 0, 0.55);
+  text-transform: uppercase;
 }
 
 .BioMonitor__name {
-  opacity: 0.7;
+  color: $vita-cyan;
+  font-size: 0.9em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .BioMonitor__damage {
@@ -81,8 +132,9 @@
 }
 
 .BioMonitor__damageCell {
-  background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  background-color: rgba(0, 0, 0, 0.45);
+  border: 1px solid $vita-red-faint;
+  border-top: 2px solid $vita-red-dim;
   flex: 1;
   padding: 0.25em;
   text-align: center;
@@ -94,14 +146,17 @@
 }
 
 .BioMonitor__damageLabel {
-  font-size: 0.8em;
-  opacity: 0.7;
+  color: rgba(255, 93, 88, 0.7);
+  font-size: 0.75em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .BioMonitor__row {
   align-items: center;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  border-bottom: 1px solid $vita-red-faint;
   display: flex;
+  gap: 0.5em;
   justify-content: space-between;
   padding: 0.25em 0;
 }
@@ -111,13 +166,19 @@
 }
 
 .BioMonitor__kind {
+  color: rgba(255, 93, 88, 0.6);
   font-size: 0.8em;
-  opacity: 0.6;
+}
+
+.BioMonitor__cost {
+  color: $vita-yellow;
+  font-weight: bold;
+  margin-left: auto;
 }
 
 .BioMonitor__tag {
-  background-color: rgba(0, 229, 255, 0.12);
-  border: 1px solid rgba(0, 229, 255, 0.4);
+  background-color: $vita-red-faint;
+  border: 1px solid $vita-red-dim;
   display: inline-block;
   font-size: 0.85em;
   margin: 0.1em 0.2em 0.1em 0;
@@ -126,25 +187,31 @@
 }
 
 .BioMonitor__tag--bad {
-  background-color: rgba(255, 60, 60, 0.15);
-  border-color: rgba(255, 60, 60, 0.55);
-  color: hsl(0, 100%, 75%);
+  background-color: rgba(255, 93, 88, 0.2);
+  border-color: $vita-red;
+  color: $vita-red;
 }
 
 .BioMonitor__tag--good {
-  background-color: rgba(60, 255, 140, 0.12);
-  border-color: rgba(60, 255, 140, 0.5);
-  color: hsl(145, 100%, 72%);
+  background-color: rgba(94, 246, 255, 0.08);
+  border-color: rgba(94, 246, 255, 0.45);
+  color: $vita-cyan;
 }
 
 .BioMonitor__problem {
-  color: hsl(30, 100%, 65%);
+  color: $vita-yellow;
   padding: 0.1em 0;
+
+  &::before {
+    content: '> ';
+    opacity: 0.6;
+  }
 }
 
 .BioMonitor__problem--critical {
-  color: hsl(0, 100%, 68%);
+  color: $vita-red;
   font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 93, 88, 0.5);
 }
 
 .BioMonitor__charts {
@@ -162,31 +229,73 @@
   display: flex;
   font-size: 0.85em;
   justify-content: space-between;
+  letter-spacing: 0.06em;
   margin-bottom: 0.2em;
+  text-transform: uppercase;
 }
 
 .BioMonitor__chart {
-  background-color: rgba(0, 0, 0, 0.35);
+  background-color: rgba(0, 0, 0, 0.5);
   background-image:
-    linear-gradient(rgba(0, 229, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(255, 93, 88, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 93, 88, 0.1) 1px, transparent 1px);
   background-size: 1.5em 1.5em;
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  border: 1px solid $vita-red-dim;
   height: 4.5em;
   overflow: hidden;
   position: relative;
 }
 
 .BioMonitor__chartEmpty {
+  color: rgba(255, 93, 88, 0.6);
   font-size: 0.85em;
-  opacity: 0.6;
   padding-top: 1.8em;
   text-align: center;
 }
 
 .BioMonitor__chartCaption {
+  color: rgba(255, 93, 88, 0.55);
   font-size: 0.8em;
   margin-top: 0.2em;
-  opacity: 0.55;
   text-align: right;
+}
+
+.BioMonitor__capacity {
+  align-items: center;
+  display: flex;
+  gap: 0.6em;
+  margin-bottom: 0.5em;
+}
+
+.BioMonitor__capacityBar {
+  display: flex;
+  flex: 1;
+  gap: 1px;
+  height: 0.7em;
+}
+
+.BioMonitor__capacityCell {
+  background-color: rgba(255, 93, 88, 0.08);
+  flex: 1;
+}
+
+.BioMonitor__capacityCell--free {
+  background-color: rgba(243, 230, 0, 0.12);
+  box-shadow: inset 0 0 0 1px $vita-yellow-dim;
+}
+
+.BioMonitor__capacityCell--used {
+  background-color: $vita-yellow;
+  box-shadow: 0 0 3px rgba(243, 230, 0, 0.5);
+}
+
+.BioMonitor__capacityCell--over {
+  background-color: $vita-red;
+  box-shadow: 0 0 4px $vita-red;
+}
+
+.BioMonitor__capacityValue {
+  color: $vita-yellow;
+  font-weight: bold;
+  white-space: nowrap;
 }

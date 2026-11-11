@@ -32,6 +32,7 @@
 	implant_color = "#2E9BFF"
 	eye_colour = "#3AA9FF"
 	slot = INTERNAL_ORGAN_EYE_FORENSIC
+	cyber_cost = 10
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
 	aug_message = "В углу зрения вспыхивает и гаснет строка самодиагностики..."
 	actions_types = list(/datum/action/item_action/organ_action/forensic_scan)

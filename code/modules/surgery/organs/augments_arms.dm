@@ -1,8 +1,9 @@
 /obj/item/organ/internal/cyberimp/arm
 	name = "arm-mounted implant"
-	desc = "You shouldn't see this! Adminhelp and report this as an issue on github!"
+	desc = "Вы не должны это видеть! Сообщите администрации и создайте отчёт об ошибке."
 	parent_organ_zone = BODY_ZONE_R_ARM
 	slot = INTERNAL_ORGAN_R_ARM_DEVICE
+	cyber_cost = 15
 	icon_state = "implant-toolkit"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
@@ -15,6 +16,17 @@
 	var/obj/item/active_item
 	var/sound_on = 'sound/mecha/mechmove03.ogg'
 	var/sound_off = 'sound/mecha/mechmove03.ogg'
+	var/silent = FALSE
+
+/obj/item/organ/internal/cyberimp/arm/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант руки",
+		GENITIVE = "импланта руки",
+		DATIVE = "импланту руки",
+		ACCUSATIVE = "имплант руки",
+		INSTRUMENTAL = "имплантом руки",
+		PREPOSITIONAL = "импланте руки",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/Initialize(mapload)
 	. = ..()
@@ -39,8 +51,8 @@
 
 /obj/item/organ/internal/cyberimp/arm/examine(mob/user)
 	. = ..()
-	. += span_notice("[src] is assembled in the [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm configuration.")
-	. += span_notice("You can use a screwdriver to reassemble it.")
+	. += span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] собран для установки в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку.")
+	. += span_notice("Его можно пересобрать отвёрткой.")
 
 /obj/item/organ/internal/cyberimp/arm/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -51,8 +63,41 @@
 	else
 		parent_organ_zone = BODY_ZONE_R_ARM
 	slot = parent_organ_zone + "_device"
-	to_chat(user, span_notice("You modify [src] to be installed on the [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."))
+	to_chat(user, span_notice("Вы перенастраиваете [declent_ru(ACCUSATIVE)] для установки в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."))
 	update_transform()
+
+/obj/item/organ/internal/cyberimp/arm/get_ripper_settings()
+	. = ..()
+	. += list(list(
+		"id" = "side",
+		"name" = "Рука установки",
+		"kind" = "choice",
+		"value" = parent_organ_zone == BODY_ZONE_R_ARM ? "Правая" : "Левая",
+		"options" = list("Правая", "Левая"),
+	))
+	. += list(list("id" = "silent", "name" = "Бесшумный режим", "kind" = "toggle", "value" = silent))
+
+/obj/item/organ/internal/cyberimp/arm/set_ripper_setting(setting, value)
+	switch(setting)
+		if("silent")
+			silent = !!value
+			return TRUE
+		if("side")
+			var/new_zone = value == "Правая" ? BODY_ZONE_R_ARM : BODY_ZONE_L_ARM
+			if(new_zone == parent_organ_zone)
+				return FALSE
+			var/mob/living/carbon/patient = owner
+			if(patient)
+				if(!patient.get_organ(new_zone) || patient.get_organ_slot(new_zone + "_device"))
+					return FALSE
+				remove(patient, ORGAN_MANIPULATION_NOEFFECT)
+			parent_organ_zone = new_zone
+			slot = parent_organ_zone + "_device"
+			update_transform()
+			if(patient)
+				insert(patient, ORGAN_MANIPULATION_NOEFFECT)
+			return TRUE
+	return ..()
 
 /obj/item/organ/internal/cyberimp/arm/insert(mob/living/carbon/arm_owner, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -114,12 +159,13 @@
 
 	owner.visible_message(span_notice("[owner] убира[PLUR_ET_YUT(owner)] [active_item.declent_ru(ACCUSATIVE)] обратно в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
 		span_notice("[DECLENT_RU_CAP(active_item, NOMINATIVE)] втягивается в вашу [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
-		span_italics("Слышен короткий механический щелчок."))
+		silent ? null : span_italics("Слышен короткий механический щелчок."))
 
 	owner.drop_item_ground(active_item, force = TRUE, silent = TRUE)
 	active_item.forceMove(src)
 	active_item = null
-	playsound(get_turf(owner), sound_off, 50, TRUE)
+	if(!silent)
+		playsound(get_turf(owner), sound_off, 50, TRUE)
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/arm/proc/Extend(obj/item/augment)
@@ -139,27 +185,28 @@
 
 	if(arm_item)
 		if(!owner.drop_item_ground(arm_item))
-			to_chat(owner, span_warning("Your [arm_item] interferes with [src]!"))
+			to_chat(owner, span_warning("[DECLENT_RU_CAP(arm_item, NOMINATIVE)] мешает [declent_ru(DATIVE)]!"))
 			return
 		else
-			to_chat(owner, span_notice("You drop [arm_item] to activate [src]!"))
+			to_chat(owner, span_notice("Вы бросаете [arm_item.declent_ru(ACCUSATIVE)], чтобы активировать [declent_ru(ACCUSATIVE)]!"))
 
 	if(parent_organ_zone == BODY_ZONE_R_ARM ? !owner.put_in_r_hand(active_item, silent = TRUE) : !owner.put_in_l_hand(active_item, silent = TRUE))
-		to_chat(owner, span_warning("Your [src] fails to activate!"))
+		to_chat(owner, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] не срабатывает!"))
 		return
 
 	// Activate the hand that now holds our item.
 	if(parent_organ_zone == BODY_ZONE_R_ARM ? owner.hand : !owner.hand)
 		owner.swap_hand()
 
-	owner.visible_message(span_notice("[owner] extends [active_item] from [owner.p_their()] [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
-		span_notice("You extend [active_item] from your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
-		span_italics("You hear a short mechanical noise."))
-	playsound(get_turf(owner), sound_on, 50, TRUE)
+	owner.visible_message(span_notice("[owner] выдвига[PLUR_ET_YUT(owner)] [active_item.declent_ru(ACCUSATIVE)] из [parent_organ_zone == BODY_ZONE_R_ARM ? "правой" : "левой"] руки."),
+		span_notice("Вы выдвигаете [active_item.declent_ru(ACCUSATIVE)] из [parent_organ_zone == BODY_ZONE_R_ARM ? "правой" : "левой"] руки."),
+		silent ? null : span_italics("Слышен короткий механический звук."))
+	if(!silent)
+		playsound(get_turf(owner), sound_on, 50, TRUE)
 
 /obj/item/organ/internal/cyberimp/arm/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(crit_fail || (!active_item && !length(contents)))
-		to_chat(owner, span_warning("The implant doesn't respond. It seems to be broken..."))
+		to_chat(owner, span_warning("Имплант не отвечает. Похоже, он сломан..."))
 		return
 
 	// You can emag the arm-mounted implant by activating it while holding emag in it's hand.
@@ -201,9 +248,9 @@
 		return
 	if(prob(30/severity) && owner && !crit_fail)
 		Retract()
-		owner.visible_message(span_danger("A loud bang comes from [owner]'s [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm!"))
+		owner.visible_message(span_danger("Из [parent_organ_zone == BODY_ZONE_R_ARM ? "правой" : "левой"] руки [owner.declent_ru(GENITIVE)] раздаётся громкий хлопок!"))
 		playsound(get_turf(owner), 'sound/weapons/flashbang.ogg', 100, TRUE)
-		to_chat(owner, span_userdanger("You feel an explosion erupt inside your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm as your implant breaks!"))
+		to_chat(owner, span_userdanger("Внутри вашей [parent_organ_zone == BODY_ZONE_R_ARM ? "правой" : "левой"] руки что-то взрывается, имплант выходит из строя!"))
 		owner.adjust_fire_stacks(20)
 		owner.IgniteMob()
 		owner.adjustFireLoss(25)
@@ -213,32 +260,64 @@
 
 /obj/item/organ/internal/cyberimp/arm/gun/laser
 	name = "arm-mounted laser implant"
-	desc = "A variant of the arm cannon implant that fires lethal laser beams. The cannon emerges from the subject's arm and remains inside when not in use."
+	cyber_cost = 30
+	desc = "Вариант ручной пушки, стреляющий смертоносными лазерными лучами. Ствол выдвигается из руки и прячется обратно, когда не нужен."
 	icon_state = "arm_laser"
 	origin_tech = "materials=4;combat=4;biotech=4;powerstorage=4"
 	contents = newlist(/obj/item/gun/energy/laser/mounted)
+
+/obj/item/organ/internal/cyberimp/arm/gun/laser/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант ручного лазера",
+		GENITIVE = "импланта ручного лазера",
+		DATIVE = "импланту ручного лазера",
+		ACCUSATIVE = "имплант ручного лазера",
+		INSTRUMENTAL = "имплантом ручного лазера",
+		PREPOSITIONAL = "импланте ручного лазера",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/gun/laser/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/gun/taser
 	name = "arm-mounted taser implant"
-	desc = "A variant of the arm cannon implant that fires electrodes and disabler shots. The cannon emerges from the subject's arm and remains inside when not in use."
+	cyber_cost = 22
+	desc = "Вариант ручной пушки, стреляющий электродами и зарядами дизейблера. Ствол выдвигается из руки и прячется обратно, когда не нужен."
 	icon_state = "arm_taser"
 	origin_tech = "materials=5;combat=5;biotech=4;powerstorage=4"
 	contents = newlist(/obj/item/gun/energy/gun/advtaser/mounted)
+
+/obj/item/organ/internal/cyberimp/arm/gun/taser/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант ручного тазера",
+		GENITIVE = "импланта ручного тазера",
+		DATIVE = "импланту ручного тазера",
+		ACCUSATIVE = "имплант ручного тазера",
+		INSTRUMENTAL = "имплантом ручного тазера",
+		PREPOSITIONAL = "импланте ручного тазера",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/gun/taser/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/toolset
 	name = "integrated toolset implant"
-	desc = "A stripped-down version of engineering cyborg toolset, designed to be installed on subject's arm. Contains all neccessary tools."
+	desc = "Урезанная версия инженерного набора киборга, встраиваемая в руку. Содержит все необходимые инструменты."
 	origin_tech = "materials=3;engineering=4;biotech=3;powerstorage=4"
 	contents = newlist(/obj/item/screwdriver/cyborg, /obj/item/wrench/cyborg, /obj/item/weldingtool/largetank/cyborg,
 		/obj/item/crowbar/cyborg, /obj/item/wirecutters/cyborg, /obj/item/multitool/cyborg)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "utilitybelt")
+
+/obj/item/organ/internal/cyberimp/arm/toolset/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант встроенных инструментов",
+		GENITIVE = "импланта встроенных инструментов",
+		DATIVE = "импланту встроенных инструментов",
+		ACCUSATIVE = "имплант встроенных инструментов",
+		INSTRUMENTAL = "имплантом встроенных инструментов",
+		PREPOSITIONAL = "импланте встроенных инструментов",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/toolset/l
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -246,14 +325,14 @@
 /obj/item/organ/internal/cyberimp/arm/toolset/emag_act(mob/user)
 	if(!(locate(/obj/item/kitchen/knife/combat/cyborg) in items_list))
 		if(user)
-			to_chat(user, span_notice("You unlock [src]'s integrated knife!"))
+			to_chat(user, span_notice("Вы разблокируете встроенный нож [declent_ru(GENITIVE)]!"))
 		items_list += new /obj/item/kitchen/knife/combat/cyborg(src)
 		return TRUE
 	return FALSE
 
 /obj/item/organ/internal/cyberimp/arm/atmostoolset
 	name = "integrated atmos toolset implant"
-	desc = "A stripped-down version of engineering cyborg toolset, designed to be installed on subject's arm. Contains all neccessary tools for atmos-techs."
+	desc = "Урезанная версия инженерного набора киборга, встраиваемая в руку. Содержит все инструменты, нужные атмосферному технику."
 	icon_state = "atmos_arm_implant"
 	origin_tech = "materials=3;engineering=4;biotech=3;powerstorage=4"
 	contents = newlist(/obj/item/holosign_creator/atmos, /obj/item/rpd, /obj/item/analyzer, /obj/item/destTagger, /obj/item/extinguisher/mini,
@@ -261,41 +340,95 @@
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/tools.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "rpd")
 
+/obj/item/organ/internal/cyberimp/arm/atmostoolset/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант атмосферных инструментов",
+		GENITIVE = "импланта атмосферных инструментов",
+		DATIVE = "импланту атмосферных инструментов",
+		ACCUSATIVE = "имплант атмосферных инструментов",
+		INSTRUMENTAL = "имплантом атмосферных инструментов",
+		PREPOSITIONAL = "импланте атмосферных инструментов",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/atmostoolset/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/hacking
 	name = "hacking arm implant"
-	desc = "A small arm implant containing an advanced screwdriver, wirecutters, and multitool designed for engineers and on-the-field machine modification. Actually legal, despite what the name may make you think."
+	cyber_cost = 18
+	desc = "Небольшой имплант руки с продвинутой отвёрткой, кусачками и мультитулом для инженеров и полевой модификации техники. Вопреки названию, вполне легален."
 	origin_tech = "materials=3;engineering=4;biotech=3;powerstorage=4;abductor=3"
 	contents = newlist(/obj/item/screwdriver/cyborg, /obj/item/wirecutters/cyborg, /obj/item/multitool/abductor)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/device.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "hacktool")
+
+/obj/item/organ/internal/cyberimp/arm/hacking/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант взломщика",
+		GENITIVE = "импланта взломщика",
+		DATIVE = "импланту взломщика",
+		ACCUSATIVE = "имплант взломщика",
+		INSTRUMENTAL = "имплантом взломщика",
+		PREPOSITIONAL = "импланте взломщика",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/hacking/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/esword
 	name = "arm-mounted energy blade"
-	desc = "An illegal, and highly dangerous cybernetic implant that can project a deadly blade of concentrated enregy."
+	cyber_cost = 35
+	desc = "Нелегальный и крайне опасный имплант, проецирующий смертоносный клинок из концентрированной энергии."
 	contents = newlist(/obj/item/melee/energy/blade/hardlight)
 	origin_tech = "materials=4;combat=5;biotech=3;powerstorage=2;syndicate=5"
 
+/obj/item/organ/internal/cyberimp/arm/esword/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант энергоклинка",
+		GENITIVE = "импланта энергоклинка",
+		DATIVE = "импланту энергоклинка",
+		ACCUSATIVE = "имплант энергоклинка",
+		INSTRUMENTAL = "имплантом энергоклинка",
+		PREPOSITIONAL = "импланте энергоклинка",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/medibeam
 	name = "integrated medical beamgun"
-	desc = "A cybernetic implant that allows the user to project a healing beam from their hand."
+	cyber_cost = 20
+	desc = "Кибернетический имплант, позволяющий проецировать лечащий луч из ладони."
 	contents = newlist(/obj/item/gun/medbeam)
 	origin_tech = "materials=5;combat=2;biotech=5;powerstorage=4;syndicate=1"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/chronos.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "chronogun")
 
+/obj/item/organ/internal/cyberimp/arm/medibeam/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант медицинского луча",
+		GENITIVE = "импланта медицинского луча",
+		DATIVE = "импланту медицинского луча",
+		ACCUSATIVE = "имплант медицинского луча",
+		INSTRUMENTAL = "имплантом медицинского луча",
+		PREPOSITIONAL = "импланте медицинского луча",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/flash
 	name = "integrated high-intensity photon projector" //Why not
-	desc = "An integrated projector mounted onto a user's arm, that is able to be used as a powerful flash."
+	cyber_cost = 12
+	desc = "Встроенный в руку проектор, работающий как мощная вспышка."
 	contents = newlist(/obj/item/flash/armimplant)
 	origin_tech = "materials=4;combat=3;biotech=4;magnets=4;powerstorage=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/device.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "flash")
+
+/obj/item/organ/internal/cyberimp/arm/flash/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант фотонного проектора",
+		GENITIVE = "импланта фотонного проектора",
+		DATIVE = "импланту фотонного проектора",
+		ACCUSATIVE = "имплант фотонного проектора",
+		INSTRUMENTAL = "имплантом фотонного проектора",
+		PREPOSITIONAL = "импланте фотонного проектора",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/flash/Initialize(mapload)
 	. = ..()
@@ -316,15 +449,37 @@
 
 /obj/item/organ/internal/cyberimp/arm/baton
 	name = "arm electrification implant"
-	desc = "An illegal combat implant that allows the user to administer disabling shocks from their arm."
+	cyber_cost = 20
+	desc = "Нелегальный боевой имплант, позволяющий бить электрошоком прямо из руки."
 	contents = newlist(/obj/item/borg/stun)
 	origin_tech = "materials=3;combat=5;biotech=4;powerstorage=4;syndicate=3"
 
+/obj/item/organ/internal/cyberimp/arm/baton/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант электрошоковой руки",
+		GENITIVE = "импланта электрошоковой руки",
+		DATIVE = "импланту электрошоковой руки",
+		ACCUSATIVE = "имплант электрошоковой руки",
+		INSTRUMENTAL = "имплантом электрошоковой руки",
+		PREPOSITIONAL = "импланте электрошоковой руки",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/combat
 	name = "combat cybernetics implant"
-	desc = "A powerful cybernetic implant that contains combat modules built into the user's arm"
+	cyber_cost = 40
+	desc = "Мощный кибернетический имплант с боевыми модулями, встроенными в руку."
 	contents = newlist(/obj/item/melee/energy/blade/hardlight, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/flash/armimplant)
 	origin_tech = "materials=5;combat=7;biotech=5;powerstorage=5;syndicate=6;programming=5"
+
+/obj/item/organ/internal/cyberimp/arm/combat/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант боевой кибернетики",
+		GENITIVE = "импланта боевой кибернетики",
+		DATIVE = "импланту боевой кибернетики",
+		ACCUSATIVE = "имплант боевой кибернетики",
+		INSTRUMENTAL = "имплантом боевой кибернетики",
+		PREPOSITIONAL = "импланте боевой кибернетики",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/combat/Initialize(mapload)
 	. = ..()
@@ -334,19 +489,30 @@
 
 /obj/item/organ/internal/cyberimp/arm/combat/centcom
 	name = "NT specops cybernetics implant"
-	desc = "An extremely powerful cybernetic implant that contains combat and utility modules used by NT special forces."
+	desc = "Чрезвычайно мощный кибернетический имплант с боевыми и вспомогательными модулями спецподразделений НТ."
 	contents = newlist(/obj/item/gun/energy/pulse/pistol/m1911, /obj/item/door_remote/omni, /obj/item/melee/energy/blade/hardlight, /obj/item/reagent_containers/hypospray/combat/nanites, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/implanter/mindshield, /obj/item/flash/armimplant)
 	icon = 'icons/obj/weapons/energy.dmi'
 	icon_state = "m1911"
 	emp_proof = 1
 
+/obj/item/organ/internal/cyberimp/arm/combat/centcom/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант боевой кибернетики спецназа НТ",
+		GENITIVE = "импланта боевой кибернетики спецназа НТ",
+		DATIVE = "импланту боевой кибернетики спецназа НТ",
+		ACCUSATIVE = "имплант боевой кибернетики спецназа НТ",
+		INSTRUMENTAL = "имплантом боевой кибернетики спецназа НТ",
+		PREPOSITIONAL = "импланте боевой кибернетики спецназа НТ",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade
+	cyber_cost = 30
 	sound_on = 'sound/weapons/wristblades_on.ogg'
 	sound_off = 'sound/weapons/wristblades_off.ogg'
 
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex
 	name = "hidden blade implant"
-	desc = "A blade designed to be hidden just beneath the skin. The brain is directly linked to this bad boy, allowing it to spring into action."
+	desc = "Клинок, спрятанный прямо под кожей. Связан напрямую с мозгом и выскакивает по первой мысли."
 	contents = newlist(/obj/item/melee/mantisblade)
 	origin_tech = "materials=6;combat=6;biotech=6;syndicate=4;programming=5;"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/surgery.dmi')
@@ -354,17 +520,37 @@
 	icon_state = "syndie_mantis"
 	emp_proof = TRUE
 
+/obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант скрытого клинка \"Хорлекс\"",
+		GENITIVE = "импланта скрытого клинка \"Хорлекс\"",
+		DATIVE = "импланту скрытого клинка \"Хорлекс\"",
+		ACCUSATIVE = "имплант скрытого клинка \"Хорлекс\"",
+		INSTRUMENTAL = "имплантом скрытого клинка \"Хорлекс\"",
+		PREPOSITIONAL = "импланте скрытого клинка \"Хорлекс\"",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/horlex/l
 	parent_organ_zone = BODY_ZONE_L_ARM
 
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/shellguard
 	name = "hidden blade implant"
-	desc = "A blade designed to be hidden just beneath the skin. The brain is directly linked to this bad boy, allowing it to spring into action."
+	desc = "Клинок, спрятанный прямо под кожей. Связан напрямую с мозгом и выскакивает по первой мысли."
 	contents = newlist(/obj/item/melee/mantisblade/shellguard)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/surgery.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "mantis")
 	origin_tech = "materials=6;combat=6;biotech=6;programming=5;"
 	icon_state = "mantis"
+
+/obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/shellguard/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант скрытого клинка \"Шеллгард\"",
+		GENITIVE = "импланта скрытого клинка \"Шеллгард\"",
+		DATIVE = "импланту скрытого клинка \"Шеллгард\"",
+		ACCUSATIVE = "имплант скрытого клинка \"Шеллгард\"",
+		INSTRUMENTAL = "имплантом скрытого клинка \"Шеллгард\"",
+		PREPOSITIONAL = "импланте скрытого клинка \"Шеллгард\"",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/toolset/mantisblade/shellguard/l
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -504,12 +690,22 @@
 
 /obj/item/organ/internal/cyberimp/arm/janitorial
 	name = "janitorial toolset implant"
-	desc = "A set of janitorial tools hidden behind a concealed panel on the user's arm"
+	desc = "Набор уборочных инструментов, спрятанный за потайной панелью в руке."
 	icon_state = "janitor_arm_implant"
 	contents = newlist(/obj/item/mop/advanced, /obj/item/soap, /obj/item/lightreplacer, /obj/item/holosign_creator/janitor, /obj/item/melee/flyswatter, /obj/item/reagent_containers/spray/cleaner/safety)
 	origin_tech = "materials=3;engineering=4;biotech=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "janibelt")
+
+/obj/item/organ/internal/cyberimp/arm/janitorial/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант уборочных инструментов",
+		GENITIVE = "импланта уборочных инструментов",
+		DATIVE = "импланту уборочных инструментов",
+		ACCUSATIVE = "имплант уборочных инструментов",
+		INSTRUMENTAL = "имплантом уборочных инструментов",
+		PREPOSITIONAL = "импланте уборочных инструментов",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/janitorial/l
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -517,12 +713,22 @@
 
 /obj/item/organ/internal/cyberimp/arm/botanical
 	name = "botanical toolset implant"
-	desc = "A set of botanical tools hidden behind a concealed panel on the user's arm"
+	desc = "Набор садовых инструментов, спрятанный за потайной панелью в руке."
 	icon_state = "botanical_arm_implant"
 	contents = newlist(/obj/item/plant_analyzer, /obj/item/cultivator, /obj/item/hatchet, /obj/item/shovel/spade, /obj/item/wirecutters, /obj/item/wrench)
 	origin_tech = "materials=3;engineering=4;biotech=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "botanybelt")
+
+/obj/item/organ/internal/cyberimp/arm/botanical/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант садовых инструментов",
+		GENITIVE = "импланта садовых инструментов",
+		DATIVE = "импланту садовых инструментов",
+		ACCUSATIVE = "имплант садовых инструментов",
+		INSTRUMENTAL = "имплантом садовых инструментов",
+		PREPOSITIONAL = "импланте садовых инструментов",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/botanical/l
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -532,9 +738,20 @@
 /obj/item/organ/internal/cyberimp/arm/power_cord
 	species_type = /datum/species/machine
 	name = "APC-compatible power adapter implant"
-	desc = "An implant commonly installed inside IPCs in order to allow them to easily collect energy from their environment"
+	cyber_cost = 4
+	desc = "Имплант, который обычно ставят КПБ, чтобы подзаряжаться от окружающих источников энергии."
 	origin_tech = "materials=3;biotech=2;powerstorage=3"
 	contents = newlist(/obj/item/apc_powercord)
+
+/obj/item/organ/internal/cyberimp/arm/power_cord/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант силового адаптера",
+		GENITIVE = "импланта силового адаптера",
+		DATIVE = "импланту силового адаптера",
+		ACCUSATIVE = "имплант силового адаптера",
+		INSTRUMENTAL = "имплантом силового адаптера",
+		PREPOSITIONAL = "импланте силового адаптера",
+	)
 
 /obj/item/organ/internal/cyberimp/arm/power_cord/emp_act(severity)
 	// To allow repair via nanopaste/screwdriver
@@ -548,12 +765,12 @@
 
 /obj/item/organ/internal/cyberimp/arm/power_cord/surgeryize()
 	if(crit_fail && owner)
-		to_chat(owner, span_notice("Your [src] feels functional again."))
+		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] снова работает."))
 	crit_fail = FALSE
 
 /obj/item/apc_powercord
 	name = "power cable"
-	desc = "Insert into a nearby APC to draw power from it."
+	desc = "Вставьте в ближайший ЛКП, чтобы подзарядиться от него."
 	icon = 'icons/obj/engines_and_power/power.dmi'
 	icon_state = "wire1"
 	item_flags = NOBLUDGEON
@@ -563,7 +780,7 @@
 	if(!isapc(target) || !ishuman(user) || !proximity_flag)
 		return ..()
 	if(drawing_power)
-		to_chat(user, span_warning("You're already charging."))
+		to_chat(user, span_warning("Вы уже заряжаетесь."))
 		return
 	user.changeNext_move(attack_speed)
 	var/obj/machinery/power/apc/A = target
@@ -571,56 +788,77 @@
 	if(H.get_int_organ(/obj/item/organ/internal/cell))
 		if(A.emagged || A.stat & BROKEN)
 			do_sparks(3, TRUE, A)
-			to_chat(H, span_warning("The APC power currents surge erratically, damaging your chassis!"))
+			to_chat(H, span_warning("Ток ЛКП скачет и повреждает ваш корпус!"))
 			H.adjustFireLoss(10)
 		else if(A.cell && A.cell.charge > 0)
 			if(H.nutrition >= NUTRITION_LEVEL_WELL_FED)
-				to_chat(user, span_warning("You are already fully charged!"))
+				to_chat(user, span_warning("Вы уже полностью заряжены!"))
 			else
 				INVOKE_ASYNC(src, PROC_REF(powerdraw_loop), A, H)
 		else
-			to_chat(user, span_warning("There is no charge to draw from that APC."))
+			to_chat(user, span_warning("В этом ЛКП нет заряда."))
 	else
-		to_chat(user, span_warning("You lack a cell in which to store charge!"))
+		to_chat(user, span_warning("Вам некуда запасать заряд: нет батареи!"))
 
 /obj/item/apc_powercord/proc/powerdraw_loop(obj/machinery/power/apc/A, mob/living/carbon/human/H)
-	H.visible_message(span_notice("[H] inserts a power connector into \the [A]."), span_notice("You begin to draw power from \the [A]."))
+	H.visible_message(span_notice("[H] вставля[PLUR_ET_YUT(H)] силовой разъём в [A.declent_ru(ACCUSATIVE)]."), span_notice("Вы начинаете заряжаться от [A.declent_ru(GENITIVE)]."))
 	drawing_power = TRUE
 	while(do_after(H, 1 SECONDS, A))
 		if(loc != H)
-			to_chat(H, span_warning("You must keep your connector out while charging!"))
+			to_chat(H, span_warning("Во время зарядки разъём нужно держать выдвинутым!"))
 			break
 		if(A.cell.charge == 0)
-			to_chat(H, span_warning("\The [A] has no more charge."))
+			to_chat(H, span_warning("В [A.declent_ru(PREPOSITIONAL)] закончился заряд."))
 			break
 		A.charging = APC_IS_CHARGING
 		if(A.cell.charge >= 500)
 			H.adjust_nutrition(50)
 			A.cell.charge -= 500
-			to_chat(H, span_notice("You siphon off some of the stored charge for your own use."))
+			to_chat(H, span_notice("Вы перекачиваете часть заряда себе."))
 		else
 			H.adjust_nutrition(A.cell.charge * 0.1)
 			A.cell.charge = 0
-			to_chat(H, span_notice("You siphon off the last of \the [A]'s charge."))
+			to_chat(H, span_notice("Вы выкачиваете из [A.declent_ru(GENITIVE)] остатки заряда."))
 			break
 		if(H.nutrition > NUTRITION_LEVEL_WELL_FED)
-			to_chat(H, span_notice("You are now fully charged."))
+			to_chat(H, span_notice("Вы полностью заряжены."))
 			break
-	H.visible_message(span_notice("[H] unplugs from \the [A]."), span_notice("You unplug from \the [A]."))
+	H.visible_message(span_notice("[H] отключа[PLUR_ET_YUT(H)]ся от [A.declent_ru(GENITIVE)]."), span_notice("Вы отключаетесь от [A.declent_ru(GENITIVE)]."))
 	drawing_power = FALSE
 
 /obj/item/organ/internal/cyberimp/arm/telebaton
 	name = "telebaton implant"
-	desc = "Telescopic baton implant. Does what it says on the tin" // A better description
+	cyber_cost = 18
+	desc = "Имплант телескопической дубинки. Делает ровно то, что обещает."
 
 	contents = newlist(/obj/item/melee/baton)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/items.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "baton")
 
+/obj/item/organ/internal/cyberimp/arm/telebaton/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант телескопической дубинки",
+		GENITIVE = "импланта телескопической дубинки",
+		DATIVE = "импланту телескопической дубинки",
+		ACCUSATIVE = "имплант телескопической дубинки",
+		INSTRUMENTAL = "имплантом телескопической дубинки",
+		PREPOSITIONAL = "импланте телескопической дубинки",
+	)
+
 /obj/item/organ/internal/cyberimp/arm/advmop
 	name = "advanced mop implant"
-	desc = "Advanced mop implant. Does what it says on the tin" // A better description
+	desc = "Имплант продвинутой швабры. Делает ровно то, что обещает."
 
 	contents = newlist(/obj/item/mop/advanced)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/janitor.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "advmop")
+
+/obj/item/organ/internal/cyberimp/arm/advmop/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант продвинутой швабры",
+		GENITIVE = "импланта продвинутой швабры",
+		DATIVE = "импланту продвинутой швабры",
+		ACCUSATIVE = "имплант продвинутой швабры",
+		INSTRUMENTAL = "имплантом продвинутой швабры",
+		PREPOSITIONAL = "импланте продвинутой швабры",
+	)

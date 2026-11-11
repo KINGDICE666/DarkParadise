@@ -3793,6 +3793,22 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	)
 	required_tech = list(RESEARCH_TREE_MATERIALS = 4, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_ENGINEERING = 5, RESEARCH_TREE_PLASMA = 4)
 
+/datum/supply_packs/science/cyber_capacity_chip
+	name = "Чип киберсовместимости"
+	containername = "ящик с чипом киберсовместимости"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик с чипом киберсовместимости",
+		GENITIVE = "ящика с чипом киберсовместимости",
+		DATIVE = "ящику с чипом киберсовместимости",
+		ACCUSATIVE = "ящик с чипом киберсовместимости",
+		INSTRUMENTAL = "ящиком с чипом киберсовместимости",
+		PREPOSITIONAL = "ящике с чипом киберсовместимости",
+	)
+	cost = 15000
+	contains = list(/obj/item/cyber_capacity_chip)
+	containertype = /obj/structure/closet/crate/secure/scisec
+	access = ACCESS_MEDICAL
+
 //Nanotrasen tailblade
 /datum/supply_packs/science/tailblade
 	name = "Хвостовое лазерное лезвие"

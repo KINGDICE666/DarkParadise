@@ -23,6 +23,7 @@
 @include meta.load-css('./interfaces/AccountsUplinkTerminal.scss');
 @include meta.load-css('./interfaces/AdminAntagMenu.scss');
 @include meta.load-css('./interfaces/AlertModal.scss');
+@include meta.load-css('./interfaces/AutoDoc.scss');
 @include meta.load-css('./interfaces/BrigCells.scss');
 @include meta.load-css('./interfaces/CameraConsole.scss');
 @include meta.load-css('./interfaces/Changelog.scss');
@@ -51,6 +52,7 @@
 @include meta.load-css('./interfaces/ReagentsEditor.scss');
 @include meta.load-css('./interfaces/QuestConsole.scss');
 @include meta.load-css('./interfaces/RequestConsole.scss');
+@include meta.load-css('./interfaces/RipperDoc.scss');
 @include meta.load-css('./interfaces/RndConsole.scss');
 @include meta.load-css('./interfaces/Safe.scss');
 @include meta.load-css('./interfaces/SecurityRecords.scss');

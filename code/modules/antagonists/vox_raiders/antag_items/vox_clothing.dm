@@ -39,7 +39,6 @@
 /obj/item/clothing/under/vox
 	name = "ripped jumpsuit"
 	desc = "A jumpsuit that looks like it's been shredded by some talons. Who could wear this now?"
-	has_sensor = 0
 	icon = 'icons/obj/clothing/species/vox/uniforms.dmi'
 	icon_state = "vgrey"
 	item_state = "vgrey"

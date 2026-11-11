@@ -292,6 +292,7 @@
 #define TRAIT_OPEN_MIND "open_mind"	// allows to remote view this mob
 #define TRAIT_EMPATHY "empathy"	// allows to see when someone reads your mind
 #define TRAIT_COMIC "comic_sans"
+#define TRAIT_CYBERPSYCHO "cyberpsycho"
 #define TRAIT_NEARSIGHTED "nearsighted"
 #define TRAIT_BLIND "blind"
 #define TRAIT_COLORBLIND "colorblind"
