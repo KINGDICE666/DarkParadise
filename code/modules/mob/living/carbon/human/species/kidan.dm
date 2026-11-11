@@ -126,7 +126,9 @@
 	)
 	autohiss_exempt = list(/datum/language/kidan)
 
-/// Pesticide remains lethal to kida despite their general resistance to toxins.
+/**
+ * Adds kidan-specific pesticide toxicity while preserving normal reagent processing and depletion.
+ */
 /datum/species/kidan/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	if(istype(R, /datum/reagent/pestkiller))
 		H.adjustToxLoss(KIDAN_PESTICIDE_DAMAGE)

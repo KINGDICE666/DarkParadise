@@ -1291,15 +1291,21 @@
 		O.visible_message(span_warning("Пестицид убивает муравьёв!"))
 		qdel(O)
 
-/datum/reagent/pestkiller/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
-	if(iscarbon(M))
-		var/mob/living/carbon/C = M
-		if(!C.wear_mask) // If not wearing a mask
-			C.adjustToxLoss(2)
-		if(ishuman(M))
-			var/mob/living/carbon/human/H = M
-			if(iskidan(H)) //RIP
-				H.adjustToxLoss(20)
+/**
+ * Pesticide penetrates kida on touch, using the exposure volume already reduced by clothing protection.
+ * Other exposure methods rely on their containers to transfer the reagent normally.
+ */
+/datum/reagent/pestkiller/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume)
+	if(!iscarbon(M) || volume <= 0)
+		return
+	var/mob/living/carbon/target = M
+	if(!target.wear_mask)
+		target.adjustToxLoss(2)
+	if(!iskidan(target))
+		return
+	target.adjustToxLoss(20)
+	if(method == REAGENT_TOUCH)
+		target.reagents.add_reagent(id, volume)
 
 /datum/reagent/capulettium
 	name = "Капулеттий"
