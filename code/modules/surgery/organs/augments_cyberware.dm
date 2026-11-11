@@ -8,6 +8,10 @@
 #define GORILLA_COMBO_STEP 0.95
 #define GORILLA_COMBO_MIN_SPEED 0.4
 #define GORILLA_COMBO_RESET_TIME (2 SECONDS)
+#define GORILLA_KNOCKBACK_RANGE 4
+#define GORILLA_KNOCKBACK_SPEED 2
+#define GORILLA_WALL_SLAM_DAMAGE 15
+#define GORILLA_WALL_SLAM_KNOCKDOWN (2 SECONDS)
 
 #define MONOWIRE_SHOCK_TIME (1 SECONDS)
 
@@ -337,13 +341,15 @@
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech
 	name = "Militech gorilla arms implant"
 	cyber_cost = 35
-	desc = "Агентская версия рук гориллы. Бьёт сильнее, быстрее разжимает шлюзы, а каждый удачный удар кулаком этой рукой ускоряет следующий."
+	desc = "Агентская версия рук гориллы. Удар кулаком отшвыривает человека на несколько метров, а о стену бьёт ещё больнее. Обычные стёкла разлетаются с одного удара, шлюзы распахиваются от кулака, а каждый удачный удар ускоряет следующий."
 	icon_state = "implant_gorilla_arms"
 	origin_tech = "materials=6;biotech=5;combat=6;syndicate=3"
 	punch_bonus = 8
 	door_force_time = 3 SECONDS
 	var/combo_speed = 1
 	var/combo_timer
+	var/datum/weakref/punch_target
+	var/static/list/plasma_glass = list(/obj/item/stack/sheet/plasmaglass, /obj/item/stack/sheet/plasmarglass)
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/l
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -358,7 +364,14 @@
 		PREPOSITIONAL = "руках гориллы Militech",
 	)
 
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/insert(mob/living/carbon/arm_owner, special = ORGAN_MANIPULATION_DEFAULT)
+	. = ..()
+	if(.)
+		RegisterSignal(arm_owner, COMSIG_LIVING_UNARMED_ATTACK, PROC_REF(on_unarmed_attack))
+
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/remove(mob/living/carbon/arm_owner, special = ORGAN_MANIPULATION_DEFAULT)
+	UnregisterSignal(arm_owner, COMSIG_LIVING_UNARMED_ATTACK)
+	punch_target = null
 	deltimer(combo_timer)
 	set_combo_speed(1)
 	return ..()
@@ -366,6 +379,75 @@
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/punch_landed()
 	set_combo_speed(max(GORILLA_COMBO_MIN_SPEED, combo_speed * GORILLA_COMBO_STEP))
 	combo_timer = addtimer(CALLBACK(src, PROC_REF(set_combo_speed), 1), GORILLA_COMBO_RESET_TIME, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_STOPPABLE)
+	var/mob/living/target = punch_target?.resolve()
+	punch_target = null
+	if(target && !target.anchored)
+		addtimer(CALLBACK(src, PROC_REF(knock_back), target), 1)
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/on_unarmed_attack(mob/living/carbon/source, atom/target, proximity_flag, list/modifiers)
+	SIGNAL_HANDLER
+	punch_target = null
+	if(!proximity_flag || source.a_intent != INTENT_HARM || crit_fail || blocked || !is_active_arm())
+		return NONE
+	if(isliving(target))
+		punch_target = WEAKREF(target)
+		return NONE
+	if(istype(target, /obj/structure/window))
+		var/obj/structure/window/window = target
+		if(window.glass_type in plasma_glass)
+			return NONE
+		source.do_attack_animation(window)
+		source.changeNext_move(CLICK_CD_MELEE)
+		source.visible_message(span_danger("[DECLENT_RU_CAP(source, NOMINATIVE)] выбива[PLUR_ET_YUT(source)] [window.declent_ru(ACCUSATIVE)] одним ударом кулака!"))
+		window.deconstruct(FALSE)
+		return COMPONENT_CANCEL_ATTACK_CHAIN
+	if(is_airlock(target))
+		var/obj/machinery/door/airlock/airlock = target
+		if(!airlock.density || airlock.operating)
+			return NONE
+		source.do_attack_animation(airlock)
+		source.changeNext_move(CLICK_CD_MELEE)
+		INVOKE_ASYNC(src, PROC_REF(punch_airlock), airlock)
+		return COMPONENT_CANCEL_ATTACK_CHAIN
+	return NONE
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/punch_airlock(obj/machinery/door/airlock/airlock)
+	if(airlock.welded)
+		owner.balloon_alert(owner, "заварено!")
+		return
+	if(airlock.locked)
+		owner.balloon_alert(owner, "болты опущены!")
+		return
+	if(airlock.isElectrified() && airlock.shock_user(owner, 100))
+		return
+	playsound(airlock, 'sound/effects/bang.ogg', 70, TRUE)
+	owner.visible_message(span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] бь[PLUR_ET_YUT(owner)] кулаком в [airlock.declent_ru(ACCUSATIVE)], и створки разъезжаются!"))
+	airlock.open(TRUE)
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/knock_back(mob/living/target)
+	if(QDELETED(target) || QDELETED(owner))
+		return
+	var/turf/landing = get_ranged_target_turf(target, get_dir(owner, target), GORILLA_KNOCKBACK_RANGE)
+	RegisterSignal(target, COMSIG_MOVABLE_IMPACT, PROC_REF(on_knockback_impact), override = TRUE)
+	target.throw_at(landing, GORILLA_KNOCKBACK_RANGE, GORILLA_KNOCKBACK_SPEED, owner, callback = CALLBACK(src, PROC_REF(end_knockback), target))
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/end_knockback(mob/living/target)
+	UnregisterSignal(target, COMSIG_MOVABLE_IMPACT)
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/on_knockback_impact(mob/living/source, atom/hit_atom, datum/thrownthing/throwingdatum)
+	SIGNAL_HANDLER
+	if(istype(hit_atom, /obj/structure/window))
+		var/obj/structure/window/window = hit_atom
+		if(!(window.glass_type in plasma_glass))
+			INVOKE_ASYNC(window, TYPE_PROC_REF(/obj, deconstruct), FALSE)
+			return
+	if(!iswallturf(hit_atom) && !(isobj(hit_atom) && hit_atom.density))
+		return
+	source.apply_damage(GORILLA_WALL_SLAM_DAMAGE, BRUTE)
+	source.Weaken(GORILLA_WALL_SLAM_KNOCKDOWN)
+	shake_camera(source, 2, 2)
+	playsound(source, 'sound/effects/meteorimpact.ogg', 50, TRUE)
+	source.visible_message(span_danger("[DECLENT_RU_CAP(source, NOMINATIVE)] с хрустом влета[PLUR_ET_YUT(source)] в [hit_atom.declent_ru(ACCUSATIVE)]!"))
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/set_combo_speed(new_speed)
 	if(combo_speed == new_speed || !owner)
@@ -1266,6 +1348,10 @@
 #undef GORILLA_COMBO_STEP
 #undef GORILLA_COMBO_MIN_SPEED
 #undef GORILLA_COMBO_RESET_TIME
+#undef GORILLA_KNOCKBACK_RANGE
+#undef GORILLA_KNOCKBACK_SPEED
+#undef GORILLA_WALL_SLAM_DAMAGE
+#undef GORILLA_WALL_SLAM_KNOCKDOWN
 
 #undef MONOWIRE_SHOCK_TIME
 
