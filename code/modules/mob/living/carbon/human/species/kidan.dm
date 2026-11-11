@@ -1,6 +1,5 @@
 #define PHEROMONES_LIFESPAN 15 MINUTES
 #define PHEROMONES_MAX 3
-/// Additional toxin damage per metabolism cycle, matching the existing contact vulnerability.
 #define KIDAN_PESTICIDE_DAMAGE 20
 
 /datum/species/kidan
@@ -126,9 +125,6 @@
 	)
 	autohiss_exempt = list(/datum/language/kidan)
 
-/**
- * Adds kidan-specific pesticide toxicity while preserving normal reagent processing and depletion.
- */
 /datum/species/kidan/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	if(istype(R, /datum/reagent/pestkiller))
 		H.adjustToxLoss(KIDAN_PESTICIDE_DAMAGE)

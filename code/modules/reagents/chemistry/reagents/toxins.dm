@@ -1291,10 +1291,6 @@
 		O.visible_message(span_warning("Пестицид убивает муравьёв!"))
 		qdel(O)
 
-/**
- * Pesticide penetrates kida on touch, using the exposure volume already reduced by clothing protection.
- * Other exposure methods rely on their containers to transfer the reagent normally.
- */
 /datum/reagent/pestkiller/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume)
 	if(!iscarbon(M) || volume <= 0)
 		return
