@@ -34,6 +34,7 @@
 #include "test_heretic_rituals.dm"
 #include "test_holomaps.dm"
 #include "test_init_sanity.dm"
+#include "test_kidan.dm"
 #include "test_languages.dm"
 #include "test_logistics.dm"
 #include "test_map_templates.dm"
