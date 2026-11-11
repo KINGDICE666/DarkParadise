@@ -705,13 +705,7 @@
 		body_icons = list()
 		for(var/state in list("human", "head", "chest", "groin", "l_arm", "r_arm", "l_leg", "r_leg"))
 			body_icons[state] = icon2base64(icon('icons/misc/autodoc.dmi', state))
-	return list(
-		"bodyIcons" = body_icons,
-		"trayMax" = AUTODOC_TRAY_SIZE,
-		"cyberMax" = CYBER_CAPACITY_MAX,
-		"cyberBase" = CYBER_CAPACITY_BASE,
-		"cyberChipBonus" = CYBER_CAPACITY_CHIP_BONUS,
-	)
+	return list("bodyIcons" = body_icons, "trayMax" = AUTODOC_TRAY_SIZE)
 
 /obj/machinery/autodoc/ui_data(mob/user)
 	var/list/settings = get_mode_settings()
@@ -751,9 +745,6 @@
 		"oxy" = occupant.getOxyLoss(),
 		"failureChance" = round(get_failure_chance(), 1),
 		"organFailureChance" = round(get_failure_chance(GLOB.autodoc_procedures["organ_damage"]), 1),
-		"cyberCapacity" = occupant.cyber_capacity,
-		"cyberLoad" = occupant.get_cyber_load(),
-		"hasNeuroadapter" = !!occupant.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER),
 	)
 	data["diagnosis"] = get_diagnosis()
 	data["warnings"] = get_warnings()
@@ -824,12 +815,10 @@
 	var/datum/autodoc_procedure/organ_extract/procedure = GLOB.autodoc_procedures["organ_extract"]
 	var/datum/autodoc_procedure/lobotomy/lobotomy = GLOB.autodoc_procedures["lobotomy"]
 	for(var/obj/item/organ/internal/organ as anything in occupant.internal_organs)
-		var/obj/item/organ/internal/cyberimp/implant = organ
 		. += list(list(
 			"uid" = organ.UID(),
 			"name" = organ.declent_ru(NOMINATIVE),
 			"zone" = get_display_zone(organ),
-			"cyberCost" = istype(implant) ? implant.cyber_cost : null,
 			"damage" = organ.damage,
 			"maxDamage" = organ.max_damage,
 			"dead" = organ.is_dead(),
@@ -847,14 +836,9 @@
 	for(var/obj/item/organ/internal/organ as anything in organ_tray)
 		var/datum/autodoc_procedure/organ_install/procedure = get_install_procedure(organ)
 		var/obj/item/organ/internal/replaced = occupant?.get_organ_slot(organ.slot)
-		var/obj/item/organ/internal/cyberimp/implant = organ
-		var/obj/item/organ/internal/cyberimp/replaced_implant = replaced
 		. += list(list(
 			"uid" = organ.UID(),
 			"name" = organ.declent_ru(NOMINATIVE),
-			"cyberCost" = istype(implant) ? implant.cyber_cost : null,
-			"cyberFreed" = istype(replaced_implant) ? replaced_implant.cyber_cost : 0,
-			"overCapacity" = istype(implant) && occupant && implant.cyber_cost > occupant.get_free_cyber_capacity(implant.slot),
 			"damage" = organ.damage,
 			"maxDamage" = organ.max_damage,
 			"dead" = organ.is_dead(),

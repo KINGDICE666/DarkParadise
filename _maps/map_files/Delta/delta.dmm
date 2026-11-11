@@ -71875,7 +71875,7 @@
 /area/station/maintenance/asmaint)
 "nwR" = (
 /obj/effect/turf_decal/delivery/hollow,
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/item/radio/intercom/directional/south,
 /obj/effect/landmark/start/hangover,
 /turf/simulated/floor/plasteel{

@@ -154828,7 +154828,7 @@
 	},
 /area/station/science/robotics)
 "xzG" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/item/radio/intercom/directional/south,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,

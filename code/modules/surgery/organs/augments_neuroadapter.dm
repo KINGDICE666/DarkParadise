@@ -1,15 +1,3 @@
-/mob/living/carbon/proc/get_cyber_load()
-	. = 0
-	for(var/obj/item/organ/internal/cyberimp/implant in internal_organs)
-		. += implant.cyber_cost
-
-/mob/living/carbon/proc/get_free_cyber_capacity(replaced_slot)
-	var/obj/item/organ/internal/cyberimp/replaced = get_organ_slot(replaced_slot)
-	return cyber_capacity - get_cyber_load() + (istype(replaced) ? replaced.cyber_cost : 0)
-
-/mob/living/carbon/proc/adjust_cyber_capacity(amount)
-	cyber_capacity = clamp(cyber_capacity + amount, 0, CYBER_CAPACITY_MAX)
-
 /obj/item/organ/internal/cyberimp/brain/neuroadapter
 	name = "neuroadapter implant"
 	desc = "Стандартный нейроадаптер экипажа. Передаёт показатели носителя на консоли мониторинга и служит портом для чипов киберсовместимости."
@@ -60,6 +48,23 @@
 /obj/item/organ/internal/cyberimp/brain/neuroadapter/examine(mob/user)
 	. = ..()
 	. += span_notice("Датчики: [sensor_modes[sensor_mode + 1]].")
+
+/obj/item/organ/internal/cyberimp/brain/neuroadapter/get_ripper_settings()
+	. = ..()
+	. += list(list(
+		"id" = "sensors",
+		"name" = "Режим датчиков",
+		"kind" = "choice",
+		"value" = sensor_modes[sensor_mode + 1],
+		"options" = sensor_modes,
+	))
+
+/obj/item/organ/internal/cyberimp/brain/neuroadapter/set_ripper_setting(setting, value)
+	if(setting != "sensors" || !(value in sensor_modes))
+		return ..()
+	sensor_mode = sensor_modes.Find(value) - 1
+	owner?.update_suit_sensors()
+	return TRUE
 
 /obj/item/organ/internal/cyberimp/brain/neuroadapter/ui_action_click(mob/user, datum/action/action, leftclick)
 	var/new_mode = tgui_input_list(owner, "Выберите режим работы датчиков:", "Датчики нейроадаптера", sensor_modes, sensor_modes[sensor_mode + 1])

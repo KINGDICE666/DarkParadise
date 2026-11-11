@@ -405,7 +405,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/katana
 	name = "dark shard"
-	cyber_cost = 30
+	cyber_cost = 0
 	desc = "Зловещий металлический осколок, окутанный тёмной энергией."
 	icon = 'icons/obj/lavaland/artefacts.dmi'
 	icon_state = "cursed_katana_organ"

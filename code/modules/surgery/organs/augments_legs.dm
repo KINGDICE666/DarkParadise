@@ -1,7 +1,7 @@
 /obj/item/organ/internal/cyberimp/leg
 	name = "leg implant"
 	cyber_cost = 12
-	desc = "You shouldn't see this! Adminhelp and report this as an issue on github!"
+	desc = "Вы не должны это видеть! Сообщите администрации и создайте отчёт об ошибке."
 	parent_organ_zone = BODY_ZONE_R_LEG
 	icon_state = "implant-leg"
 	w_class = WEIGHT_CLASS_NORMAL
@@ -9,6 +9,16 @@
 	//to determine what type of implant for checking if both legs are the same
 	var/implant_type = "leg implant"
 	COOLDOWN_DECLARE(emp_notice)
+
+/obj/item/organ/internal/cyberimp/leg/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант ноги",
+		GENITIVE = "импланта ноги",
+		DATIVE = "импланту ноги",
+		ACCUSATIVE = "имплант ноги",
+		INSTRUMENTAL = "имплантом ноги",
+		PREPOSITIONAL = "импланте ноги",
+	)
 
 /obj/item/organ/internal/cyberimp/leg/Initialize(mapload)
 	. = ..()
@@ -97,9 +107,19 @@
 /obj/item/organ/internal/cyberimp/leg/jumpboots
 	name = "jumpboots implant"
 	cyber_cost = 15
-	desc = "An implant with a specialized propulsion system for rapid foward movement."
+	desc = "Имплант со специальной двигательной системой для резкого рывка вперёд."
 	implant_type = "jumpboots"
 	var/datum/action/bhop/implant_ability
+
+/obj/item/organ/internal/cyberimp/leg/jumpboots/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант прыжковых ботинок",
+		GENITIVE = "импланта прыжковых ботинок",
+		DATIVE = "импланту прыжковых ботинок",
+		ACCUSATIVE = "имплант прыжковых ботинок",
+		INSTRUMENTAL = "имплантом прыжковых ботинок",
+		PREPOSITIONAL = "импланте прыжковых ботинок",
+	)
 
 /obj/item/organ/internal/cyberimp/leg/jumpboots/l
 	parent_organ_zone = BODY_ZONE_L_LEG
@@ -117,8 +137,8 @@
 		left.implant_ability = null
 
 /datum/action/bhop
-	name = "Activate Jump Boots"
-	desc = "Activates the jump boot's implant internal propulsion system, allowing the user to dash over 4-wide gaps."
+	name = "Активировать прыжковые ботинки"
+	desc = "Включает двигательную систему импланта прыжковых ботинок и позволяет перемахнуть через пропасть шириной в 4 клетки."
 	button_icon_state = "jetboot"
 	var/jumpdistance = 5 //-1 from to see the actual distance, e.g 4 goes over 3 tiles
 	var/jumpspeed = 3

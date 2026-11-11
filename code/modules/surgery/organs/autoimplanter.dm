@@ -41,11 +41,8 @@
 		to_chat(user, span_warning("Отсутствует требуемая часть тела!"))
 		return FALSE
 
-	if(!storedorgan.ignore_cybernetic_restrictions && HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS))
+	if(!storedorgan.can_insert(target = user) || (!storedorgan.ignore_cybernetic_restrictions && HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS))) //make it silent
 		to_chat(user, span_warning("Ваш вид не подходит для установки этого киберимпланта!"))
-		return FALSE
-
-	if(!storedorgan.can_insert(user, user))
 		return FALSE
 
 	storedorgan.insert(user, ORGAN_MANIPULATION_TRANSPLANTATE)//insert stored organ into the user

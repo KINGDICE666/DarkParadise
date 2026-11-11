@@ -1,16 +1,28 @@
 /obj/item/organ/internal/cyberimp
 	name = "cybernetic implant"
-	desc = "a state-of-the-art implant that improves a baseline's functionality."
+	desc = "Передовой имплант, расширяющий возможности носителя."
 	status = ORGAN_ROBOT
 	var/implant_color = "#FFFFFF"
 	var/implant_overlay
 	var/cyber_cost = 10
+	var/can_pause = FALSE
+	var/paused = FALSE
 	tough = TRUE // Immune to damage
 	pickup_sound = 'sound/items/handling/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/component_drop.ogg'
 	lefthand_file = 'icons/mob/inhands/implants_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/implants_righthand.dmi'
 	abstract_type = /obj/item/organ/internal/cyberimp
+
+/obj/item/organ/internal/cyberimp/get_ru_names()
+	return alist(
+		NOMINATIVE = "кибернетический имплант",
+		GENITIVE = "кибернетического импланта",
+		DATIVE = "кибернетическому импланту",
+		ACCUSATIVE = "кибернетический имплант",
+		INSTRUMENTAL = "кибернетическим имплантом",
+		PREPOSITIONAL = "кибернетическом импланте",
+	)
 
 /obj/item/organ/internal/cyberimp/Initialize(mapload, mob/M = null)
 	. = ..()
@@ -26,24 +38,37 @@
 
 /obj/item/organ/internal/cyberimp/can_insert(mob/living/user, mob/living/carbon/target, fail_message = "Данное устройство не предусмотрено для существ с подобной анатомией.")
 	. = ..()
-	if(!. || !iscarbon(target))
-		return
-	var/free_capacity = target.get_free_cyber_capacity(slot)
-	if(cyber_cost <= free_capacity)
-		return
-	if(user && fail_message)
-		to_chat(user, span_warning("Не хватает киберсовместимости: [DECLENT_RU_CAP(src, NOMINATIVE)] требует [cyber_cost], свободно [max(free_capacity, 0)]."))
-	return FALSE
+
+/obj/item/organ/internal/cyberimp/proc/get_ripper_settings()
+	. = list()
+	if(can_pause)
+		. += list(list("id" = "active", "name" = "Работа импланта", "kind" = "toggle", "value" = !paused))
+
+/obj/item/organ/internal/cyberimp/proc/set_ripper_setting(setting, value)
+	if(setting != "active" || !can_pause)
+		return FALSE
+	paused = !value
+	return TRUE
 
 //[[[[BRAIN]]]]
 
 /obj/item/organ/internal/cyberimp/brain
 	name = "cybernetic brain implant"
 	cyber_cost = 12
-	desc = "injectors of extra sub-routines for the brain."
+	desc = "Инжекторы дополнительных подпрограмм для мозга."
 	icon_state = "brain_implant"
 	implant_overlay = "brain_implant_overlay"
 	parent_organ_zone = BODY_ZONE_HEAD
+
+/obj/item/organ/internal/cyberimp/brain/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант мозга",
+		GENITIVE = "импланта мозга",
+		DATIVE = "импланту мозга",
+		ACCUSATIVE = "имплант мозга",
+		INSTRUMENTAL = "имплантом мозга",
+		PREPOSITIONAL = "импланте мозга",
+	)
 
 /obj/item/organ/internal/cyberimp/brain/emp_act(severity)
 	if(!owner || emp_proof)
@@ -52,12 +77,12 @@
 		return
 	var/stun_amount = (5 + (severity-1 ? 0 : 5)) STATUS_EFFECT_CONSTANT
 	owner.Stun(stun_amount)
-	to_chat(owner, span_warning("Your body seizes up!"))
+	to_chat(owner, span_warning("Ваше тело сводит судорогой!"))
 	return stun_amount
 
 /obj/item/organ/internal/cyberimp/brain/anti_drop
 	name = "Anti-drop implant"
-	desc = "This cybernetic brain implant will allow you to force your hand muscles to contract, preventing item dropping. Twitch ear to toggle."
+	desc = "Мозговой имплант, позволяющий принудительно сжать мышцы кистей и не выронить предмет. Переключается подёргиванием уха."
 	var/active = FALSE
 	var/l_hand_ignore = FALSE
 	var/r_hand_ignore = FALSE
@@ -69,9 +94,19 @@
 	origin_tech = "materials=4;programming=5;biotech=4"
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 
+/obj/item/organ/internal/cyberimp/brain/anti_drop/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант \"Антисброс\"",
+		GENITIVE = "импланта \"Антисброс\"",
+		DATIVE = "импланту \"Антисброс\"",
+		ACCUSATIVE = "имплант \"Антисброс\"",
+		INSTRUMENTAL = "имплантом \"Антисброс\"",
+		PREPOSITIONAL = "импланте \"Антисброс\"",
+	)
+
 /obj/item/organ/internal/cyberimp/brain/anti_drop/hardened
 	name = "Hardened Anti-drop implant"
-	desc = "A military-grade version of the standard implant, for NT's more elite forces."
+	desc = "Военная версия стандартного импланта для элитных сил НТ."
 	origin_tech = "materials=6;programming=5;biotech=5"
 	emp_proof = TRUE
 
@@ -107,7 +142,7 @@
 				r_hand_ignore = FALSE
 
 		if(!l_hand_obj && !r_hand_obj)
-			to_chat(owner, span_notice("You are not holding any items, your hands relax..."))
+			to_chat(owner, span_notice("Вы ничего не держите, руки расслабляются..."))
 			active = 0
 		else
 			var/msg = 0
@@ -115,14 +150,14 @@
 			msg += !r_hand_ignore && r_hand_obj ? 2 : 0
 			switch(msg)
 				if(1)
-					to_chat(owner, span_notice("Your left hand's grip tightens."))
+					to_chat(owner, span_notice("Хватка левой руки усиливается."))
 				if(2)
-					to_chat(owner, span_notice("Your right hand's grip tightens."))
+					to_chat(owner, span_notice("Хватка правой руки усиливается."))
 				if(3)
-					to_chat(owner, span_notice("Both of your hand's grips tighten."))
+					to_chat(owner, span_notice("Хватка обеих рук усиливается."))
 	else
 		release_items()
-		to_chat(owner, span_notice("Your hands relax..."))
+		to_chat(owner, span_notice("Ваши руки расслабляются..."))
 		l_hand_obj = null
 		r_hand_obj = null
 
@@ -158,12 +193,12 @@
 	if(L_item)
 		A = pick(surrounds)
 		L_item.throw_at(A, range, 2)
-		to_chat(owner, span_notice("Your left arm spasms and throws the [L_item.name]!"))
+		to_chat(owner, span_notice("Левую руку сводит спазмом, и она отбрасывает [L_item.declent_ru(ACCUSATIVE)]!"))
 		l_hand_obj = null
 	if(R_item)
 		A = pick(surrounds)
 		R_item.throw_at(A, range, 2)
-		to_chat(owner, span_notice("Your right arm spasms and throws the [R_item.name]!"))
+		to_chat(owner, span_notice("Правую руку сводит спазмом, и она отбрасывает [R_item.declent_ru(ACCUSATIVE)]!"))
 		r_hand_obj = null
 
 /obj/item/organ/internal/cyberimp/brain/anti_drop/proc/release_items()
@@ -180,25 +215,46 @@
 
 /obj/item/organ/internal/cyberimp/brain/anti_stun
 	name = "CNS Rebooter implant"
-	desc = "This implant will automatically give you back control over your central nervous system, reducing downtime when stunned. Incompatible with the Neural Jumpstarter."
+	desc = "Имплант сам возвращает вам контроль над центральной нервной системой и сокращает время оглушения. Несовместим с \"Нейростартером\"."
 	implant_color = "#FFFF00"
 	slot = INTERNAL_ORGAN_BRAIN_ANTISTUN
 	cyber_cost = 30
+	can_pause = TRUE
 	origin_tech = "materials=5;programming=4;biotech=5"
+
+/obj/item/organ/internal/cyberimp/brain/anti_stun/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант \"Перезапуск ЦНС\"",
+		GENITIVE = "импланта \"Перезапуск ЦНС\"",
+		DATIVE = "импланту \"Перезапуск ЦНС\"",
+		ACCUSATIVE = "имплант \"Перезапуск ЦНС\"",
+		INSTRUMENTAL = "имплантом \"Перезапуск ЦНС\"",
+		PREPOSITIONAL = "импланте \"Перезапуск ЦНС\"",
+	)
 
 /obj/item/organ/internal/cyberimp/brain/anti_stun/hardened
 	name = "Hardened CNS Rebooter implant"
-	desc = "A military-grade version of the standard implant, for NT's more elite forces."
+	desc = "Военная версия стандартного импланта для элитных сил НТ."
 	origin_tech = "materials=6;programming=5;biotech=5"
 	emp_proof = TRUE
 
+/obj/item/organ/internal/cyberimp/brain/anti_stun/hardened/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант \"Перезапуск ЦНС\" (укреплённый)",
+		GENITIVE = "импланта \"Перезапуск ЦНС\" (укреплённый)",
+		DATIVE = "импланту \"Перезапуск ЦНС\" (укреплённый)",
+		ACCUSATIVE = "имплант \"Перезапуск ЦНС\" (укреплённый)",
+		INSTRUMENTAL = "имплантом \"Перезапуск ЦНС\" (укреплённый)",
+		PREPOSITIONAL = "импланте \"Перезапуск ЦНС\" (укреплённый)",
+	)
+
 /obj/item/organ/internal/cyberimp/brain/anti_stun/hardened/Initialize(mapload)
 	. = ..()
-	desc += " The implant has been hardened. It is invulnerable to EMPs."
+	desc += " Имплант укреплён и неуязвим к ЭМИ."
 
 /obj/item/organ/internal/cyberimp/brain/anti_stun/on_life()
 	..()
-	if(crit_fail)
+	if(crit_fail || paused)
 		return
 	if(owner.getStaminaLoss() > 60)
 		owner.adjustStaminaLoss(-9)
@@ -217,27 +273,38 @@
 
 /obj/item/organ/internal/cyberimp/brain/anti_sleep
 	name = "Neural Jumpstarter implant"
-	desc = "This implant will automatically attempt to jolt you awake when it detects you have fallen unconscious. Has a short cooldown, incompatible with the CNS Rebooter."
+	desc = "Имплант сам пытается привести вас в сознание, если вы его теряете. Имеет короткую перезарядку, несовместим с \"Перезапуском ЦНС\"."
 	implant_color = "#0356fc"
 	slot = INTERNAL_ORGAN_BRAIN_ANTISTUN //one or the other not both.
 	cyber_cost = 20
+	can_pause = TRUE
 	origin_tech = "materials=5;programming=4;biotech=5"
 	var/cooldown = FALSE
 
+/obj/item/organ/internal/cyberimp/brain/anti_sleep/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант \"Нейростартер\"",
+		GENITIVE = "импланта \"Нейростартер\"",
+		DATIVE = "импланту \"Нейростартер\"",
+		ACCUSATIVE = "имплант \"Нейростартер\"",
+		INSTRUMENTAL = "имплантом \"Нейростартер\"",
+		PREPOSITIONAL = "импланте \"Нейростартер\"",
+	)
+
 /obj/item/organ/internal/cyberimp/brain/anti_sleep/on_life()
 	..()
-	if(crit_fail)
+	if(crit_fail || paused)
 		return
 	if(owner.stat == UNCONSCIOUS && cooldown == FALSE)
 		owner.AdjustSleeping(-200 SECONDS)
 		owner.AdjustParalysis(-200 SECONDS)
-		to_chat(owner, span_notice("You feel a rush of energy course through your body!"))
+		to_chat(owner, span_notice("По телу прокатывается волна энергии!"))
 		cooldown = TRUE
 		addtimer(CALLBACK(src, PROC_REF(sleepy_timer_end)), 50)
 
 /obj/item/organ/internal/cyberimp/brain/anti_sleep/proc/sleepy_timer_end()
 		cooldown = FALSE
-		to_chat(owner, span_notice("You hear a small beep in your head as your Neural Jumpstarter finishes recharging."))
+		to_chat(owner, span_notice("В голове тихо пищит: \"Нейростартер\" перезарядился."))
 
 /obj/item/organ/internal/cyberimp/brain/anti_sleep/emp_act(severity)
 	if(emp_shielded(severity))
@@ -256,21 +323,41 @@
 
 /obj/item/organ/internal/cyberimp/brain/anti_sleep/hardened
 	name = "Hardened Neural Jumpstarter implant"
-	desc = "A military-grade version of the standard implant, for NT's more elite forces."
+	desc = "Военная версия стандартного импланта для элитных сил НТ."
 	origin_tech = "materials=6;programming=5;biotech=5"
 	emp_proof = TRUE
 
+/obj/item/organ/internal/cyberimp/brain/anti_sleep/hardened/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант \"Нейростартер\" (укреплённый)",
+		GENITIVE = "импланта \"Нейростартер\" (укреплённый)",
+		DATIVE = "импланту \"Нейростартер\" (укреплённый)",
+		ACCUSATIVE = "имплант \"Нейростартер\" (укреплённый)",
+		INSTRUMENTAL = "имплантом \"Нейростартер\" (укреплённый)",
+		PREPOSITIONAL = "импланте \"Нейростартер\" (укреплённый)",
+	)
+
 /obj/item/organ/internal/cyberimp/brain/anti_sleep/hardened/compatible
-	desc = "A military-grade version of the standard implant, for NT's more elite forces. This one is compatible with the CNS Rebooter implant."
+	desc = "Военная версия стандартного импланта для элитных сил НТ. Эта версия совместима с \"Перезапуском ЦНС\"."
 	slot = INTERNAL_ORGAN_BRAIN_ANTISLEEP
 
 /obj/item/organ/internal/cyberimp/brain/clown_voice
 	name = "Comical implant"
-	desc = span_sans_alt("Uh oh.")
+	desc = span_sans_alt("Ой-ой.")
 	implant_color = "#DEDE00"
 	slot = INTERNAL_ORGAN_BRAIN_CLOWNVOICE
 	cyber_cost = 2
 	origin_tech = "materials=2;biotech=2"
+
+/obj/item/organ/internal/cyberimp/brain/clown_voice/get_ru_names()
+	return alist(
+		NOMINATIVE = "комический имплант",
+		GENITIVE = "комического импланта",
+		DATIVE = "комическому импланту",
+		ACCUSATIVE = "комический имплант",
+		INSTRUMENTAL = "комическим имплантом",
+		PREPOSITIONAL = "комическом импланте",
+	)
 
 //[[[[MOUTH]]]]
 /obj/item/organ/internal/cyberimp/mouth
@@ -279,11 +366,21 @@
 
 /obj/item/organ/internal/cyberimp/mouth/breathing_tube
 	name = "breathing tube implant"
-	desc = "This simple implant adds an internals connector to your back, allowing you to use internals without a mask and protecting you from being choked."
+	desc = "Простой имплант с разъёмом для баллона на спине: можно дышать из баллона без маски, а удушение вам не грозит."
 	icon_state = "implant_mask"
 	slot = INTERNAL_ORGAN_BREATHING_TUBE
 	w_class = WEIGHT_CLASS_TINY
 	origin_tech = "materials=2;biotech=3"
+
+/obj/item/organ/internal/cyberimp/mouth/breathing_tube/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант дыхательной трубки",
+		GENITIVE = "импланта дыхательной трубки",
+		DATIVE = "импланту дыхательной трубки",
+		ACCUSATIVE = "имплант дыхательной трубки",
+		INSTRUMENTAL = "имплантом дыхательной трубки",
+		PREPOSITIONAL = "импланте дыхательной трубки",
+	)
 
 /obj/item/organ/internal/cyberimp/mouth/breathing_tube/emp_act(severity)
 	if(emp_proof)
@@ -291,27 +388,47 @@
 	if(emp_shielded(severity))
 		return
 	if(prob(60/severity) && owner)
-		to_chat(owner, span_warning("Your breathing tube suddenly closes!"))
+		to_chat(owner, span_warning("Дыхательная трубка внезапно перекрывается!"))
 		owner.AdjustLoseBreath(4 SECONDS)
 
 //[[[[CHEST]]]]
 /obj/item/organ/internal/cyberimp/chest
 	name = "cybernetic torso implant"
 	cyber_cost = 12
-	desc = "implants for the organs in your torso."
+	desc = "Импланты для органов торса."
 	icon_state = "chest_implant"
 	implant_overlay = "chest_implant_overlay"
 	abstract_type = /obj/item/organ/internal/cyberimp/chest
 
+/obj/item/organ/internal/cyberimp/chest/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант торса",
+		GENITIVE = "импланта торса",
+		DATIVE = "импланту торса",
+		ACCUSATIVE = "имплант торса",
+		INSTRUMENTAL = "имплантом торса",
+		PREPOSITIONAL = "импланте торса",
+	)
+
 /obj/item/organ/internal/cyberimp/chest/nutriment
 	name = "Nutriment pump implant"
-	desc = "This implant will synthesize a small amount of nutriment and pumps it directly into your bloodstream when you are starving."
+	desc = "Имплант синтезирует немного питательных веществ и впрыскивает их прямо в кровь, когда вы истощены."
 	implant_color = "#00AA00"
 	var/hunger_modificator = 0.7
 	var/poison_amount = 5
 	slot = INTERNAL_ORGAN_STOMACH
 	cyber_cost = 6
 	origin_tech = "materials=2;powerstorage=2;biotech=2"
+
+/obj/item/organ/internal/cyberimp/chest/nutriment/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант питательного насоса",
+		GENITIVE = "импланта питательного насоса",
+		DATIVE = "импланту питательного насоса",
+		ACCUSATIVE = "имплант питательного насоса",
+		INSTRUMENTAL = "имплантом питательного насоса",
+		PREPOSITIONAL = "импланте питательного насоса",
+	)
 
 /obj/item/organ/internal/cyberimp/chest/nutriment/insert(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -329,16 +446,26 @@
 	if(emp_shielded(severity))
 		return
 	owner.reagents.add_reagent("????",poison_amount / severity) //food poisoning
-	to_chat(owner, span_warning("You feel like your insides are burning."))
+	to_chat(owner, span_warning("Внутренности будто горят."))
 
 /obj/item/organ/internal/cyberimp/chest/nutriment/plus
 	name = "Nutriment pump implant PLUS"
 	cyber_cost = 8
-	desc = "This implant will synthesize a small amount of nutriment and pumps it directly into your bloodstream when you are hungry."
+	desc = "Имплант синтезирует немного питательных веществ и впрыскивает их прямо в кровь, когда вы голодны."
 	implant_color = "#006607"
 	hunger_modificator = 0.5
 	poison_amount = 10
 	origin_tech = "materials=4;powerstorage=3;biotech=3"
+
+/obj/item/organ/internal/cyberimp/chest/nutriment/plus/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант питательного насоса ПЛЮС",
+		GENITIVE = "импланта питательного насоса ПЛЮС",
+		DATIVE = "импланту питательного насоса ПЛЮС",
+		ACCUSATIVE = "имплант питательного насоса ПЛЮС",
+		INSTRUMENTAL = "имплантом питательного насоса ПЛЮС",
+		PREPOSITIONAL = "импланте питательного насоса ПЛЮС",
+	)
 
 /obj/item/organ/internal/cyberimp/chest/nutriment/plus/insert(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	if(HAS_TRAIT(target, TRAIT_ADVANCED_CYBERIMPLANTS))
@@ -356,17 +483,28 @@
 
 /obj/item/organ/internal/cyberimp/chest/nutriment_old
 	name = "Nutriment pump implant"
-	desc = "This implant with synthesize and pump into your bloodstream a small amount of nutriment when you are starving."
+	desc = "Имплант синтезирует немного питательных веществ и впрыскивает их прямо в кровь, когда вы истощены."
 	implant_color = "#00AA00"
 	var/hunger_threshold = NUTRITION_LEVEL_STARVING
 	var/synthesizing = 0
 	var/poison_amount = 5
 	slot = INTERNAL_ORGAN_STOMACH
 	cyber_cost = 6
+	can_pause = TRUE
 	origin_tech = "materials=2;powerstorage=2;biotech=2"
 
+/obj/item/organ/internal/cyberimp/chest/nutriment_old/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант питательного насоса",
+		GENITIVE = "импланта питательного насоса",
+		DATIVE = "импланту питательного насоса",
+		ACCUSATIVE = "имплант питательного насоса",
+		INSTRUMENTAL = "имплантом питательного насоса",
+		PREPOSITIONAL = "импланте питательного насоса",
+	)
+
 /obj/item/organ/internal/cyberimp/chest/nutriment_old/on_life()
-	if(!owner)
+	if(!owner || paused)
 		return
 	if(synthesizing)
 		return
@@ -378,7 +516,7 @@
 		return
 	if(owner.nutrition <= hunger_threshold)
 		synthesizing = TRUE
-		to_chat(owner, span_notice("You feel less hungry..."))
+		to_chat(owner, span_notice("Голод отступает..."))
 		owner.adjust_nutrition(50)
 		addtimer(CALLBACK(src, PROC_REF(synth_cool)), 50)
 
@@ -391,41 +529,88 @@
 	if(emp_shielded(severity))
 		return
 	owner.reagents.add_reagent("????",poison_amount / severity) //food poisoning
-	to_chat(owner, span_warning("You feel like your insides are burning."))
+	to_chat(owner, span_warning("Внутренности будто горят."))
 
 /obj/item/organ/internal/cyberimp/chest/nutriment_old/plus
 	name = "Nutriment pump implant PLUS"
 	cyber_cost = 8
-	desc = "This implant will synthesize and pump into your bloodstream a small amount of nutriment when you are hungry."
+	desc = "Имплант синтезирует немного питательных веществ и впрыскивает их прямо в кровь, когда вы голодны."
 	implant_color = "#006607"
 	hunger_threshold = NUTRITION_LEVEL_HUNGRY
 	poison_amount = 10
 	origin_tech = "materials=4;powerstorage=3;biotech=3"
+
+/obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант питательного насоса ПЛЮС",
+		GENITIVE = "импланта питательного насоса ПЛЮС",
+		DATIVE = "импланту питательного насоса ПЛЮС",
+		ACCUSATIVE = "имплант питательного насоса ПЛЮС",
+		INSTRUMENTAL = "имплантом питательного насоса ПЛЮС",
+		PREPOSITIONAL = "импланте питательного насоса ПЛЮС",
+	)
+
+/obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/get_ripper_settings()
+	. = ..()
+	. += list(list(
+		"id" = "threshold",
+		"name" = "Порог срабатывания",
+		"kind" = "choice",
+		"value" = hunger_threshold == NUTRITION_LEVEL_HUNGRY ? "Голод" : "Истощение",
+		"options" = list("Голод", "Истощение"),
+	))
+
+/obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/set_ripper_setting(setting, value)
+	if(setting != "threshold")
+		return ..()
+	hunger_threshold = value == "Голод" ? NUTRITION_LEVEL_HUNGRY : NUTRITION_LEVEL_STARVING
+	return TRUE
 
 /obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/hardened
 	emp_proof = TRUE
 
 /obj/item/organ/internal/cyberimp/chest/reviver
 	name = "Reviver implant"
-	desc = "This implant will attempt to revive you if you lose consciousness. For the faint of heart!"
+	desc = "Имплант пытается вернуть вас в строй, если вы теряете сознание. Для слабых сердцем!"
 	implant_color = "#AD0000"
 	origin_tech = "materials=5;programming=4;biotech=4"
 	slot = INTERNAL_ORGAN_HEART_DRIVE
 	cyber_cost = 25
+	can_pause = TRUE
 	var/revive_cost = 0
 	var/reviving = FALSE
 	var/cooldown = 0
+
+/obj/item/organ/internal/cyberimp/chest/reviver/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант реанимации",
+		GENITIVE = "импланта реанимации",
+		DATIVE = "импланту реанимации",
+		ACCUSATIVE = "имплант реанимации",
+		INSTRUMENTAL = "имплантом реанимации",
+		PREPOSITIONAL = "импланте реанимации",
+	)
 
 /obj/item/organ/internal/cyberimp/chest/reviver/hardened
 	name = "Hardened reviver implant"
 	emp_proof = TRUE
 
+/obj/item/organ/internal/cyberimp/chest/reviver/hardened/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант реанимации (укреплённый)",
+		GENITIVE = "импланта реанимации (укреплённый)",
+		DATIVE = "импланту реанимации (укреплённый)",
+		ACCUSATIVE = "имплант реанимации (укреплённый)",
+		INSTRUMENTAL = "имплантом реанимации (укреплённый)",
+		PREPOSITIONAL = "импланте реанимации (укреплённый)",
+	)
+
 /obj/item/organ/internal/cyberimp/chest/reviver/hardened/Initialize(mapload)
 	. = ..()
-	desc += " The implant has been hardened. It is invulnerable to EMPs."
+	desc += " Имплант укреплён и неуязвим к ЭМИ."
 
 /obj/item/organ/internal/cyberimp/chest/reviver/on_life()
-	if(cooldown > world.time || owner.suiciding) // don't heal while you're in cooldown!
+	if(paused || cooldown > world.time || owner.suiciding) // don't heal while you're in cooldown!
 		return
 	if(reviving)
 		if(owner.health <= HEALTH_THRESHOLD_CRIT)
@@ -479,7 +664,7 @@
 		return
 	H.set_heartattack(FALSE)
 	if(H.stat == CONSCIOUS)
-		to_chat(H, span_notice("You feel your heart beating again!"))
+		to_chat(H, span_notice("Ваше сердце снова бьётся!"))
 
 /obj/item/organ/internal/cyberimp/chest/exoframe
 	name = "Exoframe"
@@ -695,7 +880,7 @@
 
 /obj/item/storage/box/cyber_implants
 	name = "boxed cybernetic implant"
-	desc = "A sleek, sturdy box."
+	desc = "Гладкая прочная коробка."
 	icon_state = "box_implants"
 	item_state = "spec"
 

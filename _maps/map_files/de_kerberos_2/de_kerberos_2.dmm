@@ -10416,7 +10416,7 @@
 /area/station/science/toxins/mixing)
 "bXx" = (
 /obj/effect/turf_decal/delivery/hollow,
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/item/radio/intercom/directional/south,
 /turf/simulated/floor/plasteel{
 	icon_state = "whiteblue"
