@@ -23716,7 +23716,7 @@
 	},
 /area/station/security/prison/perma)
 "dMf" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/machinery/shower/directional/north,
 /turf/simulated/floor/plasteel{
 	dir = 1;

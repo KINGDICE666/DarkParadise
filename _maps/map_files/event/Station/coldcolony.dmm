@@ -49005,7 +49005,7 @@
 	},
 /area/coldcolony/malta/medical/medbay)
 "sxa" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
 /turf/simulated/floor/plasteel{

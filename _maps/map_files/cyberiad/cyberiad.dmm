@@ -52021,7 +52021,7 @@
 	},
 /area/station/command/gateway)
 "inN" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
 /obj/effect/landmark/start/hangover,

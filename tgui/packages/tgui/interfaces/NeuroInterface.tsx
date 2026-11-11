@@ -94,6 +94,8 @@ type Data = {
   hacks: Hack[];
   nearby: NearbyDevice[];
   log: LogLine[];
+  sensor_mode: string;
+  sensor_modes: string[];
 };
 
 type KindInfo = {
@@ -196,6 +198,28 @@ const groupByKind = <T extends { kind: string }>(items: T[]) =>
     items: items.filter((item) => item.kind === kind.id),
   })).filter((group) => group.items.length > 0);
 
+const SensorPicker = () => {
+  const { act, data } = useBackend<Data>();
+  const { sensor_mode, sensor_modes, rebooting } = data;
+
+  return (
+    <div className="Cyberdeck__sensors">
+      <span className="Cyberdeck__gaugeLabel">Датчики</span>
+      {sensor_modes.map((mode) => (
+        <Button
+          key={mode}
+          compact
+          selected={mode === sensor_mode}
+          disabled={!!rebooting}
+          onClick={() => act('set_sensors', { mode })}
+        >
+          {mode}
+        </Button>
+      ))}
+    </div>
+  );
+};
+
 const Header = () => {
   const { act, data } = useBackend<Data>();
   const { deck, rebooting, link_mode, links_used, links_max, range } = data;
@@ -214,55 +238,67 @@ const Header = () => {
                 !!rebooting && 'Cyberdeck__led--bad',
               ])}
             />
-            {deck ? deck.name : 'Только нейропорт'}
+            {deck ? deck.name : 'Кибердек не подключён'}
           </div>
         </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="link"
-            selected={!!link_mode}
-            disabled={!!rebooting}
-            onClick={() => act('toggle_link_mode')}
-          >
-            {link_mode ? 'Подключение: вкл' : 'Подключение: выкл'}
-          </Button>
-        </Stack.Item>
+        {!!deck && (
+          <Stack.Item>
+            <Button
+              icon="link"
+              selected={!!link_mode}
+              disabled={!!rebooting}
+              onClick={() => act('toggle_link_mode')}
+            >
+              {link_mode ? 'Подключение: вкл' : 'Подключение: выкл'}
+            </Button>
+          </Stack.Item>
+        )}
       </Stack>
-      <div className="Cyberdeck__gauges Cyberdeck__mono">
-        <div className="Cyberdeck__gauge">
-          <div className="Cyberdeck__gaugeLabel">Каналы</div>
-          <div className="Cyberdeck__gaugeValue">
-            {links_used} / {links_max}
+      <SensorPicker />
+      {!deck && (
+        <div className="Cyberdeck__linkMode">
+          Без кибердека нейроадаптер передаёт только показатели носителя. Чтобы
+          взламывать и подключать устройства, вставьте деку: используйте её в
+          руке.
+        </div>
+      )}
+      {!!deck && (
+        <div className="Cyberdeck__gauges Cyberdeck__mono">
+          <div className="Cyberdeck__gauge">
+            <div className="Cyberdeck__gaugeLabel">Каналы</div>
+            <div className="Cyberdeck__gaugeValue">
+              {links_used} / {links_max}
+            </div>
+            <div className="Cyberdeck__pips">
+              {Array.from({ length: links_max }, (_, index) => (
+                <div
+                  key={index}
+                  className={classes([
+                    'Cyberdeck__pip',
+                    index < links_used && 'Cyberdeck__pip--on',
+                  ])}
+                />
+              ))}
+            </div>
           </div>
-          <div className="Cyberdeck__pips">
-            {Array.from({ length: links_max }, (_, index) => (
+          <div className="Cyberdeck__gauge">
+            <div className="Cyberdeck__gaugeLabel">Дальность</div>
+            <div className="Cyberdeck__gaugeValue">{range} м</div>
+          </div>
+          <div className="Cyberdeck__gauge Cyberdeck__gauge--wide">
+            <div className="Cyberdeck__gaugeLabel">Буфер</div>
+            <div className="Cyberdeck__gaugeValue">
+              {deck ? `${buffer} / ${buffer_max} · +${buffer_regen}/с` : 'нет'}
+            </div>
+            <div className="Cyberdeck__bar">
               <div
-                key={index}
-                className={classes([
-                  'Cyberdeck__pip',
-                  index < links_used && 'Cyberdeck__pip--on',
-                ])}
+                className="Cyberdeck__barFill"
+                style={{ width: `${bufferPercent}%` }}
               />
-            ))}
+            </div>
           </div>
         </div>
-        <div className="Cyberdeck__gauge">
-          <div className="Cyberdeck__gaugeLabel">Дальность</div>
-          <div className="Cyberdeck__gaugeValue">{range} м</div>
-        </div>
-        <div className="Cyberdeck__gauge Cyberdeck__gauge--wide">
-          <div className="Cyberdeck__gaugeLabel">Буфер</div>
-          <div className="Cyberdeck__gaugeValue">
-            {deck ? `${buffer} / ${buffer_max} · +${buffer_regen}/с` : 'нет'}
-          </div>
-          <div className="Cyberdeck__bar">
-            <div
-              className="Cyberdeck__barFill"
-              style={{ width: `${bufferPercent}%` }}
-            />
-          </div>
-        </div>
-      </div>
+      )}
       {!!link_mode && (
         <div className="Cyberdeck__linkMode">
           Кликайте по устройствам в мире, чтобы подключить или отключить их.
@@ -578,8 +614,13 @@ export const NeuroInterface = () => {
             </Tabs>
           </Stack.Item>
           <Stack.Item grow basis={0} style={{ overflowY: 'auto' }}>
-            {tab === TAB_NETWORK && <NetworkTab />}
-            {tab === TAB_SCANNER && <ScannerTab />}
+            {tab !== TAB_DECK && !deck && (
+              <NoticeBox info>
+                Сеть и сканер работают только с подключённым кибердеком.
+              </NoticeBox>
+            )}
+            {tab === TAB_NETWORK && !!deck && <NetworkTab />}
+            {tab === TAB_SCANNER && !!deck && <ScannerTab />}
             {tab === TAB_DECK && <DeckTab />}
           </Stack.Item>
           <Stack.Item>

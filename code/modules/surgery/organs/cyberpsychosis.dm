@@ -13,6 +13,8 @@
 	for(var/obj/item/organ/internal/cyberimp/implant in internal_organs)
 		if(implant.is_robotic())
 			. += implant.cyber_cost
+	for(var/obj/item/organ/internal/cyberimp/implant as anything in dormant_cyberware)
+		. += round(implant.cyber_cost * CYBERWARE_DORMANT_LOAD)
 
 /mob/living/carbon/proc/adjust_cyber_capacity(amount)
 	cyber_capacity = clamp(cyber_capacity + amount, 0, CYBER_CAPACITY_MAX)
@@ -28,6 +30,34 @@
 		psychosis.advance_stage()
 	else
 		apply_status_effect(/datum/status_effect/cyberpsychosis)
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/Destroy()
+	if(dormant_host)
+		LAZYREMOVE(dormant_host.dormant_cyberware, src)
+		dormant_host = null
+	return ..()
+
+/obj/item/organ/internal/cyberimp/proc/is_contraband()
+	return findtext(origin_tech, "syndicate") || findtext(origin_tech, "abductor")
+
+/obj/item/organ/internal/cyberimp/proc/can_go_dormant()
+	return owner && is_robotic() && !unremovable && !is_contraband()
+
+/obj/item/organ/internal/cyberimp/proc/go_dormant()
+	var/mob/living/carbon/host = owner
+	remove(host, ORGAN_MANIPULATION_NOEFFECT)
+	moveToNullspace()
+	dormant_host = host
+	LAZYADD(host.dormant_cyberware, src)
+
+/obj/item/organ/internal/cyberimp/proc/wake_up()
+	var/mob/living/carbon/host = dormant_host
+	if(!host.get_organ(check_zone(parent_organ_zone)) || host.get_organ_slot(slot))
+		return FALSE
+	LAZYREMOVE(host.dormant_cyberware, src)
+	dormant_host = null
+	insert(host, ORGAN_MANIPULATION_NOEFFECT)
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
@@ -83,19 +113,20 @@
 	var/next_stage_time = 0
 	var/datum/weakref/psycho_mind
 	var/static/list/stage_names = list("Сбой синхронизации", "Диссоциация", "Распад личности", "Киберпсихоз")
+	var/list/delusions = list()
 	var/static/list/whispers = list(
-		"Плоть — это просто временный корпус.",
-		"Сердце стучит слишком медленно. Его можно заменить.",
-		"Вы ловите себя на том, что считаете чужие слабые места.",
-		"Где-то в голове трещит статика.",
-		"Чьи это руки? Ах да. Ваши. Пока что.",
-		"Люди вокруг такие... мягкие.",
+		"Левая рука опять отозвалась на полсекунды позже. Или это вы опоздали?",
+		"Гул вентиляции складывается в чьё-то дыхание.",
+		"Вы машинально прикидываете, сколько шагов до ближайшего офицера.",
+		"Кто-то за спиной говорит о вас. Обернётесь — замолчит.",
+		"Пальцы сами сжимаются в кулак, и разжать их удаётся не сразу.",
+		"Чужой смех скрипит, как металл по стеклу.",
 	)
 	var/static/list/screams = list(
-		"ОНИ ВСЕ ИЗ МЯСА!",
-		"ТИШИНА. НУЖНА ТИШИНА.",
-		"СОТРИ ИХ. СОТРИ ИХ ВСЕХ.",
-		"ХРОМ НЕ ЛЖЁТ. ЛЮДИ ЛГУТ.",
+		"Они идут за вами. Все до одного.",
+		"Форма, жетон, дубинка. Каждый из них — охрана.",
+		"Остановитесь — и вас скрутят.",
+		"Не подпускайте их.",
 	)
 
 /datum/status_effect/cyberpsychosis/on_apply()
@@ -125,6 +156,7 @@
 		if(!overloaded)
 			qdel(src)
 			return
+		refresh_delusions()
 		if(prob(3))
 			to_chat(owner, span_userdanger(pick(screams)))
 		return
@@ -184,6 +216,7 @@
 /datum/status_effect/cyberpsychosis/proc/become_psycho()
 	var/mob/living/carbon/carbon_owner = owner
 	carbon_owner.add_traits(list(TRAIT_CYBERPSYCHO, TRAIT_NO_PAIN, TRAIT_NO_PAIN_HUD), CYBERPSYCHOSIS_TRAIT)
+	refresh_delusions()
 	if(ishuman(carbon_owner))
 		var/mob/living/carbon/human/human_owner = carbon_owner
 		human_owner.physiology.damage_resistance += CYBERPSYCHOSIS_DAMAGE_RESISTANCE
@@ -201,7 +234,53 @@
 		carbon_owner.mind.add_antag_datum(/datum/antagonist/cyberpsycho)
 	add_attack_logs(carbon_owner, carbon_owner, "became a cyberpsycho with cyber load [carbon_owner.get_cyber_load()] of [carbon_owner.cyber_capacity]", ATKLOG_FEW)
 
+/datum/status_effect/cyberpsychosis/proc/get_officer_icon()
+	var/static/icon/officer_icon
+	if(officer_icon)
+		return officer_icon
+	var/mob/living/carbon/human/dummy/mannequin = new
+	mannequin.equipOutfit(/datum/outfit/job/officer, visualsOnly = TRUE)
+	var/list/frames = list()
+	for(var/direction in GLOB.cardinal)
+		frames["[direction]"] = getFlatIcon(mannequin, direction)
+	officer_icon = icon(frames[frames[1]])
+	for(var/direction in GLOB.cardinal)
+		officer_icon.Insert(frames["[direction]"], dir = direction)
+	qdel(mannequin)
+	return officer_icon
+
+/datum/status_effect/cyberpsychosis/proc/refresh_delusions()
+	if(!owner.client)
+		return
+	for(var/mob/living/carbon/human/person as anything in GLOB.human_list)
+		if(person == owner)
+			continue
+		var/person_uid = person.UID()
+		var/image/officer = delusions[person_uid]
+		if(!officer)
+			officer = image(get_officer_icon(), person)
+			officer.override = TRUE
+			delusions[person_uid] = officer
+			RegisterSignal(person, COMSIG_QDELETING, PROC_REF(forget_person))
+		owner.client.images |= officer
+
+/datum/status_effect/cyberpsychosis/proc/forget_person(mob/living/carbon/human/person)
+	SIGNAL_HANDLER
+	UnregisterSignal(person, COMSIG_QDELETING)
+	var/person_uid = person.UID()
+	owner?.client?.images -= delusions[person_uid]
+	delusions -= person_uid
+
+/datum/status_effect/cyberpsychosis/proc/clear_delusions()
+	for(var/person_uid in delusions)
+		owner.client?.images -= delusions[person_uid]
+		var/mob/living/carbon/human/person = locateUID(person_uid)
+		if(person)
+			UnregisterSignal(person, COMSIG_QDELETING)
+	delusions.Cut()
+
 /datum/status_effect/cyberpsychosis/proc/release_psycho()
+	clear_delusions()
 	var/datum/mind/mind = psycho_mind?.resolve()
 	mind?.remove_antag_datum(/datum/antagonist/cyberpsycho)
 	psycho_mind = null

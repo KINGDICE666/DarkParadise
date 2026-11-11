@@ -153,6 +153,18 @@
   transition: width 0.4s linear;
 }
 
+.Cyberdeck__sensors {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  margin-top: 0.5em;
+
+  .Cyberdeck__gaugeLabel {
+    margin-right: 0.4em;
+  }
+}
+
 .Cyberdeck__linkMode {
   background-color: var(--deck-glow);
   border: 1px dashed var(--deck-accent);

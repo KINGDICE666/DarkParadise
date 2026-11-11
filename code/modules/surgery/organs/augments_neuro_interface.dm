@@ -7,6 +7,7 @@
 #define NEURO_LOG_LIMIT 6
 #define NEURO_REBOOT_TIME (20 SECONDS)
 #define NEURO_DECK_INSTALL_TIME (2 SECONDS)
+#define NEURO_SENSOR_EMP_LOCK (30 SECONDS)
 #define NEURO_BOT_HACK_TIME (5 SECONDS)
 #define NEURO_BREACH_TIME (3 SECONDS)
 #define NEURO_OVERLOAD_TIME (3 SECONDS)
@@ -390,7 +391,10 @@
 	slot = INTERNAL_ORGAN_BRAIN_NEURO
 	cyber_cost = 0
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
-	actions_types = list(/datum/action/item_action/organ_action/neuro_sensors)
+	actions_types = list(
+		/datum/action/item_action/organ_action/neuro_sensors,
+		/datum/action/item_action/organ_action/augment/neuro_panel,
+	)
 	ignore_cybernetic_restrictions = TRUE
 	var/sensor_mode = SUIT_SENSOR_OFF
 	var/static/list/sensor_modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
@@ -400,10 +404,7 @@
 		SUIT_SENSOR_VITAL = "Теперь нейроадаптер будет передавать ваши жизненные показатели.",
 		SUIT_SENSOR_TRACKING = "Теперь нейроадаптер будет передавать ваши жизненные показатели и местоположение.",
 	)
-	var/static/list/deck_action_types = list(
-		/datum/action/item_action/organ_action/augment/neuro_panel,
-		/datum/action/item_action/organ_action/augment/neuro_link,
-	)
+	var/static/list/deck_action_types = list(/datum/action/item_action/organ_action/augment/neuro_link)
 	var/obj/item/cyberdeck/deck
 	var/list/atom/movable/linked_devices = list()
 	// Цель взлома => list("start" = время начала, "end" = время конца), нужно для полосы прогресса на панели
@@ -442,6 +443,7 @@
 		NEURO_KIND_WEAPON,
 	)
 	COOLDOWN_DECLARE(scan_cooldown)
+	COOLDOWN_DECLARE(sensor_emp_lock)
 
 /datum/action/item_action/organ_action/neuro_sensors
 	name = "Датчики нейроадаптера"
@@ -496,9 +498,20 @@
 	owner?.update_suit_sensors()
 	return TRUE
 
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/can_switch_sensors()
+	if(!COOLDOWN_FINISHED(src, sensor_emp_lock))
+		owner.balloon_alert(owner, "датчики сбоят!")
+		return FALSE
+	if(owner.stat != CONSCIOUS || owner.incapacitated() || owner.IsStunned() || owner.IsWeakened() || owner.IsKnockdown() || owner.IsParalyzed())
+		owner.balloon_alert(owner, "не сосредоточиться!")
+		return FALSE
+	return TRUE
+
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/choose_sensor_mode()
+	if(!can_switch_sensors())
+		return
 	var/new_mode = tgui_input_list(owner, "Выберите режим работы датчиков:", "Датчики нейроадаптера", sensor_modes, sensor_modes[sensor_mode + 1])
-	if(isnull(new_mode) || QDELETED(owner) || owner.incapacitated())
+	if(isnull(new_mode) || QDELETED(owner) || !can_switch_sensors())
 		return
 	sensor_mode = sensor_modes.Find(new_mode) - 1
 	to_chat(owner, span_notice(sensor_messages[sensor_mode]))
@@ -529,7 +542,10 @@
 	target?.update_suit_sensors()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/emp_act(severity)
-	if(!deck || has_feature(NEURO_FEATURE_FIREWALL))
+	if(emp_proof || has_feature(NEURO_FEATURE_FIREWALL))
+		return
+	COOLDOWN_START(src, sensor_emp_lock, NEURO_SENSOR_EMP_LOCK)
+	if(!deck)
 		return
 	. = ..()
 	if(!.)
@@ -552,12 +568,12 @@
 	if(istype(action, /datum/action/item_action/organ_action/neuro_sensors))
 		choose_sensor_mode()
 		return
-	if(!deck)
-		return
 	if(crit_fail)
 		notify_operator("нейропорт перезагружается!")
 		return
 	if(istype(action, /datum/action/item_action/organ_action/augment/neuro_link))
+		if(!deck)
+			return
 		set_link_mode(!link_mode)
 		notify_operator(link_mode ? "режим подключения" : "режим подключения выключен")
 		return
@@ -833,7 +849,7 @@
 	old_deck.forceMove(get_turf(owner))
 	owner.put_in_hands(old_deck)
 	reset_buffer()
-	trim_links()
+	clear_links()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/set_link_mode(new_state)
 	if(link_mode == new_state)
@@ -1621,8 +1637,10 @@
 		"kinds" = kinds,
 		"devices" = devices,
 		"hacks" = hacks,
-		"nearby" = nearby_devices(),
+		"nearby" = deck ? nearby_devices() : list(),
 		"log" = event_log,
+		"sensor_mode" = sensor_modes[sensor_mode + 1],
+		"sensor_modes" = sensor_modes,
 	)
 
 // Панель предлагает только то, что доступно прямо сейчас: сверка с кнопками не даёт поддельному запросу запустить чужое действие
@@ -1745,7 +1763,16 @@
 	if(..() || crit_fail || !owner)
 		return
 	switch(action)
+		if("set_sensors")
+			if(!(params["mode"] in sensor_modes) || !can_switch_sensors())
+				return
+			sensor_mode = sensor_modes.Find(params["mode"]) - 1
+			to_chat(owner, span_notice(sensor_messages[sensor_mode]))
+			owner.update_suit_sensors()
+			return TRUE
 		if("toggle_link_mode")
+			if(!deck)
+				return
 			set_link_mode(!link_mode)
 			return TRUE
 		if("eject_deck")
@@ -1760,6 +1787,8 @@
 			deck.eject_module(module, owner)
 			trim_links()
 			return TRUE
+	if(!deck)
+		return
 	var/atom/movable/device = locateUID(params["uid"])
 	if(!istype(device))
 		return
@@ -1788,6 +1817,7 @@
 #undef NEURO_LOG_LIMIT
 #undef NEURO_REBOOT_TIME
 #undef NEURO_DECK_INSTALL_TIME
+#undef NEURO_SENSOR_EMP_LOCK
 #undef NEURO_BOT_HACK_TIME
 #undef NEURO_BREACH_TIME
 #undef NEURO_OVERLOAD_TIME

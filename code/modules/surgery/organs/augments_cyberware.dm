@@ -13,6 +13,9 @@
 
 #define SANDEVISTAN_FILTER "sandevistan"
 #define SANDEVISTAN_STAMINA_MOD 0.1
+#define SANDEVISTAN_CLICK_MOD 0.4
+#define SANDEVISTAN_FULLSCREEN "sandevistan"
+#define SANDEVISTAN_FLASH "sandevistan_flash"
 #define SANDEVISTAN_EMP_GLITCH_CHANCE 50
 #define SANDEVISTAN_EMP_COOLDOWN_MOD 1.5
 #define SANDEVISTAN_OVERLOAD_RESET_TIME (2 MINUTES)
@@ -498,7 +501,19 @@
 /datum/movespeed_modifier/sandevistan
 	flags = IGNORE_NOSLOW
 	blacklisted_movetypes = FLOATING
-	multiplicative_slowdown = -0.8
+	multiplicative_slowdown = -1.1
+
+/datum/actionspeed_modifier/sandevistan
+	multiplicative_slowdown = -0.5
+
+/atom/movable/screen/fullscreen/sandevistan
+	icon = 'icons/mob/screen_gen.dmi'
+	screen_loc = "WEST,SOUTH to EAST,NORTH"
+	icon_state = "flash"
+	plane = LIGHTING_PLANE
+	layer = LIGHTING_ABOVE_ALL + 1
+	blend_mode = BLEND_MULTIPLY
+	color = "#9FFFD9"
 
 /obj/effect/temp_visual/decoy/fading/sandevistan
 	duration = 3
@@ -518,7 +533,9 @@
 	cyber_cost = 45
 	origin_tech = "materials=5;programming=5;biotech=5;combat=4"
 	actions_types = list(/datum/action/item_action/organ_action/use)
-	var/duration = 4 SECONDS
+	worn_state = "sandevistan"
+	worn_color = "#00FFFF"
+	var/duration = 6 SECONDS
 	var/cooldown = 15 SECONDS
 	var/strain_activation = 2
 	var/lethal_activation = 3
@@ -589,7 +606,16 @@
 		if(istype(human_owner))
 			human_owner.physiology.stamina_mod *= SANDEVISTAN_STAMINA_MOD
 		trail_timer = addtimer(CALLBACK(src, PROC_REF(leave_trail)), trail_interval, TIMER_LOOP|TIMER_STOPPABLE)
-		owner.playsound_local(owner, 'sound/machines/terminal_prompt_confirm.ogg', 50, FALSE)
+		owner.add_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
+		owner.next_move_modifier *= SANDEVISTAN_CLICK_MOD
+		RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(slip_projectile))
+		owner.overlay_fullscreen(SANDEVISTAN_FLASH, /atom/movable/screen/fullscreen/flash)
+		owner.clear_fullscreen(SANDEVISTAN_FLASH, 3)
+		owner.overlay_fullscreen(SANDEVISTAN_FULLSCREEN, /atom/movable/screen/fullscreen/sandevistan)
+		worn_glow = TRUE
+		update_worn_overlay()
+		playsound(owner, 'sound/effects/sandevistan/activate.ogg', 60, TRUE)
+		owner.playsound_local(owner, 'sound/effects/sandevistan/ambience.ogg', 60, FALSE)
 		to_chat(owner, span_notice("Зрение обостряется, и время вокруг будто замедляется."))
 		return
 	owner.remove_movespeed_modifier(/datum/movespeed_modifier/sandevistan)
@@ -598,8 +624,20 @@
 		human_owner.physiology.stamina_mod /= SANDEVISTAN_STAMINA_MOD
 	deltimer(trail_timer)
 	last_trail_turf = null
-	owner.playsound_local(owner, 'sound/machines/terminal_prompt_deny.ogg', 30, FALSE)
+	owner.remove_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
+	owner.next_move_modifier /= SANDEVISTAN_CLICK_MOD
+	UnregisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET)
+	owner.clear_fullscreen(SANDEVISTAN_FULLSCREEN, 5)
+	worn_glow = FALSE
+	update_worn_overlay()
+	playsound(owner, 'sound/effects/sandevistan/deactivate.ogg', 50, TRUE)
 	to_chat(owner, span_warning("Мир снова обретает обычную скорость: [declent_ru(NOMINATIVE)] отключается."))
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/slip_projectile(mob/living/carbon/human/source, obj/projectile/hitting_projectile, def_zone)
+	SIGNAL_HANDLER
+	new /obj/effect/temp_visual/decoy/fading/sandevistan(get_turf(source), source, trail_color || outline_color)
+	playsound(source, 'sound/effects/sandevistan/dodge.ogg', 40, TRUE)
+	return COMPONENT_BULLET_DEFLECTED
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/end_activation()
 	if(!active)
@@ -667,10 +705,10 @@
 /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun
 	name = "Cybersun Sandevistan"
 	cyber_cost = 55
-	desc = "Военный Сандевистан Cybersun. Разгон длится дольше, а тело выдерживает больше разгонов подряд, но конец у перегрузки тот же."
+	desc = "Военный Сандевистан Cybersun. Тело выдерживает больше разгонов подряд, но конец у перегрузки тот же."
 	icon_state = "militech_sandevistan"
 	origin_tech = "materials=6;programming=6;biotech=6;combat=6;syndicate=3"
-	duration = 6 SECONDS
+	worn_color = "#C2185B"
 	strain_activation = 3
 	lethal_activation = 5
 	outline_color = "#C2185B"
@@ -1229,6 +1267,9 @@
 
 #undef SANDEVISTAN_FILTER
 #undef SANDEVISTAN_STAMINA_MOD
+#undef SANDEVISTAN_CLICK_MOD
+#undef SANDEVISTAN_FULLSCREEN
+#undef SANDEVISTAN_FLASH
 #undef SANDEVISTAN_EMP_GLITCH_CHANCE
 #undef SANDEVISTAN_EMP_COOLDOWN_MOD
 #undef SANDEVISTAN_OVERLOAD_RESET_TIME

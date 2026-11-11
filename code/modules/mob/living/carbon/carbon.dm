@@ -15,6 +15,7 @@
 		temporarily_remove_item_from_inventory(item)
 		qdel(item)
 	QDEL_LIST(internal_organs)
+	QDEL_LAZYLIST(dormant_cyberware)
 	QDEL_LIST(stomach_contents)
 	QDEL_LIST(processing_patches)
 	var/mob/living/simple_animal/borer/B = has_brain_worms()

@@ -1,11 +1,9 @@
-#define RIPPERDOC_BASE_TIME 5
-#define RIPPERDOC_TIME_PER_COST 0.2
-#define RIPPERDOC_CONSENT_TIMEOUT (15 SECONDS)
 #define RIPPERDOC_LOG_LIMIT 6
+#define RIPPERDOC_POWER_TIME (3 SECONDS)
 
 /obj/machinery/optable/ripperdoc
 	name = "ripperdoc table"
-	desc = "Операционный стол рипердока: хромированные фиксаторы, нейросканер и манипуляторы для установки, снятия и прошивки кибернетических имплантов. Внизу кто-то нацарапал \"хром не лечит душу\"."
+	desc = "Стол для калибровки кибернетики. Сканер в изголовье находит всё, что установлено в пациенте, а тонкие манипуляторы правят прошивку прямо в теле. Подголовник протёрт до металла: лежали здесь многие."
 	icon = 'icons/obj/machines/ripperdoc.dmi'
 	icon_state = "ripperdoc-idle"
 	req_access = list(ACCESS_ROBOTICS)
@@ -17,6 +15,10 @@
 	var/operation_name
 	var/operation_time = 0
 	var/list/operation_log = list()
+	var/static/list/power_access = list(ACCESS_SECURITY)
+
+/obj/machinery/optable/ripperdoc/security
+	req_access = list(ACCESS_SECURITY)
 
 /obj/machinery/optable/ripperdoc/get_ru_names()
 	return alist(
@@ -56,30 +58,10 @@
 	update_icon(UPDATE_OVERLAYS)
 	set_light_on(!(stat & (NOPOWER|BROKEN)))
 
-/obj/machinery/optable/ripperdoc/proc/set_busy(new_name, duration = 0)
-	busy = !!new_name
-	operation_name = new_name
-	operation_time = duration
-	update_icon(UPDATE_ICON_STATE)
-	SStgui.update_uis(src)
-
-/obj/machinery/optable/ripperdoc/proc/log_operation(text, bad = FALSE)
-	operation_log += list(list("time" = station_time_timestamp("hh:mm"), "text" = text, "bad" = bad))
-	if(length(operation_log) > RIPPERDOC_LOG_LIMIT)
-		operation_log.Cut(1, 2)
-
-/obj/machinery/optable/ripperdoc/proc/play_servo()
-	if(busy)
-		playsound(src, 'sound/machines/ripperdoc/servo.ogg', 45, TRUE)
-
-/obj/machinery/optable/ripperdoc/proc/schedule_servo(duration)
-	addtimer(CALLBACK(src, PROC_REF(play_servo)), duration / 3)
-	addtimer(CALLBACK(src, PROC_REF(play_servo)), duration * 2 / 3)
-
 /obj/machinery/optable/ripperdoc/examine(mob/user)
 	. = ..()
 	if(loaded)
-		. += span_notice("В лотке лежит [loaded.declent_ru(NOMINATIVE)]. Alt+клик, чтобы достать.")
+		. += span_notice("В лотке лежит [loaded.declent_ru(NOMINATIVE)]. Alt+клик, чтобы забрать.")
 
 /obj/machinery/optable/ripperdoc/attack_hand(mob/user)
 	if(..())
@@ -121,18 +103,27 @@
 	playsound(src, 'sound/machines/terminal_eject.ogg', 40, TRUE)
 	SStgui.update_uis(src)
 
-/obj/machinery/optable/ripperdoc/proc/get_operation_time(obj/item/organ/internal/cyberimp/implant)
-	return (RIPPERDOC_BASE_TIME + implant.cyber_cost * RIPPERDOC_TIME_PER_COST) SECONDS
+/obj/machinery/optable/ripperdoc/proc/set_busy(new_name, duration = 0)
+	busy = !!new_name
+	operation_name = new_name
+	operation_time = duration
+	update_icon(UPDATE_ICON_STATE)
+	SStgui.update_uis(src)
 
-/obj/machinery/optable/ripperdoc/proc/can_operate(mob/user)
+/obj/machinery/optable/ripperdoc/proc/log_operation(text, bad = FALSE)
+	operation_log += list(list("time" = station_time_timestamp("hh:mm"), "text" = text, "bad" = bad))
+	if(length(operation_log) > RIPPERDOC_LOG_LIMIT)
+		operation_log.Cut(1, 2)
+
+/obj/machinery/optable/ripperdoc/proc/is_hidden(obj/item/organ/internal/cyberimp/implant)
+	return !implant.is_robotic() || implant.is_contraband()
+
+/obj/machinery/optable/ripperdoc/proc/can_configure(mob/user)
 	if(stat & (NOPOWER|BROKEN))
 		balloon_alert(user, "нет питания!")
 		return FALSE
 	if(busy)
-		balloon_alert(user, "идёт операция!")
-		return FALSE
-	if(!patient)
-		balloon_alert(user, "нет пациента!")
+		balloon_alert(user, "манипуляторы заняты!")
 		return FALSE
 	if(!allowed(user))
 		playsound(src, 'sound/machines/buzz-two.ogg', 40, TRUE)
@@ -140,108 +131,47 @@
 		return FALSE
 	return TRUE
 
-/obj/machinery/optable/ripperdoc/proc/install_loaded(mob/user)
+/obj/machinery/optable/ripperdoc/proc/toggle_implant_power(mob/user, obj/item/organ/internal/cyberimp/implant)
 	var/mob/living/carbon/target = patient
-	var/obj/item/organ/internal/cyberimp/implant = loaded
-	if(!implant || !can_operate(user))
+	if(!target || !can_configure(user))
 		return
-	if(!target.get_organ(check_zone(implant.parent_organ_zone)))
-		balloon_alert(user, "нет нужной части тела!")
+	if(!has_access(power_access, FALSE, user.get_access()))
+		playsound(src, 'sound/machines/buzz-two.ogg', 40, TRUE)
+		balloon_alert(user, "нужен доступ службы безопасности!")
 		return
-	if(!implant.ignore_cybernetic_restrictions && HAS_TRAIT(target, TRAIT_NO_CYBERIMPLANTS))
-		balloon_alert(user, "организм отторгает импланты!")
-		return
-	if(!implant.can_insert(user, target))
-		return
-	var/obj/item/organ/internal/replaced = target.get_organ_slot(implant.slot)
-	if(replaced?.unremovable)
-		balloon_alert(user, "слот занят намертво!")
+	var/waking = implant.dormant_host == target
+	if(!waking && !implant.can_go_dormant())
+		balloon_alert(user, "этот имплант не отключить!")
 		return
 
-	var/duration = get_operation_time(implant)
-	set_busy("Ожидание согласия")
-	if(target.stat == CONSCIOUS && target.client)
-		var/answer = tgui_alert(target, "[DECLENT_RU_CAP(implant, NOMINATIVE)] будет установлен вам рипердоком. Согласны?", "Установка импланта", list("Да", "Нет"), RIPPERDOC_CONSENT_TIMEOUT)
-		if(answer != "Да")
-			set_busy(null)
-			playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
-			balloon_alert(user, "пациент отказался!")
-			log_operation("Пациент отказался от установки", bad = TRUE)
-			return
-	var/obj/item/organ/internal/cyberimp/replaced_implant = replaced
-	var/freed = istype(replaced_implant) ? replaced_implant.cyber_cost : 0
-	if(target.get_cyber_load() - freed + implant.cyber_cost > target.cyber_capacity)
+	set_busy(waking ? "Включение: [implant.declent_ru(NOMINATIVE)]" : "Отключение: [implant.declent_ru(NOMINATIVE)]", RIPPERDOC_POWER_TIME)
+	playsound(src, 'sound/machines/ripperdoc/servo.ogg', 45, TRUE)
+	var/success = do_after(user, RIPPERDOC_POWER_TIME, target)
+	set_busy(null)
+	if(!success || patient != target)
 		playsound(src, 'sound/machines/ripperdoc/glitch.ogg', 45, TRUE)
-		balloon_alert(user, "перегрузка совместимости!")
-	set_busy("Установка: [implant.declent_ru(NOMINATIVE)]", duration)
-	playsound(src, 'sound/surgery/surgicaldrill.ogg', 50, TRUE)
-	playsound(src, 'sound/machines/ripperdoc/scan.ogg', 35, TRUE)
-	schedule_servo(duration)
-	target.visible_message(span_notice("Манипуляторы [declent_ru(GENITIVE)] вскрывают [target.declent_ru(ACCUSATIVE)] и подводят [implant.declent_ru(ACCUSATIVE)] к разъёму."))
-	var/success = do_after(user, duration, target)
-	set_busy(null)
-	if(!success || loaded != implant || patient != target)
-		playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
-		log_operation("Установка прервана", bad = TRUE)
+		log_operation("Манипуляторы отведены", bad = TRUE)
 		return
 
-	loaded = null
-	if(replaced)
-		replaced.remove(target, ORGAN_MANIPULATION_NOEFFECT)
-		replaced.forceMove(loc)
-	var/datum/status_effect/cyberpsychosis/psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
-	var/stage_before = psychosis ? psychosis.stage : 0
-	implant.insert(target)
-	target.update_icons()
-	playsound(src, 'sound/machines/ripperdoc/install.ogg', 50, TRUE)
-	log_operation("Установлен: [implant.declent_ru(NOMINATIVE)]")
-	psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
-	if(psychosis && psychosis.stage > stage_before)
-		playsound(src, 'sound/machines/ripperdoc/glitch.ogg', 60, TRUE)
-		log_operation("Нейросбой: [psychosis.get_stage_name()]", bad = TRUE)
-	target.visible_message(span_notice("[DECLENT_RU_CAP(implant, NOMINATIVE)] щёлкает, входя в разъём, а манипуляторы [declent_ru(GENITIVE)] складываются."))
-	add_attack_logs(user, target, "installed [implant] with a ripperdoc table, cyber load [target.get_cyber_load()]/[target.cyber_capacity]")
-	SStgui.update_uis(src)
-
-/obj/machinery/optable/ripperdoc/proc/extract_implant(mob/user, obj/item/organ/internal/cyberimp/implant)
-	var/mob/living/carbon/target = patient
-	if(!can_operate(user))
-		return
-	if(implant.owner != target || implant.unremovable)
-		balloon_alert(user, "не извлечь!")
-		return
-
-	var/duration = get_operation_time(implant)
-	set_busy("Извлечение: [implant.declent_ru(NOMINATIVE)]", duration)
-	playsound(src, 'sound/surgery/saw1.ogg', 50, TRUE)
-	schedule_servo(duration)
-	target.visible_message(span_notice("Манипуляторы [declent_ru(GENITIVE)] тянутся к [implant.declent_ru(DATIVE)] в теле [target.declent_ru(GENITIVE)]."))
-	var/success = do_after(user, duration, target)
-	set_busy(null)
-	if(!success || implant.owner != target || patient != target)
-		playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
-		log_operation("Извлечение прервано", bad = TRUE)
-		return
-
-	implant.remove(target)
-	target.update_icons()
-	if(loaded)
-		implant.forceMove(loc)
+	if(waking)
+		if(implant.dormant_host != target || !implant.wake_up())
+			playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
+			log_operation("Разъём занят, включить не вышло", bad = TRUE)
+			return
+		playsound(src, 'sound/machines/ripperdoc/install.ogg', 50, TRUE)
+		log_operation("Включён: [implant.declent_ru(NOMINATIVE)]")
 	else
-		implant.forceMove(src)
-		loaded = implant
-	playsound(src, 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
-	log_operation("Извлечён: [implant.declent_ru(NOMINATIVE)]")
-	target.visible_message(span_notice("[DECLENT_RU_CAP(implant, NOMINATIVE)] с влажным щелчком выходит из разъёма."))
-	add_attack_logs(user, target, "extracted [implant] with a ripperdoc table, cyber load [target.get_cyber_load()]/[target.cyber_capacity]")
+		if(implant.owner != target)
+			return
+		implant.go_dormant()
+		playsound(src, 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
+		log_operation("Отключён: [implant.declent_ru(NOMINATIVE)]")
+	target.update_icons()
+	add_attack_logs(user, target, "[waking ? "enabled" : "disabled"] [implant] with a ripperdoc table")
 	SStgui.update_uis(src)
 
 /obj/machinery/optable/ripperdoc/proc/configure_implant(mob/user, obj/item/organ/internal/cyberimp/implant, setting_id, value)
-	if(stat & (NOPOWER|BROKEN))
-		balloon_alert(user, "нет питания!")
-		return FALSE
-	if(busy || !allowed(user))
-		playsound(src, 'sound/machines/buzz-two.ogg', 40, TRUE)
+	if(!can_configure(user))
 		return FALSE
 	var/list/setting
 	for(var/list/candidate as anything in implant.get_ripper_settings())
@@ -265,9 +195,11 @@
 
 /obj/machinery/optable/ripperdoc/proc/find_implant(uid)
 	var/obj/item/organ/internal/cyberimp/implant = locateUID(uid)
-	if(!istype(implant))
+	if(!istype(implant) || is_hidden(implant))
 		return null
-	if(implant == loaded || (patient && implant.owner == patient && implant.is_robotic()))
+	if(implant == loaded)
+		return implant
+	if(patient && (implant.owner == patient || implant.dormant_host == patient))
 		return implant
 	return null
 
@@ -278,10 +210,32 @@
 		"desc" = implant.desc,
 		"zone" = implant.parent_organ_zone,
 		"cost" = implant.cyber_cost,
-		"removable" = !implant.unremovable,
+		"dormant" = !!implant.dormant_host,
+		"canToggle" = implant.dormant_host ? TRUE : implant.can_go_dormant(),
 		"broken" = !!implant.crit_fail,
-		"settings" = implant.get_ripper_settings(),
+		"settings" = implant.dormant_host ? list() : implant.get_ripper_settings(),
 	)
+
+/obj/machinery/optable/ripperdoc/proc/get_encyclopedia()
+	var/static/list/entries
+	if(entries)
+		return entries
+	entries = list()
+	var/list/seen_names = list()
+	for(var/implant_type in valid_subtypesof(/obj/item/organ/internal/cyberimp))
+		var/obj/item/organ/internal/cyberimp/implant = new implant_type
+		var/implant_name = DECLENT_RU_CAP(implant, NOMINATIVE)
+		if(!is_hidden(implant) && !(implant_name in seen_names))
+			seen_names += implant_name
+			entries += list(list(
+				"name" = implant_name,
+				"desc" = implant.desc,
+				"zone" = implant.parent_organ_zone,
+				"cost" = implant.cyber_cost,
+				"icon" = icon2base64(getFlatIcon(implant, no_anim = TRUE)),
+			))
+		qdel(implant)
+	return entries
 
 /obj/machinery/optable/ripperdoc/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -296,7 +250,7 @@
 		"maxCapacity" = CYBER_CAPACITY_MAX,
 		"baseCapacity" = CYBER_CAPACITY_BASE,
 		"chipBonus" = CYBER_CAPACITY_CHIP_BONUS,
-		"psychoStage" = CYBERPSYCHOSIS_STAGE_PSYCHO,
+		"encyclopedia" = get_encyclopedia(),
 	)
 
 /obj/machinery/optable/ripperdoc/ui_data(mob/user)
@@ -307,39 +261,32 @@
 		"log" = operation_log,
 		"powered" = !(stat & (NOPOWER|BROKEN)),
 		"hasAccess" = allowed(user),
+		"canToggle" = has_access(power_access, FALSE, user.get_access()),
 		"patient" = null,
 		"implants" = list(),
 		"loaded" = null,
 	)
 	var/mob/living/carbon/target = patient
-	var/load = target?.get_cyber_load()
 	if(target)
-		var/datum/status_effect/cyberpsychosis/psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
 		data["patient"] = list(
 			"name" = target.name,
 			"health" = round(target.health / target.maxHealth * 100),
 			"stat" = target.stat,
 			"capacity" = target.cyber_capacity,
-			"load" = load,
+			"load" = target.get_cyber_load(),
 			"neuroadapter" = !!target.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO),
-			"psychosisStage" = psychosis ? psychosis.stage : 0,
-			"psychosisName" = psychosis?.get_stage_name(),
 		)
 		var/list/implants = list()
 		for(var/obj/item/organ/internal/cyberimp/implant in target.internal_organs)
-			if(implant.is_robotic())
+			if(!is_hidden(implant))
+				implants += list(get_implant_data(implant))
+		for(var/obj/item/organ/internal/cyberimp/implant as anything in target.dormant_cyberware)
+			if(!is_hidden(implant))
 				implants += list(get_implant_data(implant))
 		data["implants"] = implants
 
 	if(loaded)
-		var/list/loaded_data = get_implant_data(loaded)
-		if(target)
-			var/obj/item/organ/internal/cyberimp/replaced = target.get_organ_slot(loaded.slot)
-			var/freed = istype(replaced) ? replaced.cyber_cost : 0
-			loaded_data["freed"] = freed
-			loaded_data["replaces"] = replaced ? DECLENT_RU_CAP(replaced, NOMINATIVE) : null
-			loaded_data["risk"] = get_cyberpsychosis_chance(load - freed + loaded.cyber_cost - target.cyber_capacity)
-		data["loaded"] = loaded_data
+		data["loaded"] = is_hidden(loaded) ? list("uid" = null, "name" = "Неопознанный имплант", "hidden" = TRUE) : get_implant_data(loaded)
 	return data
 
 /obj/machinery/optable/ripperdoc/ui_act(action, list/params)
@@ -349,20 +296,18 @@
 		return
 	. = TRUE
 	switch(action)
-		if("install")
-			INVOKE_ASYNC(src, PROC_REF(install_loaded), usr)
-		if("extract")
-			var/obj/item/organ/internal/cyberimp/implant = find_implant(params["uid"])
-			if(!implant || implant == loaded)
-				return FALSE
-			INVOKE_ASYNC(src, PROC_REF(extract_implant), usr, implant)
 		if("eject")
 			if(!loaded || busy)
 				return FALSE
 			eject_loaded(usr)
+		if("toggle_power")
+			var/obj/item/organ/internal/cyberimp/implant = find_implant(params["uid"])
+			if(!implant || implant == loaded)
+				return FALSE
+			INVOKE_ASYNC(src, PROC_REF(toggle_implant_power), usr, implant)
 		if("setting")
 			var/obj/item/organ/internal/cyberimp/implant = find_implant(params["uid"])
-			if(!implant)
+			if(!implant || implant.dormant_host)
 				return FALSE
 			if(configure_implant(usr, implant, params["id"], params["value"]))
 				add_attack_logs(usr, implant.owner || src, "set [params["id"]] of [implant] to [params["value"]] with a ripperdoc table", ATKLOG_ALMOSTALL)
@@ -370,7 +315,5 @@
 			return FALSE
 	add_fingerprint(usr)
 
-#undef RIPPERDOC_BASE_TIME
-#undef RIPPERDOC_TIME_PER_COST
-#undef RIPPERDOC_CONSENT_TIMEOUT
 #undef RIPPERDOC_LOG_LIMIT
+#undef RIPPERDOC_POWER_TIME

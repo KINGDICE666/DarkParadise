@@ -7,6 +7,11 @@
 	var/cyber_cost = 10
 	var/can_pause = FALSE
 	var/paused = FALSE
+	var/worn_icon = 'icons/mob/cyberware.dmi'
+	var/worn_state
+	var/worn_color
+	var/worn_glow = FALSE
+	var/mob/living/carbon/dormant_host
 	tough = TRUE // Immune to damage
 	pickup_sound = 'sound/items/handling/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/component_drop.ogg'
@@ -38,6 +43,20 @@
 
 /obj/item/organ/internal/cyberimp/can_insert(mob/living/user, mob/living/carbon/target, fail_message = "Данное устройство не предусмотрено для существ с подобной анатомией.")
 	. = ..()
+
+/obj/item/organ/internal/cyberimp/render()
+	if(!worn_state)
+		return
+	var/mutable_appearance/worn_overlay = mutable_appearance(worn_icon, worn_state, layer = -CYBERWARE_WORN_LAYER)
+	worn_overlay.color = worn_color
+	if(!worn_glow)
+		return worn_overlay
+	return list(worn_overlay, emissive_appearance(worn_icon, worn_state, owner, layer = -CYBERWARE_WORN_LAYER))
+
+/obj/item/organ/internal/cyberimp/proc/update_worn_overlay()
+	var/mob/living/carbon/human/human_owner = owner
+	if(istype(human_owner))
+		human_owner.update_int_organs()
 
 /obj/item/organ/internal/cyberimp/proc/get_ripper_settings()
 	. = list()

@@ -241,19 +241,6 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   box-shadow: 0 0 6px $rd-red;
 }
 
-.RipperDoc__segment--preview {
-  background: $rd-red-soft;
-  box-shadow: 0 0 5px rgba(255, 60, 70, 0.7);
-  animation: RipperDoc__blink 0.9s steps(2) infinite;
-}
-
-.RipperDoc__segment--overload {
-  margin-right: -10px;
-  background: $rd-red;
-  box-shadow: 0 0 6px $rd-red;
-  animation: RipperDoc__blink 0.6s steps(2) infinite;
-}
-
 @keyframes RipperDoc__blink {
   50% {
     opacity: 0.4;
@@ -307,19 +294,6 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   border-color: $rd-red;
 }
 
-.RipperDoc__gaugeDelta {
-  padding: 0 3px;
-  color: $rd-red;
-  font-size: 11px;
-  line-height: 13px;
-  border: 1px solid $rd-red-dim;
-}
-
-.RipperDoc__gaugeDelta--plus {
-  color: $rd-cyan;
-  border-color: $rd-cyan-dim;
-}
-
 .RipperDoc__stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -349,44 +323,6 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
     font-size: 10px;
     font-style: normal;
   }
-}
-
-.RipperDoc__psychosisBar {
-  display: flex;
-  gap: 3px;
-  height: 10px;
-}
-
-.RipperDoc__psychosisCell {
-  flex: 1;
-  background: $rd-red-faint;
-  border: 1px solid rgba(255, 60, 70, 0.2);
-  transform: skewX(-20deg);
-}
-
-.RipperDoc__psychosisCell--on {
-  background: $rd-red-soft;
-  box-shadow: 0 0 5px rgba(255, 60, 70, 0.6);
-}
-
-.RipperDoc__psychosisCell--psycho {
-  background: $rd-red;
-  animation: RipperDoc__blink 0.5s steps(2) infinite;
-}
-
-.RipperDoc__psychosisText {
-  margin-top: 4px;
-  color: $rd-red-soft;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.RipperDoc__psychosisText--psycho {
-  color: $rd-red;
-  font-weight: bold;
-  text-shadow: 0 0 6px $rd-red;
-  animation: RipperDoc__glitch 1.2s steps(1) infinite;
 }
 
 .RipperDoc__list {
@@ -689,29 +625,6 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   font-weight: bold;
 }
 
-.RipperDoc__trayStat {
-  text-align: center;
-}
-
-.RipperDoc__trayValue {
-  color: $rd-red-soft;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.RipperDoc__trayValue--good {
-  color: $rd-cyan;
-}
-
-.RipperDoc__trayValue--warn {
-  color: $rd-yellow;
-}
-
-.RipperDoc__trayValue--bad {
-  color: $rd-red;
-  text-shadow: 0 0 6px $rd-red;
-}
-
 .RipperDoc__trayButtons {
   display: flex;
   gap: 6px;
@@ -735,9 +648,10 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
 
 .RipperDoc__busyText {
   color: $rd-red;
-  font-size: 26px;
+  font-size: 18px;
   font-weight: bold;
-  letter-spacing: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
   text-shadow: 0 0 12px $rd-red;
   animation: RipperDoc__glitch 1s steps(1) infinite;
 }
@@ -960,4 +874,153 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   to {
     width: 100%;
   }
+}
+
+.RipperDoc__pill--button {
+  color: $rd-yellow;
+  font-family: $rd-mono;
+  cursor: pointer;
+  background: rgba(243, 230, 0, 0.06);
+  border-color: $rd-yellow-dim;
+
+  &:hover {
+    color: $rd-bg;
+    background: $rd-yellow;
+  }
+}
+
+.RipperDoc__row--dormant {
+  opacity: 0.55;
+  border-left-color: rgba(255, 255, 255, 0.15);
+
+  .RipperDoc__rowName {
+    font-style: italic;
+  }
+}
+
+.RipperDoc__dormant {
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  color: $rd-cyan;
+  font-size: 11px;
+  background: rgba(94, 246, 255, 0.06);
+  border: 1px dashed $rd-cyan-dim;
+}
+
+.RipperDoc__globeOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  background:
+    radial-gradient(circle at 40% 50%, rgba(255, 60, 70, 0.12), transparent 55%),
+    rgba(10, 9, 13, 0.96);
+  animation: RipperDoc__rowIn 0.25s ease-out both;
+}
+
+.RipperDoc__globeHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid $rd-red-dim;
+}
+
+.RipperDoc__globeClose {
+  width: auto;
+  margin: 0;
+}
+
+.RipperDoc__globeBody {
+  display: flex;
+  flex: 1;
+  gap: 14px;
+  min-height: 0;
+  margin-top: 8px;
+}
+
+.RipperDoc__globe {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.RipperDoc__globeCore {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 380px;
+  height: 380px;
+  border: 1px solid rgba(255, 60, 70, 0.18);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 60, 70, 0.1),
+    rgba(10, 9, 13, 0) 70%
+  );
+  box-shadow:
+    inset 0 0 40px rgba(255, 60, 70, 0.12),
+    0 0 30px rgba(255, 60, 70, 0.08);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    position: absolute;
+    inset: 0;
+    border: 1px dashed rgba(94, 246, 255, 0.12);
+    border-radius: 50%;
+    content: '';
+  }
+
+  &::before {
+    transform: scaleX(0.35);
+  }
+
+  &::after {
+    transform: scaleY(0.35);
+  }
+}
+
+.RipperDoc__globeIcon {
+  position: absolute;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 3px rgba(255, 60, 70, 0.5));
+  transition:
+    filter 0.15s,
+    transform 0.15s;
+}
+
+.RipperDoc__globeIcon--hovered,
+.RipperDoc__globeIcon:hover {
+  filter: drop-shadow(0 0 6px $rd-yellow);
+  transform: scale(1.35);
+}
+
+.RipperDoc__globeCard {
+  width: 250px;
+  padding: 10px;
+  overflow-y: auto;
+  background: $rd-panel;
+  border: 1px solid $rd-red-faint;
+  border-top: 2px solid $rd-yellow;
+
+  @include rd-cut(14px);
+}
+
+.RipperDoc__globeCardIcon {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 8px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 8px rgba(243, 230, 0, 0.4));
 }

@@ -114007,7 +114007,7 @@
 /turf/simulated/floor/plating,
 /area/station/hallway/secondary/exit)
 "vxf" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/machinery/shower/directional/south,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
