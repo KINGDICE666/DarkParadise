@@ -345,7 +345,6 @@
 	icon_state = "implant_gorilla_arms"
 	origin_tech = "materials=6;biotech=5;combat=6;syndicate=3"
 	punch_bonus = 8
-	door_force_time = 3 SECONDS
 	var/combo_speed = 1
 	var/combo_timer
 	var/datum/weakref/punch_target
@@ -381,8 +380,16 @@
 	combo_timer = addtimer(CALLBACK(src, PROC_REF(set_combo_speed), 1), GORILLA_COMBO_RESET_TIME, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_STOPPABLE)
 	var/mob/living/target = punch_target?.resolve()
 	punch_target = null
-	if(target && !target.anchored)
+	if(can_knock_back(target))
 		addtimer(CALLBACK(src, PROC_REF(knock_back), target), 1)
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/can_knock_back(mob/living/target)
+	if(!target || target.anchored || target.mob_size > MOB_SIZE_HUMAN || target.move_resist > MOVE_RESIST_DEFAULT)
+		return FALSE
+	return (target.status_flags & CANPUSH) && !HAS_TRAIT(target, TRAIT_PUSHIMMUNE)
+
+/obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/can_smash_window(obj/structure/window/window)
+	return !(window.glass_type in plasma_glass) && !(window.resistance_flags & INDESTRUCTIBLE)
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/on_unarmed_attack(mob/living/carbon/source, atom/target, proximity_flag, list/modifiers)
 	SIGNAL_HANDLER
@@ -394,7 +401,7 @@
 		return NONE
 	if(istype(target, /obj/structure/window))
 		var/obj/structure/window/window = target
-		if(window.glass_type in plasma_glass)
+		if(!can_smash_window(window))
 			return NONE
 		source.do_attack_animation(window)
 		source.changeNext_move(CLICK_CD_MELEE)
@@ -438,9 +445,9 @@
 	SIGNAL_HANDLER
 	if(istype(hit_atom, /obj/structure/window))
 		var/obj/structure/window/window = hit_atom
-		if(!(window.glass_type in plasma_glass))
-			INVOKE_ASYNC(window, TYPE_PROC_REF(/obj, deconstruct), FALSE)
-			return
+		if(can_smash_window(window))
+			window.deconstruct(FALSE)
+			return COMPONENT_MOVABLE_IMPACT_NEVERMIND
 	if(!iswallturf(hit_atom) && !(isobj(hit_atom) && hit_atom.density))
 		return
 	source.apply_damage(GORILLA_WALL_SLAM_DAMAGE, BRUTE)
@@ -718,7 +725,8 @@
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/on_block_changed()
 	if(blocked)
-		end_activation()
+		deltimer(active_timer)
+		set_active(FALSE)
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/end_activation()
 	if(!active)

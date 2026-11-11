@@ -12,6 +12,7 @@
 	var/worn_color
 	var/worn_glow = FALSE
 	var/blocked = FALSE
+	var/list/block_sources
 	tough = TRUE // Immune to damage
 	pickup_sound = 'sound/items/handling/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/component_drop.ogg'
@@ -60,13 +61,28 @@
 	return blocked
 
 /obj/item/organ/internal/cyberimp/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
-	set_blocked(FALSE)
+	clear_blocks()
 	return ..()
 
 /obj/item/organ/internal/cyberimp/proc/can_block()
 	return owner && is_robotic() && !unremovable && !is_contraband()
 
-/obj/item/organ/internal/cyberimp/proc/set_blocked(new_state)
+/obj/item/organ/internal/cyberimp/proc/can_lock()
+	return owner && is_robotic()
+
+/obj/item/organ/internal/cyberimp/proc/set_blocked(new_state, source = CYBERWARE_BLOCK_MANUAL)
+	if(new_state)
+		LAZYOR(block_sources, source)
+	else
+		LAZYREMOVE(block_sources, source)
+	return update_blocked()
+
+/obj/item/organ/internal/cyberimp/proc/clear_blocks()
+	block_sources = null
+	return update_blocked()
+
+/obj/item/organ/internal/cyberimp/proc/update_blocked()
+	var/new_state = LAZYLEN(block_sources) > 0
 	if(blocked == new_state)
 		return FALSE
 	blocked = new_state

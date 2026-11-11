@@ -1845,23 +1845,19 @@
 		addtimer(CALLBACK(src, PROC_REF(progress_cyberware_hack), victim), 1 SECONDS)
 		return
 	running_hacks -= victim
-	var/list/blocked_refs = list()
 	for(var/obj/item/organ/internal/cyberimp/implant in victim.internal_organs)
-		if(implant.blocked || !implant.is_robotic() || istype(implant, /obj/item/organ/internal/cyberimp/brain/neuro_interface))
+		if(!implant.can_lock())
 			continue
-		implant.set_blocked(TRUE)
-		blocked_refs += WEAKREF(implant)
-	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(release_hacked_cyberware), blocked_refs), NEURO_CYBER_BLOCK_TIME)
+		implant.set_blocked(TRUE, CYBERWARE_BLOCK_HACK)
+		addtimer(CALLBACK(implant, TYPE_PROC_REF(/obj/item/organ/internal/cyberimp, set_blocked), FALSE, CYBERWARE_BLOCK_HACK), NEURO_CYBER_BLOCK_TIME, TIMER_UNIQUE|TIMER_OVERRIDE)
 	victim.playsound_local(get_turf(victim), 'sound/machines/ripperdoc/glitch.ogg', 50, FALSE)
 	to_chat(victim, span_userdanger("Импланты разом гаснут: кто-то отключил вашу кибернетику!"))
 	notify_operator("импланты отключены")
 	log_event("Импланты отключены: [DECLENT_RU_CAP(victim, NOMINATIVE)]")
 	add_attack_logs(get_operator(), victim, "blocked cyberware with [src]")
 
-/proc/release_hacked_cyberware(list/implant_refs)
-	for(var/datum/weakref/implant_ref as anything in implant_refs)
-		var/obj/item/organ/internal/cyberimp/implant = implant_ref.resolve()
-		implant?.set_blocked(FALSE)
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/can_lock()
+	return FALSE
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_act(action, params)
 	if(..() || crit_fail || !owner)

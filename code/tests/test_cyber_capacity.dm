@@ -159,8 +159,12 @@
 	TEST_ASSERT(hud.blocked && hud.owner == patient, "cyberware lock did not block the HUD in place")
 	TEST_ASSERT(!neuro.blocked, "cyberware lock blocked the neuroadapter")
 	TEST_ASSERT_EQUAL(neuro.owner, patient, "cyberware lock turned off the neuroadapter")
+	TEST_ASSERT(!lock.can_lock(), "cyberware lock can lock itself")
+	hud.set_blocked(TRUE)
 	lock.emp_act(EMP_LIGHT)
 	TEST_ASSERT(QDELETED(lock), "cyberware lock survived an EMP")
+	TEST_ASSERT(hud.blocked, "burned out lock cleared a ripperdoc block")
+	hud.set_blocked(FALSE)
 	TEST_ASSERT(!hud.blocked, "implants stayed blocked after the lock burned out")
 
 /datum/unit_test/room_test/cyber_capacity/proc/check_stabilicin()

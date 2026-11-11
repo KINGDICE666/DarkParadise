@@ -176,7 +176,10 @@
 
 	if(implant.owner != target)
 		return
-	implant.set_blocked(!waking)
+	if(waking)
+		implant.clear_blocks()
+	else
+		implant.set_blocked(TRUE)
 	playsound(src, waking ? 'sound/machines/ripperdoc/install.ogg' : 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
 	log_operation("[waking ? "Включён" : "Отключён"]: [implant.declent_ru(NOMINATIVE)]")
 	add_attack_logs(user, target, "[waking ? "enabled" : "disabled"] [implant] with a ripperdoc table")

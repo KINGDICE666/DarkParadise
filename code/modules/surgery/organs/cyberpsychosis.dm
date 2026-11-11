@@ -9,17 +9,17 @@
 		return 0
 	return round(100 * (1 - (1 - CYBERPSYCHOSIS_UNIT_CHANCE) ** overflow), 0.1)
 
-/mob/living/carbon/proc/get_cyber_load()
+/mob/living/carbon/proc/get_cyber_load(count_blocked = FALSE)
 	. = 0
 	for(var/obj/item/organ/internal/cyberimp/implant in internal_organs)
 		if(implant.is_robotic())
-			. += implant.blocked ? round(implant.cyber_cost * CYBERWARE_BLOCKED_LOAD) : implant.cyber_cost
+			. += (implant.blocked && !count_blocked) ? round(implant.cyber_cost * CYBERWARE_BLOCKED_LOAD) : implant.cyber_cost
 
 /mob/living/carbon/proc/adjust_cyber_capacity(amount)
 	cyber_capacity = clamp(cyber_capacity + amount, 0, CYBER_CAPACITY_MAX)
 
-/mob/living/carbon/proc/is_cyber_overloaded()
-	return get_cyber_load() > cyber_capacity
+/mob/living/carbon/proc/is_cyber_overloaded(count_blocked = FALSE)
+	return get_cyber_load(count_blocked) > cyber_capacity
 
 /mob/living/carbon/proc/roll_cyberpsychosis()
 	if(!prob(get_cyberpsychosis_chance(get_cyber_load() - cyber_capacity)))
@@ -132,7 +132,7 @@
 	next_suppress_time = 0
 	var/overloaded = carbon_owner.is_cyber_overloaded()
 	if(stage >= CYBERPSYCHOSIS_STAGE_PSYCHO)
-		if(!overloaded)
+		if(!carbon_owner.is_cyber_overloaded(count_blocked = TRUE))
 			qdel(src)
 			return
 		refresh_delusions()

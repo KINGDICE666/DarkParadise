@@ -5,7 +5,6 @@
 	slot = INTERNAL_ORGAN_BRAIN_CYBERLOCK
 	cyber_cost = 0
 	origin_tech = "materials=4;programming=6;biotech=4"
-	var/list/datum/weakref/locked_implants = list()
 
 /obj/item/organ/internal/cyberimp/brain/cyberlock/get_ru_names()
 	return alist(
@@ -42,19 +41,17 @@
 	remove(host)
 	qdel(src)
 
+/obj/item/organ/internal/cyberimp/brain/cyberlock/can_lock()
+	return FALSE
+
 /obj/item/organ/internal/cyberimp/brain/cyberlock/proc/lock_all()
 	for(var/obj/item/organ/internal/cyberimp/implant in owner.internal_organs)
-		if(implant == src || implant.blocked || !implant.is_robotic() || istype(implant, /obj/item/organ/internal/cyberimp/brain/neuro_interface))
-			continue
-		implant.set_blocked(TRUE)
-		locked_implants += WEAKREF(implant)
+		if(implant.can_lock())
+			implant.set_blocked(TRUE, CYBERWARE_BLOCK_CYBERLOCK)
 
 /obj/item/organ/internal/cyberimp/brain/cyberlock/proc/release_all()
-	for(var/datum/weakref/implant_ref as anything in locked_implants)
-		var/obj/item/organ/internal/cyberimp/implant = implant_ref.resolve()
-		if(implant?.owner == owner)
-			implant.set_blocked(FALSE)
-	locked_implants.Cut()
+	for(var/obj/item/organ/internal/cyberimp/implant in owner.internal_organs)
+		implant.set_blocked(FALSE, CYBERWARE_BLOCK_CYBERLOCK)
 
 /obj/item/cyberlock_injector
 	name = "cyberware lock injector"
