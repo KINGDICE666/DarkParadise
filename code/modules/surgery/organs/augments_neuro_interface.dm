@@ -34,6 +34,10 @@
 #define NEURO_FEATURE_BOTS (1<<4)
 #define NEURO_FEATURE_BREACH (1<<5)
 #define NEURO_FEATURE_SECURITY (1<<6)
+#define NEURO_FEATURE_CYBERWARE (1<<7)
+#define NEURO_SENSOR_HACK_LOCK (1 MINUTES)
+#define NEURO_CYBER_HACK_TIME (8 SECONDS)
+#define NEURO_CYBER_BLOCK_TIME (1 MINUTES)
 
 #define NEURO_KIND_DOOR "door"
 #define NEURO_KIND_CONSOLE "console"
@@ -49,6 +53,7 @@
 #define NEURO_KIND_TURRET "turret"
 #define NEURO_KIND_FLASHER "flasher"
 #define NEURO_KIND_BUTTON "button"
+#define NEURO_KIND_CYBERWARE "cyberware"
 
 /obj/item/cyberdeck_module
 	name = "cyberdeck module"
@@ -230,6 +235,25 @@
 		PREPOSITIONAL = "модуле драйвера безопасности",
 	)
 
+/obj/item/cyberdeck_module/cyberware
+	name = "implant access module"
+	desc = "Модуль служебного доступа к чужим имплантам. Читает список кибернетики, включает полный мониторинг датчиков и глушит импланты короткой перезагрузкой."
+	icon_state = "module_security"
+	color = "#5EF6FF"
+	origin_tech = "programming=6;biotech=5;magnets=5"
+	feature = NEURO_FEATURE_CYBERWARE
+	summary = "доступ к имплантам людей: скан, датчики, глушение"
+
+/obj/item/cyberdeck_module/cyberware/get_ru_names()
+	return alist(
+		NOMINATIVE = "модуль доступа к имплантам",
+		GENITIVE = "модуля доступа к имплантам",
+		DATIVE = "модулю доступа к имплантам",
+		ACCUSATIVE = "модуль доступа к имплантам",
+		INSTRUMENTAL = "модулем доступа к имплантам",
+		PREPOSITIONAL = "модуле доступа к имплантам",
+	)
+
 /obj/item/cyberdeck
 	name = "cyberdeck"
 	desc = "Вычислительный блок для нейроадаптера. Используйте в руке, чтобы подключить к своему нейропорту. Модули вставляются прямо в корпус, а извлекаются отвёрткой."
@@ -386,15 +410,12 @@
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface
 	name = "neuroadapter implant"
-	desc = "Стандартный нейроадаптер экипажа. Передаёт показатели носителя на консоли мониторинга и служит портом для чипов киберсовместимости. С подключённым кибердеком связывает мозг с дверями, консолями и прочей техникой по беспроводному каналу, а модули деки расширяют возможности."
+	desc = "Стандартный нейроадаптер экипажа. Передаёт показатели носителя на консоли мониторинга, служит портом для чипов киберсовместимости и имеет разъём под кибердек."
 	implant_color = "#FCEE0A"
 	slot = INTERNAL_ORGAN_BRAIN_NEURO
 	cyber_cost = 0
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
-	actions_types = list(
-		/datum/action/item_action/organ_action/neuro_sensors,
-		/datum/action/item_action/organ_action/augment/neuro_panel,
-	)
+	actions_types = list(/datum/action/item_action/organ_action/augment/neuro_panel)
 	ignore_cybernetic_restrictions = TRUE
 	var/sensor_mode = SUIT_SENSOR_OFF
 	var/static/list/sensor_modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
@@ -444,9 +465,6 @@
 	)
 	COOLDOWN_DECLARE(scan_cooldown)
 	COOLDOWN_DECLARE(sensor_emp_lock)
-
-/datum/action/item_action/organ_action/neuro_sensors
-	name = "Датчики нейроадаптера"
 
 /datum/action/item_action/organ_action/augment/neuro_panel
 	name = "Панель нейроадаптера"
@@ -507,16 +525,6 @@
 		return FALSE
 	return TRUE
 
-/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/choose_sensor_mode()
-	if(!can_switch_sensors())
-		return
-	var/new_mode = tgui_input_list(owner, "Выберите режим работы датчиков:", "Датчики нейроадаптера", sensor_modes, sensor_modes[sensor_mode + 1])
-	if(isnull(new_mode) || QDELETED(owner) || !can_switch_sensors())
-		return
-	sensor_mode = sensor_modes.Find(new_mode) - 1
-	to_chat(owner, span_notice(sensor_messages[sensor_mode]))
-	owner.update_suit_sensors()
-
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/update_deck_actions()
 	for(var/datum/action/action as anything in LAZYCOPY(actions))
 		if(is_type_in_list(action, deck_action_types))
@@ -540,6 +548,14 @@
 	clear_links()
 	. = ..()
 	target?.update_suit_sensors()
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/on_block_changed()
+	if(!blocked)
+		owner?.update_suit_sensors()
+		return
+	SStgui.close_uis(src)
+	set_link_mode(FALSE)
+	owner?.update_suit_sensors()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/emp_act(severity)
 	if(emp_proof || has_feature(NEURO_FEATURE_FIREWALL))
@@ -565,9 +581,6 @@
 		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] завершает перезагрузку."))
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_action_click(mob/user, datum/action/action, leftclick)
-	if(istype(action, /datum/action/item_action/organ_action/neuro_sensors))
-		choose_sensor_mode()
-		return
 	if(crit_fail)
 		notify_operator("нейропорт перезагружается!")
 		return
@@ -693,6 +706,8 @@
 		return NEURO_KIND_CAMERA
 	if(isgun(thing))
 		return NEURO_KIND_WEAPON
+	if(ishuman(thing) && thing != owner && thing != net_operator)
+		return NEURO_KIND_CYBERWARE
 	return null
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/kind_available(kind)
@@ -711,6 +726,8 @@
 			return has_feature(NEURO_FEATURE_BREACH)
 		if(NEURO_KIND_TURRET, NEURO_KIND_FLASHER)
 			return has_feature(NEURO_FEATURE_BREACH|NEURO_FEATURE_SECURITY)
+		if(NEURO_KIND_CYBERWARE)
+			return has_feature(NEURO_FEATURE_CYBERWARE)
 	return FALSE
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/in_signal_range(atom/device)
@@ -1555,6 +1572,11 @@
 				. += device_button("camera_disable", "Перерезать провода", "video-slash", NEURO_COST_MEDIUM, TRUE)
 		if(NEURO_KIND_WEAPON)
 			. += device_button("weapon_sabotage", "Вывести из строя", "ban", NEURO_COST_MEDIUM, TRUE)
+		if(NEURO_KIND_CYBERWARE)
+			. += device_button("cyber_scan", "Прочитать импланты", "magnifying-glass", NEURO_COST_LOW)
+			. += device_button("cyber_sensors", "Полный мониторинг", "satellite-dish", NEURO_COST_MEDIUM)
+			if(!(device in running_hacks))
+				. += device_button("cyber_block", "Отключить импланты", "power-off", NEURO_COST_HIGH, TRUE)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/device_data(atom/movable/device)
 	var/kind = get_device_kind(device)
@@ -1757,7 +1779,89 @@
 			return disable_camera(device)
 		if("weapon_sabotage")
 			return sabotage_weapon(device)
+		if("cyber_scan")
+			return scan_cyberware(device)
+		if("cyber_sensors")
+			return force_sensors(device)
+		if("cyber_block")
+			return start_cyberware_hack(device)
 	return FALSE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/get_victim_neuro(mob/living/carbon/human/victim)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/victim_neuro = victim.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	if(!victim_neuro)
+		neuro_alert("нет нейроадаптера!")
+		return null
+	if(victim_neuro.has_firewall())
+		neuro_alert("файрвол отбил запрос!")
+		to_chat(victim, span_notice("Файрвол кибердека отбивает чужой запрос."))
+		return null
+	return victim_neuro
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/scan_cyberware(mob/living/carbon/human/victim)
+	var/list/lines = list()
+	for(var/obj/item/organ/internal/cyberimp/implant in victim.internal_organs)
+		if(implant.is_robotic() && !implant.is_contraband())
+			lines += "[DECLENT_RU_CAP(implant, NOMINATIVE)] ([implant.cyber_cost])"
+	var/mob/living/operator = get_operator()
+	to_chat(operator, span_notice("<b>[DECLENT_RU_CAP(victim, NOMINATIVE)]</b>: нагрузка [victim.get_cyber_load()] из [victim.cyber_capacity].<br>[length(lines) ? jointext(lines, "<br>") : "Кибернетика не найдена."]"))
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/force_sensors(mob/living/carbon/human/victim)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/victim_neuro = get_victim_neuro(victim)
+	if(!victim_neuro)
+		return FALSE
+	victim_neuro.sensor_mode = SUIT_SENSOR_TRACKING
+	COOLDOWN_START(victim_neuro, sensor_emp_lock, NEURO_SENSOR_HACK_LOCK)
+	victim.update_suit_sensors()
+	to_chat(victim, span_warning("Нейроадаптер щёлкает: кто-то переключил ваши датчики извне."))
+	add_attack_logs(get_operator(), victim, "forced full suit sensors with [src]")
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/can_reach_hack_target(mob/living/carbon/human/victim)
+	return !QDELETED(victim) && owner && in_signal_range(victim) && (victim in view(get_link_range(), get_operator()))
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/start_cyberware_hack(mob/living/carbon/human/victim)
+	if(!get_victim_neuro(victim))
+		return FALSE
+	if(!can_reach_hack_target(victim))
+		neuro_alert("нужна прямая видимость!")
+		return FALSE
+	start_hack(victim, NEURO_CYBER_HACK_TIME)
+	notify_operator("взлом имплантов начат")
+	to_chat(victim, span_warning("Импланты покалывает: кто-то лезет в вашу кибернетику."))
+	addtimer(CALLBACK(src, PROC_REF(progress_cyberware_hack), victim), 1 SECONDS)
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/progress_cyberware_hack(mob/living/carbon/human/victim)
+	if(!(victim in running_hacks))
+		return
+	if(!can_reach_hack_target(victim))
+		running_hacks -= victim
+		neuro_alert("взлом сорван!")
+		return
+	var/list/timing = running_hacks[victim]
+	if(world.time < timing["end"])
+		addtimer(CALLBACK(src, PROC_REF(progress_cyberware_hack), victim), 1 SECONDS)
+		return
+	running_hacks -= victim
+	var/list/blocked_refs = list()
+	for(var/obj/item/organ/internal/cyberimp/implant in victim.internal_organs)
+		if(implant.blocked || !implant.is_robotic() || istype(implant, /obj/item/organ/internal/cyberimp/brain/neuro_interface))
+			continue
+		implant.set_blocked(TRUE)
+		blocked_refs += WEAKREF(implant)
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(release_hacked_cyberware), blocked_refs), NEURO_CYBER_BLOCK_TIME)
+	victim.playsound_local(get_turf(victim), 'sound/machines/ripperdoc/glitch.ogg', 50, FALSE)
+	to_chat(victim, span_userdanger("Импланты разом гаснут: кто-то отключил вашу кибернетику!"))
+	notify_operator("импланты отключены")
+	log_event("Импланты отключены: [DECLENT_RU_CAP(victim, NOMINATIVE)]")
+	add_attack_logs(get_operator(), victim, "blocked cyberware with [src]")
+
+/proc/release_hacked_cyberware(list/implant_refs)
+	for(var/datum/weakref/implant_ref as anything in implant_refs)
+		var/obj/item/organ/internal/cyberimp/implant = implant_ref.resolve()
+		implant?.set_blocked(FALSE)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_act(action, params)
 	if(..() || crit_fail || !owner)
@@ -1844,6 +1948,10 @@
 #undef NEURO_FEATURE_BOTS
 #undef NEURO_FEATURE_BREACH
 #undef NEURO_FEATURE_SECURITY
+#undef NEURO_FEATURE_CYBERWARE
+#undef NEURO_SENSOR_HACK_LOCK
+#undef NEURO_CYBER_HACK_TIME
+#undef NEURO_CYBER_BLOCK_TIME
 
 #undef NEURO_KIND_DOOR
 #undef NEURO_KIND_CONSOLE
@@ -1859,3 +1967,4 @@
 #undef NEURO_KIND_TURRET
 #undef NEURO_KIND_FLASHER
 #undef NEURO_KIND_BUTTON
+#undef NEURO_KIND_CYBERWARE

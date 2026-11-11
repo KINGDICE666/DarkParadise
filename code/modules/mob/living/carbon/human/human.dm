@@ -816,7 +816,8 @@
 		var/obj/item/clothing/mask/MFP = wear_mask
 		eye_prot += MFP.flash_protect
 	for(var/obj/item/organ/internal/cyberimp/eyes/EFP in internal_organs)
-		eye_prot += EFP.flash_protect
+		if(!EFP.blocked)
+			eye_prot += EFP.flash_protect
 	return eye_prot
 
 /mob/living/carbon/human/check_ear_prot()

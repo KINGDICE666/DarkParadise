@@ -1007,6 +1007,14 @@
 		patient.cure_trauma_type(resilience = TRAUMA_RESILIENCE_BASIC)
 	return ..()
 
+/datum/reagent/medicine/stabilicin
+	name = "Стабилицин"
+	id = "stabilicin"
+	description = "Нейролептик для носителей кибернетики. Глушит сбой синхронизации между мозгом и имплантами, но только если сбой уже начался: заранее он не защищает."
+	color = "#5EF6FF"
+	taste_description = "холодного металла"
+	chemdesc = "Подавляет начавшийся киберпсихоз."
+
 /datum/reagent/medicine/fomepizole
 	name = "Фомепизол"
 	id = "fomepizole"

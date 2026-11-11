@@ -294,7 +294,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/proc/on_punch(mob/living/user, list/deltas, obj/item/weapon)
 	SIGNAL_HANDLER
-	if(weapon || crit_fail || !is_active_arm())
+	if(weapon || crit_fail || blocked || !is_active_arm())
 		return
 	deltas += punch_bonus
 	punch_landed()
@@ -304,7 +304,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/proc/on_alt_click(mob/living/carbon/source, atom/target)
 	SIGNAL_HANDLER
-	if(!is_airlock(target) || crit_fail || !is_active_arm() || source.get_active_hand())
+	if(!is_airlock(target) || crit_fail || blocked || !is_active_arm() || source.get_active_hand())
 		return NONE
 	if(source.incapacitated() || HAS_TRAIT(source, TRAIT_HANDS_BLOCKED) || !source.Adjacent(target))
 		return NONE
@@ -541,13 +541,10 @@
 	var/lethal_activation = 3
 	var/outline_color = "#00FFFF"
 	var/trail_color
-	var/trail_interval = 0.1 SECONDS
 	var/active = FALSE
 	var/overload = 0
 	var/active_timer
 	var/overload_timer
-	var/trail_timer
-	var/turf/last_trail_turf
 	COOLDOWN_DECLARE(use_cooldown)
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/get_ru_names()
@@ -605,7 +602,7 @@
 		owner.add_filter(SANDEVISTAN_FILTER, 2, outline_filter(1, outline_color))
 		if(istype(human_owner))
 			human_owner.physiology.stamina_mod *= SANDEVISTAN_STAMINA_MOD
-		trail_timer = addtimer(CALLBACK(src, PROC_REF(leave_trail)), trail_interval, TIMER_LOOP|TIMER_STOPPABLE)
+		RegisterSignal(owner, COMSIG_MOVABLE_MOVED, PROC_REF(leave_trail))
 		owner.add_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
 		owner.next_move_modifier *= SANDEVISTAN_CLICK_MOD
 		RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(slip_projectile))
@@ -615,15 +612,13 @@
 		worn_glow = TRUE
 		update_worn_overlay()
 		playsound(owner, 'sound/effects/sandevistan/activate.ogg', 60, TRUE)
-		owner.playsound_local(owner, 'sound/effects/sandevistan/ambience.ogg', 60, FALSE)
 		to_chat(owner, span_notice("Зрение обостряется, и время вокруг будто замедляется."))
 		return
 	owner.remove_movespeed_modifier(/datum/movespeed_modifier/sandevistan)
 	owner.remove_filter(SANDEVISTAN_FILTER)
 	if(istype(human_owner))
 		human_owner.physiology.stamina_mod /= SANDEVISTAN_STAMINA_MOD
-	deltimer(trail_timer)
-	last_trail_turf = null
+	UnregisterSignal(owner, COMSIG_MOVABLE_MOVED)
 	owner.remove_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
 	owner.next_move_modifier /= SANDEVISTAN_CLICK_MOD
 	UnregisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET)
@@ -639,6 +634,10 @@
 	playsound(source, 'sound/effects/sandevistan/dodge.ogg', 40, TRUE)
 	return COMPONENT_BULLET_DEFLECTED
 
+/obj/item/organ/internal/cyberimp/brain/sandevistan/on_block_changed()
+	if(blocked)
+		end_activation()
+
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/end_activation()
 	if(!active)
 		return
@@ -651,12 +650,12 @@
 	if(owner)
 		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] остывает."))
 
-/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/leave_trail()
-	var/turf/owner_turf = get_turf(owner)
-	if(!owner_turf || owner_turf == last_trail_turf)
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/leave_trail(mob/living/source, atom/old_loc, movement_dir)
+	SIGNAL_HANDLER
+	if(!isturf(old_loc))
 		return
-	last_trail_turf = owner_turf
-	new /obj/effect/temp_visual/decoy/fading/sandevistan(owner_turf, owner, trail_color)
+	var/obj/effect/temp_visual/decoy/fading/sandevistan/afterimage = new(old_loc, source, trail_color)
+	afterimage.setDir(movement_dir)
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/strain()
 	var/mob/living/carbon/human/human_owner = owner
@@ -713,7 +712,7 @@
 	lethal_activation = 5
 	outline_color = "#C2185B"
 	trail_color = "#C2185B"
-	trail_interval = 0.02 SECONDS
+	cooldown = 10 SECONDS
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun/get_ru_names()
 	return alist(
@@ -785,6 +784,11 @@
 	COOLDOWN_START(src, use_cooldown, cooldown)
 	set_active(TRUE)
 	active_timer = addtimer(CALLBACK(src, PROC_REF(set_active), FALSE), duration, TIMER_STOPPABLE)
+
+/obj/item/organ/internal/cyberimp/brain/berserker/on_block_changed()
+	if(blocked)
+		deltimer(active_timer)
+		set_active(FALSE)
 
 /obj/item/organ/internal/cyberimp/brain/berserker/proc/set_active(new_state)
 	var/mob/living/carbon/human/human_owner = owner

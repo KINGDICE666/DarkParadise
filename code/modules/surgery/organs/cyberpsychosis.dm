@@ -2,6 +2,7 @@
 #define CYBERPSYCHOSIS_STAGE_TIME (4 MINUTES)
 #define CYBERPSYCHOSIS_DAMAGE_RESISTANCE 30
 #define CYBERPSYCHOSIS_STAMINA_MOD -0.1
+#define CYBERPSYCHOSIS_SUPPRESS_TIME (1 MINUTES)
 
 /proc/get_cyberpsychosis_chance(overflow)
 	if(overflow <= 0)
@@ -12,9 +13,7 @@
 	. = 0
 	for(var/obj/item/organ/internal/cyberimp/implant in internal_organs)
 		if(implant.is_robotic())
-			. += implant.cyber_cost
-	for(var/obj/item/organ/internal/cyberimp/implant as anything in dormant_cyberware)
-		. += round(implant.cyber_cost * CYBERWARE_DORMANT_LOAD)
+			. += implant.blocked ? round(implant.cyber_cost * CYBERWARE_BLOCKED_LOAD) : implant.cyber_cost
 
 /mob/living/carbon/proc/adjust_cyber_capacity(amount)
 	cyber_capacity = clamp(cyber_capacity + amount, 0, CYBER_CAPACITY_MAX)
@@ -32,33 +31,8 @@
 		apply_status_effect(/datum/status_effect/cyberpsychosis)
 	return TRUE
 
-/obj/item/organ/internal/cyberimp/Destroy()
-	if(dormant_host)
-		LAZYREMOVE(dormant_host.dormant_cyberware, src)
-		dormant_host = null
-	return ..()
-
 /obj/item/organ/internal/cyberimp/proc/is_contraband()
 	return findtext(origin_tech, "syndicate") || findtext(origin_tech, "abductor")
-
-/obj/item/organ/internal/cyberimp/proc/can_go_dormant()
-	return owner && is_robotic() && !unremovable && !is_contraband()
-
-/obj/item/organ/internal/cyberimp/proc/go_dormant()
-	var/mob/living/carbon/host = owner
-	remove(host, ORGAN_MANIPULATION_NOEFFECT)
-	moveToNullspace()
-	dormant_host = host
-	LAZYADD(host.dormant_cyberware, src)
-
-/obj/item/organ/internal/cyberimp/proc/wake_up()
-	var/mob/living/carbon/host = dormant_host
-	if(!host.get_organ(check_zone(parent_organ_zone)) || host.get_organ_slot(slot))
-		return FALSE
-	LAZYREMOVE(host.dormant_cyberware, src)
-	dormant_host = null
-	insert(host, ORGAN_MANIPULATION_NOEFFECT)
-	return TRUE
 
 /obj/item/organ/internal/cyberimp/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -111,6 +85,7 @@
 	on_remove_on_mob_delete = TRUE
 	var/stage = 1
 	var/next_stage_time = 0
+	var/next_suppress_time = 0
 	var/datum/weakref/psycho_mind
 	var/static/list/stage_names = list("Сбой синхронизации", "Диссоциация", "Распад личности", "Киберпсихоз")
 	var/list/delusions = list()
@@ -151,6 +126,10 @@
 
 /datum/status_effect/cyberpsychosis/tick(seconds_between_ticks)
 	var/mob/living/carbon/carbon_owner = owner
+	if(carbon_owner.reagents?.has_reagent("stabilicin"))
+		suppress()
+		return
+	next_suppress_time = 0
 	var/overloaded = carbon_owner.is_cyber_overloaded()
 	if(stage >= CYBERPSYCHOSIS_STAGE_PSYCHO)
 		if(!overloaded)
@@ -206,12 +185,28 @@
 	to_chat(owner, span_danger("Импланты гудят громче. [get_stage_name()]."))
 	owner.playsound_local(get_turf(owner), pick('sound/hallucinations/behind_you1.ogg', 'sound/hallucinations/i_see_you1.ogg', 'sound/hallucinations/im_here1.ogg'), 50, FALSE)
 
+/datum/status_effect/cyberpsychosis/proc/suppress()
+	next_stage_time = world.time + CYBERPSYCHOSIS_STAGE_TIME
+	if(!next_suppress_time)
+		next_suppress_time = world.time + CYBERPSYCHOSIS_SUPPRESS_TIME
+		to_chat(owner, span_notice("Шум в голове глохнет, будто кто-то убавил громкость."))
+		return
+	if(world.time < next_suppress_time)
+		return
+	next_suppress_time = world.time + CYBERPSYCHOSIS_SUPPRESS_TIME
+	if(stage < CYBERPSYCHOSIS_STAGE_PSYCHO)
+		regress_stage()
+		return
+	stage--
+	release_psycho()
+	to_chat(owner, span_notice("Ярость отступает. Вы снова различаете лица."))
+
 /datum/status_effect/cyberpsychosis/proc/regress_stage()
 	stage--
 	if(stage <= 0)
 		qdel(src)
 		return
-	to_chat(owner, span_notice("Нагрузка в норме. Голоса в голове становятся тише."))
+	to_chat(owner, span_notice("Голоса в голове становятся тише."))
 
 /datum/status_effect/cyberpsychosis/proc/become_psycho()
 	var/mob/living/carbon/carbon_owner = owner
@@ -322,3 +317,4 @@
 #undef CYBERPSYCHOSIS_STAGE_TIME
 #undef CYBERPSYCHOSIS_DAMAGE_RESISTANCE
 #undef CYBERPSYCHOSIS_STAMINA_MOD
+#undef CYBERPSYCHOSIS_SUPPRESS_TIME

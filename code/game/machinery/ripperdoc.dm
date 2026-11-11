@@ -16,6 +16,27 @@
 	var/operation_time = 0
 	var/list/operation_log = list()
 	var/static/list/power_access = list(ACCESS_SECURITY)
+	var/static/list/encyclopedia_hidden = list(
+		/obj/item/organ/internal/cyberimp/arm/janitorial/advanced,
+		/obj/item/organ/internal/cyberimp/arm/katana,
+		/obj/item/organ/internal/cyberimp/arm/surgery/adv/ert,
+		/obj/item/organ/internal/cyberimp/arm/surgery/advanced,
+		/obj/item/organ/internal/cyberimp/brain,
+		/obj/item/organ/internal/cyberimp/brain/anti_drop/hardened,
+		/obj/item/organ/internal/cyberimp/brain/anti_sleep/hardened,
+		/obj/item/organ/internal/cyberimp/brain/anti_sleep/hardened/compatible,
+		/obj/item/organ/internal/cyberimp/brain/anti_stun/hardened,
+		/obj/item/organ/internal/cyberimp/chest/nutriment_old/plus/hardened,
+		/obj/item/organ/internal/cyberimp/chest/reviver/hardened,
+		/obj/item/organ/internal/cyberimp/eyes,
+		/obj/item/organ/internal/cyberimp/eyes/hud,
+		/obj/item/organ/internal/cyberimp/eyes/map/ert,
+		/obj/item/organ/internal/cyberimp/eyes/map/nuke,
+		/obj/item/organ/internal/cyberimp/leg,
+		/obj/item/organ/internal/cyberimp/mouth,
+		/obj/item/organ/internal/cyberimp/tail,
+		/obj/item/organ/internal/cyberimp/tail/blade/laser/syndi,
+	)
 
 /obj/machinery/optable/ripperdoc/security
 	req_access = list(ACCESS_SECURITY)
@@ -139,8 +160,8 @@
 		playsound(src, 'sound/machines/buzz-two.ogg', 40, TRUE)
 		balloon_alert(user, "нужен доступ службы безопасности!")
 		return
-	var/waking = implant.dormant_host == target
-	if(!waking && !implant.can_go_dormant())
+	var/waking = implant.blocked
+	if(!waking && !implant.can_block())
 		balloon_alert(user, "этот имплант не отключить!")
 		return
 
@@ -153,20 +174,11 @@
 		log_operation("Манипуляторы отведены", bad = TRUE)
 		return
 
-	if(waking)
-		if(implant.dormant_host != target || !implant.wake_up())
-			playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
-			log_operation("Разъём занят, включить не вышло", bad = TRUE)
-			return
-		playsound(src, 'sound/machines/ripperdoc/install.ogg', 50, TRUE)
-		log_operation("Включён: [implant.declent_ru(NOMINATIVE)]")
-	else
-		if(implant.owner != target)
-			return
-		implant.go_dormant()
-		playsound(src, 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
-		log_operation("Отключён: [implant.declent_ru(NOMINATIVE)]")
-	target.update_icons()
+	if(implant.owner != target)
+		return
+	implant.set_blocked(!waking)
+	playsound(src, waking ? 'sound/machines/ripperdoc/install.ogg' : 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
+	log_operation("[waking ? "Включён" : "Отключён"]: [implant.declent_ru(NOMINATIVE)]")
 	add_attack_logs(user, target, "[waking ? "enabled" : "disabled"] [implant] with a ripperdoc table")
 	SStgui.update_uis(src)
 
@@ -199,7 +211,7 @@
 		return null
 	if(implant == loaded)
 		return implant
-	if(patient && (implant.owner == patient || implant.dormant_host == patient))
+	if(patient && implant.owner == patient)
 		return implant
 	return null
 
@@ -210,10 +222,10 @@
 		"desc" = implant.desc,
 		"zone" = implant.parent_organ_zone,
 		"cost" = implant.cyber_cost,
-		"dormant" = !!implant.dormant_host,
-		"canToggle" = implant.dormant_host ? TRUE : implant.can_go_dormant(),
+		"blocked" = implant.blocked,
+		"canToggle" = implant.blocked || implant.can_block(),
 		"broken" = !!implant.crit_fail,
-		"settings" = implant.dormant_host ? list() : implant.get_ripper_settings(),
+		"settings" = implant.blocked ? list() : implant.get_ripper_settings(),
 	)
 
 /obj/machinery/optable/ripperdoc/proc/get_encyclopedia()
@@ -222,7 +234,7 @@
 		return entries
 	entries = list()
 	var/list/seen_names = list()
-	for(var/implant_type in valid_subtypesof(/obj/item/organ/internal/cyberimp))
+	for(var/implant_type in valid_subtypesof(/obj/item/organ/internal/cyberimp) - encyclopedia_hidden)
 		var/obj/item/organ/internal/cyberimp/implant = new implant_type
 		var/implant_name = DECLENT_RU_CAP(implant, NOMINATIVE)
 		if(!is_hidden(implant) && !(implant_name in seen_names))
@@ -280,9 +292,6 @@
 		for(var/obj/item/organ/internal/cyberimp/implant in target.internal_organs)
 			if(!is_hidden(implant))
 				implants += list(get_implant_data(implant))
-		for(var/obj/item/organ/internal/cyberimp/implant as anything in target.dormant_cyberware)
-			if(!is_hidden(implant))
-				implants += list(get_implant_data(implant))
 		data["implants"] = implants
 
 	if(loaded)
@@ -307,7 +316,7 @@
 			INVOKE_ASYNC(src, PROC_REF(toggle_implant_power), usr, implant)
 		if("setting")
 			var/obj/item/organ/internal/cyberimp/implant = find_implant(params["uid"])
-			if(!implant || implant.dormant_host)
+			if(!implant || implant.blocked)
 				return FALSE
 			if(configure_implant(usr, implant, params["id"], params["value"]))
 				add_attack_logs(usr, implant.owner || src, "set [params["id"]] of [implant] to [params["value"]] with a ripperdoc table", ATKLOG_ALMOSTALL)

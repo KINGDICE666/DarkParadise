@@ -181,6 +181,10 @@
 	owner.Immobilize(PLATING_EMP_LOCK_TIME, TRUE)
 	to_chat(owner, span_userdanger("Пластины под кожей заклинивает, и вы не можете пошевелиться!"))
 
+/obj/item/organ/internal/cyberimp/chest/subdermal_plating/on_block_changed()
+	if(blocked)
+		set_plating(FALSE)
+
 /obj/item/organ/internal/cyberimp/chest/subdermal_plating/proc/set_plating(new_state)
 	if(plating_active == new_state)
 		return

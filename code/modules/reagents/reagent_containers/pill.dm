@@ -376,6 +376,23 @@
 		PREPOSITIONAL = "таблетке (Маннитол)",
 	)
 
+/obj/item/reagent_containers/food/pill/stabilicin
+	name = "stabilicin pill"
+	desc = "Таблетка для носителей кибернетики. Гасит начавшийся киберпсихоз, но от него не страхует."
+	icon_state = "pill9"
+	list_reagents = list("stabilicin" = 15)
+	custom_price = PAYCHECK_MIN * 0.2
+
+/obj/item/reagent_containers/food/pill/stabilicin/get_ru_names()
+	return alist(
+		NOMINATIVE = "таблетка (Стабилицин)",
+		GENITIVE = "таблетки (Стабилицин)",
+		DATIVE = "таблетке (Стабилицин)",
+		ACCUSATIVE = "таблетку (Стабилицин)",
+		INSTRUMENTAL = "таблеткой (Стабилицин)",
+		PREPOSITIONAL = "таблетке (Стабилицин)",
+	)
+
 /obj/item/reagent_containers/food/pill/bicaridine
 	name = "bicaridine pill"
 	desc = "Используется для лечения травм."

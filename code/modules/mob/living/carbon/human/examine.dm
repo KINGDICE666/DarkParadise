@@ -520,7 +520,7 @@
 				have_hud_exam |= our_shitcode.examine_extensions
 
 		var/obj/item/organ/internal/cyberimp/eyes/hud/CIH = H.get_int_organ(/obj/item/organ/internal/cyberimp/eyes/hud)
-		if(CIH?.examine_extensions && !CIH.hud_disabled)
+		if(CIH?.examine_extensions && !CIH.hud_disabled && !CIH.blocked)
 			have_hud_exam |= CIH.examine_extensions
 
 		if(H.check_smart_brain())

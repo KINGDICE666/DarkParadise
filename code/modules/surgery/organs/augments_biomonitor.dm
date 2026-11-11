@@ -178,8 +178,8 @@
 		. += list(list(
 			"name" = DECLENT_RU_CAP(implant, NOMINATIVE),
 			"kind" = "Кибернетика",
-			"status" = implant.crit_fail ? "Сбой" : "В норме",
-			"failed" = !!implant.crit_fail,
+			"status" = implant.crit_fail ? "Сбой" : (implant.blocked ? "Отключён" : "В норме"),
+			"failed" = implant.crit_fail || implant.blocked,
 			"cost" = implant.cyber_cost,
 		))
 

@@ -2711,6 +2711,23 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	announce_beacons = list("Medbay" = list("Medbay", "Chief Medical Officer's Desk"), "Security" = list("Brig Medbay"))
 
 
+/datum/supply_packs/medical/stabilicin
+	name = "Стабилицин"
+	contains = list(
+		/obj/item/storage/pill_bottle/stabilicin,
+		/obj/item/storage/pill_bottle/stabilicin,
+	)
+	cost = 1500
+	containername = "ящик со стабилицином"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик со стабилицином",
+		GENITIVE = "ящика со стабилицином",
+		DATIVE = "ящику со стабилицином",
+		ACCUSATIVE = "ящик со стабилицином",
+		INSTRUMENTAL = "ящиком со стабилицином",
+		PREPOSITIONAL = "ящике со стабилицином",
+	)
+
 /datum/supply_packs/medical/bioprinter
 	name = "Биопринтер органов"
 	contains = list(/obj/machinery/bioprinter)

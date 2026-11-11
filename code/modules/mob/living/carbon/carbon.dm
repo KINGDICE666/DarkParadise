@@ -15,7 +15,6 @@
 		temporarily_remove_item_from_inventory(item)
 		qdel(item)
 	QDEL_LIST(internal_organs)
-	QDEL_LAZYLIST(dormant_cyberware)
 	QDEL_LIST(stomach_contents)
 	QDEL_LIST(processing_patches)
 	var/mob/living/simple_animal/borer/B = has_brain_worms()
@@ -787,7 +786,8 @@
 	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
 		return
 	for(var/obj/item/organ/internal/organ as anything in internal_organs)
-		organ.emp_act(severity)
+		if(!organ.is_suppressed())
+			organ.emp_act(severity)
 
 /mob/living/carbon/get_status_tab_items()
 	var/list/status_tab_data = ..()

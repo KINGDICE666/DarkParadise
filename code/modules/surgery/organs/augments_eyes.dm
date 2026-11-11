@@ -65,12 +65,22 @@
 			return TRUE
 		if("vision")
 			vision_disabled = !value
-			vision_flags = vision_disabled ? NONE : initial(vision_flags)
-			see_in_dark = vision_disabled ? 0 : initial(see_in_dark)
-			lighting_cutoff = vision_disabled ? LIGHTING_CUTOFF_VISIBLE : initial(lighting_cutoff)
-			owner?.update_sight()
+			apply_vision()
 			return TRUE
 	return ..()
+
+/obj/item/organ/internal/cyberimp/eyes/on_block_changed()
+	apply_vision()
+
+/obj/item/organ/internal/cyberimp/eyes/proc/vision_active()
+	return !vision_disabled && !blocked
+
+/obj/item/organ/internal/cyberimp/eyes/proc/apply_vision()
+	var/active = vision_active()
+	vision_flags = active ? initial(vision_flags) : NONE
+	see_in_dark = active ? initial(see_in_dark) : 0
+	lighting_cutoff = active ? initial(lighting_cutoff) : LIGHTING_CUTOFF_VISIBLE
+	owner?.update_sight()
 
 /obj/item/organ/internal/cyberimp/eyes/proc/generate_icon(mob/living/carbon/human/HA)
 	var/mob/living/carbon/human/H = HA
@@ -120,19 +130,17 @@
 	)
 
 /obj/item/organ/internal/cyberimp/eyes/meson/insert(mob/living/carbon/human/user_human, special = FALSE)
-	if(!vision_disabled)
+	if(vision_active())
 		ADD_TRAIT(user_human, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
 	return ..()
 
-/obj/item/organ/internal/cyberimp/eyes/meson/set_ripper_setting(setting, value)
-	. = ..()
-	if(setting != "vision" || !owner)
-		return
-	if(vision_disabled)
-		REMOVE_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
-	else
-		ADD_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
-	owner.update_sight()
+/obj/item/organ/internal/cyberimp/eyes/meson/apply_vision()
+	if(owner)
+		if(vision_active())
+			ADD_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
+		else
+			REMOVE_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
 
 /obj/item/organ/internal/cyberimp/eyes/meson/remove(mob/living/carbon/human/user_human, special = FALSE)
 	REMOVE_TRAIT(user_human, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
@@ -215,17 +223,25 @@
 	if(setting != "hud" || !HUDType)
 		return ..()
 	hud_disabled = !value
-	if(owner)
-		var/datum/atom_hud/hud = GLOB.huds[HUDType]
-		if(hud_disabled)
-			hud.hide_from(owner)
-		else
-			hud.show_to(owner)
+	apply_hud()
 	return TRUE
+
+/obj/item/organ/internal/cyberimp/eyes/hud/on_block_changed()
+	. = ..()
+	apply_hud()
+
+/obj/item/organ/internal/cyberimp/eyes/hud/proc/apply_hud()
+	if(!owner || !HUDType)
+		return
+	var/datum/atom_hud/hud = GLOB.huds[HUDType]
+	if(hud_disabled || blocked)
+		hud.hide_from(owner)
+	else
+		hud.show_to(owner)
 
 /obj/item/organ/internal/cyberimp/eyes/hud/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
-	if(HUDType && !hud_disabled)
+	if(HUDType && !hud_disabled && !blocked)
 		var/datum/atom_hud/H = GLOB.huds[HUDType]
 		H.show_to(M)
 

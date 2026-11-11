@@ -780,6 +780,25 @@
 	for(var/I in 1 to 7)
 		new /obj/item/reagent_containers/food/pill/charcoal(src)
 
+/obj/item/storage/pill_bottle/stabilicin
+	name = "Pill bottle (Stabilicin)"
+	desc = "Герметичный стеклянный флакон, предназначенный для хранения таблеток. Заполнен таблетками стабилицина."
+	wrapper_color = COLOR_CYAN
+
+/obj/item/storage/pill_bottle/stabilicin/get_ru_names()
+	return alist(
+		NOMINATIVE = "пузырёк для таблеток (Стабилицин)",
+		GENITIVE = "пузырька для таблеток (Стабилицин)",
+		DATIVE = "пузырьку для таблеток (Стабилицин)",
+		ACCUSATIVE = "пузырёк для таблеток (Стабилицин)",
+		INSTRUMENTAL = "пузырьком для таблеток (Стабилицин)",
+		PREPOSITIONAL = "пузырьке для таблеток (Стабилицин)",
+	)
+
+/obj/item/storage/pill_bottle/stabilicin/populate_contents()
+	for(var/I in 1 to 7)
+		new /obj/item/reagent_containers/food/pill/stabilicin(src)
+
 /obj/item/storage/pill_bottle/painkillers
 	name = "Pill Bottle (Salicylic Acid)"
 	desc = "Герметичный стеклянный флакон, предназначенный для хранения таблеток. Заполнен таблетками с салициловой кислотой."

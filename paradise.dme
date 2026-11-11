@@ -4818,6 +4818,7 @@
 #include "code\modules\surgery\vocal_cords_surgery.dm"
 #include "code\modules\surgery\organs\augments_arms.dm"
 #include "code\modules\surgery\organs\augments_biomonitor.dm"
+#include "code\modules\surgery\organs\augments_cyberlock.dm"
 #include "code\modules\surgery\organs\augments_cyberware.dm"
 #include "code\modules\surgery\organs\augments_extended.dm"
 #include "code\modules\surgery\organs\augments_eyes.dm"

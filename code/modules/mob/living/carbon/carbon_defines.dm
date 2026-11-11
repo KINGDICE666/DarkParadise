@@ -46,7 +46,6 @@
 	var/cuff_breakout_attempts = 0
 	var/implant_shock_reduction = 0
 	var/cyber_capacity = CYBER_CAPACITY_BASE
-	var/list/dormant_cyberware
 
 	var/last_pain_message = ""
 	COOLDOWN_DECLARE(pain_cd)

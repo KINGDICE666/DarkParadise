@@ -18,7 +18,7 @@ type Implant = {
   desc: string;
   zone: string;
   cost: number;
-  dormant: BooleanLike;
+  blocked: BooleanLike;
   canToggle: BooleanLike;
   broken: BooleanLike;
   settings: Setting[];
@@ -282,13 +282,13 @@ const Details = (props: { implant: Implant | null; isLoaded: boolean }) => {
           <Icon name="triangle-exclamation" /> Имплант неисправен
         </div>
       )}
-      {!!implant.dormant && (
-        <div className="RipperDoc__dormant">
+      {!!implant.blocked && (
+        <div className="RipperDoc__blocked">
           <Icon name="power-off" /> Отключён: не работает, не боится ЭМИ и почти
           не нагружает совместимость.
         </div>
       )}
-      {!implant.dormant && (
+      {!implant.blocked && (
         <>
           <div className="RipperDoc__label">Прошивка</div>
           {!implant.settings.length && (
@@ -309,12 +309,12 @@ const Details = (props: { implant: Implant | null; isLoaded: boolean }) => {
           type="button"
           className={classes([
             'RipperDoc__action',
-            !implant.dormant && 'RipperDoc__action--red',
+            !implant.blocked && 'RipperDoc__action--red',
           ])}
           disabled={locked || !implant.canToggle}
           onClick={() => act('toggle_power', { uid: implant.uid })}
         >
-          <Icon name="power-off" /> {implant.dormant ? 'Включить' : 'Отключить'}
+          <Icon name="power-off" /> {implant.blocked ? 'Включить' : 'Отключить'}
         </button>
       )}
     </div>
@@ -399,15 +399,15 @@ const ImplantList = (props: {
         'RipperDoc__row',
         selected === implant.uid && 'RipperDoc__row--selected',
         !!implant.broken && 'RipperDoc__row--broken',
-        !!implant.dormant && 'RipperDoc__row--dormant',
+        !!implant.blocked && 'RipperDoc__row--blocked',
       ])}
       onClick={() => setSelected(implant.uid)}
     >
       <span className="RipperDoc__rowName">{implant.name}</span>
-      {!!implant.dormant && (
+      {!!implant.blocked && (
         <Icon name="power-off" className="RipperDoc__rowIcon" />
       )}
-      {!implant.dormant && !!implant.settings.length && (
+      {!implant.blocked && !!implant.settings.length && (
         <Icon name="sliders" className="RipperDoc__rowIcon" />
       )}
       <span className="RipperDoc__cost">{implant.cost}</span>

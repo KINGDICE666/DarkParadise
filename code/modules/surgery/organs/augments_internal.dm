@@ -11,7 +11,7 @@
 	var/worn_state
 	var/worn_color
 	var/worn_glow = FALSE
-	var/mob/living/carbon/dormant_host
+	var/blocked = FALSE
 	tough = TRUE // Immune to damage
 	pickup_sound = 'sound/items/handling/component_pickup.ogg'
 	drop_sound = 'sound/items/handling/component_drop.ogg'
@@ -49,9 +49,35 @@
 		return
 	var/mutable_appearance/worn_overlay = mutable_appearance(worn_icon, worn_state, layer = -CYBERWARE_WORN_LAYER)
 	worn_overlay.color = worn_color
-	if(!worn_glow)
+	if(!worn_glow || blocked)
 		return worn_overlay
 	return list(worn_overlay, emissive_appearance(worn_icon, worn_state, owner, layer = -CYBERWARE_WORN_LAYER))
+
+/obj/item/organ/internal/proc/is_suppressed()
+	return FALSE
+
+/obj/item/organ/internal/cyberimp/is_suppressed()
+	return blocked
+
+/obj/item/organ/internal/cyberimp/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
+	set_blocked(FALSE)
+	return ..()
+
+/obj/item/organ/internal/cyberimp/proc/can_block()
+	return owner && is_robotic() && !unremovable && !is_contraband()
+
+/obj/item/organ/internal/cyberimp/proc/set_blocked(new_state)
+	if(blocked == new_state)
+		return FALSE
+	blocked = new_state
+	on_block_changed()
+	for(var/datum/action/action as anything in actions)
+		action.UpdateButtonIcon()
+	update_worn_overlay()
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/proc/on_block_changed()
+	return
 
 /obj/item/organ/internal/cyberimp/proc/update_worn_overlay()
 	var/mob/living/carbon/human/human_owner = owner
@@ -226,6 +252,10 @@
 		REMOVE_TRAIT(l_hand_obj, TRAIT_NODROP, ANTIDROP_TRAIT)
 	if(!r_hand_ignore && (r_hand_obj in owner.contents))
 		REMOVE_TRAIT(r_hand_obj, TRAIT_NODROP, ANTIDROP_TRAIT)
+
+/obj/item/organ/internal/cyberimp/brain/anti_drop/on_block_changed()
+	if(blocked && active)
+		ui_action_click()
 
 /obj/item/organ/internal/cyberimp/brain/anti_drop/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	if(active)

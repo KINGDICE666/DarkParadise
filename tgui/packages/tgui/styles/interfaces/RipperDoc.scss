@@ -889,7 +889,7 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   }
 }
 
-.RipperDoc__row--dormant {
+.RipperDoc__row--blocked {
   opacity: 0.55;
   border-left-color: rgba(255, 255, 255, 0.15);
 
@@ -898,7 +898,7 @@ $rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
   }
 }
 
-.RipperDoc__dormant {
+.RipperDoc__blocked {
   margin-bottom: 8px;
   padding: 4px 6px;
   color: $rd-cyan;

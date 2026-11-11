@@ -204,7 +204,13 @@
 	if(!silent)
 		playsound(get_turf(owner), sound_on, 50, TRUE)
 
+/obj/item/organ/internal/cyberimp/arm/on_block_changed()
+	if(blocked)
+		Retract()
+
 /obj/item/organ/internal/cyberimp/arm/ui_action_click(mob/user, datum/action/action, leftclick)
+	if(blocked)
+		return
 	if(crit_fail || (!active_item && !length(contents)))
 		to_chat(owner, span_warning("Имплант не отвечает. Похоже, он сломан..."))
 		return

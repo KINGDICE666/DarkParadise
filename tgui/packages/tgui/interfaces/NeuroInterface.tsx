@@ -190,6 +190,12 @@ const KINDS: KindInfo[] = [
     icon: 'gun',
     hint: 'Только встроенный взломщик.',
   },
+  {
+    id: 'cyberware',
+    title: 'Импланты людей',
+    icon: 'user-gear',
+    hint: 'Модуль доступа к имплантам.',
+  },
 ];
 
 const groupByKind = <T extends { kind: string }>(items: T[]) =>
@@ -255,13 +261,6 @@ const Header = () => {
         )}
       </Stack>
       <SensorPicker />
-      {!deck && (
-        <div className="Cyberdeck__linkMode">
-          Без кибердека нейроадаптер передаёт только показатели носителя. Чтобы
-          взламывать и подключать устройства, вставьте деку: используйте её в
-          руке.
-        </div>
-      )}
       {!!deck && (
         <div className="Cyberdeck__gauges Cyberdeck__mono">
           <div className="Cyberdeck__gauge">
@@ -519,31 +518,33 @@ const DeckTab = () => {
       ) : (
         <Section title="Кибердек">
           <Box color="label">
-            Кибердек не подключён. Возьмите его в руку и используйте, чтобы
-            расширить связь, получить буфер и добавить модули.
+            Разъём под кибердек свободен. Возьмите деку в руку и используйте её,
+            чтобы вставить.
           </Box>
         </Section>
       )}
-      <Section title="Доступные устройства">
-        <div className="Cyberdeck__kinds">
-          {KINDS.map((kind) => {
-            const available = kinds.includes(kind.id);
-            return (
-              <div
-                key={kind.id}
-                className={classes([
-                  'Cyberdeck__kind',
-                  available && 'Cyberdeck__kind--on',
-                ])}
-                title={kind.hint}
-              >
-                <Icon name={kind.icon} mr={0.5} />
-                {kind.title}
-              </div>
-            );
-          })}
-        </div>
-      </Section>
+      {!!deck && (
+        <Section title="Доступные устройства">
+          <div className="Cyberdeck__kinds">
+            {KINDS.map((kind) => {
+              const available = kinds.includes(kind.id);
+              return (
+                <div
+                  key={kind.id}
+                  className={classes([
+                    'Cyberdeck__kind',
+                    available && 'Cyberdeck__kind--on',
+                  ])}
+                  title={kind.hint}
+                >
+                  <Icon name={kind.icon} mr={0.5} />
+                  {kind.title}
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
     </>
   );
 };
@@ -570,7 +571,8 @@ const EventLog = () => {
 export const NeuroInterface = () => {
   const { data } = useBackend<Data>();
   const { deck, devices, nearby, scanner, rebooting } = data;
-  const [tab, setTab] = useState(TAB_NETWORK);
+  const [chosenTab, setTab] = useState(TAB_NETWORK);
+  const tab = deck ? chosenTab : TAB_DECK;
 
   return (
     <Window
@@ -590,20 +592,24 @@ export const NeuroInterface = () => {
           </Stack.Item>
           <Stack.Item>
             <Tabs fluid>
-              <Tabs.Tab
-                icon="network-wired"
-                selected={tab === TAB_NETWORK}
-                onClick={() => setTab(TAB_NETWORK)}
-              >
-                Сеть ({devices.length})
-              </Tabs.Tab>
-              <Tabs.Tab
-                icon="satellite-dish"
-                selected={tab === TAB_SCANNER}
-                onClick={() => setTab(TAB_SCANNER)}
-              >
-                Сканер{scanner ? ` (${nearby.length})` : ''}
-              </Tabs.Tab>
+              {!!deck && (
+                <Tabs.Tab
+                  icon="network-wired"
+                  selected={tab === TAB_NETWORK}
+                  onClick={() => setTab(TAB_NETWORK)}
+                >
+                  Сеть ({devices.length})
+                </Tabs.Tab>
+              )}
+              {!!deck && (
+                <Tabs.Tab
+                  icon="satellite-dish"
+                  selected={tab === TAB_SCANNER}
+                  onClick={() => setTab(TAB_SCANNER)}
+                >
+                  Сканер{scanner ? ` (${nearby.length})` : ''}
+                </Tabs.Tab>
+              )}
               <Tabs.Tab
                 icon="microchip"
                 selected={tab === TAB_DECK}
@@ -614,13 +620,8 @@ export const NeuroInterface = () => {
             </Tabs>
           </Stack.Item>
           <Stack.Item grow basis={0} style={{ overflowY: 'auto' }}>
-            {tab !== TAB_DECK && !deck && (
-              <NoticeBox info>
-                Сеть и сканер работают только с подключённым кибердеком.
-              </NoticeBox>
-            )}
-            {tab === TAB_NETWORK && !!deck && <NetworkTab />}
-            {tab === TAB_SCANNER && !!deck && <ScannerTab />}
+            {tab === TAB_NETWORK && <NetworkTab />}
+            {tab === TAB_SCANNER && <ScannerTab />}
             {tab === TAB_DECK && <DeckTab />}
           </Stack.Item>
           <Stack.Item>
