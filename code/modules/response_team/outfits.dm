@@ -31,7 +31,7 @@
 	. = ..()
 	if(visualsOnly)
 		return
-	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = new
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = new
 	adapter.sensor_mode = SUIT_SENSOR_TRACKING
 	adapter.insert(H, ORGAN_MANIPULATION_NOEFFECT)
 

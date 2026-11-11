@@ -64,6 +64,7 @@
 	icon_state = "combat_coating"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_CHEST_SKELETON
+	cyber_cost = 25
 	origin_tech = "materials=5;biotech=5;combat=3"
 
 /obj/item/organ/internal/cyberimp/chest/reinforced_skeleton/get_ru_names()
@@ -102,6 +103,7 @@
 	icon_state = "blood_pump_sec"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_HEART_DRIVE
+	cyber_cost = 20
 	origin_tech = "materials=5;biotech=5;programming=4"
 	var/max_charges = 2
 	var/charges = 2
@@ -144,6 +146,7 @@
 
 /obj/item/organ/internal/cyberimp/chest/blood_pump/militech
 	name = "Militech blood pump implant"
+	cyber_cost = 25
 	desc = "Боевая версия кровяной помпы от Militech. Когда здоровье носителя падает до половины, сращивает раны синт-плотью и впрыскивает стимуляторы. Держит три заряда, но восстанавливает их дольше."
 	icon_state = "blood_pump"
 	origin_tech = "materials=6;biotech=6;programming=5;syndicate=3"
@@ -170,6 +173,7 @@
 	icon_state = "kirosi_seer"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_EYE_OPTICS
+	cyber_cost = 10
 	origin_tech = "materials=4;programming=4;biotech=4;combat=3"
 	aug_message = "Мир на мгновение плывёт, пока линзы подстраивают фокус..."
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
@@ -226,6 +230,7 @@
 
 /obj/item/organ/internal/cyberimp/eyes/optics/militech
 	name = "Militech optical suite"
+	cyber_cost = 14
 	desc = "Боевая оптика Militech. Даёт приближение, как у снайперского прицела, и гасит ослепляющие вспышки."
 	icon_state = "kirosi_basilisk"
 	origin_tech = "materials=5;programming=5;biotech=4;combat=5;syndicate=2"
@@ -243,6 +248,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gorilla
 	name = "gorilla arms implant"
+	cyber_cost = 30
 	desc = "Усиленные миомерные приводы в руке. Удары кулаком этой рукой бьют сильнее, пустой рукой можно разжать шлюз альт-кликом, а стабилизаторы полностью гасят отдачу оружия."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "implant_gorilla_arms_sec"
@@ -327,6 +333,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech
 	name = "Militech gorilla arms implant"
+	cyber_cost = 35
 	desc = "Агентская версия рук гориллы. Бьёт сильнее, быстрее разжимает шлюзы, а каждый удачный удар кулаком этой рукой ускоряет следующий."
 	icon_state = "implant_gorilla_arms"
 	origin_tech = "materials=6;biotech=5;combat=6;syndicate=3"
@@ -365,6 +372,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/monowire
 	name = "monowire implant"
+	cyber_cost = 30
 	desc = "Мономолекулярная нить, спрятанная в предплечье. Достаёт цель через клетку, а со спины или по лежачему захватывает за шею."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "implant_mono_wire_sec"
@@ -386,6 +394,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/monowire/militech
 	name = "Militech monowire implant"
+	cyber_cost = 35
 	desc = "Агентская моноструна Militech. Бьёт сильнее и дальше, а по нити иногда проходит оглушающий разряд."
 	icon_state = "implant_mono_wire"
 	origin_tech = "materials=6;biotech=5;combat=6;syndicate=3"
@@ -506,6 +515,7 @@
 	icon_state = "qian-ti_sandevistan"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_BRAIN_SANDEVISTAN
+	cyber_cost = 45
 	origin_tech = "materials=5;programming=5;biotech=5;combat=4"
 	actions_types = list(/datum/action/item_action/organ_action/use)
 	var/duration = 4 SECONDS
@@ -656,6 +666,7 @@
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun
 	name = "Cybersun Sandevistan"
+	cyber_cost = 55
 	desc = "Военный Сандевистан Cybersun. Разгон длится дольше, а тело выдерживает больше разгонов подряд, но конец у перегрузки тот же."
 	icon_state = "militech_sandevistan"
 	origin_tech = "materials=6;programming=6;biotech=6;combat=6;syndicate=3"
@@ -683,6 +694,7 @@
 	icon_state = "moore_berserker"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_BRAIN_SANDEVISTAN
+	cyber_cost = 45
 	origin_tech = "materials=5;programming=5;biotech=5;combat=5"
 	actions_types = list(/datum/action/item_action/organ_action/use)
 	var/duration = 25 SECONDS
@@ -761,6 +773,7 @@
 
 /obj/item/organ/internal/cyberimp/brain/berserker/militech
 	name = "Militech Berserker implant"
+	cyber_cost = 55
 	desc = "Берсерк Militech. Держит удар ещё лучше и действует дольше, а перезаряжается быстрее."
 	icon_state = "militech_berserker"
 	origin_tech = "materials=6;programming=6;biotech=6;combat=6;syndicate=3"
@@ -780,6 +793,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/ballistic_processor
 	name = "ballistic processor implant"
+	cyber_cost = 18
 	desc = "Баллистический сопроцессор, связанный с нервами руки. Пули носителя чаще рикошетят от стен и после отскока сами доводятся на ближайшую цель."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "ballistic_coprocessor"
@@ -823,6 +837,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/hand_cannon
 	name = "hand cannon implant"
+	cyber_cost = 30
 	desc = "Компактный разрывной пусковик, встроенный в предплечье. Ствол выдвигается из руки и прячется обратно, когда не нужен."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "implant_projectile_launcher_sec"
@@ -852,6 +867,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/hand_cannon/militech
 	name = "Militech hand cannon implant"
+	cyber_cost = 35
 	desc = "Ручная пушка Militech. Вместо одного тяжёлого заряда даёт очередь из трёх малых и перезаряжается втрое быстрее."
 	icon_state = "implant_projectile_launcher"
 	origin_tech = "materials=6;combat=6;biotech=5;powerstorage=5;syndicate=3"

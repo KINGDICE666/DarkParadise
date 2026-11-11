@@ -29,8 +29,16 @@ type LoadedImplant = Implant & {
   risk?: number;
 };
 
+type LogEntry = {
+  time: string;
+  text: string;
+  bad: BooleanLike;
+};
+
 type Patient = {
   name: string;
+  health: number;
+  stat: number;
   capacity: number;
   load: number;
   neuroadapter: BooleanLike;
@@ -44,6 +52,9 @@ type Data = {
   chipBonus: number;
   psychoStage: number;
   busy: BooleanLike;
+  operation: string | null;
+  operationTime: number;
+  log: LogEntry[];
   powered: BooleanLike;
   hasAccess: BooleanLike;
   patient: Patient | null;
@@ -74,6 +85,43 @@ const STAGES = [
   'Распад личности',
   'Киберпсихоз',
 ];
+
+const STAT_NAMES = ['в сознании', 'без сознания', 'мёртв'];
+
+const Vitals = (props: { patient: Patient }) => {
+  const { health, stat } = props.patient;
+  const tone =
+    stat === 2 || health <= 0 ? 'bad' : health < 50 ? 'warn' : 'good';
+  return (
+    <div className={`RipperDoc__vitals RipperDoc__vitals--${tone}`}>
+      <span className="RipperDoc__pulse" />
+      <span>{STAT_NAMES[stat] || STAT_NAMES[2]}</span>
+      <div className="RipperDoc__vitalsBar">
+        <div style={{ width: `${Math.min(Math.max(health, 0), 100)}%` }} />
+      </div>
+      <b>{Math.max(health, 0)}%</b>
+    </div>
+  );
+};
+
+const OperationLog = (props: { log: LogEntry[] }) => (
+  <div className="RipperDoc__log">
+    <div className="RipperDoc__label">Журнал операций</div>
+    {!props.log.length && <div className="RipperDoc__note">Записей нет.</div>}
+    {[...props.log].reverse().map((entry, index) => (
+      <div
+        key={`${entry.time}${entry.text}${index}`}
+        className={classes([
+          'RipperDoc__logLine',
+          !!entry.bad && 'RipperDoc__logLine--bad',
+        ])}
+      >
+        <span className="RipperDoc__logTime">{entry.time}</span>
+        {entry.text}
+      </div>
+    ))}
+  </div>
+);
 
 const zoneName = (zone: string) => ZONES[zone] || 'Прочее';
 
@@ -450,6 +498,9 @@ export const RipperDoc = () => {
     chipBonus,
     psychoStage,
     busy,
+    operation,
+    operationTime,
+    log,
     powered,
     hasAccess,
   } = data;
@@ -468,6 +519,7 @@ export const RipperDoc = () => {
     <Window width={900} height={640} theme="ripperdoc">
       <Window.Content>
         <div className="RipperDoc">
+          <div className="RipperDoc__sweep" />
           <div className="RipperDoc__header">
             <div className="RipperDoc__logo" data-text="RIPPERDOC">
               RIPPERDOC
@@ -476,38 +528,26 @@ export const RipperDoc = () => {
               {'нейрохирургический терминал // v2.077'}
             </div>
             <div className="RipperDoc__spacer" />
-            <div
-              className={classes([
-                'RipperDoc__pill',
-                !powered && 'RipperDoc__pill--bad',
-              ])}
-            >
-              {powered ? 'питание' : 'нет питания'}
-            </div>
-            <div
-              className={classes([
-                'RipperDoc__pill',
-                !hasAccess && 'RipperDoc__pill--bad',
-              ])}
-            >
-              {hasAccess ? 'доступ открыт' : 'нужен доступ робототехники'}
-            </div>
+            {!powered && (
+              <div className="RipperDoc__pill RipperDoc__pill--bad">
+                нет питания
+              </div>
+            )}
+            {!hasAccess && (
+              <div className="RipperDoc__pill RipperDoc__pill--bad">
+                нужен доступ робототехники
+              </div>
+            )}
           </div>
           <div className="RipperDoc__patientBar">
             <Icon name="user" />
             <span className="RipperDoc__patientName">
               {patient ? patient.name : 'Стол пуст'}
             </span>
-            {!!patient && (
-              <span
-                className={classes([
-                  'RipperDoc__link',
-                  !patient.neuroadapter && 'RipperDoc__link--off',
-                ])}
-              >
-                {patient.neuroadapter
-                  ? 'нейроадаптер: онлайн'
-                  : 'нейроадаптер: нет'}
+            {!!patient && <Vitals patient={patient} />}
+            {!!patient && !patient.neuroadapter && (
+              <span className="RipperDoc__link RipperDoc__link--off">
+                нейроадаптер не обнаружен
               </span>
             )}
           </div>
@@ -560,6 +600,7 @@ export const RipperDoc = () => {
                 implant={selectedImplant}
                 isLoaded={!!loaded && selected === loaded.uid}
               />
+              <OperationLog log={log} />
               {!!loaded && selected !== loaded.uid && (
                 <button
                   type="button"
@@ -575,7 +616,20 @@ export const RipperDoc = () => {
           {!!busy && (
             <div className="RipperDoc__busy">
               <div className="RipperDoc__busyText">ОПЕРАЦИЯ</div>
-              <div className="RipperDoc__busyBar" />
+              {!!operation && (
+                <div className="RipperDoc__busyName">{operation}</div>
+              )}
+              {operationTime > 0 ? (
+                <div className="RipperDoc__busyTrack">
+                  <div
+                    key={operation}
+                    className="RipperDoc__busyFill"
+                    style={{ animationDuration: `${operationTime}s` }}
+                  />
+                </div>
+              ) : (
+                <div className="RipperDoc__busyBar" />
+              )}
             </div>
           )}
         </div>

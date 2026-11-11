@@ -35,6 +35,44 @@
 	if(. && cyber_cost && is_robotic() && (special == ORGAN_MANIPULATION_DEFAULT || special == ORGAN_MANIPULATION_TRANSPLANTATE))
 		target.roll_cyberpsychosis()
 
+/obj/item/cyber_capacity_chip
+	name = "cybercapacity chip"
+	desc = "Чип расширения киберсовместимости. Вставляется в порт нейроадаптера и навсегда поднимает предел нагрузки имплантов."
+	icon = 'icons/obj/module.dmi'
+	icon_state = "circuit_chip"
+	w_class = WEIGHT_CLASS_TINY
+	origin_tech = "programming=6;biotech=5;materials=5"
+
+/obj/item/cyber_capacity_chip/get_ru_names()
+	return alist(
+		NOMINATIVE = "чип киберсовместимости",
+		GENITIVE = "чипа киберсовместимости",
+		DATIVE = "чипу киберсовместимости",
+		ACCUSATIVE = "чип киберсовместимости",
+		INSTRUMENTAL = "чипом киберсовместимости",
+		PREPOSITIONAL = "чипе киберсовместимости",
+	)
+
+/obj/item/cyber_capacity_chip/examine(mob/user)
+	. = ..()
+	. += span_notice("Увеличивает киберсовместимость на [CYBER_CAPACITY_CHIP_BONUS], но не выше [CYBER_CAPACITY_MAX].")
+
+/obj/item/cyber_capacity_chip/attack_self(mob/user)
+	. = ..()
+	if(. || !iscarbon(user))
+		return
+	var/mob/living/carbon/carbon_user = user
+	if(!carbon_user.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO))
+		balloon_alert(user, "нет нейроадаптера!")
+		return
+	if(carbon_user.cyber_capacity >= CYBER_CAPACITY_MAX)
+		balloon_alert(user, "предел совместимости!")
+		return
+	carbon_user.adjust_cyber_capacity(CYBER_CAPACITY_CHIP_BONUS)
+	playsound(user, 'sound/machines/terminal_insert_disc.ogg', 50, TRUE)
+	to_chat(user, span_notice("Вы вставляете [declent_ru(ACCUSATIVE)] в порт нейроадаптера. Киберсовместимость: [carbon_user.cyber_capacity]/[CYBER_CAPACITY_MAX]."))
+	qdel(src)
+
 /datum/status_effect/cyberpsychosis
 	id = "cyberpsychosis"
 	alert_type = null

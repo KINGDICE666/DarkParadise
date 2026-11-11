@@ -126,7 +126,7 @@
 	icon_state = "module_firewall"
 	origin_tech = "programming=5;combat=4"
 	feature = NEURO_FEATURE_FIREWALL
-	summary = "защита нейроинтерфейса от ЭМИ"
+	summary = "защита нейроадаптера от ЭМИ"
 
 /obj/item/cyberdeck_module/firewall/get_ru_names()
 	return alist(
@@ -231,7 +231,7 @@
 
 /obj/item/cyberdeck
 	name = "cyberdeck"
-	desc = "Вычислительный блок для нейроинтерфейса. Используйте в руке, чтобы подключить к своему нейропорту. Модули вставляются прямо в корпус, а извлекаются отвёрткой."
+	desc = "Вычислительный блок для нейроадаптера. Используйте в руке, чтобы подключить к своему нейропорту. Модули вставляются прямо в корпус, а извлекаются отвёрткой."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "deck_standard"
 	w_class = WEIGHT_CLASS_SMALL
@@ -242,6 +242,7 @@
 	var/range_bonus = 3
 	var/buffer_capacity = 40
 	var/buffer_regen = 1.5
+	var/cyber_cost = 15
 	var/list/obj/item/cyberdeck_module/modules = list()
 
 /obj/item/cyberdeck/get_ru_names()
@@ -263,6 +264,7 @@
 	range_bonus = 5
 	buffer_capacity = 60
 	buffer_regen = 2
+	cyber_cost = 25
 
 /obj/item/cyberdeck/advanced/get_ru_names()
 	return alist(
@@ -283,6 +285,7 @@
 	range_bonus = 7
 	buffer_capacity = 90
 	buffer_regen = 3
+	cyber_cost = 35
 
 /obj/item/cyberdeck/elite/get_ru_names()
 	return alist(
@@ -305,6 +308,7 @@
 	range_bonus = 7
 	buffer_capacity = 100
 	buffer_regen = 3.5
+	cyber_cost = 30
 
 /obj/item/cyberdeck/syndicate/get_ru_names()
 	return alist(
@@ -357,7 +361,7 @@
 	var/mob/living/carbon/human/wearer = user
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = wearer.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
 	if(!neuro)
-		balloon_alert(user, "нет нейроинтерфейса!")
+		balloon_alert(user, "нет нейроадаптера!")
 		return
 	balloon_alert(user, "подключение к нейропорту...")
 	if(!do_after(user, NEURO_DECK_INSTALL_TIME, user) || neuro.owner != user || loc != user)
@@ -380,13 +384,23 @@
 	user?.put_in_hands(module)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface
-	name = "neuro-interface implant"
-	desc = "Нейропорт, который связывает мозг с дверями и консолями по беспроводному каналу. Подключение идёт только в особом режиме и не мешает обычным действиям, а управление вынесено на отдельную панель. Кибердек добавляет новые типы устройств и буфер для сложных команд, а его модули расширяют возможности."
-	implant_color = "#4FE3C1"
+	name = "neuroadapter implant"
+	desc = "Стандартный нейроадаптер экипажа. Передаёт показатели носителя на консоли мониторинга и служит портом для чипов киберсовместимости. С подключённым кибердеком связывает мозг с дверями, консолями и прочей техникой по беспроводному каналу, а модули деки расширяют возможности."
+	implant_color = "#FCEE0A"
 	slot = INTERNAL_ORGAN_BRAIN_NEURO
-	cyber_cost = 35
+	cyber_cost = 0
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
-	actions_types = list(
+	actions_types = list(/datum/action/item_action/organ_action/neuro_sensors)
+	ignore_cybernetic_restrictions = TRUE
+	var/sensor_mode = SUIT_SENSOR_OFF
+	var/static/list/sensor_modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
+	var/static/alist/sensor_messages = alist(
+		SUIT_SENSOR_OFF = "Вы отключаете датчики нейроадаптера.",
+		SUIT_SENSOR_BINARY = "Теперь нейроадаптер будет сообщать, живы вы или мертвы.",
+		SUIT_SENSOR_VITAL = "Теперь нейроадаптер будет передавать ваши жизненные показатели.",
+		SUIT_SENSOR_TRACKING = "Теперь нейроадаптер будет передавать ваши жизненные показатели и местоположение.",
+	)
+	var/static/list/deck_action_types = list(
 		/datum/action/item_action/organ_action/augment/neuro_panel,
 		/datum/action/item_action/organ_action/augment/neuro_link,
 	)
@@ -429,8 +443,11 @@
 	)
 	COOLDOWN_DECLARE(scan_cooldown)
 
+/datum/action/item_action/organ_action/neuro_sensors
+	name = "Датчики нейроадаптера"
+
 /datum/action/item_action/organ_action/augment/neuro_panel
-	name = "Панель нейроинтерфейса"
+	name = "Панель нейроадаптера"
 	button_icon_state = "neuro_panel"
 
 /datum/action/item_action/organ_action/augment/neuro_link
@@ -439,13 +456,64 @@
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/get_ru_names()
 	return alist(
-		NOMINATIVE = "нейроинтерфейс",
-		GENITIVE = "нейроинтерфейса",
-		DATIVE = "нейроинтерфейсу",
-		ACCUSATIVE = "нейроинтерфейс",
-		INSTRUMENTAL = "нейроинтерфейсом",
-		PREPOSITIONAL = "нейроинтерфейсе",
+		NOMINATIVE = "нейроадаптер",
+		GENITIVE = "нейроадаптера",
+		DATIVE = "нейроадаптеру",
+		ACCUSATIVE = "нейроадаптер",
+		INSTRUMENTAL = "нейроадаптером",
+		PREPOSITIONAL = "нейроадаптере",
 	)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/Initialize(mapload)
+	. = ..()
+	sensor_mode = rand(SUIT_SENSOR_OFF, SUIT_SENSOR_TRACKING)
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
+	. = ..()
+	if(.)
+		target.update_suit_sensors()
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/examine(mob/user)
+	. = ..()
+	. += span_notice("Датчики: [sensor_modes[sensor_mode + 1]].")
+	if(deck)
+		. += span_notice("Подключён [deck.declent_ru(NOMINATIVE)].")
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/get_ripper_settings()
+	. = ..()
+	. += list(list(
+		"id" = "sensors",
+		"name" = "Режим датчиков",
+		"kind" = "choice",
+		"value" = sensor_modes[sensor_mode + 1],
+		"options" = sensor_modes,
+	))
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/set_ripper_setting(setting, value)
+	if(setting != "sensors" || !(value in sensor_modes))
+		return ..()
+	sensor_mode = sensor_modes.Find(value) - 1
+	owner?.update_suit_sensors()
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/choose_sensor_mode()
+	var/new_mode = tgui_input_list(owner, "Выберите режим работы датчиков:", "Датчики нейроадаптера", sensor_modes, sensor_modes[sensor_mode + 1])
+	if(isnull(new_mode) || QDELETED(owner) || owner.incapacitated())
+		return
+	sensor_mode = sensor_modes.Find(new_mode) - 1
+	to_chat(owner, span_notice(sensor_messages[sensor_mode]))
+	owner.update_suit_sensors()
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/update_deck_actions()
+	for(var/datum/action/action as anything in LAZYCOPY(actions))
+		if(is_type_in_list(action, deck_action_types))
+			remove_item_action(action)
+	if(!deck)
+		return
+	for(var/action_type in deck_action_types)
+		var/datum/action/action = add_item_action(action_type)
+		if(owner)
+			action.Grant(owner)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/Destroy()
 	SStgui.close_uis(src)
@@ -457,10 +525,11 @@
 	SStgui.close_uis(src)
 	set_link_mode(FALSE)
 	clear_links()
-	return ..()
+	. = ..()
+	target?.update_suit_sensors()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/emp_act(severity)
-	if(has_feature(NEURO_FEATURE_FIREWALL))
+	if(!deck || has_feature(NEURO_FEATURE_FIREWALL))
 		return
 	. = ..()
 	if(!.)
@@ -480,6 +549,11 @@
 		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] завершает перезагрузку."))
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/ui_action_click(mob/user, datum/action/action, leftclick)
+	if(istype(action, /datum/action/item_action/organ_action/neuro_sensors))
+		choose_sensor_mode()
+		return
+	if(!deck)
+		return
 	if(crit_fail)
 		notify_operator("нейропорт перезагружается!")
 		return
@@ -739,6 +813,9 @@
 		owner.put_in_hands(old_deck)
 	reset_buffer()
 	trim_links()
+	cyber_cost = new_deck.cyber_cost
+	update_deck_actions()
+	owner.roll_cyberpsychosis()
 	log_event("Кибердек подключён: [DECLENT_RU_CAP(new_deck, NOMINATIVE)]")
 	owner.balloon_alert(owner, "кибердек подключён")
 	owner.playsound_local(get_turf(owner), 'sound/machines/ping.ogg', 40, FALSE)
@@ -749,6 +826,10 @@
 		return
 	var/obj/item/cyberdeck/old_deck = deck
 	deck = null
+	SStgui.close_uis(src)
+	set_link_mode(FALSE)
+	cyber_cost = initial(cyber_cost)
+	update_deck_actions()
 	old_deck.forceMove(get_turf(owner))
 	owner.put_in_hands(old_deck)
 	reset_buffer()

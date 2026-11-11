@@ -1,7 +1,7 @@
 /mob/living/basic/net_avatar/proc/open_combat_hacks(mob/living/basic/net_avatar/victim)
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
 	if(!neuro || neuro.crit_fail)
-		balloon_alert(src, "нейроинтерфейс недоступен!")
+		balloon_alert(src, "нейроадаптер недоступен!")
 		return
 	if(!can_reach_node(victim))
 		balloon_alert(src, "цель вне досягаемости!")

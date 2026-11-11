@@ -156,7 +156,7 @@
 	INVOKE_ASYNC(connection, TYPE_PROC_REF(/datum/component/net_connection, try_jack_out))
 
 /datum/action/innate/net_neuro_panel
-	name = "Панель нейроинтерфейса"
+	name = "Панель нейроадаптера"
 	desc = "Кибердек, буфер и подключённые узлы."
 	button_icon = 'icons/hud/augment_actions.dmi'
 	button_icon_state = "neuro_panel"

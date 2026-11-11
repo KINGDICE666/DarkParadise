@@ -6,6 +6,7 @@
 	check_overload()
 	check_chips()
 	check_psychosis()
+	check_deck()
 	check_sensors()
 	check_settings()
 
@@ -25,7 +26,7 @@
 	chip.attack_self(patient)
 	TEST_ASSERT_EQUAL(patient.cyber_capacity, CYBER_CAPACITY_BASE, "chip worked without a neuroadapter")
 
-	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = allocate(/obj/item/organ/internal/cyberimp/brain/neuroadapter)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = allocate(/obj/item/organ/internal/cyberimp/brain/neuro_interface)
 	adapter.insert(patient, ORGAN_MANIPULATION_NOEFFECT)
 	chip.attack_self(patient)
 	TEST_ASSERT_EQUAL(patient.cyber_capacity, CYBER_CAPACITY_BASE + CYBER_CAPACITY_CHIP_BONUS, "chip did not raise cyber capacity")
@@ -63,8 +64,20 @@
 	TEST_ASSERT(!HAS_TRAIT(patient, TRAIT_CYBERPSYCHO), "cyberpsycho trait was left after the cure")
 	TEST_ASSERT(!HAS_TRAIT(patient, TRAIT_NO_PAIN), "pain immunity was left after the cure")
 
+/datum/unit_test/room_test/cyber_capacity/proc/check_deck()
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = patient.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	TEST_ASSERT(!(locate(/datum/action/item_action/organ_action/augment/neuro_link) in neuro.actions), "neuroadapter has a link button without a cyberdeck")
+	var/obj/item/cyberdeck/deck = allocate(/obj/item/cyberdeck)
+	patient.put_in_hands(deck)
+	TEST_ASSERT(neuro.install_deck(deck), "cyberdeck was not plugged in")
+	TEST_ASSERT(locate(/datum/action/item_action/organ_action/augment/neuro_link) in neuro.actions, "cyberdeck did not unlock the link button")
+	TEST_ASSERT_EQUAL(neuro.cyber_cost, deck.cyber_cost, "cyberdeck did not add its cyber cost")
+	neuro.eject_deck()
+	TEST_ASSERT(!(locate(/datum/action/item_action/organ_action/augment/neuro_panel) in neuro.actions), "panel button stayed after ejecting the cyberdeck")
+	TEST_ASSERT_EQUAL(neuro.cyber_cost, 0, "cyber cost stayed after ejecting the cyberdeck")
+
 /datum/unit_test/room_test/cyber_capacity/proc/check_sensors()
-	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = patient.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = patient.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
 	TEST_ASSERT(adapter.set_ripper_setting("sensors", "Полный мониторинг"), "sensor setting was rejected")
 	TEST_ASSERT(hassensorlevel(patient, SUIT_SENSOR_TRACKING), "neuroadapter sensors are not read")
 	adapter.remove(patient)

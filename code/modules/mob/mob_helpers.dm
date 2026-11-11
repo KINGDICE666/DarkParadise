@@ -86,7 +86,7 @@
 	var/mob/living/carbon/human/H = A
 	if(!istype(H))
 		return SUIT_SENSOR_OFF
-	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER)
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
 	return adapter ? adapter.sensor_mode : SUIT_SENSOR_OFF
 
 /proc/offer_control(mob/offer_mob, hours, hide_role)

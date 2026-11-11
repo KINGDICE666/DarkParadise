@@ -4824,7 +4824,6 @@
 #include "code\modules\surgery\organs\augments_internal.dm"
 #include "code\modules\surgery\organs\augments_legs.dm"
 #include "code\modules\surgery\organs\augments_neuro_interface.dm"
-#include "code\modules\surgery\organs\augments_neuroadapter.dm"
 #include "code\modules\surgery\organs\augments_shawarma_spit.dm"
 #include "code\modules\surgery\organs\augments_tactical_sight.dm"
 #include "code\modules\surgery\organs\augments_tail.dm"

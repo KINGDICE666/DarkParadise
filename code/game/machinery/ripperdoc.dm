@@ -1,6 +1,7 @@
 #define RIPPERDOC_BASE_TIME 5
 #define RIPPERDOC_TIME_PER_COST 0.2
 #define RIPPERDOC_CONSENT_TIMEOUT (15 SECONDS)
+#define RIPPERDOC_LOG_LIMIT 6
 
 /obj/machinery/optable/ripperdoc
 	name = "ripperdoc table"
@@ -13,6 +14,9 @@
 	light_color = "#FF3C46"
 	var/obj/item/organ/internal/cyberimp/loaded
 	var/busy = FALSE
+	var/operation_name
+	var/operation_time = 0
+	var/list/operation_log = list()
 
 /obj/machinery/optable/ripperdoc/get_ru_names()
 	return alist(
@@ -36,7 +40,41 @@
 		SStgui.update_uis(src)
 
 /obj/machinery/optable/ripperdoc/update_icon_state()
+	if(busy)
+		icon_state = "ripperdoc-operating"
+		return
 	icon_state = "ripperdoc-[(patient?.pulse) ? "active" : "idle"]"
+
+/obj/machinery/optable/ripperdoc/update_overlays()
+	. = ..()
+	if(stat & (NOPOWER|BROKEN))
+		return
+	. += emissive_appearance(icon, "ripperdoc-emissive", src)
+
+/obj/machinery/optable/ripperdoc/power_change(forced = FALSE)
+	. = ..()
+	update_icon(UPDATE_OVERLAYS)
+	set_light_on(!(stat & (NOPOWER|BROKEN)))
+
+/obj/machinery/optable/ripperdoc/proc/set_busy(new_name, duration = 0)
+	busy = !!new_name
+	operation_name = new_name
+	operation_time = duration
+	update_icon(UPDATE_ICON_STATE)
+	SStgui.update_uis(src)
+
+/obj/machinery/optable/ripperdoc/proc/log_operation(text, bad = FALSE)
+	operation_log += list(list("time" = station_time_timestamp("hh:mm"), "text" = text, "bad" = bad))
+	if(length(operation_log) > RIPPERDOC_LOG_LIMIT)
+		operation_log.Cut(1, 2)
+
+/obj/machinery/optable/ripperdoc/proc/play_servo()
+	if(busy)
+		playsound(src, 'sound/machines/ripperdoc/servo.ogg', 45, TRUE)
+
+/obj/machinery/optable/ripperdoc/proc/schedule_servo(duration)
+	addtimer(CALLBACK(src, PROC_REF(play_servo)), duration / 3)
+	addtimer(CALLBACK(src, PROC_REF(play_servo)), duration * 2 / 3)
 
 /obj/machinery/optable/ripperdoc/examine(mob/user)
 	. = ..()
@@ -63,6 +101,8 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	loaded = I
 	playsound(src, 'sound/machines/terminal_insert_disc.ogg', 40, TRUE)
+	playsound(src, 'sound/machines/ripperdoc/scan.ogg', 35, TRUE)
+	log_operation("В лоток: [loaded.declent_ru(NOMINATIVE)]")
 	balloon_alert(user, "имплант в лотке")
 	SStgui.update_uis(src)
 	return ATTACK_CHAIN_BLOCKED_ALL
@@ -118,30 +158,47 @@
 		balloon_alert(user, "слот занят намертво!")
 		return
 
-	busy = TRUE
-	SStgui.update_uis(src)
+	var/duration = get_operation_time(implant)
+	set_busy("Ожидание согласия")
 	if(target.stat == CONSCIOUS && target.client)
 		var/answer = tgui_alert(target, "[DECLENT_RU_CAP(implant, NOMINATIVE)] будет установлен вам рипердоком. Согласны?", "Установка импланта", list("Да", "Нет"), RIPPERDOC_CONSENT_TIMEOUT)
 		if(answer != "Да")
-			busy = FALSE
+			set_busy(null)
+			playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
 			balloon_alert(user, "пациент отказался!")
-			SStgui.update_uis(src)
+			log_operation("Пациент отказался от установки", bad = TRUE)
 			return
+	var/obj/item/organ/internal/cyberimp/replaced_implant = replaced
+	var/freed = istype(replaced_implant) ? replaced_implant.cyber_cost : 0
+	if(target.get_cyber_load() - freed + implant.cyber_cost > target.cyber_capacity)
+		playsound(src, 'sound/machines/ripperdoc/glitch.ogg', 45, TRUE)
+		balloon_alert(user, "перегрузка совместимости!")
+	set_busy("Установка: [implant.declent_ru(NOMINATIVE)]", duration)
 	playsound(src, 'sound/surgery/surgicaldrill.ogg', 50, TRUE)
+	playsound(src, 'sound/machines/ripperdoc/scan.ogg', 35, TRUE)
+	schedule_servo(duration)
 	target.visible_message(span_notice("Манипуляторы [declent_ru(GENITIVE)] вскрывают [target.declent_ru(ACCUSATIVE)] и подводят [implant.declent_ru(ACCUSATIVE)] к разъёму."))
-	var/success = do_after(user, get_operation_time(implant), target)
-	busy = FALSE
+	var/success = do_after(user, duration, target)
+	set_busy(null)
 	if(!success || loaded != implant || patient != target)
-		SStgui.update_uis(src)
+		playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
+		log_operation("Установка прервана", bad = TRUE)
 		return
 
 	loaded = null
 	if(replaced)
 		replaced.remove(target, ORGAN_MANIPULATION_NOEFFECT)
 		replaced.forceMove(loc)
+	var/datum/status_effect/cyberpsychosis/psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
+	var/stage_before = psychosis ? psychosis.stage : 0
 	implant.insert(target)
 	target.update_icons()
-	playsound(src, 'sound/machines/twobeep_high.ogg', 50, TRUE)
+	playsound(src, 'sound/machines/ripperdoc/install.ogg', 50, TRUE)
+	log_operation("Установлен: [implant.declent_ru(NOMINATIVE)]")
+	psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
+	if(psychosis && psychosis.stage > stage_before)
+		playsound(src, 'sound/machines/ripperdoc/glitch.ogg', 60, TRUE)
+		log_operation("Нейросбой: [psychosis.get_stage_name()]", bad = TRUE)
 	target.visible_message(span_notice("[DECLENT_RU_CAP(implant, NOMINATIVE)] щёлкает, входя в разъём, а манипуляторы [declent_ru(GENITIVE)] складываются."))
 	add_attack_logs(user, target, "installed [implant] with a ripperdoc table, cyber load [target.get_cyber_load()]/[target.cyber_capacity]")
 	SStgui.update_uis(src)
@@ -154,14 +211,16 @@
 		balloon_alert(user, "не извлечь!")
 		return
 
-	busy = TRUE
-	SStgui.update_uis(src)
+	var/duration = get_operation_time(implant)
+	set_busy("Извлечение: [implant.declent_ru(NOMINATIVE)]", duration)
 	playsound(src, 'sound/surgery/saw1.ogg', 50, TRUE)
+	schedule_servo(duration)
 	target.visible_message(span_notice("Манипуляторы [declent_ru(GENITIVE)] тянутся к [implant.declent_ru(DATIVE)] в теле [target.declent_ru(GENITIVE)]."))
-	var/success = do_after(user, get_operation_time(implant), target)
-	busy = FALSE
+	var/success = do_after(user, duration, target)
+	set_busy(null)
 	if(!success || implant.owner != target || patient != target)
-		SStgui.update_uis(src)
+		playsound(src, 'sound/machines/buzz-sigh.ogg', 40, TRUE)
+		log_operation("Извлечение прервано", bad = TRUE)
 		return
 
 	implant.remove(target)
@@ -171,7 +230,8 @@
 	else
 		implant.forceMove(src)
 		loaded = implant
-	playsound(src, 'sound/surgery/organ2.ogg', 50, TRUE)
+	playsound(src, 'sound/machines/ripperdoc/extract.ogg', 50, TRUE)
+	log_operation("Извлечён: [implant.declent_ru(NOMINATIVE)]")
 	target.visible_message(span_notice("[DECLENT_RU_CAP(implant, NOMINATIVE)] с влажным щелчком выходит из разъёма."))
 	add_attack_logs(user, target, "extracted [implant] with a ripperdoc table, cyber load [target.get_cyber_load()]/[target.cyber_capacity]")
 	SStgui.update_uis(src)
@@ -200,6 +260,7 @@
 		balloon_alert(user, "не удалось!")
 		return FALSE
 	playsound(src, 'sound/machines/terminal_select.ogg', 40, TRUE)
+	log_operation("Прошивка: [implant.declent_ru(NOMINATIVE)], [setting["name"]]")
 	return TRUE
 
 /obj/machinery/optable/ripperdoc/proc/find_implant(uid)
@@ -228,7 +289,7 @@
 		return
 	ui = new(user, src, "RipperDoc", "RipperDoc")
 	if(ui.open())
-		playsound(src, 'sound/machines/terminal_on.ogg', 30, TRUE)
+		playsound(src, 'sound/machines/ripperdoc/boot.ogg', 35, TRUE)
 
 /obj/machinery/optable/ripperdoc/ui_static_data(mob/user)
 	return list(
@@ -241,6 +302,9 @@
 /obj/machinery/optable/ripperdoc/ui_data(mob/user)
 	var/list/data = list(
 		"busy" = busy,
+		"operation" = operation_name,
+		"operationTime" = operation_time / (1 SECONDS),
+		"log" = operation_log,
 		"powered" = !(stat & (NOPOWER|BROKEN)),
 		"hasAccess" = allowed(user),
 		"patient" = null,
@@ -253,9 +317,11 @@
 		var/datum/status_effect/cyberpsychosis/psychosis = target.has_status_effect(/datum/status_effect/cyberpsychosis)
 		data["patient"] = list(
 			"name" = target.name,
+			"health" = round(target.health / target.maxHealth * 100),
+			"stat" = target.stat,
 			"capacity" = target.cyber_capacity,
 			"load" = load,
-			"neuroadapter" = !!target.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER),
+			"neuroadapter" = !!target.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO),
 			"psychosisStage" = psychosis ? psychosis.stage : 0,
 			"psychosisName" = psychosis?.get_stage_name(),
 		)
@@ -307,3 +373,4 @@
 #undef RIPPERDOC_BASE_TIME
 #undef RIPPERDOC_TIME_PER_COST
 #undef RIPPERDOC_CONSENT_TIMEOUT
+#undef RIPPERDOC_LOG_LIMIT

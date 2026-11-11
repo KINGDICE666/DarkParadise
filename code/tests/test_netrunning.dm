@@ -54,6 +54,9 @@
 	var/datum/mind/runner_mind = runner.mind
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = allocate(/obj/item/organ/internal/cyberimp/brain/neuro_interface)
 	neuro.insert(runner)
+	var/obj/item/cyberdeck/deck = allocate(/obj/item/cyberdeck)
+	runner.put_in_hands(deck)
+	TEST_ASSERT(neuro.install_deck(deck), "the runner could not plug a cyberdeck into the neuroadapter")
 
 	var/mob/living/basic/net_avatar/avatar = jack_in(runner, pod)
 	TEST_ASSERT(isnetavatar(avatar), "the mind did not move into a net avatar")

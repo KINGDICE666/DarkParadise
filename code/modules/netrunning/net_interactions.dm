@@ -62,7 +62,7 @@
 	if(!length(options))
 		balloon_alert(src, "узел молчит")
 		return
-	var/choice = tgui_input_list(src, neuro ? "Буфер: [round(neuro.get_buffer())]" : "Нейроинтерфейс недоступен", DECLENT_RU_CAP(node, NOMINATIVE), options)
+	var/choice = tgui_input_list(src, neuro ? "Буфер: [round(neuro.get_buffer())]" : "Нейроадаптер недоступен", DECLENT_RU_CAP(node, NOMINATIVE), options)
 	if(!choice || QDELETED(node) || stat != CONSCIOUS || !can_reach_node(node))
 		return
 	var/action_id = options[choice]

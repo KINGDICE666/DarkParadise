@@ -65,7 +65,7 @@
 		NET_WARE_ARM = list("name" = "Отказ ручного импланта", "cost" = 15, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/arm),
 		NET_WARE_OVERHEAT = list("name" = "Перегрев импланта", "cost" = 15, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp),
 		NET_WARE_SYNAPSE = list("name" = "Помехи в нейропорту", "cost" = 20, "upload" = 2.5 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/brain),
-		NET_WARE_NEURO = list("name" = "Обнулить нейроинтерфейс", "cost" = 20, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/brain/neuro_interface),
+		NET_WARE_NEURO = list("name" = "Обнулить нейроадаптер", "cost" = 20, "upload" = 2 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/brain/neuro_interface),
 	)
 	COOLDOWN_DECLARE(conduit_cooldown)
 	COOLDOWN_DECLARE(ice_notice)

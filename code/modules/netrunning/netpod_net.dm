@@ -23,8 +23,9 @@
 		open_machine()
 		return
 
-	if(!pilot.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO))
-		balloon_alert(pilot, "нужен нейроинтерфейс!")
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = pilot.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	if(!neuro?.deck)
+		balloon_alert(pilot, "нужен кибердек!")
 		open_machine()
 		return
 

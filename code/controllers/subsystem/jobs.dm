@@ -639,7 +639,7 @@ SUBSYSTEM_DEF(jobs)
 	if(issilicon(human))
 		return human
 
-	var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = new
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = new
 	if(!adapter.insert(human, ORGAN_MANIPULATION_NOEFFECT))
 		qdel(adapter)
 

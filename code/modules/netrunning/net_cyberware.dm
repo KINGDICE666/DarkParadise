@@ -13,7 +13,7 @@
 /mob/living/basic/net_avatar/proc/open_cyberware_hacks(mob/living/carbon/victim)
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
 	if(!neuro || neuro.crit_fail)
-		balloon_alert(src, "нейроинтерфейс недоступен!")
+		balloon_alert(src, "нейроадаптер недоступен!")
 		return
 	if(!can_reach_node(victim))
 		balloon_alert(src, "эхо вне досягаемости!")
@@ -84,4 +84,4 @@
 		if(NET_WARE_NEURO)
 			var/obj/item/organ/internal/cyberimp/brain/neuro_interface/victim_neuro = implants[1]
 			victim_neuro.force_reboot()
-			to_chat(victim, span_userdanger("Нейроинтерфейс сбрасывает буфер и уходит в перезагрузку!"))
+			to_chat(victim, span_userdanger("Нейроадаптер сбрасывает буфер и уходит в перезагрузку!"))

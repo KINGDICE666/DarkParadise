@@ -404,7 +404,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 				M.toff = 1
 		if(disable_sensors)
 			// Using crew monitors to find corpses while creative makes finding certain ruins too easy.
-			var/obj/item/organ/internal/cyberimp/brain/neuroadapter/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEUROADAPTER)
+			var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
 			adapter?.sensor_mode = SUIT_SENSOR_OFF
 
 	var/obj/item/card/id/W = H.wear_id
