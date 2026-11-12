@@ -247,6 +247,10 @@
 	if(connection_params["seeker"] && !seeker_client)
 		DIRECT_OUTPUT(src, "Проверка браузерного входа истекла. Обновите страницу и войдите снова.")
 		return null
+	if(!seeker_client && is_ss14_ckey(ckey))
+		log_adminwarn("Failed Login: [key] [computer_id] [address] - Reserved SS14 prefix")
+		DIRECT_OUTPUT(src, "Ключи с префиксом [SS14_CKEY_PREFIX] зарезервированы за аккаунтами SS14.")
+		return null
 	if(seeker_client)
 		tdata = null
 		if(!MC_RUNNING())

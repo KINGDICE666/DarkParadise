@@ -40,6 +40,8 @@
 	var/account_ckey = C ? C.account_ckey : M?.get_account_ckey()
 	if(account_ckey && account_ckey != ckey(key))
 		key = account_ckey
+	if(is_ss14_ckey(key))
+		key = C?.ss14_name || copytext(key, length(SS14_CKEY_PREFIX) + 1)
 
 	. = ""
 

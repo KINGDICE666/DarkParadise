@@ -3,6 +3,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /proc/is_launcher_ckey(test_ckey)
 	return findtext(test_ckey, LAUNCHER_CKEY_PREFIX, 1, length(LAUNCHER_CKEY_PREFIX) + 1) == 1
 
+/proc/is_ss14_ckey(test_ckey)
+	return findtext(test_ckey, SS14_CKEY_PREFIX, 1, length(SS14_CKEY_PREFIX) + 1) == 1
+
 /proc/load_launcher_aliases()
 	if(!SSdbcore.IsConnected())
 		return
@@ -29,13 +32,16 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /client/proc/display_key()
 	if(!is_launcher_client())
 		return key
+	if(is_ss14_ckey(account_ckey))
+		return ss14_name
 	if(!is_launcher_ckey(account_ckey))
 		return account_ckey
 	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
 
 /client/proc/request_launcher_link()
 	launcher_link_target = null
-	if(seeker_client || !is_launcher_client() || !SSdbcore.IsConnected())
+	var/from_ss14 = is_ss14_ckey(launcher_claimed_ckey)
+	if((seeker_client && !from_ss14) || !is_launcher_client() || !SSdbcore.IsConnected())
 		return LAUNCHER_LINK_NONE
 	if(GLOB.launcher_account_aliases[launcher_claimed_ckey])
 		return LAUNCHER_LINK_NONE
@@ -43,10 +49,11 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	var/datum/db_query/query_sibling = SSdbcore.NewQuery({"
 		SELECT byond.ckey FROM [format_table_name("player")] AS launcher
 		INNER JOIN [format_table_name("player")] AS byond ON byond.discord_id = launcher.discord_id
-		WHERE launcher.ckey = :ckey AND byond.ckey NOT LIKE :prefix
+		WHERE launcher.ckey = :ckey AND byond.ckey NOT LIKE :prefix AND byond.ckey NOT LIKE :ss14_prefix
+		AND byond.firstseen < launcher.firstseen
 		AND LENGTH(launcher.discord_id) < :token_length
 		LIMIT 1
-	"}, list("ckey" = launcher_claimed_ckey, "prefix" = "[LAUNCHER_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
+	"}, list("ckey" = launcher_claimed_ckey, "prefix" = "[LAUNCHER_CKEY_PREFIX]%", "ss14_prefix" = "[SS14_CKEY_PREFIX]%", "token_length" = DISCORD_TOKEN_LENGTH))
 
 	if(!query_sibling.warn_execute())
 		qdel(query_sibling)
@@ -58,6 +65,20 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 	if(!launcher_link_target)
 		return LAUNCHER_LINK_NONE
+
+	if(from_ss14)
+		var/datum/db_query/query_approve = SSdbcore.NewQuery({"
+			INSERT INTO [format_table_name("launcher_link_request")] (launcher_ckey, ckey, resolved, approved)
+			VALUES (:launcher_ckey, :ckey, Now(), 1)
+			ON DUPLICATE KEY UPDATE resolved = Now(), approved = 1
+		"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = launcher_link_target))
+		if(!query_approve.warn_execute())
+			qdel(query_approve)
+			return LAUNCHER_LINK_NONE
+		qdel(query_approve)
+		log_game("SS14 account [launcher_claimed_ckey] linked to [launcher_link_target] by their shared Discord")
+		GLOB.launcher_account_aliases[launcher_claimed_ckey] = launcher_link_target
+		return LAUNCHER_LINK_APPROVED
 
 	var/datum/db_query/query_request = SSdbcore.NewQuery({"
 		SELECT approved FROM [format_table_name("launcher_link_request")]
@@ -171,6 +192,11 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		if(seeker_identity["ckey"])
 			account_ckey = seeker_identity["ckey"]
 			launcher_state = LAUNCHER_VERIFIED
+			if(is_ss14_ckey(account_ckey))
+				setup_ss14_account()
+		return
+
+	if(is_ss14_ckey(ckey))
 		return
 
 	var/client/squatter = GLOB.directory[ckey]
@@ -384,3 +410,30 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	reject_launcher_client("Вход без лаунчера здесь закрыт.")
+
+/client/proc/setup_ss14_account()
+	launcher_claimed_ckey = account_ckey
+	ss14_name = load_ss14_name()
+	var/linked_ckey = GLOB.launcher_account_aliases[launcher_claimed_ckey]
+	if(linked_ckey && !GLOB.directory[linked_ckey])
+		account_ckey = linked_ckey
+
+/client/proc/load_ss14_name()
+	var/static/regex/valid_name = regex(@"^[A-Za-z0-9_]{1,32}$")
+	var/list/names = fexists(SS14_NAMES_FILE) ? safe_json_decode(file2text(SS14_NAMES_FILE)) : null
+	var/name = islist(names) ? names[launcher_claimed_ckey] : null
+	if(!istext(name) || !valid_name.Find(name))
+		name = copytext(launcher_claimed_ckey, length(SS14_CKEY_PREFIX) + 1)
+	if(!SSdbcore.IsConnected())
+		return "[name] (SS14)"
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT 1 FROM [format_table_name("player")] WHERE ckey = :ckey
+	"}, list("ckey" = ckey(name)))
+	if(!query.warn_execute(async = FALSE))
+		qdel(query)
+		return "[name] (SS14)"
+
+	var/taken = query.NextRow()
+	qdel(query)
+	return taken ? "[name] (SS14)" : name
