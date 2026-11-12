@@ -224,7 +224,7 @@ GAME_VERB_DESC(/client, looc, VERB_LOOC, "Local OOC, seen only by those in view.
 
 				if(target.mob && target.prefs.toggles3 & PREFTOGGLE_3_RUNECHAT_LOOC)
 					var/mob/source_mob = mob.get_looc_source()
-					target.mob.create_chat_message(source_mob, "<b>LOOC:</b> [msg_runechat]", list("looc"), null)
+					target.mob.create_chat_message(source_mob, "<b>LOOC:</b> [msg_runechat]", list("looc"), null, in_character = FALSE)
 
 /mob/proc/get_looc_source()
 	return src

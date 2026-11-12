@@ -10,6 +10,9 @@
 	var/hypnotic_phrase
 	var/regex/target_phrase
 
+/datum/brain_trauma/hypnosis/get_perception_distortion()
+	return 0
+
 /datum/brain_trauma/hypnosis/New(phrase)
 	if(!phrase)
 		qdel(src)
@@ -26,7 +29,7 @@
 /datum/brain_trauma/hypnosis/on_gain()
 	message_admins("[ADMIN_LOOKUPFLW(owner)] was hypnotized with the phrase '[hypnotic_phrase]'.")
 	owner.create_log(MISC_LOG, "was hypnotized with the phrase '[hypnotic_phrase]'")
-	to_chat(owner, span_reallybig(span_hypnophrase("[hypnotic_phrase]")))
+	to_chat(owner, span_reallybig(span_hypnophrase("[hypnotic_phrase]")), MESSAGE_TYPE_SYSTEM)
 	to_chat(owner, span_notice(pick(
 		"Что-то в этих словах кажется... правильным. Вы чувствуете, что должны им следовать.",
 		"Эти слова эхом отдаются в голове. Вы полностью ими очарованы.",
@@ -34,7 +37,7 @@
 		"Ваши мысли сходятся на этой фразе... вы не можете выкинуть её из головы.",
 		"Голова болит, но вы способны думать только об этом. Это жизненно важно.",
 	)))
-	to_chat(owner, span_boldwarning("Вы загипнотизированы этой фразой и должны ей следовать. Если это не прямой приказ, вы вольны трактовать его как угодно, пока действуете так, будто эти слова — ваш главный приоритет."))
+	to_chat(owner, span_boldwarning("Вы загипнотизированы этой фразой и должны ей следовать. Если это не прямой приказ, вы вольны трактовать его как угодно, пока действуете так, будто эти слова — ваш главный приоритет."), MESSAGE_TYPE_SYSTEM)
 	var/atom/movable/screen/alert/hypnosis/hypno_alert = owner.throw_alert("hypnosis", /atom/movable/screen/alert/hypnosis)
 	if(hypno_alert)
 		hypno_alert.desc = "«[hypnotic_phrase]»... ваш разум зациклен на этой мысли."

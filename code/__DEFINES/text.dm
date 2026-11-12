@@ -82,3 +82,5 @@
 #define BRAIN_DAMAGE_FILE "traumas.json"
 /// File location for words that set off a phobia
 #define PHOBIA_FILE "phobia.json"
+
+#define UTF8_WIDTH(code) ((code) < 0x80 ? 1 : ((code) < 0x800 ? 2 : ((code) < 0x10000 ? 3 : 4)))

@@ -87,7 +87,7 @@ ADMIN_VERB(borg_panel_in_list, R_ADMIN, "Show Borg Panel in List", "Open Borg Pa
 		if("remove_cell")
 			var/datum/robot_component/cell/C = borg.components["power cell"]
 			if(!borg.cell)
-				to_chat(usr, "There is no power cell installed!")
+				to_chat(usr, "There is no power cell installed!", confidential = TRUE)
 				return
 			borg.cell = null
 			C.wrapped = null

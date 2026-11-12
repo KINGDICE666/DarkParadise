@@ -89,7 +89,7 @@ ADMIN_VERB(poll_panel, R_SERVER, "Server Poll Management", "View and manage poll
 	if(!check_rights(R_SERVER))
 		return
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_danger("Not connected to database. Cannot retrieve data."))
+		to_chat(usr, span_danger("Not connected to database. Cannot retrieve data."), confidential = TRUE)
 		return
 	var/output = {"<div align='center'><b>Player Poll Results</b><hr>[poll.question]<hr>"}
 	//Each poll type is different

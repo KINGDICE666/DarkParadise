@@ -74,15 +74,30 @@ SUBSYSTEM_DEF(chat)
 		var/client/client = CLIENT_FROM_VAR(target)
 		if(isnull(client))
 			continue
-		LAZYADDASSOCLIST(client_to_payloads, client.ckey, generate_payload(client, message_data))
+		LAZYADDASSOCLIST(client_to_payloads, client.ckey, generate_payload(client, get_perceived_message(target, message_data, confidential)))
 
-/datum/controller/subsystem/chat/proc/send_immediate(send_target, list/message_data)
+/datum/controller/subsystem/chat/proc/send_immediate(send_target, list/message_data, confidential = FALSE)
 	var/list/targets = islist(send_target) ? send_target : list(send_target)
 	for(var/target in targets)
 		var/client/client = CLIENT_FROM_VAR(target)
 		if(isnull(client))
 			continue
-		send_payload_to_client(client, generate_payload(client, message_data))
+		send_payload_to_client(client, generate_payload(client, get_perceived_message(target, message_data, confidential)))
+
+/datum/controller/subsystem/chat/proc/get_perceived_message(target, list/message_data, confidential)
+	var/static/list/in_character_types = list(MESSAGE_TYPE_LOCALCHAT, MESSAGE_TYPE_RADIO, MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_COMBAT)
+	if(confidential || !ismob(target) || !message_data["html"])
+		return message_data
+	var/message_type = message_data["type"]
+	if(message_type && !(message_type in in_character_types))
+		return message_data
+	var/mob/recipient = target
+	var/perceived_html = recipient.distort_perceived_text(message_data["html"])
+	if(perceived_html == message_data["html"])
+		return message_data
+	var/list/perceived_message = message_data.Copy()
+	perceived_message["html"] = perceived_html
+	return perceived_message
 
 /datum/controller/subsystem/chat/proc/handle_resend(client/client, sequence)
 	var/list/client_history = client_to_reliability_history[client.ckey]

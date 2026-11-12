@@ -461,7 +461,7 @@
 /datum/smite/brainrot_braingamage/activate(mob/living/target, reason)
 	var/datum/component = target.GetComponent(/datum/component/brainrot_braingamage)
 	if(component)
-		to_chat(usr, span_warning("Старые ограничения сняты с грешника."))
+		to_chat(usr, span_warning("Старые ограничения сняты с грешника."), confidential = TRUE)
 		to_chat(target, span_notice("Ваш мозг расслабляется. Вы снова можете нести бред без вреда для себя."))
 		qdel(component)
 		logmsg = "brainrot braindamage cure."
@@ -578,7 +578,7 @@
 
 /datum/smite/headhit/apply_effect(mob/living/target, reason)
 	if(HAS_TRAIT_FROM(target, TRAIT_AIRLOCK_HIT, ADMIN_TRAIT))
-		to_chat(usr, span_notice("Старая кара снята."))
+		to_chat(usr, span_notice("Старая кара снята."), confidential = TRUE)
 		REMOVE_TRAIT(target, TRAIT_AIRLOCK_HIT, ADMIN_TRAIT)
 		return
 

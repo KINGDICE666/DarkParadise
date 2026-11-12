@@ -43,12 +43,12 @@
 	..()
 	if(!isobserver(user))
 		return
-	to_chat(user, span_notice("<b>Звуковой файл:</b> [sound_file ? sound_file : "Не выбран"]"))
-	to_chat(user, span_notice("<b>Режим:</b> [motus_operandi]"))
-	to_chat(user, span_notice("<b>Дальность:</b> [emitter_range]"))
-	to_chat(user, span_notice("<b>Громкость проигрываемого звука [sound_volume]%.</b>"))
+	to_chat(user, span_notice("<b>Звуковой файл:</b> [sound_file ? sound_file : "Не выбран"]"), confidential = TRUE)
+	to_chat(user, span_notice("<b>Режим:</b> [motus_operandi]"), confidential = TRUE)
+	to_chat(user, span_notice("<b>Дальность:</b> [emitter_range]"), confidential = TRUE)
+	to_chat(user, span_notice("<b>Громкость проигрываемого звука [sound_volume]%.</b>"), confidential = TRUE)
 	if(user.client.holder)
-		to_chat(user, "<b>Alt+ЛКМ для быстрой активации!</b>")
+		to_chat(user, "<b>Alt+ЛКМ для быстрой активации!</b>", confidential = TRUE)
 
 /obj/effect/sound_emitter/attack_ghost(mob/user)
 	if(!check_rights_for(user.client, R_SOUNDS))
@@ -59,7 +59,7 @@
 /obj/effect/sound_emitter/click_alt(mob/user)
 	if(check_rights_for(user.client, R_SOUNDS))
 		activate(user)
-		to_chat(user, span_notice("Звуковой излучатель активирован."))
+		to_chat(user, span_notice("Звуковой излучатель активирован."), confidential = TRUE)
 		return CLICK_ACTION_SUCCESS
 
 /obj/effect/sound_emitter/proc/edit_emitter(mob/user)
@@ -100,7 +100,7 @@
 			log_and_message_admins("reloaded a sound emitter with file \"[sound_file]\" at [COORD(src)]")
 
 	if(started)
-		to_chat(usr, span_notice("Пока проигрывание звука не остановлено, редактировать излучатель нельзя."))
+		to_chat(usr, span_notice("Пока проигрывание звука не остановлено, редактировать излучатель нельзя."), confidential = TRUE)
 		edit_emitter(user) //Refresh the UI to see our changes
 		return
 
@@ -114,21 +114,21 @@
 		if(!new_label)
 			return
 		maptext = MAPTEXT(new_label)
-		to_chat(user, span_notice("Новая маркировка — [maptext]."))
+		to_chat(user, span_notice("Новая маркировка — [maptext]."), confidential = TRUE)
 
 	if(href_list["edit_sound_file"])
 		var/new_file = input(user, "Выберите звуковой файл", "Звуковой излучатель") as null|sound
 		if(!new_file)
 			return
 		sound_file = new_file
-		to_chat(user, span_notice("Новый звуковой файл [sound_file]."))
+		to_chat(user, span_notice("Новый звуковой файл [sound_file]."), confidential = TRUE)
 
 	if(href_list["edit_volume"])
 		var/new_volume = tgui_input_number(user, "Введите громкость", "Звуковой излучатель", sound_volume, 100)
 		if(isnull(new_volume))
 			return
 		sound_volume = new_volume
-		to_chat(user, span_notice("Громкость установлена на [sound_volume]%."))
+		to_chat(user, span_notice("Громкость установлена на [sound_volume]%."), confidential = TRUE)
 
 	if(href_list["edit_mode"])
 		var/new_mode
@@ -137,7 +137,7 @@
 		if(!new_mode)
 			return
 		motus_operandi = mode_list[new_mode]
-		to_chat(user, span_notice("Выбраный режим — [motus_operandi]."))
+		to_chat(user, span_notice("Выбраный режим — [motus_operandi]."), confidential = TRUE)
 
 	if(href_list["edit_range"])
 		var/new_range
@@ -146,14 +146,14 @@
 		if(!new_range)
 			return
 		emitter_range = range_list[new_range]
-		to_chat(user, span_notice("Выбранная дальность — [emitter_range]."))
+		to_chat(user, span_notice("Выбранная дальность — [emitter_range]."), confidential = TRUE)
 
 	if(href_list["edit_radius"])
 		var/new_radius = tgui_input_number(user, "Введите радиус", "Звуковой излучатель", sound_volume, 127)
 		if(isnull(new_radius))
 			return
 		play_radius = new_radius
-		to_chat(user, span_notice("Радиус звука установлен на [play_radius]."))
+		to_chat(user, span_notice("Радиус звука установлен на [play_radius]."), confidential = TRUE)
 	edit_emitter(user) //Refresh the UI to see our changes
 
 /obj/effect/sound_emitter/proc/reload(mob/user)

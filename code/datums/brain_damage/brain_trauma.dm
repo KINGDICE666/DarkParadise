@@ -34,6 +34,14 @@
 		to_chat(owner, lose_text)
 	UnregisterSignal(owner, list(COMSIG_MOB_SAY, COMSIG_MOVABLE_HEAR))
 
+/datum/brain_trauma/proc/get_perception_distortion()
+	switch(resilience)
+		if(TRAUMA_RESILIENCE_BASIC)
+			return PERCEPTION_DISTORTION_BASIC_TRAUMA
+		if(TRAUMA_RESILIENCE_SURGERY)
+			return PERCEPTION_DISTORTION_SURGERY_TRAUMA
+	return 0
+
 /datum/brain_trauma/proc/on_life(seconds)
 	return
 

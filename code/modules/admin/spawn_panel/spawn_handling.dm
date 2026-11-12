@@ -26,23 +26,23 @@
 		target = (where_target_type == WHERE_TARGETED_MOB_HAND ? spawn_params["target"] : user)
 
 		if(!target)
-			to_chat(user, span_warning("Цель не выбрана."))
+			to_chat(user, span_warning("Цель не выбрана."), confidential = TRUE)
 			return
 
 		if(!ismob(target))
-			to_chat(user, span_warning("Выбранный объект не является мобом."))
+			to_chat(user, span_warning("Выбранный объект не является мобом."), confidential = TRUE)
 			return
 
 		if(!iscarbon(target) && !isrobot(target))
-			to_chat(user, span_warning("Создавать объекты в руках возможно только для карбонов (гуманоидных мобов) и роботов."))
+			to_chat(user, span_warning("Создавать объекты в руках возможно только для карбонов (гуманоидных мобов) и роботов."), confidential = TRUE)
 			where_target_type = WHERE_FLOOR_BELOW_MOB
 
 	else if(where_target_type == WHERE_MARKED_OBJECT || where_target_type == WHERE_IN_MARKED_OBJECT)
 		if(!user.client.holder.marked_datum)
-			to_chat(user, span_warning("Вы не отмечали какой-либо объект."))
+			to_chat(user, span_warning("Вы не отмечали какой-либо объект."), confidential = TRUE)
 			return
 		else if(!istype(user.client.holder.marked_datum, /atom))
-			to_chat(user, span_warning("Отмеченный объект не подходит в качестве цели. Цель должна быть типа /atom."))
+			to_chat(user, span_warning("Отмеченный объект не подходит в качестве цели. Цель должна быть типа /atom."), confidential = TRUE)
 			return
 		else
 			target = (where_target_type == WHERE_MARKED_OBJECT ? get_turf(user.client.holder.marked_datum) : user.client.holder.marked_datum)
@@ -69,7 +69,7 @@
 						relative_turf = locate(1, 1, 1)
 
 				if(!relative_turf)
-					to_chat(user, span_warning("Не удалось вычислить корректную относительную локацию."))
+					to_chat(user, span_warning("Не удалось вычислить корректную относительную локацию."), confidential = TRUE)
 					return
 
 				target = locate(relative_turf.x + X, relative_turf.y + Y, relative_turf.z + Z)
