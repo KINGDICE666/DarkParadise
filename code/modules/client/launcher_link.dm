@@ -196,6 +196,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 				setup_ss14_account()
 		return
 
+	if(is_ss14_ckey(ckey))
+		return
+
 	var/client/squatter = GLOB.directory[ckey]
 	if(squatter && squatter != src && squatter.is_launcher_client())
 		addtimer(CALLBACK(squatter, TYPE_PROC_REF(/client, reject_launcher_client), "Владелец аккаунта [ckey] зашёл через BYOND."))
