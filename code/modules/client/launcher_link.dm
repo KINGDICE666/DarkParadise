@@ -3,6 +3,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /proc/is_launcher_ckey(test_ckey)
 	return findtext(test_ckey, LAUNCHER_CKEY_PREFIX, 1, length(LAUNCHER_CKEY_PREFIX) + 1) == 1
 
+/proc/is_ss14_ckey(test_ckey)
+	return findtext(test_ckey, SS14_CKEY_PREFIX, 1, length(SS14_CKEY_PREFIX) + 1) == 1
+
 /proc/load_launcher_aliases()
 	if(!SSdbcore.IsConnected())
 		return
@@ -29,6 +32,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /client/proc/display_key()
 	if(!is_launcher_client())
 		return key
+	if(is_ss14_ckey(account_ckey))
+		return ss14_name
 	if(!is_launcher_ckey(account_ckey))
 		return account_ckey
 	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
@@ -114,7 +119,7 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/check_launcher_link_requests()
 	set waitfor = FALSE
-	if(is_launcher_client() || !SSdbcore.IsConnected())
+	if((is_launcher_client() && !seeker_client) || !has_persistent_identity() || is_ss14_ckey(account_ckey) || !SSdbcore.IsConnected())
 		return
 
 	var/datum/db_query/query = SSdbcore.NewQuery({"
@@ -135,7 +140,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		prompt_launcher_link(launcher_ckey)
 
 /client/proc/prompt_launcher_link(launcher_ckey)
-	var/answer = tgui_alert(src, "Аккаунт лаунчера [launcher_ckey] просит связать себя с вашим аккаунтом. После связки вход из Steam будет идти под [account_ckey]: те же персонажи, настройки и наигранное время. Если это не вы — откажите и смените пароль от Discord.", "Связка аккаунтов", list("Подтвердить", "Отклонить"), timeout = 5 MINUTES)
+	var/from_ss14 = is_ss14_ckey(launcher_ckey)
+	var/answer = tgui_alert(src, "[from_ss14 ? "Аккаунт SS14" : "Аккаунт лаунчера"] [launcher_ckey] просит связать себя с вашим аккаунтом. После связки вход [from_ss14 ? "через SS14" : "из Steam"] будет идти под [account_ckey]: те же персонажи, настройки и наигранное время. Если это не вы — откажите[from_ss14 ? "" : " и смените пароль от Discord"].", "Связка аккаунтов", list("Подтвердить", "Отклонить"), timeout = 5 MINUTES)
 	if(!answer)
 		return
 
@@ -171,6 +177,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		if(seeker_identity["ckey"])
 			account_ckey = seeker_identity["ckey"]
 			launcher_state = LAUNCHER_VERIFIED
+			if(is_ss14_ckey(account_ckey))
+				setup_ss14_account()
 		return
 
 	var/client/squatter = GLOB.directory[ckey]
@@ -384,3 +392,102 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return
 
 	reject_launcher_client("Вход без лаунчера здесь закрыт.")
+
+/client/proc/setup_ss14_account()
+	launcher_claimed_ckey = account_ckey
+	ss14_name = load_ss14_name()
+	var/linked_ckey = GLOB.launcher_account_aliases[launcher_claimed_ckey]
+	if(linked_ckey && !GLOB.directory[linked_ckey])
+		account_ckey = linked_ckey
+
+/client/proc/load_ss14_name()
+	var/static/regex/valid_name = regex(@"^[A-Za-z0-9_]{1,32}$")
+	var/fallback = copytext(launcher_claimed_ckey, length(SS14_CKEY_PREFIX) + 1)
+	var/list/names = fexists(SS14_NAMES_FILE) ? safe_json_decode(file2text(SS14_NAMES_FILE)) : null
+	var/name = islist(names) ? names[launcher_claimed_ckey] : null
+	if(!istext(name) || !valid_name.Find(name))
+		name = fallback
+	if(!SSdbcore.IsConnected())
+		return "[name] (SS14)"
+
+	var/datum/db_query/query = SSdbcore.NewQuery({"
+		SELECT 1 FROM [format_table_name("player")] WHERE ckey = :ckey
+	"}, list("ckey" = ckey(name)))
+	if(!query.warn_execute(async = FALSE))
+		qdel(query)
+		return "[name] (SS14)"
+
+	var/taken = query.NextRow()
+	qdel(query)
+	return taken ? "[name] (SS14)" : name
+
+GAME_VERB_DESC(/client, link_byond_account, "Связать с аккаунтом BYOND", "Играть через SS14 под своим аккаунтом BYOND: те же персонажи, наигранное время и привязка Discord.", VERB_CATEGORY_SPECIALVERBS)
+	if(!is_ss14_ckey(launcher_claimed_ckey))
+		to_chat(usr, span_warning("Связка доступна только при входе через SS14."), confidential = TRUE)
+		return
+	if(account_ckey != launcher_claimed_ckey)
+		to_chat(usr, span_notice("Этот аккаунт SS14 уже связан с [account_ckey]."), confidential = TRUE)
+		return
+	if(!SSdbcore.IsConnected())
+		to_chat(usr, span_warning("База данных недоступна, попробуйте позже."), confidential = TRUE)
+		return
+	if(world.time < next_ss14_link_request)
+		to_chat(usr, span_warning("Подождите немного перед новым запросом."), confidential = TRUE)
+		return
+
+	var/target = ckey(tgui_input_text(usr, "Ключ BYOND, с которым связать этот аккаунт SS14:", "Связка аккаунтов", max_length = 32))
+	if(!target)
+		return
+	if(is_guest_key(target) || is_launcher_ckey(target) || is_ss14_ckey(target))
+		to_chat(usr, span_warning("С таким ключом связать нельзя."), confidential = TRUE)
+		return
+	next_ss14_link_request = world.time + SS14_LINK_REQUEST_COOLDOWN
+
+	var/datum/db_query/query_player = SSdbcore.NewQuery({"
+		SELECT 1 FROM [format_table_name("player")] WHERE ckey = :ckey
+	"}, list("ckey" = target))
+	if(!query_player.warn_execute())
+		qdel(query_player)
+		return
+	var/known_player = query_player.NextRow()
+	qdel(query_player)
+	if(!known_player)
+		to_chat(usr, span_warning("Игрок [target] у нас ещё не играл."), confidential = TRUE)
+		return
+
+	var/datum/db_query/query_request = SSdbcore.NewQuery({"
+		SELECT approved FROM [format_table_name("launcher_link_request")]
+		WHERE launcher_ckey = :launcher_ckey AND ckey = :ckey
+	"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = target))
+	if(!query_request.warn_execute())
+		qdel(query_request)
+		return
+	var/known_request = query_request.NextRow()
+	var/approved = known_request ? query_request.item[1] : null
+	qdel(query_request)
+	if(known_request && !isnull(approved) && !text2num("[approved]"))
+		to_chat(usr, span_danger("Владелец [target] отклонил связку. Обратитесь к администрации."), confidential = TRUE)
+		return
+
+	var/datum/db_query/query_cleanup = SSdbcore.NewQuery({"
+		DELETE FROM [format_table_name("launcher_link_request")]
+		WHERE launcher_ckey = :launcher_ckey AND ckey != :ckey AND approved IS NULL
+	"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = target))
+	query_cleanup.warn_execute()
+	qdel(query_cleanup)
+
+	if(!known_request)
+		var/datum/db_query/query_insert = SSdbcore.NewQuery({"
+			INSERT INTO [format_table_name("launcher_link_request")] (launcher_ckey, ckey)
+			VALUES (:launcher_ckey, :ckey)
+		"}, list("launcher_ckey" = launcher_claimed_ckey, "ckey" = target))
+		if(!query_insert.warn_execute())
+			qdel(query_insert)
+			return
+		qdel(query_insert)
+		log_game("SS14 account [launcher_claimed_ckey] asked to be linked to [target]")
+
+	to_chat(usr, span_notice("Запрос отправлен. Зайдите в игру под [target] через BYOND или сайт и подтвердите связку, затем перезайдите через SS14."), confidential = TRUE)
+	var/client/owner = GLOB.directory[target]
+	if(owner && owner != src)
+		INVOKE_ASYNC(owner, TYPE_PROC_REF(/client, prompt_launcher_link), launcher_claimed_ckey)
