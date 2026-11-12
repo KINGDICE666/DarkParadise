@@ -248,7 +248,7 @@ GLOBAL_LIST_INIT(autodoc_procedures, init_autodoc_procedures())
 		return FALSE
 	if(istype(organ, /obj/item/organ/internal/cyberimp) && HAS_TRAIT(patient, TRAIT_NO_CYBERIMPLANTS))
 		return FALSE
-	if(organ.status == ORGAN_ROBOT && HAS_TRAIT(patient, TRAIT_NO_ROBOPARTS))
+	if(organ.status == ORGAN_ROBOT && !istype(organ, /obj/item/organ/internal/cyberimp) && HAS_TRAIT(patient, TRAIT_NO_ROBOPARTS))
 		return FALSE
 	var/obj/item/organ/internal/replaced = patient.get_organ_slot(organ.slot)
 	if(replaced?.unremovable)

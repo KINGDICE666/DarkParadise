@@ -831,7 +831,7 @@
 		user.balloon_alert(user, "несовместимо с организмом!")
 		return SURGERY_BEGINSTEP_SKIP
 
-	if(!organ.ignore_cybernetic_restrictions && organ.status == ORGAN_ROBOT && HAS_TRAIT(target, TRAIT_NO_ROBOPARTS))
+	if((organ.status == ORGAN_ROBOT) && !istype(organ, /obj/item/organ/internal/cyberimp) && HAS_TRAIT(target, TRAIT_NO_ROBOPARTS))
 		user.balloon_alert(user, "несовместимо с организмом!")
 		return SURGERY_BEGINSTEP_SKIP
 
