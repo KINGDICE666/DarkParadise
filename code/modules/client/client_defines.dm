@@ -132,7 +132,6 @@
 	var/launcher_nickname = null
 	var/launcher_state = LAUNCHER_UNLINKED
 	var/ss14_name
-	var/next_ss14_link_request = 0
 
 	var/ntnet_code
 	var/ntnet_code_expires = 0
