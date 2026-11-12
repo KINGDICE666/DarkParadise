@@ -1,0 +1,5 @@
+author: "KINGDICE666"
+delete-after: True
+changes:
+  - add: "Вход через SS14: ник без приписок, аккаунт SS14 сам связывается с аккаунтом BYOND по общему Discord. (PR #218)"
+  - tweak: "Гости могут писать в OOC и LOOC. (PR #218)"
