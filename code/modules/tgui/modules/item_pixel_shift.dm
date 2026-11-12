@@ -80,7 +80,7 @@ GAME_VERB_SRC(/obj/item, shift_position, oview(1), "Shift Item Pixel Position", 
 
 		if("toggle")
 			if(init_no_random_drop)
-				to_chat(usr, span_warning("Вы не можете изменить флажок случайного выпадения для этого элемента."))
+				to_chat(usr, span_warning("Вы не можете изменить флажок случайного выпадения для этого элемента."), confidential = TRUE)
 				return
 
 			if(random_drop_on)

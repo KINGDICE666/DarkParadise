@@ -78,7 +78,7 @@
 		return
 
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -163,7 +163,7 @@
 
 /datum/ui_module/permissions_edit/proc/update_permissions(ckey, permissions)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -182,7 +182,7 @@
 
 /proc/update_byond_admin_configs(ckey, permissions)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -194,7 +194,7 @@
 
 /datum/ui_module/permissions_edit/proc/force_re_admin(ckey)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -259,7 +259,7 @@
 
 /datum/ui_module/permissions_edit/proc/force_de_admin(ckey)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -285,7 +285,7 @@
 
 /datum/ui_module/permissions_edit/proc/remove_admin(ckey)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -315,7 +315,7 @@
 
 /datum/ui_module/permissions_edit/proc/add_new_admin(ckey, rank, rights = 0)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 

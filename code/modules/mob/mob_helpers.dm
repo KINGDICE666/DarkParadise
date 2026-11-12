@@ -182,6 +182,20 @@
 /proc/stars(text, probability = 25)
 	return RUSTLIB_CALL(random_replace, text, probability, "*")
 
+/mob/proc/get_perception_distortion()
+	return 0
+
+/mob/proc/get_word_distortion()
+	return 0
+
+/mob/proc/distort_perceived_text(text)
+	if(stat == DEAD)
+		return text
+	var/probability = min(get_perception_distortion(), PERCEPTION_DISTORTION_MAX)
+	if(probability <= 0)
+		return text
+	return garble_html(text, probability, get_word_distortion())
+
 /proc/slur(phrase, list/slurletters = ("'"))//use a different list as an input if you want to make robots slur with $#@%! characters
 	phrase = html_decode(phrase)
 	var/leng=length_char(phrase)
@@ -474,9 +488,9 @@ GAME_VERB(/mob/living, mob_sleep, "Спать", VERB_CATEGORY_IC)
 				else 										// Everyone else (dead people who didn't ghost yet, etc.)
 					lname = name
 				lname = "[span_name("[lname]")] "
-			to_chat(M, span_deadsay("[follow][lname][message]"))
+			to_chat(M, span_deadsay("[follow][lname][message]"), MESSAGE_TYPE_DEADCHAT)
 			if(runechat_message && subject && (isobserver(M) || M.see_invisible >= subject.invisibility) && (M.client.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT) && !(M.client.prefs.toggles3 & PREFTOGGLE_3_HIDE_DEADCHAT_RUNECHAT))
-				M.create_chat_message(subject, runechat_message, list("italics"))
+				M.create_chat_message(subject, runechat_message, list("italics"), in_character = FALSE)
 
 /proc/notify_ghosts(message, ghost_sound = null, enter_link = null, title = null, atom/source = null, image/alert_overlay = null, flashwindow = TRUE, action = NOTIFY_JUMP) //Easy notification of ghosts.
 	for(var/mob/dead/observer/ghost in GLOB.player_list)

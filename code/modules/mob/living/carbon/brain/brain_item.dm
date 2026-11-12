@@ -112,6 +112,11 @@
 		if(istype(trauma, brain_trauma_type) && trauma.resilience <= resilience)
 			return trauma
 
+/obj/item/organ/internal/brain/proc/get_trauma_distortion()
+	. = 0
+	for(var/datum/brain_trauma/trauma as anything in traumas)
+		. = max(., trauma.get_perception_distortion())
+
 /obj/item/organ/internal/brain/proc/get_traumas_type(brain_trauma_type = /datum/brain_trauma, resilience = TRAUMA_RESILIENCE_ABSOLUTE)
 	. = list()
 	for(var/datum/brain_trauma/trauma as anything in traumas)

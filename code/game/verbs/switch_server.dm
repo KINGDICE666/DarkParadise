@@ -26,7 +26,7 @@ GAME_VERB_DESC(/client, switch_server, "Switch Server", "Switch to a different P
 		formatted_servers["[server_data["server_name"]] - ([server_data["playercount"]] playing)"] = text2num(server_data["server_port"])
 
 	if(length(formatted_servers) == 1)
-		to_chat(usr, span_warning("Вы уже подключены к единственному серверу!"))
+		to_chat(usr, span_warning("Вы уже подключены к единственному серверу!"), MESSAGE_TYPE_SYSTEM)
 		return
 
 	var/selected_server = tgui_input_list(usr, "Выберите сервер", "Выбор сервера", formatted_servers)
@@ -34,11 +34,11 @@ GAME_VERB_DESC(/client, switch_server, "Switch Server", "Switch to a different P
 		return
 
 	if(formatted_servers[selected_server] == world.port)
-		to_chat(usr, span_warning("Вы уже подключены к данному серверу."))
+		to_chat(usr, span_warning("Вы уже подключены к данному серверу."), MESSAGE_TYPE_SYSTEM)
 		return
 
 	// Now we reconnect them
-	to_chat(usr, span_notice("Подключение к: [span_bold(selected_server)]..."))
+	to_chat(usr, span_notice("Подключение к: [span_bold(selected_server)]..."), MESSAGE_TYPE_SYSTEM)
 
 	// Formulate a connection URL
 	var/target = "byond://[world.internet_address]:[formatted_servers[selected_server]]"

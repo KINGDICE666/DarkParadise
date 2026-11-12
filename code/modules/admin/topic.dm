@@ -533,7 +533,7 @@
 		var/banreason = appearance_isbanned(M)
 		if(banreason)
 	/*		if(!CONFIG_GET(flag/ban_legacy_system))
-				to_chat(usr, span_warning("Unfortunately, database based unbanning cannot be done through this panel"))
+				to_chat(usr, span_warning("Unfortunately, database based unbanning cannot be done through this panel"), confidential = TRUE)
 				DB_ban_panel(M.ckey)
 				return	*/
 			switch(tgui_alert(usr, "Reason: '[banreason]' Remove appearance ban?", "Please Confirm", list("Yes", "No")))
@@ -1814,7 +1814,7 @@
 		var/mob/living/carbon/human/H = locateUID(href_list["togmutate"])
 		var/source = href_list["version"]
 		if(!istype(H))
-			to_chat(usr, span_warning("This can only be used on instances of type /mob/living/carbon/human"))
+			to_chat(usr, span_warning("This can only be used on instances of type /mob/living/carbon/human"), confidential = TRUE)
 			return
 		var/block = text2num(href_list["block"])
 		usr.client.cmd_admin_toggle_block(H,block)
@@ -2961,7 +2961,7 @@
 					var/list/prefs = settings["mainsettings"]
 
 					if(prefs["amount"]["value"] < 1 || prefs["portalnum"]["value"] < 1)
-						to_chat(usr, "Число порталов для спавна должно быть минимум 1")
+						to_chat(usr, "Число порталов для спавна должно быть минимум 1", confidential = TRUE)
 						return
 
 					var/pathToSpawn = prefs["typepath"]["value"]
@@ -2969,7 +2969,7 @@
 						pathToSpawn = text2path(pathToSpawn)
 
 					if(!ispath(pathToSpawn))
-						to_chat(usr, "Некорректный тип [pathToSpawn]")
+						to_chat(usr, "Некорректный тип [pathToSpawn]", confidential = TRUE)
 						return
 
 					if(prefs["announce_players"]["value"] == "Да")
@@ -3778,7 +3778,7 @@
 		var/client/client = locateUID(href_list["client"])
 
 		if(!client)
-			to_chat(usr, "No client inside!")
+			to_chat(usr, "No client inside!", confidential = TRUE)
 			return
 
 		var/thing_to_check
@@ -3801,7 +3801,7 @@
 
 		var/mob/living/carbon/M = locateUID(href_list["showdna"])
 		if(!M.dna || !iscarbon(M))
-			to_chat(usr, span_warning("It doesn't have DNA nor it's carbon mob!"))
+			to_chat(usr, span_warning("It doesn't have DNA nor it's carbon mob!"), confidential = TRUE)
 			return
 
 		var/list/body = list()
@@ -3972,7 +3972,7 @@
 
 /datum/admins/proc/change_lava_type()
 	if(!SSticker || SSticker.current_state == GAME_STATE_STARTUP)
-		to_chat(usr, span_warning("Генерация ещё не завершена. Пожалуйста, подождите."))
+		to_chat(usr, span_warning("Генерация ещё не завершена. Пожалуйста, подождите."), confidential = TRUE)
 		return
 
 	var/list/themes = list()

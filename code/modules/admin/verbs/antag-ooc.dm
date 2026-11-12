@@ -10,6 +10,6 @@ ADMIN_VERB(aooc, R_ADMIN, "AOOC", "Antagonist OOC", VERB_CATEGORY_OOC)
 
 	for(var/mob/M in GLOB.mob_list)
 		if((M.mind && M.mind.special_role && M.client) || (M.client && M.client.holder && (M.client.holder.rights & R_ADMIN)))
-			to_chat(M, "<font color='#960018'>[span_ooc("<span class='prefix'>AOOC:")] <em>[display_name]:</em> [span_message("[msg]")]</span></font>")
+			to_chat(M, "<font color='#960018'>[span_ooc("<span class='prefix'>AOOC:")] <em>[display_name]:</em> [span_message("[msg]")]</span></font>", MESSAGE_TYPE_OOC)
 
 	log_aooc(msg, user)

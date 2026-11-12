@@ -50,5 +50,5 @@ GAME_VERB(/client, refresh_tgui, "Обновить TGUI", VERB_CATEGORY_SPECIALV
 			continue
 		window.reinitialize()
 		refreshed_count++
-	to_chat(usr, span_notice("Окон TGUI обновлено — [refreshed_count].<br>Если появилось пустое окно — перезапустите игру или откройте предыдущее окно TGUI."))
+	to_chat(usr, span_notice("Окон TGUI обновлено — [refreshed_count].<br>Если появилось пустое окно — перезапустите игру или откройте предыдущее окно TGUI."), MESSAGE_TYPE_SYSTEM)
 

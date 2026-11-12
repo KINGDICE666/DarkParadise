@@ -179,7 +179,7 @@
 			. = TRUE
 		if("copy_filters")
 			usr.client.holder.copied_filters = deep_copy_list(target.filter_data)
-			to_chat(usr, span_notice("Фильтры [target] скопированы."))
+			to_chat(usr, span_notice("Фильтры [target] скопированы."), confidential = TRUE)
 			. = TRUE
 		if("paste_filters")
 			var/list/copied_filters = usr.client.holder.copied_filters
@@ -189,7 +189,7 @@
 			. = TRUE
 		if("mass_apply")
 			if(!check_rights_for(usr.client, R_EVENT))
-				to_chat(usr, span_userdanger("Stay in your lane, jannie."))
+				to_chat(usr, span_userdanger("Stay in your lane, jannie."), confidential = TRUE)
 				return
 			var/target_path = text2path(params["path"])
 			if(!target_path)
@@ -242,7 +242,7 @@
 			continue
 		animatable_fields[field] = value
 	if(!length(animatable_fields))
-		to_chat(usr, span_warning("У фильтра [filter_name] нет параметров, которые можно анимировать."))
+		to_chat(usr, span_warning("У фильтра [filter_name] нет параметров, которые можно анимировать."), confidential = TRUE)
 		return FALSE
 
 	var/field = tgui_input_list(usr, "Какой параметр анимировать?", "Анимация [filter_name]", animatable_fields)
