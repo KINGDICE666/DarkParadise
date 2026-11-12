@@ -130,6 +130,11 @@
 		H.adjustToxLoss(KIDAN_PESTICIDE_DAMAGE)
 	return ..()
 
+/datum/species/kidan/on_reagent_contact(mob/living/carbon/human/human, datum/reagent/reagent, volume)
+	. = ..()
+	if(istype(reagent, /datum/reagent/pestkiller))
+		human.reagents.add_reagent(reagent.id, volume)
+
 /datum/species/kidan/get_species_runechat_color(mob/living/carbon/human/H)
 	var/obj/item/organ/internal/eyes/E = H.get_int_organ(/obj/item/organ/internal/eyes)
 	return E.eye_colour
