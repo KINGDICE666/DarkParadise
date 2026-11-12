@@ -12,6 +12,7 @@ export type PodLauncherData = {
   effectBluespace: BooleanLike;
   effectBurst: BooleanLike;
   effectCircle: BooleanLike;
+  effectGas: BooleanLike;
   effectLimb: BooleanLike;
   effectMissile: BooleanLike;
   effectName: number;
@@ -24,6 +25,8 @@ export type PodLauncherData = {
   effectTarget: string | null;
   explosionChoice: number;
   fallingSound: BooleanLike;
+  gasNames: Record<string, string>;
+  gasRelease: Record<string, PodGas>;
   giveLauncher: BooleanLike;
   landingSound: string | null;
   launchChoice: number;
@@ -45,7 +48,13 @@ export type PodLauncherData = {
   shrapnelType: string;
   soundVolume: number;
   styleChoice: string;
+  tabIndex: number;
   podStyles: Array<Record<string, string>>;
+};
+
+export type PodGas = {
+  amount: number;
+  rate: number;
 };
 
 export type PodDelay = {
@@ -58,7 +67,6 @@ export type PodEffect =
       act: string;
       choiceNumber?: number;
       content?: string;
-      details?: boolean;
       divider?: never;
       icon: string;
       payload?: Record<string, any>;

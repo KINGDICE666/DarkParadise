@@ -55,6 +55,7 @@
 	var/effectShrapnel = FALSE
 	var/shrapnel_type = /obj/projectile/shrapnel
 	var/shrapnel_magnitude = 3
+	var/list/gas_release = list()
 	var/list/reverse_option_list = list(MOB_OPTION=FALSE, UNANCHORED_OPTION=FALSE, ANCHORED_OPTION=FALSE, MECHA_OPTION=FALSE)
 
 /obj/structure/closet/supplypod/get_ru_names()
@@ -437,6 +438,8 @@
 	set_density(TRUE) //Density is originally false so the pod doesn't block anything while it's still falling through the air
 	if(effectShrapnel)
 		AddComponent(/datum/component/pellet_cloud, projectile_type = shrapnel_type, magnitude = shrapnel_magnitude)
+	if(length(gas_release))
+		new /obj/effect/abstract/supplypod_gas_release(turf_underneath, gas_release)
 	SEND_SIGNAL(src, COMSIG_SUPPLYPOD_LANDED)
 	for(var/mob/living/target_living in turf_underneath)
 		if(iscarbon(target_living)) //If effectLimb is true (which means we pop limbs off when we hit people):
@@ -708,6 +711,40 @@
 	qdel(glow_effect)
 	open_pod(src, broken = TRUE) //Lets dump our contents by opening up
 	return ..()
+
+/obj/effect/abstract/supplypod_gas_release
+	name = "supplypod gas release"
+	var/list/gases_left = list()
+	var/list/release_rates = list()
+
+/obj/effect/abstract/supplypod_gas_release/Initialize(mapload, list/gas_release)
+	. = ..()
+	for(var/gas_id in gas_release)
+		var/list/gas_settings = gas_release[gas_id]
+		gases_left[gas_id] = gas_settings["amount"]
+		release_rates[gas_id] = gas_settings["rate"]
+	START_PROCESSING(SSobj, src)
+
+/obj/effect/abstract/supplypod_gas_release/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	return ..()
+
+/obj/effect/abstract/supplypod_gas_release/process(seconds_per_tick)
+	var/datum/gas_mixture/released_air = new
+	released_air.set_temperature(T20C)
+	var/still_releasing = FALSE
+	for(var/gas_id in gases_left)
+		var/amount = min(gases_left[gas_id], release_rates[gas_id] * seconds_per_tick)
+		if(amount <= 0)
+			continue
+		released_air.adjust_gas(gas_id, amount)
+		gases_left[gas_id] -= amount
+		if(gases_left[gas_id] > 0)
+			still_releasing = TRUE
+	var/turf/release_turf = get_turf(src)
+	release_turf.blind_release_air(released_air)
+	if(!still_releasing)
+		qdel(src)
 
 //------------------------------------TEMPORARY_VISUAL-------------------------------------//
 /obj/effect/supplypod_smoke //Falling pod smoke

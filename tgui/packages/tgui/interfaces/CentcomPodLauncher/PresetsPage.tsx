@@ -15,7 +15,7 @@ import type { PodLauncherData } from './types';
 
 type Preset = {
   hue: number;
-  id: number;
+  id: string;
   title: string;
 };
 const saveDataToPreset = async (id: string, data: any) => {
@@ -23,10 +23,10 @@ const saveDataToPreset = async (id: string, data: any) => {
 };
 
 type PresetButtonsProps = {
-  deletePreset: (id: number) => void;
+  deletePreset: (id: string) => void;
   editing: boolean;
-  loadPreset: (id: number) => void;
-  presetIndex: number;
+  loadPreset: (id: string) => void;
+  presetIndex: string;
   setEditing: (status: boolean) => void;
   getPresets: () => void;
 };
@@ -55,7 +55,7 @@ const PresetButtons = (props: PresetButtonsProps) => {
         color="transparent"
         icon="download"
         inline
-        onClick={() => saveDataToPreset(presetIndex.toString(), data)}
+        onClick={() => presetIndex && saveDataToPreset(presetIndex, data)}
         tooltip="Сохранить пресет"
         tooltipPosition="bottom"
       />
@@ -93,29 +93,28 @@ export const PresetsPage = (props: unknown) => {
   const [editing, setEditing] = useState(false);
   const [hue, setHue] = useState(0);
   const [name, setName] = useState('');
-  const [presetID, setPresetID] = useState(0);
+  const [presetID, setPresetID] = useState('');
   const [presets, setPresets] = useState<Preset[]>([]);
-  const deletePreset = async (deleteID: number) => {
-    const newPresets: any[] = [...presets];
-    for (let i = 0; i < presets.length; i++) {
-      if (presets[i].id === deleteID) {
-        newPresets.splice(i, 1);
-        break;
-      }
+  const deletePreset = async (deleteID: string) => {
+    if (!deleteID) {
+      return;
     }
+    const newPresets = presets.filter((preset) => preset.id !== deleteID);
     await storage.set('podlauncher_presetlist', newPresets);
+    await storage.remove(`podlauncher_preset_${deleteID}`);
+    setPresetID('');
     getPresets();
   };
-  const loadPreset = async (id) => {
+  const loadPreset = async (id: string) => {
+    if (!id) {
+      return;
+    }
     act('loadDataFromPreset', {
       payload: await storage.get(`podlauncher_preset_${id}`),
     });
   };
   const newPreset = async (presetName: string, hue: number, data: any) => {
-    const newPresets: any[] = [...presets];
-    if (!presets) {
-      newPresets.push('hi!');
-    }
+    const newPresets: Preset[] = [...presets];
     const id = createUuid();
     const thing = { id, title: presetName, hue };
     newPresets.push(thing);
@@ -204,10 +203,10 @@ export const PresetsPage = (props: unknown) => {
           быть, но их нет, то обновите список.
         </span>
       )}
-      {presets.map((preset, i) => (
+      {presets.map((preset) => (
         <Button
           backgroundColor={`hsl(${preset.hue}, 50%, 50%)`}
-          key={i}
+          key={preset.id}
           onClick={() => setPresetID(preset.id)}
           onDoubleClick={() => loadPreset(preset.id)}
           style={

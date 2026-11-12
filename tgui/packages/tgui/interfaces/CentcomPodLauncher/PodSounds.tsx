@@ -15,8 +15,7 @@ export const PodSounds = (props: unknown) => {
           icon="volume-up"
           onClick={() => act('soundVolume')}
           selected={soundVolume !== defaultSoundVolume}
-          tooltip={`
-            Громкость Зука:${soundVolume}`}
+          tooltip={`Громкость звука: ${soundVolume}`}
         />
       }
       fill

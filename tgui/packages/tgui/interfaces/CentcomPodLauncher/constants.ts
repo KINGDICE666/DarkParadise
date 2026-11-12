@@ -262,10 +262,15 @@ export const EFFECTS_HARM: PodEffect[] = [
   },
   {
     act: 'effectShrapnel',
-    details: true,
     icon: 'cloud-meatball',
     soloSelected: 'effectShrapnel',
     title: 'Облако снарядов',
+  },
+  {
+    act: 'effectGas',
+    icon: 'wind',
+    soloSelected: 'effectGas',
+    title: 'Газовая ракета',
   },
   {
     act: 'effectStun',
