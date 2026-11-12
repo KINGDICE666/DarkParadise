@@ -198,7 +198,7 @@
 	if(status_examines)
 		msg += status_examines
 
-	var/cyberware_examine = get_cyberware_examine()
+	var/cyberware_examine = (skipface && skipprostheses) ? null : get_cyberware_examine()
 	if(cyberware_examine)
 		msg += cyberware_examine
 
