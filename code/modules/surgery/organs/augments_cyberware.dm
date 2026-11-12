@@ -1,6 +1,10 @@
 #define SKELETON_HEALTH_BONUS 25
 
 #define OPTICS_ZOOM_DISTANCE 7
+#define OPTICS_FULLSCREEN "kiroshi_optics"
+#define OPTICS_SCAN_INTERVAL (1 SECONDS)
+#define OPTICS_SCAN_RANGE (OPTICS_ZOOM_DISTANCE * 2)
+#define OPTICS_MIN_TARGET_ALPHA 128
 
 #define BLOOD_PUMP_HEALTH_FRACTION 0.5
 #define BLOOD_PUMP_SYNTHFLESH_AMOUNT 100
@@ -21,8 +25,16 @@
 #define SANDEVISTAN_FULLSCREEN "sandevistan"
 #define SANDEVISTAN_FLASH "sandevistan_flash"
 #define SANDEVISTAN_EMP_GLITCH_CHANCE 50
-#define SANDEVISTAN_EMP_COOLDOWN_MOD 1.5
-#define SANDEVISTAN_OVERLOAD_RESET_TIME (2 MINUTES)
+#define SANDEVISTAN_HEAT_STRAIN 70
+#define SANDEVISTAN_HEAT_CRITICAL 100
+#define SANDEVISTAN_HEAT_LETHAL 120
+#define SANDEVISTAN_HEAT_MAX 150
+#define SANDEVISTAN_COOLING_TICK (1 SECONDS)
+#define SANDEVISTAN_DASH_RANGE 2
+#define SANDEVISTAN_MELEE_DODGE_CHANCE 50
+#define SANDEVISTAN_ECHO_DELAY (0.2 SECONDS)
+#define SANDEVISTAN_FINISHER_WINDOW (5 SECONDS)
+#define SANDEVISTAN_FINISHER_KNOCKDOWN (3 SECONDS)
 #define SANDEVISTAN_STRAIN_DAMAGE 20
 #define SANDEVISTAN_STRAIN_BLOOD_LOSS 150
 #define SANDEVISTAN_CRITICAL_TOX_DAMAGE 60
@@ -173,9 +185,24 @@
 		PREPOSITIONAL = "кровяной помпе Militech",
 	)
 
+/atom/movable/screen/fullscreen/kiroshi
+	icon = 'icons/hud/kiroshi_zoom.dmi'
+	icon_state = "frame"
+	color = "#5EF6FF"
+
+/atom/movable/screen/fullscreen/kiroshi/militech
+	color = "#FF3C46"
+
+/atom/movable/screen/kiroshi_readout
+	screen_loc = "WEST+1:4,NORTH-2:8"
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	appearance_flags = NO_CLIENT_COLOR|RESET_COLOR
+	maptext_width = 320
+	maptext_height = 48
+
 /obj/item/organ/internal/cyberimp/eyes/optics
 	name = "Kiroshi optics"
-	desc = "Высокоточная оптика Kiroshi. По команде выдвигает линзы и даёт приближение, как у снайперского прицела."
+	desc = "Высокоточная оптика Kiroshi. По команде выдвигает линзы, приближает картинку и выводит на сетчатку прицельную сетку, дальномер и метки всех, кто попал в поле зрения."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "kirosi_seer"
 	implant_overlay = null
@@ -185,6 +212,12 @@
 	aug_message = "Мир на мгновение плывёт, пока линзы подстраивают фокус..."
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 	var/zoomed = FALSE
+	var/hud_color = "#5EF6FF"
+	var/brand_text = "KIROSHI"
+	var/fullscreen_type = /atom/movable/screen/fullscreen/kiroshi
+	var/atom/movable/screen/kiroshi_readout/readout
+	var/list/image/target_images = list()
+	var/scan_timer
 
 /obj/item/organ/internal/cyberimp/eyes/optics/get_ru_names()
 	return alist(
@@ -209,6 +242,11 @@
 /obj/item/organ/internal/cyberimp/eyes/optics/ui_action_click(mob/user, datum/action/action, leftclick)
 	set_zoom(!zoomed)
 
+/obj/item/organ/internal/cyberimp/eyes/optics/on_block_changed()
+	. = ..()
+	if(blocked)
+		set_zoom(FALSE)
+
 /obj/item/organ/internal/cyberimp/eyes/optics/proc/set_zoom(new_state)
 	if(zoomed == new_state)
 		return
@@ -218,13 +256,61 @@
 		RegisterSignal(owner, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
 		RegisterSignal(owner, COMSIG_MOB_LOGOUT, PROC_REF(drop_zoom))
 		owner.client?.view_size.zoomOut(offset = OPTICS_ZOOM_DISTANCE, direction = owner.dir)
+		start_hud()
 	else
 		UnregisterSignal(owner, list(COMSIG_ATOM_DIR_CHANGE, COMSIG_MOB_STATCHANGE, COMSIG_MOB_LOGOUT))
 		owner.client?.view_size.zoomIn()
+		stop_hud()
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/start_hud()
+	owner.overlay_fullscreen(OPTICS_FULLSCREEN, fullscreen_type)
+	readout = new
+	owner.client?.screen += readout
+	owner.playsound_local(get_turf(owner), 'sound/machines/terminal_on.ogg', 25, FALSE)
+	scan()
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/stop_hud()
+	deltimer(scan_timer)
+	scan_timer = null
+	clear_targets()
+	owner.clear_fullscreen(OPTICS_FULLSCREEN)
+	owner.client?.screen -= readout
+	QDEL_NULL(readout)
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/clear_targets()
+	owner.client?.images -= target_images
+	target_images.Cut()
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/scan()
+	deltimer(scan_timer)
+	scan_timer = addtimer(CALLBACK(src, PROC_REF(scan)), OPTICS_SCAN_INTERVAL, TIMER_STOPPABLE)
+	clear_targets()
+	if(!owner.client)
+		return
+	var/turf/focus = get_ranged_target_turf(owner, owner.dir, OPTICS_ZOOM_DISTANCE)
+	for(var/mob/living/target in view(OPTICS_SCAN_RANGE, owner))
+		if(target == owner || target.stat == DEAD || target.alpha < OPTICS_MIN_TARGET_ALPHA || get_dist(target, focus) > OPTICS_ZOOM_DISTANCE)
+			continue
+		target_images += make_marker(target)
+	owner.client.images += target_images
+	readout.maptext = MAPTEXT("<span style='color: [hud_color]'>[brand_text] // ОПТИЧЕСКИЙ ЗУМ x[OPTICS_ZOOM_DISTANCE]<br>Направление: [dir2rustext(owner.dir)]<br>Целей в поле: [length(target_images)]</span>")
+
+/obj/item/organ/internal/cyberimp/eyes/optics/proc/make_marker(mob/living/target)
+	var/image/marker = image('icons/hud/kiroshi_target.dmi', target, "target")
+	SET_PLANE_EXPLICIT(marker, BALLOON_CHAT_PLANE, owner)
+	marker.appearance_flags = RESET_ALPHA|RESET_COLOR|RESET_TRANSFORM|NO_CLIENT_COLOR|PIXEL_SCALE
+	marker.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	marker.color = hud_color
+	marker.maptext_width = 64
+	marker.maptext_x = -16
+	marker.maptext_y = -12
+	marker.maptext = MAPTEXT("<span style='text-align: center'>[get_dist(owner, target)] м</span>")
+	return marker
 
 /obj/item/organ/internal/cyberimp/eyes/optics/proc/on_dir_change(datum/source, old_dir, new_dir)
 	SIGNAL_HANDLER
 	owner.client?.view_size.zoomOut(offset = OPTICS_ZOOM_DISTANCE, direction = new_dir)
+	scan()
 
 /obj/item/organ/internal/cyberimp/eyes/optics/proc/on_stat_change(datum/source, new_stat)
 	SIGNAL_HANDLER
@@ -238,10 +324,13 @@
 /obj/item/organ/internal/cyberimp/eyes/optics/militech
 	name = "Militech optical suite"
 	cyber_cost = 14
-	desc = "Боевая оптика Militech. Даёт приближение, как у снайперского прицела, и гасит ослепляющие вспышки."
+	desc = "Боевая оптика Militech. Приближает картинку, выводит на сетчатку боевую сетку с метками целей и гасит ослепляющие вспышки."
 	icon_state = "kirosi_basilisk"
 	origin_tech = "materials=5;programming=5;biotech=4;combat=5;syndicate=2"
 	flash_protect = FLASH_PROTECTION_FLASH
+	hud_color = "#FF3C46"
+	brand_text = "MILITECH"
+	fullscreen_type = /atom/movable/screen/fullscreen/kiroshi/militech
 
 /obj/item/organ/internal/cyberimp/eyes/optics/militech/get_ru_names()
 	return alist(
@@ -614,7 +703,7 @@
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan
 	name = "Sandevistan"
-	desc = "Нейроимплант, на несколько секунд разгоняющий нервную систему: носитель двигается быстрее и не выдыхается. Частые разгоны перегружают тело, и рано или поздно оно не выдерживает."
+	desc = "Нейроимплант, на несколько секунд разгоняющий нервную систему: носитель срывается с места, уходит от пуль и ударов, а его остаточный образ бьёт вслед за ним. Перезарядки нет, предел задаёт только перегрев, и перегретое тело рано или поздно не выдерживает."
 	icon = 'icons/obj/augments_extra.dmi'
 	icon_state = "qian-ti_sandevistan"
 	implant_overlay = null
@@ -623,18 +712,20 @@
 	origin_tech = "materials=5;programming=5;biotech=5;combat=4"
 	actions_types = list(/datum/action/item_action/organ_action/use)
 	worn_state = "sandevistan"
+	worn_lights_state = "sandevistan_lights"
 	worn_color = "#00FFFF"
 	var/duration = 6 SECONDS
-	var/cooldown = 15 SECONDS
-	var/strain_activation = 2
-	var/lethal_activation = 3
+	var/heat_per_use = 40
+	var/cooling_rate = 1
+	var/echo_damage_mod = 0.4
 	var/outline_color = "#00FFFF"
 	var/trail_color
 	var/active = FALSE
-	var/overload = 0
+	var/overheat = 0
+	var/finisher_ready = FALSE
 	var/active_timer
-	var/overload_timer
-	COOLDOWN_DECLARE(use_cooldown)
+	var/cooling_timer
+	var/finisher_timer
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/get_ru_names()
 	return alist(
@@ -648,9 +739,12 @@
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	deltimer(active_timer)
-	deltimer(overload_timer)
+	deltimer(cooling_timer)
+	cooling_timer = null
 	set_active(FALSE)
-	overload = 0
+	disarm_finisher()
+	overheat = 0
+	update_heat_display()
 	return ..()
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/emp_act(severity)
@@ -660,26 +754,21 @@
 	end_activation()
 	if(!prob(SANDEVISTAN_EMP_GLITCH_CHANCE / severity))
 		return
-	COOLDOWN_START(src, use_cooldown, cooldown * SANDEVISTAN_EMP_COOLDOWN_MOD)
-	overload = max(overload, strain_activation)
+	add_heat(max(SANDEVISTAN_HEAT_STRAIN - overheat, 0))
 	to_chat(owner, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] бешено сбоит от ЭМИ!"))
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(active)
 		owner.balloon_alert(owner, "уже работает!")
 		return
-	if(!COOLDOWN_FINISHED(src, use_cooldown))
-		owner.balloon_alert(owner, "перезарядка: [round(COOLDOWN_TIMELEFT(src, use_cooldown) / (1 SECONDS))] с")
-		return
-	overload++
-	overload_timer = addtimer(CALLBACK(src, PROC_REF(cool_down)), SANDEVISTAN_OVERLOAD_RESET_TIME, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_STOPPABLE)
-	COOLDOWN_START(src, use_cooldown, cooldown)
+	add_heat(heat_per_use)
 	set_active(TRUE)
 	active_timer = addtimer(CALLBACK(src, PROC_REF(end_activation)), duration, TIMER_STOPPABLE)
-	if(overload == strain_activation)
-		strain()
-	else if(overload > strain_activation)
+	dash()
+	if(overheat >= SANDEVISTAN_HEAT_CRITICAL)
 		critical_overload()
+	else if(overheat >= SANDEVISTAN_HEAT_STRAIN)
+		strain()
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/set_active(new_state)
 	if(active == new_state)
@@ -687,6 +776,7 @@
 	active = new_state
 	var/mob/living/carbon/human/human_owner = owner
 	if(active)
+		disarm_finisher()
 		owner.add_movespeed_modifier(/datum/movespeed_modifier/sandevistan)
 		owner.add_filter(SANDEVISTAN_FILTER, 2, outline_filter(1, outline_color))
 		if(istype(human_owner))
@@ -695,6 +785,9 @@
 		owner.add_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
 		owner.next_move_modifier *= SANDEVISTAN_CLICK_MOD
 		RegisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET, PROC_REF(slip_projectile))
+		RegisterSignal(owner, COMSIG_HUMAN_CHECK_SHIELDS, PROC_REF(dodge_melee))
+		RegisterSignal(owner, COMSIG_MOB_ITEM_ATTACK, PROC_REF(on_item_attack), override = TRUE)
+		RegisterSignal(owner, COMSIG_LIVING_UNARMED_ATTACK, PROC_REF(on_unarmed_attack), override = TRUE)
 		owner.overlay_fullscreen(SANDEVISTAN_FLASH, /atom/movable/screen/fullscreen/flash)
 		owner.clear_fullscreen(SANDEVISTAN_FLASH, 3)
 		owner.overlay_fullscreen(SANDEVISTAN_FULLSCREEN, /atom/movable/screen/fullscreen/sandevistan)
@@ -707,38 +800,159 @@
 	owner.remove_filter(SANDEVISTAN_FILTER)
 	if(istype(human_owner))
 		human_owner.physiology.stamina_mod /= SANDEVISTAN_STAMINA_MOD
-	UnregisterSignal(owner, COMSIG_MOVABLE_MOVED)
+	UnregisterSignal(owner, list(COMSIG_MOVABLE_MOVED, COMSIG_HUMAN_TRY_DEFLECT_BULLET, COMSIG_HUMAN_CHECK_SHIELDS))
 	owner.remove_actionspeed_modifier(/datum/actionspeed_modifier/sandevistan)
 	owner.next_move_modifier /= SANDEVISTAN_CLICK_MOD
-	UnregisterSignal(owner, COMSIG_HUMAN_TRY_DEFLECT_BULLET)
 	owner.clear_fullscreen(SANDEVISTAN_FULLSCREEN, 5)
 	worn_glow = FALSE
 	update_worn_overlay()
 	playsound(owner, 'sound/effects/sandevistan/deactivate.ogg', 50, TRUE)
 	to_chat(owner, span_warning("Мир снова обретает обычную скорость: [declent_ru(NOMINATIVE)] отключается."))
 
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/add_heat(amount)
+	overheat = clamp(overheat + amount, 0, SANDEVISTAN_HEAT_MAX)
+	update_heat_display()
+	if(overheat && !cooling_timer)
+		cooling_timer = addtimer(CALLBACK(src, PROC_REF(cool_tick)), SANDEVISTAN_COOLING_TICK, TIMER_STOPPABLE)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/cool_tick()
+	cooling_timer = null
+	if(!active)
+		overheat = max(overheat - cooling_rate, 0)
+		update_heat_display()
+	if(overheat)
+		cooling_timer = addtimer(CALLBACK(src, PROC_REF(cool_tick)), SANDEVISTAN_COOLING_TICK, TIMER_STOPPABLE)
+	else if(owner)
+		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] остывает."))
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/update_heat_display()
+	var/heat_color = "#00FFFF"
+	if(overheat >= SANDEVISTAN_HEAT_CRITICAL)
+		heat_color = "#FF3C46"
+	else if(overheat >= SANDEVISTAN_HEAT_STRAIN)
+		heat_color = "#FFA53C"
+	for(var/datum/action/action as anything in actions)
+		action.status_text = overheat ? "<b><font color='[heat_color]'>[round(overheat)]%</font></b>" : null
+		action.build_all_button_icons(UPDATE_BUTTON_STATUS)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/dash()
+	if(owner.buckled || owner.pulledby || owner.legcuffed || owner.body_position == LYING_DOWN || owner.incapacitated() || HAS_TRAIT(owner, TRAIT_IMMOBILIZED))
+		return
+	for(var/i in 1 to SANDEVISTAN_DASH_RANGE)
+		if(!step(owner, owner.dir))
+			return
+
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/slip_projectile(mob/living/carbon/human/source, obj/projectile/hitting_projectile, def_zone)
 	SIGNAL_HANDLER
+	if(hitting_projectile && has_active_sandevistan(hitting_projectile.firer))
+		return NONE
 	new /obj/effect/temp_visual/decoy/fading/sandevistan(get_turf(source), source, trail_color || outline_color)
 	playsound(source, 'sound/effects/sandevistan/dodge.ogg', 40, TRUE)
 	return COMPONENT_BULLET_DEFLECTED
 
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/dodge_melee(mob/living/carbon/human/source, atom/movable/hitby, attack_text, armour_penetration, damage, attack_type)
+	SIGNAL_HANDLER
+	if(!(attack_type & (ITEM_ATTACK|UNARMED_ATTACK|LEAP_ATTACK)) || source.body_position == LYING_DOWN || source.incapacitated())
+		return NONE
+	if(has_active_sandevistan(get_attacker(hitby)) || !prob(SANDEVISTAN_MELEE_DODGE_CHANCE))
+		return NONE
+	new /obj/effect/temp_visual/decoy/fading/sandevistan(get_turf(source), source, trail_color || outline_color)
+	playsound(source, 'sound/effects/sandevistan/dodge.ogg', 40, TRUE)
+	source.visible_message(span_danger("[DECLENT_RU_CAP(source, NOMINATIVE)] смазыва[PLUR_ET_YUT(source)]ся в движении, и удар проходит сквозь остаточный образ!"))
+	return SHIELD_BLOCK
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/get_attacker(atom/movable/hitby)
+	if(isprojectile(hitby))
+		var/obj/projectile/projectile = hitby
+		return projectile.firer
+	if(isitem(hitby))
+		return hitby.loc
+	return hitby
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/has_active_sandevistan(mob/living/carbon/attacker)
+	if(!iscarbon(attacker))
+		return FALSE
+	var/obj/item/organ/internal/cyberimp/brain/sandevistan/other = attacker.get_organ_slot(INTERNAL_ORGAN_BRAIN_SANDEVISTAN)
+	return istype(other) && other.active
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/on_item_attack(mob/living/source, atom/target, list/modifiers, def_zone)
+	SIGNAL_HANDLER
+	if(!isliving(target) || target == source)
+		return
+	var/obj/item/weapon = source.get_active_hand()
+	if(weapon)
+		melee_hit(target, weapon.force, weapon.damtype, weapon.hitsound || 'sound/weapons/genhit1.ogg')
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/on_unarmed_attack(mob/living/carbon/source, atom/target, proximity_flag, list/modifiers)
+	SIGNAL_HANDLER
+	if(!proximity_flag || source.a_intent != INTENT_HARM || !isliving(target) || target == source || source.can_grab_attack(target, proximity_flag))
+		return NONE
+	var/mob/living/carbon/human/human_source = source
+	var/damage = istype(human_source) ? rand(human_source.dna.species.punchdamagelow, human_source.dna.species.punchdamagehigh) : 0
+	melee_hit(target, damage, BRUTE, 'sound/weapons/punch1.ogg')
+	return NONE
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/melee_hit(mob/living/target, damage, damage_type, hit_sound)
+	if(damage <= 0 || HAS_TRAIT(owner, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
+		return
+	if(active)
+		addtimer(CALLBACK(src, PROC_REF(echo_strike), target, round(damage * echo_damage_mod), damage_type, hit_sound), SANDEVISTAN_ECHO_DELAY)
+		return
+	if(!finisher_ready)
+		return
+	disarm_finisher()
+	addtimer(CALLBACK(src, PROC_REF(finish_strike), target), SANDEVISTAN_ECHO_DELAY)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/echo_strike(mob/living/target, damage, damage_type, hit_sound)
+	if(QDELETED(target) || QDELETED(owner) || !owner.Adjacent(target))
+		return
+	new /obj/effect/temp_visual/decoy/fading/sandevistan(get_turf(owner), owner, trail_color || outline_color)
+	owner.do_attack_animation(target)
+	if(is_strike_blocked(target, damage))
+		return
+	var/zone = owner.zone_selected
+	target.apply_damage(damage, damage_type, zone, target.run_armor_check(zone, MELEE))
+	playsound(target, hit_sound, 40, TRUE)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/is_strike_blocked(mob/living/target, damage)
+	var/mob/living/carbon/human/human_target = target
+	return istype(human_target) && human_target.check_shields(owner, damage, "удар остаточного образа", UNARMED_ATTACK)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/finish_strike(mob/living/target)
+	if(QDELETED(target) || QDELETED(owner) || !owner.Adjacent(target))
+		return
+	if(is_strike_blocked(target, 0))
+		return
+	target.Knockdown(SANDEVISTAN_FINISHER_KNOCKDOWN)
+	shake_camera(target, 3, 2)
+	playsound(target, 'sound/effects/sandevistan/dodge.ogg', 50, TRUE)
+	owner.visible_message(span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] выход[PLUR_IT_YAT(owner)] из разгона сокрушительным ударом и сбива[PLUR_ET_YUT(owner)] [target.declent_ru(ACCUSATIVE)] с ног!"))
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/arm_finisher()
+	finisher_ready = TRUE
+	finisher_timer = addtimer(CALLBACK(src, PROC_REF(disarm_finisher)), SANDEVISTAN_FINISHER_WINDOW, TIMER_STOPPABLE)
+
+/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/disarm_finisher()
+	finisher_ready = FALSE
+	deltimer(finisher_timer)
+	finisher_timer = null
+	if(owner && !active)
+		UnregisterSignal(owner, list(COMSIG_MOB_ITEM_ATTACK, COMSIG_LIVING_UNARMED_ATTACK))
+
 /obj/item/organ/internal/cyberimp/brain/sandevistan/on_block_changed()
-	if(blocked)
-		deltimer(active_timer)
-		set_active(FALSE)
+	if(!blocked)
+		return
+	deltimer(active_timer)
+	set_active(FALSE)
+	disarm_finisher()
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/end_activation()
 	if(!active)
 		return
 	set_active(FALSE)
-	if(overload >= lethal_activation)
+	arm_finisher()
+	if(overheat >= SANDEVISTAN_HEAT_LETHAL)
 		flatline()
-
-/obj/item/organ/internal/cyberimp/brain/sandevistan/proc/cool_down()
-	overload = 0
-	if(owner)
-		to_chat(owner, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] остывает."))
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/leave_trail(mob/living/source, atom/old_loc, movement_dir)
 	SIGNAL_HANDLER
@@ -794,15 +1008,15 @@
 /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun
 	name = "Cybersun Sandevistan"
 	cyber_cost = 55
-	desc = "Военный Сандевистан Cybersun. Тело выдерживает больше разгонов подряд, но конец у перегрузки тот же."
+	desc = "Военный Сандевистан Cybersun. Греется медленнее и остывает быстрее, а остаточный образ бьёт сильнее, но конец у перегрева тот же."
 	icon_state = "militech_sandevistan"
 	origin_tech = "materials=6;programming=6;biotech=6;combat=6;syndicate=3"
 	worn_color = "#C2185B"
-	strain_activation = 3
-	lethal_activation = 5
+	heat_per_use = 25
+	cooling_rate = 1.5
+	echo_damage_mod = 0.6
 	outline_color = "#C2185B"
 	trail_color = "#C2185B"
-	cooldown = 10 SECONDS
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun/get_ru_names()
 	return alist(
@@ -1349,6 +1563,10 @@
 #undef SKELETON_HEALTH_BONUS
 
 #undef OPTICS_ZOOM_DISTANCE
+#undef OPTICS_FULLSCREEN
+#undef OPTICS_SCAN_INTERVAL
+#undef OPTICS_SCAN_RANGE
+#undef OPTICS_MIN_TARGET_ALPHA
 
 #undef BLOOD_PUMP_HEALTH_FRACTION
 #undef BLOOD_PUMP_SYNTHFLESH_AMOUNT
@@ -1369,8 +1587,16 @@
 #undef SANDEVISTAN_FULLSCREEN
 #undef SANDEVISTAN_FLASH
 #undef SANDEVISTAN_EMP_GLITCH_CHANCE
-#undef SANDEVISTAN_EMP_COOLDOWN_MOD
-#undef SANDEVISTAN_OVERLOAD_RESET_TIME
+#undef SANDEVISTAN_HEAT_STRAIN
+#undef SANDEVISTAN_HEAT_CRITICAL
+#undef SANDEVISTAN_HEAT_LETHAL
+#undef SANDEVISTAN_HEAT_MAX
+#undef SANDEVISTAN_COOLING_TICK
+#undef SANDEVISTAN_DASH_RANGE
+#undef SANDEVISTAN_MELEE_DODGE_CHANCE
+#undef SANDEVISTAN_ECHO_DELAY
+#undef SANDEVISTAN_FINISHER_WINDOW
+#undef SANDEVISTAN_FINISHER_KNOCKDOWN
 #undef SANDEVISTAN_STRAIN_DAMAGE
 #undef SANDEVISTAN_STRAIN_BLOOD_LOSS
 #undef SANDEVISTAN_CRITICAL_TOX_DAMAGE

@@ -24,6 +24,8 @@
 		implant.insert(patient, ORGAN_MANIPULATION_NOEFFECT)
 	TEST_ASSERT_EQUAL(patient.get_cyber_load(), 95, "cyber load does not sum installed implants")
 	TEST_ASSERT(patient.is_cyber_overloaded(), "overload is not detected")
+	TEST_ASSERT_EQUAL(patient.get_cyberware_tier(), 1, "contraband implants leaked into the visible cyberware tier")
+	TEST_ASSERT(length(patient.get_cyberware_skin()), "human body got no cyberware skin layer")
 
 /datum/unit_test/room_test/cyber_capacity/proc/check_chips()
 	var/obj/item/cyber_capacity_chip/chip = allocate(/obj/item/cyber_capacity_chip)
@@ -142,9 +144,11 @@
 	var/click_modifier = patient.next_move_modifier
 	sandevistan.ui_action_click(patient)
 	TEST_ASSERT(sandevistan.active, "Sandevistan did not activate")
+	TEST_ASSERT_EQUAL(sandevistan.overheat, sandevistan.heat_per_use, "Sandevistan did not heat up on activation")
 	TEST_ASSERT(patient.next_move_modifier < click_modifier, "Sandevistan did not speed up clicks")
 	TEST_ASSERT(SEND_SIGNAL(patient, COMSIG_HUMAN_TRY_DEFLECT_BULLET, null, null) & COMPONENT_BULLET_DEFLECTED, "Sandevistan does not let bullets pass")
 	sandevistan.end_activation()
+	TEST_ASSERT(sandevistan.finisher_ready, "finisher strike was not armed after the run")
 	TEST_ASSERT_EQUAL(patient.next_move_modifier, click_modifier, "click speed was not restored")
 	TEST_ASSERT(!(SEND_SIGNAL(patient, COMSIG_HUMAN_TRY_DEFLECT_BULLET, null, null) & COMPONENT_BULLET_DEFLECTED), "bullets still pass after Sandevistan ends")
 

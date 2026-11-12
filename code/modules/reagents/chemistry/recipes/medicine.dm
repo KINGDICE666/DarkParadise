@@ -277,7 +277,7 @@
 	mix_message = "The mixture thins out, giving off a faint smell of ozone."
 
 /datum/chemical_reaction/stabilicin
-	name = "Stabilicin"
+	name = "Shtil"
 	id = "stabilicin"
 	result = "stabilicin"
 	required_reagents = list("haloperidol" = 1, "neurine" = 1, "liquid_solder" = 1)

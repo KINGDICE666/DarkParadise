@@ -198,6 +198,10 @@
 	if(status_examines)
 		msg += status_examines
 
+	var/cyberware_examine = get_cyberware_examine()
+	if(cyberware_examine)
+		msg += cyberware_examine
+
 	var/appears_dead = FALSE
 	if(stat == DEAD || HAS_TRAIT(src, TRAIT_FAKEDEATH))
 		appears_dead = TRUE

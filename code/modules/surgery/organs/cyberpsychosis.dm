@@ -1,19 +1,66 @@
 #define CYBERPSYCHOSIS_UNIT_CHANCE 0.005
-#define CYBERPSYCHOSIS_STAGE_TIME (4 MINUTES)
+#define CYBERPSYCHOSIS_STAGE_TIME (2 MINUTES)
 #define CYBERPSYCHOSIS_DAMAGE_RESISTANCE 30
 #define CYBERPSYCHOSIS_STAMINA_MOD -0.1
 #define CYBERPSYCHOSIS_SUPPRESS_TIME (1 MINUTES)
+#define CYBERWARE_EXAMINE_LIGHT 50
+#define CYBERWARE_EXAMINE_HEAVY 100
+#define CYBERWARE_EXAMINE_CHROME 150
 
 /proc/get_cyberpsychosis_chance(overflow)
 	if(overflow <= 0)
 		return 0
 	return round(100 * (1 - (1 - CYBERPSYCHOSIS_UNIT_CHANCE) ** overflow), 0.1)
 
-/mob/living/carbon/proc/get_cyber_load(count_blocked = FALSE)
+/mob/living/carbon/proc/get_cyber_load(count_blocked = FALSE, skip_contraband = FALSE)
 	. = 0
 	for(var/obj/item/organ/internal/cyberimp/implant in internal_organs)
-		if(implant.is_robotic())
-			. += (implant.blocked && !count_blocked) ? round(implant.cyber_cost * CYBERWARE_BLOCKED_LOAD) : implant.cyber_cost
+		if(!implant.is_robotic() || (skip_contraband && implant.is_contraband()))
+			continue
+		. += (implant.blocked && !count_blocked) ? round(implant.cyber_cost * CYBERWARE_BLOCKED_LOAD) : implant.cyber_cost
+
+/mob/living/carbon/proc/get_cyberware_tier()
+	var/load = get_cyber_load(count_blocked = TRUE, skip_contraband = TRUE)
+	if(load >= CYBERWARE_EXAMINE_CHROME)
+		return 3
+	if(load >= CYBERWARE_EXAMINE_HEAVY)
+		return 2
+	if(load >= CYBERWARE_EXAMINE_LIGHT)
+		return 1
+	return 0
+
+/mob/living/carbon/proc/get_cyberware_examine()
+	switch(get_cyberware_tier())
+		if(3)
+			return span_warning("Хром проступает сквозь кожу, [GEND_HIS_HER(src)] тело почти полностью состоит из имплантов...\n")
+		if(2)
+			return span_notice("Тело [GEND_HIS_HER(src)] крайне густо нашпиговано кибернетикой: швы от имплантов видны даже издалека.\n")
+		if(1)
+			return span_notice("Под кожей [GEND_HIS_HER(src)] угадываются импланты.\n")
+
+/mob/living/carbon/human/proc/get_cyberware_skin()
+	. = list()
+	var/tier = get_cyberware_tier()
+	if(!tier)
+		return
+	var/static/list/skin_states
+	if(!skin_states)
+		skin_states = list()
+		for(var/state in icon_states(CYBERWARE_SKIN_ICON))
+			skin_states[state] = TRUE
+	for(var/obj/item/organ/external/limb as anything in bodyparts)
+		if(limb.is_robotic())
+			continue
+		var/list/limb_icon = limb.get_icon_state()
+		var/icon_path = "[limb_icon[1]]"
+		var/key = "[copytext(icon_path, findlasttext(icon_path, "/") + 1, findlasttext(icon_path, "."))]-[limb_icon[2]]"
+		for(var/level in 1 to tier)
+			var/state = "[key]-[level]"
+			if(skin_states[state])
+				. += mutable_appearance(CYBERWARE_SKIN_ICON, state, layer = -CYBERWARE_SKIN_LAYER)
+			var/lights = "[state]-lights"
+			if(skin_states[lights])
+				. += mutable_appearance(CYBERWARE_SKIN_ICON, lights, layer = -CYBERWARE_SKIN_LAYER)
 
 /mob/living/carbon/proc/adjust_cyber_capacity(amount)
 	cyber_capacity = clamp(cyber_capacity + amount, 0, CYBER_CAPACITY_MAX)
@@ -119,7 +166,7 @@
 
 /datum/status_effect/cyberpsychosis/get_examine_text()
 	if(stage >= CYBERPSYCHOSIS_STAGE_PSYCHO)
-		return span_danger("[DECLENT_RU_CAP(owner, NOMINATIVE)] смотрит сквозь вас пустым взглядом, импланты под кожей мелко дрожат.")
+		return span_boldwarning("<span style='font-size: large;'>[DECLENT_RU_CAP(owner, NOMINATIVE)] — киберпсих.</span>\n[GEND_HE_SHE_CAP(owner)] смотр[PLUR_IT_YAT(owner)] сквозь вас пустым взглядом, импланты под кожей мелко дрожат, а пальцы сами сжимаются в кулаки.")
 
 /datum/status_effect/cyberpsychosis/proc/get_stage_name()
 	return stage_names[stage]
@@ -318,3 +365,6 @@
 #undef CYBERPSYCHOSIS_DAMAGE_RESISTANCE
 #undef CYBERPSYCHOSIS_STAMINA_MOD
 #undef CYBERPSYCHOSIS_SUPPRESS_TIME
+#undef CYBERWARE_EXAMINE_LIGHT
+#undef CYBERWARE_EXAMINE_HEAVY
+#undef CYBERWARE_EXAMINE_CHROME

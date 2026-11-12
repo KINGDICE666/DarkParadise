@@ -9,6 +9,7 @@
 	var/paused = FALSE
 	var/worn_icon = 'icons/mob/cyberware.dmi'
 	var/worn_state
+	var/worn_lights_state
 	var/worn_color
 	var/worn_glow = FALSE
 	var/blocked = FALSE
@@ -48,11 +49,22 @@
 /obj/item/organ/internal/cyberimp/render()
 	if(!worn_state)
 		return
+	. = list()
 	var/mutable_appearance/worn_overlay = mutable_appearance(worn_icon, worn_state, layer = -CYBERWARE_WORN_LAYER)
-	worn_overlay.color = worn_color
-	if(!worn_glow || blocked)
-		return worn_overlay
-	return list(worn_overlay, emissive_appearance(worn_icon, worn_state, owner, layer = -CYBERWARE_WORN_LAYER))
+	. += worn_overlay
+	var/glow_state = worn_state
+	var/mutable_appearance/tinted_overlay = worn_overlay
+	if(worn_lights_state)
+		if(blocked)
+			return
+		glow_state = worn_lights_state
+		tinted_overlay = mutable_appearance(worn_icon, worn_lights_state, layer = -CYBERWARE_WORN_LAYER)
+		if(!worn_glow)
+			tinted_overlay.alpha = CYBERWARE_IDLE_LIGHTS_ALPHA
+		. += tinted_overlay
+	tinted_overlay.color = worn_color
+	if(worn_glow && !blocked)
+		. += emissive_appearance(worn_icon, glow_state, owner, layer = -CYBERWARE_WORN_LAYER)
 
 /obj/item/organ/internal/proc/is_suppressed()
 	return FALSE

@@ -1008,11 +1008,11 @@
 	return ..()
 
 /datum/reagent/medicine/stabilicin
-	name = "Стабилицин"
+	name = "Штиль"
 	id = "stabilicin"
-	description = "Нейролептик для носителей кибернетики. Глушит сбой синхронизации между мозгом и имплантами, но только если сбой уже начался: заранее он не защищает."
+	description = "Серебристая взвесь с запахом озона. Применяется для иммунотерапии и адаптации к новому хрому."
 	color = "#5EF6FF"
-	taste_description = "холодного металла"
+	taste_description = "ржавчины"
 	chemdesc = "Подавляет начавшийся киберпсихоз."
 
 /datum/reagent/medicine/fomepizole

@@ -1173,6 +1173,7 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 		var/render = organ.render()
 		if(render)
 			standing += render
+	standing += get_cyberware_skin()
 
 	overlays_standing[INTORGAN_LAYER] = standing
 	apply_overlay(INTORGAN_LAYER)
