@@ -329,7 +329,7 @@ const Tray = (props: { onSelect: () => void }) => {
     return (
       <div className="RipperDoc__tray RipperDoc__tray--empty">
         <Icon name="box-open" />
-        Лоток пуст. Положите имплант на стол, чтобы перенастроить его заранее.
+        Лоток пуст
       </div>
     );
   }
@@ -381,7 +381,7 @@ const ImplantList = (props: {
       <div className="RipperDoc__list RipperDoc__list--empty">
         <Icon name="bed" size={2} />
         <div>Стол пуст</div>
-        <small>Уложите пациента — сканер сам найдёт его кибернетику.</small>
+        <small>Ожидание пациента</small>
       </div>
     );
   }
