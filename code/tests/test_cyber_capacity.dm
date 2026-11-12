@@ -42,6 +42,14 @@
 	TEST_ASSERT_EQUAL(patient.get_cyberware_tier(), 1, "contraband implants leaked into the visible cyberware tier")
 	TEST_ASSERT(length(patient.get_cyberware_skin()), "human body got no cyberware skin layer")
 
+	var/mob/living/carbon/human/resomi = allocate(/mob/living/carbon/human)
+	resomi.set_species(/datum/species/resomi)
+	for(var/path in list(/obj/item/organ/internal/cyberimp/arm/combat, /obj/item/organ/internal/cyberimp/eyes/xray, /obj/item/organ/internal/cyberimp/brain/anti_stun))
+		var/obj/item/organ/internal/cyberimp/implant = allocate(path)
+		implant.insert(resomi, ORGAN_MANIPULATION_NOEFFECT)
+	TEST_ASSERT_EQUAL(resomi.get_cyberware_tier(), 1, "resomi cyberware tier is wrong")
+	TEST_ASSERT(length(resomi.get_cyberware_skin()), "resomi body got no cyberware skin layer")
+
 /datum/unit_test/room_test/cyber_capacity/proc/check_chips()
 	var/obj/item/cyber_capacity_chip/chip = allocate(/obj/item/cyber_capacity_chip)
 	chip.attack_self(patient)
