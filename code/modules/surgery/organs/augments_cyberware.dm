@@ -488,7 +488,7 @@
 	if(isliving(target))
 		punch_target = WEAKREF(target)
 		return NONE
-	if(istype(target, /obj/structure/window))
+	if(is_window(target))
 		var/obj/structure/window/window = target
 		if(!can_smash_window(window))
 			return NONE
@@ -532,7 +532,7 @@
 
 /obj/item/organ/internal/cyberimp/arm/gorilla/militech/proc/on_knockback_impact(mob/living/source, atom/hit_atom, datum/thrownthing/throwingdatum)
 	SIGNAL_HANDLER
-	if(istype(hit_atom, /obj/structure/window))
+	if(is_window(hit_atom))
 		var/obj/structure/window/window = hit_atom
 		if(can_smash_window(window))
 			window.deconstruct(FALSE)
