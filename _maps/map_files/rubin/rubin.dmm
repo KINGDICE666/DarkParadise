@@ -4078,7 +4078,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/ship_gun_loader{
-	id = rubin_guns
+	id = "rubin_guns"
 	},
 /obj/item/ship_ammo/railgun,
 /obj/item/ship_ammo/railgun,
@@ -13708,7 +13708,7 @@
 	dir = 8
 	},
 /obj/machinery/ship_gun_loader{
-	id = rubin_torpeds
+	id = "rubin_torpeds"
 	},
 /obj/item/ship_ammo/autocannon,
 /obj/item/ship_ammo/autocannon,
@@ -16102,7 +16102,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/railgun{
 	dir = 1;
-	loader_id = rubin_torpeds
+	loader_id = "rubin_torpeds"
 	},
 /turf/space,
 /area/space)
@@ -20966,7 +20966,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/autocannon{
 	dir = 1;
-	loader_id = rubin_guns
+	loader_id = "rubin_guns"
 	},
 /turf/space,
 /area/space)
