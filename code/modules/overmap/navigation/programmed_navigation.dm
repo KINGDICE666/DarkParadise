@@ -77,7 +77,7 @@
 		var/list/point = beacon.world_point(host)
 		if(!point)
 			return
-		heading = dir2angle(beacon.dir) + (host.shuttle ? host.get_facing() : 0)
+		heading = dir2angle(beacon.dir) + host.frame_facing()
 		world_x = point[1]
 		world_y = point[2]
 		if(!navigation_step)
@@ -90,7 +90,7 @@
 		heading = approach.target_facing
 		if(navigation_step <= length(navigation_beacons) + 1)
 			var/obj/docking_port/stationary/pad = approach.pad
-			var/outward = approach.target ? approach.target[3] + (approach.host ? host.get_facing() : 0) : dir2angle(pad.dir)
+			var/outward = approach.target ? approach.target[3] + (approach.host ? host.get_facing() : 0) : dir2angle(pad.dir) + (approach.space ? approach.space.frame_facing() : 0)
 			var/lead = max(vessel.hull_radius * 3 + 8, 20)
 			world_x += sin(outward) * lead
 			world_y += cos(outward) * lead
@@ -195,7 +195,7 @@
 	if(!point)
 		departure_pending = FALSE
 		return FALSE
-	var/heading = dir2angle(beacon.dir) + (departure_host.shuttle ? departure_host.get_facing() : 0)
+	var/heading = dir2angle(beacon.dir) + departure_host.frame_facing()
 	if(departure_step > length(departure_beacons))
 		var/lead = max(beacon.lead_distance, vessel.hull_radius * 2 + 4)
 		point[1] -= sin(heading) * lead

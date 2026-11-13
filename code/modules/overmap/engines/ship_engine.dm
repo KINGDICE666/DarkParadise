@@ -1,14 +1,12 @@
 /obj/machinery/ship_engine
 	name = "small ion engine"
-	desc = "Компактный ионный двигатель. Питается от APC корабля и толкает судно в любую сторону."
+	desc = "Компактный ионный двигатель. Толкает судно в любую сторону."
 	icon = 'icons/turf/shuttle/misc.dmi'
 	icon_state = "propulsion"
 	anchored = TRUE
 	appearance_flags = KEEP_TOGETHER
 	density = TRUE
 	opacity = TRUE
-	idle_power_usage = 500
-	active_power_usage = 2000
 	resistance_flags = FIRE_PROOF
 	max_integrity = 300
 	use_power = NO_POWER_USE
@@ -20,8 +18,6 @@
 	var/on = TRUE
 	var/thrust_limit = 1
 	var/generated_thrust = OVERMAP_ENGINE_SMALL_THRUST
-	var/requires_apc = TRUE
-	var/obj/machinery/power/apc/power_apc
 	var/active_pushes = NONE
 	var/engine_board = /obj/item/circuitboard/ship_engine_ion
 	var/firing = FALSE
@@ -74,25 +70,23 @@
 	resolved.register_engine(src)
 
 /obj/machinery/ship_engine/proc/can_burn()
-	if(!on || (stat & BROKEN))
+	if(!on || overheated || (stat & BROKEN))
 		return FALSE
 	return fuel_available()
 
 /obj/machinery/ship_engine/proc/get_thrust()
 	if(!can_burn())
 		return 0
-	return generated_thrust * thrust_limit * 4 * resource_fraction(OVERMAP_FLIGHT_TICK)
+	return generated_thrust * thrust_limit * overdrive_factor() * 4 * resource_fraction(OVERMAP_FLIGHT_TICK)
 
 /obj/machinery/ship_engine/proc/apply_thrust(elapsed = 1 SECONDS)
 	if(!can_burn())
 		return 0
 	var/thrust = get_thrust()
-	var/fraction = resource_fraction(elapsed)
-	if(requires_apc_power() && !on_reserve_power())
-		var/obj/item/stock_parts/cell/cell = get_power_apc().cell
-		cell.use(min(cell.charge, burn_power_cost(elapsed) * fraction))
-	if(!consume_fuel(elapsed * fraction))
+	if(!consume_fuel(elapsed * resource_fraction(elapsed)))
 		return 0
+	heat_engine(elapsed)
+	burn_exhaust()
 	return thrust
 
 /obj/machinery/ship_engine/proc/toggle()
@@ -102,6 +96,10 @@
 /obj/machinery/ship_engine/proc/set_firing(new_firing, pushes = NONE)
 	if(firing == new_firing && active_pushes == pushes)
 		return
+	var/turning = new_firing && vessel?.flight?.burn_turn
+	if(turning && !turning_burn && isturf(loc))
+		playsound(src, 'sound/machines/hiss.ogg', 20, TRUE, extrarange = -2)
+	turning_burn = turning
 	firing = new_firing
 	active_pushes = pushes
 	update_icon(UPDATE_OVERLAYS)
@@ -119,14 +117,10 @@
 /obj/machinery/ship_engine/proc/get_status()
 	if(stat & BROKEN)
 		return "Повреждён"
+	if(overheated)
+		return "Перегрев, остывает"
 	if(!on)
 		return "Выключен"
-	if(requires_apc_power())
-		var/obj/machinery/power/apc/apc = get_power_apc()
-		if(!apc)
-			return "Нет APC на шаттле, аварийная тяга"
-		if(!apc.can_supply_equipment())
-			return "APC отключён или разряжен, аварийная тяга"
 	if(!fuel_available())
 		return "Нет подачи плазмы"
 	return "Готов"
@@ -167,15 +161,13 @@
 
 /obj/machinery/ship_engine/large
 	name = "large ion engine"
-	desc = "Тяжёлый ионный двигатель. Питается от APC корабля и даёт большую тягу для самых больших судов."
+	desc = "Тяжёлый ионный двигатель. Даёт большую тягу для самых больших судов."
 	icon = 'icons/obj/2x2.dmi'
 	icon_state = "large_engine"
 	appearance_flags = LONG_GLIDE | KEEP_TOGETHER
 	light_range = 3
 	burn_light_range = 4
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
-	idle_power_usage = 1500
-	active_power_usage = 6000
 	engine_size = 2
 	engine_board = /obj/item/circuitboard/ship_engine_ion/large
 
@@ -200,8 +192,6 @@
 	light_range = 3
 	burn_light_range = 5
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
-	idle_power_usage = 1500
-	active_power_usage = 6000
 	engine_size = 3
 	engine_board = null
 
@@ -219,15 +209,12 @@
 	name = "virtual overmap drive"
 	desc = "Служебный двигатель автопилота."
 	generated_thrust = 40
-	idle_power_usage = 0
-	active_power_usage = 0
 	density = FALSE
 	opacity = FALSE
 	invisibility = INVISIBILITY_ABSTRACT
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	light_power = 0
 	burn_light_power = 0
-	requires_apc = FALSE
 	engine_board = null
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 

@@ -19,6 +19,26 @@
 	icon_state = "dark"
 	},
 /area/shuttle/escape)
+"ae" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/docking_port/mobile/emergency{
+	dwidth = 11;
+	height = 13;
+	name = "The Emergency Escape Bar";
+	port_direction = 8;
+	timid = 1;
+	width = 24
+	},
+/obj/machinery/door/airlock/shuttle{
+	aiControlDisabled = 1;
+	hackProof = 1;
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch"
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "cafeteria"
+	},
+/area/shuttle/escape)
 "af" = (
 /obj/machinery/computer/emergency_shuttle,
 /turf/simulated/floor/plasteel{
@@ -613,7 +633,7 @@ bu
 Ri
 aI
 Ri
-aT
+ae
 Ri
 ab
 ab

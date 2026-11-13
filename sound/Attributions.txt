@@ -21,3 +21,9 @@ https://freesound.org/people/kyles/sounds/453256/
 
 /datum/looping_sound/centrifuge sounds spliced from washing_machine.wav -- https://freesound.org/people/magnus589/sounds/372183/ -- under CC Attribution 4.0 International
 
+
+sound/overmap/laser_cannon_fire.ogg is adapted from kalsstockmedia "A Large Explosive Laser Gun Shot (Sci-Fi)" (Pixabay Content License)
+sound/overmap/bridge_click.ogg is adapted from virtualzero "Mouse Tap Single" (Pixabay Content License)
+sound/overmap/railgun_fire.ogg is adapted from "122mm D-25T clink", supplied by the server team
+sound/overmap/black_hole_core.ogg is adapted from "blackhole", supplied by the server team
+sound/overmap/space_ambience.ogg is adapted from "ambient", supplied by the server team

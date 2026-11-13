@@ -105,14 +105,14 @@
 		var/gap_y = max(host_region[2] - vessel.get_world_y(), vessel.get_world_y() - host_region[4], 0)
 		hold_orientation ||= max(gap_x, gap_y) <= max(64, vessel.hull_radius * 4)
 	if(!isnull(navigation_facing))
-		var/heading_error = abs(closer_angle_difference(facing, hold_orientation ? navigation_facing : delta_to_angle(dx, dy)))
+		var/heading_error = abs(closer_angle_difference(facing, hold_orientation ? navigation_facing : delta_to_angle(dx, dy) - current_bow()))
 		wanted_speed *= max(0, cos(heading_error)) ** 2
 	var/aim = match_navigation_velocity(distance ? dx / distance * wanted_speed : 0, distance ? dy / distance * wanted_speed : 0, elapsed)
 	autopilot_status = navigation.force_passage ? "Аварийный проход без коллизии" : (length(navigation.path) > 1 ? "Обходит препятствие" : "Идёт к цели")
 	if(hold_orientation)
 		return navigation_facing
 	if(!isnull(navigation_facing) && distance > max(arrival_range * 2, 3))
-		return delta_to_angle(dx, dy)
+		return delta_to_angle(dx, dy) - current_bow()
 	return final_leg && !isnull(navigation_facing) ? navigation_facing : aim
 
 /datum/component/overmap_flight/proc/match_navigation_velocity(wanted_x, wanted_y, elapsed)
@@ -131,7 +131,7 @@
 	var/effort = accel ? min(1, error / max(accel * elapsed, 0.001)) : 1
 	push(error_x / error * effort, error_y / error * effort, elapsed)
 	if(error > OVERMAP_AUTOPILOT_TURN_ERROR)
-		return delta_to_angle(error_x, error_y)
+		return delta_to_angle(error_x, error_y) - current_bow()
 
 /datum/component/overmap_flight/proc/stop_blocked_navigation()
 	var/obj/overmap/entity/vessel = parent

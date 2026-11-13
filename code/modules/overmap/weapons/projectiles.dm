@@ -18,11 +18,8 @@
 		return FALSE
 	if(shot.sector_target_at(spot))
 		return FALSE
-	var/list/point = space.to_world(spot.x, spot.y)
-	if(shot.trajectory)
-		point[1] += shot.trajectory.return_px() / ICON_SIZE_X
-		point[2] += shot.trajectory.return_py() / ICON_SIZE_Y
-	return launch_sector_projectile(shot, space.sector, point[1], point[2], shot.Angle)
+	var/list/point = shot.trajectory ? space.to_world(spot.x + shot.trajectory.return_px() / ICON_SIZE_X, spot.y + shot.trajectory.return_py() / ICON_SIZE_Y) : space.to_world(spot.x, spot.y)
+	return launch_sector_projectile(shot, space.sector, point[1], point[2], shot.Angle + space.frame_facing())
 
 /datum/controller/subsystem/overmap/proc/launch_sector_projectile(obj/projectile/payload, datum/overmap_sector/sector, world_x, world_y, angle, obj/overmap/entity/source_vessel, inherit_velocity = TRUE)
 	if(QDELETED(payload) || !sector || payload.hitscan)
@@ -170,6 +167,9 @@
 			var/turf/spot = vessel.hull_turf_at(x, y)
 			if(!spot)
 				continue
+			if(!own_hull && vessel.shield_intercept(payload, spot))
+				qdel(src)
+				return
 			var/list/local_point = vessel.world_to_hull(x, y)
 			var/pixel_x = (local_point[1] - spot.x) * ICON_SIZE_X
 			var/pixel_y = (local_point[2] - spot.y) * ICON_SIZE_Y
@@ -197,9 +197,12 @@
 				continue
 			var/atom/target = payload.sector_target_at(spot)
 			if(target)
+				if(space.host && space.host != payload.overmap_firer_vessel && space.host.shield_intercept(payload, spot))
+					qdel(src)
+					return
 				world_x = x
 				world_y = y
-				materialize(spot, angle, target, (local_point[1] - spot.x) * ICON_SIZE_X, (local_point[2] - spot.y) * ICON_SIZE_Y)
+				materialize(spot, space.relative_facing(angle), target, (local_point[1] - spot.x) * ICON_SIZE_X, (local_point[2] - spot.y) * ICON_SIZE_Y)
 				return
 		for(var/obj/overmap/feature/hazard/field as anything in fields)
 			var/index = field.scatter_at(x, y)

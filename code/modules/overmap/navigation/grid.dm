@@ -81,7 +81,7 @@
 		density = null
 		return
 	var/obj/overmap/entity/vessel = owner.flight.parent
-	var/heading = isnull(owner.flight.navigation_facing) ? vessel.get_facing() : owner.flight.navigation_facing
+	var/heading = space.relative_facing(isnull(owner.flight.navigation_facing) ? vessel.get_facing() : owner.flight.navigation_facing)
 	var/min_x = INFINITY
 	var/min_y = INFINITY
 	var/max_x = -INFINITY

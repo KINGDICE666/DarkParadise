@@ -147,6 +147,9 @@
 	for(var/obj/overmap/planet/planet as anything in objects)
 		if(istype(planet) && planet.covers_turf(open_turf))
 			return TRUE
+	for(var/obj/overmap/celestial/body as anything in GLOB.overmap_celestials)
+		if(body.sector == src && body.covers_turf(open_turf))
+			return TRUE
 	return FALSE
 
 /datum/overmap_sector/proc/get_centered_footprint_origin(footprint)
@@ -313,6 +316,7 @@
 	tile_travel = 3
 
 /datum/overmap_sector/wilderness/populate_roundstart()
+	spawn_overmap_celestials(src)
 	spawn_static_overmap_hazards(src)
 	SSovermap.spawn_overmap_ruins(src)
 

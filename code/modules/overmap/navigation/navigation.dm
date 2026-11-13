@@ -26,6 +26,40 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 		return host.physical_space.to_world(x, y)
 	return null
 
+GLOBAL_LIST_EMPTY(overmap_ship_bows)
+
+/obj/effect/landmark/overmap_ship_bow
+	name = "ship bow marker"
+	icon = 'icons/obj/objects.dmi'
+	icon_state = "navbeacon0"
+	color = COLOR_ORANGE
+	dir = NORTH
+
+/obj/effect/landmark/overmap_ship_bow/Initialize(mapload)
+	. = ..()
+	GLOB.overmap_ship_bows += src
+
+/obj/effect/landmark/overmap_ship_bow/Destroy()
+	GLOB.overmap_ship_bows -= src
+	return ..()
+
+/obj/overmap/entity
+	var/marked_bow_angle = 0
+	var/marked_bow_version = -1
+	var/marked_bow_until = 0
+
+/obj/overmap/entity/proc/marked_bow()
+	if(marked_bow_version == hull_version && world.time < marked_bow_until)
+		return marked_bow_angle
+	marked_bow_version = hull_version
+	marked_bow_until = world.time + OVERMAP_BOW_CACHE_TIME
+	marked_bow_angle = 0
+	for(var/obj/effect/landmark/overmap_ship_bow/marker as anything in GLOB.overmap_ship_bows)
+		if(SSovermap.resolve_vessel(marker) == src)
+			marked_bow_angle = dir2angle(marker.dir)
+			break
+	return marked_bow_angle
+
 /proc/cmp_overmap_navigation_beacon(obj/effect/landmark/overmap_navigation_beacon/a, obj/effect/landmark/overmap_navigation_beacon/b)
 	return a.nav_order - b.nav_order
 
@@ -145,6 +179,8 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 
 /datum/overmap_bubble/proc/navigation_box()
 	if(world.time < navigation_extent_until)
+		var/list/local = navigation_local_extent
+		navigation_extent = local ? world_box(local[1], local[2], local[3], local[4]) : null
 		return navigation_extent
 	var/min_x = bounds[3] + 1
 	var/min_y = bounds[4] + 1
@@ -163,10 +199,10 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 				max_y = max(max_y, tile.y)
 			CHECK_TICK
 	navigation_extent = null
+	navigation_local_extent = null
 	if(min_x <= max_x && min_y <= max_y)
-		var/list/low = to_world(min_x - 0.5, min_y - 0.5)
-		var/list/high = to_world(max_x + 0.5, max_y + 0.5)
-		navigation_extent = list(low[1], low[2], high[1], high[2])
+		navigation_local_extent = list(min_x - 0.5, min_y - 0.5, max_x + 0.5, max_y + 0.5)
+		navigation_extent = world_box(min_x - 0.5, min_y - 0.5, max_x + 0.5, max_y + 0.5)
 	navigation_extent_until = world.time + (30 SECONDS)
 	return navigation_extent
 
@@ -294,6 +330,12 @@ GLOBAL_LIST_EMPTY(overmap_navigation_beacons)
 			else
 				box = list(min(box[1], field_box[1]), min(box[2], field_box[2]), max(box[3], field_box[3]), max(box[4], field_box[4]))
 		if(box && !overmap_nav_inside(start, box) && !overmap_nav_inside(finish, box))
+			boxes += list(list(box[1] - vessel.hull_radius - 2, box[2] - vessel.hull_radius - 2, box[3] + vessel.hull_radius + 2, box[4] + vessel.hull_radius + 2))
+	for(var/obj/overmap/celestial/body as anything in GLOB.overmap_celestials)
+		if(body.sector != sector || !isturf(body.loc))
+			continue
+		var/list/box = body.navigation_box(span)
+		if(!overmap_nav_inside(start, box) && !overmap_nav_inside(finish, box))
 			boxes += list(list(box[1] - vessel.hull_radius - 2, box[2] - vessel.hull_radius - 2, box[3] + vessel.hull_radius + 2, box[4] + vessel.hull_radius + 2))
 	var/list/limits = list((sector.origin_x + 0.5) * span + vessel.hull_radius, (sector.origin_y + 0.5) * span + vessel.hull_radius, (sector.origin_x + sector.size - 1.5) * span - vessel.hull_radius, (sector.origin_y + sector.size - 1.5) * span - vessel.hull_radius)
 	var/list/result

@@ -2,6 +2,26 @@
 "aa" = (
 /turf/space,
 /area/space)
+"ab" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/docking_port/mobile/emergency{
+	dir = 2;
+	dwidth = 5;
+	height = 14;
+	name = "Meta emergency shuttle";
+	timid = 1;
+	width = 25;
+	port_direction = 8;
+	preferred_direction = 4
+	},
+/obj/machinery/door/airlock/shuttle{
+	id_tag = "s_docking_airlock";
+	name = "Emergency Shuttle Airlock"
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/escape)
 "ac" = (
 /obj/structure/grille,
 /obj/structure/window/full/shuttle,
@@ -1150,7 +1170,7 @@ bZ
 ch
 "}
 (20,1,1) = {"
-ci
+ab
 au
 au
 aM

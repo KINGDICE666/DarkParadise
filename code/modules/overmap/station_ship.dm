@@ -15,7 +15,10 @@
 
 /obj/overmap/entity/station/ship/add_overmap_components()
 	. = ..()
-	AddComponent(/datum/component/overmap_flight, TRUE)
+	AddComponent(/datum/component/overmap_flight)
+	flight.max_turn_rate = OVERMAP_STATION_TURN_RATE
+	flight.auto_brake = TRUE
+	flight.autopilot_turns = FALSE
 
 /obj/overmap/entity/station/ship/in_free_flight()
 	return status == OVERMAP_STATUS_OVERMAP && isturf(loc)
@@ -36,6 +39,7 @@
 	flight.release_pilot()
 	flight.set_autopilot(FALSE)
 	flight.stop_burn()
+	flight.angular_velocity = 0
 	relay_jump_from = null
 	relay_jump_started = 0
 	relay_jump_ends = 0

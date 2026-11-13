@@ -97,14 +97,24 @@
 		var/obj/overmap/entity/token = host.parent
 		ensure_host_space(token)
 
+/datum/controller/subsystem/overmap/proc/sync_host_bubbles()
+	for(var/datum/overmap_bubble/bubble as anything in bubbles)
+		if(bubble?.static_level)
+			bubble.sync_host_region()
+	follow_station_zone()
+
 /datum/overmap_bubble/proc/sync_host_region()
 	if(!host)
 		return
 
-	if(!sector && host.sector)
+	if(host.sector)
 		sector = host.sector
-	origin_x = host.get_world_x()
-	origin_y = host.get_world_y()
+	var/host_x = host.get_world_x()
+	var/host_y = host.get_world_y()
+	if(region && origin_x == host_x && origin_y == host_y && region_facing == frame_facing())
+		return
+	origin_x = host_x
+	origin_y = host_y
 	region = null
 	region_z = null
 	ensure_region()
@@ -211,7 +221,7 @@
 	if(docked_ship)
 		undock_ship()
 	undock_zone = SSovermap.station_docking_zone
-	if(undock_zone?.accepts_pad(shuttle?.get_docked()))
+	if(undock_zone && undock_zone.sector == SSovermap.station_entity?.sector && undock_zone.accepts_pad(shuttle?.get_docked()))
 		undock_host = SSovermap.station_entity
 		undock_origin = list(hull_z, hull_center_x, hull_center_y, shuttle.overmap_origin()[2])
 		return
@@ -233,9 +243,10 @@
 	undock_origin = null
 	if(!length(origin))
 		return
-	if(!QDELETED(undock_zone))
-		undock_zone.place_departure(src)
-		undock_zone = null
+	var/obj/overmap/entity/station_docking_zone/departure_zone = undock_zone
+	undock_zone = null
+	if(!QDELETED(departure_zone) && departure_zone.sector == sector)
+		departure_zone.place_departure(src)
 		undock_host = null
 		return
 	var/datum/overmap_bubble/origin_space = undock_host?.physical_space
@@ -247,6 +258,7 @@
 		origin_space = origin[1] <= length(SSovermap.bubbles_by_z) && SSovermap.bubbles_by_z[origin[1]]
 	if(!origin_space)
 		return
+	origin_space.sync_host_region()
 
 	if(!origin_space.sector)
 		origin_space.sector = sector
@@ -254,7 +266,7 @@
 		return
 	var/list/spot = origin_space.to_world(origin[2], origin[3])
 	flight?.set_autopilot(FALSE, manual = FALSE)
-	flight?.set_facing(dir2angle(origin[4]) - dir2angle(shuttle.overmap_origin()[2]))
+	flight?.set_facing(dir2angle(origin[4]) - dir2angle(shuttle.overmap_origin()[2]) + origin_space.frame_facing())
 	speed[1] = 0
 	speed[2] = 0
 	set_world_position(spot[1], spot[2])
@@ -288,7 +300,7 @@
 	radar_terrain_until = world.time + 1 SECONDS
 	var/list/docks = radar_station_docks()
 	var/revision = md5("[key]:[jointext(walls, ",")]:[jointext(frames, ",")]:[jointext(floors, ",")]:[jointext(docks, ",")]")
-	radar_terrain_cache = list("revision" = revision, "x" = anchor[1], "y" = anchor[2], "walls" = walls, "frames" = frames, "floors" = floors, "docks" = docks)
+	radar_terrain_cache = list("revision" = revision, "x" = anchor[1], "y" = anchor[2], "rot" = local_space.frame_facing(), "walls" = walls, "frames" = frames, "floors" = floors, "docks" = docks)
 	return radar_terrain_cache
 
 /datum/overmap_bubble/proc/terrain_chunk(chunk_x, chunk_y)

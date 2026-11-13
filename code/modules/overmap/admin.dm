@@ -208,6 +208,9 @@
 	for(var/path in subtypesof(/obj/overmap/feature/hazard))
 		var/obj/overmap/feature/hazard/sample = path
 		. += list(list("path" = "[path]", "name" = initial(sample.name), "group" = "hazard"))
+	for(var/path in subtypesof(/obj/overmap/celestial))
+		var/obj/overmap/celestial/sample = path
+		. += list(list("path" = "[path]", "name" = "Небесное тело: [sample::name]", "group" = "token"))
 	. += list(list("path" = "/obj/overmap/portal", "name" = "Варп-портал", "group" = "portal"))
 	. += list(list("path" = "/obj/overmap/entity/feature/ruin", "name" = "Руина (физическая)", "group" = "ruin"))
 
@@ -547,10 +550,18 @@
 		to_chat(user, span_warning("Клетка недоступна."), confidential = TRUE)
 		return
 	var/obj/overmap/entity/vessel = token
+	if(istype(vessel) && vessel.shuttle && vessel.is_physically_docked())
+		var/undock_result = vessel.begin_physical_undock(instant = TRUE)
+		if(undock_result != TRUE)
+			to_chat(user, span_warning("Не удалось отстыковать [vessel.name]: [undock_result]"), confidential = TRUE)
+			return
 	if(istype(vessel) && vessel.docked_to)
 		vessel.release_to_overmap(spot)
-	token.sector?.remove_object(token)
-	sector.add_object(token, spot)
+	if(istype(vessel))
+		vessel.move_to_sector(sector, spot)
+	else
+		token.sector?.remove_object(token)
+		sector.add_object(token, spot)
 	token.position = list(0, 0)
 	token.update_overmap_pixel()
 	SEND_SIGNAL(token, COMSIG_OVERMAP_MOVED)

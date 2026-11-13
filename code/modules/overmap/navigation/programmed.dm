@@ -53,7 +53,6 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/block_if_canMove = FALSE
 	var/block_move_message
 	var/manual_helm = FALSE
-	var/powered_engines = FALSE
 	var/list/datum/overmap_programmed_leg/legs
 
 /datum/overmap_programmed_profile/New()
@@ -94,7 +93,6 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 /datum/overmap_programmed_profile/mining
 	shuttle_id = "mining"
 	manual_helm = TRUE
-	powered_engines = TRUE
 
 /datum/overmap_programmed_profile/mining/setup_legs()
 	add_leg("mining_home", "mining_west")
@@ -103,7 +101,6 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 /datum/overmap_programmed_profile/laborcamp
 	shuttle_id = "laborcamp"
 	manual_helm = TRUE
-	powered_engines = TRUE
 
 /datum/overmap_programmed_profile/laborcamp/setup_legs()
 	add_leg("laborcamp_home", "labor_west")

@@ -330,7 +330,8 @@
 			continue
 		face_x += (direction & EAST) ? 1 : ((direction & WEST) ? -1 : 0)
 		face_y += (direction & NORTH) ? 1 : ((direction & SOUTH) ? -1 : 0)
-	return list(face_x, face_y)
+	var/facing = frame_facing()
+	return list(face_x * cos(facing) + face_y * sin(facing), face_y * cos(facing) - face_x * sin(facing))
 
 /obj/overmap/entity/proc/collide(obj/overmap/entity/other)
 	if(!flight || !movable)

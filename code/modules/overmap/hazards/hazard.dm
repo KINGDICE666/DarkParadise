@@ -121,6 +121,8 @@
 		return
 	if(!isturf(vessel.loc))
 		return
+	if(vessel.shield_block_hazard(src))
+		return
 	affect_vessel(vessel)
 
 /obj/overmap/feature/hazard/proc/affect_vessel(obj/overmap/entity/vessel)

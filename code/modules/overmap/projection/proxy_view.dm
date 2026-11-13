@@ -170,7 +170,7 @@
 
 /datum/terrain_mirror/proc/update(elapsed)
 	var/list/spot = local_space.to_bubble(vessel.get_world_x(), vessel.get_world_y())
-	var/facing = vessel.get_facing()
+	var/facing = local_space.relative_facing(vessel.get_facing())
 	var/ship_moved = spot[1] != last_x || spot[2] != last_y
 	if(ship_moved)
 		last_x = spot[1]

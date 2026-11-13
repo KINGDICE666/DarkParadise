@@ -87,6 +87,27 @@
 			station_docking_zone.set_world_position(world_x, world_y)
 			return
 
+/obj/overmap/entity/station_docking_zone
+	var/station_offset_x
+	var/station_offset_y
+	var/station_base_facing = 0
+
+/datum/controller/subsystem/overmap/proc/follow_station_zone()
+	var/obj/overmap/entity/station_docking_zone/zone = station_docking_zone
+	var/obj/overmap/entity/station/ship/ship = station_entity
+	if(QDELETED(zone) || !istype(ship) || !ship.sector || !isturf(ship.loc))
+		return
+	if(isnull(zone.station_offset_x))
+		zone.station_offset_x = zone.get_world_x() - ship.get_world_x()
+		zone.station_offset_y = zone.get_world_y() - ship.get_world_y()
+		zone.station_base_facing = ship.get_facing()
+	if(zone.sector != ship.sector)
+		zone.move_to_sector(ship.sector, ship.get_overmap_turf())
+	var/turn = ship.get_facing() - zone.station_base_facing
+	var/offset_x = zone.station_offset_x * cos(turn) + zone.station_offset_y * sin(turn)
+	var/offset_y = zone.station_offset_y * cos(turn) - zone.station_offset_x * sin(turn)
+	zone.set_world_position(ship.get_world_x() + offset_x, ship.get_world_y() + offset_y)
+
 /obj/overmap/entity/proc/in_station_docking_zone()
 	return SSovermap.station_docking_zone?.contains_vessel(src)
 

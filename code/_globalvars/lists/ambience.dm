@@ -118,6 +118,7 @@ GLOBAL_LIST_INIT(space_ambience, list(
 	'sound/ambience/space/ambispace4.ogg',
 	'sound/ambience/space/ambispace5.ogg',
 	'sound/ambience/space/ambispace6.ogg',
+	'sound/overmap/space_ambience.ogg',
 	'sound/music/title2.ogg',
 ))
 

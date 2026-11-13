@@ -2,6 +2,24 @@
 "aa" = (
 /turf/space,
 /area/space)
+"ab" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/docking_port/mobile/emergency{
+	dwidth = 11;
+	height = 13;
+	name = "Snappop(tm)!";
+	timid = 1;
+	width = 24;
+	port_direction = 8
+	},
+/obj/machinery/door/airlock/shuttle{
+	aiControlDisabled = 1;
+	hackProof = 1;
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch"
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/escape)
 "ac" = (
 /turf/simulated/wall/shuttle/nodiagonal,
 /area/shuttle/escape)
@@ -414,7 +432,7 @@ bq
 bq
 bq
 bq
-aP
+ab
 aM
 XG
 XG

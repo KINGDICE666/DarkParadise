@@ -2,6 +2,24 @@
 "a" = (
 /turf/space,
 /area/space)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/machinery/door/airlock/shuttle{
+	aiControlDisabled = 1;
+	hackProof = 1;
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch"
+	},
+/obj/docking_port/mobile/emergency{
+	name = "Secure Transport Vessel 5";
+	timid = 1;
+	port_direction = 8
+	},
+/turf/simulated/floor/shuttle{
+	icon = 'icons/turf/floors.dmi';
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/escape)
 "f" = (
 /obj/machinery/computer/emergency_shuttle,
 /turf/simulated/floor/shuttle{
@@ -172,7 +190,7 @@ D
 Y
 l
 Y
-q
+b
 Y
 x
 x

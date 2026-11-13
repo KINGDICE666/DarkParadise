@@ -458,11 +458,11 @@
 
 /obj/overmap/entity/proc/show_drifters(list/bubbles, elapsed)
 	var/list/seen = list()
-	var/matrix/turned = matrix()
-	turned.Turn(-get_facing())
 	for(var/datum/overmap_bubble/bubble as anything in bubbles)
 		if(bubble.sector != sector)
 			continue
+		var/matrix/turned = matrix()
+		turned.Turn(-bubble.relative_facing(get_facing()))
 		for(var/atom/movable/drifter as anything in bubble.drifters)
 			var/obj/projectile/projectile = drifter
 			var/list/drifter_world = bubble.to_world(drifter.x, drifter.y)
@@ -539,9 +539,9 @@
 			bump_into_hull(bullet, landing)
 			return TRUE
 		bullet.forceMove(landing)
-		bullet.cross_frames(get_facing())
+		bullet.cross_frames(bubble.relative_facing(get_facing()))
 		return TRUE
-	var/drift_dir = turn(thing.dir || SOUTH, -quarter_turns())
+	var/drift_dir = turn(thing.dir || SOUTH, -bubble.relative_turns(src))
 	for(var/step in 1 to OVERMAP_EJECT_CLEARANCE)
 		if(!bubble.hull_under(landing))
 			break
@@ -734,16 +734,30 @@
 	if(region || !static_level || isnull(bounds))
 		return region
 	region_z = list(bounds[1], bounds[2])
+	region_facing = frame_facing()
+	if(region_facing)
+		region = world_box(bounds[1], bounds[2], bounds[3], bounds[4])
+		return region
 	region = list(origin_x - center_x + bounds[1], origin_y - center_y + bounds[2], origin_x - center_x + bounds[3], origin_y - center_y + bounds[4])
 	return region
 
 /datum/overmap_bubble/proc/to_bubble(world_x, world_y)
+	var/facing = frame_facing()
+	if(facing)
+		var/delta_x = world_x - origin_x
+		var/delta_y = world_y - origin_y
+		return list(center_x + delta_x * cos(facing) - delta_y * sin(facing), center_y + delta_x * sin(facing) + delta_y * cos(facing))
 	var/list/area = ensure_region()
 	if(area)
 		return list(world_x - area[1] + region_z[1], world_y - area[2] + region_z[2])
 	return list(center_x + world_x - origin_x - drift_x(), center_y + world_y - origin_y - drift_y())
 
 /datum/overmap_bubble/proc/to_world(bubble_x, bubble_y)
+	var/facing = frame_facing()
+	if(facing)
+		var/local_x = bubble_x - center_x
+		var/local_y = bubble_y - center_y
+		return list(origin_x + local_x * cos(facing) + local_y * sin(facing), origin_y - local_x * sin(facing) + local_y * cos(facing))
 	return list(bubble_x - center_x + origin_x + drift_x(), bubble_y - center_y + origin_y + drift_y())
 
 /datum/overmap_bubble/proc/covers(list/spot, margin)
@@ -781,7 +795,7 @@
 		if(QDELETED(proxy))
 			proxy = vessel.create_hull_proxy(locate(round(center_x), round(center_y), bubble_z), TRUE)
 			ship_proxies[vessel] = proxy
-		proxy.place(spot[1], spot[2], bubble_z, vessel.get_facing(), bounds, elapsed)
+		proxy.place(spot[1], spot[2], bubble_z, relative_facing(vessel.get_facing()), bounds, elapsed)
 	for(var/obj/overmap/entity/vessel as anything in ship_proxies)
 		if(!drawn[vessel])
 			qdel(ship_proxies[vessel])
@@ -803,6 +817,14 @@
 		last_occupied = world.time
 
 /datum/overmap_bubble/proc/update_contact_proxies(list/eyes)
+	var/list/local_eyes = list()
+	for(var/turf/eye as anything in eyes)
+		if(eye.z == bubble_z)
+			local_eyes += eye
+	if(!length(local_eyes))
+		QDEL_LIST_ASSOC_VAL(contact_proxies)
+		return
+	eyes = local_eyes
 	var/list/wanted = list()
 	var/span = OVERMAP_TILE_SPAN * (sector?.tile_travel || 1)
 	for(var/obj/overmap/target as anything in sector?.objects)
@@ -885,10 +907,10 @@
 		if(!istype(bullet) && !hull_turf.is_blocked_turf(exclude_mobs = TRUE))
 			shove_drifter(drifter, vessel)
 		return FALSE
-	var/board_dir = turn(drifter.dir || SOUTH, vessel.quarter_turns())
+	var/board_dir = turn(drifter.dir || SOUTH, relative_turns(vessel))
 	cross_frame_with_pull(drifter, entry)
 	if(istype(bullet))
-		bullet.cross_frames(-vessel.get_facing())
+		bullet.cross_frames(-relative_facing(vessel.get_facing()))
 	else
 		drifter.setDir(board_dir)
 	return TRUE
@@ -1059,7 +1081,7 @@
 
 /datum/controller/subsystem/overmap/proc/mirror_explosion(datum/source, datum/explosion_data/data, silent)
 	SIGNAL_HANDLER
-	if(mirroring_explosion || !data?.epicenter)
+	if(mirroring_explosion || !istype(data) || !data.epicenter)
 		return
 	var/datum/origin = frame_owner(data.epicenter)
 	if(!origin)
@@ -1068,7 +1090,7 @@
 	var/list/point = frame_to_world(origin, data.epicenter)
 	var/reach = max(data.devastation_range, data.heavy_impact_range, data.light_impact_range, data.flame_range, data.flash_range)
 	var/obj/overmap/entity/origin_vessel = origin
-	var/origin_heading = istype(origin_vessel) ? origin_vessel.get_facing() : 0
+	var/origin_heading = istype(origin_vessel) ? origin_vessel.get_facing() : frame_heading(origin)
 	var/list/datum/targets = list()
 	for(var/obj/overmap/entity/vessel as anything in flying_vessels)
 		if(vessel == origin || vessel.sector != sector || istype(vessel, /obj/overmap/entity/virtual_structure))
@@ -1087,7 +1109,7 @@
 			continue
 		seen += mirrored
 		var/obj/overmap/entity/target_vessel = target
-		var/target_heading = istype(target_vessel) ? target_vessel.get_facing() : 0
+		var/target_heading = istype(target_vessel) ? target_vessel.get_facing() : frame_heading(target)
 		explosion(mirrored, data.devastation_range, data.heavy_impact_range, data.light_impact_range, data.flash_range, adminlog = FALSE, ignorecap = TRUE, flame_range = data.flame_range, silent = silent, smoke = FALSE, cause = "overmap explosion across hull", breach = data.breach, protect_epicenter = data.protect_epicenter, explosion_direction = SIMPLIFY_DEGREES(data.explosion_direction + origin_heading - target_heading), explosion_arc = data.explosion_arc)
 	mirroring_explosion = FALSE
 

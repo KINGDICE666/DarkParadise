@@ -43,6 +43,10 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 	data["arc"] = arc
 	data["automatic"] = automatic
 	data["cooldown"] = vessel.overmap_pod ? vessel.overmap_pod.pod()?.next_firetime : next_fire
+	var/obj/machinery/ship_gun/cannon = parent
+	if(istype(cannon) && cannon.max_ammo)
+		data["ammo"] = cannon.ammo
+		data["max_ammo"] = cannon.max_ammo
 	return TRUE
 
 /datum/component/ship_weapon/proc/on_fire(datum/source, obj/overmap/entity/vessel, x, y, mob/user)
@@ -59,7 +63,7 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 
 /datum/component/ship_weapon/proc/on_automatic(datum/source, obj/overmap/entity/vessel)
 	SIGNAL_HANDLER
-	if(host() == vessel && istype(parent, /obj/machinery/porta_turret))
+	if(host() == vessel && (istype(parent, /obj/machinery/porta_turret) || istype(parent, /obj/machinery/ship_gun/autocannon)))
 		automatic = !automatic
 
 /datum/component/ship_weapon/proc/on_process()
@@ -81,7 +85,14 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 	if(gun.virtual_weapon_owner)
 		return QDELETED(gun.virtual_weapon_owner) ? null : gun.virtual_weapon_owner
 	var/obj/overmap/entity/vessel = SSovermap.resolve_vessel(parent)
-	return vessel?.shuttle ? vessel : null
+	if(!vessel)
+		return null
+	if(vessel.shuttle)
+		return vessel
+	if(vessel != SSovermap.station_entity)
+		return null
+	var/obj/machinery/porta_turret/turret = parent
+	return !istype(turret) || istype(turret, /obj/machinery/porta_turret/syndicate/ship) ? vessel : null
 
 /datum/component/ship_weapon/proc/world_position(obj/overmap/entity/vessel)
 	if(istype(parent, /obj/item/spacepod_equipment/weaponry))
@@ -103,8 +114,8 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 			return vessel.get_facing()
 		var/obj/spacepod/craft = vessel.overmap_pod.pod()
 		var/obj/overmap/entity/owner = SSovermap.frame_owner(get_turf(craft))
-		return dir2angle(craft.dir) + (istype(owner) ? owner.get_facing() : 0)
-	return dir2angle(mount_dir) + (vessel.free_flight_view ? vessel.get_facing() : 0)
+		return dir2angle(craft.dir) + SSovermap.frame_heading(owner)
+	return dir2angle(mount_dir) + (vessel.free_flight_view ? vessel.get_facing() : SSovermap.frame_heading(SSovermap.frame_owner(get_turf(parent))))
 
 /datum/component/ship_weapon/proc/can_aim(obj/overmap/entity/vessel, x, y)
 	if(QDELETED(vessel))
@@ -130,9 +141,15 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 			return FALSE
 		next_fire = world.time + (manual ? (1 SECONDS) : turret.shot_delay)
 		turret.last_fired = world.time
-	else
-		next_fire = world.time + (2 SECONDS)
-	return fire_projectile_burst(CALLBACK(src, PROC_REF(shoot), vessel, x, y, user, target, manual), istype(turret) ? turret.rapid : 1, istype(turret) ? turret.rapid_fire_delay : 0)
+		return fire_projectile_burst(CALLBACK(src, PROC_REF(shoot), vessel, x, y, user, target, manual), turret.rapid, turret.rapid_fire_delay)
+	var/obj/machinery/ship_gun/cannon = gun
+	if(istype(cannon))
+		if(!cannon.can_fire())
+			return FALSE
+		next_fire = world.time + cannon.fire_delay
+		return fire_projectile_burst(CALLBACK(src, PROC_REF(shoot), vessel, x, y, user, target, manual), cannon.burst, cannon.burst_delay)
+	next_fire = world.time + (2 SECONDS)
+	return fire_projectile_burst(CALLBACK(src, PROC_REF(shoot), vessel, x, y, user, target, manual), 1, 0)
 
 /datum/component/ship_weapon/proc/shoot(obj/overmap/entity/vessel, x, y, mob/user, mob/living/target, manual = TRUE)
 	var/obj/machinery/gun = parent
@@ -155,6 +172,11 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 			qdel(created)
 			return FALSE
 		shot = created
+	else if(istype(gun, /obj/machinery/ship_gun))
+		var/obj/machinery/ship_gun/cannon = gun
+		shot = cannon.make_shot()
+		if(!shot)
+			return FALSE
 	else
 		shot = new /obj/projectile/bullet/ship_artillery(null)
 		playsound(gun, 'sound/machines/bsa_fire.ogg', 65, TRUE)
