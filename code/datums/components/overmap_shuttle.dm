@@ -280,7 +280,7 @@
 	var/current_id = vessel.shuttle.getDockedId()
 	var/chosen_id = vessel.selected_dock_id || vessel.last_dock_id
 	var/obj/docking_port/stationary/custom_pad = get_custom_dock(host)
-	if(host?.dock_host?.allow_custom_landing && !vessel.in_station_docking_zone())
+	if(host?.dock_host?.allow_custom_landing && !vessel.in_bluespace_docking_zone())
 		. += list(list(
 			"id" = OVERMAP_DOCK_ID_CUSTOM,
 			"name" = "Произвольная точка ([host.name])",

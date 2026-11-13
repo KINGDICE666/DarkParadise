@@ -105,6 +105,11 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 		return null
 	if(vessel.free_flight_view)
 		return vessel.hull_to_world(spot.x, spot.y)
+	if(istype(vessel, /obj/overmap/entity/station/ship) && is_station_level(spot.z) && !isnull(vessel.hull_center_x))
+		var/datum/overmap_bubble/station_level = SSovermap.bubble_for_turf(spot)
+		if(station_level?.host == vessel)
+			return vessel.hull_to_world(spot.x - station_level.center_x + vessel.hull_center_x, spot.y - station_level.center_y + vessel.hull_center_y)
+		return vessel.hull_to_world(spot.x, spot.y)
 	var/datum/owner = SSovermap.frame_owner(spot)
 	return owner ? SSovermap.frame_to_world(owner, spot) : null
 
@@ -115,7 +120,10 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 		var/obj/spacepod/craft = vessel.overmap_pod.pod()
 		var/obj/overmap/entity/owner = SSovermap.frame_owner(get_turf(craft))
 		return dir2angle(craft.dir) + SSovermap.frame_heading(owner)
-	return dir2angle(mount_dir) + (vessel.free_flight_view ? vessel.get_facing() : SSovermap.frame_heading(SSovermap.frame_owner(get_turf(parent))))
+	var/turf/mount_turf = get_turf(parent)
+	if(vessel.free_flight_view || (istype(vessel, /obj/overmap/entity/station/ship) && mount_turf && is_station_level(mount_turf.z)))
+		return dir2angle(mount_dir) + vessel.get_facing()
+	return dir2angle(mount_dir) + SSovermap.frame_heading(SSovermap.frame_owner(mount_turf))
 
 /datum/component/ship_weapon/proc/can_aim(obj/overmap/entity/vessel, x, y)
 	if(QDELETED(vessel))

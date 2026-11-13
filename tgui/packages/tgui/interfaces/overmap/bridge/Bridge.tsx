@@ -51,7 +51,7 @@ import {
   runAction,
   visibleObjects,
 } from './selection';
-import { TacDeck } from './TacDeck';
+import { salvoParams, TacDeck } from './TacDeck';
 import { setThrottle, ThrottleDeck } from './ThrottleDeck';
 import { TopStrip } from './TopStrip';
 import type { Post, Selection, Weapon } from './types';
@@ -187,6 +187,7 @@ const BridgeRadar = (props: {
     <OvermapRadar
       bare
       aimOnClick={false}
+      showSelf={!!data.station_ship}
       outlines={data.radar_outlines}
       locked={!!data.radar_locked}
       tick={data.radar_tick}
@@ -222,7 +223,9 @@ const BridgeRadar = (props: {
         if (post === 'tac') {
           if (ctrl && armed.length) {
             act('radar_point', { x, y });
+            return;
           }
+          setSelection({ kind: 'point', x, y });
           return;
         }
         if (post !== 'nav' || data.gunner) {
@@ -381,7 +384,7 @@ const BridgeBody = () => {
       return;
     }
     if (code === KEY_G) {
-      act('fire_salvo');
+      act('fire_salvo', salvoParams(selection));
       return;
     }
     if (code === KEY_H) {

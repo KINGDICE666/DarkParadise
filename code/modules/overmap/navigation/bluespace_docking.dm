@@ -10,9 +10,6 @@
 	map_color = "#6abfff"
 	overmap_hazard_immune = TRUE
 	var/radius = 40
-	var/station_offset_x
-	var/station_offset_y
-	var/station_base_facing = 0
 
 /obj/overmap/entity/station_docking_zone/add_overmap_components()
 	return
@@ -26,6 +23,8 @@
 	return list(radius * 2, radius * 2)
 
 /obj/overmap/entity/station_docking_zone/proc/accepts_pad(obj/docking_port/stationary/pad)
+	if(istype(SSovermap.station_entity, /obj/overmap/entity/station/ship))
+		return FALSE
 	if(QDELETED(pad) || istype(pad, /obj/docking_port/stationary/transit) || istype(pad, /obj/docking_port/stationary/overmap/landing))
 		return FALSE
 	return SSovermap.station_entity?.dock_host?.matches_pad(pad)
@@ -91,23 +90,29 @@
 			return
 
 /datum/controller/subsystem/overmap/proc/follow_station_zone()
-	var/obj/overmap/entity/station_docking_zone/zone = station_docking_zone
 	var/obj/overmap/entity/station/ship/ship = station_entity
-	if(QDELETED(zone) || !istype(ship) || !ship.sector || !isturf(ship.loc))
+	if(!istype(ship) || !ship.sector || !isturf(ship.loc))
 		return
-	if(isnull(zone.station_offset_x))
-		zone.station_offset_x = zone.get_world_x() - ship.get_world_x()
-		zone.station_offset_y = zone.get_world_y() - ship.get_world_y()
-		zone.station_base_facing = ship.get_facing()
+	var/datum/overmap_bubble/station_space = ship.physical_space
+	var/obj/overmap/entity/station_docking_zone/zone = station_docking_zone
+	if(QDELETED(zone))
+		return
+	if(!zone.hidden_from_contacts)
+		zone.hidden_from_contacts = TRUE
+		zone.visible_without_scanner = FALSE
+		zone.SetInvisibility(INVISIBILITY_ABSTRACT, id = zone.type)
+	var/list/rect = station_space?.bounds
+	var/span = rect ? max(rect[3] - rect[1], rect[4] - rect[2]) : max(world.maxx, world.maxy)
+	zone.radius = span / 2 + OVERMAP_STATION_ZONE_MARGIN
 	if(zone.sector != ship.sector)
 		zone.move_to_sector(ship.sector, ship.get_overmap_turf())
-	var/turn = ship.get_facing() - zone.station_base_facing
-	var/offset_x = zone.station_offset_x * cos(turn) + zone.station_offset_y * sin(turn)
-	var/offset_y = zone.station_offset_y * cos(turn) - zone.station_offset_x * sin(turn)
-	zone.set_world_position(ship.get_world_x() + offset_x, ship.get_world_y() + offset_y)
+	zone.set_world_position(ship.get_world_x(), ship.get_world_y())
 
 /obj/overmap/entity/proc/in_station_docking_zone()
 	return SSovermap.station_docking_zone?.contains_vessel(src)
+
+/obj/overmap/entity/proc/in_bluespace_docking_zone()
+	return !istype(SSovermap.station_entity, /obj/overmap/entity/station/ship) && in_station_docking_zone()
 
 /obj/docking_port/mobile/proc/overmap_docking_origin(obj/docking_port/stationary/pad)
 	if(SSovermap.station_docking_zone?.accepts_pad(pad) && !pad.dock_airlock && !istype(pad, /obj/docking_port/stationary/overmap))

@@ -610,7 +610,7 @@
 /obj/overmap/entity/proc/pad_matches_host(obj/docking_port/stationary/pad, obj/overmap/entity/host)
 	if(!pad || !host)
 		return FALSE
-	if(host == SSovermap.station_entity && in_station_docking_zone() && !SSovermap.station_docking_zone.accepts_pad(pad))
+	if(host == SSovermap.station_entity && in_bluespace_docking_zone() && !SSovermap.station_docking_zone.accepts_pad(pad))
 		return FALSE
 	if(istype(pad, /obj/docking_port/stationary/transit))
 		return FALSE

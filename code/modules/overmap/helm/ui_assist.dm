@@ -101,6 +101,7 @@
 	data["held_brake"] = nav.held_brake
 	data["drift_assist"] = nav.drift_assist
 	data["nose"] = round(nav.nose_heading())
+	data["station_ship"] = istype(vessel, /obj/overmap/entity/station/ship)
 	data["cruise"] = round(OVERMAP_DISPLAY_SPEED(nav.cruise_speed), 0.1)
 	data["max_cruise"] = round(OVERMAP_DISPLAY_SPEED(vessel.max_speed), 0.1)
 	data["heading_hold"] = isnum(nav.heading_hold) ? OVERMAP_HOLD_CURRENT : nav.heading_hold

@@ -213,6 +213,9 @@
 	if(!bubbles_by_z[z_level])
 		bubbles_by_z[z_level] = space
 	token.physical_space = space
+	if(istype(token, /obj/overmap/entity/station/ship))
+		token.hull_center_x = space.center_x
+		token.hull_center_y = space.center_y
 	return space
 
 /obj/overmap/entity/proc/record_undock_origin()
@@ -287,8 +290,11 @@
 	var/first_y = max(round((spot[2] - reach) / OVERMAP_RADAR_CHUNK), 0)
 	var/last_y = round(min(spot[2] + reach, world.maxy) / OVERMAP_RADAR_CHUNK)
 	var/list/anchor = local_space.to_world(0, 0)
-	var/key = "\ref[local_space]:[first_x]:[last_x]:[first_y]:[last_y]:[anchor[1]]:[anchor[2]]"
+	var/key = "\ref[local_space]:[first_x]:[last_x]:[first_y]:[last_y]"
 	if(radar_terrain_cache && radar_terrain_key == key && world.time < radar_terrain_until)
+		radar_terrain_cache["x"] = anchor[1]
+		radar_terrain_cache["y"] = anchor[2]
+		radar_terrain_cache["rot"] = local_space.frame_facing()
 		return radar_terrain_cache
 	for(var/chunk_x in first_x to last_x)
 		for(var/chunk_y in first_y to last_y)

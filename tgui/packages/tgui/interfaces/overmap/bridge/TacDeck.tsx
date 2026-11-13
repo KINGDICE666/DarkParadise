@@ -3,9 +3,12 @@ import { classes } from 'tgui-core/react';
 
 import { decimal, weaponState } from './bridgeMath';
 import { Kbd, useBridge } from './parts';
-import type { Weapon } from './types';
+import type { Selection, Weapon } from './types';
 
 const AMMO_SEGMENTS = 6;
+
+export const salvoParams = (selection: Selection) =>
+  selection?.kind === 'point' ? { x: selection.x, y: selection.y } : {};
 
 const WeaponCard = (props: { weapon: Weapon }) => {
   const { act } = useBridge();
@@ -77,11 +80,12 @@ const WeaponCard = (props: { weapon: Weapon }) => {
 };
 
 export const TacDeck = () => {
-  const { act, data, armed } = useBridge();
+  const { act, data, armed, selection } = useBridge();
   const weapons = data.weapons || [];
   const target = data.fire_target;
   const ready = armed.filter((weapon) => weaponState(weapon)[1] === 'ok');
-  const hot = !!target && ready.length > 0;
+  const aimPoint = selection?.kind === 'point';
+  const hot = ready.length > 0;
   return (
     <div className="Bridge__mode Bridge__mode--column">
       <div className="Bridge__firebar">
@@ -92,11 +96,19 @@ export const TacDeck = () => {
             <Icon name={target ? 'crosshairs' : 'circle-dot'} />
           </div>
           <div>
-            <h3>{target ? target.name : 'Цель не захвачена'}</h3>
+            <h3>
+              {target
+                ? target.name
+                : aimPoint
+                  ? 'Огонь в точку'
+                  : 'Огонь по курсу'}
+            </h3>
             <small>
               {target
                 ? `${decimal(target.distance)} кл · ${decimal(target.speed)} м/с${target.shield ? ` · щит ${Math.round(target.shield * 100)} %` : ''}`
-                : 'двойной клик по кораблю на радаре — захват'}
+                : aimPoint
+                  ? 'залп ударит в отмеченную точку · ПКМ — снять'
+                  : 'клик по радару — точка, двойной по кораблю — захват'}
             </small>
           </div>
           {!!target && (
@@ -135,7 +147,7 @@ export const TacDeck = () => {
             'Bridge__salvo',
             hot && 'Bridge__salvo--hot',
           ])}
-          onClick={() => act('fire_salvo')}
+          onClick={() => act('fire_salvo', salvoParams(selection))}
         >
           ЗАЛП
           <small>

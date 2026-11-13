@@ -130,6 +130,7 @@ export type HelmData = {
   speed: number;
   facing: number;
   nose?: number;
+  station_ship?: BooleanLike;
   docked_craft?: { id: string; name: string; busy: BooleanLike }[];
   local_space?: BooleanLike;
   radar_reach?: number;

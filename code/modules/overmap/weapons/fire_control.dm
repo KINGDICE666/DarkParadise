@@ -33,16 +33,22 @@
 		aim_y = target_y + relative_y * travel
 	return list(aim_x, aim_y)
 
-/obj/machinery/computer/helm/proc/fire_salvo(mob/user)
+/obj/machinery/computer/helm/proc/forward_aim(obj/gun)
+	var/list/data = list()
+	if(!SEND_SIGNAL(gun, COMSIG_OVERMAP_WEAPON_QUERY, vessel, data) || !data["position"])
+		return null
+	var/list/origin = data["position"]
+	var/reach = OVERMAP_TILE_SPAN * (vessel.sector?.tile_travel || 1) * OVERMAP_FORWARD_FIRE_CELLS
+	return list(origin[1] + sin(data["heading"]) * reach, origin[2] + cos(data["heading"]) * reach)
+
+/obj/machinery/computer/helm/proc/fire_salvo(mob/user, list/point)
 	var/obj/overmap/entity/target = fire_target()
-	if(!target)
-		return FALSE
 	. = FALSE
 	for(var/id in selected_weapons)
 		var/obj/gun = locateUID(id)
 		if(QDELETED(gun))
 			continue
-		var/list/aim = fire_solution(gun, target)
+		var/list/aim = target ? fire_solution(gun, target) : (point || forward_aim(gun))
 		if(!aim || !SEND_SIGNAL(gun, COMSIG_OVERMAP_WEAPON_CAN_AIM, vessel, aim[1], aim[2]))
 			continue
 		if(SEND_SIGNAL(gun, COMSIG_OVERMAP_WEAPON_FIRE, vessel, aim[1], aim[2], user))
@@ -75,7 +81,7 @@
 
 /obj/machinery/computer/helm/process()
 	. = ..()
-	if(free_fire && vessel && length(selected_weapons) && !(stat & (NOPOWER|BROKEN)) && !vessel.is_programmed_locked())
+	if(free_fire && vessel && length(selected_weapons) && !(stat & (NOPOWER|BROKEN)) && !vessel.is_programmed_locked() && fire_target())
 		fire_salvo(null)
 
 /obj/machinery/computer/helm/proc/fire_control_act(action, list/params, mob/user)
@@ -89,7 +95,9 @@
 		if("clear_target")
 			fire_target_uid = null
 		if("fire_salvo")
-			if(!fire_salvo(user))
+			var/point_x = text2num(params["x"])
+			var/point_y = text2num(params["y"])
+			if(!fire_salvo(user, isnum(point_x) && isnum(point_y) ? list(point_x, point_y) : null))
 				to_chat(user, span_warning("Нет готовых орудий, способных достать цель."))
 		if("toggle_free_fire")
 			free_fire = !free_fire

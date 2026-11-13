@@ -121,7 +121,7 @@
 				if(!isturf(overmap_object.loc))
 					continue
 
-				if(overmap_object.hidden_from_contacts && !is_vessel)
+				if((overmap_object.hidden_from_contacts && !is_vessel) || istype(overmap_object, /obj/overmap/entity/station_docking_zone))
 					continue
 			var/identified = overmap_object.visible_without_scanner || display_identified(overmap_object)
 
