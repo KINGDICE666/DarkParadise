@@ -2158,7 +2158,7 @@ export const OvermapRadar = (props: {
                   pointerEvents="none"
                 >
                   {(projectiles || []).map((shot) => {
-                    const size = Math.max(0.25, radius * 0.009);
+                    const size = Math.max(0.2, radius * 0.006);
                     return (
                       <g
                         key={shot.id}
@@ -2167,14 +2167,14 @@ export const OvermapRadar = (props: {
                         <path
                           d={`M 0 ${-size * 2} L 0 0`}
                           stroke="#ff9d45"
-                          strokeWidth={3}
+                          strokeWidth={1.5}
                           opacity={0.3}
                           vectorEffect="non-scaling-stroke"
                         />
                         <path
-                          d={`M 0 ${-size * 1.5} L 0 0 M ${-size * 0.3} ${-size * 0.5} L 0 0 L ${size * 0.3} ${-size * 0.5}`}
+                          d={`M 0 ${-size * 1.5} L 0 0 M ${-size * 0.18} ${-size * 0.5} L 0 0 L ${size * 0.18} ${-size * 0.5}`}
                           stroke="#ffe6af"
-                          strokeWidth={1.5}
+                          strokeWidth={1}
                           vectorEffect="non-scaling-stroke"
                           fill="none"
                         />

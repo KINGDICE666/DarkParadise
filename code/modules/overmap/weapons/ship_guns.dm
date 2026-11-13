@@ -8,7 +8,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	anchored = TRUE
 	density = TRUE
 	max_integrity = 300
-	idle_power_usage = 200
+	use_power = NO_POWER_USE
 	resistance_flags = FIRE_PROOF
 	var/projectile_type = /obj/projectile/bullet/ship_autocannon
 	var/fire_sound = 'sound/weapons/gunshots/gunshot_mg.ogg'
@@ -16,7 +16,6 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	var/burst = 1
 	var/burst_delay = 0
 	var/arc = 90
-	var/power_per_shot = 0
 	var/ammo_type
 	var/ammo = 0
 	var/max_ammo = 0
@@ -68,11 +67,9 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	if(max_ammo)
 		. += span_notice("Боезапас: [ammo]/[max_ammo].")
 		. += span_notice(loader_id ? "Привязано к заряднику «[loader_id]»." : "Мультитулом можно привязать к заряднику по ID.")
-	if(power_per_shot)
-		. += span_notice("Питается от APC отсека: [power_per_shot] Дж на выстрел.")
 
 /obj/machinery/ship_gun/proc/can_fire()
-	if(stat & (BROKEN|NOPOWER) || !anchored || panel_open)
+	if((stat & BROKEN) || !anchored || panel_open)
 		return FALSE
 	if(max_ammo && ammo < ammo_per_shot)
 		return FALSE
@@ -84,8 +81,6 @@ GLOBAL_LIST_EMPTY(ship_guns)
 		return null
 	if(max_ammo)
 		ammo -= ammo_per_shot
-	if(power_per_shot)
-		use_power(power_per_shot)
 	playsound(src, fire_sound, 60, TRUE, extrarange = 6)
 	return new projectile_type(null)
 
@@ -171,12 +166,11 @@ GLOBAL_LIST_EMPTY(ship_guns)
 
 /obj/machinery/ship_gun/laser
 	name = "ship laser"
-	desc = "Энергетическое орудие без боезапаса. Тянет энергию из APC отсека и хорошо пробивает щиты."
+	desc = "Энергетическое орудие без боезапаса. Хорошо пробивает щиты."
 	icon_state = "orange_target_prism"
 	projectile_type = /obj/projectile/beam/ship_laser
 	fire_sound = 'sound/overmap/laser_cannon_fire.ogg'
 	fire_delay = 2.5 SECONDS
-	power_per_shot = 15000
 	board_path = /obj/item/circuitboard/ship_gun/laser
 	weapon_kind = "laser"
 
@@ -200,7 +194,6 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	fire_sound = 'sound/overmap/railgun_fire.ogg'
 	fire_delay = 8 SECONDS
 	arc = 30
-	power_per_shot = 40000
 	ammo_type = /obj/item/ship_ammo/railgun
 	max_ammo = 6
 	board_path = /obj/item/circuitboard/ship_gun/railgun

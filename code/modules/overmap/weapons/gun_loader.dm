@@ -7,8 +7,7 @@
 	anchored = TRUE
 	density = TRUE
 	max_integrity = 250
-	idle_power_usage = 200
-	active_power_usage = 2000
+	use_power = NO_POWER_USE
 	var/id
 	var/list/stock = list()
 	var/max_stock = OVERMAP_LOADER_CAPACITY
@@ -76,8 +75,7 @@
 			. += span_notice("[sample::name]: [stock[ammo_type]].")
 
 /obj/machinery/ship_gun_loader/process()
-	if(!anchored || (stat & (NOPOWER|BROKEN)) || !id || !stored_rounds())
-		update_use_power(IDLE_POWER_USE)
+	if(!anchored || (stat & BROKEN) || !id || !stored_rounds())
 		return
 	var/fed = FALSE
 	for(var/obj/machinery/ship_gun/gun as anything in linked_guns())
@@ -88,7 +86,6 @@
 		stock[gun.ammo_type] -= given
 		gun.ammo += given
 		fed = TRUE
-	update_use_power(fed ? ACTIVE_POWER_USE : IDLE_POWER_USE)
 	if(fed)
 		flick("autolathe_work", src)
 

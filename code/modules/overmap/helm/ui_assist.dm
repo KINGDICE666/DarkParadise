@@ -118,7 +118,14 @@
 			active ||= generator.active
 		data["shield"] = list("charge" = round(vessel.shield_charge()), "capacity" = vessel.shield_capacity(), "generators" = length(generators), "active" = active)
 
+/obj/machinery/computer/helm/proc/weapons_access(mob/user)
+	return user.can_admin_interact() || (ACCESS_SECURITY in user.get_access())
+
 /obj/machinery/computer/helm/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	var/static/list/weapon_actions = list("select_weapon", "weapon_auto", "lock_target", "clear_target", "fire_salvo", "toggle_free_fire")
+	if(((action in weapon_actions) || (length(selected_weapons) && (action in list("radar_point", "set_dest")))) && !weapons_access(usr))
+		to_chat(usr, span_warning("Управление огнём требует карту с доступом службы безопасности."))
+		return TRUE
 	if(action != "helm_radar_reach" && ui?.status == UI_INTERACTIVE)
 		playsound(src, 'sound/overmap/bridge_click.ogg', 35, FALSE, SHORT_RANGE_SOUND_EXTRARANGE)
 	var/fire_action = (action in list("lock_target", "clear_target", "fire_salvo", "toggle_free_fire")) || (action == "set_dest" && length(selected_weapons) && istype(locateUID(params["id"]), /obj/overmap/entity))
