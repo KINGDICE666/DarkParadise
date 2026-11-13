@@ -36,8 +36,10 @@
 	var/navigation_arrival_range = OVERMAP_AUTOPILOT_ARRIVE_RANGE
 	var/navigation_ignore_collisions = FALSE
 	var/navigation_known_obstacles_only = TRUE
-	var/list/navigation_entry_box
 	var/navigation_pass_through = FALSE
+	var/list/navigation_next_point
+	var/navigation_rails = FALSE
+	var/rail_speed = 0
 
 /datum/component/overmap_flight/Initialize(fixed_facing = FALSE)
 	if(!istype(parent, /obj/overmap/entity))
@@ -55,7 +57,6 @@
 	QDEL_NULL(navigation)
 	navigation_target = null
 	navigation_host = null
-	navigation_entry_box = null
 	release_pilot()
 	stop_burn()
 	var/obj/overmap/entity/token = parent
@@ -109,7 +110,7 @@
 		manual_drive = process_pilot(elapsed)
 	var/aim
 	if(autopilot && needs_physics())
-		aim = process_autopilot(elapsed)
+		aim = navigation_rails ? process_rail(elapsed) : process_autopilot(elapsed)
 		if(!autopilot_turns)
 			aim = null
 	if(isnull(aim) && !pilot_turn)

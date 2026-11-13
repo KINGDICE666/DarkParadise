@@ -53,6 +53,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/block_if_canMove = FALSE
 	var/block_move_message
 	var/manual_helm = FALSE
+	var/rails = FALSE
 	var/list/datum/overmap_programmed_leg/legs
 
 /datum/overmap_programmed_profile/New()
@@ -122,6 +123,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	shuttle_id = "emergency"
 	persist_until_dock = TRUE
 	hazard_immune = TRUE
+	rails = TRUE
 
 /datum/overmap_programmed_profile/emergency/setup_legs()
 	add_hidden_leg("emergency_home", "emergency_main")
@@ -168,6 +170,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 /datum/overmap_programmed_profile/escape_pod
 	persist_until_dock = TRUE
 	hazard_immune = TRUE
+	rails = TRUE
 
 /proc/is_overmap_programmed_shuttle(obj/docking_port/mobile/shuttle)
 	if(!shuttle?.id)
@@ -435,17 +438,17 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	var/next_nav_warn = 0
 	var/persist_until_dock = FALSE
 	var/cancellable = FALSE
+	var/rails = FALSE
 	var/processing = FALSE
 	var/list/obj/effect/landmark/overmap_navigation_beacon/navigation_beacons
 	var/navigation_step = 0
 	var/navigation_dock_prepared = FALSE
-	var/navigation_entry_ready = FALSE
-	var/list/navigation_entry_box
 	var/departure_dock_id
 	var/departure_pending = FALSE
 	var/departure_step = 1
 	var/obj/overmap/entity/departure_host
 	var/list/departure_beacons
+	var/list/departure_origin
 
 /datum/overmap_programmed_mission/New(obj/overmap/entity/owner, target_dock, skip_windup, source_dock)
 	vessel = owner
@@ -468,6 +471,7 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	departure_pending = !!source_dock
 	persist_until_dock = profile?.persist_until_dock
 	cancellable = !!profile?.manual_helm
+	rails = !!profile?.rails
 	if(skip_windup)
 		phase = OVERMAP_PROG_UNDOCK
 		windup_end = world.time
@@ -491,11 +495,11 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 	SIGNAL_HANDLER
 	INVOKE_ASYNC(src, PROC_REF(navigation_arrived))
 
-/datum/overmap_programmed_mission/proc/navigate_to(world_x, world_y, heading, obj/overmap/entity/host, pass_through = FALSE)
+/datum/overmap_programmed_mission/proc/navigate_to(world_x, world_y, heading, obj/overmap/entity/host, pass_through = FALSE, list/next_point)
 	if(pass_through)
-		vessel.flight.navigate_world(world_x, world_y, null, host, arrival_range = OVERMAP_AUTOPILOT_PASS_RANGE, ignore_collisions = TRUE, known_obstacles_only = FALSE, entry_box = navigation_entry_box, pass_through = TRUE)
+		vessel.flight.navigate_world(world_x, world_y, null, host, arrival_range = OVERMAP_AUTOPILOT_PASS_RANGE, ignore_collisions = TRUE, known_obstacles_only = FALSE, pass_through = TRUE, next_point = next_point, rails = rails)
 		return
-	vessel.flight.navigate_world(world_x, world_y, heading, host, arrival_range = 1, ignore_collisions = TRUE, known_obstacles_only = FALSE, entry_box = navigation_entry_box)
+	vessel.flight.navigate_world(world_x, world_y, heading, host, arrival_range = 1, ignore_collisions = TRUE, known_obstacles_only = FALSE, rails = rails)
 
 /datum/overmap_programmed_mission/proc/eta_string()
 	if(QDELETED(vessel))
@@ -730,9 +734,14 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		speed = OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE)
 	var/travel = on_sector?.tile_travel || 1
 	. = CEILING((dist * travel) / speed, 1)
+	if(programmed_profile()?.rails)
+		return . + OVERMAP_RAIL_RAMP_TIME
 	var/thrust = flight?.get_total_thrust()
 	if(thrust)
 		. += CEILING(speed * flight.inertial_mass() * flight.burn_delay / thrust, 1)
+
+/obj/overmap/entity/proc/programmed_approach_time()
+	return programmed_profile()?.rails ? OVERMAP_RAIL_APPROACH_TIME : OVERMAP_PROGRAMMED_APPROACH_TIME
 
 /obj/overmap/entity/proc/estimate_programmed_trip(dock_id, datum/overmap_programmed_mission/mission)
 	var/trip_time = 0
@@ -767,10 +776,10 @@ GLOBAL_LIST_INIT(overmap_programmed_shuttle_ids, build_overmap_programmed_shuttl
 		var/turf/other_relay = relay?.paired?.get_overmap_turf()
 		if(dest && other_relay)
 			trip_time += estimate_overmap_leg(other_relay, dest, host.sector)
-		trip_time += OVERMAP_PROGRAMMED_APPROACH_TIME
+		trip_time += programmed_approach_time()
 		return trip_time
 	var/turf/dest = host.get_overmap_turf()
 	if(dest && here != dest)
 		trip_time += estimate_overmap_leg(here, dest, sector || host.sector)
-	trip_time += OVERMAP_PROGRAMMED_APPROACH_TIME
+	trip_time += programmed_approach_time()
 	return trip_time
