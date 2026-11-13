@@ -33,9 +33,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/obj/machinery/atmospherics/pipe/manifold/hidden/supply{
-	dir = 1
-	},
+/obj/machinery/atmospherics/pipe/manifold/hidden/supply,
 /obj/structure/bookcase,
 /turf/simulated/floor/plasteel{
 	icon_state = "Dark"
@@ -117,14 +115,6 @@
 	},
 /turf/simulated/floor/bluegrid,
 /area/station/science/robotics)
-"am" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/grille/broken,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "an" = (
 /obj/structure/chair/sofa/bench,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -379,13 +369,6 @@
 	},
 /obj/item/gun_module/rail/scope/x4,
 /turf/space,
-/area/station/maintenance/starboard)
-"aP" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-4"
-	},
-/turf/simulated/floor/plating,
 /area/station/maintenance/starboard)
 "aQ" = (
 /obj/machinery/atmospherics/fission_reactor/roundstart,
@@ -1505,14 +1488,6 @@
 	icon_state = "darkyellowcorners"
 	},
 /area/station/engineering/storage)
-"dd" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/obj/structure/grille,
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "de" = (
 /obj/machinery/light,
 /obj/structure/table/reinforced,
@@ -2120,14 +2095,6 @@
 /obj/effect/turf_decal/stripes,
 /turf/simulated/floor/plasteel/dark,
 /area/station/engineering/storage)
-"er" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/grille,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "es" = (
 /turf/simulated/wall/mineral/titanium/nosmooth,
 /area/station/commons/sleep)
@@ -4078,7 +4045,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/ship_gun_loader{
-	id = "rubin_guns"
+	id = "rubin_torpeds"
 	},
 /obj/item/ship_ammo/railgun,
 /obj/item/ship_ammo/railgun,
@@ -5732,14 +5699,6 @@
 	icon_state = "white"
 	},
 /area/station/science/rnd)
-"lB" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/barricade/wooden,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "lC" = (
 /obj/structure/table/wood,
 /obj/machinery/chem_dispenser/beer,
@@ -9295,14 +9254,6 @@
 	icon_state = "dark"
 	},
 /area/station/security/lobby)
-"sV" = (
-/obj/effect/spawner/random_spawners/rodent,
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "sW" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -9977,9 +9928,7 @@
 /turf/simulated/floor/plating,
 /area/station/command/office/hos)
 "uq" = (
-/obj/machinery/atmospherics/pipe/manifold/hidden/supply{
-	dir = 1
-	},
+/obj/machinery/atmospherics/pipe/manifold/hidden/supply,
 /turf/simulated/floor/plasteel{
 	icon_state = "grimy"
 	},
@@ -11194,9 +11143,6 @@
 /obj/structure/cable{
 	icon_state = "0-2"
 	},
-/obj/structure/cable{
-	icon_state = "2-8"
-	},
 /turf/simulated/floor/grass,
 /area/station/hallway/primary/command)
 "wK" = (
@@ -11587,14 +11533,6 @@
 	icon_state = "cautionfull"
 	},
 /area/station/cargo/storage)
-"xx" = (
-/obj/structure/girder,
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "xy" = (
 /obj/machinery/chem_heater,
 /obj/effect/turf_decal/stripes/line{
@@ -11988,17 +11926,6 @@
 /obj/effect/landmark/spawner/carp,
 /turf/space,
 /area/space)
-"yq" = (
-/obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
-	dir = 4
-	},
-/obj/machinery/atmospherics/unary/vent_pump/on{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "grimy"
-	},
-/area/station/command/office/hop)
 "yr" = (
 /obj/structure/table/reinforced,
 /obj/machinery/cell_charger,
@@ -13708,7 +13635,7 @@
 	dir = 8
 	},
 /obj/machinery/ship_gun_loader{
-	id = "rubin_torpeds"
+	id = "rubin_guns"
 	},
 /obj/item/ship_ammo/autocannon,
 /obj/item/ship_ammo/autocannon,
@@ -15097,12 +15024,6 @@
 /turf/simulated/floor/carpet/cyan,
 /area/station/medical/reception)
 "EK" = (
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/obj/structure/cable/yellow{
-	icon_state = "1-4"
-	},
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
@@ -16105,7 +16026,7 @@
 	loader_id = "rubin_torpeds"
 	},
 /turf/space,
-/area/space)
+/area/space/nearstation)
 "GK" = (
 /obj/structure/table/reinforced,
 /obj/structure/closet/fireaxecabinet{
@@ -16744,16 +16665,6 @@
 	icon_state = "cmo"
 	},
 /area/station/science/genetics)
-"HS" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
-/obj/structure/cable/yellow{
-	icon_state = "1-8"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "HT" = (
 /obj/structure/window/plasmareinforced{
 	dir = 8
@@ -16871,9 +16782,6 @@
 /area/station/engineering/storage)
 "Id" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-8"
-	},
 /obj/machinery/chem_dispenser/botanical,
 /obj/structure/reagent_dispensers/fueltank/chem{
 	pixel_y = 32
@@ -17260,14 +17168,6 @@
 	icon_state = "bcircuitoff"
 	},
 /area/station/service/bar)
-"IO" = (
-/obj/structure/grille,
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "4-8"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "IP" = (
 /obj/machinery/door/airlock/research{
 	name = "Research Division Access";
@@ -17371,9 +17271,6 @@
 /obj/effect/spawner/lootdrop/maintenance/tripple,
 /obj/structure/closet/crate,
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "2-8"
-	},
 /obj/item/flashlight/seclite,
 /turf/simulated/floor/plating,
 /area/station/maintenance/starboard)
@@ -19428,7 +19325,7 @@
 "No" = (
 /obj/structure/lattice/catwalk,
 /turf/space,
-/area/space)
+/area/space/nearstation)
 "Np" = (
 /obj/structure/reagent_dispensers/oil,
 /turf/simulated/floor/plasteel{
@@ -20969,7 +20866,7 @@
 	loader_id = "rubin_guns"
 	},
 /turf/space,
-/area/space)
+/area/space/nearstation)
 "Qo" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/plasteel{
@@ -21928,8 +21825,8 @@
 	},
 /area/station/science/rnd)
 "Sl" = (
-/obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
-	dir = 5
+/obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
+	dir = 8
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 5
@@ -22992,6 +22889,7 @@
 /obj/structure/disposalpipe/segment{
 	dir = 5
 	},
+/obj/machinery/atmospherics/unary/vent_pump/on,
 /turf/simulated/floor/plasteel{
 	icon_state = "grimy"
 	},
@@ -23537,16 +23435,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/station/engineering/storage)
-"VA" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-8"
-	},
-/obj/structure/cable/yellow{
-	icon_state = "1-4"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
 "VB" = (
 /obj/structure/cult/archives,
 /obj/item/storage/fancy/donut_box,
@@ -24322,13 +24210,6 @@
 /obj/effect/spawner/random_spawners/rodent,
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/closet/crate,
-/turf/simulated/floor/plating,
-/area/station/maintenance/starboard)
-"Xf" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/starboard)
 "Xg" = (
@@ -53711,7 +53592,7 @@ To
 UO
 Us
 uq
-yq
+WJ
 WW
 ME
 To
@@ -58659,8 +58540,8 @@ NN
 FE
 sy
 Ja
-aP
-IO
+qH
+MA
 MA
 sT
 FE
@@ -58913,23 +58794,23 @@ Lz
 IS
 nD
 EK
-sV
-Xf
-Xf
-HS
-HS
-am
-Xf
-dd
-xx
-Xf
-lB
-Xf
-Xf
-Xf
-Xf
-Xf
-er
+vT
+qH
+qH
+qH
+qH
+XC
+qH
+yl
+Ng
+qH
+Wo
+qH
+qH
+qH
+qH
+qH
+yl
 Xb
 Xb
 Fr
@@ -59169,7 +59050,7 @@ nD
 dE
 IS
 xR
-VA
+qH
 qH
 MA
 qH
