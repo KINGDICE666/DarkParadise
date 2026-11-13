@@ -147,6 +147,21 @@
 	var/datum/overmap_sector/radar_objects_sector
 	var/list/ship_weapons_cache
 	var/ship_weapons_until = 0
+	var/nebula_cache_time = -1
+	var/nebula_cache_factor = 1
+	var/list/nebula_cache_fields
+	var/list/faulted_engines
+	var/marked_bow_angle = 0
+	var/marked_bow_version = -1
+	var/marked_bow_until = 0
+	var/list/shield_generators_cache
+	var/shield_generators_until = 0
+	var/list/obj/effect/abstract/ship_shield_halo/shield_halo_tiles
+	var/shield_halo_key
+	var/shield_halo_fraction = -1
+	var/shield_halo_refresh_at = 0
+	var/list/station_halo_cache
+	var/shield_halo_flash_at = 0
 
 /obj/overmap/entity/shuttle
 	name = "shuttle"

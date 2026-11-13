@@ -43,11 +43,6 @@ GLOBAL_LIST_EMPTY(overmap_ship_bows)
 	GLOB.overmap_ship_bows -= src
 	return ..()
 
-/obj/overmap/entity
-	var/marked_bow_angle = 0
-	var/marked_bow_version = -1
-	var/marked_bow_until = 0
-
 /obj/overmap/entity/proc/marked_bow()
 	if(marked_bow_version == hull_version && world.time < marked_bow_until)
 		return marked_bow_angle

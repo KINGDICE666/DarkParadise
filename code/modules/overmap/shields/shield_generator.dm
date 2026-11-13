@@ -1,22 +1,5 @@
 GLOBAL_LIST_EMPTY(ship_shield_generators)
 
-/obj/projectile
-	var/ship_shield_factor = 1
-	var/ship_shield_pierce = FALSE
-
-/obj/overmap/feature/hazard
-	var/shield_cost = 0
-
-/obj/overmap/feature/hazard/asteroid
-	shield_cost = 60
-
-/obj/overmap/feature/hazard/emp
-	shield_cost = 90
-
-/obj/overmap/entity
-	var/list/shield_generators_cache
-	var/shield_generators_until = 0
-
 /obj/machinery/ship_shield_generator
 	name = "ship shield generator"
 	desc = "Проецирует энергетический пузырь вокруг корпуса корабля. Принимает на себя снаряды, удары угроз и излучение, пока не иссякнет заряд."
@@ -207,7 +190,6 @@ GLOBAL_LIST_EMPTY(ship_shield_generators)
 
 /obj/effect/temp_visual/ship_shield_hit
 	name = "shield flare"
-	icon = 'icons/effects/effects.dmi'
 	icon_state = "shield-old"
 	duration = 0.6 SECONDS
 	color = "#7fc8ff"

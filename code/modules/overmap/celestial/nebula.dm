@@ -4,11 +4,6 @@
 #define NEBULA_PUFF_FALLOFF 0.8
 #define NEBULA_EDGE 0.5
 
-/obj/overmap/entity
-	var/nebula_cache_time = -1
-	var/nebula_cache_factor = 1
-	var/list/nebula_cache_fields
-
 /obj/overmap/feature/hazard/nebula
 	name = "пылевая туманность"
 	desc = "Облако межзвёздной пыли. Слепит сенсоры, но кораблю не вредит."

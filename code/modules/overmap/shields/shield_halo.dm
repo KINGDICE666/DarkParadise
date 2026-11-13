@@ -10,7 +10,6 @@
 	icon_state = "white"
 	color = "#5fb8ff"
 	alpha = 0
-	anchored = TRUE
 	simulated = FALSE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	appearance_flags = RESET_COLOR | RESET_ALPHA | KEEP_APART
@@ -19,14 +18,6 @@
 /obj/effect/abstract/ship_shield_halo/Initialize(mapload)
 	. = ..()
 	SET_PLANE_IMPLICIT(src, ABOVE_LIGHTING_PLANE)
-
-/obj/overmap/entity
-	var/list/obj/effect/abstract/ship_shield_halo/shield_halo_tiles
-	var/shield_halo_key
-	var/shield_halo_fraction = -1
-	var/shield_halo_refresh_at = 0
-	var/list/station_halo_cache
-	var/shield_halo_flash_at = 0
 
 /obj/overmap/entity/Destroy()
 	QDEL_LIST(shield_halo_tiles)

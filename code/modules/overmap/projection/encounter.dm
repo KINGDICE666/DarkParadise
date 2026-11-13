@@ -659,6 +659,8 @@
 	var/navigation_density_busy = FALSE
 	var/list/navigation_extent
 	var/navigation_extent_until = 0
+	var/region_facing = 0
+	var/list/navigation_local_extent
 
 /datum/overmap_bubble/New(datum/overmap_sector/sector, origin_x, origin_y, speed_x, speed_y)
 	src.sector = sector

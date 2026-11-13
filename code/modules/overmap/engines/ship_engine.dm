@@ -24,9 +24,14 @@
 	var/engine_size = 1
 	var/burn_icon = 'icons/obj/machines/ship_engine.dmi'
 	var/burn_state = "nozzle_burn"
-	var/burn_sound_type = /datum/looping_sound/ship_engine
+	var/burn_sound_type = /datum/looping_sound/ship_engine/ion
 	var/datum/looping_sound/burn_sound
 	var/list/obj/structure/filler/fillers = list()
+	var/overdrive = FALSE
+	var/heat = 0
+	var/overheated = FALSE
+	var/next_exhaust_check = 0
+	var/turning_burn = FALSE
 
 /obj/machinery/ship_engine/get_ru_names()
 	return alist(
@@ -170,6 +175,7 @@
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
 	engine_size = 2
 	engine_board = /obj/item/circuitboard/ship_engine_ion/large
+	burn_sound_type = /datum/looping_sound/ship_engine/heavy
 
 /obj/machinery/ship_engine/large/get_ru_names()
 	return alist(
@@ -194,6 +200,7 @@
 	generated_thrust = OVERMAP_ENGINE_LARGE_THRUST
 	engine_size = 3
 	engine_board = null
+	burn_sound_type = /datum/looping_sound/ship_engine/heavy
 
 /obj/machinery/ship_engine/huge/get_ru_names()
 	return alist(

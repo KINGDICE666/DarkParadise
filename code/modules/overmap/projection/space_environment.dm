@@ -3,9 +3,6 @@
 #define SPACE_ENV_NEBULA_TINT 0.75
 #define SPACE_ENV_NEBULA_GLOW 0.22
 
-/atom/movable/screen/parallax_layer
-	var/environment_key
-
 /proc/overmap_body_influence(distance, core_radius, outer_radius)
 	return clamp(1 - (distance - core_radius) / max(outer_radius - core_radius, 0.1), 0, 1)
 

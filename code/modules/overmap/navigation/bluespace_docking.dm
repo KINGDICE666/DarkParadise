@@ -10,6 +10,9 @@
 	map_color = "#6abfff"
 	overmap_hazard_immune = TRUE
 	var/radius = 40
+	var/station_offset_x
+	var/station_offset_y
+	var/station_base_facing = 0
 
 /obj/overmap/entity/station_docking_zone/add_overmap_components()
 	return
@@ -86,11 +89,6 @@
 			sector.add_object(station_docking_zone, spot)
 			station_docking_zone.set_world_position(world_x, world_y)
 			return
-
-/obj/overmap/entity/station_docking_zone
-	var/station_offset_x
-	var/station_offset_y
-	var/station_base_facing = 0
 
 /datum/controller/subsystem/overmap/proc/follow_station_zone()
 	var/obj/overmap/entity/station_docking_zone/zone = station_docking_zone

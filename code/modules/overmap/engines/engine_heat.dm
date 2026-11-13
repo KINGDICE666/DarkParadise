@@ -1,13 +1,3 @@
-/obj/machinery/ship_engine
-	var/overdrive = FALSE
-	var/heat = 0
-	var/overheated = FALSE
-	var/next_exhaust_check = 0
-	var/turning_burn = FALSE
-
-/obj/overmap/entity
-	var/list/faulted_engines
-
 /datum/looping_sound/ship_engine/ion
 	start_sound = 'sound/machines/fission/centrifuge_start.ogg'
 	start_length = 0.9 SECONDS
@@ -15,7 +5,6 @@
 	mid_length = 1 SECONDS
 	end_sound = 'sound/machines/fission/reactor_shutoff.ogg'
 	volume = 30
-	extra_range = 6
 
 /datum/looping_sound/ship_engine/heavy
 	start_sound = 'sound/machines/gravgen/grav_gen_start.ogg'
@@ -31,24 +20,11 @@
 
 /datum/looping_sound/ship_engine/plasma
 	start_sound = 'sound/effects/unathiignite.ogg'
-	start_length = 0.3 SECONDS
 	mid_sounds = list('sound/machines/hypertorus/loops/hypertorus_nominal.ogg' = 1)
 	mid_length = 6.5 SECONDS
 	end_sound = 'sound/machines/hiss.ogg'
 	volume = 35
 	extra_range = 10
-
-/obj/machinery/ship_engine
-	burn_sound_type = /datum/looping_sound/ship_engine/ion
-
-/obj/machinery/ship_engine/large
-	burn_sound_type = /datum/looping_sound/ship_engine/heavy
-
-/obj/machinery/ship_engine/huge
-	burn_sound_type = /datum/looping_sound/ship_engine/heavy
-
-/obj/machinery/ship_engine/plasma
-	burn_sound_type = /datum/looping_sound/ship_engine/plasma
 
 /proc/overmap_engine_heat_step(heat, thrust_limit, overdrive, firing, elapsed)
 	if(firing && overdrive)

@@ -1,11 +1,3 @@
-/datum/component/overmap_flight
-	var/drift_assist = TRUE
-	var/heading_hold
-	var/precision = FALSE
-	var/bow_angle = 0
-	var/burn_main = NONE
-	var/burn_main_force = 0
-
 /datum/component/overmap_flight/proc/note_burn(side, force)
 	if(force > burn_main_force)
 		burn_main = side
@@ -63,12 +55,6 @@
 	parents = list(
 		"bridge_fonts.css" = file("interface/fonts/bridge_fonts.css"),
 	)
-
-/obj/machinery/computer/helm
-	var/last_notice
-	var/last_notice_tone
-	var/last_notice_origin
-	var/last_notice_time = 0
 
 /obj/machinery/computer/helm/on_overmap_notice(datum/source, text, tone, origin)
 	. = ..()

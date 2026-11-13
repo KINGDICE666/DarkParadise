@@ -176,7 +176,6 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	projectile_type = /obj/projectile/beam/ship_laser
 	fire_sound = 'sound/overmap/laser_cannon_fire.ogg'
 	fire_delay = 2.5 SECONDS
-	arc = 90
 	power_per_shot = 15000
 	board_path = /obj/item/circuitboard/ship_gun/laser
 	weapon_kind = "laser"
@@ -272,13 +271,13 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	overmap_velocity = 160
 	overmap_radar_visible = TRUE
 	ship_penetrations = 4
-	ship_penetration_chance = 100
 	ship_penetration_decay = 0.8
 	ship_shield_factor = 0.5
 	ship_shield_pierce = TRUE
 
 /obj/projectile/bullet/ship_artillery/torpedo
 	name = "ship torpedo"
+	icon = 'icons/obj/weapons/ammo.dmi'
 	icon_state = "84mm-he"
 	damage = 150
 	overmap_velocity = 25

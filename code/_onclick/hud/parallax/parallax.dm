@@ -318,6 +318,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 	var/drift_x = 0
 	var/drift_y = 0
 	var/drift_angle = 0
+	var/environment_key
 
 /atom/movable/screen/parallax_layer/Initialize(mapload, datum/hud/hud_owner, client/owner, template = FALSE)
 	. = ..()

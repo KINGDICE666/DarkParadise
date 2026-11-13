@@ -1,7 +1,3 @@
-/obj/machinery/computer/helm
-	var/fire_target_uid
-	var/free_fire = FALSE
-
 /obj/machinery/computer/helm/proc/fire_target()
 	var/obj/overmap/entity/target = locateUID(fire_target_uid)
 	if(!istype(target) || QDELETED(target) || target == vessel || target.sector != vessel?.sector || !isturf(target.loc))

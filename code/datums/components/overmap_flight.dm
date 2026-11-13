@@ -40,6 +40,12 @@
 	var/list/navigation_next_point
 	var/navigation_rails = FALSE
 	var/rail_speed = 0
+	var/drift_assist = TRUE
+	var/heading_hold
+	var/precision = FALSE
+	var/bow_angle = 0
+	var/burn_main = NONE
+	var/burn_main_force = 0
 
 /datum/component/overmap_flight/Initialize(fixed_facing = FALSE)
 	if(!istype(parent, /obj/overmap/entity))

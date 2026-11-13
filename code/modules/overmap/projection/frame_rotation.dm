@@ -10,10 +10,6 @@
 /obj/overmap/entity/station/ship/radar_facing()
 	return get_facing()
 
-/datum/overmap_bubble
-	var/region_facing = 0
-	var/list/navigation_local_extent
-
 /datum/overmap_bubble/proc/frame_facing()
 	return static_level && host ? host.frame_facing() : 0
 
