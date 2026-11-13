@@ -37111,7 +37111,7 @@
 /area/centcom/central_command_areas/zone/one)
 "qYO" = (
 /obj/machinery/ship_gun_loader{
-	id = syndi_torpeds
+	id = "syndi_torpeds"
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "floor4"
@@ -39409,7 +39409,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/autocannon{
 	dir = 8;
-	loader_id = syndi_guns
+	loader_id = "syndi_guns"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 4;
@@ -48889,7 +48889,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/torpedo{
 	dir = 4;
-	loader_id = syndi_torpeds
+	loader_id = "syndi_torpeds"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 10;
@@ -51591,7 +51591,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/torpedo{
 	dir = 8;
-	loader_id = syndi_torpeds
+	loader_id = "syndi_torpeds"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 6;
@@ -51688,7 +51688,7 @@
 /obj/structure/lattice/catwalk,
 /obj/machinery/ship_gun/autocannon{
 	dir = 4;
-	loader_id = syndi_guns
+	loader_id = "syndi_guns"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 8;
@@ -52089,7 +52089,7 @@
 /area/centcom/syndicate_base)
 "xCi" = (
 /obj/machinery/ship_gun_loader{
-	id = syndi_guns
+	id = "syndi_guns"
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "floor4"
