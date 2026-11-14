@@ -515,6 +515,12 @@
 	if(is_pve_friendly_projectile(mover))
 		return TRUE
 
+/obj/machinery/computer/pve_shop/attack_hand(mob/user)
+	if(..())
+		return TRUE
+	ui_interact(user)
+	return TRUE
+
 /obj/machinery/computer/pve_shop/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
