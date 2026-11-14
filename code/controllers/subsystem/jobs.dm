@@ -639,6 +639,10 @@ SUBSYSTEM_DEF(jobs)
 	if(issilicon(human))
 		return human
 
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = new
+	if(!adapter.insert(human, ORGAN_MANIPULATION_NOEFFECT))
+		qdel(adapter)
+
 	// Wheelchair necessary?
 	var/obj/item/organ/external/l_foot = human.get_organ(BODY_ZONE_PRECISE_L_FOOT)
 	var/obj/item/organ/external/r_foot = human.get_organ(BODY_ZONE_PRECISE_R_FOOT)

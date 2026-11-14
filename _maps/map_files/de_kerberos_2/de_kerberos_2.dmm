@@ -10416,7 +10416,7 @@
 /area/station/science/toxins/mixing)
 "bXx" = (
 /obj/effect/turf_decal/delivery/hollow,
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/item/radio/intercom/directional/south,
 /turf/simulated/floor/plasteel{
 	icon_state = "whiteblue"
@@ -114007,7 +114007,7 @@
 /turf/simulated/floor/plating,
 /area/station/hallway/secondary/exit)
 "vxf" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/machinery/shower/directional/south,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,

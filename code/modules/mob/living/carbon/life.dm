@@ -215,7 +215,8 @@
 
 /mob/living/carbon/proc/handle_organs()
 	for(var/obj/item/organ/internal/organ as anything in internal_organs)
-		organ.on_life()
+		if(!organ.is_suppressed())
+			organ.on_life()
 
 /mob/living/carbon/handle_chemicals_in_body()
 	if(HAS_TRAIT(src, TRAIT_BLOCK_METABOLIZE))

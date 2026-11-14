@@ -9,4 +9,3 @@
 	item_color = "ninja_under"
 	permeability_coefficient = 1
 	resistance_flags = NONE
-	random_sensor = FALSE

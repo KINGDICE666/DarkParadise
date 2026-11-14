@@ -292,6 +292,7 @@
 #define TRAIT_OPEN_MIND "open_mind"	// allows to remote view this mob
 #define TRAIT_EMPATHY "empathy"	// allows to see when someone reads your mind
 #define TRAIT_COMIC "comic_sans"
+#define TRAIT_CYBERPSYCHO "cyberpsycho"
 #define TRAIT_NEARSIGHTED "nearsighted"
 #define TRAIT_BLIND "blind"
 #define TRAIT_COLORBLIND "colorblind"
@@ -527,6 +528,14 @@
 #define TRAIT_BLOCK_METABOLIZE "block_metabolize"
 
 #define TRAIT_PRESSURE_VISION "pressure_vision"
+
+/// Tints the client while the forensic eye implant scans the area
+#define TRAIT_FORENSIC_SCAN "forensic_scan"
+#define TRAIT_COGNITIVE_STABILIZED "cognitive_stabilized"
+#define TRAIT_NO_FOOTPRINTS "no_footprints"
+#define TRAIT_SUBDERMAL_PLATING "subdermal_plating"
+#define TRAIT_NO_RECOIL "no_recoil"
+#define TRAIT_EMP_IMMUNE "emp_immune"
 
 /// GLOB trait, applied whenever something in the world wants to use the distortion plane
 /// Distortion is an expensive effect, so it's worthwhile to keep it off until we care

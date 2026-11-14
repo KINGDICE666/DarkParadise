@@ -263,6 +263,13 @@
 	for(var/datum/species/species_type as anything in list(/datum/species/machine, /datum/species/plasmaman, /datum/species/nucleation, /datum/species/unathi))
 		candidate.set_species(species_type)
 		TEST_ASSERT_NOT(real.can_accept(candidate, candidate), "[species_type] was accepted")
+	real.installed_modules += new /obj/item/disk/autodoc_module/xenophysiology(real)
+	for(var/datum/species/species_type as anything in list(/datum/species/plasmaman, /datum/species/unathi))
+		candidate.set_species(species_type)
+		TEST_ASSERT(real.can_accept(candidate, candidate), "[species_type] was rejected with the module")
+	for(var/datum/species/species_type as anything in list(/datum/species/machine, /datum/species/nucleation))
+		candidate.set_species(species_type)
+		TEST_ASSERT_NOT(real.can_accept(candidate, candidate), "[species_type] was accepted with the module")
 
 /datum/unit_test/room_test/autodoc/proc/check_organ_preservation()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)

@@ -2466,6 +2466,69 @@
 	cost = 33
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
+/datum/uplink_item/cyber_implants/fingerprint_synth
+	name = "Синтезатор отпечатков"
+	desc = "Имплант, который меняет отпечатки пальцев на случайные или снятые с человека рядом. Поставляется в самоуничтожающемся автоимплантере. ЭМИ сбрасывает узор на настоящий."
+	item = /obj/item/autoimplanter/oneuse/fingerprint_synth
+	cost = 12
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_optics
+	name = "Оптика Militech"
+	desc = "Глазной имплант с приближением, как у снайперского прицела, и защитой от вспышек. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_optics
+	cost = 20
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_blood_pump
+	name = "Кровяная помпа Militech"
+	desc = "Когда здоровье падает до половины, сращивает раны синт-плотью и впрыскивает стимуляторы. Три заряда, восстанавливаются со временем. Занимает место реанимирующего импланта. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_blood_pump
+	cost = 40
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_gorilla
+	name = "Руки гориллы Militech"
+	desc = "Пара имплантов в обе руки. Усиливают удары кулаком и ускоряют каждый следующий удачный удар, разжимают шлюзы голыми руками и гасят отдачу оружия. Поставляются в самоуничтожающихся автоимплантерах."
+	item = /obj/item/storage/box/syndie_kit/militech_gorilla
+	cost = 40
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_monowire
+	name = "Моноструна Militech"
+	desc = "Мономолекулярная нить в правой руке. Бьёт на три клетки, иногда оглушает разрядом, а со спины или по лежачему сразу берёт за шею. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_monowire
+	cost = 35
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/cybersun_sandevistan
+	name = "Сандевистан Cybersun"
+	desc = "Военный нейроускоритель. На шесть секунд разгоняет нервную систему: вы двигаетесь быстрее и не выдыхаетесь. Выдерживает четыре разгона подряд, пятый убивает. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/cybersun_sandevistan
+	cost = 50
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_berserker
+	name = "Берсерк Militech"
+	desc = "Мозговой имплант боевого безумия. На 35 секунд даёт сильную защиту от ударов, пуль и лазеров и вдвое ускоряет удары, но запрещает стрельбу. Занимает место Сандевистана. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_berserker
+	cost = 45
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/militech_hand_cannon
+	name = "Ручная пушка Militech"
+	desc = "Разрывной пусковик в правой руке. После короткой зарядки выпускает очередь из трёх малых зарядов и перезаряжается десять секунд. Отвёрткой переставляется на левую руку. Поставляется в самоуничтожающемся автоимплантере."
+	item = /obj/item/autoimplanter/oneuse/militech_hand_cannon
+	cost = 45
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
+/datum/uplink_item/cyber_implants/black_cyberdeck
+	name = "Чёрный кибердек"
+	desc = "Нейроадаптер в автоимплантере и кибердек со встроенным взломщиком. Вскрывает шлюзы и пускает по ним ток, снимает замки с АПЦ и датчиков воздуха, гасит и перегружает освещение отсеков, отключает турели и вентиляцию, показывает изображение с камер и отключает их, разряжает оружие на полу, срывает протоколы ботов, опрокидывает автоматы и перегружает те, что с едой и напитками. Сложные команды расходуют буфер кибердека, который восстанавливается со временем."
+	item = /obj/item/storage/box/syndie_kit/black_cyberdeck
+	cost = 50
+	uplinktypes = list(UPLINK_TYPE_TRAITOR)
+
 /datum/uplink_item/cyber_implants/autoimplanter
 	name = "Автоимплантер"
 	desc = "Устройство, позволяющее устанавливать кибернетический имплант в полевых условиях без необходимости хирургического вмешательства."

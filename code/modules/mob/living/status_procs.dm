@@ -340,7 +340,7 @@
 	SetHallucinate(max(AmountHallucinate(), amount))
 
 /mob/living/proc/SetHallucinate(amount)
-	if(HAS_TRAIT(src, TRAIT_GODMODE))
+	if(HAS_TRAIT(src, TRAIT_GODMODE) || HAS_TRAIT(src, TRAIT_COGNITIVE_STABILIZED))
 		amount = 0
 	SET_STATUS_EFFECT_STRENGTH(STATUS_EFFECT_HALLUCINATION, amount)
 

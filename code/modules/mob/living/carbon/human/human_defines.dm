@@ -2,6 +2,8 @@
 	name = UNKNOWN_NAME_RUS
 	real_name = UNKNOWN_NAME_RUS
 	voice_name = UNKNOWN_STATUS_RUS
+	var/list/forensic_bullet_hits
+	var/implant_fingerprint
 	icon = 'icons/mob/human.dmi'
 	icon_state = "body_m_s"
 	appearance_flags = KEEP_TOGETHER|TILE_BOUND|PIXEL_SCALE|LONG_GLIDE

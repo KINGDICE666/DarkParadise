@@ -70,11 +70,6 @@ const ALTERNATE_ACTIONS: Record<string, AlternateAction> = {
     text: 'Disable lock',
   },
 
-  suit_sensors: {
-    icon: 'tshirt',
-    text: 'Adjust suit sensors',
-  },
-
   remove_accessory: {
     icon: 'medal',
     text: 'Remove accessory',

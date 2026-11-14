@@ -23716,7 +23716,7 @@
 	},
 /area/station/security/prison/perma)
 "dMf" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/machinery/shower/directional/north,
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -154828,7 +154828,7 @@
 	},
 /area/station/science/robotics)
 "xzG" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/item/radio/intercom/directional/south,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,

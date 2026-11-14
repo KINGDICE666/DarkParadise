@@ -83,7 +83,7 @@
 			to_chat(usr, span_notice("Mob doesn't exist anymore."))
 			return
 
-		if(locateUID(new_organ) in internal_organs)
+		if(locate(new_organ) in internal_organs)
 			to_chat(usr, span_notice("Mob already has that organ."))
 			return
 		var/obj/item/organ/internal/organ = new new_organ

@@ -291,8 +291,6 @@
 	)
 
 /obj/item/clothing/under/rank/centcom_officer/sensor
-	sensor_mode = SENSOR_COORDS
-	random_sensor = FALSE
 
 /obj/item/clothing/under/rank/centcom_commander
 	desc = "Комбинезон, который носят высококлассные командиры флота."
@@ -1070,7 +1068,6 @@
 	icon_state = "ash"
 	item_state = "ash"
 	item_color = "ash"
-	has_sensor = FALSE
 
 /obj/item/clothing/under/ash_walker/get_ru_names()
 	return alist(
@@ -1088,7 +1085,6 @@
 	icon_state = "shamanrags"
 	item_state = "shamanrags"
 	item_color = "shamanrags"
-	has_sensor = FALSE
 	species_restricted = list(SPECIES_UNATHI, SPECIES_ASHWALKER_BASIC, SPECIES_ASHWALKER_SHAMAN, SPECIES_DRACONOID)
 
 /obj/item/clothing/under/ash_walker_shaman/get_ru_names()
@@ -2135,7 +2131,6 @@
 	lefthand_file = 'icons/goonstation/mob/inhands/clothing_lefthand.dmi'
 	righthand_file = 'icons/goonstation/mob/inhands/clothing_righthand.dmi'
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-	has_sensor = 0 // HUNKE
 
 /obj/item/clothing/under/cursedclown/get_ru_names()
 	return alist(

@@ -657,3 +657,28 @@
 		"black" = /obj/item/headphone_case/black,
 	)
 	gear_tweaks += new /datum/gear_tweak/path(cases, src)
+
+/datum/gear/donor/cyber_capacity_chip
+	subtype_path = /datum/gear/donor/cyber_capacity_chip
+	donator_tier = 3
+	path = /obj/item/cyber_capacity_chip
+
+/datum/gear/donor/cyber_capacity_chip/first
+	index_name = "cybercapacity chip 1"
+	display_name = "Чип киберсовместимости №1"
+
+/datum/gear/donor/cyber_capacity_chip/second
+	index_name = "cybercapacity chip 2"
+	display_name = "Чип киберсовместимости №2"
+
+/datum/gear/donor/cyber_capacity_chip/third
+	index_name = "cybercapacity chip 3"
+	display_name = "Чип киберсовместимости №3"
+
+/datum/gear/donor/cyber_capacity_chip/fourth
+	index_name = "cybercapacity chip 4"
+	display_name = "Чип киберсовместимости №4"
+
+/datum/gear/donor/cyber_capacity_chip/fifth
+	index_name = "cybercapacity chip 5"
+	display_name = "Чип киберсовместимости №5"

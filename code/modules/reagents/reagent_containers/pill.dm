@@ -376,6 +376,23 @@
 		PREPOSITIONAL = "таблетке (Маннитол)",
 	)
 
+/obj/item/reagent_containers/food/pill/stabilicin
+	name = "shtil pill"
+	desc = "Маленькая серебристая таблетка с выдавленной волной. Когда хром начинает шептать, её глотают не запивая."
+	icon_state = "pill9"
+	list_reagents = list("stabilicin" = 15)
+	custom_price = PAYCHECK_MIN * 0.2
+
+/obj/item/reagent_containers/food/pill/stabilicin/get_ru_names()
+	return alist(
+		NOMINATIVE = "таблетка (Штиль)",
+		GENITIVE = "таблетки (Штиль)",
+		DATIVE = "таблетке (Штиль)",
+		ACCUSATIVE = "таблетку (Штиль)",
+		INSTRUMENTAL = "таблеткой (Штиль)",
+		PREPOSITIONAL = "таблетке (Штиль)",
+	)
+
 /obj/item/reagent_containers/food/pill/bicaridine
 	name = "bicaridine pill"
 	desc = "Используется для лечения травм."

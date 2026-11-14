@@ -86,7 +86,7 @@
 	avatar.AddComponent(connection_type, pilot, server, src)
 
 	connected = TRUE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 /obj/machinery/netpod/proc/add_healing(mob/living/target)
 	if(target != occupant || !iscarbon(target))
@@ -113,7 +113,7 @@
 
 /obj/machinery/netpod/proc/disconnect_occupant(cause_damage = FALSE, mob/living/damage_body)
 	connected = FALSE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 	var/mob/living/pilot = occupant
 	if(isnull(pilot) || pilot.stat == DEAD)
@@ -169,7 +169,7 @@
 /obj/machinery/netpod/proc/on_domain_complete(datum/source, atom/movable/forge, reward_points)
 	SIGNAL_HANDLER
 
-	if(isnull(occupant) || !connected)
+	if(isnull(occupant) || !connected || net_mode)
 		return
 
 	var/obj/item/card/id/card = occupant.get_id_card()

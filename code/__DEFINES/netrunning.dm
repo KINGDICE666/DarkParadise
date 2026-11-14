@@ -1,0 +1,122 @@
+#define isnetavatar(thing) istype(thing, /mob/living/basic/net_avatar)
+
+#define NETRUNNING_TRAIT "netrunning"
+
+#define NET_JACK_OUT_TIME (5 SECONDS)
+#define NET_DOOR_HACK_TIME (3 SECONDS)
+#define NET_CONDUIT_COOLDOWN (10 SECONDS)
+#define NET_EMP_DAMAGE 20
+#define NET_HACK_RANGE 7
+#define NET_EAVESDROP_TIME (60 SECONDS)
+#define NET_HOLO_RANGE 4
+#define NET_DISPLAY_TIME (60 SECONDS)
+
+#define NET_ICE_NONE 0
+#define NET_ICE_STANDARD 1
+#define NET_ICE_BLACK 2
+#define NET_ICE_VIEW_RANGE 7
+#define NET_ICE_DAMAGE_STANDARD 15
+#define NET_ICE_DAMAGE_BLACK 40
+#define NET_ICE_NOTICE_COOLDOWN (2 SECONDS)
+
+#define NET_BREACH_DURATION (3 MINUTES)
+#define NET_BREACH_DURATION_HELD (6 MINUTES)
+#define NET_BREACH_BASE_BUFFER 4
+#define NET_BREACH_BUFFER_DECK 1
+#define NET_BREACH_BUFFER_BLACK_DECK 2
+#define NET_BREACH_GRID_STANDARD 5
+#define NET_BREACH_GRID_BLACK 6
+#define NET_BREACH_TIME_STANDARD (30 SECONDS)
+#define NET_BREACH_TIME_BLACK (20 SECONDS)
+#define NET_DAEMON_LENGTH_SHORT 2
+#define NET_DAEMON_LENGTH_LONG 3
+#define NET_DAEMON_ICE "ice"
+#define NET_DAEMON_TRACE "trace"
+#define NET_DAEMON_HOLD "hold"
+
+#define NET_TRACE_MAX 100
+#define NET_TRACE_STAGES 4
+#define NET_TRACE_DECAY_TIME (2 SECONDS)
+#define NET_TRACE_ACTION 3
+#define NET_TRACE_ICE_ACTION 8
+#define NET_TRACE_BREACH 10
+#define NET_TRACE_BREACH_FAIL 35
+#define NET_TRACE_ALERT "net_trace"
+
+#define NET_HACK_SHORT_CIRCUIT "short_circuit"
+#define NET_HACK_OVERHEAT "overheat"
+#define NET_HACK_OPTICS "optics"
+#define NET_HACK_REBOOT "reboot"
+#define NET_HACK_SYNAPSE "synapse"
+
+#define NET_SHORT_CIRCUIT_DAMAGE 20
+#define NET_OVERHEAT_TICK_DAMAGE 5
+#define NET_OVERHEAT_DURATION (6 SECONDS)
+#define NET_OPTICS_DURATION (5 SECONDS)
+#define NET_REBOOT_DURATION (3 SECONDS)
+#define NET_SYNAPSE_DAMAGE 45
+#define NET_FIREWALL_MODIFIER 0.5
+
+#define NET_WARE_OPTICS "ware_optics"
+#define NET_WARE_ARM "ware_arm"
+#define NET_WARE_OVERHEAT "ware_overheat"
+#define NET_WARE_SYNAPSE "ware_synapse"
+#define NET_WARE_NEURO "ware_neuro"
+
+#define NET_WARE_BLIND_TIME (5 SECONDS)
+#define NET_WARE_OVERHEAT_DAMAGE 15
+#define NET_WARE_CONFUSION_TIME (10 SECONDS)
+
+#define NET_DEFRAG_DELAY (10 SECONDS)
+#define NET_DEFRAG_HEAL 2
+#define NET_INTEGRITY_DECK 25
+#define NET_INTEGRITY_BLACK_DECK 50
+
+#define NET_VISION_FILTER "net_vision"
+#define NET_VISION_EDGE_FILTER "net_vision_edge"
+#define NET_MARK_RANGE 7
+
+#define NET_TAMPER_DURATION (2 MINUTES)
+#define NET_TAMPER_BLINK_INTERVAL (8 SECONDS)
+
+#define NET_AVATAR_GLOW "#FF2A6D"
+#define NET_PARTICLE_COLOR "#FF4F8B"
+#define NET_HOLOGRAM_GLOW "#05D9E8"
+#define NET_EDGE_COLOR "#05D9E8"
+#define NET_DOOR_MARK_COLOR "#FFB000"
+#define NET_NODE_MARK_COLOR "#FF2AD4"
+
+#define MATRIX_NET_FLOOR list(\
+	0.002, 0.089, 0.096, \
+	0.004, 0.176, 0.188, \
+	0.001, 0.033, 0.035, \
+	0, 0.01, 0.015 \
+)
+
+#define MATRIX_NET_WALL list(\
+	0.001, 0.056, 0.06, \
+	0.003, 0.11, 0.118, \
+	0, 0.021, 0.022, \
+	0, 0, 0 \
+)
+
+#define MATRIX_NET_OBJECT list(\
+	0.004, 0.153, 0.164, \
+	0.007, 0.301, 0.322, \
+	0.001, 0.056, 0.06, \
+	0, 0.02, 0.03 \
+)
+
+#define MATRIX_NET_AVATAR list(\
+	0.4, 0.05, 0.13, \
+	0.75, 0.1, 0.25, \
+	0.15, 0.02, 0.06, \
+	0.12, 0, 0.04 \
+)
+
+#define MATRIX_NET_HOLOGRAM list(\
+	0.05, 0.3, 0.4, \
+	0.1, 0.55, 0.7, \
+	0.02, 0.1, 0.15, \
+	0, 0.08, 0.15 \
+)

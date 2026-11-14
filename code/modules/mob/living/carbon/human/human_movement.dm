@@ -109,6 +109,9 @@
 	if(S && body_position != LYING_DOWN && loc == newloc)
 		SEND_SIGNAL(S, COMSIG_SHOES_STEP_ACTION)
 
+	if(HAS_TRAIT(src, TRAIT_NO_FOOTPRINTS))
+		return
+
 	//Bloody footprints
 	var/turf/T = get_turf(src)
 	var/hasfeet = num_legs >= 2

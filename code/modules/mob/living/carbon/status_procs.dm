@@ -24,6 +24,13 @@
 	. = ..()
 	var/obj/item/organ/internal/brain/brain = get_organ_slot(INTERNAL_ORGAN_BRAIN)
 	. += brain?.get_trauma_distortion()
+	if(HAS_TRAIT(src, TRAIT_COGNITIVE_STABILIZED))
+		. *= PERCEPTION_DISTORTION_STABILIZED_MOD
+
+/mob/living/carbon/get_word_distortion()
+	. = ..()
+	if(HAS_TRAIT(src, TRAIT_COGNITIVE_STABILIZED))
+		. *= PERCEPTION_DISTORTION_STABILIZED_MOD
 
 /mob/living/carbon/proc/gain_trauma(datum/brain_trauma/trauma, resilience, ...)
 	var/obj/item/organ/internal/brain/brain = get_int_organ(/obj/item/organ/internal/brain)

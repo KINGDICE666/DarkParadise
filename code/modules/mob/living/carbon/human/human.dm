@@ -816,7 +816,8 @@
 		var/obj/item/clothing/mask/MFP = wear_mask
 		eye_prot += MFP.flash_protect
 	for(var/obj/item/organ/internal/cyberimp/eyes/EFP in internal_organs)
-		eye_prot += EFP.flash_protect
+		if(!EFP.blocked)
+			eye_prot += EFP.flash_protect
 	return eye_prot
 
 /mob/living/carbon/human/check_ear_prot()
@@ -1634,6 +1635,8 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	return protection
 
 /mob/living/carbon/human/proc/get_full_print()
+	if(implant_fingerprint)
+		return implant_fingerprint
 	if(!dna || !dna.uni_identity)
 		return
 	return md5(dna.uni_identity)

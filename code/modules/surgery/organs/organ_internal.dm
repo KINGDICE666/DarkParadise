@@ -14,6 +14,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 	var/can_see_food = FALSE
 	/// Empty list == all species allowed
 	var/list/species_restrictions
+	var/ignore_cybernetic_restrictions = FALSE
 	light_system = OVERLAY_LIGHT
 	light_on = FALSE
 
@@ -103,6 +104,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 		target.update_stat("Vital organ inserted")
 
 	SEND_SIGNAL(src, COMSIG_ORGAN_IMPLANTED, target)
+	SEND_SIGNAL(target, COMSIG_CARBON_GAIN_ORGAN, src)
 
 	STOP_PROCESSING(SSobj, src)
 

@@ -23279,7 +23279,7 @@
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/garden)
 "iJw" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc,
 /obj/machinery/light,
 /obj/effect/landmark/start/hangover,
 /turf/simulated/floor/plasteel,
@@ -49005,7 +49005,7 @@
 	},
 /area/coldcolony/malta/medical/medbay)
 "sxa" = (
-/obj/machinery/optable,
+/obj/machinery/optable/ripperdoc/security,
 /obj/item/tank/internals/anesthetic,
 /obj/item/clothing/mask/breath/medical,
 /turf/simulated/floor/plasteel{

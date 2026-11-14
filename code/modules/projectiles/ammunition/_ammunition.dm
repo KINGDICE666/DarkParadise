@@ -64,6 +64,12 @@
 	var/smart_bullet = FALSE
 	/// How many tiles away should we check for smart auto-locking
 	var/auto_lock_range = 1
+	var/fired_weapon_name
+	var/fire_time
+	var/fire_direction
+	var/turf/fire_origin
+	var/list/turf/impact_turfs
+	var/impact_target_name
 
 /obj/item/ammo_casing/Initialize(mapload)
 	. = ..()
