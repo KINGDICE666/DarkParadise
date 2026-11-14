@@ -113,13 +113,13 @@ GLOBAL_PROTECT(href_token)
  */
 /proc/check_rights(rights_required, show_msg = TRUE, mob/user = usr, all = FALSE)
 	if(user?.client)
-		return check_rights_ckey(rights_required, show_msg, user.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user.client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a /client has admin rights
 /proc/check_rights_client(rights_required, show_msg, client/user_client, all = FALSE)
 	if(user_client)
-		return check_rights_ckey(rights_required, show_msg, user_client.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user_client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a ckey has admin rights

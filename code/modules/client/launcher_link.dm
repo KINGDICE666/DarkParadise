@@ -29,6 +29,9 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 /client/proc/is_launcher_client()
 	return account_ckey != ckey
 
+/client/proc/rights_ckey()
+	return launcher_state == LAUNCHER_PENDING ? ckey : account_ckey
+
 /client/proc/display_key()
 	if(!is_launcher_client())
 		return key

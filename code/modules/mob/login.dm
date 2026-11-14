@@ -74,7 +74,8 @@
 
 	reset_perspective(loc)
 
-	if((ckey in GLOB.de_admins) || (ckey in GLOB.de_mentors) || (ckey in GLOB.de_devs))
+	var/admin_key = client.rights_ckey()
+	if((admin_key in GLOB.de_admins) || (admin_key in GLOB.de_mentors) || (admin_key in GLOB.de_devs))
 		ASSIGN_GAME_VERB(src, /client, readmin)
 
 	client.update_active_keybindings()

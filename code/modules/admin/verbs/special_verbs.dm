@@ -10,7 +10,8 @@ GAME_VERB_PROC(/client, show_verbs, "Adminverbs - Show", ADMIN_CATEGORY_MAIN)
 
 GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers.", ADMIN_CATEGORY_MAIN)
 
-	var/datum/admins/D = GLOB.admin_datums[ckey]
+	var/admin_key = rights_ckey()
+	var/datum/admins/D = GLOB.admin_datums[admin_key]
 	var/rank = null
 	if(CONFIG_GET(flag/admin_legacy_system))
 		//load text from file
@@ -22,7 +23,7 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 			var/list/splitline = splittext(line, " - ")
 			if(length(splitline) != 2) // Always 'ckey - rank'
 				continue
-			if(lowertext(splitline[1]) == ckey)
+			if(lowertext(splitline[1]) == admin_key)
 				rank = splitline[2]
 				break
 			continue
@@ -34,7 +35,7 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 
 		var/datum/db_query/rank_read = SSdbcore.NewQuery(
 			"SELECT rank FROM [format_table_name("admin")] WHERE ckey=:ckey",
-			list("ckey" = ckey)
+			list("ckey" = admin_key)
 		)
 
 		if(!rank_read.warn_execute())
@@ -52,7 +53,7 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 				to_chat(src, "Error while re-adminning, admin rank ([rank]) does not exist.", confidential = TRUE)
 				return
 
-			D = new(rank, GLOB.admin_ranks[rank], ckey)
+			D = new(rank, GLOB.admin_ranks[rank], admin_key)
 		else
 			if(!SSdbcore.IsConnected())
 				to_chat(src, "Warning, MYSQL database is not connected.", confidential = TRUE)
@@ -60,7 +61,7 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 
 			var/datum/db_query/admin_read = SSdbcore.NewQuery(
 				"SELECT ckey, rank, flags FROM [format_table_name("admin")] WHERE ckey=:ckey",
-				list("ckey" = ckey)
+				list("ckey" = admin_key)
 			)
 
 			if(!admin_read.warn_execute())
@@ -82,19 +83,18 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 
 				if(istext(flags))
 					flags = text2num(flags)
-				D = new(admin_rank, flags, ckey)
+				D = new(admin_rank, flags, admin_key)
 
 			qdel(admin_read)
 
-		var/client/C = GLOB.directory[ckey]
-		D.associate(C)
+		D.associate(src)
 		update_active_keybindings()
-		update_byond_admin_configs(C.ckey, D.rights)
+		update_byond_admin_configs(ckey, D.rights)
 		message_admins("[key_name_admin(usr)] re-adminned themselves.")
 		log_admin("[key_name(usr)] re-adminned themselves.")
-		GLOB.de_admins -= ckey
-		GLOB.de_mentors -= ckey
-		GLOB.de_devs -= ckey
+		GLOB.de_admins -= admin_key
+		GLOB.de_mentors -= admin_key
+		GLOB.de_devs -= admin_key
 		if(isobserver(mob))
 			var/mob/dead/observer/observer = mob
 			observer.update_admin_actions()
@@ -104,7 +104,7 @@ GAME_VERB_PROC_DESC(/client, readmin, "Re-admin self", "Regain your admin powers
 	else
 		to_chat(src, "You are already an admin.", confidential = TRUE)
 		UNASSIGN_GAME_VERB(src, /client, readmin)
-		GLOB.de_admins -= ckey
-		GLOB.de_mentors -= ckey
-		GLOB.de_devs -= ckey
+		GLOB.de_admins -= admin_key
+		GLOB.de_mentors -= admin_key
+		GLOB.de_devs -= admin_key
 		return
