@@ -50,5 +50,5 @@
 		entry["y"] = position[2]
 		var/obj/overmap/entity/contact = object
 		if(istype(contact))
-			entry["facing"] = contact.free_flight_view ? contact.get_facing() : 0
+			entry["facing"] = contact.radar_facing()
 		. += list(entry)

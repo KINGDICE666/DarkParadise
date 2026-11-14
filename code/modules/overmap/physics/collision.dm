@@ -10,7 +10,7 @@
 #define OVERMAP_RAM_EFFECT_COOLDOWN (1 SECONDS)
 
 /proc/overmap_impact_damage(impact_speed)
-	return clamp(impact_speed * 2, 0, 60) * 10
+	return clamp((impact_speed - OVERMAP_RAM_DAMAGE_SPEED) * 2, 0, 60) * 10
 
 /proc/overmap_contact_health(contact, obj/overmap/entity/owner)
 	if(istype(owner, /obj/overmap/entity/virtual_structure))
@@ -143,7 +143,7 @@
 		spot.ex_act(EXPLODE_LIGHT)
 
 /obj/overmap/entity/proc/damage_impact(list/contacts, impact_speed, obj/overmap/entity/other)
-	if(impact_speed < 1)
+	if(impact_speed < OVERMAP_RAM_DAMAGE_SPEED)
 		return 1
 	var/damage_hull = world.time >= next_ram_damage
 	if(damage_hull)
@@ -330,7 +330,8 @@
 			continue
 		face_x += (direction & EAST) ? 1 : ((direction & WEST) ? -1 : 0)
 		face_y += (direction & NORTH) ? 1 : ((direction & SOUTH) ? -1 : 0)
-	return list(face_x, face_y)
+	var/facing = frame_facing()
+	return list(face_x * cos(facing) + face_y * sin(facing), face_y * cos(facing) - face_x * sin(facing))
 
 /obj/overmap/entity/proc/collide(obj/overmap/entity/other)
 	if(!flight || !movable)

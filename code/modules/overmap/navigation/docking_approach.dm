@@ -15,6 +15,7 @@
 	var/target_x
 	var/target_y
 	var/target_facing
+	var/local_target_facing
 	var/owns_pad = FALSE
 	var/list/landing_offset
 	var/list/landing_footprint
@@ -64,13 +65,16 @@
 			var/turf/target_door = target[1]
 			if(QDELETED(landing) || QDELETED(target_door))
 				return FALSE
-			target_facing = SIMPLIFY_DEGREES(dir2angle(target[3]) + 180 - own[3])
+			target_facing = SIMPLIFY_DEGREES(dir2angle(target[3]) + 180 - own[3] + space.frame_facing())
 			var/list/point_world = space.to_world(landing.x, landing.y)
 			var/dx = door.x - vessel.hull_center_x
 			var/dy = door.y - vessel.hull_center_y
 			target_x = point_world[1] - dx * cos(target_facing) - dy * sin(target_facing)
 			target_y = point_world[2] - dy * cos(target_facing) + dx * sin(target_facing)
 		else if(space)
+			if(isnull(local_target_facing))
+				local_target_facing = target_facing
+			target_facing = SIMPLIFY_DEGREES(local_target_facing + space.frame_facing())
 			if(!landing_offset || landing_hull_version != vessel.hull_version)
 				var/list/pairs = vessel.shuttle.overmap_move_pairs(pad)
 				var/list/old_turfs = pairs[1]
@@ -151,6 +155,9 @@
 	vessel.set_world_position(carried_x + (target_x - carried_x) * fraction, carried_y + (target_y - carried_y) * fraction)
 	if((distance() > 0.15 || abs(angle) > 0.5) && world.time < deadline)
 		return
+	finish()
+
+/datum/overmap_docking_approach/proc/finish()
 	vessel.flight.set_facing(target_facing)
 	vessel.set_world_position(target_x, target_y)
 	owns_pad = FALSE
@@ -304,7 +311,7 @@
 	var/obj/docking_port/stationary/overmap/landing/pad = new(locate(round(center[1]), round(center[2]), local_space.bubble_z))
 	pad.overmap_dock_label = "Остановка в космосе"
 	pad.temporary_stop = TRUE
-	var/stop_facing = SIMPLIFY_DEGREES(round(get_facing() / 90) * 90)
+	var/stop_facing = SIMPLIFY_DEGREES(round(local_space.relative_facing(get_facing()) / 90) * 90)
 	var/list/origin = shuttle.overmap_origin()
 	pad.setDir(angle2dir(dir2angle(origin[2]) + stop_facing))
 	var/list/stop_hull = shuttle.overmap_collect_hull(get_turf(shuttle))

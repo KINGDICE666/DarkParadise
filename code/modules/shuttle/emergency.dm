@@ -129,6 +129,8 @@
 	if(istype(S, /obj/docking_port/stationary/transit))
 		return ..(S)
 	var/call_time = SSshuttle.emergencyCallTime * coefficient
+	if(station_is_ship())
+		call_time = min(call_time, OVERMAP_STATION_JUMP_PREP)
 	switch(mode)
 		// The shuttle can not normally be called while "recalling", so
 		// if this proc is called, it's via admin fiat

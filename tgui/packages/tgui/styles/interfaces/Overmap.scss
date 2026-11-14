@@ -1296,6 +1296,52 @@
   stroke: rgba(106, 230, 160, 0.95);
 }
 
+.OvermapRadar__hatch--nebula_ion {
+  stroke: rgba(95, 208, 255, 0.7);
+}
+
+.OvermapRadar__hatch--nebula_plasma {
+  stroke: rgba(255, 122, 217, 0.7);
+}
+
+.OvermapRadar__hatch--nebula_dust {
+  stroke: rgba(154, 143, 122, 0.7);
+}
+
+.OvermapRadar__shield {
+  fill: rgba(127, 200, 255, 0.08);
+  stroke: #7fc8ff;
+  stroke-width: 1.5px;
+  stroke-dasharray: 4 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__celestialWell {
+  fill: none;
+  stroke-opacity: 0.45;
+  stroke-width: 1px;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__celestialHazard {
+  fill-opacity: 0.12;
+  stroke-opacity: 0.6;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__celestialCore {
+  fill-opacity: 0.85;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__celestialCore--black_hole {
+  fill-opacity: 1;
+  stroke-width: 3px;
+}
+
 .OvermapRadar__marker--unknown .OvermapRadar__unknownMark {
   width: 12px;
   height: 12px;
@@ -1574,7 +1620,8 @@ $helm-warn: #ffb347;
 
 .OvermapHelm__body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
+  grid-template-rows: minmax(0, 1fr) 310px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5em;
   height: 100%;
   padding: 0.5em;
@@ -1610,14 +1657,32 @@ $helm-warn: #ffb347;
   color: $helm-muted;
 }
 
-.OvermapHelm__side {
+.OvermapHelm__dock {
   display: flex;
+  gap: 0.5em;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.OvermapHelm__col {
+  display: flex;
+  flex: 1 1 0;
   flex-direction: column;
+  min-width: 220px;
   min-height: 0;
   overflow-y: auto;
   padding: 0 0.4em 0.5em;
   border: 1px solid $helm-line;
   background: $helm-panel;
+}
+
+.OvermapHelm__col--wide {
+  flex-grow: 1.4;
+  min-width: 300px;
+}
+
+.OvermapHelm__col:empty {
+  display: none;
 }
 
 .OvermapHelm__stripe {
@@ -1925,4 +1990,245 @@ $helm-warn: #ffb347;
   border: 1px solid rgba(180, 210, 220, 0.45);
   background: rgba(8, 16, 20, 0.92);
   box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.OvermapFire {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.OvermapFire__target {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.4em 0.5em;
+  border: 1px dashed rgba(150, 180, 190, 0.35);
+  background: $helm-row;
+  color: $helm-muted;
+}
+
+.OvermapFire__target--locked {
+  border: 1px solid rgba(255, 110, 96, 0.7);
+  background: rgba(90, 24, 22, 0.35);
+  color: #ff8a7a;
+  box-shadow: inset 0 0 12px rgba(255, 80, 64, 0.18);
+}
+
+.OvermapFire__targetBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.OvermapFire__targetName {
+  overflow: hidden;
+  color: $helm-text;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.OvermapFire__targetMeta {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.75em;
+}
+
+.OvermapFire__list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.OvermapFire__weapon {
+  display: flex;
+  align-items: stretch;
+  gap: 0.3em;
+}
+
+.OvermapFire__weaponMain {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.55em;
+  min-width: 0;
+  padding: 0.3em 0.5em;
+  border: 0;
+  border-left: 3px solid #2a4a52;
+  background: $helm-row;
+  color: $helm-text;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: $helm-row-hover;
+  }
+}
+
+.OvermapFire__weapon--armed .OvermapFire__weaponMain {
+  border-left-color: #ff7a66;
+  background: rgba(80, 30, 26, 0.4);
+}
+
+.OvermapFire__weaponIcon {
+  width: 1.2em;
+  color: $helm-muted;
+  font-size: 1.1em;
+  text-align: center;
+}
+
+.OvermapFire__weapon--armed .OvermapFire__weaponIcon {
+  color: #ff9a85;
+}
+
+.OvermapFire__weaponBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.OvermapFire__weaponName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.OvermapFire__weaponState {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.72em;
+}
+
+.OvermapFire__weaponState--good {
+  color: #6fe0a8;
+}
+
+.OvermapFire__weaponState--wait {
+  color: #e8c46a;
+}
+
+.OvermapFire__weaponState--bad {
+  color: #ff7a6a;
+}
+
+.OvermapFire__gauge {
+  height: 3px;
+  background: #061016;
+}
+
+.OvermapFire__gaugeFill {
+  height: 100%;
+  transition: width 0.4s linear;
+}
+
+.OvermapFire__gaugeFill--ready {
+  background: #4cc79a;
+}
+
+.OvermapFire__gaugeFill--reload {
+  background: #e8c46a;
+}
+
+.OvermapFire__gaugeFill--ammo {
+  background: #6aa8ff;
+}
+
+.OvermapRadar__lock {
+  fill: none;
+  stroke: #ff6a5a;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__velocity {
+  stroke: #ffd36b;
+  stroke-width: 1.5px;
+  stroke-dasharray: 5 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__stopPoint {
+  fill: none;
+  stroke: #ffd36b;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__celestialCore--star {
+  filter: drop-shadow(0 0 4px #ffd36b) drop-shadow(0 0 10px #ffb347);
+}
+
+.OvermapRadar__celestialCore--black_hole {
+  filter: drop-shadow(0 0 6px #9d6bff);
+}
+
+.OvermapRadar__celestialHazard {
+  animation: overmap-corona 4s ease-in-out infinite;
+}
+
+@keyframes overmap-corona {
+  0%,
+  100% {
+    fill-opacity: 0.08;
+  }
+
+  50% {
+    fill-opacity: 0.2;
+  }
+}
+
+.OvermapSpeed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.OvermapSpeed__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+}
+
+.OvermapSpeed__value {
+  color: $helm-good;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 2em;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(99, 224, 200, 0.45);
+}
+
+.OvermapSpeed__unit {
+  color: $helm-muted;
+}
+
+.OvermapSpeed__limit {
+  margin-left: auto;
+  color: $helm-muted;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.8em;
+}
+
+.OvermapSpeed__track {
+  position: relative;
+  height: 8px;
+  border: 1px solid rgba(122, 208, 196, 0.35);
+  background: #061016;
+}
+
+.OvermapSpeed__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2f8f84, $helm-good);
+  transition: width 0.3s linear;
+}
+
+.OvermapSpeed__mark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: #ffd36b;
+  box-shadow: 0 0 6px #ffd36b;
 }

@@ -19,6 +19,28 @@
 	icon_state = "darkgreycamo"
 	},
 /area/shuttle/transport)
+"c" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/hatch{
+	id_tag = "s_docking_airlock";
+	name = "shuttle airlock"
+	},
+/turf/simulated/floor/shuttle/syndicate,
+/area/shuttle/transport)
 "j" = (
 /turf/simulated/wall/shuttle{
 	icon = 'icons/turf/walls/shuttle/gray_shuttle_wall.dmi'
@@ -314,7 +336,7 @@ j
 (12,1,1) = {"
 j
 B
-m
+c
 B
 j
 "}

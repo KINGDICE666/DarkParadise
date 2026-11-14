@@ -3,8 +3,6 @@
 	navigation_step = 0
 	navigation_dock_prepared = FALSE
 	navigation_beacons = null
-	navigation_entry_ready = FALSE
-	navigation_entry_box = null
 	try_fly()
 
 /datum/overmap_programmed_mission/proc/prepare_navigation()
@@ -54,6 +52,69 @@
 	navigation_dock_prepared = TRUE
 	return TRUE
 
+/datum/overmap_programmed_mission/proc/following_step(step)
+	. = step + 1
+	if(length(navigation_beacons) && . == length(navigation_beacons) + 1)
+		.++
+
+/datum/overmap_programmed_mission/proc/rail_gate(obj/overmap/entity/host, list/point)
+	var/list/box = host?.physical_space?.navigation_box()
+	if(QDELETED(src) || QDELETED(vessel))
+		return null
+	if(!box)
+		return point
+	var/margin = vessel.hull_radius + OVERMAP_RAIL_GATE_MARGIN
+	box = list(box[1] - margin, box[2] - margin, box[3] + margin, box[4] + margin)
+	if(!overmap_nav_inside(point, box))
+		return point
+	var/list/gaps = list(point[1] - box[1], box[3] - point[1], point[2] - box[2], box[4] - point[2])
+	switch(gaps.Find(min(gaps)))
+		if(1)
+			return list(box[1], point[2])
+		if(2)
+			return list(box[3], point[2])
+		if(3)
+			return list(point[1], box[2])
+	return list(point[1], box[4])
+
+/datum/overmap_programmed_mission/proc/navigation_point(step, obj/overmap/entity/host, datum/overmap_docking_approach/approach)
+	if(step <= length(navigation_beacons) && length(navigation_beacons))
+		var/obj/effect/landmark/overmap_navigation_beacon/beacon = navigation_beacons[max(step, 1)]
+		if(QDELETED(beacon))
+			return null
+		var/list/point = beacon.world_point(host)
+		if(!point)
+			return null
+		if(!step)
+			var/list/inner = list(approach.target_x, approach.target_y)
+			if(length(navigation_beacons) > 1)
+				var/obj/effect/landmark/overmap_navigation_beacon/inner_beacon = navigation_beacons[2]
+				inner = inner_beacon.world_point(host) || inner
+			point = overmap_navigation_lead(point, inner, max(beacon.lead_distance, vessel.hull_radius * 2 + 4))
+		return list(point[1], point[2], dir2angle(beacon.dir) + host.frame_facing())
+	var/world_x = approach.target_x
+	var/world_y = approach.target_y
+	if(step <= length(navigation_beacons) + 1)
+		var/obj/docking_port/stationary/pad = approach.pad
+		var/outward = approach.target ? approach.target[3] + (approach.host ? host.get_facing() : 0) : dir2angle(pad.dir) + (approach.space ? approach.space.frame_facing() : 0)
+		var/lead = max(vessel.hull_radius * 3 + 8, 20)
+		world_x += sin(outward) * lead
+		world_y += cos(outward) * lead
+		var/list/extent = approach.space?.navigation_box()
+		if(QDELETED(src) || QDELETED(vessel) || vessel.docking_approach != approach)
+			return null
+		if(extent)
+			var/margin = vessel.hull_radius + 4
+			if(sin(outward) > 0.5)
+				world_x = max(world_x, extent[3] + margin)
+			else if(sin(outward) < -0.5)
+				world_x = min(world_x, extent[1] - margin)
+			if(cos(outward) > 0.5)
+				world_y = max(world_y, extent[4] + margin)
+			else if(cos(outward) < -0.5)
+				world_y = min(world_y, extent[2] - margin)
+	return list(world_x, world_y, approach.target_facing)
+
 /datum/overmap_programmed_mission/proc/continue_navigation()
 	if(!navigation_dock_prepared && !prepare_navigation())
 		return
@@ -65,62 +126,21 @@
 	if(!approach.update_target())
 		navigation_dock_prepared = FALSE
 		return
-	var/world_x
-	var/world_y
-	var/heading
+	if(rails)
+		var/list/gate = rail_gate(host, list(approach.target_x, approach.target_y))
+		if(!gate || vessel.docking_approach != approach)
+			return
+		navigation_step = length(navigation_beacons) + 2
+		navigate_to(gate[1], gate[2], approach.target_facing, host)
+		return
+	var/list/point = navigation_point(navigation_step, host, approach)
+	if(!point)
+		return
 	var/pass_through = navigation_step <= length(navigation_beacons) + 1
-	if(navigation_step <= length(navigation_beacons) && length(navigation_beacons))
-		var/obj/effect/landmark/overmap_navigation_beacon/beacon = navigation_beacons[max(navigation_step, 1)]
-		if(QDELETED(beacon))
-			vessel.flight.stop_blocked_navigation()
-			return
-		var/list/point = beacon.world_point(host)
-		if(!point)
-			return
-		heading = dir2angle(beacon.dir) + (host.shuttle ? host.get_facing() : 0)
-		world_x = point[1]
-		world_y = point[2]
-		if(!navigation_step)
-			var/lead = max(beacon.lead_distance, vessel.hull_radius * 2 + 4)
-			world_x -= sin(heading) * lead
-			world_y -= cos(heading) * lead
-	else
-		world_x = approach.target_x
-		world_y = approach.target_y
-		heading = approach.target_facing
-		if(navigation_step <= length(navigation_beacons) + 1)
-			var/obj/docking_port/stationary/pad = approach.pad
-			var/outward = approach.target ? approach.target[3] + (approach.host ? host.get_facing() : 0) : dir2angle(pad.dir)
-			var/lead = max(vessel.hull_radius * 3 + 8, 20)
-			world_x += sin(outward) * lead
-			world_y += cos(outward) * lead
-			var/list/extent = approach.space?.navigation_box()
-			if(QDELETED(src) || QDELETED(vessel) || vessel.docking_approach != approach)
-				return
-			if(extent)
-				var/margin = vessel.hull_radius + 4
-				if(sin(outward) > 0.5)
-					world_x = max(world_x, extent[3] + margin)
-				else if(sin(outward) < -0.5)
-					world_x = min(world_x, extent[1] - margin)
-				if(cos(outward) > 0.5)
-					world_y = max(world_y, extent[4] + margin)
-				else if(cos(outward) < -0.5)
-					world_y = min(world_y, extent[2] - margin)
-	if(!navigation_entry_ready && host == SSovermap.station_entity)
-		if(!navigation_entry_box)
-			var/center_x = host.get_world_x()
-			var/center_y = host.get_world_y()
-			var/margin = vessel.hull_radius + 8
-			var/list/extent = host.physical_space?.navigation_box()
-			navigation_entry_box = list(center_x - 200 - margin, center_y - 200 - margin, center_x + 200 + margin, center_y + 200 + margin)
-			if(extent)
-				navigation_entry_box = list(min(navigation_entry_box[1], extent[1] - margin), min(navigation_entry_box[2], extent[2] - margin), max(navigation_entry_box[3], extent[3] + margin), max(navigation_entry_box[4], extent[4] + margin))
-		var/list/entry = overmap_navigation_entry(navigation_entry_box, list(world_x, world_y))
-		world_x = entry[1]
-		world_y = entry[2]
-		pass_through = TRUE
-	navigate_to(world_x, world_y, heading, host, pass_through)
+	var/list/next_point = pass_through ? navigation_point(following_step(navigation_step), host, approach) : null
+	if(QDELETED(src) || QDELETED(vessel) || vessel.docking_approach != approach)
+		return
+	navigate_to(point[1], point[2], point[3], host, pass_through, next_point)
 
 /datum/overmap_programmed_mission/proc/navigation_arrived()
 	if(phase != OVERMAP_PROG_FLY)
@@ -133,18 +153,11 @@
 	if(needs_hyperrelay())
 		on_overmap_arrived()
 		return
-	if(navigation_entry_box)
-		navigation_entry_box = null
-		navigation_entry_ready = TRUE
-		continue_navigation()
-		return
 	if(navigation_step >= length(navigation_beacons) + 2)
 		phase = OVERMAP_PROG_DOCK
 		try_dock()
 		return
-	navigation_step++
-	if(length(navigation_beacons) && navigation_step == length(navigation_beacons) + 1)
-		navigation_step++
+	navigation_step = following_step(navigation_step)
 	continue_navigation()
 
 /datum/overmap_programmed_mission/proc/dock_from_navigation()
@@ -165,6 +178,9 @@
 	if(!vessel.docking_approach.available())
 		fail_dock("Док занят или заход перекрыт.")
 		return
+	if(rails)
+		vessel.docking_approach.finish()
+		return
 	var/result = vessel.docking_approach.start_alignment()
 	if(result == TRUE)
 		return
@@ -172,9 +188,37 @@
 	navigation_step = length(navigation_beacons) + 2
 	continue_navigation()
 
+/datum/overmap_programmed_mission/proc/departure_point(step)
+	if(step > length(departure_beacons) + 1)
+		return null
+	var/obj/effect/landmark/overmap_navigation_beacon/beacon = departure_beacons[max(1, length(departure_beacons) - step + 1)]
+	if(QDELETED(beacon))
+		return null
+	var/list/point = beacon.world_point(departure_host)
+	if(!point)
+		return null
+	if(step > length(departure_beacons))
+		var/list/inner = departure_origin
+		if(length(departure_beacons) > 1)
+			var/obj/effect/landmark/overmap_navigation_beacon/inner_beacon = departure_beacons[2]
+			inner = inner_beacon.world_point(departure_host) || inner
+		point = overmap_navigation_lead(point, inner, max(beacon.lead_distance, vessel.hull_radius * 2 + 4))
+	return point
+
 /datum/overmap_programmed_mission/proc/continue_departure()
+	if(rails)
+		departure_pending = FALSE
+		var/obj/docking_port/stationary/pad = SSshuttle.getDock(departure_dock_id, warn = FALSE)
+		var/obj/overmap/entity/host = pad ? SSovermap.host_for_pad(pad, vessel.shuttle) : null
+		if(host?.sector != vessel.sector)
+			return FALSE
+		var/list/gate = rail_gate(host, list(vessel.get_world_x(), vessel.get_world_y()))
+		if(gate && !QDELETED(vessel))
+			vessel.set_world_position(gate[1], gate[2])
+		return FALSE
 	if(!departure_beacons)
 		departure_beacons = list()
+		departure_origin = list(vessel.get_world_x(), vessel.get_world_y())
 		var/obj/docking_port/stationary/pad = SSshuttle.getDock(departure_dock_id, warn = FALSE)
 		departure_host = pad ? SSovermap.host_for_pad(pad, vessel.shuttle) : null
 		if(departure_host?.project_terrain && !departure_host.dock_host?.planet_landing && !SSovermap.station_docking_zone?.accepts_pad(pad))
@@ -183,22 +227,12 @@
 				if(beacon.dock_id == departure_dock_id && beacon.z == pad.z && (beacon.dir in GLOB.cardinal))
 					departure_beacons += beacon
 			sortTim(departure_beacons, GLOBAL_PROC_REF(cmp_overmap_navigation_beacon))
-	if(!length(departure_beacons) || QDELETED(departure_host) || departure_host.sector != vessel.sector || departure_step > length(departure_beacons) + 1)
+	if(!length(departure_beacons) || QDELETED(departure_host) || departure_host.sector != vessel.sector)
 		departure_pending = FALSE
 		return FALSE
-	var/index = max(1, length(departure_beacons) - departure_step + 1)
-	var/obj/effect/landmark/overmap_navigation_beacon/beacon = departure_beacons[index]
-	if(QDELETED(beacon))
-		departure_pending = FALSE
-		return FALSE
-	var/list/point = beacon.world_point(departure_host)
+	var/list/point = departure_point(departure_step)
 	if(!point)
 		departure_pending = FALSE
 		return FALSE
-	var/heading = dir2angle(beacon.dir) + (departure_host.shuttle ? departure_host.get_facing() : 0)
-	if(departure_step > length(departure_beacons))
-		var/lead = max(beacon.lead_distance, vessel.hull_radius * 2 + 4)
-		point[1] -= sin(heading) * lead
-		point[2] -= cos(heading) * lead
-	navigate_to(point[1], point[2], heading, departure_host, TRUE)
+	navigate_to(point[1], point[2], null, departure_host, TRUE, departure_point(departure_step + 1))
 	return TRUE

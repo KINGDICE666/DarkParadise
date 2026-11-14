@@ -76,6 +76,28 @@
 	icon_state = "darkfull"
 	},
 /area/centcom/central_command_areas/prison)
+"aah" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking{
+	req_access = list(48);
+	dock_name = "Западный шлюз";
+	overmap_collar_id = "mining_west";
+	dir = 8
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 3;
+	height = 5;
+	id = "mining";
+	name = "mining shuttle";
+	port_direction = 4;
+	rebuildable = 1;
+	roundstart_move = "mining_home";
+	width = 7
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/mining)
 "aao" = (
 /obj/effect/turf_decal/stripes/line{
 	icon = 'icons/turf/floors.dmi';
@@ -12244,6 +12266,15 @@
 	icon_state = "dark"
 	},
 /area/centcom/central_command_areas/evacuation)
+"fVX" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
+/obj/machinery/shieldgen,
+/turf/simulated/floor/shuttle{
+	icon_state = "floor4"
+	},
+/area/shuttle/syndicate)
 "fWh" = (
 /obj/structure/window/reinforced,
 /obj/machinery/computer/crew,
@@ -27090,26 +27121,14 @@
 /turf/simulated/floor/carpet,
 /area/centcom/central_command_areas/evacuation)
 "mFS" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking{
-	req_access = list(48);
-	dock_name = "Западный шлюз";
-	overmap_collar_id = "mining_west";
+/obj/effect/turf_decal/stripes/line{
 	dir = 8
 	},
-/obj/docking_port/mobile{
-	dir = 8;
-	dwidth = 3;
-	height = 5;
-	id = "mining";
-	name = "mining shuttle";
-	port_direction = 4;
-	rebuildable = 1;
-	roundstart_move = "mining_home";
-	width = 7
+/obj/machinery/shieldgen,
+/turf/simulated/floor/shuttle{
+	icon_state = "floor4"
 	},
-/turf/simulated/floor/shuttle,
-/area/shuttle/mining)
+/area/shuttle/syndicate)
 "mFU" = (
 /obj/machinery/light,
 /obj/effect/turf_decal/siding/white/corner{
@@ -37091,14 +37110,11 @@
 /turf/simulated/floor/carpet,
 /area/centcom/central_command_areas/zone/one)
 "qYO" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun_loader{
+	id = "syndi_torpeds"
 	},
-/turf/simulated/floor/shuttle/transparent_floor{
-	dir = 4;
-	icon = 'icons/turf/shuttle/misc.dmi';
-	icon_state = "router_dir"
+/turf/simulated/floor/shuttle{
+	icon_state = "floor4"
 	},
 /area/shuttle/syndicate)
 "qYQ" = (
@@ -39390,12 +39406,10 @@
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/centcom/syndicate_base/elite_squad)
 "rTA" = (
-/obj/machinery/porta_turret/syndicate{
-	pixel_y = 2
-	},
 /obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun/autocannon{
+	dir = 8;
+	loader_id = "syndi_guns"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 4;
@@ -48873,8 +48887,9 @@
 /area/centcom/ninja/outside)
 "waD" = (
 /obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun/torpedo{
+	dir = 4;
+	loader_id = "syndi_torpeds"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 10;
@@ -50765,7 +50780,7 @@
 	icon = 'icons/obj/syndie_logo.dmi';
 	icon_state = "logo1"
 	},
-/obj/structure/computerframe,
+/obj/machinery/computer/helm/gunner,
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "plastitanium"
@@ -51149,6 +51164,9 @@
 	icon = 'icons/obj/syndie_logo.dmi';
 	icon_state = "logo5"
 	},
+/obj/structure/chair/comfy/shuttle/dark{
+	dir = 1
+	},
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "plastitanium"
@@ -51158,9 +51176,6 @@
 /obj/effect/turf_decal{
 	icon = 'icons/obj/syndie_logo.dmi';
 	icon_state = "logo6"
-	},
-/obj/structure/chair/comfy/shuttle/dark{
-	dir = 1
 	},
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
@@ -51574,8 +51589,9 @@
 /area/centcom/syndicate_base/prison)
 "xqM" = (
 /obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun/torpedo{
+	dir = 8;
+	loader_id = "syndi_torpeds"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 6;
@@ -51670,8 +51686,9 @@
 /area/shuttle/vox)
 "xsR" = (
 /obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun/autocannon{
+	dir = 4;
+	loader_id = "syndi_guns"
 	},
 /turf/simulated/floor/shuttle/transparent_floor{
 	dir = 8;
@@ -52071,15 +52088,11 @@
 /turf/simulated/floor/carpet/black,
 /area/centcom/syndicate_base)
 "xCi" = (
-/obj/machinery/porta_turret/syndicate,
-/obj/structure/lattice/catwalk,
-/obj/structure/marker_beacon{
-	icon_state = "markerjade-on"
+/obj/machinery/ship_gun_loader{
+	id = "syndi_guns"
 	},
-/turf/simulated/floor/shuttle/transparent_floor{
-	dir = 8;
-	icon = 'icons/turf/shuttle/misc.dmi';
-	icon_state = "router_dir"
+/turf/simulated/floor/shuttle{
+	icon_state = "floor4"
 	},
 /area/shuttle/syndicate)
 "xCr" = (
@@ -64622,11 +64635,11 @@ qiR
 qiR
 qiR
 xqR
-qYO
+rTA
 wIQ
 rTA
 wIQ
-qYO
+rTA
 xqR
 qiR
 qiR
@@ -65651,7 +65664,7 @@ bEU
 bEU
 bEU
 bEU
-bEU
+mFS
 aJb
 lks
 qxu
@@ -66162,7 +66175,7 @@ vOQ
 vOQ
 yiJ
 yiJ
-xKT
+qYO
 xKT
 kAK
 dik
@@ -67447,7 +67460,7 @@ vOQ
 vOQ
 yiJ
 yiJ
-xKT
+xCi
 xKT
 nGh
 vhq
@@ -67964,7 +67977,7 @@ qyL
 qyL
 qyL
 qyL
-qyL
+fVX
 rhC
 odm
 iuF
@@ -68731,7 +68744,7 @@ qiR
 qiR
 yiJ
 wIQ
-xCi
+xsR
 wIQ
 yiJ
 xqR
@@ -68993,7 +69006,7 @@ qiR
 xqR
 xsR
 wIQ
-xCi
+xsR
 wIQ
 xsR
 xqR
@@ -79121,7 +79134,7 @@ mVX
 piE
 pEL
 dDb
-mFS
+aah
 dDb
 pEL
 piE

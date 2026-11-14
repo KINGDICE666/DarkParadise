@@ -14,6 +14,13 @@
 
 	var/radar_reach = OVERMAP_RADAR_TERRAIN_RANGE
 	var/list/selected_weapons = list()
+	var/last_notice
+	var/last_notice_tone
+	var/last_notice_origin
+	var/last_notice_time = 0
+	var/fire_access = ACCESS_SECURITY
+	var/fire_target_uid
+	var/free_fire = FALSE
 
 /obj/machinery/computer/helm/get_ru_names()
 	return alist(

@@ -147,6 +147,21 @@
 	var/datum/overmap_sector/radar_objects_sector
 	var/list/ship_weapons_cache
 	var/ship_weapons_until = 0
+	var/nebula_cache_time = -1
+	var/nebula_cache_factor = 1
+	var/list/nebula_cache_fields
+	var/list/faulted_engines
+	var/marked_bow_angle = 0
+	var/marked_bow_version = -1
+	var/marked_bow_until = 0
+	var/list/shield_generators_cache
+	var/shield_generators_until = 0
+	var/list/obj/effect/abstract/ship_shield_halo/shield_halo_tiles
+	var/shield_halo_key
+	var/shield_halo_fraction = -1
+	var/shield_halo_refresh_at = 0
+	var/list/station_halo_cache
+	var/shield_halo_flash_at = 0
 
 /obj/overmap/entity/shuttle
 	name = "shuttle"
@@ -521,13 +536,6 @@
 			.["smes_charge"] += battery.charge
 			.["smes_max"] += battery.capacity
 
-/obj/overmap/entity/proc/charge_shore_power(elapsed)
-	if(!programmed_profile()?.powered_engines || !is_physically_docked() || !is_station_level(shuttle.z))
-		return
-	for(var/area/place as anything in shuttle.shuttle_areas)
-		for(var/obj/machinery/power/apc/unit as anything in place.apc)
-			unit.cell?.give(OVERMAP_SHORE_POWER_RATE * elapsed / (1 SECONDS))
-
 /obj/overmap/entity/proc/autopilot_eta()
 	var/datum/component/overmap_flight/nav = flight
 	if(!nav || !nav.autopilot || isnull(nav.autopilot_x) || isnull(nav.autopilot_y) || !sector)
@@ -560,23 +568,20 @@
 		if(!engine.on)
 			off++
 			continue
-		if(engine.stat & (BROKEN|NOPOWER))
+		if(engine.stat & BROKEN)
 			dead++
 			continue
 		working++
 	if(!working)
 		if(off && dead)
-			return "двигатели выключены, часть без питания или повреждена"
+			return "двигатели выключены, часть повреждена"
 		if(off)
 			return "все двигатели выключены"
 		if(dead)
-			return "двигатели без питания или повреждены"
+			return "двигатели повреждены"
 		return "двигатели не дают тяги"
 	if(!overmap_pod && !nav.engine_thrust)
-		return "двигателям не хватает энергии или топлива"
-	for(var/obj/machinery/ship_engine/engine as anything in engines)
-		if(engine.on && engine.on_reserve_power())
-			return "APC разряжен или отключён, двигатели на аварийной тяге"
+		return "двигателям не хватает топлива"
 	return ""
 
 /obj/overmap/entity/proc/get_dock_host()
@@ -605,7 +610,7 @@
 /obj/overmap/entity/proc/pad_matches_host(obj/docking_port/stationary/pad, obj/overmap/entity/host)
 	if(!pad || !host)
 		return FALSE
-	if(host == SSovermap.station_entity && in_station_docking_zone() && !SSovermap.station_docking_zone.accepts_pad(pad))
+	if(host == SSovermap.station_entity && in_bluespace_docking_zone() && !SSovermap.station_docking_zone.accepts_pad(pad))
 		return FALSE
 	if(istype(pad, /obj/docking_port/stationary/transit))
 		return FALSE
@@ -785,7 +790,7 @@
 	radar_transitioning = TRUE
 	if(!open_turf)
 		open_turf = docked_to?.get_overmap_turf() || get_overmap_turf()
-	var/datum/overmap_sector/dest_sector = docked_to?.sector || sector || SSovermap?.sector_for_turf(open_turf) || SSovermap?.local_sector
+	var/datum/overmap_sector/dest_sector = docked_to?.sector || SSovermap?.sector_for_turf(open_turf) || sector || SSovermap?.local_sector
 	var/list/saved_position
 	if(docked_to)
 		saved_position = list(docked_to.position[1], docked_to.position[2])

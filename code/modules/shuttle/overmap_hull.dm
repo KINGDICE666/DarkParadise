@@ -110,6 +110,9 @@
 	return get_turf(S)
 
 /obj/docking_port/mobile/proc/overmap_hull_center(list/hull)
+	return turfs_bounding_center(hull)
+
+/proc/turfs_bounding_center(list/hull)
 	if(!length(hull))
 		return null
 	var/min_x = world.maxx
@@ -278,3 +281,27 @@
 		if(overmap_dest_tile_blocked(newT, S))
 			return TRUE
 	return FALSE
+
+/datum/controller/subsystem/overmap/proc/make_area_mobile_port(turf/anchor, list/areas, obj/machinery/door/airlock/external/docking/collar, port_name)
+	var/obj/docking_port/mobile/port = new /obj/docking_port/mobile{timid = TRUE}(anchor)
+	port.name = port_name
+	port.dir = collar ? REVERSE_DIR(collar.dir) : NORTH
+	if(collar)
+		port.overmap_collar = collar
+	port.shuttle_areas = areas.Copy()
+	for(var/area/place as anything in areas)
+		port.areaInstance = place
+		break
+	port.overmap_discover_shuttle_areas()
+	port.overmap_sync_bounds(TRUE)
+	return port
+
+/datum/controller/subsystem/overmap/proc/register_runtime_mobile_port(obj/docking_port/mobile/port, base_id)
+	if(!port.id)
+		port.id = base_id
+	while(SSshuttle.assoc_mobile[port.id] && SSshuttle.assoc_mobile[port.id] != port)
+		port.id = "[port.id]_[rand(100, 999)]"
+	if(!(port in SSshuttle.mobile))
+		port.timid = FALSE
+		port.register()
+	area_shuttle_cache_ready = FALSE

@@ -313,6 +313,9 @@
 			. = TRUE
 
 /proc/hazard_flavour(obj/overmap/feature/hazard/hazard)
+	var/obj/overmap/feature/hazard/nebula/nebula = hazard
+	if(istype(nebula))
+		return nebula.flavour
 	switch(hazard?.icon_state)
 		if(OVERMAP_HAZARD_ICON_EMP)
 			return "emp"
@@ -358,6 +361,7 @@
 			"on" = engine.on,
 			"thrust" = engine.get_thrust(),
 			"status" = engine.get_status(),
+			"heat" = round(engine.heat),
 		))
 	return engines
 

@@ -5,6 +5,24 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/turf/simulated/wall/mineral/bananium,
+/area/shuttle/transport)
 "e" = (
 /obj/structure/window/full/shuttle,
 /obj/structure/grille,
@@ -195,7 +213,7 @@ J
 (12,1,1) = {"
 J
 e
-M
+b
 e
 J
 "}

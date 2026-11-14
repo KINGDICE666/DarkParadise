@@ -84,7 +84,7 @@
 			continue
 		peels += list(list("id" = source.UID(), "x" = sector.coord_x(spot) + source.position[1], "y" = sector.coord_y(spot) + source.position[2], "range" = public_long ? OVERMAP_SENSOR_LONG_VIEW : OVERMAP_SENSOR_SHORT_VIEW, "short" = !public_long, "age" = (world.time - (public_long ? source.sensor_peel_at : source.short_peel_at)) / (1 SECONDS), "period" = OVERMAP_SENSOR_PEEL_INTERVAL / (1 SECONDS)))
 	data["radar_peels"] = peels
-	data["facing"] = docked_radar ? 0 : get_facing()
+	data["facing"] = docked_radar ? (local_space?.frame_facing() || 0) : get_facing()
 	data["radar_scatter"] = radar_scatter_data()
 	data["radar_shapes"] = radar_shapes()
 	data["radar"] = radar_contacts()
@@ -115,13 +115,13 @@
 			if(here && max(abs(here.x - object_turf.x), abs(here.y - object_turf.y)) > view_range)
 				continue
 			var/is_self = overmap_object == src
-			var/is_terrain = istype(overmap_object, /obj/overmap/planet) || istype(overmap_object, /obj/overmap/feature/hazard)
+			var/is_terrain = istype(overmap_object, /obj/overmap/planet) || istype(overmap_object, /obj/overmap/feature/hazard) || istype(overmap_object, /obj/overmap/celestial)
 			var/is_vessel = istype(overmap_object, /obj/overmap/entity/shuttle) || istype(overmap_object, /obj/overmap/entity/pod)
 			if(!is_self && !is_terrain)
 				if(!isturf(overmap_object.loc))
 					continue
 
-				if(overmap_object.hidden_from_contacts && !is_vessel)
+				if((overmap_object.hidden_from_contacts && !is_vessel) || istype(overmap_object, /obj/overmap/entity/station_docking_zone))
 					continue
 			var/identified = overmap_object.visible_without_scanner || display_identified(overmap_object)
 
@@ -133,6 +133,7 @@
 			var/is_entity = istype(contact)
 			var/obj/overmap/planet/planet = overmap_object
 			var/obj/overmap/entity/hyperrelay/relay = overmap_object
+			var/obj/overmap/celestial/body = overmap_object
 			if(istype(overmap_object, /obj/overmap/feature/hazard))
 
 				continue
@@ -152,8 +153,10 @@
 				"identified" = identified || is_self,
 				"docked_to" = is_entity ? contact.docked_to?.name : null,
 				"size" = istype(planet) ? planet.footprint : 1,
+				"zones" = istype(body) ? body.radar_zones() : null,
+				"shield" = is_entity ? contact.shield_fraction() : 0,
 				"extent" = is_entity ? contact.radar_extent() : null,
-				"facing" = is_entity && contact.free_flight_view ? contact.get_facing() : 0,
+				"facing" = is_entity ? contact.radar_facing() : 0,
 				"leads_to" = istype(relay) && relay.paired && identified ? relay.paired.sector?.name : null,
 				"visibility" = visibility,
 				"scanned" = identified || is_self,
@@ -209,9 +212,9 @@
 
 /obj/overmap/entity/proc/sensor_reach_cells()
 	if(has_working_sensor(OVERMAP_SENSOR_KIND_LONG) && long_sensors_on)
-		return OVERMAP_SENSOR_LONG_VIEW
+		return OVERMAP_SENSOR_LONG_VIEW * nebula_sensor_factor()
 	if(has_working_sensor(OVERMAP_SENSOR_KIND_SHORT) && short_sensors_on)
-		return OVERMAP_SENSOR_SHORT_VIEW
+		return OVERMAP_SENSOR_SHORT_VIEW * nebula_sensor_factor()
 	return 0
 
 /obj/overmap/entity/proc/object_visibility(obj/overmap/contact, turf/here, reach)
@@ -225,6 +228,9 @@
 	if(!here || !there || there.z != here.z)
 		return 0
 	var/visibility = short_knows(contact) ? OVERMAP_CHART_UNSEEN_ALPHA : 0
+	var/obj/overmap/entity/hidden_contact = contact
+	if(istype(hidden_contact))
+		reach *= hidden_contact.nebula_sensor_factor()
 	if(reach > 0)
 		var/span = OVERMAP_TILE_SPAN * (sector?.tile_travel || 1)
 		var/contact_x = (there.x + contact.position[1]) * span

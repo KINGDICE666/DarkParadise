@@ -6,11 +6,10 @@
 	color = "#ffb677"
 	opacity = FALSE
 	generated_thrust = OVERMAP_ENGINE_SMALL_THRUST * 3
-	active_power_usage = 0
-	requires_apc = FALSE
 	var/fuel_rate = 1
 	var/obj/machinery/atmospherics/unary/ship_engine_feed/fuel_port
 	engine_board = /obj/item/circuitboard/ship_engine_plasma
+	burn_sound_type = /datum/looping_sound/ship_engine/plasma
 
 /obj/machinery/ship_engine/plasma/get_ru_names()
 	return alist(

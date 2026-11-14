@@ -23,6 +23,31 @@
 	icon_state = "darkgreycamo"
 	},
 /area/shuttle/transport)
+"c" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/machinery/door/airlock/shuttle{
+	id_tag = "s_docking_airlock";
+	req_access = list(31,105,63)
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/turf/simulated/floor/noslip{
+	icon = 'icons/turf/shuttle/floors.dmi';
+	icon_state = "floor"
+	},
+/area/shuttle/transport)
 "i" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
@@ -382,7 +407,7 @@ G
 (12,1,1) = {"
 G
 u
-F
+c
 u
 G
 "}

@@ -1,0 +1,1711 @@
+.OvermapRadar__select {
+  fill: none;
+  stroke: var(--bridge-accent, #7ad0c4);
+  stroke-width: 1.5px;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.Bridge {
+  --void: #05090c;
+  --plate: #0a1317;
+  --plate-hi: #0f1c22;
+  --well: #060d10;
+  --line: #1b323b;
+  --line-hi: #2c4d58;
+  --ink: #d3e8ec;
+  --ink-dim: #7d9da6;
+  --ink-faint: #4a6770;
+  --tac: #ff5d4a;
+  --shield: #62b6ff;
+  --warn: #f2b84b;
+  --good: #63e0a6;
+  --accent: #4fd6c4;
+  --accent-soft: rgba(79, 214, 196, 0.14);
+  --bridge-accent: var(--accent);
+  --label: 'Tektur', 'Segoe UI', sans-serif;
+  --num: 'JetBrains Mono', Consolas, monospace;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--label);
+  font-size: 12px;
+  cursor: default;
+  user-select: none;
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  button[disabled] {
+    cursor: default;
+  }
+
+  h2,
+  h3 {
+    font-family: var(--label);
+    color: inherit;
+  }
+}
+
+.Bridge--tac {
+  --accent: #ff5d4a;
+  --accent-soft: rgba(255, 93, 74, 0.14);
+}
+
+.Bridge--dock {
+  --accent: #f2b84b;
+  --accent-soft: rgba(242, 184, 75, 0.14);
+}
+
+.Bridge__good {
+  color: var(--good);
+}
+
+.Bridge__warnText {
+  color: var(--warn);
+}
+
+.Bridge__shieldText {
+  color: var(--shield);
+}
+
+.Bridge__muted {
+  color: var(--ink-faint);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.Bridge__grow {
+  flex: 1;
+  min-height: 0;
+}
+
+.Bridge__cols {
+  display: flex;
+  gap: 8px;
+  min-height: 0;
+}
+
+.Bridge__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.Bridge__side {
+  width: 170px;
+  flex: none;
+}
+
+.Bridge__side--wide {
+  width: 190px;
+}
+
+.Bridge__kbd {
+  font-family: var(--num);
+  font-size: 9px;
+  line-height: 1;
+  padding: 2px 4px;
+  border: 1px solid var(--line-hi);
+  border-bottom-width: 2px;
+  border-radius: 2px;
+  color: var(--ink-dim);
+  background: var(--well);
+}
+
+.Bridge__cap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+}
+
+.Bridge__strip {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  height: 46px;
+  background: var(--plate);
+  border-bottom: 1px solid var(--line);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--accent) 18%,
+      var(--accent) 82%,
+      transparent
+    );
+    opacity: 0.75;
+  }
+}
+
+.Bridge__ident {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 210px;
+  max-width: 260px;
+  padding: 0 16px;
+  border-right: 1px solid var(--line);
+
+  b {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    font-family: var(--num);
+    font-size: 11px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.Bridge__ticker {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+.Bridge__ticker--warn {
+  color: var(--warn);
+}
+
+.Bridge__ticker--danger {
+  color: var(--tac);
+}
+
+.Bridge__ticker--quiet .Bridge__tickerText {
+  color: var(--ink-faint);
+}
+
+.Bridge__tag {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  font-family: var(--num);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.Bridge__tickerText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+
+.Bridge__pips {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  border-left: 1px solid var(--line);
+}
+
+.Bridge__pip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+
+  b {
+    font-family: var(--num);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  .Bridge__good {
+    color: var(--good);
+  }
+
+  .Bridge__warnText {
+    color: var(--warn);
+  }
+
+  .Bridge__shieldText {
+    color: var(--shield);
+  }
+}
+
+.Bridge button.Bridge__pip {
+  color: var(--ink-dim);
+}
+
+.Bridge__posts {
+  display: flex;
+  border-left: 1px solid var(--line);
+}
+
+.Bridge__post {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  width: 128px;
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-dim);
+  transition:
+    color 0.3s,
+    background 0.3s;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  b {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  small {
+    font-family: var(--num);
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+
+  .Bridge__kbd {
+    position: absolute;
+    right: 8px;
+    top: 7px;
+  }
+
+  &[disabled] {
+    opacity: 0.35;
+  }
+}
+
+.Bridge button.Bridge__post {
+  color: var(--ink-dim);
+}
+
+.Bridge__post--on small {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.Bridge .Bridge__post--nav.Bridge__post--on {
+  color: #4fd6c4;
+  background: rgba(79, 214, 196, 0.1);
+}
+
+.Bridge .Bridge__post--tac.Bridge__post--on {
+  color: #ff5d4a;
+  background: rgba(255, 93, 74, 0.1);
+}
+
+.Bridge .Bridge__post--dock.Bridge__post--on {
+  color: #f2b84b;
+  background: rgba(242, 184, 75, 0.1);
+}
+
+.Bridge__engines {
+  position: absolute;
+  top: 46px;
+  right: 390px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 300px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--plate);
+  border: 1px solid var(--line-hi);
+}
+
+.Bridge__engineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+
+  span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  small {
+    display: block;
+    font-family: var(--num);
+    font-size: 10px;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    #0a161b 0%,
+    var(--void) 62%
+  );
+}
+
+.Bridge--docked .Bridge__scope::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(5, 9, 12, 0.4);
+  pointer-events: none;
+}
+
+.Bridge__scope {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: calc(100% - 20px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+
+  .OvermapRadar {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .OvermapRadar__scope {
+    background: radial-gradient(
+      circle closest-side,
+      #060e11 0 99%,
+      transparent 100%
+    );
+  }
+
+  .OvermapRadar__ring {
+    stroke: #173038;
+  }
+
+  .OvermapRadar__ring--edge {
+    stroke: var(--accent);
+    stroke-width: 1.5px;
+    opacity: 0.8;
+    transition: stroke 0.3s;
+  }
+
+  .OvermapRadar__tick {
+    stroke: #2c4d58;
+  }
+
+  .OvermapRadar__markerLabel {
+    font-family: var(--label);
+    color: #a9c8cf;
+
+    em {
+      font-family: var(--num);
+      font-style: normal;
+      color: var(--ink-dim);
+    }
+  }
+
+  .OvermapRadar__arc {
+    fill: #ff5d4a;
+    stroke: #ff5d4a;
+    stroke-opacity: 0.45;
+  }
+}
+
+.Bridge__jump {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed var(--line-hi);
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+
+  small {
+    margin-top: 8px;
+    font-family: var(--num);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge__hud {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+}
+
+.Bridge__hud--tl {
+  left: 16px;
+  top: 14px;
+}
+
+.Bridge__hud--bl {
+  left: 16px;
+  bottom: 14px;
+}
+
+.Bridge__hud--tr {
+  right: 16px;
+  top: 14px;
+}
+
+.Bridge__hud--br {
+  right: 16px;
+  bottom: 14px;
+}
+
+.Bridge__speed {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.Bridge__speedValue {
+  font-family: var(--num);
+  font-size: 54px;
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+.Bridge__speedUnit {
+  padding-bottom: 4px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+
+.Bridge__speedSet {
+  margin-left: auto;
+  padding-bottom: 3px;
+  text-align: right;
+  font-family: var(--num);
+  font-size: 11px;
+  color: var(--ink-dim);
+
+  b {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+}
+
+.Bridge__readouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.Bridge__ro {
+  padding-left: 7px;
+  border-left: 2px solid var(--line-hi);
+
+  small {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+  }
+
+  b {
+    font-family: var(--num);
+    font-size: 15px;
+    font-weight: 500;
+  }
+}
+
+.Bridge__pilot {
+  padding: 6px 8px;
+  border: 1px solid var(--line-hi);
+  background: rgba(10, 19, 23, 0.86);
+  font-size: 11px;
+  color: var(--ink-dim);
+
+  b {
+    color: var(--warn);
+  }
+}
+
+.Bridge__viewbar {
+  display: flex;
+  gap: 6px;
+}
+
+.Bridge__seg {
+  display: flex;
+  border: 1px solid var(--line-hi);
+
+  button {
+    padding: 5px 10px;
+    border: 0;
+    background: transparent;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  button + button {
+    border-left: 1px solid var(--line-hi);
+  }
+}
+
+.Bridge .Bridge__seg button {
+  color: var(--ink-dim);
+}
+
+.Bridge .Bridge__seg button.Bridge__seg--on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.Bridge__seg--column {
+  flex-direction: column;
+
+  button {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
+
+  button + button {
+    border-left: 0;
+    border-top: 1px solid var(--line-hi);
+  }
+}
+
+.Bridge__scale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--num);
+  font-size: 11px;
+  color: var(--ink-dim);
+
+  i {
+    width: 60px;
+    height: 5px;
+    border: 1px solid var(--ink-dim);
+    border-top: 0;
+  }
+}
+
+.Bridge__card {
+  position: relative;
+  border: 1px solid var(--line-hi);
+  background: rgba(10, 19, 23, 0.86);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: 14px;
+    height: 14px;
+    border-left: 2px solid var(--accent);
+    border-top: 2px solid var(--accent);
+    transition: border-color 0.3s;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px 6px;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin: 0;
+    padding: 0 10px 8px;
+  }
+
+  dt {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--num);
+    font-size: 13px;
+  }
+}
+
+.Bridge__cardTitle {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    font-family: var(--num);
+    font-size: 10px;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge .Bridge__cardClose {
+  align-self: flex-start;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+}
+
+.Bridge__glyph {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line-hi);
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.Bridge__glyph--danger {
+  color: var(--tac);
+}
+
+.Bridge__acts {
+  display: flex;
+  border-top: 1px solid var(--line);
+
+  button {
+    flex: 1;
+    padding: 8px 4px;
+    border: 0;
+    background: transparent;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  button + button {
+    border-left: 1px solid var(--line);
+  }
+
+  button[disabled] {
+    opacity: 0.35;
+  }
+}
+
+.Bridge .Bridge__acts button {
+  color: var(--ink-dim);
+}
+
+.Bridge .Bridge__acts button.Bridge__acts--def {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.Bridge__contacts {
+  display: flex;
+  flex-direction: column;
+}
+
+.Bridge__row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border: 0;
+  border-bottom: 1px solid rgba(27, 50, 59, 0.6);
+  border-left: 2px solid transparent;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+
+  .Icon {
+    text-align: center;
+    color: var(--ink-dim);
+  }
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  em {
+    font-family: var(--num);
+    font-size: 11px;
+    font-style: normal;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge button.Bridge__row {
+  color: var(--ink);
+}
+
+.Bridge__row--sel {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.Bridge__row--danger {
+  .Icon,
+  em {
+    color: var(--tac);
+  }
+}
+
+.Bridge__console {
+  display: grid;
+  flex: none;
+  grid-template-columns: 196px 262px minmax(0, 1fr) 214px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 8px;
+  height: 262px;
+  padding: 8px;
+  background: linear-gradient(#0c161a, #070d10);
+  border-top: 1px solid var(--line-hi);
+}
+
+.Bridge__console--pod {
+  grid-template-columns: 196px minmax(0, 1fr);
+}
+
+.Bridge__console--locked {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.Bridge__deck {
+  min-width: 0;
+  padding: 1px;
+  background: var(--line);
+  clip-path: polygon(
+    12px 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
+  transition: background 0.3s;
+}
+
+.Bridge__deckBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px 10px 10px;
+  background: var(--plate);
+  clip-path: inherit;
+}
+
+.Bridge__deckTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--ink-dim);
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+}
+
+.Bridge__deck--live {
+  background: var(--accent);
+
+  .Bridge__deckTitle {
+    color: var(--accent);
+  }
+}
+
+.Bridge__deck--off .Bridge__deckBody > * {
+  opacity: 0.45;
+}
+
+.Bridge__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border: 1px solid var(--line-hi);
+  background: var(--plate-hi);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+
+  .Bridge__kbd {
+    margin-left: auto;
+  }
+
+  &[disabled] {
+    opacity: 0.35;
+  }
+}
+
+.Bridge button.Bridge__btn {
+  color: var(--ink);
+}
+
+.Bridge button.Bridge__btn--on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.Bridge button.Bridge__btn--ghost {
+  background: transparent;
+  color: var(--ink-dim);
+}
+
+.Bridge__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: left;
+
+  i {
+    position: relative;
+    flex: none;
+    width: 30px;
+    height: 14px;
+    border: 1px solid var(--line-hi);
+    background: var(--well);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 12px;
+      height: 10px;
+      background: var(--ink-faint);
+    }
+  }
+
+  .Bridge__kbd {
+    margin-left: auto;
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+  }
+}
+
+.Bridge button.Bridge__toggle {
+  color: var(--ink);
+}
+
+.Bridge__toggle--on i {
+  border-color: var(--good);
+
+  &::after {
+    left: 15px;
+    background: var(--good);
+  }
+}
+
+.Bridge__hold {
+  position: relative;
+  overflow: hidden;
+}
+
+.Bridge__holdFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(255, 93, 74, 0.35);
+  pointer-events: none;
+}
+
+.Bridge__hold--active .Bridge__holdFill {
+  width: 100%;
+  transition: width 0.6s linear;
+}
+
+.Bridge__holdLabel {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: 100%;
+}
+
+.Bridge__keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.Bridge__keys--foot {
+  margin-top: auto;
+}
+
+.Bridge__keys--lit {
+  color: var(--accent);
+}
+
+.Bridge__telegraph {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  min-height: 0;
+}
+
+.Bridge__lever {
+  position: relative;
+  background: var(--well);
+  border: 1px solid var(--line-hi);
+}
+
+.Bridge__burn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 13%;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 93, 74, 0.35) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+.Bridge__burn--on {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 93, 74, 0.85) 0 4px,
+    rgba(255, 93, 74, 0.25) 4px 8px
+  );
+}
+
+.Bridge__leverFill {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(79, 214, 196, 0.2),
+    rgba(79, 214, 196, 0.55)
+  );
+  transition: height 0.4s;
+}
+
+.Bridge__leverNow {
+  position: absolute;
+  left: -9px;
+  margin-bottom: -5px;
+  border: 5px solid transparent;
+  border-left-color: var(--warn);
+  transition: bottom 0.4s;
+}
+
+.Bridge__knob {
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  height: 14px;
+  background: var(--ink);
+  border: 1px solid #000;
+  box-shadow: 0 0 10px rgba(211, 232, 236, 0.5);
+  transition: bottom 0.3s;
+}
+
+.Bridge__detents {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.Bridge__detent {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+
+  b {
+    margin-left: auto;
+    font-family: var(--num);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-faint);
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+  }
+}
+
+.Bridge button.Bridge__detent {
+  color: var(--ink-dim);
+}
+
+.Bridge button.Bridge__detent--on {
+  color: var(--accent);
+
+  b {
+    color: var(--accent);
+  }
+}
+
+.Bridge button.Bridge__detent--hot {
+  color: var(--tac);
+}
+
+.Bridge__detent--burning {
+  text-shadow: 0 0 8px var(--tac);
+
+  b {
+    color: var(--tac);
+  }
+}
+
+.Bridge__heading {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 100px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+
+  .Bridge__btn {
+    padding: 7px 6px;
+    letter-spacing: 0.04em;
+  }
+}
+
+.Bridge__heading--fixed .Bridge__dial {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.Bridge__dial {
+  width: 100px;
+  height: 100px;
+}
+
+.Bridge__dialFace {
+  fill: var(--well);
+  stroke: var(--line-hi);
+}
+
+.Bridge__dialTick {
+  stroke: var(--line-hi);
+  stroke-width: 1;
+}
+
+.Bridge__dialLabel {
+  font-family: var(--num);
+  font-size: 8px;
+  fill: var(--ink-faint);
+  text-anchor: middle;
+}
+
+.Bridge__dialValue {
+  font-family: var(--num);
+  font-size: 11px;
+  fill: var(--ink);
+  text-anchor: middle;
+}
+
+.Bridge__dialHold {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.Bridge__dialVector {
+  fill: var(--warn);
+}
+
+.Bridge__dialNose {
+  fill: var(--ink);
+}
+
+.Bridge__dialSpine {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+
+.Bridge__mode {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-height: 0;
+}
+
+.Bridge__mode--column {
+  flex-direction: column;
+}
+
+.Bridge__plate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line-hi);
+  background: var(--well);
+
+  > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  h3 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    display: block;
+    overflow: hidden;
+    font-family: var(--num);
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge__plate--lit {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.Bridge__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 124px;
+  padding: 0 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+
+  small {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--num);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    opacity: 0.8;
+  }
+}
+
+.Bridge button.Bridge__cta {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.Bridge button.Bridge__cta[disabled] {
+  border-color: var(--line-hi);
+  background: transparent;
+  color: var(--ink-faint);
+}
+
+.Bridge .Bridge__cta--lit,
+.Bridge button.Bridge__cta--lit {
+  background: var(--accent);
+  color: #04110f;
+}
+
+.Bridge button.Bridge__salvo {
+  border-color: var(--tac);
+  background: transparent;
+  color: var(--tac);
+}
+
+.Bridge button.Bridge__salvo--hot {
+  background: var(--tac);
+  color: #1a0502;
+  box-shadow: 0 0 22px rgba(255, 93, 74, 0.35);
+}
+
+.Bridge__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 0;
+  max-height: 64px;
+  overflow: hidden;
+}
+
+.Bridge__chip {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  max-width: 230px;
+  padding: 5px 9px;
+  border: 1px solid var(--line-hi);
+  background: transparent;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+
+  em {
+    font-family: var(--num);
+    font-size: 10px;
+    font-style: normal;
+    color: var(--ink-dim);
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+  }
+}
+
+.Bridge button.Bridge__chip {
+  color: var(--ink);
+}
+
+.Bridge button.Bridge__chip--on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.Bridge__firebar {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  gap: 8px;
+  height: 54px;
+
+  .Bridge__plate {
+    flex: 1;
+  }
+}
+
+.Bridge__guns {
+  display: grid;
+  flex: 1;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 18px) / 4);
+  gap: 6px;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.Bridge__gun {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid var(--line-hi);
+  background: var(--well);
+  cursor: pointer;
+
+  b {
+    overflow: hidden;
+    padding-right: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    font-family: var(--num);
+    font-size: 10px;
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--num);
+    font-size: 10px;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge__gun--armed {
+  border-color: var(--tac);
+
+  &::before {
+    content: '';
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    width: 7px;
+    height: 7px;
+    background: var(--tac);
+    box-shadow: 0 0 8px var(--tac);
+  }
+}
+
+.Bridge__gunState--ok {
+  color: var(--good);
+}
+
+.Bridge__gunState--wait {
+  color: var(--warn);
+}
+
+.Bridge__gunState--bad {
+  color: var(--tac);
+}
+
+.Bridge .Bridge__gunAuto {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--num);
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+.Bridge .Bridge__gunAuto.Bridge__good {
+  color: var(--good);
+}
+
+.Bridge__bar {
+  position: relative;
+  height: 4px;
+  background: #000;
+
+  i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: var(--good);
+  }
+}
+
+.Bridge__bar--wait i {
+  background: var(--warn);
+}
+
+.Bridge__ammo {
+  display: flex;
+  gap: 2px;
+  margin-top: auto;
+
+  i {
+    flex: 1;
+    height: 6px;
+    background: var(--shield);
+  }
+
+  .Bridge__ammo--empty {
+    background: var(--line);
+  }
+
+  .Bridge__ammo--grid {
+    background: var(--good);
+  }
+}
+
+.Bridge__empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px dashed var(--line-hi);
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.Bridge__docks {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.Bridge__dockrow {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--line-hi);
+  background: var(--well);
+  text-align: left;
+  font-size: 12px;
+
+  i {
+    font-family: var(--num);
+    font-style: normal;
+    color: var(--ink-dim);
+  }
+
+  span:nth-child(2) {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  em {
+    font-family: var(--num);
+    font-size: 11px;
+    font-style: normal;
+    color: var(--ink-dim);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+  }
+}
+
+.Bridge button.Bridge__dockrow {
+  color: var(--ink);
+}
+
+.Bridge button.Bridge__dockrow--sel {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.Bridge__dockState {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--good);
+}
+
+.Bridge__dockState--busy {
+  color: var(--ink-faint);
+}
+
+.Bridge__sys {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+
+  small {
+    font-family: var(--num);
+    font-size: 11px;
+    letter-spacing: 0;
+    color: var(--ink-dim);
+  }
+}
+
+.Bridge__cells {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 2px;
+
+  i {
+    flex: 1;
+    height: 9px;
+  }
+
+  .Bridge__cells--empty {
+    background: var(--line);
+  }
+
+  .Bridge__cells--shield {
+    background: var(--shield);
+  }
+
+  .Bridge__cells--good {
+    background: var(--good);
+  }
+
+  .Bridge__cells--warn {
+    background: var(--warn);
+  }
+
+  .Bridge__cells--danger {
+    background: var(--tac);
+  }
+}
+
+.Bridge .Bridge__sos {
+  margin-top: auto;
+  padding: 6px;
+  border: 1px dashed var(--tac);
+  background: transparent;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--tac);
+
+  .Bridge__holdLabel {
+    justify-content: center;
+  }
+
+  &[disabled] {
+    opacity: 0.35;
+  }
+}
+
+.Bridge__lock {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 9, 12, 0.7);
+}
+
+.Bridge__lockPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 360px;
+  padding: 14px;
+  border: 1px solid var(--accent);
+  background: var(--plate);
+}
+
+@media (max-width: 1100px) {
+  .Bridge .Bridge__kbd {
+    display: none;
+  }
+
+  .Bridge__contacts .Bridge__row:nth-child(n + 6) {
+    display: none;
+  }
+}
+
+@media (max-height: 800px) {
+  .Bridge__console {
+    height: 230px;
+  }
+
+  .Bridge__gun footer {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Bridge *,
+  .Bridge *::before,
+  .Bridge *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

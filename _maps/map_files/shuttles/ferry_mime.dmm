@@ -9,6 +9,28 @@
 /obj/structure/chair/comfy/shuttle,
 /turf/simulated/floor/mineral/titanium,
 /area/shuttle/transport)
+"c" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/tranquillite{
+	glass = 1;
+	req_access = list(46)
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/transport)
 "d" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
@@ -212,7 +234,7 @@ F
 (12,1,1) = {"
 F
 i
-p
+c
 i
 F
 "}

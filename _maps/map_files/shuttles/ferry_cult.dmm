@@ -5,6 +5,28 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/shuttle{
+	icon = 'icons/obj/doors/airlocks/cult/runed/cult.dmi';
+	id_tag = "s_docking_airlock"
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/turf/simulated/floor/engine/cult,
+/area/shuttle/transport)
 "c" = (
 /obj/item/candle/eternal{
 	pixel_x = 7;
@@ -218,7 +240,7 @@ M
 (12,1,1) = {"
 r
 M
-L
+b
 M
 r
 "}

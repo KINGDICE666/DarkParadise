@@ -193,6 +193,8 @@
 	var/ship_penetration_decay = 1
 	var/ship_piercing = FALSE
 	var/list/ship_pierced_tiles
+	var/ship_shield_factor = 1
+	var/ship_shield_pierce = FALSE
 	var/overmap_persistent = FALSE
 	var/overmap_velocity = 50
 	var/overmap_radar_visible = FALSE
