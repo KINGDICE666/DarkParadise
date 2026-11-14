@@ -72,6 +72,8 @@
 	var/obj/overmap/entity/resolved = SSovermap?.resolve_vessel(src)
 	if(!resolved)
 		return
+	if(vessel && vessel != resolved)
+		vessel.unregister_engine(src)
 	resolved.register_engine(src)
 
 /obj/machinery/ship_engine/proc/can_burn()

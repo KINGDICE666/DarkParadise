@@ -55,11 +55,6 @@
 		/turf/space,
 		/area/shuttle,
 	))
-	// Ignore these areas and dont let people expand them. They can expand into them though
-	var/static/list/blacklisted_areas = typecacheof(list(
-		/area/space,
-		/area/centcom/asteroid,
-	))
 
 	var/error = ""
 	var/list/turfs = detect_room(get_turf(creator), area_or_turf_fail_types, BLUEPRINTS_MAX_ROOM_SIZE * 2)
@@ -71,7 +66,16 @@
 	if(error)
 		to_chat(creator, span_warning(error))
 		return
+	return assign_area_turfs(creator, turfs, new_area_type)
 
+/proc/assign_area_turfs(mob/creator, list/turfs, new_area_type = /area, force_new = FALSE)
+	// Ignore these areas and dont let people expand them. They can expand into them though
+	var/static/list/blacklisted_areas = typecacheof(list(
+		/area/space,
+		/area/centcom/asteroid,
+	))
+
+	var/turf_count = length(turfs)
 	var/list/apc_map = list()
 	var/list/areas = list("New Area" = new_area_type)
 	for(var/i in 1 to turf_count)
@@ -90,14 +94,16 @@
 			return
 		areas[place.name] = place
 
-	var/area_choice = tgui_input_list(creator, "Choose an area to expand or make a new area", "Area Expansion", areas)
-	if(isnull(area_choice))
-		to_chat(creator, span_warning("No choice selected. The area remains undefined."))
-		return
-	area_choice = areas[area_choice]
+	var/area_choice = new_area_type
+	if(!force_new)
+		area_choice = tgui_input_list(creator, "Choose an area to expand or make a new area", "Area Expansion", areas)
+		if(isnull(area_choice))
+			to_chat(creator, span_warning("No choice selected. The area remains undefined."))
+			return
+		area_choice = areas[area_choice]
 
 	var/area/newA
-	var/area/oldA = get_area(get_turf(creator))
+	var/area/oldA = get_area(turfs[1])
 	if(!isarea(area_choice))
 		var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
 		if(!str)
@@ -151,7 +157,7 @@
 		if(!(locate(/turf) in merged_area.contents))
 			qdel(merged_area)
 
-	return TRUE
+	return newA
 
 #undef BLUEPRINTS_MAX_ROOM_SIZE
 

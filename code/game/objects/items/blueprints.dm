@@ -3,6 +3,10 @@
 #define AREA_STATION 1
 #define AREA_SPACE 2
 #define AREA_SPECIAL 3
+#define BLUEPRINTS_ZONE_STATION "station"
+#define BLUEPRINTS_ZONE_SHUTTLE "shuttle"
+#define BLUEPRINTS_DRAW_RANGE 12
+#define BLUEPRINTS_MAX_DRAWN_TILES 300
 
 /obj/item/areaeditor
 	name = "area modification item"
@@ -129,9 +133,16 @@
 	var/client/viewing
 	/// Viewing the wire legend
 	var/legend = FALSE
+	var/can_draw = TRUE
+	var/zone_kind = BLUEPRINTS_ZONE_STATION
+	var/list/draft_turfs = list()
+	var/client/draft_viewer
+	var/datum/click_intercept/blueprint_draft/drafting
 
 /obj/item/areaeditor/blueprints/Destroy()
 	clear_viewer()
+	stop_drafting()
+	draft_turfs.Cut()
 	return ..()
 
 /obj/item/areaeditor/blueprints/interact_prints(mob/user)
@@ -147,6 +158,8 @@
 		else
 			. += "<p><a href='byond://?src=[UID()];refresh=1'>Refresh structural data</a></p>"
 			. += "<p><a href='byond://?src=[UID()];hide_blueprints=1'>Hide structural data</a></p>"
+		if(can_draw)
+			. += draft_controls()
 	else
 		if(legend == TRUE)
 			. += "<a href='byond://?src=[UID()];exit_legend=1'><< Back</a>"
@@ -186,8 +199,155 @@
 	if(href_list["refresh"])
 		clear_viewer(usr)
 		set_viewer(usr)
+	if(can_draw)
+		if(href_list["zone_kind"])
+			set_zone_kind(href_list["zone_kind"])
+		if(href_list["toggle_draft"])
+			if(drafting)
+				stop_drafting()
+			else
+				start_drafting(usr)
+		if(href_list["clear_draft"])
+			clear_draft()
+		if(href_list["apply_draft"] && !currently_used)
+			currently_used = TRUE
+			apply_draft(usr)
+			if(QDELETED(src))
+				return
+			currently_used = FALSE
 
 	interact_prints(usr)
+
+/obj/item/areaeditor/blueprints/proc/draft_controls()
+	var/shuttle = zone_kind == BLUEPRINTS_ZONE_SHUTTLE
+	. = "<hr><h3>Разметка зон</h3>"
+	. += "<p>Тип зоны: <a href='byond://?src=[UID()];zone_kind=[BLUEPRINTS_ZONE_STATION]'>[shuttle ? "Станция" : "<b>\[Станция\]</b>"]</a> | <a href='byond://?src=[UID()];zone_kind=[BLUEPRINTS_ZONE_SHUTTLE]'>[shuttle ? "<b>\[Шаттл\]</b>" : "Шаттл"]</a></p>"
+	if(shuttle)
+		. += "<p><small>Шаттл размечается только в открытом космосе: корпус не должен касаться станции и заходить в её зоны. Отметьте весь корпус вместе со стенами.</small></p>"
+	. += "<p>Отмечено клеток: [length(draft_turfs)]</p>"
+	. += "<p><a href='byond://?src=[UID()];toggle_draft=1'>[drafting ? "Закончить разметку" : "Начать разметку"]</a></p>"
+	if(drafting)
+		. += "<p><small>ЛКМ — отметить клетку, ПКМ — снять отметку, Shift+ЛКМ — отметить прямоугольник от последней отмеченной клетки.</small></p>"
+	if(length(draft_turfs))
+		. += "<p><a href='byond://?src=[UID()];apply_draft=1'>[shuttle ? "Зарегистрировать шаттл" : "Создать зону"] из разметки</a></p>"
+		. += "<p><a href='byond://?src=[UID()];clear_draft=1'>Очистить разметку</a></p>"
+
+/obj/item/areaeditor/blueprints/proc/set_zone_kind(kind)
+	zone_kind = kind == BLUEPRINTS_ZONE_SHUTTLE ? BLUEPRINTS_ZONE_SHUTTLE : BLUEPRINTS_ZONE_STATION
+	for(var/turf/tile as anything in draft_turfs)
+		var/image/marker = draft_turfs[tile]
+		marker.icon_state = draft_marker_state()
+
+/obj/item/areaeditor/blueprints/proc/draft_marker_state()
+	return zone_kind == BLUEPRINTS_ZONE_SHUTTLE ? "red" : "blue"
+
+/obj/item/areaeditor/blueprints/proc/draft_markers()
+	. = list()
+	for(var/turf/tile as anything in draft_turfs)
+		. += draft_turfs[tile]
+
+/obj/item/areaeditor/blueprints/proc/start_drafting(mob/user)
+	if(!user.client)
+		return
+	if(user.client.click_intercept)
+		to_chat(user, span_warning("Сначала закончите текущее действие."))
+		return
+	drafting = new(user.client, src)
+	draft_viewer = user.client
+	draft_viewer.images |= draft_markers()
+	to_chat(user, span_notice("Вы начинаете разметку зоны."))
+
+/obj/item/areaeditor/blueprints/proc/stop_drafting()
+	QDEL_NULL(drafting)
+	if(draft_viewer)
+		draft_viewer.images -= draft_markers()
+		draft_viewer = null
+
+/obj/item/areaeditor/blueprints/proc/mark_turf(turf/tile)
+	if(draft_turfs[tile] || length(draft_turfs) >= OVERMAP_CUSTOM_SHUTTLE_MAX_TILES)
+		return
+	var/image/marker = image('icons/effects/alphacolors.dmi', tile, draft_marker_state())
+	SET_PLANE_EXPLICIT(marker, ABOVE_LIGHTING_PLANE, tile)
+	draft_turfs[tile] = marker
+	draft_viewer?.images += marker
+
+/obj/item/areaeditor/blueprints/proc/unmark_turf(turf/tile)
+	var/image/marker = draft_turfs[tile]
+	if(!marker)
+		return
+	draft_viewer?.images -= marker
+	draft_turfs -= tile
+
+/obj/item/areaeditor/blueprints/proc/clear_draft()
+	draft_viewer?.images -= draft_markers()
+	draft_turfs.Cut()
+
+/obj/item/areaeditor/blueprints/proc/apply_draft(mob/user)
+	var/list/turfs = draft_turfs.Copy()
+	if(!length(turfs))
+		return
+	if(zone_kind == BLUEPRINTS_ZONE_SHUTTLE)
+		var/problem = custom_shuttle_problem(turfs)
+		if(problem)
+			to_chat(user, span_warning(problem))
+			return
+		var/area/shuttle/custom/hull = assign_area_turfs(user, turfs, /area/shuttle/custom, force_new = TRUE)
+		if(!hull)
+			return
+		clear_draft()
+		if(!SSovermap.commission_custom_shuttle(hull, turfs))
+			to_chat(user, span_warning("Зона шаттла создана, но внести его в реестр полётов не удалось."))
+			return
+		to_chat(user, span_notice("Шаттл «[hull.name]» внесён в реестр. Поставьте штурвал и двигатели, чтобы на нём летать."))
+		add_game_logs("registered custom shuttle [hull.name] ([length(turfs)] tiles) at [AREACOORD(user)]", user)
+		return
+	if(length(turfs) > BLUEPRINTS_MAX_DRAWN_TILES)
+		to_chat(user, span_warning("Зона станции не может быть больше [BLUEPRINTS_MAX_DRAWN_TILES] клеток."))
+		return
+	for(var/turf/tile as anything in turfs)
+		if(isspaceturf(tile) || is_area_shuttle(get_area(tile)))
+			to_chat(user, span_warning("В разметке есть открытый космос или шаттл."))
+			return
+	if(assign_area_turfs(user, turfs, new_area_type))
+		clear_draft()
+
+/datum/click_intercept/blueprint_draft
+	var/obj/item/areaeditor/blueprints/prints
+	var/turf/last_marked
+
+/datum/click_intercept/blueprint_draft/New(client/C, obj/item/areaeditor/blueprints/prints)
+	src.prints = prints
+	return ..()
+
+/datum/click_intercept/blueprint_draft/Destroy()
+	if(prints?.drafting == src)
+		prints.drafting = null
+	prints = null
+	last_marked = null
+	return ..()
+
+/datum/click_intercept/blueprint_draft/InterceptClickOn(mob/user, params, atom/object)
+	if(QDELETED(prints) || prints.loc != user)
+		prints?.stop_drafting()
+		if(!QDELETED(src))
+			quit()
+		return TRUE
+	var/turf/spot = get_turf(object)
+	if(!spot)
+		return FALSE
+	if(spot.z != user.z || get_dist(user, spot) > BLUEPRINTS_DRAW_RANGE)
+		return TRUE
+	var/list/modifiers = params2list(params)
+	if(LAZYACCESS(modifiers, RIGHT_CLICK))
+		prints.unmark_turf(spot)
+		return TRUE
+	if(LAZYACCESS(modifiers, SHIFT_CLICK) && last_marked?.z == spot.z)
+		for(var/turf/tile as anything in block(last_marked, spot))
+			prints.mark_turf(tile)
+	else
+		prints.mark_turf(spot)
+	last_marked = spot
+	return TRUE
 
 /obj/item/areaeditor/blueprints/proc/get_images(turf/central_turf, viewsize)
 	. = list()
@@ -219,6 +379,7 @@
 /obj/item/areaeditor/blueprints/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
 	clear_viewer()
+	stop_drafting()
 	legend = FALSE
 
 /obj/item/areaeditor/blueprints/proc/view_wire_devices(mob/user)
@@ -258,6 +419,7 @@
 	desc = "A one use set of blueprints made of jelly like organic material. Extends the reach of the management console."
 	color = "#2956B2"
 	allow_non_space_use = FALSE
+	can_draw = FALSE
 
 /obj/item/areaeditor/blueprints/slime/create_area_wrapper(mob/user, new_area_type)
 	. = ..()
@@ -348,4 +510,8 @@
 #undef AREA_STATION
 #undef AREA_SPACE
 #undef AREA_SPECIAL
+#undef BLUEPRINTS_ZONE_STATION
+#undef BLUEPRINTS_ZONE_SHUTTLE
+#undef BLUEPRINTS_DRAW_RANGE
+#undef BLUEPRINTS_MAX_DRAWN_TILES
 

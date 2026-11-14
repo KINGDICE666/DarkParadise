@@ -4206,6 +4206,7 @@
 #include "code\modules\overmap\celestial\star.dm"
 #include "code\modules\overmap\communications.dm"
 #include "code\modules\overmap\consoles.dm"
+#include "code\modules\overmap\custom_shuttle.dm"
 #include "code\modules\overmap\engines\engine_construction.dm"
 #include "code\modules\overmap\engines\engine_heat.dm"
 #include "code\modules\overmap\engines\engine_plasma.dm"
