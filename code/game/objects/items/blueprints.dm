@@ -138,6 +138,7 @@
 	var/list/draft_turfs = list()
 	var/client/draft_viewer
 	var/datum/click_intercept/blueprint_draft/drafting
+	var/last_result
 
 /obj/item/areaeditor/blueprints/Destroy()
 	clear_viewer()
@@ -159,7 +160,7 @@
 			. += "<p><a href='byond://?src=[UID()];refresh=1'>Refresh structural data</a></p>"
 			. += "<p><a href='byond://?src=[UID()];hide_blueprints=1'>Hide structural data</a></p>"
 		if(can_draw)
-			. += draft_controls()
+			. += draft_controls(user)
 	else
 		if(legend == TRUE)
 			. += "<a href='byond://?src=[UID()];exit_legend=1'><< Back</a>"
@@ -209,6 +210,8 @@
 				start_drafting(usr)
 		if(href_list["clear_draft"])
 			clear_draft()
+		if(href_list["mark_structure"])
+			mark_structure(usr)
 		if(href_list["apply_draft"] && !currently_used)
 			currently_used = TRUE
 			apply_draft(usr)
@@ -218,19 +221,57 @@
 
 	interact_prints(usr)
 
-/obj/item/areaeditor/blueprints/proc/draft_controls()
+/obj/item/areaeditor/blueprints/proc/draft_controls(mob/user)
 	var/shuttle = zone_kind == BLUEPRINTS_ZONE_SHUTTLE
 	. = "<hr><h3>Разметка зон</h3>"
+	var/area/here = get_area(user)
+	if(istype(here, /area/shuttle/custom))
+		. += "<p>Вы на шаттле <b>«[html_encode(here.name)]»</b>. Отмеченные вплотную к нему клетки будут к нему пристроены.</p>"
 	. += "<p>Тип зоны: <a href='byond://?src=[UID()];zone_kind=[BLUEPRINTS_ZONE_STATION]'>[shuttle ? "Станция" : "<b>\[Станция\]</b>"]</a> | <a href='byond://?src=[UID()];zone_kind=[BLUEPRINTS_ZONE_SHUTTLE]'>[shuttle ? "<b>\[Шаттл\]</b>" : "Шаттл"]</a></p>"
 	if(shuttle)
-		. += "<p><small>Шаттл размечается только в открытом космосе: корпус не должен касаться станции и заходить в её зоны. Отметьте весь корпус вместе со стенами.</small></p>"
+		. += "<p><small>Встаньте на пол своей постройки и нажмите «Отметить постройку целиком»: весь корпус со стенами отметится сам. Постройка должна стоять в открытом космосе и не касаться станции.</small></p>"
+		. += "<p><a href='byond://?src=[UID()];mark_structure=1'>Отметить постройку целиком</a></p>"
 	. += "<p>Отмечено клеток: [length(draft_turfs)]</p>"
-	. += "<p><a href='byond://?src=[UID()];toggle_draft=1'>[drafting?.holder ? "Закончить разметку" : "Начать разметку"]</a></p>"
+	. += "<p><a href='byond://?src=[UID()];toggle_draft=1'>[drafting?.holder ? "Закончить ручную разметку" : "Ручная разметка"]</a></p>"
 	if(drafting?.holder)
 		. += "<p><small>ЛКМ — отметить клетку, ПКМ — снять отметку, Shift+ЛКМ — отметить прямоугольник от последней отмеченной клетки.</small></p>"
 	if(length(draft_turfs))
 		. += "<p><a href='byond://?src=[UID()];apply_draft=1'>[shuttle ? "Зарегистрировать шаттл" : "Создать зону"] из разметки</a></p>"
 		. += "<p><a href='byond://?src=[UID()];clear_draft=1'>Очистить разметку</a></p>"
+	if(last_result)
+		. += "<p><b>[html_encode(last_result)]</b></p>"
+
+/obj/item/areaeditor/blueprints/proc/report_draft(mob/user, text, success = FALSE)
+	last_result = text
+	to_chat(user, success ? span_notice(text) : span_warning(text))
+
+/obj/item/areaeditor/blueprints/proc/mark_structure(mob/user)
+	var/turf/origin = get_turf(user)
+	if(!origin || isspaceturf(origin))
+		report_draft(user, "Встаньте на пол постройки, которую хотите отметить.")
+		return
+	var/list/found = list()
+	found[origin] = TRUE
+	var/list/queue = list(origin)
+	while(length(queue) && length(found) <= OVERMAP_CUSTOM_SHUTTLE_MAX_TILES)
+		var/turf/current = queue[length(queue)]
+		queue.len--
+		for(var/direction in GLOB.cardinal)
+			var/turf/next = get_step(current, direction)
+			if(!next || found[next] || isspaceturf(next))
+				continue
+			found[next] = TRUE
+			queue += next
+	if(length(found) > OVERMAP_CUSTOM_SHUTTLE_MAX_TILES)
+		report_draft(user, "Постройка больше [OVERMAP_CUSTOM_SHUTTLE_MAX_TILES] клеток. Похоже, она соединена со станцией.")
+		return
+	if(!drafting?.holder)
+		stop_drafting()
+		start_drafting(user)
+	clear_draft()
+	for(var/turf/tile as anything in found)
+		mark_turf(tile)
+	report_draft(user, "Отмечено клеток постройки: [length(draft_turfs)].", TRUE)
 
 /obj/item/areaeditor/blueprints/proc/set_zone_kind(kind)
 	zone_kind = kind == BLUEPRINTS_ZONE_SHUTTLE ? BLUEPRINTS_ZONE_SHUTTLE : BLUEPRINTS_ZONE_STATION
@@ -287,40 +328,51 @@
 	if(!length(turfs))
 		return
 	if(zone_kind == BLUEPRINTS_ZONE_SHUTTLE)
-		var/problem = custom_shuttle_problem(turfs)
+		var/area/shuttle/custom/extending = custom_shuttle_near(turfs)
+		var/problem = custom_shuttle_problem(turfs, extending)
 		if(problem)
-			to_chat(user, span_warning(problem))
+			report_draft(user, problem)
+			return
+		if(extending)
+			problem = SSovermap.extend_custom_shuttle(user, extending, turfs)
+			if(problem)
+				report_draft(user, problem)
+				return
+			clear_draft()
+			report_draft(user, "Шаттл «[extending.name]» достроен.", TRUE)
+			add_game_logs("extended custom shuttle [extending.name] by [length(turfs)] tiles at [AREACOORD(user)]", user)
 			return
 		var/shuttle_name = tgui_input_text(user, "Название шаттла:", "Регистрация шаттла", max_length = MAX_NAME_LEN, encode = FALSE)
 		if(!shuttle_name || QDELETED(src) || loc != user)
 			return
-		problem = custom_shuttle_problem(turfs)
+		problem = custom_shuttle_problem(turfs, custom_shuttle_near(turfs))
 		if(problem)
-			to_chat(user, span_warning(problem))
+			report_draft(user, problem)
 			return
 		var/area/shuttle/custom/hull = assign_area_turfs(user, turfs, /area/shuttle/custom, force_new = TRUE, preset_name = shuttle_name)
 		if(!hull)
 			return
 		clear_draft()
 		if(!SSovermap.commission_custom_shuttle(hull, turfs))
-			to_chat(user, span_warning("Зона шаттла создана, но внести его в реестр полётов не удалось."))
+			report_draft(user, "Зона шаттла создана, но внести его в реестр полётов не удалось.")
 			return
-		to_chat(user, span_notice("Шаттл «[hull.name]» внесён в реестр. Поставьте штурвал и двигатели, чтобы на нём летать."))
+		report_draft(user, "Шаттл «[hull.name]» внесён в реестр. Поставьте штурвал и двигатели, чтобы на нём летать.", TRUE)
 		add_game_logs("registered custom shuttle [hull.name] ([length(turfs)] tiles) at [AREACOORD(user)]", user)
 		return
 	if(length(turfs) > BLUEPRINTS_MAX_DRAWN_TILES)
-		to_chat(user, span_warning("Зона станции не может быть больше [BLUEPRINTS_MAX_DRAWN_TILES] клеток."))
+		report_draft(user, "Зона станции не может быть больше [BLUEPRINTS_MAX_DRAWN_TILES] клеток.")
 		return
 	for(var/turf/tile as anything in turfs)
 		var/area/place = get_area(tile)
 		if(isspaceturf(tile) || is_area_shuttle(place))
-			to_chat(user, span_warning("В разметке есть открытый космос или шаттл."))
+			report_draft(user, "В разметке есть открытый космос или шаттл.")
 			return
 		if(!isspacearea(place) && (!place.requires_power || place.tele_proof || place.no_teleportlocs))
-			to_chat(user, span_warning("Разметка задевает защищённую зону «[place.name]»."))
+			report_draft(user, "Разметка задевает защищённую зону «[place.name]».")
 			return
 	if(assign_area_turfs(user, turfs, new_area_type))
 		clear_draft()
+		last_result = null
 
 /datum/click_intercept/blueprint_draft
 	var/obj/item/areaeditor/blueprints/prints

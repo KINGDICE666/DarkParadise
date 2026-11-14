@@ -46,7 +46,8 @@
 /obj/machinery/ship_engine/Initialize(mapload)
 	. = ..()
 	GLOB.ship_engines += src
-	create_engine_parts()
+	if(engine_board)
+		create_board_parts(engine_board)
 	if(engine_size == 2)
 		spawn_engine_fillers(list(EAST, NORTH, NORTHEAST))
 	else if(engine_size == 3)
@@ -240,11 +241,9 @@
 /obj/machinery/ship_engine/virtual/can_burn()
 	return on && !(stat & BROKEN)
 
-/obj/machinery/ship_engine/proc/create_engine_parts()
-	if(!engine_board)
-		return
+/obj/machinery/proc/create_board_parts(board_path)
 	component_parts = list()
-	var/obj/item/circuitboard/board = new engine_board(src)
+	var/obj/item/circuitboard/board = new board_path(src)
 	component_parts += board
 	for(var/part_type, count in board.req_components)
 		if(ispath(part_type, /obj/item/stack))

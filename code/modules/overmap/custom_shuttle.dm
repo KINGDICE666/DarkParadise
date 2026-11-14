@@ -5,21 +5,38 @@
 /datum/controller/subsystem/overmap
 	var/custom_shuttle_serial = 0
 
-/proc/custom_shuttle_problem(list/turfs)
-	if(!length(turfs))
-		return "Разметка пуста."
-	if(length(turfs) > OVERMAP_CUSTOM_SHUTTLE_MAX_TILES)
-		return "Шаттл не может быть больше [OVERMAP_CUSTOM_SHUTTLE_MAX_TILES] клеток."
+/proc/custom_shuttle_near(list/turfs)
 	for(var/turf/tile as anything in turfs)
-		if(isspaceturf(tile))
-			return "В разметке есть открытый космос. Отмечайте только пол и стены корпуса."
-		if(!isspacearea(get_area(tile)))
-			return "Разметка задевает зону станции или другую зону. Шаттл размечается только в открытом космосе."
+		if(istype(tile.loc, /area/shuttle/custom))
+			return tile.loc
 		for(var/direction in GLOB.cardinal)
 			var/turf/outside = get_step(tile, direction)
-			if(outside && !turfs[outside] && !isspaceturf(outside))
-				return "Корпус соединён с постройкой за пределами разметки. Шаттл не должен касаться станции."
-	var/turf/first = turfs[1]
+			if(istype(outside?.loc, /area/shuttle/custom))
+				return outside.loc
+	return null
+
+/proc/custom_shuttle_problem(list/turfs, area/shuttle/custom/extending)
+	if(!length(turfs))
+		return "Разметка пуста."
+	var/list/hull = turfs.Copy()
+	if(extending)
+		var/turf/sample = turfs[1]
+		extending.cannonize_contained_turfs_by_zlevel(sample.z)
+		for(var/turf/tile as anything in extending.get_turfs_by_zlevel(sample.z))
+			hull[tile] = TRUE
+	if(length(hull) > OVERMAP_CUSTOM_SHUTTLE_MAX_TILES)
+		return "Шаттл не может быть больше [OVERMAP_CUSTOM_SHUTTLE_MAX_TILES] клеток."
+	for(var/turf/tile as anything in hull)
+		if(isspaceturf(tile))
+			return "В разметке есть открытый космос. Отмечайте только пол и стены корпуса."
+		var/area/place = get_area(tile)
+		if(place != extending && !isspacearea(place))
+			return "Разметка задевает зону «[place.name]». Шаттл размечается только в открытом космосе."
+		for(var/direction in GLOB.cardinal)
+			var/turf/outside = get_step(tile, direction)
+			if(outside && !hull[outside] && !isspaceturf(outside))
+				return "Корпус касается постройки за пределами разметки ([outside.x], [outside.y]). Шаттл не должен соединяться со станцией."
+	var/turf/first = hull[1]
 	var/list/reached = list()
 	reached[first] = TRUE
 	var/list/queue = list(first)
@@ -28,12 +45,19 @@
 		queue.len--
 		for(var/direction in GLOB.cardinal)
 			var/turf/next = get_step(current, direction)
-			if(next && turfs[next] && !reached[next])
+			if(next && hull[next] && !reached[next])
 				reached[next] = TRUE
 				queue += next
-	if(length(reached) != length(turfs))
+	if(length(reached) != length(hull))
 		return "Разметка должна быть одним цельным корпусом."
 	return null
+
+/obj/docking_port/stationary/proc/match_port_bounds(obj/docking_port/mobile/port)
+	setDir(port.dir)
+	width = port.width
+	height = port.height
+	dwidth = port.dwidth
+	dheight = port.dheight
 
 /datum/controller/subsystem/overmap/proc/commission_custom_shuttle(area/shuttle/custom/hull, list/turfs)
 	var/turf/anchor
@@ -58,13 +82,33 @@
 	var/obj/docking_port/stationary/pad = new(anchor)
 	pad.name = "[hull.name]: стоянка"
 	pad.id = "[port.id]_home"
-	pad.setDir(port.dir)
-	pad.width = port.width
-	pad.height = port.height
-	pad.dwidth = port.dwidth
-	pad.dheight = port.dheight
+	pad.match_port_bounds(port)
 	pad.register()
 	var/obj/overmap/entity/vessel = get_or_register_shuttle(port)
 	if(vessel)
 		relink_hardware(turfs)
 	return vessel
+
+/datum/controller/subsystem/overmap/proc/extend_custom_shuttle(mob/user, area/shuttle/custom/hull, list/turfs)
+	var/list/added = list()
+	for(var/turf/tile as anything in turfs)
+		if(tile.loc != hull)
+			added[tile] = TRUE
+	if(!length(added))
+		return "Все отмеченные клетки уже входят в шаттл «[hull.name]»."
+	var/obj/docking_port/mobile/port = get_shuttle_at(locate(/turf) in hull.contents)
+	if(!port)
+		return "Шаттл «[hull.name]» не найден в реестре полётов."
+	var/obj/docking_port/stationary/pad = port.get_docked()
+	if(port.mode != SHUTTLE_IDLE || pad?.id != "[port.id]_home")
+		return "Достраивать шаттл «[hull.name]» можно только на его стоянке."
+	if(!assign_area_turfs(user, added, hull, force_new = TRUE))
+		return "Не удалось пристроить клетки к шаттлу «[hull.name]»."
+	port.overmap_sync_bounds(TRUE)
+	pad.match_port_bounds(port)
+	relink_hardware(added)
+	var/obj/overmap/entity/vessel = shuttle_vessels[port]
+	if(vessel)
+		vessel.hull_dirty = TRUE
+		vessel.recalculate_mass()
+	return null

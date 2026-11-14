@@ -47,6 +47,46 @@
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_COMBAT = 3)
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
 
+/datum/design/helm_console
+	name = "Console Board (Helm Console)"
+	desc = "Плата штурвала корабля."
+	id = "helm_console"
+	build_type = IMPRINTER
+	build_path = /obj/item/circuitboard/helm
+	materials = list(MAT_GLASS = 1000)
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_MAGNETS = 2)
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
+/datum/design/engines_console
+	name = "Console Board (Engines Control Console)"
+	desc = "Плата консоли управления двигателями корабля."
+	id = "engines_console"
+	build_type = IMPRINTER
+	build_path = /obj/item/circuitboard/engines
+	materials = list(MAT_GLASS = 1000)
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_ENGINEERING = 3)
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
+/datum/design/navmap_console
+	name = "Console Board (Overmap Monitor)"
+	desc = "Плата монитора карты системы."
+	id = "navmap_console"
+	build_type = IMPRINTER
+	build_path = /obj/item/circuitboard/navmap
+	materials = list(MAT_GLASS = 1000)
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 2, RESEARCH_TREE_MAGNETS = 2)
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
+/datum/design/sensors_console
+	name = "Console Board (Sensor Control Console)"
+	desc = "Плата консоли управления сенсорами корабля."
+	id = "sensors_console"
+	build_type = IMPRINTER
+	build_path = /obj/item/circuitboard/sensors
+	materials = list(MAT_GLASS = 1000)
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_MAGNETS = 3)
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_COMPUTER)
+
 /obj/machinery/computer/helm/syndicate
 	name = "syndicate helm control console"
 	desc = "Штурвал синдикатского корабля. Управление огнём доступно только с допуском Синдиката."
