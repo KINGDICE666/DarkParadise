@@ -440,7 +440,7 @@
 	if(!length(radar_uis) || !sector)
 		return
 	var/list/scatter = radar_scatter_data()
-	var/list/data = list("radar_tick" = SSovermap.radar_frame_time * 100, "radar_epoch" = radar_epoch, "radar_locked" = !!relay_jump_from, "self_pos" = radar_sector_position(), "radar_docks" = radar_dock_targets(), "dock_ready" = docking_approach?.ready(), "dock_in_range" = docking_approach?.in_alignment_range(), "dock_aligning" = docking_approach?.aligning, "radar" = radar_contacts(), "radar_drifters" = radar_drifters(), "facing" = free_flight_view ? get_facing() : 0, "radar_world" = radar_world_origin())
+	var/list/data = list("radar_tick" = SSovermap.radar_frame_time * 100, "radar_epoch" = radar_epoch, "radar_locked" = !!relay_jump_from, "self_pos" = radar_sector_position(), "radar_docks" = radar_dock_targets(), "dock_ready" = docking_approach?.ready(), "dock_in_range" = docking_approach?.in_alignment_range(), "dock_aligning" = docking_approach?.aligning, "radar" = radar_contacts(), "radar_drifters" = radar_drifters(), "facing" = radar_facing(), "radar_world" = radar_world_origin())
 	if(scatter != pushed_scatter)
 		data["radar_scatter"] = scatter
 		pushed_scatter = scatter
