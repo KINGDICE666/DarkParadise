@@ -56,6 +56,7 @@
 	var/datum/tcomms_message/tcm = new
 	tcm.connection = connection
 	tcm.sender = sender
+	tcm.source_position = sender_loc
 	tcm.sender_name = from
 	tcm.message = message
 	tcm.language = /datum/language/common

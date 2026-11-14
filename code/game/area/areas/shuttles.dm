@@ -11,6 +11,11 @@
 	sound_environment = SOUND_ENVIRONMENT_ROOM
 	holomap_should_draw = FALSE
 
+/area/shuttle/Initialize(mapload)
+	requires_power = FALSE
+	always_unpowered = FALSE
+	return ..()
+
 /area/shuttle/arrival
 	name = "Arrival Shuttle"
 	holomap_should_draw = TRUE
@@ -102,6 +107,10 @@
 
 /area/shuttle/mining
 	name = "Mining Shuttle"
+	icon_state = "shuttle"
+
+/area/shuttle/explorer
+	name = "Explorer Shuttle"
 	icon_state = "shuttle"
 
 /area/shuttle/transport
