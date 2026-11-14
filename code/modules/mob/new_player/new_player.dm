@@ -207,6 +207,8 @@
 	return !get_job_unavailable_reason(rank)
 
 /mob/new_player/proc/get_job_unavailable_reason(rank)
+	if(SSticker.mode?.forced_job && rank != SSticker.mode.forced_job)
+		return "В этом режиме доступна только роль бойца PvE"
 	var/datum/job/job = SSjobs.GetJob(rank)
 	if(!job)
 		return "Должность не найдена"
@@ -222,7 +224,7 @@
 		return "Недостаточно наигранного времени"
 	if(!job.can_novice_play(client))
 		return "Только для новичков"
-	if(CONFIG_GET(flag/assistant_limit) && job.title == JOB_TITLE_CIVILIAN)
+	if(CONFIG_GET(flag/assistant_limit) && job.title == JOB_TITLE_CIVILIAN && !SSticker.mode?.forced_job)
 		var/datum/job/security/officer = SSjobs.GetJob(JOB_TITLE_OFFICER)
 		var/datum/job/security/warden = SSjobs.GetJob(JOB_TITLE_WARDEN)
 		var/datum/job/head_of_staff/hos = SSjobs.GetJob(JOB_TITLE_HOS)
