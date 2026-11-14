@@ -18,6 +18,7 @@
 	var/last_notice_tone
 	var/last_notice_origin
 	var/last_notice_time = 0
+	var/fire_access = ACCESS_SECURITY
 	var/fire_target_uid
 	var/free_fire = FALSE
 

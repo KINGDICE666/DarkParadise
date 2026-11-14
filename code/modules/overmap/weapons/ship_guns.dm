@@ -75,6 +75,10 @@ GLOBAL_LIST_EMPTY(ship_guns)
 		return FALSE
 	return TRUE
 
+/obj/machinery/ship_gun/proc/gain_rounds(ammo_path, count)
+	. = clamp(count, 0, max_ammo - ammo)
+	ammo += .
+
 /obj/machinery/ship_gun/proc/make_shot()
 	if(!can_fire())
 		playsound(src, 'sound/weapons/empty.ogg', 40, TRUE)
@@ -95,7 +99,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 		return ITEM_INTERACT_BLOCKING
 	if(QDELETED(pack) || ammo >= max_ammo)
 		return ITEM_INTERACT_BLOCKING
-	ammo = min(ammo + pack.rounds, max_ammo)
+	gain_rounds(pack.type, pack.rounds)
 	playsound(src, 'sound/weapons/gun_interactions/rifle_load.ogg', 50, TRUE)
 	balloon_alert(user, "заряжено")
 	qdel(pack)
@@ -198,6 +202,26 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	max_ammo = 6
 	board_path = /obj/item/circuitboard/ship_gun/railgun
 	weapon_kind = "railgun"
+	var/shrapnel_ammo = 0
+
+/obj/machinery/ship_gun/railgun/gain_rounds(ammo_path, count)
+	. = ..()
+	if(ispath(ammo_path, /obj/item/ship_ammo/railgun/shrapnel))
+		shrapnel_ammo += .
+
+/obj/machinery/ship_gun/railgun/make_shot()
+	var/shrapnel = shrapnel_ammo > 0
+	. = ..()
+	if(!. || !shrapnel)
+		return
+	shrapnel_ammo--
+	qdel(.)
+	return new /obj/projectile/bullet/ship_railgun/shrapnel(null)
+
+/obj/machinery/ship_gun/railgun/examine(mob/user)
+	. = ..()
+	if(shrapnel_ammo)
+		. += span_notice("Из них шрапнельных: [shrapnel_ammo].")
 
 /obj/machinery/ship_gun/railgun/Initialize(mapload)
 	. = ..()
@@ -268,6 +292,26 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	ship_shield_factor = 0.5
 	ship_shield_pierce = TRUE
 
+/obj/projectile/bullet/ship_railgun/shrapnel
+	name = "railgun shrapnel slug"
+	damage = 60
+	ship_penetrations = 1
+	ship_shield_factor = 1
+	ship_shield_pierce = FALSE
+
+/obj/projectile/bullet/ship_railgun/shrapnel/on_hit(atom/target, blocked = 0, hit_zone)
+	. = ..()
+	if(ship_piercing)
+		return
+	var/turf/spot = get_turf(target)
+	if(!spot)
+		return
+	for(var/index in 1 to OVERMAP_RAILGUN_SHRAPNEL_COUNT)
+		var/obj/projectile/shrapnel/fragment = new(spot)
+		fragment.firer = firer
+		fragment.firer_source_atom = src
+		fragment.fire(index * 360 / OVERMAP_RAILGUN_SHRAPNEL_COUNT + rand(-10, 10))
+
 /obj/projectile/bullet/ship_artillery/torpedo
 	name = "ship torpedo"
 	icon = 'icons/obj/weapons/ammo.dmi'
@@ -312,6 +356,21 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	desc = "Кассета вольфрамовых болванок для рельсотрона."
 	icon_state = "box_12.7"
 	rounds = 3
+
+/obj/item/ship_ammo/railgun/shrapnel
+	name = "railgun shrapnel slugs"
+	desc = "Кассета болванок с осколочной рубашкой. Не пробивает щиты, зато после последней переборки разлетается шрапнелью."
+	color = "#ffb27a"
+
+/obj/item/ship_ammo/railgun/shrapnel/get_ru_names()
+	return alist(
+		NOMINATIVE = "кассета шрапнельных болванок",
+		GENITIVE = "кассеты шрапнельных болванок",
+		DATIVE = "кассете шрапнельных болванок",
+		ACCUSATIVE = "кассету шрапнельных болванок",
+		INSTRUMENTAL = "кассетой шрапнельных болванок",
+		PREPOSITIONAL = "кассете шрапнельных болванок",
+	)
 
 /obj/item/ship_ammo/railgun/get_ru_names()
 	return alist(
@@ -412,6 +471,14 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	id = "ship_ammo_railgun"
 	build_path = /obj/item/ship_ammo/railgun
 	materials = list(MAT_METAL = 4000, MAT_TITANIUM = 3000)
+	req_tech = list(RESEARCH_TREE_COMBAT = 5)
+
+/datum/design/ship_ammo_autocannon/railgun_shrapnel
+	name = "Railgun Shrapnel Slugs"
+	desc = "Кассета шрапнельных болванок для рельсотрона."
+	id = "ship_ammo_railgun_shrapnel"
+	build_path = /obj/item/ship_ammo/railgun/shrapnel
+	materials = list(MAT_METAL = 5000, MAT_TITANIUM = 2000)
 	req_tech = list(RESEARCH_TREE_COMBAT = 5)
 
 /datum/design/ship_ammo_autocannon/torpedo

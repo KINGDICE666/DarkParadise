@@ -367,9 +367,8 @@
 /datum/component/overmap_flight/proc/engine_pushes(obj/machinery/ship_engine/engine)
 	if(!(engine in thrusting_engines))
 		return NONE
-	if(burn_main)
-		return burn_main
-	return burn_turn ? engine_turn_push(engine) : NONE
+	var/push = burn_main || (burn_turn ? engine_turn_push(engine) : NONE)
+	return push == REVERSE_DIR(engine.dir) ? push : NONE
 
 /datum/component/overmap_flight/proc/stop_burn()
 	var/obj/overmap/entity/vessel = parent

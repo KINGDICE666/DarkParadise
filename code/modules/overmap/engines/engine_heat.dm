@@ -84,10 +84,12 @@
 		var/turf/cursor = center
 		for(var/step in 1 to round(engine_size / 2) + reach)
 			cursor = get_step(cursor, exhaust_dir)
-			if(!cursor || cursor.density)
+			if(!cursor)
 				break
 			if(step <= round(engine_size / 2))
 				continue
+			if(!isspaceturf(cursor) || cursor.is_blocked_turf(exclude_mobs = TRUE))
+				break
 			for(var/mob/living/victim in cursor)
 				victim.adjustFireLoss(OVERMAP_ENGINE_EXHAUST_BURN * overdrive_factor())
 				to_chat(victim, span_userdanger("Вас обдаёт раскалённым выхлопом двигателя!"))

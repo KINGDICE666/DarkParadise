@@ -119,7 +119,7 @@
 		data["shield"] = list("charge" = round(vessel.shield_charge()), "capacity" = vessel.shield_capacity(), "generators" = length(generators), "active" = active)
 
 /obj/machinery/computer/helm/proc/weapons_access(mob/user)
-	return user.can_admin_interact() || (ACCESS_SECURITY in user.get_access())
+	return user.can_admin_interact() || (fire_access in user.get_access())
 
 /obj/machinery/computer/helm/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	var/static/list/weapon_actions = list("select_weapon", "weapon_auto", "lock_target", "clear_target", "fire_salvo", "toggle_free_fire")

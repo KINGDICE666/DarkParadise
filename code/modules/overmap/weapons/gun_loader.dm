@@ -79,13 +79,16 @@
 		return
 	var/fed = FALSE
 	for(var/obj/machinery/ship_gun/gun as anything in linked_guns())
-		var/need = gun.max_ammo - gun.ammo
-		if(need <= 0 || !stock[gun.ammo_type])
-			continue
-		var/given = min(need, stock[gun.ammo_type], OVERMAP_LOADER_FEED)
-		stock[gun.ammo_type] -= given
-		gun.ammo += given
-		fed = TRUE
+		var/budget = OVERMAP_LOADER_FEED
+		for(var/ammo_path in stock)
+			if(budget <= 0 || gun.ammo >= gun.max_ammo)
+				break
+			if(!stock[ammo_path] || !ispath(ammo_path, gun.ammo_type))
+				continue
+			var/given = gun.gain_rounds(ammo_path, min(stock[ammo_path], budget))
+			stock[ammo_path] -= given
+			budget -= given
+			fed ||= given > 0
 	if(fed)
 		flick("autolathe_work", src)
 
