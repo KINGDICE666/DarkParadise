@@ -34,6 +34,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 		return key
 	if(is_ss14_ckey(account_ckey))
 		return ss14_name
+	if(ss14_name && ckey(ss14_name) == account_ckey)
+		return ss14_name
 	if(!is_launcher_ckey(account_ckey))
 		return account_ckey
 	return launcher_nickname ? "[launcher_nickname] (Steam)" : key
@@ -413,10 +415,10 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 
 /client/proc/setup_ss14_account()
 	launcher_claimed_ckey = account_ckey
-	ss14_name = load_ss14_name()
 	var/linked_ckey = GLOB.launcher_account_aliases[launcher_claimed_ckey]
 	if(linked_ckey && !GLOB.directory[linked_ckey])
 		account_ckey = linked_ckey
+	ss14_name = load_ss14_name()
 
 /client/proc/load_ss14_name()
 	var/static/regex/valid_name = regex(@"^[A-Za-z0-9_]{1,32}$")
@@ -424,6 +426,8 @@ GLOBAL_LIST_EMPTY(launcher_account_aliases)
 	var/name = islist(names) ? names[launcher_claimed_ckey] : null
 	if(!istext(name) || !valid_name.Find(name))
 		name = copytext(launcher_claimed_ckey, length(SS14_CKEY_PREFIX) + 1)
+	if(ckey(name) == account_ckey && !is_ss14_ckey(account_ckey))
+		return name
 	if(!SSdbcore.IsConnected())
 		return "[name] (SS14)"
 
