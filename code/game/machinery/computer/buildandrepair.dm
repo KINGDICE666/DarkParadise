@@ -383,6 +383,12 @@
 	build_path = /obj/machinery/computer/sm_monitor
 	origin_tech = "programming=2;powerstorage=2"
 
+/obj/item/circuitboard/radiation_monitor
+	board_name = "Radiation Monitoring Console"
+	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
+	build_path = /obj/machinery/computer/radiation_monitor
+	origin_tech = "programming=2;powerstorage=2"
+
 /obj/item/circuitboard/fission_monitor
 	board_name = "NGCR Monitoring Console"
 	greyscale_colors = CIRCUIT_COLOR_ENGINEERING

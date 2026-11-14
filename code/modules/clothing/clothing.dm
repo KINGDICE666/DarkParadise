@@ -3,6 +3,8 @@
 	integrity_failure = 80
 	resistance_flags = FLAMMABLE
 	abstract_type = /obj/item/clothing
+	/// Доля внешнего излучения, которую останавливает одежда на закрытых частях тела, если она вообще защитная
+	var/rad_protection = RAD_PROTECTION_STANDARD
 	var/list/species_restricted = null //Only these species can wear this kit.
 	var/gunshot_residue //Used by forensics.
 	var/obj/item/slimepotion/clothing/applied_slime_potion = null

@@ -1,7 +1,6 @@
 /turf/simulated
 	name = "station"
 	flags = NO_SCREENTIPS
-	rad_insulation = RAD_MEDIUM_INSULATION
 	oxygen = MOLES_O2STANDARD
 	nitrogen = MOLES_N2STANDARD
 	abstract_type = /turf/simulated

@@ -1282,6 +1282,18 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stack/cable_coil = 15,
 	)
 
+/obj/item/circuitboard/radiation_scrubber
+	board_name = "Radiation Scrubber"
+	build_path = /obj/machinery/radiation_scrubber
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_MEDICAL
+	origin_tech = "programming=3;biotech=3;engineering=3"
+	req_components = list(
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/capacitor = 1,
+		/obj/item/stack/cable_coil = 1,
+	)
+
 /obj/item/circuitboard/sleeper
 	board_name = "Sleeper"
 	build_path = /obj/machinery/sleeper

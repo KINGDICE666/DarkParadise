@@ -27,7 +27,7 @@
 
 /obj/projectile/energy/nuclear_particle/on_hit(atom/target, blocked, pierce_hit)
 	if(ishuman(target))
-		SSradiation.irradiate(target)
+		SSradiation.irradiate(target, 40)
 
 	return ..()
 
