@@ -199,6 +199,8 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	var/list/message_mods = list()
 	/// Source Z-level
 	var/source_level = 0
+	var/turf/source_position
+	var/obj/machinery/tcomms/core/network
 	/// What frequency the message is sent on
 	var/freq = 0
 	/// Was it sent with a voice changer
@@ -228,6 +230,8 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
  * This needs to happen like this so that things dont keep references held in place
  */
 /datum/tcomms_message/Destroy()
+	source_position = null
+	network = null
 	connection = null
 	sender = null
 	follow_target = null
@@ -295,7 +299,7 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	if(tcm.data == SIGNALTYPE_INTERCOM && !bad_connection)
 
 		for(var/obj/item/radio/intercom/R in GLOB.all_radios["[new_connection.frequency]"])
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.receive_range(display_freq, tcm.zlevels, tcm.network) > -1)
 				radios += R
 
 	// --- Broadcast only to intercoms and station-bounced radios ---
@@ -307,7 +311,7 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 			if(istype(R, /obj/item/radio/headset))
 				continue
 
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.receive_range(display_freq, tcm.zlevels, tcm.network) > -1)
 				radios += R
 
 	// --- Broadcast to ALL radio devices ---
@@ -315,14 +319,14 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	else if(!bad_connection)
 
 		for(var/obj/item/radio/R in GLOB.all_radios["[new_connection.frequency]"])
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.receive_range(display_freq, tcm.zlevels, tcm.network) > -1)
 				radios += R
 
 	// Add syndie radios for intercepts if its a regular department frequency
 		for(var/antag_freq in SSradio.ANTAG_FREQS)
 			var/datum/radio_frequency/antag_connection = SSradio.return_frequency(antag_freq)
 			for(var/obj/item/radio/R in GLOB.all_radios["[antag_connection.frequency]"])
-				if(R.receive_range(display_freq, tcm.zlevels) > -1)
+				if(R.receive_range(display_freq, tcm.zlevels, tcm.network) > -1)
 					// Only add if it wasnt there already
 					radios |= R
 

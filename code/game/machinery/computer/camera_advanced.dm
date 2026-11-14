@@ -53,7 +53,7 @@
 	user.remote_control = null
 
 	current_user = null
-	user.client.view_size.unsupress()
+	user.client?.view_size.unsupress()
 	user.unset_machine()
 	for(var/atom/movable/screen/plane_master/plane_static in user.hud_used?.get_true_plane_masters(CAMERA_STATIC_PLANE))
 		plane_static.hide_plane(user)

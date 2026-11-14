@@ -123,7 +123,8 @@
 		if(item.item_flags & (IN_INVENTORY|IN_STORAGE))
 			return
 
-	face_atom(A)
+	var/atom/aim_target = SSovermap.mirror_target(A, src)
+	face_atom(aim_target)
 
 	if(next_move > world.time) // in the year 2000...
 		return
@@ -142,8 +143,15 @@
 		RestrainedClickOn(A)
 		return
 
+	var/obj/item/overmap_hull_grip/hull_grip = get_active_hand()
+	if(istype(hull_grip) && (isturf(A) || isstructure(A) || is_door(A) || istype(A, /obj/effect/abstract/hull_proxy_tile)))
+		hull_grip.afterattack(A, src, TRUE, modifiers)
+		return
+	if(length(SSovermap.flying_vessels) && (isturf(A) || isstructure(A) || is_door(A)) && overmap_grab_hull(src, get_turf(A)))
+		return
+
 	if(in_throw_mode)
-		if(throw_item(A))
+		if(throw_item(aim_target))
 			changeNext_move(CLICK_CD_THROW)
 		return
 
@@ -185,6 +193,7 @@
 				changeNext_move(CLICK_CD_MELEE)
 			UnarmedAttack(A, TRUE, modifiers)
 	else // non-adjacent click
+		A = aim_target
 		beforeRangedClick(A, modifiers)
 		if(W)
 			A.base_ranged_item_interaction(src, W, modifiers)

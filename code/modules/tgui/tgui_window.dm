@@ -84,6 +84,8 @@
 	fatally_errored = FALSE
 	// Build window options
 	var/options = "file=[id].html;can_minimize=0;auto_format=0;titlebar=0;can_resize=0;"
+	if(pooled)
+		options += "is-visible=false;"
 	// Generate page html
 	var/html = SStgui.basehtml
 	html = replacetextEx(html, "\[tgui:windowId]", id)
