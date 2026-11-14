@@ -1432,7 +1432,9 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 	if(prefs?.discord_id && length(prefs.discord_id) < 32)
 		to_chat(usr, custom_boxed_message("red_box center", span_darkmblue("Аккаунт Discord уже привязан!<br>Чтобы отвязать используйте команду [span_boldannounceooc("/отвязать_аккаунт")]<br>В канале <b>#дом-бота</b> в Discord-сообществе!")), confidential = TRUE)
 		return
-	var/token = md5("[world.time+rand(1000,1000000)]")
+	var/token = prefs?.discord_id
+	if(length(token) != DISCORD_TOKEN_LENGTH)
+		token = md5("[world.time+rand(1000,1000000)]")
 	if(SSdbcore.IsConnected())
 		var/datum/db_query/query_update_token = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET discord_id=:token WHERE ckey =:ckey", list("token" = token, "ckey" = account_ckey))
 		if(!query_update_token.warn_execute())

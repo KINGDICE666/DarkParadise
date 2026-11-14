@@ -30,6 +30,8 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	var/collapse_distance = LOBBY_COLLAPSE_DISTANCE
 	var/lobby_group = LOBBY_GROUP_MENU
 	var/base_screen_loc
+	var/dims_with_spotlight = FALSE
+	var/dimmed = FALSE
 
 /atom/movable/screen/lobby/Initialize(mapload, datum/hud/hud_owner)
 	. = ..()
@@ -43,6 +45,10 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 
 /atom/movable/screen/lobby/proc/SlowInit()
 	return
+
+/atom/movable/screen/lobby/proc/set_dimmed(dimmed)
+	src.dimmed = dimmed
+	color = dimmed ? LOBBY_DIMMED_COLOR : null
 
 /atom/movable/screen/lobby/proc/collapse_button()
 	SIGNAL_HANDLER
@@ -60,13 +66,14 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	icon_state = "background"
 	layer = LOBBY_BACKGROUND_LAYER
 	screen_loc = "TOP,CENTER:-61"
+	dims_with_spotlight = TRUE
 
 /atom/movable/screen/lobby/button
 	abstract_type = /atom/movable/screen/lobby/button
 	mouse_over_pointer = MOUSE_HAND_POINTER
+	dims_with_spotlight = TRUE
 	VAR_PROTECTED/enabled = TRUE
 	var/highlighted = FALSE
-	var/dimmed = FALSE
 	var/select_sound_play = TRUE
 
 /atom/movable/screen/lobby/button/Click(location, control, params)
@@ -117,7 +124,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	mouse_over_pointer = enabled ? MOUSE_HAND_POINTER : MOUSE_INACTIVE_POINTER
 	return TRUE
 
-/atom/movable/screen/lobby/button/proc/set_dimmed(dimmed)
+/atom/movable/screen/lobby/button/set_dimmed(dimmed)
 	src.dimmed = dimmed
 	color = (dimmed && !highlighted) ? LOBBY_DIMMED_COLOR : null
 
@@ -504,15 +511,16 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	add_filter(DISCORD_SPOTLIGHT_OUTLINE, 2, outline_filter(size = 1, color = COLOR_GOLD))
 	animate(get_filter(DISCORD_SPOTLIGHT_GLOW), size = 5, time = DISCORD_SPOTLIGHT_PULSE_DURATION, easing = SINE_EASING, loop = -1)
 	animate(size = 2, time = DISCORD_SPOTLIGHT_PULSE_DURATION, easing = SINE_EASING)
-	for(var/atom/movable/screen/lobby/button/button in hud.static_inventory)
-		if(button != src)
-			button.set_dimmed(TRUE)
+	for(var/atom/movable/screen/lobby/lobby_screen in hud.static_inventory)
+		if(lobby_screen != src && lobby_screen.dims_with_spotlight)
+			lobby_screen.set_dimmed(TRUE)
 
 /atom/movable/screen/lobby/button/bottom/link/discord_link/proc/stop_spotlight()
 	spotlit = FALSE
 	remove_filter(list(DISCORD_SPOTLIGHT_GLOW, DISCORD_SPOTLIGHT_OUTLINE))
-	for(var/atom/movable/screen/lobby/button/button in hud.static_inventory)
-		button.set_dimmed(FALSE)
+	for(var/atom/movable/screen/lobby/lobby_screen in hud.static_inventory)
+		if(lobby_screen.dimmed)
+			lobby_screen.set_dimmed(FALSE)
 
 /atom/movable/screen/lobby/button/bottom/link/referrals
 	name = "View Referral System"
@@ -652,6 +660,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	screen_loc = "TOP:+143,CENTER:-73"
 	layer = LOBBY_SHUTTER_LAYER
 	always_shown = TRUE
+	dims_with_spotlight = TRUE
 	collapse_distance = LOBBY_SHUTTER_DROP_DISTANCE
 
 /atom/movable/screen/lobby/shutter/apply_layout_shift(shift_x, shift_y, anchor)
@@ -694,6 +703,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 	maptext_x = OVERLAY_X_DIFF
 	maptext_y = OVERLAY_Y_DIFF
 	lobby_group = LOBBY_GROUP_INFO
+	dims_with_spotlight = TRUE
 	var/show_static = TRUE
 
 /atom/movable/screen/lobby/new_player_info/Initialize(mapload, datum/hud/hud_owner)
