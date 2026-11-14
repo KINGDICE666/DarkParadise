@@ -63,8 +63,7 @@
 
 /obj/structure/closet/crate/after_open(mob/living/user, force)
 	. = ..()
-	RemoveElement(/datum/element/climbable, climb_time = crate_climb_time, climb_stun = 0)
-	AddElement(/datum/element/climbable, climb_time = crate_climb_time * 0.5, climb_stun = 0)
+	set_climb_time(crate_climb_time * 0.5)
 	if(elevation != elevation_open)
 		if(elevation)
 			RemoveElement(/datum/element/elevation, pixel_shift = elevation)
@@ -84,13 +83,17 @@
 
 /obj/structure/closet/crate/after_close(mob/living/user)
 	. = ..()
-	RemoveElement(/datum/element/climbable, climb_time = crate_climb_time * 0.5, climb_stun = 0)
-	AddElement(/datum/element/climbable, climb_time = crate_climb_time, climb_stun = 0)
+	set_climb_time(crate_climb_time)
 	if(elevation != elevation_open)
 		if(elevation_open)
 			RemoveElement(/datum/element/elevation, pixel_shift = elevation_open)
 		if(elevation)
 			AddElement(/datum/element/elevation, pixel_shift = elevation)
+
+/obj/structure/closet/crate/proc/set_climb_time(climb_time)
+	RemoveElement(/datum/element/climbable, climb_time = crate_climb_time, climb_stun = 0)
+	RemoveElement(/datum/element/climbable, climb_time = crate_climb_time * 0.5, climb_stun = 0)
+	AddElement(/datum/element/climbable, climb_time = climb_time, climb_stun = 0)
 
 /obj/structure/closet/crate/proc/do_trap_effect(mob/living/user)
 	if(!wired_for_trap || !locate(/obj/item/radio/electropack) in src)
