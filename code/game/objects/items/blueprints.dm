@@ -203,9 +203,9 @@
 		if(href_list["zone_kind"])
 			set_zone_kind(href_list["zone_kind"])
 		if(href_list["toggle_draft"])
-			if(drafting)
-				stop_drafting()
-			else
+			var/active = drafting?.holder
+			stop_drafting()
+			if(!active)
 				start_drafting(usr)
 		if(href_list["clear_draft"])
 			clear_draft()
@@ -225,8 +225,8 @@
 	if(shuttle)
 		. += "<p><small>Шаттл размечается только в открытом космосе: корпус не должен касаться станции и заходить в её зоны. Отметьте весь корпус вместе со стенами.</small></p>"
 	. += "<p>Отмечено клеток: [length(draft_turfs)]</p>"
-	. += "<p><a href='byond://?src=[UID()];toggle_draft=1'>[drafting ? "Закончить разметку" : "Начать разметку"]</a></p>"
-	if(drafting)
+	. += "<p><a href='byond://?src=[UID()];toggle_draft=1'>[drafting?.holder ? "Закончить разметку" : "Начать разметку"]</a></p>"
+	if(drafting?.holder)
 		. += "<p><small>ЛКМ — отметить клетку, ПКМ — снять отметку, Shift+ЛКМ — отметить прямоугольник от последней отмеченной клетки.</small></p>"
 	if(length(draft_turfs))
 		. += "<p><a href='byond://?src=[UID()];apply_draft=1'>[shuttle ? "Зарегистрировать шаттл" : "Создать зону"] из разметки</a></p>"
@@ -291,7 +291,14 @@
 		if(problem)
 			to_chat(user, span_warning(problem))
 			return
-		var/area/shuttle/custom/hull = assign_area_turfs(user, turfs, /area/shuttle/custom, force_new = TRUE)
+		var/shuttle_name = tgui_input_text(user, "Название шаттла:", "Регистрация шаттла", max_length = MAX_NAME_LEN, encode = FALSE)
+		if(!shuttle_name || QDELETED(src) || loc != user)
+			return
+		problem = custom_shuttle_problem(turfs)
+		if(problem)
+			to_chat(user, span_warning(problem))
+			return
+		var/area/shuttle/custom/hull = assign_area_turfs(user, turfs, /area/shuttle/custom, force_new = TRUE, preset_name = shuttle_name)
 		if(!hull)
 			return
 		clear_draft()
@@ -305,8 +312,12 @@
 		to_chat(user, span_warning("Зона станции не может быть больше [BLUEPRINTS_MAX_DRAWN_TILES] клеток."))
 		return
 	for(var/turf/tile as anything in turfs)
-		if(isspaceturf(tile) || is_area_shuttle(get_area(tile)))
+		var/area/place = get_area(tile)
+		if(isspaceturf(tile) || is_area_shuttle(place))
 			to_chat(user, span_warning("В разметке есть открытый космос или шаттл."))
+			return
+		if(!isspacearea(place) && (!place.requires_power || place.tele_proof || place.no_teleportlocs))
+			to_chat(user, span_warning("Разметка задевает защищённую зону «[place.name]»."))
 			return
 	if(assign_area_turfs(user, turfs, new_area_type))
 		clear_draft()
@@ -332,9 +343,9 @@
 		if(!QDELETED(src))
 			quit()
 		return TRUE
-	var/turf/spot = get_turf(object)
-	if(!spot)
+	if(!isturf(object) && !isturf(object.loc))
 		return FALSE
+	var/turf/spot = get_turf(object)
 	if(spot.z != user.z || get_dist(user, spot) > BLUEPRINTS_DRAW_RANGE)
 		return TRUE
 	var/list/modifiers = params2list(params)

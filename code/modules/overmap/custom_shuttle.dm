@@ -45,28 +45,16 @@
 			anchor = tile
 			break
 	if(!anchor)
-		var/center_x = 0
-		var/center_y = 0
+		var/turf/center = turfs_bounding_center(turfs)
 		for(var/turf/tile as anything in turfs)
-			center_x += tile.x / length(turfs)
-			center_y += tile.y / length(turfs)
-		for(var/turf/tile as anything in turfs)
-			if(!anchor || abs(tile.x - center_x) + abs(tile.y - center_y) < abs(anchor.x - center_x) + abs(anchor.y - center_y))
+			if(!anchor || get_dist(tile, center) < get_dist(anchor, center))
 				anchor = tile
 	custom_shuttle_serial++
 	hull.has_gravity = STANDARD_GRAVITY
-	var/obj/docking_port/mobile/port = new /obj/docking_port/mobile{timid = TRUE}(anchor)
-	port.name = hull.name
-	port.id = "custom_shuttle_[custom_shuttle_serial]"
-	port.areaInstance = hull
-	port.shuttle_areas = list()
-	port.shuttle_areas[hull] = TRUE
-	if(collar)
-		port.overmap_collar = collar
-		port.setDir(REVERSE_DIR(collar.dir))
-	port.overmap_sync_bounds(TRUE)
-	port.timid = FALSE
-	port.register()
+	var/list/areas = list()
+	areas[hull] = TRUE
+	var/obj/docking_port/mobile/port = make_area_mobile_port(anchor, areas, collar, hull.name)
+	register_runtime_mobile_port(port, "custom_shuttle_[custom_shuttle_serial]")
 	var/obj/docking_port/stationary/pad = new(anchor)
 	pad.name = "[hull.name]: стоянка"
 	pad.id = "[port.id]_home"
@@ -76,36 +64,7 @@
 	pad.dwidth = port.dwidth
 	pad.dheight = port.dheight
 	pad.register()
-	area_shuttle_cache_ready = FALSE
 	var/obj/overmap/entity/vessel = get_or_register_shuttle(port)
 	if(vessel)
-		relink_hull_hardware(turfs)
+		relink_hardware(turfs)
 	return vessel
-
-/datum/controller/subsystem/overmap/proc/relink_hull_hardware(list/turfs)
-	for(var/turf/tile as anything in turfs)
-		for(var/obj/machinery/machine in tile)
-			if(istype(machine, /obj/machinery/ship_engine))
-				var/obj/machinery/ship_engine/engine = machine
-				engine.link_vessel()
-			else if(istype(machine, /obj/machinery/computer/helm))
-				var/obj/machinery/computer/helm/helm = machine
-				helm.link_vessel()
-			else if(istype(machine, /obj/machinery/computer/engines))
-				var/obj/machinery/computer/engines/engine_console = machine
-				engine_console.link_vessel()
-			else if(istype(machine, /obj/machinery/computer/sensors))
-				var/obj/machinery/computer/sensors/sensor = machine
-				sensor.link_vessel()
-			else if(istype(machine, /obj/machinery/sensor_array))
-				var/obj/machinery/sensor_array/array = machine
-				array.link_vessel()
-			else if(istype(machine, /obj/machinery/computer/navmap))
-				var/obj/machinery/computer/navmap/monitor = machine
-				monitor.link_vessel()
-			else if(istype(machine, /obj/machinery/transponder))
-				var/obj/machinery/transponder/transponder = machine
-				transponder.link_vessel()
-			else if(istype(machine, /obj/machinery/overmap_intercom))
-				var/obj/machinery/overmap_intercom/panel = machine
-				panel.link_vessel()

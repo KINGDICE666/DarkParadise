@@ -68,7 +68,7 @@
 		return
 	return assign_area_turfs(creator, turfs, new_area_type)
 
-/proc/assign_area_turfs(mob/creator, list/turfs, new_area_type = /area, force_new = FALSE)
+/proc/assign_area_turfs(mob/creator, list/turfs, new_area_type = /area, force_new = FALSE, preset_name)
 	// Ignore these areas and dont let people expand them. They can expand into them though
 	var/static/list/blacklisted_areas = typecacheof(list(
 		/area/space,
@@ -105,7 +105,7 @@
 	var/area/newA
 	var/area/oldA = get_area(turfs[1])
 	if(!isarea(area_choice))
-		var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
+		var/str = preset_name || tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
 		if(!str)
 			return
 		newA = new area_choice
@@ -142,7 +142,10 @@
 	for(var/area_name in affected_areas)
 		area_list += affected_areas[area_name]
 	//SEND_GLOBAL_SIGNAL(COMSIG_AREA_CREATED, newA, area_list, creator)
-	to_chat(creator, span_notice("You have created a new area, named [newA.name]. It is now weather proof, and constructing an APC will allow it to be powered."))
+	if(newA.requires_power)
+		to_chat(creator, span_notice("You have created a new area, named [newA.name]. It is now weather proof, and constructing an APC will allow it to be powered."))
+	else
+		to_chat(creator, span_notice("You have created a new area, named [newA.name]."))
 	add_game_logs("created a new area ([newA.name]): [AREACOORD(creator)] (previously \"[sanitize(oldA.name)]\")", creator)
 
 	//purge old areas that had all their turfs merged into the new one i.e. old empty areas. also recompute fire doors
