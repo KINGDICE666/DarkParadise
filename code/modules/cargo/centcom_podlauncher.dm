@@ -5,6 +5,12 @@
 #define LAUNCH_ORDERED 1 //Used to check if we're launching everything from the bay area in order
 #define LAUNCH_RANDOM 2 //Used to check if we're launching everything from the bay area randomly
 
+#define POD_GAS_DEFAULT_AMOUNT 500
+#define POD_GAS_MAX_AMOUNT 50000
+#define POD_GAS_DEFAULT_RATE 50
+
+#define POD_MAP_REDISPLAY_DELAY (2 TICKS)
+
 //The Great and Mighty CentCom Pod Launcher - MrDoomBringer
 //This was originally created as a way to get adminspawned items to the station in an IC manner. It's evolved to contain a few more
 //features such as item removal, smiting, controllable delivery mobs, and more.
@@ -69,7 +75,8 @@
 	/// If it is smite, write reason for target.
 	var/reason
 
-/datum/centcom_podlauncher/New(user) //user can either be a client or a mob
+/datum/centcom_podlauncher/New(user, reason) //user can either be a client or a mob
+	src.reason = reason
 	if(user) //Prevents runtimes on datums being made without clients
 		setup(user)
 	if(!isnull(pod_style_info))
@@ -100,14 +107,21 @@
 	ui_interact(holder.mob)
 
 /datum/centcom_podlauncher/proc/initMap()
-	if(map_name)
-		holder.clear_map(map_name)
-
 	map_name = "admin_supplypod_bay_[UID()]_map"
 	// Initialize map objects
 	cam_screen = new
 	cam_screen.generate_view(map_name)
+	refreshView()
 
+/// Заново выводит объекты карты. BYOND считает размер вторичной карты по объектам, добавленным после создания её контрола, поэтому вызывается, когда карта в tgui уже смонтирована
+/datum/centcom_podlauncher/proc/show_map()
+	cam_screen.hide_from_client(holder)
+	// Удаление и возврат в одном тике BYOND склеивает в «без изменений», и карта сохранит старый размер
+	addtimer(CALLBACK(src, PROC_REF(display_map)), POD_MAP_REDISPLAY_DELAY, TIMER_UNIQUE|TIMER_OVERRIDE)
+
+/datum/centcom_podlauncher/proc/display_map()
+	if(QDELETED(cam_screen) || !holder?.mob?.hud_used)
+		return
 	// display_to doesn't send the planes to the client, so we have to do it via display_to_client
 	var/datum/plane_master_group/planes = cam_screen.display_to_client(holder)
 
@@ -133,13 +147,16 @@
 		// Open UI
 		ui = new(user, src, "CentcomPodLauncher")
 		ui.open()
-		refreshView()
 
 /datum/centcom_podlauncher/ui_static_data(mob/user)
 	var/list/data = list()
 	data["mapRef"] = map_name
 	data["defaultSoundVolume"] = initial(temp_pod.soundVolume) //default volume for pods
 	data["podStyles"] = pod_style_info
+	var/list/gas_names = list()
+	for(var/gas_id in GLOB.gas_meta)
+		gas_names[gas_id] = GLOB.gas_meta[gas_id][META_GAS_NAME]
+	data["gasNames"] = gas_names
 	return data
 
 /datum/centcom_podlauncher/ui_data(mob/user) //Sends info about the pod to the UI.
@@ -151,6 +168,7 @@
 	data["customDropoff"] = customDropoff
 	data["reverse_dropoff_coords"] = temp_pod.reverse_dropoff_coords
 	data["renderLighting"] = renderLighting
+	data["tabIndex"] = tabIndex
 	data["launchClone"] = launchClone //Do we launch the actual items in the bay or just launch clones of them?
 	data["launchRandomItem"] = launchRandomItem //Do we launch a single random item instead of everything on the turf?
 	data["launchChoice"] = launchChoice //Launch turfs all at once (0), ordered (1), or randomly(1)
@@ -165,6 +183,8 @@
 	data["effectShrapnel"] = temp_pod.effectShrapnel //If true, creates a cloud of shrapnel of a decided type and magnitude on landing
 	data["shrapnelType"] = "[temp_pod.shrapnel_type]" //Path2String
 	data["shrapnelMagnitude"] = temp_pod.shrapnel_magnitude
+	data["effectGas"] = length(temp_pod.gas_release) > 0
+	data["gasRelease"] = temp_pod.gas_release
 	data["effectStun"] = temp_pod.effectStun //If true, stuns anyone under the pod when it launches until it lands, forcing them to get hit by the pod. Devilish!
 	data["effectLimb"] = temp_pod.effectLimb //If true, pops off a limb (if applicable) from anyone caught under the pod when it lands
 	data["effectOrgans"] = temp_pod.effectOrgans //If true, yeets the organs out of any bodies caught under the pod when it lands
@@ -218,7 +238,7 @@
 			if(picking_dropoff_turf)
 				picking_dropoff_turf = FALSE
 				updateCursor() //Update the cursor of the user to a cool looking target icon
-				return
+				return TRUE
 			if(launcherActivated)
 				launcherActivated = FALSE //We don't want to have launch mode enabled while we're picking a turf
 			picking_dropoff_turf = TRUE
@@ -292,16 +312,18 @@
 			if(explosionChoice == 1) //If already a custom explosion, set to default (no explosion)
 				explosionChoice = 0
 				temp_pod.explosionSize = list(0,0,0,0)
-				return
+				return TRUE
 			var/list/expNames = list("тотального разрушения", "тяжелого удара", "легкого удара", "пламени") //Explosions have a range of different types of damage
 			var/list/boomInput = list()
 			for(var/i=1 to length(expNames)) //Gather input from the user for the value of each type of damage
-				boomInput.Add(tgui_input_number(usr, "Введите дальность [expNames[i]]. ВНИМАНИЕ: это игнорирует ограниечение радиуса бомб!", "Дальность [expNames[i]]",  0))
+				boomInput.Add(tgui_input_number(usr, "Введите дальность [expNames[i]]. ВНИМАНИЕ: это игнорирует ограничение радиуса бомб!", "Дальность [expNames[i]]",  0))
 				if(isnull(boomInput[i]))
 					return
 				if(!isnum(boomInput[i])) //If the user doesn't input a number, set that specific explosion value to zero
 					tgui_alert(usr, "Это было не число! Вместо него установлено значение по умолчанию (ноль).")
-					boomInput = 0
+					boomInput[i] = 0
+			if(QDELETED(temp_pod))
+				return
 			explosionChoice = 1
 			temp_pod.explosionSize = boomInput
 			. = TRUE
@@ -309,7 +331,7 @@
 			if(explosionChoice == 2) //If already a maccap, set to default (no explosion)
 				explosionChoice = 0
 				temp_pod.explosionSize = list(0,0,0,0)
-				return
+				return TRUE
 			explosionChoice = 2
 			temp_pod.explosionSize = list(GLOB.max_ex_devastation_range, GLOB.max_ex_heavy_range, GLOB.max_ex_light_range, GLOB.max_ex_flame_range) //Set explosion to max cap of server
 			. = TRUE
@@ -317,9 +339,9 @@
 			if(damageChoice == 1) //If already doing custom damage, set back to default (no damage)
 				damageChoice = 0
 				temp_pod.damage = 0
-				return
+				return TRUE
 			var/damageInput = tgui_input_number(usr, "Введите сумму урона травмами, который нанесется при ударе.", "Сколько урона нанести?",  0)
-			if(isnull(damageInput))
+			if(isnull(damageInput) || QDELETED(temp_pod))
 				return
 			if(!isnum(damageInput)) //Sanitize the input for damage to deal.s
 				tgui_alert(usr, "Это было не число! Вместо него установлено значение по умолчанию (ноль).")
@@ -332,7 +354,7 @@
 				damageChoice = 0
 				temp_pod.damage = 0
 				temp_pod.effectGib = FALSE
-				return
+				return TRUE
 			damageChoice = 2
 			temp_pod.damage = 5000
 			temp_pod.effectGib = TRUE //Gibs whoever is under the pod when it lands
@@ -341,12 +363,12 @@
 			if(temp_pod.adminNamed) //If we're already adminNamed, set the name of the pod back to default
 				temp_pod.adminNamed = FALSE
 				temp_pod.setStyle(temp_pod.style) //This resets the name of the pod based on its current style (see supplypod/setStyle() proc)
-				return
+				return TRUE
 			var/nameInput= tgui_input_text(usr, "Введите новое имя капсулы", "Новое имя", temp_pod.style::name, MAX_NAME_LEN) //Gather input for name and desc
-			if(isnull(nameInput))
+			if(isnull(nameInput) || QDELETED(temp_pod))
 				return
 			var/descInput = tgui_input_text(usr, "Введите новое описание капсулы", "Новое описание", temp_pod.style::desc)
-			if(isnull(descInput))
+			if(isnull(descInput) || QDELETED(temp_pod))
 				return
 			temp_pod.name = nameInput
 			temp_pod.desc = descInput
@@ -355,12 +377,12 @@
 		if("effectShrapnel") //Creates a cloud of shrapnel on landing
 			if(temp_pod.effectShrapnel == TRUE) //If already doing custom damage, set back to default (no shrapnel)
 				temp_pod.effectShrapnel = FALSE
-				return
+				return TRUE
 			var/shrapnelInput = tgui_input_list(usr, "Пожалуйста, введите тип облака снарядов, которое вы хотите создать при приземлении (может быть любой снаряд!)", "Тип снаряда", sort_list(subtypesof(/obj/projectile), GLOBAL_PROC_REF(cmp_typepaths_asc)), null)
 			if(isnull(shrapnelInput))
 				return
 			var/shrapnelMagnitude = tgui_input_number(usr, "Введите размер облака снарядов. Обычно это значение от 1 до 5. Обратите внимание: Если вы выберите слишком большой размер, вы можете вызвать сбой сервера.", "Размер облака", 0)
-			if(isnull(shrapnelMagnitude))
+			if(isnull(shrapnelMagnitude) || QDELETED(temp_pod))
 				return
 			if(!isnum(shrapnelMagnitude))
 				tgui_alert(usr, "Это было не число! Вместо него установлено значение 3.")
@@ -368,6 +390,31 @@
 			temp_pod.shrapnel_type = shrapnelInput
 			temp_pod.shrapnel_magnitude = shrapnelMagnitude
 			temp_pod.effectShrapnel = TRUE
+			. = TRUE
+		if("effectGas")
+			var/list/gas_ids_by_name = list()
+			var/list/checked_gases = list()
+			for(var/gas_id in GLOB.gas_meta)
+				var/gas_name = GLOB.gas_meta[gas_id][META_GAS_NAME]
+				gas_ids_by_name[gas_name] = gas_id
+				checked_gases[gas_name] = !isnull(temp_pod.gas_release[gas_id])
+			checked_gases = tgui_input_checkbox_list(usr, "Отметьте газы, которые капсула выпустит после приземления. Снимите все галочки, чтобы отключить газ.", "Газовая ракета", checked_gases)
+			if(isnull(checked_gases) || QDELETED(temp_pod))
+				return
+			var/list/new_gas_release = list()
+			for(var/gas_name in checked_gases)
+				if(!checked_gases[gas_name])
+					continue
+				var/gas_id = gas_ids_by_name[gas_name]
+				var/list/old_settings = temp_pod.gas_release[gas_id]
+				var/gas_amount = tgui_input_number(usr, "Сколько молей [gas_name] выпустить? Для справки: в одном тайле при нормальном давлении около [round(MOLES_CELLSTANDARD)] моль.", "Количество газа", old_settings?["amount"] || POD_GAS_DEFAULT_AMOUNT, POD_GAS_MAX_AMOUNT, 1)
+				if(isnull(gas_amount) || QDELETED(temp_pod))
+					return
+				var/gas_rate = tgui_input_number(usr, "С какой скоростью выпускать [gas_name] (моль в секунду)?", "Скорость выпуска", min(old_settings?["rate"] || POD_GAS_DEFAULT_RATE, gas_amount), gas_amount, 1)
+				if(isnull(gas_rate) || QDELETED(temp_pod))
+					return
+				new_gas_release[gas_id] = list("amount" = gas_amount, "rate" = gas_rate)
+			temp_pod.gas_release = new_gas_release
 			. = TRUE
 		if("effectStun") //Toggle: Any mob under the pod is stunned (cant move) until the pod lands, hitting them!
 			temp_pod.effectStun = !temp_pod.effectStun
@@ -409,16 +456,16 @@
 			. = TRUE
 		if("effectTarget") //Toggle: Launch at a specific mob (instead of at whatever turf you click on). Used for the supplypod smite
 			if(specificTarget)
-				specificTarget = null
-				return
+				set_target(null)
+				return TRUE
 
 			var/list/possible_destinations = GLOB.mob_living_list
 			var/mob/target = tgui_input_list(usr, "Выберите моба!", "Цель", possible_destinations)
 
-			if(isnull(target) || QDELETED(target))
+			if(isnull(target) || QDELETED(target) || QDELETED(src))
 				return
 
-			specificTarget = target
+			set_target(target)
 
 			. = TRUE
 		////////////////////////////TIMER DELAYS//////////////////
@@ -443,9 +490,9 @@
 			if((temp_pod.fallingSound) != initial(temp_pod.fallingSound))
 				temp_pod.fallingSound = initial(temp_pod.fallingSound)
 				temp_pod.fallingSoundLength = initial(temp_pod.fallingSoundLength)
-				return
+				return TRUE
 			var/soundInput = input(holder, "Пожалуйста, выберите звуковой файл, который будет воспроизводиться, когда капсула будет приземляться! Звук начнет воспроизводиться и попытается прекратится, когда капсула приземлится.", "Выберите звуковой файл") as null|sound
-			if(isnull(soundInput))
+			if(isnull(soundInput) || QDELETED(temp_pod))
 				return
 			var/sound/tempSound = sound(soundInput)
 			playsound(holder.mob, tempSound, 1)
@@ -460,7 +507,7 @@
 					soundLen = length(found)
 			if(!soundLen)
 				soundLen = tgui_input_number(holder, "Не удалось автоматически определить длительность звукового файла. Какова его точная длительность в секундах? Это число будет использоваться для выравнивания звука так, чтобы он заканчивался сразу после приземления капсулы!", "Введите длительность файла", 0.3)
-				if(isnull(soundLen))
+				if(isnull(soundLen) || QDELETED(temp_pod))
 					return
 				if(!isnum(soundLen))
 					tgui_alert(usr, "Это было не число! Вместо него установлено значение по умолчанию ([initial(temp_pod.fallingSoundLength) * 0.1]).")
@@ -470,36 +517,36 @@
 		if("landingSound") //Admin sound from a local file that plays when the pod lands
 			if(!isnull(temp_pod.landingSound))
 				temp_pod.landingSound = null
-				return
+				return TRUE
 			var/soundInput = input(holder, "Пожалуйста, выберите звуковой файл, который будет воспроизводиться, когда капсула приземлится! Рекомендуется «ох, черт, прости!» в случае, если вы кого-нибудь ударите капсулой.", "Выберите звуковой файл") as null|sound
-			if(isnull(soundInput))
+			if(isnull(soundInput) || QDELETED(temp_pod))
 				return
 			temp_pod.landingSound = soundInput
 			. = TRUE
 		if("openingSound") //Admin sound from a local file that plays when the pod opens
 			if(!isnull(temp_pod.openingSound))
 				temp_pod.openingSound = null
-				return
+				return TRUE
 			var/soundInput = input(holder, "Пожалуйста, выберите звуковой файл, который будет воспроизводиться при открытии капсулы! Рекомендуется стандартный звуковой эффект детей, радующихся вечеринке, в случае, если в вашей капсуле полно веселых и интересных вещей!", "Выберите звуковой файл") as null|sound
-			if(isnull(soundInput))
+			if(isnull(soundInput) || QDELETED(temp_pod))
 				return
 			temp_pod.openingSound = soundInput
 			. = TRUE
 		if("leavingSound") //Admin sound from a local file that plays when the pod leaves
 			if(!isnull(temp_pod.leavingSound))
 				temp_pod.leavingSound = null
-				return
+				return TRUE
 			var/soundInput = input(holder, "Пожалуйста, выберите звуковой файл, который будет воспроизводиться, когда капсула исчезнет! Рекомендуется хороший звук свистка, особенно если вы используете эффект возвращаемой капсулы.", "Выберите звуковой файл") as null|sound
-			if(isnull(soundInput))
+			if(isnull(soundInput) || QDELETED(temp_pod))
 				return
 			temp_pod.leavingSound = soundInput
 			. = TRUE
 		if("soundVolume") //Admin sound from a local file that plays when the pod leaves
 			if(temp_pod.soundVolume != initial(temp_pod.soundVolume))
 				temp_pod.soundVolume = initial(temp_pod.soundVolume)
-				return
+				return TRUE
 			var/soundInput = tgui_input_number(holder, "Пожалуйста, выберите громкость. По умолчанию — от 1 до 100, где 50 — среднее значение, но выбирайте любое. Если вы по-прежнему не слышите звук, попробуйте включить эффект «Тихо». При этом будут отключены все звуки капсулы, за исключением пользовательских, заданных администратором тремя предыдущими кнопками.", "Выберите громкость админских звуков")
-			if(isnull(soundInput))
+			if(isnull(soundInput) || QDELETED(temp_pod))
 				return
 			temp_pod.soundVolume = soundInput
 			. = TRUE
@@ -507,10 +554,10 @@
 		//as a way to get the proper icon state, name, and description of the pod.
 		if("tabSwitch")
 			tabIndex = params["tabIndex"]
-			refreshView()
+			show_map()
 			. = TRUE
 		if("refreshView")
-			initMap()
+			show_map()
 			. = TRUE
 		if("renderLighting")
 			renderLighting = !renderLighting
@@ -617,7 +664,7 @@
 			for(var/mob/living/target_mob in target)
 				bouttaDie.Add(target_mob)
 			if(holder.holder)
-				supplypod_punish_log(bouttaDie)
+				supplypod_punish_log(bouttaDie, target)
 
 			if(reason && ismob(specificTarget))
 				to_chat(specificTarget, span_warning("Это кара за [reason]!"))
@@ -772,9 +819,22 @@
 	QDEL_NULL(temp_pod) //Delete the temp_pod
 	QDEL_NULL(selector) //Delete the selector effect
 	QDEL_NULL(indicator)
+	QDEL_NULL(cam_screen)
+	specificTarget = null
 	return ..()
 
-/datum/centcom_podlauncher/proc/supplypod_punish_log(list/whoDyin)
+/datum/centcom_podlauncher/proc/set_target(atom/new_target)
+	if(specificTarget)
+		UnregisterSignal(specificTarget, COMSIG_QDELETING)
+	specificTarget = new_target
+	if(specificTarget)
+		RegisterSignal(specificTarget, COMSIG_QDELETING, PROC_REF(on_target_deleted))
+
+/datum/centcom_podlauncher/proc/on_target_deleted(datum/source)
+	SIGNAL_HANDLER
+	set_target(null)
+
+/datum/centcom_podlauncher/proc/supplypod_punish_log(list/whoDyin, turf/target_turf)
 	var/podString = effectBurst ? "5 pods" : "a pod"
 	var/whomString = ""
 	if(LAZYLEN(whoDyin))
@@ -782,13 +842,14 @@
 			whomString += "[key_name(M)], "
 
 	var/msg = "launched [podString] towards [whomString]"
-	message_admins("[key_name_admin(usr)] [msg] in [ADMIN_VERBOSEJMP(specificTarget)].")
+	message_admins("[key_name_admin(usr)] [msg] in [ADMIN_VERBOSEJMP(target_turf)].")
 	if(length(whoDyin))
-		for(var/mob/living/M in whoDyin)
-			log_and_message_admins("[key_name_admin(usr)] [msg]")
+		log_admin("[key_name(usr)] [msg] in [AREACOORD(target_turf)].")
 
 /datum/centcom_podlauncher/proc/loadData(list/dataToLoad)
-	bayNumber = dataToLoad["bayNumber"]
+	var/saved_bay = dataToLoad["bayNumber"]
+	if(istext(saved_bay) && GLOB.supplypod_loading_bays[saved_bay])
+		bayNumber = saved_bay
 	customDropoff = dataToLoad["customDropoff"]
 	var/list/cords = dataToLoad["reverse_dropoff_coords"]
 	if(length(cords))
@@ -802,13 +863,26 @@
 	temp_pod.explosionSize = (explosionChoice)? dataToLoad["explosionSize"] : list(0,0,0,0)
 	damageChoice = dataToLoad["damageChoice"] //Damage that occurs to any mob under the pod when it lands. Can be no damage (0), custom damage (1), or gib+5000dmg (2)
 	temp_pod.damage = (damageChoice)? dataToLoad["damage"] : 0
+	temp_pod.effectGib = (damageChoice == 2)
 	temp_pod.delays = dataToLoad["delays"]
 	temp_pod.reverse_delays = dataToLoad["rev_delays"]
 	temp_pod.custom_rev_delay = dataToLoad["custom_rev_delay"]
-	temp_pod.setStyle(pod_style_lookup[dataToLoad["styleChoice"]])  //Style is a variable that keeps track of what the pod is supposed to look like.
-	temp_pod.effectShrapnel = dataToLoad["effectShrapnel"] //If true, creates a cloud of shrapnel of a decided type and magnitude on landing
-	temp_pod.shrapnel_type = text2path(dataToLoad["shrapnelType"])
+	temp_pod.adminNamed = dataToLoad["effectName"] //Determines whether or not the pod has been named by an admin. If true, the pod's name will not get overridden when the style of the pod changes (changing the style of the pod normally also changes the name+desc)
+	var/datum/pod_style/saved_style = pod_style_lookup[dataToLoad["styleChoice"]]
+	if(saved_style)
+		temp_pod.setStyle(saved_style) //Style is a variable that keeps track of what the pod is supposed to look like.
+	var/saved_shrapnel = text2path(dataToLoad["shrapnelType"])
+	temp_pod.effectShrapnel = dataToLoad["effectShrapnel"] && ispath(saved_shrapnel, /obj/projectile) //If true, creates a cloud of shrapnel of a decided type and magnitude on landing
+	if(temp_pod.effectShrapnel)
+		temp_pod.shrapnel_type = saved_shrapnel
 	temp_pod.shrapnel_magnitude = dataToLoad["shrapnelMagnitude"]
+	temp_pod.gas_release = list()
+	var/list/saved_gases = dataToLoad["gasRelease"]
+	for(var/gas_id in saved_gases)
+		var/list/gas_settings = saved_gases[gas_id]
+		if(!GLOB.gas_meta[gas_id] || !islist(gas_settings) || !isnum(gas_settings["amount"]) || !isnum(gas_settings["rate"]))
+			continue
+		temp_pod.gas_release[gas_id] = list("amount" = gas_settings["amount"], "rate" = gas_settings["rate"])
 	temp_pod.effectStun = dataToLoad["effectStun"]//If true, stuns anyone under the pod when it launches until it lands, forcing them to get hit by the pod. Devilish!
 	temp_pod.effectLimb = dataToLoad["effectLimb"]//If true, pops off a limb (if applicable) from anyone caught under the pod when it lands
 	temp_pod.effectOrgans = dataToLoad["effectOrgans"]//If true, yeets the organs out of any bodies caught under the pod when it lands
@@ -821,8 +895,6 @@
 	temp_pod.reversing = dataToLoad["effectReverse"] //If true, the pod will not send any items. Instead, after opening, it will close again (picking up items/mobs) and fly back to centcom
 	update_dropoff_indicator()
 	temp_pod.reverse_option_list = dataToLoad["reverse_option_list"]
-	specificTarget = dataToLoad["effectTarget"] //Launches the pod at the turf of a specific mob target, rather than wherever the user clicked. Useful for smites
-	temp_pod.adminNamed = dataToLoad["effectName"] //Determines whether or not the pod has been named by an admin. If true, the pod's name will not get overridden when the style of the pod changes (changing the style of the pod normally also changes the name+desc)
 	temp_pod.name = dataToLoad["podName"]
 	temp_pod.desc = dataToLoad["podDesc"]
 	effectAnnounce = dataToLoad["effectAnnounce"]
@@ -838,7 +910,7 @@
 	picking_dropoff_turf = FALSE
 	launcherActivated = FALSE
 	updateCursor()
-	refreshView()
+	refreshBay()
 
 GLOBAL_DATUM_INIT(podlauncher, /datum/centcom_podlauncher, new)
 
@@ -881,5 +953,9 @@ GLOBAL_DATUM_INIT(podlauncher, /datum/centcom_podlauncher, new)
 #undef LAUNCH_ALL
 #undef LAUNCH_ORDERED
 #undef LAUNCH_RANDOM
+#undef POD_GAS_DEFAULT_AMOUNT
+#undef POD_GAS_MAX_AMOUNT
+#undef POD_GAS_DEFAULT_RATE
+#undef POD_MAP_REDISPLAY_DELAY
 #undef TAB_BAY
 #undef TAB_POD

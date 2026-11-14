@@ -3,7 +3,7 @@ import { Box, Button, Section, Stack } from 'tgui-core/components';
 import { useBackend } from '../../backend';
 import { EFFECTS_ALL, POD_GREY } from './constants';
 import { useCompact } from './hooks';
-import type { PodLauncherData } from './types';
+import type { PodEffect, PodLauncherData } from './types';
 
 export const PodStatusPage = (props: unknown) => {
   const [compact] = useCompact();
@@ -37,10 +37,27 @@ export const PodStatusPage = (props: unknown) => {
   );
 };
 
+const getEffectTooltip = (
+  effect: Extract<PodEffect, { act: string }>,
+  data: PodLauncherData,
+) => {
+  const lines = effect.title.split('\n');
+  if (effect.act === 'effectShrapnel' && data.effectShrapnel) {
+    lines.push(data.shrapnelType, `Размер: ${data.shrapnelMagnitude}`);
+  } else if (effect.act === 'effectGas' && data.effectGas) {
+    for (const [gasId, gas] of Object.entries(data.gasRelease)) {
+      lines.push(
+        `${data.gasNames[gasId] || gasId}: ${gas.amount} моль, ${gas.rate} моль/с`,
+      );
+    }
+  }
+  return lines.map((line) => <div key={line}>{line}</div>);
+};
+
 const EffectDisplay = (props) => {
   const { effect, hasMargin, index } = props;
   const { act, data } = useBackend<PodLauncherData>();
-  const { effectShrapnel, payload, shrapnelMagnitude, shrapnelType } = data;
+  const { payload } = data;
 
   if (effect.divider || !('icon' in effect)) {
     return (
@@ -67,17 +84,7 @@ const EffectDisplay = (props) => {
         marginRight: hasMargin ? '1px' : '0px',
         verticalAlign: 'middle',
       }}
-      tooltip={
-        effect.details
-          ? effectShrapnel
-            ? effect.title +
-              '\n' +
-              shrapnelType +
-              '\nРазмер:' +
-              shrapnelMagnitude
-            : effect.title
-          : effect.title
-      }
+      tooltip={getEffectTooltip(effect, data)}
       tooltipPosition={effect.tooltipPosition}
     >
       {effect.content}
@@ -118,10 +125,7 @@ const Extras = (props: unknown) => {
           icon={compact ? 'expand' : 'compress'}
           inline
           m={0}
-          onClick={() => {
-            setCompact(!compact);
-            compact && act('refreshView');
-          }}
+          onClick={() => setCompact(!compact)}
           tooltip={compact ? 'Расширенный режим' : 'Компактный режим'}
           tooltipPosition="top-start"
         />
