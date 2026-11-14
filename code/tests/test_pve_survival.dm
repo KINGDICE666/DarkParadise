@@ -9,96 +9,103 @@
 	mode = allocate(/datum/game_mode/pve)
 	SSticker.mode = mode
 	TEST_ASSERT(mode.pre_setup(), "PvE arena failed to load.")
-	TEST_ASSERT_EQUAL(length(GLOB.start_override), 5, "Unexpected PvE state.")
-	TEST_ASSERT_EQUAL(length(mode.enemy_spawns), 4, "Unexpected PvE state.")
-	var/turf/player_spawn = GLOB.start_override[1]
+	TEST_ASSERT_NOTNULL(mode.core, "PvE arena has no beacon.")
+	TEST_ASSERT(length(mode.player_spawns) >= 4, "PvE arena has too few player spawns.")
+	TEST_ASSERT(length(mode.enemy_spawns) >= 4, "PvE arena has too few enemy spawns.")
+	TEST_ASSERT(length(mode.drop_turfs), "PvE arena has no supply drop turfs.")
+	TEST_ASSERT_EQUAL(length(mode.classes), 5, "Unexpected PvE class count.")
+	var/turf/player_spawn = mode.player_spawns[1]
 	var/turf/enemy_spawn = mode.enemy_spawns[1]
 	TEST_ASSERT(player_spawn.x < enemy_spawn.x, "Players must spawn to the left of enemies.")
-	TEST_ASSERT_EQUAL(player_spawn.z, enemy_spawn.z, "Unexpected PvE state.")
+	TEST_ASSERT_NOTNULL(mode.flow_field.distance_at(enemy_spawn), "Enemy spawns cannot reach the base.")
+
 	var/mob/living/carbon/human/player = allocate(/mob/living/carbon/human, player_spawn)
 	player.mind_initialize()
 	var/datum/outfit/pve/outfit = allocate(/datum/outfit/pve)
 	outfit.equip(player)
-	TEST_ASSERT(istype(player.l_hand, /obj/item/melee/baseball_bat), "PvE starter bat was not equipped.")
-	TEST_ASSERT(istype(player.r_store, /obj/item/kitchen/knife), "PvE starter knife was not equipped.")
-	var/datum/pve_account/account = mode.player_accounts[player.mind.UID()]
-	TEST_ASSERT_NOTNULL(account, "Required PvE fixture is missing.")
-	TEST_ASSERT_EQUAL(account.credits, 100, "Unexpected PvE state.")
-	account.credits = 75
+	var/datum/pve_account/account = mode.get_account(player)
+	TEST_ASSERT_NOTNULL(account, "Equipping the PvE outfit did not register an account.")
+	TEST_ASSERT_EQUAL(account.credits, 200, "Unexpected starting credits.")
+	TEST_ASSERT(mode.choose_class(account, PVE_CLASS_ASSAULT), "Choosing a class failed.")
+	TEST_ASSERT(istype(player.wear_suit, /obj/item/clothing/suit/armor/vest), "Assault class did not equip its vest.")
+	TEST_ASSERT(!mode.choose_class(account, PVE_CLASS_MEDIC), "A class was chosen twice.")
 	mode.register_player(player)
-	TEST_ASSERT_EQUAL(account.credits, 75, "Registering a player twice must preserve the balance.")
-	var/obj/machinery/computer/pve_shop/shop
-	for(var/obj/machinery/computer/pve_shop/candidate in get_area(player))
-		shop = candidate
-		break
-	TEST_ASSERT_NOTNULL(shop, "Required PvE fixture is missing.")
-	player.forceMove(get_step(shop, EAST))
-	TEST_ASSERT(shop.purchase(player, "bandages"), "An affordable purchase failed.")
-	TEST_ASSERT_EQUAL(account.credits, 50, "Unexpected PvE state.")
-	TEST_ASSERT(!shop.purchase(player, "armor"), "An unaffordable purchase succeeded.")
-	TEST_ASSERT(!shop.purchase(player, "invalid_product"), "An invalid product was accepted.")
-	TEST_ASSERT_EQUAL(account.credits, 50, "Unexpected PvE state.")
+	TEST_ASSERT_EQUAL(account.credits, 200, "Registering a player twice must preserve the balance.")
+
+	var/obj/machinery/computer/pve_shop/armory/armory
+	for(var/obj/machinery/computer/pve_shop/armory/candidate as anything in SSmachines.get_by_type(/obj/machinery/computer/pve_shop/armory))
+		if(candidate.z == mode.arena_z)
+			armory = candidate
+			break
+	TEST_ASSERT_NOTNULL(armory, "PvE arena has no armory terminal.")
+	player.forceMove(get_step(armory, SOUTH))
+	TEST_ASSERT(armory.purchase(player, "[/datum/pve_product/weapon/mosin]"), "An affordable purchase failed.")
+	TEST_ASSERT_EQUAL(account.credits, 35, "The assault weapon discount was not applied.")
+	TEST_ASSERT(!armory.purchase(player, "[/datum/pve_product/weapon/sniper]"), "A class-locked product was sold to another class.")
+	TEST_ASSERT(!armory.purchase(player, "[/datum/pve_product/armor/heavy]"), "An unaffordable purchase succeeded.")
+	TEST_ASSERT(!armory.purchase(player, "[/datum/pve_product/medicine/firstaid]"), "The armory sold a medbay product.")
+	TEST_ASSERT_EQUAL(account.credits, 35, "A failed purchase changed the balance.")
 	player.forceMove(player_spawn)
-	TEST_ASSERT(!shop.purchase(player, "bandages"), "A remote purchase succeeded.")
-	TEST_ASSERT_EQUAL(account.credits, 50, "Unexpected PvE state.")
+	TEST_ASSERT(!armory.purchase(player, "[/datum/pve_product/ammo/pistol]"), "A remote purchase succeeded.")
+
 	mode.started = TRUE
-	mode.next_wave = world.time + 1 MINUTES
+	mode.next_wave_time = world.time + 1 MINUTES
 	mode.process()
 	TEST_ASSERT_EQUAL(mode.wave, 0, "A wave started before preparation ended.")
-	mode.next_wave = world.time
+	mode.next_wave_time = world.time
 	mode.process()
-	TEST_ASSERT_EQUAL(mode.wave, 1, "Unexpected PvE state.")
-	TEST_ASSERT(mode.wave_active, "First wave did not activate.")
-	TEST_ASSERT_EQUAL(mode.enemies_to_spawn, 5, "Unexpected PvE state.")
+	TEST_ASSERT_EQUAL(mode.wave, 1, "The first wave did not start.")
+	TEST_ASSERT(mode.wave_active, "The first wave did not activate.")
+	TEST_ASSERT(length(mode.spawn_queue), "The first wave has no enemies.")
 	mode.process()
-	TEST_ASSERT_EQUAL(length(mode.active_enemies), 1, "Unexpected PvE state.")
-	var/mob/living/simple_animal/hostile/carp/pve/enemy = mode.active_enemies[1]
-	TEST_ASSERT(player in enemy.ListTargets(), "Enemies cannot find players across the corridor.")
-	TEST_ASSERT(enemy.CanAttack(player), "Enemies cannot attack the survivor.")
+	TEST_ASSERT(length(mode.active_enemies), "No enemies spawned during the wave.")
+	var/mob/living/simple_animal/hostile/pve/enemy = mode.active_enemies[1]
+	TEST_ASSERT(enemy.CanAttack(player), "Enemies cannot attack defenders.")
+	TEST_ASSERT(mode.core in enemy.ListTargets(), "Enemies cannot see the beacon.")
+	var/turf/next_turf = mode.flow_field.next_step(enemy)
+	TEST_ASSERT_NOTNULL(next_turf, "The flow field gives enemies no route.")
+	TEST_ASSERT(mode.flow_field.distance_at(next_turf) < mode.flow_field.distance_at(get_turf(enemy)), "The flow field leads enemies away from defenders.")
+
+	enemy.note_attacker(player)
+	var/expected_credits = account.credits + enemy.bounty
 	enemy.death()
-	TEST_ASSERT_EQUAL(length(mode.active_enemies), 0, "Enemy death did not update the wave.")
-	mode.process()
-	TEST_ASSERT_EQUAL(mode.completed_waves, 0, "Wave was rewarded before all enemies spawned.")
-	while(mode.enemies_to_spawn)
-		mode.spawn_enemy()
+	TEST_ASSERT_EQUAL(account.kills, 1, "A kill was not attributed.")
+	TEST_ASSERT_EQUAL(account.credits, expected_credits, "A kill bounty was not paid.")
+
+	mode.spawn_queue.Cut()
 	for(var/mob/living/remaining_enemy as anything in mode.active_enemies.Copy())
 		qdel(remaining_enemy)
-	mode.process()
-	TEST_ASSERT_EQUAL(mode.completed_waves, 1, "Unexpected PvE state.")
-	TEST_ASSERT_EQUAL(account.credits, 175, "Unexpected PvE state.")
-	TEST_ASSERT_EQUAL(account.score, 100, "Unexpected PvE state.")
-	mode.process()
-	TEST_ASSERT_EQUAL(account.credits, 175, "The wave reward was issued twice.")
+	player.death()
+	TEST_ASSERT_EQUAL(account.deaths, 1, "A defender death was not counted.")
+	expected_credits = account.credits + round((60 + 15) / 2)
+	mode.complete_wave()
 	TEST_ASSERT(!mode.wave_active, "Preparation did not resume after clearing the wave.")
+	TEST_ASSERT_EQUAL(account.credits, expected_credits, "A fallen defender did not get half of the wave reward.")
+	TEST_ASSERT(player.stat != DEAD, "A fallen defender was not revived after the wave.")
+	TEST_ASSERT(get_turf(player) in mode.player_spawns, "A revived defender was not returned to the base.")
+
 	mode.wave = 4
 	mode.start_wave(1)
-	while(mode.enemies_to_spawn)
-		mode.spawn_enemy()
-	var/boss_count = 0
-	for(var/mob/living/simple_animal/hostile/carp/pve/opponent as anything in mode.active_enemies)
-		if(istype(opponent, /mob/living/simple_animal/hostile/carp/pve/boss))
-			boss_count++
-	TEST_ASSERT_EQUAL(boss_count, 1, "The fifth wave must contain one boss.")
-	enemy = mode.active_enemies[1]
-	TEST_ASSERT(enemy.maxHealth > initial(enemy.maxHealth), "Enemy health did not scale with wave number.")
-	mode.started = FALSE
+	TEST_ASSERT_EQUAL(mode.boss_type, /mob/living/simple_animal/hostile/pve/boss/broodmother, "The fifth wave has no boss.")
+	mode.spawn_boss(1)
+	TEST_ASSERT(istype(mode.active_boss, /mob/living/simple_animal/hostile/pve/boss/broodmother), "The boss did not spawn.")
+
 	var/obj/machinery/porta_turret/syndicate/pve/turret = allocate(/obj/machinery/porta_turret/syndicate/pve, get_step(player, EAST))
-	TEST_ASSERT_EQUAL(turret.assess_living(player), TURRET_NOT_TARGET, "Unexpected PvE state.")
-	TEST_ASSERT_EQUAL(turret.assess_living(enemy), TURRET_PRIORITY_TARGET, "Unexpected PvE state.")
+	mode.active_boss.forceMove(get_step(turret, EAST))
+	TEST_ASSERT_EQUAL(turret.assess_living(player), TURRET_NOT_TARGET, "Turrets target defenders.")
+	TEST_ASSERT_EQUAL(turret.assess_living(mode.active_boss), TURRET_PRIORITY_TARGET, "Turrets ignore wave enemies.")
 	var/obj/projectile/bullet/pve_turret/bullet = allocate(/obj/projectile/bullet/pve_turret, get_turf(turret))
 	var/previous_damage = player.getBruteLoss()
 	bullet.prehit(player)
 	player.bullet_act(bullet)
-	TEST_ASSERT_EQUAL(player.getBruteLoss(), previous_damage, "PvE turret bullets hurt an ally.")
-	bullet.prehit(enemy)
-	TEST_ASSERT(!bullet.nodamage, "A turret bullet stayed harmless after passing an ally.")
-	TEST_ASSERT(!bullet.forcedodge, "A turret bullet would pass through a wave enemy.")
-	mode.started = TRUE
+	TEST_ASSERT_EQUAL(player.getBruteLoss(), previous_damage, "Turret bullets hurt a defender.")
+	bullet.prehit(mode.active_boss)
+	TEST_ASSERT(!bullet.nodamage, "A turret bullet stayed harmless after passing a defender.")
+
 	player.death()
 	mode.process()
-	TEST_ASSERT(mode.finished, "PvE did not end after all survivors died.")
-	TEST_ASSERT(mode.check_finished(), "The ticker cannot see the PvE defeat.")
-	TEST_ASSERT(SSticker.force_ending, "PvE defeat cannot end a continuous round.")
+	TEST_ASSERT(mode.finished, "PvE did not end after all defenders died.")
+	TEST_ASSERT(!mode.victory, "A wipe was counted as a victory.")
 
 /datum/unit_test/pve_survival/Destroy()
 	mode.started = FALSE
