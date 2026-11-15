@@ -36,7 +36,7 @@
 		avatar.maxHealth += neuro.get_avatar_integrity_bonus()
 		avatar.updatehealth("net deck integrity")
 		avatar.last_health = avatar.health
-		RegisterSignals(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING), PROC_REF(lose_connection))
+		RegisterSignals(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING), PROC_REF(on_neuro_lost))
 		panel_action = new(neuro)
 		panel_action.Grant(avatar)
 
@@ -46,16 +46,19 @@
 	add_game_logs("jacked into the Net from [AREACOORD(pod)]", avatar)
 
 /datum/component/net_connection/Destroy(force)
+	release_neuro()
 	release_body()
 	QDEL_NULL(jack_out_action)
 	return ..()
 
-/datum/component/net_connection/proc/release_body()
+/datum/component/net_connection/proc/release_neuro()
 	if(neuro)
 		UnregisterSignal(neuro, list(COMSIG_ORGAN_REMOVED, COMSIG_QDELETING))
 		neuro.set_net_operator(null)
 		neuro = null
 	QDEL_NULL(panel_action)
+
+/datum/component/net_connection/proc/release_body()
 	if(body)
 		REMOVE_TRAIT(body, TRAIT_MIND_TEMPORARILY_GONE, NETRUNNING_TRAIT)
 		UnregisterSignal(body, list(COMSIG_LIVING_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_QDELETING, COMSIG_ATOM_EXAMINE))
@@ -88,6 +91,7 @@
 	var/mob/living/carbon/human/returning_body = body
 	var/obj/machinery/netpod/returning_pod = pod
 	add_game_logs("jacked out of the Net at [AREACOORD(avatar)]", avatar)
+	release_neuro()
 	release_body()
 	avatar.mind?.transfer_to(returning_body)
 	returning_pod.disconnect_occupant()
@@ -109,6 +113,15 @@
 	to_chat(avatar, span_userdanger("Связь с телом оборвалась. Выхода больше нет — вы заперты в Сети навсегда."))
 	add_game_logs("lost the connection to their body and is trapped in the Net", avatar)
 
+/datum/component/net_connection/proc/on_neuro_lost(datum/source)
+	SIGNAL_HANDLER
+	release_neuro()
+	if(!lost)
+		lose_connection()
+		return
+	var/mob/living/basic/net_avatar/avatar = parent
+	to_chat(avatar, span_userdanger("Нейроадаптер вашего тела отключён. Кибердек больше не отвечает."))
+
 /datum/component/net_connection/proc/on_avatar_death(datum/source, gibbed)
 	SIGNAL_HANDLER
 	if(lost)
@@ -117,6 +130,7 @@
 	var/mob/living/carbon/human/dying_body = body
 	var/obj/machinery/netpod/dying_pod = pod
 	add_game_logs("flatlined in the Net at [AREACOORD(avatar)]", avatar)
+	release_neuro()
 	release_body()
 	avatar.mind?.transfer_to(dying_body)
 	to_chat(dying_body, span_userdanger("ФЛЭТЛАЙН. Сигнал из Сети выжигает нейроны дотла."))

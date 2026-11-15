@@ -204,8 +204,8 @@
 	return
 
 /mob/living/basic/net_avatar/get_access()
-	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)
-	return connection?.body?.get_access() || list()
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
+	return neuro?.owner?.get_access() || list()
 
 /mob/living/basic/net_avatar/default_can_use_topic(src_object)
 	. = shared_ui_interaction(src_object)
