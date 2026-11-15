@@ -40,7 +40,7 @@
 	var/datum/overmap_bubble/space = SSovermap.ensure_host_space(host)
 	if(!space && shuttle.z <= length(SSovermap.bubbles_by_z))
 		space = SSovermap.bubbles_by_z[shuttle.z]
-	local_space = space?.static_level && space.bubble_z == shuttle.z ? space : null
+	local_space = space?.static_level && space.bubble_z == shuttle.z && space.sector == sector ? space : null
 	return TRUE
 
 /obj/overmap/entity/proc/radar_world_origin()
