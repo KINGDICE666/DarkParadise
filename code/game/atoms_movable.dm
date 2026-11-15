@@ -1617,6 +1617,10 @@
 	if(!can_devour(gourmet))
 		return FALSE
 
+	if(!get_location_accessible(gourmet, BODY_ZONE_PRECISE_MOUTH))
+		to_chat(gourmet, span_warning("Сначала освободите рот."))
+		return FALSE
+
 	var/mob/living/victim = src // its just living mobs now, subject to change later
 
 	var/target = isturf(loc) ? src : gourmet

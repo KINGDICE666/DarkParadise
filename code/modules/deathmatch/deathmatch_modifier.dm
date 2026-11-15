@@ -164,11 +164,10 @@
 	//blacklisted_modifiers = list(/datum/deathmatch_modifier/mounts, /datum/deathmatch_modifier/paraplegic, /datum/deathmatch_modifier/minefield)
 
 /datum/deathmatch_modifier/no_gravity/on_start_game(datum/deathmatch_lobby/lobby)
-	for(var/turf/turf as anything in lobby.location.reserved_turfs)
-		INVOKE_ASYNC(turf, PROC_REF(make_less_gravity))
-
-/datum/deathmatch_modifier/no_gravity/proc/make_less_gravity(turf/our_turf)
-	our_turf.AddElement(/datum/element/forced_gravity, 0)
+	ASYNC
+		for(var/turf/turf as anything in lobby.location.reserved_turfs)
+			turf.AddElement(/datum/element/forced_gravity, 0)
+			CHECK_TICK
 
 /datum/deathmatch_modifier/no_gravity/on_end_game(datum/deathmatch_lobby/lobby)
 	for(var/turf/turf as anything in lobby.location.reserved_turfs)
