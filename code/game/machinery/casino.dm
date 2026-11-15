@@ -7,7 +7,6 @@
 #define WHEEL_SPIN_TIME (5 SECONDS)
 
 /obj/machinery/computer/casino
-	icon = 'icons/obj/economy.dmi'
 	var/working = FALSE
 	var/player_uid
 	var/datum/money_account/player_account
@@ -83,6 +82,7 @@
 /obj/machinery/computer/casino/crash
 	name = "crash machine"
 	desc = "Множитель ставки растёт вместе с кривой. Заберите выигрыш, пока она не рухнула."
+	icon = 'icons/obj/economy.dmi'
 	icon_state = "crash-off"
 	base_icon_state = "crash"
 	circuit = /obj/item/circuitboard/arcade/crash
@@ -192,6 +192,7 @@
 /obj/machinery/computer/casino/wheel
 	name = "wheel of fortune"
 	desc = "Выберите цвет и испытайте удачу. Чем реже цвет, тем больше выигрыш."
+	icon = 'icons/obj/economy.dmi'
 	icon_state = "wheel-off"
 	base_icon_state = "wheel"
 	circuit = /obj/item/circuitboard/arcade/wheel
