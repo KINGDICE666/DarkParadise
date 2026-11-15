@@ -174,6 +174,8 @@
 	icon_state = "water_cup[reagents.total_volume ? "" : "_e"]"
 
 // MARK: Shaker
+#define SHAKER_SHAKE_TIME (2 SECONDS)
+
 /obj/item/reagent_containers/cup/glass/shaker
 	name = "shaker"
 	desc = "A metal shaker to mix drinks in."
@@ -181,6 +183,42 @@
 	materials = list(MAT_METAL=1500)
 	volume = 100
 	is_glass = FALSE
+
+/obj/item/reagent_containers/cup/glass/shaker/get_ru_names()
+	return alist(
+		NOMINATIVE = "шейкер",
+		GENITIVE = "шейкера",
+		DATIVE = "шейкеру",
+		ACCUSATIVE = "шейкер",
+		INSTRUMENTAL = "шейкером",
+		PREPOSITIONAL = "шейкере",
+	)
+
+/obj/item/reagent_containers/cup/glass/shaker/examine(mob/user)
+	. = ..()
+	. += span_notice("Используйте [EXAMINE_HINT("ЛКМ")] в руке, чтобы взболтать содержимое. Без этого коктейль не смешается.")
+
+/obj/item/reagent_containers/cup/glass/shaker/attack_self(mob/user)
+	if(DOING_INTERACTION(user, src))
+		return TRUE
+	if(!reagents.total_volume)
+		balloon_alert(user, "шейкер пуст!")
+		return TRUE
+	user.visible_message(
+		span_notice("[user] начина[PLUR_ET_YUT(user)] энергично трясти [declent_ru(ACCUSATIVE)]."),
+		span_notice("Вы начинаете энергично трясти [declent_ru(ACCUSATIVE)].")
+	)
+	playsound(src, 'sound/items/can/can_shake.ogg', 50, TRUE)
+	user.Shake(pixelshiftx = 1, pixelshifty = 1, duration = SHAKER_SHAKE_TIME)
+	if(!do_after(user, SHAKER_SHAKE_TIME, user, interaction_key = src, max_interact_count = 1))
+		return TRUE
+	reagents.flags |= REAGENT_SHAKING
+	reagents.handle_reactions()
+	reagents.flags &= ~REAGENT_SHAKING
+	balloon_alert(user, "взболтано")
+	return TRUE
+
+#undef SHAKER_SHAKE_TIME
 
 // MARK: Flasks
 /obj/item/reagent_containers/cup/glass/flask

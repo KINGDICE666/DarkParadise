@@ -740,6 +740,12 @@
 	var/level_min = 0
 	var/level_max = 2
 
+/datum/chemical_reaction/mix_virus/last_can_react_check(datum/reagents/holder)
+	for(var/datum/reagent/reagent as anything in holder.reagent_list)
+		if(islist(reagent.data) && (locate(/datum/disease/virus/advance) in reagent.data["diseases"]))
+			return TRUE
+	return FALSE
+
 /datum/chemical_reaction/mix_virus/on_reaction(datum/reagents/holder, created_volume)
 	for(var/datum/reagent/R in holder.reagent_list)
 		if(R.data && R.data["diseases"])
@@ -906,6 +912,25 @@
 
 /datum/chemical_reaction/zombie/four/get_possible_cures()
 	return list("colorful_reagent", "bacchus_blessing", "pen_acid", "glyphosate", "strange_reagent", "omnizine", "sarin", "ants", "clf3", "sorium", "????", "aranesp")
+
+/datum/chemical_reaction/zombie_virus
+	name = "Necrotic Plague"
+	id = "zombie_virus"
+	required_reagents = list(
+		"mutagenvirusfood" = 1,
+		"strange_reagent" = 5,
+		"blood" = 1,
+		"stabilizing_agent" = 1,
+		"bacchus_blessing" = 5,
+		"bath_salts" = 1,
+	)
+	result_amount = 5
+	min_temp = 374
+	mix_message = "Смесь вскипает и сворачивается в тёмно-багровые сгустки, от которых несёт гнилью."
+
+/datum/chemical_reaction/zombie_virus/on_reaction(datum/reagents/holder, created_volume)
+	var/list/data = list("diseases" = list(new /datum/disease/virus/zombie), "blood_color" = BLOOD_COLOR_RED)
+	holder.add_reagent("blood", created_volume, data)
 
 /datum/chemical_reaction/dupe_zomb_cure
 	name = "Duplicate Zombie Cure"

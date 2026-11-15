@@ -14304,6 +14304,10 @@
 	},
 /turf/simulated/floor/engine,
 /area/station/medical/chemistry)
+"cRf" = (
+/obj/machinery/computer/casino/crash,
+/turf/simulated/floor/plating,
+/area/station/maintenance/casino)
 "cRk" = (
 /obj/machinery/door/airlock/maintenance{
 	req_access = list(12)
@@ -16008,6 +16012,7 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint2)
 "djl" = (
+/obj/machinery/computer/casino/wheel,
 /obj/structure/cable,
 /obj/machinery/power/apc/worn_out/directional/south,
 /turf/simulated/floor/carpet/black,
@@ -157776,7 +157781,7 @@ alp
 vcv
 xAQ
 uXb
-qsP
+cRf
 dMq
 bRu
 prr
