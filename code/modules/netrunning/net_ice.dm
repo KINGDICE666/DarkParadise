@@ -24,6 +24,9 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 /mob/living/basic/net_avatar/proc/is_ice_blocked(area/zone)
 	if(!get_net_ice(zone) || zone == home_area)
 		return FALSE
+	var/datum/component/net_connection/connection = get_connection()
+	if(connection?.is_station_system())
+		return FALSE
 	return !(breached_areas[zone] > world.time)
 
 /mob/living/basic/net_avatar/proc/on_pre_move(datum/source, atom/new_location)
@@ -103,6 +106,9 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 	return max(trace - (world.time - trace_updated) / NET_TRACE_DECAY_TIME, 0)
 
 /mob/living/basic/net_avatar/proc/add_trace(amount)
+	var/datum/component/net_connection/connection = get_connection()
+	if(connection?.is_station_system())
+		return
 	trace = get_trace() + amount
 	trace_updated = world.time
 	if(trace >= NET_TRACE_MAX)
@@ -120,11 +126,15 @@ GLOBAL_LIST_INIT(net_ice_areas, zebra_typecacheof(list(
 	alert.desc = "Чужой нетраннер идёт по вашему следу: [round(current_trace)]%. Взломы и вскрытие льда ускоряют трассировку, затишье её сбивает. На 100% служба безопасности узнает, где лежит ваше тело."
 
 /mob/living/basic/net_avatar/proc/complete_trace()
-	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)
+	var/datum/component/net_connection/connection = get_connection()
 	var/atom/signal_source = connection?.pod || src
 	var/location = get_area_name(signal_source, TRUE)
 	for(var/mob/living/silicon/ai/station_ai as anything in GLOB.ai_list)
 		to_chat(station_ai, span_danger("Трассировка завершена: в Сети станции нетраннер. Источник сигнала — [location]."))
+	for(var/mob/living/basic/net_avatar/watcher in GLOB.player_list)
+		var/datum/component/net_connection/watcher_connection = watcher.get_connection()
+		if(watcher_connection?.is_station_system())
+			to_chat(watcher, span_danger("Трассировка завершена: нарушитель — [name]. Источник сигнала — [location]."))
 	radio_announce("Обнаружено вторжение в Сеть станции. Источник сигнала: [location].", "Мониторинг сети", SEC_FREQ, signal_source)
 	playsound_local(get_turf(src), 'sound/machines/twobeep.ogg', 60, TRUE)
 	to_chat(src, span_userdanger("Трассировка завершена! Служба безопасности знает, где лежит ваше тело."))

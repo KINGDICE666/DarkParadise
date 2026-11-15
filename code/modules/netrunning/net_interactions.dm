@@ -1,5 +1,8 @@
+/mob/living/basic/net_avatar/proc/get_connection()
+	return GetComponent(/datum/component/net_connection)
+
 /mob/living/basic/net_avatar/proc/get_neuro()
-	var/datum/component/net_connection/connection = GetComponent(/datum/component/net_connection)
+	var/datum/component/net_connection/connection = get_connection()
 	return connection?.neuro
 
 /mob/living/basic/net_avatar/proc/net_interact(atom/target, list/modifiers)
@@ -13,7 +16,8 @@
 	if(isnetavatar(target) && target != src)
 		INVOKE_ASYNC(src, PROC_REF(open_combat_hacks), target)
 		return TRUE
-	if(has_net_cyberware(target))
+	var/datum/component/net_connection/connection = get_connection()
+	if(has_net_cyberware(target) && !connection?.is_station_system())
 		INVOKE_ASYNC(src, PROC_REF(open_cyberware_hacks), target)
 		return TRUE
 	if(!LAZYACCESS(modifiers, RIGHT_CLICK) && is_net_door(target) && Adjacent(target))
@@ -62,7 +66,11 @@
 	if(!length(options))
 		balloon_alert(src, "узел молчит")
 		return
-	var/choice = tgui_input_list(src, neuro ? "Буфер: [round(neuro.get_buffer())]" : "Нейроадаптер недоступен", DECLENT_RU_CAP(node, NOMINATIVE), options)
+	var/datum/component/net_connection/connection = get_connection()
+	var/header = neuro ? "Буфер: [round(neuro.get_buffer())]" : "Нейроадаптер недоступен"
+	if(connection?.is_station_system())
+		header = "Сторожевой доступ к узлу"
+	var/choice = tgui_input_list(src, header, DECLENT_RU_CAP(node, NOMINATIVE), options)
 	if(!choice || QDELETED(node) || stat != CONSCIOUS || !can_reach_node(node))
 		return
 	var/action_id = options[choice]

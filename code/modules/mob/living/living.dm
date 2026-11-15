@@ -664,6 +664,7 @@
 		return
 	set_health(maxHealth - getOxyLoss() - getToxLoss() - getFireLoss() - getBruteLoss() - getCloneLoss())
 	update_stat("updatehealth([reason])", should_log)
+	SEND_SIGNAL(src, COMSIG_LIVING_HEALTH_UPDATE)
 
 //This proc is used for mobs which are affected by pressure to calculate the amount of pressure that actually
 //affects them once clothing is factored in. ~Errorage

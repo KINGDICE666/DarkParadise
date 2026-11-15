@@ -54,11 +54,13 @@
 	var/last_health = 0
 	var/last_hurt = 0
 	var/static/list/combat_hacks = list(
-		NET_HACK_SHORT_CIRCUIT = list("name" = "Короткое замыкание", "cost" = 10, "upload" = 1 SECONDS, "black" = FALSE),
-		NET_HACK_OVERHEAT = list("name" = "Перегрев", "cost" = 15, "upload" = 1.5 SECONDS, "black" = FALSE),
-		NET_HACK_OPTICS = list("name" = "Сбой оптики", "cost" = 10, "upload" = 1 SECONDS, "black" = FALSE),
-		NET_HACK_REBOOT = list("name" = "Перезагрузка системы", "cost" = 20, "upload" = 2 SECONDS, "black" = FALSE),
-		NET_HACK_SYNAPSE = list("name" = "Синапсовый выжигатель", "cost" = 30, "upload" = 3 SECONDS, "black" = TRUE),
+		NET_HACK_SHORT_CIRCUIT = list("name" = "Короткое замыкание", "cost" = 10, "upload" = 1 SECONDS, "users" = NET_HACK_USER_RUNNER),
+		NET_HACK_OVERHEAT = list("name" = "Перегрев", "cost" = 15, "upload" = 1.5 SECONDS, "users" = NET_HACK_USER_RUNNER),
+		NET_HACK_OPTICS = list("name" = "Сбой оптики", "cost" = 10, "upload" = 1 SECONDS, "users" = NET_HACK_USER_RUNNER|NET_HACK_USER_STATION_AI),
+		NET_HACK_REBOOT = list("name" = "Перезагрузка системы", "cost" = 20, "upload" = 2 SECONDS, "users" = NET_HACK_USER_RUNNER|NET_HACK_USER_STATION_AI),
+		NET_HACK_SYNAPSE = list("name" = "Синапсовый выжигатель", "cost" = 30, "upload" = 3 SECONDS, "users" = NET_HACK_USER_BLACK_DECK),
+		NET_HACK_TRACE = list("name" = "Трассировка нарушителя", "cost" = 15, "upload" = 2 SECONDS, "users" = NET_HACK_USER_STATION_AI),
+		NET_HACK_EXPEL = list("name" = "Изгнание из Сети", "cost" = 40, "upload" = 4 SECONDS, "users" = NET_HACK_USER_STATION_AI),
 	)
 	var/static/list/cyberware_hacks = list(
 		NET_WARE_OPTICS = list("name" = "Погасить кибер-глаза", "cost" = 10, "upload" = 1.5 SECONDS, "requires" = /obj/item/organ/internal/cyberimp/eyes),
@@ -204,8 +206,8 @@
 	return
 
 /mob/living/basic/net_avatar/get_access()
-	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
-	return neuro?.owner?.get_access() || list()
+	var/datum/component/net_connection/connection = get_connection()
+	return connection ? connection.get_access() : list()
 
 /mob/living/basic/net_avatar/default_can_use_topic(src_object)
 	. = shared_ui_interaction(src_object)

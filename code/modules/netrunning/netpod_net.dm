@@ -17,14 +17,17 @@
 	update_icon()
 
 /obj/machinery/netpod/proc/enter_net()
-	var/mob/living/carbon/human/pilot = occupant
-	if(!ishuman(pilot) || pilot.stat != CONSCIOUS || isnull(pilot.mind))
+	var/mob/living/pilot = occupant
+	if(!can_enter(pilot) || pilot.stat != CONSCIOUS || isnull(pilot.mind))
 		balloon_alert(pilot, "неподходящий пользователь")
 		open_machine()
 		return
 
+	if(!check_ai_core(pilot))
+		return
+
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = pilot.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
-	if(!neuro?.deck)
+	if(!isrobot(pilot) && !neuro?.deck)
 		balloon_alert(pilot, "нужен кибердек!")
 		open_machine()
 		return
@@ -45,9 +48,9 @@
 
 	start_net_session(pilot)
 
-/obj/machinery/netpod/proc/start_net_session(mob/living/carbon/human/pilot)
+/obj/machinery/netpod/proc/start_net_session(mob/living/pilot)
 	add_healing(pilot)
 	var/mob/living/basic/net_avatar/avatar = new(get_turf(src))
-	avatar.AddComponent(/datum/component/net_connection, pilot, src)
+	avatar.AddComponent(isrobot(pilot) ? /datum/component/net_connection/ai : /datum/component/net_connection, pilot, src)
 	connected = TRUE
 	update_icon()

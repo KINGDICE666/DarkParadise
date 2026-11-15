@@ -48,6 +48,12 @@
 #define NET_HACK_OPTICS "optics"
 #define NET_HACK_REBOOT "reboot"
 #define NET_HACK_SYNAPSE "synapse"
+#define NET_HACK_TRACE "trace_hack"
+#define NET_HACK_EXPEL "expel"
+
+#define NET_HACK_USER_RUNNER (1<<0)
+#define NET_HACK_USER_BLACK_DECK (1<<1)
+#define NET_HACK_USER_STATION_AI (1<<2)
 
 #define NET_SHORT_CIRCUIT_DAMAGE 20
 #define NET_OVERHEAT_TICK_DAMAGE 5
@@ -56,6 +62,9 @@
 #define NET_REBOOT_DURATION (3 SECONDS)
 #define NET_SYNAPSE_DAMAGE 45
 #define NET_FIREWALL_MODIFIER 0.5
+#define NET_AI_TRACE_AMOUNT 40
+#define NET_AI_BUFFER_MAX 60
+#define NET_AI_BUFFER_REGEN_TIME (1 SECONDS)
 
 #define NET_WARE_OPTICS "ware_optics"
 #define NET_WARE_ARM "ware_arm"

@@ -1,27 +1,29 @@
 /mob/living/basic/net_avatar/proc/open_combat_hacks(mob/living/basic/net_avatar/victim)
-	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
-	if(!neuro || neuro.crit_fail)
+	var/datum/component/net_connection/connection = get_connection()
+	var/clearance = connection?.get_hack_clearance()
+	if(!clearance)
 		balloon_alert(src, "нейроадаптер недоступен!")
 		return
 	if(!can_reach_node(victim))
 		balloon_alert(src, "цель вне досягаемости!")
 		return
-	var/black_deck = neuro.has_black_deck()
+	var/datum/component/net_connection/victim_connection = victim.get_connection()
+	var/untraceable = victim_connection?.is_station_system()
 	var/list/options = list()
 	for(var/hack_id in combat_hacks)
 		var/list/hack = combat_hacks[hack_id]
-		if(hack["black"] && !black_deck)
+		if(!(hack["users"] & clearance) || (hack_id == NET_HACK_TRACE && untraceable))
 			continue
 		options["[hack["name"]] ([hack["cost"]] буфера)"] = hack_id
-	var/choice = tgui_input_list(src, "Буфер: [round(neuro.get_buffer())]", DECLENT_RU_CAP(victim, NOMINATIVE), options)
+	var/choice = tgui_input_list(src, "Буфер: [round(connection.get_buffer())]", DECLENT_RU_CAP(victim, NOMINATIVE), options)
 	if(!choice || QDELETED(victim) || stat != CONSCIOUS)
 		return
 	upload_hack(victim, options[choice])
 
 /mob/living/basic/net_avatar/proc/upload_hack(mob/living/basic/net_avatar/victim, hack_id)
-	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
+	var/datum/component/net_connection/connection = get_connection()
 	var/list/hack = combat_hacks[hack_id]
-	if(!neuro || neuro.get_buffer() < hack["cost"])
+	if(!connection || connection.get_buffer() < hack["cost"])
 		balloon_alert(src, "мало буфера!")
 		return
 	if(!can_reach_node(victim))
@@ -32,15 +34,15 @@
 	var/datum/beam/upload_beam = Beam(victim, "net_hack", 'icons/effects/netrunning.dmi', hack["upload"], beam_type = /obj/effect/ebeam/net)
 	var/uploaded = do_after(src, hack["upload"], victim, DA_IGNORE_USER_LOC_CHANGE|DA_IGNORE_TARGET_LOC_CHANGE, extra_checks = CALLBACK(src, PROC_REF(can_reach_node), victim), interaction_key = victim)
 	qdel(upload_beam)
-	if(!uploaded || QDELETED(victim) || victim.stat == DEAD || neuro.get_buffer() < hack["cost"])
+	if(!uploaded || QDELETED(victim) || victim.stat == DEAD || QDELETED(connection) || connection.get_buffer() < hack["cost"])
 		return
-	neuro.spend_buffer(hack["cost"])
+	connection.spend_buffer(hack["cost"])
 	victim.receive_hack(hack_id)
 	add_attack_logs(src, victim, "uploaded the [hack_id] quickhack in the Net")
 
 /mob/living/basic/net_avatar/proc/receive_hack(hack_id)
-	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = get_neuro()
-	var/modifier = neuro?.has_firewall() ? NET_FIREWALL_MODIFIER : 1
+	var/datum/component/net_connection/connection = get_connection()
+	var/modifier = connection?.has_firewall() ? NET_FIREWALL_MODIFIER : 1
 	new /obj/effect/temp_visual/net_glitch(get_turf(src))
 	playsound_local(get_turf(src), 'sound/effects/sparks4.ogg', 50, TRUE)
 	switch(hack_id)
@@ -59,6 +61,15 @@
 		if(NET_HACK_SYNAPSE)
 			apply_damage(NET_SYNAPSE_DAMAGE * modifier, BURN)
 			to_chat(src, span_userdanger("Синапсовый выжигатель бьёт прямо в нейроны!"))
+		if(NET_HACK_TRACE)
+			to_chat(src, span_userdanger("Сторожевая система станции цепляется за ваш след!"))
+			add_trace(NET_AI_TRACE_AMOUNT)
+		if(NET_HACK_EXPEL)
+			if(!connection || connection.lost)
+				to_chat(src, span_userdanger("Сторожевая система пытается выбросить вас из Сети, но вам некуда возвращаться!"))
+				return
+			to_chat(src, span_userdanger("Сторожевая система станции выбрасывает вас из Сети!"))
+			connection.jack_out()
 
 /mob/living/basic/net_avatar/proc/defragment()
 	if(stat == DEAD)

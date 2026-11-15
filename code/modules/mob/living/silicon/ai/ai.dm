@@ -170,6 +170,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	COOLDOWN_DECLARE(ai_alarm_cooldown)
 	/// Cooldown for the AI's recover status alarms
 	COOLDOWN_DECLARE(ai_recover_alarm_cooldown)
+	COOLDOWN_DECLARE(remote_damage_report)
 	/// A variable that allows sending a recovery message
 	var/ai_recover_alarm_enabled = TRUE
 

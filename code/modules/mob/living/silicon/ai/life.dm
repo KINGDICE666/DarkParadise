@@ -145,6 +145,7 @@
 		send_ai_alarm("Обнаружено критическое повреждение ИИ. Уровень целостности: [round((health / maxHealth) * 100)]%")
 
 	update_stat("updatehealth([reason])", should_log)
+	SEND_SIGNAL(src, COMSIG_LIVING_HEALTH_UPDATE)
 
 /mob/living/silicon/ai/proc/lacks_power()
 	if(!require_power)
