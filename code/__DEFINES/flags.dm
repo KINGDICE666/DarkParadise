@@ -65,6 +65,7 @@
 
 //Reagent flags
 #define REAGENT_NOREACT 1
+#define REAGENT_SHAKING 2
 
 //Species clothing flags
 #define HAS_UNDERWEAR 1

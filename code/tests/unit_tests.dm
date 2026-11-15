@@ -52,6 +52,7 @@
 #include "test_reagent_id_typos.dm"
 #include "test_resomi.dm"
 #include "test_security_levels.dm"
+#include "test_shaker_cocktails.dm"
 #include "test_spawn_humans.dm"
 #include "test_species_fitting.dm"
 #include "test_spritesheets.dm"

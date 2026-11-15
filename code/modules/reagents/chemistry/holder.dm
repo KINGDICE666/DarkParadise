@@ -408,6 +408,8 @@
 					continue
 
 				var/datum/chemical_reaction/C = reaction
+				if(C.requires_shaking && !(flags & REAGENT_SHAKING))
+					continue
 				var/total_required_reagents = length(C.required_reagents)
 				var/total_matching_reagents = 0
 				var/total_required_catalysts = C.count_of_catalysts == -1 ? length(C.required_catalysts) : C.count_of_catalysts
