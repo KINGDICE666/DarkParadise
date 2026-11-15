@@ -72,6 +72,7 @@
 
 /mob/living/basic/net_avatar/Initialize(mapload)
 	. = ..()
+	remove_from_all_data_huds()
 	appearance_flags |= NO_CLIENT_COLOR|KEEP_TOGETHER
 	ADD_TRAIT(src, TRAIT_MOVE_FLYING, NETRUNNING_TRAIT)
 	particles = new /particles/net_drip

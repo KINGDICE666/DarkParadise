@@ -148,7 +148,7 @@
 	var/obj/machinery/power/apc/exit = destinations[choice]
 	if(QDELETED(exit) || stat != CONSCIOUS || !Adjacent(apc) || !COOLDOWN_FINISHED(src, conduit_cooldown))
 		return
-	if(!(exit in get_conduit_destinations(apc)))
+	if(get_conduit_destinations(apc)[choice] != exit)
 		balloon_alert(src, "канал разорван!")
 		return
 	COOLDOWN_START(src, conduit_cooldown, NET_CONDUIT_COOLDOWN)
