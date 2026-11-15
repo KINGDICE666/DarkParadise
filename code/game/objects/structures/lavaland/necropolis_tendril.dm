@@ -96,22 +96,17 @@ GLOBAL_LIST_EMPTY(tendrils)
 	return ..()
 
 /obj/structure/spawner/lavaland/proc/give_awards()
-	var/last_tendril = TRUE
-	if(length(GLOB.tendrils) > 1)
-		last_tendril = FALSE
-
-	if(!last_tendril || (flags & ADMIN_SPAWNED))
+	if((flags & ADMIN_SPAWNED) || !SSachievements.achievements_enabled)
 		return
 
-	if(!SSachievements.achievements_enabled)
-		return
-
+	var/last_tendril = length(GLOB.tendrils) <= 1
 	for(var/mob/living/mob in view(7, src))
 		if(mob.stat || !mob.client)
 			continue
 
-		mob.client.give_award(/datum/award/achievement/boss/tendril_exterminator, mob)
 		mob.client.give_award(/datum/award/score/tendril_score, mob) //Progresses score by one
+		if(last_tendril)
+			mob.client.give_award(/datum/award/achievement/boss/tendril_exterminator, mob)
 
 /obj/effect/light_emitter/tendril
 	light_range = 4

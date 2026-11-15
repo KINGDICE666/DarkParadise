@@ -177,6 +177,9 @@
 	else
 		actual_trauma = trauma
 
+	if(QDELETED(actual_trauma))
+		return
+
 	if(actual_trauma.brain)
 		stack_trace("brain_gain_trauma was given an already active trauma [actual_trauma.type].")
 		return

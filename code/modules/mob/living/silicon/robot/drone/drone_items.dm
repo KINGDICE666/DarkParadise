@@ -220,6 +220,8 @@
 		. |= ATTACK_CHAIN_SUCCESS
 		balloon_alert(user, "подобрано")
 		I.forceMove(src)
+		I.layer = initial(I.layer)
+		SET_PLANE_EXPLICIT(I, initial(I.plane), src)
 		set_gripper_item(I)
 		I.update_icon(UPDATE_OVERLAYS) //Some items change their appearance upon being pulled (IV drip as an example)
 		update_icon(UPDATE_OVERLAYS)
