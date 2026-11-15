@@ -19,6 +19,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	var/sound = 'sound/machines/ping.ogg'
 	/// List of available prizes, only for emagged slotmachine
 	var/list/available_prizes = list()
+	var/reel_symbol
 
 /datum/slotmachine_prize/New(list/allowed_uplink_items)
 	..()
@@ -65,6 +66,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	credits = 50
 	resultlvl = "green"
 	say_phrase = "Победитель!"
+	reel_symbol = "cherry"
 
 /datum/slotmachine_prize/minimal/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -78,6 +80,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	credits = 200
 	resultlvl = "green"
 	say_phrase = "Победитель!"
+	reel_symbol = "lemon"
 
 /datum/slotmachine_prize/small/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -92,6 +95,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	resultlvl = "green"
 	say_phrase = "Победитель!"
 	sound = 'sound/goonstation/misc/bell.ogg'
+	reel_symbol = "bell"
 
 /datum/slotmachine_prize/medium/apply_emagged_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user)
 	slotmachine.give_custom_prize(user, /obj/item/storage/box/random_syndi)
@@ -103,6 +107,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	resultlvl = "green"
 	say_phrase = "Большой победитель!"
 	sound = 'sound/goonstation/misc/klaxon.ogg'
+	reel_symbol = "bar"
 
 /datum/slotmachine_prize/big/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -118,6 +123,7 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	custom_result_prefix = "ДЖЕКПОТ! "
 	say_phrase = "ДЖЕКПОТ!"
 	sound = 'sound/goonstation/misc/airraid_loop.ogg'
+	reel_symbol = "seven"
 
 /datum/slotmachine_prize/jackpot/apply_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user, prize_credits)
 	GLOB.minor_announcement.announce(
@@ -139,6 +145,9 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	var/datum/money_account/account = null
 	var/result = null
 	var/resultlvl = null
+	var/list/reels = list("seven", "bar", "cherry")
+	var/datum/slotmachine_prize/pending_prize
+	var/static/list/reel_symbols = list("cherry", "lemon", "bell", "clover", "bar", "seven")
 
 /obj/machinery/computer/slot_machine/attack_hand(mob/user as mob)
 	add_fingerprint(user)
@@ -174,6 +183,9 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	data["plays"] = plays
 	data["result"] = result
 	data["resultlvl"] = resultlvl
+	data["reels"] = reels
+	data["spin_time"] = SLOT_MACHINE_SPIN_TIME / (1 SECONDS)
+	data["prize_mod"] = get_prize_coefficient()
 	return data
 
 /obj/machinery/computer/slot_machine/ui_act(action, params)
@@ -192,10 +204,13 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 		if(!pay_with_card(usr, 50, "Slot Machine"))
 			return
 		plays++
+		pending_prize = detect_result()
+		reels = roll_reels(pending_prize)
+		result = null
 		working = TRUE
 		update_icon(UPDATE_ICON_STATE)
 		playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
-		addtimer(CALLBACK(src, PROC_REF(spin_slots), usr), 25)
+		addtimer(CALLBACK(src, PROC_REF(spin_slots), usr), SLOT_MACHINE_SPIN_TIME)
 
 /obj/machinery/computer/slot_machine/proc/get_prize_coefficient()
 	if(emagged)
@@ -209,10 +224,10 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	target.adjust_slot_machine_lose_effect()
 
 /obj/machinery/computer/slot_machine/proc/spin_slots(mob/user)
-	if(!istype(user))
-		return
-	var/prize = detect_result()
-	apply_spin_result(user, prize)
+	var/datum/slotmachine_prize/prize = pending_prize
+	pending_prize = null
+	if(istype(user))
+		apply_spin_result(user, prize)
 	working = FALSE
 	update_icon(UPDATE_ICON_STATE)
 	SStgui.update_uis(src) // Push a UI update
@@ -235,6 +250,14 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	prizedatum.apply_effect(src, user, credits)
 	if(emagged)
 		prizedatum.apply_emagged_effect(src, user)
+
+/obj/machinery/computer/slot_machine/proc/roll_reels(datum/slotmachine_prize/prize)
+	if(prize.reel_symbol)
+		return list(prize.reel_symbol, prize.reel_symbol, prize.reel_symbol)
+	var/list/rolled = list(pick(reel_symbols), pick(reel_symbols), pick(reel_symbols))
+	if(rolled[1] == rolled[2] && rolled[2] == rolled[3])
+		rolled[3] = pick(reel_symbols - rolled[1])
+	return rolled
 
 /obj/machinery/computer/slot_machine/proc/detect_result()
 	// Convert prize chance to weigth logic

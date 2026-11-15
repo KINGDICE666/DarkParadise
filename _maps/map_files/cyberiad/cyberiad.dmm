@@ -38950,6 +38950,7 @@
 	},
 /area/station/command/bridge)
 "dnp" = (
+/obj/machinery/computer/casino/crash,
 /obj/effect/spawner/new_year/garland/west,
 /obj/effect/spawner/new_year/garland/south,
 /obj/item/radio/intercom/directional/west,
@@ -75767,6 +75768,7 @@
 /turf/simulated/floor/plasteel,
 /area/station/hallway/secondary/entry/north)
 "rSe" = (
+/obj/machinery/computer/casino/wheel,
 /obj/machinery/power/apc/directional/south,
 /obj/structure/cable,
 /obj/effect/spawner/new_year/garland/south,

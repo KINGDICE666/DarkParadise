@@ -385,6 +385,11 @@
 		return
 
 	var/mob/living/carbon/victim = pick(potential_victims)
+	var/obj/item/gun/haunted_gun = possessed_object.possessed_item
+	if(istype(haunted_gun) && haunted_gun.can_shoot(possessed_object))
+		possessed_object.shoot_at(victim)
+		return
+
 	possessed_object.throw_at(victim, aoe_radius, 2, user)
 
 /**

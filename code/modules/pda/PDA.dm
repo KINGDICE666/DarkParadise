@@ -99,6 +99,7 @@ GLOBAL_LIST_EMPTY(name_to_PDAs)
 		new/datum/data/pda/utility/flashlight,
 		new/datum/data/pda/app/bank,
 		new/datum/data/pda/app/department_order,
+		new/datum/data/pda/app/emergency_call,
 	)
 	var/list/shortcut_cache = list()
 	var/list/shortcut_cat_order = list()

@@ -7,6 +7,9 @@
  *		Wall Safe
  */
 
+#define SECURE_CODE_LENGTH 5
+#define SECURE_CODE_ERROR "ERROR"
+
 // -----------------------------
 //         Generic Item
 // -----------------------------
@@ -136,53 +139,67 @@
 /obj/item/storage/secure/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "SecureStorage", name)
+		ui = new(user, src, "LockedSafe", DECLENT_RU_CAP(src, NOMINATIVE))
 		ui.open()
 
 /obj/item/storage/secure/ui_data(mob/user)
 	var/list/data = list()
-
-	data["emagged"] = emagged
+	data["input_code"] = code
+	data["code_length"] = SECURE_CODE_LENGTH
 	data["locked"] = locked
-	data["l_set"] = l_set
-	data["l_setshort"] = l_setshort
-	data["current_code"] = (code) ? (isnum(text2num(code))) ? code : "ERROR" : FALSE
+	data["lock_set"] = l_set
+	data["emagged"] = emagged
+	data["resetting"] = l_setshort
 	return data
 
 /obj/item/storage/secure/ui_act(action, params)
 	if(..())
 		return
 
+	if(action != "keypad" || emagged || l_setshort)
+		return
+
 	if(!usr.IsAdvancedToolUser() && !isobserver(usr))
-		to_chat(usr, span_warning("You are not able to operate [src]."))
+		to_chat(usr, span_warning("Вы не можете управлять [declent_ru(INSTRUMENTAL)]."))
 		return
 
 	. = TRUE
-	switch(action)
-		if("close")
+	playsound(src, SFX_TERMINAL_TYPE, 50, FALSE)
+	var/digit = params["digit"]
+	switch(digit)
+		if("C")
+			code = ""
+			if(locked || !l_set)
+				return
 			locked = TRUE
-			code = null
 			update_icon(UPDATE_OVERLAYS)
 			close(usr)
-		if("setnumber")
-			switch(params["buttonValue"])
-				if("E")
-					if(!l_set && (length(code) == 5) && (code != "ERROR"))
-						l_code = code
-						l_set = TRUE
-						to_chat(usr, "<span class = 'notice'>The code was set successfully.</span>")
-					else if((code == l_code) && l_set)
-						locked = FALSE
-						code = null
-						update_icon(UPDATE_OVERLAYS)
-					else
-						code = "ERROR"
-				if("R")
-					code = null
-				else
-					code += text("[]", params["buttonValue"])
-					if(length(code) > 5)
-						code = "ERROR"
+		if("B")
+			code = (code == SECURE_CODE_ERROR) ? "" : copytext(code, 1, -1)
+		if("E")
+			if(!l_set)
+				if(length(code) != SECURE_CODE_LENGTH)
+					code = SECURE_CODE_ERROR
+					return
+				l_code = code
+				l_set = TRUE
+				code = ""
+				balloon_alert(usr, "код установлен")
+				to_chat(usr, span_notice("Код [declent_ru(GENITIVE)] установлен: [l_code]. Запомните его."))
+				return
+			if(code != l_code)
+				code = SECURE_CODE_ERROR
+				playsound(src, 'sound/machines/deniedbeep.ogg', 40, FALSE)
+				return
+			locked = FALSE
+			code = ""
+			update_icon(UPDATE_OVERLAYS)
+		if("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+			if(code == SECURE_CODE_ERROR)
+				code = ""
+			if(length(code) >= SECURE_CODE_LENGTH)
+				return
+			code += digit
 
 /obj/item/storage/secure/can_be_inserted(obj/item/W, stop_messages = 0)
 	if(!locked)
@@ -211,6 +228,16 @@
 	max_w_class = WEIGHT_CLASS_NORMAL
 	max_combined_w_class = 21
 	attack_verb = list("ударил", "огрел")
+
+/obj/item/storage/secure/briefcase/get_ru_names()
+	return alist(
+		NOMINATIVE = "защищённый кейс",
+		GENITIVE = "защищённого кейса",
+		DATIVE = "защищённому кейсу",
+		ACCUSATIVE = "защищённый кейс",
+		INSTRUMENTAL = "защищённым кейсом",
+		PREPOSITIONAL = "защищённом кейсе",
+	)
 
 /obj/item/storage/secure/briefcase/attack_hand(mob/user)
 	if((loc == user) && locked)
@@ -257,6 +284,16 @@
 	anchored = TRUE
 	cant_hold = list(/obj/item/storage/secure/briefcase)
 
+/obj/item/storage/secure/safe/get_ru_names()
+	return alist(
+		NOMINATIVE = "сейф",
+		GENITIVE = "сейфа",
+		DATIVE = "сейфу",
+		ACCUSATIVE = "сейф",
+		INSTRUMENTAL = "сейфом",
+		PREPOSITIONAL = "сейфе",
+	)
+
 /obj/item/storage/secure/safe/attack_hand(mob/user)
 	return attack_self(user)
 
@@ -265,3 +302,6 @@
 	new /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis(src)
 	new /obj/item/reagent_containers/cup/bottle/reagent/synaptizine(src)
 	new /obj/item/reagent_containers/cup/bottle/reagent/omnizine(src)
+
+#undef SECURE_CODE_LENGTH
+#undef SECURE_CODE_ERROR

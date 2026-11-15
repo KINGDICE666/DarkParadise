@@ -53487,6 +53487,7 @@
 	},
 /area/station/engineering/storage/tech)
 "inm" = (
+/obj/machinery/computer/casino/crash,
 /obj/effect/decal/cleanable/dust,
 /obj/structure/cable/multiz{
 	color = "#dd1010"
@@ -141910,6 +141911,7 @@
 /turf/simulated/floor/wood/dark,
 /area/station/service/bar)
 "vFo" = (
+/obj/machinery/computer/casino/wheel,
 /obj/machinery/light/small{
 	dir = 1
 	},
