@@ -1,4 +1,0 @@
-author: "KINGDICE666"
-delete-after: True
-changes:
-  - bugfix: "Вход по IPv6 больше не вызывает ошибку базы данных: колонки IP расширены. (PR #221)"
