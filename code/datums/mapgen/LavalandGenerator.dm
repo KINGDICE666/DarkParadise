@@ -66,10 +66,10 @@
 		var/node_gen = rustg_cnoise_generate("[initial_basalt_chance]", "[basalt_smoothing_interations]", "[basalt_birth_limit]", "[basalt_death_limit]", "[size_x + 1]", "[size_y + 1]")
 		var/node_gen2 = rustg_cnoise_generate("[initial_granite_chance]", "[granite_smoothing_interations]", "[granite_birth_limit]", "[granite_death_limit]", "[size_x + 1]", "[size_y + 1]")
 		var/list/changing_turfs = block(picked_turf.x - round(size_x/2),picked_turf.y - round(size_y/2),picked_turf.z, picked_turf.x + round(size_x/2),picked_turf.y + round(size_y/2),picked_turf.z)
-		for(var/turf/T in changing_turfs) //shitcode
+		for(var/index in 1 to length(changing_turfs))
+			var/turf/T = changing_turfs[index]
 			if(!ismineralturf(T))
 				continue
-			var/index = changing_turfs.Find(T)
 			var/hardened = text2num(node_gen[index]) + text2num(node_gen2[index])
 			if(!hardened)
 				continue
@@ -81,8 +81,7 @@
 					hard_path = text2path("[T.type]/hard/double")
 			if(!ispath(hard_path)) //erm what the shit we dont have a hard(or er) type
 				continue
-			var/turf/new_turf = hard_path
-			new_turf = T.ChangeTurf(new_turf)
+			new hard_path(T)
 
 	var/message = "Lavaland Auxiliary generation finished in [(REALTIMEOFDAY - start_time)/10]s!"
 	log_startup_progress_global("Mapping", message)

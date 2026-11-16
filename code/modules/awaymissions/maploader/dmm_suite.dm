@@ -53,19 +53,6 @@
 GLOBAL_DATUM_INIT(maploader, /datum/dmm_suite, new())
 
 /datum/dmm_suite
-	var/static/quote = "\""
-
-	// These regexes are global - meaning that starting the maploader again mid-load will
-	// reset progress - which means we need to track our index per-map, or we'll
-	// eternally recurse
-		// /"([a-zA-Z]+)" = \(((?:.|\n)*?)\)\n(?!\t)|\((\d+),(\d+),(\d+)\) = \{"([a-zA-Z\n]*)"\}/g
-	var/static/regex/dmmRegex = new/regex({""(\[a-zA-Z]+)" = \\(((?:.|\n)*?)\\)\n(?!\t)|\\((\\d+),(\\d+),(\\d+)\\) = \\{"(\[a-zA-Z\n]*)"\\}"}, "g")
-		// /^[\s\n]+"?|"?[\s\n]+$|^"|"$/g
-	var/static/regex/trimQuotesRegex = new/regex({"^\[\\s\n]+"?|"?\[\\s\n]+$|^"|"$"}, "g")
-		// /^[\s\n]+|[\s\n]+$/
-	var/static/regex/trimRegex = new/regex("^\[\\s\n]+|\[\\s\n]+$", "g")
-	var/static/list/modelCache = list()
-
 	var/static/list/letter_digits = list(
 		"a", "b", "c", "d", "e",
 		"f", "g", "h", "i", "j",

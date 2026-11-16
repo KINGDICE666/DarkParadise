@@ -176,16 +176,80 @@
 	light_range = 2
 	light_power = 0.75
 	light_color = LIGHT_COLOR_LAVA //let's just say you're falling into lava, that makes sense right
+	light_on = FALSE
 
 /turf/simulated/floor/chasm/straight_down/lava_land_surface/Initialize(mapload)
 	. = ..()
 	GLOB.lazis_primary_turfs |= src
+	refresh_glow(force_update = TRUE)
 
 /turf/simulated/floor/chasm/straight_down/lava_land_surface/Destroy()
 	GLOB.lazis_primary_turfs -= src
 	. = ..()
 
+/turf/simulated/floor/chasm/straight_down/lava_land_surface/proc/refresh_glow(force_update = FALSE)
+	var/border_turf = FALSE
+	for(var/turf/around as anything in RANGE_TURFS(1, src))
+		if(!istype(around, /turf/simulated/floor/chasm/straight_down/lava_land_surface))
+			border_turf = TRUE
+			break
+	if(border_turf == light_on && !force_update)
+		return
+	set_light(l_on = border_turf)
+	update_appearance(UPDATE_OVERLAYS)
+
+/turf/simulated/floor/chasm/straight_down/lava_land_surface/update_overlays()
+	. = ..()
+	if(light_on)
+		return
+	var/static/glow_color
+	if(!glow_color)
+		var/list/channels = rgb2num(light_color)
+		var/brightest = max(channels[1], channels[2], channels[3])
+		glow_color = rgb(channels[1] * 255 / brightest, channels[2] * 255 / brightest, channels[3] * 255 / brightest)
+	var/mutable_appearance/glow = mutable_appearance('icons/turf/lava_mask.dmi', "lava-255", LIGHTING_PRIMARY_LAYER, src, LIGHTING_PLANE)
+	glow.color = glow_color
+	glow.blend_mode = BLEND_ADD
+	. += glow
+	var/mutable_appearance/glow_mask = mutable_appearance('icons/turf/lava_mask.dmi', "lava-255", LIGHTING_MASK_LAYER, src, LIGHTING_PLANE)
+	glow_mask.blend_mode = BLEND_MULTIPLY
+	glow_mask.color = COLOR_MATRIX_INVERT
+	. += glow_mask
+
+/turf/simulated/floor/chasm/straight_down/lava_land_surface/get_lumcount(minlum, maxlum)
+	if(!light_on)
+		return maxlum
+	return ..()
+
+/turf/simulated/floor/chasm/straight_down/lava_land_surface/ChangeTurf(path, defer_change, keep_icon, after_flags, copy_existing_baseturf)
+	var/turf/result = ..()
+	if(result && !istype(result, /turf/simulated/floor/chasm/straight_down/lava_land_surface))
+		for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/neighbor in RANGE_TURFS(1, result))
+			neighbor.refresh_glow()
+	return result
+
 /turf/simulated/floor/chasm/straight_down/lava_land_surface/normal_air
 	atmos_mode = ATMOS_MODE_SEALED
 	atmos_environment = null
 
+
+/client/verb/debug_chasm_goto()
+	set name = "debug chasm goto"
+	for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/edge in GLOB.lazis_primary_turfs)
+		if(!edge.light_on)
+			continue
+		var/interior = 0
+		for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/around in RANGE_TURFS(4, edge))
+			if(!around.light_on)
+				interior++
+		if(interior < 30)
+			continue
+		mob.forceMove(edge)
+		to_chat(src, "[edge.x] [edge.y] [edge.z]")
+		return
+
+/client/verb/debug_chasm_old()
+	set name = "debug chasm old"
+	for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/chasm_turf in GLOB.lazis_primary_turfs)
+		chasm_turf.set_light(l_on = TRUE)
+		chasm_turf.update_appearance(UPDATE_OVERLAYS)

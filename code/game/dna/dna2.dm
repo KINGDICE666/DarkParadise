@@ -364,20 +364,29 @@ GLOBAL_LIST_EMPTY(bad_blocks)
 	SetSEBlock(block, newBlock, defer)
 
 /proc/EncodeDNABlock(value)
-	return uppertext(add_zero2(num2hex(value, 1), 3))
+	var/static/list/encoded_blocks
+	if(!encoded_blocks)
+		encoded_blocks = new /list(DNA_BLOCK_MAX_VALUE + 1)
+		for(var/block_value in 0 to DNA_BLOCK_MAX_VALUE)
+			encoded_blocks[block_value + 1] = uppertext(add_zero2(num2hex(block_value, 1), 3))
+	if(value < 0 || value > DNA_BLOCK_MAX_VALUE || round(value) != value)
+		return uppertext(add_zero2(num2hex(value, 1), 3))
+	return encoded_blocks[value + 1]
 
 /datum/dna/proc/UpdateUI()
-	uni_identity = ""
+	var/list/encoded = list()
 	for(var/block in UI)
-		uni_identity += EncodeDNABlock(block)
+		encoded += EncodeDNABlock(block)
+	uni_identity = jointext(encoded, "")
 	//testing("New UI: [uni_identity]")
 	dirtyUI = 0
 
 /datum/dna/proc/UpdateSE()
 	//var/oldse=struc_enzymes
-	struc_enzymes = ""
+	var/list/encoded = list()
 	for(var/block in SE)
-		struc_enzymes += EncodeDNABlock(block)
+		encoded += EncodeDNABlock(block)
+	struc_enzymes = jointext(encoded, "")
 	//testing("Old SE: [oldse]")
 	//testing("New SE: [struc_enzymes]")
 	dirtySE = 0

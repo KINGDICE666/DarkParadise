@@ -68,12 +68,16 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/New()
 	..()
 	manifest += "<ul>"
+	var/static/list/content_names = list()
 	for(var/path in contains)
 		if(!path)
 			continue
-		var/atom/movable/dummy = new path(locate(1, 1, 1))
-		var/content_name = dummy.declent_ru(NOMINATIVE)
-		qdel(dummy)
+		var/content_name = content_names[path]
+		if(isnull(content_name))
+			var/atom/movable/dummy = new path(locate(1, 1, 1))
+			content_name = dummy.declent_ru(NOMINATIVE)
+			qdel(dummy)
+			content_names[path] = content_name
 		manifest += "<li>[content_name]</li>"
 		// Add the name to the UI manifest
 		ui_manifest += "[content_name]"
