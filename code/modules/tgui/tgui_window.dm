@@ -76,6 +76,7 @@
 	log_tgui(client, "[id]/initialize")
 	if(!client)
 		return
+	src.initial_strict_mode = strict_mode
 	src.initial_assets = assets
 	src.initial_inline_html = inline_html
 	src.initial_inline_js = inline_js
