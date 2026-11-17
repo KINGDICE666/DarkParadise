@@ -232,24 +232,3 @@
 	atmos_mode = ATMOS_MODE_SEALED
 	atmos_environment = null
 
-
-/client/verb/debug_chasm_goto()
-	set name = "debug chasm goto"
-	for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/edge in GLOB.lazis_primary_turfs)
-		if(!edge.light_on)
-			continue
-		var/interior = 0
-		for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/around in RANGE_TURFS(4, edge))
-			if(!around.light_on)
-				interior++
-		if(interior < 30)
-			continue
-		mob.forceMove(edge)
-		to_chat(src, "[edge.x] [edge.y] [edge.z]")
-		return
-
-/client/verb/debug_chasm_old()
-	set name = "debug chasm old"
-	for(var/turf/simulated/floor/chasm/straight_down/lava_land_surface/chasm_turf in GLOB.lazis_primary_turfs)
-		chasm_turf.set_light(l_on = TRUE)
-		chasm_turf.update_appearance(UPDATE_OVERLAYS)
