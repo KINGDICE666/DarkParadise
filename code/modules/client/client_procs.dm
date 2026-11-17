@@ -75,7 +75,9 @@
 			return
 
 	var/stl = CONFIG_GET(number/second_topic_limit)
-	if(!holder && stl) // Admins are allowed to spam click, deal with it.
+	var/static/list/tgui_lifecycle_messages = list("ready", "ping/reply", "visible", "suspend", "close", "log")
+	var/tgui_lifecycle = href_list["tgui"] && (href_list["type"] in tgui_lifecycle_messages)
+	if(!holder && stl && !tgui_lifecycle) // Admins are allowed to spam click, deal with it.
 		var/second = round(world.time, 10)
 		if(!topiclimiter)
 			topiclimiter = new(LIMITER_SIZE)
