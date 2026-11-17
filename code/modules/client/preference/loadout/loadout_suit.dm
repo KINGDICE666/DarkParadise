@@ -121,6 +121,10 @@
 	index_name = "bomber jacket"
 	path = /obj/item/clothing/suit/jacket
 
+/datum/gear/suit/samurai_jacket
+	index_name = "samurai jacket"
+	path = /obj/item/clothing/suit/jacket/samurai
+
 /datum/gear/suit/miljacket
 	index_name = "military jacket, select"
 	display_name = "Армейская куртка"
