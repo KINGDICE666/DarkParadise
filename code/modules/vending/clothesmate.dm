@@ -112,7 +112,6 @@
 				/obj/item/clothing/suit/jacket/miljacket = 1,
 				/obj/item/clothing/suit/storage/lawyer/blackjacket = 2,
 				/obj/item/clothing/suit/jacket = 3,
-				/obj/item/clothing/suit/jacket/samurai = 3,
 				/obj/item/clothing/suit/jacket/motojacket = 3,
 				/obj/item/clothing/suit/ianshirt = 1,
 				/obj/item/clothing/suit/storage/bomber = 4,
