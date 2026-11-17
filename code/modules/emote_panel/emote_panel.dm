@@ -51,10 +51,10 @@
 			var/datum/emote/emote = GLOB.emote_list[emote_key][1]
 			var/emote_sound = get_sfx(emote.get_sound(ui.user))
 			if(!emote_sound)
-				to_chat(ui.user, span_warning("Couldn't get a preview sound for [emote.name]."), type = MESSAGE_TYPE_INFO)
+				to_chat(ui.user, span_warning("Couldn't get a preview sound for [emote.name]."), type = MESSAGE_TYPE_SYSTEM)
 				return
 			SEND_SOUND(ui.user, sound(emote_sound, volume = 75))
-			to_chat(ui.user, span_warning("Previewed sound for [emote.name]."), type = MESSAGE_TYPE_INFO)
+			to_chat(ui.user, span_warning("Previewed sound for [emote.name]."), type = MESSAGE_TYPE_SYSTEM)
 
 /datum/emote_panel/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)

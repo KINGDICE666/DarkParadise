@@ -321,12 +321,7 @@
 		if(chameleon_blacklist[item_type] || (item_type::item_flags & ABSTRACT) || !item_type::icon_state)
 			continue
 		var/chameleon_item_name = "[replacetext(item_type::name, "\improper","")]_[item_type::icon_state]"
-		var/item_exist = FALSE
-		for(var/existing_item_name in chameleon_list[chameleon_name])
-			if(existing_item_name == chameleon_item_name)
-				item_exist = TRUE
-				break
-		if(!item_exist)
+		if(!chameleon_list[chameleon_name][chameleon_item_name])
 			chameleon_list[chameleon_name][chameleon_item_name] = item_type
 
 /datum/action/item_action/chameleon/change/proc/select_look(mob/user)

@@ -193,6 +193,23 @@
     Byond.topic(message);
   };
 
+  Byond.messageReceived = false;
+
+  var READY_RETRY_ATTEMPTS = 6;
+
+  Byond.sendReady = function () {
+    var attempt = 0;
+    var send = function () {
+      if (Byond.messageReceived || attempt > READY_RETRY_ATTEMPTS) {
+        return;
+      }
+      Byond.sendMessage('ready');
+      attempt += 1;
+      setTimeout(send, 1000 + attempt * 1000);
+    };
+    send();
+  };
+
   // This function exists purely for debugging, do not use it in code!
   Byond.injectMessage = function (type, payload) {
     window.update(JSON.stringify({ type: type, payload: payload }));
@@ -468,6 +485,7 @@ window.__augmentStack__ = function (stack, error) {
 
 // Message handler
 window.update = function (rawMessage) {
+  Byond.messageReceived = true;
   // Push onto the queue (active during initialization)
   if (window.update.queueActive) {
     window.update.queue.push(rawMessage);

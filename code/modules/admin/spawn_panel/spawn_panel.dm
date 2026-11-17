@@ -236,12 +236,12 @@
 		if(PRECISE_MODE_MARK)
 			var/client/admin_client = user.client
 			admin_client.mark_datum(target)
-			to_chat(user, span_notice("Отмеченный объект: [icon2html(target, user)] [span_bold("[target]")]"))
+			to_chat(user, span_notice("Отмеченный объект: [icon2html(target, user)] [span_bold("[target]")]"), confidential = TRUE)
 			toggle_precise_mode(PRECISE_MODE_OFF)
 			SStgui.update_uis(src)
 
 		if(PRECISE_MODE_COPY)
-			to_chat(user, span_notice("Выбранный объект: [icon2html(target, user)] [span_bold("[target]")]"))
+			to_chat(user, span_notice("Выбранный объект: [icon2html(target, user)] [span_bold("[target]")]"), confidential = TRUE)
 			selected_atom = target
 			toggle_precise_mode(PRECISE_MODE_OFF)
 			SStgui.update_uis(src)

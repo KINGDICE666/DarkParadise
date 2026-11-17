@@ -276,6 +276,7 @@
 // Sawing guns related proc
 /obj/item/gun/projectile/proc/blow_up(mob/user)
 	. = FALSE
+	magazine.instantiate_all_rounds()
 	for(var/obj/item/ammo_casing/AC in magazine.stored_ammo)
 		if(AC.BB)
 			fast_fire(user, user)

@@ -1,6 +1,7 @@
 /obj/item/ammo_box/magazine/internal
 	desc = "Oh god, this shouldn't be here!"
 	can_fast_load = TRUE
+	lazy_ammo = FALSE
 
 /obj/item/ammo_box/magazine/internal/get_ru_names()
 	return alist(

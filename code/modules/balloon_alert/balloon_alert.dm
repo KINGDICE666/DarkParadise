@@ -53,6 +53,8 @@
 	if(isnull(viewer_client))
 		return
 
+	text = viewer.distort_perceived_text(text)
+
 	var/image/balloon_alert = image(loc = isturf(src) ? src : get_atom_on_turf(src), layer = ABOVE_MOB_LAYER)
 	SET_PLANE_EXPLICIT(balloon_alert, BALLOON_CHAT_PLANE, src)
 	balloon_alert.alpha = 0

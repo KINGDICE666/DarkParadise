@@ -31,7 +31,7 @@
 	preferences.loadout_gear[gear.index_name] = list()
 	if(preferences.get_loadout_cost() > preferences.max_gear_slots)
 		preferences.loadout_gear -= gear.index_name
-		to_chat(user, span_warning("Недостаточно очков снаряжения для \"[gear.get_display_name()]\"!"))
+		to_chat(user, span_warning("Недостаточно очков снаряжения для \"[gear.get_display_name()]\"!"), MESSAGE_TYPE_SYSTEM)
 		return FALSE
 	return TRUE
 

@@ -115,17 +115,18 @@
 	var/datum/antagonist/bitrunning_glitch/antag_datum = person.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch)
 	antag_datum?.convert_agent()
 
-/obj/machinery/quantum_server/proc/start_new_connection(mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
+/obj/machinery/quantum_server/proc/start_new_connection(mob/living/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/obj/structure/hololadder/entry_point = get_avatar_destination()
 	if(isnull(entry_point))
 		return
 
 	return generate_avatar(get_turf(entry_point), pilot, copy_body, netsuit)
 
-/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/carbon/human/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
+/obj/machinery/quantum_server/proc/generate_avatar(turf/destination, mob/living/pilot, copy_body = FALSE, datum/outfit/netsuit = /datum/outfit/bit_avatar)
 	var/mob/living/carbon/human/avatar = new(destination)
-	if(copy_body)
-		pilot.dna.transfer_identity(avatar)
+	if(copy_body && ishuman(pilot))
+		var/mob/living/carbon/human/human_pilot = pilot
+		human_pilot.dna.transfer_identity(avatar)
 	else
 		avatar.scramble_appearance()
 
@@ -143,6 +144,16 @@
 	to_wear.r_pocket = null
 	to_wear.suit = null
 	to_wear.suit_store = null
+	var/internals_type
+	switch(avatar.dna.species.breathid)
+		if("n2")
+			to_wear.mask = /obj/item/clothing/mask/breath/vox
+			internals_type = /obj/item/tank/internals/emergency_oxygen/double/vox
+		if("tox")
+			to_wear.uniform = /obj/item/clothing/under/plasmaman/cargo
+			to_wear.head = /obj/item/clothing/head/helmet/space/plasmaman/cargo
+			to_wear.mask = /obj/item/clothing/mask/breath
+			internals_type = /obj/item/tank/internals/plasmaman/belt/full
 	avatar.equipOutfit(to_wear, visualsOnly = TRUE)
 
 	var/obj/item/clothing/under/jumpsuit = avatar.w_uniform
@@ -159,11 +170,19 @@
 		new /obj/item/storage/firstaid/regular(bag)
 		new /obj/item/flashlight(bag)
 
+	if(internals_type)
+		var/obj/item/tank/internals/tank = new internals_type(avatar)
+		if(!avatar.equip_to_appropriate_slot(tank, silent = TRUE))
+			avatar.put_in_any_hand_if_possible(tank, drop_on_fail = TRUE)
+		if(tank.loc == avatar)
+			avatar.internal = tank
+			avatar.update_action_buttons_icon()
+
 	avatar.rename_character(null, pick(GLOB.hacker_aliases))
 	stock_gear(avatar, pilot)
 	return avatar
 
-/obj/machinery/quantum_server/proc/stock_gear(mob/living/carbon/human/avatar, mob/living/carbon/human/pilot)
+/obj/machinery/quantum_server/proc/stock_gear(mob/living/carbon/human/avatar, mob/living/pilot)
 	var/domain_flags = generated_domain.domain_flags
 	var/list/forbidden = list()
 	if(domain_flags & DOMAIN_FORBIDS_ITEMS)

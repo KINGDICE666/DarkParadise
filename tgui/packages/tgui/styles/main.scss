@@ -26,6 +26,7 @@
 @include meta.load-css('./interfaces/AutoDoc.scss');
 @include meta.load-css('./interfaces/BrigCells.scss');
 @include meta.load-css('./interfaces/CameraConsole.scss');
+@include meta.load-css('./interfaces/Casino.scss');
 @include meta.load-css('./interfaces/Changelog.scss');
 @include meta.load-css('./interfaces/CodexGigax.scss');
 @include meta.load-css('./interfaces/ColorPicker.scss');
@@ -41,6 +42,7 @@
 @include meta.load-css('./interfaces/Hypertorus.scss');
 @include meta.load-css('./interfaces/Loadout.scss');
 @include meta.load-css('./interfaces/ListInput.scss');
+@include meta.load-css('./interfaces/LockedSafe.scss');
 @include meta.load-css('./interfaces/Logistics.scss');
 @include meta.load-css('./interfaces/Minesweeper.scss');
 @include meta.load-css('./interfaces/Newscaster.scss');

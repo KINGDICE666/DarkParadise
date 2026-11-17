@@ -42,7 +42,7 @@ GLOBAL_PROTECT(href_token)
 
 /datum/admins/New(initial_rank, initial_rights, ckey)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin rank creation blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin rank creation blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit feedback a new admin rank via advanced proc-call")
 		return
 	if(!ckey)
@@ -60,7 +60,7 @@ GLOBAL_PROTECT(href_token)
 
 /datum/admins/Destroy()
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin rank deletion blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin rank deletion blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to delete an admin rank via advanced proc-call")
 		return
 	QDEL_NULL(plane_debug)
@@ -70,7 +70,7 @@ GLOBAL_PROTECT(href_token)
 
 /datum/admins/proc/associate(client/C)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Rank association blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Rank association blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to associate an admin rank to a new client via advanced proc-call")
 		return
 	if(istype(C))
@@ -84,7 +84,7 @@ GLOBAL_PROTECT(href_token)
 
 /datum/admins/proc/disassociate()
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Rank disassociation blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Rank disassociation blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to disassociate an admin rank from a client via advanced proc-call")
 		return
 	if(owner)
@@ -113,13 +113,13 @@ GLOBAL_PROTECT(href_token)
  */
 /proc/check_rights(rights_required, show_msg = TRUE, mob/user = usr, all = FALSE)
 	if(user?.client)
-		return check_rights_ckey(rights_required, show_msg, user.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user.client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a /client has admin rights
 /proc/check_rights_client(rights_required, show_msg, client/user_client, all = FALSE)
 	if(user_client)
-		return check_rights_ckey(rights_required, show_msg, user_client.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user_client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a ckey has admin rights
@@ -148,7 +148,7 @@ GLOBAL_PROTECT(href_token)
 
 /client/proc/deadmin()
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Deadmin blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Deadmin blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to de-admin a client via advanced proc-call")
 		return
 	GLOB.admin_datums -= ckey
@@ -188,7 +188,7 @@ GLOBAL_PROTECT(href_token)
 			return TRUE
 
 		if(show_msg)
-			to_chat(user, span_red("Ошибка: Вы не админ."))
+			to_chat(user, span_red("Ошибка: Вы не админ."), confidential = TRUE)
 
 		return FALSE
 
@@ -199,6 +199,6 @@ GLOBAL_PROTECT(href_token)
 		return TRUE
 
 	if(show_msg)
-		to_chat(user, span_red("Ошибка: У вас недостаточно прав для этого. Вам необходимы следующие флаги:[rights2text(rights_required, " ")]."))
+		to_chat(user, span_red("Ошибка: У вас недостаточно прав для этого. Вам необходимы следующие флаги:[rights2text(rights_required, " ")]."), confidential = TRUE)
 
 	return FALSE

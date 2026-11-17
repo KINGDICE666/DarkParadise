@@ -75,7 +75,9 @@
 			return
 
 	var/stl = CONFIG_GET(number/second_topic_limit)
-	if(!holder && stl) // Admins are allowed to spam click, deal with it.
+	var/static/list/tgui_lifecycle_messages = list("ready", "ping/reply", "visible", "suspend", "close", "log")
+	var/tgui_lifecycle = href_list["tgui"] && (href_list["type"] in tgui_lifecycle_messages)
+	if(!holder && stl && !tgui_lifecycle) // Admins are allowed to spam click, deal with it.
 		var/second = round(world.time, 10)
 		if(!topiclimiter)
 			topiclimiter = new(LIMITER_SIZE)
@@ -246,6 +248,10 @@
 	var/list/connection_params = params2list(tdata)
 	if(connection_params["seeker"] && !seeker_client)
 		DIRECT_OUTPUT(src, "Проверка браузерного входа истекла. Обновите страницу и войдите снова.")
+		return null
+	if(!seeker_client && is_ss14_ckey(ckey))
+		log_adminwarn("Failed Login: [key] [computer_id] [address] - Reserved SS14 prefix")
+		DIRECT_OUTPUT(src, "Ключи с префиксом [SS14_CKEY_PREFIX] зарезервированы за аккаунтами SS14.")
 		return null
 	if(seeker_client)
 		tdata = null
@@ -1427,7 +1433,9 @@ GAME_VERB_DESC(/client, link_discord_account, "Привязка Discord", "Пр�
 	if(prefs?.discord_id && length(prefs.discord_id) < 32)
 		to_chat(usr, custom_boxed_message("red_box center", span_darkmblue("Аккаунт Discord уже привязан!<br>Чтобы отвязать используйте команду [span_boldannounceooc("/отвязать_аккаунт")]<br>В канале <b>#дом-бота</b> в Discord-сообществе!")), confidential = TRUE)
 		return
-	var/token = md5("[world.time+rand(1000,1000000)]")
+	var/token = prefs?.discord_id
+	if(length(token) != DISCORD_TOKEN_LENGTH)
+		token = md5("[world.time+rand(1000,1000000)]")
 	if(SSdbcore.IsConnected())
 		var/datum/db_query/query_update_token = SSdbcore.NewQuery("UPDATE [format_table_name("player")] SET discord_id=:token WHERE ckey =:ckey", list("token" = token, "ckey" = account_ckey))
 		if(!query_update_token.warn_execute())

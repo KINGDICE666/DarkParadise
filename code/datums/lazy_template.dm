@@ -48,10 +48,11 @@
 	if(!load_path || !fexists(load_path))
 		CRASH("lazy template [type] has an invalid load_path: '[load_path]', check directory and map name!")
 
-	var/list/bounds = GLOB.maploader.load_map(
+	var/datum/parsed_map/parsed_template = load_map(
 		file(load_path),
-		measureOnly = TRUE,
+		measure_only = TRUE,
 	)
+	var/list/bounds = parsed_template.bounds
 	if(isnull(bounds))
 		CRASH("Failed to cache lazy template for loading: '[key]'")
 
@@ -82,11 +83,13 @@
 		var/datum/milla_safe/freeze_z_level/milla_freeze = new()
 		milla_freeze.invoke_async(bottom_left.z)
 		UNTIL(milla_freeze.done)
-		GLOB.maploader.load_map(
+		load_map(
 			file(load_path),
 			bottom_left.x,
 			bottom_left.y,
 			bottom_left.z,
+			z_upper = z_idx,
+			z_lower = z_idx,
 			defer_init = TRUE,
 		)
 		for(var/turf/turf as anything in block(bottom_left, top_right))

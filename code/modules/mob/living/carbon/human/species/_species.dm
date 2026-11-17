@@ -538,6 +538,9 @@
 /datum/species/proc/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
 	return TRUE
 
+/datum/species/proc/on_reagent_contact(mob/living/carbon/human/human, datum/reagent/reagent, volume)
+	return
+
 // For special snowflake species effects
 // (Slime People changing color based on the reagents they consume)
 /datum/species/proc/handle_life(mob/living/carbon/human/H)

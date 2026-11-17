@@ -202,11 +202,11 @@ class ChatRenderer {
 
   tryFlushQueue() {
     if (this.isReady() && this.queue.length > 0) {
-      this.processBatch(this.queue, {
+      const queue = this.queue;
+      this.queue = [];
+      this.processBatch(queue, {
         suppressHighlightSound: true,
       });
-      this.processBatch(this.queue);
-      this.queue = [];
     }
   }
 
@@ -437,6 +437,8 @@ class ChatRenderer {
     // Insert messages
     const fragment = document.createDocumentFragment();
     const countByType = {};
+    const prependedMessages: Array<any> = [];
+    const prependedVisible: Array<any> = [];
     let node;
     for (const payload of batch) {
       const message = createMessage(payload);
@@ -581,11 +583,25 @@ class ChatRenderer {
       }
       countByType[message.type] += 1;
       // TODO: Detect duplicates
-      this.messages.push(message);
+      if (prepend) {
+        prependedMessages.push(message);
+      } else {
+        this.messages.push(message);
+      }
       if (canPageAcceptType(this.page, message.type)) {
         fragment.appendChild(node);
-        this.visibleMessages.push(message);
+        if (prepend) {
+          prependedVisible.push(message);
+        } else {
+          this.visibleMessages.push(message);
+        }
       }
+    }
+    if (prependedMessages.length > 0) {
+      this.messages = [...prependedMessages, ...this.messages];
+    }
+    if (prependedVisible.length > 0) {
+      this.visibleMessages = [...prependedVisible, ...this.visibleMessages];
     }
     if (node) {
       const firstChild = this.rootNode!.childNodes[0];

@@ -3,7 +3,7 @@
 		return
 
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
 		return
 
 	if(!adm_ckey || !new_rank)
@@ -33,7 +33,7 @@
 
 		var/logtxt = "Added new admin [adm_ckey] to rank [new_rank] with permissions [rights2text(new_rigths, " ")]"
 		log_admin_modification(logtxt)
-		to_chat(usr, span_notice("New admin added."))
+		to_chat(usr, span_notice("New admin added."), confidential = TRUE)
 		return
 
 	if(isnull(admin_id) || !isnum(admin_id))
@@ -51,14 +51,14 @@
 
 	var/logtxt = "Edited the rank of [adm_ckey] to [new_rank] with permissions [rights2text(new_rigths, " ")]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Admin rank changed."))
+	to_chat(usr, span_notice("Admin rank changed."), confidential = TRUE)
 
 /datum/admins/proc/admin_rank_only_modification(adm_ckey, new_rank)
 	if(!check_rights(R_PERMISSIONS))
 		return
 
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
 		return
 
 	if(!adm_ckey || !new_rank)
@@ -89,11 +89,11 @@
 
 	var/logtxt = "Edited the rank of [adm_ckey] to [new_rank]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Admin rank changed."))
+	to_chat(usr, span_notice("Admin rank changed."), confidential = TRUE)
 
 /datum/admins/proc/admin_permission_modification(adm_ckey, new_permission)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -101,7 +101,7 @@
 		return
 
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
 		return
 
 	if(!adm_ckey || isnull(new_permission))
@@ -134,11 +134,11 @@
 
 	var/logtxt = "Updated permission [rights2text(new_permission, " ")] (flags = [new_permission]) to admin [adm_ckey]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Permission Updated."))
+	to_chat(usr, span_notice("Permission Updated."), confidential = TRUE)
 
 /datum/admins/proc/update_rank_to_db(ckey, new_rank)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 

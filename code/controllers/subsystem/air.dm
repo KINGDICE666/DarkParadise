@@ -728,7 +728,6 @@ SUBSYSTEM_DEF(air)
 		turf.Initialize_Atmos(milla_tick)
 	milla_load_turfs(low_corner, high_corner)
 	for(var/turf/turf as anything in block(low_corner, high_corner))
-		turf.milla_data.len = 0
 		turf.milla_data = null
 
 /datum/controller/subsystem/air/proc/setup_atmos_machinery(list/machines_to_init)

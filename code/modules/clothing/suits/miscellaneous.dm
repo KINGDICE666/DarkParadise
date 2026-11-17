@@ -928,6 +928,24 @@
 	. = ..()
 	AddElement(/datum/element/right_click_mapper/attack_self, "Застегнуть/Расстегнуть [declent_ru(ACCUSATIVE)]")
 
+/obj/item/clothing/suit/jacket/samurai
+	name = "samurai jacket"
+	desc = "Коричневая кожаная куртка с голубой подсветкой воротника и красной маской на спине."
+	gender = FEMALE
+	icon_state = "samurai"
+	item_state = "samurai"
+	actions_types = list(/datum/action/item_action/zipper)
+
+/obj/item/clothing/suit/jacket/samurai/get_ru_names()
+	return alist(
+		NOMINATIVE = "куртка \"Самурай\"",
+		GENITIVE = "куртки \"Самурай\"",
+		DATIVE = "куртке \"Самурай\"",
+		ACCUSATIVE = "куртку \"Самурай\"",
+		INSTRUMENTAL = "курткой \"Самурай\"",
+		PREPOSITIONAL = "куртке \"Самурай\"",
+	)
+
 /obj/item/clothing/suit/jacket/pilot
 	name = "security bomber jacket"
 	desc = "A stylish and worn-in armoured black bomber jacket emblazoned with the NT Security crest on the left breast. Looks rugged."

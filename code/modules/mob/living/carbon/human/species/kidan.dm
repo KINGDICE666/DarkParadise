@@ -1,5 +1,6 @@
 #define PHEROMONES_LIFESPAN 15 MINUTES
 #define PHEROMONES_MAX 3
+#define KIDAN_PESTICIDE_DAMAGE 20
 
 /datum/species/kidan
 	name = SPECIES_KIDAN
@@ -18,6 +19,9 @@
 	deform = 'icons/mob/human_races/r_def_kidan.dmi'
 	species_language_holder = /datum/language_holder/kidan
 	unarmed_type = /datum/unarmed_attack/claws
+	hunger_drain_mod = 1.5
+	brute_mod = 0.8
+	tox_mod = 0.7
 
 	inherent_traits = list(
 		TRAIT_HAS_REGENERATION,
@@ -120,6 +124,16 @@
 		"с" = list("з", "зс", "ззз", "ззсз"),
 	)
 	autohiss_exempt = list(/datum/language/kidan)
+
+/datum/species/kidan/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
+	if(istype(R, /datum/reagent/pestkiller))
+		H.adjustToxLoss(KIDAN_PESTICIDE_DAMAGE)
+	return ..()
+
+/datum/species/kidan/on_reagent_contact(mob/living/carbon/human/human, datum/reagent/reagent, volume)
+	. = ..()
+	if(istype(reagent, /datum/reagent/pestkiller))
+		human.reagents.add_reagent(reagent.id, volume)
 
 /datum/species/kidan/get_species_runechat_color(mob/living/carbon/human/H)
 	var/obj/item/organ/internal/eyes/E = H.get_int_organ(/obj/item/organ/internal/eyes)
@@ -287,3 +301,4 @@
 
 #undef PHEROMONES_LIFESPAN
 #undef PHEROMONES_MAX
+#undef KIDAN_PESTICIDE_DAMAGE

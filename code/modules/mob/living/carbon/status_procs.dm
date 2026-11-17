@@ -20,6 +20,11 @@
 	var/obj/item/organ/internal/brain/brain = get_int_organ(/obj/item/organ/internal/brain)
 	return brain?.has_trauma_type(brain_trauma_type, resilience)
 
+/mob/living/carbon/get_perception_distortion()
+	. = ..()
+	var/obj/item/organ/internal/brain/brain = get_organ_slot(INTERNAL_ORGAN_BRAIN)
+	. += brain?.get_trauma_distortion()
+
 /mob/living/carbon/proc/gain_trauma(datum/brain_trauma/trauma, resilience, ...)
 	var/obj/item/organ/internal/brain/brain = get_int_organ(/obj/item/organ/internal/brain)
 	if(!brain)

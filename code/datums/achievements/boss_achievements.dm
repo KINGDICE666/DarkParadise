@@ -3,7 +3,7 @@
 
 /datum/award/achievement/boss/tendril_exterminator
 	name = "Уничтожитель Щупалец"
-	desc = "Смотрите под ноги!"
+	desc = "Уничтожьте последнее щупальце некрополя на Лаваленде. Смотрите под ноги!"
 	database_id = BOSS_MEDAL_TENDRIL
 	icon_state = "tendril"
 

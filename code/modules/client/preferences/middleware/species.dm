@@ -21,3 +21,4 @@
 		insert_icon(sanitize_css_class_name("[species.type]"), dummy_icon)
 
 		qdel(dummy)
+		CHECK_TICK

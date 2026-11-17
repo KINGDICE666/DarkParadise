@@ -95,7 +95,6 @@
 	window = custom_window || SStgui.request_pooled_window(user)
 	if(!window)
 		return FALSE
-	opened_at = world.time
 	window.acquire_lock(src)
 	if(!window.is_ready())
 		window.initialize(
@@ -106,6 +105,7 @@
 	else
 		window.send_message("ping")
 	send_assets()
+	opened_at = world.time
 	window.send_message("update", get_payload(
 		with_data = TRUE,
 		with_static_data = TRUE))

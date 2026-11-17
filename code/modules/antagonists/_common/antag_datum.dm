@@ -174,7 +174,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 		messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/[wiki_page_name]\">[russian_wiki_name]"))
 	list_clear_nulls(messages)
 	if(length(messages))
-		to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")))
+		to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")), MESSAGE_TYPE_SYSTEM)
 
 	if(is_banned(owner.current) && replace_banned)
 		INVOKE_ASYNC(src, PROC_REF(replace_banned_player))
@@ -377,10 +377,10 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	if(!length(objectives))
 		return FALSE
 
-	to_chat(owner.current, span_notice("Your current objectives:"))
+	to_chat(owner.current, span_notice("Your current objectives:"), MESSAGE_TYPE_SYSTEM)
 	var/objective_num = 1
 	for(var/datum/objective/objective in objectives)
-		to_chat(owner.current, span_notice("<b>Objective #[objective_num++]</b>: [objective.explanation_text]<br>"))
+		to_chat(owner.current, span_notice("<b>Objective #[objective_num++]</b>: [objective.explanation_text]<br>"), MESSAGE_TYPE_SYSTEM)
 	return TRUE
 
 /**

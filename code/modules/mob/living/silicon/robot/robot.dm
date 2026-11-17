@@ -97,6 +97,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	/// A limited pickable modules goes into this list. If empty all modules will be available(default ones)
 	var/list/limited_modules = list()
 	var/allow_rename = TRUE
+	var/rename_used = FALSE
 	var/weapons_unlock = FALSE
 
 	var/wiresexposed = FALSE
@@ -353,14 +354,22 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 
 GAME_VERB(/mob/living/silicon/robot, Namepick, "Сменить имя", VERB_CATEGORY_ROBOTCOMMANDS)
 
-	if(custom_name)
-		return FALSE
-
 	if(!allow_rename)
 		balloon_alert(src, "нельзя сменить имя!")
 		return FALSE
 
-	rename_self(braintype, 1)
+	if(rename_used)
+		balloon_alert(src, "имя уже было сменено!")
+		return FALSE
+
+	INVOKE_ASYNC(src, PROC_REF(namepick))
+
+/mob/living/silicon/robot/proc/namepick()
+	rename_used = TRUE
+	var/old_name = real_name
+	prompt_rename(braintype, TRUE)
+	if(real_name == old_name)
+		rename_used = FALSE
 
 GAME_VERB_DESC(/mob/living/silicon/robot, Change_Voice, "Сменить голос", "Express yourself!", VERB_CATEGORY_ROBOTCOMMANDS)
 	change_voice()

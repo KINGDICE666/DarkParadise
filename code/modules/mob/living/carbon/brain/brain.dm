@@ -63,5 +63,21 @@ I'm using this for Stat to give it a more nifty interface to work with
 			status_tab_data[++status_tab_data.len] = list("Exosuit Charge:", "[istype(M.cell) ? "[M.cell.charge] / [M.cell.maxcharge]" : "No cell detected"]")
 			status_tab_data[++status_tab_data.len] = list("Exosuit Integrity", "[!M.obj_integrity ? "0" : "[(M.obj_integrity / M.max_integrity) * 100]"]%")
 
+/mob/living/carbon/brain/proc/get_held_brain()
+	var/obj/item/mmi/mmi = container
+	return is_internal_organ_brain(loc) ? loc : mmi?.held_brain
+
+/mob/living/carbon/brain/get_perception_distortion()
+	var/obj/item/organ/internal/brain/brain = get_held_brain()
+	if(!brain)
+		return 0
+	return LETTER_DISTORTION_FROM_BRAIN_DAMAGE(brain.damage) + brain.get_trauma_distortion()
+
+/mob/living/carbon/brain/get_word_distortion()
+	var/obj/item/organ/internal/brain/brain = get_held_brain()
+	if(!brain)
+		return 0
+	return WORD_DISTORTION_FROM_BRAIN_DAMAGE(brain.damage)
+
 /mob/living/carbon/brain/can_safely_leave_loc()
 	return FALSE //You're not supposed to be ethereal jaunting, brains

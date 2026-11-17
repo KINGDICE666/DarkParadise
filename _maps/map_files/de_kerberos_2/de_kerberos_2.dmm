@@ -101503,6 +101503,10 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/solars/starboard/fore)
+"tfX" = (
+/obj/machinery/computer/casino/crash,
+/turf/simulated/floor/plating,
+/area/station/maintenance/casino)
 "tgf" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 5
@@ -114925,6 +114929,7 @@
 	},
 /area/station/science/xenobiology)
 "vGF" = (
+/obj/machinery/computer/casino/wheel,
 /obj/structure/cable,
 /obj/machinery/power/apc/worn_out/directional/south,
 /turf/simulated/floor/carpet/black,
@@ -156574,7 +156579,7 @@ ufb
 qzT
 nln
 sJI
-pPT
+tfX
 djO
 iIC
 bjO

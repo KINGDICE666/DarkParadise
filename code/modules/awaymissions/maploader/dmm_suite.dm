@@ -54,18 +54,9 @@ GLOBAL_DATUM_INIT(maploader, /datum/dmm_suite, new())
 
 /datum/dmm_suite
 	var/static/quote = "\""
-
-	// These regexes are global - meaning that starting the maploader again mid-load will
-	// reset progress - which means we need to track our index per-map, or we'll
-	// eternally recurse
-		// /"([a-zA-Z]+)" = \(((?:.|\n)*?)\)\n(?!\t)|\((\d+),(\d+),(\d+)\) = \{"([a-zA-Z\n]*)"\}/g
 	var/static/regex/dmmRegex = new/regex({""(\[a-zA-Z]+)" = \\(((?:.|\n)*?)\\)\n(?!\t)|\\((\\d+),(\\d+),(\\d+)\\) = \\{"(\[a-zA-Z\n]*)"\\}"}, "g")
-		// /^[\s\n]+"?|"?[\s\n]+$|^"|"$/g
 	var/static/regex/trimQuotesRegex = new/regex({"^\[\\s\n]+"?|"?\[\\s\n]+$|^"|"$"}, "g")
-		// /^[\s\n]+|[\s\n]+$/
 	var/static/regex/trimRegex = new/regex("^\[\\s\n]+|\[\\s\n]+$", "g")
-	var/static/list/modelCache = list()
-
 	var/static/list/letter_digits = list(
 		"a", "b", "c", "d", "e",
 		"f", "g", "h", "i", "j",
@@ -80,3 +71,77 @@ GLOBAL_DATUM_INIT(maploader, /datum/dmm_suite, new())
 		"U", "V", "W", "X", "Y",
 		"Z"
 	)
+
+/datum/dmm_suite/proc/load_map(dmm_file, x_offset = 0, y_offset = 0, z_offset = 0, shouldCropMap = FALSE, measureOnly = FALSE, defer_init = FALSE)
+	var/datum/parsed_map/parsed = global.load_map(dmm_file, x_offset || 1, y_offset || 1, z_offset, crop_map = shouldCropMap, measure_only = measureOnly, defer_init = defer_init)
+	return parsed.bounds
+
+/datum/dmm_suite/proc/trim_text(what, trim_quotes = FALSE)
+	if(trim_quotes)
+		return trimQuotesRegex.Replace(what, "")
+	else
+		return trimRegex.Replace(what, "")
+
+/datum/dmm_suite/proc/find_next_delimiter_position(text, initial_position = 0, delimiter = ",", opening_escape = quote, closing_escape = quote)
+	var/position = initial_position
+	var/next_delimiter = findtext(text, delimiter, position, 0)
+	var/next_opening = findtext(text, opening_escape, position, 0)
+
+	while((next_opening != 0) && (next_opening < next_delimiter))
+		position = findtext(text, closing_escape, next_opening + 1, 0) + 1
+		next_delimiter = findtext(text, delimiter, position, 0)
+		next_opening = findtext(text, opening_escape, position, 0)
+
+	return next_delimiter
+
+/datum/dmm_suite/proc/readlist(text, delimiter = ",")
+	var/list/to_return = list()
+
+	var/delimiter_position
+	var/old_position = 1
+
+	do
+		delimiter_position = find_next_delimiter_position(text, old_position, delimiter)
+
+		var/equal_position = findtext(text, "=", old_position, delimiter_position)
+
+		var/left_value = copytext(text, old_position, (equal_position ? equal_position : delimiter_position))
+		old_position = delimiter_position + 1
+
+		if(equal_position)
+			left_value = trim_text(left_value, TRUE)
+			var/trim_right = trim_text(copytext(text, equal_position + 1, delimiter_position))
+
+			to_return[left_value] = parse_value(trim_right)
+
+		else
+			to_return += parse_value(trim_text(left_value))
+
+	while(delimiter_position != 0)
+
+	return to_return
+
+/datum/dmm_suite/proc/parse_value(value_text)
+	if(findtext(value_text, quote, 1, 2))
+		var/endquote = findtext(value_text, quote, -1)
+		if(!endquote)
+			stack_trace("Terminating quote not found!")
+		. = dmm_decode(copytext(value_text, 2, endquote))
+
+	else if(isnum(text2num(value_text)))
+		. = text2num(value_text)
+
+	else if(value_text == "null")
+		. = null
+
+	else if(copytext(value_text, 1, 5) == "list")
+		. = readlist(copytext(value_text, 6, LAZYLEN(value_text)))
+
+	else if(copytext(value_text, 1, 2) == "'")
+		. = WRAP_FILE(copytext(value_text, 2, LAZYLEN(value_text)))
+
+	else if(ispath(text2path(value_text)))
+		. = text2path(value_text)
+
+	else
+		. = value_text

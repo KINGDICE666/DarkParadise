@@ -381,6 +381,81 @@
 /proc/trim_strip_html_properly(input, max_length = MAX_MESSAGE_LEN, allow_lines = 0)
 	return trim(strip_html_properly(input, max_length, allow_lines))
 
+/proc/garble_html(html, probability, word_probability = 0)
+	var/static/regex/markup = regex(@{"<(?:"[^"]*"|'[^']*'|[^'">])*>|<[^>]*>|&#?\w+;"})
+	var/list/garbled = list()
+	var/position = 1
+	var/html_length = length(html)
+	while(position <= html_length)
+		var/markup_start = markup.Find(html, position) || html_length + 1
+		var/markup_text = markup_start <= html_length ? markup.match : ""
+		if(markup_start > position)
+			garbled += garble_text(copytext(html, position, markup_start), probability, word_probability)
+		garbled += markup_text
+		position = markup_start + length(markup_text)
+	return jointext(garbled, "")
+
+/proc/garble_text(text, probability, word_probability = 0)
+	var/static/list/glyphs = list("б", "б", "б", "l", "l", "!")
+	if(word_probability > 0)
+		text = scramble_words(text, word_probability)
+	if(probability <= 0)
+		return text
+	var/list/characters = text2charlist(text)
+	for(var/index in 1 to length(characters))
+		if(characters[index] != " " && prob(probability))
+			characters[index] = pick(glyphs)
+	return jointext(characters, "")
+
+/proc/text2charlist(text)
+	. = list()
+	var/position = 1
+	var/text_length = length(text)
+	while(position <= text_length)
+		var/code = text2ascii(text, position)
+		var/character = copytext(text, position, position + UTF8_WIDTH(code))
+		if(length(character) > 1 && text2ascii(character) != code)
+			character = copytext(text, position, position + 1)
+		. += character
+		position += length(character)
+
+#define WORD_SCRAMBLE_SHUFFLE 1
+#define WORD_SCRAMBLE_REPEAT 2
+#define WORD_SCRAMBLE_ECHO 3
+#define WORD_SCRAMBLE_DROP 4
+
+/proc/scramble_words(text, probability)
+	var/static/regex/word_regex = regex(@"\S+")
+	var/list/scrambled = list()
+	var/position = 1
+	var/previous_word
+	while(word_regex.Find(text, position))
+		scrambled += copytext(text, position, word_regex.index)
+		position = word_regex.index + length(word_regex.match)
+		var/word = word_regex.match
+		if(prob(probability))
+			switch(rand(WORD_SCRAMBLE_SHUFFLE, WORD_SCRAMBLE_DROP))
+				if(WORD_SCRAMBLE_SHUFFLE)
+					var/list/letters = text2charlist(word)
+					shuffle_inplace(letters)
+					word = jointext(letters, "")
+				if(WORD_SCRAMBLE_REPEAT)
+					word = "[word] [word]"
+				if(WORD_SCRAMBLE_ECHO)
+					word = previous_word || word
+				if(WORD_SCRAMBLE_DROP)
+					if(previous_word)
+						word = ""
+		scrambled += word
+		previous_word = word_regex.match
+	scrambled += copytext(text, position)
+	return jointext(scrambled, "")
+
+#undef WORD_SCRAMBLE_SHUFFLE
+#undef WORD_SCRAMBLE_REPEAT
+#undef WORD_SCRAMBLE_ECHO
+#undef WORD_SCRAMBLE_DROP
+
 /// Used in preferences' SetFlavorText and human's set_flavor verb
 /// Previews a string of len or less length
 /proc/TextPreview(string, len=60)

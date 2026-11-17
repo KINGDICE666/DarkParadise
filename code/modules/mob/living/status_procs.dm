@@ -118,6 +118,17 @@
 
 	return TRUE
 
+/mob/living/get_perception_distortion()
+	. = 0
+	if(HAS_TRAIT(src, TRAIT_INCAPACITATED))
+		. += PERCEPTION_DISTORTION_STUN
+	var/brain_damage = getBrainLoss()
+	. += LETTER_DISTORTION_FROM_BRAIN_DAMAGE(brain_damage)
+
+/mob/living/get_word_distortion()
+	var/brain_damage = getBrainLoss()
+	return WORD_DISTORTION_FROM_BRAIN_DAMAGE(brain_damage)
+
 // SCALAR STATUS EFFECTS
 
 /**

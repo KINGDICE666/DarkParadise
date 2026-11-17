@@ -408,6 +408,8 @@
 					continue
 
 				var/datum/chemical_reaction/C = reaction
+				if(C.requires_shaking && !(flags & REAGENT_SHAKING))
+					continue
 				var/total_required_reagents = length(C.required_reagents)
 				var/total_matching_reagents = 0
 				var/total_required_catalysts = C.count_of_catalysts == -1 ? length(C.required_catalysts) : C.count_of_catalysts
@@ -627,6 +629,9 @@
 					if(protection && show_message)
 						to_chat(L, span_alert("Ваша одежда защищает вас от реакции."))
 				var/reacting_volume = R.volume * volume_modifier * clamp(1 - protection + R.clothing_penetration, 0, 1)
+				if(method == REAGENT_TOUCH && reacting_volume > 0 && ishuman(L))
+					var/mob/living/carbon/human/human = L
+					human.dna.species.on_reagent_contact(human, R, reacting_volume)
 				R.reaction_mob(A, method, reacting_volume, show_message)
 
 			if("TURF")
