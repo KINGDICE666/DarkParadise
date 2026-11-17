@@ -19,7 +19,7 @@
 	var/ammo = ammo_count()
 	if(!ammo)
 		return FALSE
-	if(istype(contents[length(contents)], /obj/item/ammo_casing/rubber9mm))
+	if(ispath(top_round_type(), /obj/item/ammo_casing/rubber9mm))
 		return TRUE
 	return FALSE
 

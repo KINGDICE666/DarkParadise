@@ -172,10 +172,8 @@ GLOBAL_LIST_INIT(human_tlv, list(
 		wiresexposed = TRUE
 		set_pixel_offsets_from_dir(27, -27, 27, -27)
 
-	GLOB.air_alarms += src
+	insert_atom_sorted(GLOB.air_alarms, src)
 	alarm_area.air_alarms += src
-
-	GLOB.air_alarms = sortAtom(GLOB.air_alarms)
 
 	wires = new(src)
 

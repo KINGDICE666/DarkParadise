@@ -36,6 +36,7 @@
 	var/bullet_load_duration = 0.4 SECONDS
 	/// Additional info to be added to examine text.
 	var/extra_info = ""
+	var/lazy_ammo = TRUE
 
 /obj/item/ammo_box/get_ru_names()
 	return alist(
@@ -52,7 +53,7 @@
 
 	if(!start_empty && ammo_type)
 		for(var/i in 1 to max_ammo)
-			stored_ammo += new ammo_type(src)
+			stored_ammo += lazy_ammo ? ammo_type : new ammo_type(src)
 	update_appearance(UPDATE_ICON|UPDATE_DESC)
 	initial_mats = materials.Copy()
 	update_mat_value()
@@ -97,16 +98,40 @@
 		return CONTEXTUAL_SCREENTIP_SET
 
 /obj/item/ammo_box/Destroy()
-	QDEL_LIST(stored_ammo)
+	for(var/casing in stored_ammo)
+		if(!ispath(casing))
+			qdel(casing)
 	stored_ammo = null
 	return ..()
 
+/obj/item/ammo_box/proc/instantiate_round(index)
+	var/obj/item/ammo_casing/casing = stored_ammo[index]
+	if(!ispath(casing))
+		return casing
+	casing = new casing(src)
+	if(materials_coeff != 1)
+		casing.update_materials_coeff(materials_coeff)
+	stored_ammo[index] = casing
+	return casing
+
+/obj/item/ammo_box/proc/top_round_type()
+	var/ammo_len = length(stored_ammo)
+	if(!ammo_len)
+		return null
+	var/obj/item/ammo_casing/top_round = stored_ammo[ammo_len]
+	return ispath(top_round) ? top_round : top_round?.type
+
+/obj/item/ammo_box/proc/instantiate_all_rounds()
+	for(var/index in 1 to length(stored_ammo))
+		instantiate_round(index)
+
 /obj/item/ammo_box/proc/get_round(keep = FALSE)
-	if(!length(stored_ammo))
+	var/ammo_len = length(stored_ammo)
+	if(!ammo_len)
 		return null
 
-	var/bullet = stored_ammo[length(stored_ammo)]
-	stored_ammo -= bullet
+	var/bullet = instantiate_round(ammo_len)
+	stored_ammo.len--
 	if(keep)
 		stored_ammo.Insert(1, bullet)
 	update_mat_value()
@@ -141,11 +166,8 @@
 	if(!ammo_type)
 		return caliber
 
-	var/obj/item/ammo_casing/sample_cartridge = new ammo_type()
-	var/ammo_marking = sample_cartridge.get_ammo_marking()
-	qdel(sample_cartridge)
-
-	return ammo_marking
+	var/obj/item/ammo_casing/cartridge_type = ammo_type
+	return initial(cartridge_type.ammo_marking) || initial(cartridge_type.caliber)
 
 /obj/item/ammo_box/update_desc(updates = ALL)
 	. = ..()
@@ -224,6 +246,7 @@
 
 	if(ammo_box)
 		var/obj/item/ammo_box/box = I
+		box.instantiate_all_rounds()
 		for(var/obj/item/ammo_casing/casing in box.stored_ammo)
 			if(!can_fast_load)
 				playsound(src, insert_sound, 50, TRUE)
@@ -318,11 +341,30 @@
 	materials = initial_mats.Copy()
 	for(var/material in materials)
 		materials[material] *= materials_coeff
-	for(var/obj/item/ammo_casing/ammo in stored_ammo)
-		if(!ammo.BB || !length(ammo.materials)) //Skip any casing which are empty
+	for(var/ammo in stored_ammo)
+		if(ispath(ammo))
+			var/list/casing_materials = get_ammo_casing_materials(ammo)
+			for(var/material in casing_materials)
+				materials[material] += casing_materials[material] * materials_coeff
 			continue
-		for(var/material in ammo.materials)
-			materials[material] += ammo.materials[material]
+		var/obj/item/ammo_casing/casing = ammo
+		if(!casing?.BB || !length(casing.materials)) //Skip any casing which are empty
+			continue
+		for(var/material in casing.materials)
+			materials[material] += casing.materials[material]
+
+/proc/get_ammo_casing_materials(obj/item/ammo_casing/casing_type)
+	var/static/list/materials_by_type = list()
+	var/list/casing_materials = materials_by_type[casing_type]
+	if(isnull(casing_materials))
+		casing_materials = list()
+		if(initial(casing_type.projectile_type))
+			var/obj/item/ammo_casing/prototype = new casing_type
+			if(prototype.BB)
+				casing_materials = prototype.materials?.Copy() || list()
+			qdel(prototype)
+		materials_by_type[casing_type] = casing_materials
+	return casing_materials
 
 // MARK: Мagazine
 /obj/item/ammo_box/magazine
@@ -356,6 +398,7 @@
 	return length(stored_ammo)
 
 /obj/item/ammo_box/magazine/proc/empty_magazine()
+	instantiate_all_rounds()
 	var/atom/drop_loc = drop_location()
 	playsound(loc, remove_sound, 50, TRUE)
 	for(var/obj/item/ammo in stored_ammo)

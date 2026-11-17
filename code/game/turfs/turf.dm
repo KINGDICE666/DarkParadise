@@ -101,7 +101,7 @@
 	/// The effect used to render a pressure overlay from this tile.
 	var/obj/effect/abstract/pressure_overlay/pressure_overlay
 
-	var/list/milla_data = list()
+	var/list/milla_data
 
 /turf/vv_edit_var(var_name, new_value)
 	var/static/list/banned_edits = list(NAMEOF_STATIC(src, x), NAMEOF_STATIC(src, y), NAMEOF_STATIC(src, z))
@@ -965,6 +965,8 @@
 	return target_space_turf
 
 /turf/proc/initialize_milla()
+	if(!SSair.initialized)
+		return
 	var/datum/milla_safe/initialize_turf/milla = new()
 	milla.invoke_async(src)
 
