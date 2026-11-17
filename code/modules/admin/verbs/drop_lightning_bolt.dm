@@ -180,7 +180,7 @@ ADMIN_VERB(drop_lightning_bolt, R_EVENT, "Drop lightning bolt", "Вызвать 
  */
 /datum/drop_lightning_bolt_ui/proc/prepare_bolt()
 	if(!validate_target())
-		to_chat(usr, span_warning("Ошибка: не выбрана цель или режим!"))
+		to_chat(usr, span_warning("Ошибка: не выбрана цель или режим!"), confidential = TRUE)
 		return FALSE
 
 	var/turf/target_turf = get_target_turf()
@@ -325,7 +325,7 @@ ADMIN_VERB(drop_lightning_bolt, R_EVENT, "Drop lightning bolt", "Вызвать 
  */
 /datum/click_intercept/lightning_bolt_dropper/proc/prepare_lightning_for_target(mob/user)
 	if(!dropper.validate_target())
-		to_chat(user, span_warning("Error: no target or mode selected!"))
+		to_chat(user, span_warning("Error: no target or mode selected!"), confidential = TRUE)
 		return FALSE
 
 	// Capture current target values locally before they change

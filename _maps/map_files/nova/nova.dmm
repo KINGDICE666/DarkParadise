@@ -3545,16 +3545,6 @@
 /obj/structure/sign/chemistry,
 /turf/simulated/wall/r_wall,
 /area/station/medical/chemistry)
-"aDC" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_home"
-	},
-/obj/machinery/door/poddoor/preopen{
-	id_tag = "Brig_lockdown";
-	name = "Brig Lockdown"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/hallway/secure)
 "aDH" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -7860,17 +7850,6 @@
 	icon_state = "neutralfull"
 	},
 /area/station/engineering/atmos)
-"bmB" = (
-/obj/machinery/door/airlock/external/docking{
-	dir = 8;
-	id_tag = "admin_home";
-	dock_name = "Док 2"
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 10
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/commercial)
 "bmL" = (
 /obj/structure/chair{
 	dir = 8
@@ -8674,6 +8653,12 @@
 /obj/structure/sign/radiation,
 /turf/simulated/wall/r_wall/coated,
 /area/station/engineering/supermatter/engine)
+"bub" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "specops_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/additional)
 "bui" = (
 /obj/machinery/vending/cola,
 /turf/simulated/floor/plasteel{
@@ -15029,13 +15014,6 @@
 /obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plasteel/airless,
 /area/station/science/toxins/test)
-"csl" = (
-/obj/machinery/door/airlock/external/docking/support{
-	req_access = list(31);
-	id_tag = "supply_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/cargo/delivery)
 "csq" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/spawner/random_spawners/rodent,
@@ -15434,17 +15412,6 @@
 	icon_state = "green"
 	},
 /area/hydroponics)
-"cwJ" = (
-/obj/machinery/door/airlock/external/docking/support{
-	req_access = list(31);
-	id_tag = "supply_home"
-	},
-/obj/machinery/door/poddoor/preopen{
-	id_tag = "Cargo_lockdown";
-	name = "Cargo Lockdown"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/cargo/delivery)
 "cwT" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -18589,12 +18556,6 @@
 	icon_state = "neutral"
 	},
 /area/station/commons/serviceyard)
-"cVH" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "ferry_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/additional)
 "cVV" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -18789,9 +18750,6 @@
 	icon_state = "cafeteria"
 	},
 /area/station/science/break_room)
-"cXr" = (
-/turf/space/openspace,
-/area/station/cargo/miningdock)
 "cXs" = (
 /obj/machinery/atmospherics/unary/portables_connector{
 	dir = 8
@@ -20392,6 +20350,18 @@
 	icon_state = "neutralfull"
 	},
 /area/station/engineering/atmos)
+"dkT" = (
+/obj/docking_port/stationary{
+	dir = 8;
+	dwidth = 3;
+	height = 4;
+	id = "ntstation";
+	name = "To Space Station";
+	pixel_x = 32;
+	width = 6
+	},
+/turf/space,
+/area/space)
 "dkV" = (
 /obj/machinery/r_n_d/circuit_imprinter{
 	pixel_y = 3
@@ -21316,18 +21286,6 @@
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/station/command/office/captain/bedroom)
-"drZ" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "emergency_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/exit)
 "dsv" = (
 /obj/structure/cable{
 	icon_state = "2-4"
@@ -21664,6 +21622,17 @@
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel,
 /area/station/engineering/atmos)
+"dvn" = (
+/obj/machinery/computer/casino/crash,
+/obj/effect/decal/cleanable/dust,
+/obj/structure/cable/multiz{
+	color = "#dd1010"
+	},
+/obj/structure/cable{
+	icon_state = "0-2"
+	},
+/turf/simulated/floor/wood,
+/area/station/maintenance/casino)
 "dvp" = (
 /obj/structure/table/reinforced,
 /obj/item/radio/sec,
@@ -22810,6 +22779,15 @@
 	icon_state = "cult"
 	},
 /area/station/service/chapel/morgue)
+"dFw" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "admin_home"
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/commercial)
 "dFA" = (
 /obj/machinery/portable_atmospherics/canister/sleeping_agent,
 /obj/effect/spawner/random_spawners/cobweb_right_frequent,
@@ -25420,6 +25398,13 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/cargo/sorting)
+"ebL" = (
+/obj/machinery/door/airlock/external/docking{
+	dock_name = "Южный дополнительный док";
+	id_tag = "graveyard_church"
+	},
+/turf/simulated/floor/plating,
+/area/station/hallway/secondary/exit/maint)
 "ebM" = (
 /obj/effect/turf_decal/delivery/partial{
 	dir = 1
@@ -26841,14 +26826,6 @@
 	icon_state = "darkbluealt"
 	},
 /area/station/command/bridge)
-"eor" = (
-/obj/machinery/door/airlock/external/docking{
-	dir = 4;
-	id_tag = "pod3_home";
-	dock_name = "Восточный док эвакуационной капсулы"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/fsmaint3)
 "eoy" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -28930,13 +28907,6 @@
 /obj/structure/sign/nosmoking_2,
 /turf/simulated/wall/r_wall,
 /area/station/science/robotics)
-"eEV" = (
-/obj/machinery/door/airlock/external/docking{
-	dock_name = "Южный дополнительный док";
-	id_tag = "graveyard_church"
-	},
-/turf/simulated/floor/plating,
-/area/station/hallway/secondary/exit/maint)
 "eFa" = (
 /obj/effect/turf_decal/delivery,
 /obj/machinery/recharge_station,
@@ -30355,15 +30325,6 @@
 	icon_state = "darkgreen"
 	},
 /area/hydroponics)
-"eQO" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/machinery/computer/civilian_bounty{
-	dir = 1
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "eQQ" = (
 /obj/machinery/computer/arcade/orion_trail,
 /obj/machinery/alarm/directional/east,
@@ -31114,6 +31075,12 @@
 	icon_state = "white"
 	},
 /area/station/science/chem_lab)
+"eWy" = (
+/obj/machinery/materials_market,
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "eWF" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -39225,6 +39192,17 @@
 	icon_state = "dark"
 	},
 /area/station/maintenance/detectives_office)
+"giT" = (
+/obj/effect/turf_decal/caution{
+	dir = 1
+	},
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "graveyard_church"
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/station/hallway/secondary/exit/maint)
 "giU" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -41218,6 +41196,15 @@
 	icon_state = "darkblue"
 	},
 /area/station/ai/satellite/exterior)
+"gxG" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "admin_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/commercial)
 "gxJ" = (
 /obj/effect/turf_decal/siding/wood{
 	dir = 9
@@ -41903,18 +41890,6 @@
 /obj/structure/extinguisher_cabinet/directional/east,
 /turf/simulated/floor/plating,
 /area/station/engineering/engine)
-"gCz" = (
-/obj/machinery/door/airlock/external/docking{
-	req_access = list(31);
-	id_tag = "supply_home";
-	dock_name = "Док шаттла снабжения"
-	},
-/obj/machinery/door/poddoor/preopen{
-	id_tag = "Cargo_lockdown";
-	name = "Cargo Lockdown"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/cargo/delivery)
 "gCA" = (
 /obj/structure/disposalpipe/sortjunction/reversed{
 	dir = 8;
@@ -48724,6 +48699,18 @@
 	icon_state = "whitebluefull"
 	},
 /area/station/medical/surgery/north)
+"hCt" = (
+/obj/machinery/door/airlock/external/docking{
+	req_access = list(31);
+	id_tag = "supply_home";
+	dock_name = "Док шаттла снабжения"
+	},
+/obj/machinery/door/poddoor/preopen{
+	id_tag = "Cargo_lockdown";
+	name = "Cargo Lockdown"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/cargo/delivery)
 "hCw" = (
 /obj/structure/cable/yellow{
 	icon_state = "1-8"
@@ -53395,16 +53382,6 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/engineering/storage/tech)
-"inm" = (
-/obj/effect/decal/cleanable/dust,
-/obj/structure/cable/multiz{
-	color = "#dd1010"
-	},
-/obj/structure/cable{
-	icon_state = "0-2"
-	},
-/turf/simulated/floor/wood,
-/area/station/maintenance/casino)
 "inn" = (
 /obj/structure/sign/electricshock,
 /turf/simulated/wall/r_wall,
@@ -53474,6 +53451,19 @@
 "iog" = (
 /obj/effect/spawner/window/reinforced,
 /turf/simulated/floor/plating,
+/area/station/cargo/miningdock)
+"ion" = (
+/obj/docking_port/stationary{
+	area_type = /area/station/cargo/miningdock;
+	dir = 2;
+	dwidth = 3;
+	height = 5;
+	id = "mining_home";
+	name = "mining shuttle bay";
+	turf_type = /turf/simulated/floor/plating;
+	width = 7
+	},
+/turf/space/openspace,
 /area/station/cargo/miningdock)
 "ioo" = (
 /obj/structure/cable{
@@ -64311,12 +64301,6 @@
 	icon_state = "neutralfull"
 	},
 /area/station/hallway/primary/central/north)
-"jXr" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_home"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/hallway/secure)
 "jXt" = (
 /obj/structure/chair{
 	dir = 8
@@ -64647,15 +64631,6 @@
 	icon_state = "darkbluecorners"
 	},
 /area/station/maintenance/detectives_office)
-"jZN" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "admin_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/commercial)
 "jZR" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table,
@@ -69127,6 +69102,12 @@
 	icon_state = "darkbluealt"
 	},
 /area/station/hallway/primary/command/east)
+"kKb" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_home"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/hallway/secure)
 "kKe" = (
 /obj/structure/lattice/catwalk,
 /obj/structure/cable{
@@ -74767,19 +74748,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/engineering/atmos)
-"lAc" = (
-/obj/docking_port/stationary{
-	area_type = /area/station/cargo/miningdock;
-	dir = 2;
-	dwidth = 3;
-	height = 5;
-	id = "mining_home";
-	name = "mining shuttle bay";
-	turf_type = /turf/simulated/floor/plating;
-	width = 7
-	},
-/turf/space/openspace,
-/area/station/cargo/miningdock)
 "lAe" = (
 /obj/structure/disposalpipe/segment{
 	dir = 6
@@ -77028,6 +76996,17 @@
 	},
 /turf/simulated/floor/glass,
 /area/station/service/bar/atrium)
+"lUc" = (
+/obj/machinery/door/airlock/external/docking{
+	dir = 8;
+	id_tag = "admin_home";
+	dock_name = "Док 2"
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/commercial)
 "lUf" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -78190,12 +78169,6 @@
 	icon_state = "stage_bleft"
 	},
 /area/station/maintenance/cafeteria)
-"mdg" = (
-/obj/machinery/civilian_bounty_pad,
-/turf/simulated/floor/plasteel{
-	dir = 1
-	},
-/area/station/cargo/office)
 "mdh" = (
 /obj/machinery/atmospherics/unary/vent_pump/on,
 /obj/effect/turf_decal/stripes/line{
@@ -79747,6 +79720,14 @@
 	icon_state = "neutral"
 	},
 /area/station/hallway/primary/central/west)
+"mnT" = (
+/obj/machinery/door/airlock/external/docking{
+	dir = 8;
+	id_tag = "pod4_home";
+	dock_name = "Западный док эвакуационной капсулы"
+	},
+/turf/simulated/floor/plating,
+/area/station/maintenance/casino)
 "mnX" = (
 /obj/structure/extinguisher_cabinet/directional/east,
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
@@ -82082,14 +82063,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/security/range)
-"mFq" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "trade_dock"
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "neutralfull"
-	},
-/area/station/hallway/secondary/entry/commercial)
 "mFr" = (
 /obj/machinery/power/apc/directional/east,
 /obj/structure/cable{
@@ -83001,6 +82974,13 @@
 	},
 /turf/simulated/floor/engine/hull/reinforced,
 /area/space)
+"mNh" = (
+/obj/machinery/computer/casino/wheel,
+/obj/machinery/light/small{
+	dir = 1
+	},
+/turf/simulated/floor/wood,
+/area/station/maintenance/casino)
 "mNk" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -85958,6 +85938,14 @@
 	icon_state = "neutralfull"
 	},
 /area/station/hallway/primary/central/nw)
+"njb" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "trade_dock"
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "neutralfull"
+	},
+/area/station/hallway/secondary/entry/commercial)
 "njd" = (
 /obj/structure/cable{
 	icon_state = "0-8"
@@ -88386,14 +88374,6 @@
 	icon_state = "vault"
 	},
 /area/station/service/chapel/office)
-"nzL" = (
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "pod1_home";
-	dock_name = "Док эвакуационной капсулы 1";
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/additional)
 "nzQ" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -88695,20 +88675,6 @@
 /obj/effect/decal/cleanable/dust,
 /turf/simulated/floor/plating,
 /area/station/maintenance/fsmaint3)
-"nCl" = (
-/obj/effect/turf_decal/stripes/line{
-	dir = 8
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 4
-	},
-/obj/machinery/door/airlock/external/docking{
-	dir = 4;
-	id_tag = "emergency_home";
-	dock_name = "Док эвакуационного шаттла"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/exit)
 "nCn" = (
 /obj/machinery/vending/coffee,
 /obj/effect/turf_decal/delivery/red/hollow,
@@ -89252,6 +89218,18 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
 /area/station/cargo/storage)
+"nGA" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "emergency_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/exit)
 "nGK" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/structure/cable{
@@ -92983,14 +92961,6 @@
 /obj/item/radio/intercom/directional/west,
 /turf/simulated/floor/redgrid,
 /area/station/telecomms/server)
-"omf" = (
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "pod2_home";
-	dock_name = "Док эвакуационной капсулы 2";
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/eastarrival)
 "omk" = (
 /obj/effect/turf_decal/siding/thinplating{
 	dir = 4;
@@ -94486,15 +94456,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/fore)
-"oyy" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "admin_home"
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 9
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/commercial)
 "oyA" = (
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -94578,6 +94539,14 @@
 	icon_state = "neutralcorner"
 	},
 /area/station/commons/locker)
+"ozd" = (
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "pod1_home";
+	dock_name = "Док эвакуационной капсулы 1";
+	dir = 1
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/additional)
 "ozj" = (
 /obj/effect/turf_decal/siding/green/corner,
 /obj/effect/landmark/start/prisoner,
@@ -95455,12 +95424,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/hallway/secondary/exit/maint)
-"oGG" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "specops_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/additional)
 "oGH" = (
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -100678,17 +100641,6 @@
 	dir = 1
 	},
 /area/station/hallway/primary/central/second/east)
-"pyo" = (
-/obj/effect/turf_decal/caution{
-	dir = 1
-	},
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "graveyard_church"
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/station/hallway/secondary/exit/maint)
 "pyq" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -102123,6 +102075,13 @@
 	},
 /turf/simulated/floor/engine/hull/reinforced,
 /area/space)
+"pKO" = (
+/obj/effect/turf_decal/stripes/line,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "admin_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/commercial)
 "pKY" = (
 /obj/structure/reagent_dispensers/fueltank,
 /turf/simulated/floor/plating,
@@ -103810,6 +103769,16 @@
 	icon_state = "brown"
 	},
 /area/station/cargo/office)
+"pXq" = (
+/obj/machinery/door/airlock/external/docking{
+	dir = 8;
+	id_tag = "trade_dock";
+	dock_name = "Док 1"
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "neutralfull"
+	},
+/area/station/hallway/secondary/entry/commercial)
 "pXt" = (
 /obj/structure/closet{
 	icon_state = "cabinet"
@@ -103860,12 +103829,6 @@
 	icon_state = "purple"
 	},
 /area/station/hallway/primary/central/north)
-"pYF" = (
-/obj/machinery/materials_market,
-/turf/simulated/floor/plasteel{
-	icon_state = "brown"
-	},
-/area/station/cargo/office)
 "pYG" = (
 /obj/machinery/door/airlock/maintenance{
 	req_access = list(12)
@@ -104452,14 +104415,6 @@
 /obj/effect/landmark/start/hangover,
 /turf/simulated/floor/carpet/black,
 /area/station/service/bar/atrium)
-"qdC" = (
-/obj/machinery/door/airlock/external/docking/hatch{
-	dir = 8;
-	id_tag = "gamma_home";
-	dock_name = "Док гамма шаттла"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/hallway/secure)
 "qdD" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -106483,6 +106438,12 @@
 	color = "orange"
 	},
 /area/station/command/office/captain)
+"qsn" = (
+/obj/machinery/civilian_bounty_pad,
+/turf/simulated/floor/plasteel{
+	dir = 1
+	},
+/area/station/cargo/office)
 "qsr" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -108381,6 +108342,14 @@
 	icon_state = "whitepurple"
 	},
 /area/station/science/research/lobby)
+"qFQ" = (
+/obj/machinery/door/airlock/external/docking{
+	dir = 4;
+	id_tag = "pod3_home";
+	dock_name = "Восточный док эвакуационной капсулы"
+	},
+/turf/simulated/floor/plating,
+/area/station/maintenance/fsmaint3)
 "qFU" = (
 /obj/machinery/computer/cryopod{
 	pixel_y = 32
@@ -109495,14 +109464,6 @@
 	},
 /obj/structure/cable{
 	icon_state = "4-8"
-	},
-/turf/simulated/floor/plating,
-/area/station/maintenance/casino)
-"qOE" = (
-/obj/machinery/door/airlock/external/docking{
-	dir = 8;
-	id_tag = "pod4_home";
-	dock_name = "Западный док эвакуационной капсулы"
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/casino)
@@ -110751,6 +110712,14 @@
 /obj/effect/spawner/random_spawners/rodent,
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint)
+"qYq" = (
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "ferry_home";
+	dock_name = "Паромный док 1";
+	dir = 1
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/additional)
 "qYv" = (
 /obj/machinery/computer/prisoner{
 	dir = 8
@@ -110976,6 +110945,16 @@
 	icon_state = "dark"
 	},
 /area/station/engineering/atmos)
+"qZH" = (
+/obj/machinery/door/airlock/external/docking/hatch/support{
+	id_tag = "gamma_home"
+	},
+/obj/machinery/door/poddoor/preopen{
+	id_tag = "Brig_lockdown";
+	name = "Brig Lockdown"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/hallway/secure)
 "qZN" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/reagent_dispensers/watertank,
@@ -114540,6 +114519,15 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/plating,
 /area/station/maintenance/apmaint)
+"rAe" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/machinery/computer/civilian_bounty{
+	dir = 1
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "brown"
+	},
+/area/station/cargo/office)
 "rAf" = (
 /obj/machinery/alarm/directional/north,
 /turf/simulated/floor/plasteel{
@@ -118793,6 +118781,16 @@
 /obj/structure/closet/emcloset,
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint4)
+"siY" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_home"
+	},
+/obj/machinery/door/poddoor/preopen{
+	id_tag = "Brig_lockdown";
+	name = "Brig Lockdown"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/hallway/secure)
 "siZ" = (
 /obj/machinery/field/generator,
 /obj/effect/turf_decal/delivery/hollow,
@@ -126584,6 +126582,13 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/station/maintenance/brig)
+"tpN" = (
+/obj/machinery/door/airlock/external/docking/support{
+	req_access = list(31);
+	id_tag = "supply_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/cargo/delivery)
 "tpT" = (
 /obj/item/flag/nt,
 /obj/machinery/light{
@@ -132800,6 +132805,14 @@
 	dir = 1
 	},
 /area/station/hallway/primary/central/second/east)
+"ukJ" = (
+/obj/machinery/door/airlock/external/docking{
+	dir = 1;
+	id_tag = "specops_home";
+	dock_name = "Паромный док 2"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/additional)
 "ukL" = (
 /obj/item/shard,
 /obj/structure/window/reinforced{
@@ -133194,18 +133207,6 @@
 /obj/machinery/newscaster/directional/east,
 /turf/simulated/floor/wood,
 /area/station/commons/cabin/two)
-"uoN" = (
-/obj/docking_port/stationary{
-	dir = 8;
-	dwidth = 3;
-	height = 4;
-	id = "ntstation";
-	name = "To Space Station";
-	pixel_x = 32;
-	width = 6
-	},
-/turf/space,
-/area/space)
 "uoU" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
@@ -133481,13 +133482,6 @@
 	dir = 1
 	},
 /area/station/security/storage)
-"uqF" = (
-/obj/effect/turf_decal/stripes/line,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "admin_home"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/commercial)
 "uqG" = (
 /obj/effect/spawner/random_spawners/rodent,
 /obj/effect/decal/cleanable/dirt,
@@ -136082,6 +136076,17 @@
 	icon_state = "darkbluealt"
 	},
 /area/station/medical/morgue)
+"uNv" = (
+/obj/machinery/door/airlock/external/docking/support{
+	req_access = list(31);
+	id_tag = "supply_home"
+	},
+/obj/machinery/door/poddoor/preopen{
+	id_tag = "Cargo_lockdown";
+	name = "Cargo Lockdown"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/cargo/delivery)
 "uNy" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -138230,6 +138235,9 @@
 	icon_state = "whitebluefull"
 	},
 /area/station/medical/medbay)
+"veh" = (
+/turf/space/openspace,
+/area/station/cargo/miningdock)
 "veo" = (
 /obj/effect/decal/cleanable/dust,
 /obj/machinery/light/small{
@@ -138352,6 +138360,12 @@
 	icon_state = "dark"
 	},
 /area/station/cargo/bitrunning/den)
+"vfx" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "ferry_home"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/additional)
 "vfN" = (
 /obj/structure/chair/sofa/corp/right{
 	dir = 1
@@ -138522,14 +138536,6 @@
 	icon_state = "darkblue"
 	},
 /area/station/hallway/secondary/exit)
-"vgU" = (
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "laborcamp_home";
-	dir = 8;
-	dock_name = "Док шаттла каторги"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/hallway/secure)
 "vgV" = (
 /obj/effect/turf_decal/siding/wood,
 /turf/simulated/floor/carpet/green,
@@ -139265,16 +139271,6 @@
 	icon_state = "purple"
 	},
 /area/station/hallway/secondary/entry/lounge)
-"vne" = (
-/obj/machinery/door/airlock/external/docking/hatch/support{
-	id_tag = "gamma_home"
-	},
-/obj/machinery/door/poddoor/preopen{
-	id_tag = "Brig_lockdown";
-	name = "Brig Lockdown"
-	},
-/turf/simulated/floor/plating,
-/area/station/security/hallway/secure)
 "vng" = (
 /obj/structure/disposalpipe/segment,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -141732,12 +141728,6 @@
 /obj/machinery/vending/cigarette,
 /turf/simulated/floor/wood/dark,
 /area/station/service/bar)
-"vFo" = (
-/obj/machinery/light/small{
-	dir = 1
-	},
-/turf/simulated/floor/wood,
-/area/station/maintenance/casino)
 "vFB" = (
 /obj/structure/cable{
 	icon_state = "0-4"
@@ -145640,14 +145630,6 @@
 	icon_state = "vault"
 	},
 /area/station/ai/upload/chamber)
-"wje" = (
-/obj/machinery/door/airlock/external/docking{
-	dir = 1;
-	id_tag = "specops_home";
-	dock_name = "Паромный док 2"
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/additional)
 "wjv" = (
 /obj/structure/sign/directions/floor/alt{
 	dir = 6
@@ -148687,6 +148669,14 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/fpmaint)
+"wGy" = (
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "pod2_home";
+	dock_name = "Док эвакуационной капсулы 2";
+	dir = 1
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/entry/eastarrival)
 "wGB" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/sign/vacuum,
@@ -153793,6 +153783,20 @@
 	icon_state = "neutralfull"
 	},
 /area/station/hallway/secondary/entry/commercial)
+"xtF" = (
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
+/obj/machinery/door/airlock/external/docking{
+	dir = 4;
+	id_tag = "emergency_home";
+	dock_name = "Док эвакуационного шаттла"
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/secondary/exit)
 "xtH" = (
 /obj/effect/spawner/window/reinforced/polarized{
 	id = "vipbar1"
@@ -154543,6 +154547,14 @@
 	icon_state = "brown"
 	},
 /area/station/cargo/office)
+"xzi" = (
+/obj/machinery/door/airlock/external/docking/hatch{
+	dir = 8;
+	id_tag = "gamma_home";
+	dock_name = "Док гамма шаттла"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/hallway/secure)
 "xzj" = (
 /obj/structure/table/reinforced,
 /obj/item/stack/sheet/plasteel,
@@ -156054,16 +156066,6 @@
 /obj/machinery/power/apc/directional/north,
 /turf/simulated/floor/plating,
 /area/station/maintenance/fsmaint3)
-"xJC" = (
-/obj/machinery/door/airlock/external/docking{
-	dir = 8;
-	id_tag = "trade_dock";
-	dock_name = "Док 1"
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "neutralfull"
-	},
-/area/station/hallway/secondary/entry/commercial)
 "xJH" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -156072,14 +156074,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/medroom)
-"xJN" = (
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "ferry_home";
-	dock_name = "Паромный док 1";
-	dir = 1
-	},
-/turf/simulated/floor/plasteel,
-/area/station/hallway/secondary/entry/additional)
 "xJW" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
@@ -157140,6 +157134,14 @@
 	icon_state = "neutralfull"
 	},
 /area/station/cargo/delivery)
+"xSA" = (
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "laborcamp_home";
+	dir = 8;
+	dock_name = "Док шаттла каторги"
+	},
+/turf/simulated/floor/plating,
+/area/station/security/hallway/secure)
 "xSD" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -177038,8 +177040,8 @@ tkq
 tkq
 tkq
 lpf
-oyy
-bmB
+dFw
+lUc
 lpf
 tkq
 tkq
@@ -177055,8 +177057,8 @@ eIe
 tkq
 tkq
 lpf
-mFq
-xJC
+njb
+pXq
 lpf
 tkq
 tkq
@@ -177552,8 +177554,8 @@ tkq
 tkq
 lpf
 lpf
-jZN
-uqF
+gxG
+pKO
 lpf
 lpf
 tkq
@@ -177569,8 +177571,8 @@ eIe
 tkq
 lpf
 lpf
-mFq
-mFq
+njb
+njb
 lpf
 lpf
 tkq
@@ -177919,7 +177921,7 @@ tkq
 tkq
 tkq
 tkq
-uoN
+dkT
 tkq
 tkq
 tkq
@@ -183989,9 +183991,9 @@ tkq
 tkq
 tkq
 tkq
-xJN
+qYq
 hbu
-cVH
+vfx
 iVl
 mNk
 rhD
@@ -185783,7 +185785,7 @@ tkq
 tkq
 tkq
 tkq
-nzL
+ozd
 fuZ
 ucL
 sVC
@@ -187587,9 +187589,9 @@ tkq
 tkq
 tkq
 tkq
-wje
+ukJ
 hbu
-oGG
+bub
 iVl
 mNk
 rhD
@@ -192103,17 +192105,17 @@ tkq
 eIe
 mjN
 ttS
-drZ
+nGA
 ttS
-drZ
+nGA
 ttS
 mlR
 iQI
 vqm
 ttS
-drZ
+nGA
 ttS
-drZ
+nGA
 ttS
 ttS
 ttS
@@ -192617,17 +192619,17 @@ tkq
 tkq
 tkq
 ttS
-drZ
+nGA
 ttS
-nCl
+xtF
 ttS
 tkq
 tkq
 tkq
 ttS
-drZ
+nGA
 ttS
-drZ
+nGA
 ttS
 eIe
 lBr
@@ -196838,7 +196840,7 @@ tkq
 tkq
 tkq
 tkq
-omf
+wGy
 dXQ
 wkz
 swH
@@ -199573,9 +199575,9 @@ lTr
 cTz
 cTz
 ibQ
-pyo
+giT
 hQd
-eEV
+ebL
 tkq
 tkq
 tkq
@@ -200795,9 +200797,9 @@ xkR
 hut
 gWu
 nrF
-csl
+tpN
 aum
-gCz
+hCt
 tkq
 tkq
 tkq
@@ -201309,9 +201311,9 @@ xkR
 hut
 wZv
 eqz
-csl
+tpN
 tBz
-cwJ
+uNv
 tkq
 tkq
 tkq
@@ -243708,18 +243710,18 @@ uJG
 uJG
 uJG
 jsT
-qdC
+xzi
 jsT
 uJG
 fvL
 fvL
 fvL
 jsT
-jXr
+kKb
 jsT
 bkc
 jsT
-vgU
+xSA
 jsT
 uJG
 fvL
@@ -244222,18 +244224,18 @@ asW
 asW
 asW
 vQx
-vne
+qZH
 vQx
 asW
 awW
 dfR
 asW
 qet
-aDC
+siY
 qet
 asW
 qet
-aDC
+siY
 qet
 bnb
 bnb
@@ -248620,7 +248622,7 @@ ygX
 ruI
 jbc
 jbc
-qOE
+mnT
 jbc
 jbc
 fvL
@@ -250674,7 +250676,7 @@ mmT
 tnM
 tgb
 jbc
-inm
+dvn
 wwe
 rhP
 tsX
@@ -250931,7 +250933,7 @@ kDT
 iPk
 cSH
 jbc
-vFo
+mNh
 dCC
 nNL
 nNL
@@ -265797,7 +265799,7 @@ fnl
 vwS
 eUW
 aMR
-pYF
+eWy
 kDP
 qcr
 kEk
@@ -265823,11 +265825,11 @@ wuf
 jNF
 jNF
 tfw
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 iuJ
 qTN
 pWZ
@@ -266080,11 +266082,11 @@ jNF
 jNF
 mKm
 acj
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 gbS
 qTN
 cSk
@@ -266311,7 +266313,7 @@ mUL
 dNz
 jag
 edb
-eQO
+rAe
 kDP
 ndA
 kEk
@@ -266337,11 +266339,11 @@ jNF
 wXX
 iog
 cNd
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 iuJ
 qTN
 pgT
@@ -266567,7 +266569,7 @@ pyB
 kEk
 wNL
 eUW
-mdg
+qsn
 kjM
 pby
 gPE
@@ -266594,11 +266596,11 @@ jNF
 oZt
 iog
 olm
-lAc
-cXr
-cXr
-cXr
-cXr
+ion
+veh
+veh
+veh
+veh
 gJu
 qTN
 fwB
@@ -266851,11 +266853,11 @@ jNF
 lRn
 iog
 okp
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 iuJ
 qTN
 aWI
@@ -267108,11 +267110,11 @@ grx
 jNF
 iug
 etP
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 gbS
 qTN
 nRC
@@ -267365,11 +267367,11 @@ grx
 jNF
 jNF
 tfw
-cXr
-cXr
-cXr
-cXr
-cXr
+veh
+veh
+veh
+veh
+veh
 iuJ
 qTN
 sdo
@@ -279396,7 +279398,7 @@ eQe
 quI
 jOO
 jOO
-eor
+qFQ
 jOO
 jOO
 fvL

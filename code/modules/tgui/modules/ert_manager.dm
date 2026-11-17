@@ -62,7 +62,7 @@
 			cyborg_slots = text2num(params["set_cyb"])
 		if("dispatch_ert")
 			if(GLOB.send_emergency_team)
-				to_chat(usr, span_warning("Центральное командование уже направило Отряд Быстрого Реагирования!"))
+				to_chat(usr, span_warning("Центральное командование уже направило Отряд Быстрого Реагирования!"), confidential = TRUE)
 				return
 			var/datum/response_team/D
 			switch(ert_type)
@@ -76,7 +76,7 @@
 						return
 					D = new /datum/response_team/gamma
 				else
-					to_chat(usr, span_userdanger("Неверный тип ОБР."))
+					to_chat(usr, span_userdanger("Неверный тип ОБР."), confidential = TRUE)
 					return
 			GLOB.send_emergency_team = TRUE
 			GLOB.ert_request_answered = TRUE

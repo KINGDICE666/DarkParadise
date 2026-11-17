@@ -116,7 +116,7 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
  * * linkage - a state of how /turf/space on the edge of the z-level will interact with movable atoms. SELFLOOPING, CROSSLINKED will teleport, while UNAFFECTED won't do anything.
  * * traits - traits/flags/attributes for z-level. All setting are in '_maps/_MAP_DEFINES.dm'
  */
-/datum/zlev_manager/proc/add_new_zlevel(name, linkage = SELFLOOPING, traits = list(BLOCK_TELEPORT))
+/datum/zlev_manager/proc/add_new_zlevel(name, linkage = SELFLOOPING, traits = list(BLOCK_TELEPORT), contain_turfs = TRUE)
 	if(name in levels_by_name)
 		CRASH("Name already in use: [name]")
 	SSmapping.ensure_z_level_bookkeeping(world.maxz + 1)
@@ -127,6 +127,6 @@ GLOBAL_DATUM_INIT(space_manager, /datum/zlev_manager, new())
 	levels_by_name[name] = S
 	z_list["[our_z]"] = S
 	S.set_navbeacon()
-	SSmapping.manage_z_level(S)
+	SSmapping.manage_z_level(S, filled_with_space = TRUE, contain_turfs = contain_turfs)
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_NEW_Z, S)
 	return our_z

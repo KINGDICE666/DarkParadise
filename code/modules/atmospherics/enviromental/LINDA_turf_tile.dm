@@ -1,6 +1,6 @@
 /turf/simulated/Initialize(mapload)
 	. = ..()
-	if(!blocks_air)
+	if(!blocks_air && SSair.initialized)
 		blind_set_air(get_initial_air())
 
 /turf/simulated/proc/get_initial_air()
@@ -170,7 +170,15 @@
 /turf/proc/Initialize_Atmos(milla_tick)
 	// This is one of two places expected to call this otherwise-unsafe method.
 	var/list/connectivity = private_unsafe_recalculate_atmos_connectivity()
-	var/list/air = list(
+	var/list/airtight = connectivity[1]
+	var/list/superconductivity = connectivity[2]
+	milla_data = list(
+		airtight[1],
+		airtight[2],
+		airtight[3],
+		airtight[4],
+		atmos_mode,
+		SSmapping.environments[atmos_environment],
 		oxygen,
 		carbon_dioxide,
 		nitrogen,
@@ -192,15 +200,32 @@
 		0,
 		0,
 		0,
-		temperature
+		temperature,
+		superconductivity[1],
+		superconductivity[2],
+		superconductivity[3],
+		superconductivity[4],
 	)
-	milla_data = connectivity[1] + list(atmos_mode, SSmapping.environments[atmos_environment]) +  air + connectivity[2]
+
+/turf/space/Initialize_Atmos(milla_tick)
+	if(length(contents))
+		return ..()
+	var/static/list/empty_space_data_by_type = list()
+	var/list/shared_data = empty_space_data_by_type[type]
+	if(shared_data)
+		milla_data = shared_data
+		return
+	..()
+	empty_space_data_by_type[type] = milla_data
 
 /turf/simulated/Initialize_Atmos(milla_tick)
 	..()
-	update_visuals(TRUE)
+	if(atmos_overlay_types || toxins > TOXINS_MIN_VISIBILITY_MOLES || sleeping_agent > SLEEPING_GAS_VISIBILITY_MOLES)
+		update_visuals(TRUE)
 
 /turf/proc/recalculate_atmos_connectivity()
+	if(!SSair.initialized)
+		return
 	var/datum/milla_safe/recalculate_atmos_connectivity/milla = new()
 	milla.invoke_async(src)
 
@@ -224,11 +249,7 @@
 		var/milla_superconductivity = list(0, 0, 0, 0)
 		return list(milla_atmos_airtight, milla_superconductivity)
 
-	var/milla_atmos_airtight = list(
-		!CanAtmosPass(NORTH),
-		!CanAtmosPass(EAST),
-		!CanAtmosPass(SOUTH),
-		!CanAtmosPass(WEST))
+	var/milla_atmos_airtight = list(FALSE, FALSE, FALSE, FALSE)
 
 	var/milla_superconductivity = list(
 		OPEN_HEAT_TRANSFER_COEFFICIENT,

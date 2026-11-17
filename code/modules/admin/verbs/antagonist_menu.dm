@@ -132,7 +132,7 @@
 		if("show_player_panel")
 			var/datum/mind/mind = locateUID(params["mind_uid"])
 			if(QDELETED(mind.current))
-				to_chat(ui.user, span_warning("У разума нет соответствующего моба."))
+				to_chat(ui.user, span_warning("У разума нет соответствующего моба."), confidential = TRUE)
 				return
 
 			var/mob/selected_mob = mind.current
@@ -149,13 +149,13 @@
 				SSadmin_verbs.dynamic_invoke_verb(C, /datum/admin_verb/admin_ghost)
 			var/datum/target = locateUID(params["datum_uid"])
 			if(QDELETED(target))
-				to_chat(ui.user, span_warning("Датум удален!"))
+				to_chat(ui.user, span_warning("Датум удален!"), confidential = TRUE)
 				return
 
 			if(istype(target, /datum/mind))
 				var/datum/mind/mind = target
 				if(!ismob(mind.current))
-					to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."))
+					to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."), confidential = TRUE)
 					return
 				target = mind.current
 
@@ -166,13 +166,13 @@
 			var/datum/mind/mind = locateUID(params["mind_uid"])
 
 			if(!ismob(mind.current))
-				to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."))
+				to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."), confidential = TRUE)
 				return
 			SSadmin_verbs.dynamic_invoke_verb(C, /datum/admin_verb/admin_observe_target, mind.current, TRUE)
 		if("tp")
 			var/datum/mind/mind = locateUID(params["mind_uid"])
 			if(QDELETED(mind))
-				to_chat(ui.user, span_warning("Нет разума!"))
+				to_chat(ui.user, span_warning("Нет разума!"), confidential = TRUE)
 				return
 			mind.edit_memory()
 		if("vv")
@@ -181,7 +181,7 @@
 			var/client/C = ui.user.client
 			var/datum/target = locateUID(params["owner_uid"])
 			if(QDELETED(target))
-				to_chat(ui.user, span_warning("Цель, которую вы ищете, не существует или была удалена."))
+				to_chat(ui.user, span_warning("Цель, которую вы ищете, не существует или была удалена."), confidential = TRUE)
 				return
 			if(istype(target, /datum/antagonist))
 				var/datum/antagonist/antag = target
@@ -189,7 +189,7 @@
 			if(istype(target, /datum/mind))
 				var/datum/mind/mind = target
 				if(!ismob(mind.current))
-					to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."))
+					to_chat(ui.user, span_warning("Это можно использовать только для экземпляров типа /mob."), confidential = TRUE)
 					return
 				target = mind.current
 				var/mob/dead/observer/A = C.mob
@@ -198,4 +198,4 @@
 			if(istype(target, /datum/team))
 				ui.user.client.holder.check_teams()
 				return
-			to_chat(ui.user, span_warning("Тип [target.type] не поддерживает поиск владельца цели."))
+			to_chat(ui.user, span_warning("Тип [target.type] не поддерживает поиск владельца цели."), confidential = TRUE)

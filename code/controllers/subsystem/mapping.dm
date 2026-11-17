@@ -371,15 +371,15 @@ SUBSYSTEM_DEF(mapping)
 	log_startup_progress("Loading [map_datum.english_station_name]...")
 	var/map_z_level
 	if(map_datum.traits && length(map_datum.traits) && islist(map_datum.traits[1])) // we work with list of lists
-		map_z_level = GLOB.space_manager.add_new_zlevel(MAIN_STATION, linkage = map_datum.linkage, traits = map_datum.traits[1])
+		map_z_level = GLOB.space_manager.add_new_zlevel(MAIN_STATION, linkage = map_datum.linkage, traits = map_datum.traits[1], contain_turfs = FALSE)
 		if(length(map_datum.traits) > MULTIZ_WARN)
 			message_admins("Loading station with over [MULTIZ_WARN] levels(It has [length(map_datum.traits)]!!). May cause some issues with space levels and/or perfomance on server.")
 		for(var/i in 2 to length(map_datum.traits))
-			GLOB.space_manager.add_new_zlevel(MAIN_STATION + "([i])", linkage = map_datum.linkage, traits = map_datum.traits[i])
+			GLOB.space_manager.add_new_zlevel(MAIN_STATION + "([i])", linkage = map_datum.linkage, traits = map_datum.traits[i], contain_turfs = FALSE)
 	else
 		var/s_traits = map_datum.traits ? map_datum.traits : DEFAULT_STATION_TRATS
-		map_z_level = GLOB.space_manager.add_new_zlevel(MAIN_STATION, linkage = map_datum.linkage, traits = s_traits)
-	GLOB.maploader.load_map(WRAP_FILE(map_datum.map_path), z_offset = map_z_level)
+		map_z_level = GLOB.space_manager.add_new_zlevel(MAIN_STATION, linkage = map_datum.linkage, traits = s_traits, contain_turfs = FALSE)
+	load_new_z_map(WRAP_FILE(map_datum.map_path), map_z_level)
 
 	if(map_datum?.forced_mode)
 		GLOB.master_mode = map_datum.forced_mode.name
@@ -400,16 +400,23 @@ SUBSYSTEM_DEF(mapping)
 	var/watch = start_watch()
 	log_startup_progress("Loading Lavaland...")
 	var/trait_list = list(ORE_LEVEL, REACHABLE, STATION_CONTACT, ZTRAIT_ASHSTORM, AI_OK, ZTRAIT_BASETURF = /turf/simulated/floor/lava/mapping_lava)
-	var/lavaland_z_level = GLOB.space_manager.add_new_zlevel(MINING, linkage = UNAFFECTED, traits = trait_list)
-	GLOB.maploader.load_map(file(map_datum.lavaland_path), z_offset = lavaland_z_level)
+	var/lavaland_z_level = GLOB.space_manager.add_new_zlevel(MINING, linkage = UNAFFECTED, traits = trait_list, contain_turfs = FALSE)
+	load_new_z_map(file(map_datum.lavaland_path), lavaland_z_level)
 	log_startup_progress("Loaded Lavaland in [stop_watch(watch)]s")
 
 /datum/controller/subsystem/mapping/proc/loadTaipan()
 	var/watch = start_watch()
 	log_startup_progress("Loading Taipan...")
-	var/taipan_z_level = GLOB.space_manager.add_new_zlevel(RAMSS_TAIPAN, linkage = CROSSLINKED, traits = list(REACHABLE, TAIPAN))
-	GLOB.maploader.load_map(file("_maps/map_files/generic/syndicatebase.dmm"), z_offset = taipan_z_level)
+	var/taipan_z_level = GLOB.space_manager.add_new_zlevel(RAMSS_TAIPAN, linkage = CROSSLINKED, traits = list(REACHABLE, TAIPAN), contain_turfs = FALSE)
+	load_new_z_map(file("_maps/map_files/generic/syndicatebase.dmm"), taipan_z_level)
 	log_startup_progress("Loaded Taipan in [stop_watch(watch)]s")
+
+/datum/controller/subsystem/mapping/proc/load_new_z_map(map_file, z_level)
+	var/datum/parsed_map/parsed = new(map_file)
+	if(!parsed.bounds)
+		CRASH("Failed to parse map [map_file] for z-level [z_level]")
+	parsed.load(1, 1, z_level, no_changeturf = (SSatoms.initialized == INITIALIZATION_INSSATOMS), new_z = TRUE)
+	return parsed
 
 // move it to code/datums/ruins.dm and make global proc plz thx k
 /datum/controller/subsystem/mapping/proc/seedRuins(list/z_levels = null, budget = 0, whitelist = /area/space, list/potentialRuins)

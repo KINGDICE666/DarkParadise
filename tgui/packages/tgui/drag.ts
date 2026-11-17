@@ -17,6 +17,8 @@ type GeometryPayload = Partial<{
 
 const logger = createLogger('drag');
 const pixelRatio = window.devicePixelRatio ?? 1;
+const GEOMETRY_STORAGE_WAIT = 1500;
+const SCREEN_OFFSET_WAIT = 1000;
 let windowKey = Byond.windowId;
 let dragging = false;
 let resizing = false;
@@ -175,6 +177,29 @@ type RecallOptions = Partial<{
   scale: BooleanLike;
 }>;
 
+function withTimeout<T>(
+  promise: Promise<T> | undefined,
+  ms: number,
+  fallback: T,
+): Promise<T> {
+  if (!promise) {
+    return Promise.resolve(fallback);
+  }
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(fallback);
+      },
+    );
+  });
+}
+
 // Recall window geometry from local storage and apply it
 export async function recallWindowGeometry(
   options: RecallOptions = {},
@@ -205,14 +230,18 @@ export async function recallWindowGeometry(
     document.documentElement.style.setProperty('--scaling-amount', null);
   }
 
-  const geometry = await storage.get(windowKey);
+  const geometry = await withTimeout(
+    storage.get(windowKey),
+    GEOMETRY_STORAGE_WAIT,
+    undefined,
+  );
   if (geometry) {
     logger.log('recalled geometry:', geometry);
   }
   // options.pos is assumed to already be in display-pixels
   let pos = geometry?.pos || options.pos;
   // Wait until screen offset gets resolved
-  await screenOffsetPromise;
+  await withTimeout(screenOffsetPromise, SCREEN_OFFSET_WAIT, screenOffset);
   const areaAvailable = getScreenSize();
   // Set window position
   if (pos) {
@@ -237,10 +266,11 @@ export async function setupDrag(): Promise<void> {
   // Calculate screen offset caused by the windows taskbar
   const windowPosition = getWindowPosition();
 
-  screenOffsetPromise = Byond.winget(Byond.windowId, 'pos').then((pos) => [
-    pos.x - windowPosition[0],
-    pos.y - windowPosition[1],
-  ]);
+  screenOffsetPromise = Byond.winget(Byond.windowId, 'pos').then((pos) =>
+    Number.isFinite(pos?.x) && Number.isFinite(pos?.y)
+      ? [pos.x - windowPosition[0], pos.y - windowPosition[1]]
+      : screenOffset,
+  );
   screenOffset = await screenOffsetPromise;
   logger.debug('screen offset', screenOffset);
 }

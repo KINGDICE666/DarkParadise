@@ -39,6 +39,10 @@
 	return ..()
 
 /datum/space_level/proc/build_space_destination_arrays()
+	transit_north = list()
+	transit_south = list()
+	transit_east = list()
+	transit_west = list()
 	// We skip `add_to_transit` here because we want to skip the checks in order to save time
 	// Bottom border
 	for(var/turf/space/S in block(1,1,zpos, world.maxx,TRANSITION_BORDER_SOUTH,zpos))

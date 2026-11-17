@@ -76,7 +76,7 @@
 /obj/item/reagent_containers/examine()
 	. = ..()
 	if(has_variable_transfer_amount && length(possible_transfer_amounts))
-		. += span_notice("Объём перемещения содержимого — [amount_per_transfer_from_this] единиц[DECL_A_Y_0(amount_per_transfer_from_this)]. Используйте [EXAMINE_HINT("ЛКМ")] или [EXAMINE_HINT("ПКМ")] по ёмкости, чтобы выбрать объём.")
+		. += span_notice("Объём перемещения содержимого — [amount_per_transfer_from_this] единиц[DECL_A_Y_0(amount_per_transfer_from_this)]. Используйте [EXAMINE_HINT("ПКМ")] по ёмкости, чтобы выбрать объём.")
 
 /obj/item/reagent_containers/proc/add_initial_reagents()
 	if(list_reagents)

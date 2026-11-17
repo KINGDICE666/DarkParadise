@@ -827,8 +827,8 @@
 /obj/item/organ/external/tail/sync_colour_to_human(mob/living/carbon/human/H)
 	..()
 	var/datum/sprite_accessory/tail_marking_style = SSaccessories.body_markings_list[H.m_styles["tail"]]
-	if(body_accessory && (dna.species.name in body_accessory.allowed_species))
-		body_accessory = body_accessory
+	if(H.body_accessory && (dna.species.name in H.body_accessory.allowed_species))
+		body_accessory = H.body_accessory
 	if(body_accessory)
 		if(body_accessory.name in tail_marking_style.tails_allowed)
 			m_styles["tail"] = H.m_styles["tail"]

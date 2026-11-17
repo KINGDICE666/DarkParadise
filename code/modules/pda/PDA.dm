@@ -99,6 +99,7 @@ GLOBAL_LIST_EMPTY(name_to_PDAs)
 		new/datum/data/pda/utility/flashlight,
 		new/datum/data/pda/app/bank,
 		new/datum/data/pda/app/department_order,
+		new/datum/data/pda/app/emergency_call,
 	)
 	var/list/shortcut_cache = list()
 	var/list/shortcut_cat_order = list()
@@ -140,8 +141,7 @@ GLOBAL_LIST_EMPTY(name_to_PDAs)
 	if(SSntnet.is_enabled())
 		programs += new /datum/data/pda/app/ntnet
 	silent = TRUE // We don't want to hear the first program start up
-	GLOB.PDAs += src
-	GLOB.PDAs = sortAtom(GLOB.PDAs)
+	insert_atom_sorted(GLOB.PDAs, src)
 
 	update_programs()
 	if(default_cartridge)

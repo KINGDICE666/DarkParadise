@@ -17,7 +17,8 @@
 		name = rename
 
 /datum/map_template/proc/preload_size(path)
-	var/bounds = GLOB.maploader.load_map(WRAP_FILE(path), 1, 1, 1, shouldCropMap = FALSE, measureOnly = TRUE)
+	var/datum/parsed_map/parsed = new(WRAP_FILE(path))
+	var/list/bounds = parsed.bounds
 	if(bounds)
 		width = bounds[MAP_MAXX] // Assumes all templates are rectangular, have a single Z level, and begin at 1,1,1
 		height = bounds[MAP_MAXY]
@@ -54,8 +55,8 @@
 	UNTIL(milla_freeze.done)
 	SSicon_smooth.add_halt_source(src)
 	try
-		var/list/bounds = GLOB.maploader.load_map(get_file(), min_x, min_y, placement.z, shouldCropMap = TRUE)
-		if(!bounds)
+		var/datum/parsed_map/parsed = load_map(get_file(), min_x, min_y, placement.z, crop_map = TRUE, no_changeturf = (SSatoms.initialized == INITIALIZATION_INSSATOMS))
+		if(!parsed.bounds)
 			return 0
 		require_area_resort()
 		if(bot_left == null || top_right == null)

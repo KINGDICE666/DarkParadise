@@ -72,13 +72,25 @@ export async function saveChatToStorage(): Promise<void> {
   saveChatState(allChat);
 }
 
-function saveChatMessages(): void {
-  const fromIndex = Math.max(
-    0,
-    chatRenderer.messages.length - MAX_PERSISTED_MESSAGES,
-  );
+let lastSavedMessage: unknown = null;
+let lastSavedMessageCount = -1;
+let lastSavedState = '';
 
-  const messages = chatRenderer.messages
+function saveChatMessages(): void {
+  const allMessages = chatRenderer.messages;
+  const newest = allMessages[allMessages.length - 1];
+  if (
+    newest === lastSavedMessage &&
+    allMessages.length === lastSavedMessageCount
+  ) {
+    return;
+  }
+  lastSavedMessage = newest;
+  lastSavedMessageCount = allMessages.length;
+
+  const fromIndex = Math.max(0, allMessages.length - MAX_PERSISTED_MESSAGES);
+
+  const messages = allMessages
     .slice(fromIndex)
     .map((message) => serializeMessage(message));
 
@@ -97,8 +109,14 @@ export function saveChatState(state: StoredChatSettings): void {
     ]),
   );
 
-  storage.set('chat-state', {
+  const draft = {
     ...state,
     pageById,
-  });
+  };
+  const serialized = JSON.stringify(draft);
+  if (serialized === lastSavedState) {
+    return;
+  }
+  lastSavedState = serialized;
+  storage.set('chat-state', draft);
 }

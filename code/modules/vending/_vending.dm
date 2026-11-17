@@ -512,30 +512,38 @@
 		for(var/product_key in products)
 			product_to_category[product_key] = category
 
-	for(var/typepath in productlist)
+	var/static/list/product_templates = list()
+	for(var/obj/item/typepath as anything in productlist)
 		var/amount = productlist[typepath]
 		if(isnull(amount))
 			amount = 0
 
-		var/obj/item/item = new typepath(src)
+		var/datum/data/vending_product/template = product_templates[typepath]
+		if(!template)
+			template = new
+			var/obj/item/item = new typepath(src)
+			template.name = DECLENT_RU_CAP(item, NOMINATIVE)
+			template.short_name = capitalize(item.get_short_name())
+			template.desc = item.desc
+			template.colorable = !!(item.greyscale_config && item.greyscale_colors)
+			qdel(item)
+			product_templates[typepath] = template
+
 		var/datum/data/vending_product/new_record = new /datum/data/vending_product()
-		new_record.name = DECLENT_RU_CAP(item, NOMINATIVE)
-		new_record.short_name = capitalize(item.get_short_name())
-		new_record.desc = item.desc
-		qdel(item)
+		new_record.name = template.name
+		new_record.short_name = template.short_name
+		new_record.desc = template.desc
+		new_record.colorable = template.colorable
 		new_record.product_path = typepath
 		if(!start_empty)
 			new_record.amount = amount
 		new_record.max_amount = amount
 
-		var/custom_price = initial(item.custom_price)
 		if(!premium)
-			new_record.price = custom_price || default_price
+			new_record.price = initial(typepath.custom_price) || default_price
 		else
-			var/custom_premium_price = initial(item.custom_premium_price)
-			new_record.price = custom_premium_price || default_premium_price
+			new_record.price = initial(typepath.custom_premium_price) || default_premium_price
 
-		new_record.colorable = !!(item.greyscale_config && item.greyscale_colors)
 		new_record.category = product_to_category[typepath]
 		recordlist += new_record
 

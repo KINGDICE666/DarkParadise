@@ -442,6 +442,22 @@
 	build_path = /obj/item/circuitboard/arcade/slotmachine
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
 
+/datum/design/crash_machine
+	id = "arcadecrash"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/arcade/crash
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
+
+/datum/design/wheel_machine
+	id = "arcadewheel"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/arcade/wheel
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MISC)
+
 /datum/design/orion_trail
 	id = "arcademachineonion"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 1)

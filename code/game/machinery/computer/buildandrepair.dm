@@ -339,6 +339,16 @@
 	build_path = /obj/machinery/computer/slot_machine
 	origin_tech = "programming=1"
 
+/obj/item/circuitboard/arcade/crash
+	board_name = "Crash Machine"
+	build_path = /obj/machinery/computer/casino/crash
+	origin_tech = "programming=1"
+
+/obj/item/circuitboard/arcade/wheel
+	board_name = "Wheel of Fortune"
+	build_path = /obj/machinery/computer/casino/wheel
+	origin_tech = "programming=1"
+
 /obj/item/circuitboard/solar_control
 	board_name = "Solar Control"
 	greyscale_colors = CIRCUIT_COLOR_ENGINEERING

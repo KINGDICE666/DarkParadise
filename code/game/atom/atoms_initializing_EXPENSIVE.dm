@@ -18,8 +18,8 @@
  */
 /atom/New(loc, ...)
 	SHOULD_CALL_PARENT(TRUE)
-	if(GLOB.use_preloader && (src.type == GLOB._preloader.target_path))//in case the instanciated atom is creating other atoms in New()
-		GLOB._preloader.load(src)
+	if(GLOB.use_preloader && src.type == GLOB._preloader_path)//in case the instanciated atom is creating other atoms in New()
+		world.preloader_load(src)
 	. = ..()
 	attempt_init(arglist(args))
 	//if(SSdemo?.initialized)

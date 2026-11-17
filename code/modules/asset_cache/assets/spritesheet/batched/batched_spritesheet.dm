@@ -22,6 +22,7 @@
 
 	/// If this spritesheet exists in a completed state.
 	var/fully_generated = FALSE
+	var/creating_entries = FALSE
 
 	/// If this asset should be fully loaded on new
 	/// Defaults to false so we can process this stuff nicely
@@ -135,10 +136,8 @@
 	if(!name)
 		CRASH("spritesheet [type] cannot register without a name")
 
-	// Create our input data first, so we can compare to the cache.
-	create_spritesheets()
-
 	if(should_load_immediately())
+		create_spritesheets()
 		realize_spritesheets(yield = FALSE)
 	else
 		SSasset_loading.queue_asset(src)
@@ -161,6 +160,20 @@
 /datum/asset/spritesheet_batched/proc/realize_spritesheets(yield)
 	if(fully_generated)
 		return
+	if(creating_entries)
+		UNTIL(!creating_entries)
+		if(fully_generated)
+			return
+	if(!length(entries))
+		creating_entries = TRUE
+		try
+			create_spritesheets()
+		catch(var/exception/creation_error)
+			creating_entries = FALSE
+			throw creation_error
+		creating_entries = FALSE
+		if(fully_generated)
+			return
 	if(!length(entries))
 		CRASH("Spritesheet [name] ([type]) is empty! What are you doing?")
 

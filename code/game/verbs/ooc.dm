@@ -18,9 +18,6 @@ GAME_VERB(/client, ooc, VERB_OOC, VERB_CATEGORY_OOC)
 	VERB_ARG(msg, VERB_ARG_TYPE_TEXT, VERB_ARG_SOURCE_INPUT)
 	if(!mob)
 		return
-	if(!has_persistent_identity())
-		to_chat(src, span_danger("Guests may not use OOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
-		return
 
 	if(!check_rights(R_ADMIN|R_MOD, FALSE))
 		if(!CONFIG_GET(flag/ooc_allowed))
@@ -136,9 +133,6 @@ GAME_VERB_DESC(/client, looc, VERB_LOOC, "Local OOC, seen only by those in view.
 
 	if(!mob)
 		return
-	if(!has_persistent_identity())
-		to_chat(src, span_danger("Guests may not use LOOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
-		return
 
 	if(!check_rights(R_ADMIN|R_MOD, FALSE))
 		if(!CONFIG_GET(flag/looc_allowed))
@@ -224,7 +218,7 @@ GAME_VERB_DESC(/client, looc, VERB_LOOC, "Local OOC, seen only by those in view.
 
 				if(target.mob && target.prefs.toggles3 & PREFTOGGLE_3_RUNECHAT_LOOC)
 					var/mob/source_mob = mob.get_looc_source()
-					target.mob.create_chat_message(source_mob, "<b>LOOC:</b> [msg_runechat]", list("looc"), null)
+					target.mob.create_chat_message(source_mob, "<b>LOOC:</b> [msg_runechat]", list("looc"), null, in_character = FALSE)
 
 /mob/proc/get_looc_source()
 	return src

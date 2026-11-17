@@ -1,108 +1,119 @@
 /**
  * Browser-agnostic abstraction of key-value web storage.
  *
+ * Settings live in a storage that is local to the client: BYOND 516
+ * `serverStorage` inside DreamSeeker, or `localStorage` when the page has a
+ * stable origin. The configured iframe storage is only used to move data
+ * saved by older builds, or as a last resort when nothing local is available.
+ *
  * @file
  * @copyright 2020 Aleksej Komarov
  * @license MIT
  */
-
-export const IMPL_HUB_STORAGE = 1;
-export const IMPL_IFRAME_INDEXED_DB = 2;
-
-type StorageImplementation =
-  | typeof IMPL_HUB_STORAGE
-  | typeof IMPL_IFRAME_INDEXED_DB;
-
-type StorageBackend = {
-  impl: StorageImplementation;
-  get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<void>;
-  remove(key: string): Promise<void>;
-  clear(): Promise<void>;
-  processChatMessages(messages): Promise<void>;
-  getChatMessages(): Promise<any>;
-  iframe_check(): Promise<boolean>;
-};
 
 export type StorageDiagnostic = {
   level: 'info' | 'warn' | 'error';
   message: string;
 };
 
-const testGeneric = (testFn: () => boolean) => (): boolean => {
-  try {
-    return Boolean(testFn());
-  } catch {
-    return false;
-  }
+type KeyValueStore = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+type StorageBackend = {
+  get(key: string): Promise<any>;
+  set(key: string, value: any): Promise<void>;
+  remove(key: string): Promise<void>;
+  processChatMessages(messages: any[]): Promise<void>;
+  getChatMessages(): Promise<any>;
 };
 
-const testHubStorage = testGeneric(
-  () => window.hubStorage && !!window.hubStorage.getItem,
-);
-
+const KEY_PREFIX = 'paradise-';
+const CHAT_MESSAGES_KEY = 'chat-messages';
+const MIGRATED_KEY = 'iframe-migrated';
+const MAX_MIGRATED_MESSAGES = 1000;
+const BYOND_STORAGE_WAIT = 3000;
 const STORAGE_CDN_TIMEOUT = 15000;
-const persistedStorageKeys = ['panel-settings', 'chat-state', 'chat-messages'];
-const legacyHubMigrationKeys = ['panel-settings'];
 
-class HubStorageBackend implements StorageBackend {
-  public impl: StorageImplementation;
+const LEGACY_KEYS = [
+  'panel-settings',
+  'chat-state',
+  'chat-saving-enabled',
+  'telemetry',
+  'geometries',
+  'adminverbpanel-favourites',
+  'adminverbpanel-user-categories',
+  'adminverbpanel-selected-category',
+  'podlauncher_presetlist',
+  'spawnpanel-searchText',
+  'spawnpanel-searchBy',
+  'spawnpanel-sortBy',
+  'spawnpanel-hideMapping',
+  'spawnpanel-showIcons',
+  'spawnpanel-showPreview',
+  'spawnpanel-selectedObj',
+  'spawnpanel-offset_type',
+  'spawnpanel-where_target_type',
+  'spawnpanel-direction',
+  'spawnpanel-atom_name',
+  'spawnpanel-offset',
+  'spawnpanel-atom_amount',
+];
 
-  constructor() {
-    this.impl = IMPL_HUB_STORAGE;
+class LocalBackend implements StorageBackend {
+  constructor(private readonly store: KeyValueStore) {}
+
+  has(key: string): boolean {
+    return this.read(key) !== undefined;
   }
 
   async get(key: string): Promise<any> {
-    const value = await window.hubStorage.getItem(`paradise-${key}`);
-    if (typeof value === 'string') {
-      return JSON.parse(value);
-    }
-    return undefined;
+    return this.read(key);
   }
 
   async set(key: string, value: any): Promise<void> {
-    window.hubStorage.setItem(`paradise-${key}`, JSON.stringify(value));
+    if (value === undefined) {
+      this.store.removeItem(KEY_PREFIX + key);
+      return;
+    }
+    try {
+      this.store.setItem(KEY_PREFIX + key, JSON.stringify(value));
+    } catch (error) {
+      console.warn(`Failed to save '${key}':`, error);
+    }
   }
 
   async remove(key: string): Promise<void> {
-    window.hubStorage.removeItem(`paradise-${key}`);
+    this.store.removeItem(KEY_PREFIX + key);
   }
 
-  async clear(): Promise<void> {
-    window.hubStorage.clear();
-  }
-
-  async processChatMessages(messages): Promise<void> {
-    window.hubStorage.setItem(
-      'paradise-chat-messages',
-      JSON.stringify(messages),
-    );
+  async processChatMessages(messages: any[]): Promise<void> {
+    return this.set(CHAT_MESSAGES_KEY, messages);
   }
 
   async getChatMessages(): Promise<any> {
-    const value = window.hubStorage.getItem('paradise-chat-messages');
-    if (typeof value === 'string') {
-      return JSON.parse(value);
-    } else {
+    return this.read(CHAT_MESSAGES_KEY);
+  }
+
+  private read(key: string): any {
+    const raw: unknown = this.store.getItem(KEY_PREFIX + key);
+    if (raw === null || raw === undefined) {
+      return undefined;
+    }
+    if (typeof raw !== 'string') {
+      return raw;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
       return undefined;
     }
   }
-  async iframe_check(): Promise<boolean> {
-    return false;
-  }
 }
 
-export class IFrameIndexedDbBackend implements StorageBackend {
-  public impl: StorageImplementation;
+class IFrameIndexedDbBackend implements StorageBackend {
+  private documentElement: HTMLIFrameElement | null = null;
+  private iframeWindow: Window | null = null;
 
-  private documentElement: HTMLIFrameElement;
-  private iframeWindow: Window;
-
-  constructor() {
-    this.impl = IMPL_IFRAME_INDEXED_DB;
-  }
-
-  async ready(): Promise<boolean | null> {
+  async ready(): Promise<boolean> {
     const iframe = document.createElement('iframe');
     iframe.allow = 'storage-access';
     iframe.style.display = 'none';
@@ -142,9 +153,8 @@ export class IFrameIndexedDbBackend implements StorageBackend {
 
     this.documentElement = document.body.appendChild(iframe);
     if (!this.documentElement.contentWindow) {
-      return new Promise((res) => res(false));
+      return false;
     }
-
     this.iframeWindow = this.documentElement.contentWindow;
 
     return completePromise;
@@ -171,28 +181,23 @@ export class IFrameIndexedDbBackend implements StorageBackend {
       window.addEventListener('message', listener);
     });
 
-    this.iframeWindow.postMessage({ type: 'get', key: key }, '*');
+    this.iframeWindow?.postMessage({ type: 'get', key: key }, '*');
     return promise;
   }
 
   async set(key: string, value: any): Promise<void> {
-    this.iframeWindow.postMessage({ type: 'set', key: key, value: value }, '*');
+    this.iframeWindow?.postMessage(
+      { type: 'set', key: key, value: value },
+      '*',
+    );
   }
 
   async remove(key: string): Promise<void> {
-    this.iframeWindow.postMessage({ type: 'remove', key: key }, '*');
+    this.iframeWindow?.postMessage({ type: 'remove', key: key }, '*');
   }
 
-  async clear(): Promise<void> {
-    this.iframeWindow.postMessage({ type: 'clear' }, '*');
-  }
-
-  async destroy(): Promise<void> {
-    document.body.removeChild(this.documentElement);
-  }
-
-  async processChatMessages(messages) {
-    this.iframeWindow.postMessage(
+  async processChatMessages(messages: any[]): Promise<void> {
+    this.iframeWindow?.postMessage(
       { type: 'processChatMessages', messages: messages },
       '*',
     );
@@ -215,146 +220,107 @@ export class IFrameIndexedDbBackend implements StorageBackend {
       window.addEventListener('message', listener);
     });
 
-    this.iframeWindow.postMessage({ type: 'getChatMessages' }, '*');
+    this.iframeWindow?.postMessage({ type: 'getChatMessages' }, '*');
     return promise;
   }
-  async iframe_check(): Promise<boolean> {
-    return true;
+
+  destroy(): void {
+    this.documentElement?.remove();
+    this.documentElement = null;
+    this.iframeWindow = null;
   }
 }
 
-/**
- * Web Storage Proxy object, which selects the best backend available
- * depending on the environment.
- */
-class StorageProxy implements StorageBackend {
-  private backendPromise: Promise<StorageBackend>;
-  public impl: StorageImplementation = IMPL_IFRAME_INDEXED_DB;
+function createMemoryStore(): KeyValueStore {
+  const values = new Map<string, string>();
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => {
+      values.delete(key);
+    },
+  };
+}
 
+function getByondStorage(): KeyValueStore | null {
+  const store = window.serverStorage;
+  return store && typeof store.getItem === 'function' ? store : null;
+}
+
+function requestByondStorage(): Promise<KeyValueStore | null> {
+  const available = getByondStorage();
+  if (available || !Byond.IS_BYOND) {
+    return Promise.resolve(available);
+  }
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) {
+        return;
+      }
+      done = true;
+      clearTimeout(timeout);
+      document.removeEventListener('byondstorageupdated', onUpdated);
+      resolve(getByondStorage());
+    };
+    const onUpdated = () => setTimeout(finish, 1);
+    const timeout = setTimeout(finish, BYOND_STORAGE_WAIT);
+    document.addEventListener('byondstorageupdated', onUpdated);
+    Byond.winset(null, 'browser-options', '+byondstorage');
+  });
+}
+
+function getBrowserStorage(): KeyValueStore | null {
+  if (Byond.IS_BYOND) {
+    return null;
+  }
+  try {
+    const store = window.localStorage;
+    const probe = `${KEY_PREFIX}probe`;
+    store.setItem(probe, '1');
+    store.removeItem(probe);
+    return store;
+  } catch {
+    return null;
+  }
+}
+
+function messageIdentity(message: any): string {
+  return `${message?.createdAt}|${message?.type}|${message?.html ?? message?.text}`;
+}
+
+function dedupeMessages(messages: any[]): any[] {
+  const seen = new Set<string>();
+  const unique: any[] = [];
+  for (const message of messages) {
+    if (!message) {
+      continue;
+    }
+    const identity = messageIdentity(message);
+    if (seen.has(identity)) {
+      continue;
+    }
+    seen.add(identity);
+    unique.push(message);
+  }
+  return unique.slice(-MAX_MIGRATED_MESSAGES);
+}
+
+class StorageProxy implements StorageBackend {
   public diagnostics: StorageDiagnostic[] = [];
 
+  private backendPromise: Promise<StorageBackend>;
+  private migrationPromise: Promise<void> | null = null;
   private unreadKeys = new Set<string>();
 
-  private log(level: StorageDiagnostic['level'], message: string) {
-    this.diagnostics.push({ level, message });
-  }
-
   constructor() {
-    this.backendPromise = (async () => {
-      // Prefer the configured iframe storage when available. hubStorage may
-      // already be enabled by another window/server, but the iframe origin is
-      // the server-configured storage boundary.
-      if (Byond.storageCdn) {
-        const iframe = new IFrameIndexedDbBackend();
-
-        if ((await iframe.ready()) === true) {
-          this.log('info', `Using iframe storage (${Byond.storageCdn})`);
-
-          let iframeHasPersistedStorage: boolean;
-          try {
-            if (await iframe.get('byondstorage-migrated')) return iframe;
-
-            iframeHasPersistedStorage = (
-              await Promise.all(
-                persistedStorageKeys.map((setting) => iframe.get(setting)),
-              )
-            ).some((settings) => settings !== undefined);
-          } catch {
-            this.log(
-              'warn',
-              'Iframe storage is too slow, skipping byondstorage migration',
-            );
-            return iframe;
-          }
-
-          if (!iframeHasPersistedStorage) {
-            this.log(
-              'info',
-              'No existing iframe data, migrating from byondstorage',
-            );
-            const hubStorageWasEnabled = testHubStorage();
-            if (!hubStorageWasEnabled) {
-              Byond.winset(null, 'browser-options', '+byondstorage');
-
-              await new Promise<void>((resolve) => {
-                document.addEventListener(
-                  'byondstorageupdated',
-                  () => {
-                    // This event is emitted *before* byondstorage is actually
-                    // created, so we have to wait a little bit before using it.
-                    setTimeout(resolve, 1);
-                  },
-                  { once: true },
-                );
-              });
-            }
-
-            const hub = new HubStorageBackend();
-
-            // Migrate safe legacy settings from byondstorage to the IFrame.
-            // Chat history may contain server-specific HTML/components from
-            // other codebases that shared the old byondstorage namespace.
-            await Promise.all(
-              legacyHubMigrationKeys.map(async (setting) => {
-                try {
-                  const settings = await hub.get(setting);
-                  if (settings !== undefined) {
-                    await iframe.set(setting, settings);
-                    this.log('info', `Migrated '${setting}' from byondstorage`);
-                  }
-                } catch {
-                  this.log(
-                    'warn',
-                    `Failed to migrate '${setting}' from byondstorage`,
-                  );
-                }
-              }),
-            );
-
-            if (!hubStorageWasEnabled) {
-              Byond.winset(null, 'browser-options', '-byondstorage');
-            }
-          }
-
-          await iframe.set('byondstorage-migrated', true);
-
-          return iframe;
-        }
-
-        this.log(
-          'warn',
-          `Iframe storage failed to load from ${Byond.storageCdn}`,
-        );
-        iframe.destroy();
-      } else {
-        this.log('info', 'No storage CDN configured');
-      }
-
-      if (testHubStorage()) {
-        this.log('warn', 'Falling back to hubStorage (byondstorage)');
-        return new HubStorageBackend();
-      }
-
-      // IFrame hasn't worked out for us, we'll need to enable byondstorage
-      this.log('warn', 'Enabling byondstorage as last resort');
-      Byond.winset(null, 'browser-options', '+byondstorage');
-
-      return new Promise((resolve) => {
-        const listener = () => {
-          document.removeEventListener('byondstorageupdated', listener);
-
-          // This event is emitted *before* byondstorage is actually created
-          // so we have to wait a little bit before we can use it
-          setTimeout(() => resolve(new HubStorageBackend()), 1);
-        };
-
-        document.addEventListener('byondstorageupdated', listener);
-      });
-    })();
+    this.backendPromise = this.selectBackend();
   }
 
   async get(key: string): Promise<any> {
-    const backend = await this.backendPromise;
+    const backend = await this.awaitKey(key);
     try {
       const value = await backend.get(key);
       this.unreadKeys.delete(key);
@@ -379,23 +345,145 @@ class StorageProxy implements StorageBackend {
     return backend.remove(key);
   }
 
-  async clear(): Promise<void> {
-    const backend = await this.backendPromise;
-    return backend.clear();
-  }
-  async processChatMessages(messages) {
+  async processChatMessages(messages: any[]): Promise<void> {
     const backend = await this.backendPromise;
     return backend.processChatMessages(messages);
   }
 
   async getChatMessages(): Promise<any> {
-    const backend = await this.backendPromise;
+    const backend = await this.awaitKey(CHAT_MESSAGES_KEY);
     return backend.getChatMessages();
   }
-  async iframe_check(): Promise<boolean> {
-    const backend = await this.backendPromise;
 
-    return backend.iframe_check();
+  private log(level: StorageDiagnostic['level'], message: string): void {
+    this.diagnostics.push({ level, message });
+  }
+
+  private async awaitKey(key: string): Promise<StorageBackend> {
+    const backend = await this.backendPromise;
+    if (
+      this.migrationPromise &&
+      backend instanceof LocalBackend &&
+      !backend.has(key)
+    ) {
+      await this.migrationPromise;
+    }
+    return backend;
+  }
+
+  private async selectBackend(): Promise<StorageBackend> {
+    const byondStore = await requestByondStorage();
+    if (byondStore) {
+      this.log('info', 'Using BYOND server storage');
+      return this.withMigration(new LocalBackend(byondStore));
+    }
+
+    const browserStore = getBrowserStorage();
+    if (browserStore) {
+      this.log('info', 'Using browser storage');
+      return this.withMigration(new LocalBackend(browserStore));
+    }
+
+    if (Byond.storageCdn) {
+      const iframe = new IFrameIndexedDbBackend();
+      if (await iframe.ready()) {
+        this.log(
+          'warn',
+          `Local storage unavailable, using ${Byond.storageCdn}`,
+        );
+        return iframe;
+      }
+      iframe.destroy();
+    }
+
+    this.log('error', 'No persistent storage available, settings will reset');
+    return new LocalBackend(createMemoryStore());
+  }
+
+  private withMigration(local: LocalBackend): LocalBackend {
+    if (Byond.storageCdn && !local.has(MIGRATED_KEY)) {
+      this.migrationPromise = this.migrateFromIframe(local).catch(() => {
+        this.log('info', 'Moving settings from iframe storage failed');
+      });
+    }
+    return local;
+  }
+
+  private async migrateFromIframe(local: LocalBackend): Promise<void> {
+    const legacy = new IFrameIndexedDbBackend();
+    try {
+      if (!(await legacy.ready())) {
+        this.log(
+          'info',
+          `Old settings storage is unreachable (${Byond.storageCdn}), will retry next time`,
+        );
+        return;
+      }
+
+      let complete = true;
+      const readLegacy = async (key: string): Promise<any> => {
+        try {
+          return await legacy.get(key);
+        } catch {
+          complete = false;
+          return undefined;
+        }
+      };
+      const copy = async (key: string, value: any): Promise<void> => {
+        if (value !== undefined && !local.has(key)) {
+          await local.set(key, value);
+        }
+      };
+
+      const [geometries, presets] = await Promise.all([
+        readLegacy('geometries'),
+        readLegacy('podlauncher_presetlist'),
+      ]);
+      const keys = new Set(LEGACY_KEYS);
+      if (Array.isArray(geometries)) {
+        for (const key of geometries) {
+          if (typeof key === 'string') {
+            keys.add(key);
+          }
+        }
+      }
+      if (Array.isArray(presets)) {
+        for (const preset of presets) {
+          if (preset?.id) {
+            keys.add(`podlauncher_preset_${preset.id}`);
+          }
+        }
+      }
+
+      await Promise.all(
+        [...keys].map(async (key) => {
+          if (!local.has(key)) {
+            await copy(key, await readLegacy(key));
+          }
+        }),
+      );
+
+      if (!local.has(CHAT_MESSAGES_KEY)) {
+        const messages = await legacy.getChatMessages();
+        if (Array.isArray(messages)) {
+          await copy(CHAT_MESSAGES_KEY, dedupeMessages(messages));
+        } else {
+          complete = false;
+        }
+      }
+
+      if (!complete) {
+        this.log(
+          'info',
+          'Old settings were moved partially, will retry next time',
+        );
+        return;
+      }
+      await local.set(MIGRATED_KEY, true);
+      this.log('info', 'Moved settings from iframe storage');
+    } finally {
+      legacy.destroy();
+    }
   }
 }
 

@@ -1,0 +1,114 @@
+$glow-red: hsl(0, 85%, 60%);
+$glow-green: hsl(130, 70%, 50%);
+
+.LockedSafe {
+  &__display {
+    background: linear-gradient(hsl(212, 40%, 7%), hsl(212, 45%, 3%));
+    border: 2px inset hsl(212, 12%, 30%);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: 'Consolas', monospace;
+    font-size: 2.2em;
+    letter-spacing: 0.3em;
+    text-align: center;
+    color: hsl(195, 100%, 68%);
+    text-shadow: 0 0 6px hsla(195, 100%, 60%, 0.65);
+
+    &--error {
+      color: $glow-red;
+      text-shadow: 0 0 6px hsla(0, 85%, 55%, 0.65);
+    }
+  }
+
+  &__status {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+
+    &--locked {
+      color: $glow-red;
+    }
+
+    &--open {
+      color: $glow-green;
+    }
+
+    &--unset,
+    &--error {
+      color: hsl(40, 95%, 60%);
+    }
+  }
+
+  &__keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    height: 100%;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: hsl(212, 25%, 8%);
+  }
+
+  &__key {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+    font-size: 1.8em !important;
+    border: 1px solid hsl(212, 15%, 28%);
+    background-color: hsl(212, 18%, 16%) !important;
+    transition:
+      box-shadow 0.12s ease-out,
+      color 0.12s ease-out,
+      background-color 0.12s ease-out,
+      transform 0.05s;
+
+    &:hover:not(.Button--disabled),
+    &--pressed {
+      color: hsl(205, 100%, 80%) !important;
+      background-color: hsl(212, 45%, 22%) !important;
+      border-color: hsl(205, 100%, 60%);
+      box-shadow:
+        0 0 12px hsla(205, 100%, 60%, 0.85),
+        inset 0 0 8px hsla(205, 100%, 60%, 0.4);
+    }
+
+    &:active:not(.Button--disabled),
+    &--pressed {
+      transform: translateY(1px);
+    }
+
+    &.Button--disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &--clear {
+      color: $glow-red !important;
+
+      &:hover:not(.Button--disabled),
+      &.LockedSafe__key--pressed {
+        color: hsl(0, 100%, 78%) !important;
+        background-color: hsl(0, 35%, 20%) !important;
+        box-shadow: 0 0 10px hsla(0, 85%, 55%, 0.75);
+      }
+    }
+
+    &--enter {
+      color: $glow-green !important;
+
+      &:hover:not(.Button--disabled),
+      &.LockedSafe__key--pressed {
+        color: hsl(130, 90%, 75%) !important;
+        background-color: hsl(130, 30%, 17%) !important;
+        box-shadow: 0 0 10px hsla(130, 70%, 45%, 0.75);
+      }
+    }
+  }
+
+  &__hint {
+    text-align: center;
+    font-size: 0.9em;
+    opacity: 0.6;
+  }
+}

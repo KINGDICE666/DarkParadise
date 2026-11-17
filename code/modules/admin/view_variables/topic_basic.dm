@@ -133,7 +133,7 @@
 		if(!usr || path == "---Components---" || path == "---Elements---")
 			return
 		if(QDELETED(src))
-			to_chat(usr, "That thing doesn't exist anymore!")
+			to_chat(usr, "That thing doesn't exist anymore!", confidential = TRUE)
 			return
 		var/list/targets_to_remove_from = list(target)
 		if(mass_remove)
