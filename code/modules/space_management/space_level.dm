@@ -167,6 +167,12 @@ GLOBAL_LIST_INIT(maploader_typecache, typecacheof(/obj/effect/landmark/map_loade
 	our_atoms -= late_maps
 	SSatoms.InitializeAtoms(our_atoms, FALSE)
 	log_debug("Primary initialization finished in [stop_watch(watch)]s.")
+	var/list/covered_turfs = list()
+	for(var/obj/thing in our_atoms)
+		if(thing.level == 1 && isturf(thing.loc))
+			covered_turfs[thing.loc] = TRUE
+	for(var/turf/covered as anything in covered_turfs)
+		covered.levelupdate()
 	our_atoms.Cut()
 	if(length(pipes))
 		do_pipes(pipes)
