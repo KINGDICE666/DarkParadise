@@ -178,7 +178,7 @@
 		airtight[3],
 		airtight[4],
 		atmos_mode,
-		SSmapping.environments[atmos_environment],
+		atmos_mode == ATMOS_MODE_EXPOSED_TO_ENVIRONMENT ? SSmapping.environments[atmos_environment] : null,
 		oxygen,
 		carbon_dioxide,
 		nitrogen,
