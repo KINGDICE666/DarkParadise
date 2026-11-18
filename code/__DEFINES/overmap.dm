@@ -22,6 +22,7 @@
 #define OVERMAP_SITE_NINJA "ninja"
 #define OVERMAP_SITE_SYNDICATE "syndicate"
 #define OVERMAP_SITE_TRADER "trader"
+#define OVERMAP_SITE_SHIPYARD "shipyard"
 #define OVERMAP_SITE_VOX "vox"
 #define OVERMAP_HOST_STATION "station"
 #define OVERMAP_HOST_LAVALAND "lavaland"

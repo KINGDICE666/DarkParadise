@@ -830,7 +830,7 @@
 	var/list/wanted = list()
 	var/span = OVERMAP_TILE_SPAN * (sector?.tile_travel || 1)
 	for(var/obj/overmap/target as anything in sector?.objects)
-		if(QDELETED(target) || !isturf(target.loc) || istype(target, /obj/overmap/entity/shuttle) || istype(target, /obj/overmap/entity/pod) || istype(target, /obj/overmap/feature/hazard))
+		if(QDELETED(target) || target == host || target.hidden_from_contacts || !isturf(target.loc) || istype(target, /obj/overmap/entity/shuttle) || istype(target, /obj/overmap/entity/pod) || istype(target, /obj/overmap/feature/hazard))
 			continue
 		var/world_x = (target.x + target.position[1]) * span
 		var/world_y = (target.y + target.position[2]) * span

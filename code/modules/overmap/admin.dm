@@ -814,6 +814,15 @@
 	else if(istype(vessel, /obj/overmap/entity/pod))
 		var/obj/overmap/entity/pod/pod_vessel = vessel
 		dest = get_turf(pod_vessel.pod)
+	else if(istype(vessel))
+		var/datum/overmap_bubble/space = vessel.physical_space
+		if(space && !QDELETED(space))
+			dest = locate(round(space.center_x), round(space.center_y), space.bubble_z)
+		else
+			for(var/area/place as anything in vessel.dock_host?.host_areas())
+				dest = locate(/turf) in place
+				if(dest)
+					break
 	if(!dest)
 		dest = token.get_overmap_turf()
 	if(!dest)

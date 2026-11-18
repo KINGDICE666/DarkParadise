@@ -59,7 +59,7 @@
 	dwidth = port.dwidth
 	dheight = port.dheight
 
-/datum/controller/subsystem/overmap/proc/commission_custom_shuttle(area/shuttle/custom/hull, list/turfs)
+/datum/controller/subsystem/overmap/proc/commission_custom_shuttle(area/shuttle/custom/hull, list/turfs, obj/overmap/entity/host)
 	var/turf/anchor
 	var/obj/machinery/door/airlock/external/docking/collar
 	for(var/turf/tile as anything in turfs)
@@ -84,6 +84,8 @@
 	pad.id = "[port.id]_home"
 	pad.match_port_bounds(port)
 	pad.register()
+	if(host)
+		pad.overmap_host_uid = host.UID()
 	var/obj/overmap/entity/vessel = get_or_register_shuttle(port)
 	if(vessel)
 		relink_hardware(turfs)
