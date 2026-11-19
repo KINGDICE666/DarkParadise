@@ -5,11 +5,11 @@
 	drake.forceMove(run_loc_floor_top_right)
 
 	TEST_ASSERT(shows_drake(receiver), "Mining GPS did not report the drake's current coordinates.")
-	var/turf/station_turf = locate(receiver.x, receiver.y, pick(levels_by_trait(STATION_LEVEL)))
-	TEST_ASSERT(station_turf && station_turf.z != drake.z, "Expected a station turf outside the test Z-level.")
-	var/obj/item/gps/mining/station_receiver = allocate(/obj/item/gps/mining, station_turf)
-	station_receiver.tracking = TRUE
-	TEST_ASSERT_NOT(shows_drake(station_receiver), "Mining GPS picked up the drake on a different Z-level.")
+	var/turf/distant_turf = locate(receiver.x, receiver.y, drake.z == 1 ? 2 : 1)
+	TEST_ASSERT_NOTNULL(distant_turf, "Expected a second Z-level for the distant receiver.")
+	var/obj/item/gps/mining/distant_receiver = allocate(/obj/item/gps/mining, distant_turf)
+	distant_receiver.tracking = TRUE
+	TEST_ASSERT_NOT(shows_drake(distant_receiver), "Mining GPS picked up the drake on a different Z-level.")
 
 	drake.health = 0
 	drake.death()
