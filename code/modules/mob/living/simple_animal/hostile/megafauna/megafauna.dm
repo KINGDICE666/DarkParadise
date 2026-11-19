@@ -32,7 +32,6 @@
 	var/score_achievement_type
 	var/elimination = FALSE
 	var/anger_modifier = 0
-	/// Local GPS signal emitted by a true megafauna spawn.
 	var/obj/item/gps/internal/megafauna/internal_gps
 	var/recovery_time = 0
 	var/true_spawn = TRUE // if this is a megafauna that should grant achievements, or have a gps signal
