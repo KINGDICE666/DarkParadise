@@ -224,6 +224,9 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	desc = "Report to a coder immediately."
 	invisibility = INVISIBILITY_ABSTRACT
 
+/obj/item/gps/internal/megafauna
+	gpstag = "Mysterious Signal"
+
 /obj/item/gps/internal/mining
 	icon_state = "gps-m"
 	gpstag = "MINER"

@@ -675,7 +675,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 		return
 	var/list/gps_locators = list()
 	for(var/obj/item/gps/gps in GLOB.GPS_list) //nulls on the list somehow
-		if(!gps.tracking)
+		if(!gps.tracking || istype(gps, /obj/item/gps/internal/megafauna))
 			continue
 		gps_locators[gps.gpstag] = gps
 	var/list/options = gps_locators

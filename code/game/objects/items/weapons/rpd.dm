@@ -127,7 +127,7 @@
 		P.wrench_act(user, integrated_wrench)
 	else if(iswrench(inactive_hand_item) && (P.IsReachableBy(user, inactive_hand_item.reach)))
 		P.wrench_act(user, inactive_hand_item)
-	activate_rpd(TRUE)
+	activate_rpd()
 
 /obj/item/rpd/proc/create_disposals_pipe(mob/user, turf/T) //Make a disposals pipe / construct
 	if(!can_dispense_pipe(whatdpipe, RPD_DISPOSALS_MODE))
