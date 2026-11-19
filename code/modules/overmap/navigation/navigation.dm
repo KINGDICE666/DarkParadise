@@ -52,7 +52,17 @@ GLOBAL_LIST_EMPTY(overmap_ship_bows)
 	for(var/obj/effect/landmark/overmap_ship_bow/marker as anything in GLOB.overmap_ship_bows)
 		if(SSovermap.resolve_vessel(marker) == src)
 			marked_bow_angle = dir2angle(marker.dir)
-			break
+			return marked_bow_angle
+	var/list/pushes = list()
+	for(var/obj/machinery/ship_engine/engine as anything in engines)
+		if(engine != virtual_engine)
+			pushes["[REVERSE_DIR(engine.dir)]"]++
+	var/best
+	for(var/push in pushes)
+		if(!best || pushes[push] > pushes[best])
+			best = push
+	if(best)
+		marked_bow_angle = dir2angle(text2num(best))
 	return marked_bow_angle
 
 /proc/cmp_overmap_navigation_beacon(obj/effect/landmark/overmap_navigation_beacon/a, obj/effect/landmark/overmap_navigation_beacon/b)
@@ -227,10 +237,15 @@ GLOBAL_LIST_EMPTY(overmap_ship_bows)
 
 /datum/overmap_navigation/proc/waypoint(world_x, world_y, obj/overmap/entity/host)
 	var/obj/overmap/entity/vessel = flight.parent
-	if(!goal || abs(goal[1] - world_x) + abs(goal[2] - world_y) > 4 || corridor_host != host)
+	if(!goal || abs(goal[1] - world_x) + abs(goal[2] - world_y) > OVERMAP_NAV_REPLAN_SHIFT || corridor_host != host)
 		reset()
 		goal = list(world_x, world_y)
 		corridor_host = host
+	else if(abs(goal[1] - world_x) + abs(goal[2] - world_y) > OVERMAP_NAV_GOAL_SLACK)
+		goal = list(world_x, world_y)
+		next_plan = 0
+		if(length(path))
+			path[length(path)] = goal.Copy()
 	if(!length(path) && isnull(blocked_since))
 		blocked_since = world.time
 	if(!isnull(blocked_since) && (blocked || world.time >= blocked_since + (15 SECONDS)) && vessel.navigation_collision_disabled())

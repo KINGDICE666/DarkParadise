@@ -23,6 +23,10 @@
 
 	var/list/datum/overmap_sector_message/comms_messages = list()
 	var/list/hazard_shapes
+	var/parallax_stars = "layer2"
+	var/list/parallax_tint
+	var/engine_dampening = FALSE
+	var/centcom_blackout = FALSE
 
 /datum/overmap_sector/New(sector_id, sector_name, sector_size, sector_access)
 	if(sector_id)
@@ -307,6 +311,8 @@
 	size = OVERMAP_SECTOR_SERVICE_SIZE
 	sector_kind = OVERMAP_SECTOR_KIND_SERVICE
 	access_flags = OVERMAP_ACCESS_CENTCOM | OVERMAP_ACCESS_SYNDICATE
+	parallax_stars = "stars_rich"
+	parallax_tint = list(0.7, 0.8, 1.1)
 
 /datum/overmap_sector/wilderness
 	size = OVERMAP_SECTOR_WILDERNESS_SIZE
@@ -314,6 +320,8 @@
 	ruin_spawn_weight = 2
 	hazard_spawn_weight = 1
 	tile_travel = 3
+	parallax_stars = "stars_sparse"
+	parallax_tint = list(1.2, 0.55, 0.9)
 
 /datum/overmap_sector/wilderness/populate_roundstart()
 	spawn_overmap_celestials(src)

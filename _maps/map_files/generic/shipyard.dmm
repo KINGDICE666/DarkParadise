@@ -3157,6 +3157,7 @@
 /turf/simulated/floor/grass,
 /area/shipyard/hall)
 "gQ" = (
+/obj/structure/fans/tiny,
 /obj/machinery/door/airlock/shuttle,
 /turf/simulated/floor/plating,
 /area/shipyard/control)

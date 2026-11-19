@@ -147,6 +147,7 @@ export type HelmData = {
   programmed_cancellable?: BooleanLike;
 
   dest?: number[];
+  route?: number[][];
   dest_name?: string;
   dest_range?: number;
   dest_relay?: string;
@@ -155,6 +156,9 @@ export type HelmData = {
   can_ship_undock?: BooleanLike;
   ship_docked_to?: string | null;
   can_relay_jump?: BooleanLike;
+  horizon_jump?: BooleanLike;
+  planet_landing?: BooleanLike;
+  planet_landing_rough?: BooleanLike;
   relay_to?: string;
   can_land?: BooleanLike;
   can_stop?: BooleanLike;

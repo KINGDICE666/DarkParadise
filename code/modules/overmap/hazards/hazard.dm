@@ -404,8 +404,9 @@
 		return TRUE
 	if(sector.turf_occupied(spot))
 		return TRUE
-	if(SSovermap.lavaland_planet?.covers_turf(spot))
-		return TRUE
+	for(var/obj/overmap/planet/body as anything in GLOB.overmap_planets)
+		if(body.covers_turf(spot))
+			return TRUE
 	if(locate(/obj/overmap/feature/hazard) in spot)
 		return TRUE
 	if(locate(/obj/overmap/portal) in spot)

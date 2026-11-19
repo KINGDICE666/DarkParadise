@@ -66,6 +66,7 @@ GLOBAL_LIST_EMPTY(overmap_celestials)
 	var/gravity_radius = 6
 	var/gravity_strength = 5.6e-4
 	var/list/vessel_zones = list()
+	var/list/core_entered = list()
 	var/designation
 
 /obj/overmap/celestial/get_ru_names()
@@ -82,13 +83,16 @@ GLOBAL_LIST_EMPTY(overmap_celestials)
 	. = ..()
 	designation = "[pick("HD", "GJ", "KIC", "LHS", "TYC")]-[rand(100, 9999)]"
 	GLOB.overmap_celestials += src
+	GLOB.overmap_sky_bodies += src
 
 /obj/overmap/celestial/get_overmap_display_name()
 	return "[DECLENT_RU_CAP(src, NOMINATIVE)] [designation]"
 
 /obj/overmap/celestial/Destroy()
 	GLOB.overmap_celestials -= src
+	GLOB.overmap_sky_bodies -= src
 	vessel_zones.Cut()
+	core_entered.Cut()
 	return ..()
 
 /obj/overmap/celestial/proc/span()
@@ -140,6 +144,10 @@ GLOBAL_LIST_EMPTY(overmap_celestials)
 	var/old_zone = vessel_zones[uid] || OVERMAP_CELESTIAL_ZONE_CLEAR
 	if(zone == old_zone)
 		return
+	if(zone == OVERMAP_CELESTIAL_ZONE_CORE)
+		core_entered[uid] = world.time
+	else
+		core_entered -= uid
 	if(zone == OVERMAP_CELESTIAL_ZONE_CLEAR)
 		vessel_zones -= uid
 	else
@@ -177,10 +185,21 @@ GLOBAL_LIST_EMPTY(overmap_celestials)
 		var/obj/overmap/entity/vessel = locateUID(uid)
 		if(!affects(vessel))
 			vessel_zones -= uid
+			core_entered -= uid
 			continue
 		var/zone = vessel_zones[uid]
 		if(zone < OVERMAP_CELESTIAL_ZONE_HAZARD)
 			continue
+		if(zone == OVERMAP_CELESTIAL_ZONE_CORE && vessel != SSovermap.station_entity)
+			var/inside = world.time - core_entered[uid]
+			if(inside >= OVERMAP_CELESTIAL_CORE_DOOM)
+				vessel_zones -= uid
+				core_entered -= uid
+				consume_vessel(vessel)
+				continue
+			warn_doom(vessel, OVERMAP_CELESTIAL_CORE_DOOM - inside)
+		if(zone == OVERMAP_CELESTIAL_ZONE_CORE)
+			core_tick(vessel)
 		var/shield_cost = zone == OVERMAP_CELESTIAL_ZONE_CORE ? OVERMAP_SHIELD_CORE_COST : OVERMAP_SHIELD_CORONA_COST
 		if(!vessel.shield_absorb(shield_cost))
 			continue
@@ -188,6 +207,33 @@ GLOBAL_LIST_EMPTY(overmap_celestials)
 
 /obj/overmap/celestial/proc/affect_vessel(obj/overmap/entity/vessel, zone)
 	return
+
+/obj/overmap/celestial/proc/core_tick(obj/overmap/entity/vessel)
+	return
+
+/obj/overmap/celestial/proc/warn_doom(obj/overmap/entity/vessel, remaining)
+	var/seconds = round(remaining / (1 SECONDS))
+	if(!(seconds in list(90, 60, 30, 10, 5)))
+		return
+	vessel.shuttle_visible_message(span_userdanger("Корпус разрушается! До полного уничтожения корабля: [seconds] сек."))
+	vessel.play_shuttle_sound(OVERMAP_SENSOR_DISTRESS_SOUND, 80)
+
+/obj/overmap/celestial/proc/consume_vessel(obj/overmap/entity/vessel)
+	if(vessel == SSovermap.station_entity)
+		return
+	log_game("Overmap vessel [vessel.name] was consumed by the core of [name] at [sector?.id].")
+	message_admins("Корабль [vessel.name] уничтожен ядром объекта «[get_overmap_display_name()]».")
+	vessel.announce_sensor_event("Потерян контакт: [vessel.get_overmap_display_name()]", "distress")
+	for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
+		to_chat(crew, span_userdanger("Корабль перестаёт существовать вместе с вами."))
+		crew.ghostize(FALSE)
+	var/obj/overmap/entity/pod/pod_vessel = vessel
+	if(istype(pod_vessel))
+		QDEL_NULL(pod_vessel.pod)
+	else if(vessel.shuttle)
+		vessel.shuttle.jumpToNullSpace()
+	if(!QDELETED(vessel))
+		qdel(vessel)
 
 /datum/controller/subsystem/overmap/proc/process_celestials(elapsed)
 	var/static/effect_elapsed = 0

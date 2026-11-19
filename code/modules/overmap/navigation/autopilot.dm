@@ -1,5 +1,5 @@
 /datum/component/overmap_flight/proc/navigation_speed_limited()
-	return autopilot
+	return autopilot && !isnull(navigation_world_x)
 
 /datum/component/overmap_flight/proc/clear_navigation()
 	navigation?.reset()
@@ -21,6 +21,8 @@
 		held_brake = FALSE
 		engines_state = TRUE
 		autopilot = TRUE
+	route.Cut()
+	route_started = FALSE
 	navigation_world_x = world_x
 	navigation_world_y = world_y
 	navigation_facing = heading
@@ -66,8 +68,10 @@
 	if(!navigation)
 		navigation = new(src)
 	var/list/waypoint = navigation.waypoint(goal_x, goal_y, navigation_host)
+	if(!waypoint && navigation.planning && !navigation.blocked)
+		waypoint = list(goal_x, goal_y)
 	if(!waypoint)
-		autopilot_status = navigation.planning ? "Прокладывает маршрут" : "Проход перекрыт: ожидание"
+		autopilot_status = "Проход перекрыт: ожидание"
 		brake(elapsed)
 		return
 	var/dx = waypoint[1] - vessel.get_world_x()
@@ -89,7 +93,7 @@
 	var/safe_speed = sqrt(2 * accel * (max(distance - 0.5, 0) + navigation_carry(final_leg, goal_x, goal_y)))
 	var/wanted_speed = min(get_effective_cruise() * OVERMAP_TILE_SPAN, safe_speed)
 	var/lateral = distance ? abs(vessel.speed[1] * dy - vessel.speed[2] * dx) / distance * OVERMAP_TILE_SPAN : 0
-	if(lateral)
+	if(lateral && final_leg && !navigation_pass_through)
 		wanted_speed = min(wanted_speed, accel * distance / lateral)
 	var/hold_orientation = !isnull(navigation_facing) && distance <= max(64, vessel.hull_radius * 4)
 	var/list/host_region = navigation_host?.physical_space?.region
@@ -118,13 +122,17 @@
 	var/error_x = wanted_x - vessel.speed[1] * OVERMAP_TILE_SPAN
 	var/error_y = wanted_y - vessel.speed[2] * OVERMAP_TILE_SPAN
 	var/error = sqrt(error_x ** 2 + error_y ** 2)
+	var/heading
+	if(sqrt(wanted_x ** 2 + wanted_y ** 2) > OVERMAP_AUTOPILOT_TURN_ERROR)
+		heading = delta_to_angle(wanted_x, wanted_y) - current_bow()
+	else if(error > OVERMAP_AUTOPILOT_TURN_ERROR)
+		heading = delta_to_angle(error_x, error_y) - current_bow()
 	if(error <= OVERMAP_AUTOPILOT_DEADBAND)
-		return
+		return heading
 	var/accel = engine_thrust / inertial_mass() / burn_delay * OVERMAP_TILE_SPAN
 	var/effort = accel ? min(1, error / max(accel * elapsed, 0.001)) : 1
 	push(error_x / error * effort, error_y / error * effort, elapsed)
-	if(error > OVERMAP_AUTOPILOT_TURN_ERROR)
-		return delta_to_angle(error_x, error_y) - current_bow()
+	return heading
 
 /datum/component/overmap_flight/proc/navigation_carry(final_leg, goal_x, goal_y)
 	var/obj/overmap/entity/vessel = parent
@@ -140,6 +148,8 @@
 /datum/component/overmap_flight/proc/finish_navigation()
 	var/obj/overmap/entity/vessel = parent
 	navigation.reset()
+	if(navigation_pass_through && isnull(navigation_world_x) && advance_route())
+		return
 	if(navigation_pass_through)
 		navigation_world_x = null
 		navigation_world_y = null

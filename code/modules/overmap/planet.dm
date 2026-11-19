@@ -1,10 +1,13 @@
 #define OVERMAP_PLANET_PULL_RANGE 1
-#define OVERMAP_PLANET_FALL_HEIGHT 480
-#define OVERMAP_PLANET_FALL_TIME (3 SECONDS)
+#define OVERMAP_PLANET_FALL_HEIGHT 96
+#define OVERMAP_PLANET_FALL_SCALE 2.5
+#define OVERMAP_PLANET_FALL_TIME (2 SECONDS)
 #define OVERMAP_PLANET_FALL_DAMAGE 120
 #define OVERMAP_PLANET_FALL_KNOCKDOWN (10 SECONDS)
 #define OVERMAP_PLANET_FALL_TRIES 50
 #define OVERMAP_PLANET_FALL_TRAIT "overmap_planet_fall"
+
+GLOBAL_LIST_EMPTY(overmap_planets)
 
 /obj/overmap/planet
 	name = "planet"
@@ -23,11 +26,22 @@
 	appearance_flags = RESET_COLOR | RESET_TRANSFORM | KEEP_APART
 	var/footprint = OVERMAP_LAVALAND_FOOTPRINT
 	var/obj/overmap/entity/planet_station/outpost
+	var/surface_area_type = /area/lavaland/surface/outdoors
+	var/pull_range = 2
+	var/pull_accel = 3
+	var/rough_landing = FALSE
+	var/list/crash_warned
+	var/list/ground_chunks
+	var/atom/movable/planet_ground_chunk/ground_actors
+	var/list/actor_proxies
+	var/cloud_state = "clouds_tile"
 	var/list/obj/effect/overmap_planet_cell/cells
 
 /obj/overmap/planet/Initialize(mapload)
 	. = ..()
 	spawn_footprint_cells()
+	GLOB.overmap_sky_bodies += src
+	GLOB.overmap_planets += src
 
 	icon = null
 
@@ -57,7 +71,12 @@
 			cells += cell
 
 /obj/overmap/planet/Destroy()
+	GLOB.overmap_sky_bodies -= src
+	GLOB.overmap_planets -= src
 	QDEL_LIST(cells)
+	QDEL_LIST_ASSOC_VAL(ground_chunks)
+	QDEL_LIST_ASSOC_VAL(actor_proxies)
+	QDEL_NULL(ground_actors)
 	if(outpost?.planet == src)
 		outpost.planet = null
 	outpost = null
@@ -120,21 +139,35 @@
 				bubble.gravity_warned[drifter] = TRUE
 			drifter.newtonian_move(angle2dir(delta_to_angle(delta_x, delta_y)))
 
+/obj/overmap/planet/proc/surface_z()
+	var/list/levels = levels_by_trait(ORE_LEVEL)
+	return length(levels) ? levels[1] : null
+
+/obj/overmap/planet/proc/surface_levels()
+	var/surface = surface_z()
+	return surface ? list(surface) : list()
+
+/obj/overmap/planet/proc/surface_floor_type()
+	return SSmapping.lavaland_theme?.primary_turf_type || /turf/simulated/floor/lava/lava_land_surface
+
+/obj/overmap/planet/proc/sector_tick(obj/overmap/entity/vessel, powered)
+	return
+
 /obj/overmap/planet/proc/find_fall_turf()
-	var/list/surface_levels = levels_by_trait(ORE_LEVEL)
+	var/list/surface_levels = surface_levels()
 	if(!length(surface_levels))
 		return null
 	for(var/attempt in 1 to OVERMAP_PLANET_FALL_TRIES)
 		var/turf/candidate = locate(rand(TRANSITIONEDGE + 1, world.maxx - TRANSITIONEDGE), rand(TRANSITIONEDGE + 1, world.maxy - TRANSITIONEDGE), surface_levels[1])
-		if(!istype(get_area(candidate), /area/lavaland/surface/outdoors) || candidate.density || ismineralturf(candidate) || ischasm(candidate))
+		if(!istype(get_area(candidate), surface_area_type) || candidate.density || ismineralturf(candidate) || ischasm(candidate))
 			continue
 		return candidate
 
-/obj/overmap/planet/proc/drop_onto_surface(atom/movable/thing)
+/obj/overmap/planet/proc/drop_onto_surface(atom/movable/thing, turf/landing)
 	if(isprojectile(thing))
 		qdel(thing)
 		return
-	var/turf/landing = find_fall_turf()
+	landing = landing || find_fall_turf()
 	if(!landing)
 		return
 	to_chat(thing.get_all_contents_type(/mob/living), span_userdanger("Вы входите в атмосферу [declent_ru(GENITIVE)] и камнем летите вниз!"))
@@ -144,8 +177,14 @@
 	ADD_TRAIT(thing, TRAIT_HANDS_BLOCKED, OVERMAP_PLANET_FALL_TRAIT)
 	cross_frame_with_pull(thing, landing)
 	var/base_pixel_z = thing.pixel_z
+	var/matrix/base_transform = thing.transform
+	var/matrix/high = matrix(base_transform)
+	high.Scale(OVERMAP_PLANET_FALL_SCALE)
 	thing.pixel_z = base_pixel_z + OVERMAP_PLANET_FALL_HEIGHT
-	animate(thing, pixel_z = base_pixel_z, time = OVERMAP_PLANET_FALL_TIME, easing = QUAD_EASING | EASE_IN)
+	thing.transform = high
+	animate(thing, pixel_z = base_pixel_z, transform = base_transform, time = OVERMAP_PLANET_FALL_TIME, easing = QUAD_EASING | EASE_IN)
+	new /obj/effect/temp_visual/planet_fall_shadow(landing)
+	playsound(landing, 'sound/effects/wind/wind_5_1.ogg', 70, TRUE)
 	addtimer(CALLBACK(src, PROC_REF(land_faller), thing), OVERMAP_PLANET_FALL_TIME)
 
 /obj/overmap/planet/proc/land_faller(atom/movable/thing)
@@ -154,6 +193,11 @@
 	REMOVE_TRAITS_IN(thing, OVERMAP_PLANET_FALL_TRAIT)
 	var/turf/landing = get_turf(thing)
 	playsound(landing, 'sound/effects/meteorimpact.ogg', 100, TRUE)
+	new /obj/effect/temp_visual/small_smoke/halfsecond(landing)
+	for(var/direction in GLOB.cardinal)
+		var/turf/beside = get_step(landing, direction)
+		if(beside && !beside.density)
+			new /obj/effect/temp_visual/small_smoke/halfsecond(beside)
 	for(var/mob/witness in range(7, landing))
 		shake_camera(witness, 1 SECONDS, 2)
 	thing.visible_message(span_danger("[DECLENT_RU_CAP(thing, NOMINATIVE)] с грохотом падает с неба!"))
@@ -175,6 +219,19 @@
 		var/turf/simulated/floor/lava/lava = landing
 		if(lava.burn_stuff(thing))
 			START_PROCESSING(SSprocessing, lava)
+
+/obj/effect/temp_visual/planet_fall_shadow
+	icon = 'icons/effects/planet_descent_heat.dmi'
+	icon_state = "fall_shadow"
+	layer = BELOW_MOB_LAYER
+	randomdir = FALSE
+	duration = OVERMAP_PLANET_FALL_TIME
+
+/obj/effect/temp_visual/planet_fall_shadow/Initialize(mapload)
+	. = ..()
+	transform = matrix(0.3, 0, 0, 0, 0.3, 0)
+	alpha = 40
+	animate(src, transform = matrix(), alpha = 200, time = duration, easing = QUAD_EASING | EASE_IN)
 
 /obj/overmap/planet/proc/footprint_turfs()
 	. = list()
@@ -260,6 +317,7 @@
 
 #undef OVERMAP_PLANET_PULL_RANGE
 #undef OVERMAP_PLANET_FALL_HEIGHT
+#undef OVERMAP_PLANET_FALL_SCALE
 #undef OVERMAP_PLANET_FALL_TIME
 #undef OVERMAP_PLANET_FALL_DAMAGE
 #undef OVERMAP_PLANET_FALL_KNOCKDOWN

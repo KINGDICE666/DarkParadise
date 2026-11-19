@@ -564,6 +564,8 @@
 		sector.add_object(token, spot)
 	token.position = list(0, 0)
 	token.update_overmap_pixel()
+	if(istype(vessel))
+		vessel.remember_pose()
 	SEND_SIGNAL(token, COMSIG_OVERMAP_MOVED)
 	log_admin("[key_name(user)] moved overmap [token] to [sector.id] [coord_x]:[coord_y].")
 

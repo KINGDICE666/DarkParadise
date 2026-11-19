@@ -198,6 +198,7 @@
 	var/overmap_persistent = FALSE
 	var/overmap_velocity = 50
 	var/overmap_radar_visible = FALSE
+	var/overmap_impact_sound
 	var/overmap_effect_until = 0
 	var/obj/overmap/entity/overmap_firer_vessel
 

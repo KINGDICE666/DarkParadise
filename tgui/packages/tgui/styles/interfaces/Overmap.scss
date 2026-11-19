@@ -2232,3 +2232,33 @@ $helm-warn: #ffb347;
   background: #ffd36b;
   box-shadow: 0 0 6px #ffd36b;
 }
+
+.OvermapRadar__routeLeg {
+  stroke: rgba(255, 204, 102, 0.45);
+  stroke-width: 1px;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__routePoint {
+  fill: rgba(255, 204, 102, 0.15);
+  stroke: #ffcc66;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__routeLabel {
+  fill: #ffcc66;
+  font-family: monospace;
+}
+
+.OvermapRadar__velocityHead {
+  fill: none;
+  stroke: #ffd36b;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.OvermapRadar__velocityTick {
+  fill: #ffd36b;
+}

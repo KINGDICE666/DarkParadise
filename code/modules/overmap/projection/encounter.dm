@@ -514,6 +514,10 @@
 			thing.setDir(turn(thing.dir || SOUTH, other.quarter_turns() - quarter_turns()))
 		return TRUE
 	var/list/exit_world = hull_to_world(exit_turf.x, exit_turf.y)
+	if(planet_flyover && !iseffect(thing))
+		var/obj/overmap/planet/below = planet_flyover.planet
+		below.drop_onto_surface(thing, below.surface_turf_at(get_world_x(), get_world_y(), exit_world[1] - get_world_x(), exit_world[2] - get_world_y()))
+		return TRUE
 
 	var/datum/overmap_bubble/bubble = local_space?.static_level ? local_space : null
 	if(!bubble)
@@ -531,8 +535,14 @@
 		var/list/origin = undock_origin
 		if(origin && origin[1] <= length(SSovermap.bubbles_by_z) && SSovermap.bubbles_by_z[origin[1]])
 			landing = locate(clamp(round(origin[2]), 1, world.maxx), clamp(round(origin[3]), 1, world.maxy), origin[1])
+	if(!landing && sector && thing.simulated && (isitem(thing) || carries_mind(thing)))
+		var/datum/overmap_bubble/fresh = SSovermap.create_bubble(sector, exit_world[1], exit_world[2], speed[1], speed[2])
+		if(fresh)
+			bubble = fresh
+			landing = fresh.turf_at(exit_world[1], exit_world[2])
 	if(!landing)
-		log_game("OVERMAP: no landing turf to eject [thing] to at ([exit_world[1]], [exit_world[2]]); staying in transit.")
+		if(carries_mind(thing))
+			log_game("OVERMAP: no landing turf to eject [thing] to at ([exit_world[1]], [exit_world[2]]); staying in transit.")
 		return FALSE
 	if(istype(bullet))
 		if(landing.is_blocked_turf())
@@ -1259,9 +1269,10 @@
 			spot[1] < edges[1] ? spot[1] + edges[3] - edges[1] : (spot[1] > edges[3] ? spot[1] - edges[3] + edges[1] : spot[1]),
 			spot[2] < edges[2] ? spot[2] + edges[4] - edges[2] : (spot[2] > edges[4] ? spot[2] - edges[4] + edges[2] : spot[2]),
 		)
-	if(lavaland_planet?.sector == sector && lavaland_planet.covers_world(spot[1], spot[2]))
-		lavaland_planet.drop_onto_surface(thing)
-		return TRUE
+	for(var/obj/overmap/planet/body as anything in GLOB.overmap_planets)
+		if(body.sector == sector && body.covers_world(spot[1], spot[2]))
+			body.drop_onto_surface(thing)
+			return TRUE
 	if(taipan_entity?.sector == sector && taipan_entity.get_overmap_turf() == sector.turf_at_world(spot[1], spot[2]) && taipan_entity.accept_drifter(thing, outward))
 		return TRUE
 	var/datum/overmap_bubble/station_space = local_space_at(sector, spot[1], spot[2])

@@ -10,6 +10,9 @@
 	var/obj/machinery/atmospherics/unary/ship_engine_feed/fuel_port
 	engine_board = /obj/item/circuitboard/ship_engine_plasma
 	burn_sound_type = /datum/looping_sound/ship_engine/plasma
+	exhaust_kind = "plasma"
+	exhaust_light_color = LIGHT_COLOR_ORANGE
+	exhaust_particle_color = "#ffb070"
 
 /obj/machinery/ship_engine/plasma/get_ru_names()
 	return alist(

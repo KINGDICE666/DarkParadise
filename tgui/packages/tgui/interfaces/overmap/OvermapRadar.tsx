@@ -16,6 +16,38 @@ import { GEOMETRY_FADE, GEOMETRY_FULL, radarWheelZoom } from './radarZoom';
 import { useRadarInterpolation } from './useRadarInterpolation';
 import { WeaponAimPreview } from './WeaponAimPreview';
 
+const NO_ROUTE: number[][] = [];
+const VECTOR_SECONDS = 10;
+const VECTOR_TICK_SECONDS = 5;
+const VECTOR_REACH = 0.85;
+
+const velocityVector = (velocity: number[] | undefined, radius: number) => {
+  if (!velocity) {
+    return null;
+  }
+  const speed = Math.hypot(velocity[0], velocity[1]);
+  if (!speed) {
+    return null;
+  }
+  const unit = [velocity[0] / speed, velocity[1] / speed];
+  const limit = radius ? radius * VECTOR_REACH : speed * VECTOR_SECONDS;
+  const reach = Math.min(speed * VECTOR_SECONDS, limit);
+  const end = [unit[0] * reach, unit[1] * reach];
+  const wing = Math.max(reach * 0.12, radius * 0.015);
+  const back = [end[0] - unit[0] * wing, end[1] - unit[1] * wing];
+  const side = [-unit[1] * wing * 0.5, unit[0] * wing * 0.5];
+  const head = `M ${back[0] + side[0]} ${back[1] + side[1]} L ${end[0]} ${end[1]} L ${back[0] - side[0]} ${back[1] - side[1]}`;
+  const ticks: number[][] = [];
+  for (
+    let time = VECTOR_TICK_SECONDS;
+    speed * time < reach;
+    time += VECTOR_TICK_SECONDS
+  ) {
+    ticks.push([unit[0] * speed * time, unit[1] * speed * time]);
+  }
+  return { unit, end, head, ticks, tickSize: wing * 0.25 };
+};
+
 export type RadarPeel = {
   id: string;
   x: number;
@@ -237,8 +269,9 @@ const ScatterLayer = (props: {
   facing: number;
   followHeading: boolean;
   opacity: number;
+  offset: [number, number];
 }) => {
-  const { chunks, world, facing, followHeading, opacity } = props;
+  const { chunks, world, facing, followHeading, opacity, offset } = props;
   const paths = useMemo(() => {
     const paths = ['', ''];
     for (const chunk of chunks) {
@@ -256,7 +289,7 @@ const ScatterLayer = (props: {
   return (
     <g
       opacity={opacity}
-      transform={`scale(1 -1) rotate(${followHeading ? facing : 0}) translate(${-(world?.[0] || 0)} ${-(world?.[1] || 0)})`}
+      transform={`scale(1 -1) rotate(${followHeading ? facing : 0}) translate(${-offset[0] - (world?.[0] || 0)} ${-offset[1] - (world?.[1] || 0)})`}
     >
       <path d={paths[0]} fill="#bfa58d" />
       <path d={paths[1]} fill="#77cdab" />
@@ -278,6 +311,8 @@ const GeometryLayer = (props: {
   selectedId?: string;
   velocity?: number[];
   stopDistance?: number;
+  radius?: number;
+  offset?: [number, number];
 }) => {
   const {
     terrain,
@@ -293,7 +328,10 @@ const GeometryLayer = (props: {
     selectedId,
     velocity,
     stopDistance = 0,
+    radius = 0,
+    offset = [0, 0],
   } = props;
+  const vector = velocityVector(velocity, radius);
   const paths = useMemo(
     () => ({
       floors: terrain ? runsPath(terrain.floors) : '',
@@ -358,7 +396,7 @@ const GeometryLayer = (props: {
     <g
       className="OvermapRadar__bloom"
       opacity={opacity}
-      transform="scale(1 -1)"
+      transform={`scale(1 -1) rotate(${worldRotation}) translate(${-offset[0]} ${-offset[1]}) rotate(${-worldRotation})`}
     >
       {!!terrain && (
         <g transform={`rotate(${worldRotation})`}>
@@ -372,27 +410,31 @@ const GeometryLayer = (props: {
           </g>
         </g>
       )}
-      {!!velocity && (velocity[0] || velocity[1]) && (
+      {!!vector && !!velocity && (
         <g transform={`rotate(${worldRotation})`}>
           <line
             className="OvermapRadar__velocity"
             x1={0}
             y1={0}
-            x2={velocity[0] * 10}
-            y2={velocity[1] * 10}
+            x2={vector.end[0]}
+            y2={vector.end[1]}
           />
+          <path className="OvermapRadar__velocityHead" d={vector.head} />
+          {vector.ticks.map((tick, index) => (
+            <circle
+              key={index}
+              className="OvermapRadar__velocityTick"
+              cx={tick[0]}
+              cy={tick[1]}
+              r={vector.tickSize}
+            />
+          ))}
           {stopDistance > 1 && (
             <circle
               className="OvermapRadar__stopPoint"
-              cx={
-                (velocity[0] / Math.hypot(velocity[0], velocity[1])) *
-                stopDistance
-              }
-              cy={
-                (velocity[1] / Math.hypot(velocity[0], velocity[1])) *
-                stopDistance
-              }
-              r={2.5}
+              cx={vector.unit[0] * stopDistance}
+              cy={vector.unit[1] * stopDistance}
+              r={Math.max(2.5, radius * 0.01)}
             />
           )}
         </g>
@@ -401,9 +443,12 @@ const GeometryLayer = (props: {
         {drifters.map((drifter, index) => (
           <g key={index} transform={`translate(${drifter[0]} ${drifter[1]})`}>
             {drifter[2] ? (
-              <circle r={0.5} fill="#ff4545" />
+              <circle r={Math.max(0.5, radius * 0.003)} fill="#ff4545" />
             ) : (
-              <circle className="OvermapRadar__drifter" r={2} />
+              <circle
+                className="OvermapRadar__drifter"
+                r={Math.max(2, radius * 0.008)}
+              />
             )}
           </g>
         ))}
@@ -436,17 +481,23 @@ const GeometryLayer = (props: {
                   )}
                 </>
               ) : (
-                <circle className={`OvermapRadar__hull ${tone}`} r={2.5} />
+                <circle
+                  className={`OvermapRadar__hull ${tone}`}
+                  r={Math.max(2.5, radius * 0.012)}
+                />
               )}
               {contact.id === lockedTarget && (
                 <circle
                   className="OvermapRadar__lock"
-                  r={14}
+                  r={Math.max(14, radius * 0.05)}
                   strokeDasharray="6 4"
                 />
               )}
               {contact.id === selectedId && (
-                <circle className="OvermapRadar__select" r={18} />
+                <circle
+                  className="OvermapRadar__select"
+                  r={Math.max(18, radius * 0.065)}
+                />
               )}
             </g>
           );
@@ -819,7 +870,7 @@ const ObjectLayer = (props: {
             );
             const point = object.kind === 'relay' || object.kind === 'portal';
             const span = point
-              ? Math.min(cellSpan * POINT_OBJECT_HALF, radius / 30)
+              ? Math.max(radius / 70, Math.min(cellSpan * POINT_OBJECT_HALF, radius / 30))
               : half;
 
             const unknown = object.kind === 'unknown';
@@ -925,6 +976,7 @@ const SectorLayer = (props: {
   rotation: number;
   offset: [number, number];
   dest?: number[];
+  route?: number[][];
   neighbors?: Record<string, string>;
 }) => {
   const {
@@ -936,6 +988,7 @@ const SectorLayer = (props: {
     rotation,
     offset,
     dest,
+    route = NO_ROUTE,
     neighbors,
   } = props;
   const step = radius > cellSpan * 7 ? 5 : 1;
@@ -1042,7 +1095,7 @@ const SectorLayer = (props: {
   }
   const destX = dest ? (dest[0] - self[0]) * cellSpan : 0;
   const destY = dest ? (dest[1] - self[1]) * cellSpan : 0;
-  const mark = Math.min(cellSpan * 0.3, radius * 0.035);
+  const mark = Math.max(radius * 0.014, Math.min(cellSpan * 0.3, radius * 0.035));
   return (
     <g opacity={opacity} transform="scale(1 -1)">
       <g transform={`rotate(${rotation})`}>
@@ -1087,6 +1140,38 @@ const SectorLayer = (props: {
               />
             </g>
           )}
+          {!!dest &&
+            route.map((point, index) => {
+              const from = index ? route[index - 1] : dest;
+              const pointX = (point[0] - self[0]) * cellSpan;
+              const pointY = (point[1] - self[1]) * cellSpan;
+              return (
+                <g key={`${index}-${point[0]}-${point[1]}`}>
+                  <line
+                    className="OvermapRadar__routeLeg"
+                    x1={(from[0] - self[0]) * cellSpan}
+                    y1={(from[1] - self[1]) * cellSpan}
+                    x2={pointX}
+                    y2={pointY}
+                  />
+                  <circle
+                    className="OvermapRadar__routePoint"
+                    cx={pointX}
+                    cy={pointY}
+                    r={mark * 0.7}
+                  />
+                  <text
+                    className="OvermapRadar__routeLabel"
+                    x={pointX + mark}
+                    y={-(pointY + mark)}
+                    fontSize={mark * 1.6}
+                    transform="scale(1 -1)"
+                  >
+                    {index + 2}
+                  </text>
+                </g>
+              );
+            })}
         </g>
       </g>
     </g>
@@ -1677,13 +1762,14 @@ export const OvermapRadar = (props: {
   onToggleFollow?: () => void;
 
   dest?: number[];
+  route?: number[][];
 
   filter?: string;
 
   hazardFields?: HazardField[];
   overlay?: ReactNode;
   onSelectObject?: (id: string) => void;
-  onSelectPoint?: (x: number, y: number, ctrl?: boolean) => void;
+  onSelectPoint?: (x: number, y: number, ctrl?: boolean, shift?: boolean) => void;
   scatter?: RadarScatterChunk[];
   peels?: RadarPeel[];
   dockTargets?: RadarDock[];
@@ -1771,7 +1857,59 @@ export const OvermapRadar = (props: {
       ]
     : [0, 0];
 
-  const chartOffset = offset;
+  const [pan, setPan] = useState<[number, number]>([0, 0]);
+  const panDrag = useRef<{
+    start: number[];
+    pan: [number, number];
+    moved: boolean;
+  } | null>(null);
+  const chartOffset: [number, number] = [offset[0] + pan[0], offset[1] + pan[1]];
+  const screenPoint = (event: { clientX: number; clientY: number }) => {
+    const bounds = scope.current?.getBoundingClientRect();
+    if (!bounds) return null;
+    const side = Math.min(bounds.width, bounds.height);
+    return [
+      ((event.clientX - bounds.left - bounds.width / 2) * 2) / side,
+      ((event.clientY - bounds.top - bounds.height / 2) * 2) / side,
+    ];
+  };
+  useEffect(() => {
+    if (galaxyBand && (pan[0] || pan[1])) {
+      setPan([0, 0]);
+    }
+  }, [galaxyBand]);
+  const startPan = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button !== 1 || galaxyBand || !world) return;
+    event.preventDefault();
+    const start = screenPoint(event);
+    if (!start) return;
+    panDrag.current = { start, pan, moved: false };
+    const move = (moveEvent: globalThis.MouseEvent) => {
+      const drag = panDrag.current;
+      const now = screenPoint(moveEvent);
+      if (!drag || !now) return;
+      const base: [number, number] = [
+        offset[0] + drag.pan[0],
+        offset[1] + drag.pan[1],
+      ];
+      const from = radarClickWorld(drag.start, radius, rotation, world, base);
+      const to = radarClickWorld(now, radius, rotation, world, base);
+      if (Math.hypot(now[0] - drag.start[0], now[1] - drag.start[1]) > 0.01) {
+        drag.moved = true;
+      }
+      setPan([drag.pan[0] + from[0] - to[0], drag.pan[1] + from[1] - to[1]]);
+    };
+    const stop = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', stop);
+      if (panDrag.current && !panDrag.current.moved) {
+        setPan([0, 0]);
+      }
+      panDrag.current = null;
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', stop);
+  };
 
   const reach =
     geometry > 0.01
@@ -1796,12 +1934,17 @@ export const OvermapRadar = (props: {
       return;
     }
     event.preventDefault();
-    onZoom(
-      clampRadarZoom(
-        radarWheelZoom(radius, event.deltaY > 0, galaxyBandRadius),
-        zoomCeiling,
-      ),
+    const next = clampRadarZoom(
+      radarWheelZoom(radius, event.deltaY > 0, galaxyBandRadius),
+      zoomCeiling,
     );
+    const cursor = screenPoint(event);
+    if (cursor && world && !galaxyBand && next <= galaxyBandRadius) {
+      const before = radarClickWorld(cursor, radius, rotation, world, chartOffset);
+      const after = radarClickWorld(cursor, next, rotation, world, chartOffset);
+      setPan([pan[0] + before[0] - after[0], pan[1] + before[1] - after[1]]);
+    }
+    onZoom(next);
   };
   const selectPoint = (event: MouseEvent<HTMLDivElement>, firing: boolean) => {
     if (galaxyBand || props.overlay || !props.onSelectPoint || !world) return;
@@ -1822,7 +1965,7 @@ export const OvermapRadar = (props: {
     if (Math.hypot(...screen) > 1) return;
     const point = radarClickWorld(screen, radius, rotation, world, chartOffset);
     if (firing) event.stopPropagation();
-    props.onSelectPoint(point[0], point[1], event.ctrlKey);
+    props.onSelectPoint(point[0], point[1], event.ctrlKey, event.shiftKey);
   };
   return (
     <div className="OvermapRadar" onWheel={wheel}>
@@ -1847,6 +1990,8 @@ export const OvermapRadar = (props: {
       <div
         className="OvermapRadar__scope"
         ref={scope}
+        onMouseDown={startPan}
+        onAuxClick={(event) => event.preventDefault()}
         onClickCapture={(event) => {
           if (props.weaponArcs?.length && props.aimOnClick !== false)
             selectPoint(event, true);
@@ -2094,6 +2239,7 @@ export const OvermapRadar = (props: {
                   facing={facing}
                   followHeading={followHeading}
                   opacity={geometry}
+                  offset={chartOffset}
                 />
               )}
               <GeometryLayer
@@ -2112,6 +2258,8 @@ export const OvermapRadar = (props: {
                 selectedId={props.selectedId}
                 velocity={props.velocity}
                 stopDistance={props.stopDistance}
+                radius={radius}
+                offset={chartOffset}
               />
               {!!props.weaponArcs?.length && rawWorld && (
                 <g
@@ -2204,6 +2352,7 @@ export const OvermapRadar = (props: {
                 rotation={rotation}
                 offset={chartOffset}
                 dest={dest}
+                route={props.route}
                 neighbors={sectorNeighbors}
               />
             </>
@@ -2231,7 +2380,7 @@ export const OvermapRadar = (props: {
             objects={objects}
             self={self}
             geometry={geometry}
-            offset={offset}
+            offset={chartOffset}
             filter={filter}
           />
         )}

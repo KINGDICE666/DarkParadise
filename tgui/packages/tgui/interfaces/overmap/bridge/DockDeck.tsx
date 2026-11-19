@@ -44,9 +44,15 @@ export const DockDeck = () => {
   const craft = data.docked_craft || [];
   const busy = !!data.gunner || !!data.programmed_locked;
   const pickedAirlock =
-    pick?.kind === 'airlock' && airlocks.find((dock) => dock.id === pick.id);
+    pick?.kind === 'airlock' &&
+    airlocks.find(
+      (dock) =>
+        dock.id === pick.id &&
+        !(dock.available === false || dock.available === 0),
+    );
   const pickedPad =
-    pick?.kind === 'pad' && pads.find((pad) => pad.id === pick.id);
+    pick?.kind === 'pad' &&
+    pads.find((pad) => pad.id === pick.id && pad.can_dock);
   const approach = () => {
     if (pickedAirlock) {
       act('select_radar_dock', { id: pickedAirlock.id });
@@ -189,6 +195,19 @@ export const DockDeck = () => {
                   : 'выберите шлюз'}
               </small>
             </button>
+          )}
+          {!docked && !!data.planet_landing && (
+            <Btn
+              disabled={busy || flightLocked}
+              title={
+                data.planet_landing_rough
+                  ? 'Жёсткий вход в атмосферу: тряска и ЭМИ при снижении'
+                  : 'Выбрать точку и сесть на поверхность'
+              }
+              onClick={() => act('planet_land')}
+            >
+              {data.planet_landing_rough ? 'ПОСАДКА (ЖЁСТКАЯ)' : 'ПОСАДКА'}
+            </Btn>
           )}
           <Btn
             disabled={busy || !data.can_stop}

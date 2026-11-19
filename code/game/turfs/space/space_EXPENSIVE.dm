@@ -45,5 +45,6 @@
 	AddComponent(/datum/component/blob_turf_consuming, 4)
 
 /turf/space/Destroy()
-	GLOB.starlight -= src
+	if(light_on)
+		GLOB.starlight -= src
 	return ..()

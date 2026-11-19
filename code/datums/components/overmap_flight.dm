@@ -7,6 +7,8 @@
 	var/autopilot = FALSE
 	var/autopilot_x
 	var/autopilot_y
+	var/list/route = list()
+	var/route_started = FALSE
 	var/facing = 0
 	var/angular_velocity = 0
 	var/mob/pilot
@@ -27,6 +29,7 @@
 
 	var/autopilot_status = ""
 	var/cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_CRUISE_DEFAULT)
+	var/cruise_set = FALSE
 	var/datum/overmap_navigation/navigation
 	var/navigation_world_x
 	var/navigation_world_y
@@ -53,6 +56,7 @@
 	src.fixed_facing = fixed_facing
 	if(istype(parent, /obj/overmap/entity/pod))
 		cruise_speed = OVERMAP_FROM_DISPLAY(OVERMAP_POD_CRUISE)
+		cruise_set = TRUE
 
 /datum/component/overmap_flight/RegisterWithParent()
 	var/obj/overmap/entity/token = parent
@@ -306,7 +310,7 @@
 	vessel.speed[1] += accel_x * cos(facing) + accel_y * sin(facing)
 	vessel.speed[2] += accel_y * cos(facing) - accel_x * sin(facing)
 
-	var/limit = min(vessel.max_speed, max(cruise_speed, before))
+	var/limit = min(vessel.max_speed, max(autopilot ? get_effective_cruise() : cruise_speed, before))
 	var/current = sqrt(vessel.speed[1] ** 2 + vessel.speed[2] ** 2)
 	if(current > limit)
 		vessel.speed[1] *= limit / current
@@ -451,6 +455,8 @@
 		release_pilot()
 		held_brake = FALSE
 		engines_state = TRUE
+	if((!isnull(dest_x) && dest_x != autopilot_x) || (!isnull(dest_y) && dest_y != autopilot_y))
+		route_started = FALSE
 	if(!isnull(dest_x))
 		autopilot_x = dest_x
 	if(!isnull(dest_y))
@@ -464,6 +470,47 @@
 		autopilot = FALSE
 	if(!autopilot)
 		autopilot_status = ""
+	sync_route_leg()
+
+/datum/component/overmap_flight/proc/add_route_point(dest_x, dest_y)
+	var/obj/overmap/entity/vessel = parent
+	if(vessel.sector)
+		dest_x = clamp(dest_x, 1, vessel.sector.size)
+		dest_y = clamp(dest_y, 1, vessel.sector.size)
+	if(isnull(autopilot_x) || isnull(autopilot_y) || (!autopilot && !route_started))
+		route.Cut()
+		set_autopilot(autopilot, dest_x, dest_y)
+		route_started = TRUE
+		return
+	if(length(route) >= OVERMAP_ROUTE_MAX_POINTS)
+		return
+	route += list(list(dest_x, dest_y))
+	sync_route_leg()
+
+/datum/component/overmap_flight/proc/sync_route_leg()
+	var/obj/overmap/entity/vessel = parent
+	if(!isnull(navigation_world_x) || !vessel.sector)
+		return
+	if(!length(route))
+		navigation_pass_through = FALSE
+		navigation_next_point = null
+		navigation_arrival_range = OVERMAP_AUTOPILOT_ARRIVE_RANGE
+		return
+	var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
+	var/list/after = route[1]
+	navigation_pass_through = TRUE
+	navigation_arrival_range = OVERMAP_AUTOPILOT_PASS_RANGE
+	navigation_next_point = list((vessel.sector.origin_x + after[1] - 1) * span, (vessel.sector.origin_y + after[2] - 1) * span)
+
+/datum/component/overmap_flight/proc/advance_route()
+	if(!length(route))
+		return FALSE
+	var/list/next = route[1]
+	route.Cut(1, 2)
+	autopilot_x = next[1]
+	autopilot_y = next[2]
+	sync_route_leg()
+	return TRUE
 
 /datum/component/overmap_flight/proc/process_autopilot(elapsed)
 	return process_navigation(elapsed)
@@ -475,7 +522,10 @@
 	return delta_to_angle(vessel.speed[1], vessel.speed[2])
 
 /datum/component/overmap_flight/proc/get_effective_cruise()
+	var/obj/overmap/entity/vessel = parent
 	var/limit = cruise_speed
+	if(autopilot && !cruise_set && isnull(navigation_world_x))
+		limit = vessel.max_speed
 	if(navigation_speed_limited())
 		limit = min(limit, OVERMAP_FROM_DISPLAY(OVERMAP_PROGRAMMED_CRUISE))
 

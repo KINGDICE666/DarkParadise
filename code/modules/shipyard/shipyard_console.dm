@@ -203,7 +203,7 @@
 	SStgui.update_uis(src)
 
 /obj/machinery/computer/camera_advanced/shipyard/proc/save_design(mob/user)
-	var/path = "data/shipyard/[user.ckey]_[world.time].json"
+	var/path = "data/shipyard/[user.ckey].json"
 	fdel(path)
 	text2file(design.export_json(), path)
 	DIRECT_OUTPUT(user, ftp(file(path), "[ckey(design.name) || "shuttle"].json"))
@@ -231,10 +231,27 @@
 			if(!isspaceturf(spot))
 				return "Площадка сборки занята: сначала уведите прошлый корабль."
 			for(var/atom/movable/thing as anything in spot)
+				if(istype(thing, /obj/docking_port/stationary))
+					if(pad_awaited(thing))
+						return "На площадку сборки заходит корабль."
+					continue
 				if(iseffect(thing) || isobserver(thing) || istype(thing, /mob/camera))
 					continue
 				return "На площадке сборки посторонние предметы или люди."
 	return null
+
+/obj/machinery/computer/camera_advanced/shipyard/proc/clear_old_pads()
+	for(var/local_x in 1 to zone_width)
+		for(var/local_y in 1 to zone_height)
+			for(var/obj/docking_port/stationary/pad in zone_turf(local_x, local_y))
+				if(!pad.get_docked() && !pad_awaited(pad))
+					qdel(pad, force = TRUE)
+
+/obj/machinery/computer/camera_advanced/shipyard/proc/pad_awaited(obj/docking_port/stationary/pad)
+	for(var/obj/docking_port/mobile/port as anything in SSshuttle.mobile)
+		if(port.destination == pad)
+			return TRUE
+	return FALSE
 
 /obj/machinery/computer/camera_advanced/shipyard/proc/start_build(mob/user)
 	if(building || paying)
@@ -258,9 +275,7 @@
 	loader.use_sheets(stats["metal"], stats["glass"], stats["plasma"])
 	var/paid = stats["credits"] <= 0 || pay_with_card(user, stats["credits"], "постройка шаттла «[design.name]»")
 	paying = FALSE
-	if(QDELETED(src))
-		return
-	if(!paid)
+	if(!paid || QDELETED(src))
 		if(!QDELETED(loader))
 			loader.add_sheets(stats["metal"], stats["glass"], stats["plasma"])
 		return
@@ -269,6 +284,7 @@
 
 /obj/machinery/computer/camera_advanced/shipyard/proc/begin_construction()
 	building = TRUE
+	clear_old_pads()
 	build_started = world.time
 	build_duration = rand(SHIPYARD_BUILD_TIME_MIN, SHIPYARD_BUILD_TIME_MAX)
 	build_queue = design.build_steps()
@@ -309,6 +325,10 @@
 		last_spot = zone_turf(step[2], step[3])
 		qdel(holograms[build_done])
 		part.build(last_spot, step[4], step[5], step[6])
+		if(traps_occupants(last_spot))
+			for(var/atom/movable/stuck in last_spot)
+				if((isliving(stuck) || isitem(stuck)) && !stuck.anchored)
+					stuck.forceMove(get_turf(src))
 	if(last_spot)
 		do_sparks(3, TRUE, last_spot)
 		playsound(last_spot, 'sound/items/welder.ogg', 40, TRUE)
@@ -317,6 +337,14 @@
 		return
 	build_timer = addtimer(CALLBACK(src, PROC_REF(construction_tick)), SHIPYARD_BUILD_TICK, TIMER_STOPPABLE)
 
+/obj/machinery/computer/camera_advanced/shipyard/proc/traps_occupants(turf/spot)
+	if(spot.density)
+		return TRUE
+	for(var/atom/movable/thing as anything in spot)
+		if(thing.density && !ismob(thing) && !(thing.flags & ON_BORDER) && !HAS_TRAIT(thing, TRAIT_CLIMBABLE))
+			return TRUE
+	return FALSE
+
 /obj/machinery/computer/camera_advanced/shipyard/proc/finish_construction()
 	QDEL_LIST(holograms)
 	building = FALSE
@@ -324,6 +352,9 @@
 	update_icon()
 	var/ship_name = build_hull.name
 	var/obj/overmap/entity/vessel = SSovermap.commission_custom_shuttle(build_hull, build_turfs, SSovermap.service_sites[OVERMAP_SITE_SHIPYARD])
+	for(var/turf/tile as anything in build_turfs)
+		for(var/obj/docking_port/stationary/pad in tile)
+			pad.area_type = /area/space/shipyard_zone
 	atom_say(vessel ? "Шаттл «[ship_name]» построен и внесён в реестр полётов." : "Шаттл «[ship_name]» построен, но внести его в реестр полётов не удалось.")
 	log_game("Shipyard finished building shuttle [ship_name] ([vessel ? "registered" : "not registered"]).")
 	build_hull = null

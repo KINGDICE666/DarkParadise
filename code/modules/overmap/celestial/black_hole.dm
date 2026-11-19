@@ -1,9 +1,9 @@
 #define BLACK_HOLE_EMP_CHANCE 40
 #define BLACK_HOLE_DEBRIS_CHANCE 10
-#define BLACK_HOLE_CORE_BLAST_CHANCE 30
 #define BLACK_HOLE_CORE_SOUND_VOLUME 70
-#define BLACK_HOLE_TEAR_DAMAGE 30
-#define BLACK_HOLE_TEAR_MESSAGE_CHANCE 30
+#define BLACK_HOLE_CORE_RADIATION_RANGE 8
+#define BLACK_HOLE_CORE_RADIATION_THRESHOLD 0.05
+#define BLACK_HOLE_CORE_PULSES 3
 
 /obj/overmap/celestial/black_hole
 	name = "black hole"
@@ -28,7 +28,7 @@
 
 /obj/overmap/celestial/black_hole/zone_warning(zone)
 	if(zone == OVERMAP_CELESTIAL_ZONE_CORE)
-		return "КРИТИЧЕСКАЯ ОПАСНОСТЬ: корабль пересёк горизонт событий. Корпус разрывает приливными силами!"
+		return "КРИТИЧЕСКАЯ ОПАСНОСТЬ: корабль пересёк горизонт событий. Зафиксировано мощнейшее радиоактивное излучение, требуется аварийный прыжок!"
 	return ..()
 
 /obj/overmap/celestial/black_hole/warn_vessel(obj/overmap/entity/vessel, zone)
@@ -38,20 +38,32 @@
 	for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
 		crew.playsound_local(get_turf(crew), 'sound/overmap/black_hole_core.ogg', BLACK_HOLE_CORE_SOUND_VOLUME, FALSE)
 
+/obj/overmap/celestial/black_hole/affects(obj/overmap/entity/vessel)
+	if(istype(vessel, /obj/overmap/entity/station/ship))
+		return !QDELETED(vessel) && vessel.sector == sector && vessel.movable && !vessel.halted && isturf(vessel.loc) && !vessel.landed_planet
+	return ..()
+
+/obj/overmap/celestial/black_hole/core_tick(obj/overmap/entity/vessel)
+	vessel.horizon_seen_at = world.time
+	for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
+		crew.apply_status_effect(/datum/status_effect/event_horizon)
+
 /obj/overmap/celestial/black_hole/affect_vessel(obj/overmap/entity/vessel, zone)
 	var/turf/spot = overmap_vessel_structure_turf(vessel)
 	if(!spot)
 		return
 	if(zone == OVERMAP_CELESTIAL_ZONE_CORE)
-		if(prob(BLACK_HOLE_CORE_BLAST_CHANCE))
-			explosion(spot, devastation_range = 1, heavy_impact_range = 2, light_impact_range = 4, adminlog = FALSE, cause = "overmap black hole horizon")
-		vessel.shake_shuttle(2 SECONDS, 4)
+		vessel.shake_shuttle(1 SECONDS, 2)
+		for(var/pulse in 1 to BLACK_HOLE_CORE_PULSES)
+			var/turf/source = overmap_vessel_structure_turf(vessel)
+			if(source)
+				radiation_pulse(source, max_range = BLACK_HOLE_CORE_RADIATION_RANGE, threshold = BLACK_HOLE_CORE_RADIATION_THRESHOLD, chance = 100)
 		for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
-			crew.adjustBruteLoss(BLACK_HOLE_TEAR_DAMAGE)
-			if(prob(BLACK_HOLE_TEAR_MESSAGE_CHANCE))
-				to_chat(crew, span_userdanger("Вас вытягивает и разрывает приливными силами!"))
+			SSradiation.irradiate(crew)
 		return
 	vessel.shake_shuttle(1 SECONDS, 1)
+	if(vessel == SSovermap.station_entity)
+		return
 	if(prob(BLACK_HOLE_EMP_CHANCE))
 		empulse(spot, 1, 4, FALSE, "overmap accretion disk")
 	if(prob(BLACK_HOLE_DEBRIS_CHANCE))
@@ -59,7 +71,7 @@
 
 #undef BLACK_HOLE_EMP_CHANCE
 #undef BLACK_HOLE_DEBRIS_CHANCE
-#undef BLACK_HOLE_CORE_BLAST_CHANCE
 #undef BLACK_HOLE_CORE_SOUND_VOLUME
-#undef BLACK_HOLE_TEAR_DAMAGE
-#undef BLACK_HOLE_TEAR_MESSAGE_CHANCE
+#undef BLACK_HOLE_CORE_RADIATION_RANGE
+#undef BLACK_HOLE_CORE_RADIATION_THRESHOLD
+#undef BLACK_HOLE_CORE_PULSES

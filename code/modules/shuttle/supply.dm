@@ -660,6 +660,9 @@
 			// Public consoles cant move the shuttle. Dont allow exploiters.
 			if(is_public)
 				return
+			if(centcom_blackout() && SSshuttle.supply.getDockedId() != "supply_away")
+				to_chat(usr, span_warning("Шаттл снабжения не может уйти на Центральное Командование: связи с ним нет."))
+				return
 			if(!SSshuttle.supply.canMove())
 				to_chat(usr, span_warning("По соображениям безопасности шаттл снабжения не может перемещать живые организмы, ядерное оружие или маячки перемещения."))
 				return

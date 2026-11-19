@@ -219,7 +219,13 @@ const BridgeRadar = (props: {
         }
         setSelection(next);
       }}
-      onSelectPoint={(x, y, ctrl) => {
+      onSelectPoint={(x, y, ctrl, shift) => {
+        if (shift && post === 'nav' && !data.gunner) {
+          if (!flightLocked) {
+            act('route_point', { x, y });
+          }
+          return;
+        }
         if (post === 'tac') {
           if (ctrl && armed.length) {
             act('radar_point', { x, y });
@@ -268,6 +274,7 @@ const BridgeRadar = (props: {
       }}
       followHeading={props.follow}
       dest={data.dest}
+      route={data.route}
       hazardFields={data.hazard_fields || NO_FIELDS}
       lockedTarget={data.fire_target?.id}
       velocity={
@@ -314,7 +321,7 @@ const RouteLock = () => {
             ) : (
               <Btn
                 on
-                disabled={!routes.length}
+                disabled={!routes.length || !data.programmed_selected}
                 onClick={() =>
                   act('execute_programmed', { id: data.programmed_selected })
                 }

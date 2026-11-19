@@ -6,6 +6,16 @@
 	map_color = "#7ec8e3"
 
 	var/project_terrain = TRUE
+	var/datum/planet_sky/crash/planet_crash
+	var/datum/planet_sky/flyover/planet_flyover
+	var/crash_grounded = FALSE
+	var/planet_stall_at
+	var/void_alarm_at = 0
+	var/rough_landing_until = 0
+	var/obj/overmap/planet/landed_planet
+	var/station_falling = FALSE
+	var/horizon_seen_at
+	var/horizon_jumping = FALSE
 	var/vessel_flags = OVERMAP_VESSEL_STATION
 	var/status = OVERMAP_STATUS_OVERMAP
 	var/vessel_mass = 10000

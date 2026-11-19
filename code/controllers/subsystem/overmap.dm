@@ -33,6 +33,8 @@ SUBSYSTEM_DEF(overmap)
 	var/obj/overmap/entity/station_entity
 	var/obj/overmap/entity/taipan_site/taipan_entity
 	var/obj/overmap/planet/lavaland_planet
+	var/datum/overmap_sector/wilderness/unknown/unknown_sector
+	var/unknown_sector_building = FALSE
 	var/obj/overmap/entity/planet_station/lavaland_entity
 	var/list/obj/overmap/entity/service_site/service_sites = list()
 	var/list/obj/overmap/entity/service_site/service_sites_by_area = list()
@@ -182,7 +184,9 @@ SUBSYSTEM_DEF(overmap)
 		if(QDELETED(hazard))
 			continue
 		hazard.process_tick(elapsed)
-	lavaland_planet?.pull_drifters()
+	for(var/obj/overmap/planet/body as anything in GLOB.overmap_planets)
+		body.pull_drifters()
+		body.capture_derelicts(elapsed)
 	expire_bubbles()
 
 /datum/controller/subsystem/overmap/proc/create_typed_sector(sector_type)
@@ -769,6 +773,8 @@ SUBSYSTEM_DEF(overmap)
 		var/list/velocity = bubble?.drift_velocity()
 		if(vessel)
 			drift_viewer(viewer, vessel.speed[1], vessel.speed[2], vessel.get_facing(), elapsed)
+			vessel.planet_flyover?.aim_viewer(viewer, elapsed)
+			vessel.planet_crash?.aim_viewer(viewer, elapsed)
 		else if(velocity && (velocity[1] || velocity[2] || bubble.frame_facing()))
 			drift_viewer(viewer, velocity[1], velocity[2], bubble.frame_facing(), elapsed)
 		else if(viewer in drifting_viewers)
@@ -778,6 +784,8 @@ SUBSYSTEM_DEF(overmap)
 	drifting_viewers |= viewer
 	var/scroll = OVERMAP_PARALLAX_SCROLL * elapsed
 	for(var/atom/movable/screen/parallax_layer/layer as anything in viewer.parallax_rock.parallax_layers)
+		layer.set_ship_velocity(speed_x, speed_y)
+		layer.set_ship_facing(facing, elapsed)
 		if(!layer.absolute)
 			layer.set_ship_drift(speed_x * scroll, speed_y * scroll, facing, elapsed)
 

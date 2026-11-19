@@ -7,6 +7,18 @@ import { kindIcon, visibleObjects } from './selection';
 
 const QUICK_OBJECTS = 4;
 
+const pointWord = (count: number) => {
+  const tens = count % 100;
+  const units = count % 10;
+  if (tens >= 11 && tens <= 14) {
+    return 'точек';
+  }
+  if (units === 1) {
+    return 'точка';
+  }
+  return units >= 2 && units <= 4 ? 'точки' : 'точек';
+};
+
 const RoutePlate = () => {
   const { data } = useBridge();
   if (!data.dest || !data.dest_name) {
@@ -37,6 +49,9 @@ const RoutePlate = () => {
           {decimal(cells)} кл · пеленг{' '}
           {degrees(bearingTo(data, data.dest[0], data.dest[1]))} ·{' '}
           {travelText(data, cells)} при {Math.round(data.cruise || 0)} м/с
+          {data.route?.length
+            ? ` · ещё ${data.route.length} ${pointWord(data.route.length)} маршрута`
+            : ''}
         </small>
       </div>
     </div>
@@ -151,8 +166,8 @@ export const NavDeck = () => {
         <QuickPoints />
         <Routes />
         <div className="Bridge__keys Bridge__keys--foot">
-          клик по радару — выбрать · двойной клик — проложить курс · ПКМ — снять
-          выбор
+          клик по радару — выбрать · двойной клик — проложить курс · Shift+клик —
+          добавить точку маршрута · ПКМ — снять выбор
         </div>
       </div>
       <div className="Bridge__stack Bridge__side">
@@ -179,6 +194,16 @@ export const NavDeck = () => {
         {data.programmed_cancellable ? (
           <Btn ghost onClick={() => act('cancel_programmed')}>
             ОТМЕНИТЬ АВТОМАРШРУТ
+          </Btn>
+        ) : null}
+        {data.horizon_jump ? (
+          <Btn
+            className="Bridge__grow"
+            disabled={flightLocked}
+            title="Слепой прыжок из-за горизонта событий в неизвестный сектор"
+            onClick={() => act('horizon_jump')}
+          >
+            ГИПЕРПРЫЖОК В НЕИЗВЕСТНОСТЬ
           </Btn>
         ) : null}
         <div className="Bridge__cols">

@@ -407,6 +407,10 @@
 	var/obj/overmap/entity/vessel = parent
 	if(vessel.overmap_kind != OVERMAP_KIND_SHUTTLE)
 		return "Судно уже в открытом космосе."
+	if(vessel.crash_grounded)
+		if(!vessel.has_working_engines())
+			return "После крушения взлёт невозможен: двигатели не работают."
+		vessel.crash_grounded = FALSE
 	if(!vessel.shuttle)
 		vessel.release_to_overmap()
 		return TRUE
@@ -507,6 +511,8 @@
 		return
 	owned_docks_dirty = TRUE
 	reset_collar_cache()
+	if(vessel.crash_grounded && new_dock.id != "[port.id]_overmap_crash")
+		vessel.crash_grounded = FALSE
 	if(vessel.formation_transfer)
 		return
 	var/obj/docking_port/stationary/overmap/landing/previous_stop = SSshuttle.getDock(vessel.last_dock_id, warn = FALSE)

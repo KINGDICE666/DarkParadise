@@ -125,6 +125,9 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 		return dir2angle(mount_dir) + vessel.get_facing()
 	return dir2angle(mount_dir) + SSovermap.frame_heading(SSovermap.frame_owner(mount_turf))
 
+/datum/component/ship_weapon/proc/hull_angle(obj/overmap/entity/vessel, world_angle)
+	return SIMPLIFY_DEGREES(world_angle - heading(vessel) + dir2angle(mount_dir))
+
 /datum/component/ship_weapon/proc/can_aim(obj/overmap/entity/vessel, x, y)
 	if(QDELETED(vessel))
 		return FALSE
@@ -198,6 +201,9 @@ GLOBAL_LIST_EMPTY(overmap_weapons)
 	if(!SSovermap.launch_sector_projectile(shot, vessel.sector, point[1], point[2], angle, vessel, manual))
 		qdel(shot)
 		return FALSE
+	var/obj/machinery/ship_gun/fired_cannon = gun
+	if(istype(fired_cannon))
+		fired_cannon.fire_effects(hull_angle(vessel, angle))
 	if(user)
 		log_attack("[key_name(user)] fired [gun] from [vessel.get_overmap_display_name()] at overmap [vessel.sector.id] ([round(x, 0.1)], [round(y, 0.1)]).")
 	return TRUE

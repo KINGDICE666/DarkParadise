@@ -36,6 +36,7 @@
 	#define OVERMAP_LEVEL "Overmap"
 	#define ZTRAIT_SNOWSTORM "Weather_Snowstorm"
 	#define ZTRAIT_ASHSTORM "Weather_Ashstorm"
+	#define ZTRAIT_ACID_RAIN "Weather_Acidrain"
 
 // Level names
 	#define CENTCOMM "CentComm"

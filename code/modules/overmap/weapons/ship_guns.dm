@@ -1,3 +1,6 @@
+#define SHIP_GUN_SHAKE_RANGE 3
+#define SHIP_GUN_TURN_TIME (0.15 SECONDS)
+
 GLOBAL_LIST_EMPTY(ship_guns)
 
 /obj/machinery/ship_gun
@@ -12,6 +15,9 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	resistance_flags = FIRE_PROOF
 	var/projectile_type = /obj/projectile/bullet/ship_autocannon
 	var/fire_sound = 'sound/weapons/gunshots/gunshot_mg.ogg'
+	var/fire_echo = 'sound/effects/explosion_distant.ogg'
+	var/fire_shake = 1
+	var/turret = FALSE
 	var/fire_delay = 2 SECONDS
 	var/burst = 1
 	var/burst_delay = 0
@@ -60,6 +66,8 @@ GLOBAL_LIST_EMPTY(ship_guns)
 
 /obj/machinery/ship_gun/shuttleRotate(rotation, params)
 	. = ..()
+	if(turret)
+		transform = matrix()
 	SEND_SIGNAL(src, COMSIG_OVERMAP_WEAPON_ROTATED, rotation)
 
 /obj/machinery/ship_gun/examine(mob/user)
@@ -85,8 +93,22 @@ GLOBAL_LIST_EMPTY(ship_guns)
 		return null
 	if(max_ammo)
 		ammo -= ammo_per_shot
-	playsound(src, fire_sound, 60, TRUE, extrarange = 6)
 	return new projectile_type(null)
+
+/obj/machinery/ship_gun/proc/fire_effects(hull_angle)
+	playsound(src, fire_sound, 75, TRUE, extrarange = 8)
+	if(fire_echo)
+		playsound(src, fire_echo, 35, TRUE, extrarange = 16)
+	if(turret)
+		face_hull_angle(hull_angle)
+	var/obj/effect/temp_visual/dir_setting/firing_effect/flash = new(get_turf(src), angle2dir(hull_angle))
+	flash.pixel_w = round(sin(hull_angle) * 12)
+	flash.pixel_z = round(cos(hull_angle) * 12)
+	for(var/mob/living/nearby in range(SHIP_GUN_SHAKE_RANGE, src))
+		shake_camera(nearby, 1, fire_shake)
+
+/obj/machinery/ship_gun/proc/face_hull_angle(hull_angle)
+	animate(src, transform = matrix().Turn(hull_angle - dir2angle(dir)), time = SHIP_GUN_TURN_TIME)
 
 /obj/machinery/ship_gun/item_interaction(mob/living/user, obj/item/used, list/modifiers)
 	if(!ammo_type || !istype(used, ammo_type))
@@ -137,7 +159,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 		if((threat.world_x - point[1]) ** 2 + (threat.world_y - point[2]) ** 2 > OVERMAP_PD_RANGE ** 2)
 			continue
 		ammo = max(ammo - OVERMAP_PD_AMMO, 0)
-		playsound(src, fire_sound, 50, TRUE, extrarange = 4)
+		fire_effects(weapon.hull_angle(vessel, delta_to_angle(threat.world_x - point[1], threat.world_y - point[2])))
 		if(prob(OVERMAP_PD_CHANCE))
 			SSovermap.show_sector_explosion(threat.sector, threat.world_x, threat.world_y)
 			qdel(threat)
@@ -148,15 +170,21 @@ GLOBAL_LIST_EMPTY(ship_guns)
 
 /obj/machinery/ship_gun/autocannon
 	name = "ship autocannon"
-	desc = "Скорострельная кинетическая пушка. В автоматическом режиме сбивает торпеды, подлетающие к кораблю."
-	burst = 3
-	burst_delay = 0.15 SECONDS
+	desc = "Скорострельная кинетическая турель с круговым обстрелом. В автоматическом режиме сбивает торпеды, подлетающие к кораблю."
+	fire_sound = 'sound/weapons/gunshots/gunshot_strong.ogg'
+	turret = TRUE
+	burst = 4
+	burst_delay = 0.12 SECONDS
 	fire_delay = 1.5 SECONDS
-	arc = 120
+	arc = 360
 	ammo_type = /obj/item/ship_ammo/autocannon
 	max_ammo = 90
 	point_defense = TRUE
 	board_path = /obj/item/circuitboard/ship_gun/autocannon
+
+/obj/machinery/ship_gun/autocannon/fire_effects(hull_angle)
+	. = ..()
+	playsound(src, SFX_CASING_DROP, 30, TRUE)
 
 /obj/machinery/ship_gun/autocannon/get_ru_names()
 	return alist(
@@ -174,6 +202,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	icon_state = "orange_target_prism"
 	projectile_type = /obj/projectile/beam/ship_laser
 	fire_sound = 'sound/overmap/laser_cannon_fire.ogg'
+	fire_echo = null
 	fire_delay = 2.5 SECONDS
 	board_path = /obj/item/circuitboard/ship_gun/laser
 	weapon_kind = "laser"
@@ -196,6 +225,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	color = "#9fd0ff"
 	projectile_type = /obj/projectile/bullet/ship_railgun
 	fire_sound = 'sound/overmap/railgun_fire.ogg'
+	fire_shake = 3
 	fire_delay = 8 SECONDS
 	arc = 30
 	ammo_type = /obj/item/ship_ammo/railgun
@@ -247,6 +277,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	color = "#ff9a66"
 	projectile_type = /obj/projectile/bullet/ship_artillery/torpedo
 	fire_sound = 'sound/weapons/rocketlaunch.ogg'
+	fire_shake = 2
 	fire_delay = 6 SECONDS
 	arc = 60
 	ammo_type = /obj/item/ship_ammo/torpedo
@@ -266,10 +297,13 @@ GLOBAL_LIST_EMPTY(ship_guns)
 
 /obj/projectile/bullet/ship_autocannon
 	name = "autocannon shell"
+	icon_state = "gaussstrong"
+	color = "#ffc070"
 	damage = 30
 	armour_penetration = 20
-	overmap_velocity = 70
+	overmap_velocity = 110
 	overmap_radar_visible = TRUE
+	overmap_impact_sound = 'sound/effects/explosioncreak1.ogg'
 
 /obj/projectile/beam/ship_laser
 	name = "ship laser"
@@ -278,6 +312,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	armour_penetration = 10
 	overmap_velocity = 120
 	overmap_radar_visible = TRUE
+	overmap_impact_sound = 'sound/weapons/sear.ogg'
 	ship_shield_factor = 1.5
 
 /obj/projectile/bullet/ship_railgun
@@ -287,6 +322,7 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	armour_penetration = 60
 	overmap_velocity = 160
 	overmap_radar_visible = TRUE
+	overmap_impact_sound = 'sound/effects/meteorimpact.ogg'
 	ship_penetrations = 4
 	ship_penetration_decay = 0.8
 	ship_shield_factor = 0.5
@@ -488,3 +524,6 @@ GLOBAL_LIST_EMPTY(ship_guns)
 	build_path = /obj/item/ship_ammo/torpedo
 	materials = list(MAT_METAL = 8000, MAT_PLASMA = 4000)
 	req_tech = list(RESEARCH_TREE_COMBAT = 5, RESEARCH_TREE_MATERIALS = 4)
+
+#undef SHIP_GUN_SHAKE_RANGE
+#undef SHIP_GUN_TURN_TIME

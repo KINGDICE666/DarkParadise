@@ -2,7 +2,9 @@
 	if(count < 1 || !shot.Invoke())
 		return FALSE
 	for(var/index in 2 to count)
-		addtimer(shot, (index - 1) * delay)
+		var/datum/callback/volley = new(shot.object, shot.delegate)
+		volley.arguments = shot.arguments?.Copy()
+		addtimer(volley, (index - 1) * delay)
 	return TRUE
 
 /obj/projectile/proc/configure_ship_shot(mob/user, atom/source, damage_scale = 1, penetration_chance = 0, radar_visible = FALSE)

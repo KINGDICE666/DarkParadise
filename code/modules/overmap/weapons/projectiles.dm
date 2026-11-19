@@ -107,6 +107,8 @@
 	if(!shot.starting)
 		shot.starting = spot
 	if(target)
+		if(shot.overmap_impact_sound)
+			playsound(spot, shot.overmap_impact_sound, 75, TRUE, extrarange = 10)
 		shot.Bump(target)
 	if(QDELETED(shot))
 		qdel(src)
@@ -162,7 +164,7 @@
 					return
 				continue
 			var/own_hull = payload.overmap_firer_vessel && (vessel.docked_ship || vessel) == (payload.overmap_firer_vessel.docked_ship || payload.overmap_firer_vessel)
-			if(own_hull && vessel.overmap_pod)
+			if(own_hull && (vessel.overmap_pod || ismachinery(payload.firer_source_atom)))
 				continue
 			var/turf/spot = vessel.hull_turf_at(x, y)
 			if(!spot)

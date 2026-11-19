@@ -192,6 +192,7 @@
 		var/wanted = text2num(params["value"])
 		if(isnum(wanted))
 			nav.cruise_speed = OVERMAP_FROM_DISPLAY(clamp(wanted, OVERMAP_HEADING_SPEED_MIN, OVERMAP_DISPLAY_SPEED(vessel.max_speed)))
+			nav.cruise_set = TRUE
 			nav.held_brake = FALSE
 		return TRUE
 	if(action == "toggle_drift_assist")

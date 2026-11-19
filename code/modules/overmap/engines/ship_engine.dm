@@ -22,8 +22,10 @@
 	var/engine_board = /obj/item/circuitboard/ship_engine_ion
 	var/firing = FALSE
 	var/engine_size = 1
-	var/burn_icon = 'icons/obj/machines/ship_engine.dmi'
-	var/burn_state = "nozzle_burn"
+	var/burn_icon = 'icons/obj/machines/ship_exhaust.dmi'
+	var/exhaust_kind = "ion"
+	var/exhaust_light_color = LIGHT_COLOR_BLUE
+	var/exhaust_particle_color = "#8fd0ff"
 	var/burn_sound_type = /datum/looping_sound/ship_engine/ion
 	var/datum/looping_sound/burn_sound
 	var/list/obj/structure/filler/fillers = list()
@@ -58,6 +60,7 @@
 /obj/machinery/ship_engine/Destroy()
 	QDEL_LIST(fillers)
 	QDEL_NULL(burn_sound)
+	particles = null
 	GLOB.ship_engines -= src
 	vessel?.unregister_engine(src)
 	vessel = null
@@ -79,6 +82,8 @@
 
 /obj/machinery/ship_engine/proc/can_burn()
 	if(!on || overheated || (stat & BROKEN))
+		return FALSE
+	if(vessel?.sector?.engine_dampening && !istype(src, /obj/machinery/ship_engine/plasma))
 		return FALSE
 	return fuel_available()
 
@@ -108,14 +113,20 @@
 	if(turning && !turning_burn && isturf(loc))
 		playsound(src, 'sound/machines/hiss.ogg', 20, TRUE, extrarange = -2)
 	turning_burn = turning
+	var/igniting = new_firing && !firing
 	firing = new_firing
 	active_pushes = pushes
 	update_icon(UPDATE_OVERLAYS)
+	update_exhaust_particles()
 	if(!firing)
 		set_light(src::light_range, src::light_power, src::light_color)
 		burn_sound?.stop()
 		return
-	set_light(burn_light_range, burn_light_power, LIGHT_COLOR_BLUE)
+	if(igniting && isturf(loc))
+		for(var/push in GLOB.cardinal)
+			if(active_pushes & push)
+				new /obj/effect/temp_visual/engine_ignition(loc, src, REVERSE_DIR(push))
+	set_light(burn_light_range, burn_light_power, exhaust_light_color)
 	if(!isturf(loc))
 		return
 	if(!burn_sound)
@@ -139,22 +150,77 @@
 		for(var/push in GLOB.cardinal)
 			if(!(active_pushes & push))
 				continue
-			. += exhaust_overlay(mutable_appearance(burn_icon, burn_state, appearance_flags = PIXEL_SCALE), REVERSE_DIR(push))
-			. += exhaust_overlay(emissive_appearance(burn_icon, burn_state, src, appearance_flags = PIXEL_SCALE), REVERSE_DIR(push))
+			. += exhaust_overlay(mutable_appearance(burn_icon, "plume_[exhaust_kind]", appearance_flags = PIXEL_SCALE | RESET_COLOR), REVERSE_DIR(push))
+			. += exhaust_overlay(emissive_appearance(burn_icon, "plume_[exhaust_kind]", src, appearance_flags = PIXEL_SCALE | RESET_COLOR), REVERSE_DIR(push))
 	if(icon != 'icons/obj/machines/ship_engine.dmi')
 		return
 	if(can_burn())
 		. += mutable_appearance(icon, "nozzle_idle")
 
 /obj/machinery/ship_engine/proc/exhaust_overlay(mutable_appearance/flame, exhaust_dir = dir)
-	var/flame_scale = 1 + (engine_size - 1) / 2
-	var/reach = (engine_size + flame_scale) * ICON_SIZE_X / 2
-	flame.dir = exhaust_dir
-	flame.pixel_w = (engine_size - 1) * ICON_SIZE_X / 2 + (!!(exhaust_dir & EAST) - !!(exhaust_dir & WEST)) * reach
-	flame.pixel_z = (engine_size - 1) * ICON_SIZE_Y / 2 + (!!(exhaust_dir & NORTH) - !!(exhaust_dir & SOUTH)) * reach
-	if(flame_scale != 1)
-		flame.transform = matrix().Scale(flame_scale)
+	var/list/outward = dir2offset(exhaust_dir)
+	flame.pixel_w = (engine_size - 1) * ICON_SIZE_X / 2 - ICON_SIZE_X + outward[1] * engine_size * ICON_SIZE_X
+	flame.pixel_z = (engine_size - 1) * ICON_SIZE_Y / 2 - ICON_SIZE_Y + outward[2] * engine_size * ICON_SIZE_Y
+	var/matrix/turned = matrix()
+	if(engine_size != 1)
+		turned.Scale(engine_size)
+	turned.Turn(dir2angle(exhaust_dir) - 180)
+	flame.transform = turned
 	return flame
+
+/obj/machinery/ship_engine/proc/update_exhaust_particles()
+	if(!firing || !isturf(loc))
+		if(particles)
+			particles.spawning = 0
+		return
+	var/exhaust_dir = NONE
+	for(var/push in GLOB.cardinal)
+		if(active_pushes & push)
+			exhaust_dir = REVERSE_DIR(push)
+			break
+	if(!exhaust_dir)
+		return
+	if(!particles)
+		particles = new /particles/engine_exhaust
+	var/list/step = dir2offset(exhaust_dir)
+	var/edge = engine_size * ICON_SIZE_X / 2
+	var/spread = 3 * engine_size
+	particles.color = exhaust_particle_color
+	particles.spawning = 3 * engine_size
+	particles.position = generator(GEN_BOX, list(step[1] * edge - abs(step[2]) * spread, step[2] * edge - abs(step[1]) * spread), list(step[1] * edge + abs(step[2]) * spread, step[2] * edge + abs(step[1]) * spread), UNIFORM_RAND)
+	particles.velocity = generator(GEN_BOX, list(step[1] * 4 - abs(step[2]) * 0.8, step[2] * 4 - abs(step[1]) * 0.8), list(step[1] * 7 + abs(step[2]) * 0.8, step[2] * 7 + abs(step[1]) * 0.8), UNIFORM_RAND)
+
+/particles/engine_exhaust
+	icon = 'icons/effects/particles/space_dust.dmi'
+	icon_state = "dust"
+	width = 400
+	height = 400
+	count = 60
+	spawning = 0
+	lifespan = 0.9 SECONDS
+	fade = 0.6 SECONDS
+	scale = generator(GEN_VECTOR, list(0.4, 0.4), list(0.9, 0.9), UNIFORM_RAND)
+
+/obj/effect/temp_visual/engine_ignition
+	icon = 'icons/obj/machines/ship_exhaust.dmi'
+	icon_state = "ignite_ion"
+	duration = 0.4 SECONDS
+	appearance_flags = PIXEL_SCALE | RESET_COLOR
+
+/obj/effect/temp_visual/engine_ignition/Initialize(mapload, obj/machinery/ship_engine/engine, exhaust_dir)
+	. = ..()
+	if(!engine)
+		return
+	icon_state = "ignite_[engine.exhaust_kind]"
+	pixel_w = (engine.engine_size - 1) * ICON_SIZE_X / 2 - ICON_SIZE_X
+	pixel_z = (engine.engine_size - 1) * ICON_SIZE_Y / 2 - ICON_SIZE_Y
+	var/matrix/turned = matrix()
+	if(engine.engine_size != 1)
+		turned.Scale(engine.engine_size)
+	turned.Turn(dir2angle(exhaust_dir) - 180)
+	transform = turned
+	add_overlay(emissive_appearance(icon, icon_state, src))
+	animate(src, alpha = 0, time = duration, easing = QUAD_EASING | EASE_OUT)
 
 /obj/machinery/ship_engine/proc/spawn_engine_fillers(list/dirs)
 	for(var/direct in dirs)
