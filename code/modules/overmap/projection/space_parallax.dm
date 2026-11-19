@@ -191,8 +191,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 			sprite.refresh(body)
 			sprite.place(screen_x, screen_y, scale, fade)
 			seen[key] = TRUE
-			if(!new_lens && fade > 0 && istype(body, /obj/overmap/celestial/black_hole))
-				new_lens = list(round(screen_x), round(screen_y), round(scale, 0.01))
 	for(var/key in shown)
 		if(seen[key])
 			continue

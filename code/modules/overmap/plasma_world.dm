@@ -308,7 +308,7 @@
 
 /obj/overmap/planet/violet/proc/terrain_text(target_z, terraform)
 	var/rocks = rustg_cnoise_generate(PLASMA_WORLD_ROCK_CHANCE, "6", "4", "3", "[world.maxx]", "[world.maxy]")
-	var/veins = rustg_cnoise_generate(PLASMA_WORLD_VEIN_CHANCE, "4", "4", "3", "[world.maxx]", "[world.maxy]")
+	var/veins = terraform ? null : rustg_cnoise_generate(PLASMA_WORLD_VEIN_CHANCE, "4", "4", "3", "[world.maxx]", "[world.maxy]")
 	var/list/near_hull = terraform ? hull_margin(target_z) : null
 	var/center_x = round(world.maxx / 2)
 	var/center_y = round(world.maxy / 2)
@@ -339,12 +339,15 @@
 			var/edge = x <= PLASMA_WORLD_EDGE || y <= PLASMA_WORLD_EDGE || x > world.maxx - PLASMA_WORLD_EDGE || y > world.maxy - PLASMA_WORLD_EDGE
 			var/cleared = !terraform && abs(x - center_x) <= PLASMA_WORLD_CLEARING && abs(y - center_y) <= PLASMA_WORLD_CLEARING
 			if(edge || (!cleared && rocks[index] != "0"))
-				row += veins[index] != "0" ? "c" : "b"
+				row += (!terraform && veins[index] != "0") ? "c" : "b"
+				continue
+			if(terraform)
+				row += "a"
 				continue
 			if(!cleared && prob(PLASMA_WORLD_CRYSTAL_CHANCE))
 				row += "d"
 				continue
-			var/near_landing = !terraform && abs(x - center_x) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE && abs(y - center_y) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE
+			var/near_landing = abs(x - center_x) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE && abs(y - center_y) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE
 			row += (!near_landing && prob(PLASMA_WORLD_MOB_CHANCE)) ? "e" : "a"
 		lines += jointext(row, "")
 		CHECK_TICK
@@ -363,24 +366,27 @@
 	return marks
 
 /obj/overmap/planet/violet/proc/apply_terrain(target_z, text, fresh)
-	GLOB.space_manager.add_dirt(target_z)
-	var/datum/milla_safe/freeze_z_level/freeze = new
-	freeze.invoke_async(target_z)
-	UNTIL(freeze.done)
-	SSicon_smooth.add_halt_source(src)
+	if(fresh)
+		GLOB.space_manager.add_dirt(target_z)
+		var/datum/milla_safe/freeze_z_level/freeze = new
+		freeze.invoke_async(target_z)
+		UNTIL(freeze.done)
+		SSicon_smooth.add_halt_source(src)
 	var/datum/parsed_map/parsed = new(text)
 	parsed.load(1, 1, target_z, crop_map = TRUE, no_changeturf = fresh)
-	var/list/mapload_arg = list(TRUE)
-	for(var/turf/spot as anything in block(1, 1, target_z, world.maxx, world.maxy, target_z))
-		if(!(spot.flags & INITIALIZED))
-			SSatoms.InitAtom(spot, mapload_arg)
-		for(var/atom/movable/thing as anything in spot)
-			if(!(thing.flags & INITIALIZED))
-				SSatoms.InitAtom(thing, mapload_arg)
-		CHECK_TICK
+	if(fresh)
+		var/list/mapload_arg = list(TRUE)
+		for(var/turf/spot as anything in block(1, 1, target_z, world.maxx, world.maxy, target_z))
+			if(!(spot.flags & INITIALIZED))
+				SSatoms.InitAtom(spot, mapload_arg)
+			for(var/atom/movable/thing as anything in spot)
+				if(!(thing.flags & INITIALIZED))
+					SSatoms.InitAtom(thing, mapload_arg)
+			CHECK_TICK
 	require_area_resort()
-	SSicon_smooth.remove_halt_source(src)
-	GLOB.space_manager.remove_dirt(target_z)
+	if(fresh)
+		SSicon_smooth.remove_halt_source(src)
+		GLOB.space_manager.remove_dirt(target_z)
 	var/list/runs = list()
 	if(fresh)
 		runs += list(list(locate(1, 1, target_z), locate(world.maxx, world.maxy, target_z)))

@@ -245,9 +245,7 @@
 			wanted += viewer
 	for(var/mob/viewer as anything in viewers - wanted)
 		forget_viewer(viewer)
-	for(var/mob/viewer as anything in wanted - viewers)
-		viewers += viewer
-		viewer.client.screen += screens
+	viewers |= wanted
 
 /datum/planet_sky/proc/forget_viewer(mob/viewer)
 	viewers -= viewer

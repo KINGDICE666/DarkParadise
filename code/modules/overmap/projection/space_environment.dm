@@ -69,7 +69,6 @@
 /datum/controller/subsystem/overmap/proc/process_space_environment()
 	for(var/client/viewer as anything in GLOB.clients)
 		var/turf/eye = get_turf(viewer.eye || viewer.mob)
-		update_plasma_world_clouds(viewer, eye)
 		var/list/layers = viewer.parallax_rock?.parallax_layers
 		if(!length(layers))
 			continue
