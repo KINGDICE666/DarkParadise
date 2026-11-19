@@ -146,7 +146,7 @@
 	var/offset_x = posobj.x - displaying_client.previous_turf.x
 	var/offset_y = posobj.y - displaying_client.previous_turf.y
 
-	var/glide_rate = round(ICON_SIZE_ALL / mymob.glide_size * world.tick_lag, world.tick_lag)
+	var/glide_rate = mymob.glide_size ? round(ICON_SIZE_ALL / mymob.glide_size * world.tick_lag, world.tick_lag) : 0
 	displaying_client.previous_turf = posobj
 
 	var/largest_change = max(abs(offset_x), abs(offset_y))
