@@ -14,7 +14,7 @@
 #define PLANET_CRASH_HAZE_SCALE 3
 #define PLANET_CRASH_CLOUD_FAR 0.8
 #define PLANET_CRASH_CLOUD_NEAR 4
-#define PLANET_CRASH_SKY_SHIFT -224
+#define PLANET_SKY_ANCHOR_SHIFT (7 * ICON_SIZE_ALL)
 #define PLANET_CRASH_EMBER_SHARE 3
 #define PLANET_CRASH_BLASTS 7
 #define PLANET_CRASH_DUST_PUFFS 6
@@ -198,7 +198,7 @@
 	view.Turn(-angle)
 	var/reach_x = center_x - focus_x
 	var/reach_y = center_y - focus_y
-	view.Translate(view.a * reach_x + view.b * reach_y + world.icon_size / 2 - center_x, view.d * reach_x + view.e * reach_y + world.icon_size / 2 - center_y)
+	view.Translate(view.a * reach_x + view.b * reach_y + world.icon_size / 2 - center_x + PLANET_SKY_ANCHOR_SHIFT, view.d * reach_x + view.e * reach_y + world.icon_size / 2 - center_y + PLANET_SKY_ANCHOR_SHIFT)
 	return view
 
 /datum/planet_sky
@@ -245,7 +245,9 @@
 			wanted += viewer
 	for(var/mob/viewer as anything in viewers - wanted)
 		forget_viewer(viewer)
-	viewers |= wanted
+	for(var/mob/viewer as anything in wanted - viewers)
+		viewers += viewer
+		viewer.client.screen += screens
 
 /datum/planet_sky/proc/forget_viewer(mob/viewer)
 	viewers -= viewer
@@ -602,7 +604,7 @@
 
 /atom/movable/screen/planet_crash
 	icon = 'icons/effects/planet_descent.dmi'
-	screen_loc = "CENTER"
+	screen_loc = "CENTER-7,CENTER-7"
 	plane = PLANE_SPACE_PARALLAX
 	layer = 41
 	alpha = 0
@@ -614,8 +616,6 @@
 	if(!state)
 		return
 	icon_state = state
-	pixel_w = PLANET_CRASH_SKY_SHIFT
-	pixel_z = PLANET_CRASH_SKY_SHIFT
 	if(state == "haze")
 		transform = matrix(PLANET_CRASH_HAZE_SCALE, 0, 0, 0, PLANET_CRASH_HAZE_SCALE, 0)
 		layer = 42
@@ -685,6 +685,7 @@
 	icon_state = "clouds_tile"
 	vis_flags = VIS_INHERIT_PLANE | VIS_INHERIT_LAYER
 	appearance_flags = PIXEL_SCALE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
 /obj/effect/planet_flyover_shadow
 	layer = FLY_LAYER
@@ -799,7 +800,7 @@
 #undef PLANET_CRASH_HAZE_SCALE
 #undef PLANET_CRASH_CLOUD_FAR
 #undef PLANET_CRASH_CLOUD_NEAR
-#undef PLANET_CRASH_SKY_SHIFT
+#undef PLANET_SKY_ANCHOR_SHIFT
 #undef PLANET_CRASH_EMBER_SHARE
 #undef PLANET_CRASH_BLASTS
 #undef PLANET_CRASH_DUST_PUFFS

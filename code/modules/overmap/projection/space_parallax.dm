@@ -11,10 +11,6 @@
 #define SKY_DEFAULT_LIGHT_ANGLE 60
 #define SKY_SPRITE_LIGHT_ANGLE 90
 #define SKY_MOTION_PARALLAX 0.12
-#define SKY_LENS_TARGET "*overmap_lens"
-#define SKY_LENS_FILTER "overmap_lens"
-#define SKY_LENS_STRENGTH 28
-#define SKY_LENS_NEUTRAL list(0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5)
 #define SPACE_DUST_RATE 8
 #define SPACE_STREAK_SPEED_MIN 12
 #define SPACE_STREAK_SPEED_MAX 40
@@ -105,19 +101,9 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 	environment_tinted = FALSE
 	var/list/atom/movable/screen/parallax_body/shown = list()
 	var/sky_heading = 0
-	var/client/viewer
-	var/atom/movable/screen/sky_lens/lens
-	var/list/lens_point
-
-/atom/movable/screen/parallax_layer/sky/Initialize(mapload, datum/hud/hud_owner, client/owner, template = FALSE)
-	. = ..()
-	viewer = owner
 
 /atom/movable/screen/parallax_layer/sky/Destroy()
 	QDEL_LIST_ASSOC_VAL(shown)
-	lens_point = null
-	refresh_lens()
-	viewer = null
 	return ..()
 
 /atom/movable/screen/parallax_layer/sky/update_o(new_view)
@@ -128,33 +114,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 		return
 	sky_heading = angle
 	animate(src, transform = matrix().Turn(-angle), time = time)
-	refresh_lens(time)
-
-/atom/movable/screen/parallax_layer/sky/proc/refresh_lens(time = 0)
-	var/atom/movable/screen/plane_master/parallax_plane = viewer?.mob?.hud_used?.get_plane_master(PLANE_SPACE_PARALLAX)
-	if(!lens_point || !parallax_plane || QDELETED(src))
-		parallax_plane?.remove_filter(SKY_LENS_FILTER)
-		if(lens)
-			viewer?.screen -= lens
-			QDEL_NULL(lens)
-		return
-	var/scale = lens_point[3]
-	var/matrix/lens_turn = matrix(scale, 0, 0, 0, scale, 0)
-	lens_turn.Turn(-sky_heading)
-	if(!lens)
-		lens = new
-		lens.transform = lens_turn
-		viewer.screen += lens
-	animate(lens, transform = lens_turn, time = time)
-	var/turn_cos = cos(sky_heading)
-	var/turn_sin = sin(sky_heading)
-	var/lens_x = round(lens_point[1] * turn_cos - lens_point[2] * turn_sin + pixel_w)
-	var/lens_y = round(lens_point[1] * turn_sin + lens_point[2] * turn_cos + pixel_z)
-	var/lens_size = round(SKY_LENS_STRENGTH * scale)
-	if(parallax_plane.get_filter(SKY_LENS_FILTER))
-		parallax_plane.transition_filter(SKY_LENS_FILTER, list("x" = lens_x, "y" = lens_y, "size" = lens_size), time)
-	else
-		parallax_plane.add_filter(SKY_LENS_FILTER, 1, displacement_map_filter(render_source = SKY_LENS_TARGET, x = lens_x, y = lens_y, size = lens_size))
 
 /atom/movable/screen/parallax_layer/sky/clear_ship_drift()
 	return
@@ -163,7 +122,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 	if(!isnull(heading))
 		set_ship_facing(heading, 0)
 	var/list/seen = list()
-	var/list/new_lens
 	if(sector && point)
 		var/span = OVERMAP_TILE_SPAN * (sector.tile_travel || 1)
 		for(var/obj/overmap/body as anything in GLOB.overmap_sky_bodies)
@@ -198,9 +156,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 		shown -= key
 		vis_contents -= sprite
 		qdel(sprite)
-	if(!(new_lens ~= lens_point))
-		lens_point = new_lens
-		refresh_lens()
 
 /atom/movable/screen/parallax_body
 	icon = 'icons/effects/parallax_bodies.dmi'
@@ -241,24 +196,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 		return
 	placed = target
 	animate(src, pixel_w = target[1], pixel_z = target[2], transform = matrix(target[3], 0, 0, 0, target[3], 0), alpha = target[4], time = SKY_MOVE_TIME)
-
-/atom/movable/screen/sky_lens
-	icon = 'icons/effects/parallax_bodies.dmi'
-	icon_state = "black_hole_lens"
-	screen_loc = "CENTER"
-	render_target = SKY_LENS_TARGET
-	appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_TRANSFORM | KEEP_TOGETHER
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-
-/atom/movable/screen/sky_lens/update_overlays()
-	. = ..()
-	var/mutable_appearance/hole = mutable_appearance(icon, "black_hole")
-	hole.color = SKY_LENS_NEUTRAL
-	. += hole
-
-/atom/movable/screen/sky_lens/Initialize(mapload, datum/hud/hud_owner)
-	. = ..()
-	update_appearance(UPDATE_OVERLAYS)
 
 /particles/space_dust
 	icon = 'icons/effects/particles/space_dust.dmi'
@@ -347,10 +284,6 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 #undef SKY_DEFAULT_LIGHT_ANGLE
 #undef SKY_SPRITE_LIGHT_ANGLE
 #undef SKY_MOTION_PARALLAX
-#undef SKY_LENS_TARGET
-#undef SKY_LENS_FILTER
-#undef SKY_LENS_STRENGTH
-#undef SKY_LENS_NEUTRAL
 #undef SPACE_DUST_RATE
 #undef SPACE_STREAK_SPEED_MIN
 #undef SPACE_STREAK_SPEED_MAX

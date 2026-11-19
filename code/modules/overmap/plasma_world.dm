@@ -419,7 +419,7 @@
 GLOBAL_DATUM(plasma_world_clouds, /atom/movable/screen/plasma_world_clouds)
 
 /atom/movable/screen/plasma_world_clouds
-	screen_loc = "CENTER"
+	screen_loc = "CENTER-7,CENTER-7"
 	plane = ABOVE_LIGHTING_PLANE
 	layer = 1
 	alpha = PLASMA_WORLD_CLOUD_ALPHA

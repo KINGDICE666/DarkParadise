@@ -4,6 +4,7 @@
 #define BLACK_HOLE_CORE_RADIATION_RANGE 8
 #define BLACK_HOLE_CORE_RADIATION_THRESHOLD 0.05
 #define BLACK_HOLE_CORE_PULSES 3
+#define BLACK_HOLE_CORE_RADIATION_CHANCE 100
 
 /obj/overmap/celestial/black_hole
 	name = "black hole"
@@ -57,7 +58,7 @@
 		for(var/pulse in 1 to BLACK_HOLE_CORE_PULSES)
 			var/turf/source = overmap_vessel_structure_turf(vessel)
 			if(source)
-				radiation_pulse(source, max_range = BLACK_HOLE_CORE_RADIATION_RANGE, threshold = BLACK_HOLE_CORE_RADIATION_THRESHOLD, chance = 100)
+				radiation_pulse(source, BLACK_HOLE_CORE_RADIATION_RANGE, BLACK_HOLE_CORE_RADIATION_THRESHOLD, BLACK_HOLE_CORE_RADIATION_CHANCE)
 		for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
 			SSradiation.irradiate(crew)
 		return
@@ -75,3 +76,4 @@
 #undef BLACK_HOLE_CORE_RADIATION_RANGE
 #undef BLACK_HOLE_CORE_RADIATION_THRESHOLD
 #undef BLACK_HOLE_CORE_PULSES
+#undef BLACK_HOLE_CORE_RADIATION_CHANCE

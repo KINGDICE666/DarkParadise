@@ -30,7 +30,7 @@
 		for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
 			crew.adjustFireLoss(STAR_CORE_BURN)
 		return
-	radiation_pulse(spot, max_range = radiation_range, threshold = STAR_RADIATION_THRESHOLD)
+	radiation_pulse(spot, radiation_range, STAR_RADIATION_THRESHOLD)
 	if(prob(STAR_HEAT_CHANCE))
 		spot.hotspot_expose(heat_temperature, CELL_VOLUME)
 	if(prob(STAR_LIGHTS_CHANCE))
