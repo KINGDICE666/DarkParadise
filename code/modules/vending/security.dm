@@ -264,6 +264,11 @@
 	icon = 'icons/obj/weapons/energy.dmi'
 	icon_state = "specter"
 
+/datum/security_voucher_kit/officer/netrunner
+	kit_box = /obj/item/storage/box/netrunner_kit
+	icon = 'icons/obj/augments_extra.dmi'
+	icon_state = "deck_standard"
+
 /datum/security_voucher_kit/officer/taurus
 	kit_box = /obj/item/storage/box/taurus_kit
 	icon = 'icons/obj/weapons/projectile.dmi'

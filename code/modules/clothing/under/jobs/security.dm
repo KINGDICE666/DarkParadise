@@ -41,8 +41,6 @@
 	strip_delay = 50
 
 /obj/item/clothing/under/rank/security/sensor
-	sensor_mode = SENSOR_COORDS
-	random_sensor = FALSE
 
 /obj/item/clothing/under/rank/security/cadet
 	name = "security cadet jumpsuit"

@@ -1007,6 +1007,14 @@
 		patient.cure_trauma_type(resilience = TRAUMA_RESILIENCE_BASIC)
 	return ..()
 
+/datum/reagent/medicine/stabilicin
+	name = "Штиль"
+	id = "stabilicin"
+	description = "Серебристая взвесь с запахом озона. Применяется для иммунотерапии и адаптации к новому хрому."
+	color = "#5EF6FF"
+	taste_description = "ржавчины"
+	chemdesc = "Подавляет начавшийся киберпсихоз."
+
 /datum/reagent/medicine/fomepizole
 	name = "Фомепизол"
 	id = "fomepizole"

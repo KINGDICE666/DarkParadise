@@ -50,6 +50,7 @@
 #define CHRONOSUIT_TRAIT "chrono-suit"
 #define SUPERHERO_TRAIT "super-hero"
 #define AUGMENT_TRAIT "augment"
+#define CYBERPSYCHOSIS_TRAIT "cyberpsychosis"
 #define ANTIDROP_TRAIT "antidrop"
 #define HOLO_CIGAR_TRAIT "holo_cigar"
 #define INUGAMI_TRAIT "inugami_gl"

@@ -11,7 +11,6 @@ do { \
 	icon_state = "jumpsuit"
 	item_state = "jumpsuit"
 	item_color = "black"
-	random_sensor = FALSE
 	resistance_flags = NONE
 	can_adjust = FALSE
 	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
@@ -36,7 +35,6 @@ do { \
 /obj/item/clothing/under/plasmaman/chameleon
 	desc = "A special containment suit that allows plasma-based lifeforms to exist safely in an oxygenated environment, and automatically extinguishes them in a crisis. Despite being airtight, it's not spaceworthy."
 	resistance_flags = NONE
-	random_sensor = FALSE
 	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 95, ACID = 95)
 	actions_types = list(/datum/action/item_action/chameleon/change/jumpsuit)
 

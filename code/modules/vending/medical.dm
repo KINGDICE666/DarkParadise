@@ -63,6 +63,7 @@
 				/obj/item/reagent_containers/food/pill/mannitol = 10,
 				/obj/item/reagent_containers/food/pill/salbutamol = 10,
 				/obj/item/reagent_containers/food/pill/mutadone = 10,
+				/obj/item/reagent_containers/food/pill/stabilicin = 10,
 			),
 		),
 		list(

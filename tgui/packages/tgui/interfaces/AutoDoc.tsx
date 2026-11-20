@@ -6,6 +6,9 @@ import { Window } from '../layouts';
 
 type Occupant = {
   name: string;
+  insuranceType: string | null;
+  insurance: number | null;
+  reqInsurance: number;
   stat: number;
   health: number;
   maxHealth: number;
@@ -377,6 +380,41 @@ const BodyMap = (props: {
   );
 };
 
+const Insurance = (props: { occupant: Occupant }) => {
+  const { act, data } = useBackend<AutoDocData>();
+  const { occupant } = props;
+  const hasAccount = occupant.insurance !== null;
+  const enough =
+    hasAccount && (occupant.insurance || 0) >= occupant.reqInsurance;
+  return (
+    <div className="AutoDoc__insurance">
+      <div className="AutoDoc__insuranceText">
+        <div className="AutoDoc__meterLabel">
+          <span>Страховка</span>
+          <b>{hasAccount ? occupant.insuranceType : 'нет аккаунта'}</b>
+        </div>
+        <div className="AutoDoc__meterLabel">
+          <span>Очки / к списанию</span>
+          <b className={enough ? undefined : 'AutoDoc__insuranceShort'}>
+            {hasAccount ? occupant.insurance : '—'} / {occupant.reqInsurance}
+          </b>
+        </div>
+      </div>
+      <ButtonBox>
+        <PushButton
+          tone="red"
+          icon="file-invoice-dollar"
+          disabled={
+            !hasAccount || !occupant.reqInsurance || data.controlsLocked
+          }
+          title="Списать очки страховки за лечение. Не хватит очков: остаток спишется со счёта пациента вдвое"
+          onClick={() => act('collect_insurance')}
+        />
+      </ButtonBox>
+    </div>
+  );
+};
+
 const PatientPanel = (props: {
   activeZone: string | null;
   setActiveZone: (zone: string | null) => void;
@@ -431,6 +469,7 @@ const PatientPanel = (props: {
           <RiskTag risk={occupant.organFailureChance} />
         </div>
       </div>
+      <Insurance occupant={occupant} />
       {!!warnings.length && (
         <div className="AutoDoc__warnings">
           <div className="AutoDoc__warningsTitle">

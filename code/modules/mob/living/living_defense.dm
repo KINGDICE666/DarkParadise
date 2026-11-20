@@ -102,6 +102,8 @@
 
 /mob/living/emp_act(severity)
 	..()
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
 	for(var/obj/O in contents)
 		O.emp_act(severity)
 

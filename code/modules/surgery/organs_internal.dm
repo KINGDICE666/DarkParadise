@@ -827,7 +827,7 @@
 		user.balloon_alert(user, "цель уже имеет этот орган!")
 		return SURGERY_BEGINSTEP_SKIP
 
-	if((istype(organ, /obj/item/organ/internal/cyberimp)) && HAS_TRAIT(target, TRAIT_NO_CYBERIMPLANTS))
+	if(!organ.ignore_cybernetic_restrictions && istype(organ, /obj/item/organ/internal/cyberimp) && HAS_TRAIT(target, TRAIT_NO_CYBERIMPLANTS))
 		user.balloon_alert(user, "несовместимо с организмом!")
 		return SURGERY_BEGINSTEP_SKIP
 

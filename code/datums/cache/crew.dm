@@ -41,17 +41,17 @@ GLOBAL_DATUM_INIT(crew_repository, /datum/repository/crew, new())
 
 	for(var/thing in GLOB.human_list)
 		var/mob/living/carbon/human/H = thing
-		var/obj/item/clothing/under/C = H.w_uniform
-		if(!C || C.sensor_mode == SUIT_SENSOR_OFF || !C.has_sensor)
+		var/sensor_mode = getsensorlevel(H)
+		if(sensor_mode == SUIT_SENSOR_OFF)
 			continue
-		var/turf/pos = get_turf(C)
+		var/turf/pos = get_turf(H)
 		if(!istype(pos) || !T)
 			continue
 		if((pos.z != T.z) && !(is_station_level(pos.z) && is_station_level(T.z)) && !(HAS_TRAIT(H, TRAIT_MULTIZ_SUIT_SENSORS))) // same z_level or both on STATION_LEVEL or has special trait
 			continue
 		var/list/crewmemberData = list("dead"=0, "oxy"=-1, "tox"=-1, "fire"=-1, "brute"=-1, "area"="", "x"=-1, "y"=-1, "ref" = H.UID())
 
-		crewmemberData["sensor_type"] = C.sensor_mode
+		crewmemberData["sensor_type"] = sensor_mode
 		crewmemberData["name"] = H.get_authentification_name(if_no_id=UNKNOWN_STATUS_RUS)
 		crewmemberData["rank"] = H.get_authentification_rank(if_no_id=UNKNOWN_STATUS_RUS, if_no_job=NOJOB_STATUS_RUS)
 		crewmemberData["assignment"] = H.get_assignment(if_no_id=UNKNOWN_STATUS_RUS, if_no_job=NOJOB_STATUS_RUS)
@@ -59,10 +59,10 @@ GLOBAL_DATUM_INIT(crew_repository, /datum/repository/crew, new())
 		crewmemberData["is_security"] = (crewmemberData["rank"] in security_jobs_list)
 		crewmemberData["is_shaft_miner"] = (crewmemberData["rank"] in mining_jobs_list)
 
-		if(C.sensor_mode >= SUIT_SENSOR_BINARY)
+		if(sensor_mode >= SUIT_SENSOR_BINARY)
 			crewmemberData["dead"] = H.stat == DEAD
 
-		if(C.sensor_mode >= SUIT_SENSOR_VITAL)
+		if(sensor_mode >= SUIT_SENSOR_VITAL)
 			crewmemberData["stat"] = H.stat
 			crewmemberData["health"] = H.health
 			crewmemberData["oxy"] = round(H.getOxyLoss(), 1)
@@ -70,7 +70,7 @@ GLOBAL_DATUM_INIT(crew_repository, /datum/repository/crew, new())
 			crewmemberData["fire"] = round(H.getFireLoss(), 1)
 			crewmemberData["brute"] = round(H.getBruteLoss(), 1)
 
-		if(C.sensor_mode >= SUIT_SENSOR_TRACKING)
+		if(sensor_mode >= SUIT_SENSOR_TRACKING)
 			var/area/A = get_area(H)
 			crewmemberData["area"] = A.name
 			crewmemberData["x"] = pos.x

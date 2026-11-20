@@ -783,8 +783,11 @@
 
 /mob/living/carbon/emp_act(severity)
 	..()
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
 	for(var/obj/item/organ/internal/organ as anything in internal_organs)
-		organ.emp_act(severity)
+		if(!organ.is_suppressed())
+			organ.emp_act(severity)
 
 /mob/living/carbon/get_status_tab_items()
 	var/list/status_tab_data = ..()
@@ -1003,7 +1006,7 @@ so that different stomachs can handle things in different ways VB*/
 	..()
 
 /mob/living/carbon/proc/shock_reduction()
-	var/shock_reduction = HAS_TRAIT(src, TRAIT_HIGH_PAIN_THRESHOLD) ? /datum/reagent/medicine/sal_acid::shock_reduction : 0
+	var/shock_reduction = implant_shock_reduction + (HAS_TRAIT(src, TRAIT_HIGH_PAIN_THRESHOLD) ? /datum/reagent/medicine/sal_acid::shock_reduction : 0)
 	if(reagents)
 		for(var/datum/reagent/R in reagents.reagent_list)
 			if(R.shock_reduction)

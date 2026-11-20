@@ -1088,8 +1088,6 @@ GAME_VERB_SRC(/obj/item/clothing/suit/fluff/kluys, toggle, usr, "Режим на
 	icon_state = "jane_sid_suit"
 	item_state = "jane_sid_suit"
 	item_color = "jane_sid_suit"
-	has_sensor = SENSOR_VITALS
-	sensor_mode = 3
 	up = TRUE
 
 /obj/item/clothing/under/fluff/jane_sidsuit/Initialize(mapload)

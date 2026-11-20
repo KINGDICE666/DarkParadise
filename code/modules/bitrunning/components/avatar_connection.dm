@@ -157,6 +157,8 @@
 		player_key = ghost.key
 
 	old_body.possess_by_player(player_key)
+	if(avatar.mind && avatar.mind != old_mind)
+		SSticker.minds -= avatar.mind
 
 /datum/component/avatar_connection/proc/on_linked_damage(datum/source, damage, damagetype, def_zone, blocked, sharp, used_weapon, spread_damage, forced)
 	SIGNAL_HANDLER
@@ -324,23 +326,40 @@
 		return COMPONENT_INCOMPATIBLE
 
 	ai_core_ref = WEAKREF(old_body.mainframe)
-	return ..()
+	. = ..()
+	if(. == COMPONENT_INCOMPATIBLE)
+		return
+
+	if(!hardcore)
+		to_chat(parent, span_notice("Урон аватара передаётся ядру ИИ, следите за индикатором целостности."))
 
 /datum/component/avatar_connection/ai/register_pilot_signals(mob/living/pilot)
 	..()
 	var/mob/living/silicon/ai/core = ai_core_ref.resolve()
 	RegisterSignal(core, COMSIG_PREQDELETED, PROC_REF(on_sever_connection))
+	RegisterSignal(core, COMSIG_LIVING_HEALTH_UPDATE, PROC_REF(on_core_health_update))
 	RegisterSignals(core, list(COMSIG_LIVING_ADJUST_BRUTE_DAMAGE, COMSIG_LIVING_ADJUST_BURN_DAMAGE), PROC_REF(on_core_damaged))
 	RegisterSignal(pilot.mind, COMSIG_MIND_TRANSER_TO, PROC_REF(on_shell_recalled))
 
 /datum/component/avatar_connection/ai/Destroy(force)
 	var/mob/living/silicon/ai/core = ai_core_ref?.resolve()
 	if(core)
-		UnregisterSignal(core, list(COMSIG_PREQDELETED, COMSIG_LIVING_ADJUST_BRUTE_DAMAGE, COMSIG_LIVING_ADJUST_BURN_DAMAGE))
+		UnregisterSignal(core, list(COMSIG_PREQDELETED, COMSIG_LIVING_ADJUST_BRUTE_DAMAGE, COMSIG_LIVING_ADJUST_BURN_DAMAGE, COMSIG_LIVING_HEALTH_UPDATE))
 	var/datum/mind/old_mind = old_mind_ref?.resolve()
 	if(old_mind)
 		UnregisterSignal(old_mind, COMSIG_MIND_TRANSER_TO)
 	ai_core_ref = null
+	return ..()
+
+/datum/component/avatar_connection/ai/RegisterWithParent()
+	. = ..()
+	var/mob/living/silicon/ai/core = get_damage_body()
+	if(!hardcore && core)
+		core.show_remote_integrity(parent)
+
+/datum/component/avatar_connection/ai/UnregisterFromParent()
+	var/mob/living/avatar = parent
+	avatar.clear_alert(ALERT_AI_CORE_INTEGRITY)
 	return ..()
 
 /datum/component/avatar_connection/ai/get_damage_body()
@@ -371,19 +390,29 @@
 
 	nohit = FALSE
 	if(core.health - linked_damage <= HEALTH_THRESHOLD_CRIT)
-		full_avatar_disconnect(cause_damage = TRUE)
+		to_chat(parent, span_userdanger("Целостность ядра на пределе! Связь разорвана, чтобы его спасти."))
+		full_avatar_disconnect()
 		return
 
+	var/old_integrity = core.get_integrity_percent()
 	transferring_damage = TRUE
 	core.apply_damage(linked_damage, damagetype == BURN ? BURN : BRUTE, forced = TRUE)
 	transferring_damage = FALSE
+	core.report_remote_damage(parent, old_integrity)
+
+/datum/component/avatar_connection/ai/proc/on_core_health_update(mob/living/silicon/ai/source)
+	SIGNAL_HANDLER
+
+	if(!hardcore && !disconnecting)
+		source.show_remote_integrity(parent)
 
 /datum/component/avatar_connection/ai/proc/on_core_damaged(datum/source, damagetype, amount, forced)
 	SIGNAL_HANDLER
 
-	if(amount <= 0 || transferring_damage)
+	if(amount <= 0 || transferring_damage || disconnecting)
 		return
 
+	to_chat(parent, span_userdanger("Ядро ИИ атаковано на станции! Экстренное возвращение в оболочку."))
 	full_avatar_disconnect()
 
 /datum/component/avatar_connection/ai/proc/on_shell_recalled(datum/mind/source, mob/living/new_character)

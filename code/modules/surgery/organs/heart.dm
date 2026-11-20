@@ -1,3 +1,10 @@
+#define QUANTUM_HEART_TICK (0.5 SECONDS)
+#define QUANTUM_HEART_HEMORRHAGE_TIME (7 SECONDS)
+#define QUANTUM_HEART_BLOOD_PER_TICK 15
+#define QUANTUM_HEART_MIN_SPLATTER 2
+#define QUANTUM_HEART_MAX_SPLATTER 4
+#define QUANTUM_HEART_MESSAGE_CHANCE 40
+
 /obj/item/organ/internal/heart
 	name = "heart"
 	desc = "Орган, качающий кровь или её заменяющую субстанцию по организму гуманоида. Это принадлежало человеку."
@@ -6,6 +13,7 @@
 	slot = INTERNAL_ORGAN_HEART
 	origin_tech = "biotech=5"
 	var/beating = TRUE
+	var/arrest_immune = FALSE
 	dead_icon = "heart-off"
 	var/icon_base = "heart"
 	var/item_base = "heart"
@@ -341,3 +349,108 @@
 			to_chat(owner, span_warning("Ваше [declent_ru(NOMINATIVE)] болезненно бьётся!"))
 			var/datum/disease/critical/heart_failure/D = new
 			D.Contract(owner)
+
+/obj/item/organ/internal/heart/cybernetic/quantum
+	name = "quantum cardioregulator"
+	desc = "Экспериментальный имплант, заменяющий сердце. Квантовый стабилизатор поддерживает работу сердца даже при экстремальных повреждениях, но очень плохо переносит электромагнитные помехи."
+	gender = MALE
+	icon_state = "heart-c-u-on"
+	icon_base = "heart-c-u"
+	dead_icon = "heart-c-u-off"
+	color = "#66CCFF"
+	origin_tech = "materials=7;biotech=7;bluespace=6;programming=6"
+	tough = TRUE
+	arrest_immune = TRUE
+	var/hemorrhage_end_time = 0
+	var/hemorrhage_active = FALSE
+
+/obj/item/organ/internal/heart/cybernetic/quantum/get_ru_names()
+	return alist(
+		NOMINATIVE = "квантовый кардиорегулятор",
+		GENITIVE = "квантового кардиорегулятора",
+		DATIVE = "квантовому кардиорегулятору",
+		ACCUSATIVE = "квантовый кардиорегулятор",
+		INSTRUMENTAL = "квантовым кардиорегулятором",
+		PREPOSITIONAL = "квантовом кардиорегуляторе",
+	)
+
+/obj/item/organ/internal/heart/cybernetic/quantum/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
+	. = ..()
+	if(!.)
+		return
+	Restart()
+	if(emagged)
+		emagged = FALSE
+		start_hemorrhage()
+
+/obj/item/organ/internal/heart/cybernetic/quantum/Stop()
+	if(owner)
+		return FALSE
+	return ..()
+
+/obj/item/organ/internal/heart/cybernetic/quantum/emp_act(severity)
+	if(!owner || emp_proof || emp_shielded(severity))
+		return
+	start_hemorrhage()
+
+/obj/item/organ/internal/heart/cybernetic/quantum/emag_act(mob/user)
+	if(owner)
+		add_attack_logs(user, owner, "emagged [name]")
+		start_hemorrhage()
+		return
+	if(emagged)
+		return
+	emagged = TRUE
+	add_attack_logs(user, src, "emagged")
+	if(user)
+		balloon_alert(user, "стабилизатор взломан")
+
+/obj/effect/decal/cleanable/blood/hitsplatter/quantum_heart
+	mergeable_decal = FALSE
+
+/obj/item/organ/internal/heart/cybernetic/quantum/proc/start_hemorrhage()
+	if(!owner.blood_volume || HAS_TRAIT(owner, TRAIT_NO_BLOOD))
+		return
+	hemorrhage_end_time = world.time + QUANTUM_HEART_HEMORRHAGE_TIME
+	if(hemorrhage_active)
+		return
+	hemorrhage_active = TRUE
+	owner.visible_message(
+		span_danger("Из груди [owner.declent_ru(GENITIVE)] с жутким свистом во все стороны начинает хлестать кровь!"),
+		span_userdanger("[DECLENT_RU_CAP(src, NOMINATIVE)] срывается в разнос! Кровь хлещет из вашей груди во все стороны!"),
+	)
+	INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, emote), "scream")
+	hemorrhage_tick()
+
+/obj/item/organ/internal/heart/cybernetic/quantum/proc/hemorrhage_tick()
+	if(QDELETED(src))
+		return
+	if(!owner || world.time >= hemorrhage_end_time || !owner.bleed(QUANTUM_HEART_BLOOD_PER_TICK))
+		stop_hemorrhage()
+		return
+	for(var/direction in GLOB.alldirs)
+		owner.spray_blood(direction, rand(QUANTUM_HEART_MIN_SPLATTER, QUANTUM_HEART_MAX_SPLATTER), splatter_type = /obj/effect/decal/cleanable/blood/hitsplatter/quantum_heart)
+	playsound(owner, 'sound/effects/splat.ogg', 50, TRUE)
+	if(prob(QUANTUM_HEART_MESSAGE_CHANCE))
+		to_chat(owner, span_danger(pick(
+			"Кровь бьёт фонтаном из вашей груди!",
+			"Сердце колотится с немыслимой скоростью!",
+			"Вы чувствуете, как жизнь вытекает из вас с каждым ударом!",
+			"Всё вокруг заливает вашей кровью!",
+		)))
+	addtimer(CALLBACK(src, PROC_REF(hemorrhage_tick)), QUANTUM_HEART_TICK)
+
+/obj/item/organ/internal/heart/cybernetic/quantum/proc/stop_hemorrhage()
+	hemorrhage_active = FALSE
+	if(owner)
+		owner.visible_message(
+			span_warning("Кровь из груди [owner.declent_ru(GENITIVE)] перестаёт хлестать."),
+			span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] стабилизируется, кровь больше не хлещет."),
+		)
+
+#undef QUANTUM_HEART_TICK
+#undef QUANTUM_HEART_HEMORRHAGE_TIME
+#undef QUANTUM_HEART_BLOOD_PER_TICK
+#undef QUANTUM_HEART_MIN_SPLATTER
+#undef QUANTUM_HEART_MAX_SPLATTER
+#undef QUANTUM_HEART_MESSAGE_CHANCE

@@ -198,6 +198,10 @@
 	if(status_examines)
 		msg += status_examines
 
+	var/cyberware_examine = (skipface && skipprostheses) ? null : get_cyberware_examine()
+	if(cyberware_examine)
+		msg += cyberware_examine
+
 	var/appears_dead = FALSE
 	if(stat == DEAD || HAS_TRAIT(src, TRAIT_FAKEDEATH))
 		appears_dead = TRUE
@@ -520,7 +524,7 @@
 				have_hud_exam |= our_shitcode.examine_extensions
 
 		var/obj/item/organ/internal/cyberimp/eyes/hud/CIH = H.get_int_organ(/obj/item/organ/internal/cyberimp/eyes/hud)
-		if(CIH?.examine_extensions)
+		if(CIH?.examine_extensions && !CIH.hud_disabled && !CIH.blocked)
 			have_hud_exam |= CIH.examine_extensions
 
 		if(H.check_smart_brain())

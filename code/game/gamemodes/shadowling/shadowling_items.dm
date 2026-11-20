@@ -5,7 +5,6 @@
 	icon_state = "shadowling_uniform"
 	origin_tech = null
 	item_flags = ABSTRACT|DROPDEL
-	has_sensor = FALSE
 	displays_id = FALSE
 	onmob_sheets = list(
 		ITEM_SLOT_CLOTH_INNER_STRING = NONE,

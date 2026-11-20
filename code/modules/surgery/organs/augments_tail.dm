@@ -1,9 +1,10 @@
 
 /obj/item/organ/internal/cyberimp/tail
 	name = "Tail-mounted implant"
-	desc = "You shoudn't see this! Immediately report to a coder."
+	desc = "Вы не должны это видеть! Немедленно сообщите кодерам."
 	parent_organ_zone = BODY_ZONE_TAIL
 	slot = INTERNAL_ORGAN_TAIL_DEVICE
+	cyber_cost = 12
 	icon_state = "implant-toolkit"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
@@ -11,10 +12,21 @@
 	var/sound_off = 'sound/mecha/mechmove03.ogg'
 	var/implant_emp_downtime
 
+/obj/item/organ/internal/cyberimp/tail/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант хвоста",
+		GENITIVE = "импланта хвоста",
+		DATIVE = "импланту хвоста",
+		ACCUSATIVE = "имплант хвоста",
+		INSTRUMENTAL = "имплантом хвоста",
+		PREPOSITIONAL = "импланте хвоста",
+	)
+
 // Syndi tail razorblade
 /obj/item/organ/internal/cyberimp/tail/blade
 	name = "tail razorblade implant"
-	desc = "Razor sharp blade designed to be hidden inside the tail. Traditional design of House Eshie'Ssharahss, sold at every corner of the Empire."
+	cyber_cost = 25
+	desc = "Острое как бритва лезвие, спрятанное в хвосте. Традиционная разработка Дома Эшие'Сшарахсс, которую продают на каждом углу Империи."
 	var/datum/action/innate/tail_cut/implant_ability = new
 	var/biological = FALSE								// Used in examine
 	var/activated = FALSE
@@ -28,10 +40,20 @@
 	icon_state = "tailimplant_blade"					// All tailblades sprites by @baldek
 	origin_tech = "materials=6;combat=5;biotech=5;programming=3;syndicate=3;"
 
+/obj/item/organ/internal/cyberimp/tail/blade/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант хвостового лезвия",
+		GENITIVE = "импланта хвостового лезвия",
+		DATIVE = "импланту хвостового лезвия",
+		ACCUSATIVE = "имплант хвостового лезвия",
+		INSTRUMENTAL = "имплантом хвостового лезвия",
+		PREPOSITIONAL = "импланте хвостового лезвия",
+	)
+
 // NT tail laserblade
 /obj/item/organ/internal/cyberimp/tail/blade/laser
 	name = "tail laserblade implant"
-	desc = "A laser blade designed to be hidden inside the tail. Latest design of House Eshie'Ssharahss, issued to Nanotrasen in exclusive contract."
+	desc = "Лазерное лезвие, спрятанное в хвосте. Новейшая разработка Дома Эшие'Сшарахсс, поставляемая НТ по эксклюзивному контракту."
 
 	slash_strength = 20
 	stamina_damage = 10
@@ -43,16 +65,36 @@
 	icon_state = "tailimplant_laserblue"
 	origin_tech = "materials=5;combat=5;biotech=5;powerstorage=4;"
 
+/obj/item/organ/internal/cyberimp/tail/blade/laser/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант хвостового лазерного лезвия",
+		GENITIVE = "импланта хвостового лазерного лезвия",
+		DATIVE = "импланту хвостового лазерного лезвия",
+		ACCUSATIVE = "имплант хвостового лазерного лезвия",
+		INSTRUMENTAL = "имплантом хвостового лазерного лезвия",
+		PREPOSITIONAL = "импланте хвостового лазерного лезвия",
+	)
+
 // Syndi tail laserblade
 /obj/item/organ/internal/cyberimp/tail/blade/laser/syndi
 	name = "overcharged laserblade implant"
-	desc = "A laser blade designed to be hidden inside the tail. Design, stolen from House Eshie'Ssharahss and overcharged to be more powerful by the brightest minds of the Gorlex Marauders."
+	desc = "Лазерное лезвие, спрятанное в хвосте. Конструкцию украли у Дома Эшие'Сшарахсс, а лучшие умы Мародёров Горлекса перегрузили её ради мощи."
 
 	slash_strength = 25
 	stamina_damage = 20
 	self_stamina_damage = 5
 	icon_state = "tailimplant_laserred"
 	origin_tech = "materials=6;combat=5;biotech=5;powerstorage=3;syndicate=2;"
+
+/obj/item/organ/internal/cyberimp/tail/blade/laser/syndi/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант перегруженного лазерного лезвия",
+		GENITIVE = "импланта перегруженного лазерного лезвия",
+		DATIVE = "импланту перегруженного лазерного лезвия",
+		ACCUSATIVE = "имплант перегруженного лазерного лезвия",
+		INSTRUMENTAL = "имплантом перегруженного лазерного лезвия",
+		PREPOSITIONAL = "импланте перегруженного лазерного лезвия",
+	)
 
 /obj/item/organ/internal/cyberimp/tail/blade/emp_act(severity)
 	if(emp_proof)
@@ -121,6 +163,7 @@
 //organic buff
 /obj/item/organ/internal/cyberimp/tail/blade/organic_upgrade
 	name = "tail tumour"
+	cyber_cost = 0
 	desc = "Небольшая странноватая опухоль, находящаяся в хвосте. На удивление, не делает ничего страшного, но значительно увеличивает мощность удара хвостом."
 	icon_state = "roro core"
 	slash_strength = 0

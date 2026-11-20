@@ -32,6 +32,7 @@
 #define ALERT_UNPOSSESS_OBJECT "unpossess_object"
 
 /** Silicon related */
+#define ALERT_AI_CORE_INTEGRITY "ai_core_integrity"
 #define ALERT_LOCKED "locked"
 
 /** Mech related */

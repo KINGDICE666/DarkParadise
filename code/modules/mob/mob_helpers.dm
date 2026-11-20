@@ -11,6 +11,9 @@
 	if(.)
 		return .
 
+	if(HAS_TRAIT(src, TRAIT_FORENSIC_SCAN))
+		return MATRIX_FORENSIC_SCAN
+
 	var/obj/item/clothing/glasses/worn_glasses = glasses
 	var/obj/item/organ/internal/eyes/eyes = get_int_organ(/obj/item/organ/internal/eyes)
 	if(istype(worn_glasses) && worn_glasses.color_view) //Check to see if they got those magic glasses and they're augmenting the colour of what the wearer sees. If they're not, color_view should be null.
@@ -77,18 +80,14 @@
 	return 0
 
 /proc/hassensorlevel(A, level)
-	var/mob/living/carbon/human/H = A
-	if(istype(H) && istype(H.w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/U = H.w_uniform
-		return U.sensor_mode >= level
-	return 0
+	return getsensorlevel(A) >= level
 
 /proc/getsensorlevel(A)
 	var/mob/living/carbon/human/H = A
-	if(istype(H) && istype(H.w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/U = H.w_uniform
-		return U.sensor_mode
-	return SUIT_SENSOR_OFF
+	if(!istype(H))
+		return SUIT_SENSOR_OFF
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	return (adapter && !adapter.blocked) ? adapter.sensor_mode : SUIT_SENSOR_OFF
 
 /proc/offer_control(mob/offer_mob, hours, hide_role)
 	if(HAS_TRAIT(offer_mob, TRAIT_BEING_OFFERED))

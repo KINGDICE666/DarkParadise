@@ -972,6 +972,9 @@
 	if(!istype(heart))
 		return FALSE
 
+	if(status && heart.arrest_immune)
+		return FALSE
+
 	heart.beating = !status
 	return TRUE
 

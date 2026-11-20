@@ -32,6 +32,7 @@
 		/obj/item/stack/medical/suture = 4,
 		/obj/item/healthanalyzer = 1,
 		/obj/item/tourniquet = 3,
+		/obj/item/reagent_containers/food/pill/stabilicin = 3,
 	)
 	contraband = list(
 		/obj/item/reagent_containers/syringe/charcoal = 4,

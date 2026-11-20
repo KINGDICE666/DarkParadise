@@ -219,6 +219,8 @@
 /obj/machinery/autodoc/proc/can_perform(datum/autodoc_procedure/procedure, obj/item/organ/organ)
 	if(procedure.required_module && !has_module(procedure.required_module))
 		return FALSE
+	if(occupant && !is_compatible(occupant))
+		return FALSE
 	return procedure.is_needed(organ, src)
 
 /obj/machinery/autodoc/proc/get_install_procedure(obj/item/organ/internal/organ)
@@ -622,14 +624,20 @@
 	if(can_accept(dropped, user))
 		INVOKE_ASYNC(src, PROC_REF(put_in), dropped, user)
 
+/obj/machinery/autodoc/proc/needs_xenophysiology(mob/living/carbon/human/patient)
+	return isunathi(patient) || isplasmaman(patient)
+
 /obj/machinery/autodoc/proc/is_compatible(mob/living/carbon/human/patient)
-	return !(ismachineperson(patient) || isplasmaman(patient) || isnucleation(patient) || isunathi(patient))
+	if(ismachineperson(patient) || isnucleation(patient))
+		return FALSE
+	return !needs_xenophysiology(patient) || has_module(AUTODOC_MODULE_XENOPHYSIOLOGY)
 
 /obj/machinery/autodoc/proc/can_accept(mob/living/carbon/human/patient, mob/user)
 	if(!is_compatible(patient))
-		to_chat(patient, span_warning("Вы не совместимы с [declent_ru(INSTRUMENTAL)]: манипуляторы не рассчитаны на вашу физиологию."))
+		var/reason = needs_xenophysiology(patient) ? "нужен модуль нестандартной физиологии" : "манипуляторы не рассчитаны на такую физиологию"
+		to_chat(patient, span_warning("Вы не совместимы с [declent_ru(INSTRUMENTAL)]: [reason]."))
 		if(patient != user)
-			to_chat(user, span_warning("[patient] не совместим[GEND_A_O_Y(patient)] с [declent_ru(INSTRUMENTAL)]: манипуляторы не рассчитаны на такую физиологию."))
+			to_chat(user, span_warning("[patient] не совместим[GEND_A_O_Y(patient)] с [declent_ru(INSTRUMENTAL)]: [reason]."))
 		balloon_alert(user, "физиология несовместима!")
 		return FALSE
 	if(panel_open)
@@ -734,8 +742,12 @@
 	if(!occupant)
 		return data
 
+	var/datum/money_account/insurance_account = get_insurance_account(occupant)
 	data["occupant"] = list(
 		"name" = occupant.name,
+		"insuranceType" = insurance_account?.insurance_type,
+		"insurance" = insurance_account?.insurance,
+		"reqInsurance" = round(get_req_insurance(occupant)),
 		"stat" = occupant.stat,
 		"health" = occupant.health,
 		"maxHealth" = occupant.maxHealth,
@@ -868,6 +880,8 @@
 
 /obj/machinery/autodoc/proc/get_warnings()
 	. = list()
+	if(!is_compatible(occupant))
+		. += "Нестандартная физиология: нужен модуль, операции заблокированы."
 	if(occupant.stat == DEAD)
 		. += "Пациент мёртв: после лечения нужна реанимация."
 	if(!has_module(AUTODOC_MODULE_ORGANS))
@@ -978,6 +992,11 @@
 				balloon_alert(usr, "идёт работа!")
 				return FALSE
 			mode = new_mode
+		if("collect_insurance")
+			if(!occupant || !ishuman(usr))
+				return FALSE
+			var/obj/item/card/id/operator_id = usr.get_id_card()
+			do_insurance_collection(usr, occupant, operator_id?.associated_account_number)
 		if("eject_module")
 			var/obj/item/disk/autodoc_module/module = locateUID(params["uid"])
 			if(!(module in installed_modules))

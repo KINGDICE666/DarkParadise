@@ -1,5 +1,8 @@
 /obj/item/ammo_casing/proc/fire(atom/target, mob/living/user, list/modifiers, distro, quiet, zone_override = "", spread, atom/firer_source_atom, damage_mod = 1, stamina_mod = 1)
 	distro += variance
+	fire_origin = get_turf(firer_source_atom)
+	impact_turfs = null
+	impact_target_name = null
 	for(var/i = max(1, pellets), i > 0, i--)
 		var/targloc = get_turf(target)
 		ready_proj(target, user, quiet, zone_override, firer_source_atom, damage_mod, stamina_mod)
@@ -17,6 +20,9 @@
 	else
 		user.changeNext_move(CLICK_CD_RANGE)
 	user.newtonian_move(get_dir(target, user))
+	fired_weapon_name = isgun(firer_source_atom) ? DECLENT_RU_CAP(firer_source_atom, NOMINATIVE) : null
+	fire_time = world.time
+	fire_direction = get_dir(user, target)
 	update_icon()
 	SEND_SIGNAL(src, COMSIG_FIRE_CASING, target, user, firer_source_atom, randomspread, spread, zone_override, modifiers, distro)
 	return TRUE

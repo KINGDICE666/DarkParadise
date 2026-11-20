@@ -38,6 +38,7 @@
 #define COMSIG_LIVING_EARLY_DEATH "living_early_death"
 ///from base of mob/living/death(): (gibbed)
 #define COMSIG_LIVING_DEATH "living_death"
+#define COMSIG_LIVING_HEALTH_UPDATE "living_health_update"
 //sent from mobs when they exit their body as a ghost
 #define COMSIG_LIVING_GHOSTIZED "ghostized"
 //sent from mobs when they re-enter their body as a ghost

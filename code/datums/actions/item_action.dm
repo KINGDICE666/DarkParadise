@@ -433,7 +433,7 @@
 
 /datum/action/item_action/organ_action/IsAvailable(feedback = FALSE)
 	var/obj/item/organ/internal/I = target
-	if(!I.owner)
+	if(!I.owner || I.is_suppressed())
 		return FALSE
 	return ..()
 

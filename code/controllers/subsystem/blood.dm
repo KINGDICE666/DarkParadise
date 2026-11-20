@@ -138,8 +138,8 @@ SUBSYSTEM_DEF(blood)
 				to_chat(target, span_warning("Вы чувствуете [symptom]."))
 
 		if(1 to BLOOD_VOLUME_SURVIVE)
-			if(!target.undergoing_cardiac_arrest())
-				target.set_heartattack(TRUE)
+			if(!target.undergoing_cardiac_arrest() && !target.set_heartattack(TRUE))
+				target.adjust_blood_loss_damage(BLOOD_SURVIVE_DAMAGE)
 			if(!target.incapacitated())
 				target.Stun(30 SECONDS)
 
