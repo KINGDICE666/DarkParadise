@@ -707,7 +707,7 @@
 	var/datum/effect_system/fluid_spread/smoke/bad/smoke = new()
 	smoke.set_up(amount = 5, location = loc)
 	smoke.start()
-	radiation_pulse(loc, 4, chance = 50)
+	radiation_pulse(src, 60)
 	var/distance_traveled = rand(10, 60)
 	var/angle = rand(0, 360)
 	var/turf/end = get_turf_in_angle(angle, loc, distance_traveled)

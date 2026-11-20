@@ -419,8 +419,7 @@
 	var/obj/item/organ/internal/liver/liver = affected_mob.get_organ_slot(INTERNAL_ORGAN_LIVER)
 	if(liver && HAS_TRAIT(liver, TRAIT_ENGINEER_METABOLISM))
 		ADD_TRAIT(affected_mob, TRAIT_HALT_RADIATION_EFFECTS, UNIQUE_TRAIT_SOURCE(src))
-		if(HAS_TRAIT(affected_mob, TRAIT_IRRADIATED))
-			update_flags |= affected_mob.adjustToxLoss(-2 * REM, updating_health = FALSE)
+		affected_mob.adjust_radiation_dose(-2 * REM)
 	return ..() | update_flags
 
 /datum/reagent/consumable/ethanol/screwdrivercocktail/on_mob_end_metabolize(mob/living/drinker)

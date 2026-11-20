@@ -13,7 +13,7 @@
 	sheet_amount = 1
 	girder_type = /obj/structure/girder/reinforced
 	can_dismantle_with_welder = FALSE
-	rad_insulation = RAD_HEAVY_INSULATION
+	rad_insulation = RAD_EXTREME_INSULATION
 	var/d_state = RWALL_INTACT
 	var/can_be_reinforced = TRUE
 

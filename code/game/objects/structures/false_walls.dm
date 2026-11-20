@@ -12,7 +12,7 @@
 	icon = 'icons/turf/walls/wall.dmi'
 	icon_state = "wall-0"
 	base_icon_state = "wall"
-	rad_insulation = RAD_MEDIUM_INSULATION
+	rad_insulation = RAD_HEAVY_INSULATION
 	density = TRUE
 	obj_flags = BLOCK_Z_IN_DOWN | BLOCK_Z_IN_UP// just in case in up. But falsewall should be on the floor.
 	opacity = TRUE
@@ -282,13 +282,7 @@
 
 	active = TRUE
 	COOLDOWN_START(src, radiation_cooldown, 1.5 SECONDS)
-	radiation_pulse(
-		src,
-		max_range = 3,
-		threshold = RAD_LIGHT_INSULATION,
-		chance = URANIUM_IRRADIATION_CHANCE,
-		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
-	)
+	radiation_pulse(src, RAD_PULSE_URANIUM_STRUCTURE)
 	propagate_radiation_pulse()
 	active = FALSE
 

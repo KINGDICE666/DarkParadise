@@ -1,0 +1,366 @@
+$rad-bg: #070c0a;
+$rad-panel: #0d1612;
+$rad-panel-edge: #1d2f27;
+$rad-text: #c6e8d4;
+$rad-muted: #6e8f7d;
+$rad-green: #48ff78;
+$rad-amber: #ffba40;
+$rad-red: #ff4638;
+$rad-font: Consolas, 'Lucida Console', 'Courier New', monospace;
+
+.RadScope {
+  position: relative;
+  height: 100%;
+  padding: 8px;
+  overflow: hidden;
+  color: $rad-text;
+  font-family: $rad-font;
+  font-size: 12px;
+  background-color: $rad-bg;
+  background-image:
+    radial-gradient(circle at 50% 30%, rgba(72, 255, 120, 0.06), transparent 65%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px);
+
+  &--alarm {
+    animation: RadScope-alarm 1s infinite;
+  }
+
+  &__grid {
+    display: grid;
+    gap: 8px;
+    height: 100%;
+    min-height: 0;
+  }
+
+  &__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 8px 10px;
+    background: linear-gradient(180deg, #0f1a15, $rad-panel);
+    border: 1px solid $rad-panel-edge;
+    border-radius: 4px;
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.45);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: $rad-muted;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  &__big {
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  &__unit {
+    margin-left: 4px;
+    color: $rad-muted;
+    font-size: 11px;
+    font-weight: normal;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 3px 0;
+  }
+
+  &__muted {
+    color: $rad-muted;
+  }
+
+  &__good {
+    color: $rad-green;
+    text-shadow: 0 0 6px rgba($rad-green, 0.5);
+  }
+
+  &__warn {
+    color: $rad-amber;
+    text-shadow: 0 0 6px rgba($rad-amber, 0.5);
+  }
+
+  &__bad {
+    color: $rad-red;
+    text-shadow: 0 0 6px rgba($rad-red, 0.6);
+  }
+
+  &__button {
+    padding: 4px 9px;
+    color: $rad-text;
+    font-family: inherit;
+    font-size: 11px;
+    background: #14231c;
+    border: 1px solid #2c4639;
+    border-radius: 3px;
+    cursor: pointer;
+    transition:
+      background-color 0.12s,
+      border-color 0.12s;
+
+    &:hover:not(:disabled) {
+      background: #1c3328;
+      border-color: $rad-green;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
+    &--active {
+      color: #04140a;
+      background: $rad-green;
+      border-color: $rad-green;
+      box-shadow: 0 0 10px rgba($rad-green, 0.45);
+
+      &:hover:not(:disabled) {
+        background: #6dff94;
+      }
+    }
+
+    &--danger {
+      color: #fff;
+      background: #5c1712;
+      border-color: $rad-red;
+
+      &:hover:not(:disabled) {
+        background: #7d2018;
+        border-color: #ff7a6f;
+      }
+    }
+
+    &--wide {
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  &__lamp {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 6px;
+    background: $rad-muted;
+    border-radius: 50%;
+
+    &--0 {
+      background: $rad-green;
+      box-shadow: 0 0 7px $rad-green;
+    }
+
+    &--1 {
+      background: $rad-amber;
+      box-shadow: 0 0 8px $rad-amber;
+      animation: RadScope-blink 1.2s infinite;
+    }
+
+    &--2 {
+      background: $rad-red;
+      box-shadow: 0 0 10px $rad-red;
+      animation: RadScope-blink 0.5s infinite;
+    }
+  }
+
+  &__bar {
+    position: relative;
+    height: 12px;
+    overflow: hidden;
+    background: #060a08;
+    border: 1px solid $rad-panel-edge;
+    border-radius: 2px;
+  }
+
+  &__barFill {
+    height: 100%;
+    transition: width 0.4s;
+  }
+
+  &__barMark {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  &__stages {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  &__stage {
+    padding: 3px 0;
+    color: $rad-muted;
+    font-size: 9px;
+    text-align: center;
+    background: #0a120e;
+    border: 1px solid $rad-panel-edge;
+    border-radius: 2px;
+
+    &--reached {
+      color: #04140a;
+      font-weight: bold;
+    }
+  }
+
+  &__flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+      padding: 3px 6px;
+      color: $rad-muted;
+      font-size: 10px;
+      font-weight: normal;
+      text-align: left;
+      text-transform: uppercase;
+      border-bottom: 1px solid $rad-panel-edge;
+    }
+
+    td {
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba($rad-panel-edge, 0.45);
+    }
+  }
+
+  &__selected td {
+    background: rgba($rad-green, 0.07);
+  }
+
+  &__clickable {
+    cursor: pointer;
+
+    &:hover td {
+      background: rgba($rad-green, 0.04);
+    }
+  }
+
+  &__map {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    background: #050907;
+    border: 1px solid $rad-panel-edge;
+    border-radius: 3px;
+  }
+
+  &__pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: RadScope-pulse 2s infinite;
+  }
+
+  &__layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    &--passive {
+      pointer-events: none;
+    }
+  }
+
+  &__department {
+    fill-opacity: 0.14;
+    cursor: pointer;
+    transition: fill-opacity 0.15s;
+
+    &:hover {
+      fill-opacity: 0.32;
+    }
+  }
+
+  &__swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 6px;
+    border-radius: 2px;
+  }
+
+  &__selection {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid $rad-panel-edge;
+  }
+
+  .Input,
+  .NumberInput {
+    color: $rad-text;
+    font-family: inherit;
+    background: #060a08;
+    border-color: #2c4639;
+  }
+}
+
+@keyframes RadScope-alarm {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 0 rgba($rad-red, 0);
+  }
+
+  50% {
+    box-shadow: inset 0 0 50px 4px rgba($rad-red, 0.28);
+  }
+}
+
+@keyframes RadScope-evacuate {
+  50% {
+    fill-opacity: 0.6;
+    fill: $rad-red;
+  }
+}
+
+@keyframes RadScope-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes RadScope-pulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.6);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}

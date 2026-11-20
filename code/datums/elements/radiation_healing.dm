@@ -1,12 +1,11 @@
 #define BRUTE_HEAL_AMOUNT 2
 #define BURN_HEAL_AMOUNT 2
 #define INTERNAL_HEAL_AMOUNT 2
-#define MIN_RADIATION_DURATION_FOR_HEALING (10 SECONDS)
-#define RADIATION_CONSUME_TIME (40 SECONDS)
+#define RADS_CONSUMED_PER_SECOND 5
 
+/// Поглощённая доза не вызывает болезнь, а расходуется на лечение.
 /datum/element/radiation_healing
 	element_flags = ELEMENT_DETACH_ON_HOST_DESTROY
-	COOLDOWN_DECLARE(last_heal)
 
 /datum/element/radiation_healing/Attach(datum/target)
 	. = ..()
@@ -23,16 +22,16 @@
 	REMOVE_TRAIT(source, TRAIT_HALT_RADIATION_EFFECTS, UNIQUE_TRAIT_SOURCE(src))
 	UnregisterSignal(source, COMSIG_IRRADIATED_PROCESS)
 
-/datum/element/radiation_healing/proc/on_irradiation_process(mob/living/carbon/human/human, seconds_per_tick, beginning_of_irradiation)
+/datum/element/radiation_healing/proc/on_irradiation_process(mob/living/carbon/human/human, seconds_per_tick, dose)
 	SIGNAL_HANDLER
 
-	var/exposure_time = world.time - beginning_of_irradiation
-	if(exposure_time < MIN_RADIATION_DURATION_FOR_HEALING)
+	if(dose <= 0)
 		return
 
-	process_radiation_healing(human, exposure_time)
+	process_radiation_healing(human, seconds_per_tick)
+	human.adjust_radiation_dose(-RADS_CONSUMED_PER_SECOND * seconds_per_tick)
 
-/datum/element/radiation_healing/proc/process_radiation_healing(mob/living/carbon/human/human, exposure_time, seconds_per_tick)
+/datum/element/radiation_healing/proc/process_radiation_healing(mob/living/carbon/human/human, seconds_per_tick)
 	var/heal_brute = 0
 	var/heal_burn = 0
 
@@ -56,11 +55,7 @@
 		var/obj/item/organ/external/limb = pick(fractured_limbs)
 		limb.mend_fracture()
 
-	if(SPT_PROB(round((exposure_time / RADIATION_CONSUME_TIME) * 100), seconds_per_tick))
-		human.cure_radiation()
-
 #undef BRUTE_HEAL_AMOUNT
 #undef BURN_HEAL_AMOUNT
 #undef INTERNAL_HEAL_AMOUNT
-#undef MIN_RADIATION_DURATION_FOR_HEALING
-#undef RADIATION_CONSUME_TIME
+#undef RADS_CONSUMED_PER_SECOND

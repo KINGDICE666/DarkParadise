@@ -14,12 +14,7 @@
 
 /datum/blobstrain/reagent/radioactive_gel/damage_reaction(obj/structure/blob/blob, damage, damage_type, damage_flag)
 	if((damage_flag == ENERGY || damage_flag == LASER) && prob(40))
-		radiation_pulse(
-			source = blob,
-			max_range = 5,
-			threshold = 0.1,
-			chance = 60
-		)
+		radiation_pulse(blob, 40)
 	return ..()
 
 /datum/reagent/blob/radioactive_gel

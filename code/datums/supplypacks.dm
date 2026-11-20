@@ -3467,6 +3467,8 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/clothing/head/radiation,
 		/obj/item/clothing/suit/radiation,
 		/obj/item/clothing/suit/radiation,
+		/obj/item/geiger_counter,
+		/obj/item/geiger_counter,
 	)
 	cost = 875
 	containername = "ящик радиационных костюмов"

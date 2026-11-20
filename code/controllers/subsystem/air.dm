@@ -487,7 +487,7 @@ SUBSYSTEM_DEF(air)
 
 		if(reasons & MILLA_INTERESTING_REASON_RADIATION_PULSE)
 			var/pulse_range = min(currentrun[offset + MILLA_INDEX_RADIATION_ENERGY], GAS_REACTION_MAXIMUM_RADIATION_PULSE_RANGE)
-			radiation_pulse(turf, max_range = pulse_range, threshold = ATMOS_RADIATION_THRESHOLD)
+			radiation_pulse(turf, pulse_range * RAD_PULSE_ATMOS_PER_RANGE)
 
 		if(reasons & MILLA_INTERESTING_REASON_NUCLEAR_PARTICLES)
 			var/nuclear_particle_amount = currentrun[offset + MILLA_INDEX_NUCLEAR_PARTICLES]

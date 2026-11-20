@@ -280,12 +280,7 @@
 /obj/item/slag/Initialize(mapload)
 	. = ..()
 	//scatter_atom()
-	AddElement(/datum/element/radioactive, 10, chance = 80)
-	START_PROCESSING(SSprocessing, src)
-
-/obj/item/slag/process()
-	. = ..()
-	radiation_pulse(src, 6, chance = 50)
+	AddElement(/datum/element/radioactive, RAD_PULSE_NUCLEAR_SLAG)
 
 // MARK: Starter Grenade
 
