@@ -729,6 +729,18 @@ SUBSYSTEM_DEF(air)
 	milla_load_turfs(low_corner, high_corner)
 	for(var/turf/turf as anything in block(low_corner, high_corner))
 		turf.milla_data = null
+		var/datum/gas_mixture/bound_to_turf/early_air = turf.bound_air
+		if(isnull(early_air))
+			continue
+		var/list/milla_tile = new/list(MILLA_TILE_SIZE)
+		get_tile_atmos(turf, milla_tile)
+		if(!early_air.dirty)
+			early_air.copy_from_milla(milla_tile)
+			early_air.readonly = null
+			continue
+		var/datum/gas_mixture/loaded_air = new()
+		loaded_air.copy_from_milla(milla_tile)
+		early_air.merge(loaded_air)
 
 /datum/controller/subsystem/air/proc/setup_atmos_machinery(list/machines_to_init)
 	var/watch = start_watch()
