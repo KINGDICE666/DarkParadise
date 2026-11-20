@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Icon } from 'tgui-core/components';
 import { classes } from 'tgui-core/react';
+import { GalaxyLayer } from './GalaxyLayer';
 import { overmapKindIcon, overmapKindLabel } from './OvermapChrome';
 import { type RadarDock, radarClickWorld } from './radarInterpolation';
 import { GEOMETRY_FADE, GEOMETRY_FULL, radarWheelZoom } from './radarZoom';
@@ -870,7 +871,10 @@ const ObjectLayer = (props: {
             );
             const point = object.kind === 'relay' || object.kind === 'portal';
             const span = point
-              ? Math.max(radius / 70, Math.min(cellSpan * POINT_OBJECT_HALF, radius / 30))
+              ? Math.max(
+                  radius / 70,
+                  Math.min(cellSpan * POINT_OBJECT_HALF, radius / 30),
+                )
               : half;
 
             const unknown = object.kind === 'unknown';
@@ -1095,7 +1099,10 @@ const SectorLayer = (props: {
   }
   const destX = dest ? (dest[0] - self[0]) * cellSpan : 0;
   const destY = dest ? (dest[1] - self[1]) * cellSpan : 0;
-  const mark = Math.max(radius * 0.014, Math.min(cellSpan * 0.3, radius * 0.035));
+  const mark = Math.max(
+    radius * 0.014,
+    Math.min(cellSpan * 0.3, radius * 0.035),
+  );
   return (
     <g opacity={opacity} transform="scale(1 -1)">
       <g transform={`rotate(${rotation})`}>
@@ -1174,227 +1181,6 @@ const SectorLayer = (props: {
             })}
         </g>
       </g>
-    </g>
-  );
-};
-
-const GalaxyLayer = (props: {
-  galaxy: GalaxyMap;
-  sectorId?: string;
-  radius: number;
-  opacity: number;
-
-  slot: number;
-  rotation: number;
-}) => {
-  const { galaxy, sectorId, radius, opacity, slot } = props;
-  const [selectedId, setSelectedId] = useState<string | undefined>(sectorId);
-  const [flightAge, setFlightAge] = useState(0);
-  useEffect(() => {
-    setFlightAge(0);
-    if (!galaxy.transits?.length) return;
-    const started = performance.now();
-    let animation = 0;
-    const tick = (now: number) => {
-      setFlightAge(now - started);
-      animation = requestAnimationFrame(tick);
-    };
-    animation = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animation);
-  }, [galaxy.transits]);
-  const nodes = useMemo(() => {
-    const sectors = galaxy.sectors;
-    const center = sectors.find((sector) => sector.id === galaxy.center);
-    const centerX = center?.x || 0;
-    const centerY = center?.y || 0;
-    const extent = Math.max(
-      1,
-      ...sectors.map((sector) =>
-        Math.max(Math.abs(sector.x - centerX), Math.abs(sector.y - centerY)),
-      ),
-    );
-    const scale = (slot * 2.4 * 1.15 * 0.72) / extent;
-    return sectors.map((sector) => ({
-      sector,
-      x: (sector.x - centerX) * scale,
-      y: -(sector.y - centerY) * scale,
-    }));
-  }, [galaxy, slot]);
-  if (!nodes.length || opacity <= 0) return null;
-  const selected =
-    nodes.find((node) => node.sector.id === selectedId) ||
-    nodes.find((node) => node.sector.id === sectorId);
-  const byId = new Map(nodes.map((node) => [node.sector.id, node]));
-  const dot = radius * 0.017;
-  return (
-    <g className="OvermapGalaxy" opacity={opacity}>
-      <ellipse
-        className="OvermapGalaxy__orbit"
-        rx={radius * 0.85}
-        ry={radius * 0.43}
-        transform="rotate(-28)"
-      />
-      <ellipse
-        className="OvermapGalaxy__orbit"
-        rx={radius * 0.67}
-        ry={radius * 0.26}
-        transform="rotate(-28)"
-      />
-      {Array.from({ length: 70 }, (_, index) => (
-        <circle
-          key={index}
-          className="OvermapGalaxy__star"
-          cx={Math.sin(index * 127.1) * radius * 0.94}
-          cy={Math.cos(index * 311.7) * radius * 0.9}
-          r={radius * (index % 5 === 0 ? 0.002 : 0.001)}
-        />
-      ))}
-      {nodes.flatMap((node) =>
-        node.sector.links.map((id) => {
-          const target = byId.get(id);
-          if (!target || id < node.sector.id) return null;
-          const active = node === selected || target === selected;
-          const signal =
-            node.sector.signal_links?.includes(id) ||
-            target.sector.signal_links?.includes(node.sector.id);
-          const midX = (node.x + target.x) / 2;
-          const midY = (node.y + target.y) / 2 - radius * 0.07;
-          return (
-            <g key={`${node.sector.id}-${id}`}>
-              <path
-                className={classes([
-                  'OvermapGalaxy__route',
-                  active && 'OvermapGalaxy__route--active',
-                  !signal && 'OvermapGalaxy__route--uncertain',
-                ])}
-                d={`M${node.x} ${node.y} Q${midX} ${midY} ${target.x} ${target.y}`}
-              />
-              <text
-                x={midX}
-                y={(node.y + target.y) / 2 - radius * 0.035}
-                fontSize={radius * 0.018}
-                fill="#8fa8c2"
-                textAnchor="middle"
-              >
-                {node.sector.distances?.[id] ||
-                  target.sector.distances?.[node.sector.id] ||
-                  ''}
-              </text>
-            </g>
-          );
-        }),
-      )}
-      {galaxy.transits?.map((flight) => {
-        const from = byId.get(flight.from);
-        const to = byId.get(flight.to);
-        if (!from || !to) return null;
-        const t = Math.min(
-          1,
-          flight.progress +
-            ((1 - flight.progress) * flightAge) / Math.max(flight.remaining, 1),
-        );
-        const u = 1 - t;
-        const midX = (from.x + to.x) / 2;
-        const midY = (from.y + to.y) / 2 - radius * 0.07;
-        const x = u * u * from.x + 2 * u * t * midX + t * t * to.x;
-        const y = u * u * from.y + 2 * u * t * midY + t * t * to.y;
-        const angle =
-          (Math.atan2(
-            u * (midY - from.y) + t * (to.y - midY),
-            u * (midX - from.x) + t * (to.x - midX),
-          ) *
-            180) /
-          Math.PI;
-        const size = radius * 0.012;
-        return (
-          <path
-            key={flight.id}
-            d={`M${size} 0L${-size} ${size * 0.7}L${-size * 0.5} 0L${-size} ${-size * 0.7}Z`}
-            transform={`translate(${x} ${y}) rotate(${angle})`}
-            fill={flight.own ? '#76ffc1' : '#f3ba85'}
-          >
-            <title>{flight.own ? 'Ваш корабль' : 'Корабль в переходе'}</title>
-          </path>
-        );
-      })}
-      {nodes.map((node) => {
-        const current = node.sector.id === sectorId;
-        const picked = node === selected;
-        const unknown = node.sector.unknown;
-        return (
-          <g
-            key={node.sector.id}
-            transform={`translate(${node.x} ${node.y})`}
-            className={classes([
-              'OvermapGalaxy__node',
-              current && 'OvermapGalaxy__node--current',
-              picked && 'OvermapGalaxy__node--selected',
-              unknown && 'OvermapGalaxy__node--unknown',
-            ])}
-            role="button"
-            tabIndex={0}
-            aria-label={node.sector.name}
-            onClick={() => setSelectedId(node.sector.id)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ')
-                setSelectedId(node.sector.id);
-            }}
-          >
-            <title>{unknown ? 'Неизвестный сектор' : node.sector.name}</title>
-            <circle r={dot * 3.4} fill="transparent" />
-            <circle className="OvermapGalaxy__halo" r={dot * 2.2} />
-            <path
-              className="OvermapGalaxy__bracket"
-              d={`M${-dot * 2.7} ${-dot}v${-dot}h${dot} M${dot * 2.7} ${dot}v${dot}h${-dot}`}
-            />
-            <circle
-              className="OvermapGalaxy__core"
-              r={unknown ? dot * 0.5 : dot}
-            />
-            {!!node.sector.distress && (
-              <circle r={dot * 3} className="OvermapGalaxy__distress" />
-            )}
-            <text
-              className="OvermapGalaxy__name"
-              x={dot * 3.4}
-              y={dot * 0.4}
-              fontSize={radius / 37}
-            >
-              {unknown ? 'НЕИЗВЕСТНО' : node.sector.name}
-            </text>
-            {current && (
-              <text
-                className="OvermapGalaxy__here"
-                x={dot * 3.4}
-                y={dot * 2.4}
-                fontSize={radius / 49}
-              >
-                ТЕКУЩИЙ СЕКТОР
-              </text>
-            )}
-          </g>
-        );
-      })}
-      <text
-        className="OvermapGalaxy__heading"
-        x={-radius * 0.89}
-        y={-radius * 0.83}
-        fontSize={radius / 33}
-      >
-        МЕЖСЕКТОРНАЯ СЕТЬ
-      </text>
-      {!!selected && (
-        <text
-          className="OvermapGalaxy__detail"
-          x={-radius * 0.89}
-          y={radius * 0.89}
-          fontSize={radius / 38}
-        >
-          {selected.sector.unknown
-            ? 'Сигнатура не исследована'
-            : `${selected.sector.name} · связей ${selected.sector.links.length}${selected.sector.distress ? ' · SOS' : ''}`}
-        </text>
-      )}
     </g>
   );
 };
@@ -1753,6 +1539,7 @@ export const OvermapRadar = (props: {
   cellSpan?: number;
   sectorId?: string;
   galaxy?: GalaxyMap | null;
+  noGalaxy?: boolean;
 
   radius?: number;
   onZoom?: (radius: number) => void;
@@ -1769,7 +1556,12 @@ export const OvermapRadar = (props: {
   hazardFields?: HazardField[];
   overlay?: ReactNode;
   onSelectObject?: (id: string) => void;
-  onSelectPoint?: (x: number, y: number, ctrl?: boolean, shift?: boolean) => void;
+  onSelectPoint?: (
+    x: number,
+    y: number,
+    ctrl?: boolean,
+    shift?: boolean,
+  ) => void;
   scatter?: RadarScatterChunk[];
   peels?: RadarPeel[];
   dockTargets?: RadarDock[];
@@ -1840,7 +1632,9 @@ export const OvermapRadar = (props: {
   });
   const galaxySlot = galaxySlotFor(sectorSpan);
   const galaxyBandRadius = galaxyBandFor(sectorSpan);
-  const zoomCeiling = radarZoomCeiling(sectorSpan);
+  const zoomCeiling = props.noGalaxy
+    ? galaxyBandRadius * 0.98
+    : radarZoomCeiling(sectorSpan);
   const galaxyBand = !!props.locked || radius > galaxyBandRadius;
   const geometry = galaxyBand ? 0 : 1;
   const rotation = followHeading ? facing : 0;
@@ -1863,7 +1657,10 @@ export const OvermapRadar = (props: {
     pan: [number, number];
     moved: boolean;
   } | null>(null);
-  const chartOffset: [number, number] = [offset[0] + pan[0], offset[1] + pan[1]];
+  const chartOffset: [number, number] = [
+    offset[0] + pan[0],
+    offset[1] + pan[1],
+  ];
   const screenPoint = (event: { clientX: number; clientY: number }) => {
     const bounds = scope.current?.getBoundingClientRect();
     if (!bounds) return null;
@@ -1940,7 +1737,13 @@ export const OvermapRadar = (props: {
     );
     const cursor = screenPoint(event);
     if (cursor && world && !galaxyBand && next <= galaxyBandRadius) {
-      const before = radarClickWorld(cursor, radius, rotation, world, chartOffset);
+      const before = radarClickWorld(
+        cursor,
+        radius,
+        rotation,
+        world,
+        chartOffset,
+      );
       const after = radarClickWorld(cursor, next, rotation, world, chartOffset);
       setPan([pan[0] + before[0] - after[0], pan[1] + before[1] - after[1]]);
     }
@@ -1969,7 +1772,7 @@ export const OvermapRadar = (props: {
   };
   return (
     <div className="OvermapRadar" onWheel={wheel}>
-      {!!onZoom && !props.locked && !props.bare && (
+      {!!onZoom && !props.locked && !props.bare && !props.noGalaxy && (
         <div className="OvermapRadar__bands">
           <button
             type="button"

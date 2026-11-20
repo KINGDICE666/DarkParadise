@@ -1,0 +1,979 @@
+$sensor-bg: #050c10;
+$sensor-panel: #08141a;
+$sensor-line: #183139;
+$sensor-line-strong: #22444d;
+$sensor-text: #c6e6ee;
+$sensor-dim: #6e9098;
+$sensor-faint: #3d5a62;
+$sensor-white: #e8f7fb;
+$sensor-green: #5dffc2;
+$sensor-amber: #ffb347;
+$sensor-red: #ff5f6d;
+$sensor-cyan: #7ad0e4;
+
+.SensorPost {
+  background: $sensor-bg;
+  color: $sensor-text;
+  font-family: Consolas, 'Cascadia Mono', monospace;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.SensorPost__head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid $sensor-line;
+  background: $sensor-panel;
+  flex-shrink: 0;
+}
+
+.SensorPost__ship {
+  min-width: 0;
+  flex-shrink: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.SensorPost__ship b {
+  color: $sensor-white;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.SensorPost__ship div {
+  color: $sensor-dim;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.SensorPost__tabs {
+  display: flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.SensorPost__tabs {
+  gap: 2px;
+}
+
+.SensorPost__tabs span {
+  padding: 5px 10px;
+  font-size: 11px;
+  color: $sensor-dim;
+  border: 1px solid $sensor-line;
+  background: #071116;
+  cursor: pointer;
+  user-select: none;
+}
+
+.SensorPost__tabs span.is-on {
+  color: $sensor-white;
+  background: #10242b;
+  border-color: $sensor-line-strong;
+}
+
+.SensorPost__emcon {
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid $sensor-line-strong;
+  border-radius: 3px;
+  background: #071116;
+}
+
+.SensorPost__label {
+  font-size: 10px;
+  color: $sensor-dim;
+  letter-spacing: 1px;
+}
+
+.SensorPost__level {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.SensorPost__level--good {
+  color: $sensor-green;
+}
+
+.SensorPost__level--warn {
+  color: $sensor-amber;
+}
+
+.SensorPost__level--bad {
+  color: $sensor-red;
+}
+
+.SensorPost__bar {
+  width: 64px;
+}
+
+.SensorPost__bar i {
+  display: block;
+  font-style: normal;
+  font-size: 9px;
+  color: $sensor-dim;
+  margin-bottom: 2px;
+}
+
+.SensorPost__bar div,
+.SensorPost__sig-row div,
+.SensorPost__tq {
+  height: 6px;
+  background: #10232a;
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+
+.SensorPost__bar b,
+.SensorPost__sig-row b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  transition: width 0.6s;
+}
+
+.SensorPost__body {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.SensorPost__left {
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.SensorPost__scope {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: radial-gradient(circle at 50% 50%, #0a1d1c 0%, #061111 55%, #040a0b 100%);
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.SensorPost__canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.SensorPost__jam {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $sensor-red;
+  letter-spacing: 2px;
+  background: repeating-linear-gradient(0deg, rgba(255, 95, 109, 0.05) 0 2px, transparent 2px 4px);
+}
+
+.SensorPost__corner {
+  position: absolute;
+  font-size: 10px;
+  color: $sensor-dim;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.SensorPost__corner b {
+  color: $sensor-text;
+  font-weight: normal;
+}
+
+.SensorPost__corner--tl {
+  left: 10px;
+  top: 8px;
+}
+
+.SensorPost__corner--tr {
+  right: 10px;
+  top: 8px;
+  text-align: right;
+}
+
+.SensorPost__corner--bl {
+  left: 10px;
+  bottom: 8px;
+}
+
+.SensorPost__corner--br {
+  right: 10px;
+  bottom: 8px;
+  text-align: right;
+  pointer-events: auto;
+}
+
+.SensorPost__zoom {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.SensorPost__zoom span {
+  border: 1px solid $sensor-line-strong;
+  padding: 1px 6px;
+  color: $sensor-text;
+  background: #0a1a1f;
+  cursor: pointer;
+}
+
+.SensorPost__zoom span.is-on {
+  color: $sensor-green;
+  border-color: #2c6b56;
+}
+
+.SensorPost__fall {
+  position: relative;
+  height: 110px;
+  flex-shrink: 0;
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: #040a0c;
+  overflow: hidden;
+}
+
+.SensorPost__cap {
+  position: absolute;
+  left: 8px;
+  top: 5px;
+  font-size: 10px;
+  color: $sensor-dim;
+  letter-spacing: 1px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.SensorPost__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.SensorPost__box {
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: $sensor-panel;
+  flex-shrink: 0;
+}
+
+.SensorPost__box h3 {
+  font-family: Consolas, 'Cascadia Mono', monospace;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: normal;
+  letter-spacing: 1.5px;
+  color: $sensor-cyan;
+  border-bottom: 1px solid $sensor-line;
+  display: flex;
+}
+
+.SensorPost__box h3 span {
+  margin-left: auto;
+  color: $sensor-dim;
+  letter-spacing: 0.5px;
+}
+
+.SensorPost__table {
+  max-height: 196px;
+  overflow-y: auto;
+}
+
+.SensorPost__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.SensorPost__table th {
+  text-align: left;
+  color: $sensor-dim;
+  font-weight: normal;
+  padding: 4px 6px;
+  border-bottom: 1px solid $sensor-line;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  background: $sensor-panel;
+}
+
+.SensorPost__table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #0e2026;
+  white-space: nowrap;
+}
+
+.SensorPost__table tr {
+  cursor: pointer;
+}
+
+.SensorPost__table tbody tr:hover td {
+  background: #0d2128;
+}
+
+.SensorPost__table tr.is-sel td {
+  background: #10292f;
+}
+
+.SensorPost__table tr.is-sel td:first-child {
+  box-shadow: inset 2px 0 0 $sensor-green;
+}
+
+.SensorPost__table tr.is-lost td {
+  opacity: 0.45;
+}
+
+.SensorPost__id {
+  color: $sensor-white;
+}
+
+.SensorPost__tq {
+  width: 52px;
+  height: 5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.SensorPost__tq b {
+  display: block;
+  height: 100%;
+  background: $sensor-green;
+  transition: width 0.6s;
+}
+
+.SensorPost__tq b.SensorPost__tq--pas {
+  background: $sensor-amber;
+}
+
+.SensorPost__tq b.SensorPost__tq--iff {
+  background: $sensor-cyan;
+}
+
+.SensorPost__tq b.SensorPost__tq--sos {
+  background: $sensor-red;
+}
+
+.SensorPost__tq b.SensorPost__tq--lost {
+  background: $sensor-dim;
+}
+
+.SensorPost__tag {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+
+.SensorPost__tag--act {
+  color: $sensor-green;
+  border: 1px solid #2c6b56;
+}
+
+.SensorPost__tag--pas {
+  color: $sensor-amber;
+  border: 1px solid #6b5126;
+}
+
+.SensorPost__tag--iff {
+  color: $sensor-cyan;
+  border: 1px solid #2c5866;
+}
+
+.SensorPost__tag--sos {
+  color: $sensor-red;
+  border: 1px solid #6b2c33;
+}
+
+.SensorPost__tag--lost {
+  color: $sensor-dim;
+  border: 1px solid $sensor-line-strong;
+}
+
+.SensorPost__closing {
+  color: $sensor-red;
+}
+
+.SensorPost__opening {
+  color: $sensor-dim;
+}
+
+.SensorPost__good {
+  color: $sensor-green;
+}
+
+.SensorPost__warn {
+  color: $sensor-amber;
+}
+
+.SensorPost__empty {
+  color: $sensor-dim;
+  font-size: 11px;
+  padding: 10px;
+}
+
+.SensorPost__card {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.SensorPost__sil {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+  border: 1px solid $sensor-line;
+  background: #050f12;
+}
+
+.SensorPost__sil-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  font-size: 10px;
+  color: $sensor-faint;
+  background-image: linear-gradient(rgba(93, 255, 194, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(93, 255, 194, 0.06) 1px, transparent 1px);
+  background-size: 15px 15px;
+}
+
+.SensorPost__info {
+  flex: 1;
+  font-size: 11px;
+  min-width: 0;
+}
+
+.SensorPost__name {
+  font-size: 14px;
+  color: $sensor-white;
+  letter-spacing: 1px;
+}
+
+.SensorPost__class {
+  color: $sensor-amber;
+  margin: 3px 0 8px;
+}
+
+.SensorPost__kv {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  row-gap: 3px;
+}
+
+.SensorPost__kv i {
+  font-style: normal;
+  color: $sensor-dim;
+}
+
+.SensorPost__sig {
+  margin-top: 8px;
+}
+
+.SensorPost__sig-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 28px;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.SensorPost__sig-row div {
+  height: 7px;
+}
+
+.SensorPost__actions {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 10px;
+}
+
+.SensorPost__btn.Button {
+  border: 1px solid $sensor-line-strong;
+  background: #0d2027;
+  font-size: 11px;
+  color: $sensor-text;
+  border-radius: 2px;
+  font-family: Consolas, monospace;
+  letter-spacing: 0.5px;
+}
+
+.SensorPost__btn--pri.Button {
+  border-color: #2c6b56;
+  color: $sensor-green;
+  background: #0e2a23;
+}
+
+.SensorPost__btn--bad.Button {
+  border-color: #6b2c33;
+  color: $sensor-red;
+  background: #2a0e13;
+}
+
+.SensorPost__prog {
+  flex: 1;
+  height: 24px;
+  border: 1px solid $sensor-line-strong;
+  position: relative;
+  background: #071116;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  overflow: hidden;
+}
+
+.SensorPost__prog b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #123b31, #1d5c4a);
+  transition: width 0.8s;
+}
+
+.SensorPost__prog span {
+  position: relative;
+}
+
+.SensorPost__prog--bad {
+  color: $sensor-red;
+  border-color: #6b2c33;
+}
+
+.SensorPost__time {
+  color: $sensor-faint;
+  margin-right: 6px;
+}
+
+.SensorPost__coord {
+  color: $sensor-faint;
+  margin-left: 6px;
+}
+
+.SensorPost__tone--bad {
+  color: $sensor-red;
+}
+
+.SensorPost__tone--warn {
+  color: $sensor-amber;
+}
+
+.SensorPost__tone--good {
+  color: $sensor-green;
+}
+
+.SensorPost__tone--iff {
+  color: $sensor-cyan;
+}
+
+.SensorPost__tone--info {
+  color: $sensor-text;
+}
+
+.SensorPost__galaxy {
+  flex: 1;
+  min-height: 0;
+  margin: 10px;
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 50%, #0b1424 0%, #03060c 75%);
+  overflow: hidden;
+}
+
+.SensorPost__galaxy svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.SensorPost__journal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px;
+  gap: 8px;
+}
+
+.SensorPost__journal-list {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: $sensor-panel;
+  padding: 6px 10px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.SensorPost__journal-row {
+  border-bottom: 1px solid #0e2026;
+}
+
+.SensorPost__journal-tools {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.SensorPost__alerts {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.SensorPost__alert {
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: $sensor-panel;
+  padding: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $sensor-dim;
+}
+
+.SensorPost__alert i {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 10px;
+  color: $sensor-faint;
+}
+
+.SensorPost__alert.is-on {
+  color: $sensor-white;
+  border-color: #2c6b56;
+}
+
+.SensorPost__lamp {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #314248;
+}
+
+.SensorPost__alert.is-on .SensorPost__lamp {
+  background: $sensor-green;
+  box-shadow: 0 0 6px $sensor-green;
+}
+
+.SensorPost__haywire {
+  position: absolute;
+  left: 50%;
+  top: 64px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 3px 10px;
+  border: 1px solid #6b2c33;
+  background: rgba(42, 14, 19, 0.85);
+  color: $sensor-red;
+  font-size: 11px;
+  letter-spacing: 1px;
+  pointer-events: none;
+  animation: sensor-blink 1s steps(2) infinite;
+}
+
+@keyframes sensor-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.SensorPost__deck {
+  height: 118px;
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding: 6px 8px;
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #0c1a20, #071116);
+}
+
+.SensorToggle,
+.SensorSelector,
+.SensorDial {
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.SensorToggle__label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: $sensor-dim;
+  text-align: center;
+  height: 22px;
+  line-height: 11px;
+}
+
+.SensorToggle__pill {
+  position: relative;
+  width: 84px;
+  height: 30px;
+  margin-top: 14px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, #22272b, #121517);
+  border: 1px solid #3d4448;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.SensorToggle__knob {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #9aa3a8, #4a5256 70%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  transition: left 0.18s ease-out, background 0.2s;
+}
+
+.SensorToggle__text {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 11px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #a7b0b4;
+  transition: right 0.18s ease-out, color 0.2s;
+}
+
+.SensorToggle.is-on .SensorToggle__pill {
+  background: linear-gradient(180deg, #4a1426, #2a0a16);
+  border-color: #e0446a;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px rgba(224, 68, 106, 0.45);
+}
+
+.SensorToggle.is-on .SensorToggle__knob {
+  left: 59px;
+  background: radial-gradient(circle at 35% 30%, #c2405e, #6b1a2e 70%);
+}
+
+.SensorToggle.is-on .SensorToggle__text {
+  right: 34px;
+  color: #ffd2dc;
+  text-shadow: 0 0 6px rgba(255, 120, 150, 0.7);
+}
+
+.SensorToggle__state {
+  margin-top: 10px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: $sensor-faint;
+}
+
+.SensorToggle.is-on .SensorToggle__state {
+  color: #ff8aa5;
+}
+
+.SensorToggle.is-disabled,
+.SensorSelector.is-disabled,
+.SensorDial.is-disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.SensorSelector__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.SensorSelector__knob {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3b4f57, #0c171b 70%);
+  border: 2px solid #2b4952;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+  position: relative;
+  transition: transform 0.2s ease-out;
+}
+
+.SensorSelector__knob span {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: $sensor-amber;
+  box-shadow: 0 0 6px $sensor-amber;
+}
+
+.SensorSelector__marks {
+  display: flex;
+  gap: 8px;
+  font-size: 9px;
+  color: $sensor-faint;
+}
+
+.SensorSelector__marks span.is-on {
+  color: $sensor-amber;
+}
+
+.SensorDial__body {
+  cursor: grab;
+}
+
+.SensorDial.is-disabled .SensorDial__body {
+  cursor: default;
+}
+
+.SensorDial__tick {
+  stroke: #3d5a62;
+  stroke-width: 1;
+}
+
+.SensorDial__tick--major {
+  stroke: $sensor-cyan;
+  stroke-width: 2;
+}
+
+.SensorDial__arc {
+  fill: rgba(255, 179, 71, 0.18);
+}
+
+.SensorDial__knob {
+  fill: #13232a;
+  stroke: #2b4952;
+  stroke-width: 2;
+}
+
+.SensorDial__grip {
+  stroke: #4f6c75;
+  stroke-width: 1.5;
+}
+
+.SensorDial__pointer {
+  stroke: $sensor-amber;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.SensorDial__value {
+  fill: $sensor-white;
+  font-size: 11px;
+  text-anchor: middle;
+  font-family: Consolas, monospace;
+}
+
+.SensorHelp {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.SensorHelp__column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.SensorHelp__section {
+  border: 1px solid $sensor-line-strong;
+  border-radius: 4px;
+  background: $sensor-panel;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.SensorHelp__section h4 {
+  margin: 0 0 6px;
+  font-family: Consolas, monospace;
+  font-weight: normal;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: $sensor-cyan;
+}
+
+.SensorHelp__section p {
+  margin: 0 0 6px;
+}
+
+.SensorHelp__section b {
+  color: $sensor-white;
+  font-weight: normal;
+}
+
+.SensorHelp__example {
+  border-left: 2px solid $sensor-green;
+  padding-left: 8px;
+  color: #a9d9cc;
+}
+
+.SensorHelp__warn {
+  border-left: 2px solid $sensor-red;
+  padding-left: 8px;
+  color: #f0a9b0;
+}
+
+.SensorHelp__row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.SensorHelp__figure {
+  flex-shrink: 0;
+  background: #050f12;
+  border: 1px solid $sensor-line;
+}
+
+.SensorHelp__tags {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}

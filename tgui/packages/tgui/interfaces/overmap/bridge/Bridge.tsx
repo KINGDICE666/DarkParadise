@@ -265,6 +265,7 @@ const BridgeRadar = (props: {
       cellSpan={data.cell_span}
       sectorId={data.sector_id}
       galaxy={data.galaxy}
+      noGalaxy
       radius={props.radius}
       onZoom={props.onZoom}
       onReach={(reach) => {

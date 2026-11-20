@@ -408,7 +408,7 @@
 	if(vessel.overmap_kind != OVERMAP_KIND_SHUTTLE)
 		return "Судно уже в открытом космосе."
 	if(vessel.crash_grounded)
-		if(!vessel.has_working_engines())
+		if(!vessel.has_working_engines() && !vessel.autopilot_upgraded)
 			return "После крушения взлёт невозможен: двигатели не работают."
 		vessel.crash_grounded = FALSE
 	if(!vessel.shuttle)

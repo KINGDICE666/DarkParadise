@@ -16,16 +16,24 @@
 #define PLASMA_WORLD_EMP_CHANCE 35
 #define PLASMA_WORLD_LANDING_TIME (10 SECONDS)
 #define PLASMA_WORLD_LANDING_SHAKES 5
-#define PLASMA_WORLD_FACTION "plasma_world"
 #define PLASMA_WORLD_CLOUD_TILE 480
 #define PLASMA_WORLD_CLOUD_ALPHA 95
 #define PLASMA_WORLD_CLOUD_DRIFT (90 SECONDS)
+#define PLASMA_WORLD_CHASMS 16
+#define PLASMA_WORLD_CHASM_RADIUS_MIN 2
+#define PLASMA_WORLD_CHASM_RADIUS_MAX 4
+#define PLASMA_WORLD_GEYSER_CHANCE 0.05
+#define PLASMA_WORLD_CHARGED_CHANCE 8
+#define PLASMA_WORLD_BOSS_DISTANCE 80
+#define PLASMA_WORLD_BOSS_ARENA 7
 
 /area/plasma_world
 	name = "Plasma world"
 	icon_state = "mining"
 	has_gravity = STANDARD_GRAVITY
 	sound_environment = SOUND_AREA_LAVALAND
+	ambient_buzz = 'sound/ambience/plasma_world/plasma_wind.ogg'
+	ambient_buzz_vol = 45
 	always_unpowered = TRUE
 	poweralm = FALSE
 	power_environ = FALSE
@@ -46,6 +54,9 @@
 	turf_type = /turf/simulated/floor/plating/asteroid/basalt/plasma_world
 	atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
 	atmos_environment = ENVIRONMENT_PLASMA_WORLD
+
+/turf/simulated/floor/plating/asteroid/basalt/plasma_world/update_visuals(use_initial_air = FALSE)
+	return
 
 /turf/simulated/floor/plating/asteroid/basalt/plasma_world/get_ru_names()
 	return alist(
@@ -155,6 +166,8 @@
 	light_power = 0.7
 	light_color = "#d070ff"
 	var/variant = 1
+	var/crystal_kind = "plasma"
+	var/crystal_variants = 4
 
 /obj/structure/flora/plasma_crystal/get_ru_names()
 	return alist(
@@ -168,13 +181,14 @@
 
 /obj/structure/flora/plasma_crystal/Initialize(mapload)
 	. = ..()
-	variant = rand(1, 4)
-	icon_state = "plasma_crystal[variant]"
+	variant = rand(1, crystal_variants)
+	icon_state = "[crystal_kind]_crystal[variant]"
 	update_appearance(UPDATE_OVERLAYS)
+	start_glow()
 
 /obj/structure/flora/plasma_crystal/update_overlays()
 	. = ..()
-	. += emissive_appearance(icon, "plasma_crystal[variant]_glow", src)
+	. += emissive_appearance(icon, "[crystal_kind]_crystal[variant]_glow", src)
 
 /obj/structure/flora/plasma_crystal/deconstruct(disassembled = TRUE)
 	new /obj/item/stack/ore/plasma(get_turf(src), rand(3, 6))
@@ -188,7 +202,7 @@
 	icon_living = "crystal_plasmaman"
 	icon_aggro = "crystal_plasmaman"
 	icon_dead = "crystal_plasmaman_dead"
-	faction = list(PLASMA_WORLD_FACTION)
+	faction = list(FACTION_PLASMA_WORLD)
 	vision_range = 6
 	maxHealth = 150
 	health = 150
@@ -235,7 +249,7 @@
 
 /datum/weather/acid_rain/can_weather_act(mob/living/mob_to_check)
 	. = ..()
-	if(. && (PLASMA_WORLD_FACTION in mob_to_check.faction))
+	if(. && (FACTION_PLASMA_WORLD in mob_to_check.faction))
 		return FALSE
 
 /datum/weather/acid_rain/weather_act(mob/living/target)
@@ -281,7 +295,22 @@
 	return "planet_violet"
 
 /obj/overmap/planet/violet/surface_z()
-	return surface_ready ? z_level : null
+	if(!surface_ready)
+		return null
+	if(station_landed())
+		return levels_by_trait(STATION_LEVEL)[1]
+	return z_level
+
+/obj/overmap/planet/violet/surface_point(world_x, world_y)
+	if(!station_landed())
+		return ..()
+	var/obj/overmap/entity/station/ship/rubin = SSovermap.station_entity
+	var/width = footprint * OVERMAP_TILE_SPAN * sector.tile_travel
+	return list((world.maxx + 1) / 2 + (world_x - rubin.get_world_x()) * world.maxx / width, (world.maxy + 1) / 2 + (world_y - rubin.get_world_y()) * world.maxy / width)
+
+/obj/overmap/planet/violet/proc/station_landed()
+	var/obj/overmap/entity/station/ship/rubin = SSovermap.station_entity
+	return istype(rubin) && rubin.landed_planet == src
 
 /obj/overmap/planet/violet/surface_floor_type()
 	return /turf/simulated/floor/plating/asteroid/basalt/plasma_world
@@ -290,7 +319,7 @@
 	if(powered || vessel.planet_crash || world.time < vessel.void_alarm_at)
 		return
 	vessel.void_alarm_at = world.time + PLASMA_WORLD_ALARM_EVERY
-	vessel.play_shuttle_sound('sound/machines/alarm.ogg', 70)
+	vessel.play_shuttle_sound('sound/machines/alarm.ogg', 15)
 	vessel.shuttle_visible_message(span_userdanger("ТРЕВОГА: двигатели заглушены полем сектора, корабль падает на [declent_ru(ACCUSATIVE)]!"))
 	vessel.shake_shuttle(1 SECONDS, 2)
 	if(!prob(PLASMA_WORLD_EMP_CHANCE))
@@ -312,6 +341,10 @@
 	var/list/near_hull = terraform ? hull_margin(target_z) : null
 	var/center_x = round(world.maxx / 2)
 	var/center_y = round(world.maxy / 2)
+	var/list/chasms = terraform ? null : chasm_marks(center_x, center_y)
+	var/boss_angle = rand(0, 359)
+	var/boss_x = clamp(round(center_x + PLASMA_WORLD_BOSS_DISTANCE * cos(boss_angle)), PLASMA_WORLD_EDGE + PLASMA_WORLD_BOSS_ARENA + 1, world.maxx - PLASMA_WORLD_EDGE - PLASMA_WORLD_BOSS_ARENA)
+	var/boss_y = clamp(round(center_y + PLASMA_WORLD_BOSS_DISTANCE * sin(boss_angle)), PLASMA_WORLD_EDGE + PLASMA_WORLD_BOSS_ARENA + 1, world.maxy - PLASMA_WORLD_EDGE - PLASMA_WORLD_BOSS_ARENA)
 	var/floor_path = "/turf/simulated/floor/plating/asteroid/basalt/plasma_world"
 	var/area_path = "[surface_area_type]"
 	var/list/lines = list(
@@ -320,6 +353,12 @@
 		"\"c\" = (/turf/simulated/mineral/plasma/plasma_world/crystal,[area_path])",
 		"\"d\" = (/obj/structure/flora/plasma_crystal,[floor_path],[area_path])",
 		"\"e\" = (/mob/living/simple_animal/hostile/asteroid/crystal_plasmaman,[floor_path],[area_path])",
+		"\"f\" = (/turf/simulated/floor/chasm/straight_down/plasma_world,[area_path])",
+		"\"g\" = (/obj/structure/plasma_geyser,[floor_path],[area_path])",
+		"\"h\" = (/obj/structure/flora/plasma_crystal/charged/shock,[floor_path],[area_path])",
+		"\"i\" = (/obj/structure/flora/plasma_crystal/charged/sonic,[floor_path],[area_path])",
+		"\"j\" = (/obj/structure/flora/plasma_crystal/charged/heal,[floor_path],[area_path])",
+		"\"k\" = (/mob/living/simple_animal/hostile/megafauna/living_crystal,[floor_path],[area_path])",
 		"\"z\" = (/turf/template_noop,/area/template_noop)",
 		"",
 		"(1,1,1) = {\"",
@@ -338,14 +377,24 @@
 					continue
 			var/edge = x <= PLASMA_WORLD_EDGE || y <= PLASMA_WORLD_EDGE || x > world.maxx - PLASMA_WORLD_EDGE || y > world.maxy - PLASMA_WORLD_EDGE
 			var/cleared = !terraform && abs(x - center_x) <= PLASMA_WORLD_CLEARING && abs(y - center_y) <= PLASMA_WORLD_CLEARING
-			if(edge || (!cleared && rocks[index] != "0"))
+			var/in_arena = !terraform && abs(x - boss_x) <= PLASMA_WORLD_BOSS_ARENA && abs(y - boss_y) <= PLASMA_WORLD_BOSS_ARENA
+			if(edge || (!cleared && !in_arena && rocks[index] != "0"))
 				row += (!terraform && veins[index] != "0") ? "c" : "b"
 				continue
 			if(terraform)
 				row += "a"
 				continue
+			if(in_arena)
+				row += (x == boss_x && y == boss_y) ? "k" : "a"
+				continue
+			if(chasms[index])
+				row += "f"
+				continue
 			if(!cleared && prob(PLASMA_WORLD_CRYSTAL_CHANCE))
-				row += "d"
+				row += prob(PLASMA_WORLD_CHARGED_CHANCE) ? pick("h", "i", "j") : "d"
+				continue
+			if(!cleared && prob(PLASMA_WORLD_GEYSER_CHANCE))
+				row += "g"
 				continue
 			var/near_landing = abs(x - center_x) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE && abs(y - center_y) <= PLASMA_WORLD_CLEARING + PLASMA_WORLD_MOB_CLEARANCE
 			row += (!near_landing && prob(PLASMA_WORLD_MOB_CHANCE)) ? "e" : "a"
@@ -353,6 +402,22 @@
 		CHECK_TICK
 	lines += "\"}"
 	return jointext(lines, "\n")
+
+/obj/overmap/planet/violet/proc/chasm_marks(center_x, center_y)
+	var/list/marks = new(world.maxx * world.maxy)
+	var/reach = PLASMA_WORLD_EDGE + PLASMA_WORLD_CHASM_RADIUS_MAX + 1
+	for(var/chasm in 1 to PLASMA_WORLD_CHASMS)
+		var/chasm_x = rand(reach, world.maxx - reach)
+		var/chasm_y = rand(reach, world.maxy - reach)
+		if(abs(chasm_x - center_x) <= PLASMA_WORLD_CLEARING + reach && abs(chasm_y - center_y) <= PLASMA_WORLD_CLEARING + reach)
+			continue
+		var/radius_x = rand(PLASMA_WORLD_CHASM_RADIUS_MIN, PLASMA_WORLD_CHASM_RADIUS_MAX)
+		var/radius_y = rand(PLASMA_WORLD_CHASM_RADIUS_MIN, PLASMA_WORLD_CHASM_RADIUS_MAX)
+		for(var/x in chasm_x - radius_x to chasm_x + radius_x)
+			for(var/y in chasm_y - radius_y to chasm_y + radius_y)
+				if(((x - chasm_x) / radius_x) ** 2 + ((y - chasm_y) / radius_y) ** 2 <= 1 + rand() * 0.3)
+					marks[world.maxx * (y - 1) + x] = TRUE
+	return marks
 
 /obj/overmap/planet/violet/proc/hull_margin(target_z)
 	var/list/marks = new(world.maxx * world.maxy)
@@ -486,7 +551,7 @@ GLOBAL_DATUM(plasma_world_clouds, /atom/movable/screen/plasma_world_clouds)
 		return "Посадка уже идёт."
 	rough_landing_until = world.time + PLASMA_WORLD_LANDING_TIME
 	shuttle_visible_message(span_userdanger("Начинается жёсткий вход в атмосферу [host.planet.declent_ru(GENITIVE)]! Держитесь!"))
-	play_shuttle_sound('sound/machines/alarm.ogg', 80)
+	play_shuttle_sound('sound/machines/alarm.ogg', 20)
 	for(var/shake in 1 to PLASMA_WORLD_LANDING_SHAKES)
 		addtimer(CALLBACK(src, PROC_REF(rough_landing_jolt)), PLASMA_WORLD_LANDING_TIME * shake / (PLASMA_WORLD_LANDING_SHAKES + 1))
 	addtimer(CALLBACK(src, PROC_REF(finish_rough_landing), host, pad), PLASMA_WORLD_LANDING_TIME)
@@ -527,12 +592,12 @@ GLOBAL_DATUM(plasma_world_clouds, /atom/movable/screen/plasma_world_clouds)
 /obj/overmap/planet/violet/capture_derelicts(elapsed)
 	if(!surface_ready)
 		for(var/obj/overmap/entity/vessel as anything in SSovermap.vessels)
-			if(!QDELETED(vessel) && vessel.sector == sector && vessel.overmap_kind == OVERMAP_KIND_SHUTTLE && vessel.in_free_flight())
+			if(!QDELETED(vessel) && vessel.sector == sector && vessel.overmap_kind == OVERMAP_KIND_SHUTTLE && vessel.in_free_flight() && !vessel.autopilot_upgraded)
 				sector_tick(vessel, vessel.has_working_engines())
 		return
 	. = ..()
 	var/obj/overmap/entity/station/ship/rubin = SSovermap.station_entity
-	if(!surface_ready || !istype(rubin) || rubin.sector != sector || rubin.landed_planet || rubin.station_falling || rubin.has_working_engines())
+	if(!surface_ready || !istype(rubin) || rubin.sector != sector || rubin.landed_planet || rubin.station_falling || rubin.has_working_engines() || rubin.autopilot_upgraded)
 		return
 	var/world_x = rubin.get_world_x()
 	var/world_y = rubin.get_world_y()
@@ -544,7 +609,7 @@ GLOBAL_DATUM(plasma_world_clouds, /atom/movable/screen/plasma_world_clouds)
 			GLOB.major_announcement.announce(message = "Двигатели станции перегружены. Шаттл затягивает гравитационное поле. Готовьтесь к аварийной посадке!", new_title = "ТРЕВОГА")
 		rubin.void_alarm_at = world.time + PLASMA_WORLD_ALARM_EVERY
 		for(var/mob/living/crew as anything in station_crew())
-			SEND_SOUND(crew, sound('sound/machines/alarm.ogg', volume = 40))
+			SEND_SOUND(crew, sound('sound/machines/alarm.ogg', volume = 10))
 	var/turf/origin = loc
 	var/span = OVERMAP_TILE_SPAN * sector.tile_travel
 	var/delta_x = (origin.x + (footprint - 1) / 2) * span - world_x
@@ -626,7 +691,13 @@ GLOBAL_DATUM(plasma_world_clouds, /atom/movable/screen/plasma_world_clouds)
 #undef PLASMA_WORLD_EMP_CHANCE
 #undef PLASMA_WORLD_LANDING_TIME
 #undef PLASMA_WORLD_LANDING_SHAKES
-#undef PLASMA_WORLD_FACTION
 #undef PLASMA_WORLD_CLOUD_TILE
 #undef PLASMA_WORLD_CLOUD_ALPHA
 #undef PLASMA_WORLD_CLOUD_DRIFT
+#undef PLASMA_WORLD_CHASMS
+#undef PLASMA_WORLD_CHASM_RADIUS_MIN
+#undef PLASMA_WORLD_CHASM_RADIUS_MAX
+#undef PLASMA_WORLD_GEYSER_CHANCE
+#undef PLASMA_WORLD_CHARGED_CHANCE
+#undef PLASMA_WORLD_BOSS_DISTANCE
+#undef PLASMA_WORLD_BOSS_ARENA

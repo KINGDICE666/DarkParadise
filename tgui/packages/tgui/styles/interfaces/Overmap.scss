@@ -1497,90 +1497,136 @@
   letter-spacing: 0.04em;
 }
 
-.OvermapGalaxy__orbit {
+.OvermapGalaxy__lane-glow {
   fill: none;
-  stroke: #426076;
+  stroke: #5fb8d8;
+  stroke-opacity: 0.12;
+  stroke-width: 7;
+  vector-effect: non-scaling-stroke;
+}
+.OvermapGalaxy__lane {
+  fill: none;
+  stroke: #79c9e6;
+  stroke-opacity: 0.7;
+  stroke-width: 1.4;
+  stroke-dasharray: 10 6;
+  vector-effect: non-scaling-stroke;
+  animation: overmap-galaxy-flow 3s linear infinite;
+}
+.OvermapGalaxy__lane--active {
+  stroke: #a9f3ff;
+  stroke-opacity: 1;
+  stroke-width: 2.2;
+}
+.OvermapGalaxy__lane--uncertain {
+  stroke-dasharray: 3 7;
+  stroke-opacity: 0.3;
+  animation: none;
+}
+.OvermapGalaxy__pill {
+  fill: #08131c;
+  fill-opacity: 0.85;
+  stroke: #3d6b80;
   stroke-width: 1;
-  stroke-opacity: 0.18;
   vector-effect: non-scaling-stroke;
 }
-.OvermapGalaxy__star {
-  fill: #8dabbf;
-  opacity: 0.32;
-}
-.OvermapGalaxy__route {
-  fill: none;
-  stroke: #486b89;
-  stroke-opacity: 0.55;
-  stroke-width: 1.3;
-  vector-effect: non-scaling-stroke;
-}
-.OvermapGalaxy__route--active {
-  stroke: #6abcca;
-  stroke-opacity: 0.9;
-  stroke-width: 2;
+.OvermapGalaxy__pill-text {
+  fill: #9fd4e6;
+  font-family: Consolas, monospace;
 }
 .OvermapGalaxy__node {
   cursor: pointer;
   outline: none;
 }
-.OvermapGalaxy__core {
-  fill: #9cb3d4;
-}
-.OvermapGalaxy__halo {
-  fill: rgba(97, 150, 190, 0.08);
-  stroke: #506682;
+.OvermapGalaxy__orbit-ring {
+  fill: none;
+  stroke-opacity: 0.45;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
+.OvermapGalaxy__sun {
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.OvermapGalaxy__node:hover .OvermapGalaxy__orbit-ring,
+.OvermapGalaxy__node--selected .OvermapGalaxy__orbit-ring {
+  stroke-opacity: 0.9;
+}
+.OvermapGalaxy__pulse {
+  fill: none;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: overmap-galaxy-pulse 2.4s ease-out infinite;
+}
+.OvermapGalaxy__sos {
+  fill: none;
+  stroke: #ff6b78;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  animation: overmap-galaxy-blink 1s steps(2) infinite;
+}
 .OvermapGalaxy__bracket {
   fill: none;
-  stroke: transparent;
+  stroke: #e6f4ff;
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
-.OvermapGalaxy__name,
-.OvermapGalaxy__detail {
-  fill: #b2c2d9;
-  font-family: Consolas, monospace;
-}
-.OvermapGalaxy__heading,
-.OvermapGalaxy__here {
-  fill: #627e99;
-  font-family: Consolas, monospace;
-  letter-spacing: 0.12em;
-}
-.OvermapGalaxy__node--current .OvermapGalaxy__core {
-  fill: #8de5cd;
-}
-.OvermapGalaxy__node--current .OvermapGalaxy__halo {
-  stroke: #68baa9;
-}
-.OvermapGalaxy__node--current .OvermapGalaxy__here {
-  fill: #68baa9;
-}
-.OvermapGalaxy__node--selected .OvermapGalaxy__bracket,
-.OvermapGalaxy__node:hover .OvermapGalaxy__bracket,
-.OvermapGalaxy__node:focus .OvermapGalaxy__bracket {
-  stroke: #d4e6f2;
-}
-.OvermapGalaxy__node--unknown {
-  opacity: 0.45;
-}
-.OvermapGalaxy__node--unknown .OvermapGalaxy__halo {
+.OvermapGalaxy__node--unknown .OvermapGalaxy__orbit-ring {
   stroke-dasharray: 2 3;
 }
-.OvermapGalaxy__distress {
-  fill: none;
-  stroke: #ed7e82;
-  stroke-width: 1.5;
+.OvermapGalaxy__name,
+.OvermapGalaxy__sub,
+.OvermapGalaxy__panel-title,
+.OvermapGalaxy__panel-line,
+.OvermapGalaxy__subheading {
+  font-family: Consolas, monospace;
+}
+.OvermapGalaxy__name {
+  letter-spacing: 0.05em;
+}
+.OvermapGalaxy__heading {
+  fill: #d9ecff;
+  font-family: Consolas, monospace;
+  letter-spacing: 0.18em;
+}
+.OvermapGalaxy__subheading {
+  fill: #6d8aa6;
+  letter-spacing: 0.14em;
+}
+.OvermapGalaxy__panel {
+  fill: #07111a;
+  fill-opacity: 0.88;
+  stroke: #2b4c62;
+  stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
-
-.OvermapGalaxy__route--uncertain {
-  stroke-dasharray: 5 6;
-  stroke-opacity: 0.25;
+.OvermapGalaxy__panel-title {
+  fill: #eef7ff;
+  letter-spacing: 0.08em;
 }
+@keyframes overmap-galaxy-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+@keyframes overmap-galaxy-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+@keyframes overmap-galaxy-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
 .OvermapRadar__pick--own {
   border-color: #80dec0;
   color: #80dec0;
@@ -2261,4 +2307,7 @@ $helm-warn: #ffb347;
 
 .OvermapRadar__velocityTick {
   fill: #ffd36b;
+}
+.OvermapGalaxy__node--unknown {
+  opacity: 0.55;
 }

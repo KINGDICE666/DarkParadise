@@ -124,6 +124,7 @@ export const TransponderPanel = (props: {
       ) : (
         <Input
           fluid
+          maxLength={24}
           value={broadcast_name}
           onChange={(value) => act('set_name', { name: value })}
         />

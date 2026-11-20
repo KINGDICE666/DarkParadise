@@ -11,6 +11,12 @@
 
 	var/list/peel_peak
 
+	var/list/tracks
+	var/next_track_number = 1
+	var/last_track_update = 0
+	var/locked_uid
+	var/haywire_until = 0
+
 /datum/component/overmap_sensors/Initialize()
 	if(!istype(parent, /obj/overmap/entity))
 		return COMPONENT_INCOMPATIBLE
@@ -173,11 +179,7 @@
 		return FALSE
 	if(other.hidden_from_sensors || !isturf(other.loc))
 		return FALSE
-	var/turf/here = vessel.get_overmap_turf()
-	var/turf/there = other.get_overmap_turf()
-	if(!here || !there)
-		return FALSE
-	if(!overmap_in_sensor_circle(here, there, OVERMAP_SENSOR_LONG_VIEW))
+	if(!in_active_beam(other))
 		return FALSE
 	var/obj/overmap/entity/contact = other
 	if(istype(contact) && !contact.is_long_range_detectable())
@@ -499,6 +501,7 @@
 		refresh_sensor_blips()
 	expire_contact_memory()
 	track_sensor_contacts()
+	update_tracks()
 
 /datum/component/overmap_sensors/proc/journal_coords(turf/spot)
 	if(!spot)

@@ -16,6 +16,7 @@
 	var/station_falling = FALSE
 	var/horizon_seen_at
 	var/horizon_jumping = FALSE
+	var/autopilot_upgraded = FALSE
 	var/vessel_flags = OVERMAP_VESSEL_STATION
 	var/status = OVERMAP_STATUS_OVERMAP
 	var/vessel_mass = 10000
@@ -29,6 +30,7 @@
 	var/list/obj/machinery/sensor_array/sensor_arrays = list()
 	var/long_sensors_on = FALSE
 	var/short_sensors_on = FALSE
+	var/sensor_sector_bearing
 	var/sensor_ping_until = 0
 	var/sensor_next_ping = 0
 

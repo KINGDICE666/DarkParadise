@@ -8,10 +8,9 @@ import {
   galaxyBandFor,
   RADAR_TILE_SPAN,
   RADAR_ZOOM_STEP,
-  radarZoomCeiling,
 } from '../OvermapRadar';
 import { decimal, degrees, isHostile } from './bridgeMath';
-import { SECTOR_ZOOM, useBridge } from './parts';
+import { useBridge } from './parts';
 import {
   ACTION_LABELS,
   actionAvailable,
@@ -81,28 +80,12 @@ export const ViewCorner = (props: {
   const cellSpan = data.cell_span || RADAR_TILE_SPAN;
   const sectorSpan = Math.max(cellSpan * (data.sector_size || 0), cellSpan * 4);
   const galaxyRadius = galaxyBandFor(sectorSpan);
-  const galaxy = !!data.radar_locked || radius > galaxyRadius;
-  const ceiling = radarZoomCeiling(sectorSpan);
+  const galaxy = !!data.radar_locked;
+  const ceiling = galaxyRadius * 0.98;
   const slot = Math.max(GALAXY_SLOT, sectorSpan * 0.6);
   return (
     <div className="Bridge__hud Bridge__hud--bl">
       <div className="Bridge__viewbar">
-        <div className="Bridge__seg">
-          <button
-            type="button"
-            className={!galaxy ? 'Bridge__seg--on' : undefined}
-            onClick={() => onZoom(SECTOR_ZOOM)}
-          >
-            СЕКТОР
-          </button>
-          <button
-            type="button"
-            className={galaxy ? 'Bridge__seg--on' : undefined}
-            onClick={() => onZoom(galaxyRadius * 1.15)}
-          >
-            ГАЛАКТИКА
-          </button>
-        </div>
         <div className="Bridge__seg">
           <button
             type="button"

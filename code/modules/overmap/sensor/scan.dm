@@ -69,7 +69,7 @@
 		scan_info["name"] = scanning_target.get_overmap_display_name()
 
 /obj/machinery/computer/sensors/proc/start_short_scan(obj/overmap/target)
-	if(view_mode != OVERMAP_SENSOR_KIND_SHORT || !can_run() || !vessel.short_sensors_on || QDELETED(target) || target == vessel || !vessel.can_short_scan(target))
+	if(!can_run() || !vessel.short_sensors_on || QDELETED(target) || target == vessel || !vessel.can_short_scan(target))
 		return FALSE
 	scanning = TRUE
 	scanning_target = target
@@ -241,7 +241,7 @@
 	return TRUE
 
 /obj/machinery/computer/sensors/proc/try_map_click(mob/user, atom/clicked)
-	if(!user || !clicked || view_mode != OVERMAP_SENSOR_KIND_SHORT)
+	if(!user || !clicked)
 		return FALSE
 	if(!vessel?.short_sensors_on || !vessel.has_working_sensor(OVERMAP_SENSOR_KIND_SHORT))
 		return FALSE

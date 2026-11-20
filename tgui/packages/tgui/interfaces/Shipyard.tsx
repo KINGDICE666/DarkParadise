@@ -208,7 +208,7 @@ const Project = () => {
         <Stack.Item>
           <Input
             fluid
-            maxLength={32}
+            maxLength={24}
             placeholder="Название шаттла"
             value={data.name || ''}
             disabled={!!data.building}

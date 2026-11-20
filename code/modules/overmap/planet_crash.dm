@@ -52,8 +52,8 @@
 		var/world_x = vessel.get_world_x()
 		var/world_y = vessel.get_world_y()
 		var/over_planet = airborne && covers_world(world_x, world_y)
-		var/powered = vessel.has_working_engines()
-		if(airborne)
+		var/powered = vessel.has_working_engines() || vessel.autopilot_upgraded
+		if(airborne && !vessel.autopilot_upgraded)
 			sector_tick(vessel, powered)
 		if(over_planet && powered)
 			vessel.planet_stall_at = null

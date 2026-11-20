@@ -63,6 +63,11 @@
 	vessel?.refresh_sensor_displays()
 	update_sensor_power()
 
+/obj/machinery/sensor_array/emp_act(severity)
+	. = ..()
+	if(sensor_kind == OVERMAP_SENSOR_KIND_SHORT)
+		vessel?.sensor_pack?.start_haywire()
+
 /obj/machinery/sensor_array/screwdriver_act(mob/living/user, obj/item/tool)
 	if(!sensor_board)
 		return FALSE

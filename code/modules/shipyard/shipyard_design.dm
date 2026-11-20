@@ -268,4 +268,4 @@
 	return null
 
 /proc/shipyard_ship_name(text)
-	return copytext_char(sanitize(trim("[text]")), 1, SHIPYARD_MAX_NAME + 1)
+	return copytext_char(sanitize(trim("[text]")), 1, OVERMAP_SHIP_NAME_MAX + 1)

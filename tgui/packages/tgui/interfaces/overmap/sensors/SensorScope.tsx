@@ -1,0 +1,476 @@
+import { type MouseEvent, useEffect, useRef } from 'react';
+
+import type { SensorClutter, SensorTrack } from './types';
+
+const SWEEP_TRAIL = 90;
+const SECTOR_HALF_ARC = 30;
+const SECTOR_REACH = 1.7;
+const BLEND_MS = 1500;
+const PICK_RADIUS = 16;
+
+const TONES: Record<string, string> = {
+  act: '93,255,194',
+  short: '93,255,194',
+  pas: '255,179,71',
+  iff: '122,208,228',
+  map: '197,139,255',
+  sos: '255,95,109',
+  lost: '110,144,152',
+};
+
+type ScopeProps = {
+  tracks: SensorTrack[];
+  clutter: SensorClutter[];
+  scale: number;
+  heading: number;
+  speed: number;
+  activeMode: string;
+  sectorBearing?: number;
+  passiveOn: boolean;
+  longView: number;
+  shortView: number;
+  sweepPeriod: number;
+  selected?: string;
+  locked?: string;
+  onSelect: (ref: string) => void;
+  onAim: (bearing: number) => void;
+};
+
+type Pose = { x: number; y: number };
+type Blend = { from: Pose; to: Pose; at: number };
+
+const polar = (bearing: number, range: number): Pose => {
+  const angle = ((bearing - 90) * Math.PI) / 180;
+  return { x: Math.cos(angle) * range, y: Math.sin(angle) * range };
+};
+
+const toBearing = (x: number, y: number) =>
+  ((Math.atan2(y, x) * 180) / Math.PI + 90 + 360) % 360;
+
+const seeded = (seed: number) => () => {
+  seed = (seed * 16807) % 2147483647;
+  return (seed - 1) / 2147483646;
+};
+
+const formatClock = (seconds: number) =>
+  `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+
+export const SensorScope = (props: ScopeProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const propsRef = useRef(props);
+  const blendsRef = useRef<Map<string, Blend>>(new Map());
+  const layoutRef = useRef({ cx: 0, cy: 0, radius: 1 });
+  propsRef.current = props;
+
+  useEffect(() => {
+    const now = performance.now();
+    const blends = blendsRef.current;
+    const alive = new Set<string>();
+    for (const track of props.tracks) {
+      alive.add(track.ref);
+      const target = polar(track.bearing, track.range);
+      const previous = blends.get(track.ref);
+      if (!previous) {
+        blends.set(track.ref, { from: target, to: target, at: now });
+        continue;
+      }
+      const progress = Math.min(1, (now - previous.at) / BLEND_MS);
+      const current = {
+        x: previous.from.x + (previous.to.x - previous.from.x) * progress,
+        y: previous.from.y + (previous.to.y - previous.from.y) * progress,
+      };
+      blends.set(track.ref, { from: current, to: target, at: now });
+    }
+    for (const ref of [...blends.keys()]) {
+      if (!alive.has(ref)) blends.delete(ref);
+    }
+  }, [props.tracks]);
+
+  useEffect(() => {
+    let frame = 0;
+    const draw = (now: number) => {
+      frame = requestAnimationFrame(draw);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const box = canvas.parentElement;
+      if (
+        box &&
+        (canvas.width !== box.clientWidth || canvas.height !== box.clientHeight)
+      ) {
+        canvas.width = box.clientWidth;
+        canvas.height = box.clientHeight;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      paint(ctx, canvas.width, canvas.height, now);
+    };
+    frame = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const paint = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    now: number,
+  ) => {
+    const state = propsRef.current;
+    const cx = width / 2;
+    const cy = height / 2 + 4;
+    const radius = Math.min(width, height) / 2 - 36;
+    layoutRef.current = { cx, cy, radius };
+    const unit = radius / state.scale;
+    const at = (pose: Pose) => ({
+      x: cx + pose.x * unit,
+      y: cy + pose.y * unit,
+    });
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.clip();
+    const backdrop = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    backdrop.addColorStop(0, 'rgba(24,70,60,0.35)');
+    backdrop.addColorStop(1, 'rgba(4,14,14,0.2)');
+    ctx.fillStyle = backdrop;
+    ctx.fillRect(0, 0, width, height);
+
+    const grain = seeded(11);
+    for (let index = 0; index < 420; index++) {
+      const pose = polar(grain() * 360, grain() * state.scale);
+      const spot = at(pose);
+      ctx.fillStyle = `rgba(110,200,170,${grain() * 0.07})`;
+      ctx.fillRect(spot.x, spot.y, 1, 1);
+    }
+    state.clutter.forEach((cloud, cloudIndex) => {
+      const noise = seeded(97 + cloudIndex * 31);
+      const spread = 0.35 + cloud.density * 0.12;
+      for (let index = 0; index < 90 + cloud.density * 25; index++) {
+        const center = polar(cloud.bearing, cloud.range);
+        const spot = at({
+          x: center.x + (noise() - 0.5) * spread * 2,
+          y: center.y + (noise() - 0.5) * spread * 2,
+        });
+        const flicker = 0.5 + 0.5 * Math.sin(now / 300 + index);
+        ctx.fillStyle = `rgba(110,200,170,${(0.05 + noise() * 0.16) * flicker})`;
+        ctx.fillRect(spot.x, spot.y, 1.5, 1.5);
+      }
+    });
+
+    let sweep: number | null = null;
+    const period = Math.max(state.sweepPeriod, 1) * 1000;
+    if (state.activeMode === 'circle') {
+      sweep = ((now % period) / period) * 360;
+      for (let step = 0; step < SWEEP_TRAIL; step++) {
+        const from = ((sweep - step - 90) * Math.PI) / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, from, from + Math.PI / 180);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(93,255,194,${0.2 * (1 - step / SWEEP_TRAIL) ** 2.2})`;
+        ctx.fill();
+      }
+    } else if (
+      state.activeMode === 'sector' &&
+      state.sectorBearing !== undefined
+    ) {
+      const phase = (now % period) / period;
+      const swing = Math.sin(phase * Math.PI * 2) * SECTOR_HALF_ARC;
+      sweep = (state.sectorBearing + swing + 360) % 360;
+      const reach = Math.min(radius, state.longView * SECTOR_REACH * unit);
+      const start =
+        ((state.sectorBearing - SECTOR_HALF_ARC - 90) * Math.PI) / 180;
+      const end =
+        ((state.sectorBearing + SECTOR_HALF_ARC - 90) * Math.PI) / 180;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, reach, start, end);
+      ctx.closePath();
+      const cone = ctx.createRadialGradient(cx, cy, 0, cx, cy, reach);
+      cone.addColorStop(0, 'rgba(255,179,71,0.02)');
+      cone.addColorStop(1, 'rgba(255,179,71,0.12)');
+      ctx.fillStyle = cone;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,179,71,0.45)';
+      ctx.stroke();
+    }
+    if (sweep !== null) {
+      const tip = at(polar(sweep, state.scale));
+      ctx.strokeStyle = 'rgba(170,255,225,0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(tip.x, tip.y);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
+    if (state.passiveOn && state.activeMode === 'off') {
+      const ripple = (now % 3000) / 3000;
+      ctx.strokeStyle = `rgba(255,179,71,${0.25 * (1 - ripple)})`;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * ripple, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.font = '10px Consolas, monospace';
+    ctx.strokeStyle = 'rgba(93,255,194,0.16)';
+    for (let ring = 1; ring <= 4; ring++) {
+      const value = (state.scale * ring) / 4;
+      ctx.beginPath();
+      ctx.arc(cx, cy, (radius * ring) / 4, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(140,200,190,0.55)';
+      ctx.fillText(
+        `${Number(value.toFixed(1))} Гм`,
+        cx + (radius * ring) / 4 - 34,
+        cy - 4,
+      );
+    }
+    for (const reach of [state.shortView, state.longView]) {
+      if (reach > state.scale) continue;
+      ctx.setLineDash([2, 5]);
+      ctx.strokeStyle =
+        reach === state.shortView
+          ? 'rgba(122,208,228,0.35)'
+          : 'rgba(255,179,71,0.25)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, reach * unit, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    for (let bearing = 0; bearing < 360; bearing += 5) {
+      const angle = ((bearing - 90) * Math.PI) / 180;
+      const length = bearing % 30 === 0 ? 10 : bearing % 10 === 0 ? 6 : 3;
+      ctx.strokeStyle = 'rgba(93,255,194,0.55)';
+      ctx.beginPath();
+      ctx.moveTo(
+        cx + Math.cos(angle) * (radius + 2),
+        cy + Math.sin(angle) * (radius + 2),
+      );
+      ctx.lineTo(
+        cx + Math.cos(angle) * (radius + 2 + length),
+        cy + Math.sin(angle) * (radius + 2 + length),
+      );
+      ctx.stroke();
+      if (bearing % 30 === 0) {
+        ctx.fillStyle = 'rgba(170,230,220,0.8)';
+        ctx.fillText(
+          String(bearing).padStart(3, '0'),
+          cx + Math.cos(angle) * (radius + 22) - 10,
+          cy + Math.sin(angle) * (radius + 22) + 4,
+        );
+      }
+      if (bearing % 30 === 0) {
+        ctx.strokeStyle = 'rgba(93,255,194,0.07)';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(
+          cx + Math.cos(angle) * radius,
+          cy + Math.sin(angle) * radius,
+        );
+        ctx.stroke();
+      }
+    }
+
+    if (state.speed > 0) {
+      const nose = at(polar(state.heading, state.scale * 0.35));
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(255,179,71,0.6)';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(nose.x, nose.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle = '#e8f7fb';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#5dffc2';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+    ctx.stroke();
+
+    for (const track of state.tracks) {
+      const tone = TONES[track.source] || TONES.act;
+      if (track.source === 'pas') {
+        const spread = Math.max(2, 9 - track.quality / 8);
+        const error = track.range_err || 0;
+        const near = Math.max(0.2, track.range - error);
+        const far = Math.min(state.scale, track.range + error);
+        if (near > state.scale) continue;
+        const a0 = ((track.bearing - spread - 90) * Math.PI) / 180;
+        const a1 = ((track.bearing + spread - 90) * Math.PI) / 180;
+        ctx.beginPath();
+        ctx.arc(cx, cy, far * unit, a0, a1);
+        ctx.arc(cx, cy, near * unit, a1, a0, true);
+        ctx.closePath();
+        const wedge = ctx.createRadialGradient(
+          cx,
+          cy,
+          near * unit,
+          cx,
+          cy,
+          far * unit,
+        );
+        wedge.addColorStop(0, `rgba(${tone},0.05)`);
+        wedge.addColorStop(0.5, `rgba(${tone},${0.18 + track.quality / 300})`);
+        wedge.addColorStop(1, `rgba(${tone},0.05)`);
+        ctx.fillStyle = wedge;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(${tone},0.5)`;
+        ctx.stroke();
+        const label = at(polar(track.bearing + spread + 2, (near + far) / 2));
+        ctx.fillStyle = `rgba(${tone},0.95)`;
+        ctx.fillText(
+          `${track.id} ${track.ir >= track.em ? 'ИК' : 'ЭМ'} ${near.toFixed(1)}–${far.toFixed(1)}`,
+          label.x + 4,
+          label.y,
+        );
+        continue;
+      }
+      const blend = blendsRef.current.get(track.ref);
+      let pose = polar(track.bearing, track.range);
+      if (blend) {
+        const progress = Math.min(1, (now - blend.at) / BLEND_MS);
+        pose = {
+          x: blend.from.x + (blend.to.x - blend.from.x) * progress,
+          y: blend.from.y + (blend.to.y - blend.from.y) * progress,
+        };
+      }
+      if (Math.hypot(pose.x, pose.y) > state.scale) continue;
+      const spot = at(pose);
+      let fade = track.source === 'lost' ? 0.35 : 1;
+      if (
+        track.source === 'act' &&
+        sweep !== null &&
+        state.activeMode === 'circle'
+      ) {
+        const age = ((sweep - track.bearing + 360) % 360) / 360;
+        fade = 1 - age * 0.7;
+      }
+      for (let ring = 3; ring > 0; ring--) {
+        ctx.fillStyle = `rgba(${tone},${(0.12 * fade) / ring})`;
+        ctx.beginPath();
+        ctx.arc(spot.x, spot.y, 4 + ring * 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = `rgba(${tone},${fade})`;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (track.source === 'iff') {
+        ctx.moveTo(spot.x, spot.y - 6);
+        ctx.lineTo(spot.x + 5, spot.y + 4);
+        ctx.lineTo(spot.x - 5, spot.y + 4);
+        ctx.closePath();
+        ctx.fill();
+      } else if (track.source === 'sos') {
+        ctx.rect(spot.x - 4, spot.y - 4, 8, 8);
+        ctx.fill();
+      } else if (track.source === 'map') {
+        ctx.arc(spot.x, spot.y, 7, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.moveTo(spot.x, spot.y - 6);
+        ctx.lineTo(spot.x + 6, spot.y);
+        ctx.lineTo(spot.x, spot.y + 6);
+        ctx.lineTo(spot.x - 6, spot.y);
+        ctx.closePath();
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+      if (track.speed && track.heading !== undefined) {
+        const lead = at({
+          x: pose.x + polar(track.heading, track.speed * 0.3).x,
+          y: pose.y + polar(track.heading, track.speed * 0.3).y,
+        });
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(spot.x, spot.y);
+        ctx.lineTo(lead.x, lead.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      if (
+        track.cpa !== undefined &&
+        track.cpa_time !== undefined &&
+        track.cpa_bearing !== undefined &&
+        track.cpa_time < 900
+      ) {
+        const point = at(polar(track.cpa_bearing, track.cpa));
+        ctx.strokeStyle = 'rgba(255,95,109,0.65)';
+        ctx.setLineDash([2, 3]);
+        ctx.beginPath();
+        ctx.moveTo(spot.x, spot.y);
+        ctx.lineTo(point.x, point.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(255,95,109,0.9)';
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillText(
+          `CPA ${formatClock(track.cpa_time)}`,
+          point.x + 6,
+          point.y + 3,
+        );
+      }
+      if (track.ref === state.locked) {
+        const spin = (now / 600) % (Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,95,109,0.9)';
+        for (let corner = 0; corner < 4; corner++) {
+          const angle = spin + (corner * Math.PI) / 2;
+          ctx.beginPath();
+          ctx.arc(spot.x, spot.y, 14, angle, angle + 0.8);
+          ctx.stroke();
+        }
+      } else if (track.ref === state.selected) {
+        ctx.strokeStyle = 'rgba(232,247,251,0.85)';
+        ctx.strokeRect(spot.x - 11, spot.y - 11, 22, 22);
+      }
+      ctx.fillStyle = `rgba(${tone},${0.95 * fade + 0.05})`;
+      ctx.fillText(
+        `${track.id}${track.name ? ` ${track.name}` : ''}`,
+        spot.x + 10,
+        spot.y - 8,
+      );
+    }
+  };
+
+  const handleClick = (event: MouseEvent<HTMLCanvasElement>) => {
+    const state = propsRef.current;
+    const { cx, cy, radius } = layoutRef.current;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left - cx;
+    const y = event.clientY - rect.top - cy;
+    const unit = radius / state.scale;
+    let best: SensorTrack | undefined;
+    let bestDistance = PICK_RADIUS;
+    for (const track of state.tracks) {
+      const pose = polar(track.bearing, track.range);
+      const distance = Math.hypot(pose.x * unit - x, pose.y * unit - y);
+      if (distance < bestDistance) {
+        best = track;
+        bestDistance = distance;
+      }
+    }
+    if (best) {
+      state.onSelect(best.ref);
+      return;
+    }
+    if (state.activeMode === 'sector' && Math.hypot(x, y) <= radius) {
+      state.onAim(Math.round(toBearing(x, y)));
+    }
+  };
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="SensorPost__canvas"
+      onClick={handleClick}
+    />
+  );
+};

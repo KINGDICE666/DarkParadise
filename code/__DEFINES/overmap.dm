@@ -145,6 +145,10 @@
 
 #define OVERMAP_DOCK_Z_PLANET "planet"
 
+#define FACTION_PLASMA_WORLD "plasma_world"
+
+#define OVERMAP_SHIP_NAME_MAX 24
+
 #define OVERMAP_DOCK_ID_EDGE "__overmap_edge"
 
 #define OVERMAP_DOCK_ID_CUSTOM "__overmap_custom"

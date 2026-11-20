@@ -83,7 +83,7 @@
 /obj/machinery/ship_engine/proc/can_burn()
 	if(!on || overheated || (stat & BROKEN))
 		return FALSE
-	if(vessel?.sector?.engine_dampening && !istype(src, /obj/machinery/ship_engine/plasma))
+	if(vessel?.sector?.engine_dampening && !vessel.autopilot_upgraded && !istype(src, /obj/machinery/ship_engine/plasma))
 		return FALSE
 	return fuel_available()
 

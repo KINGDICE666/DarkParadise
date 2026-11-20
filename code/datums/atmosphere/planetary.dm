@@ -55,9 +55,9 @@
 	id = ENVIRONMENT_PLASMA_WORLD
 
 	base_gases = list(
-		ATMOSPHERE_TOXINS = 30,
-		ATMOSPHERE_NITROGEN = 45,
-		ATMOSPHERE_CARBON_DIOXIDE = 25,
+		ATMOSPHERE_TOXINS = 45,
+		ATMOSPHERE_NITROGEN = 52,
+		ATMOSPHERE_CARBON_DIOXIDE = 3,
 	)
 	normal_gases = list()
 	restricted_gases = list()

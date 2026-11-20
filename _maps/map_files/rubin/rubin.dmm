@@ -23474,7 +23474,7 @@
 /obj/structure/disposalpipe/segment,
 /obj/machinery/door/airlock/security/glass{
 	name = "Brig";
-	req_access = list(63)
+	req_access = list(19,63)
 	},
 /obj/machinery/door/poddoor/preopen{
 	id_tag = "Brig_lockdown";
