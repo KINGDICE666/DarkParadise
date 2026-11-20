@@ -422,7 +422,7 @@
 
 /datum/smite/pod/activate(mob/living/target, reason)
 	var/datum/centcom_podlauncher/launcher = new(usr, reason)
-	launcher.specificTarget = target
+	launcher.set_target(target)
 	launcher.ui_interact(usr)
 
 // MARK: Global hunting

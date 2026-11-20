@@ -15,9 +15,7 @@ export const StylePage = (props: unknown) => {
           icon="edit"
           onClick={() => act('effectName')}
           selected={effectName}
-          tooltip={`
-            Edit pod's
-            .id/desc.`}
+          tooltip="Изменить имя и описание капсулы"
           tooltipPosition="bottom-start"
         >
           Имя
