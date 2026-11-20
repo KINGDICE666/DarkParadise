@@ -86,6 +86,9 @@
 	data["emission"] = pack?.emission_report()
 	data["locked"] = pack?.locked_uid
 	data["haywire"] = !!pack?.passive_haywire()
+	data["gain"] = pack?.passive_gain
+	data["suppression"] = pack?.clutter_suppression
+	data["status"] = pack?.status_report()
 	data["scanning"] = scanning
 	data["scan_error"] = scan_error
 	data["scan"] = scan_info
@@ -176,11 +179,22 @@
 				vessel.sensor_sector_bearing = round(bearing) % 360
 			. = TRUE
 		if("lock")
-			if(!pack?.try_lock(params["ref"]))
-				to_chat(usr, span_warning("Цель вне луча активного радара."))
+			var/lock_result = pack?.try_lock(params["ref"])
+			if(lock_result != TRUE)
+				to_chat(usr, span_warning(lock_result || "Нет связи с сенсорами."))
 			. = TRUE
 		if("unlock")
 			pack?.release_lock()
+			. = TRUE
+		if("set_gain")
+			var/gain = text2num(params["value"])
+			if(pack && isnum(gain))
+				pack.passive_gain = clamp(round(gain), 0, 100)
+			. = TRUE
+		if("set_suppression")
+			var/suppression = text2num(params["value"])
+			if(pack && isnum(suppression))
+				pack.clutter_suppression = clamp(round(suppression), 0, 100)
 			. = TRUE
 		if("select")
 			selected_uid = params["ref"]

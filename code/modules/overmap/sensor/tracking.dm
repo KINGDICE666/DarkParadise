@@ -12,6 +12,10 @@
 #define SENSOR_EMISSION_LOW 30
 #define SENSOR_EMISSION_MED 55
 #define SENSOR_EMISSION_HIGH 80
+#define SENSOR_SHADOW_QUALITY_CAP 20
+#define SENSOR_SHADOW_RANGE_ERROR 0.8
+#define SENSOR_TRAIL_POINTS 8
+#define SENSOR_SUPPRESSION_PER_DENSITY 20
 
 /proc/overmap_mass_signature(mass)
 	return clamp(round(25 * log(10, max(mass, 1)) - 20), 5, 100)
@@ -53,9 +57,19 @@
 	return "объект"
 
 /obj/overmap/proc/sensor_signature()
+	var/list/signature = natural_sensor_signature()
+	if(!isnull(sensor_ir))
+		signature["ir"] = sensor_ir
+	if(!isnull(sensor_em))
+		signature["em"] = sensor_em
+	if(!isnull(sensor_mass))
+		signature["mass"] = sensor_mass
+	return signature
+
+/obj/overmap/proc/natural_sensor_signature()
 	return list("ir" = 5, "em" = 0, "mass" = overmap_mass_signature(get_scan_mass()))
 
-/obj/overmap/entity/sensor_signature()
+/obj/overmap/entity/natural_sensor_signature()
 	var/firing = 0
 	for(var/obj/machinery/ship_engine/engine as anything in engines)
 		if(engine.firing)
@@ -110,7 +124,12 @@
 		return TRUE
 	return overmap_angle_gap(overmap_bearing(delta_x, delta_y), vessel.sensor_sector_bearing) <= SENSOR_SECTOR_HALF_ARC
 
+/datum/component/overmap_sensors/proc/passive_reach(list/signature)
+	return SENSOR_PASSIVE_RANGE * (0.5 + passive_gain / 100) * max(signature["ir"], signature["em"]) / 100
+
 /datum/component/overmap_sensors/proc/track_source(obj/overmap/other, distance, list/signature)
+	if(other.radar_shadow)
+		return in_long_peel_range(other) ? "act" : null
 	var/obj/overmap/entity/contact = other
 	if(istype(contact) && contact.identity_distress)
 		return "sos"
@@ -122,7 +141,7 @@
 		return "act"
 	if(in_short_view(other))
 		return "short"
-	if(passive_on() && distance <= SENSOR_PASSIVE_RANGE * max(signature["ir"], signature["em"]) / 100)
+	if(passive_on() && distance <= passive_reach(signature))
 		return "pas"
 	return null
 
@@ -135,7 +154,7 @@
 	var/list/seen = list()
 	if(here && vessel.sector)
 		for(var/obj/overmap/other as anything in vessel.sector.objects)
-			if(QDELETED(other) || other == vessel || other.hidden_from_contacts || other.overmap_kind == OVERMAP_KIND_HAZARD || !isturf(other.loc))
+			if(QDELETED(other) || other == vessel || (other.hidden_from_contacts && !other.radar_shadow) || other.overmap_kind == OVERMAP_KIND_HAZARD || !isturf(other.loc))
 				continue
 			var/list/there = overmap_cell_point(other)
 			if(!there)
@@ -159,10 +178,19 @@
 				cap = SENSOR_PASSIVE_QUALITY_CAP
 			if(uid == locked_uid)
 				gain = SENSOR_LOCK_GAIN
+			if(other.radar_shadow)
+				cap = SENSOR_SHADOW_QUALITY_CAP
 			if(source in list("map", "iff", "sos"))
 				track["quality"] = 100
 			else
 				track["quality"] = min(cap, max(track["quality"], 5) + gain * elapsed)
+			if(source == "pas" || other.radar_shadow)
+				continue
+			var/list/trail = track["trail"] || list()
+			trail += list(there.Copy())
+			if(length(trail) > SENSOR_TRAIL_POINTS)
+				trail.Cut(1, 2)
+			track["trail"] = trail
 	for(var/uid in tracks)
 		if(seen[uid])
 			continue
@@ -177,8 +205,18 @@
 /datum/component/overmap_sensors/proc/try_lock(uid)
 	var/obj/overmap/entity/vessel = parent
 	var/obj/overmap/target = locateUID(uid)
-	if(!istype(target) || QDELETED(target) || !active_on() || !(in_long_peel_range(target) || in_short_view(target)))
-		return FALSE
+	if(!istype(target) || QDELETED(target))
+		return "Цель потеряна."
+	if(!active_on())
+		return "Активный радар выключен."
+	if(!(in_long_peel_range(target) || in_short_view(target)))
+		return "Цель вне луча активного радара."
+	if(target.radar_shadow)
+		var/list/track = tracks?[uid]
+		if(track && !track["lock_failed"])
+			track["lock_failed"] = TRUE
+			add_sensor_journal("Срыв захвата: T-[num2text(track["number"])], отражение нестабильно", "iff_lost")
+		return "Срыв захвата: отражение нестабильно."
 	locked_uid = uid
 	var/obj/overmap/entity/victim = target
 	if(istype(victim) && victim.sensor_pack)
@@ -214,6 +252,8 @@
 	if(identified)
 		return list(list("label" = true_class, "chance" = 100))
 	var/chance = clamp(round(30 + track["quality"] * 0.65), 30, 95)
+	if(other.sensor_label)
+		return list(list("label" = other.sensor_label, "chance" = chance))
 	var/static/list/decoys = list("обломки", "малый шаттл", "грузовой шаттл", "капсула", "станция")
 	var/decoy = decoys[(hex2num(copytext(md5(other.UID()), 1, 3)) % length(decoys)) + 1]
 	if(decoy == true_class)
@@ -240,7 +280,25 @@
 		var/delta_x = there[1] - here[1]
 		var/delta_y = there[2] - here[2]
 		var/distance = sqrt(delta_x ** 2 + delta_y ** 2)
+		if(other.radar_shadow)
+			. += list(list(
+				"ref" = uid,
+				"id" = "T-[num2text(track["number"])]",
+				"kind" = "unknown",
+				"source" = source,
+				"bearing" = (overmap_bearing(delta_x, delta_y) + rand(-3, 3) + 360) % 360,
+				"range" = round(distance + (rand() - 0.5) * SENSOR_SHADOW_RANGE_ERROR, 0.01),
+				"range_err" = SENSOR_SHADOW_RANGE_ERROR,
+				"quality" = round(track["quality"]),
+				"age" = round((world.time - track["first"]) / (1 SECONDS)),
+				"shadow" = TRUE,
+				"classes" = list(),
+			))
+			continue
 		var/identified = display_identified(other)
+		var/list/trail = list()
+		for(var/list/point as anything in track["trail"])
+			trail += list(list(overmap_bearing(point[1] - here[1], point[2] - here[2]), round(sqrt((point[1] - here[1]) ** 2 + (point[2] - here[2]) ** 2), 0.01)))
 		var/list/entry = list(
 			"ref" = uid,
 			"id" = "T-[num2text(track["number"])]",
@@ -257,6 +315,7 @@
 			"locked" = uid == locked_uid,
 			"can_scan" = can_short_scan(other),
 			"classes" = track_class(other, track, signature, identified),
+			"trail" = trail,
 		)
 		if(!precise)
 			entry["range_err"] = round(distance * (0.6 - track["quality"] / 200), 0.1)
@@ -312,11 +371,36 @@
 		var/delta_x = there[1] - here[1]
 		var/delta_y = there[2] - here[2]
 		var/distance = sqrt(delta_x ** 2 + delta_y ** 2)
-		if(distance > SENSOR_CLUTTER_REACH)
+		if(distance > SENSOR_CLUTTER_REACH || hazard.hazard_density * SENSOR_SUPPRESSION_PER_DENSITY < clutter_suppression)
 			continue
 		. += list(list("bearing" = overmap_bearing(delta_x, delta_y), "range" = round(distance, 0.01), "density" = hazard.hazard_density, "name" = hazard.name))
 
+/datum/component/overmap_sensors/proc/status_report()
+	var/obj/overmap/entity/vessel = parent
+	var/list/status = list()
+	status["passive"] = !passive_on() ? "off" : passive_haywire() ? "haywire" : "ok"
+	status["active"] = active_on() ? "on" : "off"
+	status["lock"] = locked_uid ? "T-[num2text(tracks?[locked_uid]?["number"])]" : null
+	status["haywire"] = passive_haywire() ? round((haywire_until - world.time) / (1 SECONDS)) : null
+	var/painted = FALSE
+	for(var/obj/overmap/entity/other in vessel.sector?.objects)
+		if(other != vessel && other.sensor_pack?.locked_uid == vessel.UID())
+			painted = TRUE
+			break
+	status["painted"] = painted ? "lock" : sees_any_foreign_peel() ? "radar" : null
+	var/list/lost = list()
+	for(var/uid in tracks)
+		var/obj/overmap/other = locateUID(uid)
+		if(tracks[uid]["source"] == "lost" || (istype(other) && other.radar_shadow))
+			lost += "T-[num2text(tracks[uid]["number"])]"
+	status["lost"] = length(lost) ? jointext(lost, ", ") : null
+	return status
+
 #undef SENSOR_PASSIVE_RANGE
+#undef SENSOR_SHADOW_QUALITY_CAP
+#undef SENSOR_SHADOW_RANGE_ERROR
+#undef SENSOR_TRAIL_POINTS
+#undef SENSOR_SUPPRESSION_PER_DENSITY
 #undef SENSOR_PASSIVE_QUALITY_CAP
 #undef SENSOR_PASSIVE_GAIN
 #undef SENSOR_HAYWIRE_TIME

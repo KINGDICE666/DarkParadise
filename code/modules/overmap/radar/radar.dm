@@ -134,13 +134,16 @@
 			var/obj/overmap/planet/planet = overmap_object
 			var/obj/overmap/entity/hyperrelay/relay = overmap_object
 			var/obj/overmap/celestial/body = overmap_object
+			var/shadow = overmap_object.radar_shadow && !is_self
+			if(shadow && !sensor_pack?.tracks?[overmap_object.UID()])
+				continue
 			if(istype(overmap_object, /obj/overmap/feature/hazard))
 
 				continue
 			var/list/entry = list(
 				"id" = overmap_object.UID(),
-				"name" = is_self || identified ? overmap_object.get_overmap_display_name() : OVERMAP_UNKNOWN_NAME,
-				"kind" = identified || is_self ? overmap_object.overmap_kind : "unknown",
+				"name" = (is_self || identified) && !shadow ? overmap_object.get_overmap_display_name() : OVERMAP_UNKNOWN_NAME,
+				"kind" = (identified || is_self) && !shadow ? overmap_object.overmap_kind : "unknown",
 				"x" = is_self ? data["self_pos"][1] : sector.coord_x(object_turf) + overmap_object.position[1],
 				"y" = is_self ? data["self_pos"][2] : sector.coord_y(object_turf) + overmap_object.position[2],
 				"color" = identified ? overmap_object.map_color : "#fffffe",
@@ -153,7 +156,7 @@
 				"identified" = identified || is_self,
 				"docked_to" = is_entity ? contact.docked_to?.name : null,
 				"size" = istype(planet) ? planet.footprint : 1,
-				"zones" = istype(body) ? body.radar_zones() : null,
+				"zones" = istype(body) && !shadow ? body.radar_zones() : null,
 				"shield" = is_entity ? contact.shield_fraction() : 0,
 				"extent" = is_entity ? contact.radar_extent() : null,
 				"facing" = is_entity ? contact.radar_facing() : 0,

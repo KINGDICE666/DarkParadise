@@ -16,6 +16,8 @@
 	var/last_track_update = 0
 	var/locked_uid
 	var/haywire_until = 0
+	var/passive_gain = 50
+	var/clutter_suppression = 30
 
 /datum/component/overmap_sensors/Initialize()
 	if(!istype(parent, /obj/overmap/entity))

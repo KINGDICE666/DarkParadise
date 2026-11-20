@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { Button, Input, NoticeBox } from 'tgui-core/components';
-import { type BooleanLike, classes } from 'tgui-core/react';
+import { useRef, useState } from 'react';
+import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend, useLocalState } from '../backend';
 import { Window } from '../layouts';
 import { GalaxyLayer } from './overmap/GalaxyLayer';
 import type { GalaxyMap } from './overmap/OvermapRadar';
 import {
-  SensorDial,
-  SensorSelector,
-  SensorToggle,
+  SensorKey,
+  SensorSegment,
+  SensorSlider,
+  SensorStepper,
 } from './overmap/sensors/SensorControls';
 import { SensorHelp } from './overmap/sensors/SensorHelp';
-import { SensorScope } from './overmap/sensors/SensorScope';
+import { type ScopeLayers, SensorScope } from './overmap/sensors/SensorScope';
 import {
   SensorSilhouette,
   SensorWaterfall,
@@ -20,13 +20,13 @@ import {
 import type {
   SensorClutter,
   SensorEmission,
+  SensorStatus,
   SensorTrack,
 } from './overmap/sensors/types';
 
 type JournalEntry = {
   time: string;
   text: string;
-  kind?: string;
   x?: number;
   y?: number;
   name?: string;
@@ -36,14 +36,10 @@ type JournalEntry = {
 
 type ScanInfo = {
   name: string;
-  kind: string;
   mass: number;
   living: number;
   engines: number;
   engines_ready: number;
-  speed: number;
-  heading: number;
-  transponder: BooleanLike;
   size_x: number;
   size_y: number;
   has_hull?: BooleanLike;
@@ -56,13 +52,14 @@ type SensorPostData = {
   passive_on: BooleanLike;
   active_mode: string;
   sector_bearing?: number;
-  long_view: number;
-  short_view: number;
   sweep_period: number;
   can_run: BooleanLike;
   tracks: SensorTrack[];
   clutter: SensorClutter[];
   emission?: SensorEmission;
+  status?: SensorStatus;
+  gain?: number;
+  suppression?: number;
   locked?: string;
   haywire?: BooleanLike;
   scanning: BooleanLike;
@@ -84,8 +81,6 @@ type SensorPostData = {
   journal: JournalEntry[];
   alerts?: { id: string; label: string; on: BooleanLike }[];
   vessel_name?: string;
-  x?: number;
-  y?: number;
   sector_name?: string;
   sector_id?: string;
   heading?: number;
@@ -94,79 +89,79 @@ type SensorPostData = {
 };
 
 const SCALES = [2, 4, 8, 12, 16];
+const TABS = ['scope', 'journal', 'galaxy', 'help', 'alerts'];
 const GALAXY_RADIUS = 1000;
+const AIM_DELAY = 150;
 
-const SOURCE_TAGS: Record<string, [string, string]> = {
-  act: ['АКТ', 'act'],
-  short: ['БЛИЖ', 'act'],
-  pas: ['ПАС', 'pas'],
-  iff: ['IFF', 'iff'],
-  map: ['КАРТА', 'iff'],
-  sos: ['SOS', 'sos'],
-  lost: ['ПОТЕРЯН', 'lost'],
+const DEFAULT_LAYERS: ScopeLayers = {
+  trails: true,
+  iff: true,
+  ebl: true,
+  vrm: true,
+  cpa: true,
+  labels: false,
 };
 
-const LEVEL_TONES: Record<string, string> = {
-  ТИШИНА: 'good',
-  НИЗКАЯ: 'good',
-  СРЕДНЯЯ: 'warn',
-  ВЫСОКАЯ: 'bad',
-};
-
-const pad3 = (value: number) => String(Math.round(value)).padStart(3, '0');
+const pad3 = (value: number) =>
+  String(Math.round((value + 360) % 360)).padStart(3, '0');
 
 const clock = (seconds: number) =>
   `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
+const meter = (value: number) => {
+  const lit = Math.round(value / 12.5);
+  return '▮'.repeat(lit) + '▯'.repeat(8 - lit);
+};
+
 const threat = (track: SensorTrack) => {
   if (track.locked) return 0;
   if (track.source === 'sos') return 1;
-  if (track.cpa_time !== undefined && track.cpa !== undefined && track.cpa < 1)
-    return 2;
+  if (track.cpa !== undefined && track.cpa < 1) return 2;
   if (track.source === 'map') return 6;
   if (track.source === 'lost') return 5;
   if (track.name) return 4;
   return 3;
 };
 
-const trackTitle = (track: SensorTrack) => {
+const trackName = (track: SensorTrack) => {
+  if (track.shadow) return '---';
   if (track.name) return track.name;
-  const best = track.classes[0];
-  const temper =
-    track.ir >= 60 ? 'горячий' : track.em >= 50 ? 'шумный' : 'холодный';
-  return best && track.source !== 'pas'
-    ? `неизвестен · ${best.label}?`
-    : `неизвестен · ${temper}`;
+  if (track.source === 'pas')
+    return track.ir >= track.em ? 'ИК-ИСТОЧН.' : 'ЭМ-ИСТОЧН.';
+  return 'НЕИЗВЕСТЕН';
 };
 
 export const OvermapSensors = () => {
   const { act, data } = useBackend<SensorPostData>();
-  const [tab, setTab] = useLocalState<string>('sensorTab', 'scope');
+  const [storedTab, setTab] = useLocalState('sensorTab', 'scope');
+  const tab = TABS.includes(storedTab) ? storedTab : 'scope';
   const [scale, setScale] = useLocalState('sensorScale', 8);
+  const [northUp, setNorthUp] = useLocalState('sensorNorthUp', true);
+  const [brightness, setBrightness] = useLocalState('sensorBrightness', 60);
+  const [layers, setLayers] = useLocalState<ScopeLayers>(
+    'sensorLayers',
+    DEFAULT_LAYERS,
+  );
   const [query, setQuery] = useState('');
+  const [aim, setAim] = useState<number | null>(null);
+  const aimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const {
-    linked,
-    has_long,
-    has_short,
-    passive_on,
-    active_mode,
     tracks = [],
     clutter = [],
-    emission,
-    locked,
     journal = [],
+    status,
+    emission,
+    active_mode,
   } = data;
 
-  if (!linked) {
+  if (!data.linked) {
     return (
       <Window title="Sensors" width={1180} height={820}>
-        <Window.Content className="SensorPost">
-          <NoticeBox danger>
-            Нет связи с судном. Поставьте консоль на станцию или на шаттл.
-          </NoticeBox>
-          <Button icon="link" onClick={() => act('relink')}>
-            Подключиться
-          </Button>
+        <Window.Content fitted className="SensorPost">
+          <div className="SensorPost__nolink">
+            НЕТ СВЯЗИ С СУДНОМ
+            <SensorKey label="ПОДКЛЮЧИТЬСЯ" onClick={() => act('relink')} />
+          </div>
         </Window.Content>
       </Window>
     );
@@ -178,572 +173,633 @@ export const OvermapSensors = () => {
   );
   const selected =
     tracks.find((track) => track.ref === data.selected) ||
-    tracks.find((track) => track.ref === locked) ||
-    sorted[0];
+    tracks.find((track) => track.ref === data.locked) ||
+    sorted.find((track) => track.source !== 'pas');
   const activeOn = active_mode !== 'off';
+  const sectorBearing = aim ?? data.sector_bearing ?? data.heading ?? 0;
+  const toggleLayer = (key: keyof ScopeLayers) =>
+    setLayers({ ...layers, [key]: !layers[key] });
+  const stepAim = (direction: number, fine: boolean) => {
+    const next = (sectorBearing + direction * (fine ? 1 : 5) + 360) % 360;
+    setAim(next);
+    clearTimeout(aimTimer.current);
+    aimTimer.current = setTimeout(() => {
+      act('aim', { bearing: next });
+      setAim(null);
+    }, AIM_DELAY);
+  };
+  const stepScale = (direction: number) => {
+    const index = SCALES.indexOf(scale);
+    setScale(
+      SCALES[
+        Math.max(
+          0,
+          Math.min(SCALES.length - 1, (index < 0 ? 2 : index) + direction),
+        )
+      ],
+    );
+  };
   const passiveCount = tracks.filter((track) => track.source === 'pas').length;
   const clutterNames = [...new Set(clutter.map((cloud) => cloud.name))];
+  const scanningSelected =
+    !!selected && !!data.scanning && data.scan_target === selected.ref;
+
+  const statusRows: [string, string, string][] = [
+    [
+      'ПАССИВ',
+      status?.passive === 'haywire'
+        ? 'СБОЙ'
+        : status?.passive === 'ok'
+          ? 'НОРМА'
+          : 'ВЫКЛ',
+      status?.passive === 'haywire'
+        ? 'alarm'
+        : status?.passive === 'ok'
+          ? 'lit'
+          : 'quiet',
+    ],
+    ['РАДАР', activeOn ? 'ИЗЛУЧ.' : 'ВЫКЛ', activeOn ? 'lit' : 'quiet'],
+    ['ЗАХВАТ', status?.lock || '—', status?.lock ? 'alert' : 'quiet'],
+    [
+      'ОБЛУЧЕНИЕ',
+      status?.painted === 'lock' ? 'ЗАХВАТ' : status?.painted ? 'РАДАР' : '—',
+      status?.painted ? 'alarm' : 'quiet',
+    ],
+    [
+      'ЭМИ СБОЙ',
+      status?.haywire ? clock(status.haywire) : '—',
+      status?.haywire ? 'alarm' : 'quiet',
+    ],
+    ['ПОТЕРЯ ЦЕЛИ', status?.lost || '—', status?.lost ? 'alarm' : 'quiet'],
+  ];
+
+  const targetFields: [string, string][] = !selected
+    ? []
+    : selected.shadow
+      ? [
+          ['ПЕЛЕНГ', `${pad3(selected.bearing)}°`],
+          [
+            'ДАЛЬНОСТЬ',
+            `${selected.range.toFixed(1)} ± ${(selected.range_err || 0).toFixed(1)} ГМ`,
+          ],
+          ['КУРС', '---'],
+          ['СКОРОСТЬ', '---'],
+          ['CPA / TCPA', '---'],
+          ['КЛАСС', 'НЕТ ДАННЫХ'],
+          ['ТРАНСПОНДЕР', 'НЕТ'],
+          ['ИК / ЭМ / М', '-- / -- / --'],
+        ]
+      : [
+          ['ПЕЛЕНГ', `${pad3(selected.bearing)}°`],
+          [
+            'ДАЛЬНОСТЬ',
+            selected.range_err !== undefined
+              ? `${Math.max(0, selected.range - selected.range_err).toFixed(1)}–${(selected.range + selected.range_err).toFixed(1)} ГМ`
+              : `${selected.range.toFixed(2)} ГМ`,
+          ],
+          [
+            'КУРС',
+            selected.heading !== undefined
+              ? `${pad3(selected.heading)}°`
+              : '---',
+          ],
+          [
+            'СКОРОСТЬ',
+            selected.speed !== undefined
+              ? `${selected.speed.toFixed(2)} ГМ/Ч`
+              : '---',
+          ],
+          [
+            'CPA / TCPA',
+            selected.cpa !== undefined && selected.cpa_time !== undefined
+              ? `${selected.cpa.toFixed(2)} · ${clock(selected.cpa_time)}`
+              : '---',
+          ],
+          [
+            'КЛАСС',
+            selected.classes[0]
+              ? `${selected.classes[0].label} ${selected.classes[0].chance}%`
+              : '---',
+          ],
+          [
+            'ТРАНСПОНДЕР',
+            selected.transponder === undefined
+              ? '---'
+              : selected.transponder
+                ? 'ЕСТЬ'
+                : 'НЕТ',
+          ],
+          ['ИК / ЭМ / М', `${selected.ir} / ${selected.em} / ${selected.mass}`],
+        ];
+
+  const centerView = () => {
+    if (tab === 'journal') {
+      return (
+        <div className="SensorPost__panel SensorPost__journal">
+          <div className="SensorPost__journal-list">
+            {journal
+              .filter((entry) =>
+                `${entry.text} ${entry.name || ''} ${entry.note || ''}`
+                  .toLowerCase()
+                  .includes(query.trim().toLowerCase()),
+              )
+              .slice()
+              .reverse()
+              .map((entry, index) => (
+                <div
+                  key={index}
+                  className={`SensorPost__journal-row SensorPost__tone--${entry.tone || 'info'}`}
+                >
+                  <span>{entry.time}</span>
+                  <span>
+                    {entry.text}
+                    {entry.note ? ` · ${entry.note}` : ''}
+                  </span>
+                  {entry.x !== undefined && (
+                    <span>
+                      [{entry.x}:{entry.y}]
+                    </span>
+                  )}
+                </div>
+              ))}
+            {!journal.length && <div>ЖУРНАЛ ПУСТ</div>}
+          </div>
+          <div className="SensorPost__journal-tools">
+            {!!data.can_dump &&
+              (data.dump_loaded ? (
+                <>
+                  <SensorKey
+                    label={`ВЫГРУЗИТЬ ДАМП ${data.known_count || 0}`}
+                    onClick={() => act('dump_write')}
+                  />
+                  <SensorKey
+                    label={`ЗАГРУЗИТЬ ${data.dump_has_data ? data.dump_count : ''}`}
+                    disabled={!data.dump_has_data}
+                    onClick={() => act('dump_load')}
+                  />
+                  <SensorKey
+                    label="ДОСТАТЬ ЛИСТ"
+                    onClick={() => act('dump_eject')}
+                  />
+                </>
+              ) : (
+                <SensorKey
+                  label="ВСТАВЬТЕ БУМАГУ"
+                  disabled
+                  onClick={() => {}}
+                />
+              ))}
+            <input
+              className="SensorPost__search"
+              placeholder="ПОИСК ПО ЖУРНАЛУ"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </div>
+        </div>
+      );
+    }
+    if (tab === 'galaxy') {
+      return (
+        <div className="SensorPost__panel SensorPost__galaxy">
+          {data.galaxy ? (
+            <svg
+              viewBox={`${-GALAXY_RADIUS * 1.1} ${-GALAXY_RADIUS * 0.92} ${GALAXY_RADIUS * 2.2} ${GALAXY_RADIUS * 1.84}`}
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <GalaxyLayer
+                galaxy={data.galaxy}
+                sectorId={data.sector_id}
+                radius={GALAXY_RADIUS}
+                opacity={1}
+                slot={GALAXY_RADIUS / 2.4}
+              />
+            </svg>
+          ) : (
+            <div>КАРТА НЕДОСТУПНА</div>
+          )}
+        </div>
+      );
+    }
+    if (tab === 'help') {
+      return (
+        <div className="SensorPost__panel">
+          <SensorHelp />
+        </div>
+      );
+    }
+    if (tab === 'alerts') {
+      return (
+        <div className="SensorPost__panel SensorPost__alerts">
+          {(data.alerts || []).map((alert) => (
+            <SensorKey
+              key={alert.id}
+              label={alert.label}
+              value={alert.on ? 'ЗВУК' : 'ТИХО'}
+              on={!!alert.on}
+              onClick={() => act('toggle_alert', { id: alert.id })}
+            />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <>
+        <div className="SensorPost__scope">
+          {data.map_jammed ? (
+            <div className="SensorPost__jam">ПОМЕХИ ГИПЕРТРАНСЛЯТОРА</div>
+          ) : (
+            <SensorScope
+              tracks={tracks}
+              clutter={clutter}
+              scale={scale}
+              northUp={northUp}
+              heading={data.heading || 0}
+              speed={data.speed || 0}
+              activeMode={active_mode}
+              sectorBearing={
+                active_mode === 'sector' ? sectorBearing : undefined
+              }
+              passiveOn={!!data.passive_on}
+              sweepPeriod={data.sweep_period}
+              brightness={brightness}
+              layers={layers}
+              selected={selected?.ref}
+              locked={data.locked}
+              onSelect={(ref) => act('select', { ref })}
+              onAim={(bearing) => act('aim', { bearing })}
+            />
+          )}
+          <div className="SensorPost__corner SensorPost__corner--tl">
+            ШКАЛА {scale.toFixed(1)} ГМ
+            <br />
+            КОЛЬЦА {(scale / 4).toFixed(1)} ГМ
+            <br />
+            {northUp ? 'СЕВЕР ВВЕРХ' : 'КУРС ВВЕРХ'}
+            <br />
+            {active_mode === 'sector'
+              ? `СЕКТОР ${pad3(sectorBearing)}° ±30°`
+              : 'ОТН. ДВИЖЕНИЕ'}
+          </div>
+          <div className="SensorPost__corner SensorPost__corner--tr">
+            КУРС {pad3(data.heading || 0)}.0°
+            <br />
+            СКОР {(data.speed || 0).toFixed(2)} ГМ/Ч
+            <br />
+            ПЕЛ ЛИН{' '}
+            {selected && layers.ebl ? `${pad3(selected.bearing)}°` : '---'}
+            <br />
+            ДАЛЬН КР{' '}
+            {selected && layers.vrm ? `${selected.range.toFixed(2)} ГМ` : '---'}
+          </div>
+          <div className="SensorPost__corner SensorPost__corner--bl">
+            {activeOn
+              ? `РАДАР ${active_mode === 'sector' ? 'СЕКТОР' : 'КРУГ'} · ${data.sweep_period.toFixed(1)} С`
+              : 'РАДАР ВЫКЛ'}
+            <br />
+            ПАССИВ · {passiveCount} ПЕЛЕНГ.
+            {!!clutterNames.length && (
+              <>
+                <br />
+                ЭХО: {clutterNames.slice(0, 2).join(', ')}
+              </>
+            )}
+          </div>
+          {!!status?.lost && (
+            <div className="SensorPost__corner SensorPost__corner--br SensorPost__alarm">
+              ПОТЕРЯ ЦЕЛИ {status.lost}
+            </div>
+          )}
+        </div>
+        <div className="SensorPost__fall">
+          <div className="SensorPost__fall-axis">
+            {[
+              '000',
+              '045',
+              '090',
+              '135',
+              '180',
+              '225',
+              '270',
+              '315',
+              '360',
+            ].map((mark) => (
+              <span key={mark}>{mark}</span>
+            ))}
+          </div>
+          <div className="SensorPost__fall-plot">
+            <SensorWaterfall
+              tracks={tracks}
+              clutter={clutter}
+              live={!!data.passive_on || activeOn}
+              haywire={!!data.haywire}
+              gain={data.gain}
+            />
+          </div>
+        </div>
+      </>
+    );
+  };
 
   return (
     <Window title="Sensors" width={1180} height={820}>
       <Window.Content fitted className="SensorPost">
-        <div className="SensorPost__head">
-          <div className="SensorPost__ship">
-            <b>{data.vessel_name || 'СУДНО'}</b>
-            <div>
-              {data.sector_name || 'Сектор'} · {data.x}:{data.y} · КУРС{' '}
-              {pad3(data.heading || 0)}° · {data.speed || 0} Гм/ч
-            </div>
-          </div>
-          <div className="SensorPost__tabs">
-            {[
-              ['scope', 'ОБЗОР'],
-              ['galaxy', 'ГАЛАКТИКА'],
-              ['log', `ЖУРНАЛ ${journal.length}`],
-              ['alerts', 'ОПОВЕЩЕНИЯ'],
-              ['help', 'СПРАВКА'],
-            ].map(([id, label]) => (
-              <span
-                key={id}
-                className={classes([tab === id && 'is-on'])}
-                onClick={() => setTab(id)}
-              >
-                {label}
-              </span>
-            ))}
-          </div>
-          {!!emission && (
-            <div className="SensorPost__emcon">
-              <div>
-                <div className="SensorPost__label">НАША ЗАМЕТНОСТЬ</div>
-                <div
-                  className={`SensorPost__level SensorPost__level--${LEVEL_TONES[emission.level] || 'warn'}`}
-                >
-                  {emission.level === 'ТИШИНА' ? '●' : '▲'} {emission.level}
-                </div>
-              </div>
-              {(
-                [
-                  ['ИК', emission.ir, '#ffb347'],
-                  ['ЭМ', emission.em, '#ff5f6d'],
-                  ['МАССА', emission.mass, '#7ad0e4'],
-                ] as [string, number, string][]
-              ).map(([label, value, color]) => (
-                <div key={label} className="SensorPost__bar">
-                  <i>
-                    {label} {value}%
-                  </i>
-                  <div>
-                    <b style={{ width: `${value}%`, background: color }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        {tab === 'scope' && (
-          <div className="SensorPost__body">
-            <div className="SensorPost__left">
-              <div className="SensorPost__scope">
-                {data.map_jammed ? (
-                  <div className="SensorPost__jam">
-                    ПОМЕХИ ГИПЕРТРАНСЛЯТОРА · СВЯЗЬ ПОТЕРЯНА
-                  </div>
-                ) : (
-                  <SensorScope
-                    tracks={tracks}
-                    clutter={clutter}
-                    scale={scale}
-                    heading={data.heading || 0}
-                    speed={data.speed || 0}
-                    activeMode={active_mode}
-                    sectorBearing={data.sector_bearing}
-                    passiveOn={!!passive_on}
-                    longView={data.long_view}
-                    shortView={data.short_view}
-                    sweepPeriod={data.sweep_period}
-                    selected={selected?.ref}
-                    locked={locked}
-                    onSelect={(ref) => act('select', { ref })}
-                    onAim={(bearing) => act('aim', { bearing })}
-                  />
-                )}
-                {!!data.haywire && (
-                  <div className="SensorPost__haywire">
-                    ⚠ ПАССИВ: СБОЙ ПОСЛЕ ЭМИ · ЛОЖНЫЕ ПЕЛЕНГИ
-                  </div>
-                )}
-                <div className="SensorPost__corner SensorPost__corner--tl">
-                  ОБЗОР{' '}
-                  <b>
-                    {active_mode === 'circle'
-                      ? 'КРУГОВОЙ'
-                      : active_mode === 'sector'
-                        ? `СЕКТОР ${pad3(data.sector_bearing || 0)}°`
-                        : passive_on
-                          ? 'ПАССИВНЫЙ'
-                          : 'ВЫКЛЮЧЕН'}
-                  </b>
-                  <br />
-                  ПЕРИОД <b>{data.sweep_period.toFixed(1)} с</b>
-                  <br />
-                  ШКАЛА <b>{scale} Гм</b>
-                </div>
-                <div className="SensorPost__corner SensorPost__corner--tr">
-                  ТРЕКОВ <b>{tracks.length}</b>
-                  <br />
-                  АКТИВНЫХ <b>{tracks.length - passiveCount}</b> · ПАССИВНЫХ{' '}
-                  <b>{passiveCount}</b>
-                  {!!clutterNames.length && (
-                    <>
-                      <br />
-                      ПОМЕХИ <b>{clutterNames.slice(0, 2).join(', ')}</b>
-                    </>
-                  )}
-                </div>
-                <div className="SensorPost__corner SensorPost__corner--bl">
-                  ◉ ВЫ &nbsp; ▲ IFF &nbsp; ◆ РАДАР &nbsp; ■ SOS &nbsp; ⌒ ПЕЛЕНГ
-                  {active_mode === 'sector' && (
-                    <>
-                      <br />
-                      клик по экрану — навести сектор
-                    </>
-                  )}
-                </div>
-                <div className="SensorPost__corner SensorPost__corner--br">
-                  ШКАЛА
-                  <div className="SensorPost__zoom">
-                    {SCALES.map((value) => (
-                      <span
-                        key={value}
-                        className={classes([value === scale && 'is-on'])}
-                        onClick={() => setScale(value)}
-                      >
-                        {value}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="SensorPost__deck">
-                <SensorToggle
-                  label="ТЕПЛОВОЙ ПАССИВ"
-                  hint="Слушает тепло и излучение. Нас не выдаёт."
-                  on={!!passive_on}
-                  disabled={!has_short}
-                  onToggle={() => act('toggle_passive')}
-                />
-                <SensorToggle
-                  label="АКТИВНЫЙ РАДАР"
-                  hint="Точные позиции и скорости. Нас видят все с пассивом."
-                  tone="amber"
-                  on={activeOn}
-                  disabled={!has_long}
-                  onToggle={() =>
-                    act('set_active', { mode: activeOn ? 'off' : 'circle' })
-                  }
-                />
-                <SensorSelector
-                  label="РЕЖИМ ЛУЧА"
-                  value={active_mode === 'sector' ? 'sector' : 'circle'}
-                  disabled={!has_long || !activeOn}
-                  options={[
-                    { id: 'circle', label: 'КРУГ' },
-                    { id: 'sector', label: 'СЕКТОР' },
-                  ]}
-                  onChange={(mode) => act('set_active', { mode })}
-                />
-                <SensorDial
-                  label="АЗИМУТ СЕКТОРА"
-                  value={data.sector_bearing ?? data.heading ?? 0}
-                  disabled={active_mode !== 'sector'}
-                  onChange={(bearing) => act('aim', { bearing })}
-                />
-              </div>
-              <div className="SensorPost__fall">
-                <div className="SensorPost__cap">
-                  ПАССИВНЫЙ ВОДОПАД · ПЕЛЕНГ / ВРЕМЯ · 0–360°
-                </div>
-                <SensorWaterfall
-                  tracks={tracks}
-                  clutter={clutter}
-                  live={!!passive_on || active_mode !== 'off'}
-                  haywire={!!data.haywire}
-                />
-              </div>
-            </div>
-            <div className="SensorPost__right">
-              <div className="SensorPost__box">
-                <h3>
-                  ТРЕКИ<span>сорт: угроза</span>
-                </h3>
-                <div className="SensorPost__table">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ТРЕК</th>
-                        <th>ОБЪЕКТ</th>
-                        <th>ИСТ.</th>
-                        <th>ПЕЛ.</th>
-                        <th>ДАЛЬН.</th>
-                        <th>СБЛИЖ.</th>
-                        <th>CPA</th>
-                        <th>КАЧЕСТВО</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sorted.map((track) => {
-                        const [tag, tone] = SOURCE_TAGS[track.source] || [
-                          '?',
-                          'lost',
-                        ];
-                        return (
-                          <tr
-                            key={track.ref}
-                            className={classes([
-                              track.ref === selected?.ref && 'is-sel',
-                              track.source === 'lost' && 'is-lost',
-                            ])}
-                            onClick={() => act('select', { ref: track.ref })}
-                          >
-                            <td className="SensorPost__id">
-                              {track.locked ? '⌖ ' : ''}
-                              {track.id}
-                            </td>
-                            <td>{trackTitle(track)}</td>
-                            <td>
-                              <span
-                                className={`SensorPost__tag SensorPost__tag--${tone}`}
-                              >
-                                {tag}
-                              </span>
-                            </td>
-                            <td>{pad3(track.bearing)}°</td>
-                            <td>
-                              {track.range_err !== undefined
-                                ? `${Math.max(0, track.range - track.range_err).toFixed(1)}–${(track.range + track.range_err).toFixed(1)}`
-                                : track.range.toFixed(1)}{' '}
-                              Гм
-                            </td>
-                            <td
-                              className={
-                                (track.closing || 0) < 0
-                                  ? 'SensorPost__closing'
-                                  : 'SensorPost__opening'
-                              }
-                            >
-                              {track.closing !== undefined
-                                ? `${track.closing > 0 ? '+' : ''}${track.closing.toFixed(1)}`
-                                : '—'}
-                            </td>
-                            <td>
-                              {track.cpa !== undefined &&
-                              track.cpa_time !== undefined
-                                ? `${track.cpa.toFixed(1)} · ${clock(track.cpa_time)}`
-                                : '—'}
-                            </td>
-                            <td>
-                              <span className="SensorPost__tq">
-                                <b
-                                  className={`SensorPost__tq--${tone}`}
-                                  style={{ width: `${track.quality}%` }}
-                                />
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  {!sorted.length && (
-                    <div className="SensorPost__empty">
-                      {data.can_run
-                        ? 'Контактов нет. Включите пассив или активный радар.'
-                        : 'Нет рабочих массивов сенсоров.'}
-                    </div>
-                  )}
-                </div>
-              </div>
-              {!!selected && (
-                <TrackCard track={selected} data={data} act={act} />
-              )}
-            </div>
-          </div>
-        )}
-        {tab === 'galaxy' && (
-          <div className="SensorPost__galaxy">
-            {data.galaxy ? (
-              <svg
-                viewBox={`${-GALAXY_RADIUS * 1.1} ${-GALAXY_RADIUS * 0.92} ${GALAXY_RADIUS * 2.2} ${GALAXY_RADIUS * 1.84}`}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <GalaxyLayer
-                  galaxy={data.galaxy}
-                  sectorId={data.sector_id}
-                  radius={GALAXY_RADIUS}
-                  opacity={1}
-                  slot={GALAXY_RADIUS / 2.4}
-                />
-              </svg>
-            ) : (
-              <NoticeBox>Карта галактики недоступна.</NoticeBox>
-            )}
-          </div>
-        )}
-        {tab === 'log' && (
-          <div className="SensorPost__journal">
-            <div className="SensorPost__journal-list">
-              {journal
-                .filter((entry) =>
-                  `${entry.text} ${entry.name || ''} ${entry.note || ''}`
-                    .toLowerCase()
-                    .includes(query.trim().toLowerCase()),
-                )
-                .slice()
-                .reverse()
-                .map((entry, index) => (
-                  <div key={index} className="SensorPost__journal-row">
-                    <span className="SensorPost__time">{entry.time}</span>
-                    <span
-                      className={`SensorPost__tone--${entry.tone || 'info'}`}
-                    >
-                      {entry.text}
-                      {entry.note ? ` · ${entry.note}` : ''}
-                    </span>
-                    {entry.x !== undefined && (
-                      <span className="SensorPost__coord">
-                        [{entry.x}:{entry.y}]
-                      </span>
-                    )}
-                  </div>
-                ))}
-              {!journal.length && (
-                <div className="SensorPost__empty">Журнал пуст.</div>
-              )}
-            </div>
-            <div className="SensorPost__journal-tools">
-              {!!data.can_dump &&
-                (data.dump_loaded ? (
-                  <>
-                    <Button icon="download" onClick={() => act('dump_write')}>
-                      Выгрузить дамп ({data.known_count || 0})
-                    </Button>
-                    <Button
-                      icon="upload"
-                      disabled={!data.dump_has_data}
-                      onClick={() => act('dump_load')}
-                    >
-                      Загрузить дамп
-                      {data.dump_has_data ? ` (${data.dump_count})` : ''}
-                    </Button>
-                    <Button icon="eject" onClick={() => act('dump_eject')}>
-                      Достать {data.dump_name || 'листок'}
-                    </Button>
-                  </>
-                ) : (
-                  <Button disabled>Вставьте бумагу в сканер</Button>
-                ))}
-              <Input
-                fluid
-                placeholder="Поиск по журналу"
-                value={query}
-                onChange={(value) => setQuery(value)}
-              />
-            </div>
-          </div>
-        )}
-        {tab === 'help' && <SensorHelp />}
-        {tab === 'alerts' && (
-          <div className="SensorPost__alerts">
-            {(data.alerts || []).map((alert) => (
-              <div
-                key={alert.id}
-                className={classes([
-                  'SensorPost__alert',
-                  !!alert.on && 'is-on',
-                ])}
-                onClick={() => act('toggle_alert', { id: alert.id })}
-              >
-                <span className="SensorPost__lamp" />
-                {alert.label}
-                <i>{alert.on ? 'звук включён' : 'без звука'}</i>
-              </div>
-            ))}
-          </div>
-        )}
-      </Window.Content>
-    </Window>
-  );
-};
-
-const TrackCard = (props: {
-  track: SensorTrack;
-  data: SensorPostData;
-  act: (action: string, params?: Record<string, unknown>) => void;
-}) => {
-  const { track, data, act } = props;
-  const scanningThis = !!data.scanning && data.scan_target === track.ref;
-  const precise = track.source !== 'pas' && track.source !== 'lost';
-  const scan = scanningThis && data.scan_done ? data.scan : undefined;
-  return (
-    <div className="SensorPost__box">
-      <h3>
-        ТРЕК {track.id}
-        <span>ведётся {clock(track.age)}</span>
-      </h3>
-      <div className="SensorPost__card">
-        <div className="SensorPost__sil">
-          {scanningThis ? (
-            <SensorSilhouette
-              tiles={data.silhouette}
-              progress={data.scan_progress}
-              done={!!data.scan_done}
+        <div className="SensorPost__left">
+          <div className="SensorPost__group">
+            <div className="SensorPost__caption">ИСТОЧНИКИ</div>
+            <SensorKey
+              label="ТЕПЛ. ПАССИВ"
+              value={
+                data.has_short ? (data.passive_on ? 'ВКЛ' : 'ВЫКЛ') : 'НЕТ'
+              }
+              on={!!data.passive_on}
+              disabled={!data.has_short}
+              onClick={() => act('toggle_passive')}
             />
-          ) : (
-            <div className="SensorPost__sil-empty">
-              {track.can_scan
-                ? 'готов к детальному скану'
-                : 'вне зоны детального скана'}
-            </div>
-          )}
+            <SensorKey
+              label="РАДАР"
+              value={data.has_long ? (activeOn ? 'ИЗЛ' : 'ВЫКЛ') : 'НЕТ'}
+              on={activeOn}
+              disabled={!data.has_long}
+              onClick={() =>
+                act('set_active', { mode: activeOn ? 'off' : 'circle' })
+              }
+            />
+            <div className="SensorPost__caption">РЕЖИМ ЛУЧА</div>
+            <SensorSegment
+              value={active_mode === 'sector' ? 'sector' : 'circle'}
+              disabled={!activeOn}
+              options={[
+                { id: 'circle', label: 'КРУГ' },
+                { id: 'sector', label: 'СЕКТОР' },
+              ]}
+              onChange={(mode) => act('set_active', { mode })}
+            />
+          </div>
+          <div className="SensorPost__group">
+            <div className="SensorPost__caption">РЕГУЛИРОВКА</div>
+            <SensorSlider
+              label="УСИЛЕНИЕ"
+              value={data.gain ?? 50}
+              onChange={(value) => act('set_gain', { value })}
+            />
+            <SensorSlider
+              label="ПОДАВЛ. ПОЛЯ"
+              value={data.suppression ?? 30}
+              onChange={(value) => act('set_suppression', { value })}
+            />
+            <SensorSlider
+              label="ЯРКОСТЬ ЭХА"
+              value={brightness}
+              onChange={setBrightness}
+            />
+            <div className="SensorPost__caption">АЗИМУТ СЕКТОРА</div>
+            <SensorStepper
+              value={
+                active_mode === 'sector' ? `${pad3(sectorBearing)}°` : '---°'
+              }
+              disabled={active_mode !== 'sector'}
+              onStep={stepAim}
+            />
+          </div>
+          <div className="SensorPost__group">
+            <div className="SensorPost__caption">ШКАЛА / ОРИЕНТ.</div>
+            <SensorStepper
+              value={`${scale} ГМ`}
+              minusLabel="−"
+              plusLabel="+"
+              onStep={(direction) => stepScale(direction)}
+            />
+            <SensorSegment
+              value={northUp ? 'north' : 'course'}
+              options={[
+                { id: 'north', label: 'СЕВЕР' },
+                { id: 'course', label: 'КУРС' },
+              ]}
+              onChange={(id) => setNorthUp(id === 'north')}
+            />
+          </div>
+          <div className="SensorPost__group SensorPost__group--grow">
+            <div className="SensorPost__caption">СТАТУС</div>
+            {statusRows.map(([label, value, tone]) => (
+              <div key={label} className="SensorPost__status">
+                <span>{label}</span>
+                <span
+                  className={`SensorPost__state SensorPost__state--${tone}`}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
+            {!!emission && (
+              <>
+                <div className="SensorPost__caption">
+                  ЗАМЕТНОСТЬ · {emission.level}
+                </div>
+                {(
+                  [
+                    ['ИК', emission.ir],
+                    ['ЭМ', emission.em],
+                    ['МАССА', emission.mass],
+                  ] as [string, number][]
+                ).map(([label, value]) => (
+                  <div key={label} className="SensorPost__meter">
+                    <span>{label}</span>
+                    <span>{meter(value)}</span>
+                    <span>{value}</span>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
         </div>
-        <div className="SensorPost__info">
-          <div className="SensorPost__name">
-            {(track.name || 'НЕИЗВЕСТНЫЙ КОНТАКТ').toUpperCase()}
-          </div>
-          <div className="SensorPost__class">
-            Класс:{' '}
-            {track.classes
-              .map((entry) => `${entry.label} — ${entry.chance}%`)
-              .join(' · ')}
-          </div>
-          <div className="SensorPost__kv">
-            <i>пеленг / дальн.</i>
-            <span>
-              {pad3(track.bearing)}° · {track.range.toFixed(1)}
-              {track.range_err !== undefined
-                ? ` ± ${track.range_err.toFixed(1)}`
-                : ''}{' '}
-              Гм
-            </span>
-            {precise && (
-              <>
-                <i>скорость / курс</i>
-                <span>
-                  {track.speed ?? 0} Гм/ч · {pad3(track.heading || 0)}°
-                </span>
-                <i>сближение</i>
-                <span
-                  className={
-                    (track.closing || 0) < 0 ? 'SensorPost__closing' : ''
-                  }
-                >
-                  {track.closing !== undefined
-                    ? `${track.closing.toFixed(2)} Гм/ч`
-                    : 'нет'}
-                  {track.cpa !== undefined && track.cpa_time !== undefined
-                    ? ` · CPA ${track.cpa.toFixed(1)} Гм через ${clock(track.cpa_time)}`
-                    : ''}
-                </span>
-                <i>транспондер</i>
-                <span
-                  className={
-                    track.transponder ? 'SensorPost__good' : 'SensorPost__warn'
-                  }
-                >
-                  {track.transponder ? 'активен' : 'молчит'}
-                </span>
-              </>
-            )}
-            {!!scan && (
-              <>
-                <i>масса</i>
-                <span>{scan.mass} т</span>
-                <i>живые сигнатуры</i>
-                <span>{scan.living}</span>
-                <i>двигатели</i>
-                <span>
-                  {scan.engines_ready}/{scan.engines}
-                </span>
-                {!!scan.has_hull && (
-                  <>
-                    <i>габарит</i>
-                    <span>
-                      {scan.size_x}×{scan.size_y}
-                    </span>
-                  </>
-                )}
-              </>
-            )}
-          </div>
-          <div className="SensorPost__sig">
+        <div className="SensorPost__center">{centerView()}</div>
+        <div className="SensorPost__right">
+          <div className="SensorPost__keys">
             {(
               [
-                ['ИК', track.ir, '#ffb347'],
-                ['ЭМ', track.em, '#ff5f6d'],
-                ['МАССА', track.mass, '#7ad0e4'],
-              ] as [string, number, string][]
-            ).map(([label, value, color]) => (
-              <div key={label} className="SensorPost__sig-row">
-                <span>{label}</span>
-                <div>
-                  <b style={{ width: `${value}%`, background: color }} />
-                </div>
-                <span>{value}</span>
-              </div>
+                ['scope', 'ТРЕКИ'],
+                ['journal', 'ЖУРНАЛ'],
+                ['galaxy', 'ГАЛАКТИКА'],
+                ['help', 'СПРАВКА'],
+              ] as [string, string][]
+            ).map(([id, label]) => (
+              <SensorKey
+                key={id}
+                label={label}
+                on={tab === id}
+                onClick={() => setTab(id)}
+              />
             ))}
+            {(
+              [
+                ['trails', 'СЛЕДЫ'],
+                ['iff', 'IFF'],
+                ['ebl', 'ПЕЛ ЛИН'],
+                ['vrm', 'ДАЛЬН КР'],
+                ['cpa', 'CPA'],
+                ['labels', 'ПОДПИСИ'],
+              ] as [keyof ScopeLayers, string][]
+            ).map(([key, label]) => (
+              <SensorKey
+                key={key}
+                label={label}
+                on={layers[key]}
+                onClick={() => toggleLayer(key)}
+              />
+            ))}
+            <SensorKey
+              label="ОПОВЕЩЕНИЯ"
+              on={tab === 'alerts'}
+              onClick={() => setTab('alerts')}
+            />
+          </div>
+          <div className="SensorPost__target">
+            {selected ? (
+              <>
+                <div className="SensorPost__target-head">
+                  <span>
+                    ЦЕЛЬ {selected.id.replace('T-', '')} ·{' '}
+                    {selected.source === 'pas' ? 'ПАС' : 'АКТ'}
+                  </span>
+                  <span
+                    className={
+                      selected.shadow ? 'SensorPost__alarm' : undefined
+                    }
+                  >
+                    {selected.shadow
+                      ? 'НЕУСТОЙЧИВ'
+                      : selected.locked
+                        ? 'ЗАХВАЧЕНА'
+                        : `КАЧ ${selected.quality}%`}
+                  </span>
+                </div>
+                {targetFields.map(([label, value]) => (
+                  <div key={label} className="SensorPost__field">
+                    <span>{label}</span>
+                    <span>{value}</span>
+                  </div>
+                ))}
+                {scanningSelected && (
+                  <div className="SensorPost__scanbox">
+                    <SensorSilhouette
+                      tiles={data.silhouette}
+                      progress={data.scan_progress}
+                      done={!!data.scan_done}
+                    />
+                    <div>
+                      {data.scan_error ? (
+                        <span className="SensorPost__alarm">
+                          {data.scan_error}
+                        </span>
+                      ) : data.scan_done && data.scan ? (
+                        <>
+                          МАССА {data.scan.mass} Т<br />
+                          ЭКИПАЖ {data.scan.living}
+                          <br />
+                          ДВИГ {data.scan.engines_ready}/{data.scan.engines}
+                          {!!data.scan.has_hull && (
+                            <>
+                              <br />
+                              КОРПУС {data.scan.size_x}×{data.scan.size_y}
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        `СКАН ${Math.round(data.scan_progress * 100)}%`
+                      )}
+                      {!!data.scan_done && !!data.can_print && (
+                        <SensorKey
+                          label="ПЕЧАТЬ"
+                          onClick={() => act('print_scan')}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="SensorPost__dim">ЦЕЛЬ НЕ ВЫБРАНА</div>
+            )}
+          </div>
+          <div className="SensorPost__list">
+            <div className="SensorPost__list-row SensorPost__list-head">
+              <span>№</span>
+              <span>ОБЪЕКТ</span>
+              <span>ПЕЛ</span>
+              <span>ДАЛЬН</span>
+              <span>КАЧ</span>
+            </div>
+            {sorted.map((track) => (
+              <button
+                type="button"
+                key={track.ref}
+                className={`SensorPost__list-row${track.ref === selected?.ref ? ' is-on' : ''}${track.source === 'lost' ? ' is-lost' : ''}`}
+                onClick={() => act('select', { ref: track.ref })}
+              >
+                <span>{track.id.replace('T-', '')}</span>
+                <span>{trackName(track)}</span>
+                <span>{pad3(track.bearing)}</span>
+                <span>
+                  {track.source === 'pas'
+                    ? '---'
+                    : track.shadow
+                      ? `${track.range.toFixed(1)}±`
+                      : track.range.toFixed(2)}
+                </span>
+                <span>{track.quality}</span>
+              </button>
+            ))}
+            {!sorted.length && (
+              <div className="SensorPost__dim">
+                {data.can_run ? 'НЕТ КОНТАКТОВ' : 'НЕТ МАССИВОВ'}
+              </div>
+            )}
+          </div>
+          <div className="SensorPost__actions">
+            {selected?.locked ? (
+              <SensorKey
+                big
+                on
+                label="СНЯТЬ ЗАХВАТ"
+                onClick={() => act('unlock')}
+              />
+            ) : (
+              <SensorKey
+                big
+                label="ЗАХВАТ"
+                disabled={!selected || !activeOn || selected.source === 'pas'}
+                onClick={() => selected && act('lock', { ref: selected.ref })}
+              />
+            )}
+            {scanningSelected && data.scan_done ? (
+              <SensorKey
+                big
+                label="ЗАКРЫТЬ СКАН"
+                onClick={() => act('close_scan')}
+              />
+            ) : (
+              <SensorKey
+                big
+                on={scanningSelected}
+                label={
+                  scanningSelected
+                    ? `СКАН ${Math.round(data.scan_progress * 100)}%`
+                    : selected?.can_scan
+                      ? 'СКАН'
+                      : 'СКАН ---'
+                }
+                disabled={!selected?.can_scan && !scanningSelected}
+                onClick={() =>
+                  scanningSelected
+                    ? act('close_scan')
+                    : selected && act('scan', { ref: selected.ref })
+                }
+              />
+            )}
           </div>
         </div>
-      </div>
-      <div className="SensorPost__actions">
-        {scanningThis && !data.scan_done ? (
-          <div className="SensorPost__prog">
-            <b style={{ width: `${Math.round(data.scan_progress * 100)}%` }} />
-            <span>
-              ДЕТАЛЬНЫЙ СКАН · {Math.round(data.scan_progress * 100)}% · держите
-              цель в зоне
-            </span>
-          </div>
-        ) : scanningThis && data.scan_error ? (
-          <div className="SensorPost__prog SensorPost__prog--bad">
-            <span>{data.scan_error}</span>
-          </div>
-        ) : (
-          <Button
-            className="SensorPost__btn"
-            disabled={!track.can_scan}
-            onClick={() => act('scan', { ref: track.ref })}
-          >
-            {scanningThis ? 'СКАН ЗАВЕРШЁН' : 'ДЕТАЛЬНЫЙ СКАН'}
-          </Button>
-        )}
-        {track.locked ? (
-          <Button
-            className="SensorPost__btn SensorPost__btn--bad"
-            onClick={() => act('unlock')}
-          >
-            СНЯТЬ ЗАХВАТ
-          </Button>
-        ) : (
-          <Button
-            className="SensorPost__btn SensorPost__btn--pri"
-            disabled={data.active_mode === 'off' || !precise}
-            onClick={() => act('lock', { ref: track.ref })}
-          >
-            ЗАХВАТ ЦЕЛИ
-          </Button>
-        )}
-        {scanningThis && !!data.scan_done && !!data.can_print && (
-          <Button className="SensorPost__btn" onClick={() => act('print_scan')}>
-            ПЕЧАТЬ
-          </Button>
-        )}
-        {scanningThis && (
-          <Button className="SensorPost__btn" onClick={() => act('close_scan')}>
-            ЗАКРЫТЬ
-          </Button>
-        )}
-      </div>
-    </div>
+      </Window.Content>
+    </Window>
   );
 };

@@ -29,6 +29,9 @@ export type SensorTrack = {
   cpa?: number;
   cpa_time?: number;
   cpa_bearing?: number;
+  trail?: number[][];
+  shadow?: BooleanLike;
+  ghost?: BooleanLike;
 };
 
 export type SensorClutter = {
@@ -43,4 +46,13 @@ export type SensorEmission = {
   em: number;
   mass: number;
   level: string;
+};
+
+export type SensorStatus = {
+  passive: string;
+  active: string;
+  lock?: string | null;
+  haywire?: number | null;
+  painted?: string | null;
+  lost?: string | null;
 };

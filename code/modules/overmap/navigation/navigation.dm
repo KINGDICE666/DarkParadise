@@ -349,6 +349,8 @@ GLOBAL_LIST_EMPTY(overmap_ship_bows)
 	for(var/obj/overmap/celestial/body as anything in GLOB.overmap_celestials)
 		if(body.sector != sector || !isturf(body.loc))
 			continue
+		if(body.radar_shadow && !vessel.sensor_pack?.tracks?[body.UID()])
+			continue
 		var/list/box = body.navigation_box(span)
 		if(!overmap_nav_inside(start, box) && !overmap_nav_inside(finish, box))
 			boxes += list(list(box[1] - vessel.hull_radius - 2, box[2] - vessel.hull_radius - 2, box[3] + vessel.hull_radius + 2, box[4] + vessel.hull_radius + 2))

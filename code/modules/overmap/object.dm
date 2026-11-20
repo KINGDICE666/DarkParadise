@@ -29,6 +29,12 @@
 
 	var/scan_mass = 0
 
+	var/sensor_ir
+	var/sensor_em
+	var/sensor_mass
+	var/sensor_label
+	var/radar_shadow = FALSE
+
 	var/overmap_hazard_immune = FALSE
 
 	var/deny_pod_edge_dock = FALSE

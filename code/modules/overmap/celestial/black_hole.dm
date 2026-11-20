@@ -5,6 +5,7 @@
 #define BLACK_HOLE_CORE_RADIATION_THRESHOLD 0.05
 #define BLACK_HOLE_CORE_PULSES 3
 #define BLACK_HOLE_CORE_RADIATION_CHANCE 100
+#define BLACK_HOLE_SKY_REACH 1.5
 
 /obj/overmap/celestial/black_hole
 	name = "black hole"
@@ -16,6 +17,8 @@
 	hazard_radius = 2
 	gravity_radius = 8
 	gravity_strength = 1.08e-3
+	visible_without_scanner = FALSE
+	radar_shadow = TRUE
 
 /obj/overmap/celestial/black_hole/get_ru_names()
 	return alist(
@@ -27,13 +30,13 @@
 		PREPOSITIONAL = "чёрной дыре",
 	)
 
-/obj/overmap/celestial/black_hole/zone_warning(zone)
-	if(zone == OVERMAP_CELESTIAL_ZONE_CORE)
-		return "КРИТИЧЕСКАЯ ОПАСНОСТЬ: корабль пересёк горизонт событий. Зафиксировано мощнейшее радиоактивное излучение, требуется аварийный прыжок!"
-	return ..()
+/obj/overmap/celestial/black_hole/natural_sensor_signature()
+	return list("ir" = 0, "em" = 0, "mass" = 100)
+
+/obj/overmap/celestial/black_hole/sky_view_range()
+	return hazard_radius * BLACK_HOLE_SKY_REACH
 
 /obj/overmap/celestial/black_hole/warn_vessel(obj/overmap/entity/vessel, zone)
-	. = ..()
 	if(zone != OVERMAP_CELESTIAL_ZONE_CORE)
 		return
 	for(var/mob/living/crew as anything in overmap_vessel_crew(vessel))
@@ -77,3 +80,4 @@
 #undef BLACK_HOLE_CORE_RADIATION_THRESHOLD
 #undef BLACK_HOLE_CORE_PULSES
 #undef BLACK_HOLE_CORE_RADIATION_CHANCE
+#undef BLACK_HOLE_SKY_REACH

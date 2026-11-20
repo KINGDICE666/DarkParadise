@@ -59,6 +59,13 @@ type Token = {
   visible?: BooleanLike;
   hidden?: BooleanLike;
   wraparound?: BooleanLike;
+  hidden_sensors?: BooleanLike;
+  radar_shadow?: BooleanLike;
+  sensor_ir?: number | null;
+  sensor_em?: number | null;
+  sensor_mass?: number | null;
+  sensor_label?: string | null;
+  natural_signature?: { ir: number; em: number; mass: number };
   is_entity?: BooleanLike;
   status?: string;
   sensors_on?: BooleanLike;
@@ -509,6 +516,74 @@ const ControlTab = () => {
                   field="wraparound"
                   value={selected.wraparound}
                   label="Wrap"
+                />
+              </LabeledList.Item>
+              <LabeledList.Item label="Сенсоры">
+                <FlagButton
+                  uid={selected.uid}
+                  field="hidden_sensors"
+                  value={selected.hidden_sensors}
+                  label="Невидим для радара"
+                />
+                <FlagButton
+                  uid={selected.uid}
+                  field="radar_shadow"
+                  value={selected.radar_shadow}
+                  label="Радиотень"
+                />
+              </LabeledList.Item>
+              {(
+                [
+                  ['sensor_ir', 'ИК', 'ir'],
+                  ['sensor_em', 'ЭМ', 'em'],
+                  ['sensor_mass', 'Масса', 'mass'],
+                ] as const
+              ).map(([field, label, key]) => {
+                const override = selected[field];
+                const natural = selected.natural_signature?.[key] ?? 0;
+                return (
+                  <LabeledList.Item key={field} label={`Сигнатура ${label}`}>
+                    <NumberInput
+                      width="60px"
+                      minValue={0}
+                      maxValue={100}
+                      step={1}
+                      value={override ?? natural}
+                      onChange={(value) =>
+                        act('set_field', {
+                          uid: selected.uid,
+                          field,
+                          value,
+                        })
+                      }
+                    />
+                    <Button
+                      selected={override === null || override === undefined}
+                      onClick={() =>
+                        act('set_field', {
+                          uid: selected.uid,
+                          field,
+                          value: '',
+                        })
+                      }
+                    >
+                      Авто ({natural})
+                    </Button>
+                  </LabeledList.Item>
+                );
+              })}
+              <LabeledList.Item label="Класс на сенсорах">
+                <Input
+                  width="220px"
+                  placeholder="по типу объекта"
+                  value={selected.sensor_label || ''}
+                  onChange={(value) =>
+                    act('set_field', {
+                      uid: selected.uid,
+                      field: 'sensor_label',
+                      value,
+                    })
+                  }
                 />
               </LabeledList.Item>
             </LabeledList>

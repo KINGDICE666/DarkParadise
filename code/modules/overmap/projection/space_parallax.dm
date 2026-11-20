@@ -38,6 +38,9 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 /obj/overmap/proc/sky_core()
 	return 0
 
+/obj/overmap/proc/sky_view_range()
+	return sky_radius() * SKY_VIEW_RANGE
+
 /obj/overmap/celestial/sky_radius()
 	return gravity_radius
 
@@ -132,7 +135,7 @@ GLOBAL_LIST_EMPTY(overmap_sky_bodies)
 			var/offset_x = center[1] - point[1] / span
 			var/offset_y = center[2] - point[2] / span
 			var/distance = sqrt(offset_x ** 2 + offset_y ** 2)
-			var/view_range = radius * SKY_VIEW_RANGE
+			var/view_range = body.sky_view_range()
 			if(distance >= view_range)
 				continue
 			var/reach = SKY_SCREEN_REACH / (distance + radius)

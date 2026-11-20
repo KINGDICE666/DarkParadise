@@ -158,6 +158,13 @@
 	data["visible"] = token.visible_without_scanner
 	data["hidden"] = token.hidden_from_contacts
 	data["wraparound"] = token.wraparound
+	data["hidden_sensors"] = token.hidden_from_sensors
+	data["radar_shadow"] = token.radar_shadow
+	data["sensor_ir"] = token.sensor_ir
+	data["sensor_em"] = token.sensor_em
+	data["sensor_mass"] = token.sensor_mass
+	data["sensor_label"] = token.sensor_label
+	data["natural_signature"] = token.natural_sensor_signature()
 	data["is_entity"] = istype(vessel)
 	data["status"] = istype(vessel) ? vessel.status : null
 	data["sensors_on"] = istype(vessel) && (vessel.long_sensors_on || vessel.short_sensors_on)
@@ -509,6 +516,18 @@
 			token.hidden_from_contacts = truthy(value)
 		if("wraparound")
 			token.wraparound = truthy(value)
+		if("hidden_sensors")
+			token.hidden_from_sensors = truthy(value)
+		if("radar_shadow")
+			token.radar_shadow = truthy(value)
+		if("sensor_ir")
+			token.sensor_ir = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_em")
+			token.sensor_em = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_mass")
+			token.sensor_mass = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_label")
+			token.sensor_label = trim(strip_html("[value]")) || null
 		if("virtual_engine")
 			if(!istype(vessel))
 				return
