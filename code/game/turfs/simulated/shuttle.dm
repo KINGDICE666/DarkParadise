@@ -79,6 +79,52 @@
 	. = ..()
 	icon_state = "shuttle"
 
+/turf/simulated/wall/shuttle/nosmooth/ex_act(severity, target)
+	if(target == src)
+		dismantle_wall(TRUE, TRUE)
+		return TRUE
+	switch(severity)
+		if(EXPLODE_DEVASTATE)
+			ChangeTurf(baseturf)
+		if(EXPLODE_HEAVY)
+			dismantle_wall(prob(50), TRUE)
+		if(EXPLODE_LIGHT)
+			if(prob(hardness))
+				dismantle_wall(FALSE, TRUE)
+	return TRUE
+
+/turf/simulated/wall/shuttle/nosmooth/take_damage(dam)
+	if(!dam)
+		return
+	damage = max(0, damage + dam)
+	update_damage()
+
+/turf/simulated/wall/shuttle/nosmooth/dismantle_wall(devastated = FALSE, explode = FALSE)
+	if(devastated)
+		devastate_wall()
+	else
+		var/obj/structure/girder/girder = break_wall()
+		if(girder)
+			transfer_fingerprints_to(girder)
+	ChangeTurf(/turf/simulated/floor/plating)
+	return TRUE
+
+/turf/simulated/wall/shuttle/nosmooth/dark
+	name = "ship bulkhead"
+	desc = "Тёмная корабельная переборка из матового титана. Не отражает ни пули, ни лазеры."
+	color = "#565c6b"
+	flags_ricochet = NONE
+
+/turf/simulated/wall/shuttle/nosmooth/dark/get_ru_names()
+	return alist(
+		NOMINATIVE = "корабельная стенка",
+		GENITIVE = "корабельной стенки",
+		DATIVE = "корабельной стенке",
+		ACCUSATIVE = "корабельную стенку",
+		INSTRUMENTAL = "корабельной стенкой",
+		PREPOSITIONAL = "корабельной стенке",
+	)
+
 /turf/simulated/wall/shuttle/onlyselfsmooth
 	canSmoothWith = SMOOTH_GROUP_SHUTTLE_PARTS
 

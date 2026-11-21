@@ -41,7 +41,6 @@
 	if(!ui)
 		ui = new(user, src, "OvermapSensors", name)
 		ui.open()
-	vessel?.watch_radar(ui)
 	update_scan_info()
 
 /obj/machinery/computer/sensors/ui_close(mob/user)
@@ -71,43 +70,45 @@
 
 /obj/machinery/computer/sensors/ui_data(mob/user)
 	var/list/data = list()
-	if(vessel)
-		vessel.fill_radar_data(data)
+	var/datum/component/overmap_sensors/pack = vessel?.sensor_pack
 	data["linked"] = !!vessel
-	data["view_mode"] = view_mode
 	data["has_long"] = vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_LONG)
 	data["has_short"] = vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_SHORT)
-	data["long_range"] = view_mode == OVERMAP_SENSOR_KIND_LONG
-	data["active"] = view_mode == OVERMAP_SENSOR_KIND_LONG ? !!vessel?.long_sensors_on : !!vessel?.short_sensors_on
+	data["passive_on"] = !!pack?.passive_on()
+	data["active_mode"] = pack?.active_on() ? (isnull(vessel.sensor_sector_bearing) ? "circle" : "sector") : "off"
+	data["sector_bearing"] = vessel?.sensor_sector_bearing
+	data["long_view"] = OVERMAP_SENSOR_LONG_VIEW
+	data["short_view"] = OVERMAP_SENSOR_SHORT_VIEW
+	data["sweep_period"] = OVERMAP_SENSOR_PEEL_INTERVAL / (1 SECONDS)
 	data["can_run"] = can_run()
+	data["tracks"] = can_run() ? pack?.build_tracks_data() || list() : list()
+	data["clutter"] = can_run() ? pack?.build_clutter_data() || list() : list()
+	data["emission"] = pack?.emission_report()
+	data["locked"] = pack?.locked_uid
+	data["haywire"] = !!pack?.passive_haywire()
+	data["gain"] = pack?.passive_gain
+	data["suppression"] = pack?.clutter_suppression
+	data["status"] = pack?.status_report()
 	data["scanning"] = scanning
 	data["scan_error"] = scan_error
 	data["scan"] = scan_info
-	var/obj/overmap/entity/radar_subject = vessel
-	data["scan_radar"] = FALSE
-	if(scan_finished && !vessel?.relay_jump_from)
+	data["scan_done"] = scan_finished
+	data["scan_target"] = scanning_target?.UID()
+	data["scan_progress"] = 0
+	if(scanning)
+		data["scan_progress"] = scan_finished ? 1 : clamp((world.time - scan_started_at) / OVERMAP_SENSOR_SCAN_TIME, 0, 1)
 		var/obj/overmap/entity/subject = scan_subject(scanning_target)
 		if(istype(subject) && subject.shuttle)
-			if(!length(subject.hull_turfs))
+			if(!length(subject.radar_shape?["tiles"]))
 				subject.map_hull()
-			radar_subject = subject
-			subject.fill_radar_data(data)
-			data["scan_radar"] = TRUE
-	overmap_watch_radar(src, user, radar_subject)
-	data["scan_done"] = scan_finished
+			data["silhouette"] = subject.radar_shape?["tiles"]
 	data["can_print"] = can_print
 	data["can_dump"] = can_dump
 	data["dump_loaded"] = !!dump_paper
 	data["dump_name"] = dump_paper?.name
 	data["dump_has_data"] = !!length(dump_paper?.overmap_scan_dump)
 	data["dump_count"] = length(dump_paper?.overmap_scan_dump)
-	data["known_count"] = length(vessel?.sensor_pack?.short_identified)
-	data["scan_progress"] = 0
-	if(scanning)
-		if(scan_finished)
-			data["scan_progress"] = 1
-		else
-			data["scan_progress"] = clamp((world.time - scan_started_at) / OVERMAP_SENSOR_SCAN_TIME, 0, 1)
+	data["known_count"] = length(pack?.short_identified)
 	data["selected"] = selected_uid
 	data["map_jammed"] = !!vessel?.is_overmap_jammed()
 	data["journal"] = vessel?.sensor_journal || list()
@@ -116,18 +117,20 @@
 	alerts += list(list("id" = "disappear", "label" = "Пропажа", "on" = !!alert_enabled["disappear"]))
 	alerts += list(list("id" = "scan", "label" = "Скан", "on" = !!alert_enabled["scan"]))
 	alerts += list(list("id" = "scanned_by", "label" = "Нас сканируют", "on" = !!alert_enabled["scanned_by"]))
-	alerts += list(list("id" = "ping", "label" = "Пинг", "on" = !!alert_enabled["ping"]))
 	alerts += list(list("id" = "distress", "label" = "Авария", "on" = !!alert_enabled["distress"]))
 	alerts += list(list("id" = "iff", "label" = "Транспондер", "on" = !!alert_enabled["iff"]))
 	alerts += list(list("id" = "dock", "label" = "Стыковка", "on" = !!alert_enabled["dock"]))
 	data["alerts"] = alerts
-	data["contacts"] = build_ui_contacts()
 	if(vessel)
 		var/turf/here = vessel.get_overmap_turf()
 		data["vessel_name"] = vessel.get_overmap_display_name()
 		data["x"] = vessel.sector && here ? vessel.sector.coord_x(here) : here?.x
 		data["y"] = vessel.sector && here ? vessel.sector.coord_y(here) : here?.y
 		data["sector_name"] = vessel.sector?.name
+		data["sector_id"] = vessel.sector?.id
+		data["heading"] = vessel.get_heading_angle()
+		data["speed"] = round(OVERMAP_DISPLAY_SPEED(vessel.get_speed()), 0.01)
+		data["galaxy"] = SSovermap.galaxy_map(vessel)
 	return data
 
 /obj/machinery/computer/sensors/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -135,6 +138,7 @@
 		return
 	if(stat & (NOPOWER|BROKEN))
 		return TRUE
+	var/datum/component/overmap_sensors/pack = vessel?.sensor_pack
 	switch(action)
 		if("relink")
 			link_vessel()
@@ -144,33 +148,53 @@
 			if(alert_id in alert_enabled)
 				alert_enabled[alert_id] = !alert_enabled[alert_id]
 			. = TRUE
-		if("set_mode")
-			var/new_mode = params["mode"]
-			if(new_mode != OVERMAP_SENSOR_KIND_LONG && new_mode != OVERMAP_SENSOR_KIND_SHORT)
+		if("toggle_passive")
+			if(!vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_SHORT))
 				return TRUE
-			if(!vessel?.has_working_sensor(new_mode))
-				return TRUE
-			view_mode = new_mode
-			scanning = FALSE
-			scanning_target = null
-			scan_finished = FALSE
-			scan_info = null
-			update_scan_info(TRUE)
-			. = TRUE
-		if("toggle")
-			if(view_mode == OVERMAP_SENSOR_KIND_LONG)
-				if(!vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_LONG))
-					return TRUE
-				vessel.set_long_sensors(!vessel.long_sensors_on)
-			else
-				if(!vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_SHORT))
-					return TRUE
-				vessel.set_short_sensors(!vessel.short_sensors_on)
-				if(!vessel.short_sensors_on)
-					scanning = FALSE
-					scanning_target = null
-					scan_finished = FALSE
+			vessel.set_short_sensors(!vessel.short_sensors_on)
+			if(!vessel.short_sensors_on)
+				scanning = FALSE
+				scanning_target = null
+				scan_finished = FALSE
 			update_scan_info()
+			. = TRUE
+		if("set_active")
+			if(!vessel?.has_working_sensor(OVERMAP_SENSOR_KIND_LONG))
+				return TRUE
+			var/mode = params["mode"]
+			if(mode == "off")
+				vessel.set_long_sensors(FALSE)
+				pack?.release_lock()
+				return TRUE
+			if(mode == "sector")
+				vessel.sensor_sector_bearing = isnull(vessel.sensor_sector_bearing) ? vessel.get_heading_angle() : vessel.sensor_sector_bearing
+			else
+				vessel.sensor_sector_bearing = null
+			if(!vessel.long_sensors_on)
+				vessel.set_long_sensors(TRUE)
+			. = TRUE
+		if("aim")
+			var/bearing = text2num(params["bearing"])
+			if(isnum(bearing) && !isnull(vessel?.sensor_sector_bearing))
+				vessel.sensor_sector_bearing = round(bearing) % 360
+			. = TRUE
+		if("lock")
+			var/lock_result = pack?.try_lock(params["ref"])
+			if(lock_result != TRUE)
+				to_chat(usr, span_warning(lock_result || "Нет связи с сенсорами."))
+			. = TRUE
+		if("unlock")
+			pack?.release_lock()
+			. = TRUE
+		if("set_gain")
+			var/gain = text2num(params["value"])
+			if(pack && isnum(gain))
+				pack.passive_gain = clamp(round(gain), 0, 100)
+			. = TRUE
+		if("set_suppression")
+			var/suppression = text2num(params["value"])
+			if(pack && isnum(suppression))
+				pack.clutter_suppression = clamp(round(suppression), 0, 100)
 			. = TRUE
 		if("select")
 			selected_uid = params["ref"]
@@ -180,18 +204,7 @@
 				selected_uid = params["ref"]
 			var/obj/overmap/target = resolve_scan_target()
 			if(!start_short_scan(target))
-				to_chat(usr, span_warning("Нет цели в зоне сканирования."))
-			. = TRUE
-		if("scan_point")
-			var/world_x = text2num(params["x"])
-			var/world_y = text2num(params["y"])
-			if(isnum(world_x) && isnum(world_y) && vessel?.sector)
-				for(var/obj/overmap/feature/hazard/field in vessel.sector.objects)
-					if(!vessel.can_short_scan(field) || !field.cloud_owns_point(world_x, world_y) || field.cloud_strength(world_x, world_y) <= 0)
-						continue
-					selected_uid = field.UID()
-					start_short_scan(field)
-					break
+				to_chat(usr, span_warning("Нет цели в зоне детального сканирования."))
 			. = TRUE
 		if("print_scan")
 			if(!print_scan_report())
@@ -277,31 +290,3 @@
 	if(!vessel)
 		link_vessel()
 	return ..()
-
-/obj/machinery/computer/sensors/proc/build_ui_contacts()
-	var/list/contacts = list()
-	if(vessel && can_run() && !scanning && vessel.sector)
-		for(var/obj/overmap/overmap_object as anything in vessel.sector.objects)
-			if(!detects_contact(overmap_object))
-				continue
-			var/turf/there = overmap_object.get_overmap_turf()
-			if(!there)
-				continue
-			var/short_mode = view_mode == OVERMAP_SENSOR_KIND_SHORT
-			var/identified = vessel.display_identified(overmap_object, short_mode)
-			var/obj/overmap/entity/scan_contact = overmap_object
-			contacts += list(list(
-				"ref" = overmap_object.UID(),
-				"name" = identified ? overmap_object.get_overmap_display_name() : OVERMAP_UNKNOWN_NAME,
-				"kind" = identified ? overmap_object.overmap_kind : "unknown",
-				"x" = vessel.sector.coord_x(there),
-				"y" = vessel.sector.coord_y(there),
-				"is_self" = overmap_object == vessel,
-				"stealth" = !identified,
-				"speed" = round(OVERMAP_DISPLAY_SPEED(overmap_object.get_speed()), 0.01),
-				"heading" = overmap_object.get_heading_angle(),
-				"nested" = !isturf(overmap_object.loc),
-				"distress" = istype(scan_contact) && scan_contact.identity_distress,
-				"can_scan" = short_mode && vessel.can_short_scan(overmap_object),
-			))
-	return contacts

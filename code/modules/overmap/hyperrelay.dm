@@ -267,11 +267,14 @@
 	for(var/obj/overmap/entity/guest as anything in docked_guests)
 		guest.sector?.remove_object(guest)
 		destination.add_object(guest, target)
+		guest.remember_pose()
+	remember_pose()
 	local_space = null
 	radar_epoch++
 	update_overmap_pixel()
 	flight?.set_autopilot(FALSE, manual = FALSE)
 	if(flight)
+		flight.route.Cut()
 		flight.autopilot_x = null
 		flight.autopilot_y = null
 	refresh_sensor_displays()
@@ -280,6 +283,7 @@
 			continue
 		helm.waypoints.Cut()
 		SStgui.update_uis(helm)
+	SSovermap.process_space_environment()
 
 /obj/overmap/entity/cross_sector_edge(new_x, new_y)
 	if(!sector || programmed_mission || is_jumping() || docked_ship)

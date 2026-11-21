@@ -51,7 +51,7 @@ SUBSYSTEM_DEF(machines)
 		CRASH("called SSmachines.get_by_type with a non-machine type [machine_type]")
 	. = list()
 	if(machine_type in machines_by_type)
-		. |= machines_by_type[machine_type]
+		. += machines_by_type[machine_type]
 
 	if(!subtypes)
 		return
@@ -59,7 +59,7 @@ SUBSYSTEM_DEF(machines)
 	for(var/next_type in subtypesof(machine_type))
 		var/list/found_machines = machines_by_type[next_type]
 		if(found_machines)
-			. |= found_machines
+			. += found_machines
 
 /datum/controller/subsystem/machines/get_metrics()
 	. = ..()

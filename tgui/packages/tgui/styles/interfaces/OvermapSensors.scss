@@ -1,0 +1,522 @@
+$phosphor: #39ff6a;
+$phosphor-mid: #1fbf4a;
+$phosphor-line: #1d7a36;
+$phosphor-dim: #0e5a24;
+$phosphor-pale: #b8ffc9;
+$phosphor-bg: #000000;
+$phosphor-panel: #010a03;
+$phosphor-font: 'IBM Plex Mono', Consolas, 'Cascadia Mono', monospace;
+
+.SensorPost {
+  background: $phosphor-bg;
+  color: $phosphor;
+  font-family: $phosphor-font;
+  font-size: 10px;
+  text-transform: uppercase;
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr) 296px;
+  gap: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.SensorPost__nolink {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.SensorPost__left,
+.SensorPost__right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.SensorPost__center {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.SensorPost__group {
+  border: 1px solid $phosphor-line;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.SensorPost__group--grow {
+  flex: 1;
+  min-height: 0;
+}
+
+.SensorPost__caption {
+  color: $phosphor-mid;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.SensorKey {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid $phosphor-line;
+  background: $phosphor-bg;
+  color: $phosphor;
+  font: 600 10px $phosphor-font;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.SensorKey:hover {
+  border-color: $phosphor;
+}
+
+.SensorKey--split {
+  justify-content: space-between;
+}
+
+.SensorKey.is-on {
+  background: $phosphor;
+  border-color: $phosphor;
+  color: $phosphor-bg;
+}
+
+.SensorKey.is-disabled {
+  color: $phosphor-dim;
+  border-color: $phosphor-dim;
+  border-style: dashed;
+  cursor: default;
+}
+
+.SensorKey--big {
+  height: 50px;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.SensorSegment {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.SensorSlider {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.SensorSlider__head {
+  display: flex;
+  justify-content: space-between;
+}
+
+.SensorSlider__track {
+  position: relative;
+  height: 12px;
+  border: 1px solid $phosphor-line;
+  cursor: ew-resize;
+}
+
+.SensorSlider__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: $phosphor-mid;
+}
+
+.SensorStepper {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  gap: 4px;
+}
+
+.SensorStepper button {
+  height: 30px;
+  border: 1px solid $phosphor-line;
+  background: $phosphor-bg;
+  color: $phosphor;
+  font: 600 12px $phosphor-font;
+  cursor: pointer;
+}
+
+.SensorStepper__value {
+  height: 30px;
+  border: 1px solid $phosphor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.SensorStepper.is-disabled {
+  opacity: 0.4;
+}
+
+.SensorPost__status,
+.SensorPost__field {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  line-height: 1.6;
+}
+
+.SensorPost__field > span:first-child {
+  color: $phosphor-mid;
+}
+
+.SensorPost__state--quiet {
+  color: $phosphor-dim;
+}
+
+.SensorPost__state--lit {
+  font-weight: 600;
+}
+
+.SensorPost__state--alert,
+.SensorPost__state--alarm {
+  background: $phosphor;
+  color: $phosphor-bg;
+  padding: 0 3px;
+  font-weight: 600;
+}
+
+.SensorPost__state--alarm,
+.SensorPost__alarm {
+  animation: sensor-alarm 1s steps(2) infinite;
+}
+
+@keyframes sensor-alarm {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.SensorPost__meter {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 24px;
+  gap: 4px;
+  letter-spacing: -1px;
+}
+
+.SensorPost__scope {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid $phosphor-line;
+  background: $phosphor-bg;
+  overflow: hidden;
+}
+
+.SensorPost__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.SensorPost__corner {
+  position: absolute;
+  font-size: 11px;
+  line-height: 1.55;
+  pointer-events: none;
+}
+
+.SensorPost__corner--tl {
+  left: 10px;
+  top: 8px;
+}
+
+.SensorPost__corner--tr {
+  right: 10px;
+  top: 8px;
+  text-align: right;
+}
+
+.SensorPost__corner--bl {
+  left: 10px;
+  bottom: 8px;
+}
+
+.SensorPost__corner--br {
+  right: 10px;
+  bottom: 8px;
+  background: $phosphor;
+  color: $phosphor-bg;
+  padding: 2px 6px;
+  font-weight: 600;
+}
+
+.SensorPost__jam {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 3px;
+  font-size: 13px;
+  background: repeating-linear-gradient(0deg, rgba(57, 255, 106, 0.06) 0 2px, transparent 2px 4px);
+}
+
+.SensorPost__fall {
+  height: 170px;
+  flex-shrink: 0;
+  border: 1px solid $phosphor-line;
+  display: flex;
+  flex-direction: column;
+}
+
+.SensorPost__fall-axis {
+  height: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px 0 64px;
+  font-size: 9px;
+  border-bottom: 1px solid $phosphor-line;
+}
+
+.SensorPost__fall-plot {
+  position: relative;
+  flex: 1;
+}
+
+.SensorPost__keys {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.SensorPost__keys .SensorKey:last-child {
+  grid-column: 1 / -1;
+}
+
+.SensorPost__target {
+  border: 1px solid $phosphor;
+  padding: 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+}
+
+.SensorPost__target-head {
+  display: flex;
+  justify-content: space-between;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.SensorPost__scanbox {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: center;
+  line-height: 1.6;
+}
+
+.SensorPost__scanbox canvas {
+  width: 96px;
+  height: 96px;
+  border: 1px solid $phosphor-line;
+  background: $phosphor-panel;
+}
+
+.SensorPost__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid $phosphor-line;
+  padding: 4px 6px;
+}
+
+.SensorPost__list-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 34px 46px 28px;
+  gap: 4px;
+  padding: 2px 0;
+  background: none;
+  border: 0;
+  color: $phosphor;
+  font: 10px $phosphor-font;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.SensorPost__list-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.SensorPost__list-row.is-on {
+  background: $phosphor;
+  color: $phosphor-bg;
+  font-weight: 600;
+}
+
+.SensorPost__list-row.is-lost {
+  color: $phosphor-dim;
+}
+
+.SensorPost__list-head {
+  color: $phosphor-mid;
+  border-bottom: 1px solid $phosphor-line;
+  margin-bottom: 2px;
+  cursor: default;
+  font-size: 9px;
+}
+
+.SensorPost__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.SensorPost__dim {
+  color: $phosphor-dim;
+  padding: 6px 0;
+}
+
+.SensorPost__panel {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid $phosphor-line;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.SensorPost__galaxy svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: radial-gradient(ellipse at 50% 50%, #04120a 0%, #000000 75%);
+}
+
+.SensorPost__journal {
+  padding: 8px;
+  gap: 8px;
+}
+
+.SensorPost__journal-list {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.8;
+  text-transform: none;
+}
+
+.SensorPost__journal-row {
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid $phosphor-dim;
+}
+
+.SensorPost__journal-row span:first-child,
+.SensorPost__journal-row span:last-child {
+  color: $phosphor-mid;
+  flex-shrink: 0;
+}
+
+.SensorPost__tone--bad span:nth-child(2) {
+  color: $phosphor-pale;
+  font-weight: 600;
+}
+
+.SensorPost__journal-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.SensorPost__search {
+  flex: 1;
+  height: 32px;
+  border: 1px solid $phosphor-line;
+  background: $phosphor-bg;
+  color: $phosphor;
+  font: 11px $phosphor-font;
+  padding: 0 8px;
+  outline: none;
+}
+
+.SensorPost__alerts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 6px;
+  padding: 8px;
+}
+
+.SensorHelp {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  text-transform: none;
+}
+
+.SensorHelp__column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.SensorHelp__section {
+  border: 1px solid $phosphor-line;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.SensorHelp__section h4 {
+  margin: 0 0 6px;
+  font: 600 11px $phosphor-font;
+  letter-spacing: 1.5px;
+  color: $phosphor-mid;
+}
+
+.SensorHelp__section p {
+  margin: 0 0 6px;
+}
+
+.SensorHelp__symbols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.SensorHelp__symbol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.SensorHelp__symbol svg {
+  flex-shrink: 0;
+  background: $phosphor-panel;
+  border: 1px solid $phosphor-dim;
+}

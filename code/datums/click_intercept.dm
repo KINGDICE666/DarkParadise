@@ -20,10 +20,11 @@
 	return ..()
 
 /datum/click_intercept/Destroy()
-	holder.screen -= buttons
-	holder.click_intercept = null
-	holder.show_popup_menus = TRUE
-	holder = null
+	if(holder)
+		holder.screen -= buttons
+		holder.click_intercept = null
+		holder.show_popup_menus = TRUE
+		holder = null
 	QDEL_LIST(buttons)
 	return ..()
 

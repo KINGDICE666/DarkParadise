@@ -119,8 +119,9 @@
 	return FALSE
 
 /datum/preferences/ui_close(mob/user)
-	save_character(parent)
-	save_preferences(parent)
+	if(parent)
+		save_character(parent)
+		save_preferences(parent)
 	QDEL_NULL(character_preview_view)
 
 /datum/preferences/proc/open_window(mob/user, window, page)

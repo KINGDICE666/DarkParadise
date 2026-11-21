@@ -70,6 +70,7 @@ GLOBAL_LIST_EMPTY(engine_consoles)
 	data["total_thrust"] = vessel.get_total_thrust()
 	data["mass"] = vessel.vessel_mass
 	data["accel"] = round(OVERMAP_DISPLAY_SPEED(vessel.get_acceleration()), 0.01)
+	var/overdrive = FALSE
 	var/list/engines = list()
 	for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
 		engines += list(list(
@@ -79,8 +80,13 @@ GLOBAL_LIST_EMPTY(engine_consoles)
 			"thrust" = engine.get_thrust(),
 			"limit" = round(engine.thrust_limit * 100),
 			"status" = engine.get_status(),
+			"heat" = round(engine.heat),
+			"overheated" = engine.overheated,
+			"overdrive" = engine.overdrive,
 		))
+		overdrive ||= engine.overdrive
 	data["engines"] = engines
+	data["overdrive"] = overdrive
 	return data
 
 /obj/machinery/computer/engines/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -113,6 +119,17 @@ GLOBAL_LIST_EMPTY(engine_consoles)
 			var/obj/machinery/ship_engine/engine = locateUID(params["ref"])
 			if(engine && (engine in vessel.engines))
 				engine.thrust_limit = clamp(text2num(params["value"]) / 100, 0, 1)
+			. = TRUE
+		if("toggle_overdrive")
+			var/enable = TRUE
+			for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
+				if(engine.overdrive)
+					enable = FALSE
+					break
+			for(var/obj/machinery/ship_engine/engine as anything in vessel.engines)
+				if(engine != vessel.virtual_engine)
+					engine.set_overdrive(enable)
+			log_game("[key_name(ui.user)] [enable ? "enabled" : "disabled"] engine overdrive on [vessel.name].")
 			. = TRUE
 		if("relink")
 			link_vessel()

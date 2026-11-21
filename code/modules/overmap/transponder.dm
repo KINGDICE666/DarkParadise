@@ -300,7 +300,7 @@ GLOBAL_LIST_INIT(overmap_transponder_colors, list(
 		if("set_name")
 			if(identity_locked)
 				return TRUE
-			var/new_name = copytext(trim(strip_html(params["name"])), 1, MAX_NAME_LEN)
+			var/new_name = copytext_char(trim(strip_html(params["name"])), 1, OVERMAP_SHIP_NAME_MAX + 1)
 			if(!new_name)
 				return TRUE
 			broadcast_name = new_name

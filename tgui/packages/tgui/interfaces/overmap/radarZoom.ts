@@ -8,16 +8,12 @@ export const radarWheelZoom = (
 ) => {
   const direction = outward ? 1 : -1;
   const boundary = outward
-    ? radius < GEOMETRY_FULL
-      ? GEOMETRY_FULL
-      : radius < galaxyBoundary
-        ? galaxyBoundary
-        : undefined
+    ? radius < galaxyBoundary
+      ? galaxyBoundary
+      : undefined
     : radius > galaxyBoundary
       ? galaxyBoundary
-      : radius > GEOMETRY_FULL
-        ? GEOMETRY_FULL
-        : undefined;
+      : undefined;
   const proximity = boundary
     ? Math.min(1, Math.abs(Math.log(radius / boundary)) / Math.log(1.8))
     : 1;

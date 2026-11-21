@@ -1,4 +1,40 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"a" = (
+/obj/machinery/ship_engine/small{
+	dir = 1;
+	pixel_y = 27
+	},
+/turf/simulated/wall/shuttle/nosmooth,
+/area/shuttle/explorer)
+"b" = (
+/obj/machinery/ship_gun/laser{
+	dir = 8
+	},
+/obj/machinery/light/spot,
+/obj/effect/turf_decal/delivery/hollow,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
+	},
+/area/shuttle/explorer)
+"c" = (
+/obj/machinery/ship_gun_loader{
+	id = "explorer_guns"
+	},
+/obj/item/ship_ammo/autocannon,
+/obj/item/ship_ammo/autocannon,
+/obj/item/ship_ammo/autocannon,
+/obj/item/ship_ammo/autocannon,
+/obj/item/ship_ammo/autocannon,
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor_dark"
+	},
+/area/shuttle/explorer)
+"d" = (
+/obj/machinery/ship_engine/small{
+	pixel_y = -27
+	},
+/turf/simulated/wall/shuttle/nosmooth,
+/area/shuttle/explorer)
 "e" = (
 /obj/structure/window/full/shuttle,
 /obj/structure/grille,
@@ -24,6 +60,35 @@
 /obj/machinery/computer/helm,
 /turf/simulated/floor/mineral/titanium{
 	icon_state = "podfloor_dark"
+	},
+/area/shuttle/explorer)
+"h" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 8
+	},
+/obj/machinery/door/airlock/external/docking/glass{
+	dir = 8;
+	dock_name = "Основной шлюз";
+	icon = 'icons/obj/doors/airlocks/station/freezer.dmi';
+	note_overlay_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
+	overlays_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
+	req_access = list(10,70,71)
+	},
+/obj/structure/fans/tiny,
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 3;
+	height = 11;
+	id = "explorer";
+	name = "explorer shuttle";
+	port_direction = 4;
+	rebuildable = 1;
+	roundstart_move = "explorer_home";
+	timid = 1;
+	width = 7
+	},
+/turf/simulated/floor/mineral/titanium{
+	icon_state = "podfloor"
 	},
 /area/shuttle/explorer)
 "k" = (
@@ -77,32 +142,6 @@
 	icon_state = "podfloor_dark"
 	},
 /area/shuttle/explorer)
-"s" = (
-/obj/machinery/door/airlock/external/docking/glass{
-	dir = 8;
-	dock_name = "Основной шлюз";
-	icon = 'icons/obj/doors/airlocks/station/freezer.dmi';
-	note_overlay_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
-	overlays_file = 'icons/obj/doors/airlocks/station/overlays.dmi';
-	req_access = list(10,70,71)
-	},
-/obj/structure/fans/tiny,
-/obj/docking_port/mobile{
-	dir = 8;
-	dwidth = 3;
-	height = 11;
-	id = "explorer";
-	name = "explorer shuttle";
-	port_direction = 4;
-	rebuildable = 1;
-	roundstart_move = "explorer_home";
-	timid = 1;
-	width = 7
-	},
-/turf/simulated/floor/mineral/titanium{
-	icon_state = "podfloor"
-	},
-/area/shuttle/explorer)
 "u" = (
 /obj/machinery/atmospherics/pipe/simple/hidden,
 /turf/simulated/floor/mineral/titanium{
@@ -120,19 +159,15 @@
 /area/shuttle/explorer)
 "w" = (
 /obj/machinery/sensor_array/short_range,
+/obj/machinery/ship_engine/small{
+	pixel_y = -27
+	},
 /turf/simulated/wall/shuttle/nosmooth,
 /area/shuttle/explorer)
-"y" = (
-/obj/machinery/light/spot,
-/obj/effect/turf_decal/delivery/hollow,
-/turf/simulated/floor/mineral/titanium{
-	icon_state = "podfloor"
-	},
-/area/shuttle/explorer)
 "A" = (
-/obj/machinery/ship_engine/thruster{
+/obj/machinery/ship_gun/autocannon{
 	dir = 8;
-	pixel_x = -14
+	loader_id = "explorer_guns"
 	},
 /turf/simulated/wall/shuttle/nosmooth,
 /area/shuttle/explorer)
@@ -174,6 +209,10 @@
 /area/shuttle/explorer)
 "G" = (
 /obj/machinery/sensor_array/long_range,
+/obj/machinery/ship_engine/small{
+	dir = 1;
+	pixel_y = 27
+	},
 /turf/simulated/wall/shuttle/nosmooth,
 /area/shuttle/explorer)
 "H" = (
@@ -201,19 +240,10 @@
 /obj/machinery/atmospherics/pipe/simple/hidden{
 	dir = 4
 	},
-/obj/structure/chair/comfy/shuttle/dark{
-	dir = 8
-	},
+/obj/machinery/ship_shield_generator,
 /turf/simulated/floor/mineral/titanium{
 	icon_state = "plastitanium"
 	},
-/area/shuttle/explorer)
-"M" = (
-/obj/machinery/ship_engine/thruster{
-	pixel_y = 14;
-	dir = 1
-	},
-/turf/simulated/wall/shuttle/nosmooth,
 /area/shuttle/explorer)
 "N" = (
 /obj/structure/chair/comfy/shuttle/dark{
@@ -252,8 +282,9 @@
 	},
 /area/shuttle/explorer)
 "T" = (
-/obj/machinery/ship_engine/thruster{
-	pixel_y = -14
+/obj/machinery/ship_engine/small{
+	dir = 8;
+	pixel_x = -27
 	},
 /turf/simulated/wall/shuttle/nosmooth,
 /area/shuttle/explorer)
@@ -292,18 +323,18 @@
 J
 A
 e
-s
+h
 e
 A
 J
 "}
 (2,1,1) = {"
 J
-M
+Y
 v
 P
 v
-T
+Y
 J
 "}
 (3,1,1) = {"
@@ -311,7 +342,7 @@ J
 Y
 D
 B
-y
+b
 Y
 J
 "}
@@ -334,7 +365,7 @@ Y
 J
 "}
 (6,1,1) = {"
-M
+T
 Y
 p
 f
@@ -343,31 +374,31 @@ Y
 T
 "}
 (7,1,1) = {"
-Y
+a
 H
 u
 l
 u
 N
-Y
+d
 "}
 (8,1,1) = {"
-Y
+a
 X
 V
 K
 V
 g
-Y
+d
 "}
 (9,1,1) = {"
-M
 Y
-I
+Y
+c
 Q
 I
 Y
-T
+Y
 "}
 (10,1,1) = {"
 J

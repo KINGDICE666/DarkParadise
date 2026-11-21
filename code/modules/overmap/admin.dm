@@ -158,11 +158,21 @@
 	data["visible"] = token.visible_without_scanner
 	data["hidden"] = token.hidden_from_contacts
 	data["wraparound"] = token.wraparound
+	data["hidden_sensors"] = token.hidden_from_sensors
+	data["radar_shadow"] = token.radar_shadow
+	data["sensor_ir"] = token.sensor_ir
+	data["sensor_em"] = token.sensor_em
+	data["sensor_mass"] = token.sensor_mass
+	data["sensor_label"] = token.sensor_label
+	data["natural_signature"] = token.natural_sensor_signature()
 	data["is_entity"] = istype(vessel)
 	data["status"] = istype(vessel) ? vessel.status : null
 	data["sensors_on"] = istype(vessel) && (vessel.long_sensors_on || vessel.short_sensors_on)
 	data["has_flight"] = istype(vessel) && !!vessel.flight
 	data["virtual_engine"] = istype(vessel) && vessel.admin_virtual_engine
+	data["can_pirate"] = istype(vessel) && vessel.shuttle && vessel.flight
+	var/datum/component/pirate_ship_ai/pirate_ai = token.GetComponent(/datum/component/pirate_ship_ai)
+	data["pirate"] = pirate_ai?.admin_report()
 	return data
 
 /datum/overmap_admin_panel/proc/serialize_dump_list()
@@ -208,6 +218,9 @@
 	for(var/path in subtypesof(/obj/overmap/feature/hazard))
 		var/obj/overmap/feature/hazard/sample = path
 		. += list(list("path" = "[path]", "name" = initial(sample.name), "group" = "hazard"))
+	for(var/path in subtypesof(/obj/overmap/celestial))
+		var/obj/overmap/celestial/sample = path
+		. += list(list("path" = "[path]", "name" = "Небесное тело: [sample::name]", "group" = "token"))
 	. += list(list("path" = "/obj/overmap/portal", "name" = "Варп-портал", "group" = "portal"))
 	. += list(list("path" = "/obj/overmap/entity/feature/ruin", "name" = "Руина (физическая)", "group" = "ruin"))
 
@@ -506,6 +519,18 @@
 			token.hidden_from_contacts = truthy(value)
 		if("wraparound")
 			token.wraparound = truthy(value)
+		if("hidden_sensors")
+			token.hidden_from_sensors = truthy(value)
+		if("radar_shadow")
+			token.radar_shadow = truthy(value)
+		if("sensor_ir")
+			token.sensor_ir = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_em")
+			token.sensor_em = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_mass")
+			token.sensor_mass = isnull(value) || value == "" ? null : clamp(round(text2num("[value]") || 0), 0, 100)
+		if("sensor_label")
+			token.sensor_label = trim(strip_html("[value]")) || null
 		if("virtual_engine")
 			if(!istype(vessel))
 				return
@@ -517,6 +542,22 @@
 			else if(!vessel.programmed && !vessel.programmed_mission && !vessel.overmap_pod)
 				QDEL_NULL(vessel.virtual_engine)
 			vessel.flight?.refresh_thrust()
+		if("pirate_ai")
+			if(!istype(vessel) || !vessel.shuttle || !vessel.flight)
+				return
+			var/datum/component/pirate_ship_ai/pirate_ai = vessel.GetComponent(/datum/component/pirate_ship_ai)
+			if(truthy(value) && !pirate_ai)
+				vessel.AddComponent(/datum/component/pirate_ship_ai, vessel.get_overmap_display_name())
+			else if(!truthy(value))
+				qdel(pirate_ai)
+		if("pirate_station", "pirate_roaming")
+			var/datum/component/pirate_ship_ai/pirate_ai = token.GetComponent(/datum/component/pirate_ship_ai)
+			if(!pirate_ai)
+				return
+			if(field == "pirate_station")
+				pirate_ai.attack_station = truthy(value)
+			else
+				pirate_ai.roaming = truthy(value)
 		if("speed_x")
 			token.speed[1] = text2num(value) || 0
 			token.refresh_heading_overlay()
@@ -547,12 +588,22 @@
 		to_chat(user, span_warning("Клетка недоступна."), confidential = TRUE)
 		return
 	var/obj/overmap/entity/vessel = token
+	if(istype(vessel) && vessel.shuttle && vessel.is_physically_docked())
+		var/undock_result = vessel.begin_physical_undock(instant = TRUE)
+		if(undock_result != TRUE)
+			to_chat(user, span_warning("Не удалось отстыковать [vessel.name]: [undock_result]"), confidential = TRUE)
+			return
 	if(istype(vessel) && vessel.docked_to)
 		vessel.release_to_overmap(spot)
-	token.sector?.remove_object(token)
-	sector.add_object(token, spot)
+	if(istype(vessel))
+		vessel.move_to_sector(sector, spot)
+	else
+		token.sector?.remove_object(token)
+		sector.add_object(token, spot)
 	token.position = list(0, 0)
 	token.update_overmap_pixel()
+	if(istype(vessel))
+		vessel.remember_pose()
 	SEND_SIGNAL(token, COMSIG_OVERMAP_MOVED)
 	log_admin("[key_name(user)] moved overmap [token] to [sector.id] [coord_x]:[coord_y].")
 
@@ -695,6 +746,8 @@
 				selected = spawn_shuttle_in_hyperspace(shuttle_template, sector, spot, user)
 				if(selected)
 					apply_spawn_look(selected, params)
+					if(istype(shuttle_template, /datum/map_template/shuttle/pirate))
+						selected.AddComponent(/datum/component/pirate_ship_ai, params["name"] || shuttle_template.name)
 				return
 			var/large = truthy(params["large"])
 			var/region_size = large ? SSovermap.large_region_size() : OVERMAP_RUIN_REGION_SIZE
@@ -780,29 +833,12 @@
 			anchor = tile
 	if(!anchor)
 		return null
-	var/obj/docking_port/mobile/port = new /obj/docking_port/mobile{timid = TRUE}(anchor)
-	port.name = "admin shuttle"
-	port.dir = collar ? REVERSE_DIR(collar.dir) : NORTH
-	if(collar)
-		port.overmap_collar = collar
-	port.shuttle_areas = areas.Copy()
-	for(var/area/place as anything in areas)
-		port.areaInstance = place
-		break
-	port.overmap_discover_shuttle_areas()
-	port.overmap_sync_bounds(TRUE)
+	var/obj/docking_port/mobile/port = SSovermap.make_area_mobile_port(anchor, areas, collar, "admin shuttle")
 	to_chat(user, span_notice("На карте не было /mobile - порт поставлен автоматически."), confidential = TRUE)
 	return port
 
 /datum/overmap_admin_panel/proc/register_spawned_mobile_port(obj/docking_port/mobile/port)
-	if(!port.id)
-		port.id = "admin_shuttle"
-	while(SSshuttle.assoc_mobile[port.id] && SSshuttle.assoc_mobile[port.id] != port)
-		port.id = "[port.id]_[rand(100, 999)]"
-	if(!(port in SSshuttle.mobile))
-		port.timid = FALSE
-		port.register()
-	SSovermap.area_shuttle_cache_ready = FALSE
+	SSovermap.register_runtime_mobile_port(port, "admin_shuttle")
 
 /datum/overmap_admin_panel/proc/admin_jump_to_token(obj/overmap/token, mob/user)
 	if(!token || !user)
@@ -820,6 +856,15 @@
 	else if(istype(vessel, /obj/overmap/entity/pod))
 		var/obj/overmap/entity/pod/pod_vessel = vessel
 		dest = get_turf(pod_vessel.pod)
+	else if(istype(vessel))
+		var/datum/overmap_bubble/space = vessel.physical_space
+		if(space && !QDELETED(space))
+			dest = locate(round(space.center_x), round(space.center_y), space.bubble_z)
+		else
+			for(var/area/place as anything in vessel.dock_host?.host_areas())
+				dest = locate(/turf) in place
+				if(dest)
+					break
 	if(!dest)
 		dest = token.get_overmap_turf()
 	if(!dest)

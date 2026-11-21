@@ -70,6 +70,7 @@
 	var/turf/target = nav?.autopilot_x && nav.autopilot_y && vessel.sector?.get_turf_at(nav.autopilot_x, nav.autopilot_y)
 	if(target && here)
 		data["dest"] = list(nav.autopilot_x, nav.autopilot_y)
+		data["route"] = nav.route.Copy()
 		var/target_name = length(waypoints) && waypoints[1]
 		var/list/mark = target_name && waypoints[target_name]
 		data["dest_name"] = mark && mark["x"] == nav.autopilot_x && mark["y"] == nav.autopilot_y ? target_name : "Клетка [nav.autopilot_x]-[nav.autopilot_y]"
@@ -86,6 +87,9 @@
 	data["can_ship_undock"] = !!vessel.docked_ship || length(vessel.docked_guests)
 	data["ship_docked_to"] = vessel.docked_ship?.get_overmap_display_name()
 	data["can_relay_jump"] = vessel.can_hyperrelay_jump()
+	data["horizon_jump"] = vessel.in_event_horizon()
+	data["planet_landing"] = vessel.overmap_kind == OVERMAP_KIND_SHUTTLE && !!vessel.planet_landing_host()
+	data["planet_landing_rough"] = !!vessel.planet_landing_host()?.planet?.rough_landing
 	if(data["can_relay_jump"])
 		var/obj/overmap/entity/hyperrelay/relay = vessel.hyperrelay_on_tile()
 		data["relay_to"] = relay.paired.sector?.name
@@ -154,6 +158,21 @@
 			return TRUE
 		if("relay_jump")
 			var/result = vessel.begin_hyperrelay_jump()
+			if(result != TRUE)
+				to_chat(usr, span_warning("[result]"))
+			return TRUE
+		if("planet_land")
+			var/land_result = vessel.begin_planet_landing(usr)
+			if(land_result == OVERMAP_DOCK_NEED_CUSTOM_PICK)
+				if(open_custom_dock_picker(usr))
+					to_chat(usr, span_notice("Отметьте точку посадки на поверхности и снова нажмите «Посадка»."))
+				else
+					to_chat(usr, span_warning("Выбор точки посадки недоступен."))
+			else if(land_result != TRUE)
+				to_chat(usr, span_warning("[land_result]"))
+			return TRUE
+		if("horizon_jump")
+			var/result = vessel.horizon_jump()
 			if(result != TRUE)
 				to_chat(usr, span_warning("[result]"))
 			return TRUE
@@ -236,11 +255,25 @@
 					dest_x = clamp(dest_x, 1, vessel.sector.size)
 					dest_y = clamp(dest_y, 1, vessel.sector.size)
 				add_waypoint(strip_html(params["name"], MAX_NAME_LEN), dest_x, dest_y)
+				vessel.flight.route.Cut()
 				vessel.set_autopilot(vessel.flight?.autopilot, dest_x, dest_y)
+			. = TRUE
+		if("route_point")
+			if(!vessel.flight || !vessel.sector)
+				return TRUE
+			var/route_x = text2num(params["x"])
+			var/route_y = text2num(params["y"])
+			if(!isnum(route_x) || !isnum(route_y))
+				return TRUE
+			var/span = OVERMAP_TILE_SPAN * vessel.sector.tile_travel
+			vessel.abort_cancellable_mission()
+			vessel.flight.navigation_target = null
+			vessel.flight.add_route_point(route_x / span - vessel.sector.origin_x + 1, route_y / span - vessel.sector.origin_y + 1)
 			. = TRUE
 		if("clear_dest")
 			waypoints.Cut()
 			if(vessel.flight)
+				vessel.flight.route.Cut()
 				vessel.flight.navigation_target = null
 				vessel.flight.autopilot_x = null
 				vessel.flight.autopilot_y = null
@@ -313,6 +346,9 @@
 			. = TRUE
 
 /proc/hazard_flavour(obj/overmap/feature/hazard/hazard)
+	var/obj/overmap/feature/hazard/nebula/nebula = hazard
+	if(istype(nebula))
+		return nebula.flavour
 	switch(hazard?.icon_state)
 		if(OVERMAP_HAZARD_ICON_EMP)
 			return "emp"
@@ -358,6 +394,7 @@
 			"on" = engine.on,
 			"thrust" = engine.get_thrust(),
 			"status" = engine.get_status(),
+			"heat" = round(engine.heat),
 		))
 	return engines
 

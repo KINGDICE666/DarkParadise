@@ -2,6 +2,23 @@
 "aa" = (
 /turf/space,
 /area/space)
+"ab" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/docking_port/mobile/emergency{
+	dwidth = 11;
+	height = 18;
+	timid = 1;
+	width = 29;
+	port_direction = 8
+	},
+/obj/machinery/door/airlock/shuttle{
+	aiControlDisabled = 1;
+	hackProof = 1;
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch"
+	},
+/turf/simulated/floor/plasteel/dark,
+/area/shuttle/escape)
 "ac" = (
 /obj/structure/window/full/shuttle,
 /obj/structure/grille,
@@ -789,7 +806,7 @@ cH
 VF
 bo
 VF
-bD
+ab
 VF
 RT
 RT

@@ -1,4 +1,10 @@
-import { Button, NoticeBox, NumberInput, Section } from 'tgui-core/components';
+import {
+  Button,
+  NoticeBox,
+  NumberInput,
+  ProgressBar,
+  Section,
+} from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
 import { useBackend } from '../backend';
@@ -18,6 +24,9 @@ type EngineInfo = {
   thrust: number;
   limit: number;
   status: string;
+  heat: number;
+  overheated: BooleanLike;
+  overdrive: BooleanLike;
 };
 
 type OvermapEnginesData = {
@@ -28,6 +37,7 @@ type OvermapEnginesData = {
   total_thrust: number;
   mass: number;
   accel: number;
+  overdrive: BooleanLike;
   engines: EngineInfo[];
 };
 
@@ -41,6 +51,7 @@ export const OvermapEngines = () => {
     total_thrust,
     mass = 0,
     accel = 0,
+    overdrive,
     engines = [],
   } = data;
 
@@ -56,19 +67,31 @@ export const OvermapEngines = () => {
           name={vessel_name || 'Engines'}
           lamps={[
             { label: 'банк', on: !!global_on },
+            { label: 'форсаж', on: !!overdrive },
             { label: `${engines.length} уст.`, on: !!engines.length },
           ]}
         />
       }
       actions={
         linked ? (
-          <Button
-            icon="power-off"
-            selected={!!global_on}
-            onClick={() => act('global_toggle')}
-          >
-            {global_on ? 'Все вкл' : 'Все выкл'}
-          </Button>
+          <>
+            <Button
+              icon="fire"
+              color={overdrive ? 'orange' : undefined}
+              selected={!!overdrive}
+              tooltip="Тяга x1.5, двигатели греются и могут аварийно заглохнуть"
+              onClick={() => act('toggle_overdrive')}
+            >
+              Форсаж
+            </Button>
+            <Button
+              icon="power-off"
+              selected={!!global_on}
+              onClick={() => act('global_toggle')}
+            >
+              {global_on ? 'Все вкл' : 'Все выкл'}
+            </Button>
+          </>
         ) : null
       }
     >
@@ -101,6 +124,19 @@ export const OvermapEngines = () => {
                 title={engine.name}
                 meta={`${engine.status} · тяга ${engine.thrust}`}
               >
+                <ProgressBar
+                  width="70px"
+                  value={engine.heat}
+                  minValue={0}
+                  maxValue={100}
+                  ranges={{
+                    good: [-Infinity, 50],
+                    average: [50, 85],
+                    bad: [85, Infinity],
+                  }}
+                >
+                  {engine.overheated ? 'ПЕРЕГРЕВ' : `${engine.heat}°`}
+                </ProgressBar>
                 <NumberInput
                   width="56px"
                   unit="%"

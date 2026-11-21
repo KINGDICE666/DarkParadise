@@ -361,7 +361,7 @@
 	for(var/list/viewport as anything in SSovermap.frame_viewports(src))
 		var/turf/eye = viewport[1]
 		var/draw_reach = min(OVERMAP_SCATTER_REACH, viewport[2])
-		if(eye.z != bubble_z || !covers(list(eye.x, eye.y), 0))
+		if(!sector || eye.z != bubble_z || !covers(list(eye.x, eye.y), 0))
 			continue
 		var/list/point = to_world(eye.x, eye.y)
 		var/cell_x = FLOOR(point[1] / span + 0.5, 1)

@@ -16,6 +16,21 @@
 	icon_state = "router_dir"
 	},
 /area/shuttle/escape)
+"ac" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/machinery/door/airlock/hatch,
+/obj/structure/fans/tiny,
+/obj/docking_port/mobile/emergency{
+	dwidth = 11;
+	height = 13;
+	timid = 1;
+	width = 24;
+	port_direction = 8
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/shuttle/escape)
 "ad" = (
 /obj/structure/lattice/catwalk,
 /obj/structure/marker_beacon{
@@ -548,7 +563,7 @@ aG
 aG
 aW
 aG
-bh
+ac
 aG
 aG
 aG

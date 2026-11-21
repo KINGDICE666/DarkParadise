@@ -218,6 +218,10 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	if(!is_authenticated(ui.user))
 		return FALSE
 
+	if(centcom_blackout() && (action in list("callshuttle", "nukerequest", "MessageCentcomm")))
+		to_chat(ui.user, span_warning("Связи с Центральным Командованием нет: станция за пределами известного космоса."))
+		return FALSE
+
 	switch(action)
 		if("main")
 			setMenuState(ui.user, COMM_SCREEN_MAIN)
@@ -674,6 +678,9 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 	return
 
 /proc/check_shuttle_ability(mob/user)
+	if(centcom_blackout())
+		to_chat(user, span_warning("Вызов шаттла эвакуации невозможен: связи с Центральным Командованием нет."))
+		return FALSE
 	if(GLOB.sent_strike_team == TRUE || SSsecurity_level.get_current_level_as_number() == SEC_LEVEL_EPSILON)
 		to_chat(user, "Вызов шаттла эвакуации невозможен. Все контракты считаются расторгнутыми.")
 		return FALSE

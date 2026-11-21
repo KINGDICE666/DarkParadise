@@ -55,11 +55,6 @@
 		/turf/space,
 		/area/shuttle,
 	))
-	// Ignore these areas and dont let people expand them. They can expand into them though
-	var/static/list/blacklisted_areas = typecacheof(list(
-		/area/space,
-		/area/centcom/asteroid,
-	))
 
 	var/error = ""
 	var/list/turfs = detect_room(get_turf(creator), area_or_turf_fail_types, BLUEPRINTS_MAX_ROOM_SIZE * 2)
@@ -71,7 +66,16 @@
 	if(error)
 		to_chat(creator, span_warning(error))
 		return
+	return assign_area_turfs(creator, turfs, new_area_type)
 
+/proc/assign_area_turfs(mob/creator, list/turfs, new_area_type = /area, force_new = FALSE, preset_name)
+	// Ignore these areas and dont let people expand them. They can expand into them though
+	var/static/list/blacklisted_areas = typecacheof(list(
+		/area/space,
+		/area/centcom/asteroid,
+	))
+
+	var/turf_count = length(turfs)
 	var/list/apc_map = list()
 	var/list/areas = list("New Area" = new_area_type)
 	for(var/i in 1 to turf_count)
@@ -90,16 +94,18 @@
 			return
 		areas[place.name] = place
 
-	var/area_choice = tgui_input_list(creator, "Choose an area to expand or make a new area", "Area Expansion", areas)
-	if(isnull(area_choice))
-		to_chat(creator, span_warning("No choice selected. The area remains undefined."))
-		return
-	area_choice = areas[area_choice]
+	var/area_choice = new_area_type
+	if(!force_new)
+		area_choice = tgui_input_list(creator, "Choose an area to expand or make a new area", "Area Expansion", areas)
+		if(isnull(area_choice))
+			to_chat(creator, span_warning("No choice selected. The area remains undefined."))
+			return
+		area_choice = areas[area_choice]
 
 	var/area/newA
-	var/area/oldA = get_area(get_turf(creator))
+	var/area/oldA = get_area(turfs[1])
 	if(!isarea(area_choice))
-		var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
+		var/str = preset_name || tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
 		if(!str)
 			return
 		newA = new area_choice
@@ -136,7 +142,10 @@
 	for(var/area_name in affected_areas)
 		area_list += affected_areas[area_name]
 	//SEND_GLOBAL_SIGNAL(COMSIG_AREA_CREATED, newA, area_list, creator)
-	to_chat(creator, span_notice("You have created a new area, named [newA.name]. It is now weather proof, and constructing an APC will allow it to be powered."))
+	if(newA.requires_power)
+		to_chat(creator, span_notice("You have created a new area, named [newA.name]. It is now weather proof, and constructing an APC will allow it to be powered."))
+	else
+		to_chat(creator, span_notice("You have created a new area, named [newA.name]."))
 	add_game_logs("created a new area ([newA.name]): [AREACOORD(creator)] (previously \"[sanitize(oldA.name)]\")", creator)
 
 	//purge old areas that had all their turfs merged into the new one i.e. old empty areas. also recompute fire doors
@@ -151,7 +160,7 @@
 		if(!(locate(/turf) in merged_area.contents))
 			qdel(merged_area)
 
-	return TRUE
+	return newA
 
 #undef BLUEPRINTS_MAX_ROOM_SIZE
 

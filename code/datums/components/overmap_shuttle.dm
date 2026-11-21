@@ -280,7 +280,7 @@
 	var/current_id = vessel.shuttle.getDockedId()
 	var/chosen_id = vessel.selected_dock_id || vessel.last_dock_id
 	var/obj/docking_port/stationary/custom_pad = get_custom_dock(host)
-	if(host?.dock_host?.allow_custom_landing && !vessel.in_station_docking_zone())
+	if(host?.dock_host?.allow_custom_landing && !vessel.in_bluespace_docking_zone())
 		. += list(list(
 			"id" = OVERMAP_DOCK_ID_CUSTOM,
 			"name" = "Произвольная точка ([host.name])",
@@ -407,6 +407,10 @@
 	var/obj/overmap/entity/vessel = parent
 	if(vessel.overmap_kind != OVERMAP_KIND_SHUTTLE)
 		return "Судно уже в открытом космосе."
+	if(vessel.crash_grounded)
+		if(!vessel.has_working_engines() && !vessel.autopilot_upgraded)
+			return "После крушения взлёт невозможен: двигатели не работают."
+		vessel.crash_grounded = FALSE
 	if(!vessel.shuttle)
 		vessel.release_to_overmap()
 		return TRUE
@@ -507,6 +511,8 @@
 		return
 	owned_docks_dirty = TRUE
 	reset_collar_cache()
+	if(vessel.crash_grounded && new_dock.id != "[port.id]_overmap_crash")
+		vessel.crash_grounded = FALSE
 	if(vessel.formation_transfer)
 		return
 	var/obj/docking_port/stationary/overmap/landing/previous_stop = SSshuttle.getDock(vessel.last_dock_id, warn = FALSE)

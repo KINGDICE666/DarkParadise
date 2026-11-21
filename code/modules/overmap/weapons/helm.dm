@@ -23,11 +23,11 @@
 		available += id
 		var/list/point = data["position"]
 		var/list/origin = vessel.radar_world_origin()
-		var/angle = vessel.free_flight_view ? vessel.get_facing() : 0
+		var/angle = vessel.radar_facing() || vessel.local_space?.frame_facing() || 0
 		var/dx = point ? point[1] - origin[1] : 0
 		var/dy = point ? point[2] - origin[2] : 0
 		point = list(dx * cos(angle) - dy * sin(angle), dx * sin(angle) + dy * cos(angle))
-		. += list(list("id" = id, "name" = gun.name, "selected" = (id in selected_weapons), "auto" = data["automatic"], "turret" = istype(gun, /obj/machinery/porta_turret), "cooldown" = max(0, cooldown - world.time) / (1 SECONDS), "arc" = data["arc"], "heading" = data["heading"] - angle, "x" = point[1], "y" = point[2]))
+		. += list(list("id" = id, "name" = gun.name, "selected" = (id in selected_weapons), "auto" = data["automatic"], "turret" = istype(gun, /obj/machinery/porta_turret) || istype(gun, /obj/machinery/ship_gun/autocannon), "ammo" = data["ammo"], "max_ammo" = data["max_ammo"], "cooldown" = max(0, cooldown - world.time) / (1 SECONDS), "arc" = data["arc"], "heading" = data["heading"] - angle, "x" = point[1], "y" = point[2]))
 	selected_weapons &= available
 
 /obj/machinery/computer/helm/proc/weapon_action(action, list/params, mob/user)

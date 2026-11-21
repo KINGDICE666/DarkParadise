@@ -1,4 +1,17 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"a" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/machinery/door/airlock/external{
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch";
+	req_access = list(31)
+	},
+/obj/docking_port/mobile/supply{
+	timid = 1;
+	port_direction = 4
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/supply)
 "e" = (
 /turf/simulated/floor/shuttle,
 /area/shuttle/supply)
@@ -195,7 +208,7 @@ u
 g
 h
 u
-k
+a
 l
 u
 u

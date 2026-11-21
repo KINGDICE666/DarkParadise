@@ -59,6 +59,9 @@
 			return istype(ruin) && ruin.landing_region?.covers_reserved_turf(get_turf(pad))
 		if(OVERMAP_DOCK_Z_TAIPAN)
 			return is_taipan(pad.z)
+		if(OVERMAP_DOCK_Z_PLANET)
+			var/obj/overmap/entity/planet_station/station = parent
+			return istype(station) && station.planet?.surface_z() == pad.z
 	return FALSE
 
 /datum/component/overmap_dock_host/proc/add_nested(obj/overmap/entity/guest)
@@ -90,6 +93,9 @@
 			return istype(ruin) && ruin.landing_region?.space_z == z_level
 		if(OVERMAP_DOCK_Z_TAIPAN)
 			return is_taipan(z_level)
+		if(OVERMAP_DOCK_Z_PLANET)
+			var/obj/overmap/entity/planet_station/station = parent
+			return istype(station) && station.planet?.surface_z() == z_level
 	return FALSE
 
 /datum/component/overmap_dock_host/proc/pick_landing_z()
@@ -117,4 +123,8 @@
 			var/list/taipan_zs = levels_by_trait(TAIPAN)
 			if(length(taipan_zs))
 				return pick(taipan_zs)
+		if(OVERMAP_DOCK_Z_PLANET)
+			var/obj/overmap/entity/planet_station/station = parent
+			if(istype(station))
+				return station.planet?.surface_z()
 	return null

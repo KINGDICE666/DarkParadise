@@ -290,6 +290,10 @@ GLOBAL_LIST_EMPTY(fax_blacklist)
 				to_chat(usr, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] не сможет работать ещё [cooldown_seconds] секунд[numeric_ending(cooldown_seconds, "", "а", "ы")]."))
 				return
 
+			if((destination in GLOB.admin_departments) && centcom_blackout())
+				playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
+				atom_say("Нет связи с Центральным Командованием.", FALSE)
+				return
 			if((destination in GLOB.admin_departments) || (destination in GLOB.hidden_admin_departments) || (destination in GLOB.hidden_ussp))
 				sendcooldown = world.time + cooldown_time
 				SStgui.update_uis(src)

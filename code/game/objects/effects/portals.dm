@@ -156,9 +156,8 @@
 		message_admins("[M] has used a portal at [ADMIN_VERBOSEJMP(src)][creator_string].")
 		investigate_log("[M] has used a portal, [creator_string].", INVESTIGATE_TELEPORTATION)
 
-	if(prob(failchance))
-		var/list/target_z = levels_by_trait(SPAWN_RUINS)
-		target_z -= M.z
+	var/list/target_z = levels_by_trait(SPAWN_RUINS) - M.z
+	if(prob(failchance) && length(target_z))
 		if(!attempt_teleport(M, locate(rand(5, world.maxx - 5), rand(5, world.maxy -5), pick(target_z)), 0, FALSE)) // Try to send them to deep space.
 			return FALSE
 	else

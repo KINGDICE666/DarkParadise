@@ -111,7 +111,7 @@ Note: Must be placed within 3 tiles of the R&D Console
 	busy = TRUE
 	flick("[base_icon_state]_insert", src)
 	item_queue += I
-	RegisterSignal(I, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), PROC_REF(on_queued_item_removed))
+	RegisterSignals(I, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), PROC_REF(on_queued_item_removed))
 	update_loaded_item()
 	balloon_alert(user, "помещено в камеру разбора")
 	processing_timer = addtimer(CALLBACK(src, PROC_REF(reset_processing)), 1 SECONDS, TIMER_STOPPABLE)

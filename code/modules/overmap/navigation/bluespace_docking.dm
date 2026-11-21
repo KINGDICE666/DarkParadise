@@ -23,6 +23,8 @@
 	return list(radius * 2, radius * 2)
 
 /obj/overmap/entity/station_docking_zone/proc/accepts_pad(obj/docking_port/stationary/pad)
+	if(istype(SSovermap.station_entity, /obj/overmap/entity/station/ship))
+		return FALSE
 	if(QDELETED(pad) || istype(pad, /obj/docking_port/stationary/transit) || istype(pad, /obj/docking_port/stationary/overmap/landing))
 		return FALSE
 	return SSovermap.station_entity?.dock_host?.matches_pad(pad)
@@ -87,8 +89,30 @@
 			station_docking_zone.set_world_position(world_x, world_y)
 			return
 
+/datum/controller/subsystem/overmap/proc/follow_station_zone()
+	var/obj/overmap/entity/station/ship/ship = station_entity
+	if(!istype(ship) || !ship.sector || !isturf(ship.loc))
+		return
+	var/datum/overmap_bubble/station_space = ship.physical_space
+	var/obj/overmap/entity/station_docking_zone/zone = station_docking_zone
+	if(QDELETED(zone))
+		return
+	if(!zone.hidden_from_contacts)
+		zone.hidden_from_contacts = TRUE
+		zone.visible_without_scanner = FALSE
+		zone.SetInvisibility(INVISIBILITY_ABSTRACT, id = zone.type)
+	var/list/rect = station_space?.bounds
+	var/span = rect ? max(rect[3] - rect[1], rect[4] - rect[2]) : max(world.maxx, world.maxy)
+	zone.radius = span / 2 + OVERMAP_STATION_ZONE_MARGIN
+	if(zone.sector != ship.sector)
+		zone.move_to_sector(ship.sector, ship.get_overmap_turf())
+	zone.set_world_position(ship.get_world_x(), ship.get_world_y())
+
 /obj/overmap/entity/proc/in_station_docking_zone()
 	return SSovermap.station_docking_zone?.contains_vessel(src)
+
+/obj/overmap/entity/proc/in_bluespace_docking_zone()
+	return !istype(SSovermap.station_entity, /obj/overmap/entity/station/ship) && in_station_docking_zone()
 
 /obj/docking_port/mobile/proc/overmap_docking_origin(obj/docking_port/stationary/pad)
 	if(SSovermap.station_docking_zone?.accepts_pad(pad) && !pad.dock_airlock && !istype(pad, /obj/docking_port/stationary/overmap))

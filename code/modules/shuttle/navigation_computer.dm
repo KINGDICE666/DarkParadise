@@ -372,6 +372,9 @@
 		if(console.jumpto_ports[S.id])
 			L[S.name] = S
 
+	if(!length(L))
+		to_chat(target, span_warning("Нет известных точек для перемещения камеры."))
+		return
 	playsound(console, 'sound/machines/terminal_prompt.ogg', 25, FALSE)
 	var/selected = tgui_input_list(target, "Choose location to jump to", "Locations", L)
 	if(QDELETED(src) || QDELETED(target) || !isliving(target))

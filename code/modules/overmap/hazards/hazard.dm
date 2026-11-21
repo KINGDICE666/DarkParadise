@@ -33,6 +33,7 @@
 	var/list/scatter_chunks
 	var/list/scatter_radar_chunks
 	var/list/scatter_hit_chunks
+	var/shield_cost = 0
 
 /obj/overmap/feature/hazard/proc/roll_density()
 	return rand(2, 4)
@@ -120,6 +121,8 @@
 	if(vessel.programmed_mission)
 		return
 	if(!isturf(vessel.loc))
+		return
+	if(vessel.shield_block_hazard(src))
 		return
 	affect_vessel(vessel)
 
@@ -267,6 +270,7 @@
 	icon_state = OVERMAP_HAZARD_ICON_ASTEROID
 	map_color = "#8a7a68"
 	color = null
+	shield_cost = 60
 
 /obj/overmap/feature/hazard/asteroid/roll_density()
 	return text2num(pickweight(list("1" = 16, "2" = 26, "3" = 24, "4" = 16, "5" = 9, "6" = 5, "7" = 3, "8" = 1)))
@@ -308,6 +312,7 @@
 	icon_state = OVERMAP_HAZARD_ICON_EMP
 	map_color = "#6ec4ff"
 	color = null
+	shield_cost = 90
 
 /obj/overmap/feature/hazard/emp/roll_density()
 	return rand(2, 5)
@@ -399,8 +404,9 @@
 		return TRUE
 	if(sector.turf_occupied(spot))
 		return TRUE
-	if(SSovermap.lavaland_planet?.covers_turf(spot))
-		return TRUE
+	for(var/obj/overmap/planet/body as anything in GLOB.overmap_planets)
+		if(body.covers_turf(spot))
+			return TRUE
 	if(locate(/obj/overmap/feature/hazard) in spot)
 		return TRUE
 	if(locate(/obj/overmap/portal) in spot)

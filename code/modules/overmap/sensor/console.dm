@@ -101,11 +101,7 @@
 /obj/machinery/computer/sensors/proc/can_run()
 	if(stat & (NOPOWER|BROKEN) || !vessel)
 		return FALSE
-	if(!vessel.has_working_sensor(view_mode))
-		return FALSE
-	if(view_mode == OVERMAP_SENSOR_KIND_LONG)
-		return vessel.has_working_sensor(OVERMAP_SENSOR_KIND_LONG)
-	return TRUE
+	return vessel.has_working_sensor(OVERMAP_SENSOR_KIND_LONG) || vessel.has_working_sensor(OVERMAP_SENSOR_KIND_SHORT)
 
 /obj/machinery/computer/sensors/proc/detects_contact(obj/overmap/overmap_object)
 	return vessel && vessel.object_visibility(overmap_object, vessel.get_overmap_turf(), vessel.sensor_reach_cells()) > 0

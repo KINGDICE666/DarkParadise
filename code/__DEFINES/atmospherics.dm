@@ -295,6 +295,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 #define ENVIRONMENT_TEMPERATE "temperate"
 /// Cold environment: Normal atmosphere, -93 C.
 #define ENVIRONMENT_COLD "cold"
+/// Plasma world: plasma, nitrogen and carbon dioxide without oxygen, so nothing burns.
+#define ENVIRONMENT_PLASMA_WORLD "plasma_world"
 
 /// How far away should we load the pressure HUD data from MILLA?
 #define PRESSURE_HUD_LOAD_RADIUS 15

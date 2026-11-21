@@ -2,6 +2,21 @@
 "a" = (
 /turf/simulated/floor/shuttle,
 /area/shuttle/supply)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow,
+/obj/machinery/door/airlock/external/docking{
+	dir = 4;
+	dock_name = "Основной шлюз";
+	overmap_collar_id = "supply_main";
+	req_access = list(31)
+	},
+/obj/docking_port/mobile/supply{
+	dir = 4;
+	port_direction = 4;
+	timid = 1
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/supply)
 "e" = (
 /obj/structure/window/reinforced{
 	dir = 1
@@ -197,7 +212,7 @@ J
 Y
 R
 J
-S
+b
 U
 J
 J

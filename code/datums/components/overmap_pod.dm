@@ -92,6 +92,7 @@
 		var/datum/overmap_bubble/space = SSovermap.bubble_for_turf(origin) || SSovermap.ensure_host_space(host)
 		if(space && space.bubble_z == origin.z)
 			point = space.to_world(origin.x + 0.5, origin.y + 0.5)
+			heading += space.frame_facing()
 		else if(!host.project_terrain || host.dock_host?.planet_landing)
 			point = list(host.get_world_x(), host.get_world_y())
 		else

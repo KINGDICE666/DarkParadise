@@ -5,6 +5,34 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/shuttle{
+	id_tag = "s_docking_airlock";
+	req_access = list(104,106,63,19)
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/turf/simulated/floor/carpet/red,
+/area/shuttle/transport)
 "d" = (
 /obj/machinery/vending/boozeomat,
 /turf/simulated/floor/carpet/royalblack,
@@ -320,7 +348,7 @@ h
 (12,1,1) = {"
 h
 D
-I
+b
 D
 h
 "}
