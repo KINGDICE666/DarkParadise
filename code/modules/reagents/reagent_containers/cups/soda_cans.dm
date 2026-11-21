@@ -1,5 +1,7 @@
 // TODO: отрефакторить портом с TG
 
+#define SODA_EXPLOSION_PRESSURE 67.458
+
 // MARK: Base Can
 /obj/item/reagent_containers/cup/soda_cans
 	icon = 'icons/obj/drinks.dmi'
@@ -179,6 +181,19 @@
 		burst_chance = 0
 	if(times_shaken)
 		addtimer(CALLBACK(src, PROC_REF(reset_shaken)), (70 - (times_shaken * 10)) SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_NO_HASH_WAIT)
+
+/obj/item/reagent_containers/cup/soda_cans/Initialize(mapload, vol)
+	. = ..()
+	AddElement(/datum/element/atmos_sensitive, mapload)
+
+/obj/item/reagent_containers/cup/soda_cans/should_atmos_process(datum/gas_mixture/air, exposed_temperature)
+	return air.return_pressure() <= SODA_EXPLOSION_PRESSURE && !canopened
+
+/obj/item/reagent_containers/cup/soda_cans/atmos_expose(datum/gas_mixture/air, exposed_temperature)
+	if(!reagents.total_volume || canopened)
+		return
+	times_shaken = 5
+	fizzy_open(burstopen = TRUE)
 
 
 // MARK: Can Types
@@ -608,3 +623,5 @@
 		INSTRUMENTAL = "металлической банкой",
 		PREPOSITIONAL = "металлической банке",
 	)
+
+#undef SODA_EXPLOSION_PRESSURE

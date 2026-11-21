@@ -1028,6 +1028,7 @@
 #include "code\datums\elements\ammo_alarm.dm"
 #include "code\datums\elements\art.dm"
 #include "code\datums\elements\atmos_requirements.dm"
+#include "code\datums\elements\atmos_sensitive.dm"
 #include "code\datums\elements\bed_tucking.dm"
 #include "code\datums\elements\bsa_blocker.dm"
 #include "code\datums\elements\cleaning.dm"
