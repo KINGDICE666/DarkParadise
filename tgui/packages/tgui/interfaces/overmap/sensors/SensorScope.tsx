@@ -128,6 +128,9 @@ export const SensorScope = (props: ScopeProps) => {
     const cx = width / 2;
     const cy = height / 2;
     const radius = Math.min(width, height) / 2 - 30;
+    if (radius <= 0) {
+      return;
+    }
     const rotation = state.northUp ? 0 : -state.heading;
     layoutRef.current = { cx, cy, radius, rotation };
     const unit = radius / state.scale;
