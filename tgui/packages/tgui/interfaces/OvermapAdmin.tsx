@@ -71,6 +71,19 @@ type Token = {
   sensors_on?: BooleanLike;
   has_flight?: BooleanLike;
   virtual_engine?: BooleanLike;
+  can_pirate?: BooleanLike;
+  pirate?: PirateReport | null;
+};
+
+type PirateReport = {
+  state: string;
+  target: string | null;
+  crew: number;
+  crew_max: number;
+  pilot: BooleanLike;
+  radar: BooleanLike;
+  attack_station: BooleanLike;
+  roaming: BooleanLike;
 };
 
 type Console = {
@@ -572,6 +585,41 @@ const ControlTab = () => {
                   </LabeledList.Item>
                 );
               })}
+              {!!selected.can_pirate && (
+                <LabeledList.Item label="ИИ пиратов">
+                  <FlagButton
+                    uid={selected.uid}
+                    field="pirate_ai"
+                    value={!!selected.pirate}
+                    label="Включён"
+                  />
+                  {!!selected.pirate && (
+                    <>
+                      <FlagButton
+                        uid={selected.uid}
+                        field="pirate_station"
+                        value={selected.pirate.attack_station}
+                        label="Атаковать станцию"
+                      />
+                      <FlagButton
+                        uid={selected.uid}
+                        field="pirate_roaming"
+                        value={selected.pirate.roaming}
+                        label="Прыжки между секторами"
+                      />
+                      <Box mt={0.5}>
+                        {selected.pirate.state}
+                        {selected.pirate.target
+                          ? ` — ${selected.pirate.target}`
+                          : ''}
+                        {` · экипаж ${selected.pirate.crew}/${selected.pirate.crew_max}`}
+                        {` · пилот ${selected.pirate.pilot ? 'на посту' : 'нет'}`}
+                        {` · радар ${selected.pirate.radar ? 'на посту' : 'нет'}`}
+                      </Box>
+                    </>
+                  )}
+                </LabeledList.Item>
+              )}
               <LabeledList.Item label="Класс на сенсорах">
                 <Input
                   width="220px"

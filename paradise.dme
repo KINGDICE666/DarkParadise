@@ -4242,6 +4242,7 @@
 #include "code\modules\overmap\navigation\ship_docking.dm"
 #include "code\modules\overmap\object.dm"
 #include "code\modules\overmap\physics\collision.dm"
+#include "code\modules\overmap\pirates.dm"
 #include "code\modules\overmap\planet.dm"
 #include "code\modules\overmap\planet_crash.dm"
 #include "code\modules\overmap\plasma_world.dm"

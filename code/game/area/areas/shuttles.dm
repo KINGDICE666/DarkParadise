@@ -336,6 +336,11 @@
 	icon_state = "shuttle"
 	area_flags = NONE
 
+/area/shuttle/pirate_raider
+	name = "Pirate Raider"
+	icon_state = "shuttle"
+	area_flags = NONE
+
 /area/shuttle/transit
 	name = "Hyperspace"
 	desc = "Weeeeee"

@@ -1,0 +1,318 @@
+//MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"a" = (
+/obj/machinery/door/airlock/public/glass,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"b" = (
+/obj/machinery/overmap_intercom/directional/south{
+	pixel_y = -25
+	},
+/mob/living/simple_animal/hostile/pirate/ranged,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"d" = (
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"e" = (
+/obj/machinery/ship_gun/laser{
+	dir = 1
+	},
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+"f" = (
+/obj/machinery/door/airlock/external/docking,
+/obj/structure/fans/tiny,
+/obj/machinery/shower{
+	dir = 1;
+	pixel_y = 19
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"h" = (
+/obj/structure/chair/comfy/shuttle{
+	dir = 4
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"i" = (
+/turf/simulated/wall/shuttle/nosmooth,
+/area/shuttle/pirate_raider)
+"j" = (
+/obj/machinery/ship_gun/railgun,
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+"k" = (
+/obj/machinery/sensor_array/long_range,
+/turf/simulated/wall/shuttle/nosmooth,
+/area/shuttle/pirate_raider)
+"m" = (
+/obj/effect/spawner/window/shuttle,
+/obj/machinery/shield,
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+"n" = (
+/obj/structure/table/reinforced,
+/obj/item/stack/spacecash/ussp/c1000,
+/obj/item/stack/spacecash/ussp/c1000,
+/obj/item/stack/spacecash/ussp/c1000,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/item/stack/spacecash/c500,
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"p" = (
+/obj/effect/spawner/random/trash,
+/mob/living/simple_animal/hostile/pirate,
+/obj/effect/spawner/random/trash,
+/obj/effect/spawner/random/trash,
+/obj/structure/closet/gun_stand/cargo_defender{
+	pixel_y = 32;
+	name = "Piritto";
+	desc = "Стойка, предназначенная для хранения дробовика \"Защитник Перрито?\"."
+	},
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"r" = (
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"s" = (
+/obj/effect/spawner/random/food_trash,
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"t" = (
+/mob/living/simple_animal/hostile/pirate,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"u" = (
+/obj/machinery/ship_engine{
+	dir = 8;
+	pixel_x = -10
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"w" = (
+/obj/machinery/jukebox,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"y" = (
+/obj/machinery/computer/helm{
+	dir = 8
+	},
+/obj/machinery/light/floor,
+/obj/item/radio/intercom/pirate/directional/east,
+/obj/effect/spawner/random/food_trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"z" = (
+/obj/structure/closet/body_bag,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"B" = (
+/obj/structure/table/reinforced,
+/obj/item/disk/autodoc_module/implants,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"C" = (
+/obj/machinery/ship_engine{
+	pixel_y = -27
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"D" = (
+/obj/structure/table/reinforced,
+/obj/item/clothing/neck/cloak/syndiecap/comms,
+/obj/item/clothing/head/beret/solgov/command/elite{
+	pixel_y = 11
+	},
+/obj/item/gun/energy/plasma_pistol,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"E" = (
+/obj/machinery/light/floor,
+/mob/living/simple_animal/hostile/pirate,
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"F" = (
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"G" = (
+/obj/machinery/suit_storage_unit/industrial/pirate_leader,
+/obj/effect/spawner/random/food_trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"H" = (
+/obj/machinery/ship_engine{
+	dir = 4;
+	pixel_x = 10
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"I" = (
+/obj/machinery/computer/sensors,
+/obj/machinery/light/floor,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"K" = (
+/obj/structure/chair/comfy/shuttle{
+	dir = 8
+	},
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"L" = (
+/obj/effect/spawner/random/food_trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"O" = (
+/obj/machinery/ship_gun/railgun{
+	dir = 1
+	},
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+"P" = (
+/obj/machinery/power/apc/directional/east,
+/obj/machinery/ship_gun_loader,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"R" = (
+/obj/machinery/light/floor,
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"S" = (
+/obj/machinery/ship_shield_generator,
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"T" = (
+/obj/machinery/suit_storage_unit/industrial/pirate_leader,
+/obj/effect/spawner/random/trash,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"V" = (
+/obj/machinery/ship_gun/laser,
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+"W" = (
+/obj/machinery/ship_engine{
+	pixel_y = 4;
+	dir = 1
+	},
+/turf/simulated/wall/shuttle,
+/area/shuttle/pirate_raider)
+"X" = (
+/obj/structure/table/reinforced,
+/obj/structure/sign/poster/contraband/communist_state{
+	pixel_y = -32
+	},
+/obj/item/implantcase/health,
+/obj/item/implantcase/storage,
+/turf/simulated/floor/shuttle,
+/area/shuttle/pirate_raider)
+"Y" = (
+/obj/machinery/sensor_array/short_range,
+/turf/simulated/wall/shuttle/nosmooth,
+/area/shuttle/pirate_raider)
+"Z" = (
+/obj/effect/spawner/window/shuttle,
+/obj/effect/spawner/random_barrier/obstruction,
+/obj/machinery/shield,
+/turf/simulated/floor/plating,
+/area/shuttle/pirate_raider)
+
+(1,1,1) = {"
+O
+W
+d
+d
+u
+Z
+m
+d
+j
+"}
+(2,1,1) = {"
+d
+i
+D
+n
+d
+T
+G
+Y
+S
+"}
+(3,1,1) = {"
+d
+I
+r
+X
+d
+z
+F
+E
+C
+"}
+(4,1,1) = {"
+m
+K
+L
+F
+a
+F
+s
+P
+C
+"}
+(5,1,1) = {"
+m
+h
+F
+b
+d
+d
+a
+d
+C
+"}
+(6,1,1) = {"
+d
+y
+r
+t
+d
+p
+L
+R
+C
+"}
+(7,1,1) = {"
+d
+i
+w
+B
+d
+F
+r
+k
+S
+"}
+(8,1,1) = {"
+e
+W
+Z
+m
+H
+f
+d
+d
+V
+"}

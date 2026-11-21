@@ -170,6 +170,9 @@
 	data["sensors_on"] = istype(vessel) && (vessel.long_sensors_on || vessel.short_sensors_on)
 	data["has_flight"] = istype(vessel) && !!vessel.flight
 	data["virtual_engine"] = istype(vessel) && vessel.admin_virtual_engine
+	data["can_pirate"] = istype(vessel) && vessel.shuttle && vessel.flight
+	var/datum/component/pirate_ship_ai/pirate_ai = token.GetComponent(/datum/component/pirate_ship_ai)
+	data["pirate"] = pirate_ai?.admin_report()
 	return data
 
 /datum/overmap_admin_panel/proc/serialize_dump_list()
@@ -539,6 +542,22 @@
 			else if(!vessel.programmed && !vessel.programmed_mission && !vessel.overmap_pod)
 				QDEL_NULL(vessel.virtual_engine)
 			vessel.flight?.refresh_thrust()
+		if("pirate_ai")
+			if(!istype(vessel) || !vessel.shuttle || !vessel.flight)
+				return
+			var/datum/component/pirate_ship_ai/pirate_ai = vessel.GetComponent(/datum/component/pirate_ship_ai)
+			if(truthy(value) && !pirate_ai)
+				vessel.AddComponent(/datum/component/pirate_ship_ai, vessel.get_overmap_display_name())
+			else if(!truthy(value))
+				qdel(pirate_ai)
+		if("pirate_station", "pirate_roaming")
+			var/datum/component/pirate_ship_ai/pirate_ai = token.GetComponent(/datum/component/pirate_ship_ai)
+			if(!pirate_ai)
+				return
+			if(field == "pirate_station")
+				pirate_ai.attack_station = truthy(value)
+			else
+				pirate_ai.roaming = truthy(value)
 		if("speed_x")
 			token.speed[1] = text2num(value) || 0
 			token.refresh_heading_overlay()
@@ -727,6 +746,8 @@
 				selected = spawn_shuttle_in_hyperspace(shuttle_template, sector, spot, user)
 				if(selected)
 					apply_spawn_look(selected, params)
+					if(istype(shuttle_template, /datum/map_template/shuttle/pirate))
+						selected.AddComponent(/datum/component/pirate_ship_ai, params["name"] || shuttle_template.name)
 				return
 			var/large = truthy(params["large"])
 			var/region_size = large ? SSovermap.large_region_size() : OVERMAP_RUIN_REGION_SIZE
