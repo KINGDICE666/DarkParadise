@@ -141,7 +141,6 @@
 /atom/movable/screen/alert/status_effect/cuffed_item
 	name = "Прикованный предмет"
 	desc = "К вашей руке надёжно прикован предмет. Случайно его теперь точно не выронить. Нажмите, чтобы снять наручники."
-	icon_state = "template"
 	clickable_glow = TRUE
 	click_master = FALSE
 
