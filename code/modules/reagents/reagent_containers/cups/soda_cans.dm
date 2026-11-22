@@ -1,6 +1,8 @@
 #define SODA_FIZZINESS_THROWN 15
 #define SODA_FIZZINESS_SHAKE 5
 #define SODA_EXPLOSION_PRESSURE 67.458
+#define SODA_FIZZINESS_NOTICEABLE 30
+#define SODA_SUICIDE_OLD_AGE 30
 
 // MARK: Base Can
 /obj/item/reagent_containers/cup/soda_cans
@@ -32,7 +34,7 @@
 	. = ..()
 	if(!in_range(user, src))
 		return
-	if(fizziness > 30 && prob(fizziness * 2))
+	if(fizziness > SODA_FIZZINESS_NOTICEABLE && prob(fizziness * 2))
 		. += span_notice("<i>Присмотревшись к [declent_ru(DATIVE)], вы замечаете кое-что...</i>")
 		. += "\t[span_warning("От [declent_ru(GENITIVE)] веет угрожающей газированностью...")]"
 
@@ -57,7 +59,7 @@
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/drinker = user
-		if(drinker.age >= 30)
+		if(drinker.age >= SODA_SUICIDE_OLD_AGE)
 			drinker.Stun(5 SECONDS)
 			sleep(5 SECONDS)
 			playsound(drinker, 'sound/items/drink.ogg', 80, TRUE)
@@ -194,6 +196,8 @@
 #undef SODA_FIZZINESS_THROWN
 #undef SODA_FIZZINESS_SHAKE
 #undef SODA_EXPLOSION_PRESSURE
+#undef SODA_FIZZINESS_NOTICEABLE
+#undef SODA_SUICIDE_OLD_AGE
 
 // MARK: Can Types
 /obj/item/reagent_containers/cup/soda_cans/cola

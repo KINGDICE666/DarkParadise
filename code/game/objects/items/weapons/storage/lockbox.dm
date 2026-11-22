@@ -16,6 +16,10 @@
 	var/icon_closed = "lockbox"
 	var/icon_broken = "lockbox+b"
 
+/obj/item/storage/lockbox/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/storage/lockbox/update_icon_state()
 	if(broken)
 		icon_state = icon_broken

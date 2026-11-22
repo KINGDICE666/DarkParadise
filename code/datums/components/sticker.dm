@@ -26,7 +26,9 @@
 
 	REMOVE_TRAIT(parent, TRAIT_STICKERED, UNIQUE_TRAIT_SOURCE(src))
 
-	our_sticker = null
+	if(our_sticker)
+		UnregisterSignal(our_sticker, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED))
+		QDEL_NULL(our_sticker)
 	sticker_overlay = null
 	stick_callback = null
 	peel_callback = null

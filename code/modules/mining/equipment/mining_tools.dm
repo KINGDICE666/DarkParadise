@@ -165,6 +165,10 @@
 	usesound = 'sound/weapons/drill.ogg'
 	origin_tech = "materials=2;powerstorage=2;engineering=3"
 
+/obj/item/pickaxe/drill/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/pickaxe/drill/get_ru_names()
 	return alist(
 		NOMINATIVE = "шахтёрская дрель",

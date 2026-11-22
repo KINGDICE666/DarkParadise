@@ -6,6 +6,10 @@
 	max_integrity = 380
 	abstract_type = /obj/item/shield
 
+/obj/item/shield/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/shield/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	var/attack_angle = get_angle(owner, hitby)
 	var/facing_angle = dir2angle(owner.dir)

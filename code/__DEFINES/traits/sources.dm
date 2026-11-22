@@ -60,6 +60,8 @@
 /// A trait given by any status effect
 #define STATUS_EFFECT_TRAIT "status-effect"
 
+#define CUFFED_ITEM_TRAIT "cuffed_item_trait"
+
 #define SPECIES_TRAIT "species_trait"
 
 #define CLOTHING_TRAIT "clothing"

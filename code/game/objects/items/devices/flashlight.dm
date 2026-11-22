@@ -27,6 +27,7 @@
 	var/on = FALSE
 	/// The sound the light makes when it's turned on/off
 	var/togglesound = 'sound/weapons/empty.ogg'
+	var/has_closed_handle = TRUE
 	/// When true, painting the flashlight won't change its light color
 	var/ignore_base_color = FALSE
 
@@ -61,6 +62,8 @@
 
 /obj/item/flashlight/Initialize(mapload)
 	. = ..()
+	if(has_closed_handle)
+		AddElement(/datum/element/cuffable_item)
 	if(on)
 		set_light_on(TRUE)
 	update_brightness()
@@ -162,6 +165,7 @@
 	slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_EARS
 	light_system = OVERLAY_LIGHT
 	light_range = 2
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/pen/get_ru_names()
 	return alist(
@@ -184,6 +188,7 @@
 	force = 9 // Not as good as a stun baton.
 	light_range = 5 // A little better than the standard flashlight.
 	hitsound = 'sound/weapons/genhit1.ogg'
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/seclite/get_ru_names()
 	return alist(
@@ -202,6 +207,7 @@
 	icon_state = "sectaclight"
 	item_state = ""
 	slot_flags = ITEM_SLOT_EARS
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/sectaclight/get_ru_names()
 	return alist(
@@ -220,6 +226,7 @@
 	item_state = ""
 	light_range = 2
 	w_class = WEIGHT_CLASS_TINY
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/drone/get_ru_names()
 	return alist(
@@ -247,6 +254,7 @@
 	w_class = WEIGHT_CLASS_BULKY
 	materials = list()
 	on = TRUE
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/lamp/get_ru_names()
 	return alist(
@@ -320,6 +328,7 @@
 	var/spawn_fuel = TRUE
 	/// Lighting middleman, lets us do a flicker effect
 	var/datum/light_middleman/middleman
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/flare/get_ru_names()
 	return alist(
@@ -637,6 +646,7 @@
 	light_color = "#FFBF00"
 	materials = list()
 	on = TRUE //Bio-luminesence has one setting, on.
+	has_closed_handle = FALSE
 
 /obj/item/flashlight/slime/get_ru_names()
 	return alist(

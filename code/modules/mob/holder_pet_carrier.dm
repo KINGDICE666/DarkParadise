@@ -27,6 +27,7 @@
 
 /obj/item/pet_carrier/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	if(!color_skin)
 		color_skin = pick(possible_skins)
 	update_icon(UPDATE_OVERLAYS)

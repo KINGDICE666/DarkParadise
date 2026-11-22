@@ -180,9 +180,7 @@
 				return
 			C.SetStuttering(40 SECONDS) //stammer
 			C.AdjustDeaf(10 SECONDS) //far less damage than the H.O.N.K.
-			var/obj/item/organ/internal/ears/ears = C.get_int_organ(/obj/item/organ/internal/ears)
-			if(istype(ears))
-				ears.internal_receive_damage(5)
+			C.sound_damage(5)
 			C.Jitter(100 SECONDS)
 			C.Weaken(10 SECONDS)
 			if(client) //prevent spam from players..
