@@ -20,8 +20,9 @@
 #define PVE_MAX_ELITE_CHANCE 25
 
 /datum/game_mode/pve
-	name = "PvE Survival"
+	name = "Colonial Marines"
 	config_tag = "pve"
+	votable = TRUE
 	forced_job = JOB_TITLE_CIVILIAN
 	required_players = 1
 	ert_disabled = TRUE
@@ -57,7 +58,7 @@
 	var/previous_outfit
 
 /datum/game_mode/pve/announce()
-	to_chat(world, span_boldannounceic("Режим — PvE: оборона Маяка!"))
+	to_chat(world, span_boldannounceic("Режим — Colonial Marines: оборона Маяка!"))
 	to_chat(world, span_notice("Защищайте лагерь слева от волн тварей из красного тумана. Выберите класс, закупайтесь между волнами и продержитесь [PVE_FINAL_WAVE] волн."))
 
 /datum/game_mode/pve/pre_setup()
@@ -620,7 +621,7 @@
 
 /datum/game_mode/pve/declare_completion()
 	var/list/lines = list()
-	lines += "<b>PvE: [victory ? "победа" : "поражение"].</b> [end_reason || "Оборона прервана."]"
+	lines += "<b>Colonial Marines: [victory ? "победа" : "поражение"].</b> [end_reason || "Оборона прервана."]"
 	lines += "Отбито волн: [completed_waves()] из [PVE_FINAL_WAVE]. Тварей убито: [total_kills]."
 	var/list/ranking = list()
 	for(var/account_key in player_accounts)

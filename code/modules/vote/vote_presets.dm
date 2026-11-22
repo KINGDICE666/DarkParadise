@@ -99,15 +99,21 @@
 /datum/vote/gamemode/create_vote(mob/vote_creator)
 	. = ..()
 	for(var/mode in config.votable_modes)
-		choices[mode] = 0
+		choices[config.mode_names[mode]] = 0
 
 /datum/vote/gamemode/finalize_vote(result)
 	if(!result)
 		return
 
-	if(GLOB.master_mode != result)
+	var/winner_tag
+	for(var/mode in config.votable_modes)
+		if(config.mode_names[mode] == result)
+			winner_tag = mode
+			break
+
+	if(winner_tag && GLOB.master_mode != winner_tag)
 		GLOB.master_mode = "secret"
-		GLOB.secret_force_mode = result
+		GLOB.secret_force_mode = winner_tag
 
 	if(!SSticker.ticker_going)
 		SSticker.ticker_going = TRUE

@@ -1,5 +1,5 @@
 ## allow players to initate a mode-change start
-#ALLOW_VOTE_GAMEMODE
+ALLOW_VOTE_GAMEMODE
 
 ## allow players to initate a next round map-change start
 ALLOW_VOTE_MAP

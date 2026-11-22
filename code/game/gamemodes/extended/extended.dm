@@ -1,6 +1,7 @@
 /datum/game_mode/extended
 	name = "extended"
 	config_tag = "extended"
+	votable = TRUE
 
 /datum/game_mode/announce()
 	to_chat(world, "<b>The current game mode is - Extended Role-Playing!</b>")
@@ -8,4 +9,7 @@
 
 /datum/game_mode/extended/pre_setup()
 	return TRUE
+
+/datum/game_mode/extended/allow_antag_events()
+	return FALSE
 

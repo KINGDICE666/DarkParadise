@@ -208,7 +208,7 @@
 
 /mob/new_player/proc/get_job_unavailable_reason(rank)
 	if(SSticker.mode?.forced_job && rank != SSticker.mode.forced_job)
-		return "В этом режиме доступна только роль бойца PvE"
+		return "В этом режиме доступна только роль бойца Colonial Marines"
 	var/datum/job/job = SSjobs.GetJob(rank)
 	if(!job)
 		return "Должность не найдена"
