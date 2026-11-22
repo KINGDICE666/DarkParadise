@@ -31,6 +31,10 @@
 	var/med_bot_skin = null
 	var/syndicate_aligned = FALSE
 
+/obj/item/storage/firstaid/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/storage/firstaid/get_ru_names()
 	return alist(
 		NOMINATIVE = "аптечка первой помощи",

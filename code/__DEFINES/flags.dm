@@ -39,6 +39,7 @@
 #define HAS_CONTEXTUAL_SCREENTIPS (1<<13)
 /// Should this object be unpaintable?
 #define UNPAINTABLE (1<<14)
+#define ATMOS_IS_PROCESSING (1<<15)
 
 // Update flags for [/atom/proc/update_appearance]
 /// Update the atom's name

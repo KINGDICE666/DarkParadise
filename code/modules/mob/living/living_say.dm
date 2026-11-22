@@ -404,7 +404,11 @@ GLOBAL_LIST_INIT(say_prefixes, list(":", ".", "#", "№"))
 
 /mob/living/send_speech(message, message_range = 6, obj/source = src, bubble_type = bubble_icon, list/spans, datum/language/message_language = null, list/message_mods = list(), forced = null)
 	var/whisper_range = message_mods[WHISPER_MODE] ? MESSAGE_RANGE - WHISPER_RANGE : 0
-	var/list/listening = get_hearers_in_view(message_range + whisper_range, source)
+	var/list/in_view = get_hearers_in_view(message_range + whisper_range, source)
+	var/list/listening = get_hearers_in_range(message_range + whisper_range, source)
+	for(var/atom/movable/listening_movable as anything in listening)
+		if(!(listening_movable in in_view) && !HAS_TRAIT(listening_movable, TRAIT_XRAY_HEARING))
+			listening.Remove(listening_movable)
 
 	if(client)
 		for(var/mob/player_mob as anything in GLOB.player_list)

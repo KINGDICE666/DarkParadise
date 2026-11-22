@@ -673,6 +673,87 @@
 	build_path = /obj/item/organ/internal/ears/cybernetic
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
+/datum/design/cybernetic_ears_u
+	id = "cybernetic_ears_u"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/upgraded
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_whisper
+	id = "cybernetic_ears_whisper"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500, MAT_GOLD = 300)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/whisper
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_volume
+	id = "cybernetic_ears_volume"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500, MAT_GOLD = 300)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/volume
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_xray
+	id = "cybernetic_ears_xray"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 7, RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_MAGNETS = 5, RESEARCH_TREE_PROGRAMMING = 4)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 600, MAT_GLASS = 600, MAT_SILVER = 600, MAT_GOLD = 600, MAT_DIAMOND = 1000)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/xray
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_cat
+	id = "cybernetic_ears_cat"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_MATERIALS = 4)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/cat
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_u_cat
+	id = "cybernetic_ears_u_cat"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 5, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/cat/upgraded
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_whisper_cat
+	id = "cybernetic_ears_whisper_cat"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500, MAT_GOLD = 300)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/cat/whisper
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_volume_cat
+	id = "cybernetic_ears_volume_cat"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 6, RESEARCH_TREE_MATERIALS = 5, RESEARCH_TREE_ENGINEERING = 5)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 500, MAT_GLASS = 500, MAT_SILVER = 500, MAT_GOLD = 300)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/cat/volume
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
+/datum/design/cybernetic_ears_xray_cat
+	id = "cybernetic_ears_xray_cat"
+	req_tech = list(RESEARCH_TREE_BIOTECH = 7, RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_MAGNETS = 5, RESEARCH_TREE_PROGRAMMING = 4)
+	build_type = PROTOLATHE | MECHFAB
+	materials = list(MAT_METAL = 600, MAT_GLASS = 600, MAT_SILVER = 600, MAT_GOLD = 600, MAT_DIAMOND = 1000)
+	construction_time = 60
+	build_path = /obj/item/organ/internal/ears/cybernetic/cat/xray
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
 /datum/design/cybernetic_liver
 	id = "cybernetic_liver"
 	req_tech = list(RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_MATERIALS = 4)

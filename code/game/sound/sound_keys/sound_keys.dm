@@ -1070,3 +1070,11 @@
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh4.ogg',
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh5.ogg',
 	)
+
+/datum/sound_effect/can_open
+	key = SFX_CAN_OPEN
+	file_paths = list(
+		'sound/items/can/can_open1.ogg',
+		'sound/items/can/can_open2.ogg',
+		'sound/items/can/can_open3.ogg',
+	)

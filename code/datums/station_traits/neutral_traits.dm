@@ -216,3 +216,87 @@
 	show_in_report = TRUE
 	weight = 3
 	trait_to_give = STATION_TRAIT_GREEN_ENERGY
+
+#define PRO_SKUB "pro-skub"
+#define ANTI_SKUB "anti-skub"
+#define SKUB_IDFC "i don't frikkin' care"
+#define RANDOM_SKUB null
+
+/datum/station_trait/skub
+	name = "Великий скабовый раскол"
+	weight = 2
+	sign_up_button = TRUE
+	var/list/skubbers = list()
+
+/datum/station_trait/skub/New()
+	. = ..()
+	RegisterSignal(SSdcs, COMSIG_GLOB_JOB_AFTER_SPAWN, PROC_REF(on_job_after_spawn))
+
+/datum/station_trait/skub/setup_lobby_button(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button)
+	RegisterSignal(lobby_button, COMSIG_ATOM_UPDATE_OVERLAYS, PROC_REF(on_lobby_button_update_overlays))
+	lobby_button.desc = "Скаб: за, против, всё равно или наугад"
+	return ..()
+
+/datum/station_trait/skub/can_display_lobby_button(client/player)
+	return sign_up_button
+
+/datum/station_trait/skub/on_round_start()
+	return
+
+/datum/station_trait/skub/on_lobby_button_update_icon(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button, updates)
+	switch(skubbers[lobby_button.get_mob()?.ckey])
+		if(PRO_SKUB)
+			lobby_button.base_icon_state = "signup_on"
+		if(ANTI_SKUB)
+			lobby_button.base_icon_state = "signup"
+		else
+			lobby_button.base_icon_state = "signup_neutral"
+
+/datum/station_trait/skub/on_lobby_button_click(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button, location, control, params, mob/new_player/user)
+	var/player_ckey = user.ckey
+	switch(skubbers[player_ckey])
+		if(PRO_SKUB)
+			skubbers[player_ckey] = ANTI_SKUB
+			lobby_button.balloon_alert(user, "против скаба")
+		if(ANTI_SKUB)
+			skubbers[player_ckey] = SKUB_IDFC
+			lobby_button.balloon_alert(user, "всё равно")
+		if(SKUB_IDFC)
+			skubbers[player_ckey] = RANDOM_SKUB
+			lobby_button.balloon_alert(user, "на правильной стороне")
+		if(RANDOM_SKUB)
+			skubbers[player_ckey] = PRO_SKUB
+			lobby_button.balloon_alert(user, "за скаб")
+
+/datum/station_trait/skub/proc/on_lobby_button_update_overlays(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button, list/overlays)
+	SIGNAL_HANDLER
+	switch(skubbers[lobby_button.get_mob()?.ckey])
+		if(PRO_SKUB)
+			overlays += "pro_skub"
+		if(ANTI_SKUB)
+			overlays += "anti_skub"
+		if(SKUB_IDFC)
+			overlays += "neutral_skub"
+		if(RANDOM_SKUB)
+			overlays += "random_skub"
+
+/datum/station_trait/skub/proc/on_job_after_spawn(datum/source, datum/job/job, mob/living/spawned)
+	SIGNAL_HANDLER
+	var/skub_stance = skubbers[ckey(spawned.mind?.key)]
+	if(skub_stance == SKUB_IDFC)
+		return
+
+	var/pro_skub = (skub_stance == RANDOM_SKUB && prob(50)) || skub_stance == PRO_SKUB
+	var/obj/item/storage/box/stickers/fan_pack = pro_skub ? new /obj/item/storage/box/stickers/skub(spawned.loc) : new /obj/item/storage/box/stickers/anti_skub(spawned.loc)
+	if(!spawned.equip_to_slot_if_possible(fan_pack, ITEM_SLOT_BACKPACK, disable_warning = TRUE, initial = TRUE))
+		spawned.put_in_hands(fan_pack)
+	if(!ishuman(spawned))
+		return
+	var/obj/item/clothing/suit/wellworn_shirt_skub/shirt = pro_skub ? new /obj/item/clothing/suit/wellworn_shirt_skub(spawned.loc) : new /obj/item/clothing/suit/wellworn_shirt_skub/anti(spawned.loc)
+	if(!spawned.equip_to_slot_if_possible(shirt, ITEM_SLOT_CLOTH_OUTER, disable_warning = TRUE, initial = TRUE))
+		shirt.forceMove(fan_pack)
+
+#undef PRO_SKUB
+#undef ANTI_SKUB
+#undef SKUB_IDFC
+#undef RANDOM_SKUB

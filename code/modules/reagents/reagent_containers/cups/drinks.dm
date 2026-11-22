@@ -54,6 +54,10 @@
 	materials = list(MAT_GOLD=1000)
 	volume = 150
 
+/obj/item/reagent_containers/cup/glass/trophy/gold_cup/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/reagent_containers/cup/glass/trophy/silver_cup
 	name = "silver cup"
 	desc = "Best loser!"
@@ -64,6 +68,10 @@
 	amount_per_transfer_from_this = 15
 	materials = list(MAT_SILVER=800)
 	volume = 100
+
+/obj/item/reagent_containers/cup/glass/trophy/silver_cup/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
 
 /obj/item/reagent_containers/cup/glass/trophy/bronze_cup
 	name = "bronze cup"

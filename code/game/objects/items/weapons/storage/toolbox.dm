@@ -37,6 +37,7 @@
 
 /obj/item/storage/toolbox/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	AddElement(/datum/element/falling_hazard, damage = force, hardhat_safety = TRUE, crushes = FALSE, impact_sound = hitsound)
 
 /obj/item/storage/toolbox/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)

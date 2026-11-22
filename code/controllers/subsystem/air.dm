@@ -2,11 +2,12 @@
 #define SSAIR_PIPENETS 2
 #define SSAIR_ATMOSMACHINERY 3
 #define SSAIR_INTERESTING_TILES 4
-#define SSAIR_HOTSPOTS 5
-#define SSAIR_WINDY_TILES 6
-#define SSAIR_BOUND_MIXTURES 7
-#define SSAIR_PRESSURE_OVERLAY 8
-#define SSAIR_MILLA_TICK 9
+#define SSAIR_ATOMS 5
+#define SSAIR_HOTSPOTS 6
+#define SSAIR_WINDY_TILES 7
+#define SSAIR_BOUND_MIXTURES 8
+#define SSAIR_PRESSURE_OVERLAY 9
+#define SSAIR_MILLA_TICK 10
 
 SUBSYSTEM_DEF(air)
 	name = "Atmospherics"
@@ -52,6 +53,7 @@ SUBSYSTEM_DEF(air)
 	var/datum/resumable_cost_counter/cost_pipenets_to_build = new()
 	/// The cost of a pass through atmos machinery, shown in SS Info's C block as AM.
 	var/datum/resumable_cost_counter/cost_atmos_machinery = new()
+	var/datum/resumable_cost_counter/cost_atoms = new()
 	/// The cost of a pass through loading pressure tiles, shown in SS Info's C block as PT.
 	var/datum/resumable_cost_counter/cost_pressure_tiles = new()
 
@@ -75,6 +77,7 @@ SUBSYSTEM_DEF(air)
 	var/list/pipenets = list()
 	/// The set of active atmos machinery. Length shown in SS Info as AM.
 	var/list/atmos_machinery = list()
+	var/list/atom_process = list()
 	/// The set of tiles that are currently on fire.
 	var/list/hotspots
 	/// The set of tiles that are still on fire after this tick.
@@ -156,6 +159,7 @@ SUBSYSTEM_DEF(air)
 	msg += "PN:[cost_pipenets.to_string()]|"
 	msg += "PTB:[cost_pipenets_to_build.to_string()]|"
 	msg += "AM:[cost_atmos_machinery.to_string()]|"
+	msg += "AO:[cost_atoms.to_string()]|"
 	msg += "PT:[cost_pressure_tiles.to_string()]"
 	msg += "} "
 	msg += "BM:[original_bound_mixtures]+[added_bound_mixtures]|"
@@ -164,6 +168,7 @@ SUBSYSTEM_DEF(air)
 	msg += "WT:[windy_tile_count]|"
 	msg += "PN:[length(pipenets)]|"
 	msg += "AM:[length(atmos_machinery)]|"
+	msg += "AO:[length(atom_process)]|"
 	return msg.Join("")
 
 /datum/controller/subsystem/air/get_metrics()
@@ -193,6 +198,7 @@ SUBSYSTEM_DEF(air)
 	pipenets_to_build = SSair.pipenets_to_build
 	pipenets = SSair.pipenets
 	atmos_machinery = SSair.atmos_machinery
+	atom_process = SSair.atom_process
 	machinery_to_construct = SSair.machinery_to_construct
 	icon_manager = SSair.icon_manager
 	currentrun = SSair.currentrun
@@ -278,6 +284,19 @@ SUBSYSTEM_DEF(air)
 		process_interesting_tiles(resumed)
 
 		cost_interesting_tiles.record_progress(TICK_DELTA_TO_MS(TICK_USAGE_REAL - timer), state != SS_PAUSED && state != SS_PAUSING)
+		cost_full.record_progress(TICK_DELTA_TO_MS(TICK_USAGE_REAL - timer), FALSE)
+		if(state == SS_PAUSED || state == SS_PAUSING)
+			in_milla_safe_code = FALSE
+			return
+		resumed = 0
+		currentpart = SSAIR_ATOMS
+
+	if(currentpart == SSAIR_ATOMS)
+		timer = TICK_USAGE_REAL
+
+		process_atoms(resumed)
+
+		cost_atoms.record_progress(TICK_DELTA_TO_MS(TICK_USAGE_REAL - timer), state != SS_PAUSED && state != SS_PAUSING)
 		cost_full.record_progress(TICK_DELTA_TO_MS(TICK_USAGE_REAL - timer), FALSE)
 		if(state == SS_PAUSED || state == SS_PAUSING)
 			in_milla_safe_code = FALSE
@@ -546,7 +565,22 @@ SUBSYSTEM_DEF(air)
 				simulated_turf.wind_y = y_flow
 			turf.high_pressure_movements(x_flow, y_flow)
 
+		SEND_SIGNAL(turf, COMSIG_TURF_EXPOSE, turf.get_readonly_air(), currentrun[offset + MILLA_INDEX_TEMPERATURE])
+
 		currentrun.len -= MILLA_INTERESTING_TILE_SIZE
+		if(MC_TICK_CHECK)
+			return
+
+/datum/controller/subsystem/air/proc/process_atoms(resumed = 0)
+	if(!resumed)
+		src.currentrun = atom_process.Copy()
+	var/list/currentrun = src.currentrun
+	while(length(currentrun))
+		var/atom/talk_to = currentrun[length(currentrun)]
+		currentrun.len--
+		if(!talk_to)
+			return
+		talk_to.process_exposure()
 		if(MC_TICK_CHECK)
 			return
 
@@ -1079,6 +1113,7 @@ SUBSYSTEM_DEF(air)
 #undef SSAIR_PIPENETS
 #undef SSAIR_ATMOSMACHINERY
 #undef SSAIR_INTERESTING_TILES
+#undef SSAIR_ATOMS
 #undef SSAIR_HOTSPOTS
 #undef SSAIR_WINDY_TILES
 #undef SSAIR_BOUND_MIXTURES

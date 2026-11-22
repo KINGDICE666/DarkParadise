@@ -13,6 +13,7 @@
 
 /obj/item/toy/plushie/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	AddElement(/datum/element/update_icon_updates_onmob)
 	AddElement(/datum/element/bed_tuckable, mapload, 6, -4, 90)
 

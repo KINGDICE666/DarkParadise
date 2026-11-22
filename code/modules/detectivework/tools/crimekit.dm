@@ -6,6 +6,16 @@
 	icon_state = "case"
 	item_state = "case"
 
+/obj/item/storage/briefcase/crimekit/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор криминалиста",
+		GENITIVE = "набора криминалиста",
+		DATIVE = "набору криминалиста",
+		ACCUSATIVE = "набор криминалиста",
+		INSTRUMENTAL = "набором криминалиста",
+		PREPOSITIONAL = "наборе криминалиста",
+	)
+
 /obj/item/storage/briefcase/crimekit/populate_contents()
 	new /obj/item/storage/box/swabs(src)
 	new /obj/item/storage/box/fingerprints(src)

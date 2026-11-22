@@ -9,6 +9,7 @@
 /// Trait that determines, if object under floor.
 #define TRAIT_UNDERFLOOR "underfloor"
 #define TRAIT_LOGISTICS_COMPATIBLE "logistics_compatible"
+#define TRAIT_STICKERED "stickered"
 
 /// Weather immunities, also protect mobs inside them.
 #define TRAIT_LAVA_IMMUNE "lava_immune" //Used by lava turfs and The Floor Is Lava.
@@ -327,6 +328,7 @@
 #define TRAIT_NOHARDCRIT "nohardcrit"
 #define TRAIT_SMALL_MOB "small_mob"
 #define TRAIT_GOOD_HEARING "good_hearing"
+#define TRAIT_XRAY_HEARING "xray_hearing"
 #define TRAIT_ABDUCTOR_HIVEMIND "abductor_hivemind"
 #define TRAIT_BORER_HIVEMIND "borer_hivemind"
 #define TRAIT_CHANGELING_HIVEMIND "changeling_hivemind"

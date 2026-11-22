@@ -535,6 +535,7 @@ GAME_VERB_SRC(/obj/item/reagent_containers/cup/beaker, remove_assembly, usr, "О
 
 /obj/item/reagent_containers/cup/bucket/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	if(!color && paintable)
 		color = "#0085E5"
 	update_icon(UPDATE_OVERLAYS) //in case bucket's color has been changed in editor or by some deriving buckets

@@ -12,6 +12,10 @@
 	var/toggle = 1
 	origin_tech = "materials=1;engineering=1"
 
+/obj/item/transfer_valve/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/transfer_valve/Destroy()
 	QDEL_NULL(tank_one)
 	QDEL_NULL(tank_two)

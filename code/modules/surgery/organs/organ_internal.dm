@@ -9,6 +9,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 	w_class = WEIGHT_CLASS_SMALL
 	/// Unique slot this organ occupies. See [combat.dm] for defines. DO NOT add slots with matching names to different zones - it will break internal_organs_slot list!
 	var/slot = NONE
+	var/list/organ_traits
 	/// Whether it shows up as an option to remove during surgery.
 	var/unremovable = FALSE
 	var/can_see_food = FALSE
@@ -102,6 +103,9 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 	if(vital)
 		target.update_stat("Vital organ inserted")
 
+	if(organ_traits)
+		target.add_traits(organ_traits, UNIQUE_TRAIT_SOURCE(src))
+
 	SEND_SIGNAL(src, COMSIG_ORGAN_IMPLANTED, target)
 
 	STOP_PROCESSING(SSobj, src)
@@ -145,6 +149,9 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 
 	for(var/datum/action/action as anything in actions)
 		action.Remove(organ_owner)
+
+	if(organ_traits)
+		organ_owner.remove_traits(organ_traits, UNIQUE_TRAIT_SOURCE(src))
 
 	if(send_signal)
 		SEND_SIGNAL(organ_owner, COMSIG_CARBON_LOSE_ORGAN, src)

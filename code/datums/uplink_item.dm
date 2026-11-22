@@ -2492,6 +2492,12 @@
 	item = /obj/item/ecig/syndi
 	cost = 3
 
+/datum/uplink_item/badass/stickers
+	name = "Набор наклеек \"Синдиката\""
+	desc = "Содержит 8 случайных наклеек, искусно сделанных под подозрительные предметы. Возможно, ими удастся одурачить экипаж."
+	item = /obj/item/storage/box/stickers/syndie_kit
+	cost = 1
+
 /datum/uplink_item/badass/syndiecards
 	name = "Игральные карты \"Синдиката\""
 	desc = "У них очень острые края, поэтому во время игры можно легко пораниться. Обычные игральные карты."
