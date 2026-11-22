@@ -54,6 +54,17 @@
 	drink_desc = "Освежающая пинта пива."
 	taste_description = "пива"
 
+/datum/reagent/consumable/ethanol/rice_beer
+	name = "Рисовое пиво"
+	id = "rice_beer"
+	description = "Лёгкое рисовое лагерное пиво, популярное на Марсе. По Закону о чистоте пива 1516 года считается преступлением против баварцев."
+	color = "#664300"
+	alcohol_perc = 0.04
+	drink_icon = "rice_beer"
+	drink_name = "стакан рисового пива"
+	drink_desc = "Стакан лёгкого рисового пива. Лучше всего пить холодным."
+	taste_description = "мягкого газированного солода"
+
 /datum/reagent/consumable/ethanol/cider
 	name = "Сидр"
 	id = "cider"

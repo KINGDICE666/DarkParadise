@@ -882,7 +882,8 @@
 /atom/movable/Bump(atom/bumped_atom)
 	if(!bumped_atom)
 		CRASH("Bump was called with no argument.")
-	SEND_SIGNAL(src, COMSIG_MOVABLE_BUMP, bumped_atom)
+	if(SEND_SIGNAL(src, COMSIG_MOVABLE_BUMP, bumped_atom) & COMPONENT_INTERCEPT_BUMPED)
+		return TRUE
 	. = ..()
 	if(!QDELETED(throwing))
 		throwing.finalize(bumped_atom)

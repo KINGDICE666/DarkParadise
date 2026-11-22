@@ -5384,6 +5384,24 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	contains += pick(subtypesof(/obj/item/book/manual))
 	..()
 
+/datum/supply_packs/misc/stickers
+	name = "Наборы наклеек"
+	contains = list(
+		/obj/item/storage/box/stickers,
+		/obj/item/storage/box/stickers,
+		/obj/item/storage/box/stickers/googly,
+	)
+	cost = 300
+	containername = "ящик с наклейками"
+	container_ru_names = alist(
+		NOMINATIVE = "ящик с наклейками",
+		GENITIVE = "ящика с наклейками",
+		DATIVE = "ящику с наклейками",
+		ACCUSATIVE = "ящик с наклейками",
+		INSTRUMENTAL = "ящиком с наклейками",
+		PREPOSITIONAL = "ящике с наклейками",
+	)
+
 /datum/supply_packs/misc/tape
 	name = "Скотч"
 	contains = list(

@@ -62,7 +62,7 @@
 				to_chat(user, span_warning("The [can.name] is incompatible."))
 				return ATTACK_CHAIN_PROCEED
 			//This prevents us from using opened cans that still have something in them
-			if(can.canopened && can.reagents.total_volume)
+			if(can.is_drainable() && can.reagents.total_volume)
 				to_chat(user, span_warning("Only unopened cans and bottles can be processed to ensure product integrity."))
 				return ATTACK_CHAIN_PROCEED
 			if(!user.drop_transfer_item_to_loc(can, src))
@@ -251,7 +251,6 @@
 	if(containers[con_type])
 		//empties aren't sealed, so let's open it quietly
 		drink_container = new drink_container()
-		drink_container.canopened = TRUE
 		drink_container.container_type |= OPENCONTAINER
 		drink_container.forceMove(loc)
 		containers[con_type]--
