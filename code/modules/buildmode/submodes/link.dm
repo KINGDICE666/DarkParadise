@@ -1,17 +1,28 @@
-/obj/effect/portal/rick/buildmode
-	force_teleport = TRUE
-	ignore_tele_proof_area_setting = TRUE
-
 /datum/buildmode_mode/link
 	key = "link"
 
 	var/list/link_lines = list()
 	var/obj/link_obj
 	var/datum/weakref/pending_portal_ref
-	var/portal_color
+	var/datum/weakref/preview_portal_ref
+	var/datum/buildmode_portal_settings/portal_defaults
+	var/datum/buildmode_portal_settings/portal_clipboard
+	var/datum/weakref/editing_portal_ref
+
+/datum/buildmode_mode/link/New()
+	portal_defaults = new
+	return ..()
 
 /datum/buildmode_mode/link/proc/clear_lines()
+	var/obj/effect/portal/rick/buildmode/preview_portal = preview_portal_ref?.resolve()
+	if(preview_portal)
+		UnregisterSignal(preview_portal, COMSIG_QDELETING)
+	preview_portal_ref = null
 	QDEL_LIST(link_lines)
+
+/datum/buildmode_mode/link/proc/on_preview_portal_deleted()
+	SIGNAL_HANDLER
+	clear_lines()
 
 /datum/buildmode_mode/link/proc/form_connection(atom/source, atom/dest, valid)
 	var/obj/effect/buildmode_line/L = new(get_turf(source), BM.holder, source, dest, "[source.name] to [dest.name]")
@@ -22,15 +33,19 @@
 	link_lines += L2
 
 /datum/buildmode_mode/link/Destroy()
-	clear_lines()
-	link_obj = null
-	pending_portal_ref = null
+	SStgui.close_uis(src)
+	QDEL_NULL(portal_defaults)
+	QDEL_NULL(portal_clipboard)
 	return ..()
 
 /datum/buildmode_mode/link/Reset()
 	clear_lines()
 	link_obj = null
+	var/obj/effect/portal/rick/buildmode/pending_portal = pending_portal_ref?.resolve()
+	if(pending_portal && !pending_portal.target)
+		qdel(pending_portal)
 	pending_portal_ref = null
+	editing_portal_ref = null
 	..()
 
 /datum/buildmode_mode/link/show_help(mob/user)
@@ -39,73 +54,74 @@
 		[span_bold("Link/unlink to selected button")] -> Right Mouse Button on obj\n\
 		[span_bold("Open portal / open linked exit")] -> Left Mouse Button on turf\n\
 		[span_bold("Open portal to an area")] -> Ctrl + Left Mouse Button on turf\n\
-		[span_bold("Close portal pair")] -> Right Mouse Button on portal\n\
-		[span_bold("Portal color")] -> Right Mouse Button on buildmode button"))
+		[span_bold("Edit, copy, paste, or close a portal")] -> Right Mouse Button on portal\n\
+		[span_bold("Close portal pair immediately")] -> Shift + Right Mouse Button on portal\n\
+		[span_bold("Settings for new portals")] -> Right Mouse Button on buildmode button"))
 	)
 
 /datum/buildmode_mode/link/change_settings(mob/user)
-	var/new_color = tgui_input_color(user, "Portal color", "Buildmode", portal_color || "#43F45B")
-	if(new_color)
-		portal_color = new_color
+	editing_portal_ref = null
+	ui_interact(user)
 
 /datum/buildmode_mode/link/proc/open_portal(mob/user, turf/portal_turf, turf/target_turf)
 	if(locate(/obj/effect/portal) in portal_turf)
 		to_chat(user, span_warning("There is already a portal at [AREACOORD(portal_turf)]."))
 		return
-	var/obj/effect/portal/portal = new /obj/effect/portal/rick/buildmode(portal_turf, target_turf, null, 0, user, FALSE)
-	if(portal_color)
-		portal.color = portal_color
-		portal.set_light_color(portal_color)
+	var/obj/effect/portal/rick/buildmode/portal = new(portal_turf, target_turf, null, 0, user, FALSE, portal_defaults)
 	log_admin("Build Mode: [key_name(user)] opened a portal at [AREACOORD(portal_turf)][target_turf ? " leading to [AREACOORD(target_turf)]" : ""]")
 	return portal
 
-/datum/buildmode_mode/link/proc/link_portals(mob/user, obj/effect/portal/entrance, turf/exit_turf)
-	var/obj/effect/portal/exit = open_portal(user, exit_turf, get_turf(entrance))
+/datum/buildmode_mode/link/proc/link_portals(mob/user, obj/effect/portal/rick/buildmode/entrance, turf/exit_turf)
+	var/obj/effect/portal/rick/buildmode/exit = open_portal(user, exit_turf, get_turf(entrance))
 	if(!exit)
 		pending_portal_ref = WEAKREF(entrance)
 		return
 	entrance.target = exit_turf
+	entrance.partner_ref = WEAKREF(exit)
+	exit.partner_ref = WEAKREF(entrance)
+	entrance.restart_lifespan()
+	exit.restart_lifespan()
 	clear_lines()
 	form_connection(entrance, exit, TRUE)
+	preview_portal_ref = WEAKREF(entrance)
+	RegisterSignal(entrance, COMSIG_QDELETING, PROC_REF(on_preview_portal_deleted))
 
-/datum/buildmode_mode/link/proc/close_portal(mob/user, obj/effect/portal/portal)
-	var/turf/portal_turf = get_turf(portal)
-	var/turf/exit_turf = portal.target
-	if(exit_turf)
-		for(var/obj/effect/portal/partner in exit_turf)
-			if(partner.target == portal_turf)
-				qdel(partner)
-	log_admin("Build Mode: [key_name(user)] closed a portal at [AREACOORD(portal_turf)]")
+/datum/buildmode_mode/link/proc/close_portal(mob/user, obj/effect/portal/rick/buildmode/portal)
+	log_admin("Build Mode: [key_name(user)] closed a portal at [AREACOORD(portal)]")
 	qdel(portal)
 	clear_lines()
 
 /datum/buildmode_mode/link/proc/handle_portal_click(mob/user, atom/object, list/modifiers)
 	if(LAZYACCESS(modifiers, RIGHT_CLICK))
 		if(istype(object, /obj/effect/portal/rick/buildmode))
-			close_portal(user, object)
+			if(LAZYACCESS(modifiers, SHIFT_CLICK))
+				close_portal(user, object)
+			else
+				editing_portal_ref = WEAKREF(object)
+				ui_interact(user)
 		return
 	var/turf/clicked_turf = get_turf(object)
 	if(!clicked_turf || !LAZYACCESS(modifiers, LEFT_CLICK))
 		return
 	if(LAZYACCESS(modifiers, CTRL_CLICK))
 		var/area/destination_area = tgui_input_list(user, "Area the portal leads to", "Buildmode", get_sorted_areas())
-		if(!destination_area)
+		if(!destination_area || QDELETED(src) || QDELETED(clicked_turf))
 			return
 		for(var/turf/candidate as anything in shuffle(destination_area.get_turfs_from_all_zlevels()))
 			if(candidate.density || candidate == clicked_turf || (locate(/obj/effect/portal) in candidate))
 				continue
-			var/obj/effect/portal/area_entrance = open_portal(user, clicked_turf)
+			var/obj/effect/portal/rick/buildmode/area_entrance = open_portal(user, clicked_turf)
 			if(area_entrance)
 				link_portals(user, area_entrance, candidate)
 			return
 		to_chat(user, span_warning("No free turf in [destination_area]."))
 		return
-	var/obj/effect/portal/pending_portal = pending_portal_ref?.resolve()
+	var/obj/effect/portal/rick/buildmode/pending_portal = pending_portal_ref?.resolve()
 	if(pending_portal)
 		pending_portal_ref = null
 		link_portals(user, pending_portal, clicked_turf)
 		return
-	var/obj/effect/portal/entrance = open_portal(user, clicked_turf)
+	var/obj/effect/portal/rick/buildmode/entrance = open_portal(user, clicked_turf)
 	if(entrance)
 		pending_portal_ref = WEAKREF(entrance)
 		to_chat(user, span_notice("Portal opened at [AREACOORD(clicked_turf)]. Left click another turf to open its exit."))
