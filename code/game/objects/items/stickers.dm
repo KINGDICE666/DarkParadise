@@ -554,6 +554,63 @@
 	for(var/i in 1 to 3)
 		new /obj/item/sticker/chief_engineer(src)
 
+/obj/item/storage/box/stickers/skub
+	name = "skub fan pack"
+	desc = "Виниловый мешочек для вашего скаба и футболки за скаб. На обороте надпись: «Скаб-прилив по всей станции»."
+	icon_state = "skubpack"
+	illustration = "label_skub"
+	w_class = WEIGHT_CLASS_SMALL
+	storage_slots = 3
+	can_hold = list(
+		/obj/item/sticker,
+		/obj/item/skub,
+		/obj/item/clothing/suit/wellworn_shirt_skub,
+	)
+	w_class_override = list(
+		/obj/item/skub,
+		/obj/item/clothing/suit/wellworn_shirt_skub,
+	)
+
+/obj/item/storage/box/stickers/skub/get_ru_names()
+	return alist(
+		NOMINATIVE = "фанатский набор скаба",
+		GENITIVE = "фанатского набора скаба",
+		DATIVE = "фанатскому набору скаба",
+		ACCUSATIVE = "фанатский набор скаба",
+		INSTRUMENTAL = "фанатским набором скаба",
+		PREPOSITIONAL = "фанатском наборе скаба",
+	)
+
+/obj/item/storage/box/stickers/skub/populate_contents()
+	new /obj/item/skub(src)
+	new /obj/item/sticker/skub(src)
+	new /obj/item/sticker/skub(src)
+
+/obj/item/storage/box/stickers/anti_skub
+	name = "anti-skub stickers pack"
+	desc = "Врагу, может, и достались скаб с футболкой, зато у меня больше наклеек! А ещё в набор влезает моя футболка против скаба."
+	icon_state = "skubpack"
+	illustration = "label_anti_skub"
+	can_hold = list(
+		/obj/item/sticker,
+		/obj/item/clothing/suit/wellworn_shirt_skub,
+	)
+	w_class_override = list(/obj/item/clothing/suit/wellworn_shirt_skub)
+
+/obj/item/storage/box/stickers/anti_skub/get_ru_names()
+	return alist(
+		NOMINATIVE = "набор наклеек против скаба",
+		GENITIVE = "набора наклеек против скаба",
+		DATIVE = "набору наклеек против скаба",
+		ACCUSATIVE = "набор наклеек против скаба",
+		INSTRUMENTAL = "набором наклеек против скаба",
+		PREPOSITIONAL = "наборе наклеек против скаба",
+	)
+
+/obj/item/storage/box/stickers/anti_skub/populate_contents()
+	for(var/i in 1 to 4)
+		new /obj/item/sticker/anti_skub(src)
+
 /obj/item/storage/box/stickers/syndie_kit/populate_contents()
 	var/list/sticker_types = subtypesof(/obj/item/sticker/syndicate)
 	for(var/i in 1 to storage_slots)
@@ -578,4 +635,4 @@
 /obj/item/storage/box/purity_seal_box/populate_contents()
 	for(var/i in 1 to 4)
 		new /obj/item/sticker/purity_seal(src)
-		new /obj/item/sticker/purity_seal/purity_seal_2(src)
+	new /obj/item/sticker/purity_seal/purity_seal_2(src)

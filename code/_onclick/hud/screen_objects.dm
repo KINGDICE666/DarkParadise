@@ -87,6 +87,10 @@
 
 	set_new_hud(hud_owner = null)
 
+/atom/movable/screen/proc/get_mob()
+	RETURN_TYPE(/mob)
+	return hud?.mymob
+
 /atom/movable/screen/text
 	icon = null
 	icon_state = null

@@ -45,6 +45,7 @@
 
 /// job subsystem has spawned and equipped a new mob
 #define COMSIG_GLOB_JOB_AFTER_SPAWN "!job_after_spawn"
+#define COMSIG_GLOB_LOBBY_TRAIT_ADDED "!lobby_trait_added"
 
 ///Global signal sent when the player list grows. Called by [mob/add_to_player_list] (mob/player)
 #define COMSIG_GLOB_PLAYER_LOGIN "!player_login"

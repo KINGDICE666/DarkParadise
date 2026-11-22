@@ -199,6 +199,7 @@
 				/obj/item/twohanded/staff = 10,
 				/obj/item/toy/balloon = 10,
 				/obj/item/toy/balloon/long = 10,
+				/obj/item/skub = 1,
 			),
 		),
 	)

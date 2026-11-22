@@ -577,6 +577,39 @@
  * Misc
  */
 
+/obj/item/clothing/suit/wellworn_shirt_skub
+	name = "pro-skub shirt"
+	desc = "Поношенная, на удивление удобная футболка, провозглашающая вашу позицию за скаб. К чёрту антискабовцев."
+	icon_state = "wellworn_shirt_pro_skub"
+	item_state = "w_suit"
+	gender = FEMALE
+	body_parts_covered = UPPER_TORSO
+
+/obj/item/clothing/suit/wellworn_shirt_skub/get_ru_names()
+	return alist(
+		NOMINATIVE = "футболка за скаб",
+		GENITIVE = "футболки за скаб",
+		DATIVE = "футболке за скаб",
+		ACCUSATIVE = "футболку за скаб",
+		INSTRUMENTAL = "футболкой за скаб",
+		PREPOSITIONAL = "футболке за скаб",
+	)
+
+/obj/item/clothing/suit/wellworn_shirt_skub/anti
+	name = "anti-skub shirt"
+	desc = "Поношенная, на удивление удобная футболка, провозглашающая вашу позицию против скаба. К чёрту скабовцев."
+	icon_state = "wellworn_shirt_anti_skub"
+
+/obj/item/clothing/suit/wellworn_shirt_skub/anti/get_ru_names()
+	return alist(
+		NOMINATIVE = "футболка против скаба",
+		GENITIVE = "футболки против скаба",
+		DATIVE = "футболке против скаба",
+		ACCUSATIVE = "футболку против скаба",
+		INSTRUMENTAL = "футболкой против скаба",
+		PREPOSITIONAL = "футболке против скаба",
+	)
+
 //hoodies
 /obj/item/clothing/suit/hooded/hoodie
 	name = "black hoodie"
