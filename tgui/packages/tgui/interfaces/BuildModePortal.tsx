@@ -29,19 +29,19 @@ type PortalData = {
   limit: number;
   maxEntries: number;
   used: number | null;
-  countCharacters: boolean;
-  countAnimals: boolean;
-  countMechs: boolean;
-  countItems: boolean;
+  allowCharacters: boolean;
+  allowAnimals: boolean;
+  allowMechs: boolean;
+  allowItems: boolean;
   countCargo: boolean;
   bringDragged: boolean;
 };
 
-const entryFilters = [
-  ['Characters', 'countCharacters', 'count_characters'],
-  ['Animals', 'countAnimals', 'count_animals'],
-  ['Mechs', 'countMechs', 'count_mechs'],
-  ['Loose items', 'countItems', 'count_items'],
+const allowedTypes = [
+  ['Characters', 'allowCharacters', 'allow_characters'],
+  ['Animals', 'allowAnimals', 'allow_animals'],
+  ['Mechs', 'allowMechs', 'allow_mechs'],
+  ['Loose items', 'allowItems', 'allow_items'],
 ] as const;
 
 export function BuildModePortal() {
@@ -179,7 +179,7 @@ export function BuildModePortal() {
                 </Stack.Item>
               </Stack>
             </Section>
-            <Section title="Entry limit">
+            <Section title="Passage">
               <LabeledList>
                 <LabeledList.Item label="Close after">
                   <RestrictedInput
@@ -195,8 +195,8 @@ export function BuildModePortal() {
                       : 'Unlimited (0)'}
                   </Box>
                 </LabeledList.Item>
-                <LabeledList.Item label="Count">
-                  {entryFilters.map(([label, field, action]) => (
+                <LabeledList.Item label="Allow entry">
+                  {allowedTypes.map(([label, field, action]) => (
                     <Button.Checkbox
                       key={action}
                       checked={data[field]}
@@ -206,7 +206,8 @@ export function BuildModePortal() {
                     </Button.Checkbox>
                   ))}
                   <Box color="label">
-                    Unchecked types pass without using the limit.
+                    Only checked types can enter, even with an unlimited entry
+                    count.
                   </Box>
                 </LabeledList.Item>
                 <LabeledList.Item label="Cargo">

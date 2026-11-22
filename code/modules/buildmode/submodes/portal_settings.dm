@@ -12,10 +12,10 @@
 	var/duration = 0
 	/// Zero represents an unlimited number of entries.
 	var/limit = 0
-	var/count_characters = TRUE
-	var/count_animals = TRUE
-	var/count_mechs = TRUE
-	var/count_items = TRUE
+	var/allow_characters = TRUE
+	var/allow_animals = TRUE
+	var/allow_mechs = TRUE
+	var/allow_items = TRUE
 	var/count_cargo = FALSE
 	var/bring_dragged = FALSE
 	var/preview_sprite
@@ -48,21 +48,21 @@
 	effects = source.effects
 	duration = source.duration
 	limit = source.limit
-	count_characters = source.count_characters
-	count_animals = source.count_animals
-	count_mechs = source.count_mechs
-	count_items = source.count_items
+	allow_characters = source.allow_characters
+	allow_animals = source.allow_animals
+	allow_mechs = source.allow_mechs
+	allow_items = source.allow_items
 	count_cargo = source.count_cargo
 	bring_dragged = source.bring_dragged
 
-/datum/buildmode_portal_settings/proc/counts_entry(atom/movable/traveler)
+/datum/buildmode_portal_settings/proc/allows_entry(atom/movable/traveler)
 	if(isanimal(traveler))
-		return count_animals
+		return allow_animals
 	if(isliving(traveler))
-		return count_characters
+		return allow_characters
 	if(ismecha(traveler))
-		return count_mechs
-	return isitem(traveler) && count_items
+		return allow_mechs
+	return isitem(traveler) && allow_items
 
 /obj/effect/portal/rick/buildmode
 	force_teleport = TRUE
@@ -113,8 +113,11 @@
 	if(target && settings.duration)
 		lifespan_timer = QDEL_IN_STOPPABLE(src, settings.duration SECONDS)
 
+/obj/effect/portal/rick/buildmode/can_teleport(atom/movable/mover, silent = FALSE)
+	return ..() && settings?.allows_entry(mover)
+
 /obj/effect/portal/rick/buildmode/teleport(atom/movable/traveler)
-	if(traversing || !settings || !can_teleport(traveler))
+	if(traversing || !can_teleport(traveler))
 		return FALSE
 
 	var/mob/living/character = isliving(traveler) ? traveler : null
@@ -123,7 +126,7 @@
 		dragged = null
 	var/atom/drag_origin = dragged?.loc
 
-	var/cost = settings.counts_entry(traveler)
+	var/cost = 1
 	var/cargo_cost = 0
 	if(settings.count_cargo)
 		cost += length(character?.get_all_gear())
@@ -208,10 +211,10 @@
 		"duration" = settings.duration,
 		"limit" = settings.limit,
 		"used" = portal?.entries_used,
-		"countCharacters" = settings.count_characters,
-		"countAnimals" = settings.count_animals,
-		"countMechs" = settings.count_mechs,
-		"countItems" = settings.count_items,
+		"allowCharacters" = settings.allow_characters,
+		"allowAnimals" = settings.allow_animals,
+		"allowMechs" = settings.allow_mechs,
+		"allowItems" = settings.allow_items,
 		"countCargo" = settings.count_cargo,
 		"bringDragged" = settings.bring_dragged,
 	)
@@ -276,14 +279,14 @@
 			settings.instability = !settings.instability
 		if("effects")
 			settings.effects = !settings.effects
-		if("count_characters")
-			settings.count_characters = !settings.count_characters
-		if("count_animals")
-			settings.count_animals = !settings.count_animals
-		if("count_mechs")
-			settings.count_mechs = !settings.count_mechs
-		if("count_items")
-			settings.count_items = !settings.count_items
+		if("allow_characters")
+			settings.allow_characters = !settings.allow_characters
+		if("allow_animals")
+			settings.allow_animals = !settings.allow_animals
+		if("allow_mechs")
+			settings.allow_mechs = !settings.allow_mechs
+		if("allow_items")
+			settings.allow_items = !settings.allow_items
 		if("count_cargo")
 			settings.count_cargo = !settings.count_cargo
 		if("bring_dragged")
