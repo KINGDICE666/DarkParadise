@@ -102,6 +102,17 @@
 	bullet.prehit(mode.active_boss)
 	TEST_ASSERT(!bullet.nodamage, "A turret bullet stayed harmless after passing a defender.")
 
+	var/obj/item/flamethrower/full/tank/pve/flamer = allocate(/obj/item/flamethrower/full/tank/pve, get_turf(player))
+	var/fuel = flamer.ptank.air_contents.toxins()
+	var/boss_health = mode.active_boss.health
+	var/player_health = player.health
+	flamer.default_ignite(get_turf(mode.active_boss))
+	flamer.default_ignite(get_turf(player))
+	TEST_ASSERT(mode.active_boss.health < boss_health, "The flamethrower did not burn an enemy.")
+	TEST_ASSERT(mode.active_boss.has_status_effect(/datum/status_effect/pve_burning), "The flamethrower did not ignite an enemy.")
+	TEST_ASSERT_EQUAL(player.health, player_health, "The flamethrower burned a defender.")
+	TEST_ASSERT(flamer.ptank.air_contents.toxins() < fuel, "The flamethrower used no fuel.")
+
 	player.death()
 	mode.process()
 	TEST_ASSERT(mode.finished, "PvE did not end after all defenders died.")

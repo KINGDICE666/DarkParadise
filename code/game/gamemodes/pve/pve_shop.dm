@@ -136,9 +136,9 @@
 
 /datum/pve_product/weapon/flamethrower
 	title = "Огнемёт"
-	description = "Выжигает проход перед защитником. Осторожно со своими."
+	description = "Выжигает проход перед защитником. Поджигает тварей, своих не задевает."
 	price = 700
-	item_path = /obj/item/flamethrower/full/tank
+	item_path = /obj/item/flamethrower/full/tank/pve
 	class_only = PVE_CLASS_GUARDIAN
 
 /datum/pve_product/ammo
@@ -189,6 +189,13 @@
 	price = 150
 	item_path = /obj/item/ammo_box/magazine/sniper_rounds
 	class_only = PVE_CLASS_MARKSMAN
+
+/datum/pve_product/ammo/flamer_fuel
+	title = "Баллон плазмы"
+	description = "Заправка для огнемёта. Пустой баллон снимается Alt-кликом."
+	price = 120
+	item_path = /obj/item/tank/internals/plasma/full
+	class_only = PVE_CLASS_GUARDIAN
 
 /datum/pve_product/ammo/frag
 	title = "Осколочная граната"

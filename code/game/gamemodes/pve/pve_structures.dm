@@ -5,6 +5,10 @@
 #define PVE_MED_STATION_RANGE 2
 #define PVE_MED_STATION_HEAL 3
 #define PVE_MINE_DAMAGE 70
+#define PVE_FLAMER_FUEL_PER_TILE 0.15
+#define PVE_FLAMER_DAMAGE 6
+#define PVE_FLAMER_BURN_DAMAGE 3
+#define PVE_FLAMER_BURN_DURATION (4 SECONDS)
 
 /proc/get_pve_mode()
 	var/datum/game_mode/pve/mode = SSticker.mode
@@ -510,6 +514,54 @@
 	explosionSize = list(0, 0, 0, 0)
 	delays = list(POD_TRANSIT = 6 SECONDS, POD_FALLING = 2 SECONDS, POD_OPENING = 1 SECONDS, POD_LEAVING = 0)
 
+/obj/item/flamethrower/full/tank/pve
+	desc = "Огнемёт защитника. Пламя цепляется только за тварей тумана."
+
+/obj/item/flamethrower/full/tank/pve/get_ru_names()
+	return alist(
+		NOMINATIVE = "огнемёт",
+		GENITIVE = "огнемёта",
+		DATIVE = "огнемёту",
+		ACCUSATIVE = "огнемёт",
+		INSTRUMENTAL = "огнемётом",
+		PREPOSITIONAL = "огнемёте",
+	)
+
+/obj/item/flamethrower/full/tank/pve/default_ignite(turf/target, release_amount = 0.05)
+	if(!ptank || ptank.air_contents.toxins() < PVE_FLAMER_FUEL_PER_TILE)
+		return
+	ptank.air_contents.remove(PVE_FLAMER_FUEL_PER_TILE)
+	new /obj/effect/temp_visual/fire(target)
+	var/mob/living/shooter = loc
+	for(var/mob/living/simple_animal/hostile/pve/enemy in target)
+		if(enemy.stat == DEAD)
+			continue
+		if(istype(shooter))
+			enemy.note_attacker(shooter)
+		enemy.apply_damage(PVE_FLAMER_DAMAGE, BURN)
+		enemy.apply_status_effect(/datum/status_effect/pve_burning)
+
+/datum/status_effect/pve_burning
+	id = "pve_burning"
+	duration = PVE_FLAMER_BURN_DURATION
+	tick_interval = 1 SECONDS
+	status_type = STATUS_EFFECT_REFRESH
+	alert_type = null
+	var/static/mutable_appearance/fire_overlay = mutable_appearance('icons/mob/OnFire.dmi', "human_generic_burn")
+
+/datum/status_effect/pve_burning/on_apply()
+	owner.add_overlay(fire_overlay)
+	return TRUE
+
+/datum/status_effect/pve_burning/on_remove()
+	owner.cut_overlay(fire_overlay)
+
+/datum/status_effect/pve_burning/tick(seconds_between_ticks)
+	if(owner.stat == DEAD)
+		qdel(src)
+		return
+	owner.apply_damage(PVE_FLAMER_BURN_DAMAGE, BURN)
+
 /obj/item/paper/pve_guide
 	name = "defense briefing"
 	info = {"<center><h2>Оборона Маяка</h2></center>
@@ -538,3 +590,7 @@
 #undef PVE_MED_STATION_RANGE
 #undef PVE_MED_STATION_HEAL
 #undef PVE_MINE_DAMAGE
+#undef PVE_FLAMER_FUEL_PER_TILE
+#undef PVE_FLAMER_DAMAGE
+#undef PVE_FLAMER_BURN_DAMAGE
+#undef PVE_FLAMER_BURN_DURATION
