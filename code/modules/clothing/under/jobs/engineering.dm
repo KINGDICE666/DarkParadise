@@ -50,6 +50,8 @@
 	resistance_flags = NONE
 
 /obj/item/clothing/under/rank/engineer/sensor
+	sensor_mode = SENSOR_COORDS
+	random_sensor = FALSE
 
 /obj/item/clothing/under/rank/engineer/trainee
 	name = "engineer trainee jumpsuit"

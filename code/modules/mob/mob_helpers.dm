@@ -86,8 +86,13 @@
 	var/mob/living/carbon/human/H = A
 	if(!istype(H))
 		return SUIT_SENSOR_OFF
+	. = SUIT_SENSOR_OFF
+	var/obj/item/clothing/under/uniform = H.w_uniform
+	if(istype(uniform) && uniform.has_sensor)
+		. = uniform.sensor_mode
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = H.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
-	return (adapter && !adapter.blocked) ? adapter.sensor_mode : SUIT_SENSOR_OFF
+	if(adapter?.telemetry && !adapter.blocked)
+		. = max(., adapter.sensor_mode)
 
 /proc/offer_control(mob/offer_mob, hours, hide_role)
 	if(HAS_TRAIT(offer_mob, TRAIT_BEING_OFFERED))

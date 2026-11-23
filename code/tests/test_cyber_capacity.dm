@@ -108,6 +108,11 @@
 
 /datum/unit_test/room_test/cyber_capacity/proc/check_sensors()
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/adapter = patient.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	TEST_ASSERT(!adapter.set_ripper_setting("sensors", "Полный мониторинг"), "sensor setting worked without a telemetry chip")
+	TEST_ASSERT(!hassensorlevel(patient, SUIT_SENSOR_BINARY), "neuroadapter reports sensors without a telemetry chip")
+	var/obj/item/neuro_telemetry_chip/chip = allocate(/obj/item/neuro_telemetry_chip)
+	patient.put_in_hands(chip)
+	TEST_ASSERT(adapter.install_telemetry(chip), "telemetry chip was not plugged in")
 	TEST_ASSERT(adapter.set_ripper_setting("sensors", "Полный мониторинг"), "sensor setting was rejected")
 	TEST_ASSERT(hassensorlevel(patient, SUIT_SENSOR_TRACKING), "neuroadapter sensors are not read")
 	TEST_ASSERT(adapter.can_switch_sensors(), "sensors cannot be switched by a healthy owner")

@@ -7,6 +7,7 @@
 #define NEURO_LOG_LIMIT 6
 #define NEURO_REBOOT_TIME (20 SECONDS)
 #define NEURO_DECK_INSTALL_TIME (2 SECONDS)
+#define NEURO_TELEMETRY_INSTALL_TIME (3 SECONDS)
 #define NEURO_SENSOR_EMP_LOCK (30 SECONDS)
 #define NEURO_BOT_HACK_TIME (5 SECONDS)
 #define NEURO_BREACH_TIME (3 SECONDS)
@@ -237,7 +238,7 @@
 
 /obj/item/cyberdeck_module/cyberware
 	name = "implant access module"
-	desc = "Модуль служебного доступа к чужим имплантам. Читает список кибернетики, включает полный мониторинг датчиков и глушит импланты короткой перезагрузкой."
+	desc = "Модуль служебного доступа к чужим имплантам. Читает список кибернетики, включает полную телеметрию у носителей телеметрического чипа и глушит импланты короткой перезагрузкой."
 	icon_state = "module_security"
 	color = "#5EF6FF"
 	origin_tech = "programming=6;biotech=5;magnets=5"
@@ -253,6 +254,41 @@
 		INSTRUMENTAL = "модулем доступа к имплантам",
 		PREPOSITIONAL = "модуле доступа к имплантам",
 	)
+
+/obj/item/neuro_telemetry_chip
+	name = "Pulse-Link telemetry chip"
+	desc = "Телеметрический чип «Пульс-Линк». Вставляется в порт нейроадаптера и транслирует показатели носителя на консоли мониторинга экипажа прямо из мозга — без комбинезона и без шансов, что датчики с вас сорвут. Режим выбирается на панели нейроадаптера."
+	icon = 'icons/obj/module.dmi'
+	icon_state = "card_mini"
+	color = "#FF3B6B"
+	w_class = WEIGHT_CLASS_TINY
+	origin_tech = "programming=4;biotech=4;magnets=3"
+
+/obj/item/neuro_telemetry_chip/get_ru_names()
+	return alist(
+		NOMINATIVE = "телеметрический чип",
+		GENITIVE = "телеметрического чипа",
+		DATIVE = "телеметрическому чипу",
+		ACCUSATIVE = "телеметрический чип",
+		INSTRUMENTAL = "телеметрическим чипом",
+		PREPOSITIONAL = "телеметрическом чипе",
+	)
+
+/obj/item/neuro_telemetry_chip/attack_self(mob/user)
+	if(!ishuman(user))
+		return
+	var/mob/living/carbon/human/wearer = user
+	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/neuro = wearer.get_organ_slot(INTERNAL_ORGAN_BRAIN_NEURO)
+	if(!neuro)
+		balloon_alert(user, "нет нейроадаптера!")
+		return
+	if(neuro.telemetry)
+		balloon_alert(user, "чип уже стоит!")
+		return
+	balloon_alert(user, "прошивка телеметрии...")
+	if(!do_after(user, NEURO_TELEMETRY_INSTALL_TIME, user) || neuro.owner != user || loc != user || neuro.telemetry)
+		return
+	neuro.install_telemetry(src)
 
 /obj/item/cyberdeck
 	name = "cyberdeck"
@@ -410,14 +446,14 @@
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface
 	name = "neuroadapter implant"
-	desc = "Стандартный нейроадаптер экипажа. Передаёт показатели носителя на консоли мониторинга, служит портом для чипов киберсовместимости и имеет разъём под кибердек."
+	desc = "Стандартный нейроадаптер экипажа. Служит портом для чипов киберсовместимости и телеметрии и имеет разъём под кибердек."
 	implant_color = "#FCEE0A"
 	slot = INTERNAL_ORGAN_BRAIN_NEURO
 	cyber_cost = 0
 	origin_tech = "materials=4;programming=5;biotech=4;magnets=4"
 	actions_types = list(/datum/action/item_action/organ_action/augment/neuro_panel)
 	ignore_cybernetic_restrictions = TRUE
-	var/sensor_mode = SUIT_SENSOR_OFF
+	var/sensor_mode = SUIT_SENSOR_TRACKING
 	var/static/list/sensor_modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
 	var/static/alist/sensor_messages = alist(
 		SUIT_SENSOR_OFF = "Вы отключаете датчики нейроадаптера.",
@@ -427,6 +463,7 @@
 	)
 	var/static/list/deck_action_types = list(/datum/action/item_action/organ_action/augment/neuro_link)
 	var/obj/item/cyberdeck/deck
+	var/obj/item/neuro_telemetry_chip/telemetry
 	var/list/atom/movable/linked_devices = list()
 	// Цель взлома => list("start" = время начала, "end" = время конца), нужно для полосы прогресса на панели
 	var/list/atom/movable/running_hacks = list()
@@ -484,10 +521,6 @@
 		PREPOSITIONAL = "нейроадаптере",
 	)
 
-/obj/item/organ/internal/cyberimp/brain/neuro_interface/Initialize(mapload)
-	. = ..()
-	sensor_mode = rand(SUIT_SENSOR_OFF, SUIT_SENSOR_TRACKING)
-
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(.)
@@ -495,12 +528,15 @@
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/examine(mob/user)
 	. = ..()
-	. += span_notice("Датчики: [sensor_modes[sensor_mode + 1]].")
+	if(telemetry)
+		. += span_notice("Телеметрия: [sensor_modes[sensor_mode + 1]].")
 	if(deck)
 		. += span_notice("Подключён [deck.declent_ru(NOMINATIVE)].")
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/get_ripper_settings()
 	. = ..()
+	if(!telemetry)
+		return
 	. += list(list(
 		"id" = "sensors",
 		"name" = "Режим датчиков",
@@ -510,7 +546,7 @@
 	))
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/set_ripper_setting(setting, value)
-	if(setting != "sensors" || !(value in sensor_modes))
+	if(setting != "sensors" || !telemetry || !(value in sensor_modes))
 		return ..()
 	sensor_mode = sensor_modes.Find(value) - 1
 	owner?.update_suit_sensors()
@@ -540,6 +576,7 @@
 	SStgui.close_uis(src)
 	clear_links()
 	QDEL_NULL(deck)
+	QDEL_NULL(telemetry)
 	return ..()
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/remove(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
@@ -853,6 +890,25 @@
 	owner.balloon_alert(owner, "кибердек подключён")
 	owner.playsound_local(get_turf(owner), 'sound/machines/ping.ogg', 40, FALSE)
 	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/install_telemetry(obj/item/neuro_telemetry_chip/chip)
+	if(!owner.drop_transfer_item_to_loc(chip, src))
+		return FALSE
+	telemetry = chip
+	owner.update_suit_sensors()
+	log_event("Телеметрия подключена")
+	owner.balloon_alert(owner, "телеметрия в сети")
+	owner.playsound_local(get_turf(owner), 'sound/machines/ping.ogg', 40, FALSE)
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/eject_telemetry()
+	if(!telemetry)
+		return
+	var/obj/item/neuro_telemetry_chip/old_chip = telemetry
+	telemetry = null
+	owner.update_suit_sensors()
+	old_chip.forceMove(get_turf(owner))
+	owner.put_in_hands(old_chip)
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/eject_deck()
 	if(!deck)
@@ -1661,6 +1717,7 @@
 		"hacks" = hacks,
 		"nearby" = deck ? nearby_devices() : list(),
 		"log" = event_log,
+		"telemetry" = !!telemetry,
 		"sensor_mode" = sensor_modes[sensor_mode + 1],
 		"sensor_modes" = sensor_modes,
 	)
@@ -1811,6 +1868,9 @@
 	var/obj/item/organ/internal/cyberimp/brain/neuro_interface/victim_neuro = get_victim_neuro(victim)
 	if(!victim_neuro)
 		return FALSE
+	if(!victim_neuro.telemetry)
+		neuro_alert("нет телеметрии!")
+		return FALSE
 	victim_neuro.sensor_mode = SUIT_SENSOR_TRACKING
 	COOLDOWN_START(victim_neuro, sensor_emp_lock, NEURO_SENSOR_HACK_LOCK)
 	victim.update_suit_sensors()
@@ -1864,7 +1924,7 @@
 		return
 	switch(action)
 		if("set_sensors")
-			if(!(params["mode"] in sensor_modes) || !can_switch_sensors())
+			if(!telemetry || !(params["mode"] in sensor_modes) || !can_switch_sensors())
 				return
 			sensor_mode = sensor_modes.Find(params["mode"]) - 1
 			to_chat(owner, span_notice(sensor_messages[sensor_mode]))
@@ -1877,6 +1937,11 @@
 			return TRUE
 		if("eject_deck")
 			eject_deck()
+			return TRUE
+		if("eject_telemetry")
+			if(!can_switch_sensors())
+				return
+			eject_telemetry()
 			return TRUE
 		if("eject_module")
 			if(!deck)
@@ -1917,6 +1982,7 @@
 #undef NEURO_LOG_LIMIT
 #undef NEURO_REBOOT_TIME
 #undef NEURO_DECK_INSTALL_TIME
+#undef NEURO_TELEMETRY_INSTALL_TIME
 #undef NEURO_SENSOR_EMP_LOCK
 #undef NEURO_BOT_HACK_TIME
 #undef NEURO_BREACH_TIME

@@ -691,6 +691,15 @@
 	build_path = /obj/item/organ/internal/cyberimp/brain/neuro_interface
 	category = list(PROTOLATHE_CATEGORY_MEDICAL)
 
+/datum/design/neuro_telemetry_chip
+	id = "neuro-telemetry"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 4, RESEARCH_TREE_BIOTECH = 4, RESEARCH_TREE_MAGNETS = 3)
+	build_type = PROTOLATHE | MECHFAB
+	construction_time = 50
+	materials = list(MAT_METAL = 300, MAT_GLASS = 500, MAT_SILVER = 200)
+	build_path = /obj/item/neuro_telemetry_chip
+	category = list(PROTOLATHE_CATEGORY_MEDICAL)
+
 /datum/design/cyberdeck_standard
 	id = "cyberdeck-standard"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 6, RESEARCH_TREE_MATERIALS = 6)

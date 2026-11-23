@@ -94,6 +94,7 @@ type Data = {
   hacks: Hack[];
   nearby: NearbyDevice[];
   log: LogLine[];
+  telemetry: BooleanLike;
   sensor_mode: string;
   sensor_modes: string[];
 };
@@ -206,11 +207,21 @@ const groupByKind = <T extends { kind: string }>(items: T[]) =>
 
 const SensorPicker = () => {
   const { act, data } = useBackend<Data>();
-  const { sensor_mode, sensor_modes, rebooting } = data;
+  const { telemetry, sensor_mode, sensor_modes, rebooting } = data;
+
+  if (!telemetry) {
+    return (
+      <div className="Cyberdeck__sensors">
+        <span className="Cyberdeck__gaugeLabel">
+          Телеметрия: чип не установлен
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="Cyberdeck__sensors">
-      <span className="Cyberdeck__gaugeLabel">Датчики</span>
+      <span className="Cyberdeck__gaugeLabel">Телеметрия</span>
       {sensor_modes.map((mode) => (
         <Button
           key={mode}
@@ -222,6 +233,12 @@ const SensorPicker = () => {
           {mode}
         </Button>
       ))}
+      <Button
+        compact
+        icon="eject"
+        tooltip="Извлечь чип"
+        onClick={() => act('eject_telemetry')}
+      />
     </div>
   );
 };

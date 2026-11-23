@@ -333,6 +333,8 @@
 	)
 
 /obj/item/clothing/under/rank/medical/sensor
+	sensor_mode = SENSOR_COORDS
+	random_sensor = FALSE
 
 /obj/item/clothing/under/rank/medical/intern
 	name = "intern jumpsuit"
