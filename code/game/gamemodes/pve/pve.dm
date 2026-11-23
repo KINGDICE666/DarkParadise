@@ -80,6 +80,11 @@
 	var/list/turf/arena_turfs = block(bottom_left, top_right)
 	for(var/turf/tile as anything in arena_turfs)
 		core ||= locate(/obj/structure/pve_core) in tile
+		if(tile.blocks_air)
+			continue
+		tile.atmos_mode = ATMOS_MODE_EXPOSED_TO_ENVIRONMENT
+		tile.atmos_environment = ENVIRONMENT_TEMPERATE
+		tile.initialize_milla()
 	if(!length(player_spawns) || !length(enemy_spawns) || !core)
 		return FALSE
 	RegisterSignal(core, COMSIG_QDELETING, PROC_REF(on_core_deleted))
