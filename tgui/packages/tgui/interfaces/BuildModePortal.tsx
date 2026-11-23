@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ColorBox,
   Dropdown,
   LabeledList,
   NoticeBox,
@@ -18,6 +19,8 @@ type PortalData = {
   spriteState: string;
   spritePreview?: string;
   spriteStates: string[];
+  tint: string | null;
+  light: string;
   editing: boolean;
   missing: boolean;
   location: string | null;
@@ -33,6 +36,7 @@ type PortalData = {
   allowAnimals: boolean;
   allowMechs: boolean;
   allowItems: boolean;
+  allowObjects: boolean;
   countCargo: boolean;
   bringDragged: boolean;
 };
@@ -42,6 +46,7 @@ const allowedTypes = [
   ['Animals', 'allowAnimals', 'allow_animals'],
   ['Mechs', 'allowMechs', 'allow_mechs'],
   ['Loose items', 'allowItems', 'allow_items'],
+  ['Objects', 'allowObjects', 'allow_objects'],
 ] as const;
 
 export function BuildModePortal() {
@@ -136,6 +141,21 @@ export function BuildModePortal() {
                         selected={spriteState}
                         onSelected={(value) => act('state', { value })}
                       />
+                    </LabeledList.Item>
+                    <LabeledList.Item label="Colour">
+                      <Button onClick={() => act('tint')}>
+                        <ColorBox color={data.tint || 'transparent'} mr={1} />
+                        Tint
+                      </Button>
+                      {!!data.tint && (
+                        <Button icon="undo" onClick={() => act('tint_reset')}>
+                          No tint
+                        </Button>
+                      )}
+                      <Button onClick={() => act('light')}>
+                        <ColorBox color={data.tint || data.light} mr={1} />
+                        Light
+                      </Button>
                     </LabeledList.Item>
                     <LabeledList.Item label="Transit">
                       <Button.Checkbox

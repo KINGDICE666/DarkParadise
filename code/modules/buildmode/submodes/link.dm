@@ -63,16 +63,16 @@
 	editing_portal_ref = null
 	ui_interact(user)
 
-/datum/buildmode_mode/link/proc/open_portal(mob/user, turf/portal_turf, turf/target_turf)
+/datum/buildmode_mode/link/proc/open_portal(mob/user, turf/portal_turf, turf/target_turf, datum/buildmode_portal_settings/config)
 	if(locate(/obj/effect/portal) in portal_turf)
 		to_chat(user, span_warning("There is already a portal at [AREACOORD(portal_turf)]."))
 		return
-	var/obj/effect/portal/rick/buildmode/portal = new(portal_turf, target_turf, null, 0, user, FALSE, portal_defaults)
+	var/obj/effect/portal/rick/buildmode/portal = new(portal_turf, target_turf, null, 0, user, FALSE, config || portal_defaults)
 	log_admin("Build Mode: [key_name(user)] opened a portal at [AREACOORD(portal_turf)][target_turf ? " leading to [AREACOORD(target_turf)]" : ""]")
 	return portal
 
 /datum/buildmode_mode/link/proc/link_portals(mob/user, obj/effect/portal/rick/buildmode/entrance, turf/exit_turf)
-	var/obj/effect/portal/rick/buildmode/exit = open_portal(user, exit_turf, get_turf(entrance))
+	var/obj/effect/portal/rick/buildmode/exit = open_portal(user, exit_turf, get_turf(entrance), entrance.settings)
 	if(!exit)
 		pending_portal_ref = WEAKREF(entrance)
 		return
