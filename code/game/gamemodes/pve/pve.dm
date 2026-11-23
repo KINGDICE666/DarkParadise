@@ -122,6 +122,9 @@
 	var/list/mob/living/carbon/human/survivors = living_players()
 	update_players(survivors)
 	if(!wave_active)
+		if(!length(survivors))
+			next_wave_time = max(next_wave_time, world.time + PVE_PREPARATION)
+			return
 		if(world.time >= next_wave_time)
 			start_wave(length(survivors))
 		return

@@ -111,6 +111,11 @@
 			winner_tag = mode
 			break
 
+	if(SSticker.current_state == GAME_STATE_FINISHED)
+		world.save_mode(winner_tag)
+		to_chat(world, span_interface("<b>Режим следующего раунда: [result]</b>"))
+		return
+
 	if(winner_tag && GLOB.master_mode != winner_tag)
 		GLOB.master_mode = "secret"
 		GLOB.secret_force_mode = winner_tag
@@ -133,7 +138,7 @@
 	if(. != VOTE_AVAILABLE)
 		return .
 
-	if(SSticker?.mode)
+	if(SSticker.mode && SSticker.current_state != GAME_STATE_FINISHED)
 		return "Голосование за режим запущено после выбора игрового режима!"
 
 	if(SSticker.current_state < GAME_STATE_PREGAME)
