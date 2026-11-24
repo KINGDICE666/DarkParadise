@@ -544,7 +544,6 @@
 /datum/status_effect/pve_burning
 	id = "pve_burning"
 	duration = PVE_FLAMER_BURN_DURATION
-	tick_interval = 1 SECONDS
 	status_type = STATUS_EFFECT_REFRESH
 	alert_type = null
 	var/static/mutable_appearance/fire_overlay = mutable_appearance('icons/mob/OnFire.dmi', "human_generic_burn")
