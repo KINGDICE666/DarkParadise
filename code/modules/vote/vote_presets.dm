@@ -93,8 +93,6 @@
 	count_method = VOTE_COUNT_METHOD_MULTI
 	allow_dead_vote = TRUE
 	display_statistics = FALSE
-	print_results = FALSE
-	hide_winner = TRUE
 
 /datum/vote/gamemode/create_vote(mob/vote_creator)
 	. = ..()
@@ -116,9 +114,8 @@
 		to_chat(world, span_interface("<b>Режим следующего раунда: [result]</b>"))
 		return
 
-	if(winner_tag && GLOB.master_mode != winner_tag)
-		GLOB.master_mode = "secret"
-		GLOB.secret_force_mode = winner_tag
+	if(winner_tag)
+		GLOB.master_mode = winner_tag
 
 	if(!SSticker.ticker_going)
 		SSticker.ticker_going = TRUE

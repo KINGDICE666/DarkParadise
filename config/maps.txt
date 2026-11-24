@@ -12,7 +12,7 @@ MAP_ROTATE vote
 MAP_VOTE_MODE all
 
 ## Prohibits ghosts from voting
-VOTE_NO_DEAD
+#VOTE_NO_DEAD
 
 ## Default server map
 DEFAULT_MAP /datum/map/delta
