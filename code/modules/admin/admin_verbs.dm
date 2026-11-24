@@ -526,7 +526,7 @@ ADMIN_VERB(admin_observe_target, R_ADMIN|R_MOD|R_MENTOR | R_VIEWRUNTIMES|R_DEBUG
 		to_chat(user, span_warning("[target] сейчас находится в лобби."))
 		return
 
-	if(!isobserver(user.mob) && !check_rights_client(R_MENTOR|R_VIEWRUNTIMES, FALSE, user))
+	if(!isobserver(user.mob) && check_rights_client(R_ADMIN | R_MOD | R_POSSESS, FALSE, user))
 		SSadmin_verbs.dynamic_invoke_verb(user, /datum/admin_verb/admin_ghost)
 
 	if(isobserver(user.mob))

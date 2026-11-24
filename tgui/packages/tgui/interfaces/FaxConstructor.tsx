@@ -15,6 +15,7 @@ import { KEY_ESCAPE } from 'tgui-core/keycodes';
 import { resolveAsset } from '../assets';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
+import { sanitizeText } from '../sanitize';
 
 type TextStyle = {
   font: string;
@@ -49,6 +50,7 @@ type Draft = TextStyle & {
   align: string;
   text_align: string;
   purpose: string;
+  confidential_issuer: string;
   form_id: string;
   title: string;
   organization: string;
@@ -97,6 +99,11 @@ type FaxConstructorData = {
   custom_logo: string | null;
   fonts: string[];
   purposes: Option[];
+  confidential_issuers: Option[];
+  game_forms: (BuiltinPreset & { code: string | null; title: string | null })[];
+  can_import_reply: boolean | number;
+  imported_name: string | null;
+  can_edit_import: boolean | number;
   stamp_types: Option[];
   builtin_presets: BuiltinPreset[];
   max_sections: number;
@@ -254,15 +261,19 @@ const HANDLE_POSITIONS = [
 ];
 
 const renderPreviewHtml = (html: string, customLogo: string | null) =>
-  html
-    .replace(
-      /src='([\w-]+\.png)'/g,
-      (_, name: string) => `src='${resolveAsset(name)}'`,
-    )
-    .replace(
-      "src='fax_custom_logo'",
-      `src='${customLogo ? `data:image/png;base64,${customLogo}` : TRANSPARENT_PIXEL}'`,
-    );
+  sanitizeText(
+    html
+      .replace(
+        /\bsrc\s*=\s*(?:"([\w-]+\.png)"|'([\w-]+\.png)'|([\w-]+\.png)(?=\s|>))/gi,
+        (_, quoted: string, singleQuoted: string, bare: string) =>
+          `src='${resolveAsset(quoted || singleQuoted || bare)}'`,
+      )
+      .replace(
+        "src='fax_custom_logo'",
+        `src='${customLogo ? `data:image/png;base64,${customLogo}` : TRANSPARENT_PIXEL}'`,
+      ),
+    true,
+  );
 
 const dropMarkFor = (
   event: DragEvent<HTMLElement>,
@@ -449,18 +460,10 @@ const SizeStepper = ({ value, min, max, onChange }: SizeStepperProps) => {
         }}
       />
       <div className="FaxConstructor__stepperButtons">
-        <button
-          type="button"
-          title="Больше"
-          onClick={() => commit(value + 1)}
-        >
+        <button type="button" title="Больше" onClick={() => commit(value + 1)}>
           <Icon name="chevron-up" />
         </button>
-        <button
-          type="button"
-          title="Меньше"
-          onClick={() => commit(value - 1)}
-        >
+        <button type="button" title="Меньше" onClick={() => commit(value - 1)}>
           <Icon name="chevron-down" />
         </button>
       </div>
@@ -532,7 +535,7 @@ const StyleEditor = ({ style, sizeLabel, onChange }: StyleEditorProps) => {
           />
         </div>
       </div>
-      <Field label="Текстовое оформление">
+      <Field label="Оформление всего блока">
         <div className="FaxConstructor__styleRow">
           <div className="FaxConstructor__decorations">
             {DECORATIONS.map(({ key, icon, title }) => (
@@ -625,20 +628,29 @@ const PencodeEditor = (props: PencodeEditorProps) => {
     if (!editor) {
       return;
     }
-    const { selectionStart: start, selectionEnd: end } = editor;
-    const next =
-      text.slice(0, start) +
-      open +
-      text.slice(start, end) +
-      close +
-      text.slice(end);
+    let { selectionStart: start, selectionEnd: end } = editor;
+    const unwrap =
+      close &&
+      text.slice(0, start).endsWith(open) &&
+      text.slice(end).startsWith(close);
+    const next = unwrap
+      ? text.slice(0, start - open.length) +
+        text.slice(start, end) +
+        text.slice(end + close.length)
+      : text.slice(0, start) +
+        open +
+        text.slice(start, end) +
+        close +
+        text.slice(end);
     if (next.length > maxLength) {
       return;
     }
     update(next);
+    start += unwrap ? -open.length : open.length;
+    end += unwrap ? -open.length : open.length;
     requestAnimationFrame(() => {
       editor.focus();
-      editor.setSelectionRange(start + open.length, end + open.length);
+      editor.setSelectionRange(start, end);
     });
   };
 
@@ -652,11 +664,14 @@ const PencodeEditor = (props: PencodeEditorProps) => {
       }
     >
       <div className="FaxConstructor__editorTools">
+        <span className="FaxConstructor__hint">Выделенный текст</span>
         {PENCODE_TOOLS.map((tool) => (
           <button
             key={tool.title}
             type="button"
-            title={tool.title}
+            title={
+              tool.close ? `${tool.title} (для выделенного текста)` : tool.title
+            }
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => insertTag(tool.open, tool.close)}
           >
@@ -672,6 +687,16 @@ const PencodeEditor = (props: PencodeEditorProps) => {
         maxLength={maxLength}
         value={text}
         onChange={(event) => update(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+            return;
+          }
+          const tag = event.key.toLowerCase();
+          if (tag === 'b' || tag === 'i' || tag === 'u') {
+            event.preventDefault();
+            insertTag(`[${tag}]`, `[/${tag}]`);
+          }
+        }}
         onBlur={flush}
       />
     </Field>
@@ -736,7 +761,14 @@ const LogoGroup = () => {
 
 const SettingsPanel = () => {
   const { act, data } = useBackend<FaxConstructorData>();
-  const { draft, purposes, max_text_len } = data;
+  const {
+    draft,
+    purposes,
+    max_text_len,
+    confidential_issuers,
+    imported_name,
+    can_edit_import,
+  } = data;
   const setDraft = (key: string, value: unknown) =>
     act('set_draft', { key, value });
   const purposeLabel = purposes.find(
@@ -745,6 +777,22 @@ const SettingsPanel = () => {
   return (
     <>
       <LogoGroup />
+      {!!imported_name && (
+        <div className="FaxConstructor__group">
+          <div className="FaxConstructor__groupTitle">Копия документа</div>
+          <div className="FaxConstructor__hint">{imported_name}</div>
+          {!!can_edit_import && (
+            <button
+              type="button"
+              className="FaxConstructor__ghostButton"
+              title="Перенести текст оригинала в редактируемый блок. Вёрстка может измениться."
+              onClick={() => act('edit_imported_text')}
+            >
+              <Icon name="pen" /> Редактировать текст копии
+            </button>
+          )}
+        </div>
+      )}
       <div className="FaxConstructor__group">
         <Field label="Назначение бланка">
           <Dropdown
@@ -758,6 +806,24 @@ const SettingsPanel = () => {
             onSelected={(purpose) => setDraft('purpose', purpose)}
           />
         </Field>
+        {draft.purpose === 'confidential' && (
+          <Field label="Гриф организации">
+            <Dropdown
+              width="100%"
+              options={confidential_issuers.map(({ value, label }) => ({
+                value,
+                displayText: label,
+              }))}
+              selected={draft.confidential_issuer}
+              displayText={
+                confidential_issuers.find(
+                  ({ value }) => value === draft.confidential_issuer,
+                )?.label
+              }
+              onSelected={(issuer) => setDraft('confidential_issuer', issuer)}
+            />
+          </Field>
+        )}
         <TextField
           label="Заголовок"
           value={draft.title}
@@ -775,11 +841,7 @@ const SettingsPanel = () => {
             onChange={(align) => setDraft('align', align)}
           />
         </Field>
-        <StyleEditor
-          style={draft}
-          sizeLabel="Размер"
-          onChange={setDraft}
-        />
+        <StyleEditor style={draft} sizeLabel="Размер" onChange={setDraft} />
         <Field label="Выравнивание текста">
           <Segments
             aligns={TEXT_ALIGNS}
@@ -1014,11 +1076,7 @@ const SectionPanel = ({ section }: SectionPanelProps) => {
             onChange={(align) => setSection('title_align', align)}
           />
         </Field>
-        <StyleEditor
-          style={section}
-          sizeLabel="Размер"
-          onChange={setSection}
-        />
+        <StyleEditor style={section} sizeLabel="Размер" onChange={setSection} />
         <Field label="Выравнивание текста">
           <Segments
             aligns={TEXT_ALIGNS}
@@ -1420,12 +1478,24 @@ type GalleryProps = {
 
 const Gallery = ({ onLoaded }: GalleryProps) => {
   const { act, data } = useBackend<FaxConstructorData>();
-  const { builtin_presets, custom_presets } = data;
+  const {
+    builtin_presets,
+    custom_presets,
+    game_forms,
+    can_import_reply,
+    imported_name,
+  } = data;
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState(ALL_CATEGORIES);
+  const departmentCategories = new Set([
+    ...game_forms.map((form) => form.category),
+    ...builtin_presets.map((preset) => preset.category),
+  ]);
   const categories = [
     ALL_CATEGORIES,
-    ...new Set(builtin_presets.map((preset) => preset.category)),
+    ...[...departmentCategories].sort((left, right) =>
+      left.localeCompare(right, 'ru'),
+    ),
     CUSTOM_CATEGORY,
   ];
   const query = search.trim().toLowerCase();
@@ -1437,6 +1507,9 @@ const Gallery = ({ onLoaded }: GalleryProps) => {
   );
   const shownCustom = custom_presets.filter((preset) =>
     matches(preset.name, CUSTOM_CATEGORY),
+  );
+  const shownGame = game_forms.filter((form) =>
+    matches([form.name, form.title, form.code].join(' '), form.category),
   );
   const loadPreset = (id: string, builtin: boolean) => {
     act('load_preset', { id, builtin });
@@ -1475,6 +1548,40 @@ const Gallery = ({ onLoaded }: GalleryProps) => {
           </button>
         ))}
       </div>
+      <div className="FaxConstructor__galleryBar">
+        <button
+          type="button"
+          className="FaxConstructor__ghostButton"
+          onClick={() => act('import_hand')}
+        >
+          <Icon name="hand" /> Скопировать из руки
+        </button>
+        <button
+          type="button"
+          className="FaxConstructor__ghostButton"
+          onClick={() => act('import_nearby')}
+        >
+          <Icon name="copy" /> Скопировать с пола
+        </button>
+        {!!can_import_reply && (
+          <button
+            type="button"
+            className="FaxConstructor__ghostButton"
+            onClick={() => act('import_reply')}
+          >
+            <Icon name="fax" /> Скопировать исходный факс
+          </button>
+        )}
+        {!!imported_name && (
+          <button
+            type="button"
+            className="FaxConstructor__ghostButton"
+            onClick={onLoaded}
+          >
+            <Icon name="pen" /> Открыть копию
+          </button>
+        )}
+      </div>
       <div className="FaxConstructor__cards">
         <button
           type="button"
@@ -1488,7 +1595,9 @@ const Gallery = ({ onLoaded }: GalleryProps) => {
             <Icon name="file-circle-plus" size={3} color="#2f6fb7" />
           </div>
           <div className="FaxConstructor__cardName">Новый бланк</div>
-          <div className="FaxConstructor__cardMeta">Начать с чистого бланка</div>
+          <div className="FaxConstructor__cardMeta">
+            Начать с чистого бланка
+          </div>
         </button>
         {shownBuiltin.map((preset) => (
           <button
@@ -1500,6 +1609,25 @@ const Gallery = ({ onLoaded }: GalleryProps) => {
             {thumbnail(preset.preview_html)}
             <div className="FaxConstructor__cardName">{preset.name}</div>
             <div className="FaxConstructor__cardMeta">{preset.category}</div>
+          </button>
+        ))}
+        {shownGame.map((form) => (
+          <button
+            key={form.id}
+            type="button"
+            className="FaxConstructor__card"
+            onClick={() => {
+              act('load_game_form', { id: form.id });
+              onLoaded();
+            }}
+          >
+            {thumbnail(form.preview_html)}
+            <div className="FaxConstructor__cardName">
+              {form.title || form.name}
+            </div>
+            <div className="FaxConstructor__cardMeta">
+              {form.code || form.name} · {form.category}
+            </div>
           </button>
         ))}
         {shownCustom.map((preset) => (
@@ -1525,7 +1653,7 @@ const Gallery = ({ onLoaded }: GalleryProps) => {
           </div>
         ))}
       </div>
-      {shownBuiltin.length + shownCustom.length === 0 && (
+      {shownBuiltin.length + shownCustom.length + shownGame.length === 0 && (
         <div className="FaxConstructor__empty">
           {category === CUSTOM_CATEGORY && !query
             ? 'Сохранённых шаблонов пока нет. Они общие для всех админов и не пропадают между раундами.'
@@ -1573,7 +1701,10 @@ const CreateModal = ({ onClose }: CreateModalProps) => {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="FaxConstructor__panelHeader">
-          <Icon name="paper-plane" className="FaxConstructor__panelHeaderIcon" />
+          <Icon
+            name="paper-plane"
+            className="FaxConstructor__panelHeaderIcon"
+          />
           Создание бланка
           <div className="FaxConstructor__headerTools">
             <IconButton icon="xmark" title="Закрыть" onClick={onClose} />
@@ -1665,6 +1796,16 @@ const CreateModal = ({ onClose }: CreateModalProps) => {
           >
             <Icon name="file-arrow-down" />
             Положить рядом
+          </button>
+          <button
+            type="button"
+            className="FaxConstructor__action"
+            onClick={() => {
+              act('create_in_hand');
+              onClose();
+            }}
+          >
+            <Icon name="hand" /> Выдать в руку
           </button>
           <button
             type="button"

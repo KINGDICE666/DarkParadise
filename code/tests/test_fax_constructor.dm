@@ -2,6 +2,38 @@
 
 /datum/unit_test/fax_constructor/Run()
 	var/datum/fax_constructor/constructor = allocate(/datum/fax_constructor)
+	var/obj/item/paper/original = allocate(/obj/item/paper)
+	original.name = "Original"
+	original.header = "<b>Original header</b>"
+	original.info = "<b>Original</b> body<span class=\"paper_field\"></span>"
+	original.footer = "<i>Original footer</i>"
+	TEST_ASSERT(constructor.import_paper(original), "Paper import failed")
+	var/obj/item/paper/copied = constructor.build_paper()
+	TEST_ASSERT_EQUAL(copied.header, original.header, "Copy lost its header")
+	TEST_ASSERT_EQUAL(copied.info, original.info, "Copy changed the original body")
+	TEST_ASSERT_EQUAL(copied.footer, original.footer, "Copy lost its footer")
+	TEST_ASSERT_EQUAL(copied.fields, 1, "Copy lost its fillable field")
+	TEST_ASSERT_NOT(constructor.handle_action("set_draft", list("key" = "source_paper", "value" = list("info" = "<script>"))), "An action replaced the server-owned original")
+	TEST_ASSERT(constructor.edit_imported_text(), "Unable to convert the copy to editable text")
+	TEST_ASSERT_SUBSTRING(constructor.render_body(FALSE), "<b>Original</b> body")
+	TEST_ASSERT_EQUAL(original.info, copied.info, "Editing the copy modified the original")
+	qdel(copied)
+
+	var/list/order_entry
+	for(var/list/entry as anything in constructor.game_forms_for_ui())
+		if(entry["id"] == "[/obj/item/paper/form/NT_COM_ORDER]")
+			order_entry = entry
+			break
+	TEST_ASSERT(order_entry, "A station form is missing from the catalog")
+	TEST_ASSERT_EQUAL(order_entry["category"], /obj/item/paper/form/NT_COM_ORDER::category, "The catalog did not use the copier category")
+	TEST_ASSERT_SUBSTRING(order_entry["preview_html"], "NT-COM-ORDER")
+	TEST_ASSERT_SUBSTRING(order_entry["preview_html"], "<span class=\"paper_field\">")
+	TEST_ASSERT(constructor.load_game_form("[/obj/item/paper/form/NT_COM_ORDER]"), "A station form could not be loaded from the catalog")
+	TEST_ASSERT(constructor.load_game_form("[/obj/item/paper/form/syndieform/SYND_COM_TC]"), "A Syndicate form is missing from the catalog")
+	TEST_ASSERT_NOT(constructor.load_game_form("[/obj/item/paper/evilfax]"), "The catalog accepted a non-form type")
+	constructor.draft = constructor.normalize_draft(list("purpose" = "confidential", "logo" = "ussp"))
+	TEST_ASSERT_EQUAL(constructor.get_confidential_issuer(), "ussp", "The auto issuer ignored the logo")
+	TEST_ASSERT_NOT(constructor.render_footer() == /obj/item/paper/form::footer_confidential, "The USSP form used the NT disclaimer")
 
 	var/list/presets = constructor.builtin_presets()
 	for(var/preset_id in presets)
