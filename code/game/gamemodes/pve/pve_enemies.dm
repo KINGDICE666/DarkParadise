@@ -586,11 +586,9 @@
 	health = 110
 	melee_damage_lower = 12
 	melee_damage_upper = 12
-	move_to_delay = 4
 	bounty = 22
 	del_on_death = TRUE
 	deathmessage = "издаёт последний вой и обращается в пепел."
-	attacktext = "рвёт"
 	spawn_cost = 4
 	unlock_wave = 11
 	spawn_weight = 2
