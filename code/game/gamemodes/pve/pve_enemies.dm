@@ -141,6 +141,11 @@
 	face_atom(bumped)
 	bumped.attack_animal(src)
 
+/mob/living/simple_animal/hostile/pve/projectile_allow_through(obj/projectile/projectile, border_dir)
+	if(stat == DEAD)
+		return ..()
+	return IS_PVE_ENEMY(projectile.firer)
+
 /mob/living/simple_animal/hostile/pve/bullet_act(obj/projectile/proj)
 	note_attacker(proj.firer || proj.firer_source_atom)
 	return ..()

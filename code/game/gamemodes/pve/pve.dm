@@ -660,6 +660,7 @@
 	var/turf/spawn_turf = pick(player_spawns)
 	var/mob/living/carbon/human/body = player_mind.current
 	if(ishuman(body) && !QDELETED(body))
+		body.check_and_regenerate_organs()
 		body.rejuvenate()
 		body.forceMove(spawn_turf)
 		body.grab_ghost(TRUE)

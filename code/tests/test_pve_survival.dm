@@ -94,6 +94,9 @@
 		qdel(remaining_enemy)
 	var/datum/pve_contract/flawless = new /datum/pve_contract/flawless
 	mode.contract = flawless
+	var/obj/item/organ/external/arm = player.get_organ(BODY_ZONE_L_ARM)
+	arm.droplimb(TRUE, DROPLIMB_SHARP, FALSE, TRUE, TRUE)
+	TEST_ASSERT_NULL(player.get_organ(BODY_ZONE_L_ARM), "The arm was not removed.")
 	player.death()
 	TEST_ASSERT_EQUAL(account.deaths, 1, "A defender death was not counted.")
 	TEST_ASSERT(flawless.failed, "A defender death did not fail the flawless contract.")
@@ -105,6 +108,7 @@
 	TEST_ASSERT(player.stat != DEAD, "A fallen defender was not revived after the wave.")
 	TEST_ASSERT(get_turf(player) in mode.player_spawns, "A revived defender was not returned to the base.")
 	TEST_ASSERT_EQUAL(player.maxHealth, base_max_health + 15, "The toughness upgrade was lost on revival.")
+	TEST_ASSERT_NOTNULL(player.get_organ(BODY_ZONE_L_ARM), "A revived defender did not regrow a lost arm.")
 
 	var/datum/pve_contract/beacon/beacon_contract = allocate(/datum/pve_contract/beacon)
 	beacon_contract.start(mode)
@@ -140,6 +144,15 @@
 	TEST_ASSERT_EQUAL(player.getBruteLoss(), previous_damage, "Turret bullets hurt a defender.")
 	bullet.prehit(mode.active_boss)
 	TEST_ASSERT(!bullet.nodamage, "A turret bullet stayed harmless after passing a defender.")
+	var/obj/projectile/bullet/stray = allocate(/obj/projectile/bullet, get_turf(player))
+	stray.firer = player
+	stray.starting = locate(mode.active_boss.x + 15, mode.active_boss.y, mode.active_boss.z)
+	stray.def_zone = BODY_ZONE_PRECISE_L_FOOT
+	for(var/i in 1 to 20)
+		TEST_ASSERT(!mode.active_boss.projectile_allow_through(stray, WEST), "A defender's bullet missed a living enemy by accuracy roll.")
+	var/datum/pve_product/structure/turret/turret_product = mode.products["[/datum/pve_product/structure/turret]"]
+	var/list/turret_entry = turret_product.ui_entry()
+	TEST_ASSERT_NOTNULL(turret_entry["icon_state"], "Deployable kits have no shop preview.")
 
 	var/obj/item/flamethrower/full/tank/pve/flamer = allocate(/obj/item/flamethrower/full/tank/pve, get_turf(player))
 	var/fuel = flamer.ptank.air_contents.toxins()

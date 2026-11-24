@@ -39,7 +39,10 @@
 	return TRUE
 
 /datum/pve_product/proc/ui_entry()
-	var/obj/item/preview = item_path
+	var/atom/preview = item_path
+	if(ispath(item_path, /obj/item/pve_deployable))
+		var/obj/item/pve_deployable/kit = item_path
+		preview = initial(kit.deploy_type)
 	return list(
 		"id" = "[type]",
 		"title" = title,
