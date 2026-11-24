@@ -24,6 +24,7 @@ type Product = {
   category: string;
   class_only: string | null;
   limit: number;
+  max_level: number;
   icon: string | null;
   icon_state: string | null;
 };
@@ -59,9 +60,12 @@ type Data = {
   enemies: number;
   seconds: number;
   mutator: string | null;
+  next_mutator: string | null;
+  contract: string | null;
   core: number;
   discounts: Record<string, number>;
   unavailable: Record<string, string>;
+  levels: Record<string, number>;
   team: Teammate[];
   products: Product[];
   categories: string[];
@@ -75,6 +79,7 @@ const CATEGORY_TITLES: Record<string, string> = {
   medicine: 'Медицина',
   structures: 'Сооружения',
   support: 'Поддержка',
+  upgrades: 'Тренировки',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -84,6 +89,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   medicine: 'medkit',
   structures: 'hammer',
   support: 'satellite-dish',
+  upgrades: 'dumbbell',
 };
 
 const TEAM_TAB = 'team';
@@ -164,6 +170,18 @@ const StatusPanel = () => {
             <Box color="bad" mt={0.5}>
               <Icon name="skull" mr={1} />
               {data.mutator}
+            </Box>
+          )}
+          {!!data.next_mutator && (
+            <Box color="average" mt={0.5}>
+              <Icon name="binoculars" mr={1} />
+              Разведка: следующая волна — {data.next_mutator}
+            </Box>
+          )}
+          {!!data.contract && (
+            <Box color="gold" mt={0.5}>
+              <Icon name="file-contract" mr={1} />
+              Контракт — {data.contract}
             </Box>
           )}
           <Box mt={1}>
@@ -273,6 +291,11 @@ const ProductList = (props: { category: string }) => {
                 <Box color="label" fontSize={0.9}>
                   {product.description}
                 </Box>
+                {product.max_level > 0 && (
+                  <Box color="good" fontSize={0.85}>
+                    Уровень {data.levels[product.id] ?? 0}/{product.max_level}
+                  </Box>
+                )}
               </Table.Cell>
               <Table.Cell collapsing textAlign="right" p={0.5}>
                 {price !== product.price && (

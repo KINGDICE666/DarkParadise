@@ -9,6 +9,14 @@
 #define PVE_FLAMER_DAMAGE 6
 #define PVE_FLAMER_BURN_DAMAGE 3
 #define PVE_FLAMER_BURN_DURATION (4 SECONDS)
+#define PVE_CORE_PULSE_COOLDOWN (3 SECONDS)
+#define PVE_CORE_PULSE_BASE_RANGE 3
+#define PVE_CORE_PULSE_DAMAGE 15
+#define PVE_SPIKES_DAMAGE 14
+#define PVE_SPIKES_WEAR 8
+#define PVE_TESLA_COOLDOWN (2 SECONDS)
+#define PVE_TESLA_RANGE 6
+#define PVE_TESLA_DAMAGE 25
 
 /proc/get_pve_mode()
 	var/datum/game_mode/pve/mode = SSticker.mode
@@ -37,7 +45,10 @@
 	light_range = 5
 	light_power = 1.5
 	light_color = "#7fd4ff"
+	var/pulse_level = 0
+	var/shield_until = 0
 	COOLDOWN_DECLARE(alert_cooldown)
+	COOLDOWN_DECLARE(pulse_cooldown)
 
 /obj/structure/pve_core/get_ru_names()
 	return alist(
@@ -49,9 +60,49 @@
 		PREPOSITIONAL = "Маяке",
 	)
 
+/obj/structure/pve_core/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	return ..()
+
 /obj/structure/pve_core/examine(mob/user)
 	. = ..()
 	. += span_notice("Целостность: [round(obj_integrity / max_integrity * 100)]%.")
+	if(pulse_level)
+		. += span_notice("Пульс Маяка: уровень [pulse_level].")
+	if(world.time < shield_until)
+		. += span_notice("Маяк укрыт энергетическим щитом.")
+
+/obj/structure/pve_core/take_damage(damage_amount, damage_type = BRUTE, damage_flag = "", sound_effect = TRUE, attack_dir, armour_penetration = 0)
+	if(world.time < shield_until)
+		return
+	return ..()
+
+/obj/structure/pve_core/proc/raise_shield(duration)
+	shield_until = world.time + duration
+	add_filter("pve_shield", 2, outline_filter(2, "#7fd4ff"))
+	playsound(src, 'sound/magic/charge.ogg', 70, TRUE)
+	addtimer(CALLBACK(src, PROC_REF(drop_shield)), duration, TIMER_UNIQUE | TIMER_OVERRIDE)
+
+/obj/structure/pve_core/proc/drop_shield()
+	remove_filter("pve_shield")
+
+/obj/structure/pve_core/proc/upgrade_pulse()
+	pulse_level++
+	START_PROCESSING(SSobj, src)
+
+/obj/structure/pve_core/process(seconds_per_tick)
+	if(!pulse_level || !COOLDOWN_FINISHED(src, pulse_cooldown))
+		return
+	COOLDOWN_START(src, pulse_cooldown, PVE_CORE_PULSE_COOLDOWN)
+	var/zapped = FALSE
+	for(var/mob/living/simple_animal/hostile/pve/enemy in range(PVE_CORE_PULSE_BASE_RANGE + pulse_level, src))
+		if(enemy.stat == DEAD)
+			continue
+		Beam(enemy, icon_state = "lightning[rand(1, 12)]", icon = 'icons/effects/effects.dmi', time = 0.5 SECONDS)
+		enemy.apply_damage(PVE_CORE_PULSE_DAMAGE * pulse_level, BURN)
+		zapped = TRUE
+	if(zapped)
+		playsound(src, 'sound/magic/lightningbolt.ogg', 40, TRUE)
 
 /obj/structure/pve_core/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
@@ -82,10 +133,13 @@
 
 /obj/structure/pve_core/on_update_integrity(old_value, new_value)
 	. = ..()
-	if(new_value >= old_value || !COOLDOWN_FINISHED(src, alert_cooldown))
+	if(new_value >= old_value)
+		return
+	var/datum/game_mode/pve/mode = get_pve_mode()
+	mode?.on_core_damaged(old_value - new_value)
+	if(!COOLDOWN_FINISHED(src, alert_cooldown))
 		return
 	COOLDOWN_START(src, alert_cooldown, PVE_CORE_ALERT_COOLDOWN)
-	var/datum/game_mode/pve/mode = get_pve_mode()
 	mode?.broadcast(span_userdanger("Маяк атакован! Целостность: [round(new_value / max_integrity * 100)]%."), 'sound/misc/notice1.ogg')
 
 /obj/structure/pve_core/obj_destruction(damage_flag)
@@ -253,6 +307,49 @@
 	var/obj/effect/pve_mine/mine = deployed
 	mine.owner_mind = WEAKREF(user.mind)
 
+/obj/item/pve_deployable/spikes
+	name = "spike trap kit"
+	desc = "Связка заострённых кольев. Вбитые в землю, ранят каждую тварь, что по ним пройдёт, и постепенно стачиваются."
+	deploy_type = /obj/structure/pve_spikes
+	deploy_time = 1 SECONDS
+	w_class = WEIGHT_CLASS_NORMAL
+
+/obj/item/pve_deployable/spikes/get_ru_names()
+	return alist(
+		NOMINATIVE = "связка кольев",
+		GENITIVE = "связки кольев",
+		DATIVE = "связке кольев",
+		ACCUSATIVE = "связку кольев",
+		INSTRUMENTAL = "связкой кольев",
+		PREPOSITIONAL = "связке кольев",
+	)
+
+/obj/item/pve_deployable/spikes/can_deploy_on(turf/deployment_turf)
+	return !(locate(/obj/structure/pve_spikes) in deployment_turf) && ..()
+
+/obj/item/pve_deployable/spikes/on_deployed(atom/deployed, mob/user)
+	var/obj/structure/pve_spikes/spikes = deployed
+	spikes.owner_mind = WEAKREF(user.mind)
+
+/obj/item/pve_deployable/tesla
+	name = "tesla coil kit"
+	desc = "Разборная тесла-катушка. Бьёт молнией ближайшую тварь, убийства засчитываются владельцу."
+	deploy_type = /obj/structure/pve_tesla_coil
+
+/obj/item/pve_deployable/tesla/get_ru_names()
+	return alist(
+		NOMINATIVE = "комплект тесла-катушки",
+		GENITIVE = "комплекта тесла-катушки",
+		DATIVE = "комплекту тесла-катушки",
+		ACCUSATIVE = "комплект тесла-катушки",
+		INSTRUMENTAL = "комплектом тесла-катушки",
+		PREPOSITIONAL = "комплекте тесла-катушки",
+	)
+
+/obj/item/pve_deployable/tesla/on_deployed(atom/deployed, mob/user)
+	var/obj/structure/pve_tesla_coil/coil = deployed
+	coil.owner_mind = WEAKREF(user.mind)
+
 /obj/machinery/porta_turret/syndicate/pve
 	name = "defense turret"
 	desc = "Автономная турель защитников. Стреляет только по тварям тумана. Чинится сваркой."
@@ -357,6 +454,130 @@
 /obj/projectile/bullet/pve_turret/heavy
 	damage = 35
 	icon_state = "red_laser"
+
+/obj/structure/pve_spikes
+	name = "spike trap"
+	desc = "Вбитые в землю заострённые колья. Ранят тварей, которые по ним проходят."
+	icon = 'icons/obj/hand_of_god_structures.dmi'
+	icon_state = "trap-earth"
+	anchored = TRUE
+	layer = LOW_OBJ_LAYER
+	max_integrity = 120
+	var/datum/weakref/owner_mind
+
+/obj/structure/pve_spikes/get_ru_names()
+	return alist(
+		NOMINATIVE = "колья",
+		GENITIVE = "кольев",
+		DATIVE = "кольям",
+		ACCUSATIVE = "колья",
+		INSTRUMENTAL = "кольями",
+		PREPOSITIONAL = "кольях",
+	)
+
+/obj/structure/pve_spikes/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+/obj/structure/pve_spikes/Destroy()
+	owner_mind = null
+	return ..()
+
+/obj/structure/pve_spikes/examine(mob/user)
+	. = ..()
+	. += span_notice("Остриё сточено на [100 - round(obj_integrity / max_integrity * 100)]%.")
+
+/obj/structure/pve_spikes/proc/on_entered(datum/source, atom/movable/arrived)
+	SIGNAL_HANDLER
+	if(!IS_PVE_ENEMY(arrived))
+		return
+	var/mob/living/simple_animal/hostile/pve/enemy = arrived
+	if(enemy.stat == DEAD || enemy.mob_size <= MOB_SIZE_TINY)
+		return
+	if(owner_mind)
+		enemy.last_hitter = owner_mind
+		enemy.last_hit_melee = FALSE
+	enemy.apply_damage(PVE_SPIKES_DAMAGE, BRUTE)
+	playsound(src, 'sound/weapons/pierce.ogg', 30, TRUE)
+	INVOKE_ASYNC(src, TYPE_PROC_REF(/obj, take_damage), PVE_SPIKES_WEAR, BRUTE, MELEE, FALSE)
+
+/obj/structure/pve_tesla_coil
+	name = "tesla coil"
+	desc = "Катушка защитников. Бьёт молнией ближайшую тварь тумана. Чинится сваркой."
+	icon = 'icons/obj/hand_of_god_structures.dmi'
+	icon_state = "defensepylon-blue"
+	anchored = TRUE
+	density = TRUE
+	max_integrity = 200
+	light_range = 2
+	light_color = "#80c0ff"
+	var/datum/weakref/owner_mind
+	COOLDOWN_DECLARE(zap_cooldown)
+
+/obj/structure/pve_tesla_coil/get_ru_names()
+	return alist(
+		NOMINATIVE = "тесла-катушка",
+		GENITIVE = "тесла-катушки",
+		DATIVE = "тесла-катушке",
+		ACCUSATIVE = "тесла-катушку",
+		INSTRUMENTAL = "тесла-катушкой",
+		PREPOSITIONAL = "тесла-катушке",
+	)
+
+/obj/structure/pve_tesla_coil/Initialize(mapload)
+	. = ..()
+	START_PROCESSING(SSobj, src)
+
+/obj/structure/pve_tesla_coil/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	owner_mind = null
+	return ..()
+
+/obj/structure/pve_tesla_coil/examine(mob/user)
+	. = ..()
+	. += span_notice("Прочность: [obj_integrity]/[max_integrity].")
+
+/obj/structure/pve_tesla_coil/CanAllowThrough(atom/movable/mover, border_dir)
+	. = ..()
+	if(is_pve_friendly_projectile(mover))
+		return TRUE
+
+/obj/structure/pve_tesla_coil/welder_act(mob/living/user, obj/item/tool)
+	. = TRUE
+	if(obj_integrity >= max_integrity)
+		balloon_alert(user, "ремонт не нужен")
+		return
+	if(!tool.tool_use_check(user, 0))
+		return
+	WELDER_ATTEMPT_REPAIR_MESSAGE
+	if(!tool.use_tool(src, user, pve_repair_time(user), volume = tool.tool_volume))
+		return
+	WELDER_REPAIR_SUCCESS_MESSAGE
+	repair_damage(PVE_REPAIR_AMOUNT)
+
+/obj/structure/pve_tesla_coil/process(seconds_per_tick)
+	if(!COOLDOWN_FINISHED(src, zap_cooldown))
+		return
+	var/mob/living/simple_animal/hostile/pve/closest
+	var/closest_distance = PVE_TESLA_RANGE + 1
+	for(var/mob/living/simple_animal/hostile/pve/enemy in view(PVE_TESLA_RANGE, src))
+		var/distance = get_dist(src, enemy)
+		if(enemy.stat != DEAD && distance < closest_distance)
+			closest = enemy
+			closest_distance = distance
+	if(!closest)
+		return
+	COOLDOWN_START(src, zap_cooldown, PVE_TESLA_COOLDOWN)
+	flick("defensepylonattack-blue", src)
+	Beam(closest, icon_state = "lightning[rand(1, 12)]", icon = 'icons/effects/effects.dmi', time = 0.5 SECONDS)
+	playsound(src, 'sound/magic/lightningbolt.ogg', 40, TRUE)
+	if(owner_mind)
+		closest.last_hitter = owner_mind
+		closest.last_hit_melee = FALSE
+	closest.apply_damage(PVE_TESLA_DAMAGE, BURN)
 
 /obj/structure/pve_med_station
 	name = "field med station"
@@ -509,6 +730,56 @@
 	playsound(user, 'sound/machines/ping.ogg', 40, TRUE)
 	qdel(src)
 
+/obj/structure/closet/crate/freezer/pve_rations
+	name = "ration freezer"
+
+/obj/structure/closet/crate/freezer/pve_rations/populate_contents()
+	for(var/i in 1 to 2)
+		new /obj/item/storage/box/donkpockets(src)
+	for(var/i in 1 to 3)
+		new /obj/item/reagent_containers/food/snacks/cheeseburger(src)
+		new /obj/item/reagent_containers/food/snacks/chips(src)
+	for(var/i in 1 to 6)
+		new /obj/item/reagent_containers/cup/beaker/waterbottle(src)
+
+/obj/structure/closet/crate/medical/pve
+	name = "medbay supplies"
+
+/obj/structure/closet/crate/medical/pve/populate_contents()
+	new /obj/item/storage/firstaid/brute(src)
+	new /obj/item/storage/firstaid/fire(src)
+	new /obj/item/storage/firstaid/toxin(src)
+	new /obj/item/storage/box/bodybags(src)
+	new /obj/item/storage/box/syringes(src)
+	new /obj/item/storage/pill_bottle/charcoal(src)
+	for(var/i in 1 to 2)
+		new /obj/item/roller(src)
+		new /obj/item/reagent_containers/iv_bag/blood/OMinus(src)
+		new /obj/item/reagent_containers/food/pill/patch/styptic(src)
+		new /obj/item/reagent_containers/food/pill/patch/silver_sulf(src)
+
+/obj/structure/closet/crate/engineering/pve
+	name = "construction supplies"
+
+/obj/structure/closet/crate/engineering/pve/populate_contents()
+	new /obj/item/stack/sheet/glass/fifty(src)
+	new /obj/item/stack/rods/fifty(src)
+	for(var/i in 1 to 2)
+		new /obj/item/stack/cable_coil(src)
+		new /obj/item/clothing/gloves/color/yellow(src)
+		new /obj/item/pve_deployable/barricade(src)
+
+/obj/structure/closet/crate/pve_ammo
+	name = "ammo crate"
+
+/obj/structure/closet/crate/pve_ammo/populate_contents()
+	for(var/i in 1 to 2)
+		new /obj/item/ammo_box/magazine/m10mm(src)
+		new /obj/item/ammo_box/speedloader/a762(src)
+		new /obj/item/ammo_box/speedloader/shotgun/buck(src)
+	for(var/i in 1 to 4)
+		new /obj/item/flashlight/flare(src)
+
 /obj/structure/closet/supplypod/bluespacepod/pve_drop
 	style = /datum/pod_style/seethrough
 	explosionSize = list(0, 0, 0, 0)
@@ -572,13 +843,19 @@
 <li>Оружейная — оружие, патроны, броня. Медбей — медикаменты. Инженерная — баррикады, турели, мины, прожекторы. Штаб — поддержка всей команды.</li>
 <li>Погибшие возвращаются в строй после окончания волны. Поражение — если погибнут все или падёт Маяк.</li>
 <li>В зоне отдыха и медбее раны затягиваются сами, на кровати — быстрее.</li>
-<li>Туман гнезда справа ядовит. Не задерживайтесь там.</li>
+<li>Туман гнезда справа ядовит. Не задерживайтесь там без противогаза.</li>
+<li>Почти каждая волна приносит <b>контракт</b>: выполните условие — и вся команда получит премию.</li>
+<li>Разведка заранее сообщает, какой мутатор ждёт следующую волну. Готовьтесь к нему.</li>
+<li>Твари иногда роняют кредитные чипы и припасы, а элита — всегда. Не забывайте их подбирать.</li>
+<li>В терминале штаба продаются личные тренировки: они остаются с вами до конца раунда, даже после гибели.</li>
 </ul>
 <h3>Враги</h3>
 <ul>
 <li><b>Голем</b> почти неуязвим к пулям и клинкам — берите лазеры.</li>
 <li><b>Призрак</b> наоборот, энергию не замечает — берите дробовики и сталь.</li>
 <li><b>Шаман</b> лечит сородичей, <b>пузырь</b> взрывается рядом с целью.</li>
+<li><b>Носитель</b> лопается роем мышей, <b>скрытень</b> почти невидим издалека, <b>вожак</b> воем приводит стаю в ярость.</li>
+<li><b>Светоч тумана</b> не нападает и убегает. Поймайте его до того, как он ускользнёт, — награда велика.</li>
 <li>Каждая пятая волна — босс.</li>
 </ul>"}
 
@@ -593,3 +870,11 @@
 #undef PVE_FLAMER_DAMAGE
 #undef PVE_FLAMER_BURN_DAMAGE
 #undef PVE_FLAMER_BURN_DURATION
+#undef PVE_CORE_PULSE_COOLDOWN
+#undef PVE_CORE_PULSE_BASE_RANGE
+#undef PVE_CORE_PULSE_DAMAGE
+#undef PVE_SPIKES_DAMAGE
+#undef PVE_SPIKES_WEAR
+#undef PVE_TESLA_COOLDOWN
+#undef PVE_TESLA_RANGE
+#undef PVE_TESLA_DAMAGE

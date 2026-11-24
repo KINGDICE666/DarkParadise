@@ -150,6 +150,11 @@
 /area/pve/base/medbay)
 "aJ" = (
 /obj/structure/table/glass,
+/obj/item/scalpel,
+/obj/item/hemostat,
+/obj/item/retractor,
+/obj/item/cautery,
+/obj/item/surgical_drapes,
 /turf/simulated/floor/indestructible/medical_white,
 /area/pve/base/medbay)
 "aK" = (
@@ -173,6 +178,7 @@
 /area/pve/base/rest)
 "aO" = (
 /obj/structure/table/wood/fancy,
+/obj/item/instrument/guitar,
 /turf/simulated/floor/indestructible/carpet,
 /area/pve/base/rest)
 "aP" = (
@@ -243,10 +249,14 @@
 /area/pve/base/engineering)
 "bf" = (
 /obj/structure/rack,
+/obj/item/clothing/mask/gas,
+/obj/item/clothing/mask/gas,
 /turf/simulated/floor/indestructible/gray_floor,
 /area/pve/base/armory)
 "bg" = (
-/obj/structure/closet/crate,
+/obj/structure/rack,
+/obj/item/storage/belt/utility/full,
+/obj/item/storage/belt/utility/full,
 /turf/simulated/floor/indestructible/grime_floor,
 /area/pve/base/engineering)
 "bh" = (
@@ -360,6 +370,132 @@
 	color = "#FF6666"
 	},
 /area/pve/nest)
+"ct" = (
+/obj/structure/rack,
+/obj/item/pve_deployable/barricade,
+/obj/item/pve_deployable/barricade,
+/obj/item/pve_deployable/sandbags,
+/turf/simulated/floor/indestructible/grime_floor,
+/area/pve/base/engineering)
+"cW" = (
+/obj/structure/closet/crate/engineering/pve,
+/turf/simulated/floor/indestructible/grime_floor,
+/area/pve/base/engineering)
+"iS" = (
+/obj/machinery/computer/arcade{
+	dir = 1
+	},
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"kb" = (
+/obj/structure/table/glass,
+/obj/item/storage/belt/medical,
+/obj/item/healthanalyzer,
+/obj/item/healthanalyzer,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"ks" = (
+/obj/structure/closet/crate/medical/pve,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"lc" = (
+/obj/structure/table/reinforced,
+/obj/item/clothing/head/welding,
+/obj/item/clothing/head/welding,
+/turf/simulated/floor/indestructible/grime_floor,
+/area/pve/base/engineering)
+"ra" = (
+/obj/structure/table/glass,
+/obj/item/reagent_containers/iv_bag/blood/OMinus,
+/obj/item/reagent_containers/iv_bag/blood/OMinus,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"uP" = (
+/obj/structure/table/glass,
+/obj/item/circular_saw,
+/obj/item/bonesetter,
+/obj/item/bonegel,
+/obj/item/FixOVein,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"uT" = (
+/obj/structure/piano,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"wA" = (
+/obj/machinery/bodyscanner,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"zU" = (
+/obj/structure/rack,
+/obj/item/flashlight/seclite,
+/obj/item/flashlight/seclite,
+/obj/item/flashlight/flare,
+/obj/item/flashlight/flare,
+/obj/item/flashlight/flare,
+/turf/simulated/floor/indestructible/gray_floor,
+/area/pve/base/armory)
+"Af" = (
+/obj/structure/table/glass,
+/obj/item/tank/internals/anesthetic,
+/obj/item/clothing/mask/breath/medical,
+/obj/item/storage/box/gloves,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"DR" = (
+/obj/structure/table/glass,
+/obj/item/defibrillator/loaded,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"EE" = (
+/obj/structure/table/wood/fancy,
+/obj/item/storage/box/drinkingglasses,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"Io" = (
+/obj/structure/closet/crate/freezer/pve_rations,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"JU" = (
+/obj/structure/closet/crate/pve_ammo,
+/turf/simulated/floor/indestructible/gray_floor,
+/area/pve/base/armory)
+"JZ" = (
+/obj/machinery/chem_dispenser/soda,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"Mg" = (
+/obj/machinery/sleeper,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
+"OX" = (
+/obj/machinery/chem_dispenser/beer,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"Qh" = (
+/obj/machinery/autolathe,
+/turf/simulated/floor/indestructible/grime_floor,
+/area/pve/base/engineering)
+"QY" = (
+/obj/structure/rack,
+/obj/item/kitchen/knife/combat,
+/obj/item/kitchen/knife/combat,
+/turf/simulated/floor/indestructible/gray_floor,
+/area/pve/base/armory)
+"Tc" = (
+/obj/structure/table/wood/fancy,
+/obj/item/storage/fancy/donut_box,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"VY" = (
+/obj/structure/table/wood/fancy,
+/obj/machinery/kitchen_machine/microwave,
+/turf/simulated/floor/indestructible/carpet,
+/area/pve/base/rest)
+"YE" = (
+/obj/machinery/computer/operating,
+/turf/simulated/floor/indestructible/medical_white,
+/area/pve/base/medbay)
 
 (1,1,1) = {"
 aa
@@ -429,7 +565,7 @@ ah
 ah
 ah
 ah
-ag
+JU
 ac
 ai
 ai
@@ -454,20 +590,20 @@ as
 ar
 as
 as
-as
-as
+ks
+DR
 as
 as
 at
 as
-as
+kb
 as
 as
 ad
 "}
 (3,1,1) = {"
 aa
-ae
+VY
 ae
 ae
 ae
@@ -501,9 +637,9 @@ aw
 aw
 am
 ac
+aE
 as
-as
-as
+aE
 as
 as
 as
@@ -519,13 +655,13 @@ ad
 "}
 (4,1,1) = {"
 aa
+Io
 ae
 ae
 ae
 ae
 ae
-ae
-ae
+iS
 aa
 ag
 ag
@@ -577,7 +713,7 @@ ae
 ae
 ae
 ae
-ae
+iS
 aa
 ag
 ag
@@ -611,7 +747,7 @@ as
 as
 as
 as
-as
+ra
 aE
 as
 as
@@ -623,7 +759,7 @@ ad
 "}
 (6,1,1) = {"
 aa
-ae
+Tc
 ae
 ae
 ae
@@ -663,7 +799,7 @@ ac
 ac
 as
 as
-as
+YE
 aI
 as
 as
@@ -715,9 +851,9 @@ am
 ac
 as
 as
-as
+Af
 aJ
-as
+uP
 as
 as
 as
@@ -770,10 +906,10 @@ as
 as
 as
 as
+wA
 as
-as
-as
-as
+Mg
+Mg
 as
 ad
 "}
@@ -871,19 +1007,19 @@ am
 ac
 aU
 aU
+ct
 aU
 aU
 aU
+Qh
 aU
 aU
-aU
-aU
-aU
+cW
 aV
 "}
 (11,1,1) = {"
 aa
-ae
+JZ
 ae
 ae
 ae
@@ -935,7 +1071,7 @@ aV
 "}
 (12,1,1) = {"
 aa
-ae
+OX
 ae
 ae
 ae
@@ -993,7 +1129,7 @@ ae
 ae
 ae
 ae
-ae
+uT
 aa
 ag
 ag
@@ -1039,7 +1175,7 @@ aV
 "}
 (14,1,1) = {"
 aa
-ae
+EE
 ae
 ae
 ae
@@ -1086,7 +1222,7 @@ aU
 aU
 aU
 aU
-aU
+lc
 aV
 "}
 (15,1,1) = {"
@@ -1152,9 +1288,9 @@ af
 ae
 aa
 ag
-bf
+zU
 ag
-bf
+QY
 ag
 bf
 ag
@@ -1178,7 +1314,7 @@ aw
 am
 ac
 aU
-bg
+cW
 bg
 aU
 aU

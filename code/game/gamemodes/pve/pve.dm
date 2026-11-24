@@ -18,6 +18,16 @@
 #define PVE_NIGHT_LIGHTING_ALPHA 25
 #define PVE_BOSS_QUEUE_FRACTION 0.6
 #define PVE_MAX_ELITE_CHANCE 25
+#define PVE_MUTATOR_CHANCE 55
+#define PVE_CONTRACT_CHANCE 70
+#define PVE_CONTRACT_REWARD_BASE 30
+#define PVE_CONTRACT_REWARD_PER_WAVE 10
+#define PVE_TREASURE_CHANCE 35
+#define PVE_TREASURE_MIN_WAVE 3
+#define PVE_LOOT_CHIP_CHANCE 8
+#define PVE_LOOT_ITEM_CHANCE 3
+#define PVE_REGEN_FRACTION 0.015
+#define PVE_LOOTER_BONUS 0.15
 
 /datum/game_mode/pve
 	name = "Colonial Marines"
@@ -39,7 +49,10 @@
 	var/next_supply_drop = 0
 	var/total_kills = 0
 	var/mutator
+	var/next_mutator
 	var/last_mutator
+	var/treasure_spawn_at = 0
+	var/datum/pve_contract/contract
 	var/boss_type
 	var/boss_spawn_at = 0
 	var/events_enabled
@@ -137,7 +150,12 @@
 		finish(FALSE, "Все защитники пали.")
 		return
 	flow_field.update(core ? survivors + core : survivors)
+	if(treasure_spawn_at && length(spawn_queue) <= treasure_spawn_at)
+		spawn_treasure()
 	process_spawning(length(survivors))
+	contract?.check_tick(src)
+	if(mutator == PVE_MUTATOR_REGEN)
+		regenerate_enemies()
 	if(world.time >= next_supply_drop)
 		next_supply_drop = world.time + PVE_SUPPLY_DROP_INTERVAL
 		if(prob(50))
@@ -198,6 +216,8 @@
 	if(!account || finished)
 		return
 	account.deaths++
+	if(wave_active)
+		contract?.on_defender_death(src)
 	broadcast(span_danger("[account.player_name] пал[GEND_A_O_I(source)]! Возвращение в строй — после окончания волны."))
 
 /datum/game_mode/pve/proc/update_players(list/mob/living/carbon/human/survivors)
@@ -209,9 +229,10 @@
 	for(var/mob/living/carbon/human/player as anything in survivors)
 		var/area/player_area = get_area(player)
 		if(istype(player_area, /area/pve/nest))
-			player.apply_damage(PVE_NEST_TOXIN, TOX)
-			if(prob(25))
-				to_chat(player, span_warning("Ядовитый туман гнезда жжёт лёгкие!"))
+			if(!istype(player.wear_mask, /obj/item/clothing/mask/gas))
+				player.apply_damage(PVE_NEST_TOXIN, TOX)
+				if(prob(25))
+					to_chat(player, span_warning("Ядовитый туман гнезда жжёт лёгкие! Противогаз бы не помешал."))
 		else if(istype(player_area, /area/pve/base/rest) || istype(player_area, /area/pve/base/medbay))
 			if(istype(player.buckled, /obj/structure/bed))
 				player.heal_overall_damage(PVE_BED_REGEN_AMOUNT, PVE_BED_REGEN_AMOUNT)
@@ -226,6 +247,7 @@
 		return
 	player_client.screen |= account.hud
 	var/status_line
+	var/extra_line
 	if(finished)
 		status_line = victory ? "Туман рассеян. Победа!" : "Оборона пала."
 	else if(wave_active)
@@ -234,11 +256,15 @@
 			status_line += " · [mutator_title(mutator)]"
 		if(active_boss)
 			status_line += " · Босс: [round(active_boss.health / active_boss.maxHealth * 100)]%"
+		if(contract)
+			extra_line = "Контракт — [contract.status_text()]"
 	else
 		var/seconds = max(0, round((next_wave_time - world.time) / (1 SECONDS)))
 		status_line = "Подготовка к волне [wave + 1]/[PVE_FINAL_WAVE] · [round(seconds / 60)]:[seconds % 60 < 10 ? "0" : ""][seconds % 60]"
 		if(is_boss_wave(wave + 1))
 			status_line += " · Босс!"
+		if(next_mutator)
+			extra_line = "Разведка: [mutator_title(next_mutator)]"
 	var/ready_count = 0
 	var/alive_count = 0
 	for(var/account_key in player_accounts)
@@ -252,7 +278,7 @@
 	var/info_line = "Маяк: [core ? round(core.obj_integrity / core.max_integrity * 100) : 0]% · Кредиты: [account.credits]"
 	if(!wave_active && !finished)
 		info_line += " · Готовы: [ready_count]/[alive_count]"
-	account.hud.maptext = MAPTEXT("<div style='text-align:center'><b>[status_line]</b><br>[info_line]</div>")
+	account.hud.maptext = MAPTEXT("<div style='text-align:center'><b>[status_line]</b><br>[info_line][extra_line ? "<br>[extra_line]" : ""]</div>")
 
 /datum/game_mode/pve/proc/prompt_class(datum/pve_account/account)
 	var/mob/living/carbon/human/player = account.get_body()
@@ -333,12 +359,17 @@
 	for(var/account_key in player_accounts)
 		var/datum/pve_account/account = player_accounts[account_key]
 		account.set_ready(FALSE)
-	mutator = roll_mutator()
+	mutator = is_boss_wave(wave) ? null : next_mutator
+	next_mutator = null
 	if(mutator == PVE_MUTATOR_NIGHT)
 		set_outdoor_lighting(PVE_NIGHT_LIGHTING_ALPHA)
 	boss_type = is_boss_wave(wave) ? boss_for_wave(wave) : null
 	spawn_queue = build_wave_queue(max(player_count, 1))
 	boss_spawn_at = round(length(spawn_queue) * PVE_BOSS_QUEUE_FRACTION)
+	treasure_spawn_at = 0
+	if(wave >= PVE_TREASURE_MIN_WAVE && (mutator == PVE_MUTATOR_GOLD || prob(PVE_TREASURE_CHANCE)))
+		treasure_spawn_at = rand(1, max(1, length(spawn_queue)))
+	contract = roll_contract()
 	next_spawn_time = world.time
 	next_supply_drop = world.time + PVE_SUPPLY_DROP_INTERVAL
 	var/headline = "ВОЛНА [wave]"
@@ -352,6 +383,8 @@
 		message += " [mutator_title(mutator)]: [mutator_description(mutator)]"
 	if(boss_type)
 		message += " С ними идёт босс!"
+	if(contract)
+		message += " Контракт «[contract.title]»: [contract.description]"
 	broadcast(span_boldannounceic(message), boss_type ? 'sound/effects/siren-spooky.ogg' : 'sound/misc/notice1.ogg')
 
 /datum/game_mode/pve/proc/build_wave_queue(player_count)
@@ -377,12 +410,30 @@
 			queue += picked
 	return shuffle(queue)
 
-/datum/game_mode/pve/proc/roll_mutator()
-	if(wave < 3 || is_boss_wave(wave) || !prob(55))
+/datum/game_mode/pve/proc/roll_mutator(wave_number)
+	if(wave_number < 3 || is_boss_wave(wave_number) || !prob(PVE_MUTATOR_CHANCE))
 		return null
-	var/list/options = list(PVE_MUTATOR_NIGHT, PVE_MUTATOR_FRENZY, PVE_MUTATOR_HORDE, PVE_MUTATOR_BLOOD_MOON, PVE_MUTATOR_IRONHIDE) - last_mutator
+	var/list/options = list(PVE_MUTATOR_NIGHT, PVE_MUTATOR_FRENZY, PVE_MUTATOR_HORDE, PVE_MUTATOR_BLOOD_MOON, PVE_MUTATOR_IRONHIDE, PVE_MUTATOR_REGEN, PVE_MUTATOR_GOLD) - last_mutator
 	last_mutator = pick(options)
 	return last_mutator
+
+/datum/game_mode/pve/proc/roll_contract()
+	if(wave < 2 || !prob(PVE_CONTRACT_CHANCE))
+		return null
+	var/list/options = list()
+	for(var/datum/pve_contract/contract_type as anything in valid_subtypesof(/datum/pve_contract))
+		if(initial(contract_type.min_wave) <= wave)
+			options += contract_type
+	if(!length(options))
+		return null
+	var/contract_type = pick(options)
+	var/datum/pve_contract/new_contract = new contract_type
+	new_contract.start(src)
+	return new_contract
+
+/datum/game_mode/pve/proc/on_core_damaged(amount)
+	if(wave_active)
+		contract?.on_core_damage(src, amount)
 
 /datum/game_mode/pve/proc/mutator_title(mutator_id)
 	switch(mutator_id)
@@ -396,6 +447,10 @@
 			return "Кровавая луна"
 		if(PVE_MUTATOR_IRONHIDE)
 			return "Железная шкура"
+		if(PVE_MUTATOR_REGEN)
+			return "Живучесть"
+		if(PVE_MUTATOR_GOLD)
+			return "Золотая лихорадка"
 
 /datum/game_mode/pve/proc/mutator_description(mutator_id)
 	switch(mutator_id)
@@ -409,6 +464,10 @@
 			return "твари крепче и злее, зато награда за них выше."
 		if(PVE_MUTATOR_IRONHIDE)
 			return "пули и клинки бьют тварей слабее, лазеры — как обычно."
+		if(PVE_MUTATOR_REGEN)
+			return "раны тварей затягиваются на глазах — добивайте раненых."
+		if(PVE_MUTATOR_GOLD)
+			return "каждая тварь роняет кредитный чип, а по полю мечется светоч тумана."
 
 /datum/game_mode/pve/proc/current_mutator_title()
 	return wave_active && mutator ? mutator_title(mutator) : null
@@ -461,6 +520,17 @@
 	add_enemy(enemy)
 	return enemy
 
+/datum/game_mode/pve/proc/spawn_treasure()
+	treasure_spawn_at = 0
+	var/mob/living/simple_animal/hostile/pve/treasure/wisp = new(get_spawn_turf())
+	add_enemy(wisp)
+	broadcast(span_boldnotice("По полю мечется светоч тумана! Догоните его, пока он не ускользнул обратно в гнездо, — за него щедро платят."), 'sound/magic/staff_healing.ogg')
+
+/datum/game_mode/pve/proc/regenerate_enemies()
+	for(var/mob/living/simple_animal/hostile/pve/enemy as anything in active_enemies)
+		if(enemy.stat != DEAD && enemy.health < enemy.maxHealth)
+			enemy.adjustHealth(-enemy.maxHealth * PVE_REGEN_FRACTION)
+
 /datum/game_mode/pve/proc/spawn_boss(player_count)
 	var/mob/living/simple_animal/hostile/pve/boss/boss = new boss_type(pick(enemy_spawns))
 	boss_type = null
@@ -498,6 +568,9 @@
 
 /datum/game_mode/pve/proc/reward_kill(mob/living/simple_animal/hostile/pve/enemy)
 	total_kills++
+	if(wave_active)
+		contract?.on_kill(src, enemy)
+	drop_loot(enemy)
 	var/bounty = enemy.bounty
 	if(mutator == PVE_MUTATOR_BLOOD_MOON)
 		bounty *= 1.6
@@ -508,33 +581,67 @@
 			var/datum/pve_account/account = player_accounts[account_key]
 			account.add_credits(round(bounty / 2))
 		broadcast(span_boldannounceic("[DECLENT_RU_CAP(enemy, NOMINATIVE)] повержен[killer ? " рукой [killer.player_name]" : ""]! Каждый получает [round(bounty / 2)] кредитов."), 'sound/misc/notice2.ogg')
+	if(istype(enemy, /mob/living/simple_animal/hostile/pve/treasure))
+		broadcast(span_boldnotice("[killer ? killer.player_name : "Кто-то"] ловит светоч тумана!"), 'sound/misc/notice2.ogg')
 	if(!killer)
 		return
 	var/datum/pve_class/killer_class = classes[killer.class_id]
-	var/reward = round(bounty * (killer_class ? killer_class.bounty_multiplier : 1))
+	var/reward = round(bounty * (killer_class ? killer_class.bounty_multiplier : 1) * (1 + killer.upgrade_level(PVE_UPGRADE_LOOTER) * PVE_LOOTER_BONUS))
 	killer.kills++
 	killer.add_credits(reward)
 	var/mob/killer_body = killer.get_body()
 	killer_body?.balloon_alert(killer_body, "+[reward]")
+
+/datum/game_mode/pve/proc/drop_loot(mob/living/simple_animal/hostile/pve/enemy)
+	var/static/list/field_loot = list(
+		/obj/item/stack/medical/bruise_pack = 3,
+		/obj/item/stack/medical/ointment = 3,
+		/obj/item/reagent_containers/hypospray/autoinjector = 2,
+		/obj/item/ammo_box/magazine/m10mm = 2,
+		/obj/item/ammo_box/speedloader/shotgun/buck = 2,
+		/obj/item/ammo_box/speedloader/a762 = 2,
+		/obj/item/flashlight/flare = 2,
+		/obj/item/pve_deployable/mine = 1,
+		/obj/item/grenade/frag = 1,
+	)
+	var/turf/drop_turf = get_turf(enemy)
+	if(!drop_turf || istype(enemy, /mob/living/simple_animal/hostile/pve/boss))
+		return
+	if(enemy.elite || mutator == PVE_MUTATOR_GOLD || prob(PVE_LOOT_CHIP_CHANCE))
+		new /obj/item/pve_credit_chip(drop_turf, max(5, round(enemy.bounty)))
+	if(prob(PVE_LOOT_ITEM_CHANCE))
+		var/loot_type = pickweight(field_loot)
+		new loot_type(drop_turf)
 
 /datum/game_mode/pve/proc/complete_wave()
 	wave_active = FALSE
 	if(mutator == PVE_MUTATOR_NIGHT)
 		set_outdoor_lighting(255)
 	mutator = null
+	treasure_spawn_at = 0
 	var/reward = PVE_WAVE_REWARD_BASE + wave * PVE_WAVE_REWARD_PER_WAVE
+	var/contract_reward = 0
+	if(contract?.is_complete(src))
+		contract_reward = PVE_CONTRACT_REWARD_BASE + wave * PVE_CONTRACT_REWARD_PER_WAVE
+		broadcast(span_boldnotice("Контракт «[contract.title]» выполнен! Каждый получает ещё [contract_reward] кредитов."))
+	else if(contract)
+		broadcast(span_warning("Контракт «[contract.title]» не выполнен."))
+	QDEL_NULL(contract)
 	for(var/account_key in player_accounts)
 		var/datum/pve_account/account = player_accounts[account_key]
 		var/mob/living/body = account.get_body()
-		account.add_credits(body?.stat == DEAD ? round(reward / 2) : reward)
+		account.add_credits((body?.stat == DEAD ? round(reward / 2) : reward) + contract_reward)
 	core?.repair_damage(core.max_integrity * PVE_CORE_WAVE_REGEN)
 	respawn_dead()
 	if(wave >= PVE_FINAL_WAVE)
 		finish(TRUE, "Пожиратель тумана повержен, туман рассеивается.")
 		return
 	next_wave_time = world.time + (is_boss_wave(wave + 1) ? PVE_BOSS_PREPARATION : PVE_PREPARATION)
+	next_mutator = roll_mutator(wave + 1)
 	banner("ВОЛНА [wave] ОТБИТА", "#60ff80")
 	broadcast(span_boldannounceic("Волна [wave] отбита! Каждый получает [reward] кредитов (павшие — половину), Маяк частично восстановлен. Следующая волна через [round((next_wave_time - world.time) / (1 SECONDS))] секунд[is_boss_wave(wave + 1) ? " — и это будет босс" : ""]."), 'sound/misc/notice2.ogg')
+	if(next_mutator)
+		broadcast(span_notice("Разведка докладывает: следующая волна — [mutator_title(next_mutator)], [mutator_description(next_mutator)]"))
 
 /datum/game_mode/pve/proc/respawn_dead()
 	. = FALSE
@@ -568,8 +675,17 @@
 	outfit.equip(new_body)
 	var/datum/pve_class/player_class = classes[account.class_id]
 	player_class?.equip(new_body)
+	apply_upgrades(account, new_body)
 	to_chat(new_body, span_boldnotice("Вы снова в строю!"))
 	return TRUE
+
+/datum/game_mode/pve/proc/apply_upgrades(datum/pve_account/account, mob/living/carbon/human/body)
+	for(var/product_id in products)
+		var/datum/pve_product/upgrade/upgrade = products[product_id]
+		if(!istype(upgrade))
+			continue
+		for(var/i in 1 to account.upgrade_level(upgrade.upgrade_id))
+			upgrade.apply_upgrade(body)
 
 /datum/game_mode/pve/proc/launch_supply_drop()
 	if(!length(drop_turfs))
@@ -617,6 +733,8 @@
 	wave_active = FALSE
 	spawn_queue.Cut()
 	boss_type = null
+	treasure_spawn_at = 0
+	QDEL_NULL(contract)
 	set_outdoor_lighting(255)
 	for(var/mob/living/simple_animal/hostile/pve/enemy as anything in active_enemies)
 		enemy.toggle_ai(AI_OFF)
@@ -653,6 +771,7 @@
 	QDEL_LIST_ASSOC_VAL(classes)
 	QDEL_LIST_ASSOC_VAL(products)
 	QDEL_NULL(flow_field)
+	QDEL_NULL(contract)
 	if(core)
 		UnregisterSignal(core, COMSIG_QDELETING)
 	core = null
@@ -678,6 +797,7 @@
 	var/kills = 0
 	var/deaths = 0
 	var/class_id
+	var/list/upgrades = list()
 	var/ready = FALSE
 	var/class_prompt_open = FALSE
 	var/next_class_prompt = 0
@@ -705,6 +825,9 @@
 /datum/pve_account/proc/get_client()
 	var/datum/mind/player_mind = mind_ref?.resolve()
 	return player_mind?.key ? GLOB.directory[ckey(player_mind.key)] : null
+
+/datum/pve_account/proc/upgrade_level(upgrade_id)
+	return upgrades[upgrade_id] || 0
 
 /datum/pve_account/proc/add_credits(amount)
 	credits += amount
@@ -735,7 +858,7 @@
 	name = "defense status"
 	screen_loc = "CENTER-5,TOP-1"
 	maptext_width = 352
-	maptext_height = 40
+	maptext_height = 56
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
 /datum/map_template/pve_arena
@@ -804,3 +927,13 @@
 #undef PVE_NIGHT_LIGHTING_ALPHA
 #undef PVE_BOSS_QUEUE_FRACTION
 #undef PVE_MAX_ELITE_CHANCE
+#undef PVE_MUTATOR_CHANCE
+#undef PVE_CONTRACT_CHANCE
+#undef PVE_CONTRACT_REWARD_BASE
+#undef PVE_CONTRACT_REWARD_PER_WAVE
+#undef PVE_TREASURE_CHANCE
+#undef PVE_TREASURE_MIN_WAVE
+#undef PVE_LOOT_CHIP_CHANCE
+#undef PVE_LOOT_ITEM_CHANCE
+#undef PVE_REGEN_FRACTION
+#undef PVE_LOOTER_BONUS

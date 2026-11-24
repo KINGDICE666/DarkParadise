@@ -48,6 +48,23 @@
 	player.forceMove(player_spawn)
 	TEST_ASSERT(!armory.purchase(player, "[/datum/pve_product/ammo/pistol]"), "A remote purchase succeeded.")
 
+	var/obj/machinery/computer/pve_shop/command/command
+	for(var/obj/machinery/computer/pve_shop/command/candidate as anything in SSmachines.get_by_type(/obj/machinery/computer/pve_shop/command))
+		if(candidate.z == mode.arena_z)
+			command = candidate
+			break
+	TEST_ASSERT_NOTNULL(command, "PvE arena has no command terminal.")
+	player.forceMove(get_step(command, SOUTH))
+	account.credits = 1000
+	var/base_max_health = player.maxHealth
+	TEST_ASSERT(command.purchase(player, "[/datum/pve_product/upgrade/toughness]"), "Buying an upgrade failed.")
+	TEST_ASSERT_EQUAL(account.upgrade_level(PVE_UPGRADE_TOUGHNESS), 1, "The upgrade level was not recorded.")
+	TEST_ASSERT_EQUAL(player.maxHealth, base_max_health + 15, "The toughness upgrade did not raise max health.")
+	TEST_ASSERT(command.purchase(player, "[/datum/pve_product/upgrade/sprint]"), "Buying the sprint upgrade failed.")
+	TEST_ASSERT(!command.purchase(player, "[/datum/pve_product/upgrade/sprint]"), "An upgrade was bought past its max level.")
+	account.credits = 35
+	player.forceMove(player_spawn)
+
 	mode.started = TRUE
 	mode.next_wave_time = world.time + 1 MINUTES
 	mode.process()
@@ -75,20 +92,42 @@
 	mode.spawn_queue.Cut()
 	for(var/mob/living/remaining_enemy as anything in mode.active_enemies.Copy())
 		qdel(remaining_enemy)
+	var/datum/pve_contract/flawless = new /datum/pve_contract/flawless
+	mode.contract = flawless
 	player.death()
 	TEST_ASSERT_EQUAL(account.deaths, 1, "A defender death was not counted.")
+	TEST_ASSERT(flawless.failed, "A defender death did not fail the flawless contract.")
 	expected_credits = account.credits + round((60 + 15) / 2)
 	mode.complete_wave()
 	TEST_ASSERT(!mode.wave_active, "Preparation did not resume after clearing the wave.")
+	TEST_ASSERT_NULL(mode.contract, "The wave contract was not cleared.")
 	TEST_ASSERT_EQUAL(account.credits, expected_credits, "A fallen defender did not get half of the wave reward.")
 	TEST_ASSERT(player.stat != DEAD, "A fallen defender was not revived after the wave.")
 	TEST_ASSERT(get_turf(player) in mode.player_spawns, "A revived defender was not returned to the base.")
+	TEST_ASSERT_EQUAL(player.maxHealth, base_max_health + 15, "The toughness upgrade was lost on revival.")
+
+	var/datum/pve_contract/beacon/beacon_contract = allocate(/datum/pve_contract/beacon)
+	beacon_contract.start(mode)
+	beacon_contract.on_core_damage(mode, 10)
+	TEST_ASSERT(beacon_contract.is_complete(mode), "Light beacon damage failed the beacon contract.")
+	beacon_contract.on_core_damage(mode, mode.core.max_integrity)
+	TEST_ASSERT(!beacon_contract.is_complete(mode), "Heavy beacon damage did not fail the beacon contract.")
 
 	mode.wave = 4
 	mode.start_wave(1)
 	TEST_ASSERT_EQUAL(mode.boss_type, /mob/living/simple_animal/hostile/pve/boss/broodmother, "The fifth wave has no boss.")
 	mode.spawn_boss(1)
 	TEST_ASSERT(istype(mode.active_boss, /mob/living/simple_animal/hostile/pve/boss/broodmother), "The boss did not spawn.")
+
+	var/enemies_before = length(mode.active_enemies)
+	var/mob/living/simple_animal/hostile/pve/carrier/carrier = mode.spawn_enemy(/mob/living/simple_animal/hostile/pve/carrier)
+	carrier.death()
+	TEST_ASSERT_EQUAL(length(mode.active_enemies), enemies_before + 3, "A dead carrier did not release its swarm.")
+	mode.spawn_treasure()
+	var/mob/living/simple_animal/hostile/pve/treasure/wisp = locate() in mode.active_enemies
+	TEST_ASSERT_NOTNULL(wisp, "The treasure wisp did not spawn.")
+	wisp.escape()
+	TEST_ASSERT(!(wisp in mode.active_enemies), "An escaped treasure wisp stayed in the wave.")
 
 	var/obj/machinery/porta_turret/syndicate/pve/turret = allocate(/obj/machinery/porta_turret/syndicate/pve, get_step(player, EAST))
 	mode.active_boss.forceMove(get_step(turret, EAST))

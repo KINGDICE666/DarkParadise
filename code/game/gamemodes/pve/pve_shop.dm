@@ -2,6 +2,9 @@
 #define PVE_CORE_REINFORCE_AMOUNT 250
 #define PVE_ARTILLERY_DAMAGE 80
 #define PVE_ARTILLERY_BOSS_FACTOR 0.25
+#define PVE_CORE_SHIELD_DURATION (20 SECONDS)
+#define PVE_TOUGHNESS_HEALTH 15
+#define PVE_RESILIENCE_MOD 0.9
 
 /datum/pve_product
 	abstract_type = /datum/pve_product
@@ -45,6 +48,7 @@
 		"category" = category,
 		"class_only" = class_only,
 		"limit" = limit,
+		"max_level" = 0,
 		"icon" = preview ? initial(preview.icon) : null,
 		"icon_state" = preview ? initial(preview.icon_state) : null,
 	)
@@ -52,6 +56,12 @@
 /datum/pve_product/weapon
 	abstract_type = /datum/pve_product/weapon
 	category = PVE_CATEGORY_WEAPONS
+
+/datum/pve_product/weapon/spear
+	title = "Копьё"
+	description = "Дешёвое двуручное копьё. Достаёт тварь, пока она не дотянулась до вас."
+	price = 80
+	item_path = /obj/item/twohanded/spear
 
 /datum/pve_product/weapon/pistol
 	title = "Пистолет 10 мм"
@@ -64,6 +74,30 @@
 	description = "Мощный выстрел, ручная перезарядка. Заряжается обоймами по 5 патронов."
 	price = 220
 	item_path = /obj/item/gun/projectile/shotgun/boltaction
+
+/datum/pve_product/weapon/doublebarrel
+	title = "Двустволка"
+	description = "Два ствола картечи сразу. Перезаряжается зарядником картечи."
+	price = 200
+	item_path = /obj/item/gun/projectile/revolver/doublebarrel
+
+/datum/pve_product/weapon/mateba
+	title = "Револьвер .357"
+	description = "Тяжёлый шестизарядный револьвер. Каждый выстрел валит мелочь."
+	price = 380
+	item_path = /obj/item/gun/projectile/revolver/mateba
+
+/datum/pve_product/weapon/uzi
+	title = "Мини-Узи"
+	description = "Лёгкий скорострельный пистолет-пулемёт."
+	price = 450
+	item_path = /obj/item/gun/projectile/automatic/smg/mini_uzi
+
+/datum/pve_product/weapon/energy_gun
+	title = "Энергетический карабин"
+	description = "Лазер без патронов в компактном корпусе. Заряжайте в оружейной."
+	price = 520
+	item_path = /obj/item/gun/energy/gun
 
 /datum/pve_product/weapon/shotgun
 	title = "Помповый дробовик"
@@ -94,6 +128,43 @@
 	description = "Скорострельный пистолет-пулемёт на 20 патронов."
 	price = 550
 	item_path = /obj/item/gun/projectile/automatic/smg/wt550
+
+/datum/pve_product/weapon/c20r
+	title = "Пистолет-пулемёт C-20r"
+	description = "Надёжный автомат калибра .45 на 20 патронов."
+	price = 800
+	item_path = /obj/item/gun/projectile/automatic/smg/c20r
+
+/datum/pve_product/weapon/tommygun
+	title = "Пистолет-пулемёт Томпсона"
+	description = "Барабанный магазин на 50 патронов — поливает толпу свинцом."
+	price = 950
+	item_path = /obj/item/gun/projectile/automatic/tommygun
+
+/datum/pve_product/weapon/ak814
+	title = "Автомат АГ-814"
+	description = "Штурмовая винтовка: мощная, точная, надёжная."
+	price = 1000
+	item_path = /obj/item/gun/projectile/automatic/ak814
+
+/datum/pve_product/weapon/bulldog
+	title = "Дробовик «Бульдог»"
+	description = "Автоматический дробовик с магазинным питанием."
+	price = 1250
+	item_path = /obj/item/gun/projectile/automatic/shotgun/bulldog
+
+/datum/pve_product/weapon/xray
+	title = "Рентгеновский лазер"
+	description = "Луч проходит сквозь стены и баррикады. Плавит големов."
+	price = 1600
+	item_path = /obj/item/gun/energy/xray
+
+/datum/pve_product/weapon/antique_laser
+	title = "Антикварный лазер"
+	description = "Реликвия, которая сама восстанавливает заряд. Всего один экземпляр."
+	price = 2400
+	limit = 1
+	item_path = /obj/item/gun/energy/laser/captain
 
 /datum/pve_product/weapon/combat_shotgun
 	title = "Боевой дробовик"
@@ -141,6 +212,20 @@
 	item_path = /obj/item/flamethrower/full/tank/pve
 	class_only = PVE_CLASS_GUARDIAN
 
+/datum/pve_product/weapon/chainsaw
+	title = "Бензопила"
+	description = "Рёв мотора и куски тварей во все стороны."
+	price = 650
+	item_path = /obj/item/twohanded/chainsaw
+	class_only = PVE_CLASS_GUARDIAN
+
+/datum/pve_product/weapon/energy_saber
+	title = "Энергетический меч"
+	description = "Режет всё и отражает часть снарядов."
+	price = 1000
+	item_path = /obj/item/melee/energy/sword/saber
+	class_only = PVE_CLASS_GUARDIAN
+
 /datum/pve_product/ammo
 	abstract_type = /datum/pve_product/ammo
 	category = PVE_CATEGORY_AMMO
@@ -162,6 +247,48 @@
 	description = "Быстрое заряжание дробовика картечью."
 	price = 50
 	item_path = /obj/item/ammo_box/speedloader/shotgun/buck
+
+/datum/pve_product/ammo/slug
+	title = "Зарядник пуль 12 калибра"
+	description = "Тяжёлые пули для дробовика: бьют дальше и точнее картечи."
+	price = 60
+	item_path = /obj/item/ammo_box/speedloader/shotgun/slug
+
+/datum/pve_product/ammo/revolver
+	title = "Зарядник .357"
+	description = "Шесть патронов для револьвера."
+	price = 60
+	item_path = /obj/item/ammo_box/speedloader/a357
+
+/datum/pve_product/ammo/uzi
+	title = "Магазин Мини-Узи"
+	description = "Для Мини-Узи."
+	price = 60
+	item_path = /obj/item/ammo_box/magazine/uzim9mm
+
+/datum/pve_product/ammo/c20r
+	title = "Магазин .45"
+	description = "Для C-20r."
+	price = 90
+	item_path = /obj/item/ammo_box/magazine/smgm45
+
+/datum/pve_product/ammo/tommygun
+	title = "Барабан Томпсона"
+	description = "50 патронов для пистолета-пулемёта Томпсона."
+	price = 150
+	item_path = /obj/item/ammo_box/magazine/tommygunm45
+
+/datum/pve_product/ammo/ak814
+	title = "Магазин 5,45 мм"
+	description = "Для автомата АГ-814."
+	price = 110
+	item_path = /obj/item/ammo_box/magazine/ak814
+
+/datum/pve_product/ammo/bulldog
+	title = "Магазин «Бульдога»"
+	description = "Картечь для дробовика «Бульдог»."
+	price = 140
+	item_path = /obj/item/ammo_box/magazine/m12g
 
 /datum/pve_product/ammo/smg
 	title = "Магазин WT-550"
@@ -231,6 +358,36 @@
 	price = 150
 	item_path = /obj/item/clothing/head/helmet/riot
 
+/datum/pve_product/armor/bulletproof
+	title = "Пуленепробиваемый жилет"
+	description = "Толстые пластины держат удары лучше обычного бронежилета."
+	price = 220
+	item_path = /obj/item/clothing/suit/armor/bulletproof
+
+/datum/pve_product/armor/ablative
+	title = "Аблятивная броня"
+	description = "Защищает от кровавых снарядов вестника и пожирателя."
+	price = 380
+	item_path = /obj/item/clothing/suit/armor/laserproof
+
+/datum/pve_product/armor/gas_mask
+	title = "Противогаз"
+	description = "Защищает от ядовитого тумана гнезда."
+	price = 60
+	item_path = /obj/item/clothing/mask/gas
+
+/datum/pve_product/armor/webbing
+	title = "Разгрузочный пояс"
+	description = "Вмещает магазины, гранаты и аптечки."
+	price = 90
+	item_path = /obj/item/storage/belt/military
+
+/datum/pve_product/armor/duffel
+	title = "Вещмешок"
+	description = "Вместительнее обычного рюкзака."
+	price = 70
+	item_path = /obj/item/storage/backpack/duffel
+
 /datum/pve_product/armor/heavy
 	title = "Тяжёлая броня"
 	description = "Максимальная защита ценой подвижности."
@@ -296,6 +453,36 @@
 	price = 70
 	item_path = /obj/item/stack/medical/ointment/advanced
 
+/datum/pve_product/medicine/styptic
+	title = "Кровоостанавливающий пластырь"
+	description = "Быстро лечит ушибы и порезы."
+	price = 25
+	item_path = /obj/item/reagent_containers/food/pill/patch/styptic
+
+/datum/pve_product/medicine/silver_sulf
+	title = "Пластырь от ожогов"
+	description = "Быстро лечит ожоги."
+	price = 25
+	item_path = /obj/item/reagent_containers/food/pill/patch/silver_sulf
+
+/datum/pve_product/medicine/charcoal
+	title = "Автоинъектор угля"
+	description = "Выводит яд гнезда и кислоту плевунов."
+	price = 40
+	item_path = /obj/item/reagent_containers/hypospray/autoinjector/charcoal
+
+/datum/pve_product/medicine/blood
+	title = "Пакет крови O−"
+	description = "Подходит всем. Возвращает потерянную кровь через капельницу."
+	price = 50
+	item_path = /obj/item/reagent_containers/iv_bag/blood/OMinus
+
+/datum/pve_product/medicine/roller
+	title = "Каталка"
+	description = "Быстро вывезти раненого с поля боя."
+	price = 40
+	item_path = /obj/item/roller
+
 /datum/pve_product/medicine/epinephrine
 	title = "Автоинъектор адреналина"
 	description = "Стабилизирует умирающего товарища."
@@ -313,6 +500,36 @@
 	description = "Набор для серьёзных ранений."
 	price = 300
 	item_path = /obj/item/storage/firstaid/adv
+
+/datum/pve_product/medicine/brute_kit
+	title = "Аптечка от травм"
+	description = "Всё, чтобы залатать следы когтей и клыков."
+	price = 160
+	item_path = /obj/item/storage/firstaid/brute
+
+/datum/pve_product/medicine/burn_kit
+	title = "Аптечка от ожогов"
+	description = "Против кислоты и кровавых снарядов."
+	price = 160
+	item_path = /obj/item/storage/firstaid/fire
+
+/datum/pve_product/medicine/toxin_kit
+	title = "Аптечка от токсинов"
+	description = "Для тех, кто надышался туманом гнезда."
+	price = 110
+	item_path = /obj/item/storage/firstaid/toxin
+
+/datum/pve_product/medicine/surgery_kit
+	title = "Хирургический набор"
+	description = "Скальпель, пила, зажимы — всё для операции на поле боя."
+	price = 200
+	item_path = /obj/item/storage/firstaid/surgery
+
+/datum/pve_product/medicine/defibrillator
+	title = "Дефибриллятор"
+	description = "Возвращает павших в строй. Носится на спине."
+	price = 550
+	item_path = /obj/item/defibrillator/loaded
 
 /datum/pve_product/medicine/survival
 	title = "Медипен выживания"
@@ -332,7 +549,7 @@
 	price = 80
 	item_path = /obj/item/clothing/glasses/hud/health
 
-/datum/pve_product/medicine/defibrillator
+/datum/pve_product/medicine/compact_defibrillator
 	title = "Компактный дефибриллятор"
 	description = "Возвращает павших прямо в бою."
 	price = 450
@@ -344,6 +561,13 @@
 	description = "Непрерывно лечит союзника на расстоянии."
 	price = 1500
 	item_path = /obj/item/gun/medbeam
+	class_only = PVE_CLASS_MEDIC
+
+/datum/pve_product/medicine/omnizine_hypo
+	title = "Гипоспрей с омнизином"
+	description = "Сто единиц лекарства от всего. Мечта полевого медика."
+	price = 900
+	item_path = /obj/item/reagent_containers/hypospray/CMO
 	class_only = PVE_CLASS_MEDIC
 
 /datum/pve_product/structure
@@ -373,6 +597,12 @@
 	description = "Взрывается под тварями, не трогая своих."
 	price = 60
 	item_path = /obj/item/pve_deployable/mine
+
+/datum/pve_product/structure/spikes
+	title = "Колья"
+	description = "Ранят каждую тварь, что по ним пройдёт. Мышей не замечают."
+	price = 70
+	item_path = /obj/item/pve_deployable/spikes
 
 /datum/pve_product/structure/lamp
 	title = "Прожектор"
@@ -404,6 +634,18 @@
 	price = 80
 	item_path = /obj/item/stack/sheet/wood/fifty
 
+/datum/pve_product/structure/glass
+	title = "Стекло, 50 листов"
+	description = "Для окон и всего, что придумает инженер."
+	price = 60
+	item_path = /obj/item/stack/sheet/glass/fifty
+
+/datum/pve_product/structure/plasteel
+	title = "Пласталь, 15 листов"
+	description = "Для укреплённых стен, которые не по зубам даже громилам."
+	price = 300
+	item_path = /obj/item/stack/sheet/plasteel/fifteen
+
 /datum/pve_product/structure/welder
 	title = "Большой сварочный аппарат"
 	description = "Чинит Маяк, турели и металлические барьеры."
@@ -422,6 +664,13 @@
 	description = "Вдвое прочнее и бьёт сильнее обычной."
 	price = 1100
 	item_path = /obj/item/pve_deployable/turret/heavy
+	class_only = PVE_CLASS_ENGINEER
+
+/datum/pve_product/structure/tesla
+	title = "Тесла-катушка"
+	description = "Бьёт молнией ближайшую тварь в радиусе шести шагов. Не боится призраков."
+	price = 800
+	item_path = /obj/item/pve_deployable/tesla
 	class_only = PVE_CLASS_ENGINEER
 
 /datum/pve_product/support
@@ -498,6 +747,120 @@
 	mode.broadcast(span_boldannounceic("[user.real_name] возвращает павших в строй!"), 'sound/misc/notice2.ogg')
 	return TRUE
 
+/datum/pve_product/support/core_pulse
+	title = "Пульс Маяка"
+	description = "Маяк бьёт молниями тварей вокруг себя. Каждый уровень — сильнее и дальше."
+	price = 900
+	limit = 3
+
+/datum/pve_product/support/core_pulse/deliver(mob/living/user, datum/game_mode/pve/mode)
+	if(!mode.core)
+		return FALSE
+	mode.core.upgrade_pulse()
+	mode.broadcast(span_notice("[user.real_name] усиливает пульс Маяка до уровня [mode.core.pulse_level]."))
+	return TRUE
+
+/datum/pve_product/support/core_shield
+	title = "Щит Маяка"
+	description = "На 20 секунд делает Маяк неуязвимым. Раз в волну."
+	price = 450
+	once_per_wave = TRUE
+
+/datum/pve_product/support/core_shield/get_error(datum/game_mode/pve/mode, datum/pve_account/account)
+	if(!mode.wave_active)
+		return "волна ещё не началась"
+	return ..()
+
+/datum/pve_product/support/core_shield/deliver(mob/living/user, datum/game_mode/pve/mode)
+	if(!mode.core)
+		return FALSE
+	mode.core.raise_shield(PVE_CORE_SHIELD_DURATION)
+	mode.broadcast(span_boldnotice("[user.real_name] поднимает щит над Маяком!"))
+	return TRUE
+
+/datum/pve_product/support/flare_volley
+	title = "Осветительный залп"
+	description = "Разгоняет ночь над полем до конца волны."
+	price = 250
+	once_per_wave = TRUE
+
+/datum/pve_product/support/flare_volley/get_error(datum/game_mode/pve/mode, datum/pve_account/account)
+	if(!mode.wave_active || mode.mutator != PVE_MUTATOR_NIGHT)
+		return "сейчас не ночь"
+	return ..()
+
+/datum/pve_product/support/flare_volley/deliver(mob/living/user, datum/game_mode/pve/mode)
+	mode.set_outdoor_lighting(255)
+	mode.broadcast(span_boldnotice("[user.real_name] запускает осветительный залп — поле залито светом!"), 'sound/weapons/flash.ogg')
+	return TRUE
+
+/datum/pve_product/upgrade
+	abstract_type = /datum/pve_product/upgrade
+	category = PVE_CATEGORY_UPGRADES
+	var/upgrade_id
+	var/max_level = 1
+
+/datum/pve_product/upgrade/get_error(datum/game_mode/pve/mode, datum/pve_account/account)
+	if(account.upgrade_level(upgrade_id) >= max_level)
+		return "максимальный уровень"
+	return ..()
+
+/datum/pve_product/upgrade/deliver(mob/living/user, datum/game_mode/pve/mode)
+	var/datum/pve_account/account = mode.get_account(user)
+	if(!account || !ishuman(user))
+		return FALSE
+	account.upgrades[upgrade_id] = account.upgrade_level(upgrade_id) + 1
+	apply_upgrade(user)
+	to_chat(user, span_notice("Тренировка «[title]» пройдена: уровень [account.upgrade_level(upgrade_id)] из [max_level]."))
+	return TRUE
+
+/datum/pve_product/upgrade/ui_entry()
+	. = ..()
+	.["max_level"] = max_level
+
+/datum/pve_product/upgrade/proc/apply_upgrade(mob/living/carbon/human/body)
+	return
+
+/datum/pve_product/upgrade/toughness
+	title = "Закалка"
+	description = "+15 к максимальному здоровью за уровень."
+	price = 250
+	upgrade_id = PVE_UPGRADE_TOUGHNESS
+	max_level = 3
+
+/datum/pve_product/upgrade/toughness/apply_upgrade(mob/living/carbon/human/body)
+	body.adjust_max_health(PVE_TOUGHNESS_HEALTH)
+
+/datum/pve_product/upgrade/resilience
+	title = "Стойкость"
+	description = "На 10% меньше урона от когтей, кислоты и огня за уровень."
+	price = 400
+	upgrade_id = PVE_UPGRADE_RESILIENCE
+	max_level = 2
+
+/datum/pve_product/upgrade/resilience/apply_upgrade(mob/living/carbon/human/body)
+	body.physiology.brute_mod *= PVE_RESILIENCE_MOD
+	body.physiology.burn_mod *= PVE_RESILIENCE_MOD
+
+/datum/pve_product/upgrade/sprint
+	title = "Марш-бросок"
+	description = "Вы бегаете заметно быстрее."
+	price = 450
+	upgrade_id = PVE_UPGRADE_SPRINT
+
+/datum/pve_product/upgrade/sprint/apply_upgrade(mob/living/carbon/human/body)
+	body.add_movespeed_modifier(/datum/movespeed_modifier/pve_sprint)
+
+/datum/pve_product/upgrade/looter
+	title = "Мародёр"
+	description = "+15% кредитов за каждое убийство за уровень."
+	price = 300
+	upgrade_id = PVE_UPGRADE_LOOTER
+	max_level = 2
+
+/datum/movespeed_modifier/pve_sprint
+	multiplicative_slowdown = -0.25
+
 /obj/machinery/computer/pve_shop
 	name = "supply terminal"
 	desc = "Терминал снабжения защитников. Принимает кредиты, заработанные в бою."
@@ -569,6 +932,7 @@
 	for(var/category in categories)
 		discounts[category] = player_class ? player_class.get_price_multiplier(category) : 1
 	var/list/sold_out = list()
+	var/list/levels = list()
 	for(var/product_id in mode.products)
 		var/datum/pve_product/product = mode.products[product_id]
 		if(!(product.category in categories))
@@ -576,6 +940,9 @@
 		var/error = product.get_error(mode, account)
 		if(error)
 			sold_out[product_id] = error
+		var/datum/pve_product/upgrade/upgrade = product
+		if(istype(upgrade))
+			levels[product_id] = account.upgrade_level(upgrade.upgrade_id)
 	var/list/team = list()
 	for(var/account_key in mode.player_accounts)
 		var/datum/pve_account/teammate = mode.player_accounts[account_key]
@@ -603,9 +970,12 @@
 	data["enemies"] = mode.enemies_remaining()
 	data["seconds"] = max(0, round((mode.next_wave_time - world.time) / (1 SECONDS)))
 	data["mutator"] = mode.current_mutator_title()
+	data["next_mutator"] = !mode.wave_active && mode.next_mutator ? mode.mutator_title(mode.next_mutator) : null
+	data["contract"] = mode.wave_active ? mode.contract?.status_text() : null
 	data["core"] = mode.core ? round(mode.core.obj_integrity / mode.core.max_integrity * 100) : 0
 	data["discounts"] = discounts
 	data["unavailable"] = sold_out
+	data["levels"] = levels
 	data["team"] = team
 	return data
 
@@ -710,7 +1080,7 @@
 	name = "command terminal"
 	terminal_title = "Штаб"
 	icon_screen = "comm"
-	categories = list(PVE_CATEGORY_SUPPORT)
+	categories = list(PVE_CATEGORY_SUPPORT, PVE_CATEGORY_UPGRADES)
 
 /obj/machinery/computer/pve_shop/command/get_ru_names()
 	return alist(
@@ -726,3 +1096,6 @@
 #undef PVE_CORE_REINFORCE_AMOUNT
 #undef PVE_ARTILLERY_DAMAGE
 #undef PVE_ARTILLERY_BOSS_FACTOR
+#undef PVE_CORE_SHIELD_DURATION
+#undef PVE_TOUGHNESS_HEALTH
+#undef PVE_RESILIENCE_MOD

@@ -9,6 +9,15 @@
 #define PVE_SHAMAN_RANGE 5
 #define PVE_CHARGE_DAMAGE 30
 #define PVE_CHARGE_RANGE 8
+#define PVE_TREASURE_ESCAPE_TIME (45 SECONDS)
+#define PVE_CARRIER_BROOD 3
+#define PVE_STALKER_REVEAL_RANGE 2
+#define PVE_STALKER_HIDDEN_ALPHA 35
+#define PVE_STALKER_REVEAL_TIME (3 SECONDS)
+#define PVE_HOWLER_RANGE 5
+#define PVE_HOWLER_COOLDOWN (7 SECONDS)
+#define PVE_RALLY_DURATION (6 SECONDS)
+#define PVE_RALLY_DAMAGE_MULT 1.4
 
 /mob/living/simple_animal/hostile/pve
 	abstract_type = /mob/living/simple_animal/hostile/pve
@@ -44,6 +53,7 @@
 	var/spawn_weight = 0
 	var/group_size = 1
 	var/elite = FALSE
+	var/last_hit_melee = FALSE
 	var/datum/weakref/last_hitter
 	var/turf/last_turf
 	var/last_activity = 0
@@ -136,10 +146,11 @@
 	return ..()
 
 /mob/living/simple_animal/hostile/pve/proceed_attack_results(obj/item/I, mob/living/user, params, def_zone)
-	note_attacker(user)
+	note_attacker(user, melee = TRUE)
 	return ..()
 
-/mob/living/simple_animal/hostile/pve/proc/note_attacker(atom/attacker)
+/mob/living/simple_animal/hostile/pve/proc/note_attacker(atom/attacker, melee = FALSE)
+	last_hit_melee = melee
 	if(istype(attacker, /obj/machinery/porta_turret/syndicate/pve))
 		var/obj/machinery/porta_turret/syndicate/pve/turret = attacker
 		if(turret.owner_mind)
@@ -470,6 +481,226 @@
 		PREPOSITIONAL = "туманной мыши",
 	)
 
+/mob/living/simple_animal/hostile/pve/carrier
+	name = "fog carrier"
+	desc = "Раздутый улей на ножках. Если его разорвать, наружу вылетит стайка туманных мышей."
+	icon = 'icons/mob/lavaland/lavaland_monsters.dmi'
+	icon_state = "Hivelord"
+	icon_living = "Hivelord"
+	icon_dead = "Hivelord_dead"
+	maxHealth = 90
+	health = 90
+	melee_damage_lower = 7
+	melee_damage_upper = 7
+	move_to_delay = 5
+	bounty = 14
+	attacktext = "хлещет"
+	spawn_cost = 3
+	unlock_wave = 5
+	spawn_weight = 3
+
+/mob/living/simple_animal/hostile/pve/carrier/get_ru_names()
+	return alist(
+		NOMINATIVE = "носитель",
+		GENITIVE = "носителя",
+		DATIVE = "носителю",
+		ACCUSATIVE = "носителя",
+		INSTRUMENTAL = "носителем",
+		PREPOSITIONAL = "носителе",
+	)
+
+/mob/living/simple_animal/hostile/pve/carrier/death(gibbed)
+	. = ..()
+	if(!.)
+		return
+	var/datum/game_mode/pve/mode = get_mode()
+	if(!mode || mode.finished)
+		return
+	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] лопается, выпуская рой!"))
+	for(var/i in 1 to PVE_CARRIER_BROOD)
+		mode.add_enemy(new /mob/living/simple_animal/hostile/pve/swarm(get_turf(src)))
+
+/mob/living/simple_animal/hostile/pve/stalker
+	name = "stalker"
+	desc = "Почти невидимая тень. Проявляется, лишь подобравшись вплотную, и бьёт очень больно."
+	icon = 'icons/mob/mob.dmi'
+	icon_state = "shadow"
+	icon_living = "shadow"
+	alpha = PVE_STALKER_HIDDEN_ALPHA
+	maxHealth = 55
+	health = 55
+	melee_damage_lower = 20
+	melee_damage_upper = 20
+	move_to_delay = 3
+	bounty = 18
+	del_on_death = TRUE
+	deathmessage = "рассеивается клочьями тьмы."
+	attacktext = "вспарывает"
+	attack_sound = 'sound/weapons/bladeslice.ogg'
+	spawn_cost = 3
+	unlock_wave = 9
+	spawn_weight = 3
+	var/revealed = FALSE
+	var/reveal_until = 0
+
+/mob/living/simple_animal/hostile/pve/stalker/get_ru_names()
+	return alist(
+		NOMINATIVE = "скрытень",
+		GENITIVE = "скрытня",
+		DATIVE = "скрытню",
+		ACCUSATIVE = "скрытня",
+		INSTRUMENTAL = "скрытнем",
+		PREPOSITIONAL = "скрытне",
+	)
+
+/mob/living/simple_animal/hostile/pve/stalker/handle_automated_action()
+	. = ..()
+	if(stat)
+		return
+	var/near_target = target && get_dist(src, target) <= PVE_STALKER_REVEAL_RANGE
+	set_revealed(near_target || world.time < reveal_until)
+
+/mob/living/simple_animal/hostile/pve/stalker/adjustHealth(amount = 0, updating_health = TRUE, blocked = 0, damage_type = BRUTE, forced = FALSE)
+	. = ..()
+	if(amount > 0 && stat != DEAD)
+		reveal_until = world.time + PVE_STALKER_REVEAL_TIME
+		set_revealed(TRUE)
+
+/mob/living/simple_animal/hostile/pve/stalker/proc/set_revealed(new_revealed)
+	if(revealed == new_revealed)
+		return
+	revealed = new_revealed
+	animate(src, alpha = revealed ? 255 : PVE_STALKER_HIDDEN_ALPHA, time = 0.5 SECONDS)
+
+/mob/living/simple_animal/hostile/pve/howler
+	name = "howler"
+	desc = "Вожак стаи. Его вой приводит сородичей в бешенство — бейте его первым."
+	icon_state = "hellhoundgreater"
+	icon_living = "hellhoundgreater"
+	maxHealth = 110
+	health = 110
+	melee_damage_lower = 12
+	melee_damage_upper = 12
+	move_to_delay = 4
+	bounty = 22
+	del_on_death = TRUE
+	deathmessage = "издаёт последний вой и обращается в пепел."
+	attacktext = "рвёт"
+	spawn_cost = 4
+	unlock_wave = 11
+	spawn_weight = 2
+	COOLDOWN_DECLARE(howl_cooldown)
+
+/mob/living/simple_animal/hostile/pve/howler/get_ru_names()
+	return alist(
+		NOMINATIVE = "вожак",
+		GENITIVE = "вожака",
+		DATIVE = "вожаку",
+		ACCUSATIVE = "вожака",
+		INSTRUMENTAL = "вожаком",
+		PREPOSITIONAL = "вожаке",
+	)
+
+/mob/living/simple_animal/hostile/pve/howler/handle_automated_action()
+	. = ..()
+	if(!. || stat || !target || !COOLDOWN_FINISHED(src, howl_cooldown))
+		return
+	COOLDOWN_START(src, howl_cooldown, PVE_HOWLER_COOLDOWN)
+	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] протяжно воет!"))
+	playsound(src, 'sound/hallucinations/growl1.ogg', 80, TRUE)
+	for(var/mob/living/simple_animal/hostile/pve/kin in range(PVE_HOWLER_RANGE, src))
+		if(kin.stat != DEAD && !istype(kin, /mob/living/simple_animal/hostile/pve/boss))
+			kin.apply_status_effect(/datum/status_effect/pve_rallied)
+
+/datum/status_effect/pve_rallied
+	id = "pve_rallied"
+	duration = PVE_RALLY_DURATION
+	status_type = STATUS_EFFECT_REFRESH
+	alert_type = null
+	var/bonus_lower = 0
+	var/bonus_upper = 0
+
+/datum/status_effect/pve_rallied/on_apply()
+	var/mob/living/simple_animal/hostile/pve/enemy = owner
+	if(!istype(enemy))
+		return FALSE
+	bonus_lower = round(enemy.melee_damage_lower * (PVE_RALLY_DAMAGE_MULT - 1))
+	bonus_upper = round(enemy.melee_damage_upper * (PVE_RALLY_DAMAGE_MULT - 1))
+	enemy.melee_damage_lower += bonus_lower
+	enemy.melee_damage_upper += bonus_upper
+	enemy.add_filter("pve_rallied", 3, outline_filter(1, "#ff3030"))
+	return TRUE
+
+/datum/status_effect/pve_rallied/on_remove()
+	var/mob/living/simple_animal/hostile/pve/enemy = owner
+	enemy.melee_damage_lower -= bonus_lower
+	enemy.melee_damage_upper -= bonus_upper
+	enemy.remove_filter("pve_rallied")
+
+/mob/living/simple_animal/hostile/pve/treasure
+	name = "fog wisp"
+	desc = "Сгусток золотого света, который туман гонит перед собой. Пугливый и юркий, но за него щедро платят."
+	icon_state = "lightgeist"
+	icon_living = "lightgeist"
+	maxHealth = 70
+	health = 70
+	melee_damage_lower = 0
+	melee_damage_upper = 0
+	obj_damage = 0
+	move_to_delay = 2
+	retreat_distance = 8
+	minimum_distance = 8
+	environment_smash = ENVIRONMENT_SMASH_NONE
+	wanted_objects = list()
+	bounty = 120
+	del_on_death = TRUE
+	deathmessage = "рассыпается золотыми искрами."
+	light_range = 3
+	light_power = 2
+	light_color = "#ffd040"
+	var/escape_timer
+
+/mob/living/simple_animal/hostile/pve/treasure/get_ru_names()
+	return alist(
+		NOMINATIVE = "светоч тумана",
+		GENITIVE = "светоча тумана",
+		DATIVE = "светочу тумана",
+		ACCUSATIVE = "светоч тумана",
+		INSTRUMENTAL = "светочем тумана",
+		PREPOSITIONAL = "светоче тумана",
+	)
+
+/mob/living/simple_animal/hostile/pve/treasure/Initialize(mapload)
+	. = ..()
+	add_filter("pve_treasure", 2, outline_filter(1, "#ffd040"))
+	escape_timer = addtimer(CALLBACK(src, PROC_REF(escape)), PVE_TREASURE_ESCAPE_TIME, TIMER_STOPPABLE)
+
+/mob/living/simple_animal/hostile/pve/treasure/Destroy()
+	deltimer(escape_timer)
+	return ..()
+
+/mob/living/simple_animal/hostile/pve/treasure/ListTargets()
+	. = ..()
+	var/datum/game_mode/pve/mode = get_mode()
+	. -= mode?.core
+
+/mob/living/simple_animal/hostile/pve/treasure/AttackingTarget()
+	return FALSE
+
+/mob/living/simple_animal/hostile/pve/treasure/make_elite()
+	return
+
+/mob/living/simple_animal/hostile/pve/treasure/unstuck()
+	last_activity = world.time
+
+/mob/living/simple_animal/hostile/pve/treasure/proc/escape()
+	if(stat == DEAD)
+		return
+	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] ускользает в туман."))
+	var/datum/game_mode/pve/mode = get_mode()
+	mode?.broadcast(span_warning("Светоч тумана ускользнул."))
+	qdel(src)
+
 /mob/living/simple_animal/hostile/pve/boss
 	abstract_type = /mob/living/simple_animal/hostile/pve/boss
 	maxHealth = 900
@@ -754,3 +985,12 @@
 #undef PVE_SHAMAN_RANGE
 #undef PVE_CHARGE_DAMAGE
 #undef PVE_CHARGE_RANGE
+#undef PVE_TREASURE_ESCAPE_TIME
+#undef PVE_CARRIER_BROOD
+#undef PVE_STALKER_REVEAL_RANGE
+#undef PVE_STALKER_HIDDEN_ALPHA
+#undef PVE_STALKER_REVEAL_TIME
+#undef PVE_HOWLER_RANGE
+#undef PVE_HOWLER_COOLDOWN
+#undef PVE_RALLY_DURATION
+#undef PVE_RALLY_DAMAGE_MULT

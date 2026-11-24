@@ -1438,6 +1438,7 @@
 #include "code\game\gamemodes\nuclear\nuclear.dm"
 #include "code\game\gamemodes\pve\pve.dm"
 #include "code\game\gamemodes\pve\pve_classes.dm"
+#include "code\game\gamemodes\pve\pve_contracts.dm"
 #include "code\game\gamemodes\pve\pve_enemies.dm"
 #include "code\game\gamemodes\pve\pve_flow.dm"
 #include "code\game\gamemodes\pve\pve_shop.dm"
