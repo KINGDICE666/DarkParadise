@@ -233,7 +233,7 @@
 					if(platingRequired)
 						if(isspaceturf(B))
 							continue moving
-					var/turf/X = new T.type(B)
+					var/turf/X = B.ChangeTurf(T.type, keep_icon = FALSE, after_flags = CHANGETURF_IGNORE_AIR | CHANGETURF_KEEP_CABLING)
 					X.dir = old_dir1
 					X.icon_state = old_icon_state1
 					X.icon = old_icon1 //Shuttle floors are in shuttle.dmi while the defaults are floors.dmi
@@ -246,9 +246,14 @@
 							continue
 						copiedobjs += DuplicateObject(M, perfect_copy, newloc = X)
 
-					for(var/V in T.vars)
-						if(!(V in list("type","loc","locs","vars", "parent", "parent_type", "pixloc", "verbs", "ckey", "key", "x", "y", "z","destination_z", "destination_x", "destination_y","contents", "luminosity", "group")))
-							X.vars[V] = T.vars[V]
+					// Keep the destination's components and signals registered by the new objects.
+					var/static/list/forbidden_turf_vars = list(
+						"type", "loc", "locs", "vars", "parent", "parent_type", "pixloc", "verbs", "ckey", "key",
+						"x", "y", "z", "destination_z", "destination_x", "destination_y", "contents", "luminosity", "group",
+						"_listen_lookup", "_signal_procs", "_datum_components", "_status_traits",
+					)
+					for(var/V in T.vars - forbidden_turf_vars)
+						X.vars[V] = T.vars[V]
 
 					toupdate += X
 

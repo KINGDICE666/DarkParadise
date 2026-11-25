@@ -6912,7 +6912,6 @@
 /area/station/science/toxins/launch)
 "boC" = (
 /obj/effect/landmark/spawner/captain,
-/obj/structure/closet/loot_crate/ammo,
 /turf/simulated/floor/engine{
 	name = "Holodeck Projector Floor"
 	},
@@ -184147,10 +184146,10 @@ kfO
 lER
 lER
 uMy
+lER
 uMy
 uMy
-uMy
-uMy
+lER
 uMy
 lER
 lER
@@ -184402,7 +184401,7 @@ pWZ
 aaq
 kfO
 lER
-lER
+qju
 uMy
 lER
 lER
@@ -184659,13 +184658,13 @@ pWZ
 coE
 iHD
 foh
-qju
-uMy
+lER
+lER
 lER
 boC
-dkf
 lER
-uMy
+lER
+lER
 lER
 eCY
 uKA
@@ -184919,8 +184918,8 @@ lER
 lER
 uMy
 lER
-lER
-lER
+dkf
+dkf
 lER
 uMy
 lER
@@ -185175,10 +185174,10 @@ kfO
 lER
 lER
 uMy
+lER
 uMy
 uMy
-uMy
-uMy
+lER
 uMy
 lER
 lER

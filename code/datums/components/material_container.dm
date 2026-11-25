@@ -20,6 +20,8 @@
 	var/list/allowed_typecache
 	var/last_inserted_id
 	var/precise_insertion = FALSE
+	/// Ask for an amount when left-clicking with a stack. Right-click skips the prompt.
+	var/prompt_stack_amount = FALSE
 	var/datum/callback/precondition
 	var/datum/callback/after_insert
 
@@ -71,7 +73,7 @@
 			if(amt)
 				examine_list += span_notice("- [M.name] — <b>[amt]</b> единиц[DECL_A_Y_0(amt)] материала.")
 
-/datum/component/material_container/proc/OnAttackBy(datum/source, obj/item/I, mob/living/user)
+/datum/component/material_container/proc/OnAttackBy(datum/source, obj/item/I, mob/living/user, list/modifiers)
 	var/list/tc = allowed_typecache
 	if(disable_attackby)
 		return
@@ -93,16 +95,25 @@
 	if(!has_space(material_amount))
 		I.balloon_alert(user, "отсек для материалов полон!")
 		return
-	user_insert(I, user)
+	var/choose_amount = prompt_stack_amount && !LAZYACCESS(modifiers, RIGHT_CLICK)
+	user_insert(I, user, choose_amount)
 
-/datum/component/material_container/proc/user_insert(obj/item/I, mob/living/user)
+/datum/component/material_container/proc/user_insert(obj/item/I, mob/living/user, choose_amount = FALSE)
 	set waitfor = FALSE
 	var/requested_amount
 	if(isstack(I) && precise_insertion)
 		var/atom/current_parent = parent
 		var/obj/item/stack/S = I
 		requested_amount = S.amount
-		if(QDELETED(I) || QDELETED(user) || QDELETED(src) || parent != current_parent || user.incapacitated() || !in_range(current_parent, user) || user.l_hand != I && user.r_hand != I)
+		if(choose_amount)
+			var/material_per_item = get_item_material_amount(S)
+			var/max_insert = min(S.amount, round((max_amount - total_amount) / material_per_item))
+			requested_amount = tgui_input_number(user, "Сколько единиц материала загрузить?", "Загрузка материала", 1, max_value = max_insert, min_value = 1)
+			if(!requested_amount)
+				return
+		if(QDELETED(I) || QDELETED(user) || QDELETED(src) || QDELETED(current_parent) || parent != current_parent || user.incapacitated() || !in_range(current_parent, user) || user.l_hand != I && user.r_hand != I)
+			return
+		if(choose_amount && (user.a_intent != INTENT_HELP || (precondition && !precondition.Invoke(user))))
 			return
 	if(!user.drop_transfer_item_to_loc(I, parent))
 		I.balloon_alert(user, "не удаётся выпустить из руки!")
