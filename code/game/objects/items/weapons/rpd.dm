@@ -155,11 +155,11 @@
 		construct.wrench_act(user, inactive_hand_item)
 	activate_rpd(TRUE)
 
-/obj/item/rpd/proc/create_logistics_pipe(mob/user, turf/T)
+/obj/item/rpd/proc/create_logistics_pipe(mob/user, turf/target_turf)
 	if(!can_dispense_pipe(whatlpipe, PIPETYPE_LOGISTICS))
 		CRASH("Failed to spawn [get_pipe_name(whatlpipe, PIPETYPE_LOGISTICS)] - possible tampering detected")
 	var/rotate_dir = iconrotation ? iconrotation : user.dir
-	var/obj/structure/logistics_construct/construct = new(T, whatlpipe, rotate_dir)
+	var/obj/structure/logistics_construct/construct = new(target_turf, whatlpipe, rotate_dir)
 	to_chat(user, span_notice("[src] rapidly dispenses the [construct.pipename]!"))
 	var/obj/item/inactive_hand_item = user.get_inactive_hand()
 	if(auto_wrench)
@@ -228,9 +228,9 @@
 		if(!D.anchored)
 			QDEL_NULL(D)
 			eaten = TRUE
-	for(var/obj/structure/logistics_construct/L in T)
-		if(!L.anchored)
-			QDEL_NULL(L)
+	for(var/obj/structure/logistics_construct/construct in T)
+		if(!construct.anchored)
+			QDEL_NULL(construct)
 			eaten = TRUE
 	for(var/obj/structure/c_transit_tube/tube in T)
 		QDEL_NULL(tube)
@@ -319,7 +319,7 @@
 /obj/item/rpd/proc/check_menu(mob/living/user)
 	if(!istype(user))
 		return
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return
 	if(loc != user)
 		return

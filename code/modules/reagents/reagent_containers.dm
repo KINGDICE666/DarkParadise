@@ -65,7 +65,8 @@
 	if(spawned_disease)
 		var/datum/disease/F = new spawned_disease
 		var/list/data = list("diseases" = list(F), "blood_color" = BLOOD_COLOR_RED)
-		reagents.add_reagent("blood", disease_amount, data)
+		reagents.add_reagent(/datum/reagent/blood, disease_amount, data)
+
 	if(list_reagents)
 		list_reagents = string_assoc_list(list_reagents)
 	if(possible_transfer_amounts)
@@ -83,13 +84,19 @@
 		reagents.add_reagent_list(list_reagents)
 
 /obj/item/reagent_containers/attack_self(mob/user)
-	if(has_variable_transfer_amount)
-		select_transfer_amount(user)
-		return TRUE
+	attack(user, user, null, user.zone_selected)
 
 /obj/item/reagent_containers/attack_self_secondary(mob/user)
 	if(has_variable_transfer_amount)
 		select_transfer_amount(user)
+
+/obj/item/reagent_containers/click_alt(mob/user)
+	if(has_variable_transfer_amount)
+		change_transfer_amount(user, FORWARD)
+
+/obj/item/reagent_containers/click_alt_secondary(mob/user)
+	if(has_variable_transfer_amount)
+		change_transfer_amount(user, BACKWARD)
 
 /obj/item/reagent_containers/attack_hand_secondary(mob/user, list/modifiers)
 	. = ..()

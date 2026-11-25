@@ -117,7 +117,7 @@
 		return .
 
 	// If you are incapped, you probably can't brace yourself
-	var/can_help_themselves = !incapacitated(IGNORE_RESTRAINTS)
+	var/can_help_themselves = !INCAPACITATED_IGNORING(src, INCAPABLE_RESTRAINTS)
 	if(can_help_themselves)
 		var/obj/item/organ/external/wing/bodypart_wing = get_organ(BODY_ZONE_WING)
 		if(bodypart_wing && !bodypart_wing.has_fracture()) // wings can soften
@@ -216,12 +216,10 @@
 
 	// spread diseases
 	for(var/datum/disease/virus/virus in diseases)
-		if(virus.spread_flags & CONTACT)
-			virus.Contract(bumped_mob, act_type = CONTACT, need_protection_check = TRUE)
+		virus.Contract(bumped_mob, act_type = CONTACT, need_protection_check = TRUE)
 
 	for(var/datum/disease/virus/virus in bumped_mob.diseases)
-		if(virus.spread_flags & CONTACT)
-			virus.Contract(src, act_type = CONTACT, need_protection_check = TRUE)
+		virus.Contract(src, act_type = CONTACT, need_protection_check = TRUE)
 
 	if(bumped_mob.pulledby && bumped_mob.pulledby != src && HAS_TRAIT(bumped_mob, TRAIT_RESTRAINED))
 		if(!(world.time % 5))
@@ -436,11 +434,12 @@
 	if(!(interaction_flags_atom & INTERACT_ATOM_IGNORE_INCAPACITATED))
 		var/ignore_flags = NONE
 		if(interaction_flags_atom & INTERACT_ATOM_IGNORE_RESTRAINED)
-			ignore_flags |= IGNORE_RESTRAINTS
-		if(!(interaction_flags_atom & INTERACT_ATOM_CHECK_GRAB))
-			ignore_flags |= IGNORE_GRAB
+			ignore_flags |= INCAPABLE_RESTRAINTS
 
-		if(incapacitated(ignore_flags))
+		if(!(interaction_flags_atom & INTERACT_ATOM_CHECK_GRAB))
+			ignore_flags |= INCAPABLE_GRAB
+
+		if(INCAPACITATED_IGNORING(src, ignore_flags))
 			to_chat(src, span_warning("Вы сейчас недееспособны!"))
 			return FALSE
 
@@ -586,7 +585,7 @@
 
 //same as above
 /mob/living/pointed(atom/A)
-	if(incapacitated())
+	if(incapacitated)
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_FAKEDEATH))
 		return FALSE
@@ -765,31 +764,49 @@
 	if(QDELETED(src))
 		return FALSE
 	rejuvenate()
-	if(iscarbon(src))
-		var/mob/living/carbon/C = src
 
-		if(C.handcuffed && !initial(C.handcuffed))
-			C.drop_item_ground(C.handcuffed, TRUE)
+/mob/living/carbon/revive()
+	if(reagents)
+		reagents.clear_reagents()
+		QDEL_LIST(reagents.addiction_list)
+		reagents.addiction_threshold_accumulated.Cut()
 
-		if(C.legcuffed && !initial(C.legcuffed))
-			C.drop_item_ground(C.legcuffed, TRUE)
+	if(iscultist(src))
+		var/datum/team/blood_cult/cult_team = get_blood_cult_team()
+		if(cult_team?.cult_risen)
+			cult_team.rise(src)
+		if(cult_team?.cult_ascendant)
+			cult_team.ascend(src)
 
-		if(C.reagents)
-			C.reagents.clear_reagents()
-			QDEL_LIST(C.reagents.addiction_list)
-			C.reagents.addiction_threshold_accumulated.Cut()
-		if(iscultist(src))
-			var/datum/team/blood_cult/cult_team = get_blood_cult_team()
-			if(cult_team.cult_risen)
-				cult_team.rise(src)
-			if(cult_team.cult_ascendant)
-				cult_team.ascend(src)
+	QDEL_LIST(processing_patches)
+	..()
 
-		QDEL_LIST(C.processing_patches)
+/mob/living/carbon/human/revive()
+	//Fix up all organs and replace lost ones.
+	check_and_regenerate_organs() //Regenerate limbs and organs only if they're really missing.
+
+	var/update_appearance = FALSE
+	if(remove_skeleton(update_appearance = FALSE))
+		update_appearance = TRUE
+	if(cure_husk(update_appearance = FALSE))
+		update_appearance = TRUE
+	if(update_appearance)
+		UpdateAppearance()
+	revive_no_clone_removal()
+
+	if(!client || !key) //Don't boot out anyone already in the mob.
+		for(var/obj/item/organ/internal/brain/H in world)
+			if(H.brainmob)
+				if(H.brainmob.real_name == src.real_name)
+					if(H.brainmob.mind)
+						H.brainmob.mind.transfer_to(src)
+						qdel(H)
+
+	..()
 
 // rejuvenate: Called by `revive` to get the mob into a revivable state
 // the admin "rejuvenate" command calls `revive`, not this proc.
-/mob/living/proc/rejuvenate()
+/mob/living/proc/rejuvenate(remove_disease = TRUE)
 	var/mob/living/carbon/human/human_mob = null //Get this declared for use later.
 
 	// shut down various types of badness
@@ -829,36 +846,13 @@
 	SetDeaf(0)
 	heal_overall_damage(1000, 1000)
 	ExtinguishMob()
-	CureAllDiseases(FALSE)
-	fire_stacks = 0
-	fire_stacks = 0
-	on_fire = 0
+	if(remove_disease)
+		CureAllDiseases(FALSE)
 	suiciding = 0
 	if(buckled) //Unbuckle the mob and clear the alerts.
 		buckled.unbuckle_mob(src, force = TRUE)
 
-	if(iscarbon(src))
-		var/mob/living/carbon/C = src
-		C.uncuff()
-
-		for(var/thing in C.diseases)
-			var/datum/disease/D = thing
-			D.cure(need_immunity = FALSE)
-
-		// restore all of the human's blood and reset their shock stage
-		if(ishuman(src))
-			human_mob = src
-			human_mob.set_heartattack(FALSE)
-			human_mob.restore_blood()
-			human_mob.decaylevel = 0
-			human_mob.remove_all_embedded_objects()
-			human_mob.remove_all_parasites()
-
-		var/obj/item/organ/internal/brain/brain = C.get_organ_slot(INTERNAL_ORGAN_BRAIN)
-		brain?.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
-
 	SEND_SIGNAL(src, COMSIG_LIVING_AHEAL)
-
 	restore_all_organs()
 	surgeries.Cut() //End all surgeries.
 	if(stat == DEAD)
@@ -876,6 +870,19 @@
 		human_mob.update_eyes()
 		human_mob.update_dna()
 	return
+
+/mob/living/carbon/rejuvenate(remove_disease = TRUE)
+	. = ..()
+	uncuff()
+	var/obj/item/organ/internal/brain/brain = get_organ_slot(INTERNAL_ORGAN_BRAIN)
+	brain?.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
+
+/mob/living/carbon/human/rejuvenate(remove_disease = TRUE)
+	. = ..()
+	set_heartattack(FALSE)
+	decaylevel = 0
+	remove_all_embedded_objects()
+	remove_all_parasites()
 
 /mob/living/proc/remove_CC()
 	SetWeakened(0)
@@ -1581,12 +1588,10 @@ GAME_VERB(/mob/living, resist, "Сопротивляться", VERB_CATEGORY_IC)
 
 			//Share diseases that are spread by touch
 			for(var/datum/disease/virus/virus in diseases)
-				if(virus.spread_flags & CONTACT)
-					virus.Contract(pulled_living, act_type = CONTACT, need_protection_check = TRUE, zone = zone_selected)
+				virus.Contract(pulled_living, act_type = CONTACT, need_protection_check = TRUE, zone = zone_selected)
 
 			for(var/datum/disease/virus/virus in pulled_living.diseases)
-				if(virus.spread_flags & CONTACT)
-					virus.Contract(src, act_type = CONTACT, need_protection_check = TRUE, zone = hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
+				virus.Contract(src, act_type = CONTACT, need_protection_check = TRUE, zone = hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
 
 			if(iscarbon(pulled_living) && HAS_TRAIT(src, TRAIT_STRONG_GRABBER))
 				pulled_living.grabbedby(src)
@@ -1821,6 +1826,8 @@ GAME_VERB(/mob/living, resist, "Сопротивляться", VERB_CATEGORY_IC)
 	. = ..()
 	if(. == FALSE) //null is a valid value here, we only want to return if FALSE is explicitly passed.
 		return .
+
+	update_incapacitated()
 	/*
 	if(pulledby)
 		if(!. && stat == SOFT_CRIT)
@@ -2142,7 +2149,7 @@ GAME_VERB_HIDDEN(/mob/living, succumb, "succumb")
 		return
 
 	last_words = null // In case we kept some from last time
-	var/final_words = tgui_input_text(src, "Каковы ваши последние слова?", "Goodnight, Sweet Prince", encode = FALSE)
+	var/final_words = tgui_input_text(src, "Каковы ваши последние слова?", "Goodnight, Sweet Prince")
 
 	if(isnull(final_words) && cancel_on_no_words)
 		to_chat(src, span_notice("Вы решаете, что ещё не готовы умирать."))
@@ -2410,3 +2417,15 @@ GAME_VERB_HIDDEN(/mob/living, succumb, "succumb")
 
 /mob/living/proc/embed_item_inside(obj/item/thing, embedded_zone, silent = FALSE)
 	return
+
+/mob/living/proc/vomit(
+	lost_nutrition = VOMIT_NUTRITION_LOSS,
+	mode = NONE,
+	stun = VOMIT_STUN_TIME,
+	distance = VOMIT_DISTANCE,
+	message = TRUE
+)
+	return
+
+/mob/living/proc/check_brain_for_complex_interactions()
+	return getBrainLoss() < 60

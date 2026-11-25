@@ -115,7 +115,7 @@
 		CtrlClickOn(A)
 		return
 
-	if(incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB))
+	if(INCAPACITATED_IGNORING(src, INCAPABLE_RESTRAINTS|INCAPABLE_GRAB))
 		return
 
 	if(is_ventcrawling(src) && isitem(A)) // stops inventory actions in vents
@@ -428,7 +428,7 @@
 	return
 
 /mob/living/MiddleShiftClickOn(atom/A)
-	if(incapacitated())
+	if(incapacitated)
 		return
 	var/face_dir = get_cardinal_dir(src, A)
 	if(!face_dir || forced_look == face_dir || A == src)
@@ -444,7 +444,7 @@
 	return
 
 /mob/living/MiddleShiftControlClickOn(atom/A)
-	if(incapacitated())
+	if(incapacitated)
 		return
 	var/face_uid = A.UID()
 	if(forced_look == face_uid || A == src)
@@ -481,7 +481,7 @@
 		ML.pulled(src)
 
 /mob/living/CtrlClick(mob/living/user)
-	if(!isliving(user) || !user.Adjacent(src) || user.incapacitated())
+	if(!isliving(user) || !user.Adjacent(src) || user.incapacitated)
 		return ..()
 
 	if(world.time < user.next_move)

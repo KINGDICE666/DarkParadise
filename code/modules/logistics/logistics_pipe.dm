@@ -102,6 +102,8 @@
 
 /obj/structure/logistics_pipe/proc/try_link_interface()
 	if(linked_interface)
+		if(logistics_net && linked_interface.linked_pipe == src)
+			logistics_net.add_interface(linked_interface)
 		return
 	for(var/obj/machinery/machine in loc)
 		var/datum/component/logistics_interface/interface = machine.GetComponent(/datum/component/logistics_interface)
@@ -278,10 +280,11 @@
 	current_pipe = loc
 	var/delay = LOGISTICS_HOLDER_MOVE_DELAY
 	var/datum/move_loop/our_loop = GLOB.move_manager.move_logistics(src, delay = delay, timeout = delay * count)
-	if(our_loop)
-		RegisterSignal(our_loop, COMSIG_MOVELOOP_PREPROCESS_CHECK, PROC_REF(pre_move))
-		RegisterSignal(our_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(try_expel))
-		RegisterSignal(our_loop, COMSIG_QDELETING, PROC_REF(movement_stop))
+	if(!our_loop)
+		return
+	RegisterSignal(our_loop, COMSIG_MOVELOOP_PREPROCESS_CHECK, PROC_REF(pre_move))
+	RegisterSignal(our_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(try_expel))
+	RegisterSignal(our_loop, COMSIG_QDELETING, PROC_REF(movement_stop))
 
 /obj/structure/logistics_holder/proc/pre_move(datum/move_loop/source)
 	SIGNAL_HANDLER
@@ -342,8 +345,8 @@
 	if(!request || !length(shipment_manifest))
 		shipment_manifest?.Cut()
 		return
-	for(var/stock_name in shipment_manifest)
-		request.release_reservation(stock_name, shipment_manifest[stock_name])
+	for(var/stock_name, shipped_amount in shipment_manifest)
+		request.release_reservation(stock_name, shipped_amount)
 	shipment_manifest.Cut()
 
 /obj/structure/logistics_holder/proc/deliver(datum/component/logistics_interface/interface)
@@ -356,13 +359,39 @@
 	var/list/manifest = shipment_manifest.Copy()
 	var/list/undelivered = list()
 	var/turf/drop_turf = get_turf(interface.parent)
-	for(var/obj/item/item in contents)
-		var/stock_id = logistics_stock_id_for_item(item)
-		if(interface.try_insert_item(item))
-			continue
-		if(manifest[stock_id])
-			undelivered[stock_id] += logistics_item_units(item)
-		item.forceMove(drop_turf)
+	for(var/stock_name, need in manifest)
+		var/delivered_now = 0
+		for(var/obj/item/item in contents)
+			if(delivered_now >= need)
+				break
+			if(!interface.adapter?.item_matches_stock(item, stock_name))
+				continue
+			var/units = logistics_item_units(item)
+			var/take = min(units, need - delivered_now)
+			if(take <= 0)
+				continue
+			if(isstack(item) && take < units)
+				var/obj/item/stack/stack = item
+				if(!stack.logistics_count_amount)
+					continue
+				var/obj/item/stack/piece = stack.split(null, take)
+				if(!interface.try_insert_item(piece))
+					if(!QDELETED(piece))
+						piece.forceMove(src)
+						if(!QDELETED(stack))
+							piece.merge(stack)
+					continue
+				delivered_now += take
+				continue
+			if(!interface.try_insert_item(item))
+				continue
+			delivered_now += take
+		var/failed = max(need - delivered_now, 0)
+		if(failed > 0)
+			undelivered[stock_name] = failed
+
+	for(var/obj/item/leftover in contents)
+		leftover.forceMove(drop_turf)
 
 	var/datum/logistics_request/request = request_ref?.resolve()
 	if(request)

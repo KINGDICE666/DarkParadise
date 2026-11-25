@@ -137,7 +137,13 @@
 		var/replaced_color = color
 		var/color_name = color
 
-		if(color in replace_colors) // If this color is one that needs to be replaced using the colorblindness list.
+		if(HAS_TRAIT(user, TRAIT_WIRE_BLIND)) //You are going to be seeing colours, colourblind or not. And it is going to be WRONG
+			replaced_color = rgb(rand(1, 255), rand(1, 255), rand(1, 255))
+			var/list/fake_colour_chars = list("!", "@", "#", "$", "%", "^", "&", "*", "-", "?", "/")
+			color_name = ""
+			for(var/i in 1 to rand(5, 8))
+				color_name += pick(fake_colour_chars)
+		else if(color in replace_colors) // If this color is one that needs to be replaced using the colorblindness list.
 			replaced_color = replace_colors[color]
 			if(replaced_color in LIST_COLOR_RENAME) // If its an ugly written color name like "darkolivegreen", rename it to something like "dark green".
 				color_name = LIST_COLOR_RENAME[replaced_color]
@@ -259,13 +265,17 @@
 /datum/wires/proc/can_see_wire_info(mob/user)
 	if(user.can_admin_interact())
 		return TRUE
+	if(HAS_TRAIT(user, TRAIT_WIRE_BLIND))
+		return FALSE
 	if(ismultitool(user.get_active_hand()))
 		var/obj/item/multitool/M = user.get_active_hand()
 		if(M.shows_wire_information)
 			return TRUE
-	if(HAS_TRAIT(user, TRAIT_CAN_SEE_WIRES))
+	if(HAS_TRAIT(user, TRAIT_CAN_SEE_WIRES) || HAS_TRAIT(user, TRAIT_SHOW_WIRE_INFO))
 		return TRUE
-	return FALSE
+	var/obj/item/held_item = user.get_active_hand()
+	var/obj/item/offhand = user.get_inactive_hand()
+	return (held_item && HAS_TRAIT(held_item, TRAIT_SHOW_WIRE_INFO)) || (offhand && HAS_TRAIT(offhand, TRAIT_SHOW_WIRE_INFO))
 
 /**
  * Base proc, intended to be overwritten. Put wire information you'll see at the botton of the TGUI window here, such as "The red light is blinking".

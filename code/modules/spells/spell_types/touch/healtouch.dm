@@ -32,6 +32,14 @@
 		PREPOSITIONAL = "целебном касании",
 	)
 
+/datum/action/cooldown/spell/touch/healtouch/is_valid_target(atom/cast_on)
+	if(!ishuman(cast_on))
+		return FALSE
+	var/mob/living/carbon/human/target = cast_on
+	if(target.can_block_magic(antimagic_flags))
+		return FALSE
+	return TRUE
+
 /datum/action/cooldown/spell/touch/healtouch/cast_on_hand_hit(obj/item/melee/touch_attack/hand, atom/victim, mob/living/carbon/caster)
 	var/mob/living/M = victim
 	new /obj/effect/temp_visual/heal(get_turf(M), "#899d39")

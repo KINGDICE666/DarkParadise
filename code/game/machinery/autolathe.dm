@@ -71,7 +71,7 @@
 	wires = new(src)
 	files = new /datum/research/autolathe(src)
 	matching_designs = list()
-	AddElement(/datum/element/logistics_compatible)
+	ADD_TRAIT(src, TRAIT_LOGISTICS_COMPATIBLE, INNATE_TRAIT)
 
 
 /obj/machinery/autolathe/upgraded/Initialize(mapload)
@@ -84,6 +84,12 @@
 	component_parts += new /obj/item/stock_parts/manipulator/pico(null)
 	component_parts += new /obj/item/stack/sheet/glass(null)
 	RefreshParts()
+
+/obj/machinery/autolathe/logistics
+
+/obj/machinery/autolathe/logistics/Initialize(mapload)
+	. = ..()
+	install_logistics_interface(LOGISTICS_MODE_RECEIVE)
 
 /obj/machinery/autolathe/Destroy()
 	SStgui.close_uis(wires)
@@ -138,6 +144,7 @@
 
 			recipes.Add(list(list(
 				"name" = D.build_object_name,
+				"name_en" = created_object.name,
 				"desc" = D.build_object_desc,
 				"category" = categories,
 				"uid" = D.UID(),
@@ -391,12 +398,13 @@
 			var/list/materials_used = list(MAT_METAL=metal_cost/coeff, MAT_GLASS=glass_cost/coeff)
 			materials.use_amount(materials_used)
 		SStgui.update_uis(src)
-		sleep(32/coeff)
+		sleep(32 / coeff)
 		if(is_stack)
 			new D.build_path(BuildTurf, multiplier)
 		else
 			var/obj/item/new_item = new D.build_path(BuildTurf)
 			new_item.update_materials_coeff(coeff)
+			new_item.scatter_atom()
 		playsound(loc, 'sound/machines/rnd_machines/lathe_print.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1, use_reverb = TRUE)
 	SStgui.update_uis(src)
 
@@ -520,3 +528,9 @@
 		INSTRUMENTAL = "автолатом службы безопасности",
 		PREPOSITIONAL = "автолате службы безопасности",
 	)
+
+/obj/machinery/autolathe/security/logistics
+
+/obj/machinery/autolathe/security/logistics/Initialize(mapload)
+	. = ..()
+	install_logistics_interface(LOGISTICS_MODE_RECEIVE)

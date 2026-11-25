@@ -26,6 +26,8 @@
 	var/grown_battery = FALSE
 	// For custom overlays.
 	var/overlay_charged = "cell-o2"
+	// Damage multiplier the cells take from emps to prevent stuff like bluespace cells taking 40 shots to drain.
+	var/emp_damage_modifier = 1
 
 /obj/item/stock_parts/cell/get_ru_names()
 	return alist(
@@ -150,7 +152,7 @@
 			balloon_alert(user, "пусто!")
 			return ATTACK_CHAIN_PROCEED
 		balloon_alert(user, "вещество введено")
-		if(syringe.reagents.has_reagent("plasma", 5) || syringe.reagents.has_reagent("plasma_dust", 5))
+		if(syringe.reagents.has_reagent(/datum/reagent/plasma, 5) || syringe.reagents.has_reagent(/datum/reagent/plasma_dust, 5))
 			rigged = TRUE
 			log_admin("LOG: [key_name(user)] injected a power cell with plasma, rigging it to explode.")
 			message_admins("LOG: [key_name_admin(user)] injected a power cell with plasma, rigging it to explode.")
@@ -185,11 +187,12 @@
 		rigged = TRUE //broken batterys are dangerous
 
 /obj/item/stock_parts/cell/emp_act(severity)
-	charge -= 1000 / severity
-	if(charge < 0)
-		charge = 0
-	update_icon(UPDATE_OVERLAYS)
-	return ..()
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
+		return
+	use(round(min(charge, (STANDARD_CELL_CHARGE / severity) * emp_damage_modifier)))
+	if(!QDELETED(src))
+		update_icon(UPDATE_OVERLAYS)
 
 /obj/item/stock_parts/cell/ex_act(severity, target)
 	. = ..()
@@ -463,13 +466,14 @@
 		PREPOSITIONAL = "ЭМИ-защищённой батарее А",
 	)
 
+/obj/item/stock_parts/cell/emproof/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/empprotection, EMP_PROTECT_SELF)
+
 /obj/item/stock_parts/cell/emproof/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon(UPDATE_OVERLAYS)
-
-/obj/item/stock_parts/cell/emproof/emp_act(severity)
-	return
 
 /obj/item/stock_parts/cell/emproof/corrupt()
 	return
@@ -515,6 +519,7 @@
 	maxcharge = 53000
 	rating = 3
 	chargerate = 1500
+	emp_damage_modifier = 0.5
 
 /obj/item/stock_parts/cell/pulse/get_ru_names()
 	return alist(

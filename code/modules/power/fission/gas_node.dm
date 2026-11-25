@@ -15,6 +15,16 @@
 	/// Is this vent taking air in or out. TRUE by default.
 	var/intake_vent = TRUE
 
+/obj/machinery/atmospherics/unary/reactor_gas_node/get_ru_names()
+	return alist(
+		NOMINATIVE = "впуск газа реактора",
+		GENITIVE = "впуска газа реактора",
+		DATIVE = "впуску газа реактора",
+		ACCUSATIVE = "впуск газа реактора",
+		INSTRUMENTAL = "впуском газа реактора",
+		PREPOSITIONAL = "впуске газа реактора",
+	)
+
 /obj/machinery/atmospherics/unary/reactor_gas_node/output
 	name = "Reactor Gas Extractor"
 	intake_vent = FALSE
@@ -171,6 +181,16 @@
 		ACCUSATIVE = "узел подачи замедлителя",
 		INSTRUMENTAL = "узлом подачи замедлителя",
 		PREPOSITIONAL = "узле подачи замедлителя",
+	)
+
+/obj/machinery/atmospherics/unary/reactor_gas_node/moderator/get_ru_names()
+	return alist(
+		NOMINATIVE = "газовый модератор реактора",
+		GENITIVE = "газового модератора реактора",
+		DATIVE = "газовому модератору реактора",
+		ACCUSATIVE = "газовый модератор реактора",
+		INSTRUMENTAL = "газовым модератором реактора",
+		PREPOSITIONAL = "газовом модераторе реактора",
 	)
 
 

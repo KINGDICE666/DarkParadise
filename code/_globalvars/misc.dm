@@ -99,3 +99,5 @@ GLOBAL_DATUM(lone_operative_meta, /datum/event_meta/lone_operative)
 
 GLOBAL_DATUM(main_fission_reactor, /obj/machinery/atmospherics/fission_reactor)
 GLOBAL_DATUM(bridge_axe, /obj/item/twohanded/fireaxe)
+
+GLOBAL_VAR(holy_weapon_type) //TODO: If religions from TG are added, move them to the religions file.

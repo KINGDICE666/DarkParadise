@@ -137,17 +137,19 @@ GLOBAL_LIST_EMPTY(firealarms)
 
 	. += emissive_appearance(icon, "fire_level_e", src)
 
-/obj/machinery/firealarm/emag_act(mob/user)
-	if(!emagged)
-		emagged = TRUE
-		if(user)
-			user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag [src], disabling its thermal sensors."))
-		playsound(loc, 'sound/effects/sparks4.ogg', 50, TRUE)
-		update_icon()
+/obj/machinery/firealarm/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	playsound(loc, SFX_SPARKS, 50, TRUE)
+	if(user)
+		user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag [src], disabling its thermal sensors."))
+	return TRUE
 
 /obj/machinery/firealarm/temperature_expose(exposed_temperature, exposed_volume)
 	..()
-	if(!emagged && detecting && exposed_temperature > T0C + 200)
+	if(!(obj_flags & EMAGGED) && detecting && exposed_temperature > T0C + 200)
 		alarm()			// added check of detector status here
 
 /obj/machinery/firealarm/attack_ai(mob/user)
@@ -303,7 +305,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	if(stat & (NOPOWER|BROKEN) || buildstage != 2)
 		return TRUE
 
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return TRUE
 
 	. = FALSE

@@ -10,8 +10,7 @@
 	item_state = "backpack"
 	lefthand_file = 'icons/mob/inhands/clothing_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/clothing_righthand.dmi'
-	w_class = WEIGHT_CLASS_BULKY
-	slot_flags = ITEM_SLOT_BACK	//ERROOOOO
+	slot_flags = ITEM_SLOT_BACK
 	max_w_class = WEIGHT_CLASS_NORMAL
 	max_combined_w_class = 21
 	storage_slots = 21
@@ -25,6 +24,12 @@
 	pickup_sound = 'sound/items/handling/backpack/backpack_pickup1.ogg'
 	drop_sound = 'sound/items/handling/backpack/backpack_drop1.ogg'
 	sound_vary = TRUE
+	dynamic_storage_size = TRUE
+
+/obj/item/storage/backpack/ComponentInitialize()
+	. = ..()
+	if(dynamic_storage_size)
+		AddComponent(/datum/component/differentiate_storage_size, storage_with_item_size)
 
 /obj/item/storage/backpack/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -523,7 +528,7 @@
 
 GAME_VERB_SRC(/obj/item/storage/backpack/satchel, switch_strap, usr, "Перекинуть ремешок", VERB_CATEGORY_HIDDEN)
 
-	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
+	if(usr.incapacitated || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
 	strap_side_straight = !strap_side_straight
 	icon_state = strap_side_straight ? "satchel-flipped" : "satchel"
@@ -538,10 +543,10 @@ GAME_VERB_SRC(/obj/item/storage/backpack/satchel, switch_strap, usr, "Перек
 	name = "smuggler's satchel"
 	desc = "A very slim satchel that can easily fit into tight spaces."
 	icon_state = "satchel-flat"
-	w_class = WEIGHT_CLASS_NORMAL //Can fit in backpacks itself.
 	max_combined_w_class = 15
 	level = 1
 	cant_hold = list(/obj/item/storage/backpack/satchel_flat) //muh recursive backpacks
+	dynamic_storage_size = FALSE
 
 /obj/item/storage/backpack/satchel_flat/Initialize(mapload)
 	. = ..()

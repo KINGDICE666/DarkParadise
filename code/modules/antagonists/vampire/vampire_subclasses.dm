@@ -58,6 +58,7 @@
 	)
 	fully_powered_abilities = list(
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/eternal_darkness,
 	)
 
@@ -83,6 +84,7 @@
 	)
 	fully_powered_abilities = list(
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/blood_spill,
 	)
 
@@ -102,6 +104,7 @@
 	)
 	fully_powered_abilities = list(
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/pointed/garg_charge,
 	)
 	improved_rejuv_healing = TRUE
@@ -126,6 +129,7 @@
 	)
 	fully_powered_abilities = list(
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/aoe/hysteria,
 		/datum/vampire_passive/increment_thrall_cap/three,
 	)
@@ -161,6 +165,7 @@
 	)
 	fully_powered_abilities = list(
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/shapeshift/vampire/hound,
 		/datum/vampire_passive/dissection_cap/two,
 	)
@@ -208,6 +213,7 @@
 		/datum/action/cooldown/spell/conjure/bestia_bats,
 		/datum/vampire_passive/upgraded_grab,
 		/datum/vampire_passive/full,
+		/datum/vampire_passive/virus_immune,
 		/datum/action/cooldown/spell/shapeshift/vampire/hound,
 		/datum/action/cooldown/spell/blood_spill,
 		/datum/action/cooldown/spell/pointed/garg_charge,

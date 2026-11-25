@@ -60,6 +60,8 @@
 	var/list/mobs_viewing
 	/// Increase "w_class" of storage when something inside it
 	var/dynamic_storage_size = FALSE
+	// "w_class" of storage when something inside it
+	var/storage_with_item_size = WEIGHT_CLASS_BULKY
 
 /obj/item/storage/Initialize(mapload)
 	. = ..()
@@ -134,7 +136,7 @@
 		return
 
 	// Stops inventory actions in a mech, while ventcrawling and while being incapacitated
-	if(ismecha(user.loc) || is_ventcrawling(user) || user.incapacitated())
+	if(ismecha(user.loc) || is_ventcrawling(user) || user.incapacitated)
 		return
 
 	if(over_object == user && IsReachableBy(user)) // this must come before the screen objects only block
@@ -154,13 +156,13 @@
 		return
 
 	if(istype(src, /obj/item/storage/lockbox) || (!istable(over_object) && !isfloorturf(over_object)) \
-		|| !length(contents) || loc != user || user.incapacitated() || !over_object.IsReachableBy(user))
+		|| !length(contents) || loc != user || user.incapacitated || !over_object.IsReachableBy(user))
 		return
 
 	if(tgui_alert(user, "Опустошить содержимое [declent_ru(GENITIVE)] на [over_object.declent_ru(ACCUSATIVE)]?", "Подтверждение", list("Да", "Нет")) != "Да")
 		return
 
-	if(!user || !over_object || user.incapacitated() || loc != user || !over_object.IsReachableBy(user))
+	if(!user || !over_object || user.incapacitated || loc != user || !over_object.IsReachableBy(user))
 		return
 
 	if(user.s_active == src)
@@ -907,6 +909,7 @@ GAME_PROC_SRC(/obj/item/storage, toggle_gathering_mode, usr, "Режим сбо�
 	var/turf/current_turf = get_turf(src)
 	for(var/obj/item/item in contents)
 		remove_from_storage(item, current_turf)
+		item.scatter_atom()
 		CHECK_TICK
 
 /**
@@ -918,7 +921,9 @@ GAME_PROC_SRC(/obj/item/storage, toggle_gathering_mode, usr, "Режим сбо�
 	return // Override
 
 /obj/item/storage/emp_act(severity)
-	..()
+	. = ..()
+	if(. & EMP_PROTECT_CONTENTS)
+		return
 	for(var/i in contents)
 		var/atom/A = i
 		A.emp_act(severity)

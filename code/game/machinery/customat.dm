@@ -373,7 +373,7 @@
 	var/datum/data/customat_product/product
 	if(!(key in products))
 		product = new /datum/data/customat_product(I)
-		product.price = !emagged ? cost : 0
+		product.price = !(obj_flags & EMAGGED) ? cost : 0
 		product.key = key
 		products[key] = product
 
@@ -495,15 +495,17 @@
 
 	return TRUE
 
-/obj/machinery/customat/emag_act(mob/user)
-	emagged = TRUE
+/obj/machinery/customat/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	for(var/key in products)
 		var/datum/data/customat_product/product = products[key]
 		product.price = 0
 		products[key] = product
-
-	if(user)
-		balloon_alert(user, "взломано")
+	balloon_alert(user, "взломано")
+	return TRUE
 
 /obj/machinery/customat/attack_ai(mob/user)
 	return attack_hand(user)
@@ -760,10 +762,11 @@
 	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/customat/emp_act(severity)
+	. = ..()
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			COOLDOWN_START(src, emp_cooldown, weak_emp_cooldown)
-		if(2)
+		if(EMP_LIGHT)
 			COOLDOWN_START(src, emp_cooldown, strong_emp_cooldown)
 
 /obj/machinery/customat/proc/expel(obj/structure/disposalholder/holder)

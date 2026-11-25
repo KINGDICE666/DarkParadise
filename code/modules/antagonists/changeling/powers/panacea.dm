@@ -22,7 +22,7 @@
 		c_user.remove_all_parasites(vomit_organs = TRUE)
 		c_user.cure_all_traumas(TRAUMA_RESILIENCE_LOBOTOMY)
 
-	user.reagents.add_reagent("mutadone", 2)
+	user.reagents.add_reagent(/datum/reagent/medicine/mutadone, 2)
 	user.apply_status_effect(STATUS_EFFECT_PANACEA)
 
 	for(var/datum/disease/virus in user.diseases)

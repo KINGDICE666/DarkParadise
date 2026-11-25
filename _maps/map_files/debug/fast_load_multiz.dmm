@@ -17,6 +17,14 @@
 "bP" = (
 /turf/simulated/wall/r_wall,
 /area/fastload)
+"ck" = (
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/sniper_rifle/axmc,
+/obj/item/gun/projectile/automatic/sniper_rifle/compact,
+/obj/item/gun/projectile/automatic/sniper_rifle/syndicate,
+/obj/item/gun/projectile/automatic/sniper_rifle/syndicate/penetrator,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "dY" = (
 /obj/machinery/light/floor,
 /turf/simulated/floor/mineral/titanium/purple,
@@ -70,6 +78,10 @@
 /obj/item/stack/sheet/plasmaglass/fifty,
 /turf/simulated/floor/mineral/titanium/yellow,
 /area/fastload)
+"nR" = (
+/obj/machinery/vending/gun_mods/advanced,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "oJ" = (
 /obj/machinery/light,
 /turf/simulated/floor/mineral/titanium/yellow,
@@ -82,6 +94,17 @@
 /obj/machinery/light{
 	dir = 4
 	},
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
+"qL" = (
+/obj/structure/table,
+/obj/item/gun/projectile/revolver/detective,
+/obj/item/gun/projectile/revolver/ga12,
+/obj/item/gun/projectile/revolver/mateba,
+/obj/item/gun/projectile/revolver/nagant,
+/obj/item/gun/projectile/revolver/rsh_12,
+/obj/item/gun/projectile/revolver/russian,
+/obj/item/gun/projectile/revolver/taurus,
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
 "rS" = (
@@ -184,12 +207,45 @@
 "HE" = (
 /turf/simulated/floor/mineral/titanium/blue,
 /area/fastload/blue)
+"IA" = (
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/ak814,
+/obj/item/gun/projectile/automatic/aks74u,
+/obj/item/gun/projectile/automatic/aks74u/rusted,
+/obj/item/gun/projectile/automatic/arg,
+/obj/item/gun/projectile/automatic/cats,
+/obj/item/gun/projectile/automatic/gyropistol,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "JC" = (
 /obj/machinery/computer/account_database,
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
+"Lw" = (
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/ik60,
+/obj/item/gun/projectile/automatic/l6_saw,
+/obj/item/gun/projectile/automatic/l6_saw/toy,
+/obj/item/gun/projectile/automatic/lr30,
+/obj/item/gun/projectile/automatic/m52,
+/obj/item/gun/projectile/automatic/m90,
+/obj/item/gun/projectile/automatic/m90/rusted,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "LF" = (
 /obj/machinery/computer/secure_data,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
+"LI" = (
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/smg/c20r,
+/obj/item/gun/projectile/automatic/smg/c20r/auto,
+/obj/item/gun/projectile/automatic/smg/c20r/rusted,
+/obj/item/gun/projectile/automatic/smg/saber/rubber,
+/obj/item/gun/projectile/automatic/smg/sfg,
+/obj/item/gun/projectile/automatic/smg/sp91rc,
+/obj/item/gun/projectile/automatic/smg/sparkle_a12,
+/obj/item/gun/projectile/automatic/smg/wt550,
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
 "Nb" = (
@@ -203,6 +259,17 @@
 /obj/machinery/light_switch/directional/south,
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
+"OV" = (
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/pistol/aps,
+/obj/item/gun/projectile/automatic/pistol/deagle,
+/obj/item/gun/projectile/automatic/pistol/enforcer,
+/obj/item/gun/projectile/automatic/pistol/enforcer/lethal,
+/obj/item/gun/projectile/automatic/pistol/m1911,
+/obj/item/gun/projectile/automatic/pistol/sp8,
+/obj/item/gun/projectile/automatic/pistol/stechkin,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "Pd" = (
 /turf/simulated/openspace,
 /area/fastload)
@@ -210,32 +277,64 @@
 /obj/machinery/station_map/security/directional/north,
 /turf/simulated/floor/mineral/titanium/blue,
 /area/fastload/blue)
+"RU" = (
+/obj/item/radio/intercom/directional/north,
+/turf/simulated/floor/mineral/titanium/blue,
+/area/fastload/blue)
+"Si" = (
+/obj/machinery/light{
+	dir = 8
+	},
+/obj/structure/table,
+/obj/item/gun/projectile/automatic/shotgun/bulldog,
+/obj/item/gun/projectile/automatic/shotgun/bulldog/mastiff,
+/obj/item/gun/projectile/automatic/shotgun/minotaur,
+/obj/item/gun/projectile/automatic/smg/kedr,
+/obj/item/gun/projectile/automatic/smg/mini_uzi,
+/obj/item/gun/projectile/automatic/smg/ppsh,
+/obj/item/gun/projectile/automatic/smg/ppsh/rusted,
+/obj/item/gun/projectile/automatic/tommygun,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "Tl" = (
 /obj/structure/ladder,
 /turf/simulated/floor/mineral/titanium/yellow,
 /area/fastload)
+"TJ" = (
+/obj/machinery/light{
+	dir = 8
+	},
+/obj/item/gun/projectile/shotgun/automatic/combat,
+/obj/item/gun/projectile/shotgun/automatic/dual_tube,
+/obj/item/gun/projectile/shotgun/boltaction,
+/obj/item/gun/projectile/shotgun/lethal,
+/obj/item/gun/projectile/shotgun/riot,
+/obj/item/gun/projectile/shotgun/riot/short,
+/obj/item/gun/projectile/shotgun/winchester,
+/obj/item/gun/projectile/shotgun/winchester/cargo,
+/obj/structure/table,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "Uj" = (
 /obj/effect/turf_decal/arrows/black{
 	dir = 8
 	},
 /turf/simulated/floor/mineral/titanium/blue,
 /area/fastload/blue)
-"VP" = (
-/obj/item/radio/intercom/directional/north,
-/turf/simulated/floor/mineral/titanium/blue,
-/area/fastload/blue)
+"UB" = (
+/obj/structure/table,
+/obj/item/gun/projectile/bombarda,
+/obj/item/gun/projectile/bombarda/bombplet,
+/obj/item/gun/projectile/bombarda/secgl/x4,
+/obj/item/gun/projectile/bombarda/secgl/m79,
+/turf/simulated/floor/mineral/titanium/purple,
+/area/fastload/purple)
 "Xa" = (
 /obj/machinery/light{
 	dir = 4
 	},
 /turf/simulated/floor/mineral/titanium/yellow,
 /area/fastload)
-"Xw" = (
-/obj/machinery/light{
-	dir = 8
-	},
-/turf/simulated/floor/mineral/titanium/purple,
-/area/fastload/purple)
 "YB" = (
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
@@ -2526,7 +2625,7 @@ ay
 ay
 ay
 jk
-VP
+RU
 HE
 HE
 HE
@@ -6359,15 +6458,15 @@ Nb
 YB
 YB
 YB
-Xw
-YB
-YB
-YB
-Xw
-YB
-YB
-YB
-YB
+TJ
+IA
+Lw
+OV
+Si
+LI
+ck
+UB
+qL
 BO
 jD
 jD
@@ -6499,7 +6598,7 @@ YB
 YB
 YB
 YB
-YB
+nR
 BO
 jD
 jD

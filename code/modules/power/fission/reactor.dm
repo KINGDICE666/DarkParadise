@@ -164,6 +164,16 @@
 	COOLDOWN_DECLARE(scram_cooldown)
 	COOLDOWN_DECLARE(history_record)
 
+/obj/machinery/atmospherics/fission_reactor/get_ru_names()
+	return alist(
+		NOMINATIVE = "ядерный реактор деления",
+		GENITIVE = "ядерного реактора деления",
+		DATIVE = "ядерному реактору деления",
+		ACCUSATIVE = "ядерный реактор деления",
+		INSTRUMENTAL = "ядерным реактором деления",
+		PREPOSITIONAL = "ядерном реакторе деления",
+	)
+
 /obj/machinery/atmospherics/fission_reactor/roundstart
 	primary_engine = TRUE
 
@@ -408,7 +418,7 @@
 		if(plasteel.amount < 5)
 			to_chat(user, span_warning("Нужно минимум пять листов пластали!"))
 			return ITEM_INTERACT_SUCCESS
-		if(do_after(user, 3 SECONDS, TRUE, src))
+		if(do_after(user, 3 SECONDS, src))
 			repair_step++
 			plasteel.use(5)
 			to_chat(user, span_notice("Вы обшиваете ядро слоем радиационной защиты."))
@@ -846,14 +856,14 @@
 			radio_announce(
 				span_big("[warning_alert] Целостность: [integrity]%"),
 				DECLENT_RU_CAP(src, NOMINATIVE),
-				null,
+				PUB_FREQ,
 				src
 			)
 		if(REACTOR_MELTDOWN)
 			radio_announce(
 				span_big("[emergency_alert] Целостность: [integrity]%"),
 				DECLENT_RU_CAP(src, NOMINATIVE),
-				null,
+				PUB_FREQ,
 				src
 			)
 
@@ -967,7 +977,7 @@
 	radio_announce(
 		span_reallybig("[emergency_alert] Конструкция реактора теряет устойчивость."),
 		DECLENT_RU_CAP(src, NOMINATIVE),
-		null,
+		PUB_FREQ,
 		src
 	)
 	countdown_tick(NGCR_COUNTDOWN_TIME)
@@ -1037,6 +1047,7 @@
 	playsound(src, 'sound/machines/alarm.ogg', 100, FALSE, 5)
 	if(SSticker && SSticker.mode)
 		SSticker.mode.explosion_in_progress = TRUE
+	explosion(get_turf(src), 80, 100, 120, 0, ignorecap = TRUE)
 	sleep(10 SECONDS)
 	SSblackbox.record_feedback("tally", "fission_overload", 1, "detonation successful")
 	active_meltdown = FALSE

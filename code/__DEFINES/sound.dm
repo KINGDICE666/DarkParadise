@@ -120,6 +120,7 @@
 #define SOUND_EFFECT_MEGAPHONE_ROBOT 5
 #define SOUND_EFFECT_MASKFILTER 6
 #define SOUND_EFFECT_RADIO_MASKFILTER 7
+#define SOUND_EFFECT_OLD_VOCODER 8
 
 #define TTS_PARTIAL_SUFFIX ".part"
 
@@ -218,9 +219,11 @@ GLOBAL_LIST_EMPTY(sfx_datum_by_key)
 #define SFX_POLAROID_PHOTO_PRINTING "polaroid"
 #define SFX_BLOODCRAWL_EMERGE "bloodcrawl_emerge"
 #define SFX_HEAVYFOOTSTEP "heavy_footstep"
+#define SFX_IM_HERE "im_here"
 // Below is a list copied from TG, most of their defines are empty (without datum and sounds). But there are also those used by us.
 #define SFX_BODYFALL "bodyfall"
 #define SFX_BULLET_MISS "bullet_miss"
+#define SFX_BULLET_MISS_ALT "bullet_miss_alt"
 #define SFX_ENERGY_MISS "energy_miss"
 #define SFX_ARROW_MISS "arrow_miss"
 #define SFX_CAN_OPEN "can_open"
@@ -234,7 +237,6 @@ GLOBAL_LIST_EMPTY(sfx_datum_by_key)
 #define SFX_HULL_CREAKING "hull_creaking"
 #define SFX_HYPERTORUS_CALM "hypertorus_calm"
 #define SFX_HYPERTORUS_MELTING "hypertorus_melting"
-#define SFX_IM_HERE "im_here"
 #define SFX_LAW "law"
 #define SFX_PAGE_TURN "page_turn"
 #define SFX_PUNCH "punch"
@@ -355,3 +357,4 @@ GLOBAL_LIST_EMPTY(sfx_datum_by_key)
 #define SFX_KNIFE_DROP "knife_drop"
 #define SFX_POTTED_PLANT_PICKUP "potted_plant_pickup"
 #define SFX_POTTED_PLANT_DROP "potted_plant_drop"
+#define SFX_FLAMETHROWER "flamethrower"

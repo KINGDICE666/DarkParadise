@@ -161,7 +161,7 @@
 				if(access_electronics)
 					to_chat(user, span_warning("The airlock assembly already has [access_electronics] installed."))
 					return ATTACK_CHAIN_PROCEED
-				if(new_circuit.access_electronics.emagged)
+				if(new_circuit.access_electronics.obj_flags & EMAGGED)
 					to_chat(user, span_warning("The [new_circuit.name] has broken [new_circuit.access_electronics.name] installed."))
 					return ATTACK_CHAIN_PROCEED
 			new_circuit.play_tool_sound(src)
@@ -194,7 +194,7 @@
 			if(access_electronics)
 				to_chat(user, span_warning("The airlock assembly already has [access_electronics] installed."))
 				return ATTACK_CHAIN_PROCEED
-			if(control.emagged)
+			if(control.obj_flags & EMAGGED)
 				to_chat(user, span_warning("The [control.name] is broken."))
 				return ATTACK_CHAIN_PROCEED
 			control.play_tool_sound(src)

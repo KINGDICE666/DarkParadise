@@ -47,6 +47,7 @@ type OreRedemptionData = {
   disk: Disk;
   sheets: Ore[];
   alloys: Ore[];
+  logistics_enabled: boolean;
 };
 
 type ID = {
@@ -73,7 +74,7 @@ type SectionProps = ComponentProps<typeof Section>;
 
 const IdDisk = (properties: SectionProps) => {
   const { act, data } = useBackend<OreRedemptionData>();
-  const { id, points, disk } = data;
+  const { id, points, disk, logistics_enabled } = data;
   const { ...rest } = properties;
   return (
     <Section
