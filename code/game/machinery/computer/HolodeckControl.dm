@@ -381,6 +381,26 @@
 	anchored = TRUE
 	flags = ON_BORDER
 
+/obj/structure/holowindow/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_EXIT = PROC_REF(on_exit),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+/obj/structure/holowindow/CanAllowThrough(atom/movable/mover, border_dir)
+	return ..() || border_dir != dir
+
+/obj/structure/holowindow/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
+	return ..() || to_dir != dir
+
+/obj/structure/holowindow/proc/on_exit(datum/source, atom/movable/leaving, direction)
+	SIGNAL_HANDLER
+
+	if(leaving != src && !CanPass(leaving, direction))
+		leaving.Bump(src)
+		return COMPONENT_ATOM_BLOCK_EXIT
+
 /obj/structure/rack/holorack/has_prints()
 	return FALSE
 

@@ -48,6 +48,7 @@ using metal and glass, it uses glass and reagents (usually sulfuric acis).
 
 /obj/machinery/r_n_d/circuit_imprinter/Initialize(mapload)
 	. = ..()
+	materials.prompt_stack_amount = TRUE
 	init_parts()
 	create_reagents()
 	RefreshParts()
