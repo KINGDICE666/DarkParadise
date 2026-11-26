@@ -72,6 +72,7 @@
 	if(!target)
 		for(var/signal in sig_type_or_types)
 			stack_trace("Tried to UnregisterSignal [signal] from null datum/target")
+		return
 	var/list/lookup = target._listen_lookup
 	if(!_signal_procs || !_signal_procs[target] || !lookup)
 		return

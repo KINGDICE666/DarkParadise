@@ -146,7 +146,7 @@
 	//if area isn't specified use current
 	if(isarea(A))
 		areabeacon = A
-	get_clockwork_cult_team().clocker_objs.beacon_check()
+	get_clockwork_cult_team()?.clocker_objs.beacon_check()
 
 /obj/structure/clockwork/functional/beacon/process()
 	adjust_clockwork_power(CLOCK_POWER_BEACON)

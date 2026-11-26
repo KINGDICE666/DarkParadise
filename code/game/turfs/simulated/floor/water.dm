@@ -43,7 +43,7 @@
 
 /turf/simulated/floor/water/Initialize(mapload)
 	. = ..()
-	RegisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, TYPE_PROC_REF(/turf, on_atom_inited))
+	RegisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, TYPE_PROC_REF(/turf, on_atom_inited), override = TRUE)
 	AddElement(/datum/element/watery_tile)
 	/*
 	if(!isnull(fishing_datum))

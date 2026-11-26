@@ -1456,7 +1456,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/wrench,
 		/obj/item/binoculars/range,
 	)
-	cost = 3750
+	cost = 6250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик M402S"
 	container_ru_names = alist(
@@ -1477,7 +1477,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/he,
 		/obj/item/mortar_shell/he,
 	)
-	cost = 500
+	cost = 1250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик фугасных снарядов для миномета"
 	container_ru_names = alist(
@@ -1498,7 +1498,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/frag,
 		/obj/item/mortar_shell/frag,
 	)
-	cost = 500
+	cost = 1250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик осколочных снарядов для миномета"
 	container_ru_names = alist(
@@ -1517,7 +1517,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/flare,
 		/obj/item/mortar_shell/flare,
 	)
-	cost = 500
+	cost = 1250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик снарядов с камерой для миномета"
 	container_ru_names = alist(
@@ -1538,7 +1538,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/incendiary,
 		/obj/item/mortar_shell/incendiary,
 	)
-	cost = 500
+	cost = 1250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик зажигательных снарядов для миномета"
 	container_ru_names = alist(

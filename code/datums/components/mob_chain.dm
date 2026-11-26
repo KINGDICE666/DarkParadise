@@ -49,14 +49,14 @@
 	RegisterSignal(parent, COMSIG_QDELETING, PROC_REF(on_deletion))
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(on_moved))
 	RegisterSignal(parent, COMSIG_ATOM_CAN_BE_PULLED, PROC_REF(on_pulled))
-	RegisterSignal(parent, list(COMSIG_LIVING_UNARMED_ATTACK, COMSIG_MOB_ATTACK_RANGED), PROC_REF(on_attack))
+	RegisterSignals(parent, list(COMSIG_LIVING_UNARMED_ATTACK, COMSIG_MOB_ATTACK_RANGED), PROC_REF(on_attack))
 	RegisterSignal(parent, COMSIG_MOVABLE_UPDATE_GLIDE_SIZE, PROC_REF(on_glide_size_changed))
 	if(vary_icon_state)
 		RegisterSignal(parent, COMSIG_ATOM_UPDATE_ICON_STATE, PROC_REF(on_update_icon_state))
 		update_mob_appearance()
 
 	if(pass_damage_back)
-		RegisterSignal(parent, list(
+		RegisterSignals(parent, list(
 			COMSIG_LIVING_ADJUST_BRUTE_DAMAGE,\
 			COMSIG_LIVING_ADJUST_BURN_DAMAGE,\
 			COMSIG_LIVING_ADJUST_OXY_DAMAGE,\

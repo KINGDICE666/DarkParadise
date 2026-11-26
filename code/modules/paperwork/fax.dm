@@ -27,9 +27,9 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 	BLACKBOX_LOG_ADMIN_VERB("Fax Panel")
 
 /datum/admins/proc/fax_panel(mob/living/user)
-	var/html = "<a align='right' href='byond://?src=[UID()];refreshfaxpanel=1'>Refresh</a>"
-	html += "<a align='right' href='byond://?src=[UID()];AdminFaxCreate=1;faxtype=Administrator'>Create Fax</a>"
-	html += "<a align='right' href='byond://?src=[UID()];AdminFaxConstructor=1;faxtype=Administrator'>Конструктор бланков</a>"
+	var/html = "<a align='right' href='byond://?src=[UID()];[HrefToken()];refreshfaxpanel=1'>Refresh</a>"
+	html += "<a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxCreate=1;faxtype=Administrator'>Create Fax</a>"
+	html += "<a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxConstructor=1;faxtype=Administrator'>Конструктор бланков</a>"
 
 	html += "<div class='block'>"
 	html += "<h2>Admin Faxes</h2>"
@@ -46,20 +46,20 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 			html += "<td>[ADMIN_PP(S,"[S.name]")]</td>"
 		else
 			html += "<td>Unknown</td>"
-		html += "<td><a align='right' href='byond://?src=[UID()];AdminFaxView=[UID_of(A.message)]'>View</a></td>"
+		html += "<td><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxView=[UID_of(A.message)]'>View</a></td>"
 		if(!A.reply_to)
 			if(A.from_department == "Administrator")
 				html += "<td>N/A</td>"
 			else
-				html += "<td><a align='right' href='byond://?src=[UID()];AdminFaxCreate=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Reply</a>"
-				html += "<br><a align='right' href='byond://?src=[UID()];AdminFaxConstructor=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Конструктор</a>"
+				html += "<td><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxCreate=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Reply</a>"
+				html += "<br><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxConstructor=[UID_of(A.sent_by)];originfax=[UID_of(A.origin)];faxtype=[A.to_department];replyto=[UID_of(A.message)]'>Конструктор</a>"
 				if(A.sent_by)
-					html += "<br><a align='right' href='byond://?src=[UID()];AdminFaxNotify=[UID_of(A.sent_by)]'>Notify</a>"
+					html += "<br><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxNotify=[UID_of(A.sent_by)]'>Notify</a>"
 				html += "</td>"
 			html += "<td>N/A</td>"
 		else
 			html += "<td>N/A</td>"
-			html += "<td><a align='right' href='byond://?src=[UID()];AdminFaxView=[UID_of(A.reply_to)]'>Original</a></td>"
+			html += "<td><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxView=[UID_of(A.reply_to)]'>Original</a></td>"
 		html += "</tr>"
 	html += "</table>"
 	html += "</div>"
@@ -79,7 +79,7 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 			html += "<td>[ADMIN_PP(S,"[S.name]")]</td>"
 		else
 			html += "<td>Unknown</td>"
-		html += "<td><a align='right' href='byond://?src=[UID()];AdminFaxView=[UID_of(F.message)]'>View</a></td>"
+		html += "<td><a align='right' href='byond://?src=[UID()];[HrefToken()];AdminFaxView=[UID_of(F.message)]'>View</a></td>"
 		html += "</tr>"
 	html += "</table>"
 	html += "</div>"
@@ -117,10 +117,10 @@ ADMIN_VERB(fax_panel, R_ADMIN, "Fax Panel", "View and respond to faxes sent to C
 			sender.playsound_local(sender, 'sound/items/new_fax_message.ogg', 50, FALSE, use_reverb = FALSE)
 	if(sender)
 		log_admin("[key_name(owner)] replied to a fax message from [key_name(sender)]: [strip_html_properly(paper.info)]")
-		message_admins("[key_name_admin(owner)] replied to a fax message from [key_name_admin(sender)] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
+		message_admins("[key_name_admin(owner)] replied to a fax message from [key_name_admin(sender)] (<a href='byond://?_src_=holder;[HrefToken()];AdminFaxView=[paper.UID()]'>VIEW</a>).")
 	else
 		log_admin("[key_name(owner)] sent a fax message to [destination || fax.department]: [strip_html_properly(paper.info)]")
-		message_admins("[key_name_admin(owner)] sent a fax message to [destination || fax.department] (<a href='byond://?_src_=holder;AdminFaxView=[paper.UID()]'>VIEW</a>).")
+		message_admins("[key_name_admin(owner)] sent a fax message to [destination || fax.department] (<a href='byond://?_src_=holder;[HrefToken()];AdminFaxView=[paper.UID()]'>VIEW</a>).")
 	return TRUE
 
 /datum/admins/proc/deliver_admin_fax(obj/machinery/photocopier/faxmachine/fax, obj/item/paper/paper)

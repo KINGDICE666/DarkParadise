@@ -55,7 +55,7 @@
 	refresh_light()
 	if(!smooth) // is it need?
 		update_appearance()
-	RegisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, TYPE_PROC_REF(/turf, on_atom_inited))
+	RegisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, TYPE_PROC_REF(/turf, on_atom_inited), override = TRUE)
 
 ///We lazily add the immerse element when something is spawned or crosses this turf and not before.
 /turf/simulated/floor/lava/on_atom_inited(datum/source, atom/movable/movable)

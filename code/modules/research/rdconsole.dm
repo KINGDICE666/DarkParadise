@@ -1069,7 +1069,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			return null
 		recycled_item.forceMove(linked_destroy)
 		linked_destroy.item_queue.Insert(1, recycled_item)
-		linked_destroy.RegisterSignal(recycled_item, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), TYPE_PROC_REF(/obj/machinery/r_n_d/destructive_analyzer, on_queued_item_removed))
+		linked_destroy.RegisterSignals(recycled_item, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), TYPE_PROC_REF(/obj/machinery/r_n_d/destructive_analyzer, on_queued_item_removed))
 		linked_destroy.update_loaded_item()
 	if(!linked_destroy.loaded_item || QDELETED(linked_destroy.loaded_item))
 		return null

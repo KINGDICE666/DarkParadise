@@ -978,3 +978,5 @@
 /datum/config_entry/string/ntnet_editor_url
 	default = "https://ntnet.wiki-ss13.space"
 /datum/config_entry/flag/grey_assistants
+
+/datum/config_entry/flag/debug_admin_hrefs

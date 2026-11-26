@@ -714,7 +714,7 @@
 		if(!iscarbon(user))
 			target.LAssailant = null
 		else
-			target.LAssailant = user
+			target.LAssailant = WEAKREF(user)
 
 		target.lastattacker = user.real_name
 		target.lastattackerckey = user.ckey
@@ -814,7 +814,7 @@
 		if(!iscarbon(user))
 			target.LAssailant = null
 		else
-			target.LAssailant = user
+			target.LAssailant = WEAKREF(user)
 		return
 
 	user.do_attack_animation(target, ATTACK_EFFECT_DISARM)

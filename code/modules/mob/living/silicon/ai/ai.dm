@@ -275,6 +275,19 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	malfhack = null
 	bot_ref = null
 	linked_core = null
+	controlled_mech = null
+	current = null
+	parent = null
+	deployed_shell = null
+	holo = null
+	waypoint = null
+	LAZYCLEARLIST(connected_robots)
+	LAZYCLEARLIST(lit_cameras)
+	LAZYCLEARLIST(all_eyes)
+	LAZYCLEARLIST(stored_locations)
+	QDEL_LIST(current_modules)
+	QDEL_NULL(malf_picker)
+	QDEL_NULL(modules_action)
 	QDEL_NULL(eyeobj) // No AI, no Eye
 	QDEL_NULL(aiPDA)
 	QDEL_NULL(aiMulti)
@@ -288,6 +301,10 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	program_picker?.reset_programs()
 	QDEL_NULL(program_action)
 	QDEL_NULL(program_picker)
+	QDEL_NULL(doomsday_device)
+	QDEL_NULL(track)
+	QDEL_NULL(announcer)
+	QDEL_NULL(robot_control)
 	return ..()
 
 /mob/living/silicon/ai/get_radio()

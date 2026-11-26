@@ -175,6 +175,8 @@
 
 /obj/item/clothing/head/pirate/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
+	if(QDELETED(user))
+		return
 	var/datum/language_holder/holder = user.get_language_holder()
 	if(!(LANGUAGE_HAT in LAZYACCESS(holder.spoken_languages, /datum/language/piratespeak)))
 		return
