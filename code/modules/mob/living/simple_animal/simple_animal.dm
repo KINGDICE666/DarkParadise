@@ -213,7 +213,8 @@
 /mob/living/simple_animal/Destroy()
 	QDEL_NULL(pcollar)
 	master_commander = null
-	GLOB.simple_animals[AIStatus] -= src
+	for(var/list/status_list as anything in GLOB.simple_animals)
+		status_list -= src
 	SSnpcpool.currentrun -= src
 	SSidlenpcpool.currentrun -= src
 	walk(src, NONE)
