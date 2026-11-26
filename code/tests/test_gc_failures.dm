@@ -24,7 +24,6 @@
 		/obj/structure/energy_net,
 		/datum/turf_reservation,
 		/datum/component/material_container,
-		/obj/structure/transit_tube/station/dispenser/reverse,
 	)
 	/// How long each object waits in the check queue during this test.
 	var/check_wait = 10 SECONDS
