@@ -1020,7 +1020,7 @@
 /datum/chemical_reaction/octogen
 	name = "Octogen"
 	id = "octogen"
-	result = "octogen"
+	result = /datum/reagent/octogen
 	required_reagents = list(
 		/datum/reagent/hexamine = 1,
 		/datum/reagent/acid/polyacid = 1,

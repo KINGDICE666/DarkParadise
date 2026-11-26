@@ -31,7 +31,7 @@
 	stage_prob = 5
 	cure_text = "Пиротехнические стабилизирующий агент"
 	agent = "Eruca Stomachum"
-	cures = list("stabilizing_agent")
+	cures = list(/datum/reagent/stabilizing_agent)
 	infectable_mobtypes = list(/mob/living/carbon/human)
 	desc = "Магически насыщенная болезнь, которая вызывает опасно высокое давление желчи в желудке."
 	severity = DISEASE_SEVERITY_DANGEROUS
@@ -101,7 +101,7 @@
 	stage_prob = 5
 	cure_text = "Ацетальдегид"
 	agent = "nasum magicum"
-	cures = list("acetaldehyde")
+	cures = list(/datum/reagent/acetaldehyde)
 	infectable_mobtypes = list(/mob/living/carbon/human)
 	desc = "Магически насыщенная болезнь, которая заменяет волоски в носу крошечными жезлами. Избегайте раздражителей носа."
 	severity = DISEASE_SEVERITY_DANGEROUS
@@ -167,7 +167,7 @@
 	stage_prob = 5
 	cure_text = "жидкая тёмная материя"
 	agent = "Spatio Ventrem"
-	cures = list("liquid_dark_matter")
+	cures = list(/datum/reagent/liquid_dark_matter)
 	infectable_mobtypes = list(/mob/living/carbon/human)
 	desc = "Магически насыщенная болезнь, обитающая в кишечнике и превращающая желудочные соки в космическую материю."
 	severity = DISEASE_SEVERITY_DANGEROUS

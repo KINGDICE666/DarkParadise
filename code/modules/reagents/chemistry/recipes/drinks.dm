@@ -44,7 +44,7 @@
 /datum/chemical_reaction/kefir
 	name = "Kefir"
 	id = "kefir"
-	result = "kefir"
+	result = /datum/reagent/consumable/drink/milk/kefir
 	required_reagents = list(/datum/reagent/consumable/drink/milk = 10)
 	required_catalysts = list(/datum/reagent/consumable/drink/milk/kefir = 1)
 	result_amount = 10

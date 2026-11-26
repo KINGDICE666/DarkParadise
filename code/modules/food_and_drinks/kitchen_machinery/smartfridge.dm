@@ -444,7 +444,7 @@
 	if(!accept_check(I))
 		return FALSE
 
-	if(length(contents) >= max_n_of_items)
+	if(get_stored_item_count() >= max_n_of_items)
 		balloon_alert(user, "хранилище переполнено!")
 		return FALSE
 
