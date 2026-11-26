@@ -179,7 +179,7 @@
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
-	GLOB.simple_animals[AIStatus] += src
+	GLOB.simple_animals[AIStatus] |= src
 	if(gender == PLURAL)
 		gender = pick(MALE, FEMALE)
 	if(!real_name)
@@ -665,8 +665,9 @@
 	if(!can_have_ai && (togglestatus != AI_OFF))
 		return
 	if(HAS_TRAIT(src, TRAIT_AI_PAUSED))
-		AIStatus = AI_OFF
-		return
+		togglestatus = AI_OFF
+		if(AIStatus == AI_OFF)
+			return
 	var/turf/our_turf = get_turf(src)
 	if(QDELETED(src) || !our_turf)
 		return
@@ -679,7 +680,7 @@
 		else
 			SSidlenpcpool.idle_mobs_by_zlevel[our_turf.z] += src
 	GLOB.simple_animals[AIStatus] -= src
-	GLOB.simple_animals[togglestatus] += src
+	GLOB.simple_animals[togglestatus] |= src
 	AIStatus = togglestatus
 	AI_delay_current = world.time
 
