@@ -8,9 +8,7 @@
 	clown_removal_text = "Вы снова чувствуете себя забавным."
 	wiki_page_name = "Zombie"
 	russian_wiki_name = "Зомби"
-	has_skill_bonus = FALSE
-	var/list/old_languages = list() // someone make this better to prevent langs changing if species changes while zombie somehow
-	var/static/list/zombie_traits = list(TRAIT_LANGUAGE_LOCKED, TRAIT_ABSTRACT_HANDS, TRAIT_NO_BREATH)
+	var/static/list/zombie_traits = list(TRAIT_ABSTRACT_HANDS, TRAIT_NO_BREATH)
 	var/datum/unarmed_attack/claws/claw_attack
 	var/chosen_disease
 	var/datum/zombie_class/class
@@ -67,11 +65,8 @@
 /datum/antagonist/zombie/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/L = ..()
 
-	old_languages = L.languages.Copy()
-	for(var/datum/language/lang as anything in L.languages)
-		L.remove_language(lang.name)
-	L.add_language(LANGUAGE_ZOMBIE)
-	L.default_language = GLOB.all_languages[LANGUAGE_ZOMBIE]
+	L.add_blocked_language(GLOB.all_languages - /datum/language/zombie, source = LANGUAGE_ZOMBIE)
+	L.grant_language(/datum/language/zombie, source = LANGUAGE_ZOMBIE)
 	L.add_movespeed_modifier(class?.movespeed_modifier || /datum/movespeed_modifier/zombie)
 	if(!HAS_TRAIT(owner.current, TRAIT_PLAGUE_ZOMBIE))
 		L.extinguish_light() // zombies prefer darkness
@@ -90,10 +85,8 @@
 	for(var/trait in zombie_traits)
 		REMOVE_TRAIT(L, trait, ZOMBIE_TRAIT)
 	L.remove_movespeed_modifier(/datum/movespeed_modifier/zombie)
-	L.remove_language(LANGUAGE_ZOMBIE)
-	for(var/datum/language/lang as anything in old_languages)
-		L.add_language(lang.name)
-	L.default_language = null
+	L.remove_blocked_language(GLOB.all_languages, source = LANGUAGE_ZOMBIE)
+	L.remove_language(/datum/language/zombie, source = LANGUAGE_ZOMBIE)
 
 /datum/antagonist/zombie/add_owner_to_gamemode()
 	SSticker.mode.zombies |= owner
@@ -113,6 +106,7 @@
 	add_objective(/datum/objective/zombie)
 
 /datum/objective/zombie
+	antag_menu_name = "Распространить чуму"
 	explanation_text = "«Голод растёт внутри нас — нам нужно пировать мозгами незаражённых. Царапайте, кусайте и распространяйте чуму."
 	needs_target = FALSE
 	completed = TRUE

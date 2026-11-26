@@ -90,7 +90,7 @@
 
 /obj/item/organ/internal/vocal_cords/corrupt/proc/on_spoken(mob/living/organ_owner, list/speech_args)
 	SIGNAL_HANDLER
-	if(organ_owner.reagents?.has_reagent("holywater") || prob(60))
+	if(organ_owner.reagents?.has_reagent(/datum/reagent/holywater) || prob(60))
 		return
 
 	speech_args[SPEECH_MESSAGE] = slur(speech_args[SPEECH_MESSAGE])
@@ -140,7 +140,7 @@
 	if(!(methods & REAGENT_INGEST))
 		return
 
-	if(human.reagents.has_reagent("holywater"))
+	if(human.reagents.has_reagent(/datum/reagent/holywater))
 		return
 
 	var/datum/reagents/extra_reagents = new()
@@ -178,7 +178,7 @@
 
 /obj/item/organ/internal/heart/corrupt/on_life(seconds_per_tick, times_fired)
 	. = ..()
-	if(!COOLDOWN_FINISHED(src, hand_cooldown) || IS_IN_MANSUS(owner) || !owner.needs_heart() || !beating || owner.reagents.has_reagent("holywater"))
+	if(!COOLDOWN_FINISHED(src, hand_cooldown) || IS_IN_MANSUS(owner) || !owner.needs_heart() || !beating || owner.reagents.has_reagent(/datum/reagent/holywater))
 		return
 
 	fire_curse_hand(owner)
@@ -219,7 +219,7 @@
 
 /obj/item/organ/internal/lungs/corrupt/check_breath(datum/gas_mixture/breath, mob/living/carbon/human/breather)
 	. = ..()
-	if(!. || IS_IN_MANSUS(owner) || breather.reagents.has_reagent("holywater") || !prob(cough_chance))
+	if(!. || IS_IN_MANSUS(owner) || breather.reagents.has_reagent(/datum/reagent/holywater) || !prob(cough_chance))
 		return
 
 	breather.emote("cough");
@@ -262,7 +262,7 @@
 
 /obj/item/organ/internal/appendix/corrupt/on_life(seconds_per_tick, times_fired)
 	. = ..()
-	if(owner.stat != CONSCIOUS || owner.reagents.has_reagent("holywater") || IS_IN_MANSUS(owner) || !SPT_PROB(worm_chance, seconds_per_tick))
+	if(owner.stat != CONSCIOUS || owner.reagents.has_reagent(/datum/reagent/holywater) || IS_IN_MANSUS(owner) || !SPT_PROB(worm_chance, seconds_per_tick))
 		return
 
 	owner.vomit(distance = 0)

@@ -174,7 +174,7 @@
 	spray_maxrange = 1
 	spray_currentrange = 1
 	volume = 30
-	list_reagents = list("lube" = 30)
+	list_reagents = list(/datum/reagent/lube = 30)
 
 /obj/item/gun/projectile/automatic/toy/pistol/riot/clandestine
 	damage_mod = 1.4
@@ -216,7 +216,7 @@
 	)
 
 /obj/item/reagent_containers/spray/waterflower/lube/super
-	list_reagents = list("superlube" = 30)
+	list_reagents = list(/datum/reagent/lube/superlube = 30)
 
 /datum/reagent/lube/superlube
 	name = "Супер-смазка"

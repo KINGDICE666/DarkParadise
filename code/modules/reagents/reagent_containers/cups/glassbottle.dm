@@ -682,7 +682,7 @@
 	name = "kefir"
 	desc = "Кисломолочный напиток. Щепотка его закваски превращает в кефир любое молоко."
 	icon_state = "kefir"
-	list_reagents = list("kefir" = 100)
+	list_reagents = list(/datum/reagent/consumable/drink/milk/kefir = 100)
 
 /obj/item/reagent_containers/cup/glass/bottle/juice/kefir/get_ru_names()
 	return alist(

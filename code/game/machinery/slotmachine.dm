@@ -42,7 +42,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	var/sound = 'sound/machines/ping.ogg'
 	/// List of available prizes, only for emagged slotmachine
 	var/list/available_prizes = list()
-	var/reel_symbol
 
 /datum/slotmachine_prize/New(list/allowed_uplink_items)
 	..()
@@ -91,7 +90,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	match_count = 2
 	resultlvl = "green"
 	say_phrase = "Победитель!"
-	reel_symbol = "cherry"
 
 /datum/slotmachine_prize/minimal/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -107,7 +105,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	match_count = 2
 	resultlvl = "green"
 	say_phrase = "Победитель!"
-	reel_symbol = "lemon"
 
 /datum/slotmachine_prize/small/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -124,7 +121,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	resultlvl = "green"
 	say_phrase = "Победитель!"
 	sound = 'sound/goonstation/misc/bell.ogg'
-	reel_symbol = "bell"
 
 /datum/slotmachine_prize/medium/apply_emagged_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user)
 	slotmachine.give_custom_prize(user, /obj/item/storage/box/random_syndi)
@@ -138,7 +134,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	resultlvl = "green"
 	say_phrase = "Большой победитель!"
 	sound = 'sound/goonstation/misc/klaxon.ogg'
-	reel_symbol = "bar"
 
 /datum/slotmachine_prize/big/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -156,7 +151,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	custom_result_prefix = "ДЖЕКПОТ! "
 	say_phrase = "ДЖЕКПОТ!"
 	sound = 'sound/goonstation/misc/airraid_loop.ogg'
-	reel_symbol = "seven"
 
 /datum/slotmachine_prize/jackpot/apply_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user, prize_credits)
 	GLOB.minor_announcement.announce(
@@ -336,14 +330,6 @@ GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
 	prizedatum.apply_effect(src, user, prize_credits)
 	if(obj_flags & EMAGGED)
 		prizedatum.apply_emagged_effect(src, user)
-
-/obj/machinery/computer/slot_machine/proc/roll_reels(datum/slotmachine_prize/prize)
-	if(prize.reel_symbol)
-		return list(prize.reel_symbol, prize.reel_symbol, prize.reel_symbol)
-	var/list/rolled = list(pick(reel_symbols), pick(reel_symbols), pick(reel_symbols))
-	if(rolled[1] == rolled[2] && rolled[2] == rolled[3])
-		rolled[3] = pick(reel_symbols - rolled[1])
-	return rolled
 
 /obj/machinery/computer/slot_machine/proc/detect_result()
 	// Convert prize chance to weigth logic

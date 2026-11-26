@@ -716,7 +716,7 @@
 		if(counter == "4")
 			var/datum/reagent/reagent_type
 			for(var/reagent in level.required_reagents)
-				if(reagent == "blood")
+				if(reagent == /datum/reagent/blood)
 					continue
 				reagent_type = GLOB.chemical_reagents_list[reagent]
 				break
@@ -724,7 +724,7 @@
 			break
 		info_builder += "<ul>"
 		for(var/reagent in level.required_reagents)
-			if(reagent == "blood")
+			if(reagent == /datum/reagent/blood)
 				continue
 			var/datum/reagent/reagent_type = GLOB.chemical_reagents_list[reagent]
 			info_builder += "<li>[reagent_type.name]"

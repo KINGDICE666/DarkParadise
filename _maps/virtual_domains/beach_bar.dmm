@@ -410,7 +410,7 @@
 /obj/item/storage/backpack/duffel,
 /obj/item/clothing/under/redhawaiianshirt,
 /obj/item/clothing/shoes/sandal,
-/obj/item/clothing/glasses/sunglasses/reagent,
+/obj/item/clothing/glasses/science/sunglasses,
 /turf/simulated/floor/wood,
 /area/virtual_domain/fullbright)
 "uk" = (

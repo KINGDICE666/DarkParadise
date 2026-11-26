@@ -37,17 +37,6 @@
 		///obj/item/clothing/under/color/jumpskirt/red,
 	//)
 
-/datum/colored_assistant/halloween
-	jumpsuits = list(
-		/obj/item/clothing/under/color/orange,
-		/obj/item/clothing/under/color/black,
-	)
-
-	//jumpskirts = list(
-		///obj/item/clothing/under/color/jumpskirt/orange,
-		///obj/item/clothing/under/color/jumpskirt/black,
-	//)
-
 /datum/colored_assistant/ikea
 	jumpsuits = list(
 		/obj/item/clothing/under/color/yellow,

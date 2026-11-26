@@ -197,8 +197,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		user.balloon_alert(user, "не хватает металла!")
 		return ITEM_INTERACT_BLOCKING
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, mod)
-	var/calculated_time = FLOOR_TILE_TIME * mod
+	var/calculated_time = FLOOR_TILE_TIME
 
 	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
 		var/obj/item/stack/tile/plasteel/four/new_item = new(user.loc)
@@ -211,8 +210,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		user.balloon_alert(user, "не хватает металла!")
 		return ITEM_INTERACT_BLOCKING
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, mod)
-	var/calculated_time = METALL_ROD_TIME * mod
+	var/calculated_time = METALL_ROD_TIME
 
 	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
 		var/obj/item/stack/rods/two/new_item = new(user.loc)
@@ -231,8 +229,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		user.balloon_alert(user, "не хватает металла!")
 		return ITEM_INTERACT_BLOCKING
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, mod)
-	var/calculated_time = MACHINE_FRAME_TIME * mod
+	var/calculated_time = MACHINE_FRAME_TIME
 
 	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
 		new /obj/machinery/constructable_frame/machine_frame(user.loc)
@@ -250,8 +247,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		user.balloon_alert(user, "не хватает металла!")
 		return ITEM_INTERACT_BLOCKING
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, mod)
-	var/calculated_time = COMPUTER_FRAME_TIME * mod
+	var/calculated_time = COMPUTER_FRAME_TIME
 
 	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
 		new /obj/structure/computerframe(user.loc)
@@ -271,9 +267,8 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		user.balloon_alert(user, "что-то мешает!")
 		return ITEM_INTERACT_BLOCKING
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, mod)
 	var/cost = WALL_GIRDER_COST
-	var/time = WALL_GIRDER_TIME * mod
+	var/time = WALL_GIRDER_TIME
 	if(get_amount() < cost)
 		user.balloon_alert(user, "не хватает металла!")
 		return ITEM_INTERACT_BLOCKING

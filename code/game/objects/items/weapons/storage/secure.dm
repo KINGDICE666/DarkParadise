@@ -150,7 +150,7 @@
 	data["emagged"] = obj_flags & EMAGGED
 	data["locked"] = locked
 	data["lock_set"] = l_set
-	data["emagged"] = emagged
+	data["emagged"] = (obj_flags & EMAGGED)
 	data["resetting"] = l_setshort
 	return data
 
@@ -158,7 +158,7 @@
 	if(..())
 		return
 
-	if(action != "keypad" || emagged || l_setshort)
+	if(action != "keypad" || (obj_flags & EMAGGED) || l_setshort)
 		return
 
 	if(!usr.IsAdvancedToolUser() && !isobserver(usr))

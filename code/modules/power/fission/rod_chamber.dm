@@ -43,16 +43,6 @@
 	/// Holds our previous overlay.
 	var/previous_durability_level
 
-/obj/machinery/atmospherics/reactor_chamber/get_ru_names()
-	return alist(
-		NOMINATIVE = "камера размещения стержней",
-		GENITIVE = "камеры размещения стержней",
-		DATIVE = "камере размещения стержней",
-		ACCUSATIVE = "камеру размещения стержней",
-		INSTRUMENTAL = "камерой размещения стержней",
-		PREPOSITIONAL = "камере размещения стержней",
-	)
-
 /obj/machinery/atmospherics/reactor_chamber/Initialize(mapload)
 	. = ..()
 	dupe_check()

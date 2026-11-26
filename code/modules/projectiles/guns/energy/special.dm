@@ -482,7 +482,7 @@
 	return ..()
 
 /obj/item/gun/energy/chrono_gun/process(seconds_per_tick)
-	if(!gun_user || gun_user.get_active_hand() != src || gun_user.incapacitated())
+	if(!gun_user || gun_user.get_active_hand() != src || gun_user.incapacitated)
 		stop_charging()
 		return
 	if(world.time - charge_started < CHRONO_GUN_CHARGE_TIME)

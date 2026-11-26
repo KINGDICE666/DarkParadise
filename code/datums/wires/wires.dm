@@ -267,11 +267,7 @@
 		return TRUE
 	if(HAS_TRAIT(user, TRAIT_WIRE_BLIND))
 		return FALSE
-	if(ismultitool(user.get_active_hand()))
-		var/obj/item/multitool/M = user.get_active_hand()
-		if(M.shows_wire_information)
-			return TRUE
-	if(HAS_TRAIT(user, TRAIT_CAN_SEE_WIRES) || HAS_TRAIT(user, TRAIT_SHOW_WIRE_INFO))
+	if(HAS_TRAIT(user, TRAIT_SHOW_WIRE_INFO))
 		return TRUE
 	var/obj/item/held_item = user.get_active_hand()
 	var/obj/item/offhand = user.get_inactive_hand()

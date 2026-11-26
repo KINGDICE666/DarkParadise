@@ -569,7 +569,7 @@
 	name = "Sol Dry"
 	desc = "Может, от этого вашему животику станет лучше. А может, и нет."
 	icon_state = "sol_dry"
-	list_reagents = list("sol_dry" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/sol_dry = 30)
 
 /obj/item/reagent_containers/cup/soda_cans/sol_dry/get_ru_names()
 	return alist(
@@ -585,7 +585,7 @@
 	name = "Pwr Game"
 	desc = "Единственный напиток с той СИЛОЙ, которой жаждут настоящие геймеры. Когда геймер говорит о геймерском топливе, он имеет в виду буквально это."
 	icon_state = "purple_can"
-	list_reagents = list("pwr_game" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/pwr_game = 30)
 
 /obj/item/reagent_containers/cup/soda_cans/pwr_game/get_ru_names()
 	return alist(
@@ -601,7 +601,7 @@
 	name = "Shambler's juice"
 	desc = "~Взболтай-ка мне Сока Шамблера!~"
 	icon_state = "shamblers"
-	list_reagents = list("shamblers" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/shamblers = 30)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/shamblers/get_ru_names()
@@ -618,7 +618,7 @@
 	name = "Shambler's juice Eldritch Energy!"
 	desc = "~С'О'К!~"
 	icon_state = "shamblerseldritch"
-	list_reagents = list("shamblers" = 30, "eldritch" = 5)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/shamblers = 30, /datum/reagent/eldritch = 5)
 
 /obj/item/reagent_containers/cup/soda_cans/shamblers/eldritch/get_ru_names()
 	return alist(
@@ -634,7 +634,7 @@
 	name = "Wellcheers Juice"
 	desc = "Странный фиолетовый напиток с запахом морской воды. Где-то вдалеке слышны чайки."
 	icon_state = "wellcheers"
-	list_reagents = list("wellcheers" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/wellcheers = 30)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/wellcheers/get_ru_names()
@@ -651,7 +651,7 @@
 	name = "Grey Bull"
 	desc = "Грей Булл окрыляет перчатками!"
 	icon_state = "energy_drink"
-	list_reagents = list("grey_bull" = 20)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/grey_bull = 20)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/grey_bull/get_ru_names()
@@ -668,7 +668,7 @@
 	name = "Monkey Energy"
 	desc = "Выпусти обезьяну наружу!"
 	icon_state = "monkey_energy"
-	list_reagents = list("monkey_energy" = 50)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/monkey_energy = 50)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/monkey_energy/get_ru_names()
@@ -685,7 +685,7 @@
 	name = "24-Volt Energy"
 	desc = "Подзарядись с 24-Вольт Энерджи!"
 	icon_state = "volt_energy"
-	list_reagents = list("volt_energy" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/volt_energy = 30)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/volt_energy/get_ru_names()
@@ -702,7 +702,7 @@
 	name = "Kansumi Melon Soda"
 	desc = "Любимая дынная газировка Японии, теперь в банке!"
 	icon_state = "melon_soda"
-	list_reagents = list("melon_soda" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/melon_soda = 30)
 	drink_type = SUGAR|JUNKFOOD
 
 /obj/item/reagent_containers/cup/soda_cans/melon_soda/get_ru_names()
@@ -720,7 +720,7 @@
 	desc = "Дефицита воздуха нет. Не пить."
 	icon_state = "air"
 	item_state = "sodawater"
-	list_reagents = list("nitrogen" = 24, "oxygen" = 6)
+	list_reagents = list(/datum/reagent/nitrogen = 24, /datum/reagent/oxygen = 6)
 	drink_type = NONE
 
 /obj/item/reagent_containers/cup/soda_cans/air/get_ru_names()
@@ -738,7 +738,7 @@
 	desc = "Лёгкое рисовое лагерное пиво, популярное на Марсе. По Закону о чистоте пива 1516 года считается преступлением против баварцев."
 	icon_state = "ebisu"
 	is_glass = FALSE
-	list_reagents = list("rice_beer" = 40)
+	list_reagents = list(/datum/reagent/consumable/ethanol/rice_beer = 40)
 	drink_type = GRAIN
 
 /obj/item/reagent_containers/cup/soda_cans/beer/rice/Initialize(mapload, vol)

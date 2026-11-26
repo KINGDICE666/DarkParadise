@@ -1456,7 +1456,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/wrench,
 		/obj/item/binoculars/range,
 	)
-	cost = 150
+	cost = 3750
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик M402S"
 	container_ru_names = alist(
@@ -1477,7 +1477,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/he,
 		/obj/item/mortar_shell/he,
 	)
-	cost = 20
+	cost = 500
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик фугасных снарядов для миномета"
 	container_ru_names = alist(
@@ -1498,7 +1498,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/frag,
 		/obj/item/mortar_shell/frag,
 	)
-	cost = 20
+	cost = 500
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик осколочных снарядов для миномета"
 	container_ru_names = alist(
@@ -1517,7 +1517,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/flare,
 		/obj/item/mortar_shell/flare,
 	)
-	cost = 20
+	cost = 500
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик снарядов с камерой для миномета"
 	container_ru_names = alist(
@@ -1538,7 +1538,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/mortar_shell/incendiary,
 		/obj/item/mortar_shell/incendiary,
 	)
-	cost = 20
+	cost = 500
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик зажигательных снарядов для миномета"
 	container_ru_names = alist(
@@ -1567,7 +1567,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/warhead/mortar/camera,
 		/obj/item/paper/mortar,
 	)
-	cost = 10
+	cost = 250
 	containertype = /obj/structure/closet/crate/secure/mortar
 	containername = "ящик заготовок для снарядов миномета"
 	container_ru_names = alist(
@@ -1582,7 +1582,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/security/armory/chemical_flamethrower
 	name = "химический огнемёт"
 	contains = list(/obj/item/chemical_flamethrower, /obj/item/chemical_canister, /obj/item/chemical_canister)
-	cost = 50
+	cost = 1250
 	containername = "ящик с химическим огнемётом"
 	container_ru_names = alist(
 		NOMINATIVE = "ящик с химическим огнемётом",
@@ -1596,7 +1596,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/security/armory/chemical_canister
 	name = "баллоны для химического огнемёта"
 	contains = list(/obj/item/chemical_canister, /obj/item/chemical_canister, /obj/item/chemical_canister, /obj/item/chemical_canister, /obj/item/chemical_canister/extended) // One extended canister, as a treat
-	cost = 30
+	cost = 750
 	containername = "ящик с баллонами для химического огнемёта"
 	container_ru_names = alist(
 		NOMINATIVE = "ящик с баллонами для химического огнемёта",
@@ -1697,7 +1697,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 /datum/supply_packs/security/armory/bluespace_anchor
 	name = "блюспейс якорь"
 	contains = list(/obj/item/organ/internal/cyberimp/chest/bluespace_anchor)
-	cost = 250
+	cost = 6250
 	containername = "ящик с блюспейс якорем"
 	container_ru_names = alist(
 		NOMINATIVE = "ящик с блюспейс якорем",
@@ -4069,7 +4069,7 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 		/obj/item/reagent_containers/food/snacks/grown/banana,
 		/obj/item/reagent_containers/food/snacks/grown/banana,
 	)
-	cost = 250
+	cost = 300
 	containername = "ящик пищевых продуктов"
 	container_ru_names = alist(
 		NOMINATIVE = "ящик пищевых продуктов",

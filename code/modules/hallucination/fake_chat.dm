@@ -49,6 +49,7 @@
 	if(isnull(speaker))
 		return
 
+	understood_language = hallucinator.get_random_understood_language()
 	var/chosen = specific_message
 	if(!chosen)
 		if(is_radio)
@@ -93,16 +94,10 @@
 
 	feedback_details += "Type: [is_radio ? "Radio" : "Talk"], Source: [speaker.real_name], Message: [chosen]"
 
-	var/list/message_pieces = message_to_multilingual(chosen, understood_language)
 	if(!is_radio)
-		hallucinator.hear_say(message_pieces, speaker = speaker, is_whisper = FALSE)
+		hallucinator.Hear(speaker, understood_language, chosen, null, null, null, list(), list(), INFINITY)
 	else
-		hallucinator.hear_radio(
-			message_pieces,
-			speaker = speaker,
-			part_a = "<span class='[SSradio.frequency_span_class(PUB_FREQ)]'><b>\[[get_frequency_name(PUB_FREQ)]\]</b> <span class='name'>",
-			part_b = "</span> <span class='message'>",
-		)
+		hallucinator.Hear(speaker, understood_language, chosen, PUB_FREQ, null, null, list(), list(), INFINITY)
 
 	qdel(src)
 	return TRUE

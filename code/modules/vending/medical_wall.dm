@@ -70,8 +70,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/wallmed, SHIFTING_WALLMED, SH
 /obj/machinery/vending/wallmed/wrench_act(mob/user, obj/item/item)
 	. = TRUE
 
-	CALCULATE_SKILL_MOD(user, CONSTRUCTING_SPEED_MOD, construction_mod)
-	if(!item.use_tool(src, user, 1 SECONDS * construction_mod, volume = item.tool_volume))
+	if(!item.use_tool(src, user, 1 SECONDS, volume = item.tool_volume))
 		return
 
 	var/list/dir_choices = list("Север" = NORTH, "Восток" = EAST, "Юг" = SOUTH, "Запад" = WEST)

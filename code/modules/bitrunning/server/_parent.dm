@@ -102,14 +102,15 @@
 	if(!is_ready)
 		. += span_warning("Сервер остывает. Дайте ему пару минут.")
 
-	if(isobserver(user) && emagged)
+	if(isobserver(user) && (obj_flags & EMAGGED))
 		. += span_notice("Тревожные индикаторы мигают красным. В сервер кто-то залез.")
 
-/obj/machinery/quantum_server/emag_act(mob/user)
-	if(emagged)
-		return
+/obj/machinery/quantum_server/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
 
-	emagged = TRUE
+	obj_flags |= EMAGGED
 	glitch_chance *= 2
 	threat_prob_max *= 2
 	SEND_SIGNAL(src, COMSIG_BITRUNNER_SERVER_EMAGGED)
@@ -117,10 +118,11 @@
 	balloon_alert(user, "система взломана...")
 	playsound(src, 'sound/effects/sparks1.ogg', 35, TRUE)
 	update_icon(UPDATE_OVERLAYS)
+	return TRUE
 
 /obj/machinery/quantum_server/update_overlays()
 	. = ..()
-	if(emagged)
+	if((obj_flags & EMAGGED))
 		. += mutable_appearance(icon, "emag_overlay")
 
 /obj/machinery/quantum_server/update_icon_state()
@@ -158,7 +160,7 @@
 		return ..()
 
 	balloon_alert(user, "я в системе")
-	emagged = TRUE
+	obj_flags |= EMAGGED
 	glitch_chance = 0.5
 	capacitor_coefficient = 0.1
 	points = 100

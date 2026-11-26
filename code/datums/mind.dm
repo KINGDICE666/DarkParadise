@@ -482,22 +482,6 @@
 
 	. += _memory_edit_role_enabled(ROLE_VAMPIRE)
 
-/datum/mind/proc/memory_edit_zombie(mob/living/carbon/human/H)
-	. = _memory_edit_header("zombie", list())
-	if(has_antag_datum(/datum/antagonist/zombie))
-		. += "<a href='byond://?src=[UID()];zombie=clear'>no</a>|<b><font color='red'>ZOMBIE</font></b>"
-		return
-	if(current.HasDisease(/datum/disease/virus/zombie))
-		. += "<b>NO</b>|<a href='byond://?src=[UID()];zombie=zombie'>zombie</a>|<a href='byond://?src=[UID()];zombie=zombievirusno'><font color='red'>dis-infect</font></a>"
-	else
-		. += "<b>NO</b>|<a href='byond://?src=[UID()];zombie=zombie'>zombie</a>|<a href='byond://?src=[UID()];zombie=zombievirus'>infect</a>"
-	/** Enthralled ***/
-	. += "<br><b><i>enthralled</i></b>: "
-	if(has_antag_datum(/datum/antagonist/mindslave/thrall))
-		. += "<b><font color='red'>THRALL</font></b>|<a href='byond://?src=[UID()];vampthrall=clear'>no</a>"
-	else
-		. += "thrall|<b>NO</b>"
-
 /datum/mind/proc/memory_edit_nuclear(mob/living/carbon/human/H)
 	. = _memory_edit_header("nuclear")
 	if(has_antag_datum(/datum/antagonist/nuclear_operative))

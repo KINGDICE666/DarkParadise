@@ -29,16 +29,8 @@
 	instant_zombie = TRUE
 
 /datum/disease/virus/zombie/stage_act()
-	if(stage == 8)
-		// adminbus for immediate zombie
-		var/mob/living/carbon/human/human = affected_mob
-		if(!istype(human))
-			return FALSE
-		for(var/obj/item/organ/limb as anything in human.bodyparts)
-			if(!(limb.status & ORGAN_DEAD) && !limb.is_robotic())
-				limb.necrotize(TRUE, TRUE)
-			if(!HAS_TRAIT(limb, TRAIT_I_WANT_BRAINS_ORGAN))
-				ADD_TRAIT(limb, TRAIT_I_WANT_BRAINS_ORGAN, ZOMBIE_TRAIT)
+	if(stage == 8 && !rot_all_limbs())
+		return FALSE
 
 	if(!..())
 		return FALSE
@@ -121,7 +113,7 @@
 		return FALSE
 	if(!HAS_TRAIT(affected_mob, TRAIT_I_WANT_BRAINS))
 		affected_mob.AddComponent(/datum/component/zombie_regen)
-		ADD_TRAIT(affected_mob, TRAIT_I_WANT_BRAINS, ZOMBIE_TRAIT)
+		set_brains_trait(TRUE)
 		affected_mob.AddElement(/datum/element/braineater)
 		affected_mob.med_hud_set_health()
 		affected_mob.med_hud_set_status()
@@ -157,6 +149,52 @@
 	return TRUE
 
 
+/datum/disease/virus/zombie/Copy()
+	var/datum/disease/virus/zombie/copy = ..()
+	copy.plague_disease = plague_disease
+	copy.instant_zombie = instant_zombie
+	return copy
+
+/datum/disease/virus/zombie/proc/rot_all_limbs()
+	var/mob/living/carbon/human/human = affected_mob
+	if(!istype(human))
+		return FALSE
+	for(var/obj/item/organ/external/limb as anything in human.bodyparts)
+		if(!(limb.status & ORGAN_DEAD) && !limb.is_robotic())
+			limb.necrotize(TRUE, TRUE)
+		if(!HAS_TRAIT(limb, TRAIT_I_WANT_BRAINS_ORGAN))
+			ADD_TRAIT(limb, TRAIT_I_WANT_BRAINS_ORGAN, ZOMBIE_TRAIT)
+	return TRUE
+
+/datum/disease/virus/zombie/proc/turn_instantly()
+	if(!rot_all_limbs())
+		return FALSE
+	stage = max_stages
+	SSticker.mode?.zombie_infected -= affected_mob
+	return handle_rot()
+
+/datum/disease/virus/zombie/proc/set_brains_trait(enabled)
+	var/mob/living/carbon/human/human = affected_mob
+	var/list/previously_usable = list()
+	if(istype(human))
+		for(var/obj/item/organ/external/limb as anything in human.bodyparts)
+			if(istype(limb, /obj/item/organ/external/hand) || istype(limb, /obj/item/organ/external/foot))
+				previously_usable[limb] = limb.is_usable()
+
+	if(enabled)
+		ADD_TRAIT(affected_mob, TRAIT_I_WANT_BRAINS, ZOMBIE_TRAIT)
+	else
+		REMOVE_TRAIT(affected_mob, TRAIT_I_WANT_BRAINS, ZOMBIE_TRAIT)
+
+	for(var/obj/item/organ/external/limb as anything in previously_usable)
+		if(previously_usable[limb] == limb.is_usable())
+			continue
+		var/difference = limb.is_usable() ? 1 : -1
+		if(istype(limb, /obj/item/organ/external/hand))
+			human.set_usable_hands(human.usable_hands + difference, hand_index = limb.limb_zone)
+		else
+			human.set_usable_legs(human.usable_legs + difference)
+
 /datum/disease/virus/zombie/try_reduce_stage()
 	if(prob(cure_prob))
 		stage = max(stage - 1, 0)
@@ -184,10 +222,10 @@
 
 /datum/disease/virus/zombie/cure(id, need_immunity)
 	var/obj/item/zombie_claw/claws = affected_mob.get_active_hand()
-	if(claws)
-		claws.attack_self()
+	if(istype(claws))
+		claws.attack_self(affected_mob)
 	affected_mob.mind?.remove_antag_datum(/datum/antagonist/zombie)
-	REMOVE_TRAIT(affected_mob, TRAIT_I_WANT_BRAINS, ZOMBIE_TRAIT)
+	set_brains_trait(FALSE)
 	affected_mob.RemoveElement(/datum/element/braineater)
 	var/mob/living/carbon/human/human = affected_mob
 	for(var/obj/item/organ/limb as anything in human.bodyparts)
@@ -196,7 +234,8 @@
 		if(limb.status & ORGAN_DEAD && !limb.is_robotic())
 			limb.unnecrotize()
 	for(var/obj/item/organ/internal/zombietumor/tumor in human.internal_organs)
-		tumor.remove()
+		tumor.remove(human, ORGAN_MANIPULATION_NOEFFECT)
+		qdel(tumor)
 	human.update_body()
 	qdel(affected_mob.GetComponent(/datum/component/zombie_regen))
 	affected_mob.med_hud_set_health()

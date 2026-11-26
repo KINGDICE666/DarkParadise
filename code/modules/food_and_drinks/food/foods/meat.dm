@@ -285,7 +285,7 @@
 
 /obj/item/reagent_containers/food/snacks/meat/humanoid/swine
 	name = "trottine meat"
-	list_reagents = list("protein" = 4, "porktonium" = 5)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 4, /datum/reagent/consumable/porktonium = 5)
 	tastes = list("salty meat" = 1)
 	filling_color = "#e2a0a0"
 

@@ -382,8 +382,8 @@
 	SIGNAL_HANDLER
 	UnregisterSignal(src, list(COMSIG_ATOM_INITIALIZED_ON, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, COMSIG_TURF_CHANGE))
 
-/turf/simulated/floor/plasteel/reactor_pool/proc/on_atom_inited(datum/source, atom/movable/movable)
-	SIGNAL_HANDLER
+/turf/simulated/floor/plasteel/reactor_pool/on_atom_inited(datum/source, atom/movable/movable)
+	. = ..()
 	UnregisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON)
 	make_immersed(movable)
 
@@ -554,16 +554,6 @@
 		ACCUSATIVE = "диск улучшения фабрикатора стержней",
 		INSTRUMENTAL = "диском улучшения фабрикатора стержней",
 		PREPOSITIONAL = "диске улучшения фабрикатора стержней",
-	)
-
-/obj/item/rod_fabricator_upgrade/get_ru_names()
-	return alist(
-		NOMINATIVE = "улучшение ядерного фабрикатора",
-		GENITIVE = "улучшения ядерного фабрикатора",
-		DATIVE = "улучшению ядерного фабрикатора",
-		ACCUSATIVE = "улучшение ядерного фабрикатора",
-		INSTRUMENTAL = "улучшением ядерного фабрикатора",
-		PREPOSITIONAL = "улучшении ядерного фабрикатора",
 	)
 
 // MARK: Chamber Doors

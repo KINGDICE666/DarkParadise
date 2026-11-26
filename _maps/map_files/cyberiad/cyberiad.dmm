@@ -2536,7 +2536,6 @@
 	icon_state = "0-8"
 	},
 /obj/machinery/computer/logistics_core,
-/obj/machinery/computer/logistics_core,
 /turf/simulated/floor/plasteel{
 	dir = 6;
 	icon_state = "brown"

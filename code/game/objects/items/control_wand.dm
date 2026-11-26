@@ -447,19 +447,13 @@
 		to_chat(user, span_warning("Вы уже используете [declent_ru(ACCUSATIVE)] на панели доступа [target.declent_ru(GENITIVE)]!"))
 		return
 	busy = TRUE
-	var/mob/living/carbon/human/human_user = user
-	GET_SKILL_LEVEL(human_user, /datum/skill/service/cleaning, skill_level)
-	var/skill_check = skill_level > SKILL_LEVEL_BASIC
 	var/datum/weakref/target_ref = WEAKREF(target)
-	if(skill_check && last_airlock_ref == target_ref)
+	if(last_airlock_ref == target_ref)
 		to_chat(user, span_notice("Вы узнаёте [target.declent_ru(ACCUSATIVE)] и ищете ключ, который использовали..."))
 		hack_speed = 5 SECONDS
 	else
 		to_chat(user, span_notice("Вы возитесь с [declent_ru(INSTRUMENTAL)], подбирая разные ключи, чтобы открыть [target.declent_ru(ACCUSATIVE)]..."))
-		if(!skill_check)
-			hack_speed = rand(30, 60) SECONDS
-		else
-			hack_speed = rand(5, 20) SECONDS
+		hack_speed = rand(30, 60) SECONDS
 	playsound(src, 'sound/items/keyring_unlock.ogg', 50)
 	if(do_after(user, hack_speed, target = target))
 		if(target.check_access(ID))

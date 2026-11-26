@@ -156,15 +156,15 @@ GLOBAL_LIST_EMPTY_TYPED(active_cosmic_fields, /obj/effect/forcefield/cosmic_fiel
 	multiplicative_slowdown = -0.25
 
 /obj/effect/forcefield/cosmic_field/star_blast
-	lifetime = 5 SECONDS
+	initial_duration = 5 SECONDS
 
 /obj/effect/forcefield/cosmic_field/star_touch
 
 /obj/effect/forcefield/cosmic_field/fast
-	lifetime = 5 SECONDS
+	initial_duration = 5 SECONDS
 
 /obj/effect/forcefield/cosmic_field/extrafast
-	lifetime = 2.5 SECONDS
+	initial_duration = 2.5 SECONDS
 
 /**
  * Creates a cosmic field at a given loc, upgrading it based on the creator's cosmic passive level.

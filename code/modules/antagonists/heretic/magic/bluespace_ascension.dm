@@ -183,7 +183,7 @@
 		return
 
 	cast_on.remove_atom_colour(TEMPORARY_COLOUR_PRIORITY, COLOR_CYAN)
-	if(QDELETED(caster) || caster.incapacitated() || !caster.can_see(cast_on, banish_range) || !is_collapsed(cast_on))
+	if(QDELETED(caster) || caster.incapacitated || !caster.can_see(cast_on, banish_range) || !is_collapsed(cast_on))
 		cast_on.balloon_alert_to_viewers("разлом затягивается")
 		to_chat(caster, span_warning("Мир держит цель слишком крепко — изнанка её не приняла."))
 		return

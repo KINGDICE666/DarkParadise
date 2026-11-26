@@ -468,16 +468,6 @@
 		PREPOSITIONAL = "стержне расплава",
 	)
 
-/obj/item/nuclear_rod/fuel/meltdown/get_ru_names()
-	return alist(
-		NOMINATIVE = "аварийный стержень",
-		GENITIVE = "аварийного стержня",
-		DATIVE = "аварийному стержню",
-		ACCUSATIVE = "аварийный стержень",
-		INSTRUMENTAL = "аварийным стержнем",
-		PREPOSITIONAL = "аварийном стержне",
-	)
-
 // MARK: Moderator Rods
 
 /obj/item/nuclear_rod/moderator
@@ -575,16 +565,6 @@
 
 /obj/item/nuclear_rod/moderator/plasma_agitator/get_ru_names()
 	return alist(
-		NOMINATIVE = "плазменный агитатор",
-		GENITIVE = "плазменного агитатора",
-		DATIVE = "плазменному агитатору",
-		ACCUSATIVE = "плазменный агитатор",
-		INSTRUMENTAL = "плазменным агитатором",
-		PREPOSITIONAL = "плазменном агитаторе",
-	)
-
-/obj/item/nuclear_rod/moderator/plasma_agitator/get_ru_names()
-	return alist(
 		NOMINATIVE = "плазменный активатор",
 		GENITIVE = "плазменного активатора",
 		DATIVE = "плазменному активатору",
@@ -610,16 +590,6 @@
 		/obj/item/nuclear_rod/moderator,
 	)
 	materials = list(MAT_TITANIUM = 1000, MAT_SILVER = 2000)
-
-/obj/item/nuclear_rod/moderator/aluminum_reflector/get_ru_names()
-	return alist(
-		NOMINATIVE = "отражатель из жидкого алюминия",
-		GENITIVE = "отражателя из жидкого алюминия",
-		DATIVE = "отражателю из жидкого алюминия",
-		ACCUSATIVE = "отражатель из жидкого алюминия",
-		INSTRUMENTAL = "отражателем из жидкого алюминия",
-		PREPOSITIONAL = "отражателе из жидкого алюминия",
-	)
 
 /obj/item/nuclear_rod/moderator/aluminum_reflector/get_ru_names()
 	return alist(
@@ -849,16 +819,6 @@
 		/obj/item/nuclear_rod/coolant/light_water,
 	)
 	materials = list(MAT_TITANIUM = 1000, MAT_GOLD = 1000)
-
-/obj/item/nuclear_rod/coolant/steam_hammerjet/get_ru_names()
-	return alist(
-		NOMINATIVE = "паровой ударный инжектор",
-		GENITIVE = "парового ударного инжектора",
-		DATIVE = "паровому ударному инжектору",
-		ACCUSATIVE = "паровой ударный инжектор",
-		INSTRUMENTAL = "паровым ударным инжектором",
-		PREPOSITIONAL = "паровом ударном инжекторе",
-	)
 
 /obj/item/nuclear_rod/coolant/steam_hammerjet/get_ru_names()
 	return alist(

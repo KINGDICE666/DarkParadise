@@ -519,7 +519,7 @@
 			visible_message(span_warning("[user] плавит [declent_ru(ACCUSATIVE)]!"), span_italics("Слышно шипение пара."))
 			return TRUE
 
-	else if(istype(I, /obj/item/twohanded/required/zombie_claw))
+	else if(istype(I, /obj/item/zombie_claw))
 		to_chat(user, span_notice("Вы начинаете раздирать стену когтями."))
 		var/delay = isdiamond ? 2 MINUTES : 1 MINUTES
 		if(do_after(user, delay * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))

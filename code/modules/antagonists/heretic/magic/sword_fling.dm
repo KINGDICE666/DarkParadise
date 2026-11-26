@@ -48,7 +48,7 @@
 			fail_text = "Вы боретесь, но [loccer.declent_ru(NOMINATIVE)] практически без труда держит вас под контролем!"
 			particle_to_spawn = /obj/effect/temp_visual/eldritch_sparks
 
-		if(loccer.mind?.isholy) // IS_PRIEST()
+		if(HAS_MIND_TRAIT(loccer, TRAIT_HOLY))
 			resist_chance = 6
 			fail_text = "Вы боретесь, но [loccer.declent_ru(NOMINATIVE)] благодаря своей святости удерживает вас под контролем!"
 			particle_to_spawn = /obj/effect/temp_visual/blessed

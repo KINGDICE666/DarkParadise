@@ -582,12 +582,7 @@
 			var/obj/item/organ/external/bodypart = locateUID(href_list["open_fracture_limb"])
 			if(QDELETED(bodypart) || !bodypart.has_fracture() || bodypart.fracture != FRACTURE_TYPE_OPEN)
 				return
-			GET_SKILL_LEVEL(usr, /datum/skill/medical/heal, heal_skill_level)
-			if(heal_skill_level < SKILL_LEVEL_BEGINNER)
-				balloon_alert(usr, "проблема с навыками")
-				return
-			// level 2 - 20%, levl 3 - 40%, level 4 - 60%, level 5 - 80%, level 6,7 - 100%
-			var/reattach_chance = min(100, 20 * (heal_skill_level - SKILL_LEVEL_NONE))
+			var/reattach_chance = 40
 			if(usr != src) // double chance
 				reattach_chance = min(100, reattach_chance * 2)
 			if(!do_after(usr, 10 SECONDS, src, max_interact_count = 1))
@@ -1526,9 +1521,6 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	return ..()
 
 /mob/living/carbon/human/proc/do_cpr(mob/living/carbon/human/target_human)
-	GET_SKILL_LEVEL(src, /datum/skill/medical/heal, heal_skill_level)
-	if(heal_skill_level < SKILL_LEVEL_BASIC)
-		return // skill issue
 	if(target_human == src)
 		balloon_alert(src, "слр на себе невозможна!")
 		return
@@ -1556,7 +1548,6 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	)
 	target_human.balloon_alert(src, "проведение слр...")
 	target_human.receiving_cpr = TRUE
-	var/cpr_power = max(0, heal_skill_level - SKILL_LEVEL_ADVANCED)
 	var/cpr_logged = FALSE
 	while(!QDELETED(target_human) && !QDELETED(src) && target_human.health <= HEALTH_THRESHOLD_CRIT)
 		if(target_human.stat == DEAD || HAS_TRAIT(target_human, TRAIT_FAKEDEATH))
@@ -1568,10 +1559,9 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 			break
 		if(target_human.stat == DEAD || HAS_TRAIT(target_human, TRAIT_FAKEDEATH))
 			break
-		target_human.heal_damage_type(15 + cpr_power * 5, OXY)
+		target_human.heal_damage_type(15, OXY)
 		target_human.SetLoseBreath(0)
-		var/paralysis_reduction = (2 + cpr_power) SECONDS
-		target_human.AdjustParalysis(-paralysis_reduction)
+		target_human.AdjustParalysis(-2 SECONDS)
 		visible_message(
 			span_danger("[src] успешно провод[PLUR_IT_YAT(src)] СЛР на [target_human.declent_ru(PREPOSITIONAL)]."),
 			ignored_mobs = src
@@ -1581,21 +1571,20 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 		if(!cpr_logged)
 			add_attack_logs(src, target_human, "CPRed", ATKLOG_ALL)
 			cpr_logged = TRUE
-		target_human.try_cpr_status_cure(heal_skill_level)
+		target_human.try_cpr_status_cure()
 	if(!QDELETED(target_human))
 		target_human.receiving_cpr = FALSE
 	return TRUE
 
 /// remove random status effect
-/mob/living/carbon/human/proc/try_cpr_status_cure(heal_skill_level)
+/mob/living/carbon/human/proc/try_cpr_status_cure()
 	var/list/removable_effects = list()
 	for(var/datum/status_effect/effect as anything in status_effects)
 		if(istype(effect, /datum/status_effect/transient) || istype(effect, /datum/status_effect/incapacitating))
 			removable_effects += effect
 	if(!length(removable_effects))
 		return FALSE
-	var/cure_chance = max(1, heal_skill_level - SKILL_LEVEL_ADVANCED + 1)
-	if(!prob(cure_chance))
+	if(!prob(1))
 		return FALSE
 	var/datum/status_effect/effect_to_remove = pick(removable_effects)
 	remove_status_effect(effect_to_remove.type)
@@ -1914,7 +1903,7 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	brains.original_body = WEAKREF(self_chest)
 
 /mob/living/carbon/human/is_literate()
-	return check_brain_for_complex_interactions()
+	return !HAS_TRAIT(src, TRAIT_ILLITERATE) && check_brain_for_complex_interactions()
 
 /mob/living/carbon/human/fakefire()
 	ADD_TRAIT(src, TRAIT_FAKE_FIRE, FAKEFIRE_TRAIT)
@@ -2221,8 +2210,3 @@ GAME_VERB_DESC(/mob/living/carbon/human, set_flavor, "Описание внеш�
 			[back?.icon] [back?.icon_state] \
 			[belt?.icon] [belt?.icon_state]"
 
-/mob/living/carbon/human/proc/get_unarmed_attack()
-	var/datum/antagonist/zombie/zombie = mind?.has_antag_datum(/datum/antagonist/zombie)
-	if(!istype(zombie))
-		return dna.species.unarmed
-	return zombie.claw_attack

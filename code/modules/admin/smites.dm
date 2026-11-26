@@ -192,16 +192,16 @@
 	var/obj/item/reagent_containers/food/snacks/cookie/empty/evilcookie = new()
 	var/datum/reagent/reagent = tgui_input_list(usr, "Выберите реагент который будет находиться в печенье.", "Выбор вещества", GLOB.typecache_reagent)
 	var/amount = tgui_input_number(usr, "Выберите количество вещества в печенье.", "Выбор количества", 10, 10000, 0)
-	var/id = reagent::id ? reagent::id : "mutagen"
+	var/reagent_type = reagent || /datum/reagent/mutagen
 	evilcookie.volume = max(100, amount)
-	evilcookie.reagents.add_reagent(id, amount)
+	evilcookie.reagents.add_reagent(reagent_type, amount)
 	evilcookie.bitesize = evilcookie.volume
 	evilcookie.item_flags |= DROPDEL
 	ADD_TRAIT(evilcookie, TRAIT_NODROP, ADMIN_TRAIT)
 	target.drop_l_hand()
 	target.equip_to_slot_or_del(evilcookie, ITEM_SLOT_HAND_LEFT)
 	to_chat(target, span_userdanger("В ваших руках появляется печенье. По воле божьей, вы должны его съесть. Это наказание за [reason]!"))
-	logmsg = "an antidrop cookie with [reagent] units of [id]."
+	logmsg = "an antidrop cookie with [amount] units of [reagent_type]."
 
 // MARK: Hunter
 /datum/smite/hunter

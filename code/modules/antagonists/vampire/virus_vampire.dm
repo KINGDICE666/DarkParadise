@@ -2,7 +2,6 @@
 	name = "Virus-Vampire"
 	antag_datum_blacklist = list(/datum/antagonist/vampire)
 	antag_menu_name = "Вампир кровавой чумы"
-	has_skill_bonus = FALSE
 	upgrade_tiers = list(
 		/datum/action/cooldown/spell/vamp_rejuvenate = 0,
 		/datum/action/cooldown/spell/aoe/glare = 0,
@@ -17,12 +16,6 @@
 		/datum/vampire_passive/xray = 500,
 		/datum/vampire_passive/full = 500,
 	)
-
-/datum/antagonist/vampire/virus_vampire/add_owner_to_gamemode()
-	SSticker.mode.vampires += owner
-
-/datum/antagonist/vampire/virus_vampire/remove_owner_from_gamemode()
-	SSticker.mode.vampires -= owner
 
 /datum/antagonist/vampire/virus_vampire/on_body_transfer(mob/living/old_body, mob/living/new_body)
 	. = ..()

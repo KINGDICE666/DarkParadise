@@ -140588,11 +140588,6 @@
 /obj/structure/disposalpipe/segment{
 	dir = 9
 	},
-/obj/structure/cable{
-	
-	icon_state = "1-8"
-	
-	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
 	},

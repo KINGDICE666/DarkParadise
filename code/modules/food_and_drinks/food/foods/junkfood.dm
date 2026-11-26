@@ -143,7 +143,7 @@
 	bitesize = 3
 	junkiness = 15
 	antable = FALSE
-	list_reagents = list("protein" = 6, "sodiumchloride" = 1, "vitamin" = 1)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 6, /datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/nutriment/vitamin = 1)
 	tastes = list("тушёного мяса" = 3, "жести" = 1)
 	foodtype = JUNKFOOD | MEAT
 	opened = FALSE

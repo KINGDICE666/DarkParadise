@@ -212,16 +212,6 @@
 /obj/machinery/nuclear_rod_fabricator/upgraded
 	upgraded = TRUE
 
-/obj/machinery/nuclear_rod_fabricator/get_ru_names()
-	return alist(
-		NOMINATIVE = "фабрикатор ядерных стержней",
-		GENITIVE = "фабрикатора ядерных стержней",
-		DATIVE = "фабрикатору ядерных стержней",
-		ACCUSATIVE = "фабрикатор ядерных стержней",
-		INSTRUMENTAL = "фабрикатором ядерных стержней",
-		PREPOSITIONAL = "фабрикаторе ядерных стержней",
-	)
-
 /obj/machinery/nuclear_rod_fabricator/Initialize(mapload)
 	. = ..()
 	materials = AddComponent(/datum/component/material_container, list(MAT_METAL, MAT_GLASS, MAT_SILVER, MAT_GOLD, MAT_DIAMOND, MAT_PLASMA, MAT_URANIUM, MAT_BANANIUM, MAT_TRANQUILLITE, MAT_TITANIUM, MAT_BLUESPACE, MAT_PLASTIC), 0, TRUE, /obj/item/stack, CALLBACK(src, PROC_REF(is_insertion_ready)), CALLBACK(src, PROC_REF(AfterMaterialInsert)))

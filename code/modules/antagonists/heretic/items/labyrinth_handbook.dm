@@ -4,7 +4,7 @@
 	gender = PLURAL
 	icon = 'icons/effects/eldritch.dmi'
 	icon_state = "lintel"
-	lifetime = 15 SECONDS
+	initial_duration = 15 SECONDS
 
 
 /obj/effect/forcefield/wizard/heretic/get_ru_names()

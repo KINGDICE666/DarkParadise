@@ -1901,9 +1901,7 @@
 	icon_state = "1-4"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/space,
 /area/station/solars/starboard/fore)
@@ -3147,14 +3145,10 @@
 	},
 /obj/machinery/door/firedoor,
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/security/range)
@@ -3203,9 +3197,7 @@
 /obj/machinery/computer/security,
 /obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -5050,9 +5042,7 @@
 	icon_state = "1-2"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "darkred"
@@ -6529,9 +6519,7 @@
 	icon_state = "0-2"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel"
@@ -6545,9 +6533,7 @@
 /obj/structure/closet/bombcloset,
 /obj/machinery/power/apc/directional/north,
 /obj/structure/cable{
-	
 	icon_state = "0-2"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/science/toxins/launch)
@@ -8183,9 +8169,7 @@
 	dir = 10
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -8319,9 +8303,7 @@
 "bGp" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/customs)
@@ -10768,9 +10750,7 @@
 "ces" = (
 /obj/effect/turf_decal/stripes/line,
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -13779,9 +13759,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -15067,19 +15045,13 @@
 	},
 /obj/effect/landmark/navigate_destination/sec_pod_pilot,
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -18541,19 +18513,13 @@
 /area/station/command/vip)
 "dHW" = (
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -22153,9 +22119,7 @@
 	dir = 1
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "darkred"
@@ -24099,9 +24063,7 @@
 "eHm" = (
 /obj/effect/landmark/start/hangover,
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/science/storage)
@@ -29121,9 +29083,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -29266,14 +29226,10 @@
 	name = "West Solar Array"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel"
@@ -29730,9 +29686,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -34157,14 +34111,10 @@
 	luminosity = 3
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -34363,9 +34313,7 @@
 	},
 /obj/machinery/door/firedoor,
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -34667,14 +34615,10 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -35353,9 +35297,7 @@
 /area/station/commons/fitness)
 "gGP" = (
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 4;
@@ -40882,9 +40824,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
@@ -42936,9 +42876,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/security/hallway/secure)
@@ -43299,9 +43237,7 @@
 	icon_state = "1-8"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/space,
 /area/station/solars/starboard/fore)
@@ -43342,9 +43278,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -43692,9 +43626,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -44132,15 +44064,6 @@
 	icon_state = "grimy"
 	},
 /area/station/command/meeting_room)
-"iob" = (
-/obj/structure/lattice/catwalk,
-/obj/structure/cable{
-	
-	icon_state = "0-4"
-	
-	},
-/turf/space,
-/area/station/solars/starboard/fore)
 "iom" = (
 /obj/machinery/door/firedoor,
 /obj/machinery/door/airlock/multi_tile/glass{
@@ -45990,9 +45913,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -46700,9 +46621,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -48082,9 +48001,7 @@
 	},
 /obj/machinery/door/firedoor,
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -52523,9 +52440,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -53239,9 +53154,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -53498,9 +53411,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
@@ -57646,9 +57557,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-2"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -58417,9 +58326,7 @@
 	dir = 1
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 4;
@@ -61602,9 +61509,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -64282,9 +64187,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -65462,9 +65365,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -68696,9 +68597,7 @@
 	icon_state = "0-4"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -69973,14 +69872,10 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -70579,16 +70474,6 @@
 	icon_state = "dark"
 	},
 /area/station/maintenance/fpmaint)
-"ncI" = (
-/obj/structure/cable{
-	
-	icon_state = "4-8"
-	
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/station/security/prisoner_shuttle)
 "ncM" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/closet,
@@ -71220,9 +71105,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -72216,9 +72099,7 @@
 	},
 /obj/machinery/power/apc/directional/south,
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -73954,9 +73835,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -75062,9 +74941,7 @@
 	icon_state = "1-8"
 	},
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "darkred"
@@ -77173,9 +77050,7 @@
 	dir = 1
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/security/hallway/secure)
@@ -78869,9 +78744,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -79037,9 +78910,7 @@
 /obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/closet/bombclosetsecurity,
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 9;
@@ -79679,15 +79550,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/engineering/storage/secure)
-"oPx" = (
-/obj/structure/cable{
-	icon_state = "4-8"
-	},
-/turf/simulated/floor/plasteel{
-	dir = 4;
-	icon_state = "red"
-	},
-/area/station/security/hallway/secure)
 "oPz" = (
 /obj/effect/decal/cleanable/blood/xeno,
 /turf/simulated/floor/greengrid,
@@ -81814,14 +81676,10 @@
 	req_access = list(2)
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -82232,9 +82090,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-2"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -82318,14 +82174,10 @@
 "pmr" = (
 /obj/structure/lattice/catwalk,
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/space,
 /area/station/solars/starboard/fore)
@@ -82877,9 +82729,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -84084,22 +83934,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint2)
-"pCx" = (
-/obj/machinery/power/solar{
-	name = "South-East Solar Panel"
-	},
-/obj/structure/cable{
-	icon_state = "0-4"
-	},
-/obj/structure/cable{
-	
-	icon_state = "0-4"
-	
-	},
-/turf/simulated/floor/plasteel/airless{
-	icon_state = "solarpanel"
-	},
-/area/station/solars/starboard/aft)
 "pCy" = (
 /obj/machinery/alarm/directional/north,
 /obj/structure/cable{
@@ -84319,14 +84153,10 @@
 	name = "West Solar Array"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-2"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-8"
-	
 	},
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel"
@@ -84996,9 +84826,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -86159,15 +85987,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/station/cargo/office)
-"pTY" = (
-/obj/effect/spawner/window/reinforced,
-/obj/structure/cable{
-	
-	icon_state = "0-8"
-	
-	},
-/turf/simulated/floor/plating,
-/area/station/security/customs)
 "pUh" = (
 /obj/effect/landmark/spawner/blob,
 /obj/effect/decal/cleanable/dirt,
@@ -90306,9 +90125,7 @@
 /obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/atmospherics/pipe/manifold4w/hidden/scrubbers,
 /obj/structure/cable{
-	
 	icon_state = "1-8"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/science/toxins/launch)
@@ -91270,11 +91087,6 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden{
 	dir = 4
-	},
-/obj/structure/cable{
-	
-	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/engine,
 /area/station/maintenance/turbine)
@@ -93292,9 +93104,7 @@
 	},
 /obj/structure/disposalpipe/segment,
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/security/hallway/secure)
@@ -93512,14 +93322,10 @@
 	dir = 1
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -98352,9 +98158,7 @@
 "sdA" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/cable{
-	
 	icon_state = "0-2"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -98463,9 +98267,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -103007,9 +102809,7 @@
 	},
 /obj/effect/spawner/window/reinforced,
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -105711,9 +105511,7 @@
 	id_tag = "SecPilotPriv"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/podbay)
@@ -106196,9 +105994,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -106311,9 +106107,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	dir = 8;
@@ -106401,9 +106195,7 @@
 	dir = 4
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -106695,9 +106487,7 @@
 	use_power = 0
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/hallway/secure)
@@ -114803,9 +114593,7 @@
 	req_access = list(71)
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "darkred"
@@ -115594,9 +115382,7 @@
 /area/station/maintenance/asmaint4)
 "vqz" = (
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -115969,9 +115755,7 @@
 	},
 /obj/structure/cable,
 /obj/structure/cable{
-	
 	icon_state = "0-4"
-	
 	},
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel"
@@ -116656,9 +116440,7 @@
 	luminosity = 3
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-2"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -119339,9 +119121,7 @@
 	name = "Brig Lockdown"
 	},
 /obj/structure/cable{
-	
 	icon_state = "1-4"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -127028,9 +126808,7 @@
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers,
 /obj/effect/turf_decal/delivery/hollow,
 /obj/structure/cable{
-	
 	icon_state = "2-4"
-	
 	},
 /turf/simulated/floor/plasteel,
 /area/station/science/storage)
@@ -128001,9 +127779,7 @@
 	dir = 8
 	},
 /obj/structure/cable{
-	
 	icon_state = "4-8"
-	
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -131643,9 +131419,7 @@
 "yhN" = (
 /obj/effect/spawner/window/reinforced,
 /obj/structure/cable{
-	
 	icon_state = "0-1"
-	
 	},
 /turf/simulated/floor/plating,
 /area/station/security/prisoner_shuttle)
@@ -179221,7 +178995,7 @@ fxq
 fxq
 fxq
 fxq
-iob
+fww
 aaq
 coE
 coE
@@ -183144,7 +182918,7 @@ gam
 lPt
 kGt
 emx
-pTY
+gKJ
 hzA
 eAR
 nEk
@@ -184002,7 +183776,7 @@ coE
 aaq
 coE
 aaq
-pCx
+lyR
 coE
 coE
 dZq
@@ -190575,11 +190349,11 @@ aZA
 pRU
 pYz
 rwn
-oPx
+gGP
 tQi
 fbs
 sHl
-oPx
+gGP
 aAx
 gGP
 sOd
@@ -190824,11 +190598,11 @@ dZq
 coE
 lVK
 rZg
-ncI
+ire
 jFk
 neO
 brr
-ncI
+ire
 wDP
 pYz
 sjL

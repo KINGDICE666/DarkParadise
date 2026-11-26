@@ -84,7 +84,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		set_light_on(FALSE)
 		return
 
-	if(emagged)
+	if((obj_flags & EMAGGED))
 		set_light(FIRE_ALARM_LIGHT_RANGE, 1, LIGHT_COLOR_BLUE, l_on = TRUE)
 		return
 
@@ -118,7 +118,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 	if(wiresexposed || (stat & (NOPOWER|BROKEN)))
 		return
 
-	if(emagged)
+	if((obj_flags & EMAGGED))
 		. += "fire_emag"
 		. += emissive_appearance(icon, "fire_emag_e", src)
 		return

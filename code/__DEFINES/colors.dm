@@ -634,6 +634,3 @@ GLOBAL_LIST_INIT(cable_colors, list(
 
 #define COLOR_DMI_MASK "#a0a0a000"
 
-
-/// Color for dead external organs/zombies
-#define	COLORTONE_DEAD_EXT_ORGAN "#0A3200"

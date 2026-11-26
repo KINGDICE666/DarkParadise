@@ -45,8 +45,8 @@
 	name = "Kefir"
 	id = "kefir"
 	result = "kefir"
-	required_reagents = list("milk" = 10)
-	required_catalysts = list("kefir" = 1)
+	required_reagents = list(/datum/reagent/consumable/drink/milk = 10)
+	required_catalysts = list(/datum/reagent/consumable/drink/milk/kefir = 1)
 	result_amount = 10
 	mix_message = "Молоко густеет и начинает кисло пахнуть."
 	mix_sound = 'sound/goonstation/misc/drinkfizz.ogg'

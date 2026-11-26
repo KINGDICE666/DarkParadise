@@ -228,7 +228,6 @@ GLOBAL_VAR_INIT(new_year_celebration, FALSE)
 	begin_month = OCTOBER
 	end_day = 7 //7 days extra
 	end_month = NOVEMBER
-	assistants_style = /datum/colored_assistant/halloween
 
 /datum/holiday/halloween/greet()
 	return "Жутко весёлого Хэллоуина!"

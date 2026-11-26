@@ -37,21 +37,6 @@
 		return ITEM_INTERACT_SUCCESS
 	return NONE // In a perfect world this would be blocking, but this is not a perfect world
 
-/obj/item/card/emag/halloween
-	name = "hack-o'-lantern"
-	desc = "Это тыква с торчащим из неё криптографическим секвенсором."
-	icon_state = "hack_o_lantern"
-
-/obj/item/card/emag/halloween/get_ru_names()
-	return alist(
-		NOMINATIVE = "светильник Хака",
-		GENITIVE = "светильника Хака",
-		DATIVE = "светильнику Хака",
-		ACCUSATIVE = "светильник Хака",
-		INSTRUMENTAL = "светильником Хака",
-		PREPOSITIONAL = "светильнике Хака",
-	)
-
 /obj/item/card/emag_broken
 	name = "broken cryptographic sequencer"
 	desc = "ID-карта с повреждённой магнитной лентой и сгоревшими микросхемами. \

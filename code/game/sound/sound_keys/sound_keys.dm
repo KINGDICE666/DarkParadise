@@ -1077,6 +1077,8 @@
 		'sound/items/can/can_open1.ogg',
 		'sound/items/can/can_open2.ogg',
 		'sound/items/can/can_open3.ogg',
+	)
+
 /datum/sound_effect/hallucination_i_m_here
 	key = SFX_IM_HERE
 	file_paths = list(

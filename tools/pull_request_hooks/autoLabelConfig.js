@@ -81,9 +81,6 @@ export const title_labels = {
 	'Do Not Merge': {
 		keywords: ['[dnm]', '[do not merge]'],
 	},
-	'Halloween': {
-		keywords: ['[Halloween]'],
-	},
 	//  "GBP: No Update": {
 	//    keywords: ["[no gbp]"],
 	//  },

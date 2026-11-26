@@ -232,4 +232,3 @@
 
 #define VIRTUAL_ENTITY_TRAIT "virtual_entity"
 
-#define ZOMBIE_TRAIT "zombie"

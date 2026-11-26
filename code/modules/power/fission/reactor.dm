@@ -164,16 +164,6 @@
 	COOLDOWN_DECLARE(scram_cooldown)
 	COOLDOWN_DECLARE(history_record)
 
-/obj/machinery/atmospherics/fission_reactor/get_ru_names()
-	return alist(
-		NOMINATIVE = "ядерный реактор деления",
-		GENITIVE = "ядерного реактора деления",
-		DATIVE = "ядерному реактору деления",
-		ACCUSATIVE = "ядерный реактор деления",
-		INSTRUMENTAL = "ядерным реактором деления",
-		PREPOSITIONAL = "ядерном реакторе деления",
-	)
-
 /obj/machinery/atmospherics/fission_reactor/roundstart
 	primary_engine = TRUE
 

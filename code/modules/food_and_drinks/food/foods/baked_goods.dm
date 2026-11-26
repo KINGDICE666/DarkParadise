@@ -105,7 +105,7 @@
 	slices_num = 5
 	bitesize = 3
 	filling_color = "#F7EDD5"
-	list_reagents = list("nutriment" = 20, "vitamin" = 5)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 20, /datum/reagent/consumable/nutriment/vitamin = 5)
 	tastes = list("слоёного теста" = 3, "заварного крема" = 2)
 	foodtype = SUGAR | GRAIN | DAIRY | EGG
 

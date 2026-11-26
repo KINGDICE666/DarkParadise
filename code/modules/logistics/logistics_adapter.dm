@@ -303,18 +303,24 @@
 	var/obj/machinery/smartfridge/fridge = get_fridge()
 	if(!fridge || !can_insert_item(item))
 		return FALSE
-	if(!isstack(item))
-		return load_item(fridge, item)
-	var/obj/item/stack/incoming = item
-	if(!incoming.logistics_count_amount)
-		return load_item(fridge, item)
-	merge_incoming_stack(fridge, incoming)
-	if(QDELETED(incoming) || incoming.get_amount() <= 0)
-		fridge.update_icon(UPDATE_OVERLAYS)
-		return TRUE
-	if(get_free_sheets() <= 0)
+	if(isstack(item))
+		var/obj/item/stack/incoming = item
+		if(incoming.logistics_count_amount)
+			for(var/obj/item/stack/existing in fridge.contents)
+				if(QDELETED(incoming) || incoming.get_amount() <= 0)
+					break
+				if(!incoming.can_merge(existing))
+					continue
+				incoming.merge(existing)
+			if(QDELETED(incoming) || incoming.get_amount() <= 0)
+				fridge.update_icon(UPDATE_OVERLAYS)
+				return TRUE
+			if(get_free_sheets() <= 0)
+				return FALSE
+	if(!fridge.load(item))
 		return FALSE
-	return load_item(fridge, incoming)
+	fridge.update_icon(UPDATE_OVERLAYS)
+	return TRUE
 
 /datum/logistics_adapter/smartfridge/extract(stock_id, amount, atom/target)
 	var/obj/machinery/smartfridge/fridge = get_fridge()
@@ -344,22 +350,3 @@
 		fridge.update_icon(UPDATE_OVERLAYS)
 	return extracted
 
-/datum/logistics_adapter/smartfridge/proc/merge_incoming_stack(obj/machinery/smartfridge/fridge, obj/item/stack/incoming)
-	for(var/obj/item/stack/existing in fridge.contents)
-		if(QDELETED(incoming) || incoming.get_amount() <= 0)
-			break
-		if(!is_storage_item(existing))
-			continue
-		if(!fridge_can_merge_stacks(incoming, existing))
-			continue
-		var/transfer = min(incoming.get_amount(), existing.max_amount - existing.get_amount())
-		if(transfer <= 0)
-			continue
-		existing.add(transfer)
-		incoming.use(transfer)
-
-/datum/logistics_adapter/smartfridge/proc/load_item(obj/machinery/smartfridge/fridge, obj/item/item)
-	if(!fridge.load(item))
-		return FALSE
-	fridge.update_icon(UPDATE_OVERLAYS)
-	return TRUE

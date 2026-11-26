@@ -359,39 +359,13 @@
 	var/list/manifest = shipment_manifest.Copy()
 	var/list/undelivered = list()
 	var/turf/drop_turf = get_turf(interface.parent)
-	for(var/stock_name, need in manifest)
-		var/delivered_now = 0
-		for(var/obj/item/item in contents)
-			if(delivered_now >= need)
-				break
-			if(!interface.adapter?.item_matches_stock(item, stock_name))
-				continue
-			var/units = logistics_item_units(item)
-			var/take = min(units, need - delivered_now)
-			if(take <= 0)
-				continue
-			if(isstack(item) && take < units)
-				var/obj/item/stack/stack = item
-				if(!stack.logistics_count_amount)
-					continue
-				var/obj/item/stack/piece = stack.split(null, take)
-				if(!interface.try_insert_item(piece))
-					if(!QDELETED(piece))
-						piece.forceMove(src)
-						if(!QDELETED(stack))
-							piece.merge(stack)
-					continue
-				delivered_now += take
-				continue
-			if(!interface.try_insert_item(item))
-				continue
-			delivered_now += take
-		var/failed = max(need - delivered_now, 0)
-		if(failed > 0)
-			undelivered[stock_name] = failed
-
-	for(var/obj/item/leftover in contents)
-		leftover.forceMove(drop_turf)
+	for(var/obj/item/item in contents)
+		var/stock_id = logistics_stock_id_for_item(item)
+		if(interface.try_insert_item(item))
+			continue
+		if(manifest[stock_id])
+			undelivered[stock_id] += logistics_item_units(item)
+		item.forceMove(drop_turf)
 
 	var/datum/logistics_request/request = request_ref?.resolve()
 	if(request)

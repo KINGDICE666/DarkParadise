@@ -48,8 +48,8 @@
 	message = user.treat_message(message, list(), list())
 	if(!message)
 		return
-	if((loc == user && !user.incapacitated()))
-		if(emagged)
+	if((loc == user && !user.incapacitated))
+		if((obj_flags & EMAGGED))
 			if(insults)
 				saymsg(user, pick(insultmsg))
 				insults--

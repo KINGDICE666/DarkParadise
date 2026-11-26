@@ -272,7 +272,7 @@
 	name = "Neurine"
 	id = "neurine"
 	result = "neurine"
-	required_reagents = list("mannitol" = 1, "acetone" = 1, "oxygen" = 1)
+	required_reagents = list(/datum/reagent/medicine/mannitol = 1, /datum/reagent/acetone = 1, /datum/reagent/oxygen = 1)
 	result_amount = 3
 	mix_message = "The mixture thins out, giving off a faint smell of ozone."
 

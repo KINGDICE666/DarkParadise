@@ -63,7 +63,7 @@
 	return ..()
 
 /mob/living/simple_animal/hostile/gorilla/Hear(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, radio_freq_name, radio_freq_color, list/spans, list/message_mods = list(), message_range = 0)
-	if(client || radio_freq || !can_befriend || !ishuman(speaker) || speaker == src || incapacitated() || is_on_cooldown())
+	if(client || radio_freq || !can_befriend || !ishuman(speaker) || speaker == src || incapacitated || is_on_cooldown())
 		return ..()
 
 	var/full_message = lowertext(raw_message)
