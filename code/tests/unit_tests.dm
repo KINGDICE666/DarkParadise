@@ -70,6 +70,7 @@
 #include "test_timer_sanity.dm"
 #include "test_transit_tubes.dm"
 #include "test_topic_log_masks_key.dm"
+#include "test_turret_last_target.dm"
 #include "test_washing.dm"
 #include "test_zombies.dm"
 #endif
