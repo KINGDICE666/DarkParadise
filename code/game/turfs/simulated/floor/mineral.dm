@@ -286,13 +286,7 @@
 		return
 
 	active = TRUE
-	radiation_pulse(
-		src,
-		max_range = 1,
-		threshold = RAD_VERY_LIGHT_INSULATION,
-		chance = (URANIUM_IRRADIATION_CHANCE / 3),
-		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
-	)
+	radiation_pulse(src, RAD_PULSE_URANIUM_FLOOR)
 	for(var/turf/simulated/floor/mineral/uranium/uranium_floor in orange(1, src))
 		uranium_floor.radiate()
 	COOLDOWN_START(src, radiation_cooldown, 15)

@@ -38,7 +38,12 @@
 	var/negative_mutation_chance = 90
 	/// Chance we mutate
 	var/mutate_chance = 40
-	var/radiation_treshhold = RAD_MEDIUM_INSULATION
+	/// Шанс в секунду, что шторм вообще заденет человека
+	var/hit_chance = 40
+	/// Доза за каждое попадание шторма
+	var/storm_dose = 15
+	/// Радиоактивная пыль, которая оседает при каждом попадании шторма
+	var/storm_surface_contamination = 3
 
 /datum/weather/rad_storm/endless
 	weather_duration_upper = 10 HOURS
@@ -53,9 +58,17 @@
 	SSmapping.make_maint_all_access()
 
 /datum/weather/rad_storm/can_weather_act(mob/living/mob_to_check)
-	if(!prob(40))
+	if(!prob(hit_chance))
 		return FALSE
 	return ..()
+
+/// Прямые дозы шторма не проходят через импульсы, поэтому приборы получают его силу отдельно
+/datum/weather/rad_storm/fire()
+	var/rads_per_second = storm_dose * hit_chance * mutate_chance / 10000
+	for(var/atom/listener as anything in SSradiation.listeners)
+		var/turf/listener_turf = get_turf(listener)
+		if(listener_turf && (listener_turf.z in impacted_z_levels) && (get_area(listener_turf) in impacted_areas))
+			SEND_SIGNAL(listener, COMSIG_RADIATION_DETECTED, rads_per_second, listener_turf)
 
 /datum/weather/rad_storm/weather_act(mob/living/living)
 	if(!prob(mutate_chance))
@@ -71,7 +84,8 @@
 	if(SSradiation.wearing_rad_protected_clothing(human))
 		return
 
-	radiation_pulse(get_turf(human), 1, radiation_treshhold, chance = 30)
+	SSradiation.irradiate(human, storm_dose)
+	human.adjust_surface_contamination(storm_surface_contamination)
 
 	randmuti(human)
 

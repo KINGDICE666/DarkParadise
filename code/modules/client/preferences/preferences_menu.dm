@@ -119,9 +119,8 @@
 	return FALSE
 
 /datum/preferences/ui_close(mob/user)
-	if(parent)
-		save_character(parent)
-		save_preferences(parent)
+	INVOKE_ASYNC(src, PROC_REF(save_character), parent)
+	save_preferences(parent)
 	QDEL_NULL(character_preview_view)
 
 /datum/preferences/proc/open_window(mob/user, window, page)

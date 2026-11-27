@@ -15,7 +15,7 @@
 			continue
 		if(victim.z == 0)
 			continue
-		cached_SSradiation.irradiate(victim)
+		cached_SSradiation.irradiate(victim, max(DETONATION_RADIATION_DOSE_MIN, DETONATION_RADIATION_DOSE_MAX - get_dist(victim, sm_turf) * DETONATION_RADIATION_DOSE_FALLOFF))
 	return TRUE
 
 /// Hallucinates and makes mobs in Z level sad.

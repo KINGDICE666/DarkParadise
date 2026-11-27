@@ -52,7 +52,7 @@
 /obj/effect/accelerated_particle/proc/try_irradiate(atom/movable/thing)
 	if(isliving(thing))
 		var/mob/living/living_thing = thing
-		SSradiation.irradiate(living_thing)
+		SSradiation.irradiate(living_thing, 30)
 		return
 	if(istype(thing, /obj/machinery/the_singularitygen))
 		var/obj/machinery/the_singularitygen/singularitygen = thing
