@@ -220,7 +220,7 @@ GLOBAL_LIST_INIT(marking_locations, list("head", "body", "tail"))
 	return TRUE
 
 /datum/preferences/proc/save_preferences(client/C)
-	if(C.launcher_state == LAUNCHER_PENDING)
+	if(!C || C.launcher_state == LAUNCHER_PENDING)
 		return
 
 	for(var/role in be_special)
@@ -352,9 +352,10 @@ GLOBAL_LIST_INIT(marking_locations, list("head", "body", "tail"))
 		choosen_gears[gear] = new_gear
 
 /datum/preferences/proc/save_character(client/C)
-	if(C.launcher_state == LAUNCHER_PENDING)
+	if(!C || C.launcher_state == LAUNCHER_PENDING)
 		return
 
+	var/owner_ckey = C.account_ckey
 	for(var/title in player_alt_titles)
 		var/datum/job/job = SSjobs.GetJob(title)
 		if(job && !(player_alt_titles[title] in job.alt_titles))
@@ -379,7 +380,7 @@ GLOBAL_LIST_INIT(marking_locations, list("head", "body", "tail"))
 	values["gear"] = length(savelist) ? list2params(savelist) : ""
 
 	var/datum/db_query/firstquery = SSdbcore.NewQuery("SELECT slot FROM [format_table_name("characters")] WHERE ckey=:ckey AND slot=:slot", list(
-		"ckey" = C.account_ckey,
+		"ckey" = owner_ckey,
 		"slot" = default_slot
 	))
 	if(!firstquery.warn_execute())
@@ -391,7 +392,7 @@ GLOBAL_LIST_INIT(marking_locations, list("head", "body", "tail"))
 	var/list/parameters = list()
 	for(var/column in values)
 		parameters[lowertext(column)] = values[column]
-	parameters["ckey"] = C.account_ckey
+	parameters["ckey"] = owner_ckey
 	parameters["slot"] = default_slot
 
 	var/datum/db_query/query

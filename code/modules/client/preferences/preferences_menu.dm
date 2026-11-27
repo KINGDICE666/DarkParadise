@@ -119,7 +119,7 @@
 	return FALSE
 
 /datum/preferences/ui_close(mob/user)
-	save_character(parent)
+	INVOKE_ASYNC(src, PROC_REF(save_character), parent)
 	save_preferences(parent)
 	QDEL_NULL(character_preview_view)
 
