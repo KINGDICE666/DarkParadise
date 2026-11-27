@@ -1,3 +1,5 @@
+#define FAST_CUFFING_TIME_MULTIPLIER 0.75
+
 /obj/item/restraints/handcuffs
 	name = "handcuffs"
 	desc = "Устройство из металла, представляющее собой пару соединённых цепью браслетов. \
@@ -23,6 +25,8 @@
 	/// If TRUE, these cuffs are disposable
 	var/trashtype = null
 	var/ignoresClumsy = FALSE
+	var/handcuff_time = 5 SECONDS
+	var/used = FALSE
 
 /obj/item/restraints/handcuffs/get_ru_names()
 	return alist(
@@ -36,7 +40,7 @@
 
 /obj/item/restraints/handcuffs/attack(mob/living/carbon/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ATTACK_CHAIN_PROCEED
-	if(!iscarbon(target))
+	if(!iscarbon(target) || used)
 		return .
 
 	if(!user.IsAdvancedToolUser())
@@ -56,10 +60,7 @@
 
 	SEND_SIGNAL(target, COMSIG_CARBON_CUFF_ATTEMPTED, user)
 
-	if(!ignoresClumsy && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
-		playsound(loc, cuffsound, 30, TRUE, -2)
-		to_chat(user, span_warning("Эээ... Так какой стороной это использовать..?"))
-		apply_cuffs(user, user)
+	if(handcuffs_clumsiness_check(user))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	playsound(loc, cuffsound, 30, TRUE, -2)
@@ -69,12 +70,7 @@
 	else
 		target.balloon_alert_to_viewers("начина[PLUR_ET_UT(user)] заковывать в [declent_ru(ACCUSATIVE)]...", "заковывание в [declent_ru(ACCUSATIVE)]...")
 
-	var/handcuff_time_mod = 1
-
-	if(HAS_TRAIT(user, TRAIT_FAST_CUFFING))
-		handcuff_time_mod = 0.75
-
-	if(!do_after(user, handcuff_time_mod * 5 SECONDS, target))
+	if(!do_after(user, get_handcuff_time(user), target))
 		balloon_alert(user, "заковывание прервано!")
 		return .
 
@@ -121,6 +117,26 @@
 
 	if(trashtype && !dispense)
 		qdel(src)
+
+/obj/item/restraints/handcuffs/proc/get_handcuff_time(mob/user)
+	return handcuff_time * (HAS_TRAIT(user, TRAIT_FAST_CUFFING) ? FAST_CUFFING_TIME_MULTIPLIER : 1)
+
+/obj/item/restraints/handcuffs/proc/handcuffs_clumsiness_check(mob/user)
+	if(ignoresClumsy || !iscarbon(user) || !HAS_TRAIT(user, TRAIT_CLUMSY) || prob(50))
+		return FALSE
+	playsound(loc, cuffsound, 30, TRUE, -2)
+	to_chat(user, span_warning("Эээ... Так какой стороной это использовать..?"))
+	apply_cuffs(user, user)
+	return TRUE
+
+/obj/item/restraints/handcuffs/proc/on_uncuffed()
+	if(!trashtype || used)
+		return
+	used = TRUE
+	var/obj/item/trash_type = trashtype
+	desc = initial(trash_type.desc)
+	icon_state = initial(trash_type.icon_state)
+	update_appearance()
 
 /obj/item/restraints/handcuffs/sinew
 	name = "sinew restraints"
@@ -269,6 +285,7 @@
 /obj/item/restraints/handcuffs/cable/zipties/used
 	desc = "Сломанные и уже ни на что не годятся."
 	icon_state = "cuff_white_used"
+	used = TRUE
 
 /obj/item/restraints/handcuffs/cable/zipties/used/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	return ATTACK_CHAIN_PROCEED
@@ -323,6 +340,9 @@
 /obj/item/restraints/handcuffs/manacles/used
 	desc = "Сломанные и уже ни на что не годятся."
 	icon_state = "manacle_unlock"
+	used = TRUE
 
 /obj/item/restraints/handcuffs/manacles/used/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	return ATTACK_CHAIN_PROCEED
+
+#undef FAST_CUFFING_TIME_MULTIPLIER

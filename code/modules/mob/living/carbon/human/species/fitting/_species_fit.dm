@@ -75,6 +75,7 @@ GLOBAL_LIST_EMPTY(species_fits)
 	var/list/hair_cover_cache
 	var/list/disk_cache
 	var/cache_key
+	var/prepared = FALSE
 	var/built = FALSE
 
 /datum/species_fit/New()
@@ -94,10 +95,10 @@ GLOBAL_LIST_EMPTY(species_fits)
 			instances += new step_type
 		slot_step_instances[slot_string] = instances
 
-/datum/species_fit/proc/build()
-	if(built)
+/datum/species_fit/proc/prepare()
+	if(prepared)
 		return
-	built = TRUE
+	prepared = TRUE
 	load_pixel_map()
 	var/list/tier_names = list()
 	for(var/list/tier_group in tier_states)
@@ -118,6 +119,12 @@ GLOBAL_LIST_EMPTY(species_fits)
 		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[map_file]|[long_map_file]|[md5(file2text(long_map_file))]")
 	for(var/slot_string in slot_steps)
 		cache_key = rustg_hash_string(RUSTG_HASH_XXH64, "[cache_key]|[slot_string]|[jointext(slot_steps[slot_string], "|")]")
+
+/datum/species_fit/proc/build()
+	if(built)
+		return
+	built = TRUE
+	prepare()
 	reference_trunk_masks = list()
 	reference_body_masks = list()
 	target_trunk_masks = list()
@@ -241,15 +248,22 @@ GLOBAL_LIST_EMPTY(species_fits)
 
 /datum/species_fit/proc/build_mask(sheet, list/state_names, fit_dir)
 	var/list/mask = new(width * height)
+	var/icon/combined
 	for(var/state_name in state_names)
 		if(!icon_exists(sheet, state_name))
 			continue
 		var/icon/frame = icon(sheet, state_name, fit_dir)
-		for(var/y in 1 to height)
-			var/row_offset = width * (y - 1)
-			for(var/x in 1 to width)
-				if(!isnull(frame.GetPixel(x, y)))
-					mask[row_offset + x] = TRUE
+		if(combined)
+			combined.Blend(frame, ICON_OVERLAY)
+		else
+			combined = frame
+	if(!combined)
+		return mask
+	for(var/y in 1 to height)
+		var/row_offset = width * (y - 1)
+		for(var/x in 1 to width)
+			if(!isnull(combined.GetPixel(x, y)))
+				mask[row_offset + x] = TRUE
 	return mask
 
 /datum/species_fit/proc/build_warp_map(fit_dir)

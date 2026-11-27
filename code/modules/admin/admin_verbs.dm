@@ -242,9 +242,9 @@ ADMIN_VERB_ONLY_CONTEXT_MENU(bless, R_EVENT, "Bless", /mob/living)
 			to_chat(M,span_userdanger("You feel invigorated!"), confidential = TRUE)
 			logmsg = "a moderate heal."
 		if("Heal Over Time")
-			H.reagents.add_reagent("salglu_solution", 30)
-			H.reagents.add_reagent("salbutamol", 20)
-			H.reagents.add_reagent("spaceacillin", 20)
+			H.reagents.add_reagent(/datum/reagent/medicine/salglu_solution, 30)
+			H.reagents.add_reagent(/datum/reagent/medicine/salbutamol, 20)
+			H.reagents.add_reagent(/datum/reagent/medicine/spaceacillin, 20)
 			logmsg = "a heal over time."
 		if("Permanent Regeneration")
 			H.force_gene_block(GLOB.regenerateblock, TRUE)
@@ -409,11 +409,11 @@ ADMIN_VERB(object_say_in_list, R_EVENT, "Object Say in List", ADMIN_VERB_NO_DESC
 ADMIN_VERB(deadmin_self, R_ADMIN|R_MENTOR|R_VIEWRUNTIMES, "De-admin self", "De-admin yourself.", ADMIN_CATEGORY_MAIN)
 	// TODO: shit code, refactor deadmin
 	if(check_rights(R_ADMIN, FALSE))
-		GLOB.de_admins |= user.ckey
+		GLOB.de_admins |= user.rights_ckey()
 	else if(check_rights(R_MENTOR, FALSE))
-		GLOB.de_mentors |= user.ckey
+		GLOB.de_mentors |= user.rights_ckey()
 	else
-		GLOB.de_devs |= user.ckey
+		GLOB.de_devs |= user.rights_ckey()
 
 	user.deadmin()
 	ASSIGN_GAME_VERB(user, /client, readmin)

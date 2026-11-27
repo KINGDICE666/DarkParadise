@@ -122,7 +122,7 @@
 /obj/machinery/computer/fission_monitor/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "ReactorMonitor", name)
+		ui = new(user, src, "ReactorMonitor", DECLENT_RU_CAP(src, NOMINATIVE))
 		ui.open()
 
 	return TRUE
@@ -279,7 +279,7 @@
 
 /obj/item/slag/Initialize(mapload)
 	. = ..()
-	//scatter_atom()
+	scatter_atom()
 	AddElement(/datum/element/radioactive, 10, chance = 80)
 	START_PROCESSING(SSprocessing, src)
 
@@ -382,8 +382,8 @@
 	SIGNAL_HANDLER
 	UnregisterSignal(src, list(COMSIG_ATOM_INITIALIZED_ON, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, COMSIG_TURF_CHANGE))
 
-/turf/simulated/floor/plasteel/reactor_pool/proc/on_atom_inited(datum/source, atom/movable/movable)
-	SIGNAL_HANDLER
+/turf/simulated/floor/plasteel/reactor_pool/on_atom_inited(datum/source, atom/movable/movable)
+	. = ..()
 	UnregisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON)
 	make_immersed(movable)
 
@@ -448,13 +448,23 @@
 	flags = ON_BORDER | NODECONSTRUCT | INDESTRUCTIBLE
 	max_integrity = 200
 
+/obj/structure/railing/pool_lining/get_ru_names()
+	return alist(
+		NOMINATIVE = "бортик бассейна",
+		GENITIVE = "бортика бассейна",
+		DATIVE = "бортику бассейна",
+		ACCUSATIVE = "бортик бассейна",
+		INSTRUMENTAL = "бортиком бассейна",
+		PREPOSITIONAL = "бортике бассейна",
+	)
+
 /obj/structure/railing/pool_lining/ex_act(severity)
 	if(severity == EXPLODE_HEAVY || severity == EXPLODE_DEVASTATE)
 		qdel(src)
 
 /obj/item/effect/pool_overlay
 	name = "holding pool"
-	desc = "water"
+	desc = "вода"
 	icon = 'icons/misc/beach.dmi'
 	icon_state = "seadeep"
 	alpha = 75
@@ -462,10 +472,30 @@
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	anchored = TRUE
 
+/obj/item/effect/pool_overlay/get_ru_names()
+	return alist(
+		NOMINATIVE = "защитный бассейн",
+		GENITIVE = "защитного бассейна",
+		DATIVE = "защитному бассейну",
+		ACCUSATIVE = "защитный бассейн",
+		INSTRUMENTAL = "защитным бассейном",
+		PREPOSITIONAL = "защитном бассейне",
+	)
+
 /obj/structure/railing/corner/pool_corner
 	name = "pool lining"
 	icon = 'icons/obj/fission/pool.dmi'
 	icon_state = "bordercorner"
+
+/obj/structure/railing/corner/pool_corner/get_ru_names()
+	return alist(
+		NOMINATIVE = "бортик бассейна",
+		GENITIVE = "бортика бассейна",
+		DATIVE = "бортику бассейна",
+		ACCUSATIVE = "бортик бассейна",
+		INSTRUMENTAL = "бортиком бассейна",
+		PREPOSITIONAL = "бортике бассейна",
+	)
 
 /obj/structure/railing/corner/pool_corner/inner
 	icon_state = "innercorner"

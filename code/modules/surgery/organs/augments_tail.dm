@@ -5,7 +5,7 @@
 	parent_organ_zone = BODY_ZONE_TAIL
 	slot = INTERNAL_ORGAN_TAIL_DEVICE
 	cyber_cost = 12
-	icon_state = "implant-toolkit"
+	icon_state = "toolkit_generic"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 	var/sound_on = 'sound/mecha/mechmove03.ogg'
@@ -97,11 +97,9 @@
 	)
 
 /obj/item/organ/internal/cyberimp/tail/blade/emp_act(severity)
-	if(emp_proof)
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	if(emp_shielded(severity))
-		return
-
 	if(activated)
 		activated = FALSE
 		playsound(owner.loc, sound_off, 50, TRUE)

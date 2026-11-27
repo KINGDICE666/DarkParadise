@@ -100,7 +100,7 @@
 	cook_timer = null
 	var/grilled_type = grilled_results[mounted_food.type]
 	var/obj/item/reagent_containers/food/snacks/grilled_food = new grilled_type(src)
-	mounted_food.reagents.del_reagent("nutriment")
+	mounted_food.reagents.del_reagent(/datum/reagent/consumable/nutriment)
 	mounted_food.reagents.trans_to(grilled_food, mounted_food.reagents.total_volume, no_react = TRUE)
 	qdel(mounted_food)
 	mounted_food = grilled_food

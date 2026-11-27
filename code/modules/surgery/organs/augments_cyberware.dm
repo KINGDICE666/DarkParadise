@@ -128,7 +128,7 @@
 	var/charges = 2
 	var/recharge_time = 150 SECONDS
 	var/use_delay = 15 SECONDS
-	var/list/injected_reagents = list("charcoal" = 5)
+	var/list/injected_reagents = list(/datum/reagent/medicine/charcoal = 5)
 	COOLDOWN_DECLARE(recharge_cooldown)
 	COOLDOWN_DECLARE(use_cooldown)
 
@@ -173,7 +173,7 @@
 	charges = 3
 	recharge_time = 300 SECONDS
 	use_delay = 30 SECONDS
-	injected_reagents = list("stimulants" = 2)
+	injected_reagents = list(/datum/reagent/medicine/stimulants = 2)
 
 /obj/item/organ/internal/cyberimp/chest/blood_pump/militech/get_ru_names()
 	return alist(
@@ -399,7 +399,7 @@
 	SIGNAL_HANDLER
 	if(!is_airlock(target) || crit_fail || blocked || !is_active_arm() || source.get_active_hand())
 		return NONE
-	if(source.incapacitated() || HAS_TRAIT(source, TRAIT_HANDS_BLOCKED) || !source.Adjacent(target))
+	if(source.incapacitated || HAS_TRAIT(source, TRAIT_HANDS_BLOCKED) || !source.Adjacent(target))
 		return NONE
 	var/obj/machinery/door/airlock/airlock = target
 	if(!airlock.density || airlock.operating)
@@ -836,7 +836,7 @@
 		action.build_all_button_icons(UPDATE_BUTTON_STATUS)
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/dash()
-	if(owner.buckled || owner.pulledby || owner.legcuffed || owner.body_position == LYING_DOWN || owner.incapacitated() || HAS_TRAIT(owner, TRAIT_IMMOBILIZED))
+	if(owner.buckled || owner.pulledby || owner.legcuffed || owner.body_position == LYING_DOWN || owner.incapacitated || HAS_TRAIT(owner, TRAIT_IMMOBILIZED))
 		return
 	for(var/i in 1 to SANDEVISTAN_DASH_RANGE)
 		if(!step(owner, owner.dir))
@@ -852,7 +852,7 @@
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/dodge_melee(mob/living/carbon/human/source, atom/movable/hitby, attack_text, armour_penetration, damage, attack_type)
 	SIGNAL_HANDLER
-	if(!(attack_type & (ITEM_ATTACK|UNARMED_ATTACK|LEAP_ATTACK)) || source.body_position == LYING_DOWN || source.incapacitated())
+	if(!(attack_type & (ITEM_ATTACK|UNARMED_ATTACK|LEAP_ATTACK)) || source.body_position == LYING_DOWN || source.incapacitated)
 		return NONE
 	if(has_active_sandevistan(get_attacker(hitby)) || !prob(SANDEVISTAN_MELEE_DODGE_CHANCE))
 		return NONE
@@ -988,7 +988,7 @@
 		var/obj/item/organ/external/limb = pick(human_owner.bodyparts)
 		limb.internal_bleeding()
 	human_owner.blood_volume = max(human_owner.blood_volume - SANDEVISTAN_CRITICAL_BLOOD_LOSS, 0)
-	human_owner.reagents.add_reagent("cyanide", SANDEVISTAN_CRITICAL_CYANIDE)
+	human_owner.reagents.add_reagent(/datum/reagent/cyanide, SANDEVISTAN_CRITICAL_CYANIDE)
 
 /obj/item/organ/internal/cyberimp/brain/sandevistan/proc/flatline()
 	var/mob/living/carbon/human/human_owner = owner

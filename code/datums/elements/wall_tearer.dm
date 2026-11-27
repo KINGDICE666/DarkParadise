@@ -30,7 +30,7 @@
 	src.tear_time = tear_time
 	src.reinforced_multiplier = reinforced_multiplier
 	src.do_after_key = do_after_key
-	RegisterSignal(target, list(COMSIG_ATOM_ATTACK_ANIMAL, COMSIG_LIVING_UNARMED_ATTACK), PROC_REF(on_attacked_wall))
+	RegisterSignals(target, list(COMSIG_ATOM_ATTACK_ANIMAL, COMSIG_LIVING_UNARMED_ATTACK), PROC_REF(on_attacked_wall))
 
 
 /datum/element/wall_tearer/Detach(datum/source)

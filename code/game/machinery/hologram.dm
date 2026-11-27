@@ -481,7 +481,7 @@ GLOBAL_LIST_EMPTY(holopads)
 	if(!isliving(owner))
 		return TRUE
 	var/mob/living/user = owner
-	if(user.incapacitated() || !user.client)
+	if(user.incapacitated || !user.client)
 		return FALSE
 
 	if(isAI(user))

@@ -1,5 +1,6 @@
 /obj/item/storage/briefcase
 	name = "briefcase"
+	gender = MALE
 	desc = "Он сделан из НАСТОЯЩЕЙ искусственной кожи и всё ещё с ценником. Его владелец, должно быть, настоящий профессионал."
 	icon = 'icons/obj/storage/boxes.dmi'
 	icon_state = "briefcase"
@@ -17,6 +18,20 @@
 	attack_verb = list("ударил", "огрел")
 	resistance_flags = FLAMMABLE
 	max_integrity = 150
+
+/obj/item/storage/briefcase/get_ru_names()
+	return alist(
+		NOMINATIVE = "кейс",
+		GENITIVE = "кейса",
+		DATIVE = "кейсу",
+		ACCUSATIVE = "кейс",
+		INSTRUMENTAL = "кейсом",
+		PREPOSITIONAL = "кейсе",
+	)
+
+/obj/item/storage/briefcase/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
 
 /obj/item/storage/briefcase/sniperbundle
 	desc = "На его этикетке написано \"настоящая закаленная кожа капитана\", но подозрительно отсутствуют другие метки или бренды. Пахнет как L'Air du Temps."

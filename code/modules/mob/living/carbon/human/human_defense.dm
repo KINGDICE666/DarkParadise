@@ -66,7 +66,7 @@ emp_act
 				T.bullet_act(P)
 				visible_message(span_danger("[src] отбива[PLUR_ET_YUT(src)] [P.declent_ru(ACCUSATIVE)] в сторону!"), \
 								span_userdanger("Вы отбиваете [P.declent_ru(ACCUSATIVE)] в сторону!"))
-				playsound(src, pick('sound/weapons/bulletflyby.ogg', 'sound/weapons/bulletflyby2.ogg', 'sound/weapons/bulletflyby3.ogg'), 75, TRUE)
+				playsound(src, SFX_BULLET_MISS_ALT, 75, TRUE)
 			if(mind.martial_art.reroute_deflection)
 				P.firer = src
 				P.set_angle(rand(0, 360))
@@ -432,23 +432,26 @@ emp_act
 		item.acid_act(acidpwr, acid_volume)
 	return 1
 
-/mob/living/carbon/human/emag_act(mob/user, obj/item/organ/external/affecting)
-	if(!istype(affecting))
+/mob/living/carbon/human/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(!user || !emag_card)
+		return FALSE
+	if(user.zone_selected == BODY_ZONE_CHEST)
 		var/obj/item/organ/internal/heart/cybernetic/quantum/regulator = get_organ_slot(INTERNAL_ORGAN_HEART)
-		if(istype(regulator) && user?.zone_selected == BODY_ZONE_CHEST)
+		if(istype(regulator))
 			regulator.emag_act(user)
-		return
-	if(!affecting.is_robotic())
+			return TRUE
+	var/obj/item/organ/external/selected_limb = get_organ(user.zone_selected)
+	if(!selected_limb || !istype(selected_limb))
+		return FALSE
+	if(!selected_limb.is_robotic())
 		balloon_alert(user, "конечность не синтетическая!")
-		return
-	if(affecting.sabotaged)
-		balloon_alert(user, "уже взломано!")
-	else
-		add_attack_logs(user, src, "emagged [p_their()] [affecting.name]")
-		to_chat(user, span_warning("Вы аккуратно подносите карту к сканеру на [affecting.declent_ru(INSTRUMENTAL)] [src] и отключаете защитные протоколы."))
-		balloon_alert(user, "конечность взломана!")
-		affecting.sabotaged = 1
-	return 1
+		return FALSE
+	add_attack_logs(user, src, "emagged [p_their()] [selected_limb.name]")
+	to_chat(user, span_warning("Вы аккуратно подносите карту к сканеру на [selected_limb.declent_ru(INSTRUMENTAL)] [src] и отключаете защитные протоколы."))
+	balloon_alert(user, "конечность взломана!")
+	selected_limb.obj_flags |= EMAGGED
+	return TRUE
 
 /mob/living/carbon/human/grippedby(mob/living/grabber, grab_state_override)
 	. = ..()
@@ -498,7 +501,7 @@ emp_act
 	if(check_martial_art_defense(src, user, item, span_warning("[src] блокиру[PLUR_ET_YUT(src)] [item.declent_ru(ACCUSATIVE)]!")))
 		return ATTACK_CHAIN_BLOCKED
 
-	if(istype(item, /obj/item/card/emag) && emag_act(user, affecting))
+	if(istype(item, /obj/item/card/emag) && emag_act(user, item))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	send_item_attack_message(item, user, affecting.limb_zone)
@@ -889,3 +892,8 @@ emp_act
 		if(FIRE_VARIANT_TYPE_B) //Armor Shredding Greenfire
 			SetSlowed(1 SECONDS, (SLOWDOWN_AMT_GREENFIRE))
 			to_chat(src, span_danger("Вязкий напалм обволакивает ваши конечности, и вы с трудом двигаетесь сквозь пламя!"))
+
+/mob/living/carbon/human/get_emp_protection()
+	. = ..()
+	for(var/obj/item/clothing/each_clothing in get_equipped_items())
+		. += each_clothing.emp_protection

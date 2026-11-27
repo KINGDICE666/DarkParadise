@@ -50,6 +50,11 @@ type AlternateAction = {
 };
 
 const ALTERNATE_ACTIONS: Record<string, AlternateAction> = {
+  remove_item_cuffs: {
+    icon: 'handcuffs',
+    text: 'Remove handcuffs',
+  },
+
   enable_internals: {
     icon: 'lungs',
     text: 'Enable internals',

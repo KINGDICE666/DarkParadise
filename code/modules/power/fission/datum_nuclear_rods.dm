@@ -92,7 +92,7 @@
 			temp_reqs += "[count] × [req_name]"
 
 		metadata["neighbor_requirements"] = temp_reqs
-		metadata["adjacent_requirements_display"] = english_list(temp_reqs, and_text = ", ")
+		metadata["adjacent_requirements_display"] = russian_list(temp_reqs, and_text = ", ")
 	else
 		metadata["neighbor_requirements"] = list()
 		metadata["adjacent_requirements_display"] = "Нет"

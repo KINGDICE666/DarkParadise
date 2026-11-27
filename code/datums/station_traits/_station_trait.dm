@@ -42,13 +42,14 @@ GLOBAL_LIST_EMPTY(lobby_station_traits)
 
 	if(sign_up_button)
 		GLOB.lobby_station_traits += src
+		SEND_GLOBAL_SIGNAL(COMSIG_GLOB_LOBBY_TRAIT_ADDED, src)
 	if(trait_processes)
 		START_PROCESSING(SSstation, src)
 	if(trait_to_give)
 		ADD_TRAIT(SSstation, trait_to_give, STATION_TRAIT)
 
 /datum/station_trait/Destroy()
-	//destroy_lobby_buttons()
+	destroy_lobby_buttons()
 	SSstation.station_traits -= src
 	GLOB.lobby_station_traits -= src
 	REMOVE_TRAIT(SSstation, trait_to_give, STATION_TRAIT)
@@ -80,10 +81,43 @@ GLOBAL_LIST_EMPTY(lobby_station_traits)
 /datum/station_trait/proc/get_decal_color(thing_to_color, pattern)
 	return
 
+/datum/station_trait/proc/can_display_lobby_button(client/player)
+	return sign_up_button && !SSticker.HasRoundStarted()
+
+/datum/station_trait/proc/setup_lobby_button(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button)
+	SHOULD_CALL_PARENT(TRUE)
+	lobby_button.name = name
+	lobby_buttons |= lobby_button
+	RegisterSignal(lobby_button, COMSIG_ATOM_UPDATE_ICON, PROC_REF(on_lobby_button_update_icon))
+	RegisterSignal(lobby_button, COMSIG_SCREEN_ELEMENT_CLICK, PROC_REF(on_lobby_button_click))
+	RegisterSignal(lobby_button, COMSIG_QDELETING, PROC_REF(on_lobby_button_destroyed))
+	lobby_button.update_appearance(UPDATE_ICON)
+
+/datum/station_trait/proc/on_lobby_button_click(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button, location, control, params, mob/new_player/user)
+	SIGNAL_HANDLER
+	return
+
+/datum/station_trait/proc/on_lobby_button_update_icon(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button, updates)
+	SIGNAL_HANDLER
+	return
+
+/datum/station_trait/proc/on_lobby_button_destroyed(atom/movable/screen/lobby/button/bottom/link/sign_up/lobby_button)
+	SIGNAL_HANDLER
+	lobby_buttons -= lobby_button
+
 /// Proc ran when round starts. Use this for roundstart effects. By default we clean up our buttons here.
 /datum/station_trait/proc/on_round_start()
 	SIGNAL_HANDLER
-	return
+	destroy_lobby_buttons()
+
+/datum/station_trait/proc/destroy_lobby_buttons()
+	for(var/atom/movable/screen/lobby/button/bottom/link/sign_up/button as anything in lobby_buttons.Copy())
+		var/mob/new_player/hud_owner = button.get_mob()
+		var/datum/hud/new_player/using_hud = hud_owner?.hud_used
+		if(!istype(using_hud))
+			qdel(button)
+			continue
+		using_hud.remove_station_trait_button(src)
 
 /// Called when overriding a pulsar star command report message.
 /datum/station_trait/proc/get_pulsar_message()

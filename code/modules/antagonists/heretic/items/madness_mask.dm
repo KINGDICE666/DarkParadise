@@ -78,7 +78,7 @@
 			continue
 
 		if(prob(10))
-			INVOKE_ASYNC(human_in_range, TYPE_PROC_REF(/mob/living, hallucinate_living), pickweight(GLOB.minor_medium_major_hallutinations))
+			human_in_range.cause_hallucination(get_random_valid_hallucination_subtype(), "madness mask")
 
 		if(prob(60))
 			human_in_range.Hallucinate(120 SECONDS)

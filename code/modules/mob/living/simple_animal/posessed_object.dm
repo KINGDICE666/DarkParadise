@@ -102,6 +102,8 @@
 /mob/living/simple_animal/possessed_object/Login()
 	..()
 	to_chat(src, span_shadowling("<b>Ваш дух вселился в [declent_ru(ACCUSATIVE)] и овладел им.</b><br>Теперь вы чувствуете его как продолжение себя — почти как живое тело!<br>Если вы хотите положить конец своей одержимости, используйте \"Призрак\", это не повлияет на вашу способность возрождаться."))
+	if(isgun(possessed_item))
+		to_chat(src, span_shadowling("Вы можете стрелять из себя: просто щёлкните по дальней цели."))
 
 /mob/living/simple_animal/possessed_object/Initialize(mapload)
 	. = ..()
@@ -149,6 +151,8 @@
 
 	if(A == src) // If we're clicking ourself we should not attack ourself.
 		possessed_item.attack_self(src)
+	else if(isgun(possessed_item) && (isturf(A) || isturf(A.loc)) && !Adjacent(A))
+		shoot_at(A)
 	else
 		..()
 
@@ -160,6 +164,12 @@
 			forceMove( possessed_item )
 
 	update_icon()
+
+/mob/living/simple_animal/possessed_object/proc/shoot_at(atom/target)
+	var/obj/item/gun/possessed_gun = possessed_item
+	if(possessed_gun.gun_on_cooldown())
+		return
+	possessed_gun.fast_fire(target, src)
 
 /mob/living/simple_animal/possessed_object/update_icon(update_pixel_xy = 0)
 	name = possessed_item.name // Take on all the attributes of the item we've possessed.

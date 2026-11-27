@@ -35,7 +35,6 @@
 #define COMSIG_MOB_TRIED_ACCESS "tried_access"
 
 // More heretic-used signals absent from master220 (define for compile; runtime-emit may need wiring).
-#define COMSIG_ATOM_HOLYATTACK "atom_holyattacked"
 #define COMSIG_BEING_STRIPPED "try_strip"
 #define COMSIG_CAN_Z_MOVE "movable_can_z_move"
 #define COMSIG_GET_DREAMS "get_dreams"

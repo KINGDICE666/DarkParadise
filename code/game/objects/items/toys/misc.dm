@@ -451,3 +451,28 @@
 		soundloop.start()
 	else
 		soundloop.stop()
+
+/obj/item/skub
+	name = "skub"
+	desc = "Это скаб."
+	icon = 'icons/obj/toy.dmi'
+	icon_state = "skub"
+	gender = MALE
+	w_class = WEIGHT_CLASS_BULKY
+	attack_verb = list("скабнул")
+
+/obj/item/skub/get_ru_names()
+	return alist(
+		NOMINATIVE = "скаб",
+		GENITIVE = "скаба",
+		DATIVE = "скабу",
+		ACCUSATIVE = "скаб",
+		INSTRUMENTAL = "скабом",
+		PREPOSITIONAL = "скабе",
+	)
+
+/obj/item/skub/suicide_act(mob/living/user)
+	user.visible_message(span_suicide("[user] объявляет себя противником скаба! Скаб разрывает [user.declent_ru(ACCUSATIVE)] на части!"))
+	playsound(src, 'sound/items/eatfood.ogg', 50, TRUE, -1)
+	user.gib()
+	return OBLITERATION

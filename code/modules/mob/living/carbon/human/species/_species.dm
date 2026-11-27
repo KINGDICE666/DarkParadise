@@ -643,7 +643,7 @@
 		user.balloon_alert(user, "кровотечения нет!")
 		return
 
-	user.balloon_alert_to_viewers("зажима[PLUR_ET_YUT(user)] рану на [target_limb.declent_ru(PREPOSITIONAL)]", "зажатие раны на [target_limb.declent_ru(PREPOSITIONAL)]");
+	user.balloon_alert_to_viewers("зажима[PLUR_ET_YUT(user)] рану на [target_limb.declent_ru_base(PREPOSITIONAL)]", "зажатие раны на [target_limb.declent_ru_base(PREPOSITIONAL)]");
 
 	if(user.hand == ACTIVE_HAND_LEFT)
 		user.left_hand_bleed_suppress_lib = target_limb
@@ -714,7 +714,7 @@
 		if(!iscarbon(user))
 			target.LAssailant = null
 		else
-			target.LAssailant = user
+			target.LAssailant = WEAKREF(user)
 
 		target.lastattacker = user.real_name
 		target.lastattackerckey = user.ckey
@@ -749,7 +749,7 @@
 		//check user's defense in attacking zone (hands or mouth)
 		for(var/datum/disease/virus/V in target.diseases)
 			var/is_infected = FALSE
-			if(attack.is_bite  && (V.spread_flags > NON_CONTAGIOUS))
+			if(attack.is_bite && (V.spread_flags & ~NON_CONTAGIOUS))
 				//infected blood contacts with mouth, ignore protection & spread_flags
 				is_infected = V.Contract(user, need_protection_check = FALSE)
 			if(!is_infected && (V.spread_flags & CONTACT))
@@ -814,7 +814,7 @@
 		if(!iscarbon(user))
 			target.LAssailant = null
 		else
-			target.LAssailant = user
+			target.LAssailant = WEAKREF(user)
 		return
 
 	user.do_attack_animation(target, ATTACK_EFFECT_DISARM)
@@ -912,6 +912,9 @@
 	if((M != H) && M.a_intent != INTENT_HELP && H.check_shields(M, 0, M.name, attack_type = UNARMED_ATTACK))
 		add_attack_logs(M, H, "Melee attacked with fists (miss/block)")
 		H.visible_message(span_warning("[M.declent_ru(NOMINATIVE)] пыта[PLUR_ET_YUT(M)]ся коснуться [H.declent_ru(ACCUSATIVE)]!"))
+		return FALSE
+
+	if(SEND_SIGNAL(M, COMSIG_HUMAN_UNARMED_ATTACK, H) & COMPONENT_CANCEL_ATTACK_CHAIN)
 		return FALSE
 
 	switch(M.a_intent)
@@ -1102,14 +1105,14 @@
 		if(ITEM_SLOT_HAND_LEFT)
 			if(user.l_hand)
 				return FALSE
-			if(!bypass_incapacitated && user.incapacitated())
+			if(!bypass_incapacitated && user.incapacitated)
 				return FALSE
 			return TRUE
 
 		if(ITEM_SLOT_HAND_RIGHT)
 			if(user.r_hand)
 				return FALSE
-			if(!bypass_incapacitated && user.incapacitated())
+			if(!bypass_incapacitated && user.incapacitated)
 				return FALSE
 			return TRUE
 
@@ -1548,13 +1551,13 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 		if(!source.IsParalyzed())
 			source.emote("collapse")
 		source.Paralyse(RAD_MOB_KNOCKDOWN_AMOUNT)
-		to_chat(source, span_danger("You feel weak."))
+		to_chat(source, span_danger("Вы чувствуете слабость в мышцах."))
 
 	if(time_since_irradiated > RAD_MOB_VOMIT && SPT_PROB(RAD_MOB_VOMIT_PROB, seconds_per_tick))
 		source.vomit(VOMIT_BLOOD, lost_nutrition = 10)
 
 	if(time_since_irradiated > RAD_MOB_MUTATE && SPT_PROB(RAD_MOB_MUTATE_PROB, seconds_per_tick))
-		to_chat(source, span_danger("You mutate!"))
+		to_chat(source, span_danger("Вы мутируете!"))
 		randmutb(source)
 		source.emote("gasp")
 		source.check_genes()
@@ -1562,7 +1565,7 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 	if(time_since_irradiated > RAD_MOB_HAIRLOSS && SPT_PROB(RAD_MOB_HAIRLOSS_PROB, seconds_per_tick))
 		var/obj/item/organ/external/head/head = source.get_bodypart(BODY_ZONE_HEAD)
 		if(!(head.h_style == "Bald")) // && (head?.head_flags & (HEAD_HAIR|HEAD_FACIAL_HAIR)))
-			to_chat(source, span_danger("Your hair starts to fall out in clumps..."))
+			to_chat(source, span_danger("Ваши волосы начинают выпадать клочьями..."))
 			addtimer(CALLBACK(src, PROC_REF(go_bald), source), 5 SECONDS)
 
 /datum/species/proc/go_bald(mob/living/carbon/human/target)

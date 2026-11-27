@@ -469,8 +469,6 @@
 	circuit = /obj/item/circuitboard/supplycomp
 	/// Is this a public console (Confirm + Shuttle controls are not visible)
 	var/is_public = FALSE
-	/// Can we order special supplies
-	var/hacked = FALSE
 	/// Can we order contraband
 	var/can_order_contraband = FALSE
 
@@ -527,13 +525,14 @@
 	ui_interact(user)
 	return
 
-/obj/machinery/computer/supplycomp/emag_act(mob/user)
-	if(!hacked)
-		add_attack_logs(user, src, "emagged")
-		if(user)
-			user.balloon_alert(user, "открыты дополнительные заказы")
-		hacked = TRUE
-		return
+/obj/machinery/computer/supplycomp/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	if(user)
+		user.balloon_alert(user, "открыты дополнительные заказы")
+	return TRUE
 
 /obj/machinery/computer/supplycomp/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -589,7 +588,7 @@
 		var/datum/supply_packs/pack = SSshuttle.supply_packs[set_name]
 		var/has_sale = pack.get_cost() < initial(pack.cost)
 		var/is_enough_techs = pack.has_required_tech()
-		if((pack.hidden && hacked) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
+		if((pack.hidden && (obj_flags & EMAGGED)) || (pack.contraband && can_order_contraband) || (pack.special && pack.special_enabled) || (!pack.contraband && !pack.hidden && !pack.special))
 			packs_list.Add(list(list("name" = pack.name, "cost" = pack.get_cost(), "ref" = "[pack.UID()]", "contents" = pack.ui_manifest, "cat" = pack.group, "has_sale" = has_sale, "is_enough_techs" = is_enough_techs, "goody" = pack.goody)))
 
 	data["supply_packs"] = packs_list
@@ -718,7 +717,7 @@
 				amount = num_input
 
 			var/timeout = world.time + (60 SECONDS) // If you dont type the reason within a minute, theres bigger problems here
-			var/reason = tgui_input_text(ui.user, "Причина заказа", "Напишите причину заказа", encode = FALSE, timeout = timeout)
+			var/reason = tgui_input_text(ui.user, "Причина заказа", "Напишите причину заказа", timeout = timeout)
 			if(!reason || (!is_public && !is_authorized(ui.user)) || ..())
 				// Cancel if they take too long, they dont give a reason, they aint authed, or if they walked away
 				return

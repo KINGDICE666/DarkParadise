@@ -7,6 +7,7 @@
 	desc = "Верхняя часть туловища."
 	gender = FEMALE
 	limb_zone = BODY_ZONE_CHEST
+	parent_zones = list(BODY_ZONE_PRECISE_GROIN)
 	icon_name = "torso"
 	max_damage = 100
 	min_broken_damage = 35
@@ -31,15 +32,15 @@
 	)
 
 /obj/item/organ/external/chest/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!is_robotic() || emp_proof || !tough) // Augmented chest suffocates the user on EMP.
+	if(!is_robotic() || !tough) // Augmented chest suffocates the user on EMP.
 		return
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			owner?.adjustStaminaLoss(20)
-		if(2)
+		if(EMP_LIGHT)
 			owner?.adjustStaminaLoss(10)
 	to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, вызывая сильное истощение!"))
 
@@ -74,6 +75,7 @@
 	gender = FEMALE
 	icon_name = "l_arm"
 	limb_zone = BODY_ZONE_L_ARM
+	parent_zones = list(BODY_ZONE_PRECISE_L_HAND)
 	max_damage = 50
 	max_bleeding_amount = 1
 	bleeding_mod = 0.8
@@ -125,10 +127,10 @@
 	owner.update_fractures_workspeed()
 
 /obj/item/organ/external/arm/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
+	if(!owner || !is_robotic() || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
 		return
 	var/hand = (limb_zone == BODY_ZONE_L_ARM) ? owner.l_hand : owner.r_hand
 	if(hand && owner.can_unEquip(hand))
@@ -141,6 +143,7 @@
 	desc = "Правая рука."
 	icon_name = "r_arm"
 	limb_zone = BODY_ZONE_R_ARM
+	parent_zones = list(BODY_ZONE_PRECISE_R_HAND)
 	limb_body_flag = ARM_RIGHT
 	amputation_point = "правое плечо"
 	convertable_children = list(/obj/item/organ/external/hand/right)
@@ -161,6 +164,7 @@
 	gender = FEMALE
 	icon_name = "l_leg"
 	limb_zone = BODY_ZONE_L_LEG
+	parent_zones = list(BODY_ZONE_PRECISE_L_FOOT)
 	max_damage = 50
 	max_bleeding_amount = 1
 	bleeding_mod = 0.8
@@ -219,10 +223,10 @@
 	owner.update_fractures_fall()
 
 /obj/item/organ/external/leg/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
+	if(!owner || !is_robotic() || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
 		return
 	if(owner.IsWeakened())
 		to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, не давая вам встать!"))
@@ -231,9 +235,9 @@
 		to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, заставляя вас упасть с ног!"))
 		owner.custom_emote(EMOTE_VISIBLE, "пада%(ет,ют)% на пол, %(его,её,его,их)% нога выходит из строя!")
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			owner.AdjustWeakened(8 SECONDS)
-		if(2)
+		if(EMP_LIGHT)
 			owner.AdjustWeakened(4 SECONDS)
 
 /obj/item/organ/external/leg/right
@@ -241,6 +245,7 @@
 	desc = "Правая нога."
 	icon_name = "r_leg"
 	limb_zone = BODY_ZONE_R_LEG
+	parent_zones = list(BODY_ZONE_PRECISE_R_FOOT)
 	limb_body_flag = LEG_RIGHT
 	icon_position = RIGHT
 	amputation_point = "правое бедро"
@@ -365,10 +370,10 @@
 		owner.set_usable_legs(owner.usable_legs + 1)
 
 /obj/item/organ/external/foot/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
+	if(!owner || !is_robotic() || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
 		return
 	if(owner.IsWeakened())
 		to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, не давая вам встать!"))
@@ -377,9 +382,9 @@
 		to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, заставляя вас упасть!"))
 		owner.custom_emote(EMOTE_VISIBLE, "пада%(ет,ют)%, %(его,её,его,их)% ступня выходит из строя!")
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			owner.AdjustWeakened(8 SECONDS)
-		if(2)
+		if(EMP_LIGHT)
 			owner.AdjustWeakened(4 SECONDS)
 
 /obj/item/organ/external/foot/right
@@ -514,10 +519,10 @@
 		owner.set_usable_hands(owner.usable_hands + 1, hand_index = limb_zone)
 
 /obj/item/organ/external/hand/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
+	if(!owner || !is_robotic() || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
 		return
 	var/hand = (limb_zone == BODY_ZONE_PRECISE_L_HAND) ? owner.l_hand : owner.r_hand
 	if(hand && owner.can_unEquip(hand))
@@ -652,6 +657,7 @@
 	desc = "Голова."
 	gender = FEMALE
 	limb_zone = BODY_ZONE_HEAD
+	parent_zones = list(BODY_ZONE_PRECISE_EYES, BODY_ZONE_PRECISE_MOUTH)
 	icon_name = "head"
 	max_damage = 75
 	min_broken_damage = 35
@@ -768,15 +774,15 @@
 	new_dna?.write_head_attributes(src)
 
 /obj/item/organ/external/head/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
-	..()
-	if(!is_robotic() || emp_proof || !tough || !owner) // Augmented head confuses the user on EMP.
+	if(!is_robotic() || !tough || !owner) // Augmented head confuses the user on EMP.
 		return
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			owner.AdjustConfused(60 SECONDS)
-		if(2)
+		if(EMP_LIGHT)
 			owner.AdjustConfused(40 SECONDS)
 	to_chat(owner, span_userdanger("Ваша [declent_ru(NOMINATIVE)] выходит из строя, вызывая перегрузку управления!"))
 
@@ -827,8 +833,8 @@
 /obj/item/organ/external/tail/sync_colour_to_human(mob/living/carbon/human/H)
 	..()
 	var/datum/sprite_accessory/tail_marking_style = SSaccessories.body_markings_list[H.m_styles["tail"]]
-	if(body_accessory && (dna.species.name in body_accessory.allowed_species))
-		body_accessory = body_accessory
+	if(H.body_accessory && (dna.species.name in H.body_accessory.allowed_species))
+		body_accessory = H.body_accessory
 	if(body_accessory)
 		if(body_accessory.name in tail_marking_style.tails_allowed)
 			m_styles["tail"] = H.m_styles["tail"]

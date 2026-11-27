@@ -29,6 +29,7 @@
 
 	/// External body part zone
 	var/limb_zone
+	var/list/parent_zones
 	/// Used to calculate protection from armor
 	var/limb_body_flag = NONE
 	/// Bodypart parent
@@ -95,8 +96,6 @@
 	/// Trait that renders this bodypart unusable while its owner has it. Whoever grants it keeps usable_hands / usable_legs in sync.
 	var/paralysis_trait
 
-	/// Whether prosthetic bodypart is emagged, it will detonate when it fails
-	var/sabotaged = FALSE
 	/// Time when this organ was last splinted
 	var/splinted_count = 0
 	/// Lazy list of all embedded objects inside the bodypart
@@ -129,6 +128,12 @@
 
 /obj/item/organ/external/Initialize(mapload, special = ORGAN_MANIPULATION_NOEFFECT)
 	. = ..()
+
+	if(convertable_children)
+		convertable_children = string_list(convertable_children)
+
+	if(parent_zones)
+		parent_zones = string_list(parent_zones)
 
 	if(dna?.species)
 		icobase = dna.species.icobase
@@ -221,7 +226,7 @@
 		owner.bleeding_bodyparts |= src
 
 	for(var/atom/movable/thing in src)
-		thing.attempt_become_organ(src, owner, special)
+		thing.attempt_become_organ(src, owner, special, check_parents_zones = TRUE)
 
 	if(parent_organ_zone)
 		parent = owner.bodyparts_by_name[parent_organ_zone]
@@ -262,8 +267,8 @@
 	if(!ignore_children)
 		organ_owner.updatehealth("limb remove")
 
-	//Robotic limbs explode if sabotaged.
-	if(is_robotic() && sabotaged && !special)
+	//Robotic limbs explode if emagged.
+	if(is_robotic() && (obj_flags & EMAGGED) && !special)
 		organ_owner.visible_message(
 			span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] [organ_owner] взрыва[PLUR_ET_YUT(src)]ся!"),
 			span_danger("Ваш[GEND_A_E_I(src)] [declent_ru(NOMINATIVE)] взрыва[PLUR_ET_YUT(src)]ся!"),
@@ -273,9 +278,10 @@
 		do_sparks(5, FALSE, organ_owner)
 		qdel(src)
 
-/obj/item/organ/external/attempt_become_organ(obj/item/organ/external/parent, mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
+/obj/item/organ/external/attempt_become_organ(obj/item/organ/external/parent, mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT, check_parents_zones = FALSE)
 	if(parent_organ_zone != parent.limb_zone)
-		return FALSE
+		if(!check_parents_zones || !(parent_organ_zone in parent.parent_zones))
+			return FALSE
 	replaced(target, special)
 	return TRUE
 
@@ -525,19 +531,21 @@
 	external_receive_damage(max_damage, forced = TRUE)
 
 /obj/item/organ/external/emp_act(severity)
-	if(!is_robotic() || emp_proof)
-		return
+	. = ..()
+	if(. & EMP_PROTECT_SELF || !is_robotic())
+		return .
 	if(emp_shielded(severity))
-		return
+		. |= EMP_PROTECT_SELF
+		return .
 	if(tough) // Augmented limbs (remember they take -5 brute/-4 burn damage flat so any value below is compensated)
 		switch(severity)
-			if(1)
+			if(EMP_HEAVY)
 				// 44 total burn damage with 11 augmented limbs
 				if(owner)
 					owner.apply_damage(8 * owner.emp_damage_multiplier_external, BURN, def_zone = src)
 				else
 					external_receive_damage(0, 8)
-			if(2)
+			if(EMP_LIGHT)
 				// 22 total burn damage with 11 augmented limbs
 				if(owner)
 					owner.apply_damage(6 * owner.emp_damage_multiplier_external, BURN, def_zone = src)
@@ -569,6 +577,7 @@
 					owner.apply_damage(7 * owner.emp_damage_multiplier_external, BURN, def_zone = src)
 				else
 					external_receive_damage(0, 7)
+	return .
 
 /*
 This function completely restores a damaged organ to perfect condition.
@@ -583,7 +592,7 @@ This function completely restores a damaged organ to perfect condition.
 	burn_dam = 0
 	bleeding_amount = 0
 	bleedsuppress = 0
-	if(!HAS_TRAIT(src, TRAIT_I_WANT_BRAINS_ORGAN))
+	if(!HAS_TRAIT(src, TRAIT_I_WANT_BRAINS_ORGAN)) // zombies's wounds don't close. Because thats cool.
 		open = ORGAN_CLOSED //Closing all wounds.
 	fracture = null
 
@@ -603,6 +612,9 @@ This function completely restores a damaged organ to perfect condition.
 /obj/item/organ/external/proc/heal_status_wounds(flags_to_heal = ALL)
 	if(is_robotic())
 		status = ORGAN_ROBOT
+		return
+	if(HAS_TRAIT(src, TRAIT_I_WANT_BRAINS_ORGAN))
+		status = ORGAN_DEAD
 		return
 	if(flags_to_heal & ORGAN_MUTATED)
 		unmutate()

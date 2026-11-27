@@ -21,7 +21,9 @@
 #include "test_cargo_exports.dm"
 #include "test_circuit_import.dm"
 #include "test_cliffs.dm"
+#include "test_blob_overmind_lists.dm"
 #include "test_components.dm"
+#include "test_create_and_destroy.dm"
 #include "test_cyber_capacity.dm"
 #include "test_detect_room.dm"
 #include "test_dna_genes.dm"
@@ -37,6 +39,7 @@
 #include "test_init_sanity.dm"
 #include "test_languages.dm"
 #include "test_logistics.dm"
+#include "test_leak_fixes.dm"
 #include "test_map_templates.dm"
 #include "test_modsuit.dm"
 #include "test_missing_icons.dm"
@@ -54,6 +57,7 @@
 #include "test_reagent_id_typos.dm"
 #include "test_resomi.dm"
 #include "test_security_levels.dm"
+#include "test_shaker_cocktails.dm"
 #include "test_spawn_humans.dm"
 #include "test_species_fitting.dm"
 #include "test_spritesheets.dm"
@@ -67,12 +71,15 @@
 #include "test_tgui_create_message.dm"
 #include "test_timer_sanity.dm"
 #include "test_transit_tubes.dm"
+#include "test_topic_log_masks_key.dm"
+#include "test_turret_last_target.dm"
 #include "test_washing.dm"
 #include "test_zombies.dm"
 #endif
 
 #ifdef REFERENCE_TRACKING_DEBUG //Don't try and parse this file if ref tracking isn't turned on. IE: don't parse ref tracking please mr linter
 #include "test_find_reference_sanity.dm"
+#include "test_gc_failures.dm"
 #endif
 
 #ifdef MAP_TESTS

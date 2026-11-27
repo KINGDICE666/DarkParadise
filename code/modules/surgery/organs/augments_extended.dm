@@ -428,7 +428,7 @@
 
 /obj/item/organ/internal/cyberimp/fingerprint_synth/ui_action_click(mob/user, datum/action/action, leftclick)
 	var/choice = tgui_input_list(owner, "Какой узор нанести?", DECLENT_RU_CAP(src, NOMINATIVE), list(PRINT_OPTION_RANDOM, PRINT_OPTION_COPY, PRINT_OPTION_RESTORE))
-	if(!choice || !owner || owner.incapacitated())
+	if(!choice || !owner || owner.incapacitated)
 		return
 	switch(choice)
 		if(PRINT_OPTION_RANDOM)
@@ -450,7 +450,7 @@
 		return
 	var/picked_name = tgui_input_list(owner, "С кого снять узор?", DECLENT_RU_CAP(src, NOMINATIVE), candidates)
 	var/mob/living/carbon/human/donor = candidates[picked_name]
-	if(!owner || !donor || owner.incapacitated() || !owner.Adjacent(donor))
+	if(!owner || !donor || owner.incapacitated || !owner.Adjacent(donor))
 		return
 	set_print(donor.get_full_print())
 	owner.balloon_alert(owner, "узор скопирован")
@@ -545,7 +545,7 @@
 /obj/item/organ/internal/cyberimp/arm/magnetic_palm/proc/palm_is_ready()
 	if(!COOLDOWN_FINISHED(src, pull_cooldown) || pulled_item)
 		return FALSE
-	if(owner.incapacitated() || HAS_TRAIT(owner, TRAIT_HANDS_BLOCKED))
+	if(owner.incapacitated || HAS_TRAIT(owner, TRAIT_HANDS_BLOCKED))
 		return FALSE
 	var/active_hand_is_palm = owner.hand ? parent_organ_zone == BODY_ZONE_L_ARM : parent_organ_zone == BODY_ZONE_R_ARM
 	return active_hand_is_palm && !owner.get_active_hand()

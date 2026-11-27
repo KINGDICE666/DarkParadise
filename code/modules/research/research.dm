@@ -59,6 +59,14 @@ research holder datum.
 	/// List of available designs
 	var/list/known_designs = list()
 
+GLOBAL_LIST_EMPTY(all_design_datums)
+
+/proc/get_all_design_datums()
+	if(!length(GLOB.all_design_datums))
+		for(var/path in subtypesof(/datum/design))
+			GLOB.all_design_datums += new path
+	return GLOB.all_design_datums
+
 /datum/research/New()		//Insert techs into possible_tech here. Known_tech automatically updated.
 	// MON DIEU!!!
 	// These are semi-global, but not TOTALLY global?
@@ -67,8 +75,7 @@ research holder datum.
 	// I imagine nothing good.
 	for(var/T in subtypesof(/datum/tech))
 		possible_tech += new T(src)
-	for(var/D in subtypesof(/datum/design))
-		possible_designs += new D(src)
+	possible_designs = get_all_design_datums()
 	RefreshResearch()
 
 /// Checks to see if tech has all the required pre-reqs.
@@ -197,9 +204,8 @@ research holder datum.
 /datum/research/biogenerator/New()
 	for(var/T in (subtypesof(/datum/tech)))
 		possible_tech += new T(src)
-	for(var/path in subtypesof(/datum/design))
-		var/datum/design/D = new path(src)
-		possible_designs += D
+	possible_designs = get_all_design_datums()
+	for(var/datum/design/D as anything in possible_designs)
 		if((D.build_type & BIOGENERATOR) && ("initial" in D.category))
 			AddDesign2Known(D)
 
@@ -212,9 +218,8 @@ research holder datum.
 /datum/research/smelter/New()
 	for(var/T in (subtypesof(/datum/tech)))
 		possible_tech += new T(src)
-	for(var/path in subtypesof(/datum/design))
-		var/datum/design/D = new path(src)
-		possible_designs += D
+	possible_designs = get_all_design_datums()
+	for(var/datum/design/D as anything in possible_designs)
 		if((D.build_type & SMELTER) && ("initial" in D.category))
 			AddDesign2Known(D)
 

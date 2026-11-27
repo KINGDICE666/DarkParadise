@@ -228,8 +228,7 @@ GLOBAL_LIST_EMPTY(cached_songs)
 			var/filepath = SSticker.login_music_data["path"]
 			var/datum/asset/music/music_asset = GLOB.cached_songs[filepath]
 			if(!music_asset)
-				var/ytdl = CONFIG_GET(string/invoke_youtubedl)
-				music_asset = new /datum/asset/music(ytdl, SSticker.selected_lobby_music, SSticker.login_music_data["id"])
+				music_asset = new /datum/asset/music(SSticker.selected_lobby_music, SSticker.login_music_data["id"])
 				if(!music_asset.item_filename)
 					return
 				GLOB.cached_songs[filepath] = music_asset
@@ -291,6 +290,8 @@ GLOBAL_LIST_EMPTY(cached_songs)
 			output = world.shelleo({"[taskset] ffmpeg -y -hide_banner -loglevel error -i [filename_input] -filter:a "rubberband=pitch=0.8, highpass=f=450, lowpass=f=3600, equalizer=f=180:t=q:w=1.0:g=3, equalizer=f=1100:t=q:w=1.2:g=4, equalizer=f=2400:t=q:w=1.0:g=2, acompressor=threshold=-22dB:ratio=5:attack=3:release=90, alimiter=level_in=1.4, acrusher=bits=12:mix=0.3, volume=2.0" [filename_output]"})
 		if(SOUND_EFFECT_RADIO_MASKFILTER)
 			output = world.shelleo({"[taskset] ffmpeg -y -hide_banner -loglevel error -i [filename_input] -filter:a "rubberband=pitch=0.8, highpass=f=1000, lowpass=f=3000, equalizer=f=180:t=q:w=1.0:g=3, equalizer=f=1100:t=q:w=1.2:g=4, acompressor=threshold=-22dB:ratio=5:attack=3:release=90, acrusher=1:1:50:0:log, volume=2.0" [filename_output]"})
+		if(SOUND_EFFECT_OLD_VOCODER)
+			output = world.shelleo({"[taskset] ffmpeg -y -hide_banner -loglevel error -i [filename_input] -filter:a "rubberband=pitch=0.8, highpass=f=1000, lowpass=f=3000, equalizer=f=1500:t=q:w=3:g=10, equalizer=f=2200:t=q:w=4:g=12, equalizer=f=2800:t=q:w=5:g=9, acompressor=threshold=-22dB:ratio=5:attack=3:release=90, acrusher=1:1:50:0:log, volume=2.2, aresample=8000, aresample=22050" -ar 8000 -ac 1 -c:a libvorbis -b:a 32k [filename_output]"})
 		else
 			CRASH("Invalid sound effect chosen.")
 	var/errorlevel = output[SHELLEO_ERRORLEVEL]
@@ -300,5 +301,7 @@ GLOBAL_LIST_EMPTY(cached_songs)
 		error("Error: apply_sound_effect([effect], [filename_input], [filename_output]) - See debug logs.")
 		log_debug("apply_sound_effect([effect], [filename_input], [filename_output]) STDOUT: [stdout]")
 		log_debug("apply_sound_effect([effect], [filename_input], [filename_output]) STDERR: [stderr]")
+		// A failed ffmpeg run can leave an empty or partial file, which play_tts would then treat as cached.
+		fdel(filename_output)
 		return FALSE
 	return TRUE

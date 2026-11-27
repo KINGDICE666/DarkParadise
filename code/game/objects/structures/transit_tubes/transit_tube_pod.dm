@@ -52,6 +52,8 @@
 /obj/structure/transit_tube_pod/Destroy()
 	empty_pod()
 	stop_following()
+	current_tube = null
+	next_loc = null
 	return ..()
 
 /obj/structure/transit_tube_pod/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)

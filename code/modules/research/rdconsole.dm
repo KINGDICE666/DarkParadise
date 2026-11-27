@@ -116,18 +116,46 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /proc/CallMaterialName(return_name)
 	switch(return_name)
+		if("metal")
+			return_name = "Сталь"
+		if("glass")
+			return_name = "Стекло"
+		if("silver")
+			return_name = "Серебро"
+		if("gold")
+			return_name = "Золото"
+		if("diamond")
+			return_name = "Алмаз"
+		if("uranium")
+			return_name = "Уран"
+		if("titanium")
+			return_name = "Титан"
+		if("plastic")
+			return_name = "Пластик"
+		if("bananium")
+			return_name = "Бананиум"
+		if("tranquillite")
+			return_name = "Транквилит"
 		if("plasma")
 			return_name = "Твёрдая плазма"
-		if("clown")
-			return_name = "Бананиум"
-		if("mime")
-			return_name = "Транквилит"
 		if("bluespace")
 			return_name = "Блюспейс-пыль"
+		if("rglass")
+			return_name = "Армированное стекло"
+		if("plasteel")
+			return_name = "Пласталь"
+		if("plastitanium")
+			return_name = "Пластитан"
+		if("plasmaglass")
+			return_name = "Плазменное стекло"
+		if("titaniumglass")
+			return_name = "Титановое стекло"
+		if("plastitaniumglass")
+			return_name = "Пластитановое стекло"
 		else
 			var/datum/reagent/our_reagent = GLOB.chemical_reagents_list[return_name]
-			if(our_reagent && initial(our_reagent.id) == return_name)
-				return_name = initial(our_reagent.name)
+			if(our_reagent)
+				return_name = our_reagent.name
 	return capitalize(return_name)
 
 /obj/machinery/computer/rdconsole/get_ru_names()
@@ -178,6 +206,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /obj/machinery/computer/rdconsole/Initialize(mapload)
 	. = ..()
+	AddComponent(/datum/component/usb_port, list(
+		/obj/item/circuit_component/rd_search,
+		/obj/item/circuit_component/rd_lathe,
+		/obj/item/circuit_component/rd_destructor,
+	))
 	files = new /datum/research(src) //Setup the research data holder.
 	matching_designs = list()
 	if(is_taipan(z))
@@ -247,14 +280,16 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	return ..()
 
-/obj/machinery/computer/rdconsole/emag_act(mob/user)
-	if(!emagged)
-		add_attack_logs(user, src, "emagged")
-		playsound(src.loc, 'sound/effects/sparks4.ogg', 75, TRUE)
-		req_access = list()
-		emagged = TRUE
-		if(user)
-			balloon_alert_to_viewers("искрит и жужжит!", "протоколы безопасности взломаны")
+/obj/machinery/computer/rdconsole/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	playsound(loc, 'sound/effects/sparks4.ogg', 75, TRUE)
+	req_access = list()
+	if(user)
+		balloon_alert_to_viewers("искрит и жужжит!", "протоколы безопасности взломаны")
+	return TRUE
 
 /obj/machinery/computer/rdconsole/proc/valid_nav(next_menu, next_submenu)
 	switch(next_menu)
@@ -410,25 +445,32 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		begin_destroyer_step(user, destroyer)
 		return
 
-	var/success = prob(100)
-	if(!linked_destroy.hacked)
-		if(!linked_destroy.loaded_item)
-			to_chat(usr, span_danger("[DECLENT_RU_CAP(linked_destroy, NOMINATIVE)] пуст!"))
-		else if(success)
-			var/tech_log
-			for(var/T in temp_tech)
-				var/new_level = files.UpdateTech(T, temp_tech[T])
-				if(new_level)
-					tech_log += "[T] [new_level], "
-			if(tech_log)
-				investigate_log("[user] increased tech deconstructing [linked_destroy.loaded_item]: [tech_log]. ", INVESTIGATE_RESEARCH)
-		else // item destroyed, but tech level not increase if skill check failed
-			linked_destroy.add_shared_particles(/particles/smoke)
-			addtimer(CALLBACK(linked_destroy, TYPE_PROC_REF(/atom/movable, remove_shared_particles), /particles/smoke), 3 SECONDS)
+	deconstruct_loaded_item(user)
+
+	destroyer.busy = FALSE
+	destroyer.update_loaded_item()
+	menu = MENU_DESTROY
+	submenu = SUBMENU_MAIN
+	if(length(destroyer.processing_queue))
+		begin_destroyer_step(user, destroyer)
+	SStgui.update_uis(src)
+
+/obj/machinery/computer/rdconsole/proc/deconstruct_loaded_item(mob/user)
+	var/actually_increased = FALSE
+	var/obj/item/loaded_item = linked_destroy.loaded_item
+	if(!linked_destroy.hacked && loaded_item)
+		var/list/temp_tech = linked_destroy.ConvertReqString2List(loaded_item.origin_tech)
+		var/tech_log
+		for(var/tech_id in temp_tech)
+			var/new_level = files.UpdateTech(tech_id, temp_tech[tech_id])
+			if(new_level)
+				tech_log += "[tech_id] [new_level], "
+				actually_increased = TRUE
+		if(tech_log)
+			investigate_log("[user ? user : "USB-модуль"] increased tech deconstructing [loaded_item]: [tech_log]. ", INVESTIGATE_RESEARCH)
 		send_mats()
 
-	var/obj/item/loaded_item = linked_destroy.loaded_item
-	destroyer.processing_queue -= loaded_item
+	linked_destroy.processing_queue -= loaded_item
 	if(!QDELETED(loaded_item))
 		for(var/mob/M in loaded_item.contents)
 			M.death()
@@ -437,15 +479,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			loaded_stack.use(1)
 		else
 			qdel(loaded_item)
-
-	destroyer.busy = FALSE
-	destroyer.update_loaded_item()
 	use_power(DECONSTRUCT_POWER)
-	menu = MENU_DESTROY
-	submenu = SUBMENU_MAIN
-	if(length(destroyer.processing_queue))
-		begin_destroyer_step(user, destroyer)
-	SStgui.update_uis(src)
+	return actually_increased
 
 /obj/machinery/computer/rdconsole/proc/get_max_build_amount(obj/machinery/r_n_d/machine, datum/design/design)
 	var/max_amount = istype(machine, /obj/machinery/r_n_d/circuit_imprinter) ? 1 : INFINITY
@@ -459,26 +494,26 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			max_amount = min(max_amount, round(machine.reagents.get_reagent_amount(reagent) / required_amount))
 	return max_amount == INFINITY ? 1 : max(0, max_amount)
 
-/obj/machinery/computer/rdconsole/proc/start_machine(obj/machinery/r_n_d/machine, design_id, amount)
+/obj/machinery/computer/rdconsole/proc/start_machine(obj/machinery/r_n_d/machine, design_id, amount, mob/user)
 	if(!machine)
-		to_chat(usr, span_danger("Выбранное оборудование не подключено!"))
-		return
+		to_chat(user, span_danger("Выбранное оборудование не подключено!"))
+		return FALSE
 
 	var/is_lathe = istype(machine, /obj/machinery/r_n_d/protolathe)
 	var/is_imprinter = istype(machine, /obj/machinery/r_n_d/circuit_imprinter)
 
 	if(!is_lathe && !is_imprinter)
-		to_chat(usr, span_danger("Неподходящий тип подключённого оборудования!"))
-		return
+		to_chat(user, span_danger("Неподходящий тип подключённого оборудования!"))
+		return FALSE
 
 	if(machine.busy)
-		to_chat(usr, span_danger("[DECLENT_RU_CAP(machine, NOMINATIVE)] занят!"))
-		return
+		to_chat(user, span_danger("[DECLENT_RU_CAP(machine, NOMINATIVE)] занят!"))
+		return FALSE
 
 	var/datum/design/being_built = files.known_designs[design_id]
 	if(!being_built)
-		to_chat(usr, span_danger("Выбран неизвестный шаблон печати!"))
-		return
+		to_chat(user, span_danger("Выбран неизвестный шаблон печати!"))
+		return FALSE
 
 	for(var/obj/machinery/r_n_d/server/rnd_server as anything in connected_servers)
 		if(!rnd_server || QDELETED(rnd_server))
@@ -488,25 +523,26 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if(being_built && console_has_access && (rnd_server.is_design_blacklisted(being_built.id)))
 			add_wait_message("Шаблон печати находится в чёрном списке!", SYNC_RESEARCH_DELAY)
 			playsound(src, 'sound/machines/buzz-sigh.ogg', 50, TRUE, -1)
-			to_chat(usr, span_danger("Шаблон \"[being_built.build_object_name]\" находится в чёрном списке печати!"))
-			return
+			to_chat(user, span_danger("Шаблон \"[being_built.build_object_name]\" находится в чёрном списке печати!"))
+			return FALSE
 	connected_servers -= null
 
 	if(!(being_built.build_type & (is_lathe ? PROTOLATHE : IMPRINTER)))
-		message_admins("[machine] exploit attempted by [ADMIN_LOOKUPFLW(usr)]!")
-		return
+		message_admins("[machine] exploit attempted by [key_name_log(user)]!")
+		return FALSE
 
-	if(length(being_built.make_reagents)) // build_type should equal BIOGENERATOR though..
-		return
+	if(length(being_built.make_reagents))
+		return FALSE
 
 	var/max_amount = get_max_build_amount(machine, being_built)
 	if(max_amount < 1)
-		balloon_alert(usr, "недостаточно ресурсов!")
-		return
+		if(user)
+			balloon_alert(user, "недостаточно ресурсов!")
+		return FALSE
 	if(!isnum(amount))
 		amount = text2num(amount)
 	if(!isnum(amount) || amount < 1)
-		return
+		return FALSE
 	amount = min(max_amount, round(amount))
 	var/power = BUILD_POWER
 	for(var/M in being_built.materials)
@@ -523,12 +559,14 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		time_to_construct = PROTOLATHE_CONSTRUCT_DELAY * coeff * being_built.lathe_time_factor * amount ** 0.8
 
 	if(is_lathe)
-		add_wait_message("Печать объекта. Ожидайте...", time_to_construct)
+		if(user)
+			add_wait_message("Печать объекта. Ожидайте...", time_to_construct)
 		flick("[machine.base_icon_state]_work", machine)
 	else
-		add_wait_message("Печать платы. Ожидайте...", time_to_construct)
+		if(user)
+			add_wait_message("Печать платы. Ожидайте...", time_to_construct)
 		flick("[machine.base_icon_state]_work", machine)
-		playsound(machine.loc, 'sound/machines/rnd_machines/circuitprinter_print.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1, use_reverb = TRUE)
+		playsound(machine.loc, 'sound/machines/rnd_machines/circuitprinter_print.ogg', HALFWAY_SOUND_VOLUME, TRUE, -1)
 
 	machine.busy = TRUE
 	use_power(power)
@@ -538,7 +576,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		efficient_mats[MAT] = being_built.materials[MAT] * coeff
 
 	var/enough_materials = TRUE
-
 	if(!machine.materials.has_materials(efficient_mats, amount))
 		balloon_alert_to_viewers("недостаточно материала для печати!")
 		enough_materials = FALSE
@@ -558,7 +595,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			machine.reagents.remove_reagent(R, being_built.reagents_list[R] * coeff * amount)
 			machine.build_reagents[R] = being_built.reagents_list[R] * coeff * amount
 
-	machine.build_timer = addtimer(CALLBACK(src, PROC_REF(finish_machine), key_name_log(usr), amount, enough_materials, machine, being_built, coeff), time_to_construct, TIMER_STOPPABLE)
+	machine.build_timer = addtimer(CALLBACK(src, PROC_REF(finish_machine), user ? key_name_log(user) : "USB-модуль", amount, enough_materials, machine, being_built, coeff, isnull(user)), time_to_construct, TIMER_STOPPABLE)
 
 	for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 		if(S.disabled)
@@ -566,9 +603,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if(syndicate != S.syndicate)
 			continue
 		if(istype(S, /obj/machinery/r_n_d/server/core) || istype(S, /obj/machinery/r_n_d/server/centcom))
-			S.add_usage_log(usr, being_built, machine)
+			if(user)
+				S.add_usage_log(user, being_built, machine)
+	return TRUE
 
-/obj/machinery/computer/rdconsole/proc/finish_machine(user_log, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff)
+/obj/machinery/computer/rdconsole/proc/finish_machine(user_log, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff, from_circuit = FALSE)
 	if(!QDELETED(machine))
 		machine.build_timer = null
 		machine.build_materials = null
@@ -585,13 +624,14 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				if(istype(new_item, /obj/item/storage/backpack/holding))
 					new_item.investigate_log("built by [user_log]", INVESTIGATE_ENGINE)
 
-				if(isitem(new_item) && !istype(new_item, /obj/item/stack/sheet)) // To avoid materials dupe glitches
+				if(isitem(new_item) && !istype(new_item, /obj/item/stack/sheet))
 					var/obj/item/new_item_item = new_item
 					new_item_item.update_materials_coeff(coeff)
 
+				var/obj/result_item = new_item
 				if(locked && isitem(new_item))
 					var/obj/item/real_item = new_item
-					var/obj/item/storage/lockbox/research/lockbox = new /obj/item/storage/lockbox/research(machine.loc)
+					var/obj/item/storage/lockbox/research/lockbox = new /obj/item/storage/lockbox/research(from_circuit ? src : machine.loc)
 					real_item.forceMove(lockbox)
 					lockbox.name += " ([real_item.name])"
 					var/real_item_ru_name = DECLENT_RU_CAP(real_item, NOMINATIVE)
@@ -611,8 +651,13 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 					for(var/A in lockbox.req_access)
 						lockbox_access += "[get_access_desc(A)] "
 					lockbox.desc = "Металлический контейнер с электронным замком. Требуемый уровень доступа — \"[lockbox_access]\"."
-				else
-					new_item.loc = machine.loc
+					result_item = lockbox
+				else if(!from_circuit)
+					new_item.forceMove(machine.loc)
+					new_item.scatter_atom()
+
+				if(from_circuit)
+					SEND_SIGNAL(src, COMSIG_CIRCUIT_RND_PRINT_COMPLETE, result_item)
 
 		if(!QDELETED(machine))
 			machine.busy = FALSE
@@ -623,7 +668,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		clear_wait_message()
 		SStgui.update_uis(src)
 
-/obj/machinery/computer/rdconsole/ui_act(action, list/params)
+/obj/machinery/computer/rdconsole/ui_act(action, list/params, datum/tgui/ui)
 	if(..())
 		return
 
@@ -793,14 +838,15 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 					return
 				if(!allowed(usr) && !isobserver(usr))
 					return
-			start_machine(linked_lathe, params["id"], build_amount)
+			start_machine(linked_lathe, params["id"], build_amount, usr)
 
 		if("imprint") //Causes the Circuit Imprinter to build something.
-			start_machine(linked_imprinter, params["id"], text2num(params["amount"]))
+			start_machine(linked_imprinter, params["id"], text2num(params["amount"]), ui.user)
 
 		if("disposeI")  //Causes the circuit imprinter to dispose of a single reagent (all of it)
 			if(linked_imprinter)
-				linked_imprinter.reagents.del_reagent(params["id"])
+				var/reagent_type = text2path(params["id"])
+				linked_imprinter.reagents.del_reagent(reagent_type)
 
 		if("disposeallI") //Causes the circuit imprinter to dispose of all it's reagents.
 			if(linked_imprinter)
@@ -808,7 +854,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 		if("disposeP")  //Causes the protolathe to dispose of a single reagent (all of it)
 			if(linked_lathe)
-				linked_lathe.reagents.del_reagent(params["id"])
+				var/reagent_type = text2path(params["id"])
+				linked_lathe.reagents.del_reagent(reagent_type)
 
 		if("disposeallP") //Causes the protolathe to dispose of all it's reagents.
 			if(linked_lathe)
@@ -970,7 +1017,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			loaded_chemicals[++loaded_chemicals.len] = loaded_chemical
 			loaded_chemical["name"] = R.name
 			loaded_chemical["volume"] = R.volume
-			loaded_chemical["id"] = R.id
+			loaded_chemical["id"] = R.type
 
 /obj/machinery/computer/rdconsole/proc/can_copy_design(datum/design/D)
 	if(D)
@@ -984,6 +1031,52 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			return TRUE
 
 	return FALSE
+
+/obj/machinery/computer/rdconsole/proc/usb_find_design(design_id)
+	if(!files || !design_id)
+		return null
+
+	var/search_id = lowertext(design_id)
+
+	var/datum/design/design_data
+	for(var/searched_design_id in files.known_designs)
+		design_data = files.known_designs[searched_design_id]
+		if(design_data && lowertext(design_data.id) == search_id && (design_data.build_type & (PROTOLATHE | IMPRINTER)))
+			return design_data
+
+	return null
+
+/obj/machinery/computer/rdconsole/proc/usb_get_all_designs()
+	if(!files)
+		return list()
+
+	var/list/all_ids = list()
+	var/datum/design/design_info
+	for(var/cached_design_id in files.known_designs)
+		design_info = files.known_designs[cached_design_id]
+		if(!design_info || !design_info.id)
+			continue
+		if((design_info.build_type & (PROTOLATHE | IMPRINTER)) || ispath(design_info.build_path, /obj/item/gun) || ispath(design_info.build_path, /obj/item/ammo_casing))
+			all_ids += design_info.id
+	return all_ids
+
+
+/obj/machinery/computer/rdconsole/proc/usb_recycle_item(obj/item/recycled_item)
+	if(!linked_destroy || linked_destroy.busy || linked_destroy.disabled)
+		return null
+	if(recycled_item && !QDELETED(recycled_item))
+		if(!recycled_item.origin_tech)
+			return null
+		recycled_item.forceMove(linked_destroy)
+		linked_destroy.item_queue.Insert(1, recycled_item)
+		linked_destroy.RegisterSignals(recycled_item, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED), TYPE_PROC_REF(/obj/machinery/r_n_d/destructive_analyzer, on_queued_item_removed))
+		linked_destroy.update_loaded_item()
+	if(!linked_destroy.loaded_item || QDELETED(linked_destroy.loaded_item))
+		return null
+	var/tech_upgraded = deconstruct_loaded_item(null)
+	linked_destroy.update_loaded_item()
+	SStgui.update_uis(src)
+	return tech_upgraded
 
 /obj/machinery/computer/rdconsole/ui_data(mob/user)
 	var/list/data = list()

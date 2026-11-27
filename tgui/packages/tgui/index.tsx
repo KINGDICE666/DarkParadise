@@ -16,7 +16,6 @@ import './styles/themes/hydroponics.scss';
 import './styles/themes/ntos_roboquest.scss';
 import './styles/themes/ntos_roboblue.scss';
 import './styles/themes/safe.scss';
-import './styles/themes/securestorage.scss';
 import './styles/themes/security.scss';
 import './styles/themes/spider_clan.scss';
 import './styles/themes/nologo.scss';

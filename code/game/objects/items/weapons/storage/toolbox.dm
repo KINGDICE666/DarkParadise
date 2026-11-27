@@ -37,6 +37,7 @@
 
 /obj/item/storage/toolbox/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	AddElement(/datum/element/falling_hazard, damage = force, hardhat_safety = TRUE, crushes = FALSE, impact_sound = hitsound)
 
 /obj/item/storage/toolbox/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
@@ -62,7 +63,7 @@
 
 /// Check if we can use tools inside toolbox via radial menu
 /obj/item/storage/toolbox/proc/check_for_radial_menu_availability(atom/object, mob/living/user, proximity)
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return FALSE
 
 	if(!proximity)
@@ -109,7 +110,7 @@
 	if(!picked_item)
 		return
 
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return
 
 	if(!user.Adjacent(object))
@@ -141,7 +142,7 @@
 /obj/item/storage/toolbox/proc/check_menu(mob/living/user, atom/object)
 	if(!istype(user))
 		return FALSE
-	if(user.incapacitated() || !user.Adjacent(object))
+	if(user.incapacitated || !user.Adjacent(object))
 		return FALSE
 	return TRUE
 

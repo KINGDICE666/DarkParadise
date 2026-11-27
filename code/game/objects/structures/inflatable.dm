@@ -165,11 +165,22 @@
 
 /obj/item/storage/briefcase/inflatable
 	name = "inflatable barrier box"
+	gender = FEMALE
 	desc = "Contains inflatable walls and doors."
 	icon_state = "inf_box"
 	item_state = "syringe_kit"
 	w_class = WEIGHT_CLASS_NORMAL
 	can_hold = list(/obj/item/inflatable)
+
+/obj/item/storage/briefcase/inflatable/get_ru_names()
+	return alist(
+		NOMINATIVE = "коробка надувных барьеров",
+		GENITIVE = "коробки надувных барьеров",
+		DATIVE = "коробке надувных барьеров",
+		ACCUSATIVE = "коробку надувных барьеров",
+		INSTRUMENTAL = "коробкой надувных барьеров",
+		PREPOSITIONAL = "коробке надувных барьеров",
+	)
 
 /obj/item/storage/briefcase/inflatable/populate_contents()
 	new /obj/item/inflatable/door(src)

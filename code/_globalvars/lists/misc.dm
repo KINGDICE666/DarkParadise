@@ -106,3 +106,4 @@ GLOBAL_LIST_INIT(most_common_words, init_most_common_words())
 	for(var/word in world.file2list("strings/most_common_words.txt"))
 		if(word)
 			.[word] = TRUE
+GLOBAL_LIST_EMPTY(zombie_classes)

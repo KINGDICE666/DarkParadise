@@ -122,7 +122,7 @@
 	if(!HASBIT(methods, REAGENT_INGEST))
 		return
 
-	if(holder.has_reagent("milk"))
+	if(holder.has_reagent(/datum/reagent/consumable/drink/milk))
 		return
 
 	if(prob(15))
@@ -145,7 +145,7 @@
 
 /datum/reagent/heretic_rust/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
 	. = ..()
-	if(holder.has_reagent("milk"))
+	if(holder.has_reagent(/datum/reagent/consumable/drink/milk))
 		return
 
 	if(!SPT_PROB(5, seconds_per_tick))

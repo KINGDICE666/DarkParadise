@@ -102,6 +102,8 @@
 
 /obj/structure/logistics_pipe/proc/try_link_interface()
 	if(linked_interface)
+		if(logistics_net && linked_interface.linked_pipe == src)
+			logistics_net.add_interface(linked_interface)
 		return
 	for(var/obj/machinery/machine in loc)
 		var/datum/component/logistics_interface/interface = machine.GetComponent(/datum/component/logistics_interface)
@@ -278,10 +280,11 @@
 	current_pipe = loc
 	var/delay = LOGISTICS_HOLDER_MOVE_DELAY
 	var/datum/move_loop/our_loop = GLOB.move_manager.move_logistics(src, delay = delay, timeout = delay * count)
-	if(our_loop)
-		RegisterSignal(our_loop, COMSIG_MOVELOOP_PREPROCESS_CHECK, PROC_REF(pre_move))
-		RegisterSignal(our_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(try_expel))
-		RegisterSignal(our_loop, COMSIG_QDELETING, PROC_REF(movement_stop))
+	if(!our_loop)
+		return
+	RegisterSignal(our_loop, COMSIG_MOVELOOP_PREPROCESS_CHECK, PROC_REF(pre_move))
+	RegisterSignal(our_loop, COMSIG_MOVELOOP_POSTPROCESS, PROC_REF(try_expel))
+	RegisterSignal(our_loop, COMSIG_QDELETING, PROC_REF(movement_stop))
 
 /obj/structure/logistics_holder/proc/pre_move(datum/move_loop/source)
 	SIGNAL_HANDLER
@@ -342,8 +345,8 @@
 	if(!request || !length(shipment_manifest))
 		shipment_manifest?.Cut()
 		return
-	for(var/stock_name in shipment_manifest)
-		request.release_reservation(stock_name, shipment_manifest[stock_name])
+	for(var/stock_name, shipped_amount in shipment_manifest)
+		request.release_reservation(stock_name, shipped_amount)
 	shipment_manifest.Cut()
 
 /obj/structure/logistics_holder/proc/deliver(datum/component/logistics_interface/interface)

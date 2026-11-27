@@ -42,14 +42,14 @@
 /datum/unit_test/room_test/autodoc/proc/check_refill()
 	var/mob/living/carbon/human/operator = allocate(/mob/living/carbon/human)
 	var/obj/item/reagent_containers/cup/beaker/large/beaker = allocate(/obj/item/reagent_containers/cup/beaker/large)
-	beaker.reagents.add_reagent("water", 10)
-	beaker.reagents.add_reagent("synthflesh", 90)
+	beaker.reagents.add_reagent(/datum/reagent/water, 10)
+	beaker.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 	operator.a_intent = INTENT_HELP
 	operator.put_in_active_hand(beaker)
 	beaker.melee_attack_chain(operator, machine)
 	TEST_ASSERT_EQUAL(machine.get_fuel(), 90, "synthflesh was not transferred from the beaker")
 	TEST_ASSERT_EQUAL(machine.reagents.total_volume, 90, "something besides synthflesh got into the tank")
-	TEST_ASSERT_EQUAL(beaker.reagents.get_reagent_amount("water"), 10, "water left the beaker")
+	TEST_ASSERT_EQUAL(beaker.reagents.get_reagent_amount(/datum/reagent/water), 10, "water left the beaker")
 
 /datum/unit_test/room_test/autodoc/proc/check_treatment()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
@@ -78,13 +78,13 @@
 	TEST_ASSERT_EQUAL(heart.damage, 0, "the heart was not repaired")
 	TEST_ASSERT_EQUAL(arm.burn_dam, 0, "the burns were not healed")
 	TEST_ASSERT_EQUAL(patient.getBrainLoss(), 0, "the brain was not repaired")
-	TEST_ASSERT(patient.reagents.get_reagent_amount("hydrocodone") > 0, "no painkiller was injected")
+	TEST_ASSERT(patient.reagents.get_reagent_amount(/datum/reagent/medicine/hydrocodone) > 0, "no painkiller was injected")
 	TEST_ASSERT(machine.get_fuel() < fuel_before, "the treatment was free")
 
 /datum/unit_test/room_test/autodoc/proc/check_failure()
 	var/obj/item/organ/internal/liver = patient.get_organ_slot(INTERNAL_ORGAN_LIVER)
 	liver.internal_receive_damage(10, silent = TRUE)
-	machine.reagents.add_reagent("synthflesh", 90)
+	machine.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 	machine.forced_failure_chance = 100
 	machine.add_all_orders()
 	var/damage_before = liver.damage
@@ -108,7 +108,7 @@
 
 /datum/unit_test/room_test/autodoc/proc/check_interruption()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
-	machine.reagents.add_reagent("synthflesh", 90)
+	machine.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 	machine.add_all_orders()
 	machine.start_program(patient)
 	machine.process(2)
@@ -123,7 +123,7 @@
 
 /datum/unit_test/room_test/autodoc/proc/check_organs()
 	load_patient()
-	machine.reagents.add_reagent("synthflesh", 90)
+	machine.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 	var/obj/item/organ/internal/old_liver = patient.get_organ_slot(INTERNAL_ORGAN_LIVER)
 	var/obj/item/organ/internal/spare_liver = allocate(/obj/item/organ/internal/liver)
 	machine.store_organ(spare_liver)
@@ -180,7 +180,7 @@
 	TEST_ASSERT(machine.can_perform(lobotomy, brain), "the module did not unlock lobotomy")
 	var/datum/brain_trauma/stubborn = brain.gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_LOBOTOMY)
 	if(stubborn)
-		machine.reagents.add_reagent("synthflesh", 90)
+		machine.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 		machine.add_order(lobotomy, brain)
 		run_program()
 		TEST_ASSERT(QDELETED(stubborn), "lobotomy did not cure a stubborn trauma")
@@ -221,7 +221,7 @@
 /datum/unit_test/room_test/autodoc/proc/check_emag()
 	var/obj/machinery/autodoc/real = allocate(/obj/machinery/autodoc)
 	real.stat &= ~NOPOWER
-	real.reagents.add_reagent("synthflesh", 100)
+	real.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 100)
 	patient.reagents.clear_reagents()
 	load_patient(real)
 	real.emag_act(null)
@@ -237,7 +237,7 @@
 	for(var/tick in 1 to 20)
 		real.process(2)
 	TEST_ASSERT(patient.health < health_before, "the emagged machine did not hurt the patient")
-	TEST_ASSERT_EQUAL(patient.reagents.get_reagent_amount("hydrocodone"), 0, "the emagged machine injected a painkiller")
+	TEST_ASSERT_EQUAL(patient.reagents.get_reagent_amount(/datum/reagent/medicine/hydrocodone), 0, "the emagged machine injected a painkiller")
 
 	real.reagents.clear_reagents()
 	real.process(2)
@@ -297,7 +297,7 @@
 /datum/unit_test/room_test/autodoc/proc/check_order_keeps_risk()
 	var/obj/item/organ/external/leg = patient.get_organ(BODY_ZONE_L_LEG)
 	leg.fracture(silent = TRUE)
-	machine.reagents.add_reagent("synthflesh", 90)
+	machine.reagents.add_reagent(/datum/reagent/medicine/synthflesh, 90)
 	machine.forced_failure_chance = 100
 	machine.add_order(GLOB.autodoc_procedures["fracture"], leg)
 	machine.start_program(patient)

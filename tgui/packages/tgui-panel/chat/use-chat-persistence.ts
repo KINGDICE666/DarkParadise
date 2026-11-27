@@ -2,9 +2,10 @@ import { type StorageDiagnostic, storage } from 'common/storage';
 import DOMPurify from 'dompurify';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
+import { store } from '../events/store';
 import { settingsLoadedAtom } from '../settings/atoms';
-import { chatLoadedAtom, versionAtom } from './atom';
-import { MESSAGE_SAVE_INTERVAL } from './constants';
+import { chatLoadedAtom, currentPageAtom, versionAtom } from './atom';
+import { CHAT_RESTORE_WAIT, MESSAGE_SAVE_INTERVAL } from './constants';
 import { saveChatToStorage } from './helpers';
 import { startChatStateMigration } from './migration';
 import { createMessage } from './model';
@@ -26,12 +27,29 @@ export function useChatPersistence() {
   /** Loads chat + chat settings */
   useEffect(() => {
     if (!loaded && settingsLoaded) {
+      const showChat = () => {
+        if (!chatRenderer.page) {
+          chatRenderer.changePage(store.get(currentPageAtom));
+        }
+        chatRenderer.onStateLoaded();
+      };
+
+      const showTimer = setTimeout(() => {
+        console.warn('Chat storage is slow, showing chat without history');
+        showChat();
+      }, CHAT_RESTORE_WAIT);
+
       async function fetchChat(): Promise<void> {
         console.log('Initializing chat');
-        await loadChatFromStorage();
-
-        setLoaded(true);
-        chatRenderer.onStateLoaded();
+        try {
+          await loadChatFromStorage();
+        } catch (error) {
+          console.error('Failed to restore chat from storage:', error);
+        } finally {
+          clearTimeout(showTimer);
+          setLoaded(true);
+          showChat();
+        }
       }
 
       fetchChat();

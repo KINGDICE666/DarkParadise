@@ -59,6 +59,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 		. += "working"
 
 /obj/item/gps/emp_act(severity)
+	. = ..()
 	emped = TRUE
 	update_icon(UPDATE_OVERLAYS)
 	addtimer(CALLBACK(src, PROC_REF(reboot)), EMP_DISABLE_TIME)
@@ -223,6 +224,9 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	gpstag = "Eerie Signal"
 	desc = "Report to a coder immediately."
 	invisibility = INVISIBILITY_ABSTRACT
+
+/obj/item/gps/internal/megafauna
+	gpstag = "Mysterious Signal"
 
 /obj/item/gps/internal/mining
 	icon_state = "gps-m"

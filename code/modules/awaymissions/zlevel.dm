@@ -23,21 +23,22 @@ GLOBAL_LIST_INIT(potentialRandomZlevels, generateMapList(filename = "config/away
 		log_startup_progress_global("Mapping", "Away mission overridden by configuration to [CONFIG_GET(string/override_away_mission)].")
 
 	var/file = WRAP_FILE(map)
-	var/bounds = GLOB.maploader.load_map(file, 1, 1, 1, shouldCropMap = FALSE, measureOnly = TRUE)
+	var/datum/parsed_map/parsed = new(file)
+	var/list/bounds = parsed.bounds
 	var/total_z = bounds[MAP_MAXZ] - bounds[MAP_MINZ] + 1
 	var/map_z_level
 	var/list/map_z_levels = list()
 	if(total_z == 1)
-		map_z_level = GLOB.space_manager.add_new_zlevel(AWAY_MISSION, linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT))
+		map_z_level = GLOB.space_manager.add_new_zlevel(AWAY_MISSION, linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT), contain_turfs = FALSE)
 		map_z_levels += map_z_level
 	else
-		map_z_level = GLOB.space_manager.add_new_zlevel(AWAY_MISSION, linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_UP))
+		map_z_level = GLOB.space_manager.add_new_zlevel(AWAY_MISSION, linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_UP), contain_turfs = FALSE)
 		map_z_levels += map_z_level
 		for(var/i in 2 to total_z-1)
-			map_z_levels += GLOB.space_manager.add_new_zlevel(AWAY_MISSION + "([i])", linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_UP, ZTRAIT_DOWN))
-		map_z_levels += GLOB.space_manager.add_new_zlevel(AWAY_MISSION  + "([total_z])", linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_DOWN))
+			map_z_levels += GLOB.space_manager.add_new_zlevel(AWAY_MISSION + "([i])", linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_UP, ZTRAIT_DOWN), contain_turfs = FALSE)
+		map_z_levels += GLOB.space_manager.add_new_zlevel(AWAY_MISSION  + "([total_z])", linkage = UNAFFECTED, traits = list(AWAY_LEVEL, BLOCK_TELEPORT, ZTRAIT_DOWN), contain_turfs = FALSE)
 
-	GLOB.maploader.load_map(file, z_offset = map_z_level)
+	parsed.load(1, 1, map_z_level, no_changeturf = (SSatoms.initialized == INITIALIZATION_INSSATOMS), new_z = TRUE)
 	log_world("  Away mission loaded: [map]")
 
 	for(var/level in map_z_levels)

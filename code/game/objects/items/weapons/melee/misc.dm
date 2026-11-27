@@ -62,6 +62,10 @@
 	materials = list(MAT_METAL = 1000)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF // Theft targets should be hard to destroy
 
+/obj/item/melee/rapier/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/melee/rapier/ComponentInitialize()
 	. = ..()
 	AddComponent( \

@@ -119,7 +119,7 @@
 	if(!can_enter(dropped) || dropped != user)
 		return
 
-	if(!state_open || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(!state_open || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(!Adjacent(user) || !isturf(user.loc))

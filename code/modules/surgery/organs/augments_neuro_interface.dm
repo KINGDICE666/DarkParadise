@@ -556,7 +556,7 @@
 	if(!COOLDOWN_FINISHED(src, sensor_emp_lock))
 		owner.balloon_alert(owner, "датчики сбоят!")
 		return FALSE
-	if(owner.stat != CONSCIOUS || owner.incapacitated() || owner.IsStunned() || owner.IsWeakened() || owner.IsKnockdown() || owner.IsParalyzed())
+	if(owner.stat != CONSCIOUS || owner.incapacitated || owner.IsStunned() || owner.IsWeakened() || owner.IsKnockdown() || owner.IsParalyzed())
 		owner.balloon_alert(owner, "не сосредоточиться!")
 		return FALSE
 	return TRUE
@@ -982,7 +982,7 @@
 	return COMSIG_MOB_CANCEL_CLICKON
 
 /obj/item/organ/internal/cyberimp/brain/neuro_interface/proc/toggle_door(obj/machinery/door/door)
-	if(door.operating || door.emagged || HAS_TRAIT(door, TRAIT_CMAGGED))
+	if(door.operating || (door.obj_flags & (EMAGGED|CMAGGED)))
 		neuro_alert("дверь не отвечает!")
 		return FALSE
 	if(is_airlock(door))
@@ -1052,7 +1052,7 @@
 	if(door in running_hacks)
 		neuro_alert("взлом уже идёт!")
 		return FALSE
-	if(door.emagged || HAS_TRAIT(door, TRAIT_CMAGGED))
+	if(door.obj_flags & (EMAGGED|CMAGGED))
 		neuro_alert("дверь не отвечает!")
 		return FALSE
 	if(is_airlock(door))
@@ -1502,7 +1502,7 @@
 			. += status_tag(turret.enabled ? "Включена" : "Отключена", turret.enabled ? "bad" : "good")
 			if(turret.lethal)
 				. += status_tag("Боевой режим", "bad")
-			if(turret.emagged)
+			if(turret.obj_flags & EMAGGED)
 				. += status_tag("Распознавание сбито", "warn")
 		if(NEURO_KIND_FLASHER)
 			var/obj/machinery/flasher/flasher = device
@@ -1613,7 +1613,7 @@
 			if(breach)
 				if(turret.enabled)
 					. += device_button("turret_disable", "Вырубить на 20 секунд", "plug-circle-xmark", NEURO_COST_HIGH, TRUE)
-				if(!turret.emagged)
+				if(!(turret.obj_flags & EMAGGED))
 					. += device_button("turret_scramble", "Сбить распознавание", "crosshairs", NEURO_COST_EXTREME, TRUE)
 		if(NEURO_KIND_FLASHER)
 			. += device_button("flasher_fire", "Вспышка", "sun", NEURO_COST_LOW, TRUE)

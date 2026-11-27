@@ -54,6 +54,10 @@
 	materials = list(MAT_GOLD=1000)
 	volume = 150
 
+/obj/item/reagent_containers/cup/glass/trophy/gold_cup/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/reagent_containers/cup/glass/trophy/silver_cup
 	name = "silver cup"
 	desc = "Best loser!"
@@ -64,6 +68,10 @@
 	amount_per_transfer_from_this = 15
 	materials = list(MAT_SILVER=800)
 	volume = 100
+
+/obj/item/reagent_containers/cup/glass/trophy/silver_cup/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
 
 /obj/item/reagent_containers/cup/glass/trophy/bronze_cup
 	name = "bronze cup"
@@ -80,7 +88,7 @@
 	name = "ice cup"
 	desc = "Стаканчик льда. Не жуйте, а то горло болеть будет."
 	icon_state = "icecup"
-	list_reagents = list("ice" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/ice = 30)
 	is_glass = FALSE
 
 /obj/item/reagent_containers/cup/glass/ice/get_ru_names()
@@ -99,26 +107,26 @@
 	desc = "An insult to Duke Purple is an insult to the Space Queen! Any proper gentleman will fight you, if you sully this tea."
 	icon_state = "teacup"
 	item_state = "coffee"
-	list_reagents = list("tea" = 30)
+	list_reagents = list(/datum/reagent/consumable/drink/tea = 30)
 
 /obj/item/reagent_containers/cup/glass/tea/Initialize(mapload)
 	. = ..()
 	if(prob(20))
-		reagents.add_reagent("mugwort", 3)
+		reagents.add_reagent(/datum/reagent/consumable/mugwort, 3)
 
 /obj/item/reagent_containers/cup/glass/mugwort
 	name = "mugwort tea"
 	desc = "A bitter herbal tea."
 	icon_state = "manlydorfglass"
 	item_state = "coffee"
-	list_reagents = list("mugwort" = 30)
+	list_reagents = list(/datum/reagent/consumable/mugwort = 30)
 
 /obj/item/reagent_containers/cup/glass/h_chocolate
 	name = "Dutch hot coco"
 	desc = "Made in Space South America."
 	icon_state = "hot_coco"
 	item_state = "coffee"
-	list_reagents = list("hot_coco" = 30, "sugar" = 5)
+	list_reagents = list(/datum/reagent/consumable/drink/hot_coco = 30, /datum/reagent/consumable/sugar = 5)
 	resistance_flags = FREEZE_PROOF
 
 /obj/item/reagent_containers/cup/glass/chocolate
@@ -126,7 +134,7 @@
 	desc = "Made in Space Switzerland."
 	icon_state = "hot_coco"
 	item_state = "coffee"
-	list_reagents = list("hot_coco" = 15, "chocolate" = 6, "water" = 9)
+	list_reagents = list(/datum/reagent/consumable/drink/hot_coco = 15, /datum/reagent/consumable/chocolate = 6, /datum/reagent/water = 9)
 	resistance_flags = FREEZE_PROOF
 
 // MARK: Weight-loss Shake
@@ -134,7 +142,7 @@
 	name = "weight-loss shake"
 	desc = "A shake designed to cause weight loss.  The package proudly proclaims that it is 'tapeworm free.'"
 	icon_state = "weightshake"
-	list_reagents = list("lipolicide" = 30, "chocolate" = 5)
+	list_reagents = list(/datum/reagent/lipolicide = 30, /datum/reagent/consumable/chocolate = 5)
 	drink_type = GROSS
 	is_glass = FALSE
 
@@ -144,20 +152,20 @@
 	desc = "Just add 10ml of water, self heats! A taste that reminds you of your school years."
 	icon_state = "ramen"
 	item_state = "ramen"
-	list_reagents = list("dry_ramen" = 30)
+	list_reagents = list(/datum/reagent/consumable/dry_ramen = 30)
 	is_glass = FALSE
 
 /obj/item/reagent_containers/cup/glass/dry_ramen/Initialize(mapload)
 	. = ..()
 	if(prob(20))
-		reagents.add_reagent("enzyme", 3)
+		reagents.add_reagent(/datum/reagent/consumable/enzyme, 3)
 
 /obj/item/reagent_containers/cup/glass/chicken_soup
 	name = "canned chicken soup"
 	desc = "A delicious and soothing can of chicken noodle soup; just like spessmom used to microwave it."
 	icon_state = "soupcan"
 	item_state = "soupcan"
-	list_reagents = list("chicken_soup" = 30)
+	list_reagents = list(/datum/reagent/consumable/chicken_soup = 30)
 	drink_type = JUNKFOOD
 	is_glass = FALSE
 
@@ -174,6 +182,8 @@
 	icon_state = "water_cup[reagents.total_volume ? "" : "_e"]"
 
 // MARK: Shaker
+#define SHAKER_SHAKE_TIME (2 SECONDS)
+
 /obj/item/reagent_containers/cup/glass/shaker
 	name = "shaker"
 	desc = "A metal shaker to mix drinks in."
@@ -181,6 +191,42 @@
 	materials = list(MAT_METAL=1500)
 	volume = 100
 	is_glass = FALSE
+
+/obj/item/reagent_containers/cup/glass/shaker/get_ru_names()
+	return alist(
+		NOMINATIVE = "шейкер",
+		GENITIVE = "шейкера",
+		DATIVE = "шейкеру",
+		ACCUSATIVE = "шейкер",
+		INSTRUMENTAL = "шейкером",
+		PREPOSITIONAL = "шейкере",
+	)
+
+/obj/item/reagent_containers/cup/glass/shaker/examine(mob/user)
+	. = ..()
+	. += span_notice("Используйте [EXAMINE_HINT("ЛКМ")] в руке, чтобы взболтать содержимое. Без этого коктейль не смешается.")
+
+/obj/item/reagent_containers/cup/glass/shaker/attack_self(mob/user)
+	if(DOING_INTERACTION(user, src))
+		return TRUE
+	if(!reagents.total_volume)
+		balloon_alert(user, "шейкер пуст!")
+		return TRUE
+	user.visible_message(
+		span_notice("[user] начина[PLUR_ET_YUT(user)] энергично трясти [declent_ru(ACCUSATIVE)]."),
+		span_notice("Вы начинаете энергично трясти [declent_ru(ACCUSATIVE)].")
+	)
+	playsound(src, 'sound/items/can/can_shake.ogg', 50, TRUE)
+	user.Shake(pixelshiftx = 1, pixelshifty = 1, duration = SHAKER_SHAKE_TIME)
+	if(!do_after(user, SHAKER_SHAKE_TIME, user, interaction_key = src, max_interact_count = 1))
+		return TRUE
+	reagents.flags |= REAGENT_SHAKING
+	reagents.handle_reactions()
+	reagents.flags &= ~REAGENT_SHAKING
+	balloon_alert(user, "взболтано")
+	return TRUE
+
+#undef SHAKER_SHAKE_TIME
 
 // MARK: Flasks
 /obj/item/reagent_containers/cup/glass/flask
@@ -205,7 +251,7 @@
 	name = "detective's flask"
 	desc = "The detective's only true friend."
 	icon_state = "detflask"
-	list_reagents = list("whiskey" = 30)
+	list_reagents = list(/datum/reagent/consumable/ethanol/whiskey = 30)
 
 /obj/item/reagent_containers/cup/glass/flask/hand_made
 	name = "handmade flask"
@@ -248,7 +294,7 @@
 	volume = 100
 
 /obj/item/reagent_containers/cup/glass/oilcan/full
-	list_reagents = list("oil" = 100)
+	list_reagents = list(/datum/reagent/oil = 100)
 
 /obj/item/reagent_containers/cup/glass/zaza
 	name = "Cherry Zaza"
@@ -258,7 +304,7 @@
 	volume = 80
 	drink_type = SUGAR
 	container_type = NONE
-	list_reagents = list("zaza" = 80)
+	list_reagents = list(/datum/reagent/consumable/drink/cold/zaza = 80)
 	can_lid = TRUE
 	fill_icon_thresholds = list(50, 60, 65, 70, 75, 80)
 	is_glass = FALSE
@@ -272,7 +318,7 @@
 	item_state = "protein_zaza"
 	volume = 80
 	drink_type = GROSS
-	list_reagents = list("protein" = 80)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 80)
 	is_glass = FALSE
 
 /obj/item/reagent_containers/cup/glass/protein/get_ru_names()
@@ -289,7 +335,7 @@
 	name = "банка протеина (Заза)"
 	desc = "Банка наполненная протеиновым порошком. \
 			На самом деле не отличается от банки протеина со вкусом вишни ничем кроме изображения на этикетке."
-	list_reagents = list("protein" = 70, "zaza" = 10)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 70, /datum/reagent/consumable/drink/cold/zaza = 10)
 
 /obj/item/reagent_containers/cup/glass/protein/zaza/get_ru_names()
 	return alist(
@@ -307,7 +353,7 @@
 			На самом деле не отличается от банки протеина со вкусом Зазы ничем кроме изображения на этикетке."
 	icon_state = "protein_cherry"
 	item_state = "protein_cherry"
-	list_reagents = list("protein" = 70, "cherryshake" = 10)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 70, /datum/reagent/consumable/drink/cherryshake = 10)
 
 /obj/item/reagent_containers/cup/glass/protein/cherry/get_ru_names()
 	return alist(
@@ -325,7 +371,7 @@
 			Единственный вкус протеинового порошка не вызывающий отвращения при потреблении в неразбавленном виде."
 	icon_state = "protein_chocolate"
 	item_state = "protein_chocolate"
-	list_reagents = list("protein" = 70, "chocolate" = 10)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 70, /datum/reagent/consumable/chocolate = 10)
 	drink_type = SUGAR
 
 /obj/item/reagent_containers/cup/glass/protein/chocolate/get_ru_names()
@@ -344,7 +390,7 @@
 			До ребрендинга вместо банана и клубники была просто клубника."
 	icon_state = "protein_bananastrawberry"
 	item_state = "protein_bananastrawberry"
-	list_reagents = list("protein" = 70, "banana" = 5, "strawwberry" = 5)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 70, /datum/reagent/consumable/drink/banana = 5, /datum/reagent/consumable/drink/strawwberry = 5)
 
 /obj/item/reagent_containers/cup/glass/protein/bananastrawberry/get_ru_names()
 	return alist(
@@ -362,7 +408,7 @@
 			На этикетке нарисована малина, не смотря на то, что в составе нет ничего связанного с ней."
 	icon_state = "guarana_raspberry"
 	item_state = "guarana_raspberry"
-	list_reagents = list("guarana" = 10)
+	list_reagents = list(/datum/reagent/status_effect/guarana = 10)
 	is_glass = FALSE
 
 /obj/item/reagent_containers/cup/glass/guarana/get_ru_names()
@@ -381,7 +427,7 @@
 			На этикетке нарисована малина, не смотря на то, что в составе нет ничего связанного с ней."
 	icon_state = "creatine"
 	item_state = "creatine"
-	list_reagents = list("creatine" = 10)
+	list_reagents = list(/datum/reagent/status_effect/creatine = 10)
 	is_glass = FALSE
 
 /obj/item/reagent_containers/cup/glass/creatine/get_ru_names()

@@ -125,7 +125,9 @@
 /datum/looping_sound/thermogenerator
 	mid_sounds = list('sound/machines/generator/thermoelectric.ogg' = 1)
 	mid_length = 8 SECONDS
-	volume = 20
+	volume = 40
+	extra_range = 5
+	use_sound_tokens = TRUE
 
 /datum/looping_sound/tesla
 	start_sound = 'sound/machines/generator/tesla_consume.ogg'

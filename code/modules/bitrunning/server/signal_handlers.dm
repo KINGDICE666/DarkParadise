@@ -20,7 +20,7 @@
 /obj/machinery/quantum_server/proc/on_goal_turf_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 
-	if(emagged && isliving(arrived))
+	if((obj_flags & EMAGGED) && isliving(arrived))
 		var/mob/living/creature = arrived
 		if(!creature.mind?.has_antag_datum(/datum/antagonist/bitrunning_glitch))
 			return

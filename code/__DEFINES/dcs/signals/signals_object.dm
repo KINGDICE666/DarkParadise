@@ -383,6 +383,10 @@
 /// from /datum/component/subtype_picker/pick_subtype(): (obj/item/old_item, mob/picker)
 #define COMSIG_ITEM_SUBTYPE_PICKER_SELECTED "item_subtype_picker_selected"
 
+#define COMSIG_ITEM_GET_STRIPPABLE_ALT_ACTIONS "item_get_strippable_alt_actions"
+#define COMSIG_ITEM_STRIPPABLE_ALT_ACTION "item_strippable_alt_action"
+	#define COMPONENT_ALT_ACTION_DONE (1<<0)
+
 // /obj/item signals for economy
 ///called before an item is sold by the exports system.
 #define COMSIG_ITEM_PRE_EXPORT "item_pre_sold"

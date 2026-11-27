@@ -5,10 +5,6 @@ GLOBAL_PROTECT(admin_datums)
 GLOBAL_VAR_INIT(href_token, GenerateToken())
 GLOBAL_PROTECT(href_token)
 
-/proc/GenerateToken()
-	. = ""
-	for(var/index in 1 to 32)
-		. += "[rand(10)]"
 
 /datum/admins
 	var/rank = "No Rank"
@@ -113,13 +109,13 @@ GLOBAL_PROTECT(href_token)
  */
 /proc/check_rights(rights_required, show_msg = TRUE, mob/user = usr, all = FALSE)
 	if(user?.client)
-		return check_rights_ckey(rights_required, show_msg, user.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user.client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a /client has admin rights
 /proc/check_rights_client(rights_required, show_msg, client/user_client, all = FALSE)
 	if(user_client)
-		return check_rights_ckey(rights_required, show_msg, user_client.ckey, all)
+		return check_rights_ckey(rights_required, show_msg, user_client.rights_ckey(), all)
 	return FALSE
 
 /// Check if a ckey has admin rights
@@ -174,6 +170,9 @@ GLOBAL_PROTECT(href_token)
 /datum/admins/can_vv_delete()
 	return FALSE // don't break shit either
 
+/datum/admins/CanProcCall(procname)
+	return FALSE
+
 /**
  * Requires the holder to have all the rights specified
  *
@@ -202,3 +201,26 @@ GLOBAL_PROTECT(href_token)
 		to_chat(user, span_red("Ошибка: У вас недостаточно прав для этого. Вам необходимы следующие флаги:[rights2text(rights_required, " ")]."), confidential = TRUE)
 
 	return FALSE
+
+/proc/GenerateToken()
+	var/list/token = list()
+	for(var/i in 1 to 32)
+		token += "[rand(10)]"
+	return token.Join("")
+
+/proc/RawHrefToken(forceGlobal = FALSE)
+	var/tok = GLOB.href_token
+	if(!forceGlobal && usr)
+		var/client/C = usr.client
+		if(!C)
+			CRASH("No client for HrefToken()!")
+		var/datum/admins/holder = C.holder
+		if(holder)
+			tok = holder.href_token
+	return tok
+
+/proc/HrefToken(forceGlobal = FALSE)
+	return "admin_token=[RawHrefToken(forceGlobal)]"
+
+/proc/HrefTokenFormField(forceGlobal = FALSE)
+	return "<input type='hidden' name='admin_token' value='[RawHrefToken(forceGlobal)]'>"

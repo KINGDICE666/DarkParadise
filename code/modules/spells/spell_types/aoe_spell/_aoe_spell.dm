@@ -21,6 +21,15 @@
 	. = ..()
 	targeting = new targeting_type(owner, src)
 
+/datum/action/cooldown/spell/aoe/Destroy()
+	QDEL_NULL(targeting)
+	return ..()
+
+/datum/action/cooldown/spell/aoe/Remove(mob/living/remove_from)
+	. = ..()
+	if(targeting)
+		targeting.owner = null
+
 /datum/action/cooldown/spell/aoe/Grant(mob/grant_to)
 	. = ..()
 	targeting.owner = grant_to

@@ -45,6 +45,7 @@
 
 /// job subsystem has spawned and equipped a new mob
 #define COMSIG_GLOB_JOB_AFTER_SPAWN "!job_after_spawn"
+#define COMSIG_GLOB_LOBBY_TRAIT_ADDED "!lobby_trait_added"
 
 ///Global signal sent when the player list grows. Called by [mob/add_to_player_list] (mob/player)
 #define COMSIG_GLOB_PLAYER_LOGIN "!player_login"
@@ -57,6 +58,9 @@
 
 /// a client (re)connected, after all /client/New() checks have passed : (client/connected_client)
 #define COMSIG_GLOB_CLIENT_CONNECT "!client_connect"
+
+/// global signal when a global nullrod type is picked
+#define COMSIG_GLOB_NULLROD_PICKED "!nullrod_picked"
 
 /// Swarmer core was destroyed
 #define COMSIG_GLOB_SWARMER_CORE_DESTROYED "!swarmer_core_destroy"

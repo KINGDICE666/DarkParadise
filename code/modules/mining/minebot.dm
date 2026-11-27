@@ -78,6 +78,7 @@
 	)
 
 /mob/living/simple_animal/hostile/mining_drone/emp_act(severity)
+	. = ..()
 	adjustHealth(100 / severity)
 	to_chat(src, span_userdanger("ВНИМАНИЕ: Обнаружен ЭМИ, системы повреждены!"))
 	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] яростно трещит и искрит!"))
@@ -171,6 +172,7 @@
 /mob/living/simple_animal/hostile/mining_drone/proc/SetCollectBehavior()
 	mode = MINEDRONE_COLLECT
 	vision_range = 9
+	deltimer(search_objects_timer_id)
 	search_objects = 2
 	wander = TRUE
 	ranged = FALSE
@@ -197,6 +199,11 @@
 	if(isliving(target))
 		SetOffenseBehavior()
 	return ..()
+
+/mob/living/simple_animal/hostile/mining_drone/AIShouldSleep(list/possible_targets)
+	. = ..()
+	if(mode == MINEDRONE_COLLECT)
+		return FALSE
 
 /mob/living/simple_animal/hostile/mining_drone/OpenFire(atom/A)
 	if(CheckFriendlyFire(A))

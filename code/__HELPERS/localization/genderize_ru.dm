@@ -36,6 +36,7 @@
 #define GEND_HIS_HER_CAP(target) capitalize(genderize_ru(target.gender, "его", "её", "его", "их"))
 #define GEND_HIM_HER(target) genderize_ru(target.gender, "ему", "ей", "ему", "им")
 #define GEND_ON_IN_HIM(target) genderize_ru(target.gender, "нём", "ней", "нём", "них")
+#define GEND_NIM_NEI_NIMI(target) genderize_ru(target.gender, "ним", "ней", "ним", "ними")
 #define GEND_YOUR(target) genderize_ru(target.gender, "ваш", "вашу", "ваше", "ваши")
 #define GEND_YOURS(target) genderize_ru(target.gender, "вашего", "вашей", "вашего", "ваших")
 // Окончания. Y — буква Ы.
@@ -50,6 +51,7 @@
 #define GEND_IM_EI_IM_IMI(target) genderize_ru(target.gender, "им", "ей", "им", "ими")
 #define GEND_YI_AYA_OE_YE(target) genderize_ru(target.gender, "ый", "ая", "ое", "ые")
 #define GEND_II_AYA_OE_IE(target) genderize_ru(target.gender, "ий", "ая", "ое", "ие")
+#define GEND_II_AYA_II_IE(target) GEND_II_AYA_OE_IE(target)
 #define GEND_II_AYA_EE_IE(target) genderize_ru(target.gender, "ий", "ая", "ее", "ие")
 #define GEND_OGO_UU_OE_YH(target) genderize_ru(target.gender, "ого", "ую", "ое", "ых")
 #define GEND_I_U_UO_I(target) genderize_ru(target.gender, "й", "ю", "ё", "и")

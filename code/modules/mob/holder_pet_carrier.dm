@@ -27,6 +27,7 @@
 
 /obj/item/pet_carrier/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	if(!color_skin)
 		color_skin = pick(possible_skins)
 	update_icon(UPDATE_OVERLAYS)
@@ -50,6 +51,7 @@
 	return ..()
 
 /obj/item/pet_carrier/emp_act(intensity)
+	. = ..()
 	for(var/mob/living/M in contents)
 		M.emp_act(intensity)
 
@@ -140,6 +142,7 @@
 		. += image(icon, icon_state = "[icon_state]_[color_skin]")
 
 /obj/item/pet_carrier/emp_act(intensity)
+	. = ..()
 	for(var/mob/living/M in contents)
 		M.emp_act(intensity)
 

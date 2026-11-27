@@ -18,9 +18,6 @@ GAME_VERB(/client, ooc, VERB_OOC, VERB_CATEGORY_OOC)
 	VERB_ARG(msg, VERB_ARG_TYPE_TEXT, VERB_ARG_SOURCE_INPUT)
 	if(!mob)
 		return
-	if(!has_persistent_identity())
-		to_chat(src, span_danger("Guests may not use OOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
-		return
 
 	if(!check_rights(R_ADMIN|R_MOD, FALSE))
 		if(!CONFIG_GET(flag/ooc_allowed))
@@ -135,9 +132,6 @@ GAME_VERB_DESC(/client, looc, VERB_LOOC, "Local OOC, seen only by those in view.
 	VERB_ARG(msg, VERB_ARG_TYPE_TEXT, VERB_ARG_SOURCE_INPUT)
 
 	if(!mob)
-		return
-	if(!has_persistent_identity())
-		to_chat(src, span_danger("Guests may not use LOOC."), MESSAGE_TYPE_WARNING, confidential = TRUE)
 		return
 
 	if(!check_rights(R_ADMIN|R_MOD, FALSE))

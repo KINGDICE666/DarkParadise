@@ -21,8 +21,14 @@
 /datum/movespeed_modifier/reagent/nuka_cola
 	multiplicative_slowdown = -0.5
 
+/datum/movespeed_modifier/reagent/monkey_energy
+	multiplicative_slowdown = -0.35
+
 /datum/movespeed_modifier/reagent/nitrium
 	multiplicative_slowdown = -0.3
+
+/datum/movespeed_modifier/reagent/mephedrone
+	multiplicative_slowdown = -1
 
 /datum/movespeed_modifier/reagent/freon
 	multiplicative_slowdown = 1.6

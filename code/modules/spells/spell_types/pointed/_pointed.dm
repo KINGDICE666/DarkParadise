@@ -45,6 +45,12 @@
 	. = ..()
 	if(. & SPELL_CANCEL_CAST)
 		on_deactivation(owner, refund_cooldown = FALSE)
+		return
+
+	if(owner && get_dist(get_turf(owner), get_turf(cast_on)) > cast_range)
+		cast_on.balloon_alert(owner, "too far away!")
+		return . | SPELL_CANCEL_CAST
+
 
 /// Called when the spell is activated / the click ability is set to our spell
 /datum/action/cooldown/spell/pointed/proc/on_activation(mob/on_who)
@@ -84,15 +90,6 @@
 
 	return TRUE
 
-/datum/action/cooldown/spell/pointed/before_cast(atom/cast_on)
-	. = ..()
-	if(. & SPELL_CANCEL_CAST)
-		return
-
-	if(owner && get_dist(get_turf(owner), get_turf(cast_on)) > cast_range)
-		cast_on.balloon_alert(owner, "too far away!")
-		return . | SPELL_CANCEL_CAST
-
 /**
  * ### Pointed projectile spells
  *
@@ -131,6 +128,12 @@
 		StartCooldown(cooldown_time * ((projectile_amount - current_amount) / projectile_amount))
 		current_amount = 0
 
+/datum/action/cooldown/spell/pointed/projectile/PreActivate(atom/target)
+	var/turf/target_overrite = target.get_get_click_overrite_turf(real = TRUE)
+	if(target_overrite)
+		target = get_scope_target(target_overrite, target)
+	return ..(target = target)
+
 // cast_on is a turf, or atom target, that we clicked on to fire at.
 /datum/action/cooldown/spell/pointed/projectile/cast(atom/cast_on)
 	. = ..()
@@ -167,16 +170,16 @@
 
 /datum/action/cooldown/spell/pointed/projectile/proc/ready_projectile(obj/projectile/to_fire, atom/target, mob/user, iteration)
 	to_fire.firer = owner
+	to_fire.def_zone = ran_zone(user?.zone_selected)
 	to_fire.current = get_turf(user)
 	to_fire.original = target
 	to_fire.preparePixelProjectile(target, user)
 	to_fire.fire()
 	RegisterSignal(to_fire, COMSIG_PROJECTILE_SELF_ON_HIT, PROC_REF(on_cast_hit))
 
-//alistNo antimagic ported yet
-/*	if(istype(to_fire, /obj/projectile/magic))
+	if(istype(to_fire, /obj/projectile/magic))
 		var/obj/projectile/magic/magic_to_fire = to_fire
-		magic_to_fire.antimagic_flags = antimagic_flags */
+		magic_to_fire.antimagic_flags = antimagic_flags
 
 /// Signal proc for whenever the projectile we fire hits someone.
 /// Pretty much relays to the spell when the projectile actually hits something.

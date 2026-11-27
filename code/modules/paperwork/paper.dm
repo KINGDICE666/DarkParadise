@@ -25,6 +25,7 @@
 	drop_sound = 'sound/items/handling/paper_drop.ogg'
 	pickup_sound =  'sound/items/handling/paper_pickup.ogg'
 	custom_price = PAYCHECK_MIN * 0.05
+	scatter_distance = 8
 	var/header //Above the main body, displayed at the top
 	var/info		//What's actually written on the paper.
 	var/footer	//The bottom stuff before the stamp but after the body
@@ -399,9 +400,13 @@
 	add_hiddenprint(user) // No more forging nasty documents as someone else, you jerks
 	if(!is_pen(item_write) && !iscrayon(item_write))
 		return
-	if(HAS_TRAIT(item_write, TRAIT_TRANSFORM_ACTIVE))
-		balloon_alert(user, "защёлкнуто!")
-		return
+
+	if(is_pen(item_write)) // Can't use TRAIT_TRANSFORM_ACTIVE cause you can click multipen or fountain pen
+		var/obj/item/pen/writing_pen = item_write
+		if(!writing_pen.can_write)
+			balloon_alert(user, "защёлкнуто!")
+			return
+
 	if(loc != user && !Adjacent(user, recurse = 2) && !loc.Adjacent(user))
 		return // If paper is not in usr, then it must be near them
 
@@ -423,7 +428,7 @@
 
 /obj/item/paper/Topic(href, href_list)
 	..()
-	if(!usr || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
+	if(!usr || usr.incapacitated || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(href_list["auto_write"])
@@ -498,7 +503,7 @@
 	if(href_list["write"])
 		var/id = href_list["write"]																			/* Becаuse HTML */
 		var/input_element = tgui_input_text(usr, "Enter what you want to write:", "Write", multiline = TRUE, max_length = 3000, encode = FALSE)
-
+		input_element = STRIP_HTML_FULL(input_element, INFINITY)
 		topic_href_write(usr, id, input_element)
 
 /obj/item/paper/attackby(obj/item/I, mob/living/user, params)
@@ -711,7 +716,7 @@
 		if(counter == "4")
 			var/datum/reagent/reagent_type
 			for(var/reagent in level.required_reagents)
-				if(reagent == "blood")
+				if(reagent == /datum/reagent/blood)
 					continue
 				reagent_type = GLOB.chemical_reagents_list[reagent]
 				break
@@ -719,7 +724,7 @@
 			break
 		info_builder += "<ul>"
 		for(var/reagent in level.required_reagents)
-			if(reagent == "blood")
+			if(reagent == /datum/reagent/blood)
 				continue
 			var/datum/reagent/reagent_type = GLOB.chemical_reagents_list[reagent]
 			info_builder += "<li>[reagent_type.name]"
@@ -1070,6 +1075,7 @@
 	altername = "Приказ"
 	category = "Главы станции"
 	info = "<font face=\"Verdana\" color=black>Я, <span class=\"paper_field\"></span>, в должности <span class=\"paper_field\"></span>, приказываю:<br><br><span class=\"paper_field\"></span><hr><br><center><font size=\"4\"><b>Подписи и штампы</b></font></center><br><br>Подпись инициатора: <span class=\"paper_field\"></span><br>Время подписания приказа: <span class=\"paper_field\"></span><br>Дата подписания приказа: <span class=\"paper_field\"></span><br><hr><font size = \"1\">*Данный документ подлежит ксерокопированию, для сохранения в архиве должностного лица.</font></font>"
+
 /obj/item/paper/form/NT_COM_ST
 	name = "Форма NT-COM-ST"
 	id = "NT-COM-ST"
@@ -1711,3 +1717,15 @@
 
 /obj/item/paper/pamphletdeathsquad/update_icon_state()
 	return
+
+/obj/item/paper/mortar
+	name = "Инструкция по сборке снаряда для мортиры"
+	info = "<b>Инструкция по сборке снаряда для мортиры</b></br>\
+	1) Для начала соберите боевую часть. Для этого нужно вставить минимум один(максимум 2) бикер, с нужными вам реагентами.</br>\
+	Помните: у снаряда есть ограничения по вместимости бикеров(50 с камерой и 100 без)</br>\
+	2) После того, как вставите нужные бикеры, закрутите крышку отверткой.</br> \
+	Внимание: Не рекомендуется пытаться раскрутить крышку после сборки. Это приведет к преждевременному смешению содержимого.</br> \
+	3) Затем необходимо вставить собраную боевую часть в корпус снаряда.</br> \
+	4) Затем вставьте в корпус бикер с топливом(минимум 60 юнитов). Наши снаряды используют водород в качестве оного</br> \
+	5) После этого можно завершить сборку снаряда, закрутив крышку отверткой \
+	"

@@ -573,7 +573,6 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
 	vary = TRUE
-	only_unintentional = TRUE
 	audio_cooldown = 1 MINUTES
 	cooldown = 10 SECONDS
 	species_type_blacklist_typecache = list(/datum/species/machine)
@@ -594,10 +593,11 @@
 		var/fart_act = check.fart_act(user)
 		if(fart_act)
 			farted_on_something = TRUE
-	if(!farted_on_something)
-		if(user.mind?.assigned_role == JOB_TITLE_CLOWN && prob(30))
-			confettigibs(user)
-		return ..()
+	if(farted_on_something)
+		return TRUE
+	if(user.mind?.assigned_role == JOB_TITLE_CLOWN && prob(30))
+		confettigibs(user)
+	return ..()
 
 /datum/emote/living/carbon/human/fart/get_volume(mob/living/user)
 	if(prob(5))	// critical success!

@@ -62,7 +62,7 @@
 				to_chat(user, span_warning("The [can.name] is incompatible."))
 				return ATTACK_CHAIN_PROCEED
 			//This prevents us from using opened cans that still have something in them
-			if(can.canopened && can.reagents.total_volume)
+			if(can.is_drainable() && can.reagents.total_volume)
 				to_chat(user, span_warning("Only unopened cans and bottles can be processed to ensure product integrity."))
 				return ATTACK_CHAIN_PROCEED
 			if(!user.drop_transfer_item_to_loc(can, src))
@@ -251,7 +251,6 @@
 	if(containers[con_type])
 		//empties aren't sealed, so let's open it quietly
 		drink_container = new drink_container()
-		drink_container.canopened = TRUE
 		drink_container.container_type |= OPENCONTAINER
 		drink_container.forceMove(loc)
 		containers[con_type]--
@@ -293,7 +292,7 @@
 		//bad recipe, ruins the drink
 		var/contents = pick("thick goop", "pungent sludge", "unspeakable slurry", "gross-looking concoction", "eldritch abomination of liquids")
 		visible_message(span_warning("The [con_type] fills with \an [contents]..."))
-		drink_container.reagents.add_reagent(pick("????", "toxic_slurry", "meatslurry", "glowing_slurry", "fishwater"), pick(30, 50))
+		drink_container.reagents.add_reagent(pick(/datum/reagent/questionmark, /datum/reagent/toxic_slurry, /datum/reagent/consumable/meatslurry, /datum/reagent/glowing_slurry, /datum/reagent/fishwater), pick(30, 50))
 		drink_container.name = "Liquid Mistakes"
 		drink_container.desc = "WARNING: CONTENTS MAY BE AWFUL, DRINK AT OWN RISK."
 	else

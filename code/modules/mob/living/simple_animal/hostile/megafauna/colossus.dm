@@ -255,12 +255,7 @@ Difficulty: Very Hard
 	if(target)
 		P.original = target_atom
 
-	if(isnum(set_angle))
-		P.fire(set_angle)
-	else
-		P.fire()
-
-	P.fire(isnum(set_angle) ? set_angle : null)
+	P.fire(set_angle)
 
 /mob/living/simple_animal/hostile/megafauna/colossus/proc/random_shots(do_sleep = TRUE)
 	ranged_cooldown = world.time + 30

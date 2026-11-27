@@ -35,8 +35,7 @@
 
 /obj/machinery/computer/monitor/Initialize(mapload)
 	. = ..()
-	GLOB.power_monitors += src
-	GLOB.power_monitors = sortAtom(GLOB.power_monitors)
+	insert_atom_sorted(GLOB.power_monitors, src)
 	power_monitor = new(src)
 
 	if(!is_secret_monitor && !(stat & (NOPOWER|BROKEN)))

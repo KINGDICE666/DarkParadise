@@ -403,7 +403,7 @@
 		carbon_view.Confused(2 SECONDS)
 		carbon_view.Hallucinate(60 SECONDS)
 		if(prob(20))
-			INVOKE_ASYNC(carbon_view, TYPE_PROC_REF(/mob/living, hallucinate_living), pickweight(GLOB.minor_medium_hallutinations))
+			carbon_view.cause_hallucination(get_random_valid_hallucination_subtype(), "moon lore aura")
 
 		carbon_view.adjustOrganLoss(INTERNAL_ORGAN_BRAIN, 4, 100)
 		if(carbon_view.get_organ_loss(INTERNAL_ORGAN_BRAIN) < 60)

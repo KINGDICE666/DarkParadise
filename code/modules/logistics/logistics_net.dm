@@ -12,7 +12,7 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 	var/net_id
 	var/net_name
 	var/net_color
-	var/auto_execute = FALSE
+	var/auto_execute = TRUE
 	var/next_request_num = 1
 	var/next_dispatch_at = 0
 
@@ -137,7 +137,7 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 	refresh_processing()
 
 /datum/logistics_net/proc/rehome_after_topology_change()
-	for(var/obj/structure/logistics_holder/holder as anything in in_flight.Copy())
+	for(var/obj/structure/logistics_holder/holder as anything in in_flight)
 		var/datum/logistics_net/pipe_net
 		if(istype(holder.loc, /obj/structure/logistics_pipe))
 			var/obj/structure/logistics_pipe/pipe = holder.loc
@@ -148,7 +148,7 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 		pipe_net.in_flight += holder
 		holder.origin_net = pipe_net
 
-	for(var/datum/logistics_request/request as anything in requests.Copy())
+	for(var/datum/logistics_request/request as anything in requests)
 		var/datum/component/logistics_interface/dest = request.get_dest()
 		var/datum/component/logistics_interface/source = request.get_source()
 		var/datum/logistics_net/target_net = dest?.net
@@ -264,12 +264,11 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 /datum/logistics_net/proc/abort_request_holders(datum/logistics_request/request)
 	if(!request)
 		return
-	for(var/obj/structure/logistics_holder/holder as anything in in_flight.Copy())
+	for(var/obj/structure/logistics_holder/holder as anything in in_flight)
 		if(holder.request_ref?.resolve() != request)
 			continue
 		holder.abort_shipment()
-	for(var/stock_name in request.reserved)
-		var/amount = request.reserved[stock_name]
+	for(var/stock_name, amount in request.reserved)
 		if(amount > 0)
 			request.release_reservation(stock_name, amount)
 
@@ -312,7 +311,7 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 		return
 	var/list/claimed = list()
 	var/has_active = FALSE
-	for(var/datum/logistics_request/request as anything in requests.Copy())
+	for(var/datum/logistics_request/request as anything in requests)
 		if(QDELETED(request) || request.status != LOGISTICS_REQUEST_ACTIVE)
 			continue
 		has_active = TRUE
@@ -351,8 +350,8 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 		return
 
 	var/list/datum/component/logistics_interface/candidate_sources = list()
-	for(var/stock_name in request.wanted)
-		if(request.wanted[stock_name] <= 0)
+	for(var/stock_name, wanted_amount in request.wanted)
+		if(wanted_amount <= 0)
 			continue
 		for(var/datum/component/logistics_interface/source as anything in get_sources_for(request, stock_name, dest))
 			candidate_sources |= source
@@ -377,10 +376,10 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 	for(var/stock_name in incoming)
 		incoming_total += incoming[stock_name]
 
-	for(var/stock_name in request.wanted)
+	for(var/stock_name, wanted_amount in request.wanted)
 		if(remaining_capacity <= 0)
 			break
-		if(request.wanted[stock_name] <= 0)
+		if(wanted_amount <= 0)
 			continue
 		var/available = source.get_available_amount(stock_name)
 		var/claim_key = "[source.UID()]|[stock_name]"
@@ -389,7 +388,7 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 			continue
 		if(!dest.adapter.can_accept_stock(stock_name))
 			continue
-		var/send_amount = min(request.wanted[stock_name], available, remaining_capacity)
+		var/send_amount = min(wanted_amount, available, remaining_capacity)
 		var/accept_cap = dest.adapter.get_accept_capacity(stock_name) - incoming[stock_name]
 		if(dest.adapter.uses_shared_unit_capacity())
 			accept_cap = min(accept_cap, dest.adapter.get_free_sheets() - incoming_total - total_packed)
@@ -413,8 +412,8 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 	holder.request_num = request.request_num
 	holder.request_ref = WEAKREF(request)
 
-	for(var/stock_name in packed)
-		var/extracted = source.extract_into(stock_name, packed[stock_name], holder)
+	for(var/stock_name, want in packed)
+		var/extracted = source.extract_into(stock_name, want, holder)
 		if(extracted <= 0)
 			continue
 		claimed["[source.UID()]|[stock_name]"] += extracted
@@ -427,8 +426,8 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 
 	source.play_send_sound()
 	var/list/manifest_parts = list()
-	for(var/stock_name in holder.shipment_manifest)
-		manifest_parts += "[holder.shipment_manifest[stock_name]] x [logistics_stock_display_name(stock_name)]"
+	for(var/stock_name, shipped_amount in holder.shipment_manifest)
+		manifest_parts += "[shipped_amount] x [logistics_stock_display_name(stock_name)]"
 	var/manifest_text = manifest_parts.Join(", ")
 
 	holder.path_dirs = path_dirs
@@ -469,9 +468,8 @@ GLOBAL_VAR_INIT(logistics_net_next_id, 1)
 	var/list/came_from = list()
 	var/list/came_dir = list()
 	came_from[start] = start
-	var/idx = 1
-	while(idx <= length(queue))
-		var/obj/structure/logistics_pipe/current = queue[idx++]
+	for(var/idx = 1; idx <= length(queue); idx++)
+		var/obj/structure/logistics_pipe/current = queue[idx]
 		if(current == goal)
 			break
 		for(var/dir_iter in GLOB.cardinal)

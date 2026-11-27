@@ -554,11 +554,14 @@
 	heat_amount = 20
 	heat_amp_mod = 5
 	power_amp_mod = 3
+	craftable = TRUE
+	upgrade_required = TRUE
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/fuel,
 		/obj/item/nuclear_rod/fuel,
 		/obj/item/nuclear_rod/moderator,
 	)
+	materials = list(MAT_TITANIUM = 1000, MAT_PLASMA = 4000)
 
 /obj/item/nuclear_rod/moderator/plasma_agitator/get_ru_names()
 	return alist(
@@ -580,10 +583,13 @@
 	power_amp_mod = 3
 	minimum_temp_modifier = 400
 	reactor_overheat_modifier = 100
+	craftable = TRUE
+	upgrade_required = TRUE
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/coolant/nitrogen_circulator,
 		/obj/item/nuclear_rod/moderator,
 	)
+	materials = list(MAT_TITANIUM = 1000, MAT_SILVER = 2000)
 
 /obj/item/nuclear_rod/moderator/aluminum_reflector/get_ru_names()
 	return alist(
@@ -625,9 +631,6 @@
 	heat_amp_mod = 6.5
 	power_amp_mod = 3.3
 	reactor_overheat_modifier = 100
-	craftable = TRUE
-	upgrade_required = TRUE
-	materials = list(MAT_METAL = 2000, MAT_TITANIUM = 1000, MAT_DIAMOND = 1000)
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/fuel,
 		/obj/item/nuclear_rod/fuel,
@@ -779,6 +782,8 @@
 	max_durability = 8000
 	minimum_temp_modifier = 750
 	reactor_overheat_modifier = 100
+	craftable = TRUE
+	upgrade_required = TRUE
 	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_GLASS = 1000)
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/coolant/nitrogen_circulator,
@@ -807,10 +812,13 @@
 	max_durability = 6000
 	minimum_temp_modifier = 450
 	reactor_overheat_modifier = 100
+	craftable = TRUE
+	upgrade_required = TRUE
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/coolant/light_water,
 		/obj/item/nuclear_rod/coolant/light_water,
 	)
+	materials = list(MAT_TITANIUM = 1000, MAT_GOLD = 1000)
 
 /obj/item/nuclear_rod/coolant/steam_hammerjet/get_ru_names()
 	return alist(
@@ -832,9 +840,6 @@
 	power_amp_mod = 1.3
 	max_durability = INFINITY
 	reactor_overheat_modifier = 200
-	craftable = TRUE
-	upgrade_required = TRUE
-	materials = list(MAT_METAL = 2000, MAT_PLASMA = 2000, MAT_BLUESPACE = 1000)
 	adjacent_requirements = list(/obj/item/nuclear_rod/moderator/bluespace_agitator)
 
 /obj/item/nuclear_rod/coolant/bluespace_displacer/get_ru_names()
@@ -875,9 +880,6 @@
 	icon_state = "coolant_spacematter"
 	heat_amount = -1500
 	heat_amp_mod = 0.2
-	materials = list(MAT_METAL = 6000, MAT_PLASMA = 4000, MAT_TITANIUM = 2000)
-	craftable = TRUE
-	upgrade_required = TRUE
 	adjacent_requirements = list(
 		/obj/item/nuclear_rod/fuel/enriched_plutonium,
 		/obj/item/nuclear_rod/fuel/thorium_salts,

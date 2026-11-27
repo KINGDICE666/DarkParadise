@@ -72,4 +72,4 @@
 	if(client.prefs && (client.prefs.toggles2 & PREFTOGGLE_2_ANON))
 		return ANON_KEY
 
-	return client.key
+	return client.display_key()

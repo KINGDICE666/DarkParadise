@@ -31,6 +31,8 @@
 /// The maploader index for the maps maximum z
 #define MAP_MAXZ 6
 
+#define SPACE_KEY "space"
+
 // Bluespace shelter deploy checks for survival capsules
 /// Shelter spot is allowed
 #define SHELTER_DEPLOY_ALLOWED "allowed"

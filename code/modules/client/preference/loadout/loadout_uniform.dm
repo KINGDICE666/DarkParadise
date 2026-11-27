@@ -1,11 +1,11 @@
 // Uniform slot
 /datum/gear/uniform
-	subtype_path = /datum/gear/uniform
+	abstract_type = /datum/gear/uniform
 	slot = ITEM_SLOT_CLOTH_INNER
 	sort_category = "Униформа"
 
 /datum/gear/uniform/suit
-	subtype_path = /datum/gear/uniform/suit
+	abstract_type = /datum/gear/uniform/suit
 
 //there's a lot more colors than I thought there were @_@
 
@@ -83,8 +83,9 @@
 		/obj/item/clothing/under/brown_chaps,
 	)
 	gear_tweaks += new /datum/gear_tweak/path(chaps, src, TRUE)
+
 /datum/gear/uniform/skirt
-	subtype_path = /datum/gear/uniform/skirt
+	abstract_type = /datum/gear/uniform/skirt
 
 /datum/gear/uniform/skirt/syndi
 	index_name = "skirt, tactical"
@@ -157,7 +158,7 @@
 	path = /obj/item/clothing/under/blackskirt
 
 /datum/gear/uniform/skirt/job
-	subtype_path = /datum/gear/uniform/skirt/job
+	abstract_type = /datum/gear/uniform/skirt/job
 	subtype_cost_overlap = FALSE
 
 /datum/gear/uniform/skirt/job/ce
@@ -291,7 +292,7 @@
 	allowed_roles = list(JOB_TITLE_LAWYER)
 
 /datum/gear/uniform/medical
-	subtype_path = /datum/gear/uniform/medical
+	abstract_type = /datum/gear/uniform/medical
 
 /datum/gear/uniform/medical/scrubs
 	index_name = "medical scrubs, select"
@@ -309,7 +310,7 @@
 	gear_tweaks += new /datum/gear_tweak/path(scrubs, src, TRUE)
 
 /datum/gear/uniform/sec
-	subtype_path = /datum/gear/uniform/sec
+	abstract_type = /datum/gear/uniform/sec
 
 /datum/gear/uniform/sec/formal
 	index_name = "security uniform, formal"
@@ -332,7 +333,7 @@
 	allowed_roles = list(JOB_TITLE_HOS, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_OFFICER, JOB_TITLE_PILOT)
 
 /datum/gear/uniform/cargo
-	subtype_path = /datum/gear/uniform/cargo
+	abstract_type = /datum/gear/uniform/cargo
 
 /datum/gear/uniform/cargo/qm
 	index_name = "quartermaster dress"
@@ -366,7 +367,7 @@
 	gear_tweaks += new /datum/gear_tweak/path(shorts, src)
 
 /datum/gear/uniform/pants
-	subtype_path = /datum/gear/uniform/pants
+	abstract_type = /datum/gear/uniform/pants
 
 /datum/gear/uniform/pants/jeans
 	index_name = "jeans, select"
@@ -453,3 +454,11 @@
 /datum/gear/uniform/chainsmoker
 	index_name = "chainsmoker uniform"
 	path = /obj/item/clothing/under/chainsmoker
+
+/datum/gear/uniform/male_club_uniform
+	index_name = "male club uniform"
+	path = /obj/item/clothing/under/maleclub
+
+/datum/gear/uniform/girl_club_uniform
+	index_name = "girl club uniform"
+	path = /obj/item/clothing/under/girlclub

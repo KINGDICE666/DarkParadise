@@ -202,7 +202,7 @@
 /datum/unit_test/room_test/cyber_capacity/proc/check_stabilicin()
 	var/datum/status_effect/cyberpsychosis/psychosis = patient.apply_status_effect(/datum/status_effect/cyberpsychosis)
 	TEST_ASSERT_NOTNULL(psychosis, "cyberpsychosis was not applied for the stabilicin check")
-	patient.reagents.add_reagent("stabilicin", 10)
+	patient.reagents.add_reagent(/datum/reagent/medicine/stabilicin, 10)
 	psychosis.tick(2)
 	TEST_ASSERT_EQUAL(psychosis.stage, 1, "stabilicin acted before its delay")
 	psychosis.next_suppress_time = world.time - 1

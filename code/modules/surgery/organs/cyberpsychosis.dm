@@ -173,7 +173,7 @@
 
 /datum/status_effect/cyberpsychosis/tick(seconds_between_ticks)
 	var/mob/living/carbon/carbon_owner = owner
-	if(carbon_owner.reagents?.has_reagent("stabilicin"))
+	if(carbon_owner.reagents?.has_reagent(/datum/reagent/medicine/stabilicin))
 		suppress()
 		return
 	next_suppress_time = 0

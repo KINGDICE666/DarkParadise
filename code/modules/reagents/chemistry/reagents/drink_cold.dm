@@ -87,7 +87,7 @@
 /datum/reagent/consumable/drink/cold/energy/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 	update_flags |= M.adjustStaminaLoss(-1, FALSE)
-	if(M.reagents.get_reagent_amount("coffee") > 0)
+	if(M.reagents.get_reagent_amount(/datum/reagent/consumable/drink/coffee) > 0)
 		if(prob(0.5))
 			if(ishuman(M))
 				var/mob/living/carbon/human/H = M
@@ -286,4 +286,115 @@
 	taste_description = "восхитительной шипучей вишнёвой газировки"
 	alternate_taste_description = "неприятной приторно-сладкой газированной воды"
 	healamount = 0.25
+
+/datum/reagent/consumable/drink/cold/sol_dry
+	name = "Сол Драй"
+	id = "sol_dry"
+	description = "Мягкий успокаивающий напиток из имбиря."
+	color = "#f7d26a"
+	drink_icon = "soldry"
+	drink_name = "стакан Сол Драй"
+	drink_desc = "Мягкий успокаивающий напиток из имбиря."
+	taste_description = "сладких имбирных пряностей"
+
+/datum/reagent/consumable/drink/cold/sol_dry/on_mob_life(mob/living/M)
+	M.AdjustDisgust(-5 SECONDS)
+	return ..()
+
+/datum/reagent/consumable/drink/cold/pwr_game
+	name = "Пвр Гейм"
+	id = "pwr_game"
+	description = "Единственный напиток с той СИЛОЙ, которой жаждут настоящие геймеры."
+	color = "#9385bf"
+	drink_icon = "pwrgame"
+	drink_name = "стакан Пвр Гейма"
+	drink_desc = "Отлично сочетается с салатом Влада."
+	taste_description = "сладко-солёной кислинки"
+
+/datum/reagent/consumable/drink/cold/shamblers
+	name = "Сок Шамблера"
+	id = "shamblers"
+	description = "~Взболтай-ка мне Сока Шамблера!~"
+	color = "#f00060"
+	drink_icon = "shamblerjuice"
+	drink_name = "стакан Сока Шамблера"
+	drink_desc = "Ммм, шамблерно."
+	taste_description = "газированной металлической шипучки"
+
+/datum/reagent/consumable/drink/cold/wellcheers
+	name = "Веллчирс"
+	id = "wellcheers"
+	description = "Странный фиолетовый напиток с запахом морской воды. Где-то вдалеке слышны чайки."
+	color = "#762399"
+	adj_drowsy = 3 SECONDS
+	taste_description = "винограда и свежего открытого моря"
+
+/datum/reagent/consumable/drink/cold/wellcheers/on_mob_life(mob/living/M)
+	var/update_flags = STATUS_UPDATE_NONE
+	update_flags |= M.adjustBruteLoss(-1, FALSE)
+	return ..() | update_flags
+
+/datum/reagent/consumable/drink/cold/grey_bull
+	name = "Грей Булл"
+	id = "grey_bull"
+	description = "Грей Булл окрыляет перчатками!"
+	color = "#EEFF00"
+	adj_dizzy = 2 SECONDS
+	adj_sleepy = -4 SECONDS
+	metabolized_traits = list(TRAIT_SHOCKIMMUNE)
+	drink_icon = "grey_bull_glass"
+	drink_name = "стакан Грей Булла"
+	drink_desc = "Как ни странно, он не серый."
+	taste_description = "газированного масла"
+
+/datum/reagent/consumable/drink/cold/grey_bull/on_mob_life(mob/living/M)
+	M.Jitter(40 SECONDS)
+	M.SetDrowsy(0)
+	return ..()
+
+/datum/reagent/consumable/drink/cold/monkey_energy
+	name = "Манки Энерджи"
+	id = "monkey_energy"
+	description = "Единственный напиток, который выпустит наружу вашу внутреннюю обезьяну."
+	color = "#f39b03"
+	adj_dizzy = 2 SECONDS
+	adj_sleepy = -4 SECONDS
+	drink_icon = "monkey_energy_glass"
+	drink_name = "стакан Манки Энерджи"
+	drink_desc = "Обезьяну выпустить можно, но без хлопка банки?"
+	taste_description = "барбекю и ностальгии"
+
+/datum/reagent/consumable/drink/cold/monkey_energy/on_mob_life(mob/living/M)
+	M.Jitter(80 SECONDS)
+	M.SetDrowsy(0)
+	return ..()
+
+/datum/reagent/consumable/drink/cold/monkey_energy/on_mob_add(mob/living/M)
+	. = ..()
+	if(ismonkey(M))
+		M.add_movespeed_modifier(/datum/movespeed_modifier/reagent/monkey_energy)
+
+/datum/reagent/consumable/drink/cold/monkey_energy/on_mob_delete(mob/living/M)
+	. = ..()
+	M.remove_movespeed_modifier(/datum/movespeed_modifier/reagent/monkey_energy)
+
+/datum/reagent/consumable/drink/cold/volt_energy
+	name = "24-Вольт Энерджи"
+	id = "volt_energy"
+	description = "Электрический энергетик с искусственными красителями и ароматизаторами, со вкусом фонарного фрукта."
+	color = "#99E550"
+	drink_icon = "volt_energy_glass"
+	drink_name = "стакан 24-Вольт Энерджи"
+	drink_desc = "Резкий, кислый, электризующий!"
+	taste_description = "кислой груши"
+
+/datum/reagent/consumable/drink/cold/melon_soda
+	name = "Дынная газировка"
+	id = "melon_soda"
+	description = "Неоново-зелёный глоток ностальгии."
+	color = "#6FEB48"
+	drink_icon = "melon_soda_glass"
+	drink_name = "стакан дынной газировки"
+	drink_desc = "Ею наслаждаются японские дети и тридцатилетние фанаты Японии."
+	taste_description = "шипучей дыни"
 

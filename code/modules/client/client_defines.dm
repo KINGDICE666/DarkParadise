@@ -131,6 +131,7 @@
 	var/steam_id = null
 	var/launcher_nickname = null
 	var/launcher_state = LAUNCHER_UNLINKED
+	var/ss14_name
 
 	var/ntnet_code
 	var/ntnet_code_expires = 0
@@ -326,6 +327,9 @@
 
 	var/datum/escape_menu/escape_menu
 	var/datum/tgui_window/emote_panel
+
+	/// Images of the path created by navigate().
+	var/list/navigation_images = list()
 
 /client/vv_edit_var(var_name, var_value)
 	if(var_name == NAMEOF(src, tos_consent))

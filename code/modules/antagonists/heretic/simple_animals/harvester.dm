@@ -137,7 +137,7 @@
 		current_owner = src,\
 	)
 	var/datum/action/cooldown/spell/seek_master/seek = new(null, src)
-	mind.AddSpell(seek)
+	AddSpell(seek)
 
 
 /mob/living/simple_animal/hostile/construct/harvester/heretic/Life(seconds_per_tick, times_fired)
