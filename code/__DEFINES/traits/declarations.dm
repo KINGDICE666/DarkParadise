@@ -784,9 +784,6 @@
 
 #define TRAIT_MECHA_DIAGNOSTIC_CREATED "trait_mecha_diagnostic_created"
 
-
-
-
 #define TRAIT_ATTACK_ON_THROW_IMPACT "attack_on_throw_impact"
 
 #define TRAIT_NECROMANT_CURSED "necromant_cursed"
