@@ -2231,13 +2231,10 @@
 		log_admin("Admin [key_name_admin(usr)] has unlocked the Clock Cult's ability to summon Ratvar.")
 
 	else if(href_list["adminplayerobservecoodjump"])
-		return SSadmin_verbs.dynamic_invoke_verb(
-			usr,
-			/datum/admin_verb/jump_to_coord,
-			text2num(href_list["X"]),
-			text2num(href_list["Y"]),
-			text2num(href_list["Z"]),
-		)
+		if(!check_rights(R_ADMIN | R_DEBUG))
+			return
+		var/turf/destination = locate(text2num(href_list["X"]), text2num(href_list["Y"]), text2num(href_list["Z"]))
+		return owner.admin_jump_as_ghost(destination)
 
 	else if(href_list["adminchecklaws"])
 		if(!check_rights(R_ADMIN|R_MENTOR))
@@ -2682,7 +2679,9 @@
 		cmd_mentor_show_exp_panel(target.client)
 
 	else if(href_list["jumpto"])
-		return SSadmin_verbs.dynamic_invoke_verb(usr, /datum/admin_verb/jump_to_mob, locateUID(href_list["jumpto"]))
+		if(!check_rights(R_ADMIN))
+			return
+		return owner.admin_jump_as_ghost(get_turf(locateUID(href_list["jumpto"])))
 
 	else if(href_list["getmob"])
 		return SSadmin_verbs.dynamic_invoke_verb(usr, /datum/admin_verb/get_mob, locateUID(href_list["getmob"]))
@@ -3922,7 +3921,7 @@
  * Arguments:
  * * target_atom - The atom to create an admin follow link for
  */
-/proc/admin_jump_link(atom/target_atom)
+/proc/admin_jump_link(atom/target_atom, localized = FALSE)
 	if(!target_atom)
 		return
 
@@ -3932,17 +3931,17 @@
 		if(target_client.mob)
 			target_atom = target_client.mob
 
-	. = ADMIN_FLW(target_atom, "FLW")
+	. = ADMIN_FLW(target_atom, localized ? "Следить" : "FLW")
 
 	if(isAI(target_atom)) // AI core/eye follow links
 		var/mob/living/silicon/ai/ai_instance = target_atom
 		if(ai_instance.client && ai_instance.eyeobj) // No point following clientless AI eyes
-			. += "|[ADMIN_FLW(ai_instance.eyeobj, "EYE")]"
+			. += "|[ADMIN_FLW(ai_instance.eyeobj, localized ? "Камера" : "EYE")]"
 
 	else if(isobserver(target_atom))
 		var/mob/dead/observer/observer_instance = target_atom
 		if(observer_instance.mind && observer_instance.mind.current)
-			. += "|[ADMIN_FLW(observer_instance.mind.current, "BDY")]"
+			. += "|[ADMIN_FLW(observer_instance.mind.current, localized ? "Тело" : "BDY")]"
 
 /proc/you_realy_want_do_this(mob/user)
 	user = user || usr

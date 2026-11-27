@@ -35,7 +35,6 @@
 	var/ticket_amt = 0
 
 /datum/action/innate/admin/ticket/New(Target)
-	button_icon_state = "nohelp"
 	. = ..()
 	register_ticket_signals()
 
@@ -49,10 +48,6 @@
 /datum/action/innate/admin/ticket/proc/update_tickets(ticketsystem, _ticket_amt)
 	ticket_amt = _ticket_amt
 	desc = "Открыто [ticket_amt] тикет[DECL_0_A_OV(ticket_amt)]."
-	if(ticket_amt > 0)
-		button_icon_state = initial(button_icon_state)
-	else
-		button_icon_state = "nohelp"
 	UpdateButtonIcon()
 
 /datum/action/innate/admin/ticket/create_button()

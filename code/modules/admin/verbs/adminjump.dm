@@ -3,6 +3,30 @@
 #define JUMP_TO_KEY "Key"
 #define JUMP_TO_COORDINATES "Coordinates"
 
+/// Staff hyperlinks move an observer. The explicit Jump verbs can still move the current mob.
+/client/proc/admin_jump_as_ghost(turf/destination)
+	if(!holder || !mob || IsAdminAdvancedProcCall())
+		return FALSE
+	if(QDELETED(destination))
+		to_chat(src, span_warning("Не удалось перейти: место назначения недоступно."), confidential = TRUE)
+		return FALSE
+
+	if(!isobserver(mob))
+		if(!check_rights_client(R_ADMIN | R_MOD | R_POSSESS, FALSE, src))
+			to_chat(src, span_warning("Для перехода сначала перейдите в режим призрака."), confidential = TRUE)
+			return FALSE
+		SSadmin_verbs.dynamic_invoke_verb(src, /datum/admin_verb/admin_ghost)
+		if(!isobserver(mob))
+			return FALSE
+
+	var/mob/dead/observer/ghost = mob
+	ghost.stop_orbit()
+	ghost.abstract_move(destination)
+	ghost.reset_perspective()
+	log_admin("[key_name(src)] jumped as a ghost to [AREACOORD(destination)]")
+	message_admins("[key_name_admin(src)] jumped as a ghost to [ADMIN_VERBOSEJMP(destination)]")
+	return TRUE
+
 ADMIN_VERB(jump_to, R_ADMIN, "Jump to...", "Area, Mob, Key or Coordinate", ADMIN_CATEGORY_GAME)
 	var/list/choices = list(JUMP_TO_AREA, JUMP_TO_MOB, JUMP_TO_KEY, JUMP_TO_COORDINATES)
 	var/chosen = tgui_input_list(user, "What to jump to?", "Jump to...", choices)

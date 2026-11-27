@@ -84,6 +84,16 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	var/static/list/block_aligns = list("left", "center", "right")
 	var/static/list/text_aligns = list("left", "center", "right", "justify")
 	var/static/list/section_kinds = list("fields", "text")
+	var/static/list/confidential_issuers = list(
+		"auto" = "По логотипу бланка",
+		"nt" = "Нанотрейзен",
+		"syndicate" = "Синдикат",
+		"ussp" = "СССП",
+		"solgov" = "Солнечное Правительство",
+		"cybersun" = "Cybersun Industries",
+		"gorlex" = "Мародёры Горлекса",
+		"custom" = "Организация из шапки",
+	)
 	var/static/list/purposes = list(
 		"universal" = "Универсальный",
 		"signstamp" = "С подписью и печатью",
@@ -163,6 +173,8 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	.["custom_logo"] = custom_logo
 	.["fonts"] = fonts
 	.["purposes"] = options_for_ui(purposes)
+	.["confidential_issuers"] = options_for_ui(confidential_issuers)
+	.["game_forms"] = game_forms_for_ui()
 	.["stamp_types"] = options_for_ui(stamp_types)
 	.["max_sections"] = FAX_MAX_SECTIONS
 	.["max_rows"] = FAX_MAX_ROWS
@@ -189,7 +201,12 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	. = list()
 	var/obj/machinery/photocopier/faxmachine/origin_fax = locateUID(origin_fax_uid)
 	var/mob/sender = locateUID(sender_uid)
-	.["draft"] = draft
+	var/list/visible_draft = draft.Copy()
+	visible_draft -= "source_paper"
+	.["draft"] = visible_draft
+	var/list/source = draft["source_paper"]
+	.["imported_name"] = source?["name"]
+	.["can_edit_import"] = !!source?["info"] && length(draft["sections"]) < FAX_MAX_SECTIONS
 	.["preview_html"] = render_preview()
 	.["field_count"] = length(splittext(render_body(FALSE), FAX_FIELD_MARKUP)) - 1
 	.["destinations"] = available_destinations()
@@ -199,6 +216,8 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	.["reply_department"] = origin_fax?.department
 	.["reply_sender"] = sender?.name
 	.["reply_lost"] = !!origin_fax_uid && !origin_fax
+	var/obj/item/paper/original = locateUID(reply_to_uid)
+	.["can_import_reply"] = istype(original)
 	.["sending"] = sending
 	.["can_undo"] = length(undo_history) > 0
 	.["can_redo"] = length(redo_history) > 0
@@ -215,6 +234,8 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 /datum/fax_constructor/proc/handle_action(action, list/params, mob/user)
 	switch(action)
 		if("set_draft")
+			if(params["key"] == "source_paper")
+				return FALSE
 			if(draft[params["key"]] == params["value"])
 				return FALSE
 			remember_draft("draft:[params["key"]]")
@@ -328,6 +349,19 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			remember_draft()
 			load_builtin_preset("nt_blank")
 			return TRUE
+		if("load_game_form")
+			return load_game_form(params["id"])
+		if("import_hand")
+			if(!istype(user?.get_active_hand(), /obj/item/paper))
+				to_chat(user, span_warning("Возьмите бланк в активную руку."))
+				return FALSE
+			return import_paper(user?.get_active_hand())
+		if("import_nearby")
+			return run_dialog(PROC_REF(import_nearby_paper), user)
+		if("import_reply")
+			return import_paper(locateUID(reply_to_uid))
+		if("edit_imported_text")
+			return edit_imported_text(user)
 		if("set_destination")
 			if(params["destination"] in available_destinations())
 				destination = params["destination"]
@@ -367,9 +401,15 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			preview_paper.show_content(user, forceshow = TRUE)
 			qdel(preview_paper)
 			return FALSE
-		if("create")
+		if("create", "create_in_hand")
+			var/turf/drop_turf = get_turf(user)
+			if(!drop_turf)
+				return FALSE
 			var/obj/item/paper/created_paper = build_paper()
-			created_paper.forceMove(get_turf(user))
+			if(action != "create_in_hand" || !user.put_in_hands(created_paper))
+				created_paper.forceMove(drop_turf)
+				if(action == "create_in_hand")
+					to_chat(user, span_notice("Свободной руки нет. Бланк положен рядом с вами."))
 			log_admin("[key_name(user)] created a paper form '[created_paper.name]' at [AREACOORD(user)]: [strip_html_properly(created_paper.info)]")
 			message_admins("[key_name_admin(user)] created a paper form '[created_paper.name]' at [ADMIN_COORDJMP(user)] (<a href='byond://?_src_=holder;[HrefToken()];AdminFaxView=[created_paper.UID()]'>VIEW</a>).")
 			return FALSE
@@ -441,13 +481,158 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		. += list(list("name" = preset_name, "author" = preset["author"], "preview_html" = preset["preview_html"]))
 
 /datum/fax_constructor/proc/render_preview()
-	return "[render_header(TRUE)][render_body(TRUE)][render_footer()][render_stamps()]"
+	var/list/source = draft["source_paper"]
+	return "[render_header(TRUE)][source?["header"]][render_body(TRUE)][source?["footer"]][render_footer()][source?["stamps"]][render_stamps()]"
 
 /datum/fax_constructor/proc/render_preview_of(list/raw_draft)
 	var/list/current_draft = draft
 	draft = normalize_draft(raw_draft)
 	. = render_preview()
 	draft = current_draft
+
+/datum/fax_constructor/proc/game_form_types()
+	var/static/list/forms
+	if(!forms)
+		forms = list()
+		for(var/obj/item/paper/form/form_type as anything in valid_subtypesof(/obj/item/paper/form))
+			if(form_type == /obj/item/paper/form/syndieform)
+				continue
+			forms["[form_type]"] = form_type
+	return forms
+
+/datum/fax_constructor/proc/game_forms_for_ui()
+	var/static/list/catalog
+	if(catalog)
+		return catalog
+
+	var/list/forms = game_form_types()
+	catalog = list()
+	for(var/id in forms)
+		var/form_type = forms[id]
+		var/obj/item/paper/form/paper = new form_type(null)
+		catalog += list(list(
+			"id" = id,
+			"code" = paper.id,
+			"name" = paper.name,
+			"title" = paper.altername,
+			"category" = paper.category || "Без категории",
+			"preview_html" = "[paper.header][paper.info][paper.footer][paper.stamps]",
+		))
+		qdel(paper)
+	return catalog
+
+/datum/fax_constructor/proc/load_game_form(id)
+	if(!istext(id))
+		return FALSE
+	var/list/forms = game_form_types()
+	var/form_type = forms[id]
+	if(!form_type)
+		return FALSE
+	var/obj/item/paper/form/paper = new form_type(null)
+	. = import_paper(paper)
+	qdel(paper)
+
+/datum/fax_constructor/proc/import_nearby_paper(mob/user)
+	var/list/options = list()
+	var/list/papers = list()
+	for(var/obj/item/paper/paper in range(1, user))
+		if(isturf(paper.loc))
+			var/label = "[length(papers) + 1]. [paper.name]"
+			options += label
+			papers[label] = WEAKREF(paper)
+	if(!length(options))
+		to_chat(user, span_warning("Рядом нет бланков на полу."))
+		return FALSE
+	var/choice = tgui_input_list(user, "Выберите бумагу на полу рядом с вами.", "Копирование бланка", options)
+	if(!choice || QDELETED(src) || QDELETED(user) || !check_rights(R_ADMIN, FALSE, user))
+		return FALSE
+	var/datum/weakref/reference = papers[choice]
+	var/obj/item/paper/paper = reference?.resolve()
+	if(QDELETED(paper) || !isturf(paper.loc) || !user.Adjacent(paper))
+		return FALSE
+	return import_paper(paper)
+
+/datum/fax_constructor/proc/import_paper(obj/item/paper/paper)
+	if(!istype(paper) || QDELETED(paper))
+		return FALSE
+	remember_draft()
+	draft = normalize_draft(list(
+		"logo" = "none",
+		"source_paper" = list(
+			"name" = paper.name,
+			"header" = paper.header,
+			"info" = paper.info,
+			"footer" = paper.footer,
+			"stamps" = paper.stamps,
+			"stamped" = paper.stamped?.Copy(),
+			"width" = paper.paper_width,
+			"height" = paper.paper_height,
+			"language" = paper.language ? "[paper.language]" : null,
+		),
+	))
+	return TRUE
+
+/datum/fax_constructor/proc/edit_imported_text(mob/user)
+	var/list/source = draft["source_paper"]
+	var/list/sections = draft["sections"]
+	if(!source?["info"] || length(sections) >= FAX_MAX_SECTIONS)
+		return FALSE
+	var/content = replacetext(source["info"] || "", "</tr>", "\n")
+	var/body = html_decode(strip_html_properly(html_to_pencode(content), max_length = 0, allow_lines = TRUE))
+	if(length_char(body) > FAX_MAX_TEXT_LEN)
+		to_chat(user, span_warning("Текст оригинала не помещается в один редактируемый блок. Копия сохранена целиком."))
+		return FALSE
+	remember_draft()
+	// The original header, footer and stamps still belong to the copy.
+	var/list/edited_source = source.Copy()
+	edited_source["info"] = ""
+	draft["source_paper"] = edited_source
+	sections.Insert(1, list(normalize_section(text_section("", body, divider = FALSE))))
+	return TRUE
+
+/datum/fax_constructor/proc/get_confidential_issuer()
+	var/issuer = draft["confidential_issuer"]
+	if(issuer != "auto")
+		return issuer
+	if(draft["logo"] in list("syndicate", "ussp", "solgov"))
+		return draft["logo"]
+	if(draft["logo"] != "nt")
+		switch(faxtype)
+			if("Syndicate")
+				return "syndicate"
+			if("USSP Central Committee")
+				return "ussp"
+	return "nt"
+
+/datum/fax_constructor/proc/confidential_heading()
+	var/issuer = get_confidential_issuer()
+	switch(issuer)
+		if("nt")
+			return "КОНФИДЕНЦИАЛЬНО"
+		if("ussp")
+			return "СССП · ДЛЯ СЛУЖЕБНОГО ПОЛЬЗОВАНИЯ"
+		if("syndicate")
+			return "СИНДИКАТ · ЗАКРЫТЫЙ КАНАЛ"
+		if("solgov")
+			return "СОЛНЕЧНОЕ ПРАВИТЕЛЬСТВО · ОГРАНИЧЕННЫЙ ДОСТУП"
+	var/organization = issuer == "custom" ? (draft["organization"] || "Организация") : confidential_issuers[issuer]
+	return "[html_encode(organization)] · КОНФИДЕНЦИАЛЬНО"
+
+/datum/fax_constructor/proc/confidential_footer()
+	var/issuer = get_confidential_issuer()
+	var/notice
+	switch(issuer)
+		if("nt")
+			return /obj/item/paper/form::footer_confidential
+		if("syndicate")
+			notice = "Только для адресата. При ошибочной доставке сообщите по закрытому каналу и уничтожьте копию."
+		if("ussp")
+			notice = "Передача сведений допускается только сотрудникам с соответствующим допуском. Об ошибочной доставке сообщите отправителю."
+		if("solgov")
+			notice = "Служебная корреспонденция Солнечного Правительства. Распространение допускается только по согласованным каналам."
+		else
+			notice = "Внутренняя корреспонденция. Передача третьим лицам допускается только с разрешения отправителя."
+	return "<hr><div style='text-align:center;font-size:11px'>[confidential_heading()]<br>[notice]</div>"
 
 /datum/fax_constructor/proc/builtin_draft(list/preset)
 	. = default_draft()
@@ -507,6 +692,9 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	.["align"] = clean_choice(raw["align"], block_aligns, "left")
 	.["text_align"] = clean_choice(raw["text_align"], text_aligns, "left")
 	.["purpose"] = clean_choice(raw["purpose"], purposes, "universal")
+	.["confidential_issuer"] = clean_choice(raw["confidential_issuer"], confidential_issuers, "auto")
+	if(islist(raw["source_paper"]))
+		.["source_paper"] = raw["source_paper"]
 	for(var/key in list("form_id", "title", "organization", "category", "notice", "sender_name", "stamp_text"))
 		.[key] = clean_text(raw[key])
 	.["footer_text"] = clean_text(raw["footer_text"], FAX_MAX_TEXT_LEN)
@@ -582,7 +770,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	var/list/lines = list()
 	var/is_confidential = draft["purpose"] == "confidential"
 	if(draft["form_id"] || is_confidential)
-		lines += "<div style='[base];[small_rule]'>[pencode(draft["form_id"])][is_confidential ? " \[КОНФИДЕНЦИАЛЬНО\]" : ""]</div>"
+		lines += "<div style='[base];[small_rule]'>[pencode(draft["form_id"])][is_confidential ? " \[[confidential_heading()]\]" : ""]</div>"
 	if(draft["title"])
 		lines += "<div style='[full_style(draft, draft["text_align"])]'>[pencode(draft["title"])]</div>"
 	if(draft["organization"] || draft["category"])
@@ -627,7 +815,8 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 	return "<div[preview ? " data-section='[section["id"]]'" : ""]>[jointext(html, "")]</div>"
 
 /datum/fax_constructor/proc/render_body(preview)
-	. = ""
+	var/list/source = draft["source_paper"]
+	. = source?["info"] || ""
 	for(var/list/section as anything in draft["sections"])
 		. += render_section(section, preview)
 
@@ -638,7 +827,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 		if("signstampfax")
 			return /obj/item/paper/form::footer_signstampfax
 		if("confidential")
-			return /obj/item/paper/form::footer_confidential
+			return confidential_footer()
 		if("custom")
 			return "<br><font face=\"[PEN_FONT]\" color=black><hr><center><font size=\"1\">[pencode(draft["footer_text"])]</font></center></font>"
 
@@ -654,17 +843,24 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 
 /datum/fax_constructor/proc/build_paper()
 	var/obj/item/paper/paper = new(null)
+	var/list/source = draft["source_paper"]
 	var/title = trim(strip_html_properly(pencode(draft["title"])))
 	if(!title)
-		title = "paper"
+		title = source?["name"] || "paper"
 	paper.name = draft["sender_name"] ? "[html_encode(draft["sender_name"])]- [title]" : title
-	paper.header = render_header(FALSE)
+	paper.header = "[render_header(FALSE)][source?["header"]]"
 	paper.info = render_body(FALSE)
-	paper.footer = render_footer()
-	paper.paper_width = FAX_PAPER_WIDTH
-	paper.paper_height = FAX_PAPER_HEIGHT
-	if(draft["logo"] == "ussp")
+	paper.footer = "[source?["footer"]][render_footer()]"
+	paper.paper_width = source?["width"] || FAX_PAPER_WIDTH
+	paper.paper_height = source?["height"] || FAX_PAPER_HEIGHT
+	var/source_language = text2path(source?["language"] || "")
+	if(ispath(source_language, /datum/language))
+		paper.language = source_language
+	if(draft["logo"] == "ussp" || (draft["purpose"] == "confidential" && get_confidential_issuer() == "ussp"))
 		paper.language = /datum/language/com_srus
+	paper.stamps = source?["stamps"]
+	var/list/source_stamped = source?["stamped"]
+	paper.stamped = source_stamped?.Copy()
 	paper.populatefields()
 	paper.updateinfolinks()
 	paper.update_icon(UPDATE_ICON_STATE)
